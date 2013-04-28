@@ -266,7 +266,7 @@ static char mon_symbol_at_depth[12][13] =
 	{'0', '3', 'T', 'P', 'N', '&', 'd',   'p', 'H', 'E', '1', '*', '2' },
 	{'0', '0', 'T', 'P', 'N', '&', 'd',   'p', 'h', 'g', 'E', '*', 'Z' },
 
-	/* Levels 45, 50, 55, and 60 */
+	/* Levels 45, 50, 55, and 60+ */
 	{'0', 'P', 'N', '&', '&', 'd', '*',   'p', 'h', 'v', 'E', '*', 'Z' },
 	{'0', 'N', 'N', '&', '&', 'D', '*',   'p', 'h', '*', 'T', 'B', 'Z' },
 	{'0', 'N', 'N', '&', '&', 'D', '*',   'p', 'h', 'W', 'G', '*', 'Z' },
@@ -462,7 +462,7 @@ static char *mon_restrict(char symbol, byte depth, bool *ordered,
 	if (symbol == '\0')
 	{
 		get_mon_num_hook = NULL;
-		get_mon_num_prep();
+		(void)get_mon_num_prep();
 		return (format("%s", name));
 	}
 
@@ -982,7 +982,7 @@ static char *mon_restrict(char symbol, byte depth, bool *ordered,
 	get_mon_num_hook = mon_select;
 
 	/* Prepare allocation table */
-	get_mon_num_prep();
+	(void)get_mon_num_prep();
 
 	/* Return the name. */
 	return (format("%s", name));
@@ -999,6 +999,31 @@ static char *mon_restrict(char symbol, byte depth, bool *ordered,
 /**************************************************************/
 
 
+/*
+ * Find a nearby floor-type grid, and return it.
+ */
+byte get_nearby_floor(int y, int x)
+{
+	int i;
+	int start = rand_int(8);
+
+	/* Look for adjacent floor */
+	for (i = start; i < 8 + start; i++)
+	{
+		int yy = y + ddy_ddd[i % 8];
+		int xx = x + ddx_ddd[i % 8];
+
+		/* Skip non-floors */
+		if (!cave_floor_bold(yy, xx)) continue;
+
+		/* Use this terrain */
+		return (cave_feat[yy][xx]);
+	}
+
+	/* No nearby floor found -- use ordinary floor */
+	return (FEAT_FLOOR);
+}
+
 
 /*
  * Count the number of walls adjacent to the given grid.
@@ -1009,10 +1034,10 @@ static int next_to_walls(int y, int x)
 {
 	int k = 0;
 
-	if (cave_feat[y+1][x] >= FEAT_MAGMA) k++;
-	if (cave_feat[y-1][x] >= FEAT_MAGMA) k++;
-	if (cave_feat[y][x+1] >= FEAT_MAGMA) k++;
-	if (cave_feat[y][x-1] >= FEAT_MAGMA) k++;
+	if (cave_wall_bold(y+1, x)) k++;
+	if (cave_wall_bold(y-1, x)) k++;
+	if (cave_wall_bold(y, x+1)) k++;
+	if (cave_wall_bold(y, x-1)) k++;
 
 	return (k);
 }
@@ -1038,7 +1063,7 @@ static void new_player_spot(void)
 
 	/* If character starts on stairs, ... */
 	if ((!birth_no_return_stair) && (p_ptr->create_stair) &&
-	    (!birth_ironman))
+	    (p_ptr->character_type != PCHAR_IRONMAN))
 	{
 		/* Get staircase request */
 		feat = p_ptr->create_stair;
@@ -1132,7 +1157,7 @@ static void new_player_spot(void)
 	if (feat) cave_set_feat(y, x, feat);
 
 	/* Place the player */
-	player_place(y, x);
+	(void)player_place(y, x);
 }
 
 
@@ -1277,7 +1302,7 @@ static int pick_down_stairs(void)
  */
 static void place_random_stairs(int y, int x)
 {
-	/* Paranoia */
+	/* Require a floor grid clear of objects (monsters are OK) */
 	if (!cave_clean_bold(y, x)) return;
 
 	/* Choose a staircase */
@@ -1290,7 +1315,7 @@ static void place_random_stairs(int y, int x)
 	{
 		cave_set_feat(y, x, FEAT_LESS);
 	}
-	else if ((birth_ironman) || (one_in_(2)))
+	else if ((p_ptr->character_type == PCHAR_IRONMAN) || (one_in_(2)))
 	{
 		cave_set_feat(y, x, FEAT_MORE);
 	}
@@ -1334,7 +1359,7 @@ static void alloc_stairs(int feat, int num, int walls)
 				x = rand_int(dungeon_wid);
 			}
 
-			/* Require "naked" floor grid */
+			/* Require a floor grid clear of objects and monsters */
 			if (!cave_naked_bold(y, x)) continue;
 
 			/* Require a certain number of adjacent walls */
@@ -1400,7 +1425,7 @@ static void alloc_object(int set, int typ, int num)
 			}
 			else
 			{
-				if (!cave_object_allowed(y, x)) continue;
+				if (!cave_allow_object_bold(y, x)) continue;
 			}
 
 			/* Some things go in rooms, some in corridors */
@@ -1543,15 +1568,17 @@ static void build_streamer(int feat, int chance)
 				/* Stay within dungeon. */
 				if (!in_bounds(y, dx)) continue;
 
-				/* Only convert "granite" walls */
-				if (cave_feat[y][dx] < FEAT_WALL_EXTRA) continue;
-				if (cave_feat[y][dx] > FEAT_WALL_SOLID) continue;
+				/* Only convert "granite" walls (not secret doors) */
+				if ((!cave_granite_bold(y, dx)) ||
+				    (cave_any_door(y, dx))) continue;
 
 				/* Skip vaults and whatnot */
 				if (cave_info[y][x] & (CAVE_ICKY)) continue;
 
+				/* Get change grid table location */
 				i = table_start + dx - x;
 
+				/* Change the grid if requested */
 				if ((i < 47) && (i >= 0)) change = streamer_change_grid[i];
 				else change = streamer_change_grid[i % 47];
 
@@ -1568,7 +1595,7 @@ static void build_streamer(int feat, int chance)
 				if (time_to_treas == 0)
 				{
 					time_to_treas = randint(chance * 2);
-					cave_feat[y][dx] += 0x04;
+					cave_feat[y][dx] += 4;
 				}
 			}
 		}
@@ -1580,12 +1607,17 @@ static void build_streamer(int feat, int chance)
 				/* Stay within dungeon. */
 				if (!in_bounds(dy, x)) continue;
 
-				/* Only convert "granite" walls */
-				if (cave_feat[dy][x] < FEAT_WALL_EXTRA) continue;
-				if (cave_feat[dy][x] > FEAT_WALL_SOLID) continue;
+				/* Only convert "granite" walls (not secret doors) */
+				if ((!cave_granite_bold(dy, x)) ||
+				    (cave_any_door(dy, x))) continue;
 
+				/* Skip vaults and whatnot */
+				if (cave_info[y][x] & (CAVE_ICKY)) continue;
+
+				/* Get change grid table location */
 				i = table_start + dy - y;
 
+				/* Change the grid if requested */
 				if ((i < 47) && (i >= 0)) change = streamer_change_grid[i];
 				else change = streamer_change_grid[i % 47];
 
@@ -1602,7 +1634,7 @@ static void build_streamer(int feat, int chance)
 				if (time_to_treas == 0)
 				{
 					time_to_treas = randint(chance * 2);
-					cave_feat[dy][x] += 0x04;
+					cave_feat[dy][x] += 4;
 				}
 			}
 		}
@@ -1720,7 +1752,7 @@ void destroy_level(bool new_level)
 				/* Skip any monsters */
 				if (cave_m_idx[y][x]) continue;
 
-				/* Destroy valid grids */
+				/* Destroy grids without permanent features or artifacts */
 				if (cave_valid_bold(y, x))
 				{
 					/* Delete objects */
@@ -1761,7 +1793,7 @@ void destroy_level(bool new_level)
 					else
 					{
 						/* Create floor */
-						cave_set_feat(y, x, FEAT_FLOOR);
+						cave_set_feat(y, x, get_nearby_floor(y, x));
 					}
 
 					/* No longer part of a room or vault */
@@ -1822,7 +1854,7 @@ static void spread_objects(int depth, int num, int y0, int x0, int dy, int dx)
 		}
 
 		/* Grid must be able to hold objects */
-		if (!cave_object_allowed(y, x)) continue;
+		if (!cave_allow_object_bold(y, x)) continue;
 
 		/* Place an item */
 		if (!one_in_(3))
@@ -1937,8 +1969,8 @@ static void spread_monsters(char symbol, int depth, int num,
 			break;
 		}
 
-		/* Require "empty" non-wall grids */
-		if (!cave_empty_bold(y, x)) continue;
+		/* Require passable grids */
+		if (!cave_passable_bold(y, x)) continue;
 
 		/* Place the monster (sleeping, allow groups) */
 		(void)place_monster(y, x, TRUE, TRUE);
@@ -2273,35 +2305,6 @@ static bool find_space(int *y, int *x, int height, int width)
 }
 
 
-
-/*
- * Is a feature passable (at least in theory) by the character?
- */
-static bool passable(int feat)
-{
-	/* Some kinds of terrain are passable. */
-	if ((feat == FEAT_FLOOR) ||
-	    (feat == FEAT_SECRET) ||
-	    (feat == FEAT_RUBBLE) ||
-	    (feat == FEAT_WATER ) ||
-	    (feat == FEAT_TREE  ) ||
-	    (feat == FEAT_LAVA  ) ||
-	    (feat == FEAT_OPEN  ) ||
-	    (feat == FEAT_BROKEN) ||
-	    (feat == FEAT_LESS  ) ||
-	    (feat == FEAT_MORE  )) return (TRUE);
-
-	/* Doors are passable. */
-	if ((feat >= FEAT_DOOR_HEAD) &&
-	    (feat <= FEAT_DOOR_TAIL)) return (TRUE);
-
-	/* Everything else is not passable. */
-	return (FALSE);
-}
-
-
-
-
 /*
  * Make a starburst room. -LM-
  *
@@ -2352,6 +2355,9 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 
 	/* Number (max 45) of arcs. */
 	int arc_num;
+
+	/* Notice floor */
+	bool floor = ((f_info[feat].flags & (TF_FLOOR)) != 0);
 
 
 	/* Make certain the room does not cross the dungeon edge. */
@@ -2498,7 +2504,7 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 	}
 
 	/* Cloverleaves ignore walls near entranceways  XXX */
-	if ((make_cloverleaf) && (feat == FEAT_FLOOR))
+	if ((make_cloverleaf) && (floor))
 	{
 		if (cave_wall_bold(y0+1, x0+1)) cave_info[y0+1][x0+1] |= (CAVE_ICKY);
 		if (cave_wall_bold(y0+1, x0+1)) cave_info[y0+1][x0+2] |= (CAVE_ICKY);
@@ -2566,11 +2572,11 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 						if (max_dist >= dist)
 						{
 							/* If new feature is not passable, or floor, always place it. */
-							if ((feat == FEAT_FLOOR) || (!passable(feat)))
+							if ((floor) || !(f_info[feat].flags & (TF_PASSABLE)))
 							{
 								cave_set_feat(y, x, feat);
 
-								if (feat == FEAT_FLOOR) cave_info[y][x] |= (CAVE_ROOM);
+								if (floor) cave_info[y][x] |= (CAVE_ROOM);
 								else cave_info[y][x] &= ~(CAVE_ROOM);
 
 								if (light) cave_info[y][x] |= (CAVE_GLOW);
@@ -2584,7 +2590,7 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 								if ((feat == FEAT_TREE) || (feat == FEAT_RUBBLE))
 								{
 									/* Make denser in the middle. */
-									if ((cave_feat[y][x] == FEAT_FLOOR) &&
+									if ((cave_floor_bold(y, x)) &&
 										(randint(max_dist + 5) >= dist + 5))
 										cave_set_feat(y, x, feat);
 								}
@@ -2598,7 +2604,7 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 										/* Do nothing */
 									}
 
-									else if (cave_feat[y][x] == FEAT_FLOOR)
+									else if (cave_floor_bold(y, x))
 									{
 										cave_set_feat(y, x, feat);
 									}
@@ -2619,7 +2625,7 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 
 
 	/* Cloverleaf entranceways sometimes have doors */
-	if ((make_cloverleaf) && (feat == FEAT_FLOOR) && (one_in_(4)))
+	if ((make_cloverleaf) && (floor) && (one_in_(4)))
 	{
 		place_random_door(y0+1, x0);
 		place_random_door(y0-1, x0);
@@ -2632,14 +2638,14 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 	 * If we placed floors or dungeon granite, all dungeon granite next
 	 * to floors needs to become outer wall.
 	 */
-	if ((feat == FEAT_FLOOR) || (feat == FEAT_WALL_EXTRA))
+	if ((floor) || (feat == FEAT_WALL_EXTRA))
 	{
 		for (y = y1 + 1; y < y2; y++)
 		{
 			for (x = x1 + 1; x < x2; x++)
 			{
 				/* Floor grids only */
-				if (cave_feat[y][x] == FEAT_FLOOR)
+				if (cave_floor_bold(y, x))
 				{
 					/* Look in all directions. */
 					for (d = 0; d < 8; d++)
@@ -2694,8 +2700,8 @@ static bool generate_pool(int y1, int x1, int y2, int x2, int feat)
 		y0 = rand_range(y1+1, y2-1) + rand_int(2);
 		x0 = rand_range(x1+1, x2-1) + rand_int(2);
 
-		/* If it is a floor (or water) grid, accept it */
-		if (cave_open_floor_bold(y0, x0)) break;
+		/* If it is a floor or water grid, accept it */
+		if (cave_floor_bold(y0, x0) || (cave_feat[y0][x0] == FEAT_WATER)) break;
 	}
 
 	/* Calculate pool size (must not be too narrow or long */
@@ -2857,12 +2863,11 @@ static void draw_maze(int y1, int x1, int y2, int x2, byte feat_wall,
  * Special kind of room type 1.  Uses
  * the "starburst room" code.
  */
-static bool build_type1_starburst(bool light)
+static bool build_type1_starburst(bool light, int feat)
 {
 	int y0, x0, y1, x1, y2, x2;
 	int i;
 	int height, width;
-	int feat;
 
 	int choice = rand_int(120);
 
@@ -2909,7 +2914,7 @@ static bool build_type1_starburst(bool light)
 
 
 	/* Generate starburst room.  Return immediately if out of bounds. */
-	if (!generate_starburst_room(y1, x1, y2, x2, light, FEAT_FLOOR, TRUE))
+	if (!generate_starburst_room(y1, x1, y2, x2, light, feat, TRUE))
 	{
 		return (FALSE);
 	}
@@ -2970,6 +2975,7 @@ static bool build_type1_pillars(bool light)
 	int y_num, x_num;
 
 	int choice;
+	int pillar_count = 0;
 
 	int spacing;
 	int offset = 0;
@@ -3082,22 +3088,43 @@ static bool build_type1_pillars(bool light)
 			/* Place a pillar shifted vertically */
 			if ((stagger_y) && (choice % 2 == 0))
 			{
-				set_feat_room(y + stagger_y, x, FEAT_WALL_INNER);
+				if ((y > y1+1) && (y < y2-1) && (x > x1+1) && (x < x2-1))
+				{
+					set_feat_room(y + stagger_y, x, FEAT_PILLAR);
+					pillar_count++;
+				}
+				else
+					set_feat_room(y + stagger_y, x, FEAT_WALL_INNER);
 			}
 
 			/* Place a pillar shifted horizontally */
 			else if ((stagger_x) && (choice % 2 == 0))
 			{
-				set_feat_room(y, x + stagger_x, FEAT_WALL_INNER);
+				if ((y > y1+1) && (y < y2-1) && (x > x1+1) && (x < x2-1))
+				{
+					set_feat_room(y, x + stagger_x, FEAT_PILLAR);
+					pillar_count++;
+				}
+				else
+					set_feat_room(y, x + stagger_x, FEAT_WALL_INNER);
 			}
 
 			/* Place a pillar with no shift */
-			else set_feat_room(y, x, FEAT_WALL_INNER);
+			else
+			{
+				if ((y > y1+1) && (y < y2-1) && (x > x1+1) && (x < x2-1))
+				{
+					set_feat_room(y, x, FEAT_PILLAR);
+					pillar_count++;
+				}
+				else
+					set_feat_room(y, x, FEAT_WALL_INNER);
+			}
 		}
 	}
 
 	/* On rare occasion, every pillar is solid gold! */
-	if ((vaulted) && (p_ptr->depth > 2) && (one_in_(50)))
+	if ((vaulted) && (p_ptr->depth >= pillar_count * 2) && (one_in_(80)))
 	{
 		/* Check interior of room (not adjacent to the walls) */
 		for (y = y1+2; y <= y2-2; y++)
@@ -3105,10 +3132,10 @@ static bool build_type1_pillars(bool light)
 			for (x = x1+2; x <= x2-2; x++)
 			{
 				/* This is a pillar */
-				if (cave_feat[y][x] == FEAT_WALL_INNER)
+				if (cave_feat[y][x] == FEAT_PILLAR)
 				{
 					/* Of gold */
-					set_feat_room(y, x, FEAT_MAGMA_K);
+					set_feat_room(y, x, FEAT_PILLAR_GOLD);
 				}
 			}
 		}
@@ -3121,8 +3148,6 @@ static bool build_type1_pillars(bool light)
 		/* Fill with floor  XXX XXX */
 		generate_fill(y1+2, x1+2, y2-2, x2-2, FEAT_FLOOR);
 	}
-
-	/* Vaulted rooms have actual "pillars" */
 
 	/* Success */
 	return (TRUE);
@@ -3153,7 +3178,7 @@ static bool build_type1(void)
 	/* At orc/troll depth, sometimes build starburst rooms */
 	else if ((p_ptr->depth >= 6) && (p_ptr->depth <= 40) && (one_in_(25)))
 	{
-		return (build_type1_starburst(light));
+		return (build_type1_starburst(light, FEAT_FLOOR));
 	}
 
 	/* Pick a room size (less border walls) */
@@ -4746,7 +4771,7 @@ static bool build_type6(void)
 		y = rand_range(y1, y2);
 		x = rand_range(x1, x2);
 
-		/* Require a floor square with no monster in it already. */
+		/* Require a floor square with no monsters or objects in it. */
 		if (!cave_naked_bold(y, x)) continue;
 
 		/* Place a single monster.  Sleeping 2/3rds of the time. */
@@ -4796,7 +4821,7 @@ static void general_monster_restrictions(void)
 	get_mon_num_hook = NULL;
 
 	/* Un-apply monster restrictions */
-	get_mon_num_prep();
+	(void)get_mon_num_prep();
 }
 
 
@@ -5362,7 +5387,7 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data,
 		get_mon_num_hook = mon_select;
 
 		/* Prepare allocation table */
-		get_mon_num_prep();
+		(void)get_mon_num_prep();
 
 		/* Place the monsters */
 		for (t = data, i = 0; i < ymax; i++)
@@ -5408,7 +5433,7 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data,
 	if (get_mon_num_hook)
 	{
 		get_mon_num_hook = NULL;
-		get_mon_num_prep();
+		(void)get_mon_num_prep();
 	}
 
 	/* Success. */
@@ -5926,22 +5951,6 @@ static void rand_dir(int *row_dir, int *col_dir, int y, int x)
 }
 
 
-/* Terrain type is unalterable and impassable. */
-static bool unalterable(int feat)
-{
-	/* A few features are unalterable. */
-	if ((feat == FEAT_PERM_EXTRA) ||
-	    (feat == FEAT_PERM_INNER) ||
-	    (feat == FEAT_PERM_OUTER) ||
-	    (feat == FEAT_PERM_SOLID))
-	{
-		return (TRUE);
-	}
-
-	/* Assume alterable */
-	return (FALSE);
-}
-
 /*
  * Given a set of coordinates, return the index number of the room occupying
  * the dungeon block this location is in.
@@ -6019,7 +6028,7 @@ static bool find_entrance(int row_dir, int col_dir, int *row1, int *col1)
 				}
 
 				/* Look in chosen direction. */
-				if ((!unalterable(cave_feat[y + dy][x + dx])) &&
+				if ((!cave_permwall(y + dy, x + dx)) &&
 					(cave_feat[y + dy][x + dx] != FEAT_WALL_OUTER))
 				{
 					/*
@@ -6036,7 +6045,7 @@ static bool find_entrance(int row_dir, int col_dir, int *row1, int *col1)
 				}
 
 				/* Look again. */
-				else if (unalterable(cave_feat[y + dy][x + dx]))
+				else if (cave_permwall(y + dy, x + dx))
 				{
 					break;
 				}
@@ -6089,7 +6098,7 @@ static bool find_entrance(int row_dir, int col_dir, int *row1, int *col1)
 				}
 
 				/* Next grid is alterable, and not outer wall. */
-				else if (!unalterable(cave_feat[y + dy][x + dx]))
+				else if (!cave_permwall(y + dy, x + dx))
 				{
 					/*
 					 * Check the grid after this one.  If it belongs
@@ -6194,7 +6203,7 @@ static void try_door(int y0, int x0)
 
 
 	/* Ignore walls */
-	if (cave_info[y0][x0] & (CAVE_WALL)) return;
+	if (cave_wall_bold(y0, x0)) return;
 
 	/* Ignore room grids */
 	if (cave_info[y0][x0] & (CAVE_ROOM)) return;
@@ -6209,8 +6218,8 @@ static void try_door(int y0, int x0)
 			y = y0 + ddy_ddd[i];
 			x = x0 + ddx_ddd[i];
 
-			/* Skip walls (or trees) */
-			if (cave_info[y][x] & (CAVE_WALL)) continue;
+			/* Skip walls */
+			if (cave_wall_bold(y, x)) continue;
 
 			/* Skip grids inside rooms */
 			if (cave_info[y][x] & (CAVE_ROOM)) continue;
@@ -6283,7 +6292,7 @@ static void try_door(int y0, int x0)
  *   FEAT_WALL_INNER -- inner room walls
  *   FEAT_WALL_OUTER -- outer room walls
  *   FEAT_WALL_SOLID -- solid room walls
- *   FEAT_PERM_EXTRA -- permanent walls
+ *   FEAT_PERM_EXTRA -- permanent walls (town)
  *   FEAT_PERM_INNER -- inner room walls (perma)
  *   FEAT_PERM_OUTER -- outer room walls (perma)
  *   FEAT_PERM_SOLID -- dungeon border (perma)
@@ -6486,7 +6495,7 @@ static void build_tunnel(int start_room, int end_room)
 			/* Navigate around various kinds of walls */
 			if ((cave_feat[y0][x0] == FEAT_WALL_SOLID) ||
 			    (cave_feat[y0][x0] == FEAT_WALL_INNER) ||
-			    (unalterable(cave_feat[y0][x0])))
+			    (cave_permwall(y0, x0)))
 			{
 				/* Three rounds -- increasing unwillingness to be stopped */
 				for (i = 0; i < 6; i++)
@@ -6516,7 +6525,7 @@ static void build_tunnel(int start_room, int end_room)
 					}
 
 					/* Refuse to drill through solid walls */
-					if (unalterable(cave_feat[tmp_row][tmp_col])) continue;
+					if (cave_permwall(tmp_row, tmp_col)) continue;
 					if (cave_feat[tmp_row][tmp_col] == FEAT_WALL_SOLID) continue;
 
 					/* Try not to drill through outer or inner walls */
@@ -6550,7 +6559,7 @@ static void build_tunnel(int start_room, int end_room)
 				x1 = x0 + col_dir;
 
 				/* We've found something passable. */
-				if (passable(cave_feat[y1][x1]))
+				if (cave_passable_bold(y1, x1))
 				{
 					/* Turn both outer wall grids into floor. */
 					cave_set_feat(tmp_row, tmp_col, FEAT_FLOOR);
@@ -6589,7 +6598,7 @@ static void build_tunnel(int start_room, int end_room)
 							tmp_col = col1 - col_dir;
 						}
 
-						if ((!unalterable(cave_feat[tmp_row][tmp_col])) &&
+						if ((!cave_permwall(tmp_row, tmp_col)) &&
 						    (cave_feat[tmp_row][tmp_col] != FEAT_WALL_SOLID) &&
 						    (cave_feat[tmp_row][tmp_col] != FEAT_WALL_OUTER) &&
 						    (cave_feat[tmp_row][tmp_col] != FEAT_WALL_INNER))
@@ -6633,7 +6642,7 @@ static void build_tunnel(int start_room, int end_room)
 			}
 
 			/* Forbid re-entry near this piercing. */
-			if ((!unalterable(cave_feat[row1 + row_dir][col1 + col_dir])) &&
+			if ((!cave_permwall(row1 + row_dir, col1 + col_dir)) &&
 				(cave_info[row1][col1] & (CAVE_ROOM)))
 			{
 				if (row_dir)
@@ -6693,7 +6702,7 @@ static void build_tunnel(int start_room, int end_room)
 		/*
 		 * We've hit a feature that can't be altered.
 		 */
-		else if (unalterable(cave_feat[tmp_row][tmp_col]))
+		else if (cave_permwall(tmp_row, tmp_col))
 		{
 			/* We don't know what to do. */
 			if (!head_for_entrance)
@@ -6796,7 +6805,7 @@ static void build_tunnel(int start_room, int end_room)
 					}
 
 					/* Check to see if grid to this side is alterable. */
-					if (!unalterable(cave_feat[row1 + dy][col1 + dx]))
+					if (!cave_permwall(row1 + dy, col1 + dx))
 					{
 						/* Change direction. */
 						row_dir = dy;
@@ -6868,7 +6877,7 @@ static void build_tunnel(int start_room, int end_room)
 					tmp_col = col1 - col_dir;
 				}
 
-				if ((!unalterable(cave_feat[tmp_row][tmp_col])) &&
+				if ((!cave_permwall(tmp_row, tmp_col)) &&
 					(cave_feat[tmp_row][tmp_col] != FEAT_WALL_SOLID) &&
 					(cave_feat[tmp_row][tmp_col] != FEAT_WALL_INNER))
 				{
@@ -6906,7 +6915,7 @@ static void build_tunnel(int start_room, int end_room)
 		 * Handle all passable terrain outside of rooms (this is
 		 * usually another corridor).
 		 */
-		else if (passable(cave_feat[tmp_row][tmp_col]))
+		else if (cave_passable_bold(tmp_row, tmp_col))
 		{
 			/* We've hit another tunnel. */
 			if (cave_feat[tmp_row][tmp_col] == FEAT_FLOOR)
@@ -7122,6 +7131,7 @@ static bool place_ghost(void)
 	return (FALSE);
 }
 
+
 /*
  * Generate a new dungeon level.  Build up to DUN_ROOMS rooms, type by type, in
  * descending order of size and difficulty.
@@ -7131,8 +7141,6 @@ static bool place_ghost(void)
  *
  * We mark grids "icky" to indicate the presence of a vault.
  * We mark grids "temp" to prevent random monsters being placed there.
- *
- * Note that "dun_body" adds about 1100 bytes of memory to the stack.
  */
 static void cave_gen(void)
 {
@@ -7177,13 +7185,13 @@ static void cave_gen(void)
 #if 0  /* Empty levels are useful for testing rooms. */
 
 			/* Create bare floors */
-			cave_info[y][x] &= ~(CAVE_WALL);
+			cave_info[y][x] |= (CAVE_LOS);
 			cave_feat[y][x] = FEAT_FLOOR;
 
 #else /* End of empty level testing code */
 
 			/* Create granite wall */
-			cave_info[y][x] |= (CAVE_WALL);
+			cave_info[y][x] &= ~(CAVE_LOS);
 			cave_feat[y][x] = FEAT_WALL_EXTRA;
 
 #endif
@@ -7429,7 +7437,7 @@ static void cave_gen(void)
 	if (p_ptr->special_quest) object_level = p_ptr->depth;
 
 	/* Make it practicable to play ironman/no town games */
-	if (birth_ironman || (birth_no_stores))
+	if ((p_ptr->character_type == PCHAR_IRONMAN) || (birth_no_stores))
 	{
 		alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_FOOD, rand_range(2, 3));
 	}
@@ -7439,7 +7447,7 @@ static void cave_gen(void)
 	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
 
 	/* Place 1 or 2 up stairs near some walls */
-	if (!birth_ironman) alloc_stairs(FEAT_LESS, rand_range(2, 3), 3);
+	if (p_ptr->character_type != PCHAR_IRONMAN) alloc_stairs(FEAT_LESS, rand_range(2, 3), 3);
 
 
 	/* Determine the character location */
@@ -7786,7 +7794,7 @@ static void town_gen_hack(void)
 		y = qy + rand_range(3, 2 * PANEL_HGT - 4);
 		x = qx + rand_range(3, SCREEN_WID - 4);
 
-		/* Require a "naked" floor grid */
+		/* Require a floor grid with no objects or monsters */
 		if (cave_naked_bold(y, x)) break;
 	}
 
@@ -7795,7 +7803,7 @@ static void town_gen_hack(void)
 
 
 	/* Place the player */
-	player_place(y, x);
+	(void)player_place(y, x);
 
 
 	/* Hack -- use the "complex" RNG */
@@ -7861,18 +7869,18 @@ static void town_gen(void)
 		}
 	}
 
-	/* Boundary walls (see town_illuminate() */
+	/* Boundary walls */
 	for (x = qx; x < qx + SCREEN_WID; x++)
 	{
-		cave_set_feat(qy, x, FEAT_PERM_SOLID);
-		cave_set_feat(qy + 2 * PANEL_HGT - 1, x, FEAT_PERM_SOLID);
+		cave_set_feat(qy, x, FEAT_PERM_EXTRA);
+		cave_set_feat(qy + 2 * PANEL_HGT - 1, x, FEAT_PERM_EXTRA);
 	}
 
-	/* Boundary walls (see town_illuminate() */
+	/* Boundary walls */
 	for (y = qy; y < qy + 2 * PANEL_HGT; y++)
 	{
-		cave_set_feat(y, qx, FEAT_PERM_SOLID);
-		cave_set_feat(y, qx + SCREEN_WID - 1, FEAT_PERM_SOLID);
+		cave_set_feat(y, qx, FEAT_PERM_EXTRA);
+		cave_set_feat(y, qx + SCREEN_WID - 1, FEAT_PERM_EXTRA);
 	}
 
 	/* Then place some floors */
@@ -7914,7 +7922,7 @@ static void town_gen(void)
 				/* Stay legal */
 				if (!in_bounds(y, x)) continue;
 
-				/* Require unoccupied plain floor grids (no stairs!) */
+				/* Require a floor grid with no objects or monsters */
 				if (cave_naked_bold(y, x)) break;
 			}
 
@@ -7948,7 +7956,7 @@ static void make_essence(int y, int x, s32b chance, int sval)
 	}
 
 	/* Location must be capable of holding objects */
-	if (cave_object_allowed(y, x))
+	if (cave_allow_object_bold(y, x))
 	{
 		/* Must pass the rarity check */
 		if (chance > rand_int(1000))
@@ -8429,6 +8437,13 @@ void generate_cave(void)
 
 	/* Cancel the health bar */
 	health_track(0);
+
+
+	/*** Dungeon conditions:  Defaults ***/
+
+	/* Allow special lighting */
+	p_ptr->dungeon_flags &= ~(DUNGEON_NO_SPECIAL_LIGHTING);
+
 
 	/* Hack -- jump to a special quest level */
 	if (p_ptr->special_quest)

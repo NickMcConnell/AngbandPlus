@@ -107,7 +107,9 @@ typedef struct player_other player_other;
 typedef struct trap_set_type trap_set_type;
 typedef struct player_type player_type;
 typedef struct color_type color_type;
+typedef struct flavor_type flavor_type;
 typedef struct move_moment_type move_moment_type;
+typedef struct proj_graphics_type proj_graphics_type;
 
 
 /**** Available structs ****/
@@ -139,6 +141,8 @@ struct maxima
 
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "m_list[]" */
+
+	u16b flavor_max; /* Max size for "flavor_info[]" */
 };
 
 
@@ -148,20 +152,25 @@ struct maxima
  */
 struct feature_type
 {
-	u16b name;					/* Name (offset) */
-	u32b text;					/* Text (offset) */
+	u16b name;                  /* Name (offset) */
+	u32b text;                  /* Text (offset) */
 
-	byte mimic;					/* Feature to mimic */
+	byte mimic;                 /* Feature to mimic */
+	byte priority;              /* Mini-map priority */
 
-	byte extra;					/* Unused */
+	u32b flags;                 /* Bitflags */
 
-	s16b unused;				/* Extra bytes (unused) */
+	byte d_attr;                /* Object "attribute" */
+	char d_char;                /* Object "symbol" */
 
-	byte d_attr;				/* Object "attribute" */
-	char d_char;				/* Object "symbol" */
+	byte x_attr;                /* The desired attr for this feature */
+	char x_char;                /* The desired char for this feature */
 
-	byte x_attr;				/* The desired attr for this feature */
-	char x_char;				/* The desired char for this feature */
+	byte x_attr_lit;            /* Attr when brightly lit */
+	char x_char_lit;            /* Char when brightly lit */
+
+	byte x_attr_dim;            /* Attr when in shadow */
+	char x_char_dim;            /* Char when in shadow */
 };
 
 
@@ -252,7 +261,7 @@ struct object_kind
 	byte x_attr;            /* Desired object attribute */
 	char x_char;            /* Desired object character */
 
-	byte flavor;            /* Special object flavor (or zero) */
+	s16b flavor;            /* Special object flavor (or zero) */
 
 	u16b xtra;              /* Random object flags */
 
@@ -594,10 +603,10 @@ struct monster_lore
 	s16b pkills;				/* Count monsters killed in this life */
 	s16b tkills;				/* Count monsters killed in all lives */
 
-	byte wake;				/* Number of times woken up (?) */
-	byte ignore;				/* Number of times ignored (?) */
+	byte wake;				/* Number of times woken up (approximate) */
+	byte ignore;				/* Number of times ignored (approximate) */
 
-	byte xtra1;				/* Something (unused) */
+	byte flags;				/* Special monster lore flags */
 	byte xtra2;				/* Something (unused) */
 
 	byte drop_gold;			/* Max number of gold dropped at once */
@@ -791,8 +800,9 @@ struct quest_type
 	byte started;		/* Has the character started the quest? */
 	byte slack;			/* How much "slack" we're giving before quest fail */
 	byte diff;          /* Difficulty rating of quest */
-	byte temp;          /* Unused */
+	byte flags;         /* Quest flags */
 };
+
 
 /*
  * Structure for the quest history (current and previous quests)
@@ -808,6 +818,7 @@ struct quest_memory_type
 	byte succeeded;	/* Did the character succeed in the quest? */
 	byte extra;			/* Unused space */
 };
+
 
 /*
  * A store owner
@@ -895,7 +906,7 @@ struct player_magic
 	s16b spell_weight;	/* Max armour weight that avoids mana penalties */
 	byte spell_number;	/* Total available spells in that realm. */
 	byte book_start_index[11];/* Index of 1st spell for all books. */
-	magic_type info[64];	/* The available spells */
+	magic_type info[PY_MAX_SPELLS];	/* The available spells */
 };
 
 /*
@@ -1119,6 +1130,7 @@ struct player_type
 	s16b vitality;			/* Timed -- Extra recovery */
 	s16b mania;				/* Timed -- Manic-depressive fits */
 	s16b res_dam;				/* Timed -- Resistance to damage */
+	s16b self_knowledge;		/* Timed -- Self Knowledge */
 
 	s16b forbid_summoning;  /* Forbid most summoning */
 
@@ -1195,32 +1207,25 @@ struct player_type
 	byte barehand;			/* Skill we use when have no weapon */
 	byte barehanded;		/* Temporary -- note that we are barehanded */
 	byte lastadv;			/* Skill last advanced */
-	skill_data pskills[NUM_SKILLS];	/* The player's skills */
 
+	skill_data pskills[NUM_SKILLS];	/* The player's skills */
 	talent_data ptalents[NUM_TALENTS];	/* The player's talents */
+	byte oath;				/* Commitments the character has made */
 
 	byte essence[NUM_ESSENCE];		/* Stored essences */
-
-
-	byte oath;				/* Commitments the character has made */
 
 	byte sneaking;			/* Currently sneaking */
 
 	s16b base_wakeup_chance;	/* Base amount of character noise */
-
 
 	/* Quests */
 	bool special_quest;     /* In a special quest */
 	s16b fame;              /* Character fame */
 	s16b inn_name;          /* Variable controlling the name of the Inn */
 	byte cur_quest;         /* Current quest */
-
-	/* Quest memory */
-	quest_memory_type quest_memory[MAX_QM_IDX];
-
+	quest_memory_type quest_memory[MAX_QM_IDX];  /* Quest memory */
 
 	byte spell_flags[PY_MAX_SPELLS]; /* Spell flags */
-	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
 
 	s16b player_hp[PY_MAX_POWER];	/* HP Array */
 
@@ -1242,6 +1247,7 @@ struct player_type
 	s16b create_stair;		/* Create a staircase on the next level */
 
 	byte last_set_options_screen;  /* Last screen displayed */
+
 
 	/*** Temporary fields ***/
 
@@ -1302,7 +1308,8 @@ struct player_type
 
 	s16b command_new;			/* Hack -- command chaining  (ignore disturbance) XXX XXX */
 
-	s16b new_spells;			/* Number of spells available */
+	s16b uncast_spells;			/* Available but uncast spells */
+	s16b spell_level;			/* Maximum level of spell character can cast */
 
 	bool cumber_armor;			/* Mana draining armor */
 	bool cumber_glove;			/* Mana draining gloves */
@@ -1334,6 +1341,11 @@ struct player_type
 	u32b update;				/* Pending Updates (bit flags) */
 	u32b redraw;				/* Normal Redraws (bit flags) */
 	u32b window;				/* Window Redraws (bit flags) */
+
+	u32b dungeon_flags;         /* Special "dungeon environment" conditions */
+
+	byte character_type;        /* Type of player character */
+
 
 	/*** Extracted fields ***/
 
@@ -1436,6 +1448,7 @@ struct player_type
 	bool soulsteal;				/* Your weapon needs feeding */
 	bool nomagic;				/* Dispelled magic -- No spell-casting */
 	bool twoweap;				/* Currently wielding two weapons */
+	bool hitpoint_warning;      /* Display a hitpoint warning later */
 };
 
 
@@ -1501,6 +1514,56 @@ struct color_type
 	byte rv;                    /* Red */
 	byte gv;                    /* Green */
 	byte bv;                    /* Blue */
+};
+
+
+/*
+ * An object flavour type
+ */
+struct flavor_type
+{
+	u32b text;      /* Text (offset) */
+
+	byte tval;      /* Associated object type */
+	byte sval;      /* Associated object sub-type */
+
+	byte level;     /* Minimum level for flavour */
+	byte unused;    /* unused */
+
+	byte d_attr;    /* Default flavor attribute */
+	char d_char;    /* Default flavor character */
+
+	byte x_attr;    /* Desired flavor attribute */
+	char x_char;    /* Desired flavor character */
+};
+
+
+/*
+ * A projection graphics type.
+ *
+ * Among the possible future uses for "flags" is to allow transparency.
+ * Among the possible future uses for "unused" is to allow multiple
+ *   user-editable colors (using a different array, indexed by this value).
+ */
+struct proj_graphics_type
+{
+	byte attr_vert;      /* Spell graphics */
+	char char_vert;
+
+	byte attr_horiz;
+	char char_horiz;
+
+	byte attr_rdiag;
+	char char_rdiag;
+
+	byte attr_ldiag;
+	char char_ldiag;
+
+	byte attr_ball;
+	char char_ball;
+
+	byte flags;          /* Special flags */
+	byte unused;         /* Padding to make this array 32 bit-compliant */
 };
 
 

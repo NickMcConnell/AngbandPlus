@@ -33,8 +33,11 @@ Bugfixes - Sangband-specific:
 - You can no longer use essences to request object attributes that cost more than you have the skill to make.
 - ... and various other fixes not mentioned individually.
 
+Interface changes:
+- Many improvements to the GCU, X11, GTK, and WIN ports (for details, see the changelog for beta 21).  Some of these improvements are from the xchar patch.
+- A new set of custom fonts adopted from the xchar patch.
 
-Minor Changes:
+Other Changes:
 - More colorful acid, electricity, fire, and frost spells.
 - Some ball-shooting wands and rods moved down one to three levels deeper in the dungeon.
 - The 'Q'uit command no longer commits suicide, but rather saves and exits instead.  It seemed strange that an obscure keypress would be the usual end game command.

@@ -13,7 +13,7 @@ V:0.9.9
 
 
 # Maximum number of feature types  (max of 255)
-M:F:73
+M:F:93
 
 # changing this number will normally break savefile compatability
 # Maximum number of object kinds
@@ -43,6 +43,9 @@ M:X:50
 
 # Maximum number of traps
 M:x:150
+
+# Maximum number of flavors
+M:L:320
 
 
 # These figures should probably not go higher.  The game design makes for 

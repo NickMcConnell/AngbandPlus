@@ -427,6 +427,22 @@ static errr do_item(object_type *o_ptr)
 			if (object_known_p(o_ptr)) object_aware(o_ptr);
 		}
 
+		/* Handle older missile weapons */
+		if ((sf_xtra < 21) && (o_ptr->tval == 19))
+		{
+			if      (o_ptr->sval ==  2) o_ptr->tval = TV_SLING;
+			else if (o_ptr->sval == 12) o_ptr->tval = TV_BOW;
+			else if (o_ptr->sval == 13) o_ptr->tval = TV_BOW;
+			else if (o_ptr->sval == 22) o_ptr->tval = TV_CROSSBOW;
+			else if (o_ptr->sval == 23) o_ptr->tval = TV_CROSSBOW;
+			else if (o_ptr->sval == 24) o_ptr->tval = TV_CROSSBOW;
+			else
+			{
+				note(format("Object sval (%d) not recognized.", o_ptr->sval));
+				return(1);
+			}
+		}
+
 		/* Extract the flags */
 		object_flags(o_ptr, &f1, &f2, &f3);
 
@@ -629,7 +645,7 @@ static void do_mon_lore(int r_idx)
 	do_byte(&l_ptr->ignore);
 
 	/* Extra stuff */
-	do_byte(&l_ptr->xtra1);
+	do_byte(&l_ptr->flags);
 	do_byte(&l_ptr->xtra2);
 
 	/* Count drops */
@@ -743,7 +759,7 @@ static errr do_store(int n)
 		for (j = 0; j < st_ptr->stock_num; j++)
 		{
 			/* Save each item in stock */
-			do_item(&st_ptr->stock[j]);
+			(void)do_item(&st_ptr->stock[j]);
 		}
 	}
 
@@ -1032,6 +1048,15 @@ static void do_options(void)
 		do_u16b(&blank_u16b);
 		do_u16b(&blank_u16b);
 	}
+
+	/* Get character type (old savefile) */
+	if (sf_xtra < 21)
+	{
+		/* Adjust character type as requested */
+		if (beginner_play)      p_ptr->character_type = PCHAR_BEGINNER;
+		else if (ironman_play)  p_ptr->character_type = PCHAR_IRONMAN;
+		else                    p_ptr->character_type = PCHAR_NORMAL;
+	}
 }
 
 
@@ -1104,7 +1129,7 @@ static int convert_saved_names(void)
 
 	for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
 	{
-		string_free(names[i]);
+		(void)string_free(names[i]);
 	}
 
 	a_name = a_base;
@@ -1199,6 +1224,27 @@ static errr do_artifacts(void)
 			do_u16b(&blank_u16b);
 			do_u16b(&blank_u16b);
 			do_u16b(&blank_u16b);
+
+
+			/* Handle translations */
+			if (load_file)
+			{
+				/* Handle older artifact missile weapons */
+				if ((sf_xtra < 21) && (a_info[i].tval == 19))
+				{
+					if      (a_info[i].sval ==  2) a_info[i].tval = TV_SLING;
+					else if (a_info[i].sval == 12) a_info[i].tval = TV_BOW;
+					else if (a_info[i].sval == 13) a_info[i].tval = TV_BOW;
+					else if (a_info[i].sval == 22) a_info[i].tval = TV_CROSSBOW;
+					else if (a_info[i].sval == 23) a_info[i].tval = TV_CROSSBOW;
+					else if (a_info[i].sval == 24) a_info[i].tval = TV_CROSSBOW;
+					else
+					{
+						note(format("Artifact (#%d) sval (%d) not recognized.", i, a_info[i].sval));
+						err = 1;
+					}
+				}
+			}
 		}
 	}
 
@@ -1263,6 +1309,8 @@ static errr do_character(void)
 
 	do_string(p_ptr->history, 250);
 
+	/* Character play style */
+	if (sf_xtra >= 21) do_byte(&p_ptr->character_type);
 
 	/* Race */
 	do_byte(&p_ptr->prace);
@@ -1400,9 +1448,10 @@ static errr do_character(void)
 	do_u16b(&blank_u16b);
 	do_u16b(&blank_u16b);
 
+	if (sf_extra >= 21) do_s16b(&p_ptr->self_knowledge);
+	else do_u16b(&blank_u16b);
 
 	/* Space for more temporary conditions */
-	do_u16b(&blank_u16b);
 	do_u16b(&blank_u16b);
 	do_u16b(&blank_u16b);
 	do_u16b(&blank_u16b);
@@ -1606,8 +1655,7 @@ static errr do_character(void)
 		do_byte(&p_ptr->last_set_options_screen);
 		do_byte(&blank_u8b);
 
-		do_u16b(&blank_u16b);
-		do_u16b(&blank_u16b);
+		do_u32b(&p_ptr->dungeon_flags);
 		do_u16b(&blank_u16b);
 		do_u16b(&blank_u16b);
 		do_u16b(&blank_u16b);
@@ -1672,7 +1720,8 @@ static errr do_character(void)
 
 	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
-		do_byte(&p_ptr->spell_order[i]);
+		/* Ignore this information */
+		if (sf_xtra < 21) do_byte(&blank_u8b);
 	}
 
 
@@ -1724,7 +1773,7 @@ static errr do_inventory(void)
 			do_s16b(&i);
 
 			/* Dump object */
-			do_item(i_ptr);
+			(void)do_item(i_ptr);
 		}
 
 		/* Add a sentinel to mark the end of the list */
@@ -1952,7 +2001,7 @@ static errr do_dungeon(void)
 	}
 
 
-	/* Saving a file -- run-length encode features */
+	/* Saving a file -- run-length encode cave_info flags */
 	if (!load_file)
 	{
 		/*** Simple "Run-Length-Encoding" of cave ***/
@@ -1998,7 +2047,7 @@ static errr do_dungeon(void)
 	}
 
 
-	/* Loading a file -- run-length decode features */
+	/* Loading a file -- run-length decode cave_info flags */
 	if (load_file)
 	{
 		/* Load the dungeon data */
@@ -2031,7 +2080,7 @@ static errr do_dungeon(void)
 	}
 
 
-	/* Saving a file -- run-length encode cave_info flags */
+	/* Saving a file -- run-length encode features */
 	if (!load_file)
 	{
 		/* Note that this will induce two wasted bytes */
@@ -2045,6 +2094,12 @@ static errr do_dungeon(void)
 			{
 				/* Extract a byte */
 				tmp8u = cave_feat[y][x];
+
+				/* Special translation (store features were moved) */
+				if ((sf_xtra < 21) && (!depth) && (tmp8u >= 64) && (tmp8u <= 72))
+				{
+					tmp8u += 20;
+				}
 
 				/* If the run is broken, or too full, flush it */
 				if ((tmp8u != prev_char) || (count == MAX_UCHAR))
@@ -2075,7 +2130,7 @@ static errr do_dungeon(void)
 	}
 
 
-	/* Loading a file -- run-length decode cave_info flags */
+	/* Loading a file -- run-length decode features */
 	if (load_file)
 	{
 		/* Load the dungeon data */
@@ -2149,7 +2204,7 @@ static errr do_dungeon(void)
 			object_type *o_ptr = &o_list[i];
 
 			/* Dump it */
-			do_item(o_ptr);
+			(void)do_item(o_ptr);
 		}
 	}
 
@@ -2643,6 +2698,8 @@ static errr do_savefile(void)
 			{
 				p_ptr->cur_quest = q_info[i].base_level;
 			}
+
+			if (sf_extra >= 21) do_byte(&q_info[i].flags);
 		}
 	}
 
@@ -2812,7 +2869,7 @@ static bool save_player_aux(cptr name)
 	if (fd >= 0)
 	{
 		/* Close the "fd" */
-		fd_close(fd);
+		(void)fd_close(fd);
 
 		/* Grab permissions */
 		safe_setuid_grab();
@@ -2842,7 +2899,7 @@ static bool save_player_aux(cptr name)
 		safe_setuid_grab();
 
 		/* Remove "broken" files */
-		if (!ok) fd_kill(name);
+		if (!ok) (void)fd_kill(name);
 
 		/* Drop permissions */
 		safe_setuid_drop();
@@ -2881,7 +2938,7 @@ bool save_player(void)
 	safe_setuid_grab();
 
 	/* Remove it */
-	fd_kill(safe);
+	(void)fd_kill(safe);
 
 	/* Drop permissions */
 	safe_setuid_drop();
@@ -2899,16 +2956,16 @@ bool save_player(void)
 		safe_setuid_grab();
 
 		/* Remove it */
-		fd_kill(temp);
+		(void)fd_kill(temp);
 
 		/* Preserve old savefile */
-		fd_move(savefile, temp);
+		(void)fd_move(savefile, temp);
 
 		/* Activate new savefile */
-		fd_move(safe, savefile);
+		(void)fd_move(safe, savefile);
 
 		/* Remove preserved savefile */
-		fd_kill(temp);
+		(void)fd_kill(temp);
 
 		/* Drop permissions */
 		safe_setuid_drop();
@@ -2926,7 +2983,7 @@ bool save_player(void)
 		safe_setuid_grab();
 
 		/* Remove lock file */
-		fd_kill(temp);
+		(void)fd_kill(temp);
 
 		/* Drop permissions */
 		safe_setuid_drop();
@@ -2975,7 +3032,7 @@ static errr load_player_aux(void)
 	if (ferror(fff)) err = -1;
 
 	/* Close the file */
-	my_fclose(fff);
+	(void)my_fclose(fff);
 
 	/* Result */
 	return (err);
@@ -3057,7 +3114,7 @@ errr load_player(bool silent)
 	}
 
 	/* Close the file */
-	fd_close(fd);
+	(void)fd_close(fd);
 
 
 #ifdef VERIFY_SAVEFILE
@@ -3086,7 +3143,7 @@ errr load_player(bool silent)
 		if (fkk)
 		{
 			/* Close the file */
-			my_fclose(fkk);
+			(void)my_fclose(fkk);
 
 			/* Message */
 			msg_print("Savefile is currently in use.");
@@ -3109,7 +3166,7 @@ errr load_player(bool silent)
 		fprintf(fkk, "Lock file for savefile '%s'\n", savefile);
 
 		/* Close the lock file */
-		my_fclose(fkk);
+		(void)my_fclose(fkk);
 	}
 
 #endif /* VERIFY_SAVEFILE */
@@ -3158,7 +3215,7 @@ errr load_player(bool silent)
 		if (err) what = "Cannot read savefile";
 
 		/* Close the file */
-		fd_close(fd);
+		(void)fd_close(fd);
 	}
 
 	/* Process file */
@@ -3296,7 +3353,7 @@ errr load_player(bool silent)
 		safe_setuid_grab();
 
 		/* Remove lock */
-		fd_kill(temp);
+		(void)fd_kill(temp);
 
 		/* Drop permissions */
 		safe_setuid_drop();
@@ -3402,7 +3459,7 @@ static int load_savefile_names(void)
 #endif
 
 		/* Confirm that file still exists */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_SAVE, tmp);
+		(void)path_build(buf, sizeof(buf), ANGBAND_DIR_SAVE, tmp);
 
 		/* Grab permissions */
 		safe_setuid_grab();
@@ -3419,7 +3476,7 @@ static int load_savefile_names(void)
 		/* File exists */
 		if (fd >= 0)
 		{
-			fd_close(fd);
+			(void)fd_close(fd);
 
 			/* Increment file count, go to next record */
 			max++;
@@ -3427,7 +3484,7 @@ static int load_savefile_names(void)
 	}
 
 	/* Close the savefile record */
-	my_fclose(fff);
+	(void)my_fclose(fff);
 
 	/* Return number of valid savefiles */
 	return (max);
@@ -3480,7 +3537,7 @@ void save_savefile_names()
 	}
 
 	/* Close */
-	my_fclose(fff);
+	(void)my_fclose(fff);
 }
 
 
@@ -3493,9 +3550,9 @@ static bool savefile_menu()
 
 	int i;
 
-	char buf[256];
+	byte x, y;
 
-	char pre, post;
+	char buf[256];
 
 	char ind;
 
@@ -3545,28 +3602,17 @@ static bool savefile_menu()
 		for (i = 0; i < max; i++)
 		{
 			ind = I2A(i % 26);
-			if (i >= 26) ind = toupper(ind);
+			if (i >= 26) ind = my_toupper(ind);
 
-			/* Use brackets to highlight index of current menu choice */
-			if (sel == i)
-			{
-				pre = '[';
-				post = ']';
-			}
-			else
-			{
-				pre = ' ';
-				post = ')';
-			}
-
-			/* Get text for this menu options */
-			if (i == 0)      sprintf(buf, "%c%c%c New Character", pre, ind, post);
-			else if (i == 1) sprintf(buf, "%c%c%c Load Savefile", pre, ind, post);
-			else sprintf(buf, "%c%c%c %s", pre, ind, post, savefile_names[i - 2]);
+			/* Get text for this menu option */
+			if (i == 0)      sprintf(buf, "%c) New Character", ind);
+			else if (i == 1) sprintf(buf, "%c) Load Savefile", ind);
+			else sprintf(buf, "%c) %s", ind, savefile_names[i - 2]);
 
 			/* Display this menu option */
-			c_put_str(((sel == i) ? TERM_YELLOW : TERM_WHITE), buf,
-				6 + (i / 4), 20 * (i % 4));
+			y = 6 + (i / 4);
+			x = 20 * (i % 4) + 1;
+			c_put_str(((sel == i) ? TERM_L_BLUE : TERM_WHITE), buf, y, x);
 
 			/* This menu choice is selected */
 			if (sel == i)
@@ -3576,25 +3622,28 @@ static bool savefile_menu()
 				{
 					/* Color depending on dead or alive */
 					int attr = ((savefile_alive[i - 2]) ? TERM_L_GREEN : TERM_L_RED);
-					c_put_str(attr, format("%s", savefile_desc[i - 2]), 5, 0);
+					c_put_str(attr, format("%s", savefile_desc[i - 2]), 4, 1);
 				}
 
 				/* Load an existing savefile not in the list */
 				else if (i == 1)
 				{
-					c_put_str(TERM_WHITE, "Load an existing savefile that is not in the list", 5, 0);
+					c_put_str(TERM_WHITE, "Load an existing savefile that is not in the list", 4, 1);
 				}
 
 				/* Create a new character */
 				else
 				{
-					c_put_str(TERM_WHITE, "Create a new character", 5, 0);
+					c_put_str(TERM_WHITE, "Create a new character", 4, 1);
 				}
 			}
-
-			/* Hide the cursor */
-			(void)Term_gotoxy(0, 26);
 		}
+
+		y = 6 + (sel / 4);
+		x = 20 * (sel % 4) + 1;
+
+		/* Move the cursor to the letter of the selection */
+		(void)Term_gotoxy(x, y);
 
 		/* Get response */
 		k = inkey();
@@ -3619,15 +3668,13 @@ static bool savefile_menu()
 		else if ((k == '2') || ((rogue_like_commands) && (k == 'j')))
 		{
 			/* Go down one line of the menu */
-			sel += 4;
-			if (sel >= max) sel = sel % max;
+			if (sel < max - 4) sel += 4;
 			continue;
 		}
 		else if ((k == '8') || ((rogue_like_commands) && (k == 'k')))
 		{
 			/* Go up one line of the menu */
-			sel -= 4;
-			if (sel < 0) sel = (sel + max - 1) % max;
+			if (sel >= 4) sel -= 4;
 			continue;
 		}
 		else if ((k == '\r') || (k == '\n'))
@@ -3653,10 +3700,10 @@ static bool savefile_menu()
 #endif
 
 			/* Build the file name */
-			path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, tmp);
+			(void)path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, tmp);
 
 			/* Delete this file */
-			fd_kill(filename);
+			(void)fd_kill(filename);
 
 			/* Reload the savefile record */
 			max = load_savefile_names() + 2;
@@ -3676,7 +3723,7 @@ static bool savefile_menu()
 			prt("Enter the name of a savefile: ", 23, 0);
 
 			/* Ask the user for a string */
-			if (!askfor_aux(op_ptr->full_name, 30)) continue;
+			if (!askfor_aux(op_ptr->full_name, 30, FALSE)) continue;
 
 			/* Process the player name, change savefile name */
 			process_player_name(TRUE);
@@ -3689,7 +3736,7 @@ static bool savefile_menu()
 
 			/* Process command */
 			if (islower(k)) x = A2I(k);
-			else x = A2I(tolower(k)) + 26;
+			else x = A2I(my_tolower(k)) + 26;
 
 			/* Stay legal */
 			if ((x < 2) || (x >= max)) continue;

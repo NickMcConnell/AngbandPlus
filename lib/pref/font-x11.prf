@@ -1,5 +1,15 @@
 # File: font-x11.prf
 
+#
+# This file is used by the game (when it was compiled using "main-x11.c" 
+# or "main-gtk.c") to specify simple attr/char remappings using a standard 
+# font.
+#
+# This file uses the special pseudo-graphic symbols defined in the 
+# "lib/xtra/font/*.bdf" files.
+#
+
+
 
 ### Terrain features ###
 
@@ -64,9 +74,38 @@ F:60:w/127:w/127:W/127
 # Permanent wall -- all others
 F:61:w/3:w/3:W/3
 
+# Pillar
+F:64:w/16:w/16:W/16
+
+# Pillar of gold
+F:65:o/16:y/16:o/16
+
+
+
 
 #
-# Boulders (slate, large dot)
+# Spell graphics.  Default to the "magical" bolts and the "cloud" 
+# explosion.
 #
-K:638:s:10
+S:0:0/168:0/169:0/170:0/171:0/172
+
+# Rock
+S:1:0/9:0/9:0/9:0/9:0/174
+
+# "arrow/bolt/slug" projections
+S:2:0/'|':0/'-':0/'/':0/'\':0/'*'
+S:3:0/'|':0/'-':0/'/':0/'\':0/'*'
+S:4:0/'|':0/'-':0/'/':0/'\':0/'*'
+S:5:0/'|':0/'-':0/'/':0/'\':0/'*'
+S:6:0/'|':0/'-':0/'/':0/'\':0/'*'
+
+# Projection types that look like lightning or webbing
+S:9:0/168:0/169:0/170:0/171:0/173
+S:13:0/168:0/169:0/170:0/171:0/173
+
+# Projection types that want the "explode" graphic
+S:31:0/168:0/169:0/170:0/171:0/174
+S:42:0/168:0/169:0/170:0/171:0/174
+
+
 

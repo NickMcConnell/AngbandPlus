@@ -167,7 +167,6 @@ void plural_aux(char *name)
 }
 
 
-
 /*
  * Provide a description of the quest
  */
@@ -184,6 +183,8 @@ cptr describe_quest(s16b level, int mode)
 	quest_type *q_ptr = &q_info[q_idx];
 	monster_race *r_ptr = &r_info[q_ptr->r_idx];
 
+
+	/* No quest */
 	if (!q_idx) return (NULL);
 
 	/* Monster name */
@@ -198,7 +199,7 @@ cptr describe_quest(s16b level, int mode)
 			q_ptr->max_num - q_ptr->cur_num : q_ptr->max_num);
 
 		plural_aux(name);
-		my_strcpy(targets, format("%d %s", num, name), sizeof(targets));
+		(void)my_strcpy(targets, format("%d %s", num, name), sizeof(targets));
 	}
 
 	/* One (remaining) quest monster */
@@ -206,13 +207,13 @@ cptr describe_quest(s16b level, int mode)
 	{
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			my_strcpy(targets, format("%s", name), sizeof(targets));
+			(void)my_strcpy(targets, format("%s", name), sizeof(targets));
 			s_kill = "defeat";
 		}
 
-		else if (is_a_vowel(name[0]))
-		     my_strcpy(targets, format("an %s", name), sizeof(targets));
-		else my_strcpy(targets, format("a %s", name), sizeof(targets));
+		else if (my_is_vowel(name[0]))
+			(void)my_strcpy(targets, format("an %s", name), sizeof(targets));
+		else (void)my_strcpy(targets, format("a %s", name), sizeof(targets));
 	}
 
 	/* The type of the quest */
@@ -373,9 +374,13 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				if (!make_object(i_ptr, TRUE, great, FALSE)) continue;
 			}
 
-			/* Atmosphere -- No standard artifacts */
-			if ((i_ptr->artifact_index) && (i_ptr->artifact_index < ART_MIN_RANDOM))
+			/* Atmosphere -- No artifacts */
+			if (i_ptr->artifact_index)
 			{
+				/*
+				 * If this is removed, artifacts will be lost permanently...
+				 */
+
 				/* XXX XXX XXX (fix this properly later) */
 				a_info[i_ptr->artifact_index].cur_num = 0;
 				continue;
@@ -470,9 +475,9 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				}
 
 				/* Skill check for missile weapons */
-				if (i_ptr->tval == TV_BOW)
+				if (is_missile_weapon(i_ptr))
 				{
-					if (get_skill(sbow(i_ptr->sval), 0, 100) < p_ptr->power / 2)
+					if (get_skill(sbow(i_ptr->tval), 0, 100) < p_ptr->power / 2)
 						continue;
 					else
 						break;
@@ -694,6 +699,9 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 			/* No monsters that multiply */
 			if (r_ptr->flags2 & (RF2_MULTIPLY)) continue;
 
+			/* No mimics */
+			if (r_ptr->flags1 & (RF1_CHAR_MIMIC)) continue;
+
 			/* No lurker-type monsters */
 			if (r_ptr->flags2 & (RF1_CHAR_CLEAR)) continue;
 
@@ -797,6 +805,7 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 	q_info[q].cur_num = 0;
 	q_info[q].started = FALSE;
 	q_info[q].diff = diff;
+	q_info[q].flags = 0;
 
 	/* Fail the quest on the third quest_fail check */
 	q_info[q].slack = 3;
@@ -867,7 +876,7 @@ cptr inn_names[MAX_INN_NAMES] =
  */
 void display_inn(void)
 {
-	int i, j;
+	int i;
 	byte attr;
 	cptr p, q, q_out;
 
@@ -906,21 +915,6 @@ void display_inn(void)
 
 				/* Reset the reward */
 				q_info[i].reward = 0;
-
-				/* Remember this quest */
-				for (j = 0; j < MAX_QM_IDX; j++)
-				{
-					/* Found an empty record */
-					if (p_ptr->quest_memory[j].type == 0)
-					{
-						p_ptr->quest_memory[j].type = q_info[i].type;
-						p_ptr->quest_memory[j].level = p_ptr->cur_quest;
-						p_ptr->quest_memory[j].r_idx = q_info[i].r_idx;
-						p_ptr->quest_memory[j].max_num = q_info[i].max_num;
-						p_ptr->quest_memory[j].succeeded = 1;
-						break;
-					}
-				}
 
 				/* Reset the quest */
 				p_ptr->cur_quest = 0;
@@ -1083,8 +1077,8 @@ void display_inn(void)
 
 	prt("?) Get help.", 22, 60);
 
-	/* We have a quest, and have the gold to get information */
-	if ((p_ptr->cur_quest) &&
+	/* We have an unresearched quest, and have the gold to get information */
+	if ((p_ptr->cur_quest) &&  !(q_info[p_ptr->cur_quest].flags & (0x01)) &&
 	    (p_ptr->au >= (1 + p_ptr->power + p_ptr->max_depth) * 25))
 	{
 		prt(format("r) Learn about quest monster (price %d gold).",

@@ -453,7 +453,7 @@ static cptr forger[10] =
  * We sometimes have differing titles for males and females.  We sometimes
  * have to shorten the title to fit a given space.
  */
-static cptr title_aux(int level, cptr *list, int array_elements, u16b max_len)
+static cptr title_aux(int level, cptr *list, int array_elements, bool quotes, u16b max_len)
 {
 	int i;
 	char buf[80];
@@ -503,6 +503,10 @@ static cptr title_aux(int level, cptr *list, int array_elements, u16b max_len)
 		}
 	}
 
+	/* If title has a quotes marker, and we will remove it, allow more space */
+	if ((buf[0] == '#') && (!quotes)) max_len++;
+
+
 	/* Length of title exceeds our maximum */
 	if (strlen(buf) > max_len)
 	{
@@ -546,8 +550,20 @@ static cptr title_aux(int level, cptr *list, int array_elements, u16b max_len)
 		}
 	}
 
+
 	/* Point to the title */
 	s = buf;
+
+	/* Add quotes, or remove quotes marker */
+	if (buf[0] == '#')
+	{
+		if (quotes)
+		{
+			buf[0] = '\"';
+			strcat(buf, "\"");
+		}
+		else s++;
+	}
 
 	/* Return a pointer to the title */
 	return (format(s));
@@ -561,7 +577,7 @@ static cptr title_aux(int level, cptr *list, int array_elements, u16b max_len)
  *
  * If "wizard" is TRUE, we allow "winner" and "wizard" titles.
  */
-cptr get_title(int len, bool wizard, int *specialty)
+cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 {
 	/* Store all the skills that affect titles for handy reference */
 	int s_sword = get_skill(S_SWORD, 0, 100);
@@ -692,13 +708,13 @@ cptr get_title(int len, bool wizard, int *specialty)
 				{
 					*specialty = SPECIALTY_HAND_BURGLAR;
 					return (title_aux(s, hand_burglar,
-					                  N_ELEMENTS(hand_burglar), len));
+					                  N_ELEMENTS(hand_burglar), quotes, len));
 				}
 
 				/* Concentration on melee or throwing */
 				*specialty = SPECIALTY_FIGHT_BURGLAR;
 				return (title_aux(s, fighting_burglar,
-				                  N_ELEMENTS(fighting_burglar), len));
+				                  N_ELEMENTS(fighting_burglar), quotes, len));
 			}
 
 			/* Investment in the specialist realm skills */
@@ -713,7 +729,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				    (s_wizardry >= 3 * fighting_skill / 4))
 				{
 					*specialty = SPECIALTY_H_WIZARD;
-					return (title_aux(s, h_wizard, N_ELEMENTS(h_wizard), len));
+					return (title_aux(s, h_wizard, N_ELEMENTS(h_wizard), quotes, len));
 				}
 
 				/* Piety */
@@ -722,7 +738,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				     s_piety >= 2 * magic_combat_skill / 3))
 				{
 					*specialty = SPECIALTY_H_PRIEST;
-					return (title_aux(s, h_priest, N_ELEMENTS(h_priest), len));
+					return (title_aux(s, h_priest, N_ELEMENTS(h_priest), quotes, len));
 				}
 
 				/* Nature */
@@ -734,7 +750,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 					if ((p_ptr->power <= 50) || (p_ptr->realm == DRUID))
 					{
 						*specialty = SPECIALTY_H_DRUID;
-						return (title_aux(s, h_druid, N_ELEMENTS(h_druid), len));
+						return (title_aux(s, h_druid, N_ELEMENTS(h_druid), quotes, len));
 					}
 				}
 
@@ -744,7 +760,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				     s_dominion >= 2 * magic_combat_skill / 3))
 				{
 					*specialty = SPECIALTY_H_NECRO;
-					return (title_aux(s, h_necro, N_ELEMENTS(h_necro), len));
+					return (title_aux(s, h_necro, N_ELEMENTS(h_necro), quotes, len));
 				}
 			}
 
@@ -758,7 +774,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 					*specialty = SPECIALTY_SWORDS;
 					s = (s_sword + p_ptr->power) / 2;
 					return (title_aux(s, swordfighter, N_ELEMENTS(swordfighter),
-						len));
+						quotes, len));
 				}
 
 				/* Concentration on polearms */
@@ -767,7 +783,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 					*specialty = SPECIALTY_POLEARMS;
 					s = (s_polearm + p_ptr->power) / 2;
 					return (title_aux(s, spearfighter, N_ELEMENTS(spearfighter),
-						len));
+						quotes, len));
 				}
 
 				/* Concentration on hafted weapons */
@@ -776,7 +792,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 					*specialty = SPECIALTY_HAFTED;
 					s = (s_hafted + p_ptr->power) / 2;
 					return (title_aux(s, macefighter, N_ELEMENTS(macefighter),
-						len));
+						quotes, len));
 				}
 			}
 
@@ -792,7 +808,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				{
 					*specialty = SPECIALTY_MISSILE_MAGIC;
 					return (title_aux(s, missilefighter,
-					                  N_ELEMENTS(missilefighter), len));
+					                  N_ELEMENTS(missilefighter), quotes, len));
 				}
 
 				/* Specialist in crossbows */
@@ -800,7 +816,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				{
 					*specialty = SPECIALTY_CROSSBOW;
 					return (title_aux(s, crossbowfighter,
-					                  N_ELEMENTS(crossbowfighter), len));
+					                  N_ELEMENTS(crossbowfighter), quotes, len));
 				}
 
 				/* Specialist with bows */
@@ -808,7 +824,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				{
 					*specialty = SPECIALTY_BOW;
 					return (title_aux(s, bowfighter, N_ELEMENTS(bowfighter),
-						len));
+						quotes, len));
 				}
 
 				/* Specialist with slings */
@@ -816,7 +832,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				{
 					*specialty = SPECIALTY_SLING;
 					return (title_aux(s, slingfighter, N_ELEMENTS(slingfighter),
-						len));
+						quotes, len));
 				}
 			}
 
@@ -830,7 +846,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				return (title_aux(s,
 					(s_karate >= s_wrestling ? karatefighter : wrestlingfighter),
 					N_ELEMENTS((s_karate >= s_wrestling ? karatefighter :
-						wrestlingfighter)), len));
+						wrestlingfighter)), quotes, len));
 			}
 
 			/* Concentration on throwing */
@@ -840,7 +856,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				*specialty = SPECIALTY_THROWING;
 				s = (s_throwing + p_ptr->power) / 2;
 				return (title_aux(s, throwerfighter, N_ELEMENTS(throwerfighter),
-						len));
+						quotes, len));
 			}
 
 			/* Generalist */
@@ -849,7 +865,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				*specialty = SPECIALTY_FIGHTER;
 				s = (fighting_skill + p_ptr->power) / 2;
 				return (title_aux(s, fighter_general,
-				                  N_ELEMENTS(fighter_general), len));
+				                  N_ELEMENTS(fighter_general), quotes, len));
 			}
 		}
 	}
@@ -898,7 +914,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				{
 					*specialty = SPECIALTY_MAGE_BURGLAR;
 					return (title_aux(s, mage_burglar,
-						N_ELEMENTS(mage_burglar), len));
+						N_ELEMENTS(mage_burglar), quotes, len));
 				}
 
 				/* Piety */
@@ -906,7 +922,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				{
 					*specialty = SPECIALTY_PRIEST_BURGLAR;
 					return (title_aux(s, priest_burglar,
-						N_ELEMENTS(priest_burglar), len));
+						N_ELEMENTS(priest_burglar), quotes, len));
 				}
 
 				/* Nature */
@@ -914,7 +930,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				{
 					*specialty = SPECIALTY_DRUID_BURGLAR;
 					return (title_aux(s, druid_burglar,
-						N_ELEMENTS(druid_burglar), len));
+						N_ELEMENTS(druid_burglar), quotes, len));
 				}
 
 				/* Blood dominion */
@@ -922,7 +938,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 				{
 					*specialty = SPECIALTY_NECRO_BURGLAR;
 					return (title_aux(s, necro_burglar,
-						N_ELEMENTS(necro_burglar), len));
+						N_ELEMENTS(necro_burglar), quotes, len));
 				}
 			}
 
@@ -931,7 +947,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 
 			s = (s_burglary + p_ptr->power) / 2;
 			return (title_aux(s, pure_burglar,
-				N_ELEMENTS(pure_burglar), len));
+				N_ELEMENTS(pure_burglar), quotes, len));
 		}
 	}
 
@@ -966,7 +982,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 			{
 				*specialty = SPECIALTY_P_WIZARD;
 				s = (s_magic + s_wizardry + p_ptr->power) / 3;
-				return (title_aux(s, pure_wizard, N_ELEMENTS(pure_wizard), len));
+				return (title_aux(s, pure_wizard, N_ELEMENTS(pure_wizard), quotes, len));
 			}
 
 			/* We're a priest */
@@ -974,7 +990,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 			{
 				*specialty = SPECIALTY_P_PRIEST;
 				s = (s_magic + s_piety + p_ptr->power) / 3;
-				return (title_aux(s, pure_priest, N_ELEMENTS(pure_priest), len));
+				return (title_aux(s, pure_priest, N_ELEMENTS(pure_priest), quotes, len));
 			}
 
 			/* We're a druid */
@@ -982,7 +998,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 			{
 				*specialty = SPECIALTY_P_DRUID;
 				s = (s_magic + s_nature + p_ptr->power) / 3;
-				return (title_aux(s, pure_druid, N_ELEMENTS(pure_druid), len));
+				return (title_aux(s, pure_druid, N_ELEMENTS(pure_druid), quotes, len));
 			}
 
 			/* We're a necromancer */
@@ -990,7 +1006,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 			{
 				*specialty = SPECIALTY_P_NECRO;
 				s = (s_magic + s_dominion + p_ptr->power) / 3;
-				return (title_aux(s, pure_necro, N_ELEMENTS(pure_necro), len));
+				return (title_aux(s, pure_necro, N_ELEMENTS(pure_necro), quotes, len));
 			}
 		}
 	}
@@ -1000,7 +1016,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 	{
 		*specialty = SPECIALTY_DEVICE;
 		s = (s_device + p_ptr->power) / 2;
-		return (title_aux(s, device_user, N_ELEMENTS(device_user), len));
+		return (title_aux(s, device_user, N_ELEMENTS(device_user), quotes, len));
 	}
 
 	/* We have some creation skill */
@@ -1011,7 +1027,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 		{
 			*specialty = SPECIALTY_FORGING;
 			s = (forging_skill + p_ptr->power) / 2;
-			return (title_aux(s, forger, N_ELEMENTS(forger), len));
+			return (title_aux(s, forger, N_ELEMENTS(forger), quotes, len));
 		}
 
 		/* We're an alchemist */
@@ -1019,7 +1035,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 		{
 			*specialty = SPECIALTY_ALCHEMY;
 			s = (s_alchemy + p_ptr->power) / 2;
-			return (title_aux(s, alchemist, N_ELEMENTS(alchemist), len));
+			return (title_aux(s, alchemist, N_ELEMENTS(alchemist), quotes, len));
 		}
 
 		/* We're an infuser */
@@ -1027,7 +1043,7 @@ cptr get_title(int len, bool wizard, int *specialty)
 		{
 			*specialty = SPECIALTY_INFUSION;
 			s = (s_infusion + p_ptr->power) / 2;
-			return (title_aux(s, infuser, N_ELEMENTS(infuser), len));
+			return (title_aux(s, infuser, N_ELEMENTS(infuser), quotes, len));
 		}
 	}
 
@@ -1226,10 +1242,7 @@ static void prt_short_name(void)
 static void prt_title(void)
 {
 	int i, dummy;
-	cptr title = get_title(13, TRUE, &dummy);
-
-	/* Skip past quotes marker */
-	if (title[0] == '#') title++;
+	cptr title = get_title(13, TRUE, FALSE, &dummy);
 
 	/* Dump 13 spaces to clear */
 	c_put_str(TERM_WHITE, "             ", ROW_TITLE, COL_TITLE);
@@ -1237,7 +1250,6 @@ static void prt_title(void)
 	for (i = 0; i < 12; i++)
 	{
 		if (title[i] == '\0') break;
-		if ((title[i] == ' ') && (i >= 7)) break;
 
 		(void)Term_putch(COL_TITLE + i, ROW_TITLE, TERM_L_BLUE, title[i]);
 	}
@@ -2638,6 +2650,12 @@ static void prt_conditions(void)
 		if (c_roff_insert(TERM_RED, "Black Breath", r_margin)) return;
 	}
 
+	/* Show self knowledge */
+	if (p_ptr->self_knowledge)
+	{
+		if (c_roff_insert(TERM_L_BLUE, "Self Knowledge", r_margin)) return;
+	}
+
 	/* Show wounds */
 	if (p_ptr->cut)
 	{
@@ -2904,28 +2922,27 @@ static void prt_speed(void)
 }
 
 /*
- * Prints whether the character can learn new spells
+ * Prints whether the character can cast new spells
  */
-static void prt_study(void)
+static void prt_uncast(void)
 {
-	if (p_ptr->new_spells)
+	if (p_ptr->uncast_spells)
 	{
-		if (p_ptr->new_spells < 10)
+		if (p_ptr->uncast_spells < 10)
 		{
-			put_str(format("Study (%d)", p_ptr->new_spells),
-				map_rows + 1, COL_STUDY);
+			put_str(format("Uncast: %d", p_ptr->uncast_spells),
+				map_rows + 1, COL_UNCAST);
 		}
 		else
 		{
-			put_str("Study (*)", map_rows + 1, COL_STUDY);
+			put_str("Uncast: *", map_rows + 1, COL_UNCAST);
 		}
 	}
 	else
 	{
-		put_str("         ", map_rows + 1, COL_STUDY);
+		put_str("         ", map_rows + 1, COL_UNCAST);
 	}
 }
-
 
 /*
  * Prints depth
@@ -3031,8 +3048,8 @@ static void prt_frame_extra(void)
 	/* Speed */
 	prt_speed();
 
-	/* Study spells */
-	prt_study();
+	/* Uncast spells */
+	prt_uncast();
 
 	/* Current depth */
 	prt_depth();
@@ -3201,6 +3218,9 @@ static void fix_message(void)
 		for (i = 0; i < h; i++)
 		{
 			byte color = message_color((s16b)i);
+
+			/* All white messages except the newest become off-white */
+			if ((i != 0) && (color == TERM_WHITE)) color = TERM_L_WHITE;
 
 			/* Dump the message on the appropriate line */
 			(void)Term_putstr(0, (h - 1) - i, -1, color, message_str((s16b)i));
@@ -3447,8 +3467,11 @@ static void fix_cmdlist(void)
 		/* Activate */
 		(void)Term_activate(angband_term[j]);
 
+		/* Clear the window */
+		(void)Term_clear();
+
 		/* Position the cursor */
-		Term_gotoxy(0, 0);
+		(void)Term_gotoxy(0, 0);
 
 		/* Get size of window */
 		(void)Term_get_size(&w, &h);
@@ -3457,9 +3480,9 @@ static void fix_cmdlist(void)
 		/* Display list of commands -- original keyset */
 		if (!rogue_like_commands)
 		{
-			roff("      Walk    7  8  9                     Run      7  8  9\n", 0, w);
-			roff("              4     6                     Shift +  4     6\n", 0, w);
-			roff("              1  2  3                              1  2  3\n", 0, w);
+			roff("   Walk    7  8  9      Run     7  8  9      Alter    7  8  9\n", 0, w);
+			roff("           4     6      Shift + 4     6      Ctrl  +  4     6\n", 0, w);
+			roff("           1  2  3              1  2  3               1  2  3\n", 0, w);
 			if (h >= 18) roff_chunk("\n", 0, w);
 
 			roff_chunk(" C  Character screen     ", 0, w);
@@ -3495,7 +3518,6 @@ static void fix_cmdlist(void)
 			roff_chunk(" c  Close a door         ", 0, w);
 			roff_chunk(" D  Disarm a trap        ", 0, w);
 			roff_chunk(" o  Open a door          ", 0, w);
-			roff_chunk(" T  Dig a tunnel         ", 0, w);
 			roff_chunk(" +  Alter grid           ", 0, w);
 			roff_chunk(" *  Target monster       ", 0, w);
 			roff_chunk(" $  Advance skills       ", 0, w);
@@ -3504,11 +3526,10 @@ static void fix_cmdlist(void)
 			roff_chunk("\n", 0, w);
 			if (h >= 22) roff_chunk("\n", 0, w);
 
-			/* Some commands are onlt valid if the character knows magic */
+			/* Some commands are only valid if the character knows magic */
 			if (p_ptr->realm)
 			{
 				roff_chunk(" b  Browse a book        ", 0, w);
-				roff_chunk(" G  Gain new spells      ", 0, w);
 				if (p_ptr->realm == PRIEST)
 					roff_chunk(" p  Pray a prayer        ", 0, w);
 				else if (p_ptr->realm == DRUID)
@@ -3525,15 +3546,15 @@ static void fix_cmdlist(void)
 			roff_chunk(" R, Tab   Rest           ", 0, w);
 			roff_chunk(" =  Set options          ", 0, w);
 			roff_chunk("^S  Save        ", 0, w);
-			roff_chunk(" Q  Quit   \n", 0, w);
+			roff_chunk("^X  Exit   \n", 0, w);
 		}
 
 		/* Display list of commands -- roguelike keyset */
 		else
 		{
-			roff("   Walk    y  k  u      Run    Y  K  U      Alter    y  k  u\n", 0, w);
-			roff("           h     l             H     L      Ctrl  +  h     l\n", 0, w);
-			roff("           b  j  n             B  J  N               b  j  n\n", 0, w);
+			roff("   Walk    y  k  u       Run    Y  K  U      Alter    y  k  u\n", 0, w);
+			roff("           h     l              H     L      Ctrl  +  h     l\n", 0, w);
+			roff("           b  j  n              B  J  N               b  j  n\n", 0, w);
 			if (h >= 18) roff_chunk("\n", 0, w);
 
 			roff_chunk(" C  Character screen     ", 0, w);
@@ -3569,7 +3590,6 @@ static void fix_cmdlist(void)
 			roff_chunk(" D  Disarm a trap        ", 0, w);
 			roff_chunk(" f  Force a door         ", 0, w);
 			roff_chunk(" o  Open a door          ", 0, w);
-			roff_chunk("^T  Dig a tunnel         ", 0, w);
 			roff_chunk(" +  Alter grid           ", 0, w);
 			roff_chunk(" *  Target monster       ", 0, w);
 			roff_chunk(" $  Advance skills       ", 0, w);
@@ -3578,11 +3598,10 @@ static void fix_cmdlist(void)
 			roff_chunk("\n", 0, w);
 			if (h >= 22) roff_chunk("\n", 0, w);
 
-			/* Some commands are onlt valid if the character knows magic */
+			/* Some commands are only valid if the character knows magic */
 			if (p_ptr->realm)
 			{
 				roff_chunk(" P  Peruse a book        ", 0, w);
-				roff_chunk(" G  Gain new spells      ", 0, w);
 				if (p_ptr->realm == PRIEST)
 					roff_chunk(" p  Pray a prayer        ", 0, w);
 				else if (p_ptr->realm == DRUID)
@@ -3599,7 +3618,7 @@ static void fix_cmdlist(void)
 			roff_chunk(" R, Tab   Rest           ", 0, w);
 			roff_chunk(" =  Set options          ", 0, w);
 			roff_chunk("^S  Save        ", 0, w);
-			roff_chunk(" Q  Quit   \n", 0, w);
+			roff_chunk("^X  Exit   \n", 0, w);
 		}
 
 		/* Fresh */
@@ -3611,23 +3630,29 @@ static void fix_cmdlist(void)
 }
 
 
+
 /*
- * Calculate number of spells player should have, and forget,
- * or remember, spells until that number is properly reflected.
+ * Calculate the character's spell level, and forget or remember, spells as
+ * needed.  We only "forget" spells that we have already used.
  *
  * Note that this function induces various "status" messages,
  * which must be bypassed until the character is created.
  */
 static void calc_spells(void)
 {
-	int i, j, k, level;
-	int num_allowed, num_known;
+	int i, level;
+
+	int stat = p_ptr->stat_ind[mp_ptr->spell_stat];
 
 	const magic_type *s_ptr;
 
 	cptr p;
-	s16b old_spells;
 
+	/* Clear uncast spells */
+	p_ptr->uncast_spells = 0;
+
+	/* Clear the spell level */
+	p_ptr->spell_level = 0;
 
 	/* Hack -- must be literate */
 	if (p_ptr->realm == NONE) return;
@@ -3635,192 +3660,103 @@ static void calc_spells(void)
 	/* Hack -- wait for creation */
 	if (!character_generated) return;
 
-
-	/* Save the new_spells value */
-	old_spells = p_ptr->new_spells;
-
+	/* Get name of spells */
+	p = spell_type();
 
 
 	/* Determine spell-casting level */
 	level = get_skill(S_MAGIC, 0, 100);
 
-	/* No knowledge, no spells */
-	if (level == 0) return;
+	/* Adjust for low stat */
+	if (stat < 18) level = level * stat / 18;
+
+	/* Save our new spell level */
+	p_ptr->spell_level = level;
 
 
-	/* Extract total allowed spells */
-	num_allowed = 2 + (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
-		level / 100);
-
-	/* Boundary control */
-	if (num_allowed > mp_ptr->spell_number) num_allowed = mp_ptr->spell_number;
-
-
-	/* Assume none known */
-	num_known = 0;
-
-
-	/* Count the number of spells we know */
-	for (j = 0; j < PY_MAX_SPELLS; j++)
-	{
-		/* Count known spells */
-		if (p_ptr->spell_flags[j] & (PY_SPELL_LEARNED))
-		{
-			num_known++;
-		}
-	}
-
-	/* See how many spells we must forget or may learn */
-	p_ptr->new_spells = num_allowed - num_known;
-
-	/* Get name of spells */
-	p = spell_type();
-
-	/* Forget spells which are too hard */
+	/* Forget and remember spells */
 	for (i = PY_MAX_SPELLS - 1; i >= 0; i--)
 	{
 		/* Get the spell */
-		j = p_ptr->spell_order[i];
+		s_ptr = &mp_ptr->info[i];
 
-		/* Skip non-spells */
-		if (j >= 99) continue;
-
-		/* Get the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Skip spells we are allowed to know */
-		if (s_ptr->slevel <= get_skill(S_MAGIC, 0, 100)) continue;
-
-		/* Is it known? */
-		if (p_ptr->spell_flags[j] & (PY_SPELL_LEARNED))
+		/* We are allowed to know this spell */
+		if (s_ptr->slevel <= p_ptr->spell_level)
 		{
-			/* Mark as forgotten */
-			p_ptr->spell_flags[j] |= (PY_SPELL_FORGOTTEN);
+			/* Spell has been previously forgotten */
+			if (p_ptr->spell_flags[i] & (PY_SPELL_FORGOTTEN))
+			{
+				/* Message */
+				msg_format("You have remembered the %s of %s.",
+					p, spell_names[s_ptr->index]);
 
-			/* No longer known */
-			p_ptr->spell_flags[j] &= ~(PY_SPELL_LEARNED);
+				/* No longer forgotten */
+				p_ptr->spell_flags[i] &= ~(PY_SPELL_FORGOTTEN);
+			}
 
-			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-				spell_names[s_ptr->index]);
-
-			/* One more can be learned */
-			p_ptr->new_spells++;
-		}
-	}
-
-	/* Forget spells if we know too many spells */
-	for (i = PY_MAX_SPELLS - 1; i >= 0; i--)
-	{
-		/* Stop when possible */
-		if (p_ptr->new_spells >= 0) break;
-
-		/* Get the (i+1)th spell learned */
-		j = p_ptr->spell_order[i];
-
-		/* Skip unknown spells */
-		if (j >= 99) continue;
-
-		/* Get the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Forget it (if learned) */
-		if (p_ptr->spell_flags[j] & (PY_SPELL_LEARNED))
-		{
-			/* Mark as forgotten */
-			p_ptr->spell_flags[j] |= (PY_SPELL_FORGOTTEN);
-
-			/* No longer known */
-			p_ptr->spell_flags[j] &= ~(PY_SPELL_LEARNED);
-
-			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-				spell_names[s_ptr->index]);
-
-			/* One more can be learned */
-			p_ptr->new_spells++;
-		}
-	}
-
-	/* Check for spells to remember */
-	for (i = 0; i < PY_MAX_SPELLS; i++)
-	{
-		/* None left to remember */
-		if (p_ptr->new_spells <= 0) break;
-
-		/* Get the next spell we learned */
-		j = p_ptr->spell_order[i];
-
-		/* Skip unknown spells */
-		if (j >= 99) break;
-
-		/* Get the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Skip spells we cannot remember */
-		if (s_ptr->slevel > get_skill(S_MAGIC, 0, 100)) continue;
-
-		/* First set of spells */
-		if (p_ptr->spell_flags[j] & (PY_SPELL_FORGOTTEN))
-		{
-			/* No longer forgotten */
-			p_ptr->spell_flags[j] &= ~(PY_SPELL_FORGOTTEN);
-
-			/* Known once more */
-			p_ptr->spell_flags[j] |= (PY_SPELL_LEARNED);
-
-			/* Message */
-			msg_format("You have remembered the %s of %s.",
-				p, spell_names[s_ptr->index]);
-
-			/* One less can be learned */
-			p_ptr->new_spells--;
-		}
-	}
-
-	/* Assume no spells available */
-	k = 0;
-
-	/* Count spells that can be learned */
-	for (j = 0; j < PY_MAX_SPELLS; j++)
-	{
-		/* Get the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Skip spells we cannot remember */
-		if (s_ptr->slevel > get_skill(S_MAGIC, 0, 100)) continue;
-
-		/* Skip spells we already know */
-		if (p_ptr->spell_flags[j] & (PY_SPELL_LEARNED))
-		{
 			continue;
 		}
 
-		/* Count it */
-		k++;
-	}
-
-	/* Cannot learn more spells than exist */
-	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
-
-	/* Spell count changed */
-	if (old_spells != p_ptr->new_spells)
-	{
-		/* Message if needed */
-		if (p_ptr->new_spells)
+		/* Has this spell been used and is not already forgotten? */
+		if ((p_ptr->spell_flags[i] & (PY_SPELL_WORKED)) &&
+		    (!(p_ptr->spell_flags[i] & (PY_SPELL_FORGOTTEN))))
 		{
 			/* Message */
-			msg_format("You can learn %d more %s%s.",
-			           p_ptr->new_spells, p,
-			           (p_ptr->new_spells != 1) ? "s" : "");
+			msg_format("You have forgotten the %s of %s.", p,
+				spell_names[s_ptr->index]);
+
+			/* Forget it */
+			p_ptr->spell_flags[i] |= (PY_SPELL_FORGOTTEN);
 		}
-
-		/* Redraw Study Status */
-		p_ptr->redraw |= (PR_STUDY);
-
-		/* Redraw object recall */
-		p_ptr->window |= (PW_OBJECT);
 	}
+
+
+	/* Calculate uncast spells */
+	if (TRUE)
+	{
+		/* Get the spellbook type */
+		int tval = mp_ptr->spell_book;
+		int sval, i;
+
+		object_kind *k_ptr;
+
+		/* Scan books until no more spells are found */
+		for (sval = 1; sval <= 10; sval++)
+		{
+			/* This book is empty -- stop now */
+			if (!mp_ptr->book_start_index[sval] -
+			     mp_ptr->book_start_index[sval-1]) break;
+
+			/* Get the book */
+			k_ptr = &k_info[lookup_kind(tval, sval)];
+
+			/* Ignore empty */
+			if (!k_ptr->name) continue;
+
+			/* This book has been seen at some point */
+			if (k_ptr->special & (SPECIAL_EVER_SEEN))
+			{
+				/* Scan all the spells */
+				for (i = mp_ptr->book_start_index[sval-1]; i < mp_ptr->book_start_index[sval]; i++)
+				{
+					/* Get the spell */
+					s_ptr = &mp_ptr->info[i];
+
+					/* This spell is legal and as yet unused */
+					if ((s_ptr->slevel <= p_ptr->spell_level) &&
+					    (!(p_ptr->spell_flags[i] & (PY_SPELL_WORKED))))
+					{
+						/* Count it */
+						p_ptr->uncast_spells++;
+					}
+				}
+			}
+		}
+	}
+
+
+	/* Redraw Study Status */
+	p_ptr->redraw |= (PR_UNCAST);
 }
 
 
@@ -4877,7 +4813,7 @@ int player_flags_pval(u32b flag_pval, bool shape)
 	/* Handle modifiers to shots and extra might */
 	if ((flag_pval == TR_PVAL_SHOTS) || (flag_pval == TR_PVAL_MIGHT))
 	{
-		int skill = get_skill(sbow(inventory[INVEN_BOW].sval), 0, 100);
+		int skill = get_skill(sbow(inventory[INVEN_BOW].tval), 0, 100);
 		pval += missile_bonus(flag_pval, skill);
 	}
 
@@ -5025,10 +4961,10 @@ static void analyze_weapons(void)
 	/* Analyze launcher  XXX XXX */
 	if (o_ptr->k_idx)
 	{
-		/* Choose ammo based on launcher type  XXX XXX */
-		if (is_sling(o_ptr->sval))    p_ptr->ammo_tval = TV_SHOT;
-		if (is_bow(o_ptr->sval))      p_ptr->ammo_tval = TV_ARROW;
-		if (is_crossbow(o_ptr->sval)) p_ptr->ammo_tval = TV_BOLT;
+		/* Choose ammo based on launcher type  XXX */
+		if (o_ptr->tval == TV_SLING)    p_ptr->ammo_tval = TV_SHOT;
+		if (o_ptr->tval == TV_BOW)      p_ptr->ammo_tval = TV_ARROW;
+		if (o_ptr->tval == TV_CROSSBOW) p_ptr->ammo_tval = TV_BOLT;
 
 		/* Get the missile weapon's base ammo multiplier */
 		ammo_multiplier += o_ptr->dd;
@@ -5535,7 +5471,7 @@ static void calc_bonuses(void)
 
 	/* Determine which weapon and bow skills are currently applicable */
 	weapon_skill = sweapon(inventory[INVEN_WIELD].tval);
-	bow_skill = sbow(inventory[INVEN_BOW].sval);
+	bow_skill = sbow(inventory[INVEN_BOW].tval);
 
 
 	/* Melee Combat (ranges from ~12 to ~140 (~200 with martial arts)) */
@@ -6639,7 +6575,7 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_EXTRA);
 		p_ptr->redraw &= ~(PR_HUNGER | PR_CONDITIONS);
-		p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_STUDY | PR_DEPTH);
+		p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_UNCAST | PR_DEPTH);
 		prt_frame_extra();
 	}
 
@@ -6667,10 +6603,10 @@ void redraw_stuff(void)
 		prt_speed();
 	}
 
-	if (p_ptr->redraw & (PR_STUDY))
+	if (p_ptr->redraw & (PR_UNCAST))
 	{
-		p_ptr->redraw &= ~(PR_STUDY);
-		prt_study();
+		p_ptr->redraw &= ~(PR_UNCAST);
+		prt_uncast();
 	}
 
 	if (p_ptr->redraw & (PR_DEPTH))

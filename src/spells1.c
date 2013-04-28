@@ -92,7 +92,8 @@ static byte plasma_color(void)
 {
 	switch (rand_int(4))
 	{
-		case 0: case 1: return (TERM_WHITE);
+		case 0: return (TERM_WHITE);
+		case 1: return (TERM_L_BLUE);
 		case 2: return (TERM_L_RED);
 		case 3: return (TERM_YELLOW);
 	}
@@ -148,11 +149,10 @@ static byte confu_color(void)
 
 static byte grav_color(void)
 {
-	switch (rand_int(4))
+	switch (rand_int(2))
 	{
-		case 0: case 1: return (TERM_DARK);
-		case 2: return (TERM_L_DARK);
-		case 3: return (TERM_SLATE);
+		case 0: return (TERM_L_DARK);
+		case 1: return (TERM_SLATE);
 	}
 
 	return (TERM_WHITE);
@@ -222,7 +222,7 @@ static byte mana_color(void)
 
 
 /*
- * Return a color to use for the bolt/ball spells
+ * Return a color to use for spells without user-specified colors.
  */
 byte spell_color(int type)
 {
@@ -305,7 +305,8 @@ byte spell_color(int type)
  *
  * It is moving (or has moved) from (x,y) to (nx,ny).
  *
- * We will need to restore support for graphics later.  XXX XXX
+ * Spell character is always specified in pref files.  Spell color
+ * may or may not be.
  */
 u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 {
@@ -313,29 +314,57 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 	char c;
 
 	/* No motion (*) */
-	if ((ny == y) && (nx == x))    c = '*';
+	if ((ny == y) && (nx == x))
+	{
+		a = proj_graphics[typ].attr_ball ?
+		    proj_graphics[typ].attr_ball : spell_color(typ);
+		c = proj_graphics[typ].char_ball;
+	}
 
 	/* Vertical (|) */
-	else if (nx == x)              c = '|';
+	else if (nx == x)
+	{
+		a = proj_graphics[typ].attr_vert ?
+		    proj_graphics[typ].attr_vert : spell_color(typ);
+		c = proj_graphics[typ].char_vert;
+	}
 
 	/* Horizontal (-) */
-	else if (ny == y)              c = '-';
+	else if (ny == y)
+	{
+		a = proj_graphics[typ].attr_horiz ?
+		    proj_graphics[typ].attr_horiz : spell_color(typ);
+		c = proj_graphics[typ].char_horiz;
+	}
 
 	/* Diagonal (/) */
-	else if ((ny - y) == (x - nx)) c = '/';
+	else if ((ny - y) == (x - nx))
+	{
+		a = proj_graphics[typ].attr_rdiag ?
+		    proj_graphics[typ].attr_rdiag : spell_color(typ);
+		c = proj_graphics[typ].char_rdiag;
+	}
 
 	/* Diagonal (\) */
-	else if ((ny - y) == (nx - x)) c = '\\';
+	else if ((ny - y) == (nx - x))
+	{
+		a = proj_graphics[typ].attr_ldiag ?
+		    proj_graphics[typ].attr_ldiag : spell_color(typ);
+		c = proj_graphics[typ].char_ldiag;
+	}
 
 	/* Weird (*) */
-	else                           c = '*';
-
-	/* Basic spell color */
-	a = spell_color(typ);
+	else
+	{
+		a = proj_graphics[typ].attr_ball ?
+		    proj_graphics[typ].attr_ball : spell_color(typ);
+		c = proj_graphics[typ].char_ball;
+	}
 
 	/* Create pict */
 	return (PICT(a, c));
 }
+
 
 
 /*
@@ -349,6 +378,7 @@ static int project_m_y;
  * Mega-Hack -- count number of monsters killed out of sight
  */
 static int death_count;
+
 
 /*
  * We are called from "project()" to alter terrain features
@@ -369,9 +399,8 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		/* Can eat at walls.  See "project_t()". */
 		case GF_ACID:
 		{
-			/* Mark most rocky grids for (possible) later alteration. */
-			if ((cave_feat[y][x] >= FEAT_RUBBLE) &&
-			    (cave_feat[y][x] <= FEAT_WALL_SOLID) && (dist <= 4))
+			/* Mark rocky grids for (possible) later alteration. */
+			if ((cave_rock_bold(y, x)) && (dist <= 4))
 			{
 				cave_temp_mark(y, x, FALSE);
 			}
@@ -460,7 +489,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			if (dist <= 1)
 			{
 				/* Mark the floor grid for (possible) later alteration. */
-				if ((cave_feat[y][x] == FEAT_FLOOR) ||
+				if ((cave_floor_bold(y, x)) ||
 				    (cave_feat[y][x] == FEAT_LAVA))
 				{
 					cave_temp_mark(y, x, FALSE);
@@ -473,7 +502,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		/* Chaos can create chaos tiles (rarely) */
 		case GF_CHAOS:
 		{
-			if ((cave_nonwall_bold(y, x)) && (p_ptr->depth > 40) &&
+			if ((cave_passable_bold(y, x)) && (p_ptr->depth > 40) &&
 			    (rand_range(200, 4200) < dam))
 			{
 				/* Mark the grid for later summoning. */
@@ -488,7 +517,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			/* The character can control his mana */
 			if (who <= 0)
 			{
-				if ((cave_nonwall_bold(y, x)) && (p_ptr->depth > 30) &&
+				if ((cave_passable_bold(y, x)) && (p_ptr->depth > 30) &&
 					 (rand_range(200, 4200) < dam))
 				{
 					/* Mark the grid for later summoning. */
@@ -526,11 +555,8 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		/* Destroy Doors */
 		case GF_KILL_DOOR:
 		{
-			int feat = cave_feat[y][x];
-
 			/* Destroy all doors.  Traps are not affected */
-			if ((feat == FEAT_OPEN) || (feat == FEAT_BROKEN) ||
-			    (cave_closed_door(y, x)))
+			if (cave_any_door(y, x))
 			{
 				/* Check line of sight */
 				if (player_has_los_bold(y, x))
@@ -550,8 +576,8 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 				/* Forget the door */
 				cave_info[y][x] &= ~(CAVE_MARK);
 
-				/* Destroy the feature */
-				cave_set_feat(y, x, FEAT_FLOOR);
+				/* Copy any nearby floor-type terrain. */
+				cave_set_feat(y, x, get_nearby_floor(y, x));
 			}
 
 			break;
@@ -681,8 +707,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		case GF_JAM_DOOR:
 		{
 			/* Require closed door (not secret XXX) */
-			if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-				(cave_feat[y][x] <= FEAT_DOOR_TAIL))
+			if (cave_closed_door(y, x) && !cave_wall_bold(y, x))
 			{
 				/* Check line of sight */
 				if (player_has_los_bold(y, x))
@@ -700,23 +725,26 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		case GF_KILL_WALL:
 		case GF_DISINTEGRATE:
 		{
-			/* Non-walls (etc) */
-			if (cave_nonwall_bold(y, x)) break;
+			/* Kill-wall only affects rock and doors */
+			if ((typ == GF_KILL_WALL) && (!cave_rock_bold(y, x)) &&
+			    (!cave_any_door(y, x))) break;
 
-			/* Trees are unaffected.  XXX */
-			if (cave_feat[y][x] == FEAT_TREE) break;
+			/* Permanent walls and stores are immune */
+			if (cave_perma_bold(y, x)) break;
 
-			/* Permanent walls and stores are immune. */
-			if (cave_feat[y][x] >= FEAT_PERM_EXTRA) break;
+			/* Floors are unaffected */
+			if (cave_floor_bold(y, x)) break;
 
-			/* Granite */
-			if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
+
+			/* Quartz / Magma */
+			if ((cave_feat[y][x] == FEAT_MAGMA) ||
+			    (cave_feat[y][x] == FEAT_QUARTZ))
 			{
 				/* Message */
 				if (cave_info[y][x] & (CAVE_MARK))
 				{
 					if (typ != GF_DISINTEGRATE)
-						msg_print("The wall turns into mud.");
+						msg_print("The vein turns into mud.");
 					obvious = TRUE;
 				}
 
@@ -724,11 +752,14 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the wall */
-				cave_set_feat(y, x, FEAT_FLOOR);
+				cave_set_feat(y, x, get_nearby_floor(y, x));
 			}
 
 			/* Quartz / Magma with treasure */
-			else if (cave_feat[y][x] >= FEAT_MAGMA_H)
+			else if ((cave_feat[y][x] == FEAT_MAGMA_H) ||
+			         (cave_feat[y][x] == FEAT_QUARTZ_H) ||
+			         (cave_feat[y][x] == FEAT_MAGMA_K) ||
+			         (cave_feat[y][x] == FEAT_QUARTZ_K))
 			{
 				/* Message */
 				if ((cave_info[y][x] & (CAVE_MARK)) &&
@@ -743,28 +774,28 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the wall */
-				cave_set_feat(y, x, FEAT_FLOOR);
+				cave_set_feat(y, x, get_nearby_floor(y, x));
 
 				/* Place some gold */
-				place_gold(y, x);
+				if (typ != GF_DISINTEGRATE) place_gold(y, x);
 			}
 
-			/* Quartz / Magma */
-			else if (cave_feat[y][x] >= FEAT_MAGMA)
+			/* Destroy doors (and secret doors) */
+			else if (cave_any_door(y, x))
 			{
-				/* Message */
+				/* Hack -- special message */
 				if (cave_info[y][x] & (CAVE_MARK))
 				{
 					if (typ != GF_DISINTEGRATE)
-						msg_print("The vein turns into mud.");
+						msg_print("The door turns into mud!");
 					obvious = TRUE;
 				}
 
 				/* Forget the wall */
 				cave_info[y][x] &= ~(CAVE_MARK);
 
-				/* Destroy the wall */
-				cave_set_feat(y, x, FEAT_FLOOR);
+				/* Destroy the feature */
+				cave_set_feat(y, x, get_nearby_floor(y, x));
 			}
 
 			/* Rubble */
@@ -782,7 +813,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the rubble */
-				cave_set_feat(y, x, FEAT_FLOOR);
+				cave_set_feat(y, x, get_nearby_floor(y, x));
 
 				/* Hack -- place an object. */
 				if ((typ != GF_DISINTEGRATE) && (one_in_(100)))
@@ -799,22 +830,57 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 				}
 			}
 
-			/* Destroy doors (and secret doors) */
-			else if (cave_feat[y][x] >= FEAT_DOOR_HEAD)
+			/* Pillar */
+			else if ((cave_feat[y][x] == FEAT_PILLAR) ||
+			         (cave_feat[y][x] == FEAT_PILLAR_GOLD))
 			{
-				/* Hack -- special message */
-				if (cave_info[y][x] & (CAVE_MARK))
+				bool gold = (cave_feat[y][x] == FEAT_PILLAR_GOLD);
+
+				/* Disintegration spells ruin gold too */
+				if (typ == GF_DISINTEGRATE) gold = FALSE;
+
+				/* Message */
+				if ((cave_info[y][x] & (CAVE_MARK)) &&
+			       (typ != GF_DISINTEGRATE))
 				{
-					if (typ != GF_DISINTEGRATE)
-						msg_print("The door turns into mud!");
+					msg_print("The pillar turns into mud.");
+					if (gold) msg_print("Gold glitters on the ground!");
 					obvious = TRUE;
 				}
 
 				/* Forget the wall */
 				cave_info[y][x] &= ~(CAVE_MARK);
 
-				/* Destroy the feature */
-				cave_set_feat(y, x, FEAT_FLOOR);
+				/* Destroy the wall */
+				cave_set_feat(y, x, get_nearby_floor(y, x));
+
+				/* Place lots of gold  */
+				if (gold)
+				{
+					int i;
+
+					coin_type = SV_GOLD;
+					for (i = 0; i < 1 + p_ptr->depth / 14; i++) place_gold(y, x);
+					coin_type = 0;
+				}
+			}
+
+			/* Generic "wall" */
+			else
+			{
+				/* Message */
+				if (cave_info[y][x] & (CAVE_MARK))
+				{
+					if ((typ != GF_DISINTEGRATE) && (cave_wall_bold(y, x)))
+						msg_print("The wall turns into mud.");
+					obvious = TRUE;
+				}
+
+				/* Forget the wall */
+				cave_info[y][x] &= ~(CAVE_MARK);
+
+				/* Destroy the wall */
+				cave_set_feat(y, x, get_nearby_floor(y, x));
 			}
 
 			/* Update the visuals */
@@ -894,16 +960,20 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			if (cave_passable_bold(y, x))
 			{
 				/* Limit damage */
-				if (dam > 200) dam = 200;
+				if (dam > 250) dam = 250;
 
 				/* Must not have too many glyphs on the level XXX */
 				if (num_glyph_on_level < MAX_GLYPHS)
 				{
-					/* Must pass a (fairly stringent) rarity check */
-					if (dam > rand_range(50, 600))
+					/* Must pass a rarity check */
+					if (dam > rand_range(50, 500))
 					{
 						/* Create a glyph */
 						place_trap(y, x, TRAP_GLYPH, 0);
+
+						/* Cool */
+						if (player_can_see_bold(y, x))
+							message(TERM_L_BLUE, 50, "A glyph of sanctuary materializes!");
 					}
 				}
 			}
@@ -928,6 +998,9 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			if ((cave_feat[y][x] == FEAT_MORE) && (p_ptr->depth == 0))
 				break;
 
+			/* Ignore permanent terrain */
+			if (cave_perma_bold(y, x)) break;
+
 			/* Change to water */
 			cave_set_feat(y, x, FEAT_WATER);
 			obvious = TRUE;
@@ -941,6 +1014,9 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			/* Do not alter stairs in town  XXX */
 			if ((cave_feat[y][x] == FEAT_MORE) && (p_ptr->depth == 0))
 				break;
+
+			/* Ignore permanent terrain */
+			if (cave_perma_bold(y, x)) break;
 
 			/* Change to trees */
 			cave_set_feat(y, x, FEAT_TREE);
@@ -965,6 +1041,9 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			/* Do not alter stairs in town  XXX */
 			if ((cave_feat[y][x] == FEAT_MORE) && (p_ptr->depth == 0))
 				break;
+
+			/* Ignore permanent terrain */
+			if (cave_perma_bold(y, x)) break;
 
 			/* Change to lava */
 			cave_set_feat(y, x, FEAT_LAVA);
@@ -2022,7 +2101,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		             PROJECT_BOOM)))
 		{
 			/* Allow dodging */
-			if (rand_int(5 + m_ptr->cdis) >= (2 + m_ptr->stunned / 10))
+			if (rand_int(4 + m_ptr->cdis) >= (2 + m_ptr->stunned / 10))
 			{
 				if (fully_seen)
 				{
@@ -2035,8 +2114,8 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 					l_ptr->flags2 |= (RF2_EVASIVE);
 				}
 
-				/* Missed! */
-				return (TRUE);
+				/* No effect, no observation */
+				return (FALSE);
 			}
 		}
 	}
@@ -5738,7 +5817,11 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		case GF_ENLIGHTENMENT:
 		{
 			/* Learn about self -- sometimes */
-			if (dam > randint(400)) self_knowledge(TRUE);
+			if (dam > randint(400))
+			{
+				set_self_knowledge(p_ptr->self_knowledge + MIN(10, 1 + dam / 20),
+					"You begin to know yourself a little better...");
+			}
 
 			/* No damage */
 			dam = 0;
@@ -5880,7 +5963,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 				         (cave_feat[y][x] <= FEAT_QUARTZ_K))
 				{
 					/* Treasure seam -- make gold */
-					if ((cave_feat[y][x] >= FEAT_MAGMA) &&
+					if ((cave_feat[y][x] >= FEAT_MAGMA_K) &&
 					    (cave_feat[y][x] <= FEAT_QUARTZ_K))
 					{
 						object_type *i_ptr;
@@ -5903,7 +5986,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 				/* Rubble becomes floor */
 				else if (cave_feat[y][x] == FEAT_RUBBLE)
 				{
-					cave_set_feat(y, x, FEAT_FLOOR);
+					cave_set_feat(y, x, get_nearby_floor(y, x));
 					if (cave_m_idx[y][x] < 0)
 						msg_print("The rubble you are standing on dissolves!");
 				}
@@ -5923,7 +6006,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 					cave_info[y][x] &= ~(CAVE_MARK);
 
 					/* Destroy the lava */
-					if (!one_in_(3)) cave_set_feat(y, x, FEAT_FLOOR);
+					if (!one_in_(3)) cave_set_feat(y, x, get_nearby_floor(y, x));
 					else             cave_set_feat(y, x, FEAT_RUBBLE);
 
 					if (cave_m_idx[y][x] < 0)
@@ -5942,7 +6025,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 			/* Can create lava if extremely powerful. */
 			if (dam > rand_range(600, 3600))
 			{
-				if ((cave_feat[y][x] == FEAT_FLOOR) ||
+				if ((cave_floor_bold(y, x)) ||
 					(cave_feat[y][x] == FEAT_RUBBLE))
 				{
 					/* Forget the floor or rubble. */
@@ -5983,7 +6066,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 					cave_info[y][x] &= ~(CAVE_MARK);
 
 					/* Destroy the water */
-					cave_set_feat(y, x, FEAT_FLOOR);
+					cave_set_feat(y, x, get_nearby_floor(y, x));
 
 					if (cave_m_idx[y][x] < 0)
 						msg_print("The water you are in turns to steam!");
@@ -5997,7 +6080,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the tree */
-				cave_set_feat(y, x, FEAT_FLOOR);
+				cave_set_feat(y, x, get_nearby_floor(y, x));
 
 				if (cave_m_idx[y][x] < 0)
 					msg_print("The trees around you explode in fire!");
@@ -6148,7 +6231,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 			}
 
 			/* Require strong attack.  Require floor. */
-			if ((dam >= 60) && (cave_feat[y][x] == FEAT_FLOOR))
+			if ((dam >= 60) && (cave_floor_bold(y, x)))
 			{
 				k = 0;
 
@@ -6186,7 +6269,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 					cave_info[y][x] &= ~(CAVE_MARK);
 
 					/* Destroy the lava */
-					if (!one_in_(3)) cave_set_feat(y, x, FEAT_FLOOR);
+					if (!one_in_(3)) cave_set_feat(y, x, get_nearby_floor(y, x));
 					else             cave_set_feat(y, x, FEAT_RUBBLE);
 
 					if (cave_m_idx[y][x] < 0)
@@ -6253,7 +6336,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 			if (summon_specific(y, x, FALSE, 100, SUMMON_INDEX, 1))
 			{
 				if (player_can_see_bold(y, x))
-					msg_print("The raw magic coalesces into a creature of pure mana!");
+					msg_print("The raw magic coalesces!");
 			}
 			break;
 		}

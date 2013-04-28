@@ -60,6 +60,7 @@
 
 
 extern bool register_angband_fonts(void);
+extern bool unregister_angband_fonts(void);
 extern u32b create_pixel(Display *dpy, byte red, byte green, byte blue);
 extern cptr get_default_font(int term_num);
 extern cptr get_default_small_font(int term_num);

@@ -2277,19 +2277,15 @@ bool set_wraithform(int v)
 	/* If the character is in a wall without wraithform, he's in trouble */
 	if ((!p_ptr->wraithform) && (!cave_passable_bold(p_ptr->py, p_ptr->px)))
 	{
-		int feat = cave_feat[p_ptr->py][p_ptr->px];
-		bool door = (((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL)) ||
-			(feat == FEAT_SECRET));
-
-		if (!door)
+		if (!cave_any_door(p_ptr->py, p_ptr->px))
 		{
-			take_hit(damroll(10 + p_ptr->power, 9), 0,
+			take_hit(damroll(10 + p_ptr->power, 6), 0,
 				"You emerge in a wall!", "becoming one with a wall");
 			cave_set_feat(p_ptr->py, p_ptr->px, FEAT_RUBBLE);
 		}
 		else
 		{
-			take_hit(damroll(5 + p_ptr->power / 2, 9), 0,
+			take_hit(damroll(5 + p_ptr->power / 2, 6), 0,
 				"You emerge in a door!", "becoming one with a door");
 			cave_set_feat(p_ptr->py, p_ptr->px, FEAT_BROKEN);
 		}
@@ -2504,6 +2500,33 @@ bool set_unsanctified(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw conditions status */
+	p_ptr->redraw |= (PR_CONDITIONS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->self_knowledge", notice observable changes
+ */
+bool set_self_knowledge(int v, cptr msg)
+{
+	bool notice = FALSE;
+
+	char *tmp = format("%s", msg);
+
+	/* Set self_knowledge, output messages */
+	notice = set_condition(&p_ptr->self_knowledge, v, 0L,
+	        (msg ? tmp : ""),
+	        (msg ? tmp : "Your self knowledge returns to normal."));
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
@@ -2984,7 +3007,7 @@ void take_hit(int dam, int msg_type, cptr hit_str, cptr kb_str)
 		message_flush();
 
 		/* Note cause of death */
-		my_strcpy(p_ptr->died_from, kb_str, sizeof(p_ptr->died_from));
+		(void)my_strcpy(p_ptr->died_from, kb_str, sizeof(p_ptr->died_from));
 
 		/* No longer a winner */
 		p_ptr->total_winner = FALSE;
@@ -2999,18 +3022,10 @@ void take_hit(int dam, int msg_type, cptr hit_str, cptr kb_str)
 		return;
 	}
 
-	/* Optional hitpoint warning */
+	/* Optional hitpoint warning (display later) */
 	if (alert_hitpoint && p_ptr->chp < warning)
 	{
-		/* Hack -- bell on first notice */
-		if (old_chp > warning)
-		{
-			bell("Low hitpoint warning!");
-		}
-
-		/* Message */
-		message(MSG_HITPOINT_WARN, 0, "*** LOW HITPOINT WARNING! ***");
-		message_flush();
+		p_ptr->hitpoint_warning = TRUE;
 	}
 
 	/* If character color changes with damage taken, redraw */
@@ -3861,30 +3876,14 @@ static bool target_set_interactive_accept(int y, int x)
 		}
 	}
 
+	/* Notice traps and glyphs */
+	if (cave_visible_trap(y, x)) return (TRUE);
+
 	/* Interesting memorized features */
-	if (cave_info[y][x] & (CAVE_MARK))
+	if ((cave_info[y][x] & (CAVE_MARK)) &&
+	    (f_info[cave_feat[y][x]].flags & (TF_INTERESTING)))
 	{
-		/* Notice doors */
-		if (cave_feat[y][x] == FEAT_OPEN)        return (TRUE);
-		if (cave_feat[y][x] == FEAT_BROKEN)      return (TRUE);
-
-		/* Notice stairs */
-		if (cave_any_stairs(y, x))              return (TRUE);
-
-		/* Notice shops */
-		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_SHOP_TAIL)) return (TRUE);
-
-		/* Notice traps and glyphs */
-		if (cave_visible_trap(y, x))             return (TRUE);
-
-		/* Notice doors */
-		if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_DOOR_TAIL)) return (TRUE);
-
-		/* Notice veins with treasure */
-		if (cave_feat[y][x] == FEAT_MAGMA_K)     return (TRUE);
-		if (cave_feat[y][x] == FEAT_QUARTZ_K)    return (TRUE);
+		return (TRUE);
 	}
 
 	/* Nope */
@@ -4070,13 +4069,13 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 						/* Describe the monster */
 						if (p_ptr->wizard)
 						{
-							strnfmt(out_val, sizeof(out_val),
+							(void)strnfmt(out_val, sizeof(out_val),
 									  "%s%s%s [%s] (%d:%d)", s1, s2,
 									  m_name, info, y, x);
 						}
 						else
 						{
-							strnfmt(out_val, sizeof(out_val),
+							(void)strnfmt(out_val, sizeof(out_val),
 									  "%s%s%s [%s]", s1, s2, m_name, info);
 						}
 
@@ -4115,13 +4114,13 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 						/* Describe the monster */
 						if (p_ptr->wizard)
 						{
-							strnfmt(out_val, sizeof(out_val),
+							(void)strnfmt(out_val, sizeof(out_val),
 									  "%s%sa monster of some kind [%s] (%d:%d)",
 									  s1, s2, info, y, x);
 						}
 						else
 						{
-							strnfmt(out_val, sizeof(out_val),
+							(void)strnfmt(out_val, sizeof(out_val),
 									  "%s%sa monster of some kind [%s]", s1, s2, info);
 						}
 
@@ -4291,7 +4290,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		}
 
 		/* Traps */
-		if (cave_info[y][x] & (CAVE_TRAP))
+		if ((cave_info[y][x] & (CAVE_TRAP)) && (!p_ptr->blind))
 		{
 			int i;
 			int idx = 0;
@@ -4423,7 +4422,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 
 		/* Scan all marked objects in the grid */
-		if (scan_floor(floor_list, &floor_num, y, x, 0x02))
+		if ((scan_floor(floor_list, &floor_num, y, x, 0x02)) &&
+		    (!p_ptr->blind || (y == p_ptr->py && x == p_ptr->px)))
 		{
 			/* Not boring */
 			boring = FALSE;
@@ -4441,13 +4441,13 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Message */
 				if (p_ptr->wizard)
 				{
-					strnfmt(out_val, sizeof(out_val),
+					(void)strnfmt(out_val, sizeof(out_val),
 							  "%s%s%s%s [%s] (%d:%d)",
 							  s1, s2, s3, o_name, info, y, x);
 				}
 				else
 				{
-					strnfmt(out_val, sizeof(out_val),
+					(void)strnfmt(out_val, sizeof(out_val),
 							  "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
 				}
 			}
@@ -4456,13 +4456,13 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Message */
 				if (p_ptr->wizard)
 				{
-					strnfmt(out_val, sizeof(out_val),
+					(void)strnfmt(out_val, sizeof(out_val),
 							  "%s%s%sa pile of %d items [%s] (%d:%d)",
 							  s1, s2, s3, floor_num, info, y, x);
 				}
 				else
 				{
-					strnfmt(out_val, sizeof(out_val),
+					(void)strnfmt(out_val, sizeof(out_val),
 							  "%s%s%sa pile of %d items [%s]",
 							  s1, s2, s3, floor_num, info);
 				}
@@ -4471,7 +4471,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				screen_save();
 
 				/* Display the list of objects (including gold) */
-				show_floor(floor_list, floor_num, TRUE);
+				show_floor(floor_list, floor_num, TRUE,
+					!((cave_info[y][x] & (CAVE_SEEN)) || (cave_info[y][x] & (CAVE_GLOW))));
 			}
 
 			/* Print info, move cursor back to floor grid */
@@ -4503,7 +4504,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		}
 
 		/* Terrain feature (when appropriate) */
-		if (boring || (feat != FEAT_FLOOR))
+		if (boring || (!cave_floor_bold(y, x)))
 		{
 			cptr name = f_name + f_info[feat].name;
 
@@ -4514,7 +4515,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
 
 			/* Pick proper indefinite article */
-			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
+			s3 = (my_is_vowel(name[0])) ? "an " : "a ";
 
 			/* Hack -- special treatment for certain terrain features. */
 			if ((feat == FEAT_WATER) || (feat == FEAT_LAVA) || (feat == FEAT_TREE))
@@ -4523,7 +4524,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			}
 
 			/* Hack -- special introduction for store doors */
-			if ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL))
+			if (cave_shop_bold(y, x))
 			{
 				/* Hack -- special name for the Inn */
 				if (feat == FEAT_SHOP_INN)
@@ -4537,12 +4538,12 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			/* Display a message */
 			if (p_ptr->wizard)
 			{
-				strnfmt(out_val, sizeof(out_val),
+				(void)strnfmt(out_val, sizeof(out_val),
 				        "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
 			}
 			else
 			{
-				strnfmt(out_val, sizeof(out_val),
+				(void)strnfmt(out_val, sizeof(out_val),
 				        "%s%s%s%s [%s]", s1, s2, s3, name, info);
 			}
 			prt(out_val, 0, 0);
@@ -4569,9 +4570,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
  *
  * Note that this code can be called from "get_aim_dir()".
  *
- * All locations must be on the current panel, unless the "scroll_target"
- * option is used, which allows changing the current panel during "look"
- * and "target" commands.  Currently, when "flag" is true, that is, when
+ * Currently, when "flag" is true, that is, when
  * "interesting" grids are being used, and a directional key is used, we
  * only scroll by a single panel, in the direction requested, and check
  * for any interesting grids on that panel.  The "correct" solution would
@@ -4618,6 +4617,7 @@ bool target_set_interactive(u16b mode)
 	int x = px;
 
 	bool done = FALSE;
+	bool shift_key = FALSE;
 
 	bool flag = TRUE;
 	bool jump = TRUE;
@@ -4638,7 +4638,6 @@ bool target_set_interactive(u16b mode)
 		if (!(mode & (TARGET_FIRE))) flag = FALSE;
 		mode &= ~(TARGET_GRID);
 	}
-
 
 
 	/* Prepare the "temp" array */
@@ -4673,6 +4672,9 @@ bool target_set_interactive(u16b mode)
 
 			/* Describe and Prompt */
 			query = target_set_interactive_aux(y, x, mode, info);
+
+			/* Allow all direction keys */
+			get_ui_direction(&query, TRUE, TRUE, TRUE, &shift_key);
 
 			/* Assume no "direction" */
 			d = 0;
@@ -4826,6 +4828,9 @@ bool target_set_interactive(u16b mode)
 			/* Describe and Prompt (enable "TARGET_LOOK") */
 			query = target_set_interactive_aux(y, x, mode | TARGET_LOOK, info);
 
+			/* Allow all direction keys and shift-movement */
+			get_ui_direction(&query, TRUE, TRUE, TRUE, &shift_key);
+
 			/* Assume no direction */
 			d = 0;
 
@@ -4905,9 +4910,9 @@ bool target_set_interactive(u16b mode)
 			if (d)
 			{
 				/* Move quickly */
-				if (isupper(query))
+				if (shift_key)
 				{
-					int mag = MIN(dungeon_wid / 2, dungeon_hgt / 2);
+					int mag = BLOCK_HGT;  /* Size of a dungeon block */
 
 					x += ddx[d] * mag;
 					y += ddy[d] * mag;
@@ -5258,9 +5263,9 @@ bool confuse_dir(int *dp)
  */
 #define object_desc_num_macro(T,N) do { \
 	\
-	uint n = (N); \
+	int n = (N); \
 	\
-	uint p; \
+	int p; \
 	\
 	/* Find "size" of "n" */ \
 	for (p = 1; n >= p * 10; p = p * 10) /* loop */; \
@@ -5331,7 +5336,7 @@ void precog_msg(int precog_msg_idx)
 							*t++ = 'a';
 
 							/* Next non-space is a vowel - insert an 'n' */
-							if (is_a_vowel(*(s+2))) *t++ = 'n';
+							if (my_is_vowel(*(s+2))) *t++ = 'n';
 						}
 
 						/* Multiple messages of this type */

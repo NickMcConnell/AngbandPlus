@@ -1177,13 +1177,11 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok,
 	bool can_dig)
 {
-	int feat;
+	feature_type *f_ptr;
 
-	/* Check Bounds */
+
+	/* Check bounds */
 	if (!in_bounds(y, x)) return (FALSE);
-
-	/* Check location */
-	feat = cave_feat[y][x];
 
 	/* The grid is already occupied. */
 	if (cave_m_idx[y][x] != 0)
@@ -1195,13 +1193,23 @@ bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok,
 	if ((num_glyph_on_level) && (cave_glyph(y, x))) return (FALSE);
 
 
-	/*** Check passability of various features. ***/
+	/* Get information about the feature in this grid */
+	f_ptr = &f_info[cave_feat[y][x]];
 
-	/* Feature is not a wall */
-	if (!(cave_info[y][x] & (CAVE_WALL)))
+
+	/* Floors -- safe for everything */
+	if (f_ptr->flags & (TF_FLOOR)) return (TRUE);
+
+	/* Walls and closed doors */
+	else if ((f_ptr->flags & (TF_WALL)) || (f_ptr->flags & (TF_DOOR_CLOSED)))
 	{
-		/* Floor -- safe for everything */
-		if (feat == FEAT_FLOOR) return (TRUE);
+		/* Test later */
+	}
+
+	/* Passable features other than floors and closed doors */
+	else if (f_ptr->flags & (TF_PASSABLE))
+	{
+		int feat = cave_feat[y][x];
 
 		/* Earthbound demons, firebreathers, and red elementals cannot handle water */
 		if (feat == FEAT_WATER)
@@ -1219,7 +1227,6 @@ bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok,
 			else return (TRUE);
 		}
 
-
 		/* Only fiery or strong flying creatures can handle lava */
 		if (feat == FEAT_LAVA)
 		{
@@ -1236,34 +1243,23 @@ bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok,
 			return (FALSE);
 		}
 
-		/* Anything else that's not a wall we assume to be legal. */
+		/* Anything else that's passable we assume to be legal. */
 		return (TRUE);
 	}
 
 
-	/* Feature is a wall */
-	else
-	{
-		/* Rubble is always OK */
-		if (feat == FEAT_RUBBLE) return (TRUE);
+	/*** Feature is a wall or closed door ***/
 
-		/* Trees are always OK */
-		if (feat == FEAT_TREE) return (TRUE);
+	/* Permanent walls are never OK */
+	if (f_ptr->flags & (TF_PERMANENT)) return (FALSE);
 
-		/* Permanent walls are never OK */
-		if ((feat >= FEAT_PERM_EXTRA) && (feat <= FEAT_PERM_SOLID))
-			return (FALSE);
+	/* Monster can pass through walls */
+	if (r_ptr->flags2 & (RF2_PASS_WALL)) return (TRUE);
 
-		/* Monster can pass through walls */
-		if (r_ptr->flags2 & (RF2_PASS_WALL)) return (TRUE);
+	/* Monster can dig through walls, and is allowed to. */
+	if ((r_ptr->flags2 & (RF2_KILL_WALL)) && (can_dig)) return (TRUE);
 
-		/* Monster can dig through walls, and is allowed to. */
-		if ((r_ptr->flags2 & (RF2_KILL_WALL)) && (can_dig)) return (TRUE);
-
-		else return (FALSE);
-	}
-
-	/* Catch weirdness */
+	/* Most monsters cannot exist in walls or closed doors */
 	return (FALSE);
 }
 
@@ -1289,6 +1285,7 @@ bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok,
 static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	feature_type *f_ptr;
 
 	/* Assume nothing in the grid other than the terrain hinders movement */
 	int move_chance = 100;
@@ -1358,91 +1355,20 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	}
 
 
-	/*** Check passability of various features. ***/
+	/* Get information about the feature in this grid */
+	f_ptr = &f_info[cave_feat[y][x]];
 
-	/* Feature is not a wall */
-	if (!(cave_info[y][x] & (CAVE_WALL)))
+
+	/* Floors -- safe for everything */
+	if (f_ptr->flags & (TF_FLOOR)) return (move_chance);
+
+	/* Passable features other than floors */
+	else if (f_ptr->flags & (TF_PASSABLE))
 	{
-		/* Floor */
-		if (feat == FEAT_FLOOR)
-		{
-			/* Any monster can handle floors */
-			return (move_chance);
-		}
+		int feat = cave_feat[y][x];
 
-		if (feat == FEAT_WATER)
-		{
-			/* Flying monsters can always cross water */
-			if (r_ptr->flags2 & (RF2_FLYING)) return (move_chance);
-
-			/* Some monsters can pass right over water */
-			if (r_ptr->flags2 & (RF2_PASS_WALL)) return (move_chance);
-
-			/* If it resists water, it can move easily in it */
-			if (r_ptr->flags3 & (RF3_RES_WATER)) return (move_chance);
-
-			/* Earthbound demons and firebreathers don't like water */
-			if (r_ptr->flags4 & (RF4_BRTH_FIRE)) return (MIN(25, move_chance));
-			if (strchr("I&", r_ptr->d_char)) return (MIN(25, move_chance));
-
-			/* "Red" elementals don't like water */
-			if (strchr("E", r_ptr->d_char) &&
-			   ((r_ptr->d_attr == TERM_RED) || (r_ptr->d_attr == TERM_L_RED)))
-			{
-				return (MIN(25, move_chance));
-			}
-
-			/* Animals are (usually) comfortable in water */
-			if (r_ptr->flags3 & (RF3_ANIMAL)) return (MIN(75, move_chance));
-
-			/* For many monsters, water take more time to cross. */
-			return (MIN(50, move_chance));
-		}
-
-		/* Lava */
-		if (feat == FEAT_LAVA)
-		{
-			/* Only fiery or strong flying creatures will cross lava */
-			if (r_ptr->flags3 & (RF3_IM_FIRE)) return (move_chance);
-
-			if ((r_ptr->flags2 & (RF2_FLYING)) && (m_ptr->hp >= 50))
-				return (move_chance);
-
-			/* Everything else doesn't want to enter lava */
-			return (MIN(20, move_chance));
-		}
-
-		/* Anything else that's not a wall we assume to be passable. */
-		else return (move_chance);
-	}
-
-
-	/* Feature is a wall */
-	else
-	{
-		/* Can the monster move easily through walls? */
-		bool move_wall = FALSE;
-		if ((r_ptr->flags2 & (RF2_PASS_WALL)) ||
-		    (r_ptr->flags2 & (RF2_KILL_WALL)))
-		{
-			move_wall = TRUE;
-		}
-
-		/* Standard dungeon granite and seams */
-		if ((feat >= FEAT_MAGMA) && (feat <= FEAT_WALL_SOLID))
-		{
-			/* Impassible except for monsters that move through walls */
-			if (move_wall) return (move_chance);
-			else return (0);
-		}
-
-		/* Permanent walls are never passable */
-		if ((feat >= FEAT_PERM_EXTRA) && (feat <= FEAT_PERM_SOLID))
-			return (0);
-
-		/* Doors */
-		if (((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL)) ||
-		     (feat == FEAT_SECRET))
+		/* Closed doors */
+		if (f_ptr->flags & (TF_DOOR_CLOSED))
 		{
 			int unlock_chance = 0;
 			int bash_chance = 0;
@@ -1496,7 +1422,10 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 				 * character door bashing code is changed, however,
 				 * we'll stick with this.
 				 */
-				door_power = 80 + 80 * ((feat - FEAT_DOOR_HEAD) % 8);
+				if (feat >= FEAT_DOOR_HEAD)
+					door_power = 80 + 80 * ((feat - FEAT_DOOR_HEAD) % 8);
+				else
+					door_power = 80;
 
 				/*
 				 * Calculate bashing ability (usu. 6 to 290).  Note:
@@ -1557,11 +1486,71 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 			}
 		}
 
-		/* Any wall grid that isn't explicitly made passable is impassible. */
+		if (feat == FEAT_WATER)
+		{
+			/* Flying monsters can always cross water */
+			if (r_ptr->flags2 & (RF2_FLYING)) return (move_chance);
+
+			/* Some monsters can pass right over water */
+			if (r_ptr->flags2 & (RF2_PASS_WALL)) return (move_chance);
+
+			/* If it resists water, it can move easily in it */
+			if (r_ptr->flags3 & (RF3_RES_WATER)) return (move_chance);
+
+			/* Earthbound demons and firebreathers don't like water */
+			if (r_ptr->flags4 & (RF4_BRTH_FIRE)) return (MIN(25, move_chance));
+			if (strchr("I&", r_ptr->d_char)) return (MIN(25, move_chance));
+
+			/* "Red" elementals don't like water */
+			if (strchr("E", r_ptr->d_char) &&
+			   ((r_ptr->d_attr == TERM_RED) || (r_ptr->d_attr == TERM_L_RED)))
+			{
+				return (MIN(25, move_chance));
+			}
+
+			/* Animals are (usually) comfortable in water */
+			if (r_ptr->flags3 & (RF3_ANIMAL)) return (MIN(75, move_chance));
+
+			/* For many monsters, water take more time to cross. */
+			return (MIN(50, move_chance));
+		}
+
+		/* Lava */
+		if (feat == FEAT_LAVA)
+		{
+			/* Only fiery or strong flying creatures will cross lava */
+			if (r_ptr->flags3 & (RF3_IM_FIRE)) return (move_chance);
+
+			if ((r_ptr->flags2 & (RF2_FLYING)) && (m_ptr->hp >= 50))
+				return (move_chance);
+
+			/* Everything else doesn't want to enter lava */
+			return (MIN(20, move_chance));
+		}
+
+		/* Anything else we assume to be easily passable. */
+		return (move_chance);
+	}
+
+	/* Permanent walls are impassable */
+	else if (f_ptr->flags & (TF_PERMANENT))
+	{
 		return (0);
 	}
 
-	/* Catch weirdness */
+
+	/*** Feature is not ordinarily passable ***/
+
+
+	/* Can the monster move easily through walls? */
+	if ((r_ptr->flags2 & (RF2_PASS_WALL)) ||
+		(r_ptr->flags2 & (RF2_KILL_WALL)))
+	{
+		/* Allow easy movement */
+		return (move_chance);
+	}
+
+	/* If not, it cannot move through */
 	return (0);
 }
 
@@ -1669,6 +1658,7 @@ static void get_town_target(monster_type *m_ptr)
 	/* Hack -- Usually choose a random store */
 	if (!one_in_(3))
 	{
+		/* Hard-coded shop locations  XXX XXX XXX */
 		i = FEAT_SHOP_HEAD + rand_int(MAX_STORES);
 
 		/* Try to find the store XXX XXX */
@@ -2303,6 +2293,9 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
 		if ((player_has_los_bold(m_ptr->fy, m_ptr->fx)) &&
 		    (m_ptr->cdis < TURN_RANGE))
 		{
+			/* If panicked, lose a turn */
+			bool lose_turn = ((m_ptr->monfear) ? TRUE : FALSE);
+
 			/* Turn and fight */
 			set_mon_fear(m_ptr, 0, FALSE);
 
@@ -2327,7 +2320,9 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
 			/* Charge! */
 			*ty = p_ptr->py;
 			*tx = p_ptr->px;
-			return (TRUE);
+
+			/* Sometimes lose a turn, sometimes react immediately */
+			return (!lose_turn);
 		}
 	}
 
@@ -2937,13 +2932,26 @@ static void make_confused_move(monster_type *m_ptr, int y, int x)
 
 
 	/* Feature is a wall */
-	if (cave_info[y][x] & (CAVE_WALL))
+	if (cave_wall_bold(y, x))
 	{
-		/* Feature is a (known) door */
-		if ((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL))
+		if (seen && confused)
+			msg_format("%^s bashes into a wall.", m_name);
+
+		/* Light stunning */
+		if ((one_in_(3)) && (m_ptr->stunned < 5)) m_ptr->stunned += 3;
+	}
+
+	/* Feature is passable */
+	else if (cave_passable_bold(y, x))
+	{
+		/* Feature is a (known) closed door and not a wall */
+		if (cave_closed_door(y, x) && !cave_wall_bold(y, x))
 		{
 			if (seen && confused)
 				msg_format("%^s bangs into a door.", m_name);
+
+			/* Light stunning */
+			if ((one_in_(3)) && (m_ptr->stunned < 5)) m_ptr->stunned += 3;
 		}
 
 		/* Rubble */
@@ -2951,6 +2959,9 @@ static void make_confused_move(monster_type *m_ptr, int y, int x)
 		{
 			if (seen && confused)
 				msg_format("%^s staggers into some rubble.", m_name);
+
+			/* Light stunning */
+			if ((one_in_(3)) && (m_ptr->stunned < 5)) m_ptr->stunned += 3;
 		}
 
 		/* Tree */
@@ -2958,23 +2969,11 @@ static void make_confused_move(monster_type *m_ptr, int y, int x)
 		{
 			if (seen && confused)
 				msg_format("%^s wanders into a tree.", m_name);
+
+			/* Light stunning */
+			if ((one_in_(3)) && (m_ptr->stunned < 5)) m_ptr->stunned += 3;
 		}
 
-		/* Otherwise, we assume that the feature is a "wall".  XXX  */
-		else
-		{
-			if (seen && confused)
-				msg_format("%^s bashes into a wall.", m_name);
-		}
-
-		/* Sometimes stun the monster, but only lightly */
-		if ((one_in_(3)) && (m_ptr->stunned < 5))
-			m_ptr->stunned += 3;
-	}
-
-	/* Feature is not a wall */
-	else
-	{
 		/* Lava */
 		if (feat == FEAT_LAVA)
 		{
@@ -3007,8 +3006,11 @@ static void make_confused_move(monster_type *m_ptr, int y, int x)
 			else
 			{
 				if (seen && confused)
-					msg_format("%^s staggers into the water.", m_name);
+					msg_format("%^s falls into the water.", m_name);
 			}
+
+			/* Lose some energy */
+			mon_adjust_energy(m_ptr, 25);
 		}
 	}
 
@@ -3690,38 +3692,29 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 	/* Can still move */
 	if (do_move)
 	{
-		/* Get the feature in the grid that the monster is trying to enter. */
-		feat = cave_feat[ny][nx];
-
-		/* Entering a wall */
-		if (cave_info[ny][nx] & (CAVE_WALL))
+		/* Handle walls and doors */
+		if ((cave_wall_bold(ny, nx)) || (cave_closed_door(ny, nx)))
 		{
-			/* Wall is passable for normal monsters */
-			if (cave_passable_bold(ny, nx))
+			/* Get the feature in the grid that the monster is trying to enter. */
+			feat = cave_feat[ny][nx];
+
+			/* Monsters that kill walls sometimes kill rubble too */
+			if (feat == FEAT_RUBBLE)
 			{
-				/* Monsters that kill walls sometimes kill rubble too */
-				if (feat == FEAT_RUBBLE)
+				if ((r_ptr->flags2 & (RF2_KILL_WALL)) && (one_in_(3)))
 				{
-					if ((r_ptr->flags2 & (RF2_KILL_WALL)) && (one_in_(3)))
+					/* Forget the rubble -- if in sight */
+					if (player_can_see_bold(ny, nx))
 					{
-						/* Forget the rubble -- if in sight */
-						if (player_can_see_bold(ny, nx))
-						{
-							do_view = TRUE;
+						do_view = TRUE;
 
-							/* Note that the monster killed the wall */
-							did_kill_wall = TRUE;
-						}
-
-						/* Forget the rubble */
-						/* cave_info[ny][nx] &= ~(CAVE_MARK); */
-
-						/* Reduce the rubble to floor */
-						cave_set_feat(ny, nx, FEAT_FLOOR);
+						/* Note that the monster killed the wall */
+						did_kill_wall = TRUE;
 					}
-				}
 
-				/* Nothing special */
+					/* Reduce the rubble to floor */
+					cave_set_feat(ny, nx, get_nearby_floor(ny, nx));
+				}
 			}
 
 			/* Monster passes through walls (and doors) */
@@ -3734,9 +3727,6 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 			/* Monster destroys walls (and doors) */
 			else if (r_ptr->flags2 & (RF2_KILL_WALL))
 			{
-				/* Forget the wall */
-				/* cave_info[ny][nx] &= ~(CAVE_MARK); */
-
 				/* Note that the monster killed the wall */
 				if (player_can_see_bold(ny, nx))
 				{
@@ -3879,7 +3869,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 				}
 			}
 
-			/* Paranoia -- Ignore all features not added to this code */
+			/* Walls cannot be traversed unless explicitly handled */
 			else return;
 		}
 	}
@@ -4281,7 +4271,7 @@ bool player_invis(monster_type *m_ptr, bool apply_dist)
 		mlv = mlv * 3 / 2;
 	}
 
-	/* Require some invisibility */
+	/* Ignore weak invisibility */
 	if (inv < mlv / 2) return (FALSE);
 
 	/* Return whether the character is invisible (highly random) */
@@ -4658,9 +4648,6 @@ static byte pseudo_randomize[10] = { 1, 8, 3, 6, 0, 9, 2, 7, 4, 5 };
  *
  * To make it easier to balance code that inflicts nasty effects on
  * monsters, stunning, fear, and confusion wear off at the same rate.
- *
- * We also tackle movement clumping by adjusting the energy of monsters
- * that move three times as fast as the character.
  *
  * This function is called a lot, and is therefore fairly expensive.
  */

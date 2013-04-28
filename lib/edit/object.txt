@@ -892,7 +892,7 @@ D:blood it will spill.
 
 N:127:& Sling~
 G:}:u
-I:19:2:0
+I:25:2:0
 W:1:0:5:5
 A:1/70:100/50
 C:0:2d1:0:0:0
@@ -906,7 +906,7 @@ D:velocity.
 
 N:130:& Short Bow~
 G:}:U
-I:19:12:0
+I:26:12:0
 W:5:0:30:50
 A:1/30:5/70:25/0
 C:0:2d1:0:0:0
@@ -915,7 +915,7 @@ D:The traditional hunter's weapon, this light bow is easily drawn.
 
 N:131:& Long Bow~
 G:}:U
-I:19:13:0
+I:26:13:0
 W:15:0:40:120
 A:10/30:20/80
 C:0:3d1:0:0:0
@@ -927,7 +927,7 @@ D:armour.
 
 N:133:& Hand Crossbow~
 G:}:u
-I:19:22:0
+I:27:22:0
 W:5:0:60:80
 A:1/30:5/70:25/0
 C:0:2d1:0:0:0
@@ -937,7 +937,7 @@ D:Primarily a hunting weapon, it shoots bolts with only moderate force.
 
 N:134:& Light Crossbow~
 G:}:W
-I:19:23:0
+I:27:23:0
 W:25:0:80:270
 A:15/20:40/65:60/40
 C:0:3d1:0:0:0
@@ -947,7 +947,7 @@ D:its wielder.
 
 N:135:& Heavy Crossbow~
 G:}:s
-I:19:24:0
+I:27:24:0
 W:45:0:140:400
 A:40/20:60/55:100/35
 C:0:4d1:0:0:0
@@ -957,7 +957,7 @@ D:requires a crank to be cocked.
 
 N:136:& Triple Crossbow~
 G:}:B
-I:19:29:0
+I:27:29:0
 W:50:0:160:2000
 A:40/5:60/20:100/15
 C:0:2d1:0:0:0
@@ -2159,7 +2159,7 @@ G:=:d
 I:45:35:0
 W:25:0:2:100
 A:25/70:45/70:65/10
-C:0:3d10:0:0:0
+C:0:1d1:0:0:0
 E:DEATH 1 | MAGIC 1
 D:that influences how forceful your blows are in melee or in archery.
 
@@ -2168,7 +2168,7 @@ G:=:d
 I:45:36:0
 W:40:0:2:100
 A:40/70:55/70:75/10
-C:0:4d10:0:0:0
+C:0:1d1:0:0:0
 F:SHOW_MODS
 E:KNOWLEDGE 1 | DEATH 1 | MAGIC 1
 D:that affects both how well you aim and how hard you hit in melee or when 
@@ -3316,12 +3316,13 @@ D:identifies your possesions, and gives self knowledge.
 N:438:Self Knowledge
 G:!:d
 I:75:58:0
-W:30:0:4:500
-A:10/25:40/75
+W:35:0:4:4000
+A:20/10:60/40
 C:0:1d1:0:0:0
-E:KNOWLEDGE 2
-D:that reveals your hidden attributes.  Very useful for finding out what 
-D:unknown pieces of equipment do.
+E:KNOWLEDGE 3
+D:that reveals your hidden attributes, including the effects of everything 
+D:you are wearing or wielding, for a short period of time.  Use the 
+D:knowledge ('~') screen to inspect yourself.
 
 # The essence cost of these two potions is deliberate
 N:439:Gain Skill
@@ -4244,7 +4245,7 @@ D:that shoots frost bolts.
 N:592:Acid Balls
 G:-:d
 I:66:24:27
-W:52:0:15:5500
+W:53:0:15:5500
 A:53/75:70/75:85/10
 C:10:1d1:0:0:0
 E:ACID 1
@@ -5061,7 +5062,7 @@ F:INSTA_ART
 
 # The Palantir of Westernesse -- see artifact list
 
-N:736:& Palantir~
+N:736:& Palant['i]r~
 G:~:y
 I:39:7:0
 W:0:0:0:0

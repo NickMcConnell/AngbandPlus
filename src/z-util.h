@@ -57,6 +57,23 @@ extern void plog(cptr str);
 extern void quit(cptr str);
 
 
+/*
+ * Hack -- conditional (or "bizarre") externs
+ */
+
+#ifdef SET_UID
+# ifndef HAVE_USLEEP
+/* util.c */
+extern int usleep(unsigned long usecs);
+# endif /* HAVE_USLEEP */
+extern void user_name(char *buf, size_t len, int id);
+#endif /* SET_UID */
+
+/* CHECK_TIME code. Deprecated. */
+extern errr check_time(void);
+extern errr check_time_init(void);
+
+
 #endif /* INCLUDED_Z_UTIL_H */
 
 

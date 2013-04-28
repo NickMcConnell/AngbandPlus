@@ -227,12 +227,6 @@ static int colortable[16];
 #endif /* A_COLOR */
 
 
-#ifdef USE_GRAPHICS
-
-static bool use_blocks = FALSE;
-
-#endif
-
 /*
  * Place the "keymap" into its "normal" state
  */
@@ -343,7 +337,7 @@ static errr Term_xtra_gcu_alive(int v)
 		nl();
 
 		/* Hack -- make sure the cursor is visible */
-		Term_xtra(TERM_XTRA_SHAPE, 1);
+		(void)Term_xtra(TERM_XTRA_SHAPE, 1);
 
 		/* Flush the curses buffer */
 		(void)refresh();
@@ -449,7 +443,7 @@ static void Term_nuke_gcu(term *t)
 	if (--active != 0) return;
 
 	/* Hack -- make sure the cursor is visible */
-	Term_xtra(TERM_XTRA_SHAPE, 1);
+	(void)Term_xtra(TERM_XTRA_SHAPE, 1);
 
 #ifdef A_COLOR
 	/* Reset colors to defaults */
@@ -524,7 +518,7 @@ static errr Term_xtra_gcu_event(int v)
 	}
 
 	/* Enqueue the keypress */
-	Term_keypress(i);
+	(void)Term_keypress(i);
 
 	/* Success */
 	return (0);
@@ -666,7 +660,7 @@ static errr Term_xtra_gcu(int n, int v)
 
 		/* React to events */
 		case TERM_XTRA_REACT:
-		Term_xtra_gcu_react();
+			(void)Term_xtra_gcu_react();
 		return (0);
 	}
 
@@ -697,6 +691,7 @@ static errr Term_curs_gcu(int x, int y)
 static errr Term_wipe_gcu(int x, int y, int n)
 {
 	term_data *td = (term_data *)(Term->data);
+	char buf[1024];
 
 	/* Place cursor */
 	wmove(td->win, y, x);
@@ -710,7 +705,11 @@ static errr Term_wipe_gcu(int x, int y, int n)
 	/* Clear some characters */
 	else
 	{
-		while (n-- > 0) waddch(td->win, ' ');
+		/* Format a buffer */
+		(void)strnfmt(buf, sizeof(buf), "%*c", n, ' ');
+
+		/* Output */
+		waddstr(td->win, buf);
 	}
 
 	/* Success */
@@ -725,10 +724,8 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
 	term_data *td = (term_data *)(Term->data);
 
-	int i;
-#ifdef USE_GRAPHICS
-	int pic;
-#endif
+	char buf[1024];
+
 
 #ifdef A_COLOR
 	/* Set the color */
@@ -738,41 +735,16 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 	/* Move the cursor */
 	wmove(td->win, y, x);
 
-	/* Draw each character */
-	for (i = 0; i < n; i++)
-	{
-#ifdef USE_GRAPHICS
-		/* Special characters? */
-		if (use_blocks)
-		{
+	/* Format to appropriate size */
+	(void)strnfmt(buf, sizeof(buf), "%.*s", n, s);
 
-			/* Determine picture to use */
-			if (s[i] == '#')
-			{
-				/* Walls */
-				pic = ACS_CKBOARD;
+	/* Write to screen */
+	waddstr(td->win, buf);
 
-				/*
-				 *  Note that veins are '#' as well now.
-				 *  Trees are '%' now - and this looks bad when redefined.
-				 */
-			}
-			else
-			{
-			        pic = s[i];
-			}
-
-			/* Draw the picture */
-			waddch(td->win, pic);
-
-			/* Next character */
-			continue;
-		}
-#endif /* USE_GRAPHICS */
-
-		/* Draw a normal character */
-		waddch(td->win, s[i]);
-	}
+#ifdef A_COLOR
+	/* Unset the color */
+	if (can_use_color) wattrset(td->win, 0);
+#endif
 
 	/* Success */
 	return (0);
@@ -786,16 +758,16 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
  */
 static errr Term_user_gcu(int n)
 {
+	char key;
+
 	/* Unused parameter */
 	(void)n;
 
 	/* Prompt */
 	prt("Awaiting system command: ", 0, 0);
 
-	char key;
-
-	/* Get a keypress */
-	key = inkey();
+	/* Wait for, get and remove a keypress */
+	(void)Term_inkey(&key, TRUE, TRUE);
 
 	switch (key)
 	{
@@ -848,7 +820,7 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 	}
 
 	/* Initialize the term */
-	term_init(t, cols, rows, 256);
+	(void)term_init(t, cols, rows, 256);
 
 	/* Avoid bottom right corner */
 	t->icky_corner = TRUE;
@@ -873,7 +845,7 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 	t->data = td;
 
 	/* Activate it */
-	Term_activate(t);
+	(void)Term_activate(t);
 
 	/* Success */
 	return (0);
@@ -881,8 +853,20 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 
 static void hook_quit(cptr str)
 {
+	int i, num_term = MAX_TERM_DATA;
+
+	if (!split_window) num_term=1;
+
 	/* Exit curses */
 	endwin();
+
+	/* Free windows */
+	for (i = 0; i < num_term; i++)
+	{
+		term_data *td = &data[i];
+		term *t = &td->t;
+		(void)term_nuke(t);
+	}
 }
 
 /*
@@ -930,14 +914,6 @@ errr init_gcu(int argc, char *argv[])
 	i = ((LINES < 50) || (COLS < 80));
 	if (i) quit("Angband needs an 80x50 'curses' screen");
 
-#ifdef USE_GRAPHICS
-	/* Set graphics flag */
-	use_graphics = FALSE;
-
-	/* Use the graphical wall tiles? */
-	use_blocks = arg_graphics;
-#endif
-
 #ifdef A_COLOR
 
 	/*** Init the Color-pairs and set up a translation table ***/
@@ -972,7 +948,7 @@ errr init_gcu(int argc, char *argv[])
 		/* XXX XXX XXX Take account of "gamma correction" */
 
 		/* Prepare the "Angband Colors" */
-		Term_xtra_gcu_react();
+		(void)Term_xtra_gcu_react();
 	}
 
 	/* Attempt to use colors */
@@ -1097,7 +1073,7 @@ errr init_gcu(int argc, char *argv[])
 		if (rows <= 0 || cols <= 0) continue;
 
 		/* Create a term */
-		term_data_init_gcu(&data[next_win], rows, cols, y, x, i);
+		(void)term_data_init_gcu(&data[next_win], rows, cols, y, x, i);
 
 		/* Remember the term */
 		angband_term[next_win] = &data[next_win].t;
@@ -1107,7 +1083,7 @@ errr init_gcu(int argc, char *argv[])
 	}
 
 	/* Activate the "Angband" window screen */
-	Term_activate(&data[0].t);
+	(void)Term_activate(&data[0].t);
 
 	/* Remember the active screen */
 	term_screen = &data[0].t;

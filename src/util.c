@@ -38,31 +38,7 @@ void strlower(char *buf)
 	char *s;
 
 	/* Lowercase the string */
-	for (s = buf; *s != 0; s++) *s = tolower((unsigned char)*s);
-}
-
-
-/*
- * Check a char for "vowel-hood"
- */
-bool is_a_vowel(int ch)
-{
-	switch (ch)
-	{
-		case 'a':
-		case 'e':
-		case 'i':
-		case 'o':
-		case 'u':
-		case 'A':
-		case 'E':
-		case 'I':
-		case 'O':
-		case 'U':
-		return (TRUE);
-	}
-
-	return (FALSE);
+	for (s = buf; *s != 0; s++) *s = my_tolower((unsigned char)*s);
 }
 
 
@@ -81,9 +57,35 @@ static char hexify(int i)
 static int dehex(char c)
 {
 	if (isdigit((unsigned char)c)) return (D2I(c));
-	if (isalpha((unsigned char)c)) return (A2I(tolower((unsigned char)c)) + 10);
+	if (my_isalpha((unsigned char)c)) return (A2I(my_tolower((unsigned char)c)) + 10);
 	return (0);
 }
+
+
+/*
+ * Format and translate a string, then print it out to file.
+ */
+void x_fprintf(FILE *fff, int encoding, cptr fmt, ...)
+{
+	va_list vp;
+
+	char buf[1024];
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Translate */
+	xstr_trans(buf, encoding);
+
+	fprintf(fff, buf);
+}
+
 
 /*
  * Transform macro trigger name ('\[alt-D]' etc..)
@@ -600,7 +602,7 @@ errr macro_add(cptr pat, cptr act)
 	if (n >= 0)
 	{
 		/* Free the old macro action */
-		string_free(macro__act[n]);
+		(void)string_free(macro__act[n]);
 	}
 
 	/* Create a new macro */
@@ -653,8 +655,8 @@ errr macro_free(void)
 	/* Free the macros */
 	for (i = 0; i < macro__num; ++i)
 	{
-		string_free(macro__pat[i]);
-		string_free(macro__act[i]);
+		(void)string_free(macro__pat[i]);
+		(void)string_free(macro__act[i]);
 	}
 
 	FREE((void*)macro__pat);
@@ -665,7 +667,7 @@ errr macro_free(void)
 	{
 		for (j = 0; j < (int)N_ELEMENTS(keymap_act[i]); ++j)
 		{
-			string_free(keymap_act[i][j]);
+			(void)string_free(keymap_act[i][j]);
 			keymap_act[i][j] = NULL;
 		}
 	}
@@ -685,16 +687,16 @@ errr macro_trigger_free(void)
 	if (macro_template != NULL)
 	{
 		/* Free the template */
-		string_free(macro_template);
+		(void)string_free(macro_template);
 		macro_template = NULL;
 
 		/* Free the trigger names and keycodes */
 		for (i = 0; i < max_macrotrigger; i++)
 		{
-			string_free(macro_trigger_name[i]);
+			(void)string_free(macro_trigger_name[i]);
 
-			string_free(macro_trigger_keycode[0][i]);
-			string_free(macro_trigger_keycode[1][i]);
+			(void)string_free(macro_trigger_keycode[0][i]);
+			(void)string_free(macro_trigger_keycode[1][i]);
 		}
 
 		/* No more macro triggers */
@@ -706,11 +708,11 @@ errr macro_trigger_free(void)
 		/* Free modifier names */
 		for (i = 0; i < num; i++)
 		{
-			string_free(macro_modifier_name[i]);
+			(void)string_free(macro_modifier_name[i]);
 		}
 
 		/* Free modifier chars */
-		string_free(macro_modifier_chr);
+		(void)string_free(macro_modifier_chr);
 		macro_modifier_chr = NULL;
 	}
 
@@ -966,9 +968,9 @@ char (*inkey_hack) (int flush_first) = NULL;
  * If we are waiting for a keypress, and no keypress is ready, then we will
  * refresh (once) the window which was active when this function was called.
  *
- * Note that "back-quote" is automatically converted into "escape" for
- * convenience on machines with no "escape" key.  This is done after the
- * macro matching, so the user can still make a macro for "backquote".
+ * If a compiler define is set, "back-quote" is automatically converted into
+ * "escape".  This is done after the macro matching, so the user can still
+ * make a macro for "backquote".
  *
  * Note the special handling of "ascii 30" (ctrl-caret, aka ctrl-shift-six)
  * and "ascii 31" (ctrl-underscore, aka ctrl-shift-minus), which are used to
@@ -1165,10 +1167,12 @@ char inkey(void)
 			continue;
 		}
 
+#ifdef USE_BACKQUOTE_AS_ESCAPE
 
 		/* Treat back-quote as escape */
 		if (ch == '`') ch = ESCAPE;
 
+#endif /* USE_BACKQUOTE_AS_ESCAPE */
 
 		/* End "macro trigger" */
 		if (parse_under && (ch <= 32))
@@ -1243,7 +1247,7 @@ void bell(cptr reason)
 	}
 
 	/* Make a bell noise (if allowed) */
-	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
+	if (ring_bell) (void)Term_xtra(TERM_XTRA_NOISE, 0);
 
 	/* Flush the input (later!) */
 	flush();
@@ -1368,7 +1372,7 @@ errr quarks_free(void)
 	/* Free the "quarks" */
 	for (i = 1; i < quark__num; i++)
 	{
-		string_free(quark__str[i]);
+		(void)string_free(quark__str[i]);
 	}
 
 	/* Free the list of "quarks" */
@@ -1512,7 +1516,7 @@ cptr message_str(s16b age)
 	/* HACK - Handle repeated messages */
 	if (message__count[x] > 1)
 	{
-		strnfmt(buf, sizeof(buf), "%s <%dx>", s, message__count[x]);
+		(void)strnfmt(buf, sizeof(buf), "%s <%dx>", s, message__count[x]);
 		s = buf;
 	}
 
@@ -1959,7 +1963,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	p_ptr->window |= (PW_MESSAGE);
 
 	/* Copy it */
-	my_strcpy(buf, msg, sizeof(buf));
+	(void)my_strcpy(buf, msg, sizeof(buf));
 
 	n++;
 
@@ -2089,6 +2093,7 @@ void debug(cptr fmt, ...)
  */
 void message(u16b type, s16b delay, cptr text)
 {
+	/* Play a sound, if specified */
 	sound(type);
 
 	/* If this is an important message, ... */
@@ -2101,6 +2106,7 @@ void message(u16b type, s16b delay, cptr text)
 		pause_for(delay);
 	}
 
+	/* Display the message */
 	msg_print_aux(type, text);
 }
 
@@ -2176,7 +2182,7 @@ void screen_save(void)
 	message_flush();
 
 	/* Save the screen (if legal) */
-	if (screen_depth++ == 0) Term_save();
+	if (screen_depth++ == 0) (void)Term_save();
 
 	/* Increase "icky" depth */
 	character_icky++;
@@ -2194,7 +2200,7 @@ void screen_load(void)
 	message_flush();
 
 	/* Load the screen (if legal) */
-	if (--screen_depth == 0) Term_load();
+	if (--screen_depth == 0) (void)Term_load();
 
 	/* Decrease "icky" depth */
 	character_icky--;
@@ -2305,7 +2311,7 @@ void center_string(char *buf, int len, cptr str, int length)
 
 	/* Mega-Hack */
 	sprintf(tmp, "%*s%s%*s", j, "", str, (i % 2) ? j - 1 : j, "");
-	my_strcpy(buf, tmp, len);
+	(void)my_strcpy(buf, tmp, len);
 }
 
 
@@ -2367,7 +2373,7 @@ void text_out_to_screen(byte a, cptr str)
 		}
 
 		/* Clean up the char */
-		ch = (isprint((unsigned char)*s) ? *s : ' ');
+		ch = (my_isprint((unsigned char)*s) ? *s : ' ');
 
 		/* Wrap words as needed */
 		if ((x >= wrap - 1) && (ch != ' '))
@@ -2433,103 +2439,139 @@ void text_out_to_screen(byte a, cptr str)
  * Hook function for text_out(). Make sure that text_out_file points
  * to an open text-file.
  *
- * Long lines will be wrapped on the last space before column 75,
- * directly at column 75 if the word is *very* long, or when
- * encountering a newline character.
+ * Long lines will be wrapped at text_out_wrap, or at column 75 if that
+ * is not set; or at a newline character.  Note that punctuation can
+ * sometimes be placed one column beyond the wrap limit.
  *
- * Buffers the last line till a wrap occurs.  Flush the buffer with
- * an explicit newline if necessary.
+ * You must be careful to end all file output with a newline character
+ * to "flush" the stored line position.
  */
-void text_out_to_file(byte attr, cptr str)
+void text_out_to_file(byte a, cptr str)
 {
-	int i;
-	cptr r;
+	cptr s;
+	char buf[1024];
 
-	/* Line buffer */
-	static char roff_buf[256];
+	/* Current position on the line */
+	static int pos = 0;
 
-	/* Current pointer into line roff_buf */
-	static char *roff_p = roff_buf;
+	/* Wrap width */
+	int wrap = (text_out_wrap ? text_out_wrap : 75);
 
-	/* Last space saved into roff_buf */
-	static char *roff_s = NULL;
+	/* We use either ascii or system-specific encoding */
+	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
-	/* Indentation */
-	static int indent = 0;
 
-	/* Unused */
-	(void)attr;
+	/* Unused parameter */
+	(void)a;
 
-	/* Remember the indentation when starting a new line */
-	if (!roff_buf[0])
+	/* Copy to a rewriteable string */
+	(void)my_strcpy(buf, str, 1024);
+
+	/* Translate it to 7-bit ASCII or system-specific format */
+	xstr_trans(buf, encoding);
+
+	/* Current location within "buf" */
+	s = buf;
+
+	/* Process the string */
+	while (*s)
 	{
-		/* Count the leading spaces */
-		for (indent = 0; str[indent] == ' '; indent++)
-			; /* Do nothing */
-	}
+		char ch;
+		int n = 0;
+		int len = wrap - pos;
+		int l_space = -1;
 
-	/* Scan the given string, one character at a time */
-	for (; *str; str++)
-	{
-		char ch = *str;
-		bool wrap = (ch == '\n');
-
-		/* Reset indentation after explicit wrap */
-		if (wrap) indent = 0;
-
-		if (!isprint((unsigned char)ch)) ch = ' ';
-
-		if (roff_p >= roff_buf + 75) wrap = TRUE;
-
-		if ((ch == ' ') && (roff_p + 2 >= roff_buf + 75)) wrap = TRUE;
-
-		/* Handle line-wrap */
-		if (wrap)
+		/* If we are at the start of the line... */
+		if (pos == 0)
 		{
-			/* Terminate the current line */
-			*roff_p = '\0';
+			int i;
 
-			r = roff_p;
-
-			/* Wrap the line on the last known space */
-			if (roff_s && (ch != ' '))
+			/* Output the indent */
+			for (i = 0; i < text_out_indent; i++)
 			{
-				*roff_s = '\0';
-				r = roff_s + 1;
+				fputc(' ', text_out_file);
+				pos++;
 			}
-
-			/* Output the line */
-			fprintf(text_out_file, "%s\n", roff_buf);
-
-			/* Reset the buffer */
-			roff_s = NULL;
-			roff_p = roff_buf;
-			roff_buf[0] = '\0';
-
-			/* Indent the following line */
-			if (indent)
-			{
-				for (i = indent; i > 0; i--)
-					*roff_p++ = ' ';
-			}
-
-			/* Copy the remaining line into the buffer */
-			while (*r) *roff_p++ = *r++;
-
-			/* Append the last character */
-			if (ch != ' ') *roff_p++ = ch;
-
-			continue;
 		}
 
-		/* Remember the last space character */
-		if (ch == ' ') roff_s = roff_p;
+		/* Find length of line up to next newline or end-of-string */
+		while ((n < len) && !((s[n] == '\n') || (s[n] == '\0')))
+		{
+			/* Mark the most recent space in the string */
+			if (s[n] == ' ') l_space = n;
 
-		/* Save the char */
-		*roff_p++ = ch;
+			/* Increment */
+			n++;
+		}
+
+		/* If we have encountered no spaces */
+		if ((l_space == -1) && (n == len))
+		{
+			/* If we are at the start of a new line */
+			if (pos == text_out_indent)
+			{
+				len = n;
+			}
+			/* HACK - Output punctuation at the end of the line */
+			else if ((s[0] == ' ') || (s[0] == ',') || (s[0] == '.'))
+			{
+				len = 1;
+			}
+			else
+			{
+				/* Begin a new line */
+				fputc('\n', text_out_file);
+
+				/* Reset */
+				pos = 0;
+
+				continue;
+			}
+		}
+		else
+		{
+			/* Wrap at the newline */
+			if ((s[n] == '\n') || (s[n] == '\0')) len = n;
+
+			/* Wrap at the last space */
+			else len = l_space;
+		}
+
+		/* Write that line to file */
+		for (n = 0; n < len; n++)
+		{
+			/* Ensure the character is printable */
+			ch = (my_isprint((unsigned char)s[n]) ? s[n] : ' ');
+
+			/* Write out the character */
+			fputc(ch, text_out_file);
+
+			/* Increment */
+			pos++;
+		}
+
+		/* Move 's' past the stuff we've written */
+		s += len;
+
+		/* If we are at the end of the string, end */
+		if (*s == '\0') return;
+
+		/* Skip newlines */
+		if (*s == '\n') s++;
+
+		/* Begin a new line */
+		fputc('\n', text_out_file);
+
+		/* Reset */
+		pos = 0;
+
+		/* Skip whitespace */
+		while (*s == ' ') s++;
 	}
-}
 
+	/* We are done */
+	return;
+}
 
 
 /*
@@ -2565,7 +2607,7 @@ void c_roff(byte a, cptr str, byte l_margin, byte r_margin)
 	(void)Term_locate(&x, &y);
 
 	/* If cursor is left of the left margin, move it to the left margin */
-	if (x < text_out_indent) Term_gotoxy(text_out_indent, y);
+	if (x < text_out_indent) (void)Term_gotoxy(text_out_indent, y);
 
 	/* Print (colored) text on screen */
 	text_out_to_screen(a, str);
@@ -2645,7 +2687,7 @@ void c_roff_centered(byte a, cptr str, int l_margin, int r_margin)
 		i = x - l_margin;
 
 		/* Clean up the char */
-		ch = (isprint((unsigned char)*s) ? *s : ' ');
+		ch = (my_isprint((unsigned char)*s) ? *s : ' ');
 
 		/* Store this letter */
 		tmp[i] = ch;
@@ -2728,7 +2770,7 @@ void c_roff_centered(byte a, cptr str, int l_margin, int r_margin)
 			for (j = 0; tmp2[j] != '\0'; j++)
 			{
 				/* Dump */
-				if (tmp2[j] != ' ') Term_addch(a, tmp2[j]);
+				if (tmp2[j] != ' ') (void)Term_addch(a, tmp2[j]);
 				else                move_cursor(y, l_margin + j + 1);
 			}
 
@@ -2749,75 +2791,157 @@ void c_roff_centered(byte a, cptr str, int l_margin, int r_margin)
 }
 
 
+
 /*
- * Get some input at the cursor location.
+ * Unify the use of direction keys in various interfaces.  -LM-
  *
- * The buffer is assumed to have been initialized to a default string.
- * Note that this string is often "empty" (see below).
- *
- * The default buffer is displayed in yellow until cleared, which happens
- * on the first keypress, unless that keypress is Return.
- *
- * Normal chars clear the default and append the char.
- * Backspace clears the default or deletes the final char.
- * Control-U clears the line.
- * Return accepts the current buffer contents and returns TRUE.
- * Escape clears the buffer and the window and returns FALSE.
- *
- * Note that 'len' refers to the size of the buffer.  The maximum length
- * of the input is 'len-1'.
+ * Handle usage of the shift key combined with either roguelike movement keys
+ * or the number pad/arrow keys.  The first is easy; the less said about the
+ * second, the better.
  */
-bool askfor_aux(char *buf, size_t len)
+void get_ui_direction(char *k, bool allow_roguelike,
+	bool allow_numbers, bool allow_diagonal, bool *shift_key)
+{
+	/* Assume shift is not pressed (or at least not recognized) */
+	*shift_key = FALSE;
+
+	/* Optionally, allow roguelike keys */
+	if ((allow_roguelike) && (strchr("bjnhlykuBJNHLYKU", *k)))
+	{
+		/* Option -- ignore diagonals */
+		if ((!allow_diagonal) && (strchr("bnyuBNYU", *k))) return;
+
+		/* Notice shift-movement */
+		if (my_isupper(*k)) *shift_key = TRUE;
+
+		/* Convert roguelike keys */
+		if      ((*k == 'B') || (*k == 'b')) *k = '1';
+		else if ((*k == 'J') || (*k == 'j')) *k = '2';
+		else if ((*k == 'N') || (*k == 'n')) *k = '3';
+		else if ((*k == 'H') || (*k == 'h')) *k = '4';
+		else if ((*k == 'L') || (*k == 'l')) *k = '6';
+		else if ((*k == 'Y') || (*k == 'y')) *k = '7';
+		else if ((*k == 'K') || (*k == 'k')) *k = '8';
+		else if ((*k == 'U') || (*k == 'u')) *k = '9';
+	}
+
+	/* Handle number keys */
+	else if ((allow_numbers) && (isdigit(*k)))
+	{
+		/* No conversion needed */
+	}
+
+	/* Handle special keys  XXX XXX XXX */
+	else if (*k == '\007')
+	{
+		char ch;
+
+		/* Hack!  -- look for numbers in the pending keystrokes */
+		while (!Term_inkey(&ch, FALSE, TRUE))
+		{
+			/* If we find one, store it and stop looking */
+			if (isdigit(ch))
+			{
+				*k = ch;
+				*shift_key = TRUE;
+				break;
+			}
+
+			/* If we hit the buffer, stop looking */
+			if (ch == 30) break;
+		}
+	}
+}
+
+
+/*
+ * Determine whether the digit just typed was created by actually typing a
+ * number, or whether a direction or arrow key was in fact used.
+ *
+ * We do this by assuming that a digit is produced by a macro if a direction
+ * key was typed.  This is a nasty hack.
+ */
+static bool is_direction(char ch)
+{
+	if (isdigit(ch))
+	{
+		char c;
+
+		if (!Term_inkey(&c, FALSE, FALSE))
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/*
+ * Get some string input at the cursor location.
+ * Assume the buffer is initialized to a default string.
+ *
+ * The default buffer is in Overwrite mode and displayed in yellow at
+ * first.  Normal chars clear the yellow text and append the char in
+ * white text.
+ *
+ * LEFT (^B) and RIGHT (^F) movement keys move the cursor position.
+ * If the text is still displayed in yellow (Overwrite mode), it will
+ * turn into white (Insert mode) when the cursor moves.
+ *
+ * DELETE (^D) deletes a char at the cursor position.
+ * BACKSPACE (^H) deletes a char at the left of cursor position.
+ * ESCAPE clears the buffer and the window and returns FALSE.
+ * RETURN accepts the current buffer contents and returns TRUE.
+ */
+bool askfor_aux(char *buf, int len, bool numpad_cursor)
 {
 	int y, x;
+	s16b d = 0;
+	char ch;
 
-	size_t k = 0;
-
-	char ch = '\0';
-
-	bool done = FALSE;
-
+	/* Indicate replacement mode by displaying in yellow */
+	byte color = TERM_YELLOW;
 
 	/* Locate the cursor */
 	(void)Term_locate(&x, &y);
 
+	/* Paranoia -- check len */
+	if (len < 1) len = 1;
 
-	/* Paranoia */
-	if ((x < 0) || (x >= 80)) x = 0;
-
+	/* Paranoia -- check column */
+	if ((x < 0) || (x >= Term->wid)) x = 0;
 
 	/* Restrict the length */
-	if (x + len > 80) len = 80 - x;
+	if (x + len > Term->wid) len = Term->wid - x;
 
 	/* Truncate the default entry */
 	buf[len-1] = '\0';
 
 
-	/* Display the default answer */
-	(void)Term_erase(x, y, (int)len);
-	(void)Term_putstr(x, y, -1, TERM_YELLOW, buf);
-
 	/* Process input */
-	while (!done)
+	while (TRUE)
 	{
-		/* Place cursor */
-		(void)Term_gotoxy(x + k, y);
+		/* Display the string */
+		(void)Term_erase(x, y, len);
+		(void)Term_putstr(x, y, -1, color, buf);
 
-		/* Should we ignore macros?  If not, why? */
+		/* Place cursor */
+		(void)Term_gotoxy(x + d, y);
 
 		/* Get a key */
 		ch = inkey();
 
+		/* Notice direction key */
+		if ((numpad_cursor) && (is_direction(ch)))
+		{
+			if      (ch == '4') ch = '\002';
+			else if (ch == '6') ch = '\006';
+		}
+
 		/* Analyze the key */
 		switch (ch)
 		{
-			case ESCAPE:
-			{
-				k = 0;
-				done = TRUE;
-				break;
-			}
-
 			case '?':
 			{
 				/* Get help, if specified */
@@ -2828,52 +2952,129 @@ bool askfor_aux(char *buf, size_t len)
 				break;
 			}
 
+			/* Move cursor backwards */
+			case '\002':
+			{
+				/* Now on insert mode */
+				color = TERM_WHITE;
+
+				/* Go to previous position */
+				if (d > 0) d--;
+
+				break;
+			}
+
+			/* Move cursor forwards */
+			case '\006':
+			{
+				/* Now on insert mode */
+				color = TERM_WHITE;
+
+				/* Advance; do not pass the end of the string */
+				if (buf[d] && (d < len - 1)) d++;
+
+				break;
+			}
+
+			/* Cancel */
+			case ESCAPE:
+			{
+				/* Clear input */
+				buf[0] = '\0';
+
+				return (FALSE);
+			}
+
+			/* Accept */
 			case '\n':
 			case '\r':
 			{
-				k = strlen(buf);
-				done = TRUE;
-				break;
+				/* Translate it to 8-bit (Latin-1) */
+				xstr_trans(buf, LATIN1);
+
+				return (TRUE);
 			}
 
-			case 0x7F:
+			/* Backspace */
 			case '\010':
 			{
-				if (k > 0) k--;
-				break;
+				/* Now on insert mode */
+				color = TERM_WHITE;
+
+				/* Go to previous position */
+				if (d > 0L) d--;
+
+				/* Fall through to 'Delete key' */
 			}
 
-			case KTRL('U'):
+			/* Delete */
+			case 0x7F:
+			case KTRL('d'):
 			{
-				k = 0;
+				int dst, src;
+
+				/* Now on insert mode */
+				color = TERM_WHITE;
+
+				/* No move at end of line */
+				if (!buf[d]) break;
+
+				/* Position of next character */
+				src = d + 1;
+
+				/* Position of this character */
+				dst = d;
+
+				/* Move characters at src to dst */
+				while ('\0' != (buf[dst++] = buf[src++]))
+					/* loop */;
+
 				break;
 			}
 
+			/* All other characters */
 			default:
 			{
-				if ((k < len-1) && (isprint((unsigned char)ch)))
+				char tmp[1024];
+
+				/* We are in replacement mode */
+				if (color == TERM_YELLOW)
 				{
-					buf[k++] = ch;
+					/* Overwrite default string */
+					buf[0] = '\0';
+
+					/* Go to insert mode */
+					color = TERM_WHITE;
+				}
+
+				/* Save right part of string */
+				strcpy(tmp, buf + d);
+
+				/* Add printable character if space permits */
+				if (d < len && my_isprint(ch))
+				{
+					buf[d++] = ch;
 				}
 				else
 				{
 					bell("Illegal edit key!");
 				}
+
+				/* Terminate */
+				buf[d] = '\0';
+
+				/* Write back the left part of string */
+				(void)my_strcat(buf, tmp, len + 1);
+
+				/* Retreat if end of space reached */
+				if (d >= len) d--;
+
 				break;
 			}
 		}
-
-		/* Terminate */
-		buf[k] = '\0';
-
-		/* Update the entry */
-		(void)Term_erase(x, y, (int)len);
-		(void)Term_putstr(x, y, -1, TERM_WHITE, buf);
 	}
-
-	/* Done */
-	return (ch != ESCAPE);
 }
+
 
 
 /*
@@ -2887,18 +3088,25 @@ bool askfor_aux(char *buf, size_t len)
 bool get_string(cptr prompt, char *buf, size_t len)
 {
 	bool res;
+	int y, x;
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
 
-	/* Display prompt */
-	prt(format("%s ", prompt), 0, 0);
+	/* Locate the cursor */
+	(void)Term_locate(&x, &y);
 
-	/* Ask the user for a string */
-	res = askfor_aux(buf, len);
+	/* Display prompt */
+	prt(format("%s ", prompt), y, x);
+
+	/* Ask the user for a string, allow direction keys to move cursor */
+	res = askfor_aux(buf, len, TRUE);
+
+	/* Translate it to 8-bit (Latin-1) */
+	xstr_trans(buf, LATIN1);
 
 	/* Clear prompt */
-	prt("", 0, 0);
+	prt("", y, x);
 
 	/* Result */
 	return (res);
@@ -3004,7 +3212,7 @@ bool get_check(cptr prompt)
 #endif
 
 	/* Hack -- Build a "useful" prompt */
-	strnfmt(buf, 78, "%.70s [y/n] ", prompt);
+	(void)strnfmt(buf, 78, "%.70s [y/n] ", prompt);
 
 	/* Get an acceptable answer */
 	while (TRUE)
@@ -3116,7 +3324,7 @@ int get_index(char ch, bool require_lower)
 	else
 	{
 		/* Change to lower case if necessary */
-		ch = tolower((unsigned char)ch);
+		ch = my_tolower((unsigned char)ch);
 
 		/* Scan the table "index_chars_lower" */
 		for (i = 0; index_chars_lower[i]; i++)
@@ -3354,7 +3562,7 @@ void request_command(bool shopping)
 		if (act && !skip_keymap && !inkey_next)
 		{
 			/* Install the keymap (limited buffer size) */
-			strnfmt(request_command_buffer, 256, "%s", act);
+			(void)strnfmt(request_command_buffer, 256, "%s", act);
 
 			/* Start using the buffer */
 			inkey_next = request_command_buffer;
@@ -3801,6 +4009,48 @@ byte verify_color(byte attr)
 
 
 /*
+ * Attempt to get the closest 16-color equivalent of any RGB color.  This
+ * is fairly crude code.
+ */
+byte translate_into_16_colors(int idx)
+{
+	long delta = 100000;
+	int i;
+	int drv, dgv, dbv, best;
+
+	/* We already have a stored translation value: return it */
+	if ((color_table[idx].color_translate >= 0) &&
+	    (color_table[idx].color_translate < 16))
+	{
+		return (color_table[idx].color_translate);
+	}
+
+	/* We don't, and we need to find one (skip black) */
+	for (best = -1, i = 1; i < 16; i++)
+	{
+		/* Get difference in RGB values */
+		drv = ABS(color_table[idx].rv - color_table[i].rv);
+		dgv = ABS(color_table[idx].gv - color_table[i].gv);
+		dbv = ABS(color_table[idx].bv - color_table[i].bv);
+
+		/* If squared RGB difference is less, remember this color */
+		if (delta > (long)drv * drv + dgv * dgv + dbv * dbv)
+		{
+			delta = (long)drv * drv + dgv * dgv + dbv * dbv;
+			best = i;
+		}
+	}
+
+	/* Note failure */
+	if (best < 0) return (TERM_WHITE);
+
+	/* Success */
+	color_table[idx].color_translate = best;
+	return (best);
+}
+
+
+/*
  * Generates damage for "2d6" style dice rolls
  */
 int damroll(int num, int sides)
@@ -3948,71 +4198,6 @@ u16b rsqrt(s32b input)
 	/* Return */
 	return (u16b)(root);
 }
-
-
-#if 0  /* Alternate "rsqrt()" */
-/*
- * This isn't a simple equation, but it's very, very fast.
- *
- * Many people have worked on this code:  Norbert Juffa,
- * Mark Borgerding, Jim Ulery, and Mark Cowne are the most recent.
- * See "http://www.azillionmonkeys.com/qed/sqroot.html".
- *
- * This implementation features standard rounding (as opposed to
- * truncation).
- */
-u16b rsqrt(u32b val)
-{
-	u32b temp;
-	u32b tmp2, tmp3;
-	u16b root = 0;
-
-
-	/* Increase the root if the value is high enough */
-#define INNER_MBGSQRT(s)                            \
-	temp = (root << (s)) + (1 << ((s) * 2 - 2));  \
-	if (val >= temp)                              \
-	{                                             \
-		root += 1 << ((s) - 1);                 \
-		val -= temp;                            \
-	}
-
-	/* Cut the value down (avoiding a for loop /greatly/ increases speed) */
-	INNER_MBGSQRT (15)
-	INNER_MBGSQRT (14)
-	INNER_MBGSQRT (13)
-	INNER_MBGSQRT (12)
-	INNER_MBGSQRT (11)
-	INNER_MBGSQRT (10)
-	INNER_MBGSQRT ( 9)
-	INNER_MBGSQRT ( 8)
-	INNER_MBGSQRT ( 7)
-	INNER_MBGSQRT ( 6)
-	INNER_MBGSQRT ( 5)
-	INNER_MBGSQRT ( 4)
-	INNER_MBGSQRT ( 3)
-	INNER_MBGSQRT ( 2)
-
-#undef INNER_MBGSQRT
-
-	/* Handle left-over remainders XXX */
-	temp = root + root + 1;
-	if (val >= temp) root++;
-
-
-	/* Get the square of the truncated square root */
-	tmp2 = root * root;
-
-	/* Get the square of the next higher integer */
-	tmp3 = (root + 1) * (root + 1);
-
-	/* If input > than the midpoint between these two values, round up */
-	if (input > (tmp2 + tmp3) / 2) root++;
-
-	/* Return */
-	return (root);
-}
-#endif
 
 
 /*
@@ -4329,78 +4514,6 @@ int get_loc_of_flag(u32b flag)
 
 
 
-
-
-
-#ifdef SET_UID
-
-#ifndef HAVE_USLEEP
-
-/*
- * For those systems that don't have "usleep()" but need it.
- *
- * Fake "usleep()" function grabbed from the inl netrek server -cba
- */
-int usleep(huge usecs)
-{
-	struct timeval Timer;
-
-	/* Paranoia -- No excessive sleeping */
-	if (usecs > 4000000L) quit("Illegal usleep() call");
-
-
-	/* Wait for it */
-	Timer.tv_sec = (usecs / 1000000L);
-	Timer.tv_usec = (usecs % 1000000L);
-
-	/* Wait for it */
-	if (select(0, NULL, NULL, NULL, &Timer) < 0)
-	{
-		/* Hack -- ignore interrupts */
-		if (errno != EINTR) return (-1);
-	}
-
-	/* Success */
-	return (0);
-}
-
-#endif /* HAVE_USLEEP */
-
-
-/*
- * Hack -- External functions
- */
-extern struct passwd *getpwuid();
-extern struct passwd *getpwnam();
-
-/*
- * Find a default user name from the system.
- */
-void user_name(char *buf, size_t len, int id)
-{
-	struct passwd *pw;
-
-	/* Look up the user name */
-	if ((pw = getpwuid(id)))
-	{
-		/* Get the first 15 characters of the user name */
-		my_strcpy(buf, pw->pw_name, len);
-
-		/* Hack -- capitalize the user name */
-		if (islower((unsigned char)buf[0]))
-			buf[0] = toupper((unsigned char)buf[0]);
-
-		return;
-	}
-
-	/* Oops.  Hack -- default to "PLAYER" */
-	my_strcpy(buf, "PLAYER", len);
-}
-
-#endif /* SET_UID */
-
-
-
 /*
  * Execute the "Term->rows_hook" hook, if available (see above).
  *
@@ -4431,28 +4544,6 @@ errr Term_rows(bool fifty_rows)
 	/* Make changes */
 	if (change)
 	{
-		/* Adjust terrain fonts (not in graphics mode) */
-		if (!use_graphics && z_info)
-		{
-			int i;
-
-			/* Swap the terrain charsets */
-			for (i = 0; i < z_info->f_max; i++)
-			{
-				/* Load the characters used when displaying 25 rows */
-				if (!fifty_rows)
-				{
-					f_info[i].x_char = feat_x_char_25[i];
-				}
-
-				/* Load the characters used when displaying 50 rows */
-				else
-				{
-					f_info[i].x_char = feat_x_char_50[i];
-				}
-			}
-		}
-
 		/* Change the number of rows */
 		return ((*Term->rows_hook)(fifty_rows));
 	}

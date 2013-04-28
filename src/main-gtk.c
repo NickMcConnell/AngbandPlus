@@ -807,6 +807,7 @@ static errr term_data_init(term_data *td, int i)
 	t->text_hook = Term_text_gtk;
 	t->wipe_hook = Term_wipe_gtk;
 	t->curs_hook = Term_curs_gtk;
+	t->xchar_hook = Term_xchar_gtk;
 	t->rows_hook = Term_rows_gtk;
 
 	/* Save the data */
@@ -958,6 +959,8 @@ const char help_gtk[] =
 static void hook_quit(cptr str)
 {
 	save_prefs();
+
+	(void)unregister_angband_fonts();
 
 	gtk_exit(0);
 }

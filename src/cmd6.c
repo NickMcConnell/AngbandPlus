@@ -1391,15 +1391,18 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			msg_print("You begin to feel more enlightened...");
-			message_flush();
+			set_self_knowledge(p_ptr->self_knowledge + 10,
+				"You begin to feel more enlightened...");
+
 			wiz_lite(TRUE);
 			msg_print("You suddenly see a vision of the entire dungeon!");
+
 			(void)do_inc_stat(A_INT, (aware ? 1 : 2), NULL);
 			(void)do_inc_stat(A_WIS, (aware ? 1 : 2), NULL);
+
 			(void)detect_all(TRUE, aware);
 			identify_pack();
-			self_knowledge(TRUE);
+
 			obj_ident = TRUE;
 			break;
 		}
@@ -1408,9 +1411,8 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			msg_print("You begin to know yourself a little better...");
-			message_flush();
-			self_knowledge(TRUE);
+			set_self_knowledge(p_ptr->self_knowledge + (aware ? 4 : 8),
+				"You begin to know yourself a little better...");
 			obj_ident = TRUE;
 			break;
 		}
@@ -3592,7 +3594,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			break;
 		}
 
-		case SV_ROD_LIGHTINGSTRIKE:
+		case SV_ROD_LIGHTNINGSTRIKE:
 		{
 			dice = get_skill(S_DEVICE, 6, 54);     sides = 8;
 
@@ -6284,7 +6286,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (info) return (format("teleport (%d) every %d-%d turns", pow, timeout1, timeout2));
 			if (act)
 			{
-				msg_print("timeout and space twist about you...");
+				msg_print("Time and space twist about you...");
 				teleport_player(pow, TRUE, FALSE);
 			}
 			break;
@@ -6369,9 +6371,9 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				/* Get the correct name for the missile, if possible. */
 				cptr missile_name = "missile";
-				if (is_crossbow(o_ptr->sval)) missile_name = "bolt";
-				if (is_bow(o_ptr->sval))      missile_name = "arrow";
-				if (is_sling(o_ptr->sval))    missile_name = "shot";
+				if (o_ptr->tval == TV_CROSSBOW) missile_name = "bolt";
+				if (o_ptr->tval == TV_BOW)      missile_name = "arrow";
+				if (o_ptr->tval == TV_SLING)    missile_name = "shot";
 
 				msg_format("The %s you have ready to hand gleams with deadly power.", missile_name);
 				p_ptr->special_attack |= (ATTACK_DEADLY);
@@ -6587,7 +6589,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (info) return (format("go berserk (duration %d-%d) every %d turns", dur1, dur2, timeout));
 			if (act)
 			{
-				msg_print("A song of wrath sounds...");
+				msg_print("A song of wrath sounds!");
 
 				set_berserk(BERSERK_WEAKNESS_LENGTH + rand_range(dur1, dur2));
 			}
@@ -6602,6 +6604,16 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (act)
 			{
 				lite_area(0, 3);
+			}
+			break;
+		}
+		case ACTIV_RANDOM_SELF_KNOWLEDGE:
+		{
+			if (info) return ("Grants perfect self knowledge for a brief time.");
+			if (act)
+			{
+				set_self_knowledge(p_ptr->self_knowledge + 3,
+					"You begin to know yourself a little better...");
 			}
 			break;
 		}
@@ -6684,9 +6696,9 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				/* Get the correct name for the missile, if possible. */
 				cptr missile_name = "missile";
-				if (is_crossbow(o_ptr->sval)) missile_name = "bolt";
-				if (is_bow(o_ptr->sval))      missile_name = "arrow";
-				if (is_sling(o_ptr->sval))    missile_name = "shot";
+				if (o_ptr->tval == TV_CROSSBOW) missile_name = "bolt";
+				if (o_ptr->tval == TV_BOW)      missile_name = "arrow";
+				if (o_ptr->tval == TV_SLING)    missile_name = "shot";
 
 				/* Apply special attack */
 				if (o_ptr->activate == ACTIV_SHOT_PIERCING)

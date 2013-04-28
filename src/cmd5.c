@@ -40,7 +40,7 @@ cptr spell_type(void)
 /*
  * Get a color depending on character realm and degree of specialization.
  *
- * Priests and necromancers use different colors in 256-color mode.
+ * Priests and necromancers use different colors in 128-color mode.
  */
 byte realm_color(void)
 {
@@ -605,7 +605,7 @@ static void wild_magic_sorcery(int spell)
 			{
 				scatter(&y, &x, py, px, 3, 0);
 
-				if (cave_nonwall_bold(y, x))
+				if (cave_floor_bold(y, x))
 				{
 					cave_set_feat(y, x, FEAT_RUBBLE);
 					flag = TRUE;
@@ -1156,39 +1156,16 @@ static bool can_study_or_cast(void)
 
 
 /*
- * Determine if a spell is "okay" for the player to cast or study
- * The spell must be legible, not forgotten, and also, to cast,
- * it must be known, and to study, it must not be known.
+ * Determine if a spell is legal for the character to cast or browse.
+ * The character must have high enough skill (and spell stat) for the spell.
  */
-static bool spell_okay(int spell, byte known)
+static bool spell_okay(int spell)
 {
-	const magic_type *s_ptr;
+	/* Get the spell */
+	const magic_type *s_ptr = &mp_ptr->info[spell];
 
-	/* Access the spell */
-	s_ptr = &mp_ptr->info[spell];
-
-	/* Spell is too high-level */
-	if (s_ptr->slevel > get_skill(S_MAGIC, 0, 100)) return (FALSE);
-
-	/* Spell is forgotten */
-	if (p_ptr->spell_flags[spell] & (PY_SPELL_FORGOTTEN))
-	{
-		/* Never okay */
-		return (FALSE);
-	}
-
-	/* Spell is learned */
-	if (p_ptr->spell_flags[spell] & (PY_SPELL_LEARNED))
-	{
-		/* Okay to cast, not to study */
-		return (known);
-	}
-
-	/* Allow all legal spells */
-	if (known > 1) return (TRUE);
-
-	/* Okay to study, not to cast */
-	return (!known);
+	/* Accept if not too high level */
+	return (s_ptr->slevel <= p_ptr->spell_level);
 }
 
 
@@ -1286,26 +1263,20 @@ void print_spells(int tval, int sval, int y, int x)
 		if (p_ptr->spell_flags[i] & (PY_SPELL_FORGOTTEN))
 		{
 			strcpy(comment, "forgotten");
-			attr_name = TERM_L_WHITE;
+			attr_name  = TERM_L_WHITE;
 			attr_extra = TERM_L_WHITE;
 		}
-		else if (!(p_ptr->spell_flags[i] & (PY_SPELL_LEARNED)))
+		else if (s_ptr->slevel > p_ptr->spell_level)
 		{
 			strcpy(comment, "unknown");
 
-			/* Spells above the player's skill are colored light gray. */
-			if (s_ptr->slevel > get_skill(S_MAGIC, 0, 100))
-				attr_name = TERM_L_WHITE;
-
-			/* If at or below the player's skill, color in white. */
-			else attr_name = TERM_WHITE;
-
+			attr_name  = TERM_L_WHITE;
 			attr_extra = TERM_L_WHITE;
 		}
 		else if (!(p_ptr->spell_flags[i] & (PY_SPELL_WORKED)))
 		{
 			strcpy(comment, "untried");
-			attr_name = TERM_WHITE;
+			attr_name  = TERM_WHITE;
 			attr_extra = TERM_WHITE;
 		}
 		else
@@ -1400,9 +1371,8 @@ void display_koff(int k_idx)
  * If there are no legal choices, returns FALSE, and sets '*sn' to -2
  *
  * The "prompt" should be "cast", "recite", or "study"
- * The "known" should be TRUE for cast/pray, FALSE for study
  */
-static int get_spell(int *sn, cptr prompt, int tval, int sval, byte known)
+static int get_spell(int *sn, cptr prompt, int tval, int sval)
 {
 	int i;
 
@@ -1435,7 +1405,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, byte known)
 		if (((*sn) >= first_spell) && ((*sn) < after_last_spell))
 		{
 			/* Verify that the spell is okay */
-			if (spell_okay(*sn, known))
+			if (spell_okay(*sn))
 			{
 				/* Success */
 				return (TRUE);
@@ -1469,7 +1439,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, byte known)
 	for (i = first_spell; i < after_last_spell; i++)
 	{
 		/* Look for "okay" spells */
-		if (spell_okay(i, known)) okay = TRUE;
+		if (spell_okay(i)) okay = TRUE;
 	}
 
 	/* No "okay" spells */
@@ -1486,7 +1456,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, byte known)
 
 
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s?",
+	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s?",
 		p, I2A(0), I2A(after_last_spell - first_spell - 1), prompt, p);
 
 	/* Option -- automatically show lists */
@@ -1537,10 +1507,10 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, byte known)
 
 
 		/* Note verify */
-		verify = (isupper(choice));
+		verify = (my_isupper(choice));
 
 		/* Lowercase */
-		choice = tolower(choice);
+		choice = my_tolower(choice);
 
 		/* Extract request */
 		i = (islower(choice) ? A2I(choice) : -1);
@@ -1556,7 +1526,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, byte known)
 		spell = i + first_spell;
 
 		/* Require "okay" spells */
-		if (!spell_okay(spell, known))
+		if (!spell_okay(spell))
 		{
 			bell(format("Illegal choice of %ss!", spell_type()));
 			msg_format("You may not %s that %s.", prompt, p);
@@ -1575,7 +1545,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, byte known)
 			(void)do_spell(SPELL_MANA, spell);
 
 			/* Prompt */
-			strnfmt(tmp_val, 70, "%^s %s (%d mana, %d%% fail)?",
+			(void)strnfmt(tmp_val, 70, "%^s %s (%d mana, %d%% fail)?",
 				prompt, spell_names[s_ptr->index],
 				mana_cost, spell_chance(spell));
 
@@ -1643,7 +1613,7 @@ void do_cmd_browse_aux(object_type *o_ptr)
 	while (TRUE)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "browse", o_ptr->tval, o_ptr->sval, 2))
+		if (!get_spell(&spell, "browse", o_ptr->tval, o_ptr->sval))
 		{
 			/* If cancelled, leave immediately. */
 			if (spell == -1) break;
@@ -1658,7 +1628,7 @@ void do_cmd_browse_aux(object_type *o_ptr)
 		}
 
 		/* Clear lines (Hack -- leave lots of space  XXX) */
-		for (i = lines; i < lines + 6; i++) Term_erase(14, i, 255);
+		for (i = lines; i < lines + 6; i++) (void)Term_erase(14, i, 255);
 
 		/* Move cursor */
 		move_cursor(lines + 1, 14);
@@ -1735,175 +1705,6 @@ void do_cmd_browse(void)
 
 	/* Actually browse the books */
 	do_cmd_browse_aux(o_ptr);
-}
-
-
-/*
- * Study a book to gain a new spell/prayer
- */
-void do_cmd_study(void)
-{
-	int i, item;
-
-	int first_spell, after_last_spell;
-
-	const magic_type *s_ptr;
-
-	int spell = -1;
-
-	cptr p = "";
-	cptr r = "";
-
-	cptr q = "";
-	cptr s = "";
-
-
-	object_type *o_ptr;
-
-	/* Determine magic description. */
-	p = spell_type();
-
-	/* Determine spellbook description. */
-	if (p_ptr->realm == MAGE)   r = "magic book";
-	if (p_ptr->realm == PRIEST) r = "holy book";
-	if (p_ptr->realm == DRUID)  r = "stone";
-	if (p_ptr->realm == NECRO)  r = "tome";
-
-
-	if (!(p_ptr->new_spells))
-	{
-		msg_format("You cannot learn any new %ss.", p);
-		return;
-	}
-
-	/* Can we study spells? */
-	if (!can_study_or_cast()) return;
-
-	/* Restrict choices to "useful" books */
-	item_tester_tval = mp_ptr->spell_book;
-
-	/* Get a realm-flavored description. */
-	if (p_ptr->realm == MAGE)
-	{
-		q = "Study which magic book?";
-		s = "You have no magic books that you can read.";
-	}
-	if (p_ptr->realm == PRIEST)
-	{
-		q = "Study which holy book?";
-		s = "You have no holy books that you can read.";
-	}
-	if (p_ptr->realm == DRUID)
-	{
-		q = "Study which stone of lore?";
-		s = "You have no stones that you can read.";
-	}
-	if (p_ptr->realm == NECRO)
-	{
-		q = "Study which tome?";
-		s = "You have no tomes that you can read.";
-	}
-
-	/* Get an item */
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-	item_to_object(o_ptr, item);
-
-
-	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-
-	/* Priest -- Learn a random prayer */
-	if (p_ptr->realm == PRIEST)
-	{
-		int k = 0;
-
-		int gift = -1;
-
-		/* Find the array index of the spellbook's first prayer. */
-		first_spell = mp_ptr->book_start_index[o_ptr->sval];
-
-		/* Find the first prayer in the next book. */
-		after_last_spell = mp_ptr->book_start_index[o_ptr->sval+1];
-
-		/* Pick an legal, unknown prayer at random. */
-		for (spell = first_spell; spell < after_last_spell; spell++)
-		{
-			/* Skip non "okay" prayers */
-			if (!spell_okay(spell, FALSE)) continue;
-
-			/* Apply the randomizer */
-			if ((++k > 1) && (!one_in_(k))) continue;
-
-			/* Track it */
-			gift = spell;
-		}
-
-		/* Accept gift */
-		spell = gift;
-	}
-
-	/* Other realms -- Learn a selected spell */
-	else
-	{
-		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "study", o_ptr->tval, o_ptr->sval, FALSE) &&
-		    (spell == -1)) return;
-	}
-
-	/* Nothing to study */
-	if (spell < 0)
-	{
-		/* Message */
-		msg_format("You cannot learn any %ss in that %s.", p, r);
-
-		/* Abort */
-		return;
-	}
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Learn the spell */
-	p_ptr->spell_flags[spell] |= (PY_SPELL_LEARNED);
-
-
-	/* Find the next open entry in "spell_order[]" */
-	for (i = 0; i < PY_MAX_SPELLS; i++)
-	{
-		/* Stop at the first empty space */
-		if (p_ptr->spell_order[i] == 99) break;
-	}
-
-	/* Add the spell to the known list */
-	p_ptr->spell_order[i++] = spell;
-
-	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
-
-	/* Mention the result */
-	message_format(MSG_STUDY, 0, "You have learned the %s of %s.",
-		   p, spell_names[s_ptr->index]);
-
-	/* One less spell available */
-	p_ptr->new_spells--;
-
-	/* Message if needed */
-	if (p_ptr->new_spells)
-	{
-		/* Message */
-		msg_format("You can learn %d more %s%s.", p_ptr->new_spells, p,
-			(p_ptr->new_spells != 1) ? "s" : "");
-	}
-
-	/* Redraw Study Status */
-	p_ptr->redraw |= (PR_STUDY);
-
-	/* Redraw object recall */
-	p_ptr->window |= (PW_OBJECT);
 }
 
 
@@ -2035,7 +1836,7 @@ cptr do_spell(int mode, int spell)
 
 
 		/* Ask for a spell */
-		if (!get_spell(&spell, t, o_ptr->tval, o_ptr->sval, TRUE))
+		if (!get_spell(&spell, t, o_ptr->tval, o_ptr->sval))
 		{
 			if (spell == -2)
 			{
@@ -3739,6 +3540,7 @@ cptr do_spell(int mode, int spell)
 				if (desc) return ("Gives you detailed information about yourself.");
 				if (cast)
 				{
+					/* No lingering effect */
 					self_knowledge(TRUE);
 				}
 				break;
@@ -5904,6 +5706,9 @@ cptr do_spell(int mode, int spell)
 	{
 		shapechange(do_shapechange);
 	}
+
+	/* Update spells */
+	p_ptr->update |= (PU_SPELLS);
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);

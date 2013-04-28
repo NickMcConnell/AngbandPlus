@@ -27,7 +27,6 @@
 # See "lib/help/pref.txt" and "src/files.c" for more information.
 #
 
-
 ## # Option -- Default to original commands
 ## X:rogue_like_commands
 
@@ -78,8 +77,8 @@ A:;9
 C:0:9
 
 # Hack -- Commit suicide
-A:Q
-C:0:^C
+# A:Q
+# C:0:^C
 
 # Hack -- Swap equipment
 A:w0

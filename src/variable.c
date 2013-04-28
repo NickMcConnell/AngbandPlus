@@ -99,8 +99,11 @@ s16b autosave_freq = 0;			/* Autosave frequency */
 
 /*
  * We assume that the game is running in VGA 16-color text mode.  If a
- * port enables a graphics mode capable of displaying more colors, then
- * it needs to change this value.
+ * port enables a graphics mode capable of displaying more text colors,
+ * then it needs to change this value.
+ *
+ * Should never be greater than 128, because graphics are defined as
+ * PICTs with attrs (and chars) >= 128.
  */
 s16b max_system_colors = 16;
 
@@ -143,12 +146,6 @@ bool text_50_rows = FALSE;
 s16b clear_y = 2;
 s16b clear_x = 4;
 
-/*
- * Offscreen monster threat display.
- */
-u16b threat_display = 0x0000;
-
-
 
 s16b image_count;  		/* Grids until next random image    */
                   		/* Optimizes the hallucination code */
@@ -185,12 +182,8 @@ int detect_x = -1;                 /* Center of detection */
 
 
 
-
-
-
 /* Messages can automatically move to a sub-window */
 bool message_to_window_active = FALSE;
-
 
 
 /*
@@ -316,10 +309,11 @@ cptr angband_sound_name[SOUND_MAX] =
 	"lockpick_fail",
 	"stairs",
 	"hitpoint_warn",
-	"",
-	"",
-	"",
-	""
+	"hit_soft",
+	"hit_medium",
+	"hit_hard",
+	"hit_deadly",
+	"summon"
 };
 
 
@@ -333,7 +327,7 @@ u16b *view_g;
  * Arrays[TEMP_MAX] used for various things
  */
 int temp_n = 0;
-u16b *temp_g;
+u16b *temp_g;  /* Note:  this duplicates temp_y and temp_x */
 byte *temp_y;
 byte *temp_x;
 
@@ -491,12 +485,6 @@ alloc_entry *alloc_ego_table;
 s16b alloc_race_size;
 
 /*
- * The size of "store_stock"
- */
-s16b store_stock_size;
-
-
-/*
  * The array[alloc_race_size] of entries in the "race allocator table"
  */
 alloc_entry *alloc_race_table;
@@ -513,18 +501,10 @@ s16b move_moment_num = 0;
  */
 move_moment_type *move_moment;
 
-
-
-#if 0 /* Temporarily removed (until we need them again) */
-
 /*
- * Specify attr/char pairs for visual special effects
- * Be sure to use "index & 0xFF" to avoid illegal access
+ * The projection graphics table
  */
-byte misc_to_attr[256];
-char misc_to_char[256];
-
-#endif  /* temp */
+proj_graphics_type *proj_graphics;
 
 
 /*
@@ -532,15 +512,6 @@ char misc_to_char[256];
  * to use "index % ((N_ELEMENTS(tval_to_attr))" to avoid illegal access
  */
 byte tval_to_attr[128];
-
-/*
- * Specify alternate terrain chars.  As we change from 25 to 50-line modes,
- * the optimum representation of certain terrain changes.  We therefore
- * save two sets.  See "Term_rows()", in "z_term.c", and the pref file
- * saving and loading code.
- */
-char *feat_x_char_25;
-char *feat_x_char_50;
 
 
 /*
@@ -590,6 +561,20 @@ player_type *p_ptr = &player_type_body;
  * Structure (not array) of size limits
  */
 maxima *z_info;
+
+
+/*
+ * The character generates both directed (extra) noise (by doing noisy
+ * things) and ambient noise (the combination of directed and innate
+ * noise).
+ *
+ * Noise builds up as the character does certain things, and diminishes
+ * over time.
+ */
+s32b add_wakeup_chance = 0;
+s32b total_wakeup_chance = 0;
+
+
 
 /*
  * The vault generation arrays
@@ -656,15 +641,11 @@ char *q_text;
 
 
 /*
- * The character generates both directed (extra) noise (by doing noisy
- * things) and ambient noise (the combination of directed and innate
- * noise).
- *
- * Noise builds up as the character does certain things, and diminishes
- * over time.
+ * The object flavor arrays
  */
-s32b add_wakeup_chance = 0;
-s32b total_wakeup_chance = 0;
+flavor_type *flavor_info;
+char *flavor_name;
+char *flavor_text;
 
 
 
@@ -681,6 +662,22 @@ cptr ANGBAND_SYS = "xxx";
  */
 cptr ANGBAND_GRAF = "old";
 
+
+/*
+ * Fat binary support.
+ *
+ * Something should set this before the code gets to init_file_paths,
+ * or it won't have any effect.  This gets appended to the end of
+ * ANGBAND_DIR_DATA, and lets us support fat binaries, which may require
+ * multiple sets of data files.
+ *
+ * Hack -- allow a default to be set via a macro.
+ */
+#ifdef FAT_SUFFIX_DEFAULT
+char *fat_data_suffix = FAT_SUFFIX_DEFAULT;
+#else
+char *fat_data_suffix = 0;
+#endif
 
 /*
  * Total Hack -- allow all items to be listed (even empty ones)

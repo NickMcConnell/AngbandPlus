@@ -588,7 +588,6 @@ void compact_objects(int size)
 
 
 
-
 /*
  * Delete all the items when player leaves the level
  *
@@ -1010,6 +1009,9 @@ void object_aware(object_type *o_ptr)
 
 	/* You must have seen it */
 	k_info[o_ptr->k_idx].special |= (SPECIAL_EVER_SEEN);
+
+	/* Hack -- update available spells */
+	if (o_ptr->tval == mp_ptr->spell_book) p_ptr->update |= (PU_SPELLS);
 }
 
 /*
@@ -1049,7 +1051,7 @@ s32b pval_value(u32b flg, int pval0)
 		case TR_PVAL_TUNNEL:   val = ( 120L * pval) + (  60L * pval * pval);  break;
 		case TR_PVAL_SPEED:    val = (2500L * pval) + (2500L * pval * pval);  break;
 		case TR_PVAL_INVIS:    val = ( 400L * pval) + ( 100L * pval * pval);  break;
-		case TR_PVAL_DISARM:   val = ( 250L * pval) + ( 100L * pval * pval);  break;
+		case TR_PVAL_DISARM:   val = ( 250L * pval) + ( 125L * pval * pval);  break;
 		case TR_PVAL_DEVICE:   val = ( 500L * pval) + ( 250L * pval * pval);  break;
 		case TR_PVAL_SAVE:     val = ( 400L * pval) + ( 100L * pval * pval);  break;
 		case TR_PVAL_MANA:     val = ( 400L * pval) + ( 100L * pval * pval);  break;
@@ -1338,7 +1340,9 @@ s32b object_value_real(const object_type *o_ptr)
 		}
 
 		/* Bows/Weapons */
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		{
 			/* Give credit for extra shots and extra might */
 			value += pval_value_obj(o_ptr, TR_PVAL_SHOTS);
@@ -1688,7 +1692,9 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		}
 
 		/* Weapons and Armor */
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -4170,7 +4176,9 @@ void apply_magic(object_type *o_ptr, int lev, int okay, bool good, bool great)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
@@ -4290,7 +4298,7 @@ void apply_magic(object_type *o_ptr, int lev, int okay, bool good, bool great)
 			if (!e_pval || !e_flags_pval) continue;
 
 			/* Pvals vary */
-			if (o_ptr->tval != TV_BOW)
+			if (!is_missile_weapon(o_ptr))
 			{
 				/* Most ego-items get good pvals at any depth */
 				adjust = rand_range(ABS(e_pval / 2), ABS(e_pval));
@@ -4436,7 +4444,9 @@ static bool kind_is_good(int k_idx)
 		}
 
 		/* Weapons -- Good unless damaged.  Diggers are no longer good. */
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -4537,7 +4547,7 @@ bool make_object(object_type *o_ptr, bool good, bool great, bool exact_kind)
 			get_obj_num_hook = kind_is_good;
 
 			/* Prepare allocation table */
-			get_obj_num_prep();
+			(void)get_obj_num_prep();
 		}
 
 		/*
@@ -4550,7 +4560,7 @@ bool make_object(object_type *o_ptr, bool good, bool great, bool exact_kind)
 			get_obj_num_hook = kind_fits_tval;
 
 			/* Prepare allocation table */
-			get_obj_num_prep();
+			(void)get_obj_num_prep();
 		}
 
 		/* Get an object index */
@@ -4566,7 +4576,7 @@ bool make_object(object_type *o_ptr, bool good, bool great, bool exact_kind)
 			get_obj_num_hook = NULL;
 
 			/* Prepare allocation table */
-			get_obj_num_prep();
+			(void)get_obj_num_prep();
 		}
 
 		/* Handle failure */
@@ -4859,7 +4869,9 @@ int breakage_chance(object_type *o_ptr)
 		case TV_SWORD:
 		case TV_WAND:
 		case TV_STAFF:
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		case TV_SPIKE:
 		{
 			u32b f1, f2, f3;
@@ -5103,7 +5115,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, byte flags)
 		if (!in_bounds_fully(ty, tx)) continue;
 
 		/* Require space capable of holding the object */
-		if (!cave_object_allowed(ty, tx)) continue;
+		if (!cave_allow_object_bold(ty, tx)) continue;
 
 		/* Check line of sight (always true for start & adjacent grids) */
 		if (!los(y, x, ty, tx)) continue;
@@ -5165,7 +5177,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, byte flags)
 		if (cave_visible_trap(ty, tx)) s -= 250;
 
 		/* Try to avoid areas other than floor */
-		if (cave_feat[ty][tx] != FEAT_FLOOR) s -= 150;
+		if (!cave_floor_bold(ty, tx)) s -= 150;
 
 		/* Skip bad values */
 		if (s < bs) continue;
@@ -5209,7 +5221,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, byte flags)
 		if (!in_bounds_fully(ty, tx)) continue;
 
 		/* Require space capable of holding the object */
-		if (!cave_object_allowed(ty, tx)) continue;
+		if (!cave_allow_object_bold(ty, tx)) continue;
 
 		/* Count objects in that grid */
 		for (objs = 0, o_ptr = get_first_object(ty, tx); o_ptr;
@@ -5318,7 +5330,7 @@ void place_object(int y, int x, bool good, bool great, bool exact_kind)
 	if (!in_bounds(y, x)) return;
 
 	/* Require a grid capable of holding the object */
-	if (!cave_object_allowed(y, x)) return;
+	if (!cave_allow_object_bold(y, x)) return;
 
 	/* Get local object */
 	i_ptr = &forge;
@@ -5348,7 +5360,7 @@ void place_gold(int y, int x)
 	if (!in_bounds(y, x)) return;
 
 	/* Require space to hold the object */
-	if (!cave_object_allowed(y, x)) return;
+	if (!cave_allow_object_bold(y, x)) return;
 
 	/* Get local object */
 	i_ptr = &forge;
@@ -5481,18 +5493,18 @@ void use_item_describe(int item, int mode)
 	else return;
 
 	/* Build a string */
-	my_strcpy(buf, format("You %s %s", p, o_name), sizeof(buf));
+	(void)my_strcpy(buf, format("You %s %s", p, o_name), sizeof(buf));
 
 	/* Item indicator */
 	if (item >= 0)
-		my_strcat(buf, format(" (%c)", index_to_label(item)), sizeof(buf));
+		(void)my_strcat(buf, format(" (%c)", index_to_label(item)), sizeof(buf));
 	else
-		my_strcat(buf, format(" (-)", o_name), sizeof(buf));
+		(void)my_strcat(buf, format(" (-)", o_name), sizeof(buf));
 
 	/* If not a solitary artifact, indicate number remaining */
 	if ((!artifact) || (o_ptr->number))
 	{
-		my_strcat(buf, (o_ptr->number > 0) ?
+		(void)my_strcat(buf, (o_ptr->number > 0) ?
 			format(" (%d left)", o_ptr->number) : " (none left)", sizeof(buf));
 	}
 

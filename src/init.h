@@ -45,8 +45,9 @@
 #define PARSE_ERROR_NO_ARRAY_SPECIFIED      25
 #define PARSE_ERROR_INVALID_STORE           26
 #define PARSE_ERROR_UNKNOWN_COLOR           27
+#define PARSE_ERROR_MIMIC_FAILURE           28
 
-#define PARSE_ERROR_MAX                     28
+#define PARSE_ERROR_MAX                     29
 
 
 typedef struct header header;
@@ -120,6 +121,7 @@ extern errr parse_a_info(char *buf, header *head);
 extern errr parse_e_info(char *buf, header *head);
 extern errr parse_r_info(char *buf, header *head);
 extern errr parse_q_info(char *buf, header *head);
+extern errr parse_flavor_info(char *buf, header *head);
 extern errr parse_store(void);
 
 
@@ -144,5 +146,6 @@ extern header e_head;
 extern header r_head;
 extern header b_head;
 extern header q_head;
+extern header flavor_head;
 
 #endif /* INCLUDED_INIT_H */

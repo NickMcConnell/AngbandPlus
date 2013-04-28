@@ -500,58 +500,17 @@ static int pick_trap(int trap_level)
 
 /*
  * Determine if a cave grid is allowed to have traps in it.
- *
- * There are some decisions here that could stand to be reviewed.
  */
 bool cave_trap_allowed(int y, int x)
 {
-	int feat = cave_feat[y][x];
-	bool wall = (cave_info[y][x] & (CAVE_WALL)) ? TRUE : FALSE;
-
 	/*
 	 * We currently forbid multiple traps in a grid under normal conditions.
 	 * If this changes, various bits of code elsewhere will have to change too.
 	 */
 	if (cave_trap(y, x)) return (FALSE);
 
-
-	/* Walls */
-	if (wall)
-	{
-		/* Rubble is OK */
-		if (feat == FEAT_RUBBLE) return (TRUE);
-
-		/* Trees are OK */
-		if (feat == FEAT_TREE) return (TRUE);
-	}
-
-	/* Non-wall */
-	else
-	{
-		/* Quick check for floors */
-		if (feat == FEAT_FLOOR) return (TRUE);
-
-		/* Lava and water (traps in water are weird) */
-		if (feat == FEAT_LAVA) return (FALSE);
-		if (feat == FEAT_WATER) return (FALSE);
-
-		/* Stairs */
-		if (feat == FEAT_LESS) return (FALSE);
-		if (feat == FEAT_MORE) return (FALSE);
-		if (feat == FEAT_LESS2) return (FALSE);
-		if (feat == FEAT_MORE2) return (FALSE);
-
-		/* Doors */
-		if (feat == FEAT_OPEN) return (FALSE);
-		if (feat == FEAT_BROKEN) return (FALSE);
-
-		/* Shop entrances */
-		if ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL))
-			return (FALSE);
-	}
-
-	/* Assume that walls are not OK and non-walls are */
-	return (!wall);
+	/* Check the feature trap flag */
+	return ((f_info[cave_feat[y][x]].flags & (TF_TRAP)) != 0);
 }
 
 /*
@@ -1052,8 +1011,9 @@ bool magic_disarm(int y, int x, int chance)
 						obvious = TRUE;
 					}
 
-					/* Kill the trap */
+					/* Kill the trap (always visible) */
 					remove_trap(y, x, i);
+					lite_spot(y, x);
 				}
 
 				/* Some chance of setting off the trap. */
@@ -1502,7 +1462,7 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 	else if (mode == 2)
 	{
 		/* Require a valid missile launcher */
-		if (i_ptr->tval != TV_BOW) return;
+		if (!is_missile_weapon(i_ptr)) return;
 
 		/* Require valid missiles */
 		if (!is_missile(o_ptr)) return;
@@ -1862,7 +1822,7 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	}
 
 	/* Object is a missile weapon */
-	else if (o_ptr->tval == TV_BOW)
+	else if (is_missile_weapon(o_ptr))
 	{
 		/* Scan the trap's objects, use the first stack of ammo */
 		for (this_o_idx = o_ptr->next_o_idx; this_o_idx;
@@ -1875,9 +1835,9 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 			if (is_missile(i_ptr))
 			{
 				/* Is this object the right sort of ammunition?  XXX XXX */
-				if (((is_sling(o_ptr->sval))    && (i_ptr->tval == TV_SHOT)) ||
-				    ((is_bow(o_ptr->sval))      && (i_ptr->tval == TV_ARROW)) ||
-				    ((is_crossbow(o_ptr->sval)) && (i_ptr->tval == TV_BOLT)))
+				if (((o_ptr->tval == TV_SLING)    && (i_ptr->tval == TV_SHOT)) ||
+				    ((o_ptr->tval == TV_BOW)      && (i_ptr->tval == TV_ARROW)) ||
+				    ((o_ptr->tval == TV_CROSSBOW) && (i_ptr->tval == TV_BOLT)))
 				{
 					/* Get local object */
 					j_ptr = &object_type_body;

@@ -25,12 +25,6 @@ typedef int errr;
 
 
 /*
- * Hack -- prevent problems with non-MACINTOSH
- */
-#undef uint
-#define uint uint_hack
-
-/*
  * Hack -- prevent problems with AMIGA
  */
 #undef byte
@@ -50,10 +44,6 @@ typedef unsigned char byte;
 /* Note that a bool is smaller than a full "int" */
 /* Simple True/False type */
 typedef char bool;
-
-
-/* An unsigned, "standard" integer (often pre-defined) */
-typedef unsigned int uint;
 
 
 /* Signed/Unsigned 16 bit value */

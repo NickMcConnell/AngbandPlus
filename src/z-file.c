@@ -158,7 +158,7 @@ errr path_parse(char *buf, size_t max, cptr file)
 	/* File needs no parsing */
 	if (file[0] != '~')
 	{
-		my_strcpy(buf, file, max);
+		(void)my_strcpy(buf, file, max);
 		return (0);
 	}
 
@@ -192,10 +192,10 @@ errr path_parse(char *buf, size_t max, cptr file)
 	if (!pw) return (1);
 
 	/* Make use of the info */
-	my_strcpy(buf, pw->pw_dir, max);
+	(void)my_strcpy(buf, pw->pw_dir, max);
 
 	/* Append the rest of the filename, if any */
-	if (s) my_strcat(buf, s, max);
+	if (s) (void)my_strcat(buf, s, max);
 
 	/* Success */
 	return (0);
@@ -355,7 +355,7 @@ FILE *my_fopen_temp(char *buf, size_t max)
 	int fd;
 
 	/* Prepare the buffer for mkstemp */
-	my_strcpy(buf, "/tmp/anXXXXXX", max);
+	(void)my_strcpy(buf, "/tmp/anXXXXXX", max);
 
 	/* Secure creation of a temporary file */
 	fd = mkstemp(buf);
@@ -398,6 +398,8 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 	char *s = buf;
 	int len;
 
+	bool check_encodes = FALSE;
+
 
 	/* Paranoia */
 	if (n <= 0) return (1);
@@ -419,20 +421,20 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 		 */
 		c = fgetc(fff);
 
-		/* End of file */
 		if (c == EOF)
 		{
 			/* No characters read -- signal error */
-			if (i == 0) break;
+			if (i == 0)
+			{
+				/* End of file error */
+				buf[0] = '\0';
 
-			/*
-			 * Be nice to DOS/Windows, where a last line of a file isn't
-			 * always \n terminated.
-			 */
-			*s = '\0';
+				/* Error */
+				return (1);
+			}
 
 			/* Success */
-			return (0);
+			break;
 		}
 
 #if defined(MACINTOSH) || defined(MACH_O_CARBON)
@@ -447,14 +449,7 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 #endif /* MACINTOSH || MACH_O_CARBON */
 
 		/* End of line */
-		if (c == '\n')
-		{
-			/* Null terminate */
-			*s = '\0';
-
-			/* Success */
-			return (0);
-		}
+		if (c == '\n') break;
 
 		/* Expand a tab into spaces */
 		if (c == '\t')
@@ -465,7 +460,14 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 			tabstop = ((i + TAB_COLUMNS) / TAB_COLUMNS) * TAB_COLUMNS;
 
 			/* Bounds check */
-			if (tabstop >= len) break;
+			if (tabstop >= len)
+			{
+				/* Buffer overflow - return an empty string */
+				buf[0] = '\0';
+
+				/* Error */
+				return (1);
+			}
 
 			/* Convert it to spaces */
 			while (i < tabstop)
@@ -486,14 +488,20 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 
 			/* Count number of characters in the buffer */
 			i++;
+
+			/* Notice possible encode */
+			if (c == '[') check_encodes = TRUE;
 		}
 	}
 
-	/* Buffer overflow or EOF - return an empty string */
-	buf[0] = '\0';
+	/* Always terminate the string */
+	*s = '\0';
 
-	/* Error */
-	return (1);
+	/* Translate encodes if necessary */
+	if (check_encodes) xstr_trans(buf, 0);
+
+	/* Success */
+	return (0);
 }
 
 
@@ -531,7 +539,7 @@ errr my_fputs(FILE *fff, cptr buf, size_t n)
  */
 
 
-#else /* RISCOS */
+#else /* All systems other than RISCOS */
 
 
 /*
@@ -674,12 +682,16 @@ int fd_open(cptr file, int flags)
  */
 errr fd_lock(int fd, int what)
 {
+#ifdef SET_UID
+
+	struct flock lock;
+
+#endif
+
 	/* Verify the fd */
 	if (fd < 0) return (-1);
 
 #ifdef SET_UID
-
-	struct flock lock;
 
 	lock.l_type = what;
 	lock.l_start = 0; /* Lock the entire file */
@@ -693,54 +705,6 @@ errr fd_lock(int fd, int what)
 	 */
 	return(fcntl(fd, F_SETLKW, &lock));
 
-
-#if 0 /* Non-POSIX locking (deprecated) */
-
-
-# ifdef USG
-
-#  if defined(F_ULOCK) && defined(F_LOCK)
-
-	/* Un-Lock */
-	if (what == F_UNLCK)
-	{
-		/* Unlock it, Ignore errors */
-		lockf(fd, F_ULOCK, 0);
-	}
-
-	/* Lock */
-	else
-	{
-		/* Lock the score file */
-		if (lockf(fd, F_LOCK, 0) != 0) return (1);
-	}
-
-#  endif /* defined(F_ULOCK) && defined(F_LOCK) */
-
-# else
-
-#  if defined(LOCK_UN) && defined(LOCK_EX)
-
-	/* Un-Lock */
-	if (what == F_UNLCK)
-	{
-		/* Unlock it, Ignore errors */
-		(void)flock(fd, LOCK_UN);
-	}
-
-	/* Lock */
-	else
-	{
-		/* Lock the score file */
-		if (flock(fd, LOCK_EX) != 0) return (1);
-	}
-
-#  endif /* defined(LOCK_UN) && defined(LOCK_EX) */
-
-# endif /* USG */
-
-
-#endif /* Non-POSIX locking (deprecated) */
 
 #else /* SET_UID */
 
@@ -903,6 +867,97 @@ errr check_modification_date(int fd, cptr template_file)
 
 #endif /* CHECK_MODIFICATION_TIME */
 
-#endif /* RISCOS */
+
+#endif /* End of non-RISCOS section */
+
+
+
+/*
+ * Hack -- drop permissions
+ */
+void safe_setuid_drop(void)
+{
+
+#ifdef SET_UID
+
+# ifdef SAFE_SETUID
+
+#  ifdef HAVE_SETEGID
+
+	if (setegid(getgid()) != 0)
+	{
+		quit("setegid(): cannot set permissions correctly!");
+	}
+
+#  else /* HAVE_SETEGID */
+
+#   ifdef SAFE_SETUID_POSIX
+
+	if (setgid(getgid()) != 0)
+	{
+		quit("setgid(): cannot set permissions correctly!");
+	}
+
+#   else /* SAFE_SETUID_POSIX */
+
+	if (setregid(getegid(), getgid()) != 0)
+	{
+		quit("setregid(): cannot set permissions correctly!");
+	}
+
+#   endif /* SAFE_SETUID_POSIX */
+
+#  endif /* HAVE_SETEGID */
+
+# endif /* SAFE_SETUID */
+
+#endif /* SET_UID */
+
+}
+
+
+/*
+ * Hack -- grab permissions
+ */
+void safe_setuid_grab(void)
+{
+
+#ifdef SET_UID
+
+# ifdef SAFE_SETUID
+
+#  ifdef HAVE_SETEGID
+
+	if (setegid(player_egid) != 0)
+	{
+		quit("setegid(): cannot set permissions correctly!");
+	}
+
+#  else /* HAVE_SETEGID */
+
+#   ifdef SAFE_SETUID_POSIX
+
+	if (setgid(player_egid) != 0)
+	{
+		quit("setgid(): cannot set permissions correctly!");
+	}
+
+#   else /* SAFE_SETUID_POSIX */
+
+	if (setregid(getegid(), getgid()) != 0)
+	{
+		quit("setregid(): cannot set permissions correctly!");
+	}
+
+#   endif /* SAFE_SETUID_POSIX */
+
+#  endif /* HAVE_SETEGID */
+
+# endif /* SAFE_SETUID */
+
+#endif /* SET_UID */
+
+}
+
 
 

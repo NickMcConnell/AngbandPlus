@@ -139,6 +139,9 @@ void do_cmd_change_name(void)
 		/* Query */
 		ch = inkey();
 
+		/* Move cursor to top row */
+		move_cursor(0, 0);
+
 		/* Exit */
 		if (ch == ESCAPE) break;
 		if (ch == '\n') break;
@@ -251,6 +254,7 @@ void do_cmd_message_one(void)
 void do_cmd_messages(void)
 {
 	char ch;
+	bool shift_key = FALSE;
 
 	int old_rows = screen_rows;
 
@@ -282,10 +286,10 @@ void do_cmd_messages(void)
 
 
 	/* We want 50 rows */
-	if (text_50_rows) Term_rows(TRUE);
+	if (text_50_rows) (void)Term_rows(TRUE);
 
 	/* We don't */
-	else Term_rows(FALSE);
+	else (void)Term_rows(FALSE);
 
 	/* Note height of screen */
 	hgt = screen_rows;
@@ -382,26 +386,88 @@ void do_cmd_messages(void)
 			i, i + num - 1, n), 0, 0);
 
 		/* Display prompt */
-		prt("[(p)revious, (n)ewer, '/' search, '&' show, 'k', 'j', or ESCAPE]", hgt - 1, 0);
+		prt("Press direction keys to move, '/' search, '&' show, or ESCAPE]", hgt - 1, 0);
 
 		/* Get a command */
 		ch = inkey();
 
-		/* Exit on Escape */
-		if (ch == ESCAPE) break;
+		/* Allow all direction keys and shift-movement */
+		get_ui_direction(&ch, TRUE, TRUE, TRUE, &shift_key);
+
 
 		/* Hack -- Save the old index */
 		j = i;
 
 
+		/* Exit on Escape */
+		if (ch == ESCAPE) break;
+
+
+		/* Recall the oldest message */
+		else if ((ch == 'g') || (ch == '7'))
+		{
+			i = n - 1;
+		}
+
+		/* Recall a full page of older messages */
+		else if ((ch == ' ') || (ch == '9'))
+		{
+			/* Go older if legal */
+			if (i + (hgt - 4) < n) i += (hgt - 4);
+		}
+
+		/* Recall a half page of older messages */
+		else if ((ch == '-') || (ch == '_') || (ch == '4'))
+		{
+			/* Go older if legal */
+			if (i + (hgt - 4)/2 < n) i += (hgt - 4)/2;
+		}
+
+		/* Recall 1 older message */
+		else if ((ch == '8') || (ch == '\n') || (ch == '\r'))
+		{
+			/* Go older (if able) */
+			i += (shift_key ? 5 : 1);
+			if (i >= n) i = n - 1;
+		}
+
+		/* Recall 1 newer messages */
+		else if (ch == '2')
+		{
+			/* Go newer (if able) */
+			i -= (shift_key ? 5 : 1);
+			if (i < 0) i = 0;
+		}
+
+		/* Recall a half page of newer messages */
+		else if ((ch == '+') || (ch == '=') || (ch == '6'))
+		{
+			/* Go newer (if able) */
+			i = (i >= (hgt - 4)/2) ? (i - (hgt - 4)/2) : 0;
+		}
+
+		/* Recall a full page of newer messages */
+		else if (ch == '3')
+		{
+			/* Go newer (if able) */
+			i = (i >= (hgt - 4)) ? (i - (hgt - 4)) : 0;
+		}
+
+		/* Recall the newest message */
+		else if ((ch == 'G') || (ch == '1'))
+		{
+			i = 0;
+		}
+
+
 		/* Hack -- handle show */
-		if (ch == '&')
+		else if (ch == '&')
 		{
 			/* Prompt */
 			prt("Show: ", hgt - 1, 0);
 
 			/* Get a "shower" string, or continue */
-			if (!askfor_aux(shower, 80)) continue;
+			if (!askfor_aux(shower, 80, FALSE)) continue;
 
 			/* Make "shower" lowercase */
 			strlower(shower);
@@ -411,7 +477,7 @@ void do_cmd_messages(void)
 		}
 
 		/* Hack -- handle find */
-		if (ch == '/')
+		else if (ch == '/')
 		{
 			s16b z;
 
@@ -419,7 +485,7 @@ void do_cmd_messages(void)
 			prt("Find: ", hgt - 1, 0);
 
 			/* Get a "finder" string, or continue */
-			if (!askfor_aux(finder, 80)) continue;
+			if (!askfor_aux(finder, 80, FALSE)) continue;
 
 			/* Show it (search in lowercase) */
 			strcpy(shower, finder);
@@ -448,76 +514,19 @@ void do_cmd_messages(void)
 			}
 		}
 
-		/* Recall 20 older messages */
-		if ((ch == 'p') || (ch == KTRL('P')) || (ch == ' ') || (ch == '3'))
-		{
-			/* Go older if legal */
-			if (i + 20 < n) i += num;
-		}
-
-		/* Recall 10 older messages */
-		if ((ch == '+') || (ch == '='))
-		{
-			/* Go older if legal */
-			if (i + 10 < n) i += num/2;
-		}
-
-		/* Recall 1 older message */
-		if ((ch == '8') || (ch == '\n') || (ch == '\r') || (ch == 'k'))
-		{
-			/* Go newer if legal */
-			if (i + 1 < n) i += 1;
-		}
-
-		/* Recall 20 newer messages */
-		if ((ch == 'n') || (ch == KTRL('N')) || (ch == '9'))
-		{
-			/* Go newer (if able) */
-			i = (i >= num) ? (i - num) : 0;
-		}
-
-		/* Recall 10 newer messages */
-		if (ch == '-')
-		{
-			/* Go newer (if able) */
-			i = (i >= num/2) ? (i - num/2) : 0;
-		}
-
-		/* Recall 1 newer messages */
-		if ((ch == '2') || (ch == 'j'))
-		{
-			/* Go newer (if able) */
-			i = (i >= 1) ? (i - 1) : 0;
-		}
-
 		/* Go to a specific line */
-		if (ch == '#')
+		else if (ch == '#')
 		{
 			char tmp[80];
 			prt("Goto Line: ", hgt - 1, 0);
 			strcpy(tmp, "0");
-			if (askfor_aux(tmp, 80))
+			if (askfor_aux(tmp, 80, FALSE))
 			{
 				i = atoi(tmp);
 				if (i > n - hgt + 4) i = n - hgt + 4;
 				if (i < 0) i = 0;
 			}
 		}
-
-		/* Go to the top */
-		if (ch == 'G')
-		{
-			i = 0;
-		}
-
-		/* Go to the bottom */
-		if (ch == 'g')
-		{
-			i = n - hgt + 4;
-		}
-
-		/* Hack -- Error of some kind */
-		if (i == j) bell(NULL);
 	}
 
 
@@ -571,7 +580,7 @@ static s16b do_cmd_options_win(bool *modified)
 	int action = 0;
 
 	int y = 0;
-	int x = 0;
+	int x = 1;
 
 	char ch;
 
@@ -598,7 +607,7 @@ static s16b do_cmd_options_win(bool *modified)
 		prt_options_screen_navigation(screen_rows - 1, 0);
 
 		/* Display the windows */
-		for (j = 0; j < ANGBAND_TERM_MAX; j++)
+		for (j = 1; j < ANGBAND_TERM_MAX; j++)
 		{
 			byte a = TERM_WHITE;
 
@@ -633,7 +642,7 @@ static s16b do_cmd_options_win(bool *modified)
 			(void)Term_putstr(0, i + 5, -1, a, str);
 
 			/* Display the windows */
-			for (j = 0; j < ANGBAND_TERM_MAX; j++)
+			for (j = 1; j < ANGBAND_TERM_MAX; j++)
 			{
 				char c = '.';
 
@@ -693,12 +702,17 @@ static s16b do_cmd_options_win(bool *modified)
 		if (d != 0)
 		{
 			x = (x + ddx[d] +  8) %  8;
+			if (x == 0) x = 1;
 			y = (y + ddy[d] + 16) % 16;
 		}
 
 		/* Not a direction -- Toggle */
 		else
 		{
+			u32b new_value;
+
+			new_value = 1L << y;
+
 			/* Hack -- ignore the main window */
 			if (x == 0)
 			{
@@ -706,15 +720,15 @@ static s16b do_cmd_options_win(bool *modified)
 			}
 
 			/* Toggle flag (off) */
-			else if (op_ptr->window_flag[x] & (1L << y))
+			else if (op_ptr->window_flag[x] == new_value)
 			{
-				op_ptr->window_flag[x] &= ~(1L << y);
+				op_ptr->window_flag[x] = 0;
 			}
 
 			/* Toggle flag (on) */
 			else
 			{
-				op_ptr->window_flag[x] |= (1L << y);
+				op_ptr->window_flag[x] = new_value;
 			}
 		}
 	}
@@ -879,12 +893,12 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 				if (k == 3)
 				{
-					c_roff(a, format("The maximum vertical view for the way you have currently set up the screen is %d.\n\n     The traditional vertical view is 2, and with bigscreen about two or three below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_y), 5, 75);
+					c_roff(a, format("The maximum vertical view for the way you have currently set up the screen is %d.\n\n     The traditional vertical view is 2, and with bigscreen about three or four below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_y), 5, 75);
 				}
 
 				if (k == 4)
 				{
-					c_roff(a, format("The maximum horizontal view for the way you have currently set up the screen is %d.\n\n     The traditional horizontal view is 4, and with bigscreen about two or three below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_x), 5, 75);
+					c_roff(a, format("The maximum horizontal view for the way you have currently set up the screen is %d.\n\n     The traditional horizontal view is 4, and with bigscreen about three or four below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_x), 5, 75);
 				}
 			}
 		}
@@ -1111,79 +1125,90 @@ static s16b do_cmd_options_panel(bool *modified)
 	(void)Term_clear();
 
 	/* Set to 50 rows if necessary */
-	if (num >= 22) Term_rows(TRUE);
+	if (num >= 22) (void)Term_rows(TRUE);
 
 
 	/* Prompt XXX XXX XXX */
-	prt("Left Panel (<num> or <letter> to move, RET to set/unset, +/- to swap, !, or ESC)", 0, 0);
+	prt("Left Panel (<dir> to move, Return to set/unset, +/- to swap, !, or ESC)", 0, 0);
 
-	/* Separator line */
-	c_prt(TERM_SLATE, "==============================================================================", 1, 1);
 
 	/* Print the headers */
-	c_prt(TERM_L_BLUE, "Available Displays", 2, 11);
-	c_prt(TERM_L_BLUE, "Displays Shown on Left Panel", 2, 46);
+	c_prt(TERM_WHITE, "Available Displays", 2, 1);
+	c_prt(TERM_WHITE, "Displays Shown on Left Panel", 2, 41);
+
+	/* Separator line */
+	c_prt(TERM_L_WHITE, "==============================================================================", 3, 1);
+
 
 
 	/* Repeat until satisfied */
 	while (TRUE)
 	{
+		bool flg_avail = FALSE;
+
 		/* Clear most everything */
-		clear_from(3);
+		clear_from(4);
 
 		/* Display the list of available options */
-		for (i = 0; i <= num; i++)
+		for (i = 0; i < num; i++)
 		{
-			if (i == num)
-			{
-				c_prt(TERM_SLATE, "======================================",
-					3 + i, 1);
-			}
-			else if (option_avail[i][1])
+			if (option_avail[i][1])
 			{
 				c_prt(TERM_SLATE, custom_display_text[option_avail[i][0]],
-					3 + i, 1);
+					4 + i, 1);
 			}
 			else if ((left_column) && (selected == i))
 			{
-				c_prt(TERM_YELLOW, custom_display_text[option_avail[i][0]],
-					3 + i, 1);
+				c_prt(TERM_L_BLUE, custom_display_text[option_avail[i][0]],
+					4 + i, 1);
 			}
 			else
 			{
-				prt(custom_display_text[option_avail[i][0]], 3 + i, 1);
+				prt(custom_display_text[option_avail[i][0]], 4 + i, 1);
 			}
 		}
 
 		/* Print a separator line */
-		for (i = 2; i < screen_rows - 1; i++)
+		for (i = 4; i < screen_rows - 1; i++)
 		{
-			(void)Term_putstr(39, i, 2, TERM_SLATE, "||");
+			(void)Term_putstr(39, i, 2, TERM_L_WHITE, "|");
 		}
 
 		/* Display the left panel layout */
 		for (i = 0; i <= slots_avail; i++)
 		{
+			/* Make it clear that we have only limited space */
 			if (i == slots_avail)
 			{
-				c_prt(TERM_SLATE, "======================================",
-					3 + i, 41);
+				c_prt(TERM_L_WHITE, " - - - - - - - - - - - - -",
+					4 + i, 41);
 			}
+
+			/* We are in the right column, and this slot is selected */
 			else if ((!left_column) && (selected == i))
 			{
 				if (custom_display[i] == 0)
 				{
-					c_prt(TERM_YELLOW, "----", 3 + i, 41);
+					c_prt(TERM_L_BLUE, " -----", 4 + i, 41);
 				}
 				else
 				{
-					c_prt(TERM_YELLOW, custom_display_text[custom_display[i]],
-						3 + i, 41);
+					c_prt(TERM_L_BLUE, custom_display_text[custom_display[i]],
+						4 + i, 41);
 				}
 			}
+
+			/* Notice where the next option will fit */
+			else if ((left_column) && (custom_display[i] == 0) && (!flg_avail))
+			{
+				c_prt(TERM_L_BLUE, "  (+)", 4 + i, 41);
+				flg_avail = TRUE;
+			}
+
+			/* Usual case -- display the current option, if any */
 			else
 			{
-				prt(custom_display_text[custom_display[i]], 3 + i, 41);
+				prt(custom_display_text[custom_display[i]], 4 + i, 41);
 			}
 		}
 
@@ -1568,6 +1593,14 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 	/* Scan the options */
 	for (i = 0; i < OPT_PAGE_PER; i++)
 	{
+		/* Skip some options when the character is not being born */
+		if (character_generated)
+		{
+			/* Skip options in the "birth" group */
+			if ((option_page[page][i] >= OPT_BIRTH) &&
+			    (option_page[page][i] < OPT_MAX)) continue;
+		}
+
 		/* Collect options on this "page" */
 		if (option_page[page][i] < OPT_MAX)
 		{
@@ -1700,6 +1733,14 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 				break;
 			}
 		}
+
+		/* Some options cannot be combined */
+		if (ironman_play) op_ptr->opt[OPT_beginner_play] = FALSE;
+
+		/* Adjust character type as requested */
+		if (beginner_play)      p_ptr->character_type = PCHAR_BEGINNER;
+		else if (ironman_play)  p_ptr->character_type = PCHAR_IRONMAN;
+		else                    p_ptr->character_type = PCHAR_NORMAL;
 	}
 }
 
@@ -1740,7 +1781,7 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 	    return;
 	}
 
-	strnfmt(expected_line, sizeof(expected_line),
+	(void)strnfmt(expected_line, sizeof(expected_line),
 	        "%s begin %s", dump_seperator, mark);
 
 	/* Loop for every line */
@@ -1764,7 +1805,7 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 				if (!between_marks)
 				{
 					/* Expect the footer next */
-					strnfmt(expected_line, sizeof(expected_line),
+					(void)strnfmt(expected_line, sizeof(expected_line),
 					        "%s end %s", dump_seperator, mark);
 
 					between_marks = TRUE;
@@ -1775,7 +1816,7 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 				else
 				{
 					/* Expect a header next - XXX shouldn't happen */
-					strnfmt(expected_line, sizeof(expected_line),
+					(void)strnfmt(expected_line, sizeof(expected_line),
 					        "%s begin %s", dump_seperator, mark);
 
 					between_marks = FALSE;
@@ -1805,8 +1846,8 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 	}
 
 	/* Close files */
-	my_fclose(orig_fff);
-	my_fclose(tmp_fff);
+	(void)my_fclose(orig_fff);
+	(void)my_fclose(tmp_fff);
 
 	/* If there are changes, overwrite the original file with the new one */
 	if (changed)
@@ -1820,12 +1861,12 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 			fprintf(orig_fff, "%s\n", buf);
 		}
 
-		my_fclose(orig_fff);
-		my_fclose(tmp_fff);
+		(void)my_fclose(orig_fff);
+		(void)my_fclose(tmp_fff);
 	}
 
 	/* Kill the temporary file */
-	fd_kill(tmp_file);
+	(void)fd_kill(tmp_file);
 }
 
 
@@ -1877,10 +1918,8 @@ void do_cmd_pref(void)
  *
  * This function should only be used by standard interaction commands,
  * in which a standard "Command:" prompt is present on the given row.
- *
- * Allow absolute file names?  XXX XXX XXX
  */
-static void do_cmd_pref_file_hack(int row)
+static void do_cmd_pref_file_hack(int row, cptr file_name)
 {
 	char ftmp[80];
 
@@ -1891,10 +1930,13 @@ static void do_cmd_pref_file_hack(int row)
 	prt("File: ", row + 2, 0);
 
 	/* Default filename */
-	sprintf(ftmp, "%s.prf", op_ptr->base_name);
+	if (!file_name) sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+	/* Specific filename */
+	else sprintf(ftmp, "%s.prf", file_name);
 
 	/* Ask for a file (or cancel) */
-	if (!askfor_aux(ftmp, 80)) return;
+	if (!askfor_aux(ftmp, 80, TRUE)) return;
 
 	/* Process the given filename */
 	if (process_pref_file(ftmp))
@@ -1925,7 +1967,7 @@ static errr option_dump(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2038,7 +2080,7 @@ static errr option_dump(cptr fname)
 	pref_footer(fff, mark);
 
 	/* Close */
-	my_fclose(fff);
+	(void)my_fclose(fff);
 
 	/* Success */
 	return (0);
@@ -2146,7 +2188,7 @@ void do_cmd_options(void)
 		else if ((ch == 'L') || (ch == 'l'))
 		{
 			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(20);
+			do_cmd_pref_file_hack(20, "user");
 
 			/* XXX XXX -- Assume no modifications remain */
 			modified = FALSE;
@@ -2167,7 +2209,7 @@ void do_cmd_options(void)
 			sprintf(ftmp, "user.prf");
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80)) continue;
+			if (!askfor_aux(ftmp, 80, FALSE)) continue;
 
 			/* Dump the options */
 			if (option_dump(ftmp))
@@ -2277,7 +2319,7 @@ void do_cmd_options(void)
 				sprintf(buf, "%d", op_ptr->delay_factor);
 
 				/* Ask the user for a string, allow cancel */
-				if (!askfor_aux(buf, 3)) break;
+				if (!askfor_aux(buf, 3, FALSE)) break;
 
 				/* Extract a number */
 				amt = atoi(buf);
@@ -2348,17 +2390,17 @@ void do_cmd_options(void)
 	if (screen_change)
 	{
 		/* Apply force_25_rows */
-		if (force_25_rows) Term_rows(FALSE);
+		if (force_25_rows) (void)Term_rows(FALSE);
 
 		/* Cancel force_25_rows */
-		else Term_rows(TRUE);
+		else (void)Term_rows(TRUE);
 
 		/* Adjust the panels if necessary */
 		verify_panel(5, FALSE);
 	}
 
 	/* Otherwise, set to 50 screen rows if we were showing 50 before */
-	else if (old_rows == 50) Term_rows(TRUE);
+	else if (old_rows == 50) (void)Term_rows(TRUE);
 
 	/* Load screen */
 	screen_load();
@@ -2368,8 +2410,6 @@ void do_cmd_options(void)
 }
 
 
-
-#ifdef ALLOW_MACROS
 
 /*
  * Hack -- append all current macros to the given file
@@ -2385,7 +2425,7 @@ static errr macro_dump(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2431,7 +2471,7 @@ static errr macro_dump(cptr fname)
 	pref_footer(fff, mark);
 
 	/* Close */
-	my_fclose(fff);
+	(void)my_fclose(fff);
 
 	/* Success */
 	return (0);
@@ -2558,7 +2598,7 @@ static errr keymap_dump(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2617,14 +2657,11 @@ static errr keymap_dump(cptr fname)
 	pref_footer(fff, mark);
 
 	/* Close */
-	my_fclose(fff);
+	(void)my_fclose(fff);
 
 	/* Success */
 	return (0);
 }
-
-
-#endif
 
 
 /*
@@ -2693,22 +2730,22 @@ void do_cmd_macros(void)
 
 		/* Selections */
 		prt("(1) Load a user preference file", 3, 5);
-#ifdef ALLOW_MACROS
 
 		attr = (changed_macro ? TERM_YELLOW : TERM_WHITE);
 		c_prt(attr, "(2) Append macros to a file", 4, 5);
+
 		prt("(3) Query a macro", 5, 5);
 		prt("(4) Create a macro", 6, 5);
 		prt("(5) Remove a macro", 7, 5);
 
 		attr = (changed_keymap ? TERM_YELLOW : TERM_WHITE);
 		c_prt(attr, "(6) Append keymaps to a file", 8, 5);
+
 		prt("(7) Query a keymap", 9, 5);
 		prt("(8) Create a keymap", 10, 5);
 		prt("(9) Remove a keymap", 11, 5);
 		prt("(0) Enter a new action", 12, 5);
 		prt("(?) Get help", 13, 5);
-#endif /* ALLOW_MACROS */
 
 		/* Prompt */
 		prt("Command: ", 16, 0);
@@ -2723,10 +2760,8 @@ void do_cmd_macros(void)
 		if (ch == '1')
 		{
 			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(16);
+			do_cmd_pref_file_hack(16, "user");
 		}
-
-#ifdef ALLOW_MACROS
 
 		/* Save macros */
 		else if (ch == '2')
@@ -2743,7 +2778,7 @@ void do_cmd_macros(void)
 			sprintf(ftmp, "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80)) continue;
+			if (!askfor_aux(ftmp, 80, FALSE)) continue;
 
 			/* Dump the macros */
 			(void)macro_dump(ftmp);
@@ -2819,13 +2854,13 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80))
+			if (askfor_aux(tmp, 80, FALSE))
 			{
 				/* Convert to ascii */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
 
 				/* Link the macro */
-				macro_add(pat, macro_buffer);
+				(void)macro_add(pat, macro_buffer);
 
 				/* Prompt */
 				msg_print("Added a macro.");
@@ -2848,7 +2883,7 @@ void do_cmd_macros(void)
 			do_cmd_macro_aux(pat);
 
 			/* Link the macro */
-			macro_add(pat, pat);
+			(void)macro_add(pat, pat);
 
 			/* Prompt */
 			msg_print("Removed a macro.");
@@ -2872,7 +2907,7 @@ void do_cmd_macros(void)
 			sprintf(ftmp, "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80)) continue;
+			if (!askfor_aux(ftmp, 80, FALSE)) continue;
 
 			/* Dump the macros */
 			(void)keymap_dump(ftmp);
@@ -2948,13 +2983,13 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80))
+			if (askfor_aux(tmp, 80, FALSE))
 			{
 				/* Convert to ascii */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
 
 				/* Free old keymap */
-				string_free(keymap_act[mode][(byte)(pat[0])]);
+				(void)string_free(keymap_act[mode][(byte)(pat[0])]);
 
 				/* Make new keymap */
 				keymap_act[mode][(byte)(pat[0])] = string_make(macro_buffer);
@@ -2980,7 +3015,7 @@ void do_cmd_macros(void)
 			do_cmd_macro_aux_keymap(pat);
 
 			/* Free old keymap */
-			string_free(keymap_act[mode][(byte)(pat[0])]);
+			(void)string_free(keymap_act[mode][(byte)(pat[0])]);
 
 			/* Make new keymap */
 			keymap_act[mode][(byte)(pat[0])] = NULL;
@@ -3005,7 +3040,7 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80))
+			if (askfor_aux(tmp, 80, FALSE))
 			{
 				/* Extract an action */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
@@ -3018,8 +3053,6 @@ void do_cmd_macros(void)
 			p_ptr->get_help_index = HELP_CMD_MACRO;
 			do_cmd_help();
 		}
-
-#endif /* ALLOW_MACROS */
 
 		/* Oops */
 		else
@@ -3043,34 +3076,258 @@ void do_cmd_macros(void)
 	screen_load();
 }
 
+/*
+ * Display helpful information about characters and colors.
+ */
+static void do_cmd_visual_info(void)
+{
+	int i;
+
+	clear_from(0);
+
+	/* List all the available characters in the current font */
+	for (i = 0; i < 256; i++)
+	{
+		if (i % 32 == 0) (void)Term_putstr(1, 2 + i / 32, 3, TERM_SLATE, format("%3d", i));
+
+		(void)Term_putch(9 + (2 * (i % 32)), 2 + i / 32, TERM_WHITE, (char)i);
+
+		if (i % 32 == 31) (void)Term_putstr(76, 2 + i / 32, 3, TERM_SLATE, format("%3d", i));
+	}
+
+
+	/* List some colors */
+	for (i = 0; i < max_system_colors; i++)
+	{
+		/* Stop on first color without an index character */
+		if (!color_table[i].index_char) break;
+
+		if (i % 32 == 0) (void)Term_putstr(1, 11 + i / 32, 3, TERM_SLATE, format("%3d", i));
+
+		(void)Term_putch(9 + (2 * (i % 32)), 11 + i / 32, i, '#');
+
+		if (i % 32 == 31) (void)Term_putstr(76, 11 + i / 32, 3, TERM_SLATE, format("%3d", i));
+	}
+}
+
+
+/*
+ * Change visuals.
+ */
+static int do_cmd_visual_change(cptr str, int max_idx, int *cur_idx, int *move,
+	byte *da, byte *dc, byte *xa, byte *xc)
+{
+	char ch;
+
+
+	/* Save starting values */
+	byte xa0 = *xa;
+	byte xc0 = *xc;
+
+	/* Limit to attr values (allow high bits only if using graphics) */
+	byte max_attr = (use_graphics) ? 255 : max_system_colors - 1;
+
+	/* Assume no movement */
+	*move = 0;
+
+
+	/* Label the default values */
+	(void)Term_putstr(10, 20, -1, TERM_WHITE,
+		format("Default attr/char = %3u / %3u", *da, *dc));
+	(void)Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+	(void)Term_putch(43, 20, *da, *dc);
+
+	/* Label the current values */
+	(void)Term_putstr(10, 22, -1, TERM_WHITE,
+		format("Current attr/char = %3u / %3u", *xa, *xc));
+	(void)Term_putstr(40, 22, -1, TERM_WHITE, "<< ? >>");
+	(void)Term_putch(43, 22, *xa, *xc);
+
+
+	/* Prompt */
+	(void)Term_putstr(0, 16, -1, TERM_WHITE,
+		format("Edit: %s (index: n/N/^n, attr: a/A/^a, char: c/C/^c): ", str));
+
+	/* Get a command */
+	ch = inkey();
+
+
+	/* Accept changes */
+	if ((ch == ESCAPE) || (ch == '\n') || (ch == '\r')) return (-1);
+
+	/* Move to another item */
+	if (ch == 'n')
+	{
+		if (*cur_idx == max_idx) *cur_idx = 0;
+		else (*cur_idx)++;
+		*move = 1;
+	}
+	else if (ch == 'N')
+	{
+		if (*cur_idx == 0) *cur_idx = max_idx;
+		else (*cur_idx)--;
+		*move = -1;
+	}
+	else if (ch == KTRL('N'))
+	{
+		/* Move cursor to row 16, column 0, and suggest the current value */
+		move_cursor(16, 0);
+		get_quantity_default = *cur_idx;
+
+		/* Get a quantity */
+		*cur_idx = get_quantity(format("Jump to which index (0 - %d)?",
+			max_idx), 0, max_idx);
+
+		/* Jump to this index exactly -- no movement */
+	}
+
+	/* Change attribute */
+	else if (ch == 'a')
+	{
+		if (*xa == max_attr) *xa = 0;
+		else (*xa)++;
+	}
+	else if (ch == 'A')
+	{
+		if (*xa == 0) *xa = max_attr;
+		else (*xa)--;
+	}
+	else if (ch == KTRL('A'))
+	{
+		/* Move cursor to row 16, column 0, and suggest the current value */
+		move_cursor(16, 0);
+		get_quantity_default = *xa;
+
+		/* Get a quantity */
+		*xa = get_quantity(format("Assign which attribute (0 - %d)?",
+			max_attr), 0, max_attr);
+	}
+
+	/* Change character */
+	else if (ch == 'c')
+	{
+		if (*xc == 255) *xc = 0;
+		else (*xc)++;
+	}
+	else if (ch == 'C')
+	{
+		if (*xc == 0) *xc = 255;
+		else (*xc)--;
+	}
+	else if (ch == KTRL('C'))
+	{
+		/* Move cursor to row 16, column 0, and suggest the current value */
+		move_cursor(16, 0);
+		get_quantity_default = *xc;
+
+		/* Get a quantity */
+		*xc = get_quantity(format("Assign which character (0 - %d)?",
+			255), 0, 255);
+	}
+
+	/* Notice changes */
+	if ((*xa != xa0) || (*xc != xc0)) return (1);
+
+	/* No changes */
+	return (0);
+}
+
+static FILE *fff_visuals = NULL;
+
+
+/*
+ * Open a file, remove old preferences, and print a header.
+ */
+static bool do_cmd_visuals_file(cptr str, bool automatic, char *mark)
+{
+	char ftmp[80];
+	char buf[1024];
+
+	/* Handle automatic usage */
+	if (automatic)
+	{
+		/* Get a filename */
+		strcpy(ftmp, "scrn_tmp.prf");
+	}
+
+	/* Handle manual usage */
+	else
+	{
+		/* Prompt */
+		prt(format("Command: Dump %s attr/chars", str), 16, 0);
+
+		/* Prompt */
+		prt("File: ", 18, 0);
+
+		/* Default filename */
+		sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+		/* Get a filename, allow cancel */
+		if (!askfor_aux(ftmp, 80, FALSE)) return (FALSE);
+	}
+
+	/* Build the filename */
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+
+	/* Build a marker */
+	strcpy(mark, format("%^s attr/char definitions", str));
+
+	/* Remove old attr/chars */
+	remove_old_dump(buf, mark);
+
+	/* Append to the file */
+	fff_visuals = my_fopen(buf, "a");
+
+	/* Failure */
+	if (!fff_visuals) return (FALSE);
+
+	/* Output header */
+	pref_header(fff_visuals, mark);
+
+	/* Skip some lines */
+	fprintf(fff_visuals, "\n\n");
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/*
+ * Macro -- Get a spell attribute.
+ */
+#define get_ga \
+(g_ptr->attr_rdiag) ? g_ptr->attr_rdiag : spell_color(index)
 
 
 /*
  * Interact with "visuals"
+ *
+ * Visuals currently include monster, object, feature, flavor, and effect
+ * attributes and characters.  -BEN-, -LM-
  */
 void do_cmd_visuals(char cmd)
 {
 	int ch;
-	int cx;
-	int attr;
+	byte attr;
+	int index, result, move = 0;
 
 	int i;
 
 	/* Allow automatic usage */
 	bool automatic = isdigit(cmd);
 
-	/* Remember how many colors are actually useable */
-	int max_colors = max_system_colors;
+	char mark[80];
 
-	FILE *fff;
-	char buf[1024];
-
-	static cptr mark;
-	char ftmp[80];
-
+	/* Keep track of changes */
 	bool changed_monster = FALSE;
 	bool changed_object = FALSE;
 	bool changed_feature = FALSE;
+	bool changed_flavor = FALSE;
+	bool changed_spell = FALSE;
 
 
 	/* Save screen */
@@ -3091,22 +3348,27 @@ void do_cmd_visuals(char cmd)
 		 */
 
 		/* Give some choices */
-		prt("(1) Load a user pref file", 3, 5);
-#ifdef ALLOW_VISUALS
+		prt("(%) Load a user pref file", 3, 5);
+
+		prt("(1) Change monster attr/chars", 5, 5);
+		prt("(2) Change object attr/chars", 6, 5);
+		prt("(3) Change feature attr/chars", 7, 5);
+		prt("(4) Change flavor attr/chars", 8, 5);
+		prt("(5) Change spell attr/chars", 9, 5);
+
 		attr = (changed_monster ? TERM_YELLOW : TERM_WHITE);
-		c_prt(attr, "(2) Dump monster attr/chars", 4, 5);
+		c_prt(attr, "(6) Dump monster attr/chars", 5, 45);
 		attr = (changed_object ? TERM_YELLOW : TERM_WHITE);
-		c_prt(attr, "(3) Dump object attr/chars", 5, 5);
+		c_prt(attr, "(7) Dump object attr/chars", 6, 45);
 		attr = (changed_feature ? TERM_YELLOW : TERM_WHITE);
-		c_prt(attr, "(4) Dump feature attr/chars", 6, 5);
-		prt("", 7, 5);
-		prt("(6) Change monster attr/chars", 8, 5);
-		prt("(7) Change object attr/chars", 9, 5);
-		prt("(8) Change feature attr/chars", 10, 5);
-		prt("", 11, 5);
-#endif
-		prt("(0) Reset visuals", 12, 5);
-		prt("(?) Get help", 13, 5);
+		c_prt(attr, "(8) Dump feature attr/chars", 7, 45);
+		attr = (changed_flavor ? TERM_YELLOW : TERM_WHITE);
+		c_prt(attr, "(9) Dump flavor attr/chars", 8, 45);
+		attr = (changed_spell ? TERM_YELLOW : TERM_WHITE);
+		c_prt(attr, "(0) Dump spell attr/chars", 9, 45);
+
+		prt("(!) Reset visuals", 11, 5);
+		prt("(?) Get help", 11, 45);
 
 		/* Handle automatic usage */
 		if (automatic)
@@ -3127,7 +3389,7 @@ void do_cmd_visuals(char cmd)
 		else
 		{
 			/* Prompt */
-			prt("Command: ", 15, 0);
+			prt("Command: ", 16, 0);
 
 			/* Prompt */
 			ch = inkey();
@@ -3138,62 +3400,679 @@ void do_cmd_visuals(char cmd)
 
 
 		/* Load a user pref file */
-		if (ch == '1')
+		if (ch == '%')
 		{
 			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(15);
+			do_cmd_pref_file_hack(16, "user");
 		}
 
-#ifdef ALLOW_VISUALS
 
-		/* Dump monster attr/chars */
+		/* Modify monster attr/chars */
+		else if (ch == '1')
+		{
+			index = 0;
+
+			/* Display various information */
+			do_cmd_visual_info();
+
+			/* Query until done */
+			while (TRUE)
+			{
+				monster_race *r_ptr = &r_info[index];
+
+				/* Label the entry */
+				(void)Term_putstr(5, 18, -1, TERM_WHITE,
+					format("Monster = %d, Name = %-40.40s",
+					index, (r_name + r_ptr->name)));
+
+				/* Edit the entry */
+				result = do_cmd_visual_change("Monster attr/chars",
+					z_info->r_max - 1, &index, &move,
+					(byte *)&r_ptr->d_attr, (byte *)&r_ptr->d_char,
+					(byte *)&r_ptr->x_attr, (byte *)&r_ptr->x_char);
+
+				/* Allow accept */
+				if (result < 0) break;
+
+				/* Notice changes */
+				if (result > 0) changed_monster = TRUE;
+
+
+				/* Scan to the next legal monster */
+				if (move > 0)
+				{
+					while (!r_info[index].name)
+					{
+						if (++index >= z_info->r_max) index = 0;
+					}
+				}
+
+				/* Scan to the previous legal monster */
+				else if (move < 0)
+				{
+					while (!r_info[index].name)
+					{
+						if (--index < 0) index = z_info->r_max - 1;
+					}
+				}
+			}
+		}
+
+
+		/* Modify object attr/chars */
 		else if (ch == '2')
 		{
-			mark = "Monster attr/char definitions";
+			index = 0;
 
-			/* Handle automatic usage */
-			if (automatic)
+			/* Display various information */
+			do_cmd_visual_info();
+
+			/* Query until done */
+			while (TRUE)
 			{
-				/* Get a filename */
-				strcpy(ftmp, "scrn_tmp.prf");
-			}
+				object_kind *k_ptr = &k_info[index];
 
-			/* Handle manual usage */
-			else
+				/* Label the entry */
+				(void)Term_putstr(5, 18, -1, TERM_WHITE,
+					format("Object = %d, Name = %-40.40s",
+					index, (k_name + k_ptr->name)));
+
+				/* Edit the entry */
+				result = do_cmd_visual_change("Object attr/chars",
+					z_info->k_max - 1, &index, &move,
+					(byte *)&k_ptr->d_attr, (byte *)&k_ptr->d_char,
+					(byte *)&k_ptr->x_attr, (byte *)&k_ptr->x_char);
+
+				/* Allow accept */
+				if (result < 0) break;
+
+				/* Notice changes */
+				if (result > 0) changed_object = TRUE;
+
+
+				/* Scan to the next legal, unflavored object */
+				if (move > 0)
+				{
+					while ((!k_info[index].name) || (k_info[index].flavor))
+					{
+						if (++index >= z_info->k_max) index = 0;
+					}
+				}
+
+				/* Scan to the previous legal, unflavored object */
+				else if (move < 0)
+				{
+					while ((!k_info[index].name) || (k_info[index].flavor))
+					{
+						if (--index < 0) index = z_info->k_max - 1;
+					}
+				}
+			}
+		}
+
+
+		/* Modify feature attr/chars */
+		else if (ch == '3')
+		{
+			byte max_attr = (use_graphics) ? 255 : max_system_colors - 1;
+
+			int max_pair = 2;
+			int old_pair;
+
+			int move;
+
+			int pair = 0;
+			char ch;
+			byte fa = 0, fc = 0;
+
+			bool dummy;
+
+			/* Start at the first legal feature */
+			index = 1;
+
+			/* Display various information */
+			do_cmd_visual_info();
+
+
+			/* Query until done */
+			while (TRUE)
 			{
-				/* Prompt */
-				prt("Command: Dump monster attr/chars", 15, 0);
+				feature_type *f_ptr = &f_info[index];
+
+				/* No movement */
+				move = 0;
+				old_pair = pair;
+
+				/* Label the entry */
+				(void)Term_putstr(5, 18, -1, TERM_WHITE,
+					format("Terrain = %d, Name = %-40.40s",
+					index, (f_name + f_ptr->name)));
+
+				/* Label the current values */
+				(void)Term_putstr(10, 20, -1, TERM_WHITE,
+					format("normal = %3u / %3u,  bright = %3u / %3u,  dim  = %3u / %3u",
+					f_ptr->x_attr, (byte)f_ptr->x_char, f_ptr->x_attr_lit,
+					(byte)f_ptr->x_char_lit, f_ptr->x_attr_dim,
+					(byte)f_ptr->x_char_dim));
+
+				/* Label the selected pair */
+				if (pair == 0) (void)Term_putstr(10, 20, -1, TERM_L_BLUE, "normal");
+				if (pair == 1) (void)Term_putstr(31, 20, -1, TERM_L_BLUE, "bright");
+				if (pair == 2) (void)Term_putstr(52, 20, -1, TERM_L_BLUE, "dim");
+
+				/* Display the current values */
+				(void)Term_putstr(20, 22, -1, TERM_WHITE, "<< ? >>");
+				(void)Term_putstr(41, 22, -1, TERM_WHITE, "<< ? >>");
+				(void)Term_putstr(60, 22, -1, TERM_WHITE, "<< ? >>");
+				(void)Term_putch(23, 22, f_ptr->x_attr, f_ptr->x_char);
+				(void)Term_putch(44, 22, f_ptr->x_attr_lit, f_ptr->x_char_lit);
+				(void)Term_putch(63, 22, f_ptr->x_attr_dim, f_ptr->x_char_dim);
+
+				/* Note torch-only bright lighting */
+				if (f_ptr->flags & (TF_TORCH_ONLY))
+					(void)Term_putstr(27, 23, -1, TERM_L_WHITE,
+					"(bright under torch light only)");
+				else
+					(void)Term_putstr(27, 23, -1, TERM_L_WHITE,
+					"                               ");
 
 				/* Prompt */
-				prt("File: ", 17, 0);
+				(void)Term_putstr(0, 16, -1, TERM_WHITE,
+					"Edit feature: (index: n/N/^n, attr: a/A/^a, char: c/C/^c, <dir>, or '!'): ");
 
-				/* Default filename */
-				sprintf(ftmp, "%s.prf", op_ptr->base_name);
+				/* Store current values */
+				if (pair == 0)
+				{
+					fa = f_ptr->x_attr;
+					fc = (byte)f_ptr->x_char;
+				}
+				else if (pair == 1)
+				{
+					fa = f_ptr->x_attr_lit;
+					fc = (byte)f_ptr->x_char_lit;
+				}
+				else if (pair == 2)
+				{
+					fa = f_ptr->x_attr_dim;
+					fc = (byte)f_ptr->x_char_dim;
+				}
 
-				/* Get a filename */
-				if (!askfor_aux(ftmp, 80)) continue;
+
+				/* Get a command */
+				ch = inkey();
+
+				/* Allow orthogonal direction keys */
+				get_ui_direction(&ch, TRUE, TRUE, FALSE, &dummy);
+
+
+				/* Accept changes */
+				if ((ch == ESCAPE) || (ch == '\n') || (ch == '\r')) break;
+
+
+				/* Move to another item */
+				if (ch == 'n')
+				{
+					if (index >= z_info->f_max - 1) index = 0;
+					else index++;
+
+					while ((f_info[index].mimic != index) || (!f_info[index].name))
+					{
+						if (++index > z_info->f_max - 1) index = 0;
+					}
+				}
+				else if (ch == 'N')
+				{
+					if (index <= 0) index = z_info->f_max - 1;
+					else index--;
+
+					while ((f_info[index].mimic != index) || (!f_info[index].name))
+					{
+						if (--index < 0) index = z_info->f_max - 1;
+					}
+				}
+				else if (ch == KTRL('N'))
+				{
+					/* Move cursor, suggest the current value */
+					move_cursor(16, 0);
+					get_quantity_default = index;
+
+					/* Get a quantity */
+					index = get_quantity(format("Jump to which index (0 - %d)?",
+						z_info->f_max - 1), 0, z_info->f_max - 1);
+
+					/* Use this exact value */
+				}
+
+				/* Change pair */
+				else if (ch == '4')
+				{
+					pair--;
+					if (pair < 0) pair = max_pair;
+				}
+				else if (ch == '6')
+				{
+					pair++;
+					if (pair > max_pair) pair = 0;
+				}
+
+				/* Change attribute */
+				else if (ch == 'a')
+				{
+					if (fa == max_attr) fa = 0;
+					else fa++;
+				}
+				else if (ch == 'A')
+				{
+					if (fa == 0) fa = max_attr;
+					else fa--;
+				}
+				else if (ch == KTRL('A'))
+				{
+					/* Move cursor, suggest the current value */
+					move_cursor(16, 0);
+					get_quantity_default = fa;
+
+					/* Get a quantity */
+					fa = get_quantity(format("Assign which attribute (0 - %d)?",
+						max_attr), 0, max_attr);
+				}
+
+				/* Change character */
+				else if (ch == 'c')
+				{
+					if (fc == 255) fc = 0;
+					else fc++;
+				}
+				else if (ch == 'C')
+				{
+					if (fc == 0) fc = 255;
+					else fc--;
+				}
+				else if (ch == KTRL('C'))
+				{
+					/* Move cursor, suggest the current value */
+					move_cursor(16, 0);
+					get_quantity_default = fc;
+
+					/* Get a quantity */
+					fc = get_quantity(format("Assign which character (0 - %d)?",
+						255), 0, 255);
+				}
+
+				/* Change special lighting settings */
+				else if (ch == '!')
+				{
+					/* Toggle the "torch only" setting */
+					if (f_ptr->flags & (TF_TORCH_ONLY))
+						f_ptr->flags &= ~(TF_TORCH_ONLY);
+					else
+						f_ptr->flags |= (TF_TORCH_ONLY);
+				}
+
+				/* Save modified values */
+				if (pair == old_pair)
+				{
+					if (pair == 0)
+					{
+						if ((f_ptr->x_attr != fa) ||
+						    (f_ptr->x_char != (char)fc)) changed_feature = TRUE;
+						f_ptr->x_attr = fa;
+						f_ptr->x_char = (char)fc;
+					}
+					else if (pair == 1)
+					{
+						if ((f_ptr->x_attr_lit != fa) ||
+						    (f_ptr->x_char_lit != (char)fc)) changed_feature = TRUE;
+						f_ptr->x_attr_lit = fa;
+						f_ptr->x_char_lit = (char)fc;
+					}
+					else if (pair == 2)
+					{
+						if ((f_ptr->x_attr_dim != fa) ||
+						    (f_ptr->x_char_dim != (char)fc)) changed_feature = TRUE;
+						f_ptr->x_attr_dim = fa;
+						f_ptr->x_char_dim = (char)fc;
+					}
+				}
 			}
+		}
 
-			/* Build the filename */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
 
-			/* File type is "TEXT" */
-			FILE_TYPE(FILE_TYPE_TEXT);
+		/* Modify flavor attr/chars */
+		else if (ch == '4')
+		{
+			index = 0;
 
-			/* Remove old attr/chars */
-			remove_old_dump(buf, mark);
+			/* Display various information */
+			do_cmd_visual_info();
 
-			/* Append to the file */
-			fff = my_fopen(buf, "a");
+			/* Query until done */
+			while (TRUE)
+			{
+				flavor_type *flavor_ptr = &flavor_info[index];
 
-			/* Failure */
-			if (!fff) continue;
+				/* Label the entry */
+				(void)Term_putstr(5, 18, -1, TERM_WHITE,
+					format("Flavor = %d, Name = %-40.40s",
+					index, (flavor_text + flavor_ptr->text)));
 
-			/* Output header */
-			pref_header(fff, mark);
+				/* Edit the entry */
+				result = do_cmd_visual_change("Flavor attr/chars",
+					z_info->flavor_max - 1, &index, &move,
+					(byte *)&flavor_ptr->d_attr, (byte *)&flavor_ptr->d_char,
+					(byte *)&flavor_ptr->x_attr, (byte *)&flavor_ptr->x_char);
 
-			/* Skip some lines */
-			fprintf(fff, "\n\n");
+				/* Allow accept */
+				if (result < 0) break;
+
+				/* Notice changes */
+				if (result > 0) changed_flavor = TRUE;
+
+
+				/* Scan to the next legal flavor */
+				if (move > 0)
+				{
+					while (!flavor_info[index].text)
+					{
+						if (++index >= z_info->flavor_max) index = 0;
+					}
+				}
+
+				/* Scan to the previous legal flavor */
+				else if (move < 0)
+				{
+					while (!flavor_info[index].text)
+					{
+						if (--index < 0) index = z_info->flavor_max - 1;
+					}
+				}
+			}
+		}
+
+		/* Modify spell attr/chars */
+		else if (ch == '5')
+		{
+			byte max_attr = (use_graphics) ? 255 : max_system_colors - 1;
+
+			int max_pair = 4;
+			int old_pair;
+
+			int max_editable;
+
+			int move;
+
+			int pair = 0;
+			char ch;
+			byte ga = 0, gc;
+
+			bool dummy;
+
+			/* Start at the first legal spell */
+			index = 1;
+
+			/* Display various information */
+			do_cmd_visual_info();
+
+			/*
+			 * For ease of use, only the more common projections can be
+			 * edited in-game.  All can, of course, be edited in the pref
+			 * files themselves.
+			 */
+			for (max_editable = 1; max_editable < 256; max_editable++)
+			{
+				if (projection_names[max_editable] == NULL) break;
+			}
+			max_editable--;
+
+			/* Query until done */
+			while (TRUE)
+			{
+				proj_graphics_type *g_ptr = &proj_graphics[index];
+
+				/* No movement */
+				move = 0;
+				old_pair = pair;
+
+				/* Label the entry */
+				(void)Term_putstr(5, 18, -1, TERM_WHITE,
+					format("Spell index = %d, Name = %-40.40s",
+					index, projection_names[index]));
+
+				/* Display one of four possible trails */
+				gc = (pair == 0) ? g_ptr->char_vert : ' ';
+				(void)Term_putch(74, 16, get_ga, gc);
+				(void)Term_putch(74, 17, get_ga, gc);
+				(void)Term_putch(74, 18, get_ga, gc);
+				(void)Term_putch(74, 19, get_ga, gc);
+
+				gc = (pair == 1) ? g_ptr->char_horiz : ' ';
+				(void)Term_putch(68, 22, get_ga, gc);
+				(void)Term_putch(69, 22, get_ga, gc);
+				(void)Term_putch(70, 22, get_ga, gc);
+				(void)Term_putch(71, 22, get_ga, gc);
+
+				gc = (pair == 2) ? g_ptr->char_rdiag : ' ';
+				(void)Term_putch(79, 17, get_ga, gc);
+				(void)Term_putch(78, 18, get_ga, gc);
+				(void)Term_putch(77, 19, get_ga, gc);
+				(void)Term_putch(76, 20, get_ga, gc);
+
+				gc = (pair == 3) ? g_ptr->char_ldiag : ' ';
+				(void)Term_putch(69, 17, get_ga, gc);
+				(void)Term_putch(70, 18, get_ga, gc);
+				(void)Term_putch(71, 19, get_ga, gc);
+				(void)Term_putch(72, 20, get_ga, gc);
+
+				/* Display an explosion */
+				gc = g_ptr->char_ball;
+				for (i = 0; i < grids_in_radius[2]; i++)
+				{
+					int y = 22 + nearby_grids_y[i];
+					int x = 74 + nearby_grids_x[i];
+					(void)Term_putch(x, y, get_ga, gc);
+				}
+
+				/* Label the current values */
+				(void)Term_putstr(10, 20, -1, TERM_WHITE,
+					format("vert  = %3u / %3u,  horiz = %3u / %3u,  rdiag = %3u / %3u",
+					g_ptr->attr_vert, (byte)g_ptr->char_vert, g_ptr->attr_horiz,
+					(byte)g_ptr->char_horiz, g_ptr->attr_rdiag, (byte)g_ptr->char_rdiag));
+				(void)Term_putstr(10, 21, -1, TERM_WHITE,
+					format("ldiag = %3u / %3u,  ball  = %3u / %3u",
+					g_ptr->attr_ldiag, (byte)g_ptr->char_ldiag,
+					g_ptr->attr_ball, (byte)g_ptr->char_ball));
+
+				/* Label the selected pair */
+				if (pair == 0) (void)Term_putstr(10, 20, -1, TERM_L_BLUE, "vert");
+				if (pair == 1) (void)Term_putstr(30, 20, -1, TERM_L_BLUE, "horiz");
+				if (pair == 2) (void)Term_putstr(50, 20, -1, TERM_L_BLUE, "rdiag");
+				if (pair == 3) (void)Term_putstr(10, 21, -1, TERM_L_BLUE, "ldiag");
+				if (pair == 4) (void)Term_putstr(30, 21, -1, TERM_L_BLUE, "ball");
+
+				/* Prompt */
+				(void)Term_putstr(0, 16, -1, TERM_WHITE,
+					"Edit spell: (index: n/N/^n, pair: <dir>, attr: a/A/^a, char: c/C/^c): ");
+
+				/* Store current values */
+				if (pair == 0)
+				{
+					ga = g_ptr->attr_vert;
+					gc = (byte)g_ptr->char_vert;
+				}
+				else if (pair == 1)
+				{
+					ga = g_ptr->attr_horiz;
+					gc = (byte)g_ptr->char_horiz;
+				}
+				else if (pair == 2)
+				{
+					ga = g_ptr->attr_rdiag;
+					gc = (byte)g_ptr->char_rdiag;
+				}
+				else if (pair == 3)
+				{
+					ga = g_ptr->attr_ldiag;
+					gc = (byte)g_ptr->char_ldiag;
+				}
+				else if (pair == 4)
+				{
+					ga = g_ptr->attr_ball;
+					gc = (byte)g_ptr->char_ball;
+				}
+
+
+				/* Get a command */
+				ch = inkey();
+
+				/* Allow orthogonal direction keys */
+				get_ui_direction(&ch, TRUE, TRUE, FALSE, &dummy);
+
+
+				/* Accept changes */
+				if ((ch == ESCAPE) || (ch == '\n') || (ch == '\r')) break;
+
+				/* Move to another item */
+				if (ch == 'n')
+				{
+					if (index >= max_editable) index = 1;
+					else index++;
+
+					while (!strlen(projection_names[index]))
+					{
+						if (++index > max_editable) index = 1;
+					}
+				}
+				else if (ch == 'N')
+				{
+					if (index <= 1) index = max_editable;
+					else index--;
+
+					while (!strlen(projection_names[index]))
+					{
+						if (--index < 1) index = max_editable;
+					}
+				}
+				else if (ch == KTRL('N'))
+				{
+					/* Move cursor, suggest the current value */
+					move_cursor(16, 0);
+					get_quantity_default = index;
+
+					/* Get a quantity */
+					index = get_quantity(format("Jump to which index (0 - %d)?",
+						max_editable), 0, max_editable);
+
+					/* Use this exact value */
+				}
+
+				/* Change pair */
+				else if (ch == '4')
+				{
+					pair--;
+					if (pair < 0) pair = max_pair;
+				}
+				else if (ch == '6')
+				{
+					pair++;
+					if (pair > max_pair) pair = 0;
+				}
+
+				/* Change attribute */
+				else if (ch == 'a')
+				{
+					if (ga == max_attr) ga = 0;
+					else ga++;
+				}
+				else if (ch == 'A')
+				{
+					if (ga == 0) ga = max_attr;
+					else ga--;
+				}
+				else if (ch == KTRL('A'))
+				{
+					/* Move cursor, suggest the current value */
+					move_cursor(16, 0);
+					get_quantity_default = ga;
+
+					/* Get a quantity */
+					ga = get_quantity(format("Assign which attribute (0 - %d)?",
+						max_attr), 0, max_attr);
+				}
+
+				/* Change character */
+				else if (ch == 'c')
+				{
+					if (gc == 255) gc = 0;
+					else gc++;
+				}
+				else if (ch == 'C')
+				{
+					if (gc == 0) gc = 255;
+					else gc--;
+				}
+				else if (ch == KTRL('C'))
+				{
+					/* Move cursor, suggest the current value */
+					move_cursor(16, 0);
+					get_quantity_default = gc;
+
+					/* Get a quantity */
+					gc = get_quantity(format("Assign which character (0 - %d)?",
+						255), 0, 255);
+				}
+
+				/* Save modified values */
+				if (pair == old_pair)
+				{
+					if (pair == 0)
+					{
+						if ((g_ptr->attr_vert != ga) ||
+						    (g_ptr->char_vert != (char)gc)) changed_spell = TRUE;
+						g_ptr->attr_vert = ga;
+						g_ptr->char_vert = (char)gc;
+					}
+					else if (pair == 1)
+					{
+						if ((g_ptr->attr_horiz != ga) ||
+						    (g_ptr->char_horiz != (char)gc)) changed_spell = TRUE;
+						g_ptr->attr_horiz = ga;
+						g_ptr->char_horiz = (char)gc;
+					}
+					else if (pair == 2)
+					{
+						if ((g_ptr->attr_rdiag != ga) ||
+						    (g_ptr->char_rdiag != (char)gc)) changed_spell = TRUE;
+						g_ptr->attr_rdiag = ga;
+						g_ptr->char_rdiag = (char)gc;
+					}
+					else if (pair == 3)
+					{
+						if ((g_ptr->attr_ldiag != ga) ||
+						    (g_ptr->char_ldiag != (char)gc)) changed_spell = TRUE;
+						g_ptr->attr_ldiag = ga;
+						g_ptr->char_ldiag = (char)gc;
+					}
+					else if (pair == 4)
+					{
+						if ((g_ptr->attr_ball != ga) ||
+						    (g_ptr->char_ball != (char)gc)) changed_spell = TRUE;
+						g_ptr->attr_ball = ga;
+						g_ptr->char_ball = (char)gc;
+					}
+				}
+			}
+		}
+
+
+		/* Dump monster attr/chars */
+		else if (ch == '6')
+		{
+			/* Attempt to open, clean up, and print a header to a file. */
+			if (!do_cmd_visuals_file("monster", automatic, mark))
+			{
+				/* Notice failure or cancel */
+				continue;
+			}
 
 			/* Dump monsters */
 			for (i = 0; i < z_info->r_max; i++)
@@ -3204,21 +4083,21 @@ void do_cmd_visuals(char cmd)
 				if (!r_ptr->name) continue;
 
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (r_name + r_ptr->name));
+				fprintf(fff_visuals, "# %s\n", (r_name + r_ptr->name));
 
 				/* Dump the monster attr/char info */
-				fprintf(fff, "R:%d:%c:%d\n\n", i,
+				fprintf(fff_visuals, "R:%d:%c:%d\n\n", i,
 					color_table[r_ptr->x_attr].index_char, (byte)(r_ptr->x_char));
 			}
 
 			/* Skip a line */
-			fprintf(fff, "\n");
+			fprintf(fff_visuals, "\n");
 
 			/* Output footer */
-			pref_footer(fff, mark);
+			pref_footer(fff_visuals, mark);
 
 			/* Close */
-			my_fclose(fff);
+			(void)my_fclose(fff_visuals);
 
 			/* Changes saved */
 			changed_monster = FALSE;
@@ -3228,53 +4107,14 @@ void do_cmd_visuals(char cmd)
 		}
 
 		/* Dump object attr/chars */
-		else if (ch == '3')
+		else if (ch == '7')
 		{
-			mark = "Object attr/char definitions";
-
-			/* Handle automatic usage */
-			if (automatic)
+			/* Attempt to open, clean up, and print a header to a file. */
+			if (!do_cmd_visuals_file("object", automatic, mark))
 			{
-				/* Get a filename */
-				strcpy(ftmp, "scrn_tmp.prf");
+				/* Notice failure or cancel */
+				continue;
 			}
-
-			/* Handle manual usage */
-			else
-			{
-				/* Prompt */
-				prt("Command: Dump object attr/chars", 15, 0);
-
-				/* Prompt */
-				prt("File: ", 17, 0);
-
-				/* Default filename */
-				sprintf(ftmp, "%s.prf", op_ptr->base_name);
-
-				/* Get a filename */
-				if (!askfor_aux(ftmp, 80)) continue;
-			}
-
-			/* Build the filename */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
-
-			/* File type is "TEXT" */
-			FILE_TYPE(FILE_TYPE_TEXT);
-
-			/* Remove old attr/chars */
-			remove_old_dump(buf, mark);
-
-			/* Append to the file */
-			fff = my_fopen(buf, "a");
-
-			/* Failure */
-			if (!fff) continue;
-
-			/* Output header */
-			pref_header(fff, mark);
-
-			/* Skip some lines */
-			fprintf(fff, "\n\n");
 
 			/* Dump objects */
 			for (i = 0; i < z_info->k_max; i++)
@@ -3289,21 +4129,21 @@ void do_cmd_visuals(char cmd)
 				strip_name(o_name, i);
 
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", o_name);
+				fprintf(fff_visuals, "# %s\n", o_name);
 
 				/* Dump the object attr/char info */
-				fprintf(fff, "K:%d:%c:%d\n\n", i,
+				fprintf(fff_visuals, "K:%d:%c:%d\n\n", i,
 					color_table[k_ptr->x_attr].index_char, (byte)(k_ptr->x_char));
 			}
 
 			/* Skip a line */
-			fprintf(fff, "\n");
+			fprintf(fff_visuals, "\n");
 
 			/* Output footer */
-			pref_footer(fff, mark);
+			pref_footer(fff_visuals, mark);
 
 			/* Close */
-			my_fclose(fff);
+			(void)my_fclose(fff_visuals);
 
 			/* Changes saved */
 			changed_object = FALSE;
@@ -3313,59 +4153,18 @@ void do_cmd_visuals(char cmd)
 		}
 
 		/* Dump feature attr/chars */
-		else if (ch == '4')
+		else if (ch == '8')
 		{
-			mark = "Feature attr/char definitions";
-
-			/* Handle automatic usage */
-			if (automatic)
+			/* Attempt to open, clean up, and print a header to a file. */
+			if (!do_cmd_visuals_file("feature", automatic, mark))
 			{
-				/* Get a filename */
-				strcpy(ftmp, "scrn_tmp.prf");
+				/* Notice failure or cancel */
+				continue;
 			}
-
-			/* Handle manual usage */
-			else
-			{
-				/* Prompt */
-				prt("Command: Dump feature attr/chars", 15, 0);
-
-				/* Prompt */
-				prt("File: ", 17, 0);
-
-				/* Default filename */
-				sprintf(ftmp, "%s.prf", op_ptr->base_name);
-
-				/* Get a filename */
-				if (!askfor_aux(ftmp, 80)) continue;
-			}
-
-			/* Build the filename */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
-
-			/* File type is "TEXT" */
-			FILE_TYPE(FILE_TYPE_TEXT);
-
-			/* Remove old attr/chars */
-			remove_old_dump(buf, mark);
-
-			/* Append to the file */
-			fff = my_fopen(buf, "a");
-
-			/* Failure */
-			if (!fff) continue;
-
-			/* Output header */
-			pref_header(fff, mark);
-
-			/* Skip some lines */
-			fprintf(fff, "\n\n");
 
 			/* Dump features */
 			for (i = 0; i < z_info->f_max; i++)
 			{
-				char c;
-
 				feature_type *f_ptr = &f_info[i];
 
 				/* Skip non-entries */
@@ -3375,37 +4174,24 @@ void do_cmd_visuals(char cmd)
 				if (f_ptr->mimic != i) continue;
 
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (f_name + f_ptr->name));
+				fprintf(fff_visuals, "# %s\n", (f_name + f_ptr->name));
 
-				/* We always dump the 25-row feature info */
-				c = feat_x_char_25[i];
-
-				/* Dump the standard (25-line) feature attr/char info */
-				fprintf(fff, "F:%d:%c:%d\n", i,
-					color_table[f_ptr->x_attr].index_char, (byte)(c));
-
-				/*
-				 * If there is a good reason to, we also save the
-				 * alternative char in 50-line mode.
-				 */
-				if (feat_x_char_50[i] != feat_x_char_25[i])
-				{
-					c = feat_x_char_50[i];
-					fprintf(fff, "f:%d:%d\n", i, (byte)(c));
-				}
-
-				/* Spacer line */
-				fprintf(fff, "\n");
+				/* Dump the feature attr/char info */
+				fprintf(fff_visuals, "F:%d:%c:%d:%c:%d:%c:%d%s\n\n", i,
+					color_table[f_ptr->x_attr].index_char, f_ptr->x_char,
+					color_table[f_ptr->x_attr_lit].index_char, f_ptr->x_char_lit,
+					color_table[f_ptr->x_attr_dim].index_char, f_ptr->x_char_dim,
+					f_ptr->flags & (TF_TORCH_ONLY) ? ":torch_only" : "");
 			}
 
 			/* Skip a line */
-			fprintf(fff, "\n");
+			fprintf(fff_visuals, "\n");
 
 			/* Output footer */
-			pref_footer(fff, mark);
+			pref_footer(fff_visuals, mark);
 
 			/* Close */
-			my_fclose(fff);
+			(void)my_fclose(fff_visuals);
 
 			/* Changes saved */
 			changed_feature = FALSE;
@@ -3414,303 +4200,122 @@ void do_cmd_visuals(char cmd)
 			if (!automatic) msg_print("Dumped feature attr/chars.");
 		}
 
-		/* Modify monster attr/chars */
-		else if (ch == '6')
+		/* Dump flavor attr/chars */
+		else if (ch == '9')
 		{
-			static int r = 0;
-
-			/* Prompt */
-			prt("Command: Change monster attr/chars", 15, 0);
-
-			/* Hack -- query until done */
-			while (TRUE)
+			/* Attempt to open, clean up, and print a header to a file. */
+			if (!do_cmd_visuals_file("flavor", automatic, mark))
 			{
-				monster_race *r_ptr = &r_info[r];
-
-				byte da = (byte)(r_ptr->d_attr);
-				byte dc = (byte)(r_ptr->d_char);
-				byte ca = (byte)(r_ptr->x_attr);
-				byte cc = (byte)(r_ptr->x_char);
-
-				/* Label the object */
-				(void)Term_putstr(5, 17, -1, TERM_WHITE,
-					format("Monster = %d, Name = %-40.40s",
-					r, (r_name + r_ptr->name)));
-
-				/* Label the Default values */
-				(void)Term_putstr(10, 19, -1, TERM_WHITE,
-					format("Default attr/char = %3d / %3d", da, dc));
-				(void)Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-				(void)Term_putch(43, 19, da, dc);
-
-				/* Label the Current values */
-				(void)Term_putstr(10, 20, -1, TERM_WHITE,
-					format("Current attr/char = %3d / %3d", ca, cc));
-				(void)Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-				(void)Term_putch(43, 20, ca, cc);
-
-				/* Prompt */
-				(void)Term_putstr(0, 22, -1, TERM_WHITE,
-					"Command (n/N/a/A/c/C): ");
-
-				/* Get a command */
-				cx = inkey();
-
-				/* All done */
-				if (cx == ESCAPE) break;
-
-				/* Assume a change was made */
-				if (strchr("aAcC", cx)) changed_monster = TRUE;
-
-				/* Analyze */
-				if (cx == 'n')
-				{
-					/* Scan to the next legal monster */
-					do
-					{
-						r = (r + z_info->r_max + 1) % z_info->r_max;
-					}
-					while (!r_info[r].name);
-				}
-				if (cx == 'N')
-				{
-					/* Scan to the previous legal monster */
-					do
-					{
-						r = (r + z_info->r_max - 1) % z_info->r_max;
-					}
-					while (!r_info[r].name);
-				}
-				if (cx == 'a')
-				{
-					ca = (ca + 1) % max_colors;
-					r_ptr->x_attr = (byte)ca;
-				}
-				if (cx == 'A')
-				{
-					if (ca <= 0) ca = max_colors - 1;
-					ca = (ca - 1) % max_colors;
-					r_ptr->x_attr = (byte)ca;
-				}
-				if (cx == 'c')
-				{
-					cc = (cc + 1) % 256;
-					r_ptr->x_char = (char)cc;
-				}
-				if (cx == 'C')
-				{
-					if (cc == 0) cc = 255;
-					else cc = (cc - 1) % 256;
-					r_ptr->x_char = (char)cc;
-				}
+				/* Notice failure or cancel */
+				continue;
 			}
+
+			/* Dump flavors */
+			for (i = 0; i < z_info->flavor_max; i++)
+			{
+				flavor_type *flavor_ptr = &flavor_info[i];
+
+				/* Dump a comment */
+				fprintf(fff_visuals, "# %s\n", (flavor_text + flavor_ptr->text));
+
+				/* Dump the flavor attr/char info */
+				fprintf(fff_visuals, "L:%d:%d:%d\n\n", i,
+				        (byte)(flavor_ptr->x_attr), (byte)(flavor_ptr->x_char));
+			}
+
+			/* Skip a line */
+			fprintf(fff_visuals, "\n");
+
+			/* Output footer */
+			pref_footer(fff_visuals, mark);
+
+			/* Close */
+			(void)my_fclose(fff_visuals);
+
+			/* Changes saved */
+			changed_flavor = FALSE;
+
+			/* Message */
+			if (!automatic) msg_print("Dumped flavor attr/chars.");
 		}
 
-		/* Modify object attr/chars */
-		else if (ch == '7')
+		/* Dump projection attr/chars */
+		else if (ch == '0')
 		{
-			static int k = 0;
+			bool print_name = TRUE;
 
-			/* Prompt */
-			prt("Command: Change object attr/chars", 15, 0);
-
-			/* Hack -- query until done */
-			while (TRUE)
+			/* Attempt to open, clean up, and print a header to a file. */
+			if (!do_cmd_visuals_file("projection", automatic, mark))
 			{
-				object_kind *k_ptr = &k_info[k];
-
-				byte da = (byte)(k_ptr->d_attr);
-				byte dc = (byte)(k_ptr->d_char);
-				byte ca = (byte)(k_ptr->x_attr);
-				byte cc = (byte)(k_ptr->x_char);
-
-				/* Label the object */
-				(void)Term_putstr(5, 17, -1, TERM_WHITE,
-					format("Object = %d, Name = %-40.40s",
-					k, (k_name + k_ptr->name)));
-
-				/* Label the Default values */
-				(void)Term_putstr(10, 19, -1, TERM_WHITE,
-					format("Default attr/char = %3d / %3d", da, dc));
-				(void)Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-				(void)Term_putch(43, 19, da, dc);
-
-				/* Label the Current values */
-				(void)Term_putstr(10, 20, -1, TERM_WHITE,
-					format("Current attr/char = %3d / %3d", ca, cc));
-				(void)Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-				(void)Term_putch(43, 20, ca, cc);
-
-				/* Prompt */
-				(void)Term_putstr(0, 22, -1, TERM_WHITE,
-					"Command (n/N/a/A/c/C): ");
-
-				/* Get a command */
-				cx = inkey();
-
-				/* All done */
-				if (cx == ESCAPE) break;
-
-				/* Assume a change was made */
-				if (strchr("aAcC", cx)) changed_object = TRUE;
-
-				/* Analyze */
-				if (cx == 'n')
-				{
-					/* Scan to the next legal object */
-					do
-					{
-						k = (k + z_info->k_max + 1) % z_info->k_max;
-					}
-					while (!k_info[k].name);
-				}
-				if (cx == 'N')
-				{
-					/* Scan to the previous legal object */
-					do
-					{
-						k = (k + z_info->k_max - 1) % z_info->k_max;
-					}
-					while (!k_info[k].name);
-				}
-				if (cx == 'a')
-				{
-					ca = (ca + 1) % max_colors;
-					k_info[k].x_attr = (byte)ca;
-				}
-				if (cx == 'A')
-				{
-					if (ca <= 0) ca = max_colors - 1;
-					ca = (ca - 1) % max_colors;
-					k_info[k].x_attr = (byte)ca;
-				}
-				if (cx == 'c')
-				{
-					cc = (cc + 1) % 256;
-					k_info[k].x_char = (char)cc;
-				}
-				if (cx == 'C')
-				{
-					if (cc == 0) cc = 255;
-					else cc = (cc - 1) % 256;
-					k_info[k].x_char = (char)cc;
-				}
+				/* Notice failure or cancel */
+				continue;
 			}
-		}
 
-		/* Modify feature attr/chars */
-		else if (ch == '8')
-		{
-			static int f = 0;
-
-			/* Prompt */
-			prt(format("Command: Change feature attr/chars   -- for %d-line mode",
-				(force_25_rows ? 25 : 50)), 15, 0);
-
-			/* Hack -- query until done */
-			while (TRUE)
+			/* Dump projections */
+			for (i = 0; i < 256; i++)
 			{
-				feature_type *f_ptr = &f_info[f];
+				proj_graphics_type *pg_ptr = &proj_graphics[i];
 
-				byte da = (byte)(f_ptr->d_attr);
-				byte dc = (byte)(f_ptr->d_char);
-				byte ca = (byte)(f_ptr->x_attr);
-				byte cc = (byte)(f_ptr->x_char);
-
-				/* Hack -- show alternate chars if necessary */
-				if (!force_25_rows)
+				/* Only dump changed projections */
+				if ((i > 0) &&
+					(pg_ptr->attr_vert  == proj_graphics[0].attr_vert) &&
+				    (pg_ptr->char_vert  == proj_graphics[0].char_vert) &&
+				    (pg_ptr->attr_horiz == proj_graphics[0].attr_horiz) &&
+				    (pg_ptr->char_horiz == proj_graphics[0].char_horiz) &&
+				    (pg_ptr->attr_rdiag == proj_graphics[0].attr_rdiag) &&
+				    (pg_ptr->char_rdiag == proj_graphics[0].char_rdiag) &&
+				    (pg_ptr->attr_ldiag == proj_graphics[0].attr_ldiag) &&
+				    (pg_ptr->char_ldiag == proj_graphics[0].char_ldiag) &&
+				    (pg_ptr->attr_ball  == proj_graphics[0].attr_ball) &&
+				    (pg_ptr->char_ball  == proj_graphics[0].char_ball) &&
+				    (pg_ptr->flags      == proj_graphics[0].flags))
 				{
-					cc = (byte)(feat_x_char_50[f]);
+					continue;
 				}
 
-				/* Label the object */
-				(void)Term_putstr(5, 17, -1, TERM_WHITE,
-					format("Terrain = %d, Name = %-40.40s",
-					f, (f_name + f_ptr->name)));
-
-				/* Label the Default values */
-				(void)Term_putstr(10, 19, -1, TERM_WHITE,
-					format("Default attr/char = %3u / %3u", da, dc));
-				(void)Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-				(void)Term_putch(43, 19, da, dc);
-
-				/* Label the Current values */
-				(void)Term_putstr(10, 20, -1, TERM_WHITE,
-					format("Current attr/char = %3u / %3u", ca, cc));
-				(void)Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-				(void)Term_putch(43, 20, ca, cc);
-
-				/* Prompt */
-				(void)Term_putstr(0, 22, -1, TERM_WHITE,
-					"Command (n/N/a/A/c/C): ");
-
-				/* Get a command */
-				cx = inkey();
-
-				/* All done */
-				if (cx == ESCAPE) break;
-
-				/* Assume a change was made */
-				if (strchr("aAcC", cx)) changed_feature = TRUE;
-
-				/* Analyze */
-				if (cx == 'n')
+				/* Print name, but only if one is available */
+				if ((print_name) && ((i == 0) || (strlen(projection_names[i]))))
 				{
-					/* Scan to the next legal, non-mimic feature */
-					do
-					{
-						f = (f + z_info->f_max + 1) % z_info->f_max;
-					}
-					while ((f_info[f].mimic != f) || (!f_info[f].name));
-				}
-				if (cx == 'N')
-				{
-					/* Scan to the previous legal, non-mimic feature */
-					do
-					{
-						f = (f + z_info->f_max - 1) % z_info->f_max;
-					}
-					while ((f_info[f].mimic != f) || (!f_info[f].name));
-				}
-				if (cx == 'a')
-				{
-					ca = (ca + 1) % max_colors;
-					f_info[f].x_attr = (byte)ca;
-				}
-				if (cx == 'A')
-				{
-					if (ca <= 0) ca = max_colors - 1;
-					ca = (ca - 1) % max_colors;
-					f_info[f].x_attr = (byte)ca;
-				}
-				if (cx == 'c')
-				{
-					cc = (cc + 1) % 256;
+					/* Label the default set of projection graphics */
+					if (i == 0)
+						fprintf(fff_visuals, "# Default set of projection graphics, used in all cases not specified below\n");
 
-					/* Save and immediately update the visuals */
-					if (force_25_rows)
-						f_info[f].x_char = feat_x_char_25[f] = (char)cc;
-					else
-						f_info[f].x_char = feat_x_char_50[f] = (char)cc;
-				}
-				if (cx == 'C')
-				{
-					if (cc == 0) cc = 255;
-					else cc = (cc - 1) % 256;
+					/* End of names array -- stop print names */
+					else if (projection_names[i] == NULL) print_name = FALSE;
 
-					/* Save and immediately update the visuals */
-					if (force_25_rows)
-						f_info[f].x_char = feat_x_char_25[f] = (char)cc;
-					else
-						f_info[f].x_char = feat_x_char_50[f] = (char)cc;
+					/* Dump a comment */
+					else if (strlen(projection_names[i]))
+						fprintf(fff_visuals, "# %s\n", projection_names[i]);
+
 				}
+
+				/* Dump the projection attr/char info */
+				fprintf(fff_visuals, "S:%d:%d/%d:%d/%d:%d/%d:%d/%d:%d/%d\n\n", i,
+				       pg_ptr->attr_vert,  (byte)pg_ptr->char_vert,
+				       pg_ptr->attr_horiz, (byte)pg_ptr->char_horiz,
+				       pg_ptr->attr_rdiag, (byte)pg_ptr->char_rdiag,
+				       pg_ptr->attr_ldiag, (byte)pg_ptr->char_ldiag,
+				       pg_ptr->attr_ball,  (byte)pg_ptr->char_ball);
 			}
-		}
 
-#endif
+			/* Skip a line */
+			fprintf(fff_visuals, "\n");
+
+			/* Output footer */
+			pref_footer(fff_visuals, mark);
+
+			/* Close */
+			(void)my_fclose(fff_visuals);
+
+			/* Changes saved */
+			changed_spell = FALSE;
+
+			/* Message */
+			if (!automatic) msg_print("Dumped projection attr/chars.");
+		}
 
 		/* Reset visuals */
-		else if (ch == '0')
+		else if (ch == '!')
 		{
 			/* Reset */
 			reset_visuals();
@@ -3848,7 +4453,7 @@ static bool askfor_color_values(int idx)
  * The screen used to modify the color table. Only 128 colors can be modified.
  * The remaining entries of the color table are reserved for graphic mode.
  *
- * From NPPAngband.
+ * -DG-
  */
 static void modify_colors(void)
 {
@@ -3859,11 +4464,14 @@ static void modify_colors(void)
 	/* Flags */
  	bool do_move, do_update;
 
+	int max_legal_edit = MIN(MAX_COLORS_EDIT, max_system_colors);
+
+
   	/* Clear the screen */
   	(void)Term_clear();
 
   	/* Draw the color table */
-  	for (idx = 0; idx < MAX_COLORS_EDIT; idx++)
+  	for (idx = 0; idx < max_legal_edit; idx++)
   	{
     	/* Get coordinates, the x value is adjusted to show a fake cursor */
     	x = COLOR_X(idx) + 1;
@@ -3945,7 +4553,7 @@ static void modify_colors(void)
       		c_put_str(TERM_WHITE, "<", y, x + 4);
 
       		/* Format the name of the color */
-      		my_strcpy(msg, format("Color = %d:  %c : %s",
+      		(void)my_strcpy(msg, format("Color = %d:  %c : %s",
       			idx, color_table[idx].index_char,
 	    		color_table[idx].name), sizeof(msg));
 
@@ -3972,17 +4580,17 @@ static void modify_colors(void)
       		(void)Term_xtra(TERM_XTRA_REACT, 0);
 
       		/* The user is playing with white, redraw all */
-      		if (idx == TERM_WHITE) Term_redraw();
+      		if (idx == TERM_WHITE) (void)Term_redraw();
 
       		/* Or reduce flickering by redrawing the changes only */
-      		else Term_redraw_section(x, y, x + 2, y);
+      		else (void)Term_redraw_section(x, y, x + 2, y);
     	}
 
     	/* Common code, show the values in the color table */
     	if (do_move || do_update)
     	{
       		/* Format the view of the color values */
-		  	my_strcpy(msg, format("K = %d / R,G,B = %d, %d, %d",
+		(void)my_strcpy(msg, format("K = %d / R,G,B = %d, %d, %d",
 	    			color_table[idx].kv,
 	    			color_table[idx].rv,
 	    			color_table[idx].gv,
@@ -4007,7 +4615,7 @@ static void modify_colors(void)
       		case '2':
 			{
 	  			/* Check bounds */
-	  			if (idx + 1 >= MAX_COLORS_EDIT) break;
+	  			if (idx + 1 >= max_legal_edit) break;
 
 	  			/* Erase the old cursor */
 	  			old_idx = idx;
@@ -4059,7 +4667,7 @@ static void modify_colors(void)
       		case '6':
 			{
 	  			/* Check bounds */
-	  			if (idx + 16 >= MAX_COLORS_EDIT) break;
+	  			if (idx + 16 >= max_legal_edit) break;
 
 	  			/* Erase the old cursor */
 	  			old_idx = idx;
@@ -4144,7 +4752,7 @@ static void modify_colors(void)
 					}
 
 					/* Save the name */
-					my_strcpy(color_table[idx].name, str, max_length);
+					(void)my_strcpy(color_table[idx].name, str, max_length);
 
 	  				/* Refresh the color information */
 	  				do_move = TRUE;
@@ -4165,14 +4773,14 @@ static void modify_colors(void)
 
 	  			/* Query, check for ESCAPE */
 	  			if (!get_string(format("Copy from color (0-%d) ",
-					MAX_COLORS_EDIT - 1), str, sizeof(str))) break;
+					max_legal_edit - 1), str, sizeof(str))) break;
 
 	  			/* Convert to number */
 	  			src = atoi(str);
 
 	  			/* Check bounds */
 	  			if (src < 0) src = 0;
-	  			if (src >= MAX_COLORS_EDIT) src = MAX_COLORS_EDIT - 1;
+	  			if (src >= max_legal_edit) src = max_legal_edit - 1;
 
 	  			/* Do nothing if the colors are the same */
 	  			if (src == idx) break;
@@ -4314,51 +4922,7 @@ static void modify_colors(void)
 
 
 /*
- * Attempt to get the closest 16-color equivalent of any RGB color.  This
- * is fairly crude code.
- */
-static byte translate_into_16_colors(int idx)
-{
-	long delta = 100000;
-	int i;
-	int drv, dgv, dbv, best;
-
-	/* We already have a stored translation value: return it */
-	if ((color_table[idx].color_translate >= 0) &&
-	    (color_table[idx].color_translate < 16))
-	{
-		return (color_table[idx].color_translate);
-	}
-
-	/* We don't, and we need to find one (skip black) */
-	for (best = -1, i = 1; i < 16; i++)
-	{
-		/* Get difference in RGB values */
-		drv = ABS(color_table[idx].rv - color_table[i].rv);
-		dgv = ABS(color_table[idx].gv - color_table[i].gv);
-		dbv = ABS(color_table[idx].bv - color_table[i].bv);
-
-		/* If squared RGB difference is less, remember this color */
-		if (delta > (long)drv * drv + dgv * dgv + dbv * dbv)
-		{
-			delta = (long)drv * drv + dgv * dgv + dbv * dbv;
-			best = i;
-		}
-	}
-
-	/* Note failure */
-	if (best < 0) return (TERM_WHITE);
-
-	/* Success */
-	color_table[idx].color_translate = best;
-	return (best);
-}
-
-
-/*
- * Interact with "colors"
- *
- * From NPPAngband.
+ * Interact with "colors".  -DG-
  */
 void do_cmd_colors(void)
 {
@@ -4369,9 +4933,6 @@ void do_cmd_colors(void)
 	FILE *fff;
 	char buf[1024];
 
-
-	/* Remember how many colors are actually useable */
-	int max_colors = max_system_colors;
 
 	int old_rows = screen_rows;
 
@@ -4397,11 +4958,9 @@ void do_cmd_colors(void)
 
 		/* Give some choices */
 		prt("(1) Load colors from file", 4, 5);
-#ifdef ALLOW_COLORS
 		prt("(2) Save colors to file", 5, 5);
 		prt("(3) Modify colors", 6, 5);
 		prt("(?) Get help", 7, 5);
-#endif /* ALLOW_COLORS */
 
 		/* Prompt */
 		prt("Command: ", 9, 0);
@@ -4416,7 +4975,7 @@ void do_cmd_colors(void)
 		if (ch == '1')
 		{
 			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(8);
+			do_cmd_pref_file_hack(8, "color");
 
 			/* Could skip the following if loading cancelled XXX XXX XXX */
 
@@ -4427,9 +4986,7 @@ void do_cmd_colors(void)
 			(void)Term_redraw();
 		}
 
-#ifdef ALLOW_COLORS
-
-		/* Dump colors -- we have to dump in "pref/colors.prf" */
+		/* Dump colors */
 		else if (ch == '2')
 		{
 			static cptr mark = "Color redefinitions";
@@ -4439,7 +4996,7 @@ void do_cmd_colors(void)
 			sprintf(ftmp, "color.prf");
 
 			/* Build the filename */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, ftmp);
+			(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
 
 			/* File type is "TEXT" */
 			FILE_TYPE(FILE_TYPE_TEXT);
@@ -4459,6 +5016,11 @@ void do_cmd_colors(void)
 			/* Skip some lines */
 			fprintf(fff, "\n\n");
 
+			/* Print some comments so user knows what this new file is for */
+			fprintf(fff, "# In order for colors to be stored in the user directory, and for them to \n");
+			fprintf(fff, "# be nevertheless read before anything that needs to use them (edit files,\n");
+			fprintf(fff, "# most other pref files), we must save them to a special file: colors.prf.\n\n");
+
 			/* Dump colors */
 			for (i = 0; i < MAX_COLORS_EDIT; i++)
 			{
@@ -4474,12 +5036,12 @@ void do_cmd_colors(void)
 				if ((!index_char) || (!kv && !rv && !gv && !bv)) continue;
 
 				/* Get name, add a colon */
-				my_strcpy(name, format("%s:", color_table[i].name), sizeof(name));
+				(void)my_strcpy(name, format("%s:", color_table[i].name), sizeof(name));
 
 
 				/* Dump the color info */
 				fprintf(fff, "V:%3d:%c:%-19s%3d:%3d:%3d:%3d:%d\n",
-					i, index_char, name, kv, rv, gv, bv, i < max_colors ? i : translate_into_16_colors(i));
+					i, index_char, name, kv, rv, gv, bv, translate_into_16_colors(i));
 			}
 
 			/* Skip a line */
@@ -4489,10 +5051,10 @@ void do_cmd_colors(void)
 			pref_footer(fff, mark);
 
 			/* Close */
-			my_fclose(fff);
+			(void)my_fclose(fff);
 
 			/* Message */
-			msg_print("Dumped color redefinitions in \"lib/pref/color.prf\".");
+			msg_print("Dumped color redefinitions in \"lib/user/color.prf\".");
 		}
 
 		/* Edit colors */
@@ -4508,8 +5070,6 @@ void do_cmd_colors(void)
 			do_cmd_help();
 		}
 
-#endif /* ALLOW_COLORS */
-
 		/* Unknown option */
 		else
 		{
@@ -4522,7 +5082,7 @@ void do_cmd_colors(void)
 
 
 	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50) Term_rows(TRUE);
+	if (old_rows == 50) (void)Term_rows(TRUE);
 
 	/* Load screen */
 	screen_load();
@@ -4719,7 +5279,7 @@ static void html_screenshot(cptr name)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -4801,7 +5361,7 @@ static void html_screenshot(cptr name)
 	fprintf(htm, "</HTML>\n");
 
 	/* Close it */
-	my_fclose(htm);
+	(void)my_fclose(htm);
 }
 
 
@@ -4822,7 +5382,7 @@ static void text_screenshot(cptr name)
 
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -4864,7 +5424,7 @@ static void text_screenshot(cptr name)
 	fprintf(fp, "\n");
 
 	/* Close it */
-	my_fclose(fp);
+	(void)my_fclose(fp);
 }
 
 
@@ -4904,12 +5464,12 @@ void do_cmd_save_screen(void)
 	/* Ask for a file, allow cancel */
 	if (!get_string("File: ", tmp_val, sizeof(tmp_val))) return;
 
-
-
 	/* Save custom graphic preferences */
-	do_cmd_visuals('2');
-	do_cmd_visuals('3');
-	do_cmd_visuals('4');
+	do_cmd_visuals('6');
+	do_cmd_visuals('7');
+	do_cmd_visuals('8');
+	do_cmd_visuals('9');
+	do_cmd_visuals('0');
 
 	/* Extract default attr/char code for features */
 	for (i = 0; i < z_info->f_max; i++)
@@ -4939,6 +5499,17 @@ void do_cmd_save_screen(void)
 		/* Default attr/char */
 		r_ptr->x_attr = r_ptr->d_attr;
 		r_ptr->x_char = r_ptr->d_char;
+	}
+
+
+	/* Extract default attr/char code for flavors */
+	for (i = 0; i < z_info->flavor_max; i++)
+	{
+		flavor_type *flavor_ptr = &flavor_info[i];
+
+		/* Default attr/char */
+		flavor_ptr->x_attr = flavor_ptr->d_attr;
+		flavor_ptr->x_char = flavor_ptr->d_char;
 	}
 
 	/* Do a complete screen refresh */
@@ -4979,7 +5550,7 @@ static void do_cmd_knowledge_score(void)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Grab permissions */
 	safe_setuid_grab();
@@ -4991,10 +5562,10 @@ static void do_cmd_knowledge_score(void)
 	safe_setuid_drop();
 
 	/* Display the score */
-	predict_score();
+	(void)predict_score();
 
 	/* Shut the high score file */
-	fd_close(highscore_fd);
+	(void)fd_close(highscore_fd);
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
@@ -5174,7 +5745,9 @@ static obj_struct object_group[] =
 	{ TV_HAFTED,      "Hafted Weapons" },
 	{ TV_POLEARM,     "Polearms" },
 	{ TV_DIGGING,     "Diggers" },
+	{ TV_SLING,       "Slings" },
 	{ TV_BOW,         "Bows" },
+	{ TV_CROSSBOW,    "Crossbows" },
 	{ TV_SHOT,        "Missiles" },
 	{ TV_BOOTS,       "Boots" },
 	{ TV_GLOVES,      "Gloves" },
@@ -5415,107 +5988,100 @@ static void observe_object_fake(int k_idx, int a_idx)
 
 
 /*
- * Move the cursor in a browser window.  -EZ-
+ * Move the cursor in a browser window.
+ *
+ * ch                 :  the command entered
+ * Column             :  group or individual item lists
+ * grp_cur, grp_cnt   :  position in group list, size of that list
+ * list_cur, list_cnt :  position in individual item list, size of that list
  */
 static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 						   int *list_cur, int list_cnt)
 {
-	int d, dy, dx;
-	int col = *column;
-	int grp = *grp_cur;
-	int list = *list_cur;
+	bool shift_key = FALSE;
 
-	/* Extract direction */
-	d = target_dir(ch);
+	/* Allow all direction keys and shift-movement */
+	get_ui_direction(&ch, TRUE, TRUE, TRUE, &shift_key);
 
-	/* Extract coordinates */
-	dy = ddy[d];
-	dx = ddx[d];
 
-	/* Diagonals - hack */
-	if ((dx > 0) && dy)
+	/* Move up one page */
+	if ((ch == '7') || (ch == '9'))
 	{
-		/* Browse group list */
-		if (!col)
-		{
-			int old_grp = grp;
+		/* Browsing group list */
+		if (!*column) *grp_cur -= BROWSER_ROWS;
 
-			/* Move up or down */
-			grp += dy * BROWSER_ROWS;
-
-			/* Verify */
-			if (grp >= grp_cnt)	grp = grp_cnt - 1;
-			if (grp < 0) grp = 0;
-			if (grp != old_grp)	list = 0;
-		}
-
-		/* Browse sub-list list */
-		else
-		{
-			/* Move up or down */
-			list += dy * BROWSER_ROWS;
-
-			/* Verify */
-			if (list >= list_cnt) list = list_cnt - 1;
-			if (list < 0) list = 0;
-		}
-
-		(*grp_cur) = grp;
-		(*list_cur) = list;
-
-		return;
+		/* Browsing individual item list */
+		else *list_cur -= BROWSER_ROWS;
 	}
 
-	if (dx)
+	/* Move up one half page */
+	else if ((ch == '-') || (ch == '_'))
 	{
-		col += dx;
-		if (col < 0) col = 0;
-		if (col > 1) col = 1;
+		/* Browsing group list */
+		if (!*column) *grp_cur -= BROWSER_ROWS / 2;
 
-		(*column) = col;
-
-		return;
+		/* Browsing individual item list */
+		else *list_cur -= BROWSER_ROWS / 2;
 	}
 
-	/* Advance one full page */
-	if (ch == ' ')
+	/* Move up one */
+	else if (ch == '8')
 	{
-		dy = BROWSER_ROWS;
+		/* Browsing group list */
+		if (!*column) *grp_cur -= (shift_key ? 5 : 1);
+
+		/* Browsing individual item list */
+		else *list_cur -= (shift_key ? 5 : 1);
 	}
 
-	/* Back up one full page */
-	if (ch == '-')
+
+	/* Move down one */
+	else if ((ch == '2') || (ch == '\r') || (ch == '\n'))
 	{
-		dy = 0 - BROWSER_ROWS;
+		/* Browsing group list */
+		if (!*column) *grp_cur += (shift_key ? 5 : 1);
+
+		/* Browsing individual item list */
+		else *list_cur += (shift_key ? 5 : 1);
 	}
 
-	/* Browse group list */
-	if (!col)
+	/* Move down one half page */
+	else if ((ch == '+') || (ch == '='))
 	{
-		int old_grp = grp;
+		/* Browsing group list */
+		if (!*column) *grp_cur += BROWSER_ROWS / 2;
 
-		/* Move up or down */
-		grp += dy;
-
-		/* Verify */
-		if (grp < 0) grp = 0;
-		if (grp >= grp_cnt)	grp = grp_cnt - 1;
-		if (grp != old_grp)	list = 0;
+		/* Browsing individual item list */
+		else *list_cur += BROWSER_ROWS / 2;
 	}
 
-	/* Browse sub-list list */
-	else
+	/* Move down one page */
+	else if ((ch == '1') || (ch == '3') || (ch == ' '))
 	{
-		/* Move up or down */
-		list += dy;
+		/* Browsing group list */
+		if (!*column) *grp_cur += BROWSER_ROWS;
 
-		/* Verify */
-		if (list >= list_cnt) list = list_cnt - 1;
-		if (list < 0) list = 0;
+		/* Browsing individual item list */
+		else *list_cur += BROWSER_ROWS;
 	}
 
-	(*grp_cur) = grp;
-	(*list_cur) = list;
+
+	/* Shift columns */
+	else if ((ch == '6') && (*column == 0))
+	{
+		*column = 1;
+	}
+	else if ((ch == '4') && (*column == 1))
+	{
+		*column = 0;
+	}
+
+
+	/* Check bounds */
+	if (*list_cur >= list_cnt) *list_cur = list_cnt - 1;
+	if (*list_cur < 0) *list_cur = 0;
+	if (*grp_cur >= grp_cnt) *grp_cur = grp_cnt - 1;
+	if (*grp_cur < 0) *grp_cur = 0;
 }
 
 
@@ -6170,7 +6736,7 @@ static void do_cmd_knowledge_kill_count(void)
 
 			/* Format group header with uppercase first letter */
 			strcpy(buf, format("%c%s",
-				toupper(monster_group[grp].text[0]),
+				my_toupper(monster_group[grp].text[0]),
 				monster_group[grp].text + 1));
 
 			/* Display group header */
@@ -6252,14 +6818,14 @@ static void do_cmd_knowledge_kill_count(void)
 	FREE(who);
 
 	/* Close the file */
-	my_fclose(fp);
+	(void)my_fclose(fp);
 
 
 	/* We want 50 rows */
-	if (text_50_rows) Term_rows(TRUE);
+	if (text_50_rows) (void)Term_rows(TRUE);
 
 	/* We don't */
-	else Term_rows(FALSE);
+	else (void)Term_rows(FALSE);
 
 
 	/* Display the file contents */
@@ -6326,8 +6892,10 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		/* If object is aware, show what it looks like */
 		if (k_ptr->special & (SPECIAL_AWARE))
 		{
-			byte a = k_ptr->flavor ? k_ptr->flavor : k_ptr->x_attr;
-			byte c = k_ptr->x_char;
+			byte a = (k_ptr->flavor) ? (flavor_info[k_ptr->flavor].x_attr) :
+				(k_ptr->x_attr);
+			char c = (k_ptr->flavor) ? (flavor_info[k_ptr->flavor].x_char) :
+				(k_ptr->x_char);
 
 			/* Display symbol */
 			(void)Term_putch(76, row + i, a, c);
@@ -6561,13 +7129,13 @@ static void do_cmd_knowledge_home(void)
 	}
 
 	/* Close the file */
-	my_fclose(fp);
+	(void)my_fclose(fp);
 
 	/* Display the file contents */
 	show_file(file_name, "Contents of Your Home", 0, 2);
 
 	/* Remove the file */
-	fd_kill(file_name);
+	(void)fd_kill(file_name);
 }
 
 
@@ -6582,6 +7150,8 @@ void do_cmd_knowledge_quests(FILE *fp)
 	bool quests = FALSE;
 	bool temp_file = FALSE;
 	int attr;
+
+	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
 
 	char name[80];
 	char intro[80];
@@ -6634,7 +7204,7 @@ void do_cmd_knowledge_quests(FILE *fp)
 	}
 
 	/* Print the current quest, if any */
-	if (p_ptr->cur_quest)
+	if ((p_ptr->cur_quest) && (q_ptr->active_level))
 	{
 		text_out_c(TERM_L_BLUE,
 			format("%s\n\n", describe_quest(p_ptr->cur_quest, QMODE_FULL)));
@@ -6671,7 +7241,10 @@ void do_cmd_knowledge_quests(FILE *fp)
 			if (p_ptr->quest_memory[i].succeeded)
 			{
 				strcpy(intro, "Defeated");
-				attr = TERM_WHITE;
+				if (p_ptr->cur_quest == p_ptr->quest_memory[i].level)
+					attr = TERM_L_GREEN;
+				else
+					attr = TERM_WHITE;
 			}
 			else
 			{
@@ -6683,7 +7256,7 @@ void do_cmd_knowledge_quests(FILE *fp)
 			if (p_ptr->quest_memory[i].max_num > 1)
 			{
 				plural_aux(name);
-				my_strcpy(targets, format("%d %s",
+				(void)my_strcpy(targets, format("%d %s",
 					p_ptr->quest_memory[i].max_num, name), sizeof(targets));
 			}
 
@@ -6692,12 +7265,12 @@ void do_cmd_knowledge_quests(FILE *fp)
 			{
 				if (r_ptr->flags1 & (RF1_UNIQUE))
 				{
-					my_strcpy(targets, format("%s", name), sizeof(targets));
+					(void)my_strcpy(targets, format("%s", name), sizeof(targets));
 				}
 
-				else if (is_a_vowel(name[0]))
-				     my_strcpy(targets, format("an %s", name), sizeof(targets));
-				else my_strcpy(targets, format("a %s",  name), sizeof(targets));
+				else if (my_is_vowel(name[0]))
+					(void)my_strcpy(targets, format("an %s", name), sizeof(targets));
+				else (void)my_strcpy(targets, format("a %s",  name), sizeof(targets));
 			}
 
 			/* The location of the quest */
@@ -6731,13 +7304,13 @@ void do_cmd_knowledge_quests(FILE *fp)
 	if (temp_file)
 	{
 		/* Close the file */
-		my_fclose(fp);
+		(void)my_fclose(fp);
 
 		/* Display the file contents */
 		show_file(file_name, "Current and Completed Quests", 0, 2);
 
 		/* Remove the file */
-		fd_kill(file_name);
+		(void)fd_kill(file_name);
 	}
 }
 
@@ -6780,9 +7353,10 @@ void do_cmd_knowledge(void)
 		prt("(5) Known objects",                      8, 5);
 		prt("(6) Contents of your home",              9, 5);
 		prt("(7) Current and completed quests",      10, 5);
+		if (p_ptr->self_knowledge) prt("(8) Self Knowledge",      11, 5);
 
 		/* Prompt */
-		prt("Command: ", 11, 0);
+		prt("Command: ", (p_ptr->self_knowledge ? 12 : 11), 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -6862,10 +7436,15 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_quests(NULL);
 		}
 
-		/* Unknown option */
-		else
+		/* Self knowledge  -LM- */
+		else if ((ch == '8') && (p_ptr->self_knowledge))
 		{
-			bell("Illegal command for knowledge!");
+			/*
+			 * We should allow self-inspection even when not magically
+			 * self-aware, but haven't yet decided exactly what information
+			 * should be given, and what not.
+			 */
+			self_knowledge(p_ptr->self_knowledge ? TRUE : FALSE);
 		}
 
 		/* Reset screen to 25 rows */

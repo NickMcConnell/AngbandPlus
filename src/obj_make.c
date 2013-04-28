@@ -172,7 +172,7 @@ int get_essence(bool just_looking)
 			if (isalpha(ch))
 			{
 				/* Lowercase */
-				ch = tolower(ch);
+				ch = my_tolower(ch);
 
 				/* Convert choice to a number */
 				num = A2I(ch);
@@ -307,7 +307,7 @@ bool use_up_essences(const object_type *o_ptr)
  *
  * Code taken from the function "wiz_create_itemtype()"
  */
-static int alchemy_choose_item(int tval, int *sval,
+static int alchemy_choose_item(int *tval, int *sval,
 	bool need_essence, int max_level, cptr desc)
 {
 	int i, j;
@@ -340,7 +340,7 @@ static int alchemy_choose_item(int tval, int *sval,
 	(void)Term_clear();
 
 	/* Set to 50 screen rows if scrolls or potions, 25 otherwise  XXX */
-	if ((tval == TV_SCROLL) || (tval == TV_POTION))
+	if ((*tval == TV_SCROLL) || (*tval == TV_POTION))
 	{
 		(void)Term_rows(TRUE);
 	}
@@ -364,7 +364,14 @@ static int alchemy_choose_item(int tval, int *sval,
 			k_ptr = &k_info[i];
 
 			/* Skip items not of the requested type */
-			if (k_ptr->tval != tval) continue;
+			if (*tval != TV_BOW)
+			{
+				if (k_ptr->tval != *tval) continue;
+			}
+			else
+			{
+				if (!is_missile_weapon(k_ptr)) continue;
+			}
 
 			/* Hack -- Skip instant artifacts */
 			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
@@ -375,7 +382,7 @@ static int alchemy_choose_item(int tval, int *sval,
 			else                                    is_grenade = FALSE;
 
 			/* Usually require awareness or seen */
-			if ((tval != TV_RING) && (tval != TV_AMULET))
+			if ((*tval != TV_RING) && (*tval != TV_AMULET))
 			{
 				if (is_grenade)
 				{
@@ -431,7 +438,7 @@ static int alchemy_choose_item(int tval, int *sval,
 			wgt = use_metric ? make_metric(k_ptr->weight) : k_ptr->weight;
 
 			/* Build the string */
-			strnfmt(buf, sizeof(buf), "%c] %-27s%3d %3d.%d",
+			(void)strnfmt(buf, sizeof(buf), "%c] %-27s%3d %3d.%d",
 			        ch, o_name, k_ptr->level, wgt / 10, wgt % 10);
 
 			/* Print it out */
@@ -531,13 +538,13 @@ static int alchemy_choose_item(int tval, int *sval,
 
 
 			/* Hack -- up to four grenades can be made at a time */
-			if ((tval == TV_POTION) && (k_ptr->sval == SV_POTION_GRENADE))
+			if ((*tval == TV_POTION) && (k_ptr->sval == SV_POTION_GRENADE))
 			{
 				quantity = get_skill(S_INFUSION, 2, 4);
 			}
 
 			/* Potions and scrolls can be made in quantity */
-			else if ((tval == TV_POTION) || (tval == TV_SCROLL))
+			else if ((*tval == TV_POTION) || (*tval == TV_SCROLL))
 			{
 				/* Number depends on infusion skill and object value */
 				quantity = get_skill(S_INFUSION, 0, 70) /
@@ -557,7 +564,7 @@ static int alchemy_choose_item(int tval, int *sval,
 
 			/* It is dangerous to make lots of non-grenades at once */
 			if ((quantity > 1) &&
-				 ((tval != TV_POTION) || (k_ptr->sval != SV_POTION_GRENADE)))
+				 ((*tval != TV_POTION) || (k_ptr->sval != SV_POTION_GRENADE)))
 			{
 				strcat(buf2, "  (risk increases as you approach this limit)");
 			}
@@ -652,7 +659,7 @@ static int alchemy_choose_item(int tval, int *sval,
 					object_aware(o_ptr);
 					object_known(o_ptr);
 
-					/* Describe the item */
+					/* Describe the item (as though it were in a store XXX) */
 					do_cmd_observe(o_ptr, TRUE);
 				}
 
@@ -721,7 +728,11 @@ static int alchemy_choose_item(int tval, int *sval,
 	if (last_num < 0) quantity = 0;
 
 	/* Object is valid -- remember it */
-	else *sval = k_info[choice[last_num]].sval;
+	else
+	{
+		*sval = k_info[choice[last_num]].sval;
+		*tval = k_info[choice[last_num]].tval;
+	}
 
 	/* Clear screen */
 	(void)Term_clear();
@@ -731,8 +742,8 @@ static int alchemy_choose_item(int tval, int *sval,
 	{
 		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
 
-		if (old_rows == 50) Term_rows(TRUE);
-		else                Term_rows(FALSE);
+		if (old_rows == 50) (void)Term_rows(TRUE);
+		else                (void)Term_rows(FALSE);
 	}
 
 	/* Load screen */
@@ -1136,7 +1147,7 @@ static bool do_alchemy_aux(int input_tval, int output_tval,
 
 
 	/* Choose a type of item to make, get max quantity. */
-	max = alchemy_choose_item(output_tval, &sval, TRUE, max_level,
+	max = alchemy_choose_item(&output_tval, &sval, TRUE, max_level,
 		output_name);
 
 	/* Cancelled */
@@ -1630,6 +1641,7 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 	int i, z, attr, pval, invest, sval, cost;
 
 	bool pval_changed = FALSE;
+	bool dummy;
 
 
 	/* Clear screen */
@@ -1722,8 +1734,11 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 				if (ffi[i].p_index == 2) attr = TERM_L_GREEN;
 				if (ffi[i].p_index == 3) attr = TERM_PURPLE;
 
-				/* Print out this flag's pval */
-				c_prt(attr, format("%2d", pval_val[ffi[i].p_index]), row, col + 25);
+				/* Print out this flag's pval, if any */
+				if (ffi[i].p_index != 0)
+					c_prt(attr, format("%2d", pval_val[ffi[i].p_index]), row, col + 25);
+				else
+					c_prt(TERM_L_WHITE, "--", row, col + 25);
 
 				/* Display invested essences */
 				if (ffi[i].p_index)
@@ -1764,7 +1779,7 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 		}
 
 		/* Prompt */
-		prt("Bonuses    2/8 to move, +/- to alter essences or bonuses, 4/6 to swap bonus", 23, 0);
+		prt("Bonuses    <dir> to move, +/- to alter essences or bonuses, '!' to apply bonus", 23, 0);
 		prt("           </> to change screens, '?' for help, Return to accept, ESC to cancel", 24, 0);
 
 
@@ -1775,8 +1790,12 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 		/* Get key */
 		ch = inkey();
 
+		/* Allow orthogonal direction keys */
+		get_ui_direction(&ch, TRUE, TRUE, FALSE, &dummy);
+
 		/* Clear status line */
 		clear_row(2);
+
 
 		/* Cancel */
 		if ((ch == ESCAPE) || (ch == 'q'))
@@ -1786,7 +1805,7 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 		}
 
 		/* Accept changes */
-		if ((ch == '\r') || (ch == '\n'))
+		else if ((ch == '\r') || (ch == '\n'))
 		{
 			action = 0;
 			break;
@@ -1815,15 +1834,29 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 		}
 
 		/* Go to previous flag or pval */
-		else if ((ch == '8') || (ch == 'k'))
+		else if (ch == '8')
 		{
 			if (selection > -3) selection--;
 		}
 
 		/* Go to next flag or pval */
-		else if ((ch == '2') || (ch == ' ') || (ch == 'j'))
+		else if ((ch == '2') || (ch == ' '))
 		{
 			if (selection < num - 1) selection++;
+		}
+
+		/* Go to previous pval or flag column */
+		else if (ch == '4')
+		{
+			if ((selection <= 0) && (selection > -3)) selection--;
+			else if (selection >= (num+1) / 2) selection -= (num+1) / 2;
+		}
+
+		/* Go to next pval or flag column */
+		else if (ch == '6')
+		{
+			if (selection < 0) selection++;
+			else if (selection < num / 2) selection += (num+1) / 2;
 		}
 
 		/* Raise a number */
@@ -1918,7 +1951,7 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 		}
 
 		/* Change the index of the pval controlling a flag */
-		else if ((ch == '6') || (ch == '4') || (ch == 'l') || (ch == 'h'))
+		else if (ch == '!')
 		{
 			/* Only works when a flag is selected */
 			if (selection >= 0)
@@ -1926,28 +1959,14 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 				/* Get flag position */
 				i = index_to_flag[selection];
 
-				if ((ch == '6') || (ch == 'l'))
+				/* Scan */
+				while (TRUE)
 				{
-					while (TRUE)
-					{
-						/* Go to next pval index, wrap around */
-						ffi[i].p_index = ((ffi[i].p_index + 1) % 4);
+					/* Go to next pval index, wrap around */
+					ffi[i].p_index = ((ffi[i].p_index + 1) % 4);
 
-						/* Stop if we find a pval that's not too high */
-						if (pval_val[ffi[i].p_index] <= ffi[i].max) break;
-					}
-				}
-				else
-				{
-					while (TRUE)
-					{
-						/* Go to previous pval index, wrap around */
-						ffi[i].p_index--;
-						if (ffi[i].p_index < 0) ffi[i].p_index = 3;
-
-						/* Stop if we find a pval that's not too high */
-						if (pval_val[ffi[i].p_index] <= ffi[i].max) break;
-					}
+					/* Stop if we find a pval that's not too high */
+					if (pval_val[ffi[i].p_index] <= ffi[i].max) break;
 				}
 
 				/* Get this flag's pval */
@@ -1957,15 +1976,6 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 				flag_cost[i] =
 					MAX(1, (flag_creation_data[i].cost * pval + 5) / 10);
 				if (!pval) flag_cost[i] = 0;
-			}
-
-			/* Undocumented, but intuitive, movement command */
-			else
-			{
-				if ((ch == '6') || (ch == 'l')) selection++;
-				else                            selection--;
-
-				if (selection < -3) selection = -3;
 			}
 		}
 
@@ -2036,6 +2046,9 @@ static s16b do_forging_essence_flags(int set)
 	int num = 0;
 
 	int i, z, attr, invest, sval, cost;
+
+	bool dummy;
+
 
 	/* Clear screen */
 	(void)Term_clear();
@@ -2135,14 +2148,15 @@ static s16b do_forging_essence_flags(int set)
 		}
 
 		/* Prompt */
-		prt("Qualities  2/8 to move, +/- to invest essences", 23, 0);
+		prt("Qualities  <dir> to move, +/- to invest essences", 23, 0);
 		prt("           </> to change screens, '?' for help, Return to accept, ESC to cancel", 24, 0);
 
-		/* Hide the cursor  XXX */
-		move_cursor(0, 81);
 
 		/* Get key */
 		ch = inkey();
+
+		/* Allow orthogonal direction keys */
+		get_ui_direction(&ch, TRUE, TRUE, FALSE, &dummy);
 
 		/* Cancel */
 		if ((ch == ESCAPE) || (ch == 'q'))
@@ -2181,15 +2195,27 @@ static s16b do_forging_essence_flags(int set)
 		}
 
 		/* Go to previous flag */
-		else if ((ch == '8') || (ch == 'k'))
+		else if (ch == '8')
 		{
 			if (selection > 0) selection--;
 		}
 
 		/* Go to next flag */
-		else if ((ch == '2') || (ch == ' ') || (ch == 'j'))
+		else if ((ch == '2') || (ch == ' '))
 		{
 			if (selection < num - 1) selection++;
+		}
+
+		/* Go to previous column */
+		else if (ch == '4')
+		{
+			if (selection >= (num+1) / 2) selection -= (num+1) / 2;
+		}
+
+		/* Go to next column */
+		else if (ch == '6')
+		{
+			if (selection < num / 2) selection += (num+1) / 2;
 		}
 
 		/* Raise a number */
@@ -2309,7 +2335,7 @@ static bool do_forging_essence(int a_idx, int *potential)
 	/* Put object in various categories */
 	if (is_melee_weapon(a_ptr))    is_melee_weapon = TRUE;
 	if (a_ptr->tval == TV_DIGGING) is_digger       = TRUE;
-	if (a_ptr->tval == TV_BOW)     is_launcher     = TRUE;
+	if (is_missile_weapon(a_ptr))  is_launcher     = TRUE;
 	if (is_missile(a_ptr))         is_ammo         = TRUE;
 	if (is_any_armour(a_ptr))      is_armour       = TRUE;
 
@@ -2625,9 +2651,11 @@ static int do_forging_adjust_power(object_type *i_ptr, int power)
 	else if (i_ptr->tval == TV_POLEARM) skill = S_POLEARM;
 	else if (i_ptr->tval == TV_HAFTED)  skill = S_HAFTED;
 	else if (i_ptr->tval == TV_SHOT)    skill = S_SLING;
+	else if (i_ptr->tval == TV_SLING)   skill = S_SLING;
 	else if (i_ptr->tval == TV_ARROW)   skill = S_BOW;
+	else if (i_ptr->tval == TV_BOW)     skill = S_BOW;
 	else if (i_ptr->tval == TV_BOLT)    skill = S_CROSSBOW;
-	else if (i_ptr->tval == TV_BOW)     skill = sbow(i_ptr->sval);
+	else if (i_ptr->tval == TV_CROSSBOW)skill = S_CROSSBOW;
 
 	/* Restrict forging power if necessary */
 	if (skill >= 0)
@@ -2706,7 +2734,7 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	max_level = MIN(100, (5 * component_level / 4 + skill) / 2);
 
 	/* Choose an item kind to make (or cancel) */
-	if (!alchemy_choose_item(tval, &sval, FALSE, max_level, output_name))
+	if (!alchemy_choose_item(&tval, &sval, FALSE, max_level, output_name))
 		return (FALSE);
 
 

@@ -252,15 +252,14 @@ bool do_effect_linger(int x_idx, int y, int x)
 	/* Get this effect */
 	effect_type *x_ptr = &x_list[x_idx];
 
-	/* Note walls */
-	bool wall = ((cave_info[y][x] & (CAVE_WALL)) ? TRUE : FALSE);
+	/* Effects only operate in projectable terrain */
+	bool projectable = (cave_project_bold(y, x) != 0);
 
 	/* Basic projection flags */
 	u32b flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID;
 
 	/* Get caster (who gets exp, etc.) */
 	int who = ((x_ptr->flags & (EF1_CHARACTER)) ? -1 : 0);
-
 
 	/* Optional flags */
 	if (x_ptr->flags)
@@ -326,8 +325,8 @@ bool do_effect_linger(int x_idx, int y, int x)
 		lite_spot(y, x);
 	}
 
-	/* Return whether we hit a wall */
-	return (!wall);
+	/* Return whether we hit non-projectable terrain */
+	return (!projectable);
 }
 
 

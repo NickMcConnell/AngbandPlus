@@ -181,7 +181,7 @@ static void do_cmd_wiz_flow(void)
 							{
 								print_rel('@', a, y, x);
 							}
-							else if (cave_nonwall_bold(y, x))
+							else if (cave_passable_bold(y, x))
 							{
 								print_rel('*', a, y, x);
 							}
@@ -251,7 +251,7 @@ static void do_cmd_wiz_change(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Prompt */
-		strnfmt(ppp, sizeof(ppp), "%s (3-118):", stat_names[i]);
+		(void)strnfmt(ppp, sizeof(ppp), "%s (3-118):", stat_names[i]);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
@@ -398,7 +398,7 @@ static void wiz_display_item(const object_type *o_ptr)
 	prt(format("number  =%sweight  =%scost   =%s art_index =", s, s, s), 8, 0);
 	prt(format("activat =%stimeout =%sadjust =%s ego_index =", s, s, s), 9, 0);
 
-	prt(format("pval1   =%sflags   =%sflags1 =", s, s), 11, 0);
+	prt(format("pval1   =%sflags   =%sflags1 =%s flavor    =", s, s, s), 11, 0);
 	prt(format("pval2   =%sflags   =%sflags2 =", s, s), 12, 0);
 	prt(format("pval3   =%sflags   =%sflags3 =", s, s), 13, 0);
 
@@ -435,6 +435,7 @@ static void wiz_display_item(const object_type *o_ptr)
 	c_put_str(a, format("%-5d", o_ptr->inscrip),            6, 72);
 	c_put_str(a, format("%-5d", o_ptr->artifact_index),     8, 72);
 	c_put_str(a, format("%-5d", o_ptr->ego_item_index),     9, 72);
+	c_put_str(a, format("%-5d", k_info[o_ptr->k_idx].flavor), 11, 72);
 
 
 	/* Display the current generation level */
@@ -473,6 +474,9 @@ static void wiz_display_item(const object_type *o_ptr)
 			c_put_str(a, format("%4d", pval), (i % 32) + 17, 15);
 		}
 	}
+
+	/* Move cursor to top */
+	move_cursor(0, 0);
 }
 
 
@@ -485,7 +489,9 @@ tval_desc tvals[] =
 	{ TV_SHOT,         "Shots",              TRUE  },
 	{ TV_ARROW,        "Arrows",             TRUE  },
 	{ TV_BOLT,         "Bolts",              TRUE  },
-	{ TV_BOW,          "Missile Weapon",     TRUE  },
+	{ TV_SLING,        "Sling",              TRUE  },
+	{ TV_BOW,          "Bow",                TRUE  },
+	{ TV_CROSSBOW,     "Crossbow",           TRUE  },
 	{ -1,              " ",                  FALSE },
 	{ TV_DIGGING,      "Digger",             TRUE  },
 	{ TV_HAFTED,       "Hafted Weapon",      TRUE  },
@@ -1266,7 +1272,7 @@ static void do_cmd_wiz_play(void)
 	}
 
 	/* Set to 25 screen rows, if we were showing 25 before */
-	if (old_rows != 50) Term_rows(FALSE);
+	if (old_rows != 50) (void)Term_rows(FALSE);
 
 	/* Load screen */
 	screen_load();
@@ -1366,8 +1372,14 @@ static void wiz_create_item(int k_idx)
 	/* Get quantity  -LM- */
 	if ((i_ptr->tval != TV_GOLD) && (!i_ptr->artifact_index))
 	{
+		/* Move cursor */
+		move_cursor(0, 0);
+
 		num = (int)get_quantity("Make how many objects?", 1, 99);
 	}
+
+	/* Allow cancel */
+	if (!num) return;
 
 	/* Apply magic (no artifacts) */
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
@@ -1818,11 +1830,7 @@ static void wiz_detect_all(int d)
 			}
 
 			/* Detect doors and stairs */
-			if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_DOOR_HEAD)) ||
-			    (cave_feat[y][x] == FEAT_OPEN) ||
-			    (cave_feat[y][x] == FEAT_BROKEN) ||
-			    (cave_any_stairs(y, x)))
+			if ((cave_any_door(y, x)) || (cave_any_stairs(y, x)))
 			{
 				detect = TRUE;
 			}
@@ -1835,9 +1843,10 @@ static void wiz_detect_all(int d)
 				cave_feat[y][x] += 0x02;
 			}
 
-			/* Magma/Quartz + Known Gold */
+			/* Magma/Quartz/Pillar + Known Gold */
 			if ((cave_feat[y][x] == FEAT_MAGMA_K) ||
-				(cave_feat[y][x] == FEAT_QUARTZ_K))
+				(cave_feat[y][x] == FEAT_QUARTZ_K) ||
+				(cave_feat[y][x] == FEAT_PILLAR_GOLD))
 			{
 				detect = TRUE;
 			}
@@ -1939,7 +1948,7 @@ static void do_cmd_wiz_query(void)
 		case 's': mask |= (CAVE_SEEN); flag_desc = "cave_seen"; break;
 		case 'v': mask |= (CAVE_VIEW); flag_desc = "cave_view"; break;
 		case 't': mask |= (CAVE_TEMP); flag_desc = "cave_temp"; break;
-		case 'w': mask |= (CAVE_WALL); flag_desc = "cave_wall"; break;
+		case 'w': mask |= (CAVE_LOS); flag_desc = "LOS blocked"; break;
 
 		case 'f': mask |= (CAVE_FIRE); flag_desc = "cave_fire"; break;
 		case 'G': mask |= (CAVE_LITE); flag_desc = "cave_lite"; break;
@@ -2012,10 +2021,17 @@ static void do_cmd_wiz_query(void)
 			else
 			{
 				/* Given mask, show only those grids */
-				if (!(cave_info[y][x] & mask)) continue;
+				if (cmd == 'w')
+				{
+					if (cave_info[y][x] & mask) continue;
+				}
+				else
+				{
+					if (!(cave_info[y][x] & mask)) continue;
+				}
 
 				/* Color */
-				if (cave_nonwall_bold(y, x)) a = TERM_YELLOW;
+				if (cave_project_bold(y, x)) a = TERM_YELLOW;
 			}
 
 			/* Display player/floors/walls */
@@ -2023,7 +2039,7 @@ static void do_cmd_wiz_query(void)
 			{
 				print_rel('@', a, y, x);
 			}
-			else if (cave_nonwall_bold(y, x))
+			else if (cave_project_bold(y, x))
 			{
 				print_rel('*', a, y, x);
 			}
@@ -2166,7 +2182,8 @@ void do_cmd_debug(void)
 		/* Self-Knowledge */
 		case 'k':
 		{
-			self_knowledge(TRUE);
+			set_self_knowledge(p_ptr->self_knowledge + 20,
+				"You begin to know yourself a little better...");
 			break;
 		}
 
@@ -2314,7 +2331,6 @@ void do_cmd_debug(void)
 				for (i = 0; i < PY_MAX_SPELLS; i++)
 				{
 					p_ptr->spell_flags[i] = 0;
-					p_ptr->spell_order[i] = 99;
 				}
 
 				changed = TRUE;

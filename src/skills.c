@@ -25,7 +25,6 @@
  *
  * Note:  Holy warriors can raise their blunt weapon skill to the max.
  */
-#define WARRIOR_DEVICE_LIMIT         50  /* Warriors are bad with devices */
 #define WARRIOR_SPELLCASTING_LIMIT    0  /* Warriors can't cast spells */
 
 #define NON_WARRIOR_LIMIT            80  /* Only Warriors are great in melee */
@@ -34,7 +33,7 @@
 #define PRIEST_BLUNT_WEAPON_LIMIT    75  /* Priests are OK with blunt weapons */
 
 #define OATH_OF_IRON_REQ             45  /* Skill required to take the Oath of Iron */
-#define NON_GUILDBROTHERS_LIMIT      30  /* Burglary limit for non-Guild */
+#define NON_GUILD_LIMIT              20  /* Non-Guild Burglars struggle above this */
 
 
 static bool cannot_learn_magic;
@@ -55,6 +54,8 @@ int selected = -1;
  *
  * We use average character power when asked to calculate S_NOSKILL.
  *
+ * We apply bonuses or penalties in some cases.
+ *
  * Non-linear effective values are handled as special cases (see
  * especially "calc_bonuses()".
  */
@@ -72,6 +73,24 @@ s16b get_skill(int skill, int min, int max)
 
 	/* Get the current skill percentage */
 	tmp = p_ptr->pskills[skill].cur;
+
+
+	/*** Handle special cases ***/
+
+	/* Oath of Iron weakens magical device skill greatly */
+	if ((p_ptr->oath & (OATH_OF_IRON)) && (skill == S_DEVICE))
+	{
+		tmp = (tmp+1) / 2;
+	}
+
+	/* Not joining the Burglar's Guild weakens Burglary skill */
+	else if (!(p_ptr->oath & (BURGLARS_GUILD)) && (skill == S_BURGLARY))
+	{
+		/* If you don't join the Guild, your max Burglary is 60 */
+		if (tmp > NON_GUILD_LIMIT)
+			tmp = NON_GUILD_LIMIT + (tmp - NON_GUILD_LIMIT) / 2;
+	}
+
 
 	/* Get the standard maximum */
 	std_max = PY_MAX_POWER;
@@ -167,12 +186,12 @@ int sweapon(int tval)
 /*
  * Determine which archery skill we're using.
  */
-int sbow(int sval)
+int sbow(int tval)
 {
 	/* Check for a known missile weapon */
-	if (is_sling(sval))    return (S_SLING);
-	if (is_bow(sval))      return (S_BOW);
-	if (is_crossbow(sval)) return (S_CROSSBOW);
+	if (tval == TV_SLING)    return (S_SLING);
+	if (tval == TV_BOW)      return (S_BOW);
+	if (tval == TV_CROSSBOW) return (S_CROSSBOW);
 
 	/* Otherwise, assume none */
 	return (S_NOSKILL);
@@ -547,10 +566,6 @@ static bool can_take_oath(byte oath)
 			if (p_ptr->pskills[S_MAGIC].max > WARRIOR_SPELLCASTING_LIMIT)
 				return (FALSE);
 
-			/* Must not be excessively good at magical devices */
-			if (p_ptr->pskills[S_DEVICE].max > WARRIOR_DEVICE_LIMIT)
-				return (FALSE);
-
 			/* Require skill at any form of non-magical combat */
 			if ((p_ptr->pskills[S_SWORD].max < OATH_OF_IRON_REQ) &&
 			    (p_ptr->pskills[S_HAFTED].max < OATH_OF_IRON_REQ) &&
@@ -608,7 +623,7 @@ static bool can_take_oath(byte oath)
 
 		case BURGLARS_GUILD:
 		{
-			/* Must have a Burglary skill of at least 25 */
+			/* Must have a Burglary skill of at least 20 */
 			if (p_ptr->pskills[S_BURGLARY].max < LEV_REQ_GUILD) return (FALSE);
 
 			break;
@@ -1104,51 +1119,6 @@ static int can_raise_skill(int skill, bool verbose, int auto_raise)
 				if (verbose) prt("Raise your Spellcasting skill to choose a magic realm.", 1, 2);
 				return (-1);
 			}
-
-			break;
-		}
-
-		case S_DEVICE:
-		{
-			/* The Oath of Iron limits the use of magical devices */
-			if (p_ptr->oath & (OATH_OF_IRON))
-			{
-				if (lev < WARRIOR_DEVICE_LIMIT) return (TRUE);
-
-				if (verbose) prt("Warriors cannot raise their magic mastery skill any higher than this.", 1, 2);
-				return (-1);
-			}
-
-			/* Warn if we would lose the chance to take the Oath of Iron */
-			else if ((lev == WARRIOR_DEVICE_LIMIT) &&
-			         (can_take_oath(OATH_OF_IRON)))
-			{
-				if (auto_raise) return (auto_raise > 0);
-				else
-				{
-					return (can_raise_skill_confirm(WARRIOR_DEVICE));
-				}
-			}
-
-			/* Allow raises */
-			return (TRUE);
-
-			break;
-		}
-
-		case S_BURGLARY:
-		{
-			/* Must join the Burglars' Guild to get very good at Burglary */
-			if (!(p_ptr->oath & (BURGLARS_GUILD)))
-			{
-				if (lev < NON_GUILDBROTHERS_LIMIT) return (TRUE);
-
-				if (verbose) prt("To raise this skill further, you must first join the Burglars' Guild.", 1, 2);
-				return (-1);
-			}
-
-			/* Allow raises */
-			return (TRUE);
 
 			break;
 		}
@@ -2160,7 +2130,7 @@ static void prt_skill_rank(int skill)
 	}
 
 	/* Display the skill percentage */
-	sprintf(buf2, "%3d%%", p_ptr->pskills[skill].cur);
+	sprintf(buf2, "%3d%%", (int)p_ptr->pskills[skill].cur);
 
 	/* The character corresponding to the skill */
 	c = index_chars_lower[skill];

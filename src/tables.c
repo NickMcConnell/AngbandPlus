@@ -219,55 +219,6 @@ const char index_chars_lower[] =
 };
 
 
-
-/*
- * Stat Table (INT/WIS) -- Number of spells available with a skill of 100
- *
- * The actual number is two greater than this.
- */
-const byte adj_mag_study[] =
-{
-	 0	/* 3 */,
-	 0	/* 4 */,
-	 0	/* 5 */,
-	 0	/* 6 */,
-	20	/* 7 */,
-	23	/* 8 */,
-	26	/* 9 */,
-	29	/* 10 */,
-	32	/* 11 */,
-	35	/* 12 */,
-	38	/* 13 */,
-	41	/* 14 */,
-	44	/* 15 */,
-	47	/* 16 */,
-	50	/* 17 */,
-	52	/* 18/00-18/09 */,
-	54	/* 18/10-18/19 */,
-	56	/* 18/20-18/29 */,
-	58	/* 18/30-18/39 */,
-	60	/* 18/40-18/49 */,
-	62	/* 18/50-18/59 */,
-	64	/* 18/60-18/69 */,
-	66	/* 18/70-18/79 */,
-	68	/* 18/80-18/89 */,
-	70	/* 18/90-18/99 */,
-	72	/* 18/100-18/109 */,
-	74	/* 18/110-18/119 */,
-	76	/* 18/120-18/129 */,
-	78	/* 18/130-18/139 */,
-	80	/* 18/140-18/149 */,
-	82	/* 18/150-18/159 */,
-	84	/* 18/160-18/169 */,
-	86	/* 18/170-18/179 */,
-	88	/* 18/180-18/189 */,
-	90	/* 18/190-18/199 */,
-	90	/* 18/200-18/209 */,
-	90	/* 18/210-18/219 */,
-	90	/* 18/220+ */
-};
-
-
 /*
  * Stat Table (INT/WIS) -- extra tenth-mana-points per level.
  */
@@ -505,20 +456,20 @@ const byte adj_dis[] =
 	128 - 12	/* 3 */,
 	128 - 7	/* 4 */,
 	128 - 3	/* 5 */,
-	128 - 1	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
+	128 - 2	/* 6 */,
+	128 - 1	/* 7 */,
+	128 - 1	/* 8 */,
 	128 + 0	/* 9 */,
 	128 + 0	/* 10 */,
 	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
+	128 + 1	/* 12 */,
 	128 + 1	/* 13 */,
 	128 + 1	/* 14 */,
-	128 + 1	/* 15 */,
+	128 + 2	/* 15 */,
 	128 + 2	/* 16 */,
 	128 + 2	/* 17 */,
-	128 + 4	/* 18/00-18/09 */,
-	128 + 4	/* 18/10-18/19 */,
+	128 + 3	/* 18/00-18/09 */,
+	128 + 3	/* 18/10-18/19 */,
 	128 + 4	/* 18/20-18/29 */,
 	128 + 4	/* 18/30-18/39 */,
 	128 + 5	/* 18/40-18/49 */,
@@ -552,9 +503,9 @@ const byte adj_dex_ta[] =
 	128 + -7	/* 4 */,
 	128 + -4	/* 5 */,
 	128 + -2	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
-	128 + 0	/* 9 */,
+	128 + -2	/* 7 */,
+	128 + -1	/* 8 */,
+	128 + -1	/* 9 */,
 	128 + 0	/* 10 */,
 	128 + 0	/* 11 */,
 	128 + 0	/* 12 */,
@@ -642,22 +593,22 @@ const byte adj_str_td[] =
 {
 	128 + -8	/* 3 */,
 	128 + -4	/* 4 */,
-	128 + -2	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
-	128 + 0	/* 9 */,
+	128 + -3	/* 5 */,
+	128 + -2	/* 6 */,
+	128 + -2	/* 7 */,
+	128 + -1	/* 8 */,
+	128 + -1	/* 9 */,
 	128 + 0	/* 10 */,
 	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 0	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 2	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
+	128 + 1	/* 12 */,
+	128 + 1	/* 13 */,
+	128 + 2	/* 14 */,
+	128 + 2	/* 15 */,
+	128 + 3	/* 16 */,
+	128 + 3	/* 17 */,
+	128 + 4	/* 18/00-18/09 */,
 	128 + 4	/* 18/10-18/19 */,
-	128 + 4	/* 18/20-18/29 */,
+	128 + 5	/* 18/20-18/29 */,
 	128 + 5	/* 18/30-18/39 */,
 	128 + 6	/* 18/40-18/49 */,
 	128 + 7	/* 18/50-18/59 */,
@@ -691,20 +642,20 @@ const byte adj_dex_th[] =
 	128 + -10	/* 4 */,
 	128 +  -6	/* 5 */,
 	128 +  -3	/* 6 */,
-	128 +  -1	/* 7 */,
-	128 +   0	/* 8 */,
-	128 +   0	/* 9 */,
+	128 +  -2	/* 7 */,
+	128 +  -1	/* 8 */,
+	128 +  -1	/* 9 */,
 	128 +   0	/* 10 */,
 	128 +   0	/* 11 */,
-	128 +   0	/* 12 */,
-	128 +   0	/* 13 */,
-	128 +   0	/* 14 */,
-	128 +   0	/* 15 */,
-	128 +   1	/* 16 */,
-	128 +   2	/* 17 */,
-	128 +   3	/* 18/00-18/09 */,
+	128 +   1	/* 12 */,
+	128 +   1	/* 13 */,
+	128 +   2	/* 14 */,
+	128 +   2	/* 15 */,
+	128 +   3	/* 16 */,
+	128 +   3	/* 17 */,
+	128 +   4	/* 18/00-18/09 */,
 	128 +   4	/* 18/10-18/19 */,
-	128 +   4	/* 18/20-18/29 */,
+	128 +   5	/* 18/20-18/29 */,
 	128 +   5	/* 18/30-18/39 */,
 	128 +   6	/* 18/40-18/49 */,
 	128 +   7	/* 18/50-18/59 */,
@@ -924,24 +875,24 @@ const byte adj_con_mhp[] =
 	128 + -5	/* 3 */,
 	128 + -3	/* 4 */,
 	128 + -2	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
+	128 + -2	/* 6 */,
+	128 + -1	/* 7 */,
+	128 + -1	/* 8 */,
 	128 + 0	/* 9 */,
 	128 + 0	/* 10 */,
 	128 + 0	/* 11 */,
 	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 1	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 2	/* 17 */,
+	128 + 1	/* 13 */,
+	128 + 1	/* 14 */,
+	128 + 2	/* 15 */,
+	128 + 2	/* 16 */,
+	128 + 3	/* 17 */,
 	128 + 3	/* 18/00-18/09 */,
 	128 + 4	/* 18/10-18/19 */,
 	128 + 4	/* 18/20-18/29 */,
-	128 + 4	/* 18/30-18/39 */,
-	128 + 4	/* 18/40-18/49 */,
-	128 + 5	/* 18/50-18/59 */,
+	128 + 5	/* 18/30-18/39 */,
+	128 + 5	/* 18/40-18/49 */,
+	128 + 6	/* 18/50-18/59 */,
 	128 + 6	/* 18/60-18/69 */,
 	128 + 7	/* 18/70-18/79 */,
 	128 + 8	/* 18/80-18/89 */,
@@ -1436,7 +1387,7 @@ player_race race_info[MAX_RACES] =
 	},
 
 	{
-		"Dunadan",
+		"D['u]nadan",  /* Dunadan */
 		{ 1,  1,  3,  2,  3,  2 },
 		  5,  3, 10,  1, 10,  4,  2,  2,
 		 11,
@@ -2275,6 +2226,35 @@ cptr spell_names[256] =
 };
 
 
+
+/*
+ * Array of projection names.  Only projections with names can be
+ * individually edited inside the game; the others should always
+ * either be invisible or white.
+ *
+ * List must be NULL-terminated.
+ */
+cptr projection_names[] =
+{
+	"",
+	"Rock", "Shot", "Arrow", "Missile", "Poison Missile",
+	"Whip", "Hurt", "Acid", "Lightning", "Fire",
+	"Frost", "Poison", "Plasma", "Hellfire", "Ice",
+	"", "", "", "", "Weak Light",
+	"Light", "Light (phial)", "Weak Darkness", "Darkness", "Morgul-Darkness",
+	"Confusion", "Sound", "Shards", "Inertia", "Gravity",
+	"Force", "Water", "Wind", "Storm", "",
+	"", "", "", "", "Nexus",
+	"Nether", "Chaos", "Disenchantment", "Time", "Mana",
+	"", "", "", "", "",
+	"", "", "Meteor", "Holy Orb", "Black Orb",
+	"Death", "Vampiric Drain", "Death Cloud", "Spores", "",
+	"", "", "", "Curse", "Smite",
+	"Dispel", "", "Psionic Force", "", "",
+	NULL
+};
+
+
 /*
  * Artifacts may gain in power when matched with others.  -GS-
  *
@@ -2601,7 +2581,7 @@ cptr option_text[OPT_MAX] =
 	"run_ignore_stairs",		/* OPT_run_ignore_stairs */
 	"run_ignore_doors",			/* OPT_run_ignore_doors */
 	"run_cut_corners",			/* OPT_run_cut_corners */
-	NULL,
+	"xchars_to_file",			/* OPT_xchars_to_file */
 	"stack_force_notes",		/* OPT_stack_force_notes */
 	"stack_force_costs",		/* OPT_stack_force_costs */
 	"allow_quantity",			/* OPT_allow_quantity */
@@ -2637,12 +2617,12 @@ cptr option_text[OPT_MAX] =
 
 
 	/* Visual Interface */
-	"view_perma_grids",			/* OPT_view_perma_grids */
-	"view_torch_grids",			/* OPT_view_torch_grids */
-	"view_torch_light",			/* OPT_view_torch_light */
-	"view_sight_light",			/* OPT_view_sight_light */
-	"view_wall_light",		/* OPT_view_wall_light */
-	"view_floor_light",		/* OPT_view_floor_light */
+	NULL,
+	"remember_seen_grids",		/* OPT_remember_seen_grids */
+	"torch_light",			/* OPT_torch_light */
+	"sight_light",			/* OPT_sight_light */
+	"wall_lighting",		/* OPT_wall_lighting */
+	"floor_lighting",		/* OPT_floor_lighting */
 	"highlight_player",			/* OPT_highlight_player */
 	"fresh_after",				/* OPT_fresh_after */
 	"traps_display_on_top",  /* OPT_traps_display_on_top */
@@ -2697,7 +2677,7 @@ cptr option_text[OPT_MAX] =
 	NULL,
 	NULL,
 	"help_know",				/* OPT_cheat_know */
-	"help_live",				/* OPT_cheat_live */
+	"beginner_play",			/* OPT_beginner_play */
 	NULL,
 	NULL,
 	NULL,
@@ -2709,7 +2689,7 @@ cptr option_text[OPT_MAX] =
 
 	NULL,
 	"birth_autoroll",                 /* OPT_birth_autoroll */
-	"birth_ironman",                  /* OPT_birth_ironman */
+	"ironman_play",                  /* OPT_ironman_play */
 	"birth_no_stores",                /* OPT_birth_no_stores */
 	"birth_no_artifacts",             /* OPT_birth_no_artifacts */
 	"birth_no_return_stair",         /* OPT_no_dungeon_stair */
@@ -2736,7 +2716,7 @@ cptr option_desc[OPT_MAX] =
 	"Ignore stairs when running",				/* OPT_run_ignore_stairs */
 	"Ignore doors when running",				/* OPT_run_ignore_doors */
 	"Cut corners when running",				/* OPT_run_cut_corners */
-	NULL,
+	"Allow accents in output files",			/* OPT_xchars_to_file */
 	"Merge inscriptions when stacking",		/* OPT_stack_force_notes */
 	"Merge discounts when stacking",		/* OPT_stack_force_costs */
 	"Allow quantity specification",				/* OPT_allow_quantity */
@@ -2772,12 +2752,12 @@ cptr option_desc[OPT_MAX] =
 
 
 	/* Visual Interface */
-	"Map remembers all perma-lit grids",			/* OPT_view_perma_grids */
-	"Map remembers all torch-lit grids",			/* OPT_view_torch_grids */
-	"Use special colors for torch light",			/* OPT_view_torch_light */
-	"Use special colors for field of view",			/* OPT_view_sight_light */
-	"Use special colors for wall grids",		/* OPT_view_wall_light */
-	"Use special colors for floor grids",		/* OPT_view_floor_light */
+	NULL,
+	"Map remembers all seen grids",			/* OPT_remember_seen_grids */
+	"Use special colors for torch light",			/* OPT_torch_light */
+	"Use special colors for field of view",			/* OPT_sight_light */
+	"Use special colors for wall grids",		/* OPT_wall_lighting */
+	"Use special colors for floor grids",		/* OPT_floor_lighting */
 	"Highlight the player with the cursor",			/* OPT_highlight_player */
 	"Flush output after various things",		/* OPT_fresh_after */
 	"Don't hide traps when objects pile on them",  /* OPT_traps_display_on_top */
@@ -2819,7 +2799,7 @@ cptr option_desc[OPT_MAX] =
 
 
 	/* Difficulty and Assistance options */
-	"                (Difficulty Options)",    /* Section header */
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -2830,12 +2810,12 @@ cptr option_desc[OPT_MAX] =
 	NULL,
 
 	/* Cheating options */
-	"                 (Assistance Options) ", /* Section header */
+	NULL,
 	NULL,
 	NULL,
 	NULL,
 	"Know complete monster info",		/* OPT_cheat_know */
-	"Allow character to avoid death",		/* OPT_cheat_live */
+	"Allow multiple lives",		/* OPT_beginner_play */
 	NULL,
 	NULL,
 	NULL,
@@ -2846,7 +2826,7 @@ cptr option_desc[OPT_MAX] =
 	/* Birth options (appear only on the character birth screen) */
 	NULL,
 	"Allow specification of minimal stats",   /* OPT_birth_autoroll */
-	"Restrict the use of stairs/recall",      /* OPT_birth_ironman */
+	"No return until victorious",      /* OPT_ironman_play */
 	"Lock the doors of stores and the home",  /* OPT_birth_no_stores */
 	"Do not create artifacts",                /* OPT_birth_no_artifacts */
 	"No stairs back the way you came",        /* OPT_birth_no_return_stair */
@@ -2873,7 +2853,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE, 		/* OPT_run_ignore_stairs */
 	TRUE, 		/* OPT_run_ignore_doors */
 	FALSE, 		/* OPT_run_cut_corners */
-	FALSE, 		/* xxx */
+	TRUE, 		/* OPT_xchars_to_file */
 	TRUE, 		/* OPT_stack_force_notes */
 	FALSE,		/* OPT_stack_force_costs */
 	TRUE, 		/* OPT_allow_quantity */
@@ -2886,7 +2866,7 @@ const bool option_norm[OPT_MAX] =
 
 
 	/* Disturbance and Warning */
-	TRUE, 		/* OPT_disturb_move */
+	FALSE,		/* OPT_disturb_move */
 	FALSE,		/* xxx */
 	TRUE, 		/* OPT_disturb_panel */
 	TRUE, 		/* OPT_disturb_state */
@@ -2909,12 +2889,12 @@ const bool option_norm[OPT_MAX] =
 
 
 	/* Visual Interface */
-	TRUE, 		/* OPT_view_perma_grids */
-	FALSE,		/* OPT_view_torch_grids */
-	TRUE, 		/* OPT_view_torch_light */
-	FALSE,		/* OPT_view_sight_light */
-	FALSE,		/* OPT_view_wall_light */
-	TRUE, 		/* OPT_view_floor_light */
+	FALSE,		/* xxx */
+	TRUE, 		/* OPT_remember_seen_grids */
+	TRUE, 		/* OPT_torch_light */
+	TRUE, 		/* OPT_sight_light */
+	TRUE, 		/* OPT_wall_lighting */
+	TRUE, 		/* OPT_floor_lighting */
 	FALSE,		/* OPT_highlight_player */
 	FALSE,		/* OPT_fresh_after */
 	TRUE, 		/* OPT_traps_display_on_top */
@@ -2971,7 +2951,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_cheat_know */
-	FALSE,		/* OPT_cheat_live */
+	FALSE,		/* OPT_beginner_play */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2983,7 +2963,7 @@ const bool option_norm[OPT_MAX] =
 
 	FALSE,
 	FALSE,		/* OPT_birth_autoroll */
-	FALSE,		/* OPT_birth_ironman */
+	FALSE,		/* OPT_ironman_play */
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE, 		/* OPT_birth_no_return_stair */
@@ -3018,7 +2998,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_stack_force_costs,
 		OPT_allow_quantity,
 		OPT_change_save_names,
-		255,
+		OPT_xchars_to_file,
 		255,
 		255,
 		255,
@@ -3054,12 +3034,12 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** Visual Interface ***/
 
 	{
-		OPT_view_perma_grids,
-		OPT_view_torch_grids,
-		OPT_view_torch_light,
-		OPT_view_sight_light,
-		OPT_view_wall_light,
-		OPT_view_floor_light,
+		255,
+		OPT_remember_seen_grids,
+		OPT_torch_light,
+		OPT_sight_light,
+		OPT_wall_lighting,
+		OPT_floor_lighting,
 		OPT_highlight_player,
 		OPT_fresh_after,
 		OPT_traps_display_on_top,
@@ -3101,49 +3081,24 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		255
 	},
 
-	/*** Difficulty and Cheating ***/
-
-	{
-		OPT_DIFFICULTY_HEADER,
-		99,
-		99,
-		99,
-		99,
-		99,
-		99,
-		99,
-		99,
-		OPT_CHEAT_HEADER,
-		255,
-		255,
-		255,
-		OPT_cheat_know,
-		OPT_cheat_live,
-		255,
-		255,
-		255,
-		255,
-		255
-	},
-
-	/*** Birth ***/
+	/*** Birth and Difficulty ***/
 
 	{
 		255,
-		OPT_birth_autoroll,
-		OPT_birth_ironman,
+		OPT_beginner_play,
+		OPT_ironman_play,
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
 		OPT_birth_no_return_stair,
 		OPT_birth_smart_cheat,
 		255,
 		255,
+		OPT_birth_autoroll,
 		255,
 		255,
 		255,
 		255,
-		255,
-		255,
+		OPT_cheat_know,
 		255,
 		255,
 		255,
@@ -3152,11 +3107,10 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	}
 };
 
+
 /*
  * Default values of various numerical options
  */
-
-
 
 
 
@@ -4033,5 +3987,32 @@ cptr precog_msg_text[PRECOG_MSG_INDEX_MAX] =
 	"You sense & object* of wondrous power.",
 	"",
 	"",
+	""
+};
+
+
+/*
+ * Table of character type names.
+ */
+cptr character_type_name[PCHAR_MAX] =
+{
+	"Beginner",
+	"",
+	"Normal",
+	"",
+	"Ironman",
+	""
+};
+
+/*
+ * Table of character type descriptions.
+ */
+cptr character_type_desc[PCHAR_MAX] =
+{
+	"Beginner character: Can cheat death.",
+	"",
+	"Normal character: One life only.",
+	"",
+	"Ironman character: Cannot go upwards or recall.",
 	""
 };

@@ -93,11 +93,9 @@ M:27:w
 # MSG_STAIRS
 M:28:w
 
-# In white, because we also offer colorized damage messages
 # MSG_HITPOINT_WARN
 M:29:w
 
-# For the colorized damage messages
 # MSG_HIT_SOFT
 M:30:w
 
@@ -109,4 +107,7 @@ M:32:o
 
 # MSG_HIT_DEADLY
 M:33:R
+
+# MSG_SUMMON
+M:34:w
 

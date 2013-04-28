@@ -15,7 +15,6 @@
 #include "angband.h"
 
 
-
 /*
  * Use an up staircase
  */
@@ -29,7 +28,7 @@ void do_cmd_go_up(void)
 	}
 
 	/* Ironman */
-	if (birth_ironman)
+	if (p_ptr->character_type == PCHAR_IRONMAN)
 	{
 		msg_print("The only way back is through Morgoth, Lord of Darkness!");
 		return;
@@ -181,7 +180,7 @@ static byte get_choice(int lev)
 
 
 	/* Get the character specialty */
-	(void)get_title(30, FALSE, &specialty);
+	(void)get_title(30, FALSE, FALSE, &specialty);
 
 	/* Sometimes go for a specialized item type */
 	if (((specialty == SPECIALTY_FIGHT_BURGLAR) ||
@@ -244,7 +243,17 @@ static byte get_choice(int lev)
 		else if (choice < 28) tval = TV_SHOT;
 		else if (choice < 32) tval = TV_ARROW;
 		else if (choice < 36) tval = TV_BOLT;
-		else if (choice < 40) tval = TV_BOW;
+		else if (choice < 40)
+		{
+			choice = randint(3);
+			if ((choice == 1) &&
+				(get_skill(S_SLING, 0, 100) >= p_ptr->power / 2)) tval = TV_SLING;
+			else if ((choice == 2) &&
+				(get_skill(S_BOW, 0, 100) >= p_ptr->power / 2)) tval = TV_BOW;
+			else if ((choice == 3) &&
+				(get_skill(S_CROSSBOW, 0, 100) >= p_ptr->power / 2)) tval = TV_CROSSBOW;
+			else continue;
+		}
 		else if (choice < 44) tval = TV_WAND;
 		else if (choice < 48) tval = TV_STAFF;
 		else if (choice < 52) tval = TV_ROD;
@@ -269,9 +278,6 @@ static byte get_choice(int lev)
 		if ((tval == TV_SHOT) && (get_skill(S_SLING, 0, 100) < p_ptr->power / 2)) continue;
 		if ((tval == TV_ARROW) && (get_skill(S_BOW, 0, 100) < p_ptr->power / 2)) continue;
 		if ((tval == TV_BOLT) && (get_skill(S_CROSSBOW, 0, 100) < p_ptr->power / 2)) continue;
-		if ((tval == TV_BOW) && (get_skill(S_CROSSBOW, 0, 100) < p_ptr->power / 2) &&
-		    (get_skill(S_BOW, 0, 100) < p_ptr->power / 2) &&
-		    (get_skill(S_SLING, 0, 100) < p_ptr->power / 2)) continue;
 		if ((tval == TV_HAFTED) && (get_skill(S_HAFTED, 0, 100) < p_ptr->power / 2)) continue;
 		if ((tval == TV_POLEARM) && (get_skill(S_POLEARM, 0, 100) < p_ptr->power / 2)) continue;
 		if ((tval == TV_SWORD) && (get_skill(S_SWORD, 0, 100) < p_ptr->power / 2)) continue;
@@ -353,7 +359,9 @@ static void chest_death(bool scattered, int y, int x, object_type *o_ptr)
 			case TV_GLOVES:
 			case TV_HELM:
 			case TV_CROWN:
+			case TV_SLING:
 			case TV_BOW:
+			case TV_CROSSBOW:
 			case TV_SWORD:
 			case TV_HAFTED:
 			case TV_POLEARM:
@@ -448,7 +456,7 @@ static void chest_death(bool scattered, int y, int x, object_type *o_ptr)
 					x = rand_int(dungeon_wid);
 
 					/* Grid must be capable of (safely) containing an object. */
-					if (!cave_object_allowed(y, x)) continue;
+					if (!cave_allow_object_bold(y, x)) continue;
 
 					/* Place the object there. */
 					drop_near(i_ptr, 0, y, x, 0x00);
@@ -474,7 +482,7 @@ static void chest_death(bool scattered, int y, int x, object_type *o_ptr)
 	get_obj_num_hook = NULL;
 
 	/* Prepare allocation table */
-	get_obj_num_prep();
+	(void)get_obj_num_prep();
 
 
 	/* Empty */
@@ -846,7 +854,7 @@ bool hit_chest_trap(int y, int x, object_type *o_ptr)
 				x1 = rand_int(dungeon_wid);
 
 				/* Grid must be capable of (safely) containing an object. */
-				if (!cave_object_allowed(y1, x1)) continue;
+				if (!cave_allow_object_bold(y1, x1)) continue;
 
 				/* Place the chest there. */
 				drop_near(o_ptr, 0, y1, x1, 0x00);
@@ -940,7 +948,7 @@ bool hit_chest_trap(int y, int x, object_type *o_ptr)
 						if (!p_ptr->free_act)
 							(void)set_paralyzed(p_ptr->paralyzed + rand_range(4, 8));
 						else
-							(void)set_stun(p_ptr->stun + rand_range(10, 110));
+							(void)set_stun(p_ptr->stun + rand_range(80, 120));
 					}
 					else if (choice == 3)
 					{
@@ -1830,8 +1838,9 @@ static bool do_cmd_tunnel_test(int y, int x)
 		return (FALSE);
 	}
 
-	/* Must be a wall/door/etc */
-	if (cave_nonwall_bold(y, x))
+	/* Must be a rock, closed door, or tree */
+	if (!(f_info[cave_feat[y][x]].flags & (TF_ROCK | TF_DOOR_CLOSED)) &&
+	    (cave_feat[y][x] != FEAT_TREE))
 	{
 		/* Message */
 		msg_print("You see nothing there to tunnel.");
@@ -1857,8 +1866,8 @@ static bool do_cmd_tunnel_test(int y, int x)
  */
 static bool twall(int y, int x)
 {
-	/* Paranoia -- Require a wall or door or some such */
-	if (cave_nonwall_bold(y, x)) return (FALSE);
+	/* Paranoia -- Refuse to change permanent terrain */
+	if (cave_perma_bold(y, x)) return (FALSE);
 
 	/* Sound */
 	sound(MSG_DIG);
@@ -1867,7 +1876,7 @@ static bool twall(int y, int x)
 	cave_info[y][x] &= ~(CAVE_MARK);
 
 	/* Remove the feature */
-	cave_set_feat(y, x, FEAT_FLOOR);
+	cave_set_feat(y, x, get_nearby_floor(y, x));
 
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -1908,14 +1917,56 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 
 	/* Permanent rock */
-	if (cave_feat[y][x] >= FEAT_PERM_EXTRA &&
-	    cave_feat[y][x] < FEAT_SHOP_HEAD)
+	if (cave_permwall(y, x))
 	{
 		/* Failure */
 		if (flush_failure) flush();
 
 		msg_print("This seems to be permanent rock.");
 		return (FALSE);
+	}
+
+	/* Pillar */
+	else if ((cave_feat[y][x] == FEAT_PILLAR) ||
+	         (cave_feat[y][x] == FEAT_PILLAR_GOLD))
+	{
+		bool gold = (cave_feat[y][x] == FEAT_PILLAR_GOLD);
+		int i;
+
+		/* No chance */
+		if (p_ptr->skill_dig <= 40)
+		{
+			/* Failure */
+			if (flush_failure) flush();
+
+			msg_format("Your %s make%s no impression on the %spillar.",
+				buf, inventory[INVEN_WIELD].k_idx ? "s" : "",
+				(gold ? "golden " : ""));
+			return (FALSE);
+		}
+
+		/* Tunnel */
+		if ((p_ptr->skill_dig > rand_range(40, 1640)) && twall(y, x))
+		{
+			msg_print("You knock the pillar to bits.");
+
+			/* A pillar of gold is lucrative */
+			if (gold)
+			{
+				msg_print("Gold glitters on the ground!");
+				coin_type = SV_GOLD;
+				for (i = 0; i < 1 + p_ptr->depth / 14; i++) place_gold(y, x);
+				coin_type = 0;
+			}
+		}
+
+		/* Keep trying */
+		else
+		{
+			/* We may continue tunneling */
+			msg_print("You tunnel into the pillar.");
+			more = TRUE;
+		}
 	}
 
 	/* Granite */
@@ -2137,7 +2188,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	}
 
 	/* Doors */
-	else
+	else if (cave_closed_door(y, x))
 	{
 		/* No chance */
 		if (p_ptr->skill_dig <= 20)
@@ -2399,8 +2450,9 @@ static bool do_cmd_disarm_trap(int y, int x)
 				gain_exp(randint(diff + (diff * diff / 20)), S_DISARM);
 		}
 
-		/* Remove the trap */
+		/* Kill the trap (always visible) */
 		remove_trap(y, x, idx);
+		lite_spot(y, x);
 	}
 
 	/* Failure -- Keep trying */
@@ -2824,8 +2876,8 @@ void do_cmd_bash(void)
 /*
  * Manipulate an adjacent grid in some way
  *
- * Attack monsters, tunnel through walls, disarm traps, open doors,
- * or, for burglars, set traps, lock doors, and steal money.
+ * Attack monsters, tunnel through walls, disarm traps, open and close
+ * doors, and, for burglars, set traps, lock doors, and steal objects.
  *
  * This command must always take energy, to prevent free detection
  * of invisible monsters.
@@ -2936,15 +2988,15 @@ void do_cmd_alter(bool deliberate)
 		if (action == -1) more = do_cmd_disarm_trap(y, x);
 	}
 
-	/* Tunnel through walls */
-	else if (feat >= FEAT_SECRET && feat < FEAT_SHOP_HEAD)
+	/* Tunnel through rock */
+	else if (cave_rock_bold(y, x))
 	{
 		/* Tunnel */
 		more = do_cmd_tunnel_aux(y, x);
 	}
 
 	/* Open closed doors */
-	else if (feat >= FEAT_DOOR_HEAD && feat <= FEAT_DOOR_TAIL)
+	else if (cave_closed_door(y, x))
 	{
 		bool flag = FALSE;
 
@@ -3041,9 +3093,8 @@ static bool do_cmd_spike_test(int y, int x)
 		return (FALSE);
 	}
 
-	/* Require a door */
-	if (!((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-	      (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
+	/* Require a closed door */
+	if (!cave_closed_door(y, x))
 	{
 		/* Message */
 		msg_print("You see nothing there to spike.");
@@ -3189,23 +3240,30 @@ static bool do_cmd_walk_test(int y, int x)
 
 
 	/* Special case -- characters in wraithform pass through walls */
-	if (p_ptr->wraithform) return (TRUE);
+	if ((p_ptr->wraithform) && (!cave_permwall(y, x))) return (TRUE);
 
-	/* Otherwise, require open space */
+	/* Otherwise, require passable terrain */
 	if (!cave_passable_bold(y, x))
 	{
 		/* Door */
-		if (cave_feat[y][x] < FEAT_SECRET)
+		if (cave_closed_door(y, x))
 		{
 			/* Doors can be opened. */
 			return (TRUE);
 		}
 
 		/* Wall */
-		else
+		else if (cave_wall_bold(y, x))
 		{
 			/* Message */
 			msg_print("There is a wall in the way.");
+		}
+
+		/* Special non-passable */
+		else
+		{
+			msg_format("You cannot cross %s.",
+				f_name + f_info[cave_feat[y][x]].name);
 		}
 
 		/* Nope */
@@ -3336,10 +3394,6 @@ void do_cmd_run(void)
  */
 static void do_cmd_hold_or_stay(int pickup)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
@@ -3380,8 +3434,7 @@ static void do_cmd_hold_or_stay(int pickup)
 	(void)py_pickup(pickup);
 
 	/* Hack -- enter a store if we are on one */
-	if ((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-		(cave_feat[py][px] <= FEAT_SHOP_TAIL))
+	if (cave_shop_bold(p_ptr->py, p_ptr->px))
 	{
 		/* Disturb */
 		disturb(0, 0);

@@ -121,7 +121,9 @@ static grouper group_item[] =
 	{ TV_ARROW,      NULL },
 	{ TV_BOLT,       NULL },
 
-	{ TV_BOW,        "Missile Launchers" },
+	{ TV_SLING,      "Missile Launchers" },
+	{ TV_BOW,        NULL },
+	{ TV_CROSSBOW,   NULL },
 
 	{ TV_SWORD,      "Melee Weapons" },
 	{ TV_POLEARM,    NULL },
@@ -229,7 +231,9 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	switch (i_ptr->tval)
 	{
 		/* Bows */
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		{
 			break;
 		}
@@ -292,9 +296,12 @@ void spoil_obj_desc(cptr fname)
 	char wgt[80];
 	char dam[80];
 
+	/* We use either ascii or system-specific encoding */
+	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
+
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -317,9 +324,9 @@ void spoil_obj_desc(cptr fname)
 	print_header("Object");
 
 	/* More Header */
-	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
+	x_fprintf(fff, encoding, "%-45s     %8s%7s%5s%9s\n",
 		"Description", "Dam/AC", "Wgt", "Lev", "Cost");
-	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
+	x_fprintf(fff, encoding, "%-45s     %8s%7s%5s%9s\n",
 		"----------------------------------------",
 		"------", "---", "---", "----");
 
@@ -366,10 +373,10 @@ void spoil_obj_desc(cptr fname)
 
 				/* Dump it */
 				if (!strlen(dam))
-					fprintf(fff, "     %-53s%7s%5d%9ld\n",
+					x_fprintf(fff, encoding, "     %-53s%7s%5d%9ld\n",
 						buf, wgt, e, (long)(v));
 				else
-					fprintf(fff, "     %-45s%8s%7s%5d%9ld\n",
+					x_fprintf(fff, encoding, "     %-45s%8s%7s%5d%9ld\n",
 						buf, dam, wgt, e, (long)(v));
 			}
 
@@ -380,7 +387,7 @@ void spoil_obj_desc(cptr fname)
 			if (!group_item[i].tval) break;
 
 			/* Start a new set */
-			fprintf(fff, "\n\n%s\n\n", group_item[i].name);
+			x_fprintf(fff, encoding, "\n\n%s\n\n", group_item[i].name);
 		}
 
 		/* Acquire legal item types */
@@ -388,7 +395,7 @@ void spoil_obj_desc(cptr fname)
 		{
 			object_kind *k_ptr = &k_info[k];
 
-			/* Skip wrong tval's */
+			/* Skip objects not of this tval */
 			if (k_ptr->tval != group_item[i].tval) continue;
 
 			/* Hack -- Skip instant-artifacts */
@@ -429,7 +436,9 @@ static grouper group_artifact[] =
 	{ TV_SWORD,		"Edged Weapons" },
 	{ TV_POLEARM,	"Polearms" },
 	{ TV_HAFTED,	"Hafted (blunt) Weapons" },
-	{ TV_BOW,		"Missile Launchers" },
+	{ TV_SLING,		"Slings" },
+	{ TV_BOW,		"Bows" },
+	{ TV_CROSSBOW,	"Crossbows" },
 	{ TV_SHOT,		"Ammunition - Shots" },
 	{ TV_ARROW,		"Ammunition - Arrows" },
 	{ TV_BOLT,		"Ammunition - Bolts" },
@@ -451,38 +460,6 @@ static grouper group_artifact[] =
 
 	{ 0, NULL }
 };
-
-
-/*
- * Create a spoiler file entry for an artifact
- */
-static void art_spoil(object_type *o_ptr)
-{
-	char buf[1000];
-	artifact_type *a_ptr = &a_info[o_ptr->artifact_index];
-
-
-	/* Write a description of the artifact */
-	object_desc_store(buf, o_ptr, TRUE, 1);
-	fprintf(fff, buf);
-	fprintf(fff, "\n");
-
-	/* Write pval, flag, and activation information */
-	dump_obj_attrib(fff, o_ptr, 2);
-
-	/* Write level, rarity, and weight */
-	if (use_metric) fprintf(fff, "     Level %u, Rarity %u, %d.%d kgs, "
-		"%ld Gold", a_ptr->level, a_ptr->rarity,
-		make_metric(a_ptr->weight) / 10, make_metric(a_ptr->weight) % 10,
-		a_ptr->cost);
-
-	else fprintf(fff, "     Level %u, Rarity %u, %d.%d lbs, "
-		"%ld Gold", a_ptr->level, a_ptr->rarity,
-		a_ptr->weight / 10, a_ptr->weight % 10, (long)a_ptr->cost);
-
-	/* Insert a spacer line */
-	fprintf(fff, "\n\n");
-}
 
 
 /*
@@ -517,7 +494,7 @@ static void spoil_obj_gen(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -765,8 +742,12 @@ static void spoil_mon_gen(cptr fname)
 
 	char buf[1024];
 
+	/* We use either ascii or system-specific encoding */
+	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
+
+
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -835,7 +816,7 @@ static void spoil_mon_gen(cptr fname)
 
 		if (monster[i])
 		{
-			fprintf(fff, "%-45s:%6ld\n", name, (long)monster[i]);
+			x_fprintf(fff, encoding, "%-45s:%6ld\n", name, (long)monster[i]);
 		}
 	}
 
@@ -873,9 +854,11 @@ static void spoil_artifact(cptr fname)
 
 	char buf[1024];
 
+	/* We use either ascii or system-specific encoding */
+	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -922,8 +905,29 @@ static void spoil_artifact(cptr fname)
 			/* Attempt to create the artifact */
 			if (!make_fake_artifact(i_ptr, j)) continue;
 
-			/* Write out the artifact description to the spoiler file */
-			art_spoil(i_ptr);
+			/* Get this artifact */
+			a_ptr = &a_info[i_ptr->artifact_index];
+
+			/* Write a description of the artifact */
+			object_desc_store(buf, i_ptr, TRUE, 1);
+			x_fprintf(fff, encoding, buf);
+			fprintf(fff, "\n");
+
+			/* Write pval, flag, and activation information */
+			dump_obj_attrib(fff, i_ptr, 2);
+
+			/* Write level, rarity, and weight */
+			if (use_metric) fprintf(fff, "     Level %u, Rarity %u, %d.%d kgs, "
+				"%ld Gold", a_ptr->level, a_ptr->rarity,
+				make_metric(a_ptr->weight) / 10, make_metric(a_ptr->weight) % 10,
+				a_ptr->cost);
+
+			else fprintf(fff, "     Level %u, Rarity %u, %d.%d lbs, "
+				"%ld Gold", a_ptr->level, a_ptr->rarity,
+				a_ptr->weight / 10, a_ptr->weight % 10, (long)a_ptr->cost);
+
+			/* Insert a spacer line */
+			fprintf(fff, "\n\n");
 		}
 	}
 
@@ -951,6 +955,9 @@ static void spoil_mon_desc(cptr fname)
 
 	char buf[1024];
 
+	/* We use either ascii or system-specific encoding */
+	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
+
 	char nam[80];
 	char lev[80];
 	char rar[80];
@@ -963,7 +970,7 @@ static void spoil_mon_desc(cptr fname)
 	u16b why = 2;
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1021,15 +1028,15 @@ static void spoil_mon_desc(cptr fname)
 		/* Get the "name" */
 		if (r_ptr->flags1 & (RF1_QUESTOR))
 		{
-			strnfmt(nam, sizeof(nam), "[Q] %s", name);
+			(void)strnfmt(nam, sizeof(nam), "[Q] %s", name);
 		}
 		else if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			strnfmt(nam, sizeof(nam), "[U] %s", name);
+			(void)strnfmt(nam, sizeof(nam), "[U] %s", name);
 		}
 		else
 		{
-			strnfmt(nam, sizeof(nam), "The %s", name);
+			(void)strnfmt(nam, sizeof(nam), "The %s", name);
 		}
 
 
@@ -1049,11 +1056,11 @@ static void spoil_mon_desc(cptr fname)
 		/* Hitpoints */
 		if (r_ptr->flags1 & (RF1_FIXED_HPS))
 		{
-			sprintf(hp, "%d", r_ptr->hitpoints);
+			sprintf(hp, "%d", (int)r_ptr->hitpoints);
 		}
 		else
 		{
-			sprintf(hp, "~%d", r_ptr->hitpoints);
+			sprintf(hp, "~%d", (int)r_ptr->hitpoints);
 		}
 
 
@@ -1061,11 +1068,11 @@ static void spoil_mon_desc(cptr fname)
 		sprintf(exp, "%ld", (long)(r_ptr->mexp));
 
 		/* Hack -- use visual instead */
-		strnfmt(exp, sizeof(exp), "%s '%c'", attr_to_text(r_ptr->d_attr),
+		(void)strnfmt(exp, sizeof(exp), "%s '%c'", attr_to_text(r_ptr->d_attr),
 		        r_ptr->d_char);
 
 		/* Dump the info */
-		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
+		x_fprintf(fff, encoding, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
 			nam, lev, rar, spd, hp, ac, exp);
 	}
 
@@ -1101,7 +1108,7 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_INFO, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1165,7 +1172,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Name */
-		strnfmt(buf, sizeof(buf), "%s  (", (r_name + r_ptr->name));	/* ---)--- */
+		(void)strnfmt(buf, sizeof(buf), "%s  (", (r_name + r_ptr->name));	/* ---)--- */
 		text_out(buf);
 
 		/* Color */
@@ -1206,11 +1213,11 @@ static void spoil_mon_info(cptr fname)
 		/* Hitpoints */
 		if (r_ptr->flags1 & (RF1_FIXED_HPS))
 		{
-			sprintf(buf, "%d", r_ptr->hitpoints);
+			sprintf(buf, "%d", (int)r_ptr->hitpoints);
 		}
 		else
 		{
-			sprintf(buf, "~%d", r_ptr->hitpoints);
+			sprintf(buf, "~%d", (int)r_ptr->hitpoints);
 		}
 		text_out(buf);
 

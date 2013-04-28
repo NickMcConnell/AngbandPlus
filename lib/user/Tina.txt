@@ -1,0 +1,137 @@
+                 [Sangband 0.9.9, beta 21 Character Dump]
+
+   Tina, the Tussler     Age    :             22  STR!  18/110
+                         Height :     5 ft, 7 in  INT!  18/100
+                         Weight :         124 lb  WIS!  18/100
+Gender : Female                                   DEX!  18/100
+Race   : Human            Slayer of a level 16    CON!  18/100
+                             Mirkwood spider      CHR!  18/100
+
+Max Hitpoints       267  Power                39  Max Mana            0
+Cur Hitpoints       267  Score               307  Cur Mana            5
+
+       (Melee)           Unspent Exp    99388520         (Missile)
+Blows per round       3  Gold                145  Shots per round     0
+Average Damage       27                           + to Skill          0
+     (Wrestling)         Turns            103226  Deadliness ()     48
+
+                          (Character Abilities)
+Melee     : Heroic     Saving Throw: Poor       Magic Device: Bad
+Shooting  : Very Good  Stealth     : Bad        Dodging     : Good
+Throwing  : Excellent  Perception  : Iffy       Fame        : Unknown
+Digging   : Very Good  Disarming   : Good       Infra-Vision: 40 feet
+
+   Speed       : normal
+   Armour      : 6
+   Kills       : 37
+   Time Elapsed: 1 days, 0 hours, 46 minutes   (103226 turns)
+
+   You made 11153 actions, 6901 of which were spent resting
+
+
+  [Character Attributes]
+
+      abcdefghijkl@        Stat Intrnl abcdefghijkl@ Adjust
+Stlth:.............        STR! 18/100 ............1 18/110
+Invis:.............        INT! 18/100 ............. 18/100
+Aware:.............        WIS! 18/100 ............. 18/100
+Disar:.............        DEX! 18/100 ............. 18/100
+Devic:.............        CON! 18/100 ............. 18/100
+Speed:.............        CHR! 18/100 ............. 18/100
+
+      abcdefghijkl@                           abcdefghijkl@
+Infra:.............                     NFuel:.....+.......
+Tunnl:............2                     Steal:.............
+Save :.............                     NoMag:.............
+Mana :.............                     Telep:.............
+Light:.....2.......                     Aggra:.............
+                                        Drain:.............
+
+                                        Curse:.............
+
+      abcdefghijkl@       abcdefghijkl@       abcdefghijkl@
+Acid :............. Light:............. Food :.............
+Elec :............. Dark :............. Feath:.............
+Fire :............. Sound:............. Shine:.............
+Cold :............. Shard:............. Regen:.............
+Pois :............. Nexus:............. ESP  :.............
+Fear :............. Nethr:............. SeeIn:.............
+Blind:............. Chaos:............. FrAct:.............
+Confu:............. Disen:............. HLife:.............
+
+
+  [Last Messages]
+
+In your pack: the Blade of Chaos 'Doomcaller' (2d16) (+18,+28) [-30] (+3, -5) (s).
+You light your Wooden Torch of Phlogiston [2].
+You douse your Wooden Torch of Phlogiston (lit) [2].
+You jump to dungeon level 1.
+You light your Wooden Torch of Phlogiston [2].
+You douse your Wooden Torch of Phlogiston (lit) [2].
+The Giant yellow centipede wakes up.
+The Giant yellow centipede nips you.
+The Giant yellow centipede stings you.
+You squish the Giant yellow centipede.
+You have killed the Giant yellow centipede.
+You jump to dungeon level 0.
+Jurmanjand thanks you for your investment.
+Entire inventory is shown.
+Saving game...
+
+
+  [Skills]
+
+Wrestling         :  53
+Alchemy           :  25
+
+
+
+  [Quests]
+
+   You have finished no quests yet.
+
+
+  [Character Equipment]
+
+An Obsidian Amulet of Infravision
+A Wooden Torch of Phlogiston [2]
+     Permanent Light (radius 2)
+
+
+  [Character Inventory]
+
+29 Rations of Food
+2 Clear Potions of Water
+3 Icky Green Potions of Slime Mold Juice
+18 Metallic Red Potions of Self Knowledge
+4 Scrolls titled "kulbuno ast gadwerg" of Phase Door
+a Scroll titled "u-kok got ghoot" of Learn Magic
+a Scroll titled "ast ludrunt adgav" of Detect Invisible
+a Vibrating Rod of Door/Stair Location
+2 Jeweled Rods of Light
+a Palladium Wand of Sleep Monster
+3 Smoking Wands of Slow Monster (36 charges)
+a Translucent Wand of Scare Monster
+3 Sapphire Wands of Wonder
+a Set of Leather Gloves [1] {unknown}
+a Set of Mail Gauntlets [2] {unknown}
+a Set of Mail Gauntlets [2] {unknown}
+7 Throwing Knives (1d3) {unknown}
+the Dagger 'Narthanc' (1d4) (+8,+8)
+     Brand Fire.  Well-Balanced.  Resist Fire.
+     Permanent Light (radius 1)
+the Blade of Chaos 'Doomcaller' (2d16) (+18,+28) [-30] (+3, -5)
+     Activates for go berserk (duration 40-60) every 250 turns.  [100% fail]
+     +3 STR, DEX; -5 Stealth.
+     Slay Animal, Evil, Demon, Troll, Dragon.  Brand Frost.
+     Resist Chaos, Fear.  Free Action.
+10 blank Parchments (Silk)
+     Unusually durable
+
+
+  [Special Advantages and Disadvantages]
+
+You have used debug mode.
+
+You were rolled up exactly once.
+

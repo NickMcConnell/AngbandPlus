@@ -158,7 +158,7 @@ static void describe_monster_desc(int r_idx)
 	char buf[2048];
 
 	/* Simple method */
-	my_strcpy(buf, r_text + r_ptr->text, sizeof(buf));
+	(void)my_strcpy(buf, r_text + r_ptr->text, sizeof(buf));
 
 	/* Hack -- player ghosts have extra text */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
@@ -1030,7 +1030,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	char name[160];
 
 	/* Get monster name */
-	my_strcpy(name, r_name + r_ptr->name, sizeof(name));
+	(void)my_strcpy(name, r_name + r_ptr->name, sizeof(name));
 
 	/* Extract a gender (if applicable) */
 	if      (r_ptr->flags1 & (RF1_FEMALE)) msex = 2;
@@ -1636,7 +1636,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		text_out(" lives in the town");
 		old = TRUE;
 	}
-	else if (l_ptr->tkills)
+	else if ((l_ptr->tkills) || (l_ptr->flags & (LORE_KNOWN_DEPTH)))
 	{
 		char depth_desc[80];
 
@@ -2340,6 +2340,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 			/* No differences */
 			break;
 		}
+
 		/* Elf */
 		case 1:
 		{
@@ -2350,49 +2351,41 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 			    r_ptr->flags3 &= ~(RF3_HURT_LITE);
 			break;
 		}
+
 		/* Hobbit */
 		case 2:
 		{
+			r_ptr->ac += 2 + (r_ptr->ac / 4);
 			r_ptr->hitpoints = 4 * r_ptr->hitpoints / 5;
-
-			for (n = 1; n < 3; n++)
-			{
-				if (r_ptr->blow[n].effect == RBE_HURT)
-				{
-					if (n == 1) r_ptr->blow[n].effect = RBE_EAT_GOLD;
-
-					if (n == 2) r_ptr->blow[n].effect = RBE_EAT_ITEM;
-
-					break;
-				}
-			}
-
-			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 4;
-
-			r_ptr->flags4 |= (RF4_SHOT);
 
 			break;
 		}
+
 		/* Gnome */
 		case 3:
 		{
+			if (r_ptr->freq_ranged < 15) r_ptr->freq_ranged = 15;
+			if (r_ptr->mana < 15) r_ptr->mana = 15;
 			r_ptr->flags6 |= (RF6_BLINK);
 			r_ptr->flags3 |= (RF3_NO_SLEEP);
 			r_ptr->hitpoints = 5 * r_ptr->hitpoints / 6;
 			break;
 		}
+
 		/* Dwarf */
 		case 4:
 		{
 			r_ptr->hitpoints = 6 * r_ptr->hitpoints / 5;
 			break;
 		}
+
 		/* Half-Orc */
 		case 5:
 		{
 			r_ptr->flags3 |= (RF3_ORC);
 			break;
 		}
+
 		/* Half-Troll */
 		case 6:
 		{
@@ -2402,8 +2395,9 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 
 			r_ptr->flags4 |= (RF4_BOULDER);
 			r_ptr->flags3 |= (RF3_TROLL);
+			r_ptr->flags3 |= (TR3_REGEN);
 
-			r_ptr->hitpoints = 3 * r_ptr->hitpoints / 2;
+			r_ptr->hitpoints = 4 * r_ptr->hitpoints / 3;
 			r_ptr->aaf -= 2;
 
 			r_ptr->ac += r_ptr->level / 10 + 10;
@@ -2417,6 +2411,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 
 			break;
 		}
+
 		/* Dunadan */
 		case 7:
 		{
@@ -2429,6 +2424,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 			}
 			break;
 		}
+
 		/* High-Elf */
 		case 8:
 		{
@@ -2445,7 +2441,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 		case 9:
 		{
 			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 5;
-			r_ptr->hitpoints = 3 * r_ptr->hitpoints / 4;
+			r_ptr->hitpoints = 4 * r_ptr->hitpoints / 5;
 			break;
 		}
 
@@ -2456,8 +2452,9 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 			r_ptr->flags3 |= (RF3_IM_FIRE);
 			r_ptr->flags3 |= (RF3_IM_COLD);
 
-			r_ptr->hitpoints = 3 * r_ptr->hitpoints / 2;
+			r_ptr->hitpoints = 4 * r_ptr->hitpoints / 3;
 			r_ptr->aaf -= 2;
+			if (r_ptr->freq_ranged > 5) r_ptr->freq_ranged -= 5;
 
 			for (n = 0; n < MONSTER_BLOW_MAX; n++)
 			{
@@ -2469,9 +2466,10 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 }
 
 /*
- * Add various player ghost attributes depending on realm.  -LM-
+ * Add various player ghost attributes depending on realm and skill specialties.  -LM-
  */
-static void process_ghost_realm(int ghost_realm, int r_idx, monster_type *m_ptr)
+static void process_ghost_realm(int ghost_realm, int ghost_specialty,
+	int r_idx, monster_type *m_ptr)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 	int dun_level = r_ptr->level;
@@ -2483,30 +2481,6 @@ static void process_ghost_realm(int ghost_realm, int r_idx, monster_type *m_ptr)
 	 */
 	switch (ghost_realm)
 	{
-		/* No magic */
-		case 0:
-		{
-			if (r_ptr->freq_ranged <= 10) r_ptr->freq_ranged = 5;
-			else r_ptr->freq_ranged -= 5;
-
-			if ((dun_level > 24) && (r_ptr->freq_ranged))
-				r_ptr->flags4 |= (RF4_BOLT);
-			if ((dun_level > 54) && (r_ptr->freq_ranged))
-				r_ptr->flags2 |= (RF2_ARCHER);
-
-			r_ptr->spell_power = 2 * r_ptr->spell_power / 3;
-
-			r_ptr->hitpoints = 4 * r_ptr->hitpoints / 3;
-			r_ptr->ac += r_ptr->level / 10 + 5;
-
-			for (n = 0; n < MONSTER_BLOW_MAX; n++)
-			{
-				r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
-				break;
-			}
-
-			break;
-		}
 		/* Sorcery */
 		case 1:
 		{
@@ -2540,14 +2514,22 @@ static void process_ghost_realm(int ghost_realm, int r_idx, monster_type *m_ptr)
 			if (dun_level > 26) r_ptr->flags6 |= (RF6_TPORT);
 			if (dun_level > 55) r_ptr->flags6 |= (RF6_TELE_AWAY);
 
-			r_ptr->hitpoints = 3 * r_ptr->hitpoints / 4;
-
-			for (n = 0; n < MONSTER_BLOW_MAX; n++)
+			if (ghost_specialty == SPECIALTY_P_WIZARD)
 			{
-				r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
-			}
+				r_ptr->mana = 3 * r_ptr->mana / 2;
+				r_ptr->spell_power = 6 * r_ptr->spell_power / 5;
+				r_ptr->hitpoints = 2 * r_ptr->hitpoints / 3;
+				r_ptr->freq_ranged += 15;
 
-			r_ptr->mana = 3 * r_ptr->mana / 2;
+				for (n = 0; n < MONSTER_BLOW_MAX; n++)
+				{
+					r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+				}
+			}
+			else
+			{
+				r_ptr->hitpoints = 3 * r_ptr->hitpoints / 4;
+			}
 
 			break;
 		}
@@ -2573,9 +2555,22 @@ static void process_ghost_realm(int ghost_realm, int r_idx, monster_type *m_ptr)
 			if (dun_level > 29) r_ptr->flags7 |= (RF7_S_MONSTER);
 			if (dun_level > 49) r_ptr->flags7 |= (RF7_S_MONSTERS);
 
-			r_ptr->hitpoints = 4 * r_ptr->hitpoints / 5;
+			if (ghost_specialty == SPECIALTY_P_PRIEST)
+			{
+				r_ptr->mana = 3 * r_ptr->mana / 2;
+				r_ptr->spell_power = 6 * r_ptr->spell_power / 5;
+				r_ptr->hitpoints = 2 * r_ptr->hitpoints / 3;
+				r_ptr->freq_ranged += 15;
 
-			r_ptr->mana = 4 * r_ptr->mana / 3;
+				for (n = 0; n < MONSTER_BLOW_MAX; n++)
+				{
+					r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+				}
+			}
+			else
+			{
+				r_ptr->hitpoints = 3 * r_ptr->hitpoints / 4;
+			}
 
 			break;
 		}
@@ -2617,9 +2612,22 @@ static void process_ghost_realm(int ghost_realm, int r_idx, monster_type *m_ptr)
 			if (dun_level > 20) r_ptr->flags7 |= (RF7_S_ANIMAL);
 			if (dun_level > 20) r_ptr->flags7 |= (RF7_S_HOUND);
 
-			r_ptr->hitpoints = 4 * r_ptr->hitpoints / 5;
+			if (ghost_specialty == SPECIALTY_P_DRUID)
+			{
+				r_ptr->mana = 3 * r_ptr->mana / 2;
+				r_ptr->spell_power = 6 * r_ptr->spell_power / 5;
+				r_ptr->hitpoints = 2 * r_ptr->hitpoints / 3;
+				r_ptr->freq_ranged += 15;
 
-			r_ptr->mana = 4 * r_ptr->mana / 3;
+				for (n = 0; n < MONSTER_BLOW_MAX; n++)
+				{
+					r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+				}
+			}
+			else
+			{
+				r_ptr->hitpoints = 3 * r_ptr->hitpoints / 4;
+			}
 
 			break;
 		}
@@ -2655,18 +2663,141 @@ static void process_ghost_realm(int ghost_realm, int r_idx, monster_type *m_ptr)
 			if (dun_level > 29) r_ptr->flags7 |= (RF7_S_UNDEAD);
 			if (dun_level > 79) r_ptr->flags7 |= (RF7_S_HI_UNDEAD);
 
-			r_ptr->hitpoints = 3 * r_ptr->hitpoints / 4;
-
-			for (n = 0; n < MONSTER_BLOW_MAX; n++)
+			if (ghost_specialty == SPECIALTY_P_NECRO)
 			{
-				r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
-			}
+				r_ptr->mana = 3 * r_ptr->mana / 2;
+				r_ptr->spell_power = 6 * r_ptr->spell_power / 5;
+				r_ptr->hitpoints = 2 * r_ptr->hitpoints / 3;
+				r_ptr->freq_ranged += 15;
 
-			r_ptr->mana = 3 * r_ptr->mana / 2;
+				for (n = 0; n < MONSTER_BLOW_MAX; n++)
+				{
+					r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+				}
+			}
+			else
+			{
+				r_ptr->hitpoints = 3 * r_ptr->hitpoints / 4;
+			}
 
 			break;
 		}
 	}
+
+
+	/* Handle skill specialties */
+	switch (ghost_specialty)
+	{
+		/* Various kinds of burglars */
+		case SPECIALTY_HAND_BURGLAR:
+		case SPECIALTY_FIGHT_BURGLAR:
+		case SPECIALTY_PURE_BURGLAR:
+		case SPECIALTY_MAGE_BURGLAR:
+		case SPECIALTY_PRIEST_BURGLAR:
+		case SPECIALTY_DRUID_BURGLAR:
+		case SPECIALTY_NECRO_BURGLAR:
+		{
+			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
+
+			r_ptr->hitpoints = 5 * r_ptr->hitpoints / 6;
+
+			r_ptr->flags6 |= (RF6_DARKNESS);
+			if (dun_level > 26) r_ptr->flags6 |= (RF6_TRAPS);
+			if (dun_level > 44) r_ptr->flags6 |= (RF6_TELE_TO);
+
+			if (dun_level > 49) r_ptr->flags2 |= (RF2_EMPTY_MIND);
+			else if (dun_level > 24)
+				r_ptr->flags2 |= (RF2_WEIRD_MIND);
+
+			if (dun_level > 39) r_ptr->flags2 |= (RF2_INVISIBLE);
+
+			if (dun_level > 44) r_ptr->flags7 |= (RF7_S_THIEF);
+
+			if (r_ptr->blow[0].effect == RBE_HURT)
+			{
+				r_ptr->blow[0].effect = RBE_EAT_GOLD;
+			}
+			if (r_ptr->blow[1].effect == RBE_HURT)
+			{
+				r_ptr->blow[1].effect = RBE_EAT_ITEM;
+			}
+
+			if (r_ptr->mana < 25) r_ptr->mana = 25;
+
+			break;
+		}
+
+		/* Physical missiles */
+		case SPECIALTY_SLING:
+		{
+			if (dun_level > 39) r_ptr->flags2 |= (RF2_ARCHER);
+			else r_ptr->freq_ranged += 25;
+			r_ptr->flags4 |= (RF4_SHOT);
+			r_ptr->mana -= (r_ptr->mana / 3);
+			if (ghost_realm) r_ptr->spell_power -= (r_ptr->spell_power / 3);
+
+			break;
+		}
+		case SPECIALTY_BOW:
+		case SPECIALTY_MISSILE_MAGIC:
+		{
+			if (dun_level > 39) r_ptr->flags2 |= (RF2_ARCHER);
+			else r_ptr->freq_ranged += 25;
+			r_ptr->flags4 |= (RF4_ARROW);
+			r_ptr->mana -= (r_ptr->mana / 3);
+			if (ghost_realm) r_ptr->spell_power -= (r_ptr->spell_power / 3);
+
+			break;
+		}
+		case SPECIALTY_CROSSBOW:
+		{
+			if (dun_level > 39) r_ptr->flags2 |= (RF2_ARCHER);
+			else r_ptr->freq_ranged += 25;
+			r_ptr->flags4 |= (RF4_BOLT);
+			r_ptr->mana -= (r_ptr->mana / 3);
+			if (ghost_realm) r_ptr->spell_power -= (r_ptr->spell_power / 3);
+
+			break;
+		}
+		case SPECIALTY_THROWING:
+		{
+			if (dun_level > 39) r_ptr->flags2 |= (RF2_ARCHER);
+			else r_ptr->freq_ranged += 25;
+			r_ptr->flags4 |= (RF4_MISSL);
+			r_ptr->mana -= (r_ptr->mana / 3);
+			if (ghost_realm) r_ptr->spell_power -= (r_ptr->spell_power / 3);
+
+			break;
+		}
+
+		/* Melee combat */
+		case SPECIALTY_SWORDS:
+		case SPECIALTY_POLEARMS:
+		case SPECIALTY_HAFTED:
+		case SPECIALTY_WRESTLING:
+		case SPECIALTY_KARATE:
+		case SPECIALTY_FIGHTER:
+		{
+			r_ptr->freq_ranged /= 2;
+
+			r_ptr->spell_power = 2 * r_ptr->spell_power / 3;
+
+			r_ptr->hitpoints = 3 * r_ptr->hitpoints / 2;
+			r_ptr->ac += r_ptr->level / 10 + 5;
+
+			if (r_ptr->level >= 10)
+			{
+				for (n = 0; n < MONSTER_BLOW_MAX; n++)
+				{
+					r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+
 
 	/* Hack -- clean up illogical combinations of flags */
 	if ((r_ptr->flags3 & (RF3_IM_FIRE)) &&
@@ -2690,15 +2821,15 @@ static void process_ghost_realm(int ghost_realm, int r_idx, monster_type *m_ptr)
  */
 bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 {
-	int		ghost_sex, ghost_race, ghost_realm = 0;
-	byte		try, i, backup_file_selector;
+	int ghost_sex, ghost_race, ghost_realm, ghost_specialty = 0;
+	byte try, i, backup_file_selector;
 
 	monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
 
-	FILE		*fp;
-	bool		err = FALSE;
-	char		path[1024];
+	FILE *fp;
+	bool err = FALSE;
+	char path[1024];
 
 
 	/* Paranoia. */
@@ -2762,11 +2893,20 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 
 	/* Read the file. */
 	fp = my_fopen(path, "r");
-	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", ghost_name,
-		&ghost_sex, &ghost_race, &ghost_realm) != 4);
+
+	/* Read five entries */
+	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d\n%d", ghost_name,
+		&ghost_sex, &ghost_race, &ghost_realm, &ghost_specialty) != 5);
+
+	/* If that didn't work, try reading the first four */
+	if (err)
+	{
+		err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", ghost_name,
+			&ghost_sex, &ghost_race, &ghost_realm) != 4);
+	}
 
 	/* Close the file */
-	my_fclose(fp);
+	(void)my_fclose(fp);
 
 	/* Hack -- broken file */
 	if (err)
@@ -2787,7 +2927,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	if (!ghost_name[0]) strcpy(ghost_name, "Nobody");
 
 	/* Capitalize the name */
-	if (islower(ghost_name[0])) ghost_name[0] = toupper(ghost_name[0]);
+	if (my_islower(ghost_name[0])) ghost_name[0] = my_toupper(ghost_name[0]);
 
 
 	/*** Process sex. ***/
@@ -2815,7 +2955,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	if (ghost_realm >= 5) ghost_realm = rand_int(5);
 
 	/* And use the ghost realm to gain some flags. */
-	process_ghost_realm(ghost_realm, r_idx, m_ptr);
+	process_ghost_realm(ghost_realm, ghost_specialty, r_idx, m_ptr);
 
 	/* Hack - a little extra help for the deepest ghosts */
 	if (p_ptr->depth > 75) r_ptr->spell_power += 3 * (p_ptr->depth - 75) / 2;

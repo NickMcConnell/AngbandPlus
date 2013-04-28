@@ -28,70 +28,6 @@
  * Most of this file is by Ben Harrison (benh@phial.com).
  */
 
-/*
- * The following shell script can be used to launch Angband, assuming that
- * it was extracted into "~/Angband", and compiled using "USE_X11", on a
- * Linux machine, with a 1280x1024 screen, using 6 windows (with the given
- * characteristics), with gamma correction of 1.8 -> (1 / 1.8) * 256 = 142,
- * and without graphics (add "-g" for graphics).  Just copy this comment
- * into a file, remove the leading " * " characters (and the head/tail of
- * this comment), and make the file executable.
- *
- *
- * #!/bin/csh
- *
- * # Describe attempt
- * echo "Launching angband..."
- * sleep 2
- *
- * # Main window
- * setenv ANGBAND_X11_FONT_0 10x20
- * setenv ANGBAND_X11_AT_X_0 5
- * setenv ANGBAND_X11_AT_Y_0 510
- *
- * # Message window
- * setenv ANGBAND_X11_FONT_1 8x13
- * setenv ANGBAND_X11_AT_X_1 5
- * setenv ANGBAND_X11_AT_Y_1 22
- * setenv ANGBAND_X11_ROWS_1 35
- *
- * # Inventory window
- * setenv ANGBAND_X11_FONT_2 8x13
- * setenv ANGBAND_X11_AT_X_2 635
- * setenv ANGBAND_X11_AT_Y_2 182
- * setenv ANGBAND_X11_ROWS_2 23
- *
- * # Equipment window
- * setenv ANGBAND_X11_FONT_3 8x13
- * setenv ANGBAND_X11_AT_X_3 635
- * setenv ANGBAND_X11_AT_Y_3 22
- * setenv ANGBAND_X11_ROWS_3 12
- *
- * # Monster recall window
- * setenv ANGBAND_X11_FONT_4 6x13
- * setenv ANGBAND_X11_AT_X_4 817
- * setenv ANGBAND_X11_AT_Y_4 847
- * setenv ANGBAND_X11_COLS_4 76
- * setenv ANGBAND_X11_ROWS_4 11
- *
- * # Object recall window
- * setenv ANGBAND_X11_FONT_5 6x13
- * setenv ANGBAND_X11_AT_X_5 817
- * setenv ANGBAND_X11_AT_Y_5 520
- * setenv ANGBAND_X11_COLS_5 76
- * setenv ANGBAND_X11_ROWS_5 24
- *
- * # The build directory
- * cd ~/Angband
- *
- * # Gamma correction
- * setenv ANGBAND_X11_GAMMA 142
- *
- * # Launch Angband
- * ./src/angband -mx11 -- -n6 &
- *
- */
-
 
 
 #include "angband.h"
@@ -197,9 +133,9 @@ struct metadpy
 
 	int fd;
 
-	uint width;
-	uint height;
-	uint depth;
+	unsigned int width;
+	unsigned int height;
+	unsigned int depth;
 
 	Pixell black;
 	Pixell white;
@@ -208,9 +144,9 @@ struct metadpy
 	Pixell fg;
 	Pixell zg;
 
-	uint mono:1;
-	uint color:1;
-	uint nuke:1;
+	unsigned int mono:1;
+	unsigned int color:1;
+	unsigned int nuke:1;
 };
 
 
@@ -256,16 +192,16 @@ struct infowin
 
 	byte byte1;
 
-	uint mapped:1;
-	uint redraw:1;
-	uint resize:1;
+	unsigned int mapped:1;
+	unsigned int redraw:1;
+	unsigned int resize:1;
 
-	uint nuke:1;
+	unsigned int nuke:1;
 
-	uint flag1:1;
-	uint flag2:1;
-	uint flag3:1;
-	uint flag4:1;
+	unsigned int flag1:1;
+	unsigned int flag2:1;
+	unsigned int flag3:1;
+	unsigned int flag4:1;
 };
 
 
@@ -292,9 +228,9 @@ struct infoclr
 	Pixell fg;
 	Pixell bg;
 
-	uint code:4;
-	uint stip:1;
-	uint nuke:1;
+	unsigned int code:4;
+	unsigned int stip:1;
+	unsigned int nuke:1;
 };
 
 
@@ -327,8 +263,8 @@ struct infofnt
 
 	byte off;
 
-	uint mono:1;
-	uint nuke:1;
+	unsigned int mono:1;
+	unsigned int nuke:1;
 };
 
 
@@ -524,8 +460,6 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
 /*
  * Nuke the current metadpy
  */
@@ -550,8 +484,6 @@ static errr Metadpy_nuke(void)
 	/* Return Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -592,7 +524,7 @@ static errr Infowin_set_name(cptr name)
 	XTextProperty tp;
 	char buf[128];
 	char *bp = buf;
-	my_strcpy(buf, name, sizeof(buf));
+	(void)my_strcpy(buf, name, sizeof(buf));
 	st = XStringListToTextProperty(&bp, 1, &tp);
 	if (st) XSetWMName(Metadpy->dpy, Infowin->win, &tp);
 	return (0);
@@ -610,11 +542,13 @@ static errr Infowin_set_icon_name(cptr name)
 	XTextProperty tp;
 	char buf[128];
 	char *bp = buf;
-	my_strcpy(buf, name, sizeof(buf));
+	(void)my_strcpy(buf, name, sizeof(buf));
 	st = XStringListToTextProperty(&bp, 1, &tp);
 	if (st) XSetWMIconName(Metadpy->dpy, Infowin->win, &tp);
 	return (0);
 }
+
+#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -634,8 +568,6 @@ static errr Infowin_nuke(void)
 	/* Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -1052,6 +984,8 @@ static errr Infoclr_init_1(GC gc)
 	return (0);
 }
 
+#endif /* IGNORE_UNUSED_FUNCTIONS */
+
 
 /*
  * Nuke an old 'infoclr'.
@@ -1073,8 +1007,6 @@ static errr Infoclr_nuke(void)
 	/* Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -1186,8 +1118,6 @@ static errr Infoclr_change_fg(Pixell fg)
 
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
 /*
  * Nuke an old 'infofnt'.
  */
@@ -1199,7 +1129,7 @@ static errr Infofnt_nuke(void)
 	if (ifnt->name)
 	{
 		/* Free the name */
-		string_free(ifnt->name);
+		(void)string_free(ifnt->name);
 	}
 
 	/* Nuke info if needed */
@@ -1212,8 +1142,6 @@ static errr Infofnt_nuke(void)
 	/* Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -1490,6 +1418,9 @@ struct term_data
 
 #endif /* USE_GRAPHICS */
 
+	/* Pointers to allocated data, needed to clear up memory */
+	XClassHint *classh;
+	XSizeHints *sizeh;
 };
 
 
@@ -1507,7 +1438,7 @@ static term_data data[MAX_TERM_DATA];
 /*
  * Path to the X11 settings file
  */
-char settings[1024];
+static char settings[1024];
 
 
 /* Use short names for the most commonly used elements of various structures. */
@@ -1585,7 +1516,7 @@ static errr Term_rows_x11(bool fifty_rows)
 	Infofnt_set(td->fnt);
 
 	/* Clear screen */
-	Infowin_wipe();
+	(void)Infowin_wipe();
 
 	/* Assume success */
 	return (0);
@@ -1601,7 +1532,7 @@ static void react_keypress(XKeyEvent *ev)
 {
 	int i, n, mc, ms, mo, mx;
 
-	uint ks1;
+	unsigned int ks1;
 
 	KeySym ks;
 
@@ -1621,7 +1552,7 @@ static void react_keypress(XKeyEvent *ev)
 
 
 	/* Hack -- convert into an unsigned int */
-	ks1 = (uint)(ks);
+	ks1 = (unsigned int)(ks);
 
 	/* Extract four "modifier flags" */
 	mc = (ev->state & ControlMask) ? TRUE : FALSE;
@@ -1634,7 +1565,7 @@ static void react_keypress(XKeyEvent *ev)
 	if (n && !mo && !mx && !IsSpecialKey(ks))
 	{
 		/* Enqueue the normal key(s) */
-		for (i = 0; buf[i]; i++) Term_keypress(buf[i]);
+		for (i = 0; buf[i]; i++) (void)Term_keypress(buf[i]);
 
 		/* All done */
 		return;
@@ -1646,26 +1577,26 @@ static void react_keypress(XKeyEvent *ev)
 	{
 		case XK_Escape:
 		{
-			Term_keypress(ESCAPE);
+			(void)Term_keypress(ESCAPE);
 			return;
 		}
 
 		case XK_Return:
 		{
-			Term_keypress('\r');
+			(void)Term_keypress('\r');
 			return;
 		}
 
 		case XK_Tab:
 		{
-			Term_keypress('\t');
+			(void)Term_keypress('\t');
 			return;
 		}
 
 		case XK_Delete:
 		case XK_BackSpace:
 		{
-			Term_keypress('\010');
+			(void)Term_keypress('\010');
 			return;
 		}
 	}
@@ -1674,7 +1605,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the KeySym */
 	if (ks)
 	{
-		strnfmt(msg, sizeof(msg), "%c%s%s%s%s_%lX%c", 31,
+		(void)strnfmt(msg, sizeof(msg), "%c%s%s%s%s_%lX%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        (unsigned long)(ks), 13);
@@ -1683,21 +1614,21 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the Keycode */
 	else
 	{
-		strnfmt(msg, sizeof(msg), "%c%s%s%s%sK_%X%c", 31,
+		(void)strnfmt(msg, sizeof(msg), "%c%s%s%s%sK_%X%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        ev->keycode, 13);
 	}
 
 	/* Enqueue the "macro trigger" string */
-	for (i = 0; msg[i]; i++) Term_keypress(msg[i]);
+	for (i = 0; msg[i]; i++) (void)Term_keypress(msg[i]);
 
 
 	/* Hack -- auto-define macros as needed */
 	if (n && (macro_find_exact(msg) < 0))
 	{
 		/* Create a macro */
-		macro_add(msg, buf);
+		(void)macro_add(msg, buf);
 	}
 }
 
@@ -1741,7 +1672,7 @@ static void sort_co_ord(co_ord *min, co_ord *max,
  */
 static void mark_selection_clear(int x1, int y1, int x2, int y2)
 {
-	Term_redraw_section(x1, y1, x2, y2);
+	(void)Term_redraw_section(x1, y1, x2, y2);
 }
 
 
@@ -1770,7 +1701,7 @@ static void mark_selection(void)
 	bool clear = x11_selection->drawn;
 
 	/* Open the correct term if necessary. */
-	if (x11_selection->t != old) Term_activate(x11_selection->t);
+	if (x11_selection->t != old) (void)Term_activate(x11_selection->t);
 
 	if (clear)
 	{
@@ -1785,7 +1716,7 @@ static void mark_selection(void)
 	}
 
 	/* Finish on the current term. */
-	if (x11_selection->t != old) Term_activate(old);
+	if (x11_selection->t != old) (void)Term_activate(old);
 
 	x11_selection->old.x = x11_selection->cur.x;
 	x11_selection->old.y = x11_selection->cur.y;
@@ -1942,7 +1873,7 @@ static void paste_x11_send(XSelectionRequestEvent *rq)
 				if (i >= (sizeof(buf) - 2)) break;
 
 				/* Find the character */
-				Term_what(x, y, &a, &c);
+				(void)Term_what(x, y, &a, &c);
 
 				/* Add it */
 				buf[i++] = c;
@@ -1953,7 +1884,7 @@ static void paste_x11_send(XSelectionRequestEvent *rq)
 
 			/* Send the (non-empty) string */
 			XChangeProperty(DPY, rq->requestor, rq->property, rq->target, 8,
-			                PropModeAppend, buf, i);
+			                PropModeAppend, (unsigned char *)buf, i);
 		}
 	}
 	else
@@ -2203,7 +2134,7 @@ static errr CheckEvent(bool wait)
 			{
 				/* Resize window */
 				Infowin_set(td->win);
-				Infowin_resize(wid, hgt);
+				(void)Infowin_resize(wid, hgt);
 			}
 
 			break;
@@ -2278,7 +2209,7 @@ static errr Term_xtra_x11_react(void)
 
 				/* Change the foreground */
 				Infoclr_set(clr[i]);
-				Infoclr_change_fg(pixel);
+				(void)Infoclr_change_fg(pixel);
 			}
 		}
 	}
@@ -2297,10 +2228,10 @@ static errr Term_xtra_x11(int n, int v)
 	switch (n)
 	{
 		/* Make a noise */
-		case TERM_XTRA_NOISE: Metadpy_do_beep(); return (0);
+	case TERM_XTRA_NOISE: (void)Metadpy_do_beep(); return (0);
 
 		/* Flush the output XXX XXX */
-		case TERM_XTRA_FRESH: Metadpy_update(1, 0, 0); return (0);
+	case TERM_XTRA_FRESH: (void)Metadpy_update(1, 0, 0); return (0);
 
 		/* Process random events XXX */
 		case TERM_XTRA_BORED: return (CheckEvent(0));
@@ -2315,7 +2246,7 @@ static errr Term_xtra_x11(int n, int v)
 		case TERM_XTRA_LEVEL: return (Term_xtra_x11_level(v));
 
 		/* Clear the screen and redraw any selection later */
-		case TERM_XTRA_CLEAR: Infowin_wipe(); x11_selection->drawn = FALSE; return (0);
+	case TERM_XTRA_CLEAR: (void)Infowin_wipe(); x11_selection->drawn = FALSE; return (0);
 
 		/* Delay for some milliseconds */
 		case TERM_XTRA_DELAY:
@@ -2356,7 +2287,7 @@ static errr Term_wipe_x11(int x, int y, int n)
 	Infoclr_set(clr[TERM_DARK]);
 
 	/* Mega-Hack -- Erase some space */
-	Infofnt_text_non(x, y, "", n);
+	(void)Infofnt_text_non(x, y, "", n);
 
 	/* Redraw the selection if any, as it may have been obscured. (later) */
 	x11_selection->drawn = FALSE;
@@ -2375,7 +2306,7 @@ static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
 	Infoclr_set(clr[a]);
 
 	/* Draw the text */
-	Infofnt_text_std(x, y, s, n);
+	(void)Infofnt_text_std(x, y, s, n);
 
 	/* Redraw the selection if any, as it may have been obscured. (later) */
 	x11_selection->drawn = FALSE;
@@ -2563,12 +2494,12 @@ static void save_prefs(void)
 	}
 
 	/* Close */
-	my_fclose(fff);
+	(void)my_fclose(fff);
 }
 
 
 /*
- * Given a postion in the ISO Latin-1 character set, return
+ * Given a position in the ISO Latin-1 character set, return
  * the correct character on this system.
  */
 static char Term_xchar_x11(char c)
@@ -2626,7 +2557,7 @@ static errr term_data_init(term_data *td, int i)
 	sfont = get_default_small_font(i);
 
 	/* Build the filename */
-	path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
+	(void)path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
 
 	/* Open the file */
 	fff = my_fopen(settings, "r");
@@ -2721,7 +2652,7 @@ static errr term_data_init(term_data *td, int i)
 				str = strstr(buf, "=");
 				if (str != NULL)
 				{
-					my_strcpy(font_name, str + 1, sizeof(font_name));
+					(void)my_strcpy(font_name, str + 1, sizeof(font_name));
 					font = font_name;
 				}
 				continue;
@@ -2735,7 +2666,7 @@ static errr term_data_init(term_data *td, int i)
 				str = strstr(buf, "=");
 				if (str != NULL)
 				{
-					my_strcpy(sfont_name, str + 1, sizeof(sfont_name));
+					(void)my_strcpy(sfont_name, str + 1, sizeof(sfont_name));
 					sfont = sfont_name;
 				}
 				continue;
@@ -2743,7 +2674,7 @@ static errr term_data_init(term_data *td, int i)
 		}
 
 		/* Close */
-		my_fclose(fff);
+		(void)my_fclose(fff);
 	}
 
 	/*
@@ -2786,6 +2717,9 @@ static errr term_data_init(term_data *td, int i)
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) oy = val;
 
+
+#if 0  /* Disabled, we can't use the same fonts as Vanilla! */
+
 	/* Window specific font name */
 	sprintf(buf, "ANGBAND_X11_FONT_%d", i);
 	str = getenv(buf);
@@ -2798,6 +2732,7 @@ static errr term_data_init(term_data *td, int i)
 		str = getenv(buf);
 		if (str) sfont = str;
 	}
+#endif /* Disabled */
 
 	/* Hack the main window must be at least 80x25 (for now) */
 	if (!i)
@@ -2830,15 +2765,15 @@ static errr term_data_init(term_data *td, int i)
 	/* Create a top-window */
 	MAKE(td->win, infowin);
 	Infowin_set(td->win);
-	Infowin_init_top(x, y, wid, hgt, 0,
+	(void)Infowin_init_top(x, y, wid, hgt, 0,
 	                 Metadpy->fg, Metadpy->bg);
 
 	/* Ask for certain events */
-	Infowin_set_mask(ExposureMask | StructureNotifyMask | KeyPressMask |
+	(void)Infowin_set_mask(ExposureMask | StructureNotifyMask | KeyPressMask |
 	                 PointerMotionMask | ButtonPressMask | ButtonReleaseMask);
 
 	/* Set the window name */
-	Infowin_set_name(name);
+	(void)Infowin_set_name(name);
 
 	/* Save the inner border */
 	Infowin->ox = ox;
@@ -2849,7 +2784,7 @@ static errr term_data_init(term_data *td, int i)
 
 	if (ch == NULL) quit("XAllocClassHint failed");
 
-	my_strcpy(res_name, name, sizeof(res_name));
+	(void)my_strcpy(res_name, name, sizeof(res_name));
 	res_name[0] = tolower((unsigned char)res_name[0]);
 	ch->res_name = res_name;
 
@@ -2909,8 +2844,11 @@ static errr term_data_init(term_data *td, int i)
 	XSetWMNormalHints(Metadpy->dpy, Infowin->win, sh);
 
 	/* Map the window */
-	Infowin_map();
+	(void)Infowin_map();
 
+	/* Set pointers to allocated data */
+	td->sizeh = sh;
+	td->classh = ch;
 
 	/* Move the window to requested location */
 	/* Use hints instead */
@@ -2925,7 +2863,7 @@ static errr term_data_init(term_data *td, int i)
 	}
 
 	/* Initialize the term */
-	term_init(t, cols, rows, num);
+	(void)term_init(t, cols, rows, num);
 
 	/* Use a "soft" cursor */
 	t->soft_cursor = TRUE;
@@ -2939,6 +2877,7 @@ static errr term_data_init(term_data *td, int i)
 	t->curs_hook = Term_curs_x11;
 	t->wipe_hook = Term_wipe_x11;
 	t->text_hook = Term_text_x11;
+	t->xchar_hook = Term_xchar_x11;
 
 	/* Initialize the rows hook only on the main term */
 	if (i == 0) t->rows_hook = Term_rows_x11;
@@ -2964,10 +2903,59 @@ const char help_x11[] = "Basic X11, subopts -d<display> -n<windows>"
 
 static void hook_quit(cptr str)
 {
+	int i;
+
 	/* Unused */
 	(void)str;
 
+	(void)unregister_angband_fonts();
+
 	save_prefs();
+
+	/* Free allocated data */
+	for (i = 0; i < term_windows_open; i++)
+	{
+		term_data *td = &data[i];
+		term *t = &td->t;
+
+		/* Free size hints */
+		XFree(td->sizeh);
+
+		/* Free class hint */
+		XFree(td->classh);
+
+		/* Free fonts */
+		Infofnt_set(td->fnt);
+		(void)Infofnt_nuke();
+		KILL(td->fnt);
+
+		Infofnt_set(td->sfnt);
+		(void)Infofnt_nuke();
+		KILL(td->sfnt);
+
+		/* Free window */
+		Infowin_set(td->win);
+		(void)Infowin_nuke();
+		KILL(td->win);
+
+		/* Free term */
+		(void)term_nuke(t);
+	}
+
+	/* Free colors */
+	Infoclr_set(xor);
+	(void)Infoclr_nuke();
+	KILL(xor);
+
+	for (i = 0; i < MAX_COLORS; ++i)
+	{
+		Infoclr_set(clr[i]);
+		(void)Infoclr_nuke();
+		KILL(clr[i]);
+	}
+
+	/* Close link to display */
+	(void)Metadpy_nuke();
 }
 
 
@@ -2981,7 +2969,7 @@ errr init_x11(int argc, char *argv[])
 	cptr dpy_name = "";
 
 	int num_term = 1;
-	int depth;
+	int cdepth;
 
 	FILE *fff;
 
@@ -3009,7 +2997,7 @@ errr init_x11(int argc, char *argv[])
 	 */
 
 	/* Build the filename */
-	path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
+	(void)path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
 
 	/* Open the file */
 	fff = my_fopen(settings, "r");
@@ -3043,7 +3031,7 @@ errr init_x11(int argc, char *argv[])
 		}
 
 		/* Close */
-		my_fclose(fff);
+		(void)my_fclose(fff);
 	}
 
 	/* Parse args */
@@ -3113,9 +3101,9 @@ errr init_x11(int argc, char *argv[])
 
 
 	/* Test color depth */
-	/* Number of colors = 2^depth: a depth of 8 means 256 colors */
-	depth = DefaultDepth(Metadpy->dpy, DefaultScreen(Metadpy->dpy));
-	if (depth >= 8)
+	/* Number of colors = 2^cdepth: a depth of 8 means 256 colors */
+	cdepth = DefaultDepth(Metadpy->dpy, DefaultScreen(Metadpy->dpy));
+	if (cdepth >= 8)
 	{
 		/*
 		 * Go no higher than 128, as graphics use the higher values.
@@ -3123,20 +3111,20 @@ errr init_x11(int argc, char *argv[])
 		max_system_colors = 128;
 	}
 	/* Unusual color depths, check for completeness */
-	else if (depth == 7)
+	else if (cdepth == 7)
 	{
 		max_system_colors = 128;
 	}
-	else if (depth == 6)
+	else if (cdepth == 6)
 	{
 		max_system_colors = 64;
 	}
-	else if (depth == 5)
+	else if (cdepth == 5)
 	{
 		max_system_colors = 32;
 	}
 	/* 16 colors */
-	else if (depth == 4)
+	else if (cdepth == 4)
 	{
 		max_system_colors = 16;
 	}
@@ -3150,7 +3138,7 @@ errr init_x11(int argc, char *argv[])
 	/* Prepare cursor color */
 	MAKE(xor, infoclr);
 	Infoclr_set(xor);
-	Infoclr_init_ppn(Metadpy->fg, Metadpy->bg, "xor", 0);
+	(void)Infoclr_init_ppn(Metadpy->fg, Metadpy->bg, "xor", 0);
 
 
 	/* Prepare normal colors */
@@ -3182,7 +3170,7 @@ errr init_x11(int argc, char *argv[])
 		}
 
 		/* Initialize the color */
-		Infoclr_init_ppn(pixel, Metadpy->bg, "cpy", 0);
+		(void)Infoclr_init_ppn(pixel, Metadpy->bg, "cpy", 0);
 	}
 
 
@@ -3192,7 +3180,7 @@ errr init_x11(int argc, char *argv[])
 		term_data *td = &data[i];
 
 		/* Initialize the term_data */
-		term_data_init(td, i);
+		(void)term_data_init(td, i);
 
 		/* Save global entry */
 		angband_term[i] = Term;
@@ -3200,7 +3188,7 @@ errr init_x11(int argc, char *argv[])
 
 	/* Raise the "Angband" window */
 	Infowin_set(data[0].win);
-	Infowin_raise();
+	(void)Infowin_raise();
 
 	/* Activate the "Angband" window screen */
 	(void)Term_activate(&data[0].t);
@@ -3216,7 +3204,7 @@ errr init_x11(int argc, char *argv[])
 		bitmap_file = "16x16.bmp";
 
 		/* Try the "16x16.bmp" file */
-		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, format("graf/%s", bitmap_file));
+		(void)path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, format("graf/%s", bitmap_file));
 
 		/* Use the "16x16.bmp" file if it exists */
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))
@@ -3238,7 +3226,7 @@ errr init_x11(int argc, char *argv[])
 		bitmap_file = "8x8.bmp";
 
 		/* Try the "8x8.bmp" file */
-		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, format("graf/%s", bitmap_file));
+		(void)path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, format("graf/%s", bitmap_file));
 
 		/* Use the "8x8.bmp" file if it exists */
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))
@@ -3281,7 +3269,7 @@ errr init_x11(int argc, char *argv[])
 			td->tiles = NULL;
 		}
 
-		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, format("graf/%s", bitmap_file));
+		(void)path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, format("graf/%s", bitmap_file));
 
 		/* Load the graphical tiles */
 		tiles_raw = ReadBMP(dpy, filename);

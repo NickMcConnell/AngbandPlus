@@ -11,7 +11,7 @@
 ****   ***   *** ***   **   **  $.*s$$$$$$$$$$$$$$`$$ss***   **   **  ***  ***
 *  ******     ***  ** **** **** "$$$$$$$$$$$$$$$$$$o$$$  ** **,* ****  ****  **
                                s$$$$$$$$$$$$$$$$$$$$$$$$s,  ,s
-   Version 0.9.9, beta 20d     s$$$$$$$$$"$$$$$$""""$$$$$$"$$$$$,
+   Version 0.9.9, beta 21      s$$$$$$$$$"$$$$$$""""$$$$$$"$$$$$,
                               s$$$$$$$$$$s""$$$$ssssss"$$$$$$$$"
                              s$$$$$$$$$$'         `"""ss"$"$s""
                              s$$$$$$$$$$,              `"""""$  .s$$s
@@ -30,7 +30,7 @@
        |          Geoff Hill, Charles Teague, Charles Swiger            |
        |                                                                |
        |            Angband 2.7.0 - 2.8.5 by Ben Harrison               |
-       /          Angband 2.9.0 - 3.0.x by Robert Ruehlmann             \
+       /          Angband 2.9.0 - 3.0.x by Robert R["u]hlmann              \
       |                                                                  |
      /                             Sangband by:                           \ 
     /        Chris Petit, Michael Gorse, Julian Lighton, Leon Marrick      \

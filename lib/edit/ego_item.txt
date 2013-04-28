@@ -247,7 +247,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 X:ADD_A_POWER
 D:It increases and sustains your intelligence, resists the four basic 
 D:elements, and cannot be harmed by elemental attacks.  You may benefit 
-D:greatly from the one hidden power it contains.
+D:greatly from the power it contains.
 
 N:28:of Might
 W:20:4:10:4000
@@ -963,7 +963,9 @@ D:madness rapes your mind; all wisdom vanishes as you rage, a brute beast.
 N:110:of Accuracy
 W:0:1:7:1000
 C:12:4:0
-T:19:0:99
+T:25:0:99
+T:26:0:99
+T:27:0:99
 P:2
 1:DEX
 X:XTRA_MISSILE_POWER
@@ -973,7 +975,9 @@ D:increases dexterity.
 N:111:of Velocity
 W:0:1:7:1000
 C:4:12:0
-T:19:0:99
+T:25:0:99
+T:26:0:99
+T:27:0:99
 P:2
 1:STR
 X:XTRA_MISSILE_POWER
@@ -983,7 +987,9 @@ D:increases strength.
 N:112:of Stalking
 W:55:9:20:20000
 C:5:5:0
-T:19:0:99
+T:25:0:99
+T:26:0:99
+T:27:0:99
 P:2
 1:INT | STEALTH
 F:SLAY_ANIMAL
@@ -993,7 +999,9 @@ D:natural creature.
 N:113:of Holy Might
 W:65:9:24:25000
 C:5:5:0
-T:19:0:99
+T:25:0:99
+T:26:0:99
+T:27:0:99
 P:2
 1:WIS
 F:BLESSED | RES_DARK | SLAY_EVIL
@@ -1004,7 +1012,9 @@ D:weapon grants resistance to darkness.
 N:114:of Extra Might
 W:20:3:15:2500
 C:5:10:0
-T:19:0:28
+T:25:0:99
+T:26:0:99
+T:27:0:28
 P:2
 1:MIGHT
 X:XTRA_MISSILE_POWER
@@ -1014,7 +1024,9 @@ D:with great force.
 N:115:of Extra Shots
 W:25:3:15:2500
 C:10:5:0
-T:19:0:99
+T:25:0:99
+T:26:0:99
+T:27:0:99
 P:3
 1:SHOTS
 X:XTRA_MISSILE_POWER
@@ -1024,7 +1036,9 @@ D:between one shot and the next.
 N:116:of Despair
 W:65:1:0:0
 C:-20:-20:0
-T:19:0:99
+T:25:0:99
+T:26:0:99
+T:27:0:99
 P:-2
 1:SHOTS | MIGHT
 F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE
@@ -1209,16 +1223,14 @@ P:3
 X:XTRA_LIGHT_QUALITY
 D:This light source seems to shine into nooks and crannies remarkably well, and 
 D:you become aware of traps and secret doors more quickly than you did before.  
-D:It also improves your chance to 'hear' unseen monsters and sense objects.  It may 
-D:have a hidden quality.
+D:It also improves your chance to 'hear' unseen monsters and sense objects.
 
 N:141:of Vision
 W:0:2:4:2250
 T:39:0:99
 F:SEE_INVIS
 X:XTRA_LIGHT_QUALITY
-D:The light that shines from this object reveals even invisible monsters.  It may 
-D:have a hidden quality.
+D:The light that shines from this object reveals even invisible monsters.
 
 N:142:of Brightness
 W:0:2:4:2000
@@ -1227,15 +1239,14 @@ P:1
 1:LIGHT
 X:XTRA_LIGHT_QUALITY
 D:The clear, brilliant light that shines from this object extends an unusual 
-D:distance outwards.  It may have a hidden quality.
+D:distance outwards.
 
 N:143:of Phlogiston
 W:0:2:4:2500
 T:39:0:99
 F:NO_FUEL
 X:XTRA_LIGHT_QUALITY
-D:It shines eternally, energized by what magics you know not.  It may have a 
-D:hidden quality.
+D:It shines eternally, energized by what magics you know not.
 
 # Note the deliberate lack of the extra light quality flag
 N:144:of Eldamar

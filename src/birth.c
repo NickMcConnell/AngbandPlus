@@ -46,7 +46,16 @@ struct birther
  */
 static s16b stat_use[A_MAX];
 
+typedef struct stat_priority stat_priority;
 
+/*
+ * A structure to hold the stat priorities.
+ */
+struct stat_priority
+{
+	bool resolved;
+	int stat[A_MAX];
+};
 
 /*
  * Forward declare
@@ -280,18 +289,103 @@ static hist_type bg[] =
 
 
 /*
- * Roll for a character's stats
+ * Helper function for get_stats
+ *
+ * Takes a "stat_priority" struct which is already loaded with
+ * priorities for each stat (lowest is best).  "Resolves" the struct
+ * by breaking ties and moving the priorities to the range 0 to
+ * A_MAX-1.  Makes the struct as "resolved".  Does nothing to already
+ * "resolved" structs. -BR-
+ *
+ * TODO:
+ * It should check for errors. (negative numbers)
  */
-static void get_stats(void)
+static void calc_stat_rank(stat_priority *priority)
 {
-	int i, j;
+	int i;
+	int resolved_priorities[A_MAX];
+
+	int current_priority = 0;
+	int resolved_count = 0;
+
+	/* Priority structure already marked as good - return */
+	if (priority->resolved) return;
+
+	/* Keep resolving until all are done. */
+	while (resolved_count < A_MAX)
+	{
+		/* Count and map of matches at current (unresolved) priority */
+		int current_count = 0;
+		bool current_matches[A_MAX] = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
+
+		/* Fill count and map */
+		for (i = 0; i < A_MAX; i++)
+		{
+			if (priority->stat[i] == current_priority)
+			{
+				current_count++;
+				current_matches[i] = TRUE;
+			}
+		}
+
+		/*
+		 * Randomly try assigning stats to the next resolved
+		 * priority until a legal choice is made. Note that
+		 * this block is grossly inefficient; that should be
+		 * OK, since it is called so rarely, and I don't have
+		 * a better way that is as compact.  -BR-
+		 */
+		while (current_count > 0)
+		{
+			int some_stat = rand_int(A_MAX);
+			if (current_matches[some_stat])
+			{
+				current_count--;
+				current_matches[some_stat] = FALSE;
+				resolved_priorities[some_stat] = resolved_count;
+				resolved_count++;
+			}
+		}
+
+		/* look for matches at next unresolved priority */
+		current_priority++;
+	}
+
+	/* Assign resolved priorities back to the original struct. */
+	for (i = 0; i < A_MAX; i++)
+	{
+		priority->stat[i] = resolved_priorities[i];
+	}
+
+	/* Mark as resolved and return */
+	priority->resolved = TRUE;
+	return;
+}
+
+/*
+ * Roll for a character's stats
+ *
+ * Added ability to create an ordered list of stats. -CJN-
+ *
+ * The "priority" struct must contain a list of stat priorities (lower
+ * is better).  If the struct contains ties, or values above A_MAX - 1,
+ * these problems will be resolved by "calc_stat_rank"
+ */
+static void get_stats(stat_priority *priority)
+{
+	int i, j, tmp;
 
 	int bonus;
 
 	int dice[3 * A_MAX];
+	int stats[A_MAX];
+	int sorted_stats[A_MAX];
 
 	int min = 7 * A_MAX;
 	int max = 9 * A_MAX;
+
+	/* Generate clean priorities (0-5, no ties) */
+	calc_stat_rank(priority);
 
 	/* Roll and verify some stats */
 	while (TRUE)
@@ -310,14 +404,38 @@ static void get_stats(void)
 		if ((j > min) && (j < max)) break;
 	}
 
-	/* Roll the stats */
+	/* Collect the stats for future manipulation */
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Extract 5 + 1d3 + 1d4 + 1d5 */
-		j = 5 + dice[3 * i] + dice[3 * i + 1] + dice[3 * i + 2];
+		sorted_stats[i] = 5 + dice[3 * i] + dice[3 * i + 1] + dice[3 * i + 2];
+	}
 
+	/* Assign stats in order */
+
+	/* Produce sorted stat array ... */
+	for (i = 0; i < A_MAX; i++)
+	{
+		tmp = sorted_stats[i];
+		for (j = i; j > 0 && sorted_stats[j - 1] < tmp; j--)
+		{
+			sorted_stats[j] = sorted_stats[j - 1];
+		}
+		sorted_stats[j] = tmp;
+	}
+
+	/* ... and assign the stats in the order preference */
+	for (i = 0; i < A_MAX; i++)
+	{
+		stats[i] = sorted_stats[priority->stat[i]];
+	}
+
+
+	/* Save the stats */
+	for (i = 0; i < A_MAX; i++)
+	{
 		/* Save that value */
-		p_ptr->stat_max[i] = j;
+		p_ptr->stat_max[i] = stats[i];
 
 		/* Get racial bonus to stat */
 		bonus = rp_ptr->r_adj[i];
@@ -547,7 +665,7 @@ static void get_history(void)
 
 
 	/* Copy the history */
-	my_strcpy(p_ptr->history, buf, sizeof(p_ptr->history));
+	(void)my_strcpy(p_ptr->history, buf, sizeof(p_ptr->history));
 }
 
 
@@ -609,7 +727,7 @@ static void get_money(void)
 	int i, gold;
 
 	/* Social class determines starting gold */
-	gold = (p_ptr->sc * 5) + rand_range(200, 300);
+	gold = (p_ptr->sc * 5) + rand_range(150, 200);
 
 	/* Process the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -617,18 +735,18 @@ static void get_money(void)
 		/* High charisma increases starting gold */
 		if (i == A_CHR)
 		{
-			if (stat_use[A_CHR] > 18) gold += 10 * (stat_use[A_CHR] - 18);
+			if (stat_use[A_CHR] > 18) gold += 20 * (stat_use[A_CHR] - 18);
 		}
 
 		/* High values for other stats decrease starting gold */
 		else
 		{
-			if (stat_use[i] > 18) gold -= 10 * (stat_use[i] - 18);
+			if (stat_use[i] > 18) gold -= 20 * (stat_use[i] - 18);
 		}
 	}
 
-	/* Minimum 150 gold */
-	if (gold < 150) gold = 150;
+	/* Minimum 75 gold */
+	if (gold < 75) gold = 75;
 
 	/* Save the gold */
 	p_ptr->au_birth = p_ptr->au = gold;
@@ -636,6 +754,9 @@ static void get_money(void)
 
 /*
  * Clear all the global "character" data
+ *
+ * This function must be updated with everything, and is troublesome to
+ * maintain. XXX XXX XXX
  */
 void player_wipe(bool full)
 {
@@ -686,10 +807,6 @@ void player_wipe(bool full)
 		}
 	}
 
-	/* No current quest */
-	p_ptr->cur_quest = 0;
-
-
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)
 	{
@@ -723,11 +840,24 @@ void player_wipe(bool full)
 	/* Hack -- normal luck */
 	p_ptr->luck = 100;
 
-	/* None of the spells have been learned yet */
-	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
+	/* None of the spells have been cast yet */
+	for (i = 0; i < PY_MAX_SPELLS; i++)
+	{
+		p_ptr->spell_flags[i] = 0;
+	}
 
 	/* No stealing */
 	num_recent_thefts = 0;
+
+	/* No active sub-windows */
+	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+	{
+		op_ptr->window_flag[i] = 0;
+	}
+
+	/* Character type is always normal to begin with */
+	p_ptr->character_type = PCHAR_NORMAL;
+
 
 	/* The below is only done when needed */
 	if (!full) return;
@@ -776,8 +906,13 @@ static void desc_birth_options()
 
 	char buf[80];
 
+
 	/* Clear from x = 50, between y = 20 and y = 24 */
-	for (i = 19; i <= 24; i++) Term_erase(50, i, 255);
+	for (i = 19; i <= 24; i++) (void)Term_erase(50, i, 255);
+
+	/* Display character type */
+	c_prt(TERM_L_BLUE, character_type_name[p_ptr->character_type], 3, 10);
+
 
 	/* Get a title, center it */
 	center_string(buf, sizeof(buf), "Birth Options:", 26);
@@ -788,14 +923,17 @@ static void desc_birth_options()
 	/* Print out title */
 	c_roff(TERM_WHITE, format("%s\n", buf), 50, 80);
 
+	/* Display character type details */
+	c_roff(a, "-", 50, 80);
+	c_roff(a, character_type_desc[p_ptr->character_type], 50, 80);
+	c_roff(a, "\n", 50, 80);
+
 	/* Print out option descriptions */
 	if (birth_autoroll) c_roff(a, "-Using the autoroller.\n", 50, 80);
 	else c_roff(a, "-Using manual rolling.\n", 50, 80);
-
-	if (birth_ironman) c_roff(a, "-Cannot go upwards or recall.\n", 50, 80);
 	if (birth_no_stores) c_roff(a, "-Cannot use stores.\n", 50, 80);
 	if (birth_no_artifacts) c_roff(a, "-No artifacts.\n", 50, 80);
-	if (!birth_ironman && birth_no_return_stair)
+	if ((p_ptr->character_type != PCHAR_IRONMAN) && birth_no_return_stair)
 		c_roff(a, "-No stairs back.\n", 50, 80);
 	if (birth_smart_cheat) c_roff(a, "-Monsters cheat-learn.\n", 50, 80);
 }
@@ -803,9 +941,6 @@ static void desc_birth_options()
 
 /*
  * Use existing character information.  -EZ-
- *
- * This function must be updated with everything, and is troublesome to
- * maintain. XXX XXX XXX
  */
 static bool player_birth_quick(void)
 {
@@ -958,9 +1093,10 @@ static int player_birth_aux_1(void)
 
 	/* Blank spacer line */
 
-	/* Display gender, race */
-	put_str("Gender :", 3, 1);
-	put_str("Race   :", 4, 1);
+	/* Display type, gender, race */
+	put_str("Type   :", 3, 1);
+	put_str("Gender :", 4, 1);
+	put_str("Race   :", 5, 1);
 
 	/* Print out help text */
 	if (can_quick_start)
@@ -1002,7 +1138,7 @@ static int player_birth_aux_1(void)
 				str = sp_ptr->title;
 
 				/* Display */
-				strnfmt(buf, sizeof(buf), "%c%c %s", I2A(n), p2, str);
+				(void)strnfmt(buf, sizeof(buf), "%c%c %s", I2A(n), p2, str);
 				put_str(buf, 10 + (n / 5), 2 + 15 * (n % 5));
 			}
 
@@ -1014,6 +1150,8 @@ static int player_birth_aux_1(void)
 				c_put_str(a, format("%s  *) Choose at random        ", buf), 19, 1);
 			else
 				c_put_str(a, format("%s                             ", buf), 19, 1);
+
+
 		}
 
 		/* Race */
@@ -1031,7 +1169,7 @@ static int player_birth_aux_1(void)
 				str = rp_ptr->title;
 
 				/* Display */
-				strnfmt(buf, sizeof(buf), "%c%c %s", I2A(n), p2, str);
+				(void)strnfmt(buf, sizeof(buf), "%c%c %s", I2A(n), p2, str);
 				put_str(buf, 10 + (n / 5), 2 + 15 * (n % 5));
 			}
 
@@ -1040,14 +1178,18 @@ static int player_birth_aux_1(void)
 
 			/* Fill in help text */
 			c_put_str(a, format("%s  *) Choose at random        ", buf), 19, 1);
-		}
 
-		/* Move the cursor offscreen  XXX */
-		move_cursor(40, 0);
+
+		}
 
 		/* Get a command and process it */
 		while (TRUE)
 		{
+			/* Move the cursor */
+			if (question == 0)      move_cursor(4, 10);
+			else if (question == 1) move_cursor(5, 10);
+
+
 			ch = inkey();
 
 			/* Quit */
@@ -1088,16 +1230,13 @@ static int player_birth_aux_1(void)
 				screen_save();
 
 				/* Interact with options -- birth options only */
-				do_cmd_options_aux(5, "Birth Options", &dummy);
+				do_cmd_options_aux(4, "Birth/Difficulty Options", &dummy);
 
 				/* Load screen */
 				screen_load();
 
 				/* Print descriptions of the current birth options */
 				desc_birth_options();
-
-				/* Move the cursor offscreen  XXX */
-				move_cursor(26, 0);
 
 				continue;
 			}
@@ -1153,7 +1292,7 @@ static int player_birth_aux_1(void)
 			sp_ptr = &sex_info[p_ptr->psex];
 
 			/* Display gender */
-			c_put_str(TERM_L_BLUE, format("%s", sp_ptr->title), 3, 10);
+			c_put_str(TERM_L_BLUE, format("%s", sp_ptr->title), 4, 10);
 		}
 
 		/* Race */
@@ -1164,7 +1303,7 @@ static int player_birth_aux_1(void)
 			rp_ptr = &race_info[p_ptr->prace];
 
 			/* Display race */
-			c_put_str(TERM_L_BLUE, format("%s", rp_ptr->title), 4, 10);
+			c_put_str(TERM_L_BLUE, format("%s", rp_ptr->title), 5, 10);
 		}
 
 		/* Question asked */
@@ -1275,7 +1414,7 @@ static u32b calc_rarity(int total)
 	else if (j == A_MAX * 2 - 7) base = 150;
 	else                         base = 400;
 
-	for (total2 = base, i = 0; i < 6; i++)
+	for (total2 = base, i = 0; i < A_MAX; i++)
 	{
 		if      (stat_ask[i] >= 12) total2 += base * 4;
 		else if (stat_ask[i] >=  7) total2 += base / (12 - stat_ask[i]);
@@ -1313,6 +1452,10 @@ static bool player_birth_aux_2(bool quick_start)
 	s32b auto_round = 0L;
 
 	s32b last_round;
+
+	stat_priority priority;
+
+	s16b max_requested_stat;
 
 
 	/* Reset character rolls  (this can be abused...) */
@@ -1381,7 +1524,7 @@ static bool player_birth_aux_2(bool quick_start)
 				}
 
 				/* Prepare a prompt */
-				strnfmt(buf, sizeof(buf), "%-13s: %-20s",
+				(void)strnfmt(buf, sizeof(buf), "%-13s: %-20s",
 					flag_creation_data[i].desc, inp);
 
 				/* Dump the prompt */
@@ -1406,7 +1549,10 @@ static bool player_birth_aux_2(bool quick_start)
 					p_ptr->get_help_index = HELP_STAT_STR + i;
 
 					/* Get a response (or escape) */
-					if (!askfor_aux(inp, 8)) inp[0] = '0' + 3;
+					if (!askfor_aux(inp, 8, FALSE)) inp[0] = '0' + 3;
+
+					/* Print "3" if we have specified no stat */
+					if (!isdigit(inp[0])) prt("3", 13 + i, 36);
 
 					/* Clear message line */
 					prt("", 14 + A_MAX, 5);
@@ -1513,6 +1659,23 @@ static bool player_birth_aux_2(bool quick_start)
 	/* Repeat until satisfied */
 	while (TRUE)
 	{
+		/*
+		 * Initialize priority (autoroller may override)
+		 *
+		 * We must do this inside the loop or the user will
+		 * see a systematic bias when rerolling after the
+		 * priority array resolves.
+		 */
+
+		/* Ties are not resolved */
+		priority.resolved = FALSE;
+
+		/* Set all priorities to 0 (max) */
+		for (i = 0; i < A_MAX; i++) priority.stat[i] = 0;
+
+		/* Set priority to 1 (not max) for Charisma */
+		priority.stat[A_CHR] = 1;
+
 		/* We've not loaded a character based on a previous one */
 		if (!quick_start)
 		{
@@ -1552,13 +1715,39 @@ static bool player_birth_aux_2(bool quick_start)
 				/* Indicate the state */
 				put_str("(Hit ESC to stop)", 12, col+13);
 
+				max_requested_stat = 0;
+
+				/* Find highest required stat */
+				for (i = 0; i < A_MAX; i++)
+				{
+					if (max_requested_stat < stat_limit[i])
+					{
+						max_requested_stat = stat_limit[i];
+					}
+				}
+
+				/*
+				 * Assign a temp priority to each stat (lowest
+				 * number is highest priority).
+				 */
+				for (i = 0; i < A_MAX; i++)
+				{
+					priority.stat[i] = max_requested_stat - stat_limit[i];
+				}
+
+				/*
+				 * We may have generated ties or
+				 * non-consecutive priorities.  Flag to fix
+				 */
+				priority.resolved = FALSE;
+
 				/* Auto-roll */
 				while (TRUE)
 				{
 					bool accept = TRUE;
 
 					/* Get a new character */
-					get_stats();
+					get_stats(&priority);
 
 					/* Advance the round */
 					auto_round++;
@@ -1635,8 +1824,8 @@ static bool player_birth_aux_2(bool quick_start)
 			/* Otherwise just get a character */
 			else
 			{
-				/* Get a new character */
-				get_stats();
+				/* Get a new character - random stats */
+				get_stats(&priority);
 			}
 
 			/* Flush input */

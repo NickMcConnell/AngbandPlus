@@ -32,7 +32,7 @@ V:10:P:Light Purple:     0:255:  0:255: 10
 V:11:y:Yellow:           0:255:255:  0: 11
 V:12:R:Light Red:        0:255: 48: 48: 12
 V:13:G:Light Green:      0:  0:240:  0: 13
-V:14:B:Bright Blue:      0:  0:240:240: 14
+V:14:B:Bright Blue:      0:  0:208:255: 14
 V:15:U:Light Umber:      0:192:128: 64: 15
 
 V:16:p:Purple:           0:144:  0:144: 10
@@ -55,12 +55,4 @@ V:27:Z:Deep Light Blue:  0:  0:176:255: 14
 ## Space for additions
 ## Space for additions
 
-
-
-
-#
-#
-# User color redefinitions go below
-#
-#
 

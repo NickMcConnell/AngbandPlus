@@ -1,0 +1,48 @@
+### (Automatic deletion marker) ### begin Keymap dump
+#
+# If marked, changes below will be deleted and replaced automatically.
+
+
+A:R*\r
+C:0:\t
+
+A:;1
+C:0:1
+
+A:;2
+C:0:2
+
+A:;3
+C:0:3
+
+A:;4
+C:0:4
+
+A:,
+C:0:5
+
+A:;6
+C:0:6
+
+A:;7
+C:0:7
+
+A:;8
+C:0:8
+
+A:;9
+C:0:9
+
+A:w0
+C:0:X
+
+A:^V
+C:0:n
+
+A:R&\n
+C:0:x
+
+
+# If marked, changes above will be deleted and replaced automatically.
+#
+### (Automatic deletion marker) ### end Keymap dump

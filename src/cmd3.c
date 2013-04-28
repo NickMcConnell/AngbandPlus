@@ -370,6 +370,10 @@ static bool activate_hidden_curse(object_type *o_ptr)
 		message(MSG_L_RED, 200, format("NO!  As you %s the %s, it changes horribly!", act, o_name));
 	}
 
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_OBJECT);
+
+
 	/* AAARGH! */
 	return (TRUE);
 }
@@ -1166,8 +1170,10 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 
 	char o_name[120];
 
-	char info_text[2048];
-	char object_kind_info[400];
+	char info_text[1024];
+	char object_kind_info[256];
+
+	bool special_text_flag = FALSE;
 
 	cptr q, s;
 
@@ -1212,8 +1218,10 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 
 	/* What is our level of knowledge about the object? */
 	aware = object_aware_p(i_ptr);
-	known = (object_known_p(i_ptr) || in_store);
-	mental = ((i_ptr->ident & (IDENT_MENTAL)) || in_store);
+	known = (object_known_p(i_ptr));
+	mental = (i_ptr->ident & (IDENT_MENTAL));
+
+	if (in_store) known = mental = TRUE;
 
 
 	/* Describe the object */
@@ -1249,7 +1257,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 		object_info(info_text, i_ptr);
 
 		/* Get information about the general object kind. */
-		strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]));
+		(void)my_strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]), 256);
 	}
 
 	/*
@@ -1259,7 +1267,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 	else
 	{
 		/* Get information about the general object kind. */
-		strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]));
+		(void)my_strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]), 256);
 
 		/* Do not display the name of an unaware object  XXX */
 		if (!object_aware_p(i_ptr)) strcpy(o_name, "  ");
@@ -1282,6 +1290,21 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 	c_roff(TERM_L_BLUE, info_text, 3, 77);
 
 
+	/* Object has (unusual) hidden qualities  XXX XXX */
+	if ((!mental) &&
+	   ((o_ptr->flags1 & ~(k_ptr->flags1)) ||
+		(o_ptr->flags2 & ~(k_ptr->flags2)) ||
+		((o_ptr->flags3 & ~(k_ptr->flags3)) &&
+		 (((o_ptr->flags3 & ~(k_ptr->flags3)) != (TR3_LIGHT_CURSE))))))
+	{
+		char buf_sname[80];
+
+		strip_name(buf_sname, o_ptr->k_idx);
+
+		c_roff(TERM_L_BLUE, format("  This %s may possess hidden qualities.", buf_sname), 3, 77);
+	}
+
+
 	/*  Describe artifacts that belong to sets. */
 	if ((known) && (i_ptr->artifact_index))
 	{
@@ -1291,7 +1314,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 		if (a_ptr->set_index)
 		{
 			/* Advance two lines */
-			for (i = 0; i < 2; i++) roff("\n", 0, 0);
+			roff("\n\n", 0, 0);
 
 			/* Set notification */
 			c_roff(TERM_GREEN,"Set Item: ", 3, 77);
@@ -1306,14 +1329,16 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 			/* Generic description */
 			else c_roff(TERM_GREEN,"It gains power when combined with matching items", 3, 77);
 
-			/* End sentence */
-			c_roff(TERM_GREEN, ".", 3, 77);
+			c_roff(TERM_GREEN, ".", 0, 0);
+
+			special_text_flag = TRUE;
 		}
 	}
 
 
-	/* Clear some space */
-	for (i = 0; i < 3; i++) roff("\n", 0, 0);
+	/* Spacing */
+	roff("\n\n", 0, 0);
+	if (!special_text_flag) roff("\n", 0, 0);
 
 	/* Fully describe the object. */
 	object_details(i_ptr, mental, known);
@@ -1458,7 +1483,7 @@ void do_cmd_inscribe(void)
 	if (o_ptr->note)
 	{
 		/* Start with the old inscription */
-		strnfmt(tmp, 80, "%s", quark_str(o_ptr->note));
+		(void)strnfmt(tmp, 80, "%s", quark_str(o_ptr->note));
 	}
 
 	/* Get a new inscription (possibly empty) */
@@ -1708,6 +1733,9 @@ void do_cmd_refill(void)
 
 /*
  * An "item_tester_hook" for light sources
+ *
+ * We do not allow other shining objects to be doused.  A blazing sword
+ * always blazes.
  */
 static bool item_tester_light_source(const object_type *o_ptr)
 {
@@ -2421,7 +2449,7 @@ void do_cmd_query_symbol(void)
 
 		/* Move to "prev" monster */
 		if ((query == '-') || (query == '4') ||
-		    ((rogue_like_commands) && (query == 'h')))
+		    ((rogue_like_commands) && (query == 'j')))
 		{
 			if (i-- == 0)
 			{
@@ -2691,6 +2719,12 @@ void py_steal(int y, int x)
 
 		/* Teleport */
 		teleport_player(get_skill(S_BURGLARY, 6, 12), TRUE, FALSE);
+
+		/* Print "special attacks" */
+		left_panel_display(DISPLAY_SPECIAL_ATTACK, 0);
+
+		/* Redraw conditions status */
+		p_ptr->redraw |= (PR_CONDITIONS);
 	}
 
 	/* An angel has been robbed by a priest (!) */

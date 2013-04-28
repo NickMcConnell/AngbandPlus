@@ -80,9 +80,9 @@
 # Y - Light Yellow M - Magenta        X - (multihued)
 
 # 'I' is for information - speed, health, vision in tens of feet,
-# armor class, and alertness. 110 is normal speed. Alertness ranges
-# from 0 (ever vigilant for intruders) to 255 (almost oblivious of 
-# intruders).
+# armor class, alertness, combat range, and noiseness.  The last two 
+# may be omitted.  110 is normal speed. Alertness ranges from 0 (ever 
+# vigilant for intruders) to 255 (almost oblivious of intruders).
 
 # 'W' is for more information - level, rarity, maximum mana, and exper-
 # ience for killing.
@@ -3350,7 +3350,8 @@ F:DROP_90 | GIANT | EVIL | IM_ELEC |
 F:SMART
 D:A sixteen foot tall giant wreathed in clouds.
 
-N:336:Pukelman
+# Pukel-man (was: Pukelman)
+N:336:P['u]kel-man
 G:g:D
 I:110:300:12:40:10:1
 W:30:2:53:250
@@ -4771,7 +4772,8 @@ S:1_IN_2 | POW_28 |
 S:CURE | BLINK | DARKNESS | CURSE | MIND_BLAST | WOUND
 D:A wizened old crone with a malicious twinkle in her eye.
 
-N:466:Mumak
+# Mumak
+N:466:M[^u]mak
 G:q:s
 I:110:375:15:30:100:1
 W:47:1:0:500
@@ -5506,7 +5508,8 @@ D:hear it mumbling hellish incantations.
 
 ## empty space (available for dungeon monsters) ##
 
-N:534:Horde mumak
+# Horde mumak
+N:534:Horde m[^u]mak
 G:q:W
 I:115:700:18:30:80:1
 W:57:2:0:1200
@@ -7046,7 +7049,8 @@ F:SMART
 D:He is a sturdy hobbit who is renowned for his unusual strength and vigour.  
 D:He can prove a troublesome opponent.
 
-N:685:Mughash the Kobold Lord
+# Mughash the Kobold Lord
+N:685:Mugh[^a]sh the Kobold Lord
 G:k:b
 I:110:120:20:15:20:1
 W:7:3:0:80
@@ -7118,8 +7122,9 @@ S:S_MONSTER
 D:He's just like his daddy!  He knows mighty spells, but fortunately he is 
 D:just a yeek.
 
+# Smeagol
 # Note:  This index is used in game code
-N:690:Smeagol
+N:690:Sm['e]agol
 G:h:u
 I:130:150:24:21:5:1:16
 W:16:5:0:40
@@ -7130,7 +7135,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:EVIL | SMART
 D:He's been sneaking, and he wants his 'precious.'
 
-N:691:Grishnakh, the Hill Orc
+# Grishnakh, the Hill Orc
+N:691:Grishn['a]kh, the Hill Orc
 G:o:U
 I:110:150:20:20:20:1
 W:13:2:0:150
@@ -7202,7 +7208,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:EVIL | SMART
 D:A short and swarthy Easterling.
 
-N:696:Nar, the Dwarf
+# Nar, the Dwarf
+N:696:N['a]r, the Dwarf
 G:h:y
 I:110:330:25:35:25:1:22
 W:20:2:24:200
@@ -7276,7 +7283,8 @@ F:ORC | EVIL | IM_POIS |
 F:SMART
 D:A strong and cunning orc warrior, Lugdush sneers as he insults your mother.
 
-N:701:Ugluk, the Uruk
+# Ugluk, the Uruk
+N:701:Ugl['u]k, the Uruk
 G:o:b
 I:110:520:20:40:20:1
 W:27:3:0:500
@@ -7302,7 +7310,7 @@ F:UNIQUE | FIXED_HPS | ATTR_MULTI |
 F:MALE | ESCORT | ESCORTS | OPEN_DOOR | BASH_DOOR | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:ORC | EVIL | IM_POIS | SMART
-D:He is also known as the King of Khazad-dum.  His ego is renowned to be 
+D:He is also known as the King of Khazad-d[^u]m.  His ego is renowned to be 
 D:bigger than his head.
 
 N:703:Sangahyando of Umbar
@@ -7333,7 +7341,8 @@ S:1_IN_4 | POW_15 |
 S:FORGET | CURSE | SLOW
 D:A Black Numenorean who hates the men of the west.
 
-N:705:Ibun, Son of Mim
+# Ibun, Son of Mim
+N:705:Ibun, Son of M[^i]m
 G:h:o
 I:110:500:20:35:10:1
 W:32:2:40:300
@@ -7349,7 +7358,8 @@ S:BOLT_FIRE | HEAL | SLOW
 D:One of the last of the Petty-Dwarves.  Ibun is a tricky sorcerous little 
 D:being, full of mischief.
 
-N:706:Khim, Son of Mim
+# Khim, Son of Mim
+N:706:Kh[^i]m, Son of M[^i]m
 G:h:o
 I:110:500:20:35:10:1
 W:32:2:40:300
@@ -7362,7 +7372,7 @@ F:IM_FIRE | IM_COLD | NO_CONF |
 F:SMART
 S:1_IN_9 | POW_22 | 
 S:BOLT_COLD | HEAL | SLOW
-D:One of the last of the Petty-Dwarves.  Khim is a tricky sorcerous little 
+D:One of the last of the Petty-Dwarves.  Kh[^i]m is a tricky sorcerous little 
 D:being, full of mischief.
 
 ## empty space (available for unique monsters) ##
@@ -7498,7 +7508,8 @@ S:BOULDER
 D:A massive and cruel troll of great power; drool slides caustically down his 
 D:muscular frame.  Despite his bulk, he strikes with stunning speed.
 
-N:717:Mim, Betrayer of Turin
+# Mim, Betrayer of Turin
+N:717:M[^i]m, Betrayer of T['u]rin
 G:h:o
 I:120:625:20:40:20:1
 W:47:4:72:2000
@@ -7513,7 +7524,7 @@ F:EVIL | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF |
 F:SMART
 S:1_IN_6 | POW_40 | 
 S:BALL_ACID | HEAL | SCARE
-D:Mim is a Petty-Dwarf, the last of his race.  Petty-Dwarves are strange 
+D:M[^i]m is a Petty-dwarf, the last of his race.  Petty-dwarves are strange 
 D:creatures, powerful in sorcery and originating far to the East.  They have 
 D:been hunted nearly to extinction by the High Elves.
 
@@ -7532,9 +7543,10 @@ F:EVIL | SMART
 S:1_IN_2 | POW_40 | 
 S:BOLT_ELEC | BOLT_FIRE | BOLT_COLD | BOLT_ICE | 
 S:HEAL | TRAPS
-D:A Black Numenorean, treacherous and evil, who usurped the throne of Gondor.
+D:A Gondorian noble who usurped the throne, he is treacherous and evil.
 
-N:719:Ar-Pharazon the Golden
+# Ar-Pharazon the Golden
+N:719:Ar-Pharaz[^o]n the Golden
 G:p:y
 I:120:750:30:45:100:1
 W:48:6:108:2100
@@ -7547,10 +7559,10 @@ F:MALE | FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD | 
 F:SMART
 S:1_IN_10 | POW_25 | 
-S:HASTE | HEAL | TELE_AWAY | S_MONSTERS
-D:Last and proudest king of ancient Numenor.  Corrupted by power and avarice, 
+S:HASTE | HEAL | TELE_AWAY | S_MONSTERS | S_KIN
+D:Last and proudest king of ancient N['u]menor.  Corrupted by power and avarice, 
 D:he fell victim to Sauron's wiles, tried to fight the Valar themselves, 
-D:and condemned Numenor to oblivion.
+D:and condemned N['u]menor to oblivion.
 
 N:720:Shelob, Spider of Darkness
 G:S:p
@@ -7964,9 +7976,10 @@ F:SMART | POWERFUL
 S:1_IN_4 | POW_45 | 
 S:BRTH_FIRE | WOUND | SCARE | BLIND | CONF | HOLD | 
 S:S_DRAGON
-D:Smaug is one of the Uruloki that still survive, a fire-drake of immense 
+D:Smaug is one of the Urul['o]ki that still survive, a fire-drake of immense 
 D:cunning and intelligence.  His speed through air is matched by few other 
-D:dragons and his dragonfire is what legends are made of.
+D:dragons and his dragonfire is what legends are made of.  He is believed to 
+D:be the greatest dragon still surviving into the Third Age.
 
 N:742:Muar, the Balrog
 G:&:o
@@ -8131,9 +8144,9 @@ F:SMART | POWERFUL
 S:1_IN_3 | POW_95 | 
 S:BALL_NETHR | BALL_MANA | HASTE | ADD_MANA | CURE | TELE_TO | MIND_BLAST | 
 S:HOLY_SMITE | SCARE | BLIND | S_ANGEL
-D:Azriel commands awesome power, his visage holy enough to shrivel your soul. 
-D: You shriek with disbelief as his mastery of death draws you to your grave. 
-D: It is truly beyond all but the mightiest of warriors to stand against him 
+D:Azriel commands awesome power, his visage holy enough to shrivel your soul.  
+D:You shriek with disbelief as his mastery of death draws you to your grave.  
+D:It is truly beyond all but the mightiest of warriors to stand against him 
 D:and live.
 
 N:750:Lungorthin, the Balrog of White Fire
@@ -8220,7 +8233,8 @@ D:The first guard of Angband, Carcharoth, also known as 'The Red Maw', is the
 D:largest wolf to ever walk the earth.  He is highly intelligent and a deadly 
 D:opponent in combat.
 
-N:754:Khamul, the Black Easterling
+# Khamul, the Black Easterling
+N:754:Kham[^u]l, the Black Easterling
 G:W:D
 I:120:2100:30:40:15:4:18
 W:79:5:185:14000
@@ -8239,7 +8253,7 @@ S:PMISSL | BALL_COLD | BALL_POIS | BALL_NETHR | BOLT_MANA |
 S:HASTE | ADD_MANA | CURE | TELE_LEVEL | CURSE | MIND_BLAST | WOUND | 
 S:HELLDARK | SCARE | BLIND | HOLD | 
 S:S_MONSTER | S_UNDEAD | S_HI_UNDEAD
-D:A warrior-king of the East.  Khamul is a powerful opponent, his skill in 
+D:A warrior-king of the East.  Kham[^u]l is a powerful opponent, his skill in 
 D:combat awesome and his form twisted by evil cunning.
 
 N:755:Ungoliant, the Unlight
@@ -8600,7 +8614,8 @@ N:776:Zombie
 G:z:B
 I:110:220:20:14:0:0
 W:12:11:43:90
-B:HIT:HURT:3d7
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
 B:HIT:POISON:3d7
 F:UNIQUE | PLAYER_GHOST | FIXED_HPS | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
@@ -8614,7 +8629,8 @@ N:777:Spirit
 G:G:B
 I:120:180:20:14:0:0:15
 W:18:12:55:140
-B:TOUCH:HURT:3d6
+B:TOUCH:HURT:2d5
+B:TOUCH:HURT:2d5
 B:TOUCH:TERRIFY:1d2
 B:TOUCH:LOSE_DEX:1d2
 F:UNIQUE | PLAYER_GHOST | FIXED_HPS | 
@@ -8650,10 +8666,10 @@ N:779:Wight
 G:W:B
 I:115:192:20:20:0:0
 W:31:14:75:210
-B:WAIL:TERRIFY
-B:TOUCH:HURT:4d14
+B:TOUCH:HURT:4d7
+B:TOUCH:HURT:4d7
 B:TOUCH:EXP_40:1d5
-B:TOUCH:HURT:4d14
+B:WAIL:TERRIFY
 F:UNIQUE | PLAYER_GHOST | FIXED_HPS | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | 
 F:ONLY_ITEM | DROP_90 | DROP_CHEST | 
@@ -8671,8 +8687,8 @@ I:120:420:20:12:0:0:15
 W:37:15:83:450
 B:WAIL:TERRIFY
 B:TOUCH:EXP_20:1d6
-B:CLAW:LOSE_INT:3d7
-B:CLAW:LOSE_WIS:3d7
+B:CLAW:LOSE_INT:4d12
+B:CLAW:LOSE_WIS:4d12
 F:UNIQUE | PLAYER_GHOST | FIXED_HPS | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | FLYING | 
 F:ONLY_ITEM | DROP_90 | DROP_CHEST | 
@@ -8690,8 +8706,8 @@ I:115:700:20:18:0:0
 W:44:15:92:600
 B:HIT:HURT:5d8
 B:HIT:HURT:5d8
-B:BITE:EXP_20:2d9
-B:BITE:EXP_20:2d9
+B:BITE:EXP_20:3d6
+B:BITE:EXP_20:3d6
 F:UNIQUE | PLAYER_GHOST | FIXED_HPS | 
 F:REGENERATE | OPEN_DOOR | BASH_DOOR | 
 F:ONLY_ITEM | DROP_90 | DROP_CHEST | 
@@ -8706,7 +8722,7 @@ N:782:Phantom
 G:G:B
 I:120:850:30:12:20:0:15
 W:51:15:101:1500
-B:TOUCH:EXP_80:1d15
+B:TOUCH:HURT:1d15
 B:TOUCH:EXP_80:1d15
 B:CLAW:LOSE_INT:3d8
 B:CLAW:LOSE_WIS:3d8
@@ -8725,9 +8741,9 @@ N:783:Lich
 G:L:B
 I:120:1200:20:24:0:0
 W:58:15:109:3000
+B:TOUCH:HURT:4d9
 B:TOUCH:EXP_40
 B:TOUCH:UN_POWER
-B:TOUCH:LOSE_DEX:4d9
 B:TOUCH:LOSE_DEX:4d9
 F:UNIQUE | PLAYER_GHOST | FIXED_HPS | 
 F:REGENERATE | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 

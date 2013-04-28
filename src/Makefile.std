@@ -8,8 +8,7 @@
 #
 # main-gcu
 # main-x11
-# main-xaw (in testing)
-# main-gtk (in testing)
+# main-gtk
 #
 #
 # Note that you may have to make modifications below according
@@ -51,6 +50,7 @@ SRCS = \
   main.c \
   main-gcu.c \
   main-x11.c \
+  main-gtk.c \
   maid-x11.c \
   attack.c \
   birth.c \
@@ -104,6 +104,7 @@ OBJS = \
   main.o \
   main-gcu.o \
   main-x11.o \
+  main-gtk.o \
   maid-x11.o \
   attack.o \
   birth.o \
@@ -393,6 +394,7 @@ INCS = \
 main.o: main.c $(INCS) main.h
 main-gcu.o: main-gcu.c $(INCS) main.h
 main-x11.o: main-x11.c $(INCS) main.h maid-x11.h
+main-gtk.o: main-gtk.c $(INCS) main.h maid-x11.h
 maid-x11.o: maid-x11.c $(INCS) maid-x11.h
 attack.o: attack.c $(INCS)
 birth.o: birth.c $(INCS)

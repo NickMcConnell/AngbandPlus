@@ -17,31 +17,12 @@
  * whether you wish to keep, comment, or uncomment them.  You should not
  * have to modify any lines not indicated by "OPTION".
  *
- * A number of compile options have been removed in Sangband, usually for
- * one of three reasons:
- * 1) The code in question has been fully incorporated into the game,
- *   like monster fear, the DRS monster memory code, and Tim Baker's easy
- *   patch.
- * 2) The feature no longer imposes any significant costs (monster terror).
- * 3) The game no longer supports x286-based machines (because of the use
- *   of 64K arrays to hold monster descriptions, and because the code now
- *   runs very slowly on them).
- *
  * Note: Also examine the "system" configuration file "h-config.h".  A
  * lot of options have been moved there.
  *
  * And finally, remember that the "Makefile" will specify some rather
  * important compile time options, like what visual module to use.
  */
-
-
-
-/*
- * OPTION: Verify savefile Checksums (Angband 2.7.0 and up)
- * This option can help prevent "corruption" of savefiles, and also
- * stop intentional modification by amateur users.
- */
-#define VERIFY_CHECKSUMS
 
 
 /*
@@ -85,22 +66,6 @@
 
 
 /*
- * OPTION: Allow "do_cmd_colors" at run-time
- */
-#define ALLOW_COLORS
-
-/*
- * OPTION: Allow "do_cmd_visuals" at run-time
- */
-#define ALLOW_VISUALS
-
-/*
- * OPTION: Allow "do_cmd_macros" at run-time
- */
-#define ALLOW_MACROS
-
-
-/*
  * OPTION: Allow parsing of the ASCII template files in "init.c".
  * This must be defined if you do not have valid binary image files.
  * It should be usually be defined anyway to allow easy updating.
@@ -110,6 +75,9 @@
 
 /*
  * OPTION: Allow "Wizards" to yield "high scores"
+ *
+ * The only reason to allow SCORE_WIZARDS to be turned on is that
+ * it can be handy when debugging the high score list.
  */
 /* #define SCORE_WIZARDS */
 
@@ -117,12 +85,6 @@
  * OPTION: Allow "Borgs" to yield "high scores"
  */
 /* #define SCORE_BORGS */
-
-
-/*
- * OPTION: Gamma correct colours (with X11)
- */
-#define SUPPORT_GAMMA
 
 
 /*
@@ -163,7 +125,7 @@
 
 
 /*
- * OPTION: Create and use a hidden directory in the users home directory
+ * OPTION: Create and use a hidden directory in the user's home directory
  * for storing pref-files and character-dumps.
  */
 #ifdef SET_UID
@@ -174,7 +136,7 @@
 
 
 /*
- * OPTION: Create and use hidden directories in the users home directory
+ * OPTION: Create and use hidden directories in the user's home directory
  * for storing save files, data files, and high-scores
  */
 #ifdef PRIVATE_USER_PATH
@@ -182,25 +144,12 @@
 #endif /* PRIVATE_USER_PATH */
 
 
-/*
- * OPTION: Check the "time" against "lib/file/hours.txt"
- */
-/* #define CHECK_TIME */
-
-/*
- * OPTION: Check the "load" against "lib/file/load.txt"
- * This may require the 'rpcsvs' library
- */
-
-#if 0
-/*
- * This code is deprecated, and will disappear eventually.  If this is a
- * problem for you, let the maintainer know.
- */
-
-/* #define CHECK_LOAD */
-
-#endif
+#if 0 /* Deprecated */
+ /*
+  * OPTION: Check the "time" against "lib/file/hours.txt"
+  */
+ /* #define CHECK_TIME */
+#endif /* Deprecated */
 
 
 /*

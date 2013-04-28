@@ -964,7 +964,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					/* Notice susceptibility */
 					if (r_ptr->flags3 & (RF3_HURT_FIRE))
 					{
-						if ((f1 & (TR1_BRAND_FLAME)) && (add < 30)) add = 33;
+						if ((f1 & (TR1_BRAND_FLAME)) && (add < 33)) add = 33;
 						else if (add < 21) add = 21;
 
 						if (visible)
@@ -1060,7 +1060,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 	}
 
 	/* Hack -- Triple crossbows get 1/3rd the bonus */
-	if ((o_ptr->tval == TV_BOW) && (o_ptr->sval == SV_TRIPLE_XBOW))
+	if ((o_ptr->tval == TV_CROSSBOW) && (o_ptr->sval == SV_TRIPLE_XBOW))
 		add = div_round(add, 3);
 
 
@@ -1076,6 +1076,139 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 
 	/* Apply divisor, if positive */
 	if (divide > 1) *damage = div_round(*damage, divide);
+}
+
+
+/*
+ * Modes of combat
+ */
+#define COMBAT_MELEE    1
+#define COMBAT_FIRE     2
+#define COMBAT_THROW    3
+
+/*
+ * Various special combat damage adjustments
+ */
+#define DAM_ADJUST_DAM        0x0001
+#define DAM_ADJUST_DEADLY     0x0002
+
+
+/*
+ * Calculate damage done by weapons, missiles, and thrown objects.  -LM-
+ *
+ * Damage depends on damage dice plus brands/slays.  Critical hits and
+ * Deadliness can greatly enhance dice, and therefore overall damage.
+ *
+ * Return the damage.  Store combat hit messages, if needed.
+ */
+static int calc_combat_dam(int mode, object_type *o_ptr, monster_type *m_ptr,
+	char *m_name, int total_deadliness, int chance, char *msg_hit, u16b combat_mods)
+{
+	int dice;
+	long die_average, temp, sides, damage;
+	int dam_int;
+	u32b f1, f2, f3;
+
+	bool throwing_weapon = FALSE;
+
+	/* Clear the hit message */
+	msg_hit[0] = '\0';
+
+
+	/* Get object flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Notice thrown weapon */
+	if (f1 & (TR1_THROWING)) throwing_weapon = TRUE;
+
+
+	/* Base damage dice */
+	dice = o_ptr->dd;
+
+	/* Critical hits may add damage dice. */
+	if (mode == COMBAT_MELEE)
+	{
+		dice += critical_melee(chance, m_ptr->ml, m_name, o_ptr, m_ptr);
+	}
+	else if (mode == COMBAT_FIRE)
+	{
+		dice += critical_shot(chance, FALSE, m_ptr->ml,
+		                      m_name, o_ptr, m_ptr, msg_hit);
+	}
+	else if ((mode == COMBAT_THROW) && (throwing_weapon))
+	{
+		dice += critical_shot(chance, TRUE, m_ptr->ml,
+		                      m_name, o_ptr, m_ptr, msg_hit);
+	}
+
+
+	/* Get the average value of a single damage die. (x10) */
+	die_average = (10 * (o_ptr->ds + 1)) / 2;
+
+	/* Apply deadliness to average. (100x inflation) */
+	apply_deadliness(&die_average, total_deadliness);
+
+
+	/* When shooting,  apply the launcher multiplier to average. */
+	if (mode == COMBAT_FIRE) die_average *= p_ptr->ammo_mult;
+
+
+	/* Special case:  Throwing a throwing weapon. */
+	if ((mode == COMBAT_THROW) && (throwing_weapon))
+	{
+		/* Bonuses depend on specialization */
+		int max = 85;
+		if (p_ptr->oath & (OATH_OF_IRON)) max = 100;
+		else if (p_ptr->oath & (BURGLARS_GUILD)) max = 90;
+		else if (p_ptr->oath) max = 70;
+
+		/*
+		 * Multiply the die average by the throwing
+		 * weapon multiplier, if applicable.  This is not the
+		 * prettiest equation, but it does at least try to keep
+		 * throwing weapons competitive.
+		 */
+		die_average *= get_skill(S_THROWING, 20, max);
+
+		/* Perfectly balanced weapons do 50% extra damage. */
+		if (f1 & (TR1_PERFECT_BALANCE))
+		{
+			die_average += die_average / 2;
+		}
+
+		/* Only the real throwing weapons get the full bonus */
+		if (!is_any_weapon(o_ptr)) die_average /= 2;
+
+		/* Deflate */
+		die_average = div_round(die_average, 10);
+	}
+
+
+	/* Reconvert to die sides. */
+	temp = (2L * die_average) - 1000;
+
+	/* Calculate the actual number of sides to each die. */
+	sides = div_round(temp, 1000);
+
+
+	/* Roll out the damage. */
+	damage = damroll(dice, (s16b)sides);
+
+	/* Special damage bonuses */
+	if (combat_mods & (DAM_ADJUST_DAM))    damage += 10;
+	if (combat_mods & (DAM_ADJUST_DEADLY)) damage += 20;
+
+	/* Convert damage to integer */
+	dam_int = (int)damage;
+
+	/* Adjust damage for slays, brands, resists. */
+	adjust_dam(&dam_int, o_ptr, m_ptr, FALSE);
+
+	/* No negative damage */
+	if (dam_int < 0) dam_int = 0;
+
+	/* Return the damage */
+	return (dam_int);
 }
 
 
@@ -1682,8 +1815,8 @@ bool py_attack(int y, int x)
 	/* Terrain adjustments to effective monster ac. */
 	int terrain_adjust = 0;
 
-	/* Skill and Deadliness */
-	int bonus, chance, total_deadliness;
+	/* Skill */
+	int bonus, chance;
 
 	/* Weapon skill */
 	int skill = get_skill(sweapon(inventory[INVEN_WIELD].tval), 0, 100);
@@ -1698,6 +1831,7 @@ bool py_attack(int y, int x)
 	bool dead = FALSE;
 	bool stop = FALSE;
 	int do_force_back = 0;
+	u16b combat_mods = 0;
 
 	u32b f1, f2, f3;
 
@@ -1986,11 +2120,7 @@ bool py_attack(int y, int x)
 			/* Character is wielding a weapon */
 			if (is_melee_weapon(o_ptr))
 			{
-				int dice;
-				long die_average, temp, sides;
-
-				/* Calculate deadliness */
-				total_deadliness = p_ptr->to_d + o_ptr->to_d;
+				char dummy[80];
 
 				/* Get object flags */
 				object_flags(o_ptr, &f1, &f2, &f3);
@@ -1998,32 +2128,10 @@ bool py_attack(int y, int x)
 				/* Note impact weapon */
 				if (f3 & (TR3_IMPACT)) impact = TRUE;
 
-
-				/* Base damage dice */
-				dice = o_ptr->dd;
-
-				/* Critical hits may add damage dice */
-				dice += critical_melee(chance + sleeping_bonus, m_ptr->ml,
-											  m_name, o_ptr, m_ptr);
-
-				/* Get the average value of a single damage die. (x10) */
-				die_average = (10 * (o_ptr->ds + 1)) / 2;
-
-				/* Apply deadliness to average. (100x inflation) */
-				apply_deadliness(&die_average, total_deadliness);
-
-				/* Reconvert to die sides. */
-				temp = (2L * die_average) - 1000;
-
-				/* Calculate the actual number of sides to each die. */
-				sides = div_round(temp, 1000);
-
-
-				/* Roll out the damage. */
-				damage = damroll(dice, (s16b)sides);
-
-				/* Adjust damage for slays, brands, resists. */
-				adjust_dam(&damage, o_ptr, m_ptr, FALSE);
+				/* Calculate the damage */
+				damage = calc_combat_dam(COMBAT_MELEE, o_ptr, m_ptr,
+					m_name, p_ptr->to_d + o_ptr->to_d,
+					chance + sleeping_bonus, dummy, combat_mods);
 			}
 
 			/* Character is fighting bare-handed (first weapon only) */
@@ -2581,6 +2689,7 @@ void do_cmd_fire(void)
 	int special_impact = 0;
 	int special_hit = 0;
 	int special_deadly = 0;
+	u16b combat_mods = 0;
 
 	object_type *o_ptr;
 	object_type *i_ptr;
@@ -2703,11 +2812,11 @@ void do_cmd_fire(void)
 		((i_ptr->weight > 3) ? i_ptr->weight : 3);
 
 	/* Max distance depends on skill */
-	if (tdis > 12 + get_skill(sbow(o_ptr->sval), 0, 8))
-	    tdis = 12 + get_skill(sbow(o_ptr->sval), 0, 8);
+	if (tdis > 12 + get_skill(sbow(o_ptr->tval), 0, 8))
+	    tdis = 12 + get_skill(sbow(o_ptr->tval), 0, 8);
 
 	/* Shots are usually not perfectly accurate */
-	inaccuracy = 5 - get_skill(sbow(o_ptr->sval), 0, 5);
+	inaccuracy = 5 - get_skill(sbow(o_ptr->tval), 0, 5);
 
 	/* Cursed ammo can escape from your control  -clefs- */
 	if (cursed_p(i_ptr))
@@ -2928,10 +3037,6 @@ void do_cmd_fire(void)
 
 			bool fear = FALSE;
 
-			int dice;
-			long die_average, temp, sides;
-
-
 			/* Get "the monster" or "it" */
 			monster_desc(m_name, m_ptr, 0x40);
 
@@ -3009,50 +3114,18 @@ void do_cmd_fire(void)
 			if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 
 			/* Practice the shooting skill */
-			skill_being_used = sbow(o_ptr->sval);
+			skill_being_used = sbow(o_ptr->tval);
 
-			/*
-			 * The basic damage-determination formula is the same in
-			 * archery as it is in melee (apart from the launcher mul-
-			 * tiplier).
-			 */
-
-			/* Base damage dice */
-			dice = i_ptr->dd;
-
-			/* Critical hits may add damage dice. */
-			dice += critical_shot(chance + sleeping_bonus, FALSE, m_ptr->ml,
-			          m_name, i_ptr, m_ptr, msg_hit);
-
-			/* Get the average value of a single damage die. (10x inflation) */
-			die_average = (10 * (i_ptr->ds + 1)) / 2;
-
-
-			/* Apply the launcher multiplier to average. */
-			die_average *= p_ptr->ammo_mult;
-
-			/* Apply deadliness to average. (100x inflation) */
-			apply_deadliness(&die_average, total_deadliness);
-
-			/* Reconvert to die sides. */
-			temp = (2L * die_average) - 1000;
-
-			/* Calculate the actual number of sides to each die. */
-			sides = div_round(temp, 1000);
-
-
-			/* Roll out the damage. */
-			damage = damroll(dice, (s16b)sides);
 
 			/* Special damage bonuses */
-			if (special_dam) damage += 10;
-			if (special_deadly) damage += 20;
+			if (special_dam)    combat_mods |= (DAM_ADJUST_DAM);
+			if (special_deadly) combat_mods |= (DAM_ADJUST_DEADLY);
 
-			/* Adjust damage for slays, brands, resists. */
-			adjust_dam(&damage, i_ptr, m_ptr, FALSE);
+			/* Calculate the damage */
+			damage = calc_combat_dam(COMBAT_FIRE, i_ptr, m_ptr,
+				m_name, total_deadliness, chance + sleeping_bonus,
+				msg_hit, combat_mods);
 
-			/* No negative damage */
-			if (damage < 0) damage = 0;
 
 			/* Hack! -- display hit messages before monster dies  XXX */
 			if ((damage > m_ptr->hp) && (strlen(msg_hit)))
@@ -3193,6 +3266,7 @@ void do_cmd_throw(void)
 	int sleeping_bonus = 0;
 	int terrain_adjust = 0;
 	int inaccuracy;
+	u16b combat_mods = 0;
 
 	int damage;
 
@@ -3460,10 +3534,6 @@ void do_cmd_throw(void)
 
 			bool fear = FALSE;
 
-			int dice;
-			long die_average, temp, sides;
-
-
 			/* Get "the monster" or "it" */
 			monster_desc(m_name, m_ptr, 0x40);
 
@@ -3538,33 +3608,15 @@ void do_cmd_throw(void)
 			/* Practice the throwing skill */
 			skill_being_used = S_THROWING;
 
+
 			/* Potions smash */
 			if (i_ptr->tval == TV_POTION)
 			{
 				break;
 			}
 
-			/* Other items hit the monster */
-
-			/*
-			 * The basic damage-determination formula is the same in
-			 * throwing as it is in melee (with some omissions for objects
-			 * that are not throwing weapons).
-			 */
-
-			/* Base damage dice */
-			dice = i_ptr->dd;
-
-			/* Object is a throwing weapon. */
-			if (throwing_weapon)
-			{
-				/* Critical hits may add damage dice. */
-				dice += critical_shot(chance + sleeping_bonus, TRUE,
-					m_ptr->ml, m_name, i_ptr, m_ptr, msg_hit);
-			}
-
 			/* Ordinary thrown object */
-			else
+			if (!throwing_weapon)
 			{
 				/* Store a default hit message. */
 				if (m_ptr->ml)
@@ -3584,56 +3636,11 @@ void do_cmd_throw(void)
 				break;
 			}
 
-			/* Get the average value of a single damage die. (10x inflation) */
-			die_average = (10 * (i_ptr->ds + 1)) / 2;
 
-			/* Apply deadliness to average. (100x inflation) */
-			apply_deadliness(&die_average, total_deadliness);
-
-			/* Object is a throwing weapon. */
-			if (throwing_weapon)
-			{
-				/* Bonuses depend on specialization */
-				int max = 85;
-				if (p_ptr->oath & (OATH_OF_IRON)) max = 100;
-				else if (p_ptr->oath & (BURGLARS_GUILD)) max = 90;
-				else if (p_ptr->oath) max = 70;
-
-				/*
-				 * Multiply the die average by the throwing
-				 * weapon multiplier, if applicable.  This is not the
-				 * prettiest equation, but it does at least try to keep
-				 * throwing weapons competitive.
-				 */
-				die_average *= get_skill(S_THROWING, 20, max);
-
-				/* Perfectly balanced weapons do 50% extra damage. */
-				if (f1 & (TR1_PERFECT_BALANCE))
-				{
-					die_average += die_average / 2;
-				}
-
-				/* Only the pure throwing weapons get the full bonus */
-				if (!is_any_weapon(i_ptr)) die_average /= 2;
-
-				/* Deflate */
-				die_average = div_round(die_average, 10);
-			}
-
-			/* Convert die average to die sides. */
-			temp = (2L * die_average) - 1000;
-
-			/* Calculate the actual number of sides to each die. */
-			sides = div_round(temp, 1000);
-
-			/* Roll out the damage. */
-			damage = damroll(dice, (s16b)sides);
-
-			/* Adjust damage for slays, brands, resists. */
-			adjust_dam(&damage, i_ptr, m_ptr, FALSE);
-
-			/* No negative damage */
-			if (damage < 0) damage = 0;
+			/* Calculate the damage */
+			damage = calc_combat_dam(COMBAT_THROW, i_ptr, m_ptr,
+				m_name, total_deadliness, chance + sleeping_bonus,
+				msg_hit, combat_mods);
 
 
 			/* Hack! -- display hit messages before monster dies  XXX */

@@ -18,6 +18,7 @@
 #ifndef INCLUDED_H_CONFIG_H
 #define INCLUDED_H_CONFIG_H
 
+#include <limits.h>
 
 /*
  * OPTION: Compile on a Macintosh machine
@@ -217,24 +218,6 @@
 
 
 /*
- * OPTION: Set "USG" for "System V" versions of UNIX
- *
- * This was used to choose a "lock()" function, before POSIX locking
- * was introduced.
- *
- * It is also used by main-gcu for certain system specific stuff.
- */
-#ifdef SET_UID
-# if defined(SYS_III) || defined(SYS_V) || defined(SOLARIS) || \
-     defined(HPUX) || defined(SGI) || defined(ATARI)
-#  ifndef USG
-#   define USG
-#  endif
-# endif
-#endif
-
-
-/*
  * Every system seems to use its own symbol as a path separator.
  * Default to the standard UNIX slash, but attempt to change this
  * for various other systems.  Note that any system that uses the
@@ -285,48 +268,11 @@
  * Options for unix machines include:
  * "USE_GCU" (allow use with UNIX "curses"),
  * "USE_X11" (allow basic use with UNIX X11),
- * "USE_XAW" (allow use with UNIX X11 plus the Athena widget set).
  * "USE_GTK" (allow use with the GTK widget set library)
  *
  * You may also need to specify the "system", using defines such as
  * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
  */
-
-/*
- * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
- */
-/* #define USE_TPOSIX */
-
-/*
- * OPTION: Use the "termio" methods in "main-gcu.c"
- */
-/* #define USE_TERMIO */
-
-/*
- * OPTION: Use the icky BSD "tchars" methods in "main-gcu.c"
- */
-/* #define USE_TCHARS */
-
-
-/*
- * OPTION: Use "blocking getch() calls" in "main-gcu.c".
- * Hack -- Note that this option will NOT work on many BSD machines
- * Currently used whenever available, if you get a warning about
- * "nodelay()" undefined, then make sure to undefine this.
- */
-#if defined(SYS_V) || defined(AMIGA)
-# define USE_GETCH
-#endif
-
-
-/*
- * OPTION: Use the "curs_set()" call in "main-gcu.c".
- * Hack -- This option will not work on most BSD machines
- * But it *will* work on Linux, which is not System V.  -uav
- */
-#if defined (SYS_V) || defined(linux)
-# define USE_CURS_SET
-#endif
 
 
 /*
@@ -422,7 +368,7 @@
 
 #endif
 
-
+#if 0 /* We're testing signals in Windows */
 /*
  * Hack -- Windows stuff
  */
@@ -432,7 +378,7 @@
 # undef HANDLE_SIGNALS
 
 #endif
-
+#endif
 
 /*
  * Hack -- EMX stuff
@@ -450,25 +396,25 @@
 /*
  * OPTION: Default font (when using X11).
  */
-#define DEFAULT_X11_FONT		"9x15"
+#define DEFAULT_X11_FONT		"-angband-8x12x-*-iso8859-1"
 
 /*
  * OPTION: Default fonts (when using X11)
  */
-#define DEFAULT_X11_FONT_0		"10x20"
-#define DEFAULT_X11_FONT_1		"9x15"
-#define DEFAULT_X11_FONT_2		"9x15"
-#define DEFAULT_X11_FONT_3		"6x10"
-#define DEFAULT_X11_FONT_4		"6x10"
-#define DEFAULT_X11_FONT_5		"6x10"
-#define DEFAULT_X11_FONT_6		"6x10"
-#define DEFAULT_X11_FONT_7		"6x10"
+#define DEFAULT_X11_FONT_0		"-angband-8x12x-*-iso8859-1"
+#define DEFAULT_X11_FONT_1		"-angband-6x10x-*-iso8859-1"
+#define DEFAULT_X11_FONT_2		"-angband-6x10x-*-iso8859-1"
+#define DEFAULT_X11_FONT_3		"-angband-6x10x-*-iso8859-1"
+#define DEFAULT_X11_FONT_4		"-angband-6x10x-*-iso8859-1"
+#define DEFAULT_X11_FONT_5		"-angband-6x10x-*-iso8859-1"
+#define DEFAULT_X11_FONT_6		"-angband-6x10x-*-iso8859-1"
+#define DEFAULT_X11_FONT_7		"-angband-6x10x-*-iso8859-1"
 
 
 /*
  * OPTION: Default small font (when using X11) (only for main window in 50-line mode).
  */
-#define DEFAULT_X11_SFONT_0		"7x13"
+#define DEFAULT_X11_SFONT_0		"-angband-8x8x-*-iso8859-1"
 
 
 /*
@@ -484,6 +430,14 @@
 #endif
 
 
+/*
+ * On ports that use the "curses" library, hitting the escape key causes
+ * up to a one second delay.  On such machines, it is very helpful to
+ * provide an alternative.
+ */
+#ifdef USE_GCU
+# define USE_BACKQUOTE_AS_ESCAPE
+#endif /* USE_GCU */
 
 /*
  * OPTION: Check the modification time of *.raw files
@@ -491,6 +445,32 @@
 #define CHECK_MODIFICATION_TIME
 
 
+/*
+ * OPTION: Gamma correct colours (with X11)
+ */
+#define SUPPORT_GAMMA
+
+
+/* Ensure that NeXT can use fat binaries by default */
+#ifdef NeXT
+
+# if defined(m68k)
+#  define FAT_SUFFIX_DEFAULT   "m68k"
+# endif
+
+# if defined(i386)
+#  define FAT_SUFFIX_DEFAULT   "i386"
+# endif
+
+# if defined(sparc)
+#  define FAT_SUFFIX_DEFAULT   "sparc"
+# endif
+
+# if defined(hppa)
+#  define FAT_SUFFIX_DEFAULT   "hppa"
+# endif
+
+#endif
+
 
 #endif  /* INCLUDED_H_CONFIG_H */
-

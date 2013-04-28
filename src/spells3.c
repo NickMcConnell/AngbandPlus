@@ -1556,7 +1556,7 @@ bool device_use_effect(int mode, int power, int y, int x, object_type *o_ptr)
 				break;
 			}
 
-			case SV_ROD_LIGHTINGSTRIKE:
+			case SV_ROD_LIGHTNINGSTRIKE:
 			{
 				dam = damroll(1 + power / 3, 8);
 				notice = explosion(who, 0, y, x, dam, GF_ELEC);
@@ -1843,7 +1843,9 @@ bool hates_acid(const object_type *o_ptr)
 		/* Wearable items */
 		case TV_ARROW:
 		case TV_BOLT:
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -1922,7 +1924,9 @@ bool hates_fire(const object_type *o_ptr)
 		/* Wearable */
 		case TV_LITE:
 		case TV_ARROW:
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_BOOTS:
@@ -2460,7 +2464,7 @@ static void uncurse_object(object_type *o_ptr)
 
 
 /*
- * Removes curses from items in inventory (both obvious and hidden).
+ * Removes curses from items in inventory (both obvious and non-obvious).
  *
  * Note that Items which are "Perma-Cursed" (The One Ring, The Crown of
  * Morgoth) can NEVER be uncursed.
@@ -2539,7 +2543,9 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_DIGGING:
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		case TV_BOLT:
 		case TV_ARROW:
 		case TV_SHOT:
@@ -3141,7 +3147,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 
 	bool heavy = FALSE;
 	bool full  = FALSE;
-	bool supress_msg = FALSE;
+	bool suppress_msg = FALSE;
 
 	int feel;
 	int old_inscrip = o_ptr->inscrip;
@@ -3261,7 +3267,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	if (chance >= rand_range(65, 70)) heavy = TRUE;
 
 	/* Suppress messages if very skilled  -SKY- */
-	if (get_skill(S_PERCEPTION, 0, 100) >= 90) supress_msg = TRUE;
+	if (get_skill(S_PERCEPTION, 0, 100) >= 90) suppress_msg = TRUE;
 
 	/* Those who have taken the Oath of Iron are great at IDing wargear */
 	if (p_ptr->oath & (OATH_OF_IRON))
@@ -3433,7 +3439,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 
 		/* We got a definite feeling, and are not suppressing messages */
 		if ((feel != INSCRIP_UNCERTAIN) && (feel != old_inscrip) &&
-		    (!supress_msg))
+		    (!suppress_msg))
 		{
 			/* Get a short object description */
 			object_desc(o_name, o_ptr, FALSE, 0);
@@ -5011,7 +5017,7 @@ int stare_into_the_palantir(void)
 		r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Get the monster's name */
-		my_strcpy(m_name, format("%s", r_name + r_ptr->name), sizeof(m_name));
+		(void)my_strcpy(m_name, format("%s", r_name + r_ptr->name), sizeof(m_name));
 
 		/* Get monster pronoun */
 		monster_desc(m_pron, m_ptr, 0x31);

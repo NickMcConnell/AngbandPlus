@@ -34,10 +34,6 @@ static const struct module modules[] =
 	{ "gtk", help_gtk, init_gtk },
 #endif /* USE_GTK */
 
-#ifdef USE_XAW
-	{ "xaw", help_xaw, init_xaw },
-#endif /* USE_XAW */
-
 #ifdef USE_X11
 	{ "x11", help_x11, init_x11 },
 #endif /* USE_X11 */
@@ -87,7 +83,7 @@ static void quit_hook(cptr s)
 		if (!angband_term[j]) continue;
 
 		/* Nuke it */
-		term_nuke(angband_term[j]);
+		(void)term_nuke(angband_term[j]);
 	}
 }
 
@@ -145,13 +141,13 @@ static void init_stuff(void)
 #endif /* FIXED_PATHS */
 
 	/* Use the angband_path, or a default */
-	my_strcpy(path, tail ? tail : DEFAULT_PATH, sizeof(path));
+	(void)my_strcpy(path, tail ? tail : DEFAULT_PATH, sizeof(path));
 
 	/* Make sure it's terminated */
 	path[511] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
-	if (!suffix(path, PATH_SEP)) my_strcat(path, PATH_SEP, sizeof(path));
+	if (!suffix(path, PATH_SEP)) (void)my_strcat(path, PATH_SEP, sizeof(path));
 
 #endif /* AMIGA */
 
@@ -181,40 +177,40 @@ static void change_path(cptr info)
 	if (!s) quit_fmt("Try '-d<what>=<path>' not '-d%s'", info);
 
 	/* Analyze */
-	switch (tolower((unsigned char)info[0]))
+	switch (my_tolower((unsigned char)info[0]))
 	{
 #ifndef FIXED_PATHS
 		case 'a':
 		{
-			string_free(ANGBAND_DIR_APEX);
+			(void)string_free(ANGBAND_DIR_APEX);
 			ANGBAND_DIR_APEX = string_make(s+1);
 			break;
 		}
 
 		case 'f':
 		{
-			string_free(ANGBAND_DIR_FILE);
+			(void)string_free(ANGBAND_DIR_FILE);
 			ANGBAND_DIR_FILE = string_make(s+1);
 			break;
 		}
 
 		case 'h':
 		{
-			string_free(ANGBAND_DIR_HELP);
+			(void)string_free(ANGBAND_DIR_HELP);
 			ANGBAND_DIR_HELP = string_make(s+1);
 			break;
 		}
 
 		case 'i':
 		{
-			string_free(ANGBAND_DIR_INFO);
+			(void)string_free(ANGBAND_DIR_INFO);
 			ANGBAND_DIR_INFO = string_make(s+1);
 			break;
 		}
 
 		case 'x':
 		{
-			string_free(ANGBAND_DIR_XTRA);
+			(void)string_free(ANGBAND_DIR_XTRA);
 			ANGBAND_DIR_XTRA = string_make(s+1);
 			break;
 		}
@@ -233,28 +229,28 @@ static void change_path(cptr info)
 
 		case 'b':
 		{
-			string_free(ANGBAND_DIR_BONE);
+			(void)string_free(ANGBAND_DIR_BONE);
 			ANGBAND_DIR_BONE = string_make(s+1);
 			break;
 		}
 
 		case 'd':
 		{
-			string_free(ANGBAND_DIR_DATA);
+			(void)string_free(ANGBAND_DIR_DATA);
 			ANGBAND_DIR_DATA = string_make(s+1);
 			break;
 		}
 
 		case 'e':
 		{
-			string_free(ANGBAND_DIR_EDIT);
+			(void)string_free(ANGBAND_DIR_EDIT);
 			ANGBAND_DIR_EDIT = string_make(s+1);
 			break;
 		}
 
 		case 's':
 		{
-			string_free(ANGBAND_DIR_SAVE);
+			(void)string_free(ANGBAND_DIR_SAVE);
 			ANGBAND_DIR_SAVE = string_make(s+1);
 			break;
 		}
@@ -265,7 +261,7 @@ static void change_path(cptr info)
 
 		case 'u':
 		{
-			string_free(ANGBAND_DIR_USER);
+			(void)string_free(ANGBAND_DIR_USER);
 			ANGBAND_DIR_USER = string_make(s+1);
 			break;
 		}
@@ -452,7 +448,7 @@ int main(int argc, char *argv[])
 				if (!*arg) goto usage;
 
 				/* Get the savefile name */
-				my_strcpy(op_ptr->full_name, arg, sizeof(op_ptr->full_name));
+				(void)my_strcpy(op_ptr->full_name, arg, sizeof(op_ptr->full_name));
 				continue;
 			}
 

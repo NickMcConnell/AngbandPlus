@@ -942,7 +942,7 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 			/* XXX Check plurality for "some" */
 
 			/* Indefinite monsters need an indefinite article */
-			strcpy(desc, is_a_vowel(name[0]) ? "an " : "a ");
+			strcpy(desc, my_is_vowel(name[0]) ? "an " : "a ");
 			strcat(desc, name);
 		}
 
@@ -1017,10 +1017,6 @@ int lore_do_probe(int m_idx)
 	/* Return the number of new flags learnt */
 	return (n);
 }
-
-
-
-
 
 
 
@@ -2080,7 +2076,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr->r_idx = r_idx;
 
 
-
 	/*
 	 * If the monster is a player ghost, perform various manipulations
 	 * on it, and forbid ghost creation if something goes wrong.
@@ -2106,6 +2101,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		/* Mega-hack -- no nasty town dwellers when starting out */
 		else if (!calc_spent_exp()) return (FALSE);
 	}
+
 
 	/* Enforce sleeping if needed */
 	if (slp && r_ptr->sleep)
@@ -2448,7 +2444,7 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 	get_mon_num_hook = place_monster_okay;
 
 	/* Apply monster restrictions */
-	get_mon_num_prep();
+	(void)get_mon_num_prep();
 
 	/* Get index of first escort */
 	escort_idx = get_mon_num(monster_level);
@@ -2509,7 +2505,7 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 	get_mon_num_hook = NULL;
 
 	/* Un-apply monster restrictions */
-	get_mon_num_prep();
+	(void)get_mon_num_prep();
 }
 
 /*
@@ -2980,7 +2976,7 @@ int summon_specific(int y1, int x1, bool scattered, int lev, int type, int num)
 		get_mon_num_hook = summon_specific_okay;
 
 		/* Apply monster restrictions */
-		get_mon_num_prep();
+		(void)get_mon_num_prep();
 
 		/* Pick a monster.  Usually do not exceed maximum level. */
 		r_idx = get_mon_num(lev);
@@ -2998,7 +2994,7 @@ int summon_specific(int y1, int x1, bool scattered, int lev, int type, int num)
 	summon_specific_type = 0;
 
 	/* Un-apply monster restrictions */
-	get_mon_num_prep();
+	(void)get_mon_num_prep();
 
 	/* Hack -- illegal monster generation level (forces rebuild) */
 	old_monster_level = -1;
@@ -4051,9 +4047,8 @@ static void drop_quest_stairs(int y0, int x0)
 			/* Must be in LOS from the monster's position */
 			if (!los(y0, x0, y, x)) continue;
 
-			/* First try -- Accept non-wall grids with no objects */
-			if ((i == 0) && (cave_nonwall_bold(y, x)) &&
-			    (cave_o_idx[y][x] == 0))
+			/* First try -- Accept floor grids with no objects */
+			if ((i == 0) && (cave_clean_bold(y, x)))
 			{
 				grid[grids++] = GRID(y, x);
 			}
@@ -4177,7 +4172,7 @@ bool monster_loot(int max, bool steal, monster_type *m_ptr)
 		char m_name[80];
 
 		/* Get the monster's short name */
-		my_strcpy(m_name, format("%s", r_name + r_ptr->name), sizeof(m_name));
+		(void)my_strcpy(m_name, format("%s", r_name + r_ptr->name), sizeof(m_name));
 		short_m_name(m_name);
 
 		/* Inscribe the object with that name */
@@ -4334,7 +4329,7 @@ bool monster_loot(int max, bool steal, monster_type *m_ptr)
  */
 void monster_death(int m_idx)
 {
-	int i, y, x;
+	int i, j, y, x;
 
 	bool questlevel = FALSE;
 	bool completed  = FALSE;
@@ -4453,6 +4448,21 @@ void monster_death(int m_idx)
 				/* Completed quest? */
 				if (q_ptr->cur_num == q_ptr->max_num)
 				{
+					/* Remember this quest */
+					for (j = 0; j < MAX_QM_IDX; j++)
+					{
+						/* Found an empty record */
+						if (p_ptr->quest_memory[j].type == 0)
+						{
+							p_ptr->quest_memory[j].type = q_info[i].type;
+							p_ptr->quest_memory[j].level = q_info[i].active_level;
+							p_ptr->quest_memory[j].r_idx = q_info[i].r_idx;
+							p_ptr->quest_memory[j].max_num = q_info[i].max_num;
+							p_ptr->quest_memory[j].succeeded = 1;
+							break;
+						}
+					}
+
 					/* Mark complete */
 					q_ptr->active_level = 0;
 

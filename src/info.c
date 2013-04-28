@@ -1,8 +1,8 @@
 /* File: info.c */
 
 /*
- * Tables containing object kind descriptions.  Extended object descriptions
- * and information.  Self Knowledge.  Object info for character dumps.
+ * Object kind descriptions.  Extended object descriptions and information.
+ * Self Knowledge.  Object info for character dumps.
  *
  * Copyright (c) 2002 Leon Marrick, Ben Harrison, James E. Wilson,
  * Robert A. Koeneke
@@ -30,10 +30,10 @@ cptr obj_class_info[101] =
 	"Bottles are used to make potions.",	"",	"",
 
 	"Chests may have some really good treasures hidden inside, but can be perilous to open.  Bashing a locked chest damages whatever is inside, but also any traps that guard it.",	"",	"",	"",	"",
-	"",	"Sling ammo.",	"Bow ammo.",	"Crossbow ammo.",	"Missile launchers allow you to inflict damage from a distance without using magic.",
+	"",	"Sling ammo.",	"Bow ammo.",	"Crossbow ammo.",	"",
 
 	"Diggers, especially heavy ones, are invaluable for forced entry and escape and can make a lucky miner rich.",	"Hafted weapons rely on blunt force to inflict damage.  Since they spill relatively little blood, priests much prefer to carry one.  Although heavy, they can do a lot of damage.",	"Pole-mounted weapons are often cumbersome and may require two hands to wield, but some offer both a high degree of protection and powerful attacks.  Their base armour class increases with skill.",	"The effectiveness of edged weapons depends on keen edges and sharp points.  They tend to be quite light and are easy to use, but some may not deal enough damage for your liking.",	"",
-	"",	"",	"",	"",	"",
+	"Slings allow you to inflict damage from a distance without using magic.",	"Bows allow you to inflict damage from a distance without using magic.",	"Crossbows allow you to inflict damage from a distance without using magic.",	"",	"",
 
 	"Footwear protects the feet only, but some rare items of this type have magics to render them fleet, light, or steady.",	"Your hands would benefit from protection too, but many magic users need to keep their fingers unencumbered or magically supple.",	"Many a blow will be struck upon your head, and protection here will certainly be helpful.  Some rare items may protect and enhance your mind.",	"Many a blow will be struck upon your head, and protection here will certainly be helpful.  Some rare items may protect and enhance your mind.",	"Shields can be worn on your arm, or on your back if you need both hands to use your weapon.  So protective can a shield be that it can reduce damage as much or more than body armour, and you can perhaps deflect physical missiles (even shards) or take advantage of opportunities to bash your foe if you have one on your arm.",
 	"Experienced adventurers wrap a cloak around their body.  Some rare items of this type may allow you to slip silently around less alert enemies.",	"Some kind of body protection will become a necessity as you face ever more dangerous opponents; rare items of this type may hold many and varied protective magics.",	"Some kind of body protection will become a necessity as you face ever more dangerous opponents; rare items of this type may hold many and varied protective magics.",	"Armour made of dragon scales is rare indeed, and powerful dragon magics allow you to sometimes breathe even as great wyrms do.",	"An adventurer who cannot see is jackal food.  Rare items of this type may have an extended lighting radius or require no fuel.",
@@ -90,12 +90,12 @@ void object_info(char *buf, object_type *o_ptr)
 		artifact_type *a_ptr = &a_info[o_ptr->artifact_index];
 
 		/* Get artifact name */
-		my_strcpy(buf, a_text + a_ptr->text, 2048);
+		(void)my_strcpy(buf, a_text + a_ptr->text, 2048);
 
 		/* Notice lack of description */
 		if (!strlen(buf))
 		{
-			strcpy(buf, "This is an artifact; although all knowledge of it has been forgotten, it has lost none of its power.");
+			strcpy(buf, "This is an artifact.  Although all knowledge of it has been forgotten, it has lost none of its power.");
 		}
 
 		/* Return the description, if any. */
@@ -208,7 +208,7 @@ void object_info(char *buf, object_type *o_ptr)
 			s = baseinfo + 2;
 
 			/* Flavor starts with a vowel */
-			if (is_a_vowel(modstr[0])) w = "An ";
+			if (my_is_vowel(modstr[0])) w = "An ";
 
 			/* Flavor starts with a non-vowel */
 			else w = "A ";
@@ -782,7 +782,7 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 	/* Vorpal weapons and missile launchers. */
 	if (f1 & (TR1_VORPAL))
 	{
-		if (o_ptr->tval == TV_BOW)
+		if (is_missile_weapon(o_ptr))
 		{
 			roff("The missiles this weapon shoots drive deeply into their targets. \n", 3, 77);
 		}
@@ -1395,8 +1395,6 @@ void self_knowledge(bool full)
 	int pval_pos_intrinsic = 0;
 	int pval_neg_intrinsic = 0;
 
-
-
 	object_type *o_ptr;
 
 
@@ -1457,20 +1455,15 @@ void self_knowledge(bool full)
 	move_cursor(0, 0);
 
 	/* Get title */
-	title = get_title(80, FALSE, &dummy);
+	title = get_title(80, FALSE, TRUE, &dummy);
 
-	/* Note that title is meant to be in quotes, skip past marker */
-	if (title[0] == '#')
-	{
-		quotes = TRUE;
-		title++;
-	}
+	/* Note that title is in quotes */
+	quotes = (title[0] == '#');
 
 	/* Build a name and title string */
-	sprintf(buf, "%s, %s%s%c",
-			  (!op_ptr->full_name ? "Anonymous" : op_ptr->full_name),
-			  (quotes ? "\"" : "the "), title,
-			  (quotes ? '\"' : '\0'));
+	sprintf(buf, "%s, %s%s",
+			  (op_ptr->full_name ? op_ptr->full_name : "Anonymous"),
+			  (quotes ? "" : "the "), title);
 
 	/* Display character name and title */
 	c_roff_centered(TERM_PURPLE, buf, 0, 0);
@@ -2443,7 +2436,7 @@ void self_knowledge(bool full)
 
 
 	/* Require a missile weapon */
-	if (o_ptr->tval == TV_BOW)
+	if (is_missile_weapon(o_ptr))
 	{
 		/* Not listing anything yet */
 		flag = FALSE;
@@ -2626,7 +2619,7 @@ void self_knowledge(bool full)
 	(void)inkey();
 
 	/* Set to 25 screen rows, if we were not showing 50 before */
-	if (old_rows != 50) Term_rows(FALSE);
+	if (old_rows != 50) (void)Term_rows(FALSE);
 
 	/* Load screen */
 	screen_load();
@@ -2687,8 +2680,8 @@ void dump_obj_attrib(FILE *fff, object_type *o_ptr, int know_all)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Format and output strings */
-	char buf[1000];
-	char desc[1000];
+	char buf[1024];
+	char desc[1024];
 
 	/* Table of pvals */
 	int pval[32][2];
@@ -2700,7 +2693,7 @@ void dump_obj_attrib(FILE *fff, object_type *o_ptr, int know_all)
 
 	/* Determine our level of knowledge */
 	bool known = (object_known_p(o_ptr) ? TRUE : FALSE);
-	bool mental = o_ptr->ident & (IDENT_MENTAL);
+	bool mental = ((o_ptr->ident & (IDENT_MENTAL)) ? TRUE : FALSE);
 
 
 	/* Force full knowledge */
@@ -2731,6 +2724,14 @@ void dump_obj_attrib(FILE *fff, object_type *o_ptr, int know_all)
 				/* Display only basic information */
 				goto basic_info;
 			}
+		}
+
+		/* Object has only certain kinds of extra flags */
+		if (((f1 == (TR1_VORPAL)) || (f1 == (TR1_PERFECT_BALANCE))) &&
+		    (!f2) && (!f3))
+		{
+			/* Display only basic information */
+			goto basic_info;
 		}
 	}
 
@@ -3087,7 +3088,7 @@ void dump_obj_attrib(FILE *fff, object_type *o_ptr, int know_all)
 	/* Vorpal weapons and missile launchers. */
 	if (f1 & (TR1_VORPAL))
 	{
-		if (o_ptr->tval == TV_BOW) strcat(buf, "Deadly shooter.|");
+		if (is_missile_weapon(o_ptr)) strcat(buf, "Deadly shooter.|");
 		else if (o_ptr->tval == TV_HAFTED) strcat(buf, "Concussive.|");
 		else if (!is_missile(o_ptr)) strcat(buf, "Vorpal.|");
 		else strcat(buf, "Piercing.|");

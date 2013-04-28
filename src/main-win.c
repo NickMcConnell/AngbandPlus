@@ -719,25 +719,25 @@ struct _term_data
 	DWORD dwStyle;
 	DWORD dwExStyle;
 
-	uint keys;
+	unsigned int keys;
 
 	byte rows_25;
 	byte cols_25;
 	byte rows_50;
 	byte cols_50;
 
-	uint pos_x;
-	uint pos_y;
+	unsigned int pos_x;
+	unsigned int pos_y;
 
-	uint size_wid_25;
-	uint size_hgt_25;
-	uint size_wid_50;
-	uint size_hgt_50;
+	unsigned int size_wid_25;
+	unsigned int size_hgt_25;
+	unsigned int size_wid_50;
+	unsigned int size_hgt_50;
 
-	uint size_ow1;
-	uint size_oh1;
-	uint size_ow2;
-	uint size_oh2;
+	unsigned int size_ow1;
+	unsigned int size_oh1;
+	unsigned int size_ow2;
+	unsigned int size_oh2;
 
 	bool size_hack;
 
@@ -755,14 +755,14 @@ struct _term_data
 
 	HFONT font_id_25;
 
-	uint font_wid_25;
-	uint font_hgt_25;
+	unsigned int font_wid_25;
+	unsigned int font_hgt_25;
 
-	uint tile_wid_25;
-	uint tile_hgt_25;
+	unsigned int tile_wid_25;
+	unsigned int tile_hgt_25;
 
-	uint map_tile_wid;
-	uint map_tile_hgt;
+	unsigned int map_tile_wid;
+	unsigned int map_tile_hgt;
 
 	/* Font information for 50-line mode */
 	cptr font_want_50;
@@ -771,13 +771,13 @@ struct _term_data
 
 	HFONT font_id_50;
 
-	uint font_wid_50;
-	uint font_hgt_50;
+	unsigned int font_wid_50;
+	unsigned int font_hgt_50;
 
-	uint tile_wid_50;
-	uint tile_hgt_50;
+	unsigned int tile_wid_50;
+	unsigned int tile_hgt_50;
 
-	uint variable_rows;
+	unsigned int variable_rows;
 
 	bool map_active;
 };

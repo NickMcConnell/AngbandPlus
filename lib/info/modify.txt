@@ -43,7 +43,7 @@ To the customizer:
  D.  Monster blows
  E.  Vault codes
  F.  Color symbols
-
+ G.  Adding accents
 
 
 
@@ -165,7 +165,7 @@ F:RES_FIRE | RES_ACID | RES_COLD | RES_ELEC | SLAY_ANIMAL
 
 # N: serial number : monster name
 # G: symbol : color
-# I: speed : hit points : vision : armor class : alertness : combat range
+# I: speed : hit points : vision : armor class : alertness : combat range : noisiness
 # W: depth : rarity : maximum mana : experience for kill
 # B: attack method : attack effect : damage
 # S: spell frequency |
@@ -183,6 +183,9 @@ Life rating:
 Combat Range:
      Range at which the monster will stop advancing towards the character, if it can directly target the character.  Used to make good spellcasters take advantage of their ranged attacks.  Whenever in doubt, we use a range of 1, because many monsters get annoying if they keep on sniping from a distance.  Vortexes and Zephyr Hounds, for example, all have ranges of 1.
      If you give a monster a range of 6 or more, not only will it stop advancing at that distance, it will also try to use escape spells if it gets within half that distance, or 5, whichever is less.
+
+Noisiness:
+     How likely it is that the character will "hear" the monster.  Most monsters have a noisiness of 20; some burglars can be perfectly silent, while Great Cacophony Wyrms are very loud.
 
 Rarity:
      Monsters that come with friends or escorts or that multiply should be a lot less common than those that don't.  Remember that monster groups may include ten individuals, so a rarity of 3 or even 5 is quite appropriate.
@@ -1002,6 +1005,29 @@ expansion
 
 See "lib/pref/colors.prf" for an exact list of available colors.
 
+
+
+====== Appendix G:  Adding Accents ======
+
+     You may include accents and special characters in most text by using encodes.  You may also use encodes in preference files (but not edit files) when it normally expects a single character.  Encodes start with an open bracket ( [ ) and end with a close bracket ( ] ).  Between the brackets is either a two-character set or a name.  Not all systems support special characters; on them, an ASCII equivalent will be shown.  A complete list of encodes follows:
+
+    [`A]  ['A]  [^A]  [~A]  ["A]  [*A]  [,C]  [`E]  ['E]  [^E]  ["E]  [`I]  ['I]  
+    [^I]  ["I]  [~N]  [`O]  ['O]  [^O]  [~O]  ["O]  [/O]  [`U]  ['U]  [^U]  ["U]  
+    ['Y]  [`a]  ['a]  [^a]  [~a]  ["a]  [*a]  [,c]  [`e]  ['e]  [^e]  ["e]  [`i]  
+    ['i]  [^i]  ["i]  [~n]  [`o]  ['o]  [^o]  [~o]  ["o]  [/o]  [`u]  ['u]  [^u]
+    ["u]  ['y]  ["y]
+
+    [iexcl]  [euro]  [pound]  [curren]  [yen]  [brvbar]  [sect]  [Agrave]  [Aacute]  
+    [Acirc]  [Atilde]  [Auml]  [Aring]  [Aelig]  [Ccedil]  [Egrave]  [Eacute]
+    [Ecirc]  [Euml]  [Igrave]  [Iacute]  [Icirc]  [Iuml]  [ETH]  [Ntilde]  [Ograve]
+    [Oacute]  [Ocirc]  [Otilde]  [Ouml]  [Oslash]  [Ugrave]  [Uacute]  [Ucirc]  
+    [Uuml]  [Yacute]  [THORN]  [szlig]  [agrave]  [aacute]  [acirc]  [atilde]  
+    [auml]  [aring]  [aelig]  [ccedil]  [egrave]  [eacute]  [ecirc]  [euml]  
+    [igrave]  [iacute]  [icirc]  [iuml]  [eth]  [ntilde]  [ograve]  [oacute]  
+    [ocirc]  [otilde]  [ouml]  [oslash]  [ugrave]  [uacute]  [ucirc]  [uuml]  
+    [yacute]  [thorn]  [yuml]
+
+     For usage examples, consult the edit files.
 
 ===============================
 

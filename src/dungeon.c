@@ -148,10 +148,7 @@ void tell_story(int part)
 		cptr race_adj = race_info[p_ptr->prace].title;
 
 		/* Get a character title (never "winner") */
-		cptr title_str = get_title(80, FALSE, &dummy);
-
-		/* Skip past quotes marker */
-		if (title_str[0] == '#') title_str++;
+		cptr title_str = get_title(80, FALSE, FALSE, &dummy);
 
 		/* Copy over the string  XXX XXX */
 		strcpy(buf, format("%s", title_str));
@@ -301,7 +298,7 @@ static void process_world_aux_inven(void)
 				else if ((o_ptr->sval == SV_LITE_TORCH) &&
 				         (o_ptr->pval == TORCH_LOW - 1))
 				{
-					if (disturb_minor) disturb(0, 0);
+					if (disturb_state) disturb(0, 0);
 					msg_print("Your torch fades.");
 
 					/* Calculate torch radius */
@@ -754,14 +751,14 @@ static void process_world(void)
 		/* No longer hungry */
 		p_ptr->food = PY_FOOD_MAX - 1;
 	}
-#endif
+#endif  /* ALLOW_BORG */
 
-	/*** Check the Time and Load ***/
+	/*** Check the Time ***/
 
 	if (!(turn % 1000))
 	{
 		/* Check time and load */
-		if ((0 != check_time()) || (0 != check_load()))
+		if (0 != check_time())
 		{
 			/* Warning */
 			if (closing_flag <= 2)
@@ -773,7 +770,7 @@ static void process_world(void)
 				closing_flag++;
 
 				/* Message */
-				msg_print("The gates to ANGBAND are closing...");
+				msg_format("The gates to %s are closing...", VERSION_NAME);
 				msg_print("Please finish up and/or save your game.");
 			}
 
@@ -781,7 +778,7 @@ static void process_world(void)
 			else
 			{
 				/* Message */
-				msg_print("The gates to ANGBAND are now closed.");
+				msg_format("The gates to %s are now closed.", VERSION_NAME);
 
 				/* Stop playing */
 				p_ptr->playing = FALSE;
@@ -1332,6 +1329,11 @@ static void process_world(void)
 		set_unsanctified(p_ptr->unsanctified - 1);
 	}
 
+	/* Self Knowledge */
+	if (p_ptr->self_knowledge)
+	{
+		set_self_knowledge(p_ptr->self_knowledge - 1, NULL);
+	}
 
 	/* Shapechanges and form-shifts */
 	if (p_ptr->wraithform)
@@ -2068,13 +2070,6 @@ static void process_command(void)
 
 		/*** Magic and Prayers ***/
 
-		/* Gain new spells/prayers */
-		case 'G':
-		{
-			do_cmd_study();
-			break;
-		}
-
 		/* Browse a book */
 		case 'b':
 		{
@@ -2543,7 +2538,7 @@ static void glow_object(int y0, int x0, int rad)
 		if (!in_bounds(y, x))
 		{
 			/* Scan past the next end-of-grid marker */
-			while (los_nearby_table[i++] != 100) ; /* loop */
+			while (los_nearby_table[i++] != 100); /* loop */
 			continue;
 		}
 		else
@@ -2580,8 +2575,11 @@ static void glow_object(int y0, int x0, int rad)
 				/* Light this grid */
 				cave_info[y][x] |= (CAVE_LITE);
 
-				/* Remember grid (so it can be refreshed later) */
+				/* Remember grid */
 				lite_g[lite_n++] = GRID(y, x);
+
+				/* Refresh the grid */
+				lite_spot(y, x);
 			}
 		}
 	}
@@ -2614,6 +2612,7 @@ static void refresh_visuals_before(void)
 {
 	int i;
 	int y, x, iy, ix;
+	int old_lite_n = lite_n;
 
 
 	/* Refresh the extra monster health bars */
@@ -2641,17 +2640,24 @@ static void refresh_visuals_before(void)
 			/* No longer in the array */
 			cave_info[y][x] &= ~(CAVE_LITE);
 
-			/* Forget all floor grids */
-			if (!(cave_info[y][x] & (CAVE_GLOW)) &&
-			    (f_info[cave_feat[y][x]].mimic == FEAT_FLOOR))
+			/* Optionally -- Forget floor grids that do not have permanent light */
+			if ((!remember_seen_grids) && !(cave_info[y][x] & (CAVE_GLOW)) &&
+			    (cave_floor_bold(y, x)))
 			{
 				cave_info[y][x] &= ~(CAVE_MARK);
 			}
+
+			/* Refresh this grid */
+			lite_spot(y, x);
 		}
 
 		/* Array is erased */
 		lite_n = 0;
 	}
+
+
+	/* Process the character's light source */
+	glow_object(p_ptr->py, p_ptr->px, p_ptr->cur_lite);
 
 
 	/* Process objects in the dungeon */
@@ -2736,7 +2742,7 @@ static void refresh_visuals_before(void)
 	}
 
 	/* Temporary lighting often affects the view */
-	if (lite_n) p_ptr->update |= (PU_UPDATE_VIEW);
+	if (lite_n || old_lite_n) p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 }
 
 
@@ -3025,6 +3031,18 @@ void process_player(void)
 	left_panel_display(DISPLAY_TARGET, 0);
 
 
+	/* Optional hitpoint warning */
+	if (p_ptr->hitpoint_warning)
+	{
+		/* Clear the warning */
+		p_ptr->hitpoint_warning = FALSE;
+
+		/* Message with delay */
+		message(MSG_HITPOINT_WARN, 100, "*** LOW HITPOINT WARNING! ***");
+	}
+
+
+
 	/*** Handle actual user input ***/
 
 	/* Repeat until energy is reduced */
@@ -3281,7 +3299,7 @@ static bool any_scores(void)
 	bool score = FALSE;
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Open the binary high score file, for reading */
 	highscore_fd = fd_open(buf, O_RDONLY);
@@ -3294,7 +3312,7 @@ static bool any_scores(void)
 	}
 
 	/* Shut the high score file */
-	fd_close(highscore_fd);
+	(void)fd_close(highscore_fd);
 
 	return (score);
 }
@@ -3874,7 +3892,7 @@ void play_game(bool new_game)
 		if (p_ptr->playing && p_ptr->is_dead)
 		{
 			/* Mega-Hack -- Allow player to cheat death */
-			if ((p_ptr->wizard || cheat_live) && !get_check("Die?"))
+			if ((p_ptr->wizard || (p_ptr->character_type == PCHAR_BEGINNER)) && !get_check("Die?"))
 			{
 				/* Increase deaths */
 				p_ptr->deaths++;
@@ -3891,6 +3909,9 @@ void play_game(bool new_game)
 
 				/* Cheat death */
 				p_ptr->is_dead = FALSE;
+
+				/* Pay the ferryman (unless in wizard mode) */
+				if (!p_ptr->wizard) p_ptr->au = 0;
 
 				/* Restore hit points */
 				p_ptr->chp = p_ptr->mhp;
@@ -3917,6 +3938,9 @@ void play_game(bool new_game)
 
 				/* Hack -- cancel recall */
 				if (p_ptr->word_recall) set_recall(0);
+
+				/* Hack -- cancel hitpoint warning */
+				p_ptr->hitpoint_warning = FALSE;
 
 				/* Note cause of death XXX XXX XXX */
 				strcpy(p_ptr->died_from, "(Cheating death)");

@@ -15,7 +15,6 @@
  */
 
 
-
 /* tables.c */
 extern const s16b ddd[9];
 extern const s16b ddx[10];
@@ -29,7 +28,6 @@ extern byte los_nearby_table[803];
 extern const char hexsym[16];
 extern const char index_chars[];
 extern const char index_chars_lower[];
-extern const byte adj_mag_study[];
 extern const byte adj_mag_mana[];
 extern const byte adj_mag_fail[];
 extern const byte adj_chr_gold[];
@@ -57,6 +55,7 @@ extern const s32b player_exp[PY_MAX_POWER + 1];
 extern player_race race_info[MAX_RACES];
 extern const player_magic magic_info[MAX_REALM + 1];
 extern cptr spell_names[256];
+extern cptr projection_names[];
 extern set_type s_info[MAX_S_IDX];
 extern cptr color_names[16];
 extern cptr stat_names[A_MAX];
@@ -75,7 +74,6 @@ extern const bool option_norm[OPT_MAX];
 extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern cptr custom_display_text[];
 extern cptr inscrip_text[MAX_INSCRIP];
-
 extern byte mana_cost_RF4[32];
 extern byte mana_cost_RF5[32];
 extern byte mana_cost_RF6[32];
@@ -88,12 +86,13 @@ extern byte spell_range_RF4[32];
 extern byte spell_range_RF5[32];
 extern byte spell_range_RF6[32];
 extern byte spell_range_RF7[32];
-
 extern const byte race_adj_cost_skill[NUM_SKILLS][MAX_RACES];
 extern const skill_type skill_info[NUM_SKILLS];
 extern talent_type talent_info[NUM_TALENTS];
 extern flag_data flag_creation_data[128];
 extern cptr precog_msg_text[PRECOG_MSG_INDEX_MAX];
+extern cptr character_type_name[PCHAR_MAX];
+extern cptr character_type_desc[PCHAR_MAX];
 
 
 /* variable.c */
@@ -147,7 +146,6 @@ extern bool force_25_rows;
 extern bool text_50_rows;
 extern s16b clear_y;
 extern s16b clear_x;
-extern u16b threat_display;
 extern s16b image_count;
 extern s16b signal_count;
 extern bool msg_flag;
@@ -225,17 +223,11 @@ extern byte *chance_kind_table;
 extern s16b alloc_ego_size;
 extern alloc_entry *alloc_ego_table;
 extern s16b alloc_race_size;
-extern s16b store_stock_size;
 extern alloc_entry *alloc_race_table;
 extern s16b move_moment_num;
 extern move_moment_type *move_moment;
-#if 0
-extern byte misc_to_attr[256];
-extern char misc_to_char[256];
-#endif
+extern proj_graphics_type *proj_graphics;
 extern byte tval_to_attr[128];
-extern char *feat_x_char_25;
-extern char *feat_x_char_50;
 extern char macro_buffer[1024];
 extern cptr keymap_act[KEYMAP_MODES][256];
 extern player_type *p_ptr;
@@ -266,8 +258,12 @@ extern char *r_text;
 extern quest_type *q_info;
 extern char *q_name;
 extern char *q_text;
+extern flavor_type *flavor_info;
+extern char *flavor_name;
+extern char *flavor_text;
 extern cptr ANGBAND_SYS;
 extern cptr ANGBAND_GRAF;
+extern char *fat_data_suffix;
 extern bool item_tester_full;
 extern byte item_tester_tval;
 extern bool (*item_tester_hook)(const object_type*);
@@ -333,11 +329,7 @@ extern int darkness_ratio(int radius);
 extern bool cave_valid_bold(int y, int x);
 extern int shimmer_object(object_type *o_ptr, u32b f1, u32b f2, u32b f3);
 extern bool feat_supports_lighting(byte feat);
-#ifdef USE_TRANSPARENCY
 extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
-#else /* USE_TRANSPARENCY */
-extern void map_info(int y, int x, byte *ap, char *cp);
-#endif /* USE_TRANSPARENCY */
 extern void move_cursor_relative(int y, int x);
 extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
@@ -452,7 +444,6 @@ extern void print_spells(int tval, int sval, int y, int x);
 extern void do_cmd_browse_aux(object_type *o_ptr);
 extern void display_koff(int k_idx);
 extern void do_cmd_browse(void);
-extern void do_cmd_study(void);
 extern cptr do_spell(int mode, int spell);
 
 
@@ -483,15 +474,9 @@ extern void process_effects(void);
 
 
 /* files.c */
-extern void safe_setuid_drop(void);
-extern void safe_setuid_grab(void);
 extern s16b tokenize(char *buf, s16b num, char **tokens);
 extern errr process_pref_file_command(char *buf);
 extern errr process_pref_file(cptr name);
-extern errr check_time(void);
-extern errr check_time_init(void);
-extern errr check_load(void);
-extern errr check_load_init(void);
 extern void display_player(int mode);
 extern errr file_character(cptr name, bool full);
 extern errr get_rnd_line(const char *file_name, char *output);
@@ -518,6 +503,7 @@ extern void signals_init(void);
 
 
 /* generate.c */
+extern byte get_nearby_floor(int y, int x);
 extern void place_unlocked_door(int y, int x);
 extern void place_closed_door(int y, int x);
 extern void place_random_door(int y, int x);
@@ -650,15 +636,13 @@ extern void display_equip(void);
 extern void show_inven(void);
 extern void show_equip(void);
 extern bool scan_floor(int *items, int *item_num, int y, int x, int mode);
-extern void show_floor(const int *floor_list, int floor_num, bool gold);
+extern void show_floor(const int *floor_list, int floor_num, bool gold, bool blind);
 extern void toggle_inven_equip(void);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
-extern cptr object_adj(int tval, int sval);
 extern bool check_set(int s_idx);
 extern void apply_set(int s_idx);
 extern cptr remove_set(int s_idx);
 extern void check_item_sets(void);
-extern bool cave_object_allowed(int y, int x);
 extern void display_nearby_objects(void);
 
 
@@ -755,7 +739,7 @@ extern void initialize_random_artifacts(void);
 extern s16b get_skill(int skill, int min, int max);
 extern s16b get_skill_race(int skill, int min, int max);
 extern int sweapon(int tval);
-extern int sbow(int sval);
+extern int sbow(int tval);
 extern void calc_power(void);
 extern int calc_exp_power(void);
 extern s32b adv_cost(int skill, bool add_practice_cost);
@@ -921,12 +905,11 @@ extern bool destroy_doors_touch(void);
 extern bool force_doors_touch(void);
 extern bool force_door(int dir);
 
-
 extern void predict_weather(int accuracy);
 extern bool change_weather(s16b humid, s16b wind, s16b temp);
 
 
-/* Spells3.c */
+/* spells3.c */
 extern void food_hit_effect(int who, int y, int x, object_type *o_ptr);
 extern bool potion_smash_effect(int who, int y, int x, object_type *o_ptr);
 extern int scroll_read_effect(int who, int y, int x, object_type *o_ptr);
@@ -972,7 +955,7 @@ extern int stare_into_the_palantir(void);
 /* store.c */
 extern byte bargain_difficulty;
 extern owner_type owners[MAX_STORES][MAX_OWNERS];
-extern stock_type store_stock[];
+extern stock_type store_stock[STORE_STOCK_SIZE];
 extern byte tval_sell[MAX_STORES][10];
 extern byte rgold_adj[MAX_RACES][MAX_RACES];
 extern void do_cmd_store(void);
@@ -1018,7 +1001,7 @@ extern bool hit_trap(int who, int y, int x);
 /* util.c */
 extern void pause_for(int msec);
 extern void strlower(char *buf);
-extern bool is_a_vowel(int ch);
+extern void x_fprintf(FILE *fff, int encoding, cptr fmt, ...);
 extern void text_to_ascii(char *buf, size_t len, cptr str);
 extern void ascii_to_text(char *buf, size_t len, cptr str);
 extern int macro_find_exact(cptr pat);
@@ -1067,7 +1050,9 @@ extern void text_out(cptr str);
 extern void c_roff(byte a, cptr str, byte l_margin, byte r_margin);
 extern void roff(cptr str, byte l_margin, byte r_margin);
 extern void c_roff_centered(byte a, cptr str, int l_margin, int r_margin);
-extern bool askfor_aux(char *buf, size_t len);
+extern void get_ui_direction(char *k, bool allow_roguelike,
+	bool allow_numbers, bool allow_diagonal, bool *shift_key);
+extern bool askfor_aux(char *buf, int len, bool numpad_cursor);
 extern bool get_string(cptr prompt, char *buf, size_t len);
 extern s32b get_quantity(cptr prompt, s32b min, s32b max);
 extern bool get_check(cptr prompt);
@@ -1084,6 +1069,7 @@ extern void dam_to_dice(int dam, int *dice, int *sides, bool allow_random);
 extern int get_loc_of_flag(u32b flag);
 extern int color_char_to_attr(char c);
 extern byte verify_color(byte attr);
+extern byte translate_into_16_colors(int idx);
 extern void repeat_push(int what);
 
 
@@ -1125,7 +1111,7 @@ extern tval_desc tvals[];
 
 
 /* xtra1.c */
-extern cptr get_title(int len, bool wizard, int *specialty);
+extern cptr get_title(int len, bool wizard, bool quotes, int *specialty);
 extern void get_fame_desc(int *attr, char *fame_desc);
 extern void calc_mana(void);
 extern void cnv_stat(int val, char *out_val);
@@ -1207,6 +1193,7 @@ extern bool set_chaos_power(int v, int dur);
 extern bool set_nexus_field(int v, int dam);
 extern bool set_luck(int v, cptr msg);
 extern bool set_unsanctified(int v);
+extern bool set_self_knowledge(int v, cptr msg);
 extern void shapechange(s16b shape);
 extern void do_cmd_unchange(bool voluntary);
 extern void practice_skill(s32b amount, s16b skill);
@@ -1235,18 +1222,6 @@ extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
 extern void precog_msg(int precog_msg_idx);
 
-/*
- * Hack -- conditional (or "bizarre") externs
- */
-
-#ifdef SET_UID
-# ifndef HAVE_USLEEP
-/* util.c */
-extern int usleep(unsigned long usecs);
-# endif /* HAVE_USLEEP */
-extern void user_name(char *buf, size_t len, int id);
-#endif /* SET_UID */
-
 
 #ifdef ALLOW_BORG
 /*
@@ -1259,5 +1234,5 @@ extern int count_teleport;       /* Turns to next teleport */
 extern byte allowed_depth[2];    /* Minimum and maximum depths */
 extern byte borg_dir;            /* Current direction */
 
-#endif
+#endif /* ALLOW_BORG */
 

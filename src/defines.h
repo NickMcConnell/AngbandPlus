@@ -45,7 +45,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING   "0.9.9, beta 20d"
+#define VERSION_STRING   "0.9.9, beta 21"
 
 /*
  * Current (Sangband) version numbers
@@ -57,7 +57,7 @@
 /*
  * This value is used for beta versions
  */
-#define VERSION_EXTRA   20
+#define VERSION_EXTRA   21
 
 /*
  * Number of grids in each block (vertically).
@@ -117,9 +117,10 @@
 #define ANGBAND_TERM_MAX    8
 
 /*
- * Number of colors (currently 256).
+ * Number of colors.  Can not be increased above 128 unless the graphical
+ * code is rewritten.
  */
-#define MAX_COLORS        256
+#define MAX_COLORS        128
 
 
 
@@ -278,11 +279,12 @@
 /*
  * Store constants
  */
-#define STORE_INVEN_MAX  24		/* Max number of discrete objs in inven */
-#define STORE_OBJ_LEVEL   5		/* Magic Level for normal items */
-#define STORE_MAX_KEEP   18		/* Max slots to "always" keep full */
-#define STORE_SHUFFLE  1500		/* 1/Chance (per turnover) of owner change */
-#define STORE_TURNS      50	   /* Number of turns (x10) between turnovers */
+#define STORE_INVEN_MAX   24		/* Max number of discrete objs in inven */
+#define STORE_OBJ_LEVEL    5		/* Magic Level for normal items */
+#define STORE_MAX_KEEP    18		/* Max slots to "always" keep full */
+#define STORE_SHUFFLE   1500		/* 1/Chance (per turnover) of owner change */
+#define STORE_TURNS       50		/* Number of turns (x10) between turnovers */
+#define STORE_STOCK_SIZE 180		/* Size of store stock table */
 
 
 /*
@@ -404,6 +406,19 @@
 #define MIN_M_ALLOC_TN      4
 
 
+
+/*
+ * Player character types used by character_type
+ */
+#define PCHAR_BEGINNER   0    /* Beginner character, cheats death */
+/* xxx for future addition */
+#define PCHAR_NORMAL     2    /* Normal character, one life only */
+/* xxx for future addition */
+#define PCHAR_IRONMAN    4    /* Ironman character */
+
+#define PCHAR_MAX        6    /* Maximum number of character types */
+
+
 /*
  * Player constants
  */
@@ -435,7 +450,6 @@
 /*
  * Flags for player_type.spell_flags[]
  */
-#define PY_SPELL_LEARNED    0x01 /* Spell has been learned */
 #define PY_SPELL_WORKED     0x02 /* Spell has been successfully tried */
 #define PY_SPELL_FORGOTTEN  0x04 /* Spell has been forgotten */
 
@@ -636,7 +650,7 @@
 #define LEV_REQ_BURGLE        4  /* S_BURGLARY - stealing, light weapons */
 #define LEV_REQ_LOCK_DOOR     7  /* S_BURGLARY - lock doors */
 #define LEV_REQ_TRAP         10  /* S_BURGLARY - setting traps */
-#define LEV_REQ_GUILD        25  /* S_BURGLARY - Entrance to the Guild */
+#define LEV_REQ_GUILD        20  /* S_BURGLARY - Entrance to the Guild */
 #define LEV_REQ_PRECOG       40  /* S_PERCEPTION - precog messages */
 #define LEV_REQ_ALCHEMY      10  /* S_ALCHEMY - make potions and scrolls */
 #define LEV_REQ_ALCHEMY_RING 35  /* S_ALCHEMY - make rings and amulets */
@@ -866,7 +880,7 @@
 
 #define COL_SPEED       51		/* "Slow (-NN)" or "Fast (+NN)" */
 
-#define COL_STUDY       62		/* "Study (5)" */
+#define COL_UNCAST      62		/* "Uncast: N" */
 
 #define COL_DEPTH       72		/* "Lev NNN" / "NNNN ft" */
 
@@ -936,8 +950,12 @@
 
 
 
+
+
 /*
  * Spell types used by project(), and related functions.
+ *
+ * See the table "projection_names" for display names.
  */
 #define GF_ROCK            1	/* Physical missiles */
 #define GF_SHOT            2
@@ -945,7 +963,7 @@
 #define GF_MISSILE         4
 #define GF_PMISSILE        5
 #define GF_WHIP            6	/* Used for lash/spit attacks. */
-#define GF_HURT            7  /* Hurt, no resists or side-effects */
+#define GF_HURT            7	/* Hurt, no resists or side-effects */
 
 
 #define GF_ACID            8	/* The basic elements & poison */
@@ -1032,8 +1050,6 @@
 #define GF_GAIN_LEVEL    131
 #define GF_PROTECTION    132
 #define GF_DO_PANIC_EVIL 133
-
-
 
 
 
@@ -1136,54 +1152,56 @@
 
 
 /* Nothing */
-#define FEAT_NONE          0x00
+#define FEAT_NONE          0
 
 /* Feeatures that do not block line of sight */
-#define FEAT_FLOOR         0x01
+#define FEAT_FLOOR         1
 
 
-#define FEAT_LESS2         0x04
-#define FEAT_MORE2         0x05
-#define FEAT_OPEN          0x06
-#define FEAT_BROKEN        0x07
-#define FEAT_LESS          0x08
-#define FEAT_MORE          0x09
+#define FEAT_LESS2         4
+#define FEAT_MORE2         5
+#define FEAT_OPEN          6
+#define FEAT_BROKEN        7
+#define FEAT_LESS          8
+#define FEAT_MORE          9
 
 /* Special dungeon features.  */
-#define FEAT_LAVA          0x0A
-#define FEAT_WATER         0x0B
-#define FEAT_TREE          0x0C
+#define FEAT_LAVA          10
+#define FEAT_WATER         11
+#define FEAT_TREE          12
 
 /* Doors */
-#define FEAT_DOOR_HEAD     0x20
-#define FEAT_DOOR_TAIL     0x2F
+#define FEAT_DOOR_HEAD     32
+#define FEAT_DOOR_TAIL     47
 
 /* Extra */
-#define FEAT_SECRET        0x30
-#define FEAT_RUBBLE        0x31
+#define FEAT_SECRET        48
+#define FEAT_RUBBLE        49
 
 /* Seams */
-#define FEAT_MAGMA         0x32
-#define FEAT_QUARTZ        0x33
-#define FEAT_MAGMA_H       0x34
-#define FEAT_QUARTZ_H      0x35
-#define FEAT_MAGMA_K       0x36
-#define FEAT_QUARTZ_K      0x37
+#define FEAT_MAGMA         50
+#define FEAT_QUARTZ        51
+#define FEAT_MAGMA_H       52
+#define FEAT_QUARTZ_H      53
+#define FEAT_MAGMA_K       54
+#define FEAT_QUARTZ_K      55
 
 /* Walls */
-#define FEAT_WALL_EXTRA    0x38
-#define FEAT_WALL_INNER    0x39
-#define FEAT_WALL_OUTER    0x3A
-#define FEAT_WALL_SOLID    0x3B
-#define FEAT_PERM_EXTRA    0x3C
-#define FEAT_PERM_INNER    0x3D
-#define FEAT_PERM_OUTER    0x3E
-#define FEAT_PERM_SOLID    0x3F
+#define FEAT_WALL_EXTRA    56
+#define FEAT_WALL_INNER    57
+#define FEAT_WALL_OUTER    58
+#define FEAT_WALL_SOLID    59
+#define FEAT_PERM_EXTRA    60
+#define FEAT_PERM_INNER    61
+#define FEAT_PERM_OUTER    62
+#define FEAT_PERM_SOLID    63
+#define FEAT_PILLAR        64
+#define FEAT_PILLAR_GOLD   65
 
 /* Shops */
-#define FEAT_SHOP_HEAD     0x40
-#define FEAT_SHOP_INN      0x48
-#define FEAT_SHOP_TAIL     0x48
+#define FEAT_SHOP_HEAD     84
+#define FEAT_SHOP_INN      92
+#define FEAT_SHOP_TAIL     92
 
 
 /*** Artifact indexes (see "lib/edit/artifact.txt") ***/
@@ -1542,6 +1560,7 @@
 #define ACTIV_RANDOM_SLOW_FOES       189
 #define ACTIV_RANDOM_BERSERK         190
 #define ACTIV_RANDOM_LIGHT_AREA      191
+#define ACTIV_RANDOM_SELF_KNOWLEDGE  192
 
 
 /* Ego-item activations */
@@ -1788,12 +1807,15 @@
 #define TV_SHOT                    16	/* Ammo for slings */
 #define TV_ARROW                   17	/* Ammo for bows */
 #define TV_BOLT                    18	/* Ammo for crossbows */
-#define TV_BOW                     19	/* Slings/Bows/Crossbows */
 
 #define TV_DIGGING                 20	/* Shovels/Picks */
 #define TV_HAFTED                  21	/* Priestly (blunt hafted) Weapons */
 #define TV_POLEARM                 22	/* Axes and Pikes */
 #define TV_SWORD                   23	/* Hand-held edged Weapons */
+
+#define TV_SLING                   25	/* Slings */
+#define TV_BOW                     26	/* Bows */
+#define TV_CROSSBOW                27	/* Crossbows */
 
 #define TV_BOOTS                   30	/* Boots */
 #define TV_GLOVES                  31	/* Gloves */
@@ -1851,8 +1873,7 @@
 #define SV_AMMO_NORMAL                   2	/* shots, arrows, bolts */
 #define SV_AMMO_HEAVY                    3	/* seeker shots, arrows, bolts */
 
-/* The "sval" codes for TV_BOW */
-/* If you add new indexes, be sure to update the "is_crossbow", ... defines below */
+/* The "sval" codes for TV_SLING, TV_BOW, and TV_CROSSBOW */
 #define SV_SLING                         2	/* (x2) */
 #define SV_SHORT_BOW                    12	/* (x2) */
 #define SV_LONG_BOW                     13	/* (x3) */
@@ -2188,7 +2209,7 @@
 #define SV_ROD_ELEC_BALL                25
 #define SV_ROD_FIRE_BALL                26
 #define SV_ROD_COLD_BALL                27
-#define SV_ROD_LIGHTINGSTRIKE           28
+#define SV_ROD_LIGHTNINGSTRIKE          28
 #define SV_ROD_NORTHWINDS               29
 #define SV_ROD_DRAGONFIRE               30
 #define SV_ROD_GLAURUNGS                31
@@ -2505,6 +2526,12 @@
  */
 #define SV_SPECIAL_GOLD_MIN             16
 #define SV_SPECIAL_GOLD_MAX             19
+
+/*
+ * Special "sval" values -- any and all
+ */
+#define SV_ANY			    254
+#define SV_ALL				255
 
 
 /*
@@ -2891,7 +2918,7 @@
 #define PR_CONDITIONS   0x00020000L	/* Display Temporary conditions */
 #define PR_STATE        0x00040000L	/* Display Extra (State) */
 #define PR_SPEED        0x00080000L	/* Display Extra (Speed) */
-#define PR_STUDY        0x00100000L	/* Display Extra (Study) */
+#define PR_UNCAST       0x00100000L	/* Display Extra (Uncast spells) */
 #define PR_DEPTH        0x00200000L	/* Display Depth */
 /* xxx */
 /* xxx */
@@ -3052,25 +3079,54 @@
 #define NECRO_WEAKNESS_LENGTH     30
 
 
+
+
+/*** Feature flags ***/
+
+/*
+ * Special feature type flags
+ */
+#define TF_LOS          0x00000001L  /* LOS passes through this */
+#define TF_PROJECT      0x00000002L  /* Projections can pass through this */
+#define TF_PASSABLE     0x00000004L  /* Can be passed through by all creatures */
+#define TF_INTERESTING  0x00000008L  /* Looking around notices this */
+#define TF_PERMANENT    0x00000010L  /* Feature is permanent */
+#define TF_NO_SCENT     0x00000020L  /* Cannot store scent */
+#define TF_OBJECT       0x00000040L  /* Can hold objects */
+#define TF_TRAP         0x00000080L  /* Can hold traps */
+#define TF_TORCH_ONLY   0x00000100L  /* Becomes bright only when torch-lit */
+/* xxx (many) */
+#define TF_FLOOR        0x00010000L  /* A clear floor */
+#define TF_WALL         0x00020000L  /* Is a solid wall */
+#define TF_ROCK         0x00040000L  /* Is rocky */
+#define TF_GRANITE      0x00080000L  /* Is a granite rock wall */
+#define TF_DOOR_ANY     0x00100000L  /* Is any door */
+#define TF_DOOR_CLOSED  0x00200000L  /* Is a closed door */
+#define TF_SHOP         0x00400000L  /* Is a shop */
+/* xxx (many) */
+
+
+
+
 /*** Cave flags ***/
 
 
 /*
  * Special cave grid flags
  */
-#define CAVE_MARK         0x0001  /* memorized feature */
-#define CAVE_GLOW         0x0002  /* self-illuminating */
-#define CAVE_ICKY         0x0004  /* part of a vault */
-#define CAVE_ROOM         0x0008  /* part of a room */
-#define CAVE_SEEN         0x0010  /* actually seeable by the character */
-#define CAVE_VIEW         0x0020  /* in character field of sight */
-#define CAVE_TEMP         0x0040  /* temporary flag (hard-coded position) */
-#define CAVE_WALL         0x0080  /* blocks line of sight */
+#define CAVE_MARK         0x0001  /* Memorized feature */
+#define CAVE_GLOW         0x0002  /* Self-illuminating (permanent light) */
+#define CAVE_ICKY         0x0004  /* Part of a vault */
+#define CAVE_ROOM         0x0008  /* Part of a room */
+#define CAVE_SEEN         0x0010  /* Actually seeable by the character */
+#define CAVE_VIEW         0x0020  /* In character field of sight */
+#define CAVE_TEMP         0x0040  /* Temporary flag (hard-coded position) */
+#define CAVE_LOS          0x0080  /* Blocks line of sight */
 
-#define CAVE_FIRE         0x0100  /* is in line of fire */
-#define CAVE_EFFT         0x0200  /* is being hit by an effect */
-#define CAVE_LITE         0x0400  /* temporary light */
-#define CAVE_TRAP         0x0800  /* has at least one trap */
+#define CAVE_FIRE         0x0100  /* Is in line of fire */
+#define CAVE_EFFT         0x0200  /* Is being hit by an effect */
+#define CAVE_LITE         0x0400  /* Temporary light (light source) */
+#define CAVE_TRAP         0x0800  /* Has at least one trap */
 #define CAVE_XX12         0x1000  /*  */
 #define CAVE_XX13         0x2000  /*  */
 #define CAVE_XX14         0x4000  /*  */
@@ -3565,7 +3621,7 @@
 #define IDENT_EMPTY             0x04  /* Item charges are known */
 #define IDENT_KNOWN             0x08  /* Item abilities are known */
 #define IDENT_RUMOUR            0x10  /* Item background is known (not used) */
-#define IDENT_MENTAL            0x20  /* Item information is known */
+#define IDENT_MENTAL            0x20  /* Item details are fully known */
 #define IDENT_CURSED            0x40  /* Item is temporarily cursed */
 #define IDENT_WORN              0x80  /* Item has been worn */
 
@@ -3951,6 +4007,15 @@
 
 
 /*
+ * Special monster lore flags.
+ */
+#define LORE_KNOWN_DEPTH    0x01
+
+
+
+
+
+/*
  * Hack -- Bit masks to control what spells are considered
  */
 
@@ -4130,7 +4195,7 @@
 #define OPT_run_ignore_stairs               7
 #define OPT_run_ignore_doors                8
 #define OPT_run_cut_corners                 9
-
+#define OPT_xchars_to_file                 10
 #define OPT_stack_force_notes              11
 #define OPT_stack_force_costs              12
 #define OPT_allow_quantity                 13
@@ -4157,12 +4222,12 @@
 
 
 	/* Visual Interface */
-#define OPT_view_perma_grids               40
-#define OPT_view_torch_grids               41
-#define OPT_view_torch_light               42
-#define OPT_view_sight_light               43
-#define OPT_view_wall_light                44
-#define OPT_view_floor_light               45
+
+#define OPT_remember_seen_grids            41
+#define OPT_torch_light                    42
+#define OPT_sight_light                    43
+#define OPT_wall_lighting                  44
+#define OPT_floor_lighting                 45
 #define OPT_highlight_player               46
 #define OPT_fresh_after                    47
 #define OPT_traps_display_on_top           48
@@ -4178,19 +4243,16 @@
 	/* Blank space for another page of options here */
 
 
-	/* Difficulty options */
-#define OPT_DIFFICULTY_HEADER              80
-
-
-	/* Cheating options */
-#define OPT_CHEAT_HEADER                   89
+	/* Difficulty and cheating options (all are cleared for new characters) */
+#define OPT_CHEAT_HEADER                   90
 #define OPT_cheat_know                     93
-#define OPT_cheat_live                     94
+#define OPT_beginner_play                  94
 
 
 	/* Birth options (appear only on the character birth screen) */
+
 #define OPT_birth_autoroll                 101
-#define OPT_birth_ironman                  102
+#define OPT_ironman_play                   102
 #define OPT_birth_no_stores                103
 #define OPT_birth_no_artifacts             104
 #define OPT_birth_no_return_stair          105
@@ -4201,10 +4263,10 @@
 /*
  * Information for "do_cmd_options()".
  *
- * There are six pages of options,
+ * There are five pages of options,
  * each with up to twenty options.
  */
-#define OPT_PAGE_MAX				6
+#define OPT_PAGE_MAX				5
 #define OPT_PAGE_PER				20
 
 
@@ -4223,7 +4285,7 @@
 #define run_ignore_stairs           op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors            op_ptr->opt[OPT_run_ignore_doors]
 #define run_cut_corners             op_ptr->opt[OPT_run_cut_corners]
-
+#define xchars_to_file              op_ptr->opt[OPT_xchars_to_file]
 #define stack_force_notes           op_ptr->opt[OPT_stack_force_notes]
 #define stack_force_costs           op_ptr->opt[OPT_stack_force_costs]
 #define allow_quantity              op_ptr->opt[OPT_allow_quantity]
@@ -4249,12 +4311,12 @@
 
 
 	/* Visual Interface */
-#define view_perma_grids            op_ptr->opt[OPT_view_perma_grids]
-#define view_torch_grids            op_ptr->opt[OPT_view_torch_grids]
-#define view_torch_light            op_ptr->opt[OPT_view_torch_light]
-#define view_sight_light            op_ptr->opt[OPT_view_sight_light]
-#define view_wall_light             op_ptr->opt[OPT_view_wall_light]
-#define view_floor_light            op_ptr->opt[OPT_view_floor_light]
+
+#define remember_seen_grids         op_ptr->opt[OPT_remember_seen_grids]
+#define torch_light                 op_ptr->opt[OPT_torch_light]
+#define sight_light                 op_ptr->opt[OPT_sight_light]
+#define wall_lighting                  op_ptr->opt[OPT_wall_lighting]
+#define floor_lighting                 op_ptr->opt[OPT_floor_lighting]
 #define highlight_player            op_ptr->opt[OPT_highlight_player]
 #define fresh_after                 op_ptr->opt[OPT_fresh_after]
 #define traps_display_on_top        op_ptr->opt[OPT_traps_display_on_top]
@@ -4273,12 +4335,12 @@
 
 	/* Assistance/Cheating options */
 #define cheat_know                  op_ptr->opt[OPT_cheat_know]
-#define cheat_live                  op_ptr->opt[OPT_cheat_live]
+#define beginner_play               op_ptr->opt[OPT_beginner_play]
 
 
 	/* Birth options */
 #define birth_autoroll              op_ptr->opt[OPT_birth_autoroll]
-#define birth_ironman               op_ptr->opt[OPT_birth_ironman]
+#define ironman_play                op_ptr->opt[OPT_ironman_play]
 #define birth_no_stores             op_ptr->opt[OPT_birth_no_stores]
 #define birth_no_artifacts          op_ptr->opt[OPT_birth_no_artifacts]
 #define birth_no_return_stair       op_ptr->opt[OPT_birth_no_return_stair]
@@ -4326,7 +4388,7 @@
  * Attempts a saving throw with a difficulty of "roll".  -BR-
  */
 #define check_save(R) \
- (rand_int(R) < p_ptr->skill_sav)
+	(rand_int(R) < p_ptr->skill_sav)
 
 
 
@@ -4371,29 +4433,29 @@
  * Determine if the monster is fully visible.
  */
 #define mon_fully_visible(M) \
-(((M)->ml >= ML_FULL) && !((M)->mflag & (MFLAG_MIME)))
+	(((M)->ml >= ML_FULL) && !((M)->mflag & (MFLAG_MIME)))
 
 
 /*
  * Determine if the monster is wary of stealing and traps.
  */
 #define monster_wary(M) \
-((M)->mflag & (MFLAG_WARY))
+	((M)->mflag & (MFLAG_WARY))
 
 
 /*
  * Make a monster wary.
  */
 #define mon_make_wary(M) \
-((M)->mflag |= (MFLAG_WARY))
+	((M)->mflag |= (MFLAG_WARY))
 
 
 /*
  * Describe the death of a monster
  */
 #define death_string(R) \
-(((R)->flags1 & (RF1_UNIQUE)) ? " is slain!" : \
- (monster_nonliving((R))) ? " is destroyed." : " dies.")
+	(((R)->flags1 & (RF1_UNIQUE)) ? " is slain!" : \
+	 (monster_nonliving((R))) ? " is destroyed." : " dies.")
 
 
 
@@ -4470,6 +4532,14 @@
 	 ((T)->tval == TV_DIGGING))
 
 /*
+ * Object is a missile weapon
+ */
+#define is_missile_weapon(T) \
+	(((T)->tval == TV_SLING) || \
+	 ((T)->tval == TV_BOW) || \
+	 ((T)->tval == TV_CROSSBOW))
+
+/*
  * Object is any weapon
  */
 #define is_any_weapon(T) \
@@ -4477,7 +4547,9 @@
 	 ((T)->tval == TV_HAFTED)  || \
 	 ((T)->tval == TV_POLEARM) || \
 	 ((T)->tval == TV_DIGGING) || \
-	 ((T)->tval == TV_BOW))
+	 ((T)->tval == TV_SLING) || \
+	 ((T)->tval == TV_BOW) || \
+	 ((T)->tval == TV_CROSSBOW))
 
 /*
  * Object is a missile
@@ -4486,28 +4558,6 @@
 	(((T)->tval == TV_SHOT)   || \
 	 ((T)->tval == TV_ARROW)  || \
 	 ((T)->tval == TV_BOLT))
-
-/*
- * Object is a crossbow
- */
-#define is_crossbow(S) \
-	(((S) == SV_HAND_XBOW)   || \
-	 ((S) == SV_LIGHT_XBOW)  || \
-	 ((S) == SV_HEAVY_XBOW)  || \
-	 ((S) == SV_TRIPLE_XBOW))
-
-/*
- * Object is a bow
- */
-#define is_bow(S) \
-	(((S) == SV_SHORT_BOW) || \
-	 ((S) == SV_LONG_BOW))
-
-/*
- * Object is a sling
- */
-#define is_sling(S) \
-	 ((S) == SV_SLING)
 
 
 /*
@@ -4581,19 +4631,19 @@
  */
 #define object_attr(T) \
 	((T)->marked >= COLORED_OBJ_MIN ? \
-	 (T)->marked - COLORED_OBJ_MIN : k_info[(T)->k_idx].flavor ? \
-	 k_info[(T)->k_idx].flavor : k_info[(T)->k_idx].x_attr)
-
+	 (T)->marked - COLORED_OBJ_MIN : (k_info[(T)->k_idx].flavor) ? \
+	 (flavor_info[k_info[(T)->k_idx].flavor].x_attr) : \
+	 (k_info[(T)->k_idx].x_attr))
 
 /*
  * Return the "char" for a given item.
- *
+ * Use "flavor" if available.
  * Default to user definitions.
  */
 #define object_char(T) \
-	(k_info[(T)->k_idx].x_char)
-
-
+	((k_info[(T)->k_idx].flavor) ? \
+	 (flavor_info[k_info[(T)->k_idx].flavor].x_char) : \
+	 (k_info[(T)->k_idx].x_char))
 
 
 /*
@@ -4671,152 +4721,149 @@
  * Terrain macros
  */
 
-
 /*
- * Determine if a "legal" grid is a "wall" grid
- *
- * Line 1 -- forbid doors, rubble, seams, walls
- *
- * Note the use of the new "CAVE_WALL" flag.
+ * Determine if grid allows line of sight through it.
  */
-#define cave_wall_bold(Y,X) \
-	(cave_info[Y][X] & (CAVE_WALL))
+#define cave_los_bold(Y,X) \
+	(cave_info[Y][X] & (CAVE_LOS))
 
 
 /*
- * Determine if a "legal" grid is a "non-wall" grid
- *
- * Line 1 -- forbid doors, rubble, seams, walls
- *
- * Note the use of the new "CAVE_WALL" flag.
+ * Determine if grid allows projections to pass through it.
  */
-#define cave_nonwall_bold(Y,X) \
-	(!(cave_info[Y][X] & (CAVE_WALL)))
+#define cave_project_bold(Y,X) \
+	(f_info[cave_feat[Y][X]].flags & (TF_PROJECT))
 
+/*
+ * Determine if grid is clear, open, and "floor-like".
+ */
+#define cave_floor_bold(Y,X) \
+	(f_info[cave_feat[Y][X]].flags & (TF_FLOOR))
+
+/*
+ * Determine if grid can hold objects.
+ */
+#define cave_allow_object_bold(Y,X) \
+	(f_info[cave_feat[Y][X]].flags & (TF_OBJECT))
 
 /*
  * Determine if a "legal" grid is able to be passed through by creatures
- * that cannot bore or pass through walls.  This new definition is needed
- * because some terrain can now be traversed, but ends LOS.  -LM-
- *
- * Line 1 -- forbid doors, seams, walls, etc.
- * Line 2 -- but allow trees
- * Line 3 -- but allow rubble
- *
- * Note the use of the new "CAVE_WALL" flag.
+ * that cannot bore or pass through walls.  Also allows sound and various
+ * other things.
  */
 #define cave_passable_bold(Y,X) \
-	(!(cave_info[Y][X] & (CAVE_WALL)) || \
-	(cave_feat[Y][X] == FEAT_TREE) || \
-	(cave_feat[Y][X] == FEAT_RUBBLE))
+	(f_info[cave_feat[Y][X]].flags & (TF_PASSABLE))
 
-
-/*
- * Determine if a "legal" grid is an "open floor" grid
- * (used when dropping objects)
- *
- * Line 1, etc. -- forbid all terrain features not specified.
- */
-#define cave_open_floor_bold(Y,X) \
-	((cave_feat[Y][X] == FEAT_FLOOR) || \
-	 (cave_feat[Y][X] == FEAT_WATER))
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid
  * (used to place stairs)
  *
- * Line 1 -- forbid non-floors
- * Line 2 -- forbid normal objects
+ * Line 1 -- require floors
+ * Line 2 -- require lack of objects
  */
 #define cave_clean_bold(Y,X) \
-	((cave_feat[Y][X] == FEAT_FLOOR) && \
+	((f_info[cave_feat[Y][X]].flags & (TF_FLOOR)) && \
 	 (cave_o_idx[Y][X] == 0))
 
 /*
  * Determine if a "legal" grid is an "empty" floor grid
  *
- * Line 1 -- forbid doors, rubble, seams, walls
- * Line 2 -- forbid player/monsters
+ * Line 1 -- require floors
+ * Line 2 -- require lack of players/monsters
  */
 #define cave_empty_bold(Y,X) \
-	(cave_nonwall_bold(Y,X) && \
-	(cave_m_idx[Y][X] == 0))
+	((f_info[cave_feat[Y][X]].flags & (TF_FLOOR)) && \
+  	(cave_m_idx[Y][X] == 0))
 
 /*
  * Determine if a "legal" grid is a "naked" floor grid
  *
  * Line 1 -- forbid non-floors
- * Line 2 -- forbid normal objects
+ * Line 2 -- forbid objects
  * Line 3 -- forbid player/monsters
  */
 #define cave_naked_bold(Y,X) \
-	((cave_feat[Y][X] == FEAT_FLOOR) && \
+	((f_info[cave_feat[Y][X]].flags & (TF_FLOOR)) && \
 	 (cave_o_idx[Y][X] == 0) && \
 	 (cave_m_idx[Y][X] == 0))
 
 /*
- * Determine if a "legal" grid is a "shop" grid
+ * Determine if a grid is a "shop"
  */
 #define cave_shop_bold(Y,X) \
-	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
-	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL))
-
+	 (f_info[cave_feat[Y][X]].flags & (TF_SHOP))
 
 /*
- * Determine if a "legal" grid is "permanent"
- *
- * Line 1 -- perma-walls
- * Line 2-5 -- stairs
- * Line 6-7 -- shop doors
+ * Determine if a grid is a "wall"
+ */
+#define cave_wall_bold(Y,X) \
+	 (f_info[cave_feat[Y][X]].flags & (TF_WALL))
+
+/*
+ * Determine if a grid is "permanent"
  */
 #define cave_perma_bold(Y,X) \
-	((cave_permwall(Y,X)) || \
-	 (cave_feat[Y][X] == FEAT_LESS) || \
-	 (cave_feat[Y][X] == FEAT_MORE) || \
-	 (cave_feat[Y][X] == FEAT_LESS2) || \
-	 (cave_feat[Y][X] == FEAT_MORE2) || \
-	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
-	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
+	(f_info[cave_feat[Y][X]].flags & (TF_PERMANENT))
 
 /*
- * Determine if a "legal" grid is a permanent wall.
+ * Determine if a grid is a permanent wall.
  */
 #define cave_permwall(Y,X) \
-	((cave_feat[Y][X] >= FEAT_PERM_EXTRA) && \
-	 (cave_feat[Y][X] <= FEAT_PERM_SOLID))
+	((f_info[cave_feat[Y][X]].flags & (TF_PERMANENT)) && \
+	 (f_info[cave_feat[Y][X]].flags & (TF_WALL)))
 
 
 /*
- * Determine if a "legal" grid is a closed door.
+ * Determine if a grid is rocky (can be tunneled or magically removed).
+ */
+#define cave_rock_bold(Y,X) \
+   (f_info[cave_feat[Y][X]].flags & (TF_ROCK))
+
+/*
+ * Determine if a grid is granite.
+ */
+#define cave_granite_bold(Y,X) \
+   (f_info[cave_feat[Y][X]].flags & (TF_GRANITE))
+
+
+/*
+ * Determine if a grid is a closed door.
  * Open or broken doors don't count.
  */
 #define cave_closed_door(Y,X) \
-   (((cave_feat[Y][X] >= FEAT_DOOR_HEAD) && \
-     (cave_feat[Y][X] <= FEAT_DOOR_TAIL)) || \
-     (cave_feat[Y][X] == FEAT_SECRET))
+   (f_info[cave_feat[Y][X]].flags & (TF_DOOR_CLOSED))
+
 
 /*
- * Determine if a "legal" grid is marked as having traps in it.
+ * Determine if a grid is any door.
+ */
+#define cave_any_door(Y,X) \
+   (f_info[cave_feat[Y][X]].flags & (TF_DOOR_ANY))
+
+
+/*
+ * Determine if a grid is marked as having traps in it.
  */
 #define cave_trap(Y,X) \
  (cave_info[Y][X] & (CAVE_TRAP))
 
 /*
- * Determine if a "legal" grid is an up stairs.
+ * Determine if a grid is an up stairs.
  */
 #define cave_up_stairs(Y,X) \
    ((cave_feat[Y][X] == FEAT_LESS2) || \
     (cave_feat[Y][X] == FEAT_LESS))
 
 /*
- * Determine if a "legal" grid is a down stairs.
+ * Determine if a grid is a down stairs.
  */
 #define cave_down_stairs(Y,X) \
    ((cave_feat[Y][X] == FEAT_MORE2) || \
     (cave_feat[Y][X] == FEAT_MORE))
 
 /*
- * Determine if a "legal" grid is any stairs
+ * Determine if a grid is any stairs
  */
 #define cave_any_stairs(Y,X) \
    ((cave_feat[Y][X] == FEAT_LESS2) || \
@@ -4850,6 +4897,17 @@
  */
 #define player_can_fire_bold(Y,X) \
 	((cave_info[Y][X] & (CAVE_FIRE)) != 0)
+
+
+
+/*** Dungeon environment conditions (p_ptr->dungeon_flags) ***/
+
+/*
+ * Use character bitflags to control the way the current dungeon looks and
+ * behaves.
+ */
+#define DUNGEON_NO_SPECIAL_LIGHTING     0x00000001  /* No special lighting */
+/* xxx (many) */
 
 
 
@@ -4929,13 +4987,13 @@
 #define MSG_LOCKPICK_FAIL   27
 #define MSG_STAIRS          28
 #define MSG_HITPOINT_WARN   29
-
 #define MSG_HIT_SOFT        30
 #define MSG_HIT_MEDIUM      31
 #define MSG_HIT_HARD        32
 #define MSG_HIT_DEADLY      33
+#define MSG_SUMMON          34
 
-#define MSG_MAX             34
+#define MSG_MAX             35
 
 
 

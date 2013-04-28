@@ -332,7 +332,7 @@ static void get_quality(bool credit, int purchase, int val, int a_idx)
 	}
 
 	/* Bows should not have certain attributes */
-	if (a_ptr->tval == TV_BOW)
+	if (is_missile_weapon(a_ptr))
 	{
 		/* Cancel some pval-dependant qualities */
 		if (purchase == PVAL_TUNNEL) return;
@@ -720,7 +720,7 @@ int get_max_potential(int a_idx)
 	{
 		max_potential = 5000;
 	}
-	else if (tval == TV_BOW)
+	else if (is_missile_weapon(a_ptr))
 	{
 		max_potential = 3500;
 	}
@@ -831,7 +831,9 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 	/* Determine "power" and get activation of base object. */
 	switch (k_ptr->tval)
 	{
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		{
 			break;
 		}
@@ -1026,7 +1028,7 @@ static void get_potential(int a_idx)
 	if (k_ptr->cost >= 5000) a_ptr->cost += k_ptr->cost;
 
 	/* Handle the special case of missile and thrown weapons */
-	if ((a_ptr->tval == TV_BOW) ||
+	if ((is_missile_weapon(a_ptr)) ||
 		((is_any_weapon(a_ptr)) && (a_ptr->flags1 & (TR1_THROWING))))
 	{
 		a_ptr->cost += a_ptr->cost / 2;
@@ -1061,7 +1063,7 @@ static void get_potential(int a_idx)
 	/* Modify artifact rarity to handle some special cases. */
 	if (a_ptr->tval == TV_CLOAK) artifact_rarity *= 2;
 	if (a_ptr->tval == TV_BOOTS) artifact_rarity += 5;
-	if (a_ptr->tval == TV_BOW) artifact_rarity += 5;
+	if (is_missile_weapon(a_ptr)) artifact_rarity += 5;
 
 	/* Boundary control. */
 	if (artifact_rarity <  4) artifact_rarity =  4;
@@ -1696,7 +1698,9 @@ static void choose_basic_theme(int a_idx)
 		}
 
 		/* I'm a missile weapon... */
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		{
 			/* ...with bonuses to Deadliness and Skill, and... */
 			a_ptr->to_d += (rand_range(4, 10) + potential / 350);
@@ -2348,7 +2352,8 @@ static void choose_basic_theme(int a_idx)
 				if (potential < 2500) break;
 
 				/* Assign an activation for free. */
-				a_ptr->activate = ACTIV_RANDOM_IDENTIFY;
+				if (potential < 4000) a_ptr->activate = ACTIV_RANDOM_IDENTIFY;
+				else a_ptr->activate = ACTIV_RANDOM_SELF_KNOWLEDGE;
 			}
 			/* ...which can focus healing magics. */
 			else if (selection < 90)
@@ -2552,7 +2557,7 @@ static void grant_activation(int a_idx)
 
 
 	/* We're a missile launcher with a reasonable potential */
-	if ((a_ptr->tval == TV_BOW) && (potential >= rand_range(750, 1250)))
+	if ((is_missile_weapon(a_ptr)) && (potential >= rand_range(750, 1250)))
 	{
 		/* Choose an activation */
 		if (potential > rand_range(2000, 2500)) choice = randint(12);
@@ -2603,7 +2608,7 @@ static void grant_pval(int a_idx)
 	int quality = -1;
 
 	/* Missile weapons concentrate on power-enhancement */
-	if ((a_ptr->tval == TV_BOW) && (one_in_(3)))
+	if ((is_missile_weapon(a_ptr)) && (one_in_(3)))
 	{
 		if (one_in_(2)) quality = PVAL_MIGHT;
 		else            quality = PVAL_SHOTS;
@@ -3013,7 +3018,7 @@ static void haggle_till_done(int a_idx)
 		}
 
 		/* I'm a bow */
-		else if (a_ptr->tval == TV_BOW)
+		else if (is_missile_weapon(a_ptr))
 		{
 			/* Sometimes, collect a miscellaneous quality, if it is affordable. */
 			if (one_in_(3))
@@ -3398,7 +3403,7 @@ static void build_prob(void)
 	/* Open the file containing our lexicon, and read from it.  Warn the
 	 * rest of the code that random names are unavailable on failure.
 	 */
-	path_build (buf, BUFLEN, ANGBAND_DIR_FILE, NAMES_FILE);
+	(void)path_build (buf, BUFLEN, ANGBAND_DIR_FILE, NAMES_FILE);
 	if ((f = my_fopen(buf, "r")) == NULL)
 	{
 		find_all_names = TRUE;
@@ -3496,7 +3501,7 @@ static char *make_word(void)
 		c_cur = c_next;
 	}
 
-	word_buf[0] = toupper(word_buf[0]);
+	word_buf[0] = my_toupper(word_buf[0]);
 	return (word_buf);
 }
 
@@ -3517,26 +3522,24 @@ static char *find_word(int a_idx)
 	 */
 	if (a_ptr->flags3 & (TR3_LIGHT_CURSE))
 	{
-		if ((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) ||
-			(a_ptr->tval == TV_HAFTED) || (a_ptr->tval == TV_POLEARM))
+		if (is_any_weapon(a_ptr))
 		{
-			get_rnd_line("w_cursed.txt", art_name);
+			(void)get_rnd_line("w_cursed.txt", art_name);
 		}
 		else
 		{
-			get_rnd_line("a_cursed.txt", art_name);
+			(void)get_rnd_line("a_cursed.txt", art_name);
 		}
 	}
 	else
 	{
-		if ((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) ||
-			(a_ptr->tval == TV_HAFTED) || (a_ptr->tval == TV_POLEARM))
+		if (is_any_weapon(a_ptr))
 		{
-			get_rnd_line("w_normal.txt", art_name);
+			(void)get_rnd_line("w_normal.txt", art_name);
 		}
 		else
 		{
-			get_rnd_line("a_normal.txt", art_name);
+			(void)get_rnd_line("a_normal.txt", art_name);
 		}
 	}
 
@@ -3744,7 +3747,7 @@ static int convert_names(void)
 
 	for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
 	{
-		string_free(names[i]);
+		(void)string_free(names[i]);
 	}
 
 	a_name = a_base;

@@ -915,7 +915,7 @@ byte py_pickup(int pickup)
 			screen_save();
 
 			/* Display objects on the floor */
-			show_floor(floor_list, floor_num, FALSE);
+			show_floor(floor_list, floor_num, FALSE, blind);
 
 			/* Display prompt */
 			prt(format("You %s: ",
@@ -999,7 +999,7 @@ byte py_pickup(int pickup)
 				screen_save();
 
 				/* Display objects on the floor */
-				show_floor(floor_list, floor_num, FALSE);
+				show_floor(floor_list, floor_num, FALSE, blind);
 
 				/* Display prompt */
 				prt("You have no room for the following objects: ", 0, 0);
@@ -1042,7 +1042,7 @@ byte py_pickup(int pickup)
 			screen_save();
 
 			/* Display objects on the floor */
-			show_floor(floor_list, floor_num, FALSE);
+			show_floor(floor_list, floor_num, FALSE, blind);
 
 			/* Display prompt */
 			if (floor_num == 1)
@@ -1218,9 +1218,9 @@ void move_player(int dir, int do_pickup)
 	}
 
 
-	/* Attempt to alter known walls/traps */
+	/* Attempt to alter door and traps, but not walls */
 	if ((!p_ptr->confused) &&
-	    ((cave_info[y][x] & (CAVE_WALL)) || (cave_visible_trap(y, x))))
+	    ((cave_closed_door(y, x)) || (cave_visible_trap(y, x))))
 	{
 		bool confirmed = FALSE;
 
@@ -1229,7 +1229,7 @@ void move_player(int dir, int do_pickup)
 
 		/* Automatic disarming (if more than 1 trap, can be cancelled). */
 		if ((num > 1) ||
-		    ((num == 1) && (p_ptr->command_rep) && (!p_ptr->running)))
+			((num == 1) && (p_ptr->command_rep) && (!p_ptr->running)))
 		{
 			confirmed = TRUE;
 		}
@@ -1263,10 +1263,9 @@ void move_player(int dir, int do_pickup)
 			}
 		}
 
-		/* Door -- unless in wraithform */
+		/* Known closed door -- unless in wraithform */
 		else if ((!p_ptr->wraithform) &&
-		         (cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-		         (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+		         (cave_closed_door(y, x)) && (cave_info[y][x] & (CAVE_MARK)))
 		{
 			/* It's hard to get into trouble with an untrapped door */
 			confirmed = TRUE;
@@ -1306,7 +1305,7 @@ void move_player(int dir, int do_pickup)
 
 
 	/* Some terrain is usually impassable for the player */
-	if (!cave_passable_bold(y, x))
+	if ((!cave_passable_bold(y, x)) || (cave_closed_door(y, x)))
 	{
 		/* Disturb the player */
 		disturb(0, 0);
@@ -1315,7 +1314,7 @@ void move_player(int dir, int do_pickup)
 		if (p_ptr->wraithform)
 		{
 			/* Nobody can go through solid walls */
-			if (cave_permwall(y,x))
+			if (cave_permwall(y, x))
 			{
 				message(MSG_HITWALL, 0, "You feel a solid wall blocking your way.");
 
@@ -1336,11 +1335,11 @@ void move_player(int dir, int do_pickup)
 			}
 		}
 
-		/* If not in wraithform, ordinary walls are also a barrier */
+		/* If not in wraithform, ordinary non-passables are also a barrier */
 		else
 		{
 			/* Closed door */
-			if (cave_feat[y][x] < FEAT_SECRET)
+			if (cave_closed_door(y, x))
 			{
 				/* Already known */
 				if (cave_info[y][x] & (CAVE_MARK))
@@ -1360,7 +1359,7 @@ void move_player(int dir, int do_pickup)
 			}
 
 			/* Wall (or secret door) */
-			else
+			else if (cave_wall_bold(y, x))
 			{
 				/* Already known */
 				if (cave_info[y][x] & (CAVE_MARK))
@@ -1374,6 +1373,27 @@ void move_player(int dir, int do_pickup)
 				else
 				{
 					message(MSG_HITWALL, 0, "You feel a wall blocking your way.");
+					cave_info[y][x] |= (CAVE_MARK);
+					lite_spot(y, x);
+				}
+			}
+
+			/* Special non-passable */
+			else
+			{
+				/* Message -- should be elaborated later */
+				msg_format("You cannot cross %s.",
+					f_name + f_info[cave_feat[y][x]].name);
+
+				/* Already known */
+				if (cave_info[y][x] & (CAVE_MARK))
+				{
+					/* Hack -- Use no energy */
+					if (!p_ptr->confused) p_ptr->energy_use = 0;
+				}
+				/* Not known */
+				else
+				{
 					cave_info[y][x] |= (CAVE_MARK);
 					lite_spot(y, x);
 				}
@@ -1554,16 +1574,14 @@ void move_player(int dir, int do_pickup)
 		if (get_skill(S_INFUSION, 0, 100) >= LEV_REQ_INFUSE)
 		{
 			/* Skill competes with depth */
-			if (rand_int(25 + p_ptr->depth) <
-			    get_skill(S_INFUSION, 0, 100))
+			if (rand_int(25 + p_ptr->depth) < get_skill(S_INFUSION, 0, 100))
 			{
 				search_essence(FALSE);
 			}
 		}
 
 		/* Handle store doors */
-		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_SHOP_TAIL))
+		if (cave_shop_bold(y, x))
 		{
 			/* Handle objects now.  XXX */
 			p_ptr->energy_use += py_pickup(do_pickup) * 10;
@@ -1599,7 +1617,7 @@ static int see_wall(int dir, int y, int x)
 	if (!in_bounds(y, x)) return (FALSE);
 
 	/* Non-wall grids are not known walls */
-	if (cave_feat[y][x] < FEAT_SECRET) return (FALSE);
+	if (!cave_wall_bold(y, x)) return (FALSE);
 
 	/* Unknown walls are not known walls */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (FALSE);
@@ -1910,10 +1928,7 @@ static void run_init(int dir)
 /*
  * Update the current "run" path
  *
- * Return TRUE if the running should be stopped
- *
- * Note:  The only terrain that (currently) counts as open space for
- * the purposes of this function is FEAT_FLOOR.
+ * Return TRUE if the running should be stopped.
  */
 static bool run_test(void)
 {
@@ -1926,8 +1941,8 @@ static bool run_test(void)
 
 	object_type *o_ptr;
 
-	int row, col;
-	int i, max, inv;
+	int row, col, row_next, col_next;
+	int i, max;
 	int option, option2;
 
 
@@ -1953,11 +1968,25 @@ static bool run_test(void)
 		row = py + ddy[new_dir];
 		col = px + ddx[new_dir];
 
-
 		/* Visible monsters abort running */
 		if (cave_m_idx[row][col] > 0)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[row][col]];
+
+			/* Visible monster */
+			if (m_ptr->ml && !(m_ptr->mflag & (MFLAG_MIME))) return (TRUE);
+		}
+
+		/* Look ahead */
+		row_next = row + ddy[prev_dir];
+		col_next = col + ddx[prev_dir];
+
+		/* Visible monsters about to become adjacent also abort running */
+		if ((in_bounds(row_next, col_next)) &&
+		    (cave_m_idx[row_next][col_next] > 0))
+		{
+			monster_type *m_ptr =
+				&m_list[cave_m_idx[row_next][col_next]];
 
 			/* Visible monster */
 			if (m_ptr->ml && !(m_ptr->mflag & (MFLAG_MIME))) return (TRUE);
@@ -1974,94 +2003,41 @@ static bool run_test(void)
 		/* Visible traps abort running */
 		if (cave_visible_trap(row, col)) return (TRUE);
 
-		/* Assume unknown */
-		inv = TRUE;
 
-		/* Check memorized grids */
+		/* Check known grids */
 		if (cave_info[row][col] & (CAVE_MARK))
 		{
-			bool notice = TRUE;
+			bool ignore = FALSE;
 
-			/* Examine the terrain */
-			switch (cave_feat[row][col])
+			/* We may or may not ignore doors */
+			if (cave_any_door(row, col))
 			{
-				/* Floors */
-				case FEAT_FLOOR:
-
-				/* Secret doors */
-				case FEAT_SECRET:
-
-				/* Normal veins */
-				case FEAT_MAGMA:
-				case FEAT_QUARTZ:
-
-				/* Hidden treasure */
-				case FEAT_MAGMA_H:
-				case FEAT_QUARTZ_H:
-
-				/* Special passable terrain. */
-				case FEAT_LAVA:
-				case FEAT_WATER:
-				case FEAT_TREE:
-				{
-					/* Ignore */
-					notice = FALSE;
-
-					/* Done */
-					break;
-				}
-
-				/* Walls */
-				case FEAT_WALL_EXTRA:
-				case FEAT_WALL_INNER:
-				case FEAT_WALL_OUTER:
-				case FEAT_WALL_SOLID:
-				case FEAT_PERM_EXTRA:
-				case FEAT_PERM_INNER:
-				case FEAT_PERM_OUTER:
-				case FEAT_PERM_SOLID:
-				{
-					/* Ignore */
-					notice = FALSE;
-
-					/* Done */
-					break;
-				}
-
-				/* Open doors */
-				case FEAT_OPEN:
-				case FEAT_BROKEN:
-				{
-					/* Option -- ignore */
-					if (run_ignore_doors) notice = FALSE;
-
-					/* Done */
-					break;
-				}
-
-				/* Stairs */
-				case FEAT_LESS:
-				case FEAT_MORE:
-				case FEAT_LESS2:
-				case FEAT_MORE2:
-				{
-					/* Option -- ignore */
-					if (run_ignore_stairs) notice = FALSE;
-
-					/* Done */
-					break;
-				}
+				if (run_ignore_doors) ignore = TRUE;
 			}
 
-			/* Interesting feature */
-			if (notice) return (TRUE);
+			/* We may or may not ignore stair and entrances */
+			else if (cave_any_stairs(row, col))
+			{
+				if (run_ignore_stairs) ignore = TRUE;
+			}
 
-			/* The grid is "visible" */
-			inv = FALSE;
+			/* We ignore all passables and walls */
+			else if ((cave_passable_bold(row, col)) || (cave_wall_bold(row, col)))
+			{
+				ignore = TRUE;
+			}
+
+			/* We notice everything else */
+			if (!ignore)
+			{
+				return (TRUE);
+			}
 		}
 
-		/* Analyze unknown grids and floors */
-		if (inv || cave_nonwall_bold(row, col))
+
+		/* Grid is unknown, or known to be a floor */
+		if (!(cave_info[row][col] & (CAVE_MARK)) ||
+		    (cave_floor_bold(row, col)))
 		{
 			/* Looking for open area */
 			if (p_ptr->run_open_area)
@@ -2135,9 +2111,9 @@ static bool run_test(void)
 			row = py + ddy[new_dir];
 			col = px + ddx[new_dir];
 
-			/* Unknown grid or "runnable"  XXX */
+			/* Unknown grid or "runnable" */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-				(cave_feat[row][col] < FEAT_SECRET))
+				(!cave_wall_bold(row, col)))
 			{
 				/* Looking to break right */
 				if (p_ptr->run_break_right)
@@ -2167,7 +2143,7 @@ static bool run_test(void)
 
 			/* Unknown grid or "runnable"  XXX */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			     (cave_feat[row][col] < FEAT_SECRET))
+			     (!cave_wall_bold(row, col)))
 			{
 				/* Looking to break left */
 				if (p_ptr->run_break_left)

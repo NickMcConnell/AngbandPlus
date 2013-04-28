@@ -44,14 +44,11 @@ struct term_win
 	byte *va;
 	char *vc;
 
-#ifdef USE_TRANSPARENCY
 	byte **ta;
 	char **tc;
 
 	byte *vta;
 	char *vtc;
-#endif /* USE_TRANSPARENCY */
-
 };
 
 
@@ -155,6 +152,8 @@ struct term_win
  *
  *	- Hook for drawing a sequence of special attr/char pairs
  *
+ *  - Hook for translating Latin-1 (8-bit) characters
+ *
  *	- Hook for changing the number of rows shown on screen
  */
 
@@ -221,11 +220,9 @@ struct term
 
 	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
 
-#ifdef USE_TRANSPARENCY
 	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
-#else /* USE_TRANSPARENCY */
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp);
-#endif /* USE_TRANSPARENCY */
+
+	char (*xchar_hook)(char c);
 
 	errr (*rows_hook)(bool fifty_rows);
 };
@@ -281,14 +278,11 @@ extern term *Term;
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
 
-#ifdef USE_TRANSPARENCY
+extern const char seven_bit_translation[128];
+extern char xchar_trans(byte c);
+
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
-#else /* USE_TRANSPARENCY */
-extern void Term_queue_char(int x, int y, byte a, char c);
-#endif /* USE_TRANSPARENCY */
-
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
-
 extern errr Term_fresh(void);
 extern errr Term_set_cursor(int v);
 extern errr Term_gotoxy(int x, int y);

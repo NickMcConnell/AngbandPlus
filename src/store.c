@@ -78,418 +78,14 @@ byte bargain_difficulty = 108;
 #define ALWAYS_POLITE  25
 #define ALWAYS_RUDE     5
 
-/*
- * Store owners
- * { name, purse, max greed, min greed, haggle_per, tolerance, race }
- *
- * Purse - limited purses are vital in a game without time limits.
- * Max greed - should never be greater than 195, or the initial offer code
- *      gets confused, and it's harder to haggle successfully.  Should not
- *     be much lower than 160, or initial offers must be closer to final
- *     item price than what players are used to.
- * Min greed - normally 110, less for downmarket shopkeepers, more for
- *      upscale ones.
- * Haggle_per controls the way the shopkeeper haggles.  Lower numbers make
- *      for shopkeepers that expect the player to concede as little as
- *      possible in negotiations.  They have high patience for skinflint
- *      offers, but it takes long haggling to knock them down to their final
- *      price.  Values of about 12 are average.
- * Tolerance determines how many insults a shopkeeper will take before
- *      throwing the character out of the store, and also affects haggling
- *      text.
- *
- * Overwritten by "store.txt".
- */
-owner_type owners[MAX_STORES][MAX_OWNERS] =
-{
-	/* General store */
-	{
-	 { "Bilbo the Friendly",         6000,  160, 108, 14, 25, RACE_HOBBIT},
-	 { "Rincewind the Chicken",      4000,  165, 107, 12, 20, RACE_HUMAN},
-	 { "Snafu the Midget",          10000,  160, 107, 10, 20, RACE_GNOME},
-	 { "Lyar-el the Comely",         8000,  155, 107, 14, 25, RACE_ELF},
-	 { "Owitu the Owlish",           6000,  170, 105, 12, 15, RACE_GNOME},
-	 { "Gorgrund the Haggler",      12000,  190, 107,  8, 13, RACE_HALF_ORC}
-	},
-
-	/* Armoury */
-	{
-	 { "Kon-Dar the Ugly",           5000,  185, 105, 10, 15, RACE_HALF_ORC},
-	 { "Darg-Low the Grim",         10000,  180, 110, 10, 12, RACE_HUMAN},
-	 { "Decado the Handsome",       25000,  175, 112, 12, 20, RACE_DUNADAN},
-	 { "Mauglin the Grumpy",        30000,  190, 115, 12,  8, RACE_DWARF},
-	 { "Jurmanjand Thunderbrows",   20000,  160, 112, 16,  8, RACE_GIANT},
-	 { "Vivirion True-Forger",      15000,  175, 112, 10, 20, RACE_DARK_ELF}
-	},
-
-	 /* Weapon Smith */
-	{
-	 { "Ithyl-Mak the Beastly",      5000,  180, 108, 12, 10, RACE_HALF_TROLL},
-	 { "Arndal Beast-Slayer",       15000,  170, 110, 12, 15, RACE_ELF},
-	 { "Tarl Stronginthearm",       25000,  175, 115, 12, 18, RACE_HOBBIT},
-	 { "Oglign Dragon-Slayer",      30000,  175, 115, 12, 18, RACE_DWARF},
-	 { "Jarl the Generous",         20000,  150, 105, 10, 25, RACE_HUMAN},
-	 { "William Wrathful",           7500,  180, 108, 14,  6, RACE_HUMAN}
-	},
-
-	 /* Temple */
-	{
-	 { "Ludwig the Humble",          5000,  165, 108, 14, 30, RACE_HUMAN},
-	 { "Gunnar the Paladin",        15000,  175, 110, 12, 18, RACE_HUMAN},
-	 { "Delilah the Pure",          25000,  170, 112, 14, 22, RACE_ELF},
-	 { "Bosk the Wise",             30000,  175, 115, 12, 20, RACE_DWARF},
-	 { "Sevestor the Silent",       20000,  180, 110, 14, 18, RACE_DARK_ELF},
-	 { "Fuduk the Hammer",          10000,  170, 110, 14, 15, RACE_HALF_TROLL}
-	},
-
-	/* Alchemist's */
-	{
-	 { "Elroia the Chemist",        10000,  180, 111, 12, 20, RACE_ELF},
-	 { "Grugdash the Chaotic",       7500,  180, 106, 12, 10, RACE_HALF_ORC},
-	 { "Ga-nat the Greedy",         15000,  195, 115,  8,  9, RACE_GNOME},
-	 { "Vella the Slender",         10000,  170, 111, 12, 20, RACE_HUMAN},
-	 { "Drumondorio the Apothecary",12500,  170, 110, 14, 15, RACE_GIANT},
-	 { "Oroglad the Thaumaturge",   15000,  180, 112, 12, 15, RACE_DUNADAN}
-	},
-
-	/* Magic Shop */
-	{
-	 { "Ariel the Sorceress",       20000,  170, 110, 16, 15, RACE_ELF},
-	 { "Buggerby the Great!",       20000,  190, 113, 10, 15, RACE_GNOME},
-	 { "Inglorian the Mage",        30000,  170, 115, 14, 15, RACE_HUMAN},
-	 { "Luthien Starshine",         30000,  165, 115, 16, 25, RACE_HIGH_ELF},
-	 { "Balthazar of Earvernan",    25000,  180, 109, 12, 15, RACE_GNOME},
-	 { "Murid the Skinflint",       10000,  180, 110,  9,  9, RACE_HUMAN}
-	},
-
-	/* Bookseller */
-	{
-	 { "Naestra the Dusty",         10000,  155, 105, 12, 13, RACE_HUMAN},
-	 { "Gabberam the Sage",         20000,  180, 118, 10, 18, RACE_GNOME},
-	 { "Feadro the Tome-master",    20000,  165, 113, 12, 18, RACE_HOBBIT},
-	 { "Hastiel the Encyclopedist", 30000,  160, 115, 14, 18, RACE_DUNADAN},
-	 { "Dreol of Drugladdan",       15000,  180, 107, 10, 13, RACE_DARK_ELF},
-	 { "Silmarien the Joyous",      25000,  170, 110, 14, 30, RACE_HIGH_ELF}
-	},
-
-	/* Home */
-	{
-	 { "Your home",                     0,  100, 100,  0, 99, 99},
-	 { "Your home",                     0,  100, 100,  0, 99, 99},
-	 { "Your home",                     0,  100, 100,  0, 99, 99},
-	 { "Your home",                     0,  100, 100,  0, 99, 99},
-	 { "Your home",                     0,  100, 100,  0, 99, 99},
-	 { "Your home",                     0,  100, 100,  0, 99, 99},
-	},
-
-	/* Inn */
-	{
-	 { "Inn",                           0,  100, 100,  0, 99, 99},
-	 { "Inn",                           0,  100, 100,  0, 99, 99},
-	 { "Inn",                           0,  100, 100,  0, 99, 99},
-	 { "Inn",                           0,  100, 100,  0, 99, 99},
-	 { "Inn",                           0,  100, 100,  0, 99, 99},
-	 { "Inn",                           0,  100, 100,  0, 99, 99},
-	}
-};
 
 /*
- * Objects sold in the stores
- *
- * k_idx, chance, usual quantity*
- *
- * Overwritten by "store.txt".
+ * Store arrays.  Filled in by /lib/edit/store.txt.
  */
-stock_type store_stock[] =
-{
-	/* General Store */
-	{ -1, STORE_GENERAL, 0},   /* Start of store marker */
-
-	{ 33, 100, 20},  /* Ration of Food */
-	{ 31, 100, 50},  /* Biscuit */
-	{ 32, 100, 50},  /* Beef Jerky */
-	{ 37,  60,  5},  /* Wine */
-	{ 36,  60,  5},  /* Ale */
-	{627, 100, 50},  /* Torch */
-	{628,  20,  1},  /* Lantern */
-	{629, 100, 50},  /* Flask of Oil */
-	{626, 100, 75},  /* Spike */
-	{138, 100, 75},  /* Shot */
-	{142, 100, 75},  /* Arrow */
-	{146, 100, 75},  /* Bolt */
-	{150,  33,  3},  /* Shovel */
-	{153,  33,  3},  /* Pick */
-	{230, 100,  5},  /* Cloak */
-	{181, 100,  4},  /* Robe */
-
-
-	/* Armoury */
-	{ -1, STORE_ARMOR, 0},   /* Start of store marker */
-
-	{158, 100, 10},  /* Sandals */
-	{159,  67, 10},  /* Soft Leather Boots */
-	{160,  67, 10},  /* Hard Leather Boots */
-	{237, 100, 10},  /* Gloves */
-	{238,  75, 10},  /* Mail Gauntlets */
-	{167, 100, 10},  /* Leather Cap */
-	{168,  50, 10},  /* Metal Cap */
-	{169,  40,  6},  /* Barbut */
-	{170,  30,  3},  /* Iron Helm */
-	{245, 100, 10},  /* Small Leather Shield */
-	{247,  67,  8},  /* Large Leather Shield */
-	{246,  67,  8},  /* Small Metal Shield */
-	{182, 100,  6},  /* Soft Leather Armour */
-	{183,  50,  6},  /* Soft Studded Leather */
-	{184,  50,  6},  /* Hard Leather Armour */
-	{185,  50,  5},  /* Hard Studded Leather */
-	{188,  40,  4},  /* Leather Scale Mail */
-	{191,  40,  3},  /* Brigandine Armour */
-	{193,  40,  3},  /* Chain Mail */
-	{194,  40,  3},  /* Metal Scale Mail */
-	{196,  20,  2},  /* Augmented Chain Mail */
-
-
-	/* Weaponsmith */
-	{ -1, STORE_WEAPON, 0},   /* Start of store marker */
-
-	{ 43,  50,  7},  /* Throwing Knife */
-	{ 44, 100, 10},  /* Dagger */
-	{ 45,  33,  6},  /* Main Gauche */
-	{ 47,  33,  6},  /* Rapier */
-	{ 48,  33,  6},  /* Small Sword */
-	{ 50,  33,  6},  /* Short Sword */
-	{ 51,  33,  6},  /* Sabre */
-	{ 52,  33,  6},  /* Cutlass */
-	{ 56,  50,  6},  /* Broad Sword */
-	{ 57,  50,  6},  /* Long Sword */
-	{ 61,  33,  4},  /* Bastard Sword */
-	{ 96,  75,  7},  /* Javelin */
-	{ 97, 100, 15},  /* Spear */
-	{ 99,  33,  3},  /* Trident */
-	{100,  50,  6},  /* Pike */
-	{104,  50,  4},  /* Beaked Axe */
-	{105,  50,  4},  /* Broad Axe */
-	{106,  33,  3},  /* Battle Axe */
-	{127, 100,  5},  /* Sling */
-	{130, 100,  5},  /* Short Bow */
-	{131,  15,  2},  /* Long Bow */
-	{133, 100,  2},  /* Hand Crossbow */
-	{134,  15,  2},  /* Light Crossbow */
-	{138, 100, 75},  /* Shot */
-	{142, 100, 75},  /* Arrow */
-	{146, 100, 75},  /* Bolt */
-
-
-	/* Temple */
-	{ -1, STORE_TEMPLE, 0},   /* Start of store marker */
-
-	{ 72,  60, 15},  /* Whip */
-	{ 73,  80,  5},  /* Quarterstaff */
-	{ 75,  80,  5},  /* Mace */
-	{ 76,  60,  5},  /* Ball and Chain */
-	{ 78,  60,  5},  /* War Hammer */
-	{ 82,  50,  5},  /* Morning Star */
-	{ 83,  50,  5},  /* Flail */
-	{335, 100, 15},  /* Scroll of Remove Curse */
-	{336,  10,  1},  /* Scroll of *Remove Curse* */
-	{353, 100, 50},  /* Scroll of Blessing */
-	{354,  33,  7},  /* Scroll of Holy Chant */
-	{414, 100, 50},  /* Potion of Cure Light Wounds */
-	{415, 100, 15},  /* Potion of Cure Serious */
-	{416, 100, 15},  /* Potion of Cure Critical */
-	{421,  33,  1},  /* Potion of Restore Skills */
-	{422, 100,  2},  /* Potion of Restore Strength */
-	{423, 100,  2},  /* Potion of Restore Intelligence */
-	{424, 100,  2},  /* Potion of Restore Wisdom */
-	{425, 100,  2},  /* Potion of Restore Dexterity */
-	{426, 100,  2},  /* Potion of Restore Constitution */
-	{427, 100,  2},  /* Potion of Restore Charisma */
-
-
-	/* Alchemy shop */
-	{ -1, STORE_ALCHEMY, 0},   /* Start of store marker */
-
-	{328, 100, 25},  /* Scroll of Phase Door */
-	{329, 100, 14},  /* Scroll of Teleport */
-	{331, 100,  6},  /* Scroll of Word of Recall */
-	{332, 100, 40},  /* Scroll of Learn Magic */
-	{333, 100, 20},  /* Scroll of Identify */
-	{334,  25,  3},  /* Scroll of *Identify* */
-	{337,  60,  4},  /* Scroll of Enchant Armour */
-	{338,  60,  4},  /* Scroll of Enchant Weapon (Skill) */
-	{339,  60,  4},  /* Scroll of Enchant Weapon (Deadliness) */
-	{342,  80,  7},  /* Scroll of Recharging */
-	{344, 100, 40},  /* Scroll of Light */
-	{345,  50, 20},  /* Scroll of Mapping */
-	{346,  75, 12},  /* Scroll of Treasure Detection */
-	{347,  75, 12},  /* Scroll of Object Detection */
-	{348,  75, 12},  /* Scroll of Trap Location */
-	{349,  75, 12},  /* Scroll of Door/Stair Location */
-	{350,  75, 12},  /* Scroll of Detect Invisible */
-	{352, 100, 12},  /* Scroll of Satisfy Hunger */
-	{410,  50, 12},  /* Potion of Resist Fire */
-	{411,  50, 12},  /* Potion of Resist Cold */
-	{406,  50, 12},  /* Potion of Slow Poison */
-
-
-	/* Magic-User store */
-	{ -1, STORE_MAGIC, 0},   /* Start of store marker */
-	{267,  33,  1},  /* Ring of Resist Acid */
-	{268,  33,  1},  /* Ring of Resist Fire */
-	{269,  33,  1},  /* Ring of Resist Cold */
-	{285,  33,  1},  /* Ring of Awareness */
-	{303,  33,  1},  /* Amulet of Slow Digestion */
-	{304,  33,  1},  /* Amulet of Feather Falling */
-	{460,  50,  3},  /* Wand of Door Destruction */
-	{463,  50,  3},  /* Wand of Sleep Monster */
-	{464,  50,  3},  /* Wand of Slow Monster */
-	{465,  50,  3},  /* Wand of Confuse Monster */
-	{468,  50,  3},  /* Wand of Stinking Cloud */
-	{469,  50,  3},  /* Wand of Magic Missile */
-	{478,  50,  3},  /* Wand of Wonder */
-	{508,  75,  2},  /* Staff of Light */
-	{509,  33,  2},  /* Staff of Dungeon Mapping */
-	{512,  50,  2},  /* Staff of Trap Location */
-	{513,  50,  2},  /* Staff of Door/Stair Location */
-	{510,  50,  2},  /* Staff of Treasure Location */
-	{511,  50,  2},  /* Staff of Object Location */
-	{514,  50,  2},  /* Staff of Detect Invisible */
-	{515,  50,  2},  /* Staff of Detect Evil */
-	{504,  50,  2},  /* Staff of Teleportation */
-	{505,  80,  2},  /* Staff of Perception */
-
-
-	/* Bookstore */
-	{ -1, STORE_SPELLBOOK, 0},   /* Start of store marker */
-
-	{650, 100,  8},  /* [Apprentice Magic] */
-	{651, 100,  4},  /* [Conjurings and Tricks] */
-	{652, 100,  2},  /* [Elemental Sorcery] */
-	{660, 100,  8},  /* [Novitiate] */
-	{661, 100,  4},  /* [Words of Wisdom] */
-	{662, 100,  2},  /* [Holy of Holies] */
-	{670, 100,  8},  /* [Call of the Wild] */
-	{671, 100,  4},  /* [Communion with Nature] */
-	{672, 100,  2},  /* [Book of Combat] */
-	{680, 100,  8},  /* [Beginner's Curses] */
-	{681, 100,  4},  /* [Darker Elements] */
-	{682, 100,  2},  /* [Frightful Realms] */
-
-
-	/* Space to allow extra items in "store.txt"  XXX XXX XXX */
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-	{ -1, 250,  0},
-
-	/* End of array */
-	{ -1, 255,  0}
-
-};
-
-
-/*
- * General item kinds that stores sell
- *
- * Overwritten by "store.txt".
- */
-byte tval_sell[MAX_STORES][10] =
-{
-	{TV_FOOD, TV_LITE, TV_DIGGING, TV_CLOAK, TV_COMPONENT, TV_JUNK, 0, 0, 0, 0},
-	{TV_BOOTS, TV_GLOVES, TV_HELM, TV_CROWN, TV_SHIELD, TV_SOFT_ARMOR,
-	      TV_HARD_ARMOR, TV_DRAG_ARMOR, 0, 0},
-	{TV_SWORD, TV_POLEARM, TV_BOW, TV_SHOT, TV_ARROW, TV_BOLT, 0, 0, 0, 0},
-	{TV_HAFTED, TV_SCROLL, TV_POTION, 0, 0, 0, 0, 0, 0, 0},
-	{TV_SCROLL, TV_POTION, 0, 0, 0, 0, 0, 0, 0, 0},
-	{TV_AMULET, TV_RING, TV_WAND, TV_STAFF, TV_ROD, 0, 0, 0, 0, 0},
-	{TV_MAGIC_BOOK, TV_PRAYER_BOOK, TV_NATURE_BOOK, TV_DARK_BOOK, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-};
-
-
-/*
- * Buying and selling adjustments for race combinations.
- * Entry[owner][player] gives the basic "cost inflation".
- *
- * Humans will trade with anyone, and nobody really hates them.
- * Dwarves and orcs are at war; dwarves and elves don't much get along.
- * Elves also have problems with giants and sometimes with dark elves.
- *
- * The more a race is disliked, the better it will treat itself.
- *
- * In general, shopkeepers treat other races as they are treated.
- * Half-orcish and half-trollish shopkeepers are the main exception:
- * they sell for less than one might expect.
- * High-Elven shopkeepers tend to be a tad pricey.
- *
- * Overwritten by "store.txt".
- */
-byte rgold_adj[MAX_RACES][MAX_RACES] =
-{
-	/* Hum, Elf, Hob, Gno, Dwa, HfO, HfT, Dun, HiE, DkE, Gia   character */
-
-	  /* Human shopkeeper */
-	  {100, 110, 105, 113, 110, 115, 115, 100, 105, 110, 110},
-
-	  /* Elf */
-	  {110, 100, 110, 110, 130, 125, 130, 110, 100, 115, 125},
-
-	  /* Hobbit */
-	  {105, 110, 100, 105, 110, 115, 125, 105, 110, 115, 110},
-
-	  /* Gnome */
-	  {113, 115, 105, 100, 105, 115, 120, 113, 110, 115, 110},
-
-	  /* Dwarf */
-	  {110, 130, 110, 105,  95, 140, 125, 110, 130, 125, 105},
-
-	  /* Half-Orc */
-	  {110, 115, 110, 110, 140,  90, 100, 110, 115, 110, 110},
-
-	  /* Half-Troll */
-	  {115, 120, 115, 110, 115, 100,  85, 115, 120, 120, 105},
-
-	  /* Dunadan  */
-	  {100, 110, 105, 115, 110, 120, 125, 100, 105, 110, 105},
-
-	  /* High_Elf */
-	  {115, 105, 115, 115, 130, 125, 130, 110, 100, 125, 125},
-
-	  /* Dark_Elf */
-	  {110, 115, 115, 110, 125, 120, 125, 110, 120, 100, 125},
-
-	  /* Giant */
-	  {110, 120, 115, 110, 110, 115, 110, 110, 125, 125,  95}
-};
-
-
+owner_type owners[MAX_STORES][MAX_OWNERS];
+stock_type store_stock[STORE_STOCK_SIZE];
+byte tval_sell[MAX_STORES][10];
+byte rgold_adj[MAX_RACES][MAX_RACES];
 
 
 /*
@@ -804,7 +400,7 @@ static cptr comment_7a[MAX_COMMENT_7A] =
 	"The shopkeeper howls in agony!"    /* Deliberate lack of name */
 };
 
-#define MAX_COMMENT_7B	9
+#define MAX_COMMENT_7B	10
 
 static cptr comment_7b[MAX_COMMENT_7B] =
 {
@@ -816,7 +412,8 @@ static cptr comment_7b[MAX_COMMENT_7B] =
 	"Ratsafrazer!",
 	"Can we undo that last deal, friend?",
 	"Robbed again.  When will I learn?",
-	"%s glares at you."
+	"%s glares at you.",
+	"Oh poot."   /* A tribute to the Penance comic */
 };
 
 #define MAX_COMMENT_7C	6
@@ -1035,8 +632,8 @@ static void say_comment_7(int num)
  */
 static void purchase_analyze(s32b price, s32b value, s32b guess)
 {
-	/* Item was worthless, and we paid a fair amount for it */
-	if ((value <= 0L) && (price >= 50L))
+	/* Item was worthless, and we paid a lot for it */
+	if ((value <= 0L) && (price >= 50L * (p_ptr->max_depth + 1)))
 	{
 		/* Comment */
 		say_comment_7(1);
@@ -1369,7 +966,9 @@ static bool store_will_buy(const object_type *o_ptr)
 				case TV_SHOT:
 				case TV_BOLT:
 				case TV_ARROW:
+				case TV_SLING:
 				case TV_BOW:
+				case TV_CROSSBOW:
 				case TV_DIGGING:
 				case TV_HAFTED:
 				case TV_POLEARM:
@@ -1528,6 +1127,12 @@ static int home_carry(object_type *o_ptr)
 		if ((j_ptr->tval == mp_ptr->spell_book) &&
 			(o_ptr->tval != mp_ptr->spell_book)) continue;
 
+		/* Artifacts and Ego-items come next */
+		if ((artifact_p(o_ptr)) && (!artifact_p(j_ptr))) break;
+		if ((artifact_p(j_ptr)) && (!artifact_p(o_ptr))) continue;
+		if ((ego_item_p(o_ptr)) && (!ego_item_p(j_ptr))) break;
+		if ((ego_item_p(j_ptr)) && (!ego_item_p(o_ptr))) continue;
+
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;
 		if (o_ptr->tval < j_ptr->tval) continue;
@@ -1548,6 +1153,13 @@ static int home_carry(object_type *o_ptr)
 		j_value = object_value(j_ptr);
 		if (value > j_value) break;
 		if (value < j_value) continue;
+
+		/* Boulders sort by decreasing weight */
+		if ((o_ptr->tval == TV_JUNK) && (o_ptr->sval == SV_BOULDER))
+		{
+			if (o_ptr->weight > j_ptr->weight) break;
+			if (o_ptr->weight < j_ptr->weight) continue;
+		}
 	}
 
 	/* Slide the others up */
@@ -1624,6 +1236,18 @@ static int store_carry(object_type *o_ptr)
 		/* Get that object */
 		j_ptr = &st_ptr->stock[slot];
 
+		/* Hack -- readable books always come first */
+		if ((o_ptr->tval == mp_ptr->spell_book) &&
+			(j_ptr->tval != mp_ptr->spell_book)) break;
+		if ((j_ptr->tval == mp_ptr->spell_book) &&
+			(o_ptr->tval != mp_ptr->spell_book)) continue;
+
+		/* Artifacts and Ego-items come next */
+		if ((artifact_p(o_ptr)) && (!artifact_p(j_ptr))) break;
+		if ((artifact_p(j_ptr)) && (!artifact_p(o_ptr))) continue;
+		if ((ego_item_p(o_ptr)) && (!ego_item_p(j_ptr))) break;
+		if ((ego_item_p(j_ptr)) && (!ego_item_p(o_ptr))) continue;
+
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;
 		if (o_ptr->tval < j_ptr->tval) continue;
@@ -1638,6 +1262,13 @@ static int store_carry(object_type *o_ptr)
 		/* Objects sort by decreasing value */
 		if (value > j_value) break;
 		if (value < j_value) continue;
+
+		/* Boulders sort by decreasing weight */
+		if ((o_ptr->tval == TV_JUNK) && (o_ptr->sval == SV_BOULDER))
+		{
+			if (o_ptr->weight > j_ptr->weight) break;
+			if (o_ptr->weight < j_ptr->weight) continue;
+		}
 	}
 
 	/* Slide the others up */
@@ -2118,7 +1749,7 @@ static void store_adjust(int table_idx)
 		get_obj_num_hook = kind_fits_tval;
 
 		/* Prepare allocation table */
-		get_obj_num_prep();
+		(void)get_obj_num_prep();
 
 		/* Usually get an object that we don't already stock */
 		for (i = 0; i < 25; i++)
@@ -2149,7 +1780,7 @@ static void store_adjust(int table_idx)
 		get_obj_num_hook = NULL;
 
 		/* Prepare allocation table */
-		get_obj_num_prep();
+		(void)get_obj_num_prep();
 
 		/* We have a valid index */
 		if (k_idx)
@@ -2460,11 +2091,11 @@ static void display_store(void)
 		cptr race_name = race_info[ot_ptr->owner_race].title;
 
 		/* Put the owner name and race */
-		strnfmt(buf, sizeof(buf), "%s (%s)", ot_ptr->owner_name, race_name);
+		(void)strnfmt(buf, sizeof(buf), "%s (%s)", ot_ptr->owner_name, race_name);
 		put_str(buf, 3, 10);
 
 		/* Show the max price in the store (above prices) */
-		strnfmt(buf, sizeof(buf), "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
+		(void)strnfmt(buf, sizeof(buf), "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
 		prt(buf, 3, 50);
 
 		/* Label the object descriptions */
@@ -2561,7 +2192,7 @@ static bool get_stock(int *com_val, cptr pmt)
 	*com_val = (-1);
 
 	/* Build the prompt */
-	strnfmt(buf, sizeof(buf), "(Items %c-%c, ESC to exit) %s",
+	(void)strnfmt(buf, sizeof(buf), "(Items %c-%c, ESC to exit) %s",
 		store_to_label(0), store_to_label(st_ptr->stock_num - 1),
 		pmt);
 
@@ -2581,10 +2212,10 @@ static bool get_stock(int *com_val, cptr pmt)
 		}
 
 		/* Note verify */
-		verify = (isupper((unsigned char)which) ? TRUE : FALSE);
+		verify = (my_isupper((unsigned char)which) ? TRUE : FALSE);
 
 		/* Lowercase */
-		which = tolower((unsigned char)which);
+		which = my_tolower((unsigned char)which);
 
 		/* Convert response to item */
 		item = label_to_store(which);
@@ -2619,7 +2250,7 @@ static bool get_stock(int *com_val, cptr pmt)
 		}
 
 		/* Prompt */
-		strnfmt(out_val, sizeof(out_val), "Try %s?", o_name);
+		(void)strnfmt(out_val, sizeof(out_val), "Try %s?", o_name);
 
 		/* Query */
 		if (!get_check(out_val)) return (FALSE);
@@ -2670,7 +2301,7 @@ static void prt_welcome(void)
 		shopkeeper_short_name(short_name, ot_ptr->owner_name);
 
 		/* Get either the character title or name */
-		if (i == 4) strcpy(buf, get_title(40, FALSE, &dummy));
+		if (i == 4) strcpy(buf, get_title(40, FALSE, TRUE, &dummy));
 		else        strcpy(buf, op_ptr->full_name);
 
 		/* Get the comment */
@@ -2762,25 +2393,25 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b last_offer, s32b price,
 	/* Agreed-upon price */
 	if ((last_offer == price) || (final))
 	{
-		strnfmt(buf, sizeof(buf), "%s", pmt);
+		(void)strnfmt(buf, sizeof(buf), "%s", pmt);
 	}
 
 	/* Old (negative) increment, and not final */
 	else if (last_inc < 0)
 	{
-		strnfmt(buf, sizeof(buf), "%s [-%ld]", pmt, (long)(ABS(last_inc)));
+		(void)strnfmt(buf, sizeof(buf), "%s [-%ld]", pmt, (long)(ABS(last_inc)));
 	}
 
 	/* Old (positive) increment, and not final */
 	else if (last_inc > 0)
 	{
-		strnfmt(buf, sizeof(buf), "%s [+%ld]", pmt, (long)(ABS(last_inc)));
+		(void)strnfmt(buf, sizeof(buf), "%s [+%ld]", pmt, (long)(ABS(last_inc)));
 	}
 
 	/* Normal haggle */
 	else
 	{
-		strnfmt(buf, sizeof(buf), "%s", pmt);
+		(void)strnfmt(buf, sizeof(buf), "%s", pmt);
 	}
 
 	/* Ask until done */
@@ -2792,6 +2423,9 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b last_offer, s32b price,
 
 		/* Default */
 		strcpy(out_val, "");
+
+		/* Move cursor */
+		move_cursor(0, 0);
 
 		/* Ask the user for a response */
 		if (!get_string(buf, out_val, sizeof(out_val))) return (FALSE);
@@ -2919,6 +2553,7 @@ static bool haggle(s32b *price, s32b final_price, bool buying,
 
 	bool done = FALSE;
 	bool final = (*price == final_price);
+	bool bad_offer = FALSE;
 
 	char prompt[80];
 	char offer_desc[80];
@@ -2971,6 +2606,8 @@ static bool haggle(s32b *price, s32b final_price, bool buying,
 			if (buying) strcpy(offer_desc, "Offer");
 			else        strcpy(offer_desc, "Price");
 			strcpy(prompt, "Press RETURN to accept this price, or ESC to cancel.");
+
+			bad_offer = TRUE;
 		}
 		else
 		{
@@ -3009,6 +2646,9 @@ static bool haggle(s32b *price, s32b final_price, bool buying,
 			{
 				/* Stop haggling (if final, or price has changed) */
 				if (final || cur_price != *price) done = TRUE;
+
+				/* Stop haggling if we foolishly accept a bad offer */
+				else if (bad_offer) done = TRUE;
 
 				break;
 			}
@@ -3421,8 +3061,9 @@ static void store_purchase(void)
 			/* Player can afford it */
 			if (p_ptr->au >= price)
 			{
-				/* Say "okay" (unless fixed price) */
-				if (accept < 2) say_comment_1(perfect_haggle);
+				/* Say "okay" (when haggled to final price) */
+				if (accept < 2 && perfect_haggle)
+					say_comment_1(perfect_haggle);
 
 				/* Be happy */
 				decrease_insults();
@@ -3812,8 +3453,8 @@ static void store_sell(void)
 			/* When we haggle right, the whole pile becomes fixed-price */
 			if (perfect_haggle) o_ptr->ident |= (IDENT_FIXED);
 
-			/* Say "okay" (if haggled) */
-			if (accept < 2) say_comment_1(perfect_haggle);
+			/* Say "okay" (when haggled to final price) */
+			if (accept < 2 && perfect_haggle) say_comment_1(perfect_haggle);
 
 			/* Be happy */
 			decrease_insults();
@@ -4069,8 +3710,9 @@ static void store_process_command(bool inn_cmd)
 		/* Learn about quest monster */
 		case 'r':
 		{
-			/* We're in the inn, have a quest, and have enough money */
-			if ((inn_cmd && p_ptr->cur_quest) &&
+			/* We're in the inn, have a un-researched quest, and have enough money */
+			if ((inn_cmd) && (p_ptr->cur_quest) &&
+			    !(q_info[p_ptr->cur_quest].flags & (0x01)) &&
 			    (p_ptr->au >= (1L + p_ptr->power + p_ptr->max_depth) * 25L))
 			{
 				int r_idx = q_info[quest_num(p_ptr->cur_quest)].r_idx;
@@ -4083,6 +3725,9 @@ static void store_process_command(bool inn_cmd)
 				                   RF3_DEMON | RF3_GIANT |
 				                   RF3_TROLL | RF3_ORC);
 
+				/* Mark the quest (always) */
+				q_info[p_ptr->cur_quest].flags |= (0x01);
+
 				/* Must be questing for a real monster */
 				if (!r_idx) break;
 
@@ -4092,12 +3737,14 @@ static void store_process_command(bool inn_cmd)
 				/* We have now "seen" this monster */
 				if (!l_ptr->sights) l_ptr->sights = 1;
 
+				/* We now know about the monster's native depth */
+				l_ptr->flags |= (LORE_KNOWN_DEPTH);
 
 				/* Print name and characters */
 				roff_top(r_idx, 7);
 
 				/* Get the monster description */
-				my_strcpy(buf, r_text + r_ptr->text, sizeof(buf));
+				(void)my_strcpy(buf, r_text + r_ptr->text, sizeof(buf));
 
 				/* Print description */
 				c_roff(TERM_L_BLUE, format("\n%s\n\n", buf), 0, 0);
@@ -4230,13 +3877,6 @@ static void store_process_command(bool inn_cmd)
 					display_store();
 				}
 
-#if 0
-				/* This command should also allow shopkeepers to be bought out. */
-				else if ((ch == 'B') || (ch == 'b'))
-				{
-					/* But it's expensive! */
-				}
-#endif
 				/* Clear the message line, wait for other commands */
 				else
 				{
@@ -4745,7 +4385,7 @@ void do_cmd_store(void)
 	}
 
 	/* Update the visuals */
-	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_SPELLS);
 
 	/* Redraw entire screen */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA);

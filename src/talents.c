@@ -305,7 +305,7 @@ bool can_precog(int max_chance, int cutoff)
  */
 static bool good_work_cond(bool msg, bool must_be_in_town)
 {
-	if ((must_be_in_town) && (p_ptr->depth != 0) && (!birth_ironman))
+	if ((must_be_in_town) && (p_ptr->depth != 0) && (p_ptr->character_type != PCHAR_IRONMAN))
 	{
 		if (msg) msg_print("You may only create items in the town.");
 		return (FALSE);
@@ -923,7 +923,7 @@ static cptr do_talent(int talent, int mode)
 		case TALENT_WEAPON_SMITH:
 		{
 			if (info) return ("");
-			if (desc) return (format("Create hand weapons.  %sYou need components (hunks of metal) and knowledge of the kind of weapon being created.  Essences are very handy if you want to add specific magical powers.  Increasing the weaponsmithing skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.", birth_ironman ? "" : "Only works in town.  "));
+			if (desc) return (format("Create hand weapons.  %sYou need components (hunks of metal) and knowledge of the kind of weapon being created.  Essences are very handy if you want to add specific magical powers.  Increasing the weaponsmithing skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.", (p_ptr->character_type == PCHAR_IRONMAN) ? "" : "Only works in town.  "));
 			if (check)
 			{
 				/* Must satisfy a number of conditions */
@@ -944,7 +944,7 @@ static cptr do_talent(int talent, int mode)
 		case TALENT_ARMOUR_SMITH:
 		{
 			if (info) return ("");
-			if (desc) return (format("Create armour.  %sYou need components (hunks of metal) and knowledge of the kind of armour being created.  Essences are very handy if you want to add specific magical powers.  Increasing the armour forging skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.", birth_ironman ? "" : "Only works in town.  "));
+			if (desc) return (format("Create armour.  %sYou need components (hunks of metal) and knowledge of the kind of armour being created.  Essences are very handy if you want to add specific magical powers.  Increasing the armour forging skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.", (p_ptr->character_type == PCHAR_IRONMAN) ? "" : "Only works in town.  "));
 			if (check)
 			{
 				/* Must satisfy a number of conditions */
@@ -965,7 +965,7 @@ static cptr do_talent(int talent, int mode)
 		case TALENT_MISSILE_SMITH:
 		{
 			if (info) return ("");
-			if (desc) return (format("Create missile weapons and ammunition.  %sYou need components (hunks of metal) and knowledge of the kind of item being created.  Essences are very handy if you want to add specific magical powers.  Increasing the bowmaking skill allows you to forge better items in greater quantity.  Increasing the infusion skill lets you add more powers using essences, to larger numbers of objects.", birth_ironman ? "" : "Only works in town.  "));
+			if (desc) return (format("Create missile weapons and ammunition.  %sYou need components (hunks of metal) and knowledge of the kind of item being created.  Essences are very handy if you want to add specific magical powers.  Increasing the bowmaking skill allows you to forge better items in greater quantity.  Increasing the infusion skill lets you add more powers using essences, to larger numbers of objects.", (p_ptr->character_type == PCHAR_IRONMAN) ? "" : "Only works in town.  "));
 			if (check)
 			{
 				/* Must satisfy a number of conditions */
@@ -1320,7 +1320,7 @@ void do_cmd_talents(void)
 		if (mode == 0)
 		{
 			/* Build a prompt */
-			strnfmt(out_val, 78, "Use (Talents %c-%c, ! to mark, * to browse, %s",
+			(void)strnfmt(out_val, 78, "Use (Talents %c-%c, ! to mark, * to browse, %s",
 				first_index, last_index, p1);
 		}
 
@@ -1328,7 +1328,7 @@ void do_cmd_talents(void)
 		else if (mode == 1)
 		{
 			/* Build a prompt */
-			strnfmt(out_val, 78, "Browse (Talents %c-%c, ! to mark, * to use, %s",
+			(void)strnfmt(out_val, 78, "Browse (Talents %c-%c, ! to mark, * to use, %s",
 				first_index, last_index, p1);
 		}
 
@@ -1336,7 +1336,7 @@ void do_cmd_talents(void)
 		else
 		{
 			/* Build a prompt */
-			strnfmt(out_val, 78, "Mark (Talents %c-%c, * to browse, %s",
+			(void)strnfmt(out_val, 78, "Mark (Talents %c-%c, * to browse, %s",
 				first_index, last_index, p1);
 		}
 

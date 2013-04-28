@@ -1004,7 +1004,7 @@ void thrust_away(int who, int t_y, int t_x, int grids_away)
 			}
 
 			/* Check for obstruction. */
-			if (cave_wall_bold(yy, xx))
+			if (!cave_project_bold(yy, xx))
 			{
 				/* Some features allow entrance, but not exit. */
 				if (cave_passable_bold(yy, xx))
@@ -1023,7 +1023,7 @@ void thrust_away(int who, int t_y, int t_x, int grids_away)
 					break;
 				}
 
-				/* If there are walls everywhere, stop here. */
+				/* If there are non-passables everywhere, stop here. */
 				else if (d == (8 + first_d - 1))
 				{
 					/* Message for player. */
@@ -1188,7 +1188,7 @@ void teleport_player(int dist, bool safe, bool require_los)
 			/* Allow more terrain if not safe */
 			if (safe)
 			{
-				/* Require unoccupied non-wall space */
+				/* Require unoccupied floor space */
 				if (!cave_empty_bold(y, x)) continue;
 			}
 			else
@@ -1475,7 +1475,7 @@ void teleport_player_level(void)
 		/* New depth */
 		p_ptr->depth--;
 	}
-	else if ((!birth_ironman) && (one_in_(2)))
+	else if ((p_ptr->character_type != PCHAR_IRONMAN) && (one_in_(2)))
 	{
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
@@ -1652,13 +1652,13 @@ static void passwall_finish(int y, int x)
 		/* Smash doors, wreck walls, take damage */
 		if (cave_closed_door(y, x))
 		{
-			take_hit(damroll(5, 5), 0, "You emerge in a door!",
+			take_hit(damroll(4, 5) + p_ptr->chp / 3, 0, "You emerge in a door!",
 				"becoming one with a door");
 			cave_set_feat(y, x, FEAT_BROKEN);
 		}
 		else
 		{
-			take_hit(damroll(10, 8), 0, "You emerge in the wall!",
+			take_hit(damroll(6, 8) + p_ptr->chp / 2, 0, "You emerge in the wall!",
 				"becoming one with a wall");
 			cave_set_feat(y, x, FEAT_RUBBLE);
 		}
@@ -1671,8 +1671,6 @@ static void passwall_finish(int y, int x)
 /*
  * Send the player shooting through walls in the given direction until
  * they reach a non-wall space, or a monster, or a permanent wall.  -JDL-
- *
- * This code can be made much shorter.  XXX XXX
  */
 bool passwall(int dir, bool local)
 {
@@ -2453,7 +2451,7 @@ void apply_nexus(int fy, int fx, int dam)
 			}
 
 			/* Set word of recall (unless ironman) */
-			if (!birth_ironman) set_recall(rand_range(3, 30));
+			if (p_ptr->character_type != PCHAR_IRONMAN) set_recall(rand_range(3, 30));
 			break;
 		}
 
@@ -2529,7 +2527,7 @@ void apply_nexus(int fy, int fx, int dam)
 void recall_player()
 {
 	/* Ironman */
-	if (birth_ironman && !p_ptr->total_winner)
+	if ((p_ptr->character_type == PCHAR_IRONMAN) && !p_ptr->total_winner)
 	{
 		msg_print("Nothing happens.");
 		return;
@@ -4320,7 +4318,7 @@ bool detect_doors(bool extended)
 	{
 		for (x = left; x < right; x++)
 		{
-			/* Detect secret doors */
+			/* Reveal secret doors */
 			if (cave_feat[y][x] == FEAT_SECRET)
 			{
 				/* Pick a door */
@@ -4328,10 +4326,7 @@ bool detect_doors(bool extended)
 			}
 
 			/* Detect doors */
-			if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
-			     (cave_feat[y][x] == FEAT_OPEN) ||
-			     (cave_feat[y][x] == FEAT_BROKEN))
+			if (cave_any_door(y, x))
 			{
 				/* Note new doors */
 				if (!(cave_info[y][x] & (CAVE_MARK)))
@@ -4438,6 +4433,22 @@ bool detect_treasure(bool extended)
 			/* Magma/Quartz + Known Gold */
 			if ((cave_feat[y][x] == FEAT_MAGMA_K) ||
 				(cave_feat[y][x] == FEAT_QUARTZ_K))
+			{
+				/* Note new treasure */
+				if (!(cave_info[y][x] & CAVE_MARK))
+				{
+					detect = TRUE;
+
+					/* Hack -- Memorize */
+					cave_info[y][x] |= (CAVE_MARK);
+				}
+
+				/* Redraw */
+				lite_spot(y, x);
+			}
+
+			/* Pillars of gold */
+			if (cave_feat[y][x] == FEAT_PILLAR_GOLD)
 			{
 				/* Note new treasure */
 				if (!(cave_info[y][x] & CAVE_MARK))
@@ -5004,7 +5015,7 @@ void destroy_area(int y1, int x1, int r, bool full, bool hit_center)
 			if (!cave_perma_bold(y, x))
 			{
 				object_type *o_ptr;
-				int feat = FEAT_FLOOR;
+				int feat = FEAT_NONE;
 
 				/* Scan all objects in the grid */
 				for (o_ptr = get_first_object(y, x); o_ptr;
@@ -5025,32 +5036,22 @@ void destroy_area(int y1, int x1, int r, bool full, bool hit_center)
 				t = rand_int(200);
 
 				/* Granite */
-				if (t < 20)
-				{
-					/* Create granite wall */
-					feat = FEAT_WALL_EXTRA;
-				}
+				if (t < 20) feat = FEAT_WALL_EXTRA;
 
 				/* Quartz */
-				else if (t < 70)
-				{
-					/* Create quartz vein */
-					feat = FEAT_QUARTZ;
-				}
+				else if (t < 70) feat = FEAT_QUARTZ;
 
 				/* Magma */
-				else if (t < 100)
-				{
-					/* Create magma vein */
-					feat = FEAT_MAGMA;
-				}
+				else if (t < 100) feat = FEAT_MAGMA;
+
+				/* Floor */
+				else feat = get_nearby_floor(y, x);
 
 				/* Change the feature */
 				cave_set_feat(y, x, feat);
 
-				/* Feature is now a wall -- Traps get crushed */
-				if (cave_info[y][x] & (CAVE_WALL))
-					remove_trap(y, x, -1);
+				/* Traps get crushed if no longer allowed */
+				if (!cave_trap_allowed(y, x)) remove_trap(y, x, -1);
 			}
 		}
 	}
@@ -5677,7 +5678,7 @@ void earthquake(int cy, int cx, int r)
 				if (cave_wall_bold(yy, xx))
 				{
 					/* Make it a floor grid */
-					feat = FEAT_FLOOR;
+					feat = get_nearby_floor(yy, xx);
 				}
 
 				/* A monster is here */
@@ -5702,8 +5703,8 @@ void earthquake(int cy, int cx, int r)
 				/* Change the feature */
 				cave_set_feat(yy, xx, feat);
 
-				/* Feature is now a wall -- Traps get crushed */
-				if (cave_wall_bold(yy, xx)) remove_trap(yy, xx, -1);
+				/* Traps get crushed if no longer allowed */
+				if (!cave_trap_allowed(yy, xx)) remove_trap(yy, xx, -1);
 			}
 		}
 	}
@@ -5825,8 +5826,8 @@ static void cave_temp_room_unlite(void)
 		/* Darken the grid */
 		cave_info[y][x] &= ~(CAVE_GLOW);
 
-		/* Hack -- Forget all non-wall grids */
-		if (cave_nonwall_bold(y, x))
+		/* Hack -- Forget all grids that allow line of sight */
+		if (cave_los_bold(y, x))
 		{
 			/* Forget the grid */
 			cave_info[y][x] &= ~(CAVE_MARK);
@@ -5963,8 +5964,8 @@ int concentrate_light(int who, int y0, int x0, int radius, char *desc,
 				/* Stay legal */
 				if (!in_bounds(y, x)) continue;
 
-				/* Must not be a wall */
-				if (cave_info[y][x] & (CAVE_WALL)) continue;
+				/* Must permit line of sight */
+				if (!cave_los_bold(y, x)) continue;
 
 				/* Drain this distance only */
 				if (distance(y, x, y0, x0) != r) continue;
@@ -5987,8 +5988,8 @@ int concentrate_light(int who, int y0, int x0, int radius, char *desc,
 						/* Darken the grid */
 						cave_info[y][x] &= ~(CAVE_GLOW);
 
-						/* Forget all non-wall grids */
-						if (cave_nonwall_bold(y, x))
+						/* Forget all grids that allow line of sight */
+						if (cave_los_bold(y, x))
 						{
 							/* Forget the grid */
 							cave_info[y][x] &= ~(CAVE_MARK);

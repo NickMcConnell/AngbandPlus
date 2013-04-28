@@ -13,6 +13,24 @@
 #include "z-util.h"
 
 
+#ifdef SET_UID
+
+# ifndef HAVE_USLEEP
+
+/*
+ * struct timeval in usleep requires sys/time.h
+ *
+ * System test removed since Unix systems that neither have usleep nor
+ * sys/time.h are screwed anyway, since they have no way of delaying.
+ */
+#  include <sys/time.h>
+
+# endif /* HAVE_USLEEP */
+
+#endif /* SET_UID */
+
+
+
 
 /*
  * Convenient storage of the program name
@@ -224,3 +242,183 @@ void quit(cptr str)
 	(void)(exit(EXIT_FAILURE));
 }
 
+
+
+#ifdef SET_UID
+
+#ifndef HAVE_USLEEP
+
+/*
+ * For those systems that don't have "usleep()" but need it.
+ *
+ * Fake "usleep()" function grabbed from the inl netrek server -cba
+ */
+int usleep(huge usecs)
+{
+	struct timeval Timer;
+
+	/* Paranoia -- No excessive sleeping */
+	if (usecs > 4000000L) quit("Illegal usleep() call");
+
+
+	/* Wait for it */
+	Timer.tv_sec = (usecs / 1000000L);
+	Timer.tv_usec = (usecs % 1000000L);
+
+	/* Wait for it */
+	if (select(0, NULL, NULL, NULL, &Timer) < 0)
+	{
+		/* Hack -- ignore interrupts */
+		if (errno != EINTR) return (-1);
+	}
+
+	/* Success */
+	return (0);
+}
+
+#endif /* HAVE_USLEEP */
+
+
+/*
+ * Hack -- External functions
+ */
+extern struct passwd *getpwuid();
+extern struct passwd *getpwnam();
+
+/*
+ * Find a default user name from the system.
+ */
+void user_name(char *buf, size_t len, int id)
+{
+	struct passwd *pw;
+
+	/* Look up the user name */
+	if ((pw = getpwuid(id)))
+	{
+		/* Get the first 15 characters of the user name */
+		(void)my_strcpy(buf, pw->pw_name, len);
+
+		/* Hack -- capitalize the user name */
+		if (islower((unsigned char)buf[0]))
+			buf[0] = toupper((unsigned char)buf[0]);
+
+		return;
+	}
+
+	/* Oops.  Hack -- default to "PLAYER" */
+	(void)my_strcpy(buf, "PLAYER", len);
+}
+
+#endif /* SET_UID */
+
+
+
+
+/*
+ * Checktime code. Deprecated.
+ */
+#ifdef CHECK_TIME
+
+/*
+ * Operating hours for ANGBAND (defaults to non-work hours)
+ */
+static char days[7][29] =
+{
+	"SUN:XXXXXXXXXXXXXXXXXXXXXXXX",
+	"MON:XXXXXXXX.........XXXXXXX",
+	"TUE:XXXXXXXX.........XXXXXXX",
+	"WED:XXXXXXXX.........XXXXXXX",
+	"THU:XXXXXXXX.........XXXXXXX",
+	"FRI:XXXXXXXX.........XXXXXXX",
+	"SAT:XXXXXXXXXXXXXXXXXXXXXXXX"
+};
+
+/*
+ * Restrict usage (defaults to no restrictions)
+ */
+static bool check_time_flag = FALSE;
+
+#endif /* CHECK_TIME */
+
+
+/*
+ * Handle CHECK_TIME
+ */
+errr check_time(void)
+{
+
+#ifdef CHECK_TIME
+
+	time_t c;
+	struct tm *tp;
+
+	/* No restrictions */
+	if (!check_time_flag) return (0);
+
+	/* Check for time violation */
+	c = time((time_t *)0);
+	tp = localtime(&c);
+
+	/* Violation */
+	if (days[tp->tm_wday][tp->tm_hour + 4] != 'X') return (1);
+
+#endif /* CHECK_TIME */
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize CHECK_TIME
+ */
+errr check_time_init(void)
+{
+
+#ifdef CHECK_TIME
+
+	FILE *fp;
+
+	char buf[1024];
+
+
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "time.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* No file, no restrictions */
+	if (!fp) return (0);
+
+	/* Assume restrictions */
+	check_time_flag = TRUE;
+
+	/* Parse the file */
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
+	{
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Chop the buffer */
+		buf[sizeof(days[0]) - 1] = '\0';
+
+		/* Extract the info */
+		if (prefix(buf, "SUN:")) my_strcpy(days[0], buf, sizeof(days[0]));
+		if (prefix(buf, "MON:")) my_strcpy(days[1], buf, sizeof(days[1]));
+		if (prefix(buf, "TUE:")) my_strcpy(days[2], buf, sizeof(days[2]));
+		if (prefix(buf, "WED:")) my_strcpy(days[3], buf, sizeof(days[3]));
+		if (prefix(buf, "THU:")) my_strcpy(days[4], buf, sizeof(days[4]));
+		if (prefix(buf, "FRI:")) my_strcpy(days[5], buf, sizeof(days[5]));
+		if (prefix(buf, "SAT:")) my_strcpy(days[6], buf, sizeof(days[6]));
+	}
+
+	/* Close it */
+	my_fclose(fp);
+
+#endif /* CHECK_TIME */
+
+	/* Success */
+	return (0);
+}

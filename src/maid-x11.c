@@ -57,11 +57,11 @@ static char *my_fast_strcat(char dest[], char *end, cptr src, size_t n)
 	/* Find the trailing null character, if necessary */
 	while (*end) ++end;
 
+	/* Make room for the trailing null character, if possible */
+	if (n > 0) --n;
+
 	/* Append "str" to "dest", if possible */
-	while (((int)(end - dest) < (n - 1)) && *src)
-	{
-		*end++ = *src++;
-	}
+	while (*src && ((size_t)(end - dest) < n)) *end++ = *src++;
 
 	/* Terminate the string */
 	*end = '\0';
@@ -73,7 +73,7 @@ static char *my_fast_strcat(char dest[], char *end, cptr src, size_t n)
 
 /*
  * Removes all redundant dots and path separators form a given path.
- * "path" has to be an absolute UNIX path (it has to start with PATH_SEP).
+ * "path" must be an absolute UNIX path (it has to start with PATH_SEP).
  */
 static void simplify_unix_path(char path[], size_t max)
 {
@@ -85,7 +85,7 @@ static void simplify_unix_path(char path[], size_t max)
 	int i, j, n = 0;
 
 	/* Make a copy of the path */
-	my_strcpy(buf, path, sizeof(buf));
+	(void)my_strcpy(buf, path, sizeof(buf));
 
 	/* Separate the parts of the path */
 	while ((psep = strstr(pbuf, PATH_SEP)) != NULL)
@@ -161,7 +161,7 @@ static void simplify_unix_path(char path[], size_t max)
  * Construct the full pathname of the given file.
  * TODO -- Move this to util.c
  */
-static errr build_full_path(char buf[], size_t max, cptr file)
+static errr path_build_full(char buf[], size_t max, cptr file)
 {
         char tmp_buf[1024], *pbuf;
 
@@ -172,7 +172,7 @@ static errr build_full_path(char buf[], size_t max, cptr file)
         if (prefix(tmp_buf, PATH_SEP))
         {
                 /* Just copy the path */
-                my_strcpy(buf, tmp_buf, max);
+                (void)my_strcpy(buf, tmp_buf, max);
 
                 /* Done */
                 return (0);
@@ -200,7 +200,7 @@ static errr build_full_path(char buf[], size_t max, cptr file)
 
 #else /* SET_UID */
 
-static errr build_full_path(char buf[], size_t max, cptr file)
+static errr path_build_full(char buf[], size_t max, cptr file)
 {
         /* Parse special directories, etc. */
          return (path_parse(buf, max, file));
@@ -229,6 +229,11 @@ static int my_error_handler(Display *display, XErrorEvent *event)
 
 
 /*
+ * Full path to the lib/xtra/font folder
+ */
+static char full_fdir_path[1024];
+
+/*
  * Tell to the X server where to find the fonts provided with Angband.
  * Returns TRUE on success.
  */
@@ -238,7 +243,7 @@ bool register_angband_fonts(void)
         Display *display;
         char **dir_list;
         int i, ndirs;
-        char fdir_path[1024], full_fdir_path[1024];
+        char fdir_path[1024];
 
         /* Get the path to lib/xtra/font */
         if (path_build(fdir_path, sizeof(fdir_path), ANGBAND_DIR_XTRA, "font"))
@@ -248,7 +253,7 @@ bool register_angband_fonts(void)
         }
 
         /* Get the FULL path to lib/xtra/font */
-        if (build_full_path(full_fdir_path, sizeof(full_fdir_path), fdir_path))
+        if (path_build_full(full_fdir_path, sizeof(full_fdir_path), fdir_path))
         {
                 /* Failed */
                 return (FALSE);
@@ -276,7 +281,7 @@ bool register_angband_fonts(void)
                 if (streq(dir_list[i], full_fdir_path)) break;
         }
 
-        /* Modify the font path only once */
+        /* The lib/xtra/font folder is not in the font path. Append it */
         if (i >= ndirs)
         {
                 char **new_dir_list;
@@ -307,7 +312,7 @@ bool register_angband_fonts(void)
                 XSync(display, FALSE);
 
                 /* Reset the error handler */
-                XSetErrorHandler(old_error_handler);
+                (void)XSetErrorHandler(old_error_handler);
         }
 
         /* Cleanup */
@@ -330,6 +335,87 @@ bool register_angband_fonts(void)
 
         /* Success */
         return (TRUE);
+}
+
+
+/*
+ * Remove the fonts provivded with Angband from the X server.
+ * We do this to solve conflicts with font names of other variants.
+ * NOTE: This doesn't handle parallel execution of *bands.
+ * Returns TRUE on success.
+ */
+bool unregister_angband_fonts(void)
+{
+	char *display_name = "";
+	Display *display;
+	char **dir_list, **new_dir_list;
+	int i, j, ndirs;
+
+	/* Open a connection to the X server */
+	display = XOpenDisplay(display_name);
+
+	/* Check status of the connection */
+	if (!display) return (FALSE);
+
+	/* Hack -- Assume success */
+	set_font_path_failed = FALSE;
+
+	/* Get the current font path of the X server */
+	dir_list = XGetFontPath(display, &ndirs);
+
+	/* Allocate the new font path */
+	C_MAKE(new_dir_list, ndirs, cptr);
+
+	/* Put the current font directories in the new font path */
+	for (i = j = 0; i < ndirs; i++)
+	{
+		/* Except lib/xtra/font */
+		if (streq(dir_list[i], full_fdir_path)) continue;
+
+		/* Some other font directory */
+		new_dir_list[j++] = dir_list[i];
+	}
+
+	/* Something changed */
+	if (j < ndirs)
+	{
+		int (*old_error_handler)(Display *, XErrorEvent *);
+
+		/* Set a custom error handler to avoid program termination */
+		old_error_handler = XSetErrorHandler(my_error_handler);
+
+		/* Adjust the number of directories in the font path */
+		ndirs = j;
+
+		/* Set the new font path */
+		XSetFontPath(display, new_dir_list, ndirs);
+
+		/* Synchronize with the X server to catch errors ASAP */
+		XSync(display, FALSE);
+
+		/* Reset the error handler */
+		(void)XSetErrorHandler(old_error_handler);
+	}
+
+	/* Release resources */
+	FREE(new_dir_list);
+
+	/* Cleanup */
+	XFreeFontPath(dir_list);
+
+	/* Close the connection to the X server */
+	XCloseDisplay(display);
+
+	/* Failed */
+	if (set_font_path_failed)
+	{
+		plog_fmt("Can't remove %s from the font path", full_fdir_path);
+
+		return (FALSE);
+	}
+
+	/* Success */
+	return (TRUE);
 }
 
 

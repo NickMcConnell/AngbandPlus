@@ -2,7 +2,7 @@ Compiling Angband
 =================
 
 Last updated on 13th March 2005 by Robert Ruehlmann
-(edited by Diego Gonzalez 12-1-05)
+(edited by Diego Gonzalez 12-1-05 and by Christer Nyfält on 2-2-06)
 
 ----------------------------------------------------------------------
 New Information
@@ -238,26 +238,22 @@ Windows 95/98/NT/2000 + LCC-win32
 GNU/Linux or Unix + GCC
 ----------------------------------------------------------------------
 (written by Robert Ruehlmann < rr9@thangorodrim.net >)
+(modified by Christer Nyfält < christer.nyfalt@welho.com >)
 
 - Install the Angband source:
-	Extract the source code with "tar -xvzf angband-3.0.5.tar.gz".
-- Install the graphics files:
-	If you want to use graphics under X11 then get the archive from
-	< ftp://ftp.thangorodrim.net/pub/angband/Extra/angband-graf.zip >
-	and unzip it into the lib/xtra/graf/ folder.
+	Extract the source code with "unzip sang-src-099.r21.zip".
 - Compile Angband:
-	Run "./configure", "make", and "make install" in the Angband
-	directory.
-- Run Angband:
-	Start Angband with "./angband".
-- Alternative for installing Angband system wide:
-	For a system wide installation you can use the following three
-	./configure options:
-	--with-setgid=games
-	--with-libpath=/usr/games/lib/angband
-	--bindir=/usr/games
-	Then build the game with 'make' and install it as root with
-	'make install'.  Angband can then be started with 'angband'.
+	Go to the src directory.
+	Copy Makefile.std to Makefile.
+	Edit CFLAGS & LIBS part of the Makefile to configure the compilation.
+	Run "make".
+	Copy executable one level up to the Sangband directory with
+	"cp sangband ..".
+- Perform the font installation instructions in the section below.
+- Run Sangband:
+	Start Sangband with "./sangband".
+	(It might be desirable to edit the settings files in
+	".sangband/Sangband/"). 
 
 
 ----------------------------------------------------------------------
@@ -285,6 +281,31 @@ The fonts have to be compiled following these instructions:
  forget to execute "aclocal && autoheader && autoconf && automake" to update
  Makefile.in
 
+
+----------------------------------------------------------------------
+GNU/Linux or Unix + GCC (old, do not use, saved in case autotools are added)
+----------------------------------------------------------------------
+(written by Robert Ruehlmann < rr9@thangorodrim.net >)
+
+- Install the Angband source:
+	Extract the source code with "tar -xvzf angband-3.0.5.tar.gz".
+- Install the graphics files:
+	If you want to use graphics under X11 then get the archive from
+	< ftp://ftp.thangorodrim.net/pub/angband/Extra/angband-graf.zip >
+	and unzip it into the lib/xtra/graf/ folder.
+- Compile Angband:
+	Run "./configure", "make", and "make install" in the Angband
+	directory.
+- Run Angband:
+	Start Angband with "./angband".
+- Alternative for installing Angband system wide:
+	For a system wide installation you can use the following three
+	./configure options:
+	--with-setgid=games
+	--with-libpath=/usr/games/lib/angband
+	--bindir=/usr/games
+	Then build the game with 'make' and install it as root with
+	'make install'.  Angband can then be started with 'angband'.
 
 
 ----------------------------------------------------------------------

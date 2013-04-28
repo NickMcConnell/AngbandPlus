@@ -3,11 +3,149 @@
 # If marked, changes below will be deleted and replaced automatically.
 
 
+# Option 'Rogue-like commands'
+X:rogue_like_commands
+
+# Option 'Verify destruction of objects'
+Y:verify_destroy
+
+# Option 'Pick things up by default'
+Y:always_pickup
+
+# Option 'Display things before picking them up'
+X:query_floor
+
+# Option 'Never haggle in stores'
+X:never_haggle
+
+# Option 'Use old target by default'
+X:use_old_target
+
+# Option 'Ignore stairs when running'
+X:run_ignore_stairs
+
+# Option 'Ignore doors when running'
+X:run_ignore_doors
+
+# Option 'Cut corners when running'
+X:run_cut_corners
+
+# Option 'Allow accents in output files'
+Y:xchars_to_file
+
+# Option 'Merge inscriptions when stacking'
+Y:stack_force_notes
+
+# Option 'Merge discounts when stacking'
+X:stack_force_costs
+
+# Option 'Allow quantity specification'
+Y:allow_quantity
+
+# Option 'Change savefile names'
+X:change_save_names
+
+# Option 'Disturb whenever any monster moves'
+X:disturb_move
+
+# Option 'Disturb whenever map panel changes'
+Y:disturb_panel
+
+# Option 'Disturb whenever player state changes'
+Y:disturb_state
+
+# Option 'Disturb whenever minor things happen'
+X:disturb_minor
+
+# Option 'Alert user to critical hitpoints'
+Y:alert_hitpoint
+
+# Option 'Audible bell (on errors, etc)'
+Y:ring_bell
+
+# Option 'Activate quick messages'
+Y:quick_messages
+
+# Option 'Compress messages in savefiles'
+X:compress_messages
+
+# Option 'Flush input on various failures'
+Y:flush_failure
+
+# Option 'Flush input whenever disturbed'
+Y:flush_disturb
+
+# Option 'Delay on failure'
+Y:delay_failure
+
+# Option 'Colored messages when hit hard'
+Y:colored_hit_msg
+
+# Option 'Special colors for hurt character'
+Y:colored_hurt_char
+
+# Option 'Map remembers all seen grids'
+Y:remember_seen_grids
+
+# Option 'Use special colors for torch light'
+Y:torch_light
+
+# Option 'Use special colors for field of view'
+Y:sight_light
+
+# Option 'Use special colors for wall grids'
+Y:wall_lighting
+
+# Option 'Use special colors for floor grids'
+Y:floor_lighting
+
+# Option 'Highlight the player with the cursor'
+X:highlight_player
+
+# Option 'Flush output after various things'
+X:fresh_after
+
+# Option 'Don't hide traps when objects pile on them'
+Y:traps_display_on_top
+
+# Option 'Show dungeon level in feet (or meters)'
+X:depth_in_feet
+
+# Option 'Show labels in equipment listings'
+Y:show_labels
+
+# Option 'Show weights in all object listings'
+Y:show_weights
+
+# Option 'Show flavors in object descriptions'
+Y:show_flavors
+
+# Option 'Use metric (SI) measurements'
+X:use_metric
+
+# Option 'Menus pop up when selecting various things'
+Y:always_show_list
+
+# Option 'Move old messages to sub-window automatically'
+X:message_to_window
+
+# Option '(null)'
+X:  
+
+# Option '(null)'
+X:  
+
+# Option 'Know complete monster info'
+X:help_know
+
+# Option 'Allow multiple lives'
+X:beginner_play
+
 # Window 'Term-1', Flag 'Display inventory'
 W:1:0:0
 
 # Window 'Term-1', Flag 'Display equipment'
-W:1:1:0
+W:1:1:1
 
 # Window 'Term-1', Flag 'Display character screen'
 W:1:2:0
@@ -34,10 +172,10 @@ W:1:8:0
 W:1:9:0
 
 # Window 'Term-1', Flag 'Display list of commands'
-W:1:10:1
+W:1:10:0
 
 # Window 'Term-2', Flag 'Display inventory'
-W:2:0:0
+W:2:0:1
 
 # Window 'Term-2', Flag 'Display equipment'
 W:2:1:0
@@ -55,7 +193,7 @@ W:2:4:0
 W:2:5:0
 
 # Window 'Term-2', Flag 'Display messages'
-W:2:6:1
+W:2:6:0
 
 # Window 'Term-2', Flag 'Display overhead view'
 W:2:7:0
@@ -94,7 +232,7 @@ W:3:6:0
 W:3:7:0
 
 # Window 'Term-3', Flag 'Display monster recall'
-W:3:8:0
+W:3:8:1
 
 # Window 'Term-3', Flag 'Display object recall'
 W:3:9:0
@@ -238,10 +376,13 @@ W:7:10:0
 D:4
 
 # Hitpoint warning (x10%)
-H:2
+H:4
 
 # Autosave  (autosave, frequency)
 a:1:1000
+
+# Screen  (force_25_rows, text_50_rows, map rows, y-margin, x-margin)
+t:1:0:22:2:4
 
 
 # If marked, changes above will be deleted and replaced automatically.

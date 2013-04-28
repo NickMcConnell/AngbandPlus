@@ -5013,7 +5013,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 0:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons %s %s.", m_name,
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons %s %s.", m_name,
 				m_poss, ((r_ptr->flags1) & RF1_UNIQUE ?
 				"minions" : "kin"));
 
@@ -5025,7 +5026,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 
 			if (blind && count)
 			{
-				msg_print("You hear many things appear nearby.");
+				message(MSG_SUMMON, 250,
+					"You hear many things appear nearby.");
 			}
 			break;
 		}
@@ -5039,12 +5041,16 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 3:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons help!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons help!", m_name);
 
 			count += summon_specific(sy, sx, FALSE, summon_lev, 0, 1);
 
 			if (blind && count)
-				msg_print("You hear something appear nearby.");
+			{
+				message(MSG_SUMMON, 250,
+					"You hear something appear nearby.");
+			}
 
 			break;
 		}
@@ -5053,11 +5059,16 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 4:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons monsters!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons monsters!", m_name);
 
 			count += summon_specific(sy, sx, FALSE, summon_lev, 0, 4);
 
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				message(MSG_SUMMON, 250,
+					"You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -5069,12 +5080,17 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 7:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons a giant beetle.", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons a giant beetle.", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 					summon_lev, SUMMON_BEETLE, 1);
 
-			if (blind && count) msg_print("You hear chittering and skittering.");
+			if (blind && count)
+			{
+				message(MSG_SUMMON, 250,
+					"You hear chittering and skittering.");
+			}
 			break;
 		}
 
@@ -5083,12 +5099,17 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 8:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons ants.", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons ants.", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 					summon_lev, SUMMON_ANT, 3);
 
-			if (blind && count) msg_print("You hear chittering and skittering.");
+			if (blind && count)
+			{
+				message(MSG_SUMMON, 250,
+					"You hear chittering and skittering.");
+			}
 			break;
 		}
 
@@ -5096,12 +5117,17 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 9:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons spiders.", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons spiders.", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 				summon_lev, SUMMON_SPIDER, 3);
 
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				message(MSG_SUMMON, 250,
+					"You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -5109,12 +5135,16 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 10:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons hounds.", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons hounds.", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 				summon_lev, SUMMON_HOUND, 2);
 
-			if (blind && count) msg_print("You hear snarling.");
+			if (blind && count)
+			{
+				message(MSG_SUMMON, 250, "You hear snarling.");
+			}
 			break;
 		}
 
@@ -5122,12 +5152,17 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 11:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons natural creatures.", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons natural creatures.", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 				summon_lev, SUMMON_ANIMAL, 4);
 
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				message(MSG_SUMMON, 250,
+					"You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -5140,12 +5175,17 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 14:
 		{
 			if (blind) msg_format("%^s whistles.", m_name);
-			else msg_format("%^s whistles up a den of thieves!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s whistles up a den of thieves!", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 				summon_lev, SUMMON_THIEF, 4);
 
-			if (blind && count) msg_print("You hear footsteps and the whetting of knives.");
+			if (blind && count)
+			{
+				message(MSG_SUMMON, 250,
+					"You hear footsteps and the whetting of knives.");
+			}
 			break;
 		}
 
@@ -5159,8 +5199,12 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			/* No messages unless successful */
 			if (count)
 			{
-				if (blind) msg_print("Heavy footsteps approach!");
-				else       msg_format("%^s calls up his friends!", m_name);
+				if (blind)
+					message(MSG_SUMMON, 250,
+					"Heavy footsteps approach!");
+				else
+					message_format(MSG_SUMMON, 250,
+					"%^s calls up his friends!", m_name);
 			}
 			break;
 		}
@@ -5169,7 +5213,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 16:
 		{
 			if (blind) msg_format("%^s howls.", m_name);
-			else msg_format("%^s howls for help.", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s howls for help.", m_name);
 
 			/* Orc appears, usually at some distance, rarely in a group */
 			count += summon_specific(sy, sx, FALSE,
@@ -5182,12 +5227,17 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 17:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons an angel!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons an angel!", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 				summon_lev, SUMMON_ANGEL, 1);
 
-			if (blind && count) msg_print("You hear a heavenly choir sing.");
+			if (blind && count)
+			{
+				message(MSG_SUMMON, 250,
+					"You hear a heavenly choir sing.");
+			}
 			break;
 		}
 
@@ -5198,12 +5248,17 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 20:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons a dragon!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons a dragon!", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 				summon_lev, SUMMON_DRAGON, 1);
 
-			if (blind && count) msg_print("You feel something breathing on you...");
+			if (blind && count)
+			{
+				message(MSG_SUMMON, 250,
+					"You feel something breathing on you...");
+			}
 			break;
 		}
 
@@ -5211,14 +5266,16 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 21:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons ancient dragons!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons ancient dragons!", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 				summon_lev, SUMMON_HI_DRAGON, 4);
 
 			if (blind && count)
 			{
-				msg_print("You feel the breath of great wyrms.");
+				message(MSG_SUMMON, 250,
+					"You feel the breath of great wyrms.");
 			}
 			break;
 		}
@@ -5231,14 +5288,16 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 24:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons a hellish adversary!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons a hellish adversary!", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 				summon_lev, SUMMON_DEMON, 1);
 
 			if (blind && count)
 			{
-				msg_print("You smell fire and brimstone.");
+				message(MSG_SUMMON, 250,
+					"You smell fire and brimstone.");
 			}
 			break;
 		}
@@ -5247,14 +5306,16 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 25:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons greater demons!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons greater demons!", m_name);
 
 			count += summon_specific(sy, sx, FALSE, summon_lev,
 				SUMMON_HI_DEMON, 6);
 
 			if (blind && count)
 			{
-				msg_print("You hear many evil things appear nearby.");
+				message(MSG_SUMMON, 250,
+					"You hear many evil things appear nearby.");
 			}
 			break;
 		}
@@ -5267,12 +5328,17 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 28:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons an undead adversary!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons an undead adversary!", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 				summon_lev, SUMMON_UNDEAD, 1);
 
-			if (blind && count) msg_print("You hear something creepy appear nearby.");
+			if (blind && count)
+			{
+				message(MSG_SUMMON, 250,
+					"You hear something creepy appear nearby.");
+			}
 			break;
 		}
 
@@ -5280,14 +5346,16 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 29:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons greater undead!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons greater undead!", m_name);
 
 			count += summon_specific(sy, sx, FALSE,
 				summon_lev, SUMMON_HI_UNDEAD, 4);
 
 			if (blind && count)
 			{
-				msg_print("You hear many creepy things appear nearby.");
+				message(MSG_SUMMON, 250,
+					"You hear many creepy things appear nearby.");
 			}
 			break;
 		}
@@ -5297,7 +5365,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 192 + 30:
 		{
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons mighty undead opponents!", m_name);
+			else message_format(MSG_SUMMON, 250,
+				"%^s magically summons mighty undead opponents!", m_name);
 
 			/* Summon wraiths.  If that fails, summon greater undead. */
 			count += summon_specific(sy, sx, FALSE,
@@ -5310,7 +5379,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			}
 			if (blind && count)
 			{
-				msg_print("You hear many creepy things appear nearby.");
+				message(MSG_SUMMON, 250,
+					"You hear many creepy things appear nearby.");
 			}
 			break;
 		}
@@ -5326,8 +5396,10 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 
 			if (count)
 			{
-				if (blind) msg_print("You've got a bad feeling about this...");
-				else       msg_format("%^s magically summons legendary opponents!", m_name);
+				if (blind) message(MSG_SUMMON, 250,
+					"You've got a bad feeling about this...");
+				else       message_format(MSG_SUMMON, 250,
+					"%^s magically summons legendary opponents!", m_name);
 			}
 			else
 			{

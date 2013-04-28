@@ -18,7 +18,7 @@ Help Commands:
        space : advance one page
        -     : back up one half page
        /     : search (not case-sensitive)
-       j, k  : move forward and backwards
+      <dir>  : move forward and backwards
 
 ***** [1] birth.txt
 ***** [2] tutorial.txt

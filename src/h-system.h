@@ -9,7 +9,7 @@
  * Make sure all "system" constants/macros are defined.
  * Make sure all "system" functions have "extern" declarations.
  *
- * This file is a big hack to make other files less of a hack.
+ * This file is a small hack to make other files less of a hack.
  * This file has been rebuilt -- it may need a little more work.
  */
 
@@ -46,9 +46,9 @@
 #include <unistd.h>
 #endif /* __DJGPP__ || __MWERKS__ */
 
-/*
- * Other headers
- */
+
+/*** Other headers ***/
+
 #ifdef MACINTOSH
 # include <unix.h>
 #endif
@@ -58,51 +58,4 @@
 #endif
 
 
-#ifdef SET_UID
-
-#ifndef HAVE_USLEEP
-
-/* struct timeval in usleep requires sys/time.h */
-/* Is this last if defined test for system required? */
-# if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
-     defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
-     defined(__osf__) || defined(ISC) || defined(SGI) || \
-     defined(linux)
-#  include <sys/time.h>
-# endif
-
-#endif /* HAVE_USLEEP */
-
-#endif /* SET_UID */
-
-
-
-/*** Other headers ***/
-/* Will remove if not needed:  tell maintainer if needed.  XXX XXX */
-
-#if 0 /* Deprecated */
-#ifdef SET_UID
-
-# if !defined(SGI) && !defined(ULTRIX)
-#  include <sys/timeb.h>
-# endif
-
-# ifndef USG  /* Probably for pre POSIX locking and can be removed ? */
-#  include <sys/param.h>
-#  include <sys/file.h>
-# endif
-
-# ifdef linux  /* Probably for pre POSIX locking and can be removed ? */
-#  include <sys/file.h>
-# endif
-
-# if defined(SOLARIS)  /* Probably for CHECK_LOAD ? */
-#  include <netdb.h>
-# endif
-
-#endif /* SET_UID */
-#endif /* Deprecated */
-
 #endif /* INCLUDED_H_SYSTEM_H */
-
-

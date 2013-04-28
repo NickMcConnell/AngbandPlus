@@ -24,17 +24,20 @@ G:bargain_difficulty = 108
 #  name, purse, max greed, min greed, haggle_per, tolerance, race 
 #
 # Purse - limited purses are vital in a game without time limits.
-#      Max is 32750.
-# Max greed - can range fairly widely (max of 255).
+# Max greed - should never be greater than 195, or the initial offer code
+#      gets confused, and it's harder to haggle successfully.  Should not
+#     be much lower than 160, or initial offers must be closer to final
+#     item price than what players are used to.
 # Min greed - normally 110, less for downmarket shopkeepers, more for
 #      upscale ones.
 # Haggle_per controls the way the shopkeeper haggles.  Lower numbers make
-#      for shopkeepers that expect the player to conceed as little as
+#      for shopkeepers that expect the player to concede as little as
 #      possible in negotiations.  They have high patience for skinflint
-#      offers, but it takes close haggling to knock them down to their final
+#      offers, but it takes long haggling to knock them down to their final
 #      price.  Values of about 12 are average.
 # Tolerance determines how many insults a shopkeeper will take before
-#      throwing the character out of his store.
+#      throwing the character out of the store, and also affects haggling
+#      text.
 #
 !:STORE_OWNERS
 N:0 (General store)
@@ -81,7 +84,7 @@ N:5 (Magic Shop)
 D:Ariel the Sorceress,       20000,  170, 110, 16, 15, RACE_ELF
 D:Buggerby the Great!,       20000,  190, 113, 10, 15, RACE_GNOME
 D:Inglorian the Mage,        30000,  170, 115, 14, 15, RACE_HUMAN
-D:Luthien Starshine,         30000,  165, 115, 16, 25, RACE_HIGH_ELF
+D:L['u]thien Starshine,      30000,  165, 115, 16, 25, RACE_HIGH_ELF
 D:Balthazar of Earverian,    25000,  180, 109, 12, 15, RACE_GNOME
 D:Murid the Skinflint,       10000,  180, 110,  9,  9, RACE_HUMAN
 

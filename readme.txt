@@ -23,11 +23,6 @@ ported to your system.
 
 Sangband is currently ported to IBM, Windows, GCU, X11, and GTK.
 
-     Sangband can be a deep and rich game, or it can be a very shallow one,
-depending on the amount of source-diving you do.  The tragedy of the maintainer
-is that he can never be truly surprised; he knows the game too well.  You read
-the ultimate spoilers at your own risk.
-
 
 ====== Basic Notes ======
 
@@ -53,6 +48,7 @@ Unzipping:
 and a "lib" directory, plus some miscellaneous files.  Check to make sure that 
 the following directories are present in your "lib" directory:
 apex, bones, data, edit, file, help, info, pref, user, xtra
+     If any are missing, create them.
 
 
 Playing:

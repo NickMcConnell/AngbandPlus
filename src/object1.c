@@ -18,377 +18,6 @@
 
 
 /*
- * An object description-attribute pair
- */
-typedef struct object_flavour_type object_flavour_type;
-
-struct object_flavour_type
-{
-	cptr adj;
-	byte attr;
-};
-
-
-/*
- * Rings (adjectives and colors)
- */
-static object_flavour_type ring_flavour[] =
-{
-	{ "Adamantite", TERM_L_GREEN },
-	{ "Agate", TERM_PURPLE },
-	{ "Alexandrite", TERM_VIOLET },
-	{ "Amethyst", TERM_L_PURPLE },
-	{ "Aquamarine", TERM_L_BLUE },
-	{ "Azurite", TERM_L_BLUE },
-	{ "Beryl", TERM_L_GREEN },
-	{ "Bloodstone", TERM_RED },
-	{ "Bronze", TERM_ORANGE },
-	{ "Calcite", TERM_WHITE },
-	{ "Carnelian", TERM_RED },
-	{ "Corundum", TERM_RED },
-	{ "Diamond", TERM_WHITE },
-	{ "Emerald", TERM_GREEN },
-	{ "Engagement", TERM_YELLOW },
-	{ "Fluorite", TERM_L_GREEN },
-	{ "Garnet", TERM_RED },
-	{ "Gold", TERM_YELLOW },
-	{ "Granite", TERM_SLATE },
-	{ "Hematite", TERM_L_DARK },
-	{ "Jade", TERM_GREEN },
-	{ "Jasper", TERM_UMBER },
-	{ "Jet", TERM_L_DARK },
-	{ "Lapis Lazuli", TERM_BLUE },
-	{ "Malachite", TERM_GREEN },
-	{ "Marble", TERM_WHITE },
-	{ "Mithril", TERM_L_BLUE },
-	{ "Moonstone", TERM_L_WHITE },
-	{ "Mother-of-Pearl", TERM_WHITE },
-	{ "Nephrite", TERM_GREEN },
-	{ "Obsidian", TERM_L_DARK },
-	{ "Onyx", TERM_L_DARK },
-	{ "Opal", TERM_L_WHITE },
-	{ "Pearl", TERM_WHITE },
-	{ "Platinum", TERM_L_WHITE },
-	{ "Quartz", TERM_WHITE },
-	{ "Quartzite", TERM_L_WHITE },
-	{ "Rhodonite", TERM_L_RED },
-	{ "Rose Quartz", TERM_L_PINK },
-	{ "Ruby", TERM_RED },
-	{ "Sapphire", TERM_BLUE },
-	{ "Serpent", TERM_TEAL },
-	{ "Silver", TERM_L_WHITE },
-	{ "Steel", TERM_WHITE },
-	{ "Tanzanite", TERM_YELLOW },
-	{ "Tiger Eye", TERM_L_UMBER },
-	{ "Topaz", TERM_YELLOW },
-	{ "Tortoise Shell", TERM_UMBER },
-	{ "Turquoise", TERM_L_BLUE },
-	{ "Zircon", TERM_YELLOW }
-};
-
-
-/*
- * Amulets (adjectives and colors)
- */
-static object_flavour_type amulet_flavour[] =
-{
-	{ "Agate", TERM_L_WHITE },
-	{ "Amber", TERM_ORANGE },
-	{ "Azure", TERM_L_BLUE },
-	{ "Bead", TERM_L_GREEN },
-	{ "Bone", TERM_WHITE },
-	{ "Brass", TERM_YELLOW },
-	{ "Bronze", TERM_ORANGE },
-	{ "Cochineal", TERM_RED },
-	{ "Copper", TERM_L_UMBER },
-	{ "Coral", TERM_MAGENTA },
-	{ "Crystal", TERM_L_WHITE },
-	{ "Dragon's Claw", TERM_L_GREEN },
-	{ "Driftwood", TERM_UMBER },
-	{ "Enameled", TERM_BLUE },
-	{ "Faceted", TERM_L_WHITE },
-	{ "Gold", TERM_YELLOW },
-	{ "Golden", TERM_L_YELLOW },
-	{ "Horn", TERM_WHITE },
-	{ "Ivory", TERM_WHITE },
-	{ "Jade", TERM_GREEN },
-	{ "Jeweled", TERM_PURPLE },
-	{ "Obsidian", TERM_L_DARK },
-	{ "Pewter", TERM_SLATE },
-	{ "Scarab", TERM_UMBER },
-	{ "Serpentine", TERM_GREEN },
-	{ "Shark's Tooth", TERM_SLATE },
-	{ "Silver", TERM_WHITE },
-	{ "Stained Glass", TERM_L_PURPLE },
-	{ "Starstone", TERM_L_BLUE },
-	{ "Tortoise Shell", TERM_TEAL }
-};
-
-
-/*
- * Staffs (adjectives and colors)
- */
-static object_flavour_type staff_flavour[] =
-{
-	{ "Applewood", TERM_L_GREEN },
-	{ "Aspen", TERM_L_UMBER },
-	{ "Balsa", TERM_L_UMBER },
-	{ "Bamboo", TERM_L_UMBER },
-	{ "Banyan", TERM_L_UMBER },
-	{ "Beech", TERM_WHITE },
-	{ "Birch", TERM_L_UMBER },
-	{ "Butternut", TERM_YELLOW },
-	{ "Cedar", TERM_L_UMBER },
-	{ "Charred", TERM_L_DARK },
-	{ "Cherry", TERM_RED },
-	{ "Cypress", TERM_L_UMBER },
-	{ "Driftwood", TERM_SLATE },
-	{ "Druj-infested", TERM_L_BLUE },
-	{ "Elm", TERM_L_UMBER },
-	{ "Elder", TERM_SLATE },
-	{ "Eucalyptus", TERM_L_UMBER },
-	{ "Fir", TERM_UMBER },
-	{ "Golden", TERM_YELLOW },
-	{ "Hazel", TERM_L_UMBER },
-	{ "Hawthorn", TERM_L_UMBER },
-	{ "Hemlock", TERM_MUD },
-	{ "Hickory", TERM_L_UMBER },
-	{ "Holly", TERM_L_UMBER },
-	{ "Ironwood", TERM_UMBER },
-	{ "Ivory", TERM_L_WHITE },
-	{ "Laurel", TERM_SLATE },
-	{ "Lebethron", TERM_L_DARK },
-	{ "Linden", TERM_WHITE },
-	{ "Locust", TERM_MUD },
-	{ "Mahogany", TERM_UMBER },
-	{ "Maple", TERM_L_UMBER },
-	{ "Mallorn", TERM_L_YELLOW },
-	{ "Mistletoe", TERM_GREEN },
-	{ "Mulberry", TERM_L_UMBER },
-	{ "Oak", TERM_L_UMBER },
-	{ "Olive", TERM_L_GREEN },
-	{ "Palmwood", TERM_MUD },
-	{ "Phosphorescent", TERM_L_BLUE },
-	{ "Poplar", TERM_UMBER },
-	{ "Pine", TERM_L_UMBER },
-	{ "Redwood", TERM_RED },
-	{ "Rosewood", TERM_L_RED },
-	{ "Rowan", TERM_UMBER },
-	{ "Runed", TERM_UMBER },
-	{ "Seaweed", TERM_TEAL },
-	{ "Sequoia", TERM_L_WHITE },
-	{ "Silver", TERM_L_UMBER },
-	{ "Spruce", TERM_L_UMBER },
-	{ "Sycamore", TERM_L_DARK },
-	{ "Teak", TERM_UMBER },
-	{ "Waterwood", TERM_TEAL },
-	{ "Walnut", TERM_L_UMBER },
-	{ "Willow", TERM_SLATE },
-	{ "Yew", TERM_L_DARK }
-};
-
-
-/*
- * Wands and rods (adjectives and colors)
- */
-static object_flavour_type device_flavour[] =
-{
-	{ "Adamantium", TERM_L_GREEN },
-	{ "Aluminum", TERM_BLUE_SLATE },
-	{ "Antimony", TERM_SLATE },
-	{ "Aqueous", TERM_TEAL },
-	{ "Billon", TERM_UMBER },
-	{ "Blackened", TERM_L_DARK },
-	{ "Brass", TERM_L_UMBER },
-	{ "Bronze", TERM_ORANGE },
-	{ "Carbonized", TERM_L_DARK },
-	{ "Cast Iron", TERM_L_DARK },
-	{ "Chromium", TERM_WHITE },
-	{ "Cobalt", TERM_BLUE },
-	{ "Copper", TERM_UMBER },
-	{ "Corroded", TERM_RED },
-	{ "Corundum", TERM_RED },
-	{ "Damascened", TERM_L_BLUE },
-	{ "Electrum", TERM_L_YELLOW },
-	{ "Eldritch", TERM_VIOLET },
-	{ "Galvorn", TERM_L_DARK },
-	{ "Glass", TERM_WHITE },
-	{ "Gleaming", TERM_L_YELLOW },
-	{ "Glittering", TERM_L_YELLOW },
-	{ "Gold", TERM_YELLOW },
-	{ "Iridescent", TERM_L_PURPLE },
-	{ "Iron", TERM_SLATE },
-	{ "Ivory", TERM_WHITE },
-	{ "Jeweled", TERM_PURPLE },
-	{ "Lead", TERM_SLATE },
-	{ "Mithril", TERM_L_BLUE },
-	{ "Nickel", TERM_SLATE },
-	{ "Palladium", TERM_L_WHITE },
-	{ "Platinum", TERM_L_WHITE },
-	{ "Pewter", TERM_SLATE },
-	{ "Rhodium", TERM_WHITE },
-	{ "Runed", TERM_L_RED },
-	{ "Rusty", TERM_RED },
-	{ "Sapphire", TERM_BLUE },
-	{ "Shining", TERM_L_YELLOW },
-	{ "Shimmering", TERM_L_VIOLET },
-	{ "Silver", TERM_L_WHITE },
-	{ "Smoking", TERM_SLATE },
-	{ "Steel", TERM_WHITE },
-	{ "Stubby", TERM_YELLOW },
-	{ "Tarnished", TERM_MUD },
-	{ "Tin", TERM_L_WHITE },
-	{ "Titanium", TERM_BLUE_SLATE },
-	{ "Translucent", TERM_L_PINK },
-	{ "Tungsten", TERM_WHITE },
-	{ "Verdigreed", TERM_GREEN },
-	{ "Wrought Iron", TERM_L_DARK },
-	{ "Zinc", TERM_SLATE }
-};
-
-
-/* Rods use the device table, in reverse */
-#define ROD_FLAVOUR_START  (N_ELEMENTS(device_flavour) - 1)
-
-
-/*
- * Mushrooms (adjectives and colors)
- */
-static object_flavour_type food_flavour[] =
-{
-	{ "Blue", TERM_BLUE },
-	{ "Black", TERM_L_DARK },
-	{ "Black Spotted", TERM_L_DARK },
-	{ "Brown", TERM_UMBER },
-	{ "Dark Blue", TERM_BLUE },
-	{ "Dark Green", TERM_GREEN },
-	{ "Dark Red", TERM_RED },
-	{ "Ecru", TERM_L_GREEN },
-	{ "Furry", TERM_L_WHITE },
-	{ "Fuzzy", TERM_MUSTARD },
-	{ "Greasy", TERM_MUD },
-	{ "Green", TERM_GREEN },
-	{ "Grey", TERM_SLATE },
-	{ "Lemon Speckled", TERM_YELLOW },
-	{ "Light Blue", TERM_L_BLUE },
-	{ "Light Green", TERM_L_GREEN },
-	{ "Luminescent", TERM_L_BLUE },
-	{ "Orange-capped", TERM_ORANGE },
-	{ "Pink", TERM_L_PINK },
-	{ "Purple Blotched", TERM_PURPLE },
-	{ "Red", TERM_RED },
-	{ "Red Spotted", TERM_L_RED },
-	{ "Slimy", TERM_SLATE },
-	{ "Smelly", TERM_L_DARK },
-	{ "Tan", TERM_L_UMBER },
-	{ "Violet", TERM_VIOLET },
-	{ "White", TERM_WHITE },
-	{ "White Spotted", TERM_WHITE },
-	{ "Wrinkled", TERM_UMBER },
-	{ "Yellow", TERM_YELLOW },
-};
-
-
-/*
- * Color adjectives and colors, for potions.
- *
- * Hack -- The first four entries (water, apple juice, slime mold juice,
- * and essences) are never randomized.
- */
-
-static object_flavour_type potion_flavour[] =
-{
-	{ "Clear", TERM_WHITE },
-	{ "Light Brown", TERM_L_UMBER },
-	{ "Icky Green", TERM_GREEN },
-	{ "Swirling", TERM_WHITE },
-	{ "Amber", TERM_ORANGE },
-	{ "Ashen", TERM_WHITE },
-	{ "Auburn", TERM_UMBER },
-	{ "Azure", TERM_L_BLUE },
-	{ "Black", TERM_L_DARK },
-	{ "Blue", TERM_BLUE },
-	{ "Blue Speckled", TERM_BLUE },
-	{ "Brown", TERM_UMBER },
-	{ "Brown Speckled", TERM_UMBER },
-	{ "Bubbling", TERM_L_WHITE },
-	{ "Carnation", TERM_L_RED },
-	{ "Chartreuse", TERM_L_GREEN },
-	{ "Chocolate-brown", TERM_UMBER },
-	{ "Clear Blue", TERM_L_BLUE },
-	{ "Clotted Red", TERM_RED },
-	{ "Cloudy", TERM_SLATE },
-	{ "Cobalt", TERM_DEEP_L_BLUE },
-	{ "Coppery", TERM_UMBER },
-	{ "Crimson", TERM_L_RED },
-	{ "Cyan", TERM_TEAL },
-	{ "Dark Blue", TERM_BLUE },
-	{ "Dark Green", TERM_GREEN },
-	{ "Dark Red", TERM_RED },
-	{ "Dirty", TERM_MUD },
-	{ "Frothing", TERM_SLATE },
-	{ "Gloopy Green", TERM_MUD },
-	{ "Gold", TERM_YELLOW },
-	{ "Gold Speckled", TERM_YELLOW },
-	{ "Golden Brown", TERM_L_UMBER },
-	{ "Green", TERM_GREEN },
-	{ "Greenish", TERM_L_GREEN },
-	{ "Grey", TERM_SLATE },
-	{ "Grey Speckled", TERM_SLATE },
-	{ "Hazy", TERM_WHITE },
-	{ "Indigo", TERM_BLUE },
-	{ "Ivory White", TERM_L_WHITE },
-	{ "Lavender", TERM_L_VIOLET },
-	{ "Light Blue", TERM_L_BLUE },
-	{ "Light Green", TERM_L_GREEN },
-	{ "Limpid", TERM_WHITE },
-	{ "Lincoln Green", TERM_GREEN },
-	{ "Magenta", TERM_MAGENTA },
-	{ "Maroon", TERM_RED },
-	{ "Metallic Blue", TERM_BLUE },
-	{ "Metallic Red", TERM_RED },
-	{ "Metallic Purple", TERM_PURPLE },
-	{ "Misty", TERM_L_WHITE },
-	{ "Moldy", TERM_MUD },
-	{ "Muddy", TERM_MUD },
-	{ "Mustard Green", TERM_MUSTARD },
-	{ "Myrtle Green", TERM_GREEN },
-	{ "Oily Yellow", TERM_YELLOW },
-	{ "Orange", TERM_ORANGE },
-	{ "Orange Speckled", TERM_ORANGE },
-	{ "Peach", TERM_MAGENTA },
-	{ "Pink", TERM_L_PINK },
-	{ "Pearl-grey", TERM_WHITE },
-	{ "Puce", TERM_MUD },
-	{ "Pungent", TERM_L_GREEN },
-	{ "Purple", TERM_PURPLE },
-	{ "Purple Speckled", TERM_L_PURPLE },
-	{ "Red", TERM_RED },
-	{ "Red Speckled", TERM_L_RED },
-	{ "Tyrian Purple", TERM_PURPLE },
-	{ "Rosy", TERM_L_RED },
-	{ "Sea-blue", TERM_TEAL },
-	{ "Shimmering", TERM_L_YELLOW },
-	{ "Shining", TERM_L_YELLOW },
-	{ "Sickly Green", TERM_L_GREEN },
-	{ "Silver Speckled", TERM_L_WHITE },
-	{ "Smoky", TERM_L_DARK },
-	{ "Tangerine", TERM_ORANGE },
-	{ "Tawny", TERM_UMBER },
-	{ "Turgid", TERM_L_UMBER },
-	{ "Umber", TERM_UMBER },
-	{ "Violet", TERM_VIOLET },
-	{ "Vermilion", TERM_L_RED },
-	{ "Viscous Pink", TERM_MAGENTA },
-	{ "White", TERM_WHITE },
-	{ "Yellow", TERM_YELLOW },
-	{ "Yellow Dappled", TERM_L_YELLOW }
-};
-
-
-
-
-/*
  * Syllables for scrolls in the "grast-speech".
  */
 static cptr syllables[] =
@@ -428,8 +57,6 @@ static cptr conjunct[] =
 
 static char scroll_adj[MAX_SCROLL_IDX][20];
 
-static byte scroll_col[MAX_SCROLL_IDX];
-
 
 /*
  * Add a regular word.
@@ -448,30 +75,30 @@ static void build_scroll_name_word(char *buf, int size)
 	if (pre)
 	{
 		/* Add the sound */
-		my_strcat(buf, append[rand_int(max_append)], size);
+		(void)my_strcat(buf, append[rand_int(max_append)], size);
 		pre = TRUE;
 
 		/* Add either a '-' or a ''' */
-		my_strcat(buf, one_in_(3) ? "\'" : "-", sizeof(buf));
+		(void)my_strcat(buf, one_in_(3) ? "\'" : "-", sizeof(buf));
 	}
 
 	/* Add one or two chunks */
-	my_strcat(buf, syllables[rand_int(max_syllables)], size);
+	(void)my_strcat(buf, syllables[rand_int(max_syllables)], size);
 	if (!pre && !post)
-		my_strcat(buf, syllables[rand_int(max_syllables)], size);
+		(void)my_strcat(buf, syllables[rand_int(max_syllables)], size);
 
 	/* Sometimes, end with an appended sound */
 	if (post)
 	{
 		/* Add a "-" */
-		my_strcat(buf, "-", size);
+		(void)my_strcat(buf, "-", size);
 
 		/* Add the sound */
-		my_strcat(buf, append[rand_int(max_append)], size);
+		(void)my_strcat(buf, append[rand_int(max_append)], size);
 	}
 
 	/* Insert a space */
-	my_strcat(buf, " ", size);
+	(void)my_strcat(buf, " ", size);
 }
 
 
@@ -499,8 +126,8 @@ static void build_scroll_name(int i)
 		/* Sometimes start with a conjunction */
 		if (one_in_(3))
 		{
-			my_strcat(buf, conjunct[rand_int(max_conjunct)], sizeof(buf));
-			my_strcat(buf, " ", sizeof(buf));
+			(void)my_strcat(buf, conjunct[rand_int(max_conjunct)], sizeof(buf));
+			(void)my_strcat(buf, " ", sizeof(buf));
 			flag = TRUE;
 		}
 
@@ -513,8 +140,8 @@ static void build_scroll_name(int i)
 			/* Sometimes, use a conjunction first */
 			if (!flag && one_in_(2))
 			{
-				my_strcat(buf, conjunct[rand_int(max_conjunct)], sizeof(buf));
-				my_strcat(buf, " ", sizeof(buf));
+				(void)my_strcat(buf, conjunct[rand_int(max_conjunct)], sizeof(buf));
+				(void)my_strcat(buf, " ", sizeof(buf));
 			}
 			build_scroll_name_word(buf, sizeof(buf));
 		}
@@ -546,7 +173,122 @@ static void build_scroll_name(int i)
 
 
 /*
- * Prepare the variable part of the "k_info" array.
+ * Assign fixed flavors
+ */
+static void flavor_assign_fixed(void)
+{
+	int i, j;
+
+	/* Scan all the flavors */
+	for (i = 0; i < z_info->flavor_max; i++)
+	{
+		flavor_type *flavor_ptr = &flavor_info[i];
+
+		/* Skip empty flavors */
+		if (!flavor_ptr->tval) continue;
+
+		/* Skip random flavors */
+		if (flavor_ptr->sval == SV_ANY) continue;
+
+		/* Scan the object list for the object this flavor belongs to */
+		for (j = 0; j < z_info->k_max; j++)
+		{
+			/* Assign to only one object, unless "sval" is 255 */
+			if ((k_info[j].tval == flavor_ptr->tval) &&
+			    ((k_info[j].sval == flavor_ptr->sval) ||
+			     (flavor_ptr->sval == SV_ALL)))
+			{
+				/* Store the flavor index */
+				k_info[j].flavor = i;
+
+				/* Usually, assign to only one object */
+				if (flavor_ptr->sval != SV_ALL) break;
+			}
+		}
+	}
+}
+
+
+/*
+ * Assign random flavors for a given tval
+ */
+static void flavor_assign_random(byte tval)
+{
+	int i, j;
+	int flavor_count = 0;
+	int choice;
+
+	/* Count the random flavors for the given tval */
+	for (i = 0; i < z_info->flavor_max; i++)
+	{
+		/* Special case:  Re-use wand flavors for rods */
+		if (tval == TV_ROD)
+		{
+			if (flavor_info[i].tval == TV_WAND)
+			{
+				flavor_info[i].tval = TV_ROD;
+				flavor_info[i].sval = SV_ANY;
+				flavor_count++;
+			}
+		}
+
+		/* Usual case:  Consider only random flavors of this type */
+		else if ((flavor_info[i].tval == tval) &&
+		    (flavor_info[i].sval == SV_ANY))
+		{
+			flavor_count++;
+		}
+	}
+
+	/* Scan the whole object list */
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		/* Skip other object types */
+		if (k_info[i].tval != tval) continue;
+
+		/* Skip objects that already are flavored */
+		if (k_info[i].flavor) continue;
+
+		/* HACK - Ordinary food is "boring" */
+		if ((tval == TV_FOOD) && (k_info[i].sval >= SV_FOOD_MIN_FOOD))
+			continue;
+
+		/* Notice lack of flavors */
+		if (!flavor_count) quit_fmt("Not enough flavors for tval %d.", tval);
+
+		/* Select a random flavor */
+		choice = rand_int(flavor_count);
+
+		/* Find and store the flavor */
+		for (j = 0; j < z_info->flavor_max; j++)
+		{
+			/* Skip other tvals */
+			if (flavor_info[j].tval != tval) continue;
+
+			/* Skip assigned flavors */
+			if (flavor_info[j].sval != SV_ANY) continue;
+
+			/* Count down to chosen flavour */
+			if (choice-- == 0)
+			{
+				/* Store the flavor index */
+				k_info[i].flavor = j;
+
+				/* This flavor is now assigned */
+				flavor_info[j].sval = k_info[i].sval;
+
+				/* One less flavor to choose from */
+				flavor_count--;
+
+				break;
+			}
+		}
+	}
+}
+
+
+/*
+ * Prepare the "variable" part of the "k_info" array.
  *
  * The "color"/"metal"/"type" of an item is its "flavor".
  * For the most part, flavors are assigned randomly each game.
@@ -560,113 +302,48 @@ static void build_scroll_name(int i)
  * Hack -- make sure everything stays the same for each saved game
  * This is accomplished by the use of a saved "random seed", as in
  * "town_gen()".  Since no other functions are called while the special
- * seed is in effect, this function is pretty "safe".  However, it also
- * means that object flavours change completely whenever the flavour
- * arrays change size.  XXX XXX
+ * seed is in effect, so this function is pretty "safe".
  */
 void flavor_init(void)
 {
-	int i, j;
+	int i;
 
-	byte temp_col;
-
-	cptr temp_adj;
-
-	/* Get sizes of flavour arrays */
-	int ring_array_size   = N_ELEMENTS(ring_flavour);
-	int amulet_array_size = N_ELEMENTS(amulet_flavour);
-	int staff_array_size  = N_ELEMENTS(staff_flavour);
-	int device_array_size = N_ELEMENTS(device_flavour);
-	int potion_array_size = N_ELEMENTS(potion_flavour);
-	int food_array_size   = N_ELEMENTS(food_flavour);
-
+	/* The system may have fewer colors than the flavors want */
+	if (max_system_colors < MAX_COLORS)
+	{
+		/* Scan the flavor list */
+		for (i = 0; i < z_info->flavor_max; i++)
+		{
+			/* Correct colors (unless graphical) */
+			if (flavor_info[i].x_attr < MAX_COLORS)
+				flavor_info[i].x_attr = verify_color(flavor_info[i].x_attr);
+		}
+	}
 
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
 
-	/* Hack -- Induce consistent flavors */
+	/* Hack -- Induce consistant flavors */
 	Rand_value = seed_flavor;
 
-	/* Rings */
-	for (i = 0; i < ring_array_size; i++)
-	{
-		j = rand_int(ring_array_size);
-		temp_adj = ring_flavour[i].adj;
-		ring_flavour[i].adj = ring_flavour[j].adj;
-		ring_flavour[j].adj = temp_adj;
-		temp_col = ring_flavour[i].attr;
-		ring_flavour[i].attr = ring_flavour[j].attr;
-		ring_flavour[j].attr = temp_col;
-	}
+	/* Assign fixed flavors */
+	flavor_assign_fixed();
 
-	/* Amulets */
-	for (i = 0; i < amulet_array_size; i++)
-	{
-		j = rand_int(amulet_array_size);
-		temp_adj = amulet_flavour[i].adj;
-		amulet_flavour[i].adj = amulet_flavour[j].adj;
-		amulet_flavour[j].adj = temp_adj;
-		temp_col = amulet_flavour[i].attr;
-		amulet_flavour[i].attr = amulet_flavour[j].attr;
-		amulet_flavour[j].attr = temp_col;
-	}
+	/* Assign random flavors */
+	flavor_assign_random(TV_RING);
+	flavor_assign_random(TV_AMULET);
+	flavor_assign_random(TV_STAFF);
+	flavor_assign_random(TV_WAND);
+	flavor_assign_random(TV_ROD);
+	flavor_assign_random(TV_FOOD);
+	flavor_assign_random(TV_POTION);
 
-	/* Staffs */
-	for (i = 0; i < staff_array_size; i++)
-	{
-		j = rand_int(staff_array_size);
-		temp_adj = staff_flavour[i].adj;
-		staff_flavour[i].adj = staff_flavour[j].adj;
-		staff_flavour[j].adj = temp_adj;
-		temp_col = staff_flavour[i].attr;
-		staff_flavour[i].attr = staff_flavour[j].attr;
-		staff_flavour[j].attr = temp_col;
-	}
 
-	/* Devices */
-	for (i = 0; i < device_array_size; i++)
-	{
-		j = rand_int(device_array_size);
-		temp_adj = device_flavour[i].adj;
-		device_flavour[i].adj = device_flavour[j].adj;
-		device_flavour[j].adj = temp_adj;
-		temp_col = device_flavour[i].attr;
-		device_flavour[i].attr = device_flavour[j].attr;
-		device_flavour[j].attr = temp_col;
-	}
-
-	/* Foods (Mushrooms) */
-	for (i = 0; i < food_array_size; i++)
-	{
-		j = rand_int(food_array_size);
-		temp_adj = food_flavour[i].adj;
-		food_flavour[i].adj = food_flavour[j].adj;
-		food_flavour[j].adj = temp_adj;
-		temp_col = food_flavour[i].attr;
-		food_flavour[i].attr = food_flavour[j].attr;
-		food_flavour[j].attr = temp_col;
-	}
-
-	/* Potions */
-	for (i = 4; i < potion_array_size; i++)
-	{
-		j = rand_int(potion_array_size - 4) + 4;
-		temp_adj = potion_flavour[i].adj;
-		potion_flavour[i].adj = potion_flavour[j].adj;
-		potion_flavour[j].adj = temp_adj;
-		temp_col = potion_flavour[i].attr;
-		potion_flavour[i].attr = potion_flavour[j].attr;
-		potion_flavour[j].attr = temp_col;
-	}
-
-	/* Scrolls (random titles, always white) */
+	/* Build scroll names */
 	for (i = 0; i < MAX_SCROLL_IDX; i++)
 	{
 		/* Build a title */
 		build_scroll_name(i);
-
-		/* All scrolls are white */
-		scroll_col[i] = TERM_WHITE;
 	}
 
 
@@ -681,84 +358,11 @@ void flavor_init(void)
 		/* Skip "empty" objects */
 		if (!k_ptr->name) continue;
 
-		/* Assume no flavour */
-		k_ptr->flavor = 0;
-
-
-		/* Analyze the item */
-		switch (k_ptr->tval)
-		{
-			/* Assign stored flavours, unless object has a special color */
-			case TV_AMULET:
-			{
-				if (!k_ptr->d_attr) k_ptr->flavor =
-					verify_color(amulet_flavour[k_ptr->sval].attr);
-				break;
-			}
-
-			case TV_RING:
-			{
-				if (!k_ptr->d_attr) k_ptr->flavor =
-					verify_color(ring_flavour[k_ptr->sval].attr);
-				break;
-			}
-
-			case TV_STAFF:
-			{
-				if (!k_ptr->d_attr) k_ptr->flavor =
-					verify_color(staff_flavour[k_ptr->sval].attr);
-				break;
-			}
-
-			case TV_WAND:
-			{
-				if (!k_ptr->d_attr) k_ptr->flavor =
-					verify_color(device_flavour[k_ptr->sval].attr);
-				break;
-			}
-
-			case TV_ROD:
-			{
-				/* Use the device array, but in reverse */
-				if (!k_ptr->d_attr) k_ptr->flavor =
-					verify_color(device_flavour[ROD_FLAVOUR_START -
-					k_ptr->sval].attr);
-				break;
-			}
-
-			case TV_SCROLL:
-			{
-				if (!k_ptr->d_attr) k_ptr->flavor =
-					verify_color(scroll_col[k_ptr->sval]);
-				break;
-			}
-
-			case TV_POTION:
-			{
-				if (!k_ptr->d_attr) k_ptr->flavor =
-					verify_color(potion_flavour[k_ptr->sval].attr);
-				break;
-			}
-
-			case TV_FOOD:
-			{
-				if ((k_ptr->sval < SV_FOOD_MIN_FOOD) && (!k_ptr->d_attr))
-				{
-					k_ptr->flavor = verify_color(food_flavour[k_ptr->sval].attr);
-				}
-				else k_ptr->special |= (SPECIAL_AWARE);
-				break;
-			}
-
-			/* Character is aware of all non-flavoured objects */
-			default:
-			{
-				k_ptr->special |= (SPECIAL_AWARE);
-				break;
-			}
-		}
+		/* No flavor yields aware */
+		if (!k_ptr->flavor) k_ptr->special |= (SPECIAL_AWARE);
 	}
 }
+
 
 
 /*
@@ -846,8 +450,8 @@ void reset_visuals(void)
 		feature_type *f_ptr = &f_info[i];
 
 		/* Assume we will use the underlying values */
-		f_ptr->x_attr = f_ptr->d_attr;
-		f_ptr->x_char = f_ptr->d_char;
+		f_ptr->x_attr_lit = f_ptr->x_attr_dim = f_ptr->x_attr = f_ptr->d_attr;
+		f_ptr->x_char_lit = f_ptr->x_char_dim = f_ptr->x_char = f_ptr->d_char;
 	}
 
 	/* Extract default attr/char code for objects */
@@ -870,18 +474,28 @@ void reset_visuals(void)
 		r_ptr->x_char = r_ptr->d_char;
 	}
 
+	/* Extract default attr/char code for flavors */
+	for (i = 0; i < z_info->flavor_max; i++)
+	{
+		flavor_type *flavor_ptr = &flavor_info[i];
+
+		/* Default attr/char */
+		flavor_ptr->x_attr = flavor_ptr->d_attr;
+		flavor_ptr->x_char = flavor_ptr->d_char;
+	}
+
 	/* Graphic symbols */
 	if (use_graphics)
 	{
 		/* Process "graf.prf" */
-		process_pref_file("graf.prf");
+		(void)process_pref_file("graf.prf");
 	}
 
 	/* Normal symbols */
 	else
 	{
 		/* Process "font.prf" */
-		process_pref_file("font.prf");
+		(void)process_pref_file("font.prf");
 	}
 }
 
@@ -970,7 +584,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 	object_kind *k_ptr;
 
 	bool know_ident = (object_known_p(o_ptr) ? TRUE : FALSE);
-	bool know_all = o_ptr->ident & (IDENT_MENTAL);
+	bool know_all = ((o_ptr->ident & (IDENT_MENTAL)) ? TRUE : FALSE);
 
 	/* Force full knowledge */
 	if (mode == OBJECT_FLAGS_FULL) know_ident = know_all = TRUE;
@@ -1119,6 +733,242 @@ void object_flags_extra(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 }
 
 
+
+/*
+ * Abbreviated attribute name/flag structure
+ */
+typedef struct flag_insc_table
+{
+	cptr text;
+	byte flag;
+} flag_insc_table;
+
+/*
+ * A list of abbreviated attribute names and flag locations.
+ *
+ * Table is read in order.
+ */
+static flag_insc_table insc_table[] =
+{
+	{ "A", BRAND_ACID },
+	{ "E", BRAND_ELEC },
+	{ "F", BRAND_FIRE },
+	{ "C", BRAND_COLD },
+	{ "P", BRAND_POIS },
+	{ "*F*", BRAND_FLAME },
+	{ "*P*", BRAND_VENOM },
+	{ "I", IMPACT },
+	{ "V", VORPAL },
+	{ "B", BLESSED },
+	{ "!", PERFECT_BALANCE },
+	{ "v", THROWING },
+	{ ";", 0 },
+	{ "e", SLAY_EVIL },
+	{ "D", KILL_DRAGON },
+	{ "d", SLAY_DRAGON },
+	{ "o", SLAY_ORC },
+	{ "t", SLAY_TROLL },
+	{ "g", SLAY_GIANT },
+	{ "&", SLAY_DEMON },
+	{ "u", SLAY_UNDEAD },
+	{ "a", SLAY_ANIMAL },
+	{ ";", 0 },
+	{ "*A*", IM_ACID },
+	{ "*E*", IM_ELEC },
+	{ "*F*", IM_FIRE },
+	{ "*C*", IM_COLD },
+	{ "Ac", RES_ACID },
+	{ "El", RES_ELEC },
+	{ "Fi", RES_FIRE },
+	{ "Co", RES_COLD },
+	{ "Po", RES_POIS },
+	{ "Fe", RES_FEAR },
+	{ "Bl", RES_BLIND },
+	{ "Cf", RES_CONFU },
+	{ "Li", RES_LITE },
+	{ "Dk", RES_DARK },
+	{ "So", RES_SOUND },
+	{ "Sh", RES_SHARD },
+	{ "Nx", RES_NEXUS },
+	{ "Nt", RES_NETHR },
+	{ "Ca", RES_CHAOS },
+	{ "Di", RES_DISEN },
+	{ ";", 0 },
+	{ "Sd", SLOW_DIGEST },
+	{ "Ff", FEATHER },
+	{ "Lu", LITE },
+	{ "Rg", REGEN },
+	{ "Esp", TELEPATHY },
+	{ "Si", SEE_INVIS },
+	{ "Fa", FREE_ACT },
+	{ "Hl", HOLD_LIFE },
+	{ "!M", NOMAGIC },
+	{ "Ag", AGGRAVATE },
+	{ ";", 0 },
+	{ "St", SUST_STR },
+	{ "In", SUST_INT },
+	{ "Wi", SUST_WIS },
+	{ "De", SUST_DEX },
+	{ "Co", SUST_CON },
+	{ "Ch", SUST_CHR },
+	{ NULL, 0 },
+};
+
+
+
+/*
+ * Build up an abbreviated attribute list.  Optionally, show only random
+ * attributes or all attributes.
+ *
+ * Idea and some code from Hengband.
+ */
+static void get_inscription_attr(char *str, int len,
+	const object_type *o_ptr, bool all)
+{
+
+	u32b f1 = 0L, f2 = 0L, f3 = 0L;
+
+	int i, k, flag, set;
+	u32b bitflag;
+
+	bool listed = FALSE;
+
+
+	/* Clear the string */
+	str[0] = '\0';
+
+	/* Get the object flags -- all */
+	if (all)
+	{
+		object_flags_known(o_ptr, &f1, &f2, &f3);
+	}
+
+	/* Get the object flags -- only random */
+	else
+	{
+		object_flags_extra(o_ptr, &f1, &f2, &f3);
+	}
+
+	/* No flags to list */
+	if (!f1 && !f2 && !f3) return;
+
+
+	/* Scan down the table until we run out of possible descriptions */
+	for (i = 0; insc_table[i].text; i++)
+	{
+		/* Get this flag */
+		flag = insc_table[i].flag;
+
+		/* This is a section divider */
+		if (!flag)
+		{
+			/* If we have listed flags, add the section marker */
+			if (listed) (void)my_strcat(str, insc_table[i].text, len);
+
+			/* Assume next section to be empty */
+			listed = FALSE;
+		}
+
+
+		/* Which set of flags? */
+		set = flag / 32;
+
+		/* Which bitflag in this set? */
+		bitflag = 1L << (flag % 32);
+
+		/* Object has this bitflag */
+		if (((set == 1) && (f1 & bitflag)) ||
+		    ((set == 2) && (f2 & bitflag)) ||
+		    ((set == 3) && (f3 & bitflag)))
+		{
+			/* Add the inscription */
+			(void)my_strcat(str, insc_table[i].text, len);
+
+			/* This section is not empty */
+			listed = TRUE;
+		}
+	}
+
+	/* Determine length of string */
+	for (k = 0; k < len; k++)
+	{
+		if (!str[k]) break;
+	}
+
+	/* Final character is a ';' -- remove it */
+	if ((k >= 1) && (str[k - 1] == ';')) str[k - 1] = '\0';
+
+}
+
+
+/*
+ *  Edit object inscription.  Allow the use of special codes.
+ */
+static void get_inscription(char *str, int len, const object_type *o_ptr)
+{
+	/* Point to the string to be edited */
+	char *t = str;
+
+	/* Get the inscription */
+	cptr s = quark_str(o_ptr->note);
+
+	/* Scan the inscription */
+	for (; *s; s++)
+	{
+		/* Do not write past the end of the string */
+		if (t - str >= len - 1) break;
+
+		/* Break at beginning of special name */
+		if (*s == '#') break;
+
+		/* Note '%', but only if object is fully IDed */
+		if ((*s == '%') && (o_ptr->ident & (IDENT_MENTAL)))
+		{
+			char attr_str[80];
+
+			/* Assume we want to see only random attributes */
+			bool all = FALSE;
+
+			/* Allow all object attributes to be requested */
+			if ((s[1] == 'a') && (s[2] == 'l') && (s[3] == 'l'))
+			{
+				all = TRUE;
+
+				/* Skip past the "all" string */
+				s += 3;
+			}
+
+			/* Build up an abbreviated list of attributes */
+			get_inscription_attr(attr_str, 80, o_ptr, all);
+
+			/* Copy it to the inscription */
+			if (attr_str[0])
+			{
+				int j;
+
+				/* Stop when our attribute string ends */
+				for (j = 0; attr_str[j]; j++)
+				{
+					/* Copy until we run out of room */
+					if (t - str >= len - 1) break;
+					*t++ = attr_str[j];
+				}
+			}
+		}
+
+		/* Save all other characters */
+		else
+		{
+			*t++ = *s;
+		}
+	}
+
+	/* End this string */
+	*t = '\0';
+}
+
+
+
 /*
  * Efficient version of '(T) += sprintf((T), "%c", (C))'
  */
@@ -1146,9 +996,9 @@ void object_flags_extra(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  */
 #define object_desc_num_macro(T,N) do { \
 	\
-	uint n = (N); \
+	int n = (N); \
 	\
-	uint p; \
+	int p; \
 	\
 	/* Find "size" of "n" */ \
 	for (p = 1; n >= p * 10; p = p * 10) /* loop */; \
@@ -1469,10 +1319,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 				else if (o_ptr->tval == TV_SPIKE)   basenm = "spikes";
 				else if (o_ptr->tval == TV_CHEST)   basenm = "chest";
 
-				else if (o_ptr->tval == TV_SHOT)    basenm = "ammo";
-				else if (o_ptr->tval == TV_ARROW)   basenm = "ammo";
-				else if (o_ptr->tval == TV_BOLT)    basenm = "ammo";
-				else if (o_ptr->tval == TV_BOW)     basenm = "bow";
+				else if (is_missile(o_ptr))         basenm = "ammo";
+				else if (is_missile_weapon(o_ptr))  basenm = "bow";
 				else if (o_ptr->tval == TV_DIGGING) basenm = "shovel";
 				else if (o_ptr->tval == TV_HAFTED)  basenm = "club";
 				else if (o_ptr->tval == TV_POLEARM) basenm = "spear";
@@ -1585,7 +1433,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_ARROW:
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
@@ -1647,7 +1497,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			}
 
 			/* Flavour the object */
-			modstr = amulet_flavour[o_ptr->sval].adj;
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
 
@@ -1685,7 +1535,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			else
 			{
 				/* Flavour the object */
-				modstr = ring_flavour[o_ptr->sval].adj;
+				modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 				if (aware) append_name = TRUE;
 				basenm = (flavor ? "& # Ring~" : "& Ring~");
 			}
@@ -1704,7 +1554,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			}
 
 			/* Flavour the object */
-			modstr = staff_flavour[o_ptr->sval].adj;
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Staff~" : "& Staff~");
 
@@ -1722,7 +1572,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			}
 
 			/* Flavour the object */
-			modstr = device_flavour[o_ptr->sval].adj;
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Wand~" : "& Wand~");
 
@@ -1740,7 +1590,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			}
 
 			/* Flavour the object */
-			modstr = device_flavour[ROD_FLAVOUR_START - o_ptr->sval].adj;
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Rod~" : "& Rod~");
 
@@ -1776,7 +1626,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			}
 
 			/* Flavour the object */
-			modstr = potion_flavour[o_ptr->sval].adj;
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Potion~" : "& Potion~");
 
@@ -1797,7 +1647,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
 
 			/* Flavour the object */
-			modstr = food_flavour[o_ptr->sval].adj;
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Mushroom~" : "& Mushroom~");
 
@@ -1931,7 +1781,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		}
 
 		/* A single one, and next character will be a vowel */
-		else if ((*s == '#') ? is_a_vowel(modstr[0]) : is_a_vowel(*s))
+		else if ((*s == '#') ? my_is_vowel(modstr[0]) : my_is_vowel(*s))
 		{
 			object_desc_str_macro(t, "an ");
 		}
@@ -2038,7 +1888,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		/* Hack -- end the string */
 		*t++ = '\0';
 
-		my_strcpy(buf, tmp_buf, 80);
+		(void)my_strcpy(buf, tmp_buf, 80);
 		return;
 	}
 
@@ -2265,7 +2115,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Bows */
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		{
 			/* Get the base power of the missile weapon */
 			power = k_ptr->dd;
@@ -2601,18 +2453,10 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* Use standard inscription */
 	if (o_ptr->note)
 	{
-		sprintf(tmp_note, "%.79s", quark_str(o_ptr->note));
+		/* Get and edit the inscription */
+		get_inscription(tmp_note, 80, o_ptr);
 
-		/* Truncate the inscription just before any '#' */
-		for (i = 0; tmp_note[i]; i++)
-		{
-			if (tmp_note[i] == '#')
-			{
-				tmp_note[i] = '\0';
-				break;
-			}
-		}
-
+		/* Point to the inscription, notice lack of inscription */
 		if (tmp_note[0] == '\0') u = NULL;
 		else u = tmp_note;
 	}
@@ -2711,7 +2555,7 @@ object_desc_done:
 	*t = '\0';
 
 	/* Copy the string over, truncating on the way */
-	my_strcpy(buf, tmp_buf, 80);
+	(void)my_strcpy(buf, tmp_buf, 80);
 }
 
 
@@ -2780,7 +2624,7 @@ void strip_name(char *buf, int k_idx)
 	/* Copy useful chars */
 	for (t = buf; *str; str++)
 	{
-		if (*str != '~') *t++ = tolower(*str);
+		if (*str != '~') *t++ = my_tolower(*str);
 	}
 
 	/* Terminate the new name */
@@ -2891,7 +2735,9 @@ s16b wield_slot(const object_type *o_ptr)
 			else                     return (INVEN_WIELD);
 		}
 
+		case TV_SLING:
 		case TV_BOW:
+		case TV_CROSSBOW:
 		{
 			return (INVEN_BOW);
 		}
@@ -3769,12 +3615,10 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 /*
  * Display a list of the items on the floor at the given location. -TNB-
  */
-void show_floor(const int *floor_list, int floor_num, bool gold)
+void show_floor(const int *floor_list, int floor_num, bool gold, bool blind)
 {
 	int i, j, k, l;
 	int col, len, lim;
-
-	bool blind = ((p_ptr->blind) || (no_light()));
 
 	object_type *o_ptr;
 
@@ -3821,8 +3665,9 @@ void show_floor(const int *floor_list, int floor_num, bool gold)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
-
+		if (blind) out_color[k] = TERM_SLATE;
+		else out_color[k] =
+			tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);
 
@@ -4226,6 +4071,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool allow_inven = FALSE;
 	bool allow_floor = FALSE;
 
+	bool blind = ((p_ptr->blind) || (no_light()));
+
 	bool toggle = FALSE;
 
 	char tmp_val[160];
@@ -4481,18 +4328,18 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				index_to_label(i1), index_to_label(i2));
 
 			/* Append choices. */
-			my_strcat(out_val, tmp_val, sizeof(out_val));
+			(void)my_strcat(out_val, tmp_val, sizeof(out_val));
 
 			/* Indicate ability to "view" */
 			if (!p_ptr->command_see)
-				my_strcat(out_val, " * to see,", sizeof(out_val));
+				(void)my_strcat(out_val, " * to see,", sizeof(out_val));
 
 			/* Indicate that equipment items are available */
-			if (use_equip) my_strcat(out_val, " / for equip,",
+			if (use_equip) (void)my_strcat(out_val, " / for equip,",
 				sizeof(out_val));
 
 			/* Indicate that floor items are available */
-			if (allow_floor) my_strcat(out_val, " - for floor,",
+			if (allow_floor) (void)my_strcat(out_val, " - for floor,",
 				sizeof(out_val));
 		}
 
@@ -4514,24 +4361,24 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				index_to_label(e1), index_to_label(e2));
 
 			/* Append choices. */
-			my_strcat(out_val, tmp_val, sizeof(out_val));
+			(void)my_strcat(out_val, tmp_val, sizeof(out_val));
 
 			/* Indicate ability to "view" */
 			if (!p_ptr->command_see)
-				my_strcat(out_val, " * to see,", sizeof(out_val));
+				(void)my_strcat(out_val, " * to see,", sizeof(out_val));
 
 			/* Append */
-			if (use_inven) my_strcat(out_val, " / for inven,", sizeof(out_val));
+			if (use_inven) (void)my_strcat(out_val, " / for inven,", sizeof(out_val));
 
 			/* Append */
-			if (allow_floor) my_strcat(out_val, " - for floor,", sizeof(out_val));
+			if (allow_floor) (void)my_strcat(out_val, " - for floor,", sizeof(out_val));
 		}
 
 		/* Viewing floor */
 		else if (p_ptr->command_wrk == (USE_FLOOR))
 		{
 			/* Redraw if needed */
-			if (p_ptr->command_see) show_floor(floor_list, floor_num, FALSE);
+			if (p_ptr->command_see) show_floor(floor_list, floor_num, FALSE, blind);
 
 			/* Begin the prompt */
 			sprintf(out_val, "Floor:");
@@ -4543,31 +4390,31 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			else sprintf(tmp_val, " %c-%c, ',' for 1st item,", I2A(f1-f1), I2A(f2-f1));
 
 			/* Append */
-			my_strcat(out_val, tmp_val, sizeof(out_val));
+			(void)my_strcat(out_val, tmp_val, sizeof(out_val));
 
 			/* Indicate ability to "view" */
 			if (!p_ptr->command_see)
-				my_strcat(out_val, " * to see,", sizeof(out_val));
+				(void)my_strcat(out_val, " * to see,", sizeof(out_val));
 
 			/* Append */
 			if (use_inven)
 			{
-				my_strcat(out_val, " / for inven,", sizeof(out_val));
+				(void)my_strcat(out_val, " / for inven,", sizeof(out_val));
 			}
 			else if (use_equip)
 			{
-				my_strcat(out_val, " / for equip,", sizeof(out_val));
+				(void)my_strcat(out_val, " / for equip,", sizeof(out_val));
 			}
 		}
 
 		/* Indicate that help is available */
 		if (p_ptr->get_help_index)
 		{
-			my_strcat(out_val, " ?,", sizeof(out_val));
+			(void)my_strcat(out_val, " ?,", sizeof(out_val));
 		}
 
 		/* Finish the prompt */
-		my_strcat(out_val, " ESC", sizeof(out_val));
+		(void)my_strcat(out_val, " ESC", sizeof(out_val));
 
 		/* Build the prompt (add a space) */
 		sprintf(tmp_val, "(%s) %s ", out_val, pmt);
@@ -4835,10 +4682,10 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 
 				/* Note verify */
-				verify = (isupper((unsigned char)which) ? TRUE : FALSE);
+				verify = (my_isupper((unsigned char)which) ? TRUE : FALSE);
 
 				/* Lowercase */
-				which = tolower((unsigned char)which);
+				which = my_tolower((unsigned char)which);
 
 
 				/* Validate the item */
@@ -4923,25 +4770,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Result */
 	return (item);
-}
-
-
-/*
- * Link to various object flavouring tables from info.c.
- */
-cptr object_adj(int tval, int sval)
-{
-	switch (tval)
-	{
-		case TV_AMULET: return (amulet_flavour[sval].adj);
-		case TV_RING:   return (ring_flavour[sval].adj);
-		case TV_STAFF:  return (staff_flavour[sval].adj);
-		case TV_WAND:   return (device_flavour[sval].adj);
-		case TV_ROD:    return (device_flavour[ROD_FLAVOUR_START - sval].adj);
-		case TV_POTION: return (potion_flavour[sval].adj);
-		case TV_SCROLL: return (scroll_adj[sval]);
-		default:        return (NULL);
-	}
 }
 
 
@@ -5159,57 +4987,6 @@ void check_item_sets(void)
 }
 
 
-
-/*
- * Determine if a cave grid is allowed to have objects in it.
- *
- * There are some decisions here that could stand to be reviewed.
- */
-bool cave_object_allowed(int y, int x)
-{
-	int feat = cave_feat[y][x];
-	bool wall = (cave_info[y][x] & (CAVE_WALL)) ? TRUE : FALSE;
-
-
-	/* Walls */
-	if (wall)
-	{
-		/* Rubble is OK */
-		if (feat == FEAT_RUBBLE) return (TRUE);
-
-		/* Trees are OK */
-		if (feat == FEAT_TREE) return (TRUE);
-	}
-
-	/* Non-wall */
-	else
-	{
-		/* Quick check for floors */
-		if (feat == FEAT_FLOOR) return (TRUE);
-
-		/* Lava */
-		if (feat == FEAT_LAVA) return (FALSE);
-
-		/* Stairs (lesser of two evils)  XXX XXX */
-		if (feat == FEAT_LESS) return (FALSE);
-		if (feat == FEAT_MORE) return (FALSE);
-		if (feat == FEAT_LESS2) return (FALSE);
-		if (feat == FEAT_MORE2) return (FALSE);
-
-		/* Doors (lesser of two evils)  XXX XXX */
-		if (feat == FEAT_OPEN) return (FALSE);
-		if (feat == FEAT_BROKEN) return (FALSE);
-
-		/* Shop entrances */
-		if ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL))
-			return (FALSE);
-	}
-
-	/* Assume that walls are not OK and non-walls are */
-	return (!wall);
-}
-
-
 /*
  * List of object categories and (short) names.
  */
@@ -5338,7 +5115,7 @@ void display_nearby_objects(void)
 		o_name[39] = '\0';
 
 		/* Save object description */
-		my_strcpy(nearby_o_count[total_count].o_name, o_name,
+		(void)my_strcpy(nearby_o_count[total_count].o_name, o_name,
 			sizeof(nearby_o_count[total_count].o_name));
 
 		/* Go to next object */
