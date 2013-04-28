@@ -1073,7 +1073,7 @@ static int can_raise_skill(int skill, bool verbose, int auto_raise)
 	int lev = p_ptr->pskills[skill].max;
 
 	/* Cap maximum power at 100 -JM */
-	if (calc_max_power() == PY_MAX_POWER)
+	if (calc_max_power() == PY_MAX_POWER && !no_skill_cap)
 	{
 		if (verbose) prt("You need no more practice.",18,2);
 		return (-1);
@@ -1902,6 +1902,161 @@ static int adv_skill(int skill, bool pay_exp)
 	return (TRUE);
 }
 
+void prt_oath_message()
+{
+	switch (p_ptr->oath)
+	{
+		case OATH_OF_SORCERY:
+			skill_msg(TERM_RED, "The Oath of Sorcery is binding!");
+			break;
+		case YAVANNAS_FELLOWSHIP:
+			skill_msg(TERM_RED, "You cannot abandon the mystic ways of the Yavanna's Fellowship!");
+			break;
+		case COVENANT_OF_FAITH:
+			skill_msg(TERM_RED, "You cannot abandon the Covenant of Faith!");
+			break;
+		case BLACK_MYSTERY:
+			skill_msg(TERM_RED, "The Black Mystery cannot be undone!");
+			break;
+		case OATH_OF_IRON:
+			skill_msg(TERM_RED, "You cannot unlearn the secrets of the Oath of Iron!");
+			break;
+		case BURGLARS_GUILD:
+			skill_msg(TERM_RED, "Once a thief, always a thief.  The guild brooks no traitors!");
+			break;
+		default:
+			break;
+	}
+	(void)inkey(ALLOW_CLICK);
+}
+
+static bool can_reduce_skill(int skill, bool verbose)
+{
+	int martial_skills = 0;
+	int level = get_skill(skill, 0, 100);
+
+	if (level == 0) return (FALSE);
+
+	/* Check and make sure we don't invalidate any oathes */
+	switch (skill)
+	{
+		case S_SWORD:
+		case S_HAFTED:
+		case S_POLEARM:
+		case S_CROSSBOW:
+		case S_BOW:
+		case S_SLING:
+		case S_THROWING:
+		case S_WRESTLING:
+		case S_KARATE:
+			if (p_ptr->oath & OATH_OF_IRON)
+			{
+				if (level == OATH_OF_IRON_REQ)
+				{
+					if (get_skill(S_SWORD, 0, 100) >= OATH_OF_IRON_REQ) martial_skills++;
+					if (get_skill(S_HAFTED, 0, 100) >= OATH_OF_IRON_REQ) martial_skills++;
+					if (get_skill(S_POLEARM, 0, 100) >= OATH_OF_IRON_REQ) martial_skills++;
+					if (get_skill(S_CROSSBOW, 0, 100) >= OATH_OF_IRON_REQ) martial_skills++;
+					if (get_skill(S_BOW, 0, 100) >= OATH_OF_IRON_REQ) martial_skills++;
+					if (get_skill(S_SLING, 0, 100) >= OATH_OF_IRON_REQ) martial_skills++;
+					if (get_skill(S_THROWING, 0, 100) >= OATH_OF_IRON_REQ) martial_skills++;
+					if (get_skill(S_WRESTLING, 0, 100) >= OATH_OF_IRON_REQ) martial_skills++;
+					if (get_skill(S_KARATE, 0, 100) >= OATH_OF_IRON_REQ) martial_skills++;
+
+					/* Make sure at least one other skill satisfies the oath */
+					if (martial_skills >= 2) 	return (TRUE);
+					else
+					{
+						if (verbose) prt_oath_message();
+						return (FALSE);
+					}
+				}
+			}
+
+		case S_MAGIC:
+			if (level == 1)
+			{
+				if (oath_caster)
+				{
+					if (verbose) prt_oath_message();
+					return (FALSE);
+				}
+				p_ptr->realm = 0;
+			}
+			return (TRUE);
+			break;
+		case S_WIZARDRY:
+			if (oath_caster && (level == MAGIC_OATH_REQ) && p_ptr->realm == MAGE)
+			{
+				if (verbose) prt_oath_message();
+				return (FALSE);
+			}
+			return (TRUE);
+			break;
+		case S_DOMINION:
+			if (oath_caster && (level == MAGIC_OATH_REQ) && p_ptr->realm == NECRO)
+			{
+				if (verbose) prt_oath_message();
+				return (FALSE);
+			}
+			return (TRUE);
+			break;
+		case S_NATURE:
+			if (oath_caster && (level == MAGIC_OATH_REQ) && p_ptr->realm == DRUID)
+			{
+				if (verbose) prt_oath_message();
+				return (FALSE);
+			}
+			return (TRUE);
+			break;
+		case S_PIETY:
+			if (oath_caster && (level == MAGIC_OATH_REQ) && p_ptr->realm == PRIEST)
+			{
+				if (verbose) prt_oath_message();
+				return (FALSE);
+			}
+			return (TRUE);
+			break;
+		case S_BURGLARY:
+			if ((p_ptr->oath & BURGLARS_GUILD) && (level == LEV_REQ_GUILD))
+			{
+				if (verbose) prt_oath_message();
+				return (FALSE);
+			}
+		default:
+			return (TRUE);
+			break;
+	}
+
+	return (TRUE);
+}
+
+static bool reduce_skill(int skill, bool refund_exp)
+{
+	int exp, level;
+
+	if (!can_reduce_skill(skill, TRUE)) return (FALSE);
+
+	/* Reduce current skill if necessary */
+	if (p_ptr->pskills[skill].cur == p_ptr->pskills[skill].max)
+		p_ptr->pskills[skill].cur = p_ptr->pskills[skill].cur - 1;
+
+	/* Reduce maximum skill */
+	p_ptr->pskills[skill].max = p_ptr->pskills[skill].max - 1;
+
+	/* Refund experience if necessary */
+	if (refund_exp)
+	{
+		level = p_ptr->pskills[skill].max;
+		exp = adv_cost(skill, FALSE);
+		p_ptr->exp += exp;
+	}
+
+	/* Recalculate character power */
+	calc_power();
+
+	return (TRUE);
+}
 
 
 /*
@@ -2795,7 +2950,7 @@ void do_cmd_skills(void)
 	old_exp = p_ptr->exp;
 	old_oath = p_ptr->oath;
 	old_realm = p_ptr->realm;
-	old_power = p_ptr->power;
+	old_power = calc_max_power();
 
 
 	/* Continue until satisfied */
@@ -2951,6 +3106,23 @@ void do_cmd_skills(void)
 			continue;
 		}
 
+		/* Allow player to voluntarily reduce skill */
+		if (ch == '-' || ch == '_')
+		{
+			/* Refund skills when reducing skills raised on the char screen */
+			/* Note -- this can result in gaining or losing experience artificially, as the order that skills are raised matters */
+			/*         however, this is unlikely except at low levels with high amounts of experience to spend. */
+			bool refund = (p_ptr->pskills[selected].max > old_pskills[selected].max)? TRUE : FALSE;
+
+			/* Reduce the skill, and update information */
+			if (reduce_skill(selected, refund))
+			{
+				if (p_ptr->exp > old_exp) p_ptr->exp = old_exp;  /* Make it harder to for players to cycle skills up/down for experience */
+				prt_skill_rank(selected);
+			}
+			continue;
+		}
+
 		/* Some keys are only used to clear messages */
 		if (ch == ' ')
 		{
@@ -3040,7 +3212,7 @@ void do_cmd_skills(void)
 
 	/* Note any changes in power */
 	old_ten_power = (old_power ) / 10;
-	ten_power = (p_ptr->power) / 10;
+	ten_power = (calc_max_power()) / 10;
 	if (old_ten_power < ten_power)
     {
         strnfmt(buf, sizeof(buf), "Reached power %d", ten_power * 10);

@@ -28,6 +28,7 @@ OBJS = \
   effects.o \
   files.o \
   generate.o \
+  history.o \
   info.o \
   init1.o \
   init2.o \

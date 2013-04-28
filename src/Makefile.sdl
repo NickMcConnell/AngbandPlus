@@ -118,7 +118,7 @@
 SRCS = \
   attack.c birth.c cave.c cmd1.c cmd2.c \
   cmd3.c cmd4.c cmd5.c cmd6.c \
-  dungeon.c effects.c files.c generate.c info.c init1.c \
+  dungeon.c effects.c files.c generate.c history.c info.c init1.c \
   init2.c loadsave.c monattk.c monmove.c \
   monster1.c monster2.c obj_make.c object1.c \
   object2.c quest.c randart.c skills.c spells1.c \
@@ -131,7 +131,7 @@ SRCS = \
 OBJS = \
   attack.o birth.o cave.o cmd1.o cmd2.o \
   cmd3.o cmd4.o cmd5.o cmd6.o \
-  dungeon.o effects.o files.o generate.o info.o init1.o \
+  dungeon.o effects.o files.o generate.o history.o info.o init1.o \
   init2.o loadsave.o monattk.o monmove.o \
   monster1.o monster2.o obj_make.o object1.o \
   object2.o quest.o randart.o skills.o spells1.o \

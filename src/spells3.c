@@ -3159,6 +3159,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 
 	int feel;
 	int old_inscrip = o_ptr->inscrip;
+	int skill;
 
 	u32b f1, f2, f3;
 
@@ -3167,7 +3168,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk)) return;
 
 	/* Need to be able to look at the object */
-	if ((p_ptr->blind) || (no_light())) return;
+	if ((p_ptr->blind) || (no_light() && (p_ptr->see_infra <= 0))) return;
 
 	/* Object is already known */
 	if (object_known_p(o_ptr)) return;
@@ -3264,62 +3265,54 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	/* Otherwise, object must be a weapon or armor */
 	if (!is_wargear(o_ptr)) return;
 
+	/* For wargear, level is drop level */
+	level = o_ptr->drop_depth;
+	skill = get_skill(S_PERCEPTION, 0, 100);
 
 	/* Get base chance.  Gains are rapid early on, less rapid later */
-	chance = rsqrt(get_skill(S_PERCEPTION, 0, 4900)) + aware - level / 5;
+	chance = 10 + rsqrt(get_skill(S_PERCEPTION, 0, 4900)) + aware;
+
+	/* Keeping perception up to date is very useful */
+	if (skill > level) chance += 3 * rsqrt(skill - level);
+	else               chance -= 2 * rsqrt(level - skill);
+
+	if (chance < 0) chance = 0;
 
 	/* Chance is improved if we're using strong sensing */
 	if (strong) chance += 30;
 
-	/* Roll for "heavy" sensing */
-	if (chance >= rand_range(65, 70)) heavy = TRUE;
-
-	/* Suppress messages if very skilled  -SKY- */
-	if (get_skill(S_PERCEPTION, 0, 100) >= 90) suppress_msg = TRUE;
-
-	/* Those who have taken the Oath of Iron are great at IDing wargear */
-	if (p_ptr->oath & (OATH_OF_IRON))
-	{
-		chance = 4 * chance / 3 + 10;
-
-		/* Warriors can instantly identify equipped wargear in some cases */
-		if ((heavy) && (strong) && (slot >= INVEN_WIELD)) full = TRUE;
-
-		/* They usually get heavy sensing (always when forced strong) */
-		else if (chance >= 50) heavy = TRUE;
-	}
-
-	/* Those who have no magic realm are also fairly good */
-	else if (!p_ptr->realm)
-	{
-		chance = 4 * chance / 3;
-	}
-
-	/* Option to require heavy sensing */
-	if ((force_heavy) && (!full)) heavy = TRUE;
-
-
 	/* Get object flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Brands are hard to miss */
+	if (f1 & TR1_BRAND_MASK) chance += 20;
 
 	/* Object has a pval - increase sensing chance */
 	if (get_object_pval(o_ptr, 0L)) chance += 20;
 
+	/* Those who have taken the Oath of Iron are great at IDing wargear */
+	if (p_ptr->oath & (OATH_OF_IRON)) chance = 4 * chance / 3 + 10;
 
-	/* Brands are hard to miss */
-	if (f1 & (TR1_BRAND_FIRE | TR1_BRAND_ACID | TR1_BRAND_ELEC |
-	          TR1_BRAND_COLD | TR1_BRAND_POIS | TR1_BRAND_FLAME |
-	          TR1_BRAND_VENOM))
-	{
-		chance += 50;
-		if (chance < 90) chance = 90;
-	}
+	/* Those who have no magic realm are also fairly good */
+	else if (!p_ptr->realm)	chance = 4 * chance / 3;
 
+	/* Roll for "heavy" sensing */
+	if (chance >= rand_range(40, 80)) heavy = TRUE;
+
+
+	/* Adjustments to chance that doesn't determine heaviness of sensing */
 	/* Holy alliance helps reveal bless & curse  -clefs- */
-	if (cursed_p(o_ptr) || (f3 & (TR3_BLESSED)))
-	{
-		chance += rsqrt(get_skill(S_PIETY, 0, 2500));
-	}
+	if (cursed_p(o_ptr) || (f3 & (TR3_BLESSED))) chance += rsqrt(get_skill(S_PIETY, 0, 900));
+
+	/* Warriors always sense strongly */
+	if (p_ptr->oath & OATH_OF_IRON)	strong = TRUE;
+
+	/* Option to require heavy sensing */
+	if ((force_heavy) && (!full)) heavy = TRUE;
+
+	/* Can fully identify if strongly sensing with a heavy feeling */
+	if (heavy && strong) full = TRUE;
+
 
 	/* Didn't get more information */
 	if (chance < randint(100))
@@ -3444,6 +3437,9 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 			if (heavy) feel = INSCRIP_AVERAGE;
 			else       feel = INSCRIP_UNCERTAIN;
 		}
+
+		/* Suppress messages if very skilled  -SKY- */
+		if (skill >= 90) suppress_msg = TRUE;
 
 		/* We got a definite feeling, and are not suppressing messages */
 		if ((feel != INSCRIP_UNCERTAIN) && (feel != old_inscrip) &&

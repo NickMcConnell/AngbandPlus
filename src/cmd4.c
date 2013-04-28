@@ -1602,6 +1602,8 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 		/* Allow direction and roguelike keys */
 		get_ui_direction(&ch, UI_NODIAG, &dummy);
 
+		/* Clear out any lingering messages */
+		prt("", 24, 2);
 
 		/* Analyze */
 		switch (ch)
@@ -1657,6 +1659,12 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 			case 'n':
 			case '4':
 			{
+				if (opt[k] == OPT_no_skill_cap && calc_max_power() == 100)
+				{
+					prt("You cannot turn this option off once you have reached power 100.", 24, 2);
+					break;
+				}
+
 				op_ptr->opt[opt[k]] = FALSE;
 
 				*modified = TRUE;
@@ -3287,7 +3295,7 @@ void do_cmd_visuals(char cmd)
 	int i;
 
 	/* Allow automatic usage */
-	bool automatic = isdigit(cmd);
+	bool automatic = (isdigit(cmd) > 0);
 
 	char mark[DESC_LEN];
 

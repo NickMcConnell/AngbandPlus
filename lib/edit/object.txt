@@ -3382,6 +3382,7 @@ W:2:0:10:0
 A:2/75:25/0
 C:0:1d1:0:0:0
 E:LIFE 1
+F:EASY_ACTIVATE
 D:that heals a foe.
 
 N:456:Haste Monster
@@ -3391,6 +3392,7 @@ W:3:0:10:0
 A:3/75:25/0
 C:0:1d1:0:0:0
 E:TIME 1
+F:EASY_ACTIVATE
 D:that energizes a foe.
 
 N:457:Clone Monster
@@ -3400,6 +3402,7 @@ W:5:0:10:0
 A:5/75:25/0
 C:0:1d1:0:0:0
 E:MAGIC 1
+F:EASY_ACTIVATE
 D:that duplicates most foes.
 
 # Rarer now, because it is so powerful
@@ -3428,6 +3431,7 @@ W:10:0:10:300
 A:10/10:20/50:60/10
 C:0:1d1:0:0:0
 E:FORCE 1
+F:EASY_ACTIVATE
 D:that smashes open locked and jammed doors, and magically closes and spikes 
 D:other unbroken doors.  When unbarring, the magic may fail on strongly bound 
 D:doors.  When magically spiking, the door becomes partially jammed; adding 
@@ -3440,6 +3444,7 @@ W:10:0:10:300
 A:10/50:60/10
 C:0:1d1:0:0:0
 E:FORCE 1
+F:EASY_ACTIVATE
 D:that instantly melts earthen material.
 
 N:462:Light
@@ -3715,6 +3720,7 @@ W:5:0:50:0
 A:5/75:35/20
 C:10:1d2:0:0:0
 E:DARK 1
+F:EASY_ACTIVATE
 D:that douses the lights in the immediate area.
 
 N:501:Slowness
@@ -3724,6 +3730,7 @@ W:48:0:50:0
 A:48/75:100/0
 C:10:1d2:0:0:0
 E:TIME 1
+F:EASY_ACTIVATE
 D:that temporarily saps your energy.
 
 N:502:Haste Monsters
@@ -3733,6 +3740,7 @@ W:10:0:50:0
 A:10/75:100/0
 C:10:1d2:0:0:0
 E:TIME 1
+F:EASY_ACTIVATE
 D:that energizes all nearby opponents.
 
 N:503:Summoning
@@ -3742,6 +3750,7 @@ W:50:0:50:0
 A:50/75:100/0
 C:10:1d2:0:0:0
 E:LIFE 1
+F:EASY_ACTIVATE
 D:that summons more enemies for you to fight.
 
 N:504:Teleportation
@@ -3751,6 +3760,7 @@ W:35:0:50:1500
 A:35/75:60/100:100/40
 C:10:1d2:0:0:0
 E:NEXUS 1
+F:EASY_ACTIVATE
 D:that can teleport you across the dungeon.
 
 N:505:Perception
@@ -3760,6 +3770,7 @@ W:10:0:50:600
 A:10/50:30/75
 C:10:1d2:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that provides basic information about any object.
 
 N:506:Remove Curse
@@ -3769,6 +3780,7 @@ W:10:0:50:600
 A:10/25:50/0
 C:10:1d2:0:0:0
 E:BLESSING 1
+F:EASY_ACTIVATE
 D:with many spells to break ordinary curses.
 
 N:507:Starlight
@@ -3788,6 +3800,7 @@ W:6:0:50:250
 A:6/75:30/0
 C:10:1d2:0:0:0
 E:LIGHT 1
+F:EASY_ACTIVATE
 D:that magically illuminates a room or a torch-lit area.
 
 N:509:Dungeon Mapping
@@ -3797,6 +3810,7 @@ W:20:0:50:900
 A:20/75:80/0
 C:10:1d2:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals the walls and terrain of the local area, and reveals doors 
 D:and stairs.
 
@@ -3807,6 +3821,7 @@ W:5:0:50:200
 A:5/75:60/0
 C:10:1d2:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that makes mining very profitable.
 
 N:511:Object Location
@@ -3816,6 +3831,7 @@ W:5:0:50:200
 A:5/75:60/0
 C:10:1d2:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals objects nearby.
 
 N:512:Trap Location
@@ -3834,6 +3850,7 @@ W:8:0:50:300
 A:8/75:50/0
 C:10:1d2:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals doors and stairs nearby.
 
 N:514:Detect Invisible
@@ -3843,6 +3860,7 @@ W:5:0:50:200
 A:5/75:20/75:50/0
 C:10:1d2:0:0:0
 E:DARK 1
+F:EASY_ACTIVATE
 D:that reveals monsters unseen by ordinary sight.
 
 N:515:Detect Evil
@@ -3852,6 +3870,7 @@ W:20:0:50:350
 A:20/75:100/0
 C:10:1d2:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals evil creatures nearby.
 
 N:516:Cure Medium Wounds
@@ -3917,6 +3936,7 @@ W:20:0:50:1100
 A:20/50:70/30
 C:10:1d2:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals your opponents' hidden strengths and weaknesses.
 
 N:524:Dispel Evil
@@ -3974,6 +3994,7 @@ W:45:0:50:2500
 A:45/50:100/30
 C:10:1d2:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals objects, monsters, and special features.
 
 N:531:Doomspells
@@ -4037,6 +4058,7 @@ W:10:0:15:700
 A:10/30:40/30:75/5
 C:5:1d1:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals traps.
 
 N:569:Door/Stair Location
@@ -4046,6 +4068,7 @@ W:10:0:15:700
 A:10/30:40/30:75/5
 C:5:1d1:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals doors and stairs.
 
 N:570:Perception
@@ -4055,6 +4078,7 @@ W:55:0:15:13000
 A:55/8
 C:10:1d1:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that provides basic information about any object.
 
 N:571:Recall
@@ -4064,6 +4088,7 @@ W:35:0:15:4000
 A:35/25
 C:20:1d1:0:0:0
 E:NEXUS 1
+F:EASY_ACTIVATE
 D:that recalls you back to town, or to the deepest spot you've been in the 
 D:dungeon.
 
@@ -4075,6 +4100,7 @@ W:5:0:15:800
 A:15/50:45/50:65/10
 C:5:1d1:0:0:0
 E:LIGHT 1
+F:EASY_ACTIVATE
 D:that magically lights up a room or your immediate surroundings.
 
 N:573:Sense Surroundings
@@ -4084,6 +4110,7 @@ W:40:0:15:3000
 A:40/50:100/20
 C:10:1d1:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals the local terrain.
 
 ## XXX 574 XXX (only available non-aimed rod svals are 6 and 12) ##
@@ -4095,6 +4122,7 @@ W:60:0:15:5000
 A:60/20
 C:10:1d1:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals the hidden strengths and weaknesses of foes.
 
 N:576:Curing
@@ -4104,6 +4132,7 @@ W:65:0:15:8000
 A:65/8
 C:10:1d1:0:0:0
 E:LIFE 1
+F:EASY_ACTIVATE
 D:that removes a variety of specialized ailments.
 
 N:577:Healing
@@ -4169,6 +4198,7 @@ W:20:0:15:1100
 A:20/30:40/30:50/10
 C:10:1d1:0:0:0
 E:NEXUS 1
+F:EASY_ACTIVATE
 D:that shifts you a short distance.
 
 N:585:Summon Hither
@@ -4178,6 +4208,7 @@ W:22:0:15:1500
 A:22/25:42/25:55/5
 C:5:1d1:0:0:0
 E:NEXUS 1
+F:EASY_ACTIVATE
 D:that attempts to both teleport a monster next to you and slow it down 
 D:momentarily.
 

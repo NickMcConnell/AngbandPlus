@@ -1793,11 +1793,12 @@ void do_cmd_browse(void)
  */
 bool item_tester_hook_book(const object_type *o_ptr)
 {
-    /* Require either light or a book with glowing words */
-    if (!no_light() || (o_ptr->flags2 & TR2_GLOW_WORDS))
-    {
-        return (TRUE);
-    }
+	/* Require either light or a book with glowing words */
+	if (!no_light() || (o_ptr->flags2 & TR2_GLOW_WORDS))
+ 	{
+		return (TRUE);
+	}
+	return (FALSE);
 }
 
 
@@ -5588,7 +5589,7 @@ cptr do_spell(int mode, int spell)
 					msg_print("Mind-warping forces emanate from your brain!");
 
 					/* Engage all viewable monsters in mental combat */
-					project_los(p_ptr->py, p_ptr->px, GF_PSI, pow);
+					project_los(p_ptr->py, p_ptr->px, pow, GF_PSI);
 				}
 				break;
 			}

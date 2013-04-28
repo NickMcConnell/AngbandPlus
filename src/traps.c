@@ -1090,6 +1090,8 @@ int load_trap(int y, int x)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+	bool correct_launcher = FALSE;
+
 	s16b this_o_idx, next_o_idx = 0;
 
 
@@ -1227,8 +1229,31 @@ int load_trap(int y, int x)
 					if (object_similar(j_ptr, o_ptr)) can_combine = TRUE;
 				}
 
-				/* Require combination */
-				if (!can_combine)
+				/* Check to see if this is the appropriate launcher for all the ammo in the trap */
+				if (is_missile_weapon(o_ptr))
+				{
+					int ammo_tval;
+
+					if (o_ptr->tval == TV_SLING)    ammo_tval = TV_SHOT;
+					if (o_ptr->tval == TV_BOW)      ammo_tval = TV_ARROW;
+					if (o_ptr->tval == TV_CROSSBOW) ammo_tval = TV_BOLT;
+
+					correct_launcher = TRUE;
+					for (this_o_idx = t_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+					{
+						object_type *j_ptr = &o_list[this_o_idx];
+
+						if (j_ptr->tval != ammo_tval)
+						{
+							correct_launcher = FALSE;
+							break;
+						}
+						next_o_idx = j_ptr->next_o_idx;
+					}
+				}
+
+				/* Require suitable object */
+				if (!can_combine && !correct_launcher)
 				{
 					msg_print("Traps can usually contain only one type of object.");
 					message_flush();
@@ -1239,6 +1264,7 @@ int load_trap(int y, int x)
 			/* Determine how many items we wish to load the trap with */
 			if (o_ptr->number > 1)
 			{
+				get_quantity_default = o_ptr->number;
 				i = (int)get_quantity(format("How many items (0-%d)?", o_ptr->number), 0, o_ptr->number);
 
 				/* Cancel */
@@ -1313,8 +1339,6 @@ int load_trap(int y, int x)
 				/* Object will be held by the trap */
 				j_ptr->held_m_idx = -(idx);
 
-				/* Object goes to the bottom of the pile */
-				j_ptr->next_o_idx = 0;
 
 
 				/* Trap has no objects yet */
@@ -1322,8 +1346,20 @@ int load_trap(int y, int x)
 				{
 					/* Link the trap to the object */
 					t_ptr->hold_o_idx = o_idx;
-				}
 
+					/* Object goes to the bottom of the pile */
+					j_ptr->next_o_idx = 0;
+				}
+				/* Trap is gaining a launcher, which must come first */
+				else if (correct_launcher)
+				{
+					/* First item becomes second item */
+					j_ptr->next_o_idx = t_ptr->hold_o_idx;
+
+					/* Launcher becomes first item in trap */
+					t_ptr->hold_o_idx = o_idx;
+
+				}
 				/* Trap has objects */
 				else
 				{
@@ -1342,6 +1378,9 @@ int load_trap(int y, int x)
 							/* Done */
 							break;
 						}
+
+						/* Object goes to the bottom of the pile */
+						j_ptr->next_o_idx = 0;
 
 						/* Get the next object */
 						next_o_idx = o_ptr->next_o_idx;
@@ -1874,8 +1913,8 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 					/* Delete this stack of objects from the trap */
 					if (!i_ptr->number)
 					{
-						/* Trap is now linked to the second object (if any) */
-						t_ptr->hold_o_idx = i_ptr->next_o_idx;
+						/* Skip over the empty stack */
+						o_ptr->next_o_idx = i_ptr->next_o_idx;
 
 						/* Wipe the object */
 						object_wipe(i_ptr);

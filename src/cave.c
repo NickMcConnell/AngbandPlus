@@ -2906,8 +2906,8 @@ void forget_view(void)
 		y = GRID_Y(g);
 		x = GRID_X(g);
 
-		/* Clear "CAVE_VIEW", "CAVE_SEEN", and "CAVE_FIRE" flags */
-		fast_cave_info[g] &= ~(CAVE_VIEW | CAVE_SEEN | CAVE_FIRE);
+		/* Clear "CAVE_VIEW", "CAVE_SEEN", "CAVE_INFR", and "CAVE_FIRE" flags */
+		fast_cave_info[g] &= ~(CAVE_VIEW | CAVE_SEEN | CAVE_INFR | CAVE_FIRE);
 
 		/* Redraw */
 		lite_spot(y, x);
@@ -3056,7 +3056,7 @@ void forget_view(void)
 		}
 
 		/* Clear "CAVE_VIEW", "CAVE_SEEN", and "CAVE_FIRE" flags */
-		info &= ~(CAVE_VIEW | CAVE_SEEN | CAVE_FIRE);
+		info &= ~(CAVE_VIEW | CAVE_SEEN | CAVE_INFR | CAVE_FIRE);
 
 		/* Save cave info */
 		fast_cave_info[g] = info;
@@ -3226,12 +3226,6 @@ void forget_view(void)
 							/* Mark as "CAVE_SEEN" */
 							info |= (CAVE_SEEN);
 						}
-						else if (p->d < infra)
-						{
-							/* Mark as noticed */
-							info |= (CAVE_INFR);
-						}
-
 
 						/* Perma-lit or temporarily lit grids */
 						else if (info & (CAVE_GLOW | CAVE_LITE))
@@ -3254,6 +3248,13 @@ void forget_view(void)
 								/* Mark as seen */
 								info |= (CAVE_SEEN);
 							}
+						}
+
+						/* Mark unseen grids with infravision if seen */
+						if (!(info & (CAVE_SEEN)) & p->d < infra)
+						{
+							/* Mark as noticed */
+							info |= (CAVE_INFR);
 						}
 
 						/* Save in array */

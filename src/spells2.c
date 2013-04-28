@@ -670,7 +670,7 @@ bool beam_burst(int y, int x, int typ, int num, int dam)
 
 		/* Fire a beam of (strong) light towards it */
 		if (project(-1, 0, y, x, yy, xx, dam, typ,
-			PROJECT_BEAM | PROJECT_KILL, 0, 0)) notice = TRUE;
+			PROJECT_BEAM | PROJECT_KILL | PROJECT_GRID, 0, 0)) notice = TRUE;
 	}
 
 	/* Restore standard delay */

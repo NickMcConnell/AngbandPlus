@@ -843,9 +843,6 @@ void player_wipe(bool full)
 	/* And does not use multiple lives  XXX */
 	op_ptr->opt[OPT_beginner_play] = FALSE;
 
-	/* Clear the history */
-	history_clear();
-
 	/* The below is only done when needed */
 	if (!full) return;
 
@@ -2108,8 +2105,12 @@ bool player_birth(void)
 
 	p_ptr->specialty = SPECIALTY_NONE;
 
-	/* Record a prosperous beginning */
-	history_add("Started the adventure of a lifetime", HISTORY_PLAYER_BIRTH, 0);
+	/* Record a random beginning */
+	history_clear();
+	if (one_in_(4)) 		history_add("Started the adventure of a lifetime.", HISTORY_PLAYER_BIRTH, 0);
+	else if (one_in_(3)) 	history_add("Swore a blood oath to defeat Morgoth.", HISTORY_PLAYER_BIRTH, 0);
+	else if (one_in_(2))	history_add("Tries to figure out what all the fuss is about down the stairs.", HISTORY_PLAYER_BIRTH, 0);
+	else					history_add("Takes his last practice swing.", HISTORY_PLAYER_BIRTH, 0);
 
 	/* Restore previous display */
 	display_change(DSP_RESTORE, 0, 0);

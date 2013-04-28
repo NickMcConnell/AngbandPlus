@@ -4278,6 +4278,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		if (equip_num == 1) *cp = e1;
 		if (inven_num == 1) *cp = i1;
 		if (floor_num == 1) *cp = 0 - floor_list[0];
+
+		item_tester_hook = NULL;
 		return (TRUE);
 	}
 

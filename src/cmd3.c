@@ -259,14 +259,7 @@ static bool activate_hidden_curse(object_type *o_ptr)
 	 * If the object is a weapon with slays or brands, it has a 50% chance
 	 * of simply gaining an unannounced curse.  See "dungeon.c".
 	 */
-	if ((is_any_weapon(o_ptr)) &&
-	    (f1 & (TR1_SLAY_ANIMAL | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD |
-		       TR1_SLAY_DEMON | TR1_SLAY_ORC | TR1_SLAY_TROLL |
-	           TR1_SLAY_GIANT | TR1_SLAY_DRAGON | TR1_KILL_DRAGON |
-	           TR1_BRAND_FIRE | TR1_BRAND_ACID | TR1_BRAND_ELEC |
-	           TR1_BRAND_COLD | TR1_BRAND_POIS | TR1_BRAND_FLAME |
-	           TR1_BRAND_VENOM)) &&
-	    (one_in_(2)))
+	if (is_any_weapon(o_ptr) && ((f1 & TR1_BRAND_MASK) || (f1 & TR1_SLAY_MASK)) && (one_in_(2)))
 	{
 		/* Remove the hidden curse */
 		o_ptr->flags3 &= ~(TR3_CURSE_HIDDEN);
@@ -278,9 +271,29 @@ static bool activate_hidden_curse(object_type *o_ptr)
 		return (TRUE);
 	}
 
+	/* 25% chance for weapons to gain a nasty flag */
+	if (is_any_weapon(o_ptr) && one_in_(2))
+	{
+		if      (one_in_(3)) o_ptr->flags3 |= TR3_SOULSTEAL;
+		else if (one_in_(2)) o_ptr->flags3 |= TR3_TELEPORT;
+		else                 o_ptr->flags3 |= TR3_AGGRAVATE;
+		return (TRUE);
+	}
 
+	/* 33% chance of armor to gain a nasty flag */
+	if (is_any_armor(o_ptr) && one_in_(3))
+	{
+		if      (one_in_(3)) o_ptr->flags3 |= TR3_DRAIN_HP;
+		else if (one_in_(2)) o_ptr->flags3 |= TR3_DRAIN_EXP;
+		else if (one_in_(2)) o_ptr->flags3 |= TR3_NOMAGIC;
+		else if (one_in_(2)) o_ptr->flags3 |= TR3_TELEPORT;
+		else                 o_ptr->flags3 |= TR3_AGGRAVATE;
+
+		return (TRUE);
+
+	}
 	/* The object horribly mutates!  (keep equipping on failure) */
-	if (!make_cursed_ego_item(o_ptr)) return (TRUE);
+	else if (!make_cursed_ego_item(o_ptr)) return (TRUE);
 
 
 	/* Identify the object XXX XXX */
@@ -409,7 +422,6 @@ void do_cmd_wield(void)
 	bool hidden_curse = FALSE;
 	bool replace_primary_weapon = FALSE;
 
-
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
 
@@ -446,10 +458,10 @@ void do_cmd_wield(void)
 		if (!get_item(&slot, q, s, USE_EQUIP)) return;
 	}
 
-	/* Ask for wield or quivering of throwing weapons */
+	/* Ask for wield or quivering of special throwing weapons, default to yes */
 	if ((is_melee_weapon(o_ptr)) && (f1 & (TR1_THROWING)))
 	{
-		if (!get_check("Put this throwing weapon in the quiver?"))
+		if (!get_check_default("Put this throwing weapon in the quiver?", TRUE))
 			slot = INVEN_WIELD;
 	}
 
@@ -629,6 +641,7 @@ void do_cmd_wield(void)
 		int ammo_num, add_num;
 
 		/* Get a quantity, save it */
+		get_quantity_default = o_ptr->number;
 		num = add_num = (int)get_quantity(NULL, 0, o_ptr->number);
 
 		/* Allow cancel */
@@ -669,6 +682,9 @@ void do_cmd_wield(void)
 			msg_print("Your quiver is full.");
 			return;
 		}
+
+		/* Remember that the item is quivered */
+		i_ptr->quivered = TRUE;
 
 		/* Quiver will be reorganized (again) later. */
 		p_ptr->notice |= (PN_COMBINE);
@@ -1206,7 +1222,6 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 		item_to_object(o_ptr, item);
 	}
 
-
 	/* Get the object kind. */
 	k_ptr = &k_info[o_ptr->k_idx];
 
@@ -1218,7 +1233,6 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 
 	/* Make singular */
 	i_ptr->number = 1;
-
 
 	/* Hack -- observe the contents of the pouch */
 	if ((i_ptr->tval == TV_POUCH) && (item >= 0))
@@ -1257,7 +1271,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 	if (mental)
 	{
 		/* Get the specific object type's information. */
-		object_info(info_text, i_ptr);
+		object_info(info_text, i_ptr, TRUE);
 
 		/* No object kind info. */
 		strcpy(object_kind_info, "");
@@ -1267,7 +1281,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 	else if ((known) || (aware))
 	{
 		/* Get the specific object type's information, if any. */
-		object_info(info_text, i_ptr);
+		object_info(info_text, i_ptr, object_aware_p(i_ptr));
 
 		/* Get information about the general object kind. */
 		(void)my_strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]),

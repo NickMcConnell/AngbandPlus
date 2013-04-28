@@ -1190,8 +1190,7 @@ void inn_purchase(int item)
 	if (item == -1) return;
 
 	/* Get added depth of monsters (no variance for very early quest) */
-	add_depth = ((p_ptr->max_depth <= 1) ? 2 : rand_range(2, 3));
-
+	add_depth = ((p_ptr->max_depth <= 2) ? 2 : rand_range(2, 5));
 
 	/* Get level for quest */
 	qlev = MAX(1, p_ptr->max_depth) + add_depth;

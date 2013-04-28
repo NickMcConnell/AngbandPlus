@@ -303,15 +303,18 @@ void do_cmd_search(void)
  * Alternatively, also return TRUE if any similar item in the
  * backpack is marked "=g".
  */
-static bool auto_pickup_okay(object_type *o_ptr, bool check_pack, bool pickup)
+static bool auto_pickup_okay(object_type *o_ptr, bool check_pack, bool pickup, bool quiver)
 {
 	cptr s;
 
 	/* It can't be carried */
-	if (!inven_carry_okay(o_ptr)) return (FALSE);
+	if (!inven_carry_okay(o_ptr) && (!quiver_carry_okay(o_ptr) || !quiver)) return (FALSE);
 
 	/* Option to vacuum up things on the floor (not recommended) */
 	if ((always_pickup) && (!query_floor) && (pickup)) return (TRUE);
+
+	/* Return quivered items to the quiver */
+	if (quiver && o_ptr->quivered && quiver_carry_okay(o_ptr)) return (TRUE);
 
 	/* Check inscription */
 	if (o_ptr->note)
@@ -379,9 +382,6 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 	int i;
 	u32b f1, f2, f3;
 
-	int ammo_num, added_ammo_num;
-	int attempted_quiver_slots;
-
 	bool blind = ((p_ptr->blind) || (no_light() && (p_ptr->see_infra == 0)));
 	bool autop;
 	int old_num;
@@ -398,30 +398,14 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 		return (FALSE);
 	}
 
-	/* Count number of missiles in the quiver slots */
-	ammo_num = quiver_count();
-
 	/* Check for autopickup (has to have a "=g" inscription) */
-	autop = auto_pickup_okay(o_ptr, FALSE, FALSE);
+	autop = auto_pickup_okay(o_ptr, FALSE, FALSE, TRUE);
 
 	/* Hack - Also allow autopickup when poisoning missiles already in the quiver */
 	if (o_idx == -1) autop = (TRUE);
 
 	/* No missiles to combine with and no autopickup. */
-	if (!ammo_num & !autop) return (FALSE);
-
-	/* Get the new item's quiver size */
-	added_ammo_num = quiver_count_item(o_ptr, o_ptr->number);
-
-	/* How many quiver slots would be needed */
-	attempted_quiver_slots = ((ammo_num + added_ammo_num + 98) / 99);
-
-	/* Is there room, given normal inventory? */
-	if (attempted_quiver_slots + p_ptr->inven_cnt > INVEN_PACK)
-	{
-		return (FALSE);
-	}
-
+	if (!autop) return (FALSE);
 
 	/* Check quiver for similar objects or empty space. */
 	for (i = INVEN_Q1; i <= INVEN_Q0; i++)
@@ -881,7 +865,7 @@ byte py_pickup(int pickup)
 		}
 
 		/* Automatically pick up some items into the backpack */
-		if ((p_ptr->auto_pickup_okay) && (auto_pickup_okay(o_ptr, TRUE, pickup)))
+		if ((p_ptr->auto_pickup_okay) && (auto_pickup_okay(o_ptr, TRUE, pickup, FALSE)))
 		{
 			/* Pick up the object (with a message) */
 			py_pickup_aux(this_o_idx, TRUE);

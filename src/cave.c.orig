@@ -784,7 +784,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 
 	/* Grid is memorized (or seen) */
-	else if ((info & (CAVE_MARK)) || (info & (CAVE_SEEN)))
+	else if ((info & (CAVE_MARK)) || (info & (CAVE_SEEN)) || (info & (CAVE_INFR)))
 	{
 		/* Get this feature */
 		f_ptr = &f_info[feat];
@@ -803,33 +803,33 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			a = f_ptr->x_attr;
 			c = f_ptr->x_char;
 		}
-
 		/* Lighting:  Grid is not seen, or we are blind */
-		else if (!(info & (CAVE_SEEN)) || (p_ptr->blind))
+		else if ((!(info & (CAVE_SEEN))) || (p_ptr->blind))
 		{
 			/* Use dark colors and shaded picts */
 			a = f_ptr->x_attr_dim;
 			c = f_ptr->x_char_dim;
 		}
+		else if (info & CAVE_GLOW)
+		{
+			/* Normal attr/char */
+			a = f_ptr->x_attr;
+			c = f_ptr->x_char;
+			char;
+		}
+		else if ((f_ptr->flags & (TF_TORCH_ONLY)) && torch_light)
+		{
+			/* Normal attr/char */
+			a = f_ptr->x_attr;
+			c = f_ptr->x_char;
+		}
 
 		/* Lighting:  Grid is seen, and we have turned on special torch light */
 		else if (torch_light)
 		{
-			/* Some terrain does not brighten up under permanent light */
-			if ((f_ptr->flags & (TF_TORCH_ONLY)) && (info & (CAVE_GLOW)))
-			{
-				/* Normal attr/char */
-				a = f_ptr->x_attr;
-				c = f_ptr->x_char;
-			}
-
-			/* All other terrain always brightens up */
-			else
-			{
-				/* Use bright colors and picts */
-				a = f_ptr->x_attr_lit;
-				c = f_ptr->x_char_lit;
-			}
+			/* Use bright colors and picts */
+			a = f_ptr->x_attr_lit;
+			c = f_ptr->x_char_lit;
 		}
 
 		/* Lighting:  no special conditions */
@@ -1197,8 +1197,8 @@ void note_spot(int y, int x)
 	/* Get cave info */
 	info = cave_info[y][x];
 
-	/* Require "mark" flag */
-	if (!(info & (CAVE_MARK))) return;
+	/* Require "seen" or "infr" flag */
+	if (!(info & (CAVE_SEEN)) && !(info & (CAVE_INFR))) return;
 
 
 	/* Hack -- memorize objects */
@@ -3047,7 +3047,7 @@ void forget_view(void)
 		info = fast_cave_info[g];
 
 		/* Save "CAVE_SEEN" grids */
-		if (info & (CAVE_SEEN))
+		if ((info & (CAVE_SEEN)) || (info & (CAVE_INFR)))
 		{
 			/* Set "CAVE_TEMP" flag */
 			info |= (CAVE_TEMP);
@@ -3227,11 +3227,6 @@ void forget_view(void)
 							/* Mark as "CAVE_SEEN" */
 							info |= (CAVE_SEEN);
 						}
-						else if (p->d < infra)
-						{
-							/* Mark as noticed */
-							info |= (CAVE_MARK);
-						}
 
 
 						/* Perma-lit or temporarily lit grids */
@@ -3255,6 +3250,11 @@ void forget_view(void)
 								/* Mark as seen */
 								info |= (CAVE_SEEN);
 							}
+						}
+						else if (p->d < infra)
+						{
+							/* Mark as noticed */
+							info |= (CAVE_INFR);
 						}
 
 						/* Save in array */
@@ -3298,7 +3298,7 @@ void forget_view(void)
 						}
 						else if (p->d < infra)
 						{
-                            info |= (CAVE_SEEN);
+							info |= (CAVE_INFR);
 						}
 
 
@@ -3327,6 +3327,7 @@ void forget_view(void)
 
 			/* Grid cannot be "CAVE_SEEN" */
 			fast_cave_info[g] &= ~(CAVE_SEEN);
+			fast_cave_info[g] &= ~(CAVE_INFR);
 		}
 	}
 
@@ -3340,7 +3341,7 @@ void forget_view(void)
 		info = fast_cave_info[g];
 
 		/* Was not "CAVE_SEEN", is now "CAVE_SEEN" */
-		if ((info & (CAVE_SEEN)) && !(info & (CAVE_TEMP)))
+		if (((info & (CAVE_SEEN)) || (info & (CAVE_INFR))) && !(info & (CAVE_TEMP)))
 		{
 			int y, x;
 
@@ -3354,7 +3355,7 @@ void forget_view(void)
 			/* Redraw */
 			lite_spot(y, x);
 		}
-		else if ( (info & (CAVE_MARK)) )
+		else if ((info & (CAVE_MARK)))
 		{
 			int y, x;
 

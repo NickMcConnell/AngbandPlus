@@ -2237,7 +2237,7 @@ static void process_command(void)
 		/* Barehanded fighting */
 		case '|':
 		{
-			do_cmd_barehanded();
+			do_cmd_weapon_switch();
 			break;
 		}
 

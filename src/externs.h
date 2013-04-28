@@ -261,6 +261,7 @@ extern char *r_name;
 extern char *r_text;
 extern quest_type *q_info;
 extern char *q_name;
+
 extern char *q_text;
 extern flavor_type *flavor_info;
 extern char *flavor_name;
@@ -318,6 +319,7 @@ extern void transfer_attributes_to_missile(object_type *i_ptr,
 	const object_type *o_ptr);
 extern void do_cmd_fire(void);
 extern void do_cmd_throw(void);
+extern void do_cmd_weapon_switch(void);
 extern void do_cmd_barehanded(void);
 
 /* birth.c */
@@ -529,10 +531,11 @@ void history_unmask_unknown(void);
 bool history_lose_artifact(byte a_idx);
 void history_display(void);
 void history_init(size_t entries);
+void history_dump(FILE *fff);
 
 /* info.c */
 extern cptr obj_class_info[101];
-extern void object_info(char *buf, object_type *o_ptr);
+extern void object_info(char *buf, object_type *o_ptr, bool reveal_flavor);
 extern cptr item_activation(object_type *o_ptr);
 extern void object_details(object_type *o_ptr, bool mental, bool known);
 extern void self_knowledge(bool full);
@@ -717,6 +720,7 @@ extern void floor_item_increase(int item, int num);
 extern void inven_item_decrease(int item);
 extern void floor_item_optimize(int item);
 extern bool inven_carry_okay(const object_type *o_ptr);
+extern bool quiver_carry_okay(const object_type *o_ptr);
 extern s16b inven_carry(object_type *o_ptr);
 extern void steal_object(object_type *o_ptr);
 extern void give_object(object_type *o_ptr, bool allow_equip);
@@ -729,6 +733,7 @@ extern int quiver_count_item(const object_type *o_ptr, int quantity);
 extern int quiver_count(void);
 extern void find_quiver_size(void);
 extern int process_quiver(int num_new, object_type *o_ptr);
+extern bool switch_weapons(bool allow_empty);
 
 
 /* quest.c */
@@ -1084,6 +1089,7 @@ extern bool askfor_aux(char *buf, int len, bool numpad_cursor);
 extern bool get_string(cptr prompt, char *buf, size_t len);
 extern s32b get_quantity(cptr prompt, s32b min, s32b max);
 extern bool get_check(cptr prompt);
+extern bool get_check_default(cptr prompt, bool yes);
 extern bool get_com(cptr prompt, char *command);
 extern int get_index(char ch, bool require_lower);
 extern void pause_line(int row);

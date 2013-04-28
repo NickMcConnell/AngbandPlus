@@ -3710,7 +3710,7 @@ static void store_process_command(bool inn_cmd)
 				store_prt_invest();
 
 				/* Prompt */
-				prt("Command (I to invest money, ESC to return)?", 0, 0);
+				prt("Command (I to invest money, C to cycle inventory, ESC to return)?", 0, 0);
 
 				ch = inkey(FALSE);
 
@@ -3778,6 +3778,60 @@ static void store_process_command(bool inn_cmd)
 					/* Re-display the store */
 					do_cmd_redraw();
 					display_store();
+				}
+				else if (ch == 'c' || ch == 'C')  /* Cycle store goods, for a price */
+				{
+					int cost = 0, invest, i, num, price, markup;
+					char prompt[80];
+					object_type *o_ptr;
+
+					/* Determine total cost of items in store */
+					for (i = 0; i < st_ptr->stock_num; i++)
+					{
+						o_ptr = &st_ptr->stock[i];
+
+						if (!o_ptr) continue;
+
+						if (!(o_ptr->ident & (IDENT_FIXED)))  markup = price_markup(object_value(o_ptr));  /* Give price assuming good bargaining */
+
+						/* Get the listed price */
+						price = price_item(o_ptr, ot_ptr->min_inflate, FALSE, markup);
+
+						cost +=  price * o_ptr->number;
+						invest += (price - object_value_real(o_ptr)) * o_ptr->number;
+					}
+
+					/* Prompt player with total cost */
+					if (cost > p_ptr->au)
+					{
+						prt("You don't have that kind of money.", 1, 0);
+						ch = inkey(TRUE);
+						break;
+					}
+
+					/* Verify player wants to spend the money */
+					sprintf(prompt, "Clearing out the inventory will cost %d gold.  Are you sure?", cost);
+					if (!get_check(prompt))  break;
+
+					/* Destroy all inventory */
+					for (i = st_ptr->stock_num; i >= 0; i--)
+					{
+						num = st_ptr->stock[i].number;
+						if (num > 0)
+						{
+							store_item_increase(i, -num);
+							store_item_optimize(i);
+						}
+					}
+					/* Bring in new stock */
+					store_maint(store_num, TRUE);
+
+					/* Credit store with investment */
+					st_ptr->total_buy += invest;
+
+					/* Refresh store */
+					display_store();
+
 				}
 
 				/* Clear the message line, wait for other commands */

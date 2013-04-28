@@ -313,7 +313,7 @@ for how to maximize your dodging ability.  Your character screen takes all
 factors into account.
      Dodging reduces the cost of Burglary by 1/3rd of its own cost.
 
-Spell resistance   (cost - 6):
+Spell resistance   (cost - 4):
      Increases your saving throw against magical and mental attacks (blinding,
 confusion, paralyzation, etc.).  Attention paid to this skill can save your
 life...

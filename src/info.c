@@ -68,7 +68,7 @@ cptr obj_class_info[101] =
  *
  * Code mostly from object_desc and roff_aux.
  */
-void object_info(char *buf, object_type *o_ptr)
+void object_info(char *buf, object_type *o_ptr, bool reveal_flavor)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -114,7 +114,7 @@ void object_info(char *buf, object_type *o_ptr)
 		if (!buf[0]) return;
 
 		/* Build the flavor text, if any */
-		if (k_ptr->flavor)
+		if (k_ptr->flavor && reveal_flavor)
 		{
 			char tmp[DESC_LEN];
 

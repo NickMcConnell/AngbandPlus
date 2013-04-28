@@ -2776,6 +2776,7 @@ static void add_magic_to_weapon(object_type *o_ptr, int level, int power)
 
 		/* Enhance damage dice of melee weapons.  -LM- */
 		case TV_HAFTED:
+
 		case TV_POLEARM:
 		case TV_SWORD:
 		{
@@ -4215,7 +4216,7 @@ void apply_magic(object_type *o_ptr, int lev, int okay, bool good, bool great)
 			add_magic_to_others(o_ptr, lev, power);
 
 			/* Light sources can be ego-items */
-			if ((o_ptr->tval == TV_LITE) && (ABS(power) > 1) && (can_make_ego))
+			if (((o_ptr->tval == TV_LITE) || is_magic_book(o_ptr)) && (ABS(power) > 1) && (can_make_ego))
 			{
 				make_ego_item(o_ptr, cursed);
 			}
@@ -4631,6 +4632,9 @@ bool make_object(object_type *o_ptr, bool good, bool great, bool exact_kind)
 		}
 	}
 
+	/* Store drop depth */
+	o_ptr->drop_depth = p_ptr->depth;
+
 	/* Success */
 	return (TRUE);
 }
@@ -4686,7 +4690,6 @@ bool make_gold(object_type *o_ptr)
 	int i;
 	int treasure = 0;
 	int gold_depth, first_gold_idx;
-	int adj;
 
 	/* Make a special treasure */
 	if (coin_type >= SV_SPECIAL_GOLD_MIN)
@@ -5764,6 +5767,35 @@ bool inven_carry_okay(const object_type *o_ptr)
 	return (FALSE);
 }
 
+/*
+ * Check if we have space for an item in the quiver without overflow
+ */
+bool quiver_carry_okay(const object_type *o_ptr)
+{
+    int ammo_num, added_ammo_num, attempted_quiver_slots;
+
+	/* Paranoia */
+	if (!o_ptr) return (FALSE);
+
+	/* Must be suitable for the quiver */
+	if (!is_missile(o_ptr) && !(o_ptr->flags1 & TR1_THROWING)) return (FALSE);
+
+	ammo_num = quiver_count();
+
+	/* Get the new item's quiver size */
+	added_ammo_num = quiver_count_item(o_ptr, o_ptr->number);
+
+	/* How many quiver slots would be needed */
+	attempted_quiver_slots = ((ammo_num + added_ammo_num + 98) / 99);
+
+	/* Is there room, given normal inventory? */
+	if (attempted_quiver_slots + p_ptr->inven_cnt > INVEN_PACK)
+	{
+		return (FALSE);
+	}
+
+    return (TRUE);
+}
 
 /*
  * Add an item to the player's inventory, and return the slot used.
@@ -6055,7 +6087,7 @@ s16b inven_takeoff(int item, int amt)
 	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 	/* Took off weapon */
-	if (is_melee_weapon(i_ptr))
+	if (is_melee_weapon(i_ptr) && item < INVEN_Q1)
 	{
 		act = "You were wielding";
 
@@ -6087,6 +6119,9 @@ s16b inven_takeoff(int item, int amt)
 	{
 		act = "You removed";
 		act2 = " from your quiver";
+
+		/* Remember that the item is no longer quivered */
+		i_ptr->quivered = FALSE;
 	}
 
 	/* Took off something */
@@ -6338,12 +6373,12 @@ int reorder_pack(int slot, int store_num, bool verbose)
 			if (o_ptr->tval > j_ptr->tval) break;
 			if (o_ptr->tval < j_ptr->tval) continue;
 
-			/* Non-aware objects go below aware ones, even in stores */
-			if (object_aware_p(o_ptr) && !object_aware_p(j_ptr)) break;
-			if (!object_aware_p(o_ptr) && object_aware_p(j_ptr)) continue;
+			/* Non-aware objects go below aware ones, except in stores */
+			if (object_aware_p(o_ptr) && !object_aware_p(j_ptr) && !st_ptr) break;
+			if (!object_aware_p(o_ptr) && object_aware_p(j_ptr) && !st_ptr) continue;
 
 			/* New non-aware objects go below old, except in stores */
-			if (!object_aware_p(o_ptr) && !object_aware_p(j_ptr) && !(st_ptr)) continue;
+			if (!object_aware_p(o_ptr) && !object_aware_p(j_ptr) && !st_ptr) continue;
 
 			/* If aware, objects sort by increasing sval */
 			if (o_ptr->sval < j_ptr->sval) break;
@@ -6822,9 +6857,9 @@ int process_quiver(int num_new, object_type *o_ptr)
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
 
-			/* Objects sort by decreasing value */
-			if (i_value > j_value) break;
-			if (i_value < j_value) continue;
+			/* Objects sort by *increasing* value, which makes it easier to preserve good ammo */
+			if (i_value > j_value) continue;
+			if (i_value < j_value) break;
 		}
 
 		/* Never move down */

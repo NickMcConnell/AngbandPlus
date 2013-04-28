@@ -31,7 +31,7 @@ V:1.0.1
 # 'C' is for ego-item bonuses or penalties to Skill, Deadliness, and AC.
 #
 # 'T' is for possible 'tval' and 'sval' values of the base-item.  
-# Up to three 'T' entries are possible for a single object. The 
+# Up to four 'T' entries are possible for a single object. The 
 # ego-item can only be generated from items of this tval, with sval 
 # in the specified range.
 #
@@ -87,6 +87,8 @@ W:10:4:12:12500
 C:0:0:8
 T:36:0:99
 T:37:0:99
+T:38:7:20  #Don't create MHDSM or PDSM of resistance
+T:38:0:4
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:It grants resistance to all four basic elements, and cannot be harmed 
@@ -122,7 +124,15 @@ D:The great sorcerers of old wore light mantles that protected against the
 D:elements and one other attack, stat-draining, and experience loss.  
 D:Fortunate indeed are you to discover one.
 
-# 12 (unused)
+N:12:(Dwarven)
+W:0:4:0:5000
+C:0:0:15
+T:37:0:99
+T:38:0:99
+P:2
+1:STR | CON | INFRA 
+F:IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE |
+F:FREE_ACT |
 
 N:13:of Plague
 W:45:2:0:0
@@ -1279,6 +1289,19 @@ P:-9:3
 X:XTRA_LIGHT_QUALITY
 D:It sucks the light from around you, sheathing you in protective 
 D:darkness.
+
+
+### Books ###
+
+N:150:(fireproof)
+W:0:1:0:1000
+C:0:0:0:0
+T:90:0:2
+T:91:0:2
+T:92:0:2
+T:93:0:2
+F:IGNORE_FIRE
+D:The thick cover surrounds the book in protective leather.
 
 
 ### Space for additions ###

@@ -368,10 +368,9 @@ void history_dump(FILE *fff)
 /* Handles all of the display functionality for the history list. */
 void history_display()
 {
-	int row, wid, hgt, page_size;
+	int wid, hgt, page_size;
 	static size_t first_item = 0;
 	size_t max_item = last_printable_item();
-	size_t i;
 
 	Term_get_size(&wid, &hgt);
 
@@ -388,7 +387,7 @@ void history_display()
 
 		/* Print everything to screen */
 		print_history_header();
-        print_history(first_item, page_size, 0);
+		print_history(first_item, page_size, 0);
 
 
 		prt("[Arrow keys scroll, p for previous page, n for next page, ESC to exit.]", hgt - 1, 0);

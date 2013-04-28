@@ -3495,13 +3495,7 @@
 	(TR2_IGNORE_ACID | TR2_IGNORE_ELEC | TR2_IGNORE_FIRE | TR2_IGNORE_COLD )
 
 
-#define TR1_SLAY_MASK (TR1_SLAY_ANIMAL | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD | \
-		       TR1_SLAY_DEMON | TR1_SLAY_ORC | TR1_SLAY_TROLL | \
-	           TR1_SLAY_GIANT | TR1_SLAY_DRAGON | TR1_KILL_DRAGON)
 
-#define TR1_BRAND_MASK (TR1_BRAND_FIRE | TR1_BRAND_ACID | TR1_BRAND_ELEC | \
-	           TR1_BRAND_COLD | TR1_BRAND_POIS | TR1_BRAND_FLAME | \
-	           TR1_BRAND_VENOM)
 
 
 
@@ -4405,7 +4399,6 @@
 #define cheat_know                  op_ptr->opt[OPT_cheat_know]
 #define beginner_play               op_ptr->opt[OPT_beginner_play]
 #define no_skill_cap                op_ptr->opt[OPT_no_skill_cap]
-
 
 
 	/* Birth options */

@@ -3836,6 +3836,7 @@ int target_dir(char ch)
  * macros and to keep an eye on viewable monsters with the monster health
  * bar.
  */
+
 bool target_able(int m_idx, bool use_sight)
 {
 	monster_type *m_ptr;
@@ -3857,6 +3858,9 @@ bool target_able(int m_idx, bool use_sight)
 
 	/* Hack -- no targeting hallucinations */
 	if (p_ptr->image) return (FALSE);
+
+	/* Check maximum distance if necessary */
+	if (p_ptr->max_dist > 0 && p_ptr->max_dist < distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)) return (FALSE);
 
 	/* In manual mode */
 	if (use_sight)

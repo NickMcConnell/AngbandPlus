@@ -2352,6 +2352,12 @@ static void display_player_flag_info(void)
 				}
 			}
 
+			if (flag == RES_POIS && p_ptr->oppose_pois)
+			{
+				temp_resist = TRUE;
+				c_put_str(TERM_GREEN, "+", row, col + n);
+			}
+
 			/* Hack -- Cancel immunities specially -JM */
 			if (immune && (f_cancel[flag/32] & (1L << (flag % 32 - 4))))
 			{
@@ -3408,6 +3414,13 @@ static bool file_character_options(FILE *fff)
 	if (cheat_borg)
 	{
 		fprintf(fff, "The %s Borg ran this character.\n\n", VERSION_NAME);
+
+		flag = TRUE;
+	}
+
+	if (no_skill_cap && (calc_max_power() == 100))
+	{
+		fprintf(fff, "You have transcended the limits of normal players.\n\n", VERSION_NAME);
 
 		flag = TRUE;
 	}

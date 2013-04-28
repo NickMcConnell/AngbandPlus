@@ -303,7 +303,7 @@ static int critical_melee(int chance, bool visible, char m_name[],
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	u32b f1, f2, f3;
+	u32b f1 = 0L, f2 = 0L, f3 = 0L;
 	int max;
 
 	bool vorpal = FALSE;
@@ -497,7 +497,7 @@ static int critical_melee(int chance, bool visible, char m_name[],
 		}
 
 		/* Critical hits with polearms and wrestling rob the monster of energy */
-		if (o_ptr->tval == TV_POLEARM || (p_ptr->barehand == S_WRESTLING
+		if (o_ptr->tval == TV_POLEARM || (p_ptr->barehanded && p_ptr->barehand == S_WRESTLING
 			&& !((r_ptr->flags1 & (RF1_NEVER_MOVE)) || (monster_immaterial(r_ptr)))))
 		{
 			/* Discount multiple blows */
@@ -520,7 +520,7 @@ static int critical_melee(int chance, bool visible, char m_name[],
 		}
 
 		/* Karate frequently stuns, confuses, and slows monsters */
-		if(p_ptr->barehand == S_KARATE)
+		if(p_ptr->barehand == S_KARATE && p_ptr->barehanded)
 		{
 			int skill = get_skill(S_KARATE, 10, 110);
 
@@ -1615,11 +1615,8 @@ static int py_attack_barehand(int chance, monster_type *m_ptr, char m_name[])
 {
 	int dice, sides;
 	int damage;
-	int add_power = 0;
 
 	int skill = get_skill(p_ptr->barehand, 0, 100);
-
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	object_type *o_ptr;
 	object_type object_type_body;
@@ -2601,7 +2598,6 @@ static void calc_ranged_path(int range, int y0, int x0, int *ty, int *tx,
 	if (reduce > range / 3) reduce = range / 3;
 	range -= reduce;
 
-
 	/* Get distance to target */
 	dy = *ty - y0;
 	dx = *tx - x0;
@@ -2750,8 +2746,26 @@ void do_cmd_fire(void)
 		return;
 	item_to_object(j_ptr, item);
 
+	/* Strength increases distance, weight reduces it */
+	tdis = adj_str_blow[p_ptr->stat_ind[A_STR]] * 8 /
+		((j_ptr->weight > 3) ? j_ptr->weight : 3);
+
+	/* Max distance depends on skill */
+	if (tdis > 12 + get_skill(sbow(o_ptr->tval), 0, 8))
+	    tdis = 12 + get_skill(sbow(o_ptr->tval), 0, 8);
+
+	/* Hack -- set maximum distance for use in target_able */
+	p_ptr->max_dist = tdis;
+
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
+	if (!get_aim_dir(&dir))
+	{
+	    p_ptr->max_dist = 0;
+	    return;
+	}
+
+	/* Clear max distance */
+	p_ptr->max_dist = 0;
 
 	/* Use some energy ("p_ptr->num_fire" has a standard value of 2) */
 	p_ptr->energy_use = div_round(200, p_ptr->num_fire);
@@ -2819,14 +2833,6 @@ void do_cmd_fire(void)
 
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
-
-	/* Strength increases distance, weight reduces it */
-	tdis = adj_str_blow[p_ptr->stat_ind[A_STR]] * 8 /
-		((i_ptr->weight > 3) ? i_ptr->weight : 3);
-
-	/* Max distance depends on skill */
-	if (tdis > 12 + get_skill(sbow(o_ptr->tval), 0, 8))
-	    tdis = 12 + get_skill(sbow(o_ptr->tval), 0, 8);
 
 	/* Shots are usually not perfectly accurate */
 	inaccuracy = 5 - get_skill(sbow(o_ptr->tval), 0, 5);
@@ -3352,9 +3358,25 @@ void do_cmd_throw(void)
 	/* Check for throwing weapon */
 	if (f1 & (TR1_THROWING)) throwing_weapon = TRUE;
 
+	/* Strength increases distance, weight reduces it */
+	tdis = adj_str_blow[p_ptr->stat_ind[A_STR]] * 6 / ((o_ptr->weight > 5) ? o_ptr->weight : 5);
+
+	/* Max distance depends on skill */
+	if (tdis > 10 + get_skill(S_THROWING, 0, 10))
+	    tdis = 10 + get_skill(S_THROWING, 0, 10);
+
+    /* Set max_dist for use in target_able */
+    p_ptr->max_dist = tdis;
 
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
+	if (!get_aim_dir(&dir))
+	{
+	    p_ptr->max_dist = 0;
+        return;
+	}
+
+	/* Important -- Clear out maximum distance */
+	p_ptr->max_dist = 0;
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -3406,14 +3428,6 @@ void do_cmd_throw(void)
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 2);
 
-
-	/* Strength increases distance, weight reduces it */
-	tdis = adj_str_blow[p_ptr->stat_ind[A_STR]] * 6 /
-		((i_ptr->weight > 5) ? i_ptr->weight : 5);
-
-	/* Max distance depends on skill */
-	if (tdis > 10 + get_skill(S_THROWING, 0, 10))
-	    tdis = 10 + get_skill(S_THROWING, 0, 10);
 
 
 	/* Thrown objects always deviate slightly from their course */
@@ -3646,6 +3660,7 @@ void do_cmd_throw(void)
 			}
 
 			/* Food and mushrooms do special things on impact */
+
 			if (i_ptr->tval == TV_FOOD)
 			{
 				food_hit_effect(-1, y, x, i_ptr);
@@ -3841,6 +3856,15 @@ void do_cmd_throw(void)
 	left_panel_display(DISPLAY_SPECIAL_ATTACK, 0);
 }
 
+
+/*
+ * Either switch between karate and wrestling, or switch primary/secondary weapons.
+ */
+void do_cmd_weapon_switch()
+{
+	if (p_ptr->barehanded)	do_cmd_barehanded();
+	else 					(void) switch_weapons(FALSE);
+}
 
 
 /*

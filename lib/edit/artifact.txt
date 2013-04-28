@@ -186,9 +186,9 @@ F:HIDE_TYPE | FREE_ACT |
 F:SLOW_DIGEST | REGEN |
 F:SUST_CON | IM_FIRE |
 F:INSTA_ART
-D:The Ring of Ruby -- "Take this ring, Master, for your labours will be
-D:heavy; but it will support you in the weariness that you have taken upon
-D:yourself. For this is the Ring of Fire, and with it you may rekindle
+D:The Ring of Ruby -- "Take this ring, Master, for your labours will be 
+D:heavy; but it will support you in the weariness that you have taken upon 
+D:yourself. For this is the Ring of Fire, and with it you may rekindle 
 D:hearts in a world that grows chill."
 
 
@@ -204,8 +204,8 @@ P:4:10
 F:HIDE_TYPE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
 F:SUST_INT | SUST_WIS | IM_COLD 
 F:INSTA_ART
-D:The Ring of Adamant, with a pure white stone as centerpiece. Nenya is chief
-D:among the three Rings of Power created by the Elves and hidden by them from
+D:The Ring of Adamant, with a pure white stone as centerpiece. Nenya is chief 
+D:among the three Rings of Power created by the Elves and hidden by them from 
 D:Sauron.
 
 

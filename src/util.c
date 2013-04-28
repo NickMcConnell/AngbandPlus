@@ -3919,13 +3919,15 @@ s32b get_quantity(cptr prompt, s32b min, s32b max)
 
 
 /*
- * Verify something with the user
+ * Prompts user with yes/no prompt
  *
- * The "prompt" should take the form "<question>?"
+ * Entry from get_check and get_check_default
  *
- * Note that "[y/n]" is appended to the prompt.
+ * mode = 1 default y/n prompt
+ * mode = 2 Y/n prompt, defaulting to yes
+ * mode = 3 y/N prompt, defaulting to no
  */
-bool get_check(cptr prompt)
+bool aux_get_check(cptr prompt, int mode)
 {
 	char ch;
 
@@ -3940,7 +3942,9 @@ bool get_check(cptr prompt)
 #endif
 
 	/* Hack -- Build a "useful" prompt */
-	(void)strnfmt(buf, 78, "%.70s [y/n] ", prompt);
+	if 		(mode == 2)	(void)strnfmt(buf, 78, "%.70s [Y/n] ", prompt);
+	else if	(mode == 3)	(void)strnfmt(buf, 78, "%.70s [y/N] ", prompt);
+	else				(void)strnfmt(buf, 78, "%.70s [y/n] ", prompt);
 
 	/* Get an acceptable answer */
 	while (TRUE)
@@ -3952,6 +3956,7 @@ bool get_check(cptr prompt)
 		ch = inkey(FALSE);
 		if (ch == ESCAPE) break;
 		if (strchr("YyNn", ch)) break;
+		if (strchr("\r", ch) && mode > 1) break;  /* Handle default prompts when useful */
 
 		/* Handle errors  XXX XXX (this breaks macros) */
 		/* bell("Illegal response to a 'yes/no' question.");*/
@@ -3966,6 +3971,9 @@ bool get_check(cptr prompt)
 		msg_add(format("%s  %c", prompt, ch));
 	}
 
+	/* Hack -- set character to 'y' for default prompt */
+	if (mode == 2 && strchr("\r", ch)) ch = 'y';
+
 	/* Normal negation */
 	if ((ch != 'Y') && (ch != 'y'))
 	{
@@ -3977,6 +3985,24 @@ bool get_check(cptr prompt)
 
 	/* Success */
 	return (TRUE);
+}
+
+/*
+ * Verify something with the user
+ *
+ * The "prompt" should take the form "<question>?"
+ *
+ * Note that "[y/n]" is appended to the prompt.
+ */
+bool get_check(cptr prompt)
+{
+	return aux_get_check(prompt, 1);
+}
+
+bool get_check_default(cptr prompt, bool yes)
+{
+	if (yes) 	return aux_get_check(prompt, 2);
+	else 		return aux_get_check(prompt, 3);
 }
 
 

@@ -4228,33 +4228,28 @@ int device_chance(const object_type *o_ptr)
 	if(artifact_p(o_ptr))
 	{
 		lev = a_info[o_ptr->artifact_index].level;
-
-		/* Wargear and light sources want to be activated */
-		if ((is_wargear(o_ptr) || (o_ptr->tval == TV_LITE)) && (lev > 10))
-		{
-			lev -= ((lev - 10) / 2);
-		}
-	}
-
-	/* Everything else except DSM uses the object level */
-	else if (o_ptr->tval != TV_DRAG_ARMOR)
-	{
-		lev = k_info[o_ptr->k_idx].level;
-
-		/* Wargear and light sources want to be activated */
-		if ((is_wargear(o_ptr) || (o_ptr->tval == TV_LITE)) && (lev > 15))
-		{
-			lev -= ((lev - 10) / 2);
-		}
 	}
 
 	/* Non-artifact dragon scale mail does not require special skills */
-	else
+	else if (o_ptr->tval == TV_DRAG_ARMOR)
 	{
 		/* All characters eventually get perfect usage of DSM */
 		skill = div_round(p_ptr->power, 4);
 
 		lev = 0;
+
+	}
+
+	/* Other gear uses item level */
+	else
+	{
+		lev = k_info[o_ptr->k_idx].level;
+	}
+
+	/* Items other than devices are relatively easy to activate, as well as some devices */
+	if (!is_magical_device(o_ptr) || ((o_ptr->flags2) & TR2_EASY_ACTIVATE))
+	{
+		if (lev > 10) lev -= ((lev - 10) / 2);
 	}
 
 	/*
