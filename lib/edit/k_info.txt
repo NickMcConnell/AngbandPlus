@@ -217,7 +217,7 @@ G:,:U
 I:80:32:500
 W:0:0:2:1
 
-N:23:& Strip~ of Venison
+N:23:& Sossage~ inna bun~
 G:,:u
 I:80:33:1500
 W:0:0:2:2
@@ -1193,7 +1193,7 @@ A:50/1
 P:0:0d0:0:0:15
 F:RES_COLD | IGNORE_COLD | ACTIVATE
 
-N:149:Woe
+N:149:the Fairies
 G:=:d
 I:45:0:-5
 W:50:0:2:0
@@ -1225,7 +1225,7 @@ I:45:16:0
 W:10:0:2:500
 A:10/1
 
-N:154:Aggravate Monster
+N:154:the Mimes
 G:=:d
 I:45:1:0
 W:5:0:2:0
@@ -2058,7 +2058,7 @@ W:20:0:10:400
 A:20/1
 P:0:1d1:0:0:0
 
-N:275:Johnson's Monster Slaying
+N:275:Johnson's Monster Masher
 G:-:d
 I:65:0:29
 W:2:0:10:0
@@ -2287,7 +2287,7 @@ W:40:0:50:350
 A:40/1
 P:0:1d2:0:0:0
 
-N:305:Summoning
+N:305:Ridcully's Game-o-matic
 G:_:d
 I:55:3:5
 W:10:0:50:0
@@ -2378,7 +2378,7 @@ W:40:0:50:500
 A:40/1
 P:0:1d2:0:0:0
 
-N:318:Detect Evil
+N:318:Dastard Detection
 G:_:d
 I:55:15:24
 W:20:0:50:350
@@ -3664,7 +3664,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### New arms #####
 
-N:524:& Zweihander~
+N:524:& BFS4000~
 G:|:w
 I:23:29:0
 W:40:0:280:580

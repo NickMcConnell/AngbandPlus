@@ -271,7 +271,7 @@ F:RAND_25 |
 F:TAKE_ITEM
 D:He just stands about lolly-gagging. 
 
-N:10:William De Word.
+N:10:William De Word
 G:t:g
 I:110:1d2:6:1:0
 W:0:1:0:0
@@ -361,7 +361,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:No job is too low for him.
 
-N:18:Seargent of the Watch.
+N:18:Seargent of the Watch
 G:t:b
 I:110:6d8:10:16:250
 W:0:1:0:0
@@ -544,14 +544,17 @@ F:STUPID | WEIRD_MIND |
 F:ANIMAL | NO_FEAR | IM_ELEC
 D:A strange electric bug. 
 
-N:35:Carniverous Penguin
+N:35:Carnivorous Penguin
 G:B:D
 I:110:1d4:10:5:10
 W:1:1:0:1
 B:BITE:HURT:1d1
 F:FRIENDS | 
 F:ANIMAL | WILD_TOO | WILD_WOOD | WILD_GRASS | DROP_SKELETON | DROP_CORPSE
-D:A waddling incarnation of death incarnate.
+F:CAN_SWIM
+D:A waddling incarnation of death incarnate. Ok, ok I know penguins
+D:are already Carniverous, but these penguins are REALLY Carniverous.
+D:Alright?
 
 N:36:Soldier ant
 G:a:u
@@ -653,7 +656,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | WILD_TOO |
 F:EVIL
 D:A rather shifty individual.
 
-N:45:Unreformed Cultist.
+N:45:Unreformed Cultist
 G:p:B
 I:110:6d4:20:9:10
 W:2:1:0:7
@@ -741,7 +744,7 @@ B:HIT:HURT:1d5
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE
 F:ANIMAL | IM_ACID
-D:A small humanoid figure, painted blue and screaming undecipherable obceanities.
+D:A small humanoid figure, painted blue and screaming undecipherable obscenities.
 
 N:53:Gaspode the Wonder Dog
 G:C:w
@@ -860,7 +863,7 @@ F:UNIQUE | MALE | CAN_SWIM | DROP_SKELETON | DROP_CORPSE
 F:FORCE_MAXHP | CAN_SPEAK | SMART | 
 D:Sossage? Inna Bun?
 
-N:64:Inteligent Booger
+N:64:Intelligent Booger
 G:j:g
 I:120:3d3:8:12:80
 W:3:2:0:4
@@ -1232,7 +1235,7 @@ F:DROP_60 | WILD_TOO | DROP_SKELETON | DROP_CORPSE |
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_9 | 
 S:SCARE | CAUSE_1
-D:An adventurer both devoutly religious and skillful in combat. 
+D:An adventurer both devoutly religious and skilful in combat. 
 D:He seems to consider you an agent of the Not-Om.
 
 N:98:Your Roomate
@@ -1583,7 +1586,7 @@ F:WEIRD_MIND | BASH_DOOR | WILD_TOO | WILD_WOOD
 F:ANIMAL | IM_POIS
 D:It scuttles towards you.
 
-N:128:Screeming Mimi
+N:128:Screaming Mimi
 G:u:R
 I:110:6d8:20:18:30
 W:7:2:0:16
@@ -1957,9 +1960,9 @@ B:BITE:HURT:2d10
 F:BASH_DOOR | FORCE_MAXHP | FRIENDLY | UNIQUE
 F:ANIMAL | CAN_SPEAK 
 D:The librarian of Unseen University on safari for escaped
-D:library books. If you'd like to be his freind all you have
-D:to say is: 'would you like a penut Mr. monkey?' and he will be 
-D:your friend untill the day you die.
+D:library books. If you'd like to be his friend all you have
+D:to say is: 'would you like a peanut Mr. monkey?' and he will be 
+D:your friend until the day you die.
 
 N:160:Jellybaby Fish
 G:j:v
@@ -2097,8 +2100,8 @@ F:UNIQUE | MALE | EVIL
 F:FORCE_MAXHP | CAN_SPEAK | WILD_TOO | FRIENDLY | DROP_SKELETON | DROP_CORPSE
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR
-D: Daughter of cohen the barbarian. prefers hairdressing but geneticaly
-D: predisposd to barbarian adventuring.
+D: Daughter of Cohen the barbarian. prefers hairdressing but genetically
+D: predisposed to barbarian adventuring.
 
 N:170:Bloodfang the Wolf
 G:C:R
@@ -2184,7 +2187,7 @@ B:TOUCH:TERRIFY
 F:BASH_DOOR | UNIQUE | FORCE_MAXHP | NO_CONF | NO_SLEEP |
 F:IM_POIS | IM_COLD | NO_FEAR
 D:Pallid and twisted, this creature hates the very sight of you.
-D:and it's made of soft french cheese, ohh and with chives, i love
+D:and it's made of soft french cheese, ohh and with chives, I love
 D:chives!
 
 N:178:Astro-Philosopher of Krull
@@ -2209,7 +2212,7 @@ W:10:1:0:10
 B:EXPLODE:HURT:15d2
 F:OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL | IM_ACID | NO_FEAR
-D:The evil wizard gargamel has trained them to be living weapons.
+D:Living weapons.
 
 N:180:Orfax, Son of Boldor
 G:y:B
@@ -2350,7 +2353,7 @@ F:IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a strange hairy growth on the dungeon floor.
 
-N:191:Sniffely bear
+N:191:Sniffly bear
 G:q:u
 I:110:10d11:10:25:10
 W:10:1:0:25
@@ -2385,7 +2388,7 @@ F:FORCE_MAXHP | FORCE_SLEEP | CAN_FLY | DROP_CORPSE |
 F:DROP_60 | BASH_DOOR | DRAGON
 S:1_IN_11 |
 S:CONF | SCARE | BR_LITE | BR_DARK
-D:A small relative of the dragon that inhabits soho coffe shops,
+D:A small relative of the dragon that inhabits Soho coffee shops,
 D:misquotes Lacan and pretends to like performance art.
 
 N:194:Tengu
@@ -2462,7 +2465,7 @@ I:120:8d10:40:15:0
 W:10:2:0:45
 B:HIT:HURT:1d11
 F:BASH_DOOR | UNIQUE | FORCE_MAXHP | NO_CONF | NO_SLEEP
-F:GOOD | MALE | CAN_SPEAK | DROP_CORPSE
+F:GOOD | MALE | CAN_SPEAK | DROP_CORPSE | FRIENDLY
 S:1_IN_3
 S:ARROW_2
 D:Commander of the Anhk-Morpork city watch. He thinks he's some
@@ -2662,7 +2665,8 @@ F:ESCORT | DROP_SKELETON | DROP_CORPSE
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | CAN_SPEAK |
 F:EVIL | ORC | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-D:A leader of a band of raiding goblins, he picks on pictsies with a prickely pick axe.
+D:A leader of a band of raiding goblins, he picks on pictsies
+D:with a prickly pick axe.
 
 N:216:Barbarian hero
 G:p:U
@@ -3134,7 +3138,7 @@ S:BLIND | CONF | SCARE
 D:It is a strange, slimy, icky creature, with rudimentary intelligence, 
 D:but evil cunning.  It hungers for food, and you look tasty.
 
-N:253:Gibbering Pundit.
+N:253:Gibbering Pundit
 G:j:o
 I:110:6d6:15:14:20
 W:14:4:0:20
@@ -3211,7 +3215,7 @@ F:ANIMAL
 D:It makes you itch just to look at it. 
 
 N:260:Lord Hong
-G:o:g
+G:p:v
 I:110:22d10:20:25:20
 W:14:3:0:200
 B:HIT:HURT:3d4
@@ -3220,11 +3224,10 @@ B:HIT:HURT:3d4
 B:HIT:HURT:3d4
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE
-F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_COLD | IM_POIS
-D:Grand visier of the agatian empire.
+D:Grand Vizier of the Agatian empire.
 
 N:261:Clay golem
 G:g:U
@@ -3470,8 +3473,8 @@ B:HIT:HURT:3d4
 B:BITE:HURT:2d6
 F:BASH_DOOR | CAN_FLY | WILD_TOO | WILD_WOOD | WILD_MOUNTAIN | WILD_GRASS |
 F:ANIMAL | DROP_CORPSE
-D:It is half lion, half eagle.  It flies menacingly towards you,
-D:screaching lines from it's last unreadible novel.
+D:It is half lion, half eagle. It flies menacingly towards you,
+D:screeching lines from it's latest unreadable novel.
 
 N:280:Homoculous
 G:u:U
@@ -3550,11 +3553,11 @@ B:HIT:HURT:3d4
 B:HIT:HURT:3d4
 F:MALE | WILD_TOO |
 F:DROP_90 | 
-F:OPEN_DOOR | BASH_DOOR | ESCORT | DROP_SKELETON | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL | ORC | CAN_SPEAK
 S:1_IN_15
 S:ARROW_1
-D:An armoured goblin with an air of authority. Albight not much of one.
+D:An armoured goblin with an air of authority. Albeit not much of one.
 
 N:286:Gelatinous Jelly
 G:j:B
@@ -3634,7 +3637,7 @@ F:FORCE_MAXHP |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | FRIENDLY |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:A member of the Silver Hoard. A screeming berzerker
+D:A member of the Silver Horde. A screaming berserker
 D:flies at you in a spiked wheelchair.
 
 N:292:Hammerhead
@@ -3833,7 +3836,7 @@ D:Flames lick at its feet and its tongue is a blade of fire.  You can feel a
 D:furnace heat radiating from the creature.
 
 N:308:Cold Gerbil
-G:g:W
+G:r:W
 I:110:7d6:30:15:0
 W:18:1:0:70
 B:BITE:COLD:1d6
@@ -4266,10 +4269,10 @@ N:339:Sabre-tooth kitten
 G:f:y
 I:120:14d14:40:25:0
 W:20:2:0:120
-B:CLAW:HURT:1d10
-B:CLAW:HURT:1d10
-B:BITE:HURT:1d10
-B:BITE:HURT:1d10
+B:CLAW:HURT:1d5
+B:CLAW:HURT:1d5
+B:BITE:HURT:1d5
+B:BITE:HURT:1d5
 F:BASH_DOOR | WILD_WOOD | WILD_TOO | WILD_GRASS |
 F:ANIMAL | DROP_SKELETON | DROP_CORPSE
 D:A fierce and dangerous cat, its huge tusks and sharp claws would lacerate 
@@ -4307,7 +4310,7 @@ S:BR_FIRE
 D:It is a strange concoction of lion, dragon, goat and vending machine repairman.  
 D:It looks very odd because it has a bronze swimming certificate and cannot swim.
 
-N:342:Quylthulg
+N:342:Monst-o-mat
 G:Q:W
 I:110:4d8:10:1:2
 W:20:1:0:250
@@ -4582,7 +4585,7 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | ORC | UNDEAD | 
 F:IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is an orcish figure covered in wrappings.
+D:It is a goblin covered in wrappings.
 
 N:363:Killer whale
 G:~:w
@@ -4696,7 +4699,7 @@ S:1_IN_11 |
 S:DRAIN_MANA
 D:It is a strangely moving puddle.
 
-N:372:Klatchian leigionare
+N:372:Klatchian legionnaire
 G:p:u
 I:110:10d11:20:20:40
 W:23:1:0:60
@@ -4719,7 +4722,7 @@ F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_MAXHP | DROP_SKELETON | DROP_CORPSE
 F:ESCORT | ESCORTS | FRIENDLY |
 F:OPEN_DOOR | BASH_DOOR | 
-D:a sknny little 87 year old with a beard down to his knees.
+D:a skinny little 87 year old with a beard down to his knees.
 D:wears a set of dentures made from trolls teeth.
 
 N:374:Fleshhound of Khorne
@@ -4812,7 +4815,7 @@ F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
 D:A huge barbarian with a small head. Wears a loincloth 
-D:from a leopard whome he killed with his bare breath.
+D:from a leopard whom he killed with his bare breath.
 
 N:381:Kouko u kokoko
 G:W:G
@@ -4828,7 +4831,8 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE |
 F:NO_CONF | NO_SLEEP
 S:1_IN_10 |
 S:SCARE | DRAIN_MANA
-D:It is a ghostly apparition in a plad shirt and parka that drinks strong beer, eh?
+D:It is a ghostly apparition in a plaid shirt and parka that
+D:drinks strong beer, eh?
 
 N:382:Mime, the Nibelungingung
 G:h:u
@@ -4953,16 +4957,20 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a human form encased in mouldy wrappings.
 
-N:391:Vampire bat
-G:b:D
-I:120:9d7:12:20:50
-W:24:2:0:150
-B:BITE:EXP_40:1d4
-B:BITE:EXP_40:1d4
-F:RAND_50 | COLD_BLOOD | REGENERATE | CAN_FLY |
-F:EVIL | ANIMAL | UNDEAD | IM_COLD | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
-D:An undead bat that flies at your neck hungrily.
+N:391:K!sidra
+G:p:y
+I:130:31d10:20:25:10
+W:40:4:0:2100
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+B:HIT:HURT:2d8
+F:FEMALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | DROP_SKELETON | DROP_CORPSE
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | NO_CONF | NO_SLEEP
+S:S_DRAGON
+D:A dragon rider from the Wrmberg.
 
 N:392:Billius
 G:p:o
@@ -4979,7 +4987,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:CONF | SLOW | FORGET
-D:The oh god of hangovers. A sickly young man in soild robes.
+D:The oh god of hangovers. A sickly young man in soiled robes.
 
 N:393:It
 G:.:W
@@ -5082,8 +5090,8 @@ F:IM_POIS | NO_SLEEP | NO_FEAR | CAN_FLY | UNIQUE |
 F:GOOD | CAN_SPEAK | FRIENDLY
 S:1_IN_6 | 
 S:CONF | SCARE
-D:An over large idiot in a blue body stocking with antenae on his head.
-D:All cringe in embarasment from his akward wrath.
+D:An over large idiot in a blue body stocking with antennae on his head.
+D:All cringe in embarrassment from his awkward wrath.
 
 N:400:Hydrophobe of Krull
 G:h:G
@@ -5255,7 +5263,7 @@ F:INVISIBLE | BASH_DOOR | DROP_CORPSE
 F:ANIMAL
 D:It is a huge black panther, very fast.
 
-N:413:Seargent Detritus
+N:413:Sergeant Detritus
 G:T:U
 I:110:85d7:20:20:40
 W:26:4:0:500
@@ -5280,7 +5288,8 @@ F:FRIENDS | MALE | DROP_SKELETON | DROP_CORPSE
 F:BASH_DOOR | OPEN_DOOR |
 S:1_IN_8
 S:BLIND | CONF | TPORT
-D:A faithful servitor and a skilled warrior. Never without his holindase sauce.
+D:A faithful servitor and a skilled warrior. Never without 
+D:his hollandaise sauce.
 
 N:415:Cave ogre
 G:O:u
@@ -5339,7 +5348,7 @@ S:1_IN_9
 S:SCARE | HOLD
 D:Flesh is falling off in chunks from this decaying abomination.
 
-N:419:Cassanunda
+N:419:Casanunda
 G:h:D
 I:120:56d11:20:40:20
 W:27:4:0:1000
@@ -5554,7 +5563,7 @@ F:IM_FIRE
 S:1_IN_8 | 
 S:BR_FIRE 
 D:It has 3 heads - gorgon, goat and dragon - all attached to a 
-D:cyborg's body. You WILL be assimilated, the old fasioned way unfortunatly.
+D:cyborg's body. You WILL be assimilated, the old fashioned way!
 
 N:434:Shantak
 G:B:D
@@ -5614,7 +5623,7 @@ F:INVISIBLE | OPEN_DOOR | BASH_DOOR |
 F:EVIL | NO_CONF | NO_SLEEP
 D:A creature who lives underground and eats surface 
 D:dwellers whom it catches 
-D:with its poisonous tentacle, which is the only part of the creature tha 
+D:with its poisonous tentacle, which is the only part of the creature that
 D:is ever seen. Perhaps it is better not to see the part which remains 
 D:underground...
 
@@ -5628,7 +5637,7 @@ B:WAIL:TERRIFY:1d4
 F:BASH_DOOR | 
 F:EVIL | DEMON | 
 D:Slaanesh's pet, a large scorpion-like creature with a human face and 
-D:reptile skin. drinks coffe, smokes, and feels the need to tell you
+D:reptile skin. drinks coffee, smokes, and feels the need to tell you
 D:everything about itself as it tears you to shreds.
 
 N:439:stairway to hell
@@ -6240,7 +6249,7 @@ S:TPORT | HOLD | SCARE | CAUSE_2 | TRAPS | BO_FIRE |
 S:S_MONSTER
 D:It is an ogre wrapped in furs and covered in grotesque body paints.
 
-N:480:Octorine quylthulg
+N:480:Octorine Monst-o-mat
 G:Q:v
 I:110:7d12:10:1:1
 W:32:1:0:300
@@ -6540,8 +6549,8 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | CAN_FLY |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:HOLD | SCARE | CAUSE_2 | DARKNESS
-D:It is a ghostly nightmare of an entity. He'll return your stuff tommarow, 
-D:tuseday at the latest...
+D:It is a ghostly nightmare of an entity. He'll return your stuff tomarrow, 
+D:tuesday at the latest...
 
 N:500:Giant skeleton troll
 G:s:b
@@ -7265,7 +7274,7 @@ S:BR_ACID
 D:It has a form that legends are made of.  Its still-tender scales are a 
 D:darkest black hue.  Acid drips from its body.
 
-N:547:Hermet elephant
+N:547:Hermit elephant
 G:q:s
 I:110:54d10:20:30:100
 W:35:3:0:2100
@@ -7317,7 +7326,7 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:HURT_ROCK | NO_CONF | NO_SLEEP
 D:I can't describe it. I just know what it is when I see it.
 
-N:551:Crysoprase
+N:551:Chrysoprase
 G:T:D
 I:120:15d70:20:35:50
 W:36:5:0:5000
@@ -7332,7 +7341,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_CORPSE
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_COLD | IM_POIS
 D:A Troll who is big in the Breccia, a Trollish crime syndicate.
-D:He wears jewelry fasioned from the teeth of his adversaries.
+D:He wears jewellery fashioned from the teeth of his adversaries.
 
 N:552:Mist giant
 G:#:B
@@ -7400,7 +7409,7 @@ S:1_IN_4|
 S:BO_FIRE
 D:Back from the grave, to wreak vengeance upon the living. A gaunt, tall, 
 D:skeletal figure wearing a ruined plate mail. He will kill you right now.
-D:Tuesday next at the latest. Definatly by the spring.
+D:Tuesday next at the latest. Definitely by the spring.
 
 N:556:Young octorine dragon
 G:d:v
@@ -7600,7 +7609,7 @@ F:NO_SLEEP | NO_CONF | NO_STUN | NONLIVING |
 F:EVIL | DEMON 
 S:1_IN_4 | 
 S:BLINK | DARKNESS | S_DEMON
-D:An ugly unlevened demon with insect-like extremities and large bulbous eyes.  
+D:An ugly unleavened demon with insect-like extremities and large bulbous eyes.  
 D:Tastes good with gefilte fish and horsradish.
 
 N:569:Elder thingamajig
@@ -8030,8 +8039,8 @@ F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP | POWERFUL |
 F:NO_CONF | NO_SLEEP |
 S:1_IN_7 | 
 S:S_KIN | S_DEMON | BO_WATE | BA_WATE | BO_ACID | BA_ACID 
-D:The god of human sacrafice. Half man, Half chiken, half jaguar 
-D:half serpant, half scorpion and half mad.
+D:The god of human sacrifice. Half man, Half chicken, half jaguar 
+D:half serpent, half scorpion and half mad.
 
 N:596:Hyderopia
 G:u:g
@@ -8086,7 +8095,7 @@ S:1_IN_2 |
 S:BO_FIRE | BO_COLD | HOLD | BO_MANA | S_MONSTER
 S:TRAPS | BO_ICEE | HEAL | BO_PLAS | BA_CHAO
 D:The founder of Unseen university. One of the most powerful 
-D:and, aparently, crotchety wizards of the disk.
+D:and, apparently, crotchety wizards of the disk.
 
 N:599:Time vortex
 G:v:G
@@ -8217,7 +8226,7 @@ F:EVIL | IM_FIRE | NONLIVING |
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_4 |
 S:BO_PLAS | BA_FIRE
-D:Oh no! It's 1/4 of the apocolypse! Run!
+D:Oh no! It's 1/4 of the apocalypse! Run!
 
 N:607:Black wraith
 G:W:D
@@ -8257,7 +8266,7 @@ D:of all, they never spoke or laughed, and never smiled because they
 D:had no faces at all to smile with, but only to a suggestive 
 D:blankness where a face ought to be."
 
-N:609:Middle maneager of hell
+N:609:Middle manager of hell
 G:U:U
 I:110:113d12:10:65:40
 W:38:3:0:1000
@@ -8575,8 +8584,8 @@ S:1_IN_2 |
 S:HEAL | TELE_TO | BLIND | CONF | CAUSE_3 | DARKNESS | FORGET | HOLD |
 S:S_MONSTER | S_MONSTERS | S_DEMON | TPORT | BA_NETH | MIND_BLAST |
 S:S_KIN
-D:Head of the Quisition. Looks like a normaly proportioned person
-D:modeled in clay by a child then rolled out.
+D:Head of the Quisition. Looks like a normally proportioned person
+D:modelled in clay by a child then rolled out.
 
 N:629:Binky, Deaths's steed
 G:q:W
@@ -8628,7 +8637,7 @@ F:ANIMAL | HURT_LITE | NO_FEAR
 D:It is a strange mass of squirming worms.  Magical energy crackles 
 D:around its disgusting form.
 
-N:633:Rotting quylthulg
+N:633:Rotting Monst-o-mat
 G:Q:U
 I:120:12d10:20:1:0
 W:40:1:0:1500
@@ -8676,7 +8685,7 @@ S:SCARE | BO_FIRE |
 S:BR_FIRE
 D:A strange reptilian hybrid with nine smouldering heads.
 
-N:636:K!sidra
+N:636:Enchantress
 G:p:y
 I:130:31d10:20:25:10
 W:40:4:0:2100
@@ -8691,9 +8700,9 @@ F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | 
 S:S_DRAGON
-D:A dragon rider from the Wyrmberg.
+D:Pretty girl, but smells a bit like bacon.
 
-N:637:Cenobriarch
+N:637:Cenobiarch
 G:p:b
 I:120:34d10:20:30:10
 W:40:2:0:1800
@@ -10170,7 +10179,7 @@ S:1_IN_4 |
 S:BLIND | CONF | BRAIN_SMASH | 
 S:BR_FIRE | BO_PLAS | BA_NETH | S_HI_UNDEAD | S_UNDEAD |
 S:S_DEMON
-D:It is a massive humanoid demon wandering aimlessly in an overstimulatd daze,
+D:It is a massive humanoid demon wandering aimlessly in an overstimulated daze,
 D:feasting on warmed over pretzels, frozen yogurt AND YOUR IMMORTAL SOUL!!!
 
 N:721:Goat of Mendes
@@ -10227,7 +10236,7 @@ F:BASH_DOOR | STUPID | DROP_CORPSE
 F:EVIL | IM_FIRE | FORCE_SLEEP | FORCE_MAXHP
 S:1_IN_5 |
 S:BO_PLAS | BA_FIRE
-D:It is a belligrent minotaur with some destructive magical arsenal, armed 
+D:It is a belligerent minotaur with some destructive magical arsenal, armed 
 D:with a hammer.
 
 N:724:Nether gerbil
@@ -10283,7 +10292,7 @@ D:The very air warps as pure elemental energy stalks towards you in the
 D:shape of a cute little gerbil.  Your hair stands on end and your palms itch as 
 D:you sense trouble.
 
-N:727:Demonic quylthulg
+N:727:Demonic Monst-o-mat
 G:Q:R
 I:120:28d10:20:1:0
 W:51:1:0:3000
@@ -10367,7 +10376,7 @@ S:BLIND | SCARE | CAUSE_3 | BA_NETH | BA_FIRE | BO_PLAS | S_MONSTERS
 D:It is a humanoid form dressed in armour of ancient style.  From beneath 
 D:its helmet, eyes glow with hellfire.
 
-N:732:Bull Gates
+N:732:Chysophrase
 G:p:D
 I:140:25d70:40:45:0
 W:52:3:0:20000
@@ -10382,7 +10391,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:IM_POIS | IM_FIRE | NO_CONF | NO_SLEEP | EVIL | RES_TELE
 S:1_IN_6 | 
 S:TRAPS
-D:He may not code worth a dime, but he certainly knows how to make money.
+D:A Large Troll who wears rings made from the teeth of business rivals.
 
 N:733:The Hogfather
 G:h:r
@@ -10405,7 +10414,7 @@ S:BA_NETH | FORGET | TRAPS | BRAIN_SMASH | TELE_AWAY
 D:Why would anybody want to kill the HOGFATHER? To get all the delicious 
 D:pork products of course!
 
-N:734:Eihort, the Thing in the Bus Station Lavtory
+N:734:Eihort, the Thing in the Bus Station Lavatory
 G:j:R
 I:120:33d70:50:45:10
 W:53:3:0:45000
@@ -10809,7 +10818,7 @@ D:A massive legendary hydra.  It has twelve powerful heads.  Its many eyes
 D:stare at you as clouds of smoke and poisonous vapour rise from its 
 D:seething form.
 
-N:755:Jimi, the god of beggers
+N:755:Jimi, the god of beggars
 G:V:D
 I:130:40d70:20:72:10
 W:55:4:0:20000
@@ -10824,7 +10833,7 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
 S:BRAIN_SMASH | BA_NETH | S_KIN
-D:The god of beggers.
+D:The god of beggars.
 
 N:756:Great Draco Nobilis
 G:D:r
@@ -10881,7 +10890,7 @@ D:two paws and wielding a mighty axe and a whip in the other
 D:two. Intelligent, bloodthirsty eyes behold you from inside 
 D:the bloody demon armour.
 
-N:759:Draconic quylthulg
+N:759:Draconic Monst-o-mat
 G:Q:G
 I:120:72d7:20:1:0
 W:55:3:0:5500
@@ -10950,7 +10959,7 @@ F:FRIENDLY |
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | FRIENDLY |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | 
-D:He is one of the greatest dwarven heros of the disk.
+D:He is one of the greatest dwarven heroes of the disk.
 
 N:763:Dworkin Barimen
 G:p:v
@@ -11157,7 +11166,7 @@ S:BO_ICEE | BA_ACID | BA_FIRE | BA_COLD | BA_WATE |
 S:S_UNDEAD | S_DEMON | S_DRAGON
 D:King of the elves. And a nasty piece of work he is too.
 
-N:772:Archchancelor Ridcully
+N:772:Archchancellor Ridcully
 G:p:v
 I:120:49d70:101:50:0
 W:60:7:0:35000
@@ -11176,7 +11185,7 @@ S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE |
 S:CAUSE_4 | BRAIN_SMASH | FORGET | TRAPS | 
 S:BA_FIRE | BO_FIRE | BO_PLAS | BO_MANA |
 S:S_MONSTER | S_ANGEL | S_DRAGON | S_KIN 
-D:The archancelor of unseen university.
+D:The archancellor of Unseen University.
 
 N:773:Brand, Mad Visionary of Amber
 G:p:v
@@ -11319,9 +11328,10 @@ F:BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BR_CHAO
-D:A constantly changing, er, gerbiline form, this gerbil rushes towards you as if 
-D:expecting mayhem and chaos ahead.  It appears to have an almost kamikaze 
-D:relish for combat.  You suspect all may not be as it seems.
+D:A constantly changing, er, gerbiline form, this gerbil rushes 
+D:towards you as if expecting mayhem and chaos ahead. It appears 
+D:to have an almost kamikaze relish for combat. You suspect all
+D:may not be as it seems.
 
 N:780:Vlad Dracula, Prince of Darkness
 G:V:b
@@ -11738,7 +11748,7 @@ D:plume of feathers trailing down in the back. He was standing in the
 D:profile, one arm akimbo, and toes of his boots curled upwards, and he 
 D:wore an emerald-studded dagger at his belt... He was dark."
 
-N:800:Master quylthulg
+N:800:Master Monst-o-mat
 G:Q:b
 I:120:20d70:20:1:0
 W:71:3:0:12000
@@ -11750,7 +11760,7 @@ S:1_IN_2 |
 S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DRAGON | S_HI_UNDEAD | S_HI_DRAGON
 D:A pulsating mound of flesh, shining with silver pulses of throbbing light.
 
-N:801:Greater draconic quylthulg
+N:801:Greater draconic Monst-o-mat
 G:Q:g
 I:120:15d70:20:1:0
 W:71:3:0:10500
@@ -11764,7 +11774,7 @@ S:S_HI_DRAGON
 D:A massive mound of scaled flesh, throbbing and pulsating with multi-hued 
 D:light.
 
-N:802:Greater rotting quylthulg
+N:802:Greater rotting Monst-o-mat
 G:Q:u
 I:120:15d70:20:1:0
 W:71:3:0:10500
@@ -11804,16 +11814,14 @@ B:TOUCH:LOSE_DEX:2d12
 B:TOUCH:LOSE_DEX:2d12
 F:UNIQUE | MALE | CAN_SPEAK | RES_TELE
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ESCORT | 
-F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GREAT | 
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | 
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
-S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
-S:BRAIN_SMASH | TRAPS | BA_MANA | 
-S:BO_MANA | BA_NETH | 
-S:S_MONSTERS | S_UNDEAD | S_KIN | ANIM_DEAD
+S:BLINK | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
+S:BRAIN_SMASH | BA_MANA | 
+S:BO_MANA | BA_NETH | ANIM_DEAD
 D:He is a highly cunning, extremely magical being, spoken of in legends.  
 D:This ancient shadow of death wilts any living thing it passes.
 
@@ -12166,7 +12174,7 @@ D:blade, only (his) was heavier, though not quite as long as (Eric's).
 D:(He) had (his) gloves on and they were silver and scaled. The clasp 
 D:at (his) neck was cast in the form of a silver rose."
 
-N:821:The Emperor Quylthulg
+N:821:The Emperor Monst-o-mat
 G:Q:y
 I:130:38d100:30:1:0
 W:78:3:0:20000
@@ -12180,7 +12188,7 @@ S:1_IN_2 |
 S:BRAIN_SMASH | 
 S:S_HI_UNDEAD | S_HI_DRAGON
 D:A huge seething mass of flesh with a rudimentary intelligence, the Emperor 
-D:Quylthulg changes colours in front of your eyes.  Pulsating first one 
+D:Monst-o-mat changes colours in front of your eyes.  Pulsating first one 
 D:colour then the next, it knows only it must bring help to protect itself.
 
 N:822:Qlzqqlzuup, the Lord of Flesh
@@ -12356,7 +12364,7 @@ S:1_IN_1 |
 S:TELE_TO | SLOW | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | 
 S:S_HI_UNDEAD | ANIM_DEAD
-D:It's 1/4 of the apocolypse! RUN!
+D:It's 1/4 of the apocalypse! RUN!
 
 N:831:Mephistopheles, Lord of Hell
 G:U:r
@@ -12673,7 +12681,7 @@ B:BITE:HURT:20d6
 B:BITE:HURT:20d6
 F:DROP_CORPSE |
 F:FORCE_MAXHP | 
-F:RAND_25 | 
+F:RAND_25 | UNIQUE |
 F:OPEN_DOOR | BASH_DOOR | KILL_BODY | 
 F:EVIL | IM_POIS | IM_COLD
 D:Uh-oh.
@@ -12927,7 +12935,7 @@ D:black doorway... A mountain shambled or walked."
 
 # Sauron is no longer a quest monster (in Zangband), just a "normal" one.
 
-N:858:The Suprime Grand Master
+N:858:The Supreme Grand Master
 G:p:o
 I:130:105d70:100:80:0
 W:98:1:0:50000
@@ -12949,7 +12957,7 @@ S:BO_ICEE | BO_MANA | BO_PLAS |
 S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | 
 S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_HI_DRAGON |
 S:HAND_DOOM | ANIM_DEAD
-D:All hail the suprime grand master!
+D:All hail the supreme grand master!
 
 N:859:The Unicorn of Order
 G:q:w
@@ -13352,7 +13360,7 @@ F:EVIL | NO_CONF | NO_SLEEP |
 S:1_IN_2 | 
 S:HEAL | BLINK | BLIND | CONF | CAUSE_3 | 
 S:S_MONSTER | S_KIN |
-D:A truelly horrid humanoid that delights in torture.
+D:A truely horrid humanoid that delights in torture.
 
 N:882:Anti-magic gerbil
 G:r:v

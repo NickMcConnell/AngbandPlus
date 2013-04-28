@@ -47,7 +47,7 @@ says, 'This CAN'T be good.'
 
 N:53:Gaspode the Wonder Dog
 4
-Scratches himself
+scratches himself
 says, 'Bark, Bark, Bark!'
 says, 'Growl.'
 says, 'It's a dog's life.'

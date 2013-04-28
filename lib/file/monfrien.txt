@@ -29,10 +29,10 @@
 
 N:8:C.M.O.T. Dibbler
 7
-Sossage? Inna bun?
-Meat? Onna Stick?
-Psst! Wanna buy Lancre Bridge?
-Commerce is the life blood of the city!
+says, 'Sossage? Inna bun?'
+says, 'Meat? Onna Stick?'
+whispers, 'Psst! Wanna buy Lancre Bridge?'
+claims, 'Commerce is the life blood of the city!'
 brandishes a bottle of patent ointment in your face.
 whines, 'That's cutting me own throat.'
 says, 'To you, ninety pence, and that's cutting me own throat.'
@@ -59,7 +59,7 @@ says, 'Where am I going to find bannanas?'
 
 N:53:Gaspode the Wonder Dog
 5
-Scratches himself
+scratches himself
 says, 'Bark, Bark, Bark!'
 says, 'Growl.'
 says, 'It's a dog's life.'

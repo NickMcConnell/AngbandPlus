@@ -2,7 +2,7 @@ N:*:Default
 65
 Out of cheeze error.
 I'm afraid I can't let you do that Dave.
-Insufficient data for further analysis.
++++ Divide By Cucumber Error. Please Reinstall Universe And Reboot +++
 Non sequitur. Your facts are uncoordinated.
 Type '?' or '\' for help.
 Invalid command.
