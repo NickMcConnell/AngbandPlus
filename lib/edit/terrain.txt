@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.7.0
+V:0.1.0
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol
@@ -63,30 +63,30 @@ G:<:w
 N:7:down staircase
 G:>:w
 
-# 0x08 --> special dungeon feature -- lava
+# 0x08 --> special feature -- lava
 
 N:8:lava
 G:#:r
 
-# 0x09 --> special dungeon feature -- water
+# 0x09 --> special feature -- water
 
 N:9:water
 G:.:b
 
-# 0x0A --> special dungeon feature -- tree
+# 0x0A --> special feature -- tree
 
 N:10:trees
 G:+:g
 
-# 0x0B --> shop -- temple (old)
+# 0x0B --> special feature -- grass
 
-N:11:Temple
-G:4:g
+N:11:grass
+G:.:g
 
-# 0x0C --> shop -- alchemist (old)
+# 0x0C --> special feature -- trap drawn as grass
 
-N:12:Alchemy Shop
-G:5:b
+N:12:invisible trap
+G:.:g
 
 # 0x0D --> shop -- magic shop (old)
 
@@ -493,4 +493,44 @@ G:^:y
 
 N:95:monster trap
 G:^:y
+
+# 0x60  --> easy path north
+
+N:96:path north
+G:<:r
+
+# 0x61  --> hard path north
+
+N:97:path north
+G:>:r
+
+# 0x62  --> easy path east
+
+N:98:path east
+G:<:y
+
+# 0x63  --> hard path east
+
+N:99:path east
+G:>:y
+
+# 0x64  --> easy path south
+
+N:100:path south
+G:<:g
+
+# 0x65  --> hard path south
+
+N:101:path south
+G:>:g
+
+# 0x66  --> easy path west
+
+N:102:path west
+G:<:b
+
+# 0x67  --> hard path west
+
+N:103:path west
+G:>:b
 

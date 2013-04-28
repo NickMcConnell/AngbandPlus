@@ -226,16 +226,16 @@ LIBS = -L/usr/X11R6/lib -lX11 -lXaw -lXext -lSM -lICE -lXmu -lXt -lcurses -lterm
 # Hack -- "install" as the base target
 #
 
-install: oangband
-	cp oangband ..
+install: faangband
+	cp faangband ..
 
 
 #
-# Build the "OAngband" program
+# Build the "Faangband" program
 #
 
-oangband: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o oangband $(OBJS) $(LIBS)
+faangband: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o faangband $(OBJS) $(LIBS)
 
 
 #

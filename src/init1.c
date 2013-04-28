@@ -182,10 +182,10 @@ static cptr r_info_flags2[] =
 	"REGENERATE",
 	"XXX3X2",
 	"XXX4X2",
-	"X",
-	"XXX5X2",
-	"XXX7X2",
-	"XXX6X2",
+	"RUDH",
+	"NARGOTHROND",
+	"DUNGORTHEB",
+	"GAURHOTH",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -395,7 +395,7 @@ static cptr r_info_flags7[] =
 	"XX15",
 	"S_UNDEAD",
 	"S_HI_UNDEAD",
-	"S_WRAITH",
+	"S_QUEST",
 	"S_UNIQUE"
 };
 
@@ -3127,20 +3127,45 @@ errr init_rp_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+		/* Process 'E' for "Racial Equipment Modifier" (one line only) */
+		if (buf[0] == 'E')
+		{
+			int id, mint, maxt, skde, ac, pval, xtra1, xtra2;
+
+			/* Scan for the values */
+			if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+					&id, &mint, &maxt, &skde,
+					&ac, &pval, &xtra1, &xtra2)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+			rp_ptr->re_id = id;
+			rp_ptr->re_mint = mint;
+			rp_ptr->re_maxt = maxt;
+			rp_ptr->re_skde = skde;
+			rp_ptr->re_ac = ac;
+			rp_ptr->re_pval = pval;
+			rp_ptr->re_xtra1 = xtra1;
+			rp_ptr->re_xtra2 = xtra2;
+
+			/* Next... */
+			continue;
+		}
+
 
 		/* Process 'X' for "Extra Info" (one line only) */
 		if (buf[0] == 'X')
 		{
-			int mhp, diff, infra;
+			int mhp, diff, infra, start_level;
 
 			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%d:%d",
-					&mhp, &diff, &infra)) return (PARSE_ERROR_GENERIC);
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+					&mhp, &diff, &infra, &start_level)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
 			rp_ptr->r_mhp = mhp;
 			rp_ptr->difficulty = diff;
 			rp_ptr->infra = infra;
+			rp_ptr->start_lev = start_level;
 
 			/* Next... */
 			continue;

@@ -550,8 +550,8 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Determine "con" of the monster (default is TERM_WHITE) */
-		if (r_ptr->level < p_ptr->max_depth - 5) con_color = TERM_SLATE;
-		if (r_ptr->level > p_ptr->max_depth + 1) con_color = TERM_RED;
+		if (r_ptr->level < p_ptr->recall[0] - 5) con_color = TERM_SLATE;
+		if (r_ptr->level > p_ptr->recall[0] + 1) con_color = TERM_RED;
 
 		/* Build the description of rarity and location. */
 		if (r_ptr->flags1 & (RF1_QUESTOR))
@@ -1140,7 +1140,7 @@ static void roff_aux(int r_idx)
 		if (flags7 & (RF7_S_HI_DEMON))	vp[vn++] = "Greater Demons";
 		if (flags7 & (RF7_S_UNDEAD))		vp[vn++] = "an undead";
 		if (flags7 & (RF7_S_HI_UNDEAD))	vp[vn++] = "Greater Undead";
-		if (flags7 & (RF7_S_WRAITH))		vp[vn++] = "the Ringwraiths";
+		if (flags7 & (RF7_S_QUEST))		vp[vn++] = "Dungeon Guardians";
 		if (flags7 & (RF7_S_UNIQUE))		vp[vn++] = "Unique Monsters";
 	}
 
@@ -1932,15 +1932,18 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 			/* No differences */
 			break;
 		}
-		/* Half-Elf */
+		/* Green Elf */
 		case 1:
 		{
 			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 3;
 			r_ptr->aaf += 2;
 			r_ptr->hdice = 6 * r_ptr->hdice / 7;
 			break;
+			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
+				r_ptr->flags3 &= ~(RF3_HURT_LITE);
+			break;
 		}
-		/* Elf */
+		/* Grey Elf */
 		case 2:
 		{
 			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 5;
@@ -1973,7 +1976,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 
 			break;
 		}
-		/* Gnome */
+		/* Petty-Dwarf */
 		case 4:
 		{
 			r_ptr->flags6 |= (RF6_BLINK);
@@ -1987,37 +1990,19 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 			r_ptr->hdice = 6 * r_ptr->hdice / 5;
 			break;
 		}
-		/* Half-Orc */
+		/* Druadan */
 		case 6:
 		{
-			r_ptr->flags3 |= (RF3_ORC);
+		        /* No difference */
 			break;
 		}
-		/* Half-Troll */
+		/* Longbeard */
 		case 7:
 		{
-			if (!r_ptr->freq_ranged) r_ptr->freq_ranged = 5;
-			if (r_ptr->freq_ranged > 5) 
-				r_ptr->freq_ranged = 2 * r_ptr->freq_ranged / 3;
-
-			r_ptr->flags4 |= (RF4_BOULDER);
-			r_ptr->flags3 |= (RF3_TROLL);
-
-			r_ptr->hdice = 3 * r_ptr->hdice / 2;
-			r_ptr->aaf -= 2;
-
-			r_ptr->ac += r_ptr->level / 10 + 10;
-
-			m_ptr->mspeed -= 2;
-
-			for (n = 0; n < 4; n++)
-			{
-				r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
-			}
-
+			r_ptr->hdice = 6 * r_ptr->hdice / 5;
 			break;
 		}
-		/* Dunadan */
+		/* Adan */
 		case 8:
 		{
 			r_ptr->ac += r_ptr->level / 10 + 5;
@@ -2051,13 +2036,13 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 			break;
 		}
 
-		/* Shadow Fairy */
+		/* Dark Elf */
 		case 11:
 		{
-			if (r_ptr->level < 15) r_ptr->flags6 |= (RF6_BLIND);
-			else r_ptr->flags2 |= (RF2_INVISIBLE);
+			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 3;
+			r_ptr->aaf += 2;
+			r_ptr->flags2 |= (RF2_INVISIBLE);
 			r_ptr->hdice = 3 * r_ptr->hdice / 4;
-			r_ptr->flags3 |= (RF3_HURT_LITE);
 			break;
 		}
 

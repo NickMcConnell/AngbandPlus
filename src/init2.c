@@ -326,9 +326,9 @@ static errr init_f_info(void)
 	MAKE(f_head, header);
 
 	/* Save the "version" */
-	f_head->v_major = O_VERSION_MAJOR;
-	f_head->v_minor = O_VERSION_MINOR;
-	f_head->v_patch = O_VERSION_PATCH;
+	f_head->v_major = VERSION_MAJOR;
+	f_head->v_minor = VERSION_MINOR;
+	f_head->v_patch = VERSION_PATCH;
 	f_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -578,9 +578,9 @@ static errr init_k_info(void)
 	MAKE(k_head, header);
 
 	/* Save the "version" */
-	k_head->v_major = O_VERSION_MAJOR;
-	k_head->v_minor = O_VERSION_MINOR;
-	k_head->v_patch = O_VERSION_PATCH;
+	k_head->v_major = VERSION_MAJOR;
+	k_head->v_minor = VERSION_MINOR;
+	k_head->v_patch = VERSION_PATCH;
 	k_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -814,9 +814,9 @@ static errr init_h_info(void)
 	MAKE(h_head, header);
 
 	/* Save the "version" */
-	h_head->v_major = O_VERSION_MAJOR;
-	h_head->v_minor = O_VERSION_MINOR;
-	h_head->v_patch = O_VERSION_PATCH;
+	h_head->v_major = VERSION_MAJOR;
+	h_head->v_minor = VERSION_MINOR;
+	h_head->v_patch = VERSION_PATCH;
 	h_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -1041,10 +1041,10 @@ static errr init_b_info(void)
 	MAKE(b_head, header);
 
 	/* Save the "version" */
-	b_head->v_major = O_VERSION_MAJOR;
-	b_head->v_minor = O_VERSION_MINOR;
-	b_head->v_patch = O_VERSION_PATCH;
-	b_head->v_extra = O_VERSION_EXTRA;
+	b_head->v_major = VERSION_MAJOR;
+	b_head->v_minor = VERSION_MINOR;
+	b_head->v_patch = VERSION_PATCH;
+	b_head->v_extra = VERSION_EXTRA;
 
 	/* Save the "record" information */
 	b_head->info_num = MAX_STORES * MAX_B_IDX;
@@ -1263,10 +1263,10 @@ static errr init_g_info(void)
 	MAKE(g_head, header);
 
 	/* Save the "version" */
-	g_head->v_major = O_VERSION_MAJOR;
-	g_head->v_minor = O_VERSION_MINOR;
-	g_head->v_patch = O_VERSION_PATCH;
-	g_head->v_extra = O_VERSION_EXTRA;
+	g_head->v_major = VERSION_MAJOR;
+	g_head->v_minor = VERSION_MINOR;
+	g_head->v_patch = VERSION_PATCH;
+	g_head->v_extra = VERSION_EXTRA;
 
 	/* Save the "record" information */
 	g_head->info_num = (MAX_P_IDX * MAX_P_IDX);
@@ -1578,9 +1578,9 @@ static errr init_a_info(void)
 	MAKE(a_head, header);
 
 	/* Save the "version" */
-	a_head->v_major = O_VERSION_MAJOR;
-	a_head->v_minor = O_VERSION_MINOR;
-	a_head->v_patch = O_VERSION_PATCH;
+	a_head->v_major = VERSION_MAJOR;
+	a_head->v_minor = VERSION_MINOR;
+	a_head->v_patch = VERSION_PATCH;
 	a_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -1830,9 +1830,9 @@ static errr init_s_info(void)
 	MAKE(s_head, header);
 
 	/* Save the "version" */
-	s_head->v_major = O_VERSION_MAJOR;
-	s_head->v_minor = O_VERSION_MINOR;
-	s_head->v_patch = O_VERSION_PATCH;
+	s_head->v_major = VERSION_MAJOR;
+	s_head->v_minor = VERSION_MINOR;
+	s_head->v_patch = VERSION_PATCH;
 	s_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -2082,9 +2082,9 @@ static errr init_e_info(void)
 	MAKE(e_head, header);
 
 	/* Save the "version" */
-	e_head->v_major = O_VERSION_MAJOR;
-	e_head->v_minor = O_VERSION_MINOR;
-	e_head->v_patch = O_VERSION_PATCH;
+	e_head->v_major = VERSION_MAJOR;
+	e_head->v_minor = VERSION_MINOR;
+	e_head->v_patch = VERSION_PATCH;
 	e_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -2334,9 +2334,9 @@ static errr init_r_info(void)
 	MAKE(r_head, header);
 
 	/* Save the "version" */
-	r_head->v_major = O_VERSION_MAJOR;
-	r_head->v_minor = O_VERSION_MINOR;
-	r_head->v_patch = O_VERSION_PATCH;
+	r_head->v_major = VERSION_MAJOR;
+	r_head->v_minor = VERSION_MINOR;
+	r_head->v_patch = VERSION_PATCH;
 	r_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -2585,9 +2585,9 @@ static errr init_v_info(void)
 	MAKE(v_head, header);
 
 	/* Save the "version" */
-	v_head->v_major = O_VERSION_MAJOR;
-	v_head->v_minor = O_VERSION_MINOR;
-	v_head->v_patch = O_VERSION_PATCH;
+	v_head->v_major = VERSION_MAJOR;
+	v_head->v_minor = VERSION_MINOR;
+	v_head->v_patch = VERSION_PATCH;
 	v_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -2835,10 +2835,10 @@ static errr init_rp_info(void)
 	MAKE(rp_head, header);
 
 	/* Save the "version" */
-	rp_head->v_major = O_VERSION_MAJOR;
-	rp_head->v_minor = O_VERSION_MINOR;
-	rp_head->v_patch = O_VERSION_PATCH;
-	rp_head->v_extra = O_VERSION_EXTRA;
+	rp_head->v_major = VERSION_MAJOR;
+	rp_head->v_minor = VERSION_MINOR;
+	rp_head->v_patch = VERSION_PATCH;
+	rp_head->v_extra = VERSION_EXTRA;
 
 	/* Save the "record" information */
 	rp_head->info_num = MAX_P_IDX;
@@ -3082,10 +3082,10 @@ static errr init_cp_info(void)
 	MAKE(cp_head, header);
 
 	/* Save the "version" */
-	cp_head->v_major = O_VERSION_MAJOR;
-	cp_head->v_minor = O_VERSION_MINOR;
-	cp_head->v_patch = O_VERSION_PATCH;
-	cp_head->v_extra = O_VERSION_EXTRA;
+	cp_head->v_major = VERSION_MAJOR;
+	cp_head->v_minor = VERSION_MINOR;
+	cp_head->v_patch = VERSION_PATCH;
+	cp_head->v_extra = VERSION_EXTRA;
 
 	/* Save the "record" information */
 	cp_head->info_num = MAX_P_IDX;
@@ -3273,9 +3273,9 @@ errr init_t_info(byte chosen_level)
 	MAKE(t_head, header);
 
 	/* Save the "version" */
-	t_head->v_major = O_VERSION_MAJOR;
-	t_head->v_minor = O_VERSION_MINOR;
-	t_head->v_patch = O_VERSION_PATCH;
+	t_head->v_major = VERSION_MAJOR;
+	t_head->v_minor = VERSION_MINOR;
+	t_head->v_patch = VERSION_PATCH;
 	t_head->v_extra = 0;
 
 	/* Save the "record" information */

@@ -3384,6 +3384,86 @@ uint maxroll(uint num, uint sides)
 	return (num * sides);
 }
 
+int get_recall_pt(cptr reason)
+{
+
+        char stage[19];
+
+        cptr q;
+
+	int i, region, level, new = 0;
+
+	char choice;
+
+	char *abcd[4] = {"a", "b", "c", "d"};
+
+	bool chosen = FALSE;
+
+
+
+	/* Save screen */
+	screen_save();
+
+	for (i = 0; i < 4; i++)
+	  {
+	    /* Get the recall point description */
+	    
+	    region = stage_map[p_ptr->recall[i]][LOCALITY];
+	    level  = stage_map[p_ptr->recall[i]][DEPTH];
+	    
+	    if (level)
+	      sprintf(stage, "%s %d   ", locality_name[region], level);
+	    else
+	      sprintf(stage, "%s   ", locality_name[region]);
+	    
+	    put_str(format(" %s) %20s", abcd[i], stage), i + 1, 30);
+	  }
+	    
+	if (get_com(reason, &choice))
+	  {
+	    switch (choice)
+	      {
+	      case 'a':
+		{
+		  new = 1;
+		  break;
+		}
+	      case 'b':
+		{
+		  new = 2;
+		  break;
+		}
+	      case 'c':
+		{
+		  new = 3;
+		  break;
+		}
+	      case 'd':
+		{
+		  new = 4;
+		  break;
+		}
+	      }
+	    /* Nowhere */
+	    if ((new < 1) || (new > 4))
+	      {
+		screen_load();
+		bell("Illegal choice!");
+		return 0;
+	      }
+	  }
+	else /* ESC */
+	  {
+	    screen_load();
+	    return 0;
+	  }
+	
+	/* Load screen */
+	screen_load();
+	
+	/* Got it */
+	return new;
+}
 
 
 

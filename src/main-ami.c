@@ -60,13 +60,13 @@
 /* What variant is this? Used in the highscore dump */
 
 /* Yep, Bablos, this is still a mess! ;) */
-#define VERTITLE "Oangband 0.5.1"
-#define VERSION "Oangband"
-#define VERS "0.5.1"
-#define VARIANT "Oangband 0.5.1"
+#define VERTITLE "FAangband 0.1.0"
+#define VERSION "FAangband"
+#define VERS "0.1.0"
+#define VARIANT "FAangband 0.1.0"
 
 /* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
-#define VERPATH "Oangband:"
+#define VERPATH "FAangband:"
 
 #define CGXSUPPORT					/* Define for RTG support. Leave on */
 //#define SANGBAND					/* Define if this is Sangband. */

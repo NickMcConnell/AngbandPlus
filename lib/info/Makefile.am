@@ -1,15 +1,15 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
 
-oangband_files = \
+faangband_files = \
   delete.me
 
 EXTRA_DIST = \
-  $(oangband_files)
+  $(faangband_files)
 
 if SET_GID
-oangbanddir = @DEFAULT_PATH@info
+faangbanddir = @DEFAULT_PATH@info
 
-oangband_DATA = \
-  $(oangband_files)
+faangband_DATA = \
+  $(faangband_files)
 endif
 

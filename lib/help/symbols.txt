@@ -3,7 +3,7 @@
 
      Angband and many of its variants allow you to use either ASCII (text) 
 characters or graphics to represent the world around you.  Other variants, 
-including Oangband, are text-only.  Using text characters has the great advan-
+including FAangband, are text-only.  Using text characters has the great advan-
 tage of allowing instant on-line identification of any symbol you see.  Type 
 '/', then the character.  Also, you may consult the following tables of symbols, 
 divided into dungeon features, objects, and monsters:
@@ -24,6 +24,7 @@ divided into dungeon features, objects, and monsters:
   >   A staircase down                8   Entrance to your Home
   .   Water                           9   Entrance to the Bookseller
   #   Lava (red)
+  .   Grass (green)
 
                    Features that block line of sight
 

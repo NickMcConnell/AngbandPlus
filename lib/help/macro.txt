@@ -36,7 +36,7 @@ help file "objs-mon.txt".
 
 ----------
 
-Note:  The remainder of this file has not been modified for Oangband (but 
+Note:  The remainder of this file has not been modified for FAangband (but 
 the information in it should be fairly reliable anyway).
 
 === User Pref Files ===

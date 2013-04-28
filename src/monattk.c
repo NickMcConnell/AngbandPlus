@@ -4158,16 +4158,15 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		}
 
 		/* Summon the Ringwraiths */
-		/* RF7_S_WRAITH */
+		/* RF7_S_QUEST */
 		case 192 + 30:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons mighty undead opponents!", m_name);
+			else msg_format("%^s magically summons dungeon guardians!", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, FALSE, 
-					rlev, SUMMON_WRAITH);
+				count += summon_questor(y, x);
 			}
 			for (k = 0; (k < 6) && (count < 6); k++)
 			{
@@ -4176,7 +4175,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			}
 			if (blind && count)
 			{
-				msg_print("You hear many creepy things appear nearby.");
+				msg_print("You hear many powerful things appear nearby.");
 			}
 			break;
 		}

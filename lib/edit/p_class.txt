@@ -58,7 +58,7 @@
 
 # Version stamp (required)
 
-V:0.7.0
+V:0.1.0
 
 
 N:0:Warrior
@@ -94,7 +94,7 @@ X:30:65:45:-3:0:0:25:25
 I:0:240000
 A:60:160:33:30:0:0
 E:90:0:1:1
-E:70:9:1:1
+E:21:1:1:1
 E:70:11:1:1
 U:BEAM | DEVICE_EXPERT | STRONG_MAGIC | CHARM
 L:ARMOR_PROFICIENCY | BEGUILE | CLARITY | ENHANCE_MAGIC | FAST_CAST | 
@@ -119,18 +119,18 @@ I:2:10000
 A:120:220:25:25:0:0
 E:91:0:1:1
 E:21:5:1:1
-E:75:18:1:1
+E:75:37:1:1
 U:STRONG_MAGIC | HOLY | BLESS_WEAPON
 L:CLARITY | ENHANCE_MAGIC | FAST_CAST | MEDITATION | ARMSMAN | 
 L:PHASEWALK | HOLY_LIGHT | HARMONY | FURY | HEIGHTEN_MAGIC |
 L:CHANNELING
-T:Believer
+T:Initiate
 T:Acolyte
 T:Adept
 T:Curate
 T:Theurgist
-T:Canon
-T:Lama
+T:Harmonist
+T:Priest
 T:Patriarch
 T:High Priest
 T:Priest Lord

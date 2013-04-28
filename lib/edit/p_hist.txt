@@ -11,28 +11,29 @@
 # Background information (see below)
 #
 # Chart progression by race:
-#   Human/Dunadan -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Half-Elf      -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Elf/High-Elf  -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
-#   Hobbit        --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
-#   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
-#  Maia          --> 25 --> 26 --> 67 --> 68
-#   Shadow Fairy  --> 28 --> 29 --> 69 --> 70 --> 71 --> 72
-#   Ent           --> 31 --> 32 --> 74 --> 75 --> 76
-#   Beorning      -->  80 -->  81 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Human/Adan      -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Green Elf       -->  4 -->  7 -->  9 --> 54 --> 55 --> 56
+#   Grey Elf        -->  5 -->  7 -->  9 --> 54 --> 55 --> 56
+#   Hobbit          --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Petty-Dwarf     --> 13 --> 14 --> 57 --> 58 --> 59 --> 60 --> 61
+#   Dwarf/Longbeard --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
+#   Druadan         --> 19 --> 23 --> 62 --> 63 --> 64 --> 66
+#   High Elf        -->  6 -->  7 -->  9 --> 54 --> 55 --> 56
+#   Maia            --> 25 --> 26 --> 67 --> 68
+#   Dark Elf        --> 28 --> 29 --> 54 --> 55 --> 56
+#   Ent             --> 31 --> 32 --> 74 --> 75 --> 76
+#   Beorning        --> 80 --> 81 -->  3 --> 50 --> 51 --> 52 --> 53
 #
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
+# N:chart:next:roll:bonus
 
 # Note that the "spacing" in the "description" lines is very important!
 
 
 # Version stamp (required)
 
-V:0.7.0
+V:0.1.0
 
 N:1:2:10:25
 D:You are the illegitimate and unacknowledged child 
@@ -65,43 +66,60 @@ D:You are a credit to the family.
 N:3:50:100:60
 D:You are a well liked child.  
 
-N:4:1:40:50
-D:Your mother was of the Teleri.  
-N:4:1:75:55
-D:Your father was of the Teleri.  
-N:4:1:90:55
-D:Your mother was of the Noldor.  
-N:4:1:95:60
-D:Your father was of the Noldor.  
-N:4:1:98:65
-D:Your mother was of the Vanyar.  
-N:4:1:100:70
-D:Your father was of the Vanyar.  
+N:4:7:40:50
+D:Your mother was a Green Elf.  
+N:4:7:75:55
+D:Your father was a Green Elf.  
+N:4:7:90:55
+D:Your mother was of the clan of Lenwe.  
+N:4:7:95:60
+D:Your father was of the clan of Lenwe.  
+N:4:7:98:65
+D:Your mother was the daughter of Denethor.  
+N:4:7:100:70
+D:Your father was Denethor son of Lenwe.  
 
-N:7:8:60:50
+N:5:7:40:50
+D:Your mother was of the Sindar.  
+N:5:7:75:55
+D:Your father was of the Sindar.  
+N:5:7:90:55
+D:Your mother lived in Menegroth.  
+N:5:7:95:60
+D:Your father lived in Menegroth.  
+N:5:7:98:65
+D:Your mother was of the household of Melian.  
+N:5:7:100:70
+D:Your father was of the court of Thingol Greycloak.  
+
+N:6:7:40:50
+D:Your mother was of the Noldor.  
+N:6:7:75:55
+D:Your father was of the Noldor.  
+N:6:7:90:55
+D:Your mother was born in Gondolin.  
+N:6:7:95:60
+D:Your father was of the Guard of the Fountains.  
+N:6:7:98:65
+D:Your mother followed Turgon from Valinor.  
+N:6:7:100:70
+D:Your father fought in the Nirnaeth Arnoediad.  
+
+N:7:9:60:50
 D:You are one of several children 
-N:7:8:100:55
+N:7:9:100:55
 D:You are the only child 
 
-N:8:9:75:50
-D:of a Teleri 
-N:8:9:95:55
-D:of a Noldor 
-N:8:9:100:60
-D:of a Vanyar 
-
 N:9:54:40:80
-D:Ranger.  
+D:of a Ranger.  
 N:9:54:70:90
-D:Archer.  
+D:of an Archer.  
 N:9:54:87:110
-D:Warrior.  
+D:of a Warrior.  
 N:9:54:95:125
-D:Mage.  
-N:9:54:99:140
-D:Prince.  
-N:9:54:100:145
-D:King.  
+D:of a Mage.  
+N:9:54:100:140
+D:of a Lord.  
 
 N:10:11:85:45
 D:You are one of several children of a Hobbit 
@@ -125,19 +143,19 @@ N:11:3:100:140
 D:Clan Elder.  
 
 N:13:14:85:45
-D:You are one of several children of a Gnome 
+D:You are one of two children of a Petty-Dwarf 
 N:13:14:100:55
-D:You are the only child of a Gnome 
+D:You are the only child of a Petty-Dwarf 
 
-N:14:3:20:55
+N:14:57:20:55
 D:Beggar.  
-N:14:3:50:70
-D:Braggart.  
-N:14:3:75:85
-D:Prankster.  
-N:14:3:95:100
+N:14:57:50:70
+D:Vagabond.  
+N:14:57:75:85
+D:Assassin.  
+N:14:57:95:100
 D:Warrior.  
-N:14:3:100:125
+N:14:57:100:125
 D:Mage.  
 
 N:16:17:25:40
@@ -165,29 +183,15 @@ D:You are a credit to the family.
 N:18:57:100:55
 D:You are a well liked child.  
 
-N:19:20:25:25
-D:Your mother was an Orc, but it is unacknowledged.  
-N:19:20:100:25
-D:Your father was an Orc, but it is unacknowledged.  
-
-N:20:2:100:50
-D:You are the adopted child 
-
-N:22:23:30:20
-D:Your mother was a Cave-Troll 
-N:22:23:60:25
-D:Your father was a Cave-Troll 
-N:22:23:75:30
-D:Your mother was a Hill-Troll 
-N:22:23:90:35
-D:Your father was a Hill-Troll 
-N:22:23:95:40
-D:Your mother was a Water-Troll 
-N:22:23:100:45
-D:Your father was a Water-Troll 
+N:19:23:85:45
+D:You are one of several children of a Druadan 
+N:19:23:100:55
+D:You are the only child of a Druadan 
 
 N:23:62:5:60
 D:Cook.  
+N:23:62:45:60
+D:Farmer.  
 N:23:62:95:55
 D:Warrior.  
 N:23:62:99:65
@@ -226,33 +230,33 @@ N:26:67:100:95
 D:Manwe.  
 
 N:28:29:10:35
-D:You are the bastard child of a Shadow-Fairy 
+D:You are the bastard child of a Dark Elf 
 N:28:29:30:45
-D:You are one of several children of a Shadow-Fairy 
+D:You are one of several children of a Dark Elf 
 N:28:29:55:50
-D:You are the second child of a Shadow-Fairy 
+D:You are the second child of a Dark Elf 
 N:28:29:80:55
-D:You are the first child of a Shadow-Fairy 
+D:You are the first child of a Dark Elf 
 N:28:29:100:60
-D:You are the only child of a Shadow-Fairy 
+D:You are the only child of a Dark Elf 
 
-N:29:69:5:25
+N:29:54:5:25
 D:whose identity you are uncertain of.  
-N:29:69:20:35
+N:29:54:20:35
 D:Captive.  
-N:29:69:40:45
+N:29:54:40:45
 D:Fighter.  
-N:29:69:50:50
+N:29:54:50:50
 D:Ranger.  
-N:29:69:70:65
+N:29:54:70:65
 D:Scribe.  
-N:29:69:83:75
+N:29:54:83:75
 D:Witch.  
-N:29:69:93:90
+N:29:54:93:90
 D:Alchemist.  
-N:29:69:98:110
+N:29:54:98:110
 D:Lady.  
-N:29:69:100:140
+N:29:54:100:140
 D:Queen.  
 
 N:31:32:25:40
@@ -371,44 +375,31 @@ D:a four foot beard,
 N:61:0:100:50
 D:and a dark complexion.
 
-N:62:63:60:50
-D:You have slime green eyes, 
-N:62:63:85:50
-D:You have puke yellow eyes, 
-N:62:63:99:50
-D:You have blue-bloodshot eyes, 
+N:62:63:80:50
+D:You have black eyes, 
 N:62:63:100:55
 D:You have glowing red eyes, 
 
 N:63:64:33:50
-D:dirty 
+D:unkempt 
 N:63:64:66:50
-D:mangy 
+D:tied back 
 N:63:64:100:50
-D:oily 
+D:plaited 
 
-N:64:65:33:50
-D:sea-weed green hair, 
-N:64:65:66:50
-D:bright red hair, 
-N:64:65:100:50
-D:dark purple hair, 
-
-N:65:66:25:50
-D:and green 
-N:65:66:50:50
-D:and blue 
-N:65:66:75:50
-D:and white 
-N:65:66:100:50
-D:and black 
+N:64:66:20:50
+D:drak-brown hair, 
+N:64:66:40:50
+D:steel-grey hair, 
+N:64:66:100:50
+D:black hair, 
 
 N:66:0:33:50
-D:ulcerous skin.
+D:and bronzed skin.
 N:66:0:66:50
-D:scabby skin.
+D:and darkly-tanned skin.
 N:66:0:100:50
-D:leprous skin.
+D:and weather-beaten skin.
 
 N:67:68:100:50
 D:In the past, you dwelt on earth in the form of 
@@ -424,51 +415,6 @@ D:a wise and ancient counselor.
 N:68:0:100:80
 D:a Wizard of legend.
 
-N:69:70:10:50
-D:You have black eyes, straight 
-N:69:70:25:50
-D:You have dark brown eyes, straight 
-N:69:70:60:50
-D:You have brown eyes, straight 
-N:69:70:70:50
-D:You have hazel eyes, straight 
-N:69:70:80:50
-D:You have green eyes, straight 
-N:69:70:90:50
-D:You have blue eyes, straight 
-N:69:70:100:50
-D:You have blue-gray eyes, straight 
-
-N:70:71:30:50
-D:grey hair 
-N:70:71:70:50
-D:pure white hair 
-N:70:71:80:50
-D:pale yellow hair 
-N:70:71:90:50
-D:grey-white hair
-N:70:71:100:50
-D:pale brown hair 
-
-N:71:72:30:50
-D:that barely covers your shoulders, 
-N:71:72:60:55
-D:that reaches to your arms, 
-N:71:72:90:60
-D:that flows down to your waist, 
-N:71:72:100:75
-D:that forms a shining waterfall from head to foot, 
-
-N:72:0:20:50
-D:and an extremely fair complexion.
-N:72:0:35:50
-D:and a milky complexion.
-N:72:0:50:50
-D:and a pearly complexion.
-N:72:0:85:50
-D:and a pale complexion.
-N:72:0:100:50
-D:and an utterly white complexion.
 
 N:74:75:100:50
 D:You have  
@@ -531,4 +477,4 @@ D:of a Ranger.
 N:81:3:99:130
 D:of a Druid.  
 N:81:3:100:140
-D:of Beorn himself.  
+D:of a Lord.  

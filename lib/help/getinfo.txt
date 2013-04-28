@@ -5,7 +5,7 @@
 have occasion to ask.  It covers the help system you are navigating, how to 
 learn more about yourself, monsters, objects, spells, and the dungeon, and 
 offers a little list of useful places on the Web for people with questions about 
-Angband or Oangband.
+Angband, Oangband or FAangband.
 
 
 === How to use the On-line Help System ===
@@ -80,9 +80,9 @@ ability.  If browsing a spellbook, you can get extra information about any
 known spell by typing its letter.
 
 
-=== Learning More About the Dungeon:  The "Look" Command ===
+=== Learning More About the Environment:  The "Look" Command ===
 
-     There's so much to see and do in the dungeon that you might get a little 
+     There's so much to see and do in the that you might get a little 
 confused about all the symbols around you.  The 'l'ook (or 'x'amine, in the 
 roguelike keyset) command is your friend; simply type that letter, type 'o' if 
 you like precise movement control, and use the direction keys to move the cursor 
@@ -95,15 +95,15 @@ around.
 who've been in the same boat as you.  Here are some resources:
 
 news:rec.games.roguelike.angband  :  The Angband Newsgroup.  It also covers 
-all her variants, including Oangband.  Lots of friendly people.  You may 
-post character dumps there and ask for and offer advice.  Please put a "[O]"
-before Oangband-specific posts.
+all her variants, including Oangband and FAangband.  Lots of friendly people.  
+You may post character dumps there and ask for and offer advice.  Please put a 
+"[FA]" before FAangband-specific posts.
 
-http://www.consume.org/Oangband/  :  The Oangband website.  Get the latest 
+http://www.oangband.com/  :  The Oangband website.  Get the latest 
 version, report bugs and neat ideas to Bahman Rabii, download some spoilers 
 and Oangband tips.
 
-http://thangorodrim.angband.org/  :  The largest clearinghouse of Angband 
+http://www.thangorodrim.net/  :  The largest clearinghouse of Angband 
 and Angband variant information on the Internet.  The official Angband site.  
 Has more than enough links to keep you busy.
 

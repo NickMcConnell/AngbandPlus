@@ -12,9 +12,9 @@ abilites such as the Rogue's monster trap and the Druid's unarmed combat can
 choose specialties to further improve these abilities.
 
 Each character can gain a specialty ability at first level, and additional 
-abilities at level 20 and level 40.  Warriors gain an additional specialty at
-level 1.  Use the 'O' command to gain new specialties or view your current
-list of race, class, and specialty abilities.
+abilities with each of the first two defeats of quest monsters.  Warriors gain 
+an additional specialty at level 1.  Use the 'O' command to gain new 
+specialties or view your current list of race, class, and specialty abilities.
 
 === The Specialties ===
 
@@ -22,7 +22,7 @@ Armor Mastery: Increase body armor base AC.  Most effective with heavy body
 armor.  Available to Warriors, and Paladins.
 
 Armor Proficiency: Reduced mana penalties for heavy armor.  Allows more armor 
-to be worn without penatly, and reduces the penalty per pound of additional 
+to be worn without penalty, and reduces the penalty per pound of additional 
 armor.  Available to Mages, Necromancers, and Druids.
 
 Armsman: More critical hits with melee weapons.  Reduces reliance on high

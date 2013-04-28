@@ -23,7 +23,7 @@ RC         = brc32
 #
 # Name of the *.exe-file
 
-EXE_FILE = Oangband.exe
+EXE_FILE = FAangband.exe
 
 
 ###################################################################
@@ -74,7 +74,7 @@ clean:
 	-@if exist *.ils del *.ils >nul
 
 install: $(EXE_FILE)
-	copy $(EXE_FILE) ..\Oangband.exe
+	copy $(EXE_FILE) ..\FAangband.exe
 
 
 ########################### Explicit Rules ########################

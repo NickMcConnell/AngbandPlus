@@ -1,3 +1,12 @@
+	Faangband Source Material
+
+Below is a description of the uses to which the material in this distribution
+can be put (basically anything, with attribution).  I can't put it better;
+I'll just endorse Leon's and Bahman's comments.
+
+Nick McConnell
+
+=====================================================================
 	Oangband 0.5.0 Source Material - the Readme
 
 

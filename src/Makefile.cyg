@@ -135,7 +135,7 @@ install:	angband movebin cleanobjs
 #		del angband.exe
 
 movebin:
-		mv -f Oangband.exe ../Oangband.exe
+		mv -f FAangband.exe ../FAangband.exe
 
 cleanobjs:
 		rm -f $(EXOBJS)
@@ -151,7 +151,7 @@ clean:	cleanobjs cleanbin
 #
 
 angband: $(EXOBJS)
-	$(CC) -o Oangband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS) -mno-cygwin
+	$(CC) -o FAangband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS) -mno-cygwin
 
 
 

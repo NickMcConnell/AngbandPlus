@@ -1841,15 +1841,15 @@ bool set_food(int v)
 /*
  * Set "p_ptr->word_recall", notice observable changes
  */
-void word_recall(int v)
+bool word_recall(int v)
 {
 	if (!p_ptr->word_recall)
 	{
-		(void)set_recall(v);
+		return set_recall(v);
 	}
 	else
 	{
-		(void)set_recall(0);
+		return set_recall(0);
 	}
 }
 
@@ -2250,45 +2250,22 @@ void monster_death(int m_idx)
 	/* Hack -- Mark quests as complete */
 	for (i = 0; i < MAX_Q_IDX; i++)
 	{
-		/* Hack -- note completed quests */
-		if (q_list[i].level == r_ptr->level) q_list[i].level = 0;
-
-		/* Count incomplete quests */
-		if (q_list[i].level) total++;
+	  /* Hack -- note completed quests */
+	  if (stage_map[q_list[i].stage][1] == r_ptr->level) q_list[i].stage = 0;
 	}
 
 
-	/* Need some stairs */
-	if (total)
-	{
-		/* Stagger around */
-		while (!cave_valid_bold(y, x))
-		{
-			int d = 1;
+	/* Increment complete quests */
+	p_ptr->quests++;
+	
+	/* Check for new specialties */
+	p_ptr->update |= (PU_SPECIALTY);
 
-			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
+	/* Update */
+	update_stuff();
 
-			/* Stagger */
-			y = ny; x = nx;
-		}
-
-		/* Destroy any objects */
-		delete_object(y, x);
-
-		/* Explain the staircase */
-		msg_print("A magical staircase appears...");
-
-		/* Create stairs down */
-		cave_set_feat(y, x, FEAT_MORE);
-
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-	}
-
-
-	/* Nothing left, game over... */
-	else
+	/* Was it the big one? */
+	if (r_ptr->level == 100)
 	{
 		/* Total winner */
 		p_ptr->total_winner = TRUE;
@@ -3316,6 +3293,10 @@ static bool target_set_interactive_accept(int y, int x)
 		if (cave_feat[y][x] == FEAT_LESS) return (TRUE);
 		if (cave_feat[y][x] == FEAT_MORE) return (TRUE);
 
+		/* Notice paths */
+		if ((cave_feat[y][x] >= FEAT_LESS_NORTH) &&
+		    (cave_feat[y][x] <= FEAT_MORE_WEST)) return (TRUE);
+
 		/* Notice shops */
 		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
 		    (cave_feat[y][x] <= FEAT_SHOP_TAIL)) return (TRUE);
@@ -3417,7 +3398,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 {
 	s16b this_o_idx, next_o_idx = 0;
 
-	cptr s1, s2, s3;
+	cptr s1, s2, s3, s4, s5;
 
 	bool boring;
 
@@ -3752,7 +3733,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
 
 			/* Hack -- special treatment for certain terrain features. */
-			if ((feat == FEAT_WATER) || (feat == FEAT_LAVA) || (feat == FEAT_TREE))
+			if ((feat == FEAT_WATER) || (feat == FEAT_LAVA) || (feat == FEAT_TREE) || (feat == FEAT_GRASS) || (feat == FEAT_GRASS_INVIS))
 			{
 				s3 = "";
 			}
@@ -3763,8 +3744,20 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				s3 = "the entrance to the ";
 			}
 
+			/* Hack - destination of surface paths */
+			if ((feat >= FEAT_LESS_NORTH) && (feat <= FEAT_MORE_WEST))
+			  {
+			    s4 = " to ";
+			    s5 = locality_name[stage_map[stage_map[p_ptr->stage][NORTH + (feat - FEAT_LESS_NORTH)/2]][LOCALITY]];
+			  }
+			else
+			  {
+			    s4 = "";
+			    s5 = "";
+			  }
+			
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			sprintf(out_val, "%s%s%s%s%s%s [%s]", s1, s2, s3, name, s4, s5, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();

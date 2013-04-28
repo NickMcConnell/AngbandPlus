@@ -11,12 +11,12 @@
 ####
 # PROGRAM is the name of the program
 
-PROGRAM = oangband
+PROGRAM = faangband
 
 ####
 # BINDIR is the directory where the angband binary will be installed.
 
-BINDIR = /tmp/oangband/bin
+BINDIR = /tmp/faangband/bin
 
 
 ####

@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.7.0
+V:0.1.0
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -39,41 +39,41 @@ V:0.7.0
 #F: All item-specific flags (special qualities).  Some use the pval number.
 #D: Artifact descriptions.
 
-# The Phial of Galadriel (Set Item)
+# The Lamp of Gwindor (Set Item)
 
-N:1:of Galadriel
+N:1:of Gwindor
 I:39:4:0
 W:1:1:10:10000
 P:0:1d1:0:0:0:1
 F:ACTIVATE | 
 F:INSTA_ART
-D:A small crystal phial, with the light of Earendil's Star contained inside.  
+D:One of the legendary lamps of the Noldor, burning with a clear blue light.
 D:Its light is imperishable, and near it darkness cannot endure.
 
 
-# The Star of Elendil
+# The Pearl 'Nimphelos'
 
-N:2:of Elendil
+N:2:'Nimphelos'
 I:39:5:0
 W:40:25:5:30000
 P:0:1d1:0:0:0:2
 F:ACTIVATE | SEE_INVIS | 
 F:INSTA_ART
-D:The shining Star of the West, a treasured heirloom of Elendil's house.
+D:The greatest pearl from the Bay of Balar, its sheen was as starlight on the 
+D:foam of the sea.  It was given to the chieftain of the Dwarves of Belegost 
+D:by Thingol Greycloak, master of his surroundings.
 
 
-# The Arkenstone of Thrain
+# The Palantir of Avallone
 
-N:3:of Thrain
+N:3:of Avallone
 I:39:6:0
 W:90:40:5:85000
 P:0:1d1:0:0:0:3
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | 
 F:INSTA_ART
-D:A great globe seemingly filled with moonlight, the famed Heart of the 
-D:Mountain, which splinters the light that falls upon it into a thousand 
-D:glowing shards.
-
+D:A crystal made by Feanor in Aman, wherein things far away could be seen small
+D:but clear, as with the eyes of eagles.
 
 # The Amulet of Carlammas (Set Item)
 
@@ -105,15 +105,15 @@ D:of evil could stand.
 
 N:6:of the Dwarves
 I:40:12:3
-W:70:40:3:75000
-P:0:1d1:0:0:0:0
-F:STR | CON | INFRA | HIDE_TYPE | 
-F:SEE_INVIS | FREE_ACT | REGEN | LITE | 
+W:80:90:3:1000000
+P:0:1d1:0:0:0:6
+F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE | 
+F:ACTIVATE | SEE_INVIS | FREE_ACT | REGEN | LITE | 
 F:INSTA_ART
-D:The Nauglamir; a carencet of gold set with a multitude of shining gems of 
-D:Valinor, accenting a radiant Silmaril.  The sturdy spirits of Dwarvish 
-D:craftsmen who labored long in mountain smithies lie within it still, and 
-D:as gossamer it rests upon the bearer.
+D:The Nauglamir; the carencet of gold set with a multitude of shining gems of 
+D:Valinor is but a setting.  The true power lies in the awesome Silmaril at 
+D:it's centre, shining forth the light of the Two Trees of Valinor.  Its 
+D:beauty and desirability are equalled only by its revealing power.
 
 
 # The Torque of Boromir
@@ -128,21 +128,9 @@ F:INSTA_ART
 D:A massive golden torque, made of innumerable strands of gold and steel 
 D:intermingled, with great golden hounds set at either end.
 
+# Artifact 8 is unused
 
-# The Amulet of Faramir
-
-N:8:of Faramir
-I:40:14:2
-W:30:35:2:25000
-P:0:0d0:18:0:0:8
-F:STEALTH | SHOW_MODS | HIDE_TYPE | 
-F:RES_CONFU | SUST_DEX | ACTIVATE | 
-F:INSTA_ART
-D:A slim neckpiece of True-silver, with quiet spells of Ithilien to aid and 
-D:protect the wearer.
-
-
-# The Ring of Barahir
+# The Ring of Barahir (Set Item)
 
 N:9:of Barahir
 I:45:32:1
@@ -166,78 +154,7 @@ F:ACTIVATE |
 F:INSTA_ART
 D:The treasure of Tulkas, most fleet and wrathful of the Valar.
 
-
-# The Ring of Power (Narya)
-
-N:11:of Power (Narya)
-I:45:34:1
-W:70:25:2:100000
-P:0:1d1:0:0:0:11
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
-F:ACTIVATE | FREE_ACT | SEE_INVIS | 
-F:SLOW_DIGEST | REGEN | 
-F:SUST_STR | SUST_DEX | IM_FIRE | RES_FIRE | 
-F:INSTA_ART
-D:The Ring of Fire, set with a ruby that glows like flame.  Narya is one 
-D:of the three Rings of Power created by the Elves and hidden by them from 
-D:Sauron.
-
-
-
-# The Ring of Power (Nenya)
-
-N:12:of Power (Nenya)
-I:45:35:2
-W:80:33:2:200000
-P:0:1d1:0:0:0:12
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
-F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | REGEN | 
-F:SUST_INT | SUST_WIS | IM_COLD | RES_COLD | 
-F:INSTA_ART
-D:The Ring of Adamant, with a pure white stone as centerpiece.  Nenya is one 
-D:of the three Rings of Power created by the Elves and hidden by them from 
-D:Sauron.
-
-
-# The Ring of Power (Vilya)
-
-N:13:of Power (Vilya)
-I:45:36:3
-W:90:40:2:300000
-P:0:1d1:0:0:0:13
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
-F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | SLOW_DIGEST | REGEN | 
-F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | 
-F:IM_ELEC | RES_ELEC | 
-F:INSTA_ART
-D:The Ring of Sapphire, with clear blue gems that shine like stars, 
-D:glittering untouchable despite all that Morgoth ever wrought.  Vilya is 
-D:one of the three Rings of Power created by the Elves and hidden by them 
-D:from Sauron.
-
-
-
-# The Ring of Power (The One Ring)
-
-N:14:of Power (The One Ring)
-I:45:37:5
-W:100:80:2:5000000
-P:0:1d1:0:0:0:14
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
-F:ACTIVATE | LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
-F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
-F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID |
-F:SUST_STR | SUST_DEX | SUST_CON | 
-F:SUST_INT | SUST_WIS | SUST_CHR | 
-F:INSTA_ART
-D:"One Ring to rule them all, One Ring to find them, One Ring to bring 
-D:them all and in the darkness bind them."  Made of massive gold, and 
-D:set with runes in the foul speech of Mordor, Isildur's Bane possesses 
-D:powers so great that it inevitably twists and masters any earthly being 
-D:who wears it.
+# Artifacts 11 - 14  are unused
 
 
 # This artifact has a low artifact level to prevent it being worthless for 
@@ -309,9 +226,9 @@ D:and disruptive magics, that protects the life force of its wearer like
 D:nothing else can.
 
 
-# The Full Plate Armour of Isildur
+# The Full Plate Armour of Nevrast (Set Item)
 
-N:27:of Isildur
+N:27:of Nevrast
 I:37:15:2
 W:40:3:380:50000
 P:25:2d4:0:0:25:0
@@ -319,20 +236,9 @@ F:CON |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:RES_SOUND | RES_CONFU | RES_NEXUS
 D:A gleaming steel suit covering the wearer from neck to foot, with runes of 
-D:warding and stability deeply engraved into its surface.
+D:warding and stability deeply engraved into its surface.  
 
-
-# The Metal Brigandine Armour of the Rohirrim (Set Item)
-
-N:28:of the Rohirrim
-I:37:9:2
-W:40:3:220:30000
-P:19:1d4:-3:0:15:0
-F:STR | DEX | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONFU | RES_SOUND
-D:Small metal plates cover an inner layer of sturdy canvas, and both bear 
-D:scenes of hunting and war.  You feel the spirit of Eorl the Young, matchless 
-D:in combat, around you as you put his armour on.
+#  Artifact 28 is unused
 
 
 # The Mithril Chain Mail 'Belegennon'
@@ -357,22 +263,11 @@ P:35:2d4:-3:0:25:26
 F:STR | CHR | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK | 
 F:RES_DISEN | ACTIVATE
-D:A shimmering suit of true-silver, forged long ago by dwarven smiths of 
-D:legend.  It gleams with purest white as you gaze upon it, and mighty are 
+D:A shimmering suit of true-silver, forged by dwarven smiths for Celeborn of 
+D:the Teleri.  It gleams with purest white as you gaze upon it, and mighty are 
 D:its powers to protect and banish.
 
-# The Chain Mail of Arvedui
-
-N:31:of Arvedui
-I:37:4:2
-W:24:3:220:32000
-P:14:1d4:-2:0:15:0
-F:STR | CHR | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_SHARD | RES_NEXUS
-D:A hauberk, leggings, and sleeves of interlocking steel rings, well padded 
-D:with leather.  You feel as strong and tall as Arvedui, last king of Arnor, 
-D:as you put it on.
-
+# Artifact 31 is unused
 
 # The Augmented Chain Mail of Caspanion
 
@@ -400,11 +295,11 @@ I:36:6:0
 W:25:6:100:35000
 P:6:0d0:0:0:15:28
 F:RES_CHAOS | RES_NETHR | RES_POIS | ACTIVATE
-D:Contained within this studded cuirass of pliable leather is the memory of 
+D:Contained within this studded cuirass of pliable leather is the spirit of 
 D:unvanquished Himring, defiant fortress surrounded by the legions of Morgoth.
 
 
-# The Soft Leather Armour 'Hithlomir' (Set Item)
+# The Soft Leather Armour 'Hithlomir' 
 
 N:37:'Hithlomir'
 I:36:4:4
@@ -447,17 +342,7 @@ D:A circular shield covered in pure grey leather, firm amidst the battles
 D:of the Elements.
 
 
-# The Small Metal Shield of Thorin
-
-N:44:of Thorin
-I:34:3:3
-W:45:6:70:80000
-P:5:1d3:0:0:21:0
-F:STR | CON | HIDE_TYPE | 
-F:FREE_ACT | IM_ACID | RES_ACID | RES_SOUND | RES_CHAOS
-D:Invoking the strength and endurance of Thorin, King under the Mountain, 
-D:this little metal shield is proof against the Element of Earth.
-
+# Artifact 44 is unused
 
 # The Large Leather Shield of Celegorm
 
@@ -471,16 +356,18 @@ D:once protected Celegorm, Lord of Himlad; around it a mystic balance lies,
 D:containing the conflicts of the elements.
 
 
-# The Large Metal Shield of Anarion
+# The Large Metal Shield of the Swan (Set Item)
 
-N:46:of Anarion
+N:46:of the Swan
 I:34:5:0
-W:70:10:120:160000
+W:70:10:50:160000
 P:8:1d5:0:0:18:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SUST_STR | SUST_INT | 
 F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
-D:The great metal-bound shield of Anarion, son of Elendil, whom Sauron 
-D:found himself powerless to wither or diminish.
+D:A long tapering shield of elven design, wrought of wood overlaid with plates 
+D:of metal and bearing the design of a swan's wing on a blue field.  
+D:Untarnished by long years waiting in Turgon's deserted halls of Vinyamar, 
+D:it conveys the same powers of endurance to its bearer.
 
 
 # The Knight's Shield of Earendil
@@ -490,8 +377,8 @@ I:34:6:0
 W:65:6:160:90000
 P:10:1d6:0:0:15:33
 F:LITE | RES_BLIND | RES_DARK | RES_NETHR | RES_ELEC | RES_FIRE | ACTIVATE
-D:A shining shield, once borne by the great mariner Earendil, "scored with 
-D:runes to keep all wounds and harm from him".
+D:A shining shield wrought for Earendil Half-Elven, son of Tuor and Idril, 
+D:"scored with runes to keep all wounds and harm from him".
 
 
 # The Shield of Deflection of Gil-Galad (Set Item)
@@ -502,10 +389,8 @@ W:70:4:80:65000
 P:14:1d4:0:0:16:34
 F:LITE | CHR | RES_ELEC | RES_ACID | HIDE_TYPE | 
 F:SUST_WIS | SUST_CHR | ACTIVATE
-D:The legendary shield of Gil-Galad, who fought his way to the gates of 
-D:the Dark Tower, and with whom came light even to Gorgoroth.
-
-# Artifact 48 is unused
+D:The shield of Ereinon Gil-Galad son of Fingon, made to keep him from harm in
+D:times of trouble.
 
 # Artifact 49 is unused
 
@@ -528,79 +413,78 @@ D:Containing much of the power of he who once was mightiest among the Ainur,
 D:this plain iron crown has mounted upon it the two remaining Silmarils, 
 D:greatest treasures of Middle-Earth.
 
+# The Iron Crown of Thuringwethil
 
-# The Iron Crown of Beruthiel
-
-N:52:of Beruthiel
+N:52:of Thuringwethil
 I:33:10:-5
 W:20:12:20:2000
 P:0:1d1:-40:-40:20:0
 F:STR | CON | HIDE_TYPE | 
 F:FREE_ACT | SEE_INVIS | TELEPATHY | LIGHT_CURSE
-D:The midnight-hued steel circlet of the sorceress-queen Beruthiel, which 
-D:grants extraordinary powers of sight and awareness at a terrible physical 
-D:cost.
+D:The midnight-hued steel circlet of the vampire messenger Thuringwethil, 
+D:which grants extraordinary powers of sight and awareness at a terrible 
+D:physical cost.
 
 
-# The Hard Leather Cap of Thranduil
+# The Hard Leather Cap of Mablung
 
-N:53:of Thranduil
+N:53:of Mablung
 I:32:2:2
 W:36:2:15:50000
 P:2:0d0:0:0:10:0
 F:INT | WIS | HIDE_TYPE | 
 F:RES_BLIND | TELEPATHY
-D:The hunting cap of King Thranduil, to whose ears come all the secrets of 
-D:his forest domain.
+D:The cap of Mablung of Doriath, chief of King Thingol's hunters.
+
+# The Metal Cap 'Holhenneth'
+
+N:54:'Holhenneth'
+I:32:3:2
+W:28:5:20:100000
+P:3:1d3:0:0:10:37
+F:INT | WIS | SEARCH | HIDE_TYPE | 
+F:RES_BLIND | SEE_INVIS | ACTIVATE
+D:A famous cap of forged iron granting extraordinary powers of mind and 
+D:awareness.
 
 
-# The Metal Cap of Thengel
+# The Iron Helm of Vinyamar (Set Item)
 
-N:54:of Thengel
-I:32:3:3
-W:10:2:20:8000
-P:3:1d1:0:0:12:0
-F:WIS | CHR | HIDE_TYPE
-D:A ridged helmet made of steel, and embossed with scenes of valor in fine-
-D:engraved silver.  It grants the wearer nobility and understanding.
+N:55:of Vinyamar
+I:32:5:3
+W:40:4:75:200000
+P:5:1d3:0:0:15:55
+F:STR | CHR | HIDE_TYPE |
+F:RES_ACID | RES_FEAR | RES_CONFU |
+F:FREE_ACT | ACTIVATE
+D:The helm left by Turgon in Vinyamar for the messenger of Ulmo.  Crowned by 
+D:three swan's feathers, it greatens the heart and clarifies the purpose of 
+D:the one who wears it.
+
+# The Steel Helm of Dor-Lomin (Set Item)
+
+N:56:of Dor-Lomin
+I:32:6:4
+W:70:12:75:300000
+P:6:1d3:0:0:20:0
+F:STR | DEX | CON | HIDE_TYPE | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND | 
+F:LITE | SEE_INVIS | TELEPATHY
+D:The legendary dragon helm of Hador, crafted by Telchar of Nogrod.  It's 
+D:dwarven visor allowed Turin Turambar alone to face the fire of Glaurung, 
+D:an image of whose head was set on its crest in defiance.
 
 
-# The Steel Helm of Hammerhand
+# The Steel Helm of Ecthelion
 
-N:55:of Hammerhand
+N:57:of Ecthelion
 I:32:6:3
 W:32:2:60:45000
 P:6:1d3:0:0:20:0
 F:STR | DEX | CON | HIDE_TYPE | 
 F:RES_ACID | RES_NEXUS
-D:A great helm as steady as the heroes of the Westdike.  Mighty were the 
-D:blows of Helm the Hammerhand!
-
-
-# The Iron Helm of Dor-Lomin
-
-N:56:of Dor-Lomin
-I:32:5:4
-W:70:12:75:300000
-P:5:1d3:0:0:20:0
-F:STR | DEX | CON | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND | 
-F:LITE | SEE_INVIS | TELEPATHY
-D:The legendary dragon helm of Turin Turambar, an object of dread to the 
-D:servants of Morgoth.
-
-
-# The Iron Helm 'Holhenneth'
-
-N:57:'Holhenneth'
-I:32:5:2
-W:28:5:75:100000
-P:5:1d3:0:0:10:37
-F:INT | WIS | SEARCH | HIDE_TYPE | 
-F:RES_BLIND | SEE_INVIS | ACTIVATE
-D:A famous helm of forged iron granting extraordinary powers of mind and 
-D:awareness.
-
+D:The spiked steel helm of Ecthelion, Lord of the Fountains and Warden of the
+D:Great Gate of Gondolin.
 
 # The Iron Helm of Gorlim
 
@@ -618,29 +502,26 @@ D:needed succor.
 # Artifact 60 is unused
 
 
-# The Golden Crown of Gondor
+# The Silver Crown of Nargothrond
 
-N:61:of Gondor
+N:61:of Nargothrond
 I:33:11:3
 W:55:20:30:100000
 P:0:1d1:0:0:18:38
 F:STR | WIS | CON | HIDE_TYPE | 
 F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | 
 F:LITE | SEE_INVIS | REGEN | ACTIVATE
-D:The shining winged circlet brought by Elendil from dying Numenor, emblem of 
-D:Gondor through an age of the world.
+D:The crown worn by Finrod Felagund, and afterward by his brother Orodreth.
 
+# The Jewel Encrusted Crown of the Hidden Kingdom
 
-# The Jewel Encrusted Crown of Numenor
-
-N:62:of Numenor
+N:62:of the Hidden Kingdom
 I:33:12:3
 W:60:15:40:50000
 P:0:1d1:0:0:15:0
 F:INT | DEX | CHR | HIDE_TYPE | 
 F:RES_SHARD | RES_SOUND | RES_LITE | LITE
-D:A crown of massive gold, set with wondrous jewels of thought and warding, 
-D:worn by the kings of ancient Numenor.
+D:The king-helm of Turgon of Gondolin, set about with diamonds.
 
 # Artifact 63 is unused
 
@@ -685,16 +566,7 @@ D:A cloak of translucent, pearly grey, with glowing elven-runes to restore
 D:magic showing calm and clear as moonlight on still water.
 
 
-# The Cloak of Thorongil
-
-N:69:of Thorongil
-I:35:1:0
-W:5:20:10:8000
-P:1:0d0:0:0:15:0
-F:FREE_ACT | RES_ACID | SEE_INVIS
-D:This shimmering cloak of greens and browns was once worn by the young 
-D:Aragorn, a keen-eyed captain of Gondor, valiant on both land and sea.
-
+# Artifact 69 is unused
 
 # The Cloak 'Colannon'
 
@@ -730,7 +602,7 @@ W:40:20:5:55000
 P:4:0d0:0:0:15:0
 F:STEALTH | 
 F:FREE_ACT | IM_ACID | RES_ACID | SEE_INVIS
-D:From the ruin of Gondolin did Tuor escape, through secret ways and 
+D:To avert the ruin of Gondolin did Tuor journey, through secret ways and 
 D:travail, mantled by sea-commanding Ulmo's kingly gift from a multitude 
 D:of hostile eyes.
 
@@ -868,20 +740,11 @@ D:A pair of high-laced shoes, strong against the powers of corruption and
 D:withering, that grant the wearer extraordinary agility.
 
 
-# The Pair of Dwarven Boots of Thror
+# Artifact 91 is unused
 
-N:91:of Thror
-I:30:5:3
-W:60:12:60:20000
-P:4:1d1:0:0:16:0
-F:STR | CON | REGEN | SLOW_DIGEST | HIDE_TYPE
-D:Sturdy foorwear of leather and steel as enduring as the long-suffering 
-D:Dwarven king-in-exile who wore them.
+# The Pair of Hard Leather Boots of Hithlum
 
-
-# The Pair of Hard Leather Boots of Nevrast
-
-N:92:of Nevrast
+N:92:of Hithlum
 I:30:3:3
 W:60:30:40:35000
 P:3:1d1:0:0:13:0
@@ -890,16 +753,7 @@ D:Footgear made of bear leather and set with opals which grants the wearer
 D:silent, hasted movement.
 
 
-# The Pair of Metal Shod Boots of Gimli
-
-N:93:of Gimli
-I:30:4:4
-W:40:30:60:22500
-P:4:1d1:5:5:10:63
-F:INFRA | SEARCH | TUNNEL | HIDE_TYPE | ACTIVATE
-D:A set of iron-shod boots stamped by Gimli's combat prowess, a peerless 
-D:ally to those journeying through halls of stone under mountains.
-
+# Artifact 93 is unused
 
 # Artifact 94 is unused
 
@@ -923,7 +777,7 @@ D:A short thrusting blade with a large guard worn by Maedhros the Tall,
 D:eldest son of Feanor.
 
 
-# The Dagger 'Angrist'
+# The Dagger 'Angrist' (Set Item)
 
 N:98:'Angrist'
 I:23:4:4
@@ -1031,8 +885,8 @@ P:0:2d5:10:15:0:0
 F:SEARCH | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_ORC | RES_FIRE | RES_LITE | LITE | 
 F:SLOW_DIGEST | SHOW_MODS
-D:This fiery, shining blade, mate to Orcrist, earned its sobriquet "Beater" 
-D:from dying orcs who dared behold hidden Gondolin.
+D:The fiery, shining blade of Turgon.  Mate to Orcrist, it earned its 
+D:sobriquet "Beater" from dying orcs who dared behold hidden Gondolin.
 
 
 # The Broad Sword 'Aeglin'
@@ -1043,7 +897,7 @@ W:30:50:110:40000
 P:0:2d5:12:16:0:0
 F:SEARCH | RES_CONFU | 
 F:BRAND_ELEC | SLAY_ORC | RES_ELEC | LITE | SLOW_DIGEST | SHOW_MODS
-D:Like unto Orcrist and Glamdring, and like them long lost, this sword is 
+D:Like unto Orcrist and Glamdring, this sword is 
 D:continually coved in tiny arcs of captive lightning that flash and dance 
 D:eerily in the globes of light they create.
 
@@ -1060,24 +914,11 @@ F:SLOW_DIGEST | SHOW_MODS
 D:This coldly gleaming blade, mate to Glamdring, is called simply "Biter" 
 D:by orcs who came to know its power all too well.
 
+# Artifact 109 is unused
 
-# The Two-Handed Sword 'Gurthang'
+# The Two-Handed Sword 'Gurthang' (Set Item)
 
-N:109:'Gurthang'
-I:23:25:4
-W:40:30:170:80000
-P:0:3d6:13:17:0:0
-F:STR | HIDE_TYPE | 
-F:SLAY_DRAGON | SLAY_TROLL | FREE_ACT | SLOW_DIGEST | REGEN | 
-F:TWO_HANDED_DES | SHOW_MODS
-D:A giant sword once wielded by mighty Turin, and an even greater dragonbane; 
-D:for what wyrm could stand against the blade that bathed in Glaurung's 
-D:blood?
-
-
-# The Two-Handed Sword 'Zarcuthra'
-
-N:110:'Zarcuthra'
+N:110:'Gurthang'
 I:23:25:3
 W:70:120:200:180000
 P:0:3d7:19:21:0:0
@@ -1086,37 +927,11 @@ F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE |
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
 F:RES_FIRE | FREE_ACT | SEE_INVIS | AGGRAVATE | 
 F:TWO_HANDED_DES | SHOW_MODS
-D:Runes dark and deadly stand stark against the naked steel of this awesome 
+D:Runes dark and deadly stand stark against the naked steel of Turin's awesome 
 D:weapon, and you feel a wrathful power of slaying and rending as you 
 D:slowly approach.
 
-
-# The Two-Handed Sword 'Mormegil'
-
-N:111:'Mormegil'
-I:23:25:-10
-W:30:15:200:0
-P:0:3d6:-40:-60:-50:0
-F:SPEED | 
-F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | 
-F:TWO_HANDED_DES | SHOW_MODS
-D:A foul, twisted sword with blackened spines and knobs, whose very name is a 
-D:curse upon the lips of Elves and Men.
-
-
-# The Cutlass 'Gondricam'
-
-N:112:'Gondricam'
-I:23:12:3
-W:20:8:70:24000
-P:0:1d7:10:12:0:0
-F:DEX | STEALTH | HIDE_TYPE | BRAND_ACID | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
-F:SEE_INVIS | REGEN | SHOW_MODS
-D:Famed sea-defender of Lebennin.  A short, slightly curved chopping blade 
-D:with a perfect edge shining cleanly in the sun, an object of hate to the 
-D:men of Umbar who met it in combat.
-
+# Artifacts 111 - 112 are unused
 
 # The Executioner's Sword 'Crisdurian'
 
@@ -1159,19 +974,18 @@ D:The weapon of Fingolfin, High King of the Noldor; it shines like a column
 D:of ice lit by light unquenchable.  Morgoth came but unwillingly to meet it 
 D:of old; his lame foot will remind him of its might should he face it again.
 
+# The Long Sword 'Narsil'
 
-# The Long Sword 'Anduril'
-
-N:116:'Anduril'
+N:116:'Narsil'
 I:23:17:4
 W:30:50:100:100000
 P:0:3d5:14:17:10:73
 F:STR | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT | SLAY_DEMON | 
 F:IM_FIRE | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS
-D:The famed "Flame of the West", the Sword that was Broken and is forged 
-D:again.  It glows with the essence of fire, its wearer is mighty in combat, 
-D:and no creature of Sauron can withstand it.
+D:Forged in Nogrod by Telchar, mightiest of the dwarven smiths. It glows 
+D:with the essence of fire, its wearer is mighty in combat, and no creature 
+D:of Morgoth can withstand it.
 
 
 # The Long Sword 'Anguirel'
@@ -1221,8 +1035,7 @@ F:RES_FEAR | SHOW_MODS
 D:An heirloom of the dauntless Lords of Rhun far to the east, and a name 
 D:of dismay to creatures natural and unnatural.
 
-
-# The Small Sword 'Sting' (Set Item)
+# The Small Sword 'Sting' 
 
 N:121:'Sting'
 I:23:8:2
@@ -1231,24 +1044,10 @@ P:0:2d6:7:8:0:0
 F:STR | DEX | CON | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_ORC | SLAY_ANIMAL | RES_FEAR | 
 F:FREE_ACT | LITE | SEE_INVIS | SHOW_MODS
-D:"I will give you a name, and I shall call you Sting."  The perfect size 
-D:for Bilbo, and stamped forever by the courage he found in Mirkwood, this 
-D:sturdy little blade grants the wearer combat prowess and survival 
-D:abilities he did not know he had.
+D:A sword of small size but impressive power.
 
 
-# The Scimitar 'Haradekket'
-
-N:122:'Haradekket'
-I:23:18:4
-W:30:8:100:30000
-P:0:2d5:9:11:0:0
-F:DEX | 
-F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SEE_INVIS | 
-F:SHOW_MODS
-D:A damascened scimitar that hefts with wondrous ease.  Famed in song 
-D:as the "Sickle of Harad", and a deadly foe to the undead.
-
+# Artifact 122 is unused
 
 # The Short Sword 'Gilettar'
 
@@ -1292,18 +1091,7 @@ D:shadow of death even as you inflict wounds that will not heal.
 
 # Artifact 132 is unused
 
-
-# The Beaked Axe of Theoden
-
-N:133:of Theoden
-I:22:10:3
-W:30:15:120:40000
-P:0:2d6:10:10:0:78
-F:WIS | CON | HIDE_TYPE | 
-F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | ACTIVATE | SHOW_MODS
-D:The narrow axe head of this weapon pierces through even the armour of 
-D:Smaug himself, and the minds of your enemies stand naked and revealed.
-
+# Artifact 133 is unused
 
 # The Glaive of Pain
 
@@ -1354,8 +1142,7 @@ F:THROWING | WIS | HIDE_TYPE |
 F:BRAND_COLD | SLAY_TROLL | SLAY_EVIL | SLAY_GIANT | SLAY_ORC | 
 F:FREE_ACT | RES_COLD | 
 F:SLOW_DIGEST | ACTIVATE | SHOW_MODS
-D:The mighty spear of Gil-galad, famed as "Snow-point" in the songs of Elves, 
-D:against which all the foul corruptions of Sauron dashed in vain.
+D:The mighty spear of Gil-galad, famed as "Snow-point" in the songs of Elves.
 
 
 # The Thrusting Spear of Orome
@@ -1384,20 +1171,7 @@ D:a legendary tree, and spells to break the wills of the undead and strike
 D:cold into the breasts of your enemies lay upon this perfectly balanced 
 D:spear.
 
-
-# The Lance of the Eorlingas (Set Item)
-
-N:140:of the Eorlingas
-I:22:20:2
-W:40:6:300:55000
-P:0:4d8:3:21:0:0
-F:DEX | STR | HIDE_TYPE | 
-F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SLAY_ANIMAL | SEE_INVIS | RES_FEAR | 
-F:TWO_HANDED_DES | SHOW_MODS
-D:"Forth Eorlingas!"  To the field of Cormallen Eorl the Young came beyond 
-D:hope to save beleaguered Gondor, and from his lance fled massive trolls 
-D:and dire wolves.
-
+# Artifact 140 is unused
 
 # The Great Axe of Durin
 
@@ -1411,7 +1185,7 @@ F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS |
 F:TWO_HANDED_DES | SHOW_MODS
 D:The twin massive axe heads of this ancient demon's dread gleam with 
 D:mithril inlay, which tell sagas of endurance, envoking the powers of 
-D:Kazad-dum to protect the wearer and slay all evils found underground.
+D:Khazad-dum to protect the wearer and slay all evils found underground.
 
 
 # The Great Axe of Eonwe
@@ -1453,8 +1227,8 @@ W:35:15:160:21000
 P:0:2d8:9:9:0:82
 F:INT | WIS | HIDE_TYPE | 
 F:SLAY_TROLL | SLAY_ORC | SLAY_GIANT | ACTIVATE | SHOW_MODS
-D:A superbly crafted double-bladed axe once borne by Ceruthain, commander 
-D:of the Rangers of Arnor.
+D:A superbly crafted double-bladed axe once borne by a commander 
+D:of the Rangers of Eriador.
 
 
 # The Battle Axe 'Mundwine'
@@ -1664,9 +1438,8 @@ P:10:1d7:16:6:0:92
 F:INT | WIS | HIDE_TYPE | 
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | 
 F:TWO_HANDED_REQ | SHOW_MODS
-D:The radiant golden staff of an Istar of legend; this wizard's companion 
+D:The radiant golden staff of a Maia of legend; this wizard's companion 
 D:grants keen sight and clear knowledge of many hidden things.
-
 
 # The Quarterstaff of Olorin
 
@@ -1678,10 +1451,10 @@ F:INT | WIS | CON | HIDE_TYPE |
 F:SLAY_EVIL | BRAND_ACID | SLAY_TROLL | SLAY_ORC | SLAY_GIANT | 
 F:HOLD_LIFE | RES_ACID | RES_NETHR | SEE_INVIS | ACTIVATE | 
 F:TWO_HANDED_REQ | SHOW_MODS
-D:A staff tall and sturdy, borne of old by Gandalf.  Rough-hewn runes that 
-D:invoke the element of Earth stand bold upon its gnarled surface, and no 
-D:creature who lives in the shadow of mountains can withstand the blows it 
-D:deals.
+D:A staff tall and sturdy, borne of old by Olorin, wisest of the Maiar.  
+D:Rough-hewn runes that invoke the element of Earth stand bold upon its 
+D:gnarled surface, and no creature who lives in the shadow of mountains can 
+D:withstand the blows it deals.
 
 
 # The Mace of Disruption 'Deathwreaker'
@@ -1710,7 +1483,7 @@ P:0:3d4:10:6:0:94
 F:WIS | INFRA | HIDE_TYPE | 
 F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN | 
 F:ACTIVATE | SHOW_MODS
-D:Wielded by the High Priest of Meneltarma, this great mace gleams coldly as 
+D:Wielded by the High Priest of Tirion, this great mace gleams coldly as 
 D:though moonlit, and it can strike as mighty a blow spiritually as 
 D:physically.
 
@@ -1730,18 +1503,7 @@ D:physically.
 
 # Artifact 177 is unused
 
-
-# The Heavy Crossbow of Harad
-
-N:178:of Harad
-I:19:24:-2
-W:60:20:200:35000
-P:0:4d1:18:18:0:99
-F:WIS | STEALTH | SHOTS | MIGHT1 | AGGRAVATE | RES_LITE | RES_DARK | 
-F:HIDE_TYPE | ACTIVATE | SHOW_MODS
-D:A great brazen arbalest with arms of gleaming steel shooting quarrels with 
-D:speed and power for those brave enough to risk betrayal.
-
+# Artifact 178 is unused
 
 # The Long Bow 'Belthronding'
 
@@ -1755,7 +1517,7 @@ D:The great bow of Beleg Cuthalion, made of black yew and strung with elven
 D:hair that faintly shimmers a pale clear gold.
 
 
-# The Long Bow of Bard
+# The Long Bow of Bregor
 
 N:180:of Bard
 I:19:13:0
@@ -1763,8 +1525,8 @@ W:45:25:40:30000
 P:0:3d1:17:19:0:0
 F:MIGHT2 | HIDE_TYPE | 
 F:FREE_ACT | SHOW_MODS
-D:The great yew bow of grim-faced Bard, who shot the mightiest arrow that 
-D:songs record.
+D:The great yew bow of Bregor, father of Barahir.  It was passed down as an
+D:heirloom to his descendants.
 
 
 # The Light Crossbow 'Cubragol'
@@ -1778,18 +1540,7 @@ F:RES_FIRE | ACTIVATE | MIGHT2 | SHOW_MODS
 D:A crossbow that grants fiery speed to he who finds it, and from which 
 D:shoot bolts that blaze with flame unquenchable.
 
-
-# The Sling of Buckland
-
-N:182:of Buckland
-I:19:2:3
-W:40:35:20:50000
-P:0:2d1:19:15:0:101
-F:SPEED | MIGHT1 | SHOTS | HIDE_TYPE | 
-F:RES_FEAR | RES_BLIND | RES_CONFU | ACTIVATE | SHOW_MODS
-D:A sling granting extraordinary clarity of mind amidst darkness and 
-D:confusion, and which hurls shot with deadly speed.
-
+# Artifact 182 is unused
 
 # The Short Bow of Amrod
 
@@ -1817,11 +1568,9 @@ D:wiles of the sons of Feanor.
 
 # Artifact 185 is unused
 
+# The Staff of Starfire
 
-
-# The Staff of Gandalf
-
-N:186:of Gandalf
+N:186:of Starfire
 I:55:40:6
 # W:85:1:50:35000   Use unused k_info[] chance -- TNB
 W:85:40:50:35000
@@ -1843,29 +1592,29 @@ D:This staff trembles ever so slightly, buffeted by the Four Winds that
 D:impatiently await release.
 
 
-# The Staff of Meneltarma
+# The Staff of Holding
 
-N:188:of Meneltarma
+N:188:of Holding
 I:55:42:5
 # W:80:1:50:30000 TNB
 W:80:48:50:30000
 P:0:1d2:0:0:0:0
 F:INSTA_ART
-D:Suddenly, the cries of beings that cling to existance beyond life seem 
+D:Suddenly, the cries of beings that cling to existence beyond life seem 
 D:thin and weak, and you call out with a mighty voice for them to hold and 
 D:await your will!
 
 
-# The Staff of Radagast
+# The Staff of the Kelvar
 
-N:189:of Radagast
+N:189:of the Kelvar
 I:55:43:5
 # W:50:1:50:20000 TNB
 W:50:48:50:20000
 P:0:1d2:0:0:0:0
 F:INSTA_ART
-D:Radagast the Brown made the languages of beasts and birds his life's work, 
-D:and could discover many hidden things and secret from his natural allies.
+D:Inside this staff lies the power of Yavanna to listen to her creations. 
+
 
 
 # Artifact 190 is unused
@@ -1887,19 +1636,15 @@ P:0:1d1:0:0:0:0
 F:INSTA_ART
 D:Deadly venoms that blight and wither seep continually from this wand.
 
+# The Wand of Beguiling
 
-
-# The Wand of Saruman
-
-N:195:of Saruman
+N:195:of Beguiling
 I:65:41:5
 # W:70:1:10:27500 TNB
 W:70:52:10:27500
 P:0:1d1:0:0:0:0
 F:INSTA_ART
-D:Saruman the White could charm even those most aware of his treachery - and 
-D:then exploit their doubt and hesitation.
-
+D:Every creature has its soft spot...
 
 # The Wand of Unmaking
 
@@ -1915,16 +1660,16 @@ D:that howls against all that is - and ever threatens to consume it at the
 D:last.
 
 
-# The Wand of Ulpion
+# The Wand of Osse
 
-N:197:of Ulpion
+N:197:of Osse
 I:65:43:6
 # W:70:1:10:22500 TNB
 W:70:48:10:22500
 P:0:1d1:0:0:0:0
 F:INSTA_ART
-D:The legendary wizard Ulpion was skilled beyond all others in the lore of 
-D:crashing waves and seastorms.
+D:The Maia Osse was at one time drawn to Melkor, and still finds delight in
+D:the destructive power of the sea.
 
 
 

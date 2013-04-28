@@ -413,6 +413,38 @@ static void get_history(void)
 	}
 }
 
+/*
+ * Sets the character's starting level -NRM-
+ */
+
+static void get_level(void)
+{
+
+	/* Check if they're an "advanced race" */
+	if (rp_ptr->start_lev - 1)
+	  {
+	    /* Add the experience */
+	    p_ptr->exp = player_exp[rp_ptr->start_lev - 2];
+	    p_ptr->max_exp = player_exp[rp_ptr->start_lev - 2];
+
+	    /* Set the level */
+	    p_ptr->lev = rp_ptr->start_lev;
+	    p_ptr->max_lev = rp_ptr->start_lev;
+	  }
+	else /* Paranoia */
+	  {
+	    /* Add the experience */
+	    p_ptr->exp = 0;
+	    p_ptr->max_exp = 0;
+
+	    /* Set the level */
+	    p_ptr->lev = 1;
+	    p_ptr->max_lev = 1;
+	  }
+}
+	
+
+
 
 /*
  * Computes character's age, height, and weight
@@ -505,15 +537,23 @@ static void player_wipe(void)
 	/* Start with no quests */
 	for (i = 0; i < MAX_Q_IDX; i++)
 	{
-		q_list[i].level = 0;
+		q_list[i].stage = 0;
 	}
 
-	/* Add a special quest */
-	q_list[0].level = 99;
+	/* Mim */
+	q_list[0].stage = 170;
 
-	/* Add a second quest */
-	q_list[1].level = 100;
+	/* Glaurung */
+	q_list[1].stage = 262;
 
+	/* Ungoliant */
+	q_list[2].stage = 221;
+
+	/* Sauron */
+	q_list[3].stage = 323;
+
+	/* Morgoth */
+	q_list[4].stage = 384;
 
 	/* Reset the "objects" */
 	for (i = 1; i < MAX_K_IDX; i++)
@@ -558,7 +598,24 @@ static void player_wipe(void)
 	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
 }
 
+/*
+ * Upgrade weapons (and potentially other items) for "advanced" races 
+ */
+static void object_upgrade(object_type *o_ptr)
+{
+         if ((o_ptr->tval >= rp_ptr->re_mint) && (o_ptr->tval <= rp_ptr->re_maxt))
+	   {	   
+	     o_ptr->name2 = rp_ptr->re_id;
+	     o_ptr->to_h = rp_ptr->re_skde;
+	     o_ptr->to_d = rp_ptr->re_skde;
+	     o_ptr->to_a = rp_ptr->re_ac;
+	     o_ptr->pval = rp_ptr->re_pval;
+	     o_ptr->xtra1 = rp_ptr->re_xtra1;
+	     o_ptr->xtra2 = rp_ptr->re_xtra2;
+	   }
+}
 
+        
 
 /*
  * Init players with some belongings
@@ -617,6 +674,9 @@ static void player_outfit(void)
 			object_prep(i_ptr, k_idx);
 			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
 
+			/* Nasty hack for "advanced" races -NRM- */
+			object_upgrade(i_ptr);
+			
 			object_aware(i_ptr);
 			object_known(i_ptr);
 			(void)inven_carry(i_ptr);
@@ -861,6 +921,7 @@ static void race_aux_hook(birth_menu r_str)
 {
 	int race, i;
 	char s[50];
+	byte color;
 
 	/* Extract the proper race index from the string. */
 	for (race = 0; race < MAX_P_IDX; race++)
@@ -887,19 +948,93 @@ static void race_aux_hook(birth_menu r_str)
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
 
 	/* Race difficulty factor */
-	if (rp_info[race].difficulty == 1)      sprintf(s, "Lowest       ");
-	else if (rp_info[race].difficulty == 2) sprintf(s, "Low          ");
-	else if (rp_info[race].difficulty == 3) sprintf(s, "Moderate/Low ");
-	else if (rp_info[race].difficulty == 4) sprintf(s, "Moderate/High");
-	else if (rp_info[race].difficulty == 5) sprintf(s, "High         ");
-	else                                   sprintf(s, "??           ");
+	sprintf(s, "Level %d       ",rp_info[race].difficulty );
 
 	/* Color code difficulty factor */
-	/*if (rp_info[race].difficulty < 3) color = TERM_GREEN;
-	else if (rp_info[race].difficulty < 5) color = TERM_WHITE;
-	else color = TERM_RED;*/
+	if (rp_info[race].difficulty < 3) color = TERM_GREEN;
+	else if (rp_info[race].difficulty < 15) color = TERM_YELLOW;
+	else color = TERM_RED;
 
-	Term_putstr(RACE_AUX_COL + 12, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
+	Term_putstr(RACE_AUX_COL + 12, TABLE_ROW + A_MAX + 3, -1, color, s);
+	sprintf(s, "Home town : ");
+	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 4, -1, TERM_WHITE, s);
+
+	/* Get home town */
+	switch(race)
+	  {
+            case 0:
+	       {
+		 sprintf(s, "Eriador        ");
+		 break;
+	       }
+            case 1:
+	       {
+		 sprintf(s, "Ossiriand      ");
+		 break;
+	       }
+            case 2:
+	       {
+		 sprintf(s, "Menegroth      ");
+		 break;
+	       }
+            case 3:
+	       {
+		 sprintf(s, "Gladden Fields ");
+		 break;
+	       }
+            case 4:
+	       {
+		 sprintf(s, "Ered Luin South");
+		 break;
+	       }
+            case 5:
+	       {
+		 sprintf(s, "Belegost       ");
+		 break;
+	       }
+            case 6:
+	       {
+		 sprintf(s, "Ephel Brandir  ");
+		 break;
+	       }
+            case 7:
+	       {
+		 sprintf(s, "Khazad Dum     ");
+		 break;
+	       }
+            case 8:
+	       {
+		 sprintf(s, "Ephel Brandir  ");
+		 break;
+	       }
+            case 9:
+	       {
+		 sprintf(s, "Gondolin       ");
+		 break;
+	       }
+            case 10:
+	       {
+		 sprintf(s, "Gladden Fields ");
+		 break;
+	       }
+            case 11:
+	       {
+		 sprintf(s, "Taur-Im-Duinath");
+		 break;
+	       }
+            case 12:
+	       {
+		 sprintf(s, "Taur-Im-Duinath");
+		 break;
+	       }
+            case 13:
+	       {
+		 sprintf(s, "Gladden Fields ");
+		 break;
+	       }
+	  }
+
+	Term_putstr(RACE_AUX_COL + 12, TABLE_ROW + A_MAX + 4, -1, color, s);
 }
 
 /*
@@ -913,6 +1048,9 @@ static bool get_player_race()
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
 		  "Your 'race' determines various intrinsic factors and bonuses.");
+
+	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_YELLOW,
+		  "It also determines which town you start in.");
 
 	/* Tabulate races */
 	for (i = 0; i < MAX_P_IDX; i++)
@@ -1157,6 +1295,9 @@ static bool player_birth_aux_2(void)
 
 	/* Roll for social class */
 	get_history();
+
+	/* Raise level if necessary */
+	get_level();
 
 	/* Interact */
 	while (1)
@@ -1552,6 +1693,9 @@ static bool player_birth_aux_3(void)
 
 		/* Roll for social class */
 		get_history();
+		
+		/* Set level if necessary */
+		get_level();
 
 		/* Roll for gold */
 		get_money();
@@ -1735,7 +1879,7 @@ void player_birth(void)
 	/* Hack -- outfit the player */
 	player_outfit();
 
-	/* Shops */
+       	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)
 	{
 		/* Initialize */

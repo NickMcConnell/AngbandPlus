@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.7.0
+V:0.1.0
 
 
 #N: monster index: name
@@ -199,22 +199,13 @@ F:RAND_25 |
 F:ANIMAL
 D:A thin flea-ridden mutt, growling as you get close.
 
-N:14:Bill Ferny
-G:p:w
-I:110:35d10:40:10:3
-W:0:1:0:0
-B:MOAN
-B:MOAN
-F:UNIQUE | MALE | SPEAKING | SMART | MOVE_BODY | 
-F:FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-D:He looks for oportunities to make trouble, and would sell anything 
-D:to anyone.
-
 # This is an empty monster slot, which you may use to add monsters of your 
 # own, without affecting old savefiles.  As soon as the rarity field is set to 
 # something other than 0, the game will attempt to make this monster.
+N:14:()
+I:110:1d1:0:0:0
+W:0:0:0:0
+
 N:15:()
 I:110:1d1:0:0:0
 W:0:0:0:0
@@ -346,7 +337,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A small, near-colorless growth on the dungeon floor.
+D:A small, near-colorless growth on the ground.
 
 N:31:Grey mushroom patch
 G:,:s
@@ -693,7 +684,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A strange slimy yellow growth on the dungeon floor.
+D:A strange slimy yellow growth on the ground.
 
 N:66:Spotted mushroom patch
 G:,:o
@@ -1108,7 +1099,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A strange brown growth on the dungeon floor.
+D:A strange brown growth on the ground.
 
 N:106:Purple mushroom patch
 G:,:v
@@ -1153,7 +1144,7 @@ N:110:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:111:Dark elf
+N:111:Elven thrall
 G:h:D
 I:110:7d6:20:10:20
 W:7:2:25:20
@@ -1166,8 +1157,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | HURT_LITE
 S:1_IN_10 | POW_2 | 
 S:CONF | DARKNESS
-D:An elven figure with jet black skin and white hair.  His eyes are large 
-D:and twisted with evil.
+D:An elven figure with vacant eyes and bedraggled hair.  He looks as if he's 
+D:acting against his will.
 
 N:112:Novice priest
 G:p:g
@@ -1395,7 +1386,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_ACID | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A strange growth on the dungeon floor.
+D:A strange growth on the ground.
 
 N:133:Hill orc
 G:o:u
@@ -1434,7 +1425,7 @@ B:HIT:HURT:2d4
 F:DROP_60 | FRIENDS |
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 D:Hilarious-looking monstrosities with deformed, multicolored limbs and 
-D:bodies.  They riot gleefully down the corridor towards you.
+D:bodies.  They riot gleefully towards you.
 
 N:138:Trickster
 G:p:r
@@ -1623,7 +1614,7 @@ S:TELE_SELF_TO | BLINK
 D:His eyes light up around gold, and he's always looking for a more 
 D:hilarious way to kill things.
 
-N:153:Dark elven mage
+N:153:Elven thrall mage
 G:h:r
 I:120:7d9:20:10:20
 W:10:1:50:38
@@ -1637,9 +1628,9 @@ F:EVIL | IM_POIS | HURT_LITE |
 F:LOW_MANA_RUN
 S:1_IN_3 | POW_5 | 
 S:BLIND | CONF | BOLT_MANA | DARKNESS | BALL_POIS | ADD_MANA
-D:A dark elven figure, dressed all in black, hurling spells at you.
+D:An elven figure, dressed all in black, hurling spells at you.
 
-N:154:Dark elven warrior
+N:154:Elven thrall warrior
 G:h:u
 I:110:7d14:20:14:20
 W:10:1:0:33
@@ -1649,7 +1640,8 @@ F:MALE | SMART |
 F:DROP_90 | MOVE_BODY | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | HURT_LITE
-D:A dark elven figure in armour, ready with his sword.
+D:A dark elven figure in armour, ready with his sword, his features twisted 
+D:and tormented.
 
 N:155:Panther
 G:f:u
@@ -1713,7 +1705,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A strange hairy growth on the dungeon floor.
+D:A strange hairy growth on the ground.
 
 N:161:Disenchanter mold
 G:m:v
@@ -1726,7 +1718,7 @@ F:IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_11 | POW_0 | 
 S:DRAIN_MANA
-D:A strange glowing growth on the dungeon floor.
+D:A strange glowing growth on the ground.
 
 N:162:Clear mushroom patch
 G:,:w
@@ -2042,7 +2034,7 @@ F:STUPID | EMPTY_MIND | COLD_BLOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_POIS | KILL_BODY | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A fast moving highly acidic jelly thing that is eating away the floor it 
+D:A fast moving highly acidic jelly thing that is eating away the ground it 
 D:rests on.
 
 N:192:Black orc
@@ -2218,7 +2210,7 @@ S:1_IN_3 | POW_6 |
 S:HEAL | CURE | SCARE | 
 S:WOUND | BALL_LITE | 
 S:S_MONSTER
-D:A robed humanoid dedicated to his god.
+D:A robed humanoid dedicated to his evil master.
 
 N:208:Druid
 G:p:y
@@ -2366,7 +2358,7 @@ D:with them as he possibly can.  The Gaveronians are sapient feliniods with
 D:considerable magical talent and a fair bit of loot.  Although not evil, 
 D:they are out for your blood anyway.
 
-N:220:Mirkwood spider
+N:220:Spider of Nan Dungortheb
 G:S:g
 I:120:7d9:15:13:80
 W:16:2:0:25
@@ -2376,8 +2368,8 @@ B:BITE:POISON:1d4
 F:FRIENDS | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | EVIL | IM_POIS
-D:A strong and powerful spider from Mirkwood forest.  Cunning and evil, it 
-D:longs to taste your juicy insides.
+D:A strong and powerful spider from the Valley of Dreadful Death.  Cunning and 
+D:evil, it longs to taste your juicy insides.
 
 N:221:Light hound
 G:Z:o
@@ -2549,10 +2541,9 @@ F:STUPID | EMPTY_MIND | COLD_BLOOD | KILL_BODY |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A strange, vast gelatinous structure that assumes cubic proportions 
-D:as it lines all four walls of the corridors it patrols.  Through its 
-D:transparent jelly structure you can see treasures it has engulfed, and a 
-D:few corpses as well.
+D:A strange, vast gelatinous structure that has been sculpted to cubic form 
+D:by the dungeon corridors it patrols.  Through its transparent jelly 
+D:structure you can see treasures it has engulfed, and a few corpses as well.
 
 N:236:Clay golem
 G:g:U
@@ -3162,7 +3153,7 @@ S:PMISSL | BLIND | DARKNESS
 D:A grey-clad figure, knives in hand, moving with speed.  He has you in his 
 D:sights.
 
-N:288:Dark elven priest
+N:288:Elven thrall priest
 G:h:g
 I:120:10d14:20:15:30
 W:22:1:59:170
@@ -3177,8 +3168,8 @@ F:LOW_MANA_RUN
 S:1_IN_5 | POW_13 | 
 S:HEAL | CURE | BLIND | SCARE | WOUND | DARKNESS | 
 S:BALL_DARK
-D:A dark elven figure, dressed all in black, chanting curses and waiting to 
-D:deliver your soul to hell.
+D:A dark elven figure, dressed all in black, chanting curses.  He has been 
+D:captive in Angband so long he truly worships his evil master.
 
 N:289:Hobbit slinger
 G:h:u
@@ -3215,8 +3206,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_FIRE | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A strange red growth on the dungeon floor; it seems to burn with 
-D:flame.
+D:A strange red growth on the ground; it seems to burn with flame.
 
 N:292:Stone golem
 G:g:W
@@ -3254,7 +3244,7 @@ N:295:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:296:Dark elven lord
+N:296:Elven thrall lord
 G:h:D
 I:120:10d20:20:28:30
 W:23:2:53:300
@@ -3268,7 +3258,7 @@ F:EVIL | HURT_LITE
 S:1_IN_4 | POW_15 | 
 S:TELE_SELF_TO | HASTE | BLIND | CONF | DARKNESS | 
 S:BOLT_FIRE | BOLT_COLD
-D:A dark elven figure in armour, radiating evil power.
+D:A dark elven figure in armour, given evil power in exchange for servitude.
 
 N:297:Sabre-tooth tiger
 G:f:y
@@ -3472,7 +3462,7 @@ F:STUPID | EMPTY_MIND | COLD_BLOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A lump of rotting black flesh that slurrrrrrrps across the dungeon floor.
+D:A lump of rotting black flesh that slurrrrrrrps across the ground.
 
 N:313:Umber hulk
 G:X:U
@@ -3942,7 +3932,7 @@ N:351:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:352:Bat of Gorgoroth
+N:352:Bat of Utumno
 G:b:g
 I:120:7d10:20:30:30
 W:28:3:35:200
@@ -4003,7 +3993,7 @@ N:357:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:358:Dark elven druid
+N:358:Elven thrall druid
 G:h:y
 I:115:10d22:15:20:10
 W:29:2:77:300
@@ -4019,7 +4009,8 @@ S:1_IN_3 | POW_22 |
 S:HASTE | CURE | CONF | HOLD | BLIND | DARKNESS | 
 S:BOLT_ACID | BOLT_POIS | BOLT_COLD | BOLT_WATER | 
 S:S_MONSTER | S_SPIDER
-D:A powerful dark elf, with mighty nature-controlling enchantments.
+D:A powerful elf, mesmaerised and sent out by Morgoth to use the forces of
+D:nature against his enemies.
 
 N:359:Carrion crawler
 G:c:o
@@ -4306,7 +4297,7 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_SLEEP
 S:1_IN_8 | POW_8 | 
 S:HOLD | SCARE | WOUND | DARKNESS
-D:It is a ghostly nightmare of a entity.
+D:It is a ghostly nightmare of an entity.
 
 N:383:Ethereal drake
 G:d:o
@@ -4706,7 +4697,7 @@ N:416:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:417:Great Eagle of Dol Guldur
+N:417:Great Eagle of Ered Engrin
 G:B:D
 I:130:10d22:25:30:20
 W:37:3:0:225
@@ -4716,7 +4707,7 @@ B:CLAW:HURT:1d5
 F:SMART | KILL_BODY | NO_FEAR | 
 F:EVIL | ANIMAL
 D:Great Eagles are not invariably brave, honorable, and true; a few become 
-D:so twisted with evil that Sauron delights in their power and cruelty.  
+D:so twisted with evil that Morgoth delights in their power and cruelty.  
 D:Beware this wrathful hunter!  Flee its matchless speed!
 
 N:418:Grey wraith
@@ -5290,7 +5281,7 @@ F:EVIL | GIANT | IM_ELEC
 S:1_IN_10 | POW_25 | 
 S:SHRIEK | TELE_TO | SCARE | 
 S:BALL_ELEC | BEAM_ELEC | MISSL
-D:A great battle-lord of Horodwaith, twenty-five feet tall, who wields a 
+D:A great battle-lord of Forodwaith, twenty-five feet tall, who wields a 
 D:massive two-handed sword that strikes like a bolt of lightning.
 
 N:465:Dagashi
@@ -6129,7 +6120,7 @@ N:527:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:528:Dark elven sorceror
+N:528:Elven thrall sorceror
 G:h:v
 I:130:10d56:20:25:10
 W:51:2:113:1850
@@ -6147,7 +6138,7 @@ S:BLINK | TELE_SELF_TO | BLIND | CONF | WOUND | DARKNESS |
 S:BOLT_ACID | BALL_ELEC | BALL_COLD | ADD_MANA | 
 S:S_MONSTER | S_DRAGON | S_UNDEAD
 D:A dark elven figure, dressed in deepest black.  Power seems to crackle 
-D:from his slender frame.
+D:from his slender frame as he does his evil master's bidding.
 
 N:529:Master thief
 G:p:B
@@ -6364,7 +6355,7 @@ N:544:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:545:Nazgul's Steed
+N:545:Wraith's Steed
 G:B:D
 I:120:10d49:20:20:10
 W:54:2:45:2500
@@ -6377,8 +6368,8 @@ F:ANIMAL | EVIL
 S:1_IN_4 | POW_15 | 
 S:SCARE | HOLD | BLIND | 
 S:BRTH_POIS
-D:The hideous steed of the Ringwraiths, bloated on unclean flesh by Sauron 
-D:himself.
+D:The hideous steed of the wraiths of Taur-Nu-Fuin, bloated on unclean flesh 
+D:by Sauron himself.
 
 N:546:Dreadmaster
 G:G:y
@@ -6838,7 +6829,7 @@ F:DRAGON | NO_CONF
 S:1_IN_5 | POW_25 | 
 S:BLIND | CONF | 
 S:BRTH_LITE | BRTH_DARK 
-D:A huge dragon emanating from the ethereal plains, the ethereal wyrm is 
+D:A huge dragon emanating from the ethereal planes, the ethereal wyrm is 
 D:a master of light and dark.  Its form disappears from sight as it cloaks 
 D:itself in unearthly shadows.
 
@@ -7161,7 +7152,7 @@ S:1_IN_4 | POW_65 |
 S:BLIND | CONF | 
 S:LASH | BRTH_FIRE | ARC_HFIRE | BALL_FIRE
 S:S_DEMON
-D:A massive humanoid demon, wreathed in the flames of Udun, armed with 
+D:A massive humanoid demon, wreathed in the flames of Angband, armed with 
 D:blazing sword and burning lash.
 
 N:603:()
@@ -7211,7 +7202,7 @@ S:BLIND | CONF | SCARE |
 S:BRTH_ELEC | BRTH_LITE | BRTH_GRAV | BRTH_SOUND | BRTH_FORCE 
 D:A wrathful dragon, of a breed that even legends do not mention, 
 D:rushing towards you like a thunderbolt.  Few ever face the wyrms 
-D:of the ethereal plains; fewer live to tell the tale.
+D:of the ethereal planes; fewer live to tell the tale.
 
 N:607:()
 I:110:1d1:0:0:0
@@ -7646,7 +7637,7 @@ S:BLIND | CONF | HOLD |
 S:LASH | BRTH_FIRE | BRTH_DARK | 
 S:ARC_HFIRE | BALL_FIRE | BALL_CHAOS | 
 S:S_DEMON | S_HI_DEMON
-D:A dread, terrible demon, wreathed in the flames of Udun, with a blade 
+D:A dread, terrible demon, wreathed in the flames of Angband, with a blade 
 D:of peril and a whip of sudden death.
 
 N:643:()
@@ -7773,7 +7764,7 @@ W:0:0:0:0
 
 ######################## Dungeon Monsters - Uniques #######################
 
-N:664:Lotho Pimple
+N:664:Pongo the Devious
 G:h:G
 I:110:4d10:20:20:20
 W:2:2:24:30
@@ -7786,24 +7777,9 @@ F:BASH_DOOR | OPEN_DOOR |
 F:EVIL
 S:1_IN_9 | POW_0 | 
 S:BLIND
-D:A wicked, power-hungry hobbit who's bitten off rather more than he 
-D:can chew.  He won't be "Chief Shirriff" long.
+D:A wicked, power-hungry hobbit outlawed from the Gladden Fields settlement.
 
-N:665:Smeagol
-G:h:b
-I:130:4d5:24:21:5
-W:3:2:0:16
-B:HIT:HURT:1d4
-B:TOUCH:EAT_GOLD
-F:UNIQUE | MALE | SMART | 
-F:FORCE_MAXHP | MOVE_BODY | 
-F:RAND_50 | RAND_25 | 
-F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
-F:INVISIBLE | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
-D:He's been sneaking, and he wants his 'precious.'
-
-N:666:The Desperate Adventurer
+N:665:The Desperate Adventurer
 G:p:s
 I:110:5d10:5:20:0
 W:3:1:0:30
@@ -7814,7 +7790,7 @@ F:BASH_DOOR | OPEN_DOOR | RAND_50
 D:His armour's all rusted, he's starving, and he's just used up his 
 D:last torch.  Won't you have pity and trade with him?
 
-N:667:Bullroarer the Hobbit
+N:666:The Thief of the Mountains
 G:h:b
 I:120:4d12:20:12:10
 W:5:3:0:90
@@ -7827,6 +7803,22 @@ F:ONLY_ITEM | DROP_90 | DROP_90 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 D:He is a sturdy hobbit who is renowned for his unusual strength and 
 D:vigour.  He can prove a troublesome opponent.
+
+N:667:The Ickiness
+G:i:U
+I:110:9d10:20:10:20
+W:7:3:40:100
+B:TOUCH:ACID:1d3
+B:TOUCH:POISON:1d3
+B:TOUCH:LOSE_CHR:1d3
+F:UNIQUE | NEVER_MOVE | EMPTY_MIND |
+F:NO_CONF | NO_SLEEP | NO_FEAR |
+F:FORCE_MAXHP | ESCORT |
+F:ONLY_ITEM | DROP_GOOD |
+F:IM_POIS | IM_ACID 
+S:1_IN_2 | S_KIN
+D:You prepare to avoid this foul mess on the ground, then you realise 
+D:it's alive...
 
 N:668:Mughash the Kobold Lord
 G:k:b
@@ -7843,7 +7835,7 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:EVIL | IM_POIS
 D:Strong and powerful, for a kobold.
 
-N:669:Wormtongue, Agent of Saruman
+N:669:Ulfast, son of Ulfang
 G:p:b
 I:110:19d10:20:15:20
 W:8:1:45:150
@@ -7857,10 +7849,10 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 S:1_IN_5 | POW_7 | 
 S:HEAL | SLOW | TRAPS | BOLT_COLD | BALL_POIS
-D:He's been spying for Saruman.  He is a snivelling wretch with no morals 
-D:and disgusting habits.
+D:He's been spying for his brother Uldor, and doesn't mind making a profit 
+D:for himself.
 
-N:670:Lagduf, the Snaga
+N:670:Balcmeg the Cave Orc
 G:o:o
 I:110:14d10:20:20:30
 W:8:2:0:80
@@ -7874,7 +7866,7 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC
-D:A captain of a regiment of weaker orcs, Lagduf keeps his troop in order 
+D:A captain of a regiment of weaker orcs, Balcmeg keeps his troop in order 
 D:with displays of excessive violence.
 
 N:671:Brodda, the Easterling
@@ -7912,7 +7904,7 @@ S:S_MONSTER
 D:He's just like daddy!  He knows mighty spells, but fortunately he is a 
 D:yeek.
 
-N:673:Grishnakh, the Hill Orc
+N:673:Lug, the Hill Orc
 G:o:U
 I:110:16d10:20:20:20
 W:10:3:0:160
@@ -7936,21 +7928,9 @@ N:675:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:676:Golfimbul, the Hill Orc Chief
-G:o:U
-I:110:18d10:20:30:20
-W:12:3:0:230
-B:HIT:HURT:1d12
-B:HIT:HURT:1d12
-B:HIT:HURT:1d10
-B:HIT:HURT:1d10
-F:UNIQUE | MALE | SPEAKING | SMART | 
-F:FORCE_MAXHP | MOVE_BODY | 
-F:ESCORT | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-D:A leader of a band of raiding orcs, he picks on hobbits.
+N:676:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
 N:677:Boldor, King of the Yeeks
 G:y:U
@@ -7971,41 +7951,16 @@ S:HEAL | BLINK | TPORT | BLIND | SLOW | ADD_MANA |
 S:S_KIN | S_MONSTER
 D:A great yeek, powerful in magic and sorcery, but a yeek all the same.
 
-N:678:Ufthak of Cirith Ungol
-G:o:g
-I:110:22d10:20:25:20
-W:14:3:0:200
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-F:UNIQUE | MALE | SPEAKING | 
-F:FORCE_MAXHP | MOVE_BODY | 
-F:ESCORT | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_COLD 
-D:A strong orc guarding the pass of Cirith Ungol.  He is mortally afraid of 
-D:spiders.
+N:678:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
-N:679:Ulfast, Son of Ulfang
-G:p:u
-I:110:25d10:20:20:40
-W:18:3:0:200
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-F:UNIQUE | MOVE_BODY | 
-F:MALE | SPEAKING | SMART | 
-F:FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
-D:A short and swarthy Easterling.
+N:679:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
-N:680:Nar, the Dwarf
-G:h:y
+N:680:Ulwarth, son of Ulfang
+G:p:U
 I:110:33d10:25:35:25
 W:19:2:54:250
 B:HIT:HURT:3d5
@@ -8019,8 +7974,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF
 S:1_IN_6 | POW_16 | 
 S:HEAL | BLIND | CONF | WOUND | MIND_BLAST
-D:This dwarf became so obsessed by gold that Morgoth tricked him into 
-D:betraying his friends.
+D:A treaherous Easterling, running errands for his brother Uldor.
 
 N:681:()
 I:110:1d1:0:0:0
@@ -8030,7 +7984,7 @@ N:682:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:683:Shagrat, the Orc Captain
+N:683:Othrod, Lord of the Orcs
 G:o:g
 I:110:28d10:20:30:20
 W:21:2:0:300
@@ -8044,25 +7998,14 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_POIS
-D:He is an Uruk of power and great cunning, leader of the garrison at Cirith Ungol.
+D:He is an Uruk of power and great cunning.  He doesn't think much of you,
+D:but then he doesn't think much at all.
 
-N:684:Gorbag, the Orc Captain
-G:o:g
-I:110:28d10:20:30:20
-W:21:2:0:300
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-F:UNIQUE | MALE | SPEAKING | SMART | 
-F:FORCE_MAXHP | 
-F:ESCORT | MOVE_BODY | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS
-D:A gruesomely ugly but cunning orc, leader of the garrison at Minas Morgul.
+N:684:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
-N:685:Bolg, Son of Azog
+N:685:Orcogar, Son of Orcobal
 G:o:r
 I:120:33d10:20:25:20
 W:23:3:0:320
@@ -8079,38 +8022,13 @@ F:EVIL | ORC | IM_POIS
 D:A large and powerful orc.  He looks just like his daddy.  He is tall and 
 D:fast, but fortunately blessed with orcish brains.
 
-N:686:Lugdush, the Uruk
-G:o:b
-I:110:43d10:20:45:20
-W:24:3:0:500
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-F:UNIQUE | MALE | SPEAKING | SMART | 
-F:FORCE_MAXHP | 
-F:ESCORT | MOVE_BODY | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS
-D:A strong and cunning orc warrior, Lugdush sneers as he insults your mother.
+N:686:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
-N:687:Ugluk, the Uruk
-G:o:b
-I:110:52d10:20:42:20
-W:25:3:0:500
-B:HIT:HURT:3d9
-B:HIT:HURT:3d9
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-F:UNIQUE | MALE | SPEAKING | SMART | 
-F:FORCE_MAXHP | 
-F:ESCORT | MOVE_BODY | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS
-D:Another of Morgoth's servants, this orc is strong and cunning.  He is ugly 
-D:and scarred from many power struggles.
+N:687:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
 N:688:Ibun, Son of Mim
 G:h:o
@@ -8148,7 +8066,7 @@ S:HEAL | SLOW | BOLT_FIRE
 D:One of the last of the petty dwarves.  Khim is a tricky sorcerous little 
 D:being, full of mischief.
 
-N:690:Azog, King of the Uruk-Hai
+N:690:Orcobal the Mighty
 G:o:r
 I:120:63d10:20:40:20
 W:27:5:0:550
@@ -8161,42 +8079,16 @@ F:ESCORT | ESCORTS | MOVE_BODY |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_POIS
-D:He is also known as the King of Khazad-dum.  His ego is renowned to be 
-D:bigger than his head.
+D:He is the champion fighter of the expeditionary orc forces of Angband.  He
+D:leers and swaggers as he approaches you.
 
-N:691:Sangahyando of Umbar
-G:p:r
-I:110:80d7:25:40:25
-W:28:2:42:400
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-F:UNIQUE | MALE | SPEAKING | SMART | 
-F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY | 
-F:ONLY_ITEM | DROP_60 | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_FIRE | IM_ELEC
-S:1_IN_4 | POW_5 | 
-S:SLOW | FORGET
-D:A Black Numenorean with a blacker heart.
+N:691:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
-N:692:Angamaite of Umbar
-G:p:r
-I:110:80d7:25:40:25
-W:28:2:42:400
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-F:UNIQUE | MALE | SPEAKING | SMART | 
-F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY | 
-F:ONLY_ITEM | DROP_60 | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_FIRE | IM_ELEC
-S:1_IN_4 | POW_5 | 
-S:SLOW | FORGET
-D:A Black Numenorean who hates the men of the west.
+N:692:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
 N:693:()
 I:110:1d1:0:0:0
@@ -8206,21 +8098,28 @@ N:694:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:695:Ulwarth, Son of Ulfang
-G:p:U
-I:110:85d7:20:20:40
-W:30:4:0:500
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-F:UNIQUE | MALE | SPEAKING | SMART | 
-F:FORCE_MAXHP | MOVE_BODY | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
-D:A short and swarthy Easterling.
+# Mim only appears on level 30 of Amon Rudh
 
-N:696:Uldor the Accursed
+N:695:Mim, Betrayer of Turin
+G:h:o
+I:120:10d65:20:40:20
+W:30:4:72:1100
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
+B:HIT:UN_BONUS
+F:UNIQUE | MALE | QUESTOR | SPEAKING | SMART | 
+F:FORCE_MAXHP | FORCE_SLEEP | FORCE_DEPTH | RUDH |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF
+S:1_IN_6 | POW_45 | 
+S:HEAL | SCARE | BALL_ACID
+D:Mim is a petty-dwarf, one of the last of his race.  He betrayed Turin 
+D:Turambar to the servants of Morgoth for his own gain.
+
+N:696:Ulfang the Black
 G:p:u
 I:110:6d100:20:35:40
 W:33:4:0:600
@@ -8233,7 +8132,8 @@ F:FORCE_MAXHP | MOVE_BODY |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:An evil, faithless, and cunning man from the East, capable of any deception.
+D:An evil, faithless, and cunning man from the East, trusted vainly by the
+D:sons of Feanor.
 
 N:697:Draebor, the Imp
 G:u:g
@@ -8256,25 +8156,9 @@ S:CONF | SCARE |
 S:S_KIN
 D:An intensely irritating git of a monster.
 
-N:698:Mim, Betrayer of Turin
-G:h:o
-I:120:10d65:20:40:20
-W:35:4:72:1100
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
-B:HIT:UN_BONUS
-F:UNIQUE | MALE | SPEAKING | SMART | 
-F:FORCE_MAXHP | FORCE_SLEEP | 
-F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF
-S:1_IN_6 | POW_45 | 
-S:HEAL | SCARE | BALL_ACID
-D:Mim is a petty dwarf, the last of his race.  Petty dwarves are strange 
-D:creatures, powerful in sorcery and originating in the East.  They were 
-D:hunted to extinction by high elves.
+N:698:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
 N:699:()
 I:110:1d1:0:0:0
@@ -8284,61 +8168,19 @@ N:700:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:701:Bert the Stone Troll
-G:T:W
-I:110:11d70:20:50:50
-W:41:4:8:1500
-B:HIT:HURT:5d5
-B:BITE:HURT:2d10
-B:BITE:HURT:2d3
-F:UNIQUE | MALE | SPEAKING | 
-F:FORCE_MAXHP | 
-F:ESCORT | MOVE_BODY | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
-S:1_IN_6 | POW_35 | 
-S:BOULDER | S_BERTBILLTOM
-D:Big, brawny, powerful and with a taste for hobbit.  He has friends named 
-D:Bill and Tom.
+N:701:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
-N:702:Bill the Stone Troll
-G:T:W
-I:110:11d70:20:50:50
-W:41:4:8:1500
-B:HIT:HURT:5d5
-B:BITE:HURT:2d10
-B:BITE:HURT:2d3
-F:UNIQUE | MALE | SPEAKING | 
-F:FORCE_MAXHP | 
-F:ESCORT | MOVE_BODY | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
-S:1_IN_6 | POW_35 | 
-S:BOULDER | S_BERTBILLTOM
-D:Big, brawny, powerful and with a taste for hobbit.  He has friends named 
-D:Bert and Tom.
+N:702:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
-N:703:Tom the Stone Troll
-G:T:W
-I:110:11d70:20:50:50
-W:41:4:8:1500
-B:HIT:HURT:5d5
-B:BITE:HURT:2d10
-B:BITE:HURT:2d3
-F:UNIQUE | MALE | SPEAKING | 
-F:FORCE_MAXHP | 
-F:ESCORT | MOVE_BODY | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
-S:1_IN_6 | POW_35 | 
-S:BOULDER | S_BERTBILLTOM
-D:Big, brawny, powerful and with a taste for hobbit.  He has friends named 
-D:Bert and Bill.
+N:703:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
-N:704:Ulfang the Black
+N:704:Uldor the Accursed
 G:p:U
 I:120:10d80:20:45:40
 W:42:5:0:1200
@@ -8350,8 +8192,9 @@ F:UNIQUE | MALE | SPEAKING | SMART |
 F:FORCE_MAXHP | MOVE_BODY | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
-D:A short and swarthy Easterling dressed in ghastly midnight hues.
+F:EVIL | ESCORT
+D:The organiser of the treason of the Easterlings in the Nirnaeth Arnoediad. 
+D:A cowardly man, he is only brave in the company of his cohorts.
 
 N:705:The Queen Ant
 G:a:D
@@ -8406,40 +8249,13 @@ S:BOULDER
 D:A massive and cruel troll of great power; drool slides caustically down 
 D:his muscular frame.  Despite his bulk, he strikes with stunning speed.
 
-N:708:Castamir the Usurper
-G:p:R
-I:120:80d10:20:35:40
-W:48:5:108:1600
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-F:UNIQUE | MALE | SPEAKING | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | MOVE_BODY | 
-F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
-F:EVIL
-S:1_IN_2 | POW_46 | 
-S:HEAL | TRAPS | BOLT_FIRE | BOLT_COLD | BOLT_ELEC | BOLT_ICE
-D:A Black Numenorean, treacherous and evil, who usurped the throne of Gondor.
+N:708:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
-N:709:Ar-Pharazon the Golden
-G:p:y
-I:120:75d10:30:45:100
-W:48:6:108:2500
-B:HIT:HURT:4d12
-B:HIT:HURT:4d12
-B:HIT:HURT:4d12
-B:HIT:HURT:4d12
-F:FORCE_SLEEP | MALE | FORCE_MAXHP | UNIQUE | SPEAKING | 
-F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD | 
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY
-S:1_IN_10 | POW_25 | 
-S:HEAL | HASTE | TELE_AWAY | 
-S:S_MONSTERS
-D:Last and proudest king of ancient Numenor.  Corrupted by power and 
-D:avarice, he fell victim to Sauron's wiles, tried to fight the immortals 
-D:themselves, and condemned Numenor to oblivion.
+N:709:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
 N:710:Shelob, Spider of Darkness
 G:S:D
@@ -8461,8 +8277,7 @@ S:TRAPS | BRTH_POIS |
 S:S_SPIDER
 D:Shelob is an enormous bloated spider, rumoured to have been one of the 
 D:brood of Ungoliant the Unlight.  Her poison is legendary, as is her ego, 
-D:which may be her downfall.  She used to guard the pass through Cirith 
-D:Ungol, but has not been seen there for many eons.
+D:which may be her downfall.
 
 N:711:Vargo, Tyrant of Fire
 G:E:r
@@ -8686,7 +8501,7 @@ F:MORGUL_MAGIC
 S:1_IN_7 | POW_60 | 
 S:BLIND | HOLD | SCARE | HASTE | CURE | 
 S:PMISSL | BOLT_NETHR | 
-D:A tall black cloaked Ringwraith, he is a master of horsemanship.  He 
+D:A tall black cloaked wraith, he is a master of horsemanship.  He 
 D:longs to taste your blood.
 
 N:726:Baphomet the Minotaur Lord
@@ -8745,8 +8560,8 @@ S:1_IN_3 | POW_65 |
 S:BLIND | HOLD | SCARE | WOUND | FORGET | ADD_MANA | HASTE | CURE | 
 S:PMISSL | BALL_ACID | BALL_COLD | BEAM_ICE | BOLT_NETHR | BOLT_MANA | 
 S:S_MONSTER
-D:A sorceress in life, Adunaphel quickly fell under Sauron's sway and the 
-D:power of the rings.
+D:A sorceress in life, Adunaphel quickly fell under Sauron's sway and 
+D:became his loyal servant in death.
 
 N:729:Evil Iggy
 G:p:D
@@ -8831,8 +8646,8 @@ D:An ancient and wise Dragon.  Scatha has grown clever over the long years.
 D:His scales are covered with frost, and his breath sends a shower of ice 
 D:into the air.
 
-N:733:Fundin Bluecloak
-G:h:B
+N:733:Calcollo Greencloak
+G:h:g
 I:130:27d100:25:65:10
 W:66:2:132:16000
 B:HIT:HURT:10d10
@@ -8848,10 +8663,8 @@ S:1_IN_4 | POW_75 |
 S:HEAL | BLIND | CONF | SCARE | WOUND | BRAIN_SMASH | 
 S:FORGET | BALL_LITE | 
 S:S_MONSTERS | DISPEL
-D:He is one of the greatest dwarven priests to walk the earth.  Fundin has 
-D:earned a high position in the church, and his skill with both weapon and 
-D:spell only justify his position further.  His combination of dwarven 
-D:strength and priestly wisdom are a true match for any adventurer.
+D:A dark elven priest of renown, Calcollo has his own interpretation of the 
+D:will of the Valar.  Unfortunately for you, this includes your destruction.
 
 N:734:Ren the Unclean
 G:W:D
@@ -8933,7 +8746,7 @@ S:1_IN_3 | POW_83 |
 S:BLIND | HOLD | SCARE | WOUND | ADD_MANA | HASTE | CURE | 
 S:PMISSL | BALL_POIS | BALL_NETHR | 
 S:S_UNDEAD
-D:This Ringwraith was a weak-minded sorcerer-king who fell easily under 
+D:This wraith was a weak-minded sorcerer-king who fell easily under 
 D:Sauron's power.
 
 N:738:Smaug the Golden
@@ -8953,32 +8766,13 @@ S:1_IN_3 | POW_45 |
 S:CONF | WOUND | HOLD | BLIND | SCARE | 
 S:BRTH_FIRE
 S:S_DRAGON
-D:Smaug is one of the Uruloki that still survive, a fire-drake of immense 
-D:cunning and intelligence.  His speed through air is matched by few other 
-D:dragons and his dragonfire is what legends are made of.
+D:Smaug is one of the Uruloki, a flying fire-drake of immense cunning and 
+D:intelligence.  His speed through air is matched by few other dragons and his 
+D:dragonfire is what legends are made of.
 
-N:739:The Balrog of Moria
-G:U:o
-I:120:19d100:20:40:80
-W:68:3:144:17500
-B:HIT:FIRE:7d12
-B:CRUSH:HURT:7d12
-B:TOUCH:UN_POWER
-F:UNIQUE | MALE | SMART | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ESCORT | ESCORTS | 
-F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DEMON | IM_FIRE | NO_FEAR | 
-F:UDUN_MAGIC
-S:1_IN_3 | POW_75 | 
-S:BLIND | CONF | HOLD | 
-S:LASH | 
-S:ARC_HFIRE | BRTH_FIRE | 
-S:S_HI_DEMON
-D:A huge balrog surrounded by raging pillars of fire, this is indeed a 
-D:terrible opponent.  Wielding a great whip of fire and a blazing sword, his 
-D:fury blisters your skin and melts your flesh!
+N:739:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
 N:740:Errata the Mage
 G:p:w
@@ -9046,8 +8840,8 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 S:1_IN_4 | POW_70 | 
 S:BALL_ACID | BALL_ELEC | HASTE | HEAL | 
 S:TPORT | TELE_TO | S_MONSTER | DISPEL
-D:A dark elf, mighty in Gondolin, and betrayer of that hidden city to 
-D:Morgoth's wrath.
+D:A dark elf, mighty in Gondolin.  He might be the king's nephew, but you  
+D:don't trust him
 
 N:745:Dwar, Dog Lord of Waw
 G:W:D
@@ -9113,19 +8907,21 @@ S:1_IN_3 | POW_105 |
 S:BLIND | HOLD | SCARE | WOUND | WOUND | MIND_BLAST | HASTE | CURE | 
 S:PMISSL | BOLT_ICE | BALL_COLD | BALL_NETHR | BOLT_MANA | ADD_MANA | 
 S:S_KIN | S_UNDEAD | DISPEL
-D:A Ringwraith powerful in fell sorcery, he yearns for the life he has 
+D:A wraith powerful in fell sorcery, he yearns for the life he has 
 D:lost for a life of everlasting torment.
+
+# Glaurung only appears on level 70 of Nargothrond
 
 N:748:Glaurung, Father of the Dragons
 G:D:r
 I:120:32d100:30:60:55
-W:73:3:158:31000
+W:70:1:158:31000
 B:CLAW:HURT:4d12
 B:CLAW:HURT:4d12
 B:BITE:FIRE:7d14
 B:BITE:POISON:7d14
-F:UNIQUE | MALE | SPEAKING | SMART | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
+F:UNIQUE | MALE | QUESTOR | SPEAKING | SMART | 
+F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | NARGOTHROND |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:BASH_DOOR | FLYING | POWERFUL | MOVE_BODY | 
 F:EVIL | DRAGON | IM_POIS | IM_FIRE | NO_CONF | NO_SLEEP | NO_FEAR
@@ -9138,30 +8934,9 @@ D:powerful.  Nevertheless, he still has full command over his brood and can
 D:command them to appear whenever he so wishes.  He is the definition of 
 D:dragonfire, and his poison is agonizing.
 
-N:749:Saruman of Many Colours
-G:p:v
-I:120:27d100:100:40:0
-W:74:1:165:35000
-B:HIT:UN_BONUS:6d8
-B:HIT:UN_BONUS:6d8
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-F:UNIQUE | MALE | ATTR_MULTI | SPEAKING | 
-F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY | 
-F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | 
-F:LOW_MANA_RUN
-S:1_IN_2 | POW_82 | 
-S:HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE | 
-S:WOUND | MIND_BLAST | FORGET | TRAPS | ADD_MANA | 
-S:BOLT_ICE | BALL_POIS | BALL_ACID | BALL_COLD | BALL_DARK | BALL_STORM | 
-S:BALL_POIS | BALL_MANA 
-S:S_DRAGON | S_DEMON | S_UNDEAD | DISPEL
-D:Originally known as the White, Saruman fell prey to Sauron's wiles.  He 
-D:seeks to emulate him and breeds orcs and trolls to fight for him.  He 
-D:searches forever for the One Ring, to become a mighty Sorcerer-King of the 
-D:world.
+N:749:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
 N:750:Tevildo, Prince of Cats
 G:f:r
@@ -9251,46 +9026,42 @@ D:The first guard of Angband, Carcharoth, also known as 'The Red Maw', is
 D:the largest wolf to ever walk the earth.  He is highly intelligent and a 
 D:deadly opponent in combat.
 
-N:754:Khamul, the Black Easterling
-G:W:D
-I:120:21d100:40:40:10
-W:79:5:185:30000
-B:HIT:HURT:10d10
-B:HIT:HURT:5d5
-B:TOUCH:EXP_40
-B:TOUCH:EXP_40
-F:UNIQUE | MALE | SPEAKING | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
-F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | UNDEAD | IM_ACID | IM_FIRE | IM_COLD | IM_POIS | 
-F:HURT_LITE | NO_CONF | NO_SLEEP | 
-F:MORGUL_MAGIC
-S:1_IN_2 | POW_115 | 
-S:TELE_LEVEL | BLIND | HOLD | SCARE | WOUND | BOLT_MANA | HASTE | CURE | 
-S:PMISSL | BALL_POIS | BALL_COLD | BALL_NETHR | ADD_MANA | BRAIN_SMASH | 
-S:S_MONSTER | S_UNDEAD | S_HI_UNDEAD
-D:A warrior-king of the East.  Khamul is a powerful opponent, his skill in 
-D:combat awesome and his form twisted by evil cunning.
+N:754:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
 N:755:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:756:()
-I:110:1d1:0:0:0
-W:0:0:0:0
+N:756:The Maelstrom
+G:v:w
+I:140:30d100:50:10:10
+W:80:2:70:15000 
+B:ENGULF:COLD:3d6 
+B:ENGULF:CONFUSE:3d6 
+B:ENGULF:HURT:3d6 
+F:UNIQUE | FORCE_MAXHP |
+F:NEVER_MOVE | EMPTY_MIND |
+F:NO_CONF | NO_SLEEP | NO_FEAR |
+F:IM_COLD | IM_FIRE | IM_ACID | IM_POIS 
+S:1_IN_3 | S_KIN | BRTH_COLD | BRTH_SOUND
+D:A violent icy whirlpool, brought from the frozen wastes of the north by
+D:Morgoth as guard and entertainment.  Smaller vortices arise on its edges, 
+D:and you feel as if you will never be free of its deafening roar.
+
+# Ungoliant only appears on level 80 of Nan Dungortheb
 
 N:757:Ungoliant, the Unlight
 G:S:D
 I:120:65d100:8:62:80
-W:80:2:152:35000
+W:80:1:152:35000
 B:BITE:POISON:3d9
 B:BITE:POISON:3d9
 B:STING:POISON:2d5
 B:STING:POISON:2d5
-F:UNIQUE | FEMALE | SPEAKING | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
+F:UNIQUE | QUESTOR | FEMALE | SPEAKING | 
+F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | DUNGORTHEB |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:SMART | BASH_DOOR | KILL_BODY | 
 F:ANIMAL | EVIL | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | 
@@ -9392,27 +9163,9 @@ S:S_HI_DRAGON
 D:'Rushing Jaws' is his name, and death is his game.  No dragon of the brood 
 D:of Glaurung can match him.
 
-N:762:The Mouth of Sauron
-G:p:v
-I:130:35d100:60:40:10
-W:84:3:165:38000
-B:HIT:UN_BONUS:6d8
-B:HIT:UN_BONUS:6d8
-B:TOUCH:UN_POWER
-B:TOUCH:UN_POWER
-F:UNIQUE | MALE | SPEAKING |  
-F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
-F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | IM_ACID | IM_FIRE | IM_COLD | 
-F:IM_ELEC | NO_CONF | NO_SLEEP
-S:1_IN_2 | POW_105 | 
-S:TELE_TO | HOLD | WOUND | TRAPS | ADD_MANA | DISPEL | 
-S:BOLT_PLAS | BALL_DARK | BALL_MANA | BALL_ACID | BALL_STORM | BALL_NETHR
-D:The Mouth of Sauron is a mighty spell caster.  So old that even he cannot 
-D:remember his own name, his power and evil are undeniable.  He believes 
-D:unshakeably that he is unbeatable and laughs as he weaves his awesome 
-D:spells.
+N:762:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
 N:763:Pazuzu, Lord of Air
 G:B:w
@@ -9434,29 +9187,9 @@ S:S_HI_DEMON
 D:A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you 
 D:as he decides your fate.
 
-N:764:The Witch-King of Angmar
-G:W:D
-I:130:30d100:90:48:10
-W:87:5:185:42000
-B:HIT:HURT:10d10
-B:HIT:HURT:10d10
-B:HIT:EXP_80:5d5
-B:HIT:EXP_80:5d5
-F:UNIQUE | MALE | SPEAKING | 
-F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
-F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
-F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | UNDEAD | 
-F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | 
-F:MORGUL_MAGIC
-S:1_IN_2 | POW_135 | 
-S:TELE_AWAY | BLIND | HOLD | SCARE | ADD_MANA | HASTE | CURE | 
-S:BRAIN_SMASH | WOUND | PMISSL | BALL_NETHR | BEAM_NETHR | BALL_MANA | 
-S:S_MONSTERS | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD | DISPEL
-D:The Chief of the Ringwraiths.  A fell being of devastating power.  His 
-D:spells are lethal and his combat blows crushingly hard.  He moves at 
-D:speed, and commands legions of evil to do his bidding.  It is said that 
-D:he is fated never to die by the hand of mortal man.
+N:764:()
+I:110:1d1:0:0:0
+W:0:0:0:0
 
 N:765:The Tarrasque
 G:R:v
@@ -9575,9 +9308,8 @@ S:BLIND | CONF | SCARE | HOLD |
 S:LASH | BRTH_FIRE | BALL_FIRE | BOLT_PLAS | ARC_HFIRE | 
 S:S_HI_DEMON | S_HI_UNDEAD
 D:The Chief Balrog in Morgoth's personal guard.  Gothmog is renowned 
-D:for slaying Ecthelion the Warder of the Gates and has never been 
-D:defeated in combat.  With his whip of flame and awesome fiery breath he 
-D:saved his master from Ungoliant's rage.
+D:for slaying Feanor and has never been defeated in combat.  With his whip of 
+D:flame and awesome fiery breath he saved his master from Ungoliant's rage.
 
 N:772:()
 I:110:1d1:0:0:0
@@ -9592,18 +9324,18 @@ I:110:1d1:0:0:0
 W:0:0:0:0
 
 
-# Sauron appears only on level 99.  He must be killed to get to 100.
+# Sauron appears only on level 90 of Tol-In-Gaurhoth.
 
 N:775:Sauron, the Sorcerer
 G:p:v
 I:130:68d100:100:64:0
-W:99:1:202:50000
+W:90:1:202:50000
 B:HIT:UN_BONUS:10d12
 B:HIT:UN_BONUS:10d12
 B:TOUCH:UN_POWER
 B:TOUCH:UN_POWER
 F:UNIQUE | QUESTOR | MALE | SPEAKING | 
-F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
+F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | GAURHOTH |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
 F:EVIL | IM_POIS | MORGUL_MAGIC |
@@ -9614,9 +9346,10 @@ S:BRAIN_SMASH | FORGET | ADD_MANA | DISPEL |
 S:BOLT_ICE | BOLT_PLAS | BALL_POIS | BALL_ACID | 
 S:BALL_MANA | BALL_FIRE | BALL_STORM | BALL_NETHR | BALL_DARK | 
 S:S_MONSTERS | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD
-D:He is Morgoth's most powerful servant.  Mighty in spells and enchantments, 
-D:he created the One Ring.  His eyes glow with power and his gaze seeks to 
-D:destroy your soul.  He has many servants, and rarely fights without them.
+D:Greatest and most terrible of the servants of Morgoth.  A sorcerer of 
+D:dreadful powers, master of shadows and of phantoms, foul in wisdom, cruel  
+D:in strength, misshaping what he rules, lord of werewolves; his dominion is 
+D:torment.
 
 
 # Kill Morgoth, and you win the game.  He carries two special treasures.
@@ -9641,7 +9374,7 @@ F:UDUN_MAGIC | MORGUL_MAGIC
 S:1_IN_3 | POW_185 | 
 S:BRAIN_SMASH | WOUND | ADD_MANA | DISPEL | 
 S:BALL_DARK | BALL_NETHR | BALL_MANA | ARC_HFIRE | 
-S:S_MONSTERS | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD | S_WRAITH | S_UNIQUE
+S:S_MONSTERS | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD | S_QUEST | S_UNIQUE
 D:He is the Master of the Pits of Angband.  His figure is like a black 
 D:mountain crowned with Lightning.  He rages with everlasting anger, his 
 D:body scarred by Fingolfin's eight mighty wounds.  He can never rest from 

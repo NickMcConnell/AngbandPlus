@@ -37,16 +37,16 @@ LIBS = -lpc
 # Targets
 #
 
-default: oangband.exe
-	copy oangband.exe ..
-	del oangband.exe
+default: faangband.exe
+	copy faangband.exe ..
+	del faangband.exe
 
-install: oangband.exe makepref.exe gredit.exe
-	copy oangband.exe ..
+install: faangband.exe makepref.exe gredit.exe
+	copy faangband.exe ..
 	copy makepref.exe ..
 	copy gredit.exe ..
 
-all: oangband.exe makepref.exe gredit.exe
+all: faangband.exe makepref.exe gredit.exe
 	@echo All done.  Use 'make install' to install.
 
 
@@ -54,7 +54,7 @@ all: oangband.exe makepref.exe gredit.exe
 # Link executables
 #
 
-oangband.exe: $(OBJS)
+faangband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 makepref.exe: makepref.o

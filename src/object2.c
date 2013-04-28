@@ -3748,7 +3748,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			if (!los(y, x, ty, tx)) continue;
 
 			/* Require floor space */
-			if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
+			if ((cave_feat[ty][tx] != FEAT_FLOOR) && (cave_feat[ty][tx] != FEAT_GRASS)) continue;
 
 			/* No objects */
 			k = 0;
@@ -3845,7 +3845,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		}
 
 		/* Require floor space */
-		if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
+		if ((cave_feat[ty][tx] != FEAT_FLOOR) && (cave_feat[ty][tx] != FEAT_GRASS))continue;
 
 		/* Bounce to that location */
 		by = ty;
@@ -3993,7 +3993,7 @@ void pick_trap(int y, int x)
 	bool trap_is_okay = FALSE;
 
 	/* Paranoia */
-	if (cave_feat[y][x] != FEAT_INVIS) return;
+	if ((cave_feat[y][x] != FEAT_INVIS) && (cave_feat[y][x] != FEAT_GRASS_INVIS)) return;
 
 	/* Try to create a trap appropriate to the level.  Make certain 
 	 * that at least one trap type can be made on any possible level.  
@@ -4012,16 +4012,20 @@ void pick_trap(int y, int x)
 			/* trap doors */
 			case FEAT_TRAP_HEAD + 0x00:
 			{
-				/* Hack -- no trap doors on quest levels */
-				if (is_quest(p_ptr->depth)) trap_is_okay = FALSE;
+			  /* Hack -- no trap doors on quest levels */
+			  if (is_quest(p_ptr->stage)) trap_is_okay = FALSE;
+			  
+			  /* Hack -- no trap doors on the deepest level */
+			  if (p_ptr->depth >= MAX_DEPTH-1) trap_is_okay = FALSE;
+			  
+			  /* No trap doors at level 1 (instadeath risk). */
+			  if (p_ptr->depth < 2) trap_is_okay = FALSE;
+			  
+			  /* Trap doors only in dungeons */
+			  if (stage_map[p_ptr->stage][STAGE_TYPE] < CAVE)
+			    trap_is_okay = FALSE;
 
-				/* Hack -- no trap doors on the deepest level */
-				if (p_ptr->depth >= MAX_DEPTH-1) trap_is_okay = FALSE;
-
-				/* No trap doors at level 1 (instadeath risk). */
-				if (p_ptr->depth < 2) trap_is_okay = FALSE;
-
-				break;
+			  break;
 			}
 
 			/* pits */
@@ -4089,9 +4093,13 @@ void pick_trap(int y, int x)
 			/* move player */
 			case FEAT_TRAP_HEAD + 0x08:
 			{
-				/* Player movement traps can exist anywhere. */
+				
+			  /* No teleport traps in mountains */
+			  if (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)
+			    trap_is_okay = FALSE;
 
-				break;
+
+			  break;
 			}
 
 			/* arrow, bolt, or shot */
@@ -4130,14 +4138,29 @@ void pick_trap(int y, int x)
  */
 void place_trap(int y, int x)
 {
+        int d, grass = 0, floor = 0;
+
 	/* Paranoia */
 	if (!in_bounds(y, x)) return;
 
 	/* Require empty, clean, floor grid */
 	if (!cave_naked_bold(y, x)) return;
 
+	/* Adjacent grids vote for grass or floor */
+	for (d = 0; d < 8; d++)
+	  {
+	    if (cave_feat[y + ddy_ddd[d]][x + ddx_ddd[d]] == FEAT_FLOOR)
+	      floor++;
+	    else if (cave_feat[y + ddy_ddd[d]][x + ddx_ddd[d]] == FEAT_GRASS)
+	      grass++;
+	  }
+
 	/* Place an invisible trap */
-	cave_set_feat(y, x, FEAT_INVIS);
+	if (grass > floor)
+	  cave_set_feat(y, x, FEAT_GRASS_INVIS);
+	else
+	  cave_set_feat(y, x, FEAT_INVIS);
+
 }
 
 /*

@@ -39,19 +39,19 @@ LIBS = -lpc -lalleg
 # Targets
 #
 
-default: oangband.exe
-	copy oangband.exe ..
-	del oangband.exe
+default: faangband.exe
+	copy faangband.exe ..
+	del faangband.exe
 
-install: oangband.exe makepref.exe gredit.exe
-	copy oangband.exe ..
+install: faangband.exe makepref.exe gredit.exe
+	copy faangband.exe ..
 
 
 #
 # Link executables
 #
 
-oangband.exe: $(OBJS)
+faangband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 #

@@ -368,6 +368,47 @@ static void recharged_notice(object_type *o_ptr)
 	}
 }
 
+void sun_banish(void)
+{
+  int y, x;
+
+  s16b race, m;
+
+  bool some_gone = FALSE;
+
+  monster_type *m_ptr;
+  monster_race *r_ptr;
+
+  int i;
+	
+  /* Process all monsters */
+  for (i = 1; i < m_max - 1; i++)
+    {
+      /* Access the monster */
+      m_ptr = &m_list[i];
+	  
+
+      /* Check if it hates light */
+      r_ptr = &r_info[m_ptr->r_idx];
+
+      /* Paranoia -- Skip dead monsters */
+      if (!m_ptr->r_idx) continue;
+      
+      /* Hack -- Skip Unique Monsters */
+      if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+      /* Skip monsters not hurt by light */
+      if (!(r_ptr->flags3 & (RF3_HURT_LITE))) continue;
+
+      /* Banish */
+      delete_monster_idx(i);
+      some_gone = TRUE; 
+    }
+  
+  process_monsters(0);
+  if (some_gone)
+    msg_print("Creatures of the darkness flee from the sunlight!");
+}
 
 /*
  * Handle certain things once every 10 game turns.
@@ -387,6 +428,8 @@ static void process_world(void)
 
 	bool divine = (check_ability(SP_DIVINE));
 	bool hardy = (check_ability(SP_HARDY));
+
+	bool dawn;
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -443,17 +486,16 @@ static void process_world(void)
 		}
 	}
 
-	/*** Handle the "town" (stores and sunshine) ***/
+	/*** Handle the "outside" (stores and sunshine) ***/
 
-	/* While in town */
-	if (!p_ptr->depth)
+	/* While not in cave, including cave towns */
+	if ((stage_map[p_ptr->stage][STAGE_TYPE] < CAVE) &&
+	    ((p_ptr->stage < 151) || (p_ptr->stage > 153)))
 	{
-		/* Hack -- Daybreak/Nighfall in town */
+		/* Hack -- Daybreak/Nightfall outside */
 		if (!(turn % ((10L * TOWN_DAWN) / 2)))
 		{
-			bool dawn;
-
-			/* Check for dawn */
+		        /* Check for dawn */
 			dawn = (!(turn % (10L * TOWN_DAWN)));
 
 			/* Day breaks */
@@ -461,6 +503,9 @@ static void process_world(void)
 			{
 				/* Message */
 				msg_print("The sun has risen.");
+				sun_banish(); 
+				if (p_ptr->schange == SHAPE_VAMPIRE)
+				  shapechange(SHAPE_NORMAL);
 			}
 
 			/* Night falls */
@@ -471,13 +516,16 @@ static void process_world(void)
 			}
 
 			/* Illuminate */
-			town_illuminate(dawn);
+			if (!p_ptr->depth)
+			  town_illuminate(dawn);
+			/* else 
+			   stage_illuminate(dawn); */
 		}
 	}
 
 
-	/* While in the dungeon */
-	else
+	/* While not in town */
+	if (p_ptr->depth)
 	{
 		/*** Update the Stores ***/
 
@@ -535,8 +583,16 @@ static void process_world(void)
 	/* Check for creature generation, except on themed levels */
 	if ((rand_int(MAX_M_ALLOC_CHANCE) == 0) && (!p_ptr->themed_level))
 	{
+	        int n;
+
+	        /* Hack for small towns */
+	        if (!p_ptr->depth)
+		  n = MAX_SIGHT - 5;
+		else
+		  n = MAX_SIGHT + 5;
+	  
 		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, FALSE, FALSE);
+		(void)alloc_monster(n, FALSE, FALSE);
 	}
 
 	/* Hack - if there is a ghost now, and there was not before, 
@@ -1187,11 +1243,15 @@ static void process_world(void)
 			disturb(0, 0);
 
 			/* Determine the level */
-			if (p_ptr->depth)
+			if (p_ptr->stage != p_ptr->home)
 			{
-				msg_print("You feel yourself yanked upwards!");
+				msg_print("You feel yourself yanked homewards!");
 
-				/* New depth */
+				/* Homeward bound */
+				p_ptr->last_stage = NOWHERE;
+				p_ptr->stage = p_ptr->home;
+
+				/* Reset depth */
 				p_ptr->depth = 0;
 
 				/* Leaving */
@@ -1199,11 +1259,14 @@ static void process_world(void)
 			}
 			else
 			{
-				msg_print("You feel yourself yanked downwards!");
+				msg_print("You feel yourself yanked away!");
 
-				/* New depth */
-				p_ptr->depth = p_ptr->max_depth;
-				if (p_ptr->depth < 1) p_ptr->depth = 1;
+				/* New stage */
+				p_ptr->last_stage = NOWHERE;
+				p_ptr->stage = p_ptr->recall_pt;
+
+				/* Reset depth */
+				p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -1850,6 +1913,12 @@ static void process_command(void)
 			break;
 		}
 
+		/* Move house -NRM- */
+	        case 'H':
+		{
+		        do_cmd_move_house();
+			break;
+		}
 
 		/* Take notes */
 		case ':':
@@ -2497,6 +2566,7 @@ static void dungeon(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int last_stage = p_ptr->last_stage;
 
 	/* Not leaving */
 	p_ptr->leaving = FALSE;
@@ -2533,28 +2603,23 @@ static void dungeon(void)
 		p_ptr->max_lev = p_ptr->lev;
 	}
 
-
-	/* Track maximum dungeon level */
-	if (p_ptr->max_depth < p_ptr->depth)
-	{
-		p_ptr->max_depth = p_ptr->depth;
-	}
-
+	/* Track depth */
+	p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
 
 	/* No stairs down from Quest */
-	if (is_quest(p_ptr->depth))
-	{
-		p_ptr->create_down_stair = FALSE;
-	}
+	if (is_quest(p_ptr->stage))
+	  if (p_ptr->create_stair == FEAT_MORE) 
+	    p_ptr->create_stair = 0;
+	
 
 	/* No stairs from town or if not allowed */
 	if (!p_ptr->depth || !dungeon_stair)
 	{
-		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
+		p_ptr->create_stair = 0;
 	}
 
 	/* Make a staircase */
-	if (p_ptr->create_down_stair || p_ptr->create_up_stair)
+	if (p_ptr->create_stair)
 	{
 
 		/* Place a staircase */
@@ -2565,21 +2630,14 @@ static void dungeon(void)
 			delete_object(py, px);
 
 			/* Make stairs */
-			if (p_ptr->create_down_stair)
-			{
-				cave_set_feat(py, px, FEAT_MORE);
-			}
-			else
-			{
-				cave_set_feat(py, px, FEAT_LESS);
-			}
+			cave_set_feat(py, px, p_ptr->create_stair);
 
 			/* Mark the stairs as known */
 			cave_info[py][px] |= (CAVE_MARK);
 		}
 
 		/* Cancel the stair request */
-		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
+		p_ptr->create_stair = FALSE;
 	}
 
 
@@ -2597,6 +2655,11 @@ static void dungeon(void)
 
 	/* Clear */
 	Term_clear();
+
+	/* Check for vampires */
+	if ((p_ptr->schange == SHAPE_VAMPIRE) && 
+	    ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
+	  shapechange(SHAPE_NORMAL);
 
 
 	/* Update stuff */
@@ -2932,17 +2995,93 @@ void play_game(bool new_game)
 		/* The dungeon is not ready */
 		character_dungeon = FALSE;
 
-		/* Start in town */
-		p_ptr->depth = 0;
-
 		/* Hack -- seed for flavors */
 		seed_flavor = rand_int(0x10000000);
 
-		/* Hack -- seed for town layout */
-		seed_town = rand_int(0x10000000);
+		/* Hack -- seed for town layouts -NRM- */
+		for (i = 0; i < 10; i++)
+		  seed_town[i] = rand_int(0x10000000);
 
 		/* Roll up a new character */
 		player_birth();
+
+		/* Set home town - nasty hack -NRM- */
+		switch(p_ptr->prace)
+		  {
+		  case 0: /* Easterling */
+		    {
+		      p_ptr->home = 6;
+		      break;
+		    }
+		  case 1: /* Green Elf */
+		    {
+		      p_ptr->home = 30;
+		      break;
+		    }
+		  case 2: /* Grey Elf */
+		    {
+		      p_ptr->home = 153;
+		      break;
+		    }
+		  case 3: /* Hobbit */
+		    {
+		      p_ptr->home = 150;
+		      break;
+		    }
+		  case 4: /* Petty-Dwarf */
+		    {
+		      p_ptr->home = 37;
+		      break;
+		    }
+		  case 5: /* Dwarf */
+		    {
+		      p_ptr->home = 152;
+		      break;
+		    }
+		  case 6: /* Druadan */
+		    {
+		      p_ptr->home = 115;
+		      break;
+		    }
+		  case 7: /* Longbeard */
+		    {
+		      p_ptr->home = 151;
+		      break;
+		    }
+		  case 8: /* Adan */
+		    {
+		      p_ptr->home = 115;
+		      break;
+		    }
+		  case 9: /* High Elf */
+		    {
+		      p_ptr->home = 154;
+		      break;
+		    }
+		  case 10: /* Maia */
+		    {
+		      p_ptr->home = 150;
+		      break;
+		    }
+		  case 11: /* Dark Elf */
+		    {
+		      p_ptr->home = 44;
+		      break;
+		    }
+		  case 12: /* Ent */
+		    {
+		      p_ptr->home = 44;
+		      break;
+		    }
+		  case 13: /* Beorning */
+		    {
+		      p_ptr->home = 150;
+		      break;
+		    }
+		  }
+		
+		/* Start in home town */
+		p_ptr->stage = p_ptr->home;
 
 		/* Hack -- enter the world */
 		turn = 1;
@@ -3004,8 +3143,10 @@ void play_game(bool new_game)
 	Term_xtra(TERM_XTRA_REACT, 0);
 
 
-	/* Generate a dungeon level if needed */
-	if (!character_dungeon) generate_cave();
+	/* Generate a stage if needed */
+	if (!character_dungeon) 
+	  generate_cave();
+	      
 
 	/* Character is now "complete" */
 	character_generated = TRUE;
@@ -3067,7 +3208,7 @@ void play_game(bool new_game)
 		wipe_m_list();
 
 		/* XXX XXX XXX */
-		msg_print(NULL);
+		msg_print(NULL); 
 
 		/* Accidental Death */
 		if (p_ptr->playing && p_ptr->is_dead)
@@ -3126,6 +3267,9 @@ void play_game(bool new_game)
 
 				/* Note cause of death XXX XXX XXX */
 				strcpy(p_ptr->died_from, "Cheating death");
+
+				/* New stage */
+				p_ptr->stage = p_ptr->home;
 
 				/* New depth */
 				p_ptr->depth = 0;

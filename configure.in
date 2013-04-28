@@ -8,10 +8,10 @@ AC_CONFIG_SRCDIR([src/main.c])
 dnl write the resulting #defines into a header file
 AM_CONFIG_HEADER(src/autoconf.h)
 
-AM_INIT_AUTOMAKE(OAngband, 0.6.2)
+AM_INIT_AUTOMAKE(FAAngband, 0.6.2)
 
 AC_ARG_WITH(setgid,
-[  --with-setgid=NAME      install oangband as group NAME],
+[  --with-setgid=NAME      install faangband as group NAME],
 [case "${withval}" in
   no) GAMEGROUP="";;
   yes) AC_MSG_ERROR(missing argument for --with-setgid);;
@@ -32,7 +32,7 @@ fi
 
 dnl overwrite the path with an user-specified value
 AC_ARG_WITH(libpath,
-[  --with-libpath=path     specify the path to the OAngband lib folder],
+[  --with-libpath=path     specify the path to the FAAngband lib folder],
 
 [case "/$withval" in
   */) game_datadir="$withval"  ;;
@@ -74,8 +74,8 @@ if test "$CYGWIN" = "yes"; then
   LIBS="$LIBS -lwinmm"
   LDFLAGS="$LDFLAGS -s -mno-cygwin -mwindows -e _mainCRTStartup"
   CFLAGS="$CFLAGS -mno-cygwin"
-  OANGBAND_OBJS="readdib.o angband.res"
-  AC_SUBST(OANGBAND_OBJS)
+  FAANGBAND_OBJS="readdib.o angband.res"
+  AC_SUBST(FAANGBAND_OBJS)
 else
   dnl SGI (IRIX) may need -lsun for the NIS version of getpwnam
   AC_CHECK_LIB(sun, getpwnam)
@@ -136,8 +136,8 @@ else
   AC_ARG_ENABLE(gtk, [  --enable-gtk            enable the GTK X11 module])
 
   if test "x${enable_gtk-no}" != xno || test "$no_x" != "yes"; then
-    OANGBAND_OBJS="maid-x11.o"
-    AC_SUBST(OANGBAND_OBJS)
+    FAANGBAND_OBJS="maid-x11.o"
+    AC_SUBST(FAANGBAND_OBJS)
   fi
 
   if test "$no_x" != "yes"; then

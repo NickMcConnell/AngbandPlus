@@ -1,11 +1,12 @@
 
 ============================= Objects and Monsters =============================
 
-     The mines of Angband are full of objects just waiting to be picked up and 
-used.  The treasures of long-forgotten kingdoms, dragon's hordes, heirlooms, 
-wizard's stashes, and the plunder from every age of the world unite with the 
-scattered earthly possessions of all the foolish adventurers that died before 
-you to offer unimaginable wealth for those bold enough to seize it.
+     The mines of Angband and the surrounding areas of Beleriand are full of 
+objects just waiting to be picked up and used.  The treasures of fallen 
+kingdoms, dragon's hordes, heirlooms, wizard's stashes, and the plunder from 
+the First Age ofthe world and before unite with the scattered earthly 
+possessions of all the foolish adventurers that died before you to offer 
+unimaginable wealth for those bold enough to seize it.
 
 
 Your inventory (backpack) and equipment (your person):
@@ -34,13 +35,13 @@ Your quiver:
 
 
 Specific Types of Objects:
-          Many objects found within the dungeon have special commands for their 
+          Many objects in the world have special commands for their 
      use.  Wands must be Aimed, staves must be Used, scrolls must be Read, and 
      potions must be Quaffed.  You may, in general, not only use items in your 
      pack, but also items on the ground, if you are standing on top of them.
 
      Wands:
-          In Oangband, known wands stack, combining their charges.  Such a stack 
+          In FAangband, known wands stack, combining their charges.  Such a stack 
           may be heavier, but can be recharged more safely and effectively.
      Staffs:
           Staffs do not combine their charges and only stack if they happen to 
@@ -56,19 +57,19 @@ Specific Types of Objects:
           contributes to the stack's total recharge rate; if three out of five 
           rods are charging, the stack's total timeout period will decrease by 
           three per normal player turn.  
-          Note:  In Oangband, rods are not invulnerable...
+          Note:  In FAangband, rods are not invulnerable...
 
      Chests:
           Chests are difficult and dangerous to open, as they contain both traps 
      and locks, but the adventurer that opens one may be rewarded handsomely.
 
      Scroll of Word of Recall:
-          The Scroll of Word of Recall deserves special mention.  Read in the 
-     dungeon, it brings you back to the town.  Read in the town, it takes you 
-     as deep in the dungeon as you have ever gone.  This spell takes a little 
-     time to take effect, so don't expect it to save you in a crisis.  Should 
-     you mistakenly read a Scroll of Word of Recall, you may cancel it by 
-     reading another.
+          The Scroll of Word of Recall deserves special mention.  Read away 
+     from home, it brings you back to your home town.  Read in your home town, 
+     it takes you to one of four points you have been to.  This spell takes a 
+     little time to take effect, so don't expect it to save you in a crisis.  
+     Should you mistakenly read a Scroll of Word of Recall, you may cancel it 
+     by reading another.
 
 Object Inscriptions:
       Use the '{' and '}' keys to inscribe and uninscribe objects.  Inscriptions 
@@ -157,8 +158,9 @@ Stealth:
 
 Player Ghosts:
           Player ghosts vary from game to game depending on the name, sex, 
-     race, and class of the adventurer or Angband/Oangband Hero whose bones 
-     file was used during ghost creation.  Should your character die, informat-
-     ion about him will often be added to a new bones file, inside the folder 
-     /lib/bones, and a future game might bring him back from the dead...
+     race, and class of the adventurer or Angband/Oangband/FAangband Hero 
+     whose bones file was used during ghost creation.  Should your character 
+     die, information about him will often be added to a new bones file, 
+     inside the folder /lib/bones, and a future game might bring him back from 
+     the dead...
 

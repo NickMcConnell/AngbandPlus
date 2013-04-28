@@ -8,7 +8,7 @@ advantage of various cheats to improve his chances down in the dungeon.
 
 === Saving and Loading your Game, and Importing Angband Savefiles ===
 
-     Depending on the port of Oangband you are playing, you will have various 
+     Depending on the port of FAangband you are playing, you will have various 
 saving and loading commands available to you.  DOS, IBM, and UNIX versions use 
 the commands described in the help file "cmddesc.txt", while Macintosh and 
 Windows users may also use menu options (normally found in the "file" menu).  
@@ -17,8 +17,8 @@ should go; it may take a little fiddling before you make them appear where you
 want them to.  If you get errors when saving your game, make sure the lib/save 
 directory exists and, on multi-user machines, that you have write permission.
 
-     If you are playing most ports of Oangband, the game will automatically load 
-any savefile named "player" found in <<whatever directory Oangband is in>>
+     If you are playing most ports of FAangband, the game will automatically load 
+any savefile named "player" found in <<whatever directory FAangband is in>>
 /lib/save/.  Under other systems, the game will wait for you to select a menu 
 option (normally found in the "file" menu) and choose a savefile to load.  
      If the character contained in that savefile is dead, you are asked to 
@@ -26,25 +26,14 @@ generate a new adventurer, who possesses all the monster memories of the slain
 hero and starts out using the same options.  Otherwise, you continue your game 
 where you left off.
 
-     All known Angband and all Oangband savefiles may be used in Oangband 0.5.1; 
-a concerted effort has been made to retain this capacity.  There are a few 
-caveats, however:
--Some objects and ego-items will be messed up.  Spellbooks for Rangers imported 
-from Angband are a total loss - be warned.
--Monsters from savefiles older than 0.5.1, especially those from Angband, may 
-lose some monsters.  Others may be more or less powerful than they were.
--known spells will be fairly odd, especially for half-spellcasters.
--Options will be more or less mis-set from savefiles earlier than Oangband 0.4.0
--If the transferred Angband adventurer is on the town level, he will not be able 
-to enter any stores.  Simply go down into the dungeon and back up again to 
-obtain an Oangband-style town.
+     Because of the race changes and introduction of wilderness to FAangband,
+savefiles from Oangband and Angband cannot be imported.
 
 
 === Winning The Game ===
 
-     Once your character has killed Sauron, who lives on level 99 (4950') in the 
-dungeon, a magical staircase will appear that will allow you to finally reach 
-level 100.  Morgoth lurks on this level of his dungeon, and you will not be able 
+     Once your character is ready, he/she should head to level 100 of Angband.
+Morgoth lurks on this level of his dungeon, and you will not be able 
 to go below his level until you have killed him.  Try to avoid wandering around 
 on level 100 unless you are ready for him, since he has a habit of coming at you 
 across the dungeon, the Mighty Hammer 'Grond' in hand, to slay you for your 
@@ -62,7 +51,7 @@ difficult to kill and if allowed to escape for a time will heal himself rapidly.
 receive the status of WINNER.  You may continue to explore, and may even save 
 the game and play more later, but since you have defeated the toughest creature 
 alive, there is really not much point.  Unless you wish to listen to the rumors 
-of a powerful ring buried somewhere in the dungeon...
+of more powerful items buried somewhere in the dungeon...
 
      When you are ready to retire, simply "commit suicide" (using the "Q" key)
 to have your character entered into the high score list as a winner.  Note that 
@@ -98,5 +87,4 @@ for that too.  You may cheat death by:
      -making backup savefiles.
      -Aborting the game just as the tombstone appears or before.
 
-Good luck, and I hope you do what I have never managed to:  Post a genuine 
-Angband/Oangband winner!
+Good luck!

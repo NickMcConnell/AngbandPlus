@@ -27,12 +27,12 @@ OBJS = &
   generate.obj dungeon.obj init1.obj init2.obj &
   main-ibm.obj main.obj
 
-all: oangband.exe gredit.exe makepref.exe
+all: faangband.exe gredit.exe makepref.exe
 
 # Use whichever of these two you wish...
-oangband.exe: $(OBJS) oangband.lnk
-#   wlink system dos4g @oangband.lnk
-   wlink system pmodew @oangband.lnk
+faangband.exe: $(OBJS) faangband.lnk
+#   wlink system dos4g @faangband.lnk
+   wlink system pmodew @faangband.lnk
 
 # Use whichever of these two you wish...
 gredit.exe: gredit.obj gredit.lnk
@@ -45,12 +45,12 @@ makepref.exe: makepref.obj makepref.lnk
    wlink system pmodew @makepref.lnk
 
 angband.lnk:
-    %create  oangband.lnk
-#   @%append oangband.lnk debug all
-    @%append oangband.lnk OPTION CASEEXACT
-    @%append oangband.lnk OPTION STACK=16k
-    @%append oangband.lnk name oangband
-    @for %i in ($(OBJS)) do @%append oangband.lnk file %i
+    %create  faangband.lnk
+#   @%append faangband.lnk debug all
+    @%append faangband.lnk OPTION CASEEXACT
+    @%append faangband.lnk OPTION STACK=16k
+    @%append faangband.lnk name faangband
+    @for %i in ($(OBJS)) do @%append faangband.lnk file %i
 
 makepref.lnk:
     %create  makepref.lnk

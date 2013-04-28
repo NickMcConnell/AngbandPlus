@@ -148,38 +148,46 @@ void shapechange(s16b shape)
 	switch (shape)
 	{
 		case SHAPE_MOUSE:
-			shapedesc = "mouse";
-			break;
-		case SHAPE_FERRET:
-			shapedesc = "ferret";
-			break;
+		  shapedesc = "mouse";
+		  break;
+	        case SHAPE_FERRET:
+		  shapedesc = "ferret";
+		  break;
 		case SHAPE_HOUND:
-			shapedesc = "hound";
-			break;
+		  shapedesc = "hound";
+		  break;
 		case SHAPE_GAZELLE:
-			shapedesc = "gazelle";
-			break;
+		  shapedesc = "gazelle";
+		  break;
 		case SHAPE_LION:
-			shapedesc = "lion";
-			break;
-		case SHAPE_ENT:
-			shapedesc = "elder ent";
-			break;
+		  shapedesc = "lion";
+		  break;
+	        case SHAPE_ENT:
+		  shapedesc = "elder ent";
+		  break;
 		case SHAPE_BAT:
-			shapedesc = "bat";
-			break;
+		  shapedesc = "bat";
+		  break;
 		case SHAPE_WEREWOLF:
-			shapedesc = "werewolf";
-			break;
+		  shapedesc = "werewolf";
+		  break;
 		case SHAPE_VAMPIRE:
-			shapedesc = "vampire";
-			break;
-		case SHAPE_WYRM:
-			shapedesc = "wyrm";
-			break;
+		  if ((stage_map[p_ptr->stage][STAGE_TYPE] < CAVE) &&
+		      ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
+		    {
+		      msg_print("The sunlight prevents your shapechange!");
+		      shape = SHAPE_NORMAL;
+		      p_ptr->schange = (byte) shape;
+		      break;
+		    }
+		  shapedesc = "vampire";
+		  break;
+	        case SHAPE_WYRM:
+		  shapedesc = "wyrm";
+		  break;
 		case SHAPE_BEAR:
-			shapedesc = "bear";
-			break;
+		  shapedesc = "bear";
+		  break;
 		default:
 			msg_print("You return to your normal form.");
 			break;
@@ -1416,7 +1424,8 @@ void do_cmd_cast_or_pray(void)
 			case 41:	/* Word of Recall */
 			{
 #if 1
-				word_recall(rand_int(20) + 15);
+				if (!word_recall(rand_int(20) + 15))
+				  break;
 #else
 				if (!p_ptr->word_recall)
 				{
@@ -1819,7 +1828,8 @@ void do_cmd_cast_or_pray(void)
 			case 99: /* Word of Recall */
 			{
 #if 1
-				word_recall(rand_int(20) + 15);
+				if (!word_recall(rand_int(20) + 15))
+				  break;
 #else
 				if (p_ptr->word_recall == 0)
 				{
@@ -1873,7 +1883,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (banish_evil(80))
 				{
-					msg_print("The power of your god banishes evil!");
+					msg_print("The power of your the Valar banishes evil!");
 				}
 				break;
 			} 

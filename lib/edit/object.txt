@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.7.0
+V:0.1.0
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -473,7 +473,16 @@ D:with bloodthirsty glee.
 
 ##### Hafted Weapons #####
 
-## XXX 71 XXX ##
+N:71:& Magestaff~
+G:\:W
+I:21:1:0
+W:6:0:50:100
+A:6/1
+P:4:1d3:0:0:0
+F:LITE | SHOW_MODS
+D:A slender birch staff enchanted to give light from the tip.  It can be used 
+D:for attack or defence in an emergency.
+
 
 N:72:& Whip~
 G:\:D
@@ -685,7 +694,7 @@ A:18/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
 D:A narrow axe head opposed by a crow's beak for penetrating 
-D:armor.
+D:armour.
 
 N:106:& Broad Axe~
 G:/:s
@@ -841,7 +850,7 @@ A:18/1:50/2
 P:0:3d1:0:0:0
 F:SHOW_MODS
 D:As tall as a man, the longbow can drive an arrow through the 
-D:heaviest armor.
+D:heaviest armour.
 
 ## XXX 132 XXX ##
 
@@ -1010,7 +1019,7 @@ D:break the sinews of mountains.
 
 
 
-##### Armor - Footgear #####
+##### Armour - Footgear #####
 
 N:158:& Pair~ of Leather Sandals
 G:]:U
@@ -1062,7 +1071,7 @@ D:for endless miles without wearying.
 ## XXX 165 XXX ##
 
 
-##### Armor - Caps and Helms #####
+##### Armour - Caps and Helms #####
 
 ## XXX 166 XXX ##
 
@@ -1115,7 +1124,7 @@ D:curtain of mail.
 ## XXX 174 XXX ##
 
 
-##### Armor - Crowns #####
+##### Armour - Crowns #####
 
 N:175:& Iron Crown~
 G:]:s
@@ -1126,14 +1135,14 @@ P:0:1d1:0:0:2
 D:A plain band of iron, crowned with iron spikes.  It is a tyrant's 
 D:symbol.
 
-N:176:& Golden Crown~
-G:]:y
+N:176:& Silver Crown~
+G:]:w
 I:33:11:0
 W:55:0:30:1000
 A:55/2
 P:0:1d1:0:0:4
 F:IGNORE_ACID
-D:An elegant golden circlet, with slender spines thrusting upward. 
+D:An elegant silver circlet, with slender spines thrusting upward. 
 D:It looks like it should be resting over the brow of a king.
 
 N:177:& Jewel Encrusted Crown~
@@ -1144,7 +1153,7 @@ A:70/3
 P:0:1d1:0:0:6
 F:IGNORE_ACID
 D:An elaboratedly decorated crown of massive gold, studded with a rainbow 
-D:of gems and jewels; worthy of an emperor.
+D:of gems and jewels; worthy of a High King.
 
 ## XXX 178 XXX ##
 
@@ -1290,7 +1299,7 @@ I:37:9:0
 W:40:0:290:1100
 A:40/1
 P:19:1d4:-3:0:0
-D:A stiff suit of armor composed of small metal plates sewn to an 
+D:A stiff suit of armour composed of small metal plates sewn to an 
 D:inner layer of heavy canvas, and covered with a second layer of 
 D:cloth.
 
@@ -1310,7 +1319,7 @@ I:37:13:0
 W:50:0:250:1250
 A:50/2
 P:22:1d6:-3:0:0
-D:This unusual armor is a surprisingly light suit of laced and 
+D:This unusual armour is a surprisingly light suit of laced and 
 D:overlapping metal plates.
 
 ## XXX 202 XXX ##
@@ -1332,8 +1341,8 @@ I:37:18:0
 W:60:0:380:1500
 A:60/1
 P:28:2d4:-3:0:0
-D:A full suit of finely fitted metal armor consisting of steel plates reinforced 
-D:by ridging.
+D:A full suit of finely fitted metal armour consisting of steel plates 
+D:reinforced ridging.
 
 ## XXX 206 XXX ##
 
@@ -2134,12 +2143,12 @@ W:5:0:5:0
 A:5/3
 D:that provokes enemies to seek you out.
 
-N:322:Curse Armor
+N:322:Curse Armour
 G:?:d
 I:70:2:0
 W:60:0:5:0
 A:60/3
-D:that devastates a worn peice of armor.
+D:that devastates a worn peice of armour.
 
 N:323:Curse Weapon
 G:?:d
@@ -2229,7 +2238,7 @@ W:55:0:5:7000
 A:55/2
 D:that frees you from the grip of a strongly cursed item.
 
-N:336:Enchant Armor
+N:336:Enchant Armour
 G:?:d
 I:70:16:0
 W:15:0:5:150
@@ -2261,7 +2270,7 @@ A:65/2:85/2
 D:that recharges a magic item.  It is more likely than lesser scrolls 
 D:to succeed on strong items.
 
-N:340:*Enchant Armor*
+N:340:*Enchant Armour*
 G:?:d
 I:70:20:0
 W:60:0:5:500
@@ -3270,8 +3279,7 @@ P:0:1d1:0:0:0
 F:INSTA_ART
 D:
 
-
-# The Wand of Saruman -- see artifact list
+# The Wand of Beguiling -- see artifact list
 
 N:493:& Wand~
 G:-:d
@@ -3295,7 +3303,7 @@ F:INSTA_ART
 D:
 
 
-# The Wand of Ulpion -- see artifact list
+# The Wand of Osse -- see artifact list
 
 N:495:& Wand~
 G:-:d
@@ -3598,8 +3606,7 @@ D:that befuddles all monsters nearby.
 
 ## XXX 539 XXX ##
 
-
-# The Staff of Gandalf -- see artifact list
+# The Staff of Starfire -- see artifact list
 
 N:540:& Staff~
 G:_:d
@@ -3609,6 +3616,7 @@ W:85:0:50:35000
 P:0:1d2:0:0:0
 F:INSTA_ART
 D:
+
 
 # The Staff of Winds -- see artifact list
 
@@ -3621,8 +3629,7 @@ P:0:1d2:0:0:0
 F:INSTA_ART
 D:
 
-
-# The Staff of Meneltarma -- see artifact list
+# The Staff of Holding -- see artifact list
 
 N:542:& Staff~
 G:_:d
@@ -3644,6 +3651,12 @@ W:50:0:50:20000
 P:0:1d2:0:0:0
 F:INSTA_ART
 D:
+
+
+
+## XXX 542 XXX ##
+
+## XXX 543 XXX ##
 
 ## XXX 544 XXX ##
 
@@ -4370,7 +4383,7 @@ P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A holy book of powerful blessings for Priests.
 
-N:668:[Wrath of God]
+N:668:[Wrath of the Valar]
 G:?:b
 I:91:8:0
 W:95:0:30:100000
@@ -4416,7 +4429,7 @@ A:30/2
 P:0:0d0:0:0:0
 D:A stone carved with lore for Druids.
 
-N:674:[Radagast's Shapeshifts]
+N:674:[Yavanna's Shapeshifts]
 G:?:g
 I:92:4:0
 W:45:0:30:5000
@@ -4452,7 +4465,7 @@ P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A stone infused with musical enchantments for Druids and Rangers. 
 
-N:678:[Spirit of Yavanna]
+N:678:[Powers of Aman]
 G:?:g
 I:92:8:0
 W:95:0:30:100000
@@ -4498,7 +4511,7 @@ A:30/2
 P:0:0d0:0:0:0
 D:A tome of fell curses for Necromancers.
 
-N:684:[Mysteries of Angmar]
+N:684:[Mysteries of Utumno]
 G:?:v
 I:93:4:0
 W:45:0:30:5000
@@ -4733,27 +4746,27 @@ F:INSTA_ART
 # special "base names" (such as "Necklace").
 
 
-# The Phial of Galadriel -- see artifact list
+# The Lamp of Gwindor -- see artifact list
 
-N:733:& Phial~
+N:733:& Lamp~
 G:~:y
 I:39:4:0
 W:1:0:10:10000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-# The Star of Elendil -- see artifact list
+# The Pearl 'Nimphelos'  -- see artifact list
 
-N:734:& Star~
+N:734:& Pearl~
 G:~:y
 I:39:5:0
 W:40:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-# The Arkenstone of Thrain -- see artifact list
+# The Palantir of Avallone -- see artifact list
 
-N:735:& Arkenstone~
+N:735:& Palantir~
 G:~:y
 I:39:6:0
 W:90:0:5:60000
@@ -4792,13 +4805,7 @@ I:40:13:0
 W:30:0:3:25000
 F:INSTA_ART
 
-# The Amulet of Faramir -- see artifact list
-
-N:740:& Amulet~
-G:":b
-I:40:14:0
-W:30:0:3:25000
-F:INSTA_ART
+## XXX 740 XXX ##
 
 # The Ring of Barahir -- see artifact list
 
@@ -4816,47 +4823,24 @@ I:45:33:0
 W:60:0:2:150000
 F:INSTA_ART
 
-# The Ring of Power (Narya) -- see artifact list
-
-N:743:& Ring~
-G:=:d
-I:45:34:0
-W:70:0:2:100000
-F:INSTA_ART
-
-# The Ring of Power (Nenya) -- see artifact list
-
-N:744:& Ring~
-G:=:d
-I:45:35:0
-W:80:0:2:200000
-F:INSTA_ART
-
-# The Ring of Power (Vilya) -- see artifact list
-
-N:745:& Ring~
-G:=:d
-I:45:36:0
-W:90:0:2:300000
-F:INSTA_ART
-
-# The Ring of Power (The One Ring) -- see artifact list
-
-N:746:& Ring~
-G:=:y
-I:45:37:0
-W:100:0:2:5000000
-F:INSTA_ART
-
 # The Stone of Lore -- see artifact list
-N:747:& Stone~
+
+N:743:& Stone~
 G:~:g
 I:39:15:0
 W:70:0:15:20000
 F:INSTA_ART
 
-
 ##### Reserved locations for future special artifacts #####
+
+
+## XXX 744 XXX ##
+
+## XXX 745 XXX ##
+
+## XXX 746 XXX ##
+
+## XXX 747 XXX ##
 
 ## XXX 748 XXX ##
 

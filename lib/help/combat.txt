@@ -40,7 +40,7 @@ a special thrown weapons multiplier.
 and the basic equipment (a weapon) is easy to find.  On the other
 hand, melee only works against adjacent monsters and takes a great
 deal of training and equipment to come into its own deeper in the
-dungeon.  As you will discover, upgrading to weapons with higher base
+dungeons.  As you will discover, upgrading to weapons with higher base
 damages is vital but heavy weapons are very hard to master.  You will
 have to find a compromise, depending on class, experience level, and
 available equipment (use the 'C'haracter screen to see how various
@@ -113,7 +113,7 @@ monsters.
          applicable quality is used; they do not combine.
 
      Deadliness:
-         As you descend deeper into the dungeon, a character relying
+         As you descend deeper into the dungeons, a character relying
          on melee will need to play careful attention to Deadliness.
          It acts as a percentage bonus (you may inspect your current
          bonus on the character screen).  High-level characters may
@@ -205,7 +205,7 @@ note that Berserkers make lousy archers and throwers.
 --- Throwing Objects ---
 
      Throwing objects requires less skill than using missile weapons,
-and can be an important combat method in Oangband.  On the other hand,
+and can be an important combat method in FAangband.  On the other hand,
 most thrown objects do not benefit from Skill and Deadliness bonuses
 from other equipped items.  For novice adventurers, throwing flasks of
 oil can be a life-saver, and there are rumours of objects deep in the

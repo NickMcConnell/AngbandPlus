@@ -1055,6 +1055,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
 	wr_s16b(p_ptr->wt);
+	
 
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_max[i]);
@@ -1069,6 +1070,7 @@ static void wr_extra(void)
 	wr_u32b(p_ptr->exp);
 	wr_u16b(p_ptr->exp_frac);
 	wr_s16b(p_ptr->lev);
+	wr_s16b(p_ptr->home);
 
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
@@ -1080,7 +1082,8 @@ static void wr_extra(void)
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
-	wr_s16b(p_ptr->max_depth);
+	for (i = 0; i < 4; i++) wr_s16b(p_ptr->recall[i]);
+	wr_s16b(p_ptr->recall_pt);
 
 	/* More info */
 	wr_s16b(p_ptr->speed_boost);	/* Specialty Fury */
@@ -1163,10 +1166,11 @@ static void wr_extra(void)
 
 	/* Write the "object seeds" */
 	wr_u32b(seed_flavor);
-	wr_u32b(seed_town);
+	for (i = 0; i < 10; i++) wr_u32b(seed_town[i]);
 
 
 	/* Special stuff */
+	wr_u16b(p_ptr->quests);
 	wr_u16b(p_ptr->panic_save);
 	wr_u16b(p_ptr->total_winner);
 	wr_u16b(p_ptr->noscore);
@@ -1209,8 +1213,8 @@ static void wr_dungeon(void)
 	/*** Basic info ***/
 
 	/* Dungeon specific info follows */
-	wr_u16b(p_ptr->depth);
-	wr_u16b(0);
+	wr_u16b(p_ptr->stage);
+	wr_u16b(p_ptr->last_stage);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
 	wr_u16b(DUNGEON_HGT);
@@ -1369,11 +1373,11 @@ static bool wr_savefile_new(void)
 
 	/* Dump the file header */
 	xor_byte = 0;
-	wr_byte(VERSION_MAJOR);
+	wr_byte(VERSION_MAJOR); 
 	xor_byte = 0;
-	wr_byte(VERSION_MINOR);
+	wr_byte(VERSION_MINOR); 
 	xor_byte = 0;
-	wr_byte(VERSION_PATCH);
+	wr_byte(VERSION_PATCH); 
 	xor_byte = 0;
 	tmp8u = (byte)rand_int(256);
 	wr_byte(tmp8u);
@@ -1396,12 +1400,6 @@ static bool wr_savefile_new(void)
 
 	/* Number of times saved */
 	wr_u16b(sf_saves);
-
-	/* Oangband version information. */
-	wr_byte(O_VERSION_MAJOR);
-	wr_byte(O_VERSION_MINOR);
-	wr_byte(O_VERSION_PATCH);
-	wr_byte(O_VERSION_EXTRA);
 
 	/* Space */
 	wr_u32b(0L);
@@ -1445,8 +1443,7 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_byte((byte)q_list[i].level);
-		wr_byte(0);
+		wr_u16b((u16b)q_list[i].stage);
 		wr_byte(0);
 		wr_byte(0);
 	}
@@ -1942,38 +1939,11 @@ bool load_player(void)
 	/* Process file */
 	if (!err)
 	{
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
-
 		/* Clear screen */
 		Term_clear();
 
-		/* Parse "ancient" savefiles */
-		if (sf_major < 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "old" savefiles */
-		else if ((sf_major == 2) && (sf_minor < 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
 		/* Parse "new" savefiles */
-		else if (sf_major == 2)
+		if (sf_major == 0)
 		{
 			/* Attempt to load */
 			err = rd_savefile_new();
@@ -2022,16 +1992,13 @@ bool load_player(void)
 	if (!err)
 	{
 		/* Give a conversion warning */
-		if ((o_version_major != o_sf_major) ||
-		    (o_version_minor != o_sf_minor) ||
-		    (o_version_patch != o_sf_patch))
+		if ((version_major != sf_major) ||
+		    (version_minor != sf_minor) ||
+		    (version_patch != sf_patch))
 		{
 			/* Message */
-			if ((o_sf_major == 0) && (o_sf_minor == 2))
-				msg_format("Converted an Angband %d.%d.%d savefile.",
+			 msg_format("Converted an FAangband %d.%d.%d savefile.",
 				sf_major, sf_minor, sf_patch);
-			else msg_format("Converted an Oangband %d.%d.%d savefile.",
-				o_sf_major, o_sf_minor, o_sf_patch);
 			msg_print(NULL);
 		}
 
@@ -2101,11 +2068,8 @@ bool load_player(void)
 
 
 	/* Message */
-	if ((o_sf_major == 0) && (o_sf_minor == 2))
-		msg_format("Error (%s) reading an Angband %d.%d.%d savefile.",
+	msg_format("Error (%s) reading an FAangband %d.%d.%d savefile.",
 		what, sf_major, sf_minor, sf_patch);
-	else msg_format("Error (%s) reading an Oangband %d.%d.%d savefile.",
-		what, o_sf_major, o_sf_minor, o_sf_patch);
 
 	msg_print(NULL);
 

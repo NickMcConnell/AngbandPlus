@@ -18,7 +18,7 @@
 
 # Version stamp (required)
 
-V:0.7.0
+V:0.1.0
 
 
 # General Store
@@ -50,7 +50,7 @@ N:1:5:Vivirion True-Forger
 I:11:15000:190:112:5:8
 
 # Weapon Smith
-N:2:0:Ithyl-Mak the Beastly
+N:2:0:Borin the Grasping
 I:7:5000:210:115:6:6
 N:2:1:Arndal the Staunch
 I:2:15000:185:110:5:9
@@ -73,9 +73,9 @@ I:1:25000:180:107:6:20
 N:3:3:Bosk the Wise
 I:5:30000:185:109:5:15
 N:3:4:Sevestor the Silent
-I:11:15000:190:107:4:12
-N:3:5:Bosk the Wise
-I:3:20000:180:110:8:14
+I:13:15000:190:107:4:12
+N:3:5:Arbot the Small
+I:4:20000:180:110:8:14
 
 # Alchemist
 N:4:0:Mauser the Chemist
@@ -89,7 +89,7 @@ I:0:10000:220:111:4:9
 N:4:4:Fieriel of Fangorn
 I:12:12500:180:110:6:9
 N:4:5:Oroglad the Thaumaturge
-I:4:15000:200:115:5:8
+I:5:15000:200:115:5:8
 
 # Magic Shop
 N:5:0:Ariel the Sorceress
@@ -107,8 +107,8 @@ I:0:10000:190:112:6:11
 
 # Black Market
 N:6:0:Lo-Hak the Awful
-I:7:20000:450:300:10:5
-N:6:1:Histor the Goblin
+I:13:20000:450:300:10:5
+N:6:1:Histor the Stumpy
 I:6:20000:450:300:10:5
 N:6:2:Durwin the Shifty
 I:5:30000:450:320:10:5
@@ -116,7 +116,7 @@ N:6:3:Drago the Fair
 I:2:30000:440:290:10:5
 N:6:4:Tancred of the Axe
 I:0:25000:450:310:10:5
-N:6:5:Tom Bolgson
+N:6:5:Murin the Dark
 I:7:30000:450:300:8:4
 
 # Home

@@ -1,21 +1,21 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
 
-oangband_files = \
+faangband_files = \
   abilattr.txt angdesc.txt basctask.txt \
   birth.hlp boptdesc.txt cmddesc.txt cmdlist.txt \
   combat.hlp combat.txt command.hlp defence.txt \
-  dungeon.txt equip.txt explore.hlp general.hlp \
-  getinfo.txt help.hlp macro.txt magic.txt \
+  equip.txt explore.hlp fadesc.txt general.hlp \
+  getinfo.txt help.hlp macro.txt magic.txt memap.txt \
   newbie.txt oangdesc.txt objs-mon.txt optdesc.txt \
   raceclas.txt specialt.txt symbols.txt terminal.txt \
-  town.txt
+  town.txt wild-dun.txt
 
 EXTRA_DIST = \
-  $(oangband_files)
+  $(faangband_files)
 
 if SET_GID
-oangbanddir = @DEFAULT_PATH@help
+faangbanddir = @DEFAULT_PATH@help
 
-oangband_DATA = \
-  $(oangband_files)
+faangband_DATA = \
+  $(faangband_files)
 endif

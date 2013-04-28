@@ -1,6 +1,6 @@
 
              ****************************************************
-             **    Oangband 0.7.0  ***   The Pits of Angband   **
+             **   FAangband 0.1.0  ***   The Pits of Angband   **
              ****************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -17,7 +17,9 @@
 
          Oangband 0.5.0-0.7.0: Copyright (c) 2000-2005 Bahman Rabii
 
-       Send comments, bug reports, and patches to "bahman@oangband.com".
+         FAangband 0.1.0: Copyright (c) 2005 Nick McConnell
+
+       Send comments, bug reports, and patches to "nckmccnnll@yahoo.com.au".
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband".
               The Oangband home page is "http://www.oangband.com".
                            '?' for online help.

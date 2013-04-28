@@ -592,31 +592,59 @@ bool lose_all_info(void)
  */
 bool set_recall(int v)
 {
-	bool notice = FALSE;
 
+        bool notice = FALSE;
+
+	int spot;
+
+	cptr message;
+
+	/* No use until the player has been somewhere */
+	if ((p_ptr->stage == p_ptr->home) && (!p_ptr->recall_pt))
+	  {
+	    msg_print("Nothing happens.");
+	    return(FALSE);
+	  }
+	
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
+	
 	/* Open */
 	if (v)
-	{
-		if (!p_ptr->word_recall)
-		{
-			msg_print("The air about you becomes charged...");
-			notice = TRUE;
-		}
-	}
-
+	  {
+	    if (!p_ptr->word_recall)
+	      {
+		if (p_ptr->stage != p_ptr->home)
+		  {
+		    message = "Which recall point would you like to replace (Escape for none)?";
+		    spot = get_recall_pt(message);
+		    if (spot)
+		      p_ptr->recall[spot - 1] = p_ptr->stage;
+		    p_ptr->recall_pt = p_ptr->stage;
+		  }
+		else
+		  {
+		    message = "Which recall point do you want to go to?";
+		    spot = get_recall_pt(message);
+		    if (!spot || (p_ptr->recall[spot - 1] == NOWHERE))
+		      return (FALSE);
+		    p_ptr->recall_pt = p_ptr->recall[spot - 1];
+		  }
+		msg_print("The air about you becomes charged...");
+		notice = TRUE;
+	      }
+	  }
+	
 	/* Shut */
 	else
-	{
-		if (p_ptr->word_recall)
-		{
-			msg_print("A tension leaves the air around you...");
-			notice = TRUE;
-		}
-	}
-
+	  {
+	    if (p_ptr->word_recall)
+	      {
+		msg_print("A tension leaves the air around you...");
+		notice = TRUE;
+	      }
+	  }
+	
 	/* Use the value */
 	p_ptr->word_recall = v;
 
@@ -740,7 +768,8 @@ bool detect_traps(int range, bool show)
 			if (distance(py, px, y, x) <= range)
 			{
 				/* Detect invisible traps */
-				if (cave_feat[y][x] == FEAT_INVIS)
+				if ((cave_feat[y][x] == FEAT_INVIS) ||
+				    (cave_feat[y][x] == FEAT_GRASS_INVIS))
 				{
 					/* Pick a trap */
 					pick_trap(y, x);
@@ -1572,7 +1601,7 @@ void stair_creation(void)
 	{
 		cave_set_feat(py, px, FEAT_MORE);
 	}
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (is_quest(p_ptr->stage) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		cave_set_feat(py, px, FEAT_LESS);
 	}
@@ -2971,7 +3000,8 @@ bool listen_to_natural_creatures(void)
 		{
 
 			/* Detect invisible traps */
-			if (cave_feat[y][x] == FEAT_INVIS)
+			if ((cave_feat[y][x] == FEAT_INVIS) ||
+			    (cave_feat[y][x] == FEAT_GRASS_INVIS))
 			{
 				/* Pick a trap */
 				pick_trap(y, x);

@@ -1402,13 +1402,16 @@ static void do_cmd_wiz_cure_all(void)
  */
 static void do_cmd_wiz_jump(void)
 {
+        char ppp[80];
+	char choice, ch = 'a';
+	char tmp_val[160];
+
+	int poss_stages[10];
+	int i, j = 0;
+
 	/* Ask for level */
 	if (p_ptr->command_arg <= 0)
 	{
-		char ppp[80];
-
-		char tmp_val[160];
-
 		/* Prompt */
 		sprintf(ppp, "Jump to level (0-%d): ", MAX_DEPTH-1);
 
@@ -1428,11 +1431,37 @@ static void do_cmd_wiz_jump(void)
 	/* Paranoia */
 	if (p_ptr->command_arg > MAX_DEPTH - 1) p_ptr->command_arg = MAX_DEPTH - 1;
 
-	/* Accept request */
-	msg_format("You jump to dungeon level %d.", p_ptr->command_arg);
+	/* Get the possible stages */
+	for (i = 0; i < NUM_STAGES; i++)
+	  if ((stage_map[i][DEPTH] == p_ptr->command_arg) && (stage_map[i][LOCALITY] != 0))
+	    poss_stages[j++] = i;
+
+	/* Save screen */
+	screen_save();
+
+	/* List choices */
+	for (i = 0; i < j; i++)
+	  prt(format("(%c) %15s", ch + i, locality_name[stage_map[poss_stages[i]][LOCALITY]]), 2 + i, 30);
+
+	/* Get choice */
+	if (!get_com("Region:",&choice))
+	  {
+	    screen_load();
+	    return;
+	  }
+	i = (int) (choice - ch);
+
+	/* Load screen */
+	screen_load();
+
+   	/* Accept request */
+	msg_format("You jump to %s level %d.",locality_name[stage_map[poss_stages[i]][LOCALITY]], p_ptr->command_arg);
+
+	/* New stage */
+	p_ptr->stage = poss_stages[i];
 
 	/* New depth */
-	p_ptr->depth = p_ptr->command_arg;
+	p_ptr->depth = stage_map[poss_stages[i]][DEPTH];
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;

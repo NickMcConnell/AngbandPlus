@@ -516,6 +516,23 @@ s16b get_mon_num(int level)
 			if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && 
 			    (r_ptr->level != p_ptr->depth)) continue;
 
+			/* Hack - handle questors -NRM- */
+			if ((r_ptr->flags2 & (RF2_RUDH)) &&
+			    (stage_map[p_ptr->stage][LOCALITY] != AMON_RUDH))
+			  continue;
+
+                        if ((r_ptr->flags2 & (RF2_NARGOTHROND)) && 
+			    (stage_map[p_ptr->stage][LOCALITY] != NARGOTHROND))
+			  continue;
+
+                        if ((r_ptr->flags2 & (RF2_DUNGORTHEB)) &&
+			    (stage_map[p_ptr->stage][LOCALITY] != NAN_DUNGORTHEB))
+			  continue;
+
+			if ((r_ptr->flags2 & (RF2_GAURHOTH)) &&
+			    (stage_map[p_ptr->stage][LOCALITY] != TOL_IN_GAURHOTH))
+			  continue;
+
 			/* Accept */
 			table[i].prob3 = table[i].prob2;
 
@@ -1468,6 +1485,12 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Race */
 	r_ptr = &r_info[r_idx];
 
+	/* No light hating monsters in daytime */
+	if ((r_ptr->flags3 & (RF3_HURT_LITE)) && 	
+	    ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) &&
+	    (stage_map[p_ptr->stage][STAGE_TYPE] < CAVE)) 
+	  return (FALSE);
+	
 	/* The monster must be able to exist in this grid */
 	if (!cave_exist_mon(r_ptr, y, x, FALSE)) return (FALSE);
 
@@ -2084,13 +2107,6 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-		case SUMMON_WRAITH:
-		{
-			okay = ((r_ptr->d_char == 'W') &&
-				(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
 
 		case SUMMON_UNIQUE:
 		{
@@ -2239,6 +2255,60 @@ bool summon_specific(int y1, int x1, bool scattered, int lev, int type)
 }
 
 
+/*
+ * Hack - seemed like the most efficient way to summon the quest monsters,
+ * given that they are excluded from the monster allocation table for all
+ * stages but their quest stage. -NRM-
+ */
+
+bool summon_questor(int y1, int x1)
+{
+	int i, x, y, d, r_idx;
+
+
+	/* Look for a location */
+	for (i = 0; i < 20; ++i)
+	{
+		/* Pick a distance */
+		d = (i / 10) + 1;
+
+		/* Pick a location */
+		scatter(&y, &x, y1, x1, d, 0);
+
+		/* Require passable terrain, with no other creature or player. */
+		if (!cave_passable_bold(y, x)) continue;
+		if (cave_m_idx[y][x] != 0) continue;
+
+		/* Hack -- no summon on glyph of warding */
+		if (cave_feat[y][x] == FEAT_GLYPH) continue;
+
+		/* Okay */
+		break;
+	}
+
+	/* Failure */
+	if (i == 20) return (FALSE);
+
+	/* Get quest monsters */
+	for (i = 1; i < MAX_R_IDX; i++)
+	  {
+	    monster_race *r_ptr = &r_info[i];
+
+	    /* Ensure quest monsters */
+	    if ((r_ptr->flags1 & (RF1_QUESTOR)) && (r_ptr->cur_num < 1)
+		&& (r_ptr->max_num))
+	      {
+		/* Place the questor */
+		place_monster_aux(y, x, i, FALSE, TRUE);
+
+		/* Success */
+		return (TRUE);
+	      }
+	  }
+	
+	/* Failure - all dead or summoned */
+	return (FALSE);
+}
 
 
 

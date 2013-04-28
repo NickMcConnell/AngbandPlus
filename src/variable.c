@@ -27,35 +27,21 @@ cptr copyright[5] =
 
 
 /*
- * Release of standard Angband from which this version of Oangband
- * is derived.
+ * Version of FAangband.
  */
 byte version_major = VERSION_MAJOR;
 byte version_minor = VERSION_MINOR;
 byte version_patch = VERSION_PATCH;
 byte version_extra = VERSION_EXTRA;
 
-/* Version of Oangband. */
-byte o_version_major = O_VERSION_MAJOR;
-byte o_version_minor = O_VERSION_MINOR;
-byte o_version_patch = O_VERSION_PATCH;
-
-
 /*
- * Savefile version - Angband reckoning
+ * Savefile version 
  */
 byte sf_major;			/* Savefile's "version_major" */
 byte sf_minor;			/* Savefile's "version_minor" */
 byte sf_patch;			/* Savefile's "version_patch" */
 byte sf_extra;			/* Savefile's "version_extra". Used for enryption */
 
-/*
- * Savefile version - Oangband reckoning
- */
-byte o_sf_major;			/* Savefile's "version_major" */
-byte o_sf_minor;			/* Savefile's "version_minor" */
-byte o_sf_patch;			/* Savefile's "version_patch" */
-byte o_sf_extra;			/* Savefile's "version_extra".  Not currently used */
 
 /*
  * Savefile information
@@ -89,7 +75,7 @@ s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
-u32b seed_town;			/* Hack -- consistent town layout */
+u32b seed_town[10];			/* Hack -- consistent town layout */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
@@ -265,7 +251,7 @@ term *angband_term[TERM_WIN_MAX];
  */
 char angband_term_name[TERM_WIN_MAX][16] =
 {
-	"Angband",
+	"FAangband",
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -867,3 +853,4 @@ byte num_glyph_on_level;
 
 /* XXX Mega-Hack - See main-win.c */
 bool angband_keymap_flag = TRUE;
+

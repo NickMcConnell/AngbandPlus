@@ -24,7 +24,7 @@ mation about any command, consult the help file "cmddesc.txt".
  e  Equipment list                       E  Eat some food
  f  Fire an item                         F  Fuel your lantern/torch
  g  Get objects on floor                 G  Gain new spells/prayers
- h  (unused)                             H  (unused)
+ h  (unused)                             H  Move house
  i  Inventory list                       I  Observe an item
  j  Jam a door                           J  (unused)
  k  Destroy an item                      K  (unused)
@@ -66,9 +66,9 @@ mation about any command, consult the help file "cmddesc.txt".
  '  (unused)                            ^U  (unused)
  "  Enter a user pref command           ^V  (unused)
  ,  Stay still for one turn             ^W  (special - wizard mode)
- <  Go up staircase                     ^X  Save and quit
+ <  Go up staircase or path             ^X  Save and quit
  .  Run                                 ^Y  (unused)
- >  Go down staircase                   ^Z  (special - borg command)
+ >  Go down staircase or path           ^Z  (special - borg command)
  \  (special - bypass keymap)            |  (unused)
  `  (special - escape)                   ~  Check knowledge
  /  Identify symbol                      ?  Help
@@ -107,7 +107,7 @@ mation about any command, consult the help file "cmddesc.txt".
  !  Interact with system                ^A  (special - debug command)
  @  Interact with macros                ^B  (alter - south west)
  #  Toggle search mode                  ^C  (special - break)
- $  (unused)                            ^D  Destroy item
+ $  Move house                          ^D  Destroy item
  %  Interact with visuals               ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  (unused)

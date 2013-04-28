@@ -920,6 +920,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 
 
 
+
 /*
  * Remove the inscription from an object
  * XXX Mention item (when done)?
@@ -2046,7 +2047,7 @@ void py_steal(int y, int x)
 			purse *= 1 + randint(3) + randint(r_ptr->level / 30);
 
 		/* Pickings are scarce in a land of many thieves. */
-		purse = purse * (p_ptr->depth + 5) / (p_ptr->max_depth + 5);
+		purse = purse * (p_ptr->depth + 5) / (p_ptr->recall[0] + 5);
 
 		/* Increase player gold. */
 		p_ptr->au += purse;

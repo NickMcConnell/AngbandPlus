@@ -2467,8 +2467,8 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Oangband %d.%d.%d Character Dump]\n\n",
-		O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
+	fprintf(fff, "  [FAangband %d.%d.%d Character Dump]\n\n",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 
 	/* Display player */
@@ -2904,8 +2904,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[Oangband %d.%d.%d, %s, Line %d/%d]",
-			   O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH,
+		prt(format("[FAangband %d.%d.%d, %s, Line %d/%d]",
+			   VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 			   caption, line, size), 0, 0);
 
 
@@ -3314,7 +3314,7 @@ void do_cmd_save_game(bool autosave)
  */
 long total_points(void)
 {
-	long score = (p_ptr->max_exp + (100 * p_ptr->max_depth));
+	long score = (p_ptr->max_exp + (100 * p_ptr->recall[0]));
 
 	return (score);
 }
@@ -3618,42 +3618,45 @@ static void print_tomb(void)
 	}
 
 	center_string(buf, op_ptr->full_name);
-	put_str(buf, 6, 11);
+	put_str(buf, 6, 12);
 
 	center_string(buf, "the");
-	put_str(buf, 7, 11);
+	put_str(buf, 7, 12);
 
 	center_string(buf, p);
-	put_str(buf, 8, 11);
+	put_str(buf, 8, 12);
 
 
 	center_string(buf, cp_name + cp_ptr->name);
-	put_str(buf, 10, 11);
+	put_str(buf, 10, 12);
 
 	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
 	center_string(buf, tmp);
-	put_str(buf, 11, 11);
+	put_str(buf, 11, 12);
 
 	sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
 	center_string(buf, tmp);
-	put_str(buf, 12, 11);
+	put_str(buf, 12, 12);
 
 	sprintf(tmp, "AU: %ld", (long)p_ptr->au);
 	center_string(buf, tmp);
-	put_str(buf, 13, 11);
+	put_str(buf, 13, 12);
 
-	sprintf(tmp, "Killed on Level %d", p_ptr->depth);
+	if (p_ptr->depth)
+	  sprintf(tmp, "Killed in %s level %d", locality_name[stage_map[p_ptr->stage][LOCALITY]], p_ptr->depth);
+	else
+	  sprintf(tmp, "Killed in %s town", locality_name[stage_map[p_ptr->stage][LOCALITY]]);  
 	center_string(buf, tmp);
-	put_str(buf, 14, 11);
+	put_str(buf, 14, 12);
 
 	sprintf(tmp, "by %s.", p_ptr->died_from);
 	center_string(buf, tmp);
-	put_str(buf, 15, 11);
+	put_str(buf, 15, 12);
 
 
 	sprintf(tmp, "%-.24s", ctime(&ct));
 	center_string(buf, tmp);
-	put_str(buf, 17, 11);
+	put_str(buf, 17, 12);
 }
 
 
@@ -4009,7 +4012,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str_center("Oangband Hall of Fame", 0);
+		put_str_center("FAangband Hall of Fame", 0);
 
 #if 0
 		/* Indicate non-top scores */
@@ -4023,10 +4026,10 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 		/* Dump per_screen entries */
 		for (j = k, n = 0; j < i && n < per_screen; place++, j++, n++)
 		{
-			int pr, pc, clev, mlev, cdun, mdun;
+			int pr, pc, clev, mlev, mdun;
 
-			cptr user, gold, when, aged;
-
+			cptr user, gold, when, aged, cdun;
+		    
 			/* Hack -- indicate death in yellow */
 			attr = (j == note) ? TERM_YELLOW : TERM_WHITE;
 
@@ -4055,8 +4058,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			/* Extract the level info */
 			clev = atoi(the_score.cur_lev);
 			mlev = atoi(the_score.max_lev);
-			cdun = atoi(the_score.cur_dun);
-			mdun = atoi(the_score.max_dun);
+			cdun = the_score.cur_dun;
 
 			/* Hack -- extract the gold and such */
 			for (user = the_score.uid; isspace(*user); user++) /* loop */;
@@ -4078,25 +4080,12 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 				rp_name + rp_info[pr].name, cp_name + cp_info[pc].name,
 				clev);
 
-			/* Append a "maximum level" */
-			if (mlev > clev) strcat(out_val, format(" (Max %d)", mlev));
-
 			/* Dump the first line */
 			c_put_str(attr, out_val, n*4 + 2, 0);
 
 			/* Another line of info */
-			sprintf(out_val, "               Killed by %s on %s %d",
-				the_score.how, "Dungeon Level", cdun);
-
-			/* Hack -- some people die in the town */
-			if (!cdun)
-			{
-				sprintf(out_val, "               Killed by %s in the Town",
-					the_score.how);
-			}
-
-			/* Append a "maximum level" */
-			if (mdun > cdun) strcat(out_val, format(" (Max %d)", mdun));
+			sprintf(out_val, "               Killed by %s in %s",
+				the_score.how, cdun);
 
 			/* Dump the info */
 			c_put_str(attr, out_val, n*4 + 3, 0);
@@ -4250,7 +4239,7 @@ static errr enter_score(void)
   
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-	      O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
+	      VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -4284,9 +4273,11 @@ static errr enter_score(void)
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
+	if (p_ptr->depth)
+	  sprintf(the_score.cur_dun, "%s level %d", locality_name[stage_map[p_ptr->stage][LOCALITY]], p_ptr->depth);
+	else
+	  sprintf(the_score.cur_dun, "%s Town", locality_name[stage_map[p_ptr->stage][LOCALITY]]);
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 
 	/* Save the cause of death (31 chars) */
 	sprintf(the_score.how, "%-.31s", p_ptr->died_from);
@@ -4375,7 +4366,7 @@ errr predict_score(void)
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-		O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -4400,9 +4391,8 @@ errr predict_score(void)
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
+	sprintf(the_score.cur_dun, "%s level %d", locality_name[stage_map[p_ptr->stage][LOCALITY]],p_ptr->depth);
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 
 	/* Hack -- no cause of death */
 	strcpy(the_score.how, "nobody (yet!)");

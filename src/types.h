@@ -399,12 +399,12 @@ struct monster_race
 	u32b flags4;			/* Flags 4 (inate/breath) */
 	u32b flags5;			/* Flags 5 (normal spells) */
 	u32b flags6;			/* Flags 6 (special spells) */
-	u32b flags7;			/* Flags 6 (summon spells) */
+	u32b flags7;			/* Flags 7 (summon spells) */
 
-	monster_blow blow[4];	/* Up to four blows per round */
+	monster_blow blow[4];	        /* Up to four blows per round */
 
 
-	byte level;				/* Level of creature */
+	byte level;			/* Level of creature */
 	byte rarity;			/* Rarity of creature */
 
 
@@ -662,7 +662,7 @@ struct alloc_entry
  */
 struct quest
 {
-	int level;		/* Dungeon level */
+	int stage;		/* Stage quest monster will appear */
 	int r_idx;		/* Monster race */
 
 	int cur_num;	/* Number killed (unused) */
@@ -801,8 +801,18 @@ struct player_race
 	s16b rx_thn;		/* extra to hit (melee) */
 	s16b rx_thb;		/* extra to hit (missile and throwing) */
 
+        s16b re_id;             /* ego-item index */
+        s16b re_mint;           /* min tval */
+        s16b re_maxt;           /* max tval */
+        s16b re_skde;           /* bonus to skill & deadliness */
+        s16b re_ac;             /* bonus to armour class */
+        s16b re_pval;           /* pval */
+        s16b re_xtra1;          /* xtra1 byte (additional property) */
+        s16b re_xtra2;          /* xtra2 byte (property type) */
+
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte difficulty;		/* Race difficulty factor */
+        byte start_lev;         /* Race starting level */
 
 	u16b b_age;			/* base age */
 	u16b m_age;			/* mod age */
@@ -985,8 +995,15 @@ struct player_type
 
 	s32b au;			/* Current Gold */
 
-	s16b max_depth;		/* Max depth */
-	s16b depth;			/* Cur depth */
+        /* s16b max_depth;		 Max depth */
+        /* Keep depth for now because so many things use it -NRM- */
+        s16b home;                       /* Home town */
+        s16b depth;			 /* Cur depth */
+
+        s16b recall[4];           /* Recall points */
+        s16b recall_pt;               /* Which recall point is active */ 
+        s16b stage;              /* Current stage */
+        s16b last_stage;          /* Previous stage */  
 
 	s16b max_lev;		/* Max level */
 	s16b lev;			/* Cur level */
@@ -1062,6 +1079,7 @@ struct player_type
 	char died_from[80];		/* Cause of death */
 	char history[4][60];	/* Initial history */
 
+        u16b quests;                    /* Number of quests finished */
 	u16b total_winner;		/* Total winner */
 	u16b panic_save;		/* Panic save */
 
@@ -1077,8 +1095,8 @@ struct player_type
 
 	bool leaving;			/* True if player is leaving */
 
-	bool create_up_stair;	        /* Create up stair on next level */
-	bool create_down_stair;	        /* Create down stair on next level */
+	s16b create_stair;	        /* Create stair/path on next level */
+        s16b path_coord;                /* Records where the exit path was */
 
 	s16b total_weight;		/* Total weight being carried */
 
@@ -1277,9 +1295,8 @@ struct high_score
 	char p_c[3];		/* Player Class (number) */
 
 	char cur_lev[4];		/* Current Player Level (number) */
-	char cur_dun[4];		/* Current Dungeon Level (number) */
+	char cur_dun[25];		/* Current Stage and Level */
 	char max_lev[4];		/* Max Player Level (number) */
-	char max_dun[4];		/* Max Dungeon Level (number) */
 
 	char how[32];		/* Method of death (string) */
 };

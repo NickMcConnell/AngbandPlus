@@ -1481,7 +1481,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 115,	35, 22, 80,  70}, /* Holding */
 			{ 116,	39, 40, 85,  80}, /* Enchant Weapon or Armour */
 
-			/* Wrath of God (sval 8) */
+			/* Wrath of the Valar (sval 8) */
 			{ 117,	17, 14, 70,  25}, /* Ball of Light */
 			{ 118,	21, 16, 75,  30}, /* Holy Lance */
 			{ 119,	29, 25, 80,  40}, /* Word of Destruction */
@@ -1615,7 +1615,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			/* Book of Combat (sval 3) */
 
-			/* Radagast's Shapeshifts (sval 4) */
+			/* Yavanna's Shapeshifts (sval 4) */
 
 			/* Melian's Lore (sval 5) */
 			{ 166,	22,  1, 25,   6}, /* detect evil */
@@ -1634,7 +1634,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 178,	35, 20, 60,  35}, /* song of dispelling */
 			{ 180,	48, 60, 60,  40}, /* song of renewal */
 
-			/* Spirit of Yavanna (sval 8) */
+			/* Powers of Aman (sval 8) */
 
 			{ 0, 99,  0, 0, 0}, { 0, 99,  0, 0, 0},
 			{ 0, 99,  0, 0, 0}, { 0, 99,  0, 0, 0},
@@ -1716,7 +1716,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			/* Holy Infusions (sval 7) */
 
-			/* Wrath of God (sval 8) */
+			/* Wrath of the Valar (sval 8) */
 			{ 117,	37, 10, 70,  20}, /* Ball of Light */
 			{ 124,	40, 10, 50,  29}, /* Horn of Wrath */
 			{ 118,	42, 12, 75,  37}, /* Holy Lance */
@@ -1787,7 +1787,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 159,	33, 20, 80,  15}, /* raging storm */
 			{ 160,	37, 22, 80,  26}, /* thunderclap */
 
-			/* Radagast's Shapeshifts (sval 4) */
+			/* Yavanna's Shapeshifts (sval 4) */
 			{ 161,	15,  4, 50,  15}, /* become mouse */
 			{ 162,	15,  7, 50,  15}, /* become ferret */
 			{ 163,	18,  9, 50,  20}, /* become hound */
@@ -1815,7 +1815,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 179,	45, 40, 55,  80}, /* song of warding */
 			{ 180,	45, 70, 65,  80}, /* song of renewal */
 
-			/* Spirit of Yavanna (sval 8) */
+			/* Powers of Aman (sval 8) */
 			{ 181,	21,  9, 50,  20}, /* time blast */
 			{ 182,	25, 18, 60,  17}, /* essence of speed */
 			{ 183,	25, 20, 70,  22}, /* infusion */
@@ -1878,7 +1878,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 222,	33, 21, 70,  16}, /* stench of death */
 			{ 220,	43, 25, 70,  21}, /* genocide */
 
-			/* Mysteries of Angmar (sval 4) */
+			/* Mysteries of Utumno (sval 4) */
 			{ 214,	19,  5, 50,  15}, /* detect magic */
 			{ 223,	19, 10, 40,  15}, /* probing */
 			{ 224,	19, 10, 40,  15}, /* shadow mapping */
@@ -1958,7 +1958,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			/* Frightful Realms (sval 3) */
 
-			/* Mysteries of Angmar (sval 4) */
+			/* Mysteries of Utumno (sval 4) */
 			{ 234,	14,  4, 45,   7}, /* detect all monsters */
 			{ 231,	18,  4, 45,  11}, /* black blessing */
 			{ 223,	25,  8, 55,  14}, /* probing */
@@ -2166,7 +2166,7 @@ cptr spell_names[255] =
 	"Holding",
 	"Enchant Weapon or Armour",
 
-	/* Wrath of God (sval 8) */
+	/* Wrath of the Valar (sval 8) */
 	"Ball of Light",						/* index 117 */
 	"Holy Lance",
 	"Word of Destruction",
@@ -2223,7 +2223,7 @@ cptr spell_names[255] =
 	"Raging Storm",
 	"Thunderclap",
 
-	/* Radagast's Shapeshifts (sval 4) */
+	/* Yavanna's Shapeshifts (sval 4) */
 	"Become Mouse",						/* index 161 */
 	"Become Ferret",
 	"Become Hound",
@@ -2251,7 +2251,7 @@ cptr spell_names[255] =
 	"Song of Warding",
 	"Song of Renewal",
 
-	/* Spirit of Yavanna (sval 8) */
+	/* Powers of Aman (sval 8) */
 	"Timeblast",						/* index 181 */
 	"Essence of Speed",
 	"Infusion",
@@ -2306,7 +2306,7 @@ cptr spell_names[255] =
 	"Dark Ball",
 	"Stench of Death",
 
-	/* Mysteries of Angmar (sval 4) */
+	/* Mysteries of Utumno (sval 4) */
 	"Probing",							/* index 223 */
 	"Shadow Mapping",
 	"Identify",
@@ -2885,13 +2885,13 @@ cptr option_desc[OPT_MAX] =
 bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */	/*0*/
-	FALSE,		/* OPT_quick_messages */
+	TRUE,		/* OPT_quick_messages */
 	TRUE,		/* OPT_floor_query_flag */
 	FALSE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
 	TRUE,		/* OPT_always_repeat */
-	TRUE,		/* OPT_depth_in_feet */
+	FALSE,		/* OPT_depth_in_feet */
 	TRUE,		/* OPT_stack_force_notes */
 	FALSE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
@@ -2944,7 +2944,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_center_running */
 	FALSE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
-	TRUE,		/* OPT_view_yellow_lite */	 /*60*/
+	FALSE,		/* OPT_view_yellow_lite */	 /*60*/
 	TRUE,		/* OPT_view_bright_lite */
 	FALSE,		/* OPT_view_granite_lite */
 	TRUE,		/* OPT_view_special_lite */
@@ -2971,7 +2971,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		 /* OPT_birth_point_based */
 	TRUE,		 /* OPT_birth_auto_roller */
 	FALSE,
-	FALSE,	/* OPT_birth_preserve */      
+	TRUE,	/* OPT_birth_preserve */      
 	FALSE,
 	FALSE,
 	FALSE,
@@ -3000,7 +3000,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,	/* OPT_adult_point_based */
 	TRUE,	/* OPT_adult_auto_roller */
 	FALSE,
-	FALSE,	/* OPT_adult_preserve */      
+	TRUE,	/* OPT_adult_preserve */      
 	FALSE,
 	FALSE,
 	FALSE,
@@ -3362,7 +3362,7 @@ byte mana_cost_RF7[32]=
 	0, 			/* RF7_XX15 */
 	12,			/* RF7_S_UNDEAD */ /* Summon - 1 */
 	20,			/* RF7_S_HI_UNDEAD */ /* Summon - 8 */
-	20,			/* RF7_S_WRAITH */ /* Summon - 8 */
+	20,			/* RF7_S_QUEST */ /* Summon - 8 */
 	20 			/* RF7_S_UNIQUE */ /* Summon - 8 */
 };
 
@@ -3531,7 +3531,7 @@ byte spell_desire_RF7[32][8] =
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX15	    */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_UNDEAD  */
 	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_UNDEAD*/
-	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_WRAITH  */
+	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_QUEST  */
 	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}  /* RF7_S_UNIQUE  */
 };
 
@@ -3666,3 +3666,475 @@ cptr specialty_names[TOTAL_SPECIALTIES]=
         "","","","","","","","","","","","","","","","",
 	"","","","","","","","","","","","","","",""                 /* 240 - 255 */
 };
+
+
+/*
+ * List of all the stages and what is near them.  Order is
+ * locality, level, stage numbers in the six directions (north, east, south,
+ * west, up, down), stage type.
+ * -NRM-
+ */ 
+
+
+int stage_map[NUM_STAGES][9] =
+{
+  /* num     locality          lev    N    E    S    W    U    D    type */
+  /* 0   */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 1   */ {HITHAEGLIR      ,   2,   0, 149,   0, 151,   0,   0,   MOUNTAIN},
+  /* 2   */ {HITHAEGLIR      ,   3,   0, 151,   0,   3,   0,   0,   MOUNTAIN},
+  /* 3   */ {ERIADOR         ,   4,   0,   2,   0,   4,   0,   0,   PLAIN},
+  /* 4   */ {ERIADOR         ,   5,   0,   3,   0,   5,   0,   0,   PLAIN},
+  /* 5   */ {ERIADOR         ,   6,   0,   4,   6,   7,   0,   0,   PLAIN},
+  /* 6   */ {ERIADOR         ,   0,   5,   0,   0,   0,   0,   0,   TOWN},
+  /* 7   */ {ERIADOR         ,   7,   0,   5,   0,   8,   0,   0,   PLAIN},
+  /* 8   */ {ERIADOR         ,   8,   0,   7,   0,   9,   0,   0,   PLAIN},
+  /* 9   */ {ERIADOR         ,   9,   0,   8,   0,  10,   0,   0,   PLAIN},
+  /* 10  */ {ERIADOR         ,  10,   0,   9,   0, 152,   0,   0,   MOUNTAIN},
+  /* 11  */ {ERED_LUIN       ,  10, 152,   0,  27,   0,   0,   0,   MOUNTAIN},
+  /* 12  */ {ERED_LUIN       ,  11,  13,   0, 152,   0,   0,   0,   MOUNTAIN},
+  /* 13  */ {ERED_LUIN       ,  12,  14,   0,  12,   0,   0,   0,   MOUNTAIN},
+  /* 14  */ {ERED_LUIN       ,  13,  15,   0,  13,   0,   0,   0,   MOUNTAIN},
+  /* 15  */ {ERED_LUIN       ,  14,  16,   0,  14,   0,   0,   0,   MOUNTAIN},
+  /* 16  */ {ERED_LUIN       ,  15,  17,   0,  15,   0,   0,   0,   MOUNTAIN},
+  /* 17  */ {ERED_LUIN       ,  16,  18,   0,  16,   0,   0,   0,   MOUNTAIN},
+  /* 18  */ {ERED_LUIN       ,  17,  19,   0,  17,   0,   0,   0,   MOUNTAIN},
+  /* 19  */ {ERED_LUIN       ,  18,  20,   0,  18,   0,   0,   0,   MOUNTAIN},
+  /* 20  */ {ERED_LUIN       ,  19,  21,   0,  19,   0,   0,   0,   MOUNTAIN},
+  /* 21  */ {ERED_LUIN       ,  20,  22,   0,  20,   0,   0,   0,   MOUNTAIN},
+  /* 22  */ {ERED_LUIN       ,  21,  23,   0,  21,   0,   0,   0,   MOUNTAIN},
+  /* 23  */ {ERED_LUIN       ,  22,  24,   0,  22,   0,   0,   0,   MOUNTAIN},
+  /* 24  */ {ERED_LUIN       ,  23,   0,   0,  23,  25,   0,   0,   MOUNTAIN},
+  /* 25  */ {ERED_LUIN       ,  24,  26,  24,   0,   0,   0,   0,   MOUNTAIN},
+  /* 26  */ {ERED_LUIN       ,  25,   0,   0,  25, 136,   0,   0,   MOUNTAIN},
+  /* 27  */ {OSSIRIAND       ,   9,  11,   0,  28,   0,   0,   0,   FOREST},
+  /* 28  */ {OSSIRIAND       ,   8,  27,   0,  29,   0,   0,   0,   FOREST},
+  /* 29  */ {OSSIRIAND       ,   7,  28,   0,   0,  30,   0,   0,   FOREST},
+  /* 30  */ {OSSIRIAND       ,   0,  51,  29,  31,  38,   0,   0,   TOWN},
+  /* 31  */ {OSSIRIAND       ,   6,  30,   0,  32,   0,   0,   0,   FOREST},
+  /* 32  */ {OSSIRIAND       ,   5,  31,   0,  33,   0,   0,   0,   FOREST},
+  /* 33  */ {OSSIRIAND       ,   4,  32,   0,  34,   0,   0,   0,   FOREST},
+  /* 34  */ {OSSIRIAND       ,   3,  33,   0,  35,   0,   0,   0,   FOREST},
+  /* 35  */ {OSSIRIAND       ,   2,  34,  36,   0,   0,   0,   0,   FOREST},
+  /* 36  */ {ERED_LUIN_SOUTH ,   1,   0,  37,   0,  35,   0,   0,   MOUNTAIN},
+  /* 37  */ {ERED_LUIN_SOUTH ,   0,   0,   0,   0,  36,   0,   0,   TOWN},
+  /* 38  */ {ENT_PATH        ,   6,   0,  30,   0,  39,   0,   0,   FOREST},
+  /* 39  */ {ENT_PATH        ,   5,   0,  38,  40,   0,   0,   0,   PLAIN},
+  /* 40  */ {ENT_PATH        ,   4,  39,   0,  41,   0,   0,   0,   PLAIN},
+  /* 41  */ {ENT_PATH        ,   3,  40,   0,   0,  42,   0,   0,   FOREST},
+  /* 42  */ {ENT_PATH        ,   2,   0,  41,   0,  43,   0,   0,   FOREST},
+  /* 43  */ {ENT_PATH        ,   1,   0,  42,   0,  44,   0,   0,   FOREST},
+  /* 44  */ {TAUR_IM_DUINATH ,   0,  45,  43,   0,   0,   0,   0,   TOWN},
+  /* 45  */ {TAUR_IM_DUINATH ,   1,  46,   0,  44,   0,   0,   0,   FOREST},
+  /* 46  */ {TAUR_IM_DUINATH ,   2,  47,   0,  45,   0,   0,   0,   FOREST},
+  /* 47  */ {EAST_BELERIAND  ,   3,  48,   0,  46,   0,   0,   0,   PLAIN},
+  /* 48  */ {EAST_BELERIAND  ,   4,  49,   0,  47,   0,   0,   0,   PLAIN},
+  /* 49  */ {EAST_BELERIAND  ,   5,  50,   0,  48,   0,   0,   0,   PLAIN},
+  /* 50  */ {EAST_BELERIAND  ,   6,  70,   0,  49,   0,   0,   0,   PLAIN},
+  /* 51  */ {EAST_BELERIAND  ,   7,   0,   0,  30,  52,   0,   0,   FOREST},
+  /* 52  */ {EAST_BELERIAND  ,   8,   0,  51,   0,  53,   0,   0,   PLAIN},
+  /* 53  */ {EAST_BELERIAND  ,   9,   0,  52,   0,  54,   0,   0,   PLAIN},
+  /* 54  */ {EAST_BELERIAND  ,  10,   0,  53,   0,  55,   0,   0,   PLAIN},
+  /* 55  */ {EAST_BELERIAND  ,  11,   0,  54,   0,  56,   0,   0,   PLAIN},
+  /* 56  */ {EAST_BELERIAND  ,  12,   0,  55,   0,  57,   0,   0,   PLAIN},
+  /* 57  */ {EAST_BELERIAND  ,  13,   0,  56,   0,  58,   0,   0,   PLAIN},
+  /* 58  */ {EAST_BELERIAND  ,  14,  59,  57,   0,   0,   0,   0,   PLAIN},
+  /* 59  */ {EAST_BELERIAND  ,  15,  82,   0,  58,   0,   0,   0,   PLAIN},
+  /* 60  */ {EAST_BELERIAND  ,  16,   0,  69,   0,  61,   0,   0,   PLAIN},
+  /* 61  */ {EAST_BELERIAND  ,  17,   0,  60,   0,  62,   0,   0,   PLAIN},
+  /* 62  */ {EAST_BELERIAND  ,  18,   0,  61,   0,  63,   0,   0,   PLAIN},
+  /* 63  */ {EAST_BELERIAND  ,  19,   0,  62,   0,  64,   0,   0,   PLAIN},
+  /* 64  */ {EAST_BELERIAND  ,  20,   0,  63,   0,  89,   0,   0,   PLAIN},
+  /* 65  */ {THARGELION      ,  11,   0, 152,   0,  66,   0,   0,   FOREST},
+  /* 66  */ {THARGELION      ,  12,  67,  65,   0,   0,   0,   0,   RIVER},
+  /* 67  */ {THARGELION      ,  13,  68,   0,  66,   0,   0,   0,   RIVER},
+  /* 68  */ {THARGELION      ,  14,  69,   0,  67,   0,   0,   0,   RIVER},
+  /* 69  */ {THARGELION      ,  15,   0,   0,  68,  60,   0,   0,   RIVER},
+  /* 70  */ {ANDRAM          ,   7,  71,   0,  50,   0,   0,   0,   MOUNTAIN},
+  /* 71  */ {ANDRAM          ,   8,  72,   0,  70,   0,   0,   0,   MOUNTAIN},
+  /* 72  */ {ANDRAM          ,   9,  73,   0,  71,   0,   0,   0,   MOUNTAIN},
+  /* 73  */ {ANDRAM          ,  10,  74,   0,  72,   0,   0,   0,   MOUNTAIN},
+  /* 74  */ {WEST_BELERIAND  ,  11,  75,   0,  73,   0,   0,   0,   SWAMP},
+  /* 75  */ {WEST_BELERIAND  ,  12,  76,   0,  74,   0,   0,   0,   PLAIN},
+  /* 76  */ {WEST_BELERIAND  ,  13,  77,   0,  75,   0,   0,   0,   PLAIN},
+  /* 77  */ {WEST_BELERIAND  ,  14, 155,   0,  76,   0,   0,   0,   MOUNTAIN},
+  /* 78  */ {WEST_BELERIAND  ,  16,  79,   0, 155,   0,   0,   0,   PLAIN},
+  /* 79  */ {WEST_BELERIAND  ,  17,  80,   0,  78,   0,   0,   0,   PLAIN},
+  /* 80  */ {WEST_BELERIAND  ,  18,  81,   0,  79,   0,   0,   0,   PLAIN},
+  /* 81  */ {WEST_BELERIAND  ,  19, 115,   0,  80,   0,   0,   0,   PLAIN},
+  /* 82  */ {DORIATH         ,  16,  83,   0,  59,   0,   0,   0,   FOREST},
+  /* 83  */ {DORIATH         ,  17,  84,   0,  82,   0,   0,   0,   FOREST},
+  /* 84  */ {DORIATH         ,  18,  85,   0,  83,   0,   0,   0,   FOREST},
+  /* 85  */ {DORIATH         ,  19, 153,   0,  84,   0,   0,   0,   FOREST},
+  /* 86  */ {DORIATH         ,  20,  87,   0, 153,   0,   0,   0,   FOREST},
+  /* 87  */ {DORIATH         ,  21,  88,   0,  86,   0,   0,   0,   FOREST},
+  /* 88  */ {DORIATH         ,  22,  93,   0,  87,   0,   0,   0,   FOREST},
+  /* 89  */ {HIMLAD          ,  21,   0,  64,   0,  90,   0,   0,   PLAIN},
+  /* 90  */ {HIMLAD          ,  22,   0,  89,   0,  91,   0,   0,   PLAIN},
+  /* 91  */ {HIMLAD          ,  23,   0,  90,   0,  92,   0,   0,   PLAIN},
+  /* 92  */ {HIMLAD          ,  24,   0,  91,   0,  95,   0,   0,   PLAIN},
+  /* 93  */ {DOR_DINEN       ,  23,  94,   0,  88,   0,   0,   0,   PLAIN},
+  /* 94  */ {DOR_DINEN       ,  24,  95,   0,  93,   0,   0,   0,   PLAIN},
+  /* 95  */ {DOR_DINEN       ,  25,  96,  92,  94,   0,   0,   0,   PLAIN},
+  /* 96  */ {DORTHONION      ,  26,  97,   0,  95,   0,   0,   0,   MOUNTAIN},
+  /* 97  */ {DORTHONION      ,  27,  98,   0,  96,   0,   0,   0,   MOUNTAIN},
+  /* 98  */ {DORTHONION      ,  28,   0,   0,  97,  99,   0,   0,   FOREST},
+  /* 99  */ {DORTHONION      ,  29,   0,  98,   0, 100,   0, 171,   FOREST},
+  /* 100 */ {DORTHONION      ,  30,   0,  99,   0, 101,   0,   0,   FOREST},
+  /* 101 */ {DORTHONION      ,  31,   0, 100,   0, 102,   0,   0,   FOREST},
+  /* 102 */ {DORTHONION      ,  32,   0, 101,   0, 103,   0,   0,   FOREST},
+  /* 103 */ {DORTHONION      ,  33, 104, 102,   0,   0,   0,   0,   FOREST},
+  /* 104 */ {DORTHONION      ,  34,   0,   0, 103, 131,   0,   0,   PLAIN},
+  /* 105 */ {TALATH_DIRNEN   ,  20,   0, 115, 106,   0,   0,   0,   PLAIN},
+  /* 106 */ {TALATH_DIRNEN   ,  21, 105,   0,   0, 107,   0,   0,   PLAIN},
+  /* 107 */ {TALATH_DIRNEN   ,  22,   0, 106, 108,   0,   0,   0,   PLAIN},
+  /* 108 */ {TALATH_DIRNEN   ,  23, 107,   0,   0, 109,   0,   0,   PLAIN},
+  /* 109 */ {TALATH_DIRNEN   ,  24,   0, 108, 110,   0,   0,   0,   PLAIN},
+  /* 110 */ {TALATH_DIRNEN   ,  25, 109,   0,   0, 111,   0,   0,   PLAIN},
+  /* 111 */ {TALATH_DIRNEN   ,  26,   0, 110, 112,   0,   0,   0,   PLAIN},
+  /* 112 */ {TALATH_DIRNEN   ,  27, 111,   0,   0, 113,   0,   0,   PLAIN},
+  /* 113 */ {TALATH_DIRNEN   ,  28,   0, 112,   0, 114,   0,   0,   PLAIN},
+  /* 114 */ {TALATH_DIRNEN   ,  29,   0, 113,   0,   0,   0, 222,   RIVER},
+  /* 115 */ {EPHEL_BRANDIR   ,   0, 116,   0,  81, 105,   0,   0,   TOWN},
+  /* 116 */ {BRETHIL         ,  20, 117,   0, 115,   0,   0,   0,   FOREST},
+  /* 117 */ {BRETHIL         ,  21, 118,   0, 116,   0,   0,   0,   FOREST},
+  /* 118 */ {BRETHIL         ,  22, 119,   0, 117,   0,   0,   0,   FOREST},
+  /* 119 */ {BRETHIL         ,  23, 120,   0, 118,   0,   0,   0,   FOREST},
+  /* 120 */ {SIRION_VALE     ,  24, 121,   0, 119,   0,   0,   0,   PLAIN},
+  /* 121 */ {SIRION_VALE     ,  25, 122, 154, 120,   0,   0,   0,   RIVER},
+  /* 122 */ {SIRION_VALE     ,  26, 123,   0, 121,   0,   0,   0,   RIVER},
+  /* 123 */ {SIRION_VALE     ,  27, 124,   0, 122,   0,   0,   0,   RIVER},
+  /* 124 */ {SIRION_VALE     ,  28, 125,   0, 123,   0,   0,   0,   RIVER},
+  /* 125 */ {SIRION_VALE     ,  29, 126,   0, 124,   0,   0, 263,   RIVER},
+  /* 126 */ {SIRION_VALE     ,  30, 127,   0, 125,   0,   0,   0,   RIVER},
+  /* 127 */ {FEN_OF_SERECH   ,  31, 128,   0, 126,   0,   0,   0,   SWAMP},
+  /* 128 */ {FEN_OF_SERECH   ,  32, 129,   0, 127,   0,   0,   0,   SWAMP},
+  /* 129 */ {ANFAUGLITH_WEST ,  33, 130,   0, 128,   0,   0,   0,   DESERT},
+  /* 130 */ {ANFAUGLITH_WEST ,  34, 131,   0, 129,   0,   0,   0,   DESERT},
+  /* 131 */ {ANFAUGLITH_WEST ,  35, 132, 104, 130,   0,   0,   0,   DESERT},
+  /* 132 */ {ANFAUGLITH_WEST ,  36, 133,   0, 131,   0,   0,   0,   DESERT},
+  /* 133 */ {ANFAUGLITH_WEST ,  37, 134,   0, 132,   0,   0,   0,   DESERT},
+  /* 134 */ {ANFAUGLITH_WEST ,  38, 135,   0, 133,   0,   0,   0,   DESERT},
+  /* 135 */ {ANFAUGLITH_WEST ,  39,   0, 148, 134,   0,   0, 324,   DESERT},
+  /* 136 */ {ANFAUGLITH_EAST ,  26, 137,  26,   0,   0,   0,   0,   DESERT},
+  /* 137 */ {ANFAUGLITH_EAST ,  27,   0,   0, 136, 138,   0,   0,   DESERT},
+  /* 138 */ {ANFAUGLITH_EAST ,  28, 139, 137,   0,   0,   0,   0,   DESERT},
+  /* 139 */ {ANFAUGLITH_EAST ,  29,   0,   0, 138, 140,   0,   0,   DESERT},
+  /* 140 */ {ANFAUGLITH_EAST ,  30,   0, 139,   0, 141,   0,   0,   DESERT},
+  /* 141 */ {ANFAUGLITH_EAST ,  31,   0, 140,   0, 142,   0,   0,   DESERT},
+  /* 142 */ {ANFAUGLITH_EAST ,  32,   0, 141,   0, 143,   0,   0,   DESERT},
+  /* 143 */ {ANFAUGLITH_EAST ,  33,   0, 142,   0, 144,   0,   0,   DESERT},
+  /* 144 */ {ANFAUGLITH_EAST ,  34,   0, 143,   0, 145,   0,   0,   DESERT},
+  /* 145 */ {ANFAUGLITH_EAST ,  35,   0, 144,   0, 146,   0,   0,   DESERT},
+  /* 146 */ {ANFAUGLITH_EAST ,  36,   0, 145,   0, 147,   0,   0,   DESERT},
+  /* 147 */ {ANFAUGLITH_EAST ,  37,   0, 146,   0, 148,   0,   0,   DESERT},
+  /* 148 */ {ANFAUGLITH_EAST ,  38,   0, 147,   0, 135,   0,   0,   DESERT},
+  /* 149 */ {ANDUIN_VALE     ,   1,   0, 150,   0,   1,   0,   0,   PLAIN},
+  /* 150 */ {GLADDEN_FIELDS  ,   0,   0,   0,   0, 149,   0,   0,   TOWN},
+  /* 151 */ {KHAZAD_DUM      ,   0,   0,   1,   0,   2,   0,   0,   TOWN},
+  /* 152 */ {BELEGOST        ,   0,  12,  10,  11,  65,   0,   0,   TOWN},
+  /* 153 */ {MENEGROTH       ,   0,  86,   0,  85,   0,   0,   0,   TOWN},
+  /* 154 */ {GONDOLIN        ,   0,   0,   0,   0, 121,   0,   0,   TOWN},
+  /* 155 */ {AMON_RUDH       ,  15,  78,   0,  77,   0,   0, 156,   MOUNTAIN},
+  /* 156 */ {AMON_RUDH       ,  16,   0,   0,   0,   0, 155, 157,   CAVE},
+  /* 157 */ {AMON_RUDH       ,  17,   0,   0,   0,   0, 156, 158,   CAVE},
+  /* 158 */ {AMON_RUDH       ,  18,   0,   0,   0,   0, 157, 159,   CAVE},
+  /* 159 */ {AMON_RUDH       ,  19,   0,   0,   0,   0, 158, 160,   CAVE},
+  /* 160 */ {AMON_RUDH       ,  20,   0,   0,   0,   0, 159, 161,   CAVE},
+  /* 161 */ {AMON_RUDH       ,  21,   0,   0,   0,   0, 160, 162,   CAVE},
+  /* 162 */ {AMON_RUDH       ,  22,   0,   0,   0,   0, 161, 163,   CAVE},
+  /* 163 */ {AMON_RUDH       ,  23,   0,   0,   0,   0, 162, 164,   CAVE},
+  /* 164 */ {AMON_RUDH       ,  24,   0,   0,   0,   0, 163, 165,   CAVE},
+  /* 165 */ {AMON_RUDH       ,  25,   0,   0,   0,   0, 164, 166,   CAVE},
+  /* 166 */ {AMON_RUDH       ,  26,   0,   0,   0,   0, 165, 167,   CAVE},
+  /* 167 */ {AMON_RUDH       ,  27,   0,   0,   0,   0, 166, 168,   CAVE},
+  /* 168 */ {AMON_RUDH       ,  28,   0,   0,   0,   0, 167, 169,   CAVE},
+  /* 169 */ {AMON_RUDH       ,  29,   0,   0,   0,   0, 168, 170,   CAVE},
+  /* 170 */ {AMON_RUDH       ,  30,   0,   0,   0,   0, 169,   0,   CAVE},
+  /* 171 */ {NAN_DUNGORTHEB  ,  30,   0,   0,   0,   0,  99, 172,   VALLEY},
+  /* 172 */ {NAN_DUNGORTHEB  ,  31,   0,   0,   0,   0, 171, 173,   VALLEY},
+  /* 173 */ {NAN_DUNGORTHEB  ,  32,   0,   0,   0,   0, 172, 174,   VALLEY},
+  /* 174 */ {NAN_DUNGORTHEB  ,  33,   0,   0,   0,   0, 173, 175,   VALLEY},
+  /* 175 */ {NAN_DUNGORTHEB  ,  34,   0,   0,   0,   0, 174, 176,   VALLEY},
+  /* 176 */ {NAN_DUNGORTHEB  ,  35,   0,   0,   0,   0, 175, 177,   VALLEY},
+  /* 177 */ {NAN_DUNGORTHEB  ,  36,   0,   0,   0,   0, 176, 178,   VALLEY},
+  /* 178 */ {NAN_DUNGORTHEB  ,  37,   0,   0,   0,   0, 177, 179,   VALLEY},
+  /* 179 */ {NAN_DUNGORTHEB  ,  38,   0,   0,   0,   0, 178, 180,   VALLEY},
+  /* 180 */ {NAN_DUNGORTHEB  ,  39,   0,   0,   0,   0, 179, 181,   VALLEY},
+  /* 181 */ {NAN_DUNGORTHEB  ,  40,   0,   0,   0,   0, 180, 182,   VALLEY},
+  /* 182 */ {NAN_DUNGORTHEB  ,  41,   0,   0,   0,   0, 181, 183,   VALLEY},
+  /* 183 */ {NAN_DUNGORTHEB  ,  42,   0,   0,   0,   0, 182, 184,   VALLEY},
+  /* 184 */ {NAN_DUNGORTHEB  ,  43,   0,   0,   0,   0, 183, 185,   VALLEY},
+  /* 185 */ {NAN_DUNGORTHEB  ,  44,   0,   0,   0,   0, 184, 186,   VALLEY},
+  /* 186 */ {NAN_DUNGORTHEB  ,  45,   0,   0,   0,   0, 185, 187,   VALLEY},
+  /* 187 */ {NAN_DUNGORTHEB  ,  46,   0,   0,   0,   0, 186, 188,   VALLEY},
+  /* 188 */ {NAN_DUNGORTHEB  ,  47,   0,   0,   0,   0, 187, 189,   VALLEY},
+  /* 189 */ {NAN_DUNGORTHEB  ,  48,   0,   0,   0,   0, 188, 190,   VALLEY},
+  /* 190 */ {NAN_DUNGORTHEB  ,  49,   0,   0,   0,   0, 189, 191,   VALLEY},
+  /* 191 */ {NAN_DUNGORTHEB  ,  50,   0,   0,   0,   0, 190, 192,   VALLEY},
+  /* 192 */ {NAN_DUNGORTHEB  ,  51,   0,   0,   0,   0, 191, 193,   VALLEY},
+  /* 193 */ {NAN_DUNGORTHEB  ,  52,   0,   0,   0,   0, 192, 194,   VALLEY},
+  /* 194 */ {NAN_DUNGORTHEB  ,  53,   0,   0,   0,   0, 193, 195,   VALLEY},
+  /* 195 */ {NAN_DUNGORTHEB  ,  54,   0,   0,   0,   0, 194, 196,   VALLEY},
+  /* 196 */ {NAN_DUNGORTHEB  ,  55,   0,   0,   0,   0, 195, 197,   VALLEY},
+  /* 197 */ {NAN_DUNGORTHEB  ,  56,   0,   0,   0,   0, 196, 198,   VALLEY},
+  /* 198 */ {NAN_DUNGORTHEB  ,  57,   0,   0,   0,   0, 197, 199,   VALLEY},
+  /* 199 */ {NAN_DUNGORTHEB  ,  58,   0,   0,   0,   0, 198, 200,   VALLEY},
+  /* 200 */ {NAN_DUNGORTHEB  ,  59,   0,   0,   0,   0, 199, 201,   VALLEY},
+  /* 201 */ {NAN_DUNGORTHEB  ,  60,   0,   0,   0,   0, 200, 202,   VALLEY},
+  /* 202 */ {NAN_DUNGORTHEB  ,  61,   0,   0,   0,   0, 201, 203,   VALLEY},
+  /* 203 */ {NAN_DUNGORTHEB  ,  62,   0,   0,   0,   0, 202, 204,   VALLEY},
+  /* 204 */ {NAN_DUNGORTHEB  ,  63,   0,   0,   0,   0, 203, 205,   VALLEY},
+  /* 205 */ {NAN_DUNGORTHEB  ,  64,   0,   0,   0,   0, 204, 206,   VALLEY},
+  /* 206 */ {NAN_DUNGORTHEB  ,  65,   0,   0,   0,   0, 205, 207,   VALLEY},
+  /* 207 */ {NAN_DUNGORTHEB  ,  66,   0,   0,   0,   0, 206, 208,   VALLEY},
+  /* 208 */ {NAN_DUNGORTHEB  ,  67,   0,   0,   0,   0, 207, 209,   VALLEY},
+  /* 209 */ {NAN_DUNGORTHEB  ,  68,   0,   0,   0,   0, 208, 210,   VALLEY},
+  /* 210 */ {NAN_DUNGORTHEB  ,  69,   0,   0,   0,   0, 209, 211,   VALLEY},
+  /* 211 */ {NAN_DUNGORTHEB  ,  70,   0,   0,   0,   0, 210, 212,   VALLEY},
+  /* 212 */ {NAN_DUNGORTHEB  ,  71,   0,   0,   0,   0, 211, 213,   VALLEY},
+  /* 213 */ {NAN_DUNGORTHEB  ,  72,   0,   0,   0,   0, 212, 214,   VALLEY},
+  /* 214 */ {NAN_DUNGORTHEB  ,  73,   0,   0,   0,   0, 213, 215,   VALLEY},
+  /* 215 */ {NAN_DUNGORTHEB  ,  74,   0,   0,   0,   0, 214, 216,   VALLEY},
+  /* 216 */ {NAN_DUNGORTHEB  ,  75,   0,   0,   0,   0, 215, 217,   VALLEY},
+  /* 217 */ {NAN_DUNGORTHEB  ,  76,   0,   0,   0,   0, 216, 218,   VALLEY},
+  /* 218 */ {NAN_DUNGORTHEB  ,  77,   0,   0,   0,   0, 217, 219,   VALLEY},
+  /* 219 */ {NAN_DUNGORTHEB  ,  78,   0,   0,   0,   0, 218, 220,   VALLEY},
+  /* 220 */ {NAN_DUNGORTHEB  ,  79,   0,   0,   0,   0, 219, 221,   VALLEY},
+  /* 221 */ {NAN_DUNGORTHEB  ,  80,   0,   0,   0,   0, 220,   0,   VALLEY},
+  /* 222 */ {NARGOTHROND     ,  30,   0,   0,   0,   0, 114, 223,   CAVE},
+  /* 223 */ {NARGOTHROND     ,  31,   0,   0,   0,   0, 222, 224,   CAVE},
+  /* 224 */ {NARGOTHROND     ,  32,   0,   0,   0,   0, 223, 225,   CAVE},
+  /* 225 */ {NARGOTHROND     ,  33,   0,   0,   0,   0, 224, 226,   CAVE},
+  /* 226 */ {NARGOTHROND     ,  34,   0,   0,   0,   0, 225, 227,   CAVE},
+  /* 227 */ {NARGOTHROND     ,  35,   0,   0,   0,   0, 226, 228,   CAVE},
+  /* 228 */ {NARGOTHROND     ,  36,   0,   0,   0,   0, 227, 229,   CAVE},
+  /* 229 */ {NARGOTHROND     ,  37,   0,   0,   0,   0, 228, 230,   CAVE},
+  /* 230 */ {NARGOTHROND     ,  38,   0,   0,   0,   0, 229, 231,   CAVE},
+  /* 231 */ {NARGOTHROND     ,  39,   0,   0,   0,   0, 230, 232,   CAVE},
+  /* 232 */ {NARGOTHROND     ,  40,   0,   0,   0,   0, 231, 233,   CAVE},
+  /* 233 */ {NARGOTHROND     ,  41,   0,   0,   0,   0, 232, 234,   CAVE},
+  /* 234 */ {NARGOTHROND     ,  42,   0,   0,   0,   0, 233, 235,   CAVE},
+  /* 235 */ {NARGOTHROND     ,  43,   0,   0,   0,   0, 234, 236,   CAVE},
+  /* 236 */ {NARGOTHROND     ,  44,   0,   0,   0,   0, 235, 237,   CAVE},
+  /* 237 */ {NARGOTHROND     ,  45,   0,   0,   0,   0, 236, 238,   CAVE},
+  /* 238 */ {NARGOTHROND     ,  46,   0,   0,   0,   0, 237, 239,   CAVE},
+  /* 239 */ {NARGOTHROND     ,  47,   0,   0,   0,   0, 238, 240,   CAVE},
+  /* 240 */ {NARGOTHROND     ,  48,   0,   0,   0,   0, 239, 241,   CAVE},
+  /* 241 */ {NARGOTHROND     ,  49,   0,   0,   0,   0, 240, 242,   CAVE},
+  /* 242 */ {NARGOTHROND     ,  50,   0,   0,   0,   0, 241, 243,   CAVE},
+  /* 243 */ {NARGOTHROND     ,  51,   0,   0,   0,   0, 242, 244,   CAVE},
+  /* 244 */ {NARGOTHROND     ,  52,   0,   0,   0,   0, 243, 245,   CAVE},
+  /* 245 */ {NARGOTHROND     ,  53,   0,   0,   0,   0, 244, 246,   CAVE},
+  /* 246 */ {NARGOTHROND     ,  54,   0,   0,   0,   0, 245, 247,   CAVE},
+  /* 247 */ {NARGOTHROND     ,  55,   0,   0,   0,   0, 246, 248,   CAVE},
+  /* 248 */ {NARGOTHROND     ,  56,   0,   0,   0,   0, 247, 249,   CAVE},
+  /* 249 */ {NARGOTHROND     ,  57,   0,   0,   0,   0, 248, 250,   CAVE},
+  /* 250 */ {NARGOTHROND     ,  58,   0,   0,   0,   0, 249, 251,   CAVE},
+  /* 251 */ {NARGOTHROND     ,  59,   0,   0,   0,   0, 250, 252,   CAVE},
+  /* 252 */ {NARGOTHROND     ,  60,   0,   0,   0,   0, 251, 253,   CAVE},
+  /* 253 */ {NARGOTHROND     ,  61,   0,   0,   0,   0, 252, 254,   CAVE},
+  /* 254 */ {NARGOTHROND     ,  62,   0,   0,   0,   0, 253, 255,   CAVE},
+  /* 255 */ {NARGOTHROND     ,  63,   0,   0,   0,   0, 254, 256,   CAVE},
+  /* 256 */ {NARGOTHROND     ,  64,   0,   0,   0,   0, 255, 257,   CAVE},
+  /* 257 */ {NARGOTHROND     ,  65,   0,   0,   0,   0, 256, 258,   CAVE},
+  /* 258 */ {NARGOTHROND     ,  66,   0,   0,   0,   0, 257, 259,   CAVE},
+  /* 259 */ {NARGOTHROND     ,  67,   0,   0,   0,   0, 258, 260,   CAVE},
+  /* 260 */ {NARGOTHROND     ,  68,   0,   0,   0,   0, 259, 261,   CAVE},
+  /* 261 */ {NARGOTHROND     ,  69,   0,   0,   0,   0, 260, 262,   CAVE},
+  /* 262 */ {NARGOTHROND     ,  70,   0,   0,   0,   0, 261,   0,   CAVE},
+  /* 263 */ {TOL_IN_GAURHOTH ,  30,   0,   0,   0,   0, 125, 264,   CAVE},
+  /* 264 */ {TOL_IN_GAURHOTH ,  31,   0,   0,   0,   0, 263, 265,   CAVE},
+  /* 265 */ {TOL_IN_GAURHOTH ,  32,   0,   0,   0,   0, 264, 266,   CAVE},
+  /* 266 */ {TOL_IN_GAURHOTH ,  33,   0,   0,   0,   0, 265, 267,   CAVE},
+  /* 267 */ {TOL_IN_GAURHOTH ,  34,   0,   0,   0,   0, 266, 268,   CAVE},
+  /* 268 */ {TOL_IN_GAURHOTH ,  35,   0,   0,   0,   0, 267, 269,   CAVE},
+  /* 269 */ {TOL_IN_GAURHOTH ,  36,   0,   0,   0,   0, 268, 270,   CAVE},
+  /* 270 */ {TOL_IN_GAURHOTH ,  37,   0,   0,   0,   0, 269, 271,   CAVE},
+  /* 271 */ {TOL_IN_GAURHOTH ,  38,   0,   0,   0,   0, 270, 272,   CAVE},
+  /* 272 */ {TOL_IN_GAURHOTH ,  39,   0,   0,   0,   0, 271, 273,   CAVE},
+  /* 273 */ {TOL_IN_GAURHOTH ,  40,   0,   0,   0,   0, 272, 274,   CAVE},
+  /* 274 */ {TOL_IN_GAURHOTH ,  41,   0,   0,   0,   0, 273, 275,   CAVE},
+  /* 275 */ {TOL_IN_GAURHOTH ,  42,   0,   0,   0,   0, 274, 276,   CAVE},
+  /* 276 */ {TOL_IN_GAURHOTH ,  43,   0,   0,   0,   0, 275, 277,   CAVE},
+  /* 277 */ {TOL_IN_GAURHOTH ,  44,   0,   0,   0,   0, 276, 278,   CAVE},
+  /* 278 */ {TOL_IN_GAURHOTH ,  45,   0,   0,   0,   0, 277, 279,   CAVE},
+  /* 279 */ {TOL_IN_GAURHOTH ,  46,   0,   0,   0,   0, 278, 280,   CAVE},
+  /* 280 */ {TOL_IN_GAURHOTH ,  47,   0,   0,   0,   0, 279, 281,   CAVE},
+  /* 281 */ {TOL_IN_GAURHOTH ,  48,   0,   0,   0,   0, 280, 282,   CAVE},
+  /* 282 */ {TOL_IN_GAURHOTH ,  49,   0,   0,   0,   0, 281, 283,   CAVE},
+  /* 283 */ {TOL_IN_GAURHOTH ,  50,   0,   0,   0,   0, 282, 284,   CAVE},
+  /* 284 */ {TOL_IN_GAURHOTH ,  51,   0,   0,   0,   0, 283, 285,   CAVE},
+  /* 285 */ {TOL_IN_GAURHOTH ,  52,   0,   0,   0,   0, 284, 286,   CAVE},
+  /* 286 */ {TOL_IN_GAURHOTH ,  53,   0,   0,   0,   0, 285, 287,   CAVE},
+  /* 287 */ {TOL_IN_GAURHOTH ,  54,   0,   0,   0,   0, 286, 288,   CAVE},
+  /* 288 */ {TOL_IN_GAURHOTH ,  55,   0,   0,   0,   0, 287, 289,   CAVE},
+  /* 289 */ {TOL_IN_GAURHOTH ,  56,   0,   0,   0,   0, 288, 290,   CAVE},
+  /* 290 */ {TOL_IN_GAURHOTH ,  57,   0,   0,   0,   0, 289, 291,   CAVE},
+  /* 291 */ {TOL_IN_GAURHOTH ,  58,   0,   0,   0,   0, 290, 292,   CAVE},
+  /* 292 */ {TOL_IN_GAURHOTH ,  59,   0,   0,   0,   0, 291, 293,   CAVE},
+  /* 293 */ {TOL_IN_GAURHOTH ,  60,   0,   0,   0,   0, 292, 294,   CAVE},
+  /* 294 */ {TOL_IN_GAURHOTH ,  61,   0,   0,   0,   0, 293, 295,   CAVE},
+  /* 295 */ {TOL_IN_GAURHOTH ,  62,   0,   0,   0,   0, 294, 296,   CAVE},
+  /* 296 */ {TOL_IN_GAURHOTH ,  63,   0,   0,   0,   0, 295, 297,   CAVE},
+  /* 297 */ {TOL_IN_GAURHOTH ,  64,   0,   0,   0,   0, 296, 298,   CAVE},
+  /* 298 */ {TOL_IN_GAURHOTH ,  65,   0,   0,   0,   0, 297, 299,   CAVE},
+  /* 299 */ {TOL_IN_GAURHOTH ,  66,   0,   0,   0,   0, 298, 300,   CAVE},
+  /* 300 */ {TOL_IN_GAURHOTH ,  67,   0,   0,   0,   0, 299, 301,   CAVE},
+  /* 301 */ {TOL_IN_GAURHOTH ,  68,   0,   0,   0,   0, 300, 302,   CAVE},
+  /* 302 */ {TOL_IN_GAURHOTH ,  69,   0,   0,   0,   0, 301, 303,   CAVE},
+  /* 303 */ {TOL_IN_GAURHOTH ,  70,   0,   0,   0,   0, 302, 304,   CAVE},
+  /* 304 */ {TOL_IN_GAURHOTH ,  71,   0,   0,   0,   0, 303, 305,   CAVE},
+  /* 305 */ {TOL_IN_GAURHOTH ,  72,   0,   0,   0,   0, 304, 306,   CAVE},
+  /* 306 */ {TOL_IN_GAURHOTH ,  73,   0,   0,   0,   0, 305, 307,   CAVE},
+  /* 307 */ {TOL_IN_GAURHOTH ,  74,   0,   0,   0,   0, 306, 308,   CAVE},
+  /* 308 */ {TOL_IN_GAURHOTH ,  75,   0,   0,   0,   0, 307, 309,   CAVE},
+  /* 309 */ {TOL_IN_GAURHOTH ,  76,   0,   0,   0,   0, 308, 310,   CAVE},
+  /* 310 */ {TOL_IN_GAURHOTH ,  77,   0,   0,   0,   0, 309, 311,   CAVE},
+  /* 311 */ {TOL_IN_GAURHOTH ,  78,   0,   0,   0,   0, 310, 312,   CAVE},
+  /* 312 */ {TOL_IN_GAURHOTH ,  79,   0,   0,   0,   0, 311, 313,   CAVE},
+  /* 313 */ {TOL_IN_GAURHOTH ,  80,   0,   0,   0,   0, 312, 314,   CAVE},
+  /* 314 */ {TOL_IN_GAURHOTH ,  81,   0,   0,   0,   0, 313, 315,   CAVE},
+  /* 315 */ {TOL_IN_GAURHOTH ,  82,   0,   0,   0,   0, 314, 316,   CAVE},
+  /* 316 */ {TOL_IN_GAURHOTH ,  83,   0,   0,   0,   0, 315, 317,   CAVE},
+  /* 317 */ {TOL_IN_GAURHOTH ,  84,   0,   0,   0,   0, 316, 318,   CAVE},
+  /* 318 */ {TOL_IN_GAURHOTH ,  85,   0,   0,   0,   0, 317, 319,   CAVE},
+  /* 319 */ {TOL_IN_GAURHOTH ,  86,   0,   0,   0,   0, 318, 320,   CAVE},
+  /* 320 */ {TOL_IN_GAURHOTH ,  87,   0,   0,   0,   0, 319, 321,   CAVE},
+  /* 321 */ {TOL_IN_GAURHOTH ,  88,   0,   0,   0,   0, 320, 322,   CAVE},
+  /* 322 */ {TOL_IN_GAURHOTH ,  89,   0,   0,   0,   0, 321, 323,   CAVE},
+  /* 323 */ {TOL_IN_GAURHOTH ,  90,   0,   0,   0,   0, 322,   0,   CAVE},
+  /* 324 */ {ANGBAND         ,  40,   0,   0,   0,   0, 135, 325,   CAVE},
+  /* 325 */ {ANGBAND         ,  41,   0,   0,   0,   0, 324, 326,   CAVE},
+  /* 326 */ {ANGBAND         ,  42,   0,   0,   0,   0, 325, 327,   CAVE},
+  /* 327 */ {ANGBAND         ,  43,   0,   0,   0,   0, 326, 328,   CAVE},
+  /* 328 */ {ANGBAND         ,  44,   0,   0,   0,   0, 327, 329,   CAVE},
+  /* 329 */ {ANGBAND         ,  45,   0,   0,   0,   0, 328, 330,   CAVE},
+  /* 330 */ {ANGBAND         ,  46,   0,   0,   0,   0, 329, 331,   CAVE},
+  /* 331 */ {ANGBAND         ,  47,   0,   0,   0,   0, 330, 332,   CAVE},
+  /* 332 */ {ANGBAND         ,  48,   0,   0,   0,   0, 331, 333,   CAVE},
+  /* 333 */ {ANGBAND         ,  49,   0,   0,   0,   0, 332, 334,   CAVE},
+  /* 334 */ {ANGBAND         ,  50,   0,   0,   0,   0, 333, 335,   CAVE},
+  /* 335 */ {ANGBAND         ,  51,   0,   0,   0,   0, 334, 336,   CAVE},
+  /* 336 */ {ANGBAND         ,  52,   0,   0,   0,   0, 335, 337,   CAVE},
+  /* 337 */ {ANGBAND         ,  53,   0,   0,   0,   0, 336, 338,   CAVE},
+  /* 338 */ {ANGBAND         ,  54,   0,   0,   0,   0, 337, 339,   CAVE},
+  /* 339 */ {ANGBAND         ,  55,   0,   0,   0,   0, 338, 340,   CAVE},
+  /* 340 */ {ANGBAND         ,  56,   0,   0,   0,   0, 339, 341,   CAVE},
+  /* 341 */ {ANGBAND         ,  57,   0,   0,   0,   0, 340, 342,   CAVE},
+  /* 342 */ {ANGBAND         ,  58,   0,   0,   0,   0, 341, 343,   CAVE},
+  /* 343 */ {ANGBAND         ,  59,   0,   0,   0,   0, 342, 344,   CAVE},
+  /* 344 */ {ANGBAND         ,  60,   0,   0,   0,   0, 343, 345,   CAVE},
+  /* 345 */ {ANGBAND         ,  61,   0,   0,   0,   0, 344, 346,   CAVE},
+  /* 346 */ {ANGBAND         ,  62,   0,   0,   0,   0, 345, 347,   CAVE},
+  /* 347 */ {ANGBAND         ,  63,   0,   0,   0,   0, 346, 348,   CAVE},
+  /* 348 */ {ANGBAND         ,  64,   0,   0,   0,   0, 347, 349,   CAVE},
+  /* 349 */ {ANGBAND         ,  65,   0,   0,   0,   0, 348, 350,   CAVE},
+  /* 350 */ {ANGBAND         ,  66,   0,   0,   0,   0, 349, 351,   CAVE},
+  /* 351 */ {ANGBAND         ,  67,   0,   0,   0,   0, 350, 352,   CAVE},
+  /* 352 */ {ANGBAND         ,  68,   0,   0,   0,   0, 351, 353,   CAVE},
+  /* 353 */ {ANGBAND         ,  69,   0,   0,   0,   0, 352, 354,   CAVE},
+  /* 354 */ {ANGBAND         ,  70,   0,   0,   0,   0, 353, 355,   CAVE},
+  /* 355 */ {ANGBAND         ,  71,   0,   0,   0,   0, 354, 356,   CAVE},
+  /* 356 */ {ANGBAND         ,  72,   0,   0,   0,   0, 355, 357,   CAVE},
+  /* 357 */ {ANGBAND         ,  73,   0,   0,   0,   0, 356, 358,   CAVE},
+  /* 358 */ {ANGBAND         ,  74,   0,   0,   0,   0, 357, 359,   CAVE},
+  /* 359 */ {ANGBAND         ,  75,   0,   0,   0,   0, 358, 360,   CAVE},
+  /* 360 */ {ANGBAND         ,  76,   0,   0,   0,   0, 359, 361,   CAVE},
+  /* 361 */ {ANGBAND         ,  77,   0,   0,   0,   0, 360, 362,   CAVE},
+  /* 362 */ {ANGBAND         ,  78,   0,   0,   0,   0, 361, 363,   CAVE},
+  /* 363 */ {ANGBAND         ,  79,   0,   0,   0,   0, 362, 364,   CAVE},
+  /* 364 */ {ANGBAND         ,  80,   0,   0,   0,   0, 363, 365,   CAVE},
+  /* 365 */ {ANGBAND         ,  81,   0,   0,   0,   0, 364, 366,   CAVE},
+  /* 366 */ {ANGBAND         ,  82,   0,   0,   0,   0, 365, 367,   CAVE},
+  /* 367 */ {ANGBAND         ,  83,   0,   0,   0,   0, 366, 368,   CAVE},
+  /* 368 */ {ANGBAND         ,  84,   0,   0,   0,   0, 367, 369,   CAVE},
+  /* 369 */ {ANGBAND         ,  85,   0,   0,   0,   0, 368, 370,   CAVE},
+  /* 370 */ {ANGBAND         ,  86,   0,   0,   0,   0, 369, 371,   CAVE},
+  /* 371 */ {ANGBAND         ,  87,   0,   0,   0,   0, 370, 372,   CAVE},
+  /* 372 */ {ANGBAND         ,  88,   0,   0,   0,   0, 371, 373,   CAVE},
+  /* 373 */ {ANGBAND         ,  89,   0,   0,   0,   0, 372, 374,   CAVE},
+  /* 374 */ {ANGBAND         ,  90,   0,   0,   0,   0, 373, 375,   CAVE},
+  /* 375 */ {ANGBAND         ,  91,   0,   0,   0,   0, 374, 376,   CAVE},
+  /* 376 */ {ANGBAND         ,  92,   0,   0,   0,   0, 375, 377,   CAVE},
+  /* 377 */ {ANGBAND         ,  93,   0,   0,   0,   0, 376, 378,   CAVE},
+  /* 378 */ {ANGBAND         ,  94,   0,   0,   0,   0, 377, 379,   CAVE},
+  /* 379 */ {ANGBAND         ,  95,   0,   0,   0,   0, 378, 380,   CAVE},
+  /* 380 */ {ANGBAND         ,  96,   0,   0,   0,   0, 379, 381,   CAVE},
+  /* 381 */ {ANGBAND         ,  97,   0,   0,   0,   0, 380, 382,   CAVE},
+  /* 382 */ {ANGBAND         ,  98,   0,   0,   0,   0, 381, 383,   CAVE},
+  /* 383 */ {ANGBAND         ,  99,   0,   0,   0,   0, 382, 384,   CAVE},
+  /* 384 */ {ANGBAND         , 100,   0,   0,   0,   0, 383, 385,   CAVE},
+  /* 385 */ {ANGBAND         , 101,   0,   0,   0,   0, 384, 386,   CAVE},
+  /* 386 */ {ANGBAND         , 102,   0,   0,   0,   0, 385, 387,   CAVE},
+  /* 387 */ {ANGBAND         , 103,   0,   0,   0,   0, 386, 388,   CAVE},
+  /* 388 */ {ANGBAND         , 104,   0,   0,   0,   0, 387, 389,   CAVE},
+  /* 389 */ {ANGBAND         , 105,   0,   0,   0,   0, 388, 390,   CAVE},
+  /* 390 */ {ANGBAND         , 106,   0,   0,   0,   0, 389, 391,   CAVE},
+  /* 391 */ {ANGBAND         , 107,   0,   0,   0,   0, 390, 392,   CAVE},
+  /* 392 */ {ANGBAND         , 108,   0,   0,   0,   0, 391, 393,   CAVE},
+  /* 393 */ {ANGBAND         , 109,   0,   0,   0,   0, 392, 394,   CAVE},
+  /* 394 */ {ANGBAND         , 110,   0,   0,   0,   0, 393, 395,   CAVE},
+  /* 395 */ {ANGBAND         , 111,   0,   0,   0,   0, 394, 396,   CAVE},
+  /* 396 */ {ANGBAND         , 112,   0,   0,   0,   0, 395, 397,   CAVE},
+  /* 397 */ {ANGBAND         , 113,   0,   0,   0,   0, 396, 398,   CAVE},
+  /* 398 */ {ANGBAND         , 114,   0,   0,   0,   0, 397, 399,   CAVE},
+  /* 399 */ {ANGBAND         , 115,   0,   0,   0,   0, 398, 400,   CAVE},
+  /* 400 */ {ANGBAND         , 116,   0,   0,   0,   0, 399, 401,   CAVE},
+  /* 401 */ {ANGBAND         , 117,   0,   0,   0,   0, 400, 402,   CAVE},
+  /* 402 */ {ANGBAND         , 118,   0,   0,   0,   0, 401, 403,   CAVE},
+  /* 403 */ {ANGBAND         , 119,   0,   0,   0,   0, 402, 404,   CAVE},
+  /* 404 */ {ANGBAND         , 120,   0,   0,   0,   0, 403, 405,   CAVE},
+  /* 405 */ {ANGBAND         , 121,   0,   0,   0,   0, 404, 406,   CAVE},
+  /* 406 */ {ANGBAND         , 122,   0,   0,   0,   0, 405, 407,   CAVE},
+  /* 407 */ {ANGBAND         , 123,   0,   0,   0,   0, 406, 408,   CAVE},
+  /* 408 */ {ANGBAND         , 124,   0,   0,   0,   0, 407, 409,   CAVE},
+  /* 409 */ {ANGBAND         , 125,   0,   0,   0,   0, 408, 410,   CAVE},
+  /* 410 */ {ANGBAND         , 126,   0,   0,   0,   0, 409, 411,   CAVE},
+  /* 411 */ {ANGBAND         , 127,   0,   0,   0,   0, 410,   0,   CAVE}};
+
+
+/* Names of localities */
+
+cptr locality_name[MAX_LOCALITIES] = 
+  {"Nowhere",
+   "Hithaeglir",
+   "Eriador",
+   "Ered Luin",
+   "Ered Luin South",
+   "Ossiriand",
+   "Taur-Im-Duinath",
+   "East Beleriand",
+   "Andram",
+   "West Beleriand",
+   "Thargelion",
+   "Doriath",
+   "Himlad",
+   "Dor Dinen",
+   "Dorthonion",
+   "Talath Dirnen",
+   "Brethil",
+   "Sirion Vale",
+   "Fen of Serech",
+   "Anfauglith west",
+   "Anfauglith east",
+   "Amon Rudh",
+   "Nan Dungortheb",
+   "Nargothrond",
+   "Tol-In-Gaurhoth",
+   "Angband",
+   "Anduin Vale",
+   "Gladden Fields",
+   "Khazad Dum",
+   "Belegost",
+   "Menegroth",
+   "Ephel Brandir",
+   "Gondolin",
+   "Ent Path"
+  };
+
+
+/* Stage numbers of towns */
+
+int towns[10] = {6, 30, 37, 44, 115, 150, 151, 152, 153, 154};
+
+

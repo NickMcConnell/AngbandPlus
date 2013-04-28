@@ -84,6 +84,10 @@ extern byte spell_range_RF5[32];
 extern byte spell_range_RF6[32];
 extern byte spell_range_RF7[32];
 extern cptr specialty_names[TOTAL_SPECIALTIES];
+extern int stage_map[NUM_STAGES][9];
+extern cptr locality_name[MAX_LOCALITIES];
+extern int towns[10];
+extern int home[14];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -120,7 +124,7 @@ extern bool character_saved;
 extern s16b character_icky;
 extern s16b character_xtra;
 extern u32b seed_flavor;
-extern u32b seed_town;
+extern u32b seed_town[10];
 extern s16b min_hgt;
 extern s16b max_hgt;
 extern s16b min_wid;
@@ -382,7 +386,7 @@ extern void health_track(int m_idx);
 extern void monster_race_track(int r_idx);
 extern void object_kind_track(int k_idx);
 extern void disturb(int stop_search, int unused_flag);
-extern bool is_quest(int level);
+extern bool is_quest(int stage);
 
 /* cmd1.c */
 extern void search(void);
@@ -599,6 +603,7 @@ extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp);
 extern bool place_monster(int y, int x, bool slp, bool grp, bool quick);
 extern bool alloc_monster(int dis, bool slp, bool quick);
 extern bool summon_specific(int y1, int x1, bool scattered, int lev, int type);
+extern bool summon_questor(int y1, int x1);
 extern bool multiply_monster(int m_idx);
 extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
@@ -890,8 +895,8 @@ extern void pause_line(int row);
 extern void request_command(bool shopping);
 extern uint damroll(uint num, uint sides);
 extern uint maxroll(uint num, uint sides);
+extern int get_recall_pt(cptr reason);
 extern bool is_a_vowel(int ch);
-
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
 extern void repeat_clear(void);
@@ -943,7 +948,7 @@ extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
 extern bool set_recall(int v);
-extern void word_recall(int v);
+extern bool word_recall(int v);
 extern void check_experience(void);
 extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);

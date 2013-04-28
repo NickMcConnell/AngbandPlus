@@ -1210,12 +1210,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Ring~" : "& Ring~");
 
-			/* Mega-Hack -- The One Ring */
-			if (!aware && (o_ptr->sval == SV_RING_POWER))
-			{
-				modstr = "Plain Gold";
-			}
-
 			break;
 		}
 

@@ -2,7 +2,7 @@
 #
 # Amiga SAS/C 6.50
 
-all: oangband
+all: faangband
 
 # Object files
 OBJS = \
@@ -29,9 +29,9 @@ INCS = \
   z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 
 # Linking
-oangband: $(OBJS)
+faangband: $(OBJS)
   echo Linking
-  slink QUIET WITH oangband.lnk
+  slink QUIET WITH faangband.lnk
 
 # Compiling
 .c.o:

@@ -9,14 +9,14 @@
 
 # The ego-item indexes are defined in "defines.h", and must not be changed.
 
-# Ego-items 1-63 are "armor", and 64-127 are "weapons"
+# Ego-items 1-63 are "armour", and 64-127 are "weapons"
 
 # Note that every "ego-item" type has a different "index", and can only be
 # created from items that belong to a certain "slot" in the equipment, if
 # one assumes that "ammo" belongs to an imaginary slot (23).
 #
 # Note that several "ego-item" types may share the same "textual name",
-# such as with "Armor of Resistance" and "Shield of Resistance".
+# such as with "Armour of Resistance" and "Shield of Resistance".
 #
 # Ego-items have descriptions that appear after that of the base object 
 # type if the object is identified.
@@ -24,11 +24,12 @@
 
 # Version stamp (required)
 
-V:0.7.0
+V:0.1.0
 
 #N: ego-item index: name (appended to base object description)
 #X: amount the level feeling is increased by: xtra 
 #W: depth: rarity: no longer used: bonus to value
+#T: tval: min sval: max sval
 #C: Bonus to Skill: Bonus to Deadliness: Bonus to armour class: 
 #     pval (controls how much stats or skills are increased by)
 #F: All item-specific flags (special qualities).
@@ -43,7 +44,7 @@ V:0.7.0
 # is checked.  So, rarities are not compared between cursed and
 # non-cursed items.
 
-### Body Armor ###
+### Body Armour ###
 
 N:4:of Resist Acid
 X:16:0
@@ -110,8 +111,10 @@ T:36:4:99
 T:37:3:99
 C:0:0:12:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:FREE_ACT
 D:Although not magical, this surprisingly light armour is made with such 
 D:skill as to resist damage by the elements and offer enhanced protection.
+D:The wearer will be immune from paralysing attacks.
 
 # OneHighResist
 
@@ -556,7 +559,7 @@ D:class.
 
 # OneSustain
 
-N:65:(Defender)
+N:65:of Doriath
 X:25:1
 W:0:20:0:15000
 C:4:4:8:4
@@ -585,9 +588,21 @@ F:WIS |
 F:BLESSED
 D:A priestly weapon that increases wisdom and bears a hidden power.
 
-# 67 (unused)
+N:67:of Gondolin
+X:30:3
+T:21:0:99
+T:22:0:99
+T:23:0:99
+W:20:20:0:25000
+C:7:7:0:0
+F:SLAY_DEMON | SLAY_ORC | SLAY_TROLL | SLAY_DRAGON |
+F:LITE | RES_DARK | SEE_INVIS | FREE_ACT |
+F:IGNORE_ACID | IGNORE_FIRE
+D:A weapon crafted for the defence of the Hidden Kingdom.  Deadly to the
+D:invading hordes from Angband, it's bearer need not fear the dark or those 
+D:hidden from normal sight, and cannot be paralysed.
 
-N:68:of Westernesse
+N:68:of the Noldor
 X:20:0
 T:21:0:99
 T:22:0:99
@@ -597,10 +612,20 @@ C:5:5:0:2
 F:STR | DEX | CON | 
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
 F:FREE_ACT | SEE_INVIS
-D:A weapon made by the Dunedain, feared by trolls, orcs, and giants.  It 
+D:A weapon made by the Deep Elves, feared by trolls, orcs, and giants.  It 
 D:offers see invisible and protects from paralyzation.
 
-# 69 (unused)
+
+N:69:of Nogrod
+X:15:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+W:0:15:0:5000
+C:0:0:0:2
+F:TUNNEL | SPEED | LITE
+D:Cunningly designed by the dwarves of Nogrod, this weapon will aid swift 
+D:movement underground.
 
 # 70 (unused)
 
@@ -666,7 +691,7 @@ W:0:5:0:12000
 C:-20:10:0:-4
 F:STEALTH | BRAND_FIRE | RES_FIRE | LITE | ACTIVATE
 F:IGNORE_FIRE | ACTIVATE
-D:This perilous demon's lash burns redly with the dread fires of Udun, 
+D:This perilous demon's lash burns redly with the dread fires of Utumno, 
 D:doing triple damage to all monsters not resitant to fire, and 
 D:blazing so brightly as to light your path and disturb nearby foes.
 
@@ -855,7 +880,7 @@ D:harmed by the elements.
 
 # 101 (unused)
 
-N:102:of Morgul
+N:102:of Angband
 X:0:0
 T:21:0:99
 T:22:0:99
@@ -888,7 +913,15 @@ C:5:15:0:0
 D:This missile launcher has an unnaturally high Deadliness bonus, 
 D:and sometimes energizes for additional damage.
 
-# 106 (unused)
+N:106:of Ossiriand
+X:30:3
+T:19:12:13
+W:50:4:0:20000
+C:10:10:0:0
+F:DEX | MIGHT1 | STEALTH | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
+D:A bow of the Green Elves of in the Land of the Seven Rivers.  It's wielder
+D:will find extra power in its shots, and feel nimbler and safe from prying
+D:eyes.
 
 N:107:of Extra Might
 X:20:0
@@ -1071,7 +1104,7 @@ W:0:0:0:0
 C:-5:-5:0:0
 D:This weapon has been ruined beyond redemption by fell sorceries.
 
-# Destroyed Body Armor
+# Destroyed Body Armour
 
 N:127:(Blasted)
 X:0:0

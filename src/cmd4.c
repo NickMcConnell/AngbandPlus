@@ -1071,7 +1071,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Oangband options", 2, 0);
+		prt("FAangband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -2672,8 +2672,8 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing Oangband %d.%d.%d.  Type '?' for more info.",
-		   O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
+	msg_format("You are playing FAangband %d.%d.%d.  Type '?' for more info.",
+		   VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 }
 
 

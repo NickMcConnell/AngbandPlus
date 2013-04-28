@@ -20,8 +20,8 @@ casters always have nine books, and the half-spellcasters use between four and
 six.  If a spellbook of the player's realm has no useful spells contained in it, 
 it will appear gray in listings and on the main screen.
 
-     In Oangband, it is far easier to confuse, slow, frighten, turn, or sleep 
-most monsters, and many creatures (including uniques) are now newly vulnerable.  
+     In FAangband, it is far easier than in Angband to confuse, slow, frighten,
+     turn, or sleep most monsters, and many creatures (including uniques) are vulnerable.  
 With skill and patience, you can badly hinder even formidable opponents.  On 
 the other hand, many monster races have at least one intrinsic immunity, high-
 level monsters are still very resistant, all attacks of this type are chancy, 
@@ -116,9 +116,8 @@ Nature Magics:
      Rangers use five books.
 
 Necromancy:
-          Unlike other classes, who journey deep into the dungeon to slay 
-     Morgoth and free the cosmos from darkness and fear, Necromancers and 
-     Assassins aspire to replace him with themselves.  
+          Necromancers and  Assassins dabble in evil magic, but use their 
+     knowledge to defeat the greatest of evils.
           To accomplish this mighty task, Necromancers wield unrivaled damage-
      dealing spells, with the most "bang for the buck" of any magical realm.  
      Unfortunately, their mighty attack is not matched by a strong defence; 
@@ -163,7 +162,8 @@ Necromancer:
             nearby monsters.
      Vampire-Bonuses to various stats, resist cold, hold life, see invisible, 
             regenerate, fights and uses magical devices well, and is stealthy, 
-            but is vulnerable to light and has a cap on overall light resistance,
+            but is vulnerable to light (including daylight) and has a cap on 
+	    overall light resistance,
 	    may never have temporary resistance to fire, and has a penalty to
             CHR, and never has a light radius of more than two.  The bows/throws
 	    skill penalty is much smaller than for other shapeshifts.
@@ -172,7 +172,7 @@ Item based shapeshifts:
      Lion-As with the Druid spell.
      Vampire-Like the Necromancer spell.  It is not advisable to try to turn a
             pious or nature-loving character into a Vampire.
-     Wyrm-This form is a humman-sized Dragon.  Bonuses to most stats, AC, dead-
+     Wyrm-This form is a human-sized Dragon.  Bonuses to most stats, AC, dead-
             liness and magic device skill.  Penalties to stealth, DEX and CHR.
             Depending on the item that caused the shapeshift, there may be an
             additional bonus power.

@@ -1189,7 +1189,8 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_WORD_OF_RECALL:
 		{
 #if 1
-			word_recall(rand_int(20) + 15);
+			if (!word_recall(rand_int(20) + 15))
+			  used_up = FALSE;
 #else
 			if (p_ptr->word_recall == 0)
 			{
@@ -2611,7 +2612,8 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_RECALL:
 		{
 #if 1
-			word_recall(rand_int(20) + 15);
+			if (!word_recall(rand_int(20) + 15))
+			  use_charge = FALSE;
 #else
 			if (p_ptr->word_recall == 0)
 			{
@@ -3125,21 +3127,21 @@ void do_cmd_activate(void)
 	/* Choose effect. */
 	switch (o_ptr->xtra2)
 	{
-		case ACT_GALADRIEL:
+		case ACT_GWINDOR:
 		{
-			msg_print("The phial wells with clear light...");
+			msg_print("The lantern wells with clear light...");
 			lite_area(damroll(2, 15), 3);
 			o_ptr->timeout = rand_int(10) + 10;
 			break;
 		}
-		case ACT_ELENDIL:
+		case ACT_NIMPHELOS:
 		{
-			msg_print("The star shines brightly...");
+			msg_print("The pearl shines brightly...");
 			map_area(0, 0, FALSE);
 			o_ptr->timeout = rand_int(40) + 40;
 			break;
 		}
-		case ACT_THRAIN:
+		case ACT_AVALLONE:
 		{
 			/* Hack - 'show' affected region only with
 			 * the first detect */
@@ -3166,6 +3168,14 @@ void do_cmd_activate(void)
 			msg_print("The amulet floods the area with goodness...");
 			dispel_evil(p_ptr->lev * 4);
 			o_ptr->timeout = rand_int(300) + 300;
+			break;
+		}
+		case ACT_DWARVES:
+		{
+			msg_print("The silmaril shows the Light of the Trees...");
+			wiz_lite(FALSE);
+			(void)detect_all(DUNGEON_WID, TRUE);
+			o_ptr->timeout = rand_int(200) + 200;
 			break;
 		}
 		case ACT_BOROMIR:
@@ -3396,6 +3406,15 @@ void do_cmd_activate(void)
 			o_ptr->timeout = rand_int(55) + 55;
 			break;
 		}
+		case ACT_VINYAMAR:
+		{
+			msg_print("A thrilling battle song awakes the warrior within you!");
+			(void)hp_player(10);
+			(void)set_afraid(0);
+			(void)set_hero(p_ptr->hero + randint(25) + 25);
+			o_ptr->timeout = 200;
+			break;
+		}
 		case ACT_GONDOR:
 		{
 			msg_print("Your crown glows deep blue...");
@@ -3466,13 +3485,6 @@ void do_cmd_activate(void)
 		{
 			msg_print("Your gauntlets are covered in frost...");
 			set_ele_attack(ATTACK_COLD, 50);
-			o_ptr->timeout = rand_int(50) + 100;
-			break;
-		}
-		case ACT_PAURAEGEN:
-		{
-			msg_print("Your gauntlets are covered in sparks...");
-			set_ele_attack(ATTACK_ELEC, 40);
 			o_ptr->timeout = rand_int(50) + 100;
 			break;
 		}
@@ -3640,7 +3652,8 @@ void do_cmd_activate(void)
 		{
 			msg_print("Your scythe glows soft white...");
 #if 1
-			word_recall(rand_int(20) + 15);
+			if (!word_recall(rand_int(20) + 15))
+			  break;
 #else
 			if (p_ptr->word_recall == 0)
 			{
@@ -4139,7 +4152,8 @@ void do_cmd_activate(void)
 		case ACT_RANDOM_RECALL:
 		{
 #if 1
-			word_recall(rand_int(20) + 15);
+			if(!word_recall(rand_int(20) + 15))
+			  break;
 #else
 			if (p_ptr->word_recall == 0)
 			{

@@ -395,25 +395,25 @@ static void prt_sp(void)
  */
 static void prt_depth(void)
 {
-	char depths[32];
+	char loc[32];
 
-	if (!p_ptr->depth)
-	{
-		strcpy(depths, "Town");
-	}
-	else if (depth_in_feet)
-	{
-		if (use_metric) sprintf(depths, "%d m", p_ptr->depth * 15);
-		else sprintf(depths, "%d ft", p_ptr->depth * 50);
-	}
+	int region, level;
+
+	region = stage_map[p_ptr->stage][LOCALITY];
+
+	level = stage_map[p_ptr->stage][DEPTH];
+
+	if (level)
+	  sprintf(loc, "%s %d", locality_name[region], level);
 	else
-	{
-		sprintf(depths, "Lev %d", p_ptr->depth);
-	}
+	  sprintf(loc, "%s", locality_name[region]);
+	
 
 	/* Right-Adjust the "depth", and clear old values */
-	c_prt(TERM_L_BLUE, format("%7s", depths), Term->hgt - 1, Term->wid - 8);
+	c_prt(TERM_L_BLUE, format("%19s", loc), Term->hgt - 1, Term->wid - 22);
 }
+
+
 
 
 /*
@@ -466,11 +466,11 @@ static void prt_blind(void)
 {
 	if (p_ptr->blind)
 	{
-		c_put_str(TERM_ORANGE, "Blind", Term->hgt - 1, COL_BLIND);
+		c_put_str(TERM_ORANGE, "Blnd", Term->hgt - 1, COL_BLIND);
 	}
 	else
 	{
-		put_str("     ", Term->hgt - 1, COL_BLIND);
+		put_str("    ", Term->hgt - 1, COL_BLIND);
 	}
 }
 
@@ -482,11 +482,11 @@ static void prt_confused(void)
 {
 	if (p_ptr->confused)
 	{
-		c_put_str(TERM_ORANGE, "Confused", Term->hgt - 1, COL_CONFUSED);
+		c_put_str(TERM_ORANGE, "Cnf", Term->hgt - 1, COL_CONFUSED);
 	}
 	else
 	{
-		put_str("        ", Term->hgt - 1, COL_CONFUSED);
+		put_str("   ", Term->hgt - 1, COL_CONFUSED);
 	}
 }
 
@@ -514,11 +514,11 @@ static void prt_poisoned(void)
 {
 	if (p_ptr->poisoned)
 	{
-		c_put_str(TERM_ORANGE, "Poisoned", Term->hgt - 1, COL_POISONED);
+		c_put_str(TERM_ORANGE, "Psn", Term->hgt - 1, COL_POISONED);
 	}
 	else
 	{
-		put_str("        ", Term->hgt - 1, COL_POISONED);
+		put_str("   ", Term->hgt - 1, COL_POISONED);
 	}
 }
 
@@ -657,18 +657,18 @@ static void prt_speed(void)
 	if (i > 110)
 	{
 		attr = TERM_L_GREEN;
-		sprintf(buf, "Fast (+%d)", (i - 110));
+		sprintf(buf, "Fast +%d", (i - 110));
 	}
 
 	/* Slow */
 	else if (i < 110)
 	{
 		attr = TERM_L_UMBER;
-		sprintf(buf, "Slow (-%d)", (110 - i));
+		sprintf(buf, "Slow -%d", (110 - i));
 	}
 
 	/* Display the speed */
-	c_put_str((byte)attr, format("%-11s", buf), Term->hgt - 1, COL_SPEED);
+	c_put_str((byte)attr, format("%-9s", buf), Term->hgt - 1, COL_SPEED);
 }
 
 
@@ -1936,10 +1936,12 @@ static void calc_spells(void)
 static void calc_specialty(void)
 {
 	int i;
-	int num_known;
+	int num_known, questortwo = 2;
 
 	/* Calculate number allowed */
-        p_ptr->specialties_allowed = 1 + (p_ptr->lev / 20);
+	if (p_ptr->quests < 2)   /* -NRM- */
+	  questortwo = p_ptr->quests;
+        p_ptr->specialties_allowed = 1 + questortwo;
         if (check_ability(SP_XTRA_SPECIALTY)) p_ptr->specialties_allowed++;
         if (p_ptr->specialties_allowed > MAX_SPECIALTIES) p_ptr->specialties_allowed = MAX_SPECIALTIES;
 

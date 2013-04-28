@@ -67,26 +67,26 @@ HAVE_LIB = @HAVE_LIB@
 LIB = @LIB@
 LTLIB = @LTLIB@
 MAKEINFO = @MAKEINFO@
-OANGBAND_OBJS = @OANGBAND_OBJS@
+FAANGBAND_OBJS = @FAANGBAND_OBJS@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 
-bin_PROGRAMS = oangband
+bin_PROGRAMS = faangband
 
 WRES = windres
 
 SUFFIXES = .rc
 
-oangband_SOURCES =    z-util.c z-virt.c z-form.c z-rand.c z-term.c   variable.c tables.c util.c cave.c   object1.c object2.c monster1.c monster2.c   xtra1.c xtra2.c spells1.c spells2.c   monmove.c monattk.c save.c files.c   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c   store.c birth.c load1.c load2.c   wizard1.c wizard2.c   main-cap.c main-gcu.c main-x11.c main-xaw.c main.c   main-win.c   generate.c dungeon.c init1.c init2.c randart.c   squelch.c info.c attack.c   angband.h config.h defines.h externs.h h-basic.h   h-config.h h-define.h h-system.h h-type.h init.h   types.h z-form.h z-rand.h z-term.h z-util.h   z-virt.h main.h 
+faangband_SOURCES =    z-util.c z-virt.c z-form.c z-rand.c z-term.c   variable.c tables.c util.c cave.c   object1.c object2.c monster1.c monster2.c   xtra1.c xtra2.c spells1.c spells2.c   monmove.c monattk.c save.c files.c   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c   store.c birth.c load1.c load2.c   wizard1.c wizard2.c   main-cap.c main-gcu.c main-x11.c main-xaw.c main.c   main-win.c   generate.c dungeon.c init1.c init2.c randart.c   squelch.c info.c attack.c   angband.h config.h defines.h externs.h h-basic.h   h-config.h h-define.h h-system.h h-type.h init.h   types.h z-form.h z-rand.h z-term.h z-util.h   z-virt.h main.h 
 
 
-EXTRA_oangband_SOURCES =    main-ros.c main-ami.c main-dos.c main-emx.c   main-ibm.c main-lsl.c main-mac.c main-sla.c main-vme.c   main-xxx.c main-crb.c   Makefile.ros Makefile.ami Makefile.bcc Makefile.cyg   Makefile.dos Makefile.emx Makefile.gtk Makefile.ibm   Makefile.lcc Makefile.lsl Makefile.std Makefile.wat   Makefile.win Makefile.mpw Makefile.osx   angband.rc angband.ico readdib.c readdib.h   maid-x11.c maid-x11.h 
+EXTRA_faangband_SOURCES =    main-ros.c main-ami.c main-dos.c main-emx.c   main-ibm.c main-lsl.c main-mac.c main-sla.c main-vme.c   main-xxx.c main-crb.c   Makefile.ros Makefile.ami Makefile.bcc Makefile.cyg   Makefile.dos Makefile.emx Makefile.gtk Makefile.ibm   Makefile.lcc Makefile.lsl Makefile.std Makefile.wat   Makefile.win Makefile.mpw Makefile.osx   angband.rc angband.ico readdib.c readdib.h   maid-x11.c maid-x11.h 
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = autoconf.h
 CONFIG_CLEAN_FILES = 
-bin_PROGRAMS =  oangband$(EXEEXT)
+bin_PROGRAMS =  faangband$(EXEEXT)
 PROGRAMS =  $(bin_PROGRAMS)
 
 
@@ -98,16 +98,16 @@ X_CFLAGS = @X_CFLAGS@
 X_LIBS = @X_LIBS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_PRE_LIBS = @X_PRE_LIBS@
-oangband_OBJECTS =  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
+faangband_OBJECTS =  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
 variable.o tables.o util.o cave.o object1.o object2.o monster1.o \
 monster2.o xtra1.o xtra2.o spells1.o spells2.o monmove.o monattk.o \
 save.o files.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o store.o \
 birth.o load1.o load2.o wizard1.o wizard2.o main-cap.o main-gcu.o \
 main-x11.o main-xaw.o main.o main-win.o generate.o dungeon.o init1.o \
 init2.o randart.o squelch.o info.o attack.o
-oangband_LDADD = $(LDADD)
-oangband_DEPENDENCIES = 
-oangband_LDFLAGS = 
+faangband_LDADD = $(LDADD)
+faangband_DEPENDENCIES = 
+faangband_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -134,8 +134,8 @@ DEP_FILES =  .deps/attack.P .deps/birth.P .deps/cave.P .deps/cmd1.P \
 .deps/util.P .deps/variable.P .deps/wizard1.P .deps/wizard2.P \
 .deps/xtra1.P .deps/xtra2.P .deps/z-form.P .deps/z-rand.P \
 .deps/z-term.P .deps/z-util.P .deps/z-virt.P
-SOURCES = $(oangband_SOURCES) $(EXTRA_oangband_SOURCES)
-OBJECTS = $(oangband_OBJECTS)
+SOURCES = $(faangband_SOURCES) $(EXTRA_faangband_SOURCES)
+OBJECTS = $(faangband_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -217,9 +217,9 @@ distclean-compile:
 
 maintainer-clean-compile:
 
-oangband$(EXEEXT): $(oangband_OBJECTS) $(oangband_DEPENDENCIES)
-	@rm -f oangband$(EXEEXT)
-	$(LINK) $(oangband_LDFLAGS) $(oangband_OBJECTS) $(oangband_LDADD) $(LIBS)
+faangband$(EXEEXT): $(faangband_OBJECTS) $(faangband_DEPENDENCIES)
+	@rm -f faangband$(EXEEXT)
+	$(LINK) $(faangband_LDFLAGS) $(faangband_OBJECTS) $(faangband_LDADD) $(LIBS)
 
 tags: TAGS
 
@@ -386,8 +386,8 @@ angband.res: angband.rc
 	$(WRES) $< -O coff -o $@
 
 install-exec-hook:
-@SET_GID_TRUE@	chgrp "@GAMEGROUP@" "$(DESTDIR)$(bindir)/oangband"
-@SET_GID_TRUE@	chmod g+s "$(DESTDIR)$(bindir)/oangband"
+@SET_GID_TRUE@	chgrp "@GAMEGROUP@" "$(DESTDIR)$(bindir)/faangband"
+@SET_GID_TRUE@	chmod g+s "$(DESTDIR)$(bindir)/faangband"
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -206,6 +206,10 @@ C:1:z
 A:z
 C:1:a
 
+# Move house (Buy a new house...)
+A:H
+C:1:$
+
 # Hack -- Commit suicide
 A:Q
 C:1:^C

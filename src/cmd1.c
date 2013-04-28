@@ -45,7 +45,8 @@ void search(void)
 			if (rand_int(100) < chance)
 			{
 				/* Invisible trap */
-				if (cave_feat[y][x] == FEAT_INVIS)
+				if ((cave_feat[y][x] == FEAT_INVIS) ||
+				    (cave_feat[y][x] == FEAT_GRASS_INVIS))
 				{
 					/* Pick a trap */
 					pick_trap(y, x);
@@ -627,6 +628,8 @@ void hit_trap(int y, int x)
 			}
 
 			/* New depth */
+			p_ptr->last_stage = p_ptr->stage;
+			p_ptr->stage++;
 			p_ptr->depth++;
 
 			/* Leaving */
@@ -1830,7 +1833,8 @@ void move_player(int dir, int do_pickup)
 				}
 
 				/* Discover invisible traps */
-				else if (cave_feat[y][x] == FEAT_INVIS)
+				else if ((cave_feat[y][x] == FEAT_INVIS) ||
+					 (cave_feat[y][x] == FEAT_GRASS_INVIS))
 				{
 					/* Disturb */
 					disturb(0, 0);
@@ -2273,6 +2277,7 @@ static bool run_test(void)
 
 				/* Invis traps */
 				case FEAT_INVIS:
+			        case FEAT_GRASS_INVIS:
 
 				/* Secret doors */
 				case FEAT_SECRET:
@@ -2289,6 +2294,7 @@ static bool run_test(void)
 				case FEAT_LAVA:
 				case FEAT_WATER:
 				case FEAT_TREE:
+			        case FEAT_GRASS:
 				{
 					/* Ignore */
 					notice = FALSE;

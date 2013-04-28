@@ -718,6 +718,8 @@ void teleport_player_to(int ny, int nx, bool friendly)
  */
 void teleport_player_level(bool friendly)
 {
+        int poss; 
+
 	/* Check for specialty resistance on hostile teleports */
 	if ((friendly == FALSE) && (check_ability(SP_PHASEWALK)))
 	{
@@ -727,7 +729,7 @@ void teleport_player_level(bool friendly)
 
 	if (!p_ptr->depth)
 	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
+		message(MSG_TPSTAGE, 0, "You fly through the air.");
 
 		/* New depth */
 		p_ptr->depth++;
@@ -736,9 +738,12 @@ void teleport_player_level(bool friendly)
 		p_ptr->leaving = TRUE;
 	}
 
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (is_quest(p_ptr->stage) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+		message(MSG_TPSTAGE, 0, "You rise up through the ceiling.");
+
+		/* New stage */
+		p_ptr->stage--;
 
 		/* New depth */
 		p_ptr->depth--;
@@ -747,27 +752,56 @@ void teleport_player_level(bool friendly)
 		p_ptr->leaving = TRUE;
 	}
 
-	else if (rand_int(100) < 50)
-	{
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+	else if (stage_map[p_ptr->stage][STAGE_TYPE] >= CAVE)
+	  {
+
+	    if (rand_int(100) < 50)
+	      {
+		message(MSG_TPSTAGE, 0, "You rise up through the ceiling.");
+		
+		/* New stage */
+		p_ptr->stage--;
 
 		/* New depth */
 		p_ptr->depth--;
-
+		
 		/* Leaving */
 		p_ptr->leaving = TRUE;
-	}
+	      }
+	    
+	    else
+	      {
+		message(MSG_TPSTAGE, 0, "You sink through the floor.");
+		
+		/* New stage */
+		p_ptr->stage++;
+
+		/* New depth */
+		p_ptr->depth++;
+		
+		/* Leaving */
+		p_ptr->leaving = TRUE;
+	      }
+	  }
 
 	else
-	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
-
-		/* New depth */
-		p_ptr->depth++;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
+	  {
+	    message(MSG_TPSTAGE, 0, "You fly through the air.");
+	    
+	    poss = rand_int(4) + 2;
+	    while (stage_map[p_ptr->stage][poss] == NOWHERE)
+	      poss = rand_int(4) + 2;
+	    
+	    /* New stage */
+	    p_ptr->stage = stage_map[p_ptr->stage][poss];
+	    
+	    /* New depth */
+	    stage_map[p_ptr->stage][DEPTH];
+		
+	    /* Leaving */
+	    p_ptr->leaving = TRUE;
+	  }
+	    
 
 	/* Sound */
 	sound(SOUND_TPLEVEL);
@@ -2280,6 +2314,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		{
 			/* Destroy traps */
 			if ((cave_feat[y][x] == FEAT_INVIS) ||
+			    (cave_feat[y][x] == FEAT_GRASS_INVIS) ||
 			    ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
 			     (cave_feat[y][x] <= FEAT_TRAP_TAIL)))
 			{

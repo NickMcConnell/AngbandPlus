@@ -2,7 +2,7 @@
 ============================== Option Descriptions =============================
 
 This file describes the options available through the "=" command.  They help
-customize your Oangband experience, so be sure to select those you like.
+customize your FAangband experience, so be sure to select those you like.
 
 Options you may want to change to your preferences include:
 
@@ -448,7 +448,7 @@ point ("!") will delete all items marked "SQUELCH" in your inventory
 and at your current location on the map.  The "SQUELCH" inscribtion
 can be removed normally from any objects you wish not to destroy.
 
-Oangband supports two types of item squelching:
+FAangband supports two types of item squelching:
 
 The main autosquelch screen allows you to select known item types
 through menus.  For example, if you choose to squelch "Amulets of
@@ -472,6 +472,6 @@ The "delay_factor" value, if non-zero, will slow down the visual effects used
 for missile, bolt, beam, and ball attacks.  The actual time delay is equal to
 "delay_factor" squared, in milliseconds.
 
-You may set Oangband to save your character every so often by using the auto-
+You may set FAangband to save your character every so often by using the auto-
 save option.  Set the option itself to "yes" and tweak the timer until you are 
 satisfied.

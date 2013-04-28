@@ -5,8 +5,8 @@
 equipment, and all benefit greatly from various qualities that your equipped 
 items may possess.  Defence is similarly equipment-dependent.
 
-     This file explains every attribute of any wearable item you might encounter 
-in your adventures.  Some of the special attributes are quite rare.
+     This file explains every attribute of any wearable item you might 
+encounter in your adventures.  Some of the special attributes are quite rare.
 
 
 
@@ -70,24 +70,24 @@ Tunnelling:
 All special digging tools have a bonus to tunnelling.
 
 Speed:
-     Boots, rings, and weapons that hasten you are rare and powerful, for a fast 
-player can perform several actions in the time it used to take to do just one.
-Players moving at speed -10 are half as fast as normal, at +10 are twice as fast 
-as normal, and at +20 are three times as fast as normal.  The maximum useful 
-speed is (roughly) +40.
+     Boots, rings, and weapons that hasten you are rare and powerful, for a 
+fast player can perform several actions in the time it used to take to do just 
+one.  Players moving at speed -10 are half as fast as normal, at +10 are twice 
+as fast as normal, and at +20 are three times as fast as normal.  The maximum 
+useful speed is (roughly) +40.
 
 --- Missile Weapon Qualities ---
 
 Extra Might:
      Rare missile launchers have a greater than normal missile damage multi-
-plier.  For example: a "Sling of Extra Might (x3)" multiplies damage, not by two 
-like lesser slings, but by three.  The true missile weapon multiplier is never 
-known for sure until the object is identified.
+plier.  For example: a "Sling of Extra Might (x3)" multiplies damage, not by 
+two like lesser slings, but by three.  The true missile weapon multiplier is 
+never known for sure until the object is identified.
 
 Extra Shots:
      Rare missile launchers may allow the player to shoot more quickly than 
-normal.  Each shot takes a fraction of a turn, making your target appear to move 
-in slow motion.  Some classes get innate extra shots.
+normal.  Each shot takes a fraction of a turn, making your target appear to 
+move in slow motion.  Some classes get innate extra shots.
 
 
 --- Melee Weapon and Missile Ammunition Qualities ---
@@ -96,12 +96,13 @@ Note:  Only the largest applicable multiplier is used.
 
 Slay Animals:
      Multiplies the number of damage dice rolled by 1.7 against natural 
-creatures.  For example, a Broadsword of Slay Animal would normally roll 2 dice, 
-but 3.4 against animals.  The ".4" is significant.  Rare weapons of *Slay 
-Animal* multiply the number of dice rolled by 2.
+creatures.  For example, a Broadsword of Slay Animal would normally roll 2 
+dice, but 3.4 against animals.  The ".4" is significant.  Rare weapons of 
+*Slay Animal* multiply the number of dice rolled by 2.
 
 Slay Evil:
-     Multiplies the number of damage dice rolled by 1.5 against evil creatures.  
+     Multiplies the number of damage dice rolled by 1.5 against evil 
+creatures.  
 (exception:  *Slay Evil* weapons multiply the dice by 1.7).
 
 Slay Undead:
@@ -150,14 +151,15 @@ who do not resist frost.
 
 
 Perfect Balance:
-     This weapon can be thrown with unusual force, doubling the number of damage 
-dice rolled should it hit.  This bonus is cumulative with slays or brands.
+     This weapon can be thrown with unusual force, doubling the number of 
+damage dice rolled should it hit.  This bonus is cumulative with slays or 
+brands.
 
 Earthquake:
      Rarely, a weapon will possess the earthquake brand.  Every time you hit a 
-monster for large amounts of damage using one of these, the walls and floors of 
-the immediate neighborhood are rearranged.  This can put a wall between you and 
-nasty breathers, but most people find this quality to be really annoying.
+monster for large amounts of damage using one of these, the walls and floors 
+of the immediate neighborhood are rearranged.  This can put a wall between you 
+and nasty breathers, but most people find this quality to be really annoying.
 
 Two-handed Wield Required:
      Glaives, Halberds, and Quarterstaffs require two hands to wield.
@@ -246,12 +248,13 @@ Resist Shards:
 by shards.
 
 Resist Nexus:
-     The damage you take from nexus attacks is reduced.  You cannot be randomly 
-teleported by nexus, and will sometimes resist being warped around by gravity.
+     The damage you take from nexus attacks is reduced.  You cannot be 
+randomly teleported by nexus, and will sometimes resist being warped around by 
+gravity.
 
 Resist Nether:
-     The damage you take from nether is reduced.  You cannot lose experience to 
-nether.
+     The damage you take from nether is reduced.  You cannot lose experience 
+to nether.
 
 Resist Chaos:
      The damage you take from chaos is reduced, and you are immune to all the 
@@ -296,8 +299,8 @@ and mana 3/2rds as quickly.  They also need to eat more.
 
 Telepathy (ESP):
      It is not easy to acquire this, but players who do can see smart monsters 
-nearby.  Stupid monsters never appear, and "kind of smart" monsters only appear 
-occasionally.
+nearby.  Stupid monsters never appear, and "kind of smart" monsters only 
+appear occasionally.
 
 See Invisible:
      Allows you to see and target monsters invisible to ordinary sight.
@@ -314,18 +317,18 @@ Such attacks will either have no effect, or drain much less exp.
 --- Curses and other Nastiness ---
 
 Random Teleportation:
-     Some foul rings, amulets, and boots randomly take control of your movement 
-and whisk you around the dungeon. 
+     Some foul rings, amulets, and boots randomly take control of your 
+movement and whisk you around the dungeon. 
 
 Aggravate:
-     Aggravation effectively reduces your stealth to nil, immediately waking up 
-all monsters nearby. Some rings and amulets possess curses that aggravate, and 
-some weapons and armours are so powerful that no creature can ignore them.
+     Aggravation effectively reduces your stealth to nil, immediately waking 
+up all monsters nearby. Some rings and amulets possess curses that aggravate, 
+and some weapons and armours are so powerful that no creature can ignore them.
 
 Drain Exp:
-     Objects that drain experience are perilous, because they slowly but surely 
-erase your accumulated memories.  Of course, you can keep killing monsters to 
-replace the experience which you lose.
+     Objects that drain experience are perilous, because they slowly but 
+surely erase your accumulated memories.  Of course, you can keep killing 
+monsters to replace the experience which you lose.
 
 Light (Normal) Curse:
      Many objects have light curses.  If you should wear or wield one, read a 
@@ -336,15 +339,14 @@ Heavy Curse:
 of Remove Cure fails, find and read one of *Remove Curse*.
 
 Permanent Curse:
-     There is exactly one object, seen by perhaps one character in a thousand, 
-that can never be removed once put on.
+     There is exactly one object that can never be removed once put on.
 
 
 --- Ego-Weapons and Armours ---
 
      Some rare weapons and armours have special abilities.  These are called 
-ego items, and are feared by great and meek.  Ego-item information is no longer 
-provided in the standard Oangband help files, because you can 'I'nspect any 
+ego items, and are feared by great and meek.  Ego-item information is not 
+provided in the standard FAangband help files, because you can 'I'nspect any 
 normally identified ego-item to learn everything about it.
 
 --- Dragon Scale Mails ---
@@ -356,10 +358,10 @@ you have heightened abilities and can occasionally breathe as a dragon would!
 
 --- Artifacts ---
 
-     There are rumors of incredibly rare "artifact" armours which are even more 
-powerful than ego armour.  Some artifact are standard, and you may already know 
-of their fame, while others will certainly be unfamiliar to you and will need to 
-be fully identified (*identified*).
+     There are rumors of incredibly rare "artifact" armours which are even 
+more powerful than ego armour.  Some artifact are standard, and you may 
+already know of their fame, while others will certainly be unfamiliar to you 
+and will need to be fully identified (*identified*).
 
      In addition, a small number of artifacts, known as Set Items are designed
 to be used in conjunction with related items.  Equipping an entire set of these

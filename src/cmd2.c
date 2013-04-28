@@ -2,7 +2,7 @@
 
 /* Going up and down stairs, items that a chest may contain, opening 
  * chests, tunnelling, disarming, opening doors, alter adjacent grid, 
- * spiking, starting various movement and resting routines.
+ * spiking, starting various movement and resting routines, moving house.
  * 
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
@@ -13,23 +13,78 @@
 
 #include "angband.h"
 
+/* 
+ * Move house to the current town
+ */
+
+void do_cmd_move_house(void)
+{
+        char answer;
+
+	cptr town = locality_name[stage_map[p_ptr->stage][LOCALITY]];
+
+        if (!p_ptr->depth)
+	  {
+	    /* Already home */
+	    if (p_ptr->stage == p_ptr->home)
+	      {
+		msg_print("You already live here!");
+		flush();
+		return;
+	      }
+	    msg_format("Do you really want to move to %s? (y/n)", town);
+	    answer = inkey();
+	    if ((answer != 'Y') && (answer != 'y')) 
+	      {
+		/* Flush messages */
+		flush();
+		return;
+	      }
+	    p_ptr->home = p_ptr->stage;
+	    msg_print("Your home will be here when you return.");
+	  }
+	else
+	  msg_print("You can only move to another town!");
+
+	/* Flush messages */
+	flush();
+    
+	return;
+}
+
 
 /*
- * Go up one level
+ * Go to less danger
  */
 void do_cmd_go_up(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	byte pstair = cave_feat[py][px];
+
 	char answer;
 
-	/* Verify stairs */
-	if (cave_feat[py][px] != FEAT_LESS)
-	{
+	/* Check for paths first  */
+	if (pstair >= FEAT_LESS_NORTH)
+	  {
+	    /* Even for < */
+	    if (pstair & 0x01)
+	      {
+		msg_print("This is a path to greater danger.");
+		return;
+	      }
+	  }
+	else
+	  {
+	    
+	    /* Verify stairs */
+	    if (pstair != FEAT_LESS)
+	      {
 		msg_print("I see no up staircase here.");
 		return;
-	}
+	      }
+	  }
 
 	/* Make certain the player really wants to leave a themed level. -LM- */
 	if (p_ptr->themed_level)
@@ -44,14 +99,37 @@ void do_cmd_go_up(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
+	if (pstair == FEAT_LESS)
+	  {
+	     /* stairs */
+	     message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
+	    
+	     /* make the way back */
+	     p_ptr->create_stair = FEAT_MORE;
+	  }
+	else
+	  {
+            /* path */
+	    message(MSG_STAIRS, 0, "You enter a winding path to less danger.");
 
-	/* Create a way back */
-	p_ptr->create_down_stair = TRUE;
+	    /* make the way back */
+	    p_ptr->create_stair = pstair ^ 0x05;
+	  }
 
-	/* New depth */
-	p_ptr->depth--;
+	/* Remember where we came from */
+	p_ptr->last_stage = p_ptr->stage;
 
+	/* New stage (really need a check here...) */
+	if (pstair >= FEAT_LESS_NORTH)
+	  p_ptr->stage = stage_map[p_ptr->stage][2 + (pstair - FEAT_LESS_NORTH)/2];
+	else
+	  p_ptr->stage = stage_map[p_ptr->stage][UP];
+
+	/* Record the non-obvious exit coordinate */
+	if (pstair & 0x02)
+	  p_ptr->path_coord = py;
+	else
+	  p_ptr->path_coord = px;
 
 	/* Use the "simple" RNG to insure that stairs are consistant. */
 	Rand_quick = TRUE;
@@ -59,20 +137,25 @@ void do_cmd_go_up(void)
 	/* Use the coordinates of the staircase to seed the RNG. */
 	Rand_value = py * px;
 
-	/* If the new level is not a quest level, or the town, there is a 33% 
-	 * chance of going up another level. -LM-
+	/* If the new level is not a quest level, or the town, or wilderness
+         * there is a 33% chance of going up another level. -LM- -NRM-
 	 */
-	if ((is_quest(p_ptr->depth) == FALSE) && 
-		(p_ptr->depth != 0) && (randint(3) == 1))
+	if ((is_quest(p_ptr->stage) == FALSE) && (stage_map[p_ptr->stage][6])
+		&& (stage_map[p_ptr->stage][1] != 0) && (randint(3) == 1)
+	        && (pstair == FEAT_LESS))
 	{
 		msg_print("The stairs continue up.  Go up another level? (y/n)");
 
 		answer = inkey();
-		if ((answer == 'Y') || (answer == 'y')) p_ptr->depth--;
+		if ((answer == 'Y') || (answer == 'y')) 
+		  p_ptr->stage = stage_map[p_ptr->stage][UP];
 	}
 
 	/* Revert to use of the "complex" RNG. */
 	Rand_quick = FALSE;
+
+	/* Set the depth */
+	p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -80,21 +163,37 @@ void do_cmd_go_up(void)
 
 
 /*
- * Go down one level
+ * Go to greater danger
  */
 void do_cmd_go_down(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	byte pstair = cave_feat[py][px];
+
 	char answer;
 
-	/* Verify stairs */
-	if (cave_feat[py][px] != FEAT_MORE)
-	{
+	/* Check for paths first  */
+	if (pstair >= FEAT_LESS_NORTH)
+	  {
+	    /* Odd for > */
+	    if (!(pstair & 0x01))
+	      {
+		msg_print("This is a path to less danger.");
+		return;
+	      }
+	  }
+	else
+	  {
+	    
+	    /* Verify stairs */
+	    if (pstair != FEAT_MORE)
+	      {
 		msg_print("I see no down staircase here.");
 		return;
-	}
+	      }
+	  }
 
 	/* Make certain the player really wants to leave a themed level. -LM- */
 	if (p_ptr->themed_level)
@@ -109,13 +208,38 @@ void do_cmd_go_down(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
+	if (pstair == FEAT_MORE)
+	  {
+	    /* stairs */
+	    message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
+	    
+	    /* make the way back */
+	    p_ptr->create_stair = FEAT_LESS;
+	  }
+	else
+	  {
+	    /* path */
+	    message(MSG_STAIRS, 0, "You enter a winding path to greater danger.");
+	    
+	    /* make the way back */
+	    p_ptr->create_stair = pstair ^ 0x05;
+	  }
 
-	/* Create a way back */
-	p_ptr->create_up_stair = TRUE;
+	/* Remember where we came from */
+	p_ptr->last_stage = p_ptr->stage;
 
-	/* New level */
-	p_ptr->depth++;
+	/* New stage (really need a check here...) */
+	if (pstair >= FEAT_LESS_NORTH)
+	  p_ptr->stage = stage_map[p_ptr->stage][2 + (pstair - FEAT_MORE_NORTH)/2];
+	else
+	  p_ptr->stage = stage_map[p_ptr->stage][DOWN];
+
+
+	/* Record the non-obvious exit coordinate */
+	if (pstair & 0x02)
+	  p_ptr->path_coord = py;
+	else
+	  p_ptr->path_coord = px;
 
 
 	/* Use the "simple" RNG to insure that stairs are consistant. */
@@ -124,23 +248,27 @@ void do_cmd_go_down(void)
 	/* Use the coordinates of the staircase to seed the RNG. */
 	Rand_value = py * px;
 
-	/* If the new level is not a quest level, or the bottom of the dungeon, 
+	/* If the new level is not a quest level, or the bottom of the dungeon,
 	 * there is a 50% chance of descending another level. -LM-
 	 */
-	if ((is_quest(p_ptr->depth) == FALSE) && (p_ptr->depth < MAX_DEPTH -1) && 
-		(randint(2) == 1))
+	if ((is_quest(p_ptr->stage) == FALSE) && (stage_map[p_ptr->stage][DOWN])
+                && (randint(2) == 1) && (pstair == FEAT_MORE))
 	{
 		msg_print("The stairs continue down.  Go down another level? (y/n)");
 
 		answer = inkey();
-		if ((answer == 'Y') || (answer == 'y')) p_ptr->depth++;
+		if ((answer == 'Y') || (answer == 'y')) p_ptr->stage++;
 	}
 
 	/* Revert to use of the "complex" RNG. */
 	Rand_quick = FALSE;
 
+	/* Set the depth */
+	p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
+
 }
 
 

@@ -1165,17 +1165,21 @@ cptr item_activation(object_type *o_ptr)
 	/* Some objects and artifacts can be activated */
 	switch (o_ptr->xtra2)
 	{
-		case ACT_GALADRIEL:
+		case ACT_GWINDOR:
 		{
 			return "illumination (2d15 damage) every 10+d10 turns";
 		}
-		case ACT_ELENDIL:
+		case ACT_NIMPHELOS:
 		{
 			return "magic mapping every 40+d40 turns";
 		}
-		case ACT_THRAIN:
+		case ACT_AVALLONE:
 		{
 			return "clairvoyance every 120+d120 turns";
+		}
+		case ACT_DWARVES:
+		{
+			return "level clairvoyance every 200+d200 turns";
 		}
 		case ACT_CARLAMMAS:
 		{
@@ -1261,6 +1265,10 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "detection every 55+d55 turns";
 		}
+		case ACT_VINYAMAR:
+		{
+			return "heroism every 200 turns";
+		}
 		case ACT_GONDOR:
 		{
 			return "heal (500) every 500 turns";
@@ -1296,10 +1304,6 @@ cptr item_activation(object_type *o_ptr)
 		case ACT_PAURNIMMEN:
 		{
 			return "add cold damage to your melee attacks (50 turns) every 100+d50 turns";
-		}
-		case ACT_PAURAEGEN:
-		{
-			return "add lightning damage to your melee attacks (40 turns) every 100+d50 turns";
 		}
 		case ACT_PAURNEN:
 		{

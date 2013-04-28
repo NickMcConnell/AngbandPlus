@@ -2840,6 +2840,7 @@ void update_view(void)
 	int i, g, o2;
 
 	int radius;
+	bool daytime;
 
 	int fast_view_n = view_n;
 	u16b *fast_view_g = view_g;
@@ -2883,8 +2884,22 @@ void update_view(void)
 	/* Reset the "view" array */
 	fast_view_n = 0;
 
+	/* Day or night? */
+	if (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
+	  
+	  /* Day time */
+	  daytime = TRUE;
+
+	else
+	
+	  /* Night time */
+	  daytime = FALSE;
+
 	/* Extract "radius" value */
-	radius = p_ptr->cur_lite;
+	if (daytime && (stage_map[p_ptr->stage][STAGE_TYPE]) < CAVE)
+	  radius = DUNGEON_WID;
+	else
+	  radius = p_ptr->cur_lite;
 
 	/* Handle real light */
 	if (radius > 0) ++radius;
@@ -3894,6 +3909,68 @@ void town_illuminate(bool daytime)
 	p_ptr->window |= (PW_OVERHEAD);
 }
 
+/*
+ * Light or Darken the a wilderness stage -NRM-
+ */
+void stage_illuminate(bool daytime)
+{
+	int y, x, i;
+
+
+	/* Apply light or darkness */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Visible grids (light) */
+			if (daytime)
+			{
+			        if (!los(p_ptr->py, p_ptr->px, y, x))
+				  {
+				    /* Darken grid */
+				    cave_info[y][x] &= ~(CAVE_GLOW);
+				  }
+
+				else
+				  {
+				    /* Illuminate the grid */
+				    cave_info[y][x] |= (CAVE_GLOW);
+
+				    /* Hack -- Memorize grids */
+				    if (view_perma_grids)
+				      {
+					cave_info[y][x] |= (CAVE_MARK);
+				      }
+				  }
+			}
+
+			/* All grids (dark) */
+			else
+			{
+				/* Darken the grid */
+				cave_info[y][x] &= ~(CAVE_GLOW);
+
+				/* Hack -- Forget grids */
+				if (view_perma_grids)
+				{
+					cave_info[y][x] &= ~(CAVE_MARK);
+				}
+			}
+		}
+	}
+
+
+
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+}
+
 
 
 /*
@@ -4432,18 +4509,15 @@ void disturb(int stop_search, int unused_flag)
 /*
  * Hack -- Check if a level is a "quest" level
  */
-bool is_quest(int level)
+bool is_quest(int stage)
 {
 	int i;
-
-	/* Town is never a quest */
-	if (!level) return (FALSE);
 
 	/* Check quests */
 	for (i = 0; i < MAX_Q_IDX; i++)
 	{
 		/* Check for quest */
-		if (q_list[i].level == level) return (TRUE);
+		if (q_list[i].stage == stage) return (TRUE);
 	}
 
 	/* Nope */

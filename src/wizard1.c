@@ -997,8 +997,8 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Oangband Version %d.%d.%d",
-		O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
+	sprintf(buf, "Artifact Spoilers for FAangband Version %d.%d.%d",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
 }
 
@@ -1266,8 +1266,8 @@ static void spoil_obj_gen(cptr fname)
 
 
 
-	fprintf(fff, "Object Generation Spoiler for Oangband Version %d.%d.%d\n",
-		O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
+	fprintf(fff, "Object Generation Spoiler for FAangband Version %d.%d.%d\n",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Clear storage. */
 	for (i = 0; i < MAX_K_IDX; i++)
@@ -1407,8 +1407,8 @@ static void spoil_mon_gen(cptr fname)
 		return;
 	}
 
-	fprintf(fff, "Monster Generation Spoiler for Oangband Version %d.%d.%d\n",
-		O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
+	fprintf(fff, "Monster Generation Spoiler for FAangband Version %d.%d.%d\n",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Clear storage. */
 	for (i = 0; i < MAX_R_IDX; i++)
@@ -1641,8 +1641,8 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Oangband Version %d.%d.%d\n",
-		O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
+	fprintf(fff, "Monster Spoilers for FAangband Version %d.%d.%d\n",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -1872,8 +1872,8 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Oangband Version %d.%d.%d\n",
-		O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
+	sprintf(buf, "Monster Spoilers for FAangband Version %d.%d.%d\n",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
@@ -2353,7 +2353,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags7 & (RF7_S_HI_DEMON))	vp[vn++] = "summon Greater Demons";
 		if (flags7 & (RF7_S_UNDEAD))		vp[vn++] = "summon an undead";
 		if (flags7 & (RF7_S_HI_UNDEAD))	vp[vn++] = "summon Greater Undead";
-		if (flags7 & (RF7_S_WRAITH))		vp[vn++] = "summon the Ringwraiths";
+		if (flags7 & (RF7_S_QUEST))		vp[vn++] = "summon the Quest monsters";
 		if (flags7 & (RF7_S_UNIQUE))		vp[vn++] = "summon Unique Monsters";
 
 		if (vn)
