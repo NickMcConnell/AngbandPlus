@@ -36,11 +36,36 @@
 #F:52:1/35
 #F:53:1/35
 
+%:colors.prf
 
 # Command macro -- "X" will now "swap weapons" as long as both weapons
 # contain the inscription "@0".  For example, inscribe your main weapon
 # as "@1@0" and your digger (or secondary weapon) as "@2@0".
 
 A:w0
+C:x
+
+A:w1
 C:X
 
+# Look Around
+A:L
+C:W
+
+# Kill on Ground
+A:k-
+C:K
+
+# Count to #
+A:0
+C:#
+
+# Activate Light Source
+A:Af
+P:^v
+
+# Fire ammo #2 at nearest target
+# [remember to remove, or change, this one if you're running a Linux system
+#  and you need the ` key to act as ESC]
+A:\e\e\e*tf2
+P:`

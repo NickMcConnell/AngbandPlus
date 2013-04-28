@@ -227,6 +227,10 @@ bool track_target;			/* Monsters target the player */
 bool smart_learn;			/* Monsters learn from their mistakes */
 bool smart_cheat;			/* Monsters exploit player weaknesses */
 
+/* Options added by Gumby */
+bool show_damage;	/* Show damage dealt by player */
+bool filter_ident;	/* Show only unidentified items for Identify effects */
+bool auto_destroy;	/* Known worthless items are destroyed without confirmation */
 
 /* Option Set 4 -- Efficiency */
 

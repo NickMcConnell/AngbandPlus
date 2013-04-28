@@ -1509,7 +1509,9 @@ static bool get_spike(int *ip)
 		object_type *o_ptr = &inventory[i];
 
 		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+		if (!o_ptr->k_idx)
+			continue;
+
 		/* Check the "tval" code */
 		if (o_ptr->tval == TV_SPIKE)
 		{
@@ -1526,83 +1528,114 @@ static bool get_spike(int *ip)
 }
 
 
+/*
+ * Determine if a given grid may be "spiked"
+ */
+static bool do_cmd_spike_test(int y, int x)
+{
+	cave_type	*c_ptr = &cave[y][x];
+
+	/* Must have knowledge */
+	if (!(c_ptr->info & (CAVE_MARK)))
+	{
+		/* Message */
+		msg_print("You see nothing there.");
+
+		/* Nope */
+		return (FALSE);
+	}
+
+	/* Require a door */
+	if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+	      (c_ptr->feat <= FEAT_DOOR_TAIL)))
+	{
+		/* Message */
+		msg_print("You see nothing there to spike.");
+
+		/* Nope */
+		return (FALSE);
+	}
+
+	/* Can't spike if a monster's in the way */
+	if (c_ptr->m_idx)
+	{
+		/* Message */
+		msg_print("You can't spike a door with a monster in the way!");
+
+		/* Nope */
+		return (FALSE);
+	}
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Jam a closed door
+ */
+bool do_cmd_spike_aux(int y, int x)
+{
+	cave_type	*c_ptr = &cave[y][x];
+
+	/* Convert "locked" to "stuck" XXX XXX XXX */
+	if (c_ptr->feat < FEAT_DOOR_HEAD + 0x08)
+	{
+		c_ptr->feat += 0x08;
+	}
+
+	/* Add one spike to the door */
+	if (c_ptr->feat < FEAT_DOOR_TAIL)
+	{
+		c_ptr->feat += 0x01;
+	}
+	return TRUE;
+}
+
 
 /*
  * Jam a closed door with a spike
  *
  * This command may NOT be repeated
  */
-void do_cmd_spike(bool m)
+void do_cmd_spike(void)
 {
-	int                  y, x, dir, item;
+	int y, x, dir, item;
 
-	cave_type		*c_ptr;
-
-
-	/* Get a "repeated" direction */
-	if (get_rep_dir(&dir))
+	/* Get a spike */
+	if (!get_spike(&item))
 	{
-		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		/* Message */
+		msg_print("You have no spikes!");
 
-		/* Get grid and contents */
-		c_ptr = &cave[y][x];
-
-		/* Require closed door */
-		if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		      (c_ptr->feat <= FEAT_DOOR_TAIL)))
-		{
-			/* Message */
-			msg_print("You see nothing there to spike.");
-		}
-
-		/* Get a spike */
-		else if (!m && !get_spike(&item))
-		{
-			/* Message */
-			msg_print("You have no spikes!");
-		}
-
-		/* Is a monster in the way? */
-		else if (c_ptr->m_idx)
-		{
-			/* Take a turn */
-			energy_use = 100;
-
-			/* Message */
-			msg_print("There is a monster in the way!");
-
-			/* Exit if we're casting a spell */
-			if(m) return;
-
-			/* Attack */
-			py_attack(y, x);
-		}
-
-		/* Go for it */
-		else
-		{
-			/* Take a turn */
-			energy_use = 100;
-
-			/* Successful jamming */
-			msg_print("You jam the door with a spike.");
-
-			/* Convert "locked" to "stuck" XXX XXX XXX */
-			if (c_ptr->feat < FEAT_DOOR_HEAD + 0x08) c_ptr->feat += 0x08;
-
-			/* Add one spike to the door */
-			if (c_ptr->feat < FEAT_DOOR_TAIL) c_ptr->feat++;
-
-			/* Use up, and describe, a single spike, from the bottom */
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
+		/* Done */
+		return;
 	}
-}
 
+	/* Get a direction (or abort) */
+	if (!get_rep_dir(&dir)) return;
+
+	/* Get location */
+	y = py + ddy[dir];
+	x = px + ddx[dir];
+
+	/* Verify legality */
+	if (!do_cmd_spike_test(y, x)) return;
+
+	/* Take a turn */
+	energy_use = 100;
+
+	/* Verify legality */
+	if (!do_cmd_spike_test(y, x)) return;
+	if (!do_cmd_spike_aux(y, x)) return;
+
+	/* Successful jamming */
+	msg_print("You jam the door with a spike.");
+
+	/* Use up, and describe, a single spike, from the bottom */
+	inven_item_increase(item, -1);
+	inven_item_describe(item);
+	inven_item_optimize(item);
+}
 
 
 /*
@@ -2176,6 +2209,10 @@ void do_cmd_fire(void)
 					msg_format("You do %d (out of %d) damage.",
 					           tdam, m_ptr->hp);
 				}
+				else if (show_damage && m_ptr->ml)
+				{
+					msg_format("(%d dam)", tdam);
+				}
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
@@ -2458,6 +2495,10 @@ void do_cmd_throw(void)
 				{
 					msg_format("You do %d (out of %d) damage.",
 					           tdam, m_ptr->hp);
+				}
+				else if (show_damage && m_ptr->ml)
+				{
+					msg_format("(%d dam)", tdam);
 				}
 
 				/* Hit the monster, check for death */

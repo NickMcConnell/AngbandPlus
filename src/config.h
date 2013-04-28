@@ -183,6 +183,9 @@
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
+/* Artifact spoiler generation seems to be broken (will not print out the
+ * artifacts' attributes (slays and suchlike)). -- Gumby
+ */
 /* #define ALLOW_SPOILERS */
 
 

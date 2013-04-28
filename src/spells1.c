@@ -559,9 +559,16 @@ static bool hates_acid(object_type *o_ptr)
 		{
 			return (TRUE);
 		}
+
 		/* Staffs/Scrolls are wood/paper */
-		case TV_STAFF:
-		case TV_SCROLL:
+		case TV_STAFF: case TV_SCROLL:
+		{
+			return (TRUE);
+		}
+
+		/* Books are also paper */
+		case TV_MAGIC_BOOK: case TV_PRAYER_BOOK:
+		case TV_NATURE_BOOK: case TV_DARK_BOOK:
 		{
 			return (TRUE);
 		}
@@ -573,14 +580,11 @@ static bool hates_acid(object_type *o_ptr)
 		}
 
 		/* Junk is useless */
-		case TV_SKELETON:
-		case TV_BOTTLE:
-		case TV_JUNK:
+		case TV_SKELETON: case TV_BOTTLE: case TV_JUNK:
 		{
 			return (TRUE);
 		}
 	}
-
 	return (FALSE);
 }
 
@@ -592,13 +596,11 @@ static bool hates_elec(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
-		case TV_RING:
-		case TV_WAND:
+		case TV_RING: case TV_AMULET: case TV_WAND:
 		{
 			return (TRUE);
 		}
 	}
-
 	return (FALSE);
 }
 
@@ -628,8 +630,8 @@ static bool hates_fire(object_type *o_ptr)
 		}
 
 		/* Books */
-		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
+		case TV_MAGIC_BOOK: case TV_PRAYER_BOOK:
+		case TV_NATURE_BOOK: case TV_DARK_BOOK:
 		{
 			return (TRUE);
 		}
@@ -641,8 +643,15 @@ static bool hates_fire(object_type *o_ptr)
 		}
 
 		/* Staffs/Scrolls burn */
-		case TV_STAFF:
-		case TV_SCROLL:
+		case TV_STAFF: case TV_SCROLL:
+		{
+			return (TRUE);
+		}
+
+		/* Components are mostly metal ores (except for Crystal),
+		 * so they melt -- Gumby
+		 */
+		case TV_COMPONENT:
 		{
 			return (TRUE);
 		}
@@ -1357,7 +1366,6 @@ static int project_m_y;
 static bool project_f(int who, int r, int y, int x, int dam, int typ)
 {
 	cave_type	*c_ptr = &cave[y][x];
-
 	bool	obvious = FALSE;
 
 
@@ -1366,7 +1374,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
-
 
 	/* Analyze the type */
 	switch (typ)
@@ -1464,6 +1471,24 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_set_feat(y, x, FEAT_FLOOR);
 			}
 
+			break;
+		}
+
+		case GF_JAM_DOOR:
+		{
+			/* Require closed door */
+			if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+                            (c_ptr->feat <= FEAT_DOOR_TAIL))
+			{
+				/* Check line of sight */
+				if (player_has_los_bold(y, x))
+				{
+					/* Message */
+					msg_print("The door glows brightly.");
+					obvious = TRUE;
+				}
+				do_cmd_spike_aux(y, x);
+			}
 			break;
 		}
 

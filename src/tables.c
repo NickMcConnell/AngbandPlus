@@ -2018,7 +2018,7 @@ cptr spell_names[4][64] =
   /*** Mage Spells ***/
 
   {
-    /* Magic for Beginners (sval 0) */
+    /* Magic for Beginners (book 1) */
     "Magic Missile",
     "Detect Monsters",
     "Phase Door",
@@ -2029,7 +2029,7 @@ cptr spell_names[4][64] =
     "Reinforce Door",
     "Stinking Cloud",
 
-		/* Conjurings and Tricks (sval 1) */
+    /* Conjurings and Tricks (book 2) */
     "Induce Terror",
     "Lightning Bolt",
     "Magic Storm",
@@ -2040,8 +2040,8 @@ cptr spell_names[4][64] =
     "Frost Bolt",
     "Turn Stone to Mud",
 
-    /* Incantations and Illusions (sval 2) */
-    "Sustinence",
+    /* Incantations and Illusions (book 3) */
+    "Sustenance",
     "Recharge Item I",
     "Sleep II",
     "Polymorph Other",
@@ -2050,7 +2050,7 @@ cptr spell_names[4][64] =
     "Fire Bolt",
     "Slow Monster",
 
-		/* Sorcery and Evocations (sval 3) */
+    /* Sorcery and Evocations (book 4) */
     "Frost Ball",
     "Recharge Item II",
     "Teleport Other",
@@ -2059,33 +2059,33 @@ cptr spell_names[4][64] =
     "Word of Destruction",
     "Regain Mana",
 
-    /* Resistance of Scarabtarices (sval 4) */
+    /* Resistance of Scarabtarices (book 5) */
     "Resist Fire",
     "Resist Cold",
     "Resist Acid",
     "Resist Poison",
     "Resistance",
 
-    /* Mordenkainen's Escapes (sval 5) */
+    /* Mordenkainen's Escapes (book 6) */
     "Door Creation",
     "Stair Creation",
     "Word of Recall",
 
-    /* Kelek's Grimoire of Power (sval 6) */
+    /* Kelek's Grimoire of Power (book 7) */
     "Detect Evil",
     "Detect Enchantment",
     "Recharge Item III",
     "Genocide",
     "Mass Genocide",
 
-    /* Tenser's transformations... (sval 7) */
+    /* Tenser's Transformations (book 8) */
     "Heroism",
     "Shield",
     "Berserker",
     "Essence of Speed",
     "Globe of Invulnerability",
 
-    /* Raal's Tome of Destruction (sval 8) */
+    /* Raal's Tome of Destruction (book 9) */
     "Sonic Storm",
     "Acid Ball",
     "Plasma Vortex",
@@ -2105,7 +2105,7 @@ cptr spell_names[4][64] =
 
   /*** Priest Spells ***/
   {
-    /* Beginners Handbook (sval 0) */
+    /* Beginners Handbook (book 1) */
     "Detect Evil",
     "Cure Light Wounds",
     "Bless",
@@ -2115,17 +2115,17 @@ cptr spell_names[4][64] =
     "Spiritual Hammer",
     "Dispel Poison",
 
-    /* Words of Wisdom (sval 1) */
+    /* Words of Wisdom (book 2) */
     "Induce Peace",
     "Portal",
     "Cure Medium Wounds",
     "Chant",
     "Banish Animals",
-    "Sustinence",
+    "Sustenance",
     "Remove Curse",
     "Resist Heat and Cold",
 
-    /* Chants and Blessings (sval 2) */
+    /* Chants and Blessings (book 3) */
     "Return Home",
     "Orb of Draining",
     "Cure Serious Wounds",
@@ -2135,7 +2135,8 @@ cptr spell_names[4][64] =
     "Sense Surroundings",
     "Cure Critical Wounds",
     "Turn Undead",
-    /* Exorcism and Dispelling (sval 3) */
+
+    /* Exorcisms and Dispellings (book 4) */
     "Banish Evil",
     "Dispel Undead",
     "Heal",
@@ -2143,7 +2144,7 @@ cptr spell_names[4][64] =
     "Glyph of Warding",
     "Holy Word",
 
-    /* Ethereal openings (sval 4) */
+    /* Ethereal Openings (book 5) */
     "Blink",
     "Teleport",
     "Teleport Away",
@@ -2151,28 +2152,29 @@ cptr spell_names[4][64] =
     "Survive Death",
     "Alter Reality",
 
-    /* Godly Insights... (sval 5) */
+    /* Godly Insights (book 6) */
     "Detection",
     "Perception",
     "Probing",
     "Clairvoyance",
     "Self-Knowledge",
 
-    /* Purifications and Healing (sval 6) */
+    /* Purifications and Healing (book 7) */
     "Resistance",
     "Holy Shield",
     "Restoration",
     "Remembrance",
     "Damage Immunity",
 
-    /* Holy Infusions (sval 7) */
+    /* Holy Infusions (book 8) */
     "Recharging",
     "Dispel Curse",
     "Battle Speed",
     "Enchant Weapon",
     "Enchant Armour",
     "Elemental Brand",
-    /* Wrath of God (sval 8) */
+
+    /* Wrath of God (book 9) */
     "Stun Bolt",
     "Dispel Evil",
     "Annihilate Evil",
@@ -2221,34 +2223,35 @@ cptr spell_names[4][64] =
     "Super Speed",
     "Regain Harmony",
 
-    /* Shapeshifting */
+    /* Shapeshifting (book 5) */
     "Form of the Bear",
     "Form of the Lion",
     "Form of the Gazelle",
     "Form of the Cheetah",
     "Form of the Dragon",
-    /* Dungeon Insights */
+
+    /* Dungeon Insights (book 6) */
     "Understand Item",
     "Find Material Goods",
     "Probing",
     "Magical Staircase",
     "View Dungeon",
 
-    /* Primal Forces */
+    /* Primal Forces (book 7) */
     "Battle Blessing",
     "Iron Will",
     "Fighting Fury",
     "Mystic Shield",
     "Mass Sleep",
 
-    /* Elemental Mastery */
+    /* Elemental Mastery (book 8) */
     "Essence of Flame",
     "Absolute Zero",
     "Lethal Plague",
     "Hurricane",
     "Thunder Strike",
    
-    /* Weather Control */
+    /* Weather Control (book 9) */
     "Arid Wastes",
     "Torrential Downpour",
     "Wind Songs",
@@ -2266,6 +2269,7 @@ cptr spell_names[4][64] =
 
   /*** Necro spells ***/
   {
+    /* Beginner's Curses (book 1) */
     "Sense Undead",
     "Blink",
     "Undo Curse",
@@ -2274,6 +2278,8 @@ cptr spell_names[4][64] =
     "Find Doors/Traps",
     "Slow Poison",
     "Sleep Other",
+
+    /* Darker Elements (book 2) */
     "Destroy Undead",
     "Find Food",
     "Block Heat/Cold",
@@ -2282,6 +2288,8 @@ cptr spell_names[4][64] =
     "Shift Position",
     "Return",
     "Detect Life",
+
+    /* Frightful Realms (book 3) */
     "True Sight",
     "Disrupt Life",
     "Remove Wounds",
@@ -2290,6 +2298,8 @@ cptr spell_names[4][64] =
     "Drain Life",
     "Weaken Others",
     "Repel Other",
+
+    /* Controlling Life (book 4) */
     "Curse Weapon",
     "Battle Power",
     "Poison Shield",
@@ -2298,31 +2308,32 @@ cptr spell_names[4][64] =
     "Infuse Weapon",
     "Destroy Cavern",
 
-    /* Mastery of the Undead (sval 4) */
+    /* Mastery of the Undead (book 5) */
     "Banish Non-Living",
     "Annihilate Undead",
     "Destroy Life",
     "Summon Holy Spirits",
-    /* Protection from Undead (sval 5) */
+
+    /* Protection from Undead (book 6) */
     "Partial Restoration",
     "Rememberance",
     "Restoration",
     "Retake life",
 
-    /* Mastery of Life Force (sval 6) */
+    /* Mastery of Life Force (book 7) */
     "Regain Mana",
     "Annihilate Animals",
     "Vampiric Drain",
     "Genocide",
     "Total Genocide",
 
-    /* Bodily Infusions (sval 7) */
+    /* Bodily Infusions (book 8) */
     "Regeneration",
     "Fighting Rage",
     "Lich Form",
     "Barrier",
 
-    /* Unholy Perceptions (sval 8) */
+    /* Unholy Perceptions (book 9) */
     "Detection",
     "Probing",
     "Sense Room",
@@ -2626,11 +2637,11 @@ option_type option_info[] =
 	{ &alert_failure,		FALSE,	2,	0, 27,
 	"alert_failure",		"Alert user to various failures" },
 
-
 	/*** Game-Play ***/
 
 	{ &auto_haggle,			FALSE,	3,	1, 0,
 	"auto_haggle",			"Auto-haggle in stores" },
+
 	{ &auto_scum,			FALSE,	3,	1, 1,
 	"auto_scum",			"Auto-scum for good levels" },
 
@@ -2676,6 +2687,14 @@ option_type option_info[] =
 	{ &smart_cheat,			FALSE,	3,	1, 15,
 	"smart_cheat",			"Monsters exploit players weaknesses" },
 
+	{ &show_damage,			TRUE,	3,	0, 28,
+	"show_damage",			"Show melee and missile damage dealt by player" },
+
+	{ &filter_ident,		TRUE,	3,	0, 29,
+	"filter_ident",			"Show only appropriate items for Identify" },
+
+	{ &auto_destroy,                FALSE,  3,	0, 30,
+	"auto_destroy",                 "No query to destroy known worthless items" },
 
 	/*** Efficiency ***/
 

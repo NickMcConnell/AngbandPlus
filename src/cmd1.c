@@ -1024,6 +1024,7 @@ void py_attack(int y, int x)
       /* Calculate the "attack quality" */
       bonus = p_ptr->to_h + o_ptr->to_h;
       chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+
       /* Test for hit */
       if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 	{
@@ -1091,6 +1092,11 @@ void py_attack(int y, int x)
 	    {
 	      msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 	    }
+		else if (show_damage && m_ptr->ml)
+		{
+			msg_format("(%d dam)", k);
+		}
+
 	  /* Damage, check for fear and death */
 	  if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL)) break;
 

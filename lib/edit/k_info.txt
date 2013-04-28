@@ -1316,7 +1316,7 @@ N:177:*Identify*
 G:?:d
 I:70:13:0
 W:30:0:5:1000
-A:30/1
+A:30/1:60/1:90/1
 
 ## XXX 178 XXX ##
 
@@ -2315,56 +2315,56 @@ P:0:1d2:0:0:0
 ##### Basic Books #####
 
 N:330:[Magic for Beginners]
-G:?:R
+G:?:B
 I:90:0:0
-W:5:0:30:25
+W:5:0:30:50
 A:5/1
 P:0:1d1:0:0:0
 
 N:331:[Conjurings and Tricks]
-G:?:R
+G:?:B
 I:90:1:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
 N:332:[Incantations and Illusions]
-G:?:R
+G:?:B
 I:90:2:0
-W:20:0:30:400
+W:20:0:30:300
 A:20/1
 P:0:1d1:0:0:0
 
 N:333:[Sorcery and Evocations]
-G:?:R
+G:?:B
 I:90:3:0
-W:30:0:30:800
+W:30:0:30:900
 A:30/1
 P:0:1d1:0:0:0
 
 N:334:[Beginners Handbook]
-G:?:G
+G:?:W
 I:91:0:0
-W:5:0:30:25
+W:5:0:30:50
 A:5/1
 P:0:1d1:0:0:0
 
 N:335:[Words of Wisdom]
-G:?:G
+G:?:W
 I:91:1:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
 N:336:[Chants and Blessings]
-G:?:G
+G:?:W
 I:91:2:0
 W:20:0:30:300
 A:20/1
 P:0:1d1:0:0:0
 
 N:337:[Exorcism and Dispelling]
-G:?:G
+G:?:W
 I:91:3:0
 W:30:0:30:900
 A:30/1
@@ -2380,7 +2380,7 @@ P:0:1d1:0:0:0
 N:339:[Communion with Nature]
 G:?:G
 I:92:1:0
-W:10:0:30:120
+W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
@@ -2399,28 +2399,28 @@ A:30/1
 P:0:1d1:0:0:0
 
 N:342:[Beginner's Curses]
-G:?:R
+G:?:D
 I:93:0:0
-W:5:0:30:30
+W:5:0:30:50
 A:5/1
 P:0:1d1:0:0:0
 
 N:343:[Darker Elements]
-G:?:R
+G:?:D
 I:93:1:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
 N:344:[Frightful Realms]
-G:?:R
+G:?:D
 I:93:2:0
 W:20:0:30:300
 A:20/1
 P:0:1d1:0:0:0
 
 N:345:[Controlling Life]
-G:?:R
+G:?:D
 I:93:3:0
 W:30:0:30:900
 A:30/1
@@ -2481,7 +2481,7 @@ A:75/1
 ##### Various Stuff #####
 
 N:353:& Iron Spike~
-G:~:W
+G:~:s
 I:5:0:0
 W:1:0:10:1
 A:1/1
@@ -2715,7 +2715,7 @@ P:0:1d1:0:0:0
 ##### Special Books (note resistances) #####
 
 N:387:[Resistance of Scarabtarices]
-G:?:r
+G:?:b
 I:90:4:0
 W:40:0:30:5000
 A:40/1
@@ -2723,7 +2723,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:388:[Mordenkainen's Escapes]
-G:?:r
+G:?:b
 I:90:5:0
 W:50:0:30:10000
 A:50/1
@@ -2731,7 +2731,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:389:[Kelek's Grimoire of Power]
-G:?:r
+G:?:b
 I:90:6:0
 W:60:0:30:30000
 A:60/1
@@ -2739,21 +2739,23 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:390:[Tenser's Transformations]
-G:?:r
+G:?:b
 I:90:7:0
 W:80:0:30:50000
 A:80/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
 N:391:[Raal's Tome of Destruction]
-G:?:r
+G:?:b
 I:90:8:0
 W:100:0:30:100000
 A:100/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
 N:392:[Ethereal Openings]
-G:?:g
+G:?:W
 I:91:4:0
 W:40:0:30:5000
 A:40/1
@@ -2761,7 +2763,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:393:[Godly Insights]
-G:?:g
+G:?:W
 I:91:5:0
 W:50:0:30:10000
 A:50/1
@@ -2769,7 +2771,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:394:[Purifications and Healing]
-G:?:g
+G:?:W
 I:91:6:0
 W:60:0:30:30000
 A:60/1
@@ -2777,7 +2779,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:395:[Holy Infusions]
-G:?:g
+G:?:W
 I:91:7:0
 W:80:0:30:50000
 A:80/2
@@ -2785,7 +2787,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:396:[Wrath of God]
-G:?:g
+G:?:W
 I:91:8:0
 W:100:0:30:100000
 A:100/4
@@ -2795,78 +2797,80 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:397:[Shapeshifting]
 G:?:g
 I:92:4:0
-W:30:0:30:4000
-A:30/1
+W:40:0:30:5000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:398:[Dungeon Insights]
 G:?:g
 I:92:5:0
-W:40:0:30:8000
-A:40/1
+W:50:0:30:10000
+A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:399:[Primal Forces]
 G:?:g
 I:92:6:0
-W:70:0:30:30000
-A:70/1
+W:60:0:30:30000
+A:60/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:400:[Book of Combat]
 G:?:g
 I:92:7:0
-W:50:0:30:12000
-A:50/1
+W:80:0:30:50000
+A:80/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:401:[Weather Control]
 G:?:g
 I:92:8:0
+W:100:0:30:100000
+A:100/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:402:[Mastery of the Undead]
+G:?:v
+I:93:4:0
+W:40:0:30:5000
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:403:[Protection from Undead]
+G:?:v
+I:93:5:0
+W:50:0:30:10000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:404:[Life Force Mastery]
+G:?:v
+I:93:6:0
 W:60:0:30:30000
 A:60/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:402:[Mastery of the Undead]
-G:?:r
-I:93:4:0
-W:30:0:30:3000
-A:30/1
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-N:403:[Protection from Undead]
-G:?:r
-I:93:5:0
-W:35:0:30:7000
-A:35/1
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:404:[Life Force Mastery]
-G:?:r
-I:93:6:0
-W:40:0:30:12000
-A:40/1
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
 N:405:[Bodily Infusions]
-G:?:r
+G:?:v
 I:93:7:0
-W:45:0:30:20000
-A:45/1
+W:80:0:30:50000
+A:80/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
 N:406:[Unholy Perceptions]
-G:?:r
+G:?:v
 I:93:8:0
-W:50:0:30:30000
-A:50/1
+W:100:0:30:100000
+A:100/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3131,40 +3135,43 @@ P:0:1d1:0:0:0
 ##### Components #####
 
 N:441:Copper
-G:%:d
+G:%:u
 I:50:1:1
 W:1:0:50:100
 A:1/1:10/1
 
 N:442:Iron
-G:%:d
+G:%:s
 I:50:2:3
 W:5:0:120:700
 A:5/1:15/1
 
 N:443:Bronze
-G:%:d
+G:%:U
 I:50:3:5
 W:10:0:90:2000
 A:15/1:25/1
 
 N:444:Crystal
-G:%:d
+G:%:w
 I:50:4:7
 W:30:0:110:7000
 A:30/1:40/1
+F:IGNORE_FIRE
 
 N:445:Mithril
-G:%:d
+G:%:B
 I:50:5:9
 W:35:0:160:15000
 A:40/1:55/1
+F:IGNORE_FIRE
 
 N:446:Adamant
-G:%:d
+G:%:G
 I:50:6:12
 W:40:0:190:30000
 A:65/2:85/2
+F:IGNORE_FIRE
 
 # The old "notice_seams" option is currently unused, but much of its
 # old functionality can be obtained by clever use of 'F' commands in

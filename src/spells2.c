@@ -1119,7 +1119,7 @@ bool detect_doors(void)
 
 			/* Detect doors */
 			if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-			     (c_ptr->feat <= FEAT_DOOR_HEAD)) ||
+			     (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
 			    ((c_ptr->feat == FEAT_OPEN) ||
 			     (c_ptr->feat == FEAT_BROKEN)))
 			{
@@ -1190,57 +1190,6 @@ bool detect_stairs(void)
 	return (detect);
 }
 
-
-
-/*
- * General detection; this will detect any creature that has at least one
- * of the passed bits set.  Or, if this is <0, will detect only creatures
- * WITHOUT any of the bits set
- */
-bool detect_general(char inv, long flag2, char *str)
-{
-	int		i;
-	bool	flag = FALSE;
-
-
-	/* Display all matching monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		int fy = m_ptr->fy;
-		int fx = m_ptr->fx;
-
-		/* Paranoia -- Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Skip visible monsters */
-		if (m_ptr->ml) continue;
-		/* Detect evil monsters */
-		if (panel_contains(fy, fx) && (inv^(r_ptr->flags3 & flag2)))
-		{
-			/* Mega-Hack -- Show the monster */
-			m_ptr->ml = TRUE;
-			lite_spot(fy, fx);
-			flag = TRUE;
-		}
-	}
-
-	/* Note effects and clean up */
-	if (flag)
-	{
-		/* Describe, and wait for acknowledgement */
-		msg_format("You sense the presence of %s!", str);
-		msg_print(NULL);
-
-		/* Mega-Hack -- Fix the monsters */
-		update_monsters(FALSE);
-	}
-
-	/* Result */
-	return (flag);
-}
 
 /*
  * Detect any treasure on the current panel
@@ -1471,8 +1420,7 @@ bool detect_objects_magic(void)
  */
 bool detect_monsters_normal(void)
 {
-	int		i, y, x;
-
+	int	i, y, x;
 	bool	flag = FALSE;
 
 
@@ -1528,8 +1476,7 @@ bool detect_monsters_normal(void)
  */
 bool detect_monsters_invis(void)
 {
-	int		i, y, x;
-
+	int	i, y, x;
 	bool	flag = FALSE;
 
 
@@ -1582,6 +1529,262 @@ bool detect_monsters_invis(void)
 	{
 		/* Describe result */
 		msg_print("You sense the presence of invisible creatures!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+/*
+ * Detect all evil monsters on the current panel
+ */
+bool detect_evil(void)
+{
+	int i, y, x;
+	bool flag = FALSE;
+
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+		
+		/* Detect evil monsters */
+		if (r_ptr->flags3 & (RF3_EVIL))
+		{
+			/* Take note that they are evil */
+			r_ptr->r_flags3 |= (RF3_EVIL);
+
+			/* Update monster recall window */
+			if (monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Repair visibility later */
+			repair_monsters = TRUE;
+
+			/* Hack -- Detect monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Hack -- See monster */
+			m_ptr->ml = TRUE;
+			
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of evil creatures!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+/*
+ * Detect all undead monsters on the current panel
+ */
+bool detect_undead(void)
+{
+	int i, y, x;
+	bool flag = FALSE;
+
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+		
+		/* Detect undead monsters */
+		if (r_ptr->flags3 & (RF3_UNDEAD))
+		{
+			/* Take note that they are undead */
+			r_ptr->r_flags3 |= (RF3_UNDEAD);
+
+			/* Update monster recall window */
+			if (monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Repair visibility later */
+			repair_monsters = TRUE;
+
+			/* Hack -- Detect monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Hack -- See monster */
+			m_ptr->ml = TRUE;
+			
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of undead creatures!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+
+/*
+ * Detect all non-undead monsters on the current panel
+ */
+bool detect_life(void)
+{
+	int	i, y, x;
+	bool	flag = FALSE;
+
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+		
+		/* Detect all non-undead monsters */
+		if (!(r_ptr->flags3 & (RF3_UNDEAD)))
+		{
+			/* Repair visibility later */
+			repair_monsters = TRUE;
+
+			/* Hack -- Detect monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Hack -- See monster */
+			m_ptr->ml = TRUE;
+			
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of living creatures!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+
+/*
+ * Detect all animals on the current panel
+ */
+bool detect_animals(void)
+{
+	int i, y, x;
+	bool flag = FALSE;
+
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+		
+		/* Detect natural monsters */
+		if (r_ptr->flags3 & (RF3_ANIMAL))
+		{
+			/* Take note that they are natural */
+			r_ptr->r_flags3 |= (RF3_ANIMAL);
+
+			/* Update monster recall window */
+			if (monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Repair visibility later */
+			repair_monsters = TRUE;
+
+			/* Hack -- Detect monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Hack -- See monster */
+			m_ptr->ml = TRUE;
+			
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of natural creatures!");
 	}
 
 	/* Result */
@@ -1914,6 +2117,22 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 }
 
 
+bool item_tester_hook_unknown(object_type *o_ptr)
+{
+	if (object_known_p(o_ptr))
+		return FALSE;
+	else
+		return TRUE;
+}
+
+bool item_tester_hook_unknown_star(object_type *o_ptr)
+{
+	if (o_ptr->ident & IDENT_MENTAL)
+		return FALSE;
+	else
+		return TRUE;
+}
+
 /*
  * Identify an object in the inventory (or on the floor)
  * This routine does *not* automatically combine objects.
@@ -1924,6 +2143,12 @@ bool ident_spell(void)
 	int			item;
 	object_type		*o_ptr;
 	char		o_name[80];
+
+	/* Only un-id'ed items, and only when requested -- Gumby */
+	if (filter_ident)
+	{
+		item_tester_hook = item_tester_hook_unknown;
+	}
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Identify which item? ", TRUE, TRUE, TRUE))
@@ -1944,10 +2169,10 @@ bool ident_spell(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Identify it fully */
 	object_aware(o_ptr);
 	object_known(o_ptr);
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -1988,11 +2213,15 @@ bool ident_spell(void)
 bool identify_fully(void)
 {
 	int			item;
-
 	object_type		*o_ptr;
-
 	char		o_name[80];
 
+
+	/* Only un-*id*'ed items, and only when requested -- Gumby */
+	if (filter_ident)
+	{
+		item_tester_hook = item_tester_hook_unknown_star;
+	}
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Identify which item? ", TRUE, TRUE, TRUE))
@@ -2610,11 +2839,9 @@ void destroy_area(int y1, int x1, int r, bool full)
 {
 	int y, x, k, t;
 	cave_type *c_ptr;
-
 	bool flag = FALSE;
-
-	/* XXX XXX */
 	full = full ? full : 0;
+
 
 	/* Big area of affect */
 	for (y = (y1 - r); y <= (y1 + r); y++)
@@ -2626,6 +2853,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 			/* Extract the distance */
 			k = distance(y1, x1, y, x);
+
 			/* Stay in the circle of death */
 			if (k > r) continue;
 
@@ -2634,9 +2862,6 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 			/* Lose room and vault */
 			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
-
-			/* Lose light and knowledge */
-			c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
 
 			/* Hack -- Notice player affect */
 			if ((x == px) && (y == py))
@@ -2653,37 +2878,32 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 			/* Delete the monster (if any) */
 			delete_monster(y, x);
+
 			/* Destroy "valid" grids */
 			if (cave_valid_bold(y, x))
 			{
 				/* Delete objects */
 				delete_object(y, x);
+
 				/* Wall (or floor) type */
 				t = rand_int(200);
 
-				/* Granite */
-				if (t < 20)
+				if (t < 20) /* Granite */
 				{
 					/* Create granite wall */
 					c_ptr->feat = FEAT_WALL_EXTRA;
 				}
-
-				/* Quartz */
-				else if (t < 70)
+				else if (t < 70) /* Quartz */
 				{
 					/* Create quartz vein */
 					c_ptr->feat = FEAT_QUARTZ;
 				}
-
-				/* Magma */
-				else if (t < 100)
+				else if (t < 100) /* Magma */
 				{
 					/* Create magma vein */
 					c_ptr->feat = FEAT_MAGMA;
 				}
-
-				/* Floor */
-				else
+				else /* Floor */
 				{
 					/* Create floor */
 					c_ptr->feat = FEAT_FLOOR;
@@ -2691,7 +2911,6 @@ void destroy_area(int y1, int x1, int r, bool full)
 			}
 		}
 	}
-
 
 	/* Hack -- Affect player */
 	if (flag)
@@ -2712,11 +2931,13 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
 	/* Update the monsters */
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
+
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
@@ -2744,13 +2965,9 @@ void earthquake(int cy, int cx, int r)
 {
 	int		i, t, y, x, yy, xx, dy, dx, oy, ox;
 	int		damage = 0;
-
 	int		sn = 0, sy = 0, sx = 0;
-
 	bool	hurt = FALSE;
-
 	cave_type	*c_ptr;
-
 	bool	map[32][32];
 
 
@@ -2786,8 +3003,6 @@ void earthquake(int cy, int cx, int r)
 
 			/* Lose room and vault */
 			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
-			/* Lose light and knowledge */
-			c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
 
 			/* Skip the epicenter */
 			if (!dx && !dy) continue;
@@ -2797,6 +3012,7 @@ void earthquake(int cy, int cx, int r)
 
 			/* Damage this grid */
 			map[16+yy-cy][16+xx-cx] = TRUE;
+
 			/* Hack -- Take note of player damage */
 			if ((yy == py) && (xx == px)) hurt = TRUE;
 		}
@@ -2811,12 +3027,16 @@ void earthquake(int cy, int cx, int r)
 			/* Access the location */
 			y = py + ddy[i];
 			x = px + ddx[i];
+
 			/* Skip non-empty grids */
 			if (!cave_empty_bold(y, x)) continue;
+
 			/* Important -- Skip "quake" grids */
 			if (map[16+y-cy][16+x-cx]) continue;
+
 			/* Count "safe" grids */
 			sn++;
+
 			/* Randomize choice */
 			if (rand_int(sn) > 0) continue;
 
@@ -2851,7 +3071,6 @@ void earthquake(int cy, int cx, int r)
 			msg_print("You are severely crushed!");
 			damage = 300;
 		}
-
 		/* Destroy the grid, and push the player to safety */
 		else
 		{
@@ -2903,6 +3122,7 @@ void earthquake(int cy, int cx, int r)
 		/* Take some damage */
 		if (damage) take_hit(damage, "an earthquake");
 	}
+
 	/* Examine the quaked region */
 	for (dy = -r; dy <= r; dy++)
 	{
@@ -2932,6 +3152,7 @@ void earthquake(int cy, int cx, int r)
 
 					/* Assume not safe */
 					sn = 0;
+
 					/* Monster can move to escape the wall */
 					if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))
 					{
@@ -2944,8 +3165,10 @@ void earthquake(int cy, int cx, int r)
 
 							/* Skip non-empty grids */
 							if (!cave_empty_bold(y, x)) continue;
+
 							/* Hack -- no safety on glyph of warding */
 							if (cave[y][x].feat == FEAT_GLYPH) continue;
+
 							/* Important -- Skip "quake" grids */
 							if (map[16+y-cy][16+x-cx]) continue;
 
@@ -2965,6 +3188,7 @@ void earthquake(int cy, int cx, int r)
 
 					/* Scream in pain */
 					msg_format("%^s wails out in pain!", m_name);
+
 					/* Take damage from the quake */
 					damage = (sn ? damroll(4, 8) : 200);
 
@@ -2982,6 +3206,7 @@ void earthquake(int cy, int cx, int r)
 
 						/* Delete the monster */
 						delete_monster(yy, xx);
+
 						/* No longer safe */
 						sn = 0;
 					}
@@ -2990,8 +3215,10 @@ void earthquake(int cy, int cx, int r)
 					if (sn)
 					{
 						int m_idx = cave[yy][xx].m_idx;
+
 						/* Update the new location */
 						cave[sy][sx].m_idx = m_idx;
+
 						/* Update the old location */
 						cave[yy][xx].m_idx = 0;
 
@@ -3001,6 +3228,7 @@ void earthquake(int cy, int cx, int r)
 
 						/* Update the monster (new location) */
 						update_mon(m_idx, TRUE);
+
 						/* Redraw the old grid */
 						lite_spot(yy, xx);
 
@@ -3011,7 +3239,6 @@ void earthquake(int cy, int cx, int r)
 			}
 		}
 	}
-
 
 	/* Examine the quaked region */
 	for (dy = -r; dy <= r; dy++)
@@ -3035,34 +3262,29 @@ void earthquake(int cy, int cx, int r)
 			if (cave_valid_bold(yy, xx))
 			{
 				bool floor = cave_floor_bold(yy, xx);
+
 				/* Delete objects */
 				delete_object(yy, xx);
 
 				/* Wall (or floor) type */
 				t = (floor ? rand_int(100) : 200);
 
-				/* Granite */
-				if (t < 20)
+				if (t < 20) /* Granite */
 				{
 					/* Create granite wall */
 					c_ptr->feat = FEAT_WALL_EXTRA;
 				}
-
-				/* Quartz */
-				else if (t < 70)
+				else if (t < 70) /* Quartz */
 				{
 					/* Create quartz vein */
 					c_ptr->feat = FEAT_QUARTZ;
 				}
-				/* Magma */
-				else if (t < 100)
+				else if (t < 100) /* Magma */
 				{
 					/* Create magma vein */
 					c_ptr->feat = FEAT_MAGMA;
 				}
-
-				/* Floor */
-				else
+				else /* Floor */
 				{
 					/* Create floor */
 					c_ptr->feat = FEAT_FLOOR;
@@ -3085,6 +3307,7 @@ void earthquake(int cy, int cx, int r)
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
+
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
@@ -3474,7 +3697,6 @@ bool drain_life(int dir, int dam)
 	int flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_OLD_DRAIN, dir, dam, flg));
 }
-
 bool wall_to_mud(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
@@ -3485,7 +3707,11 @@ bool destroy_door(int dir)
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
 	return (project_hook(GF_KILL_DOOR, dir, 0, flg));
 }
-
+bool jam_door(int dir)
+{
+	int flg = PROJECT_GRID | PROJECT_ITEM;
+	return (project_hook(GF_JAM_DOOR, dir, 0, flg));
+}
 bool disarm_trap(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;

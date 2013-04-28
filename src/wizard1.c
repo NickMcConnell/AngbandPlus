@@ -163,13 +163,13 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
   /* Description (too brief) */
-  object_desc_store(buf, o_ptr, FALSE, 0);
+  object_desc_store(buf, q_ptr, FALSE, 0);
 
   /* Misc info */
   strcpy(dam, "");
 
   /* Damage */
-  switch (o_ptr->tval)
+  switch (q_ptr->tval)
     {
       /* Bows */
     case TV_BOW:
@@ -179,7 +179,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
     case TV_SHOT:
     case TV_BOLT:
     case TV_ARROW:
-      sprintf(dam, "%dd%d", o_ptr->dd, o_ptr->ds);
+      sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
       break;
 
       /* Weapons */
@@ -187,7 +187,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
     case TV_POLEARM:
     case TV_SWORD:
     case TV_DIGGING:
-      sprintf(dam, "%dd%d", o_ptr->dd, o_ptr->ds);
+      sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
       break;
 
 
@@ -229,7 +229,7 @@ static void spoil_obj_desc(cptr fname)
 
 
   /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+  path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
 
   /* File type is "TEXT" */
   FILE_TYPE(FILE_TYPE_TEXT);
@@ -1178,16 +1178,13 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 static void spoil_artifact(cptr fname)
 {
   int i, j;
-
   object_type forge;
   object_type *q_ptr;
-
   obj_desc_list artifact;
-
   char buf[1024];
 
   /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+  path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
 
   /* File type is "TEXT" */
   FILE_TYPE(FILE_TYPE_TEXT);
@@ -1277,7 +1274,7 @@ static void spoil_mon_desc(cptr fname)
 
 
   /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+  path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
 
   /* File type is "TEXT" */
   FILE_TYPE(FILE_TYPE_TEXT);
@@ -1491,7 +1488,7 @@ static void spoil_mon_info(cptr fname)
 
 
   /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+  path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
 
   /* File type is "TEXT" */
   FILE_TYPE(FILE_TYPE_TEXT);
@@ -2244,10 +2241,10 @@ void do_cmd_spoilers(void)
       prt("Create a spoiler file.", 2, 0);
 
       /* Prompt for a file */
-      prt("(1) Brief Object Info (obj-desc.spo)", 5, 5);
+      prt("(1) Brief Object Info   (obj-desc.spo)", 5, 5);
       prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
-      prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
-      prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
+      prt("(3) Brief Monster Info  (mon-desc.spo)", 7, 5);
+      prt("(4) Full Monster Info   (mon-info.spo)", 8, 5);
 
       /* Prompt */
       prt("Command: ", 12, 0);

@@ -1626,6 +1626,7 @@
 #define GF_DISP_ANIMAL	70
 #define GF_SPIRIT	71
 #define GF_SLOW_UNDEAD	72
+#define GF_JAM_DOOR	73
 
 /*
  * Some things which induce learning

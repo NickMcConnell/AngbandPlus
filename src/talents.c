@@ -309,7 +309,6 @@ s16b hose_obj(object_type *o_ptr)
 }
 
 /* a function that decides whether two objects like being fenneled. */
-
 bool fennel_ok(object_type *src, object_type *dest)
 {
   s16b srcpow, destpow;
@@ -336,13 +335,13 @@ bool fennel_ok(object_type *src, object_type *dest)
    absurd. */
 void cap_vals(object_type *o_ptr)
 {
-  if (o_ptr->to_h > 30) o_ptr->to_h = 30;
-  if (o_ptr->to_d > 30) o_ptr->to_d = 30;
-  if (o_ptr->to_a > 40) o_ptr->to_a = 40;
-  if (o_ptr->dd > 9) o_ptr->dd = 9;
-  if (o_ptr->pval > 20) o_ptr->pval = 20;
-  if (o_ptr->flags1 & (TR1_PVAL_MASK & ~(TR1_INFRA | TR1_SPEED | TR1_BLOWS)))
-    if (o_ptr->pval > 8) o_ptr->pval = 8;    
+	if (o_ptr->to_h > 30) o_ptr->to_h = 30;
+	if (o_ptr->to_d > 30) o_ptr->to_d = 30;
+	if (o_ptr->to_a > 40) o_ptr->to_a = 40;
+	if (o_ptr->dd > 9) o_ptr->dd = 9;
+	if (o_ptr->pval > 10) o_ptr->pval = 10;
+	if ((o_ptr->flags1 & (TR1_PVAL_MASK & ~(TR1_BLOWS))) &&
+	    (o_ptr->pval > 5)) o_ptr->pval = 5;
 }
 
 /* Helper function for fenneling. Adds some of the flags belonging to
@@ -407,11 +406,13 @@ void merge_flags(object_type *dest, object_type *src)
 void do_cmd_talents()
 {
   int i, j, k, x, item, item2, dir, mask, level, ability, sv;
-  char str[80],tval;
+  char str[80], tval;
   object_type *o_ptr, *j_ptr;
   object_kind *k_ptr;
   object_type tmp_obj;
   char tmp;
+
+  u32b f1, f2, f3; /* For ensuring pval on those items that need it -- Gumby */
 
   if (p_ptr->tt && !wizard)
     {
@@ -475,6 +476,7 @@ void do_cmd_talents()
     case S_DEVICE:
       {
 	bool trashsrc = FALSE, trashdest = FALSE, kaboom = FALSE;
+	bool extradest = FALSE; /* remove if things still blow up -- G */
 	s16b oldpow = 0, newpow = 0;
 
 	if (p_ptr->confused > 0)
@@ -502,7 +504,7 @@ void do_cmd_talents()
 	    {
 	      if (smod (S_INFUSION) < 10)
 		{
-		  msg_print ("You do not know enough about wands yet!");
+		  msg_print ("You need to know more about magical infusion of wands!");
 		  return;
 		}
 	      tval = TV_WAND;
@@ -520,7 +522,7 @@ void do_cmd_talents()
 
 	      if (smod (S_INFUSION) < 20)
 		{
-		  msg_print ("You do not know enough about staves yet!");
+		  msg_print ("You need to know more about magical infusion of staves!");
 		  return;
 		}
 	      tval = TV_STAFF;
@@ -636,7 +638,9 @@ void do_cmd_talents()
 	item_tester_tval = tval;
 	if ((!get_item (&item2, "Into which other item?",
 			FALSE, TRUE, FALSE)) || (item == item2)) return;
+
 	o_ptr = &inventory[item];
+
 	if(inventory[item2].number > 1)
 	  {
 	    tmp_obj = inventory[item2];
@@ -644,9 +648,11 @@ void do_cmd_talents()
 	    tmp_obj.number = 1;
 	    total_weight -= tmp_obj.weight;
 	    item2 = inven_carry(&tmp_obj, FALSE);
+	    extradest = FALSE; /* remove if things still blow up -- Gumby */
 	  }
 
 	j_ptr = &inventory[item2];
+
 	if(artifact_p(o_ptr) || artifact_p(j_ptr))
 	  {
 	    msg_print("You cannot fennel artifacts.");
@@ -711,7 +717,7 @@ void do_cmd_talents()
 	  if (randint (35) > level || rand_int(x) == 0)
 	    {
 	      msg_print ("You blew up both staves!");
-	      trashdest=TRUE;
+	      trashdest = TRUE;
 	    }
 	  break;
 	case TV_RING:
@@ -752,6 +758,7 @@ void do_cmd_talents()
 	      trashdest = TRUE;
 	      break;
 	    }
+
 	  newpow = eval_object(j_ptr);
 	  if (rand_int(newpow) > (level * 3)/2)
 	    {
@@ -792,7 +799,6 @@ void do_cmd_talents()
 	      msg_format("Your %s explodes violently!", buf);
 	      take_hit(randint(2) * randint(newpow), "an exploding object.");
 	    }
-
 	  break;
 
 	case TV_AMULET:
@@ -1033,15 +1039,39 @@ void do_cmd_talents()
 	      msg_format("Your %s explodes violently!", buf);
 	      take_hit(randint(2) * randint(newpow), "an exploding object.");
 	    }
-
 	  break;
 	default:
 	  break;
 	}
+#if 0
 	if (trashsrc) inven_item_decrease(item);
 	p_ptr->tt = newpow;
 	if (p_ptr->tt < 100) p_ptr->tt = 100;
 	if (trashdest) inven_item_decrease(item2);
+#endif
+	/* Remove from here to the p_ptr->notice if it doesn't work -- G */
+	p_ptr->tt = newpow;
+	if (p_ptr->tt < 100)
+		p_ptr->tt = 100;
+
+	/* Search backwards through the pack, destroying those items
+	 * that need destroying */
+	for (x = INVEN_PACK; x >= 0; x--)
+	{
+		if ((x == item2 && (trashdest && !extradest)) ||
+			(x == item && trashsrc))
+			inven_item_decrease(x);
+	}
+
+	/* Handle the case of there having been more than one copy
+	 * of the destination object. */
+	if (extradest)
+	{
+		inven_item_decrease(item2);
+		item2 = inven_carry(j_ptr, FALSE);
+		if (trashdest)
+			inven_item_decrease(item2);
+	}
 
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	p_ptr->window |= (PW_INVEN);
@@ -1128,11 +1158,11 @@ void do_cmd_talents()
       p_ptr->tt = 20;
       break;
     case S_SLAY_EVIL:
-      detect_general(0, RF3_EVIL, "evil");
+      detect_evil();
       p_ptr->tt = 100;
       break;
     case S_SLAY_ANIMAL:
-      detect_general(0, RF3_ANIMAL, "animals");
+      detect_animals();
       p_ptr->tt = 75;
       break;
     case S_DISARM:
@@ -1175,44 +1205,29 @@ void do_cmd_talents()
       if (tmp=='w')
 	{
 	  if (!get_com("Forge a (S)word, (M)ace, or (P)olearm?", &tmp)) return;
-	  if (tmp=='s')
-	    i=TV_SWORD;
-	  else if (tmp=='m')
-	    i=TV_HAFTED;
-	  else if (tmp=='p')
-	    i=TV_POLEARM;
-	  else
-	    return;
+	  if (tmp=='s')		i=TV_SWORD;
+	  else if (tmp=='m')	i=TV_HAFTED;
+	  else if (tmp=='p')	i=TV_POLEARM;
+	  else return;
 	}
       if (tmp=='a')
 	{
 	  if (!get_com("Forge a (H)elmet, (B)oots, (S)hield, (G)auntlets, or (A)rmor?", &tmp)) return;
-	  if (tmp=='h')
-	    i=TV_HELM;
-	  else if (tmp=='a')
-	    i=TV_HARD_ARMOR;
-	  else if (tmp=='b')
-	    i=TV_BOOTS;
-	  else if (tmp=='s')
-	    i=TV_SHIELD;
-	  else if (tmp=='g')
-	    i=TV_GLOVES;
-	  else
-	    return;
+	  if (tmp=='h')		i=TV_HELM;
+	  else if (tmp=='a')	i=TV_HARD_ARMOR;
+	  else if (tmp=='b')	i=TV_BOOTS;
+	  else if (tmp=='s')	i=TV_SHIELD;
+	  else if (tmp=='g')	i=TV_GLOVES;
+	  else return;
 	}
       if (tmp=='z')
 	{
-	  if (!get_com("Forge (B)ow, (C)rossbow, (A)rrows, or (S)hots?", &tmp)) return;
-	  if (tmp=='b')
-	    i=TV_BOW;
-	  else if (tmp=='c')
-	    i=-(TV_BOW);
-	  else if (tmp=='a')
-	    i=TV_ARROW;
-	  else if (tmp=='s')
-	    i=TV_BOLT;
-	  else
-	    return;
+	  if (!get_com("Forge (B)ow, (C)rossbow, (A)rrows, or (Q)uarrels?", &tmp)) return;
+	  if (tmp=='b')		i=TV_BOW;
+	  else if (tmp=='c')	i=-(TV_BOW);
+	  else if (tmp=='a')	i=TV_ARROW;
+	  else if (tmp=='q')	i=TV_BOLT;
+	  else return;
 	}
       if (i) /* Now forge it */
 	{
@@ -1296,7 +1311,6 @@ void do_cmd_talents()
 	      o_ptr->k_idx=78;
 	    }
 	  o_ptr->dd=1;
-	  o_ptr->ident |= (IDENT_KNOWN);
 	  o_ptr->number=5+randint(dir/2)+dir/4;
 	  /* No specials---these are powerful ENOUGH! */
 	  k_ptr = &k_info[o_ptr->k_idx];
@@ -1331,7 +1345,6 @@ void do_cmd_talents()
 	    }
 	  o_ptr->dd=1;
 	  o_ptr->ds=1;
-	  o_ptr->ident |= (IDENT_KNOWN);
 	  o_ptr->pval=tmp;
 	  if (randint(dir*3/2) > 3)
 	    {
@@ -1370,7 +1383,6 @@ void do_cmd_talents()
 	  o_ptr->dd = 1+dir/11+randint(dir/19);
 	  o_ptr->ds = 2+dir/8+randint(dir/13);
 	  o_ptr->weight *= 2; /* Max=5d8 */
-	  o_ptr->ident |= (IDENT_KNOWN);
 	  if (randint(dir*3/2) > 3)
 	    {
 	      j=randint(dir/5)+2;
@@ -1404,7 +1416,6 @@ void do_cmd_talents()
 	  o_ptr->dd = 1+(dir/13); /* Max=3d14 */
 	  o_ptr->ds = 2+dir/5+randint(dir/7);
 	  o_ptr->weight = o_ptr->weight * 2/3;
-	  o_ptr->ident |= (IDENT_KNOWN);
 	  if (randint(dir*3/2) > 3)
 	    {
 	      msg_print("This is a special polearm!");
@@ -1437,7 +1448,6 @@ void do_cmd_talents()
 	  o_ptr->dd = 2+dir/11+randint(dir/19);
 	  o_ptr->ds = 3+dir/11+randint(dir/11);
 	  o_ptr->weight = o_ptr->weight*5/2;
-	  o_ptr->ident |= (IDENT_KNOWN); /* Max=6d9 */
 	  if (randint(dir*3/2) > 3)
 	    {
 	      msg_print("This is a special mace!");
@@ -1527,7 +1537,7 @@ void do_cmd_talents()
 		{
 		  sv=randint(7);
 		  if(sv<=2) select_attrib(dir*2, 1,
-					  TR1_STEALTH| TR1_SPEED, o_ptr);
+                                          TR1_STEALTH | TR1_SPEED, o_ptr);
 		  else if(sv<=4) select_attrib(dir*2, 2,
 					       TR2_RES_NEXUS| TR2_RES_ACID | TR2_FREE_ACT, o_ptr);
 		  else if(sv<=6) select_attrib(dir*2, 3,
@@ -1591,6 +1601,26 @@ void do_cmd_talents()
 	  break;
 	}
 
+	/* Extract the new object's flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Shouldn't have 0 pval for many items -- Gumby */
+	if ((o_ptr->pval == 0) &&
+	    (f1 & (TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON |
+		   TR1_CHR | TR1_STEALTH | TR1_SEARCH | TR1_INFRA |
+		   TR1_TUNNEL | TR1_SPEED | TR1_BLOWS)))
+	{
+		o_ptr->pval = 1;
+	}
+
+	/* You built it, you know it, and sometimes you know a lot - G */
+	o_ptr->ident |= (IDENT_KNOWN);
+	if (randint(250) <= p_ptr->stat_cur[A_INT])
+	{
+		msg_print("You are especially knowledgable about this item.");
+		o_ptr->ident |= (IDENT_MENTAL);
+	}
+
       /* Window stuff */
       p_ptr->window |= (PW_INVEN);
 
@@ -1619,6 +1649,7 @@ void do_cmd_talents()
       j += 150 * o_ptr->to_a;
       j += 300 * o_ptr->pval;
       mask=1;
+
       /* This adds value for each special added */
       for(k = 0; k < 32; k++)
 	{

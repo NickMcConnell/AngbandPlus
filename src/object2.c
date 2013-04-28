@@ -1019,6 +1019,7 @@ static s32b object_value_real(object_type *o_ptr)
 
 			/* Factor in the bonuses */
 			value += ((o_ptr->to_h + o_ptr->to_d) * 5L);
+
 			/* Hack -- Factor in extra damage dice */
 			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
 			{
@@ -1177,9 +1178,6 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Must have identical weight */
 			if(o_ptr->weight != j_ptr->weight) return (FALSE);
-			/* XXX XXX XXX Require identical "sense" status */
-			/* if ((o_ptr->ident & ID_SENSE) != */
-			/*     (j_ptr->ident & ID_SENSE)) return (0); */
 
 			/* Fall through */
 		}
@@ -1188,8 +1186,17 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_AMULET:
 		case TV_LITE:
 		{
-			/* Require full knowledge of both items */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
+			/* Require knowledge or {average} pseudo-id for both items */
+			if (!object_known_p(o_ptr) && 
+				!((o_ptr->ident & (IDENT_SENSE)) && !strcmp(quark_str(o_ptr->note), "average")))
+			{
+				return (0);
+			}
+			if (!object_known_p(j_ptr) && 
+				!((j_ptr->ident & (IDENT_SENSE)) && !strcmp(quark_str(j_ptr->note), "average")))
+			{
+				return (0);
+			}
 
 			/* Fall through */
 		}
@@ -1826,6 +1833,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 				/* Hack -- Super-charge the damage dice */
 				while (rand_int(o_ptr->dd * o_ptr->ds) == 0) o_ptr->dd++;
+
 				/* Hack -- Lower the damage dice */
 				if (o_ptr->dd > 9) o_ptr->dd = 9;
 			}
@@ -4539,15 +4547,15 @@ static void spell_info(char *p, int j)
 	switch (j+((p_ptr->realm-1)*64))
 	{
 		/*** Mage spells ***/
-		case 0: sprintf(p, " dam %dd4", 3 + (plev-1)/5 ); break;
+		case 0: sprintf(p, " dam %dd4", 3 + (plev-1)/5); break;
 		case 2: strcpy(p, " range 10"); break;
 		case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
 		case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-		case 11: sprintf(p, " dam %d", 10+plev/4); break;
+		case 11: sprintf(p, " dam %d", 15+plev/3); break;
 		case 14: sprintf(p, " range %d", plev * 5); break;
-		case 15: sprintf(p, " dam %dd6", 4+((plev-5)/45)); break;
+		case 15: sprintf(p, " dam %dd6", 3+(plev-1)/5); break;
 		case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-		case 23: sprintf(p, " dam %d", 30+plev/4); break;
+		case 23: sprintf(p, " dam %d", 30+plev/2); break;
 		case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
 		case 26: sprintf(p, " dam %d", 30 + plev); break;
 		case 29: sprintf(p, " dur %d+d20", plev); break;
@@ -4635,10 +4643,10 @@ static void spell_info(char *p, int j)
 		case 204: sprintf(p, " dur %d", plev*2+30); break;
 		case 205: sprintf(p, " range %d", plev*4); break;
 		case 208: sprintf(p," dur %d", 2*plev+50); break;
-		case 209: sprintf(p, " dam %d", plev/3+20); break;
+		case 209: sprintf(p, " dam %d", plev/2+20); break;
 		case 210: sprintf(p, " heal %d", (plev*3)/2+50); break;
 		case 211: sprintf(p," dur %d", 2*plev+50); break;
-		case 213: sprintf(p, " dam %d", plev/3+35); break;
+		case 213: sprintf(p, " dam %d", plev/2+35); break;
 		case 217: sprintf(p, " dur %d", plev+30); break;
 		case 218: sprintf(p, " dur %d", plev+50); break;
 		case 219: sprintf(p, " dur 30+d20"); break;

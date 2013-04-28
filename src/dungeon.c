@@ -1413,7 +1413,7 @@ static void process_command(void)
 			/* Jam a door with spikes */
 		case 'j':
 		{
-			do_cmd_spike(0);
+			do_cmd_spike();
 			break;
 		}
 

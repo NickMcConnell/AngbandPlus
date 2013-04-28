@@ -1,3 +1,92 @@
+SAngband 0.9.4g (changes by Gumby [17-Feb-2002]):
+1) All items and spells that should detect stairs as well as doors now do
+so.
+2) Detect Doors now shows all doors, even those that are locked or jammed.
+3) Added option to show the damage dealt by the player in melee and missile
+combat. [taken from Gumband]
+4) Current XP is now displayed on the skills screen.
+5) Altered the colour scheme of dungeon features to match that of Gumband.
+6) Chunks of ore are now the same colour as coins/armour of the appropriate
+type (the exception being Crystal, which I decided to make white).
+7) Weapons, armours, light sources, rings and amulets can now stack if they
+pseudo-ID as {average}. [taken from Gumband, based on an idea and code by
+Antimatter of #angband on IRC]
+8) Altered the fenneling lack-of-skill messages for wands and staves to
+tell the player more explicitly which skill needs to be improved.
+9) Set the maximum pval for fenneled items to 10 in all cases, the exception
+being extra blows (capped at +5). [stats can still be gross, however :]
+10) Replaced do_cmd_spike() with the appropriate functions from SAngband
+0.9.5, mainly to fix the Reinforce Door item-trashing bug.
+11) Scrolls of *Identify* can now be found in the Alchemy Shop.
+12) Changed the Bow-making prompt to show you '(Q)uarrels' (bolts) instead
+of '(S)hots', which was misleading.
+13) When forging a bow, weapon, or piece of armour, it will be created
+Identified.  A randint(250) <= Int check is then made.  If the check passes,
+then the new item will be *Identified*.
+14) Evened out the costs and levels of spellbooks so that no realm has an
+advantage in that area over the others, and recolored them so that they
+match the Gumband color scheme. [Sorcery is light blue/blue, Priestly is
+'light' white (slightly darker than scrolls), Druidic/Nature is light
+green/green, and Necromancy is 'light' dark/violet]
+15) The detect_general() function in spells2.c wasn't working properly [eg,
+showing undead creatures when you only want non-undead], so I replaced it
+with the more traditional detect_evil() [Gumband version] and cloned that
+function for detect_undead(), detect_life() and detect_animals(). [first
+tried importing the SAng095 version of those functions, but they also didn't
+work properly]
+16) Added messages to the various Remove Curse spells to tell you if the
+spell actually did anything.  Added one to Scrolls of *Remove Curse* as
+well.
+17) I *think* the fenneling bug that sometimes destroys the wrong item is
+fixed, thanks to pointers from Julian.  At least I haven't been able to
+cause an explosion yet.  Testing will continue.
+18) Altered the Necromantic spell 'Curse Weapon' slightly so that the
+message telling you the weapon has been cursed successfully comes *before*
+the (+2,+2) enchantment has a chance to break the curse.
+19) Added code (provided for Gumband by Riivo Magi) to filter out already
+identified or *identified* items when prompted to select an item to ID or
+*ID*.
+20) Pink Elephants are now actually pink and are 'q'uadropeds.
+21) BUG: I *would* have enabled the generation of spoilers from within the
+game [" at the debug command prompt], but for some reason I haven't been
+able to track down, the attributes based on object flags (slays and such) of
+artifacts are not generated along with their names, visible stats, weight,
+cost, etc...
+22) You can now <b>rowse a spellbook (in your inventory) while in a shop
+instead of getting a "You cannot see!" message.
+23) *Destruction* and Earthquake no longer cause you to forget the grids in
+the affected area (from Gumband).
+24) When forging items, items created with bonuses to your stats, stealth,
+infravision, searching, tunneling, speed, or blows will no longer be made
+with +0 pval.
+25) Added a "No query to destroy known worthless items" option. [defaults to
+FALSE.]
+26) Nature and Necromancy books will now burn like Magic and Prayer books
+do, and since scrolls and staves are destroyed by acid, so are spellbooks.
+Components will also melt due to fire (except for Adamant, Mithril and
+Crystal, which now have IGNORE_FIRE).
+27) Moved the display of Gold on the character sheet up to below Social
+Class. Added the display of both your current depth and your maximum depth
+to the character sheet.
+28) Necromancy's and Sorcery's 'Regain Mana' spells and Nature's 'Regain
+Harmony' spell now will always restore the amount of mana spent on the spell
+(meaning you really only pay, if the spell doesn't fail, by using up a
+possible move/attack) plus a random amount, instead of just a random amount.
+[note that since your mana is reduced from casting a spell *after* the spell
+takes effect, casting this when you have full or near full mana is rather
+pointless]
+29) Rods and other objects now show how many turns they have until they are
+recharged.
+30) Corrected a spelling error: 'Sustinence' is now the proper 'Sustenance'.
+31) Modified ./lib/user/pref.prf (remove the ` macro if compiling for Linux)
+to conform to my normal preferences, and added necro.prf, wizard.prf,
+priest.prf and druid.prf, which contain spell macros that will be loaded
+automatically when you restore a character with the appropriate realm of
+magic.
+32) The Wizardry 'Mana Bolt' and 'Magic Storm' spells now do reasonable
+amounts of damage, as does 'Lightning Ball'. Necromancy's 'Disrupt Life' and
+'Drain Life' have also increased their damages slightly.
+
 SAngband 0.9.4:
 1) Hellfire now updates the fear indicator correctly.
 2) Dispel * effects now only work on the appropriate type of critter,
@@ -48,14 +137,14 @@ SAngband 0.9.3 (04/04/97):
 2) Priest spells are matched correctly.  Also, the "elemental brand" prayer
 will properly brand weapons.
 3) Luck cannot be minimized with the autoroller and is not displayed until
-the player casts self-knowledge.  Players no longer become extremely lucky by
-going back to a previous character.
+the player casts self-knowledge.  Players no longer become extremely lucky
+by going back to a previous character.
 4) Weapons with "venom" now work correctly.
 5) Self-knowledge has been fixed to display all flags.
 6) The player's "spell level" is calculated differently so that it cannot be
 higher than 50.  The "teleport" prayer should not lock up the game.
-7) Serpentine weapons are no longer vorpal (I had them erroneously defined as
-being the same :).)  Weapons that were vorpal in v0.8.9 are once again
+7) Serpentine weapons are no longer vorpal (I had them erroneously defined
+as being the same :).)  Weapons that were vorpal in v0.8.9 are once again
 vorpal.
 8) No more cursed "holy avenger" boots (oops...)
 9) The screen should always withdraw from the talent screen.
@@ -68,9 +157,9 @@ max.)
 SAngband 0.9.2 (01/25/97):
 1) The "spiritual hammer" prayer now works correctly.
 2) To-dam modifiers of weapons now work.
-3) A number of cosmetic things have been fixed (the spell info is correct for
-all few more spells, the word "Invisible" is now taken off the screen when
-the player is no longer invisible, etc.)
+3) A number of cosmetic things have been fixed (the spell info is correct
+for all few more spells, the word "Invisible" is now taken off the screen
+when the player is no longer invisible, etc.)
 4) All races, except humans, dunedain, and high-elves get much less "life
 experience" when starting out.
 5) Fixed a bug which would cause the player to start out with a large amount
@@ -78,9 +167,10 @@ of negative exp if the total of his stat mods were negative.
 
 SAngband 0.9.1 (01/11/97):
 1) The cursor is now moved properly when choosing stat modifiers.
-2) Weaponsmithing, armor forging, bowmaking, and fennling all work correctly.
-Bowmaking will never create a seeker arrow when a bow is requested.
-Forged/fennled items no longer lose their properties when the game is saved.
+2) Weaponsmithing, armor forging, bowmaking, and fennling all work
+correctly.  Bowmaking will never create a seeker arrow when a bow is
+requested.  Forged/fennled items no longer lose their properties when the
+game is saved.
 3) The necro "Infuse Weapon" and "Curse Weapon" spells no longer work on
 artifacts.  "Curse Weapon" now works correctly.
 4) Fixed a bug which caused some spells not to take a turn if they had no
@@ -88,10 +178,10 @@ effect on the player (eg, casting Curse Weapon on a weapon that was already
 cursed).
 5) Fixed the bug which caused Morgoth not to exist (so you can actually win
 the game...)
-6) V0.9.0 would erroneously flag all priest, druid, and necro spells as being
-untried.  Fixed.
-7) "Nothing" items no longer appear in the temple.  (I'm not exactly sure why
-they were appearing, actually, but they will no longer appear.)
+6) V0.9.0 would erroneously flag all priest, druid, and necro spells as
+being untried.  Fixed.
+7) "Nothing" items no longer appear in the temple.  (I'm not exactly sure
+why they were appearing, actually, but they will no longer appear.)
 8) "Recall()" is now called "recall_player()" to avoid conflicting with the
 recall variables in some term packages (Acorn, Amiga, X11, Xaw).  Thanks to
 Greg Wooledge (wooledge@kellnet.com) for pointing this out.
@@ -103,4 +193,5 @@ correct.
 when altering the number of objects in a stack with wizard mode.
 12) See invisible now works.
 13) Hellfire does less damage now.  Monsters that appear in groups no longer
-cast it.  ALso, this attack is now described as a spell rather than a breath.
+cast it.  ALso, this attack is now described as a spell rather than a
+breath.

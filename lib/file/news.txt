@@ -1,7 +1,5 @@
-
-
                         ***********************
-                        **   SAngband 0.9.4  **
+                        **  SAngband 0.9.4g  **
                         ***********************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -14,9 +12,11 @@
        Angband 2.7 - 2.8: Ben Harrison (benh@voicenet.com)
       SAngband 0.8.5 - 0.9.3: Michael Gorse (mgorse@wpi.edu)
       SAngband 0.9.4: Julian Lighton (jl8e@fragment.com)
+     SAngband 0.9.4g: Joseph W. Dixon (aa343@chebucto.ns.ca)
 
        Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
 
  Be sure to read the online help, especially "general.txt" and "version.txt".
  Visit the SAngband Home Page at "http://www.fragment.com/~jl8e/sangband/".
- Send all comments, bug reports, patches, etc, to "jl8e@fragment.com".
+ Send all comments, bug reports, patches, etc, to "jl8e@fragment.com" or
+ "aa343@chebucto.ns.ca", if it's about the new stuff in this version.

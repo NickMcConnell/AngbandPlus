@@ -763,7 +763,7 @@ static void prt_num(cptr header, int num, int row, int col, byte color)
 static void display_player_middle(void)
 {
 	int show_tohit = p_ptr->dis_to_h;
-	int show_todam = p_ptr->dis_to_d;
+	int show_todam = p_ptr->dis_to_d + stodam(p_ptr->wskill);
 
 	object_type *o_ptr = &inventory[INVEN_WIELD];
 
@@ -794,7 +794,17 @@ static void display_player_middle(void)
 
 	prt_lnum("Max Exp    ", p_ptr->max_exp, 11, 28, TERM_L_GREEN);
 
-	prt_lnum("Gold       ", p_ptr->au, 13, 28, TERM_L_GREEN);
+	if (!dun_level)
+	{
+		put_str("Cur Depth  ", 12, 28);
+		put_str("Town", 12, 44);
+	}
+	else
+	{
+		prt_lnum("Cur Depth  ", dun_level, 12, 28, TERM_L_BLUE);
+	}
+
+	prt_lnum("Max Depth  ", p_ptr->max_dlv, 13, 28, TERM_L_BLUE);
 
 	prt_num("Max Hit Points ", p_ptr->mhp, 9, 52, TERM_L_GREEN);
 
@@ -1726,6 +1736,7 @@ void display_player(int mode)
 		prt_num("Height       ", (int)p_ptr->ht, 3, 32, TERM_L_BLUE);
 		prt_num("Weight       ", (int)p_ptr->wt, 4, 32, TERM_L_BLUE);
 		prt_num("Social Class ", (int)p_ptr->sc, 5, 32, TERM_L_BLUE);
+		prt_lnum("Gold         ", p_ptr->au, 6, 32, TERM_YELLOW);
 
 		/* Display the stats */
 		for (i = 0; i < 6; i++)

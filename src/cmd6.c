@@ -833,6 +833,7 @@ void do_cmd_quaff_potion(void)
 	(void)do_inc_stat(A_WIS);
 	(void)detect_traps();
 	(void)detect_doors();
+	(void)detect_stairs();
 	(void)detect_objects_gold();
 	(void)detect_objects_normal();
 	identify_pack();
@@ -1209,7 +1210,8 @@ void do_cmd_read_scroll(void)
       }
     case SV_SCROLL_STAR_REMOVE_CURSE:
       {
-	remove_all_curse();
+	if (remove_all_curse())
+		msg_print("You feel as if someone is closely watching over you.");
 	ident = TRUE;
 	break;
       }
@@ -1661,7 +1663,7 @@ void do_cmd_use_staff(void)
 
     case SV_STAFF_DETECT_EVIL:
       {
-	if (detect_general(0, RF3_EVIL, "evil")) ident = TRUE;
+	if (detect_evil()) ident = TRUE;
 	break;
       }
 
@@ -2344,7 +2346,9 @@ void do_cmd_zap_rod(void)
 
     case SV_ROD_DETECT_DOOR:
       {
-	if (detect_doors()) ident = TRUE;
+	(void)detect_doors();
+	(void)detect_stairs();
+	ident = TRUE;
 	o_ptr->pval = 70;
 	break;
       }
@@ -3238,8 +3242,9 @@ void do_cmd_activate(void)
 	  {
 	    msg_print("The stone glows a deep green...");
 	    wiz_lite();
-	    (void)detect_doors();
 	    (void)detect_traps();
+	    (void)detect_doors();
+	    (void)detect_stairs();
 	    o_ptr->timeout = rand_int(100) + 100;
 	    break;
 	  }

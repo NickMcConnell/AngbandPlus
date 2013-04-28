@@ -148,14 +148,14 @@ D:A thin flea-ridden mutt, growling as you get close.
 N:4:Farmer Maggot
 G:h:w
 I:110:35d10:40:10:3
-W:0:4:0:0
+W:0:1:0:0
+#W:0:4:0:0
 B:MOAN
-B:MOAN
-F:UNIQUE | MALE | 
-F:FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:NO_CONF | NO_SLEEP
+#B:MOAN
+F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:DROP_GREAT
+#F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | NO_CONF | NO_SLEEP
 D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy 
 D:hobbit!
 
@@ -2943,7 +2943,7 @@ D:It is a strange red growth on the dungeon floor; it seems to burn with
 D:flame.
 
 N:234:Pink elephant
-G:H:w
+G:q:R
 I:120:24d20:40:50:0
 W:19:1:0:500
 B:CRUSH:HURT:8d20

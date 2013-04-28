@@ -368,8 +368,8 @@ void do_cmd_advance()
   prt("<Spacebar> or <Enter> to advance it.  Skill info is in", 22, 15);
   prt("top line.  Press ESC to exit, or ? for skill info.", 23, 15);
   k = p_ptr->lastadv;
-  sprintf(out,"Advancements: %d, XP Needed: %ld       ",
-	  p_ptr->adv_skill[k], get_xp(k));
+  sprintf(out,"Advancements: %d, XP Needed: %ld, XP Avail: %ld",
+	  p_ptr->adv_skill[k], get_xp(k), p_ptr->exp);
   prt(out,0,10);
   stay=1;
   while(stay)
@@ -386,14 +386,14 @@ void do_cmd_advance()
 	  sprintf(out,"%s will help you to %s.",snames[k],shelp[k]);
 	  msg_print(out);
 	  msg_print(NULL);
-	  prt(format("Advancements: %d, XP Needed: %ld       ",
-		     p_ptr->adv_skill[k], get_xp(k)), 0, 0);
+	  prt(format("Advancements: %d, XP Needed: %ld, XP Avail: %ld",
+		     p_ptr->adv_skill[k], get_xp(k), p_ptr->exp), 0, 0);
 	  break;
 	case ' ': case 13: /* Return pressed or Spacebar */
 	  (void) advance(k, 1);
 	  prt_skills_aux(k, (FILE *)0);
-	  prt(format("Advancements: %d, XP Needed: %ld       ",
-		     p_ptr->adv_skill[k], get_xp(k)), 0, 0);
+	  prt(format("Advancements: %d, XP Needed: %ld, XP Avail: %ld",
+		     p_ptr->adv_skill[k], get_xp(k), p_ptr->exp), 0, 0);
 	  energy_use = 100;
 	  break;
 	case 27: /* ESC */
@@ -405,8 +405,8 @@ void do_cmd_advance()
 	    key -= 65;
 	    if(!snames[(int)key][0]) break;
 	    k = key;
-	    prt(format("Advancements: %d, XP Needed: %ld       ",
-		       p_ptr->adv_skill[k], get_xp(k)), 0, 0);
+	    prt(format("Advancements: %d, XP Needed: %ld, XP Avail: %ld",
+		       p_ptr->adv_skill[k], get_xp(k), p_ptr->exp), 0, 0);
 	  }
 	}
     }

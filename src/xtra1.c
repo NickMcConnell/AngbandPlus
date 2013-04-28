@@ -466,17 +466,14 @@ static void prt_poisoned(void)
 static void prt_state(void)
 {
   byte attr = TERM_WHITE;
-
   char text[16];
 
-
-  /* Paralysis */
-  if (p_ptr->paralyzed)
-    {
-      attr = TERM_RED;
-
-      strcpy(text, "Paralyzed!");
-    }
+	/* Paralysis */
+	if (p_ptr->paralyzed)
+	{
+		attr = TERM_RED;
+		strcpy(text, "Paralyzed!");
+	}
 
   /* Resting */
   else if (resting)

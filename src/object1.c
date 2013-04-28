@@ -465,14 +465,24 @@ static byte default_tval_to_attr(int tval)
 			return (TERM_L_UMBER);
 		}
 
-		case TV_MAGIC_BOOK: case TV_DARK_BOOK:
+		case TV_MAGIC_BOOK:
 		{
-			return (TERM_L_RED);
+			return (TERM_L_BLUE);
 		}
 
-		case TV_PRAYER_BOOK: case TV_NATURE_BOOK:
+		case TV_PRAYER_BOOK:
+		{
+			return (TERM_L_WHITE);
+		}
+
+		case TV_NATURE_BOOK:
 		{
 			return (TERM_L_GREEN);
+		}
+
+		case TV_DARK_BOOK:
+		{
+			return (TERM_L_DARK);
 		}
 	}
 
@@ -1743,8 +1753,19 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Hack -- Rods have a "charging" indicator */
 	else if (known && (o_ptr->tval == TV_ROD))
 	{
+#if 0
 		/* Hack -- Dump " (charging)" if relevant */
 		if (o_ptr->pval) t = object_desc_str(t, " (charging)");
+#endif
+		/* Hack -- Dump the recharge time, if appropriate -- Gumby */
+		if (o_ptr->pval)
+		{
+			t = object_desc_chr(t, ' ');
+			t = object_desc_chr(t, p1);
+			t = object_desc_num(t, o_ptr->pval);
+			t = object_desc_str(t, " turns");
+			t = object_desc_chr(t, p2);
+		}
 	}
 
 	/* Hack -- Process Lanterns/Torches */
@@ -1819,8 +1840,16 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Indicate "charging" artifacts. */
 	if (known && o_ptr->timeout)
 	{
+#if 0
 	  /* Hack -- Dump " (charging)" if relevant */
 	  t = object_desc_str(t, " (charging)");
+#endif
+		/* Hack -- Dump the recharge time, if appropriate -- Gumby */
+		t = object_desc_chr(t, ' ');
+		t = object_desc_chr(t, p1);
+		t = object_desc_num(t, o_ptr->timeout);
+		t = object_desc_str(t, " turns");
+		t = object_desc_chr(t, p2);
 	}
 
 	/* No more details wanted */

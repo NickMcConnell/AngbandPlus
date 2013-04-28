@@ -466,21 +466,16 @@ void do_cmd_drop(void)
  */
 void do_cmd_destroy(void)
 {
-	int			item, amt = 1;
-	int			old_number;
-
+	int		item, amt = 1;
+	int		old_number;
 	bool		force = FALSE;
-
-	object_type		*o_ptr;
-
+	object_type	*o_ptr;
 	char		o_name[80];
-
 	char		out_val[160];
 
 
 	/* Hack -- force destruction */
 	if (command_arg > 0) force = TRUE;
-
 
 	/* Get an item (from inven or floor) */
 	if (!get_item(&item, "Destroy which item? ", FALSE, TRUE, TRUE))
@@ -501,7 +496,6 @@ void do_cmd_destroy(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* See how many items */
 	if (o_ptr->number > 1)
 	{
@@ -512,7 +506,6 @@ void do_cmd_destroy(void)
 		if (amt <= 0) return;
 	}
 
-
 	/* Describe the object */
 	old_number = o_ptr->number;
 	o_ptr->number = amt;
@@ -522,9 +515,12 @@ void do_cmd_destroy(void)
 	/* Verify unless quantity given */
 	if (!force)
 	{
-		/* Make a verification */
-		sprintf(out_val, "Really destroy %s? ", o_name);
-		if (!get_check(out_val)) return;
+		if (!((auto_destroy) && (object_value(o_ptr)<1)))
+		{
+			/* Make a verification */
+			sprintf(out_val, "Really destroy %s? ", o_name);
+			if (!get_check(out_val)) return;
+		}
 	}
 
 	/* Take a turn */
@@ -540,6 +536,7 @@ void do_cmd_destroy(void)
 
 		/* Hack -- Handle icky artifacts */
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
+
 		/* Hack -- inscribe the artifact */
 		o_ptr->note = quark_add(feel);
 
