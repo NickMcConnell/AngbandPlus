@@ -1,3 +1,48 @@
+SAngband 0.9.4:
+1) Hellfire now updates the fear indicator correctly.
+2) Dispel * effects now only work on the appropriate type of critter,
+as does Slow Undead.
+3) The player no longer move at double speed. (Fix by Greg Wooledge.)
+4) The 'C' screen should no longer crash the game. (Fix by Greg
+Wooledge.)
+5) The player no longer forgets spells they've recently learned.
+6) *Identify*, Self Knowledge, and monster memory now know about
+all the new flags.
+7) Artifacts now appear with proper rarity.
+8) Skullcleaver now has an activation.
+9) Poisonous weapons work correctly.
+10) Resistance to weapon types works correctly.
+11) Ego items get their random abilities.
+12) Objects stacking on floor works.
+13) Combat damage has been reorganized, and the potential for absurd
+amounts of damage has been scaled back significantly.
+14) Making wands, staves, potions, and scrolls can now produce useful
+objects.
+15) A number of bugs involving scrolls of questing have been fixed.
+16) Holy Defender weapons no longer have strange penalties.
+17) The Dual Wield skill should now work. (Loosly based on a patch
+by Brian Pope <brpope@terra.geology.indiana.edu>.)
+18) For game balance reasons, weapons providing extra attacks give no
+more than two.
+19) The documentation has been brought a bit more up to date.
+20) The spell info has been cleaned up.
+21) The shapechanging code has been re-written.
+22) Iron will has been toned down.
+23) Fenneling has been partially re-written and (hopefully)
+made more balanced.
+24) The 'C' screen now knows about Giant and Dark Elf intrinsics.
+(fix by Jens Gislev.)
+25) Teleportation no longer has the potential to lock up the game.
+(fix by Jens Gislev.)
+26) What abilities are available on which forged objects has been
+slightly reorganized.
+27) A few things in the various info.txt files have been changed.
+28) Predict weather works a lot better now, and the weather code
+has been modified slightly.
+29) A potential crash involving objects with very long names has been
+dealt with.
+30) A number of cosmetic problems have been cleaned up.
+
 SAngband 0.9.3 (04/04/97):
 1) "Mystic" weapons should now work.
 2) Priest spells are matched correctly.  Also, the "elemental brand" prayer
@@ -59,4 +104,3 @@ when altering the number of objects in a stack with wizard mode.
 12) See invisible now works.
 13) Hellfire does less damage now.  Monsters that appear in groups no longer
 cast it.  ALso, this attack is now described as a spell rather than a breath.
-

@@ -37,7 +37,7 @@ s16b poly_r_idx(int r_idx)
 	for (i = 0; i < 1000; i++)
 	{
 		/* Pick a new race, using a level calculation */
-		r = get_mon_num((dun_level + r_ptr->level) / 2 + 5);
+		r = get_mon_num(((dun_level==-1? 50: dun_level) + r_ptr->level) / 2 + 5);
 
 		/* Handle failure */
 		if (!r) break;
@@ -170,6 +170,7 @@ void teleport_player(int dis)
 
 	/* Minimum distance */
 	min = dis / 2;
+	if (min > 200) min = 200;
 
 	/* Look until done */
 	while (look)
@@ -319,33 +320,37 @@ void teleport_player_to(int ny, int nx)
  */
 void teleport_player_level(void)
 {
-	if (!dun_level)
-	{
-		msg_print("You sink through the floor.");
-		dun_level++;
-		new_level_flag = TRUE;
-	}
-	else if (is_quest(dun_level) || (dun_level >= MAX_DEPTH-1))
-	{
-		msg_print("You rise up through the ceiling.");
-		dun_level--;
-		new_level_flag = TRUE;
-	}
-	else if (rand_int(100) < 50)
-	{
-		msg_print("You rise up through the ceiling.");
-		dun_level--;
-		new_level_flag = TRUE;
-	}
-	else
-	{
-		msg_print("You sink through the floor.");
-		dun_level++;
-		new_level_flag = TRUE;
-	}
+  if (dun_level == -1) /* Can't leave quest levels that easily. */
+    {
+      msg_print("You feel pulled in many directions at once.");
+    }
+  else if (!dun_level)
+    {
+      msg_print("You sink through the floor.");
+      dun_level++;
+      new_level_flag = TRUE;
+    }
+  else if (is_quest(dun_level) || (dun_level >= MAX_DEPTH-1))
+    {
+      msg_print("You rise up through the ceiling.");
+      dun_level--;
+      new_level_flag = TRUE;
+    }
+  else if (rand_int(100) < 50)
+    {
+      msg_print("You rise up through the ceiling.");
+      dun_level--;
+      new_level_flag = TRUE;
+    }
+  else
+    {
+      msg_print("You sink through the floor.");
+      dun_level++;
+      new_level_flag = TRUE;
+    }
 
-	/* Sound */
-	sound(SOUND_TPLEVEL);
+  /* Sound */
+  sound(SOUND_TPLEVEL);
 }
 
 
@@ -453,14 +458,14 @@ void take_hit(int damage, cptr hit_from)
 	/* Handle invisibility and iron will */
 	if (p_ptr->invisible) /* Now does pseudo Iron-Will */
 	{
-		damage=damage*2/3; /* Not nearly as strong, since it's permanent */
+		damage=damage*5/6; /* Not nearly as strong, since it's permanent */
 		++damage;
 	}
 	if (p_ptr->ironwill)
 	{
 		d=p_ptr->ironwill; /* Used to watch for overflow */
-		p_ptr->ironwill-=damage/3;
-		damage/=3;
+		p_ptr->ironwill-=damage*2/3;
+		damage = damage *2 / 3;
 		++damage; /* Resist damage */
 		if (damage>p_ptr->chp)
 		{
@@ -814,6 +819,10 @@ static int minus_ac(void)
 
 	char		o_name[80];
 
+
+	/* If the player has shapechanged, their armor is part of
+	   their body, and cannot be damaged. A mixed blessing. */
+	if (p_ptr->schange) return (FALSE);
 
 	/* Pick a (possibly empty) inventory slot */
 	switch (randint(6))
@@ -1181,6 +1190,10 @@ bool apply_disenchant(int mode)
 
 	/* Unused */
 	mode = mode;
+
+	/* If the player has shapechanged, their equipment is part of
+	   their body, and cannot be disenchanted. */
+	if (p_ptr->schange) return (FALSE);
 
 	/* Pick a random slot */
 	switch (randint(8))
@@ -2500,6 +2513,41 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Slow Undead (Use "dam" as "power") */
+	case GF_SLOW_UNDEAD:
+	  {
+	    /* Only affect undead */
+	    if (r_ptr->flags3 & (RF3_UNDEAD))
+	      {
+		/* Learn about type */
+		if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
+
+		if (seen) obvious = TRUE;
+
+		/* Powerful monsters can resist. */
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+		    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+		  {
+		    note = " is unaffected!";
+		    obvious = FALSE;
+		  }
+
+		/* Normal monsters slow down */
+		else
+		  {
+		    if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+		    note = " starts moving slower.";
+		  }
+	      }
+	    else
+	      {
+		skipped = TRUE;
+	      }
+	    /* No "real" damage */
+	    dam = 0;
+	    break;
+	  }
+
 
 		/* Sleep (Use "dam" as "power") */
 		case GF_OLD_SLEEP:
@@ -2880,6 +2928,36 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Dispel animals */
+		case GF_DISP_ANIMAL:
+		{
+			/* Only affect animals */
+			if (r_ptr->flags3 & (RF3_ANIMAL))
+			{
+				/* Learn about type */
+				if (seen) r_ptr->r_flags3 |= (RF3_ANIMAL);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
+
 
 		/* Dispel evil */
 		case GF_DISP_EVIL:
@@ -2931,7 +3009,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if(r_ptr->flags3 & RF3_UNDEAD)
 				{
 					dam = 0;
-					note = " is immuned.";
+					note = " is immune.";
 
 					if(seen)
 					{

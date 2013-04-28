@@ -980,7 +980,10 @@ static void display_player_various(void)
 
 
 	put_str("Blows/Round:", 16, 55);
-	put_str(format("%d", p_ptr->num_blow), 16, 69);
+	if (p_ptr->twoweap)
+	  put_str(format("%d/%d", p_ptr->num_blow, p_ptr->num_blow2), 16, 69);
+	else
+	  put_str(format("%d", p_ptr->num_blow), 16, 69);
 
 	put_str("Shots/Round:", 17, 55);
 	put_str(format("%d", p_ptr->num_fire), 17, 69);
@@ -1023,6 +1026,14 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	/* High Elf */
 	if (p_ptr->prace == RACE_HIGH_ELF) (*f2) |= (TR2_RES_LITE);
 	if (p_ptr->prace == RACE_HIGH_ELF) (*f3) |= (TR3_SEE_INVIS);
+
+	/* Dark Elf */
+	if (p_ptr->prace == RACE_DARK_ELF) (*f2) |= (TR2_SUST_INT);
+	if (p_ptr->prace == RACE_DARK_ELF) (*f2) |= (TR2_RES_CHAOS);
+	
+	/* Giant */
+	if (p_ptr->prace == RACE_GIANT) (*f2) |= (TR2_RES_FIRE);
+	if (p_ptr->prace == RACE_GIANT) (*f2) |= (TR2_RES_COLD);
 }
 /*
  * Equippy chars
@@ -1161,7 +1172,7 @@ static void display_player_flag_info(void)
 
 	display_player_equippy(row-2, col+15);
 
-	c_put_str(TERM_WHITE, "@abcdefghijkl", row-1, col+15);
+	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col+15);
 
 	display_player_flag_aux(row+0, col, "Free Action  :", 2, TR2_FREE_ACT);
 	display_player_flag_aux(row+1, col, "See Invisible:", 3, TR3_SEE_INVIS);
@@ -1880,7 +1891,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [SAngband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	/* Display player */
 	display_player(0);
@@ -2216,7 +2227,7 @@ static bool do_cmd_help_aux(cptr name, cptr what, int line)
 
 
 		/* Show a general "title" */
-		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
+		prt(format("[SAngband %d.%d.%d, %s, Line %d/%d]",
 		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 		           caption, line, size), 0, 0);
 
@@ -2673,8 +2684,8 @@ static void make_bones(void)
 	/* Ignore wizards and borgs */
 	if (!(noscore & 0x00FF))
 	{
-		/* Ignore people who die in town */
-		if (dun_level)
+		/* Ignore people who die in town, or in the quest */
+		if (dun_level < 1)
 		{
 			char tmp[128];
 

@@ -224,14 +224,14 @@
  * This must be defined if you do not have valid binary image files.
  * It should be usually be defined anyway to allow easy "updating".
  */
-/* #define ALLOW_TEMPLATES */
+#define ALLOW_TEMPLATES
 
 /*
  * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
  * about 15K of code in "save-old.c" to parse the old savefile format.
  * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
  */
-#define ALLOW_OLD_SAVEFILES
+/* #define ALLOW_OLD_SAVEFILES */
 
 
 /*
@@ -350,12 +350,12 @@
 /*
  * OPTION: Allow the use of "sound" in various places.
  */
-#define USE_SOUND
+/* #define USE_SOUND */
 
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-#define USE_GRAPHICS
+/* #define USE_GRAPHICS */
 
 
 /*

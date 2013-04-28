@@ -33,11 +33,11 @@
 
 
 /*
- * Current version number of SAngband: 0.9.0
+ * Current version number of SAngband: 0.9.4
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	9
-#define VERSION_PATCH	3
+#define VERSION_PATCH	4
 
 /*
  * This value is not currently used
@@ -690,6 +690,7 @@
 #define ART_OLORIN			120
 #define ART_DEATHWREAKER	121
 #define ART_TURMIL			122
+#define ART_SKULLCLEAVER	123
 
 /* Bows */
 #define ART_BELTHRONDING	124
@@ -781,10 +782,11 @@
 #define EGO_HA				64
 #define EGO_DF				65
 #define EGO_BLESS_BLADE		66
+#define EGO_SEPENTINE		67
 #define EGO_WEST			68
 #define EGO_ATTACKS			69
-#define EGO_MYSTIC			70
-/* xxx */
+#define EGO_HOLY_DF			70
+#define EGO_MYSTIC			71
 #define EGO_BRAND_ACID		72
 #define EGO_BRAND_ELEC		73
 #define EGO_BRAND_FIRE		74
@@ -1621,7 +1623,9 @@
 #define GF_DISP_UNDEAD	67
 #define GF_DISP_EVIL	68
 #define GF_DISP_ALL	69
-#define GF_SPIRIT	70
+#define GF_DISP_ANIMAL	70
+#define GF_SPIRIT	71
+#define GF_SLOW_UNDEAD	72
 
 /*
  * Some things which induce learning
@@ -1657,6 +1661,8 @@
 
 /*
  * Hack -- special "xtra" object powers
+ * These should be reorganized into a bit-field, so that we can
+ * have multiple random powers.
  */
 
 /* Sustain one stat */
@@ -1666,7 +1672,8 @@
 #define EGO_XTRA_POWER		2
 /* Special ability */
 #define EGO_XTRA_ABILITY	3
-
+/* May be vorpal */
+#define EGO_XTRA_VORPAL		4
 
 /*** Object flag values ***/
 
@@ -2124,6 +2131,18 @@
 #define RF6_S_UNIQUE		0x80000000	/* Summon Unique Monster */
 
 
+/*
+ * Values for the druid shapechanging power. A lot
+ * of interesting things could be done with this, but aren't.
+ */
+#define SHAPE_NORMAL 0        /* Human(iod) form. */
+#define SHAPE_SHEEP 1         /* Baaaa. */
+#define SHAPE_GOAT 2
+#define SHAPE_BEAR 3
+#define SHAPE_LION 4
+#define SHAPE_GAZELLE 5
+#define SHAPE_CHEETAH 6
+#define SHAPE_DRAGON 7
 
 /*
  * Hack -- choose "intelligent" spells when desperate

@@ -579,6 +579,11 @@ static void process_world(void)
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
 
+			/* Cheetahs and gazelles consume food faster. */
+			if (p_ptr->schange == SHAPE_CHEETAH ||
+			    p_ptr->schange == SHAPE_GAZELLE)
+			  i += 20;
+
 			/* Slow digestion takes less food */
 			if (p_ptr->slow_digest) i -= 10;
 
@@ -1011,14 +1016,38 @@ static void process_world(void)
 	p_ptr->wchange--;
 	if (!p_ptr->wchange)
 	{
+	  byte tmp1 = 0, tmp2 = 0;
 		/* Reset the counter */
 		p_ptr->wchange = 100+randint(150);
 
 		/* Change the weather */
-		p_ptr->weather = 0;
-		process_weather_aux(W_DRY, W_MOIST);
-		process_weather_aux(W_COOL, W_WARM);
-		process_weather_aux(W_WINDY, W_STILL);
+		tmp1 = p_ptr->weather & (W_DRY);
+		tmp2 = p_ptr->weather & (W_MOIST);
+		p_ptr->weather &= ~(W_DRY|W_MOIST);
+		if (!tmp1 && !tmp2) 
+		  {
+		    tmp1 = W_DRY; 
+		    tmp2 = W_MOIST;
+		  }
+		process_weather_aux(tmp1, tmp2);
+		tmp1 = p_ptr->weather & (W_COOL);
+		tmp2 = p_ptr->weather & (W_WARM);
+		p_ptr->weather &= ~(W_COOL|W_WARM);
+		if (!tmp1 && !tmp2) 
+		  {
+		    tmp1 = W_COOL; 
+		    tmp2 = W_WARM;
+		  }
+		process_weather_aux(tmp1, tmp2);
+		tmp1 = p_ptr->weather & (W_WINDY);
+		tmp2 = p_ptr->weather & (W_STILL);
+		p_ptr->weather &= ~(W_WINDY|W_STILL);
+		if (!tmp1 && !tmp2) 
+		  {
+		    tmp1 = W_WINDY; 
+		    tmp2 = W_STILL;
+		  }
+		process_weather_aux(tmp1, tmp2);
 	}
 }
 
@@ -1625,12 +1654,12 @@ static void process_command(void)
 			break;
 		}
 
-			/* Stop doing a technique */
-			case '`':
-			{
-				do_cmd_t_stop();
-				break;
-			}
+			/* Stop doing a shapechange */
+	case ']':
+	  {
+	    do_cmd_t_stop();
+	    break;
+	  }
 
 			/* Take notes */
 		case ':':
@@ -2130,6 +2159,9 @@ static void dungeon(void)
 
 	/* Paranoia -- No stairs down from Quest */
 	if (is_quest(dun_level)) create_down_stair = FALSE;
+	
+	/* Paranoia -- No stairs up from quest level */
+	if (dun_level == -1) create_up_stair = FALSE;
 
 	/* Paranoia -- no stairs from town */
 	if (!dun_level) create_down_stair = create_up_stair = FALSE;
@@ -2255,7 +2287,7 @@ static void dungeon(void)
 	/*** Process this dungeon level ***/
 
 	/* Reset the monster generation level */
-	monster_level = dun_level;
+	monster_level = (dun_level==-1? 50: dun_level);
 
 	/* Reset the object generation level */
 	object_level = (dun_level==-1)? 70: dun_level;
@@ -2322,28 +2354,6 @@ static void dungeon(void)
 		if (!alive || death || new_level_flag) break;
 
 
-		/* Process the player */
-		process_player();
-
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-		/* Window stuff */
-		if (p_ptr->window) window_stuff();
-
-		/* Hack -- Hilite the player */
-		move_cursor_relative(py, px);
-
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
-
-		/* Hack -- Notice death or departure */
-		if (!alive || death || new_level_flag) break;
 
 
 		/* Process the world */

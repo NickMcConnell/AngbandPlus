@@ -61,13 +61,13 @@ static int check_hit(int power, monster_race *r_ptr)
 {
 	int i, k, ac, level;
 
+	/* Always return true if nomiss flag set */
+	if(r_ptr->flags2 & RF2_NOMISS) return(TRUE);
+
 	level = ((r_ptr->level>0)? r_ptr->level: 1);
 
 	/* Percentile dice */
 	k = rand_int(100);
-
-	/* Always return true if nomiss flag set */
-	if(r_ptr->flags2 & RF2_NOMISS) return(TRUE);
 
 	/* Hack -- Always miss or hit */
 	if (k < 10) return (k < 5);
@@ -76,7 +76,7 @@ static int check_hit(int power, monster_race *r_ptr)
 	i = (power + (level * 3));
 
 	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
+	ac = p_ptr->ac + p_ptr->to_a + stoac(r_ptr->flags3);
 
 	/* Power and Level compete against Armor */
 	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);

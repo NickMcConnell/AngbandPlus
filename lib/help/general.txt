@@ -22,9 +22,9 @@ a search.  Use Pound + Zero + Return + Slash + Return to restart a search.
 
 === General Information ===
 
-The game of Angband is a single player dungeon simulation.  A player
-may choose from a number of races and classes when creating a character,
-and then "run" that character over a period of days, weeks, even months,
+The game of SAngband is a single player dungeon simulation.  A player
+may choose from a number of races when creating a character, and then
+"run" that character over a period of days, weeks, even months,
 attempting to win the game by defeating Morgoth, the Lord of Darkness,
 who resides far below the surface.
 

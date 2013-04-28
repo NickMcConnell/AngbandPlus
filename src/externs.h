@@ -240,7 +240,6 @@ extern char player_base[32];
 extern char died_from[80];
 extern char history[4][60];
 extern char savefile[384];
-extern u32b p_flag;
 extern s16b lite_n;
 extern byte lite_y[LITE_MAX];
 extern byte lite_x[LITE_MAX];
@@ -391,6 +390,7 @@ extern bool test_hit_norm(int chance, int ac, int vis);
 extern s16b critical_shot(int weight, int plus, int dam);
 extern s16b critical_norm(int weight, int plus, int dam);
 extern s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr);
+extern s16b tot_dam_loss(object_type *o_ptr, int tdam, monster_type *m_ptr);
 extern void search(void);
 extern void carry(int pickup);
 extern void py_attack(int y, int x);
@@ -451,6 +451,7 @@ extern void do_cmd_check_uniques(void);
 extern void do_cmd_barehanded(void);
 
 /* cmd5.c */
+extern void shapechange(s16b shape);
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
@@ -608,7 +609,7 @@ extern bool make_gold(object_type *j_ptr);
 extern void acquirement(int y1, int x1, int num, bool great);
 extern void place_trap(int y, int x);
 extern void place_gold(int y, int x);
-extern void drop_near(object_type *o_ptr, int chance, int y, int x);
+extern s16b drop_near(object_type *o_ptr, int chance, int y, int x);
 extern void pick_trap(int y, int x);
 extern void combine_pack(void);
 extern void reorder_pack(void);
@@ -629,10 +630,9 @@ extern bool load_player(void);
 /* skills.c */
 extern cptr snames[S_NUM];
 extern int smod(int skill);
-extern int stodam(void);
+extern int stodam(int skill);
 extern int get_level(void);
 extern s32b get_xp(int sk);
-extern int smoddam(u32b flags3);
 extern int stoac(u32b defense);
 extern int sweapon(void);
 extern void prt_skills(char *title, FILE *me);
@@ -686,14 +686,18 @@ extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool recharge(int num);
 extern bool speed_monsters(void);
-extern bool slow_monsters(u32b flag);
+extern bool slow_monsters(void);
+extern bool slow_undead(void);
 extern bool sleep_monsters(void);
 extern void aggravate_monsters(int who);
 extern bool genocide(void);
 extern bool mass_genocide(void);
 extern bool probing(void);
 extern bool banish_evil(int dist);
-extern bool dispel_creature(u32b flag, int dam);
+extern bool dispel_creature(int dam);
+extern bool dispel_evil(int dam);
+extern bool dispel_undead(int dam);
+extern bool dispel_animal(int dam);
 extern void banishment(int cflag, int level);
 extern bool turn_undead(void);
 extern void destroy_area(int y1, int x1, int r, bool full);
@@ -734,7 +738,8 @@ extern void store_maint(int which);
 extern void store_init(int which);
 
 /* talents.c */
-void do_cmd_talents(void);
+extern void do_cmd_talents(void);
+extern s16b eval_object(object_type *o_ptr);
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);

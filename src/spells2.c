@@ -414,7 +414,29 @@ void self_knowledge(void)
 		f3 |= t3;
 	}
 
-
+	switch (p_ptr->schange) {
+	case SHAPE_SHEEP:
+	  info[i++] = "You are wearing the body of a sheep.";
+	  break;
+	case SHAPE_GOAT:
+	  info[i++] = "You are wearing the body of a goat.";
+	  break;
+	case SHAPE_BEAR:
+	  info[i++] = "You are wearing the body of a bear.";
+	  break;
+	case SHAPE_LION:
+	  info[i++] = "You are wearing the body of a lion.";
+	  break;
+	case SHAPE_GAZELLE:
+	  info[i++] = "You are wearing the body of a gazelle.";
+	  break;
+	case SHAPE_CHEETAH:
+	  info[i++] = "You are wearing the body of a cheetah.";
+	  break;
+	case SHAPE_DRAGON:
+	  info[i++] = "You are wearing the body of a dragon.";
+	  break;
+	}
 	if (p_ptr->blind)
 	{
 		info[i++] = "You cannot see.";
@@ -455,7 +477,7 @@ void self_knowledge(void)
 
 	if (p_ptr->blessed)
 	{
-		info[i++] = "You feel rightous.";
+		info[i++] = "You feel righteous.";
 	}
 	if (p_ptr->hero)
 	{
@@ -529,10 +551,18 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are carrying a permanent light.";
 	}
-	if (p_ptr->ironwill)
+	if ((p_ptr->ironwill) && (p_ptr->invisible))
 	{
-		info[i++] = "You have a strong will to live.";
+		info[i++] = "You have an incredibly strong will to live.";
 	}
+	else if (p_ptr->ironwill)
+	  {
+	    info[i++] = "You have a very strong will to live.";
+	  }
+	else if (p_ptr->invisible)
+	  {
+	    info[i++] = "You have a strong will to live.";
+	  }
 
 	if (p_ptr->immune_acid)
 	{
@@ -737,14 +767,6 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your vorpal blade can cause serious harm to monsters.";
 		}
-		if (f1 & TR1_VENOM)
-		{
-			info[i++] = "Your weapon is poisonous.";
-		}
-		if (f1 & TR1_NOMAGIC)
-		{
-			info[i++] = "Your weapon prevents you from being able to cast spells.";
-		}
 
 		/* Special "Attack Bonuses" */
 		if (f1 & TR1_BRAND_ACID)
@@ -762,6 +784,10 @@ void self_knowledge(void)
 		if (f1 & TR1_BRAND_COLD)
 		{
 			info[i++] = "Your weapon freezes your foes.";
+		}
+		if (f1 & TR1_VENOM)
+		{
+			info[i++] = "Your weapon is poisonous.";
 		}
 
 		/* Special "slay" flags */
@@ -803,7 +829,110 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon is a great bane of dragons.";
 		}
+		if (f1 & TR1_SOULSTEAL)
+		{
+			info[i++] = "Your weapon feeds on the souls of its victims.";
+		}
+		if (f1 & TR1_NOMAGIC)
+		{
+			info[i++] = "Your weapon prevents you from casting spells.";
+		}
 	}
+	if (p_ptr->twoweap)
+	  {
+	    /* Access the current weapon */
+	    o_ptr = &inventory[INVEN_ARM];
+
+	    /* Analyze the weapon */
+	    if (o_ptr->k_idx)
+	      {
+		/* Indicate Blessing */
+		if (f3 & TR3_BLESSED)
+		  {
+		    info[i++] = "Your second weapon has been blessed by the gods.";
+		  }
+
+		/* Hack */
+		if (f1 & TR1_IMPACT)
+		  {
+		    info[i++] = "The impact of your second weapon can cause earthquakes.";
+		  }
+		if (f1 & TR1_VORPAL)
+		  {
+		    info[i++] = "Your vorpal blade can cause serious harm to monsters.";
+		  }
+
+		/* Special "Attack Bonuses" */
+		if (f1 & TR1_BRAND_ACID)
+		  {
+		    info[i++] = "Your second weapon melts your foes.";
+		  }
+		if (f1 & TR1_BRAND_ELEC)
+		  {
+		    info[i++] = "Your second weapon shocks your foes.";
+		  }
+		if (f1 & TR1_BRAND_FIRE)
+		  {
+		    info[i++] = "Your second weapon burns your foes.";
+		  }
+		if (f1 & TR1_BRAND_COLD)
+		  {
+		    info[i++] = "Your second weapon freezes your foes.";
+		  }
+		if (f1 & TR1_VENOM)
+		  {
+		    info[i++] = "Your second weapon is poisonous.";
+		  }
+
+		/* Special "slay" flags */
+		if (f1 & TR1_SLAY_ANIMAL)
+		  {
+		    info[i++] = "Your second weapon strikes at animals with extra force.";
+		  }
+		if (f1 & TR1_SLAY_EVIL)
+		  {
+		    info[i++] = "Your second weapon strikes at evil with extra force.";
+		  }
+		if (f1 & TR1_SLAY_UNDEAD)
+		  {
+		    info[i++] = "Your second weapon strikes at undead with holy wrath.";
+		  }
+		if (f1 & TR1_SLAY_DEMON)
+		  {
+		    info[i++] = "Your second weapon strikes at demons with holy wrath.";
+		  }
+		if (f1 & TR1_SLAY_ORC)
+		  {
+		    info[i++] = "Your second weapon is especially deadly against orcs.";
+		  }
+		if (f1 & TR1_SLAY_TROLL)
+		  {
+		    info[i++] = "Your second weapon is especially deadly against trolls.";
+		  }
+		if (f1 & TR1_SLAY_GIANT)
+		  {
+		    info[i++] = "Your second weapon is especially deadly against giants.";
+		  }
+		if (f1 & TR1_SLAY_DRAGON)
+		  {
+		    info[i++] = "Your second weapon is especially deadly against dragons.";
+		  }
+
+		/* Special "kill" flags */
+		if (f1 & TR1_KILL_DRAGON)
+		  {
+		    info[i++] = "Your second weapon is a great bane of dragons.";
+		  }
+		if (f1 & TR1_SOULSTEAL)
+		  {
+		    info[i++] = "Your second weapon feeds on the souls of its victims.";
+		  }
+		if (f1 & TR1_NOMAGIC)
+		  {
+		    info[i++] = "Your second weapon prevents you from casting spells.";
+		  }
+	      }
+	  }
 
 
 	/* Save the screen */
@@ -1515,7 +1644,7 @@ void stair_creation(bool quest)
 	}
 	else if (is_quest(dun_level) || (dun_level >= MAX_DEPTH-1) || quest)
 	{
-		c_ptr->feat = FEAT_LESS;
+		c_ptr->feat = (dun_level<0 ? FEAT_MORE : FEAT_LESS);
 	}
 	else if (rand_int(100) < 50)
 	{
@@ -2156,10 +2285,17 @@ bool speed_monsters(void)
 /*
  * Slow monsters
  */
-bool slow_monsters(u32b flag)
+bool slow_monsters(void)
 {
-	p_flag = flag;
 	return (project_hack(GF_OLD_SLOW, p_ptr->lev));
+}
+
+/*
+ * Slow undead
+ */
+bool slow_undead(void)
+{
+	return (project_hack(GF_SLOW_UNDEAD, p_ptr->lev));
 }
 
 /*
@@ -2230,13 +2366,25 @@ bool turn_undead(void)
 
 /*
  * Dispel */
-bool dispel_creature(u32b flag, int dam)
+bool dispel_creature(int dam)
 {
-	p_flag = flag;
 	return (project_hack(GF_DISP_ALL, dam));
 }
 
+bool dispel_evil(int dam)
+{
+	return (project_hack(GF_DISP_EVIL, dam));
+}
 
+bool dispel_undead(int dam)
+{
+	return (project_hack(GF_DISP_UNDEAD, dam));
+}
+
+bool dispel_animal(int dam)
+{
+  return (project_hack(GF_DISP_ANIMAL, dam));
+}
 
 /*
  * Wake up all monsters, and speed up "los" monsters.
@@ -3465,25 +3613,20 @@ void predict_weather(int fail)
 	else if (w&W_WARM) cool=-1;
 	if (randint(100)>fail)
 	{
-		dry += rand_int(3);
-		cool += rand_int(3);
-		windy += rand_int(3);
+		dry += rand_int(3) - 1;
+		cool += rand_int(3) - 1;
+		windy += rand_int(3) - 1;
 	}
-	if (dry<-1) dry=-1;
-	else if (dry>1) dry=1;
-	if (cool<-1) cool=-1;
-	else if (cool>1) cool=1;
-	if (windy<-1) windy=-1;
-	else if (windy>1) windy=1;
 	sprintf(out,"The weather seems to be: "); 
-	if (dry<0) strcat(out,"dry,");
-	else if (dry>0) strcat(out,"humid,");
-	if (cool<0) strcat(out,"cool,");
-	else if (cool>0) strcat(out,"warm,");
-	if (windy<0) strcat(out,"still");
-	else if (windy>0) strcat(out,"windy");
-	if (!windy && !cool && !dry)
-	  strcat(out,"normal");
+	if (dry>0) strcat(out,"dry, ");
+	else if (dry<0) strcat(out,"humid, ");
+	else strcat(out,"comfortable, ");
+	if (cool>0) strcat(out,"cool, ");
+	else if (cool<0) strcat(out,"warm, ");
+	else strcat(out,"temperate, ");
+	if (windy<0) strcat(out,"and still");
+	else if (windy>0) strcat(out,"and windy");
+	else strcat(out,"and breezy");
 	msg_print(out);
 }
 

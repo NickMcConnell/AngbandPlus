@@ -66,7 +66,7 @@ static void fetch(int dir, int wgt)
 	c_ptr->o_idx = 0;
 	cave[py][px].o_idx = i; /* 'move' it */
 	o_ptr->iy = py;
-o_ptr->ix = px;
+	o_ptr->ix = px;
 
 	p_ptr->redraw |= PR_MAP;
 }
@@ -143,16 +143,57 @@ static void mass_sleep()
 	}
 }
 
-/* Mod to AC, +to_h, +to_d, Speed, Offset of Karate type */
-static void change(s16b ac, s16b to_h, s16b to_d, s16b spd, s16b i)
+/*
+ * Shapechange code. Most of the work is done by calc_bonuses().
+ * We just handle the messages and whatnot.
+ */
+void shapechange(s16b shape)
 {
-	p_ptr->ac_mod=ac;
-	p_ptr->to_h_mod=to_h;
-	p_ptr->to_d_mod=to_d;
-	p_ptr->pspeed_mod = spd;
-	p_ptr->technique = i;
-	p_ptr->update |= PU_BONUS;
+  char *shapedesc;
+
+  p_ptr->schange = shape;
+  p_ptr->update |= PU_BONUS;
+
+  switch (shape) {
+  case SHAPE_SHEEP:
+    shapedesc = "sheep";
+    break;
+  case SHAPE_GOAT:
+    shapedesc = "goat";
+    break;
+  case SHAPE_BEAR:
+    shapedesc = "bear";
+    break;
+  case SHAPE_LION:
+    shapedesc = "lion";
+    break;
+  case SHAPE_GAZELLE:
+    shapedesc = "gazelle";
+    break;
+  case SHAPE_CHEETAH:
+    shapedesc = "cheetah";
+    break;
+  case SHAPE_DRAGON:
+    shapedesc = "dragon";
+    break;
+  default:
+    msg_print("You return to your normal form.");
+    return;
+  }
+  msg_format("You assume the form of a %s.", shapedesc);
+  msg_print("Your equipment merges into your body!");
 }
+
+/* Mod to AC, +to_h, +to_d, Speed, Offset of Karate type */
+/* static void change(s16b ac, s16b to_h, s16b to_d, s16b spd, s16b i) */
+/* { */
+/* 	p_ptr->ac_mod=ac; */
+/* 	p_ptr->to_h_mod=to_h; */
+/* 	p_ptr->to_d_mod=to_d; */
+/* 	p_ptr->pspeed_mod = spd; */
+/* 	p_ptr->technique = i; */
+/* 	p_ptr->update |= PU_BONUS; */
+/* } */
 
 /* This will return the amount of damage this type of attack should do in
    this weather */
@@ -166,9 +207,9 @@ static int weather(int typ, int da)
 		case GF_MISSILE: /* "winds" */
 		{
 			if (w & W_WINDY)
-				dam=dam*4/3;
+			  dam=dam*4/3;
 			else if (w & W_STILL)
-		 dam=0;
+			  dam=0;
 			break;
 		}
 		case GF_FIRE:
@@ -684,6 +725,13 @@ void do_cmd_cast(void)
 		return;
 	}
 
+	/* Can't be shapechanged. */
+	if(p_ptr->schange)
+	  {
+	    msg_print("You cannot cast spells while shapechanging.");
+	    return;
+	  }
+
 	/* Not when confused */
 	if (p_ptr->confused)
 	{
@@ -759,7 +807,7 @@ void do_cmd_cast(void)
 			case 0:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt_or_beam(beam-10, GF_MISSILE, dir, damroll(2, 6));
+				fire_bolt_or_beam(beam-10, GF_MISSILE, dir, damroll(3 + ((plev-1)/5), 4));
 				break;
 			}
 
@@ -1127,7 +1175,7 @@ void do_cmd_cast(void)
 			case 53:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ELEC, dir,
+				fire_ball(GF_PLASMA, dir,
 				          240 + (plev * 3) / 2, 2);
 				break;
 			}
@@ -1143,7 +1191,7 @@ void do_cmd_cast(void)
 			case 55:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_CONFUSION, dir,
+				fire_ball(GF_CHAOS, dir,
 				          180 + (plev*3)/2, 3);
 				break;
 			}
@@ -1159,12 +1207,14 @@ void do_cmd_cast(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_beam(GF_MISSILE, dir, (plev*3)/2+190);
+				break;
 			}
 
 			case 58:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_HOLY_ORB, dir, 300, 3);
+				break;
 			}
 
 			/*** Priest spells ***/
@@ -1235,7 +1285,8 @@ void do_cmd_cast(void)
 
 			case 74:
 			{
-				(void)hp_player(damroll(4+plev/5, 5+plev/8));				(void)set_cut((p_ptr->cut / 2) - 20);
+				(void)hp_player(damroll(4+plev/5, 5+plev/8));
+				(void)set_cut((p_ptr->cut / 2) - 20);
 				break;
 			}
 
@@ -1338,7 +1389,7 @@ void do_cmd_cast(void)
 
 			case 90:
 			{
-				(void)dispel_creature(RF3_UNDEAD, plev*3);
+				(void)dispel_undead(plev*3);
 				break;
 			}
 
@@ -1352,7 +1403,7 @@ void do_cmd_cast(void)
 
 			case 92:
 			{
-				(void)dispel_creature(RF3_EVIL, plev*3);
+				(void)dispel_evil(plev*3);
 				break;
 			}
 
@@ -1364,13 +1415,12 @@ void do_cmd_cast(void)
 
 			case 94:
 			{
-				(void)dispel_creature(RF3_EVIL, plev*4);
+ 				(void)dispel_evil(plev*4);
 				(void)hp_player(2000);
 				(void)set_afraid(0);
 				(void)set_poisoned(0);
 				(void)set_stun(0);
 				(void)set_cut(0);
-				restore_mana(40);
 				break;
 			}
 
@@ -1496,7 +1546,8 @@ void do_cmd_cast(void)
 			case 113:
 			{
 				set_blessed(p_ptr->blessed + 20 + plev);
-				set_fast(!p_ptr->fast? plev+20: randint(plev/2)+5);
+				set_fast(!(p_ptr->fast) ? plev+20: randint(plev/2)+5);
+				break;
 			}
 
 			case 114:
@@ -1526,7 +1577,7 @@ void do_cmd_cast(void)
 
 			case 118:
 			{
-				(void)dispel_creature(RF3_EVIL, plev * 4);
+				(void)dispel_evil(plev * 4);
 				break;
 			}
 
@@ -1662,8 +1713,8 @@ void do_cmd_cast(void)
 
 			case 145:
 			{
-           attack(GF_ELEC,25+plev/4,0);
-						break;
+			  attack(GF_ELEC,25+plev/4,0);
+			  break;
 			}
 
 			case 146:
@@ -1674,8 +1725,8 @@ void do_cmd_cast(void)
 
 			case 147:
 			{
-								attack(GF_COLD,30+plev/4,0);
-				break;
+			  attack(GF_COLD,30+plev/4,0);
+			  break;
 			}
 
 			case 148:
@@ -1722,13 +1773,15 @@ void do_cmd_cast(void)
 
 			case 155:
 			{
-				change(5, -6, 2, 0, 27);
+/* 				change(5, -6, 2, 0, 27); */
+			  shapechange(SHAPE_SHEEP);
 				break;
 			}
 
 			case 156:
 			{
-				change(8, 3, -1, 0, 28);
+/* 				change(8, 3, -1, 0, 28); */
+			  shapechange(SHAPE_GOAT);
 				break;
 			}
 
@@ -1752,31 +1805,36 @@ void do_cmd_cast(void)
 
 			case 160:
 			{
-				change(10, -3, 10, 0, 32);
+/* 				change(10, -3, 10, 0, 32); */
+			  shapechange(SHAPE_BEAR);
 				break;
 			}
 
 			case 161:
 			{
-				change(15, -1, 3, 0, 33);
+/* 				change(15, -1, 3, 0, 33); */
+			  shapechange(SHAPE_LION);
 				break;
 			}
 
 			case 162:
 			{
-				change(5, 1, -4, 1, 34);
+/* 				change(5, 1, -4, 1, 34); */
+			  shapechange(SHAPE_GAZELLE);
 				break;
 			}
 
 			case 163:
 			{
-				change(35, 4, -1, 10, 35);
+/* 				change(35, 4, -1, 10, 35); */
+			  shapechange(SHAPE_CHEETAH);
 				break;
 			}
 
 			case 164:
 			{
-				change(20, 2, 5, 10, 36);
+/* 				change(20, 2, 5, 10, 36); */
+			  shapechange(SHAPE_DRAGON);
 				break;
 			}
 
@@ -1820,7 +1878,7 @@ void do_cmd_cast(void)
 			case 171:
 			{
 				(void)set_ironwill(p_ptr->ironwill=0?
-					200+(plev*3)/2:p_ptr->ironwill+plev+20);
+					60 + plev : p_ptr->ironwill+plev+20);
 				break;
 			}
 
@@ -1973,7 +2031,7 @@ void do_cmd_cast(void)
 
 			case 200:
 			{
-				(void)dispel_creature(RF3_UNDEAD, plev*4);
+				(void)dispel_undead(plev*4);
 				break;
 			}
 
@@ -1994,14 +2052,14 @@ void do_cmd_cast(void)
 
 			case 203:
 			{
-				(void)slow_monsters(RF3_UNDEAD);
+				(void)slow_undead();
 				break;
 			}
 
 			case 204:
 			{
 				(void)set_ironwill(p_ptr->ironwill>0? p_ptr->ironwill+plev+5:
-							plev*3+30);
+							plev*2+30);
 				break;
 			}
 
@@ -2050,7 +2108,6 @@ void do_cmd_cast(void)
 			{
 				set_protevil(p_ptr->protevil>0?
 							p_ptr->protevil+plev/4+10: plev*2+50);
-				msg_print("You feel safe from evil.");
 				break;
 			}
 
@@ -2069,7 +2126,7 @@ void do_cmd_cast(void)
 
 			case 214:
 			{
-				(void)slow_monsters(0);
+				(void)slow_monsters();
 				break;
 			}
 			case 215:
@@ -2087,16 +2144,17 @@ void do_cmd_cast(void)
 					msg_print("Your weapon resists the spell.");
 					break;
 				}
-				if (o_ptr->flags3 & TR3_CURSED)
+ 				if (o_ptr->flags3 & TR3_CURSED)
 				{
-					msg_print("The weapon is already cursed.");
+					msg_print("The weapon has already been cursed.");
 					break;
 				}
-				o_ptr->flags3 |= TR3_CURSED;
+  				o_ptr->flags3 |= TR3_CURSED;
+				o_ptr->ident |= (IDENT_CURSED);
 				enchant(o_ptr, 2, ENCH_TOHIT);
 				enchant(o_ptr, 2, ENCH_TODAM);
 
-				msg_print("Your weapon became cursed!");
+				msg_print("Your weapon feels deathly cold!");
 				break;
 			}
 
@@ -2129,7 +2187,7 @@ void do_cmd_cast(void)
 			{
 				o_ptr=&inventory[INVEN_WIELD];
 				if (!o_ptr->k_idx) break;
-				if (o_ptr->name1 || o_ptr->name2) break;
+				if (o_ptr->name1 || o_ptr->name2)
 				{
 					msg_print("Your weapon resists the spell.");
 					break;
@@ -2159,7 +2217,7 @@ void do_cmd_cast(void)
 
 			case 224:
 			{
-				(void)dispel_creature(RF3_UNDEAD, plev*5);
+				(void)dispel_undead(plev*5);
 				break;
 			}
 
@@ -2211,7 +2269,7 @@ void do_cmd_cast(void)
 
 			case 232:
 			{
-				(void)dispel_creature(RF3_ANIMAL, plev*5);
+				(void)dispel_animal(plev*5);
 				break;
 			}
 
@@ -2354,22 +2412,23 @@ void do_cmd_cast(void)
 	p_ptr->window |= (PW_PLAYER);
 }
 
-/* Stop doing a druid technique */
+/* Stop doing a druid shapechange */
 void do_cmd_t_stop()
 {
-	if(!p_ptr->technique)
+	if(!(p_ptr->schange))
 	{
-		msg_print("You aren't doing a technique right now.");
+		msg_print("You aren't in another form right now.");
 		return;
 	}
 	/* Confirm */
-	if(!get_check("Really stop the technique?")) return;
+	if(!get_check("Really return to normal? ")) return;
 
-	/* Stop! */
-	p_ptr->technique = 0;
-	p_ptr->ac_mod = 0;
-	p_ptr->to_h_mod = 0;
-	p_ptr->to_d_mod = 0;
-	p_ptr->pspeed_mod=0;
-	p_ptr->update |= PU_BONUS;
+	shapechange(SHAPE_NORMAL);
+	energy_use = 50;
+/* 	p_ptr->schange = 0; */
+/* 	p_ptr->ac_mod = 0; */
+/* 	p_ptr->to_h_mod = 0; */
+/* 	p_ptr->to_d_mod = 0; */
+/* 	p_ptr->pspeed_mod=0; */
+/* 	p_ptr->update |= PU_BONUS; */
 }

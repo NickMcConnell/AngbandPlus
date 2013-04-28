@@ -145,12 +145,13 @@ static bool item_tester_hook_wear(object_type *o_ptr)
  */
 void do_cmd_wield(void)
 {
-	int item, slot;
+	int item, slot, dblwield = 0;
 
 	object_type forge;
 	object_type *q_ptr;
 
 	object_type *o_ptr;
+	object_type *w_ptr;
 
 	cptr act;
 
@@ -160,6 +161,11 @@ void do_cmd_wield(void)
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
 
+	if (p_ptr->schange)
+	  {
+	    msg_print("You cannot wield new equipment while shapechanged!");
+	    return;
+	  }
 	/* Get an item (from inven or floor) */
 	if (!get_item(&item, "Wear/Wield which item? ", FALSE, TRUE, TRUE))
 	{
@@ -182,6 +188,29 @@ void do_cmd_wield(void)
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
+
+	/* Hack. If dbl wield is possible, then we change the slot
+	   from INVEN_WIELD to INVEN_ARM. This should probably 
+	   go elsewhere.
+	   You may wield two weapons only if they're both swords or
+	   both hafted, if the secondary is lighter than the primary,
+	   if the primary is less than 16 lbs, and the secondary is
+	   less than 11 lbs, and the primary isn't too heavy for you.
+	   Got all that?
+	   Oh yeah, you need to be good at the dual-wield skill, too. */
+
+	if (smod(S_2HANDED) > 0 && !(p_ptr->heavy_wield) &&
+	    (o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_SWORD))
+	  {
+	    w_ptr = &inventory[INVEN_WIELD];
+	    if (w_ptr->weight < 160 && o_ptr->weight < 110 
+		&& o_ptr->weight < w_ptr->weight
+		&& o_ptr->tval == w_ptr->tval)
+	      {
+		slot = INVEN_ARM;
+		dblwield = 1;
+	      }
+	  }
 
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
@@ -248,6 +277,10 @@ void do_cmd_wield(void)
 	{
 		act = "You are wielding";
 	}
+	else if (dblwield)
+	  {
+	    act = "Your secondary weapon is";
+	  }
 	else if (slot == INVEN_BOW)
 	{
 		act = "You are shooting with";
@@ -301,6 +334,11 @@ void do_cmd_takeoff(void)
 
 	object_type *o_ptr;
 
+	if (p_ptr->schange)
+	  {
+	    msg_print("Your equipment has merged with your body, and cannot be removed.");
+	    return;
+	  }
 
 	/* Get an item (from equip) */
 	if (!get_item(&item, "Take off which item? ", TRUE, FALSE, FALSE))
@@ -336,6 +374,14 @@ void do_cmd_takeoff(void)
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
+
+	/* Hack -- If the player has two weapons, and takes off the primary,
+	   then we swap the secondary into the primary slot.
+	   This is done by reorder_pack(). */
+	if (p_ptr->twoweap && item == INVEN_WIELD)
+	  {
+	    p_ptr->notice |= PN_REORDER;
+	  }
 }
 
 
@@ -350,7 +396,15 @@ void do_cmd_drop(void)
 
 
 	/* Get an item (from equip or inven) */
-	if (!get_item(&item, "Drop which item? ", TRUE, TRUE, FALSE))
+	if (p_ptr->schange)
+	  {
+	    if (!get_item(&item, "Drop which item? ", FALSE, TRUE, FALSE))
+	      {
+		if (item == -2) msg_print("You have nothing to drop.");
+		return;
+	      }
+	  }
+	else if (!get_item(&item, "Drop which item? ", TRUE, TRUE, FALSE))
 	{
 		if (item == -2) msg_print("You have nothing to drop.");
 		return;
@@ -395,6 +449,14 @@ void do_cmd_drop(void)
 
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
+
+	/* Hack -- If the player has two weapons, and takes off the primary,
+	   then we swap the secondary into the primary slot.
+	   I hope this works, because I'm not sure I know what I'm doing. */
+	if (p_ptr->twoweap && item == INVEN_WIELD)
+	  {
+	    p_ptr->notice |= PN_REORDER;
+	  }
 }
 
 

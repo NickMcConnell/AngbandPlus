@@ -483,7 +483,11 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Speed */
-		if (r_ptr->speed > 110)
+		if (flags2 & (RF2_SAMESPD))
+		  {
+		    roff(" as fast as you");
+		  }
+		else if (r_ptr->speed > 110)
 		{
 			if (r_ptr->speed > 130) roff(" incredibly");
 			else if (r_ptr->speed > 120) roff(" very");
@@ -934,6 +938,8 @@ static void roff_aux(int r_idx)
 
 	/* Collect immunities */
 	vn = 0;
+	if (flags3 & (RF3_RES_BLUNT)) vp[vn++] = "blunt weapons";
+	if (flags3 & (RF3_RES_EDGED)) vp[vn++] = "edged weapons";
 	if (flags3 & (RF3_IM_ACID)) vp[vn++] = "acid";
 	if (flags3 & (RF3_IM_ELEC)) vp[vn++] = "lightning";
 	if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
@@ -999,6 +1005,9 @@ static void roff_aux(int r_idx)
 	if (flags3 & (RF3_NO_FEAR)) vp[vn++] = "frightened";
 	if (flags3 & (RF3_NO_CONF)) vp[vn++] = "confused";
 	if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "slept";
+	if (flags3 & (RF3_IM_BLUNT)) vp[vn++] = "harmed by blunt weapons";
+	if (flags3 & (RF3_IM_EDGED)) vp[vn++] = "harmed by edged weapons";
+
 
 	/* Describe non-effects */
 	if (vn)
@@ -1312,7 +1321,15 @@ static void roff_aux(int r_idx)
 	/* Finish sentence above */
 	if (r)
 	{
-		roff(".  ");
+		/* Does it miss? */
+		if (flags2 & (RF2_NOMISS))
+		  {
+		    roff(format(", and %s never misses.  ", wd_he[msex]));
+		  }
+		else
+		  {
+		    roff(".  ");
+		  }
 	}
 
 	/* Notice lack of attacks */

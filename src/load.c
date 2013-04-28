@@ -641,6 +641,7 @@ static void rd_extra(void)
 	int i;
 
 	byte tmp8u;
+	s16b tmp16s;
 
 	rd_string(player_name, 32);
 	rd_string(died_from, 80);
@@ -653,6 +654,7 @@ static void rd_extra(void)
 	/* Class/Race/Gender/Spells */
 	rd_byte(&p_ptr->prace);
 	rd_byte(&p_ptr->psex);
+	sp_ptr = &sex_info[p_ptr->psex];
 	rd_byte(&p_ptr->realm);
 	if (sf_vindex >= 93) rd_byte(&p_ptr->luck_known);
 
@@ -745,18 +747,13 @@ static void rd_extra(void)
 		rd_byte(&p_ptr->min_skill[i]);
 	}
 
-	rd_byte(&p_ptr->technique);
+	rd_byte(&p_ptr->schange);
 	if (sf_vindex >= 91)
 	{
-		rd_s16b(&p_ptr->ac_mod);
-		rd_s16b(&p_ptr->to_h_mod);
-		rd_s16b(&p_ptr->to_d_mod);
-		rd_s16b(&p_ptr->pspeed_mod);
-	}
-	else
-	{
-		p_ptr->ac_mod = p_ptr->to_h_mod = p_ptr->to_d_mod = 0;
-		p_ptr->pspeed_mod = 0;
+		rd_s16b(&tmp16s);  /* oops */
+		rd_s16b(&tmp16s);  /* oops */
+		rd_s16b(&tmp16s);  /* oops */
+		rd_s16b(&tmp16s);  /* oops */
 	}
 
 	/* Hack -- the two "special seeds" */

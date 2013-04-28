@@ -236,7 +236,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	}
 
 	/* Reset the object level */
-	object_level = dun_level;
+	object_level = (dun_level==-1? 70: dun_level);
 
 	/* No longer opening a chest */
 	opening_chest = FALSE;
@@ -1731,7 +1731,7 @@ void do_cmd_stay(int pickup)
 		disturb(0, 0);
 
 		/* Hack -- enter store */
-		command_new = '_';
+		command_new = KTRL('V');
 	}
 }
 
@@ -2165,6 +2165,7 @@ void do_cmd_fire(void)
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+				tdam = tot_dam_loss(q_ptr, tdam, m_ptr);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -2447,6 +2448,7 @@ void do_cmd_throw(void)
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+				tdam = tot_dam_loss(q_ptr, tdam, m_ptr);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;

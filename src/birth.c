@@ -1479,9 +1479,7 @@ static bool player_birth_aux(void)
 			p_ptr->barehand = S_KARATE;
 			p_ptr->wchange = 100+randint(150);
 
-			p_ptr->ac_mod = p_ptr->to_h_mod = p_ptr->to_d_mod = 0;
-			p_ptr->pspeed_mod = 0;
-			p_ptr->technique = 0;
+			p_ptr->schange = 0;
 
 			/* Update stuff */
 			update_stuff();
@@ -1609,7 +1607,7 @@ void player_birth(void)
 		store_init(n);
 
 		/* Ignore home */
-		if (n == MAX_STORES - 1) continue;
+		if (n == MAX_STORES - 2) continue;
 
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);

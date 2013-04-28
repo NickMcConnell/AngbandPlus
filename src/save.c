@@ -443,11 +443,11 @@ static void wr_extra(void)
 		wr_byte(p_ptr->min_skill[i]);
 	}
 
-	wr_byte(p_ptr->technique);
-	wr_s16b(p_ptr->ac_mod);
-	wr_s16b(p_ptr->to_h_mod);
-	wr_s16b(p_ptr->to_d_mod);
-	wr_s16b(p_ptr->pspeed_mod);
+	wr_byte(p_ptr->schange);
+	wr_s16b(0);  /* oops */
+	wr_s16b(0);  /* oops */
+	wr_s16b(0);  /* oops */
+	wr_s16b(0);  /* oops */
 
 	/* Write the "object seeds" */
 	wr_u32b(seed_flavor);

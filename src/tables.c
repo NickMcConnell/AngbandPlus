@@ -1647,7 +1647,7 @@ player_magic magic_info[MAX_REALM+1] =
 			{  3,  2, 25,   2},
 			{  3,  2, 30,   2},
 			{    3,  2, 25,   2},
-			{    3,  1, 27,   2},
+			{    3,  3, 27,   2},
 			/* Conjuring and Tricks */
 			{    5,  3, 30,   3},
 			{    5,  3, 30,   3},
@@ -1969,24 +1969,24 @@ u32b spell_flags[4][9][2] =
 		{ 0x00000000, 0x07f80000 }
 	},
 
-	{
-		/*** Priest spell books ***/
-		{ 0x000000ff, 0x00000000 },
-		{ 0x0000ff00, 0x00000000 },
-		{ 0x01ff0000, 0x00000000 },
-		{ 0x7e000000, 0x00000000 },
-		{ 0x80000000, 0x0000001f },
-		{ 0x00000000, 0x000001e0 },
-		{ 0x00000000, 0x00003e00 },
-		{ 0x00000000, 0x000fc000 },
-		{ 0x00000000, 0x01f00000 }
-	},
+  {
+    /*** Priest spell books ***/
+    { 0x000000ff, 0x00000000 },
+    { 0x0000ff00, 0x00000000 },
+    { 0x01ff0000, 0x00000000 },
+    { 0x7e000000, 0x00000000 },
+    { 0x80000000, 0x0000001f },
+    { 0x00000000, 0x000003e0 },
+    { 0x00000000, 0x00007c00 },
+    { 0x00000000, 0x001f8000 },
+    { 0x00000000, 0x03e00000 }
+  },
 
 	{
 		/*** Druid spell books ***/
 		{ 0x000001ff, 0x00000000 },
 		{ 0x0003fe00, 0x00000000 },
-		{ 0x003fc000, 0x00000000 },
+		{ 0x03fc0000, 0x00000000 },
 		{ 0xfc000000, 0x00000000 },
 		{ 0x00000000, 0x0000001f },
 		{ 0x00000000, 0x000003e0 },
@@ -2015,312 +2015,334 @@ u32b spell_flags[4][9][2] =
  */
 cptr spell_names[4][64] =
 {
-	/*** Mage Spells ***/
+  /*** Mage Spells ***/
 
-	{
-		/* Magic for Beginners (sval 0) */
-		"Magic Missile",
-		"Detect Monsters",
-		"Phase Door",
-		"Light Area",
-		"Treasure/Object Detection",
-		"Find Hidden Traps/Doors",
-		"Fetch Object",
-		"Reinforce Door",
-		"Stinking Cloud",
+  {
+    /* Magic for Beginners (sval 0) */
+    "Magic Missile",
+    "Detect Monsters",
+    "Phase Door",
+    "Light Area",
+    "Treasure/Object Detection",
+    "Find Hidden Traps/Doors",
+    "Fetch Object",
+    "Reinforce Door",
+    "Stinking Cloud",
 
 		/* Conjurings and Tricks (sval 1) */
-		"Induce Terror",
-		"Lightning Bolt",
-		"Magic Storm",
-		"Sleep I",
-		"Cure Poison",
-		"Teleport Self",
-		"Mana Bolt",
-		"Frost Bolt",
-		"Turn Stone to Mud",
+    "Induce Terror",
+    "Lightning Bolt",
+    "Magic Storm",
+    "Sleep I",
+    "Cure Poison",
+    "Teleport Self",
+    "Mana Bolt",
+    "Frost Bolt",
+    "Turn Stone to Mud",
 
-		/* Incantations and Illusions (sval 2) */
-		"Sustinence",
-		"Recharge Item I",
-		"Sleep II",
-		"Polymorph Other",
-		"Identify",
-		"Lightning Ball",
-		"Fire Bolt",
-		"Slow Monster",
+    /* Incantations and Illusions (sval 2) */
+    "Sustinence",
+    "Recharge Item I",
+    "Sleep II",
+    "Polymorph Other",
+    "Identify",
+    "Lightning Ball",
+    "Fire Bolt",
+    "Slow Monster",
 
 		/* Sorcery and Evocations (sval 3) */
-		"Frost Ball",
-		"Recharge Item II",
-		"Teleport Other",
-		"Haste Self",
-		"Fire Ball",
-		"Word of Destruction",
-		"Regain Mana",
+    "Frost Ball",
+    "Recharge Item II",
+    "Teleport Other",
+    "Haste Self",
+    "Fire Ball",
+    "Word of Destruction",
+    "Regain Mana",
 
-		/* Resistance of Scarabtarices (sval 4) */
-		"Resist Fire",
-		"Resist Cold",
-		"Resist Acid",
-		"Resist Poison",
-		"Resistance",
+    /* Resistance of Scarabtarices (sval 4) */
+    "Resist Fire",
+    "Resist Cold",
+    "Resist Acid",
+    "Resist Poison",
+    "Resistance",
 
-		/* Mordenkainen's Escapes (sval 5) */
-		"Door Creation",
-		"Stair Creation",
-		"Word of Recall",
+    /* Mordenkainen's Escapes (sval 5) */
+    "Door Creation",
+    "Stair Creation",
+    "Word of Recall",
 
-		/* Kelek's Grimoire of Power (sval 6) */
-		"Detect Evil",
-		"Detect Enchantment",
-		"Recharge Item III",
-		"Genocide",
-		"Mass Genocide",
+    /* Kelek's Grimoire of Power (sval 6) */
+    "Detect Evil",
+    "Detect Enchantment",
+    "Recharge Item III",
+    "Genocide",
+    "Mass Genocide",
 
-		/* Tenser's transformations... (sval 7) */
-		"Heroism",
-		"Shield",
-		"Berserker",
-		"Essence of Speed",
-		"Globe of Invulnerability",
+    /* Tenser's transformations... (sval 7) */
+    "Heroism",
+    "Shield",
+    "Berserker",
+    "Essence of Speed",
+    "Globe of Invulnerability",
 
-		/* Raal's Tome of Destruction (sval 8) */
-		"Sonic Storm",
-		"Acid Ball",
-		"Plasma Vortex",
-		"Mana Storm",
-		"Chaos Vortex",
-		"Charge Floor",
-		"Creeping Walls",
-		"Hellfire",
+    /* Raal's Tome of Destruction (sval 8) */
+    "Sonic Storm",
+    "Acid Ball",
+    "Plasma Vortex",
+    "Mana Storm",
+    "Chaos Vortex",
+    "Charge Floor",
+    "Creeping Walls",
+    "Hellfire",
 
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
-	},
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)"
+  },
 
 
-	/*** Priest Spells ***/
-	{
-		/* Beginners Handbook (sval 0) */
-		"Detect Evil",
-		"Cure Light Wounds",
-		"Bless",
-		"Remove Fear",
-		"Radiance",
-		"Find Doors/Traps",
-		"Spiritual Hammer",
-		"Dispel Poison",
+  /*** Priest Spells ***/
+  {
+    /* Beginners Handbook (sval 0) */
+    "Detect Evil",
+    "Cure Light Wounds",
+    "Bless",
+    "Remove Fear",
+    "Radiance",
+    "Find Doors/Traps",
+    "Spiritual Hammer",
+    "Dispel Poison",
 
-		/* Words of Wisdom (sval 1) */
-		"Induce Peace",
-		"Portal",
-		"Cure Medium Wounds",
-		"Chant",
-		"Banish Animals",
-		"Sustinence",
-		"Remove Curse",
-		"Resist Heat and Cold",
+    /* Words of Wisdom (sval 1) */
+    "Induce Peace",
+    "Portal",
+    "Cure Medium Wounds",
+    "Chant",
+    "Banish Animals",
+    "Sustinence",
+    "Remove Curse",
+    "Resist Heat and Cold",
 
-		/* Chants and Blessings (sval 2) */
-		"Return Home",
-		"Orb of Draining",
-		"Cure Serious Wounds",
-		"True Invisibility",
-		"Protection from Evil",
-		"Earthquake",
-		"Sense Surroundings",
-		"Cure Critical Wounds",
-		"Turn Undead",
-		/* Exorcism and Dispelling (sval 3) */
-		"Banish Evil",
-		"Dispel Undead",
-		"Heal",
-		"Dispel Evil",
-		"Glyph of Warding",
-		"Holy Word",
+    /* Chants and Blessings (sval 2) */
+    "Return Home",
+    "Orb of Draining",
+    "Cure Serious Wounds",
+    "True Invisibility",
+    "Protection from Evil",
+    "Earthquake",
+    "Sense Surroundings",
+    "Cure Critical Wounds",
+    "Turn Undead",
+    /* Exorcism and Dispelling (sval 3) */
+    "Banish Evil",
+    "Dispel Undead",
+    "Heal",
+    "Dispel Evil",
+    "Glyph of Warding",
+    "Holy Word",
 
-		/* Ethereal openings (sval 4) */
-		"Blink",
-		"Teleport",
-		"Teleport Away",
-		"Teleport Level",
-		"Survive Death",
-		"Alter Reality",
+    /* Ethereal openings (sval 4) */
+    "Blink",
+    "Teleport",
+    "Teleport Away",
+    "Teleport Level",
+    "Survive Death",
+    "Alter Reality",
 
-		/* Godly Insights... (sval 5) */
-		"Detection",
-		"Perception",
-		"Probing",
-		"Clairvoyance",
-		"Self-Knowledge",
+    /* Godly Insights... (sval 5) */
+    "Detection",
+    "Perception",
+    "Probing",
+    "Clairvoyance",
+    "Self-Knowledge",
 
-		/* Purifications and Healing (sval 6) */
-		"Resistance",
-		"Holy Shield",
-		"Restoration",
-		"Remembrance",
-		"Damage Immunity",
+    /* Purifications and Healing (sval 6) */
+    "Resistance",
+    "Holy Shield",
+    "Restoration",
+    "Remembrance",
+    "Damage Immunity",
 
-		/* Holy Infusions (sval 7) */
-		"Recharging",
-		"Dispel Curse",
-		"Battle Speed",
-		"Enchant Weapon",
-		"Enchant Armour",
-		"Elemental Brand",
-		/* Wrath of God (sval 8) */
-		"Stun Bolt",
-		"Dispel Evil",
-		"Annihilate Evil",
-		"Word of Destruction",
-		"Annihilation",
+    /* Holy Infusions (sval 7) */
+    "Recharging",
+    "Dispel Curse",
+    "Battle Speed",
+    "Enchant Weapon",
+    "Enchant Armour",
+    "Elemental Brand",
+    /* Wrath of God (sval 8) */
+    "Stun Bolt",
+    "Dispel Evil",
+    "Annihilate Evil",
+    "Word of Destruction",
+    "Annihilation",
 
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
-	},
-		/*** Druid spells ***/
-	{
-		"Sense Life",
-		"Sense Weather",
-		"Blessing",
-		"Remove Fear",
-		"Call Sunlight",
-		"Find Traps/Doors",
-		"Cure Light Wounds",
-		"Dispel Poison",
-		"Return Home",
-		"Induce Peace",
-		"Cure Medium Wounds",
-		"Banish Animals",
-		"Phase Rock",
-		"Resist Elements",
-		"Cure Serious Wounds",
-		"Sustain Self",
-		"Putrid Vapors",
-		"Chain Lightning",
-		"Sense Area",
-		"Icy Spear",
-		"Major Cure",
-		"Flaming Stone",
-		"Gust of Wind",
-		"Blizzard",
-		"Heat Wave",
-		"Thunderstorm",
-		"Sickening Mists",
-		"Form of the Sheep",
-		"Form of the Goat",
-		"Total Healing",
-		"Super Speed",
-		"Regain Harmony",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)"
+  },
+  /*** Druid spells ***/
+  {
+    "Sense Life",
+    "Sense Weather",
+    "Blessing",
+    "Remove Fear",
+    "Call Sunlight",
+    "Find Traps/Doors",
+    "Cure Light Wounds",
+    "Dispel Poison",
+    "Return Home",
+    "Induce Peace",
+    "Cure Medium Wounds",
+    "Banish Animals",
+    "Phase Rock",
+    "Resist Elements",
+    "Cure Serious Wounds",
+    "Sustain Self",
+    "Putrid Vapors",
+    "Chain Lightning",
+    "Sense Area",
+    "Icy Spear",
+    "Major Cure",
+    "Flaming Stone",
+    "Gust of Wind",
+    "Blizzard",
+    "Heat Wave",
+    "Thunderstorm",
+    "Sickening Mists",
+    "Form of the Sheep",
+    "Form of the Goat",
+    "Total Healing",
+    "Super Speed",
+    "Regain Harmony",
 
-		/* Shapeshifting */
-  "Form of the Bear",
-  "Form of the Lion",
-  "Form of the Gazelle",
-  "Form of the Cheetah",
-  "Form of the Dragon",
-		/* Dungeon Insights */
-  "Understand Item",
-  "Find Material Goods",
-  "Probing",
-  "Magical Staircase",
-  "View Dungeon",
+    /* Shapeshifting */
+    "Form of the Bear",
+    "Form of the Lion",
+    "Form of the Gazelle",
+    "Form of the Cheetah",
+    "Form of the Dragon",
+    /* Dungeon Insights */
+    "Understand Item",
+    "Find Material Goods",
+    "Probing",
+    "Magical Staircase",
+    "View Dungeon",
 
- /* Primal Forces */
-  "Battle Blessing",
-  "Iron Will",
-  "Fighting Fury",
-  "Mystic Shield",
-  "Mass Sleep",
+    /* Primal Forces */
+    "Battle Blessing",
+    "Iron Will",
+    "Fighting Fury",
+    "Mystic Shield",
+    "Mass Sleep",
 
- /* Elemental Mastery */
-  "Essence of Flame",
-  "Absolute Zero",
-  "Lethal Plague",
-  "Hurricane",
-  "Star Core",
+    /* Elemental Mastery */
+    "Essence of Flame",
+    "Absolute Zero",
+    "Lethal Plague",
+    "Hurricane",
+    "Thunder Strike",
    
- /* Weather Control */
-  "Arid Wastes",
-  "Torrential Downpour",
-  "Wind Songs",
-  "Calm Winds",
-  "Call Frost",
-  "Scorch Earth"
-	},
+    /* Weather Control */
+    "Arid Wastes",
+    "Torrential Downpour",
+    "Wind Songs",
+    "Calm Winds",
+    "Call Frost",
+    "Scorch Earth",
 
-		/*** Necro spells ***/
-	{
-		"Sense Undead",
-		"Blink",
-		"Undo Curse",
-		"Brighten Room",
-		"Confuse",
-		"Find Doors/Traps",
-		"Slow Poison",
-		"Sleep Other",
-		"Destroy Undead",
-		"Find Food",
-		"Block Heat/Cold",
-		"Slow Undead",
-		"Iron Will",
-		"Shift Position",
-		"Return",
-		"Detect Life",
-		"True Sight",
-		"Disrupt Life",
-		"Remove Wounds",
-		"Block Undead",
-		"Insight",
-		"Drain Life",
-		"Weaken Others",
-		"Repel Other",
-		"Curse Weapon",
-		"Battle Power",
-		"Poison Shield",
-		"Mystic Barrier",
-		"Slay Living",
-		"Infuse Weapon",
-		"Destroy Cavern",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)"
+  },
 
- /* Mastery of the Undead (sval 4) */
-		"Banish Non-Living",
-		"Annihilate Undead",
-		"Destroy Life",
-		"Summon Holy Spirits",
- /* Protection from Undead (sval 5) */
-		"Partial Restoration",
-		"Rememberance",
-		"Restoration",
-		"Retake life",
+  /*** Necro spells ***/
+  {
+    "Sense Undead",
+    "Blink",
+    "Undo Curse",
+    "Brighten Room",
+    "Confuse",
+    "Find Doors/Traps",
+    "Slow Poison",
+    "Sleep Other",
+    "Destroy Undead",
+    "Find Food",
+    "Block Heat/Cold",
+    "Slow Undead",
+    "Iron Will",
+    "Shift Position",
+    "Return",
+    "Detect Life",
+    "True Sight",
+    "Disrupt Life",
+    "Remove Wounds",
+    "Block Undead",
+    "Insight",
+    "Drain Life",
+    "Weaken Others",
+    "Repel Other",
+    "Curse Weapon",
+    "Battle Power",
+    "Poison Shield",
+    "Mystic Barrier",
+    "Slay Living",
+    "Infuse Weapon",
+    "Destroy Cavern",
 
- /* Mastery of Life Force (sval 6) */
-		"Regain Mana",
-		"Annihilate Animals",
-		"Vampiric Drain",
-		"Genocide",
-		"Total Genocide",
+    /* Mastery of the Undead (sval 4) */
+    "Banish Non-Living",
+    "Annihilate Undead",
+    "Destroy Life",
+    "Summon Holy Spirits",
+    /* Protection from Undead (sval 5) */
+    "Partial Restoration",
+    "Rememberance",
+    "Restoration",
+    "Retake life",
 
- /* Bodily Infusions (sval 7) */
-		"Regeneration",
-		"Fighting Rage",
-		"Lich Form",
-		"Barrier",
+    /* Mastery of Life Force (sval 6) */
+    "Regain Mana",
+    "Annihilate Animals",
+    "Vampiric Drain",
+    "Genocide",
+    "Total Genocide",
 
- /* Unholy Perceptions (sval 8) */
-		"Detection",
-		"Probing",
-		"Sense Room",
-		"Detect Dungeon"
-	}
+    /* Bodily Infusions (sval 7) */
+    "Regeneration",
+    "Fighting Rage",
+    "Lich Form",
+    "Barrier",
+
+    /* Unholy Perceptions (sval 8) */
+    "Detection",
+    "Probing",
+    "Sense Room",
+    "Detect Dungeon",
+
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)"
+  }
 };
+
 /*
  * Each chest has a certain set of traps, determined by pval
  * Each chest has a "pval" from 1 to the chest level (max 55)

@@ -543,8 +543,8 @@ static void alloc_stairs(int feat, int num, int walls)
 				/* Access the grid */
 				c_ptr = &cave[y][x];
 
-				/* Town -- must go down */
-				if (!dun_level)
+				/* Town or quest level -- must go down */
+				if (dun_level <= 0)
 				{
 					/* Clear previous contents, add down stairs */
 					c_ptr->feat = FEAT_MORE;
@@ -2471,7 +2471,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 	cave_type *c_ptr;
 	int vl, mvl;
 
-vl = (dun_level==-1? 70: dun_level);
+	vl = (dun_level==-1? 70: dun_level);
 	mvl = (dun_level==-1? 50: dun_level);
 
 	/* Place dungeon features and objects */
@@ -3348,13 +3348,15 @@ static void cave_gen(void)
 	/* Destroy the level if necessary */
 	if (destroyed) destroy_level();
 
+	/* No stairs on quest levels. */
+	if (dun_level != -1)
+	  {
+	    /* Place 3 or 4 down stairs near some walls */
+	    alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
 
-	/* Place 3 or 4 down stairs near some walls */
-	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
-
-	/* Place 1 or 2 up stairs near some walls */
-	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
-
+	    /* Place 1 or 2 up stairs near some walls */
+	    alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
+	  }
 
 	/* Determine the character location */
 	new_player_spot();

@@ -60,11 +60,13 @@ void excise_object_idx(int o_idx)
 				/* Real previous */
 				else
 				{
-					/* Previous object */
-					o_ptr = &o_list[prev_o_idx];
+				  object_type *i_ptr;
+
+				  /* Previous object */
+				  i_ptr = &o_list[prev_o_idx];
 					
-					/* Remove from list */
-					o_ptr->next_o_idx = next_o_idx;
+				  /* Remove from list */
+				  i_ptr->next_o_idx = next_o_idx;
 				}
 				
 				/* Forget next pointer */
@@ -114,11 +116,13 @@ void excise_object_idx(int o_idx)
 				/* Real previous */
 				else
 				{
+				  object_type *i_ptr;
+
 					/* Previous object */
-					o_ptr = &o_list[prev_o_idx];
+					i_ptr = &o_list[prev_o_idx];
 					
 					/* Remove from list */
-					o_ptr->next_o_idx = next_o_idx;
+					i_ptr->next_o_idx = next_o_idx;
 				}
 				
 				/* Forget next pointer */
@@ -1611,7 +1615,7 @@ static bool make_artifact(object_type *o_ptr)
 		}
 
 		/* We must make the "rarity roll" */
-		if (rand_int(a_ptr->rarity=1? 1:
+		if (rand_int(a_ptr->rarity==1? 1:
 			(a_ptr->rarity*100)/(100+luck())) != 0) continue;
 
 		/* Hack -- mark the item as an artifact */
@@ -1817,7 +1821,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					break;
 				}
 				o_ptr->name2 = et;
-				if (et == EGO_MYSTIC) o_ptr->weight = 5;
+				if (et == EGO_MYSTIC) o_ptr->weight /= 2;
 				if (et == EGO_MORGUL) o_ptr->weight += 5;
 
 				/* Hack -- Super-charge the damage dice */
@@ -2475,7 +2479,19 @@ void apply_flags(object_type *o_ptr)
 						TR2_HOLD_LIFE, o_ptr);
 				break;
 			}
+		case EGO_XTRA_VORPAL:
+		  {
+		    /* Is it a blade? */
+		    if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM)
+		      {
+			if (rand_int(10) == 0)
+			  f1 |= TR1_VORPAL;
+		      }
+		  }
 		}
+		f1 |= o_ptr->flags1;
+		f2 |= o_ptr->flags2;
+		f3 |= o_ptr->flags3;
 	}
 	o_ptr->flags1 = f1;
 	o_ptr->flags2 = f2;
@@ -2809,7 +2825,6 @@ bool kind_fits_tval(int k_idx)
 {
 	int t;
 	t = item_tester_tval;
-	item_tester_tval = 0;
 	if(k_info[k_idx].tval == t) return (TRUE);
 	return (FALSE);
 	}
@@ -2983,35 +2998,23 @@ void place_object(int y, int x, bool good, bool great)
  */
 void acquirement(int y1, int x1, int num, bool great)
 {
-	int        y, x, i, d;
-	/* Scatter some objects */
-	for (; num > 0; --num)
-	{
-		/* Check near the player for space */
-		for (i = 0; i < 25; ++i)
-		{
-			/* Increasing Distance */
-			d = (i + 4) / 5;
-			/* Pick a location */
-			scatter(&y, &x, y1, x1, d, 0);
-			/* Must have a clean grid */
-			if (!cave_clean_bold(y, x)) continue;
+	object_type forge;
+	object_type *q_ptr;
 
-			/* Place a good (or great) object */
-			place_object(y, x, TRUE, great);
-			/* Notice */
-			note_spot(y, x);
-			/* Redraw */
-			lite_spot(y, x);
-			/* Under the player */
-			if ((y == py) && (x == px))
-			{
-				/* Message */
-				msg_print ("You feel something roll beneath your feet.");
-			}
-			/* Placement accomplished */
-			break;
-		}
+	/* Acquirement */
+	while (num--)
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Wipe the object */
+		object_wipe(q_ptr);
+
+		/* Make a good (or great) object (if possible) */
+		if (!make_object(q_ptr, TRUE, great)) continue;
+
+		/* Drop the object */
+		drop_near(q_ptr, -1, y1, x1);
 	}
 }
 
@@ -3164,146 +3167,291 @@ void place_gold(int y, int x)
  * Hack -- this function uses "chance" to determine if it should produce
  * some form of "description" of the drop event (under the player).
  *
- * This function should probably be broken up into a function to determine
- * a "drop location", and several functions to actually "drop" an object.
- *
- * XXX XXX XXX Consider allowing objects to combine on the ground.
+ * We check several locations to see if we can find a location at which
+ * the object can combine, stack, or be placed.  Artifacts will try very
+ * hard to be placed, including "teleporting" to a useful grid if needed.
  */
-void drop_near(object_type *o_ptr, int chance, int y, int x)
+s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 {
-	int		k, d, ny, nx, y1, x1, o_idx;
+	int i, k, d, s;
 
-	cave_type	*c_ptr;
+	int bs, bn;
+	int by, bx;
+	int dy, dx;
+	int ty, tx;
+
+	s16b o_idx;
+
+	s16b this_o_idx, next_o_idx = 0;
+
+	cave_type *c_ptr;
+
+	char o_name[80];
+
 	bool flag = FALSE;
+	bool done = FALSE;
 
-	/* Start at the drop point */
-	ny = y1 = y;  nx = x1 = x;
+	bool plural = FALSE;
 
-	/* See if the object "survives" the fall */
-	if (artifact_p(o_ptr) || (rand_int(100) >= chance))
+
+	/* Extract plural */
+	if (j_ptr->number != 1) plural = TRUE;
+
+	/* Describe object */
+	object_desc(o_name, j_ptr, FALSE, 0);
+
+
+	/* Handle normal "breakage" */
+	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
 	{
-		/* Start at the drop point */
-		ny = y1 = y; nx = x1 = x;
-		/* Try (20 times) to find an adjacent usable location */
-		for (k = 0; !flag && (k < 20); ++k)
-		{
-			/* Distance distribution */
-			d = ((k + 14) / 15);
-			/* Pick a "nearby" location */
-			scatter(&ny, &nx, y1, x1, d, 0);
-
-			/* Require clean floor space */
-			if (!cave_clean_bold(ny, nx)) continue;
-
-			/* Here looks good */
-			flag = TRUE;
-		}
-	}
-	/* Try really hard to place an artifact */
-	if (!flag && artifact_p(o_ptr))
-	{
-		/* Start at the drop point */
-		ny = y1 = y;  nx = x1 = x;
-
-		/* Try really hard to drop it */
-		for (k = 0; !flag && (k < 1000); k++)
-		{
-			d = 1;
-			/* Pick a location */
-			scatter(&ny, &nx, y1, x1, d, 0);
-
-			/* Do not move through walls */
-			if (!cave_floor_bold(ny, nx)) continue;
-
-			/* Hack -- "bounce" to that location */
-			y1 = ny; x1 = nx;
-
-			/* Get the cave grid */
-			c_ptr = &cave[ny][nx];
-
-			/* XXX XXX XXX */
-			/* Nothing here?  Use it */
-			if (!(c_ptr->o_idx)) flag = TRUE;
-
-			/* After trying 99 places, crush any (normal) object */
-			else if ((k>99) && cave_valid_bold(ny, nx)) flag = TRUE;
-		}
-
-		/* Hack -- Artifacts will destroy ANYTHING to stay alive */
-		if (!flag)
-		{
-			char o_name[80];
-			/* Location */
-			ny = y;
-			nx = x;
-			/* Always okay */
-			flag = TRUE;
-
-			/* Description */
-			object_desc(o_name, o_ptr, FALSE, 0);
-			/* Message */
-			msg_format("The %s crashes to the floor.", o_name);
-		}
-	}
-	/* Successful drop */
-	if (flag)
-	{
-		/* Assume fails */
-		flag = FALSE;
-		/* XXX XXX XXX */
-
-		/* Crush anything under us (for artifacts) */
-		delete_object(ny, nx);
-
-		/* Make a new object */
-		o_idx = o_pop();
-		/* Success */
-		if (o_idx)
-		{
-			/* Structure copy */
-			o_list[o_idx] = *o_ptr;
-
-			/* Access */
-			o_ptr = &o_list[o_idx];
-			/* Locate */
-			o_ptr->iy = ny;
-			o_ptr->ix = nx;
-
-			/* Place */
-			c_ptr = &cave[ny][nx];
-			c_ptr->o_idx = o_idx;
-			/* Note the spot */
-			note_spot(ny, nx);
-
-			/* Draw the spot */
-			lite_spot(ny, nx);
-
-			/* Sound */
-			sound(SOUND_DROP);
-			/* Mega-Hack -- no message if "dropped" by player */
-			/* Message when an object falls under the player */
-			if (chance && (ny == py) && (nx == px))
-			{
-				msg_print("You feel something roll beneath your feet.");
-			}
-
-			/* Success */
-			flag = TRUE;
-		}
-	}
-
-
-	/* Poor little object */
-	if (!flag)
-	{
-		char o_name[80];
-		/* Describe */
-		object_desc(o_name, o_ptr, FALSE, 0);
-
 		/* Message */
 		msg_format("The %s disappear%s.",
-		           o_name, ((o_ptr->number == 1) ? "s" : ""));
+		           o_name, (plural ? "" : "s"));
+
+		/* Debug */
+		if (wizard) msg_print("(breakage)");
+
+		/* Failure */
+		return (0);
 	}
+
+
+	/* Score */
+	bs = -1;
+
+	/* Picker */
+	bn = 0;
+
+	/* Default */
+	by = y;
+	bx = x;
+
+	/* Scan local grids */
+	for (dy = -3; dy <= 3; dy++)
+	{
+		/* Scan local grids */
+		for (dx = -3; dx <= 3; dx++)
+		{
+			bool comb = FALSE;
+
+			/* Calculate actual distance */
+			d = (dy * dy) + (dx * dx);
+
+			/* Ignore distant grids */
+			if (d > 10) continue;
+
+			/* Location */
+			ty = y + dy;
+			tx = x + dx;
+
+			/* Skip illegal grids */
+			if (!in_bounds(ty, tx)) continue;
+
+			/* Require line of sight */
+			if (!los(y, x, ty, tx)) continue;
+
+			/* Obtain grid */
+			c_ptr = &cave[ty][tx];
+
+			/* Require floor space */
+			if (c_ptr->feat != FEAT_FLOOR) continue;
+
+			/* No objects */
+			k = 0;
+
+			/* Scan objects in that grid */
+			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *o_ptr;
+					
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
+						
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
+
+				/* Check for possible combination */
+				if (object_similar(o_ptr, j_ptr)) comb = TRUE;
+
+				/* Count objects */
+				k++;
+			}
+
+			/* Add new object */
+			if (!comb) k++;
+
+			/* No stacking (allow combining) */
+			if (!testing_stack && (k > 1)) continue;
+
+			/* Paranoia */
+			if (k > 99) continue;
+
+			/* Calculate score */
+			s = 1000 - (d + k * 5);
+
+			/* Skip bad values */
+			if (s < bs) continue;
+
+			/* New best value */
+			if (s > bs) bn = 0;
+
+			/* Apply the randomizer to equivalent values */
+			if ((++bn >= 2) && (rand_int(bn) != 0)) continue;
+
+			/* Keep score */
+			bs = s;
+
+			/* Track it */
+			by = ty;
+			bx = tx;
+			
+			/* Okay */
+			flag = TRUE;
+		}
+	}
+
+
+	/* Handle lack of space */
+	if (!flag && !artifact_p(j_ptr))
+	{
+		/* Message */
+		msg_format("The %s disappear%s.",
+		           o_name, (plural ? "" : "s"));
+
+		/* Debug */
+		if (wizard) msg_print("(no floor space)");
+
+		/* Failure */
+		return (0);
+	}
+
+
+	/* Find a grid */
+	for (i = 0; !flag; i++)
+	{
+		/* Bounce around */
+		if (i < 1000)
+		{
+			ty = rand_spread(by, 1);
+			tx = rand_spread(bx, 1);
+		}
+		
+		/* Random locations */
+		else
+		{
+			ty = rand_int(cur_hgt);
+			tx = rand_int(cur_wid);
+		}
+
+		/* Grid */
+		c_ptr = &cave[ty][tx];
+
+		/* Require floor space */
+		if (c_ptr->feat != FEAT_FLOOR) continue;
+
+		/* Bounce to that location */
+		by = ty;
+		bx = tx;
+
+		/* Require floor space */
+		if (!cave_clean_bold(by, bx)) continue;
+
+		/* Okay */
+		flag = TRUE;
+	}
+
+
+	/* Grid */
+	c_ptr = &cave[by][bx];
+
+	/* Scan objects in that grid for combination */
+	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+	
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
+		
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+		
+		/* Check for combination */
+		if (object_similar(o_ptr, j_ptr))
+		{
+			/* Combine the items */
+			object_absorb(o_ptr, j_ptr);
+
+			/* Success */
+			done = TRUE;
+
+			/* Done */
+			break;
+		}
+	}
+
+	/* Get new object */
+	o_idx = o_pop();
+
+	/* Failure */
+	if (!done && !o_idx)
+	{
+		/* Message */
+		msg_format("The %s disappear%s.",
+		           o_name, (plural ? "" : "s"));
+
+		/* Debug */
+		if (wizard) msg_print("(too many objects)");
+
+		/* Failure */
+		return (0);
+	}
+
+	/* Stack */
+	if (!done)
+	{
+		/* Structure copy */
+		object_copy(&o_list[o_idx], j_ptr);
+
+		/* Access new object */
+		j_ptr = &o_list[o_idx];
+
+		/* Locate */
+		j_ptr->iy = by;
+		j_ptr->ix = bx;
+
+		/* No monster */
+		j_ptr->held_m_idx = 0;
+
+		/* Build a stack */
+		j_ptr->next_o_idx = c_ptr->o_idx;
+
+		/* Place the object */
+		c_ptr->o_idx = o_idx;
+
+		/* Success */
+		done = TRUE;
+	}
+
+	/* Note the spot */
+	note_spot(by, bx);
+
+	/* Draw the spot */
+	lite_spot(by, bx);
+
+	/* Sound */
+	sound(SOUND_DROP);
+
+	/* Mega-Hack -- no message if "dropped" by player */
+	/* Message when an object falls under the player */
+	if (chance && (by == py) && (bx == px))
+	{
+		msg_print("You feel something roll beneath your feet.");
+	}
+	
+	/* XXX XXX XXX */
+
+	/* Result */
+	return (o_idx);
 }
 
 
@@ -3810,7 +3958,7 @@ s16b inven_takeoff(int item, int amt)
 	object_desc(o_name, q_ptr, TRUE, 3);
 
 	/* Took off weapon */
-	if (item == INVEN_WIELD)
+	if (item == INVEN_WIELD || (item == INVEN_ARM && p_ptr->twoweap))
 	{
 		act = "You were wielding";
 	}
@@ -4056,6 +4204,17 @@ void reorder_pack(void)
 	}
 	/* Message */
 	if (flag) msg_print("You reorder some items in your pack.");
+
+	/* Hack -- If the player has two weapons, and loses the primary,
+	   then we swap the secondary into the primary slot. */
+	if (!(inventory[INVEN_WIELD].k_idx) && 
+	    ((inventory[INVEN_ARM].tval) == TV_SWORD ||
+	    ((inventory[INVEN_ARM].tval) == TV_HAFTED)))
+	  {
+	    temp = inventory[INVEN_ARM];
+	    inventory[INVEN_ARM] = inventory[INVEN_WIELD];
+	    inventory[INVEN_WIELD] = temp;
+	  }
 }
 
 
@@ -4069,7 +4228,7 @@ void place_general(int y, int x, byte tval, byte sval)
 	object_prep(&obj, lookup_kind(tval, sval));
 
 	/* Magic */
-	apply_magic(&obj, dun_level, TRUE, TRUE, TRUE);
+	apply_magic(&obj, (dun_level==-1? 70: dun_level), TRUE, TRUE, TRUE);
 
 	/* Drop it */
 	drop_near(&obj, 0, y, x);
@@ -4336,7 +4495,7 @@ bool spell_okay(int spell, bool known)
 	/* Access the spell */
 	s_ptr = &mp_ptr->info[spell];
 	/* Spell is illegal */
-	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
+	if (s_ptr->slevel > smod(S_MAGIC)) return (FALSE);
 	/* Spell is forgotten */
 	if ((spell < 32) ?
 	    (spell_forgotten1 & (1L << spell)) :
@@ -4368,9 +4527,10 @@ bool spell_okay(int spell, bool known)
  */
 static void spell_info(char *p, int j)
 {
-	int plev = p_ptr->lev;
+	int plev;
 	/* Default */
 	strcpy(p, "");
+	plev= smod(S_MAGIC) + (p_ptr->cur_skill[mp_ptr->spell_skill]/20)-5;
 
 #ifdef DRS_SHOW_SPELL_INFO
 
@@ -4379,11 +4539,11 @@ static void spell_info(char *p, int j)
 	switch (j+((p_ptr->realm-1)*64))
 	{
 		/*** Mage spells ***/
-		case 0: strcpy(p, " dam 2d6"); break;
+		case 0: sprintf(p, " dam %dd4", 3 + (plev-1)/5 ); break;
 		case 2: strcpy(p, " range 10"); break;
 		case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
 		case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-		case 11: sprintf(p, " dam %d", 10+plev/4);
+		case 11: sprintf(p, " dam %d", 10+plev/4); break;
 		case 14: sprintf(p, " range %d", plev * 5); break;
 		case 15: sprintf(p, " dam %dd6", 4+((plev-5)/45)); break;
 		case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
@@ -4392,7 +4552,7 @@ static void spell_info(char *p, int j)
 		case 26: sprintf(p, " dam %d", 30 + plev); break;
 		case 29: sprintf(p, " dur %d+d20", plev); break;
 		case 30: sprintf(p, " dam %d", 55 + plev); break;
-		case 32: strcpy(p, " restore 35"); break;
+		case 32: strcpy(p, " restore d35"); break;
 		case 33: case 34: case 35: case 36: case 37:
 			strcpy(p," dur 20+d20"); break;
 		case 46: strcpy(p, " dur 25+d25"); break;
@@ -4428,13 +4588,15 @@ static void spell_info(char *p, int j)
 		case 94: strcpy(p, " heal 2000"); break;
 		case 95: strcpy(p, " range 10"); break;
 		case 96: sprintf(p, " range %d", 8*plev); break;
-		case 105: sprintf(p, " dur %d+d%d", 50+plev, plev+10);
-		case 106: sprintf(p, " dur %d+d%d", 50+plev/3, plev); break;
-		case 109: sprintf(p, " dur %d+d%d", plev/5+2, plev/10); break;
-		case 116: sprintf(p, " dam %d", plev+40); break;
-		case 117: sprintf(p, " dam %d", plev*5); break;
-		case 118: sprintf(p, " dam %d", (plev*3)/2+150); break;
-		case 120: strcpy(p, " dam 300"); break;
+	case 99: sprintf(p, " dur %d", 300+plev*2); break;
+		case 106: sprintf(p, " dur %d+d%d", 50+plev, plev+10); break;
+		case 107: sprintf(p, " dur %d+d%d", 50+plev/3, plev); break;
+		case 110: sprintf(p, " dur %d+d%d", plev/5+2, plev/10); break;
+	case 113: sprintf(p, " dur %d", plev+20); break;
+		case 117: sprintf(p, " dam %d", plev+40); break;
+		case 118: sprintf(p, " dam %d", plev*4); break;
+		case 119: sprintf(p, " dam %d", (plev*3)/2+150); break;
+		case 121: strcpy(p, " dam 300"); break;
 
 		/*** Druid spells ***/
 		case 130: sprintf(p, " dur %d", plev*2+10); break;
@@ -4446,7 +4608,7 @@ static void spell_info(char *p, int j)
 		case 144: sprintf(p, " dam %d", 20+plev/4); break;
 		case 145: sprintf(p, " dam %d", 25+plev/4); break;
 		case 147: sprintf(p, " dam %d", 30+plev/4); break;
-		case 148: sprintf(p, " heal %d+10d10", (plev*3)/2); break;
+		case 148: sprintf(p, " hl %d+10d10", (plev*3)/2); break;
 		case 149: sprintf(p, " dam %d", 35+plev/4); break;
 		case 150: sprintf(p, " dam %d", 40+plev/4); break;
 		case 151: sprintf(p, " dam %d", 45+plev/2); break;
@@ -4455,7 +4617,7 @@ static void spell_info(char *p, int j)
 		case 154: sprintf(p, " dam %d", 60+plev/2); break;
 		case 157: strcpy(p, " heal 1000"); break;
 		case 158: sprintf(p, " dur %d+d%d", plev, plev+50); break;
-		case 159: strcpy(p, " restore 50"); break;
+		case 159: strcpy(p, " restore d50"); break;
 		case 170: sprintf(p, " dur %d", plev+60); break;
 		case 171: sprintf(p, " dur %d", plev+60); break;
 		case 172: sprintf(p, " dur %d", 50+plev); break;
@@ -4467,23 +4629,24 @@ static void spell_info(char *p, int j)
 		case 179: sprintf(p, " dam %d", (plev*3)/2+240); break;
 
 		/*** Necro spells ***/
-		case 193: strcpy(p, " range 20"); break;
+		case 193: sprintf(p, " range 20"); break;
 		case 200: sprintf(p, " dam %d", plev*4); break;
 		case 202: sprintf(p, " dur %d", 30+plev); break;
 		case 204: sprintf(p, " dur %d", plev*2+30); break;
 		case 205: sprintf(p, " range %d", plev*4); break;
-		case 206: sprintf(p," dur %d", plev+50); break;
+		case 208: sprintf(p," dur %d", 2*plev+50); break;
 		case 209: sprintf(p, " dam %d", plev/3+20); break;
 		case 210: sprintf(p, " heal %d", (plev*3)/2+50); break;
-		case 211: sprintf(p," dur %d", plev+50); break;
+		case 211: sprintf(p," dur %d", 2*plev+50); break;
 		case 213: sprintf(p, " dam %d", plev/3+35); break;
 		case 217: sprintf(p, " dur %d", plev+30); break;
 		case 218: sprintf(p, " dur %d", plev+50); break;
-		case 219: sprintf(p, " dur 30+d%d", 20); break;
+		case 219: sprintf(p, " dur 30+d20"); break;
 		case 220: sprintf(p, " dam %d", (plev*3)/2+80); break;
 		case 224: sprintf(p, " dam %d", plev*5); break;
 		case 225: sprintf(p, " dam %d", (plev*3)/2+220); break;
 		case 226: sprintf(p, " dam %d", (plev+150)); break;
+	case 231: sprintf(p, " restore d35"); break;
 		case 232: sprintf(p, " dam %d", plev*5); break;
 		case 233: sprintf(p, " dam %d", (plev*3)/2+120); break;
 		case 236: sprintf(p, " heal %d", plev*2+200); break;
@@ -4531,7 +4694,6 @@ void print_spells(byte *spells, int num, int y, int x)
 			continue;
 		}
 
-		/* XXX XXX Could label spells above the players level */
 		/* Get extra info */
 		spell_info(info, spell);
 
@@ -4549,7 +4711,10 @@ void print_spells(byte *spells, int num, int y, int x)
 		           (spell_learned1 & (1L << spell)) :
 		           (spell_learned2 & (1L << (spell - 32)))))
 		{
-			comment = " unknown";
+		  if (s_ptr->slevel > smod(S_MAGIC))
+		    comment = " too hard";
+		  else
+		    comment = " unknown";
 		}
 		else if (!((spell < 32) ?
 		           (spell_worked1 & (1L << spell)) :

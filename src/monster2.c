@@ -1133,7 +1133,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Powerful monster */
-	if (r_ptr->level > dun_level)
+	if (r_ptr->level > (dun_level==-1? 50: dun_level))
 	{
 		/* Unique monsters */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -1146,7 +1146,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 			if (cheat_hear) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
-			rating += (r_ptr->level - dun_level) * 2;
+			rating += (r_ptr->level - (dun_level==-1? 50: dun_level)) * 2;
 		}
 
 		/* Normal monsters */
@@ -1160,7 +1160,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 			if (cheat_hear) msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
-			rating += (r_ptr->level - dun_level);
+			rating += (r_ptr->level - (dun_level==-1? 50: dun_level));
 		}
 	}
 
@@ -1320,16 +1320,16 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	total = randint(13);
 
 	/* Hard monsters, small groups */
-	if (r_ptr->level > dun_level)
+	if (r_ptr->level > (dun_level==-1? 50: dun_level))
 	{
-		extra = r_ptr->level - dun_level;
+		extra = r_ptr->level - (dun_level==-1? 50: dun_level);
 		extra = 0 - randint(extra);
 	}
 
 	/* Easy monsters, large groups */
-	else if (r_ptr->level < dun_level)
+	else if (r_ptr->level < (dun_level==-1? 50: dun_level))
 	{
-		extra = dun_level - r_ptr->level;
+		extra = (dun_level==-1? 50: dun_level) - r_ptr->level;
 		extra = randint(extra);
 	}
 
@@ -1776,6 +1776,8 @@ bool summon_specific(int y1, int x1, int lev, int type)
 {
 	int i, x, y, r_idx;
 
+	/* handle the quest level */
+	if (lev == -1) lev = 50;
 
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
@@ -1812,7 +1814,7 @@ bool summon_specific(int y1, int x1, int lev, int type)
 
 
 	/* Pick a monster, using the level calculation */
-	r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+	r_idx = get_mon_num(((dun_level==-1? 50: dun_level) + lev) / 2 + 5);
 
 
 	/* Remove restriction */

@@ -864,9 +864,8 @@ bool make_attack_spell(int m_idx)
 				msg_print("You resist the terrors of Hell!");
 			}
 			else {
-				msg_print(
-				   "You are mortally terrified by the visions you see!");
-				p_ptr->afraid += randint(30) + r_ptr->level * 2;
+				msg_print("You succumb to the visions of Hell!");
+				(void)set_afraid(p_ptr->afraid + randint(30) + r_ptr->level * 2);
 			}
 			breath(m_idx, GF_MISSILE, dam);
 			update_smart_learn(m_idx, DRS_DARK);

@@ -1,8 +1,5 @@
 # File: Makefile
 
-CFLAGS = -Wall -O1 -pipe -g -pg -static -D"USE_GCU" -D"ALLOW_WIZARD" -D"ALLOW_SPOILERS"
-LIBS = -lcurses -ltermcap
-
 # This is not a very "nice" Makefile, but it usually works.
 
 #
@@ -168,9 +165,9 @@ CC = gcc
 ##
 #CFLAGS = -I/usr/include/ncurses \
 #         -Wall -O2 -fomit-frame-pointer \
-#         -D"USE_X11" -D"USE_GCU" \
+#         -D"USE_GCU" \
 #         -D"USE_TPOSIX" -D"USE_CURS_SET"
-#LIBS = -lX11 -lncurses
+#LIBS = -lncurses
 #LDFLAGS = -s
 
 
@@ -216,9 +213,10 @@ CC = gcc
 #
 # Hack -- "install" as the base target
 #
-
 install: sangband
-	\mv sangband ..
+	cp sangband ..
+#	\mv sangband /usr/games/bin/
+#	chmod u+s /usr/games/bin/sangband
 
 
 #
@@ -302,5 +300,3 @@ z-rand.o: z-rand.c $(HDRS) z-rand.h
 z-term.o: z-term.c $(HDRS) z-term.h z-virt.h
 z-util.o: z-util.c $(HDRS) z-util.h
 z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
-
-e

@@ -340,10 +340,6 @@ char history[4][60];
 /* Buffer to hold the current savefile name */
 char savefile[384];
 
-/* Used by project_m() */
-u32b p_flag;
-
-
 /*
  * Array of grids lit by player lite (see "cave.c")
  */

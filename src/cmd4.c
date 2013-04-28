@@ -2107,7 +2107,7 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing Angband %d.%d.%d.  Type '?' for more info.",
+	msg_format("You are playing SAngband %d.%d.%d.  Type '?' for more info.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 }
 
