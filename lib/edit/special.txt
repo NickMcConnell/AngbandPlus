@@ -1,0 +1,605 @@
+# File: special.txt
+#
+# This file is used to create the 'lib/data/special.raw' file, which is
+# used to initialize the 'special item' information for Sil.
+#
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+#
+#
+# === Understanding special.txt ===
+#
+# N: serial number : special type
+# C: max att : plus damage dice : plus damage sides : max evn : 
+#    plus prot dice: plus prot sides : pval
+# W: depth : rarity : max_depth : cost
+# T: tval : min_sval : max_sval
+# F: flag | flag | etc
+#
+# 'N' indicates the beginning of an entry. The serial number must
+#     increase for each new item.
+#
+# 'W' is for extra information. Depth is the depth the object is
+#     normally found at, rarity determines how common the object is,
+#     Max-depth is the deepest it can be generated and cost is the
+#     item's value (not really used much).
+#
+# 'C' is for creation bonuses - maximum to-hit, to-dam, to-ac, and
+#     pval. Cursed special items will negate the given value.
+#
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+#     lines may be used as are needed to specify all the flags and flags
+#     are separated by the '|' symbol.
+#
+# 'T' is for possible 'tval' and 'sval' values of the base-item.
+#     Up to four 'T' entries are possible for a single object. The
+#     special item can only be generated from items of this tval, with sval
+#     in the specified range.
+#
+#
+# === Important notes ===
+#
+# * The special item indexes are defined in 'defines.h', and must not be 
+#   changed or savefile compatibility will be lost.
+#
+# * Note that several special item types may share the same 'textual Name',
+#   such as with 'Armor of Protection' and 'Shield of Protection'.
+
+
+# Version stamp (required)
+
+V:1.0.0
+
+
+
+##### Armor #####
+
+
+# includes shields and cloaks
+
+N:1:of Protection
+W:0:1:0:1000
+C:0:0:0:0:0:1:0
+T:34:0:99
+T:35:0:99
+T:36:0:99
+T:37:0:99
+F:IGNORE_ALL
+
+
+# soft armour only
+
+N:2:of Stealth
+W:0:1:0:1000
+C:0:0:0:0:0:0:3
+T:36:0:99
+F:STEALTH
+
+
+N:3:of Venom's End
+W:0:2:0:1000
+C:0:0:0:0:0:0:0
+T:36:0:99
+T:37:0:99
+F:RES_POIS
+
+
+N:4:of Permanence
+W:5:3:0:1000
+C:0:0:0:0:0:0:0
+T:36:0:99
+T:37:0:99
+F:SUST_STR | SUST_DEX
+F:IGNORE_ALL
+
+
+N:5:of Resilience
+W:10:5:0:1000
+C:0:0:0:0:0:0:1
+T:36:0:99
+T:37:0:99
+F:CON
+F:IGNORE_ALL
+
+
+
+###
+
+# includes shields
+
+N:9:of Wrath
+W:0:2:10:0
+C:0:0:0:0:0:0:0
+T:34:0:99
+T:36:0:99
+T:37:0:99
+F:AGGRAVATE
+
+
+# armour with res_stun?
+
+
+##### Shields #####
+
+
+# 'of Protection' is already defined above
+
+N:12:of Deflection
+W:0:1:0:1000
+C:0:0:0:2:0:0:0
+T:34:0:99
+F:IGNORE_ALL
+
+
+N:13:of Frost
+W:10:1:0:1000
+C:0:0:0:0:0:0:0
+T:34:0:99
+F:RES_FIRE
+
+
+###
+
+# 'of Attention' is already defined above
+
+
+
+##### Weapons #####
+
+
+N:21:of Orc Slaying
+W:0:2:10:1000
+C:0:0:0:0:0:0:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_ORC
+
+
+N:22:of Wolf Slaying
+W:0:2:0:1000
+C:0:0:0:0:0:0:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_WOLF
+
+
+N:23:of Spider Slaying
+W:4:2:0:2000
+C:0:0:0:0:0:0:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_SPIDER
+
+
+N:24:of Final Rest
+W:7:1:0:2000
+C:0:0:0:0:0:0:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_UNDEAD
+
+
+N:25:of Rauko Slaying
+W:9:1:0:2000
+C:0:0:0:0:0:0:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_RAUKO
+
+
+N:26:of Dragon Slaying
+W:12:1:0:2000
+C:0:0:0:0:0:0:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_DRAGON
+
+
+# Daggers only
+
+N:27:(Poisoned)
+W:0:1:0:2000
+C:0:0:0:0:0:0:0
+T:23:4:4
+F:BRAND_POIS
+
+
+# Daggers only
+# Ability 3/1 is 'assassination'
+
+N:28:of Murder
+W:0:1:0:2000
+C:0:0:0:0:0:0:0
+T:23:4:4
+B:3/1
+
+
+# Daggers only
+# Ability 0/9 is 'two weapon fighting'
+
+N:29:of Accompaniment
+W:0:1:0:2000
+C:0:0:0:0:0:0:0
+T:23:4:4
+B:0/9
+
+
+# Edged weapons, glaives and halberds
+
+N:30:(Defender)
+W:0:1:0:1000
+C:0:0:0:1:0:0:0
+T:22:4:5
+T:23:0:99
+F:IGNORE_ALL
+
+
+# All weapons except light blades
+# Ability 0/5 is Continuation
+
+N:31:of Hador's House
+W:8:3:0:3000
+C:0:0:0:0:0:0:1
+T:21:0:99
+T:22:0:99
+T:23:17:99
+B:0/5
+F:STR
+
+
+# Edged weapons, glaives and halberds
+
+#N:32:of Sharpness
+#W:8:2:0:1000
+#C:0:0:0:0:0:0:0
+#T:22:13:15
+#T:23:0:99
+#F:SHARPNESS
+
+
+# Spears only
+
+N:33:of the Vanyar
+W:10:1:0:3000
+C:0:0:0:0:0:0:1
+T:22:1:2
+F:GRA | LIGHT
+
+
+# Edged weapons
+# Ability 0/11 is Whirlwind Attack
+
+N:34:of Fury
+W:10:2:0:2000
+C:0:0:0:0:0:0:0
+T:23:0:99
+B:0/11
+F:AGGRAVATE
+
+
+# edged weapons, axes, polearms
+
+N:35:(Vampiric)
+W:12:2:0:3000
+C:0:0:0:0:0:0:1
+T:22:0:99
+T:23:0:99
+F:VAMPIRIC | HUNGER
+
+
+N:36:of Gondolin
+W:15:3:0:3000
+C:0:0:0:0:0:0:1
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:SLAY_RAUKO | SLAY_DRAGON | DEX
+
+
+# blades only
+
+N:37:of Brilliance
+W:0:3:0:1000
+C:0:0:0:0:0:0:0
+T:23:0:99
+F:LIGHT
+
+
+# blades only
+# Ability 2/7 is riposte
+
+N:38:(Avenger)
+W:10:3:0:1000
+C:0:0:0:0:0:0:0
+T:23:0:99
+B:2/7
+
+
+# throwing items only
+
+#N:39:(Balanced)
+#W:2:1:0:1000
+#C:0:0:0:0:0:0:0
+#T:23:4:4
+#T:22:1:1
+#T:22:3:3
+#T:22:11:11
+#F:PERFECT_BALANCE
+
+
+###
+
+#N:40:of Morgul
+#W:7:3:10:0
+#C:0:0:0:0:0:0:-1
+#T:23:0:99
+#F:GRA | DANGER | LIGHT_CURSE
+
+
+
+##### Digging Tools #####
+
+N:51:of Belegost
+W:5:1:0:1000
+C:0:0:0:0:0:0:1
+T:20:2:3
+F:TUNNEL
+
+
+##### Helms/Crowns #####
+
+
+N:71:of Brilliance
+W:0:3:0:1000
+C:0:0:0:0:0:0:0
+T:32:0:99
+T:33:0:99
+F:LIGHT
+
+
+N:72:of Defiance
+W:0:1:0:2000
+C:0:0:0:0:0:0:3
+T:32:0:99
+T:33:0:99
+F:WILL | RES_FEAR
+
+
+N:73:of True Sight
+W:5:1:0:2000
+C:0:0:0:0:0:0:3
+T:32:0:99
+T:33:0:99
+F:PERCEPTION | RES_BLIND | SEE_INVIS | RES_HALLU
+
+
+N:74:of Clarity
+W:7:2:0:2000
+C:0:0:0:0:0:0:0
+T:32:0:99
+T:33:0:99
+F:RES_CONFU | RES_STUN | RES_HALLU
+
+
+# crowns only
+
+N:75:of Grace
+W:10:2:0:3000
+C:0:0:0:0:0:0:1
+T:33:0:99
+F:GRA
+
+
+# crowns only
+# Ability 5/9 is Majesty
+
+N:76:of Majesty
+W:14:4:0:3000
+C:0:0:0:0:0:0:0
+T:33:0:99
+B:5/9
+
+
+###
+
+# a helm of blindness?
+
+# a helm that lowers perception?
+
+# a helm that lowers will?
+
+
+##### Cloaks #####
+
+
+# 'of Protection' is already defined above
+
+
+N:82:of Stealth
+W:0:1:0:1000
+C:0:0:0:0:0:0:3
+T:35:0:99
+F:STEALTH
+
+
+N:83:of Warmth
+W:0:1:0:1000
+C:0:0:0:0:0:0:0
+T:35:0:99
+F:RES_COLD
+
+
+###
+
+# a cursed cloak?
+
+
+##### Bows #####
+
+
+N:91:of Himring
+W:0:1:10:1000
+C:0:0:0:0:0:0:0
+T:19:0:99
+F:SLAY_ORC | SLAY_TROLL
+
+
+N:92:of Radiance
+W:0:1:0:1000
+C:0:0:0:0:0:0:0
+T:19:0:99
+F:RADIANCE
+
+
+N:93:of Doriath
+W:7:1:0:2000
+C:0:0:0:0:0:0:0
+T:19:0:99
+F:SLAY_WOLF | SLAY_SPIDER
+
+
+N:94:of Quickness
+W:10:3:0:3000
+C:0:0:0:0:0:0:0
+T:19:0:99
+B:1/6
+
+
+##### Arrows #####
+
+
+N:101:(Poisoned)
+W:0:1:0:100
+C:0:0:0:0:0:0:0
+T:17:0:2
+F:BRAND_POIS
+
+
+N:102:of Piercing
+W:10:3:0:300
+C:0:0:0:0:0:0:0
+T:17:0:99
+F:SHARPNESS
+
+
+
+##### Boots #####
+
+
+# leather boots only
+
+N:111:of Softest Tread
+W:0:1:0:1000
+C:0:0:0:0:0:0:3
+T:30:1:1
+F:STEALTH
+
+
+N:112:of Free Action
+W:7:2:0:2000
+C:0:0:0:0:0:0:0
+T:30:0:99
+F:FREE_ACT
+
+
+# leather boots only
+# Sprinting is ability 2/4
+
+N:113:of Speed
+W:10:5:0:5000
+C:0:0:0:0:0:0:10
+T:30:1:1
+B:2/4
+
+
+###
+
+N:114:of Slowness
+W:14:3:18:0
+C:0:0:0:0:0:0:0
+T:30:0:99
+F:SLOWNESS | LIGHT_CURSE
+
+
+
+##### Gloves #####
+
+
+# gloves only
+
+N:120:of Archery
+W:0:1:0:1000
+C:0:0:0:0:0:0:3
+T:31:1:1
+F:ARCHERY
+
+
+N:121:of the Forge
+W:0:1:0:1000
+C:0:0:0:0:0:0:3
+T:31:0:99
+F:SMITHING
+
+
+N:122:of Power
+W:10:1:0:3000
+C:0:0:0:0:0:0:1
+T:31:0:99
+F:STR
+
+
+# gloves only
+
+N:123:of Dexterity
+W:12:1:0:3000
+C:0:0:0:0:0:0:1
+T:31:1:1
+F:DEX
+
+
+###
+
+N:125:of Weakness
+W:0:1:13:0
+C:0:0:0:0:0:0:1
+T:31:0:99
+F:STR | LIGHT_CURSE
+
+
+N:126:of Clumsiness
+W:0:1:13:0
+C:0:0:0:0:0:0:1
+T:31:0:99
+F:DEX | LIGHT_CURSE
+
+
+##### Lanterns #####
+
+
+N:130:of Brightness
+W:0:1:0:1000
+C:0:0:0:0:0:0:0
+T:39:1:8
+F:LIGHT
+
+
+N:131:of True Sight
+W:0:1:0:2000
+C:0:0:0:0:0:0:0
+T:39:1:8
+F:SEE_INVIS | RES_BLIND | RES_HALLU
+
+
+N:132:of Shadows
+W:0:1:11:0
+C:0:0:0:0:0:0:0
+T:39:1:1
+F:DARKNESS | LIGHT_CURSE
+
+

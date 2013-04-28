@@ -97,9 +97,14 @@
 /*
  * This flag enables the "POSIX" methods for "SAFE_SETUID".
  */
+
+/* XXX - hack to get it to compile under tiger
+
 #ifdef _POSIX_SAVED_IDS
 # define SAFE_SETUID_POSIX
 #endif
+
+*/
 
 
 /*
@@ -196,7 +201,7 @@
 /*
  * OPTION: Allow "Wizards" to yield "high scores"
  */
-/* #define SCORE_WIZARDS */
+#define SCORE_WIZARDS
 
 /*
  * OPTION: Allow "Borgs" to yield "high scores"
@@ -207,13 +212,6 @@
  * OPTION: Allow "Cheaters" to yield "high scores"
  */
 /* #define SCORE_CHEATERS */
-
-/*
-* OPTION: Allow monsters to use noise and scent information to better
-* track the character.  This feature requires a significant amount of
-* memory, but makes monsters behave much more intelligently.
-*/
-#define MONSTER_FLOW
 
 /*
  * OPTION: Support multiple "player" grids in "map_info()"
@@ -297,13 +295,13 @@
  * variable, if that variable is defined and accessable.  The final
  * "slash" is required if the value supplied is in fact a directory.
  *
- * Using the value "./lib/" below tells Angband that, by default,
- * the user will run "angband" from the same directory that contains
+ * Using the value "./lib/" below tells Sil that, by default,
+ * the user will run "sil" from the same directory that contains
  * the "lib" directory.  This is a reasonable (but imperfect) default.
  *
  * If at all possible, you should change this value to refer to the
- * actual location of the "lib" folder, for example, "/tmp/angband/lib/"
- * or "/usr/games/lib/angband/", or "/pkg/angband/lib".
+ * actual location of the "lib" folder, for example, "/tmp/sil/lib/"
+ * or "/usr/games/lib/sil/", or "/pkg/sil/lib".
  */
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
@@ -316,7 +314,7 @@
  */
 
 # ifdef PRIVATE_USER_PATH
-#  define PRIVATE_USER_PATH "~/.angband"
+#  define PRIVATE_USER_PATH "~/.sil"
 # endif /* PRIVATE_USER_PATH */
 
 
@@ -353,11 +351,10 @@
 #define CAPITALIZE_USER_NAME
 
 
-
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"nppangband@comcast.net"
+#define MAINTAINER	"sil@amirrorclear.net"
 
 
 /*
@@ -415,7 +412,6 @@
 # undef ALLOW_COLORS
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
-# undef MONSTER_FLOW
 # undef ALLOW_TERROR
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG

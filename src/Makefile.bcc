@@ -1,6 +1,6 @@
 ###################################################################
 #
-#  Makefile.bcc - Angband makefile for Borland C++ 5.5 (Win32)
+#  Makefile.bcc - Sil makefile for Borland C++ 5.5 (Win32)
 #
 ###################################################################
 
@@ -23,7 +23,7 @@ RC         = brc32
 #
 # Name of the *.exe-file
 
-EXE_FILE = nppangband.exe
+EXE_FILE = sil.exe
 
 
 ###################################################################
@@ -53,8 +53,8 @@ OBJ = \
   dungeon.obj files.obj generate.obj init1.obj \
   init2.obj randart.obj load.obj \
   melee1.obj melee2.obj monster1.obj monster2.obj \
-  object1.obj object2.obj quest.obj squelch.obj save.obj spells1.obj \
-  spells2.obj store.obj tables.obj util.obj \
+  object1.obj object2.obj squelch.obj save.obj spells1.obj \
+  spells2.obj tables.obj util.obj \
   variable.obj wizard1.obj wizard2.obj xtra1.obj \
   xtra2.obj z-form.obj z-rand.obj z-term.obj \
   z-util.obj z-virt.obj \
@@ -78,11 +78,11 @@ install: $(EXE_FILE)
 
 
 ########################### Explicit Rules ########################
-$(EXE_FILE): $(OBJ) angband.res
-	$(LINKER) -aa -x $(OBJ) c0w32.obj, $(EXE_FILE),, cw32.lib import32.lib,, angband.res
+$(EXE_FILE): $(OBJ) sil.res
+	$(LINKER) -aa -x $(OBJ) c0w32.obj, $(EXE_FILE),, cw32.lib import32.lib,, sil.res
 
-angband.res: angband.rc
-	$(RC) -r angband.rc
+sil.res: sil.rc
+	$(RC) -r sil.rc
 
 
 ########################### Implicit Rules ########################

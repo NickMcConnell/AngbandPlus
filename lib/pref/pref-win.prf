@@ -14,9 +14,6 @@
 # The "main-win.prf" file should not be using the final "control + keypad"
 # section in this file, it was created for "main-ibm.c" and "main-dos.c".
 #
-# The "main-win.prf" file should not be using the final "control + keypad"
-# section in this file, it was created for "main-ibm.c" and "main-dos.c".
-#
 # The "main-win.prf" file may actually send the "ascii" equivalent of some
 # keypad keys after the keypad key itself, especially if "numlock" is down,
 # which may cause problems.  Or it may not, it is hard to tell.  This is bad.
@@ -31,7 +28,7 @@
 # '&' in <trigger template> specifies location of modifier character.
 # '#' in <trigger template> specifies location of key code.
 #
-# If <trigger template> is null string, all trigger difinition will be cleared.
+# If <trigger template> is null string, all trigger definition will be cleared.
 
 T:&x#:CSA:control-:shift-:alt-
 
@@ -253,39 +250,15 @@ A:.
 P:^_x53\r
 
 
+###########################
 #
-# Shift + Keypad (/,*,7,8,9,-,4,5,6,+,1,2,3,0,.)
+# Shift Keypad -- Directed Running
+# 
+# 789
+# 4 6  - these run in the specified direction
+# 123
 #
-
-A:\a
-P:^_Sx35\r
-
-A:\a
-P:^_Sx37\r
-
-A:\a\\.7
-P:^_Sx47\r
-
-A:\a\\.8
-P:^_Sx48\r
-
-A:\a\\.9
-P:^_Sx49\r
-
-A:\a
-P:^_Sx4A\r
-
-A:\a\\.4
-P:^_Sx4B\r
-
-A:\a\\.5
-P:^_Sx4C\r
-
-A:\a\\.6
-P:^_Sx4D\r
-
-A:\a
-P:^_Sx4E\r
+#  5   - rest until needed
 
 A:\a\\.1
 P:^_Sx4F\r
@@ -296,109 +269,222 @@ P:^_Sx50\r
 A:\a\\.3
 P:^_Sx51\r
 
-A:\a
-P:^_Sx52\r
+A:\a\\.4
+P:^_Sx4B\r
 
-A:\a
-P:^_Sx53\r
+A:\a\\Z
+P:^_Sx4C\r
+
+A:\a\\.6
+P:^_Sx4D\r
+
+A:\a\\.7
+P:^_Sx47\r
+
+A:\a\\.8
+P:^_Sx48\r
+
+A:\a\\.9
+P:^_Sx49\r
 
 
+
+###########################
 #
-# Control + Keypad (/,*,7,8,9,-,4,5,6,+,1,2,3,0,.)
+# Alt-Keypad -- Directed firing from the first quiver
+# 
+# 789
+# 4 6  - these fire in the specified direction
+# 123
 #
+# 5/0   - picks the target or closest monster and fires at it
 
-A:\a
-P:^_Cx35\r
+A:\a\\ff
+P:^_Ax52\r
 
-A:\a
-P:^_Cx37\r
+A:\a\\f1
+P:^_Ax4F\r
 
-A:\a\\+7
-P:^_Cx47\r
+A:\a\\f2
+P:^_Ax50\r
 
-A:\a\\+8
-P:^_Cx48\r
+A:\a\\f3
+P:^_Ax51\r
 
-A:\a\\+9
-P:^_Cx49\r
+A:\a\\f4
+P:^_Ax4B\r
 
-A:\a
-P:^_Cx4A\r
+A:\a\\ff
+P:^_Ax4C\r
 
-A:\a\\+4
-P:^_Cx4B\r
+A:\a\\f6
+P:^_Ax4D\r
 
-A:\a\\+5
-P:^_Cx4C\r
+A:\a\\f7
+P:^_Ax47\r
 
-A:\a\\+6
-P:^_Cx4D\r
+A:\a\\f8
+P:^_Ax48\r
 
-A:\a
-P:^_Cx4E\r
+A:\a\\f9
+P:^_Ax49\r
 
-A:\a\\+1
+
+
+###########################
+#
+# Alt-Numkeys -- Directed firing from the first quiver
+# 
+# 789
+# 4 6  - these fire in the specified direction
+# 123
+#
+# 5/0   - picks the target or closest monster and fires at it
+
+A:\a\\ff
+P:^_Ax0B\r
+
+A:\a\\f1
+P:^_Ax02\r
+
+A:\a\\f2
+P:^_Ax03\r
+
+A:\a\\f3
+P:^_Ax04\r
+
+A:\a\\f4
+P:^_Ax05\r
+
+A:\a\\ff
+P:^_Ax06\r
+
+A:\a\\f6
+P:^_Ax07\r
+
+A:\a\\f7
+P:^_Ax08\r
+
+A:\a\\f8
+P:^_Ax09\r
+
+A:\a\\f9
+P:^_Ax0A\r
+
+
+
+
+###########################
+#
+# Control-Keypad -- Interact with terrain in chosen direction
+# 
+# 789
+# 456
+# 123
+#
+# (note - I have heard that control-keypad doesn't work at all in windows)
+
+A:\a\\/1
 P:^_Cx4F\r
 
-A:\a\\+2
+A:\a\\/2
 P:^_Cx50\r
 
-A:\a\\+3
+A:\a\\/3
 P:^_Cx51\r
 
-A:\a
-P:^_Cx52\r
+A:\a\\/4
+P:^_Cx4B\r
 
-A:\a
-P:^_Cx53\r
+A:\a\\/5
+P:^_Cx4C\r
+
+A:\a\\/6
+P:^_Cx4D\r
+
+A:\a\\/7
+P:^_Cx47\r
+
+A:\a\\/8
+P:^_Cx48\r
+
+A:\a\\/9
+P:^_Cx49\r
 
 
+###########################
 #
-# Control + Keypad (/,*,7,8,9,-,4,5,6,+,1,2,3,0,.)
+# Control-Keypad -- Interact with terrain in chosen direction
 #
+# (I have no idea why this is replicated here with different key-codes)
+# 
+# 789
+# 456
+# 123
+#
+# (note - I have heard that control-keypad doesn't work at all in windows)
 
-A:\a
-P:^_Cx95\r
-
-A:\a
-P:^_Cx96\r
-
-A:\a\\+7
-P:^_Cx77\r
-
-A:\a\\+8
-P:^_Cx8D\r
-
-A:\a\\+9
-P:^_Cx84\r
-
-A:\a
-P:^_Cx8E\r
-
-A:\a\\+4
-P:^_Cx73\r
-
-A:\a\\+5
-P:^_Cx8F\r
-
-A:\a\\+6
-P:^_Cx74\r
-
-A:\a
-P:^_Cx90\r
-
-A:\a\\+1
+A:\a\\/1
 P:^_Cx75\r
 
-A:\a\\+2
+A:\a\\/2
 P:^_Cx91\r
 
-A:\a\\+3
+A:\a\\/3
 P:^_Cx76\r
 
-A:\a
-P:^_Cx92\r
+A:\a\\/4
+P:^_Cx73\r
 
-A:\a
-P:^_Cx93\r
+A:\a\\/5
+P:^_Cx8F\r
+
+A:\a\\/6
+P:^_Cx74\r
+
+A:\a\\/7
+P:^_Cx77\r
+
+A:\a\\/8
+P:^_Cx8D\r
+
+A:\a\\/9
+P:^_Cx84\r
+
+
+###########################
+#
+# Control-Numkeys -- Interact with terrain in the specified direction
+# 
+# 789
+# 456
+# 123
+
+A:\a\\/1
+P:^_Cx02\r
+
+A:\a\\/2
+P:^_Cx03\r
+
+A:\a\\/3
+P:^_Cx04\r
+
+A:\a\\/4
+P:^_Cx05\r
+
+A:\a\\/5
+P:^_Cx06\r
+
+A:\a\\/6
+P:^_Cx07\r
+
+A:\a\\/7
+P:^_Cx08\r
+
+A:\a\\/8
+P:^_Cx09\r
+
+A:\a\\/9
+P:^_Cx0A\r
+
 

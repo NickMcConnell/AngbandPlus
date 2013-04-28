@@ -77,8 +77,8 @@ void user_name(char *buf, size_t len, int id)
 		return;
 	}
 
-	/* Oops.  Hack -- default to "PLAYER" */
-	my_strcpy(buf, "PLAYER", len);
+	/* Oops.  Hack -- default to "nameless" */
+	my_strcpy(buf, "nameless", len);
 }
 
 #endif /* SET_UID */
@@ -1662,7 +1662,7 @@ void flush(void)
  */
 void flush_fail(void)
 {
-	if (flush_failure) flush();
+	flush();
 }
 
 
@@ -1988,7 +1988,7 @@ char inkey(void)
 	(void)Term_get_cursor(&cursor_state);
 
 	/* Show the cursor if waiting, except sometimes in "command" mode */
-	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+	if (!inkey_scan && (!inkey_flag || hilite_player || (hilite_target && target_sighted()) || character_icky) && !hide_cursor)
 	{
 		/* Show the cursor */
 		(void)Term_set_cursor(TRUE);
@@ -2176,7 +2176,7 @@ void bell(cptr reason)
 	}
 
 	/* Make a bell noise (if allowed) */
-	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
+	if (beep) Term_xtra(TERM_XTRA_NOISE, 0);
 
 	/* Flush the input (later!) */
 	flush();
@@ -2874,19 +2874,19 @@ static void msg_flush(int x)
 	/* Pause for response */
 	Term_putstr(x, 0, -1, a, "-more-");
 
-	if (!auto_more)
-	{
-		/* Get an acceptable keypress */
-		while (1)
-		{
-			char ch;
-			ch = inkey();
-			if (quick_messages) break;
-			if ((ch == ESCAPE) || (ch == ' ')) break;
-			if ((ch == '\n') || (ch == '\r')) break;
-			bell("Illegal response to a 'more' prompt!");
-		}
+	/* Place the cursor on the player or target */
+	if (hilite_player) move_cursor_relative(p_ptr->py, p_ptr->px);
+	if (hilite_target && target_sighted()) move_cursor_relative(p_ptr->target_row, p_ptr->target_col);
 
+	/* Get an acceptable keypress */
+	while (1)
+	{
+		char ch;
+		ch = inkey();
+		if (quick_messages) break;
+		if ((ch == ESCAPE) || (ch == ' ')) break;
+		if ((ch == '\n') || (ch == '\r')) break;
+		bell("Illegal response to a 'more' prompt!");
 	}
 
 	/* Clear the line */
@@ -2966,7 +2966,7 @@ static void msg_print_aux(u16b type, cptr msg)
 
 
 	/* Memorize the message (if legal) */
-	if (character_generated && !(p_ptr->is_dead))
+	if (character_generated && !p_ptr->is_dead)
 		message_add(msg, type);
 
 	/* Window stuff */
@@ -3065,6 +3065,31 @@ void msg_format(cptr fmt, ...)
 	msg_print_aux(MSG_GENERIC, buf);
 }
 
+/*
+ * Display a message many times, using "vstrnfmt()" and "msg_print()".
+ */
+void msg_debug(cptr fmt, ...)
+{
+	va_list vp;
+	
+	char buf[1024];
+	char buf2[1024];
+	
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+	
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
+	
+	/* End the Varargs Stuff */
+	va_end(vp);
+	
+	sprintf(buf2, "<< %s >>", buf);
+	
+	/* Display */
+	msg_print_aux(MSG_GENERIC, buf2);
+	message_flush();
+}
 
 /*
  * Display a message and play the associated sound.
@@ -3613,6 +3638,125 @@ bool askfor_aux(char *buf, size_t len)
 
 
 /*
+ * A reimplementation of askfor_aux, but allows for random names
+ * 
+ * Sil-y: this is poor style...
+ */
+bool askfor_name(char *buf, size_t len)
+{
+	int y, x;
+	
+	size_t k = 0;
+	
+	char ch = '\0';
+	
+	bool done = FALSE;
+	bool new_default_name = FALSE;
+	
+	/* Locate the cursor */
+	Term_locate(&x, &y);
+	
+	
+	/* Paranoia */
+	if ((x < 0) || (x >= 80)) x = 0;
+	
+	
+	/* Restrict the length */
+	if (x + len > 80) len = 80 - x;
+	
+	/* Truncate the default entry */
+	buf[len-1] = '\0';
+	
+	
+	/* Display the default answer */
+	Term_erase(x, y, (int)len);
+	Term_putstr(x, y, -1, TERM_YELLOW, buf);
+	
+	/* Process input */
+	while (!done)
+	{
+		/* Place cursor */
+		Term_gotoxy(x + k, y);
+		
+		/* Get a key */
+		ch = inkey();
+		
+		/* Analyze the key */
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				k = 0;
+				done = TRUE;
+				break;
+			}
+				
+			case '\n':
+			case '\r':
+			{
+				k = strlen(buf);
+				done = TRUE;
+				break;
+			}
+				
+			case 0x7F:
+			case '\010':
+			{
+				if (k > 0) k--;
+				break;
+			}
+			
+			case '\t':
+			{
+				/*get the random name, display for approval. */
+				make_random_name(buf, len);
+								
+				new_default_name = TRUE;
+				k = 0;
+				break;
+			}
+
+			default:
+			{
+				if ((k < len-1) && (isprint((unsigned char)ch)))
+				{
+					buf[k++] = ch;
+				}
+				else
+				{
+					bell("Illegal edit key!");
+				}
+				break;
+			}
+		}
+		
+		if (new_default_name)
+		{
+			/* Display the random name */
+			Term_erase(x, y, (int)len);
+			Term_putstr(x, y, -1, TERM_YELLOW, buf);
+
+			new_default_name = FALSE;
+		}
+		else
+		{
+			/* Terminate */
+			buf[k] = '\0';
+			
+			/* Update the entry */
+			Term_erase(x, y, (int)len);
+			Term_putstr(x, y, -1, TERM_WHITE, buf);
+		}
+		
+	}
+	
+	/* Done */
+	return (ch != ESCAPE);
+}
+
+
+
+/*
  * Prompt for a string from the user.
  *
  * The "prompt" should take the form "Prompt: ".
@@ -3620,7 +3764,7 @@ bool askfor_aux(char *buf, size_t len)
  * See "askfor_aux" for some notes about "buf" and "len", and about
  * the return value of this function.
  */
-bool get_string(cptr prompt, char *buf, size_t len)
+bool term_get_string(cptr prompt, char *buf, size_t len)
 {
 	bool res;
 
@@ -3665,7 +3809,7 @@ s16b get_quantity(cptr prompt, int max)
 #ifdef ALLOW_REPEAT
 
 	/* Get the item index */
-	else if ((max != 1) && allow_quantity && repeat_pull(&amt))
+	else if ((max != 1) && repeat_pull(&amt))
 	{
 		/* nothing */
 	}
@@ -3673,7 +3817,7 @@ s16b get_quantity(cptr prompt, int max)
 #endif /* ALLOW_REPEAT */
 
 	/* Prompt if needed */
-	else if ((max != 1) && allow_quantity)
+	else if (max != 1)
 	{
 		char tmp[80];
 
@@ -3693,7 +3837,7 @@ s16b get_quantity(cptr prompt, int max)
 		sprintf(buf, "%d", amt);
 
 		/* Ask for a quantity */
-		if (!get_string(prompt, buf, 7)) return (0);
+		if (!term_get_string(prompt, buf, 7)) return (0);
 
 		/* Extract a number */
 		amt = atoi(buf);
@@ -3921,7 +4065,7 @@ bool get_com(cptr prompt, char *command)
 void pause_line(int row)
 {
 	prt("", row, 0);
-	put_str("[Press any key to continue]", row, 23);
+	put_str("(press any key)", row, 23);
 	(void)inkey();
 	prt("", row, 0);
 }
@@ -3954,7 +4098,7 @@ static char request_command_buffer[256];
  *
  * Note that "p_ptr->command_new" may not work any more.  XXX XXX XXX
  */
-void request_command(bool shopping)
+void request_command(void)
 {
 	int i;
 
@@ -3965,18 +4109,12 @@ void request_command(bool shopping)
 	cptr act;
 
 
-	/* Roguelike */
-	if (rogue_like_commands)
-	{
-		mode = KEYMAP_MODE_ROGUE;
-	}
-
-	/* Original */
-	else
-	{
-		mode = KEYMAP_MODE_ORIG;
-	}
-
+	// Determine the keyset
+	if (!hjkl_movement && !angband_keyset)		mode = KEYMAP_MODE_SIL;
+	else if (hjkl_movement && !angband_keyset)	mode = KEYMAP_MODE_SIL_HJKL;
+	else if (!hjkl_movement && angband_keyset)	mode = KEYMAP_MODE_ANGBAND;
+	else										mode = KEYMAP_MODE_ANGBAND_HJKL;
+	
 
 	/* No command yet */
 	p_ptr->command_cmd = 0;
@@ -4022,7 +4160,7 @@ void request_command(bool shopping)
 
 
 		/* Command Count */
-		if (ch == '0')
+		if (((ch == 'R') && !angband_keyset) || ((ch == '0') && angband_keyset))
 		{
 			int old_arg = p_ptr->command_arg;
 
@@ -4030,7 +4168,7 @@ void request_command(bool shopping)
 			p_ptr->command_arg = 0;
 
 			/* Begin the input */
-			prt("Count: ", 0, 0);
+			prt("Repeat how many times: ", 0, 0);
 
 			/* Get a command count */
 			while (1)
@@ -4045,7 +4183,7 @@ void request_command(bool shopping)
 					p_ptr->command_arg = p_ptr->command_arg / 10;
 
 					/* Show current count */
-					prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+					prt(format("Repeat how many times: %d", p_ptr->command_arg), 0, 0);
 				}
 
 				/* Actual numeric data */
@@ -4069,7 +4207,7 @@ void request_command(bool shopping)
 					}
 
 					/* Show current count */
-					prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+					prt(format("Repeat how many times: %d", p_ptr->command_arg), 0, 0);
 				}
 
 				/* Exit on "unusable" input */
@@ -4086,7 +4224,7 @@ void request_command(bool shopping)
 				p_ptr->command_arg = 99;
 
 				/* Show current count */
-				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+				prt(format("Repeat how many times: %d", p_ptr->command_arg), 0, 0);
 			}
 
 			/* Hack -- Handle "old_arg" */
@@ -4096,7 +4234,7 @@ void request_command(bool shopping)
 				p_ptr->command_arg = old_arg;
 
 				/* Show current count */
-				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+				prt(format("Repeat how many times: %d", p_ptr->command_arg), 0, 0);
 			}
 
 			/* Hack -- white-space means "enter command now" */
@@ -4163,35 +4301,6 @@ void request_command(bool shopping)
 		break;
 	}
 
-	/* Hack -- Auto-repeat certain commands */
-	if (always_repeat && (p_ptr->command_arg <= 0))
-	{
-		/* Hack -- auto repeat certain commands */
-		if (strchr(AUTO_REPEAT_COMMANDS, p_ptr->command_cmd))
-		{
-			/* Repeat 99 times */
-			p_ptr->command_arg = 99;
-		}
-	}
-
-
-	/* Shopping */
-	if (shopping)
-	{
-		/* Hack -- Convert a few special keys */
-		switch (p_ptr->command_cmd)
-		{
-			/* Command "p" -> "purchase" (get) */
-			case 'p': p_ptr->command_cmd = 'g'; break;
-
-			/* Command "m" -> "purchase" (get) */
-			case 'm': p_ptr->command_cmd = 'g'; break;
-
-			/* Command "s" -> "sell" (drop) */
-			case 's': p_ptr->command_cmd = 'd'; break;
-		}
-	}
-
 
 	/* Hack -- Scan equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -4233,7 +4342,21 @@ void request_command(bool shopping)
 	prt("", 0, 0);
 }
 
-
+/*
+ *  Simple exponential function for integers with non-negative powers
+ */
+int int_exp(int base, int power)
+{
+	int i;
+	int result = 1;
+	
+	for (i = 0; i < power; i++)
+	{
+		result *= base;
+	}
+	
+	return (result);
+}
 
 
 /*
@@ -4449,7 +4572,7 @@ void repeat_check(void)
 	if (p_ptr->command_cmd == '\r') return;
 
 	/* Repeat Last Command */
-	if (p_ptr->command_cmd == KTRL('V'))
+	if (p_ptr->command_cmd == 'n')
 	{
 		/* Reset */
 		repeat__idx = 0;
@@ -4810,7 +4933,7 @@ void editing_buffer_init(editing_buffer *eb_ptr, const char *buf,
   	C_MAKE(eb_ptr->buf, max_size, char);
 
   	/* Copy the initial string, if any */
-  	if (len > 0) strcpy(eb_ptr->buf, buf);
+  	if (len > 0) my_strcpy(eb_ptr->buf, buf, sizeof (eb_ptr->buf));
 
   	/* Initialize the remaining fields */
   	eb_ptr->pos = len;

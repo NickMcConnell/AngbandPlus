@@ -1,3 +1,4 @@
+/* File: cmd2.c */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -9,74 +10,164 @@
 
 #include "angband.h"
 
+/*
+ * Determines the shallowest a player is allowed to go.
+ * As time goes on, they are forced deeper and deeper.
+ */
+int min_depth(void)
+{
+	int p = 0;
+	int d = 0;
+	
+	// base minimum depth
+	while (p < playerturn)
+	{
+		d += 1;
+		p += 1000 + 50*d;
+	}
+	
+	// bounds on the base
+	if (d < 1)				d = 1;
+	if (d > MORGOTH_DEPTH)	d = MORGOTH_DEPTH;
+	
+	// can't leave the throne room
+	if (p_ptr->depth == MORGOTH_DEPTH)
+	{
+		d = MORGOTH_DEPTH;
+	}
+	
+	// no limits in the endgame
+	if (p_ptr->on_the_run)
+	{
+		d = 0;
+	}
+		
+	return (d);
+}
 
 /*
  * Go up one level
  */
 void do_cmd_go_up(void)
-{
-
-	char out_val[160];
-	byte quest;
-
+{	
+	int min;
+	int new;
+	int amount;
+	
 	/* Verify stairs */
 	if (!cave_up_stairs(p_ptr->py, p_ptr->px))
 	{
-		msg_print("I see no up staircase here.");
+		msg_print("You see no up staircase here.");
 		return;
 	}
-
-	/*find out of leaving a level*/
-	quest = quest_check(p_ptr->depth);
 
 	/* Ironman */
-	if (adult_ironman)
+	if (adult_ironman && (silmarils_possessed() == 0))
 	{
-		msg_print("Nothing happens!");
+		msg_print("You have vowed to not to return until you hold a Silmaril.");
 		return;
 	}
-
-	/* Verify leaving normal quest level */
-	if ((verify_leave_quest) &&
-		((quest == QUEST_MONSTER) || (quest == QUEST_UNIQUE)))
-	{
-		sprintf(out_val, "Really risk failing your quest? ");
-		if (!get_check(out_val)) return;
-	}
-
-	/* Verify leaving normal quest level */
-	if ((verify_leave_quest) &&
-        (((quest == QUEST_VAULT) && (quest_item_slot() == -1)) ||
-		 (quest == QUEST_PIT) || quest == QUEST_NEST || (quest == QUEST_THEMED_LEVEL)))
-	{
-		sprintf(out_val, "Really fail your quest? ");
-		if (!get_check(out_val)) return;
-	}
-
+	
 	/* Hack -- take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Success */
-	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+	
+	// Cannot flee Morgoth's throne room without a Silmaril
+	if ((p_ptr->depth == MORGOTH_DEPTH) && (silmarils_possessed() == 0))
+	{
+		msg_print("You enter a maze of staircases, but cannot find your way.");
 
-	/* Create a way back */
-	p_ptr->create_stair = FEAT_MORE;
+		return;
+	}
+	
+	// extra food consumption (100 turns worth)
+	amount = 100;
+	if (p_ptr->hunger < 0)
+	{
+		amount /= int_exp(3,-(p_ptr->hunger));
+	}
+	else
+	{
+		amount *= int_exp(3,p_ptr->hunger);
+	}
+	if (p_ptr->food > amount)		p_ptr->food -= amount;
+	else							p_ptr->food = 0;
 
-	/* New depth */
-	p_ptr->depth--;
-
-	/*find out of entering a quest level (should never happen going up)*/
-	quest = quest_check(p_ptr->depth);
-
-	/*go up another level if it is a shaft*/
-	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_LESS_SHAFT) &&
-	    (!quest) && (p_ptr->depth > 0))
-  	{
-		p_ptr->depth--;
-
+	min = min_depth();
+	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_LESS_SHAFT) && (p_ptr->depth > 0))
+	{
 		/* Create a way back (usually) */
 		p_ptr->create_stair = FEAT_MORE_SHAFT;
+
+		new = p_ptr->depth - 2;
 	}
+	else
+	{
+		/* Create a way back */
+		p_ptr->create_stair = FEAT_MORE;
+
+		new = p_ptr->depth - 1;
+	}	
+	
+	if ((new < min) && (p_ptr->depth != MORGOTH_DEPTH))
+	{
+		if (p_ptr->depth == min)
+		{
+			message(MSG_STAIRS, 0, "You enter a maze of up staircases, but cannot find your way.");
+			message(MSG_STAIRS, 0, "You emerge near where you began.");
+		}
+		else
+		{
+			message(MSG_STAIRS, 0, "You enter a maze of up staircases, but cannot find your way.");
+			message(MSG_STAIRS, 0, "You emerge even deeper in the dungeon.");
+		}
+
+		if (p_ptr->create_stair == FEAT_MORE)
+		{
+			/* Change the way back */
+			p_ptr->create_stair = FEAT_LESS;
+		}
+		else
+		{
+			/* Change the way back */
+			p_ptr->create_stair = FEAT_LESS_SHAFT;
+		}
+		new = min;
+	}
+	else
+	{
+		message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
+		
+		if (silmarils_possessed() > 0)
+		{
+			message(MSG_STAIRS, 0, "The divine light reveals the way.");
+		}
+		if (p_ptr->depth == MORGOTH_DEPTH)
+		{
+			if (!p_ptr->morgoth_slain)
+			{
+				msg_print("As you climb the stair, a great cry of rage and anguish comes from below.");
+				msg_print("Make quick your escape: it shall be hard-won.");
+			}
+			
+			// set the 'on the run' flag
+			p_ptr->on_the_run = TRUE;
+
+			// remove the 'truce' flag if it hasn't been done already
+			p_ptr->truce = FALSE;
+		}
+	}
+	
+	// extra time taken
+	playerturn += 100;
+	
+	/* New depth */
+	p_ptr->depth = new;
+
+	// another staircase has been used...
+	p_ptr->stairs_taken++;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -88,61 +179,120 @@ void do_cmd_go_up(void)
  */
 void do_cmd_go_down(void)
 {
-	byte quest;
-	char out_val[160];
-
-	/*find out if entering a quest level*/
-	quest = quest_check(p_ptr->depth);
+	int min;
+	int new;
+	int amount;
 
 	/* Verify stairs */
 	if (!cave_down_stairs(p_ptr->py, p_ptr->px))
 	{
-		msg_print("I see no down staircase here.");
+		msg_print("You see no down staircase here.");
 		return;
 	}
-
-	/* Verify leaving normal quest level */
-	if ((verify_leave_quest) &&
-		((quest == QUEST_MONSTER) || (quest == QUEST_UNIQUE)))
+	
+	// special message for tutorial
+	if (p_ptr->game_type == -1)
 	{
-		sprintf(out_val, "Really risk failing your quest? ");
-		if (!get_check(out_val)) return;
-	}
+		// display the tutorial leaving text
+		if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_MORE)
+		{
+			pause_with_text(tutorial_leave_text, 5, 10);
+		}
+		else
+		{
+			pause_with_text(tutorial_win_text, 5, 10);
+		}
 
-	/* Verify leaving normal quest level */
-	if ((verify_leave_quest) &&
-        (((quest == QUEST_VAULT) && (quest_item_slot() == -1)) ||
-		 (quest == QUEST_PIT) || quest == QUEST_NEST || (quest == QUEST_THEMED_LEVEL)))
+		p_ptr->is_dead = TRUE;
+		p_ptr->energy_use = 100;
+		p_ptr->leaving = TRUE;
+		close_game();
+		return;
+	}
+	
+	// Do not descend from the Gates
+	if (p_ptr->depth == 0)
 	{
-		sprintf(out_val, "Really fail your quest? ");
-		if (!get_check(out_val)) return;
+		msg_print("You have made it to the very gates of Angband and can once more taste the freshness on the air.");
+		msg_print("You will not re-enter that fell pit.");
+		return;
 	}
+	
+	min = min_depth();
+	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_MORE_SHAFT) && (p_ptr->depth < MORGOTH_DEPTH - 1))
+	{
+		/* Create a way back (usually) */
+		p_ptr->create_stair = FEAT_LESS_SHAFT;
+		
+		new = p_ptr->depth + 2;
+	}
+	else
+	{
+		/* Create a way back */
+		p_ptr->create_stair = FEAT_LESS;
+		
+		new = p_ptr->depth + 1;
+	}	
 
+	// warn players if this could lead them to Morgoth's Throne Room
+	if (new == MORGOTH_DEPTH)
+	{
+		if (!p_ptr->on_the_run)
+		{
+			msg_print("From up this stair comes the harsh din of feasting in Morgoth's own hall.");
+			if (!get_check("Are you completely sure you wish to descend? "))
+			{
+				p_ptr->create_stair = FALSE;
+				return;
+			}			
+		}
+	}	
+	
 	/* Hack -- take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Success */
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+
+	// extra food consumption (100 turns worth)
+	amount = 100;
+	if (p_ptr->hunger < 0)
+	{
+		amount /= int_exp(3,-(p_ptr->hunger));
+	}
+	else
+	{
+		amount *= int_exp(3,p_ptr->hunger);
+	}
+	if (p_ptr->food > amount)		p_ptr->food -= amount;
+	else							p_ptr->food = 0;	
+	
 	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
 
-	/* Create a way back (usually) */
-	p_ptr->create_stair = FEAT_LESS;
-
-	/* New level */
-	p_ptr->depth++;
-
-	/*find out if entering a quest level*/
-	quest = quest_check(p_ptr->depth);
-
-	/* Go down a shaft if allowed */
-	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_MORE_SHAFT) &&
-	    (!quest) && (p_ptr->depth < MAX_DEPTH - 1))
+	// Can never return to the throne room...
+	if ((p_ptr->on_the_run) && (new == MORGOTH_DEPTH))
 	{
-		p_ptr->depth++;
-
-		/* Create a way back (usually) */
-		p_ptr->create_stair = FEAT_LESS_SHAFT;
+		message(MSG_STAIRS, 0, "Try though you might, you cannot find your way back to Morgoth's throne.");
+		message(MSG_STAIRS, 0, "You emerge near where you began.");
+		p_ptr->create_stair = FEAT_MORE;
+		new = MORGOTH_DEPTH - 1;
 	}
+	
+	else if (new < min)
+	{
+		message(MSG_STAIRS, 0, "You emerge much deeper in the dungeon.");
+		new = min;
+	}
+	
+	// extra time taken
+	playerturn += 100;
+	
+	/* New depth */
+	p_ptr->depth = new;
 
+	// another staircase has been used...
+	p_ptr->stairs_taken++;
+		
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 }
@@ -169,21 +319,24 @@ void do_cmd_search(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+
 	/* Search */
 	search();
 }
 
 
 /*
- * Hack -- toggle search mode
+ * Hack -- toggle stealth mode
  */
-void do_cmd_toggle_search(void)
+void do_cmd_toggle_stealth(void)
 {
-	/* Stop searching */
-	if (p_ptr->searching)
+	/* Stop stealth mode */
+	if (p_ptr->stealth_mode)
 	{
-		/* Clear the searching flag */
-		p_ptr->searching = FALSE;
+		/* Clear the stealth mode flag */
+		p_ptr->stealth_mode = FALSE;
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -192,11 +345,11 @@ void do_cmd_toggle_search(void)
 		p_ptr->redraw |= (PR_STATE);
 	}
 
-	/* Start searching */
+	/* Start stealth mode */
 	else
 	{
-		/* Set the searching flag */
-		p_ptr->searching = TRUE;
+		/* Set the stealth mode flag */
+		p_ptr->stealth_mode = TRUE;
 
 		/* Update stuff */
 		p_ptr->update |= (PU_BONUS);
@@ -247,11 +400,15 @@ static s16b chest_check(int y, int x)
  */
 static void chest_death(int y, int x, s16b o_idx)
 {
-	int number, quality, num;
+	int number, quality;
+	
+	int i, failed;
+	int generated_an_item = FALSE;
+	int original_object_level = object_level;
+
+	bool good, great;
 
 	int chesttheme = 0;
-
-	int minlevel = 0;
 
 	object_type *o_ptr;
 
@@ -264,15 +421,12 @@ static void chest_death(int y, int x, s16b o_idx)
 
 	/* Determine how much to drop (see above)
 	 *
-	 * Small chests get 3-5 objects */
+	 * Small chests get 2-3 objects */
 
-	number = 2 + randint (3);
+	number = 1 + randint(2);
 
-	/* large chests get 5-7*/
-	if (o_ptr->sval >= SV_CHEST_MIN_LARGE) number += 2;
-
-	/*Jeweled chests get 7-10*/
-	if (o_ptr->sval == SV_CHEST_JEWELED_LARGE) number += randint (3);
+	/* large chests get 4 */
+	if (o_ptr->sval >= SV_CHEST_MIN_LARGE) number = 4;
 
 	/* Zero pval means empty chest */
 	if (!o_ptr->pval) return;
@@ -289,78 +443,96 @@ static void chest_death(int y, int x, s16b o_idx)
 	/*the theme of the chest is created during object generation*/
 	chesttheme = (o_ptr->xtra1);
 
-	/*large chests have a better chance of great times*/
-	if (o_ptr->sval >= SV_CHEST_MIN_LARGE) minlevel = object_level / 4;
-
-	/*Hack - don't wan't results over 100*/
-	if ((object_level + minlevel) > 100) num = 100 - minlevel;
-
-	else num = object_level;
-
+	if (o_ptr->sval == SV_CHEST_PRESENT)
+	{
+		number = 1;
+	}
+	
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
 	{
 		/* Get local object */
 		i_ptr = &object_type_body;
 
-		/*used to determine quality of item, gets more likely
-	 	 *to be great as you get deeper.
-	 	 */
-		quality = randint (num) + minlevel;
-
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-		/*theme 1 is gold, themes 2-15 are objects*/
-
-		if (chesttheme == 1) make_gold(i_ptr);
-
-		else if (chesttheme >= 2)
+		/*used to determine quality of item, gets more likely
+	 	 *to be great as you get deeper.
+	 	 */
+		quality = randint(object_level);
+		
+		if ((o_ptr->sval == SV_CHEST_SMALL_STEEL) || (o_ptr->sval == SV_CHEST_LARGE_STEEL))
 		{
-			bool good, great;
-
-			/* Regular objects in chests will become quite
-			 * rare as depth approaches 5000'.
-			 * All items with i > 50 are guaranteed great,
-			 * all items with i > 80  get 4 chances
-			 * to become an artifact.
-		 	 * Chests should be extremely lucritive
-			 * as a player approaches 5000'.
-			 * For potions, scrolls, and wands, having the
-			 * good and great flags checked increase the
-			 * max object generation level, but have no
-			 * other effect.  JG
-		 	 */
-			if (quality < 26)
-			{
-				good = FALSE;
-				great = FALSE;
-			}
-		    else if (quality < 51)
-			{
-				good = TRUE;
-			 	great = FALSE;
-			}
-			else if (quality < 81)
-			{
-				good = FALSE;
-			 	great = TRUE;
-			}
-			else
-			{
-				good = TRUE;
-				great = TRUE;
-			}
-
-			while (!make_object(i_ptr, good, great, chesttheme)) continue;
+			quality += 5;
+		}
+		if ((o_ptr->sval == SV_CHEST_SMALL_JEWELLED) || (o_ptr->sval == SV_CHEST_LARGE_JEWELLED))
+		{
+			quality += 10;
+		}
+		if (o_ptr->sval == SV_CHEST_PRESENT)
+		{
+			quality += 20;
+		}
+		
+		/* Regular objects in chests will become quite
+		 * rare as depth approaches 1250'.
+		 * All items with i > 10 are guaranteed good,
+		 * all items with i > 15 are guaranteed great,
+		 * all items with i > 20  get 4 chances
+		 * to become an artefact.
+		 * Chests should be extremely lucritive
+		 * as a player approaches 1250'.
+		 * For potions having the
+		 * good and great flags checked increase the
+		 * max object generation level, but have no
+		 * other effect.  JG
+		 */
+		if (quality <= 10)
+		{
+			good = FALSE;
+			great = FALSE;
+		}
+		else if (quality <= 15)
+		{
+			good = TRUE;
+			great = FALSE;
+		}
+		else if (quality <= 20)
+		{
+			good = FALSE;
+			great = TRUE;
+		}
+		else
+		{
+			good = TRUE;
+			great = TRUE;
 		}
 
-		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		i = 0;
+		failed = FALSE;
+		
+		while (!make_object(i_ptr, good, great, chesttheme))
+		{
+			i++;
+			if (i == 100)
+			{
+				failed = TRUE;
+				break;
+			}
+			continue;
+		}
+
+		if (!failed)
+		{
+			/* Drop it in the dungeon */
+			generated_an_item = TRUE;
+			drop_near(i_ptr, -1, y, x);
+		}
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = original_object_level;
 
 	/* No longer opening a chest */
 	object_generation_mode = OB_GEN_MODE_NORMAL;
@@ -373,6 +545,11 @@ static void chest_death(int y, int x, s16b o_idx)
 
 	/* Known */
 	object_known(o_ptr);
+
+	if (!generated_an_item)
+	{
+		msg_print("The chest is empty.");
+	}
 }
 
 
@@ -384,10 +561,12 @@ static void chest_death(int y, int x, s16b o_idx)
  */
 static void chest_trap(int y, int x, s16b o_idx)
 {
-	int i, trap;
+	int trap, dam;
 
 	object_type *o_ptr = &o_list[o_idx];
 
+	(void) x; // casting to soothe compilation warnings
+	(void) y;
 
 	/* Ignore disarmed chests */
 	if (o_ptr->pval <= 0) return;
@@ -395,61 +574,124 @@ static void chest_trap(int y, int x, s16b o_idx)
 	/* Obtain the traps */
 	trap = chest_traps[o_ptr->pval];
 
-	/* Lose strength */
-	if (trap & (CHEST_LOSE_STR))
+	// Store information for the combat rolls window
+	combat_roll_special_char = object_char(o_ptr);
+	combat_roll_special_attr = object_attr(o_ptr);
+	
+	/* Needle - Hallucination */
+	if (trap & (CHEST_NEEDLE_HALLU))
 	{
-		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_STR);
-	}
-
-	/* Lose constitution */
-	if (trap & (CHEST_LOSE_CON))
-	{
-		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_CON);
-	}
-
-	/* Poison */
-	if (trap & (CHEST_POISON))
-	{
-		msg_print("A puff of green gas surrounds you!");
-		if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
+		if (skill_check(NULL, 2, p_ptr->stat_use[A_DEX] * 2, PLAYER) > 0)
 		{
-			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
+			msg_print("A small needle has pricked you!");
+			if (allow_player_image(NULL))
+			{
+				set_image(p_ptr->image + damroll(70,4));
+			}
+			else
+			{
+				msg_print("You resist the effects!");
+			}
+		}
+		else
+		{
+			msg_print("A small needle just misses you.");
 		}
 	}
 
-	/* Paralyze */
-	if (trap & (CHEST_PARALYZE))
+	/* Needle - Paralysis */
+	if (trap & (CHEST_NEEDLE_PARALYZE))
 	{
-		msg_print("A puff of yellow gas surrounds you!");
-		if (!p_ptr->free_act)
+		if (skill_check(NULL, 2, p_ptr->stat_use[A_DEX] * 2, PLAYER) > 0)
 		{
-			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint(20));
+			msg_print("A small needle has pricked you!");
+			if (allow_player_paralysis(NULL))
+			{
+				set_paralyzed(damroll(10, 4));
+			}
+			else
+			{
+				msg_print("You resist the effects!");
+			}
+		}
+		else
+		{
+			msg_print("A small needle just misses you.");
 		}
 	}
 
-	/* Summon monsters */
-	if (trap & (CHEST_SUMMON))
+	/* Needle - Lose strength */
+	if (trap & (CHEST_NEEDLE_LOSE_STR))
 	{
-		int num = 2 + randint(3);
-		msg_print("You are enveloped in a cloud of smoke!");
-		for (i = 0; i < num; i++)
+		if (skill_check(NULL, 2, p_ptr->stat_use[A_DEX] * 2, PLAYER) > 0)
 		{
-			(void)summon_specific(y, x, p_ptr->depth, 0);
+			msg_print("A small needle has pricked you!");
+			(void)do_dec_stat(A_STR, NULL);
+		}
+		else
+		{
+			msg_print("A small needle just misses you.");
 		}
 	}
 
-	/* Explode */
-	if (trap & (CHEST_EXPLODE))
+	/* Confusion Gas */
+	if (trap & (CHEST_GAS_CONF))
 	{
-		msg_print("There is a sudden explosion!");
-		msg_print("Everything inside the chest is destroyed!");
-		o_ptr->pval = 0;
-		o_ptr->xtra1 = 0;
-		take_hit(damroll(5, 8), "an exploding chest");
+		msg_print("A noxious vapour escapes from the chest!");
+		if (allow_player_confusion(NULL))
+		{
+			(void)set_confused(p_ptr->confused + damroll(4, 4));
+		}
+		else
+		{
+			msg_print("You resist the effects.");
+		}
+	}
+
+	/* Acrid Smoke */
+	if (trap & (CHEST_GAS_STUN))
+	{
+		msg_print("Acrid smoke pours from the chest!");
+		if (allow_player_stun(NULL))
+		{
+			msg_print("It fills your lungs and your mind reels.");
+			
+			dam = damroll(3,4);
+			
+			update_combat_rolls1b(NULL, PLAYER, TRUE);
+			update_combat_rolls2(3, 4, dam, -1, -1, 0, 0, GF_HURT);
+			
+			take_hit(dam, "a trapped chest");
+			
+			set_stun(p_ptr->stun + damroll(30, 4));
+		}
+		else
+		{
+			msg_print("You resist the effects.");
+		}
+	}
+
+	/* Poison Gas */
+	if (trap & (CHEST_GAS_POISON))
+	{
+		msg_print("A noxious vapour escapes from the chest!");
+		
+		update_combat_rolls1b(NULL, PLAYER, TRUE);
+		
+		(void)pois_dam_pure(10, 4, TRUE);
+	}
+
+	/* Flame */
+	if (trap & (CHEST_FLAME))
+	{
+		msg_print("There is a sudden burst of flame!");
+
+		update_combat_rolls1b(NULL, PLAYER, TRUE);
+
+		fire_dam_pure(10, 4, TRUE, "a trapped chest");
+
+		/* Make some noise */
+		monster_perception(TRUE, FALSE, -5);
 	}
 }
 
@@ -463,7 +705,7 @@ static void chest_trap(int y, int x, s16b o_idx)
  */
 static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 {
-	int i, j;
+	int score, power, difficulty;
 
 	bool flag = TRUE;
 
@@ -471,31 +713,55 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
+	time_t c;      // time variables
+	struct tm *tp; //
+
+	if (o_ptr->sval == SV_CHEST_PRESENT)
+	{		
+		c = time((time_t *)0);
+		tp = localtime(&c);
+		
+		// cause problems opening presents before Christmas day in most parts of the world,
+		// and Christmas eve in Germany (represented by the CET time zone)
+		if ((tp->tm_mon == 11) && (tp->tm_mday < 25))// && !((tp->tm_mday == 24) && (strncmp(tp->tm_zone,"CET",4) == 0)))
+		{
+			if (get_check("Are you sure you wish to open your present before Christmas? "))
+			{
+				msg_print("You have a very bad feeling about this.");
+				p_ptr->cursed = TRUE;
+			}
+			else
+			{
+				return (FALSE);
+			}
+		}
+	}
 
 	/* Attempt to unlock it */
 	if (o_ptr->pval > 0)
 	{
 		/* Assume locked, and thus not open */
 		flag = FALSE;
+		
 
-		/* Get the "disarm" factor */
-		i = p_ptr->skill_dis;
+		/* Get the score in favour (=perception) */
+		score = p_ptr->skill_use[S_PER];
+
+		/* Determine trap power based on the chest pval (power is 1--7)*/
+		power = 1 + (o_ptr->pval / 4);
+
+		// Base difficulty is the lock power + 5
+		difficulty = power + 5;
 
 		/* Penalize some conditions */
-		if (p_ptr->blind || no_lite()) i = i / 10;
-		if (p_ptr->confused || p_ptr->image) i = i / 10;
-
-		/* Extract the difficulty */
-		j = i - o_ptr->pval;
-
-		/* Always have a small chance of success */
-		if (j < 2) j = 2;
+		if (p_ptr->blind || no_light() || p_ptr->image) difficulty += 5;
+		if (p_ptr->confused) difficulty += 5;
 
 		/* Success -- May still have traps */
-		if (rand_int(100) < j)
+		if (skill_check(PLAYER, score, difficulty, NULL) > 0)
 		{
 			msg_print("You have picked the lock.");
-			gain_exp(1);
+			//gain_exp(power*10);
 			flag = TRUE;
 		}
 
@@ -504,7 +770,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		{
 			/* We may continue repeating */
 			more = TRUE;
-			if (flush_failure) flush();
+			flush();
 			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
 		}
 	}
@@ -541,30 +807,33 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
  */
 static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 {
-	int i, j;
+	int score, power, difficulty, result;
 
 	bool more = FALSE;
 
 	object_type *o_ptr = &o_list[o_idx];
 
 
-	/* Get the "disarm" factor */
-	i = p_ptr->skill_dis;
+	/* Get the score in favour (=perception) */
+	score = p_ptr->skill_use[S_PER];
+
+	/* Determine trap power based on the trap pval (power is 1--7)*/
+	power = 1 + (o_ptr->pval / 4);
+
+	// Base difficulty is the lock power
+	difficulty = power;
 
 	/* Penalize some conditions */
-	if (p_ptr->blind || no_lite()) i = i / 10;
-	if (p_ptr->confused || p_ptr->image) i = i / 10;
+	if (p_ptr->blind || no_light() || p_ptr->image) difficulty += 5;
+	if (p_ptr->confused) difficulty += 5;
 
-	/* Extract the difficulty */
-	j = i - o_ptr->pval;
-
-	/* Always have a small chance of success */
-	if (j < 2) j = 2;
+	// perform the check
+	result = skill_check(PLAYER, score, difficulty, NULL);
 
 	/* Must find the trap first. */
 	if (!object_known_p(o_ptr))
 	{
-		msg_print("I don't see any traps.");
+		msg_print("You don't see any traps.");
 	}
 
 	/* Already disarmed/unlocked */
@@ -580,19 +849,19 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	}
 
 	/* Success (get a lot of experience) */
-	else if (rand_int(100) < j)
+	else if (result > 0)
 	{
 		msg_print("You have disarmed the chest.");
-		gain_exp(o_ptr->pval);
+		//gain_exp(power*20);
 		o_ptr->pval = (0 - o_ptr->pval);
 	}
 
 	/* Failure -- Keep trying */
-	else if ((i > 5) && (randint(i) > 5))
+	else if (result > -3)
 	{
 		/* We may keep trying */
 		more = TRUE;
-		if (flush_failure) flush();
+		flush();
 		msg_print("You failed to disarm the chest.");
 	}
 
@@ -636,9 +905,6 @@ static bool is_trap(int feat)
 
 	if ((feat >= FEAT_TRAP_HEAD) &&
 	        (feat <= FEAT_TRAP_TAIL)) test_trap = TRUE;
-
-	if ((feat >= FEAT_MTRAP_HEAD) &&
-	        (feat <= FEAT_MTRAP_TAIL)) test_trap = TRUE;
 
 	return (test_trap);
 }
@@ -783,9 +1049,9 @@ static bool do_cmd_open_test(int y, int x)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_open_aux(int y, int x)
+bool do_cmd_open_aux(int y, int x)
 {
-	int i, j;
+	int score, power, difficulty;
 
 	bool more = FALSE;
 
@@ -804,24 +1070,22 @@ static bool do_cmd_open_aux(int y, int x)
 	/* Locked door */
 	else if (cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01)
 	{
-		/* Disarm factor */
-		i = p_ptr->skill_dis;
+	
+		/* Get the score in favour (=perception) */
+		score = p_ptr->skill_use[S_PER];
+
+		/* Determine door power based on the door power (1 to 7)*/
+		power = cave_feat[y][x] - FEAT_DOOR_HEAD;
+
+		// Base difficulty is the door power + 5
+		difficulty = power + 5;
 
 		/* Penalize some conditions */
-		if (p_ptr->blind || no_lite()) i = i / 10;
-		if (p_ptr->confused || p_ptr->image) i = i / 10;
-
-		/* Extract the lock power */
-		j = cave_feat[y][x] - FEAT_DOOR_HEAD;
-
-		/* Extract the difficulty XXX XXX XXX */
-		j = i - (j * 4);
-
-		/* Always have a small chance of success */
-		if (j < 2) j = 2;
+		if (p_ptr->blind || no_light() || p_ptr->image) difficulty += 5;
+		if (p_ptr->confused) difficulty += 5;
 
 		/* Success */
-		if (rand_int(100) < j)
+		if (skill_check(PLAYER, score, difficulty, NULL) > 0)
 		{
 			/* Message */
 			message(MSG_OPENDOOR, 0, "You have picked the lock.");
@@ -833,14 +1097,14 @@ static bool do_cmd_open_aux(int y, int x)
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 			/* Experience */
-			gain_exp(1);
+			//gain_exp(power*5);
 		}
 
 		/* Failure */
 		else
 		{
 			/* Failure */
-			if (flush_failure) flush();
+			flush();
 
 			/* Message */
 			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
@@ -872,7 +1136,7 @@ static bool do_cmd_open_aux(int y, int x)
 /*
  * Open a closed/locked/jammed door or a closed/locked chest.
  *
- * Unlocking a locked door/chest is worth one experience point.
+ * Unlocking a locked door/chest is worth some experience.
  */
 void do_cmd_open(void)
 {
@@ -882,22 +1146,24 @@ void do_cmd_open(void)
 
 	bool more = FALSE;
 
-	/* Easy Open */
-	if (easy_open)
+	int num_doors, num_chests;
+
+	/* Count closed doors */
+	num_doors = count_feats(&y, &x, is_closed, FALSE);
+
+	/* Count chests (locked) */
+	num_chests = count_chests(&y, &x, FALSE);
+
+	/* See if only one target */
+	if ((num_doors + num_chests) == 1)
 	{
-		int num_doors, num_chests;
-
-		/* Count closed doors */
-		num_doors = count_feats(&y, &x, is_closed, FALSE);
-
-		/* Count chests (locked) */
-		num_chests = count_chests(&y, &x, FALSE);
-
-		/* See if only one target */
-		if ((num_doors + num_chests) == 1)
-		{
-			p_ptr->command_dir = coords_to_dir(y, x);
-		}
+		p_ptr->command_dir = coords_to_dir(y, x);
+	}
+	
+	else if ((num_doors + num_chests) == 0)
+	{
+		msg_print("There is nothing in your square (or adjacent) to open.");
+		return;
 	}
 
 	/* Get a direction (or abort) */
@@ -917,6 +1183,9 @@ void do_cmd_open(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -950,7 +1219,7 @@ void do_cmd_open(void)
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, ATT_MAIN);
 	}
 
 	/* Chest */
@@ -1053,16 +1322,18 @@ void do_cmd_close(void)
 
 	bool more = FALSE;
 
-	/* Easy Close */
-	if (easy_open)
+	/* Count open doors */
+	if (count_feats(&y, &x, is_open, FALSE) == 1)
 	{
-		/* Count open doors */
-		if (count_feats(&y, &x, is_open, FALSE) == 1)
-		{
-			p_ptr->command_dir = coords_to_dir(y, x);
-		}
+		p_ptr->command_dir = coords_to_dir(y, x);
 	}
 
+	else if (count_feats(&y, &x, is_open, FALSE) == 0)
+	{
+		msg_print("There is no adjacent door to close.");
+		return;
+	}
+	
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
@@ -1077,6 +1348,9 @@ void do_cmd_close(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1106,7 +1380,7 @@ void do_cmd_close(void)
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, ATT_MAIN);
 	}
 
 	/* Door */
@@ -1119,6 +1393,134 @@ void do_cmd_close(void)
 	/* Cancel repeat unless told not to */
 	if (!more) disturb(0, 0);
 }
+
+/*
+ * Exchange places with a monster.
+ */
+void do_cmd_exchange(void)
+{
+	int y, x, dir;
+	
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+	char m_name[80];
+	
+	if (!p_ptr->active_ability[S_STL][STL_EXCHANGE_PLACES])
+	{
+		msg_print("You need the ability 'exchange places' to use this command.");
+		return;
+	}
+	
+	/* Get a direction (or abort) */
+	if (!get_rep_dir(&dir)) return;
+		
+	/* Get location */
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
+	
+	/* Monster */
+	if (cave_m_idx[y][x] <= 0)
+	{
+		/* Message */
+		msg_print("There is no monster there.");
+		
+		return;
+	}
+	else if (cave_wall_bold(y, x))
+	{
+		/* Message */
+		msg_print("You cannot enter the wall.");
+		
+		return;
+	}
+	else if (cave_closed_door(y, x))
+	{
+		/* Message */
+		msg_print("You cannot enter the closed door.");
+		
+		return;
+	} 
+	else if (cave_feat[y][x] == FEAT_RUBBLE)
+	{
+		/* Message */
+		msg_print("You cannot enter the rubble.");
+		
+		return;
+	}
+	else
+	{
+		m_ptr = &mon_list[cave_m_idx[y][x]];
+		r_ptr = &r_info[m_ptr->r_idx];
+		
+		if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) || (r_ptr->flags1 & (RF1_HIDDEN_MOVE)))
+		{
+			monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+			/* Message */
+			msg_format("You cannot get past %s.", m_name);
+			
+			return;
+		}
+	}
+	
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+
+	/* Apply confusion */
+	if (confuse_dir(&dir))
+	{
+		/* Get location */
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
+	}
+	
+	if (cave_wall_bold(y, x))
+	{
+		/* Message */
+		msg_print("There is a wall in the way.");
+		
+		return;
+	}
+	else if (cave_closed_door(y, x))
+	{
+		/* Message */
+		msg_print("There is a door in the way.");
+		
+		return;
+	} 
+	else if (cave_feat[y][x] == FEAT_RUBBLE)
+	{
+		/* Message */
+		msg_print("There is a pile of rubble in the way.");
+		
+		return;
+	} 
+
+	// recalculate the monster info (in case confusion changed the move)
+	m_ptr = &mon_list[cave_m_idx[y][x]];
+	r_ptr = &r_info[m_ptr->r_idx];
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+		
+	/* Message */
+	msg_format("You exchange places with %s.", m_name);
+	
+	// attack of opportunity
+	if ((m_ptr->alertness >= ALERTNESS_ALERT) && !m_ptr->confused && !(r_ptr->flags2 & (RF2_MINDLESS)))
+	{
+		msg_print("It attacks you as you slip past.");
+		make_attack_normal(m_ptr);
+	}
+
+	// Alert the monster
+	make_alert(m_ptr);
+
+	// Swap positions with the monster
+	monster_swap(p_ptr->py, p_ptr->px, y, x);
+}
+
 
 
 
@@ -1137,7 +1539,7 @@ static bool do_cmd_tunnel_test(int y, int x)
 		return (FALSE);
 	}
 
-	/* Must be a wall/door/etc */
+	/* Must be a wall or rubble */
 	if (cave_floor_bold(y, x))
 	{
 		/* Message */
@@ -1146,6 +1548,15 @@ static bool do_cmd_tunnel_test(int y, int x)
 		/* Nope */
 		return (FALSE);
 	}
+	if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+	{
+		/* Message */
+		msg_print("You cannot tunnel through a door. Try bashing it.");
+		
+		/* Nope */
+		return (FALSE);
+	}
+	
 
 	/* Okay */
 	return (TRUE);
@@ -1173,8 +1584,27 @@ static bool twall(int y, int x)
 	/* Forget the wall */
 	cave_info[y][x] &= ~(CAVE_MARK);
 
-	/* Remove the feature */
-	cave_set_feat(y, x, FEAT_FLOOR);
+	/* Iron */
+	/* Granite */
+	/* Quartz */
+	if (cave_feat[y][x] >= FEAT_QUARTZ)
+	{
+		/* Leave a pile of rubble */
+		cave_set_feat(y, x, FEAT_RUBBLE);
+	}
+	/* Rubble */
+	else if (cave_feat[y][x] == FEAT_RUBBLE)
+	{
+		/* Clear the rubble */
+		cave_set_feat(y, x, FEAT_FLOOR);
+	}
+	/* Secret doors */
+	/* Doors */
+	else
+	{
+		/* Leave a broken door */
+		cave_set_feat(y, x, FEAT_BROKEN);
+	}
 
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -1196,181 +1626,104 @@ static bool twall(int y, int x)
 static bool do_cmd_tunnel_aux(int y, int x)
 {
 	bool more = FALSE;
-
-
+	int difficulty;
+	char success_message[80];
+	char failure_message[80];
+	object_type *o_ptr = &inventory[INVEN_WIELD];
+	
 	/* Verify legality */
 	if (!do_cmd_tunnel_test(y, x)) return (FALSE);
 
-
-	/* Sound XXX XXX XXX */
-	/* sound(MSG_DIG); */
-
-	/* Make some noise. */
-	add_wakeup_chance = 1000;
-
-	/* Titanium */
+	/* Iron */
 	if (cave_feat[y][x] >= FEAT_PERM_EXTRA)
 	{
-		msg_print("This seems to be permanent rock.");
+		difficulty = 10;
+		my_strcpy(success_message, "You somehow break the iron.", sizeof (success_message));
+		my_strcpy(failure_message, "You fail to break the iron.", sizeof (failure_message));
 	}
-
 	/* Granite */
 	else if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
 	{
-		/* Tunnel */
-		if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x))
-		{
-			msg_print("You have finished the tunnel.");
-		}
-
-		/* Keep trying */
-		else
-		{
-			/* We may continue tunelling */
-			msg_print("You tunnel into the granite wall.");
-			more = TRUE;
-		}
+		difficulty = 3;
+		my_strcpy(success_message, "You break through the granite.", sizeof (success_message));
+		my_strcpy(failure_message, "You fail to break the granite.", sizeof (failure_message));
 	}
-
-	/* Quartz / Magma */
-	else if (cave_feat[y][x] >= FEAT_MAGMA)
+	/* Quartz */
+	else if (cave_feat[y][x] >= FEAT_QUARTZ)
 	{
-		bool okay = FALSE;
-		bool gold = FALSE;
-		bool hard = FALSE;
-
-		/* Found gold */
-		if (cave_feat[y][x] >= FEAT_MAGMA_H)
-		{
-			gold = TRUE;
-		}
-
-		/* Extract "quartz" flag XXX XXX XXX */
-		if ((cave_feat[y][x] - FEAT_MAGMA) & 0x01)
-		{
-			hard = TRUE;
-		}
-
-		/* Quartz */
-		if (hard)
-		{
-			okay = (p_ptr->skill_dig > 20 + rand_int(800));
-		}
-
-		/* Magma */
-		else
-		{
-			okay = (p_ptr->skill_dig > 10 + rand_int(400));
-		}
-
-		/* Success */
-		if (okay && twall(y, x))
-		{
-			/* Found treasure */
-			if (gold)
-			{
-				/* Place some gold */
-				place_gold(y, x);
-
-				/* Message */
-				msg_print("You have found something!");
-			}
-
-			/* Found nothing */
-			else
-			{
-				/* Message */
-				msg_print("You have finished the tunnel.");
-			}
-		}
-
-		/* Failure (quartz) */
-		else if (hard)
-		{
-			/* Message, continue digging */
-			msg_print("You tunnel into the quartz vein.");
-			more = TRUE;
-		}
-
-		/* Failure (magma) */
-		else
-		{
-			/* Message, continue digging */
-			msg_print("You tunnel into the magma vein.");
-			more = TRUE;
-		}
+		difficulty = 2;
+		my_strcpy(success_message, "You shatter the quartz.", sizeof (success_message));
+		my_strcpy(failure_message, "You fail to break the quartz.", sizeof (failure_message));
 	}
-
 	/* Rubble */
 	else if (cave_feat[y][x] == FEAT_RUBBLE)
 	{
-		/* Remove the rubble */
-		if ((p_ptr->skill_dig > rand_int(200)) && twall(y, x))
-		{
-			/* Message */
-			msg_print("You have removed the rubble.");
-
-			/* Hack -- place an object */
-			if (rand_int(100) < 10)
-			{
-				/* Create a simple object */
-				place_object(y, x, FALSE, FALSE,DROP_TYPE_UNTHEMED);
-
-				/* Observe new object */
-				if (player_can_see_bold(y, x))
-				{
-					msg_print("You have found something!");
-				}
-			}
-		}
-
-		else
-		{
-			/* Message, keep digging */
-			msg_print("You dig in the rubble.");
-			more = TRUE;
-		}
+		difficulty = 1;
+		my_strcpy(success_message, "You clear the rubble.", sizeof (success_message));
+		my_strcpy(failure_message, "You fail to shift the rubble.", sizeof (failure_message));
 	}
-
 	/* Secret doors */
-	else if (cave_wall_bold(y,x))
-	{
-		/* Tunnel */
-		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x))
-		{
-			msg_print("You have finished the tunnel.");
-		}
-
-		/* Keep trying */
-		else
-		{
-			/* We may continue tunelling */
-			msg_print("You tunnel into the granite wall.");
-			more = TRUE;
-
-			/* Occasional Search XXX XXX */
-			if (rand_int(100) < 25) search();
-		}
-	}
-
-	/* Doors */
 	else
 	{
-		/* Tunnel */
-		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x))
-		{
-			msg_print("You have finished the tunnel.");
-		}
-
-		/* Keep trying */
-		else
-		{
-			/* We may continue tunelling */
-			msg_print("You tunnel into the door.");
-			more = TRUE;
-		}
+		difficulty = 3;
+		my_strcpy(success_message, "You smash through a secret door.", sizeof (success_message));
+		my_strcpy(failure_message, "You fail to break the granite.", sizeof (failure_message));
 	}
 
+
+	/* The weight limit depends on the your strength */
+	// need strength +2 to wield the average mattock 
+	if (o_ptr->weight > (9 + p_ptr->stat_use[A_STR] * 2) * 10)
+	{
+		msg_print("You have trouble wielding such a heavy item.");
+		difficulty++;
+	}
+
+	/* test for success */
+	if (p_ptr->dig >= difficulty)
+	{
+		u32b f1, f2, f3;
+		object_flags(o_ptr, &f1, &f2, &f3);
+		
+		/* Make a lot of noise */
+		monster_perception(TRUE, FALSE, -10);
+		
+		twall(y, x);
+		msg_print(success_message);
+
+		// Possibly identify the digger
+		if (!object_known_p(o_ptr) && (f1 & (TR1_TUNNEL)))
+		{ 
+			if (ident_by_use_perception_check(10))
+			{
+				char o_short_name[80];
+				char o_full_name[80];
+				
+				/* Short, pre-identification object description */
+				object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
+				
+				ident(o_ptr);
+				
+				/* Full object description */
+				object_desc(o_full_name, sizeof(o_full_name), o_ptr, TRUE, 3);
+				
+				/* Print the messages */
+				msg_format("You notice that your %s is especially suited to tunneling.", o_short_name);
+				msg_format("You are wielding %s.", o_full_name);
+			}
+		}
+	}
+	else
+	{		
+		/* Make some noise */
+		monster_perception(TRUE, FALSE, -5);
+		
+		msg_print(failure_message);
+	}
+
+	// Break the truce if creatures see
+	break_truce(FALSE);
+	
 	/* Result */
 	return (more);
 }
@@ -1379,15 +1732,13 @@ static bool do_cmd_tunnel_aux(int y, int x)
 /*
  * Tunnel through "walls" (including rubble and secret doors)
  *
- * Digging is very difficult without a "digger" weapon, but can be
- * accomplished by strong players using heavy weapons.
+ * Digging is only possible with a "digger" weapon.
  */
 void do_cmd_tunnel(void)
 {
 	int y, x, dir;
 
 	bool more = FALSE;
-
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -1396,13 +1747,14 @@ void do_cmd_tunnel(void)
 	y = p_ptr->py + ddy[dir];
 	x = p_ptr->px + ddx[dir];
 
-
 	/* Oops */
 	if (!do_cmd_tunnel_test(y, x)) return;
-
-
+	
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1411,7 +1763,6 @@ void do_cmd_tunnel(void)
 		y = p_ptr->py + ddy[dir];
 		x = p_ptr->px + ddx[dir];
 	}
-
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -1433,7 +1784,7 @@ void do_cmd_tunnel(void)
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, ATT_MAIN);
 	}
 
 	/* Walls */
@@ -1442,7 +1793,7 @@ void do_cmd_tunnel(void)
 		/* Tunnel through walls */
 		more = do_cmd_tunnel_aux(y, x);
 	}
-
+	
 	/* Cancel repetition unless we can continue */
 	if (!more) disturb(0, 0);
 }
@@ -1466,7 +1817,7 @@ static bool do_cmd_disarm_test(int y, int x)
 	}
 
 	/* Require an actual trap */
-	if ((cave_trap_bold(y,x)) || (cave_mon_trap_bold(y,x)))
+	if (cave_trap_bold(y,x) && !cave_floorlike_bold(y,x))
 	{
 		can_disarm = TRUE;
 	}
@@ -1480,6 +1831,49 @@ static bool do_cmd_disarm_test(int y, int x)
 
 
 /*
+ * Attempts to break free of a web.
+ */
+bool break_free_of_web(void)
+{
+	int difficulty = 7;
+	int score = MAX(p_ptr->stat_use[A_STR] * 2, difficulty-8); // capped so you always have some chance
+	
+	/* Disturb the player */
+	disturb(0, 0);
+	
+	// Free action helps a lot
+	if (p_ptr->free_act) difficulty -= 10;
+	
+	// Spider bane bonus helps
+	difficulty -= spider_bane_bonus();
+	
+	if (skill_check(PLAYER, score, difficulty, NULL) <= 0)
+	{	
+		msg_print("You fail to break free of the web.");
+		
+		/* Take a turn */
+		p_ptr->energy_use = 100;
+		
+		// store the action type
+		p_ptr->previous_action[0] = ACTION_MISC;
+		
+		return (FALSE);
+	}
+	else
+	{
+		msg_print("You break free!");
+		
+		/* Forget the trap */
+		cave_info[p_ptr->py][p_ptr->px] &= ~(CAVE_MARK);
+		
+		/* Remove the trap */
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_FLOOR);
+		
+		return (TRUE);
+	}
+}
+
+/*
  * Perform the basic "disarm" command
  *
  * Assume there is no monster blocking the destination
@@ -1488,7 +1882,8 @@ static bool do_cmd_disarm_test(int y, int x)
  */
 static bool do_cmd_disarm_aux(int y, int x)
 {
-	int i, j, power;
+	int score, difficulty, result;
+	int power = 0; // default to soothe compiler warnings
 
 	cptr name;
 
@@ -1501,47 +1896,115 @@ static bool do_cmd_disarm_aux(int y, int x)
 	/* Get the trap name */
 	name = (f_name + f_info[cave_feat[y][x]].name);
 
-	/* Get the "disarm" factor */
-	i = p_ptr->skill_dis;
+	/* Get the score in favour (=perception) */
+	score = p_ptr->skill_use[S_PER];
 
-	/* Penalize some conditions */
-	if (p_ptr->blind || no_lite()) i = i / 10;
-	if (p_ptr->confused || p_ptr->image) i = i / 10;
+	/* Determine trap power based on the dungeon level (1--7)*/
+	//power = 1 + p_ptr->depth / 5;
+	//if (p_ptr->depth == 0) power = 7;
 
-	/* XXX XXX XXX Variable power? */
-
-	/* Extract trap "power" */
-	power = 5 + p_ptr->depth / 4;
-
-	/* Prevent the player's own traps granting exp. */
-	if (cave_mon_trap_bold(y,x))
-	   			 power = 0;
-
+	switch (cave_feat[y][x])
+	{
+		case FEAT_TRAP_TRAPDOOR:
+		{
+			power = 6;
+			break;
+		}
+		case FEAT_TRAP_PIT:
+		{
+			msg_format("You cannot disarm the %s.", name);
+			return (FALSE);
+		}
+		case FEAT_TRAP_SPIKED_PIT:
+		{
+			msg_format("You cannot disarm the %s.", name);
+			return (FALSE);
+		}
+		case FEAT_TRAP_DART:
+		{
+			power = 3;
+			break;
+		}
+		case FEAT_TRAP_GAS_CONF:
+		{
+			power = 5;
+			break;
+		}
+		case FEAT_TRAP_GAS_MEMORY:
+		{
+			power = 5;
+			break;
+		}
+		case FEAT_TRAP_ALARM:
+		{
+			power = 2;
+			break;
+		}
+		case FEAT_TRAP_FLASH:
+		{
+			power = 4;
+			break;
+		}
+		case FEAT_TRAP_CALTROPS:
+		{
+			power = 1;
+			break;
+		}
+		case FEAT_TRAP_ROOST:
+		{
+			msg_format("You cannot disarm the %s.", name);
+			return (FALSE);
+		}
+		case FEAT_TRAP_WEB:
+		{
+			if ((p_ptr->py == y) && (p_ptr->px == x))
+			{
+				int more = break_free_of_web();
+				return (!more);
+			}
+			else
+			{
+				msg_format("You cannot disarm the %s.", name);
+				return (FALSE);
+			}
+		}
+		case FEAT_TRAP_DEADFALL:
+		{
+			power = 7;
+			break;
+		}
+		case FEAT_TRAP_ACID:
+		{
+			power = 5;
+			break;
+		}
+	}
+	
 	/* Prevent glyphs of warding granting exp. */
 	if (cave_feat[y][x] == FEAT_GLYPH) power = 0;
 
-	/* Extract the difficulty */
-	j = i - power;
+	// Base difficulty is the trap power
+	difficulty = power;
 
-	/* Always have a small chance of success */
-	if (j < 2) j = 2;
+	/* Penalize some conditions */
+	if (p_ptr->blind || no_light() || p_ptr->image) difficulty += 5;
+	if (p_ptr->confused) difficulty += 5;
+
+	// perform the check
+	result = skill_check(PLAYER, score, difficulty, NULL);
 
 	/* Success, always succeed with player trap */
-	if ((rand_int(100) < j) ||	(cave_mon_trap_bold(y,x)))
+	if (result > 0)
 	{
 		/* Special message for glyphs. */
 		if (cave_feat[y][x] == FEAT_GLYPH)
-			msg_format("You have desanctified the %s.", name);
+			msg_format("You have scuffed the %s.", name);
 
 		/* Normal message otherwise */
 		else msg_format("You have disarmed the %s.", name);
 
-		/* If a Rogue's monster trap, decrement the trap count. */
-		if (cave_mon_trap_bold(y,x))
-			num_trap_on_level--;
-
 		/* Reward */
-		gain_exp(power);
+		//gain_exp(power*10);
 
 		/* Forget the trap */
 		cave_info[y][x] &= ~(CAVE_MARK);
@@ -1550,11 +2013,11 @@ static bool do_cmd_disarm_aux(int y, int x)
 		cave_set_feat(y, x, FEAT_FLOOR);
 	}
 
-	/* Failure -- Keep trying */
-	else if ((i > 5) && (randint(i) > 5))
+	/* Failure by a small amount allows one to keep trying */
+	else if (result > -3)
 	{
 		/* Failure */
-		if (flush_failure) flush();
+		flush();
 
 		/* Message */
 		msg_format("You failed to disarm the %s.", name);
@@ -1563,10 +2026,11 @@ static bool do_cmd_disarm_aux(int y, int x)
 		more = TRUE;
 	}
 
-	/* Failure -- Set off the trap */
+	/* Failure by a larger amount sets off the trap */
 	else
 	{
 		/* Message */
+		monster_swap(p_ptr->py, p_ptr->px, y, x);
 		msg_format("You set off the %s!", name);
 
 		/* Hit the trap */
@@ -1589,23 +2053,19 @@ void do_cmd_disarm(void)
 
 	bool more = FALSE;
 
-	/* Easy Disarm */
-	if (easy_open)
+	int num_traps, num_chests;
+
+	/* Count visible traps */
+	num_traps = count_feats(&y, &x, is_trap, TRUE);
+
+	/* Count chests (trapped) */
+	num_chests = count_chests(&y, &x, TRUE);
+
+	/* See if only one target */
+	if (num_traps || num_chests)
 	{
-		int num_traps, num_chests;
-
-		/* Count visible traps */
-		num_traps = count_feats(&y, &x, is_trap, TRUE);
-
-		/* Count chests (trapped) */
-		num_chests = count_chests(&y, &x, TRUE);
-
-		/* See if only one target */
-		if (num_traps || num_chests)
-		{
-			if (num_traps + num_chests <= 1)
-				p_ptr->command_dir = coords_to_dir(y, x);
-		}
+		if (num_traps + num_chests <= 1)
+			p_ptr->command_dir = coords_to_dir(y, x);
 	}
 
 	/* Get a direction (or abort) */
@@ -1624,6 +2084,9 @@ void do_cmd_disarm(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1657,7 +2120,7 @@ void do_cmd_disarm(void)
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, ATT_MAIN);
 	}
 
 	/* Chest */
@@ -1695,11 +2158,10 @@ static bool do_cmd_bash_test(int y, int x)
 	}
 
 	/* Require a door */
-	if (!((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-	      (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
+	if (!((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
 	{
 		/* Message */
-		msg_print("You see nothing there to bash.");
+		msg_print("You see no door there to bash.");
 
 		/* Nope */
 		return (FALSE);
@@ -1719,74 +2181,110 @@ static bool do_cmd_bash_test(int y, int x)
  */
 static bool do_cmd_bash_aux(int y, int x)
 {
-	int bash, temp;
+	int score, difficulty, power;
 
 	bool more = FALSE;
-
-
+	bool success = FALSE;
+	
 	/* Verify legality */
 	if (!do_cmd_bash_test(y, x)) return (FALSE);
-
-	/* Message */
-	msg_print("You smash into the door!");
-
-	/* Make a lot of noise. */
-	add_wakeup_chance = 9000;
-
-	/* Hack -- Bash power based on strength */
-	/* (Ranges from 3 to 20 to 100 to 200) */
-	bash = adj_str_blow[p_ptr->stat_ind[A_STR]];
-
-	/* Extract door power */
-	temp = ((cave_feat[y][x] - FEAT_DOOR_HEAD) & 0x07);
-
-	/* Compare bash power to door power XXX XXX XXX */
-	temp = (bash - (temp * 10));
-
-	/* Hack -- always have a chance */
-	if (temp < 1) temp = 1;
-
-	/* Hack -- attempt to bash down the door */
-	if (rand_int(100) < temp)
+	
+	// generate message depending on if it is a visible door...
+	if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_TAIL))
 	{
-		/* Break down the door */
-		if (rand_int(100) < 50)
+		/* Message */
+		msg_print("You slam into the door!");
+	}
+	
+	/* If it was actually a door */
+	if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+	{
+		// get the score in favour (=str)
+		score = p_ptr->stat_use[A_STR] * 2;
+		
+		// get the difficulty
+		power = ((cave_feat[y][x] - FEAT_DOOR_HEAD) & 0x07);
+		
+		// the base difficulty is the door power 
+		difficulty = 0;
+		difficulty += power;
+		
+		if (skill_check(PLAYER, score, difficulty, NULL) > 0)
 		{
-			cave_set_feat(y, x, FEAT_BROKEN);
+			success = TRUE;
+			
+			if (cave_feat[y][x] == FEAT_SECRET)
+			{
+				if (singing(SNG_SILENCE))
+				{
+					/* Message */
+					message(MSG_OPENDOOR, 0, "A door opens with a muffled crash!");
+				}
+				else
+				{
+					/* Message */
+					message(MSG_OPENDOOR, 0, "A door crashes open!");
+				}
+			}
+			else
+			{
+				if (singing(SNG_SILENCE))
+				{
+					/* Message */
+					message(MSG_OPENDOOR, 0, "The door opens with a muffled crash!");
+				}
+				else
+				{
+					/* Message */
+					message(MSG_OPENDOOR, 0, "The door crashes open!");
+				}
+				
+			}
+
+			/* Break down the door */
+			if (one_in_(2))
+			{
+				cave_set_feat(y, x, FEAT_BROKEN);
+			}
+			
+			/* Open the door */
+			else
+			{
+				cave_set_feat(y, x, FEAT_OPEN);
+			}
+
+			// Move the player onto the door square
+			monster_swap(p_ptr->py, p_ptr->px, y, x);
+			
+			/* Make a lot of noise */
+			monster_perception(TRUE, FALSE, -10);
+			
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		}
+	}
+	
+	if (!success)
+	{
+		if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+		{
+			/* Message */
+			msg_print("The door holds firm.");
 		}
 
-		/* Open the door */
+		/* Stuns */
+		if (allow_player_stun(NULL))
+		{ 
+			(void)set_stun(p_ptr->stun + 10);
+		}
 		else
 		{
-			cave_set_feat(y, x, FEAT_OPEN);
+			/* Allow repeated bashing */
+			more = TRUE;
 		}
-
-		/* Message */
-		message(MSG_OPENDOOR, 0, "The door crashes open!");
-
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-	}
-
-	/* Saving throw against stun */
-	else if (rand_int(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-	         p_ptr->lev)
-	{
-		/* Message */
-		msg_print("The door holds firm.");
-
-		/* Allow repeated bashing */
-		more = TRUE;
-	}
-
-	/* High dexterity yields coolness */
-	else
-	{
-		/* Message */
-		msg_print("You are off-balance.");
-
-		/* Hack -- Lose balance ala paralysis */
-		(void)set_paralyzed(p_ptr->paralyzed + 2 + rand_int(2));
+		
+		/* Make some noise */
+		monster_perception(TRUE, FALSE, -5);
 	}
 
 	/* Result */
@@ -1804,14 +2302,13 @@ static bool do_cmd_bash_aux(int y, int x)
  * A closed door can be opened - harder if locked. Any door might be
  * bashed open (and thereby broken). Bashing a door is (potentially)
  * faster! You move into the door way. To open a stuck door, it must
- * be bashed. A closed door can be jammed (see do_cmd_spike()).
+ * be bashed.
  *
  * Creatures can also open or bash doors, see elsewhere.
  */
 void do_cmd_bash(void)
 {
 	int y, x, dir;
-
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -1827,6 +2324,9 @@ void do_cmd_bash(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1857,7 +2357,7 @@ void do_cmd_bash(void)
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, ATT_MAIN);
 	}
 
 	/* Door */
@@ -1870,136 +2370,6 @@ void do_cmd_bash(void)
 			disturb(0, 0);
 		}
 	}
-}
-
-/*
- * Attempt to set or modify a trap
- */
-void do_cmd_make_trap(void)
-{
-	int y, x, dir, max_traps;
-
-	int feat;
-
-	/* Oops */
-	if (!(cp_ptr->flags & CF_SET_TRAPS))
-	{
-		msg_print("You don't have the ability to set traps!");
-		return;
-	}
-
-	/* Hack XXX XXX XXX */
-	if (p_ptr->confused || p_ptr->image)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-	/* Get a direction */
-	if (!get_rep_dir(&dir)) return;
-
-	/* Get location */
-	y = p_ptr->py + ddy[dir];
-	x = p_ptr->px + ddx[dir];
-
-	/* Original feature */
-	feat = cave_feat[y][x];
-
-	/* Must have knowledge to know feature XXX XXX */
-	if (!(cave_info[y][x] & (CAVE_MARK))) feat = FEAT_NONE;
-
-	if (cave_naked_bold(y, x))
-	{
-		/*two traps for advanced rogues, one for lower level*/
-		if (p_ptr->lev >= 26) max_traps = 2;
-		else max_traps = 1;
-
-		/*if not at max traps, set a trap, else fail*/
-		if (num_trap_on_level < max_traps)
-		{
-			py_set_trap(y, x);
-
-			/* Take a turn */
-			p_ptr->energy_use = 100;
-
-		}
-		else
-		{
-
-			/*give a message and don't burn any energy*/
-		    msg_print("You must disarm an existing trap to free up your equipment.");
-
-			return;
-		}
-	}
-
-	/* Only rogues can modify basic monster traps */
-	else if (feat == FEAT_MTRAP_HEAD)
-	{
-		/* Modify */
-		if (!py_modify_trap(y, x))return;
-
-		/* Take a turn */
-		else p_ptr->energy_use = 100;
-	}
-
-	/*empty floor space*/
-	else msg_print("You can only set a trap on an empty floor space.");
-
-}
-
-/*
- * Try to steal from a monster
- */
-void do_cmd_steal(void)
-{
-	int y, x, dir;
-
-	monster_type *m_ptr;
-
-	/* Oops */
-	if (!(cp_ptr->flags & CF_ROGUE_COMBAT))
-	{
-		msg_print("Theft isn't one of your talents!");
-		return;
-	}
-
-	/* Hack XXX XXX XXX */
-	if (p_ptr->confused || p_ptr->image)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-	/* Get a direction */
-	if (!get_rep_dir(&dir)) return;
-
-	/* Get location */
-	y = p_ptr->py + ddy[dir];
-	x = p_ptr->px + ddx[dir];
-
-	/* If a monster is present, and visible, rogues may steal from it.
-	 * Otherwise, the player will simply attack.
-	 */
-	if (cave_m_idx[y][x] > 0)
-	{
-		m_ptr = &mon_list[cave_m_idx[y][x]];
-
-		if (m_ptr->ml)
-		{
-			py_steal(y, x);
-
-			/* Take a turn */
-			p_ptr->energy_use = 100;
-
-		}
-
-		else msg_print("You don't see anything to steal from.");
-
-	}
-
-	else msg_print("You don't see anything to steal from.");
-
 }
 
 
@@ -2019,6 +2389,9 @@ void do_cmd_alter(void)
 	int y, x, dir;
 
 	int feat;
+	
+	bool chest_trap = FALSE;
+	bool chest_present = FALSE;
 
 	bool more = FALSE;
 
@@ -2038,6 +2411,9 @@ void do_cmd_alter(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+	
 	/* Apply confusion */
 	if (confuse_dir(&dir))
 	{
@@ -2060,212 +2436,136 @@ void do_cmd_alter(void)
 		p_ptr->command_arg = 0;
 	}
 
+	// check for chests and chest traps
+	if (cave_o_idx[y][x])
+	{
+		object_type *o_ptr = &o_list[cave_o_idx[y][x]];
+		
+		if (o_ptr->tval == TV_CHEST)
+		{
+			chest_present = TRUE;
+
+			if ((o_ptr->pval > 0) && chest_traps[o_ptr->pval] && object_known_p(o_ptr)) chest_trap = TRUE;
+		}
+	}
+
 	/*Is there a monster on the space?*/
 	if (cave_m_idx[y][x] > 0)
 	{
-		py_attack(y, x);
+		py_attack(y, x, ATT_MAIN);
+	}
+	
+	// deal with players who can't see the square
+	else if ((dir != 5) && !(cave_info[y][x] & (CAVE_MARK)))
+	{
+		if (cave_floor_bold(y,x))
+		{
+			/* Oops */
+			msg_print("You strike, but there is nothing there.");
+		}
+		else
+		{
+			msg_print("You hit something hard.");
+			cave_info[y][x] |= (CAVE_MARK);
+			lite_spot(y, x);
+		}
 	}
 
 	/* Tunnel through walls */
 	else if (cave_wall_bold(y,x))
 	{
 		/* Tunnel */
-		more = do_cmd_tunnel_aux(y, x);
-	}
-#if 0
-	/* Bash jammed doors */
-	else if (feat >= FEAT_DOOR_HEAD + 0x08)
-	{
-		/* Tunnel */
-		more = do_cmd_bash_aux(y, x);
-	}
-#endif /* 0 */
-	/* Open closed doors */
-	else if (feat >= FEAT_DOOR_HEAD)
-	{
-		/* Tunnel */
-		more = do_cmd_open_aux(y, x);
+		do_cmd_tunnel_aux(y, x);
 	}
 
-	/* Disarm traps */
-	else if ((cave_trap_bold(y,x)) ||
-			(cave_mon_trap_bold(y,x)))
-
+	/* Bash doors */
+	else if ((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL))
 	{
-		/* Tunnel */
+		/* Bash */
+		do_cmd_bash_aux(y, x);
+	}
+
+	/* Disarm known dungeon traps */
+	else if (cave_trap_bold(y,x) && !cave_floorlike_bold(y,x))
+	{
+		/* Disarm */
 		more = do_cmd_disarm_aux(y, x);
 	}
 
-#if 0
-
+	/* Disarm known chest traps */
+	else if (chest_trap)
+	{
+		/* Disarm */
+		more = do_cmd_disarm_chest(y, x, cave_o_idx[y][x]);
+	}
+	
+	/* Open chest with no known traps */
+	else if (chest_present)
+	{
+		/* Disarm */
+		more = do_cmd_open_chest(y, x, cave_o_idx[y][x]);
+	}
+	
 	/* Close open doors */
 	else if (feat == FEAT_OPEN)
 	{
-		/* Close */
-		more = do_cmd_close_aux(y, x);
+		if (dir == 5)
+		{
+			msg_print("To close the door you would need to move out from the doorway.");
+		}
+		else
+		{
+			/* Close */
+			do_cmd_close_aux(y, x);
+		}
 	}
 
-#endif
+	/* Ascend upwards stairs */
+	else if ((dir == 5) && ((feat == FEAT_LESS) || (feat == FEAT_LESS_SHAFT)))
+	{
+		/* Ascend */
+		if (get_check("Are you sure you wish to ascend? "))		do_cmd_go_up();
+	}
+	
+	/* Descend downwards stairs */
+	else if ((dir == 5) && ((feat == FEAT_MORE) || (feat == FEAT_MORE_SHAFT)))
+	{
+		/* Descend */
+		if (get_check("Are you sure you wish to descend? "))	do_cmd_go_down();
+	}
 
+	/* Use forges */
+	else if ((dir == 5) && cave_forge_bold(y,x))
+	{
+		/* Use forge */
+		do_cmd_smithing_screen();
+		more = TRUE;
+	}
+
+	/* Pick up items */
+	else if ((dir == 5) && (cave_o_idx[y][x] != 0))
+	{
+		/* Get item */
+		do_cmd_stay();
+	}
+	
+	/* Oops */
+	else if (dir == 5)
+	{
+		/* Oops */
+		msg_print("There is nothing here to use.");
+	}
+	
 	/* Oops */
 	else
 	{
 		/* Oops */
-		msg_print("You spin around.");
+		msg_print("You strike, but there is nothing there.");
 	}
 
 	/* Cancel repetition unless we can continue */
 	if (!more) disturb(0, 0);
 }
-
-
-/*
- * Find the index of some "spikes", if possible.
- *
- * XXX XXX XXX Let user choose a pile of spikes, perhaps?
- */
-static bool get_spike(int *ip)
-{
-	int i;
-
-	/* Check every item in the pack */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Check the "tval" code */
-		if (o_ptr->tval == TV_SPIKE)
-		{
-			/* Save the spike index */
-			(*ip) = i;
-
-			/* Success */
-			return (TRUE);
-		}
-	}
-
-	/* Oops */
-	return (FALSE);
-}
-
-
-/*
- * Determine if a given grid may be "spiked"
- */
-static bool do_cmd_spike_test(int y, int x)
-{
-	/* Must have knowledge */
-	if (!(cave_info[y][x] & (CAVE_MARK)))
-	{
-		/* Message */
-		msg_print("You see nothing there.");
-
-		/* Nope */
-		return (FALSE);
-	}
-
-	/* Require a door */
-	if (!((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-	      (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
-	{
-		/* Message */
-		msg_print("You see nothing there to spike.");
-
-		/* Nope */
-		return (FALSE);
-	}
-
-	/* Okay */
-	return (TRUE);
-}
-
-
-/*
- * Jam a closed door with a spike
- *
- * This command may NOT be repeated
- */
-void do_cmd_spike(void)
-{
-	int y, x, dir, item;
-
-
-	/* Get a spike */
-	if (!get_spike(&item))
-	{
-		/* Message */
-		msg_print("You have no spikes!");
-
-		/* Done */
-		return;
-	}
-
-
-	/* Get a direction (or abort) */
-	if (!get_rep_dir(&dir)) return;
-
-	/* Get location */
-	y = p_ptr->py + ddy[dir];
-	x = p_ptr->px + ddx[dir];
-
-
-	/* Verify legality */
-	if (!do_cmd_spike_test(y, x)) return;
-
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Confuse direction */
-	if (confuse_dir(&dir))
-	{
-		/* Get location */
-		y = p_ptr->py + ddy[dir];
-		x = p_ptr->px + ddx[dir];
-	}
-
-
-	/* Monster */
-	if (cave_m_idx[y][x] > 0)
-	{
-		/* Message */
-		msg_print("There is a monster in the way!");
-
-		/* Attack */
-		py_attack(y, x);
-	}
-
-	/* Go for it */
-	else
-	{
-		/* Verify legality */
-		if (!do_cmd_spike_test(y, x)) return;
-
-		/* Successful jamming */
-		msg_print("You jam the door with a spike.");
-
-		/* Convert "locked" to "stuck" XXX XXX XXX */
-		if (cave_feat[y][x] < FEAT_DOOR_HEAD + 0x08)
-		{
-			cave_feat[y][x] += 0x08;
-		}
-
-		/* Add one spike to the door */
-		if (cave_feat[y][x] < FEAT_DOOR_TAIL)
-		{
-			cave_feat[y][x] += 0x01;
-		}
-
-		/* Use up, and describe, a single spike, from the bottom */
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-}
-
 
 
 /*
@@ -2282,9 +2582,6 @@ static bool do_cmd_walk_test(int y, int x)
 		return TRUE;
 	}
 
-	/* can walk over own trap */
-	if (cave_mon_trap_bold(y,x)) return (TRUE);
-
 	/* Require open space */
 	if (!cave_floor_bold(y, x))
 	{
@@ -2293,6 +2590,9 @@ static bool do_cmd_walk_test(int y, int x)
 		{
 			/* Message */
 			msg_print("There is a pile of rubble in the way!");
+
+			// store the action type
+			p_ptr->previous_action[0] = ACTION_MISC;
 		}
 
 		/* Door */
@@ -2300,10 +2600,7 @@ static bool do_cmd_walk_test(int y, int x)
 		{
 
 			/* Hack -- Handle "easy_alter" */
-			if (easy_alter) return (TRUE);
-
-			/* Message */
-			msg_print("There is a door in the way!");
+			return (TRUE);
 		}
 
 		/* Wall */
@@ -2311,6 +2608,9 @@ static bool do_cmd_walk_test(int y, int x)
 		{
 			/* Message */
 			msg_print("There is a wall in the way!");
+
+			// store the action type
+			p_ptr->previous_action[0] = ACTION_MISC;
 		}
 
 		/* Nope */
@@ -2412,6 +2712,12 @@ void do_cmd_run(void)
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
+	
+	// convert into rest
+	if (dir == 5)
+	{
+		do_cmd_rest();
+	}
 
 	/* Get location */
 	y = p_ptr->py + ddy[dir];
@@ -2429,7 +2735,7 @@ void do_cmd_run(void)
 
 
 /*
- * Stay still.  Search.  Enter stores.
+ * Stay still.
  * Pick up treasure if "pickup" is true.
  */
 static void do_cmd_hold_or_stay(int pickup)
@@ -2450,34 +2756,32 @@ static void do_cmd_hold_or_stay(int pickup)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Spontaneous Searching */
-	if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos)))
+	if (pickup)
 	{
-		search();
+		// store the action type
+		p_ptr->previous_action[0] = ACTION_MISC;
+	}
+	
+	else
+	{
+		// store the action type
+		p_ptr->previous_action[0] = 5;
+		
+		// store the 'focus' attribute
+		p_ptr->focused = TRUE;
+
+		// make less noise if you did nothing at all
+		// (+7 in total whether or not stealth mode is used)
+		if (p_ptr->stealth_mode) stealth_score += 2;
+		else					 stealth_score += 7;
 	}
 
-	/* Continuous Searching */
-	if (p_ptr->searching)
-	{
-		search();
-	}
-
+	/* Searching */ 
+	search();
+		
 	/* Handle "objects" */
 	py_pickup(pickup);
 
-	/* Hack -- enter a store if we are on one */
-	if ((cave_feat[p_ptr->py][p_ptr->px] >= FEAT_SHOP_HEAD) &&
-	    (cave_feat[p_ptr->py][p_ptr->px] <= FEAT_SHOP_TAIL))
-	{
-		/* Disturb */
-		disturb(0, 0);
-
-		/* Hack -- enter store */
-		p_ptr->command_new = '_';
-
-		/* Free turn XXX XXX XXX */
-		p_ptr->energy_use = 0;
-	}
 }
 
 
@@ -2507,45 +2811,22 @@ void do_cmd_stay(void)
 void do_cmd_rest(void)
 {
 	/* Prompt for time if needed */
-	if (p_ptr->command_arg <= 0)
+	if (p_ptr->command_arg == 0)
 	{
-		cptr p = "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
-
-		char out_val[5];
-
-		/* Default */
-		strcpy(out_val, "&");
-
-		/* Ask for duration */
-		if (!get_string(p, out_val, sizeof(out_val))) return;
-
-		/* Rest until done */
-		if (out_val[0] == '&')
-		{
-			p_ptr->command_arg = (-2);
-		}
-
-		/* Rest a lot */
-		else if (out_val[0] == '*')
-		{
-			p_ptr->command_arg = (-1);
-		}
-
-		/* Rest some */
-		else
-		{
-			p_ptr->command_arg = atoi(out_val);
-			if (p_ptr->command_arg <= 0) return;
-		}
+		p_ptr->command_arg = (-2);
 	}
 
-
-	/* Paranoia */
-	if (p_ptr->command_arg > 9999) p_ptr->command_arg = 9999;
-
+	// typically resting ends your current song
+	if (stop_singing_on_rest) change_song(SNG_NOTHING);
 
 	/* Take a turn XXX XXX XXX (?) */
 	p_ptr->energy_use = 100;
+
+	// store the action type
+	p_ptr->previous_action[0] = 5;
+	
+	// store the 'focus' attribute
+	p_ptr->focused = TRUE;
 
 	/* Save the rest code */
 	p_ptr->resting = p_ptr->command_arg;
@@ -2553,8 +2834,8 @@ void do_cmd_rest(void)
 	/* Cancel the arg */
 	p_ptr->command_arg = 0;
 
-	/* Cancel searching */
-	p_ptr->searching = FALSE;
+	/* Cancel stealth mode */
+	p_ptr->stealth_mode = FALSE;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -2565,8 +2846,8 @@ void do_cmd_rest(void)
 	/* Handle stuff */
 	handle_stuff();
 
-	/* Refresh XXX XXX XXX */
-	if (fresh_before) Term_fresh();
+	/* Refresh */
+	Term_fresh();
 }
 
 
@@ -2575,60 +2856,149 @@ void do_cmd_rest(void)
 
 
 /*
- * Determines the odds of an object breaking when thrown at a monster
+ * Determines the percentage chance of an object breaking when thrown or fired
  *
- * Note that artifacts never break, see the "drop_near()" function.
+ * Note that artefacts never break, see the "drop_near()" function.
  */
-static int breakage_chance(const object_type *o_ptr)
+static int breakage_chance(const object_type *o_ptr, bool hit_wall)
 {
+	int p = 0;
+	
 	/* Examine the item type */
 	switch (o_ptr->tval)
 	{
 		/* Always break */
 		case TV_FLASK:
 		case TV_POTION:
-		case TV_BOTTLE:
-		case TV_FOOD:
-		case TV_JUNK:
+		case TV_USELESS:
 		{
-			return (100);
+			p = 100;
+			break;
 		}
 
 		/* Often break */
-		case TV_LITE:
-		case TV_SCROLL:
-		case TV_SKELETON:
+		case TV_LIGHT:
 		{
-			return (50);
+			/* Silmarils don't break */
+			if ((o_ptr->tval == TV_LIGHT) && (o_ptr->sval == SV_LIGHT_SILMARIL))
+			{
+				p = 0;
+			}
+			else
+			{
+				p = 20;
+			}
+			break;
 		}
 
 		/* Sometimes break */
 		case TV_ARROW:
 		{
-			return (35);
+			p = 20;
+			
+			// halved chance if careful
+			if (p_ptr->active_ability[S_ARC][ARC_CAREFUL]) p /= 2;
+			
+			// 100% chance if flaming arrows
+			if (p_ptr->active_ability[S_ARC][ARC_FLAMING]) p = 100;
+			
+			break;
 		}
-
-		/* Sometimes break */
-		case TV_WAND:
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_SPIKE:
+		
+		/* Rarely break */
+		default:
 		{
-			return (25);
+			p = 5;
+			break;
 		}
 	}
 
-	/* Rarely break */
-	return (10);
+	/* double breakage chance if it hit a wall */
+	if (hit_wall)
+	{
+		p *= 2;
+		if (p > 100) p = 100;
+	}
+	// Unless they hit a wall, items designed for throwing won't break
+	else if (k_info[o_ptr->k_idx].flags3 & (TR3_THROWING))
+	{
+		p = 0;
+	}
+	
+	return (p);
 }
+
+/*
+ *  Determines if a bow shoots radiant arrows and lights the current grid if so
+ */
+bool do_radiance(int y, int x, const object_type *j_ptr)
+{
+	bool radiance = FALSE;
+	
+	// determine if the bow has 'radiance'
+	if (j_ptr->name1 && (a_info[j_ptr->name1].flags2 & (TR2_RADIANCE))) radiance = TRUE;
+	if (j_ptr->name2 && (e_info[j_ptr->name2].flags2 & (TR2_RADIANCE))) radiance = TRUE;
+	
+	// If the bow has 'radiance' and the square is dark, then light it
+	if (radiance && !(cave_info[y][x] & (CAVE_GLOW)))
+	{
+		// Give it light
+		cave_info[y][x] |= (CAVE_GLOW);
+		
+		// Remember the grid
+		cave_info[y][x] |= (CAVE_MARK);
+
+		// Fully update the visuals
+		p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+		// Update stuff
+		update_stuff();
+		
+		return (TRUE);
+	}
+	else
+	{
+		return (FALSE);
+	}
+}
+
+extern int archery_range(const object_type *j_ptr)
+{
+	int range;
+
+	range = (j_ptr->dd * total_ads(j_ptr, FALSE) * 3) / 2;
+	if (range > MAX_RANGE) range = MAX_RANGE;
+	
+	return (range);
+}
+
+
+extern int throwing_range(const object_type *i_ptr)
+{
+	int div;
+	int range;
+	u32b f1, f2, f3;
+	
+	object_flags(i_ptr, &f1, &f2, &f3);
+	
+	/* the divisor is the weight + 2lb */
+	div = i_ptr->weight + 20;
+
+	range = (weight_limit()/5) / div;
+	
+	/* Max distance of MAX_RANGE */
+	if (range > MAX_RANGE) range = MAX_RANGE;
+	
+	/* Min distance of 1 */
+	if (range < 1) range = 1;
+	
+	return (range);
+}
+
 
 
 /*
  * Fire an object from the pack or floor.
- *
- * You may only fire items that "match" your missile launcher.
- *
- * You must use slings + pebbles/shots, bows + arrows, xbows + bolts.
  *
  * See "calc_bonuses()" for more calculations and such.
  *
@@ -2638,46 +3008,62 @@ static int breakage_chance(const object_type *o_ptr)
  *
  * Objects are more likely to break if they "attempt" to hit a monster.
  *
- * Ranger  s (with Bows) and Anyone (with "Extra Shots") get extra shots.
- *
  * The "extra shot" code works by decreasing the amount of energy
  * required to make each shot, spreading the shots out over time.
  *
  * Note that when firing missiles, the launcher multiplier is applied
  * after all the bonuses are added in, making multipliers very useful.
- *
- * Note that Bows of "Extra Might" get extra range and an extra bonus
- * for the damage multiplier.
- *
- * Note that Bows of "Extra Shots" give an extra shot.
  */
-void do_cmd_fire(void)
+void do_cmd_fire(int quiver)
 {
 	int dir, item;
-	int i, j, y, x, ty, tx;
-	int tdam, tdis, thits, tmul;
-	int bonus, chance;
+	int i, y, x, ty, tx;
+	int ty2, tx2; //dummy variables needed to pass to the path projection function
+	int tdis;
 
+	u32b f1, f2, f3; // the bow's flags
+	
+	int attack_mod = 0, total_attack_mod = 0;
+	int total_evasion_mod = 0;
+	int hit_result = 0;
+	int crit_bonus_dice = 0, slay_bonus_dice = 0;
+	int total_dd = 0, total_ds = 0;
+	int dam = 0, prt = 0, prt_percent = 100;
+	int net_dam = 0;
+	
+	int shot;
+	int shots = 1;
+	
+	int start;
+	int opportunity_attacks = 0;
+	
 	object_type *o_ptr;
 	object_type *j_ptr;
 
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	bool hit_body = FALSE;
-
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+	
 	byte missile_attr;
 	char missile_char;
 
 	char o_name[80];
+	char punctuation[20];
 
 	int path_n;
 	u16b path_g[256];
 
-	cptr q, s;
-
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
+	u32b noticed_arrow_flag = 0L;	// if a slay is noticed on the arrow/bow it is recorded here
+	u32b noticed_bow_flag = 0L;		// and the arrow/bow will be identified.
+
+	bool noticed_radiance = FALSE;
+	
+	bool pierce = FALSE;
+	bool targets_remaining = FALSE;
 
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
@@ -2689,53 +3075,100 @@ void do_cmd_fire(void)
 		return;
 	}
 
+	/* Base range */
+	tdis = archery_range(j_ptr);
+		
+	// bow flags
+	object_flags(j_ptr, &f1, &f2, &f3);
 
-	/* Require proper missile */
-	item_tester_tval = p_ptr->ammo_tval;
-
-	/* Get an item */
-	q = "Fire which item? ";
-	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the object */
-	if (item >= 0)
+	// determine the arrow to fire
+	if (quiver == 1)
 	{
-		o_ptr = &inventory[item];
+		o_ptr = &inventory[INVEN_QUIVER1];
+		item = INVEN_QUIVER1;
+		
+		if (!o_ptr->k_idx)
+		{
+			msg_print("You have no arrows in your 1st quiver.");
+			return;
+		}
 	}
-	else
+	else 
 	{
-		o_ptr = &o_list[0 - item];
+		o_ptr = &inventory[INVEN_QUIVER2];
+		item = INVEN_QUIVER2;
+		
+		if (!o_ptr->k_idx)
+		{
+			msg_print("You have no arrows in your 2nd quiver.");
+			return;
+		}
 	}
-
-
+	
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
+	if (!get_aim_dir(&dir, tdis)) return;
 
+	/* Start at the player */
+	y = p_ptr->py;
+	x = p_ptr->px;
+	
+	/* Predict the "target" location */
+	ty = p_ptr->py + 99 * ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
+	
+	/* Check for "target request" */
+	if ((dir == 5) && target_okay())
+	{
+		ty = p_ptr->target_row;
+		tx = p_ptr->target_col;
+	}
+	
+	if ((dir == DIRECTION_UP) || (dir == DIRECTION_DOWN))
+	{
+		ty = p_ptr->py;
+		tx = p_ptr->px;
+	}
+	
+	/* Handle player fear */
+	if (p_ptr->afraid)
+	{
+		/* Message */
+		msg_print("You are too afraid to aim properly!");
+		
+		/* Done */
+		return;
+	}
+	
 	/* Get local object */
 	i_ptr = &object_type_body;
-
+	
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
+	
+	/* Determine the base attack score */
+	attack_mod = (p_ptr->skill_use[S_ARC] + i_ptr->att);
+	
+	// deal with the rapid fire ability
+	if (p_ptr->active_ability[S_ARC][ARC_RAPID_FIRE])
+	{
+		// if the player has enough arrows, then allow 2 shots
+		if (o_ptr->number > 1)
+		{
+			shots = 2;
+		}
 
+		// otherwise remove the rapid fire penalty to attack
+		else
+		{
+			attack_mod += 3;
+		}
+	}
+	
 	/* Single object */
 	i_ptr->number = 1;
-
-	/* Reduce and describe inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
-
+	
+	/* Set pickup on fired arrow */
+	i_ptr->pickup = TRUE;
 
 	/* Sound */
 	sound(MSG_SHOOT);
@@ -2746,235 +3179,446 @@ void do_cmd_fire(void)
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
+	
+	// flaming arrows are red
+	if (p_ptr->active_ability[S_ARC][ARC_FLAMING]) missile_attr = TERM_RED;
 
-	/* Use the proper number of shots */
-	thits = p_ptr->num_fire;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
-	/* Base damage from thrown object plus launcher bonus */
-	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d;
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
 
-	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
-	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
-
-	/* Assume a base multiplier */
-	tmul = p_ptr->ammo_mult;
-
-	/* Boost the damage */
-	tdam *= tmul;
-
-	/* Base range XXX XXX */
-	tdis = 10 + 5 * tmul;
-
-	/* Take a (partial) turn */
-	p_ptr->energy_use = (100 / thits);
-
-	/* Start at the player */
-	y = p_ptr->py;
-	x = p_ptr->px;
-
-	/* Predict the "target" location */
-	ty = p_ptr->py + 99 * ddy[dir];
-	tx = p_ptr->px + 99 * ddx[dir];
-
-	/* Check for "target request" */
-	if ((dir == 5) && target_okay())
-	{
-		tx = p_ptr->target_col;
-		ty = p_ptr->target_row;
-	}
+	// set dummy variables to pass to project_path (so it doesn't clobber the real ones)
+	ty2 = ty;
+	tx2 = tx;
 
 	/* Calculate the path */
-	path_n = project_path(path_g, tdis, p_ptr->py, p_ptr->px, &ty, &tx, 0);
+	path_n = project_path(path_g, tdis, p_ptr->py, p_ptr->px, &ty2, &tx2, PROJECT_THRU);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-	/* Project along the path */
-	for (i = 0; i < path_n; ++i)
+	/* If the bow has 'radiance', then light the starting square */
+	noticed_radiance = do_radiance(y, x, j_ptr);
+
+	for (shot = 0; shot < shots; shot++)
 	{
-		int ny = GRID_Y(path_g[i]);
-		int nx = GRID_X(path_g[i]);
+		bool hit_wall = FALSE;
+		bool ghost_arrow = FALSE;
+		int missed_monsters = 0;
+		int final_y = GRID_Y(path_g[path_n-1]);
+		int final_x = GRID_X(path_g[path_n-1]);
+		
+		// abort the later shot(s) if there is no target on the trajectory
+		if ((shot > 0) && !targets_remaining)	break;
+		targets_remaining = FALSE;
 
-		/* Hack -- Stop before hitting walls */
-		if (!cave_floor_bold(ny, nx)) break;
-
-		/* Advance */
-		x = nx;
-		y = ny;
-
-		/* Only do visuals if the player can "see" the missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x))
+		/* Reduce and describe inventory */
+		if (item >= 0)
 		{
-			/* Visual effects */
-			print_rel(missile_char, missile_attr, y, x);
-			move_cursor_relative(y, x);
-			if (fresh_before) Term_fresh();
-			Term_xtra(TERM_XTRA_DELAY, msec);
-			lite_spot(y, x);
-			if (fresh_before) Term_fresh();
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
 		}
-
-		/* Delay anyway for consistency */
+		
+		/* Reduce and describe floor item */
 		else
 		{
-			/* Pause anyway, for consistancy */
-			Term_xtra(TERM_XTRA_DELAY, msec);
+			floor_item_increase(0 - item, -1);
+			floor_item_optimize(0 - item);
 		}
-
-		/* Handle monster */
-		if (cave_m_idx[y][x] > 0)
+				
+		/* Project along the path */
+		for (i = 0; i < path_n; ++i)
 		{
-			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
-			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
-
-			int visible = m_ptr->ml;
-
-			/* Note the collision */
-			hit_body = TRUE;
-
-			/* Some monsters are great at dodging  -EZ- */
-			if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!m_ptr->csleep) &&
-				(!m_ptr->stunned) && (!m_ptr->confused) && (!m_ptr->monfear)
-				&& (rand_int(5 + m_ptr->cdis) >= 3))
+			int ny = GRID_Y(path_g[i]);
+			int nx = GRID_X(path_g[i]);
+						
+			/* Hack -- Stop before hitting walls */
+			if (!cave_floor_bold(ny, nx)) 
 			{
-				if (visible)
+				// if the arrow hasn't already stopped, do some things...
+				if (!ghost_arrow)
 				{
-					char m_name[80];
+					hit_wall = TRUE;
+					
+					// record resting place of arrow
+					final_y = y;
+					final_x = x;
 
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-					message_format(MSG_MISS, 0, "%^s dodges!", m_name);
-
-					/* Learn that monster can dodge */
-					l_ptr->flags2 |= (RF2_EVASIVE);
-				}
-
-				continue;
-			}
-
-			/* Did we hit it (penalize distance travelled) */
-			else if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
-			{
-				bool fear = FALSE;
-
-				/* Assume a default death */
-				cptr note_dies = " dies.";
-
-				/*Mark the monster as attacked by the player*/
-				m_ptr->mflag |= (MFLAG_HIT_BY_RANGED);
-
-				if (monster_nonliving(r_ptr))
-				{
-					/* Special note at death */
-					note_dies = " is destroyed.";
-				}
-
-				/* Make some noise */
-				add_wakeup_chance += p_ptr->base_wakeup_chance / 2;
-
-				/* Reveal fully visible mimics */
-				if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
-				{
-					/* Reveal it */
-					reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
-
-					/*We can not see it*/
-					visible = TRUE;
-
-				}
-
-				/* Handle unseen monster */
-				if (!visible)
-				{
-					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
-				}
-
-				/* Handle visible monster */
-				else
-				{
-					char m_name[80];
-
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
-
-					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-					/* Hack -- Track this monster */
-					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
-				}
-
-				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
-
-				/*rogues are deadly with slings*/
-				if ((cp_ptr->flags & CF_ROGUE_COMBAT) && (p_ptr->ammo_tval == TV_SHOT))
-				{
-
-					tdam += p_ptr->lev * 2 / 3;
-				}
-
-				/* No negative damage */
-				if (tdam < 0) tdam = 0;
-
-				/* Complex message */
-				if (p_ptr->wizard)
-				{
-					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
-				}
-
-				/* Hit the monster, check for death */
-				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies, -1))
-				{
-					/* Dead monster */
-				}
-
-				/* No death */
-				else
-				{
-					/* Message */
-					message_pain(cave_m_idx[y][x], tdam);
-
-					/* Take note */
-					if (fear && m_ptr->ml)
+					// Show collision
+					/* Only do visuals if the player can "see" the missile */
+					if (panel_contains(ny, nx))
 					{
-						char m_name[80];
-
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-						/* Message */
-						message_format(MSG_FLEE, m_ptr->r_idx,
-						               "%^s flees in terror!", m_name);
+						/* Visual effects */
+						print_rel('*', TERM_L_WHITE, ny, nx);
+						move_cursor_relative(ny, nx);
+						Term_fresh();
+						Term_xtra(TERM_XTRA_DELAY, 25 * op_ptr->delay_factor);
+						lite_spot(ny, nx);
+						Term_fresh();
+					}
+					
+					/* Delay anyway for consistency */
+					else
+					{
+						/* Pause anyway, for consistancy */
+						Term_xtra(TERM_XTRA_DELAY, 25 * op_ptr->delay_factor);
 					}
 				}
+				
+				break;
 			}
+			
+			/* Advance */
+			x = nx;
+			y = ny;
+			
+			// after an arrow has stopped, keep looking along the path,
+			// but don't attempt to hit creatures, or display graphics or anything
+			if (ghost_arrow)
+			{
+				if (cave_m_idx[y][x] > 0) targets_remaining = TRUE;
+				
+				continue;
+			}
+			
+			/* If the bow has 'radiance', then light the square being passed over */
+			noticed_radiance = do_radiance(y, x, j_ptr);
+			
+			/* Only do visuals if the player can "see" the missile */
+			if (panel_contains(y, x) && player_can_see_bold(y, x))
+			{
+				/* Visual effects */
+				print_rel(missile_char, missile_attr, y, x);
+				move_cursor_relative(y, x);
+				Term_fresh();
+				Term_xtra(TERM_XTRA_DELAY, msec);
+				lite_spot(y, x);
+				Term_fresh();
+			}
+			
+			/* Delay anyway for consistency */
+			else
+			{
+				/* Pause anyway, for consistancy */
+				Term_xtra(TERM_XTRA_DELAY, msec);
+			}
+						
+			/* Handle monster */
+			if (cave_m_idx[y][x] > 0)
+			{
+				m_ptr = &mon_list[cave_m_idx[y][x]];
+				r_ptr = &r_info[m_ptr->r_idx];
+				
+				// Determine the player's attack score after all modifiers
+				total_attack_mod = total_player_attack(m_ptr, attack_mod);
 
-			/* Stop looking */
-			break;
+				/* Monsters might notice */
+				player_attacked = TRUE;
+								
+				// Modifications for shots that go past the target or strike things before the target...
+				if ((dir == 5) && target_okay())
+				{
+					// if there is a specific target and this is not it, then massively penalise
+					if ((ty != y) || (tx != x))
+					{
+						total_attack_mod = 0;
+					}
+				}
+				// if it is just a shot in a direction and has already missed something, then massively penalise
+				else if (missed_monsters > 0)
+				{
+					total_attack_mod = 0;
+				}
+				// if it is a shot in a direction and this is the first monster
+				else
+				{
+					/* Hack -- Track this monster race */
+					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+					
+					/* Hack -- Track this monster */
+					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
+					
+					/* Hack -- Target this monster */
+					if (m_ptr->ml) target_set_monster(cave_m_idx[y][x]);
+				}
+				
+				// Determine the monster's evasion after all modifiers
+				total_evasion_mod = total_monster_evasion(m_ptr, TRUE);
+				
+				/* Test for hit */
+				hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);				
+				
+				/* If it hit */
+				if (hit_result > 0)
+				{
+					/* Assume a default death */
+					cptr note_dies = " dies.";
+					
+					char m_name[80];
+					
+					/* Get the monster name (or "it") */
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+					
+					/*Mark the monster as attacked by the player*/
+					m_ptr->mflag |= (MFLAG_HIT_BY_RANGED);
+					
+					if (monster_nonliving(r_ptr))
+					{
+						/* Special note at death */
+						note_dies = " is destroyed.";
+					}
+					
+					/* Reveal fully visible mimics */
+					if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
+					{
+						/* Reveal it */
+						reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
+					}
+
+					// Handle sharpness (which can change 'hit' message)
+					prt_percent = prt_after_sharpness(i_ptr, &noticed_arrow_flag);
+					if (percent_chance(100 - prt_percent))
+					{
+						pierce = TRUE;
+					}
+										
+					/* Add 'critical hit' dice based on bow weight */
+					crit_bonus_dice = crit_bonus(hit_result, j_ptr->weight, r_ptr, S_ARC, FALSE);
+										
+					/* Add slay (or brand) dice based on both arrow and bow */
+					slay_bonus_dice = slay_bonus(i_ptr, m_ptr, &noticed_arrow_flag);
+					slay_bonus_dice += slay_bonus(j_ptr, m_ptr, &noticed_bow_flag);
+					
+					// bonus for flaming arrows
+					if (p_ptr->active_ability[S_ARC][ARC_FLAMING])
+					{
+						monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+						
+						/* Notice immunity */
+						if (r_ptr->flags3 & (RF3_RES_FIRE))
+						{
+							if (m_ptr->ml)
+							{
+								l_ptr->flags3 |= (RF3_RES_FIRE);
+							}
+						}
+						
+						/* Otherwise, take the damage */
+						else
+						{
+							slay_bonus_dice += 1;
+														
+							// extra bonus against vulnerable creatures
+							if (r_ptr->flags3 & (RF3_HURT_FIRE))
+							{
+								slay_bonus_dice += 1;
+								
+								/* Memorize the effects */
+								l_ptr->flags3 |= (RF3_HURT_FIRE);
+
+								// cause a temporary morale penalty
+								scare_onlooking_friends(m_ptr, -20);
+							}
+							
+						}
+					}
+					
+					/* Calculate the damage done */
+					total_dd = j_ptr->dd + crit_bonus_dice + slay_bonus_dice;
+					
+					// Sil-y: debugging test case
+					if (p_ptr->ads <= 0)
+					{
+						msg_format("BUG: Your damage sides for archery are %d.", p_ptr->ads);
+						msg_format("BUG: Recalculating them would give %d.", total_ads(j_ptr, shots == 1));
+						msg_format("BUG: j_ptr->ds is %d.", j_ptr->ds);
+					}
+					
+					// Sil-y: does this cause a bug?
+					// Note that this is recalculated in case the player has rapid shots but only one arrow
+					total_ds = total_ads(j_ptr, shots == 1);
+					
+					/* Can't have a negative number of sides */
+					if (total_ds < 0) total_ds = 0;
+					
+					dam = damroll(total_dd, total_ds);
+					prt = damroll(r_ptr->pd, r_ptr->ps);
+					
+					prt = (prt * prt_percent) / 100;
+					
+					net_dam = dam - prt;
+					
+					/* Handle unseen monster */
+					if (!(m_ptr->ml))
+					{
+						/* Unseen monster */
+						msg_format("The %s finds a mark.", o_name);
+					}
+					
+					/* Handle visible monster */
+					else
+					{
+						char m_name[80];
+						
+						/* Get "the monster" or "it" */
+						monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+						
+						// determine the punctuation for the attack ("...", ".", "!" etc)
+						attack_punctuation(punctuation, net_dam, crit_bonus_dice);
+						
+						/* Message */
+						if (pierce) msg_format("The %s pierces %s%s", o_name, m_name, punctuation);
+						else		msg_format("The %s hits %s%s", o_name, m_name, punctuation);
+					}
+
+					// if a slay was noticed, then identify the bow/arrow
+					if (noticed_arrow_flag || noticed_bow_flag)
+					{
+						ident_bow_arrow_by_use(j_ptr, i_ptr, o_ptr, m_ptr, noticed_bow_flag, noticed_arrow_flag);
+					}
+					
+					/* No negative damage */
+					if (net_dam < 0) net_dam = 0;
+					
+					update_combat_rolls2(total_dd, total_ds, dam, r_ptr->pd, r_ptr->ps, prt, prt_percent, GF_HURT); 
+					display_hit(y, x, net_dam, GF_HURT);
+					
+					/* Hit the monster, check for death */
+					if (mon_take_hit(cave_m_idx[y][x], net_dam, note_dies, -1))
+					{
+						// gain wrath if singing song of slaying
+						if (singing(SNG_SLAYING))
+						{
+							add_wrath();
+						}
+					}
+					
+					/* No death */
+					else
+					{
+						// there is at least one target left on the trajectory
+						targets_remaining = TRUE;
+
+						// alert the monster, even if no damage was done
+						// (if damage was done, then it was alerted by mon_take_hit() )
+						if (net_dam == 0)
+						{
+							make_alert(m_ptr);
+						}
+						
+						// Morgoth drops his iron crown if he is hit for 20 or more raw damage
+						if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && (dam >= 25))
+						{
+							drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
+						}
+
+						/* Message */
+						message_pain(cave_m_idx[y][x], net_dam);
+						
+						// Deal with crippling shot ability
+						if (p_ptr->active_ability[S_ARC][ARC_CRIPPLING] && (crit_bonus_dice >= 2) && (net_dam > 0))
+						{
+							msg_format("Your shot cripples %^s!", m_name);
+							set_monster_slow(cave_m_idx[m_ptr->fy][m_ptr->fx], m_ptr->slowed + damroll(2, 4), FALSE);
+						}
+					}
+					
+					/* Stop looking if a monster was hit but not pierced */
+					if (!pierce)
+					{
+						// continue checking trajectory, but without affecting things
+						ghost_arrow = TRUE;
+						
+						// record resting place of arrow
+						final_y = y;
+						final_x = x;
+					}
+					else
+					{
+						pierce = FALSE;
+					}
+				}
+				
+				// if it misses the monster...
+				else
+				{
+					// there is at least one target left on the trajectory
+					targets_remaining = TRUE;
+				}
+				
+				/* we have missed a target, but could still hit something (with a penalty) */
+				missed_monsters++;
+			}
 		}
+		
+		if (!object_known_p(j_ptr) && noticed_radiance)
+		{
+			char j_short_name[80];
+			char j_full_name[80];
+			
+			object_desc(j_short_name, sizeof(j_short_name), j_ptr, FALSE, 0);
+			object_aware(j_ptr);
+			object_known(j_ptr);
+			object_desc(j_full_name, sizeof(j_full_name), j_ptr, TRUE, 3);
+			
+			msg_print("The arrow leaves behind a trail of light!");
+			msg_format("You recognize your %s to be %s", j_short_name, j_full_name);
+		}
+		
+		// Break the truce if creatures see
+		break_truce(FALSE);
+		
+		/* Drop (or break) near that location */
+		drop_near(i_ptr, breakage_chance(i_ptr, hit_wall), final_y, final_x);
 	}
 
-	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(i_ptr) : 0);
 
-	/* Drop (or break) near that location */
-	drop_near(i_ptr, j, y, x);
+	/* Have to set this here as well, just in case... */
+	/* Monsters might notice */
+	player_attacked = TRUE;
+	
+	// Archery provokes attacks of opportunity from adjacent monsters...
+	start = rand_int(8);
+	
+	// 'Point blank archery' avoids attacks of opportunity half the time
+	if (!p_ptr->active_ability[S_ARC][ARC_POINT_BLANK] || one_in_(2))
+	{
+		/* Look for adjacent monsters */
+		for (i = start; i < 8 + start; i++)
+		{
+			y = p_ptr->py + ddy_ddd[i % 8];
+			x = p_ptr->px + ddx_ddd[i % 8];
+			
+			/* Check Bounds */
+			if (!in_bounds(y, x)) continue;
+			
+			// If it is occupied by a monster
+			if (cave_m_idx[y][x] > 0)
+			{
+				m_ptr = &mon_list[cave_m_idx[y][x]];
+				r_ptr = &r_info[m_ptr->r_idx];
+				
+				if ((m_ptr->alertness >= ALERTNESS_ALERT) && !m_ptr->confused && !(r_ptr->flags2 & (RF2_MINDLESS)))
+				{
+					opportunity_attacks++;
+					
+					if (opportunity_attacks == 1)
+					{
+						msg_print("You provoke attacks of opportunity from adjacent enemies!");
+					}
+					
+					make_attack_normal(m_ptr);
+				}
+			}
+		}
+	}	
 }
 
 /*handle special effects of throwing certain potions*/
-static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear, int m_idx)
+static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, int m_idx)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -2988,7 +3632,6 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 	bool do_stun = FALSE;
 	bool un_confuse = FALSE;
 	bool un_stun = FALSE;
-	bool un_fear = FALSE;
 
 	bool used_potion = TRUE;
 
@@ -3008,104 +3651,19 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 
 		case SV_POTION_SLOWNESS:
 		{
-			/*slowness explosion at the site, radius 1*/
-			ident = explosion(-1, 1, y, x, damroll (2, p_ptr->lev), GF_OLD_SLOW);
+			/*slowness explosion at the site, radius 0*/
+			ident = explosion(-1, 0, y, x, 0, 0, 10, GF_SLOW);
 			break;
 		}
 
 		case SV_POTION_CONFUSION:
 		{
-			/*slowness explosion at the site, radius 1*/
-			ident = explosion(-1, 1, y, x, damroll (2, p_ptr->lev), GF_OLD_CONF);
-			break;
-
-		}
-
-		case SV_POTION_SLEEP:
-		{
-			/*slowness explosion at the site, radius 1*/
-			ident = explosion(-1, 1, y, x, damroll (2, p_ptr->lev), GF_OLD_SLEEP);
+			/*confusion explosion at the site, radius 0*/
+			ident = explosion(-1, 0, y, x, 0, 0, 10, GF_CONFUSION);
 			break;
 		}
 
-		case SV_POTION_LOSE_MEMORIES:
-		{
-
-			if (m_ptr->smart)
-			{
-
-				/*erase monster memory of player*/
-				m_ptr->smart = 0L;
-
-				if (m_ptr->ml)
-				{
-					ident = TRUE;
-
-					/*monster forgets player history*/
-					msg_format("%^s forgets all %s knows about you!", m_name, m_poss);
-				}
-			}
-			/*monster forgets player history*/
-			else used_potion = FALSE;
-
-			break;
-		}
-
-		case SV_POTION_DRAIN_MANA:
-		{
-			if (m_ptr->mana)
-			{
-				if (m_ptr->ml)
-				{
-					ident = TRUE;
-
-					/*monster forgets player history*/
-					msg_format("%^s loses some of %s mana!", m_name, m_poss);
-				}
-
-				/*reduce mana by about 11%*/
-				m_ptr->mana = m_ptr->mana * 9 / 10;
-
-			}
-
-			/*monster forgets player history*/
-			else used_potion = FALSE;
-
-			break;
-		}
-
-		case SV_POTION_RUINATION:
-		{
-			ident = TRUE;
-
-			/*slight damage to monster*/
-			mon_take_hit(cave_m_idx[y][x], damroll(10, 10), fear, NULL, -1);
-
-			break;
-		}
-
-		case SV_POTION_DETONATIONS:
-		{
-
-			ident = TRUE;
-
-			/*slight damage to monster*/
-			mon_take_hit(cave_m_idx[y][x], damroll(25, 25), fear, NULL, -1);
-
-			/*set the stun counter*/
-			do_stun = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_DEATH:
-		{
-			/*slowness explosion at the site, radius 1*/
-			ident = explosion(-1, 1, y, x, damroll(30, 30), GF_OLD_DRAIN);
-			break;
-		}
-
-		case SV_POTION_DETECT_INVIS:
+		case SV_POTION_TRUE_SIGHT:
 		{
 			if ((!m_ptr->ml)&& (r_ptr->flags2 & (RF2_INVISIBLE)))
 			{
@@ -3133,132 +3691,11 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 			break;
 		}
 
-		case SV_POTION_BOLDNESS:
+		case SV_POTION_QUICKNESS:
 		{
 
-			un_fear = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_SPEED:
-		{
-
-			/*slowness explosion at the site, radius 1*/
-			ident = explosion(-1, 1, y, x, 20 + rand_int(20), GF_OLD_SPEED);
-			break;
-		}
-
-		case SV_POTION_HEROISM:
-		{
-			/*healing explosion at the site, radius 1*/
-			if (explosion(-1, 1, y, x, 10, GF_OLD_HEAL)) ident = TRUE;
-
-			un_fear = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_BERSERK_STRENGTH:
-		{
-			/*healing explosion at the site, radius 1*/
-			if (explosion(-1, 1, y, x, 10, GF_OLD_HEAL)) ident = TRUE;
-
-			un_fear = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_CURE_LIGHT:
-		{
-			/*healing explosion at the site, radius 1*/
-			if (explosion(-1, 1, y, x, damroll(3, 8), GF_OLD_HEAL)) ident = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_CURE_SERIOUS:
-		{
-			/*healing explosion at the site, radius 1*/
-			if (explosion(-1, 1, y, x, damroll(5, 10), GF_OLD_HEAL)) ident = TRUE;
-
-			un_confuse = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_CURE_CRITICAL:
-		{
-			/*healing explosion at the site, radius 1*/
-			if (explosion(-1, 1, y, x, damroll(8, 10), GF_OLD_HEAL)) ident = TRUE;
-
-			un_confuse = TRUE;
-			un_stun = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_HEALING:
-		{
-			/*healing explosion at the site, radius 1*/
-			if (explosion(-1, 1, y, x, 325, GF_OLD_HEAL)) ident = TRUE;
-
-			un_confuse = TRUE;
-			un_stun = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_STAR_HEALING:
-		{
-			/*healing explosion at the site, radius 1*/
-			if (explosion(-1, 1, y, x, 1500, GF_OLD_HEAL)) ident = TRUE;
-
-			un_confuse = TRUE;
-			un_stun = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_LIFE:
-		{
-			/*only for the living*/
-			if monster_nonliving(r_ptr)
-			{
-				used_potion = FALSE;
-
-				break;
-			}
-
-			/*healing explosion at the site, radius 1*/
-			if (explosion(-1, 1, y, x, 5000, GF_OLD_HEAL)) ident = TRUE;
-
-			un_confuse = TRUE;
-			un_stun = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_RESTORE_MANA:
-		{
-
-			if (r_ptr->mana > m_ptr->mana)
-			{
-				if (m_ptr->ml)
-				{
-					ident = TRUE;
-
-					/*monster forgets player history*/
-					msg_format("%^s gains back all %s mana!", m_name, m_poss);
-				}
-
-				/*restore mana%*/
-				m_ptr->mana = r_ptr->mana;
-			}
-
-			/*monster forgets player history*/
-			else used_potion = FALSE;
-
+			/*speed explosion at the site, radius 0*/
+			ident = explosion(-1, 0, y, x, 1, 4, -1, GF_SPEED);
 			break;
 		}
 
@@ -3277,7 +3714,6 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 		do_stun = FALSE;
 		un_confuse = FALSE;
 		un_stun = FALSE;
-		un_fear = FALSE;
 		*is_dead = TRUE;
 	}
 
@@ -3316,25 +3752,8 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 		}
 	}
 
-	if (un_fear)
-	{
-		if (m_ptr->monfear)
-		{
-			/* Cancel fear */
-			set_mon_fear(m_ptr, 0, FALSE);
-
-			/* Message */
-			if (m_ptr->ml)
-				msg_format("%^s recovers %s courage.", m_name, m_poss);
-
-			ident = TRUE;
-		}
-	}
-
-	/* Sound and Impact breathers never stun */
-	if (do_stun &&
-	         !(r_ptr->flags4 & (RF4_BRTH_SOUND)) &&
-	         !(r_ptr->flags4 & (RF4_BRTH_FORCE)))
+	/* Deal with stunning */
+	if (do_stun)
 	{
 		int tmp = 0;
 
@@ -3384,12 +3803,12 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0);
 
 	}
 
 	/* Redraw if necessary*/
-	if (used_potion) p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
+	if (used_potion) p_ptr->redraw |= (PR_HEALTHBAR);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -3411,9 +3830,18 @@ void do_cmd_throw(void)
 {
 	int dir, item;
 	int i, j, y, x, ty, tx;
-	int chance, tdam, tdis;
-	int mul, div;
+	int ty2, tx2; //dummy variables needed to pass to the path projection function
+	int tdis;
 	u32b f1, f2, f3;
+
+	int attack_mod = 0, total_attack_mod = 0;
+	int total_evasion_mod = 0;
+	int hit_result = 0;
+	int crit_bonus_dice = 0, slay_bonus_dice = 0;
+	int total_bonus_dice = 0;
+	int total_ds = 0;
+	int dam = 0, prt = 0, prt_percent = 100;
+	int net_dam = 0;
 
 	object_type *o_ptr;
 
@@ -3421,11 +3849,17 @@ void do_cmd_throw(void)
 	object_type object_type_body;
 
 	bool hit_body = FALSE;
+	bool hit_wall = FALSE;
+
+	int missed_monsters = 0;
+	
+	bool spatial_target = FALSE;
 
 	byte missile_attr;
 	char missile_char;
 
 	char o_name[80];
+	char punctuation[20];
 
 	int path_n;
 	u16b path_g[256];
@@ -3434,10 +3868,12 @@ void do_cmd_throw(void)
 
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
+	u32b noticed_flag = 0;	// if a slay is noticed it is recorded here and the item identified
+
 	/* Get an item */
 	q = "Throw which item? ";
 	s = "You have nothing to throw.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
 
 	/* Get the object */
 	if (item >= 0)
@@ -3449,23 +3885,85 @@ void do_cmd_throw(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Hack -- Cannot remove cursed items */
+	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	{
+		if (p_ptr->active_ability[S_WIL][WIL_CURSE_BREAKING])
+		{
+			/* Message */
+			msg_print("With a great strength of will, you break the curse!");
+			
+			/* Uncurse the object */
+			uncurse_object(o_ptr);						
+		}
+		else
+		{
+			/* Oops */
+			msg_print("It seems to be cursed, preventing you from removing it.");
+			
+			/* Nope */
+			return;
+		}
+	}
+	
+	// Determine throwing range
+	tdis = throwing_range(o_ptr);
+	
 	/* Examine the item */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
+	if (!get_aim_dir(&dir, tdis)) return;
 
+	/* Take off equipment first */
+	if (item >= INVEN_WIELD)
+	{
+		/* Take off first */
+		item = inven_takeoff(item, 1);
+		
+		/* Get the original object */
+		o_ptr = &inventory[item];
+	}	
+
+	/* Start at the player */
+	y = p_ptr->py;
+	x = p_ptr->px;
+	
+	/* Predict the "target" location */
+	ty = p_ptr->py + 99 * ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
+	
+	/* Check for "target request" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = p_ptr->target_col;
+		ty = p_ptr->target_row;
+		
+		// targetting the square itself
+		if (cave_m_idx[y][x] == 0)
+		{
+			spatial_target = TRUE;
+		}
+		
+	}
+	
+	if ((dir == DIRECTION_UP) || (dir == DIRECTION_DOWN))
+	{
+		ty = p_ptr->py;
+		tx = p_ptr->px;
+	}
+		
 	/* Get local object */
 	i_ptr = &object_type_body;
 
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
 
-	/* Distribute the charges of rods/wands between the stacks */
-	distribute_charges(o_ptr, i_ptr, 1);
-
 	/* Single object */
 	i_ptr->number = 1;
+
+	/* Set pickup on thrown item */
+	i_ptr->pickup = TRUE;
 
 	/* Reduce and describe inventory */
 	if (item >= 0)
@@ -3490,55 +3988,46 @@ void do_cmd_throw(void)
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
 
+	attack_mod = p_ptr->skill_use[S_MEL] + i_ptr->att;
+	
+	// subtract out the melee weapon's bonus (as we had already accounted for it)
+	attack_mod -= (&inventory[INVEN_WIELD])->att;
 
-	/* Extract a "distance multiplier" */
-	mul = 10;
-
-	/* Enforce a minimum "weight" of one pound */
-	div = ((i_ptr->weight > 10) ? i_ptr->weight : 10);
-
-	/* Hack -- Distance -- Reward strength, penalize weight */
-	tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
-
-	/* Max distance of 10 */
-	if (tdis > 10) tdis = 10;
-
-	/* Hack -- Base damage from thrown object */
-	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;
-
-	/* Chance of hitting */
-	if (f3 & (TR3_THROWING))
+	/* Weapons that are not good for throwing are much less accurate */
+	if (!(f3 & (TR3_THROWING)))
 	{
-		chance = p_ptr->skill_tht + BTH_PLUS_ADJ * (p_ptr->to_h + i_ptr->to_h);
-	}
-	else
-	{
-		chance = (3 * p_ptr->skill_tht / 2) + (BTH_PLUS_ADJ * i_ptr->to_h);
+		attack_mod -= 5;
 	}
 
+	// give people their weapon affinity bonuses if the weapon is thrown
+	attack_mod += blade_bonus(i_ptr);
+	attack_mod += axe_bonus(i_ptr);
+	attack_mod += polearm_bonus(i_ptr);
+	
+	// bonus for throwing proficiency ability
+	if (p_ptr->active_ability[S_MEL][MEL_THROWING]) attack_mod += 5;
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
 
-	/* Start at the player */
-	y = p_ptr->py;
-	x = p_ptr->px;
+	// set dummy variables to pass to project_path (so it doesn't clobber the real ones)
+	ty2 = ty;
+	tx2 = tx;
 
-	/* Predict the "target" location */
-	ty = p_ptr->py + 99 * ddy[dir];
-	tx = p_ptr->px + 99 * ddx[dir];
-
-	/* Check for "target request" */
-	if ((dir == 5) && target_okay())
+	if (spatial_target)
 	{
-		tx = p_ptr->target_col;
-		ty = p_ptr->target_row;
+		/* Calculate the path */
+		path_n = project_path(path_g, tdis, p_ptr->py, p_ptr->px, &ty2, &tx2, PROJECT_THRU);
 	}
-
-	/* Calculate the path */
-	path_n = project_path(path_g, tdis, p_ptr->py, p_ptr->px, &ty, &tx, 0);
-
+	else
+	{	
+		/* Calculate the path */
+		path_n = project_path(path_g, tdis, p_ptr->py, p_ptr->px, &ty2, &tx2, 0);
+	}
+	
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
@@ -3549,8 +4038,32 @@ void do_cmd_throw(void)
 		int nx = GRID_X(path_g[i]);
 
 		/* Hack -- Stop before hitting walls */
-		if (!cave_floor_bold(ny, nx)) break;
-
+		if (!cave_floor_bold(ny, nx)) 
+		{
+			hit_wall = TRUE;
+			
+			// Show collision
+			/* Only do visuals if the player can "see" the missile */
+			if (panel_contains(ny, nx))
+			{
+				/* Visual effects */
+				print_rel('*', TERM_L_WHITE, ny, nx);
+				move_cursor_relative(ny, nx);
+				Term_fresh();
+				Term_xtra(TERM_XTRA_DELAY, 25 * op_ptr->delay_factor);
+				lite_spot(ny, nx);
+				Term_fresh();
+			}
+			
+			/* Delay anyway for consistency */
+			else
+			{
+				/* Pause anyway, for consistancy */
+				Term_xtra(TERM_XTRA_DELAY, 25 * op_ptr->delay_factor);
+			}
+			break;
+		}
+		
 		/* Advance */
 		x = nx;
 		y = ny;
@@ -3561,10 +4074,10 @@ void do_cmd_throw(void)
 			/* Visual effects */
 			print_rel(missile_char, missile_attr, y, x);
 			move_cursor_relative(y, x);
-			if (fresh_before) Term_fresh();
+			Term_fresh();
 			Term_xtra(TERM_XTRA_DELAY, msec);
 			lite_spot(y, x);
-			if (fresh_before) Term_fresh();
+			Term_fresh();
 		}
 
 		/* Delay anyway for consistency */
@@ -3579,55 +4092,56 @@ void do_cmd_throw(void)
 		{
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
-			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
-
-			int sleeping_bonus = 0;
-
+						
 			bool potion_effect = FALSE;
 			int pdam = 0;
 			bool is_dead = FALSE;
 
-			int visible = m_ptr->ml;
+			// Determine the player's attack score after all modifiers
+			total_attack_mod = total_player_attack(m_ptr, attack_mod);
 
+			/* Monsters might notice */
+			player_attacked = TRUE;
+						
+			// Modifications for shots that go past the target or strike things before the target...
+			if ((dir == 5) && target_okay())
+			{
+				// if there is a specific target and this is not it, then massively penalise
+				if ((ty != y) || (tx != x))
+				{
+					total_attack_mod = 0;
+				}
+			}
+			// if it is just a shot in a direction and has already missed something, then massively penalise
+			else if (missed_monsters > 0)
+			{
+				total_attack_mod = 0;
+			}
+			// if it is a shot in a direction and this is the first monster
+			else
+			{
+				/* Hack -- Track this monster race */
+				if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+				
+				/* Hack -- Track this monster */
+				if (m_ptr->ml) health_track(cave_m_idx[y][x]);
+				
+				/* Hack -- Target this monster */
+				if (m_ptr->ml) target_set_monster(cave_m_idx[y][x]);
+			}
+			
+			// Determine the monster's evasion after all modifiers
+			total_evasion_mod = total_monster_evasion(m_ptr, FALSE);
+			
 			/* Note the collision */
 			hit_body = TRUE;
 
-			/* Rogues Get extra to-hit from throwing weapons*/
+			/* Test for hit */
+			hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
 
-			if ((cp_ptr->flags & CF_ROGUE_COMBAT)
-				&& (m_ptr->ml) && (f3 & (TR3_THROWING)))
+			/* If it hit... */
+			if (hit_result > 0) 
 			{
-				sleeping_bonus = 30 + p_ptr->lev / 2;
-			}
-
-			/* Some monsters are great at dodging  -EZ- */
-			if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!m_ptr->csleep) &&
-				(!m_ptr->stunned) && (!m_ptr->confused) && (!m_ptr->monfear)
-				&& (rand_int(5 + m_ptr->cdis) >= 3))
-			{
-				if (visible)
-				{
-					char m_name[80];
-
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-					message_format(MSG_MISS, 0, "%^s dodges!", m_name);
-
-					/* Learn that monster can dodge */
-					l_ptr->flags2 |= (RF2_EVASIVE);
-				}
-
-				continue;
-			}
-
-			/* Did we hit it (penalize range) */
-			else if (test_hit((chance2 + sleeping_bonus), r_ptr->ac, m_ptr->ml))
-			{
-				bool fear = FALSE;
-
 				/* Assume a default death */
 				cptr note_dies = " dies.";
 
@@ -3641,140 +4155,160 @@ void do_cmd_throw(void)
 					note_dies = " is destroyed.";
 				}
 
-				/* Make some noise */
-				add_wakeup_chance += p_ptr->base_wakeup_chance / 2;
-
 				/* Reveal fully visible mimics */
 				if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
 				{
 					/* Reveal it */
 					reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
-
-					/*We can not see it*/
-					visible = TRUE;
-
 				}
 
+				/* Apply special damage XXX XXX XXX */
+				crit_bonus_dice = crit_bonus(hit_result, i_ptr->weight, r_ptr, S_MEL, TRUE);
+				slay_bonus_dice = slay_bonus(i_ptr, m_ptr, &noticed_flag);
+
+				/* Calculate the damage from the thrown object */
+				total_bonus_dice = crit_bonus_dice + slay_bonus_dice;
+				total_ds = strength_modified_ds(i_ptr, FALSE, FALSE);
+
+				/* Penalise items that aren't made to be thrown */
+				if (!(f3 & (TR3_THROWING)))	total_ds /= 2;
+			
+				/* Can't have a negative number of sides */
+				if (total_ds < 0) total_ds = 0;
+				
+				dam = damroll(i_ptr->dd + total_bonus_dice, total_ds);
+				prt = damroll(r_ptr->pd, r_ptr->ps);
+
+				prt_percent = prt_after_sharpness(i_ptr, &noticed_flag);
+				prt = (prt * prt_percent) / 100;
+
+				net_dam = dam - prt;
+
 				/* Handle unseen monster */
-				if (!visible)
+				if (!(m_ptr->ml))
 				{
 					/* Invisible monster */
 					msg_format("The %s finds a mark.", o_name);
 				}
-
+				
 				/* Handle visible monster */
 				else
 				{
 					char m_name[80];
-
+					
 					/* Get "the monster" or "it" */
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-					if (f3 & (TR3_THROWING))
-					{
-						/* Message */
-						msg_format("The %s hits %s with great accuracy!.", o_name, m_name);
-					}
-					else
-					{
+					
+					// determine the punctuation for the attack ("...", ".", "!" etc)
+					attack_punctuation(punctuation, net_dam, crit_bonus_dice);
+					
 					/* Message */
-						msg_format("The %s hits %s.", o_name, m_name);
-					}
+					msg_format("The %s hits %s%s", o_name, m_name, punctuation);
+					
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
+					
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
-
+					
+					/* Hack -- Target this monster */
+					if (m_ptr->ml) target_set_monster(cave_m_idx[y][x]);
 				}
-
+				
 				/*special effects sometimes reveal the kind of potion*/
 				if (i_ptr->tval == TV_POTION)
 				{
 					/*record monster hit points*/
 					pdam = m_ptr->hp;
-
+					
+					msg_print("The bottle breaks.");
+					
 					/*returns true if the damage has already been handled*/
-					potion_effect = (thrown_potion_effects(i_ptr, &is_dead, &fear, cave_m_idx[y][x]));
-
+					potion_effect = (thrown_potion_effects(i_ptr, &is_dead, cave_m_idx[y][x]));
+					
 					/*check the change in monster hp*/
 					pdam -= m_ptr->hp;
-
+					
 					/*monster could have been healed*/
 					if (pdam < 0) pdam = 0;
-
 				}
 
-				/* Apply special damage XXX XXX XXX */
-				if (!potion_effect) tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-
-				/* Object is a throwing weapon. */
-				if (f3 & (TR3_THROWING))
+				// if a slay was noticed, then identify the weapon
+				if (noticed_flag)
 				{
-					/* Perfectly balanced weapons do even more damage. */
-					if (i_ptr->ident & IDENT_PERFECT_BALANCE) tdam *= 2;
-
-					/* Critical hits may add damage dice. */
-					tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
-
-					/*
-					 * Double the damage for throwing weapons
-					 */
-					tdam *= 2;
+					ident_weapon_by_use(i_ptr, m_ptr, noticed_flag);
 				}
 
-				/* No negative damage */
-				if (tdam < 0) tdam = 0;
+				/* No negative net damage */
+				if (net_dam < 0) net_dam = 0;
 
-				/* Complex message */
-				if (p_ptr->wizard)
-				{
-
-					msg_format("You do %d (out of %d) damage.",
-					           (potion_effect ? pdam : tdam), m_ptr->hp);
-				}
+				update_combat_rolls2(i_ptr->dd + total_bonus_dice, total_ds, dam, r_ptr->pd, r_ptr->ps, prt, prt_percent, GF_HURT); 
+				display_hit(y, x, net_dam, GF_HURT);
 
 				/* Hit the monster, unless a potion effect has already been done */
 				if (!potion_effect)
 				{
-					 is_dead = (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies, -1));
+					 is_dead = (mon_take_hit(cave_m_idx[y][x], net_dam, note_dies, -1));
+					 
+					// gain wrath if singing song of slaying
+					if (is_dead && singing(SNG_SLAYING))
+					{
+						add_wrath();
+					}
 				}
 
 				/* Still alive */
 				if (!is_dead)
 				{
+					// alert the monster, even if no damage was done
+					// (if damage was done, then it was alerted by mon_take_hit() )
+					if (net_dam == 0)
+					{
+						make_alert(m_ptr);
+					}
+					
+					// Morgoth drops his iron crown if he is hit for 20 or more raw damage
+					if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && (dam >= 25))
+					{
+						drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
+					}
+										
 					/* Message if applicable*/
 					if ((!potion_effect) || (pdam > 0))
-						message_pain(cave_m_idx[y][x],  (pdam ? pdam : tdam));
-
-					/* Take note */
-					if (fear && m_ptr->ml)
-					{
-						char m_name[80];
-
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-						/* Message */
-						message_format(MSG_FLEE, m_ptr->r_idx,
-						               "%^s flees in terror!", m_name);
-					}
+						message_pain(cave_m_idx[y][x],  (pdam ? pdam : net_dam));
 				}
+				/* Stop looking if a monster was hit */
+				break;
+			}
+			else
+			{
+				/* we have missed a target, but could still hit something (with a penalty) */
+				missed_monsters++;
+				
+				// need to print this message even if the potion missed
+				if (i_ptr->tval == TV_POTION) msg_print("The bottle breaks.");
 			}
 
-			/* Stop looking */
-			break;
-		}
+		}		
 	}
 
-	/* Chance of breakage (during attacks) - potions always break*/
-	if (i_ptr->ident & IDENT_PERFECT_BALANCE) j = 0;
-	else j = (hit_body ? breakage_chance(i_ptr) : 0);
+	// need to print this message even if the potion missed
+	if (!hit_body && (i_ptr->tval == TV_POTION)) msg_print("The bottle breaks.");
+	
+	/* Have to set this here as well, just in case... */
+	/* Monsters might notice */
+	player_attacked = TRUE;
+	
+	/* Chance of breakage (during attacks) */
+	j = breakage_chance(i_ptr, hit_wall);
 
-	/*hack - throwing weapons have a lesser chance*/
-	if (f3 & (TR3_THROWING)) j /= 2;
+	/* throwing weapons have a lesser chance */
+	if (f3 & (TR3_THROWING)) j /= 4;
 
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);
+
+	// Break the truce if creatures see
+	break_truce(FALSE);
 }
 

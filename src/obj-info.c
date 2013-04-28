@@ -77,15 +77,13 @@ static bool describe_stats(const object_type *o_ptr, u32b f1)
 	int pval = (o_ptr->pval > 0 ? o_ptr->pval : -o_ptr->pval);
 
 	/* Abort if the pval is zero */
-	if (!pval) return (FALSE);
+	//if (!pval) return (FALSE);
 
 	/* Collect stat bonuses */
 	if (f1 & (TR1_STR)) descs[cnt++] = stat_names_full[A_STR];
-	if (f1 & (TR1_INT)) descs[cnt++] = stat_names_full[A_INT];
-	if (f1 & (TR1_WIS)) descs[cnt++] = stat_names_full[A_WIS];
 	if (f1 & (TR1_DEX)) descs[cnt++] = stat_names_full[A_DEX];
 	if (f1 & (TR1_CON)) descs[cnt++] = stat_names_full[A_CON];
-	if (f1 & (TR1_CHR)) descs[cnt++] = stat_names_full[A_CHR];
+	if (f1 & (TR1_GRA)) descs[cnt++] = stat_names_full[A_GRA];
 
 	/* Skip */
 	if (cnt == 0) return (FALSE);
@@ -93,11 +91,11 @@ static bool describe_stats(const object_type *o_ptr, u32b f1)
 	/* Shorten to "all stats", if appropriate. */
 	if (cnt == A_MAX)
 	{
-		p_text_out(format("It %s all your stats", (o_ptr->pval > 0 ? "increases" : "decreases")));
+		p_text_out(format("It %s all your stats", (o_ptr->pval >= 0 ? "increases" : "decreases")));
 	}
 	else
 	{
-		p_text_out(format("It %s your ", (o_ptr->pval > 0 ? "increases" : "decreases")));
+		p_text_out(format("It %s your ", (o_ptr->pval >= 0 ? "increases" : "decreases")));
 
 		/* Output list */
 		output_list(descs, cnt);
@@ -110,6 +108,46 @@ static bool describe_stats(const object_type *o_ptr, u32b f1)
 	return (TRUE);
 }
 
+/*
+ * Describe reversed stat modifications.
+ */
+static bool describe_neg_stats(const object_type *o_ptr, u32b f1)
+{
+	cptr descs[A_MAX];
+	int cnt = 0;
+	int pval = (o_ptr->pval > 0 ? o_ptr->pval : -o_ptr->pval);
+
+	/* Abort if the pval is zero */
+	//if (!pval) return (FALSE);
+
+	/* Collect stat bonuses */
+	if (f1 & (TR1_NEG_STR)) descs[cnt++] = stat_names_full[A_STR];
+	if (f1 & (TR1_NEG_DEX)) descs[cnt++] = stat_names_full[A_DEX];
+	if (f1 & (TR1_NEG_CON)) descs[cnt++] = stat_names_full[A_CON];
+	if (f1 & (TR1_NEG_GRA)) descs[cnt++] = stat_names_full[A_GRA];
+
+	/* Skip */
+	if (cnt == 0) return (FALSE);
+
+	/* Shorten to "all stats", if appropriate. */
+	if (cnt == A_MAX)
+	{
+		p_text_out(format("It %s all your stats", (o_ptr->pval < 0 ? "increases" : "decreases")));
+	}
+	else
+	{
+		p_text_out(format("It %s your ", (o_ptr->pval < 0 ? "increases" : "decreases")));
+
+		/* Output list */
+		output_list(descs, cnt);
+	}
+
+	/* Output end */
+	p_text_out(format(" by %i.  ", pval));
+
+	/* We found something */
+	return (TRUE);
+}
 
 /*
  * Describe "secondary bonuses" of an item.
@@ -121,20 +159,22 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1)
 	int pval = (o_ptr->pval > 0 ? o_ptr->pval : -o_ptr->pval);
 
 	/* Collect */
-	if (f1 & (TR1_STEALTH)) descs[cnt++] = "stealth";
-	if (f1 & (TR1_SEARCH))  descs[cnt++] = "searching";
-	if (f1 & (TR1_INFRA))   descs[cnt++] = "infravision";
+	if (f1 & (TR1_MEL))     descs[cnt++] = "melee";
+	if (f1 & (TR1_ARC))     descs[cnt++] = "archery";
+	if (f1 & (TR1_STL))     descs[cnt++] = "stealth";
+	if (f1 & (TR1_PER))     descs[cnt++] = "perception";
+	if (f1 & (TR1_WIL))     descs[cnt++] = "will";
+	if (f1 & (TR1_SMT))     descs[cnt++] = "smithing";
+	if (f1 & (TR1_SNG))     descs[cnt++] = "song";
 	if (f1 & (TR1_TUNNEL))  descs[cnt++] = "tunneling";
-	if (f1 & (TR1_SPEED))   descs[cnt++] = "speed";
-	if (f1 & (TR1_BLOWS))   descs[cnt++] = "attack speed";
-	if (f1 & (TR1_SHOTS))   descs[cnt++] = "shooting speed";
-	if (f1 & (TR1_MIGHT))   descs[cnt++] = "shooting power";
+	if (f1 & (TR1_DAMAGE_SIDES))  descs[cnt++] = "damage sides";
+	if (f1 & (TR1_DAMAGE_DICE))  descs[cnt++] = "melee damage dice";
 
 	/* Skip */
 	if (!cnt) return (FALSE);
 
 	/* Start */
-	p_text_out(format("It %s your ", (o_ptr->pval > 0 ? "increases" : "decreases")));
+	p_text_out(format("It %s your ", (o_ptr->pval >= 0 ? "improves" : "worsens")));
 
 	/* Output list */
 	output_list(descs, cnt);
@@ -152,66 +192,44 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1)
  */
 static bool describe_slay(const object_type *o_ptr, u32b f1)
 {
-	cptr slays[8], execs[3];
-	int slcnt = 0, excnt = 0;
+	cptr slays[8];
+	int slcnt = 0;
 
 	/* Unused parameter */
 	(void)o_ptr;
 
 	/* Collect brands */
-	if (f1 & (TR1_SLAY_ANIMAL)) slays[slcnt++] = "animals";
+	if (f1 & (TR1_SLAY_WOLF))   slays[slcnt++] = "wolves";
 	if (f1 & (TR1_SLAY_ORC))    slays[slcnt++] = "orcs";
 	if (f1 & (TR1_SLAY_TROLL))  slays[slcnt++] = "trolls";
-	if (f1 & (TR1_SLAY_GIANT))  slays[slcnt++] = "giants";
-
-	/* Dragon slay/execute */
-	if (f1 & TR1_KILL_DRAGON)
-		execs[excnt++] = "dragons";
-	else if (f1 & TR1_SLAY_DRAGON)
-		slays[slcnt++] = "dragons";
-
-	/* Demon slay/execute */
-	if (f1 & TR1_KILL_DEMON)
-		execs[excnt++] = "demons";
-	else if (f1 & TR1_SLAY_DEMON)
-		slays[slcnt++] = "demons";
-
-	/* Undead slay/execute */
-	if (f1 & TR1_KILL_UNDEAD)
-		execs[excnt++] = "undead";
-	else if (f1 & TR1_SLAY_UNDEAD)
-		slays[slcnt++] = "undead";
-
-	if (f1 & (TR1_SLAY_EVIL)) slays[slcnt++] = "all evil creatures";
+	if (f1 & (TR1_SLAY_SPIDER)) slays[slcnt++] = "spiders";
+	if (f1 & (TR1_SLAY_DRAGON))	slays[slcnt++] = "dragons";
+	if (f1 & (TR1_SLAY_RAUKO))	slays[slcnt++] = "raukar";
+	if (f1 & (TR1_SLAY_UNDEAD))	slays[slcnt++] = "undead";
 
 	/* Describe */
 	if (slcnt)
 	{
-		/* Output intro */
-		p_text_out("It slays ");
+		if (o_ptr->number == 1)
+		{
+			/* Output intro */
+			p_text_out("It slays ");
+		}
+		else
+		{
+			/* Output intro */
+			p_text_out("They slay ");
+		}
 
 		/* Output list */
 		output_list(slays, slcnt);
-
-		/* Output end (if needed) */
-		if (!excnt) p_text_out(".  ");
-	}
-
-	if (excnt)
-	{
-		/* Output intro */
-		if (slcnt) p_text_out(", and it is especially deadly against ");
-		else p_text_out("It is especially deadly against ");
-
-		/* Output list */
-		output_list(execs, excnt);
 
 		/* Output end */
 		p_text_out(".  ");
 	}
 
 	/* We are done here */
-	return ((excnt || slcnt) ? TRUE : FALSE);
+	return ((slcnt) ? TRUE : FALSE);
 }
 
 
@@ -227,52 +245,62 @@ static bool describe_brand(const object_type *o_ptr, u32b f1)
 	(void)o_ptr;
 
 	/* Collect brands */
-	if (f1 & (TR1_BRAND_ACID)) descs[cnt++] = "acid";
-	if (f1 & (TR1_BRAND_ELEC)) descs[cnt++] = "electricity";
-	if (f1 & (TR1_BRAND_FIRE)) descs[cnt++] = "fire";
+	if (f1 & (TR1_BRAND_ELEC)) descs[cnt++] = "lightning";
+	if (f1 & (TR1_BRAND_FIRE)) descs[cnt++] = "flame";
 	if (f1 & (TR1_BRAND_COLD)) descs[cnt++] = "frost";
-	if (f1 & (TR1_BRAND_POIS)) descs[cnt++] = "poison";
+	if (f1 & (TR1_BRAND_POIS)) descs[cnt++] = "venom";
 
-	/* Describe brands */
-	output_desc_list("It is branded with ", descs, cnt);
+	if (o_ptr->number == 1)
+	{
+		/* Describe brands */
+		output_desc_list("It is branded with ", descs, cnt);
+	}
+	else
+	{
+		/* Describe brands */
+		output_desc_list("They are branded with ", descs, cnt);
+	}
 
 	/* We are done here */
 	return (cnt ? TRUE : FALSE);
 }
 
 
+
 /*
- * Describe immunities granted by an object.
- *
- * ToDo - Merge intro describe_resist() below.
+ * Describe misc weapon attributes.
  */
-static bool describe_immune(const object_type *o_ptr, u32b f2)
+static bool describe_misc_weapon_attributes(const object_type *o_ptr, u32b f1)
 {
-	cptr descs[5];
-	int cnt = 0;
+	bool message = FALSE;
 
 	/* Unused parameter */
 	(void)o_ptr;
 
-	/* Collect immunities */
-	if (f2 & (TR2_IM_ACID)) descs[cnt++] = "acid";
-	if (f2 & (TR2_IM_ELEC)) descs[cnt++] = "lightning";
-	if (f2 & (TR2_IM_FIRE)) descs[cnt++] = "fire";
-	if (f2 & (TR2_IM_COLD)) descs[cnt++] = "cold";
-	if (f2 & (TR2_IM_POIS)) descs[cnt++] = "poison";
-
-	/* Describe immunities */
-	output_desc_list("It provides immunity to ", descs, cnt);
-
-	/* We are done here */
-	return (cnt ? TRUE : FALSE);
+	if (f1 & (TR1_SHARPNESS))
+	{
+		if (o_ptr->number == 1)	p_text_out("It cuts easily through armour.  ");
+		else					p_text_out("They cut easily through armour.  ");
+		message = TRUE;
+	}
+	if (f1 & (TR1_SHARPNESS2))
+	{
+		p_text_out("It cuts very easily through armour.  ");
+		message = TRUE;
+	}
+	if (f1 & (TR1_VAMPIRIC))
+	{
+		p_text_out("It drains life from your enemies.  ");
+		message = TRUE;
+	}
+	
+	return (message);
 }
-
 
 /*
  * Describe resistances granted by an object.
  */
-static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
+static bool describe_resist(const object_type *o_ptr, u32b f2)
 {
 	cptr vp[17];
 	int vn = 0;
@@ -281,29 +309,17 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 	(void)o_ptr;
 
 	/* Collect resistances */
-	if ((f2 & (TR2_RES_ACID)) && !(f2 & (TR2_IM_ACID)))
-		vp[vn++] = "acid";
-	if ((f2 & (TR2_RES_ELEC)) && !(f2 & (TR2_IM_ELEC)))
-		vp[vn++] = "lightning";
-	if ((f2 & (TR2_RES_FIRE)) && !(f2 & (TR2_IM_FIRE)))
-		vp[vn++] = "fire";
-	if ((f2 & (TR2_RES_COLD)) && !(f2 & (TR2_IM_COLD)))
-		vp[vn++] = "cold";
-	if ((f2 & (TR2_RES_POIS)) && !(f2 & (TR2_IM_POIS)))
-		vp[vn++] = "poison";
+	if (f2 & (TR2_RES_COLD))	vp[vn++] = "cold";
+	if (f2 & (TR2_RES_FIRE))	vp[vn++] = "fire";
+	if (f2 & (TR2_RES_ELEC))	vp[vn++] = "lightning";
+	if (f2 & (TR2_RES_POIS))	vp[vn++] = "poison";
+	if (f2 & (TR2_RES_DARK))	vp[vn++] = "dark";
 
-	if (f2 & (TR2_RES_FEAR))  vp[vn++] = "fear";
-	if (f2 & (TR2_RES_LITE))  vp[vn++] = "light";
-	if (f2 & (TR2_RES_DARK))  vp[vn++] = "dark";
-	if (f2 & (TR2_RES_BLIND)) vp[vn++] = "blindness";
-	if (f2 & (TR2_RES_CONFU)) vp[vn++] = "confusion";
-	if (f2 & (TR2_RES_SOUND)) vp[vn++] = "sound";
-	if (f2 & (TR2_RES_SHARD)) vp[vn++] = "shards";
-	if (f2 & (TR2_RES_NEXUS)) vp[vn++] = "nexus" ;
-	if (f2 & (TR2_RES_NETHR)) vp[vn++] = "nether";
-	if (f2 & (TR2_RES_CHAOS)) vp[vn++] = "chaos";
-	if (f2 & (TR2_RES_DISEN)) vp[vn++] = "disenchantment";
-	if (f3 & (TR3_HOLD_LIFE)) vp[vn++] = "life draining";
+	if (f2 & (TR2_RES_FEAR))	vp[vn++] = "fear";
+	if (f2 & (TR2_RES_BLIND))	vp[vn++] = "blindness";
+	if (f2 & (TR2_RES_CONFU))	vp[vn++] = "confusion";
+	if (f2 & (TR2_RES_STUN))	vp[vn++] = "stunning";
+	if (f2 & (TR2_RES_HALLU))	vp[vn++] = "hallucination";
 
 	/* Describe resistances */
 	output_desc_list("It provides resistance to ", vp, vn);
@@ -313,136 +329,36 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 }
 
 
-
-/*return the number of blows a player gets with a weapon*/
-int get_num_blows(const object_type *o_ptr, u32b f1)
-{
-
-	int i, str_index, dex_index, blows, div_weight;
-
-	int str = 0;
-	int dex = 0;
-	int str_add = 0;
-	int dex_add = 0;
-
-	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-
-		u32b wf1, wf2, wf3;
-		object_type *i_ptr = &inventory[i];
-
-		/* Hack -- do not apply wielded "weapon" bonuses */
-		if (i == INVEN_WIELD) continue;
-
-		/* Skip non-objects */
-		if (!i_ptr->k_idx) continue;
-
-		/* Extract the item flags */
-		object_flags_known(i_ptr, &wf1, &wf2, &wf3);
-
-		/* Affect stats */
-		if (wf1 & (TR1_STR)) str_add += i_ptr->pval;
-		if (wf1 & (TR1_DEX)) dex_add += i_ptr->pval;
-	}
-
-	/* add in the strength of the examined weapon*/
-	if (f1 & (TR1_STR)) str_add += o_ptr->pval;
-
-	/* add in the dex of the examined weapon*/
-	if (f1 & (TR1_DEX)) dex_add += o_ptr->pval;
-
-	/* Calculate stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		int add, use, ind;
-
-		/*stat modifiers from equipment later*/
-		if 		(i == A_STR) add = str_add;
-		else if (i == A_DEX) add = dex_add;
-		/*only do dex and strength*/
-		else continue;
-
-		/* Maximize mode */
-		if (adult_maximize)
-		{
-			/* Modify the stats for race/class */
-			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
-		}
-
-		/* Extract the new "stat_use" value for the stat */
-		use = modify_stat_value(p_ptr->stat_cur[i], add);
-
-		/* Values: 3, 4, ..., 17 */
-		if (use <= 18) ind = (use - 3);
-
-		/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
-		else if (use <= 18+219) ind = (15 + (use - 18) / 10);
-
-		/* Range: 18/220+ */
-		else ind = (37);
-
-		/*record the values*/
-		if (i == A_STR) str = ind;
-		else dex = ind;
-	}
-
-	/* Enforce a minimum "weight" (tenth pounds) */
-	div_weight = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
-
-	/* Get the strength vs weight */
-	str_index = (adj_str_blow[str] * cp_ptr->att_multiply / div_weight);
-
-	/* Maximal value */
-	if (str_index > 11) str_index = 11;
-	if (str_index < 0) str_index = 0;
-
-	/* Index by dexterity */
-	dex_index = (adj_dex_blow[dex]);
-
-	/* Maximal value */
-	if (dex_index > 11) dex_index = 11;
-	if (dex_index < 0) dex_index = 0;
-
-	/* Use the blows table */
-	blows = blows_table[str_index][dex_index];
-
-	/* Maximal value */
-	if (blows > cp_ptr->max_attacks) blows = cp_ptr->max_attacks;
-
-	/* Add in the "bonus blows"*/
-	if (f1 & (TR1_BLOWS)) blows += o_ptr->pval;
-
-	/* Require at least one blow */
-	if (blows < 1) blows = 1;
-
-	/*add extra attack for those who have the flag*/
-	if ((p_ptr->lev > 25) && (cp_ptr->flags & CF_EXTRA_ATTACK))
-		blows += 1;
-
-	return(blows);
-}
-
 /*
- * Describe 'number of attacks recieved with a weapon
+ * Describe the 'handedness' of a weapon
  */
-static bool describe_attacks (const object_type *o_ptr, u32b f1)
+static bool describe_handedness(const object_type *o_ptr, u32b f3)
 {
 	int n = o_ptr->tval;
 
 	if ((n == TV_DIGGING) || (n == TV_HAFTED) ||
 		(n == TV_POLEARM) || (n == TV_SWORD))
 	{
-		/*get the number of blows*/
-		n = get_num_blows(o_ptr, f1);
-
-		/*print out the number of attacks*/
-		if (n == 1) p_text_out("It gives you one attack per turn.  ");
-		else p_text_out(format("It gives you %d attacks per turn.  ", n));
+		if (f3 & (TR3_HAND_AND_A_HALF)) p_text_out("It does extra damage when wielded with both hands.  ");
+		if (f3 & (TR3_TWO_HANDED)) p_text_out("It requires both hands to wield it properly.  ");
 
 		return (TRUE);
 	}
 
+	return (FALSE);
+}
+
+/*
+ * Describe the 'polearmness' of a weapon
+ */
+static bool describe_polearmness(u32b f3)
+{
+	if (f3 & (TR3_POLEARM))
+	{
+		p_text_out("It counts as a type of polearm.  ");
+		return (TRUE);
+	}
+	
 	return (FALSE);
 }
 
@@ -453,24 +369,28 @@ static bool describe_attacks (const object_type *o_ptr, u32b f1)
  */
 static bool describe_ignores(const object_type *o_ptr, u32b f3)
 {
-	cptr list[4];
+//	cptr list[4];
 	int n = 0;
 
 	/* Unused parameter */
 	(void)o_ptr;
 
 	/* Collect the ignores */
-	if (f3 & (TR3_IGNORE_ACID)) list[n++] = "acid";
-	if (f3 & (TR3_IGNORE_ELEC)) list[n++] = "electricity";
-	if (f3 & (TR3_IGNORE_FIRE)) list[n++] = "fire";
-	if (f3 & (TR3_IGNORE_COLD)) list[n++] = "cold";
+//	if ((f3 & (TR3_IGNORE_ACID)) && hates_acid(o_ptr)) list[n++] = "acid";
+//	if ((f3 & (TR3_IGNORE_ELEC)) && hates_elec(o_ptr)) list[n++] = "electricity";
+//	if ((f3 & (TR3_IGNORE_FIRE)) && hates_fire(o_ptr)) list[n++] = "fire";
+//	if ((f3 & (TR3_IGNORE_COLD)) && hates_cold(o_ptr)) list[n++] = "cold";
 
 	/* Describe ignores */
-	if (n == 4)
+	if ((f3 & (TR3_IGNORE_ACID)) && (f3 & (TR3_IGNORE_FIRE)) && (f3 & (TR3_IGNORE_COLD)))
+	{
 		p_text_out("It cannot be harmed by the elements.  ");
-	else
-		output_desc_list("It cannot be harmed by ", list, - n);
-
+		
+		return (TRUE);
+	}
+//	else
+//		output_desc_list("It cannot be harmed by ", list, - n);
+//
 	return ((n > 0) ? TRUE : FALSE);
 }
 
@@ -488,11 +408,9 @@ static bool describe_sustains(const object_type *o_ptr, u32b f2)
 
 	/* Collect the sustains */
 	if (f2 & (TR2_SUST_STR)) list[n++] = stat_names_full[A_STR];
-	if (f2 & (TR2_SUST_INT)) list[n++] = stat_names_full[A_INT];
-	if (f2 & (TR2_SUST_WIS)) list[n++] = stat_names_full[A_WIS];
 	if (f2 & (TR2_SUST_DEX)) list[n++] = stat_names_full[A_DEX];
 	if (f2 & (TR2_SUST_CON)) list[n++] = stat_names_full[A_CON];
-	if (f2 & (TR2_SUST_CHR)) list[n++] = stat_names_full[A_CHR];
+	if (f2 & (TR2_SUST_GRA)) list[n++] = stat_names_full[A_GRA];
 
 	/* Describe immunities */
 	if (n == A_MAX)
@@ -509,30 +427,26 @@ static bool describe_sustains(const object_type *o_ptr, u32b f2)
  * Describe miscellaneous powers such as see invisible, free action,
  * permanent light, etc; also note curses and penalties.
  */
-static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
+static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 {
-	cptr good[7], bad[4];
+	cptr good[7], bad[6];
 	int gc = 0, bc = 0;
 	bool something = FALSE;
 
 	/* Throwing weapons. */
 	if (f3 & (TR3_THROWING))
 	{
-		if (o_ptr->ident & IDENT_PERFECT_BALANCE)
-		{
-			good[gc++] = ("can be thrown hard and fast");
-		}
-		else good[gc++] = ("can be thrown effectively");
+		good[gc++] = (format("can be thrown effectively (%d squares)",throwing_range(o_ptr)));
 	}
 
 	/* Collect stuff which can't be categorized */
-	if (f3 & (TR3_BLESSED))     good[gc++] = "is blessed by the gods";
-	if (f3 & (TR3_IMPACT))      good[gc++] = "creates earthquakes on impact";
-	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
-	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
-	if (((o_ptr->tval == TV_LITE) && artifact_p(o_ptr)) || (f3 & (TR3_LITE)))
+	if (f2 & (TR2_SLOW_DIGEST)) good[gc++] = "reduces your need for food";
+	if (((o_ptr->tval == TV_LIGHT) && artefact_p(o_ptr)) || ((o_ptr->tval != TV_LIGHT) && (f2 & (TR2_LIGHT))))
 		good[gc++] = "lights the dungeon around you";
-	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
+	if ((o_ptr->tval == TV_LIGHT) && (f2 & (TR2_LIGHT)))
+		good[gc++] = "burns brightly, increasing your light radius by an additional square";
+	if (f2 & (TR2_RADIANCE))	good[gc++] = "fires shining arrows";
+	if (f2 & (TR2_REGEN))       good[gc++] = "speeds your regeneration (which also increases your hunger)";
 
 	/* Describe */
 	output_desc_list("It ", good, gc);
@@ -542,14 +456,17 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 
 	/* Collect granted powers */
 	gc = 0;
-	if (f3 & (TR3_FREE_ACT))  good[gc++] = "immunity to paralysis";
-	if (f3 & (TR3_TELEPATHY)) good[gc++] = "the power of telepathy";
-	if (f3 & (TR3_SEE_INVIS)) good[gc++] = "the ability to see invisible things";
+	if (f2 & (TR2_SPEED))     good[gc++] = "great speed";
+	if (f2 & (TR2_FREE_ACT))  good[gc++] = "freedom of movement";
+	if (f2 & (TR2_TELEPATHY)) good[gc++] = "the power of telepathy";
+	if (f2 & (TR2_SEE_INVIS)) good[gc++] = "the ability to see invisible creatures";
 
 	/* Collect penalties */
-	if (f3 & (TR3_AGGRAVATE)) bad[bc++] = "aggravates creatures around you";
-	if (f3 & (TR3_DRAIN_EXP)) bad[bc++] = "drains experience";
-	if (f3 & (TR3_TELEPORT))  bad[bc++] = "induces random teleportation";
+	if (f2 & (TR2_HUNGER))	   bad[bc++] = "increases your hunger";
+	if (f2 & (TR2_DARKNESS))   bad[bc++] = "creates an unnatural darkness";
+	if (f2 & (TR2_SLOWNESS))   bad[bc++] = "slows your movement";
+	if (f2 & (TR2_DANGER))	   bad[bc++] = "draws powerful creatures to your level";
+	if (f2 & (TR2_AGGRAVATE))  bad[bc++] = "enrages nearby creatures";
 
 	/* Deal with cursed stuff */
 	if (cursed_p(o_ptr))
@@ -631,7 +548,7 @@ static cptr act_description[ACT_MAX] =
 	"detection",
 	"resistance (20+d20 turns)",
 	"teleport",
-	"restore life levels",
+	"restore voice",
 	"magic missile (2d6)",
 	"a magical arrow (150)",
 	"remove fear and cure poison",
@@ -653,13 +570,11 @@ static cptr act_description[ACT_MAX] =
 };
 
 /*
- * Determine the "Activation" (if any) for an artifact
+ * Determine the "Activation" (if any) for an artefact
  */
 static void describe_item_activation(const object_type *o_ptr, char *random_name, size_t max)
 {
 	u32b f1, f2, f3;
-
-	u16b value;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -667,188 +582,31 @@ static void describe_item_activation(const object_type *o_ptr, char *random_name
 	/* Require activation ability */
 	if (!(f3 & TR3_ACTIVATE)) return;
 
-	/* Artifact activations */
+	/* Artefact activations */
 	if ((o_ptr->name1) && (o_ptr->name1 < z_info->art_norm_max))
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-		bool drag_armor = FALSE;
+		artefact_type *a_ptr = &a_info[o_ptr->name1];
 
 		/* Paranoia */
 		if (a_ptr->activation >= ACT_MAX)
 		{
-			if ((a_ptr->tval == TV_DRAG_ARMOR) ||
-				(a_ptr->tval == TV_DRAG_SHIELD))
-			     drag_armor = TRUE;
-			else return;
-		}
-
-		/* Some artifacts can be activated */
-		if (!drag_armor)
-		{
-			my_strcat(random_name, act_description[a_ptr->activation], max);
-
-			/* Output the number of turns */
-			if (a_ptr->time && a_ptr->randtime)
-				my_strcat(random_name, format(" every %d+d%d turns", a_ptr->time, a_ptr->randtime), max);
-			else if (a_ptr->time)
-				my_strcat(random_name, format(" every %d turns", a_ptr->time), max);
-			else if (a_ptr->randtime)
-				my_strcat(random_name, format(" every d%d turns", a_ptr->randtime), max);
-
 			return;
 		}
-	}
 
-	/* Now do the rings */
-	if (o_ptr->tval == TV_RING)
-	{
-		/* Branch on the sub-type */
-		switch (o_ptr->sval)
-		{
-			case SV_RING_ACID:
-			{
-				my_strcat(random_name, "acid resistance (20+d20 turns) and acid ball (70) every 50+d50 turns", max);
-				break;
-			}
-			case SV_RING_FLAMES:
-			{
-				my_strcat(random_name, "fire resistance (20+d20 turns) and fire ball (80) every 50+d50 turns", max);
-				break;
-			}
-			case SV_RING_ICE:
-			{
-				my_strcat(random_name, "cold resistance (20+d20 turns) and cold ball (75) every 50+d50 turns", max);
-				break;
-			}
+		/* Some artefacts can be activated */
+		my_strcat(random_name, act_description[a_ptr->activation], max);
 
-			case SV_RING_LIGHTNING:
-			{
-				my_strcat(random_name, "electricity resistance (20+d20 turns) and electricity ball (85) every 50+d50 turns", max);
-				break;
-			}
-		}
+		/* Output the number of turns */
+		if (a_ptr->time && a_ptr->randtime)
+			my_strcat(random_name, format(" every %d+d%d turns", a_ptr->time, a_ptr->randtime), max);
+		else if (a_ptr->time)
+			my_strcat(random_name, format(" every %d turns", a_ptr->time), max);
+		else if (a_ptr->randtime)
+			my_strcat(random_name, format(" every d%d turns", a_ptr->randtime), max);
 
 		return;
 	}
 
-	/* Require dragon scale mail */
-	if ((o_ptr->tval != TV_DRAG_ARMOR) &&
-		(o_ptr->tval != TV_DRAG_SHIELD)) return;
-
-	/*Bigger the dragon scale mail, the bigger the damage & re-charge*/
-	value = o_ptr->sval;
-
-	/*Armor is more powerful than shields*/
-	if (o_ptr->tval == TV_DRAG_ARMOR) value *= 2;
-
-	/* Branch on the sub-type */
-	switch (o_ptr->name2)
-	{
-
-		case EGO_DRAGON_BLUE:
-		{
-			value *= 50;
-
-			my_strcat(random_name, format("electricity resistance (10+d10 turns) and breathe lightning (%d) every %d+d%d turns", value, value, value), max);
-
-			break;
-		}
-		case EGO_DRAGON_WHITE:
-		{
-			value *= 50;
-
-			my_strcat(random_name, format("cold resistance (10+d10 turns) and breathe frost (%d) every %d+d%d turns", value, value, value), max);
-
-			break;
-		}
-		case EGO_DRAGON_BLACK:
-		{
-			value *= 50;
-
-			my_strcat(random_name, format("acid resistance (10+d10 turns) and breathe acid (%d) every %d+d%d turns", value, value, value), max);
-
-			break;
-		}
-		case EGO_DRAGON_GREEN:
-		{
-			value *= 50;
-
-			my_strcat(random_name, format("poison resistance (10+d10 turns) and breathe poison gas (%d) every %d+d%d turns", value, value, value), max);
-
-			break;
-		}
-		case EGO_DRAGON_RED:
-		{
-			value *= 50;
-
-			my_strcat(random_name, format("fire resistance (10+d10 turns) and breathe fire (%d) every %d+d%d turns", value, value, value), max);
-
-			break;
-		}
-		case EGO_DRAGON_MULTIHUED:
-		{
-			value *= 75;
-
-			my_strcat(random_name, format("resistance (20+d20 turns) and breathe multi-hued (%d) every %d+d%d turns", value,
- 							(value * 3 / 4), (value * 3 / 4)), max);
-
-			break;
-		}
-		case EGO_DRAGON_BRONZE:
-		{
-			value *= 50;
-
-			my_strcat(random_name, format("breathe confusion (%d) every %d+d%d turns", value, value, value), max);
-			break;
-		}
-		case EGO_DRAGON_GOLD:
-		{
-			value *= 50;
-
-			my_strcat(random_name, format("breathe sound (%d) every %d+d%d turns", value, value, value), max);
-			break;
-		}
-		case EGO_DRAGON_CHAOS:
-		{
-			value *= 60;
-
-			my_strcat(random_name, format("breathe chaos/disenchant (%d) every %d+d%d turns", value, value, value), max);
-			break;
-		}
-		case EGO_DRAGON_LAW:
-		{
-			value *= 60;
-
-			my_strcat(random_name, format("breathe sound/shards (%d) every %d+d%d turns", value, value, value), max);
-			break;
-		}
-		case EGO_DRAGON_BALANCE:
-		{
-			value *= 75;
-
-			my_strcat(random_name, format("breathe balance (%d) every %d+d%d turns", value, value, value), max);
-			break;
-		}
-		case EGO_DRAGON_PSEUDO:
-		{
-			value *= 65;
-
-			my_strcat(random_name, format("breathe light/darkness (%d) every %d+d%d turns", value, value, value), max);
-			break;
-		}
-		case EGO_DRAGON_POWER:
-		{
-			value *= 100;
-
-			my_strcat(random_name, format("breathe the elements (%d) every %d+d%d turns", value, value, value), max);
-			break;
-		}
-		default:
-		{
-			break;
-		}
-	}
 }
 
 
@@ -891,44 +649,123 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
 
 
 /*
+ * Describe abilities granted by an object.
+ */
+static bool describe_abilities(const object_type *o_ptr)
+{
+	cptr ability[8];
+	int ac = 0;
+	ability_type *b_ptr;
+	int i;
+		
+	// only describe when identified
+	if (!object_known_p(o_ptr) && !(o_ptr->ident & (IDENT_SPOIL))) return (FALSE);
+	
+	// check its abilities
+	for (i = 0; i < o_ptr->abilities; i++)
+	{
+		b_ptr = &b_info[ability_index(o_ptr->skilltype[i], o_ptr->abilitynum[i])];
+		ability[ac++] = b_name + b_ptr->name;
+	}
+	
+	/* Describe */
+	if (ac)
+	{
+		/* Output intro */
+		if (ac == 1)	p_text_out("It grants you the ability: ");
+		else			p_text_out("It grants you the abilities: ");
+				
+		/* Output list */
+		output_list(ability, ac);
+		
+		/* Output end (if needed) */
+		p_text_out(".  ");
+		
+		/* It granted abilities */
+		return (TRUE);
+	}
+	
+	/* No abilities granted */
+	return (FALSE);
+}
+
+
+/*
+ * Describe attributes of bows and arrows.
+ */
+static bool describe_archery(const object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_BOW)
+	{
+		p_text_out(format("It can shoot arrows %d squares (with your current strength).", archery_range(o_ptr)));
+		return (TRUE);
+	}
+	if (o_ptr->tval == TV_ARROW)
+	{
+		if ((&inventory[INVEN_BOW])->k_idx)
+		{
+			if (o_ptr->number == 1)
+			{
+				p_text_out(format("It can be shot %d squares (with your current strength and bow).", archery_range(&inventory[INVEN_BOW])));
+			}
+			else
+			{
+				p_text_out(format("They can be shot %d squares (with your current strength and bow).", archery_range(&inventory[INVEN_BOW])));
+			}
+		}
+		else
+		{
+			if (o_ptr->number == 1)
+			{
+				p_text_out("It can be shot by a bow.");
+			}
+			else
+			{
+				p_text_out("They can be shot by a bow.");
+			}
+		}
+		return (TRUE);
+	}
+	
+	/* Not archery related */
+	return (FALSE);
+}
+
+
+/*
  * Output object information
  */
 bool object_info_out(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
+	u32b ff1, ff2, ff3;
 	bool something = FALSE;
 
 	/* Grab the object flags */
 	object_info_out_flags(o_ptr, &f1, &f2, &f3);
 
+	/* Hack - grab the ID-independent flags */
+	/* Used to show handedness even when not ID'd */
+	object_flags(o_ptr, &ff1, &ff2, &ff3);
+
 	/* Describe the object */
-	if (describe_stats(o_ptr, f1)) something = TRUE;
-	if (describe_secondary(o_ptr, f1)) something = TRUE;
-	if (describe_slay(o_ptr, f1)) something = TRUE;
-	if (describe_brand(o_ptr, f1)) something = TRUE;
-	if (describe_immune(o_ptr, f2)) something = TRUE;
-	if (describe_resist(o_ptr, f2, f3)) something = TRUE;
-	if (describe_sustains(o_ptr, f2)) something = TRUE;
-	if (describe_misc_magic(o_ptr, f3)) something = TRUE;
-	if (describe_activation(o_ptr, f3)) something = TRUE;
-	if (describe_ignores(o_ptr, f3)) something = TRUE;
-	if (describe_attacks(o_ptr, f1)) something = TRUE;
-
-
-
-	/* Unknown extra powers (artifact) */
-	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
-	    (object_has_hidden_powers(o_ptr) || artifact_p(o_ptr)))
-	{
-		/* Hack -- Put this in a separate paragraph if screen dump */
-		if (something && text_out_hook == text_out_to_screen)
-			new_paragraph = TRUE;
-
-		p_text_out("It might have hidden powers.");
- 		something = TRUE;
-
-	}
-
+	if (describe_stats(o_ptr, f1))						something = TRUE;
+	if (describe_neg_stats(o_ptr, f1))					something = TRUE;
+	if (describe_secondary(o_ptr, f1))					something = TRUE;
+	if (describe_slay(o_ptr, f1))						something = TRUE;
+	if (describe_brand(o_ptr, f1))						something = TRUE;
+	if (describe_misc_weapon_attributes(o_ptr, f1))		something = TRUE;
+	if (describe_resist(o_ptr, f2))						something = TRUE;
+	if (describe_sustains(o_ptr, f2))					something = TRUE;
+	if (describe_misc_magic(o_ptr, f2, f3))				something = TRUE;
+	if (describe_activation(o_ptr, f3))					something = TRUE;
+	if (describe_ignores(o_ptr, f3))					something = TRUE;
+	if (describe_abilities(o_ptr))						something = TRUE;
+	
+	if (describe_handedness(o_ptr, ff3))				something = TRUE;
+	if (describe_polearmness(ff3))						something = TRUE;
+	if (describe_archery(o_ptr))						something = TRUE;
+	
 	/* We are done. */
 	return something;
 }
@@ -958,8 +795,8 @@ static bool screen_out_head(const object_type *o_ptr)
 	/* Free up the memory */
 	FREE(o_name);
 
-	/* Display the known artifact description */
-	if (!adult_rand_artifacts && o_ptr->name1 &&
+	/* Display the known artefact description */
+	if (!adult_rand_artefacts && o_ptr->name1 &&
 	    object_known_p(o_ptr) && a_info[o_ptr->name1].text)
 
 	{
@@ -977,7 +814,7 @@ static bool screen_out_head(const object_type *o_ptr)
 			has_description = TRUE;
 		}
 
-		/* Display an additional ego-item description */
+		/* Display an additional special item description */
 		if (o_ptr->name2 && object_known_p(o_ptr) && e_info[o_ptr->name2].text)
 		{
 			p_text_out("\n\n   ");
@@ -987,6 +824,46 @@ static bool screen_out_head(const object_type *o_ptr)
 	}
 
 	return (has_description);
+}
+
+
+/*
+ * Display the text from a note on the screen.
+ */
+void note_info_screen(const object_type *o_ptr)
+{	
+	/* Redirect output to the screen */
+	text_out_hook = text_out_to_screen;
+	
+	/* Save the screen */
+	screen_save();
+			
+	/* Indent output by 14 characters, and wrap at column 60 */
+	text_out_wrap = 60;
+	text_out_indent = 14;
+	
+	/* Note intro */
+	Term_gotoxy(text_out_indent, 0);
+	text_out_c(TERM_L_WHITE+TERM_SHADE, "The note here reads:\n\n");
+
+	/* Note text */
+	Term_gotoxy(text_out_indent, 2);
+	text_out_to_screen(TERM_WHITE, k_text + k_info[o_ptr->k_idx].text);
+
+	/* Note outro */
+	text_out_c(TERM_L_WHITE+TERM_SHADE, "\n\n(press any key)\n");
+	
+	/* Reset text_out() vars */
+	text_out_wrap = 0;
+	text_out_indent = 0;
+	
+	/* Wait for input */
+	(void)inkey();
+	
+	/* Load the screen */
+	screen_load();
+	
+	return;
 }
 
 
@@ -1016,28 +893,18 @@ void object_info_screen(const object_type *o_ptr)
 	{
 		p_text_out("\n\n   This item has not been identified.");
 	}
-	else if ((!has_description) && (!has_info) && (o_ptr->tval != cp_ptr->spell_book))
+	else if ((!has_description) && (!has_info))
 	{
 		p_text_out("\n\n   This item does not seem to possess any special abilities.");
 	}
 
-	if (o_ptr->tval != cp_ptr->spell_book)
-	{
-		text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
+	text_out_c(TERM_L_BLUE, "\n\n(press any key)\n");
 
-		/* Wait for input */
-		(void)inkey();
-	}
+	/* Wait for input */
+	(void)inkey();
 
 	/* Load the screen */
 	screen_load();
-
-	/* Hack -- Browse book, then prompt for a command */
-	if (o_ptr->tval == cp_ptr->spell_book)
-	{
-		/* Call the aux function */
-		do_cmd_browse_aux(o_ptr);
-	}
 
 	return;
 }

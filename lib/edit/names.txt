@@ -1,19 +1,16 @@
 # File: names.txt
-
-
-# This file is used to initialize the "lib/data/names.raw" file, which is
-# used to initialize the "random name generator" information for the Angband
-# game.
-
+#
+# This file is used to create the "lib/data/names.raw" file, which is
+# used to initialize the "random name generator" information for Sil.
+#
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/data/names.raw" file.
 
 
 # Format:
 # N:name
 
-V:0.4.1
+V:1.0.0
 
 N:adanedhel
 N:adurant

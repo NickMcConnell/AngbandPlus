@@ -32,7 +32,7 @@
 #define PARSE_ERROR_INVALID_ITEM_NUMBER     13
 #define PARSE_ERROR_TOO_MANY_ENTRIES        14
 #define PARSE_ERROR_VAULT_TOO_BIG           15
-#define PARSE_ERROR_NON_SEQUENTIAL_QUESTS	16
+/* xxx PARSE_ERROR_NON_SEQUENTIAL_QUESTS */
 #define PARSE_ERROR_MAX                     17
 
 
@@ -103,14 +103,13 @@ extern errr parse_z_info(char *buf, header *head);
 extern errr parse_v_info(char *buf, header *head);
 extern errr parse_f_info(char *buf, header *head);
 extern errr parse_k_info(char *buf, header *head);
+extern errr parse_b_info(char *buf, header *head);
 extern errr parse_a_info(char *buf, header *head);
 extern errr parse_e_info(char *buf, header *head);
 extern errr parse_r_info(char *buf, header *head);
 extern errr parse_p_info(char *buf, header *head);
 extern errr parse_c_info(char *buf, header *head);
 extern errr parse_h_info(char *buf, header *head);
-extern errr parse_b_info(char *buf, header *head);
-extern errr parse_g_info(char *buf, header *head);
 extern errr parse_q_info(char *buf, header *head);
 extern errr parse_n_info(char *buf, header *head);
 extern errr parse_flavor_info(char *buf, header *head);
@@ -132,6 +131,7 @@ extern header z_head;
 extern header v_head;
 extern header f_head;
 extern header k_head;
+extern header b_head;
 extern header a_head;
 extern header e_head;
 extern header r_head;

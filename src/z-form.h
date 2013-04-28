@@ -1,4 +1,4 @@
-/* File z-form.h */
+/* File: z-form.h */
 
 /*
  * Copyright (c) 1997 Ben Harrison

@@ -1,9 +1,16 @@
 # File: Makefile.osx
 
-# This is a (rather crude) Makefile for Mac OS X Carbon port of NPPAngband.
+# This is a (rather crude) Makefile for Mac OS X Carbon port of Sil.
 #
-# Based on Makefile.std, made separate because this port does not uses
-# main.c.
+# It was originally designed for NPPAngband
+# It is based on Makefile.std, made separate because this port does 
+# not use main.c.
+#
+# The main changes for Sil are:
+#     removing:
+#        quest.c / quest.o
+#     renaming most instances of 'angband' to 'sil'
+#        a notable exception is 'angband.h'
 
 # If you are able to construct "main-xxx.c" and/or "Makefile.xxx"
 # files for a currently unsupported system, please send them to
@@ -33,11 +40,11 @@ SRCS = \
   xtra1.c xtra2.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load.c squelch.c \
+  birth.c load.c squelch.c \
   wizard1.c wizard2.c obj-info.c \
   generate.c dungeon.c init1.c init2.c randart.c \
   main-crb.c \
-  use-obj.c quest.c
+  use-obj.c
  
 
 OBJS = \
@@ -47,15 +54,18 @@ OBJS = \
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load.o squelch.o \
+  birth.o load.o squelch.o \
   wizard1.o wizard2.o obj-info.o \
   generate.o dungeon.o init1.o init2.o randart.o \
   main-crb.o \
-  use-obj.o quest.o 
+  use-obj.o
+
+# Can add '-arch ppc' if needed
 
 CFLAGS = \
-	-Wall -O2 -fpascal-strings -DMACH_O_CARBON
+	-Wall -Wextra -O0 -fpascal-strings -DMACH_O_CARBON -arch i386
 LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
+
 
 #
 # Default target.
@@ -70,7 +80,7 @@ all: install
 # Application bundle -- a directory looking like an ordinary application
 
 # Name of the game
-APPNAME = NPPAngband.app
+APPNAME = Sil.app
 # Bundle of the game (it must be a directory whose name ends in ".app")
 APPBNDL = ../$(APPNAME)
 
@@ -91,21 +101,21 @@ APPRES = $(APPCONT)/Resources
 # of 8x8.bmp for Vanilla.  Make sure setting dpi to 72, *not* preserving
 # the actual size of image.  When you have them ready, put them in the src
 # directory and "make install-tiles".
-ICONFILES = NPPAngband.icns Save.icns Edit.icns Data.icns
+ICONFILES = Sil.icns Save.icns Edit.icns Data.icns
 TILES = 8x8.png 16x16.png 32x32.png
-PLIST = NPPAngband.xml
-RESSRCS = NPPAngband.r
-# RESSRCS = NPPAngband.r Sound.r
+PLIST = Sil.xml
+RESSRCS = Sil.r
+# RESSRCS = Sil.r Sound.r
 RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON
 
-install: nppangband $(RESSRCS) $(ICONFILES) $(PLIST)
+install: sil $(RESSRCS) $(ICONFILES) $(PLIST)
 	[ -d $(APPBNDL) ] || mkdir $(APPBNDL)
 	[ -d $(APPCONT) ] || mkdir $(APPCONT)
 	[ -d $(APPBIN) ] || mkdir $(APPBIN)
 	[ -d $(APPRES) ] || mkdir $(APPRES)
-	install -m 755 nppangband $(APPBIN)
+	install -m 755 sil $(APPBIN)
 	install -m 644 $(ICONFILES) $(APPRES)
-	$(REZ) $(RFLAGS) -o $(APPRES)/NPPAngband.rsrc $(RESSRCS)
+	$(REZ) $(RFLAGS) -o $(APPRES)/Sil.rsrc $(RESSRCS)
 	install -m 644 $(PLIST) $(APPCONT)/Info.plist
 	$(SETFILE) -a B $(APPBNDL)
 
@@ -117,8 +127,8 @@ install-tiles: $(TILES)
 # Build the "Angband" program
 #
 
-nppangband: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o NPPAngband $(OBJS) $(LIBS)
+sil: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o Sil $(OBJS) $(LIBS)
 
 
 #
@@ -126,7 +136,7 @@ nppangband: $(OBJS)
 #
 
 clean:
-	-rm -f *.o NPPAngband
+	-rm -f *.o Sil
 
 
 #
@@ -184,13 +194,11 @@ monster2.o: monster2.c $(INCS)
 obj-info.o: obj-info.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
-quest.o: quest.c $(INCS)
 randart.o: randart.c $(INCS) init.h
 save.o: save.c $(INCS)
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
 squelch.o: squelch.c $(INCS)
-store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 use-obj.o: use-obj.c $(INCS)
 util.o: util.c $(INCS)

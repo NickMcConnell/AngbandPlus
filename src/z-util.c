@@ -22,6 +22,7 @@ cptr argv0 = NULL;
 
 /*
  * Case insensitive comparison between two strings
+ 
  */
 int my_stricmp(const char *s1, const char *s2)
 {

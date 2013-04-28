@@ -68,10 +68,9 @@ bool character_saved;		/* The character was just saved to a savefile */
 s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
 
-u32b seed_randart;		/* Hack -- consistent random artifacts */
+u32b seed_randart;		/* Hack -- consistent random artefacts */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
-u32b seed_town;			/* Hack -- consistent town layout */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
@@ -80,6 +79,7 @@ s16b monster_level;		/* Current monster creation level */
 char summon_kin_type;		/* Hack -- See summon_specific() */
 
 s32b turn;				/* Current game turn */
+s32b playerturn;		/* Current player turn */
 
 bool do_feeling;			/* Hack -- Level feeling counter */
 
@@ -98,8 +98,7 @@ bool inkey_base;		/* See the "inkey()" function */
 bool inkey_xtra;		/* See the "inkey()" function */
 bool inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
-
-s16b coin_type;			/* Hack -- force coin type */
+bool hide_cursor;		/* See the "inkey()" function */
 
 byte object_generation_mode;/* Hack -- use different depth check, prevent embedded chests */
 
@@ -116,6 +115,22 @@ s16b mon_cnt = 0;	/* Number of live monsters */
 
 
 /*
+ *  Most of the extra Sil variables...
+ */
+
+bool skill_gain_in_progress = FALSE; // whether we are currently in the skill-gain screen
+
+bool save_game_quietly = FALSE; // whether we are currently trying to save the game without displaying a message
+
+bool stop_stealth_mode = FALSE; // whether there has been a signal that we need to abort stealth mode
+
+char mini_screenshot_char[7][7];  // Characters in a mini-screenshot array
+byte mini_screenshot_attr[7][7];  // Colours in a mini-screenshot array
+
+bool use_background_colors = FALSE;
+
+
+/*
  * TRUE if process_command() is a repeated call.
  */
 bool command_repeating = FALSE;
@@ -128,7 +143,7 @@ bool command_repeating = FALSE;
 byte feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
 
-bool good_item_flag;	/* True if "Artifact" on this level */
+bool good_item_flag;	/* True if "Artefact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
 
@@ -177,13 +192,13 @@ term *angband_term[ANGBAND_TERM_MAX];
 char angband_term_name[ANGBAND_TERM_MAX][16] =
 {
 	VERSION_NAME,
-	"Term-1",
-	"Term-2",
-	"Term-3",
-	"Term-4",
-	"Term-5",
-	"Term-6",
-	"Term-7"
+	"Inventory",
+	"Equipment",
+	"Combat Rolls",
+	"Recall",
+	"Character",
+	"Messages",
+	"Monster List"
 };
 
 int max_macrotrigger = 0;
@@ -208,11 +223,11 @@ byte angband_color_table[256][4] =
 	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
 	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE */
 	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
-	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
+	{0x00, 0x50, 0x50, 0x50},	/* TERM_L_DARK */
 	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
-	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
+	{0x00, 0xA0, 0x00, 0xFF},	/* TERM_VIOLET */
 	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x40, 0x40},	/* TERM_L_RED */
+	{0x00, 0xFF, 0x60, 0x60},	/* TERM_L_RED */
 	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
@@ -287,6 +302,11 @@ u16b (*cave_info)[256];
  */
 byte (*cave_feat)[MAX_DUNGEON_WID];
 
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid light level
+ */
+s16b (*cave_light)[MAX_DUNGEON_WID];
+
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid object indexes
@@ -315,18 +335,16 @@ s16b (*cave_m_idx)[MAX_DUNGEON_WID];
 
 /*
  * Table of avergae monster power.
- * Used to hep determine a suitable quest monster.
+ * Used to help determine a suitable quest monster.
  */
 
 u32b mon_power_ave[MAX_DEPTH][CREATURE_TYPE_MAX];
 
 
-#ifdef MONSTER_FLOW
-
 /*
  * Arrays[NUM_FLOWS][DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
  */
-byte cave_cost[MAX_FLOWS][MAX_DUNGEON_WID][MAX_DUNGEON_HGT];
+byte cave_cost[MAX_FLOWS][MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps
@@ -352,19 +370,23 @@ byte update_center_x[MAX_FLOWS];
  */
 int cost_at_center[MAX_FLOWS];
 
+/*
+ * Wandering monsters will often pause at their destination for a while
+ */
+s16b wandering_pause[MAX_FLOWS];
 
-#endif	/* MONSTER_FLOW */
 
 /*
- * The character generates both directed (extra) noise (by doing noisy
- * things) and ambient noise (the combination of directed and innate
- * noise).
- *
- * Noise builds up as the character does certain things, and diminishes
- * over time.
+ * Represents the modified stealth_score for the player this round.
  */
-s16b add_wakeup_chance = 0;
-s16b total_wakeup_chance = 0;
+s16b stealth_score = 0;
+
+/*
+ * Has the player attacked anyone this round? Has anyone attacked the player?
+ */
+bool player_attacked = FALSE;
+bool attacked_player = FALSE;
+
 
 /*
  * Array[z_info->o_max] of dungeon objects
@@ -382,11 +404,6 @@ monster_type *mon_list;
  */
 monster_lore *l_list;
 
-
-/*
- * Array[MAX_STORES] of stores
- */
-store_type *store;
 
 /*
  * Array[INVEN_TOTAL] of objects in the player's inventory
@@ -458,12 +475,11 @@ cptr keymap_act[KEYMAP_MODES][256];
 /*** Player information ***/
 
 /*
- * Pointer to the player tables (sex, race, class, magic)
+ * Pointer to the player tables (sex, race, house, magic)
  */
 const player_sex *sp_ptr;
 const player_race *rp_ptr;
-player_class *cp_ptr;
-player_magic *mp_ptr;
+player_house *hp_ptr;
 
 /*
  * The player other record (static)
@@ -513,9 +529,16 @@ char *k_name;
 char *k_text;
 
 /*
- * The artifact arrays
+ * The ability arrays
  */
-artifact_type *a_info;
+ability_type *b_info;
+char *b_name;
+char *b_text;
+
+/*
+ * The artefact arrays
+ */
+artefact_type *a_info;
 char *a_text;
 
 /*
@@ -524,7 +547,7 @@ char *a_text;
 names_type *n_info;
 
 /*
- * The ego-item arrays
+ * The special item arrays
  */
 ego_item_type *e_info;
 char *e_name;
@@ -547,9 +570,9 @@ char *p_name;
 char *p_text;
 
 /*
- * The player class arrays
+ * The player house arrays
  */
-player_class *c_info;
+player_house *c_info;
 char *c_name;
 char *c_text;
 
@@ -560,34 +583,27 @@ hist_type *h_info;
 char *h_text;
 
 /*
- * The shop owner arrays
- */
-owner_type *b_info;
-char *b_name;
-char *b_text;
-
-/*
- * The racial price adjustment arrays
- */
-byte *g_info;
-char *g_name;
-char *g_text;
-
-/*
- * The quest arrays
- */
-quest_type *q_info;
-char *q_name;
-
-
-
-/*
  * The object flavor arrays
  */
 flavor_type *flavor_info;
 char *flavor_name;
 char *flavor_text;
 
+
+/*
+ * The combat roll array for displaying past combat rolls
+ */
+combat_roll combat_rolls[MAX_COMBAT_ROLLS];
+int combat_number;
+char combat_roll_special_char;
+byte combat_roll_special_attr;
+
+/*
+ * Hacky variables for ignoring a square during project_path() function
+ */
+bool project_path_ignore;
+int project_path_ignore_y;
+int project_path_ignore_x;
 
 /*
  * Hack -- The special Angband "System Suffix"

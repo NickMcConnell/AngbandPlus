@@ -12,7 +12,7 @@
 # '&' in <trigger template> specifies location of modifier character.
 # '#' in <trigger template> specifies location of key code.
 #
-# If <trigger template> is null string, all trigger difinition will be cleared.
+# If <trigger template> is null string, all trigger definition will be cleared.
 
 T:&#:CSOX:control-:shift-:option-:command-
 
@@ -68,102 +68,245 @@ T:Up:62
 
 ##### Simple Macros #####
 
+# Ideally I'd have Option-number-keys and Control-number-keys work too
+# but I don't know the keycodes for the number-keys (on the top row).
 
+###########################
 #
-# Shift-Keypad -- Directed running
+# Shift Keypad -- Directed Running
+# 
+# 789
+# 4 6  - these run in the specified direction
+# 123
 #
+#  5   - rest until needed
 
-A:\a\\.1
-P:^_S19\r
+A:\e\e.1
+P:\[shift-KP_1]
 
-A:\a\\.2
-P:^_S20\r
+A:\e\e.2
+P:\[shift-KP_2]
 
-A:\a\\.3
-P:^_S21\r
+A:\e\e.3
+P:\[shift-KP_3]
 
-A:\a\\.4
-P:^_S22\r
+A:\e\e.4
+P:\[shift-KP_4]
 
-A:\a\\.5
-P:^_S23\r
+A:\e\eZ
+P:\[shift-KP_5]
 
-A:\a\\.6
-P:^_S24\r
+A:\e\e.6
+P:\[shift-KP_6]
 
-A:\a\\.7
-P:^_S25\r
+A:\e\e.7
+P:\[shift-KP_7]
 
-A:\a\\.8
-P:^_S27\r
+A:\e\e.8
+P:\[shift-KP_8]
 
-A:\a\\.9
-P:^_S28\r
+A:\e\e.9
+P:\[shift-KP_9]
 
 
+###########################
 #
-# Control-Keypad -- Directed tunneling
+# Shift-Arrowkeys -- Directed Running
+# 
+#  8
+# 4 6  - these run in the specified direction
+#  2 
+
+A:\e\e.2
+P:\[shift-Down]
+
+A:\e\e.4
+P:\[shift-Left]
+
+A:\e\e.6
+P:\[shift-Right]
+
+A:\e\e.8
+P:\[shift-Up]
+
+
+###########################
 #
-
-A:\a\\+1
-P:^_C19\r
-
-A:\a\\+2
-P:^_C20\r
-
-A:\a\\+3
-P:^_C21\r
-
-A:\a\\+4
-P:^_C22\r
-
-A:\a\\+5
-P:^_C23\r
-
-A:\a\\+6
-P:^_C24\r
-
-A:\a\\+7
-P:^_C25\r
-
-A:\a\\+8
-P:^_C27\r
-
-A:\a\\+9
-P:^_C28\r
-
-
-
+# Option-Keypad -- Directed firing from the 1st quiver
+# 
+# 789
+# 4 6  - these fire in the specified direction
+# 123
 #
-# Option-Control-Keypad -- wield {@0} and tunnel
+# 5/0   - picks the target or closest monster and fires at it
+
+A:\e\e\e\e\\ff
+P:\[option-KP_0]
+
+A:\e\e\e\e\\f1
+P:\[option-KP_1]
+
+A:\e\e\e\e\\f2
+P:\[option-KP_2]
+
+A:\e\e\e\e\\f3
+P:\[option-KP_3]
+
+A:\e\e\e\e\\f4
+P:\[option-KP_4]
+
+A:\e\e\e\e\\ff
+P:\[option-KP_5]
+
+A:\e\e\e\e\\f6
+P:\[option-KP_6]
+
+A:\e\e\e\e\\f7
+P:\[option-KP_7]
+
+A:\e\e\e\e\\f8
+P:\[option-KP_8]
+
+A:\e\e\e\e\\f9
+P:\[option-KP_9]
+
+
+###########################
 #
+# Option-Numkeys -- Directed firing from the 1st quiver
+# 
+# 789
+# 4 6  - these fire in the specified direction
+# 123
+#
+# 5/0   - picks the target or closest monster and fires at it
+#
+# Known bug on UK Keyboard Macs, where Option-3 gives # symbol instead.
+# In this case Option-3 doesn't work and you need Shift-3
 
-A:\aw0\s\s\\+1
-P:^_CO19\r
 
-A:\aw0\s\s\\+2
-P:^_CO20\r
+A:\e\e\e\e\\ff
+P:\xBC
 
-A:\aw0\s\s\\+3
-P:^_CO21\r
+A:\e\e\e\e\\f1
+P:\xC1
 
-A:\aw0\s\s\\+4
-P:^_CO22\r
+A:\e\e\e\e\\f2
+P:\xDB
 
-A:\aw0\s\s\\+5
-P:^_CO23\r
+A:\e\e\e\e\\f3
+P:\xA3
 
-A:\aw0\s\s\\+6
-P:^_CO24\r
+A:\e\e\e\e\\f4
+P:\xA2
 
-A:\aw0\s\s\\+7
-P:^_CO25\r
+A:\e\e\e\e\\ff
+P:\xB0
 
-A:\aw0\s\s\\+8
-P:^_CO27\r
+A:\e\e\e\e\\f6
+P:\xA4
 
-A:\aw0\s\s\\+9
-P:^_CO28\r
+A:\e\e\e\e\\f7
+P:\xA6
+
+A:\e\e\e\e\\f8
+P:\xA5
+
+A:\e\e\e\e\\f9
+P:\xBB
+
+
+###########################
+#
+# Option-Arrowkeys -- Directed firing from 1st quiver
+# 
+#  8
+# 4 6  - these fire in the specified direction
+#  2 
+
+A:\e\e\e\e\\f2
+P:\[option-Down]
+
+A:\e\e\e\e\\f4
+P:\[option-Left]
+
+A:\e\e\e\e\\f6
+P:\[option-Right]
+
+A:\e\e\e\e\\f8
+P:\[option-Up]
+
+
+# Option-z -- Fire from 1st quiver at target, or nearest monster
+
+A:\e\e\e\e\\ff
+P:\xBD
+
+
+###########################
+#
+# Control-Keypad -- Interact with terrain in chosen direction
+# 
+# 789
+# 456
+# 123
+
+
+#A:\e\e\e\e\\/0
+#P:\[control-KP_0]
+
+A:\e\e\e\e\\/1
+P:\[control-KP_1]
+
+A:\e\e\e\e\\/2
+P:\[control-KP_2]
+
+A:\e\e\e\e\\/3
+P:\[control-KP_3]
+
+A:\e\e\e\e\\/4
+P:\[control-KP_4]
+
+A:\e\e\e\e\\/5
+P:\[control-KP_5]
+
+A:\e\e\e\e\\/6
+P:\[control-KP_6]
+
+A:\e\e\e\e\\/7
+P:\[control-KP_7]
+
+A:\e\e\e\e\\/8
+P:\[control-KP_8]
+
+A:\e\e\e\e\\/9
+P:\[control-KP_9]
+
+
+
+
+###########################
+#
+# Control-Arrowkeys -- Interact with terrain in specified direction
+# 
+#  8 
+# 4 6
+#  2 
+
+A:\e\e\e\e\\/2
+P:\[control-Down]
+
+A:\e\e\e\e\\/4
+P:\[control-Left]
+
+A:\e\e\e\e\\/6
+P:\[control-Right]
+
+A:\e\e\e\e\\/8
+P:\[control-Up]
+
+
+
 
 #
 # Keypad -- (/,*,7,8,9,-,4,5,6,+,1,2,3,0,.)
@@ -200,17 +343,6 @@ A:.
 P:^_K.\r
 
 
-
-
-#
-# Option-Control-Keypad-Zero -- wield {@0}
-#
-
-A:\aw0\s
-P:^_CO18\r
-
-
-
 #
 # Hack -- Arrow-Keys
 #
@@ -226,4 +358,34 @@ P:^_61\r
 
 A:8
 P:^_62\r
+
+
+# Diagonals via 'fn' key (useful for laptops)
+
+A:7
+P:\[Page_Up]
+
+A:1
+P:\[Home]
+
+A:3
+P:\[Page_Down]
+
+A:9
+P:\[End]
+
+
+# Running on diagonals via 'fn' key (useful for laptops)
+
+A:\e\e.7
+P:\[shift-Page_Up]
+
+A:\e\e.1
+P:\[shift-Home]
+
+A:\e\e.3
+P:\[shift-Page_Down]
+
+A:\e\e.9
+P:\[shift-End]
 

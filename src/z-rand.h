@@ -26,7 +26,6 @@
 
 
 
-
 /**** Available macros ****/
 
 
@@ -79,6 +78,12 @@
  */
 #define one_in_(X) \
 	(rand_int(X > 0 ? X : 1) == 0)
+
+/*
+ * An X percent chance
+ */
+#define percent_chance(X) \
+	(rand_int(100) < X)
 
 
 /**** Available Variables ****/

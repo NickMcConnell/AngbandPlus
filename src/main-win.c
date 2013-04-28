@@ -455,9 +455,9 @@ static bool low_priority = FALSE;
 static HINSTANCE hInstance;
 
 /*
- * Yellow brush for the cursor
+ * Blue brush for the cursor
  */
-static HBRUSH hbrYellow;
+static HBRUSH hbrBlue;
 
 /*
  * An icon
@@ -2149,7 +2149,7 @@ static errr Term_xtra_win(int n, int v)
 /*
  * Low level graphics (Assumes valid input).
  *
- * Draw a "cursor" at (x,y), using a "yellow box".
+ * Draw a "cursor" at (x,y), using a "blue box".
  */
 static errr Term_curs_win(int x, int y)
 {
@@ -2177,9 +2177,9 @@ static errr Term_curs_win(int x, int y)
 	rc.top = y * tile_hgt + td->size_oh1;
 	rc.bottom = rc.top + tile_hgt;
 
-	/* Cursor is done as a yellow "box" */
+	/* Cursor is done as a blue "box" */
 	hdc = GetDC(td->w);
-	FrameRect(hdc, &rc, hbrYellow);
+	FrameRect(hdc, &rc, hbrBlue);
 	ReleaseDC(td->w, hdc);
 
 	/* Success */
@@ -2190,7 +2190,7 @@ static errr Term_curs_win(int x, int y)
 /*
  * Low level graphics (Assumes valid input).
  *
- * Draw a "cursor" at (x,y), using a "yellow box".
+ * Draw a "cursor" at (x,y), using a "blue box".
  */
 static errr Term_bigcurs_win(int x, int y)
 {
@@ -2219,9 +2219,9 @@ static errr Term_bigcurs_win(int x, int y)
 	rc.top = y * tile_hgt + td->size_oh1;
 	rc.bottom = rc.top + tile_hgt;
 
-	/* Cursor is done as a yellow "box" */
+	/* Cursor is done as a blue "box" */
 	hdc = GetDC(td->w);
-	FrameRect(hdc, &rc, hbrYellow);
+	FrameRect(hdc, &rc, hbrBlue);
 	ReleaseDC(td->w, hdc);
 
 	/* Success */
@@ -2268,6 +2268,8 @@ static errr Term_wipe_win(int x, int y, int n)
  * One would think there is a more efficient method for telling a window
  * what color it should be using to draw with, but perhaps simply changing
  * it every time is not too inefficient.  XXX XXX XXX
+ *
+ * Sil-y: this function has been changed to allow background colours
  */
 static errr Term_text_win(int x, int y, int n, byte a, cptr s)
 {
@@ -2291,15 +2293,35 @@ static errr Term_text_win(int x, int y, int n, byte a, cptr s)
 	/* Foreground color */
 	if (colors16)
 	{
-		SetTextColor(hdc, PALETTEINDEX(win_pal[a]));
+		SetTextColor(hdc, PALETTEINDEX(win_pal[a % MAX_COLORS]));
 	}
-	else if (paletted)
+	else 
 	{
-		SetTextColor(hdc, win_clr[a&0x0F]);
-	}
-	else
-	{
-		SetTextColor(hdc, win_clr[a]);
+		if (paletted)
+		{
+			SetTextColor(hdc, win_clr[(a % MAX_COLORS) & 0x0F]);
+		}
+		else
+		{
+			SetTextColor(hdc, win_clr[a % MAX_COLORS]);
+		}
+		
+		// Determine the background colour
+		switch (a / MAX_COLORS)
+		{
+			case BG_BLACK:
+				/* Default Background */
+				SetBkColor(hdc, win_clr[0]);
+				break;
+			case BG_SAME:
+				/* Background same as foreground*/
+				SetBkColor(hdc, win_clr[a % MAX_COLORS]);
+				break;
+			case BG_DARK:
+				/* Highlight Background */
+				SetBkColor(hdc, win_clr[16]);
+				break;
+		}
 	}
 
 	/* Use the font */
@@ -2344,7 +2366,7 @@ static errr Term_text_win(int x, int y, int n, byte a, cptr s)
 
 	/* Release DC */
 	ReleaseDC(td->w, hdc);
-
+	
 	/* Success */
 	return 0;
 }
@@ -2869,7 +2891,7 @@ static void init_windows(void)
 
 
 	/* Create a "brush" for drawing the "cursor" */
-	hbrYellow = CreateSolidBrush(win_clr[TERM_YELLOW]);
+	hbrBlue = CreateSolidBrush(win_clr[TERM_BLUE]);
 
 
 	/* Process pending messages */
@@ -4750,7 +4772,7 @@ static void hook_quit(cptr str)
 
 	/*** Free some other stuff ***/
 
-	DeleteObject(hbrYellow);
+	DeleteObject(hbrBlue);
 
 	if (hPal) DeleteObject(hPal);
 
@@ -4845,21 +4867,21 @@ static void init_stuff(void)
 
 	/* Hack -- Validate the paths */
 	validate_dir(ANGBAND_DIR_APEX);
-	validate_dir(ANGBAND_DIR_BONE);
+	//validate_dir(ANGBAND_DIR_BONE);
 	validate_dir(ANGBAND_DIR_DATA);
 	validate_dir(ANGBAND_DIR_EDIT);
-	validate_dir(ANGBAND_DIR_FILE);
-	validate_dir(ANGBAND_DIR_HELP);
-	validate_dir(ANGBAND_DIR_INFO);
+	//validate_dir(ANGBAND_DIR_FILE);
+	//validate_dir(ANGBAND_DIR_HELP);
+	//validate_dir(ANGBAND_DIR_INFO);
 	validate_dir(ANGBAND_DIR_PREF);
 	validate_dir(ANGBAND_DIR_SAVE);
 	validate_dir(ANGBAND_DIR_USER);
 	validate_dir(ANGBAND_DIR_XTRA);
 
 	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
+	path_build(path, sizeof(path), ANGBAND_DIR_EDIT, "artefact.txt");
 
-	/* Hack -- Validate the "news.txt" file */
+	/* Hack -- Validate the "artefact.txt" file */
 	validate_file(path);
 
 
@@ -4926,7 +4948,9 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 
 	WNDCLASS wc;
 	HDC hdc;
-	MSG msg;
+
+	// Sil-y: commented this out
+	//MSG msg;
 
 	/* Unused parameter */
 	(void)nCmdShow;
@@ -5083,15 +5107,100 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	check_for_save_file(lpCmdLine);
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
-	Term_fresh();
 
-	/* Process messages forever */
-	while (GetMessage(&msg, NULL, 0, 0))
+	//Sil-y: commented this out
+	//prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+	//Term_fresh();
+
+	// Sil-y: added this section
+	// Sil-y: There is now a text menu that can play repeated games
+	use_background_colors = TRUE;
+	while (1)
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		bool new_game = FALSE;
+		/* Let the player choose a savefile or start a new game */
+		if (!game_in_progress)
+		{
+			int choice = 0;
+			int highlight = 1;
+			char buf[80];
+
+			if (p_ptr->is_dead) highlight = 4;
+
+			/* Process Events until "new" or "open" is selected */
+			while (!game_in_progress)
+			{
+				OPENFILENAME ofn;
+
+				choice = initial_menu(&highlight);
+
+				switch (choice)
+				{
+					case 1:
+						/* Tutorial */
+						path_build(savefile, sizeof(buf), ANGBAND_DIR_APEX, "tutorial");
+						game_in_progress = TRUE;
+						new_game = FALSE;
+						break;
+					case 2:
+						/* New game */
+						game_in_progress = TRUE;
+						new_game = TRUE;
+						break;
+					case 3:
+						/* Load saved game */
+						memset(&ofn, 0, sizeof(ofn));
+						ofn.lStructSize = sizeof(ofn);
+						ofn.hwndOwner = data[0].w;
+						ofn.lpstrFilter = "Save Files (*.)\0*\0";
+						ofn.nFilterIndex = 1;
+						ofn.lpstrFile = savefile;
+						ofn.nMaxFile = 1024;
+						ofn.lpstrInitialDir = ANGBAND_DIR_SAVE;
+						ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+						if (GetOpenFileName(&ofn))
+						{
+							/* Load 'savefile' */
+							validate_file(savefile);
+							new_game = FALSE;
+							game_in_progress = TRUE;
+						}						
+						break;
+					case 4:
+						/* Quit */
+						quit(NULL);
+						break;
+				}
+			}
+		}
+
+		/* Handle pending events (most notably update) and flush input */
+		Term_flush();
+
+		/*
+		 * Play a game -- "new_game" is set by "new", "open" or the open document
+		 * even handler as appropriate
+		 */
+		play_game(new_game);
+
+		// rerun the first initialization routine
+		init_stuff();
+		
+		// do some more between-games initialization
+		re_init_some_things();
+		
+		// game no longer in progress
+		game_in_progress = FALSE;
 	}
+	
+	//Sil-y: commented this out
+	/* Process messages forever */
+	//while (GetMessage(&msg, NULL, 0, 0))
+	//{
+	//	TranslateMessage(&msg);
+	//	DispatchMessage(&msg);
+	//}
 
 	/* Paranoia */
 	quit(NULL);

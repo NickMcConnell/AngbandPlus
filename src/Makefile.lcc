@@ -1,19 +1,19 @@
 #
-# Makefile for Angband using the lcc32 compiler
+# Makefile for Sil using the lcc32 compiler
 #
 
 #
 # Change these paths if necessary
 #
-ANGBAND_PATH = C:\nppangbandsource
-LCC_PATH     = C:\src
+SIL_PATH = C:\Sil\src
+LCC_PATH = C:\lcc
 
 
 #
 # You shouldn't need to change anything below
 #
 
-SRCDIR = $(ANGBAND_PATH)\src
+SRCDIR = $(SIL_PATH)\src
 LINKER = $(LCC_PATH)\bin\lcclnk.exe
 CC     = $(LCC_PATH)\bin\lcc.exe
 RC     = $(LCC_PATH)\bin\lrc.exe
@@ -35,7 +35,6 @@ OBJS=\
 	util.obj \
 	use-obj.obj \
 	tables.obj \
-	store.obj \
 	spells2.obj \
 	spells1.obj \
 	save.obj \
@@ -64,10 +63,10 @@ OBJS=\
 	cmd1.obj \
 	cave.obj \
 	birth.obj \
-	angband.res
+	sil.res
 
-angband.exe:	$(OBJS)
-	$(LINKER)  -subsystem windows -o $(ANGBAND_PATH)\angband.exe $(OBJS) $(LIBS)
+sil.exe:	$(OBJS)
+	$(LINKER)  -subsystem windows -o $(SIL_PATH)\sil.exe $(OBJS) $(LIBS)
 
 # Build Z-VIRT.C
 Z-VIRT_C=\
@@ -346,32 +345,6 @@ TABLES_C=\
 
 tables.obj: $(TABLES_C) $(SRCDIR)\tables.c
 	$(CC) -c $(CFLAGS) $(SRCDIR)\tables.c
-
-# Build STORE.C
-STORE_C=\
-	$(SRCDIR)\angband.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\h-config.h\
-	$(SRCDIR)\h-system.h\
-	$(SRCDIR)\h-type.h\
-	$(SRCDIR)\h-define.h\
-	$(SRCDIR)\z-util.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\z-virt.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\z-form.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\z-rand.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\z-term.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\config.h\
-	$(SRCDIR)\defines.h\
-	$(SRCDIR)\types.h\
-	$(SRCDIR)\externs.h\
-
-store.obj: $(STORE_C) $(SRCDIR)\store.c
-	$(CC) -c $(CFLAGS) $(SRCDIR)\store.c
 
 # Build SPELLS2.C
 SPELLS2_C=\
@@ -1095,10 +1068,10 @@ BIRTH_C=\
 birth.obj: $(BIRTH_C) $(SRCDIR)\birth.c
 	$(CC) -c $(CFLAGS) $(SRCDIR)\birth.c
 
-# Build angband.res
-ANGBAND_RC=\
-	$(SRCDIR)\angband.ico\
+# Build sil.res
+SIL_RC=\
+	$(SRCDIR)\sil.ico\
 
-angband.res:	$(ANGBAND_RC) $(SRCDIR)\angband.rc
-	$(RC) -I$(SRCDIR) $(SRCDIR)\angband.rc
+sil.res:	$(SIL_RC) $(SRCDIR)\sil.rc
+	$(RC) -I$(SRCDIR) $(SRCDIR)\sil.rc
 

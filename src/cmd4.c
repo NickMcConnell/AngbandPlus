@@ -198,7 +198,6 @@ void do_cmd_redraw(void)
 
 	term *old = Term;
 
-
 	/* Low level flush */
 	Term_flush();
 
@@ -213,12 +212,8 @@ void do_cmd_redraw(void)
 	/* Combine and Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-
-	/* Update torch */
-	p_ptr->update |= (PU_TORCH);
-
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
@@ -227,14 +222,14 @@ void do_cmd_redraw(void)
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY | PR_RESIST);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
 
 	/* Clear screen */
 	Term_clear();
-
+	
 	/* Hack -- update */
 	handle_stuff();
 
@@ -260,20 +255,13 @@ void do_cmd_redraw(void)
 
 
 /*
- * Hack -- change name
+ * Hack -- character sheet
  */
-void do_cmd_change_name(void)
+void do_cmd_character_sheet(void)
 {
 	char ch;
 
 	int mode = 0;
-
-	cptr p;
-
-	store_type *st_ptr = &store[STORE_HOME];
-
-	/* Prompt */
-	p = "[(c)hange name, (f)ile, (h/-)prev display mode, (l/+)next display mode, or ESC]";
 
 	/* Save screen */
 	screen_save();
@@ -285,28 +273,53 @@ void do_cmd_change_name(void)
 		display_player(mode);
 
 		/* Prompt */
-		Term_putstr(1, 23, -1, TERM_WHITE, p);
-
+		Term_putstr(1, 23, -1, TERM_SLATE, "notes   change name   save to a file   abilities   increase skills   ESC");
+		Term_putstr(1, 23, -1, TERM_L_WHITE, "n");
+		Term_putstr(9, 23, -1, TERM_L_WHITE, "c");
+		Term_putstr(23, 23, -1, TERM_L_WHITE, "s");
+		Term_putstr(40, 23, -1, TERM_L_WHITE, "a");
+		Term_putstr(52, 23, -1, TERM_L_WHITE, "i");
+		Term_putstr(70, 23, -1, TERM_L_WHITE, "ESC");
+				
 		/* Query */
 		ch = inkey();
 
 		/* Exit */
 		if (ch == ESCAPE) break;
+		if ((ch == '\r') || (ch == '\n') || (ch == 'q') || (ch == 'Q')) break;
 
-		/* Change name */
-		if (ch == 'c')
+		/* Increase skills */
+		if (ch == 'i')
 		{
-			get_name();
+			gain_skills();
 		}
 
+		/* Show notes */
+		else if ((ch == 'n') || (ch == ' '))
+		{
+			do_cmd_knowledge_notes();
+		}
+		
+		/* Change name */
+		else if (ch == 'c')
+		{
+			(void) get_name();
+		}
+		
+		/* Abilities */
+		else if ((ch == 'a') || (ch == '\t'))
+		{
+			(void) do_cmd_ability_screen();
+		}
+		
 		/* File dump */
-		else if (ch == 'f')
+		else if (ch == 's')
 		{
 			char ftmp[80];
 
 			strnfmt(ftmp, sizeof(ftmp), "%s.txt", op_ptr->base_name);
 
-			if (get_string("File name: ", ftmp, sizeof(ftmp)))
+			if (term_get_string("File name: ", ftmp, sizeof(ftmp)))
 			{
 				if (ftmp[0] && (ftmp[0] != ' '))
 				{
@@ -322,35 +335,10 @@ void do_cmd_change_name(void)
 			}
 		}
 
-		/* Toggle mode */
-		else if ((ch == '+') || (ch == 'l'))
-		{
-			mode += 1;
-
-			/*loop through the four screens*/
-			if (mode == 4) mode = 0;
-			/*don't display home if empty*/
-			else if ((!st_ptr->stock_num) && (mode == 2)) mode = 0;
-		}
-
-		/* Toggle mode */
-		else if ((ch == '-') || (ch == 'h'))
-		{
-			/*loop through the four screens*/
-			if (mode == 0)
-			{
-				/*don't display home if empty*/
-				if (st_ptr->stock_num) mode = 3;
-				else mode = 1;
-			}
-
-			else mode -= 1;
-		}
-
 		/* Oops */
 		else
 		{
-			bell("Illegal command for change name!");
+			bell("Illegal command for character sheet!");
 		}
 
 		/* Flush messages */
@@ -361,6 +349,4904 @@ void do_cmd_change_name(void)
 	screen_load();
 }
 
+#define	COL_SKILL		 2
+#define COL_ABILITY		17
+#define COL_DESCRIPTION	42
+
+
+int ability_index(int skilltype, int abilitynum)
+{
+	int i;
+	ability_type *b_ptr;
+	
+	for (i = 0; i < z_info->b_max; i++)
+	{
+		b_ptr = &b_info[i];
+		
+		/* Skip non-entries */
+		if (!b_ptr->name) continue;
+		
+		/* Skip entries for the wrong skill type */
+		if (b_ptr->skilltype != skilltype) continue;
+		
+		/* Stop if you get the correct ability number */
+		if (b_ptr->abilitynum == abilitynum) return (i);
+	}
+	
+	// Hack: there is no reasonable default value, but this will do
+	return (0);
+}
+
+/*
+ *  Counts the number of innate abilities in a skill
+ */
+
+int abilities_in_skill(int skilltype)
+{
+	int i;
+	ability_type *b_ptr;
+	int count = 0;
+	
+	for (i = 0; i < z_info->b_max; i++)
+	{
+		b_ptr = &b_info[i];
+		
+		/* Skip non-entries */
+		if (!b_ptr->name) continue;
+		
+		/* Skip entries for the wrong skill type */
+		if (b_ptr->skilltype != skilltype) continue;
+		
+		/* Add to the count */
+		if (p_ptr->innate_ability[skilltype][b_ptr->abilitynum]) count++;
+	}
+	
+	return (count);
+}
+
+bool prereqs(int skilltype, int abilitynum)
+{
+	int i;
+	ability_type *b_ptr;
+	
+	b_ptr = &b_info[ability_index(skilltype,abilitynum)];
+	
+	if (p_ptr->skill_base[skilltype] < b_ptr->level) return (FALSE);
+	
+	if (b_ptr->prereqs > 0)
+	{
+		for (i = 0; i < b_ptr->prereqs; i++)
+		{
+			if (p_ptr->innate_ability[b_ptr->prereq_skilltype[i]][b_ptr->prereq_abilitynum[i]]) return (TRUE);
+		}
+		return (FALSE);
+	}
+	
+	return (TRUE);
+}
+
+
+/*
+ * Display the available songs (modelled on show_inven).
+ */
+void show_songs(void)
+{
+	int i, j, k = 0;
+		
+	int col = 26;
+	
+	char tmp_val[80];
+	
+	int out_index[24];
+	char out_desc[24][80];
+		
+	/* Display the songs */
+	for (k = 0, i = 0; i < SNG_VOICE; i++)
+	{
+		/* Is this song acceptable? */
+		if (!p_ptr->active_ability[S_SNG][i]) continue;
+		
+		/* Save the index */
+		out_index[k] = i;
+		
+		/* Save the song name */
+		my_strcpy(out_desc[k], b_name + (&b_info[ability_index(S_SNG,i)])->name, sizeof(out_desc[0]));
+		
+		/* Advance to next "line" */
+		k++;
+	}
+	
+	// add a line for the 'stop singing' command
+
+	/* Clear the line */
+	prt("", 1, col -2);
+	
+	/* Clear the line with the (possibly indented) index */
+	put_str("s)", 1, col);
+	
+	/* Display the entry itself */
+	c_put_str(TERM_SLATE, "Stop Singing", 1, col + 3);
+
+	/* Output each entry */
+	for (j = 0; j < k; j++)
+	{
+		/* Get the index */
+		i = out_index[j];
+		
+		/* Clear the line */
+		prt("", j + 2, col -2);
+		
+		/* Prepare an index --(-- */
+		sprintf(tmp_val, "%c)", index_to_label(i));
+		
+		/* Clear the line with the (possibly indented) index */
+		put_str(tmp_val, j + 2, col);
+		
+		/* Display the entry itself */
+		c_put_str(TERM_L_WHITE, out_desc[j], j + 2, col + 3);
+	}
+	
+	// add a line for the 'exchange themes' command
+	if (p_ptr->song2 != SNG_NOTHING)
+	{
+		/* Clear the line */
+		prt("", j + 2, col -2);
+
+		/* Clear the line with the (possibly indented) index */
+		put_str("x)", j + 2, col);
+		
+		/* Display the entry itself */
+		c_put_str(TERM_L_BLUE, "Exchange themes", j + 2, col + 3);
+		
+		j++;
+	}
+	
+	/* Make a "shadow" below the list (only if needed) */
+	if (j && (j < 23)) prt("", j + 2, col - 2);
+}
+
+
+
+void do_cmd_change_song()
+{
+	int i;
+	bool done = FALSE;
+	bool allow_list;
+	
+	int options = 0;
+	int final_song = 0;
+	int song_choice = -1;
+	
+	char out_val[80];
+	char tmp_val[80];
+	
+	char which;
+
+	// count the abilities
+	for (i = 0; i < SNG_VOICE; i++)
+	{
+		// keep track of the number of options and final song
+		if (p_ptr->active_ability[S_SNG][i])
+		{
+			options += 1;
+		}
+	}
+	
+	// abort if you know no songs
+	if (options == 0)
+	{
+		msg_print("You do not know any songs of power.");
+		return;
+	}
+	
+	/* Flush the prompt */
+	Term_fresh();
+
+	/* Option to always show a list */
+	if (auto_display_lists)
+	{
+		p_ptr->command_see = TRUE;
+	}
+	
+	/* Start out in "display" mode */
+	if (p_ptr->command_see)
+	{
+		/* Save screen */
+		screen_save();
+	}
+	
+	/* Repeat until done */
+	while (!done)
+	{
+		/* Redraw if needed */
+		if (p_ptr->command_see) show_songs();
+		
+		/* Begin the prompt */
+		sprintf(out_val, "Songs: s");
+
+		// count the abilities
+		for (i = 0; i < SNG_VOICE; i++)
+		{
+			// keep track of the number of options and final song
+			if (p_ptr->active_ability[S_SNG][i])
+			{
+				final_song = i;
+				
+				my_strcat(out_val, ",", sizeof(out_val));
+				sprintf(tmp_val, "%c", (char) 'a' + i);
+								
+				/* Append */
+				my_strcat(out_val, tmp_val, sizeof(out_val));
+			}
+		}
+		
+		// add an 'x' option if using woven themes
+		if (p_ptr->song2 != SNG_NOTHING)
+		{
+			/* Append */
+			my_strcat(out_val, ",x", sizeof(out_val));
+		}
+		
+		/* Indicate ability to "view" */
+		if (!p_ptr->command_see) my_strcat(out_val, ", * to see", sizeof (out_val));
+		
+		/* Build the prompt */
+		strnfmt(tmp_val, sizeof(tmp_val), "(%s) Sing which song: ", out_val);
+		
+		/* Show the prompt */
+		prt(tmp_val, 0, 0);
+		
+		/* Hack - Find the origin of the next key */
+		allow_list = interactive_input(TRUE);
+		
+		/* Get a key */
+		which = inkey();
+		
+		/* Parse it */
+		switch (which)
+		{
+			case ESCAPE:
+			case '\r':
+			{
+				done = TRUE;
+				break;
+			}
+				
+			case '*':
+			case '?':
+			case ' ':
+			{
+				/* Hide the list */
+				if (p_ptr->command_see)
+				{
+					/* Flip flag */
+					p_ptr->command_see = FALSE;
+					
+					/* Load screen */
+					screen_load();
+				}
+				
+				/* Show the list */
+				else
+				{
+					/* Save screen */
+					screen_save();
+					
+					/* Flip flag */
+					p_ptr->command_see = TRUE;
+				}
+				
+				break;
+			}
+												
+			case 's':
+			{
+				song_choice = SNG_NOTHING;
+				done = TRUE;
+				break;
+			}
+
+			case 'x':
+			{
+				if (p_ptr->song2 != SNG_NOTHING)
+				{
+					song_choice = SNG_EXCHANGE_THEMES;
+					done = TRUE;
+					break;
+				}
+				else
+				{
+					bell("Illegal song choice.");
+					break;
+				}
+			}
+
+			default:
+			{
+				if ((which >= 'a') && (which < 'a' + SNG_VOICE))
+				{
+					song_choice = (int) which - 'a';
+					if (p_ptr->active_ability[S_SNG][song_choice])
+					{
+						done = TRUE;
+						break;
+					}
+					else
+					{
+						song_choice = -1;
+					}
+				}
+				
+				bell("Illegal song choice.");
+				break;
+			}
+		}
+	}
+	
+	/* Fix the screen if necessary */
+	if (p_ptr->command_see)
+	{
+		/* Load screen */
+		screen_load();
+		
+		/* Hack -- Cancel "display" */
+		p_ptr->command_see = FALSE;
+	}
+	
+	/* Clear the prompt line */
+	prt("", 0, 0);
+	
+	if (song_choice >= 0) change_song(song_choice);
+
+}
+
+void wipe_screen_from(int col)
+{
+	int i;
+	
+	for (i = 1; i < SCREEN_HGT; i++)
+	{
+		Term_putstr(col, i, -1, TERM_WHITE, "                                                                                 ");		
+	}
+}
+
+#define BANE_TYPES 9
+
+static u32b bane_flag[] =
+{
+	0L,
+	RF3_ORC,
+	RF3_WOLF,
+	RF3_SPIDER,
+	RF3_TROLL,
+	RF3_UNDEAD,
+	RF3_RAUKO,
+	RF3_SERPENT,
+	RF3_DRAGON
+};
+
+static char *bane_name[] =
+{
+	"Nothing",
+	"Orc",
+	"Wolf",
+	"Spider",
+	"Troll",
+	"Wraith",
+	"Rauko",
+	"Serpent",
+	"Dragon"
+};
+
+int bane_type_killed(int i)
+{
+	int j;
+	int k = 0;
+	
+	/* Scan the monster races */
+	for (j = 1; j < z_info->r_max; j++)
+	{
+		monster_race *r_ptr = &r_info[j];
+		monster_lore *l_ptr = &l_list[j];
+		
+		if (r_ptr->flags3 & (bane_flag[i]))
+		{
+			k += l_ptr->pkills;
+		}
+	}
+	
+	return (k);
+}
+
+
+int bane_bonus_aux(void)
+{
+	int i = 2;
+	int bonus = 0;
+	int killed;
+	
+	killed = bane_type_killed(p_ptr->bane_type);
+	while (i <= killed)
+	{
+		i *= 2;
+		bonus++;
+	}
+	
+	return (bonus);
+}
+
+int bane_bonus(monster_type *m_ptr)
+{
+	int bonus = 0;
+	monster_race *r_ptr;
+	
+	// paranoia
+	if (m_ptr == NULL) return (0);
+	
+	// entranced players don't get the bonus
+	if (p_ptr->paralyzed) return (0);
+	
+	r_ptr = &r_info[m_ptr->r_idx];
+	
+	if (r_ptr->flags3 & (bane_flag[p_ptr->bane_type]))
+	{
+		bonus = bane_bonus_aux();
+	}
+	
+	return (bonus);
+}
+
+int spider_bane_bonus(void)
+{
+	if (bane_flag[p_ptr->bane_type] == RF3_SPIDER)	return (bane_bonus_aux());
+	else											return (0);
+}
+
+int bane_menu(int *highlight)
+{
+	int i, k;
+	
+	int ch;
+	int options;
+	
+	char buf[80];
+	
+	byte attr;
+	
+	// bane title
+	Term_putstr(COL_DESCRIPTION,  2, -1, TERM_WHITE, "Enemy types");
+	
+	// clear the description area
+	wipe_screen_from(COL_DESCRIPTION);
+	
+	// list the enemies
+	for (i = 1; i < BANE_TYPES; i++)
+	{		
+		k = bane_type_killed(i);
+
+		// Determine the appropriate colour
+		if (k >= 4)
+		{
+			attr = TERM_SLATE;
+		}
+		else
+		{
+			attr = TERM_L_DARK;
+		}
+		
+		strnfmt(buf, 80, "%c) %s", (char) 'a' + i - 1, bane_name[i]);
+		Term_putstr(COL_DESCRIPTION,  i + 3, -1, attr, buf);
+		
+		if (*highlight == i)
+		{
+			// highlight the label
+			strnfmt(buf, 80, "%c)", (char) 'a' + i - 1);
+			Term_putstr(COL_DESCRIPTION,  i + 3, -1, TERM_L_BLUE, buf);
+			
+			/* Indent output by 2 character, and wrap at column 70 */
+			text_out_wrap = 79;
+			text_out_indent = COL_DESCRIPTION;
+			
+			Term_gotoxy(text_out_indent, BANE_TYPES + 4);
+			
+			/* Information */
+			if (k >= 4)
+			{
+				strnfmt(buf, 80, "You have slain %d of these foes.", k);
+				text_out_to_screen(TERM_SLATE, buf);
+			}
+			else
+			{
+				strnfmt(buf, 80, "You have slain %d of these foes,   and need to slay %d more.", k, 4 - k);
+				text_out_to_screen(TERM_L_DARK, buf);
+			}
+			
+			/* Reset text_out() vars */
+			text_out_wrap = 0;
+			text_out_indent = 0;
+		}
+		
+		// keep track of the number of options
+		options = i;
+	}
+	
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(COL_DESCRIPTION, 3 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	if ((ch >= 'a') && (ch <= (char) 'a' + options - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;	
+		
+		bane_menu(highlight);
+		
+		return (*highlight);
+	}
+	
+	if ((ch >= 'A') && (ch <= (char) 'A' + options - 1))
+	{
+		*highlight = (int) ch - 'A' + 1;
+		return (*highlight);
+	}
+	
+	if ((ch == ESCAPE) || (ch == 'q') || (ch == '4'))
+	{
+		return (BANE_TYPES+1);
+	}
+	
+	if ((ch == '\t'))
+	{
+		return (BANE_TYPES+2);
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		return (*highlight);
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		*highlight = (*highlight + (options-2)) % options + 1;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		*highlight = *highlight % options + 1;
+	}
+	
+	return (0);
+}
+
+
+int abilities_menu1(int *highlight)
+{
+	int i;
+	int ch;
+	int options = S_MAX;
+	
+	char buf[80];
+		
+	// title
+	Term_putstr(COL_SKILL,  2, -1, TERM_WHITE, "Skills");
+	
+	// list the skills
+	for (i = 0; i < options; i++)
+	{
+		strnfmt(buf, 80, "%c) %s", (char) 'a' + i, skill_names_full[i]);
+		
+		Term_putstr(COL_SKILL,  i + 4, -1, (*highlight == i+1) ? TERM_L_BLUE : TERM_WHITE, buf);
+	}
+
+	// clear the abilities area
+	wipe_screen_from(COL_ABILITY);
+
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(COL_SKILL, 3 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	if ((ch >= 'a') && (ch <= (char) 'a' + options - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;
+		
+		// relist the skills
+		for (i = 0; i < options; i++)
+		{
+			strnfmt(buf, 80, "%c) %s", (char) 'a' + i, skill_names_full[i]);
+			
+			Term_putstr(COL_SKILL,  i + 4, -1, (*highlight == i+1) ? TERM_L_BLUE : TERM_WHITE, buf);
+		}
+		
+		return (*highlight);
+	}
+
+	if ((ch >= 'A') && (ch <= (char) 'A' + options - 1))
+	{
+		*highlight = (int) ch - 'A' + 1;
+
+		// relist the skills
+		for (i = 0; i < options; i++)
+		{
+			strnfmt(buf, 80, "%c) %s", (char) 'a' + i, skill_names_full[i]);
+			
+			Term_putstr(COL_SKILL,  i + 4, -1, (*highlight == i+1) ? TERM_L_BLUE : TERM_WHITE, buf);
+		}
+
+		return (*highlight);
+	}
+	
+	if ((ch == ESCAPE) || (ch == 'q') || (ch == '\t'))
+	{
+		return (options+1);
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		return (*highlight);
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		*highlight = (*highlight + (options-2)) % options + 1;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		*highlight = *highlight % options + 1;
+	}
+	
+	return (0);
+} 
+
+
+int abilities_menu2(int skilltype, int *highlight)
+{
+	int i, j;
+
+	ability_type *b_ptr;
+	ability_type *b_ptr_hi;
+
+	int ch;
+	int options = 0; // a default value to soothe compilation warnings
+	
+	char buf[80];
+
+	byte attr;
+	
+	// clear the abilities and description area
+	wipe_screen_from(COL_ABILITY);
+
+	// abilities title
+	Term_putstr(COL_ABILITY,  2, -1, TERM_WHITE, "Abilities");
+		
+	// list the abilities
+	for (i = 0; i < z_info->b_max; i++)
+	{
+		b_ptr = &b_info[i];
+		
+		/* Skip non-entries */
+		if (!b_ptr->name) continue;
+		
+		/* Skip entries for the wrong skill type */
+		if (b_ptr->skilltype != skilltype) continue;
+
+		// Determine the appropriate colour
+		if (p_ptr->have_ability[skilltype][b_ptr->abilitynum])
+		{
+			if (p_ptr->innate_ability[skilltype][b_ptr->abilitynum])
+			{
+				if (p_ptr->active_ability[skilltype][b_ptr->abilitynum])
+				{
+					attr = TERM_WHITE;
+				}
+				else
+				{
+					attr = TERM_RED;
+				}
+			}
+			else
+			{
+				if (p_ptr->active_ability[skilltype][b_ptr->abilitynum])
+				{
+					attr = TERM_L_GREEN;
+				}
+				else
+				{
+					attr = TERM_RED;
+				}
+			}
+		}
+		else
+		{
+			if (prereqs(skilltype, b_ptr->abilitynum)) attr = TERM_SLATE;
+			else									   attr = TERM_L_DARK;
+		}
+		
+		if ((skilltype == S_PER) && (b_ptr->abilitynum == PER_BANE) && (p_ptr->bane_type > 0))
+		{
+			strnfmt(buf, 80, "%c) %s-%s", (char) 'a' + b_ptr->abilitynum , bane_name[p_ptr->bane_type], (b_name + b_ptr->name));
+		}
+		else
+		{
+			strnfmt(buf, 80, "%c) %s", (char) 'a' + b_ptr->abilitynum , (b_name + b_ptr->name));
+		}
+		Term_putstr(COL_ABILITY,  b_ptr->abilitynum + 4, -1, attr, buf);
+
+		if (*highlight == b_ptr->abilitynum + 1)
+		{
+			b_ptr_hi = b_ptr;
+
+			// highlight the label
+			strnfmt(buf, 80, "%c)", (char) 'a' + b_ptr->abilitynum);
+			Term_putstr(COL_ABILITY,  b_ptr->abilitynum + 4, -1, TERM_L_BLUE, buf);
+			
+			// print the description of the highlighted ability
+			if ((b_text + b_ptr->text) != NULL)
+			{
+				/* Indent output by 2 character, and wrap at column 70 */
+				text_out_wrap = 79;
+				text_out_indent = COL_DESCRIPTION;
+				
+				/* History */
+				Term_gotoxy(text_out_indent, 4);
+				text_out_to_screen(TERM_L_WHITE, b_text + b_ptr->text);
+				
+				/* Reset text_out() vars */
+				text_out_wrap = 0;
+				text_out_indent = 0;
+			}
+			
+			// print more info if you don't have the skill
+			if (!p_ptr->have_ability[skilltype][b_ptr->abilitynum])
+			{
+				// print the prerequisites
+				Term_putstr(COL_DESCRIPTION,  9, -1, attr, "Prerequisites:");
+				
+				strnfmt(buf, 80, "%d skill points (you have %d)", b_ptr->level, p_ptr->skill_base[skilltype]);
+				Term_putstr(COL_DESCRIPTION + 2, 11, -1, TERM_L_DARK, buf);
+				if (b_ptr->level <= p_ptr->skill_base[skilltype])
+				{
+					strnfmt(buf, 80, "%d skill points", b_ptr->level);
+					Term_putstr(COL_DESCRIPTION + 2, 11, -1, TERM_SLATE, buf);
+				}
+				for (j = 0; j < b_ptr->prereqs; j++)
+				{
+					if (j == 0)
+					{
+						strnfmt(buf, 80, "%s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
+					}
+					else
+					{
+						strnfmt(buf, 80, "or %s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
+					}
+					Term_putstr(COL_DESCRIPTION + 2, 12 + j, -1, TERM_L_DARK, buf);
+					if (p_ptr->innate_ability[b_ptr->prereq_skilltype[j]][b_ptr->prereq_abilitynum[j]])
+					{
+						strnfmt(buf, 80, "%s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
+						if (j == 0)
+						{
+							Term_putstr(COL_DESCRIPTION + 2, 12 + j, -1, TERM_SLATE, buf);
+						}
+						else
+						{
+							Term_putstr(COL_DESCRIPTION + 5, 12 + j, -1, TERM_SLATE, buf);
+						}
+					}
+				}
+
+				if (prereqs(skilltype, b_ptr->abilitynum))
+				{
+					int exp_cost = (abilities_in_skill(skilltype) + 1) * 500;
+					
+					// give free abilties based on affinities
+					exp_cost -= 500 * affinity_level(skilltype);
+					if (exp_cost < 0) exp_cost = 0;
+					
+					// print the cost
+					Term_putstr(COL_DESCRIPTION,  15, -1, TERM_L_DARK, "Current price:");
+					strnfmt(buf, 80, "%d experience (you have %d)", exp_cost, p_ptr->new_exp);
+					Term_putstr(COL_DESCRIPTION + 2, 17, -1, TERM_L_DARK, buf);
+
+					if (exp_cost <= p_ptr->new_exp)
+					{
+						Term_putstr(COL_DESCRIPTION,  15, -1, TERM_SLATE, "Current price:");
+						strnfmt(buf, 80, "%d experience", exp_cost, p_ptr->new_exp);
+						Term_putstr(COL_DESCRIPTION + 2, 17, -1, TERM_SLATE, buf);
+					}
+				}
+			}
+			
+			// if you have the ability and it is Bane...
+			else if ((skilltype == S_PER) && (b_ptr->abilitynum == PER_BANE) && (p_ptr->bane_type > 0))
+			{
+				Term_putstr(COL_DESCRIPTION,  9, -1, TERM_WHITE, format("%s-Bane:", bane_name[p_ptr->bane_type]));
+				Term_putstr(COL_DESCRIPTION,  11, -1, TERM_WHITE, 
+				            format("  %d slain, giving a %+d bonus", bane_type_killed(p_ptr->bane_type), bane_bonus_aux()));
+			}
+		}
+		
+		// keep track of the number of options
+		options = b_ptr->abilitynum + 1;
+	}
+
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(COL_ABILITY, 3 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	if ((ch >= 'a') && (ch <= (char) 'a' + options - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;	
+		
+		abilities_menu2(skilltype, highlight);
+				
+		return (*highlight);
+	}
+	
+	if ((ch >= 'A') && (ch <= (char) 'A' + options - 1))
+	{
+		*highlight = (int) ch - 'A' + 1;
+
+		abilities_menu2(skilltype, highlight);
+
+		return (*highlight);
+	}
+	
+	if ((ch == ESCAPE) || (ch == 'q') || (ch == '4'))
+	{
+		return (ABILITIES_MAX+1);
+	}
+	
+	if ((ch == '\t'))
+	{
+		return (ABILITIES_MAX+2);
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		return (*highlight);
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		*highlight = (*highlight + (options-2)) % options + 1;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		*highlight = *highlight % options + 1;
+	}
+		
+	return (0);
+}
+
+/*
+ * Hack -- ability screen
+ */
+void do_cmd_ability_screen(void)
+{
+	int skilltype = -1;
+	int abilitynum = -1;
+	int banechoice = -1;
+	
+	int highlight1 = 1;
+	int highlight2 = 1;
+	int highlight3 = 1;
+			
+	bool return_to_game = FALSE;
+	bool return_to_skills = FALSE;
+	bool return_to_abilities = FALSE;
+	
+	bool skip_purchase = FALSE;
+	
+	/* Save screen */
+	screen_save();
+
+	/* Clear screen */
+	Term_clear();
+	
+	/* Process Events until "Return to Game" is selected */
+	while (!return_to_game)
+	{
+		skilltype = abilities_menu1(&highlight1) - 1;
+		
+		// if a skill has been selected...
+		if ((skilltype >= 0) && (skilltype < S_MAX))
+		{
+			while (!return_to_skills)
+			{
+				abilitynum = abilities_menu2(skilltype, &highlight2) - 1;
+
+				if ((abilitynum >= 0) && (abilitynum < ABILITIES_MAX))
+				{
+					if (!p_ptr->have_ability[skilltype][abilitynum])
+					{
+						if (prereqs(skilltype, abilitynum))
+						{
+							int exp_cost = (abilities_in_skill(skilltype) + 1) * 500;
+							
+							// give free abilties based on affinities
+							exp_cost -= 500 * affinity_level(skilltype);
+							if (exp_cost < 0) exp_cost = 0;
+							
+							if (exp_cost > p_ptr->new_exp)
+							{
+								bell("You do not have enough experience to acquire this ability.");
+							}
+							else
+							{
+								// special menu for bane
+								if ((skilltype == S_PER) && (abilitynum == PER_BANE))
+								{
+									while (!return_to_abilities)
+									{
+										skip_purchase = FALSE;
+
+										banechoice = bane_menu(&highlight3);
+										
+										if ((banechoice >= 1) && (banechoice <= BANE_TYPES))
+										{
+											if (bane_type_killed(banechoice) < 4)
+											{
+												return_to_abilities = FALSE;
+												skip_purchase = TRUE;
+												bell("Insufficient kills to become a bane.");
+											}
+											else
+											{
+												return_to_abilities = TRUE;
+											}
+										}
+										else if (banechoice == BANE_TYPES)
+										{
+											return_to_abilities = TRUE;
+											skip_purchase = TRUE;
+										}
+										else if (banechoice == BANE_TYPES + 1)
+										{
+											return_to_abilities = TRUE;
+											return_to_skills = TRUE;
+											return_to_game = TRUE;
+											skip_purchase = TRUE;
+										}
+									}
+									
+									return_to_abilities = FALSE;
+								}
+								
+								if (!skip_purchase)
+								{
+									if (get_check("Are you sure you wish to gain this ability? "))
+									{
+										p_ptr->innate_ability[skilltype][abilitynum] = TRUE;
+										p_ptr->have_ability[skilltype][abilitynum] = TRUE;
+										p_ptr->active_ability[skilltype][abilitynum] = TRUE;
+										Term_putstr(0, 0, -1, TERM_WHITE, "Ability gained.");
+										p_ptr->new_exp -= exp_cost;
+										
+										if (banechoice <= 0)
+										{
+											// make a note in the notes file
+											do_cmd_note(format("(%s)", 
+															   b_name + (&b_info[ability_index(skilltype,abilitynum)])->name), p_ptr->depth);
+										}
+										else
+										{
+											// set the new bane type
+											p_ptr->bane_type = banechoice;
+											
+											// and make a note in the notes file
+											do_cmd_note(format("(%s-%s)", bane_name[banechoice],
+															   b_name + (&b_info[ability_index(skilltype,abilitynum)])->name), p_ptr->depth);
+										}
+										
+										/* Set the redraw flag for everything */
+										p_ptr->redraw |= (PR_EXP | PR_BASIC);
+										
+										/* Recalculate bonuses */
+										p_ptr->update |= (PU_BONUS);									
+										p_ptr->update |= (PU_MANA);
+									}
+								}
+								skip_purchase = FALSE;
+								banechoice = -1;
+								
+							}
+						}
+						else
+						{
+							bell("Insufficient prerequisites for ability!");
+						}
+					}
+					
+					// if you already have the ability...
+					else
+					{
+						// toggle its activity
+						if (p_ptr->active_ability[skilltype][abilitynum])
+						{
+							p_ptr->active_ability[skilltype][abilitynum] = FALSE;
+							Term_putstr(0, 0, -1, TERM_WHITE, "Ability now switched off.");
+							
+							// need to cancel second song in some cases
+							if ((skilltype == S_SNG) && (abilitynum == SNG_WOVEN_THEMES))
+							{
+								p_ptr->song2 = SNG_NOTHING;
+							}
+						}
+						else
+						{
+							p_ptr->active_ability[skilltype][abilitynum] = TRUE;
+							Term_putstr(0, 0, -1, TERM_WHITE, "Ability now switched on. ");
+						}
+						
+						/* Set the redraw flag for everything */
+						p_ptr->redraw |= (PR_EXP | PR_BASIC);
+						
+						/* Recalculate bonuses */
+						p_ptr->update |= (PU_BONUS);									
+						p_ptr->update |= (PU_MANA);
+					}
+				}
+				else if (abilitynum == ABILITIES_MAX)
+				{
+					return_to_skills = TRUE;
+				}
+				else if (abilitynum == ABILITIES_MAX + 1)
+				{
+					return_to_skills = TRUE;
+					return_to_game = TRUE;
+				}
+			}
+			
+			// reset some things for the next time around
+			highlight2 = 1;
+			return_to_skills = FALSE;
+		}
+		else if (skilltype >= S_MAX)
+		{
+			return_to_game = TRUE;
+		}
+	}
+	
+	/* Flush messages */
+	//message_flush();
+	
+	/* Load screen */
+	screen_load();
+}
+
+/*
+ * A structure to hold a tval and its description
+ */
+typedef struct smithing_tval_desc
+{
+	int category;
+	int tval;
+	cptr desc;
+} smithing_tval_desc;
+
+// object being created
+object_type smith_o_body;
+object_type *smith_o_ptr = &smith_o_body;
+
+// backup object
+object_type smith2_o_body;
+object_type *smith2_o_ptr = &smith2_o_body;
+
+// super backup object
+object_type smith3_o_body;
+object_type *smith3_o_ptr = &smith3_o_body;
+
+// artefact being created
+#define smith_a_name	(z_info->art_self_made_max - 1)
+#define smith_a_ptr		(&a_info[smith_a_name])
+
+// backup artefact
+#define smith2_a_name	(z_info->art_self_made_max - 2)
+#define smith2_a_ptr	(&a_info[smith2_a_name])
+
+/*
+ * A structure to hold the costs of smithing something
+ */
+typedef struct smithing_cost_type
+{
+	int str;
+	int dex;
+	int con;
+	int gra;
+	int exp;
+	int smt;
+	int mithril;
+	int uses;
+	int drain;
+} smithing_cost_type;
+
+smithing_cost_type smithing_cost;
+
+#define CAT_WEAPON  0
+#define CAT_ARMOUR  1
+#define CAT_JEWELRY 2
+
+#define MAX_SMITHING_TVALS 17
+
+#define SMT_MENU_CREATE   1
+#define SMT_MENU_ENCHANT  2
+#define SMT_MENU_ARTEFACT 3
+#define SMT_MENU_NUMBERS  4
+#define SMT_MENU_MELT     5
+#define SMT_MENU_ACCEPT   6
+
+#define SMT_MENU_MAX      6
+
+#define SMT_NUM_MENU_I_ATT	 1
+#define SMT_NUM_MENU_D_ATT	 2
+#define SMT_NUM_MENU_I_DS	 3
+#define SMT_NUM_MENU_D_DS	 4
+#define SMT_NUM_MENU_I_EVN	 5
+#define SMT_NUM_MENU_D_EVN	 6
+#define SMT_NUM_MENU_I_PS	 7
+#define SMT_NUM_MENU_D_PS	 8
+#define SMT_NUM_MENU_I_PVAL	 9
+#define SMT_NUM_MENU_D_PVAL	10
+#define SMT_NUM_MENU_I_WGT	11
+#define SMT_NUM_MENU_D_WGT	12
+
+#define SMT_NUM_MENU_MAX	12
+
+
+#define	COL_SMT1		 2
+#define COL_SMT2		16
+#define COL_SMT3		36
+#define COL_SMT4		66
+
+			
+/*
+ * A list of tvals and their textual names
+ */
+static const smithing_tval_desc smithing_tvals[MAX_SMITHING_TVALS] =
+{
+	{ CAT_WEAPON,  TV_SWORD,             "Sword"                },
+	{ CAT_WEAPON,  TV_POLEARM,           "Axe or Polearm"       },
+	{ CAT_WEAPON,  TV_HAFTED,            "Blunt Weapon"         },
+	{ CAT_WEAPON,  TV_DIGGING,           "Digger"               },
+	{ CAT_WEAPON,  TV_BOW,               "Bow"                  },
+	{ CAT_WEAPON,  TV_ARROW,             "Arrows"               },
+	{ CAT_JEWELRY, TV_RING,              "Ring"                 },
+	{ CAT_JEWELRY, TV_AMULET,            "Amulet"               },
+	{ CAT_JEWELRY, TV_LIGHT,             "Light"                },
+	{ CAT_ARMOUR,  TV_SOFT_ARMOR,        "Soft Armor"           },
+	{ CAT_ARMOUR,  TV_MAIL,              "Mail"                 },
+	{ CAT_ARMOUR,  TV_CLOAK,             "Cloak"                },
+	{ CAT_ARMOUR,  TV_SHIELD,            "Shield"               },
+	{ CAT_ARMOUR,  TV_HELM,              "Helm"                 },
+	{ CAT_ARMOUR,  TV_CROWN,             "Crown"                },
+	{ CAT_ARMOUR,  TV_GLOVES,            "Gloves"               },
+	{ CAT_ARMOUR,  TV_BOOTS,             "Boots"                },
+};
+
+
+/*
+ * A structure to hold a flag and its smithing category
+ */
+typedef struct smithing_flag_cat
+{
+	int category;
+	cptr desc;
+} smithing_flag_cat;
+
+#define CAT_STAT	1
+#define CAT_SUST	2
+#define CAT_SKILL	3
+#define CAT_MEL		4
+#define CAT_SLAY	5
+#define CAT_RES		6
+#define CAT_CURSE	7
+#define CAT_MISC	8
+
+#define MAX_CATS	8
+
+#define MAX_SMITHING_FLAGS (32*3)
+
+static const smithing_flag_cat smithing_flag_cats[] =
+{
+	{ CAT_STAT,		"Stat bonuses"	},
+	{ CAT_SUST,		"Sustains"		},
+	{ CAT_SKILL,	"Skill bonuses"	},
+	{ CAT_MEL,		"Melee powers"	},
+	{ CAT_SLAY,		"Slays"			},
+	{ CAT_RES,		"Resistances"	},
+	{ CAT_CURSE,	"Curses"		},
+	{ CAT_MISC,		"Misc"			}
+};
+
+/*
+ * A structure to hold a flag and its smithing category
+ */
+typedef struct smithing_flag_desc
+{
+	int category;
+	u32b flag;
+	int flagset;
+	cptr desc;
+} smithing_flag_desc;
+
+/*
+ * A list of tvals and their textual names
+ */
+static const smithing_flag_desc smithing_flag_types[] =
+{
+	{ CAT_STAT,		TR1_STR,			1,	"Str bonus"		},
+	{ CAT_STAT,		TR1_DEX,			1,	"Dex bonus"		},
+	{ CAT_STAT,		TR1_CON,			1,	"Con bonus"		},
+	{ CAT_STAT,		TR1_GRA,			1,	"Gra bonus"		},
+	{ CAT_STAT,		TR1_NEG_STR,		1,	"Str penalty"	},
+	{ CAT_STAT,		TR1_NEG_DEX,		1,	"Dex penalty"	},
+	{ CAT_STAT,		TR1_NEG_CON,		1,	"Con penalty"	},
+	{ CAT_STAT,		TR1_NEG_GRA,		1,	"Gra penalty"	},
+	{ CAT_SKILL,	TR1_MEL,			1,	"Melee"			},
+	{ CAT_SKILL,	TR1_ARC,			1,	"Archery"		},
+	{ CAT_SKILL,	TR1_STL,			1,	"Stealth"		},
+	{ CAT_SKILL,	TR1_PER,			1,	"Perception"	},
+	{ CAT_SKILL,	TR1_WIL,			1,	"Will"			},
+	{ CAT_SKILL,	TR1_SMT,			1,	"Smithing"		},
+	{ CAT_SKILL,	TR1_SNG,			1,	"Song"			},
+	// TR1_DAMAGE_DICE
+	{ CAT_MISC,		TR1_DAMAGE_SIDES,	1,	"Damage bonus"			},
+	{ CAT_MISC,		TR2_LIGHT,			2,	"Light"					},
+	{ CAT_MISC,		TR2_SLOW_DIGEST,	2,	"Sustenance"			},
+	{ CAT_MISC,		TR2_REGEN,			2,	"Regeneration"			},
+	{ CAT_MISC,		TR2_SEE_INVIS,		2,	"See Invisible"			},
+	{ CAT_MISC,		TR2_FREE_ACT,		2,	"Free Action"			},
+	{ CAT_MISC,		TR2_SPEED,			2,	"Speed"					},
+	{ CAT_MISC,		TR2_RADIANCE,		2,	"Radiance"				},
+	{ CAT_MEL,		TR1_TUNNEL,			1,	"Tunneling Bonus"		},
+	{ CAT_MEL,		TR1_SHARPNESS,		1,	"Sharpness"				},
+	{ CAT_MEL,		TR1_VAMPIRIC,		1,	"Vampiric"				},
+	{ CAT_SLAY,		TR1_SLAY_ORC,		1,	"Slay Orc"				},
+	{ CAT_SLAY,		TR1_SLAY_TROLL,		1,	"Slay Troll"			},
+	{ CAT_SLAY,		TR1_SLAY_WOLF,		1,	"Slay Wolf"				},
+	{ CAT_SLAY,		TR1_SLAY_SPIDER,	1,	"Slay Spider"			},
+	{ CAT_SLAY,		TR1_SLAY_UNDEAD,	1,	"Slay Undead"			},
+	{ CAT_SLAY,		TR1_SLAY_RAUKO,		1,	"Slay Rauko"			},
+	{ CAT_SLAY,		TR1_SLAY_DRAGON,	1,	"Slay Dragon"			},
+	{ CAT_SLAY,		TR1_BRAND_COLD,		1,	"Brand with Cold"		},
+	{ CAT_SLAY,		TR1_BRAND_FIRE,		1,	"Brand with Fire"		},
+	{ CAT_SLAY,		TR1_BRAND_POIS,		1,	"Brand with Poison"		},
+	{ CAT_SUST,		TR2_SUST_STR,		2,	"Sustain Str"			},
+	{ CAT_SUST,		TR2_SUST_DEX,		2,	"Sustain Dex"			},
+	{ CAT_SUST,		TR2_SUST_CON,		2,	"Sustain Con"			},
+	{ CAT_SUST,		TR2_SUST_GRA,		2,	"Sustain Gra"			},
+	{ CAT_RES,		TR2_RES_COLD,		2,	"Resist Cold"			},
+	{ CAT_RES,		TR2_RES_FIRE,		2,	"Resist Fire"			},
+	{ CAT_RES,		TR2_RES_POIS,		2,	"Resist Pois"			},
+	{ CAT_RES,		TR2_RES_FEAR,		2,	"Resist Fear"			},
+	{ CAT_RES,		TR2_RES_BLIND,		2,	"Resist Blindness"		},
+	{ CAT_RES,		TR2_RES_CONFU,		2,	"Resist Confusion"		},
+	{ CAT_RES,		TR2_RES_STUN,		2,	"Resist Stunning"		},
+	{ CAT_RES,		TR2_RES_HALLU,		2,	"Resist Hallucination"	},
+	{ CAT_CURSE,	TR3_LIGHT_CURSE,	3,	"Cursed"				},
+	{ CAT_CURSE,	TR2_HUNGER,			2,	"Hunger"				},
+	{ CAT_CURSE,	TR2_DARKNESS,		2,	"Darkness"				},
+	{ CAT_CURSE,	TR2_DANGER,			2,	"Danger"				},
+	{ CAT_CURSE,	TR2_AGGRAVATE,		2,	"Wrath"				    },
+	{ CAT_CURSE,	TR2_SLOWNESS,		2,	"Slow"					},
+	{ 0,			0,					0,	""						}
+};
+
+
+
+/*
+ * Determines whether the attack bonus of an item is eligible for modification.
+ */
+int att_valid(void)
+{
+	switch (smith_o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_POLEARM:
+		case TV_HAFTED:
+		case TV_DIGGING:
+		case TV_BOW:
+		case TV_ARROW:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_MAIL:
+		{
+			return (TRUE);
+		}
+			
+		case TV_RING:
+		{
+			if (smith_o_ptr->sval == SV_RING_ACCURACY) return (TRUE);
+		}
+	}
+	
+	return (FALSE);
+}
+
+
+/*
+ * Determines the maximum legal attack bonus for an item.
+ */
+int att_max(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
+	int att = 0;
+	
+	switch (smith_o_ptr->tval)
+	{
+		case TV_ARROW:
+		{
+			att = 0;
+			if (p_ptr->active_ability[S_SMT][SMT_FINE])	att += 3;
+			if (smith_o_ptr->name1) att += 4;
+			if (smith_o_ptr->name2) att = 0;
+			break;
+		}
+		case TV_SWORD:
+		case TV_POLEARM:
+		case TV_HAFTED:
+		case TV_DIGGING:
+		case TV_BOW:
+		{
+			att = k_ptr->att;
+			if (p_ptr->active_ability[S_SMT][SMT_FINE])	att += 1;
+			if (smith_o_ptr->name2)						att += e_ptr->max_att;
+			if (smith_o_ptr->name1)						att += 4;
+			break;
+		}
+		case TV_BOOTS:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_MAIL:
+		{
+			att = k_ptr->att;
+			if (p_ptr->active_ability[S_SMT][SMT_FINE])	att += 1;
+			if (att > 0)								att =  0;
+			if (smith_o_ptr->name2)						att += e_ptr->max_att;
+			if (smith_o_ptr->name1)						att += 1;
+			break;
+		}
+		case TV_GLOVES:
+		{
+			att = k_ptr->att;
+			if (p_ptr->active_ability[S_SMT][SMT_FINE])	att += 1;
+			if (att > 0)								att =  0;
+			if (smith_o_ptr->name2)						att += e_ptr->max_att;
+			if (smith_o_ptr->name1)						att += 2;
+			break;
+		}
+		case TV_RING:
+		{
+			if (smith_o_ptr->sval == SV_RING_ACCURACY)	att = 4;
+			if (smith_o_ptr->name1)						att = 4;
+			break;
+		}
+	}
+	
+	return (att);
+}
+
+
+/*
+ * Determines the minimum legal attack bonus for an item.
+ */
+int att_min(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
+	int att = 0;
+	
+	switch (smith_o_ptr->tval)
+	{
+		case TV_ARROW:
+		case TV_SWORD:
+		case TV_POLEARM:
+		case TV_HAFTED:
+		case TV_DIGGING:
+		case TV_BOW:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_MAIL:
+		{
+			att = k_ptr->att;
+			if (smith_o_ptr->name2 && (e_ptr->max_att > 0)) att += 1;
+			break;
+		}
+		case TV_RING:
+		{
+			if (smith_o_ptr->sval == SV_RING_ACCURACY) att = 1;
+			break;
+		}
+	}
+	
+	return (att);
+}
+
+
+/*
+ * Determines whether the damage sides of an item is eligible for modification.
+ */
+int ds_valid(void)
+{
+	switch (smith_o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_POLEARM:
+		case TV_HAFTED:
+		case TV_DIGGING:
+		case TV_BOW:
+		{
+			return (TRUE);
+		}
+	}
+	
+	return (FALSE);
+}
+
+
+/*
+ * Determines the maximum legal damage sides for an item.
+ */
+int ds_max(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
+	int ds = 0;
+	
+	switch (smith_o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_POLEARM:
+		case TV_HAFTED:
+		case TV_DIGGING:
+		case TV_BOW:
+		{
+			ds = k_ptr->ds;
+			if (p_ptr->active_ability[S_SMT][SMT_FINE])	ds += 1;
+			if (smith_o_ptr->name2)						ds += e_ptr->to_ds;
+			if (smith_o_ptr->name1)						ds += 2;
+			break;
+		}
+	}
+	
+	return (ds);
+}
+
+
+/*
+ * Determines the minimum legal damage sides for an item.
+ */
+int ds_min(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
+	int ds = 0;
+	
+	switch (smith_o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_POLEARM:
+		case TV_HAFTED:
+		case TV_DIGGING:
+		case TV_BOW:
+		{
+			ds = k_ptr->ds;
+			if (smith_o_ptr->name2 && (e_ptr->to_ds > 0)) ds += 1;
+			break;
+		}
+	}
+	
+	return (ds);
+}
+
+
+/*
+ * Determines whether the evasion bonus of an item is eligible for modification.
+ */
+int evn_valid(void)
+{
+	switch (smith_o_ptr->tval)
+	{
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_MAIL:
+		{
+			return (TRUE);
+		}
+			
+		case TV_RING:
+		{
+			if (smith_o_ptr->sval == SV_RING_EVASION) return (TRUE);
+		}
+	}
+	
+	if (smith_o_ptr->name1 && ((smith_o_ptr->tval == TV_SWORD) || (smith_o_ptr->tval == TV_POLEARM) || (smith_o_ptr->tval == TV_HAFTED)))
+	{
+		return (TRUE);
+	}
+	
+	return (FALSE);
+}
+
+
+/*
+ * Determines the maximum legal evasion bonus for an item.
+ */
+int evn_max(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
+	int evn = 0;
+	
+	switch (smith_o_ptr->tval)
+	{
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_MAIL:
+		{
+			evn = k_ptr->evn;
+			if (p_ptr->active_ability[S_SMT][SMT_FINE])	evn += 1;
+			if (smith_o_ptr->name2)						evn += e_ptr->max_evn;
+			if (smith_o_ptr->name1)						evn += 1;
+			break;
+		}
+			
+		case TV_RING:
+		{
+			if (smith_o_ptr->sval == SV_RING_EVASION)	evn = 4;
+			if (smith_o_ptr->name1)						evn += 4;
+			break;
+		}
+			
+		default:
+		{
+			evn = k_ptr->evn;
+			if (smith_o_ptr->name2) evn += e_ptr->max_evn;
+			if (smith_o_ptr->name1) evn += 1;
+		}
+	}
+	
+	return (evn);
+}
+
+
+/*
+ * Determines the minimum legal evasion bonus for an item.
+ */
+int evn_min(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
+	int evn = 0;
+	
+	switch (smith_o_ptr->tval)
+	{
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_MAIL:
+		{
+			evn = k_ptr->evn;
+			if (smith_o_ptr->name2 && (e_ptr->max_evn > 0)) evn += 1;
+			break;
+		}
+			
+		case TV_RING:
+		{
+			if (smith_o_ptr->sval == SV_RING_EVASION) evn = 1;
+			break;
+		}
+			
+		default:
+		{
+			evn = k_ptr->evn;
+			if (smith_o_ptr->name2 && (e_ptr->max_evn > 0)) evn += 1;
+		}
+	}
+	
+	return (evn);
+}
+
+
+/*
+ * Determines whether the protection sides of an item is eligible for modification.
+ */
+int ps_valid(void)
+{
+	switch (smith_o_ptr->tval)
+	{
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_MAIL:
+		{
+			return (TRUE);
+		}
+			
+		case TV_RING:
+		{
+			if (smith_o_ptr->sval == SV_RING_PROTECTION) return (TRUE);
+		}
+	}
+	
+	return (FALSE);
+}
+
+
+/*
+ * Determines the maximum legal protection sides for an item.
+ */
+int ps_max(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
+	int ps = 0;
+	
+	switch (smith_o_ptr->tval)
+	{
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_MAIL:
+		{
+			ps = k_ptr->ps;
+			
+			if (p_ptr->active_ability[S_SMT][SMT_FINE])	ps += 1;
+
+			// cloaks, robes and filthy rags cannot get extra protection sides
+			if ((smith_o_ptr->tval == TV_CLOAK) || 
+			    ((smith_o_ptr->tval == TV_SOFT_ARMOR) && (smith_o_ptr->sval == SV_FILTHY_RAG)) ||
+				((smith_o_ptr->tval == TV_SOFT_ARMOR) && (smith_o_ptr->sval == SV_ROBE)) )
+			{
+				ps = 0;
+			}
+			
+			if (smith_o_ptr->name2) ps += e_ptr->to_ps;
+			if (smith_o_ptr->name1) ps += 2;
+			break;
+		}
+			
+		case TV_RING:
+		{
+			if (smith_o_ptr->sval == SV_RING_PROTECTION)	ps =  3;
+			if (smith_o_ptr->name1)							ps += 3;
+			break;
+		}
+	}
+	
+	return (ps);
+}
+
+
+/*
+ * Determines the minimum legal protection sides for an item.
+ */
+int ps_min(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
+	int ps = 0;
+	
+	switch (smith_o_ptr->tval)
+	{
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_MAIL:
+		{
+			ps = k_ptr->ps;
+			if (smith_o_ptr->name2 && (e_ptr->to_ps > 0)) ps += 1;
+			break;
+		}
+			
+		case TV_RING:
+		{
+			if (smith_o_ptr->sval == SV_RING_PROTECTION) ps = 1;
+			break;
+		}
+	}
+	
+	return (ps);
+}
+
+
+/*
+ * Determines whether the pval of an item is eligible for modification.
+ */
+int pval_valid(void)
+{
+	u32b f1, f2, f3;
+	
+	object_flags(smith_o_ptr, &f1, &f2, &f3);
+	
+	return (f1 & (TR1_PVAL_MASK));
+}
+
+
+/*
+ * Determines the maximum legal pval for an item.
+ */
+int pval_max(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
+	u32b f1, f2, f3;
+	int pval = 4;
+	
+	object_flags(smith_o_ptr, &f1, &f2, &f3);
+	
+	// start with the base pval
+	pval = k_ptr->pval;
+	
+	// artefacts have pvals that are mostly unlimited 
+	if (smith_o_ptr->name1)
+	{
+		pval += 4;
+	}
+	
+	// non-artefact rings and amulets have a maximum pval of 4
+	else if ((smith_o_ptr->tval == TV_RING) || (smith_o_ptr->tval == TV_AMULET))
+	{
+		pval = 4;
+	}
+	
+	// special items have pvals that are limited by their 'special.txt' entries
+	if (smith_o_ptr->name2)
+	{
+		pval += e_ptr->max_pval;
+	}
+	
+	return (pval);
+}
+
+
+/*
+ * Determines the minimum legal pval for an item.
+ */
+int pval_min(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	u32b f1, f2, f3;
+	int pval = 0;
+	
+	object_flags(smith_o_ptr, &f1, &f2, &f3);
+	
+	// start with the base pval
+	pval = k_ptr->pval;
+	
+	// artefacts have pvals that are mostly unlimited 
+	if (smith_o_ptr->name1)
+	{
+		pval -= 4;
+	}
+	
+	// non-artefact rings and amulets have a maximum pval of 4
+	else if ((smith_o_ptr->tval == TV_RING) || (smith_o_ptr->tval == TV_AMULET))
+	{
+		pval = -4;
+	}
+
+	// special items have pvals that are limited by their 'special.txt' entries
+	if (smith_o_ptr->name2)
+	{
+		if ((&e_info[smith_o_ptr->name2])->max_pval > 0) pval += 1;
+	}
+	
+	return (pval);
+}
+
+
+/*
+ * Determines whether the weight of an item is eligible for modification.
+ */
+int wgt_valid(void)
+{
+	switch (smith_o_ptr->tval)
+	{
+		case TV_ARROW:
+		case TV_RING:
+		case TV_AMULET:
+		case TV_LIGHT:
+		{
+			return (FALSE);
+		}
+	}
+	
+	return (TRUE);
+}
+
+
+/*
+ * Determines the maximum legal weight for an item.
+ */
+int wgt_max(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	
+	return (k_ptr->weight * 2);
+}
+
+
+/*
+ * Determines the minimum legal weight for an item.
+ */
+int wgt_min(void)
+{
+	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	
+	return ((k_ptr->weight + 1) / 2);
+}
+
+
+bool melt_mithril_item(int item_num)
+{
+	int number = 0;
+	int item, i;
+	u32b f1, f2, f3;
+	
+	for (item = 0; item < INVEN_TOTAL; item++)
+	{
+		object_type *o_ptr = &inventory[item];
+		
+		object_flags(o_ptr, &f1, &f2, &f3);
+		
+		if (f3 & (TR3_MITHRIL))
+		{
+			number += 1;
+		}
+		
+		if (number == item_num)
+		{
+			int slots_needed = o_ptr->weight / 99;
+			int empty_slots = 0;
+			
+			// Equipments needs an extra slot
+			if (item >= INVEN_WIELD) slots_needed++;
+			
+			// Count empty slots
+			for (i = INVEN_PACK - 1; i > 0; i--)
+			{
+				if (!(&inventory[i])->k_idx) empty_slots++;
+			}
+			
+			if (empty_slots < slots_needed)
+			{
+				msg_print("You do not have enough room in your pack.");
+				if (slots_needed - empty_slots == 1)
+				{
+					msg_print("You must free up another slot.");
+				}
+				else
+				{
+					msg_format("You must free up %d more slots.", slots_needed - empty_slots);
+				}
+				return (FALSE);
+			}
+				
+			if (get_check("Are you sure you wish to melt this item down? "))
+			{
+				int slot;
+				object_type *i_ptr;
+				object_type object_type_body;
+
+				// Get local object
+				i_ptr = &object_type_body;
+				
+				// Prepare the base object for the mithril
+				object_prep(i_ptr, lookup_kind(TV_METAL, SV_METAL_MITHRIL));
+							
+				// set the appropriate quantity
+				i_ptr->number = o_ptr->weight;
+
+				// remove the item
+				inven_item_increase(item, -1);
+				inven_item_describe(item);
+				inven_item_optimize(item);
+				window_stuff();
+				
+				// give the mithril to the player...
+				
+				// if there is too much, then break it up
+				while (i_ptr->number > 99)
+				{
+					object_type *i_ptr2;
+					object_type object_type_body2;
+
+					// Get local object
+					i_ptr2 = &object_type_body2;
+					
+					// decrease the main stack
+					i_ptr->number -= 99;
+
+					// Prepare the base object for the mithril
+					object_prep(i_ptr2, lookup_kind(TV_METAL, SV_METAL_MITHRIL));
+
+					// increase the new stack
+					i_ptr2->number = 99;
+					
+					// give it to the player
+					slot = inven_carry(i_ptr2);
+					inven_item_optimize(slot);
+					inven_item_describe(slot);
+					window_stuff();
+				}
+				
+				// now give the last stack of mithril to the player
+				slot = inven_carry(i_ptr);
+				inven_item_optimize(slot);
+				inven_item_describe(slot);
+				window_stuff();
+				
+				return (TRUE);
+			}
+			
+			else return (FALSE);
+			
+		}
+	}
+	
+	return (FALSE);
+}
+
+
+int mithril_items_carried(void)
+{
+	int number = 0;
+	int item;
+	u32b f1, f2, f3;
+	
+	for (item = 0; item < INVEN_TOTAL; item++)
+	{
+		object_type *o_ptr = &inventory[item];
+		
+		object_flags(o_ptr, &f1, &f2, &f3);
+		
+		if (f3 & (TR3_MITHRIL))
+		{
+			number += 1;
+		}
+	}
+	
+	return (number);
+}
+
+int mithril_carried(void)
+{
+	int w = 0;
+	int item;
+	
+	for (item = 0; item < INVEN_WIELD; item++)
+	{
+		object_type *o_ptr = &inventory[item];
+		
+		if ((o_ptr->tval == TV_METAL) && (o_ptr->sval == SV_METAL_MITHRIL))
+		{
+			w += o_ptr->number;
+		}
+	}
+	
+	return (w);
+}
+
+
+void use_mithril(int cost)
+{
+	int item;
+	
+	for (item = INVEN_WIELD - 1; item >= 0; item--)
+	{
+		object_type *o_ptr = &inventory[item];
+		
+		if ((o_ptr->tval == TV_METAL) && (o_ptr->sval == SV_METAL_MITHRIL))
+		{
+			if (o_ptr->number >= cost)
+			{
+				inven_item_increase(item, -cost);
+				inven_item_describe(item);
+				inven_item_optimize(item);
+				return;
+			}
+			else
+			{
+				cost -= o_ptr->number;
+				inven_item_increase(item, -o_ptr->number);
+				inven_item_describe(item);
+				inven_item_optimize(item);
+			}
+		}
+	}
+	
+	return;
+}
+
+
+/*
+ * Determines how many uses are left for a given forge.
+ */
+int forge_uses(int y, int x)
+{
+	byte feat = cave_feat[y][x];
+	
+	if (!cave_forge_bold(y, x)) return (0);
+	
+	if (feat <= FEAT_FORGE_NORMAL_TAIL)		return (feat - FEAT_FORGE_NORMAL_HEAD);
+	if (feat <= FEAT_FORGE_GOOD_TAIL)		return (feat - FEAT_FORGE_GOOD_HEAD);
+	else									return (feat - FEAT_FORGE_UNIQUE_HEAD);
+}
+
+
+/*
+ * Determines how high a bonus is provided by a given forge.
+ */
+int forge_bonus(int y, int x)
+{
+	byte feat = cave_feat[y][x];
+	
+	if (!cave_forge_bold(y, x)) return (0);
+	
+	if (feat <= FEAT_FORGE_NORMAL_TAIL)		return (0);
+	if (feat <= FEAT_FORGE_GOOD_TAIL)		return (3);
+	else									return (7);
+}
+
+
+/*
+ * Determines the difficulty modifier for pvals.
+ *
+ * The difficulty reduction from negative pvals uses a different (smaller) base to that of positive.
+ *
+ * The marginal difficulty of increasing a pval increases by 1 each time, if the base is up to 5,
+ * by 2 each time if the base is 6--10, and so on.
+ */
+void dif_mod(int value, int positive_base, int negative_base, int *dif_inc, int *dif_dec)
+{
+	int mod = 1 + ((positive_base-1) / 5);
+	
+	// deal with positive values in a triangular number influenced way
+	if (value > 0)
+	{
+		*dif_inc += positive_base * value + mod * (value * (value - 1) / 2);
+	}
+
+	// deal with negative values in a exponentially declining way
+	if (value < 0)
+	{
+		int i;
+		int x = 0;
+		
+		for (i = 0; i < -value; i++)
+		{
+			x += negative_base;
+			negative_base /= 2;
+		}
+		
+		*dif_dec += x;
+	}
+}
+
+
+/*
+ * Determines the difficulty of a given object.
+ */
+int object_difficulty(object_type *o_ptr)
+{
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	int x, new, base;
+	int i;
+	int dif = 0;
+	int dif_inc = 0;
+	int dif_dec = 0;
+	int weight_factor;
+	u32b f1, f2, f3;
+	int brands = 0;
+		
+	// reset smithing costs
+	smithing_cost.str = 0;
+	smithing_cost.dex = 0;
+	smithing_cost.con = 0;
+	smithing_cost.gra = 0;
+	smithing_cost.exp = 0;
+	smithing_cost.mithril = 0;
+	smithing_cost.uses = 1;
+	smithing_cost.drain = 0;
+	
+	// extract object flags
+	object_flags(o_ptr, &f1, &f2, &f3);
+	
+	if (!((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)))
+	{
+		// We need to ignore the flags that are basic 
+		// to the object type and focus on the special/artefact ones. We can do this by 
+		// subtracting out the basic flags
+		f1 &= ~(k_ptr->flags1);
+		f2 &= ~(k_ptr->flags2);
+		f3 &= ~(k_ptr->flags3);
+		
+		// need to add tunneling back in...
+		if (k_ptr->flags1 & TR1_TUNNEL) f1 |= TR1_TUNNEL;
+		
+		// need to add stealth back in...
+		if (k_ptr->flags1 & TR1_STL) f1 |= TR1_STL;
+
+		// base item
+		dif_inc += k_ptr->level / 2;
+	}
+		
+	// unsual weight
+	if (o_ptr->weight > k_ptr->weight)	weight_factor = 100 * o_ptr->weight / k_ptr->weight;
+	else								weight_factor = 100 * k_ptr->weight / o_ptr->weight;
+	dif_inc += (weight_factor - 100) / 10;
+
+	// attack bonus
+	x = o_ptr->att - k_ptr->att;
+
+	// special costs for arrows (half difficulty modifier)
+	if ((o_ptr->tval == TV_ARROW) && (x > 0))
+	{	
+		int old_di = dif_inc;
+		
+		dif_mod(x, 5, 2, &dif_inc, &dif_dec);
+		dif_inc = (dif_inc - old_di) / 2;
+	}
+	
+	// other items
+	else
+	{
+		dif_mod(x, 5, 2, &dif_inc, &dif_dec);
+	}
+	
+	// evasion bonus
+	x = o_ptr->evn - k_ptr->evn;
+	dif_mod(x, 5, 2, &dif_inc, &dif_dec);
+	
+	// damage bonus
+	x = (o_ptr->ds - k_ptr->ds);
+	dif_mod(x, 8 + o_ptr->dd, 2, &dif_inc, &dif_dec);
+
+	// protection bonus
+	base = (k_ptr->ps > 0) ? ((k_ptr->ps + 1) * k_ptr->pd) : 0;
+	new = (o_ptr->ps > 0) ? ((o_ptr->ps + 1) * o_ptr->pd) : 0;
+	x = new - base;
+	dif_mod(x, 4, 2, &dif_inc, &dif_dec);
+
+	// weapon modifiers
+	if (f1 & TR1_SLAY_ORC)			{	dif_inc += 4;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_TROLL)		{	dif_inc += 4;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_WOLF)			{	dif_inc += 4;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_SPIDER)		{	dif_inc += 4;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_UNDEAD)		{	dif_inc += 4;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_RAUKO)		{	dif_inc += 4;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_DRAGON)		{	dif_inc += 4;	smithing_cost.str += 1;	}
+	
+	if (f1 & TR1_BRAND_COLD)		{	dif_inc += 12;	smithing_cost.str += 2;	brands++; }
+	if (f1 & TR1_BRAND_FIRE)		{	dif_inc += 10;	smithing_cost.str += 2;	brands++; }
+	if (f1 & TR1_BRAND_POIS)		{	dif_inc += 8;	smithing_cost.str += 2;	brands++; }
+	if (brands > 1)					{	dif_inc += (brands-1) * 20;						  }
+	
+	if (f1 & TR1_SHARPNESS)			{	dif_inc += 15;	smithing_cost.str += 2;	}
+	if (f1 & TR1_SHARPNESS2)		{	dif_inc += 40;	smithing_cost.str += 5;	} // not available in smithing
+	if (f1 & TR1_VAMPIRIC)			{	dif_inc += 10;	smithing_cost.str += 2;	}
+	
+	// pval dependent bonuses
+	if (f1 & TR1_TUNNEL)
+	{
+		x = o_ptr->pval - k_ptr->pval;
+		dif_mod(x, 10, 0, &dif_inc, &dif_dec);
+		smithing_cost.str += (x > 0) ? x : 0;
+	}
+	if (o_ptr->pval != 0)
+	{
+		x = o_ptr->pval;
+		
+		if (f1 & TR1_DAMAGE_SIDES)	{	dif_mod(x, 12, 0, &dif_inc, &dif_dec);	smithing_cost.str += x;		}
+		if (f1 & TR1_STR)			{	dif_mod(x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.str += x;		}
+		if (f1 & TR1_DEX)			{	dif_mod(x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.dex += x;		}
+		if (f1 & TR1_CON)			{	dif_mod(x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.con += x;		}
+		if (f1 & TR1_GRA)			{	dif_mod(x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.gra += x;		}
+		if (f1 & TR1_NEG_STR)		{	dif_mod(-x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.str -= x;		}
+		if (f1 & TR1_NEG_DEX)		{	dif_mod(-x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.dex -= x;		}
+		if (f1 & TR1_NEG_CON)		{	dif_mod(-x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.con -= x;		}
+		if (f1 & TR1_NEG_GRA)		{	dif_mod(-x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.gra -= x;		}
+		if (f1 & TR1_MEL)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_ARC)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_STL)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_PER)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_WIL)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_SMT)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_SNG)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
+	}
+	
+	// Sustains
+	if (f2 & TR2_SUST_STR)		{	dif_inc += 3;	smithing_cost.str += 1;	}
+	if (f2 & TR2_SUST_DEX)		{	dif_inc += 3;	smithing_cost.dex += 1;	}
+	if (f2 & TR2_SUST_CON)		{	dif_inc += 3;	smithing_cost.con += 1;	}
+	if (f2 & TR2_SUST_GRA)		{	dif_inc += 3;	smithing_cost.gra += 1;	}
+	
+	// Abilities
+	if (f2 & TR2_SLOW_DIGEST) 	{	dif_inc += 4;							}
+	if (f2 & TR2_RADIANCE) 		{	dif_inc += 8;	smithing_cost.gra += 1;	}
+	if (f2 & TR2_LIGHT)			{	dif_inc += 8;	smithing_cost.gra += 1;	}
+	if (f2 & TR2_REGEN) 		{	dif_inc += 8;	smithing_cost.con += 1;	}
+	if (f2 & TR2_SEE_INVIS) 	{	dif_inc += 8;							}
+	if (f2 & TR2_FREE_ACT) 		{	dif_inc += 8;							}
+	if (f2 & TR2_SPEED)			{	dif_inc += 25;	smithing_cost.con += 5;	}
+	
+	// Elemental Resistances
+	if (f2 & TR2_RES_COLD)		{	dif_inc += 8;	smithing_cost.con += 1;	}
+	if (f2 & TR2_RES_FIRE)		{	dif_inc += 8;	smithing_cost.con += 1;	}
+	if (f2 & TR2_RES_POIS)		{	dif_inc += 8;	smithing_cost.con += 1;	}
+	if (f2 & TR2_RES_DARK)		{	dif_inc += 8;	smithing_cost.gra += 1;	}
+	
+	// Other Resistances
+	if (f2 & TR2_RES_BLIND)		{	dif_inc += 6;							}
+	if (f2 & TR2_RES_CONFU)		{	dif_inc += 6;							}
+	if (f2 & TR2_RES_STUN)		{	dif_inc += 3;							}
+	if (f2 & TR2_RES_FEAR)		{	dif_inc += 3;							}
+	if (f2 & TR2_RES_HALLU)		{	dif_inc += 3;							}
+
+	// Penalty Flags
+	if (f2 & TR2_HUNGER)		{	dif_dec += 2;	}
+	if (f2 & TR2_DARKNESS)		{	dif_dec += 2;	}
+	if (f2 & TR2_SLOWNESS)		{	dif_dec += 5;	}
+	if (f2 & TR2_DANGER)		{	dif_dec += 2;	}
+	if (f2 & TR2_AGGRAVATE)		{	dif_dec += 2;	}
+	
+	// Unimplemented Flags
+	if (f1 & TR1_DAMAGE_DICE)	{	dif_inc += 0;	}
+	if (f2 & TR2_TELEPATHY)		{	dif_inc += 0;	}
+	if (f2 & TR2_LIFE_SAVING)	{	dif_inc += 0;	}
+	if (f3 & TR3_DETECT_ORC)	{	dif_inc += 0;	}
+
+	// Abilities
+	for (i = 0; i < o_ptr->abilities; i++)
+	{
+		dif_inc += 5 + (&b_info[ability_index(o_ptr->skilltype[i],o_ptr->abilitynum[i])])->level / 2;
+		smithing_cost.exp += 500;
+	}
+	
+	// Mithirl
+	if (k_ptr->flags3 & TR3_MITHRIL)	{	smithing_cost.mithril += o_ptr->weight;	}
+	
+	// Penalty for being an artefact
+	if (o_ptr->name1)					{	smithing_cost.uses += 2;	}
+	
+	// Cap the difficulty reduction at 8
+	if (dif_dec > 8) dif_dec = 8;
+	
+	// Set the overall difficulty
+	dif = dif_inc - dif_dec;
+	
+	// Lower difficulties for two-handed items
+	if (k_ptr->flags3 & (TR3_TWO_HANDED))
+	{
+		dif = 2 * dif / 3;
+	}
+	
+	// Deal with masterpiece
+	if ((dif > p_ptr->skill_use[S_SMT] + forge_bonus(p_ptr->py, p_ptr->px)) && p_ptr->active_ability[S_SMT][SMT_MASTERPIECE])
+	{
+		smithing_cost.drain += dif - (p_ptr->skill_use[S_SMT] + forge_bonus(p_ptr->py, p_ptr->px));
+	}
+	
+	// Arrows don't cost ability points
+	//if (o_ptr->tval == TV_ARROW)
+	//{
+	//	smithing_cost.str = 0;
+	//	smithing_cost.dex = 0;
+	//	smithing_cost.con = 0;
+	//	smithing_cost.gra = 0;
+	//}
+	
+	return (dif);
+}
+
+
+/*
+ * Clears the object's name and description at the bottom of the screen.
+ */
+void wipe_object_description(void)
+{
+	int i;
+	
+	for (i = 0; i < 5; i++)
+	{
+		Term_putstr(1, MAX_SMITHING_TVALS + 3 + i, -1, TERM_WHITE, "                                                                           ");
+	}
+}
+
+
+/*
+ * Displays the object's name and description at the bottom of the screen.
+ */
+void prt_object_description(void)
+{
+	char o_desc[80];
+	char buf[80];
+	int display_flag;
+
+	wipe_object_description();
+
+	if (p_ptr->smithing_leftover)
+	{
+		Term_putstr(COL_SMT1, MAX_SMITHING_TVALS + 3, -1, TERM_L_BLUE, "In progress:");
+		sprintf(buf, "%3d turns left", p_ptr->smithing_leftover);
+		Term_putstr(COL_SMT1-1, MAX_SMITHING_TVALS + 5, -1, TERM_BLUE, buf);
+	}
+
+	// abort if there is no object to display
+	if (smith_o_ptr->tval == 0) return;
+
+	if (smith_o_ptr->number > 1)		display_flag = TRUE;
+	else								display_flag = FALSE;
+	
+	object_desc(o_desc, sizeof(o_desc), smith_o_ptr, display_flag, 2);
+	
+	my_strcat(o_desc, format("   %d.%d lb", smith_o_ptr->weight * smith_o_ptr->number / 10, 
+	                                        (smith_o_ptr->weight  * smith_o_ptr->number) % 10), sizeof(o_desc));
+	
+	Term_putstr(COL_SMT2, MAX_SMITHING_TVALS + 3, -1, TERM_L_WHITE, o_desc);
+	
+	Term_gotoxy(COL_SMT2, MAX_SMITHING_TVALS + 4);
+	
+	/* Set hooks for character dump */
+	object_info_out_flags = object_flags;
+	
+	/* Set the indent/wrap */
+	text_out_indent = COL_SMT2;
+	text_out_wrap = 79;
+	
+	text_out_hook = text_out_to_screen;
+	
+	text_out_c(TERM_WHITE, k_text + k_info[smith_o_ptr->k_idx].text);
+	
+	if ((k_text + k_info[smith_o_ptr->k_idx].text)[0] != '\0') text_out(" ");
+	
+	/* Dump the info */
+	if (object_info_out(smith_o_ptr))
+		text_out("\n");
+	
+	/* Reset indent/wrap */
+	text_out_indent = 0;
+	text_out_wrap = 0;
+}
+
+
+/*
+ * Determines whether an item is too difficult to make.
+ */
+int too_difficult(object_type *o_ptr)
+{
+	int ability = p_ptr->skill_use[S_SMT] + forge_bonus(p_ptr->py, p_ptr->px);
+	int dif = object_difficulty(o_ptr);
+	
+	if (p_ptr->active_ability[S_SMT][SMT_MASTERPIECE]) ability += p_ptr->skill_base[S_SMT];
+	
+	if (ability < dif)	return (TRUE);
+	else				return (FALSE);
+}
+
+
+/*
+ * Displays the object's difficulty and costs in the right hand side of the screen.
+ */
+void prt_object_difficulty(void)
+{
+	int dif;
+	char buf[80];
+	int costs = 0;
+	byte attr;
+	bool affordable = TRUE;
+	
+	Term_putstr(COL_SMT4, 3, -1, TERM_WHITE, "                 ");
+	
+	// abort if there is no object to display
+	if (smith_o_ptr->tval == 0) return;
+	
+	// display difficulty information
+	if (too_difficult(smith_o_ptr)) attr = TERM_L_DARK;
+	else							attr = TERM_SLATE;
+	
+	Term_putstr(COL_SMT4,     2, -1, attr, "Difficulty:");
+
+	// change colour if smithing drain is required
+	if ((smithing_cost.drain > 0) && (smithing_cost.drain <= p_ptr->skill_base[S_SMT]))
+	{
+		attr = TERM_BLUE;
+	}
+
+	// calculate difficulty (and costs)
+	dif = object_difficulty(smith_o_ptr);
+		
+	sprintf(buf, "%d", dif);
+	Term_putstr(COL_SMT4 + 2, 4, -1, attr, buf);
+
+	sprintf(buf, "(max %d)", p_ptr->skill_use[S_SMT] + forge_bonus(p_ptr->py, p_ptr->px));
+	Term_putstr(COL_SMT4 + 5, 4, -1, TERM_L_DARK, buf);
+	
+	// display cost information
+	if (smithing_cost.uses > 0)
+	{
+		if (forge_uses(p_ptr->py,p_ptr->px) >= smithing_cost.uses)
+		{
+			attr = TERM_SLATE;
+		}
+		else
+		{
+			attr = TERM_L_DARK;
+			affordable = FALSE;
+		}		
+		if (smithing_cost.uses == 1)
+		{
+			sprintf(buf, "%d Use", smithing_cost.uses);
+		}
+		else
+		{
+			sprintf(buf, "%d Uses", smithing_cost.uses);
+		}
+		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
+		
+		sprintf(buf, "(of %d)", forge_uses(p_ptr->py,p_ptr->px));
+		Term_putstr(COL_SMT4 + 9, 10 + costs, -1, TERM_L_DARK, buf);
+		costs++;
+	}
+	if (smithing_cost.drain > 0)
+	{
+		if (smithing_cost.drain <= p_ptr->skill_base[S_SMT])
+		{
+			attr = TERM_BLUE;
+		}
+		else
+		{
+			attr = TERM_L_DARK;
+			affordable = FALSE;
+		}													
+		sprintf(buf, "%d Smithing", smithing_cost.drain);
+		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
+		costs++;
+	}
+	if (smithing_cost.mithril > 0)
+	{
+		if (smithing_cost.mithril <= mithril_carried())
+		{
+			attr = TERM_SLATE;
+		}
+		else
+		{
+			attr = TERM_L_DARK;
+			affordable = FALSE;
+		}													
+		sprintf(buf, "%d.%d lb Mithril", smithing_cost.mithril / 10, smithing_cost.mithril % 10);
+		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
+		costs++;
+	}
+	if (smithing_cost.str > 0)
+	{
+		if (p_ptr->stat_base[A_STR] + p_ptr->stat_drain[A_STR] - smithing_cost.str >= -5)
+		{
+			attr = TERM_SLATE;
+		}
+		else
+		{
+			attr = TERM_L_DARK;
+			affordable = FALSE;
+		}													
+		sprintf(buf, "%d Str", smithing_cost.str);
+		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
+		costs++;
+	}
+	if (smithing_cost.dex > 0)
+	{
+		if (p_ptr->stat_base[A_DEX] + p_ptr->stat_drain[A_DEX] - smithing_cost.dex >= -5)
+		{
+			attr = TERM_SLATE;
+		}
+		else
+		{
+			attr = TERM_L_DARK;
+			affordable = FALSE;
+		}													
+		sprintf(buf, "%d Dex", smithing_cost.dex);
+		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
+		costs++;
+	}
+	if (smithing_cost.con > 0)
+	{
+		if (p_ptr->stat_base[A_CON] + p_ptr->stat_drain[A_CON] - smithing_cost.con >= -5)
+		{
+			attr = TERM_SLATE;
+		}
+		else
+		{
+			attr = TERM_L_DARK;
+			affordable = FALSE;
+		}															
+		sprintf(buf, "%d Con", smithing_cost.con);
+		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
+		costs++;
+	}
+	if (smithing_cost.gra > 0)
+	{
+		if (p_ptr->stat_base[A_GRA] + p_ptr->stat_drain[A_GRA] - smithing_cost.gra >= -5)
+		{
+			attr = TERM_SLATE;
+		}
+		else
+		{
+			attr = TERM_L_DARK;
+			affordable = FALSE;
+		}			
+		sprintf(buf, "%d Gra", smithing_cost.gra);
+		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
+		costs++;
+	}
+	if (smithing_cost.exp > 0)
+	{
+		if (p_ptr->new_exp >= smithing_cost.exp)
+		{
+			attr = TERM_SLATE;
+		}
+		else
+		{
+			attr = TERM_L_DARK;
+			affordable = FALSE;
+		}		
+		sprintf(buf, "%d Exp", smithing_cost.exp);
+		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
+		costs++;
+	}
+	if (costs == 0)
+	{
+		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, TERM_SLATE, "-");
+	}
+	
+	// display cost title
+	if (affordable)	attr = TERM_SLATE;
+	else	attr = TERM_L_DARK;
+	Term_putstr(COL_SMT4,     8, -1, attr, "Cost:");
+
+}
+
+
+/*
+ * Checks whether you can pay the costs in terms of ability points and
+ * experience needed to make the object.
+ */
+bool affordable(object_type *o_ptr)
+{
+	bool can_afford = TRUE;
+	
+	// can't afford non-existant items
+	if (o_ptr->tval == 0) return (FALSE);
+	
+	if (too_difficult(o_ptr)) can_afford = FALSE;
+	if ((smithing_cost.str > 0) && (p_ptr->stat_base[A_STR] + p_ptr->stat_drain[A_STR] - smithing_cost.str < -5)) can_afford = FALSE;
+	if ((smithing_cost.dex > 0) && (p_ptr->stat_base[A_DEX] + p_ptr->stat_drain[A_DEX] - smithing_cost.dex < -5)) can_afford = FALSE;
+	if ((smithing_cost.con > 0) && (p_ptr->stat_base[A_CON] + p_ptr->stat_drain[A_CON] - smithing_cost.con < -5)) can_afford = FALSE;
+	if ((smithing_cost.gra > 0) && (p_ptr->stat_base[A_GRA] + p_ptr->stat_drain[A_GRA] - smithing_cost.gra < -5)) can_afford = FALSE;
+	if (smithing_cost.exp > p_ptr->new_exp) can_afford = FALSE;
+	if ((smithing_cost.mithril > 0) && (smithing_cost.mithril > mithril_carried())) can_afford = FALSE;
+	if (forge_uses(p_ptr->py,p_ptr->px) < smithing_cost.uses) can_afford = FALSE;
+	
+	return (can_afford);
+}
+
+
+/*
+ * Pay the costs in terms of ability points and experience needed to make the object.
+ */
+void pay_costs()
+{
+	if (smithing_cost.str > 0) p_ptr->stat_drain[A_STR] -= smithing_cost.str;
+	if (smithing_cost.dex > 0) p_ptr->stat_drain[A_DEX] -= smithing_cost.dex;
+	if (smithing_cost.con > 0) p_ptr->stat_drain[A_CON] -= smithing_cost.con;
+	if (smithing_cost.gra > 0) p_ptr->stat_drain[A_GRA] -= smithing_cost.gra;
+	
+	if (smithing_cost.exp > 0) p_ptr->new_exp -= smithing_cost.exp;
+	if (smithing_cost.mithril > 0) use_mithril(smithing_cost.mithril);	
+	if (smithing_cost.uses > 0) cave_feat[p_ptr->py][p_ptr->px] -= smithing_cost.uses;
+	if (smithing_cost.drain > 0) p_ptr->skill_base[S_SMT] -= smithing_cost.drain;
+}
+
+
+/*
+ * Creates the base object (not in the dungeon, but just as a work in progress).
+ */
+void create_base_object(int tval, int sval)
+{
+	/* Wipe the object */
+	object_wipe(smith_o_ptr);
+	
+	/* Prepare the item */
+	object_prep(smith_o_ptr, lookup_kind(tval, sval));
+	
+	// set the pval to 1 if needed (and evasion/accuracy for rings)
+	apply_magic_fake(smith_o_ptr);
+	
+	// use a default weight
+	smith_o_ptr->weight = (&k_info[smith_o_ptr->k_idx])->weight;
+	
+	// display all attributes
+	smith_o_ptr->ident |= (IDENT_KNOWN | IDENT_SPOIL);
+
+	// create arrows by the two dozen
+	if (tval == TV_ARROW)
+	{
+		smith_o_ptr->number = 24;
+	}
+}
+
+
+/*
+ * Performs the interface and selection work for the sval part of the base item menu.
+ */
+int create_sval_menu_aux(int tval, int *highlight)
+{
+	char ch;
+	int i, num;
+	char buf[80];
+	bool valid[20];
+	int choice[20];
+	
+	int sval = 0; // default to soothe compiler warnings
+	
+	// clear the right of the screen
+	wipe_screen_from(COL_SMT4);
+
+	/* We have to search the whole itemlist. */
+	for (num = 0, i = 1; i < z_info->k_max; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+		char name[80];
+		
+		/* Analyze matching items */
+		if (k_ptr->tval == tval)
+		{
+			/* Skip instant artefact item types */
+			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+
+			/* Skip certain item types that cannot be made */
+			if (k_ptr->flags3 & (TR3_NO_SMITHING)) continue;
+			
+			/* Get the "name" of object "i" */
+			strip_name(name, i);
+			
+			// make a simple version of the object
+			create_base_object(tval, k_ptr->sval);
+
+			// Check whether it is a valid choice for creating
+			if (affordable(smith_o_ptr))	valid[num] = TRUE;
+			else							valid[num] = FALSE;
+			
+			/* Print it */
+			strnfmt(buf, 80, "%c) %s", (char) 'a' + num, name);
+			Term_putstr(COL_SMT3, num + 2, -1, valid[num] ? TERM_WHITE : TERM_SLATE, buf);
+			
+			// note the sval
+			if (*highlight-1 == num) sval = k_ptr->sval;
+			
+			/* Remember the object index */
+			choice[num] = i;
+			
+			// count the applicable items
+			num++;
+		}
+	}
+	
+	// highlight the label
+	strnfmt(buf, 80, "%c)", (char) 'a' + *highlight - 1);
+	Term_putstr(COL_SMT3, *highlight + 1, -1, TERM_L_BLUE, buf);
+		
+	// make a simple version of the object
+	create_base_object(tval, sval);
+	
+	// display the object description
+	prt_object_description();
+	
+	// display the object difficulty
+	prt_object_difficulty();
+	
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(14, 1 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	if ((ch >= 'a') && (ch <= (char) 'a' + MAX_SMITHING_TVALS - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;
+		
+		// run this function again to display the highlight on the right choice
+		create_sval_menu_aux(tval, highlight);
+		
+		return (*highlight);
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		return (*highlight);
+	}
+	
+	if ((ch == '4') || (ch == ESCAPE))
+	{
+		*highlight = -1;
+		return (*highlight);
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		if (*highlight > 1) (*highlight)--;
+		else if (*highlight == 1) *highlight = num;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		if (*highlight < num) (*highlight)++;
+		else if (*highlight == num) *highlight = 1;
+	}
+	
+	return (0);
+} 
+
+
+/*
+ * Displays a menu for choosing a base item's sval.
+ */
+bool create_sval_menu(int tval)
+{
+	int choice = -1;
+	int highlight = 1;
+		
+	bool leave_menu = FALSE;
+	bool completed = FALSE;
+	
+	/* Save screen */
+	screen_save();
+	
+	/* Process Events until "Return to Game" is selected */
+	while (!leave_menu)
+	{
+		choice = create_sval_menu_aux(tval, &highlight);
+		
+		if (choice >= 1)
+		{
+			leave_menu = TRUE;
+			completed = TRUE;
+		}
+		else if (choice == -1)
+		{
+			/* Wipe the object */
+			object_wipe(smith_o_ptr);
+			
+			leave_menu = TRUE;
+		}
+	}
+	
+	/* Load screen */
+	screen_load();
+	
+	return (completed);
+}
+
+
+/*
+ * Performs the interface and selection work for the tval part of the base item menu.
+ */
+int create_tval_menu_aux(int *highlight)
+{
+	char ch;
+	int i;
+	char buf[80];
+	bool valid[MAX_SMITHING_TVALS];
+	
+	// clear the right of the screen
+	wipe_screen_from(COL_SMT2);
+
+	// clear bottom of the screen
+	wipe_object_description();
+
+	/* Wipe the smithing object */
+	object_wipe(smith_o_ptr);
+
+	for (i = 0; i < MAX_SMITHING_TVALS; i++)
+	{
+		strnfmt(buf, 80, "%c) %s", (char) 'a' + i, smithing_tvals[i].desc);
+		
+		if (smithing_tvals[i].category == CAT_WEAPON)
+		{
+			valid[i] = p_ptr->active_ability[S_SMT][SMT_WEAPONSMITH];
+		}
+		if (smithing_tvals[i].category == CAT_ARMOUR)
+		{
+			valid[i] = p_ptr->active_ability[S_SMT][SMT_ARMOURSMITH];
+		}
+		if (smithing_tvals[i].category == CAT_JEWELRY)
+		{
+			valid[i] = p_ptr->active_ability[S_SMT][SMT_JEWELLER];
+		}
+		
+		Term_putstr(COL_SMT2, i + 2, -1, valid[i] ? TERM_WHITE : TERM_L_DARK, buf);
+	}
+
+	// highlight the label
+	strnfmt(buf, 80, "%c)", (char) 'a' + *highlight - 1);
+	Term_putstr(COL_SMT2, *highlight + 1, -1, TERM_L_BLUE, buf);
+	
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(14, 1 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	// choose an option by letter
+	if ((ch >= 'a') && (ch <= (char) 'a' + MAX_SMITHING_TVALS - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;
+		
+		// run this function again to display the highlight on the right choice
+		create_tval_menu_aux(highlight);
+
+		if (valid[*highlight-1])	return (*highlight);
+		else						bell("Invalid choice.");
+	}
+		
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		if (valid[*highlight-1])	return (*highlight);
+		else						bell("Invalid choice.");
+	}
+
+	/* Prev item */
+	if (ch == '8')
+	{
+		if (*highlight > 1) (*highlight)--;
+		else if (*highlight == 1) *highlight = MAX_SMITHING_TVALS;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		if (*highlight < MAX_SMITHING_TVALS) (*highlight)++;
+		else if (*highlight == MAX_SMITHING_TVALS) *highlight = 1;
+	}
+
+	/* Exit */
+	if ((ch == '4') || (ch == ESCAPE))
+	{
+		return (-1);
+	}
+		
+	return (0);
+} 
+
+
+/*
+ * Displays a menu for choosing a base item's tval.
+ */
+void create_tval_menu(void)
+{
+	int choice = -1;
+	int highlight = 1;
+	
+	bool leave_menu = FALSE;
+	
+	/* Save screen */
+	screen_save();
+	
+	/* Process Events until menu is abandoned */
+	while (!leave_menu)
+	{
+		choice = create_tval_menu_aux(&highlight);
+		
+		if (choice >= 1)
+		{
+			if (create_sval_menu(smithing_tvals[choice-1].tval))
+			{
+				leave_menu = TRUE;
+			}
+		}
+		else if (choice == -1)
+		{
+			leave_menu = TRUE;
+		}
+	}
+	
+	/* Load screen */
+	screen_load();
+}
+
+
+/*
+ * Actually modifies the numbers on an item.
+ */
+void modify_numbers(int choice)
+{
+	switch (choice)
+	{
+		case SMT_NUM_MENU_I_ATT:
+		{
+			if ((smith_o_ptr->tval == TV_ARROW) && !smith_o_ptr->name1)	smith_o_ptr->att += 3;
+			else														smith_o_ptr->att++;
+			break;
+		}
+		case SMT_NUM_MENU_D_ATT:
+		{
+			if ((smith_o_ptr->tval == TV_ARROW) && !smith_o_ptr->name1)	smith_o_ptr->att -= 3;
+			else														smith_o_ptr->att--;
+			break;
+		}
+		case SMT_NUM_MENU_I_DS:		smith_o_ptr->ds++;		break;
+		case SMT_NUM_MENU_D_DS:		smith_o_ptr->ds--;		break;
+		case SMT_NUM_MENU_I_EVN:	smith_o_ptr->evn++;		break;
+		case SMT_NUM_MENU_D_EVN:	smith_o_ptr->evn--;		break;
+		case SMT_NUM_MENU_I_PS:		smith_o_ptr->ps++;		break;
+		case SMT_NUM_MENU_D_PS:		smith_o_ptr->ps--;		break;
+		case SMT_NUM_MENU_I_PVAL:	smith_o_ptr->pval++;	break;
+		case SMT_NUM_MENU_D_PVAL:	smith_o_ptr->pval--;	break;
+		case SMT_NUM_MENU_I_WGT:	smith_o_ptr->weight++;	break;
+		case SMT_NUM_MENU_D_WGT:	smith_o_ptr->weight--;	break;
+	}
+	
+	return;
+}
+
+
+/*
+ * Performs the interface and selection work for the numbers menu.
+ */
+int numbers_menu_aux(int *highlight)
+{
+	int i;
+	char ch;
+	char buf[80];
+	byte attr[SMT_NUM_MENU_MAX];
+	bool valid[SMT_NUM_MENU_MAX];
+	bool can_afford[SMT_NUM_MENU_MAX];
+	
+	// clear the right of the screen
+	wipe_screen_from(COL_SMT2);
+	
+	valid[SMT_NUM_MENU_I_ATT-1]   = att_valid() && (smith_o_ptr->att < att_max());
+	valid[SMT_NUM_MENU_D_ATT-1]   = att_valid() && (smith_o_ptr->att > att_min());
+	valid[SMT_NUM_MENU_I_DS-1]    = ds_valid() && (smith_o_ptr->ds < ds_max());
+	valid[SMT_NUM_MENU_D_DS-1]    = ds_valid() && (smith_o_ptr->ds > ds_min());
+	valid[SMT_NUM_MENU_I_EVN-1]   = evn_valid() && (smith_o_ptr->evn < evn_max());
+	valid[SMT_NUM_MENU_D_EVN-1]   = evn_valid() && (smith_o_ptr->evn > evn_min());
+	valid[SMT_NUM_MENU_I_PS-1]    = ps_valid() && (smith_o_ptr->ps < ps_max());
+	valid[SMT_NUM_MENU_D_PS-1]    = ps_valid() && (smith_o_ptr->ps > ps_min());
+	valid[SMT_NUM_MENU_I_PVAL-1]  = pval_valid() && (smith_o_ptr->pval < pval_max());
+	valid[SMT_NUM_MENU_D_PVAL-1]  = pval_valid() && (smith_o_ptr->pval > pval_min());
+	valid[SMT_NUM_MENU_I_WGT-1]   = wgt_valid() && (smith_o_ptr->weight < wgt_max());
+	valid[SMT_NUM_MENU_D_WGT-1]   = wgt_valid() && (smith_o_ptr->weight > wgt_min());
+	
+	
+	// retrieve a super backup of the object
+	object_copy(smith3_o_ptr, smith_o_ptr);
+	for (i = 0; i < SMT_NUM_MENU_MAX; i++)
+	{
+		if (valid[i])
+		{
+			modify_numbers(i+1);
+			can_afford[i] = affordable(smith_o_ptr);
+
+			// retrieve a super backup of the object
+			object_copy(smith_o_ptr, smith3_o_ptr);
+		}
+		
+		attr[i] = valid[i]  ? (can_afford[i] ? TERM_WHITE : TERM_SLATE) : TERM_L_DARK;
+	}
+	
+	Term_putstr(COL_SMT2,  2, -1, attr[SMT_NUM_MENU_I_ATT-1],  "a) increase attack bonus");
+	Term_putstr(COL_SMT2,  3, -1, attr[SMT_NUM_MENU_D_ATT-1],  "b) decrease attack bonus");
+	Term_putstr(COL_SMT2,  4, -1, attr[SMT_NUM_MENU_I_DS-1],   "c) increase damage sides");
+	Term_putstr(COL_SMT2,  5, -1, attr[SMT_NUM_MENU_D_DS-1],   "d) decrease damage sides");
+	Term_putstr(COL_SMT2,  6, -1, attr[SMT_NUM_MENU_I_EVN-1],  "e) increase evasion bonus");
+	Term_putstr(COL_SMT2,  7, -1, attr[SMT_NUM_MENU_D_EVN-1],  "f) decrease evasion bonus");
+	Term_putstr(COL_SMT2,  8, -1, attr[SMT_NUM_MENU_I_PS-1],   "g) increase protection sides");
+	Term_putstr(COL_SMT2,  9, -1, attr[SMT_NUM_MENU_D_PS-1],   "h) decrease protection sides");
+	Term_putstr(COL_SMT2, 10, -1, attr[SMT_NUM_MENU_I_PVAL-1], "i) increase special bonus");
+	Term_putstr(COL_SMT2, 11, -1, attr[SMT_NUM_MENU_D_PVAL-1], "j) decrease special bonus");
+	Term_putstr(COL_SMT2, 12, -1, attr[SMT_NUM_MENU_I_WGT-1],  "k) increase weight");
+	Term_putstr(COL_SMT2, 13, -1, attr[SMT_NUM_MENU_D_WGT-1],  "l) decrease weight");
+	
+	// highlight the label
+	strnfmt(buf, 80, "%c)", (char) 'a' + *highlight - 1);
+	Term_putstr(COL_SMT2, *highlight + 1, -1, TERM_L_BLUE, buf);
+	
+	// display the object description
+	prt_object_description();
+	
+	// display the object difficulty
+	prt_object_difficulty();
+	
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(2, 1 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	// choose an option by letter
+	if ((ch >= 'a') && (ch <= (char) 'a' + SMT_NUM_MENU_MAX - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;
+		
+		numbers_menu_aux(highlight);
+		
+		if (valid[*highlight-1])	return (*highlight);
+		else						bell("Invalid choice.");
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		if (valid[*highlight-1])	return (*highlight);
+		else						bell("Invalid choice.");
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		if (*highlight > 1) (*highlight)--;
+		else if (*highlight == 1) *highlight = SMT_NUM_MENU_MAX;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		if (*highlight < SMT_NUM_MENU_MAX) (*highlight)++;
+		else if (*highlight == SMT_NUM_MENU_MAX) *highlight = 1;
+	}
+	
+	/* Exit */
+	if ((ch == '4') || (ch == ESCAPE))
+	{
+		*highlight = -1;
+		return (*highlight);
+	}
+	
+	return (0);
+} 
+
+
+/*
+ * Displays a menu for modifying numerical bonuses and weight of an item.
+ */
+void numbers_menu(void)
+{
+	int choice = -1;
+	int highlight = 1;
+	
+	bool leave_menu = FALSE;
+	
+	/* Save screen */
+	screen_save();
+	
+	/* Process Events until menu is abandoned */
+	while (!leave_menu)
+	{
+		choice = numbers_menu_aux(&highlight);
+		
+		switch (choice)
+		{
+			case -1:
+			{
+				leave_menu = TRUE;
+				break;
+			}
+			
+			default:
+			{
+				modify_numbers(choice);
+				break;
+			}
+		}
+	}
+	
+	/* Load screen */
+	screen_load();
+	
+	return;
+}
+
+
+void create_special(int name2)
+{
+	// retrieve a backup of the object
+	object_copy(smith_o_ptr, smith2_o_ptr);
+	
+	// set its 'special' name to reflect the chosen type
+	smith_o_ptr->name2 = name2;
+	
+	// make it into that special type
+	object_into_special(smith_o_ptr, p_ptr->skill_use[S_SMT], TRUE);
+		
+	// reset some things
+	if (smith_o_ptr->att  > att_max())  smith_o_ptr->att  = att_max();
+	if (smith_o_ptr->att  < att_min())  smith_o_ptr->att  = att_min();
+	if (smith_o_ptr->ds   > ds_max())   smith_o_ptr->ds   = ds_max();
+	if (smith_o_ptr->ds   < ds_min())   smith_o_ptr->ds   = ds_min();
+	if (smith_o_ptr->evn  > evn_max())  smith_o_ptr->evn  = evn_max();
+	if (smith_o_ptr->evn  < evn_min())  smith_o_ptr->evn  = evn_min();
+	if (smith_o_ptr->ps   > ps_max())   smith_o_ptr->ps   = ps_max();
+	if (smith_o_ptr->ps   < ps_min())   smith_o_ptr->ps   = ps_min();
+	if (smith_o_ptr->pval > pval_max()) smith_o_ptr->pval = pval_max();
+	if (smith_o_ptr->pval < pval_min()) smith_o_ptr->pval = pval_min();
+}
+
+
+/*
+ * Performs the interface and selection work for the enchantment menu.
+ */
+int enchant_menu_aux(int *highlight)
+{
+	char ch;
+	int i, j, num;
+	char buf[80];
+	bool valid[20];
+	int choice[20];
+	
+	// clear the right of the screen
+	wipe_screen_from(COL_SMT2);
+	
+	/* We have to search the whole special item list. */
+	for (num = 0, i = 1; i < z_info->e_max; i++)
+	{
+		ego_item_type *e_ptr = &e_info[i];
+		bool acceptable = FALSE;
+		
+		/* Don't create cursed */
+		if (e_ptr->flags3 & TR3_LIGHT_CURSE) continue;
+		
+		/* Don't create useless */
+		if (e_ptr->cost == 0) continue;
+		
+		/* Test if this is a legal special item type for this object */
+		for (j = 0; j < EGO_TVALS_MAX; j++)
+		{
+			/* Require identical base type */
+			if (smith_o_ptr->tval == e_ptr->tval[j])
+			{
+				/* Require sval in bounds, lower */
+				if (smith_o_ptr->sval >= e_ptr->min_sval[j])
+				{
+					/* Require sval in bounds, upper */
+					if (smith_o_ptr->sval <= e_ptr->max_sval[j])
+					{
+						/* Accept */
+						acceptable = TRUE;
+					}
+				}
+			}
+		}
+		
+		if (acceptable)
+		{
+			// make a 'special' version of the object
+			create_special(i);
+
+			// Check whether it is a valid choice for creating
+			if (affordable(smith_o_ptr))
+			{
+				valid[num] = TRUE;
+			}
+			else
+			{
+				valid[num] = FALSE;
+			}
+			
+			/* Print it */
+			strnfmt(buf, 80, "%c) %s", (char) 'a' + num, e_name + e_ptr->name);
+			Term_putstr(COL_SMT2, num + 2, -1, valid[num] ? TERM_WHITE : TERM_SLATE, buf);
+			
+			/* Remember the object index */
+			choice[num] = i;
+			
+			// count the applicable items
+			num++;
+		}
+	}
+	
+	// highlight the label
+	strnfmt(buf, 80, "%c)", (char) 'a' + *highlight - 1);
+	Term_putstr(COL_SMT2, *highlight + 1, -1, TERM_L_BLUE, buf);
+	
+	// make a 'special' version of the object
+	create_special(choice[*highlight-1]);
+	
+	// display the object description
+	prt_object_description();
+	
+	// display the object difficulty
+	prt_object_difficulty();
+	
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(14, 1 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	/* Choose by letter */
+	if ((ch >= 'a') && (ch <= (char) 'a' + MAX_SMITHING_TVALS - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;
+		return (*highlight);
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		return (*highlight);
+	}
+	
+	/* Exit */
+	if ((ch == '4') || (ch == ESCAPE))
+	{
+		*highlight = -1;
+		return (*highlight);
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		if (*highlight > 1) (*highlight)--;
+		else if (*highlight == 1) *highlight = num;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		if (*highlight < num) (*highlight)++;
+		else if (*highlight == num) *highlight = 1;
+	}
+	
+	return (0);
+} 
+
+
+/*
+ * Brings up a menu for making an item into a {special} item.
+ */
+bool enchant_menu(void)
+{
+	int choice = -1;
+	int highlight = 1;
+	
+	bool leave_menu = FALSE;
+	bool completed = FALSE;
+	
+	/* Save screen */
+	screen_save();
+
+	// stop the item being an artefact, if it was
+	smith_o_ptr->name1 = 0;
+	smith2_o_ptr->name1 = 0;
+	
+	/* Process Events until menu is abandoned */
+	while (!leave_menu)
+	{
+		choice = enchant_menu_aux(&highlight);
+		
+		if (choice >= 1)
+		{
+			leave_menu = TRUE;
+			completed = TRUE;
+		}
+		else if (choice == -1)
+		{
+			leave_menu = TRUE;
+		}
+	}
+	
+	/* Load screen */
+	screen_load();
+	
+	return (completed);
+}
+
+
+/*
+ * Copies an artefact structure over the top of another one.
+ */
+void artefact_copy(artefact_type *a1_ptr, artefact_type *a2_ptr)
+{
+	/* Copy the structure */
+	COPY(a1_ptr, a2_ptr, artefact_type);
+}
+
+
+/*
+ * Fills in the details on the artefact type being created.
+ */
+void add_artefact_details(void)
+{
+	smith_a_ptr->tval = smith_o_ptr->tval;
+	smith_a_ptr->sval = smith_o_ptr->sval;
+	smith_a_ptr->pval = smith_o_ptr->pval;
+	smith_a_ptr->att = smith_o_ptr->att;
+	smith_a_ptr->evn = smith_o_ptr->evn;
+	smith_a_ptr->dd = smith_o_ptr->dd;
+	smith_a_ptr->ds = smith_o_ptr->ds;
+	smith_a_ptr->pd = smith_o_ptr->pd;
+	smith_a_ptr->ps = smith_o_ptr->ps;
+	smith_a_ptr->weight = smith_o_ptr->weight;
+	smith_a_ptr->flags1 |= (&k_info[smith_o_ptr->k_idx])->flags1;
+	smith_a_ptr->flags2 |= (&k_info[smith_o_ptr->k_idx])->flags2;
+	smith_a_ptr->flags3 |= (&k_info[smith_o_ptr->k_idx])->flags3;
+	smith_a_ptr->cur_num = 1;
+	smith_a_ptr->found_num = 1;
+	smith_a_ptr->max_num = 1;
+	smith_a_ptr->level = object_difficulty(smith_o_ptr);
+	smith_a_ptr->rarity = 10;	
+}
+
+
+/*
+ * Prepares an artefact for modification.
+ */
+void prepare_artefact(void)
+{	
+	// retrieve a backup of the artefact
+	artefact_copy(smith_a_ptr, smith2_a_ptr);
+	
+	// retrieve a backup of the object
+	object_copy(smith_o_ptr, smith2_o_ptr);
+	
+	// set its 'artefact' name to reflect the chosen type
+	smith_o_ptr->name1 = smith_a_name;
+	
+	// make sure there is only one of the item (needed for arrows)
+	smith_o_ptr->number = 1;
+}
+
+
+/*
+ * Does the given object type support the given flag type?
+ */
+bool applicable_flag(u32b f, int flagset, object_type *o_ptr)
+{
+	bool ok = FALSE;
+	int i;
+	u32b f1, f2, f3;
+	
+	/* Extract the object flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Go through the list of artefacts and see if the flag is applicable for this type  */
+	for (i = ART_ULTIMATE; i < z_info->art_norm_max; i++)
+	{
+		/* Access the artefact */
+		artefact_type *a_ptr = &a_info[i];
+		
+		/* Skip other types of artefacts */
+		if (a_ptr->tval != o_ptr->tval) continue;
+		
+		switch (flagset)
+		{
+			case 1:	{	if (a_ptr->flags1 & f) ok = TRUE; break;	}
+			case 2:	{	if (a_ptr->flags2 & f) ok = TRUE; break;	}
+			case 3:	{	if (a_ptr->flags3 & f) ok = TRUE; break;	}
+		}
+	}
+	
+	// Smithing is OK for War Hammers
+	if ((o_ptr->tval == TV_HAFTED) && (o_ptr->sval == SV_WAR_HAMMER))
+	{
+		if ((flagset == 1) && (f & (TR1_SMT))) ok = TRUE;
+	}
+	
+	// Special case for brands
+	//if ((flagset == 1) && (f & (TR1_BRAND_MASK)))
+	//{
+	//	// If the object doesn't already have the flag, but it does have a brand, then disallow it
+	//	if (!(f1 & f) && (f1 & (TR1_BRAND_MASK)))
+	//	{
+	//		ok = FALSE;
+	//	}
+	//}
+	
+	return (ok);
+}
+
+
+/*
+ * Adds a given flag to the dummy artefact.
+ */
+void add_artefact_flag(u32b f, int flagset)
+{	
+	// prepare the artefact and object for modification
+	prepare_artefact();
+	
+	// set new flag on the artefact
+	if (flagset == 1)	smith_a_ptr->flags1 |= f;
+	if (flagset == 2)	smith_a_ptr->flags2 |= f;
+	if (flagset == 3)	smith_a_ptr->flags3 |= f;
+}
+
+
+/*
+ * Removes a given flag from the dummy artefact.
+ */
+void remove_artefact_flag(u32b f, int flagset)
+{
+	// prepare the artefact and object for modification
+	prepare_artefact();
+	
+	// unset new flag on the artefact
+	if (flagset == 1)	smith_a_ptr->flags1 &= ~(f);
+	if (flagset == 2)	smith_a_ptr->flags2 &= ~(f);
+	if (flagset == 3)	smith_a_ptr->flags3 &= ~(f);
+}
+
+
+/*
+ * Performs the interface and selection work for the artefact flag selection.
+ */
+int artefact_flag_menu_aux(int category, int *highlight)
+{
+	char ch;
+	int i, num = 0;
+	char buf[80];
+	bool flag_present[MAX_SMITHING_FLAGS]    = {FALSE};
+	bool flag_valid[MAX_SMITHING_FLAGS]      = {FALSE};
+	bool flag_affordable[MAX_SMITHING_FLAGS] = {FALSE};
+	u32b flag[MAX_SMITHING_FLAGS];
+	int flagset[MAX_SMITHING_FLAGS];
+	byte attr;
+	
+	// clear the right of the screen
+	wipe_screen_from(COL_SMT3);
+	
+	// display the categories
+	for (i = 0; smithing_flag_types[i].flag != 0; i++)
+	{
+		if (category == smithing_flag_types[i].category)
+		{
+			flag[num] = smithing_flag_types[i].flag;
+			flagset[num] = smithing_flag_types[i].flagset;
+
+			if (((flagset[num] == 1) && (smith2_a_ptr->flags1 & flag[num])) ||
+			    ((flagset[num] == 2) && (smith2_a_ptr->flags2 & flag[num])) ||
+				((flagset[num] == 3) && (smith2_a_ptr->flags3 & flag[num])))
+			{
+				flag_present[num] = TRUE;
+				flag_valid[num] = TRUE;
+			}
+
+			else
+			{
+				// require that the flag can be present on the object
+				if (applicable_flag(flag[num], flagset[num], smith_o_ptr))
+				{
+					flag_valid[num] = TRUE;
+					
+					// add this flag to the dummy artefact under construction
+					add_artefact_flag(flag[num], flagset[num]);
+					
+					// Check whether it is a valid choice for creating (needs to be affordable and successful)
+					if (affordable(smith_o_ptr))
+					{
+						flag_affordable[num] = TRUE;
+					}
+				}
+			}
+			
+			attr = flag_present[num] ? TERM_BLUE : (flag_valid[num] ? (flag_affordable[num] ? TERM_WHITE : TERM_SLATE) : TERM_L_DARK);
+			
+			/* Display the line */
+			strnfmt(buf, 80, "%c) %s", (char) 'a' + num, smithing_flag_types[i].desc);
+			Term_putstr(COL_SMT3, num + 2, -1, attr, buf);
+
+			num++;
+		}
+	}
+		
+	// highlight the label
+	strnfmt(buf, 80, "%c)", (char) 'a' + *highlight - 1);
+	Term_putstr(COL_SMT3, *highlight + 1, -1, TERM_L_BLUE, buf);
+
+	// add this flag to the dummy artefact under construction
+	add_artefact_flag(flag[*highlight-1], flagset[*highlight-1]);
+
+	// display the object description
+	prt_object_description();
+	
+	// display the object difficulty
+	prt_object_difficulty();
+	
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(14, 1 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	/* Abort if there are no choices */
+	if (num == 0)
+	{
+		return (-1);
+	}
+	
+	/* Choose by letter */
+	if ((ch >= 'a') && (ch <= (char) 'a' + num - 1))
+	{
+		if (flag_valid[*highlight-1])
+		{
+			if ((int) ch - 'a' + 1 == *highlight)
+			{
+				// remove a flag if it already existed
+				if (flag_present[*highlight-1])	remove_artefact_flag(flag[*highlight-1], flagset[*highlight-1]);
+			}
+			else
+			{
+				// restore the artefact from backup
+				artefact_copy(smith_a_ptr, smith2_a_ptr);
+				
+				*highlight = (int) ch - 'a' + 1;		
+				
+				// remove a flag if it already existed
+				if (flag_present[*highlight-1])	remove_artefact_flag(flag[*highlight-1], flagset[*highlight-1]);
+				
+				// otherwise add it
+				else							add_artefact_flag(flag[*highlight-1], flagset[*highlight-1]);
+			}
+			
+			// backup the new artefact
+			artefact_copy(smith2_a_ptr, smith_a_ptr);
+			
+			return (*highlight);
+		}
+		else
+		{
+			bell("Invalid choice.");
+		}
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		if (flag_valid[*highlight-1])
+		{
+			// remove a flag if it already existed
+			if (flag_present[*highlight-1])	remove_artefact_flag(flag[*highlight-1], flagset[*highlight-1]);
+			
+			// backup the new artefact
+			artefact_copy(smith2_a_ptr, smith_a_ptr);
+			
+			return (*highlight);
+		}
+		
+		else
+		{
+			bell("Invalid choice.");
+		}
+	}
+	
+	/* Exit */
+	if ((ch == '4') || (ch == ESCAPE))
+	{
+		*highlight = -1;
+
+		// restore the backup artefact
+		artefact_copy(smith_a_ptr, smith2_a_ptr);
+		
+		return (*highlight);
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		if (*highlight > 1) (*highlight)--;
+		else if (*highlight == 1) *highlight = num;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		if (*highlight < num) (*highlight)++;
+		else if (*highlight == num) *highlight = 1;
+	}
+	
+	return (0);
+} 
+
+
+/*
+ * Brings up a menu to select individual flags of a given type to 
+ * add to (or subtract from) an artefact.
+ */
+void artefact_flag_menu(int category)
+{
+	int choice = -1;
+	int highlight = 1;
+	
+	bool leave_menu = FALSE;
+	
+	/* Save screen */
+	screen_save();
+	
+	/* Process Events until menu is abandoned */
+	while (!leave_menu)
+	{
+		choice = artefact_flag_menu_aux(category, &highlight);
+		
+		if (choice >= 1)
+		{
+			// don't leave the menu
+		}
+		else if (choice == -1)
+		{
+			leave_menu = TRUE;
+		}
+	}
+	
+	/* Load screen */
+	screen_load();
+}
+
+
+/*
+ * Does the given object type support the given ability type?
+ */
+bool applicable_ability(ability_type *b_ptr, object_type *o_ptr)
+{
+	bool ok = FALSE;
+	int j;
+	
+	u32b f1, f2, f3;
+	
+	/* Test if this is a legal item type for this ability */
+	for (j = 0; j < ABILITY_TVALS_MAX; j++)
+	{
+		/* Require identical base type */
+		if (o_ptr->tval == b_ptr->tval[j])
+		{
+			/* Require sval in bounds, lower */
+			if (o_ptr->sval >= b_ptr->min_sval[j])
+			{
+				/* Require sval in bounds, upper */
+				if (o_ptr->sval <= b_ptr->max_sval[j])
+				{
+					/* Accept */
+					ok = TRUE;
+				}
+			}
+		}
+	}
+	
+	// Perfect Balance is OK for throwing items
+	object_flags(o_ptr, &f1, &f2, &f3);
+	if (f3 & TR3_THROWING)
+	{
+		if ((b_ptr->skilltype == S_MEL) && (b_ptr->abilitynum == MEL_THROWING)) ok = TRUE;
+	}
+
+	// Polearm Mastery is OK for Polearms
+	object_flags(o_ptr, &f1, &f2, &f3);
+	if (f3 & TR3_POLEARM)
+	{
+		if ((b_ptr->skilltype == S_MEL) && (b_ptr->abilitynum == MEL_POLEARMS)) ok = TRUE;
+	}
+	
+	
+	return (ok);
+}
+
+/*
+ * Adds a given ability to the dummy artefact.
+ */
+void add_artefact_ability(int skilltype, int abilitynum)
+{	
+	int i;
+
+	// prepare the artefact and object for modification
+	prepare_artefact();
+	
+	// set new ability on the artefact
+	if (smith_a_ptr->abilities < 4)
+	{
+		bool already_present = FALSE;
+		
+		for (i = 0; i < smith_a_ptr->abilities; i++)
+		{
+			if ((smith_a_ptr->skilltype[i] == skilltype) && (smith_a_ptr->abilitynum[i] == abilitynum))
+			{
+				already_present = TRUE;
+			}
+		}
+		
+		if (!already_present)
+		{
+			smith_a_ptr->skilltype[smith_a_ptr->abilities] = skilltype;
+			smith_a_ptr->abilitynum[smith_a_ptr->abilities] = abilitynum;
+			smith_a_ptr->abilities++;
+		}
+	}
+	
+	// add the abilities to the object itself
+	for (i = 0; i < smith_a_ptr->abilities; i++)
+	{
+		smith_o_ptr->skilltype[i + smith_o_ptr->abilities] = smith_a_ptr->skilltype[i];
+		smith_o_ptr->abilitynum[i + smith_o_ptr->abilities] = smith_a_ptr->abilitynum[i];
+	}
+	smith_o_ptr->abilities += smith_a_ptr->abilities;
+	
+}
+
+
+/*
+ * Removes a given ability to the dummy artefact.
+ */
+void remove_artefact_ability(int skilltype, int abilitynum)
+{	
+	int i;
+	int location = -1;
+	
+	// prepare the artefact and object for modification
+	prepare_artefact();
+	
+	// remove new ability on the artefact
+	for (i = 0; i < smith_a_ptr->abilities; i++)
+	{
+		if ((smith_a_ptr->skilltype[i] == skilltype) && (smith_a_ptr->abilitynum[i] == abilitynum))
+		{
+			location = i;
+		}
+	}
+	
+	if (location >= 0)
+	{
+		for (i = location; i < smith_a_ptr->abilities - 1; i++)
+		{
+			smith_a_ptr->skilltype[i] = smith_a_ptr->skilltype[i+1];
+			smith_a_ptr->abilitynum[i] = smith_a_ptr->abilitynum[i+1];
+		}
+		
+		smith_a_ptr->skilltype[smith_a_ptr->abilities-1] = 0;
+		smith_a_ptr->abilitynum[smith_a_ptr->abilities-1] = 0;
+		
+		smith_a_ptr->abilities--;
+	}
+	
+	// add the abilities to the object itself
+	for (i = 0; i < smith_a_ptr->abilities; i++)
+	{
+		smith_o_ptr->skilltype[i + smith_o_ptr->abilities] = smith_a_ptr->skilltype[i];
+		smith_o_ptr->abilitynum[i + smith_o_ptr->abilities] = smith_a_ptr->abilitynum[i];
+	}
+	smith_o_ptr->abilities += smith_a_ptr->abilities;
+	
+}
+
+
+/*
+ * Determines if an artefact type has a given ability.
+ */
+bool has_ability(artefact_type *a_ptr, int skilltype, int abilitynum)
+{
+	int i;
+	
+	for (i = 0; i < a_ptr->abilities; i++)
+	{
+		if ((a_ptr->skilltype[i] == skilltype) && (a_ptr->abilitynum[i] == abilitynum)) return (TRUE);
+	}
+	
+	return (FALSE);
+}
+
+
+/*
+ * Performs the interface and selection work for the artefact flag selection.
+ */
+int artefact_ability_menu_aux(int skill, int *highlight)
+{
+	char ch;
+	int i, num = 0;
+	char buf[80];
+	bool ability_present[20]    = {FALSE};
+	bool ability_valid[20]      = {FALSE};
+	bool ability_affordable[20] = {FALSE};
+	ability_type *b_ptr;
+	ability_type *b2_ptr;
+	byte attr;
+	
+	// clear the right of the screen
+	wipe_screen_from(COL_SMT3);
+	
+	// list the abilities
+	for (i = 0; i < z_info->b_max - 1; i++)
+	{
+		b_ptr = &b_info[i];
+		b2_ptr = &b_info[i+1];
+		
+		/* Skip non-entries */
+		if (!b_ptr->name) continue;
+
+		/* Skip entries where the next entry is not defined (to avoid the stat-improvements) */
+		if (!b2_ptr->name) continue;
+		
+		/* Skip entries for the wrong skill type */
+		if (b_ptr->skilltype != skill) continue;
+		
+		// Determine the appropriate colour
+		if (has_ability(smith2_a_ptr, skill, num))
+		{
+			ability_present[num] = TRUE;
+			ability_valid[num] = TRUE;
+		}
+		else
+		{
+			// require that the ability can be present on the object
+			if (applicable_ability(b_ptr, smith_o_ptr))
+			{
+				ability_valid[num] = TRUE;
+
+				// add this flag to the dummy artefact under construction
+				add_artefact_ability(skill, num);
+				
+				// require that the ability was successfully added
+				if (has_ability(smith_a_ptr, skill, num))
+				{
+					// Check whether it is a valid choice for creating (needs to be affordable and successful)
+					if (affordable(smith_o_ptr))
+					{
+						ability_affordable[num] = TRUE;
+					}
+				}
+				
+				// if the ability wasn't added properly (the item had too many), then it is not valid after all
+				else
+				{
+					ability_valid[num] = FALSE;
+				}
+			}
+		}
+		
+		attr = ability_present[num] ? TERM_BLUE : (ability_valid[num] ? (ability_affordable[num] ? TERM_WHITE : TERM_SLATE) : TERM_L_DARK);
+			
+		/* Display the line */
+		strnfmt(buf, 80, "%c) %s", (char) 'a' + num, b_name + b_ptr->name);
+		Term_putstr(COL_SMT3, num + 2, -1, attr, buf);
+			
+		num++;
+	}
+	
+	// highlight the label
+	strnfmt(buf, 80, "%c)", (char) 'a' + *highlight - 1);
+	Term_putstr(COL_SMT3, *highlight + 1, -1, TERM_L_BLUE, buf);
+	
+	// add this ability to the dummy artefact under construction
+	add_artefact_ability(skill, *highlight-1);
+	
+	// display the object description
+	prt_object_description();
+	
+	// display the object difficulty
+	prt_object_difficulty();
+	
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(14, 1 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	/* Abort if there are no choices */
+	if (num == 0)
+	{
+		return (-1);
+	}
+	
+	/* Choose by letter */
+	if ((ch >= 'a') && (ch <= (char) 'a' + num - 1))
+	{
+		if (ability_valid[*highlight-1])
+		{
+			if ((int) ch - 'a' + 1 == *highlight)
+			{
+				// remove an ability if it already existed
+				if (ability_present[*highlight-1])	remove_artefact_ability(skill, *highlight-1);
+			}
+			else
+			{
+				// restore the artefact from backup
+				artefact_copy(smith_a_ptr, smith2_a_ptr);
+				
+				*highlight = (int) ch - 'a' + 1;		
+				
+				// remove an ability if it already existed
+				if (ability_present[*highlight-1])	remove_artefact_ability(skill, *highlight-1);
+				
+				// otherwise add it
+				else								add_artefact_ability(skill, *highlight-1);
+			}
+			
+			// backup the new artefact
+			artefact_copy(smith2_a_ptr, smith_a_ptr);
+			
+			return (*highlight);
+		}
+		else
+		{
+			bell("Invalid choice.");
+		}
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		if (ability_valid[*highlight-1])
+		{
+			// remove an ability if it already existed
+			if (ability_present[*highlight-1])	remove_artefact_ability(skill, *highlight-1);
+			
+			// backup the new artefact
+			artefact_copy(smith2_a_ptr, smith_a_ptr);
+			
+			return (*highlight);
+		}
+		else
+		{
+			bell("Invalid choice.");
+		}
+	}
+	
+	/* Exit */
+	if ((ch == '4') || (ch == ESCAPE))
+	{
+		// remove any tentatively-added ability from the object
+		if (!ability_present[*highlight-1]) remove_artefact_ability(skill, *highlight-1);
+
+		// restore the backup artefact
+		artefact_copy(smith_a_ptr, smith2_a_ptr);
+		
+		*highlight = -1;
+		
+		return (*highlight);
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		if (*highlight > 1) (*highlight)--;
+		else if (*highlight == 1) *highlight = num;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		if (*highlight < num) (*highlight)++;
+		else if (*highlight == num) *highlight = 1;
+	}
+	
+	return (0);
+} 
+
+
+/*
+ * Brings up a menu to select individual abilities of a given skill to 
+ * add to (or subtract from) an artefact.
+ */
+void artefact_ability_menu(int skill)
+{
+	int choice = -1;
+	int highlight = 1;
+	
+	bool leave_menu = FALSE;
+	
+	/* Save screen */
+	screen_save();
+	
+	/* Process Events until menu is abandoned */
+	while (!leave_menu)
+	{
+		choice = artefact_ability_menu_aux(skill, &highlight);
+		
+		if (choice >= 1)
+		{
+			// don't leave the menu
+		}
+		else if (choice == -1)
+		{
+			leave_menu = TRUE;
+		}
+	}
+	
+	/* Load screen */
+	screen_load();
+}
+
+
+
+/*
+ * Allows the player to choose a new name for an artefact.
+ */
+void rename_artefact(void)
+{
+	char tmp[20];
+	char old_name[20];
+	char o_desc[30];
+	bool name_selected = FALSE;
+	
+	// Clear the names
+	tmp[0] = '\0';
+	old_name[0] = '\0';
+		
+	// Clear object name
+	Term_putstr(COL_SMT2, MAX_SMITHING_TVALS + 3, -1, TERM_L_WHITE, "                                                        ");
+
+	// Determine object name
+	object_desc(o_desc, sizeof(o_desc), smith_o_ptr, FALSE, -1);
+
+	// Display shortened object name
+	Term_putstr(COL_SMT2, MAX_SMITHING_TVALS + 3, -1, TERM_L_WHITE, o_desc);
+
+	// use old name as a default
+	my_strcpy(tmp, smith2_a_ptr->name, sizeof(tmp));
+	
+	// save a copy too
+	my_strcpy(old_name, op_ptr->full_name, sizeof(old_name));
+	
+	/* Prompt for a new name */
+	Term_gotoxy(COL_SMT2 + strlen(o_desc) + 1, MAX_SMITHING_TVALS + 3);
+	
+	while (!name_selected)
+	{
+		if (askfor_name(tmp, sizeof(tmp)))
+		{
+			my_strcpy(smith2_a_ptr->name, tmp, MAX_LEN_ART_NAME);
+			p_ptr->redraw |= (PR_MISC);
+		}
+		else
+		{
+			my_strcpy(smith2_a_ptr->name, old_name, MAX_LEN_ART_NAME);
+			return;
+		}
+		
+		if (tmp[0] != '\0')	name_selected = TRUE;
+		else				my_strcpy(smith2_a_ptr->name, old_name, MAX_LEN_ART_NAME);
+	}
+	
+	// retrieve a backup of the artefact (all the modifications were done to this backup copy)
+	artefact_copy(smith_a_ptr, smith2_a_ptr);
+
+}
+
+
+/*
+ * Performs the interface and selection work for the 1st level artefact menu.
+ */
+int artefact_menu_aux(int *highlight)
+{
+	char ch;
+	int i , num;
+	char buf[80];
+	
+	// clear the right of the screen
+	wipe_screen_from(COL_SMT2);
+	
+	// display the categories for flags
+	for (i = 0; i < MAX_CATS; i++)
+	{
+		strnfmt(buf, 80, "%c) %s", (char) 'a' + i, smithing_flag_cats[i].desc);
+		Term_putstr(COL_SMT2, i + 2, -1, TERM_WHITE, buf);
+	}
+
+	// display the categories for abilities
+	for (i = 0; i < S_MAX; i++)
+	{
+		strnfmt(buf, 80, "%c) %s", (char) 'a' + MAX_CATS + i, skill_names_full[i]);
+		Term_putstr(COL_SMT2, i + MAX_CATS + 2, -1, TERM_WHITE, buf);
+	}
+	
+	num = MAX_CATS + S_MAX + 1;
+	
+	// Menu item for naming artefacts
+	strnfmt(buf, 80, "%c) %s", (char) 'a' + num - 1, "Name Artefact");
+	Term_putstr(COL_SMT2, num + 1, -1, TERM_WHITE, buf);
+	
+	// highlight the label
+	strnfmt(buf, 80, "%c)", (char) 'a' + *highlight - 1);
+	Term_putstr(COL_SMT2, *highlight + 1, -1, TERM_L_BLUE, buf);
+	
+	// display the object description
+	prt_object_description();
+	
+	// display the object difficulty
+	prt_object_difficulty();
+	
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(14, 1 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	/* Choose by letter */
+	if ((ch >= 'a') && (ch <= (char) 'a' + num - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;
+
+		// run this function again to display the highlight on the right choice
+		artefact_menu_aux(highlight);
+		
+		return (*highlight);
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		return (*highlight);
+	}
+	
+	/* Exit */
+	if ((ch == '4') || (ch == ESCAPE))
+	{
+		*highlight = -1;
+		return (*highlight);
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		if (*highlight > 1) (*highlight)--;
+		else if (*highlight == 1) *highlight = num;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		if (*highlight < num) (*highlight)++;
+		else if (*highlight == num) *highlight = 1;
+	}
+	
+	return (0);
+} 
+
+
+/*
+ * Brings up a menu for making a base item into an artefact,
+ * by adding flags of various types.
+ */
+void artefact_menu(void)
+{
+	int choice = -1;
+	int highlight = 1;
+	
+	char buf[30];
+	bool leave_menu = FALSE;
+	
+	/* Save screen */
+	screen_save();
+
+	if (!smith_o_ptr->name1)
+	{
+		// wipe the existing artefact (and its backup)
+		artefact_wipe(smith_a_name);
+		artefact_wipe(smith2_a_name);
+
+		// add 'ignore all'
+		smith2_a_ptr->flags3 |= (TR3_IGNORE_MASK);
+	}
+	
+	// change the SV for artefact rings and amulets
+	if (smith_o_ptr->tval == TV_RING)
+	{
+		create_base_object(TV_RING, SV_RING_SELF_MADE);
+		object_copy(smith2_o_ptr, smith_o_ptr);
+	}
+	if (smith_o_ptr->tval == TV_AMULET)
+	{
+		create_base_object(TV_AMULET, SV_AMULET_SELF_MADE);
+		object_copy(smith2_o_ptr, smith_o_ptr);
+	}
+
+	// set the backup artefact name to the player character's name
+	sprintf(buf, "of %s", op_ptr->full_name);
+	my_strcpy(smith2_a_ptr->name, buf, MAX_LEN_ART_NAME);
+	
+	// retrieve a backup of the artefact
+	artefact_copy(smith_a_ptr, smith2_a_ptr);
+	
+	// retrieve a backup of the object
+	object_copy(smith_o_ptr, smith2_o_ptr);
+	
+	// set its 'artefact' name to reflect the chosen type
+	smith_o_ptr->name1 = smith_a_name;
+	
+	// make sure there is only one of the item (needed for arrows)
+	smith_o_ptr->number = 1;
+	
+	/* Process Events until menu is abandoned */
+	while (!leave_menu)
+	{
+		choice = artefact_menu_aux(&highlight);
+
+		if (choice == MAX_CATS + S_MAX + 1)
+		{
+			rename_artefact();
+		}
+		else if (choice >= MAX_CATS + 1)
+		{
+			artefact_ability_menu(choice - MAX_CATS - 1);
+		}
+		else if (choice >= 1)
+		{
+			artefact_flag_menu(choice);
+		}
+		else if (choice == -1)
+		{
+			leave_menu = TRUE;
+		}
+	}
+	
+	// if the artefact type does nothing, then cancel it
+	//if ((smith_a_ptr->flags1 == 0L) && (smith_a_ptr->flags2 == 0L) && (smith_a_ptr->flags3 == 0L) &&
+	//    (smith_o_ptr->tval != TV_RING) && (smith_o_ptr->tval != TV_AMULET))
+	//{ 
+	//	smith_o_ptr->name1 = 0;
+	//	if (smith_o_ptr->tval == TV_ARROW) smith_o_ptr->number = 12;
+	//}
+	
+	/* Load screen */
+	screen_load();
+	
+	return;
+}
+
+
+/*
+ * Performs the interface and selection work for the melting menu.
+ */
+int melt_menu_aux(int *highlight)
+{
+	char ch;
+	int i;
+	int num = 0;
+	object_type *o_ptr;
+	u32b f1, f2, f3;
+	char desc[80];
+	char buf[80];
+	
+	// clear the right of the screen
+	wipe_screen_from(COL_SMT2);
+	
+	// clear bottom of the screen
+	wipe_object_description();
+	
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+		
+		object_flags(o_ptr, &f1, &f2, &f3);
+		
+		if (f3 & (TR3_MITHRIL))
+		{
+			object_desc(desc, 80, o_ptr, FALSE, 2);
+			strnfmt(buf, 80, "%c) %s", (char) 'a' + num, desc);
+			
+			Term_putstr(COL_SMT2, num + 2, -1, TERM_WHITE, buf);
+
+			strnfmt(buf, 80, "%2d.%d lb", o_ptr->weight / 10, o_ptr->weight % 10);
+			Term_putstr(COL_SMT2 + 40, num + 2, -1, TERM_WHITE, buf);
+			
+			num++;
+		}
+	}
+	
+	// highlight the label
+	strnfmt(buf, 80, "%c)", (char) 'a' + *highlight - 1);
+	Term_putstr(COL_SMT2, *highlight + 1, -1, TERM_L_BLUE, buf);
+	
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(14, 1 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	// choose an option by letter
+	if ((ch >= 'a') && (ch <= (char) 'a' + num - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;
+		
+		// run this function again to display the highlight on the right choice
+		melt_menu_aux(highlight);
+		
+		return (*highlight);
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		return (*highlight);
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		if (*highlight > 1) (*highlight)--;
+		else if (*highlight == 1) *highlight = num;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		if (*highlight < num) (*highlight)++;
+		else if (*highlight == num) *highlight = 1;
+	}
+	
+	/* Exit */
+	if ((ch == '4') || (ch == ESCAPE))
+	{
+		return (-1);
+	}
+	
+	return (0);
+} 
+
+
+/*
+ * Produces the menu for melting down mithril items into pieces of mithril.
+ */
+void melt_menu(void)
+{
+	int choice = -1;
+	int highlight = 1;
+	
+	bool leave_menu = FALSE;
+	
+	/* Save screen */
+	screen_save();
+	
+	/* Process Events until menu is abandoned */
+	while (!leave_menu)
+	{
+		choice = melt_menu_aux(&highlight);
+		
+		if (choice >= 1)
+		{
+			if (melt_mithril_item(choice))
+			{
+				leave_menu = TRUE;
+			}
+		}
+		else if (choice == -1)
+		{
+			leave_menu = TRUE;
+		}
+	}
+	
+	/* Load screen */
+	screen_load();
+}
+
+
+/*
+ * Performs the interface and selection work for the smithing screen.
+ */
+int smithing_menu_aux(int *highlight)
+{
+	char ch;
+	bool valid[SMT_MENU_MAX];
+	char buf[80];
+	
+	valid[SMT_MENU_CREATE-1]   = (p_ptr->active_ability[S_SMT][SMT_WEAPONSMITH] || 
+							      p_ptr->active_ability[S_SMT][SMT_ARMOURSMITH] ||
+						 	      p_ptr->active_ability[S_SMT][SMT_JEWELLER]);
+	valid[SMT_MENU_ENCHANT-1]  = (p_ptr->active_ability[S_SMT][SMT_ENCHANTMENT] &&
+								  (smith_o_ptr->tval != 0) &&
+								  (smith_o_ptr->tval != TV_RING) &&
+								  (smith_o_ptr->tval != TV_AMULET) &&
+								  !((smith_o_ptr->tval == TV_DIGGING) && (smith_o_ptr->sval == SV_SHOVEL)));
+	valid[SMT_MENU_ARTEFACT-1] = (p_ptr->active_ability[S_SMT][SMT_ARTEFACT] &&
+								  (smith_o_ptr->tval != 0) &&
+								  (p_ptr->self_made_arts < z_info->art_self_made_max - z_info->art_rand_max - 2));
+	valid[SMT_MENU_NUMBERS-1]  = (smith_o_ptr->tval != 0);
+	valid[SMT_MENU_MELT-1]     = mithril_items_carried() && cave_forge_bold(p_ptr->py, p_ptr->px) && (forge_uses(p_ptr->py, p_ptr->px) > 0);
+	valid[SMT_MENU_ACCEPT-1]   = affordable(smith_o_ptr) && cave_forge_bold(p_ptr->py, p_ptr->px) && (forge_uses(p_ptr->py, p_ptr->px) > 0);
+	
+	// clear the right of the screen
+	wipe_screen_from(COL_SMT2);
+
+	// special message if not at a forge
+	if (!cave_forge_bold(p_ptr->py, p_ptr->px))
+	{
+		Term_putstr(COL_SMT1, 0, -1, TERM_L_BLUE, "Exploration mode:  Smithing requires a forge.");
+	}
+	else if (forge_uses(p_ptr->py, p_ptr->px) == 0)
+	{
+		Term_putstr(COL_SMT1, 0, -1, TERM_L_BLUE, "Exploration mode:  Smithing requires a forge with resources left.");
+	}
+	
+
+	// display labels
+	Term_putstr(COL_SMT1, 2, -1, valid[SMT_MENU_CREATE-1]   ? TERM_WHITE : TERM_L_DARK, "a) Base Item");
+	Term_putstr(COL_SMT1, 3, -1, valid[SMT_MENU_ENCHANT-1]  ? TERM_WHITE : TERM_L_DARK, "b) Enchant");
+	Term_putstr(COL_SMT1, 4, -1, valid[SMT_MENU_ARTEFACT-1] ? TERM_WHITE : TERM_L_DARK, "c) Artifice");
+	Term_putstr(COL_SMT1, 5, -1, valid[SMT_MENU_NUMBERS-1]  ? TERM_WHITE : TERM_L_DARK, "d) Numbers");
+	Term_putstr(COL_SMT1, 6, -1, valid[SMT_MENU_MELT-1]     ? TERM_WHITE : TERM_L_DARK, "e) Melt");
+	
+	if (p_ptr->smithing_leftover == 0)
+	{
+		Term_putstr(COL_SMT1, 7, -1, valid[SMT_MENU_ACCEPT-1]   ? TERM_WHITE : TERM_L_DARK, "f) Accept");
+	}
+	else
+	{
+		Term_putstr(COL_SMT1, 7, -1, valid[SMT_MENU_ACCEPT-1]   ? TERM_WHITE : TERM_L_DARK, "f) Resume");
+	}
+	
+	// display information about the selected item
+	switch (*highlight)
+	{
+		case SMT_MENU_CREATE:	{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Choose the base item to be created."); break;	}
+		case SMT_MENU_ENCHANT:	{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Choose a special enchantment to add");
+									Term_putstr(COL_SMT2+2, 3, -1, TERM_SLATE, "to the base item."); break;	}
+		case SMT_MENU_ARTEFACT:	{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Design your own artefact."); break;	}
+		case SMT_MENU_NUMBERS:	{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Change the item's key numbers."); break;	}
+		case SMT_MENU_MELT:		{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Choose a mithril item to melt down."); break;	}
+		case SMT_MENU_ACCEPT:
+		{
+			if (forge_uses(p_ptr->py, p_ptr->px) > 0)
+			{
+				Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Create the item you have designed."); 
+			}
+			else if (cave_forge_bold(p_ptr->py, p_ptr->px))
+			{
+				Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "This forge has no resources left, so you");
+				Term_putstr(COL_SMT2+2, 3, -1, TERM_SLATE, "cannot create items. To exit, press Escape."); 
+			}
+			else
+			{
+				Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "You are not at a forge and thus cannot");
+				Term_putstr(COL_SMT2+2, 3, -1, TERM_SLATE, "create items. To exit, press Escape."); 
+			}
+			break;	
+		}
+	}
+	
+	// highlight the label
+	strnfmt(buf, 80, "%c)", (char) 'a' + *highlight - 1);
+	Term_putstr(COL_SMT1, *highlight + 1, -1, TERM_L_BLUE, buf);
+
+	// display the object description
+	prt_object_description();
+	
+	// display the object difficulty
+	prt_object_difficulty();
+	
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(2, 1 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	// choose an option by letter
+	if ((ch >= 'a') && (ch <= (char) 'a' + SMT_MENU_MAX - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;
+		
+		// run this function again to display the highlight on the right choice
+		smithing_menu_aux(highlight);
+		
+		if (valid[*highlight-1])	return (*highlight);
+		else						bell("Invalid choice.");
+	}
+
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		if (valid[*highlight-1])	return (*highlight);
+		else						bell("Invalid choice.");
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		if (*highlight > 1) (*highlight)--;
+		else if (*highlight == 1) *highlight = SMT_MENU_MAX;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		if (*highlight < SMT_MENU_MAX) (*highlight)++;
+		else if (*highlight == SMT_MENU_MAX) *highlight = 1;
+	}
+
+	/* Leave menu */
+	if ((ch == ESCAPE) || (ch == '4'))
+	{
+		return (-1);
+	}
+	
+	return (0);
+} 
+
+
+/*
+ * Brings up a screen for making new items (only works at a forge).
+ * Leads to many submenus which help to determine the item's attributes.
+ */
+void do_cmd_smithing_screen(void)
+{
+	int actiontype = -1;
+	int highlight = 1;
+	bool leave_menu = FALSE;
+	bool create = FALSE;
+	
+	//if (!cave_forge_bold(p_ptr->py, p_ptr->px))
+	//{
+	//	msg_print("You can only create items at a forge.");
+	//	return;
+	//}
+	
+	if (cave_forge_bold(p_ptr->py, p_ptr->px) && forge_uses(p_ptr->py, p_ptr->px) == 0)
+	{
+		msg_print("The resources of this forge are exhausted.");
+		msg_print("You will be able to browse the options but not make new things.");
+	}
+	
+	/* Save screen */
+	screen_save();
+	
+	/* Clear screen */
+	Term_clear();
+	
+	// Hack: flag that we are in the middle of smithing
+	p_ptr->smithing = 1;
+	
+	// deal with previous interruptions
+	if (p_ptr->smithing_leftover > 0)
+	{
+		// default to 'resume' if an item is already in progress
+		highlight = SMT_MENU_ACCEPT;
+		
+		// and backup the smithing item
+		object_copy(smith2_o_ptr, smith_o_ptr);
+	}
+	
+	// otherwise wipe the smithing item
+	else
+	{
+		object_wipe(smith_o_ptr);
+	}
+		
+	/* Process Events until "Return to Game" is selected */
+	while (!leave_menu)
+	{
+		actiontype = smithing_menu_aux(&highlight);
+		
+		// if an action has been selected...
+		switch (actiontype)
+		{
+			case SMT_MENU_CREATE:
+			{
+				// this is not a resumption of smithing an item
+				p_ptr->smithing_leftover = 0;
+				
+				create_tval_menu();
+
+				// backup the smithing object
+				object_copy(smith2_o_ptr, smith_o_ptr);
+				
+				break;
+			}
+			case SMT_MENU_NUMBERS:
+			{
+				if (smith_o_ptr->tval)
+				{
+					// this is not a resumption of smithing an item
+					p_ptr->smithing_leftover = 0;
+
+					numbers_menu();
+					
+					// backup the smithing object
+					object_copy(smith2_o_ptr, smith_o_ptr);
+				}
+				else
+				{
+					bell("You must first select a base item.");
+				}
+				
+				break;
+			}
+			case SMT_MENU_MELT:
+			{
+				if (mithril_items_carried())
+				{
+					// this is not a resumption of smithing an item
+					p_ptr->smithing_leftover = 0;
+
+					melt_menu();
+				}
+				else
+				{
+					bell("You don't have any mithril items.");
+				}
+				
+				break;
+			}
+			case SMT_MENU_ENCHANT:
+			{
+				if (smith_o_ptr->tval)
+				{
+					// this is not a resumption of smithing an item
+					p_ptr->smithing_leftover = 0;
+
+					if (!enchant_menu())
+					{
+						// restore the smithing object
+						object_copy(smith_o_ptr, smith2_o_ptr);
+					}
+				}
+				else
+				{
+					bell("You must first select a base item.");
+				}
+				
+				break;
+			}
+			case SMT_MENU_ARTEFACT:
+			{
+				if (smith_o_ptr->tval)
+				{
+					// this is not a resumption of smithing an item
+					p_ptr->smithing_leftover = 0;
+
+					artefact_menu();
+				}
+				else
+				{
+					bell("You must first select a base item.");
+				}
+
+				break;
+			}
+			case SMT_MENU_ACCEPT:
+			{
+				create = TRUE;				
+				leave_menu = TRUE;
+				break;
+			}
+			case -1:
+			{
+				leave_menu = TRUE;
+				break;
+			}
+		}
+	}
+	
+	if (create)
+	{
+		// Display a message
+		msg_print("You begin your work.");
+		
+		// add the details to the artefact type if applicable
+		if (smith_o_ptr->name1) add_artefact_details();
+
+		/* Cancel stealth mode */
+		p_ptr->stealth_mode = FALSE;
+		
+		// Allow the resumption of interrupted smithing
+		if (p_ptr->smithing_leftover > 0)
+		{
+			p_ptr->smithing = p_ptr->smithing_leftover;
+		}
+		else
+		{
+			// Set smithing counter to a random value
+			p_ptr->smithing = damroll(40, 4);
+			
+			// Also set the smithing leftover counter (to allow you to resume if interrupted)
+			p_ptr->smithing_leftover = p_ptr->smithing;
+		}
+		
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+		
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATE);
+		
+		/* Handle stuff */
+		handle_stuff();
+		
+		/* Refresh */
+		Term_fresh();
+	}
+	
+	else
+	{
+		if (p_ptr->smithing_leftover == 0)
+		{
+			/* Wipe the smithing object */
+			object_wipe(smith_o_ptr);
+		}
+		
+		// Hack: flag that we are done with smithing
+		p_ptr->smithing = 0;
+	}
+	
+	/* Load screen */
+	screen_load();
+}
+
+
+/*
+ * Actually creates the item.
+ */
+void create_smithing_item(void)
+{
+	int slot;
+	object_type *o_ptr;
+	char o_name[80];
+	char note[60];
+	char shorter_desc[40];
+		
+	// pay the ability/experience costs of smithing
+	pay_costs();
+		
+	// if making an artefact, copy its attributes into the proper place in the a_info array
+	if (smith_o_ptr->name1)
+	{
+		smith_o_ptr->name1 = z_info->art_rand_max + p_ptr->self_made_arts;
+		
+		artefact_copy(&a_info[smith_o_ptr->name1], smith_a_ptr);
+		p_ptr->self_made_arts++;
+
+		// make sure to display it as cursed if it is so
+		if (smith_a_ptr->flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE))
+		{
+			smith_o_ptr->ident |= (IDENT_CURSED);
+		}
+		
+		/* Get a shorter description to fit the notes file */
+		object_desc(shorter_desc, sizeof(shorter_desc), smith_o_ptr, TRUE, 0);
+		
+		/* Build note and write */
+		sprintf(note, "Made %s", shorter_desc);
+		
+		// Store the depth at which it was created
+		smith_o_ptr->xtra1 = p_ptr->depth;
+		
+		/* Record the depth where the artefact was created */
+		do_cmd_note(note, smith_o_ptr->xtra1);
+	}
+	
+	// remove the spoiler ident flag
+	smith_o_ptr->ident &= ~(IDENT_SPOIL);
+
+	// identify the object
+	ident(smith_o_ptr);
+
+	// Get the slot of the forged item
+	slot = inven_carry(smith_o_ptr);
+	
+	// Get the item itself
+	o_ptr = &inventory[slot];
+	
+	// Describe the object
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	
+	// Message
+	if (slot >= 0)	msg_format("You have %s (%c).", o_name, index_to_label(slot));
+
+	/* Wipe the smithing object */
+	object_wipe(smith_o_ptr);	
+}
 
 /*
  * Recall the most recent message
@@ -399,10 +5285,10 @@ void do_cmd_messages(void)
 
 
 	/* Wipe finder */
-	strcpy(finder, "");
+	my_strcpy(finder, "", sizeof(finder));
 
 	/* Wipe shower */
-	strcpy(shower, "");
+	my_strcpy(shower, "", sizeof(shower));
 
 
 	/* Total messages */
@@ -597,10 +5483,10 @@ void do_cmd_pref(void)
 	char tmp[80];
 
 	/* Default */
-	strcpy(tmp, "");
+	my_strcpy(tmp, "", sizeof(tmp));
 
 	/* Ask for a "user pref command" */
-	if (!get_string("Pref: ", tmp, sizeof(tmp))) return;
+	if (!term_get_string("Pref: ", tmp, sizeof(tmp))) return;
 
 	/* Process that pref command */
 	(void)process_pref_file_command(tmp);
@@ -620,10 +5506,10 @@ static void do_cmd_pref_file_hack(int row)
 	char ftmp[80];
 
 	/* Prompt */
-	prt("Command: Load a user pref file", row, 0);
+	Term_putstr(2, row + 2, -1, TERM_SLATE, "(Escape to cancel)");
 
 	/* Prompt */
-	prt("File: ", row + 2, 0);
+	prt("File: ", row, 2);
 
 	/* Default filename */
 	strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
@@ -649,7 +5535,7 @@ static void do_cmd_pref_file_hack(int row)
 /*
  * Interact with some options
  */
-static void do_cmd_options_aux(int page, cptr info)
+extern void do_cmd_options_aux(int page, cptr info)
 {
 	char ch;
 
@@ -680,8 +5566,8 @@ static void do_cmd_options_aux(int page, cptr info)
 	while (TRUE)
 	{
 		/* Prompt XXX XXX XXX */
-		strnfmt(buf, sizeof(buf), "%s (RET to advance, y/n to set, ESC to accept, ? for help) ", info);
-		prt(buf, 0, 0);
+		strnfmt(buf, sizeof(buf), "%s", info);
+		Term_putstr(2, 1, -1, TERM_WHITE, buf);
 
 		/* Display the options */
 		for (i = 0; i < n; i++)
@@ -692,18 +5578,53 @@ static void do_cmd_options_aux(int page, cptr info)
 			if (i == k) a = TERM_L_BLUE;
 
 			/* Display the option text */
-			strnfmt(buf, sizeof(buf), "%-48s: %s  (%s)",
-			        option_desc[opt[i]],
-			        op_ptr->opt[opt[i]] ? "yes" : "no ",
-			        option_text[opt[i]]);
-			c_prt(a, buf, i + 2, 0);
+			if (opt[i] == OPT_delay_factor)
+			{
+				strnfmt(buf, sizeof(buf), "%-48s: %d",
+						"Delay factor for animation (0 to 9)", op_ptr->delay_factor);
+			}
+			else if (opt[i] == OPT_hitpoint_warning)
+			{
+				strnfmt(buf, sizeof(buf), "%-48s: %d%%",
+						"Hitpoint warning threshold (0% to 90%)", op_ptr->hitpoint_warn * 10);
+			}
+			else
+			{
+				strnfmt(buf, sizeof(buf), "%-48s: %s",
+						option_desc[opt[i]],
+						op_ptr->opt[opt[i]] ? "yes" : "no ");
+			}
+					
+			
+			c_prt(a, buf, i + 3, 2);
+		}
+
+		if (page == CHALLENGE_PAGE)
+		{
+			Term_putstr(2, n+4, -1, TERM_L_WHITE, "Challenge Options can only be altered during character creation");
+			Term_putstr(2, n+5, -1, TERM_L_WHITE, "or on the very first turn");
+			
+			if (playerturn == 0)
+			{
+				Term_putstr(2, n+7, -1, TERM_SLATE, "(direction keys to set, Return/Escape to accept)");
+			}
+			else
+			{
+				Term_putstr(2, n+7, -1, TERM_SLATE, "(press Return to go back)");
+			}
+		}
+		else
+		{
+			Term_putstr(2, n+4, -1, TERM_SLATE, "(direction keys to set, Return/Escape to accept)");
 		}
 
 		/* Hilite current option */
-		move_cursor(k + 2, 50);
+		move_cursor(k + 3, 52);
 
 		/* Get a key */
+		hide_cursor = TRUE;
 		ch = inkey();
+		hide_cursor = FALSE;
 
 		/*
 		 * HACK - Try to translate the key into a direction
@@ -717,6 +5638,8 @@ static void do_cmd_options_aux(int page, cptr info)
 		switch (ch)
 		{
 			case ESCAPE:
+			case '\n':
+			case '\r':
 			{
 				/* Hack -- Notice use of any "cheat" options */
 				for (i = OPT_CHEAT; i < OPT_ADULT; i++)
@@ -738,9 +5661,6 @@ static void do_cmd_options_aux(int page, cptr info)
 				break;
 			}
 
-			case ' ':
-			case '\n':
-			case '\r':
 			case '2':
 			{
 				k = (k + 1) % n;
@@ -749,32 +5669,54 @@ static void do_cmd_options_aux(int page, cptr info)
 
 			case 't':
 			case '5':
+			case ' ':
 			{
-				op_ptr->opt[opt[k]] = !op_ptr->opt[opt[k]];
+				if ((page != CHALLENGE_PAGE) || (playerturn == 0))
+				{
+					op_ptr->opt[opt[k]] = !op_ptr->opt[opt[k]];
+				}
 				break;
 			}
 
 			case 'y':
 			case '6':
 			{
-				op_ptr->opt[opt[k]] = TRUE;
-				k = (k + 1) % n;
+				if ((page != CHALLENGE_PAGE) || (playerturn == 0))
+				{
+					if (opt[k] == OPT_delay_factor)
+					{
+						op_ptr->delay_factor = (op_ptr->delay_factor < 9) ? op_ptr->delay_factor + 1 : 9;
+					}
+					else if (opt[k] == OPT_hitpoint_warning)
+					{
+						op_ptr->hitpoint_warn = (op_ptr->hitpoint_warn < 9) ? op_ptr->hitpoint_warn + 1 : 9;
+					}
+					else
+					{
+						op_ptr->opt[opt[k]] = TRUE;
+					}
+				}
 				break;
 			}
 
 			case 'n':
 			case '4':
 			{
-				op_ptr->opt[opt[k]] = FALSE;
-				k = (k + 1) % n;
-				break;
-			}
-
-			case '?':
-			{
-				strnfmt(buf, sizeof(buf), "options.txt#%s", option_text[opt[k]]);
-				show_file(buf, NULL, 0, 0);
-				Term_clear();
+				if ((page != CHALLENGE_PAGE) || (playerturn == 0))
+				{
+					if (opt[k] == OPT_delay_factor)
+					{
+						op_ptr->delay_factor = (op_ptr->delay_factor > 0) ? op_ptr->delay_factor - 1 : 0;
+					}
+					else if (opt[k] == OPT_hitpoint_warning)
+					{
+						op_ptr->hitpoint_warn = (op_ptr->hitpoint_warn > 0) ? op_ptr->hitpoint_warn - 1 : 0;
+					}
+					else
+					{
+						op_ptr->opt[opt[k]] = FALSE;
+					}
+				}
 				break;
 			}
 
@@ -787,161 +5729,6 @@ static void do_cmd_options_aux(int page, cptr info)
 	}
 }
 
-
-/*
- * Modify the "window" options
- */
-static void do_cmd_options_win(void)
-{
-	int i, j, d;
-
-	int y = 0;
-	int x = 0;
-
-	char ch;
-
-	u32b old_flag[ANGBAND_TERM_MAX];
-
-
-	/* Memorize old flags */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		old_flag[j] = op_ptr->window_flag[j];
-	}
-
-
-	/* Clear screen */
-	Term_clear();
-
-	/* Interact */
-	while (1)
-	{
-		/* Prompt */
-		prt("Window flags (<dir> to move, 't' to toggle, or ESC)", 0, 0);
-
-		/* Display the windows */
-		for (j = 0; j < ANGBAND_TERM_MAX; j++)
-		{
-			byte a = TERM_WHITE;
-
-			cptr s = angband_term_name[j];
-
-			/* Use color */
-			if (j == x) a = TERM_L_BLUE;
-
-			/* Window name, staggered, centered */
-			Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
-		}
-
-		/* Display the options */
-		for (i = 0; i < 16; i++)
-		{
-			byte a = TERM_WHITE;
-
-			cptr str = window_flag_desc[i];
-
-			/* Use color */
-			if (i == y) a = TERM_L_BLUE;
-
-			/* Unused option */
-			if (!str) str = "(Unused option)";
-
-			/* Flag name */
-			Term_putstr(0, i + 5, -1, a, str);
-
-			/* Display the windows */
-			for (j = 0; j < ANGBAND_TERM_MAX; j++)
-			{
-				byte a = TERM_WHITE;
-
-				char c = '.';
-
-				/* Use color */
-				if ((i == y) && (j == x)) a = TERM_L_BLUE;
-
-				/* Active flag */
-				if (op_ptr->window_flag[j] & (1L << i)) c = 'X';
-
-				/* Flag value */
-				Term_putch(35 + j * 5, i + 5, a, c);
-			}
-		}
-
-		/* Place Cursor */
-		Term_gotoxy(35 + x * 5, y + 5);
-
-		/* Get key */
-		ch = inkey();
-
-		/* Allow escape */
-		if ((ch == ESCAPE) || (ch == 'q')) break;
-
-		/* Toggle */
-		if ((ch == '5') || (ch == 't'))
-		{
-			/* Hack -- ignore the main window */
-			if (x == 0)
-			{
-				bell("Cannot set main window flags!");
-			}
-
-			/* Toggle flag (off) */
-			else if (op_ptr->window_flag[x] & (1L << y))
-			{
-				op_ptr->window_flag[x] &= ~(1L << y);
-			}
-
-			/* Toggle flag (on) */
-			else
-			{
-				op_ptr->window_flag[x] |= (1L << y);
-			}
-
-			/* Continue */
-			continue;
-		}
-
-		/* Extract direction */
-		d = target_dir(ch);
-
-		/* Move */
-		if (d != 0)
-		{
-			x = (x + ddx[d] + 8) % 8;
-			y = (y + ddy[d] + 16) % 16;
-		}
-
-		/* Oops */
-		else
-		{
-			bell("Illegal command for window options!");
-		}
-	}
-
-	/* Notice changes */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
-
-		/* Dead window */
-		if (!angband_term[j]) continue;
-
-		/* Ignore non-changes */
-		if (op_ptr->window_flag[j] == old_flag[j]) continue;
-
-		/* Activate */
-		Term_activate(angband_term[j]);
-
-		/* Erase */
-		Term_clear();
-
-		/* Refresh */
-		Term_fresh();
-
-		/* Restore */
-		Term_activate(old);
-	}
-}
 
 
 /*
@@ -1047,6 +5834,103 @@ static errr option_dump(cptr fname)
 }
 
 
+
+int options_menu(int *highlight)
+{
+	int ch;
+	int options = 6;
+	
+	if (p_ptr->noscore) options++;
+
+	Term_putstr(2,  1, -1, TERM_WHITE, "Options");
+	
+	Term_putstr(2,  3, -1, (*highlight == 1) ? TERM_L_BLUE : TERM_WHITE, "a) Interface Options");
+	Term_putstr(2,  4, -1, (*highlight == 2) ? TERM_L_BLUE : TERM_WHITE, "b) Visual Options");
+	Term_putstr(2,  5, -1, (*highlight == 3) ? TERM_L_BLUE : TERM_WHITE, "c) Challenge Options");
+	Term_putstr(2,  6, -1, (*highlight == 4) ? TERM_L_BLUE : TERM_WHITE, "d) Load a 'Pref' File");
+	Term_putstr(2,  7, -1, (*highlight == 5) ? TERM_L_BLUE : TERM_WHITE, "e) Append Options to a 'Pref' File");
+	Term_putstr(2,  8, -1, (*highlight == 6) ? TERM_L_BLUE : TERM_WHITE, "f) Return to Game");
+	
+	if (p_ptr->noscore)
+	{
+		Term_putstr(2, 9, -1, (*highlight == 7) ? TERM_L_BLUE : TERM_WHITE, "g) Debugging Options");
+	}
+
+	/* Flush the prompt */
+	Term_fresh();
+
+	/* Place cursor at current choice */
+	Term_gotoxy(2, 2 + *highlight);
+
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	if ((ch == 'a') || (ch == 'A'))
+	{
+		*highlight = 1;
+		return (1);
+	}
+
+	if ((ch == 'b') || (ch == 'B'))
+	{
+		*highlight = 2;
+		return (2);
+	}
+
+	if ((ch == 'c') || (ch == 'C'))
+	{
+		*highlight = 3;
+		return (3);
+	}
+
+	if ((ch == 'd') || (ch == 'D'))
+	{
+		*highlight = 4;
+		return (4);
+	}
+
+	if ((ch == 'e') || (ch == 'E'))
+	{
+		*highlight = 5;
+		return (5);
+	}
+
+	if ((ch == 'f') || (ch == 'F') || (ch == ESCAPE) || (ch == 'q'))
+	{
+		*highlight = 6;
+		return (6);
+	}
+
+	if ((ch == 'g') || (ch == 'G'))
+	{
+		*highlight = 7;
+		return (7);
+	}
+		
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' '))
+	{
+		return (*highlight);
+	}
+
+	/* Prev item */
+	if (ch == '8')
+	{
+		*highlight = (*highlight + (options-2)) % options + 1;
+	}
+
+	/* Next item */
+	if (ch == '2')
+	{
+		*highlight = *highlight % options + 1;
+	}
+
+	return (0);
+} 
+
+
 /*
  * Set or unset various options.
  *
@@ -1055,199 +5939,102 @@ static errr option_dump(cptr fname)
  */
 void do_cmd_options(void)
 {
-	char ch;
+	int choice = 0;
+	int highlight = 1;
 
+	char ftmp[80];
+	
+	bool return_to_game = FALSE;
 
 	/* Save screen */
 	screen_save();
 
-
-	/* Interact */
-	while (1)
+	/* Clear screen */
+	Term_clear();
+	
+	/* Process Events until "Return to Game" is selected */
+	while (!return_to_game)
 	{
-		/* Clear screen */
-		Term_clear();
 
-		/* Why are we here */
-		prt(format("%s options", VERSION_NAME), 2, 0);
-
-		/* Give some choices */
-		prt("(1) User Interface Options", 4, 5);
-		prt("(2) Disturbance Options", 5, 5);
-		prt("(3) Game-Play Options", 6, 5);
-		prt("(4) Efficiency Options", 7, 5);
-		prt("(5) Display Options", 8, 5);
-		prt("(6) Birth Options", 9, 5);
-		prt("(7) Cheat Options", 10, 5);
-
-		/* Window flags */
-		prt("(W) Window flags", 12, 5);
-
-		/* Squelch menus */
-		prt("(S) Item Squelch and Autoinscribe Menus", 13, 5);
-
-		/* Load and Append */
-		prt("(L) Load a user pref file", 14, 5);
-		prt("(A) Append options to a file", 15, 5);
-
-		/* Special choices */
-		prt("(D) Base Delay Factor", 17, 5);
-		prt("(H) Hitpoint Warning", 18, 5);
-
-		/* Prompt */
-		prt("Command: ", 20, 0);
-
-		/* Get command */
-		ch = inkey();
-
-		/* Exit */
-		if (ch == ESCAPE) break;
-
-		/* General Options */
-		else if (ch == '1')
+		choice = options_menu(&highlight);
+		
+		switch (choice)
 		{
-			do_cmd_options_aux(0, "User Interface Options");
-		}
-
-		/* Disturbance Options */
-		else if (ch == '2')
-		{
-			do_cmd_options_aux(1, "Disturbance Options");
-		}
-
-		/* Inventory Options */
-		else if (ch == '3')
-		{
-			do_cmd_options_aux(2, "Game-Play Options");
-		}
-
-		/* Efficiency Options */
-		else if (ch == '4')
-		{
-			do_cmd_options_aux(3, "Efficiency Options");
-		}
-
-		/* Display Options */
-		else if (ch == '5')
-		{
-			do_cmd_options_aux(4, "Display Options");
-		}
-
-		/* Birth Options */
-		else if (ch == '6')
-		{
-			do_cmd_options_aux(5, "Birth Options");
-		}
-
-		/* Cheating Options */
-		else if (ch == '7')
-		{
-			do_cmd_options_aux(6, "Cheat Options");
-		}
-
-		/* Window flags */
-		else if ((ch == 'W') || (ch == 'w'))
-		{
-			do_cmd_options_win();
-		}
-
-		/* Squelching and autoinscription menus */
-		else if ((ch == 'S') || (ch == 's'))
-		{
-			do_cmd_squelch_autoinsc();
-		}
-
-		/* Load a user pref file */
-		else if ((ch == 'L') || (ch == 'l'))
-		{
-			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(20);
-		}
-
-		/* Append options to a file */
-		else if ((ch == 'A') || (ch == 'a'))
-		{
-			char ftmp[80];
-
-			/* Prompt */
-			prt("Command: Append options to a file", 20, 0);
-
-			/* Prompt */
-			prt("File: ", 21, 0);
-
-			/* Default filename */
-			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
-
-			/* Ask for a file */
-			if (!askfor_aux(ftmp, sizeof(ftmp))) continue;
-
-			/* Dump the options */
-			if (option_dump(ftmp))
+			case 1:
 			{
-				/* Failure */
-				msg_print("Failed!");
+				do_cmd_options_aux(INTERFACE_PAGE, "Interface Options");
+				Term_clear();
+				break;
 			}
-			else
+			case 2:
 			{
-				/* Success */
-				msg_print("Done.");
+				do_cmd_options_aux(VISUAL_PAGE, "Visual Options");
+				Term_clear();
+				break;
+			}
+			case 3:
+			{
+				do_cmd_options_aux(CHALLENGE_PAGE, "Challenge Options");
+				Term_clear();
+				break;
+			}
+			case 4:
+			{
+				/* Ask for and load a user pref file */
+				do_cmd_pref_file_hack(12);
+				Term_clear();
+				break;
+			}
+			case 5:
+			{
+				/* Prompt */
+				Term_putstr(2, 14, -1, TERM_SLATE, "(Escape to cancel)");
+
+				/* Prompt */
+				prt("File: ", 12, 2);
+
+				/* Default filename */
+				strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+
+				/* Ask for a file */
+				if (!askfor_aux(ftmp, sizeof(ftmp)))
+				{
+					Term_clear();
+					continue;
+				}
+				
+				/* Dump the options */
+				if (option_dump(ftmp))
+				{
+					/* Failure */
+					msg_print("Failed!");
+				}
+				else
+				{
+					/* Success */
+					msg_print("Done.");
+				}
+				
+				Term_clear();
+				break;
+			}
+			case 6:
+			{
+				return_to_game = TRUE;
+				Term_clear();
+				break;
+			}
+			case 7:
+			{
+				do_cmd_options_aux(DEBUG_PAGE, "Debugging Options");
+				Term_clear();
+				break;
 			}
 		}
-
-		/* Hack -- Base Delay Factor */
-		else if ((ch == 'D') || (ch == 'd'))
-		{
-			/* Prompt */
-			prt("Command: Base Delay Factor", 20, 0);
-
-			/* Get a new value */
-			while (1)
-			{
-				char cx;
-				int msec = op_ptr->delay_factor * op_ptr->delay_factor;
-				prt(format("Current base delay factor: %d (%d msec)",
-				           op_ptr->delay_factor, msec), 22, 0);
-				prt("New base delay factor (0-9 or ESC to accept): ", 21, 0);
-
-				cx = inkey();
-				if (cx == ESCAPE) break;
-				if (isdigit((unsigned char)cx)) op_ptr->delay_factor = D2I(cx);
-				else bell("Illegal delay factor!");
-			}
-		}
-
-		/* Hack -- hitpoint warning factor */
-		else if ((ch == 'H') || (ch == 'h'))
-		{
-			/* Prompt */
-			prt("Command: Hitpoint Warning", 20, 0);
-
-			/* Get a new value */
-			while (1)
-			{
-				char cx;
-				prt(format("Current hitpoint warning: %2d%%",
-				           op_ptr->hitpoint_warn * 10), 22, 0);
-				prt("New hitpoint warning (0-9 or ESC to accept): ", 21, 0);
-
-				cx = inkey();
-				if (cx == ESCAPE) break;
-				if (isdigit((unsigned char)cx)) op_ptr->hitpoint_warn = D2I(cx);
-				else bell("Illegal hitpoint warning!");
-			}
-		}
-
-		/* Unknown option */
-		else
-		{
-			/* Oops */
-			bell("Illegal command for options!");
-		}
-
-		/* Flush messages */
-		message_flush();
 	}
 
+	/* Flush messages */
+	message_flush();
 
 	/* Load screen */
 	screen_load();
@@ -1437,18 +6224,11 @@ static errr keymap_dump(cptr fname)
 
 	int mode;
 
-	/* Roguelike */
-	if (rogue_like_commands)
-	{
-		mode = KEYMAP_MODE_ROGUE;
-	}
-
-	/* Original */
-	else
-	{
-		mode = KEYMAP_MODE_ORIG;
-	}
-
+	// Determine the keyset
+	if (!hjkl_movement && !angband_keyset)		mode = KEYMAP_MODE_SIL;
+	else if (hjkl_movement && !angband_keyset)	mode = KEYMAP_MODE_SIL_HJKL;
+	else if (!hjkl_movement && angband_keyset)	mode = KEYMAP_MODE_ANGBAND;
+	else										mode = KEYMAP_MODE_ANGBAND_HJKL;
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
@@ -1539,18 +6319,12 @@ void do_cmd_macros(void)
 	int mode;
 
 
-	/* Roguelike */
-	if (rogue_like_commands)
-	{
-		mode = KEYMAP_MODE_ROGUE;
-	}
-
-	/* Original */
-	else
-	{
-		mode = KEYMAP_MODE_ORIG;
-	}
-
+	// Determine the keyset
+	if (!hjkl_movement && !angband_keyset)		mode = KEYMAP_MODE_SIL;
+	else if (hjkl_movement && !angband_keyset)	mode = KEYMAP_MODE_SIL_HJKL;
+	else if (!hjkl_movement && angband_keyset)	mode = KEYMAP_MODE_ANGBAND;
+	else										mode = KEYMAP_MODE_ANGBAND_HJKL;
+	
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2707,7 +7481,7 @@ static bool askfor_color_values(int idx)
   	sprintf(str, "%d", angband_color_table[idx][1]);
 
   	/* Query, check for ESCAPE */
-  	if (!get_string("Red (0-255) ", str, sizeof(str))) return FALSE;
+  	if (!term_get_string("Red (0-255) ", str, sizeof(str))) return FALSE;
 
   	/* Convert to number */
   	r = atoi(str);
@@ -2720,7 +7494,7 @@ static bool askfor_color_values(int idx)
   	sprintf(str, "%d", angband_color_table[idx][2]);
 
   	/* Query, check for ESCAPE */
-  	if (!get_string("Green (0-255) ", str, sizeof(str))) return FALSE;
+  	if (!term_get_string("Green (0-255) ", str, sizeof(str))) return FALSE;
 
   	/* Convert to number */
   	g = atoi(str);
@@ -2733,7 +7507,7 @@ static bool askfor_color_values(int idx)
   	sprintf(str, "%d", angband_color_table[idx][3]);
 
  	/* Query, check for ESCAPE */
-  	if (!get_string("Blue (0-255) ", str, sizeof(str))) return FALSE;
+  	if (!term_get_string("Blue (0-255) ", str, sizeof(str))) return FALSE;
 
  	/* Convert to number */
   	b = atoi(str);
@@ -2746,7 +7520,7 @@ static bool askfor_color_values(int idx)
   	sprintf(str, "%d", angband_color_table[idx][0]);
 
   	/* Query, check for ESCAPE */
-  	if (!get_string("Extra (0-255) ", str, sizeof(str))) return FALSE;
+  	if (!term_get_string("Extra (0-255) ", str, sizeof(str))) return FALSE;
 
   	/* Convert to number */
   	k = atoi(str);
@@ -2775,9 +7549,6 @@ static bool askfor_color_values(int idx)
 /* These two are used to place elements in the grid */
 #define COLOR_X(idx) (((idx) / MAX_BASE_COLORS) * 5 + 1)
 #define COLOR_Y(idx) ((idx) % MAX_BASE_COLORS + 6)
-
-/* We only can edit a portion of the color table */
-#define MAX_COLORS 128
 
 /* Hack - Note the cast to "int" to prevent overflow */
 #define IS_BLACK(idx) \
@@ -3003,7 +7774,7 @@ static void modify_colors(void)
 	  			sprintf(str, "%d", GET_BASE_COLOR(idx));
 
 	  			/* Query, check for ESCAPE */
-	  			if (!get_string(format("Copy from color (0-%d, def. base) ",
+	  			if (!term_get_string(format("Copy from color (0-%d, def. base) ",
 					MAX_COLORS - 1), str, sizeof(str))) break;
 
 	  			/* Convert to number */
@@ -3318,153 +8089,140 @@ void do_cmd_colors(void)
   * a file.  The command can also be passed a string, which will automatically be
   * written. -CK-
   */
- void do_cmd_note(char *note, int what_depth)
- {
- 	char buf[120];
+void do_cmd_note(char *note, int what_depth)
+{
+	char buf[120];
+	char turn_string[16];
+
+	int length, length_info;
+	char info_note[40];
+	char depths[10];
+
+	// exit if there is no notes file
+	if (!notes_file) return;
 
  	/* Default */
- 	strcpy(buf, "");
+ 	my_strcpy(buf, "", sizeof (buf));
 
  	/* If a note is passed, use that, otherwise accept user input. */
  	if (streq(note, ""))
 	{
-
- 	  	if (!get_string("Note: ", buf, 70)) return;
-
+ 	  	if (!term_get_string("Note: ", buf, 70)) return;
  	}
-
-	else my_strcpy(buf, note, sizeof(buf));
+	else
+	{
+		my_strcpy(buf, note, sizeof(buf));
+	}
 
  	/* Ignore empty notes */
  	if (!buf[0] || (buf[0] == ' ')) return;
 
-	/* If the note taking option is on, write it to the file, otherwise write to
- 	 * the message recall.
- 	 */
- 	if (adult_take_notes)
+	/* write it to the notes file */
+
+	/*Artefacts use depth artefact created.  All others use player depth.*/
+
+	/*get depth for recording\
+	 */
+	if (what_depth == 0)
 	{
-		int length, length_info;
-        char info_note[40];
- 	  	char depths[10];
+		my_strcpy(depths, "   Gates", sizeof (depths));
+	}
+	else if (what_depth == CHEST_LEVEL)
+	{
+		my_strcpy(depths, "   Chest", sizeof (depths));
+	}
+	else
+	{
+		comma_number(depths, what_depth * 50);
+		strnfmt(depths, sizeof(depths), "%5s ft", depths);
+	}
 
-		/*Artifacts use depth artifact created.  All others
-	 	 *use player depth.
-	 	 */
+	comma_number(turn_string, playerturn);
 
-		/*get depth for recording\
-		 *mark if item is a quest reward or a chest item
-		 */
- 	    if (what_depth == 0)
- 	    {
- 			strcpy(depths, " Town");
- 	    }
- 	    else if (what_depth == CHEST_LEVEL)
- 	    {
- 			strnfmt(depths, sizeof(depths), "Chest");
- 	    }
-		else if (what_depth == QUEST_LEVEL)
- 	    {
- 			strnfmt(depths, sizeof(depths), "Quest");
- 	    }
-		else if (depth_in_feet)
- 	    {
- 			strnfmt(depths, sizeof(depths), " %4d", what_depth * 50);
- 	    }
-		else
- 	    {
- 		strnfmt(depths, sizeof(depths), " %4d", what_depth);
-		}
+	/* Make preliminary part of note */
+	strnfmt(info_note, sizeof(info_note), "%8s  %s    ", turn_string, depths);
 
- 	  	/* Make preliminary part of note */
-     	strnfmt(info_note, sizeof(info_note), "|%9lu| %s | %2d  | ", turn, depths, p_ptr->lev);
+	/*write the info note*/
+	fputs(info_note, notes_file);
+	
+	/*get the length of the notes*/
+	length_info = strlen(info_note);
+	length = strlen(buf);
 
-		/*write the info note*/
-		fprintf(notes_file, info_note);
+	/*break up long notes*/
+	if((length + length_info) > LINEWRAP)
+	{
+		bool keep_going = TRUE;
+		int startpoint = 0;
+		int endpoint, n;
 
-		/*get the length of the notes*/
-		length_info = strlen(info_note);
-		length = strlen(buf);
-
-		/*break up long notes*/
-		if((length + length_info) > LINEWRAP)
+		while (keep_going)
 		{
-			bool keep_going = TRUE;
-			int startpoint = 0;
-			int endpoint, n;
+			/*don't print more than the set linewrap amount*/
+			endpoint = startpoint + LINEWRAP - strlen(info_note) + 1;
 
-			while (keep_going)
+			/*find a breaking point*/
+			while (TRUE)
 			{
-
-				/*don't print more than the set linewrap amount*/
-				endpoint = startpoint + LINEWRAP - strlen(info_note) + 1;
-
-				/*find a breaking point*/
-				while (TRUE)
+				/*are we at the end of the line?*/
+				if (endpoint >= length)
 				{
-					/*are we at the end of the line?*/
-					if (endpoint >= length)
-					{
-						/*print to the end*/
-						endpoint = length;
-						keep_going = FALSE;
-						break;
-					}
-
-					/* Mark the most recent space or dash in the string */
-					else if ((buf[endpoint] == ' ') ||
-				    		 (buf[endpoint] == '-')) break;
-
-					/*no spaces in the line, so break in the middle of text*/
-					else if (endpoint == startpoint)
-					{
-						endpoint = startpoint + LINEWRAP - strlen(info_note) + 1;
-						break;
-					}
-
-					/* check previous char */
-					endpoint--;
+					/*print to the end*/
+					endpoint = length;
+					keep_going = FALSE;
+					break;
 				}
 
-				/*make a continued note if applicable*/
-				if (startpoint) fprintf(notes_file, "|  continued...   |     |  ");
+				/* Mark the most recent space or dash in the string */
+				else if ((buf[endpoint] == ' ') ||
+						 (buf[endpoint] == '-')) break;
 
-				/* Write that line to file */
-				for (n = startpoint; n <= endpoint; n++)
+				/*no spaces in the line, so break in the middle of text*/
+				else if (endpoint == startpoint)
 				{
-					char ch;
-
-					/* Ensure the character is printable */
-					ch = (isprint(buf[n]) ? buf[n] : ' ');
-
-					/* Write out the character */
-					fprintf(notes_file, "%c", ch);
-
+					endpoint = startpoint + LINEWRAP - strlen(info_note) + 1;
+					break;
 				}
 
-				/*break the line*/
-				fprintf(notes_file, "\n");
-
-				/*prepare for the next line*/
-				startpoint = endpoint + 1;
+				/* check previous char */
+				endpoint--;
 			}
 
-		}
+			/*make a continued note if applicable*/
+			if (startpoint) fprintf(notes_file, "                      ");
 
- 	 	/* Add note to buffer */
- 	 	else
-		{
-			fprintf(notes_file, "%s", buf);
+			/* Write that line to file */
+			for (n = startpoint; n <= endpoint; n++)
+			{
+				char ch;
+
+				/* Ensure the character is printable */
+				ch = (isprint(buf[n]) ? buf[n] : ' ');
+
+				/* Write out the character */
+				fprintf(notes_file, "%c", ch);
+
+			}
 
 			/*break the line*/
 			fprintf(notes_file, "\n");
+
+			/*prepare for the next line*/
+			startpoint = endpoint + 1;
 		}
 
+	}
 
- 	}
+	/* Add note to buffer */
+	else
+	{
+		fprintf(notes_file, "%s", buf);
 
- 	else msg_format("Note: %s", buf);
+		/*break the line*/
+		fprintf(notes_file, "\n");
+	}
 
-  }
+}
 
 
 /*
@@ -3505,10 +8263,10 @@ static cptr do_cmd_feeling_text[LEV_THEME_HEAD] =
 void do_cmd_feeling(void)
 {
 
-	/* No useful feeling in town */
+	/* No useful feeling on the surface */
 	if (!p_ptr->depth)
 	{
-		msg_print("Looks like a typical town.");
+		msg_print("You stand once again upon the surface. Freedom awaits.");
 		return;
 	}
 
@@ -3517,24 +8275,6 @@ void do_cmd_feeling(void)
 	{
 		msg_print("You are still uncertain about this level...");
 		return;
-	}
-
-	/* Verify the feeling */
-	if (feeling >= LEV_THEME_HEAD)
-	{
-
-		/*print out a message about a themed level*/
-		char note[100];
-		char mon_theme[80];
-
-		my_strcpy(note, "You have entered ", sizeof(note));
-		my_strcpy(mon_theme, feeling_themed_level[feeling - LEV_THEME_HEAD], sizeof(mon_theme));
-		if (is_a_vowel(mon_theme[0])) my_strcat(note, "an ", sizeof(note));
-		else my_strcat(note, "a ", sizeof(note));
-
-		my_strcat(note, format("%s stronghold.", mon_theme), sizeof(note));
-
-		msg_print(note);
 	}
 
 	/* Display the feeling */
@@ -3591,156 +8331,30 @@ void ghost_challenge(void)
 
 
 /*
- * Display the current quest (if any)
- */
-void do_cmd_quest(void)
-{
-	char q_out[120];
-
-	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
-
-	/* Check if you're on a quest */
-	if (p_ptr->cur_quest > 0)
-	{
-		/* Completed quest */
-		if (!q_ptr->active_level)
-		{
-			msg_print("Collect your reward at the guild!");
-		}
-
-		else
-		{
-			describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_FULL);
-
-			/* Break into two lines if necessary */
-			if (strlen(q_out) < 70) msg_print(q_out);
-			else
-			{
-				describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_1);
-				msg_format(q_out);
-				describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_2);
-				msg_format(q_out);
-			}
-		}
-	}
-	/* No quest at all */
-	else msg_print("You are not currently undertaking a quest.");
-}
-/*
  * Encode the screen colors
  */
 static const char hack[17] = "dwsorgbuDWvyRGBU";
 
 
-/*
- * Hack -- load a screen dump from a file
- *
- * ToDo: Add support for loading/saving screen-dumps with graphics
- * and pseudo-graphics.  Allow the player to specify the filename
- * of the dump.
- */
-void do_cmd_load_screen(void)
-{
-	int i, y, x;
-
-	byte a = 0;
-	char c = ' ';
-
-	bool okay = TRUE;
-
-	FILE *fp;
-
-	char buf[1024];
-
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump.txt");
-
-	/* Open the file */
-	fp = my_fopen(buf, "r");
-
-	/* Oops */
-	if (!fp) return;
-
-
-	/* Save screen */
-	screen_save();
-
-
-	/* Clear the screen */
-	Term_clear();
-
-
-	/* Load the screen */
-	for (y = 0; okay && (y < 24); y++)
-	{
-		/* Get a line of data */
-		if (my_fgets(fp, buf, sizeof(buf))) okay = FALSE;
-
-
-		/* Show each row */
-		for (x = 0; x < 79; x++)
-		{
-			/* Put the attr/char */
-			Term_draw(x, y, TERM_WHITE, buf[x]);
-		}
-	}
-
-	/* Get the blank line */
-	if (my_fgets(fp, buf, sizeof(buf))) okay = FALSE;
-
-
-	/* Dump the screen */
-	for (y = 0; okay && (y < 24); y++)
-	{
-		/* Get a line of data */
-		if (my_fgets(fp, buf, sizeof(buf))) okay = FALSE;
-
-		/* Dump each row */
-		for (x = 0; x < 79; x++)
-		{
-			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
-
-			/* Look up the attr */
-			for (i = 0; i < 16; i++)
-			{
-				/* Use attr matches */
-				if (hack[i] == buf[x]) a = i;
-			}
-
-			/* Put the attr/char */
-			Term_draw(x, y, a, c);
-		}
-	}
-
-
-	/* Close it */
-	my_fclose(fp);
-
-
-	/* Message */
-	msg_print("Screen dump loaded.");
-	message_flush();
-
-
-	/* Load screen */
-	screen_load();
-}
-
 
 /*display the notes file*/
-static void do_cmd_knowledge_notes(void)
+extern void do_cmd_knowledge_notes(void)
 {
-
-	/*close the notes file for writing*/
-	my_fclose(notes_file);
-
-	show_file(notes_fname, "Notes", 0, 0);
-
-	/*re-open for appending*/
-	notes_file = my_fopen(notes_fname, "a");
-
+	if (notes_file)
+	{
+		/*close the notes file for writing*/
+		my_fclose(notes_file);
+		
+		show_file(notes_fname, "Notes", 0);
+		
+		/*re-open for appending*/
+		notes_file = my_fopen(notes_fname, "a");
+	}
+	else
+	{
+		msg_print("Sorry, but there doesn't appear to be a notes file associated with this character.");
+		msg_print("If you really want notes, you may need to launch Sil with administrator priveleges.");
+	}
 }
 
 /*
@@ -3749,13 +8363,13 @@ static void do_cmd_knowledge_notes(void)
 void do_cmd_save_screen(void)
 {
 	char tmp_val[256];
-
+		
 	/* Ask for a file */
-	strcpy(tmp_val, "dump.html");
-	if (!get_string("File: ", tmp_val, sizeof(tmp_val))) return;
+	sprintf(tmp_val, "%s.html", op_ptr->base_name);
+	if (!term_get_string("File: ", tmp_val, sizeof(tmp_val))) return;
 
 	html_screenshot(tmp_val);
-	msg_print("Dump saved.");
+	msg_print("HTML screenshot saved.");
 }
 
 /*
@@ -3763,35 +8377,27 @@ void do_cmd_save_screen(void)
  */
 static cptr object_group_text[] =
 {
-	"Mushrooms",
+	"Herbs",
 	"Potions",
-	"Scrolls",
 	"Rings",
 	"Amulets",
-	"Light Sources",
-	"Wands",
 	"Staves",
-	"Rods",
+	"Trumpets",
 	"Swords",
-	"Hafted Weapons",
-	"Polearms",
+	"Axes & Polearms",
+	"Blunt Weapons",
 	"Diggers",
 	"Bows",
+//	"Arrows",
+	"Light Sources",
 	"Soft Armor",
-	"Hard Armor",
-	"Dragon Armor",
-	"Dragon Shields",
+	"Mail",
 	"Shields",
 	"Cloaks",
 	"Gloves",
 	"Helms",
 	"Crowns",
 	"Boots",
-	"Spell books",
-	"Prayer books",
-	"Shots",
-	"Arrows",
-	"Bolts",
 	"Chests",
 	NULL
 };
@@ -3805,33 +8411,25 @@ static byte object_group_tval[] =
 {
 	TV_FOOD,
 	TV_POTION,
-	TV_SCROLL,
 	TV_RING,
 	TV_AMULET,
-	TV_LITE,
-	TV_WAND,
 	TV_STAFF,
-	TV_ROD,
+	TV_TRUMPET,
 	TV_SWORD,
-	TV_HAFTED,
 	TV_POLEARM,
+	TV_HAFTED,
 	TV_DIGGING,
 	TV_BOW,
+//	TV_ARROW,
+	TV_LIGHT,
 	TV_SOFT_ARMOR,
-	TV_HARD_ARMOR,
-	TV_DRAG_ARMOR,
-	TV_DRAG_SHIELD,
+	TV_MAIL,
 	TV_SHIELD,
 	TV_CLOAK,
 	TV_GLOVES,
 	TV_HELM,
 	TV_CROWN,
 	TV_BOOTS,
-	TV_MAGIC_BOOK,
-	TV_PRAYER_BOOK,
-	TV_SHOT,
-	TV_ARROW,
-	TV_BOLT,
 	TV_CHEST,
 	0
 };
@@ -3859,7 +8457,7 @@ static int collect_objects(int grp_cur, int object_idx[])
 		/* Skip empty objects */
 		if (!k_ptr->name) continue;
 
-		/* Skip items with no distribution (including special artifacts) */
+		/* Skip items with no distribution (including special artefacts) */
 		/* Scan allocation pairs */
 		for (j = 0; j < 4; j++)
 		{
@@ -3887,222 +8485,59 @@ static int collect_objects(int grp_cur, int object_idx[])
 	return object_cnt;
 }
 
-/*
- * Check if an artifact is *identified*.  Assumes all lost or discarded
- * artifacts are *identified*.  Assumes it is a known artifact
- */
-static bool is_artifact_fully_identified(byte art_num)
-{
-	int i, y;
-
-	/* Process objects in the dungeon */
-	for (i = 1; i < o_max; i++)
-	{
-		/*get the object*/
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Go to next one if this is not the artifact */
-		if (o_ptr->name1 != art_num) continue;
-
-		/* We have a match, return the status*/
-		return (o_ptr->ident & (IDENT_MENTAL));
-	}
-
-	/*
-	 * Scan the inventory for the artifact
-	 * Notice we are doing the inventory and equipment in the same loop.
-	 */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr;
-
-		/* First, the item actually in the slot */
-		o_ptr = &inventory[i];
-
-		/*nothing there*/
-		if (!(o_ptr->k_idx)) continue;
-
-		/* Go to next one if this is not the artifact */
-		if (o_ptr->name1 != art_num) continue;
-
-		/* We have a match, return the status*/
-		return (o_ptr->ident & (IDENT_MENTAL));
-	}
-
-	/* Check each store for the artifact*/
-	for (y = 0; y < MAX_STORES; y++)
-	{
-		/* Get the store */
-		store_type *st_ptr = &store[y];
-
-		/*The guild doesn't carry stock*/
-		if (y == STORE_GUILD) continue;
-
-		/* Look for items in the home, if there is anything there */
-		if (st_ptr->stock_num)
-		{
-			/*go through each item in the house*/
-			for (i = 0; i < st_ptr->stock_num; i++)
-			{
-				object_type *o_ptr;
-
-				/* Point to the item */
-				o_ptr = &st_ptr->stock[i];
-
-				/*nothing there*/
-				if (!(o_ptr->k_idx)) continue;
-
-				/* Go to next one if this is not the artifact */
-				if (o_ptr->name1 != art_num) continue;
-
-				/* We have a match, return the status*/
-				return (o_ptr->ident & (IDENT_MENTAL));
-			}
-		}
-
-	}
-
-	/*
-	 * Artifact isn't in the stores, on the ground, or in the inventory,
-	 * so it must have been lost or discarded.  We then give the player
-	 * full identification for their reference
-     */
-	return(TRUE);
-
-}
-
 
 
 /*
- * Build a list of artifact indexes in the given group. Return the number
- * of eligible artifacts in that group.
+ * Build a list of artefact indexes in the given group. Return the number
+ * of eligible artefacts in that group.
  */
-static int collect_artifacts(int grp_cur, int object_idx[])
+static int collect_artefacts(int grp_cur, int object_idx[])
 {
 	int i, object_cnt = 0;
 	bool *okay;
-
-	store_type *st_ptr = &store[STORE_HOME];
+	bool know_all = cheat_know || p_ptr->active_ability[S_PER][PER_LORE2];
 
 	/* Get a list of x_char in this group */
 	byte group_tval = object_group_tval[grp_cur];
 
-	/*make a list of artifacts not found*/
+	/*make a list of artefacts not found*/
 	/* Allocate the "object_idx" array */
 	C_MAKE(okay, z_info->art_max, bool);
 
 	/* Default first,  */
 	for (i = 0; i < z_info->art_max; i++)
 	{
-		artifact_type *a_ptr = &a_info[i];
+		artefact_type *a_ptr = &a_info[i];
 
 		/*start with false*/
 		okay[i] = FALSE;
 
-		/* Skip "empty" artifacts */
+		/* Skip "empty" artefacts */
 		if (a_ptr->tval + a_ptr->sval == 0) continue;
 
-		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
+		/* Skip "unfound" artefacts, unless in wizard mode or with Lore Mastery or cheating */
+		if (!know_all && !p_ptr->wizard && !a_ptr->found_num) continue;
 
-		/*assume all created artifacts are good at this point*/
+		/* Skip "ungenerated" artefacts, unless with Lore Mastery or cheating */
+		if (!know_all && !a_ptr->cur_num) continue;
+
+		/* Skip the special smithing template artefacts */
+		if ((i >= ART_ULTIMATE) && (i <= z_info->art_norm_max)) continue;
+
+		/*assume all created artefacts are good at this point*/
 		okay[i] = TRUE;
 	}
 
-	/* Process objects in the dungeon */
-	for (i = 1; i < o_max; i++)
-	{
-		/*get the object*/
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!o_ptr->name1) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
-
-		/* We found a created, unidentified artifact */
-		okay[o_ptr->name1] = FALSE;
-
-	}
-
-	/*
-	 * Scan the inventory for unidentified artifacts
-	 * Notice we are doing the inventory and equipment in the same loop.
-	 */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		/* First, the item actually in the slot */
-		object_type *o_ptr = &inventory[i];
-
-		/*nothing there*/
-		if (!(o_ptr->k_idx)) continue;
-
-		/* Ignore non-artifacts */
-		if (!o_ptr->name1) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
-
-		/* We found a created, unidentified artifact */
-		okay[o_ptr->name1] = FALSE;
-	}
-
-	/* Look for items in the home, if there is anything there */
-	if (st_ptr->stock_num)
-	{
-		/*go through each item in the house*/
-		for (i = 0; i < st_ptr->stock_num; i++)
-		{
-			/* Point to the item */
-			object_type *o_ptr = &st_ptr->stock[i];;
-
-			/*nothing there*/
-			if (!(o_ptr->k_idx)) continue;
-
-			/* Ignore non-artifacts */
-			if (!o_ptr->name1) continue;
-
-			/* Ignore known items */
-			if (object_known_p(o_ptr)) continue;
-
-			/* We found a created, unidentified artifact */
-			okay[o_ptr->name1] = FALSE;
-		}
-
-	}
-
-	if (cheat_know)
-	{
-		for (i = 0; i < z_info->art_max; i++)
-		{
-			artifact_type *a_ptr = &a_info[i];
-
-			/* Skip "empty" artifacts */
-			if (a_ptr->tval + a_ptr->sval == 0) continue;
-
-			/*assume all created artifacts are good at this point*/
-			okay[i] = TRUE;
-		}
-	}
-
-
-	/* Finally, go through the list of artifacts and categorize the good ones */
+	/* Finally, go through the list of artefacts and categorize the good ones */
 	for (i = 0; i < z_info->art_max; i++)
 	{
-		/* Access the artifact */
-		artifact_type *a_ptr = &a_info[i];
+		/* Access the artefact */
+		artefact_type *a_ptr = &a_info[i];
 
-		/* Skip empty artifacts */
+		/* Skip empty artefacts */
 		if (a_ptr->tval + a_ptr->sval == 0) continue;
 
-		/* Require artifacts ever seen*/
+		/* Require artefacts ever seen*/
 		if (okay[i] == FALSE) continue;
 
 		/* Check for race in the group */
@@ -4241,15 +8676,15 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 }
 
 /*
- * Hack -- Create a "forged" artifact
+ * Hack -- Create a "forged" artefact
  */
-static bool prepare_fake_artifact(object_type *o_ptr, byte name1)
+static bool prepare_fake_artefact(object_type *o_ptr, byte name1)
 {
 	s16b i;
 
-	artifact_type *a_ptr = &a_info[name1];
+	artefact_type *a_ptr = &a_info[name1];
 
-	/* Ignore "empty" artifacts */
+	/* Ignore "empty" artefacts */
 	if (a_ptr->tval + a_ptr->sval == 0) return FALSE;
 
 	/* Get the "kind" index */
@@ -4258,7 +8693,7 @@ static bool prepare_fake_artifact(object_type *o_ptr, byte name1)
 	/* Oops */
 	if (!i) return (FALSE);
 
-	/* Create the artifact */
+	/* Create the artefact */
 	object_prep(o_ptr, i);
 
 	/* Save the name */
@@ -4266,25 +8701,19 @@ static bool prepare_fake_artifact(object_type *o_ptr, byte name1)
 
 	/* Extract the fields */
 	o_ptr->pval = a_ptr->pval;
-	o_ptr->ac = a_ptr->ac;
+	o_ptr->att = a_ptr->att;
 	o_ptr->dd = a_ptr->dd;
 	o_ptr->ds = a_ptr->ds;
-	o_ptr->to_a = a_ptr->to_a;
-	o_ptr->to_h = a_ptr->to_h;
-	o_ptr->to_d = a_ptr->to_d;
+	o_ptr->evn = a_ptr->evn;
+	o_ptr->pd = a_ptr->pd;
+	o_ptr->ps = a_ptr->ps;
 	o_ptr->weight = a_ptr->weight;
 
 	/*identify it*/
 	object_known(o_ptr);
 
-	/*make it a store item*/
-	o_ptr->ident |= IDENT_STORE;
-
-	/* Set the "known" flag, but only if the artifact is *identified* */
-	if (is_artifact_fully_identified(name1))
-	{
-		o_ptr->ident |= (IDENT_MENTAL);
-	}
+	/*make it a spoiler item*/
+	o_ptr->ident |= IDENT_SPOIL;
 
 	/* Hack -- extract the "cursed" flag */
 	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
@@ -4295,7 +8724,7 @@ static bool prepare_fake_artifact(object_type *o_ptr, byte name1)
 
 
 /*
- * Describe fake artifact
+ * Describe fake artefact
  */
 void desc_art_fake(int a_idx)
 {
@@ -4308,8 +8737,8 @@ void desc_art_fake(int a_idx)
 	/* Wipe the object */
 	object_wipe(i_ptr);
 
-	/* Make fake artifact */
-	prepare_fake_artifact(i_ptr, a_idx);
+	/* Make fake artefact */
+	prepare_fake_artefact(i_ptr, a_idx);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -4323,7 +8752,7 @@ void desc_art_fake(int a_idx)
 /*
  * Display the objects in a group.
  */
-static void display_artifact_list(int col, int row, int per_page, int object_idx[],
+static void display_artefact_list(int col, int row, int per_page, int object_idx[],
 	int object_cur, int object_top)
 {
 	int i;
@@ -4348,8 +8777,8 @@ static void display_artifact_list(int col, int row, int per_page, int object_idx
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-		/* Make fake artifact */
-		prepare_fake_artifact(i_ptr, a_idx);
+		/* Make fake artefact */
+		prepare_fake_artefact(i_ptr, a_idx);
 
 		/* Get its name */
 		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 0);
@@ -4360,7 +8789,7 @@ static void display_artifact_list(int col, int row, int per_page, int object_idx
 
 		if (cheat_know)
 		{
-			artifact_type *a_ptr = &a_info[a_idx];
+			artefact_type *a_ptr = &a_info[a_idx];
 
 			c_prt(attr, format ("%3d", a_idx), row + i, 68);
 			c_prt(attr, format ("%3d", a_ptr->level), row + i, 72);
@@ -4378,23 +8807,23 @@ static void display_artifact_list(int col, int row, int per_page, int object_idx
 }
 
 /*
- * Display known artifacts
+ * Display known artefacts
  */
-static void do_cmd_knowledge_artifacts(void)
+static void do_cmd_knowledge_artefacts(void)
 {
 	int i, len, max;
 	int grp_cur, grp_top;
-	int artifact_old, artifact_cur, artifact_top;
+	int artefact_old, artefact_cur, artefact_top;
 	int grp_cnt, grp_idx[100];
-	int artifact_cnt;
-	int *artifact_idx;
+	int artefact_cnt;
+	int *artefact_idx;
 
 	int column = 0;
 	bool flag;
 	bool redraw;
 
-	/* Allocate the "artifact_idx" array */
-	C_MAKE(artifact_idx, z_info->art_max, int);
+	/* Allocate the "artefact_idx" array */
+	C_MAKE(artefact_idx, z_info->art_max, int);
 
 	max = 0;
 	grp_cnt = 0;
@@ -4408,10 +8837,10 @@ static void do_cmd_knowledge_artifacts(void)
 		/* Save the maximum length */
 		if (len > max) max = len;
 
-		/* See if artifact are known */
-		if (collect_artifacts(i, artifact_idx))
+		/* See if artefact are known */
+		if (collect_artefacts(i, artefact_idx))
 		{
-			/* Build a list of groups with known artifacts */
+			/* Build a list of groups with known artefacts */
 			grp_idx[grp_cnt++] = i;
 		}
 	}
@@ -4420,8 +8849,8 @@ static void do_cmd_knowledge_artifacts(void)
 	grp_idx[grp_cnt] = -1;
 
 	grp_cur = grp_top = 0;
-	artifact_cur = artifact_top = 0;
-	artifact_old = -1;
+	artefact_cur = artefact_top = 0;
+	artefact_old = -1;
 
 	flag = FALSE;
 	redraw = TRUE;
@@ -4434,7 +8863,7 @@ static void do_cmd_knowledge_artifacts(void)
 		{
 			clear_from(0);
 
-			prt("Knowledge - artifacts", 2, 0);
+			prt("Knowledge - Artefacts", 2, 0);
 			prt("Group", 4, 0);
 			prt("Name", 4, max + 3);
 
@@ -4447,12 +8876,12 @@ static void do_cmd_knowledge_artifacts(void)
 
 			for (i = 0; i < 78; i++)
 			{
-				Term_putch(i, 5, TERM_WHITE, '=');
+				Term_putch(i, 5, TERM_L_DARK, '=');
 			}
 
 			for (i = 0; i < BROWSER_ROWS; i++)
 			{
-				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+				Term_putch(max + 1, 6 + i, TERM_L_DARK, '|');
 			}
 
 			redraw = FALSE;
@@ -4462,30 +8891,33 @@ static void do_cmd_knowledge_artifacts(void)
 		if (grp_cur < grp_top) grp_top = grp_cur;
 		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
 
-		/* Scroll artifact list */
-		if (artifact_cur < artifact_top) artifact_top = artifact_cur;
-		if (artifact_cur >= artifact_top + BROWSER_ROWS) artifact_top = artifact_cur - BROWSER_ROWS + 1;
+		/* Scroll artefact list */
+		if (artefact_cur < artefact_top) artefact_top = artefact_cur;
+		if (artefact_cur >= artefact_top + BROWSER_ROWS) artefact_top = artefact_cur - BROWSER_ROWS + 1;
 
 		/* Display a list of object groups */
 		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, object_group_text, grp_cur, grp_top);
 
 		/* Get a list of objects in the current group */
-		artifact_cnt = collect_artifacts(grp_idx[grp_cur], artifact_idx);
+		artefact_cnt = collect_artefacts(grp_idx[grp_cur], artefact_idx);
 
 		/* Display a list of objects in the current group */
-		display_artifact_list(max + 3, 6, BROWSER_ROWS, artifact_idx, artifact_cur, artifact_top);
+		display_artefact_list(max + 3, 6, BROWSER_ROWS, artefact_idx, artefact_cur, artefact_top);
 
 		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", 23, 0);
-
+		Term_putstr(1, 23, -1, TERM_SLATE, "<dir>   recall   ESC");
+		Term_putstr(1, 23, -1, TERM_L_WHITE, "<dir>");
+		Term_putstr(9, 23, -1, TERM_L_WHITE, "r");
+		Term_putstr(18, 23, -1, TERM_L_WHITE, "ESC");
+		
 		/* The "current" object changed */
-		if (artifact_old != artifact_idx[artifact_cur])
+		if (artefact_old != artefact_idx[artefact_cur])
 		{
 			/* Hack -- handle stuff */
 			handle_stuff();
 
 			/* Remember the "current" object */
-			artifact_old = artifact_idx[artifact_cur];
+			artefact_old = artefact_idx[artefact_cur];
 		}
 
 		if (!column)
@@ -4494,7 +8926,7 @@ static void do_cmd_knowledge_artifacts(void)
 		}
 		else
 		{
-			Term_gotoxy(max + 3, 6 + (artifact_cur - artifact_top));
+			Term_gotoxy(max + 3, 6 + (artefact_cur - artefact_top));
 		}
 
 		ch = inkey();
@@ -4511,7 +8943,7 @@ static void do_cmd_knowledge_artifacts(void)
 			case 'r':
 			{
 				/* Recall on screen */
-				desc_art_fake(artifact_idx[artifact_cur]);
+				desc_art_fake(artefact_idx[artefact_cur]);
 
 				redraw = TRUE;
 				break;
@@ -4520,14 +8952,14 @@ static void do_cmd_knowledge_artifacts(void)
 			default:
 			{
 				/* Move the cursor */
-				browser_cursor(ch, &column, &grp_cur, grp_cnt, &artifact_cur, artifact_cnt);
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &artefact_cur, artefact_cnt);
 				break;
 			}
 		}
 	}
 
 	/* XXX XXX Free the "object_idx" array */
-	KILL(artifact_idx);
+	KILL(artefact_idx);
 }
 
 /*
@@ -4537,21 +8969,21 @@ static cptr monster_group_text[] =
 {
 	"Uniques",						/*All uniques, all letters*/
 	"Ants",  						/*'a'*/
-	"Ainur/Maiar",					/*'A'*/
+	"Ainur",						/*'A'*/
 	"Bats",							/*'b'*/
 	"Birds",						/*'B'*/
 	"Centipedes",					/*'c'*/
 	"Canines",						/*'C'*/
-	"Dragons",						/*'d'*/
-	"Ancient Dragons/Wyrms",		/*'D'*/
+	"Young Dragons",				/*'d'*/
+	"Great Dragons",				/*'D'*/
 	"Floating Eyes",				/*'e'*/
 	"Elementals",					/*'E'*/
 	"Felines",						/*'f'*/
 	"Dragon Flies",					/*'F'*/
 	"Golems",						/*'g'*/
-	"Ghosts",						/*'G'*/
+	"Giants",						/*'G'*/
 	"Hobbits/Elves/Dwarves",		/*'h'*/
-	"Hybrids",						/*'H'*/
+	"Horrors",						/*'H'*/
 	"Icky Things",					/*'i'*/
 	"Insects",						/*'I'*/
 	"Jellies",						/*'j'*/
@@ -4561,35 +8993,35 @@ static cptr monster_group_text[] =
 	"Louses",						/*'l'*/
 	"Lichs",						/*'L'*/
 	"Molds",						/*'m'*/
-	"Multi-Headed Reptiles",		/*'M'*/
+	"Spiders",						/*'M'*/
 	"Nagas",						/*'n'*/
-	/*Unused*/						/*'N'*/
+	"Nameless Things",				/*'N'*/
 	"Orcs",							/*'o'*/
 	"Ogres",						/*'O'*/
-	"People/Humans",				/*'p'*/
-	"Giant Humanoids",				/*'P'*/
+	"People",						/*'p'*/
+	"Giants",						/*'P'*/
 	"Quadrupeds",					/*'q'*/
 	"Quylthulgs",					/*'Q'*/
 	"Rodents",						/*'r'*/
-	"Reptiles/Amphibians",			/*'R'*/
-	"Skeletons",					/*'s'*/
-	"Spiders/Scorpions/Ticks",		/*'S'*/
+	"Raukar",						/*'R'*/
+	"Serpents",						/*'s'*/
+	"Ancient Serpents",				/*'S'*/
 	"Townpersons",					/*'t'*/
 	"Trolls",						/*'T'*/
 	"Minor Demons",					/*'u'*/
 	"Major Demons",					/*'U'*/
-	"Vortices",						/*'v'*/
-	"Vampires",						/*'V'*/
-	"Worms/Worm Masses",			/*'w'*/
-	"Wight/Wraith/etc",				/*'W'*/
+	"Vampires",						/*'v'*/
+	"Valar",						/*'V'*/
+	"Worm Masses",					/*'w'*/
+	"Wights and Wraiths",			/*'W'*/
 	/*Unused*/						/*'x'*/
 	"Xorn/Xaren/etc",				/*'X'*/
 	"Yeeks",						/*'y'*/
 	"Yetis",						/*'Y'*/
 	"Zombies/Mummies",				/*'z'*/
 	"Zephyr Hounds",				/*'Z'*/
-	"Mushroom Patches",				/*','*/
-	"Mimics",						/*'$!?=._-*/
+	"People",						/*'@'*/
+	"Blades",					    /*'|'*/
 	NULL
 };
 
@@ -4627,7 +9059,7 @@ static cptr monster_group_char[] =
 	"m",
 	"M",
 	"n",
-	/*"N",  Unused*/
+	"N",
 	"o",
 	"O",
 	"p",
@@ -4652,8 +9084,8 @@ static cptr monster_group_char[] =
 	"Y",
 	"z",
 	"Z",
-	",",
-	"$!?=._-",  /*Mimics*/
+	"@",  // human/elf/dwarf
+	"|",  // deathblades
 	NULL
 };
 
@@ -4670,9 +9102,9 @@ static int collect_monsters(int grp_cur, monster_list_entry *mon_idx, int mode)
 
 	/* XXX Hack -- Check if this is the "Uniques" group */
 	bool grp_unique = (monster_group_char[grp_cur] == (char *) -1L);
-
+	
 	/* Check every race */
-	for (i = 0; i < z_info->r_max; i++)
+	for (i = 1; i < z_info->r_max; i++)
 	{
 		/* Access the race */
 		monster_race *r_ptr = &r_info[i];
@@ -4684,20 +9116,26 @@ static int collect_monsters(int grp_cur, monster_list_entry *mon_idx, int mode)
 		/* Skip empty race */
 		if (!r_ptr->name) continue;
 
-		/* No Player Ghosts, unless active */
-		if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && (r_ptr->cur_num == 0)) continue;
-
 		if (grp_unique && !(unique)) continue;
 
 		/* Require known monsters */
-		if (!(mode & 0x02) && (!cheat_know) && (!(l_ptr->sights))) continue;
+		if (!(mode & 0x02) && (!cheat_know) && (!p_ptr->active_ability[S_PER][PER_LORE2]) && (!(l_ptr->tsights))) continue;
+
+		// Ignore monsters that can't be generated
+		if (r_ptr->level > 25) continue;
+
+		// Don't display the uncrowned version of Morgoth via Lore-mastery
+		if (((&l_list[R_IDX_MORGOTH_UNCROWNED])->tsights == 0) && (i == R_IDX_MORGOTH_UNCROWNED)) continue;
+
+		// Don't count the crowned version of Morgoth after the uncrowned Morgoth is seen
+		if (((&l_list[R_IDX_MORGOTH_UNCROWNED])->tsights > 0) && (i == R_IDX_MORGOTH)) continue;
 
 		/* Check for race in the group */
 		if ((grp_unique) || (strchr(group_char, r_ptr->d_char)))
 		{
 			/* Add the race */
 			mon_idx[mon_count++].r_idx = i;
-
+						
 			/* XXX Hack -- Just checking for non-empty group */
 			if (mode & 0x01) break;
 		}
@@ -4729,14 +9167,17 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 		monster_race *r_ptr = &r_info[i];
 		monster_lore *l_ptr = &l_list[i];
 
+		// skip monsters that cannot be generated
+		if ((r_ptr->rarity == 0) || (r_ptr->level > 25)) continue;
+		
 		/* Require non-unique monsters */
 		if (r_ptr->flags1 & RF1_UNIQUE)
 		{
-			/*No active player ghosts*/
-			if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && (r_ptr->cur_num == 0)) continue;
+			// Don't count the crowned version of Morgoth after the uncrowned Morgoth is seen
+			if (((&l_list[R_IDX_MORGOTH_UNCROWNED])->tsights > 0) && (mon_idx[i].r_idx == R_IDX_MORGOTH)) continue;
 
 			/*Count if we have seen the unique*/
-			if (l_ptr->sights)
+			if (l_ptr->tsights)
 			{
 				known_uniques++;
 
@@ -4746,6 +9187,12 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 					dead_uniques++;
 					slay_count++;
 				}
+			}
+			
+			// increase the uniques count anyway for loremasters or cheaters
+			else if (p_ptr->active_ability[S_PER][PER_LORE2] || cheat_know)
+			{
+				known_uniques++;
 			}
 
 		}
@@ -4768,21 +9215,8 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 
 		char race_name[80];
 
-		/* Handle player chosts differently */
-		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
-		{
-			char racial_name[80];
-
-			/* Get the ghost name. */
-			strcpy(race_name, ghost_name);
-
-			/* Get the racial name. */
-			strcpy(racial_name, r_name + r_ptr->name);
-
-			/* Build the ghost name. */
-			strcat(race_name, ", the ");
-			strcat(race_name, racial_name);
-		}
+		// Don't count the crowned version of Morgoth after the uncrowned Morgoth is seen
+		if (((&l_list[R_IDX_MORGOTH_UNCROWNED])->tsights > 0) && (mon_idx[i].r_idx == R_IDX_MORGOTH)) continue;
 
 		/* Get the monster race name (singular)*/
 		else monster_desc_race(race_name, sizeof(race_name), r_idx);
@@ -4805,7 +9239,7 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/*use alive/dead for uniques*/
-			put_str(format("%s", (r_ptr->max_num == 0) ? "dead" : "alive"),
+			put_str(format("%s", (r_ptr->max_num == 0) ? " dead" : "alive"),
 			        row + i, 73);
 		}
 		else put_str(format("%5d", l_ptr->pkills), row + i, 73);
@@ -4819,18 +9253,17 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 	}
 
 	/*Clear the monster count line*/
-	Term_erase(0, 22, 255);
+	Term_erase(0, 23, 255);
 
 	if (monster_group_char[grp_cur] != (char *) -1L)
    	{
 
-
-		c_put_str(TERM_L_BLUE, format("Total Creatures Slain: %8d.", slay_count), 22, col);
+		c_put_str(TERM_L_BLUE, format("Total Creatures Slain:  %d. ", slay_count), 23, col);
 	}
 	else
 	{
-		c_put_str(TERM_L_BLUE, format("Known Uniques: %3d, Slain Uniques: %3d.", known_uniques, dead_uniques),
-						22, col);
+		c_put_str(TERM_L_BLUE, format("Known Uniques: %2d, Slain Uniques: %2d.", known_uniques, dead_uniques),
+						23, col);
 	}
 }
 
@@ -4901,12 +9334,12 @@ static void do_cmd_knowledge_monsters(void)
 
 			for (i = 0; i < 78; i++)
 			{
-				Term_putch(i, 5, TERM_WHITE, '=');
+				Term_putch(i, 5, TERM_L_DARK, '=');
 			}
 
 			for (i = 0; i < BROWSER_ROWS; i++)
 			{
-				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+				Term_putch(max + 1, 6 + i, TERM_L_DARK, '|');
 			}
 
 			redraw = FALSE;
@@ -4933,8 +9366,11 @@ static void do_cmd_knowledge_monsters(void)
 		p_ptr->monster_race_idx = mon_idx[mon_cur].r_idx;
 
 		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", 23, 0);
-
+		Term_putstr(1, 23, -1, TERM_SLATE, "<dir>   recall   ESC");
+		Term_putstr(1, 23, -1, TERM_L_WHITE, "<dir>");
+		Term_putstr(9, 23, -1, TERM_L_WHITE, "r");
+		Term_putstr(18, 23, -1, TERM_L_WHITE, "ESC");
+		
 		/* Hack -- handle stuff */
 		handle_stuff();
 
@@ -4999,100 +9435,71 @@ void apply_magic_fake(object_type *o_ptr)
 	{
 		case TV_DIGGING:
 		{
-			o_ptr->pval = 1;
+			if (o_ptr->pval < 1) o_ptr->pval = 1;
 			break;
 		}
 
 		/*many rings need a pval*/
 		case TV_RING:
 		{
+			/* Analyze */
 			switch (o_ptr->sval)
 			{
+				/* Strength, Dexterity */
 				case SV_RING_STR:
-				case SV_RING_CON:
 				case SV_RING_DEX:
-				case SV_RING_INT:
-				case SV_RING_SPEED:
-				case SV_RING_SEARCHING:
 				{
-					o_ptr->pval = 1;
+					if (o_ptr->pval < 1) o_ptr->pval = 1;
+
 					break;
 				}
 
-				case SV_RING_AGGRAVATION:
-				{
-					o_ptr->ident |= (IDENT_CURSED);
-					break;
-				}
-				case SV_RING_WEAKNESS:
-				case SV_RING_STUPIDITY:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = -1;
-
-					break;
-				}
-				/* WOE */
-				case SV_RING_WOE:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->to_a = -1;
-					o_ptr->pval = -1;
-
-					break;
-				}
-				/* Ring that increase damage */
+				/* Ring of damage */
 				case SV_RING_DAMAGE:
 				{
-					/* Bonus to damage */
-					o_ptr->to_d = 1;
-
+					if (o_ptr->pval < 1) o_ptr->pval = 1;
+					
 					break;
 				}
-				/* Ring that increase accuracy */
+
+				/* Ring of Accuracy */
 				case SV_RING_ACCURACY:
 				{
 					/* Bonus to hit */
-					o_ptr->to_h = 1;
-
+					if (o_ptr->att < 1) o_ptr->att = 1;
+		
 					break;
 				}
-				/* Rings that provide of Protection */
+
+				/* Ring of Protection */
 				case SV_RING_PROTECTION:
-				case SV_RING_FLAMES:
-				case SV_RING_ACID:
-				case SV_RING_ICE:
-				case SV_RING_LIGHTNING:
 				{
-					/* Bonus to armor class */
-					o_ptr->to_a = 1;
-
+					/* Bonus to protection */
+					o_ptr->pd = 1;
+					if (o_ptr->ps < 1) o_ptr->ps = 1;
+			
 					break;
 				}
-				/*both to-hit and to-damage*/
-				case SV_RING_SLAYING:
-				{
-					/* Bonus to damage and to hit */
-					o_ptr->to_d = 1;
-					o_ptr->to_h = 1;
 
+				/* Ring of Evasion */
+				case SV_RING_EVASION:
+				{
+					/* Bonus to evasion */
+					if (o_ptr->evn < 1) o_ptr->evn = 1;
+								
 					break;
 				}
-				default: break;
 
+				/* Ring of Perception */
+				case SV_RING_PERCEPTION:
+				{
+					/* Bonus to perception */
+					if (o_ptr->pval < 1) o_ptr->pval = 1;
+								
+					break;
+				}
 			}
+
 			/*break for TVAL-Rings*/
 			break;
 		}
@@ -5102,53 +9509,18 @@ void apply_magic_fake(object_type *o_ptr)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Amulet of wisdom/charisma/infravision */
-				case SV_AMULET_WISDOM:
-				case SV_AMULET_CHARISMA:
-				case SV_AMULET_INFRAVISION:
-				case SV_AMULET_SEARCHING:
-				case SV_AMULET_ESP:
-				case SV_AMULET_DEVOTION:
-				case SV_AMULET_TRICKERY:
+				/* Various amulets */
+				case SV_AMULET_CON:
+				case SV_AMULET_GRA:
 				{
-					/* Stat bonus */
-					o_ptr->pval = 1;
-
+					if (o_ptr->pval < 1) o_ptr->pval = 1;
 					break;
 				}
 
-				/* Amulet of the Magi -- never cursed */
-				case SV_AMULET_THE_MAGI:
+				/* Amulet of the Blessed Realm */
+				case SV_AMULET_BLESSED_REALM:
 				{
-					o_ptr->pval = 1;
-					o_ptr->to_a = 1;
-
-					break;
-				}
-
-				/* Amulet of Weaponmastery -- never cursed */
-				case SV_AMULET_WEAPONMASTERY:
-				{
-					o_ptr->to_h = 1;
-					o_ptr->to_d = 1;
-					o_ptr->pval = 1;
-
-					break;
-				}
-
-				/* Amulet of Doom -- always cursed */
-				case SV_AMULET_DOOM:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = -1;
-					o_ptr->to_a = -1;
-
+					if (o_ptr->pval < 1) o_ptr->pval = 1;
 					break;
 				}
 
@@ -5159,29 +9531,28 @@ void apply_magic_fake(object_type *o_ptr)
 			break;
 		}
 
-		case TV_LITE:
+		case TV_LIGHT:
 		{
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				case SV_LITE_TORCH:
-				case SV_LITE_LANTERN:
+				case SV_LIGHT_TORCH:
+				case SV_LIGHT_LANTERN:
 				{
-					o_ptr->timeout = 1;
+					o_ptr->timeout = 0;
 
 					break;
 				}
 
 			}
-			/*break for TVAL-Lites*/
+			/*break for TVAL-Lights*/
 			break;
 		}
 
-		/*give then one charge*/
+		/*give them one charge*/
 		case TV_STAFF:
-		case TV_WAND:
 		{
-			o_ptr->pval = 1;
+			if (o_ptr->pval < 1) o_ptr->pval = 1;
 
 			break;
 		}
@@ -5273,65 +9644,6 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 	}
 }
 
-/*
- * Display contents of the Home. Code taken from the player death interface
- * and the show known objects function. -LM-
- */
-static void do_cmd_knowledge_home(void)
-{
-	int k;
-
-	store_type *st_ptr = &store[STORE_HOME];
-
-	FILE *fp;
-
-	char o_name[120];
-
-	char file_name[1024];
-
-	/* Temporary file */
-	fp = my_fopen_temp(file_name, sizeof(file_name));
-
-	text_out_hook = text_out_to_file;
-	text_out_file = fp;
-
-	/* Failure */
-	if (!fp)
-	{
-		msg_print("Could not open a temporary file to show the contents of your	home.");
-	return;
-	}
-
-
-	/* Home -- if anything there */
-	if (st_ptr->stock_num)
-	{
-		/* Display contents of the home */
-		for (k = 0; k < st_ptr->stock_num; k++)
-		{
-
-			object_desc(o_name, sizeof(o_name), &st_ptr->stock[k], TRUE, 3);
-			fprintf(fp, "%c) %s\n", I2A(k), o_name);
-
-			/* Describe random object attributes*/
-			identify_random_gen(&st_ptr->stock[k]);
-
-		}
-	}
-
-	else fprintf(fp, "[Your Home Is Empty]\n\n");
-
-	/* Close the file */
-	my_fclose(fp);
-
-	/* Display the file contents */
-	show_file(file_name, "Contents of Your Home", 0, 2);
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
-
 
 /*
  * Display known objects
@@ -5390,7 +9702,7 @@ static void do_cmd_knowledge_objects(void)
 		{
 			clear_from(0);
 
-			prt("Knowledge - objects", 2, 0);
+			prt("Knowledge - Objects", 2, 0);
 			prt("Group", 4, 0);
 			prt("Name", 4, max + 3);
 			if (cheat_know) prt("Idx", 4, 70);
@@ -5398,12 +9710,12 @@ static void do_cmd_knowledge_objects(void)
 
 			for (i = 0; i < 78; i++)
 			{
-				Term_putch(i, 5, TERM_WHITE, '=');
+				Term_putch(i, 5, TERM_L_DARK, '=');
 			}
 
 			for (i = 0; i < BROWSER_ROWS; i++)
 			{
-				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+				Term_putch(max + 1, 6 + i, TERM_L_DARK, '|');
 			}
 
 			redraw = FALSE;
@@ -5427,7 +9739,10 @@ static void do_cmd_knowledge_objects(void)
 		display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
 
 		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", 23, 0);
+		Term_putstr(1, 23, -1, TERM_SLATE, "<dir>   recall   ESC");
+		Term_putstr(1, 23, -1, TERM_L_WHITE, "<dir>");
+		Term_putstr(9, 23, -1, TERM_L_WHITE, "r");
+		Term_putstr(18, 23, -1, TERM_L_WHITE, "ESC");
 
 		/* Mega Hack -- track this monster race */
 		if (object_cnt) object_kind_track(object_idx[object_cur]);
@@ -5497,7 +9812,7 @@ static void do_cmd_knowledge_kills(void)
 	char file_name[1024];
 
 	u16b *who;
-	u16b why = 4;
+//	u16b why = 4;
 
 
 	/* Temporary file */
@@ -5513,22 +9828,22 @@ static void do_cmd_knowledge_kills(void)
 	/* Collect matching monsters */
 	for (n = 0, i = 1; i < z_info->r_max - 1; i++)
 	{
-		monster_race *r_ptr = &r_info[i];
+		//monster_race *r_ptr = &r_info[i];
 		monster_lore *l_ptr = &l_list[i];
 
 		/* Require non-unique monsters */
-		if (r_ptr->flags1 & RF1_UNIQUE) continue;
+		//if (r_ptr->flags1 & RF1_UNIQUE) continue;
 
 		/* Collect "appropriate" monsters */
 		if (l_ptr->pkills > 0) who[n++] = i;
 	}
 
 	/* Select the sort method */
-	ang_sort_comp = ang_sort_comp_hook;
-	ang_sort_swap = ang_sort_swap_hook;
+	//ang_sort_comp = ang_sort_comp_hook;
+	//ang_sort_swap = ang_sort_swap_hook;
 
 	/* Sort by kills (and level) */
-	ang_sort(who, &why, n);
+	//ang_sort(who, &why, n);
 
 	/* Print the monsters (highest kill counts first) */
 	for (i = n - 1; i >= 0; i--)
@@ -5536,9 +9851,18 @@ static void do_cmd_knowledge_kills(void)
 		monster_race *r_ptr = &r_info[who[i]];
 		monster_lore *l_ptr = &l_list[who[i]];
 
-		/* Print a message */
-		fprintf(fff, "     %-40s  %5d\n",
-		        (r_name + r_ptr->name), l_ptr->pkills);
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			/* Print a message */
+			fprintf(fff, "         %-40s\n",
+					(r_name + r_ptr->name));
+		}
+		else
+		{
+			/* Print a message */
+			fprintf(fff, "  %5d  %-40s\n",
+					l_ptr->pkills, (r_name + r_ptr->name));
+		}
 	}
 
 	/* Free the "who" array */
@@ -5548,7 +9872,7 @@ static void do_cmd_knowledge_kills(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Kill counts", 0, 0);
+	show_file(file_name, "Kill counts", 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -5573,9 +9897,6 @@ void do_cmd_knowledge(void)
 	/* Interact until done */
 	while (1)
 	{
-
-		store_type *st_ptr = &store[STORE_HOME];
-
 		/* Clear screen */
 		Term_clear();
 
@@ -5583,19 +9904,15 @@ void do_cmd_knowledge(void)
 		prt("Display current knowledge", 2, 0);
 
 		/* Give some choices */
-		prt("(1) Display known artifacts", 4, 5);
+		prt("(1) Display known artefacts", 4, 5);
 		prt("(2) Display known monsters", 5, 5);
 		prt("(3) Display known objects", 6, 5);
-		prt("(4) Display hall of fame", 7, 5);
+		prt("(4) Display names of the fallen", 7, 5);
 		prt("(5) Display kill counts", 8, 5);
 
 		/*allow the player to see the notes taken if that option is selected*/
-		c_put_str((adult_take_notes ? TERM_WHITE : TERM_SLATE) ,
+		c_put_str(TERM_WHITE,
 					"(6) Display character notes file", 9, 5);
-
-		/*give player option to see home inventory if there is anything in the house*/
-		c_put_str((st_ptr->stock_num ? TERM_WHITE : TERM_SLATE) ,
-				 	"(7) Display contents of your home", 10, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);
@@ -5606,10 +9923,10 @@ void do_cmd_knowledge(void)
 		/* Done */
 		if (ch == ESCAPE) break;
 
-		/* Artifacts */
+		/* Artefacts */
 		if (ch == '1')
 		{
-			do_cmd_knowledge_artifacts();
+			do_cmd_knowledge_artefacts();
 		}
 
 		/* Uniques */
@@ -5636,18 +9953,11 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_kills();
 		}
 
-		/* Ntoes file, if one exists */
-		else if ((ch == '6') && (adult_take_notes))
+		/* Notes file, if one exists */
+		else if (ch == '6')
 		{
 			/* Spawn */
 			do_cmd_knowledge_notes();
-		}
-
-		/* Home inventory, if there is anything in the house */
-		else if ((ch == '7') && (st_ptr->stock_num))
-		{
-			/* Spawn */
-			do_cmd_knowledge_home();
 		}
 
 		/* Unknown option */

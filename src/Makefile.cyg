@@ -9,10 +9,10 @@
 CC = gcc
 WRES = windres
 LIBS = -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
-CFLAGS = -Wall -W -pedantic -mno-cygwin -O2 -fno-strength-reduce -DWINDOWS
+CFLAGS = -Wall -mno-cygwin -O2 -fno-strength-reduce -DWINDOWS
 
 EXOBJS = \
-	angband.res \
+	sil.res \
 	birth.o \
 	cave.o \
 	cmd1.o \
@@ -35,13 +35,11 @@ EXOBJS = \
 	obj-info.o \
 	object1.o \
 	object2.o \
-	quest.o\
 	randart.o \
 	readdib.o \
 	save.o \
 	spells1.o \
 	spells2.o \
-	store.o \
 	tables.o \
 	util.o \
 	variable.o \
@@ -77,18 +75,21 @@ INCS = \
 #
 
 
-default: angband
+default: sil
 
-install: angband movebin cleanobjs
+install: sil movebin cleanobjs lineendings
 
 movebin:
-	mv -f angband.exe ../angband.exe
+	mv -f sil.exe ../sil.exe
+
+lineendings:
+	./unix2doslib
 
 cleanobjs:
 	rm -f $(EXOBJS)
 
 cleanbin:
-	rm -f angband.exe
+	rm -f sil.exe
 
 clean:	cleanobjs cleanbin
 
@@ -98,21 +99,21 @@ clean:	cleanobjs cleanbin
 # Dependency rules
 #
 
-angband: $(EXOBJS)
-	$(CC) -o angband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
+sil: $(EXOBJS)
+	$(CC) -o sil $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
 
 
 #
-# Compiling angband.rc
+# Compiling sil.rc
 #
 # Note: this format seems to work but the alternative actually used
 # is the one recommended by Cygnus
 #
-# angband.res : angband.rc
-#	$(WRES) angband.rc angband.res
+# sil.res : sil.rc
+#	$(WRES) sil.rc sil.res
 #
 
-angband.res : angband.rc
+sil.res : sil.rc
 	$(WRES) $< -O coff -o $@
 
 
@@ -189,9 +190,6 @@ object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-quest.o: quest.c $(INCS)
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
 randart.o: randart.c $(INCS) init.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
@@ -210,9 +208,6 @@ spells1.o: spells1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 spells2.o: spells2.c $(INCS)
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
-store.o: store.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 tables.o: tables.c $(INCS)

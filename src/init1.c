@@ -62,7 +62,7 @@ static cptr r_info_blow_method[] =
 	"BITE",
 	"STING",
 	"PECK",
-	"XXX1",
+	"WHIP",
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
@@ -95,10 +95,10 @@ static cptr r_info_blow_effect[] =
 	"UN_BONUS",
 	"UN_POWER",
 	"LOSE_MANA",
-	"EAT_GOLD",
+	"SLOW",
 	"EAT_ITEM",
 	"EAT_FOOD",
-	"EAT_LITE",
+	"DARK",
 	"HUNGER",
 	"POISON",
 	"ACID",
@@ -112,16 +112,12 @@ static cptr r_info_blow_effect[] =
 	"HALLU",
 	"DISEASE",
 	"LOSE_STR",
-	"LOSE_INT",
-	"LOSE_WIS",
 	"LOSE_DEX",
 	"LOSE_CON",
-	"LOSE_CHR",
+	"LOSE_GRA",
+	"LOSE_STR_CON",
 	"LOSE_ALL",
-	"EXP_10",
-	"EXP_20",
-	"EXP_40",
-	"EXP_80",
+	"DISARM",
 	NULL
 };
 
@@ -144,11 +140,8 @@ struct flag_name
 #define RF2 4
 #define RF3 5
 #define RF4 6
-#define RF5 7
-#define RF6 8
-#define RF7 9
-#define CF1 10
-#define MAX_FLAG_SETS	11
+#define RHF 7
+#define MAX_FLAG_SETS	8
 
 
 
@@ -171,21 +164,21 @@ static flag_name info_flags[] =
 	{"ATTR_CLEAR", RF1, RF1_ATTR_CLEAR},
 	{"ATTR_MULTI", RF1, RF1_ATTR_MULTI},
 	{"FORCE_DEPTH", RF1, RF1_FORCE_DEPTH},
-	{"FORCE_MAXHP", RF1, RF1_FORCE_MAXHP},
-	{"FORCE_SLEEP", RF1, RF1_FORCE_SLEEP},
-	{"FORCE_EXTRA", RF1, RF1_FORCE_EXTRA},
+	{"RF1XXX1", RF1, RF1_RF1XXX1},
 	{"FRIEND", RF1, RF1_FRIEND},
 	{"FRIENDS", RF1, RF1_FRIENDS},
 	{"ESCORT", RF1, RF1_ESCORT},
 	{"ESCORTS", RF1, RF1_ESCORTS},
+	{"UNIQUE_FRIEND", RF1, RF1_UNIQUE_FRIEND},
 	{"NEVER_BLOW", RF1, RF1_NEVER_BLOW},
 	{"NEVER_MOVE", RF1, RF1_NEVER_MOVE},
+	{"HIDDEN_MOVE", RF1, RF1_HIDDEN_MOVE},
 	{"RAND_25", RF1, RF1_RAND_25},
 	{"RAND_50", RF1, RF1_RAND_50},
-	{"ONLY_GOLD", RF1, RF1_ONLY_GOLD},
-	{"ONLY_ITEM", RF1, RF1_ONLY_ITEM},
-	{"DROP_60", RF1, RF1_DROP_60},
-	{"DROP_90", RF1, RF1_DROP_90},
+	{"NO_CRIT", RF1, RF1_NO_CRIT},
+	{"RES_CRIT", RF1, RF1_RES_CRIT},
+	{"DROP_33", RF1, RF1_DROP_33},
+	{"DROP_100", RF1, RF1_DROP_100},
 	{"DROP_1D2", RF1, RF1_DROP_1D2},
 	{"DROP_2D2", RF1, RF1_DROP_2D2},
 	{"DROP_3D2", RF1, RF1_DROP_3D2},
@@ -209,13 +202,13 @@ static flag_name info_flags[] =
  * Monster race flags 2
  */
 
-	{"STUPID", RF2, RF2_STUPID},
+	{"MINDLESS", RF2, RF2_MINDLESS},
 	{"SMART", RF2, RF2_SMART},
-	{"HAS_LITE", RF2, RF2_HAS_LITE},
-	{"RF2XXX2", RF2, RF2_RF2XXX2},
+	{"TERRITORIAL", RF2, RF2_TERRITORIAL},
+	{"SHORT_SIGHTED", RF2, RF2_SHORT_SIGHTED},
 	{"INVISIBLE", RF2, RF2_INVISIBLE},
-	{"COLD_BLOOD", RF2, RF2_COLD_BLOOD},
-	{"EMPTY_MIND", RF2, RF2_EMPTY_MIND},
+	{"GLOW", RF2, RF2_GLOW},
+	{"RF2_RF2XXX1", RF2, RF2_RF2XXX1},
 	{"WEIRD_MIND", RF2, RF2_WEIRD_MIND},
 	{"MULTIPLY", RF2, RF2_MULTIPLY},
 	{"REGENERATE", RF2, RF2_REGENERATE},
@@ -223,13 +216,13 @@ static flag_name info_flags[] =
 	{"EVASIVE", RF2, RF2_EVASIVE},
 	{"CLOUD_SURROUND", RF2, RF2_CLOUD_SURROUND},
 	{"RF2XXX5", RF2, RF2_RF2XXX5},
-	{"PLAYER_GHOST", RF2, RF2_PLAYER_GHOST},
 	{"RF2XXX6", RF2, RF2_RF2XXX6},
+	{"UNLOCK_DOOR", RF2, RF2_UNLOCK_DOOR},
 	{"OPEN_DOOR", RF2, RF2_OPEN_DOOR},
 	{"BASH_DOOR", RF2, RF2_BASH_DOOR},
 	{"PASS_WALL", RF2, RF2_PASS_WALL},
 	{"KILL_WALL", RF2, RF2_KILL_WALL},
-	{"RF2XXX8", RF2, RF2_RF2XXX8},
+	{"RF2XXX7", RF2, RF2_RF2XXX7},
 	{"KILL_BODY", RF2, RF2_KILL_BODY},
 	{"TAKE_ITEM", RF2, RF2_TAKE_ITEM},
 	{"KILL_ITEM", RF2, RF2_KILL_ITEM},
@@ -237,7 +230,7 @@ static flag_name info_flags[] =
 	{"LOW_MANA_RUN", RF2, RF2_LOW_MANA_RUN},
 	{"BRAIN_2", RF2, RF2_BRAIN_2},
 	{"POWERFUL", RF2, RF2_POWERFUL},
-	{"RF2XXX1", RF2, RF2_RF2XXX1},
+	{"RF2XXX8", RF2, RF2_RF2XXX8},
 	{"RF2XXX9", RF2, RF2_RF2XXX9},
 	{"RF2XX10", RF2, RF2_RF2XX10},
 	{"BRAIN_3", RF2, RF2_BRAIN_3},
@@ -250,26 +243,26 @@ static flag_name info_flags[] =
 
 	{"ORC", RF3, RF3_ORC},
 	{"TROLL", RF3, RF3_TROLL},
-	{"GIANT", RF3, RF3_GIANT},
+	{"SERPENT", RF3, RF3_SERPENT},
 	{"DRAGON", RF3, RF3_DRAGON},
-	{"DEMON", RF3, RF3_DEMON},
+	{"RAUKO", RF3, RF3_RAUKO},
 	{"UNDEAD", RF3, RF3_UNDEAD},
-	{"EVIL", RF3, RF3_EVIL},
-	{"ANIMAL", RF3, RF3_ANIMAL},
+	{"SPIDER", RF3, RF3_SPIDER},
+	{"WOLF", RF3, RF3_WOLF},
 	{"RF3XXX1", RF3, RF3_RF3XXX1},
 	{"RF3XXX2", RF3, RF3_RF3XXX2},
 	{"RF3XXX3", RF3, RF3_RF3XXX3},
 	{"RF3XXX4", RF3, RF3_RF3XXX4},
 	{"HURT_LITE", RF3, RF3_HURT_LITE},
-	{"HURT_ROCK", RF3, RF3_HURT_ROCK},
+	{"STONE", RF3, RF3_STONE},
 	{"HURT_FIRE", RF3, RF3_HURT_FIRE},
 	{"HURT_COLD", RF3, RF3_HURT_COLD},
-	{"IM_ACID", RF3, RF3_IM_ACID},
-	{"IM_ELEC", RF3, RF3_IM_ELEC},
-	{"IM_FIRE", RF3, RF3_IM_FIRE},
-	{"IM_COLD", RF3, RF3_IM_COLD},
-	{"IM_POIS", RF3, RF3_IM_POIS},
-	{"RES_CHAOS", RF3, RF3_RES_CHAOS},
+	{"RF3XXX5", RF3, RF3_RF3XXX5},
+	{"RES_ELEC", RF3, RF3_RES_ELEC},
+	{"RES_FIRE", RF3, RF3_RES_FIRE},
+	{"RES_COLD", RF3, RF3_RES_COLD},
+	{"RES_POIS", RF3, RF3_RES_POIS},
+	{"RF3XXX6", RF3, RF3_RF3XXX6},
 	{"RES_NETHR", RF3, RF3_RES_NETHR},
 	{"RES_WATER", RF3, RF3_RES_WATER},
 	{"RES_PLAS", RF3, RF3_RES_PLAS},
@@ -283,8 +276,8 @@ static flag_name info_flags[] =
 
 
 	/*RF3 uber-flags*/
-	{"IM_ELEM", RF3, RF3_IM_ELEM},
-	{"IM_ALL", RF3, RF3_IM_ALL},
+	{"RES_ELEM", RF3, RF3_RES_ELEM},
+	{"RES_ALL", RF3, RF3_RES_ALL},
 	{"NO_CHARM", RF3, RF3_NO_CHARM},
 
 
@@ -295,191 +288,71 @@ static flag_name info_flags[] =
  * Monster race flags 4
  */
 
-
-	{"SHRIEK", RF4, RF4_SHRIEK},
-	{"LASH", RF4, RF4_LASH},
+	{"ARROW1", RF4, RF4_ARROW1},
+	{"ARROW2", RF4, RF4_ARROW2},
 	{"BOULDER", RF4, RF4_BOULDER},
-	{"SHOT", RF4, RF4_SHOT},
-	{"ARROW", RF4, RF4_ARROW},
-	{"BOLT", RF4, RF4_BOLT},
-	{"MISSL", RF4, RF4_MISSL},
-	{"PMISSL", RF4, RF4_PMISSL},
-	{"BRTH_ACID", RF4, RF4_BRTH_ACID},
-	{"BRTH_ELEC", RF4, RF4_BRTH_ELEC},
 	{"BRTH_FIRE", RF4, RF4_BRTH_FIRE},
 	{"BRTH_COLD", RF4, RF4_BRTH_COLD},
 	{"BRTH_POIS", RF4, RF4_BRTH_POIS},
-	{"BRTH_PLAS", RF4, RF4_BRTH_PLAS},
-	{"BRTH_LITE", RF4, RF4_BRTH_LITE},
 	{"BRTH_DARK", RF4, RF4_BRTH_DARK},
-	{"BRTH_CONFU", RF4, RF4_BRTH_CONFU},
-	{"BRTH_SOUND", RF4, RF4_BRTH_SOUND},
-	{"BRTH_SHARD", RF4, RF4_BRTH_SHARD},
-	{"BRTH_INER", RF4, RF4_BRTH_INER},
-	{"BRTH_GRAV", RF4, RF4_BRTH_GRAV},
-	{"RF4_XX1X", RF4, RF4_RF4XX1X},
-	{"BRTH_FORCE", RF4, RF4_BRTH_FORCE},
-	{"BRTH_NEXUS", RF4, RF4_BRTH_NEXUS},
-	{"BRTH_NETHR", RF4, RF4_BRTH_NETHR},
-	{"BRTH_CHAOS", RF4, RF4_BRTH_CHAOS},
-	{"BRTH_DISEN", RF4, RF4_BRTH_DISEN},
-	{"BRTH_TIME", RF4, RF4_BRTH_TIME},
-	{"BRTH_MANA", RF4, RF4_BRTH_MANA},
-	{"RF4XXX1", RF4, RF4_RF4XXX1},
-	{"RF4XXX2", RF4, RF4_RF4XXX2},
-	{"RF4XXX3", RF4, RF4_RF4XXX3},
+	{"EARTHQUAKE", RF4, RF4_EARTHQUAKE},
+	{"SHRIEK", RF4, RF4_SHRIEK},
+	{"SCREECH", RF4, RF4_SCREECH},
+	{"DARKNESS", RF4, RF4_DARKNESS},
+	{"FORGET", RF4, RF4_FORGET},
+	{"SCARE", RF4, RF4_SCARE},
+	{"CONF", RF4, RF4_CONF},
+	{"HOLD", RF4, RF4_HOLD},
 
-	/*RF4 uber-flags*/
-	{"BRTH_ELEM", RF4, RF4_BRTH_ELEM},
-	{"BRTH_POWER", RF4, RF4_BRTH_POWER},
-	{"BRTH_ALL", RF4, RF4_BRTH_ALL},
-
-
-/*
- * Monster race flags 5
- */
-
-
-	{"BALL_ACID", RF5, RF5_BALL_ACID},
-	{"BALL_ELEC", RF5, RF5_BALL_ELEC},
-	{"BALL_FIRE", RF5, RF5_BALL_FIRE},
-	{"BALL_COLD", RF5, RF5_BALL_COLD},
-	{"BALL_POIS", RF5, RF5_BALL_POIS},
-	{"BALL_LITE", RF5, RF5_BALL_LITE},
-	{"BALL_DARK", RF5, RF5_BALL_DARK},
-	{"BALL_CONFU", RF5, RF5_BALL_CONFU},
-	{"BALL_SOUND", RF5, RF5_BALL_SOUND},
-	{"BALL_SHARD", RF5, RF5_BALL_SHARD},
-	{"RF5XXX2", RF5, RF5_RF5_XXX2},
-	{"BALL_STORM", RF5, RF5_BALL_STORM},
-	{"BALL_NETHR", RF5, RF5_BALL_NETHR},
-	{"BALL_CHAOS", RF5, RF5_BALL_CHAOS},
-	{"BALL_MANA", RF5, RF5_BALL_MANA},
-	{"BALL_WATER", RF5, RF5_BALL_WATER},
-	{"BOLT_ACID", RF5, RF5_BOLT_ACID},
-	{"BOLT_ELEC", RF5, RF5_BOLT_ELEC},
-	{"BOLT_FIRE", RF5, RF5_BOLT_FIRE},
-	{"BOLT_COLD", RF5, RF5_BOLT_COLD},
-	{"BOLT_POIS", RF5, RF5_BOLT_POIS},
-	{"BOLT_PLAS", RF5, RF5_BOLT_PLAS},
-	{"BOLT_ICE", RF5, RF5_BOLT_ICE},
-	{"BOLT_WATER", RF5, RF5_BOLT_WATER},
-	{"BOLT_NETHR", RF5, RF5_BOLT_NETHR},
-	{"BOLT_MANA", RF5, RF5_BOLT_MANA},
-	{"RF5XXX3", RF5, RF5_RF5_XXX3},
-	{"BEAM_ELEC", RF5, RF5_BEAM_ELEC},
-	{"BEAM_ICE", RF5, RF5_BEAM_ICE},
-	{"BEAM_NETHR", RF5, RF5_BEAM_NETHR},
-	{"RF5XXX4", RF5, RF5_RF5_XXX4},
-	{"HOLY_ORB", RF5, RF5_HOLY_ORB},
-
-
-/*
- * Monster race flags
- */
-
-	{"HASTE", RF6, RF6_HASTE},
-	{"ADD_MANA", RF6, RF6_ADD_MANA},
-	{"HEAL", RF6, RF6_HEAL},
-	{"CURE", RF6, RF6_CURE},
-	{"BLINK", RF6, RF6_BLINK},
-	{"TPORT", RF6, RF6_TPORT},
-	{"RF6_XXX1", RF6, RF6_RF6XXX1},
-	{"TELE_SELF_TO", RF6, RF6_TELE_SELF_TO},
-	{"TELE_TO", RF6, RF6_TELE_TO},
-	{"TELE_AWAY", RF6, RF6_TELE_AWAY},
-	{"TELE_LEVEL", RF6, RF6_TELE_LEVEL},
-	{"RF6_RF6XXX1", RF6, RF6_RF6XXX1},
-	{"DARKNESS", RF6, RF6_DARKNESS},
-	{"TRAPS", RF6, RF6_TRAPS},
-	{"FORGET", RF6, RF6_FORGET},
-	{"DRAIN_MANA", RF6, RF6_DRAIN_MANA},
-	{"RF6XXX4", RF6, RF6_RF6XXX4},
-	{"RF6XXX5", RF6, RF6_RF6XXX5},
-	{"MIND_BLAST", RF6, RF6_MIND_BLAST},
-	{"BRAIN_SMASH", RF6, RF6_BRAIN_SMASH},
-	{"WOUND", RF6, RF6_WOUND},
-	{"RF6XXX6", RF6, RF6_RF6XXX6},
-	{"RF6XXX7", RF6, RF6_RF6XXX7},
-	{"RF6XXX8", RF6, RF6_RF6XXX8},
-	{"RF6XXX9", RF6, RF6_RF6XXX9},
-	{"HUNGER", RF6, RF6_HUNGER},
-	{"RF6XX11", RF6, RF6_RF6XX11},
-	{"SCARE", RF6, RF6_SCARE},
-	{"BLIND", RF6, RF6_BLIND},
-	{"CONF", RF6, RF6_CONF},
-	{"SLOW", RF6, RF6_SLOW},
-	{"HOLD", RF6, RF6_HOLD},
-
-
-/*
- * Monster summon flags 7
- */
-
-	{"S_KIN", RF7, RF7_S_KIN},
-	{"RF7XXX1", RF7, RF7_RF7XXX1},
-	{"RF7XXX2", RF7, RF7_RF7XXX2},
-	{"S_MONSTER", RF7, RF7_S_MONSTER},
-	{"S_MONSTERS", RF7, RF7_S_MONSTERS},
-	{"RF7XXX3", RF7, RF7_RF7XXX3},
-	{"RF7XXX4", RF7, RF7_RF7XXX4},
-	{"RF7XXX5", RF7, RF7_RF7XXX5},
-	{"S_ANT", RF7, RF7_S_ANT},
-	{"S_SPIDER", RF7, RF7_S_SPIDER},
-	{"S_HOUND", RF7, RF7_S_HOUND},
-	{"S_ANIMAL", RF7, RF7_S_ANIMAL},
-	{"S_HYDRA", RF7, RF7_S_HYDRA},
-	{"RF7XXX7", RF7, RF7_RF7XXX7},
-	{"S_THIEF", RF7, RF7_S_THIEF},
-	{"S_BERTBILLTOM", RF7, RF7_S_BERTBILLTOM},
-	{"RF7XXX7", RF7, RF7_RF7XXX7},
-	{"S_AINU", RF7, RF7_S_AINU},
-	{"RF7XX10", RF7, RF7_RF7XX10},
-	{"RF7XX11", RF7, RF7_RF7XX11},
-	{"S_DRAGON", RF7, RF7_S_DRAGON},
-	{"S_HI_DRAGON", RF7, RF7_S_HI_DRAGON},
-	{"RF7XX12", RF7, RF7_RF7XX12},
-	{"RF7XX13", RF7, RF7_RF7XX13},
-	{"S_DEMON", RF7, RF7_S_DEMON},
-	{"S_HI_DEMON", RF7, RF7_S_HI_DEMON},
-	{"RF7XX14", RF7, RF7_RF7XX14},
-	{"S_UNIQUE", RF7, RF7_S_UNIQUE},
-	{"S_HI_UNIQUE", RF7, RF7_S_HI_UNIQUE},
-	{"S_UNDEAD", RF7, RF7_S_UNDEAD},
-	{"S_HI_UNDEAD", RF7, RF7_S_HI_UNDEAD},
-	{"S_WRAITH", RF7, RF7_S_WRAITH},
+	{"RF4XXX16", RF4, RF4_RF4XXX16},
+	{"RF4XXX17", RF4, RF4_RF4XXX17},
+	{"RF4XXX18", RF4, RF4_RF4XXX18},
+	{"RF4XXX19", RF4, RF4_RF4XXX19},
+	{"RF4XXX20", RF4, RF4_RF4XXX20},
+	{"RF4XXX21", RF4, RF4_RF4XXX21},
+	{"RF4XXX22", RF4, RF4_RF4XXX22},
+	{"RF4XXX23", RF4, RF4_RF4XXX23},
+	{"RF4XXX24", RF4, RF4_RF4XXX24},
+	{"RF4XXX25", RF4, RF4_RF4XXX25},
+	{"RF4XXX26", RF4, RF4_RF4XXX26},
+	{"RF4XXX27", RF4, RF4_RF4XXX27},
+	{"RF4XXX28", RF4, RF4_RF4XXX28},
+	{"RF4XXX29", RF4, RF4_RF4XXX29},
+	{"RF4XXX30", RF4, RF4_RF4XXX30},
+	{"RF4XXX31", RF4, RF4_RF4XXX31},
+	{"RF4XXX32", RF4, RF4_RF4XXX32},
 
 
 /*object_flags*/
 
 	{"STR", TR1, TR1_STR},
-	{"INT", TR1, TR1_INT},
-	{"WIS", TR1, TR1_WIS},
 	{"DEX", TR1, TR1_DEX},
 	{"CON", TR1, TR1_CON},
-	{"CHR", TR1, TR1_CHR},
-	{"TR1XXX1",	TR1, TR1_TR1XXX1},
-	{"TR1XXX2",	TR1, TR1_TR1XXX2},
-	{"STEALTH", TR1, TR1_STEALTH},
-	{"SEARCH", TR1, TR1_SEARCH},
-	{"INFRA", TR1, TR1_INFRA},
+	{"GRA", TR1, TR1_GRA},
+	{"NEG_STR", TR1, TR1_NEG_STR},
+	{"NEG_DEX", TR1, TR1_NEG_DEX},
+	{"NEG_CON", TR1, TR1_NEG_CON},
+	{"NEG_GRA", TR1, TR1_NEG_GRA},
+	{"MELEE", TR1, TR1_MEL},
+	{"ARCHERY", TR1, TR1_ARC},
+	{"STEALTH", TR1, TR1_STL},
+	{"PERCEPTION", TR1, TR1_PER},
+	{"WILL", TR1, TR1_WIL},
+	{"SMITHING", TR1, TR1_SMT},
+	{"SONG", TR1, TR1_SNG},
+	{"DAMAGE_DICE",	TR1, TR1_DAMAGE_DICE},
+	{"DAMAGE_SIDES", TR1, TR1_DAMAGE_SIDES},
 	{"TUNNEL", TR1, TR1_TUNNEL},
-	{"SPEED", TR1, TR1_SPEED},
-	{"BLOWS", TR1, TR1_BLOWS},
-	{"SHOTS", TR1, TR1_SHOTS},
-	{"MIGHT", TR1, TR1_MIGHT},
-	{"SLAY_ANIMAL", TR1, TR1_SLAY_ANIMAL},
-	{"SLAY_EVIL", TR1, TR1_SLAY_EVIL},
-	{"SLAY_UNDEAD", TR1, TR1_SLAY_UNDEAD},
-	{"SLAY_DEMON", TR1, TR1_SLAY_DEMON},
+	{"SHARPNESS", TR1, TR1_SHARPNESS},
+	{"SHARPNESS2", TR1, TR1_SHARPNESS2},
+	{"VAMPIRIC", TR1, TR1_VAMPIRIC},
 	{"SLAY_ORC", TR1, TR1_SLAY_ORC},
 	{"SLAY_TROLL", TR1, TR1_SLAY_TROLL},
-	{"SLAY_GIANT", TR1, TR1_SLAY_GIANT},
+	{"SLAY_WOLF", TR1, TR1_SLAY_WOLF},
+	{"SLAY_SPIDER", TR1, TR1_SLAY_SPIDER},
+	{"SLAY_UNDEAD", TR1, TR1_SLAY_UNDEAD},
+	{"SLAY_RAUKO", TR1, TR1_SLAY_RAUKO},
 	{"SLAY_DRAGON", TR1, TR1_SLAY_DRAGON},
-	{"KILL_DRAGON", TR1, TR1_KILL_DRAGON},
-	{"KILL_DEMON", TR1, TR1_KILL_DEMON},
-	{"KILL_UNDEAD", TR1, TR1_KILL_UNDEAD},
-	{"BRAND_ACID", TR1, TR1_BRAND_ACID},
 	{"BRAND_ELEC", TR1, TR1_BRAND_ELEC},
 	{"BRAND_FIRE", TR1, TR1_BRAND_FIRE},
 	{"BRAND_COLD", TR1, TR1_BRAND_COLD},
@@ -493,37 +366,37 @@ static flag_name info_flags[] =
  */
 
 	{"SUST_STR", TR2, TR2_SUST_STR},
-	{"SUST_INT", TR2, TR2_SUST_INT},
-	{"SUST_WIS", TR2, TR2_SUST_WIS},
 	{"SUST_DEX", TR2, TR2_SUST_DEX},
 	{"SUST_CON", TR2, TR2_SUST_CON},
-	{"SUST_CHR", TR2, TR2_SUST_CHR},
-	{"TR2XXX1", TR2, TR2_TR2XXX1},
-	{"TR2XXX2", TR2, TR2_TR2XXX2},
-	{"TR2XXX3", TR2, TR2_TR2XXX3},
-	{"TR2XXX4", TR2, TR2_TR2XXX4},
-	{"TR2XXX5", TR2, TR2_TR2XXX5},
-	{"IM_ACID", TR2, TR2_IM_ACID},
-	{"IM_ELEC", TR2, TR2_IM_ELEC},
-	{"IM_FIRE", TR2, TR2_IM_FIRE},
-	{"IM_COLD", TR2, TR2_IM_COLD},
-	{"IM_POIS", TR2, TR2_IM_POIS},
-	{"RES_ACID", TR2, TR2_RES_ACID},
+	{"SUST_GRA", TR2, TR2_SUST_GRA},
 	{"RES_ELEC", TR2, TR2_RES_ELEC},
 	{"RES_FIRE", TR2, TR2_RES_FIRE},
 	{"RES_COLD", TR2, TR2_RES_COLD},
 	{"RES_POIS", TR2, TR2_RES_POIS},
-	{"RES_FEAR", TR2, TR2_RES_FEAR},
-	{"RES_LITE", TR2, TR2_RES_LITE},
 	{"RES_DARK", TR2, TR2_RES_DARK},
+	{"RES_FEAR", TR2, TR2_RES_FEAR},
 	{"RES_BLIND", TR2, TR2_RES_BLIND},
 	{"RES_CONFU", TR2, TR2_RES_CONFU},
-	{"RES_SOUND", TR2, TR2_RES_SOUND},
-	{"RES_SHARD", TR2, TR2_RES_SHARD},
-	{"RES_NEXUS", TR2, TR2_RES_NEXUS},
-	{"RES_NETHR", TR2, TR2_RES_NETHR},
-	{"RES_CHAOS", TR2, TR2_RES_CHAOS},
-	{"RES_DISEN", TR2, TR2_RES_DISEN},
+	{"RES_STUN",  TR2, TR2_RES_STUN},
+	{"RES_HALLU",  TR2, TR2_RES_HALLU},
+	{"RADIANCE", TR2, TR2_RADIANCE},
+	{"SLOW_DIGEST", TR2, TR2_SLOW_DIGEST},
+	{"LIGHT", TR2, TR2_LIGHT},
+	{"REGEN", TR2, TR2_REGEN},
+	{"SEE_INVIS", TR2, TR2_SEE_INVIS},
+	{"FREE_ACT", TR2, TR2_FREE_ACT},
+	{"TELEPATHY", TR2, TR2_TELEPATHY},
+	{"SPEED", TR2, TR2_SPEED},
+	{"LIFE_SAVING", TR2, TR2_LIFE_SAVING},
+	{"HUNGER", TR2, TR2_HUNGER},
+	{"DARKNESS", TR2, TR2_DARKNESS},
+	{"SLOWNESS", TR2, TR2_SLOWNESS},
+	{"DANGER", TR2, TR2_DANGER},
+	{"AGGRAVATE", TR2, TR2_AGGRAVATE},
+	{"TR2XXX16", TR2, TR2_TR2XXX16},
+	{"TR2XXX17", TR2, TR2_TR2XXX17},
+	{"TR2XXX18", TR2, TR2_TR2XXX18},
+	{"TR2XXX19", TR2, TR2_TR2XXX19},
 
 	/*TR2 Uber-flags*/
 	{"SUST_STATS", TR2, TR2_SUST_STATS},
@@ -533,35 +406,35 @@ static flag_name info_flags[] =
  * Object flags 3
  */
 
-	{"SLOW_DIGEST", TR3, TR3_SLOW_DIGEST},
-	{"FEATHER", TR3, TR3_FEATHER},
-	{"LITE", TR3, TR3_LITE},
-	{"REGEN", TR3, TR3_REGEN},
-	{"TELEPATHY", TR3, TR3_TELEPATHY},
-	{"SEE_INVIS", TR3, TR3_SEE_INVIS},
-	{"FREE_ACT", TR3, TR3_FREE_ACT},
-	{"HOLD_LIFE", TR3, TR3_HOLD_LIFE},
-	{"NEVER_PICKUP", TR3, TR3_NEVER_PICKUP},
-	{"IRONMAN_ONLY", TR3, TR3_IRONMAN_ONLY},
+	{"TR3XXX1", TR3, TR3_TR3XXX1},
+	{"TR3XXX2", TR3, TR3_TR3XXX2},
 	{"TR3XXX3", TR3, TR3_TR3XXX3},
 	{"TR3XXX4", TR3, TR3_TR3XXX4},
-	{"IMPACT", TR3, TR3_IMPACT},
-	{"TELEPORT", TR3, TR3_TELEPORT},
-	{"AGGRAVATE", TR3, TR3_AGGRAVATE},
-	{"DRAIN_EXP", TR3, TR3_DRAIN_EXP},
+	{"DETECT_ORC", TR3, TR3_DETECT_ORC},
+	{"TR3XXX13", TR3, TR3_TR3XXX13},
+	{"TR3XXX5", TR3, TR3_TR3XXX5},
+	{"TR3XXX6", TR3, TR3_TR3XXX6},
+	{"TR3XXX7", TR3, TR3_TR3XXX7},
+	{"TR3XXX8", TR3, TR3_TR3XXX8},
+	{"TR3XXX9", TR3, TR3_TR3XXX9},
+	{"INDESTRUCTIBLE", TR3, TR3_INDESTRUCTIBLE},
+	{"NO_SMITHING", TR3, TR3_NO_SMITHING},
+	{"MITHRIL", TR3, TR3_MITHRIL},
+	{"AXE", TR3, TR3_AXE},
+	{"POLEARM", TR3, TR3_POLEARM},
 	{"IGNORE_ACID", TR3, TR3_IGNORE_ACID},
 	{"IGNORE_ELEC", TR3, TR3_IGNORE_ELEC},
 	{"IGNORE_FIRE", TR3, TR3_IGNORE_FIRE},
 	{"IGNORE_COLD", TR3, TR3_IGNORE_COLD},
 	{"THROWING", TR3, TR3_THROWING},
-	{"PERFECT_BALANCE", TR3, TR3_PERFECT_BALANCE},
-	{"BLESSED", TR3, TR3_BLESSED},
+	{"TR3XXX10", TR3, TR3_TR3XXX10},
 	{"ACTIVATE", TR3, TR3_ACTIVATE},
 	{"INSTA_ART", TR3, TR3_INSTA_ART},
 	{"EASY_KNOW", TR3, TR3_EASY_KNOW},
-	{"HIDE_TYPE", TR3, TR3_HIDE_TYPE},
-	{"SHOW_MODS", TR3, TR3_SHOW_MODS},
-	{"TR3XXX7", TR3, TR3_TR3XXX7},
+	{"TR3XXX11", TR3, TR3_TR3XXX11},
+	{"TR3XXX12", TR3, TR3_TR3XXX12},
+	{"HAND_AND_A_HALF", TR3, TR3_HAND_AND_A_HALF},
+	{"TWO_HANDED", TR3, TR3_TWO_HANDED},
 	{"LIGHT_CURSE", TR3, TR3_LIGHT_CURSE},
 	{"HEAVY_CURSE", TR3, TR3_HEAVY_CURSE},
 	{"PERMA_CURSE",  TR3, TR3_PERMA_CURSE},
@@ -570,42 +443,41 @@ static flag_name info_flags[] =
 
 
 /*
- * Class flags
+ * Race/House flags
  */
-
-	{"EXTRA_SHOT",  CF1, CF_EXTRA_SHOT},
-	{"BRAVERY_30",  CF1, CF_BRAVERY_30},
-	{"BLESS_WEAPON",  CF1, CF_BLESS_WEAPON},
-	{"CUMBER_GLOVE",  CF1, CF_CUMBER_GLOVE},
-	{"ZERO_FAIL",  CF1, CF_ZERO_FAIL},
-	{"BEAM",  CF1, CF_BEAM},
-	{"CHOOSE_SPELLS",  CF1, CF_CHOOSE_SPELLS},
-	{"PSEUDO_ID_HEAVY",  CF1, CF_PSEUDO_ID_HEAVY},
-	{"PSEUDO_ID_IMPROV",  CF1, CF_PSEUDO_ID_IMPROV},
-	{"ROGUE_COMBAT",  CF1, CF_ROGUE_COMBAT},
-	{"EXTRA_ARROW",  CF1, CF_EXTRA_ARROW},
-	{"SET_TRAPS",  CF1, CF_SET_TRAPS},
-	{"EXTRA_ATTACK",  CF1, CF_EXTRA_ATTACK},
-	{"CFXXX14",  CF1, CF_CFXXX14},
-	{"CFXXX15",  CF1, CF_CFXXX15},
-	{"CFXXX16",  CF1, CF_CFXXX16},
-	{"CFXXX17",  CF1, CF_CFXXX17},
-	{"CFXXX18",  CF1, CF_CFXXX18},
-	{"CFXXX19",  CF1, CF_CFXXX19},
-	{"CFXXX20",  CF1, CF_CFXXX20},
-	{"CFXXX21",  CF1, CF_CFXXX21},
-	{"CFXXX22",  CF1, CF_CFXXX22},
-	{"CFXXX23",  CF1, CF_CFXXX23},
-	{"CFXXX24",  CF1, CF_CFXXX24},
-	{"CFXXX21",  CF1, CF_CFXXX25},
-	{"CFXXX25",  CF1, CF_CFXXX26},
-	{"CFXXX26",  CF1, CF_CFXXX27},
-	{"CFXXX27",  CF1, CF_CFXXX28},
-	{"CFXXX28",  CF1, CF_CFXXX29},
-	{"CFXXX29",  CF1, CF_CFXXX29},
-	{"CFXXX30",  CF1, CF_CFXXX30},
-	{"CFXXX31",  CF1, CF_CFXXX31},
-	{"CFXXX32",  CF1, CF_CFXXX32}
+	{"BLADE_PROFICIENCY",  RHF, RHF_BLADE_PROFICIENCY},
+	{"AXE_PROFICIENCY",  RHF, RHF_AXE_PROFICIENCY},
+	{"MEL_AFFINITY",  RHF, RHF_MEL_AFFINITY},
+	{"MEL_PENALTY",  RHF, RHF_MEL_PENALTY},
+	{"ARC_AFFINITY",  RHF, RHF_ARC_AFFINITY},
+	{"ARC_PENALTY",  RHF, RHF_ARC_PENALTY},
+	{"EVN_AFFINITY",  RHF, RHF_EVN_AFFINITY},
+	{"EVN_PENALTY",  RHF, RHF_EVN_PENALTY},
+	{"STL_AFFINITY",  RHF, RHF_STL_AFFINITY},
+	{"STL_PENALTY",  RHF, RHF_STL_PENALTY},
+	{"PER_AFFINITY",  RHF, RHF_PER_AFFINITY},
+	{"PER_PENALTY",  RHF, RHF_PER_PENALTY},
+	{"WIL_AFFINITY",  RHF, RHF_WIL_AFFINITY},
+	{"WIL_PENALTY",  RHF, RHF_WIL_PENALTY},
+	{"SMT_AFFINITY",  RHF, RHF_SMT_AFFINITY},
+	{"SMT_PENALTY",  RHF, RHF_SMT_PENALTY},
+	{"SNG_AFFINITY",  RHF, RHF_SNG_AFFINITY},
+	{"SNG_PENALTY",  RHF, RHF_SNG_PENALTY},
+	{"RHFXXX19",  RHF, RHF_RHFXXX19},
+	{"RHFXXX20",  RHF, RHF_RHFXXX20},
+	{"RHFXXX21",  RHF, RHF_RHFXXX21},
+	{"RHFXXX22",  RHF, RHF_RHFXXX22},
+	{"RHFXXX23",  RHF, RHF_RHFXXX23},
+	{"RHFXXX24",  RHF, RHF_RHFXXX24},
+	{"RHFXXX21",  RHF, RHF_RHFXXX25},
+	{"RHFXXX25",  RHF, RHF_RHFXXX26},
+	{"RHFXXX26",  RHF, RHF_RHFXXX27},
+	{"RHFXXX27",  RHF, RHF_RHFXXX28},
+	{"RHFXXX28",  RHF, RHF_RHFXXX29},
+	{"RHFXXX29",  RHF, RHF_RHFXXX29},
+	{"RHFXXX30",  RHF, RHF_RHFXXX30},
+	{"RHFXXX31",  RHF, RHF_RHFXXX31},
+	{"RHFXXX32",  RHF, RHF_RHFXXX32}
 };
 
 
@@ -654,7 +526,7 @@ static cptr a_info_act[ACT_MAX] =
 	"DETECT",
 	"RESIST",
 	"TELEPORT",
-	"RESTORE_LIFE",
+	"RESTORE_VOICE",
 	"MISSILE",
 	"ARROW",
 	"REM_FEAR_POIS",
@@ -854,22 +726,35 @@ errr parse_z_info(char *buf, header *head)
 		z_info->k_max = max;
 	}
 
+	/* Process 'B' for "Maximum b_info[] index" */
+	else if (buf[2] == 'B')
+	{
+		int max;
+		
+		/* Scan for the value */
+		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+		
+		/* Save the value */
+		z_info->b_max = max;
+	}
+	
 	/* Process 'A' for "Maximum a_info[] index" */
 	else if (buf[2] == 'A')
 	{
-		int art_special_max, art_normal_max, art_random_max;
+		int art_special_max, art_normal_max, art_random_max, art_self_made_max;
 
 		/* Scan for the value */
-		if (3 != sscanf(buf+4, "%d:%d:%d", &art_special_max,
-					&art_normal_max, &art_random_max)) return (PARSE_ERROR_GENERIC);
+		if (4 != sscanf(buf+4, "%d:%d:%d:%d", &art_special_max,
+					&art_normal_max, &art_random_max, &art_self_made_max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		z_info->art_spec_max = art_special_max;
 		z_info->art_norm_max = art_normal_max + art_special_max;
 		z_info->art_rand_max = z_info->art_norm_max + art_random_max;
+		z_info->art_self_made_max = z_info->art_rand_max + art_self_made_max;
 
-		/*that final slot is for a set quest artifact*/
-		z_info->art_max = art_special_max + art_normal_max + art_random_max + 1;
+		/* Total artefacts */
+		z_info->art_max = art_special_max + art_normal_max + art_random_max + art_self_made_max;
 	}
 
 	/* Process 'E' for "Maximum e_info[] index" */
@@ -956,18 +841,6 @@ errr parse_z_info(char *buf, header *head)
 
 		/* Save the value */
 		z_info->h_max = max;
-	}
-
-	/* Process 'B' for "Maximum b_info[] subindex" */
-	else if (buf[2] == 'B')
-	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->b_max = max;
 	}
 
 	/* Process 'Q' for "Maximum q_info[] index" */
@@ -1117,22 +990,26 @@ errr parse_v_info(char *buf, header *head)
 	/* Process 'X' for "Extra info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int typ, rat, hgt, wid;
+		int typ, depth, rarity, hgt, wid;
 
 		/* There better be a current v_ptr */
 		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &typ, &rat, &hgt, &wid)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			            &typ, &depth, &rarity, &hgt, &wid)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		v_ptr->typ = typ;
-		v_ptr->rat = rat;
+		v_ptr->depth = depth;
+		v_ptr->rarity = rarity;
 		v_ptr->hgt = hgt;
 		v_ptr->wid = wid;
 
 		/* Check for maximum vault sizes */
+		if ((v_ptr->typ == 6) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
+			return (PARSE_ERROR_VAULT_TOO_BIG);
+
 		if ((v_ptr->typ == 7) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
 			return (PARSE_ERROR_VAULT_TOO_BIG);
 
@@ -1257,6 +1134,7 @@ errr parse_f_info(char *buf, header *head)
 		f_ptr->d_attr = d_attr;
 		f_ptr->d_char = d_char;
 	}
+
 	else
 	{
 		/* Oops */
@@ -1476,21 +1354,22 @@ errr parse_k_info(char *buf, header *head)
 	/* Hack -- Process 'P' for "power" and such */
 	else if (buf[0] == 'P')
 	{
-		int ac, hd1, hd2, th, td, ta;
+		int att, dd, ds, evn, pd, ps;
 
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &ac, &hd1, &hd2, &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
-
-		k_ptr->ac = ac;
-		k_ptr->dd = hd1;
-		k_ptr->ds = hd2;
-		k_ptr->to_h = th;
-		k_ptr->to_d = td;
-		k_ptr->to_a =  ta;
+		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%dd%d",
+			            &att, &dd, &ds, &evn, &pd, &ps)) return (PARSE_ERROR_GENERIC);
+		
+		k_ptr->att = att;
+		k_ptr->dd = dd;
+		k_ptr->ds = ds;
+		k_ptr->evn = evn;
+		k_ptr->pd = pd;
+		k_ptr->ps = ps;
+		
 	}
 
 	/* Hack -- Process 'F' for flags */
@@ -1520,6 +1399,44 @@ errr parse_k_info(char *buf, header *head)
 		}
 	}
 
+	/* Process 'B' for "aBilities" (one line only) */
+	else if (buf[0] == 'B')
+	{
+		int i;
+		
+		/* There better be a current k_ptr */
+		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* XXX Simply read each number following a colon */
+		for (i = 0, s = buf+1; s && (s[0] == ':') && s[1]; ++i)
+		{
+			/* Sanity check */
+			if (i > 3) return (PARSE_ERROR_TOO_MANY_ALLOCATIONS);
+			
+			/* Default abilitynum */
+			k_ptr->abilitynum[i] = 0;
+			
+			/* Store the skilltype */
+			k_ptr->skilltype[i] = atoi(s+1);
+			
+			/* List this ability */
+			k_ptr->abilities++;
+			
+			/* Find the slash */
+			t = strchr(s+1, '/');
+			
+			/* Find the next colon */
+			s = strchr(s+1, ':');
+			
+			/* If the slash is "nearby", use it */
+			if (t && (!s || t < s))
+			{
+				int abilitynum = atoi(t+1);
+				if (abilitynum > 0) k_ptr->abilitynum[i] = abilitynum;
+			}
+		}
+	}
+	
 	/* Process 'D' for "Description" */
 	else if (buf[0] == 'D')
 	{
@@ -1546,9 +1463,166 @@ errr parse_k_info(char *buf, header *head)
 
 
 /*
- * Grab one flag in an artifact_type from a textual string
+ * Initialize the "b_info" array, by parsing an ascii "template" file
  */
-static errr grab_one_artifact_flag(artifact_type *ptr, cptr what)
+errr parse_b_info(char *buf, header *head)
+{
+	int i;
+	
+	char *s, *t;
+	
+	static int cur_t = 0;
+	
+	/* Current entry */
+	static ability_type *b_ptr = NULL;
+	
+	/* Process 'N' for "New/Number/Name" */
+	if (buf[0] == 'N')
+	{
+		/* Find the colon before the name */
+		s = strchr(buf+2, ':');
+		
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+		
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+		
+		/* Paranoia -- require a name */
+		if (!*s) return (PARSE_ERROR_GENERIC);
+		
+		/* Get the index */
+		i = atoi(buf+2);
+		
+		/* Verify information */
+		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+		
+		/* Verify information */
+		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
+		
+		/* Save the index */
+		error_idx = i;
+		
+		/* Point at the "info" */
+		b_ptr = (ability_type*)head->info_ptr + i;
+		
+		/* Store the name */
+		if (!(b_ptr->name = add_name(head, s)))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+
+		/* Start with the first of the tval indices */
+		cur_t = 0;
+	}
+	
+	/* Process 'I' for "Info" (one line only) */
+	else if (buf[0] == 'I')
+	{
+		int skilltype, abilitynum, level;
+		
+		/* There better be a current k_ptr */
+		if (!b_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* Scan for the values */
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+			            &skilltype, &abilitynum, &level)) return (PARSE_ERROR_GENERIC);
+		
+		/* Save the values */
+		b_ptr->skilltype = skilltype;
+		b_ptr->abilitynum = abilitynum;
+		b_ptr->level = level;
+	}
+	
+	/* Process 'P' for "Prerequisites" (one line only) */
+	else if (buf[0] == 'P')
+	{
+		int i;
+		
+		/* There better be a current b_ptr */
+		if (!b_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* XXX Simply read each number following a colon */
+		for (i = 0, s = buf+1; s && (s[0] == ':') && s[1]; ++i)
+		{
+			/* Sanity check */
+			if (i > 3) return (PARSE_ERROR_TOO_MANY_ALLOCATIONS);
+			
+			/* Default abilitynum */
+			b_ptr->prereq_abilitynum[i] = 0;
+			
+			/* Store the skilltype */
+			b_ptr->prereq_skilltype[i] = atoi(s+1);
+			
+			/* List this prerequisite */
+			b_ptr->prereqs++;
+			
+			/* Find the slash */
+			t = strchr(s+1, '/');
+			
+			/* Find the next colon */
+			s = strchr(s+1, ':');
+			
+			/* If the slash is "nearby", use it */
+			if (t && (!s || t < s))
+			{
+				int prereq_abilitynum = atoi(t+1);
+				if (prereq_abilitynum > 0) b_ptr->prereq_abilitynum[i] = prereq_abilitynum;
+			}
+		}
+	}
+		
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current k_ptr */
+		if (!b_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* Get the text */
+		s = buf+2;
+		
+		/* Store the text */
+		if (!add_text(&(b_ptr->text), head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
+	/* Process 'T' for "Types allowed" (up to five lines) */
+	else if (buf[0] == 'T')
+	{
+		int tval, sval1, sval2;
+		
+		/* There better be a current b_ptr */
+		if (!b_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* Scan for the values */
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+			            &tval, &sval1, &sval2)) return (PARSE_ERROR_GENERIC);
+		
+		/* Save the values */
+		b_ptr->tval[cur_t] = (byte)tval;
+		b_ptr->min_sval[cur_t] = (byte)sval1;
+		b_ptr->max_sval[cur_t] = (byte)sval2;
+		
+		/* Increase counter for 'possible tval' index */
+		cur_t++;
+		
+		/* Allow only a limited number of T: lines */
+		if (cur_t > ABILITY_TVALS_MAX) return (PARSE_ERROR_GENERIC);
+	}
+	
+	else
+	{
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+	
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Grab one flag in an artefact_type from a textual string
+ */
+static errr grab_one_artefact_flag(artefact_type *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
 	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
@@ -1563,7 +1637,7 @@ static errr grab_one_artifact_flag(artifact_type *ptr, cptr what)
 /*
  * Grab one activation from a textual string
  */
-static errr grab_one_activation(artifact_type *a_ptr, cptr what)
+static errr grab_one_activation(artefact_type *a_ptr, cptr what)
 {
 	int i;
 
@@ -1578,7 +1652,7 @@ static errr grab_one_activation(artifact_type *a_ptr, cptr what)
 	}
 
 	/* Oops */
-	msg_format("Unknown artifact activation '%s'.", what);
+	msg_format("Unknown artefact activation '%s'.", what);
 
 	/* Error */
 	return (PARSE_ERROR_GENERIC);
@@ -1596,7 +1670,7 @@ errr parse_a_info(char *buf, header *head)
 	char *s, *t;
 
 	/* Current entry */
-	static artifact_type *a_ptr = NULL;
+	static artefact_type *a_ptr = NULL;
 
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')
@@ -1626,13 +1700,59 @@ errr parse_a_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		a_ptr = (artifact_type*)head->info_ptr + i;
+		a_ptr = (artefact_type*)head->info_ptr + i;
 
 		/* Store the name */
 		my_strcpy(a_ptr->name, s, MAX_LEN_ART_NAME);
 
 		/* Ignore everything */
 		a_ptr->flags3 |= (TR3_IGNORE_MASK);
+		
+		/* Sil-y: paranoia: make sure that the default values are 0 */
+		a_ptr->d_attr = 0;
+		a_ptr->d_char = 0;
+
+	}
+
+	/* Sil -- added this to allow for artefacts that look different to the base type */
+	/* Process 'G' for "Graphics" (one line only) */
+	else if (buf[0] == 'G')
+	{
+		char d_char;
+		int d_attr;
+
+		/* There better be a current a_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Paranoia */
+		if (!buf[2]) return (PARSE_ERROR_GENERIC);
+		if (!buf[3]) return (PARSE_ERROR_GENERIC);
+		if (!buf[4]) return (PARSE_ERROR_GENERIC);
+
+		/* Extract d_char */
+		d_char = buf[2];
+
+		/* If we have a longer string than expected ... */
+		if (buf[5])
+		{
+			/* Advance "buf" on by 4 */
+			buf += 4;
+
+			/* Extract the colour */
+			d_attr = color_text_to_attr(buf);
+		}
+		else
+		{
+			/* Extract the attr */
+			d_attr = color_char_to_attr(buf[4]);
+		}
+
+		/* Paranoia */
+		if (d_attr < 0) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		a_ptr->d_attr = d_attr;
+		a_ptr->d_char = d_char;
 	}
 
 	/* Process 'I' for "Info" (one line only) */
@@ -1676,21 +1796,21 @@ errr parse_a_info(char *buf, header *head)
 	/* Process 'P' for "power" and such */
 	else if (buf[0] == 'P')
 	{
-		int ac, hd1, hd2, th, td, ta;
+		int att, dd, ds, evn, pd, ps;
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &ac, &hd1, &hd2, &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
-
-		a_ptr->ac = ac;
-		a_ptr->dd = hd1;
-		a_ptr->ds = hd2;
-		a_ptr->to_h = th;
-		a_ptr->to_d = td;
-		a_ptr->to_a = ta;
+		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%dd%d",
+			            &att, &dd, &ds, &evn, &pd, &ps)) return (PARSE_ERROR_GENERIC);
+		
+		a_ptr->att = att;
+		a_ptr->dd = dd;
+		a_ptr->ds = ds;
+		a_ptr->evn = evn;
+		a_ptr->pd = pd;
+		a_ptr->ps = ps;
 	}
 
 	/* Process 'F' for flags */
@@ -1713,7 +1833,7 @@ errr parse_a_info(char *buf, header *head)
 			}
 
 			/* Parse this entry */
-			if (0 != grab_one_artifact_flag(a_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+			if (0 != grab_one_artefact_flag(a_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
 
 			/* Start the next entry */
 			s = t;
@@ -1752,6 +1872,44 @@ errr parse_a_info(char *buf, header *head)
 		a_ptr->randtime = prand;
 	}
 
+	/* Process 'B' for "aBilities" (one line only) */
+	else if (buf[0] == 'B')
+	{
+		int i;
+		
+		/* There better be a current a_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* XXX Simply read each number following a colon */
+		for (i = 0, s = buf+1; s && (s[0] == ':') && s[1]; ++i)
+		{
+			/* Sanity check */
+			if (i > 3) return (PARSE_ERROR_TOO_MANY_ALLOCATIONS);
+			
+			/* Default abilitynum */
+			a_ptr->abilitynum[i] = 0;
+			
+			/* Store the skilltype */
+			a_ptr->skilltype[i] = atoi(s+1);
+			
+			/* List this ability */
+			a_ptr->abilities++;
+			
+			/* Find the slash */
+			t = strchr(s+1, '/');
+			
+			/* Find the next colon */
+			s = strchr(s+1, ':');
+			
+			/* If the slash is "nearby", use it */
+			if (t && (!s || t < s))
+			{
+				int abilitynum = atoi(t+1);
+				if (abilitynum > 0) a_ptr->abilitynum[i] = abilitynum;
+			}
+		}
+	}
+	
 	/* Process 'D' for "Description" */
 	else if (buf[0] == 'D')
 	{
@@ -1861,7 +2019,7 @@ errr parse_n_info(char *buf, header *head)
 
 
 /*
- * Grab one flag in a ego-item_type from a textual string
+ * Grab one flag in a special item_type from a textual string
  */
 static bool grab_one_ego_item_flag(ego_item_type *ptr, cptr what)
 {
@@ -1929,7 +2087,7 @@ errr parse_e_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, rarity, pad2;
+		int level, rarity, max_level;
 		long cost;
 
 		/* There better be a current e_ptr */
@@ -1937,30 +2095,13 @@ errr parse_e_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &level, &rarity, &pad2, &cost)) return (PARSE_ERROR_GENERIC);
+			            &level, &rarity, &max_level, &cost)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		e_ptr->level = level;
 		e_ptr->rarity = rarity;
-		/* e_ptr->weight = wgt; */
+		e_ptr->max_level = max_level;
 		e_ptr->cost = cost;
-	}
-
-	/* Process 'X' for "Xtra" (one line only) */
-	else if (buf[0] == 'X')
-	{
-		int rating, xtra;
-
-		/* There better be a current e_ptr */
-		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (2 != sscanf(buf+2, "%d:%d", &rating, &xtra))
-			return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		e_ptr->rating = rating;
-		e_ptr->xtra = xtra;
 	}
 
 	/* Process 'T' for "Types allowed" (up to three lines) */
@@ -1990,19 +2131,60 @@ errr parse_e_info(char *buf, header *head)
 	/* Hack -- Process 'C' for "creation" */
 	else if (buf[0] == 'C')
 	{
-		int th, td, ta, pv;
+		int max_att, to_dd, to_ds, max_evn, to_pd, to_ps, pv;
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &th, &td, &ta, &pv)) return (PARSE_ERROR_GENERIC);
+		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
+			            &max_att, &to_dd, &to_ds, &max_evn, &to_pd, &to_ps, &pv)) return (PARSE_ERROR_GENERIC);
 
-		e_ptr->max_to_h = th;
-		e_ptr->max_to_d = td;
-		e_ptr->max_to_a = ta;
+		e_ptr->max_att = max_att;
+		e_ptr->to_dd = to_dd;
+		e_ptr->to_ds = to_ds;
+		e_ptr->max_evn = max_evn;
+		e_ptr->to_pd = to_pd;
+		e_ptr->to_ps = to_ps;
 		e_ptr->max_pval = pv;
+	}
+
+	/* Process 'B' for "aBilities" (one line only) */
+	else if (buf[0] == 'B')
+	{
+		int i;
+		
+		/* There better be a current e_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* XXX Simply read each number following a colon */
+		for (i = 0, s = buf+1; s && (s[0] == ':') && s[1]; ++i)
+		{
+			/* Sanity check */
+			if (i > 3) return (PARSE_ERROR_TOO_MANY_ALLOCATIONS);
+			
+			/* Default abilitynum */
+			e_ptr->abilitynum[i] = 0;
+			
+			/* Store the skilltype */
+			e_ptr->skilltype[i] = atoi(s+1);
+			
+			/* List this ability */
+			e_ptr->abilities++;
+			
+			/* Find the slash */
+			t = strchr(s+1, '/');
+			
+			/* Find the next colon */
+			s = strchr(s+1, ':');
+			
+			/* If the slash is "nearby", use it */
+			if (t && (!s || t < s))
+			{
+				int abilitynum = atoi(t+1);
+				if (abilitynum > 0) e_ptr->abilitynum[i] = abilitynum;
+			}
+		}
 	}
 
 	/* Hack -- Process 'F' for flags */
@@ -2080,9 +2262,6 @@ static errr grab_one_spell_flag(monster_race *ptr, cptr what)
 	u32b *f[MAX_FLAG_SETS];
 	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
 	f[RF4] = &(ptr->flags4);
-	f[RF5] = &(ptr->flags5);
-	f[RF6] = &(ptr->flags6);
-	f[RF7] = &(ptr->flags7);
 	return grab_one_flag(f, "monster", what);
 }
 
@@ -2195,48 +2374,85 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int spd, hp1, hp2, aaf, ac, slp;
+		int spd, hp1, hp2, mana, light;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%dd%d:%d:%d",
+			            &spd, &hp1, &hp2, &mana, &light)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->speed = spd;
 		r_ptr->hdice = hp1;
 		r_ptr->hside = hp2;
-		r_ptr->aaf = aaf;
-		r_ptr->ac = ac;
-		r_ptr->sleep = slp;
+		r_ptr->mana  = mana;
+		r_ptr->light = light;
 	}
 
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int lev, rar, mana;
-		long exp;
+		int lev, rar;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &lev, &rar, &mana, &exp)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(buf+2, "%d:%d",
+			            &lev, &rar)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->level = lev;
 		r_ptr->rarity = rar;
-		r_ptr->mana = mana;
-		r_ptr->mexp = exp;
+	}
+
+	/* Process 'A' for "Alertness Info" (one line only) */
+	else if (buf[0] == 'A')
+	{
+		int sleep, per, stl, wil;
+		
+		/* There better be a current r_ptr */
+		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* Scan for the values */
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			            &sleep, &per, &stl, &wil)) return (PARSE_ERROR_GENERIC);
+		
+		/* Save the values */
+		r_ptr->sleep = sleep;
+		r_ptr->per = per;
+		r_ptr->stl = stl;
+		r_ptr->wil = wil;
+	}
+
+	/* Process 'P' for "Protection Info" (one line only) */
+	else if (buf[0] == 'P')
+	{
+		int evn, pd = 0, ps = 0, n;
+
+		/* There better be a current r_ptr */
+		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* Scan for the values */
+		n = sscanf(buf+2, "[%d,%dd%d]", &evn, &pd, &ps);
+		if ((n != 1) && (n != 3)) return (PARSE_ERROR_GENERIC);
+		
+//		if (3 != sscanf(buf+2, "[%d,%dd%d]",
+//						&evn, &pd, &ps)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		r_ptr->evn = evn;
+		r_ptr->pd = pd;
+		r_ptr->ps = ps;
 	}
 
 	/* Process 'B' for "Blows" */
 	else if (buf[0] == 'B')
 	{
-		int n1, n2;
+		int n1, n2, n;
+		int att, dd, ds;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -2277,11 +2493,27 @@ errr parse_r_info(char *buf, header *head)
 		/* Invalid effect */
 		if (!r_info_blow_effect[n2]) return (PARSE_ERROR_GENERIC);
 
+		// reset values
+		dd = 0;
+		ds = 0;
+		
+		n = sscanf(t, "(%d,%dd%d)", &att, &dd, &ds);
+		if ((n != 1) && (n != 3)) return (PARSE_ERROR_GENERIC);
+
+		//s = t;
+		
+		/* Scan for the values */
+		//if (1 != sscanf(t, "(%d)", &att))
+		//{
+		//	t = s;
+		//	if (3 != sscanf(t, "(%d,%dd%d)", &att, &dd, &ds)) return (PARSE_ERROR_GENERIC);
+		//}
+
 		/* Analyze the third field */
-		for (s = t; *t && (*t != 'd'); t++) /* loop */;
+		//for (s = t; *t && (*t != 'd'); t++) /* loop */;
 
 		/* Terminate the field (if necessary) */
-		if (*t == 'd') *t++ = '\0';
+		//if (*t == 'd') *t++ = '\0';
 
 		/* Save the method */
 		r_ptr->blow[i].method = n1;
@@ -2290,8 +2522,9 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->blow[i].effect = n2;
 
 		/* Extract the damage dice and sides */
-		r_ptr->blow[i].d_dice = atoi(s);
-		r_ptr->blow[i].d_side = atoi(t);
+		r_ptr->blow[i].att = att;
+		r_ptr->blow[i].dd = dd;
+		r_ptr->blow[i].ds = ds;
 	}
 
 	/* Process 'F' for "Basic Flags" (multiple lines) */
@@ -2381,6 +2614,7 @@ errr parse_r_info(char *buf, header *head)
 			s = t;
 		}
 	}
+
 	else
 	{
 		/* Oops */
@@ -2394,15 +2628,32 @@ errr parse_r_info(char *buf, header *head)
 
 /*
  * Grab one flag in a player_race from a textual string
+ *
+ * Sil:  these used to be the TR1, TR2 and TR3 flags,
+ *       but we now use the race/house flags (RHF).
  */
-static errr grab_one_racial_flag(player_race *ptr, cptr what)
-{
+static errr grab_one_race_flag(player_race *ptr, cptr what)
+{	
 	u32b *f[MAX_FLAG_SETS];
 	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
-	f[TR1] = &(ptr->flags1);
-	f[TR2] = &(ptr->flags2);
-	f[TR3] = &(ptr->flags3);
+	f[RHF] = &(ptr->flags);
 	return grab_one_flag(f, "player", what);
+	
+}
+
+/*
+ * Grab one flag in a player_house from a textual string
+ *
+ * Sil:  these used to be the TR1, TR2 and TR3 flags,
+ *       but we now use the race/house flags (RHF).
+ */
+static errr grab_one_house_flag(player_house *ptr, cptr what)
+{	
+	u32b *f[MAX_FLAG_SETS];
+	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	f[RHF] = &(ptr->flags);
+	return grab_one_flag(f, "player", what);
+	
 }
 
 
@@ -2419,6 +2670,7 @@ errr parse_p_info(char *buf, header *head)
 
 	/* Current entry */
 	static player_race *pr_ptr = NULL;
+	static int cur_equip = 0;
 
 
 	/* Process 'N' for "New/Number/Name" */
@@ -2454,6 +2706,8 @@ errr parse_p_info(char *buf, header *head)
 		/* Store the name */
 		if (!(pr_ptr->name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
+			
+		cur_equip = 0;
 	}
 
 	/* Process 'S' for "Stats" (one line only) */
@@ -2488,48 +2742,6 @@ errr parse_p_info(char *buf, header *head)
 			/* Next... */
 			continue;
 		}
-	}
-
-	/* Process 'R' for "Racial Skills" (one line only) */
-	else if (buf[0] == 'R')
-	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
-
-		/* There better be a current pr_ptr */
-		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pr_ptr->r_dis = dis;
-		pr_ptr->r_dev = dev;
-		pr_ptr->r_sav = sav;
-		pr_ptr->r_stl = stl;
-		pr_ptr->r_srh = srh;
-		pr_ptr->r_fos = fos;
-		pr_ptr->r_thn = thn;
-		pr_ptr->r_thb = thb;
-	}
-
-	/* Process 'X' for "Extra Info" (one line only) */
-	else if (buf[0] == 'X')
-	{
-		int mhp, exp, infra;
-
-		/* There better be a current pr_ptr */
-		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &mhp, &exp, &infra)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pr_ptr->r_mhp = mhp;
-		pr_ptr->r_exp = exp;
-		pr_ptr->infra = infra;
 	}
 
 	/* Hack -- Process 'I' for "info" and such */
@@ -2605,14 +2817,48 @@ errr parse_p_info(char *buf, header *head)
 			}
 
 			/* Parse this entry */
-			if (0 != grab_one_racial_flag(pr_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+			if (0 != grab_one_race_flag(pr_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
 
 			/* Start the next entry */
 			s = t;
 		}
 	}
 
-	/* Hack -- Process 'C' for class choices */
+	/* Process 'E' for "Starting Equipment" */
+	else if (buf[0] == 'E')
+	{
+		int tval, sval, min, max;
+
+		start_item *e_ptr;
+
+		/* There better be a current pr_ptr */
+		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Access the item */
+		e_ptr = &pr_ptr->start_items[cur_equip];
+
+		/* Scan for the values */
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			            &tval, &sval, &min, &max)) return (PARSE_ERROR_GENERIC);
+
+		if ((min < 0) || (max < 0) || (min > 99) || (max > 99))
+			return (PARSE_ERROR_INVALID_ITEM_NUMBER);
+
+		/* Save the values */
+		e_ptr->tval = tval;
+		e_ptr->sval = sval;
+		e_ptr->min = min;
+		e_ptr->max = max;
+
+		/* Next item */
+		cur_equip++;
+
+		/* Limit number of starting items */
+		if (cur_equip > MAX_START_ITEMS)
+			return (PARSE_ERROR_GENERIC);
+	}
+	
+	/* Hack -- Process 'C' for house choices */
 	else if (buf[0] == 'C')
 	{
 		/* There better be a current pr_ptr */
@@ -2638,6 +2884,21 @@ errr parse_p_info(char *buf, header *head)
 			s = t;
 		}
 	}
+
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current pr_ptr */
+		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&(pr_ptr->text), head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
 	else
 	{
 		/* Oops */
@@ -2650,19 +2911,6 @@ errr parse_p_info(char *buf, header *head)
 
 
 /*
- * Grab one flag in a player class from a textual string
- */
-static errr grab_one_class_flag(player_class *ptr, cptr what)
-{
-	u32b *f[MAX_FLAG_SETS];
-	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
-	f[CF1] = &(ptr->flags);
-	return grab_one_flag(f, "player", what);
-}
-
-
-
-/*
  * Initialize the "c_info" array, by parsing an ascii "template" file
  */
 errr parse_c_info(char *buf, header *head)
@@ -2672,7 +2920,7 @@ errr parse_c_info(char *buf, header *head)
 	char *s, *t;
 
 	/* Current entry */
-	static player_class *pc_ptr = NULL;
+	static player_house *ph_ptr = NULL;
 
 	static int cur_title = 0;
 	static int cur_equip = 0;
@@ -2706,15 +2954,55 @@ errr parse_c_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		pc_ptr = (player_class*)head->info_ptr + i;
+		ph_ptr = (player_house*)head->info_ptr + i;
 
 		/* Store the name */
-		if (!(pc_ptr->name = add_name(head, s)))
+		if (!(ph_ptr->name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		/* No titles and equipment yet */
 		cur_title = 0;
 		cur_equip = 0;
+	}
+	
+	/* Process 'A' for "Alternate Name" */
+	else if (buf[0] == 'A')
+	{
+		/* Find the colon before the name */
+		s = strchr(buf, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+
+		/* Paranoia -- require a name */
+		if (!*s) return (PARSE_ERROR_GENERIC);
+
+		/* Store the name */
+		if (!(ph_ptr->alt_name = add_name(head, s)))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
+	/* Process 'B' for "Short Name" */
+	else if (buf[0] == 'B')
+	{
+		/* Find the colon before the name */
+		s = strchr(buf, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+
+		/* Paranoia -- require a name */
+		if (!*s) return (PARSE_ERROR_GENERIC);
+
+		/* Store the name */
+		if (!(ph_ptr->short_name = add_name(head, s)))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
 	/* Process 'S' for "Stats" (one line only) */
@@ -2722,8 +3010,8 @@ errr parse_c_info(char *buf, header *head)
 	{
 		int adj;
 
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		/* There better be a current ph_ptr */
+		if (!ph_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Start the string */
 		s = buf+1;
@@ -2744,211 +3032,18 @@ errr parse_c_info(char *buf, header *head)
 			adj = atoi(s);
 
 			/* Save the value */
-			pc_ptr->c_adj[j] = adj;
+			ph_ptr->h_adj[j] = adj;
 
 			/* Next... */
 			continue;
 		}
 	}
 
-	/* Process 'C' for "Class Skills" (one line only) */
-	else if (buf[0] == 'C')
-	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
-
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->c_dis = dis;
-		pc_ptr->c_dev = dev;
-		pc_ptr->c_sav = sav;
-		pc_ptr->c_stl = stl;
-		pc_ptr->c_srh = srh;
-		pc_ptr->c_fos = fos;
-		pc_ptr->c_thn = thn;
-		pc_ptr->c_thb = thb;
-	}
-
-	/* Process 'X' for "Extra Skills" (one line only) */
-	else if (buf[0] == 'X')
-	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
-
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->x_dis = dis;
-		pc_ptr->x_dev = dev;
-		pc_ptr->x_sav = sav;
-		pc_ptr->x_stl = stl;
-		pc_ptr->x_srh = srh;
-		pc_ptr->x_fos = fos;
-		pc_ptr->x_thn = thn;
-		pc_ptr->x_thb = thb;
-	}
-
-	/* Process 'I' for "Info" (one line only) */
-	else if (buf[0] == 'I')
-	{
-		int mhp, exp, sense_div;
-		long sense_base;
-
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%ld:%d",
-			            &mhp, &exp, &sense_base, &sense_div))
-			return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->c_mhp = mhp;
-		pc_ptr->c_exp = exp;
-		pc_ptr->sense_base = sense_base;
-		pc_ptr->sense_div = sense_div;
-	}
-
-	/* Process 'A' for "Attack Info" (one line only) */
-	else if (buf[0] == 'A')
-	{
-		int max_attacks, min_weight, att_multiply;
-
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &max_attacks, &min_weight, &att_multiply))
-			return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->max_attacks = max_attacks;
-		pc_ptr->min_weight = min_weight;
-		pc_ptr->att_multiply = att_multiply;
-	}
-
-	/* Process 'M' for "Magic Info" (one line only) */
-	else if (buf[0] == 'M')
-	{
-		int spell_book, spell_stat, spell_first, spell_weight;
-
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-		                &spell_book, &spell_stat,
-		                &spell_first, &spell_weight))
-			return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->spell_book = spell_book;
-		pc_ptr->spell_stat = spell_stat;
-		pc_ptr->spell_first = spell_first;
-		pc_ptr->spell_weight = spell_weight;
-	}
-
-	/* Process 'B' for "Spell/Prayer book info" */
-	else if (buf[0] == 'B')
-	{
-		int spell, level, mana, fail, exp;
-		player_magic *mp_ptr;
-		magic_type *spell_ptr;
-
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
-		                &spell, &level, &mana, &fail, &exp))
-			return (PARSE_ERROR_GENERIC);
-
-		/* Validate the spell index */
-		if ((spell >= PY_MAX_SPELLS) || (spell < 0))
-			return (PARSE_ERROR_OUT_OF_BOUNDS);
-
-		mp_ptr = &pc_ptr->spells;
-		spell_ptr = &mp_ptr->info[spell];
-
-		/* Save the values */
-		spell_ptr->slevel = level;
-		spell_ptr->smana = mana;
-		spell_ptr->sfail = fail;
-		spell_ptr->sexp = exp;
-	}
-
-	/* Process 'T' for "Titles" */
-	else if (buf[0] == 'T')
-	{
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Get the text */
-		s = buf+2;
-
-		/* Store the text */
-		if (!add_text(&pc_ptr->title[cur_title], head, s))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-
-		/* Next title */
-		cur_title++;
-
-		/* Limit number of titles */
-		if (cur_title > PY_MAX_LEVEL / 5)
-			return (PARSE_ERROR_TOO_MANY_ARGUMENTS);
-	}
-
-	/* Process 'E' for "Starting Equipment" */
-	else if (buf[0] == 'E')
-	{
-		int tval, sval, min, max;
-
-		start_item *e_ptr;
-
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Access the item */
-		e_ptr = &pc_ptr->start_items[cur_equip];
-
-		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &tval, &sval, &min, &max)) return (PARSE_ERROR_GENERIC);
-
-		if ((min < 0) || (max < 0) || (min > 99) || (max > 99))
-			return (PARSE_ERROR_INVALID_ITEM_NUMBER);
-
-		/* Save the values */
-		e_ptr->tval = tval;
-		e_ptr->sval = sval;
-		e_ptr->min = min;
-		e_ptr->max = max;
-
-		/* Next item */
-		cur_equip++;
-
-		/* Limit number of starting items */
-		if (cur_equip > MAX_START_ITEMS)
-			return (PARSE_ERROR_GENERIC);
-	}
-
-	/* Process 'F' for flags */
+	/* Hack -- Process 'F' for flags */
 	else if (buf[0] == 'F')
 	{
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		/* There better be a current pr_ptr */
+		if (!ph_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Parse every entry textually */
 		for (s = buf + 2; *s; )
@@ -2964,13 +3059,27 @@ errr parse_c_info(char *buf, header *head)
 			}
 
 			/* Parse this entry */
-			if (0 != grab_one_class_flag(pc_ptr, s))
-				return (PARSE_ERROR_INVALID_FLAG);
+			if (0 != grab_one_house_flag(ph_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
 
 			/* Start the next entry */
 			s = t;
 		}
 	}
+	
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current ph_ptr */
+		if (!ph_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&(ph_ptr->text), head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
 	else
 	{
 		/* Oops */
@@ -2999,7 +3108,7 @@ errr parse_h_info(char *buf, header *head)
 	/* Process 'N' for "New/Number" */
 	if (buf[0] == 'N')
 	{
-		int prv, nxt, prc, soc;
+		int prv, nxt, prc, hou;
 
 		/* Hack - get the index */
 		i = error_idx + 1;
@@ -3018,13 +3127,13 @@ errr parse_h_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (4 != sscanf(buf, "N:%d:%d:%d:%d",
-			            &prv, &nxt, &prc, &soc)) return (PARSE_ERROR_GENERIC);
+			            &prv, &nxt, &prc, &hou)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		h_ptr->chart = prv;
 		h_ptr->next = nxt;
 		h_ptr->roll = prc;
-		h_ptr->bonus = soc;
+		h_ptr->house = hou;
 	}
 
 	/* Process 'D' for "Description" */
@@ -3050,276 +3159,6 @@ errr parse_h_info(char *buf, header *head)
 	return (0);
 }
 
-
-
-
-/*
- * Initialize the "b_info" array, by parsing an ascii "template" file
- */
-errr parse_b_info(char *buf, header *head)
-{
-	int i, j;
-
-	char *s, *t;
-
-	/* Current entry */
-	static owner_type *ot_ptr = NULL;
-
-
-	/* Process 'N' for "New/Number/Name" */
-	if (buf[0] == 'N')
-	{
-		/* Find the colon before the subindex */
-		s = strchr(buf+2, ':');
-
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the subindex */
-		*s++ = '\0';
-
-		/* Get the index */
-		i = atoi(buf+2);
-
-		/* Find the colon before the name */
-		t = strchr(s, ':');
-
-		/* Verify that colon */
-		if (!t) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the name */
-		*t++ = '\0';
-
-		/* Paranoia -- require a name */
-		if (!*t) return (PARSE_ERROR_GENERIC);
-
-		/* Get the subindex */
-		j = atoi(s);
-
-		/* Verify information */
-		if (j >= z_info->b_max) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Get the *real* index */
-		i = (i * z_info->b_max) + j;
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Save the index */
-		error_idx = i;
-
-		/* Point at the "info" */
-		ot_ptr = (owner_type*)head->info_ptr + i;
-
-		/* Store the name */
-		if (!(ot_ptr->owner_name = add_name(head, t)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-	}
-
-	/* Process 'I' for "Info" (one line only) */
-	else if (buf[0] == 'I')
-	{
-		int idx, gld, max, min, hgl, tol;
-
-		/* There better be a current ot_ptr */
-		if (!ot_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
-			            &idx, &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		ot_ptr->owner_race = idx;
-		ot_ptr->max_cost = gld;
-		ot_ptr->max_inflate = max;
-		ot_ptr->min_inflate = min;
-		ot_ptr->haggle_per = hgl;
-		ot_ptr->insult_max = tol;
-	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-
-
-/*
- * Initialize the "g_info" array, by parsing an ascii "template" file
- */
-errr parse_g_info(char *buf, header *head)
-{
-	int i, j;
-
-	char *s;
-
-	/* Current entry */
-	static byte *g_ptr;
-
-
-	/* Process 'A' for "Adjustments" */
-	if (buf[0] == 'A')
-	{
-		int adj;
-
-		/* Start the string */
-		s = buf+1;
-
-		/* Initialize the counter to max races */
-		j = z_info->p_max;
-
-		/* Repeat */
-		while (j-- > 0)
-		{
-			/* Hack - get the index */
-			i = error_idx + 1;
-
-			/* Verify information */
-			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-			/* Verify information */
-			if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-			/* Save the index */
-			error_idx = i;
-
-			/* Point at the "info" */
-			g_ptr = (byte*)head->info_ptr + i;
-
-			/* Find the colon before the subindex */
-			s = strchr(s, ':');
-
-			/* Verify that colon */
-			if (!s) return (PARSE_ERROR_GENERIC);
-
-			/* Nuke the colon, advance to the subindex */
-			*s++ = '\0';
-
-			/* Get the value */
-			adj = atoi(s);
-
-			/* Save the value */
-			*g_ptr = adj;
-		}
-	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
-}
-
-/*
- * Initialize the "q_info" array, by parsing an ascii "template" file
- */
-errr parse_q_info(char *buf, header *head)
-{
-	int i;
-
-	char *s;
-
-	/* Current entry */
-	static quest_type *q_ptr = NULL;
-
-	static int prev_lev = 0;
-
-	/* Process 'N' for "New/Number/Name" */
-	if (buf[0] == 'N')
-	{
-		/* Find the colon before the name */
-		s = strchr(buf+2, ':');
-
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the name */
-		*s++ = '\0';
-
-		/* Paranoia -- require a name */
-		if (!*s) return (PARSE_ERROR_GENERIC);
-
-		/* Get the index */
-		i = atoi(buf+2);
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
-
-		/* Save the index */
-		error_idx = i;
-
-		/* Point at the "info" */
-		q_ptr = (quest_type*)head->info_ptr + i;
-
-		/* Store the name */
-		if (!(q_ptr->name = add_name(head, s)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-	}
-
-	/* Process 'W' for "Where/What" (one line only) */
-	else if (buf[0] == 'W')
-	{
-		int lev, r_idx, u_idx, max;
-
-		/* There better be a current q_ptr */
-		if (!q_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",&lev, &r_idx, &u_idx, &max))
-			return (PARSE_ERROR_GENERIC);
-
-		/* Check quests */
-		for (i = 0; i < error_idx; i++)
-		{
-			/* Check for quest */
-			if (lev <= prev_lev) return (PARSE_ERROR_NON_SEQUENTIAL_QUESTS);
-		}
-
-		/* Save the values */
-		prev_lev = q_ptr->base_level = q_ptr->active_level = lev;
-
-		q_ptr->mon_idx = r_idx;
-
-		if(r_idx)
-		{
-			monster_race *r_ptr = &r_info[r_idx];
-
-			/*unique quest*/
-			if (r_ptr->flags1 & RF1_UNIQUE)
-			{
-				q_ptr->type = QUEST_FIXED_U;
-			}
-
-			/*fixed quest*/
-			else q_ptr->type = QUEST_FIXED;
-
-			q_ptr->max_num = max;
-		}
-
-
-	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
-}
 
 /*
  * Initialize the "flavor_info" array, by parsing an ascii "template" file

@@ -1,41 +1,42 @@
 # File: terrain.txt
-
-
-# This file is used to initialize the "lib/data/terrain.raw" file, which is
-# used to initialize the "terrain feature" information for the Angband game.
-
+#
+# This file is used to create the "lib/data/terrain.raw" file, which is
+# used to initialize the "terrain feature" information for Sil.
+#
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/data/terrain.raw" file.
-
-# Note that the terrain feature are grouped into very regular groups,
-# such that each of the bits in the feature type conveys information.
-
-# Note that terrain feature zero contains the "darkness" picture.
-
+#
+#
 # === Understanding terrain.txt ===
-
+#
 # N : serial number : terrain name
 # G : symbol : color
 # M : feature to mimic
-
-# N' indicates the beginning of an entry. The serial number must
-# increase for each new item.
-
+#
+# 'N' indicates the beginning of an entry. The serial number must
+#     increase for each new item.
+#
 # 'G' is for graphics - symbol and color. There are 16 colors, as
-# follows:
-
-# D - Dark Gray    w - White          s - Gray          o - Orange
-# r - Red          g - Green          b - Blue          u - Brown
-# d - Black        W - Light Gray     v - Violet        y - Yellow
-# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
-
+#     follows:
+#
+#     D - Dark Gray    w - White          s - Gray          o - Orange
+#     r - Red          g - Green          b - Blue          u - Brown
+#     d - Black        W - Light Gray     v - Violet        y - Yellow
+#     R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+#
 # 'M' is the index of a feature to mimic.
-
+#
+#
+# === Important notes ===
+#
+# Note that the terrain feature are grouped into very regular groups,
+# such that each of the bits in the feature type conveys information.
+#
+# Note that terrain feature zero contains the "darkness" picture.
 
 # Version stamp (required)
 
-V:0.4.1
+V:1.0.0
 
 
 # 0x00 --> <darkness>
@@ -47,18 +48,17 @@ G: :w
 # 0x01 --> open floor
 
 N:1:open floor
-G:.:w
+G:.:W
 
-# 0x02 --> invisible trap (drawn as open floor)
+# 0x02 --> unused
 
-N:2:invisible trap
-G:.:w
-M:1
+N:2:unused
+G:1:s
 
 # 0x03 --> glyph of warding
 
 N:3:glyph of warding
-G:;:y
+G:;:G1
 
 # 0x04 --> open door
 
@@ -70,58 +70,60 @@ G:':U
 N:5:broken door
 G:':u1
 
-# 0x06 --> shop -- General Store (perm)
+# 0x06 --> unused
 
-N:6:General Store
-G:1:U
+N:6:unused
+G:1:s
 
-# 0x07 --> shop -- armoury (perm)
+# 0x07 --> unused
 
-N:7:Armoury
-G:2:s
+N:7:unused
+G:1:s
 
-# 0x08 --> shop -- weapon shop (perm)
+# 0x08 --> unused
 
-N:8:Weapon Smiths
-G:3:w
+N:8:unused
+G:1:s
 
-# 0x09 --> shop -- temple (perm)
+# 0x09 --> unused
 
-N:9:Temple
-G:4:g
+N:9:unused
+G:1:s
 
-# 0x0A --> shop -- alchemist (perm)
+# 0x0A --> unused
 
-N:10:Alchemy Shop
-G:5:b
+N:10:unused
+G:1:s
 
-# 0x0B --> shop -- magic shop (perm)
+# 0x0B --> unused
 
-N:11:Magic Shop
-G:6:r
+N:11:unused
+G:1:s
 
-# 0x0C --> shop -- black market (perm)
+# 0x0C --> unused
 
-N:12:Black Market
-G:7:D
+N:12:unused
+G:1:s
 
-# 0x0D --> shop -- home (perm)
-N:13:Home
-G:8:y
+# 0x0D --> unused
 
-# 0x0E --> shop -- Adventurer's Guild (perm)
-N:14:Adventurer's Guild
-G:9:v
+N:13:unused
+G:1:s
 
-# 0x0F --> visible trap -- dagger pit
+# 0x0E --> unused
 
-N:15:dagger pit
-G:^:s1
+N:14:unused
+G:1:s
+
+# 0x0F --> unused
+
+N:15:unused
+G:1:s
 
 # 0x10 --> visible trap -- trap door
 
 N:16:trap door
-G:^:w
+G:^:U
 
 # 0x11 --> visible trap -- open pit
 
@@ -130,75 +132,75 @@ G:^:s
 
 # 0x12 --> visible trap -- spiked pit
 
-N:18:pit
-G:^:s1
+N:18:spiked pit
+G:^:W
 
-# 0x13 --> visible trap -- poison pit
+# 0x13 --> visible trap -- dart
 
-N:19:pit
-G:^:s
+N:19:dart trap
+G:^:v1
 
-# 0x14 --> visible trap -- rune -- summon
+# 0x14 --> visible trap -- gas -- confusion
 
-N:20:strange rune
-G:^:o1
+N:20:gas trap
+G:^:G1
 
-# 0x15 --> visible trap -- rune -- teleport
+# 0x15 --> visible trap -- gas -- memory
 
-N:21:strange rune
-G:^:o
+N:21:gas trap
+G:^:B1
 
-# 0x16 --> visible trap -- spot -- fire
+# 0x16 --> visible trap -- alarm
 
-N:22:discolored spot
-G:^:u1
+N:22:alarm trap
+G:^:U1
 
-# 0x17 --> visible trap -- spot -- acid
+# 0x17 --> visible trap -- flash
 
-N:23:discolored spot
-G:^:u
+N:23:flash trap
+G:^:y
 
-# 0x18 --> visible trap -- dart -- slow
+# 0x18 --> visible trap -- caltrops
 
-N:24:dart trap
-G:^:r1
+N:24:caltrop field
+G:^:w
 
-# 0x19 --> visible trap -- dart -- lose str
+# 0x19 --> visible trap -- roost
 
-N:25:dart trap
-G:^:r1
+N:25:roost
+G:^:D1
 
-# 0x1A --> visible trap -- dart -- lose dex
+# 0x1A --> visible trap - web
 
-N:26:dart trap
-G:^:r1
+N:26:web
+G:^:D
 
-# 0x1B --> visible trap -- dart -- lose con
+# 0x1B --> visible trap -- deadfall
 
-N:27:dart trap
+N:27:deadfall trap
 G:^:r
 
-# 0x1C --> visible trap -- gas -- blind
+# 0x1C --> visible trap -- acid
 
-N:28:gas trap
-G:^:g1
+N:28:discoloured spot
+G:^:u
 
-# 0x1D --> visible trap -- gas -- confuse
+# 0x1D --> unused
 
-N:29:gas trap
-G:^:g
+N:29: unused
+G:1:s
 
-# 0x1E --> visible trap -- gas -- poison
+# 0x1E --> unused
 
-N:30:gas trap
-G:^:g
+N:30:unused
+G:1:s
 
-# 0x1F --> visible trap -- gas -- sleep
+# 0x1F --> unused
 
-N:31:gas trap
-G:^:g
+N:31:unused
+G:1:s
 
-# 0x20 --> locked door (power 0)
+# 0x20 --> locked door (power 0) -- aka a normal door
 
 N:32:door
 G:+:U
@@ -297,187 +299,186 @@ M:32
 # 0x30 --> secret door
 
 N:48:secret door
-G:#:w
+G:#:W1
 M:56
 
 # 0x31 --> pile of rubble
 
 N:49:pile of rubble
-G:::w
+G:::s
 
-# 0x32 --> magma vein
+# 0x32 --> unused
 
-N:50:magma vein
-G:%:s
+N:50:unused
+G:1:s
 
 # 0x33 --> quartz vein
 
 N:51:quartz vein
 G:%:w
 
-# 0x34 --> magma vein + treasure
+# 0x34 --> unused
 
-N:52:magma vein
-G:%:s
-M:50
+N:52:unused
+G:1:s
 
-# 0x35 --> quartz vein + treasure
+# 0x35 --> unused
 
-N:53:quartz vein
-G:%:w
-M:51
+N:53:unused
+G:1:s
 
-# 0x36 --> magma vein + known treasure
+# 0x36 --> unused
 
-N:54:magma vein with treasure
-G:*:o
+N:54:unused
+G:1:s
 
-# 0x37 --> quartz vein + known treasure
+# 0x37 --> unused
 
-N:55:quartz vein with treasure
-G:*:o
+N:55:unused
+G:1:s
 
 # 0x38 --> granite wall -- basic
 
 N:56:granite wall
-G:#:w
+G:#:W1
 
 # 0x39 --> granite wall -- inner
 
 N:57:granite wall
-G:#:w
+G:#:W1
 M:56
 
 # 0x3A --> granite wall -- outer
 
 N:58:granite wall
-G:#:w
+G:#:W1
 M:56
 
 # 0x3B --> granite wall -- solid
 
 N:59:granite wall
-G:#:w
+G:#:W1
 M:56
 
-# 0x3C --> permanent wall -- basic (perm)
+# 0x3C --> iron wall -- basic (perm)
 
-N:60:permanent wall
-G:#:U
+N:60:iron wall
+G:#:s
 
-# 0x3D --> permanent wall -- inner (perm)
+# 0x3D --> iron wall -- inner (perm)
 
-N:61:permanent wall
-G:#:U
+N:61:iron wall
+G:#:s
 M:60
 
-# 0x3E --> permanent wall -- outer (perm)
+# 0x3E --> iron wall -- outer (perm)
 
-N:62:permanent wall
-G:#:U
+N:62:iron wall
+G:#:s
 M:60
 
-# 0x3F --> permanent wall -- solid (perm)
+# 0x3F --> iron wall -- solid (perm)
 
-N:63:permanent wall
-G:#:U
+N:63:iron wall
+G:#:s
 M:60
 
-# 0x40 --> monster trap -- basic
+# 0x40 --> forge -- 0 uses
 
-N:64:monster trap (basic)
-G:^:y
+N:64:forge (exhausted)
+G:0:s
 
-# 0x41 --> monster trap -- sturdy
+# 0x41 --> forge -- 1 use
 
-N:65:monster trap (sturdy)
-G:^:G
+N:65:forge (1 use remaining)
+G:0:s
 
-# 0x42 --> monster trap -- slowing
+# 0x42 --> forge -- 2 uses
 
-N:66:monster trap (slowing)
-G:^:y
+N:66:forge (2 uses remaining)
+G:0:s
 
-# 0x43 --> monster trap -- confusion
+# 0x43 --> forge -- 3 uses
 
-N:67:monster trap (confusion)
-G:^:o
+N:67:forge (3 uses remaining)
+G:0:s
 
-# 0x44 --> monster trap -- poison
+# 0x44 --> forge -- 4 uses
 
-N:68:monster trap (poison gas)
-G:^:g
+N:68:forge (4 uses remaining)
+G:0:s
 
-# 0x45 --> monster trap -- drain life
+# 0x45 --> forge -- 5 uses
 
-N:69:monster trap (drain life)
-G:^:y1
+N:69:forge (5 uses remaining)
+G:0:s
 
-# 0x46 --> monster trap -- shocking
+# 0x46 --> good forge -- 0 uses
 
-N:70:monster trap (lightning)
-G:^:b
+N:70:enchanted forge (exhausted)
+G:0:y1
 
-# 0x47 --> monster trap -- explosive
+# 0x47 --> good forge -- 1 use
 
-N:71:monster trap (explosive)
-G:^:D
+N:71:enchanted forge (1 use remaining)
+G:0:y1
 
-# 0x48 --> monster trap -- portal
+# 0x48 --> good forge -- 2 uses
 
-N:72:monster trap (portal)
-G:^:s
+N:72:enchanted forge (2 uses remaining)
+G:0:y1
 
-# 0x49 --> monster trap -- dispel monsters
+# 0x49 --> good forge -- 3 uses
 
-N:73:monster trap (dispel monsters)
-G:^:r
+N:73:enchanted forge (3 uses remaining)
+G:0:y1
 
-# 0x4A --> monster trap -- unused
+# 0x4A --> good forge -- 4 uses
 
-N:74:monster trap
-G:^:y
+N:74:enchanted forge (4 uses remaining)
+G:0:y1
 
-# 0x4B --> monster trap -- unused
+# 0x4B --> good forge -- 5 uses
 
-N:75:monster trap
-G:^:y
+N:75:enchanted forge (5 uses remaining)
+G:0:y1
 
-# 0x4C --> monster trap -- unused
+# 0x4C --> unique forge -- 0 uses
 
-N:76:monster trap
-G:^:y
+N:76:forge 'Orodruth' (exhausted)
+G:0:D
 
-# 0x4D --> monster trap -- unused
+# 0x4D --> unique forge -- 1 use
 
-N:77:monster trap
-G:^:y
+N:77:forge 'Orodruth' (1 use remaining)
+G:0:r
 
-# 0x4E --> monster trap -- unused
-N:78:monster trap
-G:^:y
+# 0x4E --> unique forge -- 2 uses
 
-# 0x4F --> monster trap -- unused
+N:78:forge 'Orodruth' (2 uses remaining)
+G:0:r
 
-N:79:monster trap
-G:^:y
+# 0x4F --> unique forge -- 3 uses
+
+N:79:forge 'Orodruth' (3 uses remaining)
+G:0:r
 
 # 0x50 --> up stairs (perm)
 
 N:80:up staircase
-G:<:w
+G:<:W
 
 # 0x51 --> down stairs (perm)
 
 N:81:down staircase
-G:>:w
+G:>:W
 
 # 0x52 --> up shaft (perm)
 
 N:82:up shaft
-G:<:U
+G:<:D
 
 # 0x53 --> down shaft (perm)
 
 N:83:down shaft
-G:>:U
+G:>:D

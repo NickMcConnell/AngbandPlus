@@ -1,4 +1,4 @@
-/* File z-util.h */
+/* File: z-util.h */
 
 /*
  * Copyright (c) 1997 Ben Harrison

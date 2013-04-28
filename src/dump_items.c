@@ -27,7 +27,7 @@ static void dump_flags(FILE *fff, u32b flag, int whatflag, int counter)
 
 	u32b is_true = 0x00000001;
 
-	/*dump the monster/object/artifact number*/
+	/*dump the monster/object/artefact number*/
 	fprintf(fff, "flags%d:%d:", whatflag, counter);
 
 	/* using 32 assumes a u32b flag size*/
@@ -135,7 +135,10 @@ void write_r_info_txt(void)
 		/* Perform any translations */
 
 		/* Write New/Number/Name */
-		fprintf(fff, "N:%d:%d:%s\n", i, i, r_name + r_ptr->name);
+		fprintf(fff, "N:%d:%s\n", i, r_name + r_ptr->name);
+
+		/* Write W: line */
+		fprintf(fff, "W:%d:%d:%d\n", i, r_ptr->level, r_ptr->rarity);
 
 		/* Write G: line */
 		if (r_ptr->rarity) fprintf(fff, "G:%d:%c:%c\n",
@@ -150,24 +153,28 @@ void write_r_info_txt(void)
 			continue;
 		}
 
-
 		/* Write I: line */
 		fprintf(fff, "I:%d:%d:%dd%d:%d:%d:%d\n", i,
 		r_ptr->speed, r_ptr->hdice, r_ptr->hside,
-		r_ptr->aaf, r_ptr->ac, r_ptr->sleep);
+		r_ptr->mana, r_ptr->light);
 
-		/* Write W: line */
-		fprintf(fff, "W:%d:%d::%d:%d:%ld\n", i, r_ptr->level, r_ptr->rarity,
-		    0, r_ptr->mexp);
 
+		/* Write A: line */
+		fprintf(fff, "A:%d:%d:%d:%d:%d\n", i,
+				r_ptr->sleep, r_ptr->per, r_ptr->stl, r_ptr->wil);
+
+		/* Write P: line */
+		fprintf(fff, "P:%d:%d:%d:%d\n", i,
+				r_ptr->evn, r_ptr->pd, r_ptr->ps);
+		
 		/* Write blows */
 		for(j = 0; j < 4; j++)
 		{
 
 			/* Write this blow */
-			fprintf(fff, format("B-%d:%d:%d:%d:%dd%d\n", j, i,
-				r_ptr->blow[j].method, r_ptr->blow[j].effect,
-				r_ptr->blow[j].d_dice, r_ptr->blow[j].d_side));
+			fprintf(fff, format("B-%d:%d:%d:%d:%d:%dd%d\n", j, i,
+				r_ptr->blow[j].method, r_ptr->blow[j].effect, r_ptr->blow[j].att,
+				r_ptr->blow[j].dd, r_ptr->blow[j].ds));
 		}
 
 		what_char = 'F';
@@ -179,14 +186,8 @@ void write_r_info_txt(void)
 		dump_flags(fff, r_ptr->flags2, 2, i);
 		dump_flags(fff, r_ptr->flags3, 3, i);
 		dump_flags(fff, r_ptr->flags4, 4, i);
-		dump_flags(fff, r_ptr->flags5, 5, i);
 
 		fprintf(fff, "S:%d:%d\n", i, r_ptr->freq_ranged);
-
-		/*now the summon flag*/
-		what_char = 'S';
-
-		dump_flags(fff, r_ptr->flags6, 6, i);
 
 		/* Acquire the description */
 		desc = r_text + r_ptr->text;
@@ -352,8 +353,8 @@ void write_o_info_txt(void)
 		fprintf(fff, "W:%d:%d:%d:%d\n", i, k_ptr->level, k_ptr->weight, k_ptr->cost);
 
 		/* Write P: line */
-		fprintf(fff, "P:%d:%d:%d:d:%d:%d:%d:%d\n", i, k_ptr->ac, k_ptr->dd, k_ptr->ds,
-						k_ptr->to_h, k_ptr->to_d, k_ptr->to_a);
+		fprintf(fff, "P:%d:%d:%d:d:%d:%d:%d:%d\n", i, 0, k_ptr->dd, k_ptr->ds,
+						k_ptr->att, 0, 0);
 
 		/* Write this A line */
 		fprintf(fff, "A:%d:%d:%d:%d:%d:%d:%d\n", i,
@@ -444,8 +445,9 @@ void write_o_info_txt(void)
 	fclose(fff);
 }
 
+
 /*
- * Dump the ego-item information in a format easily parsed by a spreadsheet.
+ * Dump the special item information in a format easily parsed by a spreadsheet.
  *
  * Original function by -EB- (probably), revisions by -LM- & JG.
  */
@@ -505,13 +507,13 @@ void write_e_info_txt(void)
 
 		int counter = 1;
 
-		/* Get the ego-item */
+		/* Get the special item */
 		e_ptr = &e_info[i];
 
 		/* Ignore empty monsters */
 		if (!strlen((e_name + e_ptr->name)))
 		{
-			fprintf(fff, "## empty space (available for ego-item) ##\n\n");
+			fprintf(fff, "## empty space (available for special item) ##\n\n");
 			continue;
 		}
 
@@ -520,21 +522,19 @@ void write_e_info_txt(void)
 		/* Write New/Number/Name */
 		fprintf(fff, "N:%d:%s\n", i, e_name + e_ptr->name);
 
-		/* Write X: line */
-		fprintf(fff, "X:%d:%d:%d\n", i, e_ptr->rating, e_ptr->xtra);
-
 		/* Write C: line */
-		fprintf(fff, "C:%d:%d:%d:%d:%d\n", i, e_ptr->max_to_h, e_ptr->max_to_d,
-										   e_ptr->max_to_a, e_ptr->max_pval);
+		fprintf(fff, "C:%d:%d:%d:%d:%d:%d:%d:%d\n", i, e_ptr->max_att, e_ptr->to_dd, e_ptr->to_ds
+										   e_ptr->max_evn, e_ptr->to_pd, e_ptr->to_ps, e_ptr->max_pval);
 
 		/* Write W: line */
 		fprintf(fff, "W:%d:%d:%d:0:%d\n", i, e_ptr->level, e_ptr->rarity, e_ptr->cost);
 
 		/* Write the T lines */
-		fprintf(fff, "T:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d\n", i,
+		fprintf(fff, "T:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d\n", i,
 				e_ptr->tval[0], e_ptr->min_sval[0], e_ptr->max_sval[0],
 				e_ptr->tval[1], e_ptr->min_sval[1], e_ptr->max_sval[1],
-				e_ptr->tval[2], e_ptr->min_sval[2], e_ptr->max_sval[2]);
+				e_ptr->tval[2], e_ptr->min_sval[2], e_ptr->max_sval[2]),
+				e_ptr->tval[3], e_ptr->min_sval[3], e_ptr->max_sval[3]);
 
 		/* Get the flags, store flag text in a format easily parsed by a
 		 * database, but pretty much illegible to a person.
@@ -619,6 +619,7 @@ void write_e_info_txt(void)
 	fclose(fff);
 }
 
+
 /*
  * Dump the object information a format easily parsed by a spreadsheet.
  *
@@ -638,7 +639,7 @@ void write_a_info_txt(void)
 
 	cptr desc;
 
-	artifact_type *a_ptr;
+	artefact_type *a_ptr;
 
 	/* We allow 75 characters on the line (plus 2) */
 	u16b line_length = 75;
@@ -694,7 +695,7 @@ void write_a_info_txt(void)
 		/* Ignore unused objects */
 		if (!strlen(a_ptr->name))
 		{
-			fprintf(fff, "## empty space (available for artifact) ##\n\n");
+			fprintf(fff, "## empty space (available for artefact) ##\n\n");
 			continue;
 		}
 
@@ -703,14 +704,12 @@ void write_a_info_txt(void)
 		/* Write New/Number/Name */
 		fprintf(fff, "N:%d:%s\n", i, a_ptr->name);
 
-		/* Write the complete name of the artifact*/
-		make_fake_artifact(i_ptr, i);
+		/* Write the complete name of the artefact*/
+		make_fake_artefact(i_ptr, i);
 
-		/*identify it*/
 		/* Identify it */
 		object_aware(i_ptr);
 		object_known(i_ptr);
-		i_ptr->ident |= (IDENT_MENTAL);
 
 		/* Get a description to dump */
 		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 0);
@@ -726,8 +725,8 @@ void write_a_info_txt(void)
 											a_ptr->weight, a_ptr->cost);
 
 		/* Write P: line */
-		fprintf(fff, "P:%d:%d:%d:d:%d:%d:%d:%d\n", i, a_ptr->ac, a_ptr->dd, a_ptr->ds,
-						a_ptr->to_h, a_ptr->to_d, a_ptr->to_a);
+		fprintf(fff, "P:%d:%d:%d:%d:%d:%d:%d\n", i, a_ptr->att, a_ptr->dd, a_ptr->ds,
+						a_ptr->evn, a_ptr->pd, a_ptr->ps);
 
 		/* Get the flags, store flag text in a format easily parsed by a
 		 * database, but pretty much illegible to a person.
@@ -816,8 +815,8 @@ void write_a_info_txt(void)
 	fclose(fff);
 }
 
-/*used to check the power of artifacts.  Currently unused*/
-void dump_artifact_power(void)
+/*used to check the power of artefacts.  Currently unused*/
+void dump_artefact_power(void)
 {
 	int i;
 
@@ -826,7 +825,7 @@ void dump_artifact_power(void)
 	int fd;
 	FILE *fff = NULL;
 
-	artifact_type *a_ptr;
+	artefact_type *a_ptr;
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "power.txt");
@@ -859,7 +858,7 @@ void dump_artifact_power(void)
 	if (!fff) return;
 
 	/* Write a note */
-	fprintf(fff, "# File: artifact_power.txt (autogenerated)\n\n");
+	fprintf(fff, "# File: artefact_power.txt (autogenerated)\n\n");
 
 	/* Read and print out all the objects */
 	for (i = 1; i < z_info->art_norm_max; i++)
@@ -878,22 +877,21 @@ void dump_artifact_power(void)
 		/* Ignore unused objects */
 		if (!strlen(a_ptr->name))
 		{
-			fprintf(fff, "## empty space (available for artifact) ##\n\n");
+			fprintf(fff, "## empty space (available for artefact) ##\n\n");
 			continue;
 		}
 
-		/* Write the complete name of the artifact*/
-		make_fake_artifact(i_ptr, i);
+		/* Write the complete name of the artefact*/
+		make_fake_artefact(i_ptr, i);
 
 		/* Identify it */
 		object_aware(i_ptr);
 		object_known(i_ptr);
-		i_ptr->ident |= (IDENT_MENTAL);
 
 		/* Get a description to dump */
 		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 0);
 
-		power = artifact_power(i);
+		power = artefact_power(i);
 
 		/*dump the information*/
 		fprintf(fff, "%9d is the power of %55s, tval is %6d \n", power, o_name, a_ptr->tval);

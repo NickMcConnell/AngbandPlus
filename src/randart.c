@@ -1,3 +1,4 @@
+/* File: randart.c */
 
 /*
  * Copyright (c) 1997 Ben Harrison
@@ -19,8 +20,6 @@
 #define MAX_NAME_LEN 9
 
 
-#define sign(x)	((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))
-
 /* Total number of different slay types used */
 
 #define SLAY_MAX 0x00010000L
@@ -37,8 +36,9 @@
 #define INHIBIT_STRONG 6
 #define INHIBIT_WEAK 4
 
-#define ART_FLAGS_BAD 	(TR3_TELEPORT | TR3_DRAIN_EXP | TR3_IMPACT | TR3_AGGRAVATE | \
-						 TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE)
+// Sil-y: note that the bad flags are all thought to be in TR3
+// I'd have to change this to allow randarts
+#define ART_FLAGS_BAD 	(TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE)
 
 /*
  * Numerical index values for the different types
@@ -56,7 +56,7 @@
 #define CAT_WEAP_XTRA	8
 #define CAT_BOW_XTRA	9
 #define CAT_STEALTH		10
-#define CAT_VISION		11	/*infravision, searching*/
+#define CAT_VISION		11	/*infravision, searching*/ 
 #define CAT_COMBAT		12
 #define CAT_TO_AC		13
 #define CAT_TO_BASE		14 /*add to base damage dice, sides, or armor base*/
@@ -64,7 +64,7 @@
 #define CAT_LITE		16
 #define CAT_MAX			17
 
-/*The different types of artifacts*/
+/*The different types of artefacts*/
 #define ART_TYPE_WEAPON			0
 #define ART_TYPE_SHOVEL			1
 #define ART_TYPE_BOW			2
@@ -78,6 +78,10 @@
 #define ART_TYPE_GLOVES			10
 #define ART_TYPE_BOOTS			11
 #define ART_TYPE_MAX 			12
+
+
+// Useful 'sign' function
+#define sign(x)	((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))
 
 /*
  * Table of frequency of each ability for each type.
@@ -137,9 +141,9 @@ static const byte table_type_freq[ART_TYPE_MAX][CAT_MAX] =
 static u16b art_freq[CAT_MAX];
 
 /*
- *This list is sliightly different than the artifact type list above.
+ *This list is sliightly different than the artefact type list above.
  *
- *The different types of artifact themes (Rings, amulets, lite sources)
+ *The different types of artefact themes (Rings, amulets, lite sources)
  */
 #define ART_THEME_EDGED			0
 #define ART_THEME_POLEARM		1
@@ -155,8 +159,8 @@ static u16b art_freq[CAT_MAX];
 #define ART_THEME_BOOTS			11
 #define ART_THEME_MAX 			12
 
-#define COL_THEME_FREQ  		0	/*frequency of generating an artifact outside of randart set*/
-#define COL_THEME_MIN			1  	/*Minimum number of artifacts to use have in an artifact set*/
+#define COL_THEME_FREQ  		0	/*frequency of generating an artefact outside of randart set*/
+#define COL_THEME_MIN			1  	/*Minimum number of artefacts to use have in an artefact set*/
 #define COL_THEME_DROP_TYPE		2  	/*Drop type to use when initializing the tables*/
 #define COL_MAX					3
 
@@ -171,11 +175,11 @@ static const byte theme_type[ART_THEME_MAX][COL_MAX] =
    /*#0, #1, #2, */
 	{15,10,  DROP_TYPE_EDGED}, 		/*  ART_THEME_EDGED   	*/
 	{12, 8,	 DROP_TYPE_POLEARM}, 	/*  ART_THEME_POLEARM	*/
-	{12, 8,	 DROP_TYPE_HAFTED}, 	/*  ART_THEME_HAFTED   	*/
+	{12, 8,	 DROP_TYPE_POLEARM}, /* Was hafted Currently handled by polearm, but this is needed elsewhere*/
 	{1,  1,	 DROP_TYPE_DIGGING}, 	/*  ART_THEME_SHOVEL  	*/
 	{6,  5,	 DROP_TYPE_BOW}, 		/*  ART_THEME_BOW   	*/
 	{13, 9,	 DROP_TYPE_ARMOR}, 		/*  ART_THEME_ARMOR 	*/
-	{0,  0,  DROP_TYPE_DRAGON_ARMOR}, /* Currently handled by Armor, but this is needed elsewhere*/
+	{0,  0,  DROP_TYPE_ARMOR}, /* Was dragon armor Currently handled by Armor, but this is needed elsewhere*/
 	{7,	 5,	 DROP_TYPE_CLOAK}, 		/*  ART_THEME_CLOAK		*/
 	{5,  4,  DROP_TYPE_SHIELD}, 	/*  ART_THEME_SHIELD   	*/
 	{10, 7,  DROP_TYPE_HEADGEAR}, 	/*  ART_THEME_HELM   	*/
@@ -196,66 +200,61 @@ static int art_theme_freq[ART_THEME_MAX];
  */
 static const byte table_stat_freq[ART_TYPE_MAX][A_MAX] =
 {
-   /*STR INT WIS DEX CON CHR*/
-	{  5,  0,  0,  0,  0,  0}, /*  ART_TYPE_WEAPON  */
-	{  5,  0,  0,  0,  0,  0}, /*  ART_TYPE_SHOVEL  */
-	{  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_BOW   	*/
-	{  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_SPECIAL */
-	{  0,  0,  0,  0,  5,  0}, /*  ART_TYPE_ARMOR   	*/
-	{  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_DRAG_ARMOR   */
-	{  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_CLOAK 	*/
-	{  5,  0,  0,  0,  5,  0}, /*  ART_TYPE_SHIELD  */
-	{  0,  5,  5,  0,  0,  5}, /*  ART_TYPE_HELM   	*/
-	{  0, 10, 10,  0,  0, 10}, /*  ART_TYPE_CROWN  	*/
-	{  0,  0,  0, 10,  5,  0}, /*  ART_TYPE_GLOVES  */
-	{  0,  0,  0,  5,  0,  0}  /*  ART_TYPE_BOOTS   */
+   /*STR DEX CON GRA */
+	{  5,  0,  0,  0}, /*  ART_TYPE_WEAPON  */
+	{  5,  0,  0,  0}, /*  ART_TYPE_SHOVEL  */
+	{  0,  0,  0,  0}, /*  ART_TYPE_BOW   	*/
+	{  0,  0,  0,  0}, /*  ART_TYPE_SPECIAL */
+	{  0,  0,  5,  0}, /*  ART_TYPE_ARMOR   	*/
+	{  0,  0,  0,  0}, /*  ART_TYPE_DRAG_ARMOR   */
+	{  0,  0,  0,  0}, /*  ART_TYPE_CLOAK 	*/
+	{  5,  0,  5,  0}, /*  ART_TYPE_SHIELD  */
+	{  0,  0,  0,  5}, /*  ART_TYPE_HELM   	*/
+	{  0,  0,  0, 10}, /*  ART_TYPE_CROWN  	*/
+	{  0, 10,  5,  0}, /*  ART_TYPE_GLOVES  */
+	{  0,  5,  0,  0}  /*  ART_TYPE_BOOTS   */
 };
 
 /*Current randart only - Used to keep weightings for each stat*/
 static byte art_stat_freq[A_MAX];
 
-
-
 /*
- * Frequencies of "higher" resists and immunities are determined by artifact
- * depth rather than by artifact type
+ * Frequencies of "higher" resists and immunities are determined by artefact
+ * depth rather than by artefact type
  */
 
 /*TR2_RESISTANCE is the basic 4 elements and is already defined in defines.h*/
-#define TR2_LOW_RESIST (TR2_RES_FEAR | TR2_RES_POIS | TR2_RES_BLIND | \
-					TR2_RES_CONFU | TR2_RES_NEXUS)
-#define TR2_MED_RESIST (TR2_RES_LITE | TR2_RES_DARK | TR2_RES_SOUND | TR2_RES_SHARD)
-#define TR2_HIGH_RESIST (TR2_RES_NETHR | TR2_RES_CHAOS | TR2_RES_DISEN)
-/* TR2_IMMUNE_ALL covers immunities and is already defined in defines.h*/
+#define TR2_LOW_RESIST (TR2_RES_FEAR)
+#define TR2_HIGH_RESIST (TR2_RES_STUN | TR2_RES_BLIND | TR2_RES_CONFU)
 
 /*
 	#0  TR3_SLOW_DIGEST
 	#1  TR3_FEATHER
-	#2  TR3_LITE
+	#2  TR3_LIGHT
 	#3  TR3_REGEN
 	#4  TR3_TELEPATHY
 	#5  TR3_SEE_INVIS
 	#6  TR3_FREE_ACT
-	#7  TR3_HOLD_LIFE
+	#7  TR3_HOLD_LIFE (this table is out of date!)
 
  * Table of frequency adjustments of each ability for each type
  * 10 is normal frequency, -10 means no chance
  */
 static const int table_ability_freq[ART_TYPE_MAX][OBJECT_XTRA_SIZE_POWER] =
 {
-   /*#0, #1, #2, #3, #4, #5, #6, #7*/
-	{ 8,  7,  10, 10,  3, 10, 10,  5}, /*  ART_TYPE_WEAPON   */
-	{ 8,  7,  10, 10,  3, 10, 10,  5}, /*  ART_TYPE_SHOVEL   */
-	{ 8,  7,   0, 10,  3, 10, 10,  5}, /*  ART_TYPE_BOW   	*/
-	{ 8,  5,   0, 10,  3, 10, 10,  7}, /*  ART_TYPE_SPECIAL  */
-	{ 8,  7,   0, 10,  3, 10, 10,  5}, /*  ART_TYPE_ARMOR   	*/
-	{ 8,  7,   0, 10,  5, 10, 10,  5}, /*  ART_TYPE_DRAG_ARMOR   */
-	{ 8,  7,   0, 10,  3, 10, 10,  5}, /*  ART_TYPE_CLOAK 	*/
-	{ 8,  7,   0, 10,  3, 10,  8,  5}, /*  ART_TYPE_SHIELD   */
-	{ 8,  7,   0, 10,  5, 13,  8,  5}, /*  ART_TYPE_HELM   	*/
-	{ 8,  7,   0, 10,  5, 13,  8,  5}, /*  ART_TYPE_CROWN  	*/
-	{ 8,  7,   0, 10,  3, 10, 12,  5}, /*  ART_TYPE_GLOVES   */
-	{ 8, 20,   0, 10,  3, 10,  8,  5}, /*  ART_TYPE_BOOTS   	*/
+   /*#0, #1, #2, #3, #4, #5 */
+	{ 8,  7,  10, 10,  3, 10}, /*  ART_TYPE_WEAPON   */
+	{ 8,  7,  10, 10,  3, 10}, /*  ART_TYPE_SHOVEL   */
+	{ 8,  7,   0, 10,  3, 10}, /*  ART_TYPE_BOW   	*/
+	{ 8,  5,   0, 10,  3, 10}, /*  ART_TYPE_SPECIAL  */
+	{ 8,  7,   0, 10,  3, 10}, /*  ART_TYPE_ARMOR   	*/
+	{ 8,  7,   0, 10,  5, 10}, /*  ART_TYPE_DRAG_ARMOR   */
+	{ 8,  7,   0, 10,  3, 10}, /*  ART_TYPE_CLOAK 	*/
+	{ 8,  7,   0, 10,  3, 10}, /*  ART_TYPE_SHIELD   */
+	{ 8,  7,   0, 10,  5, 13}, /*  ART_TYPE_HELM   	*/
+	{ 8,  7,   0, 10,  5, 13}, /*  ART_TYPE_CROWN  	*/
+	{ 8,  7,   0, 10,  3, 10}, /*  ART_TYPE_GLOVES   */
+	{ 8, 20,   0, 10,  3, 10}, /*  ART_TYPE_BOOTS   	*/
 };
 
 /*used to keep frequencies for each ability*/
@@ -265,19 +264,18 @@ static byte art_abil_freq[OBJECT_XTRA_SIZE_POWER];
 
 static const u32b favored_slay_pairs[NUM_FAVORED_SLAY_PAIRS][2] =
 {
-	{TR1_SLAY_UNDEAD, TR1_SLAY_DEMON},
-	{TR1_SLAY_DEMON, TR1_SLAY_UNDEAD},
+	{TR1_SLAY_UNDEAD, TR1_SLAY_RAUKO},
+	{TR1_SLAY_RAUKO, TR1_SLAY_UNDEAD},
 	{TR1_SLAY_ORC, TR1_SLAY_TROLL},
 	{TR1_SLAY_TROLL, TR1_SLAY_ORC},
 };
 
-#define NUM_FAVORED_RESIST_PAIRS 3
+#define NUM_FAVORED_RESIST_PAIRS 2
 
 static const u32b favored_resist_pairs[NUM_FAVORED_RESIST_PAIRS][2] =
 {
-	{TR2_RES_LITE, TR2_RES_DARK},
-	{TR2_RES_DARK, TR2_RES_LITE},
-	{TR2_RES_CHAOS, TR2_RES_CONFU},
+	{TR2_RES_FIRE, TR2_RES_COLD},
+	{TR2_RES_COLD, TR2_RES_FIRE},
 };
 
 
@@ -291,7 +289,7 @@ static s16b ability_power[25] =
 	37, 42, 48, 55, 65, 75};
 
 /*
- * Mean start and increment values for to_hit, to_dam and AC.  Update these
+ * Mean start and increment values for att, to_dam and AC.  Update these
  * if the algorithm changes.  They are used in frequency generation.
  */
 
@@ -309,7 +307,7 @@ static s16b ability_power[25] =
 static s16b *kinds;
 
 /*
- * Store the original artifact power ratings
+ * Store the original artefact power ratings
  */
 static s32b *base_power;
 
@@ -324,11 +322,11 @@ static byte *base_item_level;
 static byte *base_item_rarity;
 
 /*
- * Store the original artifact rarities
+ * Store the original artefact rarities
  */
 static byte *base_art_rarity;
 
-/* Store the current artifact k_idx */
+/* Store the current artefact k_idx */
 
 static s16b cur_art_k_idx;
 
@@ -428,7 +426,9 @@ static long eval_max_dam(int r_idx)
 	u32b melee_dam, atk_dam, spell_dam;
 	byte rlev;
 	monster_race *r_ptr;
-	u32b flag, breath_mask, attack_mask;
+	u32b flag = 0L; // default to soothe compiler warnings
+	u32b breath_mask = 0L; // default to soothe compiler warnings
+	u32b attack_mask = 0L; // default to soothe compiler warnings
 	u32b flag_counter;
 
 	r_ptr = &r_info[r_idx];
@@ -437,11 +437,10 @@ static long eval_max_dam(int r_idx)
 	melee_dam = atk_dam = spell_dam = 0;
 
 	/* Evaluate average HP for this monster */
-	if (r_ptr->flags1 & (RF1_FORCE_MAXHP)) hp = r_ptr->hdice * r_ptr->hside;
-	else hp = r_ptr->hdice * (r_ptr->hside + 1) / 2;
+	hp = r_ptr->hdice * (r_ptr->hside + 1) / 2;
 
-	/* Extract the monster level, force 1 for town monsters */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+	/* Extract the monster level, force 30 for surface monsters */
+	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 30);
 
 	for (x = 0; x < 4; x++)
 	{
@@ -454,28 +453,6 @@ static long eval_max_dam(int r_idx)
 		 		flag = r_ptr->flags4;
 				attack_mask = RF4_ATTACK_MASK;
 				breath_mask = RF4_BREATH_MASK;
-				break;
-			}
-			case 1:
-			{
-		 		flag = r_ptr->flags5;
-				attack_mask = RF5_ATTACK_MASK;
-				breath_mask = RF5_BREATH_MASK;
-				break;
-			}
-			case 2:
-			{
-		 		flag = r_ptr->flags6;
-				attack_mask = RF6_ATTACK_MASK;
-				breath_mask = RF6_BREATH_MASK;
-				break;
-			}
-			case 3:
-			default:
-			{
-		 		flag = r_ptr->flags7;
-				attack_mask = RF7_ATTACK_MASK;
-				breath_mask = RF7_BREATH_MASK;
 				break;
 			}
 		}
@@ -502,106 +479,14 @@ static long eval_max_dam(int r_idx)
 
 					/*hack - all breaths are in flag 4*/
 
-					if (flag_counter == RF4_BRTH_ACID) 		which_gf = GF_ACID;
-					else if (flag_counter == RF4_BRTH_ELEC) which_gf = GF_ELEC;
-					else if (flag_counter == RF4_BRTH_FIRE) which_gf = GF_FIRE;
+					if (flag_counter == RF4_BRTH_FIRE) which_gf = GF_FIRE;
 					else if (flag_counter == RF4_BRTH_COLD) which_gf = GF_COLD;
-					else if (flag_counter == RF4_BRTH_POIS)
-					{
-						which_gf = GF_POIS;
-						mult = 10;
-						div_by = 9;
-					}
-					else if (flag_counter == RF4_BRTH_PLAS)
-					{
-						which_gf = GF_PLASMA;
-						mult = 5;
-						div_by = 4;
-					}
-					else if (flag_counter == RF4_BRTH_LITE)
-					{
-						which_gf = GF_LITE;
-						mult = 5;
-						div_by = 4;
-					}
-					else if (flag_counter == RF4_BRTH_DARK)
-					{
-						which_gf = GF_DARK;
-						mult = 5;
-						div_by = 4;
-					}
-					else if (flag_counter == RF4_BRTH_CONFU)
-					{
-						which_gf = GF_CONFUSION;
-						mult = 4;
-						div_by = 3;
-					}
-					else if (flag_counter == RF4_BRTH_SOUND)
-					{
-						which_gf = GF_SOUND;
-						mult = 6;
-						div_by = 5;
-					}
-					else if (flag_counter == RF4_BRTH_SHARD)
-					{
-						which_gf = GF_SHARD;
-						mult = 8;
-						div_by = 7;
-					}
-					else if (flag_counter == RF4_BRTH_INER)
-					{
-						which_gf = GF_INERTIA;
-						mult = 3;
-						div_by = 2;
-					}
-					else if (flag_counter == RF4_BRTH_GRAV)
-					{
-						which_gf = GF_GRAVITY;
-						mult = 3;
-						div_by = 2;
-					}
-					else if (flag_counter == RF4_BRTH_FORCE)
-					{
-						which_gf = GF_FORCE;
-						mult = 6;
-						div_by = 5;
-					}
-					else if (flag_counter == RF4_BRTH_NEXUS)
-					{
-						which_gf = GF_NEXUS;
-						mult = 5;
-						div_by = 4;
-					}
-					else if (flag_counter == RF4_BRTH_NETHR)
-					{
-						which_gf = GF_NETHER;
-						mult = 5;
-						div_by = 4;
-					}
-					else if (flag_counter == RF4_BRTH_CHAOS)
-					{
-						which_gf = GF_CHAOS;
-						mult = 4;
-						div_by = 3;
-					}
-					else if (flag_counter == RF4_BRTH_DISEN)
-					{
-						which_gf = GF_DISENCHANT;
-						mult = 4;
-						div_by = 3;
-					}
-					else if (flag_counter == RF4_BRTH_TIME)
-					{
-						which_gf = GF_TIME;
-						mult = 3;
-						div_by = 2;
-					}
-					else if (flag_counter == RF4_BRTH_MANA) which_gf = GF_MANA;
+					else if (flag_counter == RF4_BRTH_POIS) which_gf = GF_POIS;
+					else if (flag_counter == RF4_BRTH_DARK) which_gf = GF_DARK;
 
 					if (which_gf)
 					{
-						this_dam = get_breath_dam(hp, which_gf,
-									(r_ptr->flags2 & (RF2_POWERFUL) ? TRUE : FALSE));
+						this_dam = 100; // Sil-y: hack, should be breath damage
 
 						/* handle elemental breaths*/
 						switch (which_gf)
@@ -635,96 +520,15 @@ static long eval_max_dam(int r_idx)
 					{
 						case 0:
 						{
-							this_dam = r_ptr->spell_power * spell_info_RF4[i][COL_SPELL_DAM_MULT];
-							this_dam /=  MAX(1, spell_info_RF4[i][COL_SPELL_DAM_DIV]);
-							break;
-						}
-						case 1:
-						{
-							this_dam = r_ptr->spell_power * spell_info_RF5[i][COL_SPELL_DAM_MULT];
-							this_dam /=  MAX(1, spell_info_RF5[i][COL_SPELL_DAM_DIV]);
-							break;
-						}
-						case 2:
-						{
-							this_dam = r_ptr->spell_power * spell_info_RF6[i][COL_SPELL_DAM_MULT];
-							this_dam /=  MAX(1, spell_info_RF6[i][COL_SPELL_DAM_DIV]);
-							break;
-						}
-						case 3:
-						{
-							this_dam = r_ptr->spell_power * spell_info_RF7[i][COL_SPELL_DAM_MULT];
-							this_dam /=  MAX(1, spell_info_RF7[i][COL_SPELL_DAM_DIV]);
+							this_dam = r_ptr->spell_power * spell_info_RF4[i][COL_SPELL_SIDES];
 							break;
 						}
 					}
 				}
-
-				else switch (x)
-				{
-					/*Misc flag4 flags*/
-					case 0:
-					{
-						if (flag_counter == RF4_SHRIEK) this_dam = rlev / 2;
-						break;
-					}
-
-					case 1:
-					{
-						/*Right now all flag5 are attack mask spells*/
-						break;
-					}
-
-					case 2:
-					{
-						/*Misc flag6 flags*/
-						if (flag_counter == RF6_ADD_MANA) this_dam = MAX(r_ptr->mana, 30);
-						else if (flag_counter == RF6_BLINK) this_dam = rlev / 3;
-						else if (flag_counter == RF6_TELE_SELF_TO) this_dam = rlev * 2;
-						else if (flag_counter == RF6_TELE_TO) this_dam = rlev;
-						else if (flag_counter == RF6_DARKNESS) this_dam = rlev;
-						else if (flag_counter == RF6_TRAPS) this_dam = rlev;
-						else if (flag_counter == RF6_FORGET) this_dam = rlev / 3;
-						else if (flag_counter == RF6_DRAIN_MANA) this_dam = rlev * 2;
-						else if (flag_counter == RF6_HUNGER) this_dam = rlev;
-						else if (flag_counter == RF6_SCARE) this_dam = rlev;
-						else if (flag_counter == RF6_BLIND) this_dam = rlev;
-						else if (flag_counter == RF6_CONF) this_dam = rlev;
-						else if (flag_counter == RF6_SLOW) this_dam = rlev;
-						else if (flag_counter == RF6_HOLD) this_dam = 25;
-						break;
-					}
-					/*All flag7 flags*/
-					case 3:
-					{
-						/*Right now all flag7 are summon spells*/
-						/* All summons are assigned arbitrary values according to their levels*/
-						if 		(flag_counter == RF7_S_KIN) 	this_dam = rlev * 2;
-						else if (flag_counter == RF7_S_MONSTER)	this_dam = rlev * 2 / 5;
-						else if (flag_counter == RF7_S_MONSTERS)this_dam = rlev * 4 / 5;
-						else if (flag_counter == RF7_S_ANT)		this_dam = rlev / 5;
-						else if (flag_counter == RF7_S_SPIDER)	this_dam = rlev / 5;
-						else if (flag_counter == RF7_S_HOUND)	this_dam = rlev;
-						else if (flag_counter == RF7_S_ANIMAL)	this_dam = rlev / 2;
-						else if (flag_counter == RF7_S_HYDRA)	this_dam = rlev * 3 / 2;
-						else if (flag_counter == RF7_S_THIEF)	this_dam = rlev / 2;
-						else if (flag_counter == RF7_S_BERTBILLTOM)	this_dam = rlev * 3 / 4;
-						else if (flag_counter == RF7_S_AINU)	this_dam = rlev * 3 / 2;
-						else if (flag_counter == RF7_S_DRAGON)	this_dam = rlev * 3 / 2;
-						else if (flag_counter == RF7_S_HI_DRAGON) this_dam = rlev * 4;
-						else if (flag_counter == RF7_S_DEMON)	this_dam = rlev * 3 / 2;
-						else if (flag_counter == RF7_S_HI_DEMON)this_dam = rlev * 3;
-						else if (flag_counter == RF7_S_UNDEAD)	this_dam = rlev * 3 / 2;
-						else if (flag_counter == RF7_S_HI_UNDEAD)this_dam = rlev * 4;
-						else if (flag_counter == RF7_S_WRAITH)	this_dam = rlev * 9 / 2;
-						else if (flag_counter == RF7_S_UNIQUE)	this_dam = rlev * 3;
-						else if (flag_counter == RF7_S_HI_UNIQUE)	this_dam = rlev * 5;
-						break;
-					}
-				}
-
+			
+				// Sil-y: some other spells snipped here
 			}
-
+			
 			if (this_dam > spell_dam) spell_dam = this_dam;
 
 			/*shift one bit*/
@@ -740,14 +544,14 @@ static long eval_max_dam(int r_idx)
 			/* Extract the attack infomation */
 			int effect = r_ptr->blow[i].effect;
 			int method = r_ptr->blow[i].method;
-			int d_dice = r_ptr->blow[i].d_dice;
-			int d_side = r_ptr->blow[i].d_side;
+			int dd = r_ptr->blow[i].dd;
+			int ds = r_ptr->blow[i].ds;
 
 			/* Hack -- no more attacks */
 			if (!method) continue;
 
 			/* Assume average damage*/
-			atk_dam = d_dice * (d_side + 1) / 2;
+			atk_dam = dd * (ds + 1) / 2;
 
 			switch (method)
 			{
@@ -786,11 +590,9 @@ static long eval_max_dam(int r_idx)
 			switch (effect)
 			{
 				/*other bad effects - minor*/
-				case RBE_EAT_GOLD:
 				case RBE_EAT_ITEM:
 				case RBE_EAT_FOOD:
 				case RBE_HUNGER:
-				case RBE_EAT_LITE:
 				case RBE_TERRIFY:
 				{
 					atk_dam *= 11;
@@ -801,26 +603,24 @@ static long eval_max_dam(int r_idx)
 				case RBE_UN_BONUS:
 				case RBE_UN_POWER:
 				case RBE_LOSE_MANA:
+				case RBE_SLOW:
 				case RBE_POISON:
 				case RBE_ACID:
 				case RBE_ELEC:
 				case RBE_FIRE:
 				case RBE_COLD:
+				case RBE_DARK:
 				case RBE_BLIND:
 				case RBE_CONFUSE:
 				case RBE_PARALYZE:
 				case RBE_DISEASE:
 				case RBE_LOSE_STR:
-				case RBE_LOSE_INT:
-				case RBE_LOSE_WIS:
 				case RBE_LOSE_DEX:
 				case RBE_LOSE_CON:
-				case RBE_LOSE_CHR:
+				case RBE_LOSE_GRA:
+				case RBE_LOSE_STR_CON:
 				case RBE_LOSE_ALL:
-				case RBE_EXP_10:
-				case RBE_EXP_20:
-				case RBE_EXP_40:
-				case RBE_EXP_80:
+				case RBE_DISARM:
 				case RBE_HALLU:
 				{
 					atk_dam *= 5;
@@ -878,7 +678,7 @@ static long eval_max_dam(int r_idx)
 	 * Adjust for speed.  Monster at speed 120 will do double damage,
 	 * monster at speed 100 will do half, etc.  Bonus for monsters who can haste self.
 	 */
-	dam = (dam * extract_energy[r_ptr->speed + (r_ptr->flags6 & RF6_HASTE ? 5 : 0)]) / 10;
+	dam = (dam * extract_energy[r_ptr->speed]) / 2;
 
 	/*but deep in a minimum*/
 	if (dam < 1) dam  = 1;
@@ -896,45 +696,29 @@ static u32b mon_hp_adjust(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/*Get the monster base hitpoints*/
-	if (r_ptr->flags1 & (RF1_FORCE_MAXHP)) hp = r_ptr->hdice * r_ptr->hside;
-	else hp = r_ptr->hdice * (r_ptr->hside + 1) / 2;
-
-	/*just assume healers have more staying power*/
-	if (r_ptr->flags6 & RF6_HEAL) hp = (hp * 6) / 5;
-	else if (r_ptr->flags6 & RF6_CURE) hp = (hp * 15) / 14;
-
-	/*monsters that can teleport are a hassle, and can easily run away*/
-	if 	((r_ptr->flags6 & RF6_TPORT) ||
-		 (r_ptr->flags6 & RF6_TELE_AWAY)||
-		 (r_ptr->flags6 & RF6_TELE_LEVEL)) hp = (hp * 6) / 5;
+	hp = r_ptr->hdice * (r_ptr->hside + 1) / 2;
 
 	/*
 	 * Base slays
 	 */
-	if (r_ptr->flags3 & RF3_ANIMAL)		slay_reduce++;
-	if (r_ptr->flags3 & RF3_DEMON) 		slay_reduce++;
+	if (r_ptr->flags3 & RF3_WOLF)		slay_reduce++;
+	if (r_ptr->flags3 & RF3_SPIDER)		slay_reduce++;
+	if (r_ptr->flags3 & RF3_RAUKO) 		slay_reduce++;
 	if (r_ptr->flags3 & RF3_ORC) 		slay_reduce++;
 	if (r_ptr->flags3 & RF3_TROLL) 		slay_reduce++;
-	if (r_ptr->flags3 & RF3_GIANT)		slay_reduce++;
 	if (r_ptr->flags3 & RF3_DRAGON) 	slay_reduce++;
-
-	/*
-	 * These two aren't very powerful, but the slays are so frequent and cover so much.
-	 */
-	if ((r_ptr->flags3 & RF3_EVIL) ||
-		(r_ptr->flags3 & RF3_UNDEAD))	slay_reduce +=3;
+	if (r_ptr->flags3 & RF3_UNDEAD) 	slay_reduce++;
 
 	/* Do the resists to those who have all resists*/
-	if (r_ptr->flags3 & RF3_IM_ELEM)
+	if (r_ptr->flags3 & RF3_RES_ELEM)
 	{
 		/*count resists*/
 		byte counter = 0;
 
-		if (r_ptr->flags3 & RF3_IM_ACID)	counter ++;
-		if (r_ptr->flags3 & RF3_IM_FIRE) 	counter ++;
-		if (r_ptr->flags3 & RF3_IM_COLD)	counter ++;
-		if (r_ptr->flags3 & RF3_IM_ELEC)	counter ++;
-		if (r_ptr->flags3 & RF3_IM_POIS)	counter ++;
+		if (r_ptr->flags3 & RF3_RES_FIRE) 	counter++;
+		if (r_ptr->flags3 & RF3_RES_COLD)	counter++;
+		if (r_ptr->flags3 & RF3_RES_ELEC)	counter++;
+		if (r_ptr->flags3 & RF3_RES_POIS)	counter++;
 
 		if (counter == 1) slay_reduce ++;
 		else if (counter == 2) slay_reduce += 2;
@@ -946,7 +730,7 @@ static u32b mon_hp_adjust(int r_idx)
 
 	/*Not very powerful, but so common and easy to use*/
 	if (r_ptr->flags3 & RF3_HURT_LITE)	slay_reduce += 2;
-	if (r_ptr->flags3 & RF3_HURT_ROCK)	slay_reduce += 2;
+	if (r_ptr->flags3 & RF3_STONE)	slay_reduce += 2;
 
 	/*cut hitpoint value up to half, depending on suceptability to slays*/
 	if (slay_reduce > 15) slay_reduce = 50;
@@ -1016,29 +800,16 @@ static bool init_mon_power(void)
 
 		r_ptr = &r_info[i];
 
-		/*Hack - skip player ghost templates*/
-		if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) continue;
-
-		/*Hack - skip player ghost templates*/
 		if (r_ptr->flags1 & (RF1_UNIQUE))	creature_type = CREATURE_UNIQUE;
-		else creature_type = CREATURE_NON_UNIQUE;
+		else								creature_type = CREATURE_NON_UNIQUE;
 
-		/*Hack - 0 power for town monsters*/
-		if (!r_ptr->level) r_ptr->mon_power = hp = dam = 0;
+		hp = mon_hp_adjust(i);
 
-		else
-		{
+		/* Maximum damage this monster can do in 10 game turns*/
+		dam = eval_max_dam(i);
 
-			hp = mon_hp_adjust(i);
-
-			/* Maximum damage this monster can do in 10 game turns*/
-			dam = eval_max_dam(i);
-
-			/* Define the power rating */
-			r_ptr->mon_power = hp * dam;
-
-
-		}
+		/* Define the power rating */
+		r_ptr->mon_power = hp * dam;
 
 #ifdef ALLOW_DATA_DUMP
 
@@ -1118,18 +889,16 @@ static bool init_mon_power(void)
 #ifdef USE_ART_THEME
 
 /* Return ART_THEME slot.
- * IMPORTANT: Assumes the function can_be_artifact would return true.
- * Not intended for special artifacts!!!
+ * IMPORTANT: Assumes the function can_be_artefact would return true.
+ * Not intended for special artefacts!!!
  * Not currently used, but too useful to delete
  */
-static byte get_art_theme(const artifact_type *a_ptr)
+static byte get_art_theme(const artefact_type *a_ptr)
 {
 	switch (a_ptr->tval)
 	{
-		case TV_HARD_ARMOR: /*fall through*/
+		case TV_MAIL: /*fall through*/
 		case TV_SOFT_ARMOR: return (ART_THEME_ARMOR);
-		case TV_DRAG_ARMOR:	/*fall through*/
-		case TV_DRAG_SHIELD:return (ART_THEME_DRAG_ARMOR);
 		case TV_SHIELD:		return (ART_THEME_SHIELD);
 		case TV_CLOAK:		return (ART_THEME_CLOAK);
 		case TV_BOOTS:		return (ART_THEME_BOOTS);
@@ -1156,7 +925,7 @@ static byte get_art_theme(const artifact_type *a_ptr)
 /*
  * Calculate the rating for calculating a weapon base damage potential
  */
-static int weapon_damage_calc(const artifact_type *a_ptr)
+static int weapon_damage_calc(const artefact_type *a_ptr)
 {
 
 	int slay_adjust = 0;
@@ -1164,29 +933,21 @@ static int weapon_damage_calc(const artifact_type *a_ptr)
 
 	/*count up the number of slays and brands*/
 
-	if (a_ptr->flags1 & TR1_SLAY_ANIMAL) slay_adjust += 2;
-	if (a_ptr->flags1 & TR1_SLAY_EVIL) slay_adjust += 3;
+	if (a_ptr->flags1 & TR1_SLAY_WOLF) slay_adjust += 2;
+	if (a_ptr->flags1 & TR1_SLAY_SPIDER) slay_adjust += 3;
 	if (a_ptr->flags1 & TR1_SLAY_UNDEAD) slay_adjust += 2;
-	if (a_ptr->flags1 & TR1_SLAY_DEMON) slay_adjust += 2;
+	if (a_ptr->flags1 & TR1_SLAY_RAUKO) slay_adjust += 2;
 	if (a_ptr->flags1 & TR1_SLAY_ORC) slay_adjust += 2;
 	if (a_ptr->flags1 & TR1_SLAY_TROLL) slay_adjust += 2;
-	if (a_ptr->flags1 & TR1_SLAY_GIANT) slay_adjust += 2;
 	if (a_ptr->flags1 & TR1_SLAY_DRAGON) slay_adjust += 2;
-	if (a_ptr->flags1 & TR1_KILL_DRAGON) slay_adjust += 4;
-	if (a_ptr->flags1 & TR1_KILL_DEMON) slay_adjust += 4;
-	if (a_ptr->flags1 & TR1_KILL_UNDEAD) slay_adjust += 4;
 
-	if (a_ptr->flags1 & TR1_BRAND_POIS) slay_adjust += 3;
-	if (a_ptr->flags1 & TR1_BRAND_ACID) slay_adjust += 4;
-	if (a_ptr->flags1 & TR1_BRAND_ELEC) slay_adjust += 4;
-	if (a_ptr->flags1 & TR1_BRAND_FIRE) slay_adjust += 4;
 	if (a_ptr->flags1 & TR1_BRAND_COLD) slay_adjust += 4;
+	if (a_ptr->flags1 & TR1_BRAND_FIRE) slay_adjust += 4;
+	if (a_ptr->flags1 & TR1_BRAND_ELEC) slay_adjust += 4;
+	if (a_ptr->flags1 & TR1_BRAND_POIS) slay_adjust += 4;
 
 	/*increse the weapon damage rater based on the number and power of slays*/
 	damage_calc += damage_calc * (slay_adjust) / 10;
-
-	/*multiply this figure for the extra blows*/
-	if (a_ptr->flags1 & TR1_BLOWS) damage_calc *= a_ptr->pval;
 
 	return (damage_calc);
 }
@@ -1198,13 +959,11 @@ static int bow_multiplier(int sval)
 {
 	switch (sval)
 	{
-		case SV_SLING:
 		case SV_SHORT_BOW:
 			return (2);
 		case SV_LONG_BOW:
-		case SV_LIGHT_XBOW:
 			return (3);
-		case SV_HEAVY_XBOW:
+		case SV_DH_LONG_BOW:
 			return (4);
 		default:
 			msg_format("Illegal bow sval %s", sval);
@@ -1215,12 +974,12 @@ static int bow_multiplier(int sval)
 
 
 /*
- * Evaluate the artifact's overall power level.
- * Must be sure there is an artifact created before calling this function
+ * Evaluate the artefact's overall power level.
+ * Must be sure there is an artefact created before calling this function
  */
-s32b artifact_power(int a_idx)
+s32b artefact_power(int a_idx)
 {
-	const artifact_type *a_ptr = &a_info[a_idx];
+	const artefact_type *a_ptr = &a_info[a_idx];
 	s32b p = 0;
 
 	object_kind *k_ptr = &k_info[cur_art_k_idx];
@@ -1242,77 +1001,26 @@ s32b artifact_power(int a_idx)
 			 * weapons, which tends to bring these numbers back into line).
 			 */
 
-			if (a_ptr->to_d < 9)
-			{
-				/* Could enchant this up - just use to_d value of 9 */
-				p += 9;
-			}
-			else
-			{
-				p += (a_ptr->to_d);
-			}
+			p += sign(a_ptr->att) * (ABS(a_ptr->att) / 3);
 
-			if (a_ptr->to_d > 15) p += (a_ptr->to_d - 15) * 2;
-			if (a_ptr->to_d > 25) p += (a_ptr->to_d - 25) * 2;
-
-			p += sign(a_ptr->to_h) * (ABS(a_ptr->to_h) / 3);
-
-			if (a_ptr->to_h > 15) p += (a_ptr->to_h - 15) * 2;
-			if (a_ptr->to_h > 25) p += (a_ptr->to_h - 25) * 2;
+			if (a_ptr->att > 15) p += (a_ptr->att - 15) * 2;
+			if (a_ptr->att > 25) p += (a_ptr->att - 25) * 2;
 			/*
 			 * Add the average damage of fully enchanted (good) ammo for this
 			 * weapon.  Could make this dynamic based on k_info if desired.
 			 */
 
-			if (a_ptr->sval == SV_SLING)
-			{
-				p += AVG_SLING_AMMO_DAMAGE;
-			}
-			else if (a_ptr->sval == SV_SHORT_BOW ||
+			if (a_ptr->sval == SV_SHORT_BOW ||
 				a_ptr->sval == SV_LONG_BOW)
 			{
 				p += AVG_BOW_AMMO_DAMAGE;
 			}
-			else if (a_ptr->sval == SV_LIGHT_XBOW ||
-				a_ptr->sval == SV_HEAVY_XBOW)
-			{
-				p += AVG_XBOW_AMMO_DAMAGE;
-			}
 
 			mult = bow_multiplier(a_ptr->sval);
 
-			if (a_ptr->flags1 & TR1_MIGHT)
-			{
-				if (a_ptr->pval > 3 || a_ptr->pval < 0)
-				{
-					p += 20000;	/* inhibit */
-					return (p);
-				}
-				else
-				{
-					mult += a_ptr->pval;
-				}
-			}
 			p *= mult;
 
-			if (a_ptr->flags1 & TR1_SHOTS)
-			{
-				/*
-				 * Extra shots are calculated differently for bows than for
-				 * slings or crossbows.
-				 */
-				if (a_ptr->pval > 3 || a_ptr->pval < 0)
-				{
-					p += 20000;	/* inhibit */
-					return (p);
-				}
-				else if (a_ptr->pval > 0)
-				{
-					p = (p * (1 + a_ptr->pval));
-				}
-
-			}
-			p += sign(a_ptr->to_h) * (ABS(a_ptr->to_h) / 3);
+			p += sign(a_ptr->att) * (ABS(a_ptr->att) / 3);
 
 			/*
 			 * Correction to match ratings to melee damage ratings.
@@ -1344,29 +1052,15 @@ s32b artifact_power(int a_idx)
 			/*calculate the weapon damage (factoring in slays and brands)*/
 			p += weapon_damage_calc(a_ptr);
 
-			if (a_ptr->to_d < 9)
-			{
-				/* This could be enchanted up, so just assume to_d of +9 */
-				p += 9;
-			}
-			else
-			{
-				p += a_ptr->to_d;
-			}
+			p += sign(a_ptr->att) * (ABS(a_ptr->att) / 3);
 
-			if (a_ptr->to_d > 15) p += (a_ptr->to_d - 15) * 2;
-			if (a_ptr->to_d > 25) p += (a_ptr->to_d - 25) * 2;
-
-			p += sign(a_ptr->to_h) * (ABS(a_ptr->to_h) / 3);
-
-			if (a_ptr->to_h > 15) p += (a_ptr->to_h - 15) * 2;
-			if (a_ptr->to_h > 25) p += (a_ptr->to_h - 25) * 2;
+			if (a_ptr->att > 15) p += (a_ptr->att - 15) * 2;
+			if (a_ptr->att > 25) p += (a_ptr->att - 25) * 2;
 
 			/*bonus to damage for well balanced and throwing items*/
-			if (a_ptr->flags3 & TR3_THROWING)
+			if (a_ptr->flags3 & (TR3_THROWING))
 			{
-				if (a_ptr->flags3 & TR3_PERFECT_BALANCE) p += a_ptr->dd * (a_ptr->ds + 1) / 2;
-				else p += a_ptr->dd * (a_ptr->ds + 1) / 4;
+				p += a_ptr->dd * (a_ptr->ds + 1) / 4;
 			}
 
 			if (a_ptr->weight < k_ptr->weight) p++;
@@ -1380,27 +1074,19 @@ s32b artifact_power(int a_idx)
 		case TV_SHIELD:
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_DRAG_SHIELD:
+		case TV_MAIL:
 		{
-			p += sign(a_ptr->ac) * ((ABS(a_ptr->ac) * 2) / 3);
-
-			p += sign(a_ptr->to_h) * ((ABS(a_ptr->to_h) * 2) / 3);
-
-			p += a_ptr->to_d * 3;
+			// Sil-y: add modifiers based on attack and defence
 
 			if (a_ptr->weight < k_ptr->weight) p++;
 
 			break;
 		}
-		case TV_LITE:
+		case TV_LIGHT:
 		{
 			p += 5;
 
-			p += sign(a_ptr->to_h) * ((ABS(a_ptr->to_h) * 2) / 3);
-
-			p += a_ptr->to_d * 3;
+			p += sign(a_ptr->att) * ((ABS(a_ptr->att) * 2) / 3);
 
 			break;
 		}
@@ -1408,26 +1094,11 @@ s32b artifact_power(int a_idx)
 		case TV_AMULET:
 		{
 
-			p += sign(a_ptr->to_h) * ((ABS(a_ptr->to_h) * 2) / 3);
-
-			p += a_ptr->to_d * 3;
+			p += sign(a_ptr->att) * ((ABS(a_ptr->att) * 2) / 3);
 
 			break;
 		}
 	}
-
-	/* Other abilities are evaluated independent of the object type. */
-	p += sign(a_ptr->to_a) * (ABS(a_ptr->to_a) / 2);
-
-	if (a_ptr->to_a > 15)
-	{
-		p += (a_ptr->to_a - 15);
-	}
-	if (a_ptr->to_a > 25)
-	{
-		p += (a_ptr->to_a - 25);
-	}
-
 
 	if (a_ptr->pval > 0)
 	{
@@ -1437,14 +1108,6 @@ s32b artifact_power(int a_idx)
 		{
 			p += 3 * a_ptr->pval;
 		}
-		if (a_ptr->flags1 & TR1_INT)
-		{
-			p += 2 * a_ptr->pval;
-		}
-		if (a_ptr->flags1 & TR1_WIS)
-		{
-			p += 2 * a_ptr->pval;
-		}
 		if (a_ptr->flags1 & TR1_DEX)
 		{
 			p += 3 * a_ptr->pval;
@@ -1453,30 +1116,62 @@ s32b artifact_power(int a_idx)
 		{
 			p += 4 * a_ptr->pval;
 		}
-		if (a_ptr->flags1 & TR1_STEALTH)
+		if (a_ptr->flags1 & TR1_GRA)
+		{
+			p += 4 * a_ptr->pval;
+		}
+		if (a_ptr->flags1 & TR1_NEG_STR)
+		{
+			p -= 3 * a_ptr->pval;
+		}
+		if (a_ptr->flags1 & TR1_NEG_DEX)
+		{
+			p -= 3 * a_ptr->pval;
+		}
+		if (a_ptr->flags1 & TR1_NEG_CON)
+		{
+			p -= 4 * a_ptr->pval;
+		}
+		if (a_ptr->flags1 & TR1_NEG_GRA)
+		{
+			p -= 4 * a_ptr->pval;
+		}
+		if (a_ptr->flags1 & TR1_MEL)
 		{
 			p += a_ptr->pval;
 		}
-		/* For now add very small amount for searching */
-		if (a_ptr->flags1 & TR1_SEARCH)
+		if (a_ptr->flags1 & TR1_ARC)
 		{
-			p += a_ptr->pval / 6;
+			p += a_ptr->pval;
 		}
+		if (a_ptr->flags1 & TR1_STL)
+		{
+			p += a_ptr->pval;
+		}
+		if (a_ptr->flags1 & TR1_PER)
+		{
+			p += a_ptr->pval;
+		}
+		if (a_ptr->flags1 & TR1_WIL)
+		{
+			p += a_ptr->pval;
+		}
+		if (a_ptr->flags1 & TR1_SMT)
+		{
+			p += a_ptr->pval;
+		}
+		if (a_ptr->flags1 & TR1_SNG)
+		{
+			p += a_ptr->pval;
+		}
+
 		/* Add extra power term if there are a lot of ability bonuses */
 		if (a_ptr->pval > 0)
 		{
 			extra_stat_bonus += ( (a_ptr->flags1 & TR1_STR) ? a_ptr->pval: 0);
-			extra_stat_bonus += ( (a_ptr->flags1 & TR1_INT) ? 3 * a_ptr->pval / 4: 0);
-			extra_stat_bonus += ( (a_ptr->flags1 & TR1_WIS) ? 3 * a_ptr->pval / 4: 0);
 			extra_stat_bonus += ( (a_ptr->flags1 & TR1_DEX) ? a_ptr->pval: 0);
 			extra_stat_bonus += ( (a_ptr->flags1 & TR1_CON) ? a_ptr->pval: 0);
-			extra_stat_bonus += ( (a_ptr->flags1 & TR1_STEALTH) ? 3 * a_ptr->pval / 4: 0);
-
-			if (a_ptr->tval == TV_BOW)
-			{
-				extra_stat_bonus += ( (a_ptr->flags1 & TR1_MIGHT) ? 5 * a_ptr->pval / 2: 0);
-				extra_stat_bonus += ( (a_ptr->flags1 & TR1_SHOTS) ? 3 * a_ptr->pval: 0);
-			}
+			extra_stat_bonus += ( (a_ptr->flags1 & TR1_GRA) ? a_ptr->pval: 0);
 
 			if (extra_stat_bonus > 24)
 			{
@@ -1494,29 +1189,16 @@ s32b artifact_power(int a_idx)
 	else if (a_ptr->pval < 0)	/* hack: don't give large negatives */
 	{
 		if (a_ptr->flags1 & TR1_STR) p += 4 * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_INT) p += 2 * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_WIS) p += 2 * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_DEX) p += 3 * a_ptr->pval;
+		if (a_ptr->flags1 & TR1_DEX) p += 4 * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_CON) p += 4 * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval;
-	}
-	if (a_ptr->flags1 & TR1_CHR)
-	{
-		p += a_ptr->pval;
-	}
-	if (a_ptr->flags1 & TR1_INFRA)
-	{
-		p += a_ptr->pval;
-	}
-	if (a_ptr->flags1 & TR1_SPEED)
-	{
-		/*high bonus for high speed bonus*/
-		if (a_ptr->pval > 0)	p += (a_ptr->pval * 10);
-		/*extra bonus for very high speeds*/
-		if (a_ptr->pval > 5)	p += (a_ptr->pval - 5) * (a_ptr->pval - 5);
-
-		/*linear subtration for negative bonus*/
-		if (a_ptr->pval < 0) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_GRA) p += 4 * a_ptr->pval;
+		if (a_ptr->flags1 & TR1_MEL) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_ARC) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_STL) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_PER) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_WIL) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_SMT) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_SNG) p += a_ptr->pval;
 	}
 
 
@@ -1527,71 +1209,47 @@ s32b artifact_power(int a_idx)
 		byte sustains = 0;
 
 		if (a_ptr->flags2 & TR2_SUST_STR) {p += 5;  sustains++;}
-		if (a_ptr->flags2 & TR2_SUST_INT) {p += 2;  sustains++;}
-		if (a_ptr->flags2 & TR2_SUST_WIS) {p += 2;  sustains++;}
 		if (a_ptr->flags2 & TR2_SUST_DEX) {p += 4;  sustains++;}
 		if (a_ptr->flags2 & TR2_SUST_CON) {p += 3;  sustains++;}
-		if (a_ptr->flags2 & TR2_SUST_CHR) {p += 1;  sustains++;}
+		if (a_ptr->flags2 & TR2_SUST_GRA) {p += 1;  sustains++;}
 
 		if (sustains > 4) p += 2;
 		if (sustains > 5) p += 2;
 	}
 
-	/*Immunities*/
-	if (a_ptr->flags2 & TR2_IMMUNE_ALL)
-	{
-		byte immunities = 0;
-
-		if (a_ptr->flags2 & TR2_IM_ACID){ p += 17; immunities++;}
-		if (a_ptr->flags2 & TR2_IM_ELEC){ p += 14; immunities++;}
-		if (a_ptr->flags2 & TR2_IM_FIRE){ p += 22; immunities++;}
-		if (a_ptr->flags2 & TR2_IM_COLD){ p += 17; immunities++;}
-		if (a_ptr->flags2 & TR2_IM_POIS){ p += 12; immunities++;}
-
-		if (immunities > 1)	p += 15;
-		if (immunities > 2)	p += 15;
-		if (immunities > 3) p += 15;
-		/* inhibit */
-		if (immunities > 4)
-		{
-			p += 20000;
-			return (p);
-		}
-	}
-
 	/*Abilities*/
-	if (a_ptr->flags3 & TR3_ABILITIES_MASK)
+	if (a_ptr->flags2 & TR2_ABILITIES_MASK)
 	{
 		byte abilities = 0;
 
-		if (a_ptr->flags3 & TR3_SLOW_DIGEST) 	{p += 1;	abilities++;}
-		if (a_ptr->flags3 & TR3_FEATHER) 		{p += 1;	abilities++;}
-		if (a_ptr->flags3 & TR3_LITE) 			{p += 3;	abilities++;}
-		if (a_ptr->flags3 & TR3_REGEN) 			{p += 4;	abilities++;}
-		if (a_ptr->flags3 & TR3_TELEPATHY) 		{p += 15;	abilities++;}
-		if (a_ptr->flags3 & TR3_SEE_INVIS) 		{p += 5;	abilities++;}
-		if (a_ptr->flags3 & TR3_FREE_ACT) 		{p += 7;	abilities++;}
-		if (a_ptr->flags3 & TR3_HOLD_LIFE) 		{p += 6;	abilities++;}
+		if (a_ptr->flags2 & TR2_SLOW_DIGEST) 	{p += 1;	abilities++;}
+		if (a_ptr->flags2 & TR2_RADIANCE) 		{p += 3;	abilities++;}
+		if (a_ptr->flags2 & TR2_LIGHT) 			{p += 3;	abilities++;}
+		if (a_ptr->flags2 & TR2_REGEN) 			{p += 4;	abilities++;}
+		if (a_ptr->flags2 & TR2_TELEPATHY) 		{p += 8;	abilities++;}
+		if (a_ptr->flags2 & TR2_SEE_INVIS) 		{p += 5;	abilities++;}
+		if (a_ptr->flags2 & TR2_FREE_ACT) 		{p += 7;	abilities++;}
+		if (a_ptr->flags2 & TR2_SPEED)			{p += 12;	abilities++;}
 
+		if (abilities > 4) p += 5;
 		if (abilities > 5) p += 5;
 		if (abilities > 6) p += 5;
-		if (abilities > 7) p += 5;
 	}
 
-	if (a_ptr->flags3 & TR3_BLESSED) p += 1;
-	if (a_ptr->flags3 & TR3_SLOW_DIGEST) p += 1;
+	if (a_ptr->flags2 & TR2_SLOW_DIGEST) p += 1;
 
 	/*Low resists*/
 	if (a_ptr->flags2 & TR2_RESISTANCE)
 	{
 		byte resists = 0;
 
-		if (a_ptr->flags2 & TR2_RES_ACID) {p += 2;  resists++;}
-		if (a_ptr->flags2 & TR2_RES_ELEC) {p += 3;  resists++;}
-		if (a_ptr->flags2 & TR2_RES_FIRE) {p += 3;  resists++;}
 		if (a_ptr->flags2 & TR2_RES_COLD) {p += 3;  resists++;}
+		if (a_ptr->flags2 & TR2_RES_FIRE) {p += 3;  resists++;}
+		if (a_ptr->flags2 & TR2_RES_ELEC) {p += 3;  resists++;}
+		if (a_ptr->flags2 & TR2_RES_POIS) {p += 3;	resists++;}
+		if (a_ptr->flags2 & TR2_RES_DARK) {p += 3;	resists++;}
 
-		if (resists == 4) p += 10;
+		if (resists == 5) p += 10;
 	}
 
 	/*High resists*/
@@ -1599,23 +1257,10 @@ s32b artifact_power(int a_idx)
 	{
 		byte resists = 0;
 
-		if (a_ptr->flags2 & TR2_RES_POIS)	{p += 14;	resists++;}
-		if (a_ptr->flags2 & TR2_RES_LITE)	{p += 8;	resists++;}
-		if (a_ptr->flags2 & TR2_RES_DARK)	{p += 8;	resists++;}
 		if (a_ptr->flags2 & TR2_RES_BLIND)	{p += 8;	resists++;}
 		if (a_ptr->flags2 & TR2_RES_CONFU)	{p += 12;	resists++;}
-		if (a_ptr->flags2 & TR2_RES_SOUND)	{p += 3;	resists++;}
-		if (a_ptr->flags2 & TR2_RES_SHARD)	{p += 4;	resists++;}
-		if (a_ptr->flags2 & TR2_RES_NEXUS)	{p += 7;	resists++;}
-		if (a_ptr->flags2 & TR2_RES_NETHR)	{p += 10;	resists++;}
-		if (a_ptr->flags2 & TR2_RES_CHAOS)	{p += 10;	resists++;}
-		if (a_ptr->flags2 & TR2_RES_DISEN)	{p += 10;	resists++;}
-		if (a_ptr->flags2 & TR2_RES_LITE)	{p += 8;	resists++;}
-
-		if (resists > 8) p += 3;
-		if (resists > 9) p += 3;
-		if (resists > 10) p += 3;
-		if (resists > 11) p += 3;
+		if (a_ptr->flags2 & TR2_RES_STUN)	{p += 3;	resists++;}
+		if (a_ptr->flags2 & TR2_RES_FEAR)	{p += 3;	resists++;}
 	}
 
 
@@ -1623,19 +1268,19 @@ s32b artifact_power(int a_idx)
 }
 
 /*
- * Store the original artifact power ratings as a baseline
+ * Store the original artefact power ratings as a baseline
  */
 static void store_base_power (void)
 {
 	int i;
-	artifact_type *a_ptr;
+	artefact_type *a_ptr;
 	s16b k_idx;
 
 
 	for(i = 0; i < z_info->art_norm_max; i++)
 	{
 		/*First store the base power of each item*/
-		base_power[i] = artifact_power(i);
+		base_power[i] = artefact_power(i);
 	}
 
 	for(i = 0; i < z_info->art_norm_max; i++)
@@ -1644,7 +1289,7 @@ static void store_base_power (void)
 		bool found_rarity = FALSE;
 		alloc_entry *table = alloc_kind_table;
 
-		/* Kinds array was populated in the above step in artifact_power */
+		/* Kinds array was populated in the above step in artefact_power */
 		k_idx = kinds[i];
 		a_ptr = &a_info[i];
 
@@ -1687,23 +1332,9 @@ static void store_base_power (void)
  * We've just added an ability which uses the pval bonus.  Make sure it's
  * not zero.  If it's currently negative, leave it negative (heh heh).
  */
-static void do_pval(artifact_type *a_ptr)
+static void do_pval(artefact_type *a_ptr)
 {
-	int factor = 1;
-	/* Track whether we have blows, might or shots on this item */
-	if (a_ptr->flags1 & TR1_BLOWS) factor++;
-	if (a_ptr->flags1 & TR1_MIGHT) factor++;
-	if (a_ptr->flags1 & TR1_SHOTS) factor++;
-
-	/* Blows, might, shots handled separately */
-	if (factor > 1)
-	{
-		a_ptr->pval = (s16b)(1 + rand_int(2));
-		/* Give it a shot at +3 */
-		if (one_in_(INHIBIT_STRONG)) a_ptr->pval = 3;
-	}
-
-	else if (a_ptr->pval == 0)
+	if (a_ptr->pval == 0)
 	{
 		a_ptr->pval = (s16b)(1 + rand_int(2));
 	}
@@ -1719,12 +1350,12 @@ static void do_pval(artifact_type *a_ptr)
 	{
 
 		if (a_ptr->pval > 6) a_ptr->pval = 6;
-		else if (a_ptr->pval < 6) if (one_in_(a_ptr->pval * factor)) a_ptr->pval++;
+		else if (a_ptr->pval < 6) if (one_in_(a_ptr->pval)) a_ptr->pval++;
 
 		/* = 6 or 7*/
 		if (one_in_(INHIBIT_STRONG)) a_ptr->pval ++;
 	}
-	else if (one_in_(a_ptr->pval * factor))
+	else if (one_in_(a_ptr->pval))
 	{
 		/*
 		 * CR: made this a bit rarer and diminishing with higher pval -
@@ -1735,30 +1366,24 @@ static void do_pval(artifact_type *a_ptr)
 }
 
 
-static void remove_contradictory(artifact_type *a_ptr)
+static void remove_contradictory(artefact_type *a_ptr)
 {
-	if (a_ptr->flags3 & TR3_AGGRAVATE) a_ptr->flags1 &= ~(TR1_STEALTH);
-	if (a_ptr->flags2 & TR2_IM_ACID) a_ptr->flags2 &= ~(TR2_RES_ACID);
-	if (a_ptr->flags2 & TR2_IM_ELEC) a_ptr->flags2 &= ~(TR2_RES_ELEC);
-	if (a_ptr->flags2 & TR2_IM_FIRE) a_ptr->flags2 &= ~(TR2_RES_FIRE);
-	if (a_ptr->flags2 & TR2_IM_COLD) a_ptr->flags2 &= ~(TR2_RES_COLD);
+	if (a_ptr->flags2 & TR2_AGGRAVATE) a_ptr->flags1 &= ~(TR1_STL);
 
 	if (a_ptr->pval < 0)
 	{
 		if (a_ptr->flags1 & TR1_STR) a_ptr->flags2 &= ~(TR2_SUST_STR);
-		if (a_ptr->flags1 & TR1_INT) a_ptr->flags2 &= ~(TR2_SUST_INT);
-		if (a_ptr->flags1 & TR1_WIS) a_ptr->flags2 &= ~(TR2_SUST_WIS);
 		if (a_ptr->flags1 & TR1_DEX) a_ptr->flags2 &= ~(TR2_SUST_DEX);
 		if (a_ptr->flags1 & TR1_CON) a_ptr->flags2 &= ~(TR2_SUST_CON);
-		if (a_ptr->flags1 & TR1_CHR) a_ptr->flags2 &= ~(TR2_SUST_CHR);
-		a_ptr->flags1 &= ~(TR1_BLOWS);
+		if (a_ptr->flags1 & TR1_GRA) a_ptr->flags2 &= ~(TR2_SUST_GRA);
 	}
-
-	if (a_ptr->flags3 & TR3_LIGHT_CURSE) a_ptr->flags3 &= ~(TR3_BLESSED);
-	if (a_ptr->flags1 & TR1_KILL_DRAGON) a_ptr->flags1 &= ~(TR1_SLAY_DRAGON);
-	if (a_ptr->flags1 & TR1_KILL_DEMON) a_ptr->flags1 &= ~(TR1_SLAY_DEMON);
-	if (a_ptr->flags1 & TR1_KILL_UNDEAD) a_ptr->flags1 &= ~(TR1_SLAY_UNDEAD);
-	if (a_ptr->flags3 & TR3_DRAIN_EXP) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);
+	if (a_ptr->pval > 0)
+	{
+		if (a_ptr->flags1 & TR1_NEG_STR) a_ptr->flags2 &= ~(TR2_SUST_STR);
+		if (a_ptr->flags1 & TR1_NEG_DEX) a_ptr->flags2 &= ~(TR2_SUST_DEX);
+		if (a_ptr->flags1 & TR1_NEG_CON) a_ptr->flags2 &= ~(TR2_SUST_CON);
+		if (a_ptr->flags1 & TR1_NEG_GRA) a_ptr->flags2 &= ~(TR2_SUST_GRA);
+	}
 }
 
 /*
@@ -1774,7 +1399,7 @@ static void remove_contradictory(artifact_type *a_ptr)
  * Choose a random ability using weights based on the given ability frequency
  * table.  The function returns false if no ability can be added.
  */
-static bool add_ability(artifact_type *a_ptr)
+static bool add_ability(artefact_type *a_ptr)
 {
 	int abil_selector, abil_counter, counter, abil_freq_total;
 	u32b flag;
@@ -1830,7 +1455,7 @@ static bool add_ability(artifact_type *a_ptr)
  * Sustain a sustain.  Try hard to add one that is positive.
  */
 
-static bool add_sustain(artifact_type *a_ptr)
+static bool add_sustain(artefact_type *a_ptr)
 {
 	int stat_selector, stat_counter, counter, stat_freq_total;
 	u32b sust_flag, stat_flag;
@@ -1897,7 +1522,7 @@ static bool add_sustain(artifact_type *a_ptr)
 	return (TRUE);
 }
 
-static bool add_stat(artifact_type *a_ptr)
+static bool add_stat(artefact_type *a_ptr)
 {
 
 	int stat_selector, stat_counter, counter, stat_freq_total;
@@ -1967,7 +1592,7 @@ static bool add_stat(artifact_type *a_ptr)
  * This function could really be used to add anything to flags2
  * so long as each one has an equal chance
  */
-static bool add_one_resist(artifact_type *a_ptr, u32b avail_flags)
+static bool add_one_resist(artefact_type *a_ptr, u32b avail_flags)
 {
 	/*Get their flag 2*/
 	u32b has_flag_mask = 0L;
@@ -1983,7 +1608,7 @@ static bool add_one_resist(artifact_type *a_ptr, u32b avail_flags)
 	/*first count all the flags*/
 	for (i = 0; i < 32; i++)
 	{
-		/*the flag is part of teh mask, and the artifact doesn't already have it*/
+		/*the flag is part of teh mask, and the artefact doesn't already have it*/
 		if ((avail_flags & flag_holder) &&
 			(!(has_flag_mask & flag_holder))) number_of_flags++;
 
@@ -2032,10 +1657,10 @@ static bool add_one_resist(artifact_type *a_ptr, u32b avail_flags)
 
 
 
-static bool add_brand(artifact_type *a_ptr)
+static bool add_brand(artefact_type *a_ptr)
 {
 	/* Hack - if all brands are added already, exit to avoid infinite loop */
-	if ((a_ptr->flags1 & TR1_BRAND_ACID) && (a_ptr->flags1 & TR1_BRAND_ELEC) &&
+	if ((a_ptr->flags1 & TR1_BRAND_ELEC) &&
 		(a_ptr->flags1 & TR1_BRAND_COLD) && (a_ptr->flags1 & TR1_BRAND_FIRE) &&
 		(a_ptr->flags1 & TR1_BRAND_POIS))  return (FALSE);
 
@@ -2074,14 +1699,12 @@ static bool add_brand(artifact_type *a_ptr)
 }
 
 /*
- * Add a slay or kill, return false if the artifact has all of them are all full.
+ * Add a slay or kill, return false if the artefact has all of them are all full.
   */
 
-#define SLAYS_AND_KILLS (OBJECT_XTRA_SIZE_SLAY + OBJECT_XTRA_SIZE_KILL)
-
-static bool add_slay(artifact_type *a_ptr)
+static bool add_slay(artefact_type *a_ptr)
 {
-	byte art_slay_freq[SLAYS_AND_KILLS];
+	byte art_slay_freq[OBJECT_XTRA_SIZE_SLAY];
 
 	int slay_selector, slay_counter, counter, slay_freq_total;
 	u32b flag_slay_add;
@@ -2092,19 +1715,11 @@ static bool add_slay(artifact_type *a_ptr)
 	flag_slay_add = OBJECT_XTRA_BASE_SLAY;
 
 	/*first check the slays*/
-	for (slay_counter = 0; slay_counter < SLAYS_AND_KILLS; slay_counter++)
+	for (slay_counter = 0; slay_counter < OBJECT_XTRA_SIZE_SLAY; slay_counter++)
 	{
 
-		/*hack - don't add a slay when we already have a more powerful flag*/
-		if ((a_ptr->flags1 && TR1_KILL_UNDEAD) &&
-			(flag_slay_add == TR1_SLAY_UNDEAD)) art_slay_freq[slay_counter] = 0;
-		else if ((a_ptr->flags1 && TR1_KILL_DEMON) &&
-			(flag_slay_add == TR1_SLAY_DEMON)) art_slay_freq[slay_counter] = 0;
-		else if ((a_ptr->flags1 && TR1_KILL_DRAGON) &&
-			(flag_slay_add == TR1_SLAY_DRAGON)) art_slay_freq[slay_counter] = 0;
-
-		/*We already have this one*/
-		else if (a_ptr->flags1 & flag_slay_add)	art_slay_freq[slay_counter] = 0;
+		/*hack - don't add a slay when we already have it*/
+		if (a_ptr->flags1 & flag_slay_add)	art_slay_freq[slay_counter] = 0;
 
 		/*We don't have this one*/
 		else
@@ -2130,7 +1745,7 @@ static bool add_slay(artifact_type *a_ptr)
 
 	/* Find the entry in the table that this number represents. */
 	counter = 0;
-	for (slay_counter = 0; slay_counter < SLAYS_AND_KILLS; slay_counter++)
+	for (slay_counter = 0; slay_counter < OBJECT_XTRA_SIZE_SLAY; slay_counter++)
 	{
 		counter += art_stat_freq[slay_counter];
 
@@ -2158,7 +1773,7 @@ static bool add_slay(artifact_type *a_ptr)
 
 }
 
-static void add_to_hit(artifact_type *a_ptr, int fixed, int random)
+static void add_att(artefact_type *a_ptr, int fixed, int random)
 {
 
 	switch (a_ptr->tval)
@@ -2175,36 +1790,35 @@ static void add_to_hit(artifact_type *a_ptr, int fixed, int random)
 		default:
 	   	{
 			/*Inhibit too high*/
-			if ((a_ptr->to_h > 7) && (!one_in_(INHIBIT_WEAK))) return;
+			if ((a_ptr->att > 7) && (!one_in_(INHIBIT_WEAK))) return;
 
-			if (a_ptr->to_h < 3) a_ptr->to_h += damroll(2,2);
-			else a_ptr->to_h++;
-			a_ptr->to_d = a_ptr->to_h;
+			if (a_ptr->att < 3) a_ptr->att += damroll(2,2);
+			else a_ptr->att++;
 			return;
 		}
 	}
 
 	/*if cursed, make it worse*/
-	if (a_ptr->to_h < 0)
+	if (a_ptr->att < 0)
 	{
-		a_ptr->to_h--;
+		a_ptr->att--;
 		return;
 	}
 
 	/* Inhibit above certain threshholds */
-	if (a_ptr->to_h > 25)
+	if (a_ptr->att > 25)
 	{
 		/* Strongly inhibit */
-		if (one_in_(INHIBIT_STRONG)) a_ptr->to_h ++;
+		if (one_in_(INHIBIT_STRONG)) a_ptr->att ++;
 		return;
 	}
-	else if (a_ptr->to_h > 15)
+	else if (a_ptr->att > 15)
 	{
 		/* Weakly inhibit */
-		if (one_in_(INHIBIT_WEAK))	a_ptr->to_h +=randint(2);
+		if (one_in_(INHIBIT_WEAK))	a_ptr->att +=randint(2);
 		return;
 	}
-	else if (a_ptr->to_h > 5)
+	else if (a_ptr->att > 5)
 	{
 		/*
 		 * less of a bonus with greater to-hit, or for non-weapons
@@ -2212,11 +1826,12 @@ static void add_to_hit(artifact_type *a_ptr, int fixed, int random)
 		random /= 2;
 	}
 
-	a_ptr->to_h += (fixed + rand_int(random));
-	if (a_ptr->to_h > 0) a_ptr->flags3 |= TR3_SHOW_MODS;
+	a_ptr->att += (fixed + rand_int(random));
 }
 
-static void add_to_dam(artifact_type *a_ptr, int fixed, int random)
+// Sil-y: all this does presently is adds to att, since to_d was removed
+
+static void add_to_dam(artefact_type *a_ptr)
 {
 
 	/*Handle non-weapons differently*/
@@ -2234,99 +1849,48 @@ static void add_to_dam(artifact_type *a_ptr, int fixed, int random)
 		default:
 	   	{
 			/*Inhibit too high*/
-			if ((a_ptr->to_d > 7) && (!one_in_(INHIBIT_WEAK))) return;
+			if ((a_ptr->att > 7) && (!one_in_(INHIBIT_WEAK))) return;
 
 
-			if (a_ptr->to_d < 3) a_ptr->to_d += damroll(2,2);
-			else a_ptr->to_d++;
-			a_ptr->to_h = a_ptr->to_d;
+			if (a_ptr->att < 3) a_ptr->att += damroll(2,2);
+			else a_ptr->att++;
 			return;
 		}
 	}
 
-	/*if cursed, make it worse*/
-	if (a_ptr->to_d < 0)
-	{
-		a_ptr->to_d--;
-		return;
-	}
-
-	/* Inhibit above certain threshholds */
-	if (a_ptr->to_d > 25)
-	{
-		/* Strongly inhibit */
-		if (one_in_(INHIBIT_STRONG)) a_ptr->to_d ++;
-		return;
-	}
-	else if (a_ptr->to_d > 15)
-	{
-		/* Weakly inhibit */
-		if (one_in_(INHIBIT_WEAK)) a_ptr->to_d += randint(2);
-		return;
-	}
-	else if (a_ptr->to_d > 5)
-	{
-		/*
-		 * less of a bonus with greater to-hit, or for non-weapons
-		 */
-		random /= 2;
-	}
-	a_ptr->to_d += (fixed + rand_int(random));
-	if (a_ptr->to_d > 0) a_ptr->flags3 |= TR3_SHOW_MODS;
 }
 
-static void add_to_ac(artifact_type *a_ptr, int fixed, int random)
+static void add_to_ac(artefact_type *a_ptr, int fixed, int random)
 {
-	/* Inhibit above certain threshholds */
-	if (a_ptr->to_a > 25)
-	{
-		/* Strongly inhibit */
-		if (one_in_(INHIBIT_STRONG)) a_ptr->to_a ++;
-		return;
-
-	}
-	else if (a_ptr->to_h > 10)
-	{
-		/* Weakly inhibit */
-		if (one_in_(INHIBIT_WEAK))	a_ptr->to_a += randint(2);
-		return;
-	}
-	else if (a_ptr->to_h > 7)
-	{
-		/*
-		 * less of a bonus with greater to-ac
-		 */
-		random /= 2;
-	}
-	a_ptr->to_a += (s16b)(fixed + rand_int(random));
+	a_ptr->evn += (s16b)(fixed + rand_int(random));
 }
 
 
-/*prepare a basic-non-magic artifact template based on the base object*/
-static void	artifact_prep(s16b k_idx, int a_idx)
+/*prepare a basic-non-magic artefact template based on the base object*/
+static void	artefact_prep(s16b k_idx, int a_idx)
 {
 
 	object_kind *k_ptr = &k_info[k_idx];
-	artifact_type *a_ptr = &a_info[a_idx];
+	artefact_type *a_ptr = &a_info[a_idx];
 
 	a_ptr->tval = k_ptr->tval;
 	a_ptr->sval = k_ptr->sval;
 	a_ptr->pval = k_ptr->pval;
-	a_ptr->to_h = k_ptr->to_h;
-	a_ptr->to_d = k_ptr->to_d;
-	a_ptr->to_a = k_ptr->to_a;
-	a_ptr->ac = k_ptr->ac;
+	a_ptr->att = k_ptr->att;
 	a_ptr->dd = k_ptr->dd;
 	a_ptr->ds = k_ptr->ds;
+	a_ptr->evn = k_ptr->evn;
+	a_ptr->pd = k_ptr->pd;
+	a_ptr->ps = k_ptr->ps;
 	a_ptr->weight = k_ptr->weight;
 	a_ptr->flags1 = k_ptr->flags1;
 	a_ptr->flags2 = k_ptr->flags2;
 	a_ptr->flags3 = k_ptr->flags3;
 
-	/* Artifacts ignore everything */
+	/* Artefacts ignore everything */
 	a_ptr->flags3 |= TR3_IGNORE_MASK;
 
-	/* Assign basic stats to the artifact based on its artifact level. */
+	/* Assign basic stats to the artefact based on its artefact level. */
 	switch (a_ptr->tval)
 	{
 		case TV_BOW:
@@ -2335,10 +1899,8 @@ static void	artifact_prep(s16b k_idx, int a_idx)
 		case TV_SWORD:
 		case TV_POLEARM:
 		{
-			a_ptr->to_h += (s16b)(a_ptr->level / 10 + rand_int(4) +
+			a_ptr->att += (s16b)(a_ptr->level / 10 + rand_int(4) +
 			                      rand_int(4));
-			a_ptr->to_d += (s16b)(a_ptr->level / 10 + rand_int(4));
-			a_ptr->to_d += (s16b)(rand_int((a_ptr->dd * a_ptr->ds) / 2 + 1));
 			break;
 		}
 		case TV_BOOTS:
@@ -2348,94 +1910,13 @@ static void	artifact_prep(s16b k_idx, int a_idx)
 		case TV_SHIELD:
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
+		case TV_MAIL:
 		{
-			a_ptr->to_a += (s16b)(a_ptr->level / 10 + a_ptr->ac / 3 +
-			                      rand_int(8));
-
-			if (a_ptr->to_a < 10)
-				a_ptr->to_a += (s16b)(2 + rand_int(4) + rand_int(4));
+			// Sil-y: modify defensive values (evn and prt) here
 
 			break;
 
 		}
-		/*Hack dragon armor & shields require special handling*/
-		case TV_DRAG_ARMOR:
-		case TV_DRAG_SHIELD:
-		{
-			ego_item_type *e_ptr;
-			int i, j, e_idx;
-
-			alloc_entry *table = alloc_ego_table;
-
-			long total, value;
-
-			/* Reset total */
-			total = 0L;
-
-			/*Use an abbreviated version of ego-item where
-			  object level doesn't matter so we always succeed*/
-
-			/* Process probabilities */
-			for (i = 0; i < alloc_ego_size; i++)
-			{
-				/* Default */
-				table[i].prob3 = 0;
-
-				/* Get the index */
-				e_idx = table[i].index;
-
-				/* Get the actual kind */
-				e_ptr = &e_info[e_idx];
-
-				/* Test if this is a legal ego-item type for this object */
-				for (j = 0; j < EGO_TVALS_MAX; j++)
-				{
-					/* Require identical base type */
-					if (a_ptr->tval == e_ptr->tval[j])
-					{
-						/* Require sval in bounds, lower */
-						if (a_ptr->sval >= e_ptr->min_sval[j])
-						{
-							/* Require sval in bounds, upper */
-							if (a_ptr->sval <= e_ptr->max_sval[j])
-							{
-								/* Accept */
-								table[i].prob3 = table[i].prob2;
-							}
-						}
-					}
-				}
-
-				/* Total */
-				total += table[i].prob3;
-			}
-
-			/* Pick an ego-item */
-			value = rand_int(total);
-
-			/* Find the object */
-			for (i = 0; i < alloc_ego_size; i++)
-			{
-				/* Found the entry */
-				if (value < table[i].prob3) break;
-
-				/* Decrement */
-				value = value - table[i].prob3;
-			}
-
-			/*point to it*/
-			e_ptr = &e_info[table[i].index];
-
-			/*Apply the ego-item flags to the artifact*/
-			a_ptr->flags1 |= e_ptr->flags1;
-			a_ptr->flags2 |= e_ptr->flags2;
-			a_ptr->flags3 |= e_ptr->flags3;
-
-			break;
-
-		}
-
 		/*break for the switch a_ptr->tval*/
 		default: break;
 	}
@@ -2445,9 +1926,9 @@ static void	artifact_prep(s16b k_idx, int a_idx)
  * Build a suitable frequency table for this item, based on the object type.
  * This must be called before any randart can be made.
  *
- * To do: alter probabilities for possible race and class themes
+ * To do: alter probabilities for possible race themes
  */
-static void build_freq_table(artifact_type *a_ptr)
+static void build_freq_table(artefact_type *a_ptr)
 {
 	int i;
 
@@ -2474,21 +1955,15 @@ static void build_freq_table(artifact_type *a_ptr)
 		}
 		case TV_RING:
 		case TV_AMULET:
-		case TV_LITE:
+		case TV_LIGHT:
 		{
 			art_type = ART_TYPE_SPECIAL;
 			break;
 		}
-		case TV_HARD_ARMOR:
+		case TV_MAIL:
 		case TV_SOFT_ARMOR:
 		{
 			art_type = ART_TYPE_ARMOR;
-			break;
-		}
-		case TV_DRAG_ARMOR:
-		case TV_DRAG_SHIELD:
-		{
-			art_type = ART_TYPE_DRAG_ARMOR;
 			break;
 		}
 		case TV_CLOAK:
@@ -2523,7 +1998,7 @@ static void build_freq_table(artifact_type *a_ptr)
 		}
 		/*
 		 * Notice the default will cause the game to crash since at this point
-		 * there is no turning back when creating an adult random artifact game. -JG
+		 * there is no turning back when creating an adult random artefact game. -JG
 		 */
 		 default: return;
 	}
@@ -2546,7 +2021,7 @@ static void build_freq_table(artifact_type *a_ptr)
 		art_abil_freq[i] = table_ability_freq[art_type][i];
 	}
 
-	/*High resists and immunities are determined by artifact depth, not a frequency table*/
+	/*High resists and immunities are determined by artefact depth, not a frequency table*/
 
 	/*Get the current k_idx*/
 	cur_art_k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -2573,8 +2048,8 @@ static void adjust_art_freq_table(void)
 	}
 
 	/*
-	 * If necessary, reduce minimums to make sure the total minimum artifact is
-	 * less than 80% of the regular artifact set.
+	 * If necessary, reduce minimums to make sure the total minimum artefact is
+	 * less than 80% of the regular artefact set.
 	 */
 	while (art_min_total > ((z_info->art_norm_max - z_info->art_spec_max) * 8 / 10))
 	{
@@ -2644,7 +2119,7 @@ static byte get_theme(void)
 
 	/*
 	 * This should only happen when the
-	 * adult_rand_artifacts option is true
+	 * adult_rand_artefacts option is true
 	 */
 	if (art_theme_freq[theme] >= MIN_ENFORCEMENT) art_theme_freq[theme] -= MIN_ENFORCEMENT;
 
@@ -2659,7 +2134,7 @@ static byte get_theme(void)
  */
 static void choose_item(int a_idx)
 {
-	artifact_type *a_ptr = &a_info[a_idx];
+	artefact_type *a_ptr = &a_info[a_idx];
 	object_kind *k_ptr;
 	s16b k_idx;
 	byte theme;
@@ -2674,8 +2149,8 @@ static void choose_item(int a_idx)
 	else target_level = object_level + 5;
 
 	/*
-	 * Look up the original artifact's base object kind to get level and
-	 * rarity information to supplement the artifact level/rarity.  As a
+	 * Look up the original artefact's base object kind to get level and
+	 * rarity information to supplement the artefact level/rarity.  As a
 	 * degenerate case consider Bladeturner.
 	 */
 	/*If replacing standard art set, replace the rarity*/
@@ -2717,8 +2192,8 @@ static void choose_item(int a_idx)
 
 	k_ptr = &k_info[k_idx];
 
-	/*prepare a basic-non-magic artifact template based on the base object*/
-	artifact_prep(k_idx, a_idx);
+	/*prepare a basic-non-magic artefact template based on the base object*/
+	artefact_prep(k_idx, a_idx);
 
 	a_ptr->flags1 |= k_ptr->flags1;
 	a_ptr->flags2 |= k_ptr->flags2;
@@ -2769,10 +2244,10 @@ static int choose_power_type (void)
  * been done already.
  */
 
-static void add_feature_aux(artifact_type *a_ptr, int choice)
+static void add_feature_aux(artefact_type *a_ptr, int choice)
 {
 
-	switch(choice)
+	switch (choice)
 	{
 		case CAT_STATS:
 		{
@@ -2804,9 +2279,9 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 			 * Note there is a reason to add this again.
 			 * Do PVAL might increase the speed.
 			 */
-			if ((one_in_(2)) || (a_ptr->flags1 & TR1_SPEED))
+			if ((one_in_(2)) || (a_ptr->flags2 & TR2_SPEED))
 			{
-				a_ptr->flags1 |= TR1_SPEED;
+				a_ptr->flags2 |= TR2_SPEED;
 				do_pval(a_ptr);
 			}
 			break;
@@ -2836,30 +2311,23 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 			/*make the selection*/
 			choice = randint(highest);
 
-			/*add resists, the power of which depends on artifact depth*/
+			/*add resists, the power of which depends on artefact depth*/
 			if (choice <= 18)
 			{
 				/*exit if we added a base resist*/
 				if (add_one_resist(a_ptr, TR2_RESISTANCE)) break;
 			}
-			/*add resists, the power of which depends on artifact depth*/
+			/*add resists, the power of which depends on artefact depth*/
 			if (choice <= 30)
 			{
 				/*exit if we added a low resist*/
 				if (add_one_resist(a_ptr, TR2_LOW_RESIST)) break;
-			}
-			if (choice <= 40)
-			{
-				/*exit if we added a medium resist*/
-				if (add_one_resist(a_ptr, TR2_MED_RESIST)) break;
 			}
 			if (choice <= 50)
 			{
 				/*exit if we added a low resist*/
 				if (add_one_resist(a_ptr, TR2_HIGH_RESIST)) break;
 			}
-			/*add an immunity if all else has failed or the number is high enough*/
-			if (choice > 50) (void)add_one_resist(a_ptr, TR2_IMMUNE_ALL);
 
 			break;
 		}
@@ -2901,119 +2369,46 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 		}
 		case CAT_IMPACT:
 		{
-			object_kind *k_ptr = &k_info[cur_art_k_idx];
-
-			/*Only try this one once*/
-			art_freq[CAT_IMPACT] = 0;
-
-			/*light objects shouldn't be allowed to impact*/
-			if (k_ptr->weight < 120) break;
-
-			/*heavier objects only do this some of the time*/
-			if (randint(1000) < (k_ptr->weight - 120))	a_ptr->flags3 |= TR3_IMPACT;
-
 			break;
 		}
 		case CAT_WEAP_XTRA:
 		{
-			/*WE already have this one.  Don't check again*/
-			if ((a_ptr->flags1 & TR1_BLOWS) || (a_ptr->pval < 0))
-			{
-				art_freq[CAT_WEAP_XTRA] = 0;
-				break;
-			}
-			if (one_in_(2))
-			{
-				a_ptr->flags1 |= TR1_BLOWS;
-				do_pval(a_ptr);
-			}
 			break;
 		}
 		case CAT_BOW_XTRA:
 		{
-			/*All full, or negative pval - Prevent this from being called again*/
-			if (((a_ptr->flags1 & TR1_SHOTS) && (a_ptr->flags1 & TR1_MIGHT))
-				 || (a_ptr->pval < 0))
-			{
-				art_freq[CAT_BOW_XTRA] = 0;
-				break;
-			}
-
-			/*
-			 * If there is only one of the two, add the other one.
-			 * Note this might make the artifact too powerful, so it may be
-			 * cancelled out
-			 */
-			if ((a_ptr->flags1 & TR1_SHOTS) || (a_ptr->flags1 & TR1_MIGHT))
-			{
-				a_ptr->flags1 |= (TR1_SHOTS | TR1_MIGHT);
-
-			}
-
-			/*We don't have either, 50% chance of adding either one*/
-			else if one_in_(2)
-			{
-				a_ptr->flags1 |= (TR1_SHOTS);
-			}
-			else
-			{
-				a_ptr->flags1 |= (TR1_MIGHT);
-			}
-
-			/*(Prevent this from being called twice too often*/
-			art_freq[CAT_BOW_XTRA] /= 3;
-
-			do_pval(a_ptr);
 			break;
 		}
 		case CAT_STEALTH:
 		{
 			/*Not necessary to call this again*/
-			if (a_ptr->flags1 & TR1_STEALTH)
+			if (a_ptr->flags1 & TR1_STL)
 			{
 				art_freq[CAT_STEALTH] = 0;
 				break;
 			}
-			a_ptr->flags1 |= TR1_STEALTH;
+			a_ptr->flags1 |= TR1_STL;
 			do_pval(a_ptr);
 			break;
 		}
 		case CAT_VISION:
 		{
 			/*All full - Prevent this from being called again*/
-			if (((a_ptr->flags1 & TR1_INFRA) && (a_ptr->flags1 & TR1_SEARCH)) ||
+			if (((a_ptr->flags1 & TR1_PER)) ||
 				(a_ptr->pval < 0))
 			{
 				art_freq[CAT_VISION] = 0;
 				break;
 			}
 
-			/*
-			 * If there is only one of the two, add the other one.
-			 */
-			if ((a_ptr->flags1 & TR1_INFRA) || (a_ptr->flags1 & TR1_SEARCH))
-			{
-				a_ptr->flags1 |= (TR1_INFRA | TR1_SEARCH);
-
-			}
-
-			/*50% chance of adding either one*/
-			else if one_in_(2)
-			{
-				a_ptr->flags1 |= (TR1_INFRA);
-			}
-			else
-			{
-				a_ptr->flags1 |= (TR1_SEARCH);
-			}
 			do_pval(a_ptr);
 			break;
 		}
 		case CAT_COMBAT:
 		{
 			/*50-50% chance of adding to-hit or to-damage*/
-			if (one_in_(2))	add_to_hit(a_ptr, 1, 2 * MEAN_DAM_INCREMENT);
-			else add_to_dam(a_ptr, 1, 2 * MEAN_DAM_INCREMENT);
+			if (one_in_(2))	add_att(a_ptr, 1, 2 * MEAN_DAM_INCREMENT);
+			else add_to_dam(a_ptr);
 			break;
 		}
 		case CAT_TO_AC:
@@ -3021,7 +2416,7 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 			add_to_ac(a_ptr, 1, 2 * MEAN_DAM_INCREMENT);
 			break;
 		}
-		/*add base AC, base to-hit, or base-to-dam to artifact*/
+		/*add base AC, base to-hit, or base-to-dam to artefact*/
 		case CAT_TO_BASE:
 		{
 			switch (a_ptr->tval)
@@ -3045,10 +2440,8 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 					break;
 				}
 				/*add to armor*/
-				case TV_HARD_ARMOR:
+				case TV_MAIL:
 				case TV_SOFT_ARMOR:
-				case TV_DRAG_ARMOR:
-				case TV_DRAG_SHIELD:
 				case TV_CLOAK:
 				case TV_SHIELD:
 				case TV_HELM:
@@ -3056,16 +2449,8 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 				case TV_BOOTS:
 				case TV_GLOVES:
 				{
-					/* Hack -- Super-charge the damage sides */
-					while ((a_ptr->ac > 0) &&
-					       (one_in_(15)))
-					{
-						/*extra bonus at higher values*/
-						a_ptr->ac += (1 + (a_ptr->ac / 10));
-					}
-
-					/* Hack -- Limit the damage sides to max of 9*/
-					if (a_ptr->ac > 9) a_ptr->ac = 9;
+					// Sil-y: add to the armour sides here
+					
 					break;
 				}
 				/* we are correcting reaching this by mistake*/
@@ -3090,14 +2475,14 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 			 * Hack - Don't add this to lite sources
 			 * or make sure we don't return again if we already had it.
 			 */
-			if (((a_ptr->tval == TV_LITE) || (a_ptr->flags3 & TR3_LITE)) ||
+			if (((a_ptr->tval == TV_LIGHT) || (a_ptr->flags2 & TR2_LIGHT)) ||
 				(a_ptr->pval < 0))
 			{
 				art_freq[CAT_LITE] = 0;
 				break;
 			}
 
-			a_ptr->flags3 |= TR3_LITE;
+			a_ptr->flags2 |= TR2_LIGHT;
 			break;
 		}
 
@@ -3105,10 +2490,10 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 }
 
 /*
- * Randomly select an extra ability to be added to the artifact in question.
+ * Randomly select an extra ability to be added to the artefact in question.
  * XXX - This function is way too large.
  */
-static void add_feature(artifact_type *a_ptr)
+static void add_feature(artefact_type *a_ptr)
 {
 	int r;
 
@@ -3120,23 +2505,16 @@ static void add_feature(artifact_type *a_ptr)
 
 	/* Now remove contradictory or redundant powers. */
 	remove_contradictory(a_ptr);
-
-	/* Adding WIS to sharp weapons always blesses them */
-	if ((a_ptr->flags1 & TR1_WIS) && (a_ptr->pval > 0) &&
-		(a_ptr->tval == TV_SWORD || a_ptr->tval == TV_POLEARM))
-	{
-		a_ptr->flags3 |= TR3_BLESSED;
-	}
 }
 
 
 
 /*
  * Try to supercharge this item by running through the list of the supercharge
- * abilities and attempting to add each in turn.  An artifact only gets one
+ * abilities and attempting to add each in turn.  An artefact only gets one
  * chance at each of these up front (if applicable).
  */
-static void try_supercharge(artifact_type *a_ptr, int final_power)
+static void try_supercharge(artefact_type *a_ptr, int final_power)
 {
 	bool did_supercharge = FALSE;
 
@@ -3162,37 +2540,6 @@ static void try_supercharge(artifact_type *a_ptr, int final_power)
 		}
 	}
 
-	/* Bows - +3 might or +3 shots */
-	if (a_ptr->tval == TV_BOW)
-	{
-		if (rand_int(a_ptr->level) < (final_power / 10))
-		{
-			a_ptr->flags1 |= TR1_SHOTS;
-			a_ptr->pval = 3;
-		}
-		else if (rand_int(a_ptr->level) < (final_power / 10))
-		{
-			a_ptr->flags1 |= TR1_MIGHT;
-			a_ptr->pval = 3;
-		}
-
-		did_supercharge = TRUE;
-	}
-
-	/* Big speed bonus - any item (except bows, because we can't have +10- shots/might) */
-	else if (rand_int(a_ptr->level) < (final_power / 20))
-	{
-		a_ptr->flags1 |= TR1_SPEED;
-		a_ptr->pval = 6 + rand_int(4);
-
-		/*boots love speed.  Make sure stats don't mess it up*/
-		if (a_ptr->tval == TV_BOOTS)
-		{
-			a_ptr->pval += damroll (3,2);
-		}
-
-		did_supercharge = TRUE;
-	}
 	/* Aggravation */
 	if (did_supercharge)
 	{
@@ -3206,7 +2553,7 @@ static void try_supercharge(artifact_type *a_ptr, int final_power)
 			{
 					if (rand_int (100) < (final_power / 8))
 				{
-					a_ptr->flags3 |= TR3_AGGRAVATE;
+					a_ptr->flags2 |= TR2_AGGRAVATE;
 				}
 				break;
 			}
@@ -3215,7 +2562,7 @@ static void try_supercharge(artifact_type *a_ptr, int final_power)
 			{
 				if (rand_int (100) < (final_power / 8))
 				{
-					a_ptr->flags3 |= TR3_AGGRAVATE;
+					a_ptr->flags2 |= TR2_AGGRAVATE;
 				}
 				break;
 			}
@@ -3227,23 +2574,15 @@ static void try_supercharge(artifact_type *a_ptr, int final_power)
 /*
  * Make it bad, or if it's already bad, make it worse!
  */
-static void do_curse(artifact_type *a_ptr)
+static void do_curse(artefact_type *a_ptr)
 {
 	if (one_in_(3))
-		a_ptr->flags3 |= TR3_AGGRAVATE;
-	if (one_in_(5))
-		a_ptr->flags3 |= TR3_DRAIN_EXP;
-	if (one_in_(7))
-		a_ptr->flags3 |= TR3_TELEPORT;
+		a_ptr->flags2 |= TR2_AGGRAVATE;
 
 	if ((a_ptr->pval > 0) && (one_in_(2)))
 		a_ptr->pval = -a_ptr->pval;
-	if ((a_ptr->to_a > 0) && (one_in_(2)))
-		a_ptr->to_a = -a_ptr->to_a;
-	if ((a_ptr->to_h > 0) && (one_in_(2)))
-		a_ptr->to_h = -a_ptr->to_h;
-	if ((a_ptr->to_d > 0) && (one_in_(4)))
-		a_ptr->to_d = -a_ptr->to_d;
+	if ((a_ptr->att > 0) && (one_in_(2)))
+		a_ptr->att = -a_ptr->att;
 
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE)
 	{
@@ -3261,11 +2600,11 @@ static void do_curse(artifact_type *a_ptr)
 /*
  * Note the three special cases (One Ring, Grond, Morgoth).
  */
-static void scramble_artifact(int a_idx)
+static void scramble_artefact(int a_idx)
 {
-	artifact_type *a_ptr = &a_info[a_idx];
-	artifact_type artifact_type_body;
-	artifact_type *a_old = &artifact_type_body;
+	artefact_type *a_ptr = &a_info[a_idx];
+	artefact_type artefact_type_body;
+	artefact_type *a_old = &artefact_type_body;
 	object_kind *k_ptr;
 	u32b activates = a_ptr->flags3 & TR3_ACTIVATE;
 	s32b power;
@@ -3283,7 +2622,7 @@ static void scramble_artifact(int a_idx)
 	if (strstr(a_ptr->name, "Grond")) return;
 	if (strstr(a_ptr->name, "of Morgoth")) return;
 
-	/* Skip unused artifacts, too! */
+	/* Skip unused artefacts, too! */
 	if (a_ptr->tval == 0) return;
 
 	/*if there are bad flags, add them in later*/
@@ -3307,12 +2646,12 @@ static void scramble_artifact(int a_idx)
 	    my_strcpy(a_ptr->name, format("of %^s", buf), MAX_LEN_ART_NAME);
 	}
 
-	/* Evaluate the original artifact to determine the power level. */
+	/* Evaluate the original artefact to determine the power level. */
 	power = base_power[a_idx];
 
 	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
 
-	/*paranoia - don't attempt to scramble invalid artifacts*/
+	/*paranoia - don't attempt to scramble invalid artefacts*/
 	if (!k_idx) return;
 
 	/* If it has a restricted ability then don't randomize it. */
@@ -3326,13 +2665,13 @@ static void scramble_artifact(int a_idx)
 	if (a_idx >= z_info->art_spec_max)
 	{
 		/*
-		 * Normal artifact - choose a random base item type.
+		 * Normal artefact - choose a random base item type.
 		 */
 		int y;
 		int new_object_rarity = 0;
 		alloc_entry *table = alloc_kind_table;
 
-		/* Capture the rarity of the original base item and artifact */
+		/* Capture the rarity of the original base item and artefact */
 		base_rarity_old = base_item_rarity[a_idx];
 		rarity_old = base_art_rarity[a_idx];
 
@@ -3345,7 +2684,7 @@ static void scramble_artifact(int a_idx)
 		/*
 		 * Calculate the proper rarity based on the new type.  We attempt
 		 * to preserve the 'effective rarity' which is equal to the
-		 * artifact rarity multiplied by the base item rarity.
+		 * artefact rarity multiplied by the base item rarity.
 		 */
 
 		/* Process probabilities */
@@ -3374,19 +2713,19 @@ static void scramble_artifact(int a_idx)
 	}
 	else
 	{
-		/* Special artifact (light source, ring, or
+		/* Special artefact (light source, ring, or
 		   amulet).  Clear the following fields; leave
 		   the rest alone. */
 		a_ptr->pval = 0;
-		a_ptr->to_h = a_ptr->to_d = a_ptr->to_a = 0;
+		a_ptr->att = 0;
 		a_ptr->flags1 = a_ptr->flags2 = 0;
 
-		/* Artifacts ignore everything */
+		/* Artefacts ignore everything */
 		a_ptr->flags3 = (TR3_IGNORE_MASK);
 
 		k_ptr = &k_info[k_idx];
 
-		ap = artifact_power (a_idx);
+		ap = artefact_power (a_idx);
 
 		/*make sure there is some room to add something*/
 		if ((ap * 10 / 9) > power) power = (ap * 10 / 9);
@@ -3401,15 +2740,14 @@ static void scramble_artifact(int a_idx)
 	if (k_ptr->flags3 & (TR3_THROWING))
 	{
 		a_ptr->flags3 |= TR3_THROWING;
-		if (one_in_(2)) a_ptr->flags3 |= TR3_PERFECT_BALANCE;
 	}
 
-	/* Copy artifact info temporarily. */
+	/* Copy artefact info temporarily. */
 	*a_old = *a_ptr;
 
-	/* Give this artifact a shot at being supercharged */
+	/* Give this artefact a shot at being supercharged */
 	try_supercharge(a_ptr, power);
-	ap = artifact_power(a_idx);
+	ap = artefact_power(a_idx);
 	if (ap > (power * 21) / 20 + 1)
 	{
 		/* too powerful -- put it back */
@@ -3420,7 +2758,7 @@ static void scramble_artifact(int a_idx)
 	if (curse_me)
 	{
 		int count;
-		/* Copy artifact info temporarily. */
+		/* Copy artefact info temporarily. */
 		*a_old = *a_ptr;
 
 		for (count = 0; count < MAX_TRIES; count ++)
@@ -3431,7 +2769,7 @@ static void scramble_artifact(int a_idx)
 			do_curse(a_ptr);
 			do_curse(a_ptr);
 			remove_contradictory(a_ptr);
-			ap = artifact_power(a_idx);
+			ap = artefact_power(a_idx);
 
 			/* Accept if it doesn't have any inhibited abilities */
 			if (ap < 10000) break;
@@ -3457,10 +2795,10 @@ static void scramble_artifact(int a_idx)
 		for (tries = 0; tries < MAX_TRIES; tries++)
 		{
 
-			/* Copy artifact info temporarily. */
+			/* Copy artefact info temporarily. */
 			*a_old = *a_ptr;
 			add_feature(a_ptr);
-			ap = artifact_power(a_idx);
+			ap = artefact_power(a_idx);
 
 			/* CR 11/14/01 - pushed both limits up by about 5% */
 			if (ap >= (power * 22 / 20))
@@ -3491,22 +2829,15 @@ static void scramble_artifact(int a_idx)
 	/*add back in any bad flags*/
 	a_ptr->flags3 |= flags_bad;
 
-	/*
-	 * Add TR3_HIDE_TYPE to all artifacts with nonzero pval because we're
-	 * too lazy to find out which ones need it and which ones don't.
-	 */
-	if (a_ptr->pval)
-		a_ptr->flags3 |= TR3_HIDE_TYPE;
-
 }
 
 
 /*
- * Return nonzero if there is an acceptable minimum set of random artifacts.
+ * Return nonzero if there is an acceptable minimum set of random artefacts.
  * With the overloaded weighting of randart themes until the minimum is
  * set, it is highly unlikely this routine will fail. -JG
  */
-static bool artifacts_acceptable(void)
+static bool artefacts_acceptable(void)
 {
 	byte i;
 
@@ -3521,7 +2852,7 @@ static bool artifacts_acceptable(void)
 
 static errr scramble(void)
 {
-	/*Prevent making come unacceptable things for artifacts such as arrows*/
+	/*Prevent making come unacceptable things for artefacts such as arrows*/
 	object_generation_mode = OB_GEN_MODE_RANDART;
 
 	while (TRUE)
@@ -3529,13 +2860,13 @@ static errr scramble(void)
 
 		int a_idx;
 
-		/* Generate all the artifacts. */
+		/* Generate all the artefacts. */
 		for (a_idx = 1; a_idx < z_info->art_norm_max; a_idx++)
 		{
-			scramble_artifact(a_idx);
+			scramble_artefact(a_idx);
 		}
 
-		if (artifacts_acceptable()) break;
+		if (artefacts_acceptable()) break;
 
 	}
 
@@ -3556,7 +2887,7 @@ static errr do_randart_aux(bool full)
 	{
 		/*note: we are failing here*/
 
-		/* Randomize the artifacts */
+		/* Randomize the artefacts */
 		if ((result = scramble()) != 0) return (result);
 	}
 
@@ -3587,10 +2918,10 @@ void free_randart_tables(void)
 }
 
 /*
- * Randomize the artifacts
+ * Randomize the artefacts
  *
  * The full flag toggles between just randomizing the names and
- * complete randomization of the artifacts.
+ * complete randomization of the artefacts.
  */
 errr do_randart(u32b randart_seed, bool full)
 {
@@ -3618,7 +2949,7 @@ errr do_randart(u32b randart_seed, bool full)
 
 	}
 
-	/* Generate the random artifact (names) */
+	/* Generate the random artefact (names) */
 	err = do_randart_aux(full);
 
 	/* Only do all the following if full randomization requested */
@@ -3640,8 +2971,8 @@ errr do_randart(u32b randart_seed, bool full)
 
 
 /*
- * Attempt to create an artifact, returns false if there is no available slot.
- * This function assumes that an object suitable for an artifact is there, or if
+ * Attempt to create an artefact, returns false if there is no available slot.
+ * This function assumes that an object suitable for an artefact is there, or if
  * it is blank it will make one.
  */
 bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
@@ -3651,12 +2982,12 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 	int a_idx = 0;
 	s32b ap;
 	object_kind *k_ptr;
-	artifact_type *a_ptr;
+	artefact_type *a_ptr;
 	u32b f1, f2, f3;
-	artifact_type artifact_type_body;
-	artifact_type *a_old = &artifact_type_body;;
+	artefact_type artefact_type_body;
+	artefact_type *a_old = &artefact_type_body;;
 
-	/*find an artifact slot, return false if none are available*/
+	/*find an artefact slot, return false if none are available*/
 	for (i = z_info->art_norm_max; i < z_info->art_max; i++)
 	{
 		a_ptr = &a_info[i];
@@ -3664,10 +2995,7 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 		/* This slot is already being used */
 		if ((a_ptr->tval + a_ptr->sval) > 0) continue;
 
-		/*this one slot is reserved for quest artifacts*/
-		if (i == QUEST_ART_SLOT) continue;
-
-		/*found a space to create an artifact*/
+		/*found a space to create an artefact*/
 		a_idx = i;
 
 		break;
@@ -3675,11 +3003,11 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 
 	if (!a_idx) return (FALSE);
 
-	/*point to the artifact*/
+	/*point to the artefact*/
 	a_ptr = &a_info[a_idx];
 
-	/* Clear the artifact record */
-	(void)WIPE(a_ptr, artifact_type);
+	/* Clear the artefact record */
+	(void)WIPE(a_ptr, artefact_type);
 
 	/*point to the object type*/
 	k_ptr = &k_info[o_ptr->k_idx];
@@ -3687,14 +3015,14 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 	/*paranoia - make sure we have a suitable object_type*/
 	if (can_be_randart(o_ptr))
 	{
-		/*prepare a basic, non-magic artifact template based on the object kind*/
-		artifact_prep(o_ptr->k_idx, a_idx);
+		/*prepare a basic, non-magic artefact template based on the object kind*/
+		artefact_prep(o_ptr->k_idx, a_idx);
 
 		/*
-	 	 * bad hack - because we didn't determine object type based on artifact
+	 	 * bad hack - because we didn't determine object type based on artefact
 		 * power, make sure we have room to add power.
 	 	 */
-		ap = artifact_power(a_idx);
+		ap = artefact_power(a_idx);
 		if (ap > art_power) art_power = ap * 6 / 5;
 
 	}
@@ -3708,7 +3036,7 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 
 		byte theme;
 
-		/*Prevent making some unacceptable things for artifacts such as arrows*/
+		/*Prevent making some unacceptable things for artefacts such as arrows*/
 		object_generation_mode = OB_GEN_MODE_RANDART;
 
 		/*prepare the object template*/
@@ -3719,7 +3047,7 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 	   	{
 			theme = get_theme();
 
-			/*hack - we con't need any more artifact digging tools*/
+			/*hack - we don't need any more artefact digging tools*/
 			if (theme == DROP_TYPE_DIGGING) continue;
 		}
 
@@ -3736,13 +3064,13 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 		/* Un-do the object theme */
 		get_obj_num_prep();
 
-		/* Clear the artifact record */
-		(void)WIPE(a_ptr, artifact_type);
+		/* Clear the artefact record */
+		(void)WIPE(a_ptr, artefact_type);
 
-		/*prepare a basic, non-magic artifact template based on the object kind*/
-		artifact_prep(k_idx, a_idx);
+		/*prepare a basic, non-magic artefact template based on the object kind*/
+		artefact_prep(k_idx, a_idx);
 
-		ap = artifact_power(a_idx);
+		ap = artefact_power(a_idx);
 
 		/*make sure there is room to add stuff*/
 		if (ap > art_power) art_power = ap * 6 / 5;
@@ -3757,24 +3085,23 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 	/*All others fail, but this shouldn't happen*/
 	else return(FALSE);
 
-	/*mark the artifact*/
+	/*mark the artefact*/
 	o_ptr->name1 = a_idx;
 
 	/*add in the throwing flag, and possibly perfect_balance*/
 	if (k_ptr->flags3 & (TR3_THROWING))
 	{
 		a_ptr->flags3 |= TR3_THROWING;
-		if (one_in_(2)) a_ptr->flags3 |= TR3_PERFECT_BALANCE;
 	}
 
-	/*Start artifact naming with a blank name*/
+	/*Start artefact naming with a blank name*/
 	tmp[0] = '\0';
 
-	/*possibly allow character to name the artifact*/
+	/*possibly allow character to name the artefact*/
 	if (tailored)
 	{
 		char ask_first[40];
-		strnfmt(ask_first, sizeof(ask_first), "Name your artifact? ");
+		strnfmt(ask_first, sizeof(ask_first), "Name your artefact? ");
 		if (get_check(ask_first))
 		{
 			char buf[MAX_LEN_ART_NAME];
@@ -3782,7 +3109,7 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 			/*start with a blank name*/
 			buf[0] = '\0';
 
-			if (get_string("Enter a name for your artifact: ", buf, sizeof(buf)))
+			if (term_get_string("Enter a name for your artefact: ", buf, sizeof(buf)))
 			{
 
 				/*The additional check is because players sometimes hit return accidentally*/
@@ -3819,23 +3146,23 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 	/* Generate the cumulative frequency table for this item type */
 	build_freq_table(a_ptr);
 
-	/*save any base object template flags before artifact creation*/
+	/*save any base object template flags before artefact creation*/
 	f1 = k_ptr->flags1;
 	f2 = k_ptr->flags2;
 	f3 = k_ptr->flags3;
 
-	/*the artifacts are always going to be created on demand, no need for rarity*/
+	/*the artefacts are always going to be created on demand, no need for rarity*/
 	a_ptr->rarity = MIN(art_power, 255);
 
 	/*The level affects the power of the object*/
 	a_ptr->level = object_level;
 
-	/* Copy artifact info temporarily. */
+	/* Copy artefact info temporarily. */
 	*a_old = *a_ptr;
 
-	/* Give this artifact a shot at being supercharged */
+	/* Give this artefact a shot at being supercharged */
 	try_supercharge(a_ptr, art_power);
-	ap = artifact_power(a_idx);
+	ap = artefact_power(a_idx);
 	if (ap >= (art_power * 21 / 20)+ 1)
 	{
 		/* too powerful -- put it back */
@@ -3853,11 +3180,11 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 	 */
 	for (tries = 0; tries < MAX_TRIES; tries++)
 	{
-		/* Copy artifact info temporarily. */
+		/* Copy artefact info temporarily. */
 		*a_old = *a_ptr;
 
 		add_feature(a_ptr);
-		ap = artifact_power(a_idx);
+		ap = artefact_power(a_idx);
 
 		if (ap >= (art_power * 21 / 20) + 1)
 		{
@@ -3873,55 +3200,18 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 		}
 	}
 
-	/*Make sure certain classes can use the artifact they get without penalty*/
-	if (tailored)
-	{
-		switch (a_ptr->tval)
-		{
-			/*hack - automatically bless weapons for priests*/
-			case TV_POLEARM:
-			case TV_SWORD:
-			{
-				if (cp_ptr->flags & CF_BLESS_WEAPON) a_ptr->flags3 |= TR3_BLESSED;
-				break;
-			}
-			/*make sure mage spellcasters get free action or dex boost*/
-			case TV_GLOVES:
-			{
-				if (cp_ptr->flags & CF_CUMBER_GLOVE)
-				{
-					/* Limit to legal glove types */
-					if (!((a_ptr->flags3 & (TR3_FREE_ACT)) ||
-							  (a_ptr->flags1 & (TR1_DEX))))
-					{
-						a_ptr->flags3 |= TR3_FREE_ACT;
-					}
-				}
-				break;
-			}
-			default: break;
-		}
-	}
-
-	ap = artifact_power(a_idx);
+	ap = artefact_power(a_idx);
 
 	a_ptr->cost = ap * 1000L;
 
 	if (a_ptr->cost < 0) a_ptr->cost = 0;
 
-	/*
-	 * Add TR3_HIDE_TYPE to all artifacts with nonzero pval because we're
-	 * too lazy to find out which ones need it and which ones don't.
-	 */
-	if (a_ptr->pval)
-		a_ptr->flags3 |= TR3_HIDE_TYPE;
-
-	/* Hack -- Mark the artifact as "created" */
+	/* Hack -- Mark the artefact as "created" */
 	a_ptr->cur_num = 1;
 	a_ptr->max_num = 1;
 
-	/*turn the object into an artifact*/
-	object_into_artifact(o_ptr, a_ptr);
+	/*turn the object into an artefact*/
+	object_into_artefact(o_ptr, a_ptr);
 
 	/* Set the good item flag */
 	good_item_flag = TRUE;
@@ -3929,142 +3219,29 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 	return (TRUE);
 }
 
-/*
- * Create a quest artifact
- */
-void make_quest_artifact(int lev)
-{
-	int a_idx = QUEST_ART_SLOT;
-	artifact_type *a_ptr = &a_info[a_idx];
-	s16b k_idx = 0;
-	char buf[MAX_LEN_ART_NAME];
-
-	byte old_mode = object_generation_mode;
-
-	/* Clear the artifact record */
-	artifact_wipe(QUEST_ART_SLOT, TRUE);
-
-	/*Prevent making some unacceptable things for artifacts such as arrows*/
-	object_generation_mode = OB_GEN_MODE_RANDART;
-
-	while (!k_idx)
-	{
-		byte theme = get_theme();
-
-		/*hack - we aren't ready for randart amulets and rings yet*/
-		if (theme == DROP_TYPE_DIGGING) continue;
-
-		/*prepare the object generation level for a specific theme*/
-		prep_object_theme(theme);
-
-		k_idx = get_obj_num(MIN(object_level + 15, MAX_DEPTH - 1));
-
-		/* Clear restriction */
-		get_obj_num_hook = NULL;
-
-		/* Un-do the object theme */
-		get_obj_num_prep();
-
-	}
-
-	/*Re-Set the mode*/
-	object_generation_mode = old_mode;
-
-	/*Not sure if this is needed, but you never know*/
-	a_ptr->rarity = 1;
-	a_ptr->level = lev;
-	a_ptr->cost = 0;
-
-	/*Hack - this may prevent from being accidentally created*/
-	a_ptr->cur_num = 1;
-	a_ptr->max_num = 1;
-
-	/*prepare a basic, non-magic artifact template based on the object kind*/
-	artifact_prep(k_idx, a_idx);
-
-	/*randomize the name*/
-	make_random_name(buf, MAX_LEN_ART_NAME);
-
-	/*Capitalize the name*/
-	buf[0] = toupper((unsigned char)buf[0]);
-
-	if (!one_in_(3))
-	{
-		my_strcpy(a_ptr->name, format("'%^s'", buf), MAX_LEN_ART_NAME);
-	}
-	else
-	{
-	    my_strcpy(a_ptr->name, format("of %^s", buf), MAX_LEN_ART_NAME);
-	}
-
-	return;
-}
 
 /*
- * Attempt to create an artifact, returns false if there is no available slot.
- * This function assumes that an object suitable for an artifact is there, or if
- * it is blank it will make one.
- */
-void create_quest_artifact(object_type *o_ptr)
-{
-	int a_idx = QUEST_ART_SLOT;
-	artifact_type *a_ptr = &a_info[a_idx];
-
-	o_ptr->k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-	/*make the base item*/
-	object_prep(o_ptr, o_ptr->k_idx);
-
-	/* Hack -- Mark the artifact as "created" */
-	a_ptr->cur_num = 1;
-	a_ptr->max_num = 1;
-
-	/*mark the artifact*/
-	o_ptr->name1 = a_idx;
-
-	/*make the object into an artifact*/
-	object_into_artifact(o_ptr, a_ptr);
-
-	/* Identify it fully */
-	object_aware(o_ptr);
-	object_known(o_ptr);
-
-	/* Mark the item as fully known, and as a quest item */
-	o_ptr->ident |= (IDENT_MENTAL | IDENT_QUEST);
-
-	/* Set the good item flag */
-	good_item_flag = TRUE;
-
-	return;
-}
-
-
-
-/*
- * Wipe an artifact clean.  Rebuild the names string to delete the name.
+ * Wipe an artefact clean.  Rebuild the names string to delete the name.
  * Check first to make sure it is a randart
  */
-void artifact_wipe(int a_idx, bool quest_art_wipe)
+void artefact_wipe(int a_idx)
 {
-	artifact_type *a_ptr = &a_info[a_idx];
+	artefact_type *a_ptr = &a_info[a_idx];
 
-	/*Hack - don't wipe any standard artifacts*/
+	/*Hack - don't wipe any standard artefacts*/
 	if (a_idx < z_info->art_norm_max) return;
 
-	/*We wipe these only when the quest fails/succeeds*/
-	if ((a_idx == QUEST_ART_SLOT) && (!quest_art_wipe)) return;
-
 	/* Wipe the structure */
-	(void)WIPE(a_ptr, artifact_type);
+	(void)WIPE(a_ptr, artefact_type);
 
 	/*terminate the string*/
 	a_ptr->name[0] = '\0';
 }
 
 /*
- * Return true if an artifact can turn into a randart.
+ * Return true if an artefact can turn into a randart.
  * Note rings, amulets, and lite sources are currently not supported.
- * This is because there is no clear base object type for additional "special" artifacts,
+ * This is because there is no clear base object type for additional "special" artefacts,
  * plus object flavor would have to be handled for rings and amulets.
  * Someday I would like to resolve this. -JG
  */
@@ -4074,10 +3251,8 @@ bool can_be_randart(const object_type *o_ptr)
 
 	switch (k_ptr->tval)
 	{
-		case TV_HARD_ARMOR:
+		case TV_MAIL:
 		case TV_SOFT_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_DRAG_SHIELD:
 		case TV_SHIELD:
 		case TV_CLOAK:
 		case TV_BOOTS:

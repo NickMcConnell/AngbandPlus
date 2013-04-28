@@ -23,7 +23,7 @@
 #
 
 VERSION         = 292
-EXPORT          = angband-$(VERSION).os2.zip
+EXPORT          = sil-$(VERSION).os2.zip
 
 CC		= gcc
 AR		= ar
@@ -39,10 +39,10 @@ NICE		= nice -i -n -30
 
 default: all depends :-)
 
-install: ..\angband.exe ..\aclient.exe ..\startwnd.cmd
+install: ..\sil.exe ..\aclient.exe ..\startwnd.cmd
 
 clean:
-	-+@ del angband.exe
+	-+@ del sil.exe
 	-+@ del aclient.exe
 	-+@ del depends
 	-+@ del _state.mk
@@ -65,7 +65,7 @@ OBJS = \
 	xtra1.o xtra2.o spells1.o spells2.o \
 	melee1.o melee2.o save.o files.o \
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-	store.o birth.o load.o quest.o squelch.o \
+	birth.o load.o quest.o squelch.o \
 	wizard1.o wizard2.o \
 	generate.o dungeon.o init1.o init2.o randart.o \
 	obj-info.o
@@ -73,13 +73,13 @@ OBJS = \
 .c.o:
 	$(NICE) $(CC) $(CFLAGS) -c $*.c
 
-all .PHONY: angband.exe aclient.exe 
+all .PHONY: sil.exe aclient.exe 
 	+@echo. 
 	+@echo Now type 
 	+@echo. 
 	+@echo       '$(MAKECMD) $(MFLAGS) $(MAKEFILE) install'
 	+@echo. 
-	+@echo to install Angband in the parent directory, and/or
+	+@echo to install Sil in the parent directory, and/or
 	+@echo. 
 	+@echo       '$(MAKECMD) $(MFLAGS) $(MAKEFILE) clean'
 	+@echo. 
@@ -88,7 +88,7 @@ all .PHONY: angband.exe aclient.exe
 	+@echo working executables.
 	+@echo. 
 
-EXPFILES = angband.exe;aclient.exe;patches.txt;readme;startwnd.cmd
+EXPFILES = sil.exe;aclient.exe;patches.txt;readme;startwnd.cmd
 
 ..\exp\$(EXPORT) .PHONY .IGNORE: install patches
 # Needs 4OS2!
@@ -145,9 +145,9 @@ depends .IGNORE: $(OBJS)
 	+ echo. > depends
 	+ for %a in (*.d) type %a >> depends
 
-..\angband.exe: angband.exe
-	+ copy angband.exe ..
-	emxbind -s ..\angband.exe
+..\sil.exe: sil.exe
+	+ copy sil.exe ..
+	emxbind -s ..\sil.exe
 
 ..\aclient.exe: aclient.exe
 	+ copy aclient.exe ..
@@ -158,7 +158,7 @@ ECF=>> ..\startwnd.cmd
 
 ..\startwnd.cmd: 
 	$(EC) @echo off                                             > ..\startwnd.cmd
-	$(EC) REM This file starts up Angband and up to seven other views. The $(ECF)
+	$(EC) REM This file starts up Sil and up to seven other views. The     $(ECF)
 	$(EC) REM optional number behind the name sets the number of lines for $(ECF)
 	$(EC) REM that screen.  Choose contents for each via the game options. $(ECF)
 	$(EC) REM                                                              $(ECF)
@@ -167,13 +167,13 @@ ECF=>> ..\startwnd.cmd
 	$(EC) start /win /n aclient Term-2 10                                  $(ECF)
 	$(EC) rem start /win /n aclient Term-3 24                              $(ECF)
 	$(EC) delay                                                            $(ECF)
-	$(EC) angband %1 %2 %3 %4 %5 %6 %7 %8 %9                               $(ECF)
+	$(EC) sil %1 %2 %3 %4 %5 %6 %7 %8 %9                                   $(ECF)
 
-angband.exe: angband.a main.o main-emx.o main-epm.o
-	$(CC) -o angband.exe main.o main-emx.o angband.a $(LFLAGS) 
+sil.exe: sil.a main.o main-emx.o main-epm.o
+	$(CC) -o sil.exe main.o main-emx.o sil.a $(LFLAGS) 
 
-angband.a: $(OBJS)
-	$(AR) r angband.a $(OBJS)
+sil.a: $(OBJS)
+	$(AR) r sil.a $(OBJS)
 
 aclient.exe: main-emx.c
 	$(NICE) $(CC) $(CFLAGS) -Wall -D__EMX__CLIENT__ -o aclient.exe main-emx.c -lvideo

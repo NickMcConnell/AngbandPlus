@@ -132,7 +132,7 @@ extern unsigned _ovrbuffer = 0x1500;
 #ifdef PRIVATE_USER_PATH
 
 /*
- * Create an ".angband/" directory in the users home directory.
+ * Create an ".sil/" directory in the users home directory.
  *
  * ToDo: Add error handling.
  * ToDo: Only create the directories when actually writing files.
@@ -146,7 +146,7 @@ static void create_user_dir(void)
 	/* Get an absolute path from the filename */
 	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
 
-	/* Create the ~/.angband/ directory */
+	/* Create the ~/.sil/ directory */
 	mkdir(dirpath, 0700);
 
 	/* Build the path to the variant-specific sub-directory */
@@ -188,7 +188,7 @@ static void create_user_dir(void)
  * since the "init_file_paths()" function will simply append the
  * relevant "sub-directory names" to the given path.
  *
- * Note that the "path" must be "Angband:" for the Amiga, and it
+ * Note that the "path" must be "Sil:" for the Amiga, and it
  * is ignored for "VM/ESA", so I just combined the two.
  *
  * Make sure that the path doesn't overflow the buffer.  We have
@@ -202,7 +202,7 @@ static void init_stuff(void)
 #if defined(AMIGA) || defined(VM)
 
 	/* Hack -- prepare "path" */
-	strcpy(path, "Angband:");
+	my_strcpy(path, "Sil:", sizeof (path));
 
 #else /* AMIGA / VM */
 
@@ -264,22 +264,22 @@ static void change_path(cptr info)
 
 		case 'f':
 		{
-			string_free(ANGBAND_DIR_FILE);
-			ANGBAND_DIR_FILE = string_make(s+1);
+			//string_free(ANGBAND_DIR_FILE);
+			//ANGBAND_DIR_FILE = string_make(s+1);
 			break;
 		}
 
 		case 'h':
 		{
-			string_free(ANGBAND_DIR_HELP);
-			ANGBAND_DIR_HELP = string_make(s+1);
+			//string_free(ANGBAND_DIR_HELP);
+			//ANGBAND_DIR_HELP = string_make(s+1);
 			break;
 		}
 
 		case 'i':
 		{
-			string_free(ANGBAND_DIR_INFO);
-			ANGBAND_DIR_INFO = string_make(s+1);
+			//string_free(ANGBAND_DIR_INFO);
+			//ANGBAND_DIR_INFO = string_make(s+1);
 			break;
 		}
 
@@ -304,8 +304,8 @@ static void change_path(cptr info)
 
 		case 'b':
 		{
-			string_free(ANGBAND_DIR_BONE);
-			ANGBAND_DIR_BONE = string_make(s+1);
+			//string_free(ANGBAND_DIR_BONE);
+			//ANGBAND_DIR_BONE = string_make(s+1);
 			break;
 		}
 
@@ -570,7 +570,7 @@ int main(int argc, char *argv[])
 			usage:
 			{
 				/* Dump usage information */
-				puts("Usage: angband [options] [-- subopts]");
+				puts("Usage: sil [options] [-- subopts]");
 				puts("  -n       Start a new character");
 				puts("  -f       Request fiddle (verbose) mode");
 				puts("  -w       Request wizard mode");

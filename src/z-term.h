@@ -261,11 +261,15 @@ struct term
 #define TERM_XTRA_LEVEL 12	/* Change the "soft" level (optional) */
 #define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
 
+#define MAX_COLORS 32		/* The number of usable colours */
+#define BG_BLACK 0			/* The set number for the black-background glyphs */
+#define BG_SAME 1			/* The set number for the same-background glyphs */
+#define BG_DARK 2			/* The set number for the dark-background glyphs */
+
 
 /**** Available Variables ****/
 
 extern term *Term;
-
 
 /**** Available Functions ****/
 

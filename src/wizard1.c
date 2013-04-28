@@ -69,51 +69,40 @@ typedef struct
  */
 static const grouper group_item[] =
 {
-	{ TV_SHOT,		"Ammo" },
-	{ TV_ARROW,		  NULL },
-	{ TV_BOLT,		  NULL },
+	{ TV_ARROW,			"Arrow" },
 
-	{ TV_BOW,		"Bows" },
+	{ TV_BOW,			"Bows" },
 
-	{ TV_SWORD,		"Weapons" },
-	{ TV_POLEARM,	  NULL },
-	{ TV_HAFTED,	  NULL },
-	{ TV_DIGGING,	  NULL },
+	{ TV_SWORD,			"Weapons" },
+	{ TV_POLEARM,		NULL },
+	{ TV_HAFTED,		NULL },
+	{ TV_DIGGING,		NULL },
 
 	{ TV_SOFT_ARMOR,	"Armour (Body)" },
-	{ TV_HARD_ARMOR,	  NULL },
-	{ TV_DRAG_ARMOR,	  NULL },
+	{ TV_MAIL,			NULL },
 
-	{ TV_CLOAK,		"Armour (Misc)" },
-	{ TV_SHIELD,	  NULL },
-	{ TV_DRAG_SHIELD, NULL },
-	{ TV_HELM,		  NULL },
-	{ TV_CROWN,		  NULL },
-	{ TV_GLOVES,	  NULL },
-	{ TV_BOOTS,		  NULL },
+	{ TV_CLOAK,			"Armour (Misc)" },
+	{ TV_SHIELD,		NULL },
+	{ TV_HELM,			NULL },
+	{ TV_CROWN,			NULL },
+	{ TV_GLOVES,		NULL },
+	{ TV_BOOTS,			NULL },
 
-	{ TV_AMULET,	"Amulets" },
-	{ TV_RING,		"Rings" },
+	{ TV_AMULET,		"Amulets" },
+	{ TV_RING,			"Rings" },
 
-	{ TV_SCROLL,	"Scrolls" },
-	{ TV_POTION,	"Potions" },
-	{ TV_FOOD,		"Food" },
+	{ TV_POTION,		"Potions" },
+	{ TV_FOOD,			"Food" },
 
-	{ TV_ROD,		"Rods" },
-	{ TV_WAND,		"Wands" },
-	{ TV_STAFF,		"Staffs" },
+	{ TV_TRUMPET,		"Trumpets" },
+	{ TV_STAFF,			"Staffs" },
 
-	{ TV_MAGIC_BOOK,	"Books (Mage)" },
-	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_CHEST,			"Chests" },
 
-	{ TV_CHEST,		"Chests" },
-
-	{ TV_SPIKE,		"Various" },
-	{ TV_LITE,		  NULL },
-	{ TV_FLASK,		  NULL },
-	{ TV_JUNK,		  NULL },
-	{ TV_BOTTLE,	  NULL },
-	{ TV_SKELETON,	  NULL },
+	{ TV_LIGHT,			"Various" },
+	{ TV_FLASK,			NULL },
+	{ TV_USELESS,		NULL },
+	{ TV_METAL,			NULL },
 
 	{ 0, "" }
 };
@@ -125,7 +114,7 @@ static const grouper group_item[] =
 /*
  * Describe the kind
  */
-static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int k)
+static void kind_info(char *d_char, char *buf, char *wgt, int *lev, int *rar, int k)
 {
 	object_kind *k_ptr;
 
@@ -144,76 +133,27 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 	/* Cancel bonuses */
 	i_ptr->pval = 0;
-	i_ptr->to_a = 0;
-	i_ptr->to_h = 0;
-	i_ptr->to_d = 0;
 
 	/* Level */
-	(*lev) = k_ptr->level;
+	(*lev) = k_ptr->locale[0];
 
 	/* Make known */
 	i_ptr->ident |= (IDENT_KNOWN);
 
-	/* Value */
-	(*val) = object_value(i_ptr);
+	/* Rarity */
+	(*rar) = k_ptr->chance[0];
+
+	/* Symbol */
+	(*d_char) = k_ptr->d_char;
 
 	/* Hack */
-	if (!buf || !dam || !wgt) return;
+	if (!buf || !wgt) return;
 
 	/* Description (too brief) */
-	object_desc_spoil(buf, 80, i_ptr, FALSE, 0);
-
-	/* Misc info */
-	strcpy(dam, "");
-
-	/* Damage */
-	switch (i_ptr->tval)
-	{
-		/* Bows */
-		case TV_BOW:
-		{
-			break;
-		}
-
-		/* Ammo */
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		{
-			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
-			break;
-		}
-
-		/* Weapons */
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		{
-			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
-			break;
-		}
-
-		/* Armour */
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_DRAG_SHIELD:
-		{
-			sprintf(dam, "%d", i_ptr->ac);
-			break;
-		}
-	}
-
+	object_desc_spoil(buf, 80, i_ptr, FALSE, 1);
 
 	/* Weight */
-	sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
+	sprintf(wgt, "%3d.%d lb", k_ptr->weight / 10, k_ptr->weight % 10);
 }
 
 
@@ -222,16 +162,17 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
  */
 static void spoil_obj_desc(cptr fname)
 {
-	int i, k, s, t, n = 0;
+	int i, k, s, n = 0;
 
 	u16b who[200];
 
 	char buf[1024];
 
 	char wgt[80];
-	char dam[80];
+	
+	char d_char;
 
-	cptr format = "%-51s  %7s%6s%4s%9s\n";
+	cptr format = " %-42s  %7s%8s%9s\n";
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
@@ -254,9 +195,9 @@ static void spoil_obj_desc(cptr fname)
 	fprintf(fff, "Spoiler File -- Basic Items (%s)\n\n\n", VERSION_STRING);
 
 	/* More Header */
-	fprintf(fff, format, "Description", "Dam/AC", "Wgt", "Lev", "Cost");
+	fprintf(fff, format, "Description", "Weight", "Level", "/ Rarity");
 	fprintf(fff, format, "----------------------------------------",
-	        "------", "---", "---", "----");
+	        "-------", "-----", "---------");
 
 	/* List the groups */
 	for (i = 0; TRUE; i++)
@@ -265,7 +206,7 @@ static void spoil_obj_desc(cptr fname)
 		if (group_item[i].name)
 		{
 			/* Hack -- bubble-sort by cost and then level */
-			for (s = 0; s < n - 1; s++)
+			/*for (s = 0; s < n - 1; s++)
 			{
 				for (t = 0; t < n - 1; t++)
 				{
@@ -278,8 +219,8 @@ static void spoil_obj_desc(cptr fname)
 					s32b t1;
 					s32b t2;
 
-					kind_info(NULL, NULL, NULL, &e1, &t1, who[i1]);
-					kind_info(NULL, NULL, NULL, &e2, &t2, who[i2]);
+					kind_info(NULL, NULL, NULL, NULL, &e1, &t1, who[i1]);
+					kind_info(NULL, NULL, NULL, NULL, &e2, &t2, who[i2]);
 
 					if ((t1 > t2) || ((t1 == t2) && (e1 > e2)))
 					{
@@ -288,20 +229,20 @@ static void spoil_obj_desc(cptr fname)
 						who[i2] = tmp;
 					}
 				}
-			}
+			}*/
 
 			/* Spoil each item */
 			for (s = 0; s < n; s++)
 			{
 				int e;
-				s32b v;
+				int r;
 
 				/* Describe the kind */
-				kind_info(buf, dam, wgt, &e, &v, who[s]);
+				kind_info(&d_char, buf, wgt, &e, &r, who[s]);
 
 				/* Dump it */
-				fprintf(fff, "  %-51s%7s%6s%4d%9ld\n",
-				        buf, dam, wgt, e, (long)(v));
+				fprintf(fff, "%c %-42s%7s%8d / %2d\n",
+				        d_char, buf, wgt, e, r);
 			}
 
 			/* Start a new set */
@@ -322,7 +263,7 @@ static void spoil_obj_desc(cptr fname)
 			/* Skip wrong tval's */
 			if (k_ptr->tval != group_item[i].tval) continue;
 
-			/* Hack -- Skip instant-artifacts */
+			/* Hack -- Skip instant-artefacts */
 			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
 
 			/* Save the index */
@@ -345,36 +286,34 @@ static void spoil_obj_desc(cptr fname)
 
 
 /*
- * Artifact Spoilers by: randy@PICARD.tamu.edu (Randy Hutson)
+ * Artefact Spoilers by: randy@PICARD.tamu.edu (Randy Hutson)
  *
  * (Mostly) rewritten in 2002 by Andrew Sidwell and Robert Ruehlmann.
  */
 
 
 /*
- * The artifacts categorized by type
+ * The artefacts categorized by type
  */
-static const grouper group_artifact[] =
+static const grouper group_artefact[] =
 {
-	{ TV_SWORD,         "Edged Weapons" },
-	{ TV_POLEARM,       "Polearms" },
-	{ TV_HAFTED,        "Hafted Weapons" },
+	{ TV_SWORD,         "Blades" },
+	{ TV_POLEARM,       "Axes/Polearms" },
+	{ TV_HAFTED,        "Blunt Weapons" },
 	{ TV_BOW,           "Bows" },
 	{ TV_DIGGING,       "Diggers" },
 
 	{ TV_SOFT_ARMOR,    "Body Armor" },
-	{ TV_HARD_ARMOR,    NULL },
-	{ TV_DRAG_ARMOR,    NULL },
+	{ TV_MAIL,			NULL },
 
 	{ TV_CLOAK,         "Cloaks" },
 	{ TV_SHIELD,        "Shields" },
-	{ TV_DRAG_SHIELD,   NULL },
 	{ TV_HELM,          "Helms/Crowns" },
 	{ TV_CROWN,         NULL },
 	{ TV_GLOVES,        "Gloves" },
 	{ TV_BOOTS,         "Boots" },
 
-	{ TV_LITE,          "Light Sources" },
+	{ TV_LIGHT,          "Light Sources" },
 	{ TV_AMULET,        "Amulets" },
 	{ TV_RING,          "Rings" },
 
@@ -383,15 +322,15 @@ static const grouper group_artifact[] =
 
 
 /*
- * Hack -- Create a "forged" artifact
+ * Hack -- Create a "forged" artefact
  */
-bool make_fake_artifact(object_type *o_ptr, byte name1)
+bool make_fake_artefact(object_type *o_ptr, byte name1)
 {
 	int i;
 
-	artifact_type *a_ptr = &a_info[name1];
+	artefact_type *a_ptr = &a_info[name1];
 
-	/* Ignore "empty" artifacts */
+	/* Ignore "empty" artefacts */
 	if (a_ptr->tval + a_ptr->sval == 0) return FALSE;
 
 	/* Get the "kind" index */
@@ -400,7 +339,7 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 	/* Oops */
 	if (!i) return (FALSE);
 
-	/* Create the artifact */
+	/* Create the artefact */
 	object_prep(o_ptr, i);
 
 	/* Save the name */
@@ -408,14 +347,22 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 
 	/* Extract the fields */
 	o_ptr->pval = a_ptr->pval;
-	o_ptr->ac = a_ptr->ac;
+	o_ptr->att = a_ptr->att;
 	o_ptr->dd = a_ptr->dd;
 	o_ptr->ds = a_ptr->ds;
-	o_ptr->to_a = a_ptr->to_a;
-	o_ptr->to_h = a_ptr->to_h;
-	o_ptr->to_d = a_ptr->to_d;
+	o_ptr->evn = a_ptr->evn;
+	o_ptr->pd = a_ptr->pd;
+	o_ptr->ps = a_ptr->ps;
 	o_ptr->weight = a_ptr->weight;
 
+	// add the abilities
+	for (i = 0; i < a_ptr->abilities; i++)
+	{
+		o_ptr->skilltype[i + o_ptr->abilities] = a_ptr->skilltype[i];
+		o_ptr->abilitynum[i + o_ptr->abilities] = a_ptr->abilitynum[i];
+	}
+	o_ptr->abilities += a_ptr->abilities;
+	
 	/* Hack -- extract the "cursed" flag */
 	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
@@ -425,9 +372,9 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 
 
 /*
- * Create a spoiler file for artifacts
+ * Create a spoiler file for artefacts
  */
-static void spoil_artifact(cptr fname)
+static void spoil_artefact(cptr fname)
 {
 	int i, j;
 
@@ -461,28 +408,30 @@ static void spoil_artifact(cptr fname)
 	object_info_out_flags = object_flags;
 
 	/* Dump the header */
-	spoiler_underline(format("Artifact Spoilers for %s %s",
+	spoiler_underline(format("Artefact Spoilers for %s %s",
 	                         VERSION_NAME, VERSION_STRING), '=');
 
-	/* List the artifacts by tval */
-	for (i = 0; group_artifact[i].tval; i++)
+	/* List the artefacts by tval */
+	for (i = 0; group_artefact[i].tval; i++)
 	{
 		/* Write out the group title */
-		if (group_artifact[i].name)
+		if (group_artefact[i].name)
 		{
 			spoiler_blanklines(2);
-			spoiler_underline(group_artifact[i].name, '=');
+			spoiler_underline(group_artefact[i].name, '=');
 			spoiler_blanklines(1);
 		}
 
-		/* Now search through all of the artifacts */
+		/* Now search through all of the artefacts */
 		for (j = 1; j < z_info->art_max; ++j)
 		{
-			artifact_type *a_ptr = &a_info[j];
+			artefact_type *a_ptr = &a_info[j];
 			char buf[80];
 
+			if (j >= ART_ULTIMATE) continue;
+
 			/* We only want objects in the current group */
-			if (a_ptr->tval != group_artifact[i].tval) continue;
+			if (a_ptr->tval != group_artefact[i].tval) continue;
 
 			/* Get local object */
 			i_ptr = &object_type_body;
@@ -490,25 +439,28 @@ static void spoil_artifact(cptr fname)
 			/* Wipe the object */
 			object_wipe(i_ptr);
 
-			/* Attempt to "forge" the artifact */
-			if (!make_fake_artifact(i_ptr, (byte)j)) continue;
+			/* Attempt to "forge" the artefact */
+			if (!make_fake_artefact(i_ptr, (byte)j)) continue;
 
-			/* Grab artifact name */
+			/* Grab artefact name */
 			object_desc_spoil(buf, sizeof(buf), i_ptr, TRUE, 1);
+			
+			my_strcat(buf, format("     %d.%d lb",(a_ptr->weight / 10),(a_ptr->weight % 10)), sizeof (buf));
 
 			/* Print name and underline */
 			spoiler_underline(buf, '-');
 
-			/* Write out the artifact description to the spoiler file */
+			// mark as a spoiled item
+			i_ptr->ident |= (IDENT_SPOIL);
+
+			/* Write out the artefact description to the spoiler file */
 			object_info_out(i_ptr);
 
 			/*
-			 * Determine the minimum depth an artifact can appear, its rarity,
-			 * its weight, and its value in gold pieces.
+			 * Determine the minimum depth an artefact can appear and its rarity.
 			 */
-			text_out(format("\nLevel %u, Rarity %u, %d.%d lbs, %ld AU\n",
-			                a_ptr->level, a_ptr->rarity, (a_ptr->weight / 10),
-			                (a_ptr->weight % 10), ((long)a_ptr->cost)));
+			
+			text_out(format("\n(level %u / rarity %u / quality %d)\n", a_ptr->level, a_ptr->rarity, object_difficulty(i_ptr)));
 
 			/* Terminate the entry */
 			spoiler_blanklines(2);
@@ -528,8 +480,6 @@ static void spoil_artifact(cptr fname)
 
 
 
-
-
 /*
  * Create a spoiler file for monsters
  */
@@ -543,9 +493,11 @@ static void spoil_mon_desc(cptr fname)
 	char lev[80];
 	char rar[80];
 	char spd[80];
-	char ac[80];
 	char hp[80];
-	char exp[80];
+	char def1[80];
+	char def2[80];
+	char att1[80];
+	char att2[80];
 
 	u16b *who;
 	u16b why = 2;
@@ -573,10 +525,10 @@ static void spoil_mon_desc(cptr fname)
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
-	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
-	        "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
-	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
-	        "----", "---", "---", "---", "--", "--", "------------");
+	fprintf(fff, "%-42.42s%10s%6s%8s%13s%30s\n",
+	        "Name", "Lev / Rar", "Spd", "Health", "Defence", "Attacks        ");
+	fprintf(fff, "%-42.42s%10s%6s%8s%13s%30s\n",
+	        "-----------------------------------------", "---------", "---", "------", "----------", "--------------------------");
 
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
@@ -586,8 +538,8 @@ static void spoil_mon_desc(cptr fname)
 	{
 		monster_race *r_ptr = &r_info[i];
 
-		/* Use that monster */
-		if (r_ptr->name) who[n++] = (u16b)i;
+		/* Use all monsters that can appear */
+		if (r_ptr->name && (r_ptr->rarity > 0) && (r_ptr->level <= 25)) who[n++] = (u16b)i;
 	}
 
 	/* Select the sort method */
@@ -605,19 +557,14 @@ static void spoil_mon_desc(cptr fname)
 		cptr name = (r_name + r_ptr->name);
 
 		/* Get the "name" */
-		if (r_ptr->flags1 & (RF1_QUESTOR))
+		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			strnfmt(nam, sizeof(nam), "[Q] %s", name);
-		}
-		else if (r_ptr->flags1 & (RF1_UNIQUE))
-		{
-			strnfmt(nam, sizeof(nam), "[U] %s", name);
+			strnfmt(nam, sizeof(nam), "* %c  %s", r_ptr->d_char, name);
 		}
 		else
 		{
-			strnfmt(nam, sizeof(nam), "The %s", name);
+			strnfmt(nam, sizeof(nam), "  %c  %s", r_ptr->d_char, name);
 		}
-
 
 		/* Level */
 		sprintf(lev, "%d", r_ptr->level);
@@ -626,38 +573,81 @@ static void spoil_mon_desc(cptr fname)
 		sprintf(rar, "%d", r_ptr->rarity);
 
 		/* Speed */
-		if (r_ptr->speed >= 110)
-		{
-			sprintf(spd, "+%d", (r_ptr->speed - 110));
-		}
-		else
-		{
-			sprintf(spd, "-%d", (110 - r_ptr->speed));
-		}
-
-		/* Armor Class */
-		sprintf(ac, "%d", r_ptr->ac);
+		sprintf(spd, "%d", r_ptr->speed);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->hside == 1))
 		{
-			sprintf(hp, "%d", r_ptr->hdice * r_ptr->hside);
+			sprintf(hp, "%d", r_ptr->hdice * (1 + r_ptr->hside) / 2);
 		}
 		else
 		{
 			sprintf(hp, "%dd%d", r_ptr->hdice, r_ptr->hside);
 		}
 
+		/* Defence */
+		sprintf(def1, "[%+2d", r_ptr->evn);
+		if (r_ptr->pd == 0)
+		{
+			sprintf(def2, "]");
+		}
+		else
+		{
+			sprintf(def2, ", %dd%d]", r_ptr->pd, r_ptr->ps);
+		}
 
-		/* Experience */
-		sprintf(exp, "%ld", (long)(r_ptr->mexp));
+		/* Attack 1 */
+		if (r_ptr->blow[0].method != 0)
+		{
+			char special = ' ';
+			int effect = r_ptr->blow[0].effect;
 
-		/* Hack -- use visual instead */
-		strnfmt(exp, sizeof(exp), "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
+			if (effect > RBE_HURT)   special = '*';
+			
+			if (r_ptr->blow[0].method == RBM_SPORE)
+			{
+				sprintf(att1, "(%dd%d)%c", r_ptr->blow[0].dd, r_ptr->blow[0].ds, special);
+			}
+			else
+			{
+				sprintf(att1, "(%+2d, %dd%d)%c", r_ptr->blow[0].att,
+												 r_ptr->blow[0].dd, r_ptr->blow[0].ds, special);
+			}
+		}
+		else
+		{
+			sprintf(att1, " ");
+		}
+
+		/* Attack 2 */
+		if (r_ptr->blow[1].method != 0)
+		{
+			char special = ' ';
+			int effect = r_ptr->blow[1].effect;
+
+			if (effect > RBE_HURT)   special = '*';
+			
+			if (r_ptr->blow[1].method == RBM_SPORE)
+			{
+				sprintf(att2, "(%dd%d)%c", r_ptr->blow[1].dd, r_ptr->blow[1].ds, special);
+			}
+			else
+			{
+				sprintf(att2, "(%+2d, %dd%d)%c", r_ptr->blow[1].att,
+												 r_ptr->blow[1].dd, r_ptr->blow[1].ds, special);
+			}
+		}
+		else
+		{
+			sprintf(att2, " ");
+		}
+
+		// /* Complex Visual */
+		// strnfmt(vis, sizeof(vis), "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
 
 		/* Dump the info */
-		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
-		        nam, lev, rar, spd, hp, ac, exp);
+		fprintf(fff, "%-42.42s%4s /%3s%7s%8s%7s%-6s%16s%14s\n",
+		        nam, lev, rar, spd, hp, def1, def2, att1, att2);
 	}
 
 	/* End it */
@@ -679,12 +669,182 @@ static void spoil_mon_desc(cptr fname)
 }
 
 
+/*
+ * Create a spoiler file for monsters
+ */
+static void spoil_mon_ss(cptr fname)
+{
+	int i, n = 0;
+	
+	char buf[1024];
+	
+	char nam[80];
+	char lev[80];
+	char rar[80];
+	char spd[80];
+	char hp[80];
+	char def1[80];
+	char def2[80];
+	char att1[80];
+	char att2[80];
+	
+	u16b *who;
+	u16b why = 2;
+	
+	
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+	
+	/* Open the file */
+	fff = my_fopen(buf, "w");
+	
+	/* Oops */
+	if (!fff)
+	{
+		msg_print("Cannot create spoiler file.");
+		return;
+	}
+	
+	/* Allocate the "who" array */
+	C_MAKE(who, z_info->r_max, u16b);
+	
+	/* Scan the monsters */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+		
+		/* Use all monsters that can appear */
+		if (r_ptr->name && (r_ptr->rarity > 0) && (r_ptr->level <= 25)) who[n++] = (u16b)i;
+	}
+	
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+	
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
+	
+	/* Scan again */
+	for (i = 0; i < n; i++)
+	{
+		monster_race *r_ptr = &r_info[who[i]];
+		
+		cptr name = (r_name + r_ptr->name);
+		
+		/* Get the "name" */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			strnfmt(nam, sizeof(nam), "*\t%c\t%s", r_ptr->d_char, name);
+		}
+		else
+		{
+			strnfmt(nam, sizeof(nam), "\t%c\t%s", r_ptr->d_char, name);
+		}
+		
+		/* Level */
+		sprintf(lev, "%d", r_ptr->level);
+		
+		/* Rarity */
+		sprintf(rar, "%d", r_ptr->rarity);
+		
+		/* Speed */
+		sprintf(spd, "%d", r_ptr->speed);
+		
+		/* Hitpoints */
+		sprintf(hp, "%d", r_ptr->hdice);
+		
+		/* Defence */
+		sprintf(def1, "%+d", r_ptr->evn);
+		if (r_ptr->pd == 0)
+		{
+			sprintf(def2, "0\t0");
+		}
+		else
+		{
+			sprintf(def2, "%d\t%d", r_ptr->pd, r_ptr->ps);
+		}
+		
+		/* Attack 1 */
+		if (r_ptr->blow[0].method != 0)
+		{
+			char special = ' ';
+			int effect = r_ptr->blow[0].effect;
+			
+			if (effect > RBE_HURT)   special = '*';
+			
+			if (r_ptr->blow[0].method == RBM_SPORE)
+			{
+				sprintf(att1, "\t%d\t%d\t%c", r_ptr->blow[0].dd, r_ptr->blow[0].ds, special);
+			}
+			else
+			{
+				sprintf(att1, "%+d\t%d\t%d\t%c", r_ptr->blow[0].att,
+						r_ptr->blow[0].dd, r_ptr->blow[0].ds, special);
+			}
+		}
+		else
+		{
+			sprintf(att1, "\t\t\t");
+		}
+		
+		/* Attack 2 */
+		if (r_ptr->blow[1].method != 0)
+		{
+			char special = ' ';
+			int effect = r_ptr->blow[1].effect;
+			
+			if (effect > RBE_HURT)   special = '*';
+			
+			if (r_ptr->blow[1].method == RBM_SPORE)
+			{
+				sprintf(att2, "\t%d\t%d\t%c", r_ptr->blow[1].dd, r_ptr->blow[1].ds, special);
+			}
+			else
+			{
+				sprintf(att2, "%+d\t%d\t%d\t%c", r_ptr->blow[1].att,
+						r_ptr->blow[1].dd, r_ptr->blow[1].ds, special);
+			}
+		}
+		else
+		{
+			sprintf(att2, "\t\t\t");
+		}
+		
+		// /* Complex Visual */
+		// strnfmt(vis, sizeof(vis), "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
+		
+		/* Dump the info */
+		fprintf(fff, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+		        nam, lev, rar, spd, hp, def1, def2, att1, att2);
+	}
+	
+	/* End it */
+	fprintf(fff, "\n");
+	
+	/* Free the "who" array */
+	FREE(who);
+	
+	
+	/* Check for errors */
+	if (ferror(fff) || my_fclose(fff))
+	{
+		msg_print("Cannot close spoiler file.");
+		return;
+	}
+	
+	/* Worked */
+	msg_print("Successfully created a spoiler file.");
+}
+
+
 
 
 /*
  * Monster spoilers originally by: smchorse@ringer.cs.utsa.edu (Shawn McHorse)
  */
-
 
 /*
  * Create a spoiler file for monsters (-SHAWN-)
@@ -794,33 +954,18 @@ static void spoil_mon_info(cptr fname)
 		text_out(buf);
 
 		/* Speed */
-		if (r_ptr->speed >= 110)
-		{
-			sprintf(buf, "Spd:+%d  ", (r_ptr->speed - 110));
-		}
-		else
-		{
-			sprintf(buf, "Spd:-%d  ", (110 - r_ptr->speed));
-		}
+		sprintf(buf, "Spd:%d  ", r_ptr->speed);
 		text_out(buf);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || (r_ptr->hside == 1))
+		if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->hside == 1))
 		{
-			sprintf(buf, "Hp:%d  ", r_ptr->hdice * r_ptr->hside);
+			sprintf(buf, "Hp:%d  ", r_ptr->hdice * (1 + r_ptr->hside) / 2);
 		}
 		else
 		{
 			sprintf(buf, "Hp:%dd%d  ", r_ptr->hdice, r_ptr->hside);
 		}
-		text_out(buf);
-
-		/* Armor Class */
-		sprintf(buf, "Ac:%d  ", r_ptr->ac);
-		text_out(buf);
-
-		/* Experience */
-		sprintf(buf, "Exp:%ld\n", (long)(r_ptr->mexp));
 		text_out(buf);
 
 		/* Describe */
@@ -856,7 +1001,6 @@ void do_cmd_spoilers(void)
 	/* Save screen */
 	screen_save();
 
-
 	/* Interact */
 	while (1)
 	{
@@ -867,13 +1011,14 @@ void do_cmd_spoilers(void)
 		prt("Create a spoiler file.", 2, 0);
 
 		/* Prompt for a file */
-		prt("(1) Brief Object Info (obj-desc.spo)", 5, 5);
-		prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
-		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
-		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
+		prt("(1) Object List (obj-list.txt)", 5, 5);
+		prt("(2) Full Artefact Info (art-info.txt)", 6, 5);
+		prt("(3) Monster List (mon-list.txt)", 7, 5);
+		prt("(4) Full Monster Info (mon-info.txt)", 8, 5);
+		prt("(5) Monster Stat Spreadsheet (mon-ss.txt)", 9, 5);
 
 		/* Prompt */
-		prt("Command: ", 12, 0);
+		prt("Command: ", 13, 0);
 
 		/* Get a choice */
 		ch = inkey();
@@ -887,25 +1032,31 @@ void do_cmd_spoilers(void)
 		/* Option (1) */
 		else if (ch == '1')
 		{
-			spoil_obj_desc("obj-desc.spo");
+			spoil_obj_desc("obj-list.txt");
 		}
 
 		/* Option (2) */
 		else if (ch == '2')
 		{
-			spoil_artifact("artifact.spo");
+			spoil_artefact("art-info.txt");
 		}
 
 		/* Option (3) */
 		else if (ch == '3')
 		{
-			spoil_mon_desc("mon-desc.spo");
+			spoil_mon_desc("mon-list.txt");
 		}
 
 		/* Option (4) */
 		else if (ch == '4')
 		{
-			spoil_mon_info("mon-info.spo");
+			spoil_mon_info("mon-info.txt");
+		}
+
+		/* Option (5) */
+		else if (ch == '5')
+		{
+			spoil_mon_ss("mon-ss.txt");
 		}
 
 		/* Oops */

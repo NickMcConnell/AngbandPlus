@@ -12,16 +12,14 @@
 
 /*
  * This file includes code for eating food, drinking potions,
- * reading scrolls, aiming wands, using staffs, zapping rods,
- * and activating artifacts.
+ * using staffs, playing instruments, and activating artefacts.
  *
  * In all cases, if the player becomes "aware" of the item's use
  * by testing it, mark it as "aware" and reward some experience
  * based on the object's level, always rounding up.  If the player
  * remains "unaware", mark that object "kind" as "tried".
  *
- * This code now correctly handles the unstacking of wands, staffs,
- * and rods.  Note the overly paranoid warning about potential pack
+ * Note the overly paranoid warning about potential pack
  * overflow, which allows the player to use and drop a stacked item.
  *
  * In all "unstacking" scenarios, the "used" object is "carried" as if
@@ -34,8 +32,8 @@
  * 400 item comparisons, but only occasionally.
  *
  * There may be a BIG problem with any "effect" that can cause "changes"
- * to the inventory.  For example, a "scroll of recharging" can cause
- * a wand/staff to "disappear", moving the inventory up.  Luckily, the
+ * to the inventory.  For example, a "scroll of recharging" used to be
+ * able to cause a staff to "disappear", moving the inventory up.  Luckily, the
  * scrolls all appear BEFORE the staffs/wands, so this is not a problem.
  * But, for example, a "staff of recharging" could cause MAJOR problems.
  * In such a case, it will be best to either (1) "postpone" the effect
@@ -52,75 +50,93 @@
 
 
 
-
-
-
 /*
  * Eat some food (from the pack or floor)
  */
-void do_cmd_eat_food(void)
+void do_cmd_eat_food(object_type *default_o_ptr, int default_item)
 {
 	int item, lev;
 	bool ident;
+	bool aware;
+	int kind_index;
 
 	object_type *o_ptr;
 
 	cptr q, s;
 
-
-	/* Restrict choices to food */
-	item_tester_tval = TV_FOOD;
-
-	/* Get an item */
-	q = "Eat which item? ";
-	s = "You have nothing to eat.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
+	// use specified item if possible
+	if (default_o_ptr != NULL)
 	{
-		o_ptr = &inventory[item];
+		o_ptr = default_o_ptr;
+		item = default_item;
 	}
-
-	/* Get the item (on the floor) */
+	/* Get an item */
 	else
 	{
-		o_ptr = &o_list[0 - item];
+		/* Restrict choices to food */
+		item_tester_tval = TV_FOOD;
+
+		/* Get an item */
+		q = "Eat which item? ";
+		s = "You have nothing to eat.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+		/* Get the item (in the pack) */
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+
+		/* Get the item (on the floor) */
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
 	}
 
-
+	/* If gorged, you cannot eat food */
+	if ((p_ptr->food >= PY_FOOD_MAX) && ((o_ptr->pval > 0) || (o_ptr->sval == SV_FOOD_SUSTENANCE)))
+	{
+		msg_print("You are too full to eat it.");
+		return;
+	}
+		
 	/* Sound */
 	sound(MSG_EAT);
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+	
 	/* Identity not known yet */
 	ident = FALSE;
 
+	// Save the k_idx and awareness info
+	kind_index = o_ptr->k_idx;
+	aware = object_aware_p(o_ptr);
+		
 	/* Object level */
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Eat the food */
 	use_object(o_ptr, &ident);
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 	/* We have tried it */
 	object_tried(o_ptr);
 
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	
 	/* The player is now aware of the object */
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
 	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
 
 	/* Destroy a food in the pack */
 	if (item >= 0)
@@ -137,6 +153,26 @@ void do_cmd_eat_food(void)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
+	
+	// allow autoinscribing of the herb
+	if (!ident && !aware)
+	{
+		if (easter_time())
+		{
+			if (get_check("Autoinscribe this easter egg type? "))
+			{
+				do_cmd_autoinscribe_item(kind_index);
+			}
+		}
+		else
+		{
+			if (get_check("Autoinscribe this herb type? "))
+			{
+				do_cmd_autoinscribe_item(kind_index);
+			}
+		}
+	}
+		
 }
 
 
@@ -145,42 +181,68 @@ void do_cmd_eat_food(void)
 /*
  * Quaff a potion (from the pack or the floor)
  */
-void do_cmd_quaff_potion(void)
+void do_cmd_quaff_potion(object_type *default_o_ptr, int default_item)
 {
 	int item, lev;
 	bool ident;
+	bool aware;
+	int kind_index;
 	object_type *o_ptr;
 	cptr q, s;
 
-	/* Restrict choices to potions */
-	item_tester_tval = TV_POTION;
-
-	/* Get an item */
-	q = "Quaff which potion? ";
-	s = "You have no potions to quaff.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
+	// use specified item if possible
+	if (default_o_ptr != NULL)
 	{
-		o_ptr = &inventory[item];
+		o_ptr = default_o_ptr;
+		item = default_item;
 	}
-
-	/* Get the item (on the floor) */
+	/* Get an item */
 	else
 	{
-		o_ptr = &o_list[0 - item];
+		/* Restrict choices to potions */
+		item_tester_tval = TV_POTION;
+
+		/* Get an item */
+		q = "Quaff which potion? ";
+		s = "You have no potions to quaff.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+		/* Get the item (in the pack) */
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+
+		/* Get the item (on the floor) */
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
 	}
 
+	/* If gorged, you cannot drink potions */
+	if ((p_ptr->food >= PY_FOOD_MAX) && (o_ptr->pval > 0))
+	{
+		msg_print("You are too full to drink it.");
+		return;
+	}
+	
 	/* Sound */
 	sound(MSG_QUAFF);
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+	
 	/* Not identified yet */
 	ident = FALSE;
 
+	// Save the k_idx and awareness info
+	kind_index = o_ptr->k_idx;
+	aware = object_aware_p(o_ptr);
+		
 	/* Object level */
 	lev = k_info[o_ptr->k_idx].level;
 
@@ -197,7 +259,6 @@ void do_cmd_quaff_potion(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
 	}
 
 	/* Window stuff */
@@ -218,116 +279,90 @@ void do_cmd_quaff_potion(void)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
+	
+	// allow autoinscribing of the potion
+	if (!ident && !aware)
+	{
+		if (get_check("Autoinscribe this potion type? "))
+		{
+			do_cmd_autoinscribe_item(kind_index);
+		}
+	}
+	
 }
 
 
 /*
- * Read a scroll (from the pack or floor).
- *
- * Certain scrolls can be "aborted" without losing the scroll.  These
- * include scrolls with no effects but recharge or identify, which are
- * cancelled before use.  XXX Reading them still takes a turn, though.
+ * Play an instrument
  */
-void do_cmd_read_scroll(void)
+void do_cmd_play_instrument(object_type *default_o_ptr, int default_item)
 {
-	int item, used_up, lev;
+	int item;
+	
 	bool ident;
-
+	
 	object_type *o_ptr;
-
+		
 	cptr q, s;
-
-
-	/* Check some conditions */
-	if (p_ptr->blind)
+	
+	// use specified item if possible
+	if (default_o_ptr != NULL)
 	{
-		msg_print("You can't see anything.");
-		return;
+		o_ptr = default_o_ptr;
+		item = default_item;
 	}
-	if (no_lite())
-	{
-		msg_print("You have no light to read by.");
-		return;
-	}
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-
-	/* Restrict choices to scrolls */
-	item_tester_tval = TV_SCROLL;
-
 	/* Get an item */
-	q = "Read which scroll? ";
-	s = "You have no scrolls to read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
 	else
-	{
-		o_ptr = &o_list[0 - item];
+	{		
+		/* Restrict choices to instruments */
+		item_tester_tval = TV_TRUMPET;
+		
+		/* Get an item */
+		q = "Play which instrument? ";
+		s = "You have no instrument to play.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+		
+		/* Get the item (in the pack) */
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+		
+		/* Get the item (on the floor) */
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
 	}
-
-
+	
 	/* Take a turn */
 	p_ptr->energy_use = 100;
-
+	
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+	
 	/* Not identified yet */
 	ident = FALSE;
-
-	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
-
-	/* Read the scroll */
-	used_up = use_object(o_ptr, &ident);
-
+	
+	/* Play the instrument */
+	if (!use_object(o_ptr, &ident)) return;
+	
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* The item was tried */
+	
+	/* Tried the object */
 	object_tried(o_ptr);
-
-	/* An identification was made */
+	
+	/* Successfully determined the object function */
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
 	}
-
+	
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-
-	/* Hack -- allow certain scrolls to be "preserved" */
-	if (!used_up) return;
-
-
-	/* Destroy a scroll in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a scroll on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+	
 }
-
-
 
 
 
@@ -340,9 +375,9 @@ void do_cmd_read_scroll(void)
  *
  * Hack -- staffs of identify can be "cancelled".
  */
-void do_cmd_use_staff(void)
+void do_cmd_activate_staff(object_type *default_o_ptr, int default_item)
 {
-	int item, chance, lev;
+	int item, score, difficulty, lev;
 
 	bool ident;
 
@@ -353,29 +388,42 @@ void do_cmd_use_staff(void)
 	cptr q, s;
 
 
-	/* Restrict choices to staves */
-	item_tester_tval = TV_STAFF;
-
-	/* Get an item */
-	q = "Use which staff? ";
-	s = "You have no staff to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
+	// use specified item if possible
+	if (default_o_ptr != NULL)
 	{
-		o_ptr = &inventory[item];
+		o_ptr = default_o_ptr;
+		item = default_item;
 	}
-
-	/* Get the item (on the floor) */
+	/* Get an item */
 	else
 	{
-		o_ptr = &o_list[0 - item];
+		/* Restrict choices to staves */
+		item_tester_tval = TV_STAFF;
+
+		/* Get an item */
+		q = "Activate which staff? ";
+		s = "You have no staff to activate.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+		/* Get the item (in the pack) */
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+
+		/* Get the item (on the floor) */
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
 	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+	
 	/* Not identified yet */
 	ident = FALSE;
 
@@ -383,24 +431,24 @@ void do_cmd_use_staff(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	score = p_ptr->skill_use[S_WIL];
 
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	// bonus to roll for 'channeling' ability
+	if (p_ptr->active_ability[S_WIL][WIL_CHANNELING])
 	{
-		chance = USE_DEVICE;
+		score += 5;
 	}
 
+	// Base difficulty
+	difficulty = lev / 2;
+
+	/* Confusion hurts skill */
+	if (p_ptr->confused) difficulty += 5;
+
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (skill_check(PLAYER, score, difficulty, NULL) <= 0)
 	{
-		if (flush_failure) flush();
+		flush();
 		msg_print("You failed to use the staff properly.");
 		return;
 	}
@@ -408,7 +456,7 @@ void do_cmd_use_staff(void)
 	/* Notice empty staffs */
 	if (o_ptr->pval <= 0)
 	{
-		if (flush_failure) flush();
+		flush();
 		msg_print("The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -420,9 +468,11 @@ void do_cmd_use_staff(void)
 	/* Sound */
 	sound(MSG_ZAP);
 
-
 	/* Use the staff */
 	use_charge = use_object(o_ptr, &ident);
+
+	// Break the truce
+	break_truce(FALSE);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -434,16 +484,13 @@ void do_cmd_use_staff(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
 	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
 	/* Hack -- some uses are "free" */
 	if (!use_charge) return;
-
 
 	/* Use a single charge */
 	o_ptr->pval--;
@@ -460,162 +507,6 @@ void do_cmd_use_staff(void)
 		floor_item_charges(0 - item);
 	}
 }
-
-
-/*
- * Aim a wand (from the pack or floor).
- *
- * Use a single charge from a single item.
- * Handle "unstacking" in a logical manner.
- *
- * For simplicity, you cannot use a stack of items from the
- * ground.  This would require too much nasty code.
- *
- * There are no wands which can "destroy" themselves, in the inventory
- * or on the ground, so we can ignore this possibility.  Note that this
- * required giving "wand of wonder" the ability to ignore destruction
- * by electric balls.
- *
- * All wands can be "cancelled" at the "Direction?" prompt for free.
- *
- * Note that the basic "bolt" wands do slightly less damage than the
- * basic "bolt" rods, but the basic "ball" wands do the same damage
- * as the basic "ball" rods.
- */
-void do_cmd_aim_wand(void)
-{
-	int item, lev;
-
-	bool ident;
-
-	object_type *o_ptr;
-
-	cptr q, s;
-
-	/* Restrict choices to wands */
-	item_tester_tval = TV_WAND;
-
-	/* Get an item */
-	q = "Aim which wand? ";
-	s = "You have no wand to aim.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Aim the wand */
-	if (!use_object(o_ptr, &ident)) return;
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Mark it as tried */
-	object_tried(o_ptr);
-
-	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
-
-	/* Apply identification */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
-	}
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-
-	/* Use a single charge */
-	o_ptr->pval--;
-
-	/* Describe the charges in the pack */
-	if (item >= 0)
-	{
-		inven_item_charges(item);
-	}
-
-	/* Describe the charges on the floor */
-	else
-	{
-		floor_item_charges(0 - item);
-	}
-}
-
-
-
-
-
-/*
- * Activate (zap) a Rod
- *
- * Unstack fully charged rods as needed.
- *
- * Hack -- rods of perception can be "cancelled"
- * All rods can be cancelled at the "Direction?" prompt
- */
-void do_cmd_zap_rod(void)
-{
-	int item;
-	bool ident;
-	object_type *o_ptr;
-	cptr q, s;
-
-
-	/* Restrict choices to rods */
-	item_tester_tval = TV_ROD;
-
-	/* Get an item */
-	q = "Zap which rod? ";
-	s = "You have no rod to zap.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Zap the rod */
-	if (!use_object(o_ptr, &ident)) return;
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Tried the object */
-	object_tried(o_ptr);
-
-	/* Successfully determined the object function */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		/* Object level */
-		int lev = k_info[o_ptr->k_idx].level;
-
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
-	}
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-}
-
-
 
 
 /*
@@ -643,12 +534,12 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
  * Activate a wielded object.  Wielded objects never stack.
  * And even if they did, activatable objects never stack.
  *
- * Note that it always takes a turn to activate an artifact, even if
+ * Note that it always takes a turn to activate an artefact, even if
  * the user hits "escape" at the "direction" prompt.
  */
 void do_cmd_activate(void)
 {
-	int item, lev, chance;
+	int item, lev, score, difficulty;
 	bool ident;
 	object_type *o_ptr;
 
@@ -679,32 +570,35 @@ void do_cmd_activate(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+	
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
 
-	/* Hack -- use artifact level instead */
-	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
+	/* Hack -- use artefact level instead */
+	if (artefact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	score = p_ptr->skill_use[S_WIL];
 
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	// bonus to roll for 'channeling' ability
+	if (p_ptr->active_ability[S_WIL][WIL_CHANNELING])
 	{
-		chance = USE_DEVICE;
+		score += 5;
 	}
 
+	// Base difficulty
+	difficulty = lev / 2;
+
+	/* Confusion hurts skill */
+	if (p_ptr->confused) difficulty += 5;
+
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (skill_check(PLAYER, score, difficulty, NULL) <= 0)
 	{
-		if (flush_failure) flush();
-		msg_print("You failed to activate it properly.");
+		flush();
+		msg_print("You could not draw upon its powers.");
 		return;
 	}
 

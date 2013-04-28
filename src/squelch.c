@@ -1,4 +1,13 @@
+/* File: squelch.c */
 
+/*
+ * Copyright (c) ???
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
+ 
 #include "angband.h"
 
 static void do_qual_squelch(void);
@@ -80,10 +89,10 @@ static char head[4] =
  */
 static tval_desc typevals[] =
 {
-  {TYPE_AMMO, "Missiles"},
-  {TYPE_BOW, "Missile Launchers"},
-  {TYPE_WEAPON1, "Weapons (Swords)"},
-  {TYPE_WEAPON2, "Weapons (Non Swords)"},
+  {TYPE_AMMO, "Arrows"},
+  {TYPE_BOW, "Bows"},
+  {TYPE_WEAPON1, "Weapons (Blades)"},
+  {TYPE_WEAPON2, "Weapons (Non Blades)"},
   {TYPE_BODY, "Body Armor"},
   {TYPE_CLOAK, "Cloaks"},
   {TYPE_SHIELD, "Shields"},
@@ -93,11 +102,8 @@ static tval_desc typevals[] =
   {TYPE_AMULET, "Amulets"},
   {TYPE_RING, "Rings"},
   {TYPE_STAFF, "Staves"},
-  {TYPE_WAND, "Wands"},
-  {TYPE_ROD, "Rods"},
-  {TYPE_SCROLL, "Scrolls"},
+  {TYPE_ROD, "Trumpets"},
   {TYPE_POTION, "Potions"},
-  {TYPE_BOOK, "Magic Books"},
   {TYPE_FOOD, "Food Items"},
   {TYPE_MISC, "Miscellaneous"},
   {0, NULL}
@@ -113,27 +119,23 @@ static tval_desc typevals[] =
 static tval_desc tvals[] =
 {
 	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
+	{ TV_POLEARM,           "Axe or Polearm"       },
+	{ TV_HAFTED,            "Blunt Weapon"         },
 	{ TV_BOW,               "Bow"                  },
 	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
 	{ TV_SHIELD,            "Shield"               },
 	{ TV_CROWN,             "Crown"                },
 	{ TV_HELM,              "Helm"                 },
 	{ TV_GLOVES,            "Gloves"               },
 	{ TV_BOOTS,             "Boots"                },
 	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_DRAG_SHIELD,       "Dragon Scale Shields" },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
+	{ TV_MAIL,				"Mail"			       },
 	{ TV_SOFT_ARMOR,        "Soft Armor"           },
 	{ TV_DIGGING,           "Diggers"              },
 	{ TV_RING,              "Rings"                },
 	{ TV_AMULET,            "Amulets"              },
 	{ TV_CHEST,             "Open Chests"		   },
-	{ TV_LITE, 				"Lite Sources"		   },
+	{ TV_LIGHT, 			"Light Sources"		   },
 	{0, NULL}
 };
 
@@ -152,19 +154,19 @@ static cptr get_autoinscription(s16b kindIdx)
 	return 0;
 }
 
-static int do_cmd_autoinscribe_item(s16b k_idx)
+extern int do_cmd_autoinscribe_item(s16b k_idx)
 {
 	char tmp[80] = "";
 	cptr curInscription = get_autoinscription(k_idx);
 
 	if(curInscription)
 	{
-		strncpy(tmp, curInscription, sizeof(tmp));
+		my_strcpy(tmp, curInscription, sizeof(tmp));
 		tmp[sizeof(tmp) - 1] = 0;
 	}
 
 	/* Get a new inscription (possibly empty) */
-	if(get_string("Autoinscription: ", tmp, sizeof(tmp)))
+	if(term_get_string("Autoinscription: ", tmp, sizeof(tmp)))
 	{
 		/* Save the inscription */
 		add_autoinscription(k_idx, tmp);
@@ -225,7 +227,7 @@ static int do_cmd_squelch_aux(void)
 	prt("Commands:", 3, 30);
 	prt("[a-t]: Go to item squelching and autoinscribing sub-menu.", 5, 30);
 	prt("Q    : Go to quality squelching sub-menu*.", 6, 30);
-	prt("E    : Go to ego-item squelching sub_menu.", 7, 30);
+	prt("E    : Go to special item squelching sub_menu.", 7, 30);
 	prt("S    : Save squelch values to pref file.", 8, 30);
 	prt("L    : Load squelch values from pref file.", 9, 30);
 	prt("B    : Save autoinscriptions to pref file.", 10, 30);
@@ -246,7 +248,7 @@ static int do_cmd_squelch_aux(void)
 
 	else if (ch=='E')
 	{
-		/* Switch to ego-item squelching menu */
+		/* Switch to special item squelching menu */
 		do_ego_item_squelch();
 	}
 
@@ -357,7 +359,7 @@ static int do_cmd_squelch_aux(void)
 	  	prt("File: ", 17, 30);
 
 	  	/* Default filename */
-	  	strcpy(ftmp, op_ptr->base_name);
+	  	my_strcpy(ftmp, op_ptr->base_name, sizeof (ftmp));
 
 	  	/* Get a filename */
 	  	if (askfor_aux(ftmp, 80))
@@ -411,7 +413,7 @@ static int do_cmd_squelch_aux(void)
 	 	prt("File: ", 17, 30);
 
 	 	/* Default filename */
-	 	strcpy(ftmp, op_ptr->base_name);
+	 	my_strcpy(ftmp, op_ptr->base_name, sizeof(ftmp));
 
 	 	/* Ask for a file (or cancel) */
 	 	if (askfor_aux(ftmp, 80))
@@ -469,9 +471,6 @@ static int do_cmd_squelch_aux(void)
 
 				/*skip empty objects*/
 				if (!k_ptr->name) continue;
-
-				/*hack - sometimes gold shows up*/
-				if (k_ptr->tval == TV_GOLD) continue;
 
 				/*haven't seen the item yet*/
 				if (!k_ptr->everseen) continue;
@@ -808,7 +807,7 @@ static void do_qual_squelch(void)
 		  	prt("V  : Squelch Average and Below", 6, 30);
 		  	prt("G  : Squelch Good (Strong Pseudo_ID and Identify)", 7, 30);
 			prt("W  : Squelch Good (Weak Pseudo-ID)", 8, 30);
-		  	prt("A  : Squelch All but Artifacts", 9, 30);
+		  	prt("A  : Squelch All but Artefacts", 9, 30);
 		  	prt("O  : Squelch Chests After Opening", 10, 30);
 
 		  	prt("Commands:", 12, 30);
@@ -979,7 +978,7 @@ static void do_qual_squelch(void)
 				/*first do the rings and amulets*/
 				if ((index == AMULET_INDEX) || (index == RING_INDEX))
 				{
-					/*amulets and rings can only be none, cursed, and all but artifact*/
+					/*amulets and rings can only be none, cursed, and all but artefact*/
 					if (squelch_level[index] > 1) squelch_level[index] = SQUELCH_CURSED;
 					else squelch_level[index] = SQUELCH_NONE;
 					break;
@@ -1009,7 +1008,7 @@ static void do_qual_squelch(void)
 				/*first do the rings and amulets*/
 				if ((index == AMULET_INDEX) || (index == RING_INDEX))
 				{
-					/*amulets and rings can only be none, cursed, and all but artifact*/
+					/*amulets and rings can only be none, cursed, and all but artefact*/
 					if (squelch_level[index] > 0) squelch_level[index] = SQUELCH_ALL;
 					else squelch_level[index] = SQUELCH_CURSED;
 					break;
@@ -1046,18 +1045,14 @@ static void do_qual_squelch(void)
 
 static tval_desc raw_tvals[] =
 {
-	{TV_SKELETON, "Skeletons"},
-	{TV_BOTTLE, "Bottles"},
-	{TV_JUNK, "Junk"},
-	{TV_SPIKE, "Spikes"},
+	{TV_USELESS, "Useless Items"},
+	{TV_METAL, "Pieces of Metal"},
 	{TV_CHEST, "Chests"},
-	{TV_SHOT, "Shots"},
 	{TV_ARROW, "Arrows"},
-	{TV_BOLT, "Bolts"},
-	{TV_BOW, "Launchers"},
+	{TV_BOW, "Bows"},
 	{TV_DIGGING, "Diggers"},
-	{TV_HAFTED, "Maces"},
-	{TV_POLEARM, "Polearms"},
+	{TV_HAFTED, "Blunt Weapons"},
+	{TV_POLEARM, "Axes & Polearms"},
 	{TV_SWORD, "Swords"},
 	{TV_BOOTS, "Boots"},
 	{TV_GLOVES, "Gloves"},
@@ -1066,27 +1061,21 @@ static tval_desc raw_tvals[] =
 	{TV_SHIELD, "Shields"},
 	{TV_CLOAK, "Cloaks"},
 	{TV_SOFT_ARMOR, "Soft Armor"},
-	{TV_HARD_ARMOR, "Hard Armor"},
-	{TV_DRAG_ARMOR, "DSMails"},
-	{TV_LITE, "Lites"},
+	{TV_MAIL, "Mail"},
+	{TV_LIGHT, "Lights"},
 	{TV_AMULET, "Amulets"},
-	{TV_DRAG_SHIELD, "DSShields"},
 	{TV_RING, "Rings"},
 	{TV_STAFF, "Staves"},
-	{TV_WAND, "Wands"},
-	{TV_ROD, "Rods"},
-	{TV_SCROLL, "Scrolls"},
+	{TV_TRUMPET, "Trumpets"},
 	{TV_POTION, "Potions"},
-	{TV_FLASK, "Flaskes"},
+	{TV_FLASK, "Flasks"},
 	{TV_FOOD, "Food"},
-	{TV_MAGIC_BOOK, "Magic Books"},
-	{TV_PRAYER_BOOK, "Prayer Books"},
 };
 
 #define NUM_RAW_TVALS (sizeof(raw_tvals) / sizeof(raw_tvals[0]))
 
 /*
- * Skip common prefixes in ego-item names.
+ * Skip common prefixes in special item names.
  */
 static const char *strip_ego_name(const char *name)
 {
@@ -1106,7 +1095,7 @@ static int tval_comp_func(const void *a_ptr, const void *b_ptr)
 }
 
 /*
- * Display an ego-item type on the screen.
+ * Display an special item type on the screen.
  */
 static void display_ego_item(ego_item_type *e_ptr, int y, int x, bool active)
 {
@@ -1117,7 +1106,7 @@ static void display_ego_item(ego_item_type *e_ptr, int y, int x, bool active)
 	/* Fast appending, and easier to code ;) */
  	editing_buffer ebuf, *ebuf_ptr = &ebuf;
 
-	/* Copy the valid tvals of this ego-item type */
+	/* Copy the valid tvals of this special item type */
 	for (i = 0; i < EGO_TVALS_MAX; i++)
 	{
     	/* Ignore "empty" entries */
@@ -1173,7 +1162,7 @@ static void display_ego_item(ego_item_type *e_ptr, int y, int x, bool active)
 	/* Append one  extra space */
 	editing_buffer_put_chr(ebuf_ptr, ' ');
 
-	/* Hack - Find common ego-item name' prefixes */
+	/* Hack - Find common special item name' prefixes */
 	name = e_name + e_ptr->name;
 	str = strip_ego_name(name);
 
@@ -1191,13 +1180,13 @@ static void display_ego_item(ego_item_type *e_ptr, int y, int x, bool active)
 
   	if (e_ptr->squelch) c_put_str(TERM_L_RED, "*", y, x + 1);
 
-  	/* Show the stripped ego-item name with another colour */
+  	/* Show the stripped special item name with another colour */
   	c_put_str(e_ptr->squelch ? TERM_L_RED: TERM_L_BLUE, str, y, x + strlen(buf));
 }
 
 /*
- * Utility function used for sorting an array of ego-item indices by
- * ego-item name.
+ * Utility function used for sorting an array of special item indices by
+ * special item name.
  */
 static int ego_comp_func(const void *a_ptr, const void *b_ptr)
 {
@@ -1210,7 +1199,7 @@ static int ego_comp_func(const void *a_ptr, const void *b_ptr)
 }
 
 /*
- * Handle the squelching of ego-items.
+ * Handle the squelching of special items.
 */
 static int do_ego_item_squelch(void)
 {
@@ -1233,21 +1222,21 @@ static int do_ego_item_squelch(void)
  	/* Alloc the array of ego indices */
  	C_MAKE(choice, alloc_ego_size, s16b);
 
- 	/* Get the valid ego-items */
+ 	/* Get the valid special items */
  	for (i = 0; i < alloc_ego_size; i++)
  	{
     	idx = alloc_ego_table[i].index;
 
     	e_ptr = &e_info[idx];
 
-    	/* Only valid known ego-items allowed */
+    	/* Only valid known special items allowed */
     	if (!e_ptr->name || !e_ptr->everseen) continue;
 
     	/* Append the index */
     	choice[max_num++] = idx;
 	}
 
-  	/* Quickly sort the array by ego-item name */
+  	/* Quickly sort the array by special item name */
   	qsort(choice, max_num, sizeof(choice[0]), ego_comp_func);
 
   	/* Display the whole screen */
@@ -1255,10 +1244,10 @@ static int do_ego_item_squelch(void)
   	active = 0;
   	old_active = -1;
 
-  	/* Determine the first ego-item to display in the screen */
+  	/* Determine the first special item to display in the screen */
   	first = 0;
 
-  	/* Determine the last ego-item to display in the screen */
+  	/* Determine the last special item to display in the screen */
   	/* Note that if "max_num" is 0, "last" will be -1 */
   	last = MIN(first + MAX_EGO_ROWS - 1, max_num - 1);
 
@@ -1277,8 +1266,8 @@ static int do_ego_item_squelch(void)
     		c_put_str(TERM_WHITE, "[ ]:", 1, 15);
     		c_put_str(TERM_L_BLUE, "No squelch", 1, 20);
 
-    		/* No ego-items */
-    		msg = "You have not seen any ego-items yet.";
+    		/* No special items */
+    		msg = "You have not seen any special items yet.";
     		if (max_num < 1) c_put_str(TERM_RED, msg, 3, 0);
 
       		/* Hack - Make the UI more friendly if needed */
@@ -1315,7 +1304,7 @@ static int do_ego_item_squelch(void)
     	/* Avoid crash */
     	if (max_num < 1) continue;
 
-    	/* Get the selected ego-item type */
+    	/* Get the selected special item type */
     	e_ptr = &e_info[choice[active]];
 
     	/* Process the command */
@@ -1385,7 +1374,7 @@ static int do_ego_item_squelch(void)
 			}
       		case '1':
 			{
-	  			/* Go the last ego-item */
+	  			/* Go the last special item */
 	  			active = last = max_num - 1;
 	  			first = MAX(last - MAX_EGO_ROWS + 1, 0);
 
@@ -1396,7 +1385,7 @@ static int do_ego_item_squelch(void)
 
 			case '7':
 			{
-	  			/* Go to the first ego-item */
+	  			/* Go to the first special item */
 	  			active = first = 0;
 	  			last = MIN(first + MAX_EGO_ROWS - 1, max_num - 1);
 
@@ -1405,7 +1394,7 @@ static int do_ego_item_squelch(void)
 	  			break;
 			}
 
-			/* Compare with the first letter of ego-item names */
+			/* Compare with the first letter of special item names */
 			default:
 			{
 				const char *name;
@@ -1413,10 +1402,10 @@ static int do_ego_item_squelch(void)
 				/* Ignore strange characters */
 			  	if (!isgraph((unsigned char)ch)) break;
 
-				/* Check for seen ego-items */
+				/* Check for seen special items */
 				for (i = 0; i < max_num; i++)
 				{
-				  	/* Get the ego-item */
+				  	/* Get the special item */
 				  	e_ptr = &e_info[choice[i]];
 
 					/* Get its name */
@@ -1460,14 +1449,9 @@ static int do_ego_item_squelch(void)
 
 void init_tv_to_type(void)
 {
-  tv_to_type[TV_SKELETON]=TYPE_MISC;
-  tv_to_type[TV_BOTTLE]=TYPE_MISC;
-  tv_to_type[TV_JUNK]=TYPE_MISC;
-  tv_to_type[TV_SPIKE]=TYPE_MISC;
+  tv_to_type[TV_USELESS]=TYPE_MISC;
   tv_to_type[TV_CHEST]=TYPE_MISC;
-  tv_to_type[TV_SHOT]=TYPE_AMMO;
   tv_to_type[TV_ARROW]=TYPE_AMMO;
-  tv_to_type[TV_BOLT]=TYPE_AMMO;
   tv_to_type[TV_BOW]=TYPE_BOW;
   tv_to_type[TV_DIGGING]=TYPE_WEAPON2;
   tv_to_type[TV_HAFTED]=TYPE_WEAPON2;
@@ -1480,21 +1464,15 @@ void init_tv_to_type(void)
   tv_to_type[TV_SHIELD]=TYPE_SHIELD;
   tv_to_type[TV_CLOAK]=TYPE_CLOAK;
   tv_to_type[TV_SOFT_ARMOR]=TYPE_BODY;
-  tv_to_type[TV_HARD_ARMOR]=TYPE_BODY;
-  tv_to_type[TV_DRAG_ARMOR]=TYPE_BODY;
-  tv_to_type[TV_DRAG_SHIELD]=TYPE_SHIELD;
-  tv_to_type[TV_LITE]=TYPE_MISC;
+  tv_to_type[TV_MAIL]=TYPE_BODY;
+  tv_to_type[TV_LIGHT]=TYPE_MISC;
   tv_to_type[TV_AMULET]=TYPE_AMULET;
   tv_to_type[TV_RING]=TYPE_RING;
   tv_to_type[TV_STAFF]=TYPE_STAFF;
-  tv_to_type[TV_WAND]=TYPE_WAND;
-  tv_to_type[TV_ROD]=TYPE_ROD;
-  tv_to_type[TV_SCROLL]=TYPE_SCROLL;
+  tv_to_type[TV_TRUMPET]=TYPE_ROD;
   tv_to_type[TV_POTION]=TYPE_POTION;
   tv_to_type[TV_FLASK]=TYPE_MISC;
   tv_to_type[TV_FOOD]=TYPE_FOOD;
-  tv_to_type[TV_MAGIC_BOOK]=TYPE_BOOK;
-  tv_to_type[TV_PRAYER_BOOK]=TYPE_BOOK;
 }
 
 void do_cmd_squelch_autoinsc(void)
@@ -1545,9 +1523,6 @@ int squelch_itemp(object_type *o_ptr, byte feelings, bool fullid)
 
   	/* default */
   	result = SQUELCH_NO;
-
-  	/*never squelch quest items*/
-  	if (o_ptr->ident & IDENT_QUEST) return result;
 
 	/* Squelch some ego items if known */
 	if (fullid && (ego_item_p(o_ptr)) && (e_info[o_ptr->name2].squelch))
@@ -1642,8 +1617,8 @@ int squelch_itemp(object_type *o_ptr, byte feelings, bool fullid)
 
   	if (result==SQUELCH_NO) return result;
 
-  	/* Squelching will fail on an artifact */
-  	if ((artifact_p(o_ptr)) || (o_ptr->obj_note)) result = SQUELCH_FAILED;
+  	/* Squelching will fail on an artefact */
+  	if ((artefact_p(o_ptr)) || (o_ptr->obj_note)) result = SQUELCH_FAILED;
 
   	return result;
 }
@@ -1657,9 +1632,6 @@ int do_squelch_item(int squelch, int item, object_type *o_ptr)
 {
 
   	if (squelch != SQUELCH_YES) return 0;
-
-	/*hack - never squelch quest items*/
-	if (o_ptr->ident & IDENT_QUEST) return 0;
 
   	if (item >= 0)
 	{
@@ -1765,14 +1737,13 @@ void do_squelch_pile(int y, int x)
    		sq_flag =  ((k_info[o_ptr->k_idx].squelch == SQUELCH_ALWAYS) &&
 	   					(k_info[o_ptr->k_idx].aware));
 
-		/*hack - never squelch artifacts*/
-		if artifact_p(o_ptr) sq_flag = FALSE;
+		/*hack - never squelch artefacts*/
+		if artefact_p(o_ptr) sq_flag = FALSE;
 
 		/*always squelch "&nothing*/
 		if (!o_ptr->k_idx) sq_flag = TRUE;
 
-		/*never delete quest items*/
-    	if ((sq_flag) && (!(o_ptr->ident & IDENT_QUEST)))
+    	if ((sq_flag))
 		{
       		delete_object_idx(o_idx);
 		}
@@ -1799,28 +1770,24 @@ int get_autoinscription_index(s16b k_idx)
 /*Put the autoinscription on an object*/
 int apply_autoinscription(object_type *o_ptr)
 {
-	char o_name[80];
 	cptr note = get_autoinscription(o_ptr->k_idx);
 	cptr existingInscription = quark_str(o_ptr->obj_note);
 
-	/* Don't inscribe unaware objects */
-	if (!note || !object_aware_p(o_ptr))
+	/* Don't inscribe objects if there is no autoinscription to do! */
+	if (!note)
 	{
-		return 0;
+		return (0);
 	}
 
 	/* Don't re-inscribe if it's already correctly inscribed */
 	if(existingInscription && streq(note, existingInscription))
 	{
-		return 0;
+		return (0);
 	}
 
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-
 	o_ptr->obj_note = note[0] == 0 ? 0 : quark_add(note);
-	msg_format("You autoinscribe %s.", o_name);
 
-	return 1;
+	return (1);
 }
 
 
@@ -1843,6 +1810,109 @@ int remove_autoinscription(s16b kind)
 	return 1;
 }
 
+/*
+ *  Uninscribes an object if its inscription matches the given autoinscription
+ */
+void unapply_autoinscription(object_type *o_ptr, cptr note)
+{
+	cptr existingInscription = quark_str(o_ptr->obj_note);
+	
+	/* Remove the inscription if it matches the autoinscription */
+	if(existingInscription && streq(note, existingInscription))
+	{
+		/* Remove the inscription */
+		o_ptr->obj_note = 0;
+	}
+		
+	return;
+}
+
+/*
+ *  Removes an autoinscription from the database and from all objects
+ */
+extern void obliterate_autoinscription(s16b kind)
+{
+	int i;
+	int j = get_autoinscription_index(kind);
+	cptr note = get_autoinscription(kind);
+	object_type *o_ptr;
+	
+	/* Abort if there is no autoinscription for that object kind */
+	if (j == -1) return;
+
+	// Go through all objects in the dungeon and inventory...
+	for (i = 1; i < o_max; i++)
+	{
+		/* Get the next object from the dungeon */
+		o_ptr = &o_list[i];
+		
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+		
+		/* Apply an autoinscription */
+		unapply_autoinscription(o_ptr, note);
+	}
+	for (i = INVEN_PACK; i > 0; i--)
+	{
+		/* Skip empty items */
+		if(!inventory[i].k_idx) continue;
+		
+		unapply_autoinscription(&inventory[i], note);
+	}
+	
+	remove_autoinscription(kind);
+
+	return;
+}
+
+
+void autoinscribe_dungeon(void)
+{
+	int i;
+	object_type *o_ptr;
+	
+	for (i = 1; i < o_max; i++)
+	{
+		/* Get the next object from the dungeon */
+		o_ptr = &o_list[i];
+		
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+		
+		/* Apply an autoinscription */
+		apply_autoinscription(o_ptr);
+	}
+}
+
+void autoinscribe_ground(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	s16b this_o_idx, next_o_idx = 0;
+	
+	/* Scan the pile of objects */
+	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Get the next object */
+		next_o_idx = o_list[this_o_idx].next_o_idx;
+		
+		/* Apply an autoinscription */
+		apply_autoinscription(&o_list[this_o_idx]);
+	}
+}
+
+void autoinscribe_pack(void)
+{
+	int i;
+	
+	for (i = INVEN_PACK; i > 0; i--)
+	{
+		/* Skip empty items */
+		if(!inventory[i].k_idx) continue;
+		
+		apply_autoinscription(&inventory[i]);
+	}
+}
 
 
 
@@ -1883,39 +1953,12 @@ int add_autoinscription(s16b kind, cptr inscription)
 		/* Only increment count if inscription added to end of array */
 		inscriptionsCount++;
 	}
+	
+	// add inscriptions to pack and dungeon
+	autoinscribe_pack();
+	autoinscribe_dungeon();
 
 	return 1;
-}
-
-
-void autoinscribe_ground(void)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-	s16b this_o_idx, next_o_idx = 0;
-
-	/* Scan the pile of objects */
-	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
-	{
-		/* Get the next object */
-		next_o_idx = o_list[this_o_idx].next_o_idx;
-
-		/* Apply an autoinscription */
-		apply_autoinscription(&o_list[this_o_idx]);
-	}
-}
-
-void autoinscribe_pack(void)
-{
-	int i;
-
-	for (i = INVEN_PACK; i > 0; i--)
-	{
-		/* Skip empty items */
-		if(!inventory[i].k_idx) continue;
-
-		apply_autoinscription(&inventory[i]);
-	}
 }
 
 /* Convert the values returned by squelch_itemp to string */

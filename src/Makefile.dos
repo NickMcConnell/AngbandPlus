@@ -37,13 +37,11 @@ OBJS = \
   obj-info.o \
   object1.o \
   object2.o \
-  quest.o \
   randart.o \
   save.o \
   spells1.o \
   spells2.o \
   squelch.o \
-  store.o \
   tables.o \
   util.o \
   variable.o \
@@ -74,12 +72,12 @@ LIBS = -lpc -lalleg
 # Targets
 #
 
-default: angband.exe
+default: sil.exe
 
-install: angband.exe
-	copy angband.exe ..
+install: sil.exe
+	copy sil.exe ..
 
-all: angband.exe
+all: sil.exe
 	@echo All done.  Use 'make install' to install.
 
 
@@ -87,7 +85,7 @@ all: angband.exe
 # Link executables
 #
 
-angband.exe: $(OBJS)
+sil.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

@@ -1,4 +1,4 @@
-# Project: NPPAngband 0.3.1
+# Project: Sil
 #
 # To use this makefile, the current working directory must be where
 # this makefile is (if this makefile is at "raFS::Temp.$.ang.src.makefile",
@@ -20,10 +20,10 @@ OBJS := \
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load.o \
+  birth.o load.o \
   wizard1.o wizard2.o obj-info.o \
   generate.o dungeon.o init1.o init2.o randart.o \
-  main-ros.o quest.o \
+  main-ros.o \
   use-obj.o squelch.o
 
 # Borg object files:
@@ -54,7 +54,7 @@ endif
    
 # Defaults for gcc
 ifeq (gcc, $(COMPILER))
-  WARNINGS := -ansi -pedantic -Wall -Wno-unused -Wno-long-long -W -Wcast-qual
+  WARNINGS := -ansi -Wall -Wno-unused -Wno-long-long -W -Wcast-qual
        
   # Tools:
   CC := gcc -mlibscl -c
@@ -65,7 +65,7 @@ ifeq (gcc, $(COMPILER))
   # Libraries:
   LIBS := <DeskLib$$Dir>.o.DeskLib
 
-  WARNINGS := -ansi -pedantic -Wall -Wundef -Wpointer-arith \
+  WARNINGS := -ansi -Wall -Wundef -Wpointer-arith \
             -Wcast-align -Wwrite-strings -Wstrict-prototypes \
             -Wmissing-prototypes -Wmissing-declarations -Wnested-externs \
             -Winline -Wno-unused -Wno-long-long -W -Wcast-qual

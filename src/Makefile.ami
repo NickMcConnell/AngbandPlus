@@ -22,7 +22,7 @@ OBJS = \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o
 
 OBJS2 = \
-  store.o birth.o load.o squelch.o quest.o\
+  birth.o load.o squelch.o \
   wizard1.o wizard2.o obj-info.o \
   generate.o dungeon.o init1.o init2.o randart.o \
   use-obj.o 
@@ -35,22 +35,22 @@ LIBS = LIB sc:lib/reqtools.lib LIB sc:lib/scmnb.lib LIB sc:lib/sc.lib \
 
 CFLAGS = DEFINE AMIGA DEFINE USE_AMI
 
-all: Angband.gst Angband
-   @VersionWB TEXT COMFILE COMERASE QUIET Angband
-   @echo Angband compiled...
+all: Sil.gst Sil
+   @VersionWB TEXT COMFILE COMERASE QUIET Sil
+   @echo Sil compiled...
 
-Angband.gst : $(INCS)
+Sil.gst : $(INCS)
    @echo "Building GST ..."
-   @-delete >NIL: Angband.GST
-   @gst >NIL: Angband.GST unload
+   @-delete >NIL: Sil.GST
+   @gst >NIL: Sil.GST unload
    @echo >makegst.c "\#include *"angband.h*""
-   @sc makegst.c MAKEGST Angband.GST NOOBJNAME
+   @sc makegst.c MAKEGST Sil.GST NOOBJNAME
 
-Angband: $(OBJS) $(OBJS2)
+Sil: $(OBJS) $(OBJS2)
    @echo Linking...
    @echo >t:temp "LIB:c.o $(OBJS) "
    @echo >>t:temp " $(OBJS2) "
-   @echo >>t:temp "TO Angband $(LIBS) NOICONS STRIPDEBUG"
+   @echo >>t:temp "TO Sil $(LIBS) NOICONS STRIPDEBUG"
    @slink WITH t:temp QUIET
    @-delete t:temp
 
@@ -101,13 +101,11 @@ monster2.o: monster2.c $(INCS)
 obj-info.o: obj-info.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
-quest.o: quest.c $(INCS)
 save.o: save.c $(INCS)
 squelch.o: squelch.c $(INCS)
 sound-ami.o: sound-ami.c
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
-store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)

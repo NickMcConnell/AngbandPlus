@@ -70,7 +70,8 @@ typedef s16b s16b_wid[MAX_DUNGEON_WID];
 typedef struct maxima maxima;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
-typedef struct artifact_type artifact_type;
+typedef struct ability_type ability_type;
+typedef struct artefact_type artefact_type;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
@@ -79,14 +80,11 @@ typedef struct vault_type vault_type;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
 typedef struct alloc_entry alloc_entry;
-typedef struct quest_type quest_type;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
-typedef struct magic_type magic_type;
-typedef struct player_magic player_magic;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
-typedef struct player_class player_class;
+typedef struct player_house player_house;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
@@ -108,24 +106,25 @@ struct maxima
 	u32b fake_text_size;
 	u32b fake_name_size;
 
-	u16b f_max;		/* Max size for "f_info[]" */
-	u16b k_max;		/* Max size for "k_info[]" */
-	u16b art_max;		/* Max size for "a_info[]" */
-	u16b e_max;		/* Max size for "e_info[]" */
-	u16b r_max;		/* Max size for "r_info[]" */
-	u16b v_max;		/* Max size for "v_info[]" */
-	u16b p_max;		/* Max size for "p_info[]" */
-	u16b h_max;		/* Max size for "h_info[]" */
-	u16b b_max;		/* Max size per element of "b_info[]" */
-	u16b c_max;		/* Max size for "c_info[]" */
-	u16b q_max;		/* Max size for "q_info[]" */
-	u16b flavor_max; /* Max size for "flavor_info[]" */
-	u16b o_max;		/* Max size for "o_list[]" */
-	u16b m_max;		/* Max size for "mon_list[]" */
-	u16b ghost_other_max;  /* number of maintainer player ghost templates*/
-	u16b art_spec_max; /* Max number of special artifacts*/
-	u16b art_norm_max; /* Max number for normal artifacts (special - normal)*/
-	u16b art_rand_max; /*max number of random artifacts*/
+	u16b f_max;				/* Max size for "f_info[]" */
+	u16b k_max;				/* Max size for "k_info[]" */
+	u16b b_max;				/* Max size for "b_info[]" */
+	u16b art_max;			/* Max size for "a_info[]" */
+	u16b e_max;				/* Max size for "e_info[]" */
+	u16b r_max;				/* Max size for "r_info[]" */
+	u16b v_max;				/* Max size for "v_info[]" */
+	u16b p_max;				/* Max size for "p_info[]" */
+	u16b h_max;				/* Max size for "h_info[]" */
+	u16b c_max;				/* Max size for "c_info[]" */
+	u16b q_max;				/* Max size for "q_info[]" */
+	u16b flavor_max;		/* Max size for "flavor_info[]" */
+	u16b o_max;				/* Max size for "o_list[]" */
+	u16b m_max;				/* Max size for "mon_list[]" */
+	u16b ghost_other_max;	/* Max maintainer player ghost templates */
+	u16b art_spec_max;		/* Max number of special artefacts */
+	u16b art_norm_max;		/* Max number for normal artefacts (special - normal) */
+	u16b art_rand_max;		/* Max number of random artefacts */
+	u16b art_self_made_max; /* Max number of self-made artefacts */
 };
 
 
@@ -168,13 +167,11 @@ struct object_kind
 
 	s16b pval;			/* Object extra info */
 
-	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to damage */
-	s16b to_a;			/* Bonus to armor */
-
-	s16b ac;			/* Base armor */
+	s16b att;			/* Bonus to hit */
+	s16b evn;			/* Sil - Bonus to evasion */
 
 	byte dd, ds;		/* Damage dice/sides */
+	byte pd, ps;		/* Sil - Protection dice/sides */
 
 	s16b weight;		/* Weight */
 
@@ -186,6 +183,10 @@ struct object_kind
 
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
+
+	byte abilities;	    // Number of abilities
+	byte skilltype[4];  // Skill-types for the granted abilities
+	byte abilitynum[4]; // Ability numbers for these
 
 	byte level;			/* Level */
 	byte extra;			/* Something */
@@ -213,58 +214,86 @@ struct object_kind
 
 
 /*
- * Information about "artifacts".
- *
- * Note that the save-file only writes "cur_num" to the savefile,
- * except for the random artifacts
- *
- * Note that "max_num" is always "1" (if that artifact "exists")
+ * Information about abilities.
  */
-struct artifact_type
+struct ability_type
+{
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
+	
+	byte skilltype;		/* Skill type */
+	byte abilitynum;	/* Ability number within a skill */
+	
+	byte level;						/* Prerequisite skill level */
+	byte prereqs;					/* Number of prerequisite abilities */
+	byte prereq_skilltype[4];		/* Skill type (for prerequisites) */
+	byte prereq_abilitynum[4];		/* The ability within that skill (for prerequisites) */
+
+	byte tval[ABILITY_TVALS_MAX];		/* Legal tval */
+	byte min_sval[ABILITY_TVALS_MAX];	/* Minimum legal sval */
+	byte max_sval[ABILITY_TVALS_MAX];	/* Maximum legal sval */
+};
+
+
+/*
+ * Information about "artefacts".
+ *
+ * Note that the save-file only writes "cur_num" and "found_num" to the savefile,
+ * except for the random artefacts
+ *
+ * Note that "max_num" is always "1" (if that artefact "exists")
+ */
+struct artefact_type
 {
 	char name[MAX_LEN_ART_NAME];	/* Name */
-	u32b text;			/* Text (offset) */
+	u32b text;						/* Description (offset) */
 
-	byte tval;			/* Artifact type */
-	byte sval;			/* Artifact sub type */
+	byte tval;			/* Artefact type */
+	byte sval;			/* Artefact sub type */
 
-	s16b pval;			/* Artifact extra info */
+	s16b pval;			/* Artefact extra info */
 
-	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to damage */
-	s16b to_a;			/* Bonus to armor */
-
-	s16b ac;			/* Base armor */
+	s16b att;			/* Bonus to hit */
+	s16b evn;			/* Bonus to evasion */
 
 	byte dd, ds;		/* Damage when hits */
+	byte pd, ps;		/* Protection dice and sides */
 
 	s16b weight;		/* Weight */
 
-	s32b cost;			/* Artifact "cost" */
+	s32b cost;			/* Artefact "cost" */
 
-	u32b flags1;		/* Artifact Flags, set 1 */
-	u32b flags2;		/* Artifact Flags, set 2 */
-	u32b flags3;		/* Artifact Flags, set 3 */
+	u32b flags1;		/* Artefact Flags, set 1 */
+	u32b flags2;		/* Artefact Flags, set 2 */
+	u32b flags3;		/* Artefact Flags, set 3 */
 
-	byte level;			/* Artifact level */
-	byte rarity;		/* Artifact rarity */
+	byte level;			/* Artefact level */
+	byte rarity;		/* Artefact rarity */
 
 	byte cur_num;		/* Number created (0 or 1) */
+	byte found_num;		/* Number found (0 or 1) */
 	byte max_num;		/* Unused (should be "1") */
 
 	byte activation;	/* Activation to use */
 	u16b time;			/* Activation time */
 	u16b randtime;		/* Activation time dice */
+	
+	byte d_attr;		/* Default artefact attribute */
+	char d_char;		/* Default artefact character */
+
+	byte abilities;	    // Number of abilities
+	byte skilltype[4];  // Skill-types for the granted abilities
+	byte abilitynum[4]; // Ability numbers for these
 };
 
 
 /*
- * Information about "ego-items".
+ * Information about special items.
  */
 struct ego_item_type
 {
 	u32b name;			/* Name (offset) */
-	u32b text;			/* Text (offset) */
+	u32b text;			/* Description (offset) */
 
 	s32b cost;			/* Ego-item "cost" */
 
@@ -273,24 +302,29 @@ struct ego_item_type
 	u32b flags3;		/* Ego-Item Flags, set 3 */
 
 	byte level;			/* Minimum level */
+	byte max_level;		/* Maximum level */
 	byte rarity;		/* Object rarity */
-	byte rating;		/* Level rating boost */
 
-	byte tval[EGO_TVALS_MAX]; /* Legal tval */
+	byte tval[EGO_TVALS_MAX];		/* Legal tval */
 	byte min_sval[EGO_TVALS_MAX];	/* Minimum legal sval */
 	byte max_sval[EGO_TVALS_MAX];	/* Maximum legal sval */
-
-	byte max_to_h;		/* Maximum to-hit bonus */
-	byte max_to_d;		/* Maximum to-dam bonus */
-	byte max_to_a;		/* Maximum to-ac bonus */
+	
+	byte abilities;	    // Number of abilities
+	byte skilltype[4];  // Skill-types for the granted abilities
+	byte abilitynum[4]; // Ability numbers for these
+	
+	byte max_att;		/* Maximum to-hit bonus */
+	byte to_dd;			/* bonus damge dice */
+	byte to_ds;			/* bonus damage sides */
+	byte max_evn;		/* Maximum to-e bonus */
+	byte to_pd;			/* bonus protection dice */
+	byte to_ps;			/* bonus protection sides */
 	byte max_pval;		/* Maximum pval */
 
-	byte xtra;			/* Extra sustain/resist/power */
-
-	bool everseen;			/* Do not spoil squelch menus */
-	bool squelch;			/* Squelch this ego-item */
+	bool aware;			/* Has its type been detected this game? */
+	bool everseen;		/* Do not spoil squelch menus */
+	bool squelch;		/* Squelch this special item */
 };
-
 
 
 
@@ -306,8 +340,9 @@ struct monster_blow
 {
 	byte method;
 	byte effect;
-	byte d_dice;
-	byte d_side;
+	s16b att;
+	byte dd;
+	byte ds;
 };
 
 
@@ -338,20 +373,24 @@ struct monster_race
 	byte hdice;				/* Creatures hit dice count */
 	byte hside;				/* Creatures hit dice sides */
 
-	s16b ac;				/* Armour Class */
+	s16b evn;				/* Bonus to evasion */
+	byte pd;				/* Protection dice */
+	byte ps;				/* Protection sides */
 
-	s16b sleep;				/* Inactive counter (base) */
-	byte aaf;				/* Area affect radius (1-100) */
 	byte speed;				/* Speed (normally 110) */
+	s16b light;				/* Light/Dark radius (if any) */
 
-	s32b mexp;				/* Exp value for kill */
+	s16b sleep;				/* Starting penalty to alertness */
+	s16b per;				/* Perception */
+	s16b stl;				/* Stealth */
+	s16b wil;				/* Will */
 
 	s16b extra;				/* Unused (for now) */
 
 	byte freq_ranged;		/* Ranged attack frequency */
 	byte mana;				/* Max mana */
 	byte spell_power;		/* Power of (damage-dealing) spells */
-	u32b mon_power;        		/* Monster Power Rating */
+	u32b mon_power;        	/* Monster Power Rating */
 
 #ifdef ALLOW_DATA_DUMP
 
@@ -360,14 +399,10 @@ struct monster_race
 
 #endif /*ALLOW_DATA_DUMP*/
 
-
 	u32b flags1;			/* Flags 1 (general) */
 	u32b flags2;			/* Flags 2 (abilities) */
 	u32b flags3;			/* Flags 3 (race/resist) */
-	u32b flags4;			/* Flags 4 (inate/breath) */
-	u32b flags5;			/* Flags 5 (normal spells) */
-	u32b flags6;			/* Flags 6 (special spells) */
-	u32b flags7;			/* Flags 7 (summon spells) */
+	u32b flags4;			/* Flags 4 ('spells') */
 
 	monster_blow blow[MONSTER_BLOW_MAX]; /* Up to four blows per round */
 
@@ -396,26 +431,22 @@ struct monster_race
  */
 struct monster_lore
 {
-	s16b sights;			/* Count sightings of this monster */
 	s16b deaths;			/* Count deaths from this monster */
+
+	s16b psights;			/* Count sightings of this monster in this life */
+	s16b tsights;			/* Count sightings of this monster in all lives */
 
 	s16b pkills;			/* Count monsters killed in this life */
 	s16b tkills;			/* Count monsters killed in all lives */
 
-	byte wake;				/* Number of times woken up (?) */
-	byte ignore;			/* Number of times ignored (?) */
+	byte notice;			/* Number of times it has been seen noticing the player */
+	byte ignore;			/* Number of times it has been seen not noticing the player */
 
-	byte xtra1;				/* Something (unused) */
-	byte xtra2;				/* Something (unused) */
-
-	byte drop_gold;			/* Max number of gold dropped at once */
-	byte drop_item;			/* Max number of item dropped at once */
+	byte drop_item;			/* Max number of items dropped at once */
 
 	byte ranged;			/* Observed ranged attacks */
 	byte mana;				/* Max mana */
 	byte spell_power;		/* Power of (damage-dealing) spells */
-
-	byte xtra3;				/* Something (unused) */
 
 	byte blows[MONSTER_BLOW_MAX]; /* Number of times each blow type was seen */
 
@@ -423,9 +454,6 @@ struct monster_lore
 	u32b flags2;			/* Observed racial flags */
 	u32b flags3;			/* Observed racial flags */
 	u32b flags4;			/* Observed racial flags */
-	u32b flags5;			/* Observed racial flags */
-	u32b flags6;			/* Observed racial flags */
-	u32b flags7;			/* Observed racial flags */
 };
 
 
@@ -440,7 +468,9 @@ struct vault_type
 
 	byte typ;			/* Vault type */
 
-	byte rat;			/* Vault rating */
+	byte depth;			/* Vault rating */
+
+	byte rarity;		/* Vault rarity */
 
 	byte hgt;			/* Vault height */
 	byte wid;			/* Vault width */
@@ -460,7 +490,7 @@ struct vault_type
  * and care must be taken when handling such objects.
  *
  * Note that "object flags" must now be derived from the object kind,
- * the artifact and ego-item indexes, and the two "xtra" fields.
+ * the artefact and special item indexes, and the two "xtra" fields.
  *
  * Each cave grid points to one (or zero) objects via the "o_idx"
  * field (above).  Each object then points to one (or zero) objects
@@ -478,6 +508,8 @@ struct vault_type
 struct object_type
 {
 	s16b k_idx;			/* Kind index (zero if "dead") */
+	
+	s16b image_k_idx;	/* Hallucinatory kind index */
 
 	byte iy;			/* Y-position on map, or zero */
 	byte ix;			/* X-position on map, or zero */
@@ -493,20 +525,19 @@ struct object_type
 
 	s16b weight;		/* Item weight */
 
-	byte name1;			/* Artifact type, if any */
+	byte name1;			/* Artefact type, if any */
 	byte name2;			/* Ego-Item type, if any */
 
+	byte pickup;		/* Auto pick up this item next time it is stepped on */
+
 	byte xtra1;			/* Extra info type */
-	u32b xtra2;			/* Extra info index */
 
-	s16b to_h;			/* Plusses to hit */
-	s16b to_d;			/* Plusses to damage */
-	s16b to_a;			/* Plusses to AC */
-
-	s16b ac;			/* Normal AC */
+	s16b att;			/* Bonus to attack */
+	s16b evn;			/* Bonus to evasion */
 
 	byte dd, ds;		/* Damage dice/sides */
-
+	byte pd, ps;		/* Protection dice/sides */
+	
 	s16b timeout;		/* Timeout Counter */
 
 	u32b ident;			/* Special flags (was byte) */
@@ -518,6 +549,10 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+
+	byte abilities;	    // Number of abilities
+	byte skilltype[8];  // Skill-types for the granted abilities (8 = 4 for object base + 4 for special or artefact)
+	byte abilitynum[8]; // Ability numbers for these
 };
 
 
@@ -534,42 +569,53 @@ struct monster_type
 {
 	s16b r_idx;			/* Monster race index */
 
+	s16b image_r_idx;	/* Monster race index (when hallucinating) */
+
 	byte fy;			/* Y location on map */
 	byte fx;			/* X location on map */
 
 	s16b hp;			/* Current Hit points */
 	s16b maxhp;			/* Max Hit points */
 
-	s16b csleep;		/* Inactive counter */
+	s16b alertness;		/* Positive numbers can move and act, negative are unwary or asleep */
+	byte skip_next_turn;/* used to skip the monster's next turn in various circumstances */
 
 	byte mspeed;		/* Monster "speed" */
 	byte energy;		/* Monster "energy" */
 
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
-	byte monfear;		/* Monster is afraid */
 	s16b slowed;		/* Monster is slowed */
 	s16b hasted;		/* Monster is hasted */
+
+	byte stance;		/* Fleeing, Timid, Cautious, Aggressive */
+	s16b morale;		/* Overall morale */
+	s16b tmp_morale;	/* Temporary modifier to morale */
 
 	byte cdis;			/* Current dis from player */
 
 	u32b mflag;			/* Extra monster flags */
 
 	bool ml;			/* Monster is "visible" */
+	
+	byte noise;			/* amount of noise monster made this turn */
+
+	byte encountered;	/* Whether the monster has been encountered yet */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
-	u32b smart;			/* Field for "smart_learn" */
-
-	byte target_y;			/* Monster target */
+	byte target_y;		/* Monster target */
 	byte target_x;
+	
+	byte wandering_idx;	/* Where the monster is wandering while unwary (if anywhere) */
+	byte wandering_dist;/* The distance to the destination */
 
 	byte min_range;		/* What is the closest we want to be? */  /* Not saved */
 	byte best_range;	/* How close do we want to be? */  /* Not saved */
 
 	byte mana;          /* Current mana level */
 
-	s16b mimic_k_idx;	/*type of mimic code*/
+	s16b mimic_k_idx;	/* type of mimic code */
 
 };
 
@@ -595,28 +641,6 @@ struct alloc_entry
 	u16b total;		/* Unused for now */
 };
 
-
-
-/*
- * Structure for the "quests"
- */
-struct quest_type
-{
-	u32b name;			/* Name (offset) */
-	byte type;			/* Quest Type */
-	byte reward;		/* Quest Reward */
-	byte theme;			/* Monster Theme for themed levels and nests/pits*/
-
-	byte active_level;	/* Equals dungeon level if not completed, 0 if completed */
-	byte base_level;	/* The dungeon level on which the quest was assigned*/
-
-	s16b mon_idx;		/* Monster race/unique */
-
-	s16b cur_num;		/* Number killed */
-	s16b max_num;		/* Number required */
-
-	bool started;		/* Has the player start the quest */
-};
 
 
 /*
@@ -663,27 +687,6 @@ struct store_type
 };
 
 
-struct magic_type
-{
-	byte slevel;		/* Required level (to learn) */
-	byte smana;			/* Required mana (to cast) */
-	byte sfail;			/* Minimum chance of failure */
-	byte sexp;			/* Encoded experience bonus */
-};
-
-
-/*
- * Information about the player's "magic"
- *
- * Note that a player with a "spell_book" of "zero" is illiterate.
- */
-struct player_magic
-{
-	magic_type info[PY_MAX_SPELLS];	/* The available spells */
-};
-
-
-
 /*
  * Player sex info
  */
@@ -696,29 +699,30 @@ struct player_sex
 
 
 /*
+ * Starting equipment entry
+ */
+struct start_item
+{
+	byte tval;	/* Item's tval */
+	byte sval;	/* Item's sval */
+	byte min;	/* Minimum starting amount */
+	byte max;	/* Maximum starting amount */
+
+};
+
+
+/*
  * Player racial info
  */
 struct player_race
 {
 	u32b name;			/* Name (offset) */
-	u32b text;			/* Text (offset) */
+	u32b text;			/* Description (offset) */
 
 	s16b r_adj[A_MAX];	/* Racial stat bonuses */
 
-	s16b r_dis;			/* disarming */
-	s16b r_dev;			/* magic devices */
-	s16b r_sav;			/* saving throw */
-	s16b r_stl;			/* stealth */
-	s16b r_srh;			/* search ability */
-	s16b r_fos;			/* search frequency */
-	s16b r_thn;			/* combat (normal) */
-	s16b r_thb;			/* combat (shooting) */
-
-	byte r_mhp;			/* Race hit-dice modifier */
-	byte r_exp;			/* Race experience factor */
-
-	byte b_age;			/* base age */
-	byte m_age;			/* mod age */
+	int b_age;			/* base age */
+	int m_age;			/* mod age */
 
 	byte m_b_ht;		/* base height (males) */
 	byte m_m_ht;		/* mod height (males) */
@@ -730,79 +734,29 @@ struct player_race
 	byte f_b_wt;		/* base weight (females) */
 	byte f_m_wt;		/* mod weight (females) */
 
-	byte infra;			/* Infra-vision	range */
+	s16b choice;		/* Legal house choices */
 
-	byte choice;		/* Legal class choices */
+	start_item start_items[MAX_START_ITEMS];	/* The starting inventory */
 
 	s16b hist;			/* Starting history index */
 
-	u32b flags1;		/* Racial Flags, set 1 */
-	u32b flags2;		/* Racial Flags, set 2 */
-	u32b flags3;		/* Racial Flags, set 3 */
+	u32b flags;			/* Racial Flags (ie RHF flags) */
 };
 
 
 /*
- * Starting equipment entry
+ * Player house info
  */
-struct start_item
+struct player_house
 {
-	byte tval;	/* Item's tval */
-	byte sval;	/* Item's sval */
-	byte min;	/* Minimum starting amount */
-	byte max;	/* Maximum starting amount */
-};
+	u32b name;			/* Name (offset)           eg 'House of Feanor' */
+	u32b alt_name;		/* Alternate Name (offset) eg 'Feanor's House'  */
+	u32b short_name;	/* Short Name (offset)     eg 'Feanor'          */
+	u32b text;			/* Descrption (offset) */
 
+	s16b h_adj[A_MAX];	/* House stat bonuses */
 
-/*
- * Player class info
- */
-struct player_class
-{
-	u32b name;			/* Name (offset) */
-
-	u32b title[10];		/* Titles - offset */
-
-	s16b c_adj[A_MAX];	/* Class stat modifier */
-
-	s16b c_dis;			/* class disarming */
-	s16b c_dev;			/* class magic devices */
-	s16b c_sav;			/* class saving throws */
-	s16b c_stl;			/* class stealth */
-	s16b c_srh;			/* class searching ability */
-	s16b c_fos;			/* class searching frequency */
-	s16b c_thn;			/* class to hit (normal) */
-	s16b c_thb;			/* class to hit (bows) */
-
-	s16b x_dis;			/* extra disarming */
-	s16b x_dev;			/* extra magic devices */
-	s16b x_sav;			/* extra saving throws */
-	s16b x_stl;			/* extra stealth */
-	s16b x_srh;			/* extra searching ability */
-	s16b x_fos;			/* extra searching frequency */
-	s16b x_thn;			/* extra to hit (normal) */
-	s16b x_thb;			/* extra to hit (bows) */
-
-	s16b c_mhp;			/* Class hit-dice adjustment */
-	s16b c_exp;			/* Class experience factor */
-
-	u32b flags;			/* Class Flags */
-
-	u16b max_attacks;	/* Maximum possible attacks */
-	u16b min_weight;	/* Minimum weapon weight for calculations */
-	u16b att_multiply;	/* Multiplier for attack calculations */
-
-	byte spell_book;	/* Tval of spell books (if any) */
-	u16b spell_stat;	/* Stat for spells (if any) */
-	u16b spell_first;	/* Level of first spell */
-	u16b spell_weight;	/* Weight that hurts spells */
-
-	u32b sense_base;	/* Base pseudo-id value */
-	u16b sense_div;		/* Pseudo-id divisor */
-
-	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
-
-	player_magic spells; /* Magic spells */
+	u32b flags;			/* House Flags (ie RHF flags) */
 };
 
 
@@ -816,7 +770,7 @@ struct hist_type
 	byte roll;			    /* Frequency of this entry */
 	byte chart;			    /* Chart index */
 	byte next;			    /* Next chart index */
-	byte bonus;			    /* Social Class Bonus + 50 */
+	byte house;			    /* House to associate with */
 };
 
 
@@ -859,31 +813,25 @@ struct player_type
 
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
-	byte pclass;		/* Class index */
-	byte oops;			/* Unused */
+	byte phouse;		/* House index */
+	
+	s16b game_type;		/* Whether this is a normal game (=0), tutorial (<0), puzzle (>0) */
 
-	byte hitdie;		/* Hit dice (sides) */
-	byte expfact;		/* Experience factor */
-
-	s16b age;			/* Characters age */
+	s16b age;			/* Character's age */
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
 
-	u16b fame;			/* Fame - used for quests */
-
-	s32b au;			/* Current Gold */
-
 	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
-	s16b recall_depth;		/* recall depth*/
 
-	s16b max_lev;		/* Max level */
-	s16b lev;			/* Cur level */
+	s32b new_exp;		/* New experience */
+	s32b exp;			/* Total experience */
 
-	s32b max_exp;		/* Max experience */
-	s32b exp;			/* Cur experience */
-	u16b exp_frac;		/* Cur exp frac (times 2^16) */
+	s32b encounter_exp;		/* Total experience from ecountering monsters */
+	s32b kill_exp;			/* Total experience from killing monsters */
+	s32b descent_exp;		/* Total experience from descending to new levels */
+	s32b ident_exp;			/* Total experience from identifying objects */
 
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
@@ -893,8 +841,19 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
-	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
-	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
+	s16b stat_base[A_MAX];		/* The base ('internal') stat values */
+	s16b stat_drain[A_MAX];		/* The negative modifier from stat drain */
+
+	s16b skill_base[S_MAX];		/* The base skill values */
+
+	byte innate_ability[S_MAX][ABILITIES_MAX];	/* Whether or not you personally have each ability */
+	byte active_ability[S_MAX][ABILITIES_MAX];	/* Whether or not you are using each ability */
+	
+	s16b last_attack_m_idx;				// m_idx of the monster attacked last round (if any)
+	s16b consecutive_attacks;			// number of rounds spent attacking this monster
+	s16b bane_type;						// the monster type you have specialized against
+	byte previous_action[ACTION_MAX];	// stores the previous actions you have taken
+	byte focused;						// stores whether you are currently focusing for an attack
 
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
@@ -906,21 +865,20 @@ struct player_type
 	s16b poisoned;		/* Timed -- Poisoned */
 	s16b cut;			/* Timed -- Cut */
 	s16b stun;			/* Timed -- Stun */
+	s16b darkened;		/* Timed -- magical darkness */
 
-	s16b protevil;		/* Timed -- Protection */
-	s16b invuln;		/* Timed -- Invulnerable */
-	s16b hero;			/* Timed -- Heroism */
-	s16b shero;			/* Timed -- Super Heroism */
-	s16b shield;		/* Timed -- Shield Spell */
-	s16b blessed;		/* Timed -- Blessed */
+	s16b rage;			/* Timed -- Rage */
+	s16b tmp_str;		/* Timed -- Strength */
+	s16b tmp_dex;		/* Timed -- Dexterity */
+	s16b tmp_con;		/* Timed -- Constitution */
+	s16b tmp_gra;		/* Timed -- Grace */
 	s16b tim_invis;		/* Timed -- See Invisible */
-	s16b tim_infra;		/* Timed -- Infra Vision */
 
-	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
+
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -928,21 +886,29 @@ struct player_type
 
 	s16b food;			/* Current nutrition */
 
-	byte confusing;		/* Glowing hands */
-	byte searching;		/* Currently searching */
+	u16b stairs_taken;	/* The number of times stairs have been used */
 
-	s16b base_wakeup_chance;	/* Base amount of character noise */
+	byte stealth_mode;	/* Stealth mode */
 
-	byte spell_flags[PY_MAX_SPELLS]; /* Spell flags */
+	byte self_made_arts;	/* Number of self-made artefacts so far */
 
-	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
+	byte song1;			/* Current song */
+	byte song2;			/* Current minor theme */
+	s16b wrath;			/* The counter for the song of slaying */
+	s16b song_duration;	/* The duration of the current song */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
 	char died_from[80];		/* Cause of death */
-	char history[250];	/* Initial history */
+	char history[250];		/* Initial history */
 
-	u16b total_winner;		/* Total winner */
+	byte truce;				/* Player will not be attacked initially at 1000ft */
+	byte crown_hint;		/* Player has been told about the Iron Crown */
+	byte crown_shatter;		/* Player has had a weapon shattered by the Crown */
+	byte cursed;			/* Player has been cursed by taking a third Silmaril */
+	byte on_the_run;		/* Player is on the run from Angband */
+	byte morgoth_slain;		/* Player has slain Morgoth */
+	u16b escaped;			/* Player has escaped Angband */
 	u16b panic_save;		/* Panic save */
 
 	u16b noscore;			/* Cheating flags */
@@ -951,14 +917,24 @@ struct player_type
 
 	bool wizard;			/* Player is in wizard mode */
 
+	s16b smithing_leftover; /* Turns needed to finish making the current item */
+	bool unique_forge_made; /* Has the unique forge been generated */
+	bool unique_forge_seen; /* Has the unique forge been encountered */
+
+	s16b greater_vaults[MAX_GREATER_VAULTS];	// Which greater vaults have been generated?
 
 	/*** Temporary fields ***/
+	
+	byte ripostes;			// number of ripostes since your last turn (should have a max of one)
 
-	bool playing;			/* True if player is playing */
+	byte have_ability[S_MAX][ABILITIES_MAX];	/* Whether or not you have each ability (including from items) */
 
-	bool leaving;			/* True if player is leaving */
+	bool playing;			/* True if player is playing the game */
+	bool restoring;			/* True if player is restoring a game */
+	bool leaving;			/* True if player is leaving the game */
 
 	s16b create_stair;		/* Create a staircase on next level */
+	s16b create_rubble;		/* Create rubble on next level */
 
 	s16b wy;				/* Dungeon panel */
 	s16b wx;				/* Dungeon panel */
@@ -985,6 +961,7 @@ struct player_type
 	s16b energy_use;		/* Energy use this turn */
 
 	s16b resting;			/* Resting counter */
+	s16b smithing;			/* Smithing counter */
 	s16b running;			/* Running counter */
 
 	s16b run_cur_dir;		/* Direction we are running */
@@ -1004,113 +981,80 @@ struct player_type
 
 	s16b command_new;		/* Hack -- command chaining XXX XXX */
 
+	s16b get_item_mode;		/* Hack -- Gives the mode of the current item selection */
+	
 	s16b new_spells;		/* Number of spells available */
 
-	bool cumber_armor;	/* Mana draining armor */
-	bool cumber_glove;	/* Mana draining gloves */
 	bool heavy_wield;	/* Heavy weapon */
-	bool heavy_shoot;	/* Heavy shooter */
-	bool icky_wield;	/* Icky weapon */
 
-	s16b cur_lite;		/* Radius of lite (if any) */
+	s16b cur_light;		/* Radius of light (if any) */
+	s16b old_light;		/* Radius of light last turn (if any) */
 
 	u32b notice;		/* Special Updates (bit flags) */
 	u32b update;		/* Pending Updates (bit flags) */
 	u32b redraw;		/* Normal Redraws (bit flags) */
 	u32b window;		/* Window Redraws (bit flags) */
 
-	s16b stat_use[A_MAX];	/* Current modified stats */
-	s16b stat_top[A_MAX];	/* Maximal modified stats */
+	s16b stat_use[A_MAX];	/* Current modified stats --  includes equipment and temporary mods */
+	s16b skill_use[S_MAX];	/* Current modified skills -- includes all mods */
 
 	/*** Extracted fields ***/
 
-	s16b stat_add[A_MAX];	/* Equipment stat bonuses */
-	s16b stat_ind[A_MAX];	/* Indexes into stat tables */
+	s16b stat_equip_mod[A_MAX];		/* Equipment stat bonuses */
+	s16b stat_misc_mod[A_MAX];		/* Misc stat bonuses */
 
-	bool immune_acid;	/* Immunity to acid */
-	bool immune_elec;	/* Immunity to lightning */
-	bool immune_fire;	/* Immunity to fire */
-	bool immune_cold;	/* Immunity to cold */
-	bool immune_pois;	/* immunity to poison*/
+	s16b skill_stat_mod[S_MAX];		/* Stat stat bonuses */
+	s16b skill_equip_mod[S_MAX];	/* Equipment skill bonuses */
+	s16b skill_misc_mod[S_MAX];		/* Misc stat bonuses */
 
-	bool resist_acid;	/* Resist acid */
-	bool resist_elec;	/* Resist lightning */
-	bool resist_fire;	/* Resist fire */
-	bool resist_cold;	/* Resist cold */
-	bool resist_pois;	/* Resist poison */
+	int resist_cold;	/* Resist cold */
+	int resist_fire;	/* Resist fire */
+	int resist_elec;	/* Resist lightning */
+	int resist_pois;	/* Resist poison */
 
 	bool resist_fear;	/* Resist fear */
-	bool resist_lite;	/* Resist light */
-	bool resist_dark;	/* Resist darkness */
 	bool resist_blind;	/* Resist blindness */
 	bool resist_confu;	/* Resist confusion */
-	bool resist_sound;	/* Resist sound */
-	bool resist_shard;	/* Resist shards */
-	bool resist_nexus;	/* Resist nexus */
-	bool resist_nethr;	/* Resist nether */
-	bool resist_chaos;	/* Resist chaos */
-	bool resist_disen;	/* Resist disenchant */
+	bool resist_stun;	/* Resist stunning */
+	bool resist_hallu;	/* Resist hallucination */
 
 	bool sustain_str;	/* Keep strength */
-	bool sustain_int;	/* Keep intelligence */
-	bool sustain_wis;	/* Keep wisdom */
 	bool sustain_dex;	/* Keep dexterity */
 	bool sustain_con;	/* Keep constitution */
-	bool sustain_chr;	/* Keep charisma */
+	bool sustain_gra;	/* Keep grace */
 
-	bool slow_digest;	/* Slower digestion */
-	bool ffall;			/* Feather falling */
-	bool lite;			/* Permanent light */
 	bool regenerate;	/* Regeneration */
 	bool telepathy;		/* Telepathy */
 	bool see_inv;		/* See invisible */
 	bool free_act;		/* Free action */
-	bool hold_life;		/* Hold life */
 
-	bool impact;		/* Earthquake blows */
+	bool danger;		/* Dangerous monster creation */
 	bool aggravate;		/* Aggravate monsters */
-	bool teleport;		/* Random teleporting */
-	bool exp_drain;		/* Experience draining */
 
-	bool bless_blade;	/* Blessed blade */
+	s16b to_mdd;		/* Bonus to melee damage dice */
+	s16b mdd;			/* Total melee damage dice */
+	s16b to_mds;		/* Bonus to melee damage sides */
+	s16b mds;			/* Total melee damage sides */
+	
+	s16b offhand_mel_mod;	/* Modifier to off-hand melee score (relative to main hand) */
+	s16b mdd2;				/* Total melee damage dice for off-hand weapon */
+	s16b to_ads;			/* Bonus to archery damage sides */
+	s16b mds2;				/* Total melee damage sides for off-hand weapon */
 
-	s16b dis_to_h;		/* Known bonus to hit */
-	s16b dis_to_d;		/* Known bonus to dam */
-	s16b dis_to_a;		/* Known bonus to ac */
+	s16b add;			/* Total archery damage dice */
+	s16b ads;			/* Total archery damage sides */
 
-	s16b dis_ac;		/* Known base ac */
+	s16b old_p_min;		/* old Minimum protection roll, to test for changes to it */
+	s16b old_p_max;		/* old Maximum protection roll, to test for changes to it */
 
-	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to dam */
-	s16b to_a;			/* Bonus to ac */
-
-	s16b ac;			/* Base ac */
-
-	s16b see_infra;		/* Infravision range */
-
-	s16b skill_dis;		/* Skill: Disarming */
-	s16b skill_dev;		/* Skill: Magic Devices */
-	s16b skill_sav;		/* Skill: Saving throw */
-	s16b skill_stl;		/* Skill: Stealth factor */
-	s16b skill_srh;		/* Skill: Searching ability */
-	s16b skill_fos;		/* Skill: Searching frequency */
-	s16b skill_thn;		/* Skill: To hit (normal) */
-	s16b skill_thb;		/* Skill: To hit (shooting) */
-	s16b skill_tht;		/* Skill: To hit (throwing) */
-	s16b skill_dig;		/* Skill: Digging */
-
-	s16b num_blow;		/* Number of blows */
-	s16b num_fire;		/* Number of shots */
-
-	byte ammo_mult;		/* Ammo multiplier */
+	s16b dig;			/* Digging ability */
 
 	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
-
-	byte vulnerability;	/* Used to make animal packs charge and retreat */
-
-	u16b cur_quest;		/* Current quest */
+	s16b hunger;		/* Hunger rate */
+	
+	byte artefacts;		/* Number of artefacts generated so far */
 };
 
 
@@ -1131,9 +1075,7 @@ struct high_score
 {
 	char what[8];		/* Version info (string) */
 
-	char pts[10];		/* Total Score (number) */
-
-	char gold[10];		/* Total Gold (number) */
+	char pts[5];		/* Total Score (number) */
 
 	char turns[10];		/* Turns Taken (number) */
 
@@ -1145,18 +1087,47 @@ struct high_score
 
 	char sex[2];		/* Player Sex (string) */
 	char p_r[3];		/* Player Race (number) */
-	char p_c[3];		/* Player Class (number) */
+	char p_h[3];		/* Player House (number) */
 
 	char cur_lev[4];		/* Current Player Level (number) */
 	char cur_dun[4];		/* Current Dungeon Level (number) */
-	char max_lev[4];		/* Max Player Level (number) */
 	char max_dun[4];		/* Max Dungeon Level (number) */
 
-	char how[32];		/* Method of death (string) */
+	char how[50];		/* Method of death (string) */
+	
+	char silmarils[2];		/* Number of Silmarils (number) */
+	char morgoth_slain[2];	/* Has player slain Morgoth (t/f) */
+	char escaped[2];		/* Has player escaped (t/f) */
 };
 
 
+// A type to contain information on a combat roll for printing
 
+typedef struct combat_roll combat_roll;
+
+struct combat_roll
+{
+	int att_type;			/* The type of attack (ROLL or AUTO) */
+	int dam_type;			/* The type of damage (GF_HURT, GF_FIRE etc) */
+
+	char attacker_char;		/* The symbol of the attacker */
+	byte attacker_attr;		/* Default attribute of the attacker */
+	char defender_char;		/* The symbol of the defender */
+	byte defender_attr;		/* Default attribute of the defender */
+	int att;				/* The attack bonus */
+	int att_roll;			/* The attack roll (d20 value) */
+	int evn;				/* The evasion bonus */
+	int evn_roll;			/* The evasion roll (d20 value */
+	
+	int dd;					/* The number of damage dice */
+	int ds;					/* The number of damage sides */
+	int dam;				/* The total damage rolled */
+	int pd;					/* The number of protection dice */
+	int ps;					/* The number of protection sides */
+	int prot;				/* The total protection rolled */
+
+	int prt_percent;		/* The percentage of protection that is effective (eg 100 normally) */
+};
 
 struct flavor_type
 {

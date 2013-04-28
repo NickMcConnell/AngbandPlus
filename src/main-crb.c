@@ -39,7 +39,7 @@
  * Note that the "preference" file is now a simple XML text file
  * called "<program name>.plist" in case of PEF Carbon, and "<Java-style
  * program id defined in Info.plist>.plist" for Mach-O Carbon, which contains
- * key-value paris, so it no longer has to check version stamp to validate
+ * key-value pairs, so it no longer has to check version stamp to validate
  * its contents.
  *
  *
@@ -136,10 +136,10 @@
  *
  * Important Resources in the resource file:
  *
- *   FREF 130 = ANGBAND_CREATOR / 'APPL' (application)
- *   FREF 129 = ANGBAND_CREATOR / 'SAVE' (save file)
- *   FREF 130 = ANGBAND_CREATOR / 'TEXT' (bone file, generic text file)
- *   FREF 131 = ANGBAND_CREATOR / 'DATA' (binary image file, score file)
+ *   FREF 130 = SIL_CREATOR / 'APPL' (application)
+ *   FREF 129 = SIL_CREATOR / 'SAVE' (save file)
+ *   FREF 130 = SIL_CREATOR / 'TEXT' (bone file, generic text file)
+ *   FREF 131 = SIL_CREATOR / 'DATA' (binary image file, score file)
  *
  *   DLOG 128 = "About Angband..."
  *
@@ -272,22 +272,22 @@
  *
  * 2. Installation
  *
- * The "angband" binary must be arranged this way for it to work:
+ * The "Sil" binary must be arranged this way for it to work:
  *
  * lib/ <- the lib folder
- * Angband (OS X).app/
+ * Sil.app/
  *   Contents/
  *     MacOS/
- *       angband <- the binary you've just compiled
+ *       sil <- the binary you've just compiled
  *     Info.plist <- to be explained below
  *     Resources/
- *       Angband.icns
+ *       Sil.icns
  *       Data.icns
  *       Edit.icns
  *       Save.icns
  *       8x8.png <- 8x8 tiles
  *       16x16.png <- 16x16 tiles
- *       angband.rsrc <- see below
+ *       sil.rsrc <- see below
  *
  * 3. Preparing Info.plist
  *
@@ -336,17 +336,17 @@
  *
  * 4. Menu, diaglogue and gfx resources
  *
- * The binary assumes angband.rsrc should be in the traditional resource
+ * The binary assumes sil.rsrc should be in the traditional resource
  * mangager format.  Please run this command to create it from its textual
  * description:
  *
- * Rez -i /Developer/Headers/FlatCarbon -d MACH_O -o angband.rsrc Angband.r
+ * Rez -i /Developer/Headers/FlatCarbon -d MACH_O -o sil.rsrc Sil.r
  *
  * The command is in /Developer/Tools.  You might wish to include it in your
  * PATH.
  *
  * It's better to comment out the definitions of BNDL and plst resources
- * before you do that.  I think you can DeRez the resulting angband.rsrc and
+ * before you do that.  I think you can DeRez the resulting sil.rsrc and
  * feed it to the Interface Builder to produce a set of compatible .nib files,
  * but this file also needs to be updated to understand .nib...  On the other
  * hand, I really don't like to hardcode UI definitions in C.
@@ -362,7 +362,7 @@
  * 1) Grab recent Mac Angband binary.
  * 2) Run this command:
  *   DeRez -only 'snd ' (Angband binary) > sound.r
- * 3) And specify sound.r files in addition to Angband.r when you run Rez.
+ * 3) And specify sound.r files in addition to Sil.r when you run Rez.
  *
  * ---(end of OS X + gcc porting note)--------------------------------------
  *
@@ -509,7 +509,7 @@
  * #define ANG281_RESET_VISUALS (Cth, Gum, Z)
  * #define ZANG_AUTO_SAVE (O and Z)
  * #define HAS_SCORE_MENU (V and maybe more)
- * #define ANGBAND_CREATOR four letter code for your variant, if any.
+ * #define SIL_CREATOR four letter code for your variant, if any.
  * or use the default one.
  *
  * For [Z], you also have to say -- #define inkey_flag (p_ptr->inkey_flag)
@@ -527,8 +527,9 @@
 
 
 /* Default creator signature */
-#ifndef ANGBAND_CREATOR
-# define ANGBAND_CREATOR 'A271'
+// Sil-y: change with new version 
+#ifndef SIL_CREATOR
+# define SIL_CREATOR 'Sil1'
 #endif
 
 
@@ -549,7 +550,7 @@
 #define CLIP_HACK /* */
 
 /*
- * Another redraw artifact killer, based on suggestion by Julian Lighton
+ * Another redraw artefact killer, based on suggestion by Julian Lighton
  */
 /* #define OVERWRITE_HACK */
 
@@ -1193,17 +1194,36 @@ static void update_colour_info(void)
 
 /*
  * Hack -- activate a color (0 to 255)
+ *
+ * Sil-y: changed to allow modification of the background colour
  */
 static void term_data_color(term_data *td, int a)
 {
 	/* Activate the color */
-	if (td->last != a)
+	if ((td->last != a) || (a > MAX_COLORS))
 	{
 		/* Activate the color */
-		RGBForeColor(&color_info[a]);
+		RGBForeColor(&color_info[a % MAX_COLORS]);
 
 		/* Memorize color */
 		td->last = a;
+
+		// Determine the background colour
+		switch (a / MAX_COLORS)
+		{
+			case BG_BLACK:
+				/* Default Background */
+				RGBBackColor(&color_info[0]);
+				break;
+			case BG_SAME:
+				/* Background same as foreground*/
+				RGBBackColor(&color_info[a % MAX_COLORS]);
+				break;
+			case BG_DARK:
+				/* Highlight Background */
+				RGBBackColor(&color_info[16]);
+				break;
+		}
 	}
 }
 
@@ -1740,10 +1760,8 @@ static errr globe_init(void)
 	PicHandle newPictH;
 #endif /* MACH_O_CARBON */
 
-
 	/* Use window XXX XXX XXX */
 	SetPort(GetWindowPort(data[0].w));
-
 
 #ifdef MACH_O_CARBON
 
@@ -2303,7 +2321,7 @@ static void Term_init_mac(term *t)
 
 	static RGBColor black = {0x0000,0x0000,0x0000};
 	static RGBColor white = {0xFFFF,0xFFFF,0xFFFF};
-
+	
 #ifndef ALLOW_BIG_SCREEN
 
 	/* Every window has close and collapse boxes */
@@ -2402,14 +2420,18 @@ static void Term_init_mac(term *t)
 	}
 
 	/*
-	 * A certain release of OS X fails to display windows at proper
+	 * A certain releases of OS X fail to display windows at proper
 	 * locations (_ _#)
 	 */
-	if ((mac_os_version >= 0x1000) && (mac_os_version < 0x1010))
-	{
+	//if ((mac_os_version >= 0x1000) && (mac_os_version < 0x1010))
+	//{
+		// Sil-y: I've had to turn this on for all versions, as it has always affected me (10.3 -> 10.5 at least
 		/* Hack - Make sure the window is displayed at (r.left,r.top) */
+		term_data_check_font(td);
+		term_data_check_size(td);
+		term_data_resize(td);
 		MoveWindow(td->w, td->r.left, td->r.top, 1);
-	}
+	//}
 
 	/* Display the window if needed */
 	if (td->mapped)
@@ -2423,6 +2445,7 @@ static void Term_init_mac(term *t)
 
 	/* Forget color */
 	td->last = -1;
+
 }
 
 
@@ -2682,7 +2705,8 @@ static errr Term_xtra_mac(int n, int v)
 			EraseRect(&portRect);
 
 			/* Set the color */
-			term_data_color(td, TERM_WHITE);
+			// Sil-y: changed border colour to L_DARK
+			term_data_color(td, TERM_L_DARK);
 
 			/* Frame the window in white */
 			MoveTo(0, 0);
@@ -2748,7 +2772,7 @@ static errr Term_xtra_mac(int n, int v)
 
 /*
  * Low level graphics (Assumes valid input).
- * Draw a "cursor" at (x,y), using a "yellow box".
+ * Draw a "cursor" at (x,y), using a "blue box".
  * We are allowed to use "Term_what()" to determine
  * the current screen contents (for inverting, etc).
  */
@@ -2759,7 +2783,7 @@ static errr Term_curs_mac(int x, int y)
 	term_data *td = (term_data*)(Term->data);
 
 	/* Set the color */
-	term_data_color(td, TERM_YELLOW);
+	term_data_color(td, TERM_BLUE);
 
 	/* Frame the grid */
 	r.left = x * td->tile_wid + td->size_ow1;
@@ -2789,7 +2813,7 @@ static errr Term_bigcurs_mac(int x, int y)
 	term_data *td = (term_data*)(Term->data);
 
 	/* Set the color */
-	term_data_color(td, TERM_YELLOW);
+	term_data_color(td, TERM_BLUE);
 
 	/* Frame the grid */
 	r.left = x * td->tile_wid + td->size_ow1;
@@ -2824,7 +2848,6 @@ static void Term_wipe_mac_aux(int x, int y, int n)
 	const char *cp;
 
 	static RGBColor black = {0x0000,0x0000,0x0000};
-
 
 	/* Hack - Black, blacker, blackest-- */
 	if (td->last != -2) RGBForeColor(&black);
@@ -2863,7 +2886,6 @@ static errr Term_wipe_mac(int x, int y, int n)
 
 	term_data *td = (term_data*)(Term->data);
 
-
 #ifdef OVERWRITE_HACK
 
 	/*
@@ -2895,7 +2917,7 @@ static errr Term_wipe_mac(int x, int y, int n)
 static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 {
 	int xp, yp;
-
+	
 #ifdef CLIP_HACK
 	Rect r;
 #endif /* CLIP_HACK */
@@ -2944,6 +2966,9 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 	ClipRect(&r);
 #endif /* CLIP_HACK */
 
+	// Sil-y: restore normal background colour
+	RGBBackColor(&color_info[0]);
+		
 	/* Success */
 	return (0);
 }
@@ -3661,8 +3686,8 @@ static void term_data_hack(term_data *td)
 	/* Default font */
 	td->font_id = fid;
 
-	/* Default font size - was 12 */
-	td->font_size = 14;
+	/* Default font size */
+	td->font_size = 12;
 
 	/* Default font face */
 	td->font_face = 0;
@@ -3730,6 +3755,44 @@ static void init_windows(void)
 		b++;
 	}
 
+	// Sil-y: default positions and setting for the windows
+	
+	data[0].font_size = 13;
+	data[0].font_face = bold;
+	data[0].cols = 90;
+	data[0].rows = 36;
+	data[0].r.left = 40;
+	data[0].r.top = 44;
+	data[0].mapped = 1;
+	
+	data[1].font_size = 9;
+	data[1].cols = 70;
+	data[1].rows = 25;
+	data[1].r.left = 854;
+	data[1].r.top = 44;
+	data[1].mapped = 1;
+	
+	data[2].font_size = 9;
+	data[2].cols = 70;
+	data[2].rows = 16;
+	data[2].r.left = 854;
+	data[2].r.top = 343;
+	data[2].mapped = 1;
+	
+	data[3].font_size = 9;
+	data[3].cols = 70;
+	data[3].rows = 23;
+	data[3].r.left = 854;
+	data[3].r.top = 543;
+	data[3].mapped = 1;
+	
+	data[4].font_size = 12;
+	data[4].cols = 116;
+	data[4].rows = 10;
+	data[4].r.left = 40;
+	data[4].r.top = 644;
+	data[4].mapped = 1;
+	
 
 	/*** Load preferences ***/
 
@@ -3758,6 +3821,7 @@ static void init_windows(void)
 
 	/* Main window */
 	Term_activate(td->t);
+
 }
 
 
@@ -3787,7 +3851,7 @@ static bool select_savefile(bool all)
 	NavDialogOptions dialogOptions;
 	NavReplyRecord reply;
 	/* Used only when 'all' is true */
-	NavTypeList types = {ANGBAND_CREATOR, 1, 1, {'SAVE'}};
+	NavTypeList types = {SIL_CREATOR, 1, 1, {'SAVE'}};
 	NavTypeListHandle myTypeList;
 	AEDesc defaultLocation;
 
@@ -4901,11 +4965,7 @@ static void menu(long mc)
 					msg_flag = FALSE;
 
 					/* Hack -- Save the game */
-#ifndef ZANG_AUTO_SAVE
 					do_cmd_save_game();
-#else
-					do_cmd_save_game(FALSE);
-#endif /* !ZANG_AUTO_SAVE */
 
 					break;
 				}
@@ -4998,11 +5058,7 @@ static void menu(long mc)
 						msg_flag = FALSE;
 
 						/* Save the game */
-#ifndef ZANG_AUTO_SAVE
 						do_cmd_save_game();
-#else
-						do_cmd_save_game(FALSE);
-#endif /* !ZANG_AUTO_SAVE */
 					}
 
 					/* Quit */
@@ -5567,11 +5623,7 @@ static void quit_calmly(void)
 		msg_flag = FALSE;
 
 		/* Save the game */
-#ifndef ZANG_AUTO_SAVE
 		do_cmd_save_game();
-#else
-		do_cmd_save_game(FALSE);
-#endif /* !ZANG_AUTO_SAVE */
 
 		/* Quit */
 		quit(NULL);
@@ -6266,11 +6318,12 @@ static void init_stuff(void)
 	/* Check until done */
 	while (1)
 	{
+
 		/* Prepare the paths */
 		init_file_paths(path);
-
+		
 		/* Build the filename */
-		path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
+		path_build(path, sizeof(path), ANGBAND_DIR_EDIT, "artefact.txt");
 
 		/* Attempt to open and close that file */
 		if (0 == fd_close(fd_open(path, O_RDONLY))) break;
@@ -6382,8 +6435,7 @@ int main(void)
 
 	/* Initialise the cursor and turn it into an "arrow" */
 	InitCursor();
-
-
+	
 	/* Check for existence of Carbon */
 	err = Gestalt(gestaltCarbonVersion, &response);
 
@@ -6453,7 +6505,7 @@ int main(void)
 
 
 	/* Mark ourself as the file creator */
-	_fcreator = ANGBAND_CREATOR;
+	_fcreator = SIL_CREATOR;
 
 	/* Default to saving a "text" file */
 	_ftype = 'TEXT';
@@ -6507,7 +6559,6 @@ int main(void)
 	/* Note the "system" */
 	ANGBAND_SYS = "mac";
 
-
 	/* Initialize */
 	init_stuff();
 
@@ -6520,35 +6571,68 @@ int main(void)
 	/* Hack -- process all events */
 	while (CheckEvents(CHECK_EVENTS_DRAIN)) /* loop */;
 
-
 	/* We are now initialized */
 	initialized = TRUE;
-
 
 	/* Handle "open_when_ready" */
 	handle_open_when_ready();
 
-	/* Let the player choose a savefile or start a new game */
-	if (!game_in_progress)
+	// Sil-y: There is now a text menu that can play repeated games
+	use_background_colors = TRUE;
+	while (1)
 	{
-		/* Prompt the user - You may have to change this for some variants */
-		prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
+		/* Let the player choose a savefile or start a new game */
+		if (!game_in_progress)
+		{
+			int choice = 0;
+			int highlight = 1;
+			char buf[80];
+			
+			if (p_ptr->is_dead) highlight = 4;
 
-		/* Flush the prompt */
-		Term_fresh();
+			/* Process Events until "new" or "open" is selected */
+			while (!game_in_progress)
+			{
+				choice = initial_menu(&highlight);
+				
+				switch (choice)
+				{
+					case 1:
+						path_build(savefile, sizeof(buf), ANGBAND_DIR_APEX, "tutorial");
+						game_in_progress = TRUE;
+						new_game = FALSE;
+						break;
+					case 2:
+						do_menu_file_new();
+						break;
+					case 3:
+						do_menu_file_open(FALSE);
+						break;
+					case 4:
+						quit(NULL);
+						break;
+				}
+			}
+		}
 
-		/* Hack -- Process Events until "new" or "open" is selected */
-		while (!game_in_progress) CheckEvents(CHECK_EVENTS_WAIT);
+		/* Handle pending events (most notably update) and flush input */
+		Term_flush();
+
+		/*
+		 * Play a game -- "new_game" is set by "new", "open" or the open document
+		 * even handler as appropriate
+		 */
+		play_game(new_game);
+
+		// rerun the first initialization routine
+		init_stuff();
+		
+		// do some more between-games initialization
+		re_init_some_things();
+		
+		// game no longer in progress
+		game_in_progress = FALSE;
 	}
-
-	/* Handle pending events (most notably update) and flush input */
-	Term_flush();
-
-	/*
-	 * Play a game -- "new_game" is set by "new", "open" or the open document
-	 * even handler as appropriate
-	 */
-	play_game(new_game);
 
 	/* Quit */
 	quit(NULL);

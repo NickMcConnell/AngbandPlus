@@ -7,27 +7,28 @@
 #
 # See "lib/help/command.txt" and "src/files.c" for more information.
 #
-# Note that the "X" key is mapped in both keysets to the key sequence
-# "w0", which will "swap weapons" as long as both weapons contain the
-# inscription "@0".  For example, inscribe your main weapon as "@1@0"
-# and your digger (or secondary weapon) as "@2@0".
-#
 
 
 ##### Force certain options #####
 
 ## # Option -- Default to original commands
-## X:rogue_like_commands
+## X:hjkl_movement
 
 ## # Option -- Default to roguelike commands
-## Y:rogue_like_commands
+## Y:hjkl_movement
 
 
-##### Original Keyset Mappings #####
+##### Sil Keyset Mappings #####
 
 # Stay still (numerical)
-A:,
+A:z
 C:0:5
+
+# Control-z / , -- Interact with own square
+A:/5
+C:0:,
+A:/5
+C:0:^Z
 
 # Movement (numerical)
 A:;1
@@ -47,24 +48,18 @@ C:0:8
 A:;9
 C:0:9
 
-# Hack -- Commit suicide
-A:Q
-C:0:^C
 
-# Hack -- Swap equipment
-A:w0
-C:0:X
-
-# Original keymap: Repeat last command
-A:^V
-C:0:n
-
-
-##### Roguelike Keyset Mappings #####
+##### hjkl Movement Keyset Mappings #####
 
 # Stay still (numerical)
-A:,
+A:z
 C:1:5
+
+# Control-z / , -- Interact with own square
+A:/5
+C:1:,
+A:/5
+C:1:^Z
 
 # Movement (numerical)
 A:;1
@@ -83,14 +78,6 @@ A:;8
 C:1:8
 A:;9
 C:1:9
-
-# Run
-A:.
-C:1:,
-
-# Stay still
-A:,
-C:1:.
 
 # Movement (rogue keys)
 A:;1
@@ -128,92 +115,254 @@ C:1:K
 A:.9
 C:1:U
 
-# Altering (control + rogue keys)
-A:+1
-C:1:^B
-A:+2
-C:1:^J
-A:+3
-C:1:^N
-A:+4
-C:1:^H
-A:+6
-C:1:^L
-A:+7
-C:1:^Y
-A:+8
-C:1:^K
-A:+9
-C:1:^U
-
-# Allow use of the "tunnel" command
-A:T
-C:1:^T
-
-# Allow use of the "destroy" command
-A:k
-C:1:^D
-
-# Locate player on map
-A:L
-C:1:W
-
-# Browse a book (Peruse)
+# The missing commands (control + rogue keys)
 A:b
-C:1:P
-
-# Jam a door (Spike)
-A:j
-C:1:S
-
-# Toggle search mode
-A:S
-C:1:#
-
-# Use a staff (Zap)
-A:u
-C:1:Z
-
-# Take off equipment
-A:t
-C:1:T
-
-# Fire an item
-A:f
-C:1:t
-
-# Bash a door (Force)
-A:B
-C:1:f
-
-# Look around (examine)
+C:1:^B
 A:l
-C:1:x
+C:1:^L
+A:k
+C:1:^K
+A:u
+C:1:^U
+A:n
+C:1:^N
 
-# Aim a wand (Zap)
-A:a
-C:1:z
 
-# Zap a rod (Activate)
+##### Angband-like Keyset Mappings #####
+
+# Stay still (numerical)
 A:z
-C:1:a
+C:2:5
 
-# Hack -- Commit suicide
-A:Q
-C:1:^C
+# Control-z / , -- Interact with own square
+A:/5
+C:2:,
+A:/5
+C:2:^Z
 
-# Hack -- Swap equipment
-A:w0
-C:1:X
+# Movement (numerical)
+A:;1
+C:2:1
+A:;2
+C:2:2
+A:;3
+C:2:3
+A:;4
+C:2:4
+A:;6
+C:2:6
+A:;7
+C:2:7
+A:;8
+C:2:8
+A:;9
+C:2:9
 
-# Roguelike keymap: Repeat last command
-A:^V
-C:1:'
+# Examine
+A:x
+C:2:I
 
-# Steal from monster
-A:P
-C:1:^O
+# Throw
+A:t
+C:2:v
 
+# Universal Use
+A:u
+C:2:U
+
+# Remove
+A:r
+C:2:t
+
+# Activate Staff
+A:a
+C:2:u
+
+# Bash
+A:b
+C:2:B
+
+# Wait
+#A:z
+#C:3:,
+
+# Forge
+#A:^D
+#C:2:m
+
+# Wait
+A:z
+C:2:s
+
+# Rest
+A:Z
+C:2:R
+
+# Sing
+A:s
+C:2:a
+
+# Character Sheet
+A:@
+C:2:C
+
+# Options
+A:O
+C:2:=
+
+# Set Macros
+A:$
+C:2:@
+
+# Repeat as '0' is handled internally
+
+# Remove some now unneeded commands (by assigning them to the unused 'A')
+A:A
+C:2:x
+A:A
+C:2:r
+A:A
+C:2:b
+A:A
+C:2:Z
+A:A
+C:2:O
+
+
+##### Angband-like Keyset Mappings with hjkl movement #####
+
+# Stay still (numerical)
+A:z
+C:3:5
+
+# Control-z / , -- Interact with own square
+A:/5
+C:3:,
+A:/5
+C:3:^Z
+
+# Movement (numerical)
+A:;1
+C:3:1
+A:;2
+C:3:2
+A:;3
+C:3:3
+A:;4
+C:3:4
+A:;6
+C:3:6
+A:;7
+C:3:7
+A:;8
+C:3:8
+A:;9
+C:3:9
+
+# Movement (rogue keys)
+A:;1
+C:3:b
+A:;2
+C:3:j
+A:;3
+C:3:n
+A:;4
+C:3:h
+A:;6
+C:3:l
+A:;7
+C:3:y
+A:;8
+C:3:k
+A:;9
+C:3:u
+
+# Running (shift + rogue keys)
+A:.1
+C:3:B
+A:.2
+C:3:J
+A:.3
+C:3:N
+A:.4
+C:3:H
+A:.6
+C:3:L
+A:.7
+C:3:Y
+A:.8
+C:3:K
+A:.9
+C:3:U
+
+# The missing commands (control + rogue keys)
+A:b
+C:3:^B
+A:l
+C:3:^L
+A:k
+C:3:^K
+A:u
+C:3:^U
+A:n
+C:3:^N
+
+
+# Examine
+A:x
+C:3:I
+
+# Throw
+A:t
+C:3:v
+
+# Remove
+A:r
+C:3:t
+
+# Wait
+#A:z
+#C:3:,
+
+# Forge
+#A:^D
+#C:3:m
+
+# Wait
+A:z
+C:3:s
+
+# Rest
+A:Z
+C:3:R
+
+# Sing
+A:s
+C:3:a
+
+# Character Sheet
+A:@
+C:3:C
+
+# Options
+A:O
+C:3:=
+
+# Set Macros
+A:$
+C:3:@
+
+# Repeat as '0' is handled internally
+
+# Remove some now unneeded commands (by assigning them to the unused 'A')
+A:A
+C:3:x
+A:A
+C:3:r
+A:A
+C:3:Z
+A:A
+C:3:O
 
 
 # Message colors
