@@ -1,0 +1,39 @@
+SAngband 0.9.2 (01/25/97):
+1) The "spiritual hammer" prayer now works correctly.
+2) To-dam modifiers of weapons now work.
+3) A number of cosmetic things have been fixed (the spell info is correct for
+all few more spells, the word "Invisible" is now taken off the screen when
+the player is no longer invisible, etc.)
+4) All races, except humans, dunedain, and high-elves get much less "life
+experience" when starting out.
+5) Fixed a bug which would cause the player to start out with a large amount
+of negative exp if the total of his stat mods were negative.
+
+SAngband 0.9.1 (01/11/97):
+1) The cursor is now moved properly when choosing stat modifiers.
+2) Weaponsmithing, armor forging, bowmaking, and fennling all work correctly.
+Bowmaking will never create a seeker arrow when a bow is requested.
+Forged/fennled items no longer lose their properties when the game is saved.
+3) The necro "Infuse Weapon" and "Curse Weapon" spells no longer work on
+artifacts.  "Curse Weapon" now works correctly.
+4) Fixed a bug which caused some spells not to take a turn if they had no
+effect on the player (eg, casting Curse Weapon on a weapon that was already
+cursed).
+5) Fixed the bug which caused Morgoth not to exist (so you can actually win
+the game...)
+6) V0.9.0 would erroneously flag all priest, druid, and necro spells as being
+untried.  Fixed.
+7) "Nothing" items no longer appear in the temple.  (I'm not exactly sure why
+they were appearing, actually, but they will no longer appear.)
+8) "Recall()" is now called "recall_player()" to avoid conflicting with the
+recall variables in some term packages (Acorn, Amiga, X11, Xaw).  Thanks to
+Greg Wooledge (wooledge@kellnet.com) for pointing this out.
+9) Special druid and necro books are now considered "good" (treated as
+special magic and prayer books are).
+10) The spell info (which is displayed when browsing books, etc) is now
+correct.
+11) The amount of weight that the player is carrying is now updated properly
+when altering the number of objects in a stack with wizard mode.
+12) See invisible now works.
+13) Hellfire does less damage now.  Monsters that appear in groups no longer
+cast it.  ALso, this attack is now described as a spell rather than a breath.
