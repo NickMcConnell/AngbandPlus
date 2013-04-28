@@ -2053,7 +2053,11 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return ("");
 
 			if (!aware) msg_print("This is a genocide scroll.");
-			(void)genocide(0);
+			if (!genocide(0))
+			{
+				/* Only use object up if genocide goes off */
+				obj_used_up = FALSE;
+			}
 			obj_ident = TRUE;
 			break;
 		}
@@ -3711,6 +3715,10 @@ void learn_details(object_type *o_ptr)
 		odds = 30 - get_skill(S_PERCEPTION, 0, 15);
 
 		more_info = strlen(do_object(OBJECT_INFO, o_ptr));
+		if(o_ptr->tval == TV_POTION)
+		{
+		}
+		
 	}
 	else return;
 

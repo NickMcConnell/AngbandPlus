@@ -859,6 +859,8 @@ bool hit_chest_trap(int y, int x, object_type *o_ptr)
 				/* Place the chest there. */
 				drop_near(o_ptr, 0, y1, x1, 0x00);
 
+				destroy_chest = TRUE;
+
 				/* Done. */
 				break;
 			}
@@ -3243,7 +3245,7 @@ static bool do_cmd_walk_test(int y, int x)
 	if ((p_ptr->wraithform) && (!cave_permwall(y, x))) return (TRUE);
 
 	/* Otherwise, require passable terrain */
-	if (!cave_passable_bold(y, x))
+	if (!cave_passable_bold(y, x) || cave_secret_door(y, x))
 	{
 		/* Door */
 		if (cave_closed_door(y, x))

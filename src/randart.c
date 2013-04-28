@@ -3172,7 +3172,7 @@ static void make_terrible(int a_idx)
 		if ((is_any_weapon(a_ptr)) && (a_ptr->to_h > 0) && (one_in_(3)))
 		     wheel_of_doom = 1;
 		if ((is_any_armour(a_ptr)) && (a_ptr->to_a > 0) && (one_in_(3)))
-			wheel_of_doom = 1;
+			wheel_of_doom = 2;
 		else wheel_of_doom = randint(4);
 
 		penalty = 0;

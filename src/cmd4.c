@@ -5237,28 +5237,82 @@ void do_cmd_quest(void)
 }
 
 
+/*
+ * Translates screen characters to ascii characters -JM-
+ */
+static char ascii_char(char c)
+{
+	switch (c)
+	{
+		case 127: /* Granite wall */
+			return '#';
+		case 1: /* Block */
+		case 2: /* Speckeled block */
+			return '#';
+		case 3: /* Quartz */
+			return '#';
+		case 4: /* Thick mist */
+		case 5: /* Mist */
+		case 6: /* Thin mist */
+			return '*';
+		case 7: /* Non-visible squares */
+			return '.';
+		case 8: /* Small bullet */
+		case 9: /* Bullet */
+		case 10: /* Large bullet */
+			return '*';
+		case 11: /* Rubble */
+			return ':';
+		case 12: /* Vein of treasure */
+			return '*';
+		case 13: /* Closed door */
+			return '+';
+		case 14: /* Open door */
+		case 15: /* Bashed door */
+			return '\'';
+		case 16: /* Pillar */
+		case 17: /* Water */
+		case 18: /* Forest */
+		case 19: /* Lava */
+			return '#';
+		case 20: /* Dashed O */
+			return 'O';
+			break;
+		case '.': /* Floor */
+			return '.';
+		case ' ': /* Unseen */
+			return ' ';
+		default:
+			return c;
+
+	}
+}
+
 
 /*
  * Write HTML escape characters.
  */
 static void write_html_escape_char(FILE *htm, char c)
 {
+	char tmp;
 	switch (c)
 	{
-		case '<':
+		case '<': /* Up stairs */
 			fprintf(htm, "&lt;");
 			break;
-		case '>':
+		case '>': /* Down stairs */
 			fprintf(htm, "&gt;");
 			break;
-		case '&':
+		case '&': /* Greater Demon, chest */
 			fprintf(htm, "&amp;");
 			break;
 		default:
-			fprintf(htm, "%c", c);
+			tmp = ascii_char(c);
+			fprintf(htm, "%c", tmp);
 			break;
 	}
 }
+
 
 /*
  * Take an html screenshot.
@@ -5410,7 +5464,7 @@ static void text_screenshot(cptr name)
 			(void)(Term_what(x, y, &a, &c));
 
 			/* Dump it */
-			buf[x] = c;
+			buf[x] = ascii_char(c);
 		}
 
 		/* Terminate */
@@ -5426,7 +5480,6 @@ static void text_screenshot(cptr name)
 	/* Close it */
 	(void)my_fclose(fp);
 }
-
 
 /*
  * Hack -- save a screen dump to a file.  Choose between B&W text

@@ -1366,7 +1366,7 @@ P:3:-5
 1:STR | DEX
 2:STEALTH
 F:SLAY_DRAGON | SLAY_DEMON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
-F:FREE_ACT | RES_FEAR | SHOW_MODS
+F:FREE_ACT | RES_CHAOS | RES_FEAR | SHOW_MODS
 D:This weapon of berserker wrath dives hungrily into the yielding flesh of 
 D:your enemies.  You yourself fall under the shadow of death even as you 
 D:inflict wounds that will not heal.

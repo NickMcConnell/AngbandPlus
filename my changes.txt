@@ -1,0 +1,60 @@
+
+Changes made by not-me (aka Leon Marrick and Christer Nyfalt, I expect)
+---------
+rected Tvals of ego and artifact launchers.
+- Miscellaneous magic number fixes and spelling errors.
+- Updated compile.txt somewhat.
+- Cast away unused return values to void.
+- Added improved birth stat generation. Thanks to Bahman Rabii for help.
+- Removed SIGKILL handling, since it does nothing. (Can't be overridden.)
+- Fixed a memory leak when redefining file paths.
+- Added missing sound names to angband_sound_name.
+- Got rid of uint typedef.
+- Removed script from comments in main-x11.c
+- Added better memory cleanup to main-x11.c
+- Fixed a case of variable shadowing in main-x11.c
+- Added missing time breath to breath_to_attr table.
+- Added some speedup code to main-gcu.c that someone posted some time ago.
+- Added memory cleanup on exit to main-gcu.c.
+- Tweaked stat tables to get bigger stat effects at ranges 6-18 to avoid
+long ranges where stat increase does nothing.
+- Removed extended characters from comments in extended character tables.
+- Fixed some indentation issue.
+
+PLUS, a whole load of changes we did last year.
+
+Other changes I've noticed so far not done by me
+------------------------------------------------
+* Self Knowledge lasts for a few turns, and is acccessible from '~8'
+* No need to learn spells
+* Missile weapons moved to top of weaponsmith.  Probably due to change in tval of missile weapons.
+* Terrain code rewritten?
+* tvals for slings, bows, and crossbows changed (and now different from each other)
+
+Bugfixes
+--------
+* Chest (Strange Magiks) will no longer spawn themselves when teleporting
+* Restoring skills via '+' command should now be equivalent to restoring via '!' command
+* Cancelling genocide spell or scroll no longer costs a turn and mana/scroll
+* Equipping items now requests quantity before activating hidden curses
+* Doomcaller now has res_chaos flag
+* If you add un ided wand into other unided wands, they improperly identify
+* Needle traps now check for the correct sustain
+* Monsters will trigger traps even when players are not within sight range
+* Small bug in randart cursing fixed
+* Monsters may now cast spells into the first square of rock to prevent abuse of wraithform (Be wary -- ball and bolt spells will still affect the player, even though breath weapons will not)
+* Non-stupid monsters will not breathe at you if you are in the walls (i.e. wraithformed)
+* Holy casters will no longer get Angels for quests
+* Involuntary movement now disturbs the player
+* Activating Palantir now correctly references monster gender
+* Player now correctly emits no light when light radius is zero.
+* Autoroller now assigns stats in the correct order
+* Running code should work properly now.
+* Screenshots should now work correctly.
+* Crafting of shots should work correctly.
+* Colors of missle weapons should work correctly.
+* Secret doors now act properly when moving into them.
+
+Prettyifying
+------------
+* Spell fail text changed for Priests and Druids

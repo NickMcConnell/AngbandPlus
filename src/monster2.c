@@ -1865,6 +1865,16 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		if (x_idx >= 1) do_effect_linger(x_idx, y2, x2);
 	}
 
+	/* Handle traps */
+	if (m2 && cave_trap(y1, x1))
+	{
+		monster_swap_aux_trap(m2);
+	}
+	if (m1 && cave_trap(y2, x2))
+	{
+		monster_swap_aux_trap(m1);
+	}
+
 	/* Efficiency -- ignore invisible movement  -TNB- */
 	if (m1 >= 0 && m2 >= 0 &&
 		(!vis1[0] && !vis1[1]) &&
@@ -1878,15 +1888,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	lite_spot(y2, x2);
 
 
-	/* Handle traps */
-	if (m2 && cave_trap(y1, x1))
-	{
-		monster_swap_aux_trap(m2);
-	}
-	if (m1 && cave_trap(y2, x2))
-	{
-		monster_swap_aux_trap(m1);
-	}
 }
 
 

@@ -3805,7 +3805,8 @@ byte projectable(int y1, int x1, int y2, int x2, u32b flg)
 	if (!(flg & (PROJECT_PASS)))
 	{
 		/* Allow passable terrain  XXX XXX */
-		if (!cave_passable_bold(y, x)) return (PROJECT_NO);
+		/* Can enter the first square or rock if player is wraithformed in it */
+		if (!cave_passable_bold(y, x) && !(p_ptr->wraithform)) return (PROJECT_NO);
 	}
 
 	/* Promise a clear bolt shot if we have verified that there is one */

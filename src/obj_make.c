@@ -2657,6 +2657,12 @@ static int do_forging_adjust_power(object_type *i_ptr, int power)
 	else if (i_ptr->tval == TV_BOLT)    skill = S_CROSSBOW;
 	else if (i_ptr->tval == TV_CROSSBOW)skill = S_CROSSBOW;
 
+	/* Since sling shots are also throwing weapons, use greater skill -JM- */
+	if (i_ptr->tval == TV_SHOT)
+	{	
+		skill = better_skill(S_THROWING, S_SLING);
+	}
+
 	/* Restrict forging power if necessary */
 	if (skill >= 0)
 	{

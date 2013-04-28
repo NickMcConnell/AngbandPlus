@@ -283,9 +283,6 @@ E:17:U
 # BOLT
 E:18:U
 
-# BOW
-E:19:u
-
 # DIGGING
 E:20:s
 
@@ -297,6 +294,15 @@ E:22:w
 
 # SWORD
 E:23:w
+
+# SLINGS
+E:25:u
+
+# BOWS
+E:26:u
+
+# CROSSBOWS
+E:27:u 
 
 # BOOTS
 E:30:U

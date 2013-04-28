@@ -1715,6 +1715,14 @@ static bool player_birth_aux_2(bool quick_start)
 				/* Indicate the state */
 				put_str("(Hit ESC to stop)", 12, col+13);
 
+
+				/* Remove racial bonuses from stat_limit */
+				for (i = 0; i < A_MAX; i++)
+				{
+					stat_limit[i] -= rp_ptr->r_adj[i];
+				}
+
+
 				max_requested_stat = 0;
 
 				/* Find highest required stat */
@@ -1734,6 +1742,14 @@ static bool player_birth_aux_2(bool quick_start)
 				{
 					priority.stat[i] = max_requested_stat - stat_limit[i];
 				}
+
+				/* Restore racial bonuses to stat_limit */
+				for (i = 0; i < A_MAX; i++)
+				{
+					stat_limit[i] += rp_ptr->r_adj[i];
+				}
+
+
 
 				/*
 				 * We may have generated ties or

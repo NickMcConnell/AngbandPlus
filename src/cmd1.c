@@ -1219,7 +1219,7 @@ void move_player(int dir, int do_pickup)
 
 
 	/* Attempt to alter door and traps, but not walls */
-	if ((!p_ptr->confused) &&
+	if ((!p_ptr->confused) && !cave_wall_bold(y, x) &&
 	    ((cave_closed_door(y, x)) || (cave_visible_trap(y, x))))
 	{
 		bool confirmed = FALSE;
@@ -1305,7 +1305,7 @@ void move_player(int dir, int do_pickup)
 
 
 	/* Some terrain is usually impassable for the player */
-	if ((!cave_passable_bold(y, x)) || (cave_closed_door(y, x)))
+	if ((!cave_passable_bold(y, x)) || (cave_closed_door(y, x)) || (cave_wall_bold(y,x)))
 	{
 		/* Disturb the player */
 		disturb(0, 0);
@@ -2010,7 +2010,7 @@ static bool run_test(void)
 			bool ignore = FALSE;
 
 			/* We may or may not ignore doors */
-			if (cave_any_door(row, col))
+			if (cave_closed_door(row, col))
 			{
 				if (run_ignore_doors) ignore = TRUE;
 			}
@@ -2037,7 +2037,7 @@ static bool run_test(void)
 
 		/* Grid is unknown, or known to be a floor */
 		if (!(cave_info[row][col] & (CAVE_MARK)) ||
-		    (cave_floor_bold(row, col)))
+		    (cave_floor_bold(row, col)) || (cave_any_door(row, col) && !(cave_closed_door(row, col))))
 		{
 			/* Looking for open area */
 			if (p_ptr->run_open_area)
@@ -2098,7 +2098,6 @@ static bool run_test(void)
 			}
 		}
 	}
-
 
 	/* Looking for open area */
 	if (p_ptr->run_open_area)
@@ -2184,16 +2183,6 @@ static bool run_test(void)
 			p_ptr->run_old_dir = option;
 		}
 
-		/* Two options, examining corners */
-		else if (!run_cut_corners)
-		{
-			/* Primary option */
-			p_ptr->run_cur_dir = option;
-
-			/* Hack -- allow curving */
-			p_ptr->run_old_dir = option2;
-		}
-
 		/* Two options, pick one */
 		else
 		{
@@ -2226,7 +2215,6 @@ static bool run_test(void)
 			else if (run_cut_corners)
 			{
 				p_ptr->run_cur_dir = option2;
-
 				p_ptr->run_old_dir = option2;
 			}
 

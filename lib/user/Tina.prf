@@ -637,12 +637,3 @@ t:1:0:22:2:4
 # If marked, changes above will be deleted and replaced automatically.
 #
 ### (Automatic deletion marker) ### end Options dump
-
-# Color of slings
-#E:25:u
-
-# Color of bows
-#E:26:u
-
-# Color of crossbows
-#E:27:u

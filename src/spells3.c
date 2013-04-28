@@ -715,7 +715,8 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 
 		case SV_SCROLL_GENOCIDE:
 		{
-			notice = genocide(r_ptr->d_char);
+			genocide(r_ptr->d_char);
+			notice = TRUE;
 			break;
 		}
 
@@ -5092,11 +5093,17 @@ int stare_into_the_palantir(void)
 			/* You have won */
 			else if ((he_loses) && (!you_lose))
 			{
+				cptr wd_him[3] = {"it",  "him", "her"};
+				int msex = 0;
+
+				if      (r_ptr->flags1 & (RF1_FEMALE)) msex = 2;
+				else if (r_ptr->flags1 & (RF1_MALE))   msex = 1;
+				
 				/* Yay! */
 				msg_print("You regain control of the Palantir ...");
 
 				/* Yay! */
-				msg_format("You break %s's will, and beat him back!", m_name);
+				msg_format("You break %s's will, and beat %s back!", m_name, wd_him[msex]);
 
 				/* Confuse (no resist) */
 				m_ptr->confused = 20;

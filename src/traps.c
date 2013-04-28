@@ -2789,17 +2789,17 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 				}
 				else if (selection == A_DEX)
 				{
-					if (p_ptr->sustain_int) sust = TRUE;
+					if (p_ptr->sustain_dex) sust = TRUE;
 					else msg = "A small dart hits you; you suddenly feel clumsy!";
 				}
 				else if (selection == A_CON)
 				{
-					if (p_ptr->sustain_int) sust = TRUE;
+					if (p_ptr->sustain_con) sust = TRUE;
 					else msg = "A small dart drains away your health!";
 				}
 				else if (selection == A_CHR)
 				{
-					if (p_ptr->sustain_int) sust = TRUE;
+					if (p_ptr->sustain_chr) sust = TRUE;
 					else msg = "A small dart twists your features!";
 				}
 

@@ -4390,6 +4390,12 @@
 #define check_save(R) \
 	(rand_int(R) < p_ptr->skill_sav)
 
+/*
+ * Return the skill index of the better of two skills.  -JM-
+ */
+#define better_skill(S,T) \
+	(get_skill(S,0,100)>get_skill(T,0,100))?(S):(T)
+
 
 
 
@@ -4841,6 +4847,11 @@
 #define cave_any_door(Y,X) \
    (f_info[cave_feat[Y][X]].flags & (TF_DOOR_ANY))
 
+/*
+ * Determine if a grid contains a secret door
+ */
+#define cave_secret_door(Y,X) \
+   ((cave_feat[Y][X] == FEAT_SECRET))
 
 /*
  * Determine if a grid is marked as having traps in it.

@@ -711,6 +711,9 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 			/* No uniques */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
+			/* Priests do not get Angels as quest monsters -- JM */
+			if ((p_ptr->realm == PRIEST) && (r_ptr->d_char == 'A')) continue;
+
 			/* Refuse to repeat quests, unless very desperate */
 			for (j = 0; (j < MAX_QM_IDX) && (lev_diff < 5); j++)
 			{

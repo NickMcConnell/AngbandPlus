@@ -777,6 +777,20 @@ static void remove_useless_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u3
 		f6 &= ~(RF6_TELE_SELF_TO);
 	if (m_ptr->min_range > 5) f6 &= ~(RF6_TELE_SELF_TO);
 
+	/* Don't cast tele_to if you're adjacent already */
+	if(m_ptr->cdis == 1)
+		f6 &= ~(RF6_TELE_TO);
+
+	/* Don't breathe at players in walls */
+	if( cave_wall_bold(p_ptr->py,p_ptr->px) )
+	{
+		f4 &= ~(RF4_BREATH_MASK);
+		f5 &= ~(RF5_BREATH_MASK);
+		f6 &= ~(RF6_BREATH_MASK);
+		f7 &= ~(RF7_BREATH_MASK);
+	}
+
+
 	/* Modify the spell list. */
 	(*f4p) = f4;
 	(*f5p) = f5;

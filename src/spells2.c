@@ -3881,14 +3881,16 @@ bool genocide(char typ)
 {
 	int i;
 
-	bool result = FALSE;
 	int play = !typ;
 
 
 	/* Mega-Hack -- Get a monster symbol */
 	if (!typ)
 	{
-		(void)(get_com("Choose a monster race (by symbol) to genocide:", &typ));
+		if(!get_com("Choose a monster race (by symbol) to genocide:", &typ))
+		{
+			return FALSE;
+		}
 	}
 
 	/* Delete the monsters of that "type" */
@@ -3918,11 +3920,9 @@ bool genocide(char typ)
 		/* Take some damage */
 		if (play) take_hit(randint(4), 0, NULL, "the strain of casting Genocide");
 
-		/* Take note */
-		result = TRUE;
 	}
 
-	return (result);
+	return (TRUE);
 }
 
 

@@ -1546,6 +1546,8 @@ static void process_world(void)
 	{
 		/* Teleport player */
 		teleport_player(40, FALSE, FALSE);
+		msg_format("Your equipment whisks you about!");
+		disturb(0,0);
 	}
 
 	/* Nexus field */
@@ -1556,6 +1558,9 @@ static void process_world(void)
 
 		/* Timeout field */
 		set_nexus_field(p_ptr->nexus_field - 1, p_ptr->nexus_field_strength);
+
+		disturb(0,0);
+
 	}
 
 	/* Delayed Word-of-Recall */
@@ -2523,6 +2528,8 @@ static void glow_object(int y0, int x0, int rad)
 
 	bool no_los;
 
+	/* Do not emit light with 0 radius */
+	if(!rad) return;
 
 	/* Scan the los table until all legal grids are checked */
 	for (i = 0, grid = 0; grid < grid_limit; grid++)
@@ -3204,6 +3211,7 @@ void process_player(void)
 		teleport_player(10, p_ptr->dancing_feet_safe, FALSE);
 		set_dancing_feet(p_ptr->dancing_feet - 1, NULL,
 			p_ptr->dancing_feet_safe);
+		disturb(0,0);
 	}
 
 	/* Spell enhancements */

@@ -1882,9 +1882,9 @@ cptr do_spell(int mode, int spell)
 			if (p_ptr->realm == MAGE)
 				msg_print("You failed to get the spell off!");
 			if (p_ptr->realm == PRIEST)
-				msg_print("You lost your concentration!");
+				msg_print("Eru ignores your prayer!");
 			if (p_ptr->realm == DRUID)
-				msg_print("You lost your concentration!");
+				msg_print("You fail to control the natural forces!");
 			if (p_ptr->realm == NECRO)
 				msg_print("You perform the ritual incorrectly!");
 
@@ -5125,7 +5125,11 @@ cptr do_spell(int mode, int spell)
 				if (desc) return ("Deletes all monsters of the symbol you choose from the level, except uniques and special quest monsters.");
 				if (cast)
 				{
-					(void)genocide(0);
+					if (!genocide(0))
+					{
+						/* Only costs mana if spell is completed */
+						return (NULL);
+					}
 				}
 				break;
 			}

@@ -1222,7 +1222,17 @@ D:The larval form of a major demon.
 
 ## empty space (available for dungeon monsters) ##
 
-## empty space (available for dungeon monsters) ##
+N:127:Novice breather
+G:p:r
+I:110:27:20:8:20:5
+W:9:2:30:25
+B:HIT:HURT:1d5
+B:HIT:HURT:1d5
+F:MALE | FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | 
+F:ONLY_GOLD | DROP_90 | SMART 
+S:1_IN_1 | POW_3 | 
+S:BRTH_FIRE
+D:A nasty little fellow with a potion of booze and a match.
 
 N:128:Hairy mold
 G:m:o

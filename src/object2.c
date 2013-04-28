@@ -1869,17 +1869,14 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 	/* Add together the item counts */
 	o_ptr->number = ((total < MAX_STACK_SIZE) ? total : (MAX_STACK_SIZE - 1));
 
-	/* Combine most of the ident flags ("empty" being the exception) */
+	/* Combine most of the ident flags ("empty" and "known" being the exception) */
 	ident_flags = o_ptr->ident & (IDENT_SENSE | IDENT_FIXED |
-		IDENT_KNOWN | IDENT_RUMOUR | IDENT_MENTAL | IDENT_CURSED |
+		IDENT_RUMOUR | IDENT_MENTAL | IDENT_CURSED |
 		IDENT_WORN);
 
 	ident_flags |= j_ptr->ident & (IDENT_SENSE | IDENT_FIXED |
-		IDENT_KNOWN | IDENT_RUMOUR | IDENT_MENTAL | IDENT_CURSED |
+		IDENT_RUMOUR | IDENT_MENTAL | IDENT_CURSED |
 		IDENT_WORN);
-
-	/* Blend knowledge */
-	o_ptr->ident = ident_flags;
 
 
 	/* Add the "empty" flag only if both objects have it */
@@ -1889,19 +1886,24 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 	}
 
 	/* Special case -- known charges + unknown = unknown (unless mental) */
-	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) &&
-	    ((!object_known_p(o_ptr)) || (!object_known_p(j_ptr))) &&
-	    (!(ident_flags & (IDENT_MENTAL))))
+	if ( (o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF) )
 	{
-		/* Remove knowledge */
-		o_ptr->ident &= ~(IDENT_KNOWN);
+		if(( (object_known_p(o_ptr)) && (object_known_p(j_ptr)) ) ||
+	    (ident_flags & (IDENT_MENTAL)) )
+		{
+			/* Add knowledge */
+			ident_flags |= (IDENT_KNOWN);
+		}
 	}
 
 	/* Items that are known lose some inscriptions and ident flags */
 	else if ((object_known_p(o_ptr)) || (object_known_p(j_ptr)))
 	{
-		object_known(o_ptr);
+		ident_flags |= (IDENT_KNOWN);
 	}
+
+	/* Blend knowledge */
+	o_ptr->ident = ident_flags;
 
 
 	/* Hack -- Blend "notes" */

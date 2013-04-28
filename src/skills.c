@@ -2687,6 +2687,7 @@ void do_cmd_skills(void)
 		/* Advance the skill if the key was '+' or '=' */
 		if (ch == '+' || ch == '=')
 		{
+			bool restoration = (p_ptr->pskills[selected].cur < p_ptr->pskills[selected].max)?TRUE:FALSE;
 			int advance = adv_skill(selected, TRUE);
 
 			/* Cannot raise the skill */
@@ -2729,7 +2730,7 @@ void do_cmd_skills(void)
 				}
 
 				/* Handle skills that help other skills */
-				raise_other_skills(selected);
+				if (!restoration) raise_other_skills(selected);
 			}
 
 			prt_skill_rank(selected);
