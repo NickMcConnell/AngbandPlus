@@ -542,17 +542,6 @@ struct monster_type
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
-#ifdef WDT_TRACK_OPTIONS
-
-	byte ty;			/* Y location of target */
-	byte tx;			/* X location of target */
-
-	byte t_dur;			/* How long are we tracking */
-
-	byte t_bit;			/* Up to eight bit flags */
-
-#endif
-
 #ifdef DRS_SMART_OPTIONS
 
 	u32b smart;			/* Field for "smart_learn" */
@@ -602,7 +591,7 @@ struct alloc_entry
  */
 struct quest
 {
-	int level;		/* Dungeon level */
+	byte level;		/* Dungeon level */
 	int r_idx;		/* Monster race */
 
 	int cur_num;	/* Number killed (unused) */
@@ -629,8 +618,6 @@ struct owner_type
 	byte insult_max;	/* Insult limit */
 
 	byte owner_race;	/* Owner race */
-
-	byte unused;		/* Unused */
 };
 
 
@@ -658,7 +645,7 @@ struct store_type
 	s16b table_size;		/* Table -- Total Size of Array */
 	s16b *table;			/* Table -- Legal item kinds */
 
-	s16b stock_num;			/* Stock -- Number of entries */
+	byte stock_num;			/* Stock -- Number of entries */
 	s16b stock_size;		/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
 };
@@ -687,7 +674,7 @@ struct magic_type
  */
 struct player_magic
 {
-	s16b spell_book;		/* Tval of spell books (if any) */
+	byte spell_book;		/* Tval of spell books (if any) */
 	s16b spell_xtra;		/* Something for later */
 
 	s16b spell_stat;		/* Stat for spells (if any)  */
@@ -719,7 +706,7 @@ struct player_race
 {
 	cptr title;			/* Type of race */
 
-	s16b r_adj[6];		/* Racial stat bonuses */
+	s16b r_adj[A_MAX];	/* Racial stat bonuses */
 
 	s16b r_dis;			/* disarming */
 	s16b r_dev;			/* magic devices */
@@ -759,7 +746,7 @@ struct player_class
 {
 	cptr title;			/* Type of class */
 
-	s16b c_adj[6];		/* Class stat modifier */
+	s16b c_adj[A_MAX];	/* Class stat modifier */
 
 	s16b c_dis;			/* class disarming */
 	s16b c_dev;			/* class magic devices */
@@ -799,9 +786,9 @@ struct player_other
 
 	u32b window_flag[8];	/* Window flags */
 
-	s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
+	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
-	s16b delay_factor;		/* Delay factor (0 to 9) */
+	byte delay_factor;		/* Delay factor (0 to 9) */
 };
 
 
@@ -857,8 +844,8 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
-	s16b stat_max[6];	/* Current "maximal" stat values */
-	s16b stat_cur[6];	/* Current "natural" stat values */
+	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
+	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
 
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
@@ -918,9 +905,6 @@ struct player_type
 
 	bool wizard;			/* Player is in wizard mode */
 
-	bool cheat[CHEAT_MAX];	/* Cheating options */
-
-	bool handicap[HANDICAP_MAX];	/* Advanced play options */
 
 	/*** Temporary fields ***/
 
@@ -1000,13 +984,13 @@ struct player_type
 	u32b redraw;		/* Normal Redraws (bit flags) */
 	u32b window;		/* Window Redraws (bit flags) */
 
-	s16b stat_use[6];	/* Current modified stats */
-	s16b stat_top[6];	/* Maximal modified stats */
+	s16b stat_use[A_MAX];	/* Current modified stats */
+	s16b stat_top[A_MAX];	/* Maximal modified stats */
 
 	/*** Extracted fields ***/
 
-	s16b stat_add[6];	/* Equipment stat bonuses */
-	s16b stat_ind[6];	/* Indexes into stat tables */
+	s16b stat_add[A_MAX];	/* Equipment stat bonuses */
+	s16b stat_ind[A_MAX];	/* Indexes into stat tables */
 
 	bool immune_acid;	/* Immunity to acid */
 	bool immune_elec;	/* Immunity to lightning */
@@ -1092,3 +1076,43 @@ struct player_type
 };
 
 
+/*
+ * Semi-Portable High Score List Entry (128 bytes)
+ *
+ * All fields listed below are null terminated ascii strings.
+ *
+ * In addition, the "number" fields are right justified, and
+ * space padded, to the full available length (minus the "null").
+ *
+ * Note that "string comparisons" are thus valid on "pts".
+ */
+
+typedef struct high_score high_score;
+
+struct high_score
+{
+	char what[8];		/* Version info (string) */
+
+	char pts[10];		/* Total Score (number) */
+
+	char gold[10];		/* Total Gold (number) */
+
+	char turns[10];		/* Turns Taken (number) */
+
+	char day[10];		/* Time stamp (string) */
+
+	char who[16];		/* Player Name (string) */
+
+	char uid[8];		/* Player UID (number) */
+
+	char sex[2];		/* Player Sex (string) */
+	char p_r[3];		/* Player Race (number) */
+	char p_c[3];		/* Player Class (number) */
+
+	char cur_lev[4];		/* Current Player Level (number) */
+	char cur_dun[4];		/* Current Dungeon Level (number) */
+	char max_lev[4];		/* Max Player Level (number) */
+	char max_dun[4];		/* Max Dungeon Level (number) */
+
+	char how[32];		/* Method of death (string) */
+};

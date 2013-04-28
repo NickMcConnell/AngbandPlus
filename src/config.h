@@ -176,12 +176,12 @@
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
-/* #define ALLOW_DEBUG */
+#define ALLOW_DEBUG
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
-/* #define ALLOW_SPOILERS */
+#define ALLOW_SPOILERS
 
 
 /*
@@ -237,15 +237,27 @@
  */
 #define ALLOW_REPEAT
 
+
 /*
- * OPTION: Make opening/closing/disarming things easy.
+ * OPTION: Allow open/disarm/close without direction.
  */
 #define ALLOW_EASY_OPEN
+
+/*
+ * OPTION: Allow open/disarm doors/traps on motion.
+ */
+#define ALLOW_EASY_ALTER
 
 /*
  * OPTION: Make floor stacks easy.
  */
 #define ALLOW_EASY_FLOOR
+
+
+/*
+ * OPTION: Allow scrolling while targetting.
+ */
+#define ALLOW_SCROLL_TARGET
 
 
 /*
@@ -364,20 +376,9 @@
 
 
 /*
- * OPTION: Allow the use of random artifacts.
+ * OPTION: Allow the use of random artifacts (see "init3.c").
  */
 #define GJW_RANDART
-
-
-/*
- * OPTION: Enable the "track_follow" and "track_target" options.
- * They let monsters follow the player's foot-prints, or remember
- * the player's recent locations.  This code has been removed from
- * the current version because it is being rewritten by Billy, and
- * until it is ready, it will not work.  Do not define this option.
- */
-/* #define WDT_TRACK_OPTIONS */
-
 
 
 /*
@@ -453,6 +454,14 @@
 # define SAVEFILE_USE_UID
 #endif
 
+/*
+ * Allow players on UNIX systems to keep a ".angband.prf" user pref
+ * file in their home-directory.
+ *
+ * WARNING - This may allow bypassing of some of the "security"
+ * compilation options and may be a security risk!
+ */
+/* #define ALLOW_PREF_IN_HOME */
 
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
@@ -477,7 +486,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@phial.com"
+#define MAINTAINER	"rr9@angband.org"
 
 
 /*
@@ -488,11 +497,14 @@
 /*
  * OPTION: Default fonts (when using X11)
  */
-#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
-
+#define DEFAULT_X11_FONT_0		"10x20"
+#define DEFAULT_X11_FONT_1		"9x15"
+#define DEFAULT_X11_FONT_2		"9x15"
+#define DEFAULT_X11_FONT_3		"5x8"
+#define DEFAULT_X11_FONT_4		"5x8"
+#define DEFAULT_X11_FONT_5		"5x8"
+#define DEFAULT_X11_FONT_6		"5x8"
+#define DEFAULT_X11_FONT_7		"5x8"
 
 
 /*
@@ -551,3 +563,14 @@
 #endif
 
 
+/*
+ * Allow the Borg to use graphics.
+ *
+ * XXX - Turned off by default since the Borg crashs when the graphics
+ * mode changes after the Borg is initialized.
+ */
+#ifdef ALLOW_BORG
+# ifdef USE_GRAPHICS
+/* #  define ALLOW_BORG_GRAPHICS */
+# endif /* USE_GRAPHICS */
+#endif /* ALLOW_BORG */

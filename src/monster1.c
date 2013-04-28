@@ -24,7 +24,7 @@ static cptr wd_his[3] =
  * Pluralizer.  Args(count, singular, plural)
  */
 #define plural(c,s,p) \
-    (((c) == 1) ? (s) : (p))
+	(((c) == 1) ? (s) : (p))
 
 
 
@@ -148,7 +148,7 @@ static void roff_aux(int r_idx)
 #endif
 
 
-	/* Access the race and lore */
+	/* Get the race and lore */
 	r_ptr = &r_info[r_idx];
 
 
@@ -1206,7 +1206,7 @@ static void roff_aux(int r_idx)
 		/* No method yet */
 		p = NULL;
 
-		/* Acquire the method */
+		/* Get the method */
 		switch (method)
 		{
 			case RBM_HIT:	p = "hit"; break;
@@ -1239,7 +1239,7 @@ static void roff_aux(int r_idx)
 		/* Default effect */
 		q = NULL;
 
-		/* Acquire the effect */
+		/* Get the effect */
 		switch (effect)
 		{
 			case RBE_HURT:	q = "attack"; break;
@@ -1369,11 +1369,11 @@ static void roff_top(int r_idx)
 	char c1, c2;
 
 
-	/* Access the chars */
+	/* Get the chars */
 	c1 = r_ptr->d_char;
 	c2 = r_ptr->x_char;
 
-	/* Access the attrs */
+	/* Get the attrs */
 	a1 = r_ptr->d_attr;
 	a2 = r_ptr->x_attr;
 

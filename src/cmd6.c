@@ -2796,7 +2796,7 @@ static cptr art_activate_msg(int a_idx)
 
 #ifdef GJW_RANDART
 
-	if (random_artifacts)
+	if (adult_rand_artifacts)
 	{
 		switch (a_idx)
 		{

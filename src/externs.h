@@ -66,7 +66,7 @@ extern cptr window_flag_desc[32];
 extern cptr option_text[OPT_MAX];
 extern cptr option_desc[OPT_MAX];
 extern bool option_norm[OPT_MAX];
-extern byte option_page[OPT_PAGE_MAX][OPT_PER_PAGE];
+extern byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern cptr inscrip_text[MAX_INSCRIP];
 
 /* variable.c */
@@ -89,18 +89,19 @@ extern bool arg_sound;
 extern bool arg_graphics;
 extern bool arg_force_original;
 extern bool arg_force_roguelike;
-extern u32b seed_randart;
 extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
 extern bool character_saved;
 extern s16b character_icky;
 extern s16b character_xtra;
+extern u32b seed_randart;
 extern u32b seed_flavor;
 extern u32b seed_town;
 extern s16b num_repro;
 extern s16b object_level;
 extern s16b monster_level;
+extern char summon_kin_type;
 extern s32b turn;
 extern s32b old_turn;
 extern bool use_sound;
@@ -123,8 +124,7 @@ extern s16b o_max;
 extern s16b o_cnt;
 extern s16b m_max;
 extern s16b m_cnt;
-extern char summon_kin_type;
-extern s16b feeling;
+extern byte feeling;
 extern s16b rating;
 extern bool good_item_flag;
 extern bool closing_flag;
@@ -204,6 +204,7 @@ extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
 extern cptr ANGBAND_SYS;
+extern cptr ANGBAND_GRAF;
 extern cptr ANGBAND_DIR;
 extern cptr ANGBAND_DIR_APEX;
 extern cptr ANGBAND_DIR_BONE;
@@ -222,6 +223,9 @@ extern bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
 extern void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 extern bool (*get_mon_num_hook)(int r_idx);
 extern bool (*get_obj_num_hook)(int k_idx);
+extern int highscore_fd;
+extern bool use_transparency;
+extern bool can_save;
 
 
 /*
@@ -236,7 +240,12 @@ extern sint distance(int y1, int x1, int y2, int x2);
 extern bool los(int y1, int x1, int y2, int x2);
 extern bool no_lite(void);
 extern bool cave_valid_bold(int y, int x);
+extern bool feat_supports_lighting(byte feat);
+#ifdef USE_TRANSPARENCY
+extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
+#else /* USE_TRANSPARENCY */
 extern void map_info(int y, int x, byte *ap, char *cp);
+#endif /* USE_TRANSPARENCY */
 extern void move_cursor_relative(int y, int x);
 extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
@@ -274,7 +283,7 @@ extern void search(void);
 extern void py_pickup(int pickup);
 extern void hit_trap(int y, int x);
 extern void py_attack(int y, int x);
-extern void move_player(int dir, int do_pickup);
+extern void move_player(int dir, int jumping);
 extern void run_step(int dir);
 
 /* cmd2.c */
@@ -374,10 +383,10 @@ extern void exit_game_panic(void);
 extern void signals_ignore_tstp(void);
 extern void signals_handle_tstp(void);
 extern void signals_init(void);
+extern void display_scores_aux(int from, int to, int note, high_score *score);
 
 /* generate.c */
 extern void generate_cave(void);
-extern void place_closed_door(int y, int x);
 
 /* init1.c */
 extern errr init_v_info_txt(FILE *fp, char *buf);
@@ -427,7 +436,7 @@ extern s16b player_place(int y, int x);
 extern s16b monster_place(int y, int x, monster_type *n_ptr);
 extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp);
 extern bool place_monster(int y, int x, bool slp, bool grp);
-extern bool alloc_monster(int dis, int slp);
+extern bool alloc_monster(int dis, bool slp);
 extern bool summon_specific(int y1, int x1, int lev, int type);
 extern bool multiply_monster(int m_idx);
 extern void message_pain(int m_idx, int dam);
@@ -442,13 +451,14 @@ extern void object_desc(char *buf, object_type *o_ptr, int pref, int mode);
 extern void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode);
 extern cptr item_activation(object_type *o_ptr);
 extern bool identify_fully_aux(object_type *o_ptr);
-extern s16b index_to_label(int i);
+extern char index_to_label(int i);
 extern s16b label_to_inven(int c);
 extern s16b label_to_equip(int c);
 extern s16b wield_slot(object_type *o_ptr);
 extern cptr mention_use(int i);
 extern cptr describe_use(int i);
 extern bool item_tester_okay(object_type *o_ptr);
+extern sint scan_floor(int *items, int size, int y, int x, int mode);
 extern void display_inven(void);
 extern void display_equip(void);
 extern void show_inven(void);
@@ -485,6 +495,9 @@ extern void place_object(int y, int x, bool good, bool great);
 extern void place_gold(int y, int x);
 extern void pick_trap(int y, int x);
 extern void place_trap(int y, int x);
+extern void place_secret_door(int y, int x);
+extern void place_closed_door(int y, int x);
+extern void place_random_door(int y, int x);
 extern void inven_item_charges(int item);
 extern void inven_item_describe(int item);
 extern void inven_item_increase(int item, int num);
@@ -705,6 +718,7 @@ extern void verify_panel(void);
 extern cptr look_mon_desc(int m_idx);
 extern void ang_sort_aux(vptr u, vptr v, int p, int q);
 extern void ang_sort(vptr u, vptr v, int n);
+extern sint motion_dir(int y1, int x1, int y2, int x2);
 extern sint target_dir(char ch);
 extern bool target_able(int m_idx);
 extern bool target_okay(void);
@@ -714,6 +728,7 @@ extern bool target_set_interactive(int mode);
 extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
+
 
 /*
  * Hack -- conditional (or "bizarre") externs
@@ -739,7 +754,7 @@ extern void user_name(char *buf, int id);
 
 #ifdef MACINTOSH
 /* main-mac.c */
-/* extern void main(void); */
+/* extern int main(void); */
 #endif
 
 #ifdef WINDOWS
@@ -759,28 +774,16 @@ extern void repeat_check(void);
 
 #endif /* ALLOW_REPEAT */
 
-#ifdef ALLOW_EASY_OPEN
-
-/* cmd2.c */
-extern bool easy_open_door(int y, int x);
-extern bool do_cmd_disarm_aux(int y, int x);
-
-#endif /* ALLOW_EASY_OPEN */
-
 #ifdef ALLOW_EASY_FLOOR
 
 /* object1.c */
-extern bool scan_floor(int *items, int *item_num, int y, int x, int mode);
-extern void show_floor(int y, int x);
-extern bool get_item_floor(int *cp, cptr pmt, cptr str, int mode);
-extern void py_pickup_floor(int pickup);
+extern void show_floor(int *floor_list, int floor_num);
 
 #endif /* ALLOW_EASY_FLOOR */
 
 #ifdef GJW_RANDART
 
-/* randart.c */
+/* init3.c */
 extern int do_randart(u32b randart_seed);
 
 #endif /* GJW_RANDART */
-

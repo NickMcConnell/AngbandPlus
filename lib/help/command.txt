@@ -15,11 +15,6 @@ count is given and the "always_repeat" option is set.
         Most commands take no "energy" to perform, while most other commands
 only take energy when they cause the world to change in some way.
 
---- Special Commands ---
-
-Repeat last command (n) or Repeat last command (')
-        Causes the last command you entered to be repeated exactly.
-
 --- Inventory Commands ---
 
 Inventory list (i)
@@ -89,16 +84,13 @@ Walk (with pickup) (;)
         direction.  This command may take a count, requires a direction,
         and takes some energy.
 
-Walk (flip pickup/disarm) (-)
-        This is just like normal move, except that the "Pick things
-        up" and "Disarm traps" options are inverted.  In other words,
-        if you normally pick up anything you encounter (the default),
-        you will not pick things up when using this command.  If you
-        normally do not pick things up, you will when using this
-        command.  If you attempt to disarm traps instead of stepping
-        on them (the default), you will set them off when using this
-        command.  This command may take a count, requires a direction,
-        and takes some energy.
+Walk (flip pickup) (-)
+        This is just like normal move, except that the "Pick things up"
+        option is inverted.  In other words, if you normally pick up
+        anything you encounter (the default), you will not pick things up
+        when using this command.  If you normally do not pick things up,
+        you will when using this command.  This command may take a count,
+        requires a direction, and takes some energy.
 
 Run (.) or Run (,)
         This command will move in the given direction, following any bends
@@ -638,5 +630,4 @@ Load screen dump (left-paren)
 Save screen dump (right-paren)
         This command dumps a "snap-shot" of the current screen to the file
         "dump.txt", including encoded color information.
-
 

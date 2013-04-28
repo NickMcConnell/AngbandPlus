@@ -148,7 +148,7 @@ static void do_cmd_wiz_change_aux(void)
 
 
 	/* Query the stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Prompt */
 		sprintf(ppp, "%s (3-118): ", stat_names[i]);
@@ -444,7 +444,7 @@ static char head[3] =
 
 
 /*
- * Acquire an object kind for creation (or zero)
+ * Get an object kind for creation (or zero)
  *
  * List up to 57 choices in three columns
  */
@@ -515,7 +515,7 @@ static int wiz_create_itemtype(void)
 			col = 30 * (num / 20);
 			ch = head[num/20] + (num%20);
 
-			/* Acquire the "name" of object "i" */
+			/* Get the "name" of object "i" */
 			strip_name(buf, i);
 
 			/* Print it */
@@ -1236,7 +1236,7 @@ static void do_cmd_wiz_summon(int num)
  *
  * This function is rather dangerous XXX XXX XXX
  */
-static void do_cmd_wiz_named(int r_idx, int slp)
+static void do_cmd_wiz_named(int r_idx, bool slp)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1438,7 +1438,7 @@ void do_cmd_debug(void)
 	/* Analyze the command */
 	switch (cmd)
 	{
-		/* Nothing */
+		/* Ignore */
 		case ESCAPE:
 		case ' ':
 		case '\n':

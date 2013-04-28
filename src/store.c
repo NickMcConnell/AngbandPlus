@@ -456,7 +456,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 
 
 /*
- * Special "mass production" computation
+ * Special "mass production" computation.
  */
 static int mass_roll(int num, int max)
 {
@@ -470,12 +470,16 @@ static int mass_roll(int num, int max)
 
 
 /*
- * Certain "cheap" objects should be created in "piles"
- * Some objects can be sold at a "discount" (in small piles)
+ * Certain "cheap" objects should be created in "piles".
+ *
+ * Some objects can be sold at a "discount" (in smaller piles).
+ *
+ * Standard percentage discounts include 10, 25, 50, 75, and 90.
  */
 static void mass_produce(object_type *o_ptr)
 {
 	int size = 1;
+
 	int discount = 0;
 
 	s32b cost = object_value(o_ptr);
@@ -550,6 +554,10 @@ static void mass_produce(object_type *o_ptr)
 	}
 	else if (rand_int(25) == 0)
 	{
+		discount = 10;
+	}
+	else if (rand_int(50) == 0)
+	{
 		discount = 25;
 	}
 	else if (rand_int(150) == 0)
@@ -609,9 +617,13 @@ static s16b label_to_store(int c)
 
 
 /*
- * Determine if a store object can "absorb" another object
+ * Determine if a store object can "absorb" another object.
  *
- * See "object_similar()" for the same function for the "player"
+ * See "object_similar()" for the same function for the "player".
+ *
+ * This function can ignore many of the checks done for the player,
+ * since stores (but not the home) only get objects under certain
+ * restricted circumstances.
  */
 static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 {
@@ -625,9 +637,9 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	if (o_ptr->pval != j_ptr->pval) return (0);
 
 	/* Require many identical values */
-	if (o_ptr->to_h  !=  j_ptr->to_h) return (0);
-	if (o_ptr->to_d  !=  j_ptr->to_d) return (0);
-	if (o_ptr->to_a  !=  j_ptr->to_a) return (0);
+	if (o_ptr->to_h != j_ptr->to_h) return (0);
+	if (o_ptr->to_d != j_ptr->to_d) return (0);
+	if (o_ptr->to_a != j_ptr->to_a) return (0);
 
 	/* Require identical "artifact" names */
 	if (o_ptr->name1 != j_ptr->name1) return (0);
@@ -642,14 +654,14 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	if (o_ptr->timeout || j_ptr->timeout) return (0);
 
 	/* Require many identical values */
-	if (o_ptr->ac    !=  j_ptr->ac)   return (0);
-	if (o_ptr->dd    !=  j_ptr->dd)   return (0);
-	if (o_ptr->ds    !=  j_ptr->ds)   return (0);
+	if (o_ptr->ac != j_ptr->ac) return (0);
+	if (o_ptr->dd != j_ptr->dd) return (0);
+	if (o_ptr->ds != j_ptr->ds) return (0);
 
 	/* Hack -- Never stack chests */
 	if (o_ptr->tval == TV_CHEST) return (0);
 
-	/* Require matching discounts */
+	/* Require matching "discount" fields */
 	if (o_ptr->discount != j_ptr->discount) return (0);
 
 	/* They match, so they must be similar */
@@ -982,8 +994,9 @@ static int store_carry(object_type *o_ptr)
 	/* Erase the inscription */
 	o_ptr->note = 0;
 
-	/* Erase the automatic inscription */
-	o_ptr->inscrip = 0;
+	/* Remove special inscription, if any */
+	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
 
 	/* Check each existing object (try to combine) */
 	for (slot = 0; slot < st_ptr->stock_num; slot++)
@@ -994,7 +1007,7 @@ static int store_carry(object_type *o_ptr)
 		/* Can the existing items be incremented? */
 		if (store_object_similar(j_ptr, o_ptr))
 		{
-			/* Hack -- extra items disappear */
+			/* Absorb (some of) the object */
 			store_object_absorb(j_ptr, o_ptr);
 
 			/* All done */
@@ -1374,7 +1387,7 @@ static void display_entry(int item)
 		object_desc(o_name, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
 
-		/* Acquire inventory color */
+		/* Get inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
 		/* Display the object */
@@ -1405,7 +1418,7 @@ static void display_entry(int item)
 		object_desc_store(o_name, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
 
-		/* Acquire inventory color */
+		/* Get inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
 		/* Display the object */
@@ -1619,13 +1632,15 @@ static bool get_stock(int *com_val, cptr pmt)
 	/* Ask until done */
 	while (TRUE)
 	{
-		int ver;
+		bool verify;
 
 		/* Escape */
 		if (!get_com(buf, &which)) return (FALSE);
 
-		/* Extract "query" setting */
-		ver = isupper(which);
+		/* Note verify */
+		verify = (isupper(which) ? TRUE : FALSE);
+
+		/* Lowercase */
 		which = tolower(which);
 
 		/* Convert response to item */
@@ -1641,7 +1656,7 @@ static bool get_stock(int *com_val, cptr pmt)
 		}
 
 		/* No verification */
-		if (!ver) break;
+		if (!verify) break;
 
 		/* Object */
 		o_ptr = &st_ptr->stock[item];
@@ -1798,7 +1813,7 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b price, int final)
 	{
 		cptr p;
 
-		char out_val[81];
+		char out_val[80];
 
 		/* Default */
 		strcpy(out_val, "");
@@ -2451,8 +2466,8 @@ static void store_purchase(void)
 				/* Erase the inscription */
 				i_ptr->note = 0;
 
-				/* Erase the automatic inscription */
-				o_ptr->inscrip = 0;
+				/* Remove special inscription, if any */
+				if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
 				/* Give it to the player */
 				item_new = inven_carry(i_ptr);
@@ -2682,8 +2697,11 @@ static void store_sell(void)
 	/* Remove any inscription for stores */
 	if (store_num != STORE_HOME)
 	{
+		/* Erase the inscription */
 		i_ptr->note = 0;
-		i_ptr->inscrip = 0;
+
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 	}
 
 	/* Is there room in the store (or the home?) */
@@ -2842,6 +2860,7 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+
 #ifdef ALLOW_REPEAT
 
 	/* Handle repeating the last command */
@@ -2889,6 +2908,14 @@ static void store_process_command(void)
 			break;
 		}
 
+			/* Ignore */
+		case '\n':
+		case '\r':
+		{
+			break;
+		}
+
+
 			/* Redraw */
 		case KTRL('R'):
 		{
@@ -2910,13 +2937,6 @@ static void store_process_command(void)
 			store_sell();
 			break;
 		}
-
-			/* Ignore return */
-		case '\r':
-		{
-			break;
-		}
-
 
 
 			/*** Inventory Commands ***/
@@ -3184,7 +3204,7 @@ void do_cmd_store(void)
 	which = (cave_feat[py][px] - FEAT_SHOP_HEAD);
 
 	/* Hack -- Check the "locked doors" */
-	if (no_stores || store[which].store_open >= turn)
+	if (adult_no_stores || store[which].store_open >= turn)
 	{
 		msg_print("The doors are locked.");
 		return;
@@ -3414,7 +3434,7 @@ void store_shuffle(int which)
 	/* Pick a new owner */
 	for (j = st_ptr->owner; j == st_ptr->owner; )
 	{
-		st_ptr->owner = rand_int(MAX_OWNERS);
+		st_ptr->owner = (byte)rand_int(MAX_OWNERS);
 	}
 
 	/* Activate the new owner */
@@ -3428,7 +3448,7 @@ void store_shuffle(int which)
 	st_ptr->bad_buy = 0;
 
 
-	/* Hack -- discount all the items */
+	/* Discount all the items */
 	for (i = 0; i < st_ptr->stock_num; i++)
 	{
 		object_type *o_ptr;
@@ -3436,14 +3456,11 @@ void store_shuffle(int which)
 		/* Get the object */
 		o_ptr = &st_ptr->stock[i];
 
-		/* Sell all old items for "half price" */
-		o_ptr->discount = 50;
+		/* Discount non-discounted items by 40 percent */
+		if (o_ptr->discount == 0) o_ptr->discount = 40;
 
 		/* Clear the "fixed price" flag */
 		o_ptr->ident &= ~(IDENT_FIXED);
-
-		/* Inscribe the object as "on sale" */
-		o_ptr->inscrip = INSCRIP_SALE;
 	}
 }
 
@@ -3529,7 +3546,7 @@ void store_maint(int which)
 	/* Hack -- prevent "overflow" */
 	if (j >= st_ptr->stock_size) j = st_ptr->stock_size - 1;
 
-	/* Acquire some new items */
+	/* Create some new items */
 	while (st_ptr->stock_num < j) store_create();
 
 
@@ -3554,7 +3571,7 @@ void store_init(int which)
 
 
 	/* Pick an owner */
-	st_ptr->owner = rand_int(MAX_OWNERS);
+	st_ptr->owner = (byte)rand_int(MAX_OWNERS);
 
 	/* Activate the new owner */
 	ot_ptr = &owners[store_num][st_ptr->owner];

@@ -26,6 +26,13 @@ void do_cmd_go_up(void)
 		return;
 	}
 
+	/* Ironman */
+	if (adult_ironman)
+	{
+		msg_print("Nothing happens!");
+		return;
+	}
+
 	/* Hack -- take a turn */
 	p_ptr->energy_use = 100;
 
@@ -149,10 +156,10 @@ static s16b chest_check(int y, int x)
 	{
 		object_type *o_ptr;
 
-		/* Acquire object */
+		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
-		/* Acquire next object */
+		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Skip unknown chests XXX XXX */
@@ -190,7 +197,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	object_type object_type_body;
 
 
-	/* Access chest */
+	/* Get the chest */
 	o_ptr = &o_list[o_idx];
 
 	/* Small chests often hold "gold" */
@@ -472,104 +479,6 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 }
 
 
-#ifdef ALLOW_EASY_OPEN
-
-/*
- * If there is a jammed/closed/locked door at the given location,
- * then attempt to unlock/open it. Return TRUE if an attempt was
- * made (successful or not), otherwise return FALSE.
- *
- * The code here should be nearly identical to that in
- * do_cmd_open_test() and do_cmd_open_aux().
- */
-bool easy_open_door(int y, int x)
-{
-	int i, j;
-
-	/* Must be a closed door */
-	if (!((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-	      (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
-	{
-		/* Nope */
-		return (FALSE);
-	}
-
-	/* Jammed door */
-	if (cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x08)
-	{
-		/* Stuck */
-		msg_print("The door appears to be stuck.");
-	}
-
-	/* Locked door */
-	else if (cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01)
-	{
-		/* Disarm factor */
-		i = p_ptr->skill_dis;
-
-		/* Penalize some conditions */
-		if (p_ptr->blind || no_lite()) i = i / 10;
-		if (p_ptr->confused || p_ptr->image) i = i / 10;
-
-		/* Extract the lock power */
-		j = cave_feat[y][x] - FEAT_DOOR_HEAD;
-
-		/* Extract the difficulty XXX XXX XXX */
-		j = i - (j * 4);
-
-		/* Always have a small chance of success */
-		if (j < 2) j = 2;
-
-		/* Success */
-		if (rand_int(100) < j)
-		{
-			/* Message */
-			msg_print("You have picked the lock.");
-
-			/* Open the door */
-			cave_set_feat(y, x, FEAT_OPEN);
-
-			/* Update some things */
-			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-			/* Sound */
-			sound(SOUND_OPENDOOR);
-
-			/* Experience */
-			gain_exp(1);
-		}
-
-		/* Failure */
-		else
-		{
-			/* Failure */
-			if (flush_failure) flush();
-
-			/* Message */
-			msg_print("You failed to pick the lock.");
-		}
-	}
-
-	/* Closed door */
-	else
-	{
-		/* Open the door */
-		cave_set_feat(y, x, FEAT_OPEN);
-
-		/* Update some things */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		/* Sound */
-		sound(SOUND_OPENDOOR);
-	}
-
-	/* Result */
-	return (TRUE);
-}
-
-#endif /* ALLOW_EASY_OPEN */
-
-
 #if defined(ALLOW_EASY_OPEN)
 
 /*
@@ -641,7 +550,9 @@ static int count_chests(int *y, int *x, bool trapped)
 
 		/* No (known) traps here */
 		if (trapped &&
-		    (!object_known_p(o_ptr) || !chest_traps[o_ptr->pval]))
+		    (!object_known_p(o_ptr) ||
+		     (o_ptr->pval < 0) ||
+		     !chest_traps[o_ptr->pval]))
 		{
 			continue;
 		}
@@ -660,23 +571,12 @@ static int count_chests(int *y, int *x, bool trapped)
 
 
 /*
- * Convert an adjacent location to a direction.
- *
- * This could perhaps be moved elsewhere, with the paranoia check
- * removed, and the "dx"/"dy" converted to a "delta" of some kind.
+ * Extract a "direction" which will move one step from the player location
+ * towards the given "target" location (or "5" if no motion necessary).
  */
 static int coords_to_dir(int y, int x)
 {
-    int d[3][3] = {{7, 4, 1}, {8, 5, 2}, {9, 6, 3}};
-    int dy, dx;
-
-    dy = y - p_ptr->py;
-    dx = x - p_ptr->px;
-
-    /* Paranoia */
-    if (ABS(dx) > 1 || ABS(dy) > 1) return (0);
-
-    return d[dx + 1][dy + 1];
+	return (motion_dir(p_ptr->py, p_ptr->px, y, x));
 }
 
 #endif /* ALLOW_EASY_OPEN */
@@ -1004,7 +904,11 @@ void do_cmd_close(void)
 		/* Handle a single open door */
 		if (count_feats(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1)
 		{
-			p_ptr->command_dir = coords_to_dir(y, x);
+			/* Don't close door player is on */
+			if ((y != py) || (x != px))
+			{
+				p_ptr->command_dir = coords_to_dir(y, x);
+			}
 		}
 	}
 
@@ -1437,7 +1341,7 @@ static bool do_cmd_disarm_test(int y, int x)
  *
  * Returns TRUE if repeated commands may continue
  */
-bool do_cmd_disarm_aux(int y, int x)
+static bool do_cmd_disarm_aux(int y, int x)
 {
 	int i, j, power;
 
@@ -1450,7 +1354,7 @@ bool do_cmd_disarm_aux(int y, int x)
 	if (!do_cmd_disarm_test(y, x)) return (FALSE);
 
 
-	/* Access trap name */
+	/* Get the trap name */
 	name = (f_name + f_info[cave_feat[y][x]].name);
 
 	/* Get the "disarm" factor */
@@ -1917,6 +1821,17 @@ void do_cmd_alter(void)
 		more = do_cmd_disarm_aux(y, x);
 	}
 
+#if 0
+
+	/* Close open doors */
+	else if (feat == FEAT_OPEN)
+	{
+		/* Close */
+		more = do_cmd_close_aux(y, x);
+	}
+
+#endif
+
 	/* Oops */
 	else
 	{
@@ -2103,11 +2018,12 @@ static bool do_cmd_walk_test(int y, int x)
 		else if (cave_feat[y][x] < FEAT_SECRET)
 		{
 
-#ifdef ALLOW_EASY_OPEN
-			/* Easy open */
-			if (easy_open) return (TRUE);
+#ifdef ALLOW_EASY_ALTER
 
-#endif/* ALLOW_EASY_OPEN */
+			/* Hack -- Handle "easy_alter" */
+			if (easy_alter) return (TRUE);
+
+#endif /* ALLOW_EASY_ALTER */
 
 			/* Message */
 			msg_print("There is a door in the way!");
@@ -2130,9 +2046,9 @@ static bool do_cmd_walk_test(int y, int x)
 
 
 /*
- * Helper function for the "walk" and "jump" commands
+ * Helper function for the "walk" and "jump" commands.
  */
-static void do_cmd_walk_or_jump(int pickup)
+static void do_cmd_walk_or_jump(int jumping)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -2182,49 +2098,27 @@ static void do_cmd_walk_or_jump(int pickup)
 	}
 
 	/* Move the player */
-	move_player(dir, pickup);
+	move_player(dir, jumping);
 }
 
 
 /*
- * Walk into a grid (usually pickup)
+ * Walk into a grid.
  */
 void do_cmd_walk(void)
 {
-
-#ifdef ALLOW_EASY_OPEN
-
-	/* Move (usually pickup) */
+	/* Move (normal) */
 	do_cmd_walk_or_jump(FALSE);
-
-#else /* ALLOW_EASY_OPEN */
-
-	/* Move (usually pickup) */
-	do_cmd_walk_or_jump(always_pickup);
-
-#endif /* ALLOW_EASY_OPEN */
-
 }
 
 
 /*
- * Jump into a grid (usually do not pickup)
+ * Jump into a grid.
  */
 void do_cmd_jump(void)
 {
-
-#ifdef ALLOW_EASY_OPEN
-
-	/* Move (usually do not pickup) */
+	/* Move (jump) */
 	do_cmd_walk_or_jump(TRUE);
-
-#else /* ALLOW_EASY_OPEN */
-
-	/* Move (usually do not pickup) */
-	do_cmd_walk_or_jump(!always_pickup);
-
-#endif /* ALLOW_EASY_OPEN */
-
 }
 
 
@@ -2544,7 +2438,7 @@ void do_cmd_fire(void)
 	s = "You have nothing to fire.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Access the item (if in the pack) */
+	/* Get the object */
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
@@ -2835,7 +2729,7 @@ void do_cmd_throw(void)
 	s = "You have nothing to throw.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Access the item (if in the pack) */
+	/* Get the object */
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];

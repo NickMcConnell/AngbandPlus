@@ -20,15 +20,8 @@
  */
 void do_cmd_inven(void)
 {
-	/* Note that we are in "inventory" mode */
-	p_ptr->command_wrk = FALSE;
-
-#ifdef ALLOW_EASY_FLOOR
-
-	/* Note that we are in "inventory" mode */
-	if (easy_floor) p_ptr->command_wrk = (USE_INVEN);
-
-#endif /* ALLOW_EASY_FLOOR */
+	/* Hack -- Start in "inventory" mode */
+	p_ptr->command_wrk = (USE_INVEN);
 
 	/* Save screen */
 	screen_save();
@@ -73,15 +66,8 @@ void do_cmd_inven(void)
  */
 void do_cmd_equip(void)
 {
-	/* Note that we are in "equipment" mode */
-	p_ptr->command_wrk = TRUE;
-
-#ifdef ALLOW_EASY_FLOOR
-
-	/* Note that we are in "equipment" mode */
-	if (easy_floor) p_ptr->command_wrk = (USE_EQUIP);
-
-#endif /* ALLOW_EASY_FLOOR */
+	/* Hack -- Start in "equipment" mode */
+	p_ptr->command_wrk = (USE_EQUIP);
 
 	/* Save screen */
 	screen_save();
@@ -218,7 +204,7 @@ void do_cmd_wield(void)
 		floor_item_optimize(0 - item);
 	}
 
-	/* Access the wield slot */
+	/* Get the wield slot */
 	o_ptr = &inventory[slot];
 
 	/* Take off existing item */
@@ -267,7 +253,13 @@ void do_cmd_wield(void)
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
 
-		/* Note the curse */
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
+		/* Sense the object if allowed */
+		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
+
+		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 	}
 
@@ -456,10 +448,13 @@ void do_cmd_destroy(void)
 		/* Hack -- Handle icky artifacts */
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_TERRIBLE;
 
-		/* Hack -- inscribe the artifact */
-		o_ptr->inscrip = feel;
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
-		/* We have "felt" it (again) */
+		/* Sense the object if allowed */
+		if (o_ptr->discount == 0) o_ptr->discount = feel;
+
+		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Combine the pack */
@@ -607,7 +602,7 @@ void do_cmd_inscribe(void)
 
 	char o_name[80];
 
-	char tmp[81];
+	char tmp[80];
 
 	cptr q, s;
 
@@ -643,7 +638,7 @@ void do_cmd_inscribe(void)
 	if (o_ptr->note)
 	{
 		/* Start with the old inscription */
-		strcpy(tmp, quark_str(o_ptr->note));
+		strnfmt(tmp, 80, "%s", quark_str(o_ptr->note));
 	}
 
 	/* Get a new inscription (possibly empty) */
@@ -670,9 +665,13 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
 
-	/* Lanterns are okay */
+	/* Non-empty lanterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN)) return (TRUE);
+	    (o_ptr->sval == SV_LITE_LANTERN) &&
+	    (o_ptr->pval > 0))
+	{
+		return (TRUE);
+	}
 
 	/* Assume not okay */
 	return (FALSE);
@@ -696,8 +695,8 @@ static void do_cmd_refill_lamp(void)
 	item_tester_hook = item_tester_refill_lantern;
 
 	/* Get an item */
-	q = "Refill with which flask? ";
-	s = "You have no flasks of oil.";
+	q = "Refill with which source of oil? ";
+	s = "You have no sources of oil.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -716,7 +715,7 @@ static void do_cmd_refill_lamp(void)
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
 
-	/* Access the lantern */
+	/* Get the lantern */
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
@@ -732,8 +731,21 @@ static void do_cmd_refill_lamp(void)
 		msg_print("Your lamp is full.");
 	}
 
+	/* Use fuel from a lantern */
+	if (o_ptr->sval == SV_LITE_LANTERN)
+	{
+		/* No more fuel */
+		o_ptr->pval = 0;
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN);
+	}
+
 	/* Decrease the item (from the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -750,6 +762,9 @@ static void do_cmd_refill_lamp(void)
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
 }
 
 
@@ -805,7 +820,7 @@ static void do_cmd_refill_torch(void)
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
 
-	/* Access the primary torch */
+	/* Get the primary torch */
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
@@ -845,6 +860,9 @@ static void do_cmd_refill_torch(void)
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
 }
 
 
@@ -957,9 +975,17 @@ void do_cmd_locate(void)
 
 		/* Prepare to ask which way to look */
 		sprintf(out_val,
-				"Map sector [%d(%02d), %d(%02d)], which is%s your sector.  Direction?",
-				(y2 / PANEL_HGT), (y2 % PANEL_HGT),
-				(x2 / PANEL_WID), (x2 % PANEL_WID), tmp_val);
+		        "Map sector [%d,%d], which is%s your sector.  Direction?",
+		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
+
+		/* More detail */
+		if (center_player)
+		{
+			sprintf(out_val,
+		        	"Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
+		        	(y2 / PANEL_HGT), (y2 % PANEL_HGT),
+		        	(x2 / PANEL_WID), (x2 % PANEL_WID), tmp_val);
+		}
 
 		/* Assume no direction */
 		dir = 0;
@@ -1236,11 +1262,11 @@ static void roff_top(int r_idx)
 	char c1, c2;
 
 
-	/* Access the chars */
+	/* Get the chars */
 	c1 = r_ptr->d_char;
 	c2 = r_ptr->x_char;
 
-	/* Access the attrs */
+	/* Get the attrs */
 	a1 = r_ptr->d_attr;
 	a2 = r_ptr->x_attr;
 

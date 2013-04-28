@@ -59,7 +59,7 @@ something you are more comfortable with.
   "   An amulet                       [   Hard armour
   $   Gold or gems                    ]   Misc. armour
   ~   Lites, Tools, Chests, etc       )   A shield
-  ~   Junk, Sticks, Skeletons, etc    &   Stack of objects
+  ~   Junk, Sticks, Skeletons, etc    &   (unused)
  
  
                              Monsters
@@ -446,7 +446,7 @@ to the rumors of a powerful ring buried somewhere in the dungeon...
 When you are ready to retire, simply "commit suicide" (using the "Q" key)
 to have your character entered into the high score list as a winner.  Note
 that until you retire, you can still be killed, so you may want to retire
-before wandering into a horde of death molds...
+before wandering into a hoard of death molds...
 
 
 === Upon Death and Dying ===
@@ -468,5 +468,4 @@ your character, returning him to the town, and marking him in various
 ways as a character which has cheated death.  Cheating death, like using
 any of the "cheating options", will prevent your character from appearing
 on the high score list.
-
 

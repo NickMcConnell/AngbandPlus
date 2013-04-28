@@ -145,7 +145,7 @@ static void prt_stat(int stat)
  */
 static void prt_title(void)
 {
-	cptr p = "";
+	cptr p;
 
 	/* Wizard */
 	if (p_ptr->wizard)
@@ -578,7 +578,7 @@ static void prt_speed(void)
 {
 	int i = p_ptr->pspeed;
 
-	int attr = TERM_WHITE;
+	byte attr = TERM_WHITE;
 	char buf[32] = "";
 
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
@@ -789,7 +789,7 @@ static void prt_frame_basic(void)
 	prt_exp();
 
 	/* All Stats */
-	for (i = 0; i < 6; i++) prt_stat(i);
+	for (i = 0; i < A_MAX; i++) prt_stat(i);
 
 	/* Armor */
 	prt_ac();
@@ -1006,7 +1006,7 @@ static void fix_message(void)
 		for (i = 0; i < h; i++)
 		{
 			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str(i));
+			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str((s16b)i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
@@ -1199,7 +1199,7 @@ static void calc_spells(void)
 		/* Efficiency -- all done */
 		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
 
-		/* Access the spell */
+		/* Get the spell */
 		j = p_ptr->spell_order[i];
 
 		/* Skip non-spells */
@@ -1311,7 +1311,7 @@ static void calc_spells(void)
 		/* Skip unknown spells */
 		if (j >= 99) break;
 
-		/* Access the spell */
+		/* Get the spell */
 		s_ptr = &mp_ptr->info[j];
 
 		/* Skip spells we cannot remember */
@@ -1358,7 +1358,7 @@ static void calc_spells(void)
 	/* Count spells that can be learned */
 	for (j = 0; j < 64; j++)
 	{
-		/* Access the spell */
+		/* Get the spell */
 		s_ptr = &mp_ptr->info[j];
 
 		/* Skip spells we cannot remember */
@@ -1694,9 +1694,9 @@ static void calc_bonuses(void)
 	int extra_shots;
 	int extra_might;
 
-	int old_stat_top[6];
-	int old_stat_use[6];
-	int old_stat_ind[6];
+	int old_stat_top[A_MAX];
+	int old_stat_use[A_MAX];
+	int old_stat_ind[A_MAX];
 
 	object_type *o_ptr;
 
@@ -1717,7 +1717,7 @@ static void calc_bonuses(void)
 	old_dis_to_a = p_ptr->dis_to_a;
 
 	/* Save the old stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		old_stat_top[i] = p_ptr->stat_top[i];
 		old_stat_use[i] = p_ptr->stat_use[i];
@@ -1742,7 +1742,7 @@ static void calc_bonuses(void)
 	extra_might = 0;
 
 	/* Clear the stat modifiers */
-	for (i = 0; i < 6; i++) p_ptr->stat_add[i] = 0;
+	for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] = 0;
 
 	/* Clear the Displayed/Real armor class */
 	p_ptr->dis_ac = p_ptr->ac = 0;
@@ -1991,7 +1991,7 @@ static void calc_bonuses(void)
 	/*** Handle stats ***/
 
 	/* Calculate stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		int add, top, use, ind;
 
@@ -1999,7 +1999,7 @@ static void calc_bonuses(void)
 		add = p_ptr->stat_add[i];
 
 		/* Maximize mode */
-		if (p_ptr->maximize)
+		if (adult_maximize)
 		{
 			/* Modify the stats for race/class */
 			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
@@ -2114,12 +2114,6 @@ static void calc_bonuses(void)
 
 
 	/*** Special flags ***/
-
-	/* Hack -- Res chaos -> Res confu */
-	if (p_ptr->resist_chaos)
-	{
-		p_ptr->resist_confu = TRUE;
-	}
 
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero)
@@ -2342,7 +2336,8 @@ static void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-		int num = 0, wgt = 0, mul = 0, div = 0;
+		int num = 0, wgt = 0, mul = 0;
+		int div;
 
 		/* Analyze the class */
 		switch (p_ptr->pclass)
@@ -2369,7 +2364,7 @@ static void calc_bonuses(void)
 		/* Enforce a minimum "weight" (tenth pounds) */
 		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
 
-		/* Access the strength vs weight */
+		/* Get the strength vs weight */
 		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
 
 		/* Maximal value */
@@ -2401,7 +2396,7 @@ static void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 
 	/* Priest weapon penalty for non-blessed edged weapons */
-	if ((p_ptr->pclass == 2) && (!p_ptr->bless_blade) &&
+	if ((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
 	{
 		/* Reduce the real bonuses */
@@ -2420,7 +2415,7 @@ static void calc_bonuses(void)
 	/*** Notice changes ***/
 
 	/* Analyze stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Notice changes */
 		if (p_ptr->stat_top[i] != old_stat_top[i])

@@ -287,8 +287,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 
 	if (smart & (SM_RES_CHAOS))
 	{
-		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_CONF);
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_CONF);
 		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_CHAO);
 	}
 
@@ -469,31 +467,32 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	int i, py = p_ptr->py, px = p_ptr->px;
 
 #ifdef MONSTER_AI
+
 	/* Smart monsters restrict their spell choices. */
 	if (smart_monsters && !(r_ptr->flags2 & (RF2_STUPID)))
 	{
 		/* What have we got? */
 		has_escape = ((f4 & (RF4_ESCAPE_MASK)) ||
-					  (f5 & (RF5_ESCAPE_MASK)) ||
-					  (f6 & (RF6_ESCAPE_MASK)));
+		              (f5 & (RF5_ESCAPE_MASK)) ||
+		              (f6 & (RF6_ESCAPE_MASK)));
 		has_attack = ((f4 & (RF4_ATTACK_MASK)) ||
-					  (f5 & (RF5_ATTACK_MASK)) ||
-					  (f6 & (RF6_ATTACK_MASK)));
+		              (f5 & (RF5_ATTACK_MASK)) ||
+		              (f6 & (RF6_ATTACK_MASK)));
 		has_summon = ((f4 & (RF4_SUMMON_MASK)) ||
-					  (f5 & (RF5_SUMMON_MASK)) ||
-					  (f6 & (RF6_SUMMON_MASK)));
+		              (f5 & (RF5_SUMMON_MASK)) ||
+		              (f6 & (RF6_SUMMON_MASK)));
 		has_tactic = ((f4 & (RF4_TACTIC_MASK)) ||
-					  (f5 & (RF5_TACTIC_MASK)) ||
-					  (f6 & (RF6_TACTIC_MASK)));
+		              (f5 & (RF5_TACTIC_MASK)) ||
+		              (f6 & (RF6_TACTIC_MASK)));
 		has_annoy = ((f4 & (RF4_ANNOY_MASK)) ||
-					 (f5 & (RF5_ANNOY_MASK)) ||
-					 (f6 & (RF6_ANNOY_MASK)));
+		             (f5 & (RF5_ANNOY_MASK)) ||
+		             (f6 & (RF6_ANNOY_MASK)));
 		has_haste = ((f4 & (RF4_HASTE_MASK)) ||
-					 (f5 & (RF5_HASTE_MASK)) ||
-					 (f6 & (RF6_HASTE_MASK)));
+		             (f5 & (RF5_HASTE_MASK)) ||
+		             (f6 & (RF6_HASTE_MASK)));
 		has_heal = ((f4 & (RF4_HEAL_MASK)) ||
-					(f5 & (RF5_HEAL_MASK)) ||
-					(f6 & (RF6_HEAL_MASK)));
+		            (f5 & (RF5_HEAL_MASK)) ||
+		            (f6 & (RF6_HEAL_MASK)));
 
 		/*** Try to pick an appropriate spell type ***/
 
@@ -517,7 +516,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 
 		/* Player is close and we have attack spells, blink away */
 		else if (has_tactic && (distance(py, px, m_ptr->fy, m_ptr->fx) < 4) &&
-			has_attack && (rand_int(100) < 75))
+		         has_attack && (rand_int(100) < 75))
 		{
 			/* Choose tactical spell */
 			f4_mask = (RF4_TACTIC_MASK);
@@ -527,7 +526,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 
 		/* We're hurt (not badly), try to heal */
 		else if (has_heal && (m_ptr->hp < m_ptr->maxhp * 3 / 4) &&
-			(rand_int(100) < 60))
+		         (rand_int(100) < 60))
 		{
 			/* Choose heal spell */
 			f4_mask = (RF4_HEAL_MASK);
@@ -590,6 +589,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		/* Anything left? */
 		if (!(f4 || f5 || f6)) return (0);
 	}
+
 #endif /* MONSTER_AI */
 
 	/* Extract the "innate" spells */
@@ -1978,16 +1978,19 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons %s %s.", m_name, m_poss,
-							((r_ptr->flags1) & RF1_UNIQUE ?
-							 "minions" : "kin"));
+			                ((r_ptr->flags1) & RF1_UNIQUE ?
+			                 "minions" : "kin"));
 
-			/* XXX XXX Set the letter of the monsters to summon. */
+			/* Hack -- Set the letter of the monsters to summon */
 			summon_kin_type = r_ptr->d_char;
 			for (k = 0; k < 6; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_KIN);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2018,7 +2021,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, 0);
 			}
-			if (blind && count) msg_print("You hear something appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear something appear nearby.");
+			}
 			break;
 		}
 
@@ -2032,7 +2038,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, 0);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2046,7 +2055,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_ANT);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2060,7 +2072,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_SPIDER);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2074,7 +2089,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HOUND);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2088,7 +2106,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HYDRA);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2102,7 +2123,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_ANGEL);
 			}
-			if (blind && count) msg_print("You hear something appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear something appear nearby.");
+			}
 			break;
 		}
 
@@ -2116,7 +2140,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_DEMON);
 			}
-			if (blind && count) msg_print("You hear something appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear something appear nearby.");
+			}
 			break;
 		}
 
@@ -2130,7 +2157,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_UNDEAD);
 			}
-			if (blind && count) msg_print("You hear something appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear something appear nearby.");
+			}
 			break;
 		}
 
@@ -2144,7 +2174,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_DRAGON);
 			}
-			if (blind && count) msg_print("You hear something appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear something appear nearby.");
+			}
 			break;
 		}
 
@@ -2532,82 +2565,142 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 
 
 #ifdef MONSTER_AI
+
 /*
- * Hack -- Precompute a bunch of calls to distance() in
- * find_safety and find_hiding.
+ * Hack -- Precompute a bunch of calls to distance() in find_safety() and
+ * find_hiding().
  *
- * dist_offsets_y[n] is an array of the y-coordinates of all points
- * with a distance of n from (0, 0). dist_offsets_x[n] contains the
- * corresponding x-coordinates.
+ * The pair of arrays dist_offsets_y[n] and dist_offsets_x[n] contain the
+ * offsets of all the locations with a distance of n from a central point,
+ * with an offset of (0,0) indicating no more offsets at this distance.
  *
- * An offset of (0,0) indicates no more offsets at this distance.
+ * This is, of course, fairly unreadable, but it eliminates multiple loops
+ * from the previous version.
  *
- * This is, of course, fairly unreadable, but it eliminates
- * multiple loops from the previous version.
+ * It is probably better to replace these arrays with code to compute
+ * the relevant arrays, even if the storage is pre-allocated in hard
+ * coded sizes.  At the very least, code should be included which is
+ * able to generate and dump these arrays (ala "los()").  XXX XXX XXX
+ *
+ * Also, the storage needs could be halved by using bytes.  XXX XXX XXX
+ *
+ * These arrays could be combined into two big arrays, using sub-arrays
+ * to hold the offsets and lengths of each portion of the sub-arrays, and
+ * this could perhaps also be used somehow in the "look" code.  XXX XXX XXX
  */
 
-static sint d_off_y_0[] = { 0 };
-static sint d_off_y_1[] = { -1, -1, -1, 0, 0, 1, 1, 1, 0 };
-static sint d_off_y_2[] = { -1, -1, -2, -2, -2, 0, 0, 1, 1, 2, 2, 2, 0 };
-static sint d_off_y_3[] = { -1, -1, -2, -2, -3, -3, -3, 0, 0, 1, 1, 2, 2,
-							3, 3, 3, 0 };
-static sint d_off_y_4[] = { -1, -1, -2, -2, -3, -3, -3, -3, -4, -4, -4, 0,
-							0, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 0 };
-static sint d_off_y_5[] = { -1, -1, -2, -2, -3, -3, -4, -4, -4, -4, -5, -5,
-							-5, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5,
-							5, 0 };
-static sint d_off_y_6[] = { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -5, -5,
-							-6, -6, -6, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5,
-							5, 5, 6, 6, 6, 0 };
-static sint d_off_y_7[] = { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -5, -5,
-							-6, -6, -6, -6, -7, -7, -7, 0, 0, 1, 1, 2, 2, 3,
-							3, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 0 };
-static sint d_off_y_8[] = { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6,
-							-6, -6, -7, -7, -7, -7, -8, -8, -8, 0, 0, 1, 1,
-							2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7,
-							8, 8, 8, 0 };
-static sint d_off_y_9[] = { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6,
-							-7, -7, -7, -7, -8, -8, -8, -8, -9, -9, -9, 0,
-							0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7,
-							7, 8, 8, 8, 8, 9, 9, 9, 0 };
+
+static sint d_off_y_0[] =
+{ 0 };
+
+static sint d_off_x_0[] =
+{ 0 };
+
+
+static sint d_off_y_1[] =
+{ -1, -1, -1, 0, 0, 1, 1, 1, 0 };
+
+static sint d_off_x_1[] =
+{ -1, 0, 1, -1, 1, -1, 0, 1, 0 };
+
+
+static sint d_off_y_2[] =
+{ -1, -1, -2, -2, -2, 0, 0, 1, 1, 2, 2, 2, 0 };
+
+static sint d_off_x_2[] =
+{ -2, 2, -1, 0, 1, -2, 2, -2, 2, -1, 0, 1, 0 };
+
+
+static sint d_off_y_3[] =
+{ -1, -1, -2, -2, -3, -3, -3, 0, 0, 1, 1, 2, 2,
+  3, 3, 3, 0 };
+
+static sint d_off_x_3[] =
+{ -3, 3, -2, 2, -1, 0, 1, -3, 3, -3, 3, -2, 2,
+  -1, 0, 1, 0 };
+
+
+static sint d_off_y_4[] =
+{ -1, -1, -2, -2, -3, -3, -3, -3, -4, -4, -4, 0,
+  0, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 0 };
+
+static sint d_off_x_4[] =
+{ -4, 4, -3, 3, -2, -3, 2, 3, -1, 0, 1, -4, 4,
+  -4, 4, -3, 3, -2, -3, 2, 3, -1, 0, 1, 0 };
+
+
+static sint d_off_y_5[] =
+{ -1, -1, -2, -2, -3, -3, -4, -4, -4, -4, -5, -5,
+  -5, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5,
+  5, 0 };
+
+static sint d_off_x_5[] =
+{ -5, 5, -4, 4, -4, 4, -2, -3, 2, 3, -1, 0, 1,
+  -5, 5, -5, 5, -4, 4, -4, 4, -2, -3, 2, 3, -1,
+  0, 1, 0 };
+
+
+static sint d_off_y_6[] =
+{ -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -5, -5,
+  -6, -6, -6, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5,
+  5, 5, 6, 6, 6, 0 };
+
+static sint d_off_x_6[] =
+{ -6, 6, -5, 5, -5, 5, -4, 4, -2, -3, 2, 3, -1,
+  0, 1, -6, 6, -6, 6, -5, 5, -5, 5, -4, 4, -2,
+  -3, 2, 3, -1, 0, 1, 0 };
+
+
+static sint d_off_y_7[] =
+{ -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -5, -5,
+  -6, -6, -6, -6, -7, -7, -7, 0, 0, 1, 1, 2, 2, 3,
+  3, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 0 };
+
+static sint d_off_x_7[] =
+{ -7, 7, -6, 6, -6, 6, -5, 5, -4, -5, 4, 5, -2,
+  -3, 2, 3, -1, 0, 1, -7, 7, -7, 7, -6, 6, -6,
+  6, -5, 5, -4, -5, 4, 5, -2, -3, 2, 3, -1, 0,
+  1, 0 };
+
+
+static sint d_off_y_8[] =
+{ -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6,
+  -6, -6, -7, -7, -7, -7, -8, -8, -8, 0, 0, 1, 1,
+  2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7,
+  8, 8, 8, 0 };
+
+static sint d_off_x_8[] =
+{ -8, 8, -7, 7, -7, 7, -6, 6, -6, 6, -4, -5, 4,
+  5, -2, -3, 2, 3, -1, 0, 1, -8, 8, -8, 8, -7,
+  7, -7, 7, -6, 6, -6, 6, -4, -5, 4, 5, -2, -3,
+  2, 3, -1, 0, 1, 0 };
+
+
+static sint d_off_y_9[] =
+{ -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6,
+  -7, -7, -7, -7, -8, -8, -8, -8, -9, -9, -9, 0,
+  0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7,
+  7, 8, 8, 8, 8, 9, 9, 9, 0 };
+
+static sint d_off_x_9[] =
+{ -9, 9, -8, 8, -8, 8, -7, 7, -7, 7, -6, 6, -4,
+  -5, 4, 5, -2, -3, 2, 3, -1, 0, 1, -9, 9, -9,
+  9, -8, 8, -8, 8, -7, 7, -7, 7, -6, 6, -4, -5,
+  4, 5, -2, -3, 2, 3, -1, 0, 1, 0 };
+
 
 static sint *dist_offsets_y[10] =
 {
-  d_off_y_0, d_off_y_1, d_off_y_2, d_off_y_3, d_off_y_4,
-  d_off_y_5, d_off_y_6, d_off_y_7, d_off_y_8, d_off_y_9
+	d_off_y_0, d_off_y_1, d_off_y_2, d_off_y_3, d_off_y_4,
+	d_off_y_5, d_off_y_6, d_off_y_7, d_off_y_8, d_off_y_9
 };
-
-static sint d_off_x_0[] = { 0 };
-static sint d_off_x_1[] = { -1, 0, 1, -1, 1, -1, 0, 1, 0 };
-static sint d_off_x_2[] = { -2, 2, -1, 0, 1, -2, 2, -2, 2, -1, 0, 1, 0 };
-static sint d_off_x_3[] = { -3, 3, -2, 2, -1, 0, 1, -3, 3, -3, 3, -2, 2,
-							-1, 0, 1, 0 };
-static sint d_off_x_4[] = { -4, 4, -3, 3, -2, -3, 2, 3, -1, 0, 1, -4, 4,
-							-4, 4, -3, 3, -2, -3, 2, 3, -1, 0, 1, 0 };
-static sint d_off_x_5[] = { -5, 5, -4, 4, -4, 4, -2, -3, 2, 3, -1, 0, 1,
-							-5, 5, -5, 5, -4, 4, -4, 4, -2, -3, 2, 3, -1,
-							0, 1, 0 };
-static sint d_off_x_6[] = { -6, 6, -5, 5, -5, 5, -4, 4, -2, -3, 2, 3, -1,
-							0, 1, -6, 6, -6, 6, -5, 5, -5, 5, -4, 4, -2,
-							-3, 2, 3, -1, 0, 1, 0 };
-static sint d_off_x_7[] = { -7, 7, -6, 6, -6, 6, -5, 5, -4, -5, 4, 5, -2,
-							-3, 2, 3, -1, 0, 1, -7, 7, -7, 7, -6, 6, -6,
-							6, -5, 5, -4, -5, 4, 5, -2, -3, 2, 3, -1, 0,
-							1, 0 };
-static sint d_off_x_8[] = { -8, 8, -7, 7, -7, 7, -6, 6, -6, 6, -4, -5, 4,
-							5, -2, -3, 2, 3, -1, 0, 1, -8, 8, -8, 8, -7,
-							7, -7, 7, -6, 6, -6, 6, -4, -5, 4, 5, -2, -3,
-							2, 3, -1, 0, 1, 0 };
-static sint d_off_x_9[] = { -9, 9, -8, 8, -8, 8, -7, 7, -7, 7, -6, 6, -4,
-							-5, 4, 5, -2, -3, 2, 3, -1, 0, 1, -9, 9, -9,
-							9, -8, 8, -8, 8, -7, 7, -7, 7, -6, 6, -4, -5,
-							4, 5, -2, -3, 2, 3, -1, 0, 1, 0 };
 
 static sint *dist_offsets_x[10] =
 {
-  d_off_x_0, d_off_x_1, d_off_x_2, d_off_x_3, d_off_x_4,
-  d_off_x_5, d_off_x_6, d_off_x_7, d_off_x_8, d_off_x_9
+	d_off_x_0, d_off_x_1, d_off_x_2, d_off_x_3, d_off_x_4,
+	d_off_x_5, d_off_x_6, d_off_x_7, d_off_x_8, d_off_x_9
 };
+
 #endif /* MONSTER_AI */
 
 
@@ -2619,14 +2712,15 @@ static sint *dist_offsets_x[10] =
  * cause monsters to "duck" behind walls.  Hopefully, monsters will also
  * try to run towards corridor openings if they are in a room.
  *
- * This function may take lots of CPU time if lots of monsters are
- * fleeing.
+ * This function may take lots of CPU time if lots of monsters are fleeing.
  *
  * Return TRUE if a safe location is available.
  */
 static bool find_safety(int m_idx, int *yp, int *xp)
 {
+
 #ifdef MONSTER_AI
+
 	monster_type *m_ptr = &m_list[m_idx];
 
 	int fy = m_ptr->fy;
@@ -2638,19 +2732,20 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 	int i, y, x, dy, dx, d, dis;
 	int gy = 0, gx = 0, gdis = 0;
 
-	sint *y_offsets, *x_offsets;
+	sint *y_offsets;
+	sint *x_offsets;
 
 	/* Start with adjacent locations, spread further */
 	for (d = 1; d < 10; d++)
 	{
-	  /* Get the lists of points with a distance d from (fx, fy) */
-	  y_offsets = dist_offsets_y[d];
-	  x_offsets = dist_offsets_x[d];
+		/* Get the lists of points with a distance d from (fx, fy) */
+		y_offsets = dist_offsets_y[d];
+		x_offsets = dist_offsets_x[d];
 
 		/* Check the locations */
 		for (i = 0, dx = x_offsets[0], dy = y_offsets[0];
-			 dx != 0 || dy != 0;
-			 i++, dx = x_offsets[i], dy = y_offsets[i])
+		     dx != 0 || dy != 0;
+		     i++, dx = x_offsets[i], dy = y_offsets[i])
 		{
 			y = fy + dy;
 			x = fx + dx;
@@ -2698,6 +2793,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			return (TRUE);
 		}
 	}
+
 #endif /* MONSTER_AI */
 
 	/* No safe place */
@@ -2706,6 +2802,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 
 
 #ifdef MONSTER_AI
+
 /*
  * Choose a good hiding place near a monster for it to run toward.
  *
@@ -2784,6 +2881,7 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
 	/* No good place */
 	return (FALSE);
 }
+
 #endif /* MONSTER_AI */
 
 
@@ -2810,12 +2908,14 @@ static bool get_moves(int m_idx, int mm[5])
 	bool done = FALSE;
 
 #ifdef MONSTER_FLOW
+
 	/* Flow towards the player */
 	if (flow_by_sound)
 	{
 		/* Flow towards the player */
 		(void)get_moves_aux(m_idx, &y2, &x2);
 	}
+
 #endif
 
 	/* Extract the "pseudo-direction" */
@@ -2824,10 +2924,11 @@ static bool get_moves(int m_idx, int mm[5])
 
 
 #ifdef MONSTER_AI
+
 	/* Normal animal packs try to get the player out of corridors. */
 	if (smart_packs &&
-		(r_ptr->flags1 & RF1_FRIENDS) && (r_ptr->flags3 & RF3_ANIMAL) &&
-		!((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL))))
+	    (r_ptr->flags1 & RF1_FRIENDS) && (r_ptr->flags3 & RF3_ANIMAL) &&
+	    !((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL))))
 	{
 		int i, room = 0;
 
@@ -2849,6 +2950,7 @@ static bool get_moves(int m_idx, int mm[5])
 			if (find_hiding(m_idx, &y, &x)) done = TRUE;
 		}
 	}
+
 #endif /* MONSTER_AI */
 
 	/* Apply fear */
@@ -2861,7 +2963,9 @@ static bool get_moves(int m_idx, int mm[5])
 			y = (-y);
 			x = (-x);
 		}
+
 #ifdef MONSTER_AI
+
 		else
 		{
 			/* Attempt to avoid the player */
@@ -2871,11 +2975,14 @@ static bool get_moves(int m_idx, int mm[5])
 				if (get_fear_moves_aux(m_idx, &y, &x)) done = TRUE;
 			}
 		}
+
 #endif /* MONSTER_AI */
+
 	}
 
 
 #ifdef MONSTER_AI
+
 	/* Monster groups try to surround the player */
 	if (!done && smart_packs && (r_ptr->flags1 & RF1_FRIENDS))
 	{
@@ -2899,8 +3006,7 @@ static bool get_moves(int m_idx, int mm[5])
 			}
 
 			/* Ignore filled grids */
-			if (!cave_empty_bold(y2, x2))
-				continue;
+			if (!cave_empty_bold(y2, x2)) continue;
 
 			/* Try to fill this hole */
 			break;
@@ -2913,6 +3019,7 @@ static bool get_moves(int m_idx, int mm[5])
 		/* Done */
 		done = TRUE;
 	}
+
 #endif /* MONSTER_AI */
 
 
@@ -3205,15 +3312,14 @@ static void process_monster(int m_idx)
 			{
 				char m_name[80];
 
-				/* Acquire the monster name */
+				/* Get the monster name */
 				monster_desc(m_name, m_ptr, 0);
 
 				/* Dump a message */
 				msg_format("%^s wakes up.", m_name);
 
 				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx)
-				  p_ptr->redraw |= (PR_HEALTH);
+				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 			}
 
 			/* Efficiency XXX XXX */
@@ -3259,15 +3365,14 @@ static void process_monster(int m_idx)
 				{
 					char m_name[80];
 
-					/* Acquire the monster name */
+					/* Get the monster name */
 					monster_desc(m_name, m_ptr, 0);
 
 					/* Dump a message */
 					msg_format("%^s wakes up.", m_name);
 
 					/* Hack -- Update the health bar */
-					if (p_ptr->health_who == m_idx)
-					  p_ptr->redraw |= (PR_HEALTH);
+					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 					/* Hack -- Count the wakings */
 					if (r_ptr->r_wake < MAX_UCHAR)
@@ -3313,15 +3418,14 @@ static void process_monster(int m_idx)
 			{
 				char m_name[80];
 
-				/* Acquire the monster name */
+				/* Get the monster name */
 				monster_desc(m_name, m_ptr, 0);
 
 				/* Dump a message */
 				msg_format("%^s is no longer stunned.", m_name);
 
 				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx)
-				  p_ptr->redraw |= (PR_HEALTH);
+				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 			}
 		}
 
@@ -3353,15 +3457,14 @@ static void process_monster(int m_idx)
 			{
 				char m_name[80];
 
-				/* Acquire the monster name */
+				/* Get the monster name */
 				monster_desc(m_name, m_ptr, 0);
 
 				/* Dump a message */
 				msg_format("%^s is no longer confused.", m_name);
 
 				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx)
-				  p_ptr->redraw |= (PR_HEALTH);
+				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 			}
 		}
 	}
@@ -3392,7 +3495,7 @@ static void process_monster(int m_idx)
 				char m_name[80];
 				char m_poss[80];
 
-				/* Acquire the monster name/poss */
+				/* Get the monster name/poss */
 				monster_desc(m_name, m_ptr, 0);
 				monster_desc(m_poss, m_ptr, 0x22);
 
@@ -3400,8 +3503,7 @@ static void process_monster(int m_idx)
 				msg_format("%^s recovers %s courage.", m_name, m_poss);
 
 				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx)
-				  p_ptr->redraw |= (PR_HEALTH);
+				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 			}
 		}
 	}
@@ -3825,10 +3927,10 @@ static void process_monster(int m_idx)
 			{
 				object_type *o_ptr;
 
-				/* Acquire object */
+				/* Get the object */
 				o_ptr = &o_list[this_o_idx];
 
-				/* Acquire next object */
+				/* Get the next object */
 				next_o_idx = o_ptr->next_o_idx;
 
 				/* Skip gold */
@@ -3848,10 +3950,10 @@ static void process_monster(int m_idx)
 					/* Extract some flags */
 					object_flags(o_ptr, &f1, &f2, &f3);
 
-					/* Acquire the object name */
+					/* Get the object name */
 					object_desc(o_name, o_ptr, TRUE, 3);
 
-					/* Acquire the monster name */
+					/* Get the monster name */
 					monster_desc(m_name, m_ptr, 0x04);
 
 					/* React to objects that hurt the monster */
@@ -3996,7 +4098,7 @@ static void process_monster(int m_idx)
 		{
 			char m_name[80];
 
-			/* Acquire the monster name */
+			/* Get the monster name */
 			monster_desc(m_name, m_ptr, 0);
 
 			/* Dump a message */
@@ -4056,7 +4158,7 @@ void process_monsters(void)
 		/* Process the monsters */
 		for (i = 1; i < m_max; i++)
 		{
-			/* Access the monster */
+			/* Get the monster */
 			m_ptr = &m_list[i];
 
 			/* Ignore "dead" monsters */
@@ -4075,7 +4177,7 @@ void process_monsters(void)
 		if (p_ptr->leaving) break;
 
 
-		/* Access the monster */
+		/* Get the monster */
 		m_ptr = &m_list[i];
 
 
@@ -4104,7 +4206,7 @@ void process_monsters(void)
 		/* Heal monster? XXX XXX XXX */
 
 
-		/* Access the race */
+		/* Get the race */
 		r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Monsters can "sense" the player */
@@ -4118,7 +4220,7 @@ void process_monsters(void)
 		}
 
 
-		/* Access the location */
+		/* Get the location */
 		fx = m_ptr->fx;
 		fy = m_ptr->fy;
 

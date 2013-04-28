@@ -58,27 +58,27 @@
 /*
  * Handle for the savefile
  */
-static FILE	*fff;
+static FILE *fff;
 
 /*
  * Hack -- simple encryption byte
  */
-static byte	xor_byte;
+static byte xor_byte;
 
 /*
  * Hack -- parse old "compressed" fields
  */
-static bool	arg_stupid;
+static bool arg_stupid;
 
 /*
  * Hack -- parse old "colour" info
  */
-static bool	arg_colour;
+static bool arg_colour;
 
 /*
  * Hack -- force "maximize" mode
  */
-static bool	arg_crappy;
+static bool arg_crappy;
 
 
 
@@ -1023,7 +1023,7 @@ static s16b convert_old_kinds_normal[501] =
 /*
  * Convert old kinds (501-512) into special artifacts
  */
-static s16b convert_old_kinds_special[12] =
+static byte convert_old_kinds_special[12] =
 {
 	ART_NARYA,		/* Old 501 */
 	ART_NENYA,		/* Old 502 */
@@ -1063,7 +1063,7 @@ static errr rd_item_old(object_type *o_ptr)
 
 
 	/* Hack -- wipe */
-	WIPE(o_ptr, object_type);
+	(void)WIPE(o_ptr, object_type);
 
 	/* Old kind index */
 	rd_s16b(&old_k_idx);
@@ -1174,7 +1174,7 @@ static errr rd_item_old(object_type *o_ptr)
 
 	/*** Analyze the item ***/
 
-	/* Access the item kind */
+	/* Get the item kind */
 	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Extract "tval" and "sval" */
@@ -1302,14 +1302,14 @@ static errr rd_item_old(object_type *o_ptr)
 	if (old_ident & 0x01) o_ptr->ident |= (IDENT_SENSE);
 
 
-	/*** Acquire standard values ***/
+	/*** Get the standard values ***/
 
-	/* Acquire standard fields */
+	/* Get the standard fields */
 	o_ptr->ac = k_ptr->ac;
 	o_ptr->dd = k_ptr->dd;
 	o_ptr->ds = k_ptr->ds;
 
-	/* Acquire standard weight */
+	/* Get the standard weight */
 	o_ptr->weight = k_ptr->weight;
 
 
@@ -1326,7 +1326,7 @@ static errr rd_item_old(object_type *o_ptr)
 		o_ptr->to_d = k_ptr->to_d;
 		o_ptr->to_a = k_ptr->to_a;
 
-		/* Acquire normal pval */
+		/* Get the normal pval */
 		o_ptr->pval = k_ptr->pval;
 
 		/* Hack -- wands/staffs use "pval" for "charges" */
@@ -1334,7 +1334,7 @@ static errr rd_item_old(object_type *o_ptr)
 		if (o_ptr->tval == TV_STAFF) o_ptr->pval = old_pval;
 
 		/* Hack -- Gold uses "pval" for "value" */
-		if (o_ptr->tval == TV_GOLD) o_ptr->pval = old_cost;
+		if (o_ptr->tval == TV_GOLD) o_ptr->pval = (s16b)old_cost;
 
 		/* Success */
 		return (0);
@@ -1383,18 +1383,18 @@ static errr rd_item_old(object_type *o_ptr)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-		/* Acquire "broken" code */
+		/* Get the "broken" code */
 		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
-		/* Acquire artifact pval */
+		/* Get the artifact pval */
 		o_ptr->pval = a_ptr->pval;
 
-		/* Acquire artifact fields */
+		/* Get the artifact fields */
 		o_ptr->ac = a_ptr->ac;
 		o_ptr->dd = a_ptr->dd;
 		o_ptr->ds = a_ptr->ds;
 
-		/* Acquire artifact weight */
+		/* Get the artifact weight */
 		o_ptr->weight = a_ptr->weight;
 
 		/* Assume current "curse" */
@@ -1406,7 +1406,7 @@ static errr rd_item_old(object_type *o_ptr)
 	{
 		ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
-		/* Acquire "broken" code */
+		/* Get the "broken" code */
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- Adapt to the new "speed" code */
@@ -1745,7 +1745,7 @@ static void rd_extra_old(void)
 	}
 
 	/* Read the "maximum" stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Read the maximal stat */
 		rd_s16b(&p_ptr->stat_max[i]);
@@ -2353,7 +2353,7 @@ static errr rd_dungeon_old(void)
 		n_ptr = &monster_type_body;
 
 		/* Hack -- wipe */
-		WIPE(n_ptr, monster_type);
+		(void)WIPE(n_ptr, monster_type);
 
 		/* Read the current hitpoints */
 		rd_s16b(&n_ptr->hp);
@@ -2403,7 +2403,7 @@ static errr rd_dungeon_old(void)
 		}
 
 
-		/* Access the race */
+		/* Get the race */
 		r_ptr = &r_info[n_ptr->r_idx];
 
 		/* Hack -- recalculate speed */
@@ -2701,7 +2701,7 @@ static errr rd_savefile_old_aux(void)
 			return (21);
 		}
 
-		/* Access the monster */
+		/* Get the monster */
 		r_ptr = &r_info[tmp16u];
 
 		/* Extract the monster lore */
@@ -2857,7 +2857,7 @@ static errr rd_savefile_old_aux(void)
 
 
 	/* Hack -- maximize mode */
-	if (arg_crappy) p_ptr->maximize = TRUE;
+	if (arg_crappy) adult_maximize = TRUE;
 
 
 	/* Assume success */
