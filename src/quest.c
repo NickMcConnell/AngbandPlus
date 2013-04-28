@@ -22,16 +22,6 @@
 static int avail_quest;
 
 /*
- * The Inn's quest selection
- */
-static s16b inn_quests[GUILD_QUESTS] =
-{
-	2,	5,	8
-};
-
-
-
-/*
  * Pluralize a monster name.  From Zangband, etc.
  */
 void plural_aux(char *name)

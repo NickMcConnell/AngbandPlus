@@ -396,6 +396,8 @@ static cptr do_talent(int talent, int mode, int talent_choice)
 		else can_use = FALSE;
 	}
 
+	talent_skill = S_NOSKILL;
+
 	/* Get skill (note that there may not always be one) */
 	for (i = 0; i < t_ptr->skill_count; i++)
 	{
@@ -1433,7 +1435,7 @@ static cptr do_talent(int talent, int mode, int talent_choice)
 		case TALENT_UNCHANGE:
 		{
 			if (info) return "";
-			if (desc) "Return to your normal self";
+			if (desc) return "Return to your normal self";
 			if (check)
 			{
 				if (!p_ptr->schange) return "N";
@@ -1456,12 +1458,16 @@ static cptr do_talent(int talent, int mode, int talent_choice)
 		{
 			int skill = get_skill(S_SHAPECHANGE, 0, 100);
 			int second_skill, dur;
-			bool perm;
+			bool perm = FALSE;
 
-			if (talent <= TALENT_LICHFORM && talent >= TALENT_BATFORM) second_skill = get_skill(S_DOMINION, 0, 100);
-			else if (talent <= TALENT_MOUSEFORM && talent >= TALENT_HOUNDFORM) second_skill = get_skill(S_NATURE, 0, 100);
-			else second_skill = p_ptr->power;
-
+			switch(talent)
+			{
+				case TALENT_BATFORM: case TALENT_LICHFORM: case TALENT_VAMPIREFORM: case TALENT_WEREWOLFFORM:
+					second_skill = get_skill(S_DOMINION, 0, 100); break;
+				case TALENT_SERPENTFORM: case TALENT_HOUNDFORM: case TALENT_CHEETAHFORM: case TALENT_MOUSEFORM:
+					second_skill = get_skill(S_NATURE, 0, 100); break;
+				default: second_skill = p_ptr->power; break;
+			}
 
 			dur = (skill - t_ptr->min_level + 10) * rsqrt(second_skill);
 			if (dur > t_ptr->timeout) perm = TRUE;
@@ -1701,7 +1707,6 @@ void do_cmd_talents(int talent_choice)
 	char choice;
 	int end_row = 18;
 	int col = MAX(0, (Term->cols - 80) / 3);
-	int count = 0;
 
 	char change_string[] = ", / to change";
 

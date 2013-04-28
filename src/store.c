@@ -3791,7 +3791,7 @@ static void store_process_command(bool inn_cmd)
 				}
 				else if (ch == 'c' || ch == 'C')  /* Clear store goods, for a price */
 				{
-					int cost = 0, invest, i, num, price, markup;
+					int cost = 0, i, num, price, markup;
 					char prompt[80];
 					object_type *o_ptr;
 
@@ -3802,7 +3802,7 @@ static void store_process_command(bool inn_cmd)
 
 						if (!o_ptr) continue;
 
-						if (!(o_ptr->ident & (IDENT_FIXED)))  markup = price_markup(object_value(o_ptr));  /* Give price assuming good bargaining */
+						markup = price_markup(object_value(o_ptr));  /* Give price assuming good bargaining */
 
 						/* Get the listed price */
 						price = price_item(o_ptr, ot_ptr->min_inflate, FALSE, markup);

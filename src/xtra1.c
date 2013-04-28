@@ -4554,7 +4554,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 		case SHAPE_VAMPIRE:
 		{
 			(*f2) |= (TR2_RES_DARK);
-			(*f2) |= (TR3_HOLD_LIFE);
+			(*f3) |= (TR3_HOLD_LIFE);
 			break;
 		}
 		case SHAPE_WEREWOLF:
@@ -4588,6 +4588,23 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 	}
 }
 
+/*
+ * Handle racial and shapechange vulnerabilities
+ */
+void player_flags_vulnerable(u32b *f1, u32b *f2, u32b *f3, bool shape)
+{
+	/* Clear */
+	(*f1) = (*f2) = (*f3) = 0L;
+
+	/* Ents are vulnerable to fire */
+	if (p_ptr->prace == RACE_ENT) *f2 |= TR2_RES_FIRE;
+
+	if (!shape) return;
+
+	if (p_ptr->schange == SHAPE_LICH) *f2 |= TR2_RES_FIRE;
+	if (p_ptr->schange == SHAPE_VAMPIRE) *f2 |= TR2_RES_LITE;
+	if (p_ptr->schange == SHAPE_ENT) *f2 |= TR2_RES_FIRE;
+}
 
 
 /*
@@ -4620,7 +4637,6 @@ void player_flags_cancel(u32b *f1, u32b *f2, u32b *f3, bool shape)
 		case SHAPE_ENT:
 		{
 			(*f2) |= (TR2_IM_FIRE);
-			(*f2) |= (TR2_RES_FIRE);
 			(*f3) |= (TR3_FEATHER);
 			break;
 		}
@@ -6369,6 +6385,24 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_DRAIN_EXP))      p_ptr->drain_exp     = FALSE;
 	if (f3 & (TR3_DRAIN_HP))       p_ptr->being_crushed = FALSE;
 
+	/* Handle vulnerabilities */
+	player_flags_vulnerable(&f1, &f2, &f3, TRUE);
+
+	/* Vunlerability flags */
+	if (f2 & (TR2_RES_ACID))       p_ptr->vuln_acid   = FALSE;
+	if (f2 & (TR2_RES_ELEC))       p_ptr->vuln_elec   = FALSE;
+	if (f2 & (TR2_RES_FIRE))       p_ptr->vuln_fire   = FALSE;
+	if (f2 & (TR2_RES_COLD))       p_ptr->vuln_cold   = FALSE;
+	if (f2 & (TR2_RES_POIS))       p_ptr->vuln_pois   = FALSE;
+	if (f2 & (TR2_RES_LITE))       p_ptr->vuln_lite   = FALSE;
+	if (f2 & (TR2_RES_DARK))       p_ptr->vuln_dark   = FALSE;
+	if (f2 & (TR2_RES_CONFU))      p_ptr->vuln_confu  = FALSE;
+	if (f2 & (TR2_RES_SOUND))      p_ptr->vuln_sound  = FALSE;
+	if (f2 & (TR2_RES_SHARD))      p_ptr->vuln_shard  = FALSE;
+	if (f2 & (TR2_RES_NEXUS))      p_ptr->vuln_nexus  = FALSE;
+	if (f2 & (TR2_RES_NETHR))      p_ptr->vuln_nethr  = FALSE;
+	if (f2 & (TR2_RES_CHAOS))      p_ptr->vuln_chaos  = FALSE;
+	if (f2 & (TR2_RES_DISEN))      p_ptr->vuln_disen  = FALSE;
 
 
 	/*** Notice changes ***/

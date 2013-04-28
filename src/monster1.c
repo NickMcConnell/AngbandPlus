@@ -1565,7 +1565,7 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
  */
 static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Describe experience if known */
 	if (l_ptr->tkills)
@@ -1609,7 +1609,7 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
  */
 static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &r_info[r_idx];
 
 	bool old = FALSE;
 

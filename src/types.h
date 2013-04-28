@@ -1408,11 +1408,26 @@ struct player_type
 	bool free_act;				/* Never paralyzed */
 	bool hold_life;				/* Resist life draining */
 
+	bool vuln_fire;             /* Take extra damage from fire */
+	bool vuln_cold;             /* Take extra damage from cold */
+	bool vuln_acid;             /* Take extra damage from acid */
+	bool vuln_elec;             /* Take extra damage from electricity */
+	bool vuln_pois;             /* Take extra damage from poison */
+	bool vuln_lite;             /* Take extra damage from light */
+	bool vuln_dark;             /* Take extra damage from dark */
+	bool vuln_confu;			/* Take extra damage from confusion */
+	bool vuln_sound;			/* Take extra damage from sound */
+	bool vuln_shard;			/* Take extra damage from shards */
+	bool vuln_nexus;			/* Take extra damage from nexus */
+	bool vuln_nethr;			/* Take extra damage from nether */
+	bool vuln_chaos;			/* Take extra damage from chaos */
+	bool vuln_disen;			/* Take extra damage from disenchant */
+
 	bool aggravate;				/* Aggravate monsters */
 	bool teleport;				/* Random teleporting */
 	bool drain_exp;				/* Experience draining (permanent, light) */
 	bool black_breath;			/* Experience draining (temporary, heavy) */
-	bool drain_light;				/* Drain light */
+	bool drain_light;			/* Drain light */
 
 	bool bless_blade;			/* Blessed blade */
 

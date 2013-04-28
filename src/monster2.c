@@ -4562,10 +4562,6 @@ bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note)
 
 	char path[1024];
 
-	/* Calculate character power based on total experience */
-	int power = calc_exp_power();
-
-
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
