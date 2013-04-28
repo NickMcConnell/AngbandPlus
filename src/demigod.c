@@ -468,6 +468,7 @@ race_t *demigod_get_race_t(int psubrace)
 		me.skills.thb = 5;
 
 		me.life = 100;
+		me.base_hp = 20;
 		me.exp = 180;
 
 		me.calc_bonuses = NULL;
@@ -479,7 +480,7 @@ race_t *demigod_get_race_t(int psubrace)
 		switch (psubrace)
 		{
 		case DEMIGOD_APHRODITE:
-			me.stats[A_CHR] += 1;
+			me.stats[A_CHR] += 2;
 			me.exp += 40;
 			me.calc_bonuses = _aphrodite_calc_bonuses;
 			me.get_powers = _aphrodite_get_powers;
@@ -493,7 +494,7 @@ race_t *demigod_get_race_t(int psubrace)
 			me.get_immunities = _apollo_get_immunities;
 			break;
 		case DEMIGOD_ARES:
-			me.stats[A_STR] += 1;
+			me.stats[A_STR] += 2;
 			me.skills.sav -= 5;
 			me.skills.stl -= 1;
 			me.skills.thn += 15;
@@ -503,14 +504,14 @@ race_t *demigod_get_race_t(int psubrace)
 			me.get_flags = _ares_get_flags;
 			break;
 		case DEMIGOD_ARTEMIS:
-			me.stats[A_DEX] += 1;
+			me.stats[A_DEX] += 2;
 			me.skills.thb += 15;
 			me.exp += 50;
 			me.calc_bonuses = _artemis_calc_bonuses;
 			me.get_flags = _artemis_get_flags;
 			break;
 		case DEMIGOD_ATHENA:
-			me.stats[A_INT] += 1;
+			me.stats[A_INT] += 2;
 			me.exp += 60;
 			me.calc_bonuses = _athena_calc_bonuses;
 			me.get_flags = _athena_get_flags;
@@ -522,7 +523,7 @@ race_t *demigod_get_race_t(int psubrace)
 			me.get_flags = _demeter_get_flags;
 			break;
 		case DEMIGOD_HADES:
-			me.stats[A_CON] += 1;
+			me.stats[A_CON] += 2;
 			me.skills.sav += 7;
 			me.life += 7;
 			me.exp += 60;
@@ -535,7 +536,7 @@ race_t *demigod_get_race_t(int psubrace)
 			me.get_flags = _hephaestus_get_flags;
 			break;
 		case DEMIGOD_HERA:
-			me.stats[A_WIS] += 1;
+			me.stats[A_WIS] += 2;
 			me.exp += 40;
 			me.calc_bonuses = _hera_calc_bonuses;
 			me.get_powers = _hera_get_powers;
@@ -548,6 +549,8 @@ race_t *demigod_get_race_t(int psubrace)
 			me.get_flags = _hermes_get_flags;
 			break;
 		case DEMIGOD_POSEIDON:
+			me.stats[A_STR] += 1;
+			me.stats[A_DEX] += 1;
 			me.exp += 60;
 			me.calc_bonuses = _poseidon_calc_bonuses;
 			me.get_flags = _poseidon_get_flags;

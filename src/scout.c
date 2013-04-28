@@ -363,7 +363,8 @@ class_t *scout_get_class_t(void)
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 105;
+		me.life = 104;
+		me.base_hp = 8;
 		me.exp = 130;
 		me.pets = 40;
 

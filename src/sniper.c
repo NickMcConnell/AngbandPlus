@@ -540,15 +540,16 @@ class_t *sniper_get_class_t(void)
 					"Snipers know their enemies well and can shoot them from the shadows. "
 					"They have no time for magic.";
 
-		me.stats[A_STR] =  1;
+		me.stats[A_STR] =  2;
 		me.stats[A_INT] = -1;
 		me.stats[A_WIS] = -1;
-		me.stats[A_DEX] =  1;
+		me.stats[A_DEX] =  2;
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.life = 100;
+		me.base_hp = 4;
 		me.exp = 110;
 		me.pets = 40;
 		

@@ -353,6 +353,7 @@ static race_t *_khorne_get_race_t(void)
 
 		me.exp = 275;
 		me.infra = 5;
+		me.base_hp = 42;
 
 		me.birth = _khorne_birth;
 		me.calc_innate_attacks = _khorne_calc_innate_attacks;
@@ -589,6 +590,7 @@ static race_t *_marilith_get_race_t(void)
 
 		me.exp = 250;
 		me.infra = 5;
+		me.base_hp = 30;
 
 		me.birth = _marilith_birth;
 		me.calc_innate_attacks = _marilith_calc_innate_attacks;
@@ -742,6 +744,7 @@ static race_t *_balrog_get_race_t(void)
 		me.extra_skills = xs;
 
 		me.exp = 350;
+		me.base_hp = 45;
 
 		me.birth = _balrog_birth;
 		me.get_spells = _balrog_get_spells;
@@ -911,6 +914,7 @@ static race_t *_cyber_get_race_t(void)
 		me.life = 135;
 
 		me.exp = 300;
+		me.base_hp = 50;
 
 		me.birth = _cyber_birth;
 		me.get_powers = _cyber_get_powers;

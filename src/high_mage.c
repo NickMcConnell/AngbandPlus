@@ -82,7 +82,8 @@ class_t *high_mage_get_class_t(void)
 		me.stats[A_CHR] = -2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 90;
+		me.life = 94;
+		me.base_hp = 0;
 		me.exp = 130;
 		me.pets = 25;
 		

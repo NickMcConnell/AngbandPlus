@@ -331,17 +331,23 @@ static void _birth(void)
 { 
 	object_type	forge;
 
-	object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_ACID_BOLT));
-	apply_magic(&forge, 1, AM_AVERAGE);
-	add_outfit(&forge);
-
-	object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_FIRE_BOLT));
-	apply_magic(&forge, 1, AM_AVERAGE);
-	add_outfit(&forge);
-
-	object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_COLD_BOLT));
-	apply_magic(&forge, 1, AM_AVERAGE);
-	add_outfit(&forge);
+	switch (p_ptr->psubclass)
+	{
+	case DEVICEMASTER_RODS:
+		object_prep(&forge, lookup_kind(TV_ROD, SV_ROD_SLEEP_MONSTER));
+		add_outfit(&forge);
+		break;
+	case DEVICEMASTER_STAVES:
+		object_prep(&forge, lookup_kind(TV_STAFF, SV_STAFF_SLEEP_MONSTERS));
+		forge.pval = k_info[forge.k_idx].pval;
+		add_outfit(&forge);
+		break;
+	case DEVICEMASTER_WANDS:
+		object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_SLEEP_MONSTER));
+		forge.pval = k_info[forge.k_idx].pval;
+		add_outfit(&forge);
+		break;
+	}
 }
 
 static void _character_dump(FILE* file)
@@ -349,12 +355,24 @@ static void _character_dump(FILE* file)
 	cptr desc = devicemaster_speciality_name(p_ptr->psubclass);
 
 	fprintf(file, "\n\n================================== Abilities ==================================\n\n");
-	if (p_ptr->lev >= 10)
-		fprintf(file, " * You gain +%d%% power when using %s.\n", device_power_aux(100, p_ptr->lev/10) - 100, desc);
+	{
+		int pow = p_ptr->lev / 10;
+		if (devicemaster_is_(DEVICEMASTER_RODS))
+			pow = p_ptr->lev / 5;
+		if (pow)
+			fprintf(file, " * You gain +%d%% power when using %s.\n", device_power_aux(100, pow) - 100, desc);
+	}
 	fprintf(file, " * You use %s more quickly.\n", desc);	
 	fprintf(file, " * You have a %d%% chance of not consuming a charge when using %s.\n", p_ptr->lev, desc);
 	fprintf(file, " * You may use %s even when frightened.\n", desc);
-	fprintf(file, " * You are resistant to charge draining (Power=%d).\n", p_ptr->lev);	
+	fprintf(file, " * You are resistant to charge draining (Power=%d).\n\n", p_ptr->lev);	
+
+	{
+		spell_info spells[MAX_SPELLS];
+		int        ct = _get_spells(spells, MAX_SPELLS);
+
+		dump_spells_aux(file, spells, ct);
+	}
 }
 
 static caster_info * _caster_info(void)
@@ -403,13 +421,14 @@ class_t *devicemaster_get_class_t(void)
 	
 		me.stats[A_STR] = -1;
 		me.stats[A_INT] =  2;
-		me.stats[A_WIS] =  0;
-		me.stats[A_DEX] =  0;
-		me.stats[A_CON] = -1;
-		me.stats[A_CHR] = -1;
+		me.stats[A_WIS] =  1;
+		me.stats[A_DEX] =  2;
+		me.stats[A_CON] = -2;
+		me.stats[A_CHR] = -2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 100;
+		me.life = 101;
+		me.base_hp = 6;
 		me.exp = 130;
 		me.pets = 30;
 

@@ -62,15 +62,16 @@ class_t *ranger_get_class_t(void)
 					"which allows them to know a monster's HP, speed, and experience "
 					"required to evolve.";
 
-		me.stats[A_STR] =  1;
+		me.stats[A_STR] =  2;
 		me.stats[A_INT] =  0;
 		me.stats[A_WIS] =  2;
-		me.stats[A_DEX] =  2;
+		me.stats[A_DEX] =  1;
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 105;
+		me.life = 106;
+		me.base_hp = 8;
 		me.exp = 140;
 		me.pets = 35;
 		

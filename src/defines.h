@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 18
+#define VER_PATCH 19
 #define VER_EXTRA 0
 
 
@@ -2464,6 +2464,7 @@
 #define SV_ROD_DETECT_MONSTERS          31
 #define SV_ROD_ESCAPING                 32
 #define SV_ROD_MANA_BALL                33
+#define SV_ROD_MANA_BOLT                34
 
 
 /* The "sval" codes for TV_SCROLL */

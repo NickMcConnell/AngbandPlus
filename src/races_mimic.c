@@ -42,6 +42,7 @@ race_t *clay_golem_get_race_t(void)
 		me.skills.thb = 0;
 
 		me.life = 102;
+		me.base_hp = 22;
 		me.exp = 200;
 		me.infra = 2;
 
@@ -111,6 +112,7 @@ race_t *colossus_get_race_t(void)
 		me.skills.thb = -20;
 
 		me.life = 115;
+		me.base_hp = 30;
 		me.exp = 1000;
 		me.infra = 5;
 		me.flags = RACE_IS_NONLIVING;
@@ -185,6 +187,7 @@ race_t *demon_get_race_t(void)
 		me.skills.thb = 20;
 
 		me.life = 106;
+		me.base_hp = 24;
 		me.exp = 500;
 		me.infra = 5;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
@@ -286,6 +289,7 @@ race_t *demon_lord_get_race_t(void)
 		me.skills.thb = 40;
 
 		me.life = 110;
+		me.base_hp = 28;
 		me.exp = 1500;
 		me.infra = 20;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
@@ -348,6 +352,7 @@ race_t *iron_golem_get_race_t(void)
 		me.skills.thb = -5;
 
 		me.life = 105;
+		me.base_hp = 24;
 		me.exp = 250;
 		me.infra = 3;
 		me.flags = RACE_IS_NONLIVING;
@@ -392,6 +397,7 @@ race_t *mangy_leper_get_race_t(void)
 		me.skills.thb = 0;
 
 		me.life = 88;
+		me.base_hp = 10;
 		me.exp = 100;
 		me.infra = 0;
 
@@ -453,6 +459,7 @@ race_t *mithril_golem_get_race_t(void)
 		me.skills.thb = -10;
 
 		me.life = 109;
+		me.base_hp = 27;
 		me.exp = 500;
 		me.infra = 4;
 		me.flags = RACE_IS_NONLIVING;
@@ -505,6 +512,7 @@ race_t *small_kobold_get_race_t(void)
 		me.skills.thb = -12;
 
 		me.life = 91;
+		me.base_hp = 13;
 		me.exp = 50;
 		me.infra = 2;
 
@@ -590,6 +598,7 @@ race_t *vampire_lord_get_race_t(void)
 		me.skills.thb = 20;
 
 		me.life = 103;
+		me.base_hp = 22;
 		me.exp = 300;
 		me.infra = 5;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;

@@ -372,6 +372,7 @@ race_t *mon_leprechaun_get_race_t(void)
 
 		me.infra = 5;
 		me.exp = 150;
+		me.base_hp = 15;
 
 		me.get_spells = _get_spells;
 		me.caster_info = _caster_info;

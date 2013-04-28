@@ -66,12 +66,13 @@ class_t *necromancer_get_class_t(void)
 		me.stats[A_STR] = -2;
 		me.stats[A_INT] =  3;
 		me.stats[A_WIS] = -4;
-		me.stats[A_DEX] =  0;
+		me.stats[A_DEX] =  1;
 		me.stats[A_CON] = -1;
 		me.stats[A_CHR] = -2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.life = 95;
+		me.base_hp = 2;
 		me.exp = 125;
 		me.pets = 10;
 

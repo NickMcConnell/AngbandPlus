@@ -221,15 +221,16 @@ class_t *archer_get_class_t(void)
 					"or shots from pile of rubble, and arrows and crossbow bolts from "
 					"bones.";
 
-		me.stats[A_STR] =  1;
+		me.stats[A_STR] =  2;
 		me.stats[A_INT] = -1;
 		me.stats[A_WIS] = -1;
-		me.stats[A_DEX] =  1;
+		me.stats[A_DEX] =  2;
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 110;
+		me.life = 111;
+		me.base_hp = 12;
 		me.exp = 110;
 		me.pets = 40;
 		

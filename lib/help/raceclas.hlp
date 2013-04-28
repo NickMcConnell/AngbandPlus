@@ -2,16 +2,24 @@ Races, Classes and Personalities
 
 Please choose one of the following online help files:
 
-    (a) The Races                     (Races.txt)
-    (b) The Classes                   (Classes.txt)
-    (c) The Personalities             (raceclas.txt#ThePersonalities)
-    (d) Stat Bonus Tables             (raceclas.txt#StatBonusTable)
-    (e) Ability Tables                (raceclas.txt#SkillBonusTable)
+    (a) The Races
+    (b) The Classes
+    (c) The Personalities
+    (d) Race Ability Tables
+    (e) Class Ability Tables
+    (f) Personality Ability Tables
+    (g) Demigods
+    (h) Monster Races
 
-    (?) Help System Commands          (helpinfo.txt)
+    (?) Help System Commands
 
 ***** [a] Races.txt
 ***** [b] Classes.txt
-***** [c] raceclas.txt#ThePersonalities
-***** [d] raceclas.txt#StatBonusTable
-***** [e] raceclas.txt#SkillBonusTable
+***** [c] Personalities.txt
+***** [d] Races.txt#Tables
+***** [e] Classes.txt#Tables
+***** [f] Personalities.txt#Tables
+***** [g] Demigods.txt
+***** [h] MonsterRaces.txt
+
+

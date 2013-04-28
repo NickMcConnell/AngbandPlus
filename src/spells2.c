@@ -5346,10 +5346,10 @@ bool slow_monster(int dir)
 }
 
 
-bool sleep_monster(int dir)
+bool sleep_monster(int dir, int power)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
-	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLEEP, dir, power, flg));
 }
 
 

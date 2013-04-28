@@ -2011,7 +2011,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
 
-				sleep_monster(dir);
+				sleep_monster(dir, power);
 			}
 		}
 		break;
@@ -4259,7 +4259,7 @@ static cptr do_death_spell(int spell, int mode)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
 
-				sleep_monster(dir);
+				sleep_monster(dir, power);
 			}
 		}
 		break;

@@ -1052,7 +1052,8 @@ class_t *time_lord_get_class_t(void)
 
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 95; 
+		me.life = 96; 
+		me.base_hp = 0;
 		me.exp = 125;
 		me.pets = 20;
 

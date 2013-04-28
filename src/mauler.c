@@ -672,15 +672,16 @@ class_t *mauler_get_class_t(void)
 			"required to use both hands on a single weapon when wielding if they wish their "
 			"talents to function properly.",
 
-		me.stats[A_STR] =  4;
+		me.stats[A_STR] =  5;
 		me.stats[A_INT] = -2;
 		me.stats[A_WIS] = -2;
 		me.stats[A_DEX] = -1;
-		me.stats[A_CON] =  1;
-		me.stats[A_CHR] =  1;
+		me.stats[A_CON] =  3;
+		me.stats[A_CHR] =  2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 115;
+		me.life = 119;
+		me.base_hp = 18;
 		me.exp = 120;
 		me.pets = 40;
 

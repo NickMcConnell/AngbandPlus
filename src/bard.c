@@ -189,13 +189,14 @@ class_t *bard_get_class_t(void)
 
 		me.stats[A_STR] = -2;
 		me.stats[A_INT] =  1;
-		me.stats[A_WIS] =  1;
+		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] = -1;
 		me.stats[A_CON] = -2;
 		me.stats[A_CHR] =  4;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.life = 100;
+		me.base_hp = 4;
 		me.exp = 140;
 		me.pets = 25;
 

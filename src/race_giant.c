@@ -435,6 +435,7 @@ race_t *mon_giant_get_race_t(int psubrace)
 	result->name = "Giant";
 	result->desc = _desc;
 	result->flags = RACE_IS_MONSTER;
+	result->base_hp = 46;
 
 	return result;
 }

@@ -111,12 +111,13 @@ class_t *cavalry_get_class_t(void)
 		me.stats[A_STR] =  2;
 		me.stats[A_INT] = -2;
 		me.stats[A_WIS] = -2;
-		me.stats[A_DEX] =  1;
+		me.stats[A_DEX] =  2;
 		me.stats[A_CON] =  2;
 		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 110;
+		me.life = 111;
+		me.base_hp = 10;
 		me.exp = 120;
 		me.pets = 35;
 		

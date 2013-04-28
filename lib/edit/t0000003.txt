@@ -356,10 +356,10 @@ B:$13:M:Trump:Owner
 
 B:$14:N:Gamble Shop:Hector:Half-giant
 B:$14:A:0:Random Potion:10000:10000:a:47:0
-B:$14:A:1:Random Scroll:20000:20000:b:48:0
-B:$14:A:2:Random Staff:30000:30000:c:49:0
-B:$14:A:3:Random Wand:50000:50000:d:50:0
-B:$14:A:4:Random Rod:100000:100000:e:51:0
+B:$14:A:1:Random Scroll:12000:12000:b:48:0
+B:$14:A:2:Random Staff:15000:15000:c:49:0
+B:$14:A:3:Random Wand:15000:15000:d:50:0
+B:$14:A:4:Random Rod:20000:20000:e:51:0
 B:$14:A:5:Random Armor:150000:150000:f:52:0
 B:$14:A:6:Random Weapon:150000:150000:g:53:0
 B:$14:A:7:Random Artifact:10000000:10000000:h:54:0

@@ -6728,8 +6728,16 @@ N:744:Mana Balls:Jade
 E:Mana Balls:Jade
 G:-:B
 I:66:33:35
-W:90:0:0:15:50000
-A:50/16:90/4
+W:80:0:0:15:50000
+A:50/16:80/4
+P:0:1d1:0:0:0
+
+N:745:Mana Bolts:Crystal
+E:Mana Bolts:Crystal
+G:-:B
+I:66:34:35
+W:55:0:0:15:50000
+A:40/16:55/4
 P:0:1d1:0:0:0
 
 # N: serial number : & object name~

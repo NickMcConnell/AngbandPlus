@@ -657,9 +657,6 @@ bool make_attack_normal(int m_idx)
 
 							obvious = TRUE;
 
-							if (p_ptr->no_charge_drain)
-								break;
-
 							if (p_ptr->pclass == CLASS_DEVICEMASTER)
 							{
 								int pl = p_ptr->lev;
@@ -677,6 +674,9 @@ bool make_attack_normal(int m_idx)
 									break;
 								}
 							}
+
+							if (p_ptr->no_charge_drain)
+								break;
 
 							msg_print("Energy drains from your pack!");
 							drained = TRUE;

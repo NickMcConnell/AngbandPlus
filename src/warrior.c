@@ -61,15 +61,16 @@ class_t *warrior_get_class_t(void)
 					"class power - 'Sword Dancing' - which allows them to conduct a "
 					"melee attack in six random directions.";
 
-		me.stats[A_STR] =  3;
+		me.stats[A_STR] =  4;
 		me.stats[A_INT] = -2;
 		me.stats[A_WIS] = -2;
-		me.stats[A_DEX] =  1;
+		me.stats[A_DEX] =  2;
 		me.stats[A_CON] =  2;
 		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 115;
+		me.life = 117;
+		me.base_hp = 18;
 		me.exp = 100;
 		me.pets = 40;
 		

@@ -552,7 +552,8 @@ class_t *blood_knight_get_class_t(void)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		
-		me.life = 115;
+		me.life = 120;
+		me.base_hp = 20;
 		me.exp = 150;
 		me.pets = 40;
 

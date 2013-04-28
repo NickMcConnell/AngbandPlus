@@ -78,18 +78,18 @@ static void _races_help(FILE* fff)
 
 	fprintf(fff, "***** <Tables>\n");
 	fprintf(fff, "--- Table 1 - Race Statistic Bonus Table ---\n\n");
-	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  Exp\n");	
+	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n");	
 
 	for (i = 0; i < MAX_RACES; i++)
 	{
 		race_t *race_ptr = get_race_t_aux(i, 0);
 		if (race_ptr->flags & RACE_IS_MONSTER) continue;
 
-		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %3d%%\n", 
+		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
 			race_ptr->name,
 			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
 			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
-			race_ptr->life, race_ptr->exp
+			race_ptr->life, race_ptr->base_hp, race_ptr->exp
 		);
 	}
 	fprintf(fff, "\n\n");
@@ -127,18 +127,18 @@ static void _monster_races_help(FILE* fff)
 
 	fprintf(fff, "***** <Tables>\n");
 	fprintf(fff, "--- Table 1 - Race Statistic Bonus Table ---\n\n");
-	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  Exp\n");	
+	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n");	
 
 	for (i = 0; i < MAX_RACES; i++)
 	{
 		race_t *race_ptr = get_race_t_aux(i, 0);
 		if (!(race_ptr->flags & RACE_IS_MONSTER)) continue;
 
-		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %3d%%\n", 
+		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
 			race_ptr->name,
 			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
 			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
-			race_ptr->life, race_ptr->exp
+			race_ptr->life, race_ptr->base_hp, race_ptr->exp
 		);
 	}
 	fprintf(fff, "\n\n");
@@ -285,18 +285,18 @@ static void _classes_help(FILE* fff)
 
 	fprintf(fff, "***** <Tables>\n");
 	fprintf(fff, "--- Table 1 - Class Statistic Bonus Table ---\n\n");
-	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  Exp\n");	
+	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n");	
 
 	for (i = 0; i < MAX_CLASS; i++)
 	{
 		class_t *class_ptr = get_class_t_aux(i, 0);
 		if (i == CLASS_MONSTER) continue;
 
-		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %3d%%\n", 
+		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
 			class_ptr->name,
 			class_ptr->stats[0], class_ptr->stats[1], class_ptr->stats[2], 
 			class_ptr->stats[3], class_ptr->stats[4], class_ptr->stats[5], 
-			class_ptr->life, class_ptr->exp
+			class_ptr->life, class_ptr->base_hp, class_ptr->exp
 		);
 	}
 	fprintf(fff, "\n\n");

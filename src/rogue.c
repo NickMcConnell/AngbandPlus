@@ -53,15 +53,16 @@ class_t *rogue_get_class_t(void)
 					"agents of the Black Market and receive favorable pricing from "
 					"that shop.";
 
-		me.stats[A_STR] =  0;
+		me.stats[A_STR] =  2;
 		me.stats[A_INT] =  1;
 		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] =  3;
 		me.stats[A_CON] =  1;
-		me.stats[A_CHR] =  0;
+		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.life = 110;
+		me.base_hp = 12;
 		me.exp = 125;
 		me.pets = 40;
 		

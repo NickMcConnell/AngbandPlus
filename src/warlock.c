@@ -990,6 +990,7 @@ class_t *warlock_get_class_t(int psubclass)
 		me.extra_skills = xs;
 
 		me.life = 100;
+		me.base_hp = 4;
 		me.exp = 125;
 		me.pets = 25;
 

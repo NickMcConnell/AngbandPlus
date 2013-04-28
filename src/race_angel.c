@@ -200,6 +200,7 @@ static race_t *_solar_get_race_t(void)
 
 		me.infra = 3;
 		me.exp = 350;
+		me.base_hp = 26;
 
 		me.get_spells = _get_spells;
 		me.calc_bonuses = _calc_bonuses;

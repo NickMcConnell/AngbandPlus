@@ -1892,6 +1892,7 @@ typedef struct {
 	skills_t				base_skills;
 	skills_t				extra_skills; /* Prorata every 10 levels */
 	s16b					life;
+	s16b                    base_hp;
 	s16b					exp;
 	byte					pets;
 
@@ -1922,6 +1923,7 @@ typedef struct {
 	skills_t				skills;
 	skills_t				extra_skills; /* Prorata every 10 levels (Monster Races) */
 	s16b					life;
+	s16b                    base_hp;
 	s16b					exp;
 	s16b					infra;
 	birth_fn				birth;

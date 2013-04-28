@@ -647,53 +647,79 @@
   touch, though they do not share this knowledge with novices.
 
 
+***** <Devicemaster>
+--- Devicemaster ---
+
+  Devicemasters are excellent with magical devices, but poor in most other
+  skills. They may shoot or use melee in a pinch, but this will never be their
+  forte. Instead, they must rely on their arsenal of magical devices in order
+  to survive.
+   
+  The Devicemaster chooses to specialize in a particular class of devices and
+  they gain extra bonuses when using devices from their speciality. These
+  bonuses include increased damage, increased speed of activation, extra
+  resistance to charge draining, and even the ability to occasionally power
+  these devices without consuming charges. Each of these abilities becomes
+  greater with experience.
+   
+  Devicemasters have a few magical abilities to enhance their utility with
+  devices. As expected, they gain a powerful talent of Recharging very early
+  on. Also, they may detect magical devices from a distance. At higher levels,
+  they gain the powerful ability to move charges from one device to another
+  without the risk of destroying the target device. As a final ability, the
+  Devicemaster may use multiple charges at once from a given device in an act
+  of desperation. This greatly increases the power of the effect, but may
+  destroy the device in the process.
+
+
 ***** <Tables>
 --- Table 1 - Class Statistic Bonus Table ---
 
-               STR  INT  WIS  DEX  CON  CHR  Life  Exp
-Warrior         +3   -2   -2   +1   +2   +1  115%  100%
-Mage            -3   +3   +0   +0   -2   -2   90%  130%
-Priest          -1   -3   +3   -1   +0   +2  100%  120%
-Rogue           +0   +1   -1   +3   +1   +0  110%  125%
-Ranger          +1   +0   +2   +2   +1   +0  105%  140%
-Paladin         +2   -3   +1   +0   +2   +2  110%  135%
-Warrior-Mage    +2   +2   +0   +0   +0   +1  105%  140%
-Chaos-Warrior   +2   +1   -1   +0   +1   +1  110%  125%
-Monk            +2   -1   +1   +3   +2   +1  110%  130%
-Mindcrafter     -1   +0   +3   -1   -1   +2  100%  125%
-High-Mage       -4   +4   +0   +0   -2   -2   90%  130%
-Tourist         -1   -1   -1   -1   -1   -3   95%   70%
-Imitator        +0   +1   -1   +2   +0   -1  107%  110%
-Beastmaster     +1   -1   -1   +1   +0   +2  103%  120%
-Sorcerer        -5   +0   -2   +0   +0   +6   65%  160%
-Archer          +1   -1   -1   +1   +1   +0  110%  110%
-Magic-Eater     -1   +2   +0   +0   -1   -1  105%  130%
-Bard            -2   +1   +1   -1   -2   +4  100%  140%
-Red-Mage        +2   +2   -1   +1   +0   -1  105%  140%
-Samurai         +2   -2   +1   +1   +1   +1  110%  130%
-Force-Trainer   +0   -1   +3   +2   +1   +0  100%  135%
-Blue-Mage       -3   +4   -1   +0   -2   -2  100%  130%
-Cavalry         +2   -2   -2   +1   +2   +1  110%  120%
-Berserker       +8  -20  -20   +4   +4  -20  200%  160%
-Weaponsmith     +2   -1   -1   +1   +0   +0  110%  130%
-Mirror-Master   -2   +3   +1   -1   -2   -2  100%  130%
-Ninja           +0   -1   -1   +3   +2   +2  100%  120%
-Sniper          +1   -1   -1   +1   +1   +0  100%  110%
-Time-Lord       -1   +0   +0   -1   -1   +3   95%  125%
-Blood-Knight    +2   -2   -2   +0   +3   +2  115%  150%
-Warlock         -2   +1   +2   -1   -2   +4  100%  125%
-Archaeologist   -1   +1   +2   +1   -1   +0  105%  120%
-Duelist         +2   +1   -2   +2   -3   +2  100%  150%
-Wild-Talent     -1   +2   -1   +2   -2   +1  100%  110%
-Rune-Knight     +2   +1   +0   +1   +0   +1  105%  150%
-Weaponmaster    +2   -1   -1   +1   +1   +1  110%  135%
-Blood-Mage      -4   +3   -2   +0   +2   -2  110%  150%
-Necromancer     -2   +3   -4   +0   -1   -2   95%  125%
-Psion           -1   +2   +2   -1   -1   +2  100%  150%
-Rage-Mage       +3   -2   -2   -2   +2   +1  105%  150%
-Scout           +1   -1   +2   +3   +0   +0  105%  130%
-Mauler          +4   -2   -2   -1   +1   +1  115%  120%
-Mystic          +2   -1   -2   +3   +1   +2  100%  130%
+               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+Warrior         +4   -2   -2   +2   +2   +1  117%  +18  100%
+Mage            -4   +3   +0   +1   -2   -2   95%   +0  130%
+Priest          -1   -3   +3   -1   +0   +2  100%   +4  120%
+Rogue           +2   +1   -1   +3   +1   +1  110%  +12  125%
+Ranger          +2   +0   +2   +1   +1   +0  106%   +8  140%
+Paladin         +3   -3   +1   +0   +2   +2  111%  +12  135%
+Warrior-Mage    +2   +2   +0   +1   +0   +1  106%   +8  140%
+Chaos-Warrior   +2   +1   -1   +0   +2   +1  111%  +12  125%
+Monk            +2   -1   +1   +3   +2   +1  110%  +12  130%
+Mindcrafter     -1   +0   +3   -1   -1   +2  100%   +4  125%
+High-Mage       -4   +4   +0   +0   -2   -2   94%   +0  130%
+Tourist         -1   -1   -1   -1   -1   -3   95%   +0   70%
+Imitator        +0   +1   -1   +2   +0   -1  108%  +10  110%
+Beastmaster     +1   -1   -1   +1   +0   +2  103%   +6  120%
+Sorcerer        -5   +0   -2   +2   +0   +6   65%   +0  160%
+Archer          +2   -1   -1   +2   +1   +0  111%  +12  110%
+Magic-Eater     -1   +2   +1   +2   -2   -2  103%   +6  130%
+Bard            -2   +1   +2   -1   -2   +4  100%   +4  140%
+Red-Mage        +2   +2   -1   +1   +0   -1  106%   +8  140%
+Samurai         +3   -2   +1   +2   +1   +1  111%  +12  130%
+Force-Trainer   +0   -1   +3   +2   +1   +0  100%   +4  135%
+Blue-Mage       -4   +4   -1   +1   -2   -2  100%   +4  130%
+Cavalry         +2   -2   -2   +2   +2   +1  111%  +10  120%
+Berserker       +8  -20  -20   +4   +4  -20  200%  +22  160%
+Weaponsmith     +3   -1   -1   +1   +0   +0  111%  +12  130%
+Mirror-Master   -2   +3   +1   -1   -2   -2  100%   +4  130%
+Ninja           +0   -1   -1   +3   +2   +2  100%   +4  120%
+Sniper          +2   -1   -1   +2   +1   +0  100%   +4  110%
+Time-Lord       -1   +0   +0   -1   -1   +3   96%   +0  125%
+Blood-Knight    +2   -2   -2   +0   +3   +2  120%  +20  150%
+Warlock         -2   +1   +2   -1   -2   +4  100%   +4  125%
+Archaeologist   -1   +1   +2   +1   -1   +0  106%   +8  120%
+Duelist         +2   +1   -2   +2   -3   +2  100%   +4  150%
+Wild-Talent     -1   +2   -1   +2   -2   +1  100%   +4  110%
+Rune-Knight     +2   +2   +0   +1   +0   +1  107%   +6  150%
+Weaponmaster    +3   -1   -1   +1   +1   +1  109%  +12  135%
+Blood-Mage      -4   +3   -2   +1   +2   -2  108%  +10  150%
+Necromancer     -2   +3   -4   +1   -1   -2   95%   +2  125%
+Psion           -1   +2   +2   -1   -1   +2  100%   +4  150%
+Rage-Mage       +3   -2   -2   -2   +2   +1  106%   +6  150%
+Scout           +1   -1   +2   +3   +0   +0  104%   +8  130%
+Mauler          +5   -2   -2   -1   +3   +2  119%  +18  120%
+Mystic          +2   -1   -2   +3   +1   +2  100%   +4  130%
+Devicemaster    -1   +2   +1   +2   -2   -2  101%   +6  130%
 
 
 --- Table 2 - Class Skill Bonus Table ---
@@ -741,8 +767,9 @@ Rage-Mage      20+7   24+10  40+15    -1    12     2  50+15  30+15
 Scout          30+15  33+11  34+10     6    50    24  50+20  50+20
 Mauler         25+12  25+11  35+12     0    14     2  70+30  20+7 
 Mystic         45+15  34+11  36+10     5    32    24  64+18  60+18
+Devicemaster   25+7   50+20  36+10     2    20    16  48+13  35+11
 
 
 
 
-Automatically generated for PosChengband 1.0.14.
+Automatically generated for PosChengband 1.0.19.

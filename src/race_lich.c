@@ -229,6 +229,7 @@ static race_t *_archlich_get_race_t(void)
 
 		me.infra = 5;
 		me.exp = 300;
+		me.base_hp = 20;
 
 		me.get_spells = _get_spells;
 		me.calc_bonuses = _calc_bonuses;

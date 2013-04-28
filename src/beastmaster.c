@@ -70,6 +70,7 @@ class_t *beastmaster_get_class_t(void)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.life = 103;
+		me.base_hp = 6;
 		me.exp = 120;
 		me.pets = 10;
 		

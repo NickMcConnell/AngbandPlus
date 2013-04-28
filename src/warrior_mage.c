@@ -62,12 +62,13 @@ class_t *warrior_mage_get_class_t(void)
 		me.stats[A_STR] =  2;
 		me.stats[A_INT] =  2;
 		me.stats[A_WIS] =  0;
-		me.stats[A_DEX] =  0;
+		me.stats[A_DEX] =  1;
 		me.stats[A_CON] =  0;
 		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 105;
+		me.life = 106;
+		me.base_hp = 8;
 		me.exp = 140;
 		me.pets = 35;
 		

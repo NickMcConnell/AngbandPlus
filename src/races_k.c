@@ -39,11 +39,11 @@ race_t *klackon_get_race_t(void)
 					"nimble, and become faster as they advance levels. They are also very acidic, "
 					"inherently resisting acid, and capable of spitting acid at higher levels.";
 
-		me.stats[A_STR] =  1;
+		me.stats[A_STR] =  2;
 		me.stats[A_INT] = -1;
 		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  1;
+		me.stats[A_CON] =  2;
 		me.stats[A_CHR] =  1;
 		
 		me.skills.dis = 10;
@@ -56,6 +56,7 @@ race_t *klackon_get_race_t(void)
 		me.skills.thb = 5;
 
 		me.life = 105;
+		me.base_hp = 23;
 		me.exp = 170;
 		me.infra = 2;
 
@@ -117,6 +118,7 @@ race_t *kobold_get_race_t(void)
 		me.skills.thb = -8;
 
 		me.life = 98;
+		me.base_hp = 19;
 		me.exp = 90;
 		me.infra = 3;
 
@@ -182,6 +184,7 @@ race_t *kutar_get_race_t(void)
 		me.skills.thb = -5;
 
 		me.life = 102;
+		me.base_hp = 21;
 		me.exp = 175;
 		me.infra = 0;
 
@@ -237,11 +240,11 @@ race_t *mindflayer_get_race_t(void)
 					"a good deal less admirable.  As they advance levels, they gain the powers of "
 					"See Invisible and Telepathy.";
 
-		me.stats[A_STR] = -2;
-		me.stats[A_INT] =  3;
-		me.stats[A_WIS] =  2;
+		me.stats[A_STR] = -3;
+		me.stats[A_INT] =  4;
+		me.stats[A_WIS] =  4;
 		me.stats[A_DEX] =  0;
-		me.stats[A_CON] = -1;
+		me.stats[A_CON] = -2;
 		me.stats[A_CHR] = -1;
 		
 		me.skills.dis = 10;
@@ -254,6 +257,7 @@ race_t *mindflayer_get_race_t(void)
 		me.skills.thb = -5;
 
 		me.life = 97;
+		me.base_hp = 18;
 		me.exp = 150;
 		me.infra = 4;
 
@@ -306,7 +310,7 @@ race_t *nibelung_get_race_t(void)
 		me.stats[A_INT] = -1;
 		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] =  0;
-		me.stats[A_CON] =  1;
+		me.stats[A_CON] =  2;
 		me.stats[A_CHR] = -2;
 		
 		me.skills.dis =  3;
@@ -319,6 +323,7 @@ race_t *nibelung_get_race_t(void)
 		me.skills.thb =  0;
 
 		me.life = 103;
+		me.base_hp = 22;
 		me.exp = 165;
 		me.infra = 5;
 
@@ -364,8 +369,8 @@ race_t *shadow_fairy_get_race_t(void)
 					"itself, the advantage will be lost).";
 
 		me.stats[A_STR] = -2;
-		me.stats[A_INT] =  1;
-		me.stats[A_WIS] =  1;
+		me.stats[A_INT] =  2;
+		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] =  1;
 		me.stats[A_CON] = -1;
 		me.stats[A_CHR] = -3;
@@ -380,6 +385,7 @@ race_t *shadow_fairy_get_race_t(void)
 		me.skills.thb = -5;
 
 		me.life = 91;
+		me.base_hp = 13;
 		me.exp = 140;
 		me.infra = 4;
 
@@ -457,6 +463,7 @@ race_t *skeleton_get_race_t(void)
 		me.skills.thb = 0;
 
 		me.life = 100;
+		me.base_hp = 21;
 		me.exp = 115;
 		me.infra = 2;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
@@ -543,6 +550,7 @@ race_t *snotling_get_race_t(void)
 		me.skills.thb = -5;
 
 		me.life = 85;
+		me.base_hp = 10;
 		me.exp = 45;
 		me.infra = 2;
 
@@ -606,7 +614,7 @@ race_t *spectre_get_race_t(void)
 					"from staves and wands as their energy source.";
 
 		me.stats[A_STR] = -5;
-		me.stats[A_INT] =  3;
+		me.stats[A_INT] =  4;
 		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] =  2;
 		me.stats[A_CON] = -2;
@@ -622,6 +630,7 @@ race_t *spectre_get_race_t(void)
 		me.skills.thb = -5;
 
 		me.life = 90;
+		me.base_hp = 13;
 		me.exp = 250;
 		me.infra = 5;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
@@ -675,12 +684,12 @@ race_t *sprite_get_race_t(void)
 					"Sprites have the special power of spraying Sleeping Dust, and at higher levels they "
 					"learn to fly faster.";
 
-		me.stats[A_STR] = -2;
-		me.stats[A_INT] =  1;
-		me.stats[A_WIS] =  1;
-		me.stats[A_DEX] =  1;
-		me.stats[A_CON] = -1;
-		me.stats[A_CHR] = -1;
+		me.stats[A_STR] = -4;
+		me.stats[A_INT] =  3;
+		me.stats[A_WIS] =  3;
+		me.stats[A_DEX] =  3;
+		me.stats[A_CON] = -2;
+		me.stats[A_CHR] = -2;
 		
 		me.skills.dis = 10;
 		me.skills.dev =  8;
@@ -691,7 +700,8 @@ race_t *sprite_get_race_t(void)
 		me.skills.thn =-12;
 		me.skills.thb =  0;
 
-		me.life = 91;
+		me.life = 92;
+		me.base_hp = 14;
 		me.exp = 135;
 		me.infra = 4;
 
@@ -749,11 +759,11 @@ race_t *tonberry_get_race_t(void)
 					"They possess human-like intelligence, but rarely become mages due "
 					"to their culture and physiology.";
 		
-		me.stats[A_STR] =  3;
+		me.stats[A_STR] =  4;
 		me.stats[A_INT] =  0;
-		me.stats[A_WIS] = -1;
-		me.stats[A_DEX] = -3;
-		me.stats[A_CON] =  3;
+		me.stats[A_WIS] = -2;
+		me.stats[A_DEX] = -4;
+		me.stats[A_CON] =  5;
 		me.stats[A_CHR] =  0;
 		
 		me.skills.dis = -5;
@@ -766,6 +776,7 @@ race_t *tonberry_get_race_t(void)
 		me.skills.thb =-10;
 
 		me.life = 108;
+		me.base_hp = 26;
 		me.exp = 175;
 		me.infra = 2;
 
@@ -832,9 +843,9 @@ race_t *vampire_get_race_t(void)
 					"perpetual hunger for fresh blood, which can only be satiated by sucking the blood "
 					"from a nearby monster.";
 
-		me.stats[A_STR] =  2;
-		me.stats[A_INT] =  2;
-		me.stats[A_WIS] = -2;
+		me.stats[A_STR] =  3;
+		me.stats[A_INT] =  3;
+		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] = -1;
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] =  2;
@@ -848,7 +859,8 @@ race_t *vampire_get_race_t(void)
 		me.skills.thn = 5;
 		me.skills.thb = 0;
 
-		me.life = 100;
+		me.life = 102;
+		me.base_hp = 22;
 		me.exp = 200;
 		me.infra = 5;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
@@ -919,7 +931,8 @@ race_t *yeek_get_race_t(void)
 		me.skills.thn = -5;
 		me.skills.thb = -5;
 
-		me.life = 90;
+		me.life = 92;
+		me.base_hp = 14;
 		me.exp = 70;
 		me.infra = 2;
 
@@ -983,7 +996,7 @@ race_t *zombie_get_race_t(void)
 		me.stats[A_INT] = -6;
 		me.stats[A_WIS] = -6;
 		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  3;
+		me.stats[A_CON] =  4;
 		me.stats[A_CHR] = -3;
 		
 		me.skills.dis = -5;
@@ -995,7 +1008,8 @@ race_t *zombie_get_race_t(void)
 		me.skills.thn = 15;
 		me.skills.thb = 0;
 
-		me.life = 110;
+		me.life = 108;
+		me.base_hp = 24;
 		me.exp = 180;
 		me.infra = 2;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;

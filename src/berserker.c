@@ -228,6 +228,7 @@ class_t *berserker_get_class_t(void)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.life = 200;
+		me.base_hp = 22;
 		me.exp = 160;
 		me.pets = 255;
 		

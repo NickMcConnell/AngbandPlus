@@ -4218,7 +4218,7 @@ class_t *weaponmaster_get_class_t(void)
 				  "weaponmaster is truly lousy when using any weapon "
 				  "outside their chosen specialty so focus is key.";
 
-		me.stats[A_STR] =  2;
+		me.stats[A_STR] =  3;
 		me.stats[A_INT] = -1;
 		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] =  1;
@@ -4228,7 +4228,8 @@ class_t *weaponmaster_get_class_t(void)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		
-		me.life = 110;
+		me.life = 109;
+		me.base_hp = 12;
 		me.exp = 135;
 		me.pets = 40;
 		

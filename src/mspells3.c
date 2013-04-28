@@ -1273,7 +1273,7 @@ else msg_print("誘惑的な幻覚をつくり出した。");
 		break;
 	case MS_SLEEP:
 		if (!get_aim_dir(&dir)) return FALSE;
-		sleep_monster(dir);
+		sleep_monster(dir, plev*3);
 		break;
 	case MS_SPEED:
 		(void)set_fast(randint1(20 + plev) + plev, FALSE);

@@ -129,17 +129,17 @@
                STR  INT  WIS  DEX  CON  CHR  Life  Exp
 Minor God       +1   +1   +1   +1   +1   +1  100%  180%
 Zeus            +2   +2   +2   +2   +2   +2  100%  250%
-Poseidon        +1   +1   +1   +1   +1   +1  100%  240%
-Hades           +1   +1   +1   +1   +2   +1  107%  240%
-Athena          +1   +2   +1   +1   +1   +1  100%  240%
-Ares            +2   +1   +1   +1   +1   +1  100%  240%
+Poseidon        +2   +1   +1   +2   +1   +1  100%  240%
+Hades           +1   +1   +1   +1   +3   +1  107%  240%
+Athena          +1   +3   +1   +1   +1   +1  100%  240%
+Ares            +3   +1   +1   +1   +1   +1  100%  240%
 Hermes          +1   +1   +1   +1   +1   +1  100%  240%
 Apollo          +1   +1   +1   +1   +1   +1  100%  230%
-Artemis         +1   +1   +1   +2   +1   +1  100%  230%
+Artemis         +1   +1   +1   +3   +1   +1  100%  230%
 Hephaestus      +1   +1   +1   +1   +1   +1  100%  230%
-Hera            +1   +1   +2   +1   +1   +1  100%  220%
+Hera            +1   +1   +3   +1   +1   +1  100%  220%
 Demeter         +1   +1   +1   +1   +1   +1  100%  220%
-Aphrodite       +1   +1   +1   +1   +1   +2  100%  220%
+Aphrodite       +1   +1   +1   +1   +1   +3  100%  220%
 
 
 --- Table 2 - Race Skill Bonus Table ---
@@ -197,4 +197,4 @@ Fell Sorcery        Your spells will grow more powerful.
 
 
 
-Automatically generated for PosChengband 1.0.14.
+Automatically generated for PosChengband 1.0.19.

@@ -1322,14 +1322,15 @@ class_t *rune_knight_get_class_t(void)
 				  "in addition to his unique Rune spells.";
 
 		me.stats[A_STR] = 2;
-		me.stats[A_INT] = 1;
+		me.stats[A_INT] = 2;
 		me.stats[A_WIS] = 0;
 		me.stats[A_DEX] = 1;
 		me.stats[A_CON] = 0;
 		me.stats[A_CHR] = 1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 105;
+		me.life = 107;
+		me.base_hp = 6;
 		me.exp = 150;
 		me.pets = 35;
 

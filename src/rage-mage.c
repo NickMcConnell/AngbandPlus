@@ -1156,7 +1156,8 @@ class_t *rage_mage_get_class_t(void)
 		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 105;
+		me.life = 106;
+		me.base_hp = 6;
 		me.exp = 150;
 		me.pets = 40;
 

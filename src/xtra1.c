@@ -3049,16 +3049,18 @@ static void calc_hitpoints(void)
 /*	pers_t  *pers_ptr = get_pers_t(); */
 
 	mhp = p_ptr->player_hp[p_ptr->lev - 1] * 13 / 100;
-	mhp += p_ptr->lev;
-	mhp += p_ptr->lev * p_ptr->lev / 25;
-	mhp += p_ptr->lev * p_ptr->lev * p_ptr->lev / 1250;
+	mhp += 3 * p_ptr->lev / 2;
+	mhp += 3 * p_ptr->lev * p_ptr->lev / 100;
+	mhp += 3 * p_ptr->lev * p_ptr->lev * p_ptr->lev / 5000;
 
 	mhp = mhp * race_ptr->life / 100;
 	mhp = mhp * class_ptr->life / 100;
-
 /*	mhp = mhp * pers_ptr->life / 100; */
 	mhp = mhp * ap_ptr->life / 100;
 	mhp = mhp * p_ptr->life / 100;
+
+	mhp += class_ptr->base_hp;
+	mhp += race_ptr->base_hp;
 
 	if (IS_HERO()) mhp += 10;
 	if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER)) mhp += 30;

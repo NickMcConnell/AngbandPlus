@@ -89,7 +89,7 @@ static int _rod_power(int val)
 {
 	val += val * device_extra_power / 100;
 	if (devicemaster_is_(DEVICEMASTER_RODS))
-		return device_power_aux(val, p_ptr->device_power + p_ptr->lev/10);
+		return device_power_aux(val, p_ptr->device_power + p_ptr->lev/5);
 	return _device_power_hack(val);
 }
 
@@ -1056,12 +1056,12 @@ static cptr _do_staff(int sval, int mode)
 		break;
 	case SV_STAFF_MSTORM:
 		if (desc) return "It produces a huge mana ball centered on you when you use it. If you are not magically inclined, you take damage as well.";
-		if (info) return info_damage(1, _staff_power(200), _staff_power(300));
+		if (info) return info_damage(1, _staff_power(200), _staff_power(350));
 		if (cast)
 		{
 			msg_print("Mighty magics rend your enemies!");
 			project(0, 5, py, px,
-				_staff_power((randint1(200) + 300) * 2), 
+				_staff_power((randint1(200) + 350) * 2), 
 				GF_MANA, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID, -1);
 			if ( p_ptr->pclass != CLASS_MAGE
 			  && p_ptr->pclass != CLASS_HIGH_MAGE 
@@ -1185,9 +1185,10 @@ static cptr _do_wand(int sval, int mode)
 		break;
 	case SV_WAND_SLEEP_MONSTER:
 		if (desc) return "It puts a monster to sleep when you use it.";
+		if (info) return format("Power %d", _wand_power(3 * p_ptr->lev));
 		if (cast)
 		{
-			if (sleep_monster(dir)) device_noticed = TRUE;
+			if (sleep_monster(dir, _wand_power(3*p_ptr->lev))) device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_SLOW_MONSTER:
@@ -1574,10 +1575,11 @@ static cptr _do_rod(int sval, int mode)
 		break;
 	case SV_ROD_SLEEP_MONSTER:
 		if (desc) return "It puts a monster to sleep when you zap it.";
+		if (info) return format("Power %d", _rod_power(3*p_ptr->lev));
 		if (cast)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
-			if (sleep_monster(dir)) device_noticed = TRUE;
+			if (sleep_monster(dir, _rod_power(3*p_ptr->lev))) device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_SLOW_MONSTER:
@@ -1687,6 +1689,16 @@ static cptr _do_rod(int sval, int mode)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
 			fire_ball(GF_COLD, dir, _rod_power(50 + p_ptr->lev), 2);
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_ROD_MANA_BOLT:
+		if (desc) return "It fires a bolt of mana when you zap it.";
+		if (info) return info_damage(0, 0, _rod_power(100 + p_ptr->lev));
+		if (cast)
+		{
+			if (device_known && !get_aim_dir(&dir)) return NULL;
+			fire_bolt(GF_MANA, dir, _rod_power(100 + p_ptr->lev));
 			device_noticed = TRUE;
 		}
 		break;

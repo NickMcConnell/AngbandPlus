@@ -78,7 +78,7 @@ class_t *paladin_get_class_t(void)
 					"Life/Crusade Paladin. Depending on their realm, they have a class "
 					"power - 'Holy Lance' or 'Hell Lance'.";
 
-		me.stats[A_STR] =  2;
+		me.stats[A_STR] =  3;
 		me.stats[A_INT] = -3;
 		me.stats[A_WIS] =  1;
 		me.stats[A_DEX] =  0;
@@ -86,7 +86,8 @@ class_t *paladin_get_class_t(void)
 		me.stats[A_CHR] =  2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 110;
+		me.life = 111;
+		me.base_hp = 12;
 		me.exp = 135;
 		me.pets = 40;
 		

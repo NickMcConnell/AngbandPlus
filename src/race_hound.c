@@ -724,6 +724,7 @@ race_t *mon_hound_get_race_t(void)
 		me.infra = 5;
 		me.exp = 150;
 		me.life = 100;
+		me.base_hp = 22;
 
 		me.calc_innate_attacks = _calc_innate_attacks;
 		me.calc_bonuses = _calc_bonuses;

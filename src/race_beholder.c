@@ -355,6 +355,7 @@ race_t *mon_beholder_get_race_t(void)
 
 		me.infra = 8;
 		me.exp = 250;
+		me.base_hp = 20;
 
 		me.birth = _birth;
 		me.calc_innate_attacks = _calc_innate_attacks;

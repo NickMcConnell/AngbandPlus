@@ -545,7 +545,7 @@ static bool use_mane(int spell)
 		break;
 	case MS_SLEEP:
 		if (!get_aim_dir(&dir)) return FALSE;
-		sleep_monster(dir);
+		sleep_monster(dir, plev*3);
 		break;
 	case MS_SPEED:
 		(void)set_fast(randint1(20 + plev) + plev, FALSE);
@@ -981,7 +981,8 @@ class_t *imitator_get_class_t(void)
 		me.stats[A_CHR] = -1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 107;
+		me.life = 108;
+		me.base_hp = 10;
 		me.exp = 110;
 		me.pets = 20;
 		

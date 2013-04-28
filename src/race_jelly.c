@@ -416,6 +416,7 @@ race_t *mon_jelly_get_race_t(void)
 	result->get_powers = _jelly_get_powers;
 	result->calc_innate_attacks = _jelly_calc_innate_attacks;
 	result->birth = _birth;
+	result->base_hp = 40;
 
 	result->boss_r_idx = MON_UBBO_SATHLA;
 	return result;

@@ -451,6 +451,7 @@ race_t *doppelganger_get_race_t(void)
 		me.skills.thb = -20;
 
 		me.life = 85;
+		me.base_hp = 12;
 		me.exp = 150;
 		me.infra = 0;
 

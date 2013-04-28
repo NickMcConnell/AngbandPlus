@@ -254,6 +254,7 @@ static _group_t _rods[] = {
 		{ 72+24, {TV_ROD, SV_ROD_ACID_BALL, 0}, 0},
 		{ 72+26, {TV_ROD, SV_ROD_FIRE_BALL, 0}, 0},
 		{ 72+18, {TV_ROD, SV_ROD_DRAIN_LIFE, 0}, 0},
+		{ 72+34, {TV_ROD, SV_ROD_MANA_BOLT, 0}, 0}, 
 		{ 72+33, {TV_ROD, SV_ROD_MANA_BALL, 0}, 0}, 
 		{ 72+28, {TV_ROD, SV_ROD_HAVOC, 0}, 0},
 		{ -1, {-1, -1, -1}, -1} }},
@@ -990,13 +991,14 @@ class_t *magic_eater_get_class_t(void)
 	
 		me.stats[A_STR] = -1;
 		me.stats[A_INT] =  2;
-		me.stats[A_WIS] =  0;
-		me.stats[A_DEX] =  0;
-		me.stats[A_CON] = -1;
-		me.stats[A_CHR] = -1;
+		me.stats[A_WIS] =  1;
+		me.stats[A_DEX] =  2;
+		me.stats[A_CON] = -2;
+		me.stats[A_CHR] = -2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 105;
+		me.life = 103;
+		me.base_hp = 6;
 		me.exp = 130;
 		me.pets = 30;
 

@@ -2430,9 +2430,9 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Devicemaster */
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR},
+		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
+		{ TV_SWORD, SV_SHORT_SWORD },
 	},
 };
 

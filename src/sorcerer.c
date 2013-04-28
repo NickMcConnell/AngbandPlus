@@ -77,12 +77,13 @@ class_t *sorcerer_get_class_t(void)
 		me.stats[A_STR] = -5;
 		me.stats[A_INT] =  0;
 		me.stats[A_WIS] = -2;
-		me.stats[A_DEX] =  0;
+		me.stats[A_DEX] =  2;
 		me.stats[A_CON] =  0;
 		me.stats[A_CHR] =  6;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.life = 65;
+		me.base_hp = 0;
 		me.exp = 160;
 		me.pets = 25;
 		

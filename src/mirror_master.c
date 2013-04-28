@@ -856,6 +856,7 @@ class_t *mirror_master_get_class_t(void)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.life = 100;
+		me.base_hp = 4;
 		me.exp = 130;
 		me.pets = 30;
 

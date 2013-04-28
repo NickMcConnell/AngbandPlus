@@ -39,10 +39,10 @@ race_t *amberite_get_race_t(void)
 					"other races.";
 
 		me.stats[A_STR] =  1;
-		me.stats[A_INT] =  1;
-		me.stats[A_WIS] =  1;
-		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  2;
+		me.stats[A_INT] =  2;
+		me.stats[A_WIS] =  2;
+		me.stats[A_DEX] =  2;
+		me.stats[A_CON] =  3;
 		me.stats[A_CHR] =  0;
 		
 		me.skills.dis =  4;
@@ -55,6 +55,7 @@ race_t *amberite_get_race_t(void)
 		me.skills.thb = 10;
 
 		me.life = 100;
+		me.base_hp = 20;
 		me.exp = 190;
 		me.infra = 0;
 
@@ -127,11 +128,11 @@ race_t *android_get_race_t(void)
 					"They gain very little nutrition from the food of mortals, but they can use flasks "
 					"of oil as their energy source.";
 
-		me.stats[A_STR] =  2;
+		me.stats[A_STR] =  3;
 		me.stats[A_INT] = -1;
 		me.stats[A_WIS] = -5;
 		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  2;
+		me.stats[A_CON] =  3;
 		me.stats[A_CHR] =  0;
 		
 		me.skills.dis =  0;
@@ -143,7 +144,8 @@ race_t *android_get_race_t(void)
 		me.skills.thn = 20;
 		me.skills.thb = 10;
 
-		me.life = 105;
+		me.life = 108;
+		me.base_hp = 26;
 		me.exp = 200;
 		me.infra = 0;
 
@@ -185,12 +187,12 @@ race_t *archon_get_race_t(void)
 					"belonging to a higher plane as they do, the experiences of this world do not leave "
 					"a strong impression on them and they gain levels slowly.";
 
-		me.stats[A_STR] =  1;
+		me.stats[A_STR] =  2;
 		me.stats[A_INT] =  0;
-		me.stats[A_WIS] =  3;
-		me.stats[A_DEX] =  0;
-		me.stats[A_CON] =  1;
-		me.stats[A_CHR] =  2;
+		me.stats[A_WIS] =  4;
+		me.stats[A_DEX] =  1;
+		me.stats[A_CON] =  2;
+		me.stats[A_CHR] =  3;
 		
 		me.skills.dis =  0;
 		me.skills.dev = 12;
@@ -201,7 +203,8 @@ race_t *archon_get_race_t(void)
 		me.skills.thn = 10;
 		me.skills.thb = 10;
 
-		me.life = 100;
+		me.life = 103;
+		me.base_hp = 22;
 		me.exp = 200;
 		me.infra = 3;
 
@@ -257,12 +260,12 @@ race_t *balrog_get_race_t(void)
 					"very little nutrition from the food of mortals, and need human corpses as sacrifices "
 					"to regain their vitality.";
 
-		me.stats[A_STR] =  2;
-		me.stats[A_INT] =  1;
+		me.stats[A_STR] =  4;
+		me.stats[A_INT] =  2;
 		me.stats[A_WIS] =-10;
-		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  2;
-		me.stats[A_CHR] =  1;
+		me.stats[A_DEX] =  2;
+		me.stats[A_CON] =  3;
+		me.stats[A_CHR] =  2;
 		
 		me.skills.dis = -3;
 		me.skills.dev = 12;
@@ -273,7 +276,8 @@ race_t *balrog_get_race_t(void)
 		me.skills.thn = 20;
 		me.skills.thb =  0;
 
-		me.life = 103;
+		me.life = 106;
+		me.base_hp = 24;
 		me.exp = 180;
 		me.infra = 5;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
@@ -320,12 +324,12 @@ race_t *barbarian_get_race_t(void)
 					"learn to enter battle frenzy at will even sooner than half-trolls. Barbarians are, "
 					"however, suspicious of magic, which makes magic devices fairly hard for them to use.";
 
-		me.stats[A_STR] =  1;
+		me.stats[A_STR] =  3;
 		me.stats[A_INT] = -2;
 		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  1;
-		me.stats[A_CHR] =  1;
+		me.stats[A_CON] =  2;
+		me.stats[A_CHR] =  2;
 		
 		me.skills.dis = -2;
 		me.skills.dev = -10;
@@ -337,6 +341,7 @@ race_t *barbarian_get_race_t(void)
 		me.skills.thb = 10;
 
 		me.life = 103;
+		me.base_hp = 22;
 		me.exp = 135;
 		me.infra = 0;
 
@@ -387,12 +392,12 @@ race_t *beastman_get_race_t(void)
 					"they receive a random mutation. After that, every time they advance a level "
 					"they have a small chance of gaining yet another mutation.";
 
-		me.stats[A_STR] =  1;
-		me.stats[A_INT] = -1;
+		me.stats[A_STR] =  2;
+		me.stats[A_INT] = -2;
 		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] = -1;
-		me.stats[A_CON] =  1;
-		me.stats[A_CHR] =  0;
+		me.stats[A_CON] =  2;
+		me.stats[A_CHR] =  1;
 		
 		me.skills.dis = -5;
 		me.skills.dev = -2;
@@ -403,7 +408,8 @@ race_t *beastman_get_race_t(void)
 		me.skills.thn = 12;
 		me.skills.thb = 5;
 
-		me.life = 100;
+		me.life = 102;
+		me.base_hp = 22;
 		me.exp = 150;
 		me.infra = 0;
 
@@ -450,11 +456,11 @@ race_t *cyclops_get_race_t(void)
 					"qualified for the magic using professions, but as a certain Mr. Ulysses "
 					"can testify, their accuracy with thrown rocks can be deadly!";
 
-		me.stats[A_STR] =  3;
-		me.stats[A_INT] = -2;
+		me.stats[A_STR] =  4;
+		me.stats[A_INT] = -3;
 		me.stats[A_WIS] = -2;
-		me.stats[A_DEX] = -2;
-		me.stats[A_CON] =  3;
+		me.stats[A_DEX] = -3;
+		me.stats[A_CON] =  4;
 		me.stats[A_CHR] = -1;
 		
 		me.skills.dis = -4;
@@ -466,7 +472,8 @@ race_t *cyclops_get_race_t(void)
 		me.skills.thn = 20;
 		me.skills.thb = 12;
 
-		me.life = 110;
+		me.life = 108;
+		me.base_hp = 24;
 		me.exp = 155;
 		me.infra = 1;
 
@@ -519,11 +526,11 @@ race_t *dark_elf_get_race_t(void)
 					"High-Elves do, but at a higher level.";
 
 		me.stats[A_STR] = -1;
-		me.stats[A_INT] =  2;
-		me.stats[A_WIS] =  1;
-		me.stats[A_DEX] =  1;
-		me.stats[A_CON] = -1;
-		me.stats[A_CHR] =  2;
+		me.stats[A_INT] =  3;
+		me.stats[A_WIS] =  2;
+		me.stats[A_DEX] =  2;
+		me.stats[A_CON] = -2;
+		me.stats[A_CHR] =  3;
 		
 		me.skills.dis = 5;
 		me.skills.dev = 10;
@@ -535,6 +542,7 @@ race_t *dark_elf_get_race_t(void)
 		me.skills.thb = 10;
 
 		me.life = 97;
+		me.base_hp = 18;
 		me.exp = 155;
 		me.infra = 5;
 
@@ -596,12 +604,12 @@ race_t *draconian_get_race_t(void)
 					"breath weapon depends on the Draconian's class and level.  With their wings, they "
 					"can easily escape any pit trap unharmed.";
 
-		me.stats[A_STR] =  1;
-		me.stats[A_INT] =  0;
-		me.stats[A_WIS] =  0;
-		me.stats[A_DEX] =  0;
-		me.stats[A_CON] =  1;
-		me.stats[A_CHR] =  1;
+		me.stats[A_STR] =  2;
+		me.stats[A_INT] =  1;
+		me.stats[A_WIS] =  1;
+		me.stats[A_DEX] =  1;
+		me.stats[A_CON] =  2;
+		me.stats[A_CHR] =  2;
 		
 		me.skills.dis = -2;
 		me.skills.dev = 5;
@@ -613,6 +621,7 @@ race_t *draconian_get_race_t(void)
 		me.skills.thb = 5;
 
 		me.life = 103;
+		me.base_hp = 22;
 		me.exp = 195;
 		me.infra = 2;
 
@@ -650,10 +659,10 @@ race_t *dunadan_get_race_t(void)
 					"constitution cannot be reduced. ";
 
 		me.stats[A_STR] =  1;
-		me.stats[A_INT] =  1;
-		me.stats[A_WIS] =  1;
-		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  2;
+		me.stats[A_INT] =  2;
+		me.stats[A_WIS] =  2;
+		me.stats[A_DEX] =  2;
+		me.stats[A_CON] =  3;
 		me.stats[A_CHR] =  0;
 		
 		me.skills.dis =  4;
@@ -666,6 +675,7 @@ race_t *dunadan_get_race_t(void)
 		me.skills.thb = 10;
 
 		me.life = 100;
+		me.base_hp = 20;
 		me.exp = 160;
 		me.infra = 0;
 
@@ -713,7 +723,7 @@ race_t *dwarf_get_race_t(void)
 					"at searching, perception, fighting, and bows. Dwarves  have miserable stealth. They "
 					"can never be blinded.";
 
-		me.stats[A_STR] =  1;
+		me.stats[A_STR] =  2;
 		me.stats[A_INT] = -2;
 		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] = -2;
@@ -730,6 +740,7 @@ race_t *dwarf_get_race_t(void)
 		me.skills.thb = 0;
 
 		me.life = 103;
+		me.base_hp = 22;
 		me.exp = 135;
 		me.infra = 5;
 
@@ -790,7 +801,8 @@ race_t *ent_get_race_t(void)
 		me.skills.thn = 15;
 		me.skills.thb = -5;
 
-		me.life = 107;
+		me.life = 105;
+		me.base_hp = 25;
 		me.exp = 135;
 		me.infra = 0;
 
@@ -807,8 +819,8 @@ race_t *ent_get_race_t(void)
 	{
 		me.stats[A_STR] =  2;
 		me.stats[A_INT] =  0;
-		me.stats[A_WIS] =  1;
-		me.stats[A_DEX] = -2;
+		me.stats[A_WIS] =  2;
+		me.stats[A_DEX] = -3;
 		me.stats[A_CON] =  2;
 		me.stats[A_CHR] =  0;
 
@@ -864,8 +876,8 @@ race_t *gnome_get_race_t(void)
 		me.stats[A_STR] = -1;
 		me.stats[A_INT] =  2;
 		me.stats[A_WIS] = -1;
-		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  0;
+		me.stats[A_DEX] =  2;
+		me.stats[A_CON] =  1;
 		me.stats[A_CHR] = -1;
 		
 		me.skills.dis = 10;
@@ -878,6 +890,7 @@ race_t *gnome_get_race_t(void)
 		me.skills.thb = 12;
 
 		me.life = 95;
+		me.base_hp = 16;
 		me.exp = 115;
 		me.infra = 4;
 
@@ -944,11 +957,11 @@ race_t *golem_get_race_t(void)
 					"also gain a natural armor class bonus from their tough body. Golems become "
 					"slower with age.";
 
-		me.stats[A_STR] =  2;
-		me.stats[A_INT] = -3;
-		me.stats[A_WIS] = -3;
-		me.stats[A_DEX] = -1;
-		me.stats[A_CON] =  2;
+		me.stats[A_STR] =  4;
+		me.stats[A_INT] = -5;
+		me.stats[A_WIS] = -5;
+		me.stats[A_DEX] = -2;
+		me.stats[A_CON] =  4;
 		me.stats[A_CHR] =  0;
 		
 		me.skills.dis = -5;
@@ -961,6 +974,7 @@ race_t *golem_get_race_t(void)
 		me.skills.thb = 0;
 
 		me.life = 105;
+		me.base_hp = 23;
 		me.exp = 185;
 		me.infra = 4;
 		me.flags = RACE_IS_NONLIVING;
@@ -1010,11 +1024,11 @@ race_t *half_giant_get_race_t(void)
 					"them resistant to shards, and like Half-Ogres and Half-Trolls, they have their strength "
 					"sustained.";
 
-		me.stats[A_STR] =  3;
+		me.stats[A_STR] =  4;
 		me.stats[A_INT] = -2;
 		me.stats[A_WIS] = -2;
 		me.stats[A_DEX] = -2;
-		me.stats[A_CON] =  2;
+		me.stats[A_CON] =  3;
 		me.stats[A_CHR] =  0;
 		
 		me.skills.dis = -6;
@@ -1026,7 +1040,8 @@ race_t *half_giant_get_race_t(void)
 		me.skills.thn = 25;
 		me.skills.thb =  5;
 
-		me.life = 107;
+		me.life = 108;
+		me.base_hp = 26;
 		me.exp = 150;
 		me.infra = 3;
 
@@ -1076,11 +1091,11 @@ race_t *half_ogre_get_race_t(void)
 					"enough.  Like Half-Orcs, they resist darkness, and like Half-Trolls, they "
 					"have their strength sustained.";
 
-		me.stats[A_STR] =  2;
+		me.stats[A_STR] =  3;
 		me.stats[A_INT] = -2;
 		me.stats[A_WIS] =  0;
 		me.stats[A_DEX] = -1;
-		me.stats[A_CON] =  2;
+		me.stats[A_CON] =  3;
 		me.stats[A_CHR] =  1;
 		
 		me.skills.dis = -3;
@@ -1092,7 +1107,8 @@ race_t *half_ogre_get_race_t(void)
 		me.skills.thn = 20;
 		me.skills.thb =  0;
 
-		me.life = 107;
+		me.life = 106;
+		me.base_hp = 23;
 		me.exp = 140;
 		me.infra = 3;
 
@@ -1139,12 +1155,12 @@ race_t *half_titan_get_race_t(void)
 					"They learn to estimate the strengths of their foes, and their love for law and "
 					"order makes them resistant to the effects of Chaos.";
 
-		me.stats[A_STR] =  4;
+		me.stats[A_STR] =  5;
 		me.stats[A_INT] =  1;
-		me.stats[A_WIS] =  1;
+		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] = -2;
-		me.stats[A_CON] =  2;
-		me.stats[A_CHR] =  2;
+		me.stats[A_CON] =  3;
+		me.stats[A_CHR] =  3;
 		
 		me.skills.dis = -5;
 		me.skills.dev =  5;
@@ -1156,6 +1172,7 @@ race_t *half_titan_get_race_t(void)
 		me.skills.thb =- 0;
 
 		me.life = 112;
+		me.base_hp = 28;
 		me.exp = 255;
 		me.infra = 0;
 
@@ -1206,11 +1223,11 @@ race_t *half_troll_get_race_t(void)
 					"They also happen to be fun to run... Half-trolls always have their strength sustained. "
 					"At higher levels, Half-Trolls regenerate wounds automatically.";
 
-		me.stats[A_STR] =  3;
-		me.stats[A_INT] = -3;
+		me.stats[A_STR] =  4;
+		me.stats[A_INT] = -4;
 		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] = -3;
-		me.stats[A_CON] =  2;
+		me.stats[A_CON] =  3;
 		me.stats[A_CHR] = -2;
 		
 		me.skills.dis = -5;
@@ -1223,6 +1240,7 @@ race_t *half_troll_get_race_t(void)
 		me.skills.thb =-10;
 
 		me.life = 107;
+		me.base_hp = 25;
 		me.exp = 150;
 		me.infra = 3;
 
@@ -1264,10 +1282,10 @@ race_t *high_elf_get_race_t(void)
 					"very hard for them to gain.";
 
 		me.stats[A_STR] =  1;
-		me.stats[A_INT] =  2;
+		me.stats[A_INT] =  3;
 		me.stats[A_WIS] = -1;
-		me.stats[A_DEX] =  2;
-		me.stats[A_CON] =  0;
+		me.stats[A_DEX] =  3;
+		me.stats[A_CON] =  1;
 		me.stats[A_CHR] =  1;
 		
 		me.skills.dis =  4;
@@ -1279,7 +1297,8 @@ race_t *high_elf_get_race_t(void)
 		me.skills.thn = 10;
 		me.skills.thb = 25;
 
-		me.life = 97;
+		me.life = 99;
+		me.base_hp = 19;
 		me.exp = 190;
 		me.infra = 4;
 
@@ -1328,10 +1347,10 @@ race_t *hobbit_get_race_t(void)
 
 		me.stats[A_STR] = -2;
 		me.stats[A_INT] =  1;
-		me.stats[A_WIS] =  0;
-		me.stats[A_DEX] =  2;
-		me.stats[A_CON] =  1;
-		me.stats[A_CHR] = -1;
+		me.stats[A_WIS] =  1;
+		me.stats[A_DEX] =  3;
+		me.stats[A_CON] =  2;
+		me.stats[A_CHR] =  1;
 		
 		me.skills.dis = 15;
 		me.skills.dev = 12;
@@ -1343,6 +1362,7 @@ race_t *hobbit_get_race_t(void)
 		me.skills.thb = 20;
 
 		me.life = 92;
+		me.base_hp = 14;
 		me.exp = 120;
 		me.infra = 4;
 
@@ -1408,6 +1428,7 @@ race_t *human_get_race_t(void)
 		me.skills.thb = 0;
 
 		me.life = 100;
+		me.base_hp = 20;
 		me.exp = 100;
 		me.infra = 0;
 
@@ -1455,10 +1476,10 @@ race_t *imp_get_race_t(void)
 					"As they advance levels, they gain the powers of See Invisible.";
 
 		me.stats[A_STR] =  0;
-		me.stats[A_INT] =  0;
+		me.stats[A_INT] = -1;
 		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  1;
+		me.stats[A_CON] =  2;
 		me.stats[A_CHR] = -1;
 		
 		me.skills.dis = -3;
@@ -1471,6 +1492,7 @@ race_t *imp_get_race_t(void)
 		me.skills.thb = -5;
 
 		me.life = 99;
+		me.base_hp = 19;
 		me.exp = 90;
 		me.infra = 3;
 		me.flags = RACE_IS_DEMON;

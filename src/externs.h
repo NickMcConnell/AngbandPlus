@@ -1240,7 +1240,7 @@ extern bool wizard_lock(int dir);
 extern bool heal_monster(int dir, int dam);
 extern bool speed_monster(int dir);
 extern bool slow_monster(int dir);
-extern bool sleep_monster(int dir);
+extern bool sleep_monster(int dir, int power);
 extern bool stasis_monster(int dir);    /* Like sleep, affects undead as well */
 extern bool stasis_evil(int dir);    /* Like sleep, affects undead as well */
 extern bool confuse_monster(int dir, int plev);

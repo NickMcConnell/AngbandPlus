@@ -81,15 +81,16 @@ class_t *blue_mage_get_class_t(void)
 					"requirement, they do not learn spells, like healing, that affect "
 					"the monster itself.";
 
-		me.stats[A_STR] = -3;
+		me.stats[A_STR] = -4;
 		me.stats[A_INT] =  4;
 		me.stats[A_WIS] = -1;
-		me.stats[A_DEX] =  0;
+		me.stats[A_DEX] =  1;
 		me.stats[A_CON] = -2;
 		me.stats[A_CHR] = -2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.life = 100;
+		me.base_hp = 4;
 		me.exp = 130;
 		me.pets = 35;
 		

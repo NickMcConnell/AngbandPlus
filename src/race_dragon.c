@@ -1699,6 +1699,7 @@ race_t *mon_dragon_get_race_t(int psubrace)
 	result->flags = RACE_IS_MONSTER;
 	result->calc_innate_attacks = _calc_innate_attacks;
 	result->equip_template = &_equip_template;
+	result->base_hp = 40;
 
 	result->boss_r_idx = MON_GLAURUNG;
 	return result;

@@ -687,6 +687,7 @@ class_t *wild_talent_get_class_t(void)
 		me.extra_skills = xs;
 		
 		me.life = 100;
+		me.base_hp = 4;
 		me.exp = 110;
 		me.pets = 35;
 		

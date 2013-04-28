@@ -1285,15 +1285,16 @@ class_t *samurai_get_class_t(void)
 					"have one more class power - 'Assume a Posture'. They can choose "
 					"different forms of posture in different situations.";
 
-		me.stats[A_STR] =  2;
+		me.stats[A_STR] =  3;
 		me.stats[A_INT] = -2;
 		me.stats[A_WIS] =  1;
-		me.stats[A_DEX] =  1;
+		me.stats[A_DEX] =  2;
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 110;
+		me.life = 111;
+		me.base_hp = 12;
 		me.exp = 130;
 		me.pets = 40;
 

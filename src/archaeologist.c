@@ -826,7 +826,8 @@ class_t *archaeologist_get_class_t(void)
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 105;
+		me.life = 106;
+		me.base_hp = 8;
 		me.exp = 120;
 		me.pets = 40;
 

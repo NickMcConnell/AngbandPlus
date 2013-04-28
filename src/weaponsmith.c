@@ -63,7 +63,7 @@ class_t *weaponsmith_get_class_t(void)
 					"class power - 'Judgment' - which allows them to identify (later "
 					"*identify*) weapons and armor.";
 
-		me.stats[A_STR] =  2;
+		me.stats[A_STR] =  3;
 		me.stats[A_INT] = -1;
 		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] =  1;
@@ -71,7 +71,8 @@ class_t *weaponsmith_get_class_t(void)
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.life = 110;
+		me.life = 111;
+		me.base_hp = 12;
 		me.exp = 130;
 		me.pets = 40;
 		
