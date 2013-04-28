@@ -1,17 +1,18 @@
-/* File: store.c */
-
-/*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
-#include "angband.h"
+/* store.c: store functions */
 
-#include "script.h"
-
+#include "posband.h"
 
 #define MAX_COMMENT_1	6
 
@@ -358,7 +359,10 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 
 
 	/* Compute the racial factor */
-	factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
+	if (p_ptr->prace >= MON_RACE_MIN)
+		factor = 125;
+	else
+		factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
 
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
@@ -700,6 +704,152 @@ static bool store_check_num(const object_type *o_ptr)
 	return (FALSE);
 }
 
+/*
+ * Determine if the current store will purchase the given object
+ *
+ * Note that a shop-keeper must refuse to buy "worthless" objects
+ */
+static bool store_will_buy(int store_num, const object_type *o_ptr)
+{
+	/* Hack -- The Home is simple */
+	if (store_num == STORE_HOME) return (TRUE);
+
+	/* Switch on the store */
+	switch (store_num)
+	{
+		/* General Store */
+		case STORE_GENERAL:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_FOOD:
+				case TV_LITE:
+				case TV_FLASK:
+				case TV_SPIKE:
+				case TV_SHOT:
+				case TV_ARROW:
+				case TV_BOLT:
+				case TV_DIGGING:
+				case TV_CLOAK:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Armoury */
+		case STORE_ARMOR:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_BOOTS:
+				case TV_GLOVES:
+				case TV_CROWN:
+				case TV_HELM:
+				case TV_SHIELD:
+				case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+				case TV_HARD_ARMOR:
+				case TV_DRAG_ARMOR:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Weapon Shop */
+		case STORE_WEAPON:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_SHOT:
+				case TV_BOLT:
+				case TV_ARROW:
+				case TV_BOW:
+				case TV_DIGGING:
+				case TV_HAFTED:
+				case TV_POLEARM:
+				case TV_SWORD:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Temple */
+		case STORE_TEMPLE:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_PRAYER_BOOK:
+				case TV_SCROLL:
+				case TV_POTION:
+				case TV_HAFTED:
+			break;
+				case TV_POLEARM:
+				case TV_SWORD:
+				{
+					/* Known blessed blades are accepted too */
+					if (is_blessed(o_ptr) && object_known_p(o_ptr)) break;
+				}
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Alchemist */
+		case STORE_ALCHEMY:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_SCROLL:
+				case TV_POTION:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Magic Shop */
+		case STORE_MAGIC:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_MAGIC_BOOK:
+				case TV_AMULET:
+				case TV_RING:
+				case TV_STAFF:
+				case TV_WAND:
+				case TV_ROD:
+				case TV_SCROLL:
+				case TV_POTION:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+	}
+
+	/* Ignore "worthless" items XXX XXX XXX */
+	if (object_value(o_ptr) <= 0) return (FALSE);
+
+	/* Assume okay */
+	return (TRUE);
+}
+
+
 
 /*
  * Determine if the current store will purchase the given object
@@ -1025,6 +1175,10 @@ static void store_delete(void)
 	store_item_optimize(what);
 }
 
+static int get_store_choice(int store_num)
+{
+	return store[store_num].table[rand_int(store[store_num].table_num)];
+}
 
 /*
  * Creates a random object and gives it to a store
@@ -1459,8 +1613,6 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	object_type *o_ptr;
 
-#ifdef ALLOW_REPEAT
-
 	/* Get the item index */
 	if (repeat_pull(com_val))
 	{
@@ -1476,8 +1628,6 @@ static bool get_stock(int *com_val, cptr pmt)
 			repeat_clear();
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 	/* Assume failure */
 	*com_val = (-1);
@@ -1535,11 +1685,7 @@ static bool get_stock(int *com_val, cptr pmt)
 	/* Save item */
 	(*com_val) = item;
 
-#ifdef ALLOW_REPEAT
-
 	repeat_push(*com_val);
-
-#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -2523,7 +2669,7 @@ static void store_sell(void)
 
 
 	/* Hack -- Cannot remove cursed objects */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	if ((item >= INVEN_EQUIP) && cursed_p(o_ptr))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -2753,6 +2899,61 @@ static void store_examine(void)
 }
 
 
+static bool item_tester_hook_uniq_corpse(const object_type *o_ptr)
+{
+	monster_race *r_ptr;
+	
+	if (o_ptr->tval != TV_CORPSE) return (FALSE);
+	
+	r_ptr = &r_info[o_ptr->pval];
+	
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (TRUE);
+	
+	return (FALSE);
+}
+
+/*
+ * Guild command -- sell unique corpse
+ */
+static bool do_return_corpse(void)
+{
+	object_type *o_ptr;
+	monster_race *r_ptr;
+	int item, money;
+	cptr q, s;
+	
+	/* Prompt for object */
+	q = "Sell what corpse? ";
+	s = "You do not have any unique corpses.";
+	item_tester_hook = item_tester_hook_uniq_corpse;
+	if (!get_item(&item, q, s, USE_INVEN)) return (FALSE);
+	
+	/* Get the object (inventory) */
+	o_ptr = &inventory[item];
+	
+	/* Get the monster race */
+	r_ptr = &r_info[o_ptr->pval];
+
+	/* Delete the object */
+	inven_item_increase(item, -1);
+        inven_item_describe(item);
+	inven_item_optimize(item);
+	
+	/* Give the player some $$$ */
+	money = r_ptr->level * 1000;
+	if (r_ptr->flags1 & (RF1_QUESTOR)) money *= 10;
+	p_ptr->au += money;
+	msg_format("The guildsman pays you %d gold pieces for this corpse.", money);
+	
+	/* Recalculate some stuff */
+	p_ptr->update |= (PU_BONUS);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	handle_stuff();
+
+	return (TRUE);
+}
+
+
 
 /*
  * Hack -- set this to leave the store
@@ -2776,14 +2977,62 @@ static void store_process_command(bool guild_cmd)
 {
 	bool legal;
 
-#ifdef ALLOW_REPEAT
-
 	/* Handle repeating the last command */
 	repeat_check();
 
-#endif /* ALLOW_REPEAT */
-
 	legal = TRUE;
+
+	/* Guild commands */
+	if (guild_cmd)
+	{
+	    	switch (p_ptr->command_cmd)
+		{
+		    	/* Sell unique corpse */
+		    	case 'a':
+			{
+				do_return_corpse();
+				return;
+			}
+			break;
+
+			/* *Identify* */
+			case 'b':
+			{
+			    	if (p_ptr->fame >= 30)
+				{
+				    	if (p_ptr->au < 4000)
+					{
+					    	msg_print("You do not have enough money.");
+					}
+					else
+					{
+					    	if (identify_fully()) p_ptr->au -= 4000;
+					    	message_flush();
+						display_guild();
+					}
+				}
+				else msg_print("You are not famous enough!");
+
+				return;
+			}
+			break;
+
+			/* Reforge */
+			case 'c':
+			{
+				if (p_ptr->fame >= 50)
+				{
+					do_reforge_artifact();
+					message_flush();
+					display_guild();
+				}
+				else msg_print("You are not famous enough!");
+
+				return;
+			}
+			break;
+		}
+	}
 
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
@@ -2859,8 +3108,7 @@ static void store_process_command(bool guild_cmd)
 		/* Drop (Sell) */
 		case 'd':
 		{
-			if (!guild_cmd) store_sell();
-			else legal = FALSE;
+			store_sell();
 			break;
 		}
 
@@ -2871,7 +3119,6 @@ static void store_process_command(bool guild_cmd)
 			else legal = FALSE;
 			break;
 		}
-
 
 		/*** Inventory Commands ***/
 
@@ -3399,9 +3646,47 @@ void store_shuffle(int which)
 	}
 }
 
+/*
+ * Checks whether the store has all the required items.
+ */
+static bool store_good_stock(const store_type *st_ptr, int which)
+{
+	int i, j;
+	 
+	/* Save the store index */
+	store_num = which;
+	
+	for (i = 0; i < MAX_PREREQ_ITEMS; i++)
+	{
+		/* tval == 0 -> empty entry */
+		if (!store_req_items[store_num][i][0])
+			continue;
+		
+		/* Iterate through stock */
+		for (j = 0; j < st_ptr->stock_num; j++)
+		{
+			object_type *o_ptr = &st_ptr->stock[j];
+			
+			/* tval matches, any sval */
+			if (o_ptr->tval == store_req_items[store_num][i][0] &&
+				(byte)-1 == store_req_items[store_num][i][1]) break;
+			/* tval and sval match */
+			if (o_ptr->tval == store_req_items[store_num][i][0] &&
+				o_ptr->sval == store_req_items[store_num][i][1]) break;
+		}
+		
+		/* No match! */
+		if (j == st_ptr->stock_num) return (FALSE);
+	}
+	
+	/* Ok! */
+	return (TRUE);
+}
+
 
 /*
  * Maintain the inventory at the stores.
+ * We must ensure that the store has certain items -AU-
  */
 void store_maint(int which)
 {
@@ -3409,74 +3694,96 @@ void store_maint(int which)
 
 	int old_rating = rating;
 
+	store_type store_info_body, *so_ptr;
+	st_ptr = &store_info_body;   /* New store */
+	so_ptr = &store[store_num];  /* Old store */
+
 	/* Ignore home */
 	if ((which == STORE_HOME) || (which == STORE_GUILD)) return;
 
 	/* Save the store index */
 	store_num = which;
 
-	/* Activate that store */
-	st_ptr = &store[store_num];
+	st_ptr = &store_info_body;   /* New store */
+	so_ptr = &store[store_num];  /* Old store */
 
-	/* Activate the owner */
-	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
-
-	/* Store keeper forgives the player */
-	st_ptr->insult_cur = 0;
-
-	/* Mega-Hack -- prune the black market */
-	if (store_num == STORE_B_MARKET)
+	/* Repeat until we have acceptable inventory */
+	do
 	{
-		/* Destroy crappy black market items */
-		for (j = st_ptr->stock_num - 1; j >= 0; j--)
-		{
-			object_type *o_ptr = &st_ptr->stock[j];
+		/* Start with old store */
+		COPY(st_ptr, so_ptr, store_type);
 
-			/* Destroy crappy items */
-			if (black_market_crap(o_ptr))
+		/* Make the copy of the old stock */
+		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
+		C_COPY(st_ptr->stock, so_ptr->stock, st_ptr->stock_size, object_type);
+
+		/* Activate the owner */
+		ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
+
+		/* Store keeper forgives the player */
+		st_ptr->insult_cur = 0;
+
+		/* Mega-Hack -- prune the black market */
+		if (store_num == STORE_B_MARKET)
+		{
+			/* Destroy crappy black market items */
+			for (j = st_ptr->stock_num - 1; j >= 0; j--)
 			{
-				/* Destroy the object */
-				store_item_increase(j, 0 - o_ptr->number);
-				store_item_optimize(j);
+				object_type *o_ptr = &st_ptr->stock[j];
+
+				/* Destroy crappy items */
+				if (black_market_crap(o_ptr))
+				{
+					/* Destroy the object */
+					store_item_increase(j, 0 - o_ptr->number);
+					store_item_optimize(j);
+				}
 			}
 		}
-	}
 
-	/* Choose the number of slots to keep */
-	j = st_ptr->stock_num;
+		/* Choose the number of slots to keep */
+		j = st_ptr->stock_num;
 
-	/* Sell a few items */
-	j = j - randint(STORE_TURNOVER);
+		/* Sell a few items */
+		j = j - randint(STORE_TURNOVER);
 
-	/* Never keep more than "STORE_MAX_KEEP" slots */
-	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
+		/* Never keep more than "STORE_MAX_KEEP" slots */
+		if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
 
-	/* Always "keep" at least "STORE_MIN_KEEP" items */
-	if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
+		/* Always "keep" at least "STORE_MIN_KEEP" items */
+		if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
 
-	/* Hack -- prevent "underflow" */
-	if (j < 0) j = 0;
+		/* Hack -- prevent "underflow" */
+		if (j < 0) j = 0;
 
-	/* Destroy objects until only "j" slots are left */
-	while (st_ptr->stock_num > j) store_delete();
+		/* Destroy objects until only "j" slots are left */
+		while (st_ptr->stock_num > j) store_delete();
 
-	/* Choose the number of slots to fill */
-	j = st_ptr->stock_num;
+		/* Choose the number of slots to fill */
+		j = st_ptr->stock_num;
 
-	/* Buy some more items */
-	j = j + randint(STORE_TURNOVER);
+		/* Buy some more items */
+		j = j + randint(STORE_TURNOVER);
 
-	/* Never keep more than "STORE_MAX_KEEP" slots */
-	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
+		/* Never keep more than "STORE_MAX_KEEP" slots */
+		if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
 
-	/* Always "keep" at least "STORE_MIN_KEEP" items */
-	if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
+		/* Always "keep" at least "STORE_MIN_KEEP" items */
+		if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
 
-	/* Hack -- prevent "overflow" */
-	if (j >= st_ptr->stock_size) j = st_ptr->stock_size - 1;
+		/* Hack -- prevent "overflow" */
+		if (j >= st_ptr->stock_size) j = st_ptr->stock_size - 1;
 
-	/* Create some new items */
-	while (st_ptr->stock_num < j) store_create();
+		/* Create some new items */
+		while (st_ptr->stock_num < j) store_create();
+		
+	} while (!store_good_stock(st_ptr, store_num));
+	
+	/* Delete the old stock */
+	FREE(so_ptr->stock);
+	
+	/* Store the new store ;) */
+	COPY(so_ptr, st_ptr, store_type);
 
 	/* Hack -- Restore the rating */
 	rating = old_rating;

@@ -1,0 +1,599 @@
+Version 0.3.4
+
+New features:
+Start menu accepts lowercase 'q' and 's' at final screen before finishing player birth.
+Eliminated the Lua files.
+Rogue bonuses from slings are now shown on the character screen. (code provided by James Graves)
+Added Ancient dragon pits and young dragon nests.  
+Weaker nests/pits no longer appear below certain levels.
+Made it a little easier to get potions of augmentation (before stat gain)
+	 and dungeon spellbooks as quest rewards.
+Made all shields, boots, cloaks, and helms a little more common.
++ some miscellaneous code cleanup.
+Increased damage for Power dragon scale mail activations, and they now
+generate cone/arc shaped breaths instead of fireballs.
+A couple new files to help compiling under MAC-OS created by Thomas Castiglione
+
+Incorporated almost all changes from Angband 3.0.4, specifically:
+
+Changes in Angband 3.0.4:
+- Chaos resistance protects against confusion by chaos based attacks.
+- Smoothed out the tables for extra mana-points per level, hitpoint
+  bonus from constitution, "spells per level" vs. "spell stat", and
+  INT/WIS dependent failure rate adjustment.  The old steps have been
+  replaced by a steady increase, so small stat improvements are more
+  useful.  Please note that this will also affect characters imported
+  from older versions, so these might gain or lose some spells, mana,
+  and hitpoints when imported into Angband 3.0.4 (or NPP 0.4.0).
+- Gave the 'thanc daggers a 2d4 damage dice instead of 1d4 and made them
+  more common. (Jonathan Ellis)
+- Gave each of the Paur* gauntlets a single minor power (slow-digestion,
+  regeneration, permanent light, feather fall) and made them more
+  common. (Jonathan Ellis)
+- Rods of Recall, Perception, Curing, Healing, Restoration, and Speed
+  will not be destroyed by electricity.
+- Made Raal's Tome of Destruction more, and Kelek's Grimoire of Power
+  less common. (Timo Pietilä)
+- Removed fire brand from ammo 'of Holy Might'. (Timo Pietilä)
+- Give the short range teleport effect from gravity attacks on monsters
+  an additional 1 in 3 chance to teleport the monster away.  This should
+  make abusing the Rift spell a bit harder.
+- Added a level dependent chance to resist the teleportation effect of
+  gravity attacks for monsters and the player. (suggested by Jonathan
+  Ellis)
+- Junk items like broken sticks, empty bottles, and rodent skeletons are
+  no longer generated in the dungeon.
+- Added support for artifact and ego-item descriptions. (with help from
+  Hallvard B Furuseth)
+- Added artifact descriptions.  The texts are mainly taken from OAngband
+  and other variants. (Jonathan Ellis)
+- Added object descriptions assembled by Hallvard B Furuseth.  The
+  descriptions are mostly copied from obj-long.spo version 3.0.2 by Hugo
+  Kornelis, Stephen S. Lee, Leonard Dickens and Craig Lewis.
+- Added ego item descriptions for some ego types. (Hallvard B Furuseth)
+- "Easy open" ignores broken doors now when trying to close doors.
+- Added new 8x8 tiles and tile definitions provided by "Dawnmist".
+- Removed several broken tile definitions for the 32x32 tiles.
+- Allow direct melee attacks on visible monsters in walls.  You still
+  have to tunnel into the wall if you are trying to attack an invisible
+  monster. (suggested by Greg Stark)
+- Show infos like "It cannot be harmed by the elements." when
+  'Inspecting' books, just as for other item types.
+- Changed the behavior of the 'auto_more' option, so that it
+  automatically skips '-more-' prompts instead of not displaying
+  messages on the top line. (Tom Houser)
+- Changed the "Do you really want to quit?" prompt to "Do you really
+  want to commit suicide?".
+- Added a 'show scores' command to the knowledge menu.
+- Changed the wording for the scores display a bit.
+- Added the kill count of non-unique monsters to the knowledge menu.
+- Added a modified version of Mogami's macro trigger patch. This patch
+  modifies how macro trigger keys are displayed on screen and written in
+  .prf files.  The trigger keys are no longer displayed in ugly key code
+  style, such like ^__FFBE\r or ^_O_FF53\r, but in more smart style,
+  such like \[F1] or \[alt-Right].
+- Select the sex, race, and class choices from a dead character as
+  defaults for a new character.
+- Added a stripped down version of Takeshi Mogami's "auto_dump" feature
+  from Hengband.  Automatic pref file dumps from the game are now
+  marked, so that they can be replaced when dumping to the same
+  pref-file again.
+- Allow the banishment spell to be aborted at the "Choose a monster race
+  to banish" prompt without using up a scroll or charge.
+- Added John Rauser's monster list patch that allows the user to display
+  a list of the visible monsters in a window.
+- Recharging wands or staves that have been fully *identified* before
+  will now automatically reveal the new number of charges in the device.
+  This fixes a bug where an already *ID'ed* wand or staff couldn't be
+  *ID'ed* again after recharging (but plain ID works), despite the
+  number of charges being unknown. (bug reported by Eddie Grove)
+- text_to_ascii() didn't check that the characters used in \xAB
+  sequences represent real hex characters.  Invalid hex sequences are
+  now converted to the '?' character. (reported by Kieron Dunbar)
+- Improved the handling of incomplete '\x' sequences in macros.  The old
+  code could skip the final NUL-byte of the string if it ended with
+  '\x', leading to a potential buffer overflow.
+- Fixed a typo in the description of the "wild cat". (Jay McAbee)
+- Rods and staves of probing are no longer automatically identified when
+  used without a monster nearby. (reported by "someog")
+- Prevent the player from being hit multiple times by area effect spells
+  and breaths that can blink the player (nexus, gravity).
+- The player can now get a level feeling when entering level 1 without
+  spending 1000 game turns in town first. (Tom Houser)
+- Branding ammo or weapons will now automatically try to combine and
+  reorder the resulting objects, even if the enchantment of to-hit and
+  to-dam fails. (reported by John D. Goulden)
+- Try to output minor warning messages (such as "illegal option choice"
+  when selecting a non existing item for a command) as soon as possible.
+  (reported by "Mogami")
+- Show all minor error messages immediately in the message window.
+- The effects of light spells are only obvious if you aren't blind.
+- Wands and rods of light don't give a message and aren't automatically
+  identified when using them while blind. (reported by Steve Kroon)
+- Refilling a latern from a stack of laterns will now only use the oil
+  from one latern, not from the whole stack. (reported by Jay McAbee)
+- Prevent earthquake/destruction spells from working in town.  This
+  prevents inappropriate messages (like "The cave ceiling collapses!").
+- Automatically try to load the "Kobold.prf" file at startup if the
+  player is a Kobold.
+- Improved the output of item and monster descriptions in spoilers and
+  character dumps.  In some cases punctuation and spaces were wrapped to
+  the next line.
+- The basic object spoilers only reported the prices for unidentified
+  items.  (reported by Hugo Kornelis)
+- The cursor keys in the X11 ports behave the same way now, no matter if
+  num-lock is on or off.
+- Change colors in main-gcu.c. This is Dominik Grzelak's patch to change
+  bright white from blue back to bright white. (Ed Cogburn)
+- Added a workaround for a bug in the curses version with USE_GETCH.
+  The news.txt screen was erased by the first call to the getch()
+  function. (Frank Palazzolo)
+- Angband consumed 100% of the cpu while waiting for a keypress in the
+  GTK port. (Sheldon Simms)
+- Allow text to be copied from the game window in the X11 port.
+  (modified version of the code in Kieron Dunbar's sCthangband 1.0.10)
+- Added transparency support to the 32x32 tiles in the Windows port.
+  This requires a modified tiles bitmap and a new transparency mask
+  originally created by Andrew Doull:
+  ftp://clockwork.dementia.org/angband/Extra/graf-32x32-304.zip
+- Removed the hackish 'Show scores' menu entry from the Windows version.
+  Use the new knowledge menu entry instead.
+- Applied lots of Mac specific patches by "pelpel".
+- Allow initialization of the game to continue, even if the
+  lib/data/*.raw files can't be written.  In that case the data parsed
+  from the lib/edit/*.txt files stays in memory and is used instead of
+  the *.raw data.  This currently wastes some memory, since the text
+  arrays are not resized to the minimum required length.
+- Added a performance tweak for the Angband Borg.
+- Increased the data-type of the shopkeeper purse limit from signed
+  16 bit to signed 32 bit.  This will allow shopkeepers with a higher
+  limit than 32768 gold to be added.
+- Added a compile time option to store the savefiles and scores in the
+  player's home directory (under ~/.angband/Angband/) on multi-user
+  machines.
+- Use a different delay function in the DOS version that works around
+  the restricted 55ms resolution on Windows 2000 and XP.
+
+Bugfixes:
+Bugfix: A player could be in maximize mode with a stat greater than 3, but the stat is 3 due to racial, class deduction.  If the stat is drained, it didn't appear in the color yellow right away.
+
+
+Version 0.3.3
+New features:
+Rogues may no longer steal using the alter command.
+Mana breathers no longer resist mana attacks.
+
+Bugfixes:
+
+Bugfix: Made some changes to make sure "&nothing" isn't produced, and if it is 	produced, doesn't take up a player inventory slot if they walk over it.
+Bugfix: The teleport-other spell beams again.
+Bugfix: "Lash" ranged attack descriptions are properly capitalized.
+Bugfix: Project_arc function now works properly (it was unused before).
+Bugfix: The insult attack was givng two messages, and the punctuation was wrong.
+	(code fix provided by KUSUNOSE Toru)
+Bufix: Gravity breaths could occasionally instakill a player.
+Bugfix: Pressing "?" to view help file for birth options didn't take the player directly
+	to the actual option.
+
+Version 0.3.2
+
+New features:
+In addition to '+' & '-', using 'h' & 'l' can navigate through the character screens.
+Pressing ? during chracter race/class selection takes you to information about the specific race/class 
+ 	in the helpfile.
+Evasive Monsters can no longer dodge magical spells and attacks.
+Infravision now starts beyond the player's current lite radius.
+Double resistance helps protect inventory from damage.
+changed rogue dispel monsters trap to Line-of-site damage from an explosion. 
+Made Anssi Ramela's first winner of NPP 0.3.x, Brother Steadfast, a temple shopkeeper.
+When Rods/Wands/Staffs are drained by monster melee attack, they are usually only partially drained.
+Monsters can also heal their mana when draining Rods/Wands/Staffs by monster melee attack
+
+Bugfixes:
+
+Bugfix: Fixed an inconsistency in the quest generation code when making a unique quest (code fix provided by KUSUNOSE Toru)
+Bugfix: Fixed a typo in makefile.BCC (code fix provided by KUSUNOSE Toru)
+Bugfix: Monsters were getting a free haste spell after they casted orb of draining (code fix provided by KUSUNOSE Toru)
+Bugfix: Fix an error in the new project_los_not_player function that allowed monsters
+	not in LOS to be affected.
+Bugfix: fixed a bug in wizard mode where all rods, staves and wands are listed with the
+price of an unidentified rod, stave of wand (patch by Robert Ruehlmann)
+Bugfix: Wands of disarming work properly again.
+Bugfix: Monster attacks stop after earthquake moves player to a non-adjascent square from monster.
+Bugfix: (OS Port only) doing a character dump with note taking option on no longer causes game to lock up.
+Bugfix: Pressing ? in the options menu takes you to the specific option in the "options" help file again.
+Bugfix: In monster description, "seeker shots" is properly pluralized.
+Bugfix: There is proper spacing after describing number of player attacks.
+Bugfix: Failed unique quests are now described properly.
+Bugfix: When examing a weapon, the number of attacks was occasionally incorrect.
+Bugfix:  When accessing the character screen, player speed was being unfairly reduced by 10 if 
+they were slowed at the time.  This meant instadeath to anyone with a window open permanently 
+displaying the character screen.
+Bugfix: Wand and Rod mimics now hide properly.
+
+
+Version 0.3.1
+
+New features:
+Notices of failed quests are written to the notes file.
+Potions of life and *healing* can occasionally be good items if the 
+	object level is greater than 80.
+Made objects in inventory slightly harder to destroy, to compensate
+	for all the extra chances they have to get 
+	destroyed with the 4gai changes.
+Changed the probability of monster description displaying spell frequency.
+Re-charging a stack of wands doesn't destroy the whole stack as frequently.
+Failing to steal too much only makes newly generated monsters slightly hasted (since
+4gai has code to slow down completely hasted monsters).  It also now makes them wary.
+(I)nspecting a weapon now also reveals how many attacks per round the 
+	character would get with that weapon.
+Made potions of augmentation and dungeon spellbooks slightly more
+	probable as tailored quest rewards.
+Added new icon, made by Kurt Tannert.
+Using '~' to view home inventory gives object description as well.
+
+
+Fixed Bugs:
+
+Bugfix: Sleeping, evasive monsters no longer get a chance to evade a blow.
+Bugfix: Shafts can appear above level 5 now.
+Bugfix: Boosted damage sides no longer get erased when a savefile is loaded.
+Bugfix: Monsters killed by other monsters don't count towards quest tallys.
+Bugfix: Monsters no longer fire arrows at player if not a clear path.
+Bugfix: Looking at a monster shows messages like ("Asleep", "stunned") again.
+Bugfix: A rogue can no longer modify a monster trap if a monster is on it.
+Bugfix: Monsters were getting occasional double moves on faster players
+Bugfix:	Monster hit points were getting regenerated twice per turn.
+
+
+
+
+Version 0.3.0
+
+New features:
+
+Added Demoband/Sangband 4gai, which includes (as done by Leon Marrick):
+- The "basic code":  4GAI monster ranges, spellcasting, learning, 
+  mana and spellpower, movement, flow, processing, terrain-handling.
+- The "associated code":  Oangband-style noise, monster spells, multi-hued 
+  monsters, fewer wimpy monsters, monster polymorphing, compacting, etc.
+- EyAngband-style monster lifepoint ratings  (by Eytan Zwieg)
+- Sangband-style monster melee attack code and town monsters, 
+  various Sangband updates to the above, 
+- Some changes to randomizing functions to accomodate the above, more correct rounding
+- New and more varied monster attack messages, some from Moria and early Angband
+- smaller monster groups and escorts, careful control of nests, pits, and similar
+- new limits on summoning level, much fewer monsters summoned
+- new limits on OoD monsters, whether randomly generated, summoned, or placed in vaults.
+- arc spells and breaths for the monsters.
+- Sangband project functions (this means no more hockey-stick corridors)
+- Sangband update_view and line-of-sight functions
+- many new types of monster resistances
+- Evasive Monsters (Sangband, EYAngband)
+- monsters surrounded by clouds (UnAngband, Sangband)
+- True "Mimics" (Zangband, Sangband)
+
+
+Note: The breath spells still do Angband-type damage, based on hitpoints rather than spell power.
+And have about the same maximums as Angband.  I made some minor changes to some breaths, such as 
+gravity, inertia, and time.  Example:  depending on whether the creature breathes powerfully or 
+not, gravity breath has different maximum HP damage, and the breath damage-per-hp is also different.
+This allows gravity wyrms to do some real damage while slightly reducing the danger from gravity hounds.
+Instead of reducing HP and armor class as Sangband/Oangband do, the monsters have a smaller
+amount of max_mana, and spell power is adjusted so the damage is similar to that by Angband
+Monsters.  They do more damage in some spells than Angband, but I made the sources of healing
+a little more common and just a little more powerful to compensate.
+
+Other minor new features:
+Player given chance to add last words to notes file upon dying.
+Made most sources healing a little more powerful and common.
+Made scrolls of mass banishment and banishment more common.
+Limited the types of creatures available for quests (no insects, flies, rodents, etc...)
+The "make monsters wary" code now works better, as it is based on the project functions.
+Got rid of the monster.pkg and associated monster-lua files.  
+   The other lua files are still working.
+Added monster mana bar to go with the monster hit-point bar.
+Changed name of staffs and rods of enlightenment to magic mapping.
+Added several new potions and potion flavors.
+Added separate commands for stealing (P) and setting traps (O)
+aborting the alter trap command no longer takes a turn
+slightly revised character screen
+removed unused monster options
+Made monster spell frequency based on straight percentages rather than the one_in_X scheme
+Removed option to occasionally go down another flight of stairs
+Added shafts in addition to stairs, which take the player up or down 2 levels.
+Made some of the more valuable rods immune to destruction by electricity.
+When re-charging, a single rod can no longer be destroyed.
+In the knowledge screen, player can now view notes file 
+	and home inventory (code provided by Jean-Pierre Hamel)
+Made it slightly more likely to sleep, confuse, and slow monsters.
+Some potions have affect the monster when thrown (ex. potion of confusion confuses monster)
+Two prayer changes in beginners handbook:
+1)  Combined find traps and detect doors/stairs into one spell.
+2)  Added a weak, low-level attack spell, bolt of draining.
+
+
+
+Bugfix: Guild rewards that are chests no longer have traps on them
+Bugfix: The guild should no longer give & nothing as a quest reward
+Bugfix: Trap doors were being allowed at the bottom of dungeon, quest levels.
+Bugfix: Stairs and walls were being treated as walls in wiz_lite.
+Bugfix: Cursed artifacts are no longer given as quest rewards.
+Bugfix: Deaths of quest uniques were having 2 notes written to the notes file.
+Bugfix: Notes written to the notes file now "wrap" to next line with formatting if too long.
+Bugfix: Fixed potential buffer overflow problems with note taking.
+Bugfix: Upon completing special quests, a note was written to file if take notes option was not on.
+Bugfix: Quest chests cannot be autosquelched.
+Bugfix: Player no longer gets ammunition as a quest reward
+Bugfix: Player now can get shots in a ammunition themed chest.
+Bugfix: Monster traps can now kill uniques.
+Bugfix: The dungeon stair option was being negated by some changed level generation code.
+Bugfix: The "show squelched item as dot" option was overriding the "show piles with special character" option.
+Bugfix: The counter that tracked failed thefts was not cleared with a new game.
+Bugfix: 3 of the source code files had a capital C as the extension.
+Bugfix: Player can now access the help files from the birth menu.
+Bugfix: Darkness was causing player to forget stairs.
+Bugfix: Quest descriptions now say "destroy" instead of "kill" for undead and 
+	other non-living monsters.
+
+
+
+Version 0.2.2
+
+New features:
+
+Added an option to retain squelch settings on new character.
+Made it an option for a to-be-squelched item to appear as a purple dot.
+Made the chests lighter
+Changed the message when monsters see a playet trap or theft.
+Changed the messages that describe the special quests.
+Updated all makefiles to include the proper files.
+
+
+Bugfix:  ability to modify traps based on rogue_combat flag, should have
+	 been set_traps flag.
+Bugfix:  The option smart_packs was not showing up in the character dump option.
+Bugfix:  Calling the change player name command erased the old name.
+Bugfix:  The home equipment display mode was displaying if the home was empty.
+Bugfix:  Quest reward generation code was using last space in home to store generated objects.
+Bugfix:  Tailored Quest rewards needed further fixing.
+Bugfix:  Chests were occasionally having sustains, abilities, and high
+	 resists attached to them.
+Bugfix:  Reading a make monster trap scroll locked up if not pointed to an
+	 empty floor space.
+Bugfix:  Trap/Door destruction wasn't destroying doors, just unlocking them.
+Bugfix:  The quest reward code was causing to much gold to be produced.
+Bugfix:  re-set # of items generated in quest reward code.
+Bugfix:  Ammunition was being given out as quest reward.
+Bugfix:  Level generation was wrong when in bigtile mode.
+Bugfix:  Damage calculations from thrown weapons was wrong (Tony Holmes fixed this).
+Bugfix:  Player Dump was list cheat options instead of score options.
+Bugfix:  Adult_force_small_lev was pointing to wrong option
+
+
+plus some misc. code cleanup.....
+
+
+Version 0.2.1
+
+New feature:
+
+Quest rewards are now handed directly to the player, rather than
+      dropped on the floor outside the Guild.
+
+Fixed Bugs:
+
+Bugfix:  The startup screen referred to a help file that no longer existed.
+Bugfix:  Separated recall depth from max depth.  This was messing
+         up the quest generation code.
+Bugfix:  Fixed the quest reward code, which had numerous bugs.
+Bugfix:  Updated tiles to reflect the monsters and items I added.
+	(Although all the tilesets are still incomplete from V 3.0.3).
+Bugfix:  The game would crash when a charging rod was dropped in the home.
+Bugfix:  The name of a monster wasn't properly capitalized when they
+         set off a trap.	
+Bugfix:  Corrected the number of monsters generated on a small level.
+Bugfix:  One of the birth options wasn't formatted correctly on-screen.
+Bugfix:  Fixed the spacing when generating the player history.
+Bugfix:  Unique quests correctly display in notes patch upon completion.
+Bugfix:  Special quests now are written to notes file upon completion.
+Bugfix:	 When a monster destroyed a trap, the square was staying lit.
+
+
+Version 0.2.0 
+
+New features:
+
+Added EYAngband-style quests.
+Added EYAngband small levels and option to always have small levels
+All classes get better chance to hit sleeping monster
+
+Rogues get new abilities (from Oangband):
+extra shot with sling at level 26
+unusually gifted with slings, better to-hit and to-dam
+get additional to-hit and to-dam when throwing well-balanced weapons
+unusually higher chance to hit sleeping monster
+ability to set traps, set advanced monster traps, and steal items
+from monsters. (one trap to begin, and second trap at level 26)
+/*warning, failing to steal has some very negative consequences*/
+
+Made the JLE ego items and amulets a little weaker.
+Added Leon Marrick's modified help files and re-edited them for NPPAngband.
+Added throwing weapons and well balanced weapons.  They are easier to hit with & 
+they do extra damage.
+Players start with equipment wielded.
+Took interactive startup menus from EYAngband.
+Added minimum depth for monsters during creation.  Weaker monsters don't appear 
+deeper.
+Added a new trap (dagger pit).
+Players don't use full energy if they use less than max# of attacks
+to kill a monster.
+Modified the file dump to include a chart of resist flags, stat increases and 
+sustains due to equipment.
+Added additional player screens which show chart of resist flags, stat
+Increases and sustains due to home inventory.
+Changed "A" monsters from Angels to "Ainur", and modified a couple other 
+monsters.
+Adjusted speeds of some monsters to +5, +15, or +25.
+Made probing more informative.
+Added "Create Monster Trap" scroll.
+Rangers only get one extra shot with bow, at level 26.
+Warriors get an extra attack at level 26(but a max of 5 from the weapon, for a 
+total of 6).
+Made "young_dragon" nests more common, humaniod nests deeper, & animal pits 
+rarer.
+Some nests will occasionally use the highest level monsters
+rather than every other monster out of 16 chosen. 
+Some pits will occasionally use only the harder half of the 64 chosen monsters. 
+Chance of avoiding theft not 100% until dex is 18/180.
+Rods may be recharged, with a chance of destroying them.
+Messages for temporary resists now factor in the appropriate permanant resist
+(ex. a player who is immune to cold will not get message "you feel more
+ resistant to cold" when they quaff a potion of resist cold)
+Altered parsing routine to allow for uber-flags (ex. resist_all), from 
+SCthAngband.
+Added some uber-flags (ex...im_elem, no_charm, drop_up_to_14 items)
+Staffs now stack like the wands/rods.
+The stun counter stops increasing when a player is knocked out, so players 
+have a much better chance of avoiding the "knocked out" instadeath.
+Adjusted the way chest themes are derived, and made larger chests
+have more great items than smaller chests.
+Smaller chests are now more common.
+Large jeweled chests replace ruined chests, and have more items.
+Many Greater Vaults how have chests in them.
+Chests with potions, scrolls, rods/wands/staffs now more common.
+Tweaked the items that can be in a chest.
+Players are now much more likely to enter a dungeon next in a corner or hallway
+rather than a room.
+Removed debug information from executable file. Executable file is now
+three times smaller, and much quicker.
+Changed all references of "Multi-Hued" to "Chromatic"
+Added random name generator as option for character during birth.
+Randarts are less likely to aggravate.
+Made the first winner's (Matthias Kurzke) character, (Tim, a hobbit rogue) into 
+a black market shopkeeper.
+
+bugfixes:
+fixed: several typos in the options menu
+fixed: partially destroying stacks of wands, rods, and staffs now shows the 
+proper amount
+	of charges by which the stack is being reduced.
+fixed: notes patch could be turned on & off in mid-game, should be birth option
+fixed: buffer problems in writing messages to a file with the birth_take_notes 
+option
+fixed: Special note wasn't written to notes file when a player was dead, or when 
+Morgoth killed
+fixed: The HTML screenshot meta tag indicated an Angband 3.0.3 screen dump. HTML 
+file now indicates an NPPAngband screen dump.
+fixed: The name of greater vaults wasn't showing up right in the notes file.
+
+
+
+Version 0.1.1 (all bugfixes)
+
+fixed: names of killed uniques didn't appear in notes file if player was blind, 
+unique was invisible 
+	or out of LOS when killed
+fixed: player notes didn't properly indicate player depth
+fixed: artifacts made it to the notes patch multiple times, and
+ after the first time the depth is indicated as "255"
+fixed: when using tiles, the player was shown as a blank square
+fixed: the notes file identified a greater vault redundantly
+fixed: the player options were not properly aligned
+fixed: the lite radius around creatures didn't always update correctly
+
+
+Version 0.1.0 
+
+*	Added support for describing monsters speed at +5 (somewhat quickly), +15 
+(exceedingly quickly), and +25 (extremely quickly). 
+*	Added patch to change player's color as their hit-points drop. This is an 
+option 
+found under "display options". 
+*	Increased chance of increased damage dice and to hit dice on weapons, and 
+increased changes in increased damage dice on ammunition. 
+*	Decreased level boost from dragon scale mail to +10. 
+*	Reduced level boost from powerful amulets to +10. 
+*	Amulets & spell books are generated as a guaranteed "good" only if out of 
+depth. 
+*	Added option to go up or down additional flight of stairs some of the time 
+(from 
+Oangband). 
+*	Added "themed chests", similar to Oangband. There are 16 themes, and may 
+frequently contain guaranteed good or great objects. 
+*	Chests now increase level rating by +5. 
+*	Added different templates for "great items" rather than good items. There 
+are 
+several things in the good list aren't in the great list (such as spellbooks).   
+*	Changed the object generation code so that the "great" flag no longer 
+needs the 
+"good" flag to produce a great item. The "great" flag without the "good" flag 
+will 
+produce a great item, but it only gets one chance instead of four to become an 
+artifact. This was done as a way to keep the new style chests from becoming too 
+powerful. 
+*	Added Dr. Whites Monster Lite patch. 
+*	Added Eytan Zwieg's vault flipping patch. 
+*	Added a note taking patch, this is a birth option (birth_take_notes), and 
+needs to be 
+specified before the character is started. I did a significant re-write of this 
+patch. 
+Comments can be written to a file, and they will automatically print out in a 
+character dump. In addition, it automatically records the turn, level of char, 
+and 
+dungeon level of certain events, such as: the killing of uniques, finding of 
+artifacts, 
+and greater vaults created, when a player is killed or wins the game, and every 
+time 
+the character gains a new level, but only if it is divisible by 5 (level 5, 10, 
+15, 20, 
+etc...). These notes automatically print out with the character dump. The 
+formatting 
+on this feature isn't perfect yet, but I plan on finishing it after I 
+incorporate 
+EYAngband's resistance system. 
+*	Added rod-wand-stacking based on Oangband 0.6.0. 
+*	Reduced delay when using the autoroller to create a character. Should be 
+10 times 
+faster. 
+*	Added DarkGod's html screen dump patch. 
+*	Dropped Items may now be specified by theme. Code is mostly in place to 
+create 
+themed monster drops. Currently, the themed drops are used in chest opening & 
+vault creation (chests w/ monster 40 levels OOD).  
+*	Added the autosquelch patch. I made some minor changes to the sub-quality 
+squelching menu. For rings and amulets, there are only three levels (none, 
+cursed, 
+and all but artifact). I also added in the option to automatically squelch 
+chests after 
+they are opened.
+ 
+*	I deliberately made almost no changes to the edit files, so the first 
+version will give 
+almost the the exact same playability as Angband v 3.0.3. with some nice options 
+that Angband, IMHO, should contain, such as rod/wand stacking, screen dumps 
+and autosquelch. The only changes in the edit files are:
+*  Added rods re-charge time to the PVAL flag (without this updated file, the 
+game WILL crash almost instantly due to divide by zero errors) 
+*  Increased the rarity of chests, to compensate for them being loaded with 
+so many good & great items 
+*  Added the has_lite flag to the appropriate creatures, so the Lite Patch will 
+work 
+*  Removed the good flag from many of the creatures who have the great 
+flag, to balance out all the great items that are now in the chests. Mostly only 
+those who got the great flag added in the JLE-patch. 
+*  Modified some of the greater vaults so they include chests in certain areas. 
+*  Five new types of monster vaults and pits. The ogre pits are a little bland 
+right now. I plan on adding more types of Ogres, but I am deliberately 
+holding that until the next version of NPP Angband so this one keeps as 
+close as possible to 100% Angband 3.0.3 playability. 
+
+*  Six new types of monster vaults and pits. The ogre pits are a little bland 
+right 
+now. I plan on adding more types of Ogres, but I am deliberately holding that 
+until 
+the next version of NPP Angband so this one keeps as close as possible to 100% 
+Angband 3.0.3 playability. 
+*  There is a minimum depth enforcer when selecting the type of Monster Pit or 
+Next, so the weaker ones, such as Jelly Pits, don't appear at higher depths. 
+.

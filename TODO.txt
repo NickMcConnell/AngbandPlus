@@ -1,0 +1,11 @@
+PosBand TODO list:
+
+ - Implement all monster races, make all monsters available for
+   possession -- well, you know that.
+ - Make the starting inventory race-specific
+ - Visually mark pets. Possibly with background color, but this would be
+   very hard to implement
+ - Fix the "breeder problem" in more smart way
+ - Riding, mimicry...
+ - Fix big vaults. Clean up OAngband vaults. Add more vaults.
+ - Races for next release: Beholder, Crystal Dragon, Golem

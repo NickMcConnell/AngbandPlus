@@ -1,18 +1,21 @@
-/* File: init.h */
-
-/*
- * Copyright (c) 2000 Robert Ruehlmann
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
+
+/* init.h: parsing/initialization */
 
 #ifndef INCLUDED_INIT_H
 #define INCLUDED_INIT_H
 
-#include "h-basic.h"
-
+#include "system.h"
 
 /*
  * Parse errors
@@ -98,12 +101,12 @@ struct header
 extern errr init_info_txt(FILE *fp, char *buf, header *head,
                           parse_info_txt_func parse_info_txt_line);
 
-#ifdef ALLOW_TEMPLATES
 extern errr parse_z_info(char *buf, header *head);
 extern errr parse_v_info(char *buf, header *head);
 extern errr parse_f_info(char *buf, header *head);
 extern errr parse_k_info(char *buf, header *head);
 extern errr parse_a_info(char *buf, header *head);
+extern errr parse_u_info(char *buf, header *head);
 extern errr parse_e_info(char *buf, header *head);
 extern errr parse_r_info(char *buf, header *head);
 extern errr parse_p_info(char *buf, header *head);
@@ -120,8 +123,6 @@ extern errr parse_flavor_info(char *buf, header *head);
 extern int error_idx;
 extern int error_line;
 
-#endif /* ALLOW_TEMPLATES */
-
 
 /*
  * File headers
@@ -131,9 +132,11 @@ extern header v_head;
 extern header f_head;
 extern header k_head;
 extern header a_head;
+extern header u_head;
 extern header e_head;
 extern header r_head;
 extern header p_head;
+extern header c_head;
 extern header h_head;
 extern header b_head;
 extern header g_head;

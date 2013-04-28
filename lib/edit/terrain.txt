@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:3.0.8
+V:4.1.0
 
 
 # 0x00 --> <darkness>
@@ -481,3 +481,60 @@ G:<:U
 
 N:83:down shaft
 G:>:U
+
+# 0x54 --> web
+
+N:84:web
+G:%:y
+
+# 0x60 --> water
+
+N:96:water
+G:.:b
+
+# 0x61 --> ice
+
+N:97:ice
+G:`:w
+
+# 0x62 --> fire
+
+N:98:fire
+G:.:o
+
+# 0x63 --> lava
+
+N:99:lava
+G:.:r
+
+# 0x64 --> sand
+
+N:100:sand
+G:.:y
+
+# 0x65 --> rocks
+
+N:101:rocks
+G:::D
+
+# 0x66 --> fog
+
+N:102:fog
+G:.:B
+
+# 0x67 --> abyss
+
+N:103:abyss
+G:.:D
+
+# 0x68 --> grass
+
+N:104:grass
+G:.:g
+
+# 0x69 --> tree
+N:105:tree
+G:+:g
+
+# Highlight syntax in Vim
+# vim:syntax=posband

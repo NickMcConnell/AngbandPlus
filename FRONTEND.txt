@@ -1,0 +1,118 @@
+=== PosBand display modules ===
+
+Angband and its variants are very portable games. They run on the wide
+variety of systems.  The only platform-dependent part is "display
+module" -- Angband front-end.
+
+Windows or Macintosh users may skip this file. They will have a nice GUI
+display module for their system. Unix/Linux users should read this.
+
+Display module can be selected with option "-mxxx", where "xxx" is display
+module name. If you plan to implement a new display module, look into
+file src/main-xxx.c.
+
+Some modules accept sub-options, which need to be prefixed with "--"
+("posband -mgcu -- -b").
+
+--> "gcu" (curses)  Configuration option: --with-curses (on by default)
+
+Classical console front-end. It can either run with four windows -- main
+window 3/4 of the screen, the rest assigned to others -- or with one big
+window.  Pseudo-graphics will be used if available.  Suboptions are:
+
+-o
+	Use old, dimmer color scheme
+	
+-b
+	Use big-screen mode
+
+
+--> "lfb" (Linux framebuffer)  Configuration option: --with-lfb
+
+A front-end for Linux framebuffer console (that thing that displays
+a penguin during the bootup).  Supports fonts and tile graphics.  Works
+on all 8/16/24/32-bit framebuffers.
+
+!!! Note that this front-end works with framebuffer device (/dev/fb0).
+    You need read-write access to this device to use this front-end.
+
+Suboptions are:
+
+-d<device>
+	Use the selected framebuffer device.  Default is "/dev/fb0".
+
+-f<font>
+	Use the selected font.  Default is "10x20".  Fonts are stored
+	in lib/xtra/font directory as monochrome BMP files.  Specify
+	the font name without path or ".bmp" extension.
+
+-o
+	Use the old graphical tiles (8x8), if available.
+
+-a
+	Use Adam Bolt's graphical tiles (16x16), if available.
+
+-g
+	Use David Gervais' graphical tiles (32x32), if available.
+
+-b
+	Use bigtile mode (tile is twice wider than the character).
+	Recommended.
+
+-c<wid>x<hgt>
+	Override the tile size.  Useful if you play with tiles and want
+	to disable scaling.  Default is same as character size, 10x20
+	with default font.  Try "-c16x32 -f12x24 -g -b" for good display
+	with David Gervais tiles; however, this will require at least
+	1280x768 display resolution. "-c8x16 -f8x13 -g -a" will work
+	with Adam Bolt tiles.
+
+Font and tile options can be changed in the runtime, through user
+menu ("!").
+
+This is a new front-end, and relatively little tested.  If you have
+any problems, please report the information about video mode from "!"
+menu (of course, if you can see it).
+
+
+--> "vcs" (Virtual console)  Configuration option: --with-vcs
+
+Linux virtual console front-end, uses VCs directly.  Faster than "gcu",
+and allows redefining colors.  No suboptions; uses a single big window.
+
+!!! Note that this front-end works with virtual console device (/dev/vcsa*).
+    You need read-write access to this device to use this front-end.
+
+
+--> "xaw" (X Athena)  Configuration option: --with-xaw (on by default)
+
+GUI X Window front-end, uses X Athena widget set.  Suboptions are:
+
+-d<display>
+	Use the specified X display.
+
+-n<number>
+	Use the specified number of windows, default is 1.
+
+-o
+	Use the old graphical tiles (8x8), if available.
+
+-a
+	Use Adam Bolt's graphical tiles (16x16), if available.
+
+-g
+	Use David Gervais' graphical tiles (32x32), if available.
+
+-b
+	Use bigtile mode (tile is twice wider than the character).
+	Recommended.
+
+-s
+	Turn _off_ smooth tile rescaling.
+
+Permanent configuration is possible with X resources.  See comments at
+"src/main-xaw.c", or, if you didn't understand a word :),
+"http://posband.earthsea.org/unix-faq/index.html#x11-customize".
+
+-- 
+Last updated for: PosBand 0.9.9 Alpha 1

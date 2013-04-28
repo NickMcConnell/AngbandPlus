@@ -1,177 +1,216 @@
+===== Character Attributes =====
 
-====== Character Attributes ======
+=== Basic attributes ===
 
---- Basic attributes ---
+--> Experience
 
-Experience:
-     As you kill monsters, learn about objects by using them, cast spells and
+As you kill monsters, learn about objects by using them, cast spells and
 pray prayers for the first time, disarm traps, and unlock doors (listed in
 descending order of importance), you gain experience.
 
-Character Level:
-     Your level depends on your experience.  This improves hitpoints and
+--> Character Level
+
+Your level depends on your experience.  This improves hitpoints and
 (usually) spellpoints and most of the basic character abilities, and lets you
 learn new spells and gain attributes.
-     As you gain levels, your title changes to reflect your growing power.
 
-Gold:
-     Gold is amazingly handy, because everything stores sell can be yours with
+As you gain levels, your title changes to reflect your growing power.
+
+--> Gold
+
+Gold is amazingly handy, because everything stores sell can be yours with
 enough of the stuff.  Characters start out with an amount of gold determined by
 stats (lower is better).  Social class greatly influences starting gold (higher
 is better).
-     Within the Pits of Angband lies more gold than you will ever find, more
+
+Within the Pits of Angband lies more gold than you will ever find, more
 seams of treasure than you will ever dig, and more monsters carrying loot than
 you will ever kill.
 
-Hitpoints:
-     Your hitpoints are your life wrapped up in a number; if they ever drop
+--> Hitpoints
+
+Your hitpoints are your life wrapped up in a number; if they ever drop
 below zero, you die.  Resting will restore hitpoints, but you should always have
 some quicker way to heal yourself on hand.  Your maximum hitpoints depends on
 your level, race, and class, plus a constitution bonus (which can be
 considerable).
 
-Spellpoints:
-     If you use magic, you will also have spellpoints, or mana.  Your maximum
-mana depends on your level and your intelligence (if you are a mage, rogue, or
-ranger) or wisdom (if you are a priest or paladin).  Ways to recover mana faster
-than by resting are rare and greatly desired.
-     Mana goes down if you wear heavy armour.  Mages, rogues, and rangers also
+--> Spellpoints
+     
+If you use magic or some innate powers, you will also have spellpoints,
+or mana.  Your maximum mana depends on your level and your intelligence (if you
+are a mage, rogue, or ranger) or wisdom (if you are a priest or paladin). If
+you play the monster character, mana-affecting stat will depend on your race.
+Ways to recover mana faster than by resting are rare and greatly desired.
+
+Mana goes down if you wear heavy armour.  Mages, rogues, and rangers also
 lose a chunk of mana if they wear most (but not all) kinds of gloves.
 
-Armour Class:
-     Armour class (AC) makes you harder to hit in melee, and reduces the damage
+--> Armour Class
+
+Armour class (AC) makes you harder to hit in melee, and reduces the damage
 you take from many (but not all) monster blows.  You can raise it by equipping
 more and better armour, by increasing your Dexterity, and by activating various
 temporary effects.  As time passes, you will find this value rising past 100,
 even to 150 and above at very high levels.
 
-Score:
-     Your score in Angband depends on how much experience you have earned and
+--> Score
+
+Your score in Angband depends on how much experience you have earned and
 how deep in the dungeon you have ventured.
 
 
---- Vital Statistics ---
+=== Vital Statistics ===
 
-     You have six primary statistics, or stats.  Each of them has important
+You have six primary statistics, or stats.  Each of them has important
 effects, and how you juggle equipment to boost some stats at the expense of
 others can greatly help or hinder your adventuring.  Deep in the dungeon,
 potions exist that can permanently raise your stats.
 
-Values for stats:
-     Stats range from 3 to 18/220.  The progression of stats goes from 3 -> 17,
+--> Values for stats
+
+Stats range from 3 to 18/220.  The progression of stats goes from 3 -> 17,
 18, 18/10, 18/20 -> 18/220.  A value of 18/19 is the same as 18/10.
-     The lowest any stat can go is 3, a level that greatly reduces any abilities
+
+The lowest any stat can go is 3, a level that greatly reduces any abilities
 that stat influences.  The lowest "safe" figure for most stats is 7, but you
 can't expect any significant bonuses until the stat reaches 18 or higher.  Once
 you get a stat that high, further increases will greatly enhance your abilities,
 eventually making it possible to slay some truly formidable monsters.  Stats max
 out at 18/220.
-     Stats depend on your internal stats, the equipment you are wearing, and
+
+Stats depend on your internal stats, the equipment you are wearing, and
 various temporary conditions.
 
-Maximize mode:
-     In maximize mode, racial and class adjustments to stats are adjustments to
+--> Maximize mode
+
+In maximize mode, racial and class adjustments to stats are adjustments to
 final stats; a Hobbit Mage can raise his internal Intelligence to 18/150, but
 his strength only to 18/30.  In non-maximize mode, internal stats always rise to
 18/100; racial and class adjustments only affect starting stats.
-     Maximize mode (the default) is recommended in most cases.
 
-Strength:
-     Increases in Strength increase melee damage and allow you to get more blows
+Maximize mode (the default) is recommended in most cases.
+
+--> Strength
+
+Increases in Strength increase melee damage and allow you to get more blows
 with heavier weapons.  It improves both your melee and missile accuracy.
 Strength also improves your tunneling ability, allows you to bear more weight
 without being slowed down, and to wield heavier weapons effectively.
 
-Intelligence:
-     Intelligent characters use magic devices, pick locks, and disarm traps more
+--> Intelligence
+
+Intelligent characters use magic devices, pick locks, and disarm traps more
 effectively.
-     If you are using spells, intelligence is your primary stat.  It controls
+
+If you are using spells, intelligence is your primary stat.  It controls
 how many spells you may learn, the amount of mana you have, and your spell
 failure rate.  If you are using prayers, wisdom controls all of these things.
 
-Wisdom:
-     Wise characters have a better chance of resisting magical spells cast upon
+--> Wisdom
+
+Wise characters have a better chance of resisting magical spells cast upon
 them by monsters.  Wisdom is a priest or paladin's primary stat.
 
-Dexterity:
-     Dexterity is a combination of agility and quickness.  A high dexterity may
+--> Dexterity
+
+Dexterity is a combination of agility and quickness.  A high dexterity may
 allow you to get multiple blows with lighter weapons, and will increase your
 chances of hitting with melee or missile weapons.  Dexterity is also useful in
 picking locks, disarming traps, and protecting yourself from some of the thieves
 that inhabit the dungeon.
 
-Constitution:
-     Constitution determines your ability to resist physical damage, and your
+--> Constitution
+
+Constitution determines your ability to resist physical damage, and your
 rate of recovery from poison, stuns, and cuts.  It makes a great difference to
 the amount of hitpoints you have and the speed at which you recover them, and so
 is a vital stat for any character.
 
-Charisma:
-     Charisma represents a character's ability to influence others.  A character
+--> Charisma
+
+Charisma represents a character's ability to influence others.  A character
 with a high charisma will receive better prices from store owners, whereas a
 character with a very low charisma will be robbed blind.  Charisma also affects
 the character's ability to use magic to sleep, scare, or confuse a monster.
 
 
---- Abilities ---
+=== Abilities ===
 
-     In addition to your stats, certain basic abilities define your character.
+In addition to your stats, certain basic abilities define your character.
 They depend on race, class, stats, and level, and may be powerfully influenced
 by temporary conditions.  You can most effectively keep track of your abilities
 by using the Character screen.
 
-Saving Throw:
-     The higher your saving throw, the more likely you are to resist the side
+--> Saving Throw
+
+The higher your saving throw, the more likely you are to resist the side
 effects of monster blows and spells, traps, your own magic (when it fails), and
 mental attacks.  Saving throw depends on race, class, wisdom, and level.
 
-Stealth:
-     The ability to move silently about is very useful.  If your stealth is good
+--> Stealth
+
+The ability to move silently about is very useful.  If your stealth is good
 enough, you can avoid fights, get in the first blow, and fight monsters one at a
 time.  Stealth depends on race, class, and equipped items.
 
-Fighting (Melee):
-     The higher your melee ability, the more frequently you will hit in hand-to-
-hand combat and the more critical hits you will get.  Your race, class, stats,
-plusses to hit on equipped items (except for other weapons), and temporary
-effects are all factored into the skill value displayed on your character
-screen.  This also holds true for shooting ability.
+--> Disarming
 
-Shooting:
-     The higher your shooting ability, the more frequently you will hit with
-missile weapons and the more critical hits you will get.
-
-Disarming:
-     The higher your disarming ability, the more quickly and safely you can pick
+The higher your disarming ability, the more quickly and safely you can pick
 locks and disarm chests and traps.  Race, class, level, dexterity, and
 intelligence all affect this ability.  It also affects the quality of any 
 monster traps set by the player, and the rogues ability to steal from creatures.
 
-Magical Devices:
-     Determines how likely you are to successfully use magical devices or
+--> Magical Devices
+
+Determines how likely you are to successfully use magical devices or
 activatable items.  Race, class, level, and intelligence affect this ability.
 You need considerable skill to use high-level objects.
 
-Perception:
-     The better your perception, the more likely it is that you will see traps
+--> Perception
+
+The better your perception, the more likely it is that you will see traps
 and secret doors automatically.  Perception depends on race, class, level, and
 equipped objects.
-     Note that this ability has no relationship to your ability to sense
+
+Note that this ability has no relationship to your ability to sense
 (pseudo-ID) objects.
 
-Searching:
-     The better you are at searching, the more likely it is that you will see
+--> Searching
+
+The better you are at searching, the more likely it is that you will see
 traps and secret doors by searching for them.  Searching depends on race, class,
 level, and equipped objects (same as perception).
 
-Infra-vision:
-     The higher your infravision, the further away you can see warm-blooded
+--> Infra-vision
+
+The higher your infravision, the further away you can see warm-blooded
 creatures, even when invisible or not lit.
 
+--> Fighting skills
 
---- Conditions ---
+The higher your fighting skills are, the more frequently you will hit in
+combat and the more critical hits you will get.  Your race, class, stats,
+pluses to hit on equipped items (except for other weapons), and temporary
+effects are all factored into the skill value displayed on your character
+screen.  This also holds true for shooting abilities.  There are nine fighting
+skills:
 
-     Your character may benefit or suffer from many different conditions.  The
+     Barehanded: unarmed combat (possibly with claws etc.)
+     Edged weapons: figting with daggers, rapiers, swords etc.
+     Blunt weapons: figting with whips, maces, flails, hammers etc.
+     Polearms: fighting with spears, pikes, halberds etc.
+     Axes: fighting with various axes
+     Slings: shooting with slings
+     Bows: shooting with bows
+     Crossbows: shooting with crossbows
+     Throwing: throwing objects (some object, for example, daggers or throwing
+axes, can cause significant damage when thrown)
+
+
+=== Conditions ===
+
+Your character may benefit or suffer from many different conditions.  The
 most important ones are displayed on the bottom row of the main screen and the
 lower part of the left panel.  We describe them as they are displayed, down,
 then from left to right.
@@ -189,13 +228,15 @@ then from left to right.
                  objects or what's around you, and get only vague information
                  when many things happen.  You often miss monsters, and cannot
                  cast spells or read scrolls.
-     Confusion : You move and attack randomly and cannot cast spells, read
-                 scrolls, or use magical devices.
+     Confusion : You move and attack randomly and cannot cast spells or read
+                 scrolls. Using magical devices has a much bigger chance of
+		 failure.
      Fear      : You cannot use melee combat.
      Poison    : Instead of recovering battle damage, you take additional damage
                  every turn.
 
-State:
+--> State
+
      You can sometimes be in one of several different states.
 
      Paralyzed : You cannot do ANYTHING until the effects wear off.
@@ -203,36 +244,27 @@ State:
      Repeat    : You are repeating an action (like tunneling).
      Searching : You are searching (automatic search, but slowed speed).
 
-Speed:
-     The faster you are, the less time you take to perform all kinds of actions.
+--> Speed
+
+The faster you are, the less time you take to perform all kinds of actions.
 It is vital not to become too slow.  As you descend into the dungeon, you need
 to find ways to hasten yourself temporarily and permanently.
-     A speed of +10 is double speed ("fast"), and one of +20 is triple speed
-("very fast").  A speed of 10 is half speed ("slow"), and one of -20 is one
-third speed ("very slow").
-     Permanent speed bonuses add to your base speed.  Temporary effects may
+
+A speed of +10 is double speed ("fast"), and one of +20 is approximately
+triple speed ("very fast").  A speed of 10 is half speed ("slow"), and one of
+-20 is approximately one third speed ("very slow").
+
+Permanent speed bonuses add to your base speed.  Temporary effects may
 increase or reduce speed by 10.
 
-Study:
-     If you know magic, and can learn spells, you will see a "study" indicator
+--> Study
+
+If you know magic, and can learn spells, you will see a "study" indicator
 near the right-bottom of the main screen.  If you have a book available, you can
 learn the spells now.
 
-Depth:
-     How deep in the dungeon you are.
+--> Depth
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+How deep in the dungeon you are.
 
 

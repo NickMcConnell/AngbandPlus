@@ -1,6 +1,6 @@
 === Creating a Character ===
 
-NPPAngband is a roleplaying game, in which you, the player, control a character
+PosBand is a roleplaying game, in which you, the player, control a character
 in the world of Angband.  Perhaps the most important thing you control is the
 birth of your character, in which you choose or allow to be chosen various
 attributes that will affect the future life of your character.
@@ -31,7 +31,8 @@ special "pref" files.  And the character name is used on the high score list.
 Each character has three primary attributes, sex, race, and class, that
 are chosen before the character is generated, and which will stay fixed
 for the entire life of that character.  These attributes have many effects,
-which will be mentioned as they come up.
+which will be mentioned as they come up.  Character gender does not have
+any significant gameplay effects.
 
 Each character has a few secondary attributes, height, weight, social class,
 and background history, which are randomly determined, but which are affected
@@ -123,6 +124,10 @@ Warriors never have any spell points.  If a character gains enough wisdom or
 intelligence to get more spell points, the result is calculated right back to
 first level, just as with constitution and hit points.
 
+Each character may have a "monster race". It is displayed in the "C" screen
+in third column, for example, "Baby red dragon". Monster race is shown only
+for "Monster" characters. It determines stats, abilities, innate
+resistances, powers and attacks, overriding usual races.
 
 === Races ===
 
@@ -130,6 +135,12 @@ There are eleven different races that you can choose from in Angband.  Some
 races are restricted as to what profession they may be, and each race has
 its own adjustments to a character's stats and abilities. Most races also
 have intrinsic abilities.
+
+PosBand also features a number of special "Monster" races. In fact, this is
+the main feature of PosBand :-). They are special because characters with
+this races cannot choose a class, always using some "special" class, like
+"Monster" or "Possessor", not available otherwise. This is compensated by
+their superior powers.
  
           Human
                The human is the base character.  All other races are com-
@@ -252,12 +263,17 @@ have intrinsic abilities.
                biggest of creatures, and have few hit points.  They can be 
                warriors, rangers, rogues or priests.
 
+          Monster
+               This item takes you to the next menu, where you can select a
+               "Monster"-type race. See "monrace.txt".
+	
+
 === Classes ===
  
  
-          Once a race has been chosen, you will need to pick a class.  Some
-          classes  will  not be available to certain races, for instance, a
-          Half-Troll cannot become a Paladin.  
+Once a race has been chosen, you will need to pick a class.  Some
+classes  will  not be available to certain races, for instance, a
+Half-Troll cannot become a Paladin.  
  
           Warrior
                A Warrior is a hack-and-slash character, who solves most of
@@ -308,8 +324,8 @@ have intrinsic abilities.
                learn a few spells, but not the powerful offensive spells
                mages can use.  A rogue's primary stats are Dexterity and
                Intelligence.  He can set traps, and steal from monsters.  
-		   Failing to steal from a monster aggravates them.  Do it often
-		   Enough, and you will aggravate the entire dungeon.
+ 	       Failing to steal from a monster aggravates them.  Do it often
+	       enough, and you will aggravate the entire dungeon.
  
           Ranger
                A Ranger is a warrior/mage.  He is a good fighter, and the
@@ -334,6 +350,25 @@ have intrinsic abilities.
                saving throw due to his divine alliance.  His primary stats
                are Strength and Charisma, although Wisdom is necessary for 
                his spells.
+
+	  Monster (special class)
+               Most of monster characters get this class. It features no
+               spellcasting, no stat modifiers, strong pseudo-sensing, max
+               of five blows per turn and not much other. Almost everything
+               depends on the race.
+
+          Possessor (special class)
+               This is the class for Souls. Like Monsters, Possessors do not
+               have any bonuses or special powers with one very important
+               exception: possession. A possessor can enter (using 'N'
+               command) virtually any corpse of any creature, and act
+               through it, using all its normal powers. Possessor can swap
+               his bodies at will. Since possessor will start as almost
+               insubstantial being without any body at all, he receives a
+               wand of magic missile to get his first body (be patient, since
+               using even such a simple wand is rather complicated for a
+               beginner possessor). Possessors find more corpses of
+               creatures, since they are most interested in them.
  
 
 === Stats ===
@@ -412,22 +447,16 @@ have intrinsic abilities.
                with character level, and is purely dependent on race and on 
                magical equipment.
  
-          Fighting
+          Fighting skills
                Fighting is the ability to hit and do damage with weapons or
                fists.  Normally a character gets a single blow from any
                weapon, but if his dexterity and strength are high enough,
                he may receive more blows per round with lighter weapons.
                Strength and dexterity both modify the ability to hit an
-               opponent.  This skill increases with the level of the char-
-               acter.
- 
-          Shooting Ability
-               Using ranged missile weapons (and throwing objects) is
-               included in this skill.  Different stats apply to different
-               weapons, but this ability may modify the distance an object
-               is thrown/fired, the amount of damage done, and the ability
-               to hit a creature.  This skill increases with the level of
-               the character.
+               opponent.  These skills increases with the level of the char-
+               acter.  This is actually a group of 9 skills: barehanded
+	       fighting, edged weapons, blunt weapons, polearms, axes,
+	       slings, bows, crossbows and throwing.
  
           Saving Throws
                A Saving Throw is the ability of a character to resist the
@@ -476,6 +505,8 @@ have intrinsic abilities.
                improve unless magically enhanced.
 
 
+=== Note: following information is applicable only to "standard"
+    races/classes.
 
 === Combinations of Race and Class (not enforced) ===
 
@@ -524,41 +555,3 @@ level, adjusted for constitution) and an XP modifier of 20+20=40%.
       Paladin     +3   -3   +1    0   +2   +2       6         +35%
 
  
- 
-=== Ability Tables ===
-
-             Disarm  Device   Save  Stealth  Search  Percep   Fight   Bows 
-  Human         0       0       0       0       0      10       0       0
-  Half-Elf      2       3       3       1       6      11      -1       5
-  Elf           5       6       6       1       8      12      -5      15
-  Hobbit       15      18      18       4      12      15     -10      20
-  Gnome        10      12      12       3       6      13      -8      12
-  Dwarf         2       9       9      -1       7      10      15       0
-  Half-Orc     -3      -3      -3      -1       0       7      12      -5
-  Half-Troll   -5      -8      -8      -2      -1       5      20     -10
-  Dunadan       4       5       5       2       3      13      15      10
-  High-Elf      4      20      20       3       3      14      10      25
-  Kobold       10       5       0       4      15      15      -5      10
- 
-             Disarm  Device   Save  Stealth  Search  Percep   Fight   Bows 
- 
-  Warrior    25(+10) 18(+7)  18(+10)  1(+0)  14(+0)   7(+0)  70(+45) 55(+45)
-  Mage       30(+7)  36(+13) 30(+9)   2(+0)  16(+0)  20(+0)  34(+15) 20(+15)
-  Priest     25(+7)  30(+10) 32(+12)  2(+0)  16(+0)   8(+0)  48(+20) 35(+20)
-  Rogue      45(+15) 32(+10) 28(+10)  5(+0)  32(+0)  24(+0)  55(+40) 60(+30)
-  Ranger     30(+8)  32(+10) 28(+10)  3(+0)  24(+0)  16(+0)  56(+30) 72(+45)
-  Paladin    20(+7)  25(+10) 25(+11)  1(+0)  12(+0)   2(+0)  68(+35) 40(+30)
-
-For character classes, there are two figures: the first figure is the base 
-level of the ability, while the second figure (in parentheses) is the bonus
-that the character gains to this skill every ten levels. So, to find out the
-total skill value of any character's skills, add the "race" value to the
-"class" value, and then the bonus once for every ten levels that the character
-has.  
-
-(Please note, however, that these numbers are only good for comparing 
-characters to each other in the absence of other bonuses from high stats 
-(strength bonus to-dam, dex bonus to-hit, wisdom bonus to saving throw,
-intelligence bonus to magical device usage, etc.) or wearing magical items.)
-
-

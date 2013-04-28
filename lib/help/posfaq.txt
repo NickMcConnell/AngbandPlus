@@ -1,0 +1,383 @@
+
+====== PosBand FAQ ======
+
+
+ 1. Is PosBand named after Pos Band?
+====================================
+
+    No, PosBand has nothing whatsoever to do with Pos Band. *Please* don't
+    call PosBand "POS Band". (Also, my nickname is actually made up of my
+    initials, Ulyanov Alexander Vladimirovich, and has nothing to do with
+    Unmanned Aerial Vehicles :-)
+
+
+ 2. What operating systems does PosBand support?
+================================================
+
+    I provide the sources, which can be compiled for any supported OS,
+    Windows version and Red Hat and Slackware Linux packages. Unfortunately I
+    cannot compile PosBand for any other system myself. If you can help,
+    please contact me.
+
+
+ 3. What is NPPAngband?
+=======================
+
+    NPPAngband is a variant of Angband, on which PosBand is based. NPP
+    means "No Pet Peeves"; NPPAngband incorporates many minor changes which
+    proved popular among players, but were not included in "Vanilla"
+    Angband.
+
+    NPPAngband is actively maintained by Jeff Greene <nppangband@comcast.net>.
+    Its home page is "http://home.comcast.net/~nppangband/".
+
+
+ 4. Will PosBand follow the NPPAngband changes?
+===============================================
+
+    No. The current version is based on NPPAngband 0.3.4. While Jeff did
+    some great work on version 0.4.0, I think that the changes are too
+    big to use them in PosBand.  (Some minor enhancements and important
+    bugfixes are incorporated, though.)
+
+
+ 5. How do I play the "possessor" character?
+============================================
+
+    Just select a "Monster", "Soul" race. You will begin your quest as a
+    lost soul, a pretty impotent creature. The first thing you should do is
+    to zap a townsman with your Wand of Magic Missile, then seize his body
+    (stand on his corpse, then press 'N' and select it). You will need to
+    play as a weak warrior for some time -- until you find a better corpse
+    to possess. You can press 'N' again to leave your body, but beware --
+    it will instantly decay! Do that only if you already have a nice corpse.
+
+    Not all monsters drop their corpses; specifically, Ainur don't. Many
+    monsters have undefined corpse information in this version. They won't
+    drop any corpses as well.
+
+    Possessing a monster is very similar to playing a real monster race --
+    you get all the powers, etc. -- but your body will never grow or evolve.
+
+
+ 6. Can I eat the corpses?
+==========================
+
+    Sorry, no :-). This is not NetHack or ADoM. Corpses are generally
+    useless for non-possessors, though there are exceptions (e.g. Skeletons
+    can heal themselves with bones of the slayed creatures).
+
+
+ 7. Corpses are so annoying!
+============================
+
+    You can turn off corpse generation with item squelch menu. Press '=',
+    then 'i' to get to the menu, then press 'C' to turn it on or off (This
+    is Shift+C).
+
+
+ 8. I have killed Fang, and found some strange collar artifact.
+===============================================================
+
+    That's right, many unique monsters have their own artifacts. You will
+    always get this artifact if the unique was the king of your race.
+    Otherwise, the chance is pretty slim, but you should find two or three
+    during the game.
+
+
+ 9. Who are king uniques?
+=========================
+
+    King uniques are kings of your race. For example, if you play a Spider,
+    then Shelob will be your king. You will get a message whenever you meet
+    your king. If you manage to slay him/her/it, you will become a king
+    yourself: you will get permanent blessing, heroism and king's artifact.
+
+
+10. Aren't king rewards a little redundant?
+===========================================
+
+    Yes, they are -- so, if you are a Red Dragon, and kill Glaurung, you'll
+    get his dragon scale mail with fire immunity, which you already have.
+    But remember that these artifacts are not meant for your race only.
+    Any character has a 1/15 chance of getting unique's artifact.  So, if a
+    human warrior manages to kill Glaurung, and discovers that the armor
+    made of his scales doesn't provide any protection from fire, he'll
+    be quite surprised.
+    
+
+10. How do I use my powers?
+===========================
+
+    Press 'U' (Shift+U) to open the menu. Powers are much like the spells,
+    but you gain them automagically, and they can depend on any stat, not
+    just INT or WIS. (Your power-casting stat will be marked with '*' on
+    character screen 'C'. Your mana and failure rates will depend on it.)
+
+
+11. How can I fight without a weapon slot?
+==========================================
+
+    If your body happens to have no weapon slot (that is, you have no arms,
+    claws or tentacles capable of holding the weapon), you will fight with
+    your innate attacks, displayed on 'C' screen. Your attacks will deal
+    fixed base damage, possibly magical, with stat and equipment bonuses,
+    if you have them.
+
+    Some very pathetic (Shrieker mushrooms) or very powerful (Quylthulg)
+    creatures have no means of physically attacking their enemies at all,
+    and have to fight only by careful usage of their powers.
+
+
+12. How can I use my innate attacks?
+====================================
+
+    Some races can use their innate attacks, even if they can fight with
+    weapons. Just take off your weapon.
+
+
+14. The game says I cannot step in the lava!
+============================================
+
+    Because you cannot do that! Really, stepping in the lava means certain
+    death for any creature (although certain Jedi Knight comes to mind...
+    ;-). If you are not immune to fire, the game won't let you step in the
+    lava.
+
+    The same applies to the abyss; you need levitation (ex-feather falling)
+    to get over it.
+
+    Monsters will also get disadvantages on some kinds of terrain, so you
+    can get rid of that Fire elemental by putting it to water (although it
+    won't enter it willingly!)
+
+
+15. Who are the Torturers, the Silver Wyrm etc.?
+================================================
+
+    The new monsters, of course. Most (all?) of them were added for some
+    reason, not just to have even more monsters. I invented most of them
+    myself, some are inspired by Tolkien writings or AD&D. Feel free to
+    criticize them or to use them in your own works.
+
+
+16. Why didn't my new pet follow me to the new level?
+=====================================================
+
+    Ordinary pets won't do that. You have to ask it to become your
+    companion, via 'y' menu. The number of companions you can have is
+    limited and depends on your charisma.
+
+
+17. Why do I constantly fail to summon anything?
+================================================
+
+    The monsters are always summoned from your current dungeon level.
+    So, for example, you can summon only the townsmen in the town, and
+    you can't summon an ancient dragon before dl40-41, no matter how hard
+    you try.
+
+
+xx. Why do monsters keep fighting each other, and ignore me?
+============================================================
+
+    Monsters aren't exactly the best friends of each other.  You don't expect
+    Rangers and Paladins to cooperate with Orcs and Nazgul, do you?
+
+    Each kind of monsters has an alignment -- lawful, neutral and chaotic.
+    (D&D players: yes, this means approximately the same as in D&D.  ADoM
+    players: no, it doesn't have any other gameplay effect).  While neutral
+    monsters are not hostile to anyone in particular (except you), lawful and
+    chaotic ones will fiercely fight.  Of course, you are still the primary
+    target for everyone, and the monsters will likely cease fighting and
+    start attacking you as soon as they discover you.
+
+    Note that the uniques are never attacked by monsters, even by your pets
+    (except for special circumstances, like playing a Quylthulg or summoning
+    the Valar).  They can be hurt by being caught in spell blast/breath, but
+    this won't bring them below 0 hit points.
+
+
+18. What is "a Cloak of Foobar"? Is it a new artifact?
+======================================================
+
+    Unless it is associated with some unique, no, it isn't. It is a random
+    artifact (randart), generated randomly instead of a real one. It will
+    have random abilities, description etc. It won't show in "Artifacts
+    Found" list, and it can't be reforged.
+
+
+19. Why do I found randarts even when I have turned them off?
+=============================================================
+
+    The birth option "Randomize some artifacts" affects the standard
+    artifacts -- the Phial, Ringil etc. You will find them turned into
+    randomized names and abilities, but they'll remain the standard
+    artifacts. The real randarts can be generated infinitely, and they
+    are available regardless of that birth option.
+
+
+20. What happens when you reforge an artifact? How can I do that?
+=================================================================
+
+    You can reforge any standard artifact (not the randart) in the
+    Adventurers Guild. During that process, the artifact essence is
+    transferred into another item. You have to provide the original
+    artifact, the "target" item, and a large (and I really mean *LARGE*) sum
+    of money. The original artifact is destroyed during that process.  The
+    "target" item can be any single, wearable, non-artifact item.  (The more
+    powerful is that item itself, the less power it will acquire from the
+    artifact!). This service is available only when you have sufficiently
+    large fame.
+
+
+xx. How does the invisibility work?  It doesn't seem to affect stealth.
+=======================================================================
+
+    Stealth determines how quiet are you -- if you are stealthy, monsters
+    won't hear your steps/actions and wake up.  When you are invisible,
+    monsters cannot see you, which is rather different.  They won't be able
+    to pinpoint your position, and will attack somewhat in random.  Their
+    spells and breathes will be very inaccurate, too.
+
+    Not all monsters actually use eyes to see you.  Golems, vortices,
+    undeads and some other creatures rely on other senses or magic to detect
+    you, and aren't fooled by invisibility.
+
+
+xx. A monster has mysteriously disappeared!
+===========================================
+
+    It stepped into the fog, right?  Monsters in fog are invisible, even if
+    you have See Invisible.  The same applies to you.
+
+    Additionally, elementals are invisible (or poorly visible) on their
+    native terrain.
+
+
+xx. I cannot complete the quest (some monsters banished/destructed)
+===================================================================
+
+    Go upstairs, and then immediately downstairs.  Your quest will still
+    be active, and the remaining monsters will be generated again on the
+    new level.
+
+
+xx. I cannot eat.
+=================
+
+    It means that you have to eat in some exotic way.  If you are a magma or
+    earth elemental, try eating a wall (you have to stand near it).  If you
+    are a basilisk, petrify somebody or something with your power and eat
+    its statue.  These ways of feeding are usually more time-consuming.
+    
+
+xx. (Anything realism-related)
+==============================
+
+    Yes, I am perfectly aware that PosBand is not an accurate representation
+    of Tolkien's world.  I am also aware that some of PosBand features (e.g.
+    pets breath attacks don't hurting) wouldn't make much sense in the
+    real life.  This is the fantasy, role-playing game -- it is not real
+    world.  If I have to choose between realism and balance, I will always
+    choose balance.  Even a completely unrealistic game may be fun to play
+    (do you remember Space Invaders?  Arkanoid?  Air Raid?..).
+    
+
+21. You #$@%&!!! My savefiles don't read anymore!
+=================================================
+
+    The savefile compatibility is broken in version 0.9.0.  I apologize
+    for the inconvenience.  Basically, the whole equipment implementation
+    was reworked in this version, and automatic conversion won't work well.
+    I tried to preserve the compatibility in all the old versions (despite
+    some ugly kludges needed for this), and will try to continue this
+    trend.
+
+
+22. How to make walls use block characters instead of '#' on Unix/Linux?
+========================================================================
+
+    For text-mode (gcu) front-end, use "-g" option.
+
+    For GUI (xaw), they are on by default. The characters I've used
+    work on my system. If they don't show right at yours, you can try
+    to tweak the file lib/pref/feat-x11.prf.
+
+
+23. Why does the savefile has ".gz" extension?
+==============================================
+
+    PosBand 0.9.0 compresses its savefiles using zlib library (savefiles
+    compress very well). Compressed savefiles have ".gz" extension.
+    They can be uncompressed with gunzip or any other archive tool and
+    fed into version of PosBand compiled without zlib.
+
+
+24. Why I can't read the sources?
+=================================
+
+    The source tarball was created on Linux systems. All text files have
+    UNIX line-endings (only 0x0a, instead of 0x0d,0x0a). If your text
+    editor (or IDE, or whatever) doesn't understand UNIX line-endings --
+    well, Get A Real Editor! Vim will do fine :).
+
+
+25. What are that powers.m4 and powers_*.inc files?
+===================================================
+
+    There are about 150 possible monster powers in the current version of
+    PosBand. To simplify the maintenance and the adding of new powers, the
+    power code is single-sourced.
+
+    powers.m4 is a real source for power code. It is meant to be preprocessed
+    with M4 utility. M4 is a very powerful general-purpose macroprocessor,
+    available on most of UNIX/Linux systems. (It is little known and little
+    used, but it is pre-installed on most of Linux boxes, since it is needed
+    for autoconf utility and sendmail configuration.) Five .inc files (meant
+    to be #include'd in specific places of .h and .c files) are generated
+    from powers.m4.
+
+    Since M4 is unlikely to be found on non-UNIX systems, generated .inc
+    files are distributed with the sources. .inc rebuild rule is present
+    only in Makefile.std and Makefile which is generated by configure
+    script.
+
+
+26. Why you did remove most of the front-ends in v0.9.0?
+========================================================
+
+    Remember what Ken Thompson said?  "One of my most productive days was
+    throwing away 1000 lines of code."  And, this time, the code wasn't
+    written by me, so throwing away is easy :).
+
+    Seriously, I just don't see the reason to keep them around.
+
+    * "ami" (Amiga), "dos"/"ibm" (DOS), "emx" (OS/2), "vme" (something
+      weird). These are ancient platforms, which are used now only
+      by true zealots. Well, okay, some people may be forced to use them
+      at work, but I don't think they will let you play games on this
+      work anyway ;).
+    * "gtk" (Unix/GTK+), "xpj" (Unix/X Window pseudo-isometric), "sla"
+      (Unix/S-Lang). They look interesting, but I don't really see the
+      point in using or maintaining them.
+    * "cap" (Unix/termcap). If you need it, let me know. It doesn't seem
+      necessary now, since any sane system should have curses.  (Although
+      there are lots of insane systems in existence...)
+    
+    Hacking them back should be easy. Pull the main-xyz.c file out of
+    Vanilla, NPP or other *band, set up the autoconf system for it,
+    add some lines to main.h/main.c, and here you go.
+
+
+27. Why did you remove most of the Makefiles in v0.9.0?
+=======================================================
+
+    Autoconf ("configure" script) should work with all Unices and Cygwin,
+    in all possible configurations. There's no need to keep old Unix
+    makefiles. I make the Windows builds myself, with Cygwin, so I don't
+    see any reason to keep makefiles for other Windows compilers too.
+    If configure doesn't work right on your system, this is probably a bug,
+    and you should send a bug report.
+
+

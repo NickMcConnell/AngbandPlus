@@ -11,35 +11,39 @@
 
 # Version stamp (required)
 
-V:3.0.8
+V:4.1.0
+
+# Note: some of these are actually set to values higher than the actual
+# maximums, so that I don't have to re-update this file each time I add
+# something. This may lead to some memory overhead.
 
 
 # Maximum number of feature types
-M:F:86
+M:F:110
 
 # Maximum number of object kinds
 M:K:515
 
 # Maximum number of artifacts
-M:A:137
+M:A:145
 
 # Maximum number of ego-item types
-M:E:128
+M:E:135
 
 # Maximum number of monster races
-M:R:634
+M:R:700
 
 # Maximum number of vaults
-M:V:55
+M:V:100
 
 # Maximum number of player races
-M:P:11
+M:P:60
 
 # Maximum number of player classes
-M:C:6
+M:C:8
 
 # Maximum number of player history lines
-M:H:165
+M:H:750
 
 # Maximum number of owners per store
 M:B:4
@@ -48,7 +52,10 @@ M:B:4
 M:Q:4
 
 # Maximum number of flavors
-M:L:310
+M:L:325
+
+# Maximum number of unique artifacts
+M:U:50
 
 # Maximum number of objects on the level
 M:O:512
@@ -62,9 +69,12 @@ M:M:1024
 
 # Size of the "fake" array for reading in names of monsters, objects,
 # artifacts, store-owners, player-races, ...
-M:N:20480
+M:N:32768
 
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories
-M:T:61440
+# Increased to ~63k, then to 70k in PosBand
+M:T:71680
 
+# Highlight syntax in Vim
+# vim:syntax=posband

@@ -1,0 +1,272 @@
+# File: randart.txt
+
+# This file is used to generate randart descriptions, in a way similar
+# to player history.
+
+# Note that the "spacing" in the "description" lines is very important!
+
+# Phrasing is partially taken from ToME
+
+# General format: Beginning (item "visual" description) -> Background
+#  (item "history") -> Abilities (some of item's properties)
+# Note that this file is actually parsed only "on demand", and does
+#  not generate .raw file, like other edit files do. While the
+#  format is generally the same as other edit files, sections of this
+#  file are delimited by "%".
+
+##############################################################
+# THIS FILE IS VERY INCOMPLETE NOW. For consistency, even    #
+# most of the completed entries are COMMENTED OUT. I would   #
+# greatly appreciate if someone writes *GOOD* descriptions   #
+# for the randarts. My own English is far too poor.          #
+# (Well, maybe not poor, but certainly not artistic enough!) #
+##############################################################
+
+
+# Version stamp (required)
+
+V:4.1.0
+
+##### Beginning: tval/sval
+# Format:
+# B:<tval>:<sval>:<chance>
+# D:<description>
+
+# Broken Dagger
+#B:23:1:50
+#D:A short dagger, with the blade broken near the hilt
+#B:23:1:100
+#D:A dagger about a foot long, broken long ago
+
+# Bastard Sword
+#B:23:21:50
+#D:A long and nasty sword, heavier than usual
+#B:23:21:100
+#D:A large, double-edged blade with a small hilt
+
+# Scimitar
+#B:23:18:50
+#D:Sharp, deeply curved blade
+#B:23:18:100
+#D:Oriental blade, with a wide and very sharp end
+
+# Ring (any sval)
+# Randart rings are common, so there are many possible descriptions
+B:45:0:5
+D:A magical ring
+B:45:0:10
+D:A simple golden ring
+B:45:0:15
+D:Beautiful golden ring, adorned with many small diamonds
+B:45:0:20
+D:A ring made from simple glass, but apparently unbreakable
+B:45:0:25
+D:A ring forged from expensive platinum
+B:45:0:30
+D:A small silver ring
+B:45:0:35
+D:A ring made from a large jewel
+B:45:0:40
+D:A shining ring, set with a ruby
+B:45:0:45
+D:A shining ring, set with a sapphire
+B:45:0:50
+D:A shining ring, set with an emerald
+B:45:0:55
+D:A shining ring, set with a diamond
+B:45:0:60
+D:A ring of black obsidian
+B:45:0:65
+D:A very strange-looking ring, seemingly made from pure ether
+B:45:0:70
+D:A ring of pure marble
+B:45:0:75
+D:An ugly-looking iron ring
+B:45:0:80
+D:A crystal ring, glowing very brightly
+B:45:0:85
+D:A golden ring with a bright emerald, shining like birch leaves
+B:45:0:90
+D:A golden ring with a bright topaz, shining brighter than sun
+B:45:0:95
+D:A golden ring with a black diamond, darker than night
+B:45:0:100
+D:A golden ring with a bright amethyst, radiant like elven eyes
+
+%
+
+##### History
+# Format:
+# H:<chance>
+# D:<description>
+# Note that it should begin with appropriate punctuation sign.
+H:4
+D:. It was forged by Morgoth himself, but lost for a very long time. 
+H:8
+D:, made by Sauron himself in the black tower of Barad-Dur. 
+H:12
+D:. The Witch-King of Angmar was its former wearer, and his black will is still strong in it. 
+H:16
+D:, lost by Gothmog during the destruction of Gondolin. 
+H:20
+D:. Made by Petty-dwarves, it was lost during their wars with High Elves. 
+H:24
+D:, forged by dwarves in the deep halls of Khazad-dum. 
+H:28
+D:, made by dwarves from the ancient city of Belegost. 
+H:32
+D:, made by Noldor exiles. 
+H:36
+D:, made in the forges of Thingol Greymantle. 
+H:40
+D:. It was made by Melian, Queen of Menegroth. 
+H:44
+D:, and the rebellious spirit of Feanor, its maker, is still strong in it. 
+H:48
+D:. The wonderful hand of Feanor shaped it long ago, before the Sun was made. 
+H:52
+D:. Vanyarin Elves made it for the War of Wrath. 
+H:56
+D:. Manwe Sulimo, King of Arda forged it on Taniquetil. 
+H:60
+D:, hallowed by Manwe and Varda in the Blessed Realm of Aman. 
+H:64
+D:, made by Aule the Maker for the Seven Fathers of the Dwarves. 
+H:68
+D:, made by wrathful Easterlings of Rhun. 
+H:72
+D:, forged by Eol the Dark Elf from meteoric iron. 
+H:76
+D:, which belonged to ancient Elven hero. 
+H:80
+D:, which belonged to ancient Dwarven hero. 
+H:84
+D:, which belonged to Maia warrior. 
+H:88
+D:, which belonged to orcish captain. 
+H:92
+D:. It was stolen by the trolls during the pillage of Gondolin. 
+H:96
+D:. For a long time it rested into a dragon's hoard. 
+H:100
+D:, which belonged to the order of Istari. 
+
+%
+
+##### Abilities
+# Format:
+# A:<chance of describing at all>:<ability>
+# L:<chance of describing with given description>
+# D:<description>
+# Note: ^ is substituted by 'wearer' or 'wielder', whichever is appropriate;
+#	@ in the beginning will disable adding "and" before sentence even
+#	if appropriate
+# Note: stat, stealth, searching, infra, speed bonuses are described only if
+#	pval is >= 3
+# Note: first letter is converted to capital automatically if previous sentence
+#	ended in '.'.
+#A:5:STR
+#L:33
+#D:it makes its ^ as strong as a giant, 
+#L:66
+#D:it allows you to crush bones of ogres and giants with ease. 
+#L:100
+#D:its ^ can enjoy godly strength, 
+
+#A:5:INT
+#L:33
+#D:the Istari will envy its ^'s intelligence. 
+#L:66
+#D:it makes the wits of its owners extraordinary, 
+#L:100
+#D:it makes you enourmously clever, 
+
+#A:5:WIS
+#L:33
+#D:it makes you enormously wise, 
+#L:66
+#D:the Maiar will envy its ^'s wisdom. 
+#L:100
+#D:the wisdom of Melian the Queen will be with its ^. 
+
+#A:5:DEX
+#L:33
+#D:it makes you enormously agile and nimble, 
+#L:66
+#D:it will make you more dextrous than Smeagol. 
+#L:100
+#D:its ^ will evade the blows with tremendous speed. 
+
+#A:5:CON
+#L:33
+#D:it will make you tougher than a giant. 
+#L:66
+#D:it will make your body much more powerful, 
+#L:100
+#D:your stamina will be greatly increased by it. 
+
+#A:5:CHR
+#L:33
+#D:its ^ will be as beautiful as Luthien. 
+#L:66
+#D:it makes you very confident and attractive, 
+#L:100
+#D:the beauty of ^ will be unmatched in Arda. 
+
+#A:5:STEALTH
+#L:33
+#D:@it allows you to move as quiet as Beruthiel's cats. 
+#L:66
+#D:@it will be a great help to the thief, 
+#L:100
+#D:its ^ will move with enormous stealth
+
+#A:1:SPEED
+#L:33
+#D:it will make you a greased lightning, 
+#L:66
+#D:the wondrous magic of this artifact hastes his ^ greatly, 
+#L:100
+#D:its ^'s speed will be unmatched. 
+
+#A:1:LIGHT_CURSE
+#L:33
+#D:@but the curse of its previous owner still lies on it. 
+#L:66
+#D:@however, nasty curse makes getting rid of it very hard. 
+#L:100
+#D:@but it is accursed now by a mighty sorcerer. 
+
+#A:3:SLAY_EVIL
+#L:33
+#D:all the evilness of Angband will fear its ^. 
+#L:66
+#D:no evil creature can withstand it. 
+#L:100
+#D:it fights evil with holy wrath, 
+
+#A:3:SLAY_ANIMAL
+#L:33
+#A:it is excellent for slaughtering wild animals. 
+#L:66
+#A:all natural creatures will flee its owner, 
+#L:100
+#A:its look scares all animals, 
+
+#A:2:SLAY_DEMON
+#L:33
+#A:it will strike demons with extra deadliness, 
+#L:66
+#A:it is a great demon-slayer, 
+#L:100
+#A:no demon can withstand its ^. 
+
+#A:1:KILL_DEMON
+#L:50
+#A:it is a legendary weapon, excellent for slaying the troops of Hell. 
+#L:100
+#A:it is a legendary bane of Balrogs and Pit Fiends. 
+
+%
+
+# vim:syntax=posband

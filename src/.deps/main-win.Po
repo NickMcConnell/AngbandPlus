@@ -1,0 +1,223 @@
+main-win.o main-win.o: main-win.c posband.h system.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/stdio.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/_mingw.h \
+  /usr/lib/gcc/i686-pc-cygwin/3.4.4/include/stddef.h \
+  /usr/lib/gcc/i686-pc-cygwin/3.4.4/include/stdarg.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/sys/types.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/ctype.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/errno.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/stdlib.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/time.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/io.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/stdint.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/memory.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/string.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/fcntl.h \
+  config.h lib.h misc.h options.h cave.h object.h monster.h quest.h \
+  store.h spells.h player.h readdib.c \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/windows.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/windef.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winnt.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winerror.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/basetsd.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/pshpack4.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/poppack.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/wincon.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winbase.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/wingdi.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winuser.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winnls.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winver.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winnetwk.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winreg.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winsvc.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/cderr.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/dde.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/ddeml.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/dlgs.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/imm.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/lzexpand.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/mmsystem.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/nb30.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpc.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcdce.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/basetyps.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcdcep.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcnsi.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcnterr.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/shellapi.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/pshpack2.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winperf.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/commdlg.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winspool.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winsock2.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/ole2.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/objbase.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcndr.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcnsip.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/objfwd.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/wtypes.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/unknwn.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/objidl.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/cguid.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/olectlid.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/oleauto.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/oaidl.h \
+  /usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/oleidl.h \
+  readdib.h
+
+posband.h:
+
+system.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/stdio.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/_mingw.h:
+
+/usr/lib/gcc/i686-pc-cygwin/3.4.4/include/stddef.h:
+
+/usr/lib/gcc/i686-pc-cygwin/3.4.4/include/stdarg.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/sys/types.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/ctype.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/errno.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/stdlib.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/time.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/io.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/stdint.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/memory.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/string.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../i686-pc-mingw32/include/fcntl.h:
+
+config.h:
+
+lib.h:
+
+misc.h:
+
+options.h:
+
+cave.h:
+
+object.h:
+
+monster.h:
+
+quest.h:
+
+store.h:
+
+spells.h:
+
+player.h:
+
+readdib.c:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/windows.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/windef.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winnt.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winerror.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/basetsd.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/pshpack4.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/poppack.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/wincon.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winbase.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/wingdi.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winuser.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winnls.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winver.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winnetwk.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winreg.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winsvc.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/cderr.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/dde.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/ddeml.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/dlgs.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/imm.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/lzexpand.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/mmsystem.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/nb30.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpc.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcdce.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/basetyps.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcdcep.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcnsi.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcnterr.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/shellapi.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/pshpack2.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winperf.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/commdlg.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winspool.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/winsock2.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/ole2.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/objbase.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcndr.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/rpcnsip.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/objfwd.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/wtypes.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/unknwn.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/objidl.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/cguid.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/olectlid.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/oleauto.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/oaidl.h:
+
+/usr/lib/gcc/i686-pc-mingw32/3.4.4/../../../../include/w32api/oleidl.h:
+
+readdib.h:

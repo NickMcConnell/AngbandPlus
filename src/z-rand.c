@@ -1,13 +1,16 @@
-/* File: z-rand.c */
-
-/*
- * Copyright (c) 1997 Ben Harrison, and others
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
+/* z-rand.c: RNG implementation */
 
 /*
  * This file provides an optimized random number generator.
@@ -39,8 +42,7 @@
  */
 
 
-
-#include "z-rand.h"
+#include "lib.h"
 
 
 /*

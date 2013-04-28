@@ -1,0 +1,4044 @@
+
+=== Monster races ===
+
+| NOTE: This file contains exact information about various races abilities.
+| This can be considered a spoiler by some.
+
+Unless explicitly stated otherwise, all these races automatically get
+"Monster" class.
+
+Note that races tables still do not represent full information, as they lack
+abilities table (they are extremely inconvenient to compare). So the charts
+cannot show, for example, that a kobold archer shoots better that a large
+kobold.
+
+***** <Soul>
+--> Soul
+
+Lost soul is an especially unusual race. Their presence on the material plane
+is very weak. They cannot use most of material equipment, though they can
+take objects, dragging them into the ethereal plane, and pass through most of
+walls (this, however, drains their hitpoints). They have huge penalties in
+stats, and they have so few hitpoints that they can be instakilled by a mouse.
+But, despite this, souls are one of the most powerful characters. A soul can
+incarnate into *any* corpse of *any* monster, gaining hitpoints, powers etc.
+of this monster, so that they spend few time in their natural form - typically
+only to travel between dead bodies.
+
+Souls always get a special class "Possessor".
+
+Soul progression:
+
+Possessor soul
+
+Level 1-50: Possessor soul
+	STR: -5  INT: -5  WIS: -5  DEX: -5  CON: -5  CHR: -5 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 1
+	Infravision: 100 ft
+	Equip: no weapons, no rings, no gloves, no armor/cloaks, no headgear, no footwear
+	Innate attacks: none
+	Innate properties:
+		Immaterial
+		See Invisible
+	Innate powers: none
+
+This is attributes of the soul inself. Incarnating into any monster's corpse
+inherits all monster's attributes.  For monsters from other racial
+progressions, some data are present in this file; for others, you can easily
+find it yourself.
+
+Generally, it is a good strategy to develop one good body, instead of
+changing them often. Note also that you can incarnate even in mushroom
+patches, centipedes or equally pathetic bodies, but doing something in such
+a body is, to say at least, somewhat difficult. Don't forget that bodies
+that you deincarnate from rot away instantly! Also keep in mind that some
+monsters may not leave any corpses, or may leave them very rarely.
+
+
+***** <Ainu>
+--> Ainu
+
+Ainur are the demi-gods of Arda, the Holy Ones, created by Eru himself.
+They created Arda with their Great Music. The most powerful of the Ainur
+are called the Valar, the Powers of the World -- seven Kings and seven
+Queens, the rulers of the Blessed Realm of Aman. Melkor Bauglir was one
+of the Valar, but his name is not spoken anymore. He is now known as
+Morgoth, the Black Foe of the World. It is Morgoth who you must slay
+to accomplish your mission.
+
+The lesser Ainur are called Maiar. They are much more numerous. The Istari,
+or the Wizards, as the Men called them, were Maiar. The Balrogs were
+corrupted Maiar. And Sauron himself was Maia as well.
+
+Ainur powers are demi-godly. Apart from powerful magical attacks and
+healings, they have the powers to change the world -- literally. They can
+create clear lakes, hot lava pools, icy glaciers or dense forests with a
+mere thought. They can also control many creatures of Arda, including the
+lesser Maiar and the Ents, the incredibly strong tree shepherds of
+Middle-earth.
+
+Ainur are immortal, but their physical body can be destroyed -- and
+disembodies Ainu is pretty impotent. Ainur can't be possessed.
+
+Race king:     Sauron, the Sorcerer
+Race artifact: The Nine Rings
+
+Ainu progression:
+
+Maia of Melkor
+ \-> Maia of Aule
+      \-> Maia of Ulmo
+           \-> Maia of Yavanna
+                \-> Maia of Manwe
+
+Level 1-15: Maia of Melkor
+	STR: +1  INT: +3  WIS: +3  DEX: +1  CON: +1  CHR: +3 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 14
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Darkness
+		Resist Fire
+		Resist Light
+		Sustain Wisdom
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Magic Missile
+		 3    2  Confuse
+		 3    2  Scare
+		 5    5  Cure Serious Wounds
+		 8    7  Mana Bolt
+		10   10  Wonder
+		11    8  Fill the Lake
+		12   10  Brain Smashing
+		14   12  Summon Lawful Creatures
+	Powers stat: WIS
+
+Level 15-30: Maia of Aule
+	STR: +2  INT: +3  WIS: +4  DEX: +2  CON: +2  CHR: +4 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 14
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Acid
+		Resist Darkness
+		Resist Fire
+		Resist Light
+		Sustain Wisdom
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Magic Missile
+		 3    2  Confuse
+		 3    2  Scare
+		 5    5  Cure Serious Wounds
+		 8    7  Mana Bolt
+		10   10  Wonder
+		11    8  Fill the Lake
+		12   10  Brain Smashing
+		14   12  Summon Lawful Creatures
+		16    3  Blink
+		19    6  Heroism
+		20   20  Build the Walls
+		23   18  Kindle the Fires
+		27   10  Haste
+		28   30  Shift Planes
+	Powers stat: WIS
+
+Level 30-40: Maia of Ulmo
+	STR: +3  INT: +4  WIS: +5  DEX: +3  CON: +3  CHR: +5 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 14
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Acid
+		Resist Cold
+		Resist Darkness
+		Resist Lightning
+		Resist Fire
+		Resist Light
+		Resist Nether
+		Sustain Charisma
+		Sustain Wisdom
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Magic Missile
+		 5    5  Cure Serious Wounds
+		 8    7  Mana Bolt
+		10   10  Wonder
+		11    8  Fill the Lake
+		12   10  Brain Smashing
+		14   12  Summon Lawful Creatures
+		16    3  Blink
+		19    6  Heroism
+		20   20  Build the Walls
+		23   18  Kindle the Fires
+		27   10  Haste
+		28   30  Shift Planes
+		30   18  Freeze the Air
+		32   25  Summon Maiar
+		35   15  Light Orb
+		38   20  Grow the Grass
+	Powers stat: WIS
+
+Level 40-47: Maia of Yavanna
+	STR: +4  INT: +5  WIS: +5  DEX: +4  CON: +4  CHR: +5 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 14
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Levitation
+		Resist Acid
+		Resist Cold
+		Resist Darkness
+		Resist Lightning
+		Resist Fire
+		Resist Light
+		Resist Nether
+		Resist Poison
+		Sustain Charisma
+		Sustain Wisdom
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 8    4  Mana Bolt
+		10   18  Heal
+		11    8  Fill the Lake
+		12   10  Brain Smashing
+		14   12  Summon Lawful Creatures
+		16    3  Blink
+		19    6  Heroism
+		20   20  Build the Walls
+		23   18  Kindle the Fires
+		27   10  Haste
+		28   30  Shift Planes
+		30   18  Freeze the Air
+		32   25  Summon Maiar
+		35   15  Light Orb
+		38   20  Grow the Grass
+		40   25  Raise the Trees
+		40   40  Uproot the Trees
+		42   40  Dimensional Door
+		45   20  Alter Reality
+		45   20  Word of Destruction
+	Powers stat: WIS
+
+Level 47-50: Maia of Manwe
+	STR: +5  INT: +6  WIS: +6  DEX: +5  CON: +5  CHR: +6 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 14
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Levitation
+		Immunity to Cold
+		Immunity to Fire
+		Resist Acid
+		Resist Darkness
+		Resist Lightning
+		Resist Light
+		Resist Nether
+		Resist Poison
+		Sustain Charisma
+		Sustain Wisdom
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 8    4  Mana Bolt
+		10   18  Heal
+		11    8  Fill the Lake
+		14   12  Summon Lawful Creatures
+		16    3  Blink
+		19    6  Heroism
+		20   20  Build the Walls
+		23   18  Kindle the Fires
+		27   10  Haste
+		28   30  Shift Planes
+		30   18  Freeze the Air
+		32   25  Summon Maiar
+		35   15  Light Orb
+		38   20  Grow the Grass
+		40   25  Raise the Trees
+		40   40  Uproot the Trees
+		42   40  Dimensional Door
+		45   20  Alter Reality
+		45   20  Word of Destruction
+		47   30  Melt the Stone
+		47   30  Crush the Dungeon
+		48   30  Mana Storm
+	Powers stat: WIS
+
+
+***** <Ant>
+--> Ant
+
+Ants are strong and industrious insects, usually found in great hordes.
+Despite their small size, their bite is very painful. They protect their
+ant-heap so furiously that even men are sometimes driven away by them.
+
+Giant ants are, thankfully, rare -- rare on the surface. But Morgoth delights
+in breeding various abominations in his halls of Angband. Solitary giant ants
+usually don't pose a particularly large problem for experienced adventurers,
+but groups of them can be deadly.
+
+The natural weapons of a giant ant is his jaws and acid. Some species may
+use poison or, like the dreaded fire ants, other unpleasant elements.
+Ants are well-armored against weapons, and resist acid, poison and shards.
+They can summon their minions in much greater numbers than even the mages
+can. Elder soldier ants can chew the passages in the walls.
+
+Race king:     The Queen Ant
+Race artifact: The Jaws of Queen Ant
+
+
+***** <Basilisk>
+--> Basilisk
+
+Basilisks are rare but dreaded magical reptiles. Though they don't look
+particularly scary, resembling large green lizards, they are deadly.
+With a mere look basilisk turns his prey to stone -- forever. Therefore
+sentient and non-sentient beings avoid basilisks at all costs. Basilisk,
+unlike Medusa the Gorgon, is unharmed by his reflection in the mirror.
+Non-living and/or non-seeing creatures are also unaffected by the gaze.
+
+Basilisks are not particularly tough, but they are dextrous and rather
+intelligent for lizards. They cannot eat organic food; they must feed on
+their victims turned into stone. Their bite is rather poisonous, and they
+learn to breathe poison rather quickly. Old basilisks can also breathe
+nexus.
+
+The most powerful kind of basilisk is a dracolisk -- not really related
+to the dragons, but very similar in appearance and in his deadly fire
+breath.
+
+Race king:     The Werebasilisk
+Race artifact: The Eye of Werebasilisk
+
+
+***** <Beholder>
+--> Beholder
+
+Luckily, these horrible creatures usually only appear in the nightmares.
+Meeting a beholder, even if you manage to leave unseen (rather hard, since
+it has eleven eyes), can drive you crazy.
+
+Beholders has one huge eye in the centre of its body, ten eyes on the stalks,
+a big mouth with lots of sharp teeth, and not much else. It moves by
+levitation -- rather fast, if it chooses so. Beholders are physically weak,
+but their psychic and magical powers make up for it. With the gaze of its
+central eye, beholder emits a very strong beam of disenchantment.
+Other eyes can confuse, scare, sleep, slow, curse, mind-blast or cast
+elemental bolts. Beholder's bite is painful, but not poisonous. All beholders
+possess exceptional intelligence and telepathy.
+
+Beholder relatives include the evil eye (larval form), the spectator, magic-
+eating gauth, life-draining undead beholder and the master of beholder-kin,
+beholder hive-mother.
+
+Race king:     Omarax, the Eye Tyrant
+Race artifact: The Eyeball of Omarax
+
+
+***** <Dark Elf>
+--> Dark Elf
+
+Dark Elves are corrupted kind of Elven race. They prefer to live in deep
+caverns, and hate bright sunlight. Their features are elven, but their jet
+black skin and white hair make them easy to distinguish from High Elves.
+
+There is no definite theory about Dark Elves origin. It is known that some
+elves refused to come to Valinor at the beginning of the First Age, and
+stayed in Middle-earth, and didn't see the Two Trees ever. These elves are
+called Avari. Morgoth captured many elves at these days, but most of them
+were corrupted into hideous Orcs. It is believed, though, that some of Avari
+were seducted by Morgoth's promises, and remained elves, but fought on
+Morgoth's side since then.
+
+So, the Dark Elves are evil, and use evil magic. Young Dark Elves learn some
+simple spells, but at certain age they must choose their career for the rest
+of their life (they are immortal and don't die of diseases or old age, but
+they can be slain).
+
+Dark elven warriors and lords are brilliant warriors indeed. They can easily
+master any weapon, and learn powerful attacks. They can strike their enemies
+with extra force, hit an enemy who is several feet away with a spear, or
+turn around and strike everyone near them. They are familiar with various
+kinds of weapons and armor, and can estimate quality of unknown item very
+quckly. Dark elves particularly favor poisoned darts as their weapons. Dark
+elven lords learn some combat magic as well.
+
+Dark elven mages and sorcerors specialise mostly in offensive magic spells.
+They can cast elemental bolts and balls; ice and darkness storms are their
+most powerful spells. They are also good at teleportation, knowledge and
+summoning (elementals and demons) spells.
+
+Dark elven priests and druids serve the goddess of the Dark Elves, Lol'th.
+This deity is fond of living sacrifices, and priests and druids can curse
+and sacrifice any creature to her pleasure. Like all good priests, they have 
+excellent healing abilities. They can summon spiders (which are known as
+"servants of Lol'th" among Dark Elves) or undeads to their aid.
+
+Dark Elf progression:
+
+Dark elf
+ |-> Dark elven warrior
+ |    \-> Dark elven lord
+ |-> Dark elven mage
+ |    \-> Dark elven sorcerer
+ \-> Dark elven priest
+      \-> Dark elven druid
+
+Level 1-15: Dark elf
+	STR: +0  INT: +2  WIS: -3  DEX: +1  CON: -2  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 11
+	Infravision: 50 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Darkness
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    2  Confuse
+		 3    3  Magic Missile
+		 6    3  Detect Chaos
+	Powers stat: INT
+
+Level 15-35: Dark elven warrior
+	STR: +2  INT: -1  WIS: -3  DEX: +1  CON: -1  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 18
+	Infravision: 50 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Darkness
+		Resist Poison
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15   18  Powerful Attack
+		20   20  Far Reaching Attack
+		25   35  Whirlwind Attack
+		30   35  Examine Object
+	Powers stat: STR
+
+Level 15-35: Dark elven mage
+	STR: -1  INT: +3  WIS: -2  DEX: +1  CON: -3  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 10
+	Infravision: 50 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Darkness
+		Resist Poison
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    2  Confuse
+		 3    1  Magic Missile
+		 6    3  Detect Chaos
+		15    2  Blink
+		17    3  Stinking Cloud
+		19    4  Frost Bolt
+		19    4  Fire Bolt
+		20   10  Teleport
+		22    3  Detect Monsters
+		25   10  Identify
+		27   18  Teleport Away
+		30   20  Summon Elementals
+		33   18  Detection
+	Powers stat: INT
+
+Level 15-35: Dark elven priest
+	STR: +0  INT: +1  WIS: +1  DEX: -1  CON: -1  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 13
+	Infravision: 50 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Darkness
+		Resist Poison
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    2  Confuse
+		 3    3  Magic Missile
+		 6    3  Detect Chaos
+		15   10  Acolyte's Sacrifice
+		15    8  Cure Critical Wounds
+		18   10  Darkness Ball
+		20   20  Priest's Sacrifice
+		23   10  Summon Spiders
+		28   25  Heal
+		30   12  Death Orb
+		32    3  Blink
+		34   20  Summon Undead
+	Powers stat: WIS
+
+Level 35-50: Dark elven lord
+	STR: +3  INT: +2  WIS: -3  DEX: +2  CON: +2  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 18
+	Infravision: 50 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Darkness
+		Resist Fear
+		Resist Poison
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15   18  Powerful Attack
+		20   20  Far Reaching Attack
+		25   35  Whirlwind Attack
+		30   35  Examine Object
+		35   10  Fire Bolt
+		35   10  Frost Bolt
+		35   20  Heroism
+		38   30  Berserk Strength
+		41   25  Haste Self
+	Powers stat: STR
+
+Level 35-50: Dark elven sorcerer
+	STR: -1  INT: +4  WIS: -1  DEX: +2  CON: -2  CHR: -1 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 10
+	Infravision: 50 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Darkness
+		Resist Poison
+		See Invisible
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 3    1  Magic Missile
+		15    2  Blink
+		17    3  Stinking Cloud
+		19    4  Frost Bolt
+		19    4  Fire Bolt
+		20   10  Teleport
+		22    3  Detect Monsters
+		25   10  Identify
+		27   18  Teleport Away
+		30   20  Summon Elementals
+		33   18  Detection
+		35   15  Fire Ball
+		35   15  Frost Ball
+		35   25  Resistance
+		37   10  Acid Bolt
+		40   18  Ice Bolt
+		40   40  Summon Demon
+		41   35  Word of Recall
+		43   25  Dark Storm
+		44   30  Ice Storm
+		46   30  Word of Destruction
+		48   40  Dimensional Door
+	Powers stat: INT
+
+Level 35-50: Dark elven druid
+	STR: +1  INT: +1  WIS: +3  DEX: +0  CON: +0  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 13
+	Infravision: 50 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Darkness
+		Resist Nether
+		Resist Poison
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    2  Confuse
+		 3    3  Magic Missile
+		 6    3  Detect Chaos
+		15   10  Acolyte's Sacrifice
+		15    8  Cure Critical Wounds
+		18   10  Darkness Ball
+		20   20  Priest's Sacrifice
+		23   10  Summon Spiders
+		28   25  Heal
+		30   12  Death Orb
+		32    3  Blink
+		34   20  Summon Undead
+		35   33  Prophet's Sacrifice
+		40   35  Healing
+		42   30  Detection
+		45   50  Restoration
+		45   50  Remembrance
+		50   60  Summon Greater Undeads
+	Powers stat: WIS
+
+
+=== Demonic races:
+
+***** <Balrog>
+--> Balrog
+
+Valaraukar, the demons of terror, are among the most terrible creatures of
+Middle-earth. Originally they were Maiar, the spirits of fire, but in the
+early days of the First Age they were drawn by Morgoth. It were Balrogs who
+saved Morgoth from the wrath of Ungoliant. The High Kings of Noldorin Elves,
+Feanor and Fingon, were slain by Balrogs, and many other Elves and Men
+perished in the battles with them. One of the last surviving Balrogs hid in
+the Mines of Moria, and haunted them until the end of the Third Age. 
+
+Balrogs look like huge humanoids cloaked in fire and darkness. The very sight
+of a Balrog is enough to turn a weak-willed creature into an utter despair and
+panic. Balrogs are exceptionally strong and still retain the wisdom of the
+Maiar. They usually fight either with a flaming whip or with a huge red-hot
+sword, and don't usually use magic (other than some summoning abilities). Some
+Balrogs can breathe plasma.
+
+Balrogs have some disadvantages in combat, though. The body of a Balrog is so
+hot that it can burn even a fire elemental, let alone scrolls or staffs.
+Balrogs are too large to use most weapons and armor efficiently. And their
+heavy steps can be heard from a great distance. Last but not least, Balrogs
+have no idea how to use ranged weapons -- their melee attack is more than
+enough.
+
+Balrogs are known to lead demonic armies, but they are not really related to
+demons and should not be confused with them.
+
+The question of whether Balrogs had wings remains opened at the moment. Since
+no known legends ever mention a flying Balrog, and even imagining one is
+difficult, PosBand assumes that Balrog "wings" are in fact just sort of
+magical darkness, and doesn't grant Balrogs innate levitation.
+
+Race king:     Gothmog, the High Captain of Balrogs
+Race artifact: The Balrog Sword of Gothmog
+
+
+***** <Demon (Baatezu)>
+--> Demon (Baatezu)
+
+Demons are creatures which inhabit one of the planes which are commonly known
+as Hell to the mortals. It is untypical of them to enter the material plane,
+but powerful spellcasters can summon them (although controlling a demon is
+very hard). Demons appearance can differ, but they are easily distinguished
+from other races. They have glowing bright red eyes, long claws and teeth,
+sharp tails and typical devilish laughter. Demons greatly enjoy causing
+physical or mental sufferings to other creatures.
+ 
+There are two kinds of demons, Baatezu and Tanar'ri. Baatezu live in the Nine
+Hells, and Tanar'ri inhabit the Abyss. For many centuries Baatezu and Tanar'ri
+lead the Blood War, keeping each other busy (luckily for us). They look very
+similar, though, and an adventurer who is unlucky enough to meet a demon is
+unlikely to have the time to spot the differences.
+
+Baatezu are better in spellcasting than in fighting (though they can make
+formidable fighters too). Their spells can utilise fire, poison, nexus
+or chaos. Greater Baatezu can summon lesser ones directly from the Nine
+Hells.
+
+Race king:     The Archdevil
+Race artifact: The Horn of Archdevil
+
+
+***** <Demon (Tanar'ri)>
+--> Demon (Tanar'ri)
+
+Demons are creatures which inhabit one of the planes which are commonly known
+as Hell to the mortals. It is untypical of them to enter the material plane,
+but powerful spellcasters can summon them (although controlling a demon is
+very hard). Demons appearance can differ, but they are easily distinguished
+from other races. They have glowing bright red eyes, long claws and teeth,
+sharp tails and typical devilish laughter. Demons greatly enjoy causing
+physical or mental sufferings to other creatures.
+ 
+There are two kinds of demons, Baatezu and Tanar'ri. Baatezu live in the Nine
+Hells, and Tanar'ri inhabit the Abyss. For many centuries Baatezu and Tanar'ri
+lead the Blood War, keeping each other busy (luckily for us). They look very
+similar, though, and an adventurer who is unlucky enough to meet a demon is
+unlikely to have the time to spot the differences.
+
+Tanar'ri are great fighters, and learn little magic. Lesser Tanar'ri,
+such as torturers or quasits, usually fight by slashing their enemies
+with long nasty claws, causing horrible wounds. Their larger brethren
+are capable of wielding up to four weapons, and can be real killing
+machines with them. They prefer whips and maces, but can master any
+weapon. Ranged weapons are much less popular.
+
+Magic abilities of Tanar'ri are limited to minor teleportation and dark
+priestly magic, and single summons. Among the more interesting abilities
+are weapon echanting and fire-branding of any non-artifact weapon.
+
+Spellcasting stat is strength. Important stats are strength and constitution.
+
+All Tanar'ri resist fire and nether (their existence differs from the mortal
+beings' one); all but the lowest forms resist cold and poison. Chaos
+resistance and fire immunity are gained later.
+
+Race king:     Azathoth, Master of Darkness
+Race artifact: The Whip of Azathoth
+
+
+=== Draconic races:
+
+***** <Blue Dragon>
+--> Blue Dragon
+
+Legendary mystique reptiles, bred by Morgoth in the sinister halls of
+Angband. Most of dragons naturally serve Morgoth, but it is said that some
+were rebellious and escaped into the deep caves on the far East and South of
+the Middle-Earth.  Blue Dragons, also known as Storm Dragons, breathe the
+element of Air (usually in the form of electricity).
+
+The youngest blue wyrmlings are pretty weak creatures. They cannot yet
+breathe anything stronger than showers of sparks and must rely on their weak
+clawing and biting attacks. They, however, grow quickly, and an Ancient Blue
+Dragon or a Great Storm Wyrm is a terrible enemy, able to breathe electricity
+and air massively, teleport or summon powerful electric discharges at will.
+
+Like all dragons, Blue Dragons cannot use any weapons, or wear gloves or
+boots on their large claws. However, they can put magical rings on six
+different limbs.
+
+Dragons' wings grant them speed bonus on high levels, up to +15. Also, their
+scales provide excellent protection, up to AC 100 on level 50.
+
+Race king:     The Sky Drake
+Race artifact: Sky Drake Scale Mail
+
+
+Blue Dragon progression:
+
+Baby blue dragon
+ \-> Young blue dragon
+      \-> Mature blue dragon
+           \-> Ancient blue dragon
+                \-> Great Storm Wyrm
+
+Level 1-15: Baby blue dragon
+	STR: -2  INT: -3  WIS: -3  DEX: +0  CON: -1  CHR: -3 
+	Natural armor: 1...30
+	Natural speed: +0
+	Hit die: 23
+	Infravision: 100 ft
+	Equip: 6 rings, amulet, light source, 
+	     body armor, cloak, helmet,
+	Innate attacks: none
+	Innate properties:
+		Levitation
+		Resist Lightning
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Lightning Beam
+	Powers stat: CON
+
+Level 15-25: Young blue dragon
+	STR: +0  INT: -1  WIS: -1  DEX: +2  CON: +2  CHR: -3 
+	Natural armor: 30...50
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: 6 rings, amulet, light source, 
+	     body armor, cloak, helmet,
+	Innate attacks: none
+	Innate properties:
+		Levitation
+		Regeneration
+		Resist Lightning
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Lightning Beam
+		15   10  Breathe Lightning
+		20   10  Scare
+	Powers stat: CON
+
+Level 25-35: Mature blue dragon
+	STR: +3  INT: +2  WIS: +2  DEX: +4  CON: +3  CHR: -4 
+	Natural armor: 50...70
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: 6 rings, amulet, light source, 
+	     body armor, cloak, helmet,
+	Innate attacks: none
+	Innate properties:
+		Levitation
+		Free Action
+		Regeneration
+		Resist Lightning
+		See Invisible
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Lightning Beam
+		15   10  Breathe Lightning
+		20   10  Scare
+		25    5  Blink
+		30   20  Oppose Electricity
+	Powers stat: CON
+
+Level 35-45: Ancient blue dragon
+	STR: +4  INT: +3  WIS: +3  DEX: +6  CON: +4  CHR: -4 
+	Natural armor: 70...90
+	Natural speed: +0...+10
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: 6 rings, amulet, light source, 
+	     body armor, cloak, helmet,
+	Innate attacks: none
+	Innate properties:
+		Levitation
+		Free Action
+		Immunity to Lightning
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		See Invisible
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Lightning Beam
+		15   10  Breathe Lightning
+		20   10  Scare
+		25    5  Blink
+		30   20  Oppose Electricity
+		37   23  Electric Discharge
+		40   20  Breathe Winds
+	Powers stat: CON
+
+Level 45-50: Great Storm Wyrm
+	STR: +5  INT: +5  WIS: +5  DEX: +7  CON: +5  CHR: -4 
+	Natural armor: 90...100
+	Natural speed: +10...+15
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: 6 rings, amulet, light source, 
+	     body armor, cloak, helmet,
+	Innate attacks: none
+	Innate properties:
+		Levitation
+		Free Action
+		Hold Life
+		Immunity to Lightning
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		See Invisible
+		Sustain Dexterity
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Lightning Beam
+		15   10  Breathe Lightning
+		20   10  Scare
+		25    5  Blink
+		30   20  Oppose Electricity
+		37   23  Electric Discharge
+		40   20  Breathe Winds
+	Powers stat: CON
+
+***** <Chaos Dragon>
+--> Chaos Dragon
+
+Legendary mystique reptiles, bred by Morgoth in the sinister halls of
+Angband. Most of dragons naturally serve Morgoth, but it is said that some
+were rebellious and escaped into the deep caves on the far East and South of
+the Middle-Earth.
+
+Chromatic elemental dragons, covered by scales with beautiful colors, are
+known as chaotic part of dragonkind. They are evil and treacherous. But
+sometimes a wyrmling is born, who has much greater affinity with the forces
+of Chaos than just chaotic character. These horrible creatures are known as
+Chaos Dragons.
+
+Chaos Dragon's scales are glowing and shimmering with strange colors. Their
+very shape is distorted by Chaos. It seems to one watching the Chaos Dragon
+that its form will dissolve into writhing primal Chaos as soon as he turns
+away from this visage.
+
+The Chaos, the Logrus and the Void are the main forces called by the Chaos
+Dragon. Although his form may seem somewhat fragile, their knowledge of
+Chaos offers them wide range of powers, including chaos and disenchantment
+breathes, calling the Chaos and the Void directly upon their foes, summoning
+chaotic dragon, detection, identify and alter reality powers.
+
+Like all dragons, Chaos Dragons cannot use any weapons, or wear gloves or
+boots on their large claws. However, they can put magical rings on six
+different limbs.
+
+Dragons' wings grant them speed bonus on high levels, up to +10. Also, their
+scales provide excellent protection, up to AC 100 on level 50.
+
+The nameless Guardian of Courts of Chaos, a Great Chaos Wyrm, is the
+mightiest Chaos Dragon alive. He uses a powerful chaotic artifact - the
+Amulet of Chaos.
+
+Chaos Dragon progression:
+
+Chaos drake
+ \-> Great Chaos Wyrm
+
+Level 1-30: Chaos drake
+	STR: +2  INT: +2  WIS: -2  DEX: +1  CON: +1  CHR: -6 
+	Natural armor: 0...60
+	Natural speed: +0
+	Hit die: 18
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		2d4 claw
+		2d4 claw
+		3d6 bite to confuse
+	Innate properties:
+		Levitation
+		Regeneration
+		Resist Chaos
+		Resist Fear
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Detect Chaos
+		 5    8  Breathe Disenchant Bolt/Beam
+		 7   13  Breathe Chaos
+		18   25  Breathe Disenchant
+		20    5  Blink
+		23   30  Project Chaos
+		27   35  Project Disenchant
+	Powers stat: CON
+
+Level 30-50: Great Chaos Wyrm
+	STR: +5  INT: +4  WIS: -2  DEX: +2  CON: +3  CHR: -6 
+	Natural armor: 60...100
+	Natural speed: +0...+11
+	Hit die: 18
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		5d12 claw
+		5d12 claw
+		7d14 bite
+		7d14 bite
+	Innate properties:
+		Levitation
+		Regeneration
+		Resist Chaos
+		Resist Confusion
+		Resist Disenchant
+		Resist Fear
+		See Invisible
+		Sustain Constitution
+		Sustain Intelligence
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Detect Chaos
+		 5    8  Breathe Disenchant Bolt/Beam
+		 7   13  Breathe Chaos
+		18   25  Breathe Disenchant
+		20    5  Blink
+		23   30  Project Chaos
+		27   35  Project Disenchant
+		30   17  Wonder
+		35   10  Teleport
+		35   40  Summon Dragon
+		40   30  Detection
+		40   30  Identify
+		45   45  Alter Reality
+		50   50  Summon Ancient Dragons
+	Powers stat: CON
+
+
+***** <Crystal Dragon>
+--> Crystal Dragon
+
+Yet another strange dragon-like creature. The body of a crystal dragon
+consists entirely from crystal or precious gems. It is one of the most
+beautiful creatures of Middle-earth. It is also very rare -- turning ordinary
+dragon into the crystal one requires very powerful spells and lots of
+crystal.
+
+
+***** <Ethereal Dragon>
+--> Ethereal Dragon
+
+Legendary mystique reptiles, bred by Morgoth in the sinister halls of
+Angband. Most of dragons naturally serve Morgoth, but it is said that some
+were rebellious and escaped into the deep caves on the far East and South of
+the Middle-Earth. Ethereal dragons, also known as pseudo-dragons, breathe
+the Light and the Darkness.
+
+Ethereal dragons are born on ethereal plane. They appear in our world as
+either brightly shining or wrapped in darkness figures, with glowing red eyes.
+Ethereal dragons are very clever. They have better intelligence and magical
+device skills than most of other dragons. Their main weapon is their breath,
+which sends strange light and unearthly darkness from ethereal to material
+plane. Elder ethereal dragons can also breathe confusion on their opponents.
+Among their other powers are abilities to use light to heal themselves, to
+throw small but extremely powerful light spheres, to shift planes to
+temporary become immaterial, and to call great storms of darkness.
+
+Like all dragons, Ethereal Dragons cannot use any weapons, or wear gloves or
+boots on their large claws. However, they can put magical rings on six
+different limbs.
+
+Dragons' wings grant them speed bonus on high levels, up to +15. Also, their
+scales provide excellent protection, up to AC 100 on level 50.
+
+The ultimate master of the Light and the Darkness is Antir, the Silver Wyrm.
+He is known to hold the Crystal Orb, an artifact which gives even greater
+powers of controlling ethereal light.
+
+Ethereal Dragon progression:
+
+Pseudo-dragon
+ \-> Ethereal drake
+      \-> Ethereal dragon
+           \-> Great Ethereal Wyrm
+
+Level 1-20: Pseudo-dragon
+	STR: -1  INT: +0  WIS: -3  DEX: -1  CON: -1  CHR: -2 
+	Natural armor: 1...40
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		1d3 claw
+		1d3 claw
+		1d5 bite
+	Innate properties:
+		Levitation
+		Permanent Light (rad 1)
+		Resist Blindness
+		Resist Darkness
+		Resist Light
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Call Light
+		 5    5  Breathe Light Bolt/Beam
+		 5    5  Breathe Darkness Bolt/Beam
+	Powers stat: CON
+
+Level 20-35: Ethereal drake
+	STR: +2  INT: +3  WIS: -3  DEX: +2  CON: +2  CHR: -2 
+	Natural armor: 40...70
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		2d4 claw
+		2d4 claw
+		3d6 bite
+	Innate properties:
+		Levitation
+		Permanent Light (rad 1)
+		Resist Blindness
+		Resist Darkness
+		Resist Fear
+		Resist Light
+		See Invisible
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Call Light
+		 5    5  Breathe Light Bolt/Beam
+		 5    5  Breathe Darkness Bolt/Beam
+		20    3  Confuse
+		20    5  Blink
+		20   10  Breathe Light
+		20   10  Breathe Darkness
+		25   25  Healing Light
+		30   12  Breathe Confusion
+		32   13  Light Orb
+	Powers stat: CON
+
+Level 35-45: Ethereal dragon
+	STR: +4  INT: +5  WIS: -2  DEX: +3  CON: +4  CHR: -2 
+	Natural armor: 70...90
+	Natural speed: +0...+10
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		4d10 claw
+		4d10 claw
+		7d10 bite
+	Innate properties:
+		Levitation
+		Free Action
+		Permanent Light (rad 1)
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Darkness
+		Resist Fear
+		Resist Light
+		See Invisible
+		Sustain Intelligence
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Call Light
+		 5    5  Breathe Light Bolt/Beam
+		 5    5  Breathe Darkness Bolt/Beam
+		20    3  Confuse
+		20    5  Blink
+		20   10  Breathe Light
+		20   10  Breathe Darkness
+		25   25  Healing Light
+		30   12  Breathe Confusion
+		32   13  Light Orb
+		35   10  Teleport
+		35   30  Dark Storm
+		40   35  Shift Planes
+	Powers stat: CON
+
+Level 45-50: Great Ethereal Wyrm
+	STR: +6  INT: +5  WIS: -2  DEX: +4  CON: +6  CHR: -2 
+	Natural armor: 90...103
+	Natural speed: +10...+17
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		6d10 claw
+		6d10 claw
+		8d12 bite
+		8d12 bite
+	Innate properties:
+		Levitation
+		Free Action
+		Hold Life
+		Permanent Light (rad 1)
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Darkness
+		Resist Fear
+		Resist Light
+		See Invisible
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Intelligence
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Call Light
+		 5    5  Breathe Light Bolt/Beam
+		 5    5  Breathe Darkness Bolt/Beam
+		20    3  Confuse
+		20    5  Blink
+		20   10  Breathe Light
+		20   10  Breathe Darkness
+		25   20  Healing Light
+		30   10  Breathe Confusion
+		32   10  Light Orb
+		35   10  Teleport
+		35   25  Dark Storm
+		40   30  Shift Planes
+	Powers stat: CON
+
+
+***** <Red Dragon>
+--> Red Dragon
+
+Legendary mystique reptiles, bred by Morgoth in the sinister halls of
+Angband. Most of dragons naturally serve Morgoth, but it is said that some
+were rebellious and escaped into the deep caves on the far East and South of
+the Middle-Earth.  Red Dragons, also known as Fire Dragons, breathe the
+element of Fire.
+
+The youngest red wyrmlings are pretty weak creatures. They cannot yet
+breathe anything stronger than wisps of smoke, and must rely on their weak
+clawing and biting attacks. They, however, grow quickly, and an Ancient Red
+Dragon or a Great Hell Wyrm is a terrible enemy, able to breathe fire and
+plasma massively, teleport or cast Word of Destruction at will.
+
+Like all dragons, Red Dragons cannot use any weapons, or wear gloves or
+boots on their large claws. However, they can put magical rings on six
+different limbs.
+
+Dragons' wings grant them speed bonus on high levels, up to +15. Also, their
+scales provide excellent protection, up to AC 100 on level 50.
+
+Glaurung, Father of the Dragons, is the lord of dragonkind. Red Dragon, who
+manages to slay him, gets the suit of dragon scale mail of Glaurung.
+
+Red Dragon progression:
+
+Baby red dragon
+ \-> Young red dragon
+      \-> Mature red dragon
+           \-> Ancient red dragon
+                \-> Great Hell Wyrm
+
+Level 1-15: Baby red dragon
+	STR: +0  INT: -2  WIS: -5  DEX: -3  CON: -1  CHR: -3 
+	Natural armor: 1...30
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		1d3 claw
+		1d3 claw
+		1d5 bite to burn
+	Innate properties:
+		Levitation
+		Resist Fire
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Fire Bolt/Beam
+	Powers stat: CON
+
+Level 15-25: Young red dragon
+	STR: +2  INT: +0  WIS: -4  DEX: -1  CON: +2  CHR: -3 
+	Natural armor: 30...50
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		2d6 claw
+		2d6 claw
+		2d8 bite to burn
+	Innate properties:
+		Levitation
+		Regeneration
+		Resist Fear
+		Resist Fire
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Fire Bolt/Beam
+		15   10  Breathe Fire
+		20   10  Scare
+	Powers stat: CON
+
+Level 25-35: Mature red dragon
+	STR: +3  INT: +1  WIS: -3  DEX: +1  CON: +3  CHR: -4 
+	Natural armor: 50...70
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		2d10 claw
+		2d10 claw
+		4d10 bite to burn
+	Innate properties:
+		Levitation
+		Free Action
+		Regeneration
+		Resist Fear
+		Resist Fire
+		See Invisible
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Fire Bolt/Beam
+		15   10  Breathe Fire
+		20   10  Scare
+		25    5  Blink
+		30   20  Oppose Fire
+	Powers stat: CON
+
+Level 35-45: Ancient red dragon
+	STR: +5  INT: +3  WIS: -3  DEX: +2  CON: +5  CHR: -4 
+	Natural armor: 70...90
+	Natural speed: +0...+10
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		4d9 claw
+		4d9 claw
+		6d9 bite to burn
+		6d9 bite to burn
+	Innate properties:
+		Levitation
+		Free Action
+		Immunity to Fire
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		See Invisible
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Fire Bolt/Beam
+		15   10  Breathe Fire
+		20   10  Scare
+		25    5  Blink
+		30   20  Oppose Fire
+		35   10  Teleport
+		40   20  Breathe Plasma
+	Powers stat: CON
+
+Level 45-50: Great Hell Wyrm
+	STR: +7  INT: +3  WIS: -1  DEX: +3  CON: +7  CHR: -5 
+	Natural armor: 90...100
+	Natural speed: +10...+15
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		4d12 claw
+		4d12 claw
+		9d14 bite to burn
+		9d14 bite to burn
+	Innate properties:
+		Levitation
+		Free Action
+		Hold Life
+		Immunity to Fire
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		See Invisible
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Fire Bolt/Beam
+		15   10  Breathe Fire
+		20   10  Scare
+		25    5  Blink
+		30   20  Oppose Fire
+		35   10  Teleport
+		40   20  Breathe Plasma
+		45   50  Word of Destruction
+	Powers stat: CON
+
+
+***** <Shadow Dragon>
+--> Shadow Dragon
+
+The frightening shadows of Morgoth's dragons are perhaps one of the most
+dangerous undead creatures. They are seen as gray mist, shaped like a
+dragon, with glowing red eyes. Shadow drake is not as powerful physically as
+alive dragons, but it is even more deadly. Its blows and breath can draw
+even the mightiest warrior in his grave.
+
+Creating an undead dragon is extremely hard and dangerous, and only the
+powerful necromancers dare to do that. Baby and young dragons are not worth
+that converting. The youngest shadow dragons were the mature dragons during
+their life.
+
+Shadow dragons' main stat is intelligence. Their constitution tends to be
+pretty miserable.
+
+Shadow drakes can breathe the clouds of fear and, later, nether and
+darkness. (Nether breath is the most powerful but it doesn't affect most of
+Angband inhabitants much.) Like all undeads, they are hurt by fire, light
+and orbs of draining, but immune to cold, poison, nether, darkness and time
+effects. Being essentially ghosts, they are immaterial.
+
+Death drakes are more powerful undead dragonkind. They are much more
+powerful physically. The gaze of the death drake is so terrible that it can
+force sentient beings to obey its orders. The common undead equivalent is
+phantom.
+
+The dracoliches are sometimes also known as bone dragons. Unlike shadow and
+death dragons, their body is fully material, and they cannot pass through
+walls, but their powers are immense. When an ordinary lich would cast a mana
+storm, the dracolich breathes the raw mana, and nothing can stand that
+breath. They can summon lesser undead dragons as well.
+
+The greatest shadow dragon in the history would be Glaurung -- if someone
+manages to slay him, he will face his shadow.
+
+Shadow Dragon progression:
+
+Shadow drake
+ \-> Death drake
+      \-> Dracolich
+
+Level 1-25: Shadow drake
+	STR: -1  INT: +3  WIS: +1  DEX: +0  CON: -1  CHR: -6 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 14
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		2d4 claw
+		2d4 claw
+		3d6 bite to attack with nether
+	Innate properties:
+		Levitation
+		Immaterial
+		Regeneration
+		Resist Cold
+		Resist Darkness
+		Resist Fear
+		Resist Nether
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Cloud of Fear
+		 5    5  Breathe Nether Bolt/Beam
+		10    8  Breathe Nether
+		15    8  Breathe Darkness Bolt/Beam
+		20    5  Blink
+		23   12  Breathe Darkness
+	Powers stat: INT
+
+Level 25-40: Death drake
+	STR: +0  INT: +4  WIS: +2  DEX: +1  CON: +0  CHR: -6 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 14
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		4d10 claw
+		4d10 claw
+		6d10 bite
+		6d10 bite to attack with nether
+	Innate properties:
+		Levitation
+		Free Action
+		Immaterial
+		Regeneration
+		Resist Blindness
+		Resist Cold
+		Resist Confusion
+		Resist Darkness
+		Resist Fear
+		Resist Nether
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Cloud of Fear
+		 5    5  Breathe Nether Bolt/Beam
+		10    8  Breathe Nether
+		15    8  Breathe Darkness Bolt/Beam
+		20    5  Blink
+		23   12  Breathe Darkness
+		30   25  Force Obey
+		35   10  Teleport
+	Powers stat: INT
+
+Level 40-50: Dracolich
+	STR: +3  INT: +6  WIS: +3  DEX: +1  CON: +3  CHR: -6 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 17
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		4d12 claw
+		4d12 claw
+		7d14 bite to attack with nether
+	Innate properties:
+		Levitation
+		Free Action
+		Regeneration
+		Resist Blindness
+		Resist Cold
+		Resist Confusion
+		Resist Darkness
+		Resist Fear
+		Resist Nether
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Cloud of Fear
+		 5    5  Breathe Nether Bolt/Beam
+		10    8  Breathe Nether
+		15    8  Breathe Darkness Bolt/Beam
+		20    5  Blink
+		23   12  Breathe Darkness
+		30   25  Force Obey
+		35   10  Teleport
+		40   10  Breathe Cold
+		47   28  Breathe Raw Mana
+		50   30  Summon Undead Dragons
+	Powers stat: INT
+
+
+***** <White Dragon>
+--> White Dragon
+
+Legendary mystique reptiles, bred by Morgoth in the sinister halls of
+Angband. Most of dragons naturally serve Morgoth, but it is said that some
+were rebellious and escaped into the deep caves on the far East and South of
+the Middle-Earth.  White Dragons, also known as Cold Dragons, breathe the
+element of Water (actually frozen to ice).
+
+The youngest white wyrmlings are pretty weak creatures. They cannot yet
+breathe anything stronger than mere snowflakes, and must rely on their weak
+clawing and biting attacks. They, however, grow quickly, and an Ancient White
+Dragon or a Great Ice Wyrm is a terrible enemy, able to breathe frost and
+ice massively or teleport at will.
+
+The unique ability of elder White Dragons is breathing extreme cold, which
+affects their enemies' metabolism. Reptiles, insects, other dragons, hydras,
+snakes and similar creatures move and act much slower, when exposed to such
+cold air. By continuous breathing on them, White Dragon can bring them to
+speed of about -40. Also, any non-unique creature has a small chance of
+freezing solid and shattering. Unfortunately these very cold blasts of air
+do less direct damage than simple frost or ice breath.
+
+Like all dragons, White Dragons cannot use any weapons, or wear gloves or
+boots on their large claws. However, they can put magical rings on six
+different limbs.
+
+Dragons' wings grant them speed bonus on high levels, up to +15. Also, their
+scales provide excellent protection, up to AC 100 on level 50.
+
+Scatha the Worm is the mightiest White Dragon still surviving in
+Middle-earth. He carries a wonderful set of dragon scale mail.
+
+White Dragon progression:
+
+Baby white dragon
+ \-> Young white dragon
+      \-> Mature white dragon
+           \-> Ancient white dragon
+                \-> Great Ice Wyrm
+
+Level 1-15: Baby white dragon
+	STR: -2  INT: -2  WIS: -1  DEX: -3  CON: -1  CHR: -3 
+	Natural armor: 1...30
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		1d3 claw
+		1d3 claw
+		1d5 bite
+	Innate properties:
+		Levitation
+		Resist Cold
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Cold Bolt/Beam
+	Powers stat: CON
+
+Level 15-25: Young white dragon
+	STR: +1  INT: -1  WIS: +2  DEX: -3  CON: +2  CHR: -3 
+	Natural armor: 30...50
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		2d4 claw
+		2d4 claw
+		2d6 bite to freeze
+	Innate properties:
+		Levitation
+		Levitation
+		Regeneration
+		Resist Cold
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Cold Bolt/Beam
+		15   10  Breathe Cold
+		20   10  Scare
+	Powers stat: CON
+
+Level 25-35: Mature white dragon
+	STR: +3  INT: +1  WIS: +4  DEX: +0  CON: +3  CHR: -4 
+	Natural armor: 50...70
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		2d8 claw
+		2d8 claw
+		4d8 bite to freeze
+	Innate properties:
+		Levitation
+		Levitation
+		Free Action
+		Regeneration
+		Resist Cold
+		See Invisible
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Cold Bolt/Beam
+		15   10  Breathe Cold
+		20   10  Scare
+		25    5  Blink
+		30   20  Oppose Cold
+	Powers stat: CON
+
+Level 35-45: Ancient white dragon
+	STR: +4  INT: +2  WIS: +5  DEX: +1  CON: +5  CHR: -4 
+	Natural armor: 70...90
+	Natural speed: +0...+10
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		4d8 claw
+		4d8 claw
+		6d8 bite to freeze
+		6d8 bite to freeze
+	Innate properties:
+		Levitation
+		Levitation
+		Free Action
+		Immunity to Cold
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		See Invisible
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Cold Bolt/Beam
+		15   10  Breathe Cold
+		20   10  Scare
+		25    5  Blink
+		30   20  Oppose Cold
+		35   10  Teleport
+		37   23  Breathe Freezing
+		40   20  Breathe Ice
+	Powers stat: CON
+
+Level 45-50: Great Ice Wyrm
+	STR: +5  INT: +3  WIS: +7  DEX: +2  CON: +7  CHR: -5 
+	Natural armor: 90...100
+	Natural speed: +10...+15
+	Hit die: 25
+	Infravision: 100 ft
+	Equip: no weapons, 6 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		4d12 claw
+		4d12 claw
+		6d14 bite to freeze
+		6d14 bite to freeze
+	Innate properties:
+		Levitation
+		Levitation
+		Free Action
+		Hold Life
+		Immunity to Cold
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		See Invisible
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    5  Breathe Cold Bolt/Beam
+		15   10  Breathe Cold
+		20   10  Scare
+		25    5  Blink
+		30   20  Oppose Cold
+		35   10  Teleport
+		37   23  Breathe Freezing
+		40   20  Breathe Ice
+		45   40  Call the Ice of Helcaraxe
+	Powers stat: CON
+
+=== End of draconic races
+
+
+***** <Giant>
+--> Giant
+
+Giants and their elder cousins titans are noble immortal people, born at the
+beginning of the world. Unfortunately Morgoth has corrupted almost all
+giants, and they became evil and cruel. Still, sometimes a young noble giant
+is found, eager to fight evil hordes.
+
+Giants, as their name suggests, are very large. They cannot use small
+weapons properly, and have large penalties to hit with them. Furthermore, it
+is rather hard to find armour which fits on their bodies (brigandine,
+plate and dragon armour do). They have huge strength and very good
+constitution, but they are not particularly clever, wise or dextrous. Still,
+they have good saving throws.
+
+All giants have unique affinity with large boulders. Such boulders can be
+created by tunneling granite walls (with digging instruments; stone-to-mud
+spell won't leave anything). They are very heavy and rather difficult to
+carry, but they cause very large damage when thrown.
+
+Giants are always resistant to confusion. They quickly grow and gain more
+resistances.
+
+As anyone can easily imagine, the lord of giants and titans is a very tough
+opponent. His name is Kronos. However, he carries a Rock of Kronos, an
+excellent throwing weapon.
+
+Giant progression:
+
+Hill giant
+ \-> Frost giant
+      \-> Fire giant
+           \-> Stone giant
+                \-> Cloud giant
+                     \-> Storm giant
+                          \-> Lesser titan
+                               \-> Greater titan
+
+Level 1-7: Hill giant
+	STR: +3  INT: -3  WIS: -3  DEX: -2  CON: +3  CHR: -3 
+	Natural armor: 1...7
+	Natural speed: +0
+	Hit die: 23
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Huge Armor
+		Huge Weapons
+		Resist Confusion
+		Affinity with Boulders
+	Innate powers: none
+
+Level 7-15: Frost giant
+	STR: +4  INT: -3  WIS: -3  DEX: -2  CON: +4  CHR: -3 
+	Natural armor: 7...15
+	Natural speed: +0
+	Hit die: 23
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Huge Armor
+		Huge Weapons
+		Resist Cold
+		Resist Confusion
+		Affinity with Boulders
+	Innate powers: none
+
+Level 15-23: Fire giant
+	STR: +5  INT: -3  WIS: -3  DEX: -2  CON: +5  CHR: -3 
+	Natural armor: 15...23
+	Natural speed: +0
+	Hit die: 23
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Huge Armor
+		Huge Weapons
+		Resist Cold
+		Resist Confusion
+		Resist Fire
+		Affinity with Boulders
+	Innate powers: none
+
+Level 23-30: Stone giant
+	STR: +6  INT: -3  WIS: -3  DEX: -2  CON: +6  CHR: -3 
+	Natural armor: 23...30
+	Natural speed: +0
+	Hit die: 23
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Huge Armor
+		Huge Weapons
+		Resist Cold
+		Resist Confusion
+		Resist Fire
+		Resist Shards
+		Resist Sound
+		Affinity with Boulders
+	Innate powers: none
+
+Level 30-35: Cloud giant
+	STR: +7  INT: -2  WIS: -2  DEX: -2  CON: +6  CHR: -3 
+	Natural armor: 30...35
+	Natural speed: +0
+	Hit die: 23
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Huge Armor
+		Huge Weapons
+		Resist Cold
+		Resist Confusion
+		Resist Lightning
+		Resist Fire
+		Resist Shards
+		Resist Sound
+		Affinity with Boulders
+	Innate powers: none
+
+Level 35-40: Storm giant
+	STR: +8  INT: -2  WIS: -2  DEX: -2  CON: +7  CHR: -3 
+	Natural armor: 35...40
+	Natural speed: +0
+	Hit die: 23
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Huge Armor
+		Huge Weapons
+		Resist Cold
+		Resist Confusion
+		Resist Lightning
+		Resist Fire
+		Resist Shards
+		Resist Sound
+		Affinity with Boulders
+	Innate powers: none
+
+Level 40-45: Lesser titan
+	STR: +9  INT: -2  WIS: -2  DEX: -2  CON: +7  CHR: -3 
+	Natural armor: 40...45
+	Natural speed: +0
+	Hit die: 23
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Huge Armor
+		Huge Weapons
+		Resist Chaos
+		Resist Cold
+		Resist Confusion
+		Resist Lightning
+		Resist Fire
+		Resist Nexus
+		Resist Shards
+		Resist Sound
+		Affinity with Boulders
+	Innate powers: none
+
+Level 45-50: Greater titan
+	STR: +10  INT: -1  WIS: -1  DEX: -1  CON: +8  CHR: -3 
+	Natural armor: 45...51
+	Natural speed: +0
+	Hit die: 23
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Aggravation
+		Huge Armor
+		Huge Weapons
+		Regeneration
+		Resist Chaos
+		Resist Cold
+		Resist Confusion
+		Resist Lightning
+		Resist Fear
+		Resist Fire
+		Resist Nexus
+		Resist Shards
+		Resist Sound
+		Affinity with Boulders
+	Innate powers: none
+
+
+***** <Ghost>
+--> Ghost
+
+Ghosts are common lesser undeads, but, unlike zombies or skeletons, they
+are fully sentient and retain their memories.  They usually occur
+spontaneously, when a living creature dies in a particularly nasty way.
+Its ghost will haunt the place of its death, attempting to revenge its death,
+or, sometimes, demanding something from the living -- bury the body properly
+or fulfill some old promises, for example.
+
+Ghosts look like faint translucent apparitions of their former selves.
+They float in the air, making absolutely no sound.  They are incorporeal and
+can walk through walls, but this is not a very pleasant experience for the
+ghost.  They are able to operate the material objects, but they remain
+very weak physically (although their nature makes them dextrous).  Ghosts
+fully retain their intelligence and wisdom; the latter is the spellcasting
+stat.
+
+Ghosts dislike the living, and often try to scare them.  However, ghosts
+are weaker and rarely try to actually oppose them with force.  Some ghosts
+can be quite friendly and even talkative, if they are not threatened.
+
+Ghosts, like liches and vampires, are independent creatures and will not obey
+anyone, unless forced.
+
+The main strength of the ghost is its stealth.  It is absolutely silent,
+invisible and immaterial, and could make a perfect thief or assassin.  Even
+hobbit rogues cannot appoach such stealth.  Ghosts, being astral creatures,
+can perform various teleportation powers, including Dimensional Door, easily.
+And, as undeads, they can drain life force of living creatures and conjure
+some nether attacks.  They don't have any really outstanding melee or magical
+combat abilities, though.
+
+Ghosts are sometimes confused with dreads, nasty pitch black spirits from
+unknown plane, apparently trying to destroy everything and exterminate
+everybody not originated on it.  Meeting a dread is usually deadly.
+
+Race king:     
+Race artifact: 
+
+***** <Golem>
+--> Golem
+
+Golems are essentialy robots. They are conjured by mages from clay, stone,
+flesh or other substance to aid them. Golems have no intelligence whatsoever.
+They always obey the orders of their masters, if these orders are simple
+enough. Typically the orders involve beating someone or something.
+
+Golem looks like the tall man-like figure, but its face is absolutely
+featureless. It is slow, and easily tricked. However, destroying the golem
+is not an easy task. Its body is held by magical forces, and physical
+attacks on it -- slashing the clay, crushing the stone, bending the steel,
+or whatever -- simply have no effect. Only the appropriate spells can
+stop the golem.
+
+There are many kinds of golems. Some unusual golem-like creatures, like
+pukelmen, colbrans and drolems, do not really belong to golem progression.
+The final stages of golem evolution -- bone, bronze and diamond golems --
+are capable of using counterspells on their foes.
+
+Race king:     The Adamantite Golem
+Race artifact: The Adamantite Helmet
+
+
+***** <Hydra>
+--> Hydra
+
+Hydras are seldom encountered in northern regions. These ancient magical
+reptiles are notorious for their extremely effective regeneration abilities.
+If one of hydra's heads gets chopped off, it regerates completely in
+minutes.
+
+The youngest hydras have but two heads. As hydra ages, it grows more heads.
+Mature hydra typically has 6-8 heads. Because of their native swamp
+environment, hydras quickly become very poisonous. Hydra's venomous breath
+can kill a young dragon. Elder hydras learn to use fire, and even summon
+their kin.
+
+The Lernaean Hydra, the only known 12-headed hydra, has the Crown of Hydras
+on its largest head. This artifact can be useful for any other creature as
+well.
+
+Hydra progression:
+
+2-headed hydra
+ \-> 3-headed hydra
+      \-> 4-headed hydra
+           \-> 5-headed hydra
+                \-> 7-headed hydra
+                     \-> 9-headed hydra
+                          \-> 11-headed hydra
+
+Level 1-8: 2-headed hydra
+	STR: +1  INT: -7  WIS: -7  DEX: -2  CON: -1  CHR: -5 
+	Natural armor: 10...20
+	Natural speed: +0
+	Hit die: 20
+	Infravision: none
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		2d6 bite
+		2d6 bite
+	Innate properties:
+		Regeneration
+	Innate powers: none
+
+Level 8-15: 3-headed hydra
+	STR: +2  INT: -7  WIS: -7  DEX: -1  CON: -1  CHR: -5 
+	Natural armor: 20...30
+	Natural speed: +0
+	Hit die: 20
+	Infravision: none
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		2d6 bite
+		2d6 bite
+		2d6 bite
+	Innate properties:
+		Regeneration
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 8    3  Scare
+	Powers stat: CON
+
+Level 15-23: 4-headed hydra
+	STR: +3  INT: -7  WIS: -7  DEX: +0  CON: +2  CHR: -5 
+	Natural armor: 30...40
+	Natural speed: +0
+	Hit die: 20
+	Infravision: none
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks:
+		2d6 bite
+		2d6 bite
+		2d6 bite
+		2d6 bite
+	Innate properties:
+		Regeneration
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 8    3  Scare
+	Powers stat: CON
+
+Level 23-30: 5-headed hydra
+	STR: +3  INT: -5  WIS: -5  DEX: +1  CON: +3  CHR: -5 
+	Natural armor: 40...50
+	Natural speed: +0
+	Hit die: 20
+	Infravision: none
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 2 headgears, no footwear
+	Innate attacks:
+		4d4 bite
+		4d4 bite
+		4d4 bite to poison
+		4d4 bite to poison
+	Innate properties:
+		Regeneration
+		Resist Poison
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 8    3  Scare
+		10    1  Stinking Cloud
+		20   16  Breathe Gas
+	Powers stat: CON
+
+Level 30-37: 7-headed hydra
+	STR: +4  INT: -5  WIS: -5  DEX: +2  CON: +4  CHR: -5 
+	Natural armor: 50...60
+	Natural speed: +0
+	Hit die: 20
+	Infravision: none
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 2 headgears, no footwear
+	Innate attacks:
+		3d9 bite to poison
+		3d9 bite to poison
+		3d9 bite
+		3d6 spit to confuse
+	Innate properties:
+		Regeneration
+		Resist Poison
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 8    3  Scare
+		10    1  Stinking Cloud
+		20   16  Breathe Gas
+	Powers stat: CON
+
+Level 37-45: 9-headed hydra
+	STR: +5  INT: -2  WIS: -2  DEX: +2  CON: +4  CHR: -5 
+	Natural armor: 60...70
+	Natural speed: +0...+5
+	Hit die: 30
+	Infravision: none
+	Equip: no weapons, 4 rings, no gloves, 1 armor/cloak, 3 headgears, no footwear
+	Innate attacks:
+		3d10 bite to burn
+		3d10 bite to burn
+		3d10 bite
+		3d10 bite
+	Innate properties:
+		Immunity to Poison
+		Regeneration
+		Resist Fire
+		Super Regeneration
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 8    3  Scare
+		10    1  Stinking Cloud
+		20   16  Breathe Gas
+		30   16  Breathe Fire
+	Powers stat: CON
+
+Level 45-50: 11-headed hydra
+	STR: +5  INT: -2  WIS: -2  DEX: +3  CON: +5  CHR: -5 
+	Natural armor: 70...75
+	Natural speed: +5...+10
+	Hit die: 30
+	Infravision: none
+	Equip: no weapons, 4 rings, no gloves, 1 armor/cloak, 3 headgears, no footwear
+	Innate attacks:
+		3d12 bite to burn
+		3d12 bite to burn
+		3d12 bite
+		3d12 bite
+	Innate properties:
+		Immunity to Poison
+		Regeneration
+		Resist Fire
+		Super Regeneration
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 8    3  Scare
+		10    1  Stinking Cloud
+		20   16  Breathe Gas
+		30   16  Breathe Fire
+		45   20  Summon Hydras
+		47   18  Plasma Storm
+	Powers stat: CON
+
+
+***** <Kobold>
+--> Kobold
+
+The infamous kobold is a physically and spiritually weak humanoid with a
+dog's head. Kobolds inhabit low levels of Angband. They like poisonous
+dagggers, and all kinds of poison in general, as they are naturally
+resistant to poison.
+
+Most members of a typical kobold tribe are warriors. Still, their shamans
+know some very rudimentary magic.
+
+Kobold race is actually present as "normal" (not from "Monster" menu) race,
+which can play with any normal class. The monster race of kobold is present
+just in case you wish to know what do real kobolds feel.
+
+The chief of largest kobold tribe is called Mughash, and all kobolds know
+him and his poisonous dagger.
+
+Kobold progression:
+
+Small kobold
+ \-> Kobold
+      |-> Large kobold
+      |-> Kobold archer
+      \-> Kobold shaman
+
+Level 1-7: Small kobold
+	STR: -3  INT: -4  WIS: -5  DEX: -2  CON: -3  CHR: -3 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 7
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Poison
+	Innate powers: none
+
+Level 7-15: Kobold
+	STR: -2  INT: -4  WIS: -5  DEX: -1  CON: -3  CHR: -3 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 8
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Poison
+	Innate powers: none
+
+Level 15-50: Large kobold
+	STR: -1  INT: -2  WIS: -4  DEX: +0  CON: -1  CHR: -3 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 12
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Poison
+	Innate powers: none
+
+Level 15-50: Kobold archer
+	STR: -2  INT: -1  WIS: -4  DEX: +2  CON: -2  CHR: -3 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 10
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Poison
+	Innate powers: none
+
+Level 15-50: Kobold shaman
+	STR: -2  INT: -2  WIS: +0  DEX: -1  CON: -2  CHR: -3 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 9
+	Infravision: 20 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Poison
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Magic Missile
+		 2    3  Cure Light Wounds
+		 4    3  Believer's Sacrifice
+		 5    6  Confuse
+	Powers stat: CON
+
+
+***** <Lich>
+--> Lich
+
+A horrible undead creature, lich is a wizard's skeleton, dressed in black
+robes. Liches are among the most powerful undeads. They utilize dark
+necromantic forces with one purpose: to eliminate all life. Naturally, liches
+are among Morgoth's forces as well. But some of them decide that it would be
+better to become rulers of the world themselves.
+
+Liches are pathetic at melee combat, but their spells are fearsome. They
+can use nether bolts and balls, healing and teleportation spells, powerful
+dispellings, mind-affecting attacks and summoning undead slaves. Liches are
+intelligent, but physically weak and not very wise. For obvious reasons,
+they get very poor attitudes in town.
+
+Elder liches eventually move into ethereal plane, becoming immaterial and
+able to pass walls.
+
+Like all undeads, liches do not suffer from cold, poison, darkness or
+nether. Such attacks can even heal them somewhat. But any lich fears fire,
+light and holy forces, as they deal extra damage to them. One of the
+consequences of liches' necromancy is permanent -1 to light radius.
+
+Vecna, the Emperor Lich, is the greatest of undeads; even gods feared him.
+He possesses a great and perilous artifact - the Hand of Vecna.
+
+Lich progression:
+
+Lich
+ \-> Master lich
+      \-> Demilich
+           \-> Archlich
+
+Level 1-20: Lich
+	STR: -5  INT: +5  WIS: +0  DEX: +0  CON: -3  CHR: -7 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 10
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Cold
+		Resist Darkness
+		Resist Nether
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Magic Missile
+		 2    3  Cure Light Wounds
+		 3    1  Blink
+		 5    2  Scare
+		 5    2  Confuse
+		 7    5  Sleep
+		10    7  Nether Bolt
+		12   10  Cure Critical Wounds
+		15   10  Teleport
+		17   13  Summon Undead
+	Powers stat: INT
+
+Level 20-35: Master lich
+	STR: -5  INT: +5  WIS: +0  DEX: +0  CON: -3  CHR: -7 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 10
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Cold
+		Resist Darkness
+		Resist Nether
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Magic Missile
+		 2    3  Cure Light Wounds
+		 3    1  Blink
+		 5    2  Scare
+		 5    2  Confuse
+		 7    5  Sleep
+		10    7  Nether Bolt
+		12   10  Cure Critical Wounds
+		15   10  Teleport
+		17   13  Summon Undead
+		20    7  Brain Smash
+		23   12  Death Orb
+		28   15  Dispel Monsters
+	Powers stat: INT
+
+Level 35-45: Demilich
+	STR: -5  INT: +5  WIS: +0  DEX: +0  CON: -3  CHR: -7 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 10
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Levitation
+		Resist Cold
+		Resist Darkness
+		Resist Nether
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Magic Missile
+		 2    3  Cure Light Wounds
+		 3    1  Blink
+		 5    2  Scare
+		 5    2  Confuse
+		 7    5  Sleep
+		10    7  Nether Bolt
+		12   10  Cure Critical Wounds
+		15   10  Teleport
+		17   13  Summon Undead
+		20    7  Brain Smash
+		23   12  Death Orb
+		28   15  Dispel Monsters
+		35   20  Heal
+		38   15  Haste Self
+	Powers stat: INT
+
+Level 45-50: Archlich
+	STR: -5  INT: +5  WIS: +0  DEX: +0  CON: -3  CHR: -7 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 10
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Levitation
+		Immaterial
+		Resist Cold
+		Resist Darkness
+		Resist Nether
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    1  Magic Missile
+		 2    3  Cure Light Wounds
+		 3    1  Blink
+		 5    2  Scare
+		 5    2  Confuse
+		 7    5  Sleep
+		10    7  Nether Bolt
+		12   10  Cure Critical Wounds
+		15   10  Teleport
+		17   13  Summon Undead
+		20    7  Brain Smash
+		23   12  Death Orb
+		28   15  Dispel Monsters
+		35   20  Heal
+		38   15  Haste Self
+		43   15  Teleport Away
+		47   35  Summon Greater Undeads
+	Powers stat: INT
+
+
+***** <Naga>
+--> Naga
+
+Yet another kind of hybrid creature, nagas have woman torso and snake tail.
+The woman part is beautiful, but it has bluish skin and speaks with hissing.
+Most nagas are lawful and even noble, but evil. Most of nagas are employed as
+guardians. Naga families sometimes also create large treasuries.
+
+Nagas are strong and can easily bite or constrict their victims to death. If
+that turns out to be insufficient
+TODO
+
+***** <Quylthulg>
+--> Quylthulg
+
+Quylthulgs are among the strangest creatures of Arda; very little is known
+about them. They appeared in our world many years ago, but even Morgoth
+himself doesn't know where did they come from.
+
+Quylthulgs are small, pulsing mounds of glowing flesh. Most of them are
+almost immobile; some of them can slowly move with pseudopods. Anyway,
+quylthulgs' unequaled teleportation abilities compensate that. They have
+absolutely free blinking power.
+
+Quylthulgs are very bad in almost everything, except summoning and
+controlling their minions. They get 1/2 experience from pet kills (as
+opposed to 1/10 of all other races), and their pets can even attack unique
+monsters. They learn to summon stronger creatures, ranging from yeeks
+and orcs to Great Wyrms and Black Reavers.
+
+Qlzqqlzuup is a master of quylthulg-kind. He carries a Ring of Ultimate
+Domination, a powerful summoner's artifact.
+
+Quylthulg progression:
+
+Quylthulg
+ \-> Nexus quylthulg
+      |-> Rotting quylthulg
+      |    \-> Greater rotting quylthulg
+      |         \-> Master quylthulg
+      |-> Demonic quylthulg
+      |    \-> Greater demonic quylthulg
+      |         \-> Master quylthulg
+      \-> Draconic quylthulg
+           \-> Greater draconic quylthulg
+                \-> Master quylthulg
+
+Level 1-20: Quylthulg
+	STR: -4  INT: -4  WIS: -4  DEX: -4  CON: -4  CHR: +6 
+	Natural armor: 20...50
+	Natural speed: -5
+	Hit die: 15
+	Infravision: 30 ft
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks: none
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		See Invisible
+		Sustain Charisma
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    0  Blink
+		 1    5  Teleport
+		 1   10  Teleport Away
+		 1    2  Summon Yeeks
+		 2    6  Summon Spiders
+		 4    9  Summon Orcs
+		 8   10  Summon Dark Elf
+		13   15  Summon Demon
+		13   15  Summon Undead
+		13   15  Summon Dragon
+		15   15  Summon Ogres
+		18   20  Summon Golem
+	Powers stat: CHR
+
+Level 20-30: Nexus quylthulg
+	STR: -4  INT: -4  WIS: -4  DEX: -4  CON: -4  CHR: +7 
+	Natural armor: 50
+	Natural speed: -5
+	Hit die: 15
+	Infravision: 30 ft
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks: none
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		Resist Nexus
+		See Invisible
+		Sustain Charisma
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    0  Blink
+		 1    5  Teleport
+		 1   10  Teleport Away
+		 1    2  Summon Yeeks
+		 2    6  Summon Spiders
+		 4    9  Summon Orcs
+		 8   10  Summon Dark Elf
+		13   15  Summon Demon
+		13   15  Summon Undead
+		13   15  Summon Dragon
+		15   15  Summon Ogres
+		18   20  Summon Golem
+		20   18  Summon Vortex
+		23   25  Summon Elemental
+		25   35  Heal Pet
+	Powers stat: CHR
+
+Level 30-40: Rotting quylthulg
+	STR: -3  INT: -3  WIS: -3  DEX: -3  CON: -3  CHR: +8 
+	Natural armor: 50
+	Natural speed: -5
+	Hit die: 15
+	Infravision: 30 ft
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks: none
+	Innate properties:
+		Free Action
+		Hold Life
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		Resist Nether
+		Resist Nexus
+		See Invisible
+		Sustain Charisma
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    0  Blink
+		 1    5  Teleport
+		 1   10  Teleport Away
+		13    7  Summon Undead
+		25   35  Heal Pet
+		33   20  Summon Lich
+		35   23  Summon Wight/Wraith
+		38   30  Summon Undead Summoner
+	Powers stat: CHR
+
+Level 30-40: Demonic quylthulg
+	STR: -3  INT: -3  WIS: -3  DEX: -3  CON: -3  CHR: +8 
+	Natural armor: 50
+	Natural speed: -5
+	Hit die: 15
+	Infravision: 30 ft
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks: none
+	Innate properties:
+		Free Action
+		Immunity to Fire
+		Regeneration
+		Resist Blindness
+		Resist Chaos
+		Resist Confusion
+		Resist Fear
+		Resist Nexus
+		See Invisible
+		Sustain Charisma
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    0  Blink
+		 1    5  Teleport
+		 1   10  Teleport Away
+		13    7  Summon Demon
+		25   35  Heal Pet
+		33   20  Summon Demon Troops
+		38   33  Summon Demon Commander
+		38   30  Summon Demon Summoner
+	Powers stat: CHR
+
+Level 30-40: Draconic quylthulg
+	STR: -3  INT: -3  WIS: -3  DEX: -3  CON: -3  CHR: +8 
+	Natural armor: 50
+	Natural speed: -5
+	Hit die: 15
+	Infravision: 30 ft
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks: none
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Low Elements
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		Resist Nexus
+		See Invisible
+		Sustain Charisma
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    0  Blink
+		 1    5  Teleport
+		 1   10  Teleport Away
+		13    7  Summon Dragon
+		25   35  Heal Pet
+		33   20  Summon Mature Dragons
+		38   33  Summon Ancient Dragon
+		38   30  Summon Dragon Summoner
+	Powers stat: CHR
+
+Level 40-49: Greater rotting quylthulg
+	STR: -2  INT: -2  WIS: -2  DEX: -2  CON: -2  CHR: +9 
+	Natural armor: 50
+	Natural speed: -5
+	Hit die: 15
+	Infravision: 30 ft
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks: none
+	Innate properties:
+		Free Action
+		Hold Life
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		Resist Nether
+		Resist Nexus
+		See Invisible
+		Sustain Charisma
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    0  Blink
+		 1    5  Teleport
+		 1   10  Teleport Away
+		13    7  Summon Undead
+		25   35  Heal Pet
+		33   20  Summon Lich
+		35   23  Summon Wight/Wraith
+		38   30  Summon Undead Summoner
+		42   45  Summon Greater Undeads
+	Powers stat: CHR
+
+Level 40-49: Greater demonic quylthulg
+	STR: -2  INT: -2  WIS: -2  DEX: -2  CON: -2  CHR: +9 
+	Natural armor: 50
+	Natural speed: -5
+	Hit die: 15
+	Infravision: 30 ft
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks: none
+	Innate properties:
+		Free Action
+		Immunity to Fire
+		Regeneration
+		Resist Blindness
+		Resist Chaos
+		Resist Confusion
+		Resist Fear
+		Resist Nexus
+		See Invisible
+		Sustain Charisma
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    0  Blink
+		 1    5  Teleport
+		 1   10  Teleport Away
+		13    7  Summon Demon
+		25   35  Heal Pet
+		33   20  Summon Demon Troops
+		38   33  Summon Demon Commander
+		38   30  Summon Demon Summoner
+		42   45  Summon Greater Demons
+	Powers stat: CHR
+
+Level 40-49: Greater draconic quylthulg
+	STR: -2  INT: -2  WIS: -2  DEX: -2  CON: -2  CHR: +9 
+	Natural armor: 50
+	Natural speed: -5
+	Hit die: 15
+	Infravision: 30 ft
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks: none
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Low Elements
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		Resist Nexus
+		See Invisible
+		Sustain Charisma
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    0  Blink
+		 1    5  Teleport
+		 1   10  Teleport Away
+		13    7  Summon Dragon
+		25   35  Heal Pet
+		33   20  Summon Mature Dragons
+		38   33  Summon Ancient Dragon
+		38   30  Summon Dragon Summoner
+		42   45  Summon Ancient Dragons
+	Powers stat: CHR
+
+Level 49-50: Master quylthulg
+	STR: -1  INT: -1  WIS: -1  DEX: -1  CON: -1  CHR: +10 
+	Natural armor: 50
+	Natural speed: -5
+	Hit die: 15
+	Infravision: 30 ft
+	Equip: no weapons, 3 rings, no gloves, 1 armor/cloak, 1 headgear, no footwear
+	Innate attacks: none
+	Innate properties:
+		Free Action
+		Hold Life
+		Immunity to Fire
+		Regeneration
+		Resist Low Elements
+		Resist Blindness
+		Resist Chaos
+		Resist Confusion
+		Resist Fear
+		Resist Nether
+		Resist Nexus
+		See Invisible
+		Sustain Charisma
+		Telepathy
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1    0  Blink
+		 1    5  Teleport
+		 1   10  Teleport Away
+		13    7  Summon Undead
+		13    7  Summon Demon
+		13    7  Summon Dragon
+		25   35  Heal Pet
+		33   20  Summon Lich
+		33   20  Summon Demon Troops
+		33   20  Summon Mature Dragons
+		35   23  Summon Wight/Wraith
+		38   33  Summon Demon Commander
+		38   33  Summon Ancient Dragon
+		38   30  Summon Undead Summoner
+		38   30  Summon Demon Summoner
+		38   30  Summon Dragon Summoner
+		42   40  Summon Greater Undeads
+		42   40  Summon Greater Demons
+		42   40  Summon Ancient Dragons
+		50   50  Summon Ultimate Pets
+	Powers stat: CHR
+
+
+***** <Skeleton>
+--> Skeleton
+
+Together with zombies, skeletons form the base of undead armies. Animating
+the bones of a dead creature is a fairly easy task even for the apprentice
+necromancer. The result is a scary-looking, but not particularly dangerous
+undead creature.
+
+Skeletons do not possess much intelligence; they are more like the machines.
+Their bones are not as strong as zombie's rotting arms, but they are
+more resistant to physical and magical damage. The unique ability of the
+skeleton is adding the bones of its dead foes into its own body, replacing
+the broken bones. Skeleton can heal inself that way very quickly if it finds
+a large reserve of bones. (Generally, only bare bones -- for example, of
+other skeletons or liches -- are suitable; extracting bones from the corpse
+is too long and difficult)
+
+Skeletons are not as good in fighting as alive warriors are, but their
+stamina makes up for it. They are not affected by cold, poison, nether,
+darkness, time and shards. They cannot be scared -- they have too little
+intelligence to understand the danger. They have no eyes, and their magical
+vision cannot be blinded or fooled by invisibility spells.
+
+Skeletons are sometimes mistaken for liches -- another, much more dangerous
+kind of skeletal undead. Liches have glowing eyes and black robes, and they
+are much more capable in necromancy -- in fact, they are undead
+necromancers. Skeletons have empty eye-sockets, and either put on rusty chain
+mail and helmets, or don't wear anything at all.
+
+The name of the king of the skeletons is Cantoras. He is found deep into
+Angband halls.
+
+Skeleton progression:
+
+Skeleton kobold
+ \-> Skeleton orc
+      \-> Skeleton human
+           \-> Skeleton troll
+                \-> Skeleton ettin
+
+Level 1-8: Skeleton kobold
+	STR: +0  INT: -5  WIS: -5  DEX: -2  CON: -1  CHR: -6 
+	Natural armor: 10...26
+	Natural speed: +0
+	Hit die: 14
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Blindness
+		Resist Cold
+		Resist Darkness
+		Resist Fear
+		Resist Nether
+		Resist Poison
+		Resist Shards
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1   10  Heal with Bones
+	Powers stat: STR
+
+Level 8-15: Skeleton orc
+	STR: +1  INT: -5  WIS: -5  DEX: -1  CON: +0  CHR: -6 
+	Natural armor: 26...40
+	Natural speed: +0
+	Hit die: 14
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Blindness
+		Resist Cold
+		Resist Darkness
+		Resist Fear
+		Resist Nether
+		Resist Poison
+		Resist Shards
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1   10  Heal with Bones
+	Powers stat: STR
+
+Level 15-30: Skeleton human
+	STR: +2  INT: -4  WIS: -4  DEX: +1  CON: +2  CHR: -6 
+	Natural armor: 40...50
+	Natural speed: +0
+	Hit die: 14
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Blindness
+		Resist Cold
+		Resist Darkness
+		Resist Fear
+		Resist Nether
+		Resist Poison
+		Resist Shards
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1   10  Heal with Bones
+		15   23  Powerful Attack
+		25   20  Remembrance
+	Powers stat: STR
+
+Level 30-40: Skeleton troll
+	STR: +4  INT: -4  WIS: -4  DEX: +2  CON: +3  CHR: -6 
+	Natural armor: 50
+	Natural speed: +0
+	Hit die: 14
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Blindness
+		Resist Cold
+		Resist Darkness
+		Resist Fear
+		Resist Nether
+		Resist Poison
+		Resist Shards
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1   10  Heal with Bones
+		15   23  Powerful Attack
+		25   20  Remembrance
+		35   20  Resistance
+	Powers stat: STR
+
+Level 40-50: Skeleton ettin
+	STR: +5  INT: -4  WIS: -4  DEX: +2  CON: +4  CHR: -6 
+	Natural armor: 50
+	Natural speed: +0
+	Hit die: 14
+	Infravision: 30 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Resist Blindness
+		Resist Cold
+		Resist Darkness
+		Resist Fear
+		Resist Nether
+		Resist Poison
+		Resist Shards
+		See Invisible
+		Slow Digestion
+		Undead
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 1   10  Heal with Bones
+		15   23  Powerful Attack
+		25   20  Remembrance
+		35   20  Resistance
+	Powers stat: STR
+
+
+***** <Spider>
+--> Spider
+
+One should never judge by appearance. Spiders are fine example. Although
+they may seem puny and fragile, spiders' poison and webs can easily
+prove this untrue.
+
+Spiders are eight-legged and eight-eyed creatures. They are often called
+insects, though in fact they are not. Spiders generally do not attack first;
+instead, they weave webs and wait until some poor creature gets stuck in
+them. Obviously, they are very stealthy. Their unique vision grants them
+exceptional searching and perception abilities. Spiders are somewhat
+fragile, but they are quick and dextrous, allowing them to overrun foes and
+wait for them in safe place, with webs ready.
+
+Spiders cannot use melee or missile weapons, biting and stinging instead.
+They can wear four rings and four boots (two pairs) on their numerous legs.
+They can also wear any armor, cloaks or headgear, although they accomplish
+this in pretty funny way. Spiders have no suitable arms to wear gloves.
+
+Spiders quickly grow. They eventually become very intelligent and magical,
+growing into phase spiders or araneas. Phase spiders are extremely quick.
+They are masters of teleportation, and though they remain weakly defended,
+their almost free teleportation powers (including dimension door) together
+with webbing, poisoning and deadly nexus attacks make them deadly killers.
+Araneas are not so dextrous, instead growing large and powerful bodies.
+They are masters of fire, mind-affecting and summoning magic.
+
+The largest spider known is Shelob, Spider of Darkness, normally dwelling in
+dark passages of Cirith Ungol. Her tough skin may make fine (though
+terribly stinking) armor.
+
+Spider progression:
+
+Cave spider
+ \-> Wood spider
+      \-> Giant spider
+           \-> Giant tarantula
+                |-> Phase spider
+                \-> Aranea
+                     \-> Elder aranea
+
+Level 1-5: Cave spider
+	STR: -3  INT: -3  WIS: -7  DEX: +1  CON: -3  CHR: -7 
+	Natural armor: 0...10
+	Natural speed: +5
+	Hit die: 6
+	Infravision: 30 ft
+	Equip: no weapons, 4 rings, no gloves, 1 armor/cloak, 1 headgear, 2 footwear
+	Innate attacks:
+		1d4 bite
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Darkness
+		Resist Fear
+		Resist Nexus
+		Resist Poison
+		Sustain Dexterity
+	Innate powers: none
+
+Level 5-10: Wood spider
+	STR: -2  INT: -2  WIS: -7  DEX: +2  CON: -3  CHR: -7 
+	Natural armor: 10...20
+	Natural speed: +5
+	Hit die: 6
+	Infravision: 30 ft
+	Equip: no weapons, 4 rings, no gloves, 1 armor/cloak, 1 headgear, 2 footwear
+	Innate attacks:
+		1d3 bite
+		1d4 sting to poison
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Confusion
+		Resist Darkness
+		Resist Fear
+		Resist Nexus
+		Resist Poison
+		Sustain Dexterity
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    3  Spit Poison
+		 7    5  Spit Webs
+	Powers stat: DEX
+
+Level 10-17: Giant spider
+	STR: -1  INT: -2  WIS: -7  DEX: +2  CON: -2  CHR: -7 
+	Natural armor: 20...34
+	Natural speed: +5
+	Hit die: 8
+	Infravision: 30 ft
+	Equip: no weapons, 4 rings, no gloves, 1 armor/cloak, 1 headgear, 2 footwear
+	Innate attacks:
+		1d6 bite
+		1d6 bite
+		1d10 bite to poison
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Darkness
+		Resist Fear
+		Resist Nexus
+		Resist Poison
+		Sustain Dexterity
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    3  Spit Poison
+		 7    5  Spit Webs
+		12   10  Weave Webs
+	Powers stat: DEX
+
+Level 17-25: Giant tarantula
+	STR: +0  INT: -1  WIS: -5  DEX: +3  CON: -2  CHR: -7 
+	Natural armor: 34...50
+	Natural speed: +5
+	Hit die: 9
+	Infravision: 30 ft
+	Equip: no weapons, 4 rings, no gloves, 1 armor/cloak, 1 headgear, 2 footwear
+	Innate attacks:
+		1d8 bite
+		1d8 bite
+		2d6 bite to poison
+		1d5 sting to sleep
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Darkness
+		Resist Fear
+		Resist Nexus
+		Resist Poison
+		Sustain Dexterity
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    3  Spit Poison
+		 7    5  Spit Webs
+		12   10  Weave Webs
+	Powers stat: DEX
+
+Level 25-50: Phase spider
+	STR: +0  INT: +1  WIS: -5  DEX: +6  CON: -3  CHR: -6 
+	Natural armor: 50...65
+	Natural speed: +10...+15
+	Hit die: 9
+	Infravision: 30 ft
+	Equip: no weapons, 4 rings, no gloves, 1 armor/cloak, 1 headgear, 2 footwear
+	Innate attacks:
+		1d10 bite
+		1d10 bite
+		2d6 bite to poison
+		2d6 bite to poison
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Darkness
+		Resist Fear
+		Resist Nexus
+		Resist Poison
+		Sustain Dexterity
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    3  Spit Poison
+		 7    5  Spit Webs
+		12   10  Weave Webs
+		25    2  Blink
+		25    7  Teleport
+		25   12  Teleport Away
+		30   15  Nexus Storm
+		35   23  Dimensional Door
+		45   35  Space Disruption
+	Powers stat: DEX
+
+Level 25-40: Aranea
+	STR: +3  INT: +2  WIS: -6  DEX: +0  CON: +2  CHR: -8 
+	Natural armor: 50...80
+	Natural speed: +5...+0
+	Hit die: 13
+	Infravision: 30 ft
+	Equip: no weapons, 4 rings, no gloves, 1 armor/cloak, 1 headgear, 2 footwear
+	Innate attacks:
+		2d8 claw to poison
+		2d8 claw to poison
+		2d6 bite to sleep
+		2d6 bite to sleep
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Darkness
+		Resist Fear
+		Resist Fire
+		Resist Nexus
+		Resist Poison
+		Sustain Dexterity
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    3  Spit Poison
+		 7    5  Spit Webs
+		12   10  Weave Webs
+		25   15  Summon Spiders
+		25    8  Fire Bolt
+		27    5  Sleep
+		30   12  Fire Ball
+		32   10  Scare All
+		37   25  Summon Demon
+	Powers stat: INT
+
+Level 40-50: Elder aranea
+	STR: +5  INT: +4  WIS: -6  DEX: -2  CON: +4  CHR: -10 
+	Natural armor: 80...120
+	Natural speed: +0
+	Hit die: 13
+	Infravision: 30 ft
+	Equip: no weapons, 4 rings, no gloves, 1 armor/cloak, 1 headgear, 2 footwear
+	Innate attacks:
+		5d8 claw to poison
+		5d8 claw to poison
+		5d6 bite to sleep
+		5d6 bite to sleep
+	Innate properties:
+		Free Action
+		Regeneration
+		Resist Blindness
+		Resist Confusion
+		Resist Darkness
+		Resist Disenchant
+		Resist Fear
+		Resist Fire
+		Resist Nexus
+		Resist Poison
+		Sustain Dexterity
+		Sustain Intelligence
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 5    3  Spit Poison
+		 7    5  Spit Webs
+		12   10  Weave Webs
+		25   15  Summon Spiders
+		25    8  Fire Bolt
+		27    5  Sleep
+		30   12  Fire Ball
+		32   10  Scare All
+		37   25  Summon Demon
+		40   17  Brain Smash
+		45   25  Fiery Lightning
+	Powers stat: INT
+
+
+***** <Troll>
+--> Troll
+
+Trolls are generally regarded as one of the dumbest and the strongest races of
+Middle-earth. It is often said that trolls were created by Morgoth in mockery
+of ents; but the Wise say that Morgoth couldn't create any life at all, and
+the trolls were actually just made from the rock of Thangorodrim. The trolls
+must visit the surface only in the night; otherwise they will turn back to
+stone forever. (The town level is an exception. It is so densely covered by
+the smoke of Thangorodrim that even the vampires have no problem walking
+there.)
+
+The species of trolls include forest trolls, stone trolls, algroths, ice
+trolls, cave trolls, water trolls, ologs, eldraks and ettins. The strongest
+trolls are appointed to chieftains. Troll chieftains have considerable
+influence in the Dark Lord's army, and are often accompanied by ancient
+dragons.
+
+Trolls are very strong and tough. They are nearly immune to pain, and it takes
+quite a bit of hacking to kill one. Their regeneration abilities are matched
+only by hydras. Troll can regenerate even its head (since there is not very
+much to regenerate).
+
+One of the greatest troll commanders is Rogrog the Black Troll, an
+exceptionally strong creature, whose blow could kill a basilisk.
+
+Troll progression:
+
+Forest troll
+ \-> Stone troll
+      \-> Algroth
+           \-> Ice troll
+                \-> Cave troll
+                     \-> Water troll
+                          \-> Olog
+                               \-> Eldrak
+                                    \-> Ettin
+                                         \-> Troll chieftain
+
+Level 1-10: Forest troll
+	STR: +2  INT: -8  WIS: -5  DEX: -4  CON: +2  CHR: -6 
+	Natural armor: 0...5
+	Natural speed: +0
+	Hit die: 20
+	Infravision: 40 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Regeneration
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 7   10  Berserk Strength
+	Powers stat: STR
+
+Level 10-20: Stone troll
+	STR: +3  INT: -7  WIS: -5  DEX: -4  CON: +2  CHR: -6 
+	Natural armor: 5...10
+	Natural speed: +0
+	Hit die: 21
+	Infravision: 40 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Regeneration
+		Resist Cold
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 7   10  Berserk Strength
+		17   12  Cure Serious Wounds
+	Powers stat: STR
+
+Level 20-25: Algroth
+	STR: +3  INT: -7  WIS: -5  DEX: -3  CON: +3  CHR: -6 
+	Natural armor: 10...20
+	Natural speed: +0
+	Hit die: 22
+	Infravision: 40 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Regeneration
+		Resist Cold
+		Resist Poison
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 7   10  Berserk Strength
+		17   12  Cure Serious Wounds
+		22   20  Powerful Attack
+	Powers stat: STR
+
+Level 25-30: Ice troll
+	STR: +4  INT: -6  WIS: -4  DEX: -2  CON: +3  CHR: -6 
+	Natural armor: 20...25
+	Natural speed: +0
+	Hit die: 23
+	Infravision: 40 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Regeneration
+		Resist Cold
+		Resist Poison
+		Resist Shards
+		Resist Sound
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 7   10  Berserk Strength
+		17   12  Cure Serious Wounds
+		22   20  Powerful Attack
+		28   30  Resistance
+	Powers stat: STR
+
+Level 30-35: Cave troll
+	STR: +5  INT: -6  WIS: -4  DEX: -2  CON: +4  CHR: -6 
+	Natural armor: 25...30
+	Natural speed: +0
+	Hit die: 24
+	Infravision: 40 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Regeneration
+		Resist Cold
+		Resist Poison
+		Resist Shards
+		Resist Sound
+		Sustain Constitution
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 7   10  Berserk Strength
+		17   12  Cure Serious Wounds
+		22   20  Powerful Attack
+		28   30  Resistance
+		32   20  Summon Trolls
+	Powers stat: STR
+
+Level 35-40: Water troll
+	STR: +5  INT: -4  WIS: -4  DEX: -1  CON: +4  CHR: -6 
+	Natural armor: 30...35
+	Natural speed: +0
+	Hit die: 25
+	Infravision: 40 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Poisonous Blood
+		Regeneration
+		Resist Cold
+		Resist Poison
+		Resist Shards
+		Resist Sound
+		Sustain Constitution
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 7   10  Berserk Strength
+		17   12  Cure Serious Wounds
+		22   20  Powerful Attack
+		28   30  Resistance
+		32   20  Summon Trolls
+	Powers stat: STR
+
+Level 40-44: Olog
+	STR: +5  INT: -3  WIS: -3  DEX: +0  CON: +5  CHR: -6 
+	Natural armor: 35...40
+	Natural speed: +0
+	Hit die: 26
+	Infravision: 40 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Poisonous Blood
+		Regeneration
+		Resist Cold
+		Resist Poison
+		Resist Shards
+		Resist Sound
+		Super Regeneration
+		Sustain Constitution
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 7   10  Berserk Strength
+		17   12  Cure Serious Wounds
+		22   20  Powerful Attack
+		28   30  Resistance
+		32   20  Summon Trolls
+	Powers stat: STR
+
+Level 44-47: Eldrak
+	STR: +6  INT: -3  WIS: -3  DEX: +0  CON: +6  CHR: -6 
+	Natural armor: 40...45
+	Natural speed: +0
+	Hit die: 27
+	Infravision: 40 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Poisonous Blood
+		Regeneration
+		Resist Cold
+		Resist Poison
+		Resist Shards
+		Resist Sound
+		Super Regeneration
+		Sustain Constitution
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 7   10  Berserk Strength
+		17   12  Cure Serious Wounds
+		22   20  Powerful Attack
+		28   30  Resistance
+		32   20  Summon Trolls
+	Powers stat: STR
+
+Level 47-49: Ettin
+	STR: +7  INT: -2  WIS: -2  DEX: +1  CON: +7  CHR: -6 
+	Natural armor: 45...50
+	Natural speed: +0
+	Hit die: 28
+	Infravision: 40 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Poisonous Blood
+		Regeneration
+		Resist Cold
+		Resist Poison
+		Resist Shards
+		Resist Sound
+		Super Regeneration
+		Sustain Constitution
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 7   10  Berserk Strength
+		17   12  Cure Serious Wounds
+		22   20  Powerful Attack
+		28   30  Resistance
+		32   20  Summon Trolls
+	Powers stat: STR
+
+Level 49-50: Troll chieftain
+	STR: +8  INT: +0  WIS: +0  DEX: +1  CON: +8  CHR: -6 
+	Natural armor: 50...60
+	Natural speed: +0
+	Hit die: 30
+	Infravision: 40 ft
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Poisonous Blood
+		Regeneration
+		Resist Cold
+		Resist Poison
+		Resist Shards
+		Resist Sound
+		Super Regeneration
+		Sustain Constitution
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		 7   10  Berserk Strength
+		17   12  Cure Serious Wounds
+		22   20  Powerful Attack
+		28   30  Resistance
+		32   20  Summon Trolls
+		50   35  Summon Ancient Dragon
+	Powers stat: STR
+
+
+=== Elemental races:
+
+***** <Air Elemental>
+--> Air Elemental
+
+Elementals are beings from the elemental planes. They appear on our material
+plane as tall figures consisting entirely of their elements. They are good
+warriors, often summoned by master sorcerors on the battle field. Elementals
+can preserve their material shape good enough to handle any material
+objects. However, their nature makes using certain objects very hard. Air
+elementals, in particular, short-circuit some metal objects which they touch.
+
+The unusual nature of all elementals helps they greatly. Their physical
+stats cannot be lowered; they cannot be frightened, blinded, confused,
+paralyzed or slowed by most of attacks.
+
+Air elementals inhabit the Elemental Plane of Air. Their material form
+consists of little tornados and cyclones, sometimes also clouds, lightnings
+and rain. They are almost invisible with ordinary vision. By using magic, one
+can see Air elemental as tall slim human figure. The only facial features
+visible are large misty eyes.
+
+Air elementals are not very strong, but few creatures can match their agility
+and stealth. They can easily outrun their foes, hide somewhere, and then zap
+them with a lightning bolt. Lightning bolts and magical cyclones are the main
+weapons of an Air elemental.
+
+One of the most useful abilities of Air elemental is absorbing the air to
+increase their mana reserves. However, this is time-consuming, and requires
+some open space.
+
+Smoke elementals consist mainly of smoke (as opposed to air and steam). They
+emanate loud crackling and are not as stealthy. Beside lightning bolts, they
+can cast darkness (smoke) storms.
+
+Race king:     Ariel, Queen of Air
+Race artifact: The Ring of Elemental Air
+
+Air Elemental progression:
+
+Air spirit
+ |-> Air elemental
+ |    \-> Greater air elemental
+ \-> Smoke elemental
+      \-> Greater smoke elemental
+
+Level 1-15: Air spirit
+	STR: +1  INT: -10  WIS: -10  DEX: +4  CON: +0  CHR: +0 
+	Natural armor: 0
+	Natural speed: +0...+5
+	Hit die: 14
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Shocking Touch
+		Free Action
+		Resist Blindness
+		Resist Confusion
+		Resist Lightning
+		Resist Fear
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers: none
+
+Level 15-35: Air elemental
+	STR: +2  INT: -7  WIS: -7  DEX: +6  CON: +1  CHR: +0 
+	Natural armor: 0
+	Natural speed: +5...+10
+	Hit die: 14
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Shocking Touch
+		Free Action
+		Resist Blindness
+		Resist Confusion
+		Resist Lightning
+		Resist Fear
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Spark
+		25   15  Lightning
+		30   12  Wind Blast
+	Powers stat: CON
+
+Level 15-35: Smoke elemental
+	STR: +4  INT: -7  WIS: -7  DEX: +6  CON: +3  CHR: +0 
+	Natural armor: 0
+	Natural speed: +5...+10
+	Hit die: 16
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Shocking Touch
+		Free Action
+		Resist Blindness
+		Resist Confusion
+		Resist Lightning
+		Resist Fear
+		Resist Fire
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Spark
+		25   15  Lightning
+		30    8  Fire Ball
+	Powers stat: CON
+
+Level 35-50: Greater air elemental
+	STR: +4  INT: -5  WIS: -5  DEX: +8  CON: +3  CHR: +1 
+	Natural armor: 0
+	Natural speed: +10...+15
+	Hit die: 14
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Shocking Touch
+		Free Action
+		Immunity to Lightning
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Spark
+		25   15  Lightning
+		30   12  Wind Blast
+		35   20  Ball Lightning
+		35    0  Absorb Mana From Air
+		45   35  Cyclone
+	Powers stat: CON
+
+Level 35-50: Greater smoke elemental
+	STR: +6  INT: -3  WIS: -3  DEX: +6  CON: +5  CHR: +1 
+	Natural armor: 0
+	Natural speed: +10
+	Hit die: 17
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Shocking Touch
+		Free Action
+		Resist Blindness
+		Resist Confusion
+		Resist Lightning
+		Resist Fear
+		Resist Fire
+		Resist Poison
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Spark
+		25   15  Lightning
+		30    8  Fire Ball
+		40   25  Darkness Storm
+	Powers stat: CON
+
+
+***** <Fire Elemental>
+--> Fire Elemental
+
+Elementals are beings from the elemental planes. They appear on our material
+plane as tall figures consisting entirely of their elements. They are good
+warriors, often summoned by master sorcerors on the battle field. Elementals
+can preserve their material shape good enough to handle any material
+objects. However, their nature makes using certain objects very hard. Fire
+Elementals, in particular, quckly burn any scrolls or staves that they are
+carrying.
+
+The unusual nature of all elementals helps they greatly. Their physical
+stats cannot be lowered; they cannot be frightened, blinded, confused,
+paralyzed or slowed by most of attacks.
+
+Fire elementals are the inhabitants of the Elemental Plane of Fire. They
+appear on the material plane as the tall humanoids, whose body consists
+entirely of flames. The only facial features visible are bright eyes. Fire
+elementals are more clever than most of other elementals, and can use
+magical devices of our plane freely. They can conjure fire and plasma
+attacks to defend themselves.
+
+Magma elemental is a hybrid of Fire and Earth elementals. Young fire spirit
+can become either a Fire elemental, or a Magma elemental. Magma elementals
+consist of the hot lava. They are slower and clumsier than their cousins,
+but they are also more tough. Magma elementals have to consume the walls
+(melting them into their bodies) to sustain themselves. Greater Magma
+elementals may learn how to heal themselves or to summon minions by melting
+walls to magma. But anyway, melting walls is a very time-consuming activity!
+
+The greatest Fire elemental who had ever arrived on the material plane is
+Vargo, Tyrant of Fire. He carries the mysterious ring of Elemental Fire.
+
+Fire Elemental progression:
+
+Fire spirit
+ |-> Fire elemental
+ |    \-> Greater fire elemental
+ \-> Magma elemental
+      \-> Greater magma elemental
+
+Level 1-15: Fire spirit
+	STR: +1  INT: -10  WIS: -10  DEX: +1  CON: +1  CHR: -1 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 16
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Burning Touch
+		Free Action
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		Resist Fire
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers: none
+
+Level 15-35: Fire elemental
+	STR: +2  INT: -5  WIS: -5  DEX: +4  CON: +4  CHR: +0 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 18
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Burning Touch
+		Free Action
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		Resist Fire
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Fire Bolt
+		25   15  Fire Ball
+		30   10  Plasma Bolt
+	Powers stat: CON
+
+Level 15-35: Magma elemental
+	STR: +5  INT: -8  WIS: -8  DEX: +2  CON: +5  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 18
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Eats Walls
+		Burning Touch
+		Free Action
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		Resist Fire
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Fire Bolt
+		25   15  Fire Ball
+		30   20  Merge Wall to Self
+	Powers stat: CON
+
+Level 35-50: Greater fire elemental
+	STR: +3  INT: -3  WIS: -3  DEX: +4  CON: +4  CHR: +2 
+	Natural armor: 0
+	Natural speed: +7
+	Hit die: 18
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Burning Touch
+		Free Action
+		Immunity to Fire
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Fire Bolt
+		25   15  Fire Ball
+		30   10  Plasma Bolt
+		40   25  Fiery Lightning
+	Powers stat: CON
+
+Level 31-50: Greater magma elemental
+	STR: +5  INT: -5  WIS: -5  DEX: +1  CON: +6  CHR: -3 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 20
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Eats Walls
+		Burning Touch
+		Free Action
+		Immunity to Fire
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Fire Bolt
+		25   15  Fire Ball
+		30   20  Merge Wall to Self
+		40   45  Melt the Wall to Magma
+	Powers stat: CON
+
+
+***** <Water Elemental>
+--> Water Elemental
+
+Elementals are beings from the elemental planes. They appear on our material
+plane as tall figures consisting entirely of their elements. They are good
+warriors, often summoned by master sorcerors on the battle field. Elementals
+can preserve their material shape good enough to handle any material
+objects. However, their nature makes using certain objects very hard.
+Water Elementals, in particular, quckly shatter any potions or flasks that
+they are carrying.
+
+The unusual nature of all elementals helps they greatly. Their physical
+stats cannot be lowered; they cannot be frightened, blinded, confused,
+paralyzed or slowed by most of attacks.
+
+Ice elementals are also in close relationship with water elementals.
+A lesser water spirit must decide at one point whether it wants to be a
+water or an ice elemental.
+
+While elementals are not noted in great intelligence, Water Elementals
+control all forms of water with ease, and therefore can cast cold, ice and
+water bolts and balls. They can consume potions of water to increase their
+health.
+
+Water elementals' body can sustain fire attacks, but the clouds of steam
+can limit their vision for some seconds.
+
+The lord of water elementals is known as Waldern. Slay him, and you will get
+the mysterious ring of Elemental Water.
+
+Water Elemental progression:
+
+Water spirit
+ |-> Water elemental
+ |    \-> Greater water elemental
+ \-> Ice elemental
+      \-> Greater ice elemental
+
+Level 1-15: Water spirit
+	STR: +3  INT: -10  WIS: -10  DEX: +1  CON: +1  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 18
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Freezing Touch
+		Free Action
+		Resist Blindness
+		Resist Cold
+		Resist Confusion
+		Resist Fear
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers: none
+
+Level 15-35: Water elemental
+	STR: +3  INT: -7  WIS: -7  DEX: +6  CON: +4  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 18
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Freezing Touch
+		Free Action
+		Resist Blindness
+		Resist Cold
+		Resist Confusion
+		Resist Fear
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Frost Bolt
+		25   15  Frost Ball
+		30   10  Waterfall
+	Powers stat: CON
+
+Level 15-35: Ice elemental
+	STR: +3  INT: -7  WIS: -7  DEX: +4  CON: +6  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 18
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Freezing Touch
+		Free Action
+		Immunity to Cold
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Frost Bolt
+		25   15  Frost Ball
+		30   10  Ice Bolt
+	Powers stat: CON
+
+Level 35-50: Greater water elemental
+	STR: +5  INT: -5  WIS: -5  DEX: +7  CON: +5  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 18
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Freezing Touch
+		Free Action
+		Resist Blindness
+		Resist Cold
+		Resist Confusion
+		Resist Fear
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Frost Bolt
+		25   15  Frost Ball
+		30   10  Waterfall
+		35   20  Whirlpool
+	Powers stat: CON
+
+Level 35-50: Greater ice elemental
+	STR: +5  INT: -5  WIS: -5  DEX: +5  CON: +7  CHR: -2 
+	Natural armor: 0
+	Natural speed: +0
+	Hit die: 18
+	Infravision: none
+	Equip: 1 weapon, 2 rings, 1 gloves, 1 armor/cloak, 1 headgear, 1 footwear
+	Innate attacks: none
+	Innate properties:
+		Freezing Touch
+		Free Action
+		Immunity to Cold
+		Resist Blindness
+		Resist Confusion
+		Resist Fear
+		See Invisible
+		Slow Digestion
+		Sustain Constitution
+		Sustain Dexterity
+		Sustain Strength
+	Innate powers:
+		Lev Mana Name
+		--- ---- ---------------------
+		15    5  Frost Bolt
+		25   15  Frost Ball
+		30   10  Ice Bolt
+		35   20  Ice Storm
+	Powers stat: CON
+
+=== End of elemental races
+
+
+
+vim:tw=78:

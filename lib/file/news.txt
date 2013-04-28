@@ -1,24 +1,23 @@
 
-
-           **************************************************
-           **   NPPAngband 0.3.1    A Variant of Angband   **
-           **************************************************
-	NPPAngband 0.1.0 - 0.3.1 Copyright (c) 2003-4 Jeff Greene
-		
-    Based on: 	Moria:   Copyright (c) 1985 Robert Alan Koeneke
-        	Umoria:   Copyright (c) 1989 James E. Wilson
-                Angband 2.0 - 2.4 - 2.6.2 by:
-                Alex Cutler, Andy Astrand, Sean Marsh,
-                Geoff Hill, Charles Teague, Charles Swiger
-                Angband 2.7.0 - 2.8.5 by Ben Harrison
-                Angband 2.9.0 - 3.0.x by Robert Ruehlmann
-		Oangband 0.6.0 Copyright 1998-2003 Leon Marrick, Bahman Rabii
-		EYAngband 0.5.2 By Eytan Zweig
-		Sangband 0.9.9 and Demoband by Leon Marrick
-      Send comments, bug reports, or patches, to "nppangband@comcast.net"
-      Visit NPPAngband's Web Site  at "http://home.comcast.net/~nppangband/"
-      Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
-      Read the online help files, especially "general.txt".
- 
-
-
+g===============================================================================w
+                                                                               
+   |\  /\  /\   |\  /\  |\  |\           sBased on:w                             
+   |/ |  | \\   |< |__| | | | |          Morias (c) 1985 R.A.Koenekew            
+   |   \/  \/   |/ |  | | | |/           Umorias (c) 1989 J.E.Wilsonw            
+        Possessor  Angband               Angband 3.0.4s by Charles Swiger,      
+                                           Ben Harrison, Robert Ruehlmann      
+          sVersionw  0.9.9s                   and many others                     
+       by wAvenger                        NPPAngband 0.3.4s by Jeff Greene
+       and wGraham Philips                wPosband 0.9.9s by Alexander Ulyanov
+       
+                                         Also includes code from:     
+   Mail: wposband@psd-solutions.com       wOAngbands, wEyAngbands, wSAngbands, 
+   News: wrec.games.roguelike.angband     wDemobands and wToMEs.
+   Web: whttp://posband.psd-solutions.com   
+                                                                               
+  This software may be copied and distributed for educational, research, and   
+  not for profit pursoses provided that this copyright and statement are       
+  included in all such copies.  Other copyrights may also apply.               
+                                                                               
+g===============================================================================w
+         sContext help is available at any time with w?s (Shift+"/") key.

@@ -1,0 +1,316 @@
+=== Body Powers ===
+
+If you play a Soul Possessor or a Monster, it is quite possible that your
+body has one or more innate powers.  They can have different nature -- they
+can be magical spells, or breathes, or some other abilities; but they are
+always accessed from "powers" menu, invoked by pressing 'U' ('|' in
+roguelike keyset).
+
+Body powers have much in common with usual magic.  They use mana to cast, and
+they have a chance of failure.  Note that different bodies can use different
+stats for mana and powers -- for example, spellcasters usually use INT, and
+dragons CON.  You cannot use your powers when confused.  However, they do not
+need light (or indeed any vision at all) or spellbooks.
+
+This file is a "spoiler" of body powers, explaining what exactly they do.
+
+
+=== Absorb Mana From Air
+
+	Absorbs ambient mana from nearby empty grids.  Mana increase:
+	(clvl / 2) * (number of adjacent floor grids).
+	
+=== Alter Reality
+
+	Changes the world (the level is completely regenerated).
+
+=== Basilisk Gaze
+
+	Attempts to petrify a nearby monster.  Monster gets a saving throw,
+	based on its native level.  If the saving throw failed, the monster
+	is instanly turned into a Stone Statue.  No items are generated,
+	and no experience is awarded.  The statue can be consumed by Basilisk
+	players.  Uniques are much less likely to be affected.  Non-living
+	monsters (undeads, demons, elementals, golems, mimics) are unaffected.
+
+=== Berserk Strength
+
+	Heals 30 hit points, removes fear and grants you berserk effect
+	(+25 to hit, -10 to armor) for 25+d25 turns.
+	
+=== Blink
+
+	Randomly displaces you, range is 10 grids.
+
+=== Brain Smash
+
+	Tries to slow, confuse and scare a single monster.
+
+=== Breathe Chaos
+
+	Breathes an arc of chaos.  Damage: clvl * 4.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.  May confuse
+	and/or polymorph monsters.
+
+=== Breathe Cold Bolt/Beam
+
+	Breathes a bolt of fire.  Damage: ((clvl-5) * 2/3 + 3)d8.
+	(clvl)% chance of turning into a beam.
+
+=== Breathe Cold
+
+	Breathes an arc of frost.  Damage: clvl * 5.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.
+
+=== Breathe Confusion
+
+	Breathes an arc of pure confusion.  Damage: clvl * 3.
+	Range: 8 + clvl/10.  45 degrees wide if clvl > 30;
+	otherwise 30 degrees.  May confuse monsters.
+
+=== Breathe Darkness
+
+	Breathes an arc of darkness.  Damage: clvl * 4.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.
+
+=== Breathe Darkness Bolt/Beam
+
+	Breathes a bolt of darkness.  Damage: ((clvl-5) * 2/3 + 3)d7.
+	(clvl)% chance of turning into a beam.
+
+=== Breathe Disenchant
+
+	Breathes an arc of disenchantment.  Damage: clvl * 3.
+	Range: 8 + clvl/10. 45 degrees wide if clvl > 30; otherwise 30 degrees.
+
+=== Breathe Disenchant Bolt/Beam
+
+	Breathes a bolt of disenchantment.  Damage: ((clvl-5) * 2/3 + 3)d6.
+	(clvl)% chance of turning into a beam.
+	
+=== Breathe Fire
+
+	Breathes an arc of fire.  Damage: clvl * 5.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.
+
+=== Breathe Fire Bolt/Beam
+
+	Breathes a bolt of fire.  Damage: ((clvl-5) * 2/3 + 3)d8.
+	(clvl)% chance of turning into a beam.
+
+=== Breathe Freezing
+
+	Breathes an arc of extreme cold.  Damage: clvl * 2.
+	Range: 8 + clvl/10.  45 degrees wide if clvl > 30; otherwise 30
+	degrees.  May insta-kill monsters (1/30 chance, except uniques) by
+	freezing them solid.  Cold-blooded organic beings (insects,
+	amphibians and reptiles, including dragons) are slowed down
+	by -(5+d5), up to the limit of -40, by slowing their metabolism.
+
+=== Breathe Gas
+
+	Breathes an arc of poison.  Damage: clvl * 6.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.
+
+=== Breathe Ice
+
+	Breathes an arc of ice shards.  Damage: clvl * 7.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.  Has no side
+	effects, but the damage is greater than most other breath powers can
+	cause.
+
+=== Breathe Light
+
+	Breathes an arc of light.  Damage: clvl * 3.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.  Monsters
+	susceptible to light take double damage.
+
+=== Breathe Light Bolt/Beam
+
+	Breathes a bolt of light.  Damage: ((clvl-5) * 2/3 + 3)d6.
+	(clvl)% chance of turning into a beam.  Monsters susceptible to light
+	take double damage.
+
+=== Breathe Lightning
+
+	Breathes an arc of electricity.  Damage: clvl * 5.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.
+
+=== Breathe Lightning Beam
+
+	Breathes a beam of lightning.  Damage: ((clvl-5) * 2/3 + 3)d8.
+
+=== Breathe Nether
+
+	Breathes an arc of nether.  Damage: clvl * 5.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.  Resisted by a
+	significant number of monsters.
+
+=== Breathe Nether Bolt/Beam
+
+	Breathes a bolt of nether.  Damage: ((clvl-5) * 2/3 + 3)d10.
+	(clvl)% chance of turning into a beam.  Resisted by a significant
+	number of monsters.
+
+=== Breathe Nexus
+
+	Breathes an arc of nexus.  Damage: clvl * 5.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.  Doesn't cause
+	any side effects on monsters.
+
+=== Breathe Plasma
+
+	Breathes an arc of plasma. Damage: clvl * 4. Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.
+
+=== Breathe Poison Bolt/Beam
+
+	Breathes a bolt of poison.  Damage: ((clvl-5) * 2/3 + 3)d8.
+	(clvl)% chance of turning into a beam.
+
+=== Breathe Raw Mana
+
+	Breathes an arc of mana.  Damage: clvl * 6.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.  Irresistable.
+
+=== Breathe Winds
+
+	Breathes an arc of winds.  Damage: clvl * 6.  Range: 8 + clvl/10.
+	45 degrees wide if clvl > 30; otherwise 30 degrees.
+
+=== Call Light
+
+	Illuminates nearby area by producing a ball of light,
+	damage 2d(clvl/2), radius (clvl/10)+1, centered at player.
+	Only monsters susceptible to light are damaged.  If a player is in
+	the room, the whole room will be illuminated.
+
+=== Cloud of Fear
+
+	Breathes an arc of fear.  Range: 8 + clvl/10.  45 degrees wide if
+	clvl > 30; otherwise 30 degrees.  Causes no physical damage, but
+	has a chance of scaring monsters.  The effect is more powerful than
+	most other forms of magical fear, but is still resisted by certain
+	monsters.
+
+=== Confuse
+	
+	Tries to confuse a single monster.
+
+=== Cure Light Wounds
+
+	Cures 2d10 damage.  Reduces cuts by 10.
+
+=== Cure Critical Wounds
+
+	Cures 6d10 damage.  Removes cuts.
+
+=== Death Orb
+
+	Fires a ball of nether. Damage: clvl * 4.5. Radius: 3 if
+	clvl > 30; otherwise 2.
+
+=== Dispel Monsters
+
+	Causes clvl*2 pure damage to all monsters in sight.
+
+=== Far-Reaching Attack
+
+	Allows you to attack a monster two grids away.  Damage is calculated
+	as usual.  To use this power, you need to wield a polearm.
+
+=== Fiery Lightning
+
+	Fires a jumping ball of fire.  Initial damage: clvl * 8.  Radius: 1.
+	Can be targeted only at monster.  Upon hitting it, the ball will
+	randomly jump and hit other monsters, with the damage reducing by
+	25% each time.  The ball will disappear when the damage will be
+	less than 25, or when no more monsters can be picked.
+
+=== Frost Ball
+
+	Fires a ball of cold. Damage: clvl * 4. Radius: 3 if
+	clvl > 35; otherwise 2.
+
+=== Frost Bolt/Beam
+
+	Fires a bolt of cold. Damage: ((clvl-10) * 3/4 + 3)d8.
+	(clvl)% chance of turning into a beam.
+
+=== Haste
+
+	Hastes you (+10 to speed) for 1d20+clvl turns.
+	If you are already hasted, the effect will continue for
+	1d5 more turns.
+
+=== Heal
+
+	Cures 300 hit points.  Removes cuts and stunning.
+
+=== Ice Bolt
+
+	Fires a bolt of ice. Damage: ((clvl-20) * 2/3 +3)d12.
+	Never beams.
+
+=== Ice Storm
+
+	Fires a ball of ice. Damage: clvl * 3. Radius: 4 if
+	clvl > 40; otherwise 3.
+
+=== Magic Missile
+
+	Fires a weak mana bolt. Damage: (3 + (clvl-1) / 5)d4.
+	(clvl-10)% chance of turning into a beam.  Irresistable.
+
+=== Nether Bolt
+
+	Fires a bolt of nether. Damage: (clvl-9)d8. (clvl)% chance
+	of turning into a beam.
+
+=== Oppose Fire
+
+	Grants you temporary fire resistance for (1d30)+30 turns.
+
+=== Scare
+
+	Tries to scare a single monster. "Power": clvl.
+
+=== Scare All
+
+	Tries to scare all monsters in sight. "Power": clvl.
+
+=== Sleep
+
+	Tries to put asleep a single monster.
+
+=== Spear of Light
+
+	Fires a beam of light.  The beam lights the dark grids, but will not
+	illuminate whole dark rooms.  Only monsters susceptible to light are
+	damaged; the damage caused is 6d8.
+
+=== Teleport
+
+	Randomly displaces you, range is 100 grids.
+
+=== Teleport Away
+
+	Teleports a line of monsters away from you.
+
+=== Uproot the Trees
+
+	Summons a small group of friendly Huorns or Ents.  Works only on tree
+	grids, which are changed to normal floor.
+
+=== Waterfall
+
+	Fires a beam of water. Damage: ((clvl-20) * 2/3 +3)d12.
+
+=== Whirlpool
+
+	Fires a ball of water. Damage: clvl * 4.5. Radius: 3 if
+	clvl > 45; otherwise 2.
+
+=== Whirlwind Attack
+
+	Allows you to attack all adjacent enemies in one turn.

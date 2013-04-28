@@ -1,5 +1,19 @@
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
+ */
 
-#include "angband.h"
+/* squelch.c: auto-squelcher */
+
+#include "posband.h"
+
 
 static int do_qual_squelch(void);
 
@@ -12,7 +26,7 @@ static int do_qual_squelch(void);
 
 byte squelch_level[SQUELCH_BYTES];
 byte auto_destroy;
-
+bool squelch_corpses;
 
 
 /*
@@ -129,47 +143,7 @@ static tval_desc tvals[] =
  * This code is the heavy pseudoidentify code.  I lifted it
  * from dungeon.c.  It is used in the quality squelching code.
  */
-
-/*
- * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
- */
-static int value_check_aux1(object_type *o_ptr)
-{
-	/* Artifacts */
-	if (artifact_p(o_ptr))
-	{
-		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_TERRIBLE);
-
-		/* Normal */
-		return (INSCRIP_SPECIAL);
-	}
-
-	/* Ego-Items */
-	if (ego_item_p(o_ptr))
-	{
-		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_WORTHLESS);
-
-		/* Normal */
-		return (INSCRIP_EXCELLENT);
-	}
-
-	/* Cursed items */
-	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
-
-	/* Broken items */
-	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
-
-	/* Good "armor" bonus */
-	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
-
-	/* Good "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
-
-	/* Default to "average" */
-	return (INSCRIP_AVERAGE);
-}
+/* dungeon.c function is used now (declared as extern) */
 
 /*
  * Strip an "object name" into a buffer.  Lifted from wizard2.c.
@@ -248,6 +222,8 @@ static int do_cmd_squelch_aux(void)
 	prt("S    : Save squelch values to pref file.", 8, 30);
 	prt("L    : Load squelch values from pref file.", 9, 30);
 	prt("ESC  : Back to options menu.", 10, 30);
+	prt(format("C    : Toggle monster corpse generation (%s).",
+		   (!squelch_corpses ? "ON" : "OFF")), 11, 30);
 	prt("     :*includes squelching opened chests.", 12, 30);
 
 	/* Choose! */
@@ -263,6 +239,12 @@ static int do_cmd_squelch_aux(void)
 	else if (ch=='A')
 	{
 		auto_destroy = 1-auto_destroy;
+	}
+	
+	/* Toggle squelch corpses */
+	else if (ch == 'C')
+	{
+		squelch_corpses = 1 - squelch_corpses;
 	}
 
 	else if (ch=='S')
@@ -406,6 +388,9 @@ static int do_cmd_squelch_aux(void)
 					/*skip empty objects*/
 					if (!k_ptr->name) continue;
 
+					/*hack - sometimes gold shows up*/
+					if (k_ptr->tval == TV_GOLD) continue;
+
 					/*haven't seen the item yet*/
 					if (!k_ptr->aware) continue;
 
@@ -417,96 +402,95 @@ static int do_cmd_squelch_aux(void)
 
 	    	/* Step 2: Simple bubble sort */
 	    	for (i=0; i<max_num; i++)
-			{
+		{
 	      		for (j=i; j<max_num; j++)
-				{
-					if ((k_info[choice[i]].tval>k_info[choice[j]].tval) ||
-		    		((k_info[choice[i]].tval==k_info[choice[j]].tval) &&
-		     		(k_info[choice[i]].cost>k_info[choice[j]].cost)))
+			{
+				if ((k_info[choice[i]].tval > k_info[choice[j]].tval) ||
+		    		   ((k_info[choice[i]].tval == k_info[choice[j]].tval) &&
+		     		    (k_info[choice[i]].cost > k_info[choice[j]].cost)))
 					{
 		  				temp = choice[i];
 		  				choice[i] = choice[j];
 		  				choice[j] = temp;
 					}
-	      		}
+	      			}
 			}
 
 			if (!max_num) c_put_str(TERM_RED, "No known objects of this type.", 3, 0);
 
 			else
 			{
-	    		for (num = 0; num < max_num; num++)
-	    		{
-	    			object_kind *k_ptr = &k_info[choice[num]];
+		    		for (num = 0; num < max_num; num++)
+		    		{
+		    			object_kind *k_ptr = &k_info[choice[num]];
 
 					k_ptr->everseen |= k_ptr->aware;
 
-	      			/* Prepare it */
-	      			row = 3 + (num % 20);
-	      			col = 30 * (num / 20);
-	      			ch = head[num/26] + (num%26);
+		      			/* Prepare it */
+		      			row = 3 + (num % 20);
+		      			col = 30 * (num / 20);
+	      				ch = head[num/26] + (num%26);
 
-	      			/* Acquire the "name" of object "i" */
-	      			strip_name(buf, choice[num]);
+	      				/* Acquire the "name" of object "i" */
+	      				strip_name(buf, choice[num]);
 
-	      			/* Get the squelch character */
-	      			sq = (k_ptr->squelch ? '*' : ' ');
+		      			/* Get the squelch character */
+		      			sq = (k_ptr->squelch ? '*' : ' ');
 
-	      			/* Get the color */
-	      			color = (k_ptr->squelch ?
-		       		(k_ptr->aware ? TERM_RED : TERM_L_UMBER) :
-		       		(k_ptr->aware ? TERM_L_GREEN : TERM_GREEN));
+		      			/* Get the color */
+		      			color = (k_ptr->squelch ?
+				       		(k_ptr->aware ? TERM_RED : TERM_L_UMBER) :
+				       		(k_ptr->aware ? TERM_L_GREEN : TERM_GREEN));
 
-	      			/* Print it */
-	      			prt(format("[%c%c] ", ch, sq), row, col);
-	      			c_put_str(color, buf, row, col+5);
-	    		}
+		      			/* Print it */
+		      			prt(format("[%c%c] ", ch, sq), row, col);
+		      			c_put_str(color, buf, row, col+5);
+		    		}
 
-	    		/* Print the legend */
-	    		prt("'*': Squelch (ided)     '.': Squelch (not ided)     ' ': Allow generation", 1, 0);
+	    			/* Print the legend */
+		    		prt("'*': Squelch (ided)     '.': Squelch (not ided)     ' ': Allow generation", 1, 0);
 			}
 
 			/* Choose! */
-	    	if (!get_com(format("%s : Command? (^A: Squelch all   ^U: Unsquelch all)", tval_desc), &ch)) return (1);
+		    	if (!get_com(format("%s : Command? (^A: Squelch all   ^U: Unsquelch all)", tval_desc), &ch)) return (1);
 
-	    	if (ch==KTRL('A'))
+		    	if (ch==KTRL('A'))
 			{
-	      		/* ^A --> Squelch all items */
-	      		for (i=0; i<max_num; i++)
+	      			/* ^A --> Squelch all items */
+		      		for (i=0; i<max_num; i++)
 				{
 					k_info[choice[i]].squelch = TRUE;
-	      		}
-	    	}
-
+		      		}
+		    	}
 			else if (ch==KTRL('U'))
 			{
-	      		/* ^U --> Unsquelch all items */
-	      		for (i=0; i<max_num; i++)
+		      		/* ^U --> Unsquelch all items */
+		      		for (i=0; i<max_num; i++)
 				{
 					k_info[choice[i]].squelch = FALSE;
-	      		}
-	    	}
-
+		      		}
+		    	}
 			else
 			{
-	      		/* Analyze choice */
-	      		num = -1;
-	      		if ((ch >= head[0]) && (ch < head[0] + 26)) num = ch - head[0];
-	      		if ((ch >= head[1]) && (ch < head[1] + 26)) num = ch - head[1] + 26;
-	      		if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 52;
+		      		/* Analyze choice */
+		      		num = -1;
+		      		if ((ch >= head[0]) && (ch < head[0] + 26)) num = ch - head[0];
+		      		if ((ch >= head[1]) && (ch < head[1] + 26)) num = ch - head[1] + 26;
+		      		if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 52;
 
-	     		/* Bail out if choice is "illegal" */
-	      		if ((num < 0) || (num >= max_num)) return (1);
+		     		/* Bail out if choice is "illegal" */
+		      		if ((num < 0) || (num >= max_num)) return (1);
 
-	      		/* Toggle */
-	      		k_info[choice[num]].squelch =
-				(k_info[choice[num]].squelch ? FALSE : TRUE);
-	    	}
+	      			/* Toggle */
+	      			k_info[choice[num]].squelch =
+					(k_info[choice[num]].squelch ? FALSE : TRUE);
+		    	}
 	  	}
 	}
 	/* And return successful */
 	return (1);
 }
+
 
 /*
  * This command handles the secondary squelch menu.
@@ -533,11 +517,11 @@ static int do_qual_squelch(void)
 
 	  	/* Print all tval's and their descriptions */
 	  	for (num = 0; (num<60) && tvals[num].tval; num++)
-	    {
-	      row = 2 + (num % 20);
-	      col = 30 * (num / 20);
-	      prt(format("(%c): %s", squelch_str[squelch_level[num]], tvals[num].desc), row, col);
-	    }
+		{
+			row = 2 + (num % 20);
+			col = 30 * (num / 20);
+			prt(format("(%c): %s", squelch_str[squelch_level[num]], tvals[num].desc), row, col);
+		}
 
 	  	/* Print out the rest of the screen */
 	  	prt("Legend:", 2, 30);
@@ -569,93 +553,94 @@ static int do_qual_squelch(void)
 
 	  	/* Analyze */
 	  	switch (ch)
-	    {
-	    	case ESCAPE:
-	    	{
+		{
+		    	case ESCAPE:
+		    	{
 				return 0;
-	      	}
+	      		}
 
-	    	case 'n':
+		    	case 'n':
 			{
 		  		squelch_level[index] = SQUELCH_NONE;
-	      		break;
+	      			break;
 			}
-	    	case 'N':
+
+			case 'N':
 			{
-	      		for (i=0; i < SQUELCH_BYTES; i++)
+	      			for (i=0; i < SQUELCH_BYTES; i++)
 		  		{
 					squelch_level[i] = SQUELCH_NONE;
-	      		}
-	      		break;
+		      		}
+	      			break;
 			}
 
-	    	case 'c':
+		    	case 'c':
 			{
-	      		if (index != CHEST_INDEX) squelch_level[index] = SQUELCH_CURSED;
-	      		break;
+		      		if (index != CHEST_INDEX) squelch_level[index] = SQUELCH_CURSED;
+	      			break;
 			}
 
-	    	case 'C':
+		    	case 'C':
 			{
-	      		for (i = 0; i < SQUELCH_BYTES; i++)
+		      		for (i = 0; i < SQUELCH_BYTES; i++)
 			  	{
-					/*HACK - don't check chests as cursed*/
+					/* Hack - don't check chests as cursed */
 					if (i != CHEST_INDEX) squelch_level[i] = SQUELCH_CURSED;
-	      	  	}
-	      		break;
+	      	  		}
+	      			break;
 			}
 
-	    	case 'v':
+		    	case 'v':
 			{
 		  		if ((index != CHEST_INDEX) && (index != AMULET_INDEX)
 						&& (index != RING_INDEX)) squelch_level[index] = SQUELCH_AVERAGE;
-	      		break;
+	      			break;
 			}
 
-	    	case 'V':
+		    	case 'V':
 			{
-	      		for (i = 0; i < SQUELCH_BYTES ; i++)
+		      		for (i = 0; i < SQUELCH_BYTES ; i++)
 				{
 					if ((i != CHEST_INDEX) && (i != AMULET_INDEX)
 						&& (i != RING_INDEX)) squelch_level[i] = SQUELCH_AVERAGE;
-	      		}
-	      		break;
+		      		}
+	      			break;
 			}
 
-	    	case 'g':
+		    	case 'g':
 			{
-	      		if ((index != CHEST_INDEX) && (index != AMULET_INDEX)
-						&& (index != RING_INDEX)) squelch_level[index] = SQUELCH_GOOD;
-	      		break;
+		      		if ((index != CHEST_INDEX) && (index != AMULET_INDEX)
+					&& (index != RING_INDEX)) squelch_level[index] = SQUELCH_GOOD;
+		      		break;
 			}
 
-	    	case 'G':
+		    	case 'G':
 			{
-	      		for (i = 0; i < SQUELCH_BYTES; i++)
+	      			for (i = 0; i < SQUELCH_BYTES; i++)
 				{
 					if ((i != CHEST_INDEX) && (i != AMULET_INDEX)
 						&& (i != RING_INDEX)) squelch_level[i] = SQUELCH_GOOD;
-	      		}
-	      		break;
+		      		}
+		      		break;
 			}
 
-	    	case 'a':
+		    	case 'a':
 			{
-	      		if (index != CHEST_INDEX) squelch_level[index] = SQUELCH_ALL;
-	      		break;
+		      		if (index != CHEST_INDEX) squelch_level[index] = SQUELCH_ALL;
+		      		break;
 			}
 
-	    	case 'A':
+	    		case 'A':
 			{
-	      		for (i = 0; i < SQUELCH_BYTES; i++)
+	      			for (i = 0; i < SQUELCH_BYTES; i++)
 			  	{
-					/*HACK - don't check chests as destroy all*/
+					/* Hack - don't check chests as destroy all */
 					if (i != CHEST_INDEX) squelch_level[i] = SQUELCH_ALL;
-	      	  	}
-	      		break;
+		      	  	}
+		      		break;
 			}
 
-			/*hack "O" works from anywhere only on open chests*/
+			/* Hack "O" works from anywhere only on open chests */
 			case 'O':
 			case 'o':
 			{
@@ -663,27 +648,27 @@ static int do_qual_squelch(void)
 				break;
 			}
 
-	    	case '-':
-	    	case '8':
-	      	{
+		    	case '-':
+		    	case '8':
+		      	{
 				index = (max_num + index - 1) % max_num;
 				break;
-	      	}
+		      	}
 
-	    	case ' ':
-	    	case '\n':
-	    	case '\r':
-	    	case '2':
-	      	{
+		    	case ' ':
+		    	case '\n':
+	    		case '\r':
+		    	case '2':
+		      	{
 				index = (index + 1) % max_num;
 				break;
-	      	}
+	      		}
 
-	    	case '4':
-	      	{
-				/*HACK - only allowable  options to be toggled through*/
+		    	case '4':
+		      	{
+				/* Hack - only allowable options to be toggled through */
 
-				/*first do the rings and amulets*/
+				/* First do the rings and amulets */
 				if ((index == AMULET_INDEX) || (index == RING_INDEX))
 				{
 					/*amulets and rings can only be none, cursed, and all but artifact*/
@@ -707,13 +692,13 @@ static int do_qual_squelch(void)
 					else squelch_level [index] = 0;
 					break;
 				}
-	      	}
+		      	}
 
-	    	case '6':
-	      	{
-				/*HACK - only allowable  options to be toggled through*/
+		    	case '6':
+		      	{
+				/* Hack - only allowable options to be toggled through */
 
-				/*first do the rings and amulets*/
+				/* First do the rings and amulets */
 				if ((index == AMULET_INDEX) || (index == RING_INDEX))
 				{
 					/*amulets and rings can only be none, cursed, and all but artifact*/
@@ -722,83 +707,81 @@ static int do_qual_squelch(void)
 					break;
 				}
 
-				/* now do the chests*/
+				/* Now do the chests */
 				else if (index == CHEST_INDEX)
 				{
 					squelch_level[index] = SQUELCH_OPENED_CHESTS;
 					break;
 				}
 
-				/*then toggle all else*/
+				/* Then toggle all else */
 				else
 				{
 					if (squelch_level [index] >= SQUELCH_ALL) squelch_level [index] = SQUELCH_ALL;
 					else squelch_level [index] += 1;
 					break;
 				}
-	      	}
+		      	}
 
-	    	default:
-	    	{
+		    	default:
+		    	{
 				bell("");
 				break;
-	    	}
+		    	}
 		}
 	}
 	return 0;
 }
+
 
 /*
  * Hack -- initialize the mapping from tvals to typevals.
  * This is currently called every time the squelch menus are
  * accessed.  This can certainly be improved.
  */
-
 void init_tv_to_type(void)
 {
-  tv_to_type[TV_SKELETON]=TYPE_MISC;
-  tv_to_type[TV_BOTTLE]=TYPE_MISC;
-  tv_to_type[TV_JUNK]=TYPE_MISC;
-  tv_to_type[TV_SPIKE]=TYPE_MISC;
-  tv_to_type[TV_CHEST]=TYPE_MISC;
-  tv_to_type[TV_SHOT]=TYPE_AMMO;
-  tv_to_type[TV_ARROW]=TYPE_AMMO;
-  tv_to_type[TV_BOLT]=TYPE_AMMO;
-  tv_to_type[TV_BOW]=TYPE_BOW;
-  tv_to_type[TV_DIGGING]=TYPE_WEAPON2;
-  tv_to_type[TV_HAFTED]=TYPE_WEAPON2;
-  tv_to_type[TV_POLEARM]=TYPE_WEAPON2;
-  tv_to_type[TV_SWORD]=TYPE_WEAPON1;
-  tv_to_type[TV_BOOTS]=TYPE_BOOTS;
-  tv_to_type[TV_GLOVES]=TYPE_GLOVES;
-  tv_to_type[TV_HELM]=TYPE_HELM;
-  tv_to_type[TV_CROWN]=TYPE_HELM;
-  tv_to_type[TV_SHIELD]=TYPE_SHIELD;
-  tv_to_type[TV_CLOAK]=TYPE_CLOAK;
-  tv_to_type[TV_SOFT_ARMOR]=TYPE_BODY;
-  tv_to_type[TV_HARD_ARMOR]=TYPE_BODY;
-  tv_to_type[TV_DRAG_ARMOR]=TYPE_BODY;
-  tv_to_type[TV_LITE]=TYPE_MISC;
-  tv_to_type[TV_AMULET]=TYPE_AMULET;
-  tv_to_type[TV_RING]=TYPE_RING;
-  tv_to_type[TV_STAFF]=TYPE_STAFF;
-  tv_to_type[TV_WAND]=TYPE_WAND;
-  tv_to_type[TV_ROD]=TYPE_ROD;
-  tv_to_type[TV_SCROLL]=TYPE_SCROLL;
-  tv_to_type[TV_POTION]=TYPE_POTION;
-  tv_to_type[TV_FLASK]=TYPE_MISC;
-  tv_to_type[TV_FOOD]=TYPE_FOOD;
-  tv_to_type[TV_MAGIC_BOOK]=TYPE_BOOK;
-  tv_to_type[TV_PRAYER_BOOK]=TYPE_BOOK;
+	tv_to_type[TV_SKELETON] = TYPE_MISC;
+	tv_to_type[TV_BOTTLE] = TYPE_MISC;
+	tv_to_type[TV_JUNK] = TYPE_MISC;
+	tv_to_type[TV_SPIKE] = TYPE_MISC;
+	tv_to_type[TV_CHEST] = TYPE_MISC;
+	tv_to_type[TV_SHOT] = TYPE_AMMO;
+	tv_to_type[TV_ARROW] = TYPE_AMMO;
+	tv_to_type[TV_BOLT] = TYPE_AMMO;
+	tv_to_type[TV_BOW] = TYPE_BOW;
+	tv_to_type[TV_DIGGING] = TYPE_WEAPON2;
+	tv_to_type[TV_HAFTED] = TYPE_WEAPON2;
+	tv_to_type[TV_POLEARM] = TYPE_WEAPON2;
+	tv_to_type[TV_SWORD] = TYPE_WEAPON1;
+	tv_to_type[TV_BOOTS] = TYPE_BOOTS;
+	tv_to_type[TV_GLOVES] = TYPE_GLOVES;
+	tv_to_type[TV_HELM] = TYPE_HELM;
+	tv_to_type[TV_CROWN] = TYPE_HELM;
+	tv_to_type[TV_SHIELD] = TYPE_SHIELD;
+	tv_to_type[TV_CLOAK] = TYPE_CLOAK;
+	tv_to_type[TV_SOFT_ARMOR] = TYPE_BODY;
+	tv_to_type[TV_HARD_ARMOR] = TYPE_BODY;
+	tv_to_type[TV_DRAG_ARMOR] = TYPE_BODY;
+	tv_to_type[TV_LITE] = TYPE_MISC;
+	tv_to_type[TV_AMULET] = TYPE_AMULET;
+	tv_to_type[TV_RING] = TYPE_RING;
+	tv_to_type[TV_STAFF] = TYPE_STAFF;
+	tv_to_type[TV_WAND] = TYPE_WAND;
+	tv_to_type[TV_ROD] = TYPE_ROD;
+	tv_to_type[TV_SCROLL] = TYPE_SCROLL;
+	tv_to_type[TV_POTION] = TYPE_POTION;
+	tv_to_type[TV_FLASK] = TYPE_MISC;
+	tv_to_type[TV_FOOD] = TYPE_FOOD;
+	tv_to_type[TV_MAGIC_BOOK] = TYPE_BOOK;
+	tv_to_type[TV_PRAYER_BOOK] = TYPE_BOOK;
 }
 
 void do_cmd_squelch(void)
 {
-
 	int flag;
 	int x, y;
 	init_tv_to_type();
-
 
 	flag=1;
 
@@ -813,16 +796,16 @@ void do_cmd_squelch(void)
 	{
 	  	for(y = 0; y < p_ptr->cur_map_hgt; y++)
 		{
-	    	rearrange_stack(y, x);
+		    	rearrange_stack(y, x);
 		}
 	}
-
 
 	/* Restore the screen */
 	Term_load();
 
 	return;
 }
+
 
 /*
  * These are the return values of squelch_itemp()
@@ -845,79 +828,86 @@ void do_cmd_squelch(void)
 
 int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
 {
-  int i, num, result;
-  byte feel;
+  	int i, num, result;
+  	byte feel;
 
-  /* default */
-  result = SQUELCH_NO;
+  	/* Default */
+  	result = SQUELCH_NO;
 
-  /*never squelch quest items*/
-  if (o_ptr->ident & IDENT_QUEST) return result;
+  	/*n Nver squelch quest items */
+  	if (o_ptr->ident & IDENT_QUEST) return result;
 
-  /* Check to see if the object is eligible for squelching on id. */
-  num=-1;
-  for (i=0; tvals[i].tval; i++)
-  {
-  	if (tvals[i].tval==o_ptr->tval)
-	{
-      	num=i;
-    }
-  }
-  if (num==-1) return result;
+	/* Never squelch any artifacts */
+	if (o_ptr->name1 || o_ptr->name3 || o_ptr->rart_name) return result;
 
-  /*
-   * Get the "feeling" of the object.  If the object is being identified
-   * get the feeling returned by a heavy pseudoid.
-   */
-  feel = feeling;
-  if (fullid==1)  feel = value_check_aux1(o_ptr);
+  	/* Check to see if the object is eligible for squelching on id. */
+  	num = -1;
 
+	/* Find the appropriate squelch group */
+  	for (i = 0; tvals[i].tval; i++)
+  	{
+  		if (tvals[i].tval == o_ptr->tval)
+		{
+	      		num = i;
+		}
+  	}
 
-  /* Get result based on the feeling and the squelch_level */
-  switch (squelch_level[num])
-  {
+	/* Never squelched */
+  	if (num == -1) return result;
+
+  	/*
+   	 * Get the "feeling" of the object.  If the object is being identified
+   	 * get the feeling returned by a heavy pseudoid.
+   	 */
+  	feel = feeling;
+
+  	if (fullid == 1)  feel = value_check_aux1(o_ptr);
+
+  	/* Get result based on the feeling and the squelch_level */
+  	switch (squelch_level[num])
+  	{
    		case SQUELCH_NONE:
 		{
-      		return result;
-      		break;
+      			return result;
+      			break;
 		}
 
-    	case SQUELCH_CURSED:
+	    	case SQUELCH_CURSED:
 		{
-      		result = (((feel==INSCRIP_BROKEN) ||
-		 	(feel==INSCRIP_TERRIBLE) ||
-		 	(feel==INSCRIP_WORTHLESS) ||
-		 	(feel==INSCRIP_CURSED)) ? SQUELCH_YES : SQUELCH_NO);
-      		break;
+	      		result = (((feel==INSCRIP_BROKEN) ||
+			 	   (feel==INSCRIP_TERRIBLE) ||
+			 	   (feel==INSCRIP_WORTHLESS) ||
+			 	   (feel==INSCRIP_CURSED)) ? SQUELCH_YES : SQUELCH_NO);
+      			break;
 		}
 
    		case SQUELCH_AVERAGE:
 		{
-     		result = (((feel==INSCRIP_BROKEN) ||
-		 	(feel==INSCRIP_TERRIBLE) ||
-		 	(feel==INSCRIP_WORTHLESS) ||
-		 	(feel==INSCRIP_CURSED) ||
-		 	(feel==INSCRIP_AVERAGE)) ? SQUELCH_YES : SQUELCH_NO);
-      		break;
+	     		result = (((feel==INSCRIP_BROKEN) ||
+			 	   (feel==INSCRIP_TERRIBLE) ||
+			 	   (feel==INSCRIP_WORTHLESS) ||
+			 	   (feel==INSCRIP_CURSED) ||
+			 	   (feel==INSCRIP_AVERAGE)) ? SQUELCH_YES : SQUELCH_NO);
+      			break;
 		}
 
-    	case SQUELCH_GOOD:
+	    	case SQUELCH_GOOD:
 		{
-      		result = (((feel==INSCRIP_BROKEN) ||
-		 	(feel==INSCRIP_TERRIBLE) ||
-		 	(feel==INSCRIP_WORTHLESS) ||
-		 	(feel==INSCRIP_CURSED) ||
-		 	(feel==INSCRIP_AVERAGE) ||
-		 	(feel==INSCRIP_GOOD)) ? SQUELCH_YES : SQUELCH_NO);
-     		 break;
+	      		result = (((feel==INSCRIP_BROKEN) ||
+			 	   (feel==INSCRIP_TERRIBLE) ||
+			 	   (feel==INSCRIP_WORTHLESS) ||
+		 		   (feel==INSCRIP_CURSED) ||
+			 	   (feel==INSCRIP_AVERAGE) ||
+			 	   (feel==INSCRIP_GOOD)) ? SQUELCH_YES : SQUELCH_NO);
+     			 break;
 		}
 
-    	case SQUELCH_ALL:
+	    	case SQUELCH_ALL:
 		{
-      		result = SQUELCH_YES;
-      		break;
+      			result = SQUELCH_YES;
+	      		break;
 		}
-    }
+	}
 
 
   	if (result==SQUELCH_NO) return result;
@@ -927,6 +917,7 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
 
   	return result;
 }
+
 
 /*
  * This performs the squelch, actually removing the item from the
@@ -938,19 +929,18 @@ int do_squelch_item(int squelch, int item, object_type *o_ptr)
 
   	if (squelch != SQUELCH_YES) return 0;
 
-	/*hack - never squelch quest items*/
+	/* Hack - never squelch quest items */
 	if (o_ptr->ident & IDENT_QUEST) return 0;
 
-  	if (item>0)
+  	if (item > 0)
 	{
-    	inven_item_increase(item, -o_ptr->number);
-    	inven_item_optimize(item);
+	    	inven_item_increase(item, -o_ptr->number);
+    		inven_item_optimize(item);
   	}
-
   	else
 	{
-    	floor_item_increase(0 - item, -o_ptr->number);
-    	floor_item_optimize(0 - item);
+	    	floor_item_increase(0 - item, -o_ptr->number);
+    		floor_item_optimize(0 - item);
   	}
 
   	return 1;
@@ -958,68 +948,61 @@ int do_squelch_item(int squelch, int item, object_type *o_ptr)
 
 void rearrange_stack(int y, int x)
 {
-  s16b o_idx, next_o_idx;
-  s16b first_bad_idx, first_good_idx, cur_bad_idx, cur_good_idx;
+	s16b o_idx, next_o_idx;
+	s16b first_bad_idx, first_good_idx, cur_bad_idx, cur_good_idx;
 
-  object_type *o_ptr;
+	object_type *o_ptr;
 
-  bool sq_flag=FALSE;
+	bool sq_flag=FALSE;
 
-  /* Initialize */
-  first_bad_idx = 0;
-  first_good_idx = 0;
-  cur_bad_idx = 0;
-  cur_good_idx = 0;
+	first_bad_idx = 0;
+	first_good_idx = 0;
+	cur_bad_idx = 0;
+	cur_good_idx = 0;
 
-  for(o_idx = cave_o_idx[y][x]; o_idx; o_idx = next_o_idx)
+	for(o_idx = cave_o_idx[y][x]; o_idx; o_idx = next_o_idx)
+	{
+	    	o_ptr = &(o_list[o_idx]);
+	    	next_o_idx = o_ptr->next_o_idx;
+    		sq_flag=(k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware);
 
-  {
-    	o_ptr = &(o_list[o_idx]);
-    	next_o_idx = o_ptr->next_o_idx;
-    	sq_flag=(k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware);
-
-    	if (sq_flag)
+	    	if (sq_flag)
 		{
-      		if (first_bad_idx == 0)
+      			if (first_bad_idx == 0)
 			{
 				first_bad_idx = o_idx;
 				cur_bad_idx = o_idx;
-      		}
-
+	      		}
 			else
 			{
 				o_list[cur_bad_idx].next_o_idx = o_idx;
 				cur_bad_idx = o_idx;
-      		}
-    	}
-
+      			}
+	    	}
 		else
-
 		{
-      		if (first_good_idx==0)
+      			if (first_good_idx==0)
 			{
 				first_good_idx = o_idx;
 				cur_good_idx = o_idx;
 			}
-
 			else
 			{
 				o_list[cur_good_idx].next_o_idx = o_idx;
 				cur_good_idx = o_idx;
-      		}
-    	}
+	      		}
+	    	}
   	}
 
   	if (first_good_idx != 0)
 	{
-    	cave_o_idx[y][x] = first_good_idx;
-    	o_list[cur_good_idx].next_o_idx = first_bad_idx;
-    	o_list[cur_bad_idx].next_o_idx = 0;
+	    	cave_o_idx[y][x] = first_good_idx;
+	    	o_list[cur_good_idx].next_o_idx = first_bad_idx;
+	    	o_list[cur_bad_idx].next_o_idx = 0;
   	}
-
 	else
 	{
-    	cave_o_idx[y][x] = first_bad_idx;
+	    	cave_o_idx[y][x] = first_bad_idx;
   	}
 }
 
@@ -1034,19 +1017,22 @@ void do_squelch_pile(int y, int x)
 
 	for(o_idx = cave_o_idx[y][x]; o_idx; o_idx = next_o_idx)
 	{
+	    	o_ptr = &(o_list[o_idx]);
 
-    	o_ptr = &(o_list[o_idx]);
+    		next_o_idx = o_ptr->next_o_idx;
 
-    	next_o_idx = o_ptr->next_o_idx;
+	    	sq_flag = (k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware);
+	
+		/* Never squelch any artifacts */
+	    	sq_flag &= !artifact_p(o_ptr) && !o_ptr->name3 && !o_ptr->rart_name;
 
-    	sq_flag=(k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware);
+		/* Always squelch "&nothing" */
+		if (!o_ptr->k_idx) sq_flag = TRUE;
 
-    	sq_flag &= !artifact_p(o_ptr);
-
-		/*never delete quest items*/
-    	if ((sq_flag) && (!(o_ptr->ident & IDENT_QUEST)))
+		/* Never delete quest items */
+	    	if ((sq_flag) && (!(o_ptr->ident & IDENT_QUEST)))
 		{
-      		delete_object_idx(o_idx);
+      			delete_object_idx(o_idx);
 		}
   	}
 }

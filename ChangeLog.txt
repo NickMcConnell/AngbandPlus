@@ -1,0 +1,534 @@
+=== PosBand version history ===
+
+Version 0.9.9 **-***-** Alexander Ulyanov <posband@earthsea.org>
+
+	New features:
+
+	* Invisibility. Invisibility != high stealth; it doesn't
+	  prevent monsters from waking up, but makes their melee
+	  and ranged attacks very random. Some monsters (including
+	  spiritual beings and those who don't use eyes to see), and
+	  high-level uniques are unaffected by invisibility. Invisibility
+	  is innate to some races, and is granted by some items and
+	  artifacts; some spells/items may grant temporary invisibility.
+	  Invisibility effect can also be achieved by standing in
+	  fog, and (much weaker) in water or fire.
+	* As a consequence, monsters can be blinded now. (Perhaps make
+	  light/darkness blind them, too? Would be nice to make ?oDarkness
+	  useful.)
+	* All monsters are now invisible in fog.  Elementals and vortices
+	  are invisible in their native terrain.  You can't see through this
+	  kind of invisibility.
+	* Slots are not hard-coded any longer. Creatures with e.g. 20
+	  bodies are possible now -- the only limit is total 23
+	  equipment slots (to fit on the screen).
+	* Multiple weapons/bows wielding is possible now!
+	* Possessing a human (e.g. Novice rogue, Swordsman, Patriarch)
+	  will now give you all the abilities of his class. 
+	* Fighting/Shooting skills split to Barehanded, Edged weapons,
+	  Hafted weapons, Polearms, Axes, Slings, Bows, Crossbows, Throwing.
+	* *Identify* service now available in the Guild (costs 4000gp).
+	* Experienced monsters now regenerate faster.
+	* Abyss grids are more dangerous now. By stepping on it without
+	  levitation, you will fall ~7-10 levels down, causing up to 40d8
+	  damage.  (No, you cannot fly past levels 99 or 100 that way.)
+	* Some new "exotic" base item types (Swords of Balrog, Poisoned
+	  Darts, etc.).
+	* Dark Elves now start game with a stack of poisoned darts
+	  (many players reported difficulties in early game, before the
+	  "specialisation" choice)
+	* Player gets full monster memory information for his own body.
+	* It is possible now to invoke help from new form selection screen.
+	* New splash screen (yes, again -- old one was rather silly).
+	  Splash screen and tombstone now have color.
+	* Linux binary packages for Red Hat and Slackware.
+	* Ported autoconf scripts from Vanilla (heavily modified).
+	* Savefiles are now compressed with zlib (if it is available).
+	* Character notes are now stored in the savefile itself.
+	* Starburst rooms, new pit types from NPPAngband 0.4.0.
+	* Maybe other minor changes.
+
+	Front-end changes:
+
+	* Added "lfb" (Linux framebuffer).
+	* Removed "ami", "cap", "dos", "emx", "gtk", "ibm", "sla",
+	  "vme", "x11" and "xpj".  "ros", "crb" and "mac" are unmaintained
+	  at the moment -- I may try to rework the display system in the
+	  future. Minor changes to "gcu", "vcs" and "xaw" front-ends.
+
+	New races: <...>
+
+	Bugfixes:
+
+	* 'C' screen (barely) squeezed on 80x24 terminal.
+	  The game should now work properly with small terminals
+	  again. Character dump is also fixed. Note that 'C' screen
+	  is now 6 pages long :).
+	* Reforging or randart generation could crash PosBand in
+	  randart-only games.
+	* Skills were calculated incorrectly for all monster/possessor
+	  races. Ugh!
+	* "gcu" front-end has correctly working pseudo-graphics now.
+	  Well, in theory at least :) Code from Vanilla 3.0.5.
+	* Acid/disenchanment couldn't affect items in some slots.
+	* Randarts which activate for illumination every turn were
+	  sometimes generated.
+	* Tailored rewards fixed. Should now work as expected (that is,
+	  give you Really Neat Items Which You Actually Need).
+	* Randarts' price is now equal to the price of template artifact.
+	  Rather crude decision, but selling randarts for ridiculously
+	  low prices made the Guild trying to replace all your randarts
+	  with the standard artifacts, whether they were actually better or
+	  not.
+	* "Heal Pet" power worked only on neutral-aligned pets.
+	* The game could try to reward a monster race with a
+	  spellbook; since monster races have no spellbook, the game
+	  would fallback on random reward.
+	* Ice and rock squares were nearly invisible.  Changed
+	  ice to while ` (admittedly not the best solution), and
+	  rocks to dark gray :.
+	* Reforged light sources could be refilled -> pval +15000.
+	* Rods of Perception could be used without recharging.
+	* "Decayed" levels removed. They looked ugly, and were not
+	  particularly playable.
+	* All monsters in pit/nest will have the same alignment now,
+	  preventing immediate spectacular combats between pit inhabitants
+	  (you could wait until most of monsters are killed, teleport or
+	  banish the rest, and collect *tons* of loot)
+	* Descriptions of posions of resist acid/electricity/poison
+	  incorrectly referred to fire resistance.
+	* Removed help file manual.txt. Extremely out of date.
+	* MICoMorgoth pval reduced to +50, which is for all practical
+	  purposes equal to +125. 18/1000+ stats wouldn't fit properly.
+	* Monster-monster nether bolt attack affected player.
+	* Monster recall now lists monsters by level by default.  Can't
+	  imagine why player might be interested in the order of
+	  monsters in monster.txt (that was the default behavior).
+	* Narya/Nenya/Vilya/One activation damage increased to plasma/360,
+	  water/600, storm/750 and mana/1500-3000.
+	* Monsters cannot lash with a whip or throw boulders when in webs. 
+	* Potion of Resistance actually granted only temporary acid
+	  resist.
+	* Randard DSMs had no activation.
+	* Some randart objects that would be squelched couldn't be picked
+	  up.
+	* Tomb screen didn't show monster race.
+	* Some other typos and minor bugs fixed.
+	* Help updates.
+	* Some bugfixes from NPPAngband 0.4.0.
+	* Massive code cleanup. Many source files renamed or splitted.
+	  Removed unused things; removed things that are needed to
+	  support ancient systems. Honestly, I don't care much about
+	  DOS.
+	  
+
+Version 0.3.0-alpha2 10-Oct-04 Alexander Ulyanov <uav@urmail.ru>
+
+	New features:
+
+	* Unique corpses can now be sold at the Adventurers Guild.
+	* Added option "Turn off quick messages on low HPs"
+	  (low_hp_careful).
+
+	New races:
+
+	* Hydra
+
+	Bugfixes:
+
+	* The game hanged at birth if the cursed item was accidentally
+	  generated.
+	* Monsters who past walls could push past monster standing next
+	  to wall, causing it to be pushed in wall.
+	* font-x11.prf split to two files. If walls and floors don't
+	  appear properly in X11, just delete feat-x11.prf file.
+	* File randart.txt moved from lib/edit to lib/file directory.
+	  Files in lib/edit are pre-parsed to binary lib/data files so
+	  they can be removed. randart.txt is parsed on the fly, and
+	  therefore does not really belong to lib/edit directory.
+	* Slightly redesigned Adventurers Guild interface.
+	* Boots of Slow Descent renamed to Boots of Levitation.
+	  Items of Wizardry base depth increased to 30. Boots of Wizardry
+	  max pval lowered.
+	* Morgoth got some resistance holes.
+	* Outer permanent walls were not displayed (unless you bumped into
+	  them, or quaffed potion of enlightemnent)
+
+
+Version 0.3.0-alpha1 02-Oct-04 Alexander Ulyanov <uav@urmail.ru>
+
+	New features:
+
+	* New terrain system.
+	  There are now four kinds of elemental terrains, each one
+	  consists of two varieties: water/ice, fire/lava, fog/abyss,
+	  sand/rocks...
+ 	* New themed levels (forest, volcano, rivers etc.)
+	  NOTE! These are *off* by default. Set the option
+	  "birth_themed_levels" to "yes" if you want themed levels.
+	* Water elementals can now heal with potions of water (heals
+	  1/6 max hps). Also, fire now blinds w/elems for 2 turns
+	  (unresistably).
+	* Three new demons (Familiar, Torturer, Ice demon) to fill
+	  the gap between quasits and bodaks, for Demonic Qs.
+	* Flasks of oil, torches, lanterns, food (any), arrows,
+	  scrolls of Word of Recall are now always generated in stores.
+	* New artifacts and ego-items by Ceilti OCahill.
+	* New option "no_race_char" -- makes the player always show as
+	  "@", regardless of race.
+	* Major changes of non-unique Ainur.
+	* Added the Valar -- for the fun of it! They are always friendly and
+	  extremely powerful. They can attack uniques, unlike pets. They
+	  cannot be normally met; you can summon a Vala either by activating
+	  the Silmaril (new artifact -- with the same rarity as the One
+	  Ring). They disappear after 100 turns (they can be re-summoned
+	  after that).
+	* New randart generator by Chris Carr and Chris Robertson.
+	* Added some OAngband vaults.
+	* Finished LAWFUL/CHAOTIC definition.
+	* Starting equpment is now race-specific.
+	* Neither monster nor player receive any extra experience for
+	  killing experienced monster.
+	* Redesigned web site.
+
+	New races:
+
+	* Ainu
+	* Fire Elementals
+
+	Bugfixes:
+
+	* A long awaited fix of breeder problem. Now they simply freeze
+	  when you're outside their scanning range -- just like the
+	  old times :). Also, breeders can now attack each other when
+	  bored.
+	* Pets don't use teleportation and saving-throw spells by
+	  default.
+	* Group pet summons are now much smaller.
+	* Quest monsters could evolve!
+	* Age is now 16-bit, so that the age is more appropriate for
+	  the Ainur.
+	* Very stupid bug -- draconic quylthilgs evolved to greater
+	  _demonic_ quylthulgs. Time to go to sleep :-/.
+	* Player could evolve into strange monsters by pressing shift+key
+	  at new race selection screen.
+	* Pets no loger pick up items.
+	* Pets no longer drop treasure when killed.
+	* Monster casting an orb of draining on another monster was
+	  automatically hasted.
+	* Fixed an old bug -- elemental rings had no activation description.
+	Thanks to Polarhound and Netbrian for useful feedback!
+
+	Internal improvements:
+
+	* Code cleanup.
+	* Body powers code is generated now from a single source
+	  (which is preprocessed with GNU M4 macro processor in
+	  several include files). This makes adding new powers easier
+	  and faster.
+	* Added a simple makefile in the root directory.
+	* Some hacks removed.
+	* Some other hacks introduced :).
+
+Version 0.2.0-alpha3 26-Jul-04 uav <uav@urmail.ru>
+
+	New features:
+
+	* New races: Shadow Dragon, Skeleton
+	* Monsters no longer receive items, which they cannot wear, as quest
+	  rewards (neither as great, nor as tailored rewards)
+	* When a monster sleeps, confuses or scares another monster
+	  successfully, it tries to choose different target for itself,
+	  as his former target is temporarily unable to fight. Especially
+	  makes sense with sleep (monster could sleep another monster,
+	  then attack and awake him at once).
+	* New pet control menu item: 'Set enabled spells'.
+		Allows to set spells which you want
+		your pets to use. There are six groups: innate ranged
+		attacks (various missiles and breathes, do not use mana),
+		offensive spells (various bolts and balls, use mana),
+		teleportation spells, spells with a saving throw (scare,
+		confuse, paralyze etc. etc.), summoning spells and mass
+		summoning spells. Typically you want to turn off
+		teleportation spells to avoid stupid teleports, blinks
+		on the other side of walls etc. Turning off spells with
+		a saving throw also makes sense at depths >1500ft, since
+		most monsters completely resist them, and those who don't
+		have good saving throws anyway.
+	* New news.txt file. No fancy ascii-art, but more vivid and
+	  informational
+	* Monster race spoiler data are now automatically generated with
+	  Python script. As a result, monster race spoiler will be now
+	  always accurate and up-to-date.
+	* NOTE! Web site moved to "http://orthanc.chat.ru/pos/"
+
+	Bugfixes:
+
+	* Bugfix: Chaos Dragon's exp penalty was 350%, causing byte overflow
+	  to ~95%. Changed to 200%.
+	* Bugfix: "Failed a quest to kill 0 <player>"
+	* Bugfix: Screenshots were created with "NPPAngband" generator field.
+	  (Thanks to Jeff Greene for pointing this)
+	* Bugfix: main-ros.c contained references to NPP -- anyone dares to
+	  compile Pos for RISC OS?
+	* Bugfix: "Create darkness" monster spell always created darkness
+	  near player.
+	* Bugfix: When pets killed monsters, experience fractions were not
+	  taken into account, leading to 0 exp for pet kills worth less than
+	  10 exp (2 exp for Qs). (Reported by Hugo Kornelis)
+	* Bugfix: The message "You sense the presence of the greatest ...
+	  alive" was sometimes issued even without actual king unique
+	  being generated
+	* Bugfix: Rings with +0 to searching etc. were possible
+	* Bugfix: Player's height and weight are now 16-bit values,
+          so no more 50lb giants
+	* Exp cost of The Guardian of Chaos lowered -- he was worth more
+	  that Morgoth! Although he is certainly tough :)
+	* SP are not displayed now if the player has no powers
+	* Monsters can now teleport away each other
+	Thanks to Polarhound for reporting many bugs.
+
+Version 0.2.0-alpha2 08-Jun-04 uav <uav@urmail.ru>
+
+	New races:
+		- Dark Elf. A typical humanoid races. Starts without
+		  much specialization; has confuse, MM (expensive) and
+		  detect chaos. At cl15, though, he must choose between
+		  Dark elven warrior, Dark elven mage or Dark elven
+		  priest.
+
+		  Dark elven warrior has special attacks: 
+		  powerful attack with +10 to-hit and +(plev*2/3) to-dam,
+		  far reaching attack with polearm, allowing to hit monster
+		  one grid far (like in ToME), whirlwind attack, allowing
+		  to hit everything nearby. All attacks are available as
+		  powers; power stats is STR. Gets "examine object" power,
+		  which instantly pseudo-ids object, at cl30. Becomes
+		  a dark elven lord at cl35, with elemental bolt spells
+		  (like real Dark elven lords), heroism, berserk and haste.
+
+		  Dark elven mage (Dark elven sorceror at cl35) is a typical
+		  spellcaster. Gets MM, blink, stinking cloud, frost/fire
+		  bolt, teleport, detect monsters, identify, teleport away,
+		  summon elementals, detection, frost/fire ball, resistance,
+		  acid bolt, ice bolt, summon demon, recall, dark storm, ice
+		  storm, word of destruction and dimensional door. Powers
+		  stat is INT.
+
+		  Dark elven priest (Dark elven druid at cl35) gets
+		  three "curse" spells ("You point at it and curse";
+		  pure damage, resisted by nobody, but monsters get a saving
+		  throw and damage doesn't increase with level; if the
+		  monster is killed with this spell, he is considered to
+		  be "sacrificed", and consumed by a ball spell with
+		  significant damage), darkness ball, summon spiders,
+		  healing, death orb, blink, summon undead, *healing*,
+		  detection, restoration, remembrance and summon greater
+		  undeads. Powers stat is WIS. As you see, this is
+		  actually necromancer-like form (or "dark priest", if you
+		  like).
+
+		  All dark elves start with RDark, get RPois at cl15
+		  (first evolution) and one more resist at cl35 (second
+		  evolution).
+
+		- White Dragon. Much like Red Dragon. Very wise, good
+		  stealth and saving throw. Unique feature is "breathe
+		  freezing": Non-uniques have 1/30 chance of instakill
+		  (freezing solid and shattering); Reptiles (including
+		  hydras, nagas and dragons) and insects of any kind have
+		  their metabolism slowed, resulting in -(5+d5) speed, up to
+		  -40, and take full damage regardless of their cold
+		  resistance; All other creatures take standard cold damage.
+
+	New features:
+
+	* Corpses generation can be disabled now (in squelch menus)
+	* Stone-to-mud wands are now sold in General store (no_wield
+		monster races suck at digging)
+	* Added "difficulty" field to monster race selection screen
+
+	Bugfixes:
+
+	* Bugfix: inventory slot disappearing after reforging service
+	* Bugfix: souls are now better with magic devices, so that player
+	  doesn't get bored trying to activate wand of MM
+	* Bugfix: equipment "matrix" was a bit mangled in chardump
+	* Bugfix: quest monsters could be polymorphed. Not sure whether this
+	  is actually bad (JG is opposed to idea of "protecting" quest
+	  monsters in any special way)
+	* Bugfix: pets killing uniques (for Q's only) were handled
+	  incorrectly. Also, uniques couldn't be killed by pets via
+	  ranged attacks
+	* Bugfix: RF5_BOLT_NETHR spell issued messages "It cast a nether
+	  bolt at you." in monster-vs-monster combat.
+	* Bugfix: 'command pets' command had no key in roguelike keyset
+	  ('[' -- all the best keys are already reserved...)
+	* Bugfix: regular priest's bless prayer worked indefinitely long
+	* Red dragons no longer get INT/WIS/CHR sustain at cl45
+	* Blue yeeks base level changed to 1, so that Qs can actually
+	  summon anything at dlvl1
+	* 'I'nspecting weapons no longer issues "It gives you N attacks..."
+	  message if player's body has no weapon slot
+	* GChromWSM now has all basic immunities
+	* Spider progression modified: tarantulas were worse that giant
+	  spiders. Changed melee attacks, base level and xp/kill for
+	  giant spiders, giant tarantulas, araneas and elder araneas
+	* Pets levelup is now 2.5 times slower
+	* Fixed/partially rewritten racial histories
+	* Source cleanup. Now it compiles without horrible warnings
+
+
+Version 0.2.0-alpha1 20-May-04 uav <uav@urmail.ru>
+
+	New features:
+
+	* Added possession in basic form. The first monster race is now
+	  'Soul', which also has special class 'Possessor'. Soul starts with
+	  no equipment slots, no attacks, hit die 1, no powers (it has
+	  SEE_INVIS and PASS_WALL, though). It is given a wand of magic
+	  missile so that you can kill some townsmen and find a humanoid
+	  corpse for you. Monsters have 35% chance of dropping corpse (or other
+	  'remains') after death, 65% for possessors. By pressing 'N' you
+	  can incarnate into any corpse and use its powers just like monster
+	  race; note, though, that possessed corpse will not grow. By
+	  pressing 'N' while possessing a corpse you can leave it and become
+	  a soul again... note however that soul is very vulnerable and you
+	  should leave a corpse only in safety; also, when you leave a
+	  corpse, it decays!
+	* Added pets, companions, monster experience, level-up and
+	  evolution. Needs testing.
+	* Added some items to make pets (Scrolls/Staves of Summon Pet,
+	  Wands of Charming).
+	* Added monster companion (from dl10-15) to some normal races.
+	  Funny, though probably owerpowered.
+	* Added "king" monsters for monster races. "Kigns" are uniques with
+	  your race (e.g. Lich -> Vecna, Red Dragon -> Glaurung, Water
+	  Spirit -> Waldern). You get 3x exp, permanent blessing and heroism
+	  and a special artifact for killing king. If there is an artifact
+	  associated with a unique, it can be retrieved by any character
+	  but only with 1/15 probability.
+	* Added few new monsters (more water elementals to summon, uniques
+	  for some races).
+	* Added some new monster flags (e.g. summon water elementals).
+	* Added new, fourth flags field for objects/player, for all the new
+	  stuff such as cold touch. Actually unused yet.
+	* Added a possibility to "theme" some powers, to avoid adding far
+	  too many new PWR_*. For example, Chaos Dragons have "Identify"
+	  power with the name "Chaos Knowledge".
+	* Added bodies and corpses for some monsters from low dlvls, just
+	  to test possessors :). If body/corpse is undefined for a monster,
+	  it simply won't drop the corpse.
+	* Added "lawful/chaotic" alignment for monsters. Lawfuls will attack
+	  chaotics and vice versa. Somewhat funny to see mercenaries killing
+	  beggars and lepers in town :). The flag is set only for few
+	  monsters now.
+	Added new monster races:
+		- Soul - possessors; see above.
+		- Chaos Dragon - breathes chaos, disenchantment and
+		  confusion; some nice high-level powers (wonder, teleport,
+		  summon chaotic (elemental) dragon, detection, identify,
+		  alter reality, summon chaotic (elemental) ancient
+		  dragons), but high exp penalty.
+		- Ethereal Dragon - breathes light and darkness. Can absorb
+		  light to heal itself, cast small but powerful light orbs,
+		  cast huge but relatively weak darkness storms, and shift
+		  planes - temporary immateriality).
+		- Giant - humanoid monster. Limited to large weapons
+		  (>= 18 lb., has large penalties with lighter ones),
+		  large armor (at least metal brigandine). When digging
+		  granite walls, can create boulders - heavy to carry, but
+		  excellent damage when thrown. Resistant to confusion;
+		  quickly gain new forms and resistances. Aggravating
+		  at high levels. Huge STR and CON.
+		- Kobold - mostly duplicates "normal" kobolds. Weak race.
+		- Spider - +5 speed, good DEX, unique webbing ability.
+		  (All monsters stuck in the webs cannot move or attack
+		  in melee until they tear the webs. Chance to tear is
+		  10-66%, depending on monster native level). Weak, fragile.
+		  At higher levels, they can become phase spiders (+15
+		  speed, phase door, teleport, teleport away, dimension
+		  door; as weak as normal spiders) or araneas (large and
+		  tough, fire and mind spells, summon spiders).
+	* Dummy "Monster" class is not shown in most places. Instead, the
+	  race name, which can be rather long, takes two lines.
+	* Additional info for "l"ooking on monsters. For all monsters -
+	  level, XP for kill. For pets (or in wizard mode) - precise
+	  experience, HP, SP, AC, spell power etc.
+	* Added infinite randarts.
+	* Added support for themed vaults. Only two actually available
+	  ("Greater Altar of Water" - Waldern's lair, with assorted water
+	  and ice elementals; "Treasury of Nagas" - red and guardian nagas,
+	  spider naga and some treasures in centre).
+	* Added "reforge artifact" service in Adventurers Guild
+	  (need fame of at least 50 - in 'excellent' range). It takes
+	  existing artifact (not a randart!) and some money (artifact
+	  "power" ^ 2 * 75) to make a randart from existing item.
+	  Buggy, but interesting to play with :-). Potential use
+	  for worthless artifacts.
+
+	Bugfixes:
+
+	* Code updated to NPP 0.3.4
+	* Bugfix: NPP 0.3.1 slowing bug fixed, thanks to JG
+	* Bugfix: innate attacks did not damage monsters in walls
+	* Bugfix: innate attacks 'to hallucinate' would yield chaos attacks
+	  in previous versions; chaos would polymorph, which would
+	  render innate attacks unusable. Changed to disenchant.
+	* Bugfix: all innate elemental attacks damage is now multiplied by
+	  2. Hopefully will solve the problem when the dragon's fiery
+	  bite was generally much worse than normal attacks, because many
+	  monsters resist fire.
+	* Bugfix: monsters with no_wield, but without any innate attacks
+	  either (Qs, soul) didn't show any message in 'innate attacks'.
+	* Bugfix: evasive monsters had double chance to evade innate
+	  attack
+	* Water elementals changed a bit (ice elementals are now not
+	  stronger than water; added water vapor and greater water and
+	  ice elementals.
+	* Many other bugfixes. Mostly just annoying things.
+
+
+Version 0.1.0 22-Feb-04 uav <uav@urmail.ru>
+
+	* The game is migrated to NPPAngband 0.3.1 code base. 0.0.x
+	  savefiles won't read. All the 0.0.2 features are migrated;
+	  hopefully cleanly. Some things adapted for NPP.
+	* Added new Dragon Scale Mails. Ideas from rgra by J.R.Dunson and
+	  Neodymium. Makes all DSMs way more interesting. Maybe needs some
+	  balancing, but generally ok.
+
+
+Version 0.0.2 13-Jan-04 uav <uav@urmail.ru>
+
+        * Some bugs fixed.
+        * Three new flags for 'weird bodies'. COLD_TOUCH: shatters any potions
+          or flasks of oil in inventory. NETHER_BEING: immune to cold, poison,
+          darkness, nether, time (cold, darkness, nether attack heal some damage
+          actually), but very susceptible to fire and light. PASS_WALL: 
+          immaterial, like Sprites or Spectres in other variants, can pass
+          through walls (NOT through impenerable, though), but takes 1 hp every
+          turn in the wall (NOT below 0 hp - walking in walls weakens but not
+          kills).
+        * Two new races: Water Spirit (COLD_TOUCH), Lich (NETHER_BEING,
+          PASS_WALL at Archlich stage). Water Spirit is a typical warrior; very
+          poor INT/WIS, but can cast cold, water and ice bolts/balls. Lich is an
+          INT-based spellcaster, has nether attacks, dispelling spells, various
+          forms of beguiling and healing. Weak; very ugly. Both races are
+          humanoid with normal slots. Note that I'm going to add Water Vapor
+          and more other elemental forms in future (currently 3 forms, not
+          many)
+        * Monster races can now have arbitrary main stat (for powers); this
+          reflects ideas I had at first
+        * More powers for new races - still have to add many...
+        * monraces.txt help file about monster races. I plan to keep similar
+          monsters (say, undeads) in one section, with some general description,
+          including background (from Tolkien, probably from AD&D).
+
+
+Version 0.0.1 29-Dec-03 uav <uav@urmail.ru>
+
+        * First version. Based on Vanilla Angband 3.0.3. Very basic things.
+
+vim:syntax=changelog:tw=78
+

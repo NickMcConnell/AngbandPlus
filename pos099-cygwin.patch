@@ -1,0 +1,72 @@
+diff -urN posband/src/files.c posband-win/src/files.c
+--- posband/src/files.c	2005-04-25 22:40:44.000000000 +0600
++++ posband-win/src/files.c	2005-10-10 09:50:27.000000000 +0600
+@@ -2790,13 +2790,13 @@
+ 		/* Process equipment, show stat modifiers */
+ 		for (x = 0, y = INVEN_EQUIP; y < INVEN_TOTAL; ++y, ++x)
+ 		{
++			object_type *o_ptr;
++
+ 			char c = '.';
+ 			
+ 			/* Skip non-existant slots */
+ 		    	if (!(r_ptr->body.slot_mask & EQUIP_SLOT(y))) continue;
+ 
+-			object_type *o_ptr;
+-
+ 			/* Get the object */
+ 			o_ptr = &inventory[y];
+ 
+diff -urN posband/src/main-win.c posband-win/src/main-win.c
+--- posband/src/main-win.c	2005-02-06 18:18:05.000000000 +0500
++++ posband-win/src/main-win.c	2005-10-10 09:50:27.000000000 +0600
+@@ -76,6 +76,7 @@
+ 
+ #ifdef WINDOWS
+ 
++#include "readdib.c"
+ 
+ /*
+  * Use HTML-Help.
+@@ -268,9 +269,9 @@
+ /*
+  * Include the support for loading bitmaps
+  */
+-#ifdef USE_GRAPHICS
+-# include "readdib.h"
+-#endif /* USE_GRAPHICS */
++//#ifdef USE_GRAPHICS
++//# include "readdib.h"
++//#endif /* USE_GRAPHICS */
+ 
+ /*
+  * Hack -- Fake declarations from "dos.h" XXX XXX XXX
+diff -urN posband/src/quest.c posband-win/src/quest.c
+--- posband/src/quest.c	2005-02-13 23:18:39.000000000 +0500
++++ posband-win/src/quest.c	2005-10-10 09:50:27.000000000 +0600
+@@ -433,9 +433,10 @@
+ 		    	monster_race *r_ptr = &r_info[p_ptr->m_r_idx];
+ 		    	s32b price[EQUIP_ANY], curprice;
+ 			int droptype = 0, diff = 1;
+-			st_ptr = &store[STORE_HOME];
+ 			int repeats;
+ 
++			st_ptr = &store[STORE_HOME];
++
+ 			msg_print("Attempting tailored reward generation...");
+ 
+ 			/* Assume that we cannot use any equipment */
+diff -urN posband/src/util.c posband-win/src/util.c
+--- posband/src/util.c	2005-04-25 22:40:38.000000000 +0600
++++ posband-win/src/util.c	2005-10-10 09:50:27.000000000 +0600
+@@ -14,6 +14,10 @@
+ 
+ #include "posband.h"
+ 
++#ifdef WINDOWS
++# undef HAVE_MKSTEMP /* XXX Fails with cygwin */
++#endif
++
+ #ifdef SET_UID
+ 
+ /*

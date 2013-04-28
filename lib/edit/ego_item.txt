@@ -51,7 +51,7 @@
 
 # Version stamp (required)
 
-V:3.0.8
+V:4.1.0
 
 # 1 (unused)
 
@@ -382,6 +382,7 @@ W:0:4:0:1500
 C:5:5:0:0
 F:SHOW_MODS
 T:31:0:99
+D:They boost your to-hit and to-dam values.
 
 N:50:of Agility
 X:14:0
@@ -396,6 +397,7 @@ W:0:6:0:2500
 C:5:5:0:5
 T:31:0:99
 F:STR | SHOW_MODS | HIDE_TYPE
+
 
 N:52:of Thievery
 X:22:0
@@ -428,7 +430,7 @@ F:DEX | LIGHT_CURSE | HIDE_TYPE
 
 ### Boots ###
 
-N:56:of Slow Descent
+N:56:of Levitation
 X:7:0
 W:0:5:0:250
 T:30:0:99
@@ -791,12 +793,16 @@ X:10:0
 W:0:1:0:1000
 C:15:5:0:0
 T:19:0:99
+D:It has no special abilities, but its to-hit value may be unusually
+D: high.
 
 N:105:of Power
 X:10:0
 W:0:1:0:1000
 C:5:15:0:0
 T:19:0:99
+D:It has no special abilities, but its to-dam value may be unusually
+D: high.
 
 N:106:of Lothlorien
 X:30:3
@@ -807,9 +813,9 @@ F:DEX | MIGHT | FREE_ACT | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
 N:107:of the Haradrim
 X:30:0
-W:60:8:0:20000
-C:5:15:0:1
-T:19:23:24
+W:50:4:0:20000
+C:5:5:0:1
+T:19:23:23
 F:MIGHT | SHOTS | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
 N:108:of Extra Might
@@ -914,7 +920,7 @@ C:10:10:0:0
 T:16:2:99
 T:17:2:99
 T:18:2:99
-F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | BRAND_FIRE | BLESSED
+F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD
 F:IGNORE_FIRE | IGNORE_ACID
 
 N:121:of Venom
@@ -948,6 +954,8 @@ C:5:5:0:0
 T:16:0:99
 T:17:0:99
 T:18:0:99
+D:Ammunition of Wounding often has unusually high to-hit and to-dam
+D: values.
 
 N:125:of Backbiting
 X:0:0
@@ -976,3 +984,80 @@ X:0:0
 W:0:0:0:0
 C:0:0:10:0
 
+# Some new ego-items by Ceilti OCahill
+
+# New weapon
+
+N:128:of Wizardry
+X:20:2
+W:30:12:0:15000
+C:10:10:8:3
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:STR | INT | WIS | CON | HIDE_TYPE | LITE | SEE_INVIS | RES_CONFU |
+F:SLAY_EVIL | SLAY_DEMON | SLAY_DRAGON | SHOW_MODS |
+F:IGNORE_FIRE | IGNORE_ACID | IGNORE_COLD
+
+# New gloves
+
+N:129:of Wizardry
+X:8:0
+W:25:12:0:7500
+C:8:6:0:3
+T:31:1:2
+F:INT | STR | DEX | SHOW_MODS | FREE_ACT | HIDE_TYPE |
+F:IGNORE_ACID | IGNORE_FIRE
+
+# New boots
+
+N:130:of Wizardry
+X:10:0
+W:30:20:0:400000
+C:0:0:0:5
+T:30:2:3
+F:SPEED | HIDE_TYPE | FEATHER | IGNORE_ACID | IGNORE_FIRE | RES_NEXUS
+
+# New cloak
+
+N:131:of Wizardry
+X:6:3
+W:30:6:0:2000
+C:0:0:8:3
+T:35:0:99
+F:INT | WIS | STEALTH | HIDE_TYPE | SEARCH | LITE | RES_SOUND |
+F:IGNORE_FIRE | IGNORE_ACID
+
+# New cap
+
+N:132:of Wizardry
+X:6:2
+W:30:6:0:12000
+C:0:0:8:3
+T:32:0:99
+F:INT | WIS | RES_BLIND | RES_LITE | LITE | SEE_INVIS | HIDE_TYPE |
+F:SEARCH | IGNORE_ALL
+
+# All armour
+
+N:133:of Wizardry
+X:8:2
+W:30:4:0:18500
+C:0:0:25:4
+T:36:0:99
+T:37:0:99
+F:INT | WIS | CON | STEALTH | SEARCH | SLOW_DIGEST | HIDE_TYPE |
+F:RESISTANCE | IGNORE_ACID | IGNORE_FIRE | INFRA
+
+# New Shield
+
+N:134:of Wizardry
+X:6:2
+W:30:8:0:24000
+C:0:0:25:3
+T:34:0:99
+F:INT | WIS | CON | HIDE_TYPE | RES_DARK | RES_LITE |
+F:IGNORE_ALL
+
+# Highlight syntax in Vim
+# vim:syntax=posband

@@ -1,0 +1,29 @@
+***************
+*** 2790,2802 ****
+  		/* Process equipment, show stat modifiers */
+  		for (x = 0, y = INVEN_EQUIP; y < INVEN_TOTAL; ++y, ++x)
+  		{
+  			char c = '.';
+  			
+  			/* Skip non-existant slots */
+  		    	if (!(r_ptr->body.slot_mask & EQUIP_SLOT(y))) continue;
+  
+- 			object_type *o_ptr;
+- 
+  			/* Get the object */
+  			o_ptr = &inventory[y];
+  
+--- 2790,2802 ----
+  		/* Process equipment, show stat modifiers */
+  		for (x = 0, y = INVEN_EQUIP; y < INVEN_TOTAL; ++y, ++x)
+  		{
++ 			object_type *o_ptr;
++ 
+  			char c = '.';
+  			
+  			/* Skip non-existant slots */
+  		    	if (!(r_ptr->body.slot_mask & EQUIP_SLOT(y))) continue;
+  
+  			/* Get the object */
+  			o_ptr = &inventory[y];
+  

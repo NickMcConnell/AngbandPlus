@@ -1,0 +1,53 @@
+# File: font-vcs.prf
+
+#
+# This file is used by Angband (when it was compiled using "main-win.c")
+# to specify simple attr/char remappings using a standard font, allowing
+# the use of special pseudo-graphic pictures for walls and such.
+#
+# Note that this file is extremely similar to the "font-ibm.prf" file,
+# but it uses different codes, since it uses the special pseudo-graphic
+# symbols defined in the "lib/xtra/font/*.FON" files, and there is only
+# one special wall type, so we have to use special "colors".
+#
+
+
+### Terrain features ###
+
+
+# Floors (white / centered dot)
+
+F:1:1/250
+
+# Invis traps (white / centered dot)
+
+F:2:1/250
+
+
+# Magma (slate / solid block)
+
+F:50:2/176
+F:52:2/176
+
+
+# Quartz (light slate / solid block)
+
+F:51:1/176
+F:53:1/176
+
+
+# Secret door (white / solid block)
+
+F:48:1/177
+
+# Granite walls & permanent rock (white / solid block)
+
+F:56:1/177
+F:57:1/177
+F:58:1/177
+F:59:1/177
+F:60:1/177
+F:61:1/177
+F:62:1/177
+F:63:1/177
+

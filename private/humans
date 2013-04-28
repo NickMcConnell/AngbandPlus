@@ -1,0 +1,75 @@
+PosBand 0.9.9 Alpha 1, human races
+
+=== Basic ===
+
+Warrior:
+
+N:35:Novice warrior \__equal
+N:90:Novice warrior /
+N:168:Swordsman
+N:261:Hardened warrior
+N:583:Berserker
+
+Mage:
+
+N:38:Novice mage \__equal
+N:77:Novice mage /
+N:176:Illusionist
+N:305:Mage
+N:437:Sorcerer
+
+Priest:
+
+N:37:Novice priest \__equal
+N:89:Novice priest /
+N:161:Priest
+N:470:Patriarch
+
+Rogue:
+
+N:36:Novice rogue \__equal
+N:91:Novice rogue /
+N:121:Bandit
+N:150:Brigand
+N:263:Master rogue
+N:354:Master thief
+
+Ranger:
+
+N:69:Novice ranger  \__equal
+N:114:Novice ranger /
+N:580:Ranger
+N:582:Ranger Chieftain
+
+Paladin:
+
+N:70:Novice paladin  \__equal
+N:118:Novice paladin /
+N:581:Paladin
+[re-add Knight Templar]
+
+=== Branches ===
+
+Ranger, Druid branch:
+
+N:177:Druid
+N:336:Mystic
+N:482:Master mystic
+N:493:Grand master mystic of Yavanna
+
+Rogue, Assassin branch:
+
+N:331:Ninja
+N:364:Dagashi
+
+Paladin, Death knight branch:
+
+N:303:Black knight
+N:407:Death knight
+
+Mage, specialists:
+
+N:391:Necromancer
+N:393:Demonologist
+N:435:Enchantress
+

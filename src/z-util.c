@@ -1,18 +1,18 @@
-/* File: z-util.c */
-
-/*
- * Copyright (c) 1997 Ben Harrison
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
-/* Purpose: Low level utilities -BEN- */
+/* z-util.c: low level utilities */
 
-#include "z-util.h"
-
-
+#include "lib.h"
 
 /*
  * Convenient storage of the program name
@@ -52,8 +52,30 @@ int my_stricmp(const char *s1, const char *s2)
 		s1++;
 		s2++;
 	}
+
+	return (0);
 }
 
+/*
+ * Case insensitive comparison between the first n characters of two strings
+ */
+int my_strnicmp(cptr a, cptr b, int n)
+{
+	cptr s1, s2;
+	char z1, z2;
+
+	/* Scan the strings */
+	for (s1 = a, s2 = b; n > 0; s1++, s2++, n--)
+	{
+		z1 = toupper((unsigned char)*s1);
+		z2 = toupper((unsigned char)*s2);
+		if (z1 < z2) return (-1);
+		if (z1 > z2) return (1);
+		if (!z1) return (0);
+	}
+
+	return 0;
+}
 
 /*
  * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'

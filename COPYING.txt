@@ -1,0 +1,30 @@
+Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+
+Restoriction on Use/Distribution of PosBand Source Code
+ 
+This software may be copied and distributed for educational, research,
+and not for profit purposes provided that this copyright and statement
+are included in all such copies.  Other copyrights may also apply.
+
+
+All changes made by Ben Harrison, Robert Ruehlmann, Jeff Greene,
+Alexander Ulyanov, and many other Angband developers are also 
+available under the GNU GENERAL PUBLIC LICENSE.
+
+Note that this doesn't influence the current distribution, 
+since parts of the source are still only available under the 
+old Moria/Angband license.  Until all parts of Angband and 
+NPPAngband are distributed under the GPL the only valid 
+license remains the original Moria/Angband license.
+
+More informations about Angband and the GPL can be found at:
+http://www.thangorodrim.net/development/opensource.html
+
+ 
+Warranty:
+ 
+PosBand is available "as-is" free of charge under the restrictions
+detailed above. No warranties, either express or implied, apply, including,
+but not limited to, implied warranties of merchantability, fitness for a
+particular purpose, non-infringement and/or accuracy of information.  
+

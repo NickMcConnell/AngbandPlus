@@ -1,20 +1,18 @@
-/* File: z-form.c */
-
-/*
- * Copyright (c) 1997 Ben Harrison
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
-/* Purpose: Low level text formatting -BEN- */
+/* z-form.c: low level text formatting */
 
-#include "z-form.h"
-
-#include "z-util.h"
-#include "z-virt.h"
-
+#include "lib.h"
 
 /*
  * Here is some information about the routines in this file.
@@ -567,6 +565,31 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 	/* Return length */
 	return (n);
 }
+
+/*
+ * Add a formatted string to the end of a string
+ */
+void strnfcat(char *str, size_t max, size_t *end, cptr fmt, ...)
+{
+	size_t len;
+
+	va_list vp;
+
+	/* Paranoia */
+	if (*end >= max) return;
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Build the string */
+	len = vstrnfmt(&str[*end], max - *end, fmt, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Change the end value */
+	*end += len;
+}
+
 
 
 static char *format_buf = NULL;

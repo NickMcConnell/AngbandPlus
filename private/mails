@@ -1,0 +1,78 @@
+[some bug report/feature request letters]
+
+From netbrian@gmail.com Wed Sep  8 17:57:18 2004
+Date: Wed, 8 Sep 2004 03:02:36 -0700
+From: Brian Trautman <netbrian@gmail.com>
+To: uav <uav@urmail.ru>
+Subject: Re: PosBand Download
+
+[...]
+
+More feedback -- Is there any way that the game could change the way
+monsters look depending on if they are your pet?  Sometimes, when I
+summon lots of orcs, I get them mixed up with "wild" orcs, and don't
+notice I'm being attacked, or get confused which is mine and which
+isn't.  Perhaps change the background color slightly for pets?
+
+uav> ToDo -- good idea but very hard to implement.
+
+From uav  Mon Oct 11 13:59:12 2004
+Date: Mon, 11 Oct 2004 01:57:06 -0400
+From: Polarhound <polarhound@comcast.net>
+To: uav <uav@urmail.ru>
+Subject: [Pos] 0.3.0A1 bug
+
+This is a multi-part message in MIME format.
+--------------080504050005040704030700
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Came across an apparent bug when receiving a quest reward for a hard quest.
+
+Load the attached savefile and immediately go into the Guild house to 
+collect the buggy reward.  And yes, it does show up the same way in the 
+character notes afterwords.
+
+This is NOT the reward I expected for killing 17 Wyverns... :/
+
+  Tim
+
+[ Attachments snipped ]
+--------------080504050005040704030700--
+
+uav> FIXME (the game grants "The Gauntlets of  [0,+0]")
+uav> Maybe it's actually fixed now, no way to check because of
+uav> broken s/f compatibility.
+
+
+From uav  Wed Mar 16 12:49:42 2005
+Date: Wed, 16 Mar 2005 11:38:06 +0200 (EET)
+From: Juho Schultz <juho.schultz@astro.helsinki.fi>
+To: Alexander Ulyanov <posband@earthsea.org>
+Subject: [Pos 0.3.0 alpha2] bug report 
+
+[...]
+
+Pets drop items. Deep in dungeon, any poor Ogre Shaman ends up surrounded 
+by Greater Undead/Demon/Dragon, then some Balrog or Wyrm breathes chaos 
+and anything breathed on polymorphs. After the Ogre Shaman and a few 
+hundred polymorphed creatures are killed, the amount of loot is similar to 
+a Wyrm pit.
+
+[...]
+
+If webs created in dark places are ripped apart,
+the places are illuminated after this.
+
+[...]
+
+Companions do not level up properly, but convert to '@' and vanish
+(sorry, I have no savefile on this)
+
+uav> Couldn't reproduce.
+
+Pets/companions don't fight monsters in walls.
+
+[...]
+
+vim:syntax=mail

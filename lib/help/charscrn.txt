@@ -1,27 +1,25 @@
+=== The character screen (in detail) ===
 
-====== The character screen (in detail) ======
-
-     The character information display allows you to review attributes, change
+The character information display allows you to review attributes, change
 names, and save character dumps to file.  The save character to file command
 saves the character screen, character background, inventory and equipment, skill
 levels, and the contents of the home.
 
-     This interface has four modes, which you may cycle through by typing '+/-'.
+This interface has several modes, which you may cycle through by typing '+/-'.
 
 
---- Main character screen ---
+=== Main character screen ===
 
 First row:
      - Name : character's full name
-     - Gender, race, class, class title
+     - Gender, race, class, class title (for monsters, class is not displayed)
      - Hitpoints : current and maximum
-     - Spellpoints : current and maximum
+     - Spellpoints : current and maximum (if any)
 
      - Age : in years
      - Height : in inches
      - Weight : in pounds
      - Status : social class (affects starting gold)
-     - {Blank)
      - Level : goes from 1 to 50
 
      - Internal values for each vital statistic, racial modifiers, class
@@ -53,6 +51,23 @@ Second row:
      - Infra : how far you can see warm-blooded creatures, even when invisible
        or in darkness
 
+
+=== Abilities screen ===
+
+First column: fighting skills
+
+     - Barehanded fighting
+     - Edged weapons
+     - Blunt weapons
+     - Polearms
+     - Axes
+     - Slings
+     - Bows
+     - Crossbows
+     - Throwing
+
+Second column:
+
      - Saving Throw : your resistance to magic
      - Stealth : how naturally quiet you are
      - Fighting : your hand-to-hand combat skill (inherent skill, plus bonuses)
@@ -67,32 +82,43 @@ Second row:
      Descriptions of abilities go from very bad -> bad -> poor -> fair -> good
 -> very good -> excellent -> superb -> heroic -> legendary.
 
+     - Your current body (for possessors) or form (for monsters).
 
---- Attributes screen ---
+Third column:
+     
+     - Monster race innate attacks, if any (up to 4).
 
-     Press '+/1', and your character screens display attributes of known
-(identified) equipped objects, and objects stored in the home, shown under 
-the same indexes that are used when displaying your equipment.  The '@' lists 
-attributes and modifiers that you posses intrinsically.  If you are an Elf, 
-for example, you will always resist light.
 
-Vital Statistics:
-     The top-center of this display lists modifiers to stats.  They are light
+=== Attributes screen ===
+
+These character screens display attributes of known (identified) equipped
+objects, and objects stored in the home, shown under the same indexes that
+are used when displaying your equipment.  The '@' lists attributes and
+modifiers that you posses intrinsically.  If you are an Elf, for example,
+you will always resist light.
+
+--> Vital Statistics
+
+The top-center of this display lists modifiers to stats.  They are light
 green if the object does not also sustain that stat and green if it does.  If
 the object sustains a stat without affecting it, a green 's' is displayed.  
 Because character dumps in not in color, the stat sustains are displayed
 in a separated chart from the modifiers.
 
-Attributes:
-     The bottom of the screen displays most other non-combat attributes.  Blue
+--> Attributes
+
+The bottom of the screen displays most other non-combat attributes.  Blue
 '+' and green '*'s indicate the presence of the attribute.
+
+First screen:
+
+     - Acid  : plus = resist acid, star = immunity to acid
+     - Elec  : plus = resist electricity, star = immunity to electricity
      - Fire  : plus = resist fire, star = immunity to fire
      - Cold  : plus = resist cold, star = immunity to cold
-     - Elec  : plus = resist electricity, star = immunity to electricity
-     - Acid  : plus = resist acid, star = immunity to acid
      - Pois  : plus = resist poison
      - Fear  : plus = resist fear
-     - Light : plus = resist bright light
+     - Lite  : plus = resist bright light
      - Dark  : plus = resist darkness
      - Blind : plus = resist blindness
      - Confu : plus = resist confusion
@@ -102,8 +128,11 @@ Attributes:
      - Nethr : plus = resist nether (necromantic power)
      - Chaos : plus = resist chaos (alteration, disorder, and unmaking)
      - Disen : plus = resist disenchantment
+
+Second screen:
+     
      - S.Dig : plus = slow digestion
-     - Feath : plus = resist
+     - Levit : plus = levitation
      - PLite : plus = shining object.  +1 to total light radius
      - Regen : plus = faster regeneration of hitpoints and mana
      - Telep : plus = telepathy (see all nearby monsters with minds)
@@ -112,24 +141,11 @@ Attributes:
      - HLife : plus = hold life (you lose less to drain-exp attacks)
      - Stea. : plus = affects stealth
      - Sear. : plus = affects searching
+     - Infra : plus = affects infravision
      - Aggr. : plus = equipment aggravates creatures in the dungeon
      - Speed : plus = affects speed
      - Blows : plus = affects the number of melee blows you get
      - Shots : plus = affects the speed at which you fire missiles
      - Might : plus = increases your missile weapon damage multiplier
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

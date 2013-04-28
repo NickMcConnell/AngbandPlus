@@ -1,25 +1,20 @@
                            Interacting with the Game
 
 
-    (1) List of Commands                                  (cmdlist.txt)
-    (2) Command Descriptions                              (cmddesc.txt)
-    (3) Options                                           (options.txt)
-    (4) Inscriptions and Macros                           (macro.txt)
-    (5) Preferences                                       (pref.txt)
+    (a) List of Commands                                  (cmdlist.txt)
+    (b) Command Descriptions                              (cmddesc.txt)
+    (c) Options                                           (options.txt)
+    (d) Inscriptions and Macros                           (macro.txt)
+    (e) Preferences                                       (pref.txt)
 
 
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sentitivity 
 
-
-
-
-Help Commands:
-       ESC   : leave the online help
-       ?     : return to previous document or menu
-       space : advance one page
-       -     : back up one half page
-       /     : search (not case-sensitive)
-***** [1] cmdlist.txt
-***** [2] cmddesc.txt
-***** [3] options.txt
-***** [4] macro.txt
-***** [5] pref.txt
+***** [a] cmdlist.txt
+***** [b] cmddesc.txt
+***** [c] options.txt
+***** [d] macro.txt
+***** [e] pref.txt

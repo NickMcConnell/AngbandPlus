@@ -1,27 +1,28 @@
+=== Interfaces:  A Brief Description ===
 
-====== Interfaces:  A Brief Description =====
+=== The title screen ===
 
-
---- The title screen ---
-
-     When you start up the game, a title screen appears, bearing the game name,
+When you start up the game, a title screen appears, bearing the game name,
 version, and some credits.  Also on this screen are the three most important
 Angband resources:
-     The Angband home page at "http://www.thangorodrim.net/" contains the
+
+The Angband home page at "http://www.thangorodrim.net/" contains the
 current source and executables, special files, helpful comments, hints, and
-links, and the latest Angband news.  The NPPAngband home page is 
-"http://home.comcast.net/~nppangband/"
-     The current maintainer of NPPAngband is Jeff Greene.  If you want to 
+links, and the latest Angband news.  The PosBand home page is 
+"http://posband.earthsea.org"
+
+The current maintainer of PosBand is Alexander Ulyanov.  If you want to 
 send him comments, or make sure your bug report gets heard, email 
-"nppangband@comcast.net".
-     The Angband newsgroup is at "news:rec.games.roguelike.angband"; it's filled
+"posband@earthsea.org".
+
+The Angband newsgroup is at "news:rec.games.roguelike.angband"; it's filled
 with helpful folks.  If you want to talk about Angband or ask for help, this
 discussion forum is the place to go.
 
 
---- The main screen ---
+=== The main screen ===
 
-     Most of the game is spent in the main screen.  This is divided into four
+Most of the game is spent in the main screen.  This is divided into four
 parts:
 
      1)  The message line is located at the top of the screen; here all sorts of
@@ -34,34 +35,34 @@ look by pressing 'l'ook (or e'x'amine).
 as your speed, ailments, depth, and so on.
 
 
---- The character screen  ('C') ---
+=== The character screen  ('C') ===
 
-     The character information display you see when first starting the game can
+The character information display you see when first starting the game can
 be recalled by typing 'C'.  Here you can review your attributes, change names,
 save character dumps to file (which appear in the "lib/user" directory), and
 view your resists and abilities.
 
 
---- The help screen  ('?') ---
+=== The help screen  ('?') ===
 
-     The online help system is available by typing '?'.  You can also learn more
+The online help system is available by typing '?'.  You can also learn more
 about the symbols you see on screen by typing '/', then the symbol you wish to
 learn more about.
 
 
---- The options screen  ('=') ---
+=== The options screen  ('=') ===
 
-     You can adjust the way the game looks and behaves by typing '=' to enter
+You can adjust the way the game looks and behaves by typing '=' to enter
 the options screen.
 
 
---- The knowledge screen  ('~') ---
+=== The knowledge screen  ('~') ===
 
-     Detailed listings of known artifacts, uniques, and objects are available
+Detailed listings of known artifacts, uniques, and objects are available
 through the knowledge menu, which you access by typing '~'.
 
 
---- The death interface ---
+=== The death interface ===
 
      If you should die, you will see a tombstone and be able to check out your
 slain character one last time.  Here you can:
@@ -71,19 +72,5 @@ slain character one last time.  Here you can:
      - see the high score table, 
      - fully identify individual items, and
      - make final notes to the character dump.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

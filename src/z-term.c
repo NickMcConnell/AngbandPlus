@@ -1,19 +1,18 @@
-/* File: z-term.c */
-
-/*
- * Copyright (c) 1997 Ben Harrison
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
-/* Purpose: a generic, efficient, terminal window package -BEN- */
+/* z-term.c: a generic, efficient, terminal window package */
 
-#include "z-term.h"
-
-#include "z-virt.h"
-
+#include "lib.h"
 
 /*
  * This file provides a generic, efficient, terminal window package,

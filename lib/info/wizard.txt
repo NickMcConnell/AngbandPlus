@@ -1,0 +1,21 @@
+New debug mode commands:
+
+'S' - summon pet (as 's' - summon monster)
+'N' - summon named pet (as 'n' - summon named monster)
+'y' - turn object into randart (warning - accepts any object,
+	e.g. rations of food, potions etc.)
+
+New wizard mode features:
+
+- All monsters are visible in wizard mode
+- All monsters are generated awake in wizard mode
+- 'l'ooking at monster in wizard mode gives information about
+	its target
+- 'l'ooking, then 'r'ecalling information about monster in wizard mode
+	always gives full information (exact xp, hp, mana etc.), even
+	if the monster is hostile
+- All randarts generated in wizard mode will have descriptions of all
+	abilities included in description
+
+[Updated: PosBand 0.2.0-alpha3 by uav. 13-Jun-2004]
+

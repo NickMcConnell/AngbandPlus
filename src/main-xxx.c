@@ -66,7 +66,7 @@
  */
 
 
-#include "angband.h"
+#include "posband.h"
 
 
 #ifdef USE_XXX

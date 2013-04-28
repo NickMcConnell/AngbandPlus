@@ -1,0 +1,147 @@
+=== Pets and Companions === [Updated: PosBand 0.9.0]
+
+Fighting with Morgoth's hordes alone is a very difficult task for an
+adventurer. Fortunately, player can sometimes acquire friend monsters, which
+will help him in his task. These friends are usually referred as "pets".
+Your pet can actually be animal, humanoid, demon, undead, dragon, giant or
+any other monster.
+
+
+=== Acquiring pets ===
+
+A pet can be acquired in a number of ways. The easiest is reading a Scroll
+of Summon Pet; they are sold in the Temple, and cost about 750 gold pieces.
+Scroll of Summon Pet creates from 1 to 3 pets adjacent to you. They are
+generated on current dungeon level, so reading such scroll in town will
+generate only townsmen!
+
+Another ways include Wands of Charming (can be used to tame any non-unique
+monster), Staves of Summon Pet (act like scrolls), race-specific powers (for
+example, many necromantic races can summon undeads) and activating certain
+artifacts. Last two ways may summon pets with more specific range of
+possible races: only undead, only water elementals, only elemental dragons
+etc.
+
+Finally, player starts the game with one pet. See "Starting companion".
+
+
+=== Pets vs. Companions ===
+
+Normal pets can be commanded and summoned freely, but they are lost as soon
+as player leaves dungeon level with them. It is possible to order your pet
+to follow you between levels. Such pet is called a companion. You can
+convert pet into a companion by pressing "y", choosing "Switch pet/companion
+status", and targeting your pet.
+
+Note, however, that, unlike pets, the number of your companions is limited,
+and depends on your charisma stat. Even with very high CHA (>18/200) you can
+have only 6 companions. Characters with very low CHA (7 or less) cannot have
+even one companion.
+
+As long as your pet is your companion, it will follow you even between
+levels. No matter how far it was of you, when you go downstairs or upstairs
+you will find your companion nearby, already arrived and ready for orders.
+Companions also use Word of Recall spell effects to recall with you.
+Companions behave exactly like usual pets in all other aspects.
+
+You can turn your companion into a pet again with "y" menu whenever you
+want.
+
+
+=== Commanding pets ===
+
+Usually, pets follow player closely in his adventures. If some hostile
+monsters appear nearby, pet will attack it, in melee or using its spells or
+abilities. When the enemy is dead (or out of range), pet will try to return
+to player. This is usually enough, but in some situations you may decide
+that you know better what to do. If this is the case, you should use "Give
+target to pet" (or "Give target to all pets") option of "y" menu. If the
+former is used, you must first target your pet, and then give it the target;
+in the latter option, you have just to show target.
+
+These commands have two forms:
+
+ * When a (hostile) monster was targeted, pet(s) will try to get to it and
+   attack. Pet(s) will fight to death, and will not choose another target
+   for itself until target shown by you is dead, or the order is explicitly
+   cancelled.
+
+ * When a floor location is target, pet will try to get to it and then guard
+   it. If hostile monster shown up, it will be attacked (by spells or innate
+   abilities if it is far; in melee if it comes near), but in no case pet
+   will ever leave its location, until the order is explicitly cancelled.
+
+Note: pets can never directly cause any harm to player. Player is protected
+from all effects of their spells and breathes.
+
+You can also limit pets' arsenal of spells via "y" menu. The most useful
+option is disabling their teleportation spells, which can be very annoying.
+Other good option is turning off blind/confuse/scare/paralyze spells, which
+are next to useless against high-level opponents. Actually, these two sets
+of spells are disabled by default :-).
+
+
+=== Experience and level-up ===
+
+All monsters in PosBand have experience points and experience level, just
+like player does. Experience is gained by killing other monsters. When a
+monster gains a level, its hit points, armor class, melee damage, spell power
+and mana are increased. Sometimes a monster can even evolve into a different
+form - for example, Baby blue dragon grown into Young blue dragon.
+
+Any monster can gain levels, but this is naturally most useful for
+companions, since they are your long-term followers, and can earn quite a
+lot experience. Regular pets and hostile monster can also gain some levels
+in combat, but not a lot.
+
+Note that killing a monster which has some experience will result in better
+experience bonus for you (or for the monster who killed that monster).
+
+When you "l"ook at monster, the game always tells you its experience level
+(all monsters normally start with level 1). When "l"ooking at pets or
+companions, the game can also tell you its exact statistics - hit points,
+mana and so on.
+
+
+=== Losing pets ===
+
+When you think you don't need your pet anymore, you can choose to dismiss it
+via "y" menu. You can also dismiss all pets (excluding companions) at once.
+Dismissed pets vanish from the level instantly.
+
+You can also turn your pet against yourself by attacking it. You cannot
+attack it in melee, since moving into pet causes you to push past it
+instead, but you can target it with missiles or spells (or simply something
+thrown). Your pet will be enraged by each such attempt. When you try to
+offend it fourth time, it will turn hostile. If you do not try to attack
+your angry (but not hostile yet) pet anymore, it will eventually calm down.
+Note that "angry" pets still perform all commands and fight for you; they
+just are closer to ceasing doing that.
+
+
+=== Starting companion ===
+
+A player (of normal, non-monster races) starts the game with one companion.
+Its type depends on race:
+
+Race		Starting pet ---- evolves into ---- Last stage
+=========================================================================
+Human		Swordsman			    Berserker
+Half-Elf	Baby blue dragon		    Great Storm Wyrm
+Elf		Panther				    Displacer beast
+Hobbit		Blink dog			    Hellhound
+Gnome		Flesh golem			    Drolem
+Dwarf		Dark hound			    Aether hound
+Half-Orc	Dark elven mage			    Dark elven sorcerer
+Half-Troll	Ogre				    Ogre chieftain
+Dunadan		Illusionist			    Sorcerer
+High-Elf	Pseudo-dragon			    Great Etherial Wyrm
+Kobold		Giant tarantula			    Elder aranea
+
+
+As you see, the companion will gain experience with player, and eventually
+will grow into powerful forms. Note, however, that keeping your companion
+alive and training him is a lengthy process, which can be pretty hard, but
+the results will be rewarding.
+
+

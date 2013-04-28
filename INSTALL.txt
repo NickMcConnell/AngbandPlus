@@ -1,0 +1,84 @@
+===== PosBand installation =====
+
+Last updated for: PosBand 0.9.9 Alpha 1
+
+PosBand is distributed both as source code and as precompiled binaries. Unless
+you plan to hack on PosBand, or want to play PosBand on an unusual platform,
+you probably should use the binaries.
+
+
+===== Binary packages =====
+
+Binary packages are currently available for:
+
+ * Windows
+ * Linux (Slackware and Red Hat)
+ * Mac OS X
+
+--> Windows
+
+Download the file "posband-x.y.z-win.zip". Unzip it with your favorite archive
+tool, such as WinZip or WinRAR. Double-click "posband.exe" to play.
+
+Windows binary is built with Cygwin gcc 2.95 compiler.
+
+--> Red Hat Linux
+
+Download the file "posband-x.y.z-1.i386.rpm". Run this command (as root):
+
+	rpm -ivh posband-x.y.z-i386-1.tgz
+
+Type "posband" to play, "posband -h" to view additional options.
+
+This binary supports curses (console) and X Window interfaces.
+Red Hat binary is built with gcc 3.2.2 and linked against glibc 2.2.5.
+
+--> Slackware Linux
+
+Download the file "posband-x.y.z-i386-1.tgz". Run this command (as root):
+
+	installpkg posband-x.y.z-i386-1.tgz
+
+Type "posband" to play, "posband -h" to view additional options.
+
+This package uses the same binary as Red Hat package.
+
+--> Mac OS X
+
+Download and install "posband-x.y.z-osx.sitx" file.
+
+Mac OS X version is maintained by Gileba <gijs.lamon@pandora.be>.  Releases
+may be made with some delay.
+
+
+===== Installing from source =====
+
+Only installing on Unix is covered here.  Makefiles for other systems are
+not provided (they would need major changes).  Fixes are welcome; you can
+take the old versions from 0.3.0-alpha2.
+
+To install PosBand from source:
+
+ * Download the file "posband-x.y.z.tar.bz2".
+ 
+ * Unpack it:
+
+	tar -xjvf posband-x.y.z.tar.bz2
+	cd posband-x.y.z
+
+ * Run the "configure" script.  Useful options are:
+
+	--prefix=<path>		Install PosBand to the given location.
+				Default is "/usr/local".
+ 	--with-xxx		Enable display module xxx. See FRONTEND.txt
+				for information on all display modules.
+				Default: "win" on Windows, "gcu" and "xaw"
+				on others
+	--enable-debug		Debug build.  Disables signal catching
+				to allow core dumps to be generated, and
+				defaults data directory location to
+				"./lib".
+
+ * Type "make" to compile PosBand.
+
+ * Type "make install" as root to install PosBand.

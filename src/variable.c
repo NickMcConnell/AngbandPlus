@@ -1,25 +1,31 @@
-/* File: variable.c */
-
-/*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
-#include "angband.h"
+/* variable.c: global variables */
 
+#include "posband.h"
 
 /*
  * Hack -- Link a copyright message into the executable
  */
 cptr copyright =
-	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke\n"
+	"Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others\n"
 	"\n"
 	"This software may be copied and distributed for educational, research,\n"
 	"and not for profit purposes provided that this copyright and statement\n"
-	"are included in all such copies.  Other copyrights may also apply.\n";
+	"are included in all such copies.  Other copyrights may also apply.\n"
+	"\n" 
+	"NPPAngband Copyright (c) 2003-2004 Jeff Greene\n"
+	"PosBand Copyright (c) 2004-2005 Alexander Ulyanov\n";
 
 
 /*
@@ -84,7 +90,7 @@ s32b turn;				/* Current game turn */
 s32b old_turn;			/* Hack -- Level feeling counter */
 
 bool use_sound;			/* The "sound" mode is enabled */
-bool use_graphics;		/* The "graphics" mode is enabled */
+int use_graphics;		/* The "graphics" mode is enabled */
 bool use_bigtile = FALSE;
 
 s16b image_count;  		/* Grids until next random image    */
@@ -185,6 +191,14 @@ char angband_term_name[ANGBAND_TERM_MAX][16] =
 	"Term-6",
 	"Term-7"
 };
+
+int max_macrotrigger = 0;
+cptr macro_template = NULL;
+cptr macro_modifier_chr;
+cptr macro_modifier_name[MAX_MACRO_MOD];
+cptr macro_trigger_name[MAX_MACRO_TRIGGER];
+cptr macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
+
 
 
 /*
@@ -306,8 +320,6 @@ s16b (*cave_o_idx)[MAX_DUNGEON_WID];
 s16b (*cave_m_idx)[MAX_DUNGEON_WID];
 
 
-#ifdef MONSTER_FLOW
-
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
  */
@@ -337,8 +349,6 @@ int update_center_x;
  */
 int cost_at_center = 0;
 
-
-#endif	/* MONSTER_FLOW */
 
 /*
  * The character generates both directed (extra) noise (by doing noisy
@@ -446,7 +456,7 @@ cptr keymap_act[KEYMAP_MODES][256];
  * Pointer to the player tables (sex, race, class, magic)
  */
 const player_sex *sp_ptr;
-const player_race *rp_ptr;
+player_race *rp_ptr;
 const player_class *cp_ptr;
 const player_magic *mp_ptr;
 
@@ -503,6 +513,13 @@ char *k_text;
 artifact_type *a_info;
 char *a_name;
 char *a_text;
+
+/*
+ * The unique artifact arrays
+ */
+artifact_type *u_info;
+char *u_name;
+char *u_text;
 
 /*
  * The ego-item arrays
@@ -709,7 +726,7 @@ bool (*get_mon_num_hook)(int r_idx);
 bool (*get_obj_num_hook)(int k_idx);
 
 
-void (*object_info_out_flags)(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+void (*object_info_out_flags)(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4);
 
 
 /*
@@ -739,22 +756,15 @@ int text_out_indent = 0;
 
 
 /*
- * The "highscore" file descriptor, if available.
- */
-int highscore_fd = -1;
-
-
-/*
  * Use transparent tiles
  */
 bool use_transparency = FALSE;
 
 
 /*
- * File for taking notes
+ * Notes
  */
-
-FILE *notes_file;
+char *note_base = NULL, *note_cur = NULL;
 
 
  /* Two variables that limit rogue stealing and creation of traps.

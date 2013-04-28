@@ -1,0 +1,77 @@
+#!/bin/sh
+
+# posband.SlackBuild: Builds Slackware Linux .tgz package for PosBand
+# Adapted from source/ap/texinfo/texinfo.SlackBuild of Slackware Linux 9.0.
+
+# Set initial variables:
+CWD=`pwd`
+if [ "$TMP" = "" ]; then
+  TMP=/tmp
+fi
+PKG=$TMP/package-posband
+
+VERSION=0.9.9a1
+ARCH=i386
+BUILD=1
+
+if [ ! -d $TMP ]; then
+  mkdir -p $TMP # location to build the source
+fi
+if [ ! -d $PKG ]; then
+  mkdir -p $PKG # place for the package to be built
+fi
+
+echo ">>> posband-$VERSION <<<"
+cd $TMP
+tar xjvf $CWD/posband-$VERSION.tar.bz2
+cd posband-$VERSION
+CFLAGS="-O2 -march=i386 -mcpu=i686" \
+./configure --prefix=/usr --bindir=/usr/games --with-setgid=games \
+	--with-libpath=/usr/share/games/posband --with-gcu --with-xaw --with-vcs
+make
+make install DESTDIR=$PKG
+# Move the read-write data to /var/lib, link back to /usr/share/games
+mkdir -p $PKG/var/lib/games/posband
+for subdir in apex bone data save user ; do
+  mv $PKG/usr/share/games/posband/$subdir $PKG/var/lib/games/posband
+  ln -sf /var/lib/games/posband/$subdir $PKG/usr/share/games/posband
+done		
+strip $PKG/usr/games/posband
+gzip -9 $PKG/usr/man/man?/*
+mkdir -p $PKG/usr/doc/posband-$VERSION
+cp -a \
+  COPYING.txt ChangeLog.txt README.txt TODO.txt FRONTEND.txt $PKG/usr/doc/posband-$VERSION
+chmod 644 $PKG/usr/doc/posband-$VERSION/*
+chown -R root.root $PKG/usr/doc/posband-$VERSION
+mkdir -p $PKG/install
+cat >$PKG/install/slack-desc <<EOF
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+posband: PosBand (A variant of Angband, the popular roguelike game)
+posband:
+posband: PosBand is a variant of Angband, one of the most popular
+posband: roguelike games (and successor to Moria). PosBand adds monster
+posband: races, possession, themed levels, infinite random artifacts and
+posband: many other new features.
+posband: 
+posband: 
+posband:
+posband: 
+posband:
+EOF
+
+# Build the package:
+cd $PKG
+makepkg -l y -c n "$TMP/posband-`echo $VERSION | sed -e 's/-//g'`-i386-1.tgz"
+
+# Clean up the extra stuff:
+if [ "$1" = "--cleanup" ]; then
+  rm -rf $TMP/posband-$VERSION
+  rm -rf $PKG
+fi

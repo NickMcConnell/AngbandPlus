@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:3.0.8
+V:4.1.0
 
 N:0:Fake quest
 W:0:0:0:0
@@ -25,3 +25,6 @@ W:99:546:0:1
 
 N:2:Morgoth
 W:100:547:0:1
+
+# Highlight syntax in Vim
+# vim:syntax=posband

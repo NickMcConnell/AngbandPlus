@@ -1,6 +1,5 @@
 # File: p_race.txt
 
-
 # This file is used to initialize the "lib/data/p_race.raw" file, which is
 # used to initialize the "player race" information for the Angband game.
 
@@ -13,13 +12,17 @@
 # Format:
 # N:race number:race name
 # S:str:int:wis:dex:con:chr
-# R:dis:dev:sav:stl:srh:fos:thn:thb
-# X:hitdie:expbase:infra
+# R:dis:dev:sav:stl:srh:fos
+# r:bare:edged:hafted:polearm:axe:sling:bow:xbow:throw
+# X:hitdie:expbase:infra:comp
 # I:history:agebase:agemod
 # H:hgtmale:modhgtmale:hgtfemale:modhgtfemale
 # W:wgtmale:modwgtmale:wgtfemale:modwgtfemale
 # F:racial flags
 # C:classes (numeric)
+# E:tval:sval:min:max
+# M:monster
+# K:king unique
 
 # 'N' indicates the beginning of an entry. The serial number must
 # increase for each new race.
@@ -28,11 +31,17 @@
 # dexterity, constitution, charisma.
 
 # 'R' is for the base skills - disarming, magic devices, saving throws,
-# stealth, searching ability, searching frequency, to hit (melee),
-# to hit (bows).
+# stealth, searching ability, searching frequency. 'r' is for
+# fighting skills.
 
 # 'X' is for extra info - max. hitpoints gained per level, experience
-# factor in percent, range of infravision in 10 feets.
+# factor in percent, range of infravision in 10 feets,
+# relative complexity:
+#  0 = Easiest/Munchkin
+#  1 = Easy
+#  2 = Moderate
+#  3 = Hard
+#  4 = Hardest/Challenge
 
 # 'I' is for info - starting point of the player history, base age,
 # random age modifier.
@@ -47,15 +56,28 @@
 
 # 'C' is for class choices.
 
+# 'E' is starting equipment. Up to 4 entries are allowed.
+
+# 'M' is for initial monster index (if any).
+
+# 'K' is for "king" unique monster index (if any). Meeting a "king"
+# unique may have special effects on a game.
+
+# 'P' is for "pet" index, if any.
+
+# Note that "monster" races (those with 'M' field defined) have most
+# of their attributes defined at monster.txt, rather than here.
+
 
 # Version stamp (required)
 
-V:3.0.8
+V:4.1.0
 
 
 N:0:Human
 S:0:0:0:0:0:0
-R:0:0:0:0:0:10:0:0
+R:0:0:0:0:0:10
+r:0:0:0:0:0:0:0:0:0
 X:10:100:0
 I:1:14:6
 H:72:6:66:4
@@ -64,17 +86,20 @@ C:0|1|2|3|4|5
 
 N:1:Half-Elf
 S:0:1:-1:1:-1:1
-R:2:3:3:1:6:11:-1:5
+R:2:3:3:1:6:11
+r:-5:0:-3:-1:-1:1:5:2:3
 X:10:110:2
 I:4:24:16
 H:66:6:62:6
 W:130:15:100:10
 F:SUST_DEX
 C:0|1|2|3|4|5
+P:127
 
 N:2:Elf
 S:-1:2:-1:1:-2:1
-R:5:6:6:1:8:12:-5:15
+R:5:6:6:1:8:12
+r:-7:-3:-6:-4:-4:13:17:14:15
 X:9:120:3
 I:5:75:75
 H:60:4:54:4
@@ -84,7 +109,8 @@ C:0|1|3|4
 
 N:3:Hobbit
 S:-2:2:1:3:2:1
-R:15:18:18:4:12:15:-10:20
+R:15:18:18:4:12:15
+r:-25:-10:-20:-5:-10:20:15:10:30
 X:7:110:4
 I:10:21:12
 H:36:3:33:3
@@ -94,17 +120,20 @@ C:0|3|4
 
 N:4:Gnome
 S:-1:2:0:2:1:-2
-R:10:12:12:3:6:13:-8:12
+R:10:12:12:3:6:13
+r:-20:-8:-16:-4:-8:12:12:20:16
 X:8:125:4
 I:13:50:40
 H:42:3:39:3
 W:90:6:75:3
 F:FREE_ACT
 C:0|1|2|3
+P:185
 
 N:5:Dwarf
 S:2:-3:2:-2:2:-3
-R:2:9:9:-1:7:10:15:0
+R:2:9:9:-1:7:10
+r:7:5:10:8:20:3:3:6:4
 X:11:120:5
 I:16:35:15
 H:48:3:46:3
@@ -114,7 +143,8 @@ C:0|2|5
 
 N:6:Half-Orc
 S:2:-1:0:0:1:-4
-R:-3:-3:-3:-1:0:7:12:-5
+R:-3:-3:-3:-1:0:7
+r:15:12:12:12:12:-5:-10:2:-8
 X:10:110:3
 I:19:11:4
 H:66:1:62:1
@@ -124,7 +154,8 @@ C:0|2|3
 
 N:7:Half-Troll
 S:4:-4:-2:-4:3:-6
-R:-5:-8:-8:-2:-1:5:20:-10
+R:-5:-8:-8:-2:-1:5
+r:35:5:25:10:15:-20:-20:-10:-15
 X:12:120:3
 I:21:20:10
 H:96:10:84:8
@@ -134,7 +165,8 @@ C:0|2
 
 N:8:Dunadan
 S:1:2:2:2:3:2
-R:4:5:5:2:3:13:15:10
+R:4:5:5:2:3:13
+r:5:15:5:10:10:10:10:10:10
 X:10:180:0
 I:1:50:20
 H:82:5:78:6
@@ -144,20 +176,373 @@ C:0|1|2|4|5
 
 N:9:High-Elf
 S:1:3:-1:3:1:5
-R:4:20:20:3:3:14:10:25
+R:4:20:20:3:3:14
+r:5:15:5:15:5:20:30:20:20
 X:10:200:4
 I:7:100:30
 H:90:10:82:10
 W:190:20:180:15
 F:RES_LITE | SEE_INVIS
 C:0|1|2|4
+P:144
 
 N:10:Kobold
 S:-1:-1:0:2:2:-2
 R:10:5:0:4:15:15:-5:10
+r:-5:-2:-9:0:-5:10:4:4:8
 X:8:115:5
 I:23:15:10
 H:38:4:36:3
 W:70:5:60:4
 F:RES_POIS
 C:0|2|3|4
+
+##### Possessor race
+
+N:11:Soul
+S:0:0:0:0:0:0
+R:0:0:0:0:0:0
+r:0:0:0:0:0:0:0:0:0
+X:0:175:0:2
+I:0:400:600
+H:0:0:0:0
+W:0:0:0:0
+C:0|1|2|3|4|5
+M:633
+
+##### Monster races
+# (Most information is defined in monster.txt)
+
+N:12:Ainu
+X:0:250:0:0
+I:109:5000:10000
+H:100:10:95:10
+W:150:25:130:20
+E:23:17:1:1
+E:36:11:1:1
+E:70:47:1:1
+E:55:18:1:1
+M:289
+K:546
+
+N:13:Ant
+# XXXXX
+
+N:14:Balrog
+X:0:200:0:1
+I:122:5000:10000
+H:140:20:140:20
+W:900:200:900:200
+E:23:31:1:1
+E:45:18:1:1
+E:66:22:1:1
+M:467
+K:545
+
+N:15:Basilisk
+X:0:135:0:2
+I:118:30:120
+H:4:3:4:3
+W:100:50:100:50
+E:45:27:1:1
+E:70:8:4:5
+E:75:2:30:40
+M:308
+K:661
+
+N:16:Beholder
+# XXXXX
+
+N:17:Bird
+# XXXXX
+
+N:18:Canine
+# XXXXX
+
+N:19:Dark Elf
+X:0:135:0:2
+I:91:200:400
+H:66:6:62:6
+W:130:15:100:10
+E:23:10:1:1
+E:22:1:13:17
+E:36:6:1:1
+E:35:6:1:1
+M:108
+K:595
+
+N:20:Demon (Baatezu)
+X:0:135:0:2
+I:125:400:600
+H:90:20:90:20
+W:400:200:400:200
+E:22:15:1:1
+E:45:24:1:1
+E:70:36:8:12
+M:119
+K:662
+
+N:21:Demon (Tanar'ri)
+X:0:135:0:2
+I:125:400:600
+H:90:20:90:20
+W:400:200:400:200
+E:22:5:1:1
+E:45:24:1:1
+E:75:33:3:6
+M:100
+K:510
+
+N:22:Balance Dragon
+# XXXXX
+
+N:23:Black Dragon
+# XXXXX
+
+N:24:Blue Dragon
+X:0:150:0:2
+I:130:400:600
+H:150:50:140:50
+W:1500:500:1500:500
+E:45:28:1:1
+E:70:37:2:3
+M:127
+K:663
+
+N:25:Bronze Dragon
+# XXXXX
+
+N:26:Chaos Dragon
+X:0:200:0:1
+I:75:400:600
+H:150:50:140:50
+W:2000:500:2500:500
+E:45:16:1:1
+E:70:10:2:3
+M:339
+K:638
+
+N:27:Chromatic Dragon
+# XXXXX
+
+N:28:Crystal Dragon
+# XXXXX
+
+N:29:Ethereal Dragon
+X:0:150:0:1
+I:78:400:600
+H:150:50:140:50
+W:10:5:10:5
+E:45:28:1:1
+E:75:56:2:3
+M:144
+K:637
+
+N:30:Green Dragon
+# XXXXX
+
+N:31:Gold Dragon
+# XXXXX
+
+N:32:Inertia Dragon
+# XXXXX
+
+N:33:Law Dragon
+# XXXXX
+
+N:34:Red Dragon
+X:0:150:0:2
+I:70:400:600
+H:150:50:140:50
+W:1500:500:1500:500
+E:45:29:1:1
+E:70:41:2:3
+M:131
+K:481
+
+N:35:Shadow Dragon
+X:0:150:0:2
+I:100:400:600
+H:150:50:140:50
+W:10:5:10:5
+E:45:30:1:1
+E:70:38:2:3
+M:319
+K:639
+
+N:36:White Dragon
+X:0:150:0:2
+I:96:400:600
+H:150:50:140:50
+W:1500:500:1500:500
+E:45:28:1:1
+E:75:37:2:3
+M:128
+K:473
+
+N:37:Feline
+# XXXXX
+
+N:38:Ghost
+X:0:110:0:2
+I:0:100:400
+H:72:6:66:4
+W:0:0:0:0
+E:21:5:1:1
+E:45:16:1:1
+E:65:12:1:1
+M:107
+#K:???
+
+N:39:Giant
+X:0:125:0:2
+I:79:400:600
+H:150:50:140:50
+W:1500:500:1500:500
+E:21:15:1:1
+E:37:12:1:1
+E:70:21:2:3
+M:184
+K:587
+
+N:40:Golem
+# XXXXX
+
+N:41:Hydra
+X:0:125:0:3
+I:114:400:600
+H:150:50:140:50
+W:1500:500:1500:500
+E:80:16:4:6
+E:32:3:1:1
+E:45:24:1:1
+M:216
+K:504
+
+N:42:Kobold
+X:0:105:0:3
+I:23:15:10
+H:38:4:36:3
+W:70:5:60:4
+E:23:4:1:1
+E:36:1:1:1
+E:19:2:1:1
+E:75:6:10:15
+M:24
+K:110
+
+N:43:Lich
+X:0:200:0:3
+I:73:400:600
+H:72:6:66:4
+W:60:7:50:5
+E:36:2:1:1
+E:33:10:1:1
+E:45:19:1:1
+E:55:25:1:1
+M:356
+K:542
+
+N:44:Naga
+# XXXXX
+
+N:45:Ogre
+# XXXXX
+
+N:46:Ooze
+# XXXXX
+
+N:47:Orc
+# XXXXX
+
+N:48:Quylthulg
+X:0:125:0:3
+I:88:400:200
+H:10:5:10:5
+W:50:5:50:5
+E:35:1:1:1
+E:45:16:1:1
+E:40:7:1:1
+M:243
+K:543
+
+N:49:Skeleton
+X:0:125:0:3
+I:104:400:600
+H:72:6:66:4
+W:70:10:60:10
+M:83
+K:538
+
+N:50:Spider
+X:0:115:0:3
+I:80:15:10
+H:38:4:36:3
+W:50:5:50:4
+E:30:3:1:1
+E:30:3:1:1
+E:80:13:4:7
+M:50
+K:330
+
+N:51:Air Elemental
+X:0:125:0:4
+I:116:5:5
+H:200:20:200:20
+W:10:5:10:5
+E:23:17:1:1
+E:45:38:1:1
+E:70:8:4:6
+M:163
+K:468
+
+N:52:Earth Elemental
+# XXXXX
+
+N:53:Fire Elemental
+X:0:125:0:4
+I:112:5:5
+H:200:20:200:20
+W:10:5:10:5
+E:23:17:1:1
+E:45:18:1:1
+E:66:3:1:1
+M:220
+K:416
+
+N:54:Water Elemental
+X:0:125:0:4
+I:71:5:5
+H:200:20:200:20
+W:1500:1000:1500:1000
+E:23:17:1:1
+E:45:19:1:1
+E:70:23:2:3
+M:217
+K:422
+
+N:55:Troll
+X:0:115:0:2
+I:21:30:20
+H:96:10:84:8
+W:250:50:225:40
+E:21:15:1:1
+E:37:1:1:1
+E:75:63:2:3
+M:214
+K:383
+
+N:56:Wraith
+# XXXXX
+
+N:57:Yeek
+# XXXXX
+
+N:58:Zephyr Hound
+# XXXXX
+
+N:59:Zombie
+# XXXXX
+
+# Highlight syntax in Vim
+# vim:syntax=posband

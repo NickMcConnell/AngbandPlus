@@ -1,16 +1,18 @@
-/* File: birth.c */
-
-/*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
-#include "angband.h"
+/* birth.c: player birth */
 
-#include "script.h"
+#include "posband.h"
 
 /*
  * Forward declare
@@ -41,6 +43,7 @@ struct birther
 struct birth_menu
 {
 	bool ghost;
+	bool disabled;
 	cptr name;
 };
 
@@ -224,6 +227,12 @@ static void get_stats(void)
 
 	int dice[18];
 
+        /* Hack - monster race */
+        p_ptr->m_r_idx = p_info[p_ptr->prace].m_r_idx;
+        p_ptr->update |= PU_BONUS;
+
+        /* Update stuff */
+        update_stuff();
 
 	/* Roll and verify some stats */
 	while (TRUE)
@@ -284,6 +293,12 @@ static void get_extra(void)
 {
 	int i, j, min_value, max_value;
 
+        /* Hack - monster race */
+        p_ptr->m_r_idx = p_info[p_ptr->prace].m_r_idx;
+        p_ptr->update |= PU_BONUS;
+
+        /* Update stuff */
+        update_stuff();
 
 	/* Level one */
 	p_ptr->max_lev = p_ptr->lev = 1;
@@ -444,9 +459,18 @@ static void player_wipe(void)
 {
 	int i;
 
+	/* Backup the player choices */
+	byte psex = p_ptr->psex;
+	byte prace = p_ptr->prace;
+	byte pclass = p_ptr->pclass;
 
 	/* Wipe the player */
 	(void)WIPE(p_ptr, player_type);
+
+	/* Restore the choices */
+	p_ptr->psex = psex;
+	p_ptr->prace = prace;
+	p_ptr->pclass = p_ptr->prealclass = pclass;
 
 
 	/* Clear the inventory */
@@ -524,8 +548,7 @@ static void player_wipe(void)
 
 
 	/* Hack -- no ghosts */
-	r_info[z_info->r_max-1].max_num = 0;
-
+	/* r_info[z_info->r_max-1].max_num = 0; */
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
@@ -542,7 +565,7 @@ static void player_wipe(void)
 /*
  * Init players with some belongings
  *
- * Having an item makes the player "aware" of its purpose.
+ * Having an item identifies it and makes the player "aware" of its purpose.
  */
 static void player_outfit(void)
 {
@@ -550,11 +573,111 @@ static void player_outfit(void)
 	const start_item *e_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
-
-	/* Hack -- Give the player his equipment */
-	for (i = 0; i < MAX_START_ITEMS; i++)
+	monster_race *r_ptr = &r_info[p_ptr->m_r_idx];
+	
+	/* Hack -- Give racial equipment, if any */
+	if (rp_ptr->start_items[0].tval)
 	{
+		for (i = 0; i < MAX_START_ITEMS; i++)
+		{
+			object_type *o_ptr;
 
+			/* Access the item */
+			e_ptr = &(rp_ptr->start_items[i]);
+
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Hack	-- Give the player an object */
+			if (e_ptr->tval > 0)
+			{
+				/* Get the object_kind */
+				int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+
+				/* Valid item? */
+				if (!k_idx) continue;
+
+				/* Prepare the item */
+				object_prep(i_ptr, k_idx);
+				i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
+				
+				/* Apply magic to some tvals */
+				/* Hack -- never allow cursed items */
+				if (e_ptr->tval == TV_AMULET || e_ptr->tval == TV_RING ||
+					e_ptr->tval == TV_STAFF || e_ptr->tval == TV_WAND ||
+					e_ptr->tval == TV_ROD || e_ptr->tval == TV_DRAG_ARMOR)
+				{
+					apply_magic(i_ptr, 0, FALSE, TRUE, FALSE);
+				}
+
+				object_aware(i_ptr);
+				object_known(i_ptr);
+			}
+
+			/* Check the slot */
+			slot = wield_slot(i_ptr);
+
+			/* If player can wield an item, do so */
+			/* XXX Hack -- don't, if there is >1 item */
+			if (slot >= INVEN_EQUIP && i_ptr->number == 1)
+			{
+
+				cptr act;
+				char o_name[80];
+
+				/* Get the wield slot */
+				o_ptr = &inventory[slot];
+
+				/* Wear the new stuff */
+				object_copy(o_ptr, i_ptr);
+
+				/* Increment the equip counter by hand */
+				p_ptr->equip_cnt++;
+
+				/* Increase the weight */
+				p_ptr->total_weight += i_ptr->weight;
+
+				/* Where is the item now */
+				if (r_ptr->body.weapon_mask & EQUIP_SLOT(slot))
+				{
+					act = "You are wielding";
+				}
+				else if (r_ptr->body.bow_mask & EQUIP_SLOT(slot))
+				{
+					act = "You are shooting with";
+				}
+				else if (r_ptr->body.light_mask & EQUIP_SLOT(slot))
+				{
+					act = "Your light source is";
+				}
+				else
+				{
+					act = "You are wearing";
+				}
+
+				/* Describe the result */
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+				/* Message */
+				msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+
+				message_flush();
+			}
+
+			else
+			{
+				/*put it in the inventory*/
+				(void)inven_carry(i_ptr);
+			}
+
+			/*Bugfix:  So we don't get duplicate objects*/
+			object_wipe (i_ptr);
+		}
+	}
+	
+	/* Hack -- Otherwise give him ckass equipment */
+	else for (i = 0; i < MAX_START_ITEMS; i++)
+	{
 		object_type *o_ptr;
 
 		/* Access the item */
@@ -575,6 +698,13 @@ static void player_outfit(void)
 			/* Prepare the item */
 			object_prep(i_ptr, k_idx);
 			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
+			
+			/* Mega-Hack - apply magic for possessor, allowing them
+			 * to charge their wand of magic missile. Disable for anyone
+			 * else, to forbid good and ego items.
+			 */
+			if (p_ptr->pclass == POSS_CLASS)
+				apply_magic(i_ptr, 0, TRUE, FALSE, FALSE);
 
 			object_aware(i_ptr);
 			object_known(i_ptr);
@@ -583,8 +713,9 @@ static void player_outfit(void)
 		/* Check the slot */
 		slot = wield_slot(i_ptr);
 
-		/*if player can wield an item, do so*/
-		if (slot >= INVEN_WIELD)
+		/* If player can wield an item, do so */
+		/* XXX Hack -- don't, if there is >1 item */
+		if (slot >= INVEN_EQUIP && i_ptr->number == 1)
 		{
 
 			cptr act;
@@ -603,15 +734,15 @@ static void player_outfit(void)
 			p_ptr->total_weight += i_ptr->weight;
 
 			/* Where is the item now */
-			if (slot == INVEN_WIELD)
+			if (r_ptr->body.weapon_mask & EQUIP_SLOT(slot))
 			{
 				act = "You are wielding";
 			}
-			else if (slot == INVEN_BOW)
+			else if (r_ptr->body.bow_mask & EQUIP_SLOT(slot))
 			{
 				act = "You are shooting with";
 			}
-			else if (slot == INVEN_LITE)
+			else if (r_ptr->body.light_mask & EQUIP_SLOT(slot))
 			{
 				act = "Your light source is";
 			}
@@ -627,7 +758,7 @@ static void player_outfit(void)
 			msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
 			message_flush();
-			}
+		}
 
 		else
 		{
@@ -637,7 +768,6 @@ static void player_outfit(void)
 
 		/*Bugfix:  So we don't get duplicate objects*/
 		object_wipe (i_ptr);
-
 	}
 
 	/* Recalculate bonuses */
@@ -656,19 +786,19 @@ static void player_outfit(void)
 }
 
 /* Locations of the tables on the screen */
-#define HEADER_ROW		1
+#define HEADER_ROW	1
 #define INSTRUCT_ROW	3
 #define QUESTION_ROW	7
-#define TABLE_ROW		10
+#define TABLE_ROW	10
 
 #define QUESTION_COL	2
-#define SEX_COL			2
-#define RACE_COL		14
+#define SEX_COL		2
+#define RACE_COL	14
 #define RACE_AUX_COL    29
-#define CLASS_COL		29
+#define CLASS_COL	29
 #define CLASS_AUX_COL   43
 #define TOTAL_AUX_COL   60
-#define INVALID_CHOICE 255
+#define INVALID_CHOICE	255
 
 /*
  * Clear the previous question
@@ -688,7 +818,7 @@ static void clear_question(void)
  * Generic "get choice from menu" function
  */
 static int get_player_choice(birth_menu *choices, int num, int col, int wid,
-                             void (*hook)(birth_menu))
+                             cptr helpfile, void (*hook)(birth_menu))
 {
 	int top = 0, cur = 0;
 	int i, dir;
@@ -734,11 +864,13 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 			{
 				/* Highlight the current selection */
 				if (choices[i + top].ghost) attr = TERM_BLUE;
+				else if (choices[i + top].disabled) attr = TERM_BLUE;
 				else attr = TERM_L_BLUE;
 			}
 			else
 			{
 				if (choices[i + top].ghost) attr = TERM_SLATE;
+				else if (choices[i + top].disabled) attr = TERM_L_DARK;
 				else attr = TERM_WHITE;
 			}
 
@@ -762,13 +894,13 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 		if (c == ESCAPE) return (INVALID_CHOICE);
 
 		/* Make a choice */
-		if ((c == '\n') || (c == '\r')) return (cur);
+		if (((c == '\n') || (c == '\r')) && !choices[cur].disabled) return (cur);
 
 		/* Random choice */
 		if (c == '*')
 		{
 			/* Ensure legal choice */
-			do { cur = rand_int(num); } while (choices[cur].ghost);
+			do { cur = rand_int(num); } while (choices[cur].ghost || choices[cur].disabled);
 
 			/* Done */
 			done = TRUE;
@@ -783,7 +915,7 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 			else choice = c - 'A' + 26;
 
 			/* Validate input */
-			if ((choice > -1) && (choice < num))
+			if (((choice > -1) && (choice < num)) && !choices[choice].disabled)
 			{
 				cur = choice;
 
@@ -826,7 +958,11 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 		/* Help */
 		else if (c == '?')
 		{
-			do_cmd_help();
+			strnfmt(buf, sizeof(buf), "%s#%s", helpfile, choices[cur].name);
+
+			screen_save();
+			(void)show_file(buf, NULL, 0, 0);
+			screen_load();
 		}
 
 		/* Options */
@@ -855,32 +991,160 @@ static void race_aux_hook(birth_menu r_str)
 	char s[50];
 
 	/* Extract the proper race index from the string. */
-	for (race = 0; race < z_info->p_max; race++)
+	for (race = 0; race < MON_RACE_MIN; race++)
 	{
 		if (!strcmp(r_str.name, p_name + p_info[race].name)) break;
 	}
 
-	if (race == z_info->p_max) return;
+	if (race == MON_RACE_MIN)
+	{
+		for (i = 0; i < A_MAX; i++)
+		{
+			strnfmt(s, sizeof(s), "%s???", stat_names_reduced[i]);
+			Term_putstr(RACE_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
+		}
+                Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, "Hit die: ???  ");
+                Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, "Experience: ???  ");
+                Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, "Infravision: ???  ");
+                return;
+	}
 
 	/* Display relevant details. */
 	for (i = 0; i < A_MAX; i++)
 	{
 		/*dump the stats*/
-		strnfmt(s, sizeof(s), "%s%+d", stat_names_reduced[i],
+		strnfmt(s, sizeof(s), "%s%+d  ", stat_names_reduced[i],
 		p_info[race].r_adj[i]);
 		Term_putstr(RACE_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 
 	}
 
 	/*dump the current classes stats*/
-	sprintf(s, "Hit die: %d ", p_info[race].r_mhp);
+	sprintf(s, "Hit die: %d   ", p_info[race].r_mhp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-	sprintf(s, "Experience: %d%% ", p_info[race].r_exp);
+	sprintf(s, "Experience: %d%%   ", p_info[race].r_exp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
-	sprintf(s, "Infravision: %d ft ", p_info[race].infra * 10);
+	sprintf(s, "Infravision: %d ft   ", p_info[race].infra * 10);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 }
 
+
+/*
+ * Display additional information about monster race during the selection.
+ */
+static void monrace_aux_hook(birth_menu r_str)
+{
+	int race, i;
+	char s[50];
+	
+	Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + A_MAX + 4, -1, TERM_WHITE,
+		"Difficulty:");
+	Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + A_MAX + 5, -1, TERM_YELLOW,
+		r_str.disabled ? "NOT IMPLEMENTED  " : "                 ");
+	if (r_str.disabled) return;
+
+	/* Extract the proper race index from the string. */
+	for (race = MON_RACE_MIN; race < z_info->p_max; race++)
+	{
+		if (!strcmp(r_str.name, p_name + p_info[race].name)) break;
+	}
+
+	/* Display relevant details. */
+	for (i = 0; i < A_MAX; i++)
+	{
+		/*dump the stats*/
+		strnfmt(s, sizeof(s), "%s%+d  ", stat_names_reduced[i],
+		        r_info[p_info[race].m_r_idx].body.to_stat[i]);
+		Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + i, -1, TERM_WHITE, s);
+
+	}
+
+	/*dump the current classes stats*/
+	sprintf(s, "Hit die: %d   ", r_info[p_info[race].m_r_idx].body.hitdie);
+	Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
+	sprintf(s, "Experience: %d%%   ", p_info[race].r_exp);
+	Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
+	sprintf(s, "Infravision: %d ft   ", r_info[p_info[race].m_r_idx].body.infra * 10);
+	Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
+	switch(p_info[race].comp)
+	{
+		case 0: Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, "Easiest/Munchkin"); break;
+		case 1: Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, "Easy"); break;
+		case 2: Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, "Moderate"); break;
+		case 3: Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, "Hard"); break;
+		case 4: Term_putstr(CLASS_AUX_COL + 5, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, "Hardest/Challenge"); break;
+	}
+}
+
+/*
+ * Player monster race
+ */
+static bool get_player_monrace(void)
+{
+	int i;
+	birth_menu *mraces;
+	
+	C_MAKE(mraces, z_info->p_max - MON_RACE_MIN, birth_menu);
+	
+	clear_question();
+	
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"Monster character can have superior abilities, but cannot choose a class.");
+		
+	for (i = MON_RACE_MIN; i < z_info->p_max; i++)
+	{
+		mraces[i - MON_RACE_MIN].name = p_name + p_info[i].name;
+		mraces[i - MON_RACE_MIN].ghost = FALSE;
+		mraces[i - MON_RACE_MIN].disabled = (p_info[i].m_r_idx == 0);
+	}
+	
+	p_ptr->prace = get_player_choice(mraces, z_info->p_max - MON_RACE_MIN,
+		RACE_COL, 30, "monrace.txt", monrace_aux_hook);
+	
+	/* No selection? */
+	if (p_ptr->prace == INVALID_CHOICE)
+	{
+		p_ptr->prace = 0;
+		return (FALSE);
+	}
+	
+	/* Adjust */
+	p_ptr->prace += MON_RACE_MIN;
+        
+        FREE(mraces);
+	
+	rp_ptr = &p_info[p_ptr->prace];
+        
+        /* Somewhat crude hack - change race entry fields */
+        p_ptr->m_r_idx = rp_ptr->m_r_idx;
+        for (i = 0; i < A_MAX; i++)
+        {
+                rp_ptr->r_adj[i] = r_info[p_ptr->m_r_idx].body.to_stat[i];
+        }
+        rp_ptr->r_mhp = r_info[p_ptr->m_r_idx].body.hitdie;
+        rp_ptr->infra = r_info[p_ptr->m_r_idx].body.infra;
+        rp_ptr->r_dis = r_info[p_ptr->m_r_idx].body.dis;
+        rp_ptr->r_dev = r_info[p_ptr->m_r_idx].body.dev;
+        rp_ptr->r_sav = r_info[p_ptr->m_r_idx].body.sav;
+        rp_ptr->r_stl = r_info[p_ptr->m_r_idx].body.stl;
+        rp_ptr->r_srh = r_info[p_ptr->m_r_idx].body.srh;
+        rp_ptr->r_fos = r_info[p_ptr->m_r_idx].body.fos;
+        rp_ptr->r_thn_bare = r_info[p_ptr->m_r_idx].body.thn_bare;
+        rp_ptr->r_thn_edged = r_info[p_ptr->m_r_idx].body.thn_edged;
+        rp_ptr->r_thn_hafted = r_info[p_ptr->m_r_idx].body.thn_hafted;
+        rp_ptr->r_thn_polearm = r_info[p_ptr->m_r_idx].body.thn_polearm;
+        rp_ptr->r_thn_axe = r_info[p_ptr->m_r_idx].body.thn_axe;
+        rp_ptr->r_thb_sling = r_info[p_ptr->m_r_idx].body.thb_sling;
+        rp_ptr->r_thb_bow = r_info[p_ptr->m_r_idx].body.thb_bow;
+        rp_ptr->r_thb_xbow = r_info[p_ptr->m_r_idx].body.thb_xbow;
+        rp_ptr->r_tht = r_info[p_ptr->m_r_idx].body.tht;
+        rp_ptr->flags1 = r_info[p_ptr->m_r_idx].body.flags1;
+        rp_ptr->flags2 = r_info[p_ptr->m_r_idx].body.flags2;
+        rp_ptr->flags3 = r_info[p_ptr->m_r_idx].body.flags3;
+        rp_ptr->flags4 = r_info[p_ptr->m_r_idx].body.flags4;
+        	
+	return (TRUE);
+}
 
 /*
  * Player race
@@ -890,27 +1154,38 @@ static bool get_player_race(void)
 	int i;
 	birth_menu *races;
 
-	C_MAKE(races, z_info->p_max, birth_menu);
+	C_MAKE(races, MON_RACE_MIN + 1, birth_menu);
 
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
 		"Your 'race' determines various intrinsic factors and bonuses.");
 
 	/* Tabulate races */
-	for (i = 0; i < z_info->p_max; i++)
+	for (i = 0; i < MON_RACE_MIN; i++)
 	{
 		races[i].name = p_name + p_info[i].name;
 		races[i].ghost = FALSE;
+		races[i].disabled = FALSE;
 	}
+	races[i].name = "Monster";
+	races[i].ghost = FALSE;
+	races[i].disabled = FALSE;
 
-	p_ptr->prace = get_player_choice(races, z_info->p_max, RACE_COL, 15,
-		race_aux_hook);
+	p_ptr->prace = get_player_choice(races, MON_RACE_MIN+1, RACE_COL, 15,
+		"raceclas.txt", race_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->prace == INVALID_CHOICE)
 	{
 		p_ptr->prace = 0;
 		return (FALSE);
+	}
+	
+	/* Monster race? */
+	if (p_ptr->prace == MON_RACE_MIN)
+	{
+		FREE(races);
+		return(get_player_monrace());
 	}
 
 	/* Save the race pointer */
@@ -931,12 +1206,12 @@ static void class_aux_hook(birth_menu c_str)
 	char s[128];
 
 	/* Extract the proper class index from the string. */
-	for (class_idx = 0; class_idx < z_info->c_max; class_idx++)
+	for (class_idx = 0; class_idx < z_info->c_max - 2; class_idx++)
 	{
 		if (!strcmp(c_str.name, c_name + c_info[class_idx].name)) break;
 	}
 
-	if (class_idx == z_info->c_max) return;
+	if (class_idx == MON_CLASS || class_idx == POSS_CLASS) return;
 
 	sprintf(s, "CLASS ADJ:");
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW - 1, -1, TERM_L_BLUE, s);
@@ -989,18 +1264,19 @@ static bool get_player_class(void)
 		"Any greyed-out entries should only be used by advanced players.");
 
 	/* Tabulate classes */
-	for (i = 0; i < z_info->c_max; i++)
+	for (i = 0; i < z_info->c_max - 2; i++)
 	{
 		/* Analyze */
 		if (!(rp_ptr->choice & (1L << i))) classes[i].ghost = TRUE;
 		else classes[i].ghost = FALSE;
+		classes[i].disabled = FALSE;
 
 		/* Save the string */
 		classes[i].name = c_name + c_info[i].name;
 	}
 
-	p_ptr->pclass = get_player_choice(classes, z_info->c_max, CLASS_COL, 20,
-		class_aux_hook);
+	p_ptr->pclass = get_player_choice(classes, z_info->c_max - 2, CLASS_COL, 20,
+		"raceclas.txt", class_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->pclass == INVALID_CHOICE)
@@ -1011,6 +1287,7 @@ static bool get_player_class(void)
 	}
 
 	/* Set class */
+	p_ptr->prealclass = p_ptr->pclass;
 	cp_ptr = &c_info[p_ptr->pclass];
 	mp_ptr = &cp_ptr->spells;
 
@@ -1036,9 +1313,10 @@ static bool get_player_sex(void)
 	{
 		genders[i].name = sex_info[i].title;
 		genders[i].ghost = FALSE;
+		genders[i].disabled = FALSE;
 	}
 
-	p_ptr->psex = get_player_choice(genders, MAX_SEXES, SEX_COL, 15, NULL);
+	p_ptr->psex = get_player_choice(genders, MAX_SEXES, SEX_COL, 15, "birth.txt", NULL);
 
 	/* No selection? */
 	if (p_ptr->psex == INVALID_CHOICE)
@@ -1101,8 +1379,18 @@ static bool player_birth_aux_1(void)
 	/* Clean up */
 	clear_question();
 
-	/* Choose the player's class */
-	if (!get_player_class()) return (FALSE);
+        /* For monster race, skip class */
+        if (p_ptr->m_r_idx)
+        {
+                p_ptr->prealclass = p_ptr->pclass = (p_ptr->m_r_idx == POSS_SOUL ? POSS_CLASS : MON_CLASS);
+	        cp_ptr = &c_info[p_ptr->pclass];
+	        mp_ptr = &cp_ptr->spells;
+        }
+        else
+        {
+	        /* Choose the player's class */
+	        if (!get_player_class()) return (FALSE);
+        }
 
 	/* Set adult options from birth options */
 	for (i = OPT_BIRTH; i < OPT_CHEAT; i++)
@@ -1127,6 +1415,7 @@ static bool player_birth_aux_1(void)
 		{
 			squelch_level[i] = 0;
 		}
+		squelch_corpses = FALSE;
 	}
 
 	/* Clear */
@@ -1159,7 +1448,7 @@ static bool player_birth_aux_2(void)
 	int i;
 
 	int row = 3;
-	int col = 42;
+	int col = 33;
 
 	int stat = 0;
 
@@ -1337,9 +1626,6 @@ static bool player_birth_aux_3(void)
 
 	char buf[80];
 
-
-#ifdef ALLOW_AUTOROLLER
-
 	s16b stat_limit[A_MAX];
 
 	s32b stat_match[A_MAX];
@@ -1446,8 +1732,6 @@ static bool player_birth_aux_3(void)
 			stat_limit[i] = (v > 0) ? v : 0;
 		}
 	}
-
-#endif /* ALLOW_AUTOROLLER */
 
 	/* Clean up */
 	clear_from(10);
@@ -1719,13 +2003,44 @@ static bool player_birth_aux(void)
 	ch = inkey();
 
 	/* Quit */
-	if (ch == 'Q') quit(NULL);
+	if ((ch == 'Q') || (ch == 'q')) quit(NULL);
 
 	/* Start over */
-	if (ch == 'S') return (FALSE);
+	if ((ch == 'S') || (ch == 's'))return (FALSE);
 
 	/* Accept */
 	return (TRUE);
+}
+
+/*outfit the player with food and torches*/
+
+static void player_birth_done_hook(void)
+{
+
+	object_type object_type_body;
+	object_type *i_ptr;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Hack -- Give the player some food */
+	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+	i_ptr->number = (byte)rand_range(3, 7);
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	(void)inven_carry(i_ptr);
+
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Hack -- Give the player some torches */
+	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+	i_ptr->number = (byte)rand_range(3, 7);
+	i_ptr->pval = rand_range(3, 7) * 500;
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	(void)inven_carry(i_ptr);
 }
 
 
@@ -1738,6 +2053,9 @@ static bool player_birth_aux(void)
 void player_birth(void)
 {
 	int i, n;
+	char long_day[25];
+ 	time_t ct = time((time_t*)0);
+
 
 	/* Create a new character */
 	while (1)
@@ -1749,37 +2067,20 @@ void player_birth(void)
 		if (player_birth_aux()) break;
 	}
 
-	/* Make a note file if that option is set */
- 	if (adult_take_notes)
- 	{
+	/* Start the notes */
 
- 	  	/* Variables */
- 	  	char buff[1024];
- 	  	char fname[80];
- 	  	char long_day[25];
- 	  	time_t ct = time((time_t*)0);
+	/* Get date */
+ 	(void)strftime(long_day, 25, "%Y-%m-%d at %H:%M", localtime(&ct));
 
- 	  	/* Create the file name from the character's full name plus .txt */
- 	  	sprintf(fname, "%s.txt", op_ptr->full_name);
- 	  	path_build(buff, 1024, ANGBAND_DIR_SAVE, fname);
-
- 	  	/* Open the file (notes_file is global) */
- 	  	notes_file = my_fopen(buff, "w");
-
- 	  	/* Get date */
- 	  	(void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
-
- 	  	/* Add in "character start" information */
- 	  	fprintf(notes_file, "%s the %s %s\n", op_ptr->full_name,
-								p_name + rp_ptr->name,
-								c_name + cp_ptr->name);
- 	  	fprintf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
- 	  	fprintf(notes_file, "============================================================\n");
-		fprintf(notes_file, "                   CHAR.  \n");
-		fprintf(notes_file, "|   TURN  | DEPTH |LEVEL| EVENT\n");
-		fprintf(notes_file, "============================================================\n");
-
- 	}
+ 	/* Add in "character start" information */
+ 	note_printf("%s the %s %s\n", op_ptr->full_name,
+			p_name + rp_ptr->name,
+			c_name + cp_ptr->name);
+ 	note_printf("Began the quest to kill Morgoth on %s\n", long_day);
+ 	note_printf("============================================================\n");
+	note_printf("                   CHAR.  \n");
+	note_printf("|   TURN  | DEPTH |LEVEL| EVENT\n");
+	note_printf("============================================================\n");
 
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);
@@ -1807,4 +2108,6 @@ void player_birth(void)
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
+	
+	pet_generate_hack = TRUE;
 }

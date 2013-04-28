@@ -14,7 +14,7 @@
 
 # Version stamp (required)
 
-V:3.0.8
+V:4.1.0
 
 
 ##### Rings #####
@@ -1232,3 +1232,31 @@ D:Dark Purple
 N:309:75
 G:!:W
 D:Metallic Silver
+
+### More flavors for new PosBand items. In no particular order. ###
+
+N:310:70
+G:?:w
+
+N:311:55
+G:_:s
+D:Iron-Shod
+
+N:312:65
+G:-:G
+D:Adamantite
+
+N:313:75
+G:!:g
+D:Pale Green
+
+N:314:45
+G:=:s
+D:Iron
+
+N:315:65
+G:-:s
+D:Iron-Plated
+
+# Highlight syntax in Vim
+# vim:syntax=posband

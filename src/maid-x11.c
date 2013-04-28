@@ -22,7 +22,7 @@
  * which will have already "included" several relevant header files.
  */
 
-#include "angband.h"
+#include "posband.h"
 
 #if defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ) || defined(USE_GTK)
 
@@ -37,10 +37,8 @@
 #include "maid-x11.h"
 
 
-#ifdef SUPPORT_GAMMA
 static bool gamma_table_ready = FALSE;
 static int gamma_val = 0;
-#endif /* SUPPORT_GAMMA */
 
 
 /*
@@ -51,8 +49,6 @@ u32b create_pixel(Display *dpy, byte red, byte green, byte blue)
 	Colormap cmap = DefaultColormapOfScreen(DefaultScreenOfDisplay(dpy));
 
 	XColor xcolour;
-
-#ifdef SUPPORT_GAMMA
 
 	if (!gamma_table_ready)
 	{
@@ -72,8 +68,6 @@ u32b create_pixel(Display *dpy, byte red, byte green, byte blue)
 		green = gamma_table[green];
 		blue = gamma_table[blue];
 	}
-
-#endif /* SUPPORT_GAMMA */
 
 	/* Build the color */
 

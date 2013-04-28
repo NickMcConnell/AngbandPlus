@@ -22,7 +22,7 @@
  */
 
 
-#include "angband.h"
+#include "posband.h"
 
 
 #ifdef USE_VCS
@@ -75,7 +75,7 @@ static void set_colors(void)
 {
 	int i;
 
-	for (i = 0; i < (int)N_ELEMENTS(reverse_linux_color_table); i++)	
+	for (i = 0; i < (int)N_ELEMENTS(reverse_linux_color_table); i++)
 	{
 		/* Set palette color */
 		printf("\033]P%c%02x%02x%02x",
@@ -129,6 +129,13 @@ static errr Term_xtra_vcs(int n, int v)
 	/* Analyze */
 	switch (n)
 	{
+	    	case TERM_XTRA_SHAPE:
+		{
+		    	printf("\033[?25%c", v ? 'h' : 'l');
+			fflush(stdout);
+		    	return (0);
+		}
+		
 		case TERM_XTRA_EVENT:
 		{
 			int lch;
@@ -205,6 +212,7 @@ static errr Term_xtra_vcs(int n, int v)
 			lseek(fd_vcsa, VCSA_SCREEN, SEEK_SET);
 			write(fd_vcsa, screen, 2 * s_width * s_height);
 
+			
 			return (0);
 		}
 
@@ -234,7 +242,7 @@ static errr Term_xtra_vcs(int n, int v)
 		case TERM_XTRA_DELAY:
 		{
 			/* Delay for some milliseconds */
-			usleep(v * 1000);
+			if (v > 0) usleep(v * 1000);
 			return (0);
 		}
 
@@ -366,7 +374,7 @@ static void leave_vcs(void)
 	cursor[0] = 0;
 	cursor[1] = s_height - 1;
 	write(fd_vcsa, cursor, sizeof(cursor));
-	
+
 	/* Reset terminal */
 	reset_terminal();
 }
@@ -437,7 +445,7 @@ errr init_vcs(int argc, char** argv)
 		char buf[256];
 		c = ttyname(0);
 
-		if (c == NULL || sscanf(c, "/dev/tty%i", &i) != 1)
+		if (c == NULL || (sscanf(c, "/dev/tty%i", &i) != 1 && sscanf(c, "/dev/vc/%i", &i) != 1))
 		{
 			fprintf(stderr,"can't find my tty\n");
 			return 1;
@@ -485,7 +493,7 @@ errr init_vcs(int argc, char** argv)
 	 */
 	game_termios.c_lflag &= ~(ICANON | ECHO | TOSTOP);
 
-	term_data_link(0, 0, 0, 80, 24);
+	term_data_link(0, 0, 0, s_width, s_height);
 
 	/* Success */
 	return 0;

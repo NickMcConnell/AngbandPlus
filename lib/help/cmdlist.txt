@@ -1,5 +1,4 @@
-
-====== List of commands ======
+=== List of commands ===
 
  Original Keyset Directions - walk       Original Keyset Directions - run
 
@@ -22,14 +21,14 @@ Command Summary -- Original keyset
      k  Destroy an item                      K  (unused)
      l  Look around                          L  Locate player on map
      m  Cast a spell or pray a prayer        M  Full dungeon map
-     n  Repeat last command                  N  (unused)
+     n  Repeat last command                  N  Incarnate/Deincarnate
      o  Open a door or chest                 O  Organize (set) a trap
      p  Pray a prayer or cast a spell        P  Pilfer from monsters
      q  Quaff a potion                       Q  Quit (commit suicide)
      r  Read a scroll                        R  Rest for a period
      s  Search for traps/doors               S  Start/stop searching
      t  Take off equipment                   T  Dig a tunnel
-     u  Use a staff                          U  (unused)
+     u  Use a staff                          U  Use monster power
      v  Throw an item                        V  Version info
      w  Wear/wield equipment                 W  (unused)
      x  (unused)                             X  (switch weapon macro)
@@ -47,8 +46,8 @@ Command Summary -- Original keyset
      )  Dump HTML screen dump               ^J  (special - linefeed)
      {  Inscribe an object                  ^K  (unused)
      }  Uninscribe an object                ^L  (unused)
-     [  Use talents                         ^M  (special - return)
-     ]  end shapechange                     ^N  (unused)
+     [  (unused)			    ^M  (special - return)
+     ]  (unused)                            ^N  (unused)
      -  Walk (flip pickup)                  ^O  (unused)
      _  Enter store                         ^P  Show previous messages
      +  Alter grid                          ^Q  Display current quest
@@ -108,7 +107,7 @@ Command Summary -- Roguelike keyset
      !  Interact with system                ^A  (special - debug command)
      @  Interact with macros                ^B  (alter - south west)
      #  Start/stop searching                ^C  (special - break)
-     $  (unused)                            ^D  Destroy item
+     $  Incarnate/Deincarnate               ^D  Destroy item
      %  Interact with visuals               ^E  Toggle choice window
      ^  (special - control key)             ^F  Repeat level feeling
      &  Interact with colors                ^G  (unused)
@@ -131,18 +130,8 @@ Command Summary -- Roguelike keyset
      <  Go up staircase                     ^X  Save and quit
      .  Stay still for one turn             ^Y  (alter - north west)
      >  Go down staircase                   ^Z  (special - borg command)
-     \  (special - bypass keymap)            |  (unused)
+     \  (special - bypass keymap)            |  Use monster power
      `  (special - escape)                   ~  Check knowledge
      /  Identify symbol                      ?  Help
-
-
-
-
-
-
-
-
-
-
 
 

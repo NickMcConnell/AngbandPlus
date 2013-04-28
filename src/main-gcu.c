@@ -8,7 +8,6 @@
  * are included in all such copies.
  */
 
-
 /*
  * This file helps Angband run on Unix/Curses machines.
  *
@@ -43,7 +42,7 @@
  */
 
 
-#include "angband.h"
+#include "posband.h"
 
 
 #ifdef USE_GCU
@@ -514,9 +513,9 @@ static errr Term_xtra_gcu_alive(int v)
 
 
 #ifdef USE_NCURSES
-const char help_gcu[] = "NCurses, for terminal console, subopts -b(ig screen)";
+const char help_gcu[] = "NCurses, for terminal console, subopts -b(ig screen), -o(ld colors)";
 #else /* USE_NCURSES */
-const char help_gcu[] = "Curses, for terminal console, subopts -b(ig screen)";
+const char help_gcu[] = "Curses, for terminal console, subopts -b(ig screen), -o(ld colors)";
 #endif /* USE_NCURSES */
 
 
@@ -526,6 +525,14 @@ const char help_gcu[] = "Curses, for terminal console, subopts -b(ig screen)";
 static void Term_init_gcu(term *t)
 {
 	term_data *td = (term_data *)(t->data);
+	
+#ifdef HAVE_GETCH
+	/*
+	 * This is necessary to keep the first call to getch()
+	 * from clearing the screen
+	 */
+	wrefresh(stdscr);
+#endif /* HAVE_GETCH */
 
 	/* Count init's, handle first */
 	if (active++ != 0) return;
@@ -588,7 +595,7 @@ static void Term_nuke_gcu(term *t)
 
 
 
-#ifdef USE_GETCH
+#ifdef HAVE_GETCH
 
 /*
  * Process events, with optional wait
@@ -638,7 +645,7 @@ static errr Term_xtra_gcu_event(int v)
 	return (0);
 }
 
-#else	/* USE_GETCH */
+#else	/* HAVE_GETCH */
 
 /*
  * Process events (with optional wait)
@@ -688,7 +695,7 @@ static errr Term_xtra_gcu_event(int v)
 	return (0);
 }
 
-#endif	/* USE_GETCH */
+#endif	/* HAVE_GETCH */
 
 /*
  * React to changes
@@ -746,13 +753,11 @@ static errr Term_xtra_gcu(int n, int v)
 		(void)wrefresh(td->win);
 		return (0);
 
-#ifdef USE_CURS_SET
-
+#ifdef HAVE_CURS_SET
 		/* Change the cursor visibility */
 		case TERM_XTRA_SHAPE:
 		curs_set(v);
 		return (0);
-
 #endif
 
 		/* Suspend/Resume curses */
@@ -770,7 +775,7 @@ static errr Term_xtra_gcu(int n, int v)
 
 		/* Delay */
 		case TERM_XTRA_DELAY:
-		usleep(1000 * v);
+		if (v > 0) usleep(1000 * v);
 		return (0);
 
 		/* React to events */
@@ -887,6 +892,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 
 		/* Draw a normal character */
 		waddch(td->win, (byte)s[i]);
+
 	}
 
 	/* Success */
@@ -968,7 +974,7 @@ errr init_gcu(int argc, char **argv)
 
 	int num_term = MAX_TERM_DATA, next_win = 0;
 
-	bool use_big_screen = FALSE;
+	bool use_big_screen = FALSE, use_old_colors = FALSE;
 
 	
 	/* Parse args */
@@ -977,6 +983,12 @@ errr init_gcu(int argc, char **argv)
 		if (prefix(argv[i], "-b"))
 		{
 			use_big_screen = TRUE;
+			continue;
+		}
+
+		if (prefix(argv[i], "-o"))
+		{
+		    	use_old_colors = TRUE;
 			continue;
 		}
 
@@ -1000,12 +1012,14 @@ errr init_gcu(int argc, char **argv)
 		quit("Angband needs at least an 80x24 'curses' screen");
 	}
 
-
 #ifdef USE_GRAPHICS
-
-	/* Set graphics flag */
-	use_graphics = arg_graphics;
-
+	/* Set graphics */
+	/* Always. -uav */
+	/* if (arg_graphics) */
+	{
+		use_graphics = GRAPHICS_PSEUDO;
+		ANGBAND_GRAF = "pseudo";
+	}
 #endif
 
 #ifdef A_COLOR
@@ -1061,23 +1075,45 @@ errr init_gcu(int argc, char **argv)
 		init_pair(6, COLOR_CYAN,    COLOR_BLACK);
 		init_pair(7, COLOR_BLACK,   COLOR_BLACK);
 
-		/* Prepare the "Angband Colors" -- Bright white is too bright */
-		colortable[0] = (COLOR_PAIR(7) | A_NORMAL);	/* Black */
-		colortable[1] = (COLOR_PAIR(0) | A_NORMAL);	/* White */
-		colortable[2] = (COLOR_PAIR(6) | A_NORMAL);	/* Grey XXX */
-		colortable[3] = (COLOR_PAIR(1) | A_BRIGHT);	/* Orange XXX */
-		colortable[4] = (COLOR_PAIR(1) | A_NORMAL);	/* Red */
-		colortable[5] = (COLOR_PAIR(2) | A_NORMAL);	/* Green */
-		colortable[6] = (COLOR_PAIR(4) | A_NORMAL);	/* Blue */
-		colortable[7] = (COLOR_PAIR(3) | A_NORMAL);	/* Umber */
-		colortable[8] = (COLOR_PAIR(7) | A_BRIGHT);	/* Dark-grey XXX */
-		colortable[9] = (COLOR_PAIR(6) | A_BRIGHT);	/* Light-grey XXX */
-		colortable[10] = (COLOR_PAIR(5) | A_NORMAL);	/* Purple */
-		colortable[11] = (COLOR_PAIR(3) | A_BRIGHT);	/* Yellow */
-		colortable[12] = (COLOR_PAIR(5) | A_BRIGHT);	/* Light Red XXX */
-		colortable[13] = (COLOR_PAIR(2) | A_BRIGHT);	/* Light Green */
-		colortable[14] = (COLOR_PAIR(4) | A_BRIGHT);	/* Light Blue */
-		colortable[15] = (COLOR_PAIR(3) | A_NORMAL);	/* Light Umber XXX */
+		/* Prepare the colors */
+		if (use_old_colors)
+		{
+			colortable[0] = (COLOR_PAIR(7) | A_NORMAL);	/* Black */
+			colortable[1] = (COLOR_PAIR(0) | A_NORMAL);	/* White */
+			colortable[2] = (COLOR_PAIR(6) | A_NORMAL);	/* Grey XXX */
+			colortable[3] = (COLOR_PAIR(1) | A_BRIGHT);	/* Orange XXX */
+			colortable[4] = (COLOR_PAIR(1) | A_NORMAL);	/* Red */
+			colortable[5] = (COLOR_PAIR(2) | A_NORMAL);	/* Green */
+			colortable[6] = (COLOR_PAIR(4) | A_NORMAL);	/* Blue */
+			colortable[7] = (COLOR_PAIR(3) | A_NORMAL);	/* Umber */
+			colortable[8] = (COLOR_PAIR(7) | A_BRIGHT);	/* Dark-grey XXX */
+			colortable[9] = (COLOR_PAIR(6) | A_BRIGHT);	/* Light-grey XXX */
+			colortable[10] = (COLOR_PAIR(5) | A_NORMAL);	/* Purple */
+			colortable[11] = (COLOR_PAIR(3) | A_BRIGHT);	/* Yellow */
+			colortable[12] = (COLOR_PAIR(5) | A_BRIGHT);	/* Light Red XXX */
+			colortable[13] = (COLOR_PAIR(2) | A_BRIGHT);	/* Light Green */
+			colortable[14] = (COLOR_PAIR(4) | A_BRIGHT);	/* Light Blue */
+			colortable[15] = (COLOR_PAIR(3) | A_NORMAL);	/* Light Umber XXX */
+		}
+		else
+		{
+			colortable[0] = (COLOR_PAIR(7) | A_NORMAL);	/* Black */
+			colortable[1] = (COLOR_PAIR(0) | A_BRIGHT);	/* White */
+			colortable[2] = (COLOR_PAIR(0) | A_NORMAL);	/* Grey XXX */
+			colortable[3] = (COLOR_PAIR(1) | A_BRIGHT);	/* Orange XXX */
+			colortable[4] = (COLOR_PAIR(1) | A_NORMAL);	/* Red */
+			colortable[5] = (COLOR_PAIR(2) | A_NORMAL);	/* Green */
+			colortable[6] = (COLOR_PAIR(4) | A_NORMAL);	/* Blue */
+			colortable[7] = (COLOR_PAIR(3) | A_NORMAL);	/* Umber */
+			colortable[8] = (COLOR_PAIR(7) | A_BRIGHT);	/* Dark-grey XXX */
+			colortable[9] = (COLOR_PAIR(0) | A_NORMAL);	/* Light-grey XXX */
+			colortable[10] = (COLOR_PAIR(5) | A_NORMAL);	/* Purple */
+			colortable[11] = (COLOR_PAIR(3) | A_BRIGHT);	/* Yellow */
+			colortable[12] = (COLOR_PAIR(5) | A_BRIGHT);	/* Light Red XXX */
+			colortable[13] = (COLOR_PAIR(2) | A_BRIGHT);	/* Light Green */
+			colortable[14] = (COLOR_PAIR(4) | A_BRIGHT);	/* Light Blue */
+			colortable[15] = (COLOR_PAIR(3) | A_NORMAL);	/* Light Umber XXX */
+		}
 	}
 
 #endif
@@ -1085,8 +1121,7 @@ errr init_gcu(int argc, char **argv)
 
 	/*** Low level preparation ***/
 
-#ifdef USE_GETCH
-
+#ifdef HAVE_GETCH
 	/* Paranoia -- Assume no waiting */
 	nodelay(stdscr, FALSE);
 
@@ -1120,6 +1155,10 @@ errr init_gcu(int argc, char **argv)
 		for (i = 0; i < num_term; i++)
 		{
 			int rows, cols, y, x;
+			int x1 = COLS * 3 / 4, y1 = LINES * 3 / 4;
+			
+			if (x1 < 80) x1 = 80;
+			if (y1 < 24) y1 = 24;
 
 			/* Decide on size and position */
 			switch (i)
@@ -1127,8 +1166,8 @@ errr init_gcu(int argc, char **argv)
 				/* Upper left */
 				case 0:
 				{
-					rows = 24;
-					cols = 80;
+					rows = y1;
+					cols = x1;
 					y = x = 0;
 					break;
 				}
@@ -1136,9 +1175,9 @@ errr init_gcu(int argc, char **argv)
 				/* Lower left */
 				case 1:
 				{
-					rows = LINES - 25;
-					cols = 80;
-					y = 25;
+					rows = LINES - y1 - 1;
+					cols = x1;
+					y = y1 + 1;
 					x = 0;
 					break;
 				}
@@ -1146,20 +1185,20 @@ errr init_gcu(int argc, char **argv)
 				/* Upper right */
 				case 2:
 				{
-					rows = 24;
-					cols = COLS - 81;
+					rows = y1;
+					cols = COLS - x1 - 1;
 					y = 0;
-					x = 81;
+					x = x1 + 1;
 					break;
 				}
 
 				/* Lower right */
 				case 3:
 				{
-					rows = LINES - 25;
-					cols = COLS - 81;
-					y = 25;
-					x = 81;
+					rows = LINES - y1 - 1;
+					cols = COLS - x1 - 1;
+					y = y1 + 1;
+					x = x1 + 1;
 					break;
 				}
 

@@ -1,0 +1,1 @@
+readdib.o readdib.o: readdib.c

@@ -17,6 +17,8 @@
  *   Sample Application Files which are modified.
  */
 
+#ifdef WINDOWS
+
 #include <windows.h>
 
 #include "readdib.h"
@@ -346,3 +348,5 @@ void FreeDIB(DIBINIT *dib)
 	dib->hDIB = NULL;
 }
 
+
+#endif /* WINDOWS */

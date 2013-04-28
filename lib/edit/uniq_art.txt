@@ -1,0 +1,408 @@
+# File: uniq_art.txt
+
+
+# This file is used to initialize the "lib/data/uniq_art.raw" file, which
+# is used to initialize the "uniques' artifacts" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/uniq_art.raw" file.
+
+# === Understanding uniq_art.txt ===
+
+# N: serial number : item name (full, e.g. "Dragon Scale Mail of Glaurung")
+# I: tval : sval : pval
+# W: level : weight : cost
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
+# F: flag | flag | etc
+# A: activation : recharge time : recharge time dice
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'I' is for basic information. The tval is for the type of item, the
+# sval identifies the subtype and the pval indicates the amount of
+# effect the item has, if applicable.
+
+# 'W' is for extra information. Level is used mainly for activation.
+# Weight is in tenth-pounds and cost is the item's value.
+
+# 'P' is for power information. The items base armor class, its base
+# damage and pluses to-hit, to-dam and to-ac.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+# 'A' is for activation.  Activation is the effect the artifact
+# activates for. The recharge time calculates from the recharge time
+# plus a random value between 1 and the recharge time dice (if not 0).
+# If an activation is given then the artifact must also have the
+# ACTIVATE flag.
+
+### IMPORTANT NOTES ###
+# Due to the way in which "unique artifacts" are handled, only changing
+# names, descriptions, costs or activations will have any effect on already
+# generated objects. Removing entries may mess things somewhat.
+
+# Version stamp (required)
+
+V:4.1.0
+
+# The Dragon Scale Mail of Glaurung
+# (base: red DSM)
+
+N:1:Dragon Scale Mail~ of Glaurung
+I:38:4:5
+W:60:250:200000
+P:40:2d4:5:8:25
+F:STR | INT | CON | SPEED |
+F:SUST_STR | SUST_CON | IM_FIRE | RES_ACID | RES_ELEC | RES_POIS | RES_FEAR
+F:RES_BLIND | RES_CONFU | RES_SHARD | RES_CHAOS |
+F:SLOW_DIGEST | FEATHER | LITE | REGEN | SEE_INVIS | FREE_ACT | HOLD_LIFE |
+F:AGGRAVATE
+D:The suit of red scales of Glaurung, Father of Dragons himself,
+D: containing much of his power.
+
+# The Ring of Elemental Water
+# (base: ring of ice)
+
+N:2:& Ring~ of Elemental Water
+I:45:19:6
+W:15:3:75000
+P:0:0d0:12:3:28
+F:WIS | DEX | CON |
+F:SUST_WIS | SUST_DEX | SUST_CON |
+F:IM_COLD | RES_DARK | RES_FEAR |
+F:REGEN | HOLD_LIFE |
+F:ACTIVATE
+A:ELEM_WATER:50:50
+D:The mysterious ring imbued with dark blue sapphire.  When you touch it,
+D: you feel the chilling cold of Helcaraxe, the silence of ocean depths,
+D: the calmness of Galadriel's mirror and the darkness of waters of
+D: Kheled-zaram.
+
+# The Hand of Vecna
+# (base: amulet of esp)
+
+N:3:& Hand~ of Vecna
+I:40:13:5
+W:70:3:130000
+P:0:0d0:0:0:35
+F:INT | WIS | CHR | SEARCH |
+F:SUST_INT | SUST_WIS |
+F:IM_COLD | IM_POIS | RES_LITE | RES_DARK | RES_CHAOS | RES_NETHR | RES_DISEN |
+F:RES_BLIND | RES_CONFU |
+F:LITE | TELEPATHY | HOLD_LIFE | SEE_INVIS |
+F:DRAIN_EXP | HEAVY_CURSE |
+F:ACTIVATE
+A:VECNA:75:25
+D:The skeletal hand which looks very ancient.  You sense the dark powers of
+D: the greatest undead lich still coursing through it.
+
+# The Dagger of Mughash
+# (base: dagger)
+
+N:4:& Dagger~ of Mughash
+I:23:4:2
+W:7:12:7500
+P:0:2d4:9:9:0
+F:STR | DEX | SUST_DEX |
+F:BRAND_POIS | RES_POIS |
+F:ACTIVATE
+A:STINKING_CLOUD:3:3
+D:A small poisonous dagger, former property of kobold lord.
+
+# The Amulet of Adornment of Lotho Pimple
+# (base: amulet of adornment)
+
+N:5:& Amulet~ of Adornment of Lotho Pimple
+I:40:2:1
+W:1:3:100
+P:0:0d0:0:0:0
+F:CHR | SUST_CHR |
+F:ACTIVATE
+A:SUMM_TOWNSMEN:1:1
+D:Lotho Pimple, the infamous Sackville-Baggins offspring, used this
+D: amulet of adornment once.
+
+# The Collar of Grip, Farmer Maggot's dog
+# (base: amulet of adornment - not really suitable)
+
+N:6:& Collar~ of Grip, Farmer Maggot's dog
+I:40:2:2
+W:1:3:750
+P:0:0d0:5:1:0
+F:INT | DEX
+D:A small brass collar of one of Farmer Maggot's dogs.
+
+# The Collar of Fang, Farmer Maggot's dog
+# (base: amulet of adornment - not really suitable)
+
+N:7:& Collar~ of Fang, Farmer Maggot's dog
+I:40:2:2
+W:1:3:750
+P:0:0d0:1:5:0
+F:STR | CON
+D:A small brass collar of one of Farmer Maggot's dogs.
+
+# The Ring of Smeagol
+# (base: ring of searching)
+
+N:8:& Ring~ of Smeagol
+I:45:23:5
+W:3:2:3000
+P:0:0d0:0:0:4
+F:SEARCH | STEALTH | INFRA | RES_COLD
+D:Wait, what's this?  Ring of Smeagol?  But he wore the One Ring! 
+D: Yes, that is true, and the real One Ring is lost forever now. 
+D: Nonetheless this small ring is useful for a small creature living
+D: in dark underground tunnels.
+
+# The Gauntlets of Bullroarer
+# (base: set of gauntlets)
+
+N:9:Gauntlets of Bullroarer
+I:31:2:3
+W:5:10:3000
+P:2:1d1:2:2:8
+F:STR | CON | RES_FEAR | HOLD_LIFE
+D:As everyone knows, Bullroarer the Hobbit was renowned for his unusual
+D: strength and vigour. These gauntlets were the cause of it.
+
+# The Lantern of Wormtongue
+# (base: brass lantern)
+
+N:10:& Lantern~ of Wormtongue
+I:39:1:3
+W:10:50:10000
+P:0:0d0:0:0:0
+F:DEX | CHR | SPEED | RES_CONFU | FEATHER |
+F:ACTIVATE
+A:SUMM_PET:35:35
+D:The small magical brass lantern of Grima the Wormtongue, Saruman's agent in
+D: Edoras.
+
+# The Main Gauche of Lagduf
+# (base: main gauche)
+
+N:11:& Main Gauche~ of Lagduf
+I:23:5:-2
+W:7:30:7700
+P:0:3d5:5:16:0
+F:INT | WIS | CHR
+D:A cruel-looking blade, belonging to one of the weaker orcs.
+
+# The Crystal Orb (of Antir)
+# (base: phial)
+
+N:12:& Crystal Orb~
+I:39:4:4
+W:70:10:125000
+P:0:0d0:7:7:20
+F:INT | WIS | CON | CHR | STEALTH | SPEED | SEARCH | INFRA |
+F:LITE | FREE_ACT | SEE_INVIS | REGEN | TELEPATHY | 
+F:SUST_INT | SUST_WIS | SUST_CHR |
+F:RES_LITE | RES_DARK | RES_FIRE | RES_COLD | RES_ACID | RES_ELEC |
+F:RES_BLIND | RES_CONFU | RES_FEAR |
+F:HOLD_LIFE | RES_NETHR | RES_CHAOS | RES_DISEN
+D:A small crystal sphere, flickering with strange lights.  You feel
+D: strange tingling as you touch it.
+
+# The Rock of Kronos
+# (base: boulder)
+# An ultimate throwing weapon...
+
+N:13:& Rock~ of Kronos
+I:3:10:0
+W:70:100:30000
+P:0:25d25:20:7:0
+F:THROWING |
+F:SLAY_ANIMAL | SLAY_EVIL | SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
+F:KILL_DRAGON | KILL_DEMON | KILL_UNDEAD |
+F:BRAND_POIS | BRAND_ACID | BRAND_ELEC | BRAND_FIRE | BRAND_COLD
+D:A huge boulder of ancient black stone.
+
+# The Amulet of Chaos
+# (base: amulet of adornment :)
+
+N:14:& Amulet~ of Chaos
+I:40:2:10
+W:90:3:987654
+P:0:0d0:10:42:-80
+F:INT | DEX | CON | SPEED |
+F:SUST_STATS | RESISTANCE |
+F:IM_FIRE | IM_ACID | RES_FEAR | RES_DARK | RES_CONFU |
+F:RES_NEXUS | RES_CHAOS | RES_DISEN |
+F:LITE | REGEN | TELEPATHY | FREE_ACT | HOLD_LIFE |
+F:TELEPORT | AGGRAVATE | DRAIN_EXP |
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE
+F:ACTIVATE
+A:BURST_CHAOS:50:50
+D:You have never seen such a strange amulet.  It changes shape
+D: constantly, striving to revert to the Primal Chaos.  It contains
+D: powers too great for any mortal to master.
+
+# The Armor of Shelob
+# (base: leather scale mail)
+N:15:& Armor~ of Shelob
+I:36:11:4
+W:50:140:125000
+P:11:1d2:0:0:40
+F:STR | DEX | STEALTH | SEARCH | SPEED |
+F:SUST_DEX | RESISTANCE | IM_POIS |
+F:RES_CHAOS | RES_NETHR | HOLD_LIFE | REGEN | FREE_ACT | RES_BLIND
+D:Disgusting remains of the mightiest descendant of Ungoliant. 
+D: Shelob's armor is almost impenetrable.
+
+# The Ring of Will Control
+# (base: ring of searching)
+
+N:16:& Ring~ of Will Control
+I:45:23:5
+W:70:2:300000
+P:0:0d0:0:0:0
+F:CHR | SUST_CHR | SPEED | RESISTANCE | RES_NEXUS | RES_CHAOS
+A:ULTIMATE_DOMINATION:300:300
+D:A very strange ring.  Its surface looks extremely slimy, and
+D: you cannot clean it.  When you wear it, you have the odd feeling
+D: that everyone will obey your orders now.
+
+# The Long Sword 'Angmenel'
+# (base: long sword)
+# Note: I'm no expert in Sindarin or Quenya. I just read Silm appendices,
+# and tried to construct elvish-looking names. You are welcome to suggest
+# anything better.
+
+N:17:& Long Sword~ 'Angmenel'
+I:23:17:5
+W:70:130:100000
+P:0:5d5:18:27:-35
+F:BRAND_ELEC | BRAND_COLD | SLAY_DRAGON | SLAY_DEMON | SLAY_UNDEAD | SLAY_EVIL
+F:STR | RES_COLD | IM_ELEC | RES_NETHR | RES_DISEN | HOLD_LIFE
+D:A sword of meteoric iron, its name means 'Iron from heavens'.
+D: It was the last sword of Eol, the Dark Elven Smith, and it belonged
+D: to his son for a long time.  You hold this completely black and
+D: very sharp blade with unease; you feel his owner's anger in it.
+
+# The Dragon Scale Mail of Scatha
+# (base: white DSM)
+
+N:18:Dragon Scale Mail~ of Scatha
+I:38:3:3
+W:40:250:100000
+P:30:2d4:5:8:35
+F:STR | WIS | CON | SPEED |
+F:SUST_WIS | IM_COLD | RES_POIS | RES_FEAR
+F:RES_BLIND | RES_CONFU | RES_SHARD |
+F:SLOW_DIGEST | FEATHER | REGEN | SEE_INVIS | FREE_ACT |
+D:The suit of white scales of Scatha the Worm, the last White Dragon of
+D: Middle-earth, containing much of his power.
+
+# Shadow of Glaurung Scale Mail
+# (base: shadow DSM)
+
+N:19:Shadow of Glaurung Scale Mail~
+I:38:19:5
+W:85:1:250000
+P:0:0d0:0:0:40
+F:INT | WIS | SPEED |
+F:SUST_INT | SUST_WIS | SUST_CON | IM_COLD | RES_POIS | RES_FEAR
+F:RES_BLIND | RES_CONFU | RES_DARK | RES_NETHR |
+F:SLOW_DIGEST | FEATHER | REGEN | SEE_INVIS | FREE_ACT | HOLD_LIFE
+F:ACTIVATE
+A:NETHER_STORM:350:350
+D:A very strange suit of dragon scales.  It is completely translucent, and
+D: seems to glow faintly with the ghostly light.
+
+# The Nine Rings
+# (base: amulet of DOOM)
+
+N:20:& Nine Rings
+I:40:0:4
+W:80:3:1000000
+P:0:0d0:0:0:0
+F:SUST_STATS | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD
+F:RES_DARK | RES_NETHR | RES_CHAOS | RES_FEAR | RES_DISEN | FREE_ACT
+F:ACTIVATE
+A:SUMM_NAZGUL:500:500
+D:The Nine Rings of the mortal men, set on a thin golden chain.  Their owner
+D: will have the power to control and to resurrect the Ringwraiths.
+
+# The Ring of Elemental Fire
+# (base: ring of flames)
+
+N:21:& Ring~ of Elemental Fire
+I:45:18:6
+W:15:3:75000
+P:0:0d0:7:7:15
+F:STR | INT | CON |
+F:SUST_STR | SUST_INT | SUST_CON |
+F:IM_FIRE | RES_LITE | RES_CHAOS | RES_FEAR |
+F:REGEN | FEATHER |
+F:ACTIVATE
+A:ELEM_FIRE:50:50
+D:The mysterious ring imbued with deep red ruby.  When you touch it,
+D: you feel the warmth of the Sun, the light of Arien, the terrible
+D: fire of Udun and the heat of the raging flames of Sammath-Naur.
+
+# The Crown of Hydras
+# (base: the iron crown)
+
+N:22:& Crown~ of Hydras
+I:33:10:3
+W:55:20:75000
+P:0:0d0:0:0:35
+F:CON | RESISTANCE | IM_FIRE | IM_POIS | REGEN | SUPER_REGEN | RES_FEAR |
+F:RES_SOUND | RES_SHARD | RES_NEXUS | SLOW_DIGEST | FREE_ACT
+D:The ugly, slimy crown, worn by the hydra queen.  You nearly faint
+D: from the terrible stench, but it seems to vanish when you touch
+D: this crown.
+
+# The Mace of Rogrog
+# (base: lead-filled mace)
+
+N:23:& Mace~ of Rogrog
+I:21:15:4
+W:40:180:50000
+P:0:6d4:0:15:0
+F:STR | INFRA | TUNNEL | SLAY_GIANT | SLAY_ANIMAL | BRAND_ACID
+F:RES_FEAR | RES_DISEN | SLOW_DIGEST | FREE_ACT | IMPACT
+D:A huge mace, black with dried blood.  It is so big and heavy
+D: that you feel nervous just looking at it.
+
+# The Ring of Elemental Air
+# (base: ring of lightning)
+
+N:24:& Ring~ of Elemental Air
+I:45:38:6
+W:15:3:75000
+P:0:0d0:20:3:16
+F:STR | DEX | CHR |
+F:SUST_STR | SUST_DEX | SUST_CHR |
+F:IM_ELEC | RES_LITE | RES_FEAR |
+F:REGEN | SPEED
+F:ACTIVATE
+A:ELEM_AIR:50:50
+D:The mysterious ring imbued with bright white diamond.  When you touch it,
+D: you feel the infinite depth of sky of Arda, the cold winds blowing in the
+D: Misty Mountains, the might of Great Eagles and the soft clouds floating
+D: above Shire.
+
+# Sky Drake Scale Mail
+# (base: blue DSM)
+
+N:25:Sky Drake Scale Mail~
+I:38:2:10
+W:60:250:350000
+P:40:2d4:0:0:15
+F:STEALTH | SPEED |
+F:SUST_DEX | IM_ELEC | RES_COLD | RES_POIS | RES_FEAR
+F:RES_BLIND | RES_CONFU | RES_SOUND | RES_CHAOS | RES_DISEN
+F:SLOW_DIGEST | FEATHER | REGEN | SEE_INVIS | FREE_ACT | HOLD_LIFE |
+D:The suit of blue scales of the mighty Sky Drake,
+D: containing much of its power.
+
+
+# Highlight syntax in Vim
+# vim:syntax=posband

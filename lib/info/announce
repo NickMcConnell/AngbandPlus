@@ -1,0 +1,184 @@
+Newsgroups: rec.games.roguelike.angband
+From: Alexander Ulyanov <posbandNO@SPAMearthsea.org>
+Subject: [ANNOUNCE] PosBand 0.9.0
+
+The long-awaited new version of PosBand is available at:
+
+* http://posband.earthsea.org/posband/posband-0.9.0.tar.bz2	(Source)
+* http://posband.earthsea.org/posband/posband-0.9.0-win.zip	(Windows)
+* http://posband.earthsea.org/posband/posband-0.9.0-1.i386.rpm	(Red Hat Linux)
+* http://posband.earthsea.org/posband/posband-0.9.0-i386-1.tgz	(Slackware Linux)
+
+This version is released earlier so that the new competition can use PosBand.
+It doesn't include all the races I originally planned.
+
+This is the first beta of PosBand.  I believe this version is rather stable.
+
+The summary of changes in this version:
+
+* New features (gameplay):
+
+  - Invisibility. Doesn't prevent monsters from waking up, but makes their
+    attacks very random. Standing in the fog also grants invisibility; so does
+    standing into your native terrain, if you are an elemental. Note that this
+    also applies to monsters, and monsters which are invisible because of
+    terrain _cannot_ be seen with SInvis. A number of items can grant either
+    temporary or permanent invisibility.
+  - Monsters can be genuinely blinded now (it was similated with confusion).
+  - Multiple weapon/bow combat is now possible! [1] And as a consequence, hard-
+    coded limitations on equipment slots are removed.
+  - Fighting and Shooting skills are now split to: Barehanded, Edged weapons,
+    Blunt weapons, Polearms, Axes, Slings, Bows, Crossbows, Throwing.
+    So pike, throwing axe and long sword are actually different now :).
+    Naturally, races who cannot wield weapons get only Barehanded and
+    Throwing skills.
+  - *ID* service now available in the Guild for 4000gp.
+  - Starburst rooms and some new pit types from NPPAngband 0.4.0.
+
+  [1] Note that you cannot fire from two or more bows at the same time, though.
+      (You'll have to choose one.) Bows are already overpowered.
+
+* New features (other):
+
+  - Savefiles are now compressed with zlib library (that is, gzipped). Now
+    they are just 15-25 Kb large. Notes are now included in the savefile
+    (unlike NPP0.4.0, temporary file is usually not created).
+  - Autoconf system ported from Vanilla. Building from source on Unix or
+    Cygwin should be much easier now.
+  - Linux packages for Red Hat (these may work on other Red Hat-like
+    systems) and Slackware are provided.
+  - The following front-ends are removed in this release:
+
+    o "ami" (Amiga). No one shows any interest [1].
+    o "cap" (termcap -- Unix console, *very* simplistic). "gcu" (curses)
+      works much better, and everyone has curses libraries.
+    o "dos" (DOS graphical). DOS *is* dead. Use Linux.
+    o "emx" (OS/2). No one shows any interest.
+    o "gtk" (GTK+ -- Unix graphical). Very unfinished, not really usable.
+      I could work on it (I do GTK+ programming), but I just don't see
+      the point. Use "xaw".
+    o "ibm" (DOS text). DOS *is* dead, period. Use Linux.
+    o "sla" (S-Lang -- Unix console). Works ok, but "gcu" works well
+      enough, and there is no real benefit in using "sla" instead.
+    o "vme" (VMS or something like that). No one shows any interest.
+    o "x11" (X Window -- Unix graphical). "xaw" looks exactly the same,
+      is more configurable, and everyone has Xaw libraries anyway [2].
+    o "xpj" (X Window Projected). Pseudo-3D view for Unix. Looks funny,
+      but is not really usable.
+
+    [1] "No one shows any interest" means "I have never seen anyone who
+        plays any *band on this system since 2003".
+    [2] Well, maybe not, but look, I'm not developing software for embedded
+        systems, am I? :)
+
+    I may rework display system later, and maybe even add better support
+    for graphics -- that's why I removed old code.
+  
+  - The following front-ends are added in this release:
+
+    o "con" (Windows console)
+    o "lfb" (Linux framebuffer)
+
+    Both are available as source patches for other variants on my web site.
+  - New hosting. Well, placing the web-site in the subdirectory of another
+    web site (on the free hosting!), which wasn't updated in ages, seemed
+    just silly. Besides, chat.ru is terribly slow, and its mail does not
+    work.  Thanks to Brian Shieh for his help.
+
+* New races:
+
+  - Ant
+  - Balrog
+    (This race was originally reserved for Bat, but I just can't
+    imagine a bat which is powerful enough to take out Morgoth.)
+    This is rather interesting race, having both great advantages
+    and great disadvantages:
+     + Starts with a Sword of Balrog (a ridiculously powerful weapon,
+       7d5, (+12,+12), branded with fire, grants IFire and RFear,
+       base depth 75, rarity 25).
+     + Big stat bonuses
+     + Innate IFire, RConfu, RChaos, Regen
+     + Really big hit die (30)
+     + Aura of fear (all monsters which are close enough must pass
+       a saving throw against fear. It could be a disadvantage, too --
+       at low level you have to constantly chase everyone)
+     - Burning touch (like fire elementals)
+     - Aggravation
+     - Only big armor and weapons allowed (like giants)
+     - Big experience penalty
+     - Very poor missile skills
+     - Almost no magic
+    No idea how balanced/unbalanced they are, but they should be fun
+    enough to play. Oh, BTW, before you ask -- no, I don't think
+    that Balrogs have wings, so they don't get innate levitation :-).
+  - Basilisk
+  - Beholder
+  - Demon
+  - Balance Dragon
+  - Blue Dragon
+  - Crystal Dragon
+  - Green Dragon
+  - Inertia Dragon
+  - Ghost
+  - Golem
+  - Naga
+  - Paladin
+  - Rogue
+  - Air Elemental
+  - Troll
+  - Wraith
+  - Yeek
+
+* Bugfixes:
+
+  - Character information screen ('C') is now squeezed on 80x24 terminal
+    (old versions needed ~100x32 to display all information). The side effect:
+    'C' screen now has 6 pages :). The dump should be now suitable for posting
+    in the newsgroup or on the ladder, too.
+  - Several character dump bugs fixed.
+  - Randart generation (or trying to reforge artifact) could crash PosBand in
+    "adult_rand_artifact" games.
+  - Finally fixed the bug with incorrect skills calculation (increased
+    infravision, bogus skill display on character birth, after transformation
+    skills weren't properly updated).
+  - Unix console ("gcu") front-end now supports pseudo-graphics properly.
+    Got rid of that "font-gcu.prf" file, which didn't work properly with
+    ncurses 5.4.
+  - Acid and disenchantment attacks couldn't affect items in some slots.
+  - Randarts which could be activated for illumination every turn were
+    occasionally generated.
+  - Finally fixed tailored rewards.
+  - Randart price is now equal to the price of template artifact. I didn't
+    want to do this, but the way it was before breaks tailored reward
+    generation.
+  - "Heal pet" power worked only on neutrally-aligned pets.
+  - The game could try to reward monster character with a spellbook -- and
+    since monsters have no spellbooks, it would fall back on random reward.
+  - Reforged light sources could be refilled.
+  - Rods of Perception could be used without recharging.
+  - Decayed levels removed. They were ugly and non-playable anyway.
+  - All monsters in pits/nests have the same alignment now. In older versions
+    you could just wait until pit monsters slaughter each other, finish
+    the survivors and collect the loot.
+  - "Monster-monster" nether bolt attack was actually cast on player.
+  - Hopelessly out of date help file manual.txt removed.
+  - Help updates -- amazing but true <g>.
+  - Some typos fixed.
+  - Some bugfixes from NPPAngband 0.4.0.
+  - Code cleanup. Header files reorganised. Some unused code removed.
+    PosBand probably won't run on DOS, and I seriously doubt anyone still
+    plays *band on DOS, so DOS compatibility kludges were removed. Use
+    Windows console front-end ("con"), if you want to play in full-screen
+    text mode on Windows.
+
+I dropped "-beta1" suffix, what's the point of it anyway.
+
+Thanks to everyone for all the feedback.
+
+This time, old savefiles are _incompatible_.  Sorry.
+
+-- 
+Alexander Ulyanov, maintainer of PosBand roguelike
+E-mail: posband_AT_earthsea_DOT_org    Web: http://posband.earthsea.org/
+Anyone who is capable of getting themselves made President should on no
+  account be allowed to do the job. -- The Hitchhiker's Guide To The Galaxy

@@ -71,11 +71,12 @@
  * Additional code by Robert Ruehlmann <rr9@thangorodrim.net>.
  */
 
-#include "angband.h"
+#include "posband.h"
 
 
 #ifdef WINDOWS
 
+#include "readdib.c"
 
 /*
  * Use HTML-Help.
@@ -86,7 +87,7 @@
 # define HELP_GENERAL "angband.chm"
 # define HELP_SPOILERS "angband.chm"
 #else /* HTML_HELP */
-# define HELP_GENERAL "angband.hlp"
+# define HELP_GENERAL "help.hlp"
 # define HELP_SPOILERS "spoilers.hlp"
 #endif /* HTML_HELP */
 
@@ -101,16 +102,6 @@
 #endif
 
 
-#ifdef ALLOW_BORG
-
-/*
- * Hack -- allow use of "screen saver" mode
- */
-#define USE_SAVER
-
-#endif /* ALLOW_BORG */
-
-
 /*
  * Menu constants -- see "ANGBAND.RC"
  */
@@ -118,7 +109,6 @@
 #define IDM_FILE_NEW			100
 #define IDM_FILE_OPEN			101
 #define IDM_FILE_SAVE			110
-#define IDM_FILE_SCORE			120
 #define IDM_FILE_EXIT			130
 
 #define IDM_WINDOW_VIS_0		200
@@ -279,9 +269,9 @@
 /*
  * Include the support for loading bitmaps
  */
-#ifdef USE_GRAPHICS
-# include "readdib.h"
-#endif /* USE_GRAPHICS */
+//#ifdef USE_GRAPHICS
+//# include "readdib.h"
+//#endif /* USE_GRAPHICS */
 
 /*
  * Hack -- Fake declarations from "dos.h" XXX XXX XXX
@@ -470,26 +460,6 @@ static HICON hIcon;
 static HPALETTE hPal;
 
 
-#ifdef USE_SAVER
-
-/*
- * The screen saver window
- */
-static HWND hwndSaver;
-
-static bool screensaver = FALSE;
-static bool screensaver_active = FALSE;
-
-static HANDLE screensaverSemaphore;
-
-static char saverfilename[1024];
-
-static HMENU main_menu;
-
-#define MOUSE_SENS 10
-
-#endif /* USE_SAVER */
-
 
 #ifdef USE_GRAPHICS
 
@@ -509,15 +479,6 @@ static DIBINIT infGraph;
 static DIBINIT infMask;
 
 #endif /* USE_GRAPHICS */
-
-
-/*
- * Available graphic modes
- */
-#define GRAPHICS_NONE       0
-#define GRAPHICS_ORIGINAL   1
-#define GRAPHICS_ADAM_BOLT  2
-
 
 
 #ifdef USE_SOUND
@@ -596,9 +557,7 @@ static byte win_pal[256] =
 };
 
 
-#ifdef SUPPORT_GAMMA
 static int gamma_correction;
-#endif /* SUPPORT_GAMMA */
 
 
 /*
@@ -1116,12 +1075,8 @@ static void load_prefs(void)
 	/* Extract the "arg_original" flag */
 	arg_force_original = (GetPrivateProfileInt("Angband", "force_original", 0, ini_file) != 0);
 
-#ifdef SUPPORT_GAMMA
-
 	/* Extract the gamma correction */
 	gamma_correction = GetPrivateProfileInt("Angband", "Gamma", 0, ini_file);
-
-#endif /* SUPPORT_GAMMA */
 
 	/* Load window prefs */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -1134,8 +1089,8 @@ static void load_prefs(void)
 	}
 
 	/* Paranoia */
-	if (data[0].cols < 80) data[0].cols = 80;
-	if (data[0].rows < 24) data[0].rows = 24;
+	if (data[0].cols < X_MIN) data[0].cols = X_MIN;
+	if (data[0].rows < Y_MIN) data[0].rows = Y_MIN;
 }
 
 
@@ -1317,16 +1272,12 @@ static int new_palette(void)
 		p->peGreen = GetGValue(win_clr[i]);
 		p->peBlue = GetBValue(win_clr[i]);
 
-#ifdef SUPPORT_GAMMA
-
 		if (gamma_correction > 0)
 		{
 			p->peRed = gamma_table[p->peRed];
 			p->peGreen = gamma_table[p->peGreen];
 			p->peBlue = gamma_table[p->peBlue];
 		}
-
-#endif /* SUPPORT_GAMMA */
 
 		/* Save the flags */
 		p->peFlags = PC_NOCOLLAPSE;
@@ -1385,6 +1336,7 @@ static bool init_graphics(void)
 		char buf[1024];
 		int wid, hgt;
 		cptr name;
+		cptr mask = NULL;
 
 		if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 		{
@@ -1392,6 +1344,7 @@ static bool init_graphics(void)
 			hgt = 32;
 
 			name = "32x32.bmp";
+			mask = "mask32.bmp";
 
 			ANGBAND_GRAF = "david";
 
@@ -1403,6 +1356,7 @@ static bool init_graphics(void)
 			hgt = 16;
 
 			name = "16X16.BMP";
+			mask = "mask.bmp";
 
 			ANGBAND_GRAF = "new";
 
@@ -1431,10 +1385,10 @@ static bool init_graphics(void)
 		infGraph.CellWidth = wid;
 		infGraph.CellHeight = hgt;
 
-		if (arg_graphics == GRAPHICS_ADAM_BOLT)
+		if (mask)
 		{
 			/* Access the mask file */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, "mask.bmp");
+			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, mask);
 
 			/* Load the bitmap or quit */
 			if (!ReadDIB(data[0].w, buf, &infMask))
@@ -1789,16 +1743,12 @@ static errr Term_xtra_win_react(void)
 			gv = angband_color_table[i][2];
 			bv = angband_color_table[i][3];
 
-#ifdef SUPPORT_GAMMA
-
 			if (gamma_correction > 0)
 			{
 				rv = gamma_table[rv];
 				gv = gamma_table[gv];
 				bv = gamma_table[bv];
 			}
-
-#endif /* SUPPORT_GAMMA */
 
 			/* Extract a full color code */
 			code = PALETTERGB(rv, gv, bv);
@@ -2061,7 +2011,7 @@ static int Term_xtra_win_delay(int v)
 #ifdef WIN32
 
 	/* Sleep */
-	Sleep(v);
+	if (v > 0) Sleep(v);
 
 #else /* WIN32 */
 
@@ -2426,7 +2376,8 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
 
-	if (arg_graphics == GRAPHICS_ADAM_BOLT)
+	if ((arg_graphics == GRAPHICS_ADAM_BOLT) ||
+	    (arg_graphics == GRAPHICS_DAVID_GERVAIS))
 	{
 		hdcMask = CreateCompatibleDC(hdc);
 		SelectObject(hdcMask, infMask.hBitmap);
@@ -2450,7 +2401,8 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 		x1 = col * w1;
 		y1 = row * h1;
 
-		if (arg_graphics == GRAPHICS_ADAM_BOLT)
+		if ((arg_graphics == GRAPHICS_ADAM_BOLT) ||
+	        (arg_graphics == GRAPHICS_DAVID_GERVAIS))
 		{
 			x3 = (tcp[i] & 0x7F) * w1;
 			y3 = (tap[i] & 0x7F) * h1;
@@ -2513,7 +2465,8 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-	if (arg_graphics == GRAPHICS_ADAM_BOLT)
+	if ((arg_graphics == GRAPHICS_ADAM_BOLT) ||
+	    (arg_graphics == GRAPHICS_DAVID_GERVAIS))
 	{
 		/* Release */
 		SelectObject(hdcMask, hbmSrcOld);
@@ -2702,8 +2655,8 @@ static void init_windows(void)
 	WIPE(td, term_data);
 	td->s = angband_term_name[0];
 	td->keys = 1024;
-	td->rows = 24;
-	td->cols = 80;
+	td->rows = Y_MIN;
+	td->cols = X_MIN;
 	td->visible = TRUE;
 	td->size_ow1 = 2;
 	td->size_ow2 = 2;
@@ -2719,8 +2672,8 @@ static void init_windows(void)
 		WIPE(td, term_data);
 		td->s = angband_term_name[i];
 		td->keys = 16;
-		td->rows = 24;
-		td->cols = 80;
+		td->rows = Y_MIN;
+		td->cols = X_MIN;
 		td->visible = FALSE;
 		td->size_ow1 = 1;
 		td->size_ow2 = 1;
@@ -2860,12 +2813,8 @@ static void init_windows(void)
 	/* Bring main window back to top */
 	SetWindowPos(td->w, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
-#ifdef SUPPORT_GAMMA
-
 	if (gamma_correction > 0)
 		build_gamma_table(gamma_correction);
-
-#endif /* SUPPORT_GAMMA */
 
 	/* New palette XXX XXX XXX */
 	(void)new_palette();
@@ -2880,21 +2829,6 @@ static void init_windows(void)
 }
 
 
-#ifdef USE_SAVER
-
-/*
- * Stop the screensaver
- */
-static void stop_screensaver(void)
-{
-	if (screensaver)
-		SendMessage(data[0].w, WM_CLOSE, 0, 0);
-	else
-		SendMessage(data[0].w, WM_COMMAND, IDM_OPTIONS_SAVER, 0);
-}
-
-#endif /* USE_SAVER */
-
 
 /*
  * Prepare the menus
@@ -2905,10 +2839,6 @@ static void setup_menus(void)
 
 	HMENU hm = GetMenu(data[0].w);
 
-#ifdef USE_SAVER
-	main_menu = hm;
-#endif /* USE_SAVER */
-
 	/* Menu "File", Disable all */
 	EnableMenuItem(hm, IDM_FILE_NEW,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
@@ -2918,9 +2848,6 @@ static void setup_menus(void)
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_FILE_EXIT,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-	EnableMenuItem(hm, IDM_FILE_SCORE,
-	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-
 
 	/* No character available */
 	if (!character_generated)
@@ -2944,13 +2871,6 @@ static void setup_menus(void)
 		/* Menu "File", Item "Exit" */
 		EnableMenuItem(hm, IDM_FILE_EXIT, MF_BYCOMMAND | MF_ENABLED);
 	}
-
-	if (initialized)
-	{
-		/* Menu "File", Item "Show Scores" */
-		EnableMenuItem(hm, IDM_FILE_SCORE, MF_BYCOMMAND | MF_ENABLED);
-	}
-
 
 	/* Menu "Window::Visibility" */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -3085,11 +3005,6 @@ static void setup_menus(void)
 	              (use_bigtile ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hm, IDM_OPTIONS_SOUND,
 	              (arg_sound ? MF_CHECKED : MF_UNCHECKED));
-#ifdef USE_SAVER
-	CheckMenuItem(hm, IDM_OPTIONS_SAVER,
-	              (hwndSaver ? MF_CHECKED : MF_UNCHECKED));
-#endif /* USE_SAVER */
-
 	CheckMenuItem(hm, IDM_OPTIONS_LOW_PRIORITY,
 	              (low_priority ? MF_CHECKED : MF_UNCHECKED));
 
@@ -3113,11 +3028,6 @@ static void setup_menus(void)
 	}
 #endif /* USE_SOUND */
 
-#ifdef USE_SAVER
-	/* Menu "Options", Item "ScreenSaver" */
-	EnableMenuItem(hm, IDM_OPTIONS_SAVER,
-	               MF_BYCOMMAND | MF_ENABLED);
-#endif /* USE_SAVER */
 
 	EnableMenuItem(hm, IDM_OPTIONS_LOW_PRIORITY,
 	               MF_BYCOMMAND | MF_ENABLED);
@@ -3165,156 +3075,6 @@ static void check_for_save_file(LPSTR cmd_line)
 	/* Quit */
 	quit(NULL);
 }
-
-
-#ifdef USE_SAVER
-
-#ifdef ALLOW_BORG
-
-/*
- * Hook into the inkey() function so that flushing keypresses
- * doesn't affect us.
- *
- * ToDo: Try to implement recording and playing back of games
- * by saving/reading the keypresses to/from a file. Note that
- * interrupting certain actions (resting, running, and other
- * repeated actions) would mess that up, so this would have to
- * be switched off when recording.
- */
-
-extern char (*inkey_hack)(int flush_first);
-
-static char screensaver_inkey_hack_buffer[1024];
-
-static char screensaver_inkey_hack(int flush_first)
-{
-	static int screensaver_inkey_hack_index = 0;
-
-	if (screensaver_inkey_hack_index < sizeof(screensaver_inkey_hack_buffer))
-		return (screensaver_inkey_hack_buffer[screensaver_inkey_hack_index++]);
-	else
-		return ESCAPE;
-}
-
-#endif /* ALLOW_BORG */
-
-
-/*
- * Start the screensaver
- */
-static void start_screensaver(void)
-{
-	bool file_exists;
-
-#ifdef ALLOW_BORG
-	int i, j;
-#endif /* ALLOW_BORG */
-
-	/* Set the name for process_player_name() */
-	my_strcpy(op_ptr->full_name, saverfilename, sizeof(op_ptr->full_name));
-
-	/* Set 'savefile' to a valid name */
-	process_player_name(TRUE);
-
-	/* Does the savefile already exist? */
-	file_exists = check_file(savefile);
-
-	/* Don't try to load a non-existant savefile */
-	if (!file_exists) savefile[0] = '\0';
-
-	/* Game in progress */
-	game_in_progress = TRUE;
-
-	Term_fresh();
-
-	/* Screensaver mode on */
-	SendMessage(data[0].w, WM_COMMAND, IDM_OPTIONS_SAVER, 0);
-
-	/* Low priority */
-	SendMessage(data[0].w, WM_COMMAND, IDM_OPTIONS_LOW_PRIORITY, 0);
-
-#ifdef ALLOW_BORG
-
-	/*
-	 * MegaHack - Try to start the Borg.
-	 *
-	 * The simulated keypresses will be processed when play_game()
-	 * is called.
-	 */
-
-	inkey_hack = screensaver_inkey_hack;
-	j = 0;
-
-	/*
-	 * If no savefile is present or then go through the steps necessary
-	 * to create a random character.  If a savefile already is present
-	 * then the simulated keypresses will either clean away any [-more-]
-	 * prompts (if the character is alive), or create a new random
-	 * character.
-	 *
-	 * Luckily it's possible to send the same keypresses no matter if
-	 * the character is alive, dead, or not even yet created.
-	 */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Gender */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Race */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Class */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Modify options */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Reroll */
-
-	if (!file_exists)
-	{
-		/* Savefile name */
-		int n = strlen(saverfilename);
-		for (i = 0; i < n; i++)
-			screensaver_inkey_hack_buffer[j++] = saverfilename[i];
-	}
-
-	screensaver_inkey_hack_buffer[j++] = '\r'; /* Return */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Character info */
-
-	/*
-	 * Make sure the "verify_special" options is off, so that we can
-	 * get into Borg mode without confirmation.
-	 */
-
-	screensaver_inkey_hack_buffer[j++] = '='; /* Enter options screen */
-	screensaver_inkey_hack_buffer[j++] = '2'; /* Disturbance options */
-
-	/* Cursor down to "verify_special" */
-	for (i = 0; i < 13; i++)
-		screensaver_inkey_hack_buffer[j++] = '2';
-
-	screensaver_inkey_hack_buffer[j++] = 'n'; /* Switch off "verify_special" */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Leave disturbance options */
-
-	/*
-	 * Make sure the "cheat_live" option is set, so that the Borg can
-	 * automatically restart.
-	 */
-
-	screensaver_inkey_hack_buffer[j++] = '7'; /* Cheat options */
-
-	/* Cursor down to "cheat live" */
-	for (i = 0; i < OPT_cheat_live - OPT_CHEAT; i++)
-		screensaver_inkey_hack_buffer[j++] = '2';
-
-	screensaver_inkey_hack_buffer[j++] = 'y'; /* Switch on "cheat_live" */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Leave cheat options */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Leave options */
-
-	/*
-	 * Now start the Borg!
-	 */
-
-	screensaver_inkey_hack_buffer[j++] = KTRL('Z'); /* Enter borgmode */
-	screensaver_inkey_hack_buffer[j++] = 'z'; /* Run Borg */
-#endif /* ALLOW_BORG */
-
-	/* Play game */
-	play_game((bool)!file_exists);
-}
-
-#endif /* USE_SAVER */
 
 
 /*
@@ -3441,64 +3201,6 @@ static void process_menus(WORD wCmd)
 				/* Paranoia */
 				plog("You may not do that right now.");
 			}
-			break;
-		}
-
-		/* Show scores */
-		case IDM_FILE_SCORE:
-		{
-			char buf[1024];
-
-			if (!initialized)
-			{
-				plog("You may not do that right now.");
-				break;
-			}
-
-			/* Build the filename */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
-
-			/* Open the binary high score file, for reading */
-			highscore_fd = fd_open(buf, O_RDONLY);
-
-			/* Paranoia -- No score file */
-			if (highscore_fd < 0)
-			{
-				msg_print("Score file unavailable.");
-			}
-			else
-			{
-				/* Prevent various functions */
-				initialized = FALSE;
-
-				/* Save Screen */
-				screen_save();
-
-				/* Clear screen */
-				Term_clear();
-
-				/* Display the scores */
-				if (game_in_progress && character_generated)
-					predict_score();
-				else
-					display_scores_aux(0, MAX_HISCORES, -1, NULL);
-
-				/* Shut the high score file */
-				(void)fd_close(highscore_fd);
-
-				/* Forget the high score fd */
-				highscore_fd = -1;
-
-				/* Load screen */
-				screen_load();
-
-				/* Hack - Flush it */
-				Term_fresh();
-
-				/* We are ready again */
-				initialized = TRUE;
-			}
-
 			break;
 		}
 
@@ -3846,80 +3548,6 @@ static void process_menus(WORD wCmd)
 			break;
 		}
 
-#ifdef USE_SAVER
-
-		case IDM_OPTIONS_SAVER:
-		{
-			if (hwndSaver)
-			{
-				DestroyWindow(hwndSaver);
-				hwndSaver = NULL;
-				screensaver_active = FALSE;
-
-				/* Switch main menu back on */
-				SetMenu(data[0].w, main_menu);
-
-				for (i = MAX_TERM_DATA - 1; i >= 0; --i)
-				{
-					td = &data[i];
-
-					if (td->visible)
-					{
-						/* Turn the Windows back to normal */
-						SetWindowLong(td->w, GWL_STYLE, td->dwStyle);
-
-						/* Push the window to the top */
-						SetWindowPos(td->w, HWND_NOTOPMOST, 0, 0, 0, 0,
-							   SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
-					}
-				}
-
-				ShowCursor(TRUE);
-			}
-			else
-			{
-				/* Create a screen saver window */
-				hwndSaver = CreateWindowEx(WS_EX_TOPMOST, "WindowsScreenSaverClass",
-				                           "Angband Screensaver",
-				                           WS_POPUP | WS_MAXIMIZE | WS_VISIBLE,
-				                           0, 0, GetSystemMetrics(SM_CXSCREEN),
-				                           GetSystemMetrics(SM_CYSCREEN),
-				                           NULL, NULL, hInstance, NULL);
-
-				if (hwndSaver)
-				{
-					for (i = MAX_TERM_DATA - 1; i >= 0; --i)
-					{
-						td = &data[i];
-
-						if (td->visible)
-						{
-							/* Switch off border and titlebar */
-							SetWindowLong(td->w, GWL_STYLE, WS_VISIBLE);
-
-							/* Switch off menu */
-							SetMenu(td->w, NULL);
-
-							/* Push the window to the top */
-							SetWindowPos(td->w, HWND_TOPMOST, 0, 0, 0, 0,
-								   SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
-						}
-					}
-
-					ShowCursor(FALSE);
-
-					screensaver_active = TRUE;
-				}
-				else
-				{
-					plog("Failed to create saver window");
-				}
-			}
-
-			break;
-		}
-
-#endif /* USE_SAVER */
 
 		case IDM_OPTIONS_LOW_PRIORITY:
 		{
@@ -4007,13 +3635,6 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 	term_data *td;
 	int i;
 
-#ifdef USE_SAVER
-	static int iMouse = 0;
-	static WORD xMouse = 0;
-	static WORD yMouse = 0;
-
-	int dx, dy;
-#endif /* USE_SAVER */
 
 	/* Acquire proper "term_data" info */
 	td = (term_data *)GetWindowLong(hWnd, 0);
@@ -4044,10 +3665,10 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			/* this message was sent before WM_NCCREATE */
 			if (!td) return 1;
 
-			/* Minimum window size is 80x24 */
+			/* Minimum window size */
 			rc.left = rc.top = 0;
-			rc.right = rc.left + 80 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 24 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
+			rc.right = rc.left + X_MIN * td->tile_wid + td->size_ow1 + td->size_ow2;
+			rc.bottom = rc.top + Y_MIN * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
 
 			/* Adjust */
 			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
@@ -4073,13 +3694,6 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			bool ms = FALSE;
 			bool ma = FALSE;
 
-#ifdef USE_SAVER
-			if (screensaver_active)
-			{
-				stop_screensaver();
-				return 0;
-			}
-#endif /* USE_SAVER */
 
 			/* Extract the modifiers */
 			if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
@@ -4122,47 +3736,6 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			return 0;
 		}
 
-#ifdef USE_SAVER
-
-		case WM_MBUTTONDOWN:
-		case WM_RBUTTONDOWN:
-		case WM_LBUTTONDOWN:
-		{
-			if (screensaver_active)
-			{
-				stop_screensaver();
-				return 0;
-			}
-
-			break;
-		}
-
-		case WM_MOUSEMOVE:
-		{
-			if (!screensaver_active) break;
-
-			if (iMouse)
-			{
-				dx = LOWORD(lParam) - xMouse;
-				dy = HIWORD(lParam) - yMouse;
-
-				if (dx < 0) dx = -dx;
-				if (dy < 0) dy = -dy;
-
-				if ((dx > MOUSE_SENS) || (dy > MOUSE_SENS))
-				{
-					stop_screensaver();
-				}
-			}
-
-			/* Save last location */
-			iMouse = 1;
-			xMouse = LOWORD(lParam);
-			yMouse = HIWORD(lParam);
-
-			return 0;
-		}
-#endif /* USE_SAVER */
 
 		case WM_INITMENU:
 		{
@@ -4330,13 +3903,6 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 	HDC hdc;
 	int i;
 
-#ifdef USE_SAVER
-	static int iMouse = 0;
-	static WORD xMouse = 0;
-	static WORD yMouse = 0;
-
-	int dx, dy;
-#endif /* USE_SAVER */
 
 
 	/* Acquire proper "term_data" info */
@@ -4469,14 +4035,6 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 			bool ms = FALSE;
 			bool ma = FALSE;
 
-#ifdef USE_SAVER
-			if (screensaver_active)
-			{
-				stop_screensaver();
-				return 0;
-			}
-#endif /* USE_SAVER */
-
 			/* Extract the modifiers */
 			if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
 			if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
@@ -4518,47 +4076,6 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 			return 0;
 		}
 
-#ifdef USE_SAVER
-
-		case WM_MBUTTONDOWN:
-		case WM_RBUTTONDOWN:
-		case WM_LBUTTONDOWN:
-		{
-			if (screensaver_active)
-			{
-				stop_screensaver();
-				return 0;
-			}
-
-			break;
-		}
-
-		case WM_MOUSEMOVE:
-		{
-			if (!screensaver_active) break;
-
-			if (iMouse)
-			{
-				dx = LOWORD(lParam) - xMouse;
-				dy = HIWORD(lParam) - yMouse;
-
-				if (dx < 0) dx = -dx;
-				if (dy < 0) dy = -dy;
-
-				if ((dx > MOUSE_SENS) || (dy > MOUSE_SENS))
-				{
-					stop_screensaver();
-				}
-			}
-
-			/* Save last location */
-			iMouse = 1;
-			xMouse = LOWORD(lParam);
-			yMouse = HIWORD(lParam);
-
-			return 0;
-		}
-#endif /* USE_SAVER */
 
 		case WM_PALETTECHANGED:
 		{
@@ -4605,93 +4122,6 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 }
 
 
-#ifdef USE_SAVER
-
-LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
-                                            WPARAM wParam, LPARAM lParam)
-{
-	static int iMouse = 0;
-	static WORD xMouse = 0;
-	static WORD yMouse = 0;
-
-	int dx, dy;
-
-
-	/* Process */
-	switch (uMsg)
-	{
-		/* XXX XXX XXX */
-		case WM_NCCREATE:
-		{
-			break;
-		}
-
-		case WM_SETCURSOR:
-		{
-			SetCursor(NULL);
-			return 0;
-		}
-
-#if 0
-		case WM_ACTIVATE:
-		{
-			if (LOWORD(wParam) == WA_INACTIVE) break;
-
-			/* else fall through */
-		}
-#endif /* 0 */
-
-		case WM_LBUTTONDOWN:
-		case WM_MBUTTONDOWN:
-		case WM_RBUTTONDOWN:
-		case WM_KEYDOWN:
-		{
-			stop_screensaver();
-			return 0;
-		}
-
-		case WM_MOUSEMOVE:
-		{
-			if (iMouse)
-			{
-				dx = LOWORD(lParam) - xMouse;
-				dy = HIWORD(lParam) - yMouse;
-
-				if (dx < 0) dx = -dx;
-				if (dy < 0) dy = -dy;
-
-				if ((dx > MOUSE_SENS) || (dy > MOUSE_SENS))
-				{
-					stop_screensaver();
-				}
-			}
-
-			/* Save last location */
-			iMouse = 1;
-			xMouse = LOWORD(lParam);
-			yMouse = HIWORD(lParam);
-
-			return 0;
-		}
-
-		case WM_CLOSE:
-		{
-			DestroyWindow(hwndSaver);
-			if (screensaver)
-				SendMessage(data[0].w, WM_CLOSE, 0, 0);
-			hwndSaver = NULL;
-			return 0;
-		}
-	}
-
-	/* Oops */
-	return DefWindowProc(hWnd, uMsg, wParam, lParam);
-}
-
-#endif /* USE_SAVER */
-
-
-
 
 
 /*** Temporary Hooks ***/
@@ -4729,10 +4159,6 @@ static void hack_quit(cptr str)
 	/* Destroy the icon */
 	if (hIcon) DestroyIcon(hIcon);
 
-#ifdef USE_SAVER
-	if (screensaverSemaphore) CloseHandle(screensaverSemaphore);
-#endif /* USE_SAVER */
-
 	/* Exit */
 	exit(0);
 }
@@ -4747,10 +4173,6 @@ static void hack_quit(cptr str)
  */
 static void hook_plog(cptr str)
 {
-#ifdef USE_SAVER
-	if (screensaver_active) return;
-#endif /* USE_SAVER */
-
 	/* Warning */
 	if (str)
 	{
@@ -4772,20 +4194,15 @@ static void hook_quit(cptr str)
 #endif /* USE_SOUND */
 
 
-#ifdef USE_SAVER
-	if (!screensaver_active)
-#endif /* USE_SAVER */
+	/* Give a warning */
+	if (str)
 	{
-		/* Give a warning */
-		if (str)
-		{
-			MessageBox(data[0].w, str, "Error",
-			           MB_ICONEXCLAMATION | MB_OK | MB_ICONSTOP);
-		}
-
-		/* Save the preferences */
-		save_prefs();
+		MessageBox(data[0].w, str, "Error",
+		           MB_ICONEXCLAMATION | MB_OK | MB_ICONSTOP);
 	}
+
+	/* Save the preferences */
+	save_prefs();
 
 	/*** Could use 'Term_nuke_win()' XXX XXX XXX */
 
@@ -4837,9 +4254,7 @@ static void hook_quit(cptr str)
 	string_free(ANGBAND_DIR_XTRA_SOUND);
 	string_free(ANGBAND_DIR_XTRA_HELP);
 
-#ifdef HAS_CLEANUP
 	cleanup_angband();
-#endif /* HAS_CLEANUP */
 
 	exit(0);
 }
@@ -4857,9 +4272,6 @@ static void init_stuff(void)
 	int i;
 
 	char path[1024];
-#ifdef USE_SAVER
-	char tmp[1024];
-#endif /* USE_SAVER */
 
 	/* Get program name with full path */
 	if (GetModuleFileName(hInstance, path, sizeof(path)) == 0)
@@ -4874,20 +4286,6 @@ static void init_stuff(void)
 	/* Get the name of the "*.ini" file */
 	strcpy(path + strlen(path) - 4, ".INI");
 
-#ifdef USE_SAVER
-
-	/* Try to get the path to the Angband folder */
-	if (screensaver)
-	{
-		/* Extract the filename of the savefile for the screensaver */
-		GetPrivateProfileString("Angband", "SaverFile", "", saverfilename, sizeof(saverfilename), path);
-
-		GetPrivateProfileString("Angband", "AngbandPath", "", tmp, sizeof(tmp), path);
-
-		sprintf(path, "%sangband.ini", tmp);
-	}
-
-#endif /* USE_SAVER */
 
 	/* Save the the name of the ini-file */
 	ini_file = string_make(path);
@@ -4919,11 +4317,6 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_BONE);
 	validate_dir(ANGBAND_DIR_DATA);
 	validate_dir(ANGBAND_DIR_EDIT);
-
-#ifdef USE_SCRIPT
-	validate_dir(ANGBAND_DIR_SCRIPT);
-#endif /* USE_SCRIPT */
-
 	validate_dir(ANGBAND_DIR_FILE);
 	validate_dir(ANGBAND_DIR_HELP);
 	validate_dir(ANGBAND_DIR_INFO);
@@ -5007,49 +4400,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Unused parameter */
 	(void)nCmdShow;
 
-#ifdef USE_SAVER
-	if (lpCmdLine && ((*lpCmdLine == '-') || (*lpCmdLine == '/')))
-	{
-		lpCmdLine++;
-
-		switch (*lpCmdLine)
-		{
-			case 's':
-			case 'S':
-			{
-				screensaver = TRUE;
-
-				/* Only run one screensaver at the time */
-				screensaverSemaphore = CreateSemaphore(NULL, 0, 1, "AngbandSaverSemaphore");
-
-				if (!screensaverSemaphore) exit(0);
-
-				if (GetLastError() == ERROR_ALREADY_EXISTS)
-				{
-					CloseHandle(screensaverSemaphore);
-					exit(0);
-				}
-
-				break;
-			}
-
-			case 'P':
-			case 'p':
-			case 'C':
-			case 'c':
-			case 'A':
-			case 'a':
-			{
-				/*
-				 * ToDo: implement preview, configuration, and changing
-				 * the password (as well as checking it).
-				 */
-				exit(0);
-			}
-		}
-	}
-
-#endif /* USE_SAVER */
 
 	/* Initialize */
 	if (hPrevInst == NULL)
@@ -5073,17 +4423,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 
 		if (!RegisterClass(&wc)) exit(2);
 
-#ifdef USE_SAVER
-
-		wc.style          = CS_VREDRAW | CS_HREDRAW | CS_SAVEBITS | CS_DBLCLKS;
-		wc.lpfnWndProc    = AngbandSaverProc;
-		wc.hCursor        = NULL;
-		wc.lpszMenuName   = NULL;
-		wc.lpszClassName  = "WindowsScreenSaverClass";
-
-		if (!RegisterClass(&wc)) exit(3);
-
-#endif /* USE_SAVER */
 
 	}
 
@@ -5144,16 +4483,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* We are now initialized */
 	initialized = TRUE;
 
-#ifdef USE_SAVER
-	if (screensaver)
-	{
-		/* Start the screensaver */
-		start_screensaver();
-
-		/* Paranoia */
-		quit(NULL);
-	}
-#endif /* USE_SAVER */
 
 	/* Did the user double click on a save file? */
 	check_for_save_file(lpCmdLine);

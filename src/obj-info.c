@@ -1,15 +1,18 @@
-/* File: obj-info.c */
-
-/*
- * Copyright (c) 2002 Andrew Sidwell, Robert Ruehlmann
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
-#include "angband.h"
+/* obj-info.c: object information dump */
 
+#include "posband.h"
 
 static void output_list(cptr list[], int n)
 {
@@ -59,7 +62,7 @@ static bool describe_stats(const object_type *o_ptr, u32b f1)
 	int pval = (o_ptr->pval > 0 ? o_ptr->pval : -o_ptr->pval);
 
 	/* Abort if the pval is zero */
-	if (!pval) return (FALSE);
+	if (!o_ptr->pval) return (FALSE);
 
 	/* Collect stat bonuses */
 	if (f1 & (TR1_STR)) descs[cnt++] = stat_names_full[A_STR];
@@ -101,6 +104,8 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1)
 	cptr descs[8];
 	int cnt = 0;
 	int pval = (o_ptr->pval > 0 ? o_ptr->pval : -o_ptr->pval);
+	
+	if (!o_ptr->pval) return (FALSE);
 
 	/* Collect */
 	if (f1 & (TR1_STEALTH)) descs[cnt++] = "stealth";
@@ -241,6 +246,7 @@ static bool describe_immune(const object_type *o_ptr, u32b f2)
 	if (f2 & (TR2_IM_ELEC)) descs[cnt++] = "lightning";
 	if (f2 & (TR2_IM_FIRE)) descs[cnt++] = "fire";
 	if (f2 & (TR2_IM_COLD)) descs[cnt++] = "cold";
+	if (f2 & (TR2_IM_POIS)) descs[cnt++] = "poison";
 
 	/* Describe immunities */
 	output_desc_list("It provides immunity to ", descs, cnt);
@@ -292,12 +298,141 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 	return (vn ? TRUE : FALSE);
 }
 
+/*return the number of blows a player gets with a weapon*/
+static int get_num_blows(const object_type *o_ptr, u32b f1)
+{
+	int i, str_index, dex_index, blows, div_weight;
+
+	int str = 0;
+	int dex = 0;
+
+	monster_race *r_ptr = &r_info[p_ptr->m_r_idx];
+
+	/* Calculate stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		int add, use, ind;
+
+		/*only do dex and strength*/
+		if ((i != A_STR) && (i != A_DEX)) continue;
+
+		/* Extract modifier */
+		add = p_ptr->stat_add[i];
+
+		/* Maximize mode */
+		if (adult_maximize)
+		{
+			/* Modify the stats for race/class */
+			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
+		}
+
+		/* Extract the new "stat_use" value for the stat */
+		use = modify_stat_value(p_ptr->stat_cur[i], add);
+
+		/* Values: 3, 4, ..., 17 */
+		if (use <= 18) ind = (use - 3);
+
+		/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
+		else if (use <= 18+219) ind = (15 + (use - 18) / 10);
+
+		/* Range: 18/220+ */
+		else ind = (37);
+
+		/*record the values*/
+		if (i == A_STR) str = ind;
+		else dex = ind;
+	}
+
+	/* Scan the equipment */
+	for (i = INVEN_EQUIP; i < INVEN_TOTAL; i++)
+	{
+
+		u32b wf1, wf2, wf3, wf4;
+		object_type *i_ptr = &inventory[i];
+
+		/* Hack -- do not apply wielded "weapon" bonuses */
+		if (r_ptr->body.weapon_mask & EQUIP_SLOT(i)) continue;
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+		/* Extract the item flags */
+		object_flags_known(i_ptr, &wf1, &wf2, &wf3, &wf4);
+
+		/* Affect stats */
+		if (wf1 & (TR1_STR)) str += i_ptr->pval;
+		if (wf1 & (TR1_DEX)) dex += i_ptr->pval;
+
+	}
+
+	/* Enforce a minimum "weight" (tenth pounds) */
+	div_weight = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+
+	/* add in the strength of the examined weapon*/
+	if (f1 & (TR1_STR)) str += o_ptr->pval;
+
+	/* Maximal and maximal value */
+	if (str > 37) str = 37;
+	if (str < 0) str = 0;
+
+	/* Get the strength vs weight */
+	str_index = (adj_str_blow[str] * cp_ptr->att_multiply / div_weight);
+
+	/* Maximal value */
+	if (str_index > 11) str_index = 11;
+	if (str_index < 0) str_index = 0;
+
+	/* add in the dex of the examined weapon*/
+	if (f1 & (TR1_DEX)) dex += o_ptr->pval;
+
+	/* Maximal and maximal value */
+	if (dex > 37) dex = 37;
+	if (dex < 0) dex = 0;
+
+	/* Index by dexterity */
+	dex_index = (adj_dex_blow[dex]);
+
+	/* Maximal value */
+	if (dex_index > 11) dex_index = 11;
+	if (dex_index < 0) dex_index = 0;
+
+	/* Use the blows table */
+	blows = blows_table[str_index][dex_index];
+
+	/* Maximal value */
+	if (blows > cp_ptr->max_attacks) blows = cp_ptr->max_attacks;
+
+	/* Add in the "bonus blows"*/
+	if (f1 & (TR1_BLOWS)) blows += o_ptr->pval;
+
+	/* Require at least one blow */
+	if (blows < 1) blows = 1;
+
+	/*add extra attack for those who have the flag*/
+	if ((p_ptr->lev > 25) && (cp_ptr->flags & CF_EXTRA_ATTACK))
+		blows += 1;
+
+	return(blows);
+}
+
 /*
  * Describe 'number of attacks recieved with a weapon
  */
 static bool describe_attacks (const object_type *o_ptr, u32b f1)
 {
-	int n = o_ptr->tval;
+	int n = o_ptr->tval, i, nwpns = 0;
+	monster_race *r_ptr = &r_info[p_ptr->m_r_idx];
+	
+	/* Ensure that we can use this weapon! */
+	/* Hack -- count the weapon slots */
+	for (i = INVEN_EQUIP; i < INVEN_TOTAL; i++)
+	{
+	    	if (r_ptr->body.weapon_mask & EQUIP_SLOT(i))
+		{
+			nwpns++;
+		}
+	}
+	if (!nwpns) return (FALSE);
 
 	if ((n == TV_DIGGING) || (n == TV_HAFTED) ||
 		(n == TV_POLEARM) || (n == TV_SWORD))
@@ -306,8 +441,8 @@ static bool describe_attacks (const object_type *o_ptr, u32b f1)
 		n = get_num_blows(o_ptr, f1);
 
 		/*print out the number of attacks*/
-		if (n == 1) text_out("It gives you one attack per turn.");
-		else text_out(format("It gives you %d attacks per turn.", n));
+		if (n == 1) text_out("It gives you one attack per turn.  ");
+		else text_out(format("It gives you %d attacks per turn.  ", n));
 
 		return (TRUE);
 	}
@@ -378,7 +513,7 @@ static bool describe_sustains(const object_type *o_ptr, u32b f2)
  * Describe miscellaneous powers such as see invisible, free action,
  * permanent light, etc; also note curses and penalties.
  */
-static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
+static bool describe_misc_magic(const object_type *o_ptr, u32b f3, u32b f4)
 {
 	cptr good[7], bad[4];
 	int gc = 0, bc = 0;
@@ -395,13 +530,16 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	}
 
 	/* Collect stuff which can't be categorized */
+	if (f3 & (TR3_INVISIBILITY)) good[gc++] = "turns you invisible";
 	if (f3 & (TR3_BLESSED))     good[gc++] = "is blessed by the gods";
 	if (f3 & (TR3_IMPACT))      good[gc++] = "creates earthquakes on impact";
 	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
-	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
+	if (f3 & (TR3_FEATHER))     good[gc++] = "allows you to levitate";
 	if (((o_ptr->tval == TV_LITE) && artifact_p(o_ptr)) || (f3 & (TR3_LITE)))
 		good[gc++] = "lights the dungeon around you";
-	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
+	if (f4 & (TR4_SUPER_REGEN)) good[gc++] = "enormously speeds your regeneration";
+	else if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
+	if (f4 & (TR4_AURA_FEAR)) good[gc++] = "surrounds you with an aura of despair";
 
 	/* Describe */
 	output_desc_list("It ", good, gc);
@@ -461,6 +599,33 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	return (something);
 }
 
+/*
+ * Describe weird properties granted by an object.
+ */
+static bool describe_weird(const object_type *o_ptr, u32b f4)
+{
+	cptr descs[10];
+	int cnt = 0;
+
+	/* Unused parameter */
+	(void)o_ptr;
+
+	/* Collect flags */
+	if (f4 & (TR4_ACID_TOUCH)) descs[cnt++] = "very acidic";
+	if (f4 & (TR4_ELEC_TOUCH)) descs[cnt++] = "shocking";
+	if (f4 & (TR4_FIRE_TOUCH)) descs[cnt++] = "extremely hot";
+	if (f4 & (TR4_COLD_TOUCH)) descs[cnt++] = "extremely cold";
+	if (f4 & (TR4_PASS_WALL)) descs[cnt++] = "immaterial";
+	if (f4 & (TR4_UNDEAD_RACE)) descs[cnt++] = "undead";
+
+	/* Describe immunities */
+	output_desc_list("It renders your body ", descs, cnt);
+
+	/* We are done here */
+	return (cnt ? TRUE : FALSE);
+}
+
+
 
 /*
  * Describe an object's activation, if any.
@@ -487,11 +652,11 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
  */
 bool object_info_out(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 	bool something = FALSE;
 
 	/* Grab the object flags */
-	object_info_out_flags(o_ptr, &f1, &f2, &f3);
+	object_info_out_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Describe the object */
 	if (describe_stats(o_ptr, f1)) something = TRUE;
@@ -501,7 +666,8 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_immune(o_ptr, f2)) something = TRUE;
 	if (describe_resist(o_ptr, f2, f3)) something = TRUE;
 	if (describe_sustains(o_ptr, f2)) something = TRUE;
-	if (describe_misc_magic(o_ptr, f3)) something = TRUE;
+	if (describe_misc_magic(o_ptr, f3, f4)) something = TRUE;
+	if (describe_weird(o_ptr, f4)) something = TRUE;
 	if (describe_activation(o_ptr, f3)) something = TRUE;
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
 	if (describe_attacks(o_ptr, f1)) something = TRUE;
@@ -510,8 +676,13 @@ bool object_info_out(const object_type *o_ptr)
 	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
 	    ((o_ptr->xtra1) || artifact_p(o_ptr)))
 	{
-		text_out("It might have hidden powers.  ");
-		something = TRUE;
+		/* Hack -- Put this in a separate paragraph if screen dump */
+		if (something && text_out_hook == text_out_to_screen)
+			text_out("\n\n   ");
+
+		text_out("It might have hidden powers.");
+ 		something = TRUE;
+
 	}
 
 	/* We are done. */
@@ -521,11 +692,15 @@ bool object_info_out(const object_type *o_ptr)
 
 /*
  * Header for additional information when printing to screen.
+ *
+ * Header for additional information when printing to screen.
  */
-static void screen_out_head(const object_type *o_ptr)
+static bool screen_out_head(const object_type *o_ptr)
 {
 	char *o_name;
 	int name_size = Term->wid;
+
+	bool has_description = FALSE;
 
 	/* Allocate memory to the size of the screen */
 	o_name = C_RNEW(name_size, char);
@@ -537,14 +712,57 @@ static void screen_out_head(const object_type *o_ptr)
 	text_out_c(TERM_YELLOW, format("%^s\n\n   ", o_name));
 
 	/* Free up the memory */
-	KILL(o_name);
+	FREE(o_name);
 
-	/* Display the object description */
-	if (k_info[o_ptr->k_idx].text)
+	/* Display the known artifact description */
+	if (!adult_rand_artifacts && o_ptr->name1 &&
+	    object_known_p(o_ptr) && a_info[o_ptr->name1].text)
+
 	{
-		text_out(k_text + k_info[o_ptr->k_idx].text);
-		text_out("\n\n");
+		text_out(a_text + a_info[o_ptr->name1].text);
+		text_out("\n\n   ");
+		has_description = TRUE;
 	}
+	
+	/* Display random artifact description */
+	if (o_ptr->rart_desc && object_known_p(o_ptr))
+
+	{
+		text_out(quark_str(o_ptr->rart_desc));
+		text_out("\n\n   ");
+		has_description = TRUE;
+	}
+
+	/* Display the known unique artifact description */
+	if (o_ptr->name3 &&
+	    object_known_p(o_ptr) && u_info[o_ptr->name3].text)
+
+	{
+		text_out(u_text + u_info[o_ptr->name3].text);
+		text_out("\n\n   ");
+		has_description = TRUE;
+	}
+
+	/* Display the known object description */
+	else if ((object_aware_p(o_ptr) || object_known_p(o_ptr)) && !o_ptr->rart_name)
+	{
+		if (k_info[o_ptr->k_idx].text)
+		{
+			text_out(k_text + k_info[o_ptr->k_idx].text);
+			text_out("\n\n   ");
+			has_description = TRUE;
+		}
+
+		/* Display an additional ego-item description */
+		if (o_ptr->name2 && object_known_p(o_ptr) && e_info[o_ptr->name2].text)
+		{
+			text_out(e_text + e_info[o_ptr->name2].text);
+			text_out("\n\n   ");
+			has_description = TRUE;
+		}
+	}
+
+	return (has_description);
 }
 
 
@@ -553,37 +771,60 @@ static void screen_out_head(const object_type *o_ptr)
  */
 void object_info_screen(const object_type *o_ptr)
 {
+	bool has_description, has_info;
+
 	/* Redirect output to the screen */
 	text_out_hook = text_out_to_screen;
 
-	/* Hack -- Browse books */
+	/* Save the screen */
+	screen_save();
+
+	has_description = screen_out_head(o_ptr);
+
+	object_info_out_flags = object_flags_known;
+
+	/* Dump the info */
+	has_info = object_info_out(o_ptr);
+
+	if (!object_known_p(o_ptr))
+	{
+		if (has_info)
+			text_out("\n\n   ");
+		text_out("This item has not been identified.");
+		has_info = TRUE;
+
+	}
+	else if (!has_description && !has_info)
+	{
+		text_out("This item does not seem to possess any special abilities.");
+	}
+
+	/* Descriptions end with "\n\n   ", other info does not */
+	if (has_description && !has_info)
+	{
+		/* Back up over the "   " at the beginning of the line */
+		int x, y;
+		Term_locate(&x, &y);
+		Term_gotoxy(0, y);
+	}
+	else
+	{
+		text_out("\n\n");
+	}
+
+	text_out_c(TERM_L_BLUE, "[Press any key to continue]\n");
+
+	/* Wait for input */
+	(void)inkey();
+
+	/* Load the screen */
+	screen_load();
+
+	/* Hack -- Browse book, then prompt for a command */
 	if (o_ptr->tval == cp_ptr->spell_book)
 	{
 		/* Call the aux function */
 		do_cmd_browse_aux(o_ptr);
-	}
-	else
-	{
-		/* Save the screen */
-		screen_save();
-
-		screen_out_head(o_ptr);
-
-		object_info_out_flags = object_flags_known;
-
-		/* Dump the info */
-		if (!object_info_out(o_ptr))
-		{
-			text_out("This item does not seem to possess any special abilities.  ");
-		}
-
-		text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
-
-		/* Wait for input */
-		(void)inkey();
-
-		/* Load the screen */
-		screen_load();
 	}
 
 	return;

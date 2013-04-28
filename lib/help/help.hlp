@@ -1,26 +1,26 @@
                    Adventuring in the Pits of Angband
 
 
-    (1) The Basics                                        (general.hlp)
-    (2) Your Character                                    (charattr.hlp)
-    (3) The World                                         (explore.hlp)
-    (4) Interacting with the Game                         (command.hlp)
-    (5) Combat and Magic                                  (combat.hlp)
-
-    (6) Review Commands                                   (cmdlist.txt)
-
+    (a) The Basics                                        (general.hlp)
+    (b) Your Character                                    (charattr.hlp)
+    (c) The World                                         (explore.hlp)
+    (d) Interacting with the Game                         (command.hlp)
+    (e) Combat and Magic                                  (combat.hlp)
+    (f) Review Commands                                   (cmdlist.txt)
+    (g) PosBand FAQ (Frequently Asked Questions)          (posfaq.txt)
 
 
 
 Help Commands:
-       ESC   : leave the online help
-       ?     : return to previous document or menu
-       space : advance one page
-       -     : back up one half page
-       /     : search (not case-sensitive)
-***** [1] general.hlp
-***** [2] charattr.hlp
-***** [3] explore.hlp
-***** [4] command.hlp
-***** [5] combat.hlp
-***** [6] cmdlist.txt
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sentitivity 
+
+***** [a] general.hlp
+***** [b] charattr.hlp
+***** [c] explore.hlp
+***** [d] command.hlp
+***** [e] combat.hlp
+***** [f] cmdlist.txt
+***** [g] posfaq.txt

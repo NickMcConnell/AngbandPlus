@@ -1,41 +1,45 @@
+=== Inscriptions ===
 
-====== Inscriptions ======
-
-     You use the '{' and '}' keys to inscribe and uninscribe objects.  The
+You use the '{' and '}' keys to inscribe and uninscribe objects.  The
 inscription on an object can have all sorts of effects.
 
-To designate a main and backup weapon:
-     Inscribe both with "@w0".  The 'X' command will replace whatever melee
+--> To designate a main and backup weapon
+
+Inscribe both with "@w0".  The 'X' command will replace whatever melee
 weapon you are wielding with another so inscribed.  You may also inscribe these
 or other weapons with "@w1", etc., and wield weapons 0, 1, 2 and so on as
 desired.
 
-To have a given command always use the same spellbook:
-     Inscribe it with "@m#", or "@p#", replacing the '#' with whatever digit you
+--> To have a given command always use the same spellbook
+
+Inscribe it with "@m#", or "@p#", replacing the '#' with whatever digit you
 desire.  This allows you to set up macros to cast a spell knowing that it will
 never choose the wrong book.  Similar inscriptions make archery very convenient,
 and allow you to always use a given magical device with the same keystrokes.
 
-     In general, if you inscribe anything with @<<any command>><<any digit>>,
+In general, if you inscribe anything with @<<any command>><<any digit>>,
 you can issue the command, type the digit, and use the first legal inscribed
 object.
 
-To prevent accidental use of an object with any command:
-     Inscribe it with "!x", where 'x' is the letter you type to issue that
+--> To prevent accidental use of an object with any command
+
+Inscribe it with "!x", where 'x' is the letter you type to issue that
 command.  If you are very paranoid, inscribe it with "!*"
 
-To automatically pick up an object:
-     Inscribe it with "=g".  Especially useful for anything you throw.
+--> To automatically pick up an object
 
-Inscriptions for fun and profit:
-     Try inscribing the first monster killed by a weapon, hidden object
+Inscribe it with "=g".  Especially useful for anything you throw.
+
+--> Inscriptions for fun and profit
+
+Try inscribing the first monster killed by a weapon, hidden object
 abilities, and where you found the item or who dropped it.
 
-Automatic inscriptions:
-     The game also inscribes objects automatically.  Some of these inscriptions
+--> Automatic inscriptions
+
+The game also inscribes objects automatically.  Some of these inscriptions
 will disappear when the item is identified, and you may overwrite others.
 
-     "broken"         :  Object is broken in some way.
      "cursed"         :  Object is cursed.
      "empty"          :  Object has no more charges (and you know this).
      "indestructible" :  Object cannot be destroyed.
@@ -43,10 +47,9 @@ will disappear when the item is identified, and you may overwrite others.
      "50% off"        :  Object is worth 50% less than normal.
 
 
+=== Macros and keymaps ===
 
-====== Macros and keymaps ======
-
---- Quick Tutorial ---
+--> Quick Tutorial
 
      Mages are forever casting spell "a", Magic Missile, in spellbook "a", Magic
 for Beginners.  In both keysets, that's "maa", plus "*" to enter targeting mode,
@@ -69,53 +72,61 @@ are even more flexible when used in combination with object inscriptions.
 issue, pick an unused trigger key, and fill in the action field.
 
 
---- Basic information ---
+=== Basic information ===
 
-Macros:
-     Macros allow you to use a single keypress to activate a series of
+--> Macros
+
+Macros allow you to use a single keypress to activate a series of
 keypresses.  They fire off in almost all cases:  when the game is waiting for a
 command, is showing a menu, is asking you to enter text, etc.  The only time
 they don't activate is when you already have a macro active.
-     You may use any key as a macro trigger, but it is recommended that you not
+
+You may use any key as a macro trigger, but it is recommended that you not
 use ordinary letters.  You fill out the action field with the same commands you
 normally use.
 
-Keymaps  (sometimes known as "command macros"):
-     Keymaps only fire off when the game is waiting for a command.  You may not
+--> Keymaps  (sometimes known as "command macros")
+
+Keymaps only fire off when the game is waiting for a command.  You may not
 use special keys (like F1-F12) as keymap triggers, and must use underlying
 commands in the action field (a list of such commands is supplied below).
 
-Effects of one on the other:
-     Macros are often affected by keymaps; you may bypass keymaps in macros by
+--> Effects of one on the other
+
+Macros are often affected by keymaps; you may bypass keymaps in macros by
 putting a "\" before any action key.  Keymaps are never affected by macros.
 
 
---- Examples ---
+=== Examples ===
 
-     Macros are so handy that players (Jim Lyon in particular) have compiled
+Macros are so handy that players (Jim Lyon in particular) have compiled
 lists of helpful tricks.
 
-To clear any pending messages:
-     Insert some "\e"s (escapes) before and/or after your macros.  Be careful
+--> To clear any pending messages
+
+Insert some "\e"s (escapes) before and/or after your macros.  Be careful
 about skipping past important info!  If you want to be a little more careful,
 use "\s"s (spaces) instead.
 
-To learn how to represent any key:
-     Some keys cannot be entered simply as numbers or letters.  To figure out
+--> To learn how to represent any key
+
+Some keys cannot be entered simply as numbers or letters.  To figure out
 how to include the escape key in an action, for example, you bring up the
 macro/keymap screen, type 3: Query a macro, and press escape (ESC) when asked
 for a trigger.  This will tell you that an escape is represented by "\e".
 
-Rest as needed:
-     Keymap a trigger key to "R*\r".  This is also helpful when waiting for a
+--> Rest as needed
+
+Keymap a trigger key to "R*\r".  This is also helpful when waiting for a
 monster to approach, because you recover mana and HPs twice as quickly than when
 staying in place.
 
-Activate the Phial:
-     Macro a trigger key to "Af\s\s".
+--> Activate the Phial
+
+Macro a trigger key to "Am\s\s".
 
 
---- In Depth ---
+=== In Depth ===
 
 Not all keys can be entered as simple numbers or letters:
      \e     : escape  (useful for clearing the message line)
@@ -128,8 +139,9 @@ Not all keys can be entered as simple numbers or letters:
      \x80   : character in position 0x80
               (in hex:  decimal equivalent would be 128)
 
-Listing of underlying commands:
-     Underlying commands are usually the same as those in the original keyset,
+--> Listing of underlying commands
+
+Underlying commands are usually the same as those in the original keyset,
 but there are important exceptions:
 
      Underlying command     Original keyset     Roguelike
@@ -146,13 +158,5 @@ but there are important exceptions:
      Q                      ^C                  ^C
      w0                     X                   X
      ^V                     n                   '
-
-
-
-
-
-
-
-
 
 

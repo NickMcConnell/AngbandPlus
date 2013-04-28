@@ -1,0 +1,87 @@
+
+=== Differences of PosBand from other variants ===
+
+PosBand is based on NPPAngband 0.3.4 source code, which, in turn, is based
+on Angband 3.0.5.  Generally PosBand is similar to NPPAngband (rather than,
+for example, ZAngband, OAngband or ToME).  In this file, I will enumerate some
+of the important differences with NPPAngband and with other variants where
+similar features were implemented.
+
+PosBand is compared here to:
+
+ * ToME 2.3.1
+ * OAngband
+ * ZAngband
+ * Hengband 1.6.0
+
+
+=== Pets ===
+
+Pets are friendly monsters, which can be either summoned or charmed by player.
+Pets will help player in combat.  They retain their AI, but can be roughly
+commanded.  Pets are normally lost as soon as the player leaves the current
+level.  Permanent pets are called companions.  There is a limit on the total
+number of companions.  Pet/companion terminology is universally accepted in
+Angband community, though it could be misleading; any kind of monsters can
+become a pet, including humanoids.
+
+I consider pets/companions an important part of PosBand gameplay.  Pets are
+implemented in a number of variants (ZAngband, Hengband, ToME and others), but
+they are generally seldom used.  I attempted to fix the important shortcomings
+in PosBand, and I believe PosBand has currently the most playable pet
+implementation.
+
+
+--> Acquiring pets
+
+Pets can be summoned in the following ways:
+
+ * Reading a Scroll of Summon Pet.  This is a common item, sold in the Temple.
+ * Using a Staff of Summon Pet.  These are found randomly.
+   Both these methods will summon 1-3 random pets from the current dungeon
+   level.
+ * Aiming a Wand of Charming at the monster.  These are found randomly.
+   Monster has a saving throw against charming.
+ * Using similar race-specific powers.  Typically, only the pets of a specific
+   type can be summoned in this way.
+
+Less common ways include activating Quylthulg race artifact, using shrieking
+power etc.
+
+In other variants, pets are usually obtained with class-specific spells or
+powers.  ToME, in particular, allows players with "Summoning" skill to extract
+totems from the corpses of dead monsters and use them to summon pets of that
+type.
+
+
+--> Experience from pets
+
+You get 1/10 experience from creatures killed by pet.  This is different from
+ZAngband-based variants, where you do not get any experience at all from pet
+kills.  In ToME, the amount of experience you get depends on your "Monster
+lore" skill.
+
+Quylthulg race is a special case.  See "Quylthulg" section.
+
+
+--> Quylthulg
+
+PosBand allows you to play Quylthulg race.  As far as I know, no other Angband
+variant has similar feature.  Quylthulgs are unique, as about the only thing
+they can do is summoning pets.  They are unable to use any melee or missile
+weapons, and do not have any offensive magic.  They have poor stats (except
+charisma) and speed, and few usable equipment slots.  Pets are the _only_ way
+to survive and to win for them.
+
+As such, pet restrictions are relaxed for Quylthulgs:
+
+ * Player gets 1/2 experience from pet kills (normally 1/10)
+ * Pets can kill uniques, including questors (Sauron and Morgoth)
+
+To be able to control their pets better, Quylthulgs have innate telepathy
+ability.  Free phase door and cheap teleportation is available for quick
+escape.
+
+Despite the very different and unusual playstyle, Quylthulgs were found
+actually playable and even interesting.  No wins are known yet, so that's
+your chance! :-)

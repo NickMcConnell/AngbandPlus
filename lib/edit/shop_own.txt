@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:3.0.8
+V:4.1.0
 
 # General Store
 N:0:0:Bilbo the Friendly
@@ -55,7 +55,7 @@ N:3:1:Gunnar the Paladin
 I:0:20000:185:110:5:23
 N:3:2:Delilah the Pure
 I:2:25000:180:107:6:20
-N:3:3:Bosk the Wise
+N:3:3:Brother Steadfast
 I:5:30000:185:109:5:15
 
 # Alchemist
@@ -97,3 +97,6 @@ N:7:2:Your home
 I:99:0:100:100:0:99
 N:7:3:Your home
 I:99:0:100:100:0:99
+
+# Highlight syntax in Vim
+# vim:syntax=posband

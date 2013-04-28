@@ -214,6 +214,17 @@ C:1:'
 A:P
 C:1:^O
 
+# [De]incarnate
+A:N
+C:1:$
+
+# Use monster power
+A:U
+C:1:|
+
+# Command pets
+A:y
+C:1:[
 
 # Message colors
 %:message.prf
@@ -221,14 +232,11 @@ C:1:^O
 
 ##### System Specific Subfiles #####
 
-?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj]]
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj] [EQU $SYS gtk]]
 %:pref-x11.prf
 
 ?:[IOR [EQU $SYS gcu] [EQU $SYS lsl] [EQU $SYS cap] [EQU $SYS vcs] [EQU $SYS sla]]
 %:pref-gcu.prf
-
-?:[EQU $SYS gtk]
-%:pref-gtk.prf
 
 ?:[EQU $SYS ami]
 %:pref-ami.prf
@@ -236,7 +244,10 @@ C:1:^O
 ?:[EQU $SYS mac]
 %:pref-mac.prf
 
-?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
+?:[IOR [EQU $SYS dos] [EQU $SYS ibm]]
+%:pref-dos.prf
+
+?:[EQU $SYS win]
 %:pref-win.prf
 
 ?:[EQU $SYS emx]

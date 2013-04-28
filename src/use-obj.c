@@ -1,19 +1,18 @@
-/* File: use_obj.c */
-
-/*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
-#include "angband.h"
+/* use-obj.c: commands for using objects */
 
-
-#ifndef USE_SCRIPT
-
-#include "script.h"
+#include "posband.h"
 
 static bool eat_food(object_type *o_ptr, bool *ident)
 {
@@ -235,6 +234,20 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 	switch (o_ptr->sval)
 	{
 		case SV_POTION_WATER:
+		{
+			if (p_ptr->cold_touch)
+			{
+				msg_print("The water pours into your body.");
+				hp_player(p_ptr->mhp / 6);
+			}
+			else
+			{
+				msg_print("You feel less thirsty");
+			}
+			*ident = TRUE;
+			break;
+		}
+		
 		case SV_POTION_APPLE_JUICE:
 		case SV_POTION_SLIME_MOLD:
 		{
@@ -410,7 +423,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_DETECT_INVIS:
 		{
-			if (set_tim_invis(p_ptr->tim_invis + 12 + randint(12)))
+			if (set_tim_seeinvis(p_ptr->tim_invis + 12 + randint(12)))
 			{
 				*ident = TRUE;
 			}
@@ -739,15 +752,12 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_RESISTANCE:
 		{
-			if((set_oppose_acid(p_ptr->oppose_acid + randint(30) + 30)) ||
-			   (set_oppose_elec(p_ptr->oppose_elec + randint(30) + 30)) ||
-			   (set_oppose_fire(p_ptr->oppose_fire + randint(30) + 30)) ||
-			   (set_oppose_cold(p_ptr->oppose_cold + randint(30) + 30)) ||
-			   (set_oppose_pois(p_ptr->oppose_pois + randint(30) + 30)))
-
-			{
-				*ident = TRUE;
-			}
+			set_oppose_acid(p_ptr->oppose_acid + randint(30) + 30);
+			set_oppose_elec(p_ptr->oppose_elec + randint(30) + 30);
+			set_oppose_fire(p_ptr->oppose_fire + randint(30) + 30);
+			set_oppose_cold(p_ptr->oppose_cold + randint(30) + 30);
+			set_oppose_pois(p_ptr->oppose_pois + randint(30) + 30);
+			*ident = TRUE;
 			break;
 		}
 
@@ -817,6 +827,18 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			for (k = 0; k < randint(3); k++)
 			{
 				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
+				{
+					*ident = TRUE;
+				}
+			}
+			break;
+		}
+
+		case SV_SCROLL_SUMMON_PET:
+		{
+			for (k = 0; k < randint(3); k++)
+			{
+				if (summon_specific_pet(py, px, p_ptr->depth, 0))
 				{
 					*ident = TRUE;
 				}
@@ -1053,7 +1075,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_BANISHMENT:
 		{
-			(void)banishment();
+			if (!banishment()) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
@@ -1317,7 +1339,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_BANISHMENT:
 		{
-			(void)banishment();
+			if (!banishment()) use_charge = FALSE;
 			*ident = TRUE;
 			break;
 		}
@@ -1333,6 +1355,18 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		{
 			destroy_area(py, px, 15, TRUE);
 			*ident = TRUE;
+			break;
+		}
+		
+		case SV_STAFF_SUMMON_PET:
+		{
+			for (k = 0; k < randint(3); k++)
+			{
+				if (summon_specific_pet(py, px, p_ptr->depth, 0))
+				{
+					*ident = TRUE;
+				}
+			}
 			break;
 		}
 	}
@@ -1561,6 +1595,12 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 			*ident = TRUE;
 			break;
 		}
+		
+		case SV_WAND_CHARM:
+		{
+			if (charm_monster(dir, (p_ptr->lev * 2 / 3))) *ident = TRUE;
+			break;
+		}
 
 		case SV_WAND_WONDER:
 		{
@@ -1635,6 +1675,8 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 static bool zap_rod(object_type *o_ptr, bool *ident)
 {
 	int chance, dir, lev;
+	bool used_charge = TRUE;
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Get a direction (unless KNOWN not to need it) */
 	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
@@ -1676,29 +1718,20 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		return FALSE;
 	}
 
-	/* A single rod is still charging */
-	if ((o_ptr->number == 1) && (o_ptr->timeout))
+	/* Still charging? */
+	if (o_ptr->timeout > (o_ptr->pval - k_ptr->pval))
 	{
-		if (flush_failure) flush();
-		msg_print("The rod is still charging");
 
-		return;
-	}
-	/* A stack of rods lacks enough energy. */
-	else if ((o_ptr->number > 1) && (o_ptr->timeout > o_ptr->pval - k_ptr->pval))
-	{
-		if (flush_failure) flush();
-		msg_print("The rods are all still charging");
-		return;
-	}
+		if (o_ptr->number == 1)
+			msg_print("The rod is still charging");
+		else
+			msg_print("The rods are all still charging");
 
-	k_ptr = &k_info[o_ptr->k_idx];
+ 		return FALSE;
+	}
 
 	/* Sound */
 	sound(MSG_ZAP);
-
-	/* Increase the timeout by the rod kind's pval. */
-	o_ptr->timeout += k_ptr->pval;
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
@@ -1719,6 +1752,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		case SV_ROD_IDENTIFY:
 		{
 			*ident = TRUE;
+			if (!ident_spell()) used_charge = FALSE;
 			break;
 		}
 
@@ -1900,6 +1934,9 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		}
 	}
 
+	/* Drain the charge */
+	if (used_charge) o_ptr->timeout += k_ptr->pval;
+
 	return TRUE;
 }
 
@@ -1914,9 +1951,9 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
  * Note that it always takes a turn to activate an artifact, even if
  * the user hits "escape" at the "direction" prompt.
  */
-static bool activate_object(object_type *o_ptr, bool *ident)
+static bool activate_object(object_type *o_ptr)
 {
-	int k, dir, i, chance;
+	int k, dir, i, chance, count;
 
 
 	/* Check the recharge */
@@ -1928,12 +1965,174 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 
 	/* Activate the artifact */
 	message(MSG_ZAP, 0, "You activate it...");
+	
+	/* Hack -- Dragon Scale Mail can be activated as well (unless
+	      overridden for artifact */
+	if (o_ptr->tval == TV_DRAG_ARMOR && !o_ptr->name1 && !o_ptr->name3 &&
+		!(o_ptr->rart_name && (a_info[o_ptr->xtra1].flags3 & TR3_ACTIVATE)))
+	{
+		/* Get a direction for breathing (or abort) */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		/* Branch on the sub-type */
+		switch (o_ptr->sval)
+		{
+			case SV_DRAGON_BLUE:
+			{
+				msg_print("You breathe lightning.");
+				fire_arc(GF_ELEC, dir, 200, 0, 30);
+				o_ptr->timeout = rand_int(450) + 450;
+				break;
+			}
+
+			case SV_DRAGON_WHITE:
+			{
+				msg_print("You breathe frost.");
+				fire_arc(GF_COLD, dir, 200, 0, 30);
+				o_ptr->timeout = rand_int(450) + 450;
+				break;
+			}
+
+			case SV_DRAGON_BLACK:
+			{
+				msg_print("You breathe acid.");
+				fire_arc(GF_ACID, dir, 200, 0, 30);
+				o_ptr->timeout = rand_int(450) + 450;
+				break;
+			}
+
+			case SV_DRAGON_GREEN:
+			{
+				msg_print("You breathe poison gas.");
+				fire_arc(GF_POIS, dir, 200, 0, 30);
+				o_ptr->timeout = rand_int(450) + 450;
+				break;
+			}
+
+			case SV_DRAGON_RED:
+			{
+				msg_print("You breathe fire.");
+				fire_arc(GF_FIRE, dir, 200, 0, 30);
+				o_ptr->timeout = rand_int(450) + 450;
+				break;
+			}
+
+			case SV_DRAGON_MULTIHUED:
+			{
+				chance = rand_int(5);
+				msg_format("You breathe %s.",
+				           ((chance == 1) ? "lightning" :
+				            ((chance == 2) ? "frost" :
+				             ((chance == 3) ? "acid" :
+				              ((chance == 4) ? "poison gas" : "fire")))));
+				fire_arc(((chance == 1) ? GF_ELEC :
+				           ((chance == 2) ? GF_COLD :
+				            ((chance == 3) ? GF_ACID :
+				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
+				          dir, 300, 0, 30);
+				o_ptr->timeout = rand_int(225) + 225;
+				break;
+			}
+
+			case SV_DRAGON_BRONZE:
+			{
+				msg_print("You breathe confusion.");
+				fire_arc(GF_CONFUSION, dir, 200, 0, 30);
+				o_ptr->timeout = rand_int(450) + 450;
+				break;
+			}
+
+			case SV_DRAGON_GOLD:
+			{
+				msg_print("You breathe sound.");
+				fire_arc(GF_SOUND, dir, 200, 0, 30);
+				o_ptr->timeout = rand_int(450) + 450;
+				break;
+			}
+
+			case SV_DRAGON_CHAOS:
+			{
+				chance = rand_int(2);
+				msg_format("You breathe %s.",
+				           ((chance == 1 ? "chaos" : "disenchantment")));
+				fire_arc((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
+				          dir, 250, 0, 30);
+				o_ptr->timeout = rand_int(300) + 300;
+				break;
+			}
+
+			case SV_DRAGON_LAW:
+			{
+				chance = rand_int(2);
+				msg_format("You breathe %s.",
+				           ((chance == 1 ? "sound" : "shards")));
+				fire_arc((chance == 1 ? GF_SOUND : GF_SHARD),
+				          dir, 300, 0, 30);
+				o_ptr->timeout = rand_int(300) + 300;
+				break;
+			}
+
+			case SV_DRAGON_BALANCE:
+			{
+				chance = rand_int(4);
+				msg_format("You breathe %s.",
+				           ((chance == 1) ? "chaos" :
+				            ((chance == 2) ? "disenchantment" :
+				             ((chance == 3) ? "sound" : "shards"))));
+				fire_arc(((chance == 1) ? GF_CHAOS :
+				           ((chance == 2) ? GF_DISENCHANT :
+				            ((chance == 3) ? GF_SOUND : GF_SHARD))),
+				          dir, 400, 0, 30);
+				o_ptr->timeout = rand_int(300) + 300;
+				break;
+			}
+			
+			case SV_DRAGON_SHADOW:
+			{
+				chance = rand_int(3);
+				msg_format("You breathe %s.",
+				           ((chance == 1) ? "frost" :
+				            ((chance == 2) ? "darkness" : "nether")));
+				fire_arc(((chance == 1) ? GF_COLD :
+				           ((chance == 2) ? GF_DARK : GF_NETHER)),
+				          dir, 400, 0, 30);
+				o_ptr->timeout = rand_int(300) + 300;
+				break;
+			}
+
+			case SV_DRAGON_SHINING:
+			{
+				chance = rand_int(2);
+				msg_format("You breathe %s.",
+				           ((chance == 0 ? "light" : "darkness")));
+				fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir, 350, 0, 30);
+				o_ptr->timeout = rand_int(300) + 300;
+				break;
+			}
+
+			case SV_DRAGON_POWER:
+			{
+				msg_print("You breathe the elements.");
+				fire_arc(GF_MISSILE, dir, 500, 0, 30);
+				o_ptr->timeout = rand_int(300) + 300;
+				break;
+			}
+		}
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Success */
+		return FALSE;
+	}
 
 	/* Artifacts */
-	if (o_ptr->name1)
+	if (o_ptr->name1 || o_ptr->name3 || o_ptr->rart_name)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr = (o_ptr->name1 ? &a_info[o_ptr->name1] : &u_info[o_ptr->name3]);
 		char o_name[80];
+		
+		if (o_ptr->rart_name) a_ptr = &a_info[o_ptr->xtra1];
 
 		/* Get the basic name of the object */
 		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
@@ -1997,7 +2196,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("The %s glows deep red...", o_name);
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_FIRE, dir, 120, 3);
+				fire_ball(GF_PLASMA, dir, 360, 3);
 				break;
 			}
 
@@ -2005,7 +2204,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("The %s glows bright white...", o_name);
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_COLD, dir, 200, 3);
+				fire_ball(GF_WATER, dir, 600, 3);
 				break;
 			}
 
@@ -2013,7 +2212,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("The %s glows deep blue...", o_name);
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_ELEC, dir, 250, 3);
+				fire_ball(GF_WIND, dir, 750, 3);
 				break;
 			}
 
@@ -2067,7 +2266,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_BANISHMENT:
 			{
 				msg_format("Your %s glows deep blue...", o_name);
-				(void)banishment();
+				if (!banishment()) return FALSE;
 				break;
 			}
 
@@ -2348,6 +2547,214 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				set_shero(p_ptr->shero + randint(50) + 50);
 				break;
 			}
+			
+			case ACT_ELEM_WATER:
+			{
+				msg_format("Your %s glows intensely blue...", o_name);
+				if (!get_aim_dir(&dir)) return FALSE;
+				fire_ball(GF_WATER, dir, 300, 4);
+				/* Healing effect only for water/ice elementals */
+				if (p_ptr->m_r_idx)
+				{
+					monster_race *r_ptr = &r_info[p_ptr->m_r_idx];
+					cptr name = r_name + r_ptr->name;
+					if ((r_ptr->d_char == 'E') && (prefix(name, "W") || prefix(name, "Greater w") ||
+						prefix(name, "I") || prefix(name, "Greater i")))
+					{
+						msg_print("The powerful wave strengthens you!");
+						hp_player(350);
+					}
+				}
+				count = 0;
+				for (i = 0; i < 5; i++)
+				{
+					count += summon_specific_pet(p_ptr->py, p_ptr->px,
+						p_ptr->depth, SUMMON_WATER_ELEM);
+				}
+				if (count) msg_print("You summon the beings from the Plane of Water!");
+				break;
+			}
+			
+			case ACT_VECNA:
+			{
+				msg_format("Your %s flexes fingers...", o_name);
+				if (!get_aim_dir(&dir)) return FALSE;
+				wiz_lite();
+				(void)detect_traps();
+				(void)detect_doors();
+				(void)detect_stairs();
+				fire_ball(GF_MANA, dir, 500, 3);
+				break;
+			}
+			
+			case ACT_SUMM_TOWNSMEN:
+			{
+				msg_format("Your %s makes strange loud sounds...", o_name);
+				for (i = 0; i < 10; i++) summon_specific_pet(p_ptr->py, p_ptr->px, 0, 0);
+				break;
+			}
+
+			case ACT_SUMM_PET:
+			{
+				msg_format("Your %s attracts someone from the shadows...", o_name);
+				summon_specific_pet(p_ptr->py, p_ptr->px, p_ptr->depth + 2, 0);
+				break;
+			}
+			
+			case ACT_BURST_CHAOS:
+			{
+				msg_format("Your %s explodes into raw Chaos!", o_name);
+				project_star(-1, 7, p_ptr->py, p_ptr->px, 500, GF_CHAOS, PROJECT_PASS);
+				break;
+			}
+                        
+			case ACT_ULTIMATE_DOMINATION:
+			{
+				monster_type *m_ptr;
+				monster_race *r_ptr;
+				char m_name[80];
+				
+				msg_format("Your %s glows in hypnotizing patterns...", o_name);
+				msg_print("Select a monster.");
+				if (!target_set_interactive(TARGET_KILL)) return FALSE;
+				if (!p_ptr->target_who) return FALSE;
+				
+				m_ptr = &mon_list[p_ptr->target_who];
+				r_ptr = &r_info[m_ptr->r_idx];
+				
+				if (r_ptr->flags1 & (RF1_UNIQUE))
+				{
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+					msg_format("%^s resists!", m_name);
+				}
+				else
+				{
+					if (m_ptr->align & (AL_PET_MASK))
+						/* Do nothing */ ;
+					else if (m_ptr->align == AL_HOSTILE_L)
+						m_ptr->align = AL_PET_L;
+					else if (m_ptr->align == AL_HOSTILE_C)
+						m_ptr->align = AL_PET_C;
+					else
+						m_ptr->align = AL_PET;
+				}
+			}
+
+			case ACT_NETHER_STORM:
+			{
+				msg_format("Your %s releases a terrible nether storm!", o_name);
+				project_star(-1, 9, p_ptr->py, p_ptr->px, 800, GF_NETHER, PROJECT_PASS);
+				break;
+			}
+			
+			case ACT_SUMM_VALA:
+			{
+				msg_format("Your %s glows brighter than the Sun!", o_name);
+				summon_pets_hack = TRUE;
+				for (k = 0; k < 4; k++)
+				{
+					int fy, fx;
+					int r_idx = MON_VALAR_HEAD + rand_int(MON_VALAR_TAIL - MON_VALAR_HEAD);
+					scatter(&fy, &fx, p_ptr->py, p_ptr->px, 3, 0);
+					place_monster_one(fy, fx, r_idx, FALSE, 1);
+				}
+				summon_pets_hack = FALSE;
+				break;
+			}
+			
+			case ACT_SUMM_NAZGUL:
+			{
+				msg_format("Your %s glow with pale light...", o_name);
+				
+				/* Hack -- Resurrect all the Nazgul */
+				for (k = 0; k < z_info->r_max; k++)
+				{
+					monster_race *r_ptr = &r_info[k];
+					if (r_ptr->d_char == 'W' && r_ptr->flags1 & (RF1_UNIQUE))
+						r_ptr->max_num = 1;
+				}
+				
+				/* Summon the Nazgul */
+				for (k = 0; k < 9; k++)
+				{
+					summon_specific(p_ptr->py, p_ptr->px, 100, SUMMON_WRAITH);
+				}
+				
+				/* Hack -- Manually set them friendly */
+				for (k = 0; k < z_info->m_max; k++)
+				{
+					monster_type *m_ptr = &mon_list[k];
+					if (m_ptr->r_idx)
+					{
+						monster_race *r_ptr = &r_info[m_ptr->r_idx];
+						if (r_ptr->d_char == 'W' && r_ptr->flags1 & (RF1_UNIQUE))
+						{
+							if (m_ptr->align == AL_HOSTILE) m_ptr->align = AL_PET;
+							else if (m_ptr->align == AL_HOSTILE_L) m_ptr->align = AL_PET_L;
+							else if (m_ptr->align == AL_HOSTILE_C) m_ptr->align = AL_PET_C;
+						}
+					}
+				}
+				
+				msg_print("The Ringwraiths await your orders!");
+				
+				break;
+			}
+
+			case ACT_ELEM_FIRE:
+			{
+				msg_format("Your %s glows intensely red...", o_name);
+				if (!get_aim_dir(&dir)) return FALSE;
+				fire_ball(GF_PLASMA, dir, 300, 4);
+				/* Healing effect only for fire/magma elementals */
+				if (p_ptr->m_r_idx)
+				{
+					monster_race *r_ptr = &r_info[p_ptr->m_r_idx];
+					cptr name = r_name + r_ptr->name;
+					if ((r_ptr->d_char == 'E') && (prefix(name, "Fire") || prefix(name, "Greater fire") ||
+						prefix(name, "Magma") || prefix(name, "Greater magma")))
+					{
+						msg_print("The raging fire strengthens you!");
+						hp_player(350);
+					}
+				}
+				count = 0;
+				for (i = 0; i < 5; i++)
+				{
+					count += summon_specific_pet(p_ptr->py, p_ptr->px,
+						p_ptr->depth, SUMMON_FIRE_ELEM);
+				}
+				if (count) msg_print("You summon the beings from the Plane of Fire!");
+				break;
+			}
+
+			case ACT_ELEM_AIR:
+			{
+				msg_format("Your %s glows intensely white...", o_name);
+				if (!get_aim_dir(&dir)) return FALSE;
+				fire_ball(GF_WIND, dir, 300, 4);
+				/* Healing effect only for air/smoke elementals */
+				if (p_ptr->m_r_idx)
+				{
+					monster_race *r_ptr = &r_info[p_ptr->m_r_idx];
+					cptr name = r_name + r_ptr->name;
+					if ((r_ptr->d_char == 'E') && (prefix(name, "Air") || prefix(name, "Greater air") ||
+						prefix(name, "Smoke") || prefix(name, "Greater smoke")))
+					{
+						msg_print("The blowing winds strengthen you!");
+						hp_player(350);
+					}
+				}
+				count = 0;
+				for (i = 0; i < 5; i++)
+				{
+					count += summon_specific_pet(p_ptr->py, p_ptr->px,
+						p_ptr->depth, SUMMON_AIR_ELEM);
+				}
+				if (count) msg_print("You summon the beings from the Plane of Air!");
+				break;
+			}
+
 		}
 
 		/* Set the recharge time */
@@ -2363,151 +2770,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 		return FALSE;
 	}
 
-
-	/* Hack -- Dragon Scale Mail can be activated as well */
-	if (o_ptr->tval == TV_DRAG_ARMOR)
-	{
-		/* Get a direction for breathing (or abort) */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		/* Branch on the sub-type */
-		switch (o_ptr->sval)
-		{
-			case SV_DRAGON_BLUE:
-			{
-				msg_print("You breathe lightning.");
-				fire_ball(GF_ELEC, dir, 100, 2);
-				o_ptr->timeout = rand_int(450) + 450;
-				break;
-			}
-
-			case SV_DRAGON_WHITE:
-			{
-				msg_print("You breathe frost.");
-				fire_ball(GF_COLD, dir, 110, 2);
-				o_ptr->timeout = rand_int(450) + 450;
-				break;
-			}
-
-			case SV_DRAGON_BLACK:
-			{
-				msg_print("You breathe acid.");
-				fire_ball(GF_ACID, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
-				break;
-			}
-
-			case SV_DRAGON_GREEN:
-			{
-				msg_print("You breathe poison gas.");
-				fire_ball(GF_POIS, dir, 150, 2);
-				o_ptr->timeout = rand_int(450) + 450;
-				break;
-			}
-
-			case SV_DRAGON_RED:
-			{
-				msg_print("You breathe fire.");
-				fire_ball(GF_FIRE, dir, 200, 2);
-				o_ptr->timeout = rand_int(450) + 450;
-				break;
-			}
-
-			case SV_DRAGON_MULTIHUED:
-			{
-				chance = rand_int(5);
-				msg_format("You breathe %s.",
-				           ((chance == 1) ? "lightning" :
-				            ((chance == 2) ? "frost" :
-				             ((chance == 3) ? "acid" :
-				              ((chance == 4) ? "poison gas" : "fire")))));
-				fire_ball(((chance == 1) ? GF_ELEC :
-				           ((chance == 2) ? GF_COLD :
-				            ((chance == 3) ? GF_ACID :
-				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
-				          dir, 250, 2);
-				o_ptr->timeout = rand_int(225) + 225;
-				break;
-			}
-
-			case SV_DRAGON_BRONZE:
-			{
-				msg_print("You breathe confusion.");
-				fire_ball(GF_CONFUSION, dir, 120, 2);
-				o_ptr->timeout = rand_int(450) + 450;
-				break;
-			}
-
-			case SV_DRAGON_GOLD:
-			{
-				msg_print("You breathe sound.");
-				fire_ball(GF_SOUND, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
-				break;
-			}
-
-			case SV_DRAGON_CHAOS:
-			{
-				chance = rand_int(2);
-				msg_format("You breathe %s.",
-				           ((chance == 1 ? "chaos" : "disenchantment")));
-				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-				          dir, 220, 2);
-				o_ptr->timeout = rand_int(300) + 300;
-				break;
-			}
-
-			case SV_DRAGON_LAW:
-			{
-				chance = rand_int(2);
-				msg_format("You breathe %s.",
-				           ((chance == 1 ? "sound" : "shards")));
-				fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
-				          dir, 230, 2);
-				o_ptr->timeout = rand_int(300) + 300;
-				break;
-			}
-
-			case SV_DRAGON_BALANCE:
-			{
-				chance = rand_int(4);
-				msg_format("You breathe %s.",
-				           ((chance == 1) ? "chaos" :
-				            ((chance == 2) ? "disenchantment" :
-				             ((chance == 3) ? "sound" : "shards"))));
-				fire_ball(((chance == 1) ? GF_CHAOS :
-				           ((chance == 2) ? GF_DISENCHANT :
-				            ((chance == 3) ? GF_SOUND : GF_SHARD))),
-				          dir, 250, 2);
-				o_ptr->timeout = rand_int(300) + 300;
-				break;
-			}
-
-			case SV_DRAGON_SHINING:
-			{
-				chance = rand_int(2);
-				msg_format("You breathe %s.",
-				           ((chance == 0 ? "light" : "darkness")));
-				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
-				o_ptr->timeout = rand_int(300) + 300;
-				break;
-			}
-
-			case SV_DRAGON_POWER:
-			{
-				msg_print("You breathe the elements.");
-				fire_ball(GF_MISSILE, dir, 300, 2);
-				o_ptr->timeout = rand_int(300) + 300;
-				break;
-			}
-		}
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-		/* Success */
-		return FALSE;
-	}
 
 	/* Hack -- some Rings can be activated for double resist and element ball */
 	if (o_ptr->tval == TV_RING)
@@ -2611,7 +2873,7 @@ bool use_object(object_type *o_ptr, bool *ident)
 
 		default:
 		{
-			used = activate_object(o_ptr, ident);
+			used = activate_object(o_ptr);
 			break;
 		}
 	}
@@ -2634,17 +2896,17 @@ static cptr act_description[ACT_MAX] =
 	"haste self (75+d75 turns)",
 	"fire bolt (9d8)",
 	"fire ball (72)",
-	"large fire ball (120)",
+	"plasma storm (360)",
 	"frost bolt (6d8)",
 	"frost ball (48)",
 	"frost ball (100)",
 	"frost bolt (12d8)",
-	"large frost ball (200)",
+	"whirlpool (600)",
 	"acid bolt (5d8)",
 	"recharge item I",
 	"sleep II",
 	"lightning bolt (4d8)",
-	"large lightning ball (250)",
+	"tempest (750)",
 	"banishment",
 	"mass banishment",
 	"identify",
@@ -2671,28 +2933,122 @@ static cptr act_description[ACT_MAX] =
 	"fire branding of bolts",
 	"starlight (10d8)",
 	"mana bolt (12d8)",
-	"berserk rage (50+d50 turns)"
+	"berserk rage (50+d50 turns)",
+
+	"invoking of Chaos (500)",
+	"cyclone (300), healing and air elemental summoning",
+	"plasma storm (300), healing and fire elemental summoning",
+	"whirlpool (300), healing and water elemental summoning",
+	"nether storm (800)",
+	"Nazgul summoning",
+	"pet summoning",
+	"townsmen summoning",
+	"Call to the Valar",
+	"ultimate will domination",
+	"clairvoyance and mana storm (500)"
 };
-
-
 
 /*
  * Determine the "Activation" (if any) for an artifact
  */
 void describe_item_activation(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Require activation ability */
 	if (!(f3 & TR3_ACTIVATE)) return;
 
+	/* Dragon scale mail */
+	if (o_ptr->tval == TV_DRAG_ARMOR && !o_ptr->name1 && !o_ptr->name3 &&
+		!(o_ptr->rart_name && (a_info[o_ptr->xtra1].flags3 & TR3_ACTIVATE)))
+	{
+		/* Branch on the sub-type */
+		switch (o_ptr->sval)
+		{
+			case SV_DRAGON_BLUE:
+			{
+				text_out("breathe lightning (200) every 450+d450 turns");
+				break;
+			}
+			case SV_DRAGON_WHITE:
+			{
+				text_out("breathe frost (200) every 450+d450 turns");
+				break;
+			}
+			case SV_DRAGON_BLACK:
+			{
+				text_out("breathe acid (200) every 450+d450 turns");
+				break;
+			}
+			case SV_DRAGON_GREEN:
+			{
+				text_out("breathe poison gas (200) every 450+d450 turns");
+				break;
+			}
+			case SV_DRAGON_RED:
+			{
+				text_out("breathe fire (200) every 450+d450 turns");
+				break;
+			}
+			case SV_DRAGON_MULTIHUED:
+			{
+				text_out("breathe multi-hued (300) every 225+d225 turns");
+				break;
+			}
+			case SV_DRAGON_BRONZE:
+			{
+				text_out("breathe confusion (200) every 450+d450 turns");
+				break;
+			}
+			case SV_DRAGON_GOLD:
+			{
+				text_out("breathe sound (200) every 450+d450 turns");
+				break;
+			}
+			case SV_DRAGON_CHAOS:
+			{
+				text_out("breathe chaos/disenchant (250) every 300+d300 turns");
+				break;
+			}
+			case SV_DRAGON_LAW:
+			{
+				text_out("breathe sound/shards (300) every 300+d300 turns");
+				break;
+			}
+			case SV_DRAGON_BALANCE:
+			{
+				text_out("breathe balance (400) every 300+d300 turns");
+				break;
+			}
+			case SV_DRAGON_SHADOW:
+			{
+				text_out("breathe frost/darkness/nether (400) every 300+d300 turns");
+				break;
+			}
+			case SV_DRAGON_SHINING:
+			{
+				text_out("breathe light/darkness (350) every 300+d300 turns");
+				break;
+			}
+			case SV_DRAGON_POWER:
+			{
+				text_out("breathe the elements (500) every 300+d300 turns");
+				break;
+			}
+		}
+
+		return;
+	}
+	
 	/* Artifact activations */
-	if (o_ptr->name1)
+	if (o_ptr->name1 || o_ptr->rart_name)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		if (o_ptr->rart_name) a_ptr = &a_info[o_ptr->xtra1];
 
 		/* Paranoia */
 		if (a_ptr->activation >= ACT_MAX) return;
@@ -2711,84 +3067,921 @@ void describe_item_activation(const object_type *o_ptr)
 		return;
 	}
 
-	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return;
-
-	/* Branch on the sub-type */
-	switch (o_ptr->sval)
+	/* Unique Artifact activations */
+	if (o_ptr->name3)
 	{
-		case SV_DRAGON_BLUE:
+		artifact_type *u_ptr = &u_info[o_ptr->name3];
+
+		/* Paranoia */
+		if (u_ptr->activation >= ACT_MAX) return;
+
+		/* Some artifacts can be activated */
+		text_out(act_description[u_ptr->activation]);
+
+		/* Output the number of turns */
+		if (u_ptr->time && u_ptr->randtime)
+			text_out(format(" every %d+d%d turns", u_ptr->time, u_ptr->randtime));
+		else if (u_ptr->time)
+			text_out(format(" every %d turns", u_ptr->time));
+		else if (u_ptr->randtime)
+			text_out(format(" every d%d turns", u_ptr->randtime));
+
+		return;
+	}
+	
+	/* Now do the rings */
+	if (o_ptr->tval == TV_RING)
+	{
+		/* Branch on the sub-type */
+		switch (o_ptr->sval)
 		{
-			text_out("breathe lightning (100) every 450+d450 turns");
-			break;
+			case SV_RING_ACID:
+			{
+				text_out("acid resistance (20+d20 turns) and acid ball (70) every 50+d50 turns");
+				break;
+			}
+			case SV_RING_FLAMES:
+			{
+				text_out("fire resistance (20+d20 turns) and fire ball (80) every 50+d50 turns");
+				break;
+			}
+			case SV_RING_ICE:
+			{
+				text_out("cold resistance (20+d20 turns) and cold ball (75) every 50+d50 turns");
+				break;
+			}
+			case SV_RING_LIGHTNING:
+			{
+				text_out("electricity resistance (20+d20 turns) and electricity ball (85) every 50+d50 turns");
+				break;
+			}
 		}
-		case SV_DRAGON_WHITE:
-		{
-			text_out("breathe frost (110) every 450+d450 turns");
-			break;
-		}
-		case SV_DRAGON_BLACK:
-		{
-			text_out("breathe acid (130) every 450+d450 turns");
-			break;
-		}
-		case SV_DRAGON_GREEN:
-		{
-			text_out("breathe poison gas (150) every 450+d450 turns");
-			break;
-		}
-		case SV_DRAGON_RED:
-		{
-			text_out("breathe fire (200) every 450+d450 turns");
-			break;
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
-			text_out("breathe multi-hued (250) every 225+d225 turns");
-			break;
-		}
-		case SV_DRAGON_BRONZE:
-		{
-			text_out("breathe confusion (120) every 450+d450 turns");
-			break;
-		}
-		case SV_DRAGON_GOLD:
-		{
-			text_out("breathe sound (130) every 450+d450 turns");
-			break;
-		}
-		case SV_DRAGON_CHAOS:
-		{
-			text_out("breathe chaos/disenchant (220) every 300+d300 turns");
-			break;
-		}
-		case SV_DRAGON_LAW:
-		{
-			text_out("breathe sound/shards (230) every 300+d300 turns");
-			break;
-		}
-		case SV_DRAGON_BALANCE:
-		{
-			text_out("breathe balance (250) every 300+d300 turns");
-			break;
-		}
-		case SV_DRAGON_SHINING:
-		{
-			text_out("breathe light/darkness (200) every 300+d300 turns");
-			break;
-		}
-		case SV_DRAGON_POWER:
-		{
-			text_out("breathe the elements (300) every 300+d300 turns");
-			break;
-		}
+		return;
 	}
 }
 
-#else
 
-#ifdef MACINTOSH
-static int i = 0;
-#endif
+/*
+ * Code for eating food, drinking potions,
+ * reading scrolls, aiming wands, using staffs, zapping rods,
+ * and activating artifacts.
+ *
+ * In all cases, if the player becomes "aware" of the item's use
+ * by testing it, mark it as "aware" and reward some experience
+ * based on the object's level, always rounding up.  If the player
+ * remains "unaware", mark that object "kind" as "tried".
+ *
+ * This code now correctly handles the unstacking of wands, staffs,
+ * and rods.  Note the overly paranoid warning about potential pack
+ * overflow, which allows the player to use and drop a stacked item.
+ *
+ * In all "unstacking" scenarios, the "used" object is "carried" as if
+ * the player had just picked it up.  In particular, this means that if
+ * the use of an item induces pack overflow, that item will be dropped.
+ *
+ * For simplicity, these routines induce a full "pack reorganization"
+ * which not only combines similar items, but also reorganizes various
+ * items to obey the current "sorting" method.  This may require about
+ * 400 item comparisons, but only occasionally.
+ *
+ * There may be a BIG problem with any "effect" that can cause "changes"
+ * to the inventory.  For example, a "scroll of recharging" can cause
+ * a wand/staff to "disappear", moving the inventory up.  Luckily, the
+ * scrolls all appear BEFORE the staffs/wands, so this is not a problem.
+ * But, for example, a "staff of recharging" could cause MAJOR problems.
+ * In such a case, it will be best to either (1) "postpone" the effect
+ * until the end of the function, or (2) "change" the effect, say, into
+ * giving a staff "negative" charges, or "turning a staff into a stick".
+ * It seems as though a "rod of recharging" might in fact cause problems.
+ * The basic problem is that the act of recharging (and destroying) an
+ * item causes the inducer of that action to "move", causing "o_ptr" to
+ * no longer point at the correct item, with horrifying results.
+ *
+ * Note that food/potions/scrolls no longer use bit-flags for effects,
+ * but instead use the "sval" (which is also used to sort the objects).
+ */
 
-#endif /* USE_SCRIPT */
+
+/*
+ * Eat some food (from the pack or floor)
+ */
+void do_cmd_eat_food(void)
+{
+	monster_race *r_ptr = &r_info[p_ptr->m_r_idx];
+	int item, lev;
+	bool ident;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+	
+	/* Hack -- some races feed on walls */
+	if (p_ptr->m_r_idx && r_ptr->body.flags4 & (TR4_EAT_WALL))
+	{
+		int dir, y, x;
+		
+		if (!get_rep_dir(&dir)) return;
+		
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
+		
+		switch (cave_feat[y][x])
+		{
+			case FEAT_WALL_EXTRA:
+			case FEAT_WALL_INNER:
+			case FEAT_WALL_OUTER:
+			case FEAT_WALL_SOLID:
+			{
+				msg_print("You eat the granite wall.");
+				msg_print("That tastes good.");
+				p_ptr->energy_use = 500 + rand_int(500);
+				set_food(p_ptr->food + 2500);
+				cave_set_feat(y, x, FEAT_FLOOR);
+				break;
+			}
+
+			case FEAT_PERM_EXTRA:
+			case FEAT_PERM_INNER:
+			case FEAT_PERM_OUTER:
+			case FEAT_PERM_SOLID:
+			{
+				msg_print("This wall is far too tough.");
+				break;
+			}
+			
+			case FEAT_RUBBLE:
+			{
+				msg_print("You eat the pile of rubble.");
+				msg_print("Nice snack.");
+				p_ptr->energy_use = 100 + rand_int(100);
+				set_food(p_ptr->food + 500);
+				cave_set_feat(y, x, FEAT_FLOOR);
+				break;
+			}
+
+			case FEAT_MAGMA:
+			case FEAT_QUARTZ:
+			{
+				msg_print("You eat the mineral vein.");
+				msg_print("That tastes great!");
+				p_ptr->energy_use = 400 + rand_int(400);
+				set_food(p_ptr->food + 4000);
+				cave_set_feat(y, x, FEAT_FLOOR);
+				break;
+			}
+
+			case FEAT_LAVA:
+			{
+				if (p_ptr->immune_fire)
+				{
+					msg_print("You drink some lava.");
+					msg_print("You feel less thirsty.");
+					p_ptr->energy_use = 10 + rand_int(10);
+					set_food(p_ptr->food + 250);
+					break;  /* Intentionally left inside 'if'! */
+				}
+			}
+			
+			default:
+			{
+				msg_print("You cannot eat that!");
+			}
+		}
+		
+		return;
+	}
+
+	/* Hack -- some other races feed on statues */
+	if (p_ptr->m_r_idx && r_ptr->body.flags4 & (TR4_EAT_STATUE))
+	{
+	    	monster_race *r_ptr;
+		
+	    	/* Restrict choices to stone statues of Tasty Creatures */
+	    	item_tester_tval = TV_STATUE;
+
+		/* Get an item */
+		q = "Eat which item? ";
+		s = "You have nothing to eat.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+		/* Get the item (in the pack) */
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+		/* Get the item (on the floor) */
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
+
+		/* Race of the statue */
+		r_ptr = &r_info[o_ptr->pval];
+
+		/* Sound */
+		sound(MSG_EAT);
+
+		/* Take a (long) turn */
+		p_ptr->energy_use = 100 + r_ptr->level * 10;
+
+		/* Give the message */
+		msg_print("You chew the stone statue.");
+
+		/* Increase food level */
+		set_food(p_ptr->food + ((r_ptr->level * 100 < 1000) ? 1000 : r_ptr->level * 100) *
+			((r_ptr->flags1 & (RF1_UNIQUE)) ? 3 : 1));
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Destroy a food in the pack */
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+
+		/* Destroy a food on the floor */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+
+		return;
+	}
+
+	/* Restrict choices to food */
+	item_tester_tval = TV_FOOD;
+
+	/* Get an item */
+	q = "Eat which item? ";
+	s = "You have nothing to eat.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Sound */
+	sound(MSG_EAT);
+
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Identity not known yet */
+	ident = FALSE;
+
+	/* Object level */
+	lev = k_info[o_ptr->k_idx].level;
+
+	/* Eat the food */
+	use_object(o_ptr, &ident);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* We have tried it */
+	object_tried(o_ptr);
+
+	/* The player is now aware of the object */
+	if (ident && !object_aware_p(o_ptr))
+	{
+		object_aware(o_ptr);
+		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+	}
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+
+	/* Destroy a food in the pack */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Destroy a food on the floor */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+}
+
+
+
+
+/*
+ * Quaff a potion (from the pack or the floor)
+ */
+void do_cmd_quaff_potion(void)
+{
+	int item, lev;
+	bool ident;
+	object_type *o_ptr;
+	cptr q, s;
+
+	/* Restrict choices to potions */
+	item_tester_tval = TV_POTION;
+
+	/* Get an item */
+	q = "Quaff which potion? ";
+	s = "You have no potions to quaff.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Sound */
+	sound(MSG_QUAFF);
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Not identified yet */
+	ident = FALSE;
+
+	/* Object level */
+	lev = k_info[o_ptr->k_idx].level;
+
+	/* Quaff the potion */
+	use_object(o_ptr, &ident);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* The item has been tried */
+	object_tried(o_ptr);
+
+	/* An identification was made */
+	if (ident && !object_aware_p(o_ptr))
+	{
+		object_aware(o_ptr);
+		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+	}
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+	/* Destroy a potion in the pack */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Destroy a potion on the floor */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+}
+
+
+/*
+ * Read a scroll (from the pack or floor).
+ *
+ * Certain scrolls can be "aborted" without losing the scroll.  These
+ * include scrolls with no effects but recharge or identify, which are
+ * cancelled before use.  XXX Reading them still takes a turn, though.
+ */
+void do_cmd_read_scroll(void)
+{
+	int item, used_up, lev;
+	bool ident;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+
+	/* Check some conditions */
+	if (p_ptr->blind)
+	{
+		msg_print("You can't see anything.");
+		return;
+	}
+	if (no_lite())
+	{
+		msg_print("You have no light to read by.");
+		return;
+	}
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+
+	/* Restrict choices to scrolls */
+	item_tester_tval = TV_SCROLL;
+
+	/* Get an item */
+	q = "Read which scroll? ";
+	s = "You have no scrolls to read.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Not identified yet */
+	ident = FALSE;
+
+	/* Object level */
+	lev = k_info[o_ptr->k_idx].level;
+
+	/* Read the scroll */
+	used_up = use_object(o_ptr, &ident);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* The item was tried */
+	object_tried(o_ptr);
+
+	/* An identification was made */
+	if (ident && !object_aware_p(o_ptr))
+	{
+		object_aware(o_ptr);
+		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+	}
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+
+	/* Hack -- allow certain scrolls to be "preserved" */
+	if (!used_up) return;
+
+
+	/* Destroy a scroll in the pack */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Destroy a scroll on the floor */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+}
+
+
+
+
+
+
+
+/*
+ * Use a staff
+ *
+ * One charge of one staff disappears.
+ *
+ * Hack -- staffs of identify can be "cancelled".
+ */
+void do_cmd_use_staff(void)
+{
+	int item, chance, lev;
+
+	bool ident;
+
+	object_type *o_ptr;
+
+	bool use_charge;
+
+	cptr q, s;
+
+
+	/* Restrict choices to staves */
+	item_tester_tval = TV_STAFF;
+
+	/* Get an item */
+	q = "Use which staff? ";
+	s = "You have no staff to use.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Mega-Hack -- refuse to use a pile from the ground */
+	if ((item < 0) && (o_ptr->number > 1))
+	{
+		msg_print("You must first pick up the staffs.");
+		return;
+	}
+
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Not identified yet */
+	ident = FALSE;
+
+	/* Extract the item level */
+	lev = k_info[o_ptr->k_idx].level;
+
+	/* Base chance of success */
+	chance = p_ptr->skill_dev;
+
+	/* Confusion hurts skill */
+	if (p_ptr->confused) chance = chance / 2;
+
+	/* High level objects are harder */
+	chance = chance - ((lev > 50) ? 50 : lev);
+
+	/* Give everyone a (slight) chance */
+	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	{
+		chance = USE_DEVICE;
+	}
+
+	/* Roll for usage */
+	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to use the staff properly.");
+		return;
+	}
+
+	/* Notice empty staffs */
+	if (o_ptr->pval <= 0)
+	{
+		if (flush_failure) flush();
+		msg_print("The staff has no charges left.");
+		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->window |= (PW_INVEN);
+		return;
+	}
+
+
+	/* Sound */
+	sound(MSG_ZAP);
+
+
+	/* Use the staff */
+	use_charge = use_object(o_ptr, &ident);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Tried the item */
+	object_tried(o_ptr);
+
+	/* An identification was made */
+	if (ident && !object_aware_p(o_ptr))
+	{
+		object_aware(o_ptr);
+		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+	}
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+
+	/* Hack -- some uses are "free" */
+	if (!use_charge) return;
+
+
+	/* Use a single charge */
+	o_ptr->pval--;
+
+	/* Describe charges in the pack */
+	if (item >= 0)
+	{
+		inven_item_charges(item);
+	}
+
+	/* Describe charges on the floor */
+	else
+	{
+		floor_item_charges(0 - item);
+	}
+}
+
+
+/*
+ * Aim a wand (from the pack or floor).
+ *
+ * Use a single charge from a single item.
+ * Handle "unstacking" in a logical manner.
+ *
+ * For simplicity, you cannot use a stack of items from the
+ * ground.  This would require too much nasty code.
+ *
+ * There are no wands which can "destroy" themselves, in the inventory
+ * or on the ground, so we can ignore this possibility.  Note that this
+ * required giving "wand of wonder" the ability to ignore destruction
+ * by electric balls.
+ *
+ * All wands can be "cancelled" at the "Direction?" prompt for free.
+ *
+ * Note that the basic "bolt" wands do slightly less damage than the
+ * basic "bolt" rods, but the basic "ball" wands do the same damage
+ * as the basic "ball" rods.
+ */
+void do_cmd_aim_wand(void)
+{
+	int item, lev;
+
+	bool ident;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+
+	/* Restrict choices to wands */
+	item_tester_tval = TV_WAND;
+
+	/* Get an item */
+	q = "Aim which wand? ";
+	s = "You have no wand to aim.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Mega-Hack -- refuse to aim a pile from the ground */
+	if ((item < 0) && (o_ptr->number > 1))
+	{
+		msg_print("You must first pick up the wands.");
+		return;
+	}
+
+	/* Aim the wand */
+	if (!use_object(o_ptr, &ident)) return;
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Mark it as tried */
+	object_tried(o_ptr);
+
+	/* Object level */
+	lev = k_info[o_ptr->k_idx].level;
+
+	/* Apply identification */
+	if (ident && !object_aware_p(o_ptr))
+	{
+		object_aware(o_ptr);
+		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+	}
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+
+	/* Use a single charge */
+	o_ptr->pval--;
+
+	/* Describe the charges in the pack */
+	if (item >= 0)
+	{
+		inven_item_charges(item);
+	}
+
+	/* Describe the charges on the floor */
+	else
+	{
+		floor_item_charges(0 - item);
+	}
+}
+
+
+
+
+
+/*
+ * Activate (zap) a Rod
+ *
+ * Unstack fully charged rods as needed.
+ *
+ * Hack -- rods of perception can be "cancelled"
+ * All rods can be cancelled at the "Direction?" prompt
+ */
+void do_cmd_zap_rod(void)
+{
+	int item;
+	bool ident;
+	object_type *o_ptr;
+	cptr q, s;
+
+
+	/* Restrict choices to rods */
+	item_tester_tval = TV_ROD;
+
+	/* Get an item */
+	q = "Zap which rod? ";
+	s = "You have no rod to zap.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Mega-Hack -- refuse to zap a pile from the ground */
+	if ((item < 0) && (o_ptr->number > 1))
+	{
+		msg_print("You must first pick up the rods.");
+		return;
+	}
+
+	/* Zap the rod */
+	if (!use_object(o_ptr, &ident)) return;
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Tried the object */
+	object_tried(o_ptr);
+
+	/* Successfully determined the object function */
+	if (ident && !object_aware_p(o_ptr))
+	{
+		/* Object level */
+		int lev = k_info[o_ptr->k_idx].level;
+
+		object_aware(o_ptr);
+		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+	}
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+}
+
+
+
+
+/*
+ * Hook to determine if an object is activatable
+ */
+static bool item_tester_hook_activate(const object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4;
+
+	/* Not known */
+	if (!object_known_p(o_ptr)) return (FALSE);
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Check activation flag */
+	if (f3 & (TR3_ACTIVATE)) return (TRUE);
+
+	/* Assume not */
+	return (FALSE);
+}
+
+
+/*
+ * Activate a wielded object.  Wielded objects never stack.
+ * And even if they did, activatable objects never stack.
+ *
+ * Note that it always takes a turn to activate an artifact, even if
+ * the user hits "escape" at the "direction" prompt.
+ */
+void do_cmd_activate(void)
+{
+	int item, lev, chance;
+	bool ident;
+	object_type *o_ptr;
+
+	cptr q, s;
+
+
+	/* Prepare the hook */
+	item_tester_hook = item_tester_hook_activate;
+
+	/* Get an item */
+	q = "Activate which item? ";
+	s = "You have nothing to activate.";
+	if (!get_item(&item, q, s, (USE_EQUIP))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Extract the item level */
+	lev = k_info[o_ptr->k_idx].level;
+
+	/* Hack -- use artifact level instead */
+	if (artifact_p(o_ptr) && !o_ptr->name3) lev = a_info[o_ptr->name1].level;
+	if (o_ptr->name3) lev = u_info[o_ptr->name3].level;
+
+	/* Base chance of success */
+	chance = p_ptr->skill_dev;
+
+	/* Confusion hurts skill */
+	if (p_ptr->confused) chance = chance / 2;
+
+	/* High level objects are harder */
+	chance = chance - ((lev > 50) ? 50 : lev);
+
+	/* Give everyone a (slight) chance */
+	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	{
+		chance = USE_DEVICE;
+	}
+
+	/* Roll for usage */
+	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to activate it properly.");
+		return;
+	}
+
+	/* Activate the object */
+	(void)use_object(o_ptr, &ident);
+}

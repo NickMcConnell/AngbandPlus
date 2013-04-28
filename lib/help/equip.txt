@@ -1,91 +1,102 @@
+=== Object Attributes ===
 
-====== Object Attributes ======
-
-
-     All effective combat methods require equipment, and all benefit greatly
+All effective combat methods require equipment, and all benefit greatly
 from various qualities that your equipped items may possess.  Defence is
 similarly equipment-dependent.
 
 
---- Ordinary Attributes ---
+=== Ordinary Attributes ===
 
 Example 1:  A Battle Axe (2d8) (+6,+4)
 
-Damage dice:
-     The weapon above rolls two eight-sided dice in battle, for an average base
+--> Damage dice
+
+The weapon above rolls two eight-sided dice in battle, for an average base
 damage of: 2 * (8 + 1) / 2  =>  2 * 9 / 2  =>  9.
 
-Bonus to hit:
-     The weapon above has a bonus to hit of 6.  This bonus improves your chance
+--> Bonus to hit
+
+The weapon above has a bonus to hit of 6.  This bonus improves your chance
 to hit monsters.  Apart from rare gloves, armours seldom have bonuses to combat.
 Some have small penalties (see below).
 
-Bonus to damage:
-     The weapon above gets a bonus to damage of 4, and so does 2d8 + 4 points of
+--> Bonus to damage
+
+The weapon above gets a bonus to damage of 4, and so does 2d8 + 4 points of
 damage on most hits.  Apart from rare gloves, armours seldom have bonuses to
 Deadliness.
 
 
 Example 2:  A Hard Leather Armour (-1) [6,+5]
 
-Base Armour Class (AC):
-     This armour has a base AC of 6.  All armours have a base armour class; very
+--> Base Armour Class (AC)
+
+This armour has a base AC of 6.  All armours have a base armour class; very
 few weapons do.
 
-Bonus to Armour Class:
-     This armour has a bonus to AC of 5, which gives it a total protective value
+--> Bonus to Armour Class:
+
+This armour has a bonus to AC of 5, which gives it a total protective value
 of 11.  Armour of unusually good quality or that is magical also increases your
 bonus to armour class.  Only rare weapons do the same.
 
 
 Example 3:  A Mace (Holy Avenger) (2d4) (+7,+5) [+3] (+1)
 
-     This weapon is a Holy Avenger (one of the more powerful ego-items).  It
+This weapon is a Holy Avenger (one of the more powerful ego-items).  It
 rolls 2 four-sided dice when attacking and has +7 to hit and +5 to damage.  It
 increases your AC by 3, and increases a numerical attribute (Wisdom, in this
 case) by 1.
 
 
---- Adjustments to Vital statistics and Abilities ---
+=== Adjustments to Vital statistics and Abilities ===
 
-Stat Bonuses:
-     Any kind of wearable item may affect one or more stats.  See the section on
+--> Stat Bonuses
+
+Any kind of wearable item may affect one or more stats.  See the section on
 your character to find out more about what altering a stat does.
 
-Sustain Stats:
-     Any kind of wearable item may sustain one or more stats.  This ensures that
+--> Sustain Stats
+
+Any kind of wearable item may sustain one or more stats.  This ensures that
 the attacks of your foes never lower that stat.
 
-Stealth:
-     Certain cloaks, boots, and (more rarely) other items lessen the amount of
-noise you make when moving around the dungeon.  This is very handy for avoiding
-fights and getting in the first hit, which causes extra damage ona sleeping
-monster in NPPAngband.
+--> Stealth
 
-Searching:
-     Some rings, headgear, and various other items improve your chances to
+Certain cloaks, boots, and (more rarely) other items lessen the amount of
+noise you make when moving around the dungeon.  This is very handy for avoiding
+fights and getting in the first hit, which causes extra damage on a sleeping
+monster in PosBand.
+
+--> Searching
+
+Some rings, headgear, and various other items improve your chances to
 reveal secret doors and find traps before they find you.  Bonuses to searching
 improve both automatic and manual searching.
 
-Infravision:
-     Some headgear and (more rarely) other items increase the range at which you
+--> Infravision
+
+Some headgear and (more rarely) other items increase the range at which you
 can see warm-blooded creatures, even those that would otherwise be invisible.
 
-Tunneling:
-     Some gloves and weapons allow you to dig through rock more effectively.
+--> Tunneling
+
+Some gloves and weapons allow you to dig through rock more effectively.
 All special digging tools have a bonus to tunneling.
 
-Speed:
-     Boots, rings, and weapons that hasten you are rare and powerful, for a fast
+--> Speed
+
+Boots, rings, and weapons that hasten you are rare and powerful, for a fast
 player can perform several actions in the time it used to take to do just one.
 Players moving at speed -10 are half as fast as normal, at +10 are twice as fast
 as normal, and at +20 are three times as fast as normal.  The maximum useful
 speed is (roughly) +30.
 
 
---- Weapon Attributes ---
+=== Weapon Attributes ===
 
-Damage multipliers  (only the best applies):
+--> Damage multipliers  (only the best applies)
+
      Slay Evil      :  x2 against evil
      Slay Animal    :  x2 against animals
      Slay Orc       :  x3 against orcs and orc-like creatures
@@ -108,196 +119,284 @@ Damage multipliers  (only the best applies):
 Throwing Weapons: 	Damage is doubled when throwing this weapon.
 Well balanced Weapons:  Damage is doubled (again).
 
-Blows:
-     Gives you extra melee blows.
+--> Blows
 
-Extra Shots:
-     Rare missile launchers may allow the player to shoot more quickly than
+Gives you extra melee blows.
+
+--> Extra Shots
+
+Rare missile launchers may allow the player to shoot more quickly than
 normal.  Each shot takes a fraction of a turn, making your target appear to move
 in slow motion.
 
-Extra Might:
-     Rare missile launchers have a greater than normal missile damage
+--> Extra Might
+
+Rare missile launchers have a greater than normal missile damage
 multiplier.  For example, a "Sling of Extra Might (x2) (+1)" multiplies damage,
 not by two like lesser slings, but by three.  The true missile weapon multiplier
 is never known for sure until the object is identified.
 
-Blessed:
-     Blessed weapons may be used by pious characters without penalty.
+--> Blessed
 
-Earthquake:
-     Some weapons cause earthquakes when they hit.
+Blessed weapons may be used by pious characters without penalty.
+
+--> Earthquake
+
+Some weapons cause earthquakes when they hit.
 
 
---- Immunities ---
+=== Immunities ===
 
-     If you should ever be fortunate enough to find a piece of equipment that
+If you should ever be fortunate enough to find a piece of equipment that
 grants immunity to an element, you will take no damage from that element.
 Immunity also means that everything you are wearing or carrying is perfectly
 protected.
 
-Immunity to Acid:
-     You take no damage from acid, and acid cannot attack your backpack.
+--> Immunity to Acid
 
-Immunity to Electricity:
-     You take no damage from electricity, and electricity cannot attack your
+You take no damage from acid, and acid cannot attack your backpack.
+
+--> Immunity to Electricity
+
+You take no damage from electricity, and electricity cannot attack your
 backpack.
 
-Immunity to Cold:
-     You take no damage from cold, and cold cannot attack your backpack.
+--> Immunity to Cold
 
-Immunity to Fire:
-     You take no damage from fire, and fire cannot attack your backpack.
+You take no damage from cold, and cold cannot attack your backpack.
+
+--> Immunity to Fire
+
+You take no damage from fire, and fire cannot attack your backpack.
+
+--> Immunity to Poison
+
+You take no damage from poison.
 
 
---- Resistances ---
+=== Resistances ===
 
-     Resistances from equipment cannot be combined; you either have it or you
+Resistances from equipment cannot be combined; you either have it or you
 don't.  You can, however, temporarily oppose the elements and poison for an
 additional 2/3rds reduction in damage.
-     Resistances and oppositions have no effect on the amount of damage
+
+Resistances and oppositions have no effect on the amount of damage
 elemental attacks do to items in your backpack.
 
-Resist Acid:
-     You take one-thirds damage from acid.
+--> Resist Acid
 
-Resist Electricity:
-     You take one-thirds damage from electricity.
+You take one-thirds damage from acid.
 
-Resist Cold:
-     You take one thirds damage from cold.
+--> Resist Electricity
 
-Resist Fire:
-     You take one-thirds damage from fire.
+You take one-thirds damage from electricity.
 
-Resist Poison:
-     You take one thirds damage from poison.
+--> Resist Cold
 
-Resist Light:
-     The damage you take from light is reduced.  You cannot be blinded by bright
+You take one thirds damage from cold.
+
+--> Resist Fire
+
+You take one-thirds damage from fire.
+
+--> Resist Poison
+
+You take one thirds damage from poison.
+
+--> Resist Light
+
+The damage you take from light is reduced.  You cannot be blinded by bright
 light.
 
-Resist Darkness:
-     The damage you take from darkness is reduced.  You cannot be blinded by
+--> Resist Darkness
+
+The damage you take from darkness is reduced.  You cannot be blinded by
 darkness.
 
-Resist Sound:
-     The damage you take from sound is reduced.  You cannot be stunned by sound
+--> Resist Sound
+
+The damage you take from sound is reduced.  You cannot be stunned by sound
 or by a few other kinds of distance attacks.
 
-Resist Shards:
+--> Resist Shards
      The damage you take from blasts of shards is reduced.  You cannot be cut by
 shards.
 
-Resist Nexus:
-     The damage you take from nexus attacks is reduced.  You cannot be randomly
+--> Resist Nexus
+
+The damage you take from nexus attacks is reduced.  You cannot be randomly
 teleported or altered by nexus.
 
-Resist Nether:
-     The damage you take from nether is reduced.  You cannot lose experience to
+--> Resist Nether
+
+The damage you take from nether is reduced.  You cannot lose experience to
 nether.
 
-Resist Chaos:
-     The damage you take from chaos is reduced, and you are immune to all the
+--> Resist Chaos
+
+The damage you take from chaos is reduced, and you are immune to all the
 nasty things chaos can do to you.  This resistance does not make you resistant
 to confusion.
 
-Resist Disenchantment:
-     Rarest of all the resistances, this reduces damage from disenchantment
+--> Resist Disenchantment
+
+Rarest of all the resistances, this reduces damage from disenchantment
 attacks and renders your equipment immune to disenchantment.
 
-Ignore acid, electricity, fire, and cold:
-     Some objects cannot be damaged or destroyed by elemental attacks.
+--> Ignore acid, electricity, fire, and cold
+
+Some objects cannot be damaged or destroyed by elemental attacks, but don't
+protect you or other objects.
 
 
---- Survival Attributes ---
+=== Survival Attributes ===
 
-Resist Fear:
-     Renders you fearless.
+--> Resist Fear
 
-Resist Blindness:
-     Protects you from being blinded.
+Renders you fearless.
 
-Resist Confusion:
-     Makes you incapable of being confused.  Also reduces damage from blasts of
+--> Resist Blindness
+
+Protects you from being blinded.
+
+--> Resist Confusion
+
+Makes you incapable of being confused.  Also reduces damage from blasts of
 confusion.
 
 
---- Character Qualities ---
+=== Character Qualities ===
 
-Slow Digestion:
-     Reduces your need to consume food.
+--> Slow Digestion
 
-Feather Fall:
-     Renders pit traps and trap doors harmless.
+Reduces your need to consume food.
 
-Light:
-     Some weapons and helms shine with inner light.  Each such object increases
+--> Levitation
+
+Renders pit traps and trap doors harmless. Allows to fly over abyss.
+
+--> Light
+
+Some weapons and helms shine with inner light.  Each such object increases
 your illumination radius by one.
 
-Regeneration:
-     Players who regenerate recover hitpoints and mana twice as quickly as
+--> Regeneration
+
+Players who regenerate recover hitpoints and mana twice as quickly as
 normal.  They also need to eat more.
 
-Telepathy (ESP):
-     It is not easy to acquire this, but players who do can see intelligent
+--> Telepathy (ESP)
+
+It is not easy to acquire this, but players who do can see intelligent
 monsters nearby.  Mindless monsters never appear, and semi-intelligent monsters
 only appear occasionally.
 
-See Invisible:
-     Allows you to see and target monsters invisible to ordinary sight.
+--> See Invisible
 
-Free Action:
-     Protects you from paralyzation and most slowing attacks.  Because
+Allows you to see and target monsters invisible to ordinary sight.
+
+--> Free Action
+
+Protects you from paralyzation and most slowing attacks.  Because
 paralyzation can instantly kill you, keep an eye out for this important survival
 aid.
 
-Hold Life:
-     Offers a high degree of protection from attacks (but not items) that reduce
+--> Hold Life
+
+Offers a high degree of protection from attacks (but not items) that reduce
 experience.
 
 
---- Curses and other Nastiness ---
+=== Curses and other Nastiness ===
 
-Random Teleportation:
-     Some foul rings, amulets, and boots randomly take control of your movement
+--> Random Teleportation
+
+Some foul rings, amulets, and boots randomly take control of your movement
 and whisk you around the dungeon.
 
-Aggravate:
-     Aggravation effectively reduces your stealth to nil, immediately waking up
+--> Aggravate
+
+Aggravation effectively reduces your stealth to nil, immediately waking up
 all monsters nearby.  Some rings and amulets possess curses that aggravate, and
 some weapons and armours are so powerful that no creature can ignore them.
 
-Drain Exp:
-     Objects that drain experience are perilous, because they slowly but surely
+--> Drain Exp
+
+Objects that drain experience are perilous, because they slowly but surely
 erase your accumulated memories.  Of course, you can keep killing monsters to
 replace the experience which you lose.
 
-Light (Normal) Curse:
-     Many objects have light curses.  If you should wear or wield one, read a
+--> Light (Normal) Curse
+
+Many objects have light curses.  If you should wear or wield one, read a
 scroll of remove curse.
 
-Heavy Curse:
-     The curses on some objects are less easy to remove.  If a ordinary scroll
+--> Heavy Curse:
+
+The curses on some objects are less easy to remove.  If a ordinary scroll
 of Remove Cure fails, find and read one of *Remove Curse*.
 
-Permanent Curse:
-     There is a great and terrible Ring, seen by perhaps one character in ten
+--> Permanent Curse:
+
+There is a great and terrible Ring, seen by perhaps one character in ten
 thousand, that can never be removed once put on.
 
 
+=== Purely innate qualities ===
 
+--> Undead
 
+You are undead. As such, you are immune to cold, poison, nether,
+darkness and time. Some of these attacks actually heal you a bit. The bad
+side effects are: 2x damage from light (always), 2.5x damage from fire and
+holy forces (always) and -1 to light radius (always).
 
+--> Freezing touch
 
+Your body is so chillingly cold that you cannot protect your inventory
+or equipment from it by any means. Any flasks or potions that you are
+carrying are shattered in few turns.  It is possible, though, to drink a
+potion right from the floor (or buy it from the shop and drink at once, for
+that matter).
 
+--> Burning touch
 
+Your body is so searingly hot that you cannot protect your inventory or
+equipment from it by any means. Any scrolls or staffs that you are carrying
+are burned in few turns.  It is possible, though, to read a scroll or
+use a staff right from the floor (or buy it from the shop and use
+immediately).
 
+--> Shocking touch
 
+You are a powerful walking battery, and cannot protect your inventory or
+equipment from electric shock. Any rings, wands or rods that you are
+carrying (unless they are magically protected from electricity) are
+destroyed in few turns.  It is possible, though, to aim a wand or zap
+a rod right from the floor.
 
+--> Immateriality
 
+You can pass through non-permanent walls. You cannot rest in walls, though;
+being in wall hurts you by 1 HP every turn (but it cannot bring you lower
+that 0 HP, i.e. it cannot kill you).
 
+--> Giant
 
+You are a giant. You cannot use small weapons (weighing less than 18 lbs.)
+effectively and get large to-hit penalties with them. You cannot wear
+any armor lighter than brigandine armor. You can mine huge boulders out of
+walls and throw them, causing large damage.
 
+--> Super-regeneration
+
+You regenerate 3 times faster than usual. This is cumulative with
+normal regeneration, so you actually regenerate 6 times faster than usual.
+
+--> Wall-eater
+
+You feed on dungeon walls, instead of organic food. Mineral veins are the
+most filling kinds of walls. You can even drink lava if you are immune
+to fire. Eating walls takes a lot of time.
 
 

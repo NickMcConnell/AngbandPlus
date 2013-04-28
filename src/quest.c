@@ -1,16 +1,22 @@
-/* File: quest.c */
-
-/*
- * Copyright (c) 1997 Ben Harrison
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
- *
- * This file contains functions used for handling quests by Eytan Zweig
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
-#include "angband.h"
+/* quest.c: quests */
+
+#include "posband.h"
+
+/*
+ * This file contains functions used for handling quests by Eytan Zweig
+ */
 
 #define QMODE_HALF_1 1
 #define QMODE_HALF_2 2
@@ -34,7 +40,7 @@ static s16b guild[GUILD_QUESTS] =
 /*
  * Mega-hack - Fix plural names of monsters
  *
- * Taken from PernAngband, modified to fit Ey monster list
+ * Taken from PernAngband via EY, modified to fit NPP monster list
  */
 void plural_aux(char *name, size_t max)
 {
@@ -99,23 +105,31 @@ void plural_aux(char *name, size_t max)
 	}
 	else if (streq(&(name[name_len - 4]), "star"))
 	{
-		strcpy (&(name[name_len - 5]), "stari");
+		strcpy (&(name[name_len - 4]), "stari");
 	}
 	else if (streq(&(name[name_len - 3]), "aia"))
 	{
-		strcpy (&(name[name_len - 4]), "aiar");
+		strcpy (&(name[name_len - 3]), "aiar");
 	}
 	else if (streq(&(name[name_len - 3]), "inu"))
 	{
-		strcpy (&(name[name_len - 4]), "inur");
+		strcpy (&(name[name_len - 3]), "inur");
 	}
-	else if (streq(&(name[name_len - 3]), "ous"))
+	else if (streq(&(name[name_len - 5]), "culus"))
 	{
-		strcpy (&(name[name_len - 3]), "i");
+		strcpy (&(name[name_len - 5]), "culi");
 	}
-	else if ((streq(&(name[name_len - 4]), "lman")) || (streq(&(name[name_len - 4]), "sman")))
+	else if (streq(&(name[name_len - 3]), "men"))
 	{
-		strcpy (&(name[name_len - 3]), "men");
+		strcpy (&(name[name_len - 3]), "man");
+	}
+	else if (streq(&(name[name_len - 3]), "men"))
+	{
+		strcpy (&(name[name_len - 3]), "man");
+	}
+	else if (streq(&(name[name_len - 4]), "lman"))
+	{
+		strcpy (&(name[name_len - 4]), "lmen");
 	}
 	else if (streq(&(name[name_len - 2]), "ex"))
 	{
@@ -134,6 +148,7 @@ void plural_aux(char *name, size_t max)
 		strcpy (&(name[name_len]), "s");
 	}
 }
+
 
 /*
  * Provide a description of the quest
@@ -238,6 +253,8 @@ static void grant_reward(byte type)
 
 	bool got_item = FALSE;
 
+	int repeats;
+
 	object_type *i_ptr, *j_ptr;
  	object_type object_type_body;
 	store_type *st_ptr = &store[STORE_HOME];
@@ -255,7 +272,7 @@ static void grant_reward(byte type)
 	if (type == REWARD_GOLD)
 	{
 		/*base amount of gold on fame*/
-		int repeats = p_ptr->fame / 4;
+		repeats = p_ptr->fame / 4;
 
 		/*but put in a minimum*/
 		if (repeats < 3) repeats = 3;
@@ -308,11 +325,11 @@ static void grant_reward(byte type)
 		 * First, maybe we want to give a spellbook to a spellcaster.
 		 * Hack - greater chance if a "pure" spellcaster.
 		 */
-		if ((cp_ptr->spell_book) &&
-			(rand_int(100) < (cp_ptr->flags & CF_ZERO_FAIL ? 20 : 10)))
+		if ((cp_ptr->spell_book) && (cp_ptr->spell_book != 99) &&
+			(rand_int(100) < (cp_ptr->flags & CF_ZERO_FAIL ? 40 : 25)))
 		{
-			/*50 tries at a book*/
-			for (i = 0; i < 50; i++)
+			/*200 tries at a book*/
+			for (i = 0; i < 200; i++)
 			{
 				bool already_own = FALSE;
 
@@ -326,17 +343,14 @@ static void grant_reward(byte type)
 				if (cp_ptr->spell_book == TV_MAGIC_BOOK)
 				{
 					/*try to make a spellbook, frequently returns nothing*/
-					(void)make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_MAGIC_BOOK);
+					if (!make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_MAGIC_BOOK)) continue;
 
-					if (!i_ptr->k_idx) continue;
 				}
 
 				if (cp_ptr->spell_book == TV_PRAYER_BOOK)
 				{
 					/*try to make a spellbook, frequently returns nothing*/
-					(void)make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_PRAYER_BOOK);
-
-					if (!i_ptr->k_idx) continue;
+					if (!make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_PRAYER_BOOK)) continue;
 				}
 
 				/* Was this already a reward (marked tried) */
@@ -386,272 +400,226 @@ static void grant_reward(byte type)
 
 
 		/* Maybe we want to give a potion of augmentation */
-
-		/*clear the counter*/
-		x = 0;
-
-		/* Add up the base stats */
-		for (i = 0; i < A_MAX; i++)
-		{
-			x += p_ptr->stat_max[i];
-		}
-
-		/*greater chance of augmentation if stats are lower.*/
-		if ((!got_item) && (rand_int(200) > (x-50)))
-		{
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Wipe the object */
-			object_wipe(i_ptr);
-
-			/* Make a potion of augmentation */
-			object_prep(i_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
-
-			got_item = TRUE;
-		}
-
-		/* We didn't find anything else, so lets find something to wear */
 		if (!got_item)
 		{
-			s32b price[INVEN_TOTAL];
-			s32b val[INVEN_TOTAL];
-			s32b diff = 1;
-			int droptype = 0;
-			st_ptr = &store[STORE_HOME];
+			/*clear the counter*/
+			x = 0;
 
-			/* First, figure out the best price for each slot */
-			for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+			/* Add up the stats indexes over 13*/
+			for (i = 0; i < A_MAX; i++)
 			{
-				/* Skip second ring */
-				if (i == INVEN_RIGHT) continue;
-
-				price[i] = 0;
-
-				/* First, the item actually in the slot */
-				j_ptr = &inventory[i];
-
-				if (j_ptr->k_idx) price[i] = object_value(j_ptr);
-
-				/* Handle ring */
-				if (i == INVEN_LEFT)
-				{
-					/* Compare to second ring */
-					j_ptr = &inventory[INVEN_RIGHT];
-
-					if (j_ptr->k_idx)
-					{
-						/* Compare prices */
-						if (object_value(j_ptr) > price[i]) price[i] = object_value(j_ptr);
-					}
-				}
-
-				/* Look for item in the pack */
-				for (x = 0; x < INVEN_PACK; x++)
-				{
-					/* Get the item */
-					j_ptr = &inventory[x];
-
-					/* Nothing here */
-					if (!j_ptr->k_idx) continue;
-
-					/* Rings */
-					if (i == INVEN_LEFT)
-					{
-						if (j_ptr->tval != TV_RING) continue;
-					}
-					/* Make sure we're not trying to place a ring elsewhere */
-					else if (j_ptr->tval == TV_RING) continue;
-					/* Not for the same slot */
-					else if (wield_slot(j_ptr) != i) continue;
-
-					/* Compare prices */
-					if (object_value(j_ptr) > price[i]) price[i] = object_value(j_ptr);
-				}
-
-				/* Look for item in home */
-				if (st_ptr->stock_num)
-				{
-					for (x = 0; x < st_ptr->stock_num; x++)
-					{
-						j_ptr = &st_ptr->stock[x];
-
-						/* Nothing here */
-						if (!j_ptr->k_idx) continue;
-
-						/* Rings */
-						if (i == INVEN_LEFT)
-						{
-							if (j_ptr->tval != TV_RING) continue;
-						}
-						/* Make sure we're not trying to place a ring elsewhere */
-						else if (j_ptr->tval == TV_RING) continue;
-						/* Not for the same slot */
-						else if (wield_slot(j_ptr) != i) continue;
-
-						/* Compare prices */
-						if (object_value(j_ptr) > price[i]) price[i] = object_value(j_ptr);
-					}
- 				}
+				x += (MIN(0, p_ptr->stat_ind[i] - 10));
 			}
 
-			/* attempts at an item based on p_ptr fame, but fame is a minimum of 20*/
-			for (x = 0; x < (p_ptr->fame / 5); x++)
+			/*We only want to give potion if stats are low.*/
+			if ((rand_int(42) + 42) < x)
 			{
+				/* Get local object */
+				i_ptr = &object_type_body;
 
-				/*create the items in the guild....*/
-				store_type *st_ptr = &store[STORE_GUILD];
+				/* Wipe the object */
+				object_wipe(i_ptr);
 
-				/* Get the existing object */
-				j_ptr = &st_ptr->stock[1];
+				/* Make a potion of augmentation */
+				object_prep(i_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
 
-				/* Now, produce items */
-				i = rand_int(INVEN_TOTAL - INVEN_WIELD) + INVEN_WIELD;
+				got_item = TRUE;
+			}
+		}
 
-				/* Skip second ring & lite
-			     * since rings & jewelery are in the same theme, only count them once
-				 */
-				if ((i == INVEN_RIGHT) || (i == INVEN_LITE) || (i == INVEN_NECK))
+		/* We didn't find anything else, so lets find something to wear */		
+		if (!got_item)
+		{
+		    	monster_race *r_ptr = &r_info[p_ptr->m_r_idx];
+		    	s32b price[EQUIP_ANY], curprice;
+			int droptype = 0, diff = 1;
+			int repeats;
+
+			st_ptr = &store[STORE_HOME];
+
+			msg_print("Attempting tailored reward generation...");
+
+			/* Assume that we cannot use any equipment */
+			for (i = 0; i < EQUIP_ANY; i++)
+			{
+			    	price[i] = -1;
+			}
+			
+			/* See what types of equipment are usable */
+			for (i = INVEN_EQUIP; i < INVEN_TOTAL; i++)
+			{
+			    	if      (r_ptr->body.weapon_mask & EQUIP_SLOT(i)) price[EQUIP_WEAPON] = 0;
+				else if (r_ptr->body.bow_mask & EQUIP_SLOT(i))    price[EQUIP_BOW] = 0;
+				else if (r_ptr->body.ring_mask & EQUIP_SLOT(i))   price[EQUIP_RING] = 0;
+				else if (r_ptr->body.amulet_mask & EQUIP_SLOT(i)) price[EQUIP_AMULET] = 0;
+				else if (r_ptr->body.light_mask & EQUIP_SLOT(i))  price[EQUIP_LIGHT] = 0;
+				else if (r_ptr->body.body_mask & EQUIP_SLOT(i))   price[EQUIP_BODY] = 0;
+				else if (r_ptr->body.shield_mask & EQUIP_SLOT(i)) price[EQUIP_SHIELD] = 0;
+				else if (r_ptr->body.helm_mask & EQUIP_SLOT(i))   price[EQUIP_HELM] = 0;
+				else if (r_ptr->body.glove_mask & EQUIP_SLOT(i))  price[EQUIP_GLOVE] = 0;
+				else if (r_ptr->body.boot_mask & EQUIP_SLOT(i))   price[EQUIP_BOOT] = 0;
+			}
+
+			/* Check the inventory for the best choice for each kind of item */
+			for (i = 0; i < INVEN_TOTAL; i++)
+			{
+				int slot, val, idx;
+			    	object_type *o_ptr = &inventory[i];
+
+				if (!o_ptr->k_idx) continue;
+
+				slot = wield_slot(o_ptr);
+				val = object_value(o_ptr);
+
+			    	if      (r_ptr->body.weapon_mask & EQUIP_SLOT(i)) idx = EQUIP_WEAPON;
+				else if (r_ptr->body.bow_mask & EQUIP_SLOT(i))    idx = EQUIP_BOW;
+				else if (r_ptr->body.ring_mask & EQUIP_SLOT(i))   idx = EQUIP_RING;
+				else if (r_ptr->body.amulet_mask & EQUIP_SLOT(i)) idx = EQUIP_AMULET;
+				else if (r_ptr->body.light_mask & EQUIP_SLOT(i))  idx = EQUIP_LIGHT;
+				else if (r_ptr->body.body_mask & EQUIP_SLOT(i))   idx = EQUIP_BODY;
+				else if (r_ptr->body.shield_mask & EQUIP_SLOT(i)) idx = EQUIP_SHIELD;
+				else if (r_ptr->body.helm_mask & EQUIP_SLOT(i))   idx = EQUIP_HELM;
+				else if (r_ptr->body.glove_mask & EQUIP_SLOT(i))  idx = EQUIP_GLOVE;
+				else if (r_ptr->body.boot_mask & EQUIP_SLOT(i))   idx = EQUIP_BOOT;
+
+				if (price[idx] == -1) continue;
+				if (price[idx] < val) price[idx] = val;
+			}
+
+			/* Check the home as well */
+			for (i = 0; i < st_ptr->stock_num; i++)
+			{
+			    	int slot, val, idx;
+				object_type *o_ptr = &st_ptr->stock[i];
+
+				slot = wield_slot(o_ptr);
+				val = object_value(o_ptr);
+
+			    	if      (r_ptr->body.weapon_mask & EQUIP_SLOT(i)) idx = EQUIP_WEAPON;
+				else if (r_ptr->body.bow_mask & EQUIP_SLOT(i))    idx = EQUIP_BOW;
+				else if (r_ptr->body.ring_mask & EQUIP_SLOT(i))   idx = EQUIP_RING;
+				else if (r_ptr->body.amulet_mask & EQUIP_SLOT(i)) idx = EQUIP_AMULET;
+				else if (r_ptr->body.light_mask & EQUIP_SLOT(i))  idx = EQUIP_LIGHT;
+				else if (r_ptr->body.body_mask & EQUIP_SLOT(i))   idx = EQUIP_BODY;
+				else if (r_ptr->body.shield_mask & EQUIP_SLOT(i)) idx = EQUIP_SHIELD;
+				else if (r_ptr->body.helm_mask & EQUIP_SLOT(i))   idx = EQUIP_HELM;
+				else if (r_ptr->body.glove_mask & EQUIP_SLOT(i))  idx = EQUIP_GLOVE;
+				else if (r_ptr->body.boot_mask & EQUIP_SLOT(i))   idx = EQUIP_BOOT;
+
+				if (price[idx] == -1) continue;
+				if (price[idx] < val) price[idx] = val;
+			}
+
+			/* Base number for loops on fame, but put in a minimum of 4 */
+			repeats = p_ptr->fame / 5;
+			if (repeats < 4) repeats = 4;
+
+			/* Attempt an item */
+			i = 0;
+			while (i < repeats)
+			{
+			    	bool do_great = FALSE;
+				store_type *st_ptr = &store[STORE_GUILD];  /* Create items in the guild */
+				object_type *j_ptr = &st_ptr->stock[i];
+
+				/* Pick a type */
+				x = rand_int(EQUIP_ANY);
+
+				/* Skip objects which we won't be able to equip */
+				if (price[x] == -1) continue;
+
+				/* Skip amulets/light, count them as jewelry */
+				if (x == EQUIP_AMULET || x == EQUIP_LIGHT) continue;
+			
+				/* Set the theme */
+				switch (x)
 				{
-					x--;
-				    continue;
-				}
-				/* Pick a theme  */
-				switch (i)
-				{
-					case INVEN_WIELD:
+				    	case EQUIP_WEAPON:	droptype = DROP_TYPE_WEAPON; break;
+					case EQUIP_BOW:		droptype = DROP_TYPE_BOW; break;
+					case EQUIP_RING:
 					{
-						droptype = DROP_TYPE_WEAPON;
-						break;
-					}
-					case INVEN_BOW:
-					{
-						droptype = DROP_TYPE_BOW;
-						break;
-					}
-					case INVEN_LEFT:
-					{
-						/*note:  this theme can produce "&nothing" if object level
-						 * isn't high enough
+					    	/*
+						 * Note: this theme can produce "&nothing" if
+						 * object level isn't high enough
 						 */
-						if (object_level < 60)
-						{
-							x--;
-							continue;
-						}
-						else droptype = DROP_TYPE_JEWELRY;
-						break;
+					    	droptype = DROP_TYPE_JEWELRY;
+						if (object_level < 60) continue;
 					}
-					case INVEN_BODY:
-					{
-						droptype = DROP_TYPE_ARMOR;
-						break;
-					}
-					case INVEN_OUTER:
-					{
-						droptype = DROP_TYPE_CLOAK;
-						break;
-					}
-					case INVEN_ARM:
-					{
-						droptype = DROP_TYPE_SHIELD;
-						break;
-					}
-					case INVEN_HEAD:
-					{
-						droptype = DROP_TYPE_HEADGEAR;
-						break;
-					}
-					case INVEN_HANDS:
-					{
-						droptype = DROP_TYPE_GLOVES;
-						break;
-					}
-					case INVEN_FEET:
-					{
-						droptype = DROP_TYPE_BOOTS;
-						break;
-					}
-
-					/*paranoia*/
-					default: droptype = DROP_TYPE_UNTHEMED;
+					break;
+					case EQUIP_BODY:	droptype = DROP_TYPE_ARMOR; break;
+					case EQUIP_CLOAK:	droptype = DROP_TYPE_CLOAK; break;
+					case EQUIP_SHIELD:	droptype = DROP_TYPE_SHIELD; break;
+					case EQUIP_HELM:	droptype = DROP_TYPE_HEADGEAR; break;
+					case EQUIP_GLOVE:	droptype = DROP_TYPE_GLOVES; break;
+					case EQUIP_BOOT:	droptype = DROP_TYPE_BOOTS; break;
+					default:		droptype = DROP_TYPE_UNTHEMED; break;
 				}
-
+				
 				/* Wipe the object */
 				object_wipe(j_ptr);
 
-				/* Valid item exists?  If not, don't count it*/
-				(void)make_object(j_ptr, FALSE, TRUE, droptype);
+				/* Make more artifact rolls if the fame is good enough */
+				if (randint(200) < p_ptr->fame) do_great = TRUE;
 
-				/* hopefully eliminate the &nothing bug*/
-				if (!j_ptr->k_idx)
-				{
-					x--;
+				/* Valid item exists?  If not, don't count it */
+				if (!make_object(j_ptr, do_great, TRUE, droptype)) continue;
+
+				/* Hack -- in case of artifact, mark it as not created yet */
+				if (j_ptr->name1) a_info[j_ptr->name1].cur_num = 0;
+				
+				/* Make sure weapon isn't too heavy */
+				if ((x == EQUIP_WEAPON) &&
+					(adj_str_hold[p_ptr->stat_ind[A_STR]] < j_ptr->weight / 10))
+			   	{
+					/* Don't count this one */
 					continue;
 				}
 
-				/* Hack -- in case of artifact, mark it as not created yet */
-				if (j_ptr->name1)
-
-			 	{
-					a_info[j_ptr->name1].cur_num = 0;
-
-				}
-
-				/* Make sure weapon isn't too heavy */
-				if ((i == INVEN_WIELD) &&
-					(adj_str_hold[p_ptr->stat_ind[A_STR]] < j_ptr->weight / 10))
-			   	{
-
-					/*don't count this one*/
-					x--;
-
-				    continue;
-				}
-
-				/*blessed weapons only for priests*/
-				if ((i == INVEN_WIELD) && (cp_ptr->flags & CF_BLESS_WEAPON) &&
+				/* Blessed weapons only for priests */
+				if ((x == EQUIP_WEAPON) && (cp_ptr->flags & CF_BLESS_WEAPON) &&
 					((j_ptr->tval == TV_SWORD) || (j_ptr->tval == TV_POLEARM)) &&
 					(!is_blessed(j_ptr)))
 				{
-
-					/*don't count this one*/
-					x--;
+					/* Don't count this one */
 					continue;
 				}
 
 				/* Make sure gloves won't ruin spellcasting */
-				if ((i == INVEN_HANDS) && (cp_ptr->flags & CF_CUMBER_GLOVE))
+				if ((x == EQUIP_GLOVE) && (cp_ptr->flags & CF_CUMBER_GLOVE))
 				{
-					u32b f1, f2, f3;
+					u32b f1, f2, f3, f4;
 
-					object_flags(j_ptr, &f1, &f2, &f3);
+					object_flags(j_ptr, &f1, &f2, &f3, &f4);
 
 					/* Limit to legal glove types */
 					if (!((f3 & (TR3_FREE_ACT)) || (f1 & (TR1_DEX))))
 					{
-
-					    /*don't count this one*/
-						x--;
-
+						/* Don't count this one */
  						continue;
 					}
 				}
-
-				/* Hack - mark as identified */
+				
+				/* Hack -- mark as identified */
 				object_known(j_ptr);
 
-				/* Mark price - hack - increase value if we had nothing for this slot */
-				if (price[i]) val[i] = (object_value(j_ptr) - price[i]);
-				else val[i] = 20 * object_value(j_ptr);
+				/* Mark price */
+				/* Hack -- increase value if we had nothing for this slot */
+				if (price[x])
+				{
+				    	curprice = (object_value(j_ptr) - price[x]);
+				}
+				else
+				{
+				    	curprice = 20 * object_value(j_ptr);
+				}
 
 				/* Don't accept items that aren't better than the old ones */
-				if (val[i] <= 0) continue;
+				if (curprice <= 0) continue;
 
 				/* Best item yet? */
-				if (val[i] > diff)
+				if (curprice > diff)
 				{
-					diff = val[i];
+					diff = curprice;
 
 					/* Get local object */
 					i_ptr = &object_type_body;
@@ -663,11 +631,10 @@ static void grant_reward(byte type)
 					object_copy(i_ptr, j_ptr);
 
 					got_item = TRUE;
-
 				}
 
 				/* Identical values */
-				else if (val[i] == diff)
+				else if (curprice == diff)
 				{
 					/* Maybe use second one */
 					if (rand_int(2))
@@ -684,26 +651,30 @@ static void grant_reward(byte type)
 						got_item = TRUE;
 					}
 				}
-
+				
+				i++;
 			}
 		}
+
 		/* hopefully eliminate the &nothing bug*/
 		if (!i_ptr->k_idx)
 		{
 			got_item = FALSE;
 		}
-
+		
+		/* Give only suitable items (shouldn't be needed now)  */
+		/* if (wearable_p(i_ptr) && wield_slot(i_ptr) == -1) got_item = FALSE; */
 	}
 
 	/* We don't have a tailored item, or the reward is good or great*/
 	if (!got_item)
 	{
 
-		/*a reward for a reward_good_item is one great item, one artifact roll*/
+		/* A reward for a reward_good_item is one great item, one artifact roll */
 		bool great = TRUE;
-	    bool good = FALSE;
+		bool good = FALSE;
 
-		/*but if it's great, 4 artifact rolls*/
+		/* But if it's great, 4 artifact rolls */
 		if ((type == REWARD_TAILORED) || (REWARD_GREAT_ITEM)) good = TRUE;
 
 		while (!got_item)
@@ -720,6 +691,9 @@ static void grant_reward(byte type)
 
 			/* hopefully eliminate the &nothing bug*/
 			if (!i_ptr->k_idx) continue;
+			
+			/* Give only suitable items */
+			if (wield_slot(i_ptr) == -1) continue;
 
 			got_item = TRUE;
 		}
@@ -735,36 +709,34 @@ static void grant_reward(byte type)
 	/* Handle Artifacts */
 	if (i_ptr->name1)
 	{
+		int artifact_depth;
+  	   	char note[120];
+		char shorter_desc[100];
+
 		/*
 		 * Artifact might not yet be marked as created (if it was chosen from tailored
 		 * rewards), so now it's the right time to mark it
 		 */
 		a_info[i_ptr->name1].cur_num = 1;
 
-		/* If the item was an artifact, and if the auto-note is selected, write a message. */
-   		 if (adult_take_notes)
-		{
-			int artifact_depth;
-    	    char note[120];
-			char shorter_desc[100];
+		/* Write a note */
 
-			/* Get a shorter description to fit the notes file */
-			object_desc(shorter_desc, sizeof(shorter_desc), i_ptr, TRUE, 0);
+		/* Get a shorter description to fit the notes file */
+		object_desc(shorter_desc, sizeof(shorter_desc), i_ptr, TRUE, 0);
 
-			/* Build note and write */
-    	    sprintf(note, "Reward: %s", shorter_desc);
+		/* Build note and write */
+		sprintf(note, "Reward: %s", shorter_desc);
 
-			/*record the depth where the artifact was created*/
-			artifact_depth = i_ptr->xtra1;
+		/*record the depth where the artifact was created*/
+		artifact_depth = i_ptr->xtra1;
 
-    	    do_cmd_note(note, artifact_depth);
+    		do_cmd_note(note, artifact_depth);
 
-			/*mark item creation depth as 0, which will indicate the artifact
-			 *has been previously identified.  This prevents an artifact from showing
-			 *up on the notes list twice ifit has been previously identified.  JG
-			 */
-			i_ptr->xtra1 = 0;
-		}
+		/*mark item creation depth as 0, which will indicate the artifact
+		 *has been previously identified.  This prevents an artifact from showing
+		 *up on the notes list twice ifit has been previously identified.  JG
+		 */
+		i_ptr->xtra1 = 0;
 	}
 
 	/* Describe the object */
@@ -839,7 +811,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 	/*assumes lev is always greater than 0*/
 	min_depth = difficulty + lev;
 
-	/* Try to place a unique quest, maybe (only after 250')*/
+	/* Try to place a unique quest*/
 	if ((rand_int(100)) < (2 + (2 * (difficulty + (lev / 5)))))
 
 	{
@@ -891,16 +863,17 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			total += table[i].prob3;
 		}
 
+		/*reverse the depth adjustment above*/
+		min_depth -= 2;
+		max_depth -= 2;
+
 	}
 
 	/*no eligible uniques*/
-	if(!total)
+	if (!total)
 	{
     	unique = FALSE;
 
-		/*reverse the depth adjustment above*/
-		min_depth -=2;
-		max_depth -=2;
 	}
 
 	/* Mark as a unique quest */
@@ -938,7 +911,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			number -= ((d < 5) ? d : 5);
 		}
 
-		/* More likely chance of climbing up */
+		/* More likely chance of climbing down, but adding more monstersp */
 		else if (rand_int(100) < (difficulty * 10))
 		{
 			number += (damroll(2,2) - 1);
@@ -969,7 +942,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
 			/*no quests for certain kinds of animals the guild wouldn't care about*/
-			if ((strchr("BFIJKSXabcejlrmwj,", r_ptr->d_char)) &&
+			if ((strchr("BFIJKSabcejlrmw,", r_ptr->d_char)) &&
 				(!(r_ptr->flags2 & (RF2_SMART)))) continue;
 
 			/* Hack -- No town monsters in quests */
@@ -1021,7 +994,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 	if (total == 0)
 	{
 		/* No monsters - no quest */
-		msg_print("There are no elligable monsters to quest for");
+		msg_print("There are no elligable monsters to quest for.");
 
 		return FALSE;
 	}
@@ -1086,7 +1059,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 		else
 		{
 			/* Maybe a tailored reward */
-			if (20 + rand_int(50) < p_ptr->fame) q_info[q].reward = REWARD_TAILORED;
+			if (10 + rand_int(50) < p_ptr->fame) q_info[q].reward = REWARD_TAILORED;
 			else q_info[q].reward = REWARD_GREAT_ITEM;
 		}
 	}
@@ -1171,16 +1144,12 @@ void display_guild(void)
 			/* Grant fame bonus */
 			p_ptr->fame += 5;
 
-			/*if using notes file, make a note*/
-			if (adult_take_notes)
-			{
-				/* Make note */
-            	sprintf(note, "Quest: Retrieved a special jeweled chest for the Adventurer's Guild.");
+			/* Make note */
+	            	sprintf(note, "Quest: Retrieved a special jeweled chest for the Adventurer's Guild.");
 
-				/*write note*/
- 		  		do_cmd_note(note, q_info[i].active_level);
-			}
-
+			/*write note*/
+ 		 	do_cmd_note(note, q_info[i].active_level);
+			
 			/* Finish the quest */
 			q_info[i].active_level = 0;
 
@@ -1347,15 +1316,15 @@ void display_guild(void)
 			avail_quest++;
 		}
 
-		/*sometimes offer a vault quest*/
+		/* Sometimes offer a vault quest */
 		if (p_ptr->fame % GUILD_FAME_SPECIAL == 7)
 		{
 			put_str(format("%c)", I2A(avail_quest)), 10 + avail_quest, 0);
 			c_put_str(TERM_VIOLET, "A special quest.", 10 + avail_quest, 4);
 			avail_quest++;
 		}
-	}
 
+	}
 	else
 	{
 		put_str("Your current quest:", 8, 3);
@@ -1372,6 +1341,29 @@ void display_guild(void)
 		}
 	}
 
+	/* Other services */
+	put_str("Available services:", 15, 3);
+	put_str("a) ", 17, 0);
+	c_put_str(TERM_L_BLUE, "Sell unique corpse", 17, 4);
+	put_str("b) ", 18, 0);
+	if (p_ptr->fame >= 30)
+	{
+		c_put_str(TERM_L_BLUE, "*Identify* (4000gp)", 18, 4);
+	}
+	else
+	{
+		c_put_str(TERM_L_DARK, "*Identify* (closed)", 18, 4);
+	}
+
+	put_str("c) ", 19, 0);
+	if (p_ptr->fame >= 50)
+	{
+		c_put_str(TERM_L_BLUE, "Reforge artifact (cost varies)", 19, 4);
+	}
+	else
+	{
+		c_put_str(TERM_L_DARK, "Reforge artifact (closed)", 19, 4);
+	}
 }
 
 /*
@@ -1394,7 +1386,7 @@ static int get_quest(void)
 
 		/* Lowercase */
 		which = tolower((unsigned char)which);
-
+		
 		/* Convert response to item */
 		item = A2I(which);
 
@@ -1563,6 +1555,8 @@ void quest_fail(void)
 {
 	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
 	monster_race *r_ptr = &r_info[q_ptr->mon_idx];
+	byte quest;
+	char note[120];
 
 	/* Message */
 	msg_print("You have failed in your quest!");
@@ -1570,57 +1564,49 @@ void quest_fail(void)
 	/* Reputation penalty */
 	if (p_ptr->fame) p_ptr->fame /= 2;
 
-	/*make a note of the failed quest */
-	if (adult_take_notes)
+	/*find out the type of quest*/
+	quest = quest_check(p_ptr->depth);
+
+	/* Pretty ugly hack to avoid "kill 0 <player>" */
+	if (quest == QUEST_VAULT || !q_ptr->mon_idx)
 	{
-		byte quest;
+		sprintf(note,
+		 "Failed a quest to return a large, sealed jeweled chest to the guild");
+	}
 
-		char note[120];
+	else
+	{
+		char race_name[80];
 
-		/*find out the type of quest*/
-		quest = quest_check(p_ptr->depth);
+		/* Get the monster race name (singular)*/
+		monster_desc_race(race_name, sizeof(race_name), q_ptr->mon_idx);
 
-		if (quest == QUEST_VAULT)
+		/* Multiple quest monsters */
+		if (q_ptr->max_num > 1)
 		{
-			sprintf(note,
-			 "Failed a quest to return a large, sealed jeweled chest to the guild");
+			plural_aux(race_name, sizeof(race_name));
+		}
+
+		if (q_ptr->type == QUEST_UNIQUE)
+		{
+			/*write note*/
+			if monster_nonliving(r_ptr)
+			sprintf(note, "Failed a quest to destroy %s", race_name);
+			else sprintf(note, "Failed a quest to kill %s", race_name);
 		}
 
 		else
 		{
-			char race_name[80];
+			/* Write note */
+			if monster_nonliving(r_ptr)
+         		sprintf(note, "Failed a quest to destroy %d %s", q_ptr->max_num, race_name);
+			else sprintf(note, "Failed a quest to kill %d %s", q_ptr->max_num, race_name);
+		}
 
-			/* Get the monster race name (singular)*/
-			monster_desc_race(race_name, sizeof(race_name), q_ptr->mon_idx);
+ 	}
 
-			/* Multiple quest monsters */
-			if (q_ptr->max_num > 1)
-			{
-				plural_aux(race_name, sizeof(race_name));
-			}
-
-			if (quest == QUEST_UNIQUE)
-			{
-				/*write note*/
-				if monster_nonliving(r_ptr)
-				sprintf(note, "Failed a quest to destroy %s", race_name);
-				else sprintf(note, "Failed a quest to kill %s", race_name);
-			}
-
-			else
-			{
-				/* Write note */
-				if monster_nonliving(r_ptr)
-            		sprintf(note, "Failed a quest to destroy %d %s", q_ptr->max_num, race_name);
-				else sprintf(note, "Failed a quest to kill %d %s", q_ptr->max_num, race_name);
-			}
-
- 		}
-
-		/*write the note*/
-		do_cmd_note(note, q_ptr->active_level);
-
-	}
+	/*write the note*/
+	do_cmd_note(note, q_ptr->active_level);
 
 	/* Mark quest as done */
 	q_ptr->active_level = 0;

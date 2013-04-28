@@ -1,17 +1,18 @@
-/* File: tables.c */
-
-/*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+/* PosBand -- A variant of Angband roguelike
+ *
+ * Copyright (c) 2004 Ben Harrison, Robert Ruehlmann and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ * 
+ * NPPAngband Copyright (c) 2003-2004 Jeff Greene
+ * PosBand Copyright (c) 2004-2005 Alexander Ulyanov
  */
 
-#include "angband.h"
+/* tables.c: constant tables */
 
-
-
+#include "posband.h"
 
 /*
  * Global array for looping through the "keypad directions".
@@ -52,92 +53,92 @@ const char hexsym[16] =
 /*
  * Stat Table (INT/WIS) -- Number of half-spells per level
  */
-const byte adj_mag_study[] =
+const int adj_mag_study[] =
 {
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	2	/* 18/00-18/09 */,
-	2	/* 18/10-18/19 */,
-	2	/* 18/20-18/29 */,
-	2	/* 18/30-18/39 */,
-	2	/* 18/40-18/49 */,
-	3	/* 18/50-18/59 */,
-	3	/* 18/60-18/69 */,
-	3	/* 18/70-18/79 */,
-	3	/* 18/80-18/89 */,
-	4	/* 18/90-18/99 */,
-	4	/* 18/100-18/109 */,
-	4	/* 18/110-18/119 */,
-	5	/* 18/120-18/129 */,
-	5	/* 18/130-18/139 */,
-	5	/* 18/140-18/149 */,
-	5	/* 18/150-18/159 */,
-	5	/* 18/160-18/169 */,
-	5	/* 18/170-18/179 */,
-	5	/* 18/180-18/189 */,
-	5	/* 18/190-18/199 */,
-	5	/* 18/200-18/209 */,
-	5	/* 18/210-18/219 */,
-	5	/* 18/220+ */
+	  0	/* 3 */,
+	  0	/* 4 */,
+	 10	/* 5 */,
+	 20	/* 6 */,
+	 30	/* 7 */,
+	 40	/* 8 */,
+	 50	/* 9 */,
+	 60	/* 10 */,
+	 70	/* 11 */,
+	 80	/* 12 */,
+	 85	/* 13 */,
+	 90	/* 14 */,
+	 95	/* 15 */,
+	100	/* 16 */,
+	105	/* 17 */,
+	110	/* 18/00-18/09 */,
+	115	/* 18/10-18/19 */,
+	120	/* 18/20-18/29 */,
+	130	/* 18/30-18/39 */,
+	140	/* 18/40-18/49 */,
+	150	/* 18/50-18/59 */,
+	160	/* 18/60-18/69 */,
+	170	/* 18/70-18/79 */,
+	180	/* 18/80-18/89 */,
+	190	/* 18/90-18/99 */,
+	200	/* 18/100-18/109 */,
+	210	/* 18/110-18/119 */,
+	220	/* 18/120-18/129 */,
+	230	/* 18/130-18/139 */,
+	240	/* 18/140-18/149 */,
+	250	/* 18/150-18/159 */,
+	250	/* 18/160-18/169 */,
+	250	/* 18/170-18/179 */,
+	250	/* 18/180-18/189 */,
+	250	/* 18/190-18/199 */,
+	250	/* 18/200-18/209 */,
+	250	/* 18/210-18/219 */,
+	250	/* 18/220+ */
 };
 
 
 /*
  * Stat Table (INT/WIS) -- extra half-mana-points per level
  */
-const byte adj_mag_mana[] =
+const int adj_mag_mana[] =
 {
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	2	/* 9 */,
-	2	/* 10 */,
-	2	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
-	5	/* 18/70-18/79 */,
-	6	/* 18/80-18/89 */,
-	7	/* 18/90-18/99 */,
-	8	/* 18/100-18/109 */,
-	9	/* 18/110-18/119 */,
-	10	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	13	/* 18/150-18/159 */,
-	14	/* 18/160-18/169 */,
-	15	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	16	/* 18/190-18/199 */,
-	16	/* 18/200-18/209 */,
-	16	/* 18/210-18/219 */,
-	16	/* 18/220+ */
+	  0	/* 3 */,
+	 10	/* 4 */,
+	 20	/* 5 */,
+	 30	/* 6 */,
+	 40	/* 7 */,
+	 50	/* 8 */,
+	 60	/* 9 */,
+	 70	/* 10 */,
+	 80	/* 11 */,
+	 90	/* 12 */,
+	100	/* 13 */,
+	110	/* 14 */,
+	120	/* 15 */,
+	130	/* 16 */,
+	140	/* 17 */,
+	150	/* 18/00-18/09 */,
+	160	/* 18/10-18/19 */,
+	170	/* 18/20-18/29 */,
+	180	/* 18/30-18/39 */,
+	190	/* 18/40-18/49 */,
+	200	/* 18/50-18/59 */,
+	225	/* 18/60-18/69 */,
+	250	/* 18/70-18/79 */,
+	300	/* 18/80-18/89 */,
+	350	/* 18/90-18/99 */,
+	400	/* 18/100-18/109 */,
+	450	/* 18/110-18/119 */,
+	500	/* 18/120-18/129 */,
+	550	/* 18/130-18/139 */,
+	600	/* 18/140-18/149 */,
+	650	/* 18/150-18/159 */,
+	700	/* 18/160-18/169 */,
+	750	/* 18/170-18/179 */,
+	800	/* 18/180-18/189 */,
+	800	/* 18/190-18/199 */,
+	800	/* 18/200-18/209 */,
+	800	/* 18/210-18/219 */,
+	800	/* 18/220+ */
 };
 
 
@@ -188,48 +189,48 @@ const byte adj_mag_fail[] =
 
 
 /*
- * Stat Table (INT/WIS) -- Various things
+ * Stat Table (INT/WIS) -- failure rate adjustment
  */
-const byte adj_mag_stat[] =
+const int adj_mag_stat[] =
 {
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	1	/* 12 */,
-	1	/* 13 */,
-	1	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
-	5	/* 18/70-18/79 */,
-	6	/* 18/80-18/89 */,
-	7	/* 18/90-18/99 */,
-	8	/* 18/100-18/109 */,
-	9	/* 18/110-18/119 */,
-	10	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	13	/* 18/150-18/159 */,
-	14	/* 18/160-18/169 */,
-	15	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	17	/* 18/190-18/199 */,
-	18	/* 18/200-18/209 */,
-	19	/* 18/210-18/219 */,
-	20	/* 18/220+ */
+	-5	/* 3 */,
+	-4	/* 4 */,
+	-3	/* 5 */,
+	-3	/* 6 */,
+	-2	/* 7 */,
+	-1	/* 8 */,
+	 0	/* 9 */,
+	 0	/* 10 */,
+	 0	/* 11 */,
+	 0	/* 12 */,
+	 0	/* 13 */,
+	 1	/* 14 */,
+	 2	/* 15 */,
+	 3	/* 16 */,
+	 4	/* 17 */,
+	 5	/* 18/00-18/09 */,
+	 6	/* 18/10-18/19 */,
+	 7	/* 18/20-18/29 */,
+	 8	/* 18/30-18/39 */,
+	 9	/* 18/40-18/49 */,
+	10	/* 18/50-18/59 */,
+	11	/* 18/60-18/69 */,
+	12	/* 18/70-18/79 */,
+	15	/* 18/80-18/89 */,
+	18	/* 18/90-18/99 */,
+	21	/* 18/100-18/109 */,
+	24	/* 18/110-18/119 */,
+	27	/* 18/120-18/129 */,
+	30	/* 18/130-18/139 */,
+	33	/* 18/140-18/149 */,
+	36	/* 18/150-18/159 */,
+	39	/* 18/160-18/169 */,
+	42	/* 18/170-18/179 */,
+	45	/* 18/180-18/189 */,
+	48	/* 18/190-18/199 */,
+	51	/* 18/200-18/209 */,
+	54	/* 18/210-18/219 */,
+	57	/* 18/220+ */
 };
 
 
@@ -323,7 +324,50 @@ const s16b adj_chr_charm[] =
 	15	/* 18/220+ */
 };
 
-
+/*
+ * Stat Table (CHR) -- number of companions
+ */
+const byte adj_chr_comp[] =
+{
+	0	/* 3 */,
+	0	/* 4 */,
+	0	/* 5 */,
+	0	/* 6 */,
+	0	/* 7 */,
+	1	/* 8 */,
+	1	/* 9 */,
+	1	/* 10 */,
+	1	/* 11 */,
+	1	/* 12 */,
+	1	/* 13 */,
+	1	/* 14 */,
+	1	/* 15 */,
+	2	/* 16 */,
+	2	/* 17 */,
+	2	/* 18/00-18/09 */,
+	2	/* 18/10-18/19 */,
+	2	/* 18/20-18/29 */,
+	2	/* 18/30-18/39 */,
+	3	/* 18/40-18/49 */,
+	3	/* 18/50-18/59 */,
+	3	/* 18/60-18/69 */,
+	3	/* 18/70-18/79 */,
+	3	/* 18/80-18/89 */,
+	3	/* 18/90-18/99 */,
+	4	/* 18/100-18/109 */,
+	4	/* 18/110-18/119 */,
+	4	/* 18/120-18/129 */,
+	4	/* 18/130-18/139 */,
+	4	/* 18/140-18/149 */,
+	5	/* 18/150-18/159 */,
+	5	/* 18/160-18/169 */,
+	5	/* 18/170-18/179 */,
+	5	/* 18/180-18/189 */,
+	5	/* 18/190-18/199 */,
+	6	/* 18/200-18/209 */,
+	6	/* 18/210-18/219 */,
+	6	/* 18/220+ */
+};
 
 /*
  * Stat Table (INT) -- Magic devices
@@ -1018,46 +1062,47 @@ const byte adj_con_fix[] =
 /*
  * Stat Table (CON) -- extra half-hitpoints per level (plus 128)
  */
-const byte adj_con_mhp[] =
+const int adj_con_mhp[] =
 {
-	128 + -5	/* 3 */,
-	128 + -3	/* 4 */,
-	128 + -2	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
-	128 + 0	/* 9 */,
-	128 + 0	/* 10 */,
-	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 1	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 2	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
-	128 + 4	/* 18/10-18/19 */,
-	128 + 4	/* 18/20-18/29 */,
-	128 + 4	/* 18/30-18/39 */,
-	128 + 4	/* 18/40-18/49 */,
-	128 + 5	/* 18/50-18/59 */,
-	128 + 6	/* 18/60-18/69 */,
-	128 + 7	/* 18/70-18/79 */,
-	128 + 8	/* 18/80-18/89 */,
-	128 + 9	/* 18/90-18/99 */,
-	128 + 10	/* 18/100-18/109 */,
-	128 + 11	/* 18/110-18/119 */,
-	128 + 12	/* 18/120-18/129 */,
-	128 + 13	/* 18/130-18/139 */,
-	128 + 14	/* 18/140-18/149 */,
-	128 + 15	/* 18/150-18/159 */,
-	128 + 16	/* 18/160-18/169 */,
-	128 + 18	/* 18/170-18/179 */,
-	128 + 20	/* 18/180-18/189 */,
-	128 + 22	/* 18/190-18/199 */,
-	128 + 25	/* 18/200-18/209 */,
-	128 + 25	/* 18/210-18/219 */,
-	128 + 25	/* 18/220+ */
+	-250	/* 3 */,
+	-150	/* 4 */,
+	-100	/* 5 */,
+	 -75	/* 6 */,
+	 -50	/* 7 */,
+	 -25	/* 8 */,
+	 -10	/* 9 */,
+	  -5	/* 10 */,
+	   0	/* 11 */,
+	   5	/* 12 */,
+	  10	/* 13 */,
+	  25	/* 14 */,
+	  50	/* 15 */,
+	  75	/* 16 */,
+	 100	/* 17 */,
+	 150	/* 18/00-18/09 */,
+	 175	/* 18/10-18/19 */,
+	 200	/* 18/20-18/29 */,
+	 225	/* 18/30-18/39 */,
+	 250	/* 18/40-18/49 */,
+	 275	/* 18/50-18/59 */,
+	 300	/* 18/60-18/69 */,
+	 350	/* 18/70-18/79 */,
+	 400	/* 18/80-18/89 */,
+	 450	/* 18/90-18/99 */,
+	 500	/* 18/100-18/109 */,
+	 550	/* 18/110-18/119 */,
+	 600	/* 18/120-18/129 */,
+	 650	/* 18/130-18/139 */,
+	 700	/* 18/140-18/149 */,
+	 750	/* 18/150-18/159 */,
+	 800	/* 18/160-18/169 */,
+	 900	/* 18/170-18/179 */,
+	1000	/* 18/180-18/189 */,
+	1100	/* 18/190-18/199 */,
+	1250	/* 18/200-18/209 */,
+	1250	/* 18/210-18/219 */,
+	1250	/* 18/220+ */
+
 };
 
 
@@ -1256,6 +1301,363 @@ const player_sex sex_info[MAX_SEXES] =
 	}
 };
 
+/*
+ * Spells in each book (mage spells then priest spells)
+ */
+const u32b spell_table[2][9][2] =
+{
+	{
+	/* Magic for Beginners */
+	BOOK(SPELL_MAGIC_MISSILE,
+	     SPELL_DETECT_MONSTERS,
+	     SPELL_PHASE_DOOR,
+	     SPELL_LIGHT_AREA,
+	     SPELL_TREASURE_DETECTION,
+	     SPELL_CURE_LIGHT_WOUNDS,
+	     SPELL_OBJECT_DETECTION,
+	     SPELL_FIND_TRAPS_DOORS,
+	     SPELL_STINKING_CLOUD),
+
+	/* Conjurings and Tricks */
+	BOOK(SPELL_CONFUSE_MONSTER,
+	     SPELL_LIGHTNING_BOLT,
+	     SPELL_TRAP_DOOR_DESTRUCTION,
+	     SPELL_CURE_POISON,
+	     SPELL_SLEEP_MONSTER,
+	     SPELL_TELEPORT_SELF,
+	     SPELL_SPEAR_OF_LIGHT,
+	     SPELL_FROST_BOLT,
+	     SPELL_WONDER),
+
+	/* Incantations and Illusions */
+	BOOK(SPELL_SATISFY_HUNGER,
+	     SPELL_RECHARGE_ITEM_I,
+	     SPELL_TURN_STONE_TO_MUD,
+	     SPELL_FIRE_BOLT,
+	     SPELL_POLYMORPH_OTHER,
+	     SPELL_IDENTIFY,
+	     SPELL_DETECT_INVISIBLE,
+	     SPELL_ACID_BOLT,
+	     SPELL_SLOW_MONSTER),
+
+	/* Sorcery and Evocations */
+	BOOK(SPELL_FROST_BALL,
+	     SPELL_TELEPORT_OTHER,
+	     SPELL_HASTE_SELF,
+	     SPELL_MASS_SLEEP,
+	     SPELL_FIRE_BALL,
+	     SPELL_DETECT_ENCHANTMENT,
+	     -1,
+	     -1,
+	     -1),
+
+	/* Resistances of Scarabtarices */
+	BOOK(SPELL_RESIST_COLD,
+	     SPELL_RESIST_FIRE,
+	     SPELL_RESIST_POISON,
+	     SPELL_RESISTANCE,
+	     SPELL_SHIELD,
+	     -1,
+	     -1,
+	     -1,
+	     -1),
+
+	/* Raal's Tome of Destruction */
+	BOOK(SPELL_SHOCK_WAVE,
+	     SPELL_EXPLOSION,
+	     SPELL_CLOUD_KILL,
+	     SPELL_ACID_BALL,
+	     SPELL_ICE_STORM,
+	     SPELL_METEOR_SWARM,
+	     SPELL_RIFT,
+	     -1,
+	     -1),
+
+	/* Mordenkainen's Escapes */
+	BOOK(SPELL_DOOR_CREATION,
+	     SPELL_STAIR_CREATION,
+	     SPELL_TELEPORT_LEVEL,
+	     SPELL_WORD_OF_RECALL,
+	     SPELL_RUNE_OF_PROTECTION,
+	     -1,
+	     -1,
+	     -1,
+	     -1),
+
+	/* Tenser's transformations */
+	BOOK(SPELL_HEROISM,
+	     SPELL_BERSERKER,
+	     SPELL_ENCHANT_ARMOR,
+	     SPELL_ENCHANT_WEAPON,
+	     SPELL_RECHARGE_ITEM_II,
+	     SPELL_ELEMENTAL_BRAND,
+	     -1,
+	     -1,
+	     -1),
+
+	/* Kelek's Grimoire of Power */
+	BOOK(SPELL_EARTHQUAKE,
+	     SPELL_BEDLAM,
+	     SPELL_REND_SOUL,
+	     SPELL_BANISHMENT,
+	     SPELL_WORD_OF_DESTRUCTION,
+	     SPELL_MASS_BANISHMENT,
+	     SPELL_CHAOS_STRIKE,
+	     SPELL_MANA_STORM,
+	     -1),
+	},
+
+	{
+		/*** Priest spell books ***/
+		BOOK(PRAYER_DETECT_EVIL,
+			 PRAYER_CURE_LIGHT_WOUNDS,
+			 PRAYER_BLESS,
+			 PRAYER_REMOVE_FEAR,
+			 PRAYER_CALL_LIGHT,
+			 PRAYER_FIND_TRAPS_DOORS_STAIRS,
+			 PRAYER_BOLT_OF_DRAINING,
+			 PRAYER_SLOW_POISON,
+			 -1),
+		BOOK(PRAYER_SCARE_MONSTER,
+			 PRAYER_PORTAL,
+			 PRAYER_CURE_SERIOUS_WOUNDS,
+			 PRAYER_CHANT,
+			 PRAYER_SANCTUARY,
+			 PRAYER_SATISFY_HUNGER,
+			 PRAYER_REMOVE_CURSE,
+			 PRAYER_RESIST_HEAT_COLD,
+			 -1),
+		BOOK(PRAYER_NEUTRALIZE_POISON,
+			 PRAYER_ORB_OF_DRAINING,
+			 PRAYER_CURE_CRITICAL_WOUNDS,
+			 PRAYER_SENSE_INVISIBLE,
+			 PRAYER_PROTECTION_FROM_EVIL,
+			 PRAYER_EARTHQUAKE,
+			 PRAYER_SENSE_SURROUNDINGS,
+			 PRAYER_CURE_MORTAL_WOUNDS,
+			 PRAYER_TURN_UNDEAD),
+		BOOK(PRAYER_PRAYER,
+			 PRAYER_DISPEL_UNDEAD,
+			 PRAYER_HEAL,
+			 PRAYER_DISPEL_EVIL,
+			 PRAYER_GLYPH_OF_WARDING,
+			 PRAYER_HOLY_WORD,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(PRAYER_BLINK,
+			 PRAYER_TELEPORT_SELF,
+			 PRAYER_TELEPORT_OTHER,
+			 PRAYER_TELEPORT_LEVEL,
+			 PRAYER_WORD_OF_RECALL,
+			 PRAYER_ALTER_REALITY,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(PRAYER_DETECT_MONSTERS,
+			 PRAYER_DETECTION,
+			 PRAYER_PERCEPTION,
+			 PRAYER_PROBING,
+			 PRAYER_CLAIRVOYANCE,
+			 -1,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(PRAYER_CURE_SERIOUS_WOUNDS2,
+			 PRAYER_CURE_MORTAL_WOUNDS2,
+			 PRAYER_HEALING,
+			 PRAYER_RESTORATION,
+			 PRAYER_REMEMBRANCE,
+			 -1,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(PRAYER_UNBARRING_WAYS,
+			 PRAYER_RECHARGING,
+			 PRAYER_DISPEL_CURSE,
+			 PRAYER_ENCHANT_WEAPON,
+			 PRAYER_ENCHANT_ARMOUR,
+			 PRAYER_ELEMENTAL_BRAND,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(PRAYER_DISPEL_UNDEAD2,
+			 PRAYER_DISPEL_EVIL2,
+			 PRAYER_BANISH_EVIL,
+			 PRAYER_WORD_OF_DESTRUCTION,
+			 PRAYER_ANNIHILATION,
+			 -1,
+			 -1,
+			 -1,
+			 -1)
+	}
+};
+
+
+/*
+ * Names of the spells (mage spells then priest spells)
+ */
+cptr spell_names[2][PY_MAX_SPELLS] =
+{
+	/*** Mage Spells ***/
+
+	{
+	  "Magic Missile",
+	  "Detect Monsters",
+	  "Phase Door",
+	  "Light Area",
+	  "Find Hidden Traps/Doors",
+	  "Cure Light Wounds",
+	  "Detect Treasure",
+	  "Detect Objects",
+	  "Identify",
+	  "Detect Invisible",
+	  "Detect Enchantment",
+	  "Stinking Cloud",
+	  "Lightning Bolt",
+	  "Confuse Monster",
+	  "Sleep Monster",
+	  "Wonder",
+	  "Frost Bolt",
+	  "Acid Bolt",
+	  "Fire Bolt",
+	  "Trap/Door Destruction",
+	  "Spear of Light",
+	  "Turn Stone to Mud",
+	  "Door Creation",
+	  "Earthquake",
+	  "Stair Creation",
+	  "Cure Poison",
+	  "Satisfy Hunger",
+	  "Heroism",
+	  "Berserker",
+	  "Haste Self",
+	  "Teleport Self",
+	  "Slow Monster",
+	  "Teleport Other",
+	  "Teleport Level",
+	  "Word of Recall",
+	  "Polymorph Other",
+	  "Shock Wave",
+	  "Explosion",
+	  "Cloudkill",
+	  "Mass Sleep",
+	  "Bedlam",
+	  "Rend Soul",
+	  "Word of Destruction",
+	  "Chaos Strike",
+	  "Resist Cold",
+	  "Resist Fire",
+	  "Resist Poison",
+	  "Resistance",
+	  "Shield",
+	  "Rune of Protection",
+	  "Lesser Recharging",
+	  "Enchant Armor",
+	  "Enchant Weapon",
+	  "Greater Recharging",
+	  "Elemental Brand",
+	  "Frost Ball",
+	  "Acid Ball",
+	  "Fire Ball",
+	  "Ice Storm",
+	  "Banishment",
+	  "Meteor Swarm",
+	  "Mass Banishment",
+	  "Rift",
+	  "Mana Storm"
+	},
+
+
+	/*** Priest Spells ***/
+
+	{
+		/* Beginners Handbook (sval 0) */
+		"Detect Evil",
+		"Cure Light Wounds",
+		"Bless",
+		"Remove Fear",
+		"Call Light",
+		"Find Doors/Stairs/Traps",
+		"Bolt of Draining",
+		"Slow Poison",
+
+		/* Words of Wisdom (sval 1) */
+		"Scare Monster",
+		"Portal",
+		"Cure Serious Wounds",
+		"Chant",
+		"Sanctuary",
+		"Satisfy Hunger",
+		"Remove Curse",
+		"Resist Heat and Cold",
+
+		/* Chants and Blessings (sval 2) */
+		"Neutralize Poison",
+		"Orb of Draining",
+		"Cure Critical Wounds",
+		"Sense Invisible",
+		"Protection from Evil",
+		"Earthquake",
+		"Sense Surroundings",
+		"Cure Mortal Wounds",
+		"Turn Undead",
+
+		/* Exorcism and Dispelling (sval 3) */
+		"Prayer",
+		"Dispel Undead",
+		"Heal",
+		"Dispel Evil",
+		"Glyph of Warding",
+		"Holy Word",
+
+		/* Godly Insights... (sval 5) */
+		"Detect Monsters",
+		"Detection",
+		"Perception",
+		"Probing",
+		"Clairvoyance",
+
+		/* Purifications and Healing (sval 6) */
+		"Cure Serious Wounds",
+		"Cure Mortal Wounds",
+		"Healing",
+		"Restoration",
+		"Remembrance",
+
+		/* Wrath of God (sval 8) */
+		"Dispel Undead",
+		"Dispel Evil",
+		"Banish Evil",
+		"Word of Destruction",
+		"Annihilation",
+
+		/* Holy Infusions (sval 7) */
+		"Unbarring Ways",
+		"Recharging",
+		"Dispel Curse",
+		"Enchant Weapon",
+		"Enchant Armour",
+		"Elemental Brand",
+
+		/* Ethereal openings (sval 4) */
+		"Blink",
+		"Teleport Self",
+		"Teleport Other",
+		"Teleport Level",
+		"Word of Recall",
+		"Alter Reality",
+
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)"
+	}
+};
+
+
 
 /*
  * Each chest has a certain set of traps, determined by pval
@@ -1407,7 +1809,7 @@ cptr window_flag_desc[32] =
 	"Display overhead view",
 	"Display monster recall",
 	"Display object recall",
-	NULL,
+	"Display monster list",
 	"Display snap-shot",
 	"Display script variables",
 	"Display script source",
@@ -1468,7 +1870,7 @@ cptr option_text[OPT_MAX] =
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
-	NULL,						/* xxx */
+	"low_hp_careful",			/* OPT_low_hp_careful */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	NULL,						/* xxx testing_stack */
@@ -1509,7 +1911,7 @@ cptr option_text[OPT_MAX] =
 	"run_avoid_center",			/* OPT_run_avoid_center */
 	"scroll_target",			/* OPT_scroll_target */
 	"auto_more",				/* OPT_auto_more */
-	NULL,						/* xxx */
+	"no_race_char",						/* OPT_no_race_char */
 	NULL,						/* xxx */
 	"hp_changes_color",			/* OPT_hp_changes_color*/
 	"verify_leave_quests",		/* OPT_verify_leave_quests*/
@@ -1574,10 +1976,10 @@ cptr option_text[OPT_MAX] =
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
 	"birth_no_stacking",		/* OPT_birth_no_stacking */
- 	"birth_take_notes",			/* OPT_birth_auto_notes */
+ 	NULL,				/* xxx OPT_birth_auto_notes */
  	"birth_force_small_lev",	/* OPT_birth_force_small_lev */
 	"birth_retain_squelch", 	/* OPT_birth_retain_squelch */
-	NULL,						/* xxx */
+	"birth_themed_levels",			/* OPT_birth_themed_levels */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1638,10 +2040,10 @@ cptr option_text[OPT_MAX] =
 	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
 	"adult_no_stacking",		/* OPT_adult_no_stacking */
-	"adult_take_notes",			/* OPT_adult_auto_notes */
+	NULL,				/* xxx OPT_adult_auto_notes */
 	"adult_force_small_lev",	/* OPT_adult_force_small_lev*/
 	"adult_retain_squelch",		/* OPT_adult_retain_squelch */
-	NULL,						/* xxx */
+	"adult_themed_levels",			/* OPT_adult_themed_levels */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1732,7 +2134,7 @@ cptr option_desc[OPT_MAX] =
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
-	NULL,										/* xxx */
+	"Turn off quick messages on low HPs",			/* OPT_low_hp_careful */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	NULL,										/* xxx testing_stack */
@@ -1773,7 +2175,7 @@ cptr option_desc[OPT_MAX] =
 	"Avoid centering while running",			/* OPT_run_avoid_center */
 	"Scroll map while targetting",				/* OPT_scroll_target */
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
-	NULL,										/* xxx */
+	"Disable special character for monster races",		/* OPT_no_race_char */
 	NULL,										/* xxx */
 	"Player color indicates low hit points",	/* OPT_hp_changes_color */
 	"Verify before descending from quest level",/* OPT_verify_leave_quest */
@@ -1838,10 +2240,10 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
 	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
 	"Birth: Never stack objects on the floor",	/* OPT_birth_no_stacking */
- 	"Birth: Have notes written to a file",		/* OPT_birth_take_notes */
+ 	NULL,						/* xxx OPT_birth_take_notes */
  	"Birth: All levels will be generated as small",	/* OPT_birth_force_small_lev */
 	"Birth: Retain squelch settings",			/*OPT_birth_retain_squelch*/
-	NULL,										/* xxx */
+	"Birth: Themed levels (EXPERIMENTAL)",		/* OPT_birth_themed_levels */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1902,10 +2304,10 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
 	"Adult: Randomize some of the artifacts (beta)",	/* OPT_adult_rand_artifacts */
 	"Adult: Never stack objects on the floor",	/* OPT_adult_adult_no_stacking */
-	"Adult: Have notes to written to a file",	/* OPT_adult_take_notes */
+	NULL, 						/* xxx OPT_adult_take_notes */
 	"Adult: All levels generated small",		/* OPT_adult_force_small_lev */
 	"Adult: Retain squelch settings",			/* OPT_adult_retain_squelch*/
-	NULL,										/* xxx */
+	"Adult: Themed levels (EXPERIMENTAL)",		/* OPT_adult_themed_levels */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1996,7 +2398,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_low_hp_careful */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
 	FALSE,		/* xxx */
@@ -2037,7 +2439,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_run_avoid_center */
 	FALSE,		/* OPT_scroll_target */
 	FALSE,		/* OPT_auto_more */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_no_race_char */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_verify_leave_quests */
 	FALSE,		/* OPT_mark_squelch_items */
@@ -2102,10 +2504,10 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
 	FALSE,		/* OPT_birth_no_stacking */
-	TRUE,		/* OPT_birth_take_notes */
+	TRUE,		/* xxx OPT_birth_take_notes */
 	FALSE,		/* OPT_birth_force_small_lev */
 	FALSE,		/* OPT_birth_retain_squelch */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_themed_levels */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2166,10 +2568,10 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_adult_no_artifacts */
 	FALSE,		/* OPT_adult_rand_artifacts */
 	FALSE,		/* OPT_adult_no_stacking */
-	TRUE,		/* OPT_adult_take_notes */
+	TRUE,		/* xxx OPT_adult_take_notes */
 	FALSE,		/* OPT_adult_force_small_lev*/
 	FALSE,		/* OPT_adult_retain_squelch */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_themed_levels */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2270,7 +2672,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_verify_special,
 		OPT_allow_quantity,
 		OPT_auto_more,
-		OPT_NONE,
+		OPT_low_hp_careful,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2349,7 +2751,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_hp_changes_color,
 		OPT_verify_leave_quest,
 		OPT_mark_squelch_items,
-		OPT_NONE,
+		OPT_no_race_char,
 		OPT_NONE,
 		OPT_NONE
 	},
@@ -2366,9 +2768,9 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
 		OPT_birth_no_stacking,
-	 	OPT_birth_take_notes,
 		OPT_birth_force_small_lev,
 		OPT_birth_retain_squelch,
+		OPT_birth_themed_levels,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2421,7 +2823,36 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"indestructible"
 };
 
+/* Powers */
 
+/* powers_defines.inc must be generated from powers.m4 via GNU M4 */
+#include "powers_defines.inc"
+/* powers_titles.inc must be generated from powers.m4 via GNU M4 */
+#include "powers_titles.inc"
+
+/* Note: theme remaps are still hardcoded */
+
+/*
+ * Power descriptions (CHAOS theme remaps)
+ * These are mostly for flavor. Some powers will have slightly
+ * different effect (e.g. WONDER - different range of effects,
+ * summonings - alignment must be same, etc.)
+ * Themed descriptions will replace generic if applicable and available
+ */
+pwr_remap pwr_desc_chaos[] =
+{
+        {PWR_BR_DISEN_BOLT, "Breathe Disenchant"},
+        {PWR_BR_DISEN_BALL, "Breathe the Void"},
+        {PWR_PROJECT_CHAOS, "Call the Chaos"},
+        {PWR_PROJECT_DISEN, "Call the Void"},
+        {PWR_WONDER, "Logrus Touch"},
+        {PWR_SUMM_DRAGON, "Summon Elemental Dragon"},
+        {PWR_DETECT_ALL, "Chaos Vision"},
+        {PWR_IDENTIFY, "Chaos Knowledge"},
+        {PWR_ALTER_REALITY, "Chaos Warp"},
+        {PWR_SUMM_HI_DRAGON, "Summon Elemental Wyrms"},
+        {0, ""}
+};
 
 byte mana_cost_RF4[32]=
 {
@@ -2534,8 +2965,8 @@ byte mana_cost_RF6[32]=
 byte mana_cost_RF7[32]=
 {
 	12,			/* RF7_S_KIN */ /* Summon - 6 */
-	0, 			/* RF7_XXX1 */
-	0, 			/* RF7_XXX2 */
+	8, 			/* RF7_S_ELEM_WATER */
+	8, 			/* RF7_S_ELEM_FIRE */
 	10,			/* RF7_S_MONSTER */ /* Summon - 1 */
 	15,			/* RF7_S_MONSTERS */ /* Summon - 8 */
 	0,			/* RF7_XXX3 */
@@ -2546,13 +2977,13 @@ byte mana_cost_RF7[32]=
 	14,			/* RF7_S_HOUND */ /* Summon - 6 */
 	15,			/* RF7_S_ANIMAL */ /* Summon - 6 */
 	15, 		/* RF7_S_HYDRA */
-	0, 			/* RF7_XXX7 */
+	18, 			/* RF7_S_ENT */
 	15,			/* RF7_S_THIEF */ /* Summon - 6 */
 	5, 			/* RF7_S_BERTBILLTOM */ /* Summon - 2 */
 	0, 			/* RF7_XXX8 */
 	15, 			/* RF7_S_AINU */
-	0, 			/* RF7_XX10 */
-	0, 			/* RF7_XX11 */
+	8, 			/* RF7_S_ELEM_AIR */
+	8, 			/* RF7_S_ELEM_EARTH */
 	14,			/* RF7_S_DRAGON */ /* Summon - 1 */
 	20,			/* RF7_S_HI_DRAGON */ /* Summon - 8 */
 	0, 			/* RF7_XX12 */
@@ -2704,8 +3135,8 @@ byte spell_desire_RF7[32][8] =
  /*     d_base	  d_hurt    d_esc	 d_res				    */
  /*	     d_summ	d_mana	  d_tact	   d_range		    */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_KIN	    */
-	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX1	    */
-	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX2	    */
+	{ 0,   16,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ELEM_WATER */
+	{ 0,   16,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ELEM_FIRE */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONSTER */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONSTERS*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX3	    */
@@ -2716,13 +3147,13 @@ byte spell_desire_RF7[32][8] =
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HOUND   */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ANIMAL  */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_RF7XXX7    */
-	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7	    */
+	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ENT	    */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_THIEF   */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_BERTBILLTOM*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX8	    */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_AINU    */
-	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX10	    */
-	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX11	    */
+	{ 0,   16,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ELEM_AIR */
+	{ 0,   16,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ELEM_EARTH */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_DRAGON  */
 	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_DRAGON*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX12	    */
@@ -2766,3 +3197,101 @@ byte spell_range_RF7[32] =
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
+/*
+ * Items which must be always present in stores (up to seven per store)
+ * These are only truly essential items -- fuel, food, scrolls of
+ * recall etc.
+ */
+byte store_req_items[MAX_STORES][MAX_PREREQ_ITEMS][2] =
+{
+	/* General Store */
+	{
+		{ TV_FLASK,	-1 },
+		{ TV_LITE,	SV_LITE_TORCH },
+		{ TV_LITE,	SV_LITE_LANTERN },
+		{ TV_FOOD, 	-1 },
+		{ TV_ARROW,	SV_AMMO_NORMAL },  /* Questionable */
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+	/* Armoury */
+	{
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+	/* Weaponry */
+	{
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+	/* Temple */
+	{
+		{ 0, 0 },  /* xxx 'Beginners Handbook'? */
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+	/* Alchemist */
+	{
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ 0, 0 },  /* xxx Phase Door? */
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+	/* Magician */
+	{
+		{ 0, 0 },  /* xxx 'Magic for Beginners'? */
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+	/* Black Market (shouldn't be set) */
+	{
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+	/* Home (shouldn't be set) */
+	{
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+	/* Guild (shouldn't be set) */
+	{
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	}
+};

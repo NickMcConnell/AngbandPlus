@@ -1,0 +1,145 @@
+INSTRUCTIONS:
+
+Replace the old randart.c with the randart.c provided here and recompile.
+
+This is a beta release of the new randart code to accompany the latest
+release of Angband 3.0.0.  Using this code with an existing randart
+savefile from 2.9.2 or earlier may produce unpredictable results due to
+the change in the algorithm.
+
+Please report any problems to Chris Robertson (cnrobertson@yahoo.com) and
+Chris Carr (chris@terminalarrogance.com) or post to r.g.r.a.
+
+PARTIAL LIST OF CHANGES: 
+
+(changes in 3.0.0 release)
+
+- Altered code to be capable of generating new weapon type (mattock).
+
+- Added separate counters for aggravation on weapons and non-weapons.
+
+- Paired to-hit/damage bonuses will now translate to paired bonuses on
+random artifacts, though not necessarily equal (think gloves of slaying).
+
+- Separated the treatment of brands and slays so they are counted
+separately rather than lumped in together.  This tends to make slays more
+common and brands less so (at least with the default base set).
+
+- Fixed a minor display bug where armor with no to-hit or damage bonuses
+could receive SHOW_MODS flag.
+
+(changes in 2.9.6 release)
+
+- Updated monster rating to take new damage caps for breath weapons into
+account.
+
+- Altered curse item code to throw out inhibited abilities.
+
+- Code now won't try to randomize base artifacts with inhibited abilities.
+
+- Fixed compiler dependency issue resulting from division of negative
+numbers.
+
+- Inhibited instances of negative pval for blows/might/shots.
+
+- Added logic to pval increment so that blows/might/shots make it less
+likely to occur.
+
+- Fixed a bug in rarity calculations for repeated generation runs.
+
+
+(changes in 2.9.4 release)
+
+- Slay / brand combinations now rated properly, based on a weighted
+average of base damage across all monster types.  More powerful monsters
+are rated higher, using a new monster rating algorithm, so that (for
+example) slay dragon is automatically given a higher rating than slay orc.
+
+- Kill undead, kill demon and poison branded weapons now supported.
+
+- Resist fear now available as an ability.
+
+- Power ratings for all abilities were rebalanced following the discussion
+on r.g.r.a.
+
+- Multiple high pval bonuses will trigger an extra power rating (this
+helps rate items like Dor-Lomin properly).
+
+- Base item selection was rebalanced - the code now generates fewer robes
+and soft armor types.
+
+- Randart DSM is now possible, although it has no activation (unless it
+gets one from the base artifact).  Artifacts with non-artifact activation
+types such as DSM activations may be possible in future, but would require
+a change in the activation code, which is in a different file - in this
+release we limited ourselves to changing only randart.c
+
+- Relative probabilities of the various abilities are no longer hardcoded.  
+Instead they are assigned based on how frequently they appear in the
+original artifact set. We have for the time being retained the
+"themed" abilities so that ESP/rblind are more common on headgear,
+stealth on boots and cloaks, etc.
+
+- The problem of low to-hit/to-dam values on weapons is fixed.  The attack
+bonuses use the same method as the other abilities, so they will tend to
+match those of the original set on average.
+
+- To-hit and to-dam bonuses now available on items other than gloves (but
+the total will on average match the total in the original set).
+
+- Aggravation is no longer automatic on very powerful items, but is
+randomly assigned using the frequency approach.  (But note that 2.9.4 has
+many more artifacts that aggravate, which increases the frequency of
+aggravation in the randart set.)
+
+- Some extra-powerful abilities are given special treatment to give them a
+better chance of fitting into the available power rating.  (This
+"supercharging" gives a better chance of generating items like the Glaive
+of Pain and Cubragol with a single outstanding characteristic but not much
+else.)
+
+- Handling of rarity has been improved to take base item rarity into
+account; *total* rarity is preserved.  (So you can no longer count on that
+gross Deathwreaker-based randart showing up every time in the endgame!)
+
+- Various bugs fixed from the original version (progressive loss of power
+from multiple generation runs, loss of power from remove_contradictory,
+fluctuation of base item level, etc.)
+
+PLANNED FUTURE CHANGES (roughly in ascending order of difficulty and
+descending order of likelihood!):
+
+- Include an extra rating term for multiple resists in the way that we
+have done for multiple pval bonuses (Bladeturner is still underrated). 
+
+- Decide on ratings for various activations, opening the way to shuffling
+and/or random assignment of activations to randarts.
+
+- Rework weight: come up with a way to rate "AC per unit weight", instead
+of just rating AC bonus and weight separately - and rate heavy weapons
+to reflect the increased damage from critical hits.
+
+- Continue to improve the monster rating function (e.g. handling different
+attack types, including a term for high/low AC etc.)
+
+- Expand the supercharging idea to include supercharges for pvals (eg. big
+bonus to a single stat), multiple resists, blows and to-dam (all with the
+aim of making low-powered randarts more interesting and varied).
+
+- Make the parsing code for "learning" ability frequencies more generic
+and configurable (so the "themes" will no longer be hard-coded - if you
+decide that ESP is a special property of boots, so be it!).
+
+- Improve the generation of cursed items so that they are no longer just
+throw-away items (e.g. give them some use as a swap item, or balance
+negative abilities with some useful positive ones), and expand the range
+of drawbacks on powerful items (ie. not just aggravate). 
+
+- Include level-dependent assignment of abilities, especially for
+low-level, low-powered items (e.g. don't give resist chaos to a
+Narthanc-randart).
+
+- Come up with an automatic rating of abilities based on the lists of
+monsters, ego items etc. (For example, rate resist nether based on how
+many monsters have nether attacks)
+

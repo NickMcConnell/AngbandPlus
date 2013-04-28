@@ -1,10 +1,9 @@
-QUESTS:
-(This file was last edited for NPPAngband 0.2.0)
+=== Quests ===
 
-There are five different styles of quests in NPPAngband. There are two types of 
+There are five different styles of quests in PosBand. There are two types of
 fixed quests and three types of optional quests.
 
-FIXED QUESTS:
+--> Fixed quests
 
 "Vanilla" Angband has always had two standard fixed quests:
 
@@ -16,40 +15,21 @@ go deeper in the dungeon. A player must kill Sauron at 4950 feet in order to be
 able to meet Morgoth. Defeating Morgoth, or completing both quests, wins the 
 game. These quests are unchanged for every game.
 
-NPPAngband version 0.2.0 has incorporated the EYAngband style quest system, 
-which work as follows:
-
-FIXED UNIQUE QUESTS: 
-
-This is unchanged from Angband. The player always has two fixed quests, 
-defeat Sauron and Morgoth, in order to win the game. The player cannot dive 
-deeper than their native depths before completing these quests. 
-
-FIXED QUESTS:
-
-While coding support exists in NPPAngband to add additional fixed quests to kill 
-as assigned number of a given creature at a given depth, there are currently no 
-fixed quests in the game (just like EYAngband). Additional fixed quests could be 
-added by altering the quests.txt and limits.txt files, however this would 
-destroy savefile compatibility, and would need to be done before starting a new 
-game. (Note: Do not attempt this unless you know *exactly* what you are doing)
-
-OPTIONAL QUESTS:
-
-New to version 0.2.0 of NPPAngband is a town building called the Adventurer's 
-Guild. A player may choose to visit this building and receive a quest from the 
-Guild. A player can choose from an easy, medium, or hard quest, and occasionally 
-has the choice of a special (vault) quest. The guild will never assign more than 
-one optional quest at any time. Upon completion of an optional quest, the guild 
-gives a reward to the player. 
+PosBand adds support for optional quests. There is a building in town called
+the Adventurer's Guild. A player may choose to visit this building and receive
+a quest from the Guild. A player can choose from an easy, medium, or hard
+quest, and occasionally has the choice of a special (vault) quest. The guild
+will never assign more than one optional quest at any time. Upon completion of
+an optional quest, the guild gives a reward to the player. 
 
 At any given time, the status of the player's optional quest can be viewed by 
-pressing <CTRL-Q>.
+pressing Ctrl-Q. (This may not work on all systems. Try Ctrl-6, Q if Ctrl-Q
+seems to do nothing.)
 
-The Adventurer's Guild (building # 9 in the town) chooses what kind of quest the 
+The Adventurer's Guild (building 9 in the town) chooses what kind of quest the 
 adventurer is given. The guild can assign four different types of quests:
 
-MONSTER QUESTS- 
+--> Monster quests
 
 This is the most common quest. The player is assigned to go to a specified 
 depth, usually 2-3 levels below the deepest level the player has gone, and kill 
@@ -81,7 +61,7 @@ leave and return to a quest level. Leaving an optional quest level without
 killing the required number of creatures can result in a failed quest.  Failing 
 a quest greatly tarnishing the player's reputation at the guild. 
 
-UNIQUE QUESTS:
+--> Unique quests
 
 Unique quests are similar to guild quests, except the quest is always to kill 
 one unique. The unique will be from several levels deeper than typical guild 
@@ -90,7 +70,7 @@ killed or the quest fails. Since Uniques tend to be more difficult to kill than
 regular creatures, this type of quest tends to be more difficult than monster 
 quests. 
 
-SPECIAL, or VAULT QUESTS:
+--> Vault quests
 
 This quest is to go to a specified depth and "retrieve a fabled treasure" and 
 return it to the guild, which is stored inside a chest. The chest is always 
@@ -99,7 +79,8 @@ is special in that it cannot be opened by the player or picked up by a monster.
 Returning the chest to the adventurer's guild completes the quest. The 
 difficulty of a vault quest is dependent on the monsters guarding the chest.
 
-REWARD:
+
+=== Reward ===
 
 The biggest reason to take on an optional quest is the reward.  The quality of 
 the reward depends on two factors. The first factor is the selected difficulty 
