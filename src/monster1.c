@@ -1,18 +1,19 @@
-
 /* File: monster1.c */
 
 /*
- * Recall a monster on screen.  Get closest monster in LOS.  Process player
- * ghosts.
+ * Recall a monster on screen.  Display nearby monsters, get closest monster
+ * in LOS.  Process player ghosts.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
+
 
 
 /*
@@ -61,12 +62,12 @@ static char *wd_rarity(byte rarity, bool unique)
 
 
 /*
- * Determine if the armour class of the monster is known.
+ * Determine if the armor class of the monster is known.
  *
  * You need to kill about 25 low-level or 4 high-level monsters to
- * know their armour class.
+ * know their armor class.
  */
-bool know_armour(int r_idx, const monster_lore *l_ptr)
+bool know_armor(int r_idx, const monster_lore *l_ptr)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -185,8 +186,8 @@ static void describe_monster_desc(int r_idx)
 	/* New paragraph. */
 	text_out("\n");
 
-	/* Space if we're showing 50 lines */
-	if (screen_rows > 25) text_out("\n");
+	/* Space if we're showing extra lines */
+	if (Term->rows > 25) text_out("\n");
 }
 
 
@@ -439,37 +440,37 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags5 & (RF5_BALL_SHARD))
 	{
 		if (spower < 15) vp[vn++] = "produce blasts of shards";
-		else if (spower < 90) vp[vn++] = "produce whirlwinds of shards";
+		else if (spower < 70) vp[vn++] = "produce whirlwinds of shards";
 		else vp[vn++] = "call up shardstorms";
 	}
 	if (l_ptr->flags5 & (RF5_BALL_WIND))
 	{
 		if (spower < 15) vp[vn++] = "produce blasts of wind";
-		else if (spower < 90) vp[vn++] = "produce whirlwinds";
+		else if (spower < 80) vp[vn++] = "produce whirlwinds";
 		else vp[vn++] = "call up cyclones";
 	}
 	if (l_ptr->flags5 & (RF5_BALL_STORM))
 	{
-		if (spower < 30) vp[vn++] = "produce little storms";
-		else if (spower < 70) vp[vn++] = "produce whirlpools";
+		if (spower < 15) vp[vn++] = "produce little storms";
+		else if (spower < 75) vp[vn++] = "produce whirlpools";
 		else vp[vn++] = "call up raging storms";
 	}
 	if (l_ptr->flags5 & (RF5_BALL_NETHR))
 	{
-		if (spower < 30) vp[vn++] = "produce nether orbs";
-		else if (spower < 70) vp[vn++] = "produce nether balls";
+		if (spower < 25) vp[vn++] = "produce nether orbs";
+		else if (spower < 75) vp[vn++] = "produce nether balls";
 		else vp[vn++] = "invoke nether storms";
 	}
 	if (l_ptr->flags5 & (RF5_BALL_CHAOS))
 	{
 		if (spower < 20) vp[vn++] = "produce spheres of chaos";
-		else if (spower < 70) vp[vn++] = "produce explosions of chaos";
+		else if (spower < 80) vp[vn++] = "produce explosions of chaos";
 		else vp[vn++] = "call up maelstroms of raw chaos";
 	}
 	if (l_ptr->flags5 & (RF5_BALL_MANA))
 	{
-		if (spower < 40) vp[vn++] = "produce manabursts";
-		else if (spower < 90) vp[vn++] = "produce balls of mana";
+		if (spower < 20) vp[vn++] = "produce manabursts";
+		else if (spower < 80) vp[vn++] = "produce balls of mana";
 		else vp[vn++] = "invoke mana storms";
 	}
 	if (l_ptr->flags5 & (RF5_BOLT_ACID))    vp[vn++] = "produce acid bolts";
@@ -483,12 +484,22 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags5 & (RF5_BOLT_NETHR))   vp[vn++] = "produce nether bolts";
 	if (l_ptr->flags5 & (RF5_BOLT_MANA))
 	{
-		if      (spower <  7) vp[vn++] = "produce magic missiles";
+		if      (spower <  6) vp[vn++] = "produce magic missiles";
 		else if (spower < 40) vp[vn++] = "produce magic bolts";
 		else                  vp[vn++] = "produce mana bolts";
 	}
-	if (l_ptr->flags5 & (RF5_BEAM_ELEC))    vp[vn++] = "shoot sparks of lightning";
-	if (l_ptr->flags5 & (RF5_BEAM_ICE))     vp[vn++] = "cast lances of ice";
+	if (l_ptr->flags5 & (RF5_BEAM_ELEC))
+	{
+		if      (spower < 12) vp[vn++] = "shoot sparks of lightning";
+		else if (spower < 40) vp[vn++] = "shoot beams of lightning";
+		else                  vp[vn++] = "shoot thunderbolts of lightning";
+	}
+	if (l_ptr->flags5 & (RF5_BEAM_ICE))
+	{
+		if      (spower <  7) vp[vn++] = "cast streams of ice";
+		else if (spower < 40) vp[vn++] = "cast spears of ice";
+		else                  vp[vn++] = "cast lances of ice";
+	}
 	if (l_ptr->flags5 & (RF5_BEAM_NETHR))
 	{
 		if (spower < 40) vp[vn++] = "cast beams of nether";
@@ -512,7 +523,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags6 & (RF6_HELLDARK))
 	{
 		if (spower < 40) vp[vn++] = "conjure up hellish darkness";
-		else vp[vn++] = "invoke the wrath of hell";
+		else vp[vn++] = "invoke the wrath of Hell";
 	}
 
 	if (l_ptr->flags6 & (RF6_HOLY_SMITE))
@@ -1027,7 +1038,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	int msex = 0;
 	bool flag_resist = FALSE;
 
-	char name[160];
+	char name[DESC_LEN];
 
 	/* Get monster name */
 	(void)my_strcpy(name, r_name + r_ptr->name, sizeof(name));
@@ -1527,7 +1538,7 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
 
 
 	/* Describe monster "toughness" */
-	if (know_armour(r_idx, l_ptr))
+	if (know_armor(r_idx, l_ptr))
 	{
 		/* Armor */
 		text_out(format("%^s has an armor rating of %d",
@@ -1638,7 +1649,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 	}
 	else if ((l_ptr->tkills) || (l_ptr->flags & (LORE_KNOWN_DEPTH)))
 	{
-		char depth_desc[80];
+		char depth_desc[DESC_LEN];
 
 		if ((depth_in_feet) && (use_metric))
 		{
@@ -1931,7 +1942,7 @@ void roff_top(int r_idx, int row)
 	a2 = r_ptr->x_attr;
 
 
-	/* Clear the top line */
+	/* Clear the top line  XXX XXX */
 	clear_row(row);
 
 	/* Reset the cursor */
@@ -1974,11 +1985,12 @@ void screen_roff(int r_idx)
 	message_flush();
 
 	/* Begin recall */
-	clear_row(1);
+	clear_space(1, (Term->cols - 80) / 2, 80);
 
-	/* Hack -- wrap at 80 columns (for now) */
-	text_out_wrap = 80;
-	text_out_indent = 0;
+	/* Center on screen */
+	text_out_indent = (Term->cols - 80) / 2;
+	text_out_wrap = text_out_indent + 80;
+	text_border_left = 1;
 
 	/* Output to the screen */
 	text_out_hook = text_out_to_screen;
@@ -1988,6 +2000,8 @@ void screen_roff(int r_idx)
 
 	/* Describe monster */
 	roff_top(r_idx, 0);
+
+	text_border_left = 0;
 }
 
 
@@ -1997,7 +2011,7 @@ void screen_roff(int r_idx)
 void display_roff(int r_idx)
 {
 	/* Erase the window */
-	clear_from(0);
+	(void)Term_clear();
 
 	/* Begin recall */
 	(void)Term_gotoxy(0, 1);
@@ -2015,39 +2029,48 @@ void display_roff(int r_idx)
 
 
 /*
- * Display visible monsters in a window
+ * Display visible monsters in a window.  Optionally, also list nearby objects
  */
-void display_m_list(void)
+void display_m_list(int y, int x, bool also_list_objects)
 {
-	int y, x, w, h, num = 0;
+	int w, h, col_wid;
 	int i;
 	int attr = TERM_WHITE;
 
-	char *m_name;
+	char buf[DESC_LEN];
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 	monster_lore *l_ptr;
 
-	u16b *race_count;
+	u16b *race_count = NULL;
 	int total_count = 0;
 
 
-	/* Erase the window */
-	clear_from(0);
+	/* Get size of window */
+	(void)Term_get_size(&w, &h);
 
+	/* Paranoia -- refuse to accept too small a window */
+	if ((h < 2) || (w < 3)) return;
+
+	/* Erase the window */
+	if (!y && !x) (void)Term_clear();
 
 	/* Hallucination */
-	if (p_ptr->image)
+	if ((p_ptr->image) && (!x) && (!y))
 	{
-		/* No list when hallucinating. */
 		c_prt(TERM_L_PURPLE, "You can't believe what you are seeing!  It's like a dream!", 0, 0);
-
-		/* Flush it */
 		(void)Term_fresh();
-
 		return;
 	}
+
+
+	/* Calculate number of columns */
+	i = ((w+20) / 40);
+
+	/* Calculate column width */
+	col_wid = w / i;
+
 
 	/* Allocate the array */
 	C_MAKE(race_count, z_info->r_max, u16b);
@@ -2071,17 +2094,13 @@ void display_m_list(void)
 	/* Note no visible monsters */
 	if (!total_count)
 	{
-		prt("You see no monsters.", 0, 0);
+		c_prt(TERM_SLATE, "You see no monsters.", y, x);
 		goto end_of_function;
 	}
 
 	/* Message */
 	prt(format("You can see %d monster%s:",
-		total_count, (total_count > 1 ? "s" : "")), 0, 0);
-
-
-	/* Get size of window */
-	(void)Term_get_size(&w, &h);
+		total_count, (total_count > 1 ? "s" : "")), y, x);
 
 
 	/* Display the monsters */
@@ -2093,9 +2112,6 @@ void display_m_list(void)
 		/* Get monster */
 		r_ptr = &r_info[i];
 		l_ptr = &l_list[i];
-
-		/* Get the monster name */
-		m_name = r_name + r_ptr->name;
 
 		/* Monster has killed one or more of our ancestors) */
 		if (l_ptr->deaths)
@@ -2121,32 +2137,60 @@ void display_m_list(void)
 			else                            attr = TERM_WHITE;
 		}
 
-		/* Monsters are listed in columns 40 characters wide  XXX */
-		y = (num % (h - 1)) + 1;
-		x =  num / (h - 1) * 40;
+		/* Monsters are listed in columns, roughly 40 characters wide */
+		if (++y >= h)
+		{
+			x += col_wid;
+			y = 1;
+		}
+		if (x >= w - (col_wid / 2)) break;
 
-		/* Dump the monster name and number visible */
+
+		/* Build the monster name and number visible */
 		if (race_count[i] == 1)
 		{
-			c_prt(attr, r_name + r_ptr->name, y, x);
+			(void)strnfmt(buf, sizeof(buf), r_name + r_ptr->name);
 		}
 		else
 		{
-			c_prt(attr,
-				format("%s (x%d)", r_name + r_ptr->name, race_count[i]),
-				y, x);
+			(void)strnfmt(buf, sizeof(buf), "%s (x%d)", r_name + r_ptr->name, race_count[i]);
 		}
+		/* Truncate to fit column */
+		buf[col_wid-3] = '\0';
 
-		/* Listed another monster */
-		num++;
+		/* Display the pict */
+		(void)Term_putch(x, y, r_ptr->x_attr, r_ptr->x_char);
+
+		/* Display the name */
+		c_prt(attr, buf, y, x + 2);
 	}
+
 
 	/* End of function */
 	end_of_function:
 
+	/* Also list objects, if requested and possible */
+	if (also_list_objects)
+	{
+		/* Skip some space.  Prefer to advance to next column. */
+		if ((x == 0) && (w > 3 * col_wid / 2))
+		{
+			x = col_wid;
+			y = 0;
+		}
+		else if (y + 6 >= h)
+		{
+			x += col_wid;
+			y = 0;
+		}
+		else y += 4;
+
+		/* If we have (a fair amount of) space, print out nearest objects */
+		if (x < w - (col_wid / 2)) display_nearby_objects(y, x, FALSE);
+	}
 
 	/* Free the race counters */
-	FREE(race_count);
+	if (race_count) FREE(race_count);
 }
 
 
@@ -2280,7 +2324,6 @@ void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
 
 		return;
 	}
-
 
 	/* Sort the monsters in ascending order of distance */
 	for (i = 0; i < monster_count - 1; i++)
@@ -2865,18 +2908,18 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 		{
 			if (bones_selector)
 			{
-				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, bones_selector);
+				(void)strnfmt(path, sizeof(path), "%s/bone.%03d", ANGBAND_DIR_BONE, bones_selector);
 			}
 			else
 			{
-				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, p_ptr->depth);
+				(void)strnfmt(path, sizeof(path), "%s/bone.%03d", ANGBAND_DIR_BONE, p_ptr->depth);
 				bones_selector = (byte)p_ptr->depth;
 			}
 		}
 		else
 		{
 			backup_file_selector = randint(100);
-			sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, backup_file_selector);
+			(void)strnfmt(path, sizeof(path), "%s/bone.%03d", ANGBAND_DIR_BONE, backup_file_selector);
 			bones_selector = backup_file_selector;
 		}
 

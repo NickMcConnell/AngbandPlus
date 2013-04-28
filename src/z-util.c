@@ -1,11 +1,12 @@
 /* File: z-util.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 2007 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 /* Purpose: Low level utilities -BEN- */
@@ -85,8 +86,8 @@ int my_strnicmp(cptr a, cptr b, int n)
 	/* Scan the strings */
 	for (s1 = a, s2 = b; n > 0; s1++, s2++, n--)
 	{
-		z1 = FORCEUPPER(*s1);
-		z2 = FORCEUPPER(*s2);
+		z1 = toupper(*s1);
+		z2 = toupper(*s2);
 		if (z1 < z2) return (-1);
 		if (z1 > z2) return (1);
 		if (!z1) return (0);
@@ -311,114 +312,3 @@ void user_name(char *buf, size_t len, int id)
 
 #endif /* SET_UID */
 
-
-
-
-/*
- * Checktime code. Deprecated.
- */
-#ifdef CHECK_TIME
-
-/*
- * Operating hours for ANGBAND (defaults to non-work hours)
- */
-static char days[7][29] =
-{
-	"SUN:XXXXXXXXXXXXXXXXXXXXXXXX",
-	"MON:XXXXXXXX.........XXXXXXX",
-	"TUE:XXXXXXXX.........XXXXXXX",
-	"WED:XXXXXXXX.........XXXXXXX",
-	"THU:XXXXXXXX.........XXXXXXX",
-	"FRI:XXXXXXXX.........XXXXXXX",
-	"SAT:XXXXXXXXXXXXXXXXXXXXXXXX"
-};
-
-/*
- * Restrict usage (defaults to no restrictions)
- */
-static bool check_time_flag = FALSE;
-
-#endif /* CHECK_TIME */
-
-
-/*
- * Handle CHECK_TIME
- */
-errr check_time(void)
-{
-
-#ifdef CHECK_TIME
-
-	time_t c;
-	struct tm *tp;
-
-	/* No restrictions */
-	if (!check_time_flag) return (0);
-
-	/* Check for time violation */
-	c = time((time_t *)0);
-	tp = localtime(&c);
-
-	/* Violation */
-	if (days[tp->tm_wday][tp->tm_hour + 4] != 'X') return (1);
-
-#endif /* CHECK_TIME */
-
-	/* Success */
-	return (0);
-}
-
-
-
-/*
- * Initialize CHECK_TIME
- */
-errr check_time_init(void)
-{
-
-#ifdef CHECK_TIME
-
-	FILE *fp;
-
-	char buf[1024];
-
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "time.txt");
-
-	/* Open the file */
-	fp = my_fopen(buf, "r");
-
-	/* No file, no restrictions */
-	if (!fp) return (0);
-
-	/* Assume restrictions */
-	check_time_flag = TRUE;
-
-	/* Parse the file */
-	while (0 == my_fgets(fp, buf, sizeof(buf)))
-	{
-		/* Skip comments and blank lines */
-		if (!buf[0] || (buf[0] == '#')) continue;
-
-		/* Chop the buffer */
-		buf[sizeof(days[0]) - 1] = '\0';
-
-		/* Extract the info */
-		if (prefix(buf, "SUN:")) my_strcpy(days[0], buf, sizeof(days[0]));
-		if (prefix(buf, "MON:")) my_strcpy(days[1], buf, sizeof(days[1]));
-		if (prefix(buf, "TUE:")) my_strcpy(days[2], buf, sizeof(days[2]));
-		if (prefix(buf, "WED:")) my_strcpy(days[3], buf, sizeof(days[3]));
-		if (prefix(buf, "THU:")) my_strcpy(days[4], buf, sizeof(days[4]));
-		if (prefix(buf, "FRI:")) my_strcpy(days[5], buf, sizeof(days[5]));
-		if (prefix(buf, "SAT:")) my_strcpy(days[6], buf, sizeof(days[6]));
-	}
-
-	/* Close it */
-	my_fclose(fp);
-
-#endif /* CHECK_TIME */
-
-	/* Success */
-	return (0);
-}

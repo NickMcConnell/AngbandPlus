@@ -1,16 +1,17 @@
-# File: ego_item.txt
-
-
+#
 # This file contains information about ego-items.
+#
 
-# Do not modify this file unless you know exactly what you are doing,
-# unless you wish to risk possible system crashes and broken savefiles.
+# Version stamp (required)
 
-# === Understanding e_info.txt ===
+V:1.0.0
 
+#
+# === Understanding ego_item.txt (and similar files) ===
+#
 # N: serial number : ego-item name
 # W: minimum generation depth : rarity : rating bonus : bonus to value
-# C: Skill modifier : Deadliness modifier : Armour Class modifier : 
+# C: Skill modifier : Deadliness modifier : Armor Class modifier : 
 #    optional activation index
 # T: tval : min_sval : max_sval
 # P: pval values
@@ -18,38 +19,37 @@
 # F: flag | flag | etc
 # X: special random attributes
 # D: description
-
+#
 # 'N' indicates the beginning of an entry. The serial number must increase 
 # for each new item.  It is followed by the ego-item's name.
-
+#
 # 'W' is for extra information. depth is the depth the object generally 
 # starts appearing at, rarity determines how common the object is, rating 
 # adds to the rating of the level, and cost adds to the base ego-item's 
 # value (note that pval bonuses are valued seperately).
-
+#
 # 'C' is for ego-item bonuses or penalties to Skill, Deadliness, and AC.
-
+#
 # 'T' is for possible 'tval' and 'sval' values of the base-item.  
 # Up to three 'T' entries are possible for a single object. The 
 # ego-item can only be generated from items of this tval, with sval 
 # in the specified range.
-
+#
 # 'P' indicates maximal pval values.
-
+#
 # '1', and '2' lines list all the flags affected by the first and second  
 # pval values respectively.  Do not list values for a value without first 
 # declaring it to be non-zero.
-
+#
 # 'F' is for non pval-dependant flags. These are fairly self-explanatory. 
 # As many F: lines may be used as are needed to specify all the flags.  
 # Flags are separated by the '|' symbol.
-
+#
 # 'X' is for extra quality flags.
+#
+# For more information, consult the file /lib/info/modify.txt.
+#
 
-
-# Version stamp (required)
-
-V:0.9.9
 
 
 ### Body Armor ###
@@ -102,7 +102,7 @@ P:3
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 X:ADD_A_HIGH_RESIST
-D:Made in the smithies of Beleriand, this armour resists the elements and 
+D:Made in the smithies of Beleriand, this armor resists the elements and 
 D:one other attack, cannot be harmed by the elements, and conceals the 
 D:wearer from hostile eyes.
 
@@ -130,7 +130,7 @@ T:36:0:99
 T:37:0:99
 T:38:0:99
 F:LIGHT_CURSE
-D:Black pus stains this armour; it bears the plague.  You either get this 
+D:Black pus stains this armor; it bears the plague.  You either get this 
 D:foul thing off or die.
 
 N:14:of Crushing
@@ -150,7 +150,7 @@ T:37:0:99
 T:38:0:99
 C:0:0:-30
 F:LIGHT_CURSE
-D:Useless is this armour revealed to be, for it will absorb no blows.  You 
+D:Useless is this armor revealed to be, for it will absorb no blows.  You 
 D:feel a dreadful lack of protection.
 
 
@@ -560,7 +560,7 @@ X:ADD_A_SUSTAIN
 D:The sactified weapon of the pious, it slays evil, demons, and the 
 D:undead, increases wisdom and sustains a random stat, can be wielded 
 D:by pious characters comfortably, grants sight beyond sight, and boosts 
-D:armour class.
+D:armor class.
 
 N:65:(Defender)
 W:20:15:15:10000
@@ -574,7 +574,7 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 X:ADD_A_SUSTAIN
 D:Strong friend in peril, this weapon enhances stealth, resists all four 
-D:basic elements and cannot be damaged by them, and increases armour 
+D:basic elements and cannot be damaged by them, and increases armor 
 D:class.
 
 N:66:(Blessed)
@@ -1216,7 +1216,7 @@ D:They seem only interested in hurting you.
 ### Light sources ###
 
 N:140:of Acuity
-W:0:1:3:50
+W:0:1:3:150
 T:39:0:99
 P:3
 1:AWARENESS
@@ -1279,7 +1279,7 @@ D:They randomly teleport you around the dungeon, and you'll find them
 D:hard to take off.
 
 
-### Forged Armour ###
+### Forged Armor ###
 
 N:155:(copper)
 W:0:0:0:1
@@ -1326,6 +1326,6 @@ D:This weapon has been ruined beyond redemption by fell sorceries.
 N:164:(Blasted)
 W:0:0:0:0
 C:0:0:-10
-D:The twisted, charred surface of this hopelessly smashed armour crumbles 
+D:The twisted, charred surface of this hopelessly smashed armor crumbles 
 D:apart as you gingerly touch it.
 

@@ -15,7 +15,7 @@
 # The pseudo-graphical option
 #
 
-# Ordinary floor
+# Ordinary floor  (regular, lit, darkened)
 F:1:w/7:Y/7:s/7
 
 # Up shaft
@@ -79,6 +79,9 @@ F:64:w/16:w/16:W/16
 F:65:o/16:y/16:o/16
 
 
+# boulder
+K:638:s:10
+
 
 #
 # Spell graphics.  Default to the "magical" bolts and the "cloud" 
@@ -95,6 +98,12 @@ S:3:0/'|':0/'-':0/'/':0/'\':0/'*'
 S:4:0/'|':0/'-':0/'/':0/'\':0/'*'
 S:5:0/'|':0/'-':0/'/':0/'\':0/'*'
 S:6:0/'|':0/'-':0/'/':0/'\':0/'*'
+
+# Water
+S:32:0/'|':0/'-':0/'/':0/'\':0/172
+
+# Poison
+S:12:0/168:0/169:0/170:0/171:0/172
 
 # Projection types that look like lightning or webbing
 S:9:0/168:0/169:0/170:0/171:0/173

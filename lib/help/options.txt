@@ -1,11 +1,11 @@
 
 ====== Options ======
 
-Various concepts mentioned below
-  "disturb"    : cancel any running, resting, or repeated commands
-  "flush"      : forget any keypresses waiting in the keypress queue, including
+Various concepts mentioned below:
+  "disturb"    : Cancel any running, resting, or repeated commands
+  "flush"      : Forget any keypresses waiting in the keypress queue, including
                  any macros in progress
-  "fresh"      : dump any pending output to the screen
+  "fresh"      : Display any pending output on the screen
 
 Options you may want to change to your preferences include:
 - Roguelike commands, if you are used to the commands used in certain other
@@ -17,12 +17,17 @@ Options you may want to change to your preferences include:
   can be a lot of fun.
 
 Saving options:
-     Whenever you save options, you have essentially three choices of filenames:
-- <<savefile name>>.prf  : affects only that character
-- <<race name>>.prf      : affects all characters of that race
-- user.prf               : affects all of your characters
+     The current options are automatically stored in your savefile when you next
+save the game.  You only need to save options explicitly if you want future
+characters started 'from scratch' (not from a previous character) to use your
+preferred defaults.
+- {savefile name}.prf  : affects only that character
+- {race name}.prf      : affects all characters of that race
+- user.prf               : affects all of your future characters
 
-     These rules also apply to other kinds of preferences.
+     The rules on usage do not fully apply to other kinds of preferences because
+only options are saved in savefiles, but the same file names work the same way
+in all cases.
 
 
 --- Birth Options ---
@@ -78,7 +83,7 @@ Pick things up by default                     [always_pickup]  (off) :
 Display things before picking them up         [query_floor]  (on) :
      When "always_pickup" is on, the game assumes you want to pick up any object
 you encounter.  If "query_floor" is off, you pick up objects automatically.
-Otherwise, you are shown a list, and prompted to pick up.
+Otherwise, you are shown a list and prompted to pick up.
      When "always_pickup" is off, the game assumes you want to pick things up
 selectively.  If "query_floor" is off, you get a one-line description of the
 object or pile.  If "query_floor" is on, you see a full list, including weights.
@@ -131,6 +136,12 @@ this option is on, it will change whenever you rename your character.
      Traditionally, the Macintosh port allowed base names to change after birth
 and most other ports did not.
 
+Allow accents in output files                 [xchars_to_file]  (on) :
+     Accents in your character name or other text will be preserved in various
+output files such as character dumps.  They will be saved using your system's
+character encoding.  If this option is off, character dumps will be saved in
+plain ASCII; this is recommended for newsgroup posts.
+
 
 --- Option Set #2:  Disturbance and Warning ---
 
@@ -163,7 +174,7 @@ Activate quick messages                       [quick_messages]  (on) :
      Allows the use of any keypress as a response to the "(+)" prompt, except
 when you are badly wounded.
 
-Compress messages in savefiles                [compress_savefile]  (off) :
+Compress messages in savefiles                [compress_messages]  (off) :
      Compress the savefile, saving only the most recent player messages.  This
 can cut the size of the savefile substantially, but will result in the loss of
 message information.
@@ -194,52 +205,42 @@ Special colors for hurt character             [colored_hurt_char]  (on) :
 
 --- Option Set #3:  Visual Interface ---
 
-Map remembers all perma-lit grids             [view_perma_grids]  (on) :
-     Memorize all permanently lit floor grids.  Turning this option off allows
-you to know which lit floor grids are in line of sight.  If you are using color,
-however, the "view_sight_light" option works better.
+Map remembers all seen grids                  [remember_seen_grids]  (on) :
+     Memorize all floor grids that have ever been lit up by you.  This gives
+you a visual record of which areas you have explored on the current level.
 
-Map remembers all torch-lit grids             [view_torch_grids]  (off) :
-     Memorize all floor grids that have ever been lit up by the player.  If both
-this and the "view_floor_light" option are turned on, you get a visual record of
-which areas you have explored on the current level.
+Use special colors for torch-lit grids        [torch_light]  (on) :
+     If the option "floor_lighting" is also on, floor grids that are only lit
+by your own light source or light sources on the floor will appear yellow.  If
+the option "wall_lighting" is on, walls may be colored in the same way (if some
+terrain prefs are tweaked).  Turning this option off will slightly increase the
+speed of the game.
 
-Use special colors for torch-lit grids        [view_torch_light]  (off) :
-     If the option "view_floor_light" is also on, floor grids that are only lit
-by the player's own light source or light sources on the floor will appear
-yellow.  If the option "view_wall_light" is on, walls will be colored in the
-same way.  Turning this option off will slightly increase the speed of the game.
+Use special colors for field of view          [sight_light]  (on) :
+     If the option "floor_lighting" is also on, those floor grids that you can
+see directly appear bright, and all other known grids appear darkened.  If the
+option "wall_lighting" is on, walls will be colored in the same way.  Turning
+this option off will slightly increase the speed of the game.
 
-Use special colors for field of view          [view_sight_light]  (off) :
-     If the option "view_floor_light" is also on, those floor grids that the
-player can see directly appear white, and all other known grids appear dark
-gray.  If the option "view_wall_light" is on, walls will be colored in the same
-way.  Turning this option off will slightly increase the speed of the game.
+Use special colors for wall grids             [wall_lighting]  (on) :
+     If either the option "torch_light" or "sight_light" is on, wall grids will
+change color depending on lighting conditions.  Turning this option off will
+slightly increase the speed of the game.
 
-Use special colors for wall grids (slow)      [view_wall_light]  (off) :
-     If either the option "view_torch_light" or "view_sight_light" is on, wall
-grids will change color depending on lighting conditions instead of always being
-gray.  This option may not work well if the attr/char codes for walls/veins have
-been changed, or if graphics are being used.  Turning it off will slightly
-increase the speed of the game.
-
-Use special colors for floor grids (slow)      [view_floor_light]  (off) :
-     If either the option "view_torch_light" or "view_sight_light" is on, floor
-grids will change color depending on lighting conditions instead of always being
-black or white.  This option may not work well if the attr/char codes for floors
-have been changed, or if graphics are being used.  Turning it off will slightly
-increase the speed of the game.
+Use special colors for floor grids            [floor_lighting]  (on) :
+     If either the option "torch_light" or "sight_light" is on, floor grids
+will change color depending on lighting conditions.  Turning this option off
+will slightly increase the speed of the game.
 
 Highlight the player with the cursor          [highlight_player]  (off) :
-     Place the visible cursor on the player.  This looks fine on some UNIX
-machines, but horrible on most graphics machines.
+     Place the visible cursor on the player.  This looks fine on terminals, but
+not on most graphical displays.
 
 Flush output after various things             [fresh_after]  (off) :
-     This option forces the game to flush all output not only after every player
-command, but also after every round of processing monsters and objects, and
-after every message.  This maximizes your information, but may slow down the
-game (especially on slower machines) and on faster machines you cannot see the
-results anyway.
+     Flush all output not only after every player command, but also after every
+round of processing monsters and objects, and after every message.  This
+maximizes your information, but may slow down the game (especially on slower
+machines) and on faster machines you cannot see the results anyway.
 
 Don't hide traps when objects pile on them    [traps_display_on_top]  (on) :
      Traps display on top of objects, and you need to look at the grid to
@@ -277,8 +278,6 @@ manually through keypresses.  However, at present this option will still work if
 the sub-window is closed or moved off-screen, so use with caution!
 
 
-
-
 --- Option Set #4:  Screen Display ---
 
 Window Flags:
@@ -286,12 +285,12 @@ Window Flags:
 useful information.
 
   inventory:         Display the character's inventory (and equipment when
-requested).
+                     requested).
   equipment:         Display the character's equipment (and inventory when
-requested).
+                     requested).
   character screen:  Display the main character screen.
   equip attributes:  Display the character screen's equipment attributes
-section.
+                     section.
   visible monsters:  Display visible monsters.  The names of those that have
                      killed at least one of your ancestors are in red, those
                      that have never been seen before by this character are in
@@ -303,26 +302,18 @@ section.
   monster recall:    Display a description of the target monster.
   object recall:     Display a description of the most recently selected
                      object.
+  list of commands:  Display the most commonly-used commands for quick reference.
+
 
 Screen Layout:
 
-Force 25_line mode:   (on) :
-     The main screen will appear in 25 lines.  If this option is off, the main
-screen will appear in 50 lines.
+Show more things (like text) in tall display:  (off) :
+     Various interfaces, such as stores, lists, and help, appear in the tall
+(46+ row) display.  This option is most helpful to those with large screens.
 
-Text_50_rows:  (off) :
-     Various special displays, such as stores, lists, and help, appear in 50
-lines.  This option is most helpful to those with large screens.
-
-Number of rows used to show the dungeon:  (22) :
-     If force_25_line mode is on, the dungeon will always appear in 22 rows.
-Otherwise, it may appear in 22, 33, or 44 rows.  The reason why dungeon display
-rows are always divisible by 11 is that rooms align to 11x33 blocks.
-     There are three great advantages to showing the dungeon in 44 rows:
-Firstly, you are guaranteed 20 grids of clear viewing in your direction of
-travel whenever you hit the 'L' (or 'W') key.  Secondly, even the biggest rooms
-fit within a screen 44 grids high and 66 wide.  Thirdly, you have more space for
-custom display rows.
+Show the largest map the screen will allow:  (on) :
+     Maximizes dungeon size at the expense of a slightly less "clean"
+appearance.
 
 Minimum vertical view distance:    (2) :
      Fully documented on-screen, but note that this allows you to get "center on
@@ -331,9 +322,10 @@ player".
 Minimum horizontal view distance:  (4) :
      Fully documented on-screen.
 
-Customized left panel rows:   (none preset) :
+
+Customized left panel rows :
      Below the monster health bar on the left side of the main screen is empty
-space suitable for display information that's important to you.
+space suitable for displaying information that's important to you.
 
   (blank line)   : Useful for spacing out information
 
@@ -396,16 +388,20 @@ space suitable for display information that's important to you.
 
 --- Option Set #5:  Difficulty and Assistance ---
 
-Know complete monster info                    [help_know]  (off) :
-     You can know all about monsters.  Score is reduced by 33%.
-
-Allow character to avoid death                [help_live]  (off) :
-     You can cheat death.  If you do, your score will be placed in "()"s.  This
-is, in truth, a cheat, but many people find it helpful when first learning the
+Allow character to avoid death                [beginner_play]  (off) :
+     You can cheat death.  If you do, your score will be placed in "()"s.  This 
+is, in truth, a cheat, but many people find it helpful when first learning the 
 game.
+
+Know complete monster info                    [cheat_know]  (off) :
+     You can know all about monsters.  Score is reduced by 33%.
 
 
 --- Miscellaneous Options ---
+
+User Interface:
+     Some ports of this game allow you to specify various user interface and
+multimedia preferences, such as turning on and off graphics and sound.
 
 Hitpoint warning:
      If non-zero, is the percentage of maximal hitpoints (x10) at which you
@@ -422,7 +418,7 @@ machines.
 
 Autosave:
      You may set the game to save your character every so often by using the
-autosave option.  Tweak the timer until you are satisfied.
+autosave option.  Tweak the timer to control the frequency of autosaves.
 
 
 --- Options Commands ---
@@ -434,9 +430,9 @@ them to a file that will.
 
 Save options to a file:
      Saves options to file.  See the preferences section for help on what
-filename to use (the file "user.prf" usually works).
-
-
+filename to use (the file "user.prf" usually works).  Because options are
+automatically saved when you save the game, you only have to do this if you want
+to set up a default set of options for multiple adventurers.
 
 
 

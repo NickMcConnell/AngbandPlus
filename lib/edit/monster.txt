@@ -1,23 +1,20 @@
-
-# File: monster.txt
-
+#
 # This file contains information about monster races.
+#
 
-# Do not modify this file unless you know exactly what you are doing,
-# unless you wish to risk possible system crashes and broken savefiles.
-
+#
 # If you are mostly a player, rather than a coder, seriously consider not 
 # glancing too much at the monster information; Staffs of Probing have 
 # lots of charges now, and tell you just about everything.
-
-
+#
+#
 # (Monster Types)
 # Currently, unique monsters are special monster races, with the require-
 # ment that only one monster of that race can exist at a time, and when it 
 # is killed, it can never again be generated.  Player ghosts are uniques 
 # whose attributes change according to data in bones files and which only 
 # appear once in a game.
-
+#
 # (Monster Symbols)
 # Monsters may use most basic symbols, including all the alphabetic 
 # characters.  They may not use: "`" (reserved as an "alternate" open door 
@@ -25,7 +22,7 @@
 # (esp. IBM).
 # The "x" symbol is free for use as an "attr/char mapping" for annoying
 # monsters, such as magic mushrooms, drolems, etc.
-
+#
 # (Monster Colors)
 #
 #      There has been a fair amount of work done on the colors of 'h' and 
@@ -46,16 +43,21 @@
 # - Any monster with a color in its name or description gets that color.
 # - Uniques usually flicker between two colors.
 # - Player ghosts are always light blue.  No other undead is light blue.
-
+#
 # (Contributers)
 # Most of the monsters in this file are from Angband, through Oangband, 
 # with greater or lesser modifications.  The rest come from Moria, Zang-
-# band (about 9), Derrick Creamer, Johnathan Ellis' patch, and the 
-# Sangband developers's fertile imaginations.  -LM-
+# band (about 9), UnAngband, Derrick Creamer, Johnathan Ellis' patch, and 
+# the Sangband developers's fertile imaginations.  -LM-
+#
 
+# Version stamp (required)
 
+V:1.0.0
+
+#
 # === Understanding monster.txt ===
-
+#
 # N: serial number : monster name
 # G: symbol : color
 # I: speed : hit points : vision : armor class : sleepiness : combat range
@@ -65,58 +67,55 @@
 # S: spell type | spell type | etc
 # F: flag | flag | etc
 # D: Description
-
+#
 # 'N' indicates the beginning of an entry. The serial number must
 # increase for each new item. Entry 0 is used for the player.
-
+#
 # 'G' is for graphics - symbol and color. The default colors are as
 # follows:
-
+#
 # D - Dark Gray    w - White          s - Gray          o - Orange
 # r - Red          g - Green          b - Blue          u - Brown
 # d - Black        W - Light Gray     P - Light Purple  y - Yellow
 # R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
 # p - Purple       v - Violet         t - Teal          m - Mud
 # Y - Light Yellow M - Magenta        X - (multihued)
-
+#
 # 'I' is for information - speed, health, vision in tens of feet,
 # armor class, alertness, combat range, and noiseness.  The last two 
 # may be omitted.  110 is normal speed. Alertness ranges from 0 (ever 
 # vigilant for intruders) to 255 (almost oblivious of intruders).
-
+#
 # 'W' is for more information - level, rarity, maximum mana, and exper-
 # ience for killing.
-
+#
 # 'B' is for blows - method of attack, effect of attack, and damage
 # from attack. There may be up to four of these lines; effect and
 # damage are optional.
-
+#
 # 'S' is for spells. The first S: line must be S:1_IN_X with X the
 # number of monster turns, on average, before the monster will cast
 # one of its spells. X must not be zero.  The first line also contains
 # the monster spellpower (how much damage its attack spells do).
-
+#
 # 'F' is for flags. These are fairly self-explanatory. As many F:
 # lines may be used as are needed to specify all the flags and flags
 # are separated by the '|' symbol.
-
+#
 # 'D' is for description. As many D: lines may be used as are needed
 # to describe the monster. Note that lines will need spaces at their
 # ends to prevent words from running together in the monster memory.
+#
+# For more information, see /lib/info/modify.txt.
+#
 
-
-
-# Version stamp (required)
-
-V:0.9.9
 
 
 ######### The Player #########
 
-# monster zero is used for the player picture (in text mode).
+# monster zero is used for the player picture.
 N:0:Player
 G:@:w
-
 
 
 ############################## Town Monsters ##############################
@@ -869,7 +868,7 @@ N:87:Green naga
 G:n:m
 I:110:30:18:10:60:1
 W:5:1:0:10
-B:CRUSH:HURT:1d8
+B:CRUSH:HURT:1d7
 B:SPIT:ACID:2d6
 F:FEMALE | RAND_25 | BASH_DOOR | TAKE_ITEM | 
 F:DROP_60 | EVIL | IM_ACID
@@ -1222,17 +1221,7 @@ D:The larval form of a major demon.
 
 ## empty space (available for dungeon monsters) ##
 
-N:127:Novice breather
-G:p:r
-I:110:27:20:8:20:5
-W:9:2:30:25
-B:HIT:HURT:1d5
-B:HIT:HURT:1d5
-F:MALE | FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | 
-F:ONLY_GOLD | DROP_90 | SMART 
-S:1_IN_1 | POW_3 | 
-S:BRTH_FIRE
-D:A nasty little fellow with a potion of booze and a match.
+## empty space (available for dungeon monsters) ##
 
 N:128:Hairy mold
 G:m:o
@@ -1409,7 +1398,7 @@ B:HIT:WOUND:2d9
 F:MALE | OPEN_DOOR | BASH_DOOR | 
 F:DROP_1D2 | EVIL | HURT_LITE | 
 F:SMART
-D:A dark elven figure in armour, ready with his sword.
+D:A dark elven figure in armor, ready with his sword.
 
 N:144:Panther
 G:f:u
@@ -1621,7 +1610,7 @@ W:12:2:0:25
 B:BITE:HURT:2d5
 B:STING:HURT:2d5
 F:WEIRD_MIND | BASH_DOOR | KILL_BODY | RAND_25 | ANIMAL
-D:A vast armoured centipede with massive mandibles and a spiked tail.  Dozens 
+D:A vast armored centipede with massive mandibles and a spiked tail.  Dozens 
 D:of legs carry it towards you.
 
 N:168:Pseudo-dragon
@@ -2185,7 +2174,7 @@ B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 F:MALE | ESCORT | OPEN_DOOR | BASH_DOOR | 
 F:DROP_90 | ORC | EVIL | SMART
-D:An armoured orc with an air of authority.
+D:An armored orc with an air of authority.
 
 N:224:Fire hound
 G:Z:r
@@ -2811,9 +2800,9 @@ F:FEMALE | RAND_25 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
 F:DROP_2D2 | EVIL
 S:1_IN_8 | POW_8 | 
 S:MISSL | SLOW | SCARE
-D:A armed and armoured woman of remarkable beauty, with the lower body of a 
-D:great steel-clad serpent.  Her four arms bear weapons of ancient make, and 
-D:from ancient days has she guarded her trove.
+D:An armed and armored woman of remarkable beauty, with the lower body of a 
+D:steel-clad serpent.  Her four arms bear weapons of ancient make, and from 
+D:ancient days has she guarded her trove.
 
 ## empty space (available for dungeon monsters) ##
 
@@ -2824,8 +2813,8 @@ W:25:2:0:100
 B:CLAW:WOUND:1d9
 B:BITE:WOUND:1d16
 F:BASH_DOOR | ANIMAL
-D:A fierce and dangerous cat.  Its huge tusks and sharp claws would lacerate 
-D:even the strongest armour.
+D:A fierce and dangerous cat.  Its huge tusks and sharp claws can lacerate 
+D:even the strongest armor.
 
 N:286:Red dragon bat
 G:b:r
@@ -3130,7 +3119,7 @@ F:NO_FEAR | NO_SLEEP
 D:A grave-robbing undead with a withering touch.
 
 N:313:Nruling
-G:I:R
+G:I:i
 I:115:50:20:16:8:2
 W:27:3:90:75
 B:HIT:FIRE:2d8
@@ -3233,7 +3222,7 @@ W:28:3:0:75
 B:BITE:HURT:2d10
 F:WEIRD_MIND | FRIENDS | RAND_25 | BASH_DOOR | KILL_BODY | 
 F:ANIMAL | STUPID
-D:An armoured form moving with purpose.  Powerful on its own, flee when 
+D:An armored form moving with purpose.  Powerful on its own, flee when 
 D:hordes of them march.
 
 N:323:Disenchanter worm mass
@@ -3466,7 +3455,19 @@ S:TELE_SELF_TO | DARKNESS | CURSE | MIND_BLAST | WOUND | SCARE |
 S:HOLD
 D:A humanoid with an aura of power.  You notice a sharp set of front teeth.
 
-## empty space (available for dungeon monsters) ##
+N:345:Blade naga
+G:n:z
+I:115:170:20:40:60:1
+W:31:4:44:160
+B:HIT:WOUND:3d10
+B:HIT:WOUND:3d10
+B:HIT:BATTER:3d8
+F:FEMALE | RAND_25 | FRIEND | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | 
+F:DROP_2D2 | EVIL
+S:1_IN_12 | POW_7 | 
+S:SCARE
+D:A wild-eyed woman, fair and terrible, rising from the trunk of a great 
+D:iron-hued serpent.  Deadly are the blades she wields.
 
 ## empty space (available for dungeon monsters) ##
 
@@ -3482,7 +3483,7 @@ F:SMART
 S:1_IN_6 | POW_14 | 
 S:BOLT_FIRE | BOLT_COLD | HASTE | ADD_MANA | TELE_SELF_TO | DARKNESS | 
 S:BLIND | CONF
-D:A dark elven figure in armour, radiating evil power.
+D:A dark elven figure in armor, radiating evil power.
 
 N:348:Slinger
 G:p:w
@@ -3574,7 +3575,7 @@ D:feel the earth resonating beneath your feet.
 N:356:Nexus hound
 G:Z:R
 I:110:90:30:15:0:1
-W:33:3:10:160
+W:33:3:20:160
 B:BITE:HURT:1d12
 B:BITE:HURT:1d12
 B:CLAW:HURT:2d3
@@ -3588,7 +3589,7 @@ D:hound.  Or is it just your imagination?
 N:357:Haunted helmet
 G:]:s
 I:120:80:20:25:10:1
-W:33:3:20:150
+W:33:3:40:150
 B:TOUCH:CONFUSE:3d3
 F:FORCE_SLEEP | ATTR_MULTI | COLD_BLOOD | 
 F:NEVER_MOVE | UNDEAD | EVIL | IM_FIRE | IM_COLD | IM_POIS | 
@@ -3709,7 +3710,7 @@ F:MALE | FORCE_SLEEP | OPEN_DOOR | BASH_DOOR |
 F:DROP_1D2 | EVIL | SMART
 S:1_IN_8 | POW_10 | 
 S:DARKNESS | WOUND | SCARE | BLIND
-D:An evil warrior encased in deep black plate armour; he looks at you 
+D:An evil warrior encased in deep black plate armor; he looks at you 
 D:menacingly.
 
 N:369:Mage
@@ -3735,20 +3736,7 @@ F:WEIRD_MIND | BASH_DOOR | ANIMAL
 D:A giant beetle with deadly sharp cutting mandibles and a rock-hard 
 D:carapace.
 
-N:371:Spirit naga
-G:n:w
-I:115:195:20:30:40:1:16
-W:35:2:80:240
-B:CRUSH:HURT:2d17
-B:BITE:HURT:1d17
-F:FEMALE | FORCE_SLEEP | INVISIBLE | 
-F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM | RAND_25 | 
-F:DROP_90 | DROP_2D2 | EVIL | NO_CONF | NO_SLEEP
-S:1_IN_4 | POW_17 | 
-S:HEAL | DARKNESS | MIND_BLAST | BLIND | 
-S:S_KIN
-D:A wraith-serpent, capped by the head and torso of a woman of astounding 
-D:beauty.  Fast, invisible, magical, she is the greatest of her kind.
+## empty space (available for dungeon monsters) ##
 
 N:372:Shade
 G:G:D
@@ -3922,7 +3910,7 @@ B:HIT:ELEC:3d7
 F:FORCE_SLEEP | EMPTY_MIND | COLD_BLOOD | 
 F:BASH_DOOR | IM_ELEC | IM_POIS | 
 F:NO_FEAR | NO_CONF | NO_SLEEP
-S:1_IN_4 | POW_16 | 
+S:1_IN_4 | POW_14 | 
 S:BOLT_ELEC | BEAM_ELEC | TELE_SELF_TO
 D:A man-shaped form of living lightning.  Sparks and shocks crackle all over 
 D:this madly capering figure, as it leaps and whirls around and about you.
@@ -3948,7 +3936,7 @@ B:BITE:HURT:2d12
 F:BASH_DOOR | ONLY_GOLD | DROP_2D2 | 
 F:ANIMAL
 D:A strange ox-like form with a huge head but a thin, weak neck, it looks 
-D:likes the creation of some deranged alchemist.
+D:like the creation of some deranged alchemist.
 
 N:389:Invisible stalker
 G:E:y
@@ -4049,7 +4037,21 @@ D:has four huge arms protruding from its enormous torso.
 
 ## empty space (available for dungeon monsters) ##
 
-## empty space (available for dungeon monsters) ##
+
+N:400:Spirit naga
+G:n:w
+I:120:215:20:30:40:1:16
+W:39:2:80:240
+B:CRUSH:HURT:2d17
+B:BITE:HURT:1d17
+F:FEMALE | FORCE_SLEEP | INVISIBLE | 
+F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM | RAND_25 | 
+F:DROP_90 | DROP_2D2 | EVIL | NO_CONF | NO_SLEEP
+S:1_IN_5 | POW_16 | 
+S:HEAL | DARKNESS | MIND_BLAST | BLIND | 
+S:S_KIN
+D:A wraith-serpent, capped by the head and torso of a woman of astounding 
+D:beauty.  Fast, invisible, magical, she is the greatest of her kind.
 
 N:401:Ninja
 G:p:y
@@ -4978,7 +4980,7 @@ F:SMART
 S:1_IN_5 | POW_30 | 
 S:BOLT_NETHR | TELE_SELF_TO | WOUND | SCARE | BLIND | 
 S:S_MONSTERS
-D:A humanoid figure dressed in armour of an ancient form.  From beneath its 
+D:A humanoid figure dressed in armor of an ancient form.  From beneath its 
 D:helmet, eyes glow a baleful red, seeming to pierce you like lances of fire.
 
 N:485:Time vortex
@@ -5090,7 +5092,7 @@ D:than a hatred of all that lives.
 
 N:494:Magma elemental
 G:E:r
-I:110:325:10:30:90:1
+I:110:325:16:30:90:1
 W:51:2:68:750
 B:HIT:FIRE:3d7
 B:ENGULF:FIRE:11d19
@@ -5115,7 +5117,7 @@ F:SMART
 S:1_IN_10 | POW_20 | 
 S:FORGET | WOUND | SCARE | BLIND | CONF | 
 S:S_DEMON
-D:A demon of small stature, but its armoured frame moves with lightning speed 
+D:A demon of small stature, but its armored frame moves with lightning speed 
 D:and its powers make it a tornado of death and destruction.
 
 N:496:Vrock
@@ -5188,7 +5190,7 @@ G:Q:u
 I:120:230:20:1:0:15
 W:52:2:135:1500
 F:FORCE_SLEEP | EMPTY_MIND | INVISIBLE | 
-F:NEVER_MOVE | NEVER_BLOW | EVIL | 
+F:NEVER_MOVE | NEVER_BLOW | 
 F:NO_FEAR | NO_CONF | NO_SLEEP
 S:1_IN_2 | POW_0 | 
 S:BLINK | TPORT | S_MONSTER | S_UNDEAD
@@ -6547,7 +6549,16 @@ D:spectre-shimmer of dreadful magics surrounding it.  It smites and smashes
 D:down, pulverizes and mangles in heaps of rubble, blood, and bone.  Appalling 
 D:and horrific sight!
 
-## empty space (available for dungeon monsters) ##
+N:624:Greater demonic quylthulg
+G:Q:R
+I:120:750:20:1:0:15
+W:73:2:0:5500
+F:FORCE_SLEEP | EMPTY_MIND | INVISIBLE | 
+F:NEVER_MOVE | NEVER_BLOW | 
+F:NO_CONF | NO_FEAR | NO_SLEEP
+S:1_IN_2
+S:BLINK | TELE_TO | S_HI_DEMON
+D:A massive pulsating mound of flesh, glowing with a hellish light.
 
 N:625:Great wyrm of Many Colours
 G:D:P
@@ -6585,7 +6596,17 @@ D:hands are ablur with spell casting.
 
 ## empty space (available for dungeon monsters) ##
 
-## empty space (available for dungeon monsters) ##
+N:628:Greater rotting quylthulg
+G:Q:U
+I:120:750:20:1:0:15
+W:79:2:220:6000
+F:FORCE_SLEEP | EMPTY_MIND | INVISIBLE | 
+F:NEVER_MOVE | NEVER_BLOW | 
+F:NO_CONF | NO_FEAR | NO_SLEEP
+S:1_IN_2 | POW_0 | 
+S:BLINK | TELE_TO | S_HI_UNDEAD
+D:A massive pile of rotting flesh.  A disgusting stench fills the air as it
+D: throbs and writhes.
 
 N:629:Great wyrm of Chaos
 G:D:P
@@ -6647,7 +6668,18 @@ D:advancing steadily and unstoppably.  Flee!
 
 ## empty space (available for dungeon monsters) ##
 
-## empty space (available for dungeon monsters) ##
+N:635:Greater draconic quylthulg
+G:Q:G
+I:120:800:20:1:0:15
+W:82:3:0:6500
+F:FORCE_SLEEP | EMPTY_MIND | INVISIBLE | 
+F:NEVER_MOVE | NEVER_BLOW | 
+F:NO_CONF | NO_FEAR | NO_SLEEP
+S:1_IN_2
+S:BLINK | TELE_TO
+S:S_HI_DRAGON
+D:A massive mound of scaled flesh, throbbing and pulsating with multi-hued
+D: light.
 
 N:636:Aether hound
 G:Z:P
@@ -6790,7 +6822,7 @@ S:1_IN_5 | POW_80 |
 S:BALL_DARK | BALL_MANA | BOLT_COLD | BOLT_POIS | BEAM_NETHR | 
 S:MIND_BLAST | SCARE | BLIND | S_KIN | S_UNDEAD
 D:A huge giant garbed in black, more massive than a titan and stronger than a 
-D:dragon.  With terrible blows, it breaks your armour from your back, leaving 
+D:dragon.  With terrible blows, it breaks your armor from your back, leaving 
 D:you defenseless against its evil wrath.  It can smell your fear, and you in 
 D:turn smell the awful stench of death as this ghastly figure strides towards 
 D:you menacingly.
@@ -7017,9 +7049,9 @@ I:120:18:30:10:20:1
 W:2:1:0:30
 B:BITE:HURT:1d4
 F:UNIQUE | FORCE_DEPTH | FIXED_HPS
-F:ATTR_MULTI | RAND_25 | BASH_DOOR
+F:ATTR_MULTI | RAND_25 | MALE | BASH_DOOR
 F:ANIMAL
-D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are 
+D:A rather vicious dog belonging to Farmer Maggot.  He thinks you are 
 D:stealing mushrooms.
 
 N:682:Fang, Farmer Maggot's dog
@@ -7028,9 +7060,9 @@ I:120:18:30:10:20:1
 W:2:1:0:30
 B:BITE:HURT:1d4
 F:UNIQUE | FORCE_DEPTH | FIXED_HPS
-F:ATTR_MULTI | RAND_25 | BASH_DOOR
+F:ATTR_MULTI | RAND_25 | MALE | BASH_DOOR
 F:ANIMAL
-D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are 
+D:A rather vicious dog belonging to Farmer Maggot.  He thinks you are 
 D:stealing mushrooms.
 
 N:683:Feldisham, the Guard
@@ -7309,7 +7341,7 @@ F:SMART
 D:Another of Morgoth's servants, this orc is strong and cunning.  He is ugly 
 D:and scarred from many power struggles.
 
-N:702:Azog, King of the Uruk-Hai
+N:702:Azog, King of the Uruk-hai
 G:o:r
 I:120:630:20:40:20:1
 W:28:5:0:550
@@ -7365,7 +7397,7 @@ F:IM_FIRE | IM_COLD | NO_CONF |
 F:SMART
 S:1_IN_9 | POW_22 | 
 S:BOLT_FIRE | HEAL | SLOW
-D:One of the last of the Petty-Dwarves.  Ibun is a tricky sorcerous little 
+D:One of the last of the Petty-dwarves.  Ibun is a tricky sorcerous little 
 D:being, full of mischief.
 
 # Khim, Son of Mim
@@ -7382,7 +7414,7 @@ F:IM_FIRE | IM_COLD | NO_CONF |
 F:SMART
 S:1_IN_9 | POW_22 | 
 S:BOLT_COLD | HEAL | SLOW
-D:One of the last of the Petty-Dwarves.  Kh[^i]m is a tricky sorcerous little 
+D:One of the last of the Petty-dwarves.  Kh[^i]m is a tricky sorcerous little 
 D:being, full of mischief.
 
 ## empty space (available for unique monsters) ##
@@ -7947,7 +7979,7 @@ S:1_IN_3 | POW_85 |
 S:BRTH_FIRE | BRTH_PLAS | BRTH_LITE | 
 S:BALL_FIRE | BOLT_PLAS
 D:A massive glowing eagle bathed in flames.  The searing heat chars your skin 
-D:and melts your armour.
+D:and melts your armor.
 
 N:740:Ji Indur Dawndeath
 G:W:D
@@ -8579,19 +8611,7 @@ D:defiance as he strides towards you to crush you to a pulp!
 
 ## empty space (available for dungeon monsters) ##
 
-N:773:!Xok, Tussler
-G:T:M
-I:115:3100:10:40:30:1
-W:72:5:100:11000
-B:HIT:BATTER:12d10
-B:HIT:BATTER:12d10
-F:MALE | UNIQUE | FORCE_SLEEP |
-F:REGENERATE | OPEN_DOOR | BASH_DOOR | SMART | TROLL | ORC |
-F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT 
-S:1_IN_4 | POW_65 |
-S:HEAL | BALL_ELEC | BALL_FIRE | BALL_ACID | BALL_COLD | BOLT_MANA | ADD_MANA | TELE_TO | HASTE | TPORT
-D:This hideous half-troll, half-orc monster has the largest arms you've ever
-D:seen.  In his hands he wields both staff and wand, glowing with power.
+## empty space (available for dungeon monsters) ##
 
 N:774:Gyrus, Necromancer-King
 G:p:p
@@ -8770,8 +8790,9 @@ B:TOUCH:LOSE_DEX:4d9
 F:UNIQUE | PLAYER_GHOST | FIXED_HPS | 
 F:REGENERATE | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:ONLY_ITEM | DROP_90 | DROP_CHEST | 
-F:UNDEAD | EVIL | HURT_LITE | IM_COLD | IM_POIS | 
-F:NO_FEAR | NO_CONF | NO_SLEEP | 
+F:UNDEAD | EVIL | RES_EDGED | HURT_LITE | HURT_FIRE | 
+F:IM_ELEC | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | 
 F:SMART
 S:1_IN_4 | POW_55 | 
 S:BALL_ELEC | BALL_COLD | ADD_MANA | BLINK | TELE_TO | TELE_AWAY | 

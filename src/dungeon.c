@@ -1,15 +1,17 @@
 /* File: dungeon.c */
 
 /*
- * Regenerate hitpoints and mana.  Handle the passage of time.  Enter
- * wizard, debug, and borg modes.  Process commands.  Handle a character's
- * turn.  Interact with the current dungeon level.  Play a game.
+ * Regenerate hitpoints and mana.  Handle the passage of time.  Special events.
+ * Enter wizard, debug, and borg modes.  Process commands.  Visual refreshes.
+ * Handle a character's turn.  Interact with the current dungeon level.  Play
+ * a game.
  *
- * Copyright (c) 1998 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -117,59 +119,41 @@ static void regenmana(int amount)
  */
 void tell_story(int part)
 {
-	int old_rows = screen_rows;
-	int dummy;
-
-	/* Save the screen */
-	screen_save();
-
-	/* Clear the screen */
-	clear_from(0);
-
-	/* Set to 25 rows */
-	(void)Term_rows(FALSE);
+	/* Use the standard display and center an 80 column view */
+	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX,
+		80, 0);
 
 	/* Skip some lines */
 	move_cursor(4, 0);
+
 
 	/* We have just slain Sauron */
 	if (part == MON_SAURON)
 	{
 		/* Display some text */
-		c_roff_centered(TERM_WHITE, "As Sauron falls, a greater evil is unmasked.  For the Creator of the One Ring, Sauron the Great, was but the servant of another:\n\nMorgoth, Lord of Darkness awaits you!", 10, 70);
+		c_roff_centered(TERM_WHITE, "     As Sauron falls, a greater evil is unmasked.  For the Creator of the One Ring, Sauron the Great, was but the servant of another:\n\nMorgoth, Lord of Darkness, awaits you!", 5, 75);
 	}
 
 	/* We have just slain Morgoth */
 	else if (part == MON_MORGOTH)
 	{
-		char buf[120];
+		char buf[DESC_LEN];
 
 		/* Get a racial adjective */
 		cptr race_adj = race_info[p_ptr->prace].title;
 
 		/* Get a character title (never "winner") */
-		cptr title_str = get_title(80, FALSE, FALSE, &dummy);
-
-		/* Copy over the string  XXX XXX */
-		strcpy(buf, format("%s", title_str));
+		strcpy(buf, format("%s", get_title(80, FALSE, FALSE)));
 
 		/* Display some text */
-		c_roff_centered(TERM_WHITE, format("Morgoth, Lord of Darkness lies vanquished, and fear dies with him; God's bright creation, our Middle-Earth, is free!  Your skill and valour is the stuff of legend; always we will remember the %s %s who saved us.\n\nWhen ready to assume the crown that awaits you, press \"control-C\" to retire.",  race_adj, buf), 10, 70);
+		c_roff_centered(TERM_WHITE, format("     Morgoth lies vanquished, and fear dies with him; Illuvatar's bright creation, our Middle-Earth, is free!  Your skill and valour is the stuff of legend; always we will remember the %s %s who saved us.\n\nWhen ready to assume the crown that awaits you, press \'Q\' to retire.",  race_adj, buf), 5, 75);
 	}
 
 	/* Wait for it */
-	pause_line(23);
+	pause_line(Term->rows - 1);
 
-
-	/* Set to 50 rows, if we were showing 50 before */
-	if (old_rows == 50)
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(TRUE);
-	}
-
-	/* Restore the screen */
-	screen_load();
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 }
 
 
@@ -179,7 +163,7 @@ void tell_story(int part)
  */
 static void recharged_notice(object_type *o_ptr)
 {
-	char o_name[120];
+	char o_name[DESC_LEN];
 
 	cptr s;
 
@@ -196,7 +180,7 @@ static void recharged_notice(object_type *o_ptr)
 		if (s[1] == '!')
 		{
 			/* Describe (briefly) */
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 			/* Notify the player */
 			if (o_ptr->number > 1)
@@ -224,7 +208,7 @@ static void process_world_aux_inven(void)
 	object_type *o_ptr;
 	object_kind *k_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	int i;
 	u32b f1, f2, f3;
@@ -315,8 +299,8 @@ static void process_world_aux_inven(void)
 			{
 				if (one_in_(3))
 				{
-					object_desc(o_name, o_ptr, FALSE, 0);
-					take_hit(damroll(6, 6), 0,
+					object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+					(void)take_hit(damroll(6, 6), 0,
 						format("Your %s is feeding on your soul!", o_name), "a weapon feeding on your soul");
 				}
 				p_ptr->soul_reserve = 0;
@@ -337,7 +321,7 @@ static void process_world_aux_inven(void)
 			if (object_aware_p(o_ptr))
 			{
 				/* Describe the object (briefly) */
-				object_desc(o_name, o_ptr, TRUE, 0);
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 				/* Message */
 				msg_format("Your experience rises.", o_name);
@@ -366,7 +350,7 @@ static void process_world_aux_inven(void)
 				else if (is_any_weapon(o_ptr)) str = "attacks you";
 
 				/* Describe the object */
-				object_desc(o_name, o_ptr, FALSE, 0);
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 				/* Ouch! */
 				if (o_ptr->artifact_index == ART_LIGHTNING_LANCE)
@@ -376,7 +360,7 @@ static void process_world_aux_inven(void)
 				}
 				else
 				{
-					take_hit(dam, 0, format("Your %s %s!", o_name, str),
+					(void)take_hit(dam, 0, format("Your %s %s!", o_name, str),
 						"a murderous item");
 				}
 			}
@@ -513,7 +497,7 @@ static void process_world_aux_inven(void)
 			}
 		}
 
-		/* Plague-infected armour */
+		/* Plague-infected armor */
 		if ((o_ptr->ego_item_index == EGO_PLAGUE) && (one_in_(10)))
 		{
 			int dam = 5 + p_ptr->power / 2;
@@ -614,7 +598,11 @@ static void process_world_aux_inven(void)
 			/* Object is any other activatable object */
 			else
 			{
-				/* Recharge */
+				/*
+				 * Recharge (wearables only recharge at 1/3rd speed in the
+				 * backpack, just as they do on the floor).
+				 */
+				if (!(is_wearable(o_ptr)) || !(turn % 30))
 				o_ptr->timeout--;
 
 				/* Notice changes, notify if object is inscribed. */
@@ -681,7 +669,7 @@ static void process_world_aux_inven(void)
 /*
  * Base noise can be adjusted by various factors.
  */
-static s16b base_noise()
+static s16b base_noise(void)
 {
 	s32b tmp = (s32b)p_ptr->base_wakeup_chance;
 
@@ -696,6 +684,8 @@ static s16b base_noise()
 
 	return ((s16b)tmp);
 }
+
+
 
 
 /*
@@ -753,43 +743,6 @@ static void process_world(void)
 	}
 #endif  /* ALLOW_BORG */
 
-	/*** Check the Time ***/
-
-	if (!(turn % 1000))
-	{
-		/* Check time and load */
-		if (0 != check_time())
-		{
-			/* Warning */
-			if (closing_flag <= 2)
-			{
-				/* Disturb */
-				disturb(0, 0);
-
-				/* Count warnings */
-				closing_flag++;
-
-				/* Message */
-				msg_format("The gates to %s are closing...", VERSION_NAME);
-				msg_print("Please finish up and/or save your game.");
-			}
-
-			/* Slam the gate */
-			else
-			{
-				/* Message */
-				msg_format("The gates to %s are now closed.", VERSION_NAME);
-
-				/* Stop playing */
-				p_ptr->playing = FALSE;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-		}
-	}
-
-
 	/*** Attempt timed autosave.  From Zangband. ***/
 	if (autosave_freq)
 	{
@@ -798,6 +751,7 @@ static void process_world(void)
 			do_cmd_save_game(TRUE);
 		}
 	}
+
 
 	/*** Update quests ***/
 
@@ -907,16 +861,16 @@ static void process_world(void)
 	if ((p_ptr->poisoned) && (p_ptr->necro_rage <= NECRO_WEAKNESS_LENGTH))
 	{
 		/* Take damage (increases with severity of poison) */
-		take_hit(randint(p_ptr->poisoned > 400 ? 10 :
-			(p_ptr->poisoned+39) / 40), 0, NULL, "poison");
+		if (take_hit(randint(p_ptr->poisoned > 400 ? 10 :
+			(p_ptr->poisoned+39) / 40), 0, NULL, "poison")) return;
 	}
 
 	/* Take damage from disease */
 	if (p_ptr->diseased)
 	{
 		/* Take damage (increases with severity of disease) */
-		take_hit(randint(p_ptr->diseased > 600 ? 20 :
-			(p_ptr->diseased+29) / 30), 0, NULL, "a fatal disease");
+		if (take_hit(randint(p_ptr->diseased > 600 ? 20 :
+			(p_ptr->diseased+29) / 30), 0, NULL, "a fatal disease")) return;
 	}
 
 	/* Take damage from cuts */
@@ -943,7 +897,7 @@ static void process_world(void)
 		}
 
 		/* Take damage */
-		take_hit(i, 0, NULL, "a fatal wound");
+		if (take_hit(i, 0, NULL, "a fatal wound")) return;
 	}
 
 	/* Handle manic-depressive fits */
@@ -1039,7 +993,7 @@ static void process_world(void)
 		i = (p_ptr->food_starving - p_ptr->food) / 10;
 
 		/* Take damage */
-		take_hit(i, 0, NULL, "starvation");
+		if (take_hit(i, 0, NULL, "starvation")) return;
 	}
 
 	/* Getting Faint */
@@ -1455,7 +1409,7 @@ static void process_world(void)
 
 
 	/* Slowly reduce recent thefts (note that you can rest, or hide in town) */
-	if ((num_recent_thefts > 0) && !(turn % 2500))
+	if ((num_recent_thefts > 0) && !(turn % 3500))
 	{
 		num_recent_thefts--;
 
@@ -1546,8 +1500,10 @@ static void process_world(void)
 	{
 		/* Teleport player */
 		teleport_player(40, FALSE, FALSE);
+
+		/* Disturbing */
 		msg_format("Your equipment whisks you about!");
-		disturb(0,0);
+		disturb(0, 0);
 	}
 
 	/* Nexus field */
@@ -1558,9 +1514,6 @@ static void process_world(void)
 
 		/* Timeout field */
 		set_nexus_field(p_ptr->nexus_field - 1, p_ptr->nexus_field_strength);
-
-		disturb(0,0);
-
 	}
 
 	/* Delayed Word-of-Recall */
@@ -1808,6 +1761,7 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
+	int i;
 	bool flag = FALSE;
 
 	/* Handle repeating the last command  -TNB- */
@@ -2016,13 +1970,6 @@ static void process_command(void)
 
 		/*** Stairs and Doors and Chests and Traps ***/
 
-		/* Enter store */
-		case '_':
-		{
-			do_cmd_store();
-			break;
-		}
-
 		/* Go up staircase */
 		case '<':
 		{
@@ -2196,7 +2143,7 @@ static void process_command(void)
 		/* Look around */
 		case 'l':
 		{
-			do_cmd_look();
+			do_cmd_look(0);
 			break;
 		}
 
@@ -2235,13 +2182,6 @@ static void process_command(void)
 
 		/*** System Commands ***/
 
-		/* Hack -- User interface */
-		case '!':
-		{
-			(void)Term_user(0);
-			break;
-		}
-
 		/* Interact with macros */
 		case '@':
 		{
@@ -2267,7 +2207,6 @@ static void process_command(void)
 		case '=':
 		{
 			do_cmd_options();
-			do_cmd_redraw();
 			break;
 		}
 
@@ -2419,6 +2358,23 @@ static void process_command(void)
 			break;
 		}
 
+		/* Mouse press */
+		case MOUSEKEY:
+		{
+			mouseaction_type *mouse = &cur_mouse_action;
+
+			/* Start looking on mouse left double-click (in main or map term) */
+			if ((mouse->button == MOUSE_L_DBLCLICK) &&
+			    ((mouse->term == TERM_MAIN) || (mouse->term == TERM_MAP)))
+			{
+				/* Look, jumping to the mouse position */
+				do_cmd_look(TARGET_MOUS);
+			}
+
+			/* Otherwise, ignore (for now) */
+			break;
+		}
+
 		/* Hack -- Unknown command */
 		default:
 		{
@@ -2433,6 +2389,10 @@ static void process_command(void)
 
 	/* Normal help */
 	else p_ptr->get_help_index = HELP_GENERAL;
+
+
+	/* HACK -- Clean up:  cancel any special cursor visibility */
+	for (i = 0; i < TERM_MAX; i++) inkey_cursor_hack[i] = 0;
 }
 
 
@@ -2514,6 +2474,11 @@ static void process_player_aux(void)
 
 /*
  * Glowing objects.  -LM-
+ *
+ * We use a pre-calculated table (that handles radii of <= 5) for efficiency.
+ *
+ * This function can handle glowing objects of radius 0, but at present they
+ * are forbidden to glow.
  */
 static void glow_object(int y0, int x0, int rad)
 {
@@ -2521,7 +2486,7 @@ static void glow_object(int y0, int x0, int rad)
 	int y, x, y1, x1;
 
 	/* We can handle light sources up to a radius of 5 */
-	int grid_limit = MIN(grids_in_radius[rad], grids_in_radius[5]);
+	int grid_limit;
 
 	int adjust_y = y0 - 5;
 	int adjust_x = x0 - 5;
@@ -2529,8 +2494,12 @@ static void glow_object(int y0, int x0, int rad)
 	bool no_los;
 
 
-	/* Radius zero emits no light */
-	if (!rad) return;
+	/* Ignore or correct illegal radii */
+	if (rad < 0) return;
+	if (rad > 5) rad = 5;
+
+	/* Get the number of grids within the given radius */
+	grid_limit = grids_in_radius[rad];
 
 	/* Scan the los table until all legal grids are checked */
 	for (i = 0, grid = 0; grid < grid_limit; grid++)
@@ -2569,8 +2538,8 @@ static void glow_object(int y0, int x0, int rad)
 				/* Check bounds (should never fail) */
 				if (in_bounds(y1, x1))
 				{
-					/* Grid is a wall -- LOS is blocked */
-					if (cave_wall_bold(y1, x1)) no_los = TRUE;
+					/* Note grids which block LOS */
+					if (!cave_los_bold(y1, x1)) no_los = TRUE;
 				}
 			}
 
@@ -2664,8 +2633,8 @@ static void refresh_visuals_before(void)
 	}
 
 
-	/* Process the character's light source */
-	glow_object(p_ptr->py, p_ptr->px, p_ptr->cur_lite);
+	/* Process the character's light source -- only if radius 1 or greater */
+	if (p_ptr->cur_lite > 0) glow_object(p_ptr->py, p_ptr->px, p_ptr->cur_lite);
 
 
 	/* Process objects in the dungeon */
@@ -2730,21 +2699,20 @@ static void refresh_visuals_before(void)
 				object_flags(o_ptr, &f1, &f2, &f3);
 
 				/* Objects without permanent light require fuel */
-				if ((o_ptr->tval == TV_LITE) && (!(f3 & (TR3_NOFUEL))) &&
-				    (o_ptr->pval <= 0))
+				if ((o_ptr->tval == TV_LITE) && !(f3 & (TR3_NOFUEL)))
 				{
-					rad = 0;
+					/* Require fuel */
+					if (o_ptr->pval <= 0) continue;
+
+					/* Torches with low fuel burn more dimly */
+					if (o_ptr->sval == SV_LITE_TORCH)
+					{
+						if ((o_ptr->pval < (TORCH_LOW + 1000)) && (rad > 1)) rad -= 1;
+					}
 				}
 
-				/* Torches with low fuel burn more dimly */
-				else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
-				{
-					/* Require more fuel than usual */
-					if ((o_ptr->pval < (TORCH_LOW + 1000)) && (rad > 1)) rad -= 1;
-				}
-
-				/* Object shines in the dungeon */
-				if (rad > 0) glow_object(iy, ix, rad);
+				/* Shine only if light radius is positive */
+				if (rad >= 1) glow_object(iy, ix, rad);
 			}
 		}
 	}
@@ -2822,7 +2790,7 @@ static void refresh_visuals_after(void)
 
 
 		/* Handle visibility changes */
-		if (update_mon(i, do_dist, TRUE)) continue;
+		if (update_mon(i, do_dist)) continue;
 
 		/* If monster not already redrawn, shimmer it */
 		if ((r_ptr->flags1 & (RF1_ATTR_MULTI)) &&
@@ -2856,7 +2824,7 @@ static void pack_overflow(void)
 		object_type *o_ptr;
 
 		cptr s;
-		char o_name[120];
+		char o_name[DESC_LEN];
 
 		/* Assume illegal drop */
 		int drop = -1;
@@ -2919,7 +2887,7 @@ static void pack_overflow(void)
 		msg_print("Your pack overflows!");
 
 		/* Describe */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Message */
 		msg_format("You drop %s (%c).", o_name, index_to_label(drop));
@@ -3013,7 +2981,7 @@ void process_player(void)
 		inkey_scan = TRUE;
 
 		/* Check for a key */
-		if (inkey())
+		if (inkey(ALLOW_CLICK))
 		{
 			/* Flush input */
 			flush();
@@ -3037,6 +3005,9 @@ void process_player(void)
 
 	/* Print "target"  XXX */
 	left_panel_display(DISPLAY_TARGET, 0);
+
+	/* Request appropriate music for the current danger level */
+	danger_music_level(FALSE);
 
 
 	/* Optional hitpoint warning */
@@ -3107,15 +3078,29 @@ void process_player(void)
 		/* Picking up objects */
 		else if (p_ptr->notice & (PN_PICKUP1))
 		{
+			/* Hack -- Force the cursor to be hidden in some cases  XXX XXX */
+			if ((!highlight_player) && (use_special_map)) inkey_cursor_hack[TERM_MAP] = -1;
+
+			/* Recursively call the pickup function, use energy */
 			p_ptr->energy_use = py_pickup(1) * 10;
 			p_ptr->notice &= ~(PN_PICKUP0 | PN_PICKUP1);
+
+			/* Allow the cursor to be shown again */
+			inkey_cursor_hack[TERM_MAP] = 0;
 		}
 
 		/* Noticing objects (allow pickup) */
 		else if (p_ptr->notice & (PN_PICKUP0))
 		{
+			/* Hack -- Force the cursor to be hidden in some cases  XXX XXX */
+			if ((!highlight_player) && (use_special_map)) inkey_cursor_hack[TERM_MAP] = -1;
+
+			/* Recursively call the pickup function, use energy */
 			p_ptr->energy_use = py_pickup(0) * 10;
 			p_ptr->notice &= ~(PN_PICKUP0 | PN_PICKUP1);
+
+			/* Allow the cursor to be shown again */
+			inkey_cursor_hack[TERM_MAP] = 0;
 		}
 
 		/* Resting */
@@ -3190,18 +3175,7 @@ void process_player(void)
 		{
 			/* Use some energy */
 			p_ptr->energy -= p_ptr->energy_use;
-
-			/* Increment the player turn counter */
-			player_turn++;
 		}
-
-		/* Action is or was resting */
-		if (p_ptr->resting)
-		{
-			/* Increment the resting counter */
-			resting_turn++;
-		}
-
 	}
 	while (!p_ptr->energy_use && !p_ptr->leaving);
 
@@ -3223,7 +3197,7 @@ void process_player(void)
 		teleport_player(10, p_ptr->dancing_feet_safe, FALSE);
 		set_dancing_feet(p_ptr->dancing_feet - 1, NULL,
 			p_ptr->dancing_feet_safe);
-		disturb(0,0);
+		disturb(0, 0);
 	}
 
 	/* Spell enhancements */
@@ -3266,7 +3240,7 @@ void process_player(void)
 
 		/* But the character always makes some noise */
 		if (total_wakeup_chance < base_noise())
-			 total_wakeup_chance = base_noise();
+		    total_wakeup_chance = base_noise();
 	}
 
 	/* New noise is generated */
@@ -3315,7 +3289,7 @@ void process_player(void)
 static bool any_scores(void)
 {
 	char buf[1024];
-	char tmp[100];
+	char tmp[DESC_LEN];
 	bool score = FALSE;
 
 	/* Build the filename */
@@ -3328,7 +3302,7 @@ static bool any_scores(void)
 	if (highscore_fd >= 0)
 	{
 		/* Try to read some data */
-		if (!fd_read(highscore_fd, tmp, 80)) score = TRUE;
+		if (!fd_read(highscore_fd, tmp, sizeof(tmp))) score = TRUE;
 	}
 
 	/* Shut the high score file */
@@ -3396,57 +3370,30 @@ static void dungeon(void)
 	(void)Term_clear();
 
 
-	/* Update various things */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_TORCH);
-
-	/* Fully update the visuals (and monster distances) */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
-
-	/* Handle various detection and visual effects */
-	refresh_visuals_after();
-
-	/* Update stuff */
-	update_stuff();
-
-
-	/* Redraw main window */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-	/* Redraw stuff */
-	redraw_stuff();
-
-
-	/* Refresh a lot of additional windows */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-	p_ptr->window |= (PW_MONSTER | PW_OVERHEAD | PW_M_LIST | PW_O_LIST);
-	p_ptr->window |= (PW_CMDLIST);
-
-	/* Redraw the windows */
-	window_stuff();
-
-
-	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
 	/* Combine / Reorder the pack */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Notice stuff */
 	notice_stuff();
 
-	/* Update stuff */
-	update_stuff();
 
-	/* Redraw stuff */
-	redraw_stuff();
+	/* Request everything */
+	p_ptr->update = 0xFFFFFFFF;
 
-	/* Window stuff */
-	window_stuff();
+	/* Redraw everything */
+	p_ptr->redraw = 0xFFFFFFFF;
+
+	/* Refresh everything */
+	p_ptr->window = 0xFFFFFFFF;
+
+	/* Handle stuff */
+	handle_stuff();
+
 
 	/* Status messages are no longer silenced */
 	character_silent = 0;
 
-	/* Refresh */
+	/* Refresh the main term */
 	(void)Term_fresh();
 
 
@@ -3583,7 +3530,7 @@ static void process_name_pref_file(void)
 	char buf[1024];
 
 	/* Get the "<<basename>>.prf" filename */
-	sprintf(buf, "%s.prf", op_ptr->base_name);
+	(void)strnfmt(buf, sizeof(buf), "%s.prf", op_ptr->base_name);
 
 	/* Process the "<<basename>>.prf" file */
 	(void)process_pref_file(buf);
@@ -3622,27 +3569,31 @@ void play_game(bool new_game)
 {
 	int ch;
 
-	/* Hack -- Increase "icky" depth */
-	character_icky++;
+
+	/* Blank the screen and set to standard screen display */
+	display_change(DSP_LOCK | DSP_NORM, 0, 0);
+
 
 	/* Verify main term */
-	if (!term_screen)
+	if (!term_main)
 	{
 		quit("main window does not exist");
 	}
 
 	/* Make sure main term is active */
-	(void)Term_activate(term_screen);
+	(void)Term_activate(term_main);
 
-	/* Verify minimum size */
-	if ((Term->hgt < 24) || (Term->wid < 80))
+	/* Verify minimum size (at present, 80x24) */
+	if ((Term->cols < term_size_min[TERM_MAIN][0]) || (Term->rows < term_size_min[TERM_MAIN][1]))
 	{
-		quit("main window is too small");
+		quit(format("main window is too small (is %dx%d, needs to be %dx%d)",
+			Term->cols, Term->rows, term_size_min[TERM_MAIN][0], term_size_min[TERM_MAIN][1]));
 	}
 
 
 	/* Hack -- Turn off the cursor */
 	(void)Term_set_cursor(FALSE);
+
 
 	/* Init RNG */
 	if (Rand_quick)
@@ -3673,8 +3624,9 @@ void play_game(bool new_game)
 	(void)process_pref_file("user.prf");
 
 
-	/* Hack -- set to 25 screen rows */
-	(void)Term_rows(FALSE);
+	/* Character is not "complete" yet */
+	character_generated = FALSE;
+
 
 	/* We have not already loaded a savefile, and do not require a new game */
 	if ((!character_loaded) && (!new_game))
@@ -3682,9 +3634,6 @@ void play_game(bool new_game)
 		/* We have a specific savefile we want to load */
 		if (savefile[0])
 		{
-			/* Blank the screen */
-			(void)Term_clear();
-
 			/* Load savefile, note any errors */
 			if (load_player(FALSE))
 			{
@@ -3715,6 +3664,8 @@ void play_game(bool new_game)
 		/* Character is alive - display, allow player to start over */
 		if ((character_loaded) && (!new_game))
 		{
+			char buf[1024];
+
 			/* Hack -- Silence certain status messages */
 			character_silent = 1;
 
@@ -3728,11 +3679,21 @@ void play_game(bool new_game)
 			/* Display the character */
 			display_player(0);
 
+			/* Center the prompt */
+			center_string(buf, sizeof(buf),
+				"['Q' to quit, 'C' to play another character, or any other key to continue]", display_width());
+
 			/* Prompt for it */
-			prt("['Q' to quit, 'L' to load another savefile, or any other key to continue]", 23, 3);
+			prt(buf, 23, 0);
+
+			/* Hide the cursor */
+			inkey_cursor_hack[TERM_MAIN] = -1;
 
 			/* Get response */
-			ch = inkey();
+			ch = inkey(ALLOW_CLICK);
+
+			/* Allow the cursor to be shown again */
+			inkey_cursor_hack[TERM_MAIN] = 0;
 
 			/* Quit */
 			if ((ch == 'Q') || (ch == KTRL('X')))
@@ -3740,8 +3701,8 @@ void play_game(bool new_game)
 				quit(NULL);
 			}
 
-			/* Load another savefile */
-			else if ((ch == 'L') || (ch == 'l') || (ch == ESCAPE))
+			/* Play another character */
+			else if ((ch == 'C') || (ch == 'c') || (ch == ESCAPE))
 			{
 				/* Continue */
 			}
@@ -3765,7 +3726,7 @@ void play_game(bool new_game)
 				prt("Using ancestor's monster memory...", 0, 0);
 
 				/* Wait for it */
-				(void)inkey();
+				(void)inkey(ALLOW_CLICK);
 			}
 
 			/* The dungeon is not ready */
@@ -3838,15 +3799,6 @@ void play_game(bool new_game)
 	process_name_pref_file();
 
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER | PW_M_LIST | PW_O_LIST | PW_MESSAGE);
-
-	/* Window stuff */
-	window_stuff();
-
 
 	/* Set or clear "rogue_like_commands" if requested */
 	if (arg_force_original) rogue_like_commands = FALSE;
@@ -3863,8 +3815,11 @@ void play_game(bool new_game)
 	character_generated = TRUE;
 
 
-	/* Hack -- Decrease "icky" depth */
-	character_icky--;
+	/* Display the main view */
+	display_change(DSP_UNLOCK, 0, 0);
+
+	/* Calculate the size of the map display, if not using a special map window */
+	if (!use_special_map) calc_map_size(Term->cols - COL_MAP, Term->rows - ROW_MAP - 1);
 
 
 	/* Start playing */
@@ -3873,21 +3828,18 @@ void play_game(bool new_game)
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
 
-	/* Blank the screen */
-	clear_from(0);
-
-	/* Hack -- reset the screen rows */
-	if (force_25_rows) (void)Term_rows(FALSE);
-	else               (void)Term_rows(TRUE);
-
 
 	/* Play a game with the user */
 	while (TRUE)
 	{
+		/* Start playing music (or change song) */
+		danger_music_level(TRUE);
+
 		/* Process the level */
 		dungeon();
 
 		/* Notice stuff */
+
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
@@ -3978,6 +3930,7 @@ void play_game(bool new_game)
 
 		/* Make a new level */
 		generate_cave();
+
 
 		/*** Update quests ***/
 

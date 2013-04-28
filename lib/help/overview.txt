@@ -9,10 +9,10 @@ current source and executables, special files, helpful comments, hints, and
 links, and the latest Sangband news.
      Sangband changes maintainers every so often.  The current one is Leon
 Marrick.  If you want to send him comments, or make sure your bug report gets
-heard, email "sangband@runegold.org".
-     The Angband newsgroup is at "news:rec.games.roguelike.angband"; it's filled
-with helpful folks.  If you want to talk about Sangband or ask for help, this
-discussion forum is the place to go.
+heard, use the email shown on the website.
+     The Angband Forum is at "http://angband.oook.cz/forum/"; it's filled with
+helpful folks.  If you want to talk about Sangband or ask for help, there's the
+place to go.
 
 
 --- The main screen ---
@@ -76,8 +76,6 @@ slain character one last time.  Here you can:
 - save information in a character dump,
 - see the high score table, and
 - fully identify individual items.
-
-
 
 
 

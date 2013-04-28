@@ -54,7 +54,6 @@ trap entirely.  Secondly, smart monsters get a chance to disarm the trap, and
 all non-ghostly monsters get a chance to smash it.  If the trap is neither
 avoided nor destroyed, it goes off.  Monsters become wary of traps if they see
 one activate; you are well advised to place them in the darkness.
-
      A single non-perfectly balanced weapon will get melee blows, a missile
 launcher will fire one or more shots, a potion will smash, a scroll will be
 read, a charged wand, staff, or rod will activate, and anything else will be
@@ -74,7 +73,7 @@ for heavy weapons goes up with skill until it is twice the normal amount.
 Martial arts are unaffected.  Your character screen display takes all of this
 into account.
      Burglars get extra bonuses against sleeping monsters.  If they go into
-sneaking mode, and melee a sleeping monster, they may sometimes be able to land
+sneaking mode and melee a sleeping monster, they may sometimes be able to land
 sneak attacks, which act as unusually powerful critical hits.  Note:  You cannot
 sneak-attack a monster, then use a wand of sleep monster on it, then sneak
 attack it again.
@@ -100,8 +99,6 @@ quieter, and a character skilled in Burglary is more deadly in combat, better at
 theft, and a much better dodger, especially if he is both in and surrounded by
 darkness.  All characters take only 2/3rds damage from magic and missiles if in
 and surrounded by darkness.
-
-
 
 
 

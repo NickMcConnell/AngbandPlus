@@ -20,6 +20,8 @@
 
 #include <limits.h>
 
+
+
 /*
  * OPTION: Compile on a Macintosh machine
  */
@@ -28,96 +30,17 @@
 #endif
 
 /*
- * OPTION: Compile on a Windows machine
+ * OPTION: Compile on a Windows machine (if the compiler doesn't detect; see below)
  */
 #ifndef WINDOWS
 /* #define WINDOWS */
 #endif
 
 /*
- * OPTION: Compile on an MSDOS machine
+ * OPTION: Compile on an MSDOS machine (if the compiler doesn't detect; see below)
  */
 #ifndef MSDOS
 /* #define MSDOS */
-#endif
-
-/*
- * OPTION: Compile on a SYS III version of UNIX
- */
-#ifndef SYS_III
-/* #define SYS_III */
-#endif
-
-/*
- * OPTION: Compile on a SYS V version of UNIX
- */
-#ifndef SYS_V
-/* #define SYS_V */
-#endif
-
-/*
- * OPTION: Compile on a HPUX version of UNIX
- */
-#ifndef HPUX
-/* #define HPUX */
-#endif
-
-/*
- * OPTION: Compile on an SGI running IRIX
- */
-#ifndef SGI
-/* #define SGI */
-#endif
-
-/*
- * OPTION: Compile on a SunOS machine
- */
-#ifndef SUNOS
-/* #define SUNOS */
-#endif
-
-/*
- * OPTION: Compile on a Solaris machine
- */
-#ifndef SOLARIS
-/* #define SOLARIS */
-#endif
-
-/*
- * OPTION: Compile on an ultrix/4.2BSD/Dynix/etc. version of UNIX,
- * Do not define this if you are on any kind of SunOS.
- */
-#ifndef ULTRIX
-/* #define ULTRIX */
-#endif
-
-
-
-/*
- * Extract the "SUNOS" flag from the compiler
- */
-#if defined(sun)
-# ifndef SUNOS
-#   define SUNOS
-# endif
-#endif
-
-/*
- * Extract the "ULTRIX" flag from the compiler
- */
-#if defined(ultrix) || defined(Pyramid)
-# ifndef ULTRIX
-#  define ULTRIX
-# endif
-#endif
-
-/*
- * Extract the "ATARI" flag from the compiler [cjh]
- */
-#if defined(__atarist) || defined(__atarist__)
-# ifndef ATARI
-#  define ATARI
-# endif
 #endif
 
 /*
@@ -126,15 +49,6 @@
 #ifdef __riscos
 # ifndef RISCOS
 #  define RISCOS
-# endif
-#endif
-
-/*
- * Extract the "SGI" flag from the compiler
- */
-#ifdef sgi
-# ifndef SGI
-#  define SGI
 # endif
 #endif
 
@@ -211,8 +125,7 @@
  * or for the "Atari" platform which is Unix-like, apparently.
  */
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
-    !defined(MSDOS) && !defined(USE_EMX) && \
-    !defined(AMIGA) && !defined(RISCOS)
+    !defined(MSDOS) && !defined(RISCOS)
 # define SET_UID
 #endif
 
@@ -230,17 +143,9 @@
 # undef PATH_SEP
 # define PATH_SEP ":"
 #endif
-#if defined(WINDOWS) || defined(WINNT)
+#if defined(WINDOWS) || defined(WINNT) || defined(WIN32) || defined(MSDOS)
 # undef PATH_SEP
 # define PATH_SEP "\\"
-#endif
-#if defined(MSDOS) || defined(OS2) || defined(USE_EMX)
-# undef PATH_SEP
-# define PATH_SEP "\\"
-#endif
-#ifdef AMIGA
-# undef PATH_SEP
-# define PATH_SEP "/"
 #endif
 #ifdef __GO32__
 # undef PATH_SEP
@@ -269,9 +174,7 @@
  * "USE_GCU" (allow use with UNIX "curses"),
  * "USE_X11" (allow basic use with UNIX X11),
  * "USE_GTK" (allow use with the GTK widget set library)
- *
- * You may also need to specify the "system", using defines such as
- * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
+ * "USE_SDL" (allow use with the SDL library)
  */
 
 
@@ -298,15 +201,6 @@
  */
 #ifdef _POSIX_SAVED_IDS
 # define SAFE_SETUID_POSIX
-#endif
-
-
-/*
- * Prevent problems on (non-Solaris) Suns using "SAFE_SETUID".
- * The SAFE_SETUID code is weird, use it at your own risk...
- */
-#if defined(SUNOS) && !defined(SOLARIS)
-# undef SAFE_SETUID_POSIX
 #endif
 
 
@@ -340,7 +234,7 @@
 
 
 /*
- * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
+ * OPTION: Prevent usage of the "SANGBAND_PATH" environment variable and
  * the '-d<what>=<path>' command line option (except for '-du=<path>').
  *
  * This prevents cheating in multi-user installs as well as possible
@@ -368,7 +262,6 @@
 
 #endif
 
-#if 0 /* We're testing signals in Windows */
 /*
  * Hack -- Windows stuff
  */
@@ -378,43 +271,13 @@
 # undef HANDLE_SIGNALS
 
 #endif
-#endif
-
-/*
- * Hack -- EMX stuff
- */
-#ifdef USE_EMX
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
-
 
 
 
 /*
- * OPTION: Default font (when using X11).
+ * OPTION: Check the modification time of *.raw files
  */
-#define DEFAULT_X11_FONT		"-angband-8x12x-*-iso8859-1"
-
-/*
- * OPTION: Default fonts (when using X11)
- */
-#define DEFAULT_X11_FONT_0		"-angband-8x12x-*-iso8859-1"
-#define DEFAULT_X11_FONT_1		"-angband-6x10x-*-iso8859-1"
-#define DEFAULT_X11_FONT_2		"-angband-6x10x-*-iso8859-1"
-#define DEFAULT_X11_FONT_3		"-angband-6x10x-*-iso8859-1"
-#define DEFAULT_X11_FONT_4		"-angband-6x10x-*-iso8859-1"
-#define DEFAULT_X11_FONT_5		"-angband-6x10x-*-iso8859-1"
-#define DEFAULT_X11_FONT_6		"-angband-6x10x-*-iso8859-1"
-#define DEFAULT_X11_FONT_7		"-angband-6x10x-*-iso8859-1"
-
-
-/*
- * OPTION: Default small font (when using X11) (only for main window in 50-line mode).
- */
-#define DEFAULT_X11_SFONT_0		"-angband-8x8x-*-iso8859-1"
+#define CHECK_MODIFICATION_TIME
 
 
 /*
@@ -424,9 +287,7 @@
  * Note that new "SOLARIS" and "SGI" machines have "usleep()".
  */
 #ifdef SET_UID
-# if !defined(ULTRIX) && !defined(ISC)
 #  define HAVE_USLEEP
-# endif
 #endif
 
 
@@ -439,16 +300,6 @@
 # define USE_BACKQUOTE_AS_ESCAPE
 #endif /* USE_GCU */
 
-/*
- * OPTION: Check the modification time of *.raw files
- */
-#define CHECK_MODIFICATION_TIME
-
-
-/*
- * OPTION: Gamma correct colours (with X11)
- */
-#define SUPPORT_GAMMA
 
 
 /* Ensure that NeXT can use fat binaries by default */
@@ -471,6 +322,20 @@
 # endif
 
 #endif
+
+
+
+/*
+ * Compiler-specific stuff below...
+ */
+
+/* Hack -- Warning suppression for Visual C++ */
+#ifdef _MBCS
+  #pragma warning(disable : 4244  4761)
+  /* 4244:  conversion from 'type1' to 'type2', possible loss of data */
+  /* 4761:  integral size mismatch in argument; conversion supplied */
+#endif
+
 
 
 #endif  /* INCLUDED_H_CONFIG_H */

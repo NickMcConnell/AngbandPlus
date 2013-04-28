@@ -3,42 +3,26 @@
 # This is not a very "nice" Makefile, but it usually works.
 
 #
-# Temporary makefile for Sangband.  Only includes those main-### 
-# files that have been ported:
+# UNIX makefile for Sangband.  At present, only the following UNIX-
+# specific ports are up to date:
 #
 # main-gcu
-# main-x11
-# main-gtk
+#
+#
+# For the cross-platform SDL port, see "makefile.sdl".
+# For other ports, see the compilation instructions.
+#
+# To use this makefile on BSD, use "gmake" instead of "make".
 #
 #
 # Note that you may have to make modifications below according
 # to your machine, available libraries, compilation options,
-# and your "visual module" of choice.  This Makefile is intended
-# for use with Unix machines running X11, gtk, or (n)curses.
-# Or possibly for "Atari" or "Amiga" computers with "Curses" ports,
-# see below for more information.
-#
-# Note that "main-mac.c", the visual module for the Macintosh,
-# must be compiled in a special way, see elsewhere.
-#
-# Note that "main-win.c", the visual module for Windows,
-# must be compiled in a special way, see elsewhere.
-#
-# Note that "main-ibm.c", "main-dos.c", and "main-emx.c",
-# the visual modules for various types of IBM-PC computers,
-# must be compiled with special Makefiles, see elsewhere.
-#
-# Note that "main-ros.c", the visual module for RISC OS,
-# must be compiled with "Makefile.ros", see elsewhere.
-#
-# Note that "main-ami.c", the visual module for the Amiga,
-# must be compiled with "Makefile.ami", see elsewhere.
+# and your "visual module" of choice.
 #
 # If you are able to construct "main-xxx.c" and/or "Makefile.xxx"
 # files for a currently unsupported system, please send them to
-# Robert Ruehlmann < rr9@angband.org > for inclusion in future versions.
-#
-# This Makefile comes with "default" dependencies that may be obsolete.
+# Leon Marrick < sang (at) runegold (dot) org > for inclusion in 
+# future versions.
 #
 
 
@@ -103,9 +87,6 @@ SRCS = \
 OBJS = \
   main.o \
   main-gcu.o \
-  main-x11.o \
-  main-gtk.o \
-  maid-x11.o \
   attack.o \
   birth.o \
   cave.o \
@@ -152,6 +133,9 @@ OBJS = \
   z-virt.o \
   z-util.o \
   z-file.o
+#  main-x11.o \
+#  main-gtk.o \
+#  maid-x11.o \
 
 
 
@@ -237,12 +221,11 @@ CC = gcc
 ##
 ## Variation -- compile for Linux
 ##
-## Allows the use of Angband in the console using ncurses,
-## as well as under X11.
+## Allows the use of Angband in the console using ncurses.
 ##
-#CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall \
-#         -D"USE_GCU" -D"USE_NCURSES" -DHAVE_MKSTEMP
-#LIBS = -lncurses
+CFLAGS = -I/usr/include/ncurses -Wall \
+         -D"USE_GCU" -D"USE_NCURSES" -DHAVE_MKSTEMP
+LIBS = -lncurses
 
 
 ##
@@ -250,9 +233,9 @@ CC = gcc
 ##
 ## Use ncurses & X11.
 ##
-CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall \
-         -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES" -DHAVE_MKSTEMP -g
-LIBS = -L/usr/X11R6/lib -lX11 -lncurses
+#CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall \
+#         -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES" -DHAVE_MKSTEMP -g
+#LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 
 
 ##
@@ -330,13 +313,6 @@ LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU" -arch m68k -arch i386
 #LIBS = -lcurses -ltermcap
-
-
-##
-## Variation -- Support S-Lang library
-##
-#CFLAGS = -Wall -O2 -fno-strength-reduce -D"USE_SLA" -I/usr/include/slang
-#LIBS = -lslang
 
 
 #

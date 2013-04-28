@@ -3,11 +3,12 @@
 /*
  * The wizard & debugging commands and their effects.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -41,7 +42,7 @@ static void do_cmd_wiz_flow(void)
 			/* Update map */
 			for (y = p_ptr->wy; y < p_ptr->wy + map_rows; y++)
 			{
-				for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+				for (x = p_ptr->wx; x < p_ptr->wx + map_cols; x++)
 				{
 					byte a;
 
@@ -79,7 +80,7 @@ static void do_cmd_wiz_flow(void)
 			prt("Scent ages", 0, 0);
 
 			/* Wait for a keypress */
-			(void)inkey();
+			(void)inkey(ALLOW_CLICK);
 
 			/* Redraw map */
 			prt_map();
@@ -101,7 +102,7 @@ static void do_cmd_wiz_flow(void)
 				/* Update map */
 				for (y = p_ptr->wy; y < p_ptr->wy + map_rows; y++)
 				{
-					for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+					for (x = p_ptr->wx; x < p_ptr->wx + map_cols; x++)
 					{
 						int lowest_cost = cave_cost[y][x];
 						int dir = -1;
@@ -144,7 +145,7 @@ static void do_cmd_wiz_flow(void)
 				prt("Directions given to advancing monsters using noise info", 0, 0);
 
 				/* Wait for a keypress */
-				(void)inkey();
+				(void)inkey(ALLOW_CLICK);
 
 				/* Redraw map */
 				prt_map();
@@ -169,7 +170,7 @@ static void do_cmd_wiz_flow(void)
 					/* Update map */
 					for (y = p_ptr->wy; y < p_ptr->wy + map_rows; y++)
 					{
-						for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+						for (x = p_ptr->wx; x < p_ptr->wx + map_cols; x++)
 						{
 							byte a = TERM_YELLOW;
 
@@ -207,7 +208,7 @@ static void do_cmd_wiz_flow(void)
 					}
 
 					/* Get key */
-					if (inkey() == ESCAPE) break;
+					if (inkey(ALLOW_CLICK) == ESCAPE) break;
 
 					/* Redraw map */
 					prt_map();
@@ -242,9 +243,9 @@ static void do_cmd_wiz_change(void)
 
 	long tmp_long;
 
-	char tmp_val[160];
+	char tmp_val[32];
 
-	char ppp[80];
+	char ppp[32];
 
 
 	/* Query the stats */
@@ -254,7 +255,7 @@ static void do_cmd_wiz_change(void)
 		(void)strnfmt(ppp, sizeof(ppp), "%s (3-118):", stat_names[i]);
 
 		/* Default */
-		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
+		(void)strnfmt(tmp_val, sizeof(tmp_val), "%d", p_ptr->stat_max[i]);
 
 		/* Query */
 		if (!get_string(ppp, tmp_val, 4)) return;
@@ -272,7 +273,7 @@ static void do_cmd_wiz_change(void)
 
 
 	/* Default */
-	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
+	(void)strnfmt(tmp_val, sizeof(tmp_val), "%ld", (long)(p_ptr->au));
 
 	/* Query */
 	if (!get_string("Gold:", tmp_val, 10)) return;
@@ -288,7 +289,7 @@ static void do_cmd_wiz_change(void)
 
 
 	/* Default */
-	sprintf(tmp_val, "%ld", (long)(p_ptr->exp));
+	(void)strnfmt(tmp_val, sizeof(tmp_val), "%ld", (long)(p_ptr->exp));
 
 	/* Query */
 	if (!get_string("Experience:", tmp_val, 10)) return;
@@ -387,60 +388,59 @@ static void wiz_display_item(const object_type *o_ptr)
 	(void)Term_clear();
 
 	/* Describe fully */
-	object_desc_store(buf, o_ptr, TRUE, 3);
+	object_desc_store(buf, sizeof(buf), o_ptr, TRUE, 3);
 	prt(buf, 2, 0);
 
+	/* Display the current generation level */
+	center_string(buf, sizeof(buf), format("Generation depth:  %d", p_ptr->depth), 80);
+	c_put_str(TERM_L_GREEN, buf, 3, 0);
+
 	/* Print descriptions of various object fields */
-	prt(format("k_idx   =%sdamage  =%sarmour =%s ident     =", s, s, s), 4, 0);
+	prt(format("k_idx   =%sdamage  =%sarmor =%s ident     =", s, s, s), 4, 0);
 	prt(format("tval    =%sto_d    =%sto_a   =%s note      =", s, s, s), 5, 0);
 	prt(format("sval    =%sto_h    =%slevel  =%s inscrip   =", s, s, s), 6, 0);
 
-	prt(format("number  =%sweight  =%scost   =%s art_index =", s, s, s), 8, 0);
-	prt(format("activat =%stimeout =%sadjust =%s ego_index =", s, s, s), 9, 0);
+	prt(format("number  =%sweight  =%scost   =%s art_index =", s, s, s), 7, 0);
+	prt(format("activat =%stimeout =%sadjust =%s ego_index =", s, s, s), 8, 0);
 
-	prt(format("pval1   =%sflags   =%sflags1 =%s flavor    =", s, s, s), 11, 0);
-	prt(format("pval2   =%sflags   =%sflags2 =", s, s), 12, 0);
-	prt(format("pval3   =%sflags   =%sflags3 =", s, s), 13, 0);
+	prt(format("pval1   =%sflags   =%sflags1 =%s flavor    =", s, s, s), 9, 0);
+	prt(format("pval2   =%sflags   =%sflags2 =", s, s), 10, 0);
+	prt(format("pval3   =%sflags   =%sflags3 =", s, s), 11, 0);
 
 	/* Print the values for these fields */
 	c_put_str(a, format("%-5d", o_ptr->k_idx),              4, 10);
 	c_put_str(a, format("%-5d", o_ptr->tval),               5, 10);
 	c_put_str(a, format("%-5d", o_ptr->sval),               6, 10);
-	c_put_str(a, format("%-5d", o_ptr->number),             8, 10);
-	c_put_str(a, format("%-5d", o_ptr->activate),           9, 10);
-	c_put_str(a, format("%-5d", o_ptr->pval),              11, 10);
-	c_put_str(a, format("%-5d", o_ptr->pval2),             12, 10);
-	c_put_str(a, format("%-5d", o_ptr->pval3),             13, 10);
+	c_put_str(a, format("%-5d", o_ptr->number),             7, 10);
+	c_put_str(a, format("%-5d", o_ptr->activate),           8, 10);
+	c_put_str(a, format("%-5d", o_ptr->pval),               9, 10);
+	c_put_str(a, format("%-5d", o_ptr->pval2),             10, 10);
+	c_put_str(a, format("%-5d", o_ptr->pval3),             11, 10);
 
 	c_put_str(a, format("%dd%-3d", o_ptr->dd, o_ptr->ds),   4, 30);
 	c_put_str(a, format("%-4d", o_ptr->to_d),               5, 30);
 	c_put_str(a, format("%-4d", o_ptr->to_h),               6, 30);
-	c_put_str(a, format("%-6d", o_ptr->weight),             8, 30);
-	c_put_str(a, format("%-6d", o_ptr->timeout),            9, 30);
-	c_put_str(a, format("%lx", o_ptr->flags_pval1),        11, 30);
-	c_put_str(a, format("%lx", o_ptr->flags_pval2),        12, 30);
-	c_put_str(a, format("%lx", o_ptr->flags_pval3),        13, 30);
+	c_put_str(a, format("%-6d", o_ptr->weight),             7, 30);
+	c_put_str(a, format("%-6d", o_ptr->timeout),            8, 30);
+	c_put_str(a, format("%lx", o_ptr->flags_pval1),         9, 30);
+	c_put_str(a, format("%lx", o_ptr->flags_pval2),        10, 30);
+	c_put_str(a, format("%lx", o_ptr->flags_pval3),        11, 30);
 
 	c_put_str(a, format("%-5d", o_ptr->ac),                 4, 49);
 	c_put_str(a, format("%-5d", o_ptr->to_a),               5, 49);
 	c_put_str(a, format("%-5d", level),                     6, 49);
-	c_put_str(a, format("%-ld", (long)object_value_real(o_ptr)), 8, 49);
-	c_put_str(a, format("%-5d", o_ptr->cost_adjust),        9, 49);
-	c_put_str(a, format("%lx", o_ptr->flags1),             11, 49);
-	c_put_str(a, format("%lx", o_ptr->flags2),             12, 49);
-	c_put_str(a, format("%lx", o_ptr->flags3),             13, 49);
+	c_put_str(a, format("%-ld", (long)object_value_real(o_ptr)), 7, 49);
+	c_put_str(a, format("%-5d", o_ptr->cost_adjust),        8, 49);
+	c_put_str(a, format("%lx", o_ptr->flags1),              9, 49);
+	c_put_str(a, format("%lx", o_ptr->flags2),             10, 49);
+	c_put_str(a, format("%lx", o_ptr->flags3),             11, 49);
 
 	c_put_str(a, format("%04x", o_ptr->ident),              4, 72);
 	c_put_str(a, format("%-5d", o_ptr->note),               5, 72);
 	c_put_str(a, format("%-5d", o_ptr->inscrip),            6, 72);
-	c_put_str(a, format("%-5d", o_ptr->artifact_index),     8, 72);
-	c_put_str(a, format("%-5d", o_ptr->ego_item_index),     9, 72);
-	c_put_str(a, format("%-5d", k_info[o_ptr->k_idx].flavor), 11, 72);
-
-
-	/* Display the current generation level */
-	center_string(buf, sizeof(buf), format("Generation depth:  %d", p_ptr->depth), 80);
-	c_put_str(TERM_L_GREEN, buf, 15, 0);
+	c_put_str(a, format("%-5d", o_ptr->artifact_index),     7, 72);
+	c_put_str(a, format("%-5d", o_ptr->ego_item_index),     8, 72);
+	c_put_str(a, format("%-5d", k_info[o_ptr->k_idx].flavor),  9, 72);
 
 
 	/* Print descriptions of object pvals and flags */
@@ -464,14 +464,14 @@ static void wiz_display_item(const object_type *o_ptr)
 		}
 
 		/* Print this flag's description */
-		c_prt(a, format("%s", flag_creation_data[i].desc), (i % 32) + 17, 20 * (i / 32));
+		c_prt(a, format("%s", flag_creation_data[i].desc), (i % 32) + 13, 20 * (i / 32));
 
 		/* Display exact pval value */
 		if ((i < 32) && (pval))
 		{
 			if (pval > 0) a = TERM_L_GREEN;
 			else          a = TERM_RED;
-			c_put_str(a, format("%4d", pval), (i % 32) + 17, 15);
+			c_put_str(a, format("%4d", pval), (i % 32) + 13, 15);
 		}
 	}
 
@@ -504,8 +504,8 @@ tval_desc tvals[] =
 	{ TV_CROWN,        "Crown",              TRUE  },
 	{ TV_SHIELD,       "Shield",             TRUE  },
 	{ TV_CLOAK,        "Cloak",              TRUE  },
-	{ TV_SOFT_ARMOR,   "Soft Armour",        TRUE  },
-	{ TV_HARD_ARMOR,   "Hard Armour",        TRUE  },
+	{ TV_SOFT_ARMOR,   "Soft Armor",        TRUE  },
+	{ TV_HARD_ARMOR,   "Hard Armor",        TRUE  },
 	{ TV_DRAG_ARMOR,   "Dragon Scale Mail",  TRUE  },
 	{ -1,              " ",                  FALSE },
 	{ TV_LITE,         "Light Source",       TRUE  },
@@ -541,7 +541,7 @@ tval_desc tvals[] =
 /*
  * Build an "artifact name" and transfer it into a buffer.
  */
-static void get_art_name(char *buf, int a_idx)
+static void get_art_name(char *buf, int a_idx, size_t buflen)
 {
 	int i;
 	object_type	forge;
@@ -568,7 +568,7 @@ static void get_art_name(char *buf, int a_idx)
 	o_ptr->ident |= IDENT_KNOWN;
 
 	/* Create the artifact description */
-	object_desc(buf, o_ptr, FALSE, 0);
+	object_desc(buf, buflen, o_ptr, FALSE, 0);
 }
 
 
@@ -589,7 +589,7 @@ static int wiz_create_itemtype(bool artifact, bool wizard)
 
 	int choice[60];
 
-	char buf[160];
+	char buf[DESC_LEN];
 
 
 	/* Unused parameter */
@@ -679,7 +679,7 @@ static int wiz_create_itemtype(bool artifact, bool wizard)
 				ch  = index_chars[num];
 
 				/* Acquire the "name" of artifact with index "i" */
-				get_art_name(buf, i);
+				get_art_name(buf, i, sizeof(buf));
 
 				/* Print it */
 				if (strlen(buf) > 1) prt(format("[%c] %s", ch, buf), row, col);
@@ -752,14 +752,14 @@ static int wiz_create_itemtype(bool artifact, bool wizard)
 static void wiz_tweak_item(object_type *o_ptr)
 {
 	cptr p;
-	char tmp_val[80];
+	char tmp_val[DESC_LEN];
 
 
 	/* Hack -- leave artifacts alone */
 	if (artifact_p(o_ptr)) return;
 
 	p = "Enter new 'pval' setting:";
-	sprintf(tmp_val, "%d", o_ptr->pval);
+	(void)strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->pval);
 	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->pval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
@@ -768,7 +768,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 	if (o_ptr->flags_pval2)
 	{
 		p = "Enter new 'pval2' setting:";
-		sprintf(tmp_val, "%d", o_ptr->pval2);
+		(void)strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->pval2);
 		if (!get_string(p, tmp_val, 6)) return;
 		o_ptr->pval2 = atoi(tmp_val);
 		wiz_display_item(o_ptr);
@@ -778,26 +778,26 @@ static void wiz_tweak_item(object_type *o_ptr)
 	if (o_ptr->flags_pval3)
 	{
 		p = "Enter new 'pval3' setting:";
-		sprintf(tmp_val, "%d", o_ptr->pval3);
+		(void)strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->pval3);
 		if (!get_string(p, tmp_val, 6)) return;
 		o_ptr->pval3 = atoi(tmp_val);
 		wiz_display_item(o_ptr);
 	}
 
 	p = "Enter new 'to_a' setting:";
-	sprintf(tmp_val, "%d", o_ptr->to_a);
+	(void)strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->to_a);
 	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_a = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_h' setting:";
-	sprintf(tmp_val, "%d", o_ptr->to_h);
+	(void)strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->to_h);
 	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_h = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_d' setting:";
-	sprintf(tmp_val, "%d", o_ptr->to_d);
+	(void)strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->to_d);
 	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_d = atoi(tmp_val);
 	wiz_display_item(o_ptr);
@@ -881,11 +881,11 @@ static void wiz_reroll_item(object_type *o_ptr)
 			}
 			else
 			{
-				char tmp_val[80];
+				char tmp_val[DESC_LEN];
 				cptr p = "Enter new ego index (0 for random):";
 
 				/* Query */
-				sprintf(tmp_val, "%d", o_ptr->ego_item_index);
+				(void)strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->ego_item_index);
 				if (!get_string(p, tmp_val, 6)) return;
 
 				/* Random change */
@@ -933,7 +933,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 			if (!artifact_p(i_ptr))
 			{
 				prt("Attempt to turn this item into an artifact failed.  Press any key to continue.", 0, 0);
-				(void)inkey();
+				(void)inkey(ALLOW_CLICK);
 			}
 
 			changed = TRUE;
@@ -1073,7 +1073,7 @@ static void wiz_statistics(object_type *o_ptr)
 				inkey_scan = TRUE;
 
 				/* Allow interrupt */
-				if (inkey())
+				if (inkey(ALLOW_CLICK))
 				{
 					/* Flush */
 					flush();
@@ -1156,18 +1156,18 @@ static void wiz_quantity_item(object_type *o_ptr)
 	int old_num = o_ptr->number;
 	int num;
 
-	char tmp_val[100];
+	char tmp_val[16];
 
 
 	/* Never duplicate artifacts */
 	if (artifact_p(o_ptr)) return;
 
 	/* Default */
-	sprintf(tmp_val, "%d", o_ptr->number);
+	(void)strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->number);
 
 	/* Query */
 	num = (int)get_quantity(format("Quantity (currently %d):", o_ptr->number),
-	          	0, MAX_STACK_SIZE - 1);
+	                        0, MAX_STACK_SIZE - 1);
 
 	/* Paranoia */
 	if (num < 1) num = 1;
@@ -1193,7 +1193,6 @@ static void wiz_quantity_item(object_type *o_ptr)
 static void do_cmd_wiz_play(void)
 {
 	int item, i;
-	int old_rows = screen_rows;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -1217,12 +1216,10 @@ static void do_cmd_wiz_play(void)
 	/* Assume not changed */
 	changed = FALSE;
 
-	/* Save screen */
-	screen_save();
 
-	/* Set to 50 screen rows */
-	(void)Term_rows(TRUE);
-
+	/* Use the tall display and center an 80 column view */
+	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_TALL | DSP_CX,
+		80, 0);
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -1271,11 +1268,8 @@ static void do_cmd_wiz_play(void)
 		}
 	}
 
-	/* Set to 25 screen rows, if we were showing 25 before */
-	if (old_rows != 50) (void)Term_rows(FALSE);
-
-	/* Load screen */
-	screen_load();
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 
 	/* Accept change */
@@ -1333,31 +1327,21 @@ static void wiz_create_item(int k_idx)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	int old_rows = screen_rows;
 	int num = 1;
 
 
 	/* Get object index, unless a legal one is already chosen */
 	if ((k_idx <= 0) || (k_idx >= z_info->k_max))
 	{
-		/* Save screen */
-		screen_save();
-
-		/* Set to 25 screen rows */
-		(void)Term_rows(FALSE);
+		/* Use the standard display and center an 80 column view */
+		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX,
+			80, 0);
 
 		/* Get object base type */
 		k_idx = wiz_create_itemtype(FALSE, TRUE);
 
-		/* Set to 50 screen rows, if we were showing 50 before */
-		if (old_rows == 50)
-		{
-			p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-			(void)Term_rows(TRUE);
-		}
-
-		/* Load screen */
-		screen_load();
+		/* Restore previous display */
+		display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 		/* Return if failed */
 		if (!k_idx) return;
@@ -1417,31 +1401,21 @@ static void wiz_create_artifact(int a_idx)
 {
 	object_type object_type_body;
 	object_type *o_ptr;
-	char o_name[120];
-
-	int old_rows = screen_rows;
+	char o_name[DESC_LEN];
 
 
 	/* Get artifact index, unless a legal one is already chosen */
 	if ((a_idx <= 0) || (a_idx >= z_info->a_max))
 	{
-		/* Save screen */
-		screen_save();
+		/* Use the standard display and center an 80 column view */
+		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX,
+			80, 0);
 
-		/* Set to 25 screen rows */
-		(void)Term_rows(FALSE);
-
+		/* Get an artifact index */
 		a_idx = wiz_create_itemtype(TRUE, TRUE);
 
-		/* Set to 50 screen rows, if we were showing 50 before */
-		if (old_rows == 50)
-		{
-			p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-			(void)Term_rows(TRUE);
-		}
-
-		/* Load screen */
-		screen_load();
+		/* Restore previous display */
+		display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 		/* Return if failed */
 		if (!a_idx) return;
@@ -1461,7 +1435,7 @@ static void wiz_create_artifact(int a_idx)
 	drop_near(o_ptr, 0, p_ptr->py, p_ptr->px, DROP_HERE);
 
 	/* Describe the artifact */
-	object_desc(o_name, o_ptr, TRUE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 	/* All done */
 	msg_format("You have created %s.", o_name);
@@ -1527,15 +1501,15 @@ static void do_cmd_wiz_jump(void)
 	/* Ask for level */
 	if (p_ptr->command_arg <= 0)
 	{
-		char ppp[80];
+		char ppp[DESC_LEN];
 
-		char tmp_val[160];
+		char tmp_val[32];
 
 		/* Prompt */
-		sprintf(ppp, "Jump to level (0-%d):", MAX_DEPTH-1);
+		(void)strnfmt(ppp, sizeof(ppp), "Jump to level (0-%d):", MAX_DEPTH-1);
 
 		/* Default */
-		sprintf(tmp_val, "%d", p_ptr->depth);
+		(void)strnfmt(tmp_val, sizeof(tmp_val), "%d", p_ptr->depth);
 
 		/* Ask for a level */
 		if (!get_string(ppp, tmp_val, 11)) return;
@@ -1692,7 +1666,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 	/* Place it (allow groups) */
 	if (place_monster_aux(y, x, r_idx, slp, TRUE))
 	{
-		char name[80];
+		char name[DESC_LEN];
 		monster_type *m_ptr = NULL;
 
 		/* Hack -- find the monster and point to it */
@@ -1761,7 +1735,7 @@ static void do_cmd_wiz_unhide(int d)
 		m_ptr->mflag |= (MFLAG_FULL | MFLAG_SHOW);
 
 		/* Update the monster */
-		(void)update_mon(i, FALSE, FALSE);
+		(void)update_mon(i, FALSE);
 	}
 }
 
@@ -1910,7 +1884,7 @@ static void wiz_detect_all(int d)
 		m_ptr->mflag |= (MFLAG_FULL | MFLAG_SHOW);
 
 		/* Update the monster */
-		(void)update_mon(i, FALSE, FALSE);
+		(void)update_mon(i, FALSE);
 	}
 }
 
@@ -1924,13 +1898,15 @@ static void do_cmd_wiz_query(void)
 
 	int y, x;
 
+	term *old = Term;
+
 	char cmd;
 	cptr flag_desc;
 
 	int panel_row_min = p_ptr->wy;
 	int panel_row_max = p_ptr->wy + map_rows;
 	int panel_col_min = p_ptr->wx;
-	int panel_col_max = p_ptr->wx + SCREEN_WID;
+	int panel_col_max = p_ptr->wx + map_cols;
 
 	u16b mask = 0x0000;
 
@@ -1976,13 +1952,16 @@ static void do_cmd_wiz_query(void)
 	{
 		msg_print("m = marked, g = permanently lit, r = in a room, i = vault (icky), ");
 		msg_print("s = character can see, v = character can see if light exists, ");
-		msg_print("t = temporary marking, w = wall/non-floor, f = in line of fire, ");
+		msg_print("t = temporary marking, w = LOS blocked, f = in line of fire, ");
 		msg_print("p = clear shot/blocked shot/no shot, l = test of \"los()\", ");
 		msg_print("o = flagged as trap, e = lingering effect, G = temporarily lit");
 		msg_print(NULL);
 		return;
 	}
 
+
+	/* Activate the dedicated map display (optionally) */
+	if (use_special_map) (void)Term_activate(term_map);
 
 	/* Scan map */
 	for (y = panel_row_min; y <= panel_row_max; y++)
@@ -2050,6 +2029,9 @@ static void do_cmd_wiz_query(void)
 		}
 	}
 
+	/* Restore the previous Term (if necessary) */
+	if (use_special_map) (void)Term_activate(old);
+
 	/* Get keypress */
 	msg_format("Showing %s.  Press any key to continue.", flag_desc);
 	msg_print(NULL);
@@ -2057,6 +2039,123 @@ static void do_cmd_wiz_query(void)
 	/* Redraw map */
 	prt_map();
 }
+
+
+/*
+ * Query terrain flags
+ */
+static void do_cmd_wiz_query_terrain(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int y, x;
+
+	char cmd;
+	cptr flag_desc;
+
+	int panel_row_min = p_ptr->wy;
+	int panel_row_max = p_ptr->wy + map_rows;
+	int panel_col_min = p_ptr->wx;
+	int panel_col_max = p_ptr->wx + map_cols;
+
+	u16b mask = 0x0000;
+
+
+	/* Get a "debug command" */
+	if (!get_com("terrain flag query (l, p, ~, i, X, -, o, t, b, f, w, r, R, d, D, s):", &cmd)) return;
+
+	/* Extract a flag */
+	switch (cmd)
+	{
+		case 'l': mask |= (TF_LOS); flag_desc = "tf_los (allows line of sight)"; break;
+		case 'p': mask |= (TF_PROJECT); flag_desc = "tf_project (allows spells to cross)"; break;
+		case '~': mask |= (TF_PASSABLE); flag_desc = "tf_passable (is passable by all)"; break;
+		case 'i': mask |= (TF_INTERESTING); flag_desc = "tf_interesting (within interesting room)"; break;
+		case 'X': mask |= (TF_PERMANENT); flag_desc = "tf_permanent (cannot be destroyed)"; break;
+		case '-': mask |= (TF_NO_SCENT); flag_desc = "tf_no_scent (no scent allowed)"; break;
+		case 'o': mask |= (TF_OBJECT); flag_desc = "tf_object (objects allowed)"; break;
+		case 't': mask |= (TF_TRAP); flag_desc = "tf_trap (traps allowed)"; break;
+		case 'b': mask |= (TF_TORCH_ONLY); flag_desc = "tf_torch_only (bright under torchlight)"; break;
+
+		case 'f': mask |= (TF_FLOOR); flag_desc = "tf_floor (is a floor)"; break;
+		case 'w': mask |= (TF_WALL); flag_desc = "tf_wall (is a wall)"; break;
+		case 'r': mask |= (TF_ROCK); flag_desc = "tf_rock (any rock)"; break;
+		case 'R': mask |= (TF_GRANITE); flag_desc = "tf_granite (granite)"; break;
+		case 'd': mask |= (TF_DOOR_ANY); flag_desc = "tf_door_any (any door)"; break;
+		case 'D': mask |= (TF_DOOR_CLOSED); flag_desc = "tf_door_closed (closed door)"; break;
+		case 's': mask |= (TF_SHOP); flag_desc = "tf_shop (shop entrance)"; break;
+
+
+		/* Special functions */
+		case '?': flag_desc = ""; break;
+
+		default:
+		{
+			msg_print("No terrain flag for this query.");
+			return;
+		}
+	}
+
+
+	/* We asked for help */
+	if (cmd == '?')
+	{
+		msg_print("l = terrain allows LOS, p = projectable, ~ = passable, i = interesting, ");
+		msg_print("X = permanent, - = no scent, o = object allowed, t = trap allowed, ");
+		msg_print("b = torch bright only, ");
+		msg_print("f = floor, w = wall, r = rock (any), R = granite, d = door (any), ");
+		msg_print("D = closed door, s = shop");
+
+		msg_print(NULL);
+		return;
+	}
+
+
+	/* Scan map */
+	for (y = panel_row_min; y <= panel_row_max; y++)
+	{
+		for (x = panel_col_min; x <= panel_col_max; x++)
+		{
+			byte a = TERM_L_BLUE;
+
+			/* Given no mask, apply special code */
+			if (!mask)
+			{
+				/* No special code yet */
+			}
+
+			/* Using a mask */
+			else
+			{
+				/* Given mask, show only those grids */
+				if (!(f_info[cave_feat[y][x]].flags & mask)) continue;
+			}
+
+			/* Display player/floors/walls */
+			if ((y == py) && (x == px))
+			{
+				print_rel('@', a, y, x);
+			}
+			else if (cave_project_bold(y, x))
+			{
+				print_rel('*', a, y, x);
+			}
+			else
+			{
+				print_rel('#', a, y, x);
+			}
+		}
+	}
+
+	/* Get keypress */
+	msg_format("Showing %s.  Press any key to continue.", flag_desc);
+	msg_print(NULL);
+
+	/* Redraw map */
+	prt_map();
+}
+
 
 
 #ifdef ALLOW_SPOILERS
@@ -2281,6 +2380,13 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		/* Query the terrain */
+		case 'Q':
+		{
+			do_cmd_wiz_query_terrain();
+			break;
+		}
+
 		/* Summon Random Monster(s) */
 		case 's':
 		{
@@ -2371,7 +2477,8 @@ void do_cmd_debug(void)
 		/* Fully wizard Light the Level */
 		case 'w':
 		{
-			wiz_lite(TRUE);
+			bool glow = get_check("Light up the level in addition to mapping it?");
+			wiz_lite(TRUE, glow);
 			break;
 		}
 
@@ -2394,14 +2501,9 @@ void do_cmd_debug(void)
 		case '?':
 		default:
 		{
-			int old_rows = screen_rows;
-
-			/* New screen */
-			screen_save();
-			(void)Term_clear();
-
-			/* Set to 25 screen rows */
-			(void)Term_rows(FALSE);
+			/* Use the standard display and center an 80 column view */
+			display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX,
+				80, 0);
 
 			/* Header */
 			move_cursor(1, 0);
@@ -2428,16 +2530,17 @@ void do_cmd_debug(void)
 			prt("'n'  : summon specific monster *", 4, 40);
 			prt("'o'  : tweak or reroll an object", 5, 40);
 			prt("'p'  : phase door", 6, 40);
-			prt("'P'  : More info on objs/monsters/rooms", 7, 40);
+			prt("'P'  : more info on objs/monsters/rooms", 7, 40);
 			prt("'q'  : query cave flags, projection", 8, 40);
-			prt("'s'  : summon random monsters *", 9, 40);
-			prt("'S'  : forget skills, cancel magic", 10, 40);
-			prt("'t'  : teleport", 11, 40);
-			prt("'u'  : reveal all monsters *", 12, 40);
-			prt("'v'  : acquirement (great) *", 13, 40);
-			prt("'w'  : wizard-light the level", 14, 40);
-			prt("'z'  : zap monsters *", 15, 40);
-			prt("'_'  : debug the flow code", 16, 40);
+			prt("'Q'  : query terrain flags", 9, 40);
+			prt("'s'  : summon random monsters *", 10, 40);
+			prt("'S'  : forget skills, cancel magic", 11, 40);
+			prt("'t'  : teleport", 12, 40);
+			prt("'u'  : reveal all monsters *", 13, 40);
+			prt("'v'  : acquirement (great) *", 14, 40);
+			prt("'w'  : wizard-light the level", 15, 40);
+			prt("'z'  : zap monsters *", 16, 40);
+			prt("'_'  : debug the flow code", 17, 40);
 
 
 			/* Usage notes */
@@ -2449,17 +2552,10 @@ void do_cmd_debug(void)
 			c_roff_centered(TERM_WHITE, "Press any key to continue.", 5, 75);
 
 			/* Get any key */
-			(void)inkey();
+			(void)inkey(ALLOW_CLICK);
 
-			/* Set to 50 screen rows, if we were showing 50 before */
-			if (old_rows == 50)
-			{
-				p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-				(void)Term_rows(TRUE);
-			}
-
-			/* Restore old screen */
-			screen_load();
+			/* Restore previous display */
+			display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 			break;
 		}

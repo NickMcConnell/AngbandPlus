@@ -14,7 +14,7 @@
 # The pseudo-graphical option
 #
 
-# Ordinary floor
+# Ordinary floor  (regular, lit, darkened)
 F:1:w/250:y/250:s/250
 
 # Water

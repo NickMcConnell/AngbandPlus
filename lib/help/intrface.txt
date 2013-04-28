@@ -1,0 +1,128 @@
+
+====== Interfaces ======
+
+
+--- Conventions ---
+
+     When you have entered most game interfaces, you can expect common commands
+to do logical things.
+
+Scrolling lists and reading text:
+  Get/leave help:   '?'
+  Forward (slow):   '8', 'k', Return  (hold down the shift key to go faster)
+  Forward (norm):   '6', 'l', '+', '=', space
+  Forward (fast):   '3'
+  Backward (slow):  '2', 'j'
+  Backward (norm):  '4', 'h', '-', '_'
+  Backward (fast):  '9'
+  Cancel:           Escape  (shows previous file, if any)
+  Show text:        '&'  ('!' toggles case sensitivity)
+  Find text:        '/'  ('!' toggles case sensitivity)
+  Jump to a line:   '#'
+  Display a file:   '%'
+
+Indexed lists (help navigation, selecting stuff):
+     Type the index corresponding to the item you want.  If you have a keymap or
+macro active on that letter or number (not a recommended practice!), type '\' to
+bypass it.
+  Get help:         '?'
+  Forward:          arrow keys
+  Backward:         arrow keys
+  Action:           Return (usually)
+
+Setting options or selecting stuff:
+     See instructions for details, but the following keys usually work the same
+way.
+  Get help:         '?'
+  Accept/Cancel:    See instructions
+  Forward:          '8', 'k', arrow keys, Return
+  Backward:         '2', 'j', arrow keys
+  Increase:         '+', '=', sometimes also '6' and 'l'
+  Decrease:         '-', '_', sometimes also '4' and 'h'
+  Movement:         '>', '<', '6', '4'  (only some interfaces need this)
+  Set to Yes/On:    'y'
+  Set to No/Off:    'n'
+  Toggle:           '5', 't'
+
+
+--- Objects ---
+
+Walking over objects, Picking them up:
+     Moving and picking up objects happen in separate turns.  Whenever you walk
+onto objects, you have the option of spending additional time (1/10th turn per
+object) to pick them up.
+
+     There are three different ways of handling objects you walk on; you choose
+the one you prefer by setting a pair of options.
+
+Maximal information:  Set the option "query_floor" to ON.
+Minimal distraction:  Set "always_pickup" and "query_floor" to OFF.
+Automatic pickup:  Set "always_pickup" to ON and "query_floor" to OFF.
+
+Selecting Objects:
+     You may select objects in your backpack (your inventory), on your person
+(your equipment), or on the floor underneath you.
+  space, *) Display or hide a list
+  /)        Toggle between inventory and backpack
+  -)        Use objects on the floor
+  .)        Select the first object on the floor
+  a-z)      Select the object with that index letter
+  A-Z)      Select the same object, but only once you verify your choice
+  0-9)      Select a specific object (if inscribed or in the quiver)
+
+
+--- Targeting ---
+
+The Targeting command:
+     The target command ('*') makes it possible to set up a location or fix a
+monster as the point which you want future missiles and spells to aim for.  Some
+other commands also allow use of the targeting interface (normally by typing
+'*').  However you begin targeting, you have a number of options available to
+you.
+  ESCAPE)  Exit targeting mode.  Cancel target.
+  p)       Return to the player.
+  o)       Start looking at all grids (exact control).
+  m)       Start looking only at monsters (if any monsters are around).
+  +)       Look at next monster or interesting grid.
+  -)       Look at previous monster or interesting grid.
+  r)       (If cursor is on a monster) recall monster information.
+  t)       Target grid or monster.
+  Space    See monster's carried objects (if looking)
+  Return   Continue looking
+
+     If you have the "use old target by default" option on, be careful about
+clearing targets on the floor when done.
+
+Targeting -- line of fire:
+     Line of fire (LOF) is reflexive:  if you can hit it with bolts or missiles,
+it can hit you -- and vice-versa.  However, you (and your foes) have wider
+fields of view, and can see many things that can't be hit directly.  The monster
+health bar serves as a handy indicator:  When a monster is not in LOF, its
+health bar is bracketed in grey.  If it is in LOF, it will be bracketed in green
+if you can fire upon it directly with arrows or bolts, and white otherwise.
+     If using targeting mode to aim a missile, you are not allowed to select a
+monster not in direct line of fire (although you can target its grid by typing
+'o', then 't').
+
+Targeting -- mouse interaction:
+     In some ports, you may use the mouse to make looking around and targetting
+more convenient.  Left double-click engages looking/targetting.  When
+targetting, left double-click sets a target.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -58,7 +58,7 @@ Critical Hits:
 determines how often you get critical hits.  Critical hits are vital for any
 serious fighter using any weapon, especially ones rolling few dice.  You know
 you just got a critical hit when you get any combat message other than "you hit
-the <<monster name>>".
+the {monster name}".
      In melee, critical hits add between two and five dice; in archery or when
 using throwing weapons, they add between one and three.
 
@@ -297,7 +297,7 @@ Special shield bonuses:
      Most melee weapons fit comfortably in one hand, keeping your shield arm
 free.  If you have a shield on your arm, you can automatically take advantage of
 opportunities to bash, gain a significant amount of standard protection (shields
-have a high base armour class), and sometimes even deflect non-magical missiles
+have a high base armor class), and sometimes even deflect non-magical missiles
 or partially protect against shards.
 
 Shield bashes:
@@ -313,7 +313,7 @@ may also stumble, and lose normal melee blows.
 Two-handed weapons:
      Some weapons require two hands (but many of these can be wielded in one
 hand by very strong players).  Any shield worn is transferred to your back.
-This negates base armour protection and removes the special shield abilities
+This negates base armor protection and removes the special shield abilities
 described above, but has no effect on magical protection, resistances, or other
 attributes.
 
@@ -328,8 +328,6 @@ advantageous.
 Special Notes:
      In order to attack a creature that you can't see in a wall or door, you
 must issue the Tunnel or alter adjacent grid command.
-
-
 
 
 

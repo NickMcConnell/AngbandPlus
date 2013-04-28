@@ -1,5 +1,11 @@
 ##### Race Specific Subfiles #####
 
+#
+# This is not actually used at present because all race-specific stuff is 
+# normally now handled by the game itself.
+#
+
+
 ?:[EQU $RACE Human]
 %:Human.prf
 

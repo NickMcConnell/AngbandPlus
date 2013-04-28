@@ -11,14 +11,14 @@ notification when it is again available for use) by typing '!'.
 --- List of Talents ---
 
 Turn skin to stone:
-     Increases your armour class substantially.  Requires a wrestling skill of
-65 and the Oath of Iron.
+     Increases your armor class substantially.  Requires a wrestling skill of 65
+and the Oath of Iron.
 
 Berserk fury:
      Drives you into a berserk fury, which greatly increases your strength,
-melee skill, and hitpoints, but hinders archery and throwing, reduces your
-armour class, and leaves you exhausted.  Requires a wrestling skill of 80 and
-the Oath of Iron.
+melee skill, and hitpoints, but hinders archery and throwing, reduces your armor
+class, and leaves you exhausted.  Requires a wrestling skill of 80 and the Oath
+of Iron.
 
 Resist damage:
      Lets you go into a brief trance-like state in which you take only 2/3rds
@@ -128,10 +128,10 @@ Weapon forging:
 skill of 15.  Increases in skill greatly improve your ability to make powerful
 weapons.
 
-Armour forging:
-     Allows you to create armour using components.  Requires an armour forging
+Armor forging:
+     Allows you to create armor using components.  Requires an armor forging
 skill of 15.  Increases in skill greatly improve your ability to make powerful
-armour.
+armor.
 
 Bowmaking and Fletchery:
      Allows you to create bows and ammunition using components.  Requires a
@@ -180,12 +180,12 @@ the dark get a bonus.  It is hard to dodge in the water.
 --- Supplies ---
 
      When using an object-forging talent, you usually need some kind of input.
-You can only create weapons, armour, and missiles in the town (except in ironman
+You can only create weapons, armor, and missiles in the town (except in ironman
 mode).
 
 Components:
      Components of metal come in several different types; the higher level the
-component, the more powerful the weapon, armour, or missiles that can be forged
+component, the more powerful the weapon, armor, or missiles that can be forged
 from it.  Certain components add special qualities to the items they create;
 mithril is unusually light, adamantium unusually heavy, and both ignore acid and
 fire.
@@ -222,7 +222,7 @@ automatically goes into a special pouch slot in your equipment; you may
 --- Forging Wargear ---
 
 What you need:
-     Weapon, armour, and missile forging all compete for the same kind of input:
+     Weapon, armor, and missile forging all compete for the same kind of input:
 components.  The more skilled you are, and the better the component you choose,
 the greater the maximum power of the object you create.
      You also need some moderate skill in using any weapon you forge, or it will
@@ -231,8 +231,8 @@ skill, then you cannot make such powerful throwing or blunt weapons.
 
 Object types:
      The actual power of the forged item greatly depends on your choice of base
-object.  Melee weapons and body armour can have a lot of attributes; other kinds
-of armour and missile weapons have somewhat less, and ammunition has only a few.
+object.  Melee weapons and body armor can have a lot of attributes; other kinds
+of armor and missile weapons have somewhat less, and ammunition has only a few.
 Also, the higher level and more powerful the base object, the fewer extra
 attributes it gets.
 
@@ -327,7 +327,6 @@ enough bottle, your potion might explode...
 
      Note:  You can make multiple potions of essences at one time.  Unlike the
 case when making ordinary potions, there is no extra risk to doing this.
-
 
 
 

@@ -1,16 +1,17 @@
-
 /* File: obj_make.c */
-
 
 /*
  * Creation and manipulation of objects by the character.
  *
- * Copyright (c) 2002
+ * Choose an essence, add magic using essences, forge objects, poison ammo.
+ *
+ * Copyright (c) 2007
  * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 
@@ -41,22 +42,22 @@ int get_essence(bool just_looking)
 
 	char ch;
 	int i, j, k, l, z;
-	int col, len, lim, num;
+	int col, len, lim, l_margin, num;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
-	char tmp_val[80];
+	char tmp_val[DESC_LEN];
 
 	int out_index[NUM_ESSENCE];
 	byte out_color[NUM_ESSENCE];
-	char out_desc[NUM_ESSENCE][80];
+	char out_desc[NUM_ESSENCE][DESC_LEN];
 
 
 	/* Default length */
 	len = 79 - 50;
 
-	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	/* Maximum space allowed for descriptions (columns - 4) */
+	lim = Term->cols - 4;
 
 	/* Find the "final" slot */
 	for (z = 0, i = 0; i < NUM_ESSENCE; i++)
@@ -92,7 +93,7 @@ int get_essence(bool just_looking)
 		k_ptr = &k_info[i_ptr->k_idx];
 
 		/* Describe the essence */
-		object_desc(o_name, i_ptr, TRUE, 1);
+		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 1);
 
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
@@ -118,20 +119,23 @@ int get_essence(bool just_looking)
 
 
 	/* Save screen */
-	screen_save();
+	screen_save(FALSE);
 
 
-	/* Find the column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	/* Find the column to start in (centered or left-justified) */
+	col = MAX(0, (lim - len) / 2);
+
+	/* Remember the left margin (one-space margin unless at left edge already) */
+	l_margin = MAX(0, col - 1);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
-		/* Clear the line */
-		prt("", j + 1, col ? col - 2 : col);
+		/* Clear the text area */
+		put_str(format("%*s", len+1, ""), j+1, l_margin);
 
 		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", I2A(j));
+		(void)strnfmt(tmp_val, sizeof(tmp_val), "%c)", I2A(j));
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j+1, col);
@@ -141,8 +145,7 @@ int get_essence(bool just_looking)
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
-
+	if (j && (j < Term->rows - 1)) put_str(format("%*s", len+1, ""), j + 1, l_margin);
 
 	/* We're just looking -- wait for any key */
 	if (just_looking)
@@ -317,8 +320,8 @@ static int alchemy_choose_item(int *tval, int *sval,
 	int wgt;
 
 	char ch;
-	char o_name[160];
-	char buf[160];
+	char o_name[DESC_LEN];
+	char buf[DESC_LEN];
 
 	object_kind *k_ptr;
 	int k_idx;
@@ -327,30 +330,25 @@ static int alchemy_choose_item(int *tval, int *sval,
 
 	bool cost_too_high = FALSE;
 
-	int old_rows = screen_rows;
 	int tmp_rows;
 
 	bool is_grenade = FALSE;
 
 
-	/* Save screen */
-	screen_save();
-
-	/* Clear screen */
-	(void)Term_clear();
-
-	/* Set to 50 screen rows if scrolls or potions, 25 otherwise  XXX */
-	if ((*tval == TV_SCROLL) || (*tval == TV_POTION))
+	/* Use the tall display for potions and scrolls  XXX */
+	if (((*tval == TV_SCROLL) || (*tval == TV_POTION)) && (term_main->rows < 46))
 	{
-		(void)Term_rows(TRUE);
+		/* Save the screen, use the tall display, and center */
+		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_TALL, 80, 0);
 	}
 	else
 	{
-		(void)Term_rows(FALSE);
+		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM, 80, 0);
 	}
 
+
 	/* Get working height of screen */
-	tmp_rows = screen_rows - 1;
+	tmp_rows = Term->rows - 1;
 
 
 	/* Interact until satisfied */
@@ -470,8 +468,8 @@ static int alchemy_choose_item(int *tval, int *sval,
 		{
 			int attr = TERM_L_BLUE;
 
-			char buf1[100];
-			char buf2[100];
+			char buf1[DESC_LEN];
+			char buf2[DESC_LEN];
 			cptr str;
 
 			/* Point to the object kind */
@@ -529,7 +527,7 @@ static int alchemy_choose_item(int *tval, int *sval,
 				if (cost_too_high) attr = TERM_SLATE;
 
 				/* Display cost */
-				center_string(buf, sizeof(buf), buf1, 80);
+				center_string(buf, sizeof(buf), buf1, display_width());
 				c_prt(attr, buf, tmp_rows - 2, 0);
 			}
 
@@ -570,7 +568,7 @@ static int alchemy_choose_item(int *tval, int *sval,
 			}
 
 			/* Display */
-			center_string(buf, sizeof(buf), buf2, 80);
+			center_string(buf, sizeof(buf), buf2, display_width());
 			c_prt(TERM_WHITE, buf, tmp_rows - 1, 0);
 
 			/* Move cursor */
@@ -609,7 +607,9 @@ static int alchemy_choose_item(int *tval, int *sval,
 				if (need_essence && cost_too_high)
 				{
 					/* Complain */
-					center_string(buf, sizeof(buf), "You don't have enough essences to make this object.", 80);
+					center_string(buf, sizeof(buf),
+						"You don't have enough essences to make this object.",
+						display_width());
 					c_prt(TERM_YELLOW, buf, 1, 0);
 
 					/* Move cursor */
@@ -627,7 +627,8 @@ static int alchemy_choose_item(int *tval, int *sval,
 			else
 			{
 				/* Complain */
-				center_string(buf, sizeof(buf), "Please choose an object first.", 80);
+				center_string(buf, sizeof(buf),
+					"Please choose an object first.", display_width());
 				c_prt(TERM_YELLOW, buf, 1, 0);
 
 				/* Move cursor */
@@ -668,7 +669,8 @@ static int alchemy_choose_item(int *tval, int *sval,
 				{
 					/* Complain */
 					center_string(buf, sizeof(buf),
-						"You have never seen this object.  You can make it, but know nothing about it.", 80);
+						"You have never seen this object.  You can make it, but know nothing about it.",
+						display_width());
 					c_prt(TERM_YELLOW, buf, 1, 0);
 
 					/* Move cursor */
@@ -680,7 +682,8 @@ static int alchemy_choose_item(int *tval, int *sval,
 			else
 			{
 				/* Complain */
-				center_string(buf, sizeof(buf), "Please choose an object first.", 80);
+				center_string(buf, sizeof(buf), "Please choose an object first.",
+					display_width());
 				c_prt(TERM_YELLOW, buf, 1, 0);
 
 				/* Move cursor */
@@ -715,7 +718,8 @@ static int alchemy_choose_item(int *tval, int *sval,
 			{
 				/* Complain */
 				center_string(buf, sizeof(buf),
-					"Please type an index to choose an object, RETURN to accept, or ESC to cancel.", 80);
+					"Please type an index to choose an object, RETURN to accept, or ESC to cancel.",
+					display_width());
 				c_prt(TERM_YELLOW, buf, 1, 0);
 
 				/* Move cursor */
@@ -734,21 +738,8 @@ static int alchemy_choose_item(int *tval, int *sval,
 		*tval = k_info[choice[last_num]].tval;
 	}
 
-	/* Clear screen */
-	(void)Term_clear();
-
-	/* Set to previous screen rows */
-	if (old_rows != screen_rows)
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-
-		if (old_rows == 50) (void)Term_rows(TRUE);
-		else                (void)Term_rows(FALSE);
-	}
-
-	/* Load screen */
-	screen_load();
-
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 	/* And return quantity */
 	return (quantity);
@@ -835,7 +826,7 @@ void essence_wild_magic(object_type *o_ptr, int dam)
 		if ((typ == GF_PROTECTION) || (typ == -1)) return;
 
 		/* Explode */
-		project_star(0, 3 + dam / 50, p_ptr->py, p_ptr->px, dam, typ, 0L);
+		project_star(0, 3 + dam / 50, p_ptr->py, p_ptr->px, p_ptr->py, p_ptr->px, dam, typ, 0L);
 
 		/* Skill and good luck can prevent a second explosion */
 		if (i == 0)
@@ -889,8 +880,8 @@ static bool kaboom(object_type *o_ptr)
 		}
 		else
 		{
-			take_hit(damroll(2, k_ptr->level + 1), 0,
-				"Your mind is blasted!", "binding magics gone wild");
+			if (take_hit(damroll(2, k_ptr->level + 1), 0,
+				"Your mind is blasted!", "binding magics gone wild")) return (TRUE);
 
 			if ((!p_ptr->resist_confu) && (randint(k_ptr->level) >= 4))
 			{
@@ -1040,7 +1031,7 @@ static int make_grenade(object_type *o_ptr, bool use_essence)
 	if (use_essence)
 	{
 		if (p_ptr->essence[grenade_pval] >= grenade_essence_num)
-			 p_ptr->essence[grenade_pval] -= grenade_essence_num;
+			p_ptr->essence[grenade_pval] -= grenade_essence_num;
 
 		else return (-1);
 	}
@@ -1120,8 +1111,8 @@ static bool do_alchemy_aux(int input_tval, int output_tval,
 	/* Component level helps determine ring or amulet selection  XXX */
 	if ((output_tval == TV_RING) || (output_tval == TV_AMULET))
 	{
-		char q[80];
-		char s[80];
+		char q[DESC_LEN];
+		char s[DESC_LEN];
 
 		strcpy(q, format("Choose which %s?", input_name));
 		strcpy(s, format("You have no %ss.", input_name));
@@ -1215,8 +1206,8 @@ static bool do_alchemy_aux(int input_tval, int output_tval,
 		/* Some sort of input other than essences is required */
 		if (input_tval)
 		{
-			char q[80];
-			char s[80];
+			char q[DESC_LEN];
+			char s[DESC_LEN];
 
 			strcpy(q, format("Choose which %s (ESC to cancel)?", input_name));
 			strcpy(s, format("You have no %ss.", input_name));
@@ -1550,7 +1541,7 @@ static int calc_infusion_chance(int cost, int invested)
 static cptr short_essence_name(int sval)
 {
 	cptr str;
-	char name[80];
+	char name[DESC_LEN];
 
 	/* Look up the index number of this essence */
 	int k_idx = lookup_kind(TV_ESSENCE, sval);
@@ -1625,7 +1616,7 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 
 	char ch;
 
-	char desc[100];
+	char desc[DESC_LEN];
 
 	/* Conversion from index of active flag to flag position */
 	int index_to_flag[32];
@@ -1678,7 +1669,7 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 		forging_essence_navbar(21, 3);
 
 		/* Get and center the potential display */
-		center_string(desc, sizeof(desc), "Potential", 80);
+		center_string(desc, sizeof(desc), "Potential", display_width());
 
 		/* Get a warning color and display it (use average potential) */
 		c_prt(color_potential(ave_potential), desc, 16, 0);
@@ -1783,22 +1774,31 @@ static s16b do_forging_essence_pval(s16b *pval_val)
 		prt("           </> to change screens, '?' for help, Return to accept, ESC to cancel", 24, 0);
 
 
-		/* Hide the cursor  XXX */
-		move_cursor(0, 81);
+		/* Hide the cursor */
+		inkey_cursor_hack[TERM_MAIN] = -1;
 
+		/* Wait for legal input */
+		while (TRUE)
+		{
+			/* Get key */
+			ch = inkey(ALLOW_CLICK);
 
-		/* Get key */
-		ch = inkey();
+			/* Allow orthogonal direction keys */
+			get_ui_direction(&ch, UI_NODIAG | UI_NOMOUSE, &dummy);
 
-		/* Allow orthogonal direction keys */
-		get_ui_direction(&ch, TRUE, TRUE, FALSE, &dummy);
+			/* Accept anything except untranslated mouse actions */
+			if (ch != MOUSEKEY) break;
+		}
+
+		/* Allow the cursor to be shown again */
+		inkey_cursor_hack[TERM_MAIN] = 0;
 
 		/* Clear status line */
 		clear_row(2);
 
 
 		/* Cancel */
-		if ((ch == ESCAPE) || (ch == 'q'))
+		if (ch == ESCAPE)
 		{
 			action = -99;
 			break;
@@ -2035,7 +2035,7 @@ static s16b do_forging_essence_flags(int set)
 
 	char ch;
 
-	char desc[100];
+	char desc[DESC_LEN];
 
 	/* Conversion from index of active flag to flag position */
 	int index_to_flag[32];
@@ -2076,7 +2076,7 @@ static s16b do_forging_essence_flags(int set)
 		forging_essence_navbar(21, set);
 
 		/* Get and center the potential display */
-		center_string(desc, sizeof(desc), "Potential", 80);
+		center_string(desc, sizeof(desc), "Potential", display_width());
 
 		/* Get a warning color and display it */
 		c_prt(color_potential(ave_potential), desc, 16, 0);
@@ -2152,14 +2152,28 @@ static s16b do_forging_essence_flags(int set)
 		prt("           </> to change screens, '?' for help, Return to accept, ESC to cancel", 24, 0);
 
 
-		/* Get key */
-		ch = inkey();
+		/* Hide the cursor */
+		inkey_cursor_hack[TERM_MAIN] = -1;
 
-		/* Allow orthogonal direction keys */
-		get_ui_direction(&ch, TRUE, TRUE, FALSE, &dummy);
+		/* Wait for legal input */
+		while (TRUE)
+		{
+			/* Get key */
+			ch = inkey(ALLOW_CLICK);
+
+			/* Allow orthogonal direction keys */
+			get_ui_direction(&ch, UI_NODIAG | UI_NOMOUSE, &dummy);
+
+			/* Accept anything except untranslated mouse actions */
+			if (ch != MOUSEKEY) break;
+		}
+
+		/* Allow the cursor to be shown again */
+		inkey_cursor_hack[TERM_MAIN] = 0;
+
 
 		/* Cancel */
-		if ((ch == ESCAPE) || (ch == 'q'))
+		if (ch == ESCAPE)
 		{
 			action = -99;
 			break;
@@ -2258,7 +2272,7 @@ static s16b do_forging_essence_flags(int set)
 
 			/* Drop from base number to no essences */
 			if (ffi[i].invested <=
-				 flag_creation_data[i].cost)
+				flag_creation_data[i].cost)
 			{
 				invest = 0;
 			}
@@ -2292,13 +2306,11 @@ static bool do_forging_essence(int a_idx, int *potential)
 	int tmp = 0;
 	int i, j, k;
 
-	int old_rows = screen_rows;
-
 	bool is_melee_weapon = FALSE;
 	bool is_digger       = FALSE;
 	bool is_launcher     = FALSE;
 	bool is_ammo         = FALSE;
-	bool is_armour       = FALSE;
+	bool is_armor       = FALSE;
 	bool forbid          = FALSE;
 
 	int low, high, adjust, val;
@@ -2306,7 +2318,7 @@ static bool do_forging_essence(int a_idx, int *potential)
 
 	artifact_type *a_ptr = &a_info[a_idx];
 
-	int rand_chooser[128];
+	int rand_chooser[DESC_LEN];
 	int cost, chance;
 
 	/* There are four sets of flags.  We start on the first one. */
@@ -2317,11 +2329,8 @@ static bool do_forging_essence(int a_idx, int *potential)
 	s16b pval_val[4] = { 0, 1, 0, 0 };
 
 
-	/* Save the screen */
-	screen_save();
-
-	/* Set to 25 screen rows */
-	(void)Term_rows(FALSE);
+	/* Save the screen, use the standard display, and center */
+	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM, 80, 0);
 
 
 	/* Wipe the flag-creation information */
@@ -2337,7 +2346,7 @@ static bool do_forging_essence(int a_idx, int *potential)
 	if (a_ptr->tval == TV_DIGGING) is_digger       = TRUE;
 	if (is_missile_weapon(a_ptr))  is_launcher     = TRUE;
 	if (is_missile(a_ptr))         is_ammo         = TRUE;
-	if (is_any_armour(a_ptr))      is_armour       = TRUE;
+	if (is_any_armor(a_ptr))      is_armor       = TRUE;
 
 
 	/* Determine pval maxima and disallow/restrict flags */
@@ -2489,15 +2498,8 @@ static bool do_forging_essence(int a_idx, int *potential)
 		/* Cancel or accept changes */
 		else if (tmp != 0)
 		{
-			/* Set to 50 screen rows, if we were showing 50 before */
-			if (old_rows == 50)
-			{
-				p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-				(void)Term_rows(TRUE);
-			}
-
-			/* Load the screen */
-			screen_load();
+			/* Restore previous display */
+			display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 			return (FALSE);
 		}
@@ -2517,16 +2519,10 @@ static bool do_forging_essence(int a_idx, int *potential)
 	/* We chose no flags */
 	if (!tmp)
 	{
-		clear_from(0);
+		/* Restore previous display */
+		display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
-		/* Set to 50 screen rows, if we were showing 50 before */
-		if (old_rows == 50)
-		{
-			p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-			(void)Term_rows(TRUE);
-		}
-
-		screen_load();
+		/* Leave */
 		return (TRUE);
 	}
 
@@ -2614,18 +2610,9 @@ static bool do_forging_essence(int a_idx, int *potential)
 		}
 	}
 
-	/* Clear the screen */
-	clear_from(0);
 
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50)
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(TRUE);
-	}
-
-	/* Load the screen */
-	screen_load();
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 	/* Return */
 	return (TRUE);
@@ -2639,6 +2626,9 @@ static bool do_forging_essence(int a_idx, int *potential)
  *
  * Note that a combat skill of 60 removes any restrictions; we're pretty
  * lenient.
+ *
+ * We must be careful about the test for throwing skill; it was previously
+ * applied incorrectly to ammo.
  */
 static int do_forging_adjust_power(object_type *i_ptr, int power)
 {
@@ -2646,22 +2636,25 @@ static int do_forging_adjust_power(object_type *i_ptr, int power)
 
 
 	/* Find the appropriate skill */
-	if (i_ptr->flags1 & (TR1_THROWING)) skill = S_THROWING;
-	else if (i_ptr->tval == TV_SWORD)   skill = S_SWORD;
-	else if (i_ptr->tval == TV_POLEARM) skill = S_POLEARM;
-	else if (i_ptr->tval == TV_HAFTED)  skill = S_HAFTED;
-	else if (i_ptr->tval == TV_SHOT)    skill = S_SLING;
-	else if (i_ptr->tval == TV_SLING)   skill = S_SLING;
-	else if (i_ptr->tval == TV_ARROW)   skill = S_BOW;
-	else if (i_ptr->tval == TV_BOW)     skill = S_BOW;
-	else if (i_ptr->tval == TV_BOLT)    skill = S_CROSSBOW;
-	else if (i_ptr->tval == TV_CROSSBOW)skill = S_CROSSBOW;
-
-	/* Since sling shots are also throwing weapons, use greater skill -JM- */
 	if (i_ptr->tval == TV_SHOT)
-	{	
-		skill = better_skill(S_THROWING, S_SLING);
+	{
+		/* Slingshot use the better of throwing or slings */
+		int t = get_skill(S_THROWING, 0, 100);
+		int s = get_skill(S_SLING, 0, 100);
+
+		skill = (t > s) ? S_THROWING : S_SLING;
 	}
+	else if (i_ptr->tval == TV_SLING)        skill = S_SLING;
+	else if (i_ptr->tval == TV_ARROW)        skill = S_BOW;
+	else if (i_ptr->tval == TV_BOW)          skill = S_BOW;
+	else if (i_ptr->tval == TV_BOLT)         skill = S_CROSSBOW;
+	else if (i_ptr->tval == TV_CROSSBOW)     skill = S_CROSSBOW;
+
+	else if (i_ptr->flags1 & (TR1_THROWING)) skill = S_THROWING;
+	else if (i_ptr->tval == TV_SWORD)        skill = S_SWORD;
+	else if (i_ptr->tval == TV_POLEARM)      skill = S_POLEARM;
+	else if (i_ptr->tval == TV_HAFTED)       skill = S_HAFTED;
+
 
 	/* Restrict forging power if necessary */
 	if (skill >= 0)
@@ -2682,7 +2675,7 @@ static int do_forging_adjust_power(object_type *i_ptr, int power)
 
 
 /*
- * Forge a weapon, missile launcher, armour, or ammunition.
+ * Forge a weapon, missile launcher, armor, or ammunition.
  *
  * There is, ah, a certain amount of hackishness in this here code.
  * Forged objects use artifact templates to gather attributes, are marked
@@ -2716,7 +2709,7 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	bool corrupt_item = FALSE;
 	bool accept = TRUE;
 
-	char buf[80];
+	char buf[DESC_LEN];
 
 	cptr q = "Use which component?";
 	cptr s = "You have no components to use.";
@@ -2969,19 +2962,19 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	 * Hack -- Give the forged object an ego-item index that depends on
 	 * the component used to make it.
 	 */
-	 if (component_sval == SV_COMPONENT_COPPER)
+	if (component_sval == SV_COMPONENT_COPPER)
 	     i_ptr->ego_item_index = EGO_FORGED_COPPER;
-	 else if (component_sval == SV_COMPONENT_BRONZE)
+	else if (component_sval == SV_COMPONENT_BRONZE)
 	     i_ptr->ego_item_index = EGO_FORGED_BRONZE;
-	 else if (component_sval == SV_COMPONENT_IRON)
+	else if (component_sval == SV_COMPONENT_IRON)
 	     i_ptr->ego_item_index = EGO_FORGED_IRON;
-	 else if (component_sval == SV_COMPONENT_STEEL)
+	else if (component_sval == SV_COMPONENT_STEEL)
 	     i_ptr->ego_item_index = EGO_FORGED_STEEL;
-	 else if (component_sval == SV_COMPONENT_RUNEGOLD)
+	else if (component_sval == SV_COMPONENT_RUNEGOLD)
 	     i_ptr->ego_item_index = EGO_FORGED_RUNEGOLD;
-	 else if (component_sval == SV_COMPONENT_MITHRIL)
+	else if (component_sval == SV_COMPONENT_MITHRIL)
 	     i_ptr->ego_item_index = EGO_FORGED_MITHRIL;
-	 else if (component_sval == SV_COMPONENT_ADAMANT)
+	else if (component_sval == SV_COMPONENT_ADAMANT)
 	     i_ptr->ego_item_index = EGO_FORGED_ADAMANT;
 
 
@@ -2992,7 +2985,7 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	/* Give the forged object to the character */
 	give_object(i_ptr, FALSE);
 
-	/* Describe the object fully (also reset screen rows) */
+	/* Describe the object fully (also reset screen display) */
 	do_cmd_observe(i_ptr, FALSE);
 
 	/* Clean up -- Wipe the temporary artifact template */
@@ -3045,9 +3038,9 @@ bool make_melee_weapon(void)
 }
 
 /*
- * Make armour
+ * Make armor
  */
-bool make_armour(void)
+bool make_armor(void)
 {
 	char tmp;
 	int tval = 0;
@@ -3061,15 +3054,13 @@ bool make_armour(void)
 	while (TRUE)
 	{
 		/* Choose which type of object to make */
-		if (!get_com(
-"Forge (B)oots, (G)loves, (H)eadgear, a (S)hield, (L)ight or (P)late armour?",
-	&tmp))
+		if (!get_com("Forge (B)oots, (G)loves, (H)eadgear, a (S)hield, (L)ight or (P)late armor?",	&tmp))
 		{
 			msg_print("Cancelled...");
 			return (FALSE);
 		}
 
-		/* Choose an armour type */
+		/* Choose an armor type */
 		if      ((tmp == 'B') || (tmp == 'b')) tval = TV_BOOTS;
 		else if ((tmp == 'G') || (tmp == 'g')) tval = TV_GLOVES;
 		else if ((tmp == 'H') || (tmp == 'h')) tval = TV_HELM;
@@ -3087,8 +3078,8 @@ bool make_armour(void)
 	else if (tval == TV_GLOVES)     desc = "gloves";
 	else if (tval == TV_HELM)       desc = "headgear";
 	else if (tval == TV_SHIELD)     desc = "shield";
-	else if (tval == TV_SOFT_ARMOR) desc = "soft body armour";
-	else if (tval == TV_HARD_ARMOR) desc = "hard body armour";
+	else if (tval == TV_SOFT_ARMOR) desc = "soft body armor";
+	else if (tval == TV_HARD_ARMOR) desc = "hard body armor";
 	else return (FALSE);
 
 	/* Make item(s) */
@@ -3154,8 +3145,26 @@ static bool item_tester_hook_poisonable(const object_type *o_ptr)
 		/* Require that there be nothing fancy about the ammo */
 		if (o_ptr->artifact_index) return (FALSE);
 		if (o_ptr->ego_item_index) return (FALSE);
-		if (o_ptr->flags1)         return (FALSE);
-		if (o_ptr->flags2)         return (FALSE);
+		if (o_ptr->flags1)
+		{
+			u32b temp_flags1 = o_ptr->flags1;
+
+			/* Some flags1 are allowable */
+			temp_flags1 &= ~(TR1_THROWING | TR1_TWO_HANDED_REQ | TR1_TWO_HANDED_DES);
+
+			/* Test */
+			if (temp_flags1) return (FALSE);
+		}
+		if (o_ptr->flags2)
+		{
+			u32b temp_flags2 = o_ptr->flags2;
+
+			/* Some flags2 are allowable */
+			temp_flags2 &= ~(TR2_IGNORE_ACID | TR2_IGNORE_ELEC | TR2_IGNORE_FIRE | TR2_IGNORE_COLD);
+
+			/* Test */
+			if (temp_flags2) return (FALSE);
+		}
 
 		/* Flags3 deliberately not tested -- might change this later */
 
@@ -3166,6 +3175,7 @@ static bool item_tester_hook_poisonable(const object_type *o_ptr)
 	/* Nope */
 	return (FALSE);
 }
+
 
 /*
  * Hook for "get_item()".  Determine if something can be used to poison.

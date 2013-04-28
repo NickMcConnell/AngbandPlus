@@ -1,14 +1,15 @@
 /* File: effects.c */
 
 /*
- * Special lingering spell effects.
+ * The lingering spell effects code.
  *
- * Copyright (c) 2003
+ * Copyright (c) 2007
  * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -134,6 +135,8 @@ int effect_grid_idx(int y, int x)
 
 /*
  * Get the projection type (and thus the graphics) for an effect.
+ *
+ * This function is also responsible for cleaning up effect markers.  XXX XXX
  */
 int effect_grid_proj_type(int y, int x)
 {
@@ -218,7 +221,10 @@ static void optimize_effect_array(int x_idx)
 			/* Wipe this array entry */
 			WIPE(xg_ptr, effect_grid_type);
 
-			/* Refresh the graphics, remove marker if necessary */
+			/*
+			 * Refresh the graphics, remove marker if this was the
+			 * only effect impacting this grid.
+			 */
 			lite_spot(y, x);
 		}
 	}
@@ -244,16 +250,15 @@ static void optimize_effect_array(int x_idx)
 
 /*
  * Effect zaps a grid with lingering effect.  Used for all effects that
- * need to display graphics and effect monsters/the character/the dungeon
+ * need to display graphics and affect monsters/the character/the dungeon
  * between turns.
+ *
+ * Return "grid was projectable".
  */
 bool do_effect_linger(int x_idx, int y, int x)
 {
 	/* Get this effect */
 	effect_type *x_ptr = &x_list[x_idx];
-
-	/* Effects only operate in projectable terrain */
-	bool projectable = (cave_project_bold(y, x) != 0);
 
 	/* Basic projection flags */
 	u32b flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID;
@@ -271,9 +276,8 @@ bool do_effect_linger(int x_idx, int y, int x)
 		if (x_ptr->flags & (EF1_HURT_PLAY)) flg |= (PROJECT_PLAY);
 	}
 
-	/* Usually, do not affect impassable terrain */
-	if (!cave_passable_bold(y, x)) return (FALSE);
-
+	/* Usually, do not affect non-projectable terrain */
+	if (!cave_project_bold(y, x) && !(flg & (PROJECT_PASS))) return (FALSE);
 
 	/* We have not run out of space in the effect grid array */
 	if (effect_grid_n < EFFECT_GRID_MAX-1)
@@ -318,15 +322,16 @@ bool do_effect_linger(int x_idx, int y, int x)
 	(void)project(who, 0, y, x, y, x, x_ptr->power, x_ptr->type, flg, 0, 0);
 
 
-	/* Display lingering spell colors (require ability to see) */
-	if (player_can_see_bold(y, x))
+	/* Display lingering spell colors (require ability to see or illuminated effect in LOS) */
+	if ((player_can_see_bold(y, x)) ||
+	    ((x_ptr->flags & (EF1_SHINING)) && (player_has_los_bold(y, x))))
 	{
 		/* Redraw this grid */
 		lite_spot(y, x);
 	}
 
-	/* Return whether we hit non-projectable terrain */
-	return (!projectable);
+	/* Success */
+	return (TRUE);
 }
 
 
@@ -344,6 +349,8 @@ static void process_effect(int x_idx)
 
 	int grids = 0;
 
+	bool notice = FALSE; /* Assume nothing noticed */
+
 
 	/* Paranoia -- no processing dead effects */
 	if (!x_ptr->index) return;
@@ -358,8 +365,9 @@ static void process_effect(int x_idx)
 	/* If the effect has recently been "born", make various tweaks to it */
 	if (x_ptr->age == 0) adjust_effect(x_idx);
 
-	/* End any lingering effects and clear graphics */
+	/* Clear graphics and effect markers from last iteration of this effect */
 	optimize_effect_array(x_idx);
+
 
 	/* Effects eventually "die" */
 	if (x_ptr->age >= x_ptr->lifespan)
@@ -374,7 +382,6 @@ static void process_effect(int x_idx)
 		x_ptr->index = 0;
 		return;
 	}
-
 
 
 	/* Standard lingering clouds */
@@ -426,7 +433,7 @@ static void process_effect(int x_idx)
 			/* Remember delay factor */
 			int old_delay = op_ptr->delay_factor;
 
-			int wall = 0;
+			int zaps = 0;
 
 			/* Get center grid (walls travel one grid per turn) */
 			y0 = GRID_Y(path_g[x_ptr->age]);
@@ -438,29 +445,31 @@ static void process_effect(int x_idx)
 			/* Set delay to half normal */
 			op_ptr->delay_factor /= 2;
 
-			/* Zap center grid, note wall */
-			if (!do_effect_linger(x_idx, y0, x0))
+			/*
+			 * If the center grid is both projectable and in LOS
+			 * from the origin of the effect, zap it.
+			 */
+			if ((cave_project_bold(y0, x0)) &&
+				(los(x_ptr->y0, x_ptr->x0, y0, x0)))
 			{
-				wall = 1;
-				if (!x_ptr->age)
-				{
-					x_ptr->age = 250;
-					spread = 0;
-				}
+				(void)do_effect_linger(x_idx, y0, x0);
+				zaps++;
 			}
+
+			/* Notice visibility */
+			if (player_can_see_bold(y0, x0)) notice = TRUE;
+
 
 			/* If this wall spreads out from the origin, */
 			if (spread >= 1)
 			{
-				/* Get the directions of spread (angular dir is 2x this) */
-				int minor_axis1 = (major_axis +  45) % 180;
-				int minor_axis2 = (major_axis + 135) % 180;
+				/* Get the directions of spread (angular dir is 150% of this) */
+				int minor_axis1 = (major_axis +  60) % 240;
+				int minor_axis2 = (major_axis + 180) % 240;
 
 				/* Process the left, then right-hand sides of the wall */
 				for (i = 0; i < 2; i++)
 				{
-					int blockage = 0;
-
 					if (i == 0) axis = minor_axis1;
 					else        axis = minor_axis2;
 
@@ -470,71 +479,39 @@ static void process_effect(int x_idx)
 					/* If we have a legal target, */
 					if ((y != y0) || (x != x0))
 					{
-						/* Calculate the path of projection */
+						/* Calculate the projection path */
 						(void)project_path(spread, y0, x0, &y, &x,
 							PROJECT_PASS | PROJECT_THRU);
 
-						/* Zap all the grids */
+						/* Check all the grids */
 						for (j = 0; j < path_n; j++)
 						{
 							/* Get grid */
 							y = GRID_Y(path_g[j]);
 							x = GRID_X(path_g[j]);
 
-							/* Count grid */
-							grids++;
-
-							/* Zap grid */
-							if (!do_effect_linger(x_idx, y, x))
+							/*
+							 * If this grid is both projectable and in LOS
+							 * from the origin of the effect, zap it.
+							 */
+							if ((cave_project_bold(y, x)) &&
+							    (los(x_ptr->y0, x_ptr->x0, y, x)))
 							{
-								/* We've hit a wall; seek to the sides */
-								if (!y0 - y)
-								{
-									/* We must find open space somewhere */
-									if (((!in_bounds_fully(y, x + 1)) ||
-									     (!cave_wall_bold(y, x + 1))) &&
-									    ((!in_bounds_fully(y, x - 1)) ||
-									     (!cave_wall_bold(y, x - 1))))
-									{
-										/* We're blocked everywhere -- stop */
-										for (; j < path_n; j++) blockage++;
-										break;
-									}
-
-								}
-								else if (!x0 - x)
-								{
-									/* We must find open space somewhere */
-									if (((!in_bounds_fully(y + 1, x)) ||
-									     (!cave_wall_bold(y + 1, x))) &&
-									    ((!in_bounds_fully(y - 1, x)) ||
-									     (!cave_wall_bold(y - 1, x))))
-									{
-										/* We're blocked everywhere -- stop */
-										for (; j < path_n; j++) blockage++;
-										break;
-									}
-								}
-								else
-								{
-									/* We're blocked everywhere -- stop */
-									for (; j < path_n; j++) blockage++;
-									break;
-								}
+								(void)do_effect_linger(x_idx, y, x);
+								zaps++;
 							}
+
+							/* Notice visibility */
+							if (player_can_see_bold(y, x)) notice = TRUE;
 						}
 					}
-
-					/* Note if this direction is completely blocked */
-					if (blockage >= spread) wall++;
 				}
 			}
 
-			/* Kill wall if it hits too many obstructions */
-			if ((wall >= 2) && (x_ptr->age > 0))
+			/* Kill wall if nothing got zapped this turn */
+			if (zaps == 0)
 			{
-				if (player_can_see_bold(y0, x0))
-					msg_print("The spell fizzles out.");
+				if (notice) msg_print("The spell fizzles out.");
 				x_ptr->age = 250;
 			}
 
@@ -583,7 +560,7 @@ static void process_effect(int x_idx)
 				&ty, &tx, FALSE);
 		}
 
-		/* No valid target, or monster is in an impassable wall */
+		/* No valid target, or monster is in an impassable grid */
 		if (((ty == 0) && (tx == 0)) || (!cave_passable_bold(ty, tx)))
 		{
 			/* Move randomly */
@@ -702,7 +679,6 @@ static void process_effect(int x_idx)
 		/* Fire a star-shaped cloud of death */
 		fire_star(GF_DEATH_CLOUD, 0, randint(x_ptr->power), x_ptr->power2);
 	}
-
 
 	/* Effects age */
 	x_ptr->age++;

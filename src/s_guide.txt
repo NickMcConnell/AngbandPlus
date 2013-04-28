@@ -1,9 +1,28 @@
 
-Valid for Sangband 1.0.0
+Valid for Sangband 1.0.0  (April, 2007)
 
 
-See the /src/system folder for system-specific files.
 
+
+#
+# Useful headers
+#
+
+config.h
+/* Compilation options.
+
+defines.h
+/* Most everything that's in UPPERCASE is defined here.
+
+externs.h
+/* Global variable and function definitions.  A ready map of the code.
+
+
+
+
+#
+# Basic game module
+#
 
 attack.c
 /*
@@ -26,12 +45,13 @@ cave.c
 /*
  * Cave grid display and manipulation.
  *
- * Distance, darkness checks.  Multi-hued monsters, hallucination.
- * Display a dungeon grid.  Move cursor to a map location, mark and
- * redraw grids.  Print the main map and the reduced map.  Line of sight,
- * line of fire, projection paths.  Monster flow (sound and scent).
- * Magic mapping, wizard light and forgetting.  Change a dungeon feature,
- * find a random location, track a monster, handle disturb.
+ * Distance, darkness checks.  Multi-hued monsters and objects, hallucination.
+ * Display a dungeon grid.  Move cursor to a map location, mark and redraw
+ * grids, change a dungeon feature.  Update grid, Print the main map and the
+ * reduced map. Line of sight, field of view, line of fire, projection paths.
+ * Monster flow (sound and scent). Magic mapping, wizard light and forgetting,
+ * the temp array code.   Find a random location, track a monster/object,
+ * disturbance.
 
 cmd1.c
 /*
@@ -47,8 +67,8 @@ cmd2.c
 cmd3.c
 /*
  * Display inventory and equipment.  Wear and remove equipment.  Drop and
- * destroy.  Inspecting, inscribing, refueling objects.  Learn about a
- * symbol.  Stealing and trap setting.
+ * destroy.  Inspecting, inscribing, refueling and lighting objects.  Learn
+ * about a symbol.  Stealing and trap setting.
 
 cmd4.c
 /*
@@ -68,14 +88,14 @@ cmd6.c
  * Effects and extra information on individual food and mushrooms,
  * potions, scrolls, staffs, wands, and rods.  Chance to get extra object
  * information.  Use objects, use magical devices.  Activation effects
- * and extra information, activate an item, chance to get extra artifact
- * information.
+ * and extra information, activate an item.
 
 dungeon.c
 /*
- * Regenerate hitpoints and mana.  Handle the passage of time.  Enter
- * wizard, debug, and borg modes.  Process commands.  Handle a character's
- * turn.  Interact with the current dungeon level.  Play a game.
+ * Regenerate hitpoints and mana.  Handle the passage of time.  Special events.
+ * Enter wizard, debug, and borg modes.  Process commands.  Visual refreshes.
+ * Handle a character's turn.  Interact with the current dungeon level.  Play
+ * a game.
 
 effects.c
 /*
@@ -83,27 +103,25 @@ effects.c
 
 files.c
 /*
- * Drop and set permissions.  Read preference files.  Check time and load.
- * Get best kill.  Display the character screen.  Character dumps, read
- * random line from a file.  Show a file (inc. the online help), context-
- * specific help.  Display a file (alternate method).  Process a character
- * name, commit suicide, save the game.  Get and display score, turn
- * character into a winner.  The character death interface.  Controlled
- * exit and panic saves.
+ * Read preference files.  Get best kill, display the character screen.
+ * Character dumps, read random line from a file.  Show a file (inc. the
+ * online help), context-specific help. Display a file (colorized).  Process
+ * a character name, commit suicide, save the game.  Calculate and display
+ * score.  The character death interface.  Controlled exit, panic saves, and
+ * signal-handling.
 
 generate.c
 /*
  * Dungeon generation
  *
  * Code for making, stocking, and populating levels when generated.  Includes
- * rooms of every kind, pits, vaults (inc. interpretation of vault.txt),
- * streamers, tunneling, etc.  Level feelings, essence generation.  Creation
- * of the town.
+ * rooms of every kind, pits, vaults (inc. interpretation of vault.txt), seams
+ * tunneling, etc.  Level feelings, essence generation.  Creation of the town.
 
 info.c
 /*
- * Tables containing object kind descriptions.  Extended object descriptions
- * and information.  Self Knowledge.  Object info for character dumps.
+ * Object kind descriptions.  Extended object descriptions and information.
+ * Self knowledge.  Object info for character dumps.
 
 init1.c
 /*
@@ -111,15 +129,14 @@ init1.c
 
 init2.c
 /*
- * Read files in "lib/data" and fill in various arrays.  Initialize and close 
- * down the game.  Allocate and deallocate memory for variable-size global 
+ * Read files in "lib/data" and fill in various arrays.  Initialize and close
+ * down the game.  Allocate and deallocate memory for variable-size global
  * arrays.
 
 loadsave.c
 /*
- * Savefile management.  Save, load, convert, extract information from, and
- * print error messages about savefiles.  Provide in-game tools to manage
- * savefiles.
+ * Savefile management.  Save, load, convert, extract information from, and 
+ * print error messages about savefiles.  In-game tools to manage savefiles.
 
 main.c
 /*
@@ -127,7 +144,7 @@ main.c
 
 monattk.c
 /*
- * Monster critical blows, hit chance, affect of armour, monster melee
+ * Monster critical blows, hit chance, affect of armor, monster melee
  * attacks.  Monster projection types, resistance checking, ranged attacks.
  * Monster special effects.
 
@@ -159,13 +176,15 @@ monster2.c
 obj_make.c
 /*
  * Creation and manipulation of objects by the character.
+ *
+ * Choose an essence, add magic using essences, forge objects, poison ammo.
 
 object1.c
 /*
- * Object flavours and learning flags.  Get object pvals and attributes.
- * Object names.  Object indexes and labels, what slot an object likes.
- * Display the inventory, equipment, and floor.  Handle object inscription
- * tags.  Select objects.
+ * Object flavours, learning.  Reset visual preferences, Get object pvals and
+ * attributes.  Object names.  Object indexes and labels, what slot an object
+ * likes.  Display the inventory, equipment, and floor.  Object display
+ * subwindows.  Inscription tags.  Select objects.
 
 object2.c
 /*
@@ -187,16 +206,16 @@ randart.c
 /*
  * Random artifacts (also forged items).
  *
- * Selling and providing qualities.  Choosing a object type and kind,
+ * Selling and providing qualities.  Choosing an object type and kind,
  * determining the potential, depth and rarity of the artifact.  Artifact
  * themes.  Adding semi-random qualities.  Cursing an artifact, removing
- * contradictory flags, naming, initializing.  Adding new names to the 
+ * contradictory flags, naming, initializing.  Adding new names to the
  * a_name array.  Initializing all random artifacts.
 
 skills.c
 /*
  * Sangband skills.  Cost of skills, increase, restore, and reduce skills.
- * Realms, Oaths, and specializations, effect of skills on each other, the 
+ * Realms, Oaths, and specializations, effect of skills on each other, the
  * skills improvement screen.
 
 spells1.c
@@ -242,7 +261,8 @@ tables.c
  * data and titles.  Chest traps, set items, color and stat names.
  * Window names, option names, descriptions, and default values.  Custom
  * display text, inscription text.  Monster spells.  Skills, talents,
- * object flags, precognition messages.
+ * object flags, precognition messages.  Graphics modes, special attr/char
+ * pairs.
 
 talents.c
 /*
@@ -257,15 +277,15 @@ traps.c
 
 util.c
 /*
- * Macros.  Process keypresses.  Object inscription storage.  Messages.
- * Save, load, and clear the screen.  Print text out to screen and files.
- * Ask for commands, strings, and numbers.  Handle repeated commands.
- * Gamma correction and colors.  Math functions (dice, angular math, etc.).
- * Special utility functions.
+ * Simple text processing, macros, keypresses, and object inscriptions.  User
+ * input.  Messages.  Save, load, and clear the screen.  Print text out to
+ * screen and files.  Ask for commands, strings, and numbers.  Handle repeated
+ * commands.  Gamma correction and colors.  Math functions (dice, angular math,
+ * etc.).  Special utility functions.
 
 variable.c
 /*
- * The copyright.  Global variables and arrays.
+ * Brief version of copyright.  Global variables and arrays.
 
 wizard1.c
 /*
@@ -281,14 +301,54 @@ xtra1.c
  * some things in sub-windows.  Calculate spells, mana, hitpoints, torch
  * radius, and regeneration rate.  Apply bonuses and attributes to the
  * character from stats, shapechanges, equipment, and temporary conditions.
- * Calculate blows, shots, armour, and so on.
+ * Calculate blows, shots, armor, and so on.  The game updating code.
 
 xtra2.c
 /*
- * Set temporary conditions, print messages and update various displays
- * as needed.  Change shape, practice skills, gain and lose experience,
- * drain and recover skills.  Hurt the character.  Handle map panels.  The
- * targeting code.  Get and confuse a direction.  Precognition messages.
+ * Set temporary conditions, print messages and update various displays as
+ * needed.  Change shape, practice skills, gain and lose experience, drain and
+ * recover skills.  Hurt the character.  Calculate map size and handle map
+ * panels.  The looking and targeting code.  Get and confuse a direction,
+ * precognition messages, music selection.
+
+
+
+
+
+#
+# Other header files
+#
+
+
+angband.h
+/* The game module include file.
+
+h-basic.h
+* Include file for all utility modules (string formatting, term code, file-handling, etc.)
+
+h-config.h
+ * Choose the hardware, operating system, and compiler.
+ * Also, choose various "system level" compilation options.
+
+h-define.h
+ * Define some simple constants
+
+h-system.h
+ * Include the basic "system" files.
+
+h-type.h
+ * Basic "types".
+
+types.h
+/* Global structures used in the game.  Monster, object, artifact,
+ * character, etc.
+
+
+
+
+#
+# External modules used by the game
+#
 
 z-files.c
 /* File-handling functions
@@ -308,36 +368,11 @@ z-util.c
 z-virt.c
 /* Purpose: Memory management routines
 
-angband.h
-/* The basic include file.
 
-config.h
-/* Compilation options.
 
-defines.h
-/* Most everything that's in UPPERCASE is defined here.
 
-externs.h
-/* Global variable and function definitions.  A superb map of the code.
 
-h-basic.h
-* The most basic "include" file.
-
-h-config.h
- * Choose the hardware, operating system, and compiler.
- * Also, choose various "system level" compilation options.
-
-h-define.h
- * Define some simple constants
-
-h-system.h
- * Include the basic "system" files.
-
-h-type.h
- * Basic "types".
-
-types.h
-/* Definitions for a large number of types and arrays.  This file controls
- * what sort of data can go where.
-
+#
+# system-specific files except for "main.c" are not listed
+#
 

@@ -29,10 +29,12 @@ commands.
 
 ====== Command Descriptions ======
 
-     Command names are followed by one or two characters:  the first is that
+     Command names are followed by one or two characters:  The first is that
 used in the original keyset; the second, that used in the roguelike keyset (if
 different).
 
+
+--- Object commands ---
 
 Inventory list (i) :
      Display a list of objects in your backpack.
@@ -134,7 +136,7 @@ Toggle sneaking mode (S) / (#) :
 sneaking.  See the talent "sneaking" for more details.
 
 
---- Dungeon and Object Alteration Commands ---
+--- Dungeon Alteration Commands ---
 
 Tunnel (T) / (Ctrl-T) :
      Dig through barriers, mine treasure found in wall seams, and otherwise
@@ -370,10 +372,9 @@ Save (Ctrl-S) :
 autosave option) if you are paranoid about having your computer crash (or your
 power go out) while you are playing.
 
-Quit (commit suicide) (Q or Ctrl-K) :
-     Kill your character and exit the game.  You will be prompted to make sure
-you really want to do this, and then asked to verify that choice.  Note that
-dead characters are dead forever.
+Save and Quit, or Retire (Q or Ctrl-K) :
+     Save your character to file and exit the game.  If you have defeated 
+Morgoth, use this command to retire.
 
 
 --- Preferences Commands ---
@@ -394,11 +395,6 @@ Interact with colors (&) :
      Change the basic colors used by the game.  This command only works on some
 systems.  See the visuals section for more information.
 
-Interact with multimedia (!) :
-     Adjust sound volume, change between graphics and text, and any other things
-that the port of the game you are using allows.  This command only works on some
-systems.  See the visuals section for more information.
-
 
 --- Extra Commands ---
 
@@ -413,8 +409,16 @@ situations, such as after changing the visual preferences or changing display
 modes.
 
 Save screen shot (right-parenthesis) :
-     Save a "snap-shot" of the current screen to a file.  You may choose black
-and white text (for the newsgroup), or colored html (for other purposes).
+     Save a "snap-shot" of the current screen to a file.  You may choose "text"
+(plain text, most suitable for the newsgroup), "forum" (output with vBulletin
+markup codes which can be pasted into posts on the Angband Forum), or "html"
+(for websites and other purposes).  The screenshot will be saved in your user
+directory.
+     In some ports, you also have the option of taking graphical screenshots by
+typing the Print Screen key.  This has the disadvantage of producing larger
+image files, but the advantage of showing exactly what's on your screen
+(graphics, sub-windows and all) at any moment, even when the game is not waiting
+for a command.
 
 Repeat last command (Ctrl-V), also (n) / (') :
      Repeat the previous command, selecting the same objects, spells, etc., you
@@ -455,8 +459,6 @@ Windows-specific notes:
 run.  If you are playing a IBM port under Windows, and see what appear to be
 very strange colors, right-click on the executable, go to "Program Properties ->
 Screen -> Usage, and make sure that the program runs in full-screen mode.
-
-
 
 
 

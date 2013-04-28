@@ -4,15 +4,15 @@
  * Effects and extra information on individual food and mushrooms,
  * potions, scrolls, staffs, wands, and rods.  Chance to get extra object
  * information.  Use objects, use magical devices.  Activation effects
- * and extra information, activate an item, chance to get extra artifact
- * information.
+ * and extra information, activate an item.
  *
- * Copyright (c) 2002
+ * Copyright (c) 2007
  * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -80,11 +80,13 @@ cptr do_object(int mode, object_type *o_ptr)
 	int goat, dam, choice, i;
 
 	cptr extra = "";
-	char buf[80];
+	char buf[DESC_LEN];
+	char o_name[DESC_LEN];
 
-	/* Unused parameter */
-	(void)use;
 
+	/* Describe the (singular) object */
+	object_desc_plural = -1;
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 	/* In order to get the unaware bonus, an object must be unsensed too */
 	if ((!object_aware_p(o_ptr)) && (!(o_ptr->ident & (IDENT_SENSE))))
@@ -108,6 +110,9 @@ cptr do_object(int mode, object_type *o_ptr)
 
 	/* Goats can eat almost anything */
 	goat = (p_ptr->schange == SHAPE_GOAT);
+
+	/* Note action in saved messages */
+	if (use) msg_add(format("You eat %s.", o_name));
 
 	/* Analyze the food */
 	switch (o_ptr->sval)
@@ -216,7 +221,7 @@ cptr do_object(int mode, object_type *o_ptr)
 					dam = MIN(p_ptr->chp - 20, rand_range(80, 120));
 
 					(void)set_poisoned(p_ptr->poisoned + rand_range(150, 200));
-					take_hit(dam, 0, NULL, "a Mushroom of Envenomation");
+					if (take_hit(dam, 0, NULL, "a Mushroom of Envenomation")) break;
 
 					msg_print("You vomit and pass out!");
 					(void)set_food(p_ptr->food_starving - 1);
@@ -233,8 +238,8 @@ cptr do_object(int mode, object_type *o_ptr)
 					dam = MIN(p_ptr->chp - 5, rand_range(20, 30));
 
 					(void)set_poisoned(p_ptr->poisoned + rand_range(30, 45));
-					take_hit(dam, 0, NULL,
-						"a Mushroom of Envenomation");
+					if (take_hit(dam, 0, NULL,
+						"a Mushroom of Envenomation")) break;
 
 					obj_ident = TRUE;
 				}
@@ -266,7 +271,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				if (dam < 0) dam = 0;
 
 				/* Apply adjusted damage */
-				take_hit(dam, 0, NULL, "a Mushroom of Sickness");
+				(void)take_hit(dam, 0, NULL, "a Mushroom of Sickness");
 
 				obj_ident = TRUE;
 			}
@@ -297,7 +302,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				if (dam < 0) dam = 0;
 
 				/* Apply a bit of pure damage */
-				take_hit(dam, 0, NULL, "a Mushroom of Disease");
+				(void)take_hit(dam, 0, NULL, "a Mushroom of Disease");
 
 				obj_ident = TRUE;
 			}
@@ -324,7 +329,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				/* Do not kill the character */
 				dam = MIN(p_ptr->chp - 1, rand_range(50, 100));
 				if (dam < 0) dam = 0;
-				take_hit(dam, 0,
+				(void)take_hit(dam, 0,
 					"Your nerves and muscles feel weak and lifeless!",
 					"a Mushroom of Ruination");
 
@@ -590,7 +595,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			break;
 		}
 
-		case SV_FOOD_ARMOURING:
+		case SV_FOOD_ARMORING:
 		{
 			dur1 = (p_ptr->steelskin ?  1 : 20);
 			dur2 = (p_ptr->steelskin ? 20 : 40);
@@ -777,6 +782,12 @@ cptr do_object(int mode, object_type *o_ptr)
 	/*** Handle Potions ***/
 	do_potion:
 
+	/* Sound */
+	sound(MSG_QUAFF);
+
+	/* Note action in saved messages */
+	if (use) msg_add(format("You quaff %s.", o_name));
+
 	/* Analyze the potion */
 	switch (o_ptr->sval)
 	{
@@ -929,7 +940,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			/* Chance for permanent stat-loss if taken by surprise */
 			if ((!aware) && (one_in_(2)))
 			{
-				char buf2[80];
+				char buf2[DESC_LEN];
 
 				/* Get a (lowercase) description of this stat */
 				strcpy(buf2, flag_creation_data[stat].desc);
@@ -939,7 +950,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				msg_print("You feel a ruination spell acting on you...");
 
 				/* Build a sustain string */
-				sprintf(buf, "But your %s is sustained!", buf2);
+				(void)strnfmt(buf, sizeof(buf), "But your %s is sustained!", buf2);
 
 				/* Attempt to lower the stat */
 				if (do_dec_stat(stat, 1, TRUE, NULL, buf)) obj_ident = TRUE;
@@ -962,7 +973,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return (format("(damage %dd%d)", o_ptr->dd, o_ptr->ds));
 
 			/* Hurt, but do not (immediately) kill, the character */
-			take_hit(p_ptr->chp - 10, 0,
+			(void)take_hit(p_ptr->chp - 10, 0,
 				"Massive explosions rupture your body!",
 				"a potion of Detonations");
 
@@ -985,9 +996,6 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (!object_known_p(o_ptr)) pow =    0;
 			else                        pow = 5000;
 
-			/* Drain 25% exp (but not permanently) */
-			lose_exp(calc_spent_exp() / 4, FALSE);
-
 			/* Trash the stats (but not permanently) */
 			for (i = 0; i < A_MAX; i++) dec_stat(i, 1000, FALSE);
 
@@ -996,46 +1004,45 @@ cptr do_object(int mode, object_type *o_ptr)
 			wiz_dark(FALSE);
 
 			/* Hurt, possibly even kill, the character */
-			take_hit(p_ptr->chp + pow, 0,
+			(void)take_hit(p_ptr->chp + pow, 0,
 				"A feeling of Death flows through your body.",
 				"committing suicide.  That's right:  SUICIDE");
 
 			/* Character is still alive */
 			if (!p_ptr->is_dead)
 			{
-				int old_screen_rows = screen_rows;
-
-				/* Save screen */
-				screen_save();
+				/* Use the standard display and center an 80 column view */
+				display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX,
+					80, 0);
 
 				/* Hack -- Pretend to be dead */
 				p_ptr->is_dead = TRUE;
 				strcpy(p_ptr->died_from, "a potion of Death");
 
+				/* Request appropriate music */
+				music(MUSIC_DEATH + 100);
+
+				/* Fake prompt */
+				center_string(buf, sizeof(buf),
+					"[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]",
+					display_width());
+
 				/* Display the tombstone */
 				print_tomb();
-				move_cursor(26, 0);
+
+				/* Hide the cursor */
+				inkey_cursor_hack[TERM_MAIN] = -1;
 
 				/* Wait patiently */
-				(void)inkey();
+				(void)inkey(ALLOW_CLICK);
 
 				/* Hack -- Stop pretending to be dead */
 				p_ptr->is_dead = FALSE;
 				strcpy(p_ptr->died_from, "(alive and well)");
 
-				/* Restore screen */
-				screen_load();
 
-				/* Reset screen rows */
-				screen_rows = old_screen_rows;
-				if (screen_rows != 50)
-				{
-					(void)Term_rows(FALSE);
-				}
-				else
-				{
-					(void)Term_rows(TRUE);
-				}
+				/* Restore previous display */
+				display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 				/* Redraw everything */
 				do_cmd_redraw();
@@ -1043,8 +1050,12 @@ cptr do_object(int mode, object_type *o_ptr)
 				/* Saved! */
 				if (msg)
 				{
+					/* Request appropriate music */
+					danger_music_level(TRUE);
+
+					/* Message */
 					message_flush();
-					message(MSG_L_BLUE, 1000, "You are, apparently, reserved for a different fate.");
+					message(MSG_L_BLUE, 500, "You are, apparently, reserved for a different fate.");
 				}
 			}
 
@@ -1383,7 +1394,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return ("");
 
 			msg_print("An image of your surroundings forms in your mind...");
-			wiz_lite(FALSE);
+			wiz_lite(FALSE, TRUE);
 			obj_ident = TRUE;
 			break;
 		}
@@ -1394,7 +1405,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			set_self_knowledge(p_ptr->self_knowledge + 10,
 				"You begin to feel more enlightened...");
 
-			wiz_lite(TRUE);
+			wiz_lite(TRUE, TRUE);
 			msg_print("You suddenly see a vision of the entire dungeon!");
 
 			(void)do_inc_stat(A_INT, (aware ? 1 : 2), NULL);
@@ -1413,6 +1424,8 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			set_self_knowledge(p_ptr->self_knowledge + (aware ? 4 : 8),
 				"You begin to know yourself a little better...");
+			self_knowledge(TRUE);
+			if (!msg) msg_print("While the effects last, you may type '~', option 8 to examine your attributes.");
 			obj_ident = TRUE;
 			break;
 		}
@@ -1479,6 +1492,9 @@ cptr do_object(int mode, object_type *o_ptr)
 	/*** Handle Scrolls ***/
 	do_scroll:
 
+	/* Note action in saved messages */
+	if (use) msg_add(format("You read %s.", o_name));
+
 	/* Analyze the scroll */
 	switch (o_ptr->sval)
 	{
@@ -1525,6 +1541,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
+			sound(MSG_SUM_MONSTER);
 			if (summon_specific(py, px, FALSE, p_ptr->depth + 2, 0,
 				rand_range(3, 5)))
 			{
@@ -1537,6 +1554,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
+			sound(MSG_SUM_UNDEAD);
 			if (summon_specific(py, px, FALSE, p_ptr->depth + 3,
 				SUMMON_UNDEAD, rand_range(2, 3)))
 			{
@@ -1555,7 +1573,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				obj_ident = TRUE;
 			}
 
-			msg_print("Fiery, twisted forms emerge from the darkness!");
+			message(MSG_SUM_DEMON, 0, "Fiery, twisted forms emerge from the darkness!");
 
 			if (summon_specific(py, px, FALSE,
 				MAX(p_ptr->depth, p_ptr->max_depth) + 3, SUMMON_HI_DEMON, 6))
@@ -2197,8 +2215,13 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 	/* Determine device skill (0 to 100) */
 	int power = get_skill(S_DEVICE, 0, 100);
 
-	char buf[80];
+	char buf[DESC_LEN];
+	char o_name[DESC_LEN];
 
+
+	/* Describe the (singular) object */
+	object_desc_plural = -1;
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 	/* Unknown wands and rods always need to be "used in a direction" */
 	if ((use) && (!uncontrolled) && (!aware) &&
@@ -2207,9 +2230,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 		if (!get_aim_dir(&dir)) return ("");
 		need_dir = FALSE;
 	}
-
-	/* Sound */
-	if (use) sound(MSG_ZAP);
 
 	/* Jump to the right category of item */
 	if      (o_ptr->tval == TV_STAFF) goto do_staff;
@@ -2220,6 +2240,12 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 	/*** Handle Staffs ***/
 	do_staff:
+
+	/* Sound */
+	if (use) sound(MSG_USE_STAFF);
+
+	/* Note action in saved messages */
+	if (use) msg_add(format("You use %s.", o_name));
 
 	/* Analyze the staff */
 	switch (o_ptr->sval)
@@ -2264,6 +2290,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("");
 			if (use)
 			{
+				sound(MSG_SUM_MONSTER);
 				if (summon_specific(py, px, FALSE, p_ptr->depth + 3, 0, randint(4)))
 				{
 					*ident = TRUE;
@@ -2637,6 +2664,8 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 	/*** Handle Wands ***/
 	do_wand:
 
+	/* Note action in saved messages */
+	if (use) msg_add(format("You aim %s.", o_name));
 
 	/* XXX Hack -- Wand of wonder can do anything before it */
 	if ((use) && (sval == SV_WAND_WONDER))
@@ -2659,6 +2688,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (heal_monster(dir, damroll(p_ptr->depth, 5))) *ident = TRUE;
 			}
 			break;
@@ -2670,6 +2700,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (speed_monster(dir)) *ident = TRUE;
 			}
 			break;
@@ -2681,6 +2712,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (clone_monster(dir)) *ident = TRUE;
 			}
 			break;
@@ -2692,6 +2724,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (teleport_monster(dir)) *ident = TRUE;
 			}
 			break;
@@ -2703,6 +2736,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (disarm_trap(dir)) *ident = TRUE;
 			}
 			break;
@@ -2714,6 +2748,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (force_door(dir)) *ident = TRUE;
 			}
 			break;
@@ -2728,6 +2763,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (wall_to_mud(dir, rand_range(dam1, dam2))) *ident = TRUE;
 			}
 			break;
@@ -2739,6 +2775,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				msg_print("A line of golden light appears.");
 				lite_line(dir);
 				*ident = TRUE;
@@ -2752,6 +2789,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (sleep_monster(dir, get_skill(S_DEVICE, 25, 80)))
 					*ident = TRUE;
 			}
@@ -2764,6 +2802,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (slow_monster(dir, get_skill(S_DEVICE, 25, 80)))
 					*ident = TRUE;
 			}
@@ -2776,6 +2815,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (confuse_monster(dir, get_skill(S_DEVICE, 25, 80)))
 					*ident = TRUE;
 			}
@@ -2788,6 +2828,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (fear_monster(dir, get_skill(S_DEVICE, 30, 80)))
 					*ident = TRUE;
 			}
@@ -2800,6 +2841,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (poly_monster(dir, get_skill(S_DEVICE, 35, 100)))
 					*ident = TRUE;
 			}
@@ -2814,6 +2856,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				(void)fire_ball(GF_POIS, dir, dam, 2);
 				*ident = TRUE;
 			}
@@ -2828,6 +2871,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				(void)fire_bolt_or_beam(10, GF_MANA, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
@@ -2842,6 +2886,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				(void)fire_bolt_or_beam(power / 2, GF_ACID, dir,
 					damroll(dice, sides));
 				*ident = TRUE;
@@ -2857,6 +2902,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				(void)fire_bolt_or_beam(power / 2, GF_ELEC, dir,
 					damroll(dice, sides));
 				*ident = TRUE;
@@ -2872,8 +2918,10 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				(void)fire_bolt_or_beam(power / 2, GF_FIRE, dir,
 					damroll(dice, sides));
+
 				*ident = TRUE;
 			}
 			break;
@@ -2887,6 +2935,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				(void)fire_bolt_or_beam(power / 2, GF_COLD, dir,
 					damroll(dice, sides));
 				*ident = TRUE;
@@ -2902,6 +2951,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				(void)fire_ball(GF_ACID, dir, dam, 3);
 				*ident = TRUE;
 			}
@@ -2916,6 +2966,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				(void)fire_ball(GF_ELEC, dir, dam, 3);
 				*ident = TRUE;
 			}
@@ -2930,6 +2981,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				(void)fire_ball(GF_FIRE, dir, dam, 3);
 				*ident = TRUE;
 			}
@@ -2944,6 +2996,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				(void)fire_ball(GF_COLD, dir, dam, 3);
 				*ident = TRUE;
 			}
@@ -2968,6 +3021,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (drain_life(dir, dam)) *ident = TRUE;
 			}
 			break;
@@ -2981,6 +3035,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (msg) msg_print("A black orb shoots out from your wand!");
 				if (drain_life(dir, dam)) *ident = TRUE;
 			}
@@ -2995,8 +3050,9 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (msg) msg_print("Dragonfire!");
-				(void)fire_arc(GF_FIRE, dir, dam, 7, 90);
+				(void)fire_arc(GF_FIRE, dir, dam, 7, 70);
 				*ident = TRUE;
 			}
 			break;
@@ -3010,8 +3066,9 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (msg) msg_print("Dragonfrost!");
-				(void)fire_arc(GF_COLD, dir, dam, 7, 90);
+				(void)fire_arc(GF_COLD, dir, dam, 7, 20);
 				*ident = TRUE;
 			}
 			break;
@@ -3027,14 +3084,14 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 				int tmp = randint(5);
 
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-
+				sound(MSG_AIM_WAND);
 				if (msg) msg_print("Dragon's breath!");
 
-				if (tmp == 1) (void)fire_arc(GF_ACID, dir, dam + 20, 9,  90);
-				if (tmp == 2) (void)fire_arc(GF_ELEC, dir, dam     , 9,  90);
-				if (tmp == 3) (void)fire_arc(GF_COLD, dir, dam + 10, 9,  90);
-				if (tmp == 4) (void)fire_arc(GF_FIRE, dir, dam + 30, 9,  90);
-				if (tmp == 5) (void)fire_arc(GF_POIS, dir, dam + 20, 7, 120);
+				if (tmp == 1) (void)fire_arc(GF_ACID, dir, dam + 20, 9, 70);
+				if (tmp == 2) (void)fire_arc(GF_ELEC, dir, dam     , 9, 70);
+				if (tmp == 3) (void)fire_arc(GF_COLD, dir, dam + 10, 9, 70);
+				if (tmp == 4) (void)fire_arc(GF_FIRE, dir, dam + 30, 9, 70);
+				if (tmp == 5) (void)fire_arc(GF_POIS, dir, dam + 20, 7, 100);
 
 				*ident = TRUE;
 			}
@@ -3050,6 +3107,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 				if (msg) msg_print("Pure mana streams out from your wand!");
 				(void)fire_beam(GF_MANA, dir, damroll(dice, sides));
 				*ident = TRUE;
@@ -3073,6 +3131,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 				/* Get direction */
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
 
 				/* Clone monster a few times */
 				if (choice == 1)
@@ -3219,12 +3278,27 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 					{
 						msg_format("The wand breathes %s.", typ_desc);
 						fire_arc(typ, dir, dam, 3 + dam / 30,
-							rand_range(30, 60));
+							rand_range(40, 80));
 					}
 
 					/* Notice */
 					*ident = TRUE;
 				}
+			}
+			break;
+		}
+
+		case SV_WAND_SPARK:
+		{
+			dice = 1;    sides = get_skill(S_DEVICE, 6, 24);
+
+			if (info) return (format("(damage: %dd%d)", dice, sides));
+			if (use)
+			{
+				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_AIM_WAND);
+				(void)fire_arc(GF_ELEC, dir, damroll(dice, sides), 3, 0);
+				*ident = TRUE;
 			}
 			break;
 		}
@@ -3241,8 +3315,11 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 	/*** Handle Rods ***/
 	do_rod:
 
+	/* Note action in saved messages */
+	if (use) msg_add(format("You zap %s.", o_name));
+
 	/* Display time to recharge */
-	sprintf(buf, "every %d turns", k_ptr->pval);
+	(void)strnfmt(buf, sizeof(buf), "every %d turns", k_ptr->pval);
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
@@ -3252,6 +3329,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				if (detect_traps(FALSE, aware)) *ident = TRUE;
 			}
 			break;
@@ -3262,6 +3340,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				if (detect_doors(FALSE)) *ident = TRUE;
 				if (detect_stairs(FALSE)) *ident = TRUE;
 			}
@@ -3273,6 +3352,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				*ident = TRUE;
 				if ((uncontrolled) || (!ident_spell())) return ("");
 			}
@@ -3284,6 +3364,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				recall_player();
 				*ident = TRUE;
 			}
@@ -3295,6 +3376,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				if (lite_area(damroll(2, 8), 2)) *ident = TRUE;
 			}
 			break;
@@ -3305,6 +3387,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				map_area(0, 0, FALSE);
 				*ident = TRUE;
 			}
@@ -3316,6 +3399,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				if (probing()) *ident = TRUE;
 			}
 			break;
@@ -3326,6 +3410,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				if (set_blind(0, NULL)) *ident = TRUE;
 				if (set_poisoned(0)) *ident = TRUE;
 				if (set_diseased(p_ptr->diseased / 2 - 5, NULL)) *ident = TRUE;
@@ -3344,6 +3429,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("(heal about %d%%, cure cuts and stunning) %s", pow, buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				if (heal_player(pow, pow * 5)) *ident = TRUE;
 				if (set_stun(0)) *ident = TRUE;
 				if (set_cut(0)) *ident = TRUE;
@@ -3356,6 +3442,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				if (restore_level()) *ident = TRUE;
 				if (restore_stats()) *ident = TRUE;
 			}
@@ -3372,6 +3459,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("(duration: %d-%d%s) %s", dur1, dur2, extra, buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				if (set_fast(p_ptr->fast + rand_range(dur1, dur2)))
 					*ident = TRUE;
 			}
@@ -3384,6 +3472,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				if (teleport_monster(dir)) *ident = TRUE;
 			}
 			break;
@@ -3395,6 +3484,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				if (disarm_trap(dir)) *ident = TRUE;
 			}
 			break;
@@ -3406,6 +3496,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				msg_print("A line of golden light appears.");
 				lite_line(dir);
 				*ident = TRUE;
@@ -3418,6 +3509,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
+				sound(MSG_ZAP_ROD);
 				teleport_player(10, TRUE, FALSE);
 				*ident = TRUE;
 			}
@@ -3430,6 +3522,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 
 				/* Assume that spell does not succeed */
 				p_ptr->came_hither = 0;
@@ -3440,7 +3533,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 				/* The spell succeeded and the character isn't blind */
 				if ((p_ptr->came_hither) && (!p_ptr->blind))
 				{
-					char name[80];
+					char name[DESC_LEN];
 
 					/* Get the monster */
 					monster_type *m_ptr = &m_list[p_ptr->came_hither];
@@ -3469,6 +3562,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				if (drain_life(dir, dam)) *ident = TRUE;
 			}
 			break;
@@ -3480,6 +3574,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				if (poly_monster(dir, get_skill(S_DEVICE, 35, 100)))
 					*ident = TRUE;
 			}
@@ -3494,6 +3589,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				(void)fire_bolt_or_beam(10, GF_ACID, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
@@ -3508,6 +3604,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				(void)fire_bolt_or_beam(10, GF_ELEC, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
@@ -3522,6 +3619,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				(void)fire_bolt_or_beam(10, GF_FIRE, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
@@ -3536,6 +3634,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				(void)fire_bolt_or_beam(10, GF_COLD, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
@@ -3550,6 +3649,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				(void)fire_ball(GF_ACID, dir, dam, 1);
 				*ident = TRUE;
 			}
@@ -3564,6 +3664,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				(void)fire_ball(GF_ELEC, dir, dam, 1);
 				*ident = TRUE;
 			}
@@ -3578,6 +3679,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				(void)fire_ball(GF_FIRE, dir, dam, 1);
 				*ident = TRUE;
 			}
@@ -3592,6 +3694,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				(void)fire_ball(GF_COLD, dir, dam, 1);
 				*ident = TRUE;
 			}
@@ -3606,6 +3709,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				if (msg) msg_print("A great spark shoots out from your rod!");
 
 				(void)fire_bolt(GF_ELEC, dir, damroll(dice, sides));
@@ -3622,6 +3726,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				if (msg) msg_print("A massive bolt of frost shoots out from your rod!");
 
 				(void)fire_bolt(GF_COLD, dir, damroll(dice, sides));
@@ -3638,6 +3743,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				if (msg) msg_print("A blazing bolt shoots out from your rod!");
 
 				(void)fire_bolt(GF_FIRE, dir, damroll(dice, sides));
@@ -3654,6 +3760,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
+				sound(MSG_ZAP_ROD);
 				if (msg) msg_print("Black, deadly acid shoots out from your rod!");
 
 				(void)fire_bolt(GF_ACID, dir, damroll(dice, sides));
@@ -3682,7 +3789,7 @@ void learn_details(object_type *o_ptr)
 	int skill;
 	int odds = 0;
 
-	char o_name[120];
+	char o_name[DESC_LEN];
 
 	/* Require known object */
 	if (!object_known_p(o_ptr)) return;
@@ -3732,7 +3839,7 @@ void learn_details(object_type *o_ptr)
 			object_desc_plural = 1;
 
 			/* Describe the object */
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 			/* Message */
 			msg_format("You feel you know more about %s.", o_name);
@@ -3753,6 +3860,11 @@ static bool can_read_scroll(void)
 		msg_print("You can't see anything.");
 		return (FALSE);
 	}
+	if (no_light())
+	{
+		msg_print("You have no light to read by.");
+		return (FALSE);
+	}
 	if (p_ptr->confused)
 	{
 		msg_print("You are too confused!");
@@ -3760,80 +3872,6 @@ static bool can_read_scroll(void)
 	}
 	return (TRUE);
 }
-
-/*
- * Determine whether a scroll can be read in the dark
- *
- */
-
-extern bool dark_read_scroll(int sval)
-{
-	switch(sval)
-	{
-	/* Escape, detection, summoning, necromatic scrolls still allowed */
-	case SV_SCROLL_DARKNESS:
-	case SV_SCROLL_AGGRAVATE_MONSTER:
-	case SV_SCROLL_SUMMON_MONSTER:
-	case SV_SCROLL_SUMMON_UNDEAD:
-	case SV_SCROLL_SUMMON_DEMONS:
-	case SV_SCROLL_TRAP_CREATION:
-	case SV_SCROLL_PHASE_DOOR:
-	case SV_SCROLL_TELEPORT:
-	case SV_SCROLL_TELEPORT_LEVEL:
-	case SV_SCROLL_WORD_OF_RECALL:
-	case SV_SCROLL_LIGHT:
-	case SV_SCROLL_MAPPING:
-	case SV_SCROLL_DETECT_GOLD:
-	case SV_SCROLL_DETECT_ITEM:
-	case SV_SCROLL_DETECT_TRAP:
-	case SV_SCROLL_DETECT_DOOR:
-	case SV_SCROLL_DETECT_INVIS:
-	case SV_SCROLL_GENOCIDE:
-	case SV_SCROLL_MASS_GENOCIDE:
-	case SV_SCROLL_ALTER_REALITY:
-	case SV_SCROLL_NIGHTFALL:
-	case SV_SCROLL_QUESTING:
-		return (TRUE);
-
-	/* Other scrolls not allowed */
-	case SV_SCROLL_ACQUIREMENT:
-	case SV_SCROLL_STAR_ACQUIREMENT:
-	case SV_SCROLL_MADNESS:
-	case SV_SCROLL_TREES:
-	case SV_SCROLL_WATER:
-	case SV_SCROLL_LAVA:
-	case SV_SCROLL_CURSE_ARMOR:
-	case SV_SCROLL_CURSE_WEAPON:
-	case SV_SCROLL_IDENTIFY:
-	case SV_SCROLL_STAR_IDENTIFY:
-	case SV_SCROLL_REMOVE_CURSE:
-	case SV_SCROLL_STAR_REMOVE_CURSE:
-	case SV_SCROLL_ENCHANT_ARMOR:
-	case SV_SCROLL_ENCHANT_WEAPON_TO_HIT:
-	case SV_SCROLL_ENCHANT_WEAPON_TO_DAM:
-	case SV_SCROLL_STAR_ENCHANT_ARMOR:
-	case SV_SCROLL_STAR_ENCHANT_WEAPON:
-	case SV_SCROLL_RECHARGING:
-	case SV_SCROLL_STAR_RECHARGING:
-	case SV_SCROLL_ELEMENTAL_ATTACKS:
-	case SV_SCROLL_LEARN_MAGIC:
-	case SV_SCROLL_SATISFY_HUNGER:
-	case SV_SCROLL_BLESSING:
-	case SV_SCROLL_HOLY_CHANT:
-	case SV_SCROLL_HOLY_PRAYER:
-	case SV_SCROLL_MONSTER_CONFUSION:
-	case SV_SCROLL_PROTECTION_FROM_EVIL:
-	case SV_SCROLL_RUNE_OF_PROTECTION:
-	case SV_SCROLL_FORCE_DOOR:
-	case SV_SCROLL_STAR_DESTRUCTION:
-	case SV_SCROLL_POISON_CLOUD:
-	case SV_SCROLL_NEXUS_STORM:
-		return (FALSE);
-	default:
-		return (FALSE);
-	}
-}
-
 
 
 /*
@@ -3856,6 +3894,7 @@ static bool item_tester_hook_quaff(const object_type *o_ptr)
 	/* Nope. */
 	return (FALSE);
 }
+
 
 /*
  * Eat some food, quaff a potion, or read a scroll
@@ -3938,17 +3977,7 @@ void use_object(int tval)
 	}
 	else if (o_ptr->tval == TV_SCROLL)
 	{
-		if (no_light())
-		{
-			if(!dark_read_scroll(o_ptr->sval))
-			{
-				msg_format("You can't see this scroll to read it!");
-				if(object_known_p(o_ptr))	p_ptr->energy_use = 0;
-				else p_ptr->energy_use = 100;
-				obj_used_up = FALSE;
-				return;
-			}
-		}
+		/* No sound effect */
 	}
 
 
@@ -4005,7 +4034,7 @@ void use_object(int tval)
 		if (!aware && k_ptr->flavor)
 		{
 			int skill;
-			char o_name[80];
+			char o_name[DESC_LEN];
 
 			/* Describe the usage */
 			cptr p = "are using";
@@ -4019,7 +4048,7 @@ void use_object(int tval)
 			object_desc_flavour = -1;
 
 			/* Describe the object (briefly) */
-			object_desc(o_name, o_ptr, TRUE, 0);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 
 			/* Choose a skill to practice */
@@ -4090,7 +4119,7 @@ void use_object(int tval)
 		(void)set_food(p_ptr->food + o_ptr->pval);
 	}
 
-	/* Potions can feed the player */
+	/* Potions can usually feed the player */
 	else if (tval == TV_POTION)
 	{
 		if (o_ptr->sval != SV_POTION_GRENADE)
@@ -4216,7 +4245,6 @@ int device_chance(const object_type *o_ptr)
 	if (skill < lev) chance = MAX(0, 20 + skill - lev);
 	else             chance = 20 + rsqrt((skill - lev) * 256);
 
-
 	/* Confusion or hallucination makes things harder */
 	if ((p_ptr->confused) || (p_ptr->image)) chance /= 2;
 
@@ -4281,13 +4309,29 @@ void use_device(int tval)
 	}
 	else if (tval == TV_WAND)
 	{
-		q = "Aim which wand?";
-		s = "You have no wand to aim.";
+		if (rogue_like_commands)
+		{
+			q = "Zap which wand?";
+			s = "You have no wand to zap.";
+		}
+		else
+		{
+			q = "Aim which wand?";
+			s = "You have no wand to aim.";
+		}
 	}
 	else if (tval == TV_ROD)
 	{
-		q = "Zap which rod?";
-		s = "You have no rod to zap.";
+		if (rogue_like_commands)
+		{
+			q = "Aim which rod?";
+			s = "You have no rod to aim.";
+		}
+		else
+		{
+			q = "Zap which rod?";
+			s = "You have no rod to zap.";
+		}
 	}
 	else
 	{
@@ -4479,7 +4523,7 @@ void use_device(int tval)
 		/* Newly learnt object */
 		if (!object_aware_p(o_ptr))
 		{
-			char o_name[120];
+			char o_name[DESC_LEN];
 
 			/* Become aware of the object's effects */
 			object_aware(o_ptr);
@@ -4489,7 +4533,7 @@ void use_device(int tval)
 			object_desc_flavour = -1;
 
 			/* Describe the object (briefly) */
-			object_desc(o_name, o_ptr, TRUE, 0);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 
 			/* Gain experience - unsensed (or uncertain) device */
@@ -4710,7 +4754,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("The stone glows a deep green...");
 
-				wiz_lite(FALSE);
+				wiz_lite(FALSE, TRUE);
 				(void)detect_traps(TRUE, TRUE);
 				(void)detect_doors(TRUE);
 				(void)detect_stairs(TRUE);
@@ -4921,7 +4965,11 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("Your armor glows deep blue...");
 
-				(void)genocide(0);
+				if (!genocide(0))
+				{
+					/* Only use object up if genocide goes off */
+					obj_used_up = FALSE;
+				}
 			}
 			break;
 		}
@@ -5414,7 +5462,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 				if (p_ptr->realm == NECRO)
 				{
-					take_hit(randint(100), 0, "Your black soul is hit!",
+					(void)take_hit(randint(100), 0, "Your black soul is hit!",
 						"a self-inflicted dispel evil spell");
 				}
 			}
@@ -5643,7 +5691,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				msg_print("You strike your mace against the ground...");
 
 				destroy_area(py, px, 15, TRUE, FALSE);
-				take_hit(damroll(5, 10), 0, "It hurts!", "activating Skullcleaver");
+				(void)take_hit(damroll(5, 10), 0, "It hurts!", "activating Skullcleaver");
 			}
 			break;
 		}
@@ -5833,7 +5881,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (info) return (format("acid storm (damage %d) every %d turns", dam, timeout));
 			if (act)
 			{
-				msg_print("A tornado of acid melts armour and flesh!");
+				msg_print("A tornado of acid melts armor and flesh!");
 
 				fire_ball_special(GF_ACID, 0, dam, 3, 0L, 20);
 			}
@@ -5970,7 +6018,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 				if (p_ptr->realm == NECRO)
 				{
-					take_hit(25, 0, "Your black soul is hit!", "struck down by Good");
+					(void)take_hit(25, 0, "Your black soul is hit!", "struck down by Good");
 				}
 			}
 			break;
@@ -6304,7 +6352,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 				if (one_in_(2))
 				{
-					take_hit(damroll(1, 12), 0,
+					(void)take_hit(damroll(1, 12), 0,
 						"Your wild movements exhaust you!", "danced to death");
 				}
 			}
@@ -6696,6 +6744,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				set_self_knowledge(p_ptr->self_knowledge + 3,
 					"You begin to know yourself a little better...");
+				self_knowledge(TRUE);
 			}
 			break;
 		}
@@ -6988,8 +7037,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				msg_print("You breathe acid.");
-				fire_arc(GF_ACID, dir, dam, 10, 40);
+				message(MSG_BR_ACID, 0, "You breathe acid.");
+				fire_arc(GF_ACID, dir, dam, 10, 50);
 			}
 			break;
 		}
@@ -7004,8 +7053,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				msg_print("You breathe lightning.");
-				fire_arc(GF_ELEC, dir, dam, 10, 40);
+				message(MSG_BR_ELEC, 0, "You breathe lightning.");
+				fire_arc(GF_ELEC, dir, dam, 10, 50);
 			}
 			break;
 		}
@@ -7020,8 +7069,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				msg_print("You breathe frost.");
-				fire_arc(GF_COLD, dir, dam, 10, 40);
+				message(MSG_BR_FROST, 0, "You breathe frost.");
+				fire_arc(GF_COLD, dir, dam, 10, 50);
 			}
 			break;
 		}
@@ -7036,8 +7085,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				msg_print("You breathe fire.");
-				fire_arc(GF_FIRE, dir, dam, 10, 40);
+				message(MSG_BR_FIRE, 0, "You breathe fire.");
+				fire_arc(GF_FIRE, dir, dam, 10, 50);
 			}
 			break;
 		}
@@ -7052,8 +7101,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				msg_print("You breathe poison.");
-				fire_arc(GF_POIS, dir, dam, 10, 60);
+				message(MSG_BR_GAS, 0, "You breathe poison.");
+				fire_arc(GF_POIS, dir, dam, 10, 80);
 			}
 			break;
 		}
@@ -7068,16 +7117,20 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 				chance = rand_int(5);
+				sound(   ((chance == 1) ? MSG_BR_ELEC :
+				          ((chance == 2) ? MSG_BR_FROST :
+				           ((chance == 3) ? MSG_BR_ACID :
+				            ((chance == 4) ? MSG_BR_GAS : MSG_BR_FIRE)))));
 				msg_format("You breathe %s.",
-						((chance == 1) ? "lightning" :
-						((chance == 2) ? "frost" :
-						((chance == 3) ? "acid" :
-						((chance == 4) ? "poison gas" : "fire")))));
+						 ((chance == 1) ? "lightning" :
+						  ((chance == 2) ? "frost" :
+						  ((chance == 3) ? "acid" :
+						   ((chance == 4) ? "poison gas" : "fire")))));
 				fire_arc(((chance == 1) ? GF_ELEC :
-						((chance == 2) ? GF_COLD :
-						((chance == 3) ? GF_ACID :
-						((chance == 4) ? GF_POIS : GF_FIRE)))),
-						dir, dam, 10, 40);
+						  ((chance == 2) ? GF_COLD :
+						   ((chance == 3) ? GF_ACID :
+						    ((chance == 4) ? GF_POIS : GF_FIRE)))),
+						dir, dam, 10, 50);
 			}
 			break;
 		}
@@ -7093,10 +7146,11 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				if (!get_aim_dir(&dir)) return ("");
 
 				chance = rand_int(2);
+				sound(chance == 0 ? MSG_BR_LIGHT : MSG_BR_DARK);
 				msg_format("You breathe %s.",
 						  ((chance == 0 ? "light" : "darkness")));
 				fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir,
-						dam, 10, 40);
+						dam, 10, 50);
 			}
 			break;
 		}
@@ -7126,8 +7180,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				msg_print("You breathe confusion.");
-				fire_arc(GF_CONFUSION, dir, dam, 10, 40);
+				message(MSG_BR_CONF, 0, "You breathe confusion.");
+				fire_arc(GF_CONFUSION, dir, dam, 10, 50);
 			}
 			break;
 		}
@@ -7142,8 +7196,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				msg_print("You breathe sound.");
-				fire_arc(GF_SOUND, dir, dam, 10, 40);
+				message(MSG_BR_SOUND, 0, "You breathe sound.");
+				fire_arc(GF_SOUND, dir, dam, 10, 65);
 			}
 			break;
 		}
@@ -7159,10 +7213,11 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				if (!get_aim_dir(&dir)) return ("");
 
 				chance = rand_int(3);
+				sound(chance != 0 ? MSG_BR_CHAOS : MSG_BR_DISENCHANT);
 				msg_format("You breathe %s.",
 					((chance != 0 ? "chaos" : "disenchantment")));
-				fire_arc((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-						dir, dam, 10, 40);
+				fire_arc((chance != 0 ? GF_CHAOS : GF_DISENCHANT),
+						dir, dam, 10, 50);
 			}
 			break;
 		}
@@ -7178,10 +7233,11 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				if (!get_aim_dir(&dir)) return ("");
 
 				chance = rand_int(2);
+				sound(chance == 1 ? MSG_BR_SOUND : MSG_BR_SHARDS);
 				msg_format("You breathe %s.",
 					((chance == 1 ? "sound" : "shards")));
 				fire_arc((chance == 1 ? GF_SOUND : GF_SHARD),
-						dir, dam, 10, 40);
+						dir, dam, 10, 50);
 			}
 			break;
 		}
@@ -7197,14 +7253,17 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				if (!get_aim_dir(&dir)) return ("");
 
 				chance = rand_int(4);
+				sound(   ((chance == 1) ? MSG_BR_CHAOS :
+				          ((chance == 2) ? MSG_BR_DISENCHANT :
+				           ((chance == 3) ? MSG_BR_SOUND : MSG_BR_SHARDS))));
 				msg_format("You breathe %s.",
-					((chance == 1) ? "chaos" :
-						((chance == 2) ? "disenchantment" :
-						((chance == 3) ? "sound" : "shards"))));
+				         ((chance == 1) ? "chaos" :
+				          ((chance == 2) ? "disenchantment" :
+				           ((chance == 3) ? "sound" : "shards"))));
 				fire_arc(((chance == 1) ? GF_CHAOS :
-						((chance == 2) ? GF_DISENCHANT :
-						((chance == 3) ? GF_SOUND : GF_SHARD))),
-						dir, 210, 10, 40);
+				          ((chance == 2) ? GF_DISENCHANT :
+				           ((chance == 3) ? GF_SOUND : GF_SHARD))),
+						dir, 210, 10, 50);
 			}
 			break;
 		}
@@ -7219,8 +7278,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				msg_print("You breathe the elements.");
-				fire_arc(GF_MANA, dir, dam, 10, 40);
+				message(MSG_BR_ELEMENTS, 0, "You breathe the elements.");
+				fire_arc(GF_MANA, dir, dam, 10, 50);
 			}
 			break;
 		}
@@ -7250,7 +7309,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 /*
  * Activate a wielded object.
  *
- * The player has a (4%) chance to learn more about any dragon armour
+ * The player has a (4%) chance to learn more about any dragon armor
  * activation.  If he does, detailed information about it will appear
  * when the item is 'I'nspected.  -LM-
  *
@@ -7291,11 +7350,11 @@ void do_cmd_activate(void)
 	/* Note total lack of chance */
 	if (chance <= 0)
 	{
-		char o_name[80];
+		char o_name[DESC_LEN];
 
 		/* Describe the object briefly (without the flavour) */
 		object_desc_flavour = -1;
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 		/* Message */
 		msg_format("You have no idea how to get the %s to work.", o_name);
@@ -7344,12 +7403,6 @@ void do_cmd_activate(void)
 	/* Check the recharge */
 	if (o_ptr->timeout)
 	{
-		/* Since whether or not an item is recharging is known,
-		 * failing does not take energy
-		 */
-		p_ptr->energy_use = 0;
-
-
 		/* Getting greedy with the One Ring is a bad mistake. */
 		if (o_ptr->activate == ACTIV_POWER)
 		{
@@ -7369,11 +7422,14 @@ void do_cmd_activate(void)
 			lose_exp(calc_spent_exp() / 5, TRUE);
 
 			check_experience();
-			p_ptr->energy_use = 100;
 		}
 
-		/* Other items just fail */
-		msg_print("It whines, glows and fades...");
+		/* Other items just fail (but you don't lose your turn) */
+		else
+		{
+			msg_print("It whines, glows and fades...");
+			p_ptr->energy_use = 0;
+		}
 
 		/* Optional delay */
 		if (delay_failure) pause_for(250);
@@ -7383,7 +7439,7 @@ void do_cmd_activate(void)
 
 
 	/* Wonder Twin Powers... Activate! */
-	message(MSG_ZAP, 0, "You activate it...");
+	message(MSG_ACT_ARTIFACT, 0, "You activate it...");
 
 	/* Practice the device skill */
 	skill_being_used = S_DEVICE;
@@ -7423,7 +7479,7 @@ void do_cmd_activate(void)
 	if ((object_known_p(o_ptr)) &&
 	    (!(k_ptr->special & (SPECIAL_KNOWN_EFFECT))))
 	{
-		/* Any weapon or armour is easy to learn */
+		/* Any weapon or armor is easy to learn */
 		if (is_wargear(o_ptr))
 		{
 			chance = get_skill(S_PERCEPTION, 20, 70);
@@ -7466,10 +7522,10 @@ void do_cmd_activate(void)
 			/* An artifact */
 			else
 			{
-				char o_name[120];
+				char o_name[DESC_LEN];
 
 				/* Get a description */
-				object_desc(o_name, o_ptr, FALSE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 				msg_format("You feel you know more about the %s.", o_name);
 			}

@@ -17,9 +17,9 @@ will never choose the wrong book.  Similar inscriptions make archery very
 convenient, and allow you to always use a given magical device with the same
 keystrokes.
 
-     In general, if you inscribe anything with @<<any command>><<any
-character>>, you can issue the command, and type the character, to use the first
-legal inscribed object.
+     In general, if you inscribe anything with @{any command}{any character},
+you can issue the command, and type the character, to use the first legal
+inscribed object.
 
 To automatically use a given object with a given command:
      Inscribe the object with "@X*", where 'X' is the letter of that command in
@@ -60,7 +60,7 @@ will disappear when the item is identified, and you may overwrite others.
 
 ====== Macros and keymaps ======
 
---- Quick Tutorial --
+--- Quick Tutorial ---
 
      Necromancers are forever casting spell "a", Magic Bolt, in spellbook "a",
 Beginner's Curses.  In both keysets, that's "maa", plus "." to target the
@@ -176,6 +176,18 @@ but there are important exceptions:
   ^V                     n                   '
 
 
+--- Adding accents ---
+
+     On some systems, you may include accents and special characters in your
+character's name and in various other places by using encodes.  Encodes start
+with an open bracket ( [ ) and end with a close bracket ( ] ).  Between the
+brackets is either a two-character set or a name.  Two character sets always
+specify the accent, then the letter itself.
+
+  `  grave accent      '  acute accent       ^  circumflex       ~  tilde
+  "  umlaut            *  ring (circle)      /  slash (as in o-slash)
+
+     Therefore, typing ['a] will get you a-acute.
 
 
 

@@ -1,20 +1,25 @@
-
 /* File: object1.c */
 
 /*
- * Object flavours and learning flags.  Get object pvals and attributes.
- * Object names.  Object indexes and labels, what slot an object likes.
- * Display the inventory, equipment, and floor.  Handle object inscription
- * tags.  Select objects.
+ * Object flavours, learning.  Reset visual preferences, Get object pvals and
+ * attributes.  Object names.  Object indexes and labels, what slot an object
+ * likes.  Display the inventory, equipment, and floor.  Object display
+ * subwindows.  Inscription tags.  Select objects.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
+
+
+
+
+
 
 
 /*
@@ -52,7 +57,6 @@ static cptr conjunct[] =
 
 /*
  * Hold the titles of scrolls, roughly 8 to 20 characters each
- * Also keep an array of scroll colors (always WHITE for now)
  */
 
 static char scroll_adj[MAX_SCROLL_IDX][20];
@@ -61,7 +65,7 @@ static char scroll_adj[MAX_SCROLL_IDX][20];
 /*
  * Add a regular word.
  */
-static void build_scroll_name_word(char *buf, int size)
+static void build_scroll_name_word(char *buf, size_t size)
 {
 	int max_syllables = N_ELEMENTS(syllables);
 	int max_append    = N_ELEMENTS(append);
@@ -79,7 +83,7 @@ static void build_scroll_name_word(char *buf, int size)
 		pre = TRUE;
 
 		/* Add either a '-' or a ''' */
-		(void)my_strcat(buf, one_in_(3) ? "\'" : "-", sizeof(buf));
+		(void)my_strcat(buf, one_in_(3) ? "\'" : "-", size);
 	}
 
 	/* Add one or two chunks */
@@ -115,6 +119,7 @@ static void build_scroll_name(int i)
 	/* Get a new title */
 	while (TRUE)
 	{
+		/* Scroll names may only be 19 characters, plus terminator */
 		char buf[20];
 
 		bool okay = TRUE;
@@ -214,7 +219,7 @@ static void flavor_assign_fixed(void)
  */
 static void flavor_assign_random(byte tval)
 {
-	int i, j;
+	int i, j, k;
 	int flavor_count = 0;
 	int choice;
 
@@ -234,7 +239,7 @@ static void flavor_assign_random(byte tval)
 
 		/* Usual case:  Consider only random flavors of this type */
 		else if ((flavor_info[i].tval == tval) &&
-		    (flavor_info[i].sval == SV_ANY))
+		         (flavor_info[i].sval == SV_ANY))
 		{
 			flavor_count++;
 		}
@@ -243,15 +248,17 @@ static void flavor_assign_random(byte tval)
 	/* Scan the whole object list */
 	for (i = 0; i < z_info->k_max; i++)
 	{
+		/* Get this object */
+		object_kind *k_ptr = &k_info[i];
+
 		/* Skip other object types */
-		if (k_info[i].tval != tval) continue;
+		if (k_ptr->tval != tval) continue;
 
 		/* Skip objects that already are flavored */
-		if (k_info[i].flavor) continue;
+		if (k_ptr->flavor) continue;
 
 		/* HACK - Ordinary food is "boring" */
-		if ((tval == TV_FOOD) && (k_info[i].sval >= SV_FOOD_MIN_FOOD))
-			continue;
+		if ((tval == TV_FOOD) && (k_ptr->sval >= SV_FOOD_MIN_FOOD)) continue;
 
 		/* Notice lack of flavors */
 		if (!flavor_count) quit_fmt("Not enough flavors for tval %d.", tval);
@@ -259,28 +266,48 @@ static void flavor_assign_random(byte tval)
 		/* Select a random flavor */
 		choice = rand_int(flavor_count);
 
-		/* Find and store the flavor */
-		for (j = 0; j < z_info->flavor_max; j++)
+		/* Loop until satisfied */
+		for (k = 0; !k_ptr->flavor; k++)
 		{
-			/* Skip other tvals */
-			if (flavor_info[j].tval != tval) continue;
+			/* Handle errors */
+			if (k > 2) quit_fmt("Not enough flavors of the right level for tval %d, sval %d.",
+				tval, k_ptr->sval);
 
-			/* Skip assigned flavors */
-			if (flavor_info[j].sval != SV_ANY) continue;
-
-			/* Count down to chosen flavour */
-			if (choice-- == 0)
+			/* Find and store the flavor */
+			for (j = 1; j < z_info->flavor_max; j++)
 			{
-				/* Store the flavor index */
-				k_info[i].flavor = j;
+				/* Get this flavor */
+				flavor_type *flavor_ptr = &flavor_info[j];
 
-				/* This flavor is now assigned */
-				flavor_info[j].sval = k_info[i].sval;
+				/* Skip other tvals */
+				if (flavor_ptr->tval != tval) continue;
 
-				/* One less flavor to choose from */
-				flavor_count--;
+				/* Skip assigned flavors */
+				if (flavor_ptr->sval != SV_ANY) continue;
 
-				break;
+				/* Count down to our choice */
+				choice--;
+
+				/* Skip flavors of too high a level */
+				if (flavor_ptr->level > k_ptr->level) continue;
+
+				/* Hack -- Encourage high-level flavors for high-level objects */
+				if (flavor_ptr->level) choice -= 2;
+
+				/* Count down to chosen flavour */
+				if (choice <= 0)
+				{
+					/* Store the flavor index */
+					k_ptr->flavor = j;
+
+					/* This flavor is now assigned */
+					flavor_ptr->sval = k_ptr->sval;
+
+					/* One less flavor to choose from */
+					flavor_count--;
+
+					break;
+				}
 			}
 		}
 	}
@@ -330,13 +357,15 @@ void flavor_init(void)
 	flavor_assign_fixed();
 
 	/* Assign random flavors */
+	flavor_assign_random(TV_FOOD);
 	flavor_assign_random(TV_RING);
 	flavor_assign_random(TV_AMULET);
+	flavor_assign_random(TV_POTION);
+	flavor_assign_random(TV_SCROLL);
 	flavor_assign_random(TV_STAFF);
 	flavor_assign_random(TV_WAND);
 	flavor_assign_random(TV_ROD);
-	flavor_assign_random(TV_FOOD);
-	flavor_assign_random(TV_POTION);
+
 
 
 	/* Build scroll names */
@@ -484,19 +513,8 @@ void reset_visuals(void)
 		flavor_ptr->x_char = flavor_ptr->d_char;
 	}
 
-	/* Graphic symbols */
-	if (use_graphics)
-	{
-		/* Process "graf.prf" */
-		(void)process_pref_file("graf.prf");
-	}
-
-	/* Normal symbols */
-	else
-	{
-		/* Process "font.prf" */
-		(void)process_pref_file("font.prf");
-	}
+	/* Char/attrs remappings for use with various graphical modes */
+	(void)process_pref_file("tiles.prf");
 }
 
 
@@ -924,7 +942,7 @@ static void get_inscription(char *str, int len, const object_type *o_ptr)
 		/* Note '%', but only if object is fully IDed */
 		if ((*s == '%') && (o_ptr->ident & (IDENT_MENTAL)))
 		{
-			char attr_str[80];
+			char attr_str[DESC_LEN];
 
 			/* Assume we want to see only random attributes */
 			bool all = FALSE;
@@ -1151,7 +1169,7 @@ static bool should_display_pval(const object_type *o_ptr, byte set)
  *   2 -- Amulet of Death [1,+3] (+2 to Stealth)
  *   3 -- Rings of Death [1,+3] (+2 to Stealth) {nifty}
  */
-void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
+void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int mode)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -1173,7 +1191,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	bool the_One = FALSE;
 
 	bool show_weapon;
-	bool show_armour;
+	bool show_armor;
 	bool hide_tohit_todam;
 
 	char *b;
@@ -1187,9 +1205,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	char b1 = '[', b2 = ']';
 	char c1 = '{', c2 = '}';
 
-	char tmp_note[80];
-	char discount_buf[80];
-	char tmp_buf[160];
+	char tmp_note[DESC_LEN];
+	char discount_buf[DESC_LEN];
+	char tmp_buf[DESC_LEN];
 
 	u32b f1, f2, f3;
 
@@ -1247,41 +1265,11 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* Assume no need to show "weapon" bonuses */
 	show_weapon = FALSE;
 
-	/* Assume no need to show "armour" bonuses */
-	show_armour = FALSE;
+	/* Assume no need to show "armor" bonuses */
+	show_armor = FALSE;
 
 	/* Assume we show to_hit and to_dam */
 	hide_tohit_todam = FALSE;
-
-
-	/*
-	 * Hack -- adjust object_kind if necessary  XXX XXX XXX
-	 *
-	 * This is fairly ugly code, but it makes various rings and amulets
-	 * much cooler.
-	 */
-	if ((!known) && (!(o_ptr->ident & (IDENT_WORN))))
-	{
-		/* Adjust some rings and amulets */
-		if (k_ptr->tval == TV_RING)
-		{
-			if (k_ptr->sval == SV_RING_WEAKNESS)
-				k_ptr = &k_info[lookup_kind(TV_RING, SV_RING_STR)];
-			else if (k_ptr->sval == SV_RING_CLUMSINESS)
-				k_ptr = &k_info[lookup_kind(TV_RING, SV_RING_DEX)];
-			else if (k_ptr->sval == SV_RING_VULNER)
-				k_ptr = &k_info[lookup_kind(TV_RING, SV_RING_CON)];
-		}
-		else if (k_ptr->tval == TV_AMULET)
-		{
-			if (k_ptr->sval == SV_AMULET_STUPIDITY)
-				k_ptr = &k_info[lookup_kind(TV_AMULET, SV_AMULET_INTELLIGENCE)];
-			else if (k_ptr->sval == SV_AMULET_NAIVETE)
-				k_ptr = &k_info[lookup_kind(TV_AMULET, SV_AMULET_WISDOM)];
-			else if (k_ptr->sval == SV_AMULET_UGLINESS)
-				k_ptr = &k_info[lookup_kind(TV_AMULET, SV_AMULET_CHARISMA)];
-		}
-	}
 
 
 	/* The character is hallucinating and is not dead */
@@ -1332,9 +1320,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 				else if (o_ptr->tval == TV_CROWN)   basenm = "crown";
 				else if (o_ptr->tval == TV_SHIELD)  basenm = "shield";
 				else if (o_ptr->tval == TV_CLOAK)   basenm = "cloak";
-				else if (o_ptr->tval == TV_SOFT_ARMOR) basenm = "armour";
-				else if (o_ptr->tval == TV_HARD_ARMOR) basenm = "armour";
-				else if (o_ptr->tval == TV_DRAG_ARMOR) basenm = "armour";
+				else if (o_ptr->tval == TV_SOFT_ARMOR) basenm = "armor";
+				else if (o_ptr->tval == TV_HARD_ARMOR) basenm = "armor";
+				else if (o_ptr->tval == TV_DRAG_ARMOR) basenm = "armor";
 
 				else if (o_ptr->tval == TV_LITE)    basenm = "light";
 				else if (o_ptr->tval == TV_AMULET)  basenm = "amulet";
@@ -1357,13 +1345,12 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			}
 
 			/* Build the feeling */
-			sprintf(buf, "some kind of %s%s", modstr, basenm);
+			(void)strnfmt(buf, max, "some kind of %s%s", modstr, basenm);
 
 			/* Express the feeling */
 			return;
 		}
 	}
-
 
 
 	/* Extract default "base" string */
@@ -1465,7 +1452,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-		/* Armour */
+		/* Armor */
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
@@ -1476,7 +1463,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
-			show_armour = TRUE;
+			show_armor = TRUE;
 			break;
 		}
 
@@ -1493,13 +1480,16 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			if (artifact_p(o_ptr) && aware)
 			{
 				easy_know = TRUE;
-				break;
 			}
 
-			/* Flavour the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
+			/* Normal amulets */
+			else
+			{
+				/* Flavour the object */
+				modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+				if (aware) append_name = TRUE;
+				basenm = (flavor ? "& # Amulet~" : "& Amulet~");
+			}
 
 			break;
 		}
@@ -1697,7 +1687,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		/* Hack - Gold/Gems */
 		case TV_GOLD:
 		{
-			strcpy(tmp_buf, basenm);
+			(void)my_strcpy(tmp_buf, basenm, max);
 			break;
 		}
 
@@ -1728,14 +1718,14 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 				format("a %s (holding %d essence%s of %d type%s)",
 				basenm, count, (count != 1 ? "s" : ""), types, (types != 1 ? "s" : ""));
 
-			strcpy(buf, basenm);
+			(void)my_strcpy(buf, basenm, max);
 			return;
 		}
 
 		/* Hack -- Default -- Used in the "inventory" routine */
 		default:
 		{
-			strcpy(buf, "(nothing)");
+			(void)my_strcpy(buf, "(nothing)", max);
 			return;
 		}
 	}
@@ -1888,15 +1878,79 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		/* Hack -- end the string */
 		*t++ = '\0';
 
-		(void)my_strcpy(buf, tmp_buf, 80);
+		(void)my_strcpy(buf, tmp_buf, max);
 		return;
 	}
 
 	/* Append the "kind name" to the "base name" */
 	if (append_name && !fake_art)
 	{
+		bool alternate_name = FALSE;
+
 		object_desc_str_macro(t, " of ");
-		object_desc_str_macro(t, (k_name + k_ptr->name));
+
+		/*
+		 * Hack -- adjust object name if necessary  XXX XXX XXX
+		 *
+		 * This is fairly ugly code, but it makes various rings and amulets
+		 * much cooler.
+		 */
+		if ((known) || (o_ptr->ident & (IDENT_WORN)))
+		{
+			/* Adjust some nasty rings and amulets */
+			if (k_ptr->tval == TV_RING)
+			{
+				if ((k_ptr->sval == SV_RING_STR) && (o_ptr->pval < 0))
+				{
+					object_desc_str_macro(t, "Weakness");
+					alternate_name = TRUE;
+				}
+				else if ((k_ptr->sval == SV_RING_DEX) && (o_ptr->pval < 0))
+				{
+					object_desc_str_macro(t, "Clumsiness");
+					alternate_name = TRUE;
+				}
+				if ((k_ptr->sval == SV_RING_CON) && (o_ptr->pval < 0))
+				{
+					object_desc_str_macro(t, "Withering");
+					alternate_name = TRUE;
+				}
+				if ((k_ptr->sval == SV_RING_PROTECTION) && (o_ptr->to_a < 0))
+				{
+					object_desc_str_macro(t, "Vulnerability");
+					alternate_name = TRUE;
+				}
+			}
+			else if (k_ptr->tval == TV_AMULET)
+			{
+				if ((k_ptr->sval == SV_AMULET_INTELLIGENCE) && (o_ptr->pval < 0))
+				{
+					object_desc_str_macro(t, "Stupidity");
+					alternate_name = TRUE;
+				}
+				if ((k_ptr->sval == SV_AMULET_WISDOM) && (o_ptr->pval < 0))
+				{
+					char tmp_obj_name[DESC_LEN];
+					strcpy(tmp_obj_name, "Na[\"i]vet['e]");
+					xstr_trans(tmp_obj_name, LATIN1);
+					object_desc_str_macro(t, tmp_obj_name);
+					alternate_name = TRUE;
+				}
+				if ((k_ptr->sval == SV_AMULET_CHARISMA) && (o_ptr->pval < 0))
+				{
+					object_desc_str_macro(t, "Ugliness");
+					alternate_name = TRUE;
+				}
+				if ((k_ptr->sval == SV_AMULET_SAVING_THROW) && (o_ptr->pval < 0))
+				{
+					object_desc_str_macro(t, "Magical Vulnerability");
+					alternate_name = TRUE;
+				}
+			}
+		}
+
+		/* Usually, use the standard name */
+		if (!alternate_name) object_desc_str_macro(t, (k_name + k_ptr->name));
 	}
 
 
@@ -2075,8 +2129,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* Display the item like a weapon */
 	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
 
-	/* Display melee weapons with an armour class like armour */
-	if ((is_melee_weapon(o_ptr)) && (o_ptr->ac)) show_armour = TRUE;
+	/* Display melee weapons with an armor class like armor */
+	if ((is_melee_weapon(o_ptr)) && (o_ptr->ac)) show_armor = TRUE;
 
 	/* Hide to_hit and to_dam for some objects */
 	if ((is_magic_book(o_ptr)) || (is_magical_device(o_ptr)))
@@ -2191,7 +2245,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	if (known)
 	{
 		/* Show the armor class info */
-		if (show_armour)
+		if (show_armor)
 		{
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, b1);
@@ -2212,7 +2266,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Hack -- always show base armor */
-	else if (show_armour)
+	else if (show_armor)
 	{
 		object_desc_chr_macro(t, ' ');
 		object_desc_chr_macro(t, b1);
@@ -2227,26 +2281,26 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* Hack -- Wands and Staffs have charges */
 	if (known && ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)))
 	{
-		  /* Dump " (N charges)" */
-		  object_desc_chr_macro(t, ' ');
-		  object_desc_chr_macro(t, p1);
+		/* Dump " (N charges)" */
+		object_desc_chr_macro(t, ' ');
+		object_desc_chr_macro(t, p1);
 
-		  /* Clear explanation for staffs. */
-		  if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
-		  {
-			 object_desc_num_macro(t, o_ptr->number);
-			 object_desc_str_macro(t, "x ");
-		  }
+		/* Clear explanation for staffs. */
+		if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
+		{
+			object_desc_num_macro(t, o_ptr->number);
+			object_desc_str_macro(t, "x ");
+		}
 
-		  object_desc_num_macro(t, o_ptr->pval);
-		  object_desc_str_macro(t, " charge");
+		object_desc_num_macro(t, o_ptr->pval);
+		object_desc_str_macro(t, " charge");
 
-		  if (o_ptr->pval != 1)
-		  {
+		if (o_ptr->pval != 1)
+		{
 			object_desc_chr_macro(t, 's');
-		  }
+		}
 
-		  object_desc_chr_macro(t, p2);
+		object_desc_chr_macro(t, p2);
 	}
 
 	/*
@@ -2554,8 +2608,8 @@ object_desc_done:
 	/* Terminate */
 	*t = '\0';
 
-	/* Copy the string over, truncating on the way */
-	(void)my_strcpy(buf, tmp_buf, 80);
+	/* Copy the string over */
+	(void)my_strcpy(buf, tmp_buf, max);
 }
 
 
@@ -2563,13 +2617,13 @@ object_desc_done:
  * Hack -- describe an item currently in a store's inventory
  * This allows an item to *look* like the player is "aware" of it
  */
-void object_desc_store(char *buf, const object_type *o_ptr, int pref, int mode)
+void object_desc_store(char *buf, size_t max, const object_type *o_ptr, int pref, int mode)
 {
 	object_type *i_ptr;
 	object_type object_type_body;
 
 	/* Save the "flavor" */
-	byte hack_flavor = k_info[o_ptr->k_idx].flavor;
+	s16b hack_flavor = k_info[o_ptr->k_idx].flavor;
 
 	/* Save the "aware" flag */
 	bool hack_aware = ((k_info[o_ptr->k_idx].special & (SPECIAL_AWARE))
@@ -2594,7 +2648,7 @@ void object_desc_store(char *buf, const object_type *o_ptr, int pref, int mode)
 
 
 	/* Describe the object */
-	object_desc(buf, i_ptr, pref, mode);
+	object_desc(buf, max, i_ptr, pref, mode);
 
 
 	/* Restore "flavor" value */
@@ -2633,7 +2687,7 @@ void strip_name(char *buf, int k_idx)
 
 
 /*
- * Convert an inventory index into a one character label.
+ * Convert an inventory index into a one-character label.
  *
  * Note that the label does NOT distinguish inven/equip.
  */
@@ -2677,7 +2731,7 @@ s16b label_to_inven(int c)
 }
 
 /*
- * Convert a label into the index of a item in the equipment.
+ * Convert a label into the index of an item in the equipment.
  *
  * Return "-1" if the label does not indicate a real item.
  */
@@ -3008,12 +3062,11 @@ void display_inven(void)
 
 	byte attr = TERM_WHITE;
 
-	char tmp_val[90];
+	char tmp_val[DESC_LEN];
+	char o_name[DESC_LEN];
 
-	char o_name[80];
 
-
-	/* Obtain the size */
+	/* Get the terminal window size */
 	(void)Term_get_size(&w, &h);
 
 
@@ -3052,7 +3105,7 @@ void display_inven(void)
 		(void)Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
@@ -3066,7 +3119,7 @@ void display_inven(void)
 		/* Erase the rest of the line */
 		(void)Term_erase(3 + n, i, 255);
 
-		/* Display the weight if needed (and if enough space exists) */
+		/* Display the weight if needed (and there's enough space) */
 		if ((w >= 75) && (show_weights) && (o_ptr->weight))
 		{
 			/* Allow only the size that fits on the screen */
@@ -3078,7 +3131,7 @@ void display_inven(void)
 			if (wgt > ((size >= 6) ? 9999 : 999)) wgt = ((size >= 6) ? 9999 : 999);
 
 			/* Format the string */
-			sprintf(tmp_val, "%3d.%1d", wgt / 10, wgt % 10);
+			(void)strnfmt(tmp_val, sizeof(tmp_val), "%3d.%1d", wgt / 10, wgt % 10);
 			if (size >= 9)
 			{
 				if (use_metric) strcat(tmp_val, " kg");
@@ -3108,11 +3161,11 @@ void display_equip(void)
 
 	byte attr = TERM_WHITE;
 
-	char tmp_val[80];
-	char o_name[80];
+	char tmp_val[DESC_LEN];
+	char o_name[DESC_LEN];
 
 
-	/* Obtain the size */
+	/* Get the terminal window size */
 	(void)Term_get_size(&w, &h);
 
 
@@ -3166,7 +3219,7 @@ void display_equip(void)
 		(void)Term_putstr(0, i - INVEN_WIELD, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
@@ -3180,14 +3233,14 @@ void display_equip(void)
 		/* Erase the rest of the line */
 		(void)Term_erase(3 + n, i - INVEN_WIELD, 255);
 
-		/* Display the slot description (if needed) */
+		/* Display the slot description if needed (and there's enough space) */
 		if ((show_labels) && (w >= 70))
 		{
 			(void)Term_putstr(61, i - INVEN_WIELD, -1, TERM_WHITE, "<--");
 			(void)Term_putstr(65, i - INVEN_WIELD, -1, TERM_WHITE, mention_use(i));
 		}
 
-		/* Display the weight if needed (and if enough space exists) */
+		/* Display the weight if needed (and there's enough space) */
 		if ((w >= 75) && (show_weights) && (o_ptr->weight))
 		{
 			/* Allow only the size that fits on the screen */
@@ -3199,7 +3252,7 @@ void display_equip(void)
 			if (wgt > ((size >= 6) ? 9999 : 999)) wgt = ((size >= 6) ? 9999 : 999);
 
 			/* Format the string */
-			sprintf(tmp_val, "%3d.%1d", wgt / 10, wgt % 10);
+			(void)strnfmt(tmp_val, sizeof(tmp_val), "%3d.%1d", wgt / 10, wgt % 10);
 			if (size >= 9)
 			{
 				if (use_metric) strcat(tmp_val, " kg");
@@ -3219,23 +3272,21 @@ void display_equip(void)
 
 /*
  * Display the inventory.
- *
- * Hack -- do not display "trailing" empty slots
  */
 void show_inven(void)
 {
 	int i, j, k, l, z = 0;
-	int col, len, lim;
+	int col, len, lim, l_margin;
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
-	char tmp_val[80];
+	char tmp_val[DESC_LEN];
 
-	int out_index[24];
-	byte out_color[24];
-	char out_desc[24][80];
+	int out_index[INVEN_PACK+1];
+	byte out_color[INVEN_PACK+1];
+	char out_desc[INVEN_PACK+1][DESC_LEN];
 
 	/* Count number of missiles in the quiver slots. */
 	int ammo_num = quiver_count();
@@ -3244,8 +3295,8 @@ void show_inven(void)
 	/* Default length */
 	len = 79 - 50;
 
-	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	/* Maximum space allowed for descriptions (columns - 4) */
+	lim = Term->cols - 4;
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
@@ -3271,7 +3322,7 @@ void show_inven(void)
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
@@ -3286,7 +3337,7 @@ void show_inven(void)
 		strcpy(out_desc[k], o_name);
 
 		/* Find the predicted "line length" */
-		l = strlen(out_desc[k]) + 5;
+		l = strlen(out_desc[k]) + 4;
 
 		/* Be sure to account for the weight */
 		if (show_weights) l += 9;
@@ -3298,8 +3349,11 @@ void show_inven(void)
 		k++;
 	}
 
-	/* Find the column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	/* Find the column to start in (move towards the right of the screen) */
+	col = MAX(0, (Term->cols - 80) * 2 / 3);
+
+	/* Remember the left margin (one-space margin unless at left edge already) */
+	l_margin = MAX(0, col - 1);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -3310,11 +3364,11 @@ void show_inven(void)
 		/* Get the item */
 		o_ptr = &inventory[i];
 
-		/* Clear the line */
-		prt("", j + 1, col ? col - 2 : col);
+		/* Clear the text area */
+		put_str(format("%*s", len+1, ""), j+1, l_margin);
 
 		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(i));
+		(void)strnfmt(tmp_val, sizeof(tmp_val), "%c)", index_to_label(i));
 
 		/* Clear the line with the (possibly indented) index */
 		if (o_ptr->ident & (IDENT_MENTAL))
@@ -3338,11 +3392,17 @@ void show_inven(void)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 
-			if (use_metric) sprintf(tmp_val, "%3d.%1d kg",
-				make_metric(wgt) / 10, make_metric(wgt) % 10);
-			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+			if (use_metric)
+			{
+				(void)strnfmt(tmp_val, sizeof(tmp_val), "%3d.%1d kg",
+					make_metric(wgt) / 10, make_metric(wgt) % 10);
+			}
+			else
+			{
+				(void)strnfmt(tmp_val, sizeof(tmp_val), "%3d.%1d lb", wgt / 10, wgt % 10);
+			}
 
-			put_str(tmp_val, j + 1, 71);
+			put_str(tmp_val, j + 1, col + len - 9);
 		}
 	}
 
@@ -3358,24 +3418,26 @@ void show_inven(void)
 		if (j <= ((INVEN_PACK - 1) - p_ptr->pack_size_reduce))
 		{
 			j++;
-			prt("", j, col ? col - 2 : col);
+			put_str(format("%*s", len+1, ""), j, l_margin);
 		}
 
 		for (i = p_ptr->pack_size_reduce; i >= 1; i--)
 		{
 			/* Go to next line. */
 			j++;
-			prt("", j, col ? col - 2 : col);
+
+			/* Clear the text area */
+			put_str(format("%*s", len+1, ""), j, l_margin);
 
 			/* Determine index, print it out. */
-			sprintf(tmp_val, "%c)", index_to_label(INVEN_PACK - i));
+			(void)strnfmt(tmp_val, sizeof(tmp_val), "%c)", index_to_label(INVEN_PACK - i));
 			put_str(tmp_val, j, col);
 
 			/* Note amount of ammo */
 			k = (ammo_num > 99) ? 99 : ammo_num;
 
 			/* Hack -- use "(Ready Ammunition)" as a description. */
-			c_put_str(TERM_BLUE, format("(Ready Ammunition) [%2d]", k), j, col + 3);
+			c_put_str(TERM_BLUE, format("(Ready Ammunition) [%d]", k), j, col + 3);
 
 			/* Reduce ammo count */
 			ammo_num -= k;
@@ -3383,7 +3445,7 @@ void show_inven(void)
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+	if (j && (j < Term->rows - 1)) put_str(format("%*s", len+1, ""), j + 1, l_margin);
 }
 
 
@@ -3393,28 +3455,28 @@ void show_inven(void)
 void show_equip(void)
 {
 	int i, j, k, l;
-	int col, len, lim;
+	int col, len, lim, l_margin;
 	int essence_count = 0;
 
 	object_type *o_ptr;
 
-	char tmp_val[80];
+	char tmp_val[DESC_LEN];
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
-	int out_index[24];
-	byte out_color[24];
-	char out_desc[24][80];
+	int out_index[INVEN_PACK+1];
+	byte out_color[INVEN_PACK+1];
+	char out_desc[INVEN_PACK+1][DESC_LEN];
 
 
 	/* Default length */
 	len = 79 - 50;
 
-	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	/* Maximum space allowed for descriptions (columns - 4) */
+	lim = Term->cols - 4;
 
 	/* Require space for labels (if needed) */
-	if (show_labels) lim -= (14 + 2);
+	if (show_labels) lim -= 16;
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
@@ -3454,7 +3516,7 @@ void show_equip(void)
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Truncate the description */
 		o_name[lim] = 0;
@@ -3472,7 +3534,7 @@ void show_equip(void)
 		l = strlen(out_desc[k]) + (2 + 3);
 
 		/* Increase length for labels (if needed) */
-		if (show_labels) l += (14 + 2);
+		if (show_labels) l += 16;
 
 		/* Increase length for weight (if needed) */
 		if (show_weights) l += 9;
@@ -3484,8 +3546,11 @@ void show_equip(void)
 		k++;
 	}
 
-	/* Hack -- Find a column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	/* Find the column to start in (move towards the right of the screen) */
+	col = MAX(0, (Term->cols - 80) * 2 / 3);
+
+	/* Remember the left margin (one-space margin unless at left edge already) */
+	l_margin = MAX(0, col - 1);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -3496,14 +3561,14 @@ void show_equip(void)
 		/* Get the item */
 		o_ptr = &inventory[i];
 
-		/* Clear the line */
-		prt("", j + 1, col ? col - 2 : col);
+		/* Clear the text area */
+		put_str(format("%*s", len+1, ""), j+1, l_margin);
 
 		/* Leave a blank line if pouch is empty */
 		if ((i == INVEN_POUCH) && (!essence_count)) continue;
 
 		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(i));
+		(void)strnfmt(tmp_val, sizeof(tmp_val), "%c)", index_to_label(i));
 
 		/* Clear the line with the (possibly indented) index */
 		if (o_ptr->ident & (IDENT_MENTAL))
@@ -3523,7 +3588,7 @@ void show_equip(void)
 		if (show_labels)
 		{
 			/* Mention the use */
-			sprintf(tmp_val, "%-14s: ", mention_use(i));
+			(void)strnfmt(tmp_val, sizeof(tmp_val), "%-14s: ", mention_use(i));
 			put_str(tmp_val, j+1, col + 3);
 
 			/* Display the entry itself */
@@ -3543,16 +3608,22 @@ void show_equip(void)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 
-			if (use_metric) sprintf(tmp_val, "%3d.%1d kg",
-				make_metric(wgt) / 10, make_metric(wgt) % 10);
-			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+			if (use_metric)
+			{
+				(void)strnfmt(tmp_val, sizeof(tmp_val), "%3d.%1d kg",
+					make_metric(wgt) / 10, make_metric(wgt) % 10);
+			}
+			else
+			{
+				(void)strnfmt(tmp_val, sizeof(tmp_val), "%3d.%1d lb", wgt / 10, wgt % 10);
+			}
 
-			put_str(tmp_val, j+1, 71);
+			put_str(tmp_val, j+1, col + len - 9);
 		}
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+	if (j && (j < Term->rows - 1)) put_str(format("%*s", len+1, ""), j + 1, l_margin);
 }
 
 
@@ -3618,23 +3689,24 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 void show_floor(const int *floor_list, int floor_num, bool gold, bool blind)
 {
 	int i, j, k, l;
-	int col, len, lim;
+	int col, len, lim, l_margin;
 
 	object_type *o_ptr;
 
-	char o_name[120];
+	char o_name[DESC_LEN];
 
-	char tmp_val[80];
+	char tmp_val[DESC_LEN];
 
 	int out_index[MAX_FLOOR_STACK];
 	byte out_color[MAX_FLOOR_STACK];
-	char out_desc[MAX_FLOOR_STACK][80];
+	char out_desc[MAX_FLOOR_STACK][DESC_LEN];
+
 
 	/* Default length */
 	len = 79 - 50;
 
-	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	/* Maximum space allowed for descriptions (columns - 4) */
+	lim = Term->cols - 4;
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
@@ -3655,8 +3727,8 @@ void show_floor(const int *floor_list, int floor_num, bool gold, bool blind)
 		}
 
 		/* Describe the object.  Less detail if blind. */
-		if (blind) object_desc(o_name, o_ptr, TRUE, 0);
-		else       object_desc(o_name, o_ptr, TRUE, 3);
+		if (blind) object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
+		else       object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
@@ -3666,8 +3738,8 @@ void show_floor(const int *floor_list, int floor_num, bool gold, bool blind)
 
 		/* Get inventory color */
 		if (blind) out_color[k] = TERM_SLATE;
-		else out_color[k] =
-			tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+		else out_color[k] = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);
 
@@ -3684,8 +3756,11 @@ void show_floor(const int *floor_list, int floor_num, bool gold, bool blind)
 		k++;
 	}
 
-	/* Find the column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	/* Find the column to start in (move towards the right of the screen) */
+	col = MAX(0, (Term->cols - 80) * 2 / 3);
+
+	/* Remember the left margin (one-space margin unless at left edge already) */
+	l_margin = MAX(0, col - 1);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -3696,11 +3771,11 @@ void show_floor(const int *floor_list, int floor_num, bool gold, bool blind)
 		/* Get the item */
 		o_ptr = &o_list[i];
 
-		/* Clear the line */
-		prt("", j + 1, col ? col - 2 : col);
+		/* Clear the text area */
+		put_str(format("%*s", len+1, ""), j+1, l_margin);
 
 		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(j));
+		(void)strnfmt(tmp_val, sizeof(tmp_val), "%c)", index_to_label(j));
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j + 1, col);
@@ -3713,16 +3788,23 @@ void show_floor(const int *floor_list, int floor_num, bool gold, bool blind)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 
-			if (use_metric) sprintf(tmp_val, "%3d.%1d kg",
-				make_metric(wgt) / 10, make_metric(wgt) % 10);
-			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+			/* Allow conversion to metric units */
+			if (use_metric)
+			{
+				(void)strnfmt(tmp_val, sizeof(tmp_val), "%3d.%1d kg",
+					make_metric(wgt) / 10, make_metric(wgt) % 10);
+			}
+			else
+			{
+				(void)strnfmt(tmp_val, sizeof(tmp_val), "%3d.%1d lb", wgt / 10, wgt % 10);
+			}
 
-			put_str(tmp_val, j + 1, 71);
+			put_str(tmp_val, j + 1, col + len - 9);
 		}
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < MAX_FLOOR_STACK)) prt("", j + 1, col ? col - 2 : col);
+	if (j && (j < MAX_FLOOR_STACK)) put_str(format("%*s", len+1, ""), j + 1, l_margin);
 }
 
 
@@ -3734,10 +3816,10 @@ void toggle_inven_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < TERM_MAX; j++)
 	{
-		/* Unused */
-		if (!angband_term[j]) continue;
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* Flip inven to equip */
 		if (op_ptr->window_flag[j] & (PW_INVEN))
@@ -3771,9 +3853,9 @@ void toggle_inven_equip(void)
  */
 static bool verify_item(cptr prompt, int item)
 {
-	char o_name[80];
+	char o_name[DESC_LEN];
 
-	char out_val[160];
+	char out_val[DESC_LEN];
 
 	object_type *o_ptr;
 
@@ -3790,10 +3872,10 @@ static bool verify_item(cptr prompt, int item)
 	}
 
 	/* Describe */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Prompt */
-	sprintf(out_val, "%s %s?", prompt, o_name);
+	(void)strnfmt(out_val, sizeof(out_val), "%s %s?", prompt, o_name);
 
 	/* Query */
 	return (get_check(out_val));
@@ -4075,12 +4157,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	bool toggle = FALSE;
 
-	char tmp_val[160];
-	char out_val[160];
+	char tmp_val[DESC_LEN];
+	char out_val[DESC_LEN];
 
 	int floor_list[MAX_FLOOR_STACK];
 	int floor_num = 0;
-	int total_choices;
 
 	/* Get the item index */
 	if (repeat_pull(cp))
@@ -4137,7 +4218,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	e2 = INVEN_TOTAL - 1;
 
 	/* Forbid equipment */
-	if (!use_equip) e2 = INVEN_WIELD - 1;
+	if (!use_equip) e2 = -1;
 
 	/* Restrict equipment indexes */
 	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
@@ -4167,9 +4248,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Accept floor */
 	if (f1 <= f2) allow_floor = TRUE;
 
-	/* Calulate total number of choices for USE_AUTO */
-	total_choices = (f2 - f1 + 1) + (e2 - e1 + 1) + (i2 - i1 + 1);
-
 	/* Require at least one legal choice */
 	if (!allow_inven && !allow_equip && !allow_floor)
 	{
@@ -4182,36 +4260,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Done */
 		done = TRUE;
 	}
-
-	/* If there is only one item, and USE_AUTO is requested
-	 * Then choose it and return the item -JM
-	 */
-	else if(total_choices == 1 && (mode & USE_AUTO) )
-	{
-		item = TRUE;
-		if(allow_inven) *cp = i1;
-		else if (allow_floor) *cp = 0 - floor_list[f1];
-		else if (allow_equip) *cp = e1;
-		else
-		{
-			msg_format("Error selecting item!");
-			item = (FALSE);
-		}
-
-		/* Forget the item_tester_tval restriction */
-		item_tester_tval = 0;
-
-		/* Forget the item_tester_hook restriction */
-		item_tester_hook = NULL;
-
-		/* Forget the slot_tester_hook restriction */
-		slot_tester_hook = NULL;
-
-
-		return item;
-
-	}
-
 
 	/* Analyze choices */
 	else
@@ -4303,7 +4351,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	if (p_ptr->command_see)
 	{
 		/* Save screen */
-		screen_save();
+		screen_save(FALSE);
 	}
 
 	/* Repeat until done */
@@ -4314,10 +4362,10 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		int ne = 0;
 
 		/* Scan windows */
-		for (j = 0; j < ANGBAND_TERM_MAX; j++)
+		for (j = 0; j < TERM_MAX; j++)
 		{
-			/* Unused */
-			if (!angband_term[j]) continue;
+			/* No term, or term is unavailable */
+			if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 			/* Count windows displaying inven */
 			if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
@@ -4351,14 +4399,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (p_ptr->command_see) show_inven();
 
 			/* Begin the prompt */
-			sprintf(out_val, "Inven:");
+			(void)strnfmt(out_val, sizeof(out_val), "Inven:");
 
 
 			/* Indicate lack of inventory choices. */
-			if (i1 > i2) sprintf(tmp_val, " (none),");
+			if (i1 > i2) (void)strnfmt(tmp_val, sizeof(tmp_val), " (none),");
 
 			/* List choices. */
-			else sprintf(tmp_val, " %c-%c, '.' for 1st item,",
+			else (void)strnfmt(tmp_val, sizeof(tmp_val), " %c-%c, '.' for 1st item,",
 				index_to_label(i1), index_to_label(i2));
 
 			/* Append choices. */
@@ -4384,14 +4432,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (p_ptr->command_see) show_equip();
 
 			/* Begin the prompt */
-			sprintf(out_val, "Equip:");
+			(void)strnfmt(out_val, sizeof(out_val), "Equip:");
 
 
 			/* Indicate lack of equipment choices. */
-			if (e1 > e2) sprintf(tmp_val, " (none),");
+			if (e1 > e2) (void)strnfmt(tmp_val, sizeof(tmp_val), " (none),");
 
 			/* List choices. */
-			else sprintf(tmp_val, " %c-%c, '.' for 1st item,",
+			else (void)strnfmt(tmp_val, sizeof(tmp_val), " %c-%c, '.' for 1st item,",
 				index_to_label(e1), index_to_label(e2));
 
 			/* Append choices. */
@@ -4415,13 +4463,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (p_ptr->command_see) show_floor(floor_list, floor_num, FALSE, blind);
 
 			/* Begin the prompt */
-			sprintf(out_val, "Floor:");
+			(void)strnfmt(out_val, sizeof(out_val), "Floor:");
 
 			/* Indicate lack of floor choices. */
-			if (f1 > f2) sprintf(tmp_val, " (none),");
+			if (f1 > f2) (void)strnfmt(tmp_val, sizeof(tmp_val), " (none),");
 
 			/* List choices. */
-			else sprintf(tmp_val, " %c-%c, ',' for 1st item,", I2A(f1-f1), I2A(f2-f1));
+			else (void)strnfmt(tmp_val, sizeof(tmp_val), " %c-%c, ',' for 1st item,", I2A(f1-f1), I2A(f2-f1));
 
 			/* Append */
 			(void)my_strcat(out_val, tmp_val, sizeof(out_val));
@@ -4451,13 +4499,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		(void)my_strcat(out_val, " ESC", sizeof(out_val));
 
 		/* Build the prompt (add a space) */
-		sprintf(tmp_val, "(%s) %s ", out_val, pmt);
+		(void)strnfmt(tmp_val, sizeof(tmp_val), "(%s) %s ", out_val, pmt);
 
 		/* Show the prompt */
 		prt(tmp_val, 0, 0);
 
 		/* Get a key */
-		which = inkey();
+		which = inkey(FALSE);
 
 		/* Parse it */
 		switch (which)
@@ -4481,7 +4529,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					do_cmd_help();
 
 					/* Hack -- Show the list again */
-					if (p_ptr->command_see) screen_save();
+					if (p_ptr->command_see) screen_save(FALSE);
 
 					/* Await next command */
 					break;
@@ -4506,7 +4554,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				else
 				{
 					/* Save screen */
-					screen_save();
+					screen_save(FALSE);
 
 					/* Flip flag */
 					p_ptr->command_see = TRUE;
@@ -4541,7 +4589,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					screen_load();
 
 					/* Save screen */
-					screen_save();
+					screen_save(FALSE);
 				}
 
 				break;
@@ -4559,7 +4607,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					screen_load();
 
 					/* Save screen */
-					screen_save();
+					screen_save(FALSE);
 				}
 
 				/* Use the floor */
@@ -4797,7 +4845,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	}
 
 	/* Note deliberate cancellation -- when showing the main screen */
-	else if ((!character_icky) && (!oops))
+	else if ((!main_screen_inactive) && (!oops))
 	{
 		msg_print("Cancelled.");
 	}
@@ -5027,7 +5075,8 @@ void check_item_sets(void)
 typedef struct
 {
 	byte tval;
-	char o_name[40];
+	char o_name[DESC_LEN];
+	u16b o_idx;
 } nearby_object_type;
 
 
@@ -5071,47 +5120,46 @@ static void ang_sort_swap_hook_o_tval(void *u, void *v, int a, int b)
  * mostly to preserve the coolness of carefully looking around into
  * a detected vault and discovering something really cool.  I suspect
  * that making this automatic would spoil things a bit.
+ *
+ * Optionally, also show visible monsters if space permits.
  */
-void display_nearby_objects(void)
+void display_nearby_objects(int y, int x, bool also_list_monsters)
 {
-	int y, x, w, h;
+	int w, h, col_wid;
 	int i;
 
 	u16b dummy = 0;
 
-	char o_name[80];
-
-	object_type *o_ptr;
+	char o_name[DESC_LEN];
 
 	nearby_object_type *nearby_o_count;
 	int total_count = 0;
 
 
-	/* Erase the window */
-	clear_from(0);
+	/* Get size of window */
+	(void)Term_get_size(&w, &h);
 
+	/* Paranoia -- refuse to accept too small a window */
+	if ((h < 2) || (w < 3)) return;
+
+	/* Erase the window */
+	if (!y && !x) (void)Term_clear();
 
 	/* Hallucination */
-	if (p_ptr->image)
+	if ((p_ptr->image) && (!x) && (!y))
 	{
 		c_prt(TERM_L_PURPLE, "You can't believe what you are seeing!  It's like a dream!", 0, 0);
 		(void)Term_fresh();
 		return;
 	}
 
-	/* Blindness */
-	else if (p_ptr->blind)
-	{
-		prt("You can't see anything!", 0, 0);
-		(void)Term_fresh();
-		return;
-	}
 
-	/* Get size of window */
-	(void)Term_get_size(&w, &h);
+	/* Calculate number of columns */
+	i = ((w+20) / 40);
 
-	/* Paranoia -- refuse to accept too small a window */
-	if ((h < 3) || (w < 3)) return;
+	/* Calculate column width */
+	col_wid = w / i;
+
 
 	/* Allocate the array */
 	C_MAKE(nearby_o_count, o_max, nearby_object_type);
@@ -5121,32 +5169,31 @@ void display_nearby_objects(void)
 	for (i = 1; i < o_max; i++)
 	{
 		/* Get object */
-		o_ptr = &o_list[i];
-
-		/* Get object location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
+		object_type *o_ptr = &o_list[i];
 
 		/* Skip dead or off-map objects */
-		if ((!o_ptr->k_idx) || (!y) || (!x)) continue;
+		if ((!o_ptr->k_idx) || (!o_ptr->iy) || (!o_ptr->ix)) continue;
 
 		/* Skip hidden objects */
 		if (!o_ptr->marked) continue;
 
 		/* Skip objects not in line of sight */
-		if (!player_has_los_bold(y, x)) continue;
+		if (!player_has_los_bold(o_ptr->iy, o_ptr->ix)) continue;
 
 		/* Save object tval */
 		nearby_o_count[total_count].tval = o_ptr->tval;
+
+		/* Save object index */
+ 		nearby_o_count[total_count].o_idx = i;
 
 		/* Suppress flavours */
 		object_desc_flavour = -1;
 
 		/* Obtain an object description */
-		object_desc(o_name, o_ptr, FALSE, 1);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
 
-		/* Truncate at 39 chars  XXX */
-		o_name[39] = '\0';
+		/* Truncate to fit column */
+		o_name[col_wid - 3] = '\0';
 
 		/* Save object description */
 		(void)my_strcpy(nearby_o_count[total_count].o_name, o_name,
@@ -5160,20 +5207,20 @@ void display_nearby_objects(void)
 	/* Note no visible objects */
 	if (!total_count)
 	{
-		prt("You see no nearby objects.", 0, 0);
+		c_prt(TERM_SLATE, "You see no nearby objects.", y, x);
 		goto end_of_function;
 	}
 
 	/* Message */
 	prt(format("You can see %d nearby object%s:",
-		total_count, (total_count > 1 ? "s" : "")), 0, 0);
+		total_count, (total_count > 1 ? "s" : "")), y, x);
 
 
 	/* Select the sort method */
 	ang_sort_comp = ang_sort_comp_hook_o_tval;
 	ang_sort_swap = ang_sort_swap_hook_o_tval;
 
-	/* Sort the objects by increasing object distance */
+	/* Sort the objects by increasing tvals */
 	ang_sort(nearby_o_count, &dummy, total_count);
 
 
@@ -5183,19 +5230,47 @@ void display_nearby_objects(void)
 		/* Get color */
 		int attr = tval_to_attr[nearby_o_count[i].tval];
 
-		/* Objects are listed in columns 40 characters wide  XXX */
-		y = (i % (h - 1)) + 1;
-		x = i / (h - 1) * 40;
+		/* Get object kind */
+		object_type *o_ptr = &o_list[nearby_o_count[i].o_idx];
 
-		/* Handle overrun */
-		if (x >= w) break;
+		/* Objects are listed in columns, roughly 40 characters wide */
+		if (++y >= h)
+		{
+			x += col_wid;
+			y = 1;
+		}
+		if (x >= w - (col_wid / 2)) break;
+
+		/* Display the pict */
+		(void)Term_putch(x, y, object_attr(o_ptr), object_char(o_ptr));
 
 		/* Display this object */
-		c_prt(attr, format("%s", nearby_o_count[i].o_name), y, x);
+		c_prt(attr, format("%s", nearby_o_count[i].o_name), y, x + 2);
 	}
 
 	/* End of function */
 	end_of_function:
+
+
+	/* Also list monsters, if requested and possible */
+	if (also_list_monsters)
+	{
+		/* Skip some space.  Prefer to advance to next column. */
+		if ((x == 0) && (w > 3 * col_wid / 2))
+		{
+			x = col_wid;
+			y = 0;
+		}
+		else if (y + 6 >= h)
+		{
+			x += col_wid;
+			y = 0;
+		}
+		else y += 4;
+
+		/* If we have (a fair amount of) space, print out nearest monsters */
+		if (x < w - (col_wid / 2)) display_m_list(y, x, FALSE);
+	}
 
 
 	/* Free the object counters */

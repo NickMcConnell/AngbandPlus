@@ -9,7 +9,7 @@
 
 # Version stamp (required)
 
-V:0.9.9
+V:1.0.0
 
 
 # Maximum number of feature types  (max of 255)
@@ -45,9 +45,9 @@ M:X:50
 M:x:150
 
 # Maximum number of flavors
-M:L:320
+M:L:400
 
-
+#
 # These figures should probably not go higher.  The game design makes for 
 # a lot of annoyance and tedium if too many objects or monsters are 
 # allowed in the dungeon.  The AI also makes large numbers of monsters

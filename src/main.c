@@ -3,11 +3,16 @@
 /*
  * "main()" function, argument-handling.
  *
- * Copyright (c) 1997 Ben Harrison, and others
+ * This file is intended for use by ports that are command line-driven; ports
+ * that are not, such as those for Macintosh, Windows, and cross-platform SDL
+ * use their own code.
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * Copyright (c) 2007 Ben Harrison, and others
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -19,7 +24,7 @@
  */
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(RISCOS)
+#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(USE_SDL)
 
 
 #include "main.h"
@@ -49,18 +54,6 @@ static const struct module modules[] =
 #ifdef USE_IBM
 	{ "ibm", help_ibm, init_ibm },
 #endif /* USE_IBM */
-
-#ifdef USE_EMX
-	{ "emx", help_emx, init_emx },
-#endif /* USE_EMX */
-
-#ifdef USE_SLA
-	{ "sla", help_sla, init_sla },
-#endif /* USE_SLA */
-
-#ifdef USE_AMI
-	{ "ami", help_ami, init_ami },
-#endif /* USE_AMI */
 };
 
 
@@ -77,44 +70,61 @@ static void quit_hook(cptr s)
 	(void)s;
 
 	/* Scan windows */
-	for (j = ANGBAND_TERM_MAX - 1; j >= 0; j--)
+	for (j = TERM_MAX - 1; j >= 0; j--)
 	{
-		/* Unused */
-		if (!angband_term[j]) continue;
+		/* No window, or window is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* Nuke it */
-		(void)term_nuke(angband_term[j]);
+		term_nuke(angband_term[j]);
 	}
 }
 
 
-
 /*
- * Set the stack size (for the Amiga)
+ * Hack -- Display the scores in a given range and quit.
  */
-#ifdef AMIGA
-# include <dos.h>
-__near long __stack = 32768L;
-#endif /* AMIGA */
+static void display_scores(int from, int to)
+{
+	char buf[1024];
 
+	/* Build the filename */
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
+	/* Open the binary high score file, for reading */
+	highscore_fd = fd_open(buf, O_RDONLY);
+
+	/* Display the scores */
+	display_scores_aux(from, to, -1, NULL);
+
+	/* Shut the high score file */
+	(void)fd_close(highscore_fd);
+
+	/* Forget the high score fd */
+	highscore_fd = -1;
+
+	/* Wait for response */
+	prt("[Press any key to exit.]", Term->rows - 1, 17);
+	(void)inkey(FALSE);
+	prt("", Term->rows - 1, 0);
+
+	/* Quit */
+	quit(NULL);
+}
 
 /*
  * Initialize and verify the file paths, and the score file.
  *
- * Use the ANGBAND_PATH environment var if possible, else use
- * DEFAULT_PATH, and in either case, branch off appropriately.
- *
- * First, we'll look for the ANGBAND_PATH environment variable,
- * and then look for the files in there.  If that doesn't work,
- * we'll try the DEFAULT_PATH constant.  So be sure that one of
- * these two things works...
+ * First, we'll look for the <<VERSION_NAME>>_PATH environment variable,
+ * and then look for the files in there.  If that doesn't work, we'll
+ * try the DEFAULT_PATH constant.  So be sure that one of  these two
+ * things works...
  *
  * We must ensure that the path ends with "PATH_SEP" if needed,
  * since the "init_file_paths()" function will simply append the
  * relevant "sub-directory names" to the given path.
  *
- * Note that the "path" must be "Angband:" for the Amiga.
+ * Note that the "path" must be "Sangband:" for the Amiga.  XXX XXX
  *
  * Make sure that the path doesn't overflow the buffer.  We have
  * to leave enough space for the path separator, directory, and
@@ -124,32 +134,23 @@ static void init_stuff(void)
 {
 	char path[1024];
 
-#if defined(AMIGA)
-
-	/* Hack -- prepare "path" */
-	strcpy(path, "Angband:");
-
-#else /* AMIGA */
-
 	cptr tail = NULL;
 
 #ifndef FIXED_PATHS
 
 	/* Get the environment variable */
-	tail = getenv("ANGBAND_PATH");
+	tail = getenv(format("%s_PATH", VERSION_NAME));
 
 #endif /* FIXED_PATHS */
 
-	/* Use the angband_path, or a default */
+	/* Use the sangband_path, or a default */
 	(void)my_strcpy(path, tail ? tail : DEFAULT_PATH, sizeof(path));
 
-	/* Make sure it's terminated */
-	path[511] = '\0';
+	/* HACK! -- Make sure it's terminated */
+	path[768] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
 	if (!suffix(path, PATH_SEP)) (void)my_strcat(path, PATH_SEP, sizeof(path));
-
-#endif /* AMIGA */
 
 	/* Initialize */
 	init_file_paths(path);
@@ -355,18 +356,12 @@ int main(int argc, char *argv[])
 
 #ifdef SET_UID
 
-	/* Initialize the "time" checker */
-	if (check_time_init() || check_time())
-	{
-		quit("The gates to Angband are closed (bad time).");
-	}
-
 	/* Get the "user name" as a default player name */
 	user_name(op_ptr->full_name, sizeof(op_ptr->full_name), player_uid);
 
 #ifdef PRIVATE_USER_PATH
 
-	/* Create directories for the users files */
+	/* Create directories for the user's files */
 	create_user_dirs();
 
 #endif /* PRIVATE_USER_PATH */
@@ -416,7 +411,7 @@ int main(int argc, char *argv[])
 			case 'G':
 			case 'g':
 			{
-				arg_graphics = TRUE;
+				arg_graphics = GRAPHICS_CHAR;
 				break;
 			}
 
@@ -520,6 +515,7 @@ int main(int argc, char *argv[])
 	/* Install "quit" hook */
 	quit_aux = quit_hook;
 
+
 	/* Try the modules in the order specified by modules[] */
 	for (i = 0; i < N_ELEMENTS(modules); i++)
 	{
@@ -548,19 +544,13 @@ int main(int argc, char *argv[])
 	if (show_score > 0) display_scores(0, show_score);
 
 	/* Wait for response */
-	pause_line(screen_rows != 50 ? screen_rows - 2 : screen_rows - 1);
+	pause_line(Term->rows - 1);
 
 	/* Play the game */
 	play_game(new_game);
 
 	/* Free resources */
 	cleanup_angband();
-
-
-/* Clean up port-specific data structures */
-#ifdef USE_IBM
-	cleanup_ibm();
-#endif  /* USE_IBM */
 
 
 	/* Quit */
@@ -570,5 +560,5 @@ int main(int argc, char *argv[])
 	return (0);
 }
 
-#endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(RISCOS) */
+#endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(USE_SDL) */
 

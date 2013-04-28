@@ -1,32 +1,34 @@
-
 /* File: util.c */
 
 /*
- * Macros.  Process keypresses.  Object inscription storage.  Messages.
- * Save, load, and clear the screen.  Print text out to screen and files.
- * Ask for commands, strings, and numbers.  Handle repeated commands.
- * Gamma correction and colors.  Math functions (dice, angular math, etc.).
- * Special utility functions.
+ * Simple text processing, macros, keypresses, and object inscriptions.  User
+ * input.  Messages.  Save, load, and clear the screen.  Print text out to
+ * screen and files.  Ask for commands, strings, and numbers.  Handle repeated
+ * commands.  Gamma correction and colors.  Math functions (dice, angular math,
+ * etc.).  Special utility functions.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 
 #include "angband.h"
 
 
-
 /*
  * Pause the game.  Argument is number of milliseconds.
+ *
+ * Note:  The timers in most desktop machines are accurate only to 1/100th of
+ * a second.  Requests for a delay of 33 milliseconds is treated as one of 30
+ * milliseconds.
  */
 void pause_for(int msec)
 {
 	if (msec > 0) (void)Term_xtra(TERM_XTRA_DELAY, msec);
-
 }
 
 
@@ -63,7 +65,54 @@ static int dehex(char c)
 
 
 /*
+ * The string formatting code uses non-doubled '%'s to indicate where arguments
+ * need to be inserted.  This causes trouble when we want to include a literal
+ * string that may potentially include '%'s.  The solution is simple:  Double
+ * them beforehand.
+ */
+cptr format_literal(char *str)
+{
+	int i, j;
+	char buf[1024];
+
+	/* Copy the string, doubling all '%' characters */
+	for (j = 0, i = 0;; i++)
+	{
+		/* End of input */
+		if (str[i] == '\0') break;
+
+		/* Copy */
+		buf[j++] = str[i];
+
+		/* Break */
+		if (j >= 1023) break;
+
+		/* Double any '%' characters */
+		if (str[i] == '%')
+		{
+			buf[j++] = '%';
+			if (j >= 1023) break;
+		}
+	}
+
+	/* Terminate */
+	buf[j] = '\0';
+
+	/* Copy back */
+	strcpy(str, buf);
+
+	/* Return a pointer to our edited string */
+	return (str);
+}
+
+
+
+/*
  * Format and translate a string, then print it out to file.
+ *
+ * Warning:  If you feed a string that may potentially contain '%' characters
+ * to this function (as is done in the character dump code), you need to pre-
+ * format the string using "format_literal()".
  */
 void x_fprintf(FILE *fff, int encoding, cptr fmt, ...)
 {
@@ -960,10 +1009,17 @@ char (*inkey_hack) (int flush_first) = NULL;
  *
  * If "inkey_flag" is TRUE, then we will assume that we are waiting for a
  * normal command, and we will only show the cursor if "highlight_player" is
- * TRUE (or if the player is in a store), instead of always showing the
- * cursor.  The various "main-xxx.c" files should avoid saving the game
- * in response to a "menu item" request unless "inkey_flag" is TRUE, to
- * prevent savefile corruption.
+ * TRUE or we are showing a special screen (like stores, options, help, etc.),
+ * instead of always showing the cursor.  The various "main-xxx.c" files
+ * should avoid saving the game in response to a "menu item" request unless
+ * "inkey_flag" is TRUE, to prevent savefile corruption.
+ *
+ * "inkey_cursor_hack" is a brute-force hack that makes any cursor in any
+ * window appear or disappear.  I added it because it was either stick in a
+ * quick fix or rethink cursor visibility from scratch, and I lacked the time
+ * to do the latter right.  Unlike other inkey variables, "inkey_cursor_hack"
+ * is NOT cleared in this function.  -LM-   XXX XXX XXX
+ *
  *
  * If we are waiting for a keypress, and no keypress is ready, then we will
  * refresh (once) the window which was active when this function was called.
@@ -985,9 +1041,9 @@ char (*inkey_hack) (int flush_first) = NULL;
  * any time.  These sub-commands could include commands to take a picture of
  * the current screen, to start/stop recording a macro action, etc.
  *
- * If "term_screen" is not active, we will make it active during this
+ * If "term_main" is not active, we will make it active during this
  * function, so that the various "main-xxx.c" files can assume that input
- * is only requested (via "Term_inkey()") when "term_screen" is active.
+ * is only requested (via "Term_inkey()") when "term_main" is active.
  *
  * Mega-Hack -- This function is used as the entry point for clearing the
  * "signal_count" variable, and of the "character_saved" variable.
@@ -997,9 +1053,9 @@ char (*inkey_hack) (int flush_first) = NULL;
  * Mega-Hack -- Note the use of "inkey_hack" to allow the "Borg" to steal
  * control of the keyboard from the user.
  */
-char inkey(void)
+char inkey(int allow_mouse)
 {
-	bool cursor_state;
+	bool cursor_state[TERM_MAX];
 
 	char kk;
 
@@ -1008,6 +1064,10 @@ char inkey(void)
 	bool done = FALSE;
 
 	term *old = Term;
+
+	int i;
+	bool vis;
+	bool reset_cursors = FALSE;
 
 
 	/* Hack -- Use the "inkey_next" pointer */
@@ -1055,24 +1115,78 @@ char inkey(void)
 		(void)Term_flush();
 	}
 
+	/* Clear the cursor_state storage array */
+	WIPE(cursor_state, bool);
 
-	/* Get the cursor state */
-	(void)Term_get_cursor(&cursor_state);
 
-	/* Show the cursor if waiting, except sometimes in "command" mode */
-	if (!inkey_scan && (!inkey_flag || highlight_player || character_icky))
+	/* Usually change cursor visibility (see comments above) */
+	if (!inkey_scan && (!inkey_flag || main_screen_inactive ||
+	    (highlight_player && !main_screen_inactive)))
 	{
-		/* Show the cursor */
-		(void)Term_set_cursor(TRUE);
+		/* Handle only the major screens (for now) */
+		for (i = 0; i < TERM_SUBWINDOW; i++)
+		{
+			/* No term, or term is unavailable */
+			if ((!angband_term[i]) || (!angband_term[i]->mapped_flag)) continue;
+
+			/* Activate the term (may not be present) */
+			if ((Term_activate(angband_term[i])) && (Term != angband_term[i])) continue;
+
+			/* Save the previous cursor state */
+			(void)Term_get_cursor(&cursor_state[i]);
+
+			/* HACK -- Allow explicit cursor hiding or showing */
+			if (inkey_cursor_hack[i])
+			{
+				/* Show or hide cursor, ignore any other rules */
+				(void)Term_set_cursor(inkey_cursor_hack[i] > 0);
+
+				/* Refresh only the cursor */
+				(void)Term_fresh_cursor();
+
+				continue;
+			}
+
+			/* Assume cursor will be shown on main windows, and hidden otherwise */
+			vis = (i < TERM_SUBWINDOW);
+
+			/* This is the main term */
+			if (i == TERM_MAIN)
+			{
+				/* The highlight_player cursor moves to the map if appropriate. */
+				if ((use_special_map) && (highlight_player) && (!main_screen_inactive)) vis = FALSE;
+			}
+
+			/* This is the special map display term */
+			else if (i == TERM_MAP)
+			{
+				/* Cursor visibility usually depends on highlight_player */
+				vis = highlight_player;
+
+				/* Hack -- A full-screen display window always hides the map cursor */
+				if ((main_screen_inactive) && (!term_main->popup_hack_flag)) vis = FALSE;
+
+				/* Set visibility */
+				(void)Term_set_cursor(vis);
+			}
+
+			/* Show cursor */
+			(void)Term_set_cursor(vis);
+
+			/* Refresh only the cursor */
+			(void)Term_fresh_cursor();
+		}
+
+		/* We will need to reset cursor visibility later */
+		reset_cursors = TRUE;
 	}
 
 
-	/* Hack -- Activate main screen */
-	(void)Term_activate(term_screen);
-
+	/* Hack -- Always activate main term to accept input */
+	(void)Term_activate(term_main);
 
 	/* Get a key */
-	while (!ch)
+	while (TRUE)
 	{
 		/* Hack -- Handle "inkey_scan" */
 		if (!inkey_base && inkey_scan &&
@@ -1092,7 +1206,7 @@ char inkey(void)
 			(void)Term_fresh();
 
 			/* Hack -- activate main screen */
-			(void)Term_activate(term_screen);
+			(void)Term_activate(term_main);
 
 			/* Mega-Hack -- reset saved flag */
 			character_saved = FALSE;
@@ -1169,7 +1283,7 @@ char inkey(void)
 
 #ifdef USE_BACKQUOTE_AS_ESCAPE
 
-		/* Treat back-quote as escape */
+		/* HACK -- Treat back-quote as escape */
 		if (ch == '`') ch = ESCAPE;
 
 #endif /* USE_BACKQUOTE_AS_ESCAPE */
@@ -1208,22 +1322,70 @@ char inkey(void)
 			/* Strip this key */
 			ch = 0;
 		}
+
+		/* Insist upon a key */
+		if (!ch) continue;
+
+		/* Otherwise, always accept if not a mouse key */
+		if (ch != MOUSEKEY) break;
+
+		/* Option - allow mouse clicks */
+		if ((allow_mouse == ALLOW_CLICK) && (cur_mouse_action.button > MOUSE_MOVEONLY)) break;
+
+		/* Option - allow both mouse clicks and movement */
+		if (allow_mouse == ALLOW_ALL) break;
 	}
 
-	/* Hack -- restore the term */
+
+	/* Restore cursor state */
+	if (reset_cursors)
+	{
+		for (i = 0; i < TERM_SUBWINDOW; i++)
+		{
+			bool term_cursor_state;
+
+			/* No term, or term is unavailable */
+			if ((!angband_term[i]) || (!angband_term[i]->mapped_flag)) continue;
+
+			/* Activate the term (may not be present) */
+			if ((Term_activate(angband_term[i])) && (Term != angband_term[i])) continue;
+
+			/* Get the cursor */
+			(void)Term_get_cursor(&term_cursor_state);
+
+			/* If cursor visibility changed, */
+			if (cursor_state[i] != term_cursor_state)
+			{
+				/* Restore the previous cursor state */
+				(void)Term_set_cursor(cursor_state[i]);
+				(void)Term_fresh_cursor();
+			}
+		}
+	}
+
+
+	/* Restore the current term */
 	(void)Term_activate(old);
 
-	/* Restore the cursor */
-	(void)Term_set_cursor(cursor_state);
 
 	/* Cancel the various "global parameters" */
 	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
 
 	/* Return the keypress */
 	return (ch);
 }
 
+/*
+ * Add a message to the list, update any sub-windows
+ */
+void msg_add(cptr msg)
+{
+	/* Add the message */
+	message_add(msg, MSG_GENERIC);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MESSAGE);
+}
 
 
 /*
@@ -1255,7 +1417,7 @@ void bell(cptr reason)
 
 
 /*
- * Hack -- Make a (relevant?) sound
+ * Make a sound
  */
 void sound(int val)
 {
@@ -1266,6 +1428,17 @@ void sound(int val)
 	(void)Term_xtra(TERM_XTRA_SOUND, val);
 }
 
+/*
+ * Play (or stop playing) music
+ */
+void music(int val)
+{
+	/* Require correct options */
+	if ((use_sound != MUSIC_ONLY) && (use_sound != SOUND_AND_MUSIC)) return;
+
+	/* Play music (if allowed) */
+	(void)Term_xtra(TERM_XTRA_MUSIC, val);
+}
 
 
 
@@ -1558,18 +1731,12 @@ static byte message_type_color(u16b type)
 	{
 		color = message__color[type];
 	}
-
-	/* Hack -- Colourized messages  XXX XXX */
-	else if ((type >= 200) && (type < 216))
-	{
-		color = TERM_DARK - 200 + type;
-	}
 	else
 	{
 		color = TERM_WHITE;
 	}
 
-	if (color == TERM_DARK) color = TERM_WHITE;
+	if (color == TERM_DARK) color = TERM_L_DARK;
 	return (color);
 }
 
@@ -1867,7 +2034,7 @@ static void msg_flush(int x)
 		while (TRUE)
 		{
 			char ch;
-			ch = inkey();
+			ch = inkey(ALLOW_CLICK);
 			if (!p_ptr->playing) break;
 			if (quick_messages)
 			{
@@ -2157,66 +2324,551 @@ void message_flush(void)
 
 
 /*
- * Move the cursor
+ * Move the cursor in the current term
  */
 void move_cursor(int row, int col)
 {
+	/* Move the cursor */
 	(void)Term_gotoxy(col, row);
 }
 
 
 /*
- * Hack -- prevent "accidents" in "screen_save()" or "screen_load()"
+ * Set cursor term and visibility.
  */
-static int screen_depth = 0;
+void set_cursor(int term_idx, int show)
+{
+	term *old = Term;
+
+	/* Ignore illegal requests */
+	if ((term_idx < 0) || (term_idx >= TERM_MAX)) return;
+
+	/* Activate the term (may not be present) */
+	if ((Term_activate(angband_term[term_idx])) && (Term != angband_term[term_idx])) return;
+
+	/* Show or hide the cursor, if specifically requested */
+	if (show >  0) (void)Term_set_cursor(1);
+	if (show == 0) (void)Term_set_cursor(0);
+
+	/* Restore the current term */
+	(void)Term_activate(old);
+}
+
 
 
 /*
- * Save the screen, and increase the "icky" depth.
- *
- * This function must match exactly one call to "screen_load()".
+ * Center a screen of the given width or height in the current term.  We do
+ * this by setting a character position offset.
  */
-void screen_save(void)
+void screen_center_x(int width)
 {
-	/* Hack -- Flush messages */
-	message_flush();
+	/* If width is 0, cancel centering */
+	if (width <= 0)
+	{
+		Term->offset_x = 0;
+		return;
+	}
 
-	/* Save the screen (if legal) */
-	if (screen_depth++ == 0) (void)Term_save();
+	/* Adjust width if too great */
+	if (width > Term->cols) width = Term->cols;
 
-	/* Increase "icky" depth */
-	character_icky++;
+	/* Center the display */
+	Term->offset_x = (Term->cols - width) / 2;
+}
+
+void screen_center_y(int height)
+{
+	/* If height is 0, cancel any centering */
+	if (height <= 0)
+	{
+		Term->offset_y = 0;
+		return;
+	}
+
+	/* Adjust height if too great */
+	if (height > Term->rows) height = Term->rows;
+
+	/* Center the display */
+	Term->offset_y = (Term->rows - height) / 2;
 }
 
 
 /*
- * Load the screen, and decrease the "icky" depth.
+ * Get the effective width of a centered display
+ */
+int display_width(void)
+{
+	return (Term->cols - (Term->offset_x * 2));
+}
+
+
+/*
+ * Clear the screen
+ */
+void screen_clear(void)
+{
+	term *old = Term;
+
+	/* Activate the main term */
+	(void)Term_activate(term_main);
+
+	/* Clear the main term */
+	(void)Term_clear();
+
+	/* If the map view is active and the map term overlaps the main term, */
+	if ((use_special_map) && (!main_screen_inactive))
+	{
+		/* Activate the map term */
+		(void)Term_activate(term_map);
+
+		/* Notify main term of overlay */
+		(void)Term_redraw_section_nofresh(0, 0, 999, 999);
+
+		/* Clear the map term */
+		(void)Term_clear();
+	}
+
+	/* Restore the current term */
+	(void)Term_activate(old);
+}
+
+
+
+/*
+ * Save the main screen and deactivate it.
+ *
+ * This function must match exactly one call to "screen_load()".
+ *
+ * This function has gotten fairly messy...  :-/
+ */
+void screen_save(bool clear_screen)
+{
+	/* Increase the screen depth, only allow one actual save */
+	if (++screen_depth != 1) return;
+
+
+	/* Hack -- Flush messages */
+	message_flush();
+
+	/* Make sure the main screen is active */
+	(void)Term_activate(term_main);
+
+	/*
+	 * Turn on the pop-up window rules (see z-term.h).   XXX XXX XXX
+	 */
+	if (!clear_screen)
+	{
+		term_main->popup_hack_flag = TRUE;
+		if (use_special_map) term_map->popup_hack_flag = TRUE;
+	}
+
+	/* Update the screen (both main and map) */
+	(void)Term_fresh();
+
+
+	/* Save the main screen */
+	(void)Term_save();
+
+	/* If we are using a special map display, ... */
+	if (use_special_map)
+	{
+		/* The main term now overlaps the map term */
+		(void)Term_overlap(TERM_MAIN, TERM_MAP);
+
+		/* If the main display is active */
+		if (!main_screen_inactive)
+		{
+			/* Activate the map term */
+			(void)Term_activate(term_map);
+
+			/* Save it */
+			(void)Term_save();
+
+			/* Activate the main term */
+			(void)Term_activate(term_main);
+		}
+	}
+
+
+	/* Hack! -- No updates for the main screen */
+	if (main_screen_inactive == 0) main_screen_inactive = 1;
+
+	/* Option:  Clear the screen */
+	if (clear_screen) screen_clear();
+}
+
+
+/*
+ * Restore the main screen.
  *
  * This function must match exactly one call to "screen_save()".
  */
 void screen_load(void)
 {
+	/* Decrease the screen depth, only allow one actual load */
+	if (--screen_depth != 0) return;
+
+	/* Allow updates for the main screen, unless suppressed */
+	if (main_screen_inactive > 0) main_screen_inactive = 0;
+
 	/* Hack -- Flush messages */
 	message_flush();
 
-	/* Load the screen (if legal) */
-	if (--screen_depth == 0) (void)Term_load();
+	/* Paranoia -- make sure the main screen is active */
+	(void)Term_activate(term_main);
 
-	/* Decrease "icky" depth */
-	character_icky--;
+	/* Turn off the pop-up window rules */
+	angband_term[TERM_MAIN]->popup_hack_flag = FALSE;
+	if (use_special_map) angband_term[TERM_MAP]->popup_hack_flag = FALSE;
+
+	/* Load the main term */
+	(void)Term_load();
+
+	/* We are using a special map display */
+	if (use_special_map)
+	{
+		/* If the main screen is not suppressed */
+		if (main_screen_inactive >= 0)
+		{
+			/* The map term now overlaps the main term */
+			(void)Term_overlap(TERM_MAP, TERM_MAIN);
+		}
+
+		/* The map was previously saved */
+		if (term_map->screen_saved)
+		{
+			/* Activate the map term */
+			(void)Term_activate(term_map);
+
+			/* Load it */
+			(void)Term_load();
+
+			/* Activate the main term */
+			(void)Term_activate(term_main);
+		}
+	}
+
+	/* Screen refresh (also refreshes map term if on top) */
+	(void)Term_fresh();
+
+	/* Hack -- update certain static sub-windows (later) */
+	p_ptr->window |= (PW_CMDLIST);
+}
+
+
+
+/*
+ * Toggle the main view (map, side panel, message bar, etc.) on and off.
+ *
+ * Used when showing displays containing sub-routines that use screen saving and
+ * loading (ex. the store interface), or when we don't have a need to save the
+ * screen (as on game load).
+ */
+static void main_view_lock(bool lock)
+{
+	/* Lock the main view */
+	if (lock)
+	{
+		/* No main display updates ever, until this function is called again */
+		main_screen_inactive = -1;
+
+		/* If we are using a separate map term */
+		if (use_special_map)
+		{
+			/* The main term now overlaps the map term */
+			(void)Term_overlap(TERM_MAIN, TERM_MAP);
+		}
+	}
+
+	/* Unlock it */
+	else
+	{
+		/* Hack -- Load the screen if we failed to do so earlier.  XXX XXX */
+		if (screen_depth > 0) screen_load();
+
+		/* Allow main display updates */
+		main_screen_inactive = 0;
+
+		/* If we are using a separate map term, */
+		if (use_special_map)
+		{
+			/* The map term now overlaps the main term */
+			(void)Term_overlap(TERM_MAP, TERM_MAIN);
+		}
+
+		/* Update field of view and monster visibility */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+		/* Redraw everything */
+		p_ptr->redraw = 0xFFFFFFFF;
+
+		/* Refresh everything */
+		p_ptr->window = 0xFFFFFFFF;
+
+		/* Update now */
+		handle_stuff();
+	}
 }
 
 
 /*
- * Clear part of the screen
+ * Start or stop using the tall display.  -LM-
+ *
+ * What actually happens is system-dependent, but each port finds a way to show
+ * 46+ character rows when using the tall display, and 24+ rows when using
+ * the normal display.
  */
-void clear_from(int row)
+static errr switch_display(bool display, bool clear_screen)
 {
-	int y;
+	/* Verify the hook */
+	if (!switch_display_hook) return (-1);
 
-	/* Erase requested rows */
-	for (y = row; y < Term->hgt; y++) clear_row(y);
+	/* Clear all pending messages */
+	message_flush();
+
+	/* If a total screen erase is requested, handle it first */
+	if (Term->total_erase)
+	{
+		/* Refresh the screen, cancel screen clear (no need for it now) */
+		(void)Term_fresh();
+		clear_screen = FALSE;
+	}
+
+	/* Toggle the tall display */
+	if ((( display) && (!use_tall_display)) ||
+	    ((!display) && ( use_tall_display)))
+	{
+		/* Toggle the option */
+		use_tall_display = display;
+
+		/* Clear and refresh the screen */
+		if (clear_screen)
+		{
+			(void)Term_clear();
+			(void)Term_fresh();
+		}
+
+		/* System-specific reaction */
+		return (*switch_display_hook)(display);
+	}
+
+	/* Do nothing */
+	return (0);
 }
+
+
+
+/*
+ * Data stored between one call to "display_change" and another.
+ *
+ * We can handle nested remember-restore cycles up to a depth of 8.
+ */
+static u16b old_display_flags[8];
+static int display_old_cx[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static int display_old_cy[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static int display_memory_level = 0;
+
+
+/*
+ * The remembered display flags
+ */
+#define FLAG_DSP_WASNORM    0x0001  /* Restore to normal view later */
+#define FLAG_DSP_WASTALL    0x0002  /* Restore to tall view later */
+
+
+/*
+ * A general-purpose screen adjustment tool.  -LM-
+ *
+ * Puts various mid-level complexities associated with adjusting the screen in
+ * one place.
+ *
+ * The main and special views:
+ *      When the main view is active, the map is shown and various updates are
+ * freely available.  In order to show special views (such as stores or an
+ * inventory list or the character screen), this behavior must be suppressed.
+ * We can do this in either of two ways:
+ * - If you just want to save the screen contents and don't plan to nest
+ * displays, use "DSP_SAVE" and "DSP_LOAD".  To create a pop-up window, do this
+ * without calling "DSP_CLEAR".  For a full-Term display, call "DSP_CLEAR".
+ * Note that you may only save the screen once and must load it before
+ * requesting another save.
+ * - If you are creating a multi-layered interface that wants to use screen
+ * saving and loading internally (like the death interface does), then
+ * "DSP_LOCK" will give you secure control of the active Term until you call
+ * "DSP_UNLOCK".
+ *
+ * Displays:
+ *      There are three possible configurations of the main Term:  The standard
+ * view showing at least 24 rows, the tall view showing at least 46 rows, and
+ * the full-screen view (available only on some ports) that uses the total
+ * available space to show almost whatever dimensions are requested.
+ *      Displays can also be centered vertically and horizontally within the
+ * active Term.  You first figure out what panel size you want (80 columns is
+ * common; anything greater is a no-no) and then use "DSP_CX" and "DSP_CY" with
+ * appropriate widths and heights of the panel to center within the Term.
+ *
+ * Remembering previous display configurations:
+ *      The various possible main term configurations and screen offsets can
+ * easily get confusing when layered (as they are in the knowledge code).  To
+ * avoid messing up the display, you call "DSP_REMEMBER" to store certain
+ * display variables, and then "DSP_RESTORE" to restore them.  These calls can
+ * be layered (up to 8 deep); but make certain you call exactly one restore for
+ * each remember; when your code re-activates the main view, the variable
+ * "display_memory_level" should always be zero.
+ *
+ * Handling the overlapping map view:
+ *     This part is fiddly.  If present, the map term may be on top of most of
+ * the main term (this is the standard view) and underneath the main term (for
+ * special displays of all sorts, from the opening screen to pop-up windows).
+ * It is vital for this code to call the various updates in correct order,
+ * and to properly use Term_clear and Term_fresh.
+ *
+ * Popup Windows:
+ *     At present, popup windows still use the main Term, and are requested the
+ * same way they have always been:  by calling a "Term_save" and not clearing
+ * the screen afterwards.  "DSP_POPUP" and "DSP_POPDOWN" are merely convenient
+ * macros.  This may change in future; using these flags is recommended.
+ */
+void display_change(u32b flags, int wid, int hgt)
+{
+	int i;
+
+	/* Explicit request to clear the current screen */
+	bool do_clear = ((flags & (DSP_CLEAR)) != 0);
+
+	/* Various commands must clear the screen in a prescribed order */
+	if (flags & (DSP_FULL | DSP_RESTORE | DSP_LOCK | DSP_UNLOCK)) do_clear = FALSE;
+
+	/* Some commands never clear the screen */
+	if (flags & (DSP_POPUP | DSP_POPDOWN)) do_clear = FALSE;
+
+	/* Flush all pending messages (always?)  XXX */
+	message_flush();
+
+
+	/* Remember current display and centering */
+	if (flags & (DSP_REMEMBER))
+	{
+		i = display_memory_level;
+
+		/* Remember current centering */
+		display_old_cx[i] = Term->offset_x;
+		display_old_cy[i] = Term->offset_y;
+
+		/* Remember current view */
+		if (!use_tall_display) old_display_flags[i] |= (FLAG_DSP_WASNORM);
+		else                   old_display_flags[i] |= (FLAG_DSP_WASTALL);
+
+		/* Increment memory level (from 0 to 7) */
+		display_memory_level = MIN(7, i + 1);
+	}
+
+	/* Save the screen (optional clear - also controls pop-up rules) */
+	if (flags & (DSP_SAVE | DSP_POPUP)) screen_save(do_clear);
+
+	/* Otherwise, handle separate request to clear the active term */
+	else if (do_clear) (void)Term_clear();
+
+
+	/* Start or stop using the full-screen display */
+	if (flags & (DSP_FULL))
+	{
+		/* The screen must be cleared  XXX */
+		screen_clear();
+
+		/* And refreshed */
+		(void)Term_fresh();
+
+		/* Activate the display */
+		if ((wid > 0) && (hgt > 0))
+		{
+			/* Use the special display if available */
+			if (special_view_hook) special_view_hook(wid, hgt, TRUE);
+
+			/* Offer the normal or large view otherwise */
+			else if (hgt <= 24) (void)switch_display(FALSE, FALSE);
+			else                (void)switch_display(TRUE, FALSE);
+		}
+
+		/* Deactivate the display */
+		else
+		{
+			/* Use the special display if available */
+			if (special_view_hook) special_view_hook(0, 0, FALSE);
+
+			/* Restore the previous view otherwise */
+			else display_change(DSP_RESTORE | DSP_CLEAR, 0, 0);
+		}
+
+		/* Some possible requests have now been taken care of */
+		flags &= ~(DSP_NORM | DSP_TALL | DSP_RESTORE);
+	}
+
+	/* The special full-screen view cannot switch displays */
+	if (use_fullscreen_view) flags &= ~(DSP_NORM | DSP_TALL);
+
+	/* Adjust display size */
+	if (flags & (DSP_NORM)) (void)switch_display(FALSE, FALSE);
+	if (flags & (DSP_TALL)) (void)switch_display(TRUE, FALSE);
+
+	/* Start or stop screen centering */
+	if (flags & (DSP_CX)) screen_center_x(wid);
+	if (flags & (DSP_CY)) screen_center_y(hgt);
+
+
+	/* Restore previous display and centering */
+	if (flags & (DSP_RESTORE))
+	{
+		/* Decrement memory level */
+		i = --display_memory_level;
+
+		/* Restore display (default to normal, always clear the screen) */
+		if (old_display_flags[i] & (FLAG_DSP_WASTALL))
+			(void)switch_display(TRUE, TRUE);
+		else
+			(void)switch_display(FALSE, TRUE);
+
+		/* Clear */
+		old_display_flags[i] = 0;
+
+		/* Restore old centering */
+		Term->offset_x = display_old_cx[i];
+		Term->offset_y = display_old_cy[i];
+
+		/* Clear */
+		display_old_cx[i] = display_old_cy[i] = 0;
+	}
+
+
+	/* Lock the main view */
+	if (flags & (DSP_LOCK))
+	{
+		/* Turn off the main view */
+		main_view_lock(TRUE);
+
+		/* Clear the screen */
+		screen_clear();
+	}
+
+	/* Unlock the main view */
+	if (flags & (DSP_UNLOCK))
+	{
+		/* Clear the term */
+		(void)Term_clear();
+
+		/* Turn on the main view */
+		main_view_lock(FALSE);
+	}
+
+
+	/* Load the screen (handle after all changes) */
+	if ((flags & (DSP_LOAD | DSP_POPDOWN)) && (screen_depth > 0)) screen_load();
+
+	/* Refresh the screen immediately */
+	if (flags & (DSP_FRESH)) (void)Term_fresh();
+}
+
+
 
 /*
  * Clear a line
@@ -2224,7 +2876,31 @@ void clear_from(int row)
 void clear_row(int row)
 {
 	/* Erase the line */
-	(void)Term_erase(0, row, 255);
+	(void)Term_erase(0, row, Term->cols);
+}
+
+/*
+ * Clear part of the current term
+ */
+void clear_from(int row)
+{
+	int y;
+
+	/* Erase requested rows */
+	for (y = row; y < Term->rows; y++) clear_row(y);
+}
+
+/*
+ * Clear part of the current line.
+ *
+ * Note:  "Term_erase()" now always marks changed areas, even if they had blanks before.
+ */
+void clear_space(int row, int col, int num)
+{
+	if (num < 1) return;
+
+	/* Erase the area */
+	(void)Term_erase(col, row, num);
 }
 
 
@@ -2243,7 +2919,6 @@ void c_put_str(byte attr, cptr str, int row, int col)
 	/* Position cursor, Dump the attr/text */
 	(void)Term_putstr(col, row, -1, attr, str);
 }
-
 
 /*
  * As above, but in "white"
@@ -2295,23 +2970,27 @@ void add_str(cptr str)
 /*
  * Center a string.
  */
-void center_string(char *buf, int len, cptr str, int length)
+void center_string(char *buf, size_t buflen, cptr str, int length)
 {
-	int i, j;
-	char tmp[1024];
-
-	/* Total length */
-	i = strlen(str);
+	int n1, n2;
 
 	/* Paranoia -- avoid overflow */
-	if (i > 1024) return;
+	if (strlen(str) > (unsigned int)buflen) return;
 
-	/* Necessary border */
-	j = (length / 2) - (i / 2);
+	/* Paranoia -- avoid overflow */
+	if (length >= (int)buflen) length = buflen - 1;
 
-	/* Mega-Hack */
-	sprintf(tmp, "%*s%s%*s", j, "", str, (i % 2) ? j - 1 : j, "");
-	(void)my_strcpy(buf, tmp, len);
+	/* Length of spacing needed */
+	n1 = (length - strlen(str)) / 2;
+	n2 = (length - strlen(str) + 1) / 2;
+
+	/* Paranoia -- refuse to add negative spacing */
+	if (n1 < 0) n1 = 0;
+	if (n2 < 0) n2 = 0;
+
+	/* Pad the string with spacing on both sides */
+	(void)strnfmt(buf, length + 1, "%*s%s%*s",
+		n1, "",    str,    n2, "");
 }
 
 
@@ -2319,15 +2998,17 @@ void center_string(char *buf, int len, cptr str, int length)
  * Print some (colored) text to the screen at the current cursor position,
  * automatically "wrapping" existing text (at spaces) when necessary to
  * avoid placing any text into the last column, and clearing every line
- * before placing any text in that line.  Also, allow "newline" to force
- * a "wrap" to the next line.  Advance the cursor as needed so sequential
- * calls to this function will work correctly.
+ * (within the margins) before placing any text in that line.  Also, allow
+ * "newline" to force a "wrap" to the next line.  Advance the cursor as
+ * needed so sequential calls to this function will work correctly.
  *
  * Once this function has been called, the cursor should not be moved
  * until all the related "text_out()" calls to the window are complete.
  *
  * This function will correctly handle any width up to the maximum legal
  * value of 256, though it works best for a standard 80 character width.
+ *
+ * This function insists upon maintaining a 1-column right margin.
  */
 void text_out_to_screen(byte a, cptr str)
 {
@@ -2348,11 +3029,22 @@ void text_out_to_screen(byte a, cptr str)
 	/* Obtain the cursor */
 	(void)Term_locate(&x, &y);
 
+	/* Insist upon left border */
+	if (x < text_out_indent + text_border_left)
+	{
+		(void)Term_gotoxy(text_out_indent + text_border_left, y);
+		(void)Term_locate(&x, &y);
+	}
+
 	/* Use special wrapping boundary? */
 	if ((text_out_wrap > 0) && (text_out_wrap < wid))
 		wrap = text_out_wrap;
 	else
 		wrap = wid;
+
+	/* Paranoia -- insist on space to write in */
+	if (text_out_indent > wrap) return;
+
 
 	/* Process the string */
 	for (s = str; *s; s++)
@@ -2363,11 +3055,14 @@ void text_out_to_screen(byte a, cptr str)
 		if (*s == '\n')
 		{
 			/* Wrap */
-			x = text_out_indent;
+			x = text_out_indent + text_border_left;
 			y++;
 
-			/* Clear line, move cursor */
-			(void)Term_erase(x, y, 255);
+			/* Clear remaining space */
+			clear_space(y, x - text_border_left, wrap - x + text_border_left);
+
+			/* Move cursor to next line */
+			(void)Term_gotoxy(x, y);
 
 			continue;
 		}
@@ -2376,9 +3071,9 @@ void text_out_to_screen(byte a, cptr str)
 		ch = (my_isprint((unsigned char)*s) ? *s : ' ');
 
 		/* Wrap words as needed */
-		if ((x >= wrap - 1) && (ch != ' '))
+		if ((x >= wrap - 1) && (ch != ' ') && (ch != '-'))
 		{
-			int i, n = 0;
+			int i, n = text_out_indent;
 
 			byte av[256];
 			char cv[256];
@@ -2387,31 +3082,34 @@ void text_out_to_screen(byte a, cptr str)
 			if (x < wrap)
 			{
 				/* Scan existing text */
-				for (i = wrap - 2; i >= 0; i--)
+				for (i = wrap - 2; i >= text_out_indent + text_border_left; i--)
 				{
 					/* Grab existing attr/char */
 					(void)Term_what(i, y, &av[i], &cv[i]);
 
-					/* Break on space */
-					if (cv[i] == ' ') break;
+					/* Break on space or hyphen */
+					if ((cv[i] == ' ') || (cv[i] == '-')) break;
 
 					/* Track current word */
 					n = i;
 				}
 			}
 
-			/* Special case */
-			if (n == 0) n = wrap;
+			/* Special case of a single word taking up the whole line */
+			if (n <= text_out_indent + text_border_left) n = wrap;
 
-			/* Clear line */
-			(void)Term_erase(n, y, 255);
+			/* Otherwise, clear remaining space on this line */
+			clear_space(y, n, wrap - n);
 
 			/* Wrap */
-			x = text_out_indent;
+			x = text_out_indent + text_border_left;
 			y++;
 
-			/* Clear line, move cursor */
-			(void)Term_erase(x, y, 255);
+			/* Clear it (plus the left margin) */
+			clear_space(y, x - text_border_left, wrap - x + text_border_left);
+
+			/* Move cursor to next line */
+			(void)Term_gotoxy(x, y);
 
 			/* Wrap the word (if any) */
 			for (i = n; i < wrap - 1; i++)
@@ -2595,13 +3293,13 @@ void text_out(cptr str)
 /*
  * Print some text out to screen.
  */
-void c_roff(byte a, cptr str, byte l_margin, byte r_margin)
+void c_roff(byte a, cptr str, byte indent, byte wrap)
 {
 	int y, x;
 
 	/* Set margins */
-	text_out_wrap   = r_margin;
-	text_out_indent = l_margin;
+	text_out_indent = indent;
+	text_out_wrap   = wrap;
 
 	/* Obtain the cursor */
 	(void)Term_locate(&x, &y);
@@ -2628,7 +3326,7 @@ void roff(cptr str, byte l_margin, byte r_margin)
 
 /*
  * Format a string, with word wrap and centering.  Accept margins.
- * Overwrite (but do not clear) any existing text.  -LM-
+ * Overwrite (but do not clear) any existing text.
  *
  * We do not print spaces.  This makes the tombstone look better.
  *
@@ -2791,21 +3489,27 @@ void c_roff_centered(byte a, cptr str, int l_margin, int r_margin)
 }
 
 
-
 /*
- * Unify the use of direction keys in various interfaces.  -LM-
+ * Unify the use of direction keys and mouse actions in game interfaces.  -LM-
  *
  * Handle usage of the shift key combined with either roguelike movement keys
  * or the number pad/arrow keys.  The first is easy; the less said about the
  * second, the better.
+ *
+ * Allow mouse actions of certain types, if supported by the interface.
  */
-void get_ui_direction(char *k, bool allow_roguelike,
-	bool allow_numbers, bool allow_diagonal, bool *shift_key)
+void get_ui_direction(char *k, byte flags, bool *shift_key)
 {
+	bool allow_roguelike = !(flags & (UI_NOROGUE));
+	bool allow_numbers   = !(flags & (UI_NONUM));
+	bool allow_diagonal  = !(flags & (UI_NODIAG));
+	bool allow_mouse     = !(flags & (UI_NOMOUSE));
+
+
 	/* Assume shift is not pressed (or at least not recognized) */
 	*shift_key = FALSE;
 
-	/* Optionally, allow roguelike keys */
+	/* Handle roguelike keys */
 	if ((allow_roguelike) && (strchr("bjnhlykuBJNHLYKU", *k)))
 	{
 		/* Option -- ignore diagonals */
@@ -2829,6 +3533,26 @@ void get_ui_direction(char *k, bool allow_roguelike,
 	else if ((allow_numbers) && (isdigit(*k)))
 	{
 		/* No conversion needed */
+	}
+
+	/* Handle mouse actions */
+	else if ((*k == MOUSEKEY) && (allow_mouse))
+	{
+		/* Handle the mouse wheel */
+		if (cur_mouse_action.button == MOUSE_WHEEL)
+		{
+			/* Move up or down quickly */
+			if      (cur_mouse_action.y > 100) *k = '2';
+			else if (cur_mouse_action.y ==  0) *k = '8';
+			else return;
+
+			*shift_key = TRUE;
+		}
+		else
+		{
+			/* Do nothing */
+			return;
+		}
 	}
 
 	/* Handle special keys  XXX XXX XXX */
@@ -2910,10 +3634,10 @@ bool askfor_aux(char *buf, int len, bool numpad_cursor)
 	if (len < 1) len = 1;
 
 	/* Paranoia -- check column */
-	if ((x < 0) || (x >= Term->wid)) x = 0;
+	if ((x < 0) || (x >= Term->cols)) x = 0;
 
 	/* Restrict the length */
-	if (x + len > Term->wid) len = Term->wid - x;
+	if (x + len > Term->cols) len = Term->cols - x;
 
 	/* Truncate the default entry */
 	buf[len-1] = '\0';
@@ -2930,7 +3654,7 @@ bool askfor_aux(char *buf, int len, bool numpad_cursor)
 		(void)Term_gotoxy(x + d, y);
 
 		/* Get a key */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Notice direction key */
 		if ((numpad_cursor) && (is_direction(ch)))
@@ -2944,7 +3668,7 @@ bool askfor_aux(char *buf, int len, bool numpad_cursor)
 		{
 			case '?':
 			{
-				/* Get help, if specified */
+				/* Hack -- Get help, if specified  XXX XXX */
 				if (p_ptr->get_help_index != HELP_GENERAL)
 				{
 					do_cmd_help();
@@ -3073,6 +3797,8 @@ bool askfor_aux(char *buf, int len, bool numpad_cursor)
 			}
 		}
 	}
+
+	return (FALSE);
 }
 
 
@@ -3123,6 +3849,8 @@ s32b get_quantity(cptr prompt, s32b min, s32b max)
 {
 	/* Default quantity must be between min and max, inclusive */
 	s32b amt = get_quantity_default;
+	int amt_int = (int)amt;
+
 	if (amt < min) amt = min;
 	if (amt > max) amt = max;
 
@@ -3137,34 +3865,34 @@ s32b get_quantity(cptr prompt, s32b min, s32b max)
 		p_ptr->command_arg = 0;
 	}
 
-	/* Get the item index */
-	else if ((max != 1L) && allow_quantity && repeat_pull((int *)&amt))
+	/* Get the item index (using an integer version of our input) */
+	else if ((max != 1L) && allow_quantity && repeat_pull(&amt_int))
 	{
-		/* nothing */
+		amt = (s32b)amt_int;
 	}
 
 	/* Prompt if needed */
 	else if ((max != 1L) && allow_quantity)
 	{
-		char tmp[80];
+		char tmp[DESC_LEN];
 
-		char buf[80];
+		char buf[DESC_LEN];
 
 		/* Build a prompt if needed */
 		if (!prompt)
 		{
 			/* Build a prompt */
-			sprintf(tmp, "Quantity (0-%ld):", max);
+			(void)strnfmt(tmp, sizeof(tmp), "Quantity (0-%ld):", max);
 
 			/* Use that prompt */
 			prompt = tmp;
 		}
 
 		/* Build the default */
-		sprintf(buf, "%ld", amt);
+		(void)strnfmt(buf, sizeof(buf), "%ld", amt);
 
 		/* Ask for a quantity */
-		if (!get_string(prompt, buf, 7)) return (0);
+		if (!get_string(prompt, buf, 9)) return (0);
 
 		/* Extract a number */
 		amt = (s32b)atoi(buf);
@@ -3201,7 +3929,7 @@ bool get_check(cptr prompt)
 {
 	char ch;
 
-	char buf[80];
+	char buf[DESC_LEN];
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
@@ -3221,7 +3949,7 @@ bool get_check(cptr prompt)
 		prt(buf, 0, 0);
 
 		/* Get a response and process it */
-		ch = inkey();
+		ch = inkey(FALSE);
 		if (ch == ESCAPE) break;
 		if (strchr("YyNn", ch)) break;
 
@@ -3235,7 +3963,7 @@ bool get_check(cptr prompt)
 	/* Remember the question and the answer  -LM- */
 	if (character_generated)
 	{
-		message_add(format("%s  %c", prompt, ch), MSG_GENERIC);
+		msg_add(format("%s  %c", prompt, ch));
 	}
 
 	/* Normal negation */
@@ -3271,7 +3999,7 @@ bool get_com(cptr prompt, char *command)
 	prt(format("%s ", prompt), 0, 0);
 
 	/* Get a key */
-	ch = inkey();
+	ch = inkey(ALLOW_CLICK);
 
 	/* Clear the prompt */
 	prt("", 0, 0);
@@ -3285,15 +4013,33 @@ bool get_com(cptr prompt, char *command)
 
 
 /*
- * Pause for user response
+ * Pause for user response (hide cursor)
  *
- * This function is stupid.  XXX XXX XXX
+ * This function is stupid.  XXX XXX (but oddly useful...)
  */
 void pause_line(int row)
 {
+	/* Center in the space between margins (assumes centered text XXX) */
+	int wid = Term->cols - Term->offset_x * 2;
+
+	/* Clear line */
 	prt("", row, 0);
-	put_str("[Press any key to continue]", row, 25);
-	(void)inkey();
+
+	/* The exit sign (centered) */
+	put_str("[Press any key to continue]", row, (wid - 27) / 2);
+
+	/* Hide the cursor (main and map terms) */
+	inkey_cursor_hack[TERM_MAIN] = -1;
+	inkey_cursor_hack[TERM_MAP] = -1;
+
+	/* Wait for it */
+	(void)inkey(ALLOW_CLICK);
+
+	/* Apply standard cursor rules */
+	inkey_cursor_hack[TERM_MAIN] = 0;
+	inkey_cursor_hack[TERM_MAP] = 0;
+
+	/* Clear the prompt */
 	prt("", row, 0);
 }
 
@@ -3429,7 +4175,7 @@ void request_command(bool shopping)
 			inkey_flag = TRUE;
 
 			/* Get a command */
-			ch = inkey();
+			ch = inkey(ALLOW_CLICK);
 		}
 
 		/* Clear top line */
@@ -3451,7 +4197,7 @@ void request_command(bool shopping)
 			while (TRUE)
 			{
 				/* Get a new keypress */
-				ch = inkey();
+				ch = inkey(FALSE);
 
 				/* Simple editing (delete or backspace) */
 				if ((ch == 0x7F) || (ch == KTRL('H')))
@@ -3657,8 +4403,6 @@ void request_command(bool shopping)
 }
 
 
-#if 0  /* "insert_str()" */
-
 /*
  * Replace the first instance of "target" in "buf" with "insert"
  * If "insert" is NULL, just remove the first instance of "target"
@@ -3667,7 +4411,7 @@ void request_command(bool shopping)
  * Could be made more efficient, especially in the case where
  * "insert" is smaller than "target".
  */
-static bool insert_str(char *buf, cptr target, cptr insert)
+bool insert_str(char *buf, cptr target, cptr insert)
 {
 	int i, len;
 	int b_len, t_len, i_len;
@@ -3711,8 +4455,6 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 	return (TRUE);
 }
 
-
-#endif  /* "insert_str()" */
 
 
 /*
@@ -3789,6 +4531,7 @@ void repeat_check(void)
 	if (p_ptr->command_cmd == ' ') return;
 	if (p_ptr->command_cmd == '\n') return;
 	if (p_ptr->command_cmd == '\r') return;
+	if (p_ptr->command_cmd == MOUSEKEY) return;
 
 	/* Repeat Last Command */
 	if (p_ptr->command_cmd == KTRL('V'))
@@ -3963,7 +4706,7 @@ void build_gamma_table(int gamma)
 
 
 /*
- * Accept a color index character, return the color.  -LM-
+ * Accept a color index character; if legal, return the color.  -LM-
  *
  * We have to maintain 16-color compatability in order to run on VGA
  * monitors.  Therefore, all colors defined above with indexes over 15
@@ -3972,6 +4715,9 @@ void build_gamma_table(int gamma)
 int color_char_to_attr(char c)
 {
 	int a;
+
+	/* Is negative -- spit it right back out */
+	if (c < 0) return (c);
 
 	/* Is a space or '\0' -- return black */
 	if (c == '\0' || c == ' ') return (TERM_DARK);
@@ -4014,7 +4760,7 @@ byte verify_color(byte attr)
  */
 byte translate_into_16_colors(int idx)
 {
-	long delta = 100000;
+	long delta = 1000000L;
 	int i;
 	int drv, dgv, dbv, best;
 
@@ -4144,10 +4890,10 @@ int make_metric(int wgt)
  * Calculate square roots using Newton's method.
  *
  * This is not the fastest available integer math square root function
- * (for that, consult the site "http://www.azillionmonkeys.com/qed/
- * sqroot.html").  It is, however, both moderately fast and extremely
- * simple.  This particular implementation features standard rounding
- * (as opposed to truncation).  -LM-
+ * (for that, consult the site "www.azillionmonkeys.com/qed/sqroot.html").
+ * It is, however, both moderately fast and extremely simple.  This
+ * particular implementation features standard rounding (as opposed to
+ * truncation).  -LM-
  */
 u16b rsqrt(s32b input)
 {
@@ -4243,70 +4989,71 @@ s32b round_it(const s32b v, int frac)
 
 /*
  * Accept values for y and x (considered as the endpoints of lines) between
- * 0 and 40, and return an angle in degrees (divided by two).  -LM-
+ * 0 and 40, and return an angle in degrees (with 240 degrees in a circle).  -LM-
  *
  * This table's input and output need some processing:
  *
  * Because this table gives degrees for a whole circle, up to radius 20, its
- * origin is at (x,y) = (20, 20).  Therefore, the input code needs to find
+ * origin is at (y, x) = (20, 20).  Therefore, the input code needs to find
  * the origin grid (where the lines being compared come from), and then map
- * it to table grid 20,20.  Do not, however, actually try to compare the
+ * it to table grid 20, 20.  Do not, however, actually try to compare the
  * angle of a line that begins and ends at the origin with any other line -
- * it is impossible mathematically, and the table will return the value "255".
+ * the table will return the value "255".
  *
- * The output of this table also needs to be massaged, in order to avoid the
- * discontinuity at 0/180 degrees.  This can be done by:
- *   rotate = 90 - first value
- *   --- this rotates the first input to the 90 degree line
- *   tmp = ABS(second value + rotate) % 180
- *   diff = ABS(90 - tmp) = the angular difference (divided by two) between
- *   the first and second values.
+ * The output of this table also needs to be massaged in order to avoid the
+ * discontinuity at 0/240 degrees.  If we need to compare two angles:
+ *   rotate = 120 - first value
+ *     -- Get signed difference between 1st angle and 120 degrees
+ *   tmp = ABS(second value + rotate) % 240
+ *     -- Apply the same change to the 2nd angle, but wrap around
+ *   diff = ABS(120 - tmp)
+ *     -- absolute angular difference between the two
  *
  * Note that grids exactly diagonal to the origin have unique angles.
  */
 byte get_angle_to_grid[41][41] =
 {
-  {  68,  67,  66,  65,  64,  63,  62,  62,  60,  59,  58,  57,  56,  55,  53,  52,  51,  49,  48,  46,  45,  44,  42,  41,  39,  38,  37,  35,  34,  33,  32,  31,  30,  28,  28,  27,  26,  25,  24,  24,  23 },
-  {  69,  68,  67,  66,  65,  64,  63,  62,  61,  60,  59,  58,  56,  55,  54,  52,  51,  49,  48,  47,  45,  43,  42,  41,  39,  38,  36,  35,  34,  32,  31,  30,  29,  28,  27,  26,  25,  24,  24,  23,  22 },
-  {  69,  69,  68,  67,  66,  65,  64,  63,  62,  61,  60,  58,  57,  56,  54,  53,  51,  50,  48,  47,  45,  43,  42,  40,  39,  37,  36,  34,  33,  32,  30,  29,  28,  27,  26,  25,  24,  24,  23,  22,  21 },
-  {  70,  69,  69,  68,  67,  66,  65,  64,  63,  61,  60,  59,  58,  56,  55,  53,  52,  50,  48,  47,  45,  43,  42,  40,  38,  37,  35,  34,  32,  31,  30,  29,  27,  26,  25,  24,  24,  23,  22,  21,  20 },
-  {  71,  70,  69,  69,  68,  67,  66,  65,  63,  62,  61,  60,  58,  57,  55,  54,  52,  50,  49,  47,  45,  43,  41,  40,  38,  36,  35,  33,  32,  30,  29,  28,  27,  25,  24,  24,  23,  22,  21,  20,  19 },
-  {  72,  71,  70,  69,  69,  68,  67,  65,  64,  63,  62,  60,  59,  58,  56,  54,  52,  51,  49,  47,  45,  43,  41,  39,  38,  36,  34,  32,  31,  30,  28,  27,  26,  25,  24,  23,  22,  21,  20,  19,  18 },
-  {  73,  72,  71,  70,  69,  69,  68,  66,  65,  64,  63,  61,  60,  58,  57,  55,  53,  51,  49,  47,  45,  43,  41,  39,  37,  35,  33,  32,  30,  29,  27,  26,  25,  24,  23,  22,  21,  20,  19,  18,  17 },
-  {  73,  73,  72,  71,  70,  70,  69,  68,  66,  65,  64,  62,  61,  59,  57,  56,  54,  51,  49,  47,  45,  43,  41,  39,  36,  34,  33,  31,  29,  28,  26,  25,  24,  23,  21,  20,  20,  19,  18,  17,  17 },
-  {  75,  74,  73,  72,  72,  71,  70,  69,  68,  66,  65,  63,  62,  60,  58,  56,  54,  52,  50,  47,  45,  43,  40,  38,  36,  34,  32,  30,  28,  27,  25,  24,  23,  21,  20,  19,  18,  18,  17,  16,  15 },
-  {  76,  75,  74,  74,  73,  72,  71,  70,  69,  68,  66,  65,  63,  61,  59,  57,  55,  53,  50,  48,  45,  42,  40,  37,  35,  33,  31,  29,  27,  25,  24,  23,  21,  20,  19,  18,  17,  16,  16,  15,  14 },
-  {  77,  76,  75,  75,  74,  73,  72,  71,  70,  69,  68,  66,  64,  62,  60,  58,  56,  53,  51,  48,  45,  42,  39,  37,  34,  32,  30,  28,  26,  24,  23,  21,  20,  19,  18,  17,  16,  15,  15,  14,  13 },
-  {  78,  77,  77,  76,  75,  75,  74,  73,  72,  70,  69,  68,  66,  64,  62,  60,  57,  54,  51,  48,  45,  42,  39,  36,  33,  30,  28,  26,  24,  23,  21,  20,  18,  17,  16,  15,  15,  14,  13,  13,  12 },
-  {  79,  79,  78,  77,  77,  76,  75,  74,  73,  72,  71,  69,  68,  66,  63,  61,  58,  55,  52,  49,  45,  41,  38,  35,  32,  29,  27,  24,  23,  21,  19,  18,  17,  16,  15,  14,  13,  13,  12,  11,  11 },
-  {  80,  80,  79,  79,  78,  77,  77,  76,  75,  74,  73,  71,  69,  68,  65,  63,  60,  57,  53,  49,  45,  41,  37,  33,  30,  27,  25,  23,  21,  19,  17,  16,  15,  14,  13,  13,  12,  11,  11,  10,  10 },
-  {  82,  81,  81,  80,  80,  79,  78,  78,  77,  76,  75,  73,  72,  70,  68,  65,  62,  58,  54,  50,  45,  40,  36,  32,  28,  25,  23,  20,  18,  17,  15,  14,  13,  12,  12,  11,  10,  10,   9,   9,   8 },
-  {  83,  83,  82,  82,  81,  81,  80,  79,  79,  78,  77,  75,  74,  72,  70,  68,  64,  60,  56,  51,  45,  39,  34,  30,  26,  23,  20,  18,  16,  15,  13,  12,  11,  11,  10,   9,   9,   8,   8,   7,   7 },
-  {  84,  84,  84,  83,  83,  83,  82,  81,  81,  80,  79,  78,  77,  75,  73,  71,  68,  63,  58,  52,  45,  38,  32,  27,  23,  19,  17,  15,  13,  12,  11,  10,   9,   9,   8,   7,   7,   7,   6,   6,   6 },
-  {  86,  86,  85,  85,  85,  84,  84,  84,  83,  82,  82,  81,  80,  78,  77,  75,  72,  68,  62,  54,  45,  36,  28,  23,  18,  15,  13,  12,  10,   9,   8,   8,   7,   6,   6,   6,   5,   5,   5,   4,   4 },
-  {  87,  87,  87,  87,  86,  86,  86,  86,  85,  85,  84,  84,  83,  82,  81,  79,  77,  73,  68,  58,  45,  32,  23,  17,  13,  11,   9,   8,   7,   6,   6,   5,   5,   4,   4,   4,   4,   3,   3,   3,   3 },
-  {  89,  88,  88,  88,  88,  88,  88,  88,  88,  87,  87,  87,  86,  86,  85,  84,  83,  81,  77,  68,  45,  23,  13,   9,   7,   6,   5,   4,   4,   3,   3,   3,   2,   2,   2,   2,   2,   2,   2,   2,   1 },
-  {  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90, 255,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 },
-  {  91,  92,  92,  92,  92,  92,  92,  92,  92,  93,  93,  93,  94,  94,  95,  96,  97,  99, 103, 113, 135, 158, 167, 171, 173, 174, 175, 176, 176, 177, 177, 177, 178, 178, 178, 178, 178, 178, 178, 178, 179 },
-  {  93,  93,  93,  93,  94,  94,  94,  94,  95,  95,  96,  96,  97,  98,  99, 101, 103, 107, 113, 122, 135, 148, 158, 163, 167, 169, 171, 172, 173, 174, 174, 175, 175, 176, 176, 176, 176, 177, 177, 177, 177 },
-  {  94,  94,  95,  95,  95,  96,  96,  96,  97,  98,  98,  99, 100, 102, 103, 105, 108, 113, 118, 126, 135, 144, 152, 158, 162, 165, 167, 168, 170, 171, 172, 172, 173, 174, 174, 174, 175, 175, 175, 176, 176 },
-  {  96,  96,  96,  97,  97,  97,  98,  99,  99, 100, 101, 102, 103, 105, 107, 109, 113, 117, 122, 128, 135, 142, 148, 153, 158, 161, 163, 165, 167, 168, 169, 170, 171, 171, 172, 173, 173, 173, 174, 174, 174 },
-  {  97,  97,  98,  98,  99,  99, 100, 101, 101, 102, 103, 105, 106, 108, 110, 113, 116, 120, 124, 129, 135, 141, 146, 150, 154, 158, 160, 162, 164, 165, 167, 168, 169, 169, 170, 171, 171, 172, 172, 173, 173 },
-  {  98,  99,  99, 100, 100, 101, 102, 102, 103, 104, 105, 107, 108, 110, 113, 115, 118, 122, 126, 130, 135, 140, 144, 148, 152, 155, 158, 160, 162, 163, 165, 166, 167, 168, 168, 169, 170, 170, 171, 171, 172 },
-  { 100, 100, 101, 101, 102, 103, 103, 104, 105, 106, 107, 109, 111, 113, 115, 117, 120, 123, 127, 131, 135, 139, 143, 147, 150, 153, 155, 158, 159, 161, 163, 164, 165, 166, 167, 167, 168, 169, 169, 170, 170 },
-  { 101, 101, 102, 103, 103, 104, 105, 106, 107, 108, 109, 111, 113, 114, 117, 119, 122, 125, 128, 131, 135, 139, 142, 145, 148, 151, 153, 156, 158, 159, 161, 162, 163, 164, 165, 166, 167, 167, 168, 169, 169 },
-  { 102, 103, 103, 104, 105, 105, 106, 107, 108, 110, 111, 113, 114, 116, 118, 120, 123, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152, 154, 156, 158, 159, 160, 162, 163, 164, 165, 165, 166, 167, 167, 168 },
-  { 103, 104, 105, 105, 106, 107, 108, 109, 110, 111, 113, 114, 116, 118, 120, 122, 124, 127, 129, 132, 135, 138, 141, 143, 146, 148, 150, 152, 154, 156, 158, 159, 160, 161, 162, 163, 164, 165, 165, 166, 167 },
-  { 104, 105, 106, 106, 107, 108, 109, 110, 111, 113, 114, 115, 117, 119, 121, 123, 125, 127, 130, 132, 135, 138, 140, 143, 145, 147, 149, 151, 153, 155, 156, 158, 159, 160, 161, 162, 163, 164, 164, 165, 166 },
-  { 105, 106, 107, 108, 108, 109, 110, 111, 113, 114, 115, 117, 118, 120, 122, 124, 126, 128, 130, 133, 135, 137, 140, 142, 144, 146, 148, 150, 152, 153, 155, 156, 158, 159, 160, 161, 162, 162, 163, 164, 165 },
-  { 107, 107, 108, 109, 110, 110, 111, 113, 114, 115, 116, 118, 119, 121, 123, 124, 126, 129, 131, 133, 135, 137, 139, 141, 144, 146, 147, 149, 151, 152, 154, 155, 156, 158, 159, 160, 160, 161, 162, 163, 163 },
-  { 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 119, 120, 122, 123, 125, 127, 129, 131, 133, 135, 137, 139, 141, 143, 145, 147, 148, 150, 151, 153, 154, 155, 156, 158, 159, 159, 160, 161, 162, 163 },
-  { 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 120, 121, 122, 124, 126, 128, 129, 131, 133, 135, 137, 139, 141, 142, 144, 146, 148, 149, 150, 152, 153, 154, 155, 157, 158, 159, 159, 160, 161, 162 },
-  { 109, 110, 111, 112, 113, 114, 114, 115, 117, 118, 119, 120, 122, 123, 125, 126, 128, 130, 131, 133, 135, 137, 139, 140, 142, 144, 145, 147, 148, 150, 151, 152, 153, 155, 156, 157, 158, 159, 159, 160, 161 },
-  { 110, 111, 112, 113, 114, 114, 115, 116, 117, 119, 120, 121, 122, 124, 125, 127, 128, 130, 132, 133, 135, 137, 138, 140, 142, 143, 145, 146, 148, 149, 150, 151, 153, 154, 155, 156, 157, 158, 159, 159, 160 },
-  { 111, 112, 113, 114, 114, 115, 116, 117, 118, 119, 120, 122, 123, 124, 126, 127, 129, 130, 132, 133, 135, 137, 138, 140, 141, 143, 144, 146, 147, 148, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 159 },
-  { 112, 113, 114, 114, 115, 116, 117, 118, 119, 120, 121, 122, 124, 125, 126, 128, 129, 131, 132, 133, 135, 137, 138, 139, 141, 142, 144, 145, 146, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159 },
-  { 113, 114, 114, 115, 116, 117, 118, 118, 120, 121, 122, 123, 124, 125, 127, 128, 129, 131, 132, 134, 135, 136, 138, 139, 141, 142, 143, 145, 146, 147, 148, 149, 150, 152, 152, 153, 154, 155, 156, 157, 158 }
+  {  90,  89,  88,  87,  86,  85,  83,  82,  81,  79,  78,  76,  75,  73,  71,  69,  68,  66,  64,  62,  60,  58,  56,  54,  52,  51,  49,  47,  45,  44,  42,  41,  39,  38,  37,  35,  34,  33,  32,  31,  30 },
+  {  91,  90,  89,  88,  87,  86,  84,  83,  82,  80,  79,  77,  75,  73,  72,  70,  68,  66,  64,  62,  60,  58,  56,  54,  52,  50,  48,  47,  45,  43,  41,  40,  38,  37,  36,  34,  33,  32,  31,  30,  29 },
+  {  92,  91,  90,  89,  88,  87,  85,  84,  82,  81,  79,  78,  76,  74,  72,  70,  68,  66,  64,  62,  60,  58,  56,  54,  52,  50,  48,  46,  44,  42,  41,  39,  38,  36,  35,  33,  32,  31,  30,  29,  28 },
+  {  93,  92,  91,  90,  89,  88,  86,  85,  83,  82,  80,  79,  77,  75,  73,  71,  69,  67,  64,  62,  60,  58,  56,  53,  51,  49,  47,  45,  43,  41,  40,  38,  37,  35,  34,  32,  31,  30,  29,  28,  27 },
+  {  94,  93,  92,  91,  90,  89,  87,  86,  85,  83,  81,  80,  78,  76,  74,  72,  69,  67,  65,  62,  60,  58,  55,  53,  51,  48,  46,  44,  42,  40,  39,  37,  35,  34,  33,  31,  30,  29,  28,  27,  26 },
+  {  95,  94,  93,  92,  91,  90,  89,  87,  86,  84,  82,  81,  79,  77,  75,  72,  70,  68,  65,  63,  60,  57,  55,  52,  50,  48,  45,  43,  41,  39,  38,  36,  34,  33,  31,  30,  29,  28,  27,  26,  25 },
+  {  97,  96,  95,  94,  93,  91,  90,  89,  87,  85,  84,  82,  80,  78,  75,  73,  71,  68,  65,  63,  60,  57,  55,  52,  49,  47,  45,  42,  40,  38,  36,  35,  33,  31,  30,  29,  27,  26,  25,  24,  23 },
+  {  98,  97,  96,  95,  94,  93,  91,  90,  88,  87,  85,  83,  81,  79,  77,  74,  71,  69,  66,  63,  60,  57,  54,  51,  49,  46,  43,  41,  39,  37,  35,  33,  32,  30,  29,  27,  26,  25,  24,  23,  22 },
+  {  99,  98,  98,  97,  95,  94,  93,  92,  90,  88,  87,  85,  82,  80,  78,  75,  72,  69,  66,  63,  60,  57,  54,  51,  48,  45,  42,  40,  38,  35,  33,  32,  30,  28,  27,  26,  25,  23,  22,  22,  21 },
+  { 101, 100,  99,  98,  97,  96,  95,  93,  92,  90,  88,  86,  84,  82,  79,  76,  73,  70,  67,  63,  60,  57,  53,  50,  47,  44,  41,  38,  36,  34,  32,  30,  28,  27,  25,  24,  23,  22,  21,  20,  19 },
+  { 102, 101, 101, 100,  99,  98,  96,  95,  93,  92,  90,  88,  86,  83,  81,  78,  75,  71,  68,  64,  60,  56,  52,  49,  45,  42,  39,  37,  34,  32,  30,  28,  27,  25,  24,  22,  21,  20,  19,  19,  18 },
+  { 104, 103, 102, 101, 100,  99,  98,  97,  95,  94,  92,  90,  88,  85,  82,  79,  76,  72,  68,  64,  60,  56,  52,  48,  44,  41,  38,  35,  32,  30,  28,  26,  25,  23,  22,  21,  20,  19,  18,  17,  16 },
+  { 105, 105, 104, 103, 102, 101, 100,  99,  98,  96,  94,  92,  90,  87,  85,  81,  78,  74,  69,  65,  60,  55,  51,  46,  42,  39,  35,  33,  30,  28,  26,  24,  22,  21,  20,  19,  18,  17,  16,  15,  15 },
+  { 107, 107, 106, 105, 104, 103, 102, 101, 100,  98,  97,  95,  93,  90,  87,  84,  80,  75,  71,  65,  60,  55,  49,  45,  40,  36,  33,  30,  27,  25,  23,  22,  20,  19,  18,  17,  16,  15,  14,  13,  13 },
+  { 109, 108, 108, 107, 106, 105, 105, 103, 102, 101,  99,  98,  95,  93,  90,  87,  82,  78,  72,  66,  60,  54,  48,  42,  38,  33,  30,  27,  25,  22,  21,  19,  18,  17,  15,  15,  14,  13,  12,  12,  11 },
+  { 111, 110, 110, 109, 108, 108, 107, 106, 105, 104, 102, 101,  99,  96,  93,  90,  86,  81,  75,  68,  60,  52,  45,  39,  34,  30,  27,  24,  21,  19,  18,  16,  15,  14,  13,  12,  12,  11,  10,  10,   9 },
+  { 112, 112, 112, 111, 111, 110, 109, 109, 108, 107, 105, 104, 102, 100,  98,  94,  90,  85,  78,  69,  60,  51,  42,  35,  30,  26,  22,  20,  18,  16,  15,  13,  12,  11,  11,  10,   9,   9,   8,   8,   8 },
+  { 114, 114, 114, 113, 113, 112, 112, 111, 111, 110, 109, 108, 106, 105, 102,  99,  95,  90,  82,  72,  60,  48,  38,  30,  25,  21,  18,  15,  14,  12,  11,  10,   9,   9,   8,   8,   7,   7,   6,   6,   6 },
+  { 116, 116, 116, 116, 115, 115, 115, 114, 114, 113, 112, 112, 111, 109, 108, 105, 102,  98,  90,  78,  60,  42,  30,  22,  18,  15,  12,  11,   9,   8,   8,   7,   6,   6,   5,   5,   5,   4,   4,   4,   4 },
+  { 118, 118, 118, 118, 118, 117, 117, 117, 117, 117, 116, 116, 115, 115, 114, 112, 111, 108, 102,  90,  60,  30,  18,  12,   9,   8,   6,   5,   5,   4,   4,   3,   3,   3,   3,   3,   2,   2,   2,   2,   2 },
+  { 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 255,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 },
+  { 122, 122, 122, 122, 122, 123, 123, 123, 123, 123, 124, 124, 125, 125, 126, 128, 129, 132, 138, 150, 180, 210, 222, 228, 231, 232, 234, 235, 235, 236, 236, 237, 237, 237, 237, 237, 238, 238, 238, 238, 238 },
+  { 124, 124, 124, 124, 125, 125, 125, 126, 126, 127, 128, 128, 129, 131, 132, 135, 138, 142, 150, 162, 180, 198, 210, 218, 222, 225, 228, 229, 231, 232, 232, 233, 234, 234, 235, 235, 235, 236, 236, 236, 236 },
+  { 126, 126, 126, 127, 127, 128, 128, 129, 129, 130, 131, 132, 134, 135, 138, 141, 145, 150, 158, 168, 180, 192, 202, 210, 215, 219, 222, 225, 226, 228, 229, 230, 231, 231, 232, 232, 233, 233, 234, 234, 234 },
+  { 128, 128, 128, 129, 129, 130, 131, 131, 132, 133, 135, 136, 138, 140, 142, 146, 150, 155, 162, 171, 180, 189, 198, 205, 210, 214, 218, 220, 222, 224, 225, 227, 228, 229, 229, 230, 231, 231, 232, 232, 232 },
+  { 129, 130, 130, 131, 132, 132, 133, 134, 135, 136, 138, 139, 141, 144, 147, 150, 154, 159, 165, 172, 180, 188, 195, 201, 206, 210, 213, 216, 219, 221, 222, 224, 225, 226, 227, 228, 228, 229, 230, 230, 231 },
+  { 131, 132, 132, 133, 134, 135, 135, 137, 138, 139, 141, 142, 145, 147, 150, 153, 158, 162, 168, 174, 180, 186, 192, 198, 202, 207, 210, 213, 215, 218, 219, 221, 222, 223, 225, 225, 226, 227, 228, 228, 229 },
+  { 133, 133, 134, 135, 136, 137, 138, 139, 140, 142, 143, 145, 147, 150, 153, 156, 160, 165, 169, 175, 180, 185, 191, 195, 200, 204, 207, 210, 213, 215, 217, 218, 220, 221, 222, 223, 224, 225, 226, 227, 227 },
+  { 135, 135, 136, 137, 138, 139, 140, 141, 142, 144, 146, 148, 150, 153, 155, 159, 162, 166, 171, 175, 180, 185, 189, 194, 198, 201, 205, 207, 210, 212, 214, 216, 218, 219, 220, 221, 222, 223, 224, 225, 225 },
+  { 136, 137, 138, 139, 140, 141, 142, 143, 145, 146, 148, 150, 152, 155, 158, 161, 164, 168, 172, 176, 180, 184, 188, 192, 196, 199, 202, 205, 208, 210, 212, 214, 215, 217, 218, 219, 220, 221, 222, 223, 224 },
+  { 138, 139, 139, 140, 141, 142, 144, 145, 147, 148, 150, 152, 154, 157, 159, 162, 165, 169, 172, 176, 180, 184, 188, 191, 195, 198, 201, 203, 206, 208, 210, 212, 213, 215, 216, 218, 219, 220, 221, 221, 222 },
+  { 139, 140, 141, 142, 143, 144, 145, 147, 148, 150, 152, 154, 156, 158, 161, 164, 167, 170, 173, 177, 180, 183, 187, 190, 193, 196, 199, 202, 204, 206, 208, 210, 212, 213, 215, 216, 217, 218, 219, 220, 221 },
+  { 141, 142, 142, 143, 145, 146, 147, 148, 150, 152, 153, 155, 158, 160, 162, 165, 168, 171, 174, 177, 180, 183, 186, 189, 192, 195, 198, 200, 202, 205, 207, 208, 210, 212, 213, 214, 215, 217, 218, 218, 219 },
+  { 142, 143, 144, 145, 146, 147, 149, 150, 152, 153, 155, 157, 159, 161, 163, 166, 169, 171, 174, 177, 180, 183, 186, 189, 191, 194, 197, 199, 201, 203, 205, 207, 208, 210, 211, 213, 214, 215, 216, 217, 218 },
+  { 143, 144, 145, 146, 147, 149, 150, 151, 153, 155, 156, 158, 160, 162, 165, 167, 169, 172, 175, 177, 180, 183, 185, 188, 191, 193, 195, 198, 200, 202, 204, 205, 207, 209, 210, 211, 213, 214, 215, 216, 217 },
+  { 145, 146, 147, 148, 149, 150, 151, 153, 154, 156, 158, 159, 161, 163, 165, 168, 170, 172, 175, 177, 180, 183, 185, 188, 190, 192, 195, 197, 199, 201, 202, 204, 206, 207, 209, 210, 211, 212, 213, 214, 215 },
+  { 146, 147, 148, 149, 150, 151, 153, 154, 155, 157, 159, 160, 162, 164, 166, 168, 171, 173, 175, 178, 180, 182, 185, 187, 189, 192, 194, 196, 198, 200, 201, 203, 205, 206, 207, 209, 210, 211, 212, 213, 214 },
+  { 147, 148, 149, 150, 151, 152, 154, 155, 157, 158, 160, 161, 163, 165, 167, 169, 171, 173, 176, 178, 180, 182, 184, 187, 189, 191, 193, 195, 197, 199, 200, 202, 203, 205, 206, 208, 209, 210, 211, 212, 213 },
+  { 148, 149, 150, 151, 152, 153, 155, 156, 158, 159, 161, 162, 164, 166, 168, 170, 172, 174, 176, 178, 180, 182, 184, 186, 188, 190, 192, 194, 196, 198, 199, 201, 202, 204, 205, 207, 208, 209, 210, 211, 212 },
+  { 149, 150, 151, 152, 153, 154, 156, 157, 158, 160, 161, 163, 165, 167, 168, 170, 172, 174, 176, 178, 180, 182, 184, 186, 188, 190, 192, 193, 195, 197, 199, 200, 202, 203, 204, 206, 207, 208, 209, 210, 211 },
+  { 150, 151, 152, 153, 154, 155, 157, 158, 159, 161, 162, 164, 165, 167, 169, 171, 172, 174, 176, 178, 180, 182, 184, 186, 188, 189, 191, 193, 195, 196, 198, 199, 201, 202, 203, 205, 206, 207, 208, 209, 210 }
 };
 
 
@@ -4404,7 +5151,7 @@ void get_grid_using_angle(int angle, int y0, int x0, int *ty, int *tx)
 
 
 	/* Angle must be legal */
-	if ((angle < 0) || (angle >= 180)) return;
+	if ((angle < 0) || (angle >= 240)) return;
 
 
 	/* Assume maximum grids, but stay (fully) within the dungeon */
@@ -4420,17 +5167,17 @@ void get_grid_using_angle(int angle, int y0, int x0, int *ty, int *tx)
 	x_right =  x_right  - x0 + 20;
 
 	/* Constrain to the quadrant of the table that contains this angle */
-	if (angle >= 135)
+	if (angle >= 180)
 	{
 		y_top =    MAX(y_top, 20);
 		x_left =   MAX(x_left, 20);
 	}
-	else if (angle >= 90)
+	else if (angle >= 120)
 	{
 		y_top =    MAX(y_top, 20);
 		x_right =  MIN(x_right, 21);
 	}
-	else if (angle >= 45)
+	else if (angle >= 60)
 	{
 		y_bottom = MIN(y_bottom, 21);
 		x_right =  MIN(x_right, 21);
@@ -4479,7 +5226,7 @@ void get_grid_using_angle(int angle, int y0, int x0, int *ty, int *tx)
 	}
 
 	/* We have an unacceptably large fudge factor */
-	if (fudge >= 30)
+	if (fudge >= 60)
 	{
 		/* Set target to original grid */
 		*ty = y0;
@@ -4511,44 +5258,3 @@ int get_loc_of_flag(u32b flag)
 
 	return (i);
 }
-
-
-
-/*
- * Execute the "Term->rows_hook" hook, if available (see above).
- *
- * It may (or may not) be a good idea for this function to blank the
- * screen before resetting the number of rows, in order to cut down on
- * screen flicker.  It is probably not a good idea to ask the user to
- * clear any pending messages before resetting.
- *
- * This function moved from "z-term.c" to avoid circular dependencies.
- */
-errr Term_rows(bool fifty_rows)
-{
-	bool change = FALSE;
-
-	/* Verify the hook (only exists on main term) */
-	if (!Term->rows_hook) return (-1);
-
-	/* Only if necessary */
-	if ((fifty_rows) && (screen_rows != 50))
-	{
-		change = TRUE;
-	}
-	else if ((!fifty_rows) && (screen_rows == 50))
-	{
-		change = TRUE;
-	}
-
-	/* Make changes */
-	if (change)
-	{
-		/* Change the number of rows */
-		return ((*Term->rows_hook)(fifty_rows));
-	}
-
-	/* Don't make changes */
-	return (0);
-}
-

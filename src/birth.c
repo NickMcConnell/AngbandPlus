@@ -1,4 +1,3 @@
-
 /* File: birth.c */
 
 /*
@@ -9,11 +8,12 @@
  * Display birth options, quick-start, ask birth questions.  Roll and
  * auto-roll for stats.  Initialize and create a new character.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -42,20 +42,20 @@ struct birther
 
 
 /*
+ * Requested base stats
+ */
+static int stat_ask[A_MAX];
+
+/*
  * Current stats (when rolling a character).
  */
 static s16b stat_use[A_MAX];
 
-typedef struct stat_priority stat_priority;
-
 /*
- * A structure to hold the stat priorities.
+ * Order in which stats are assigned, from best to worst.
  */
-struct stat_priority
-{
-	bool resolved;
-	int stat[A_MAX];
-};
+static int stat_order[A_MAX];
+
 
 /*
  * Forward declare
@@ -288,163 +288,150 @@ static hist_type bg[] =
 };
 
 
+
 /*
- * Helper function for get_stats
- *
- * Takes a "stat_priority" struct which is already loaded with
- * priorities for each stat (lowest is best).  "Resolves" the struct
- * by breaking ties and moving the priorities to the range 0 to
- * A_MAX-1.  Makes the struct as "resolved".  Does nothing to already
- * "resolved" structs. -BR-
- *
- * TODO:
- * It should check for errors. (negative numbers)
+ * Set up a stat priority table, or clear it
  */
-static void calc_stat_rank(stat_priority *priority)
+static void prioritize_stats(bool prioritize)
 {
 	int i;
-	int resolved_priorities[A_MAX];
 
-	int current_priority = 0;
-	int resolved_count = 0;
+	/* DEBUG -- Turn off this code until we have more time to test it */
+	prioritize = FALSE;
 
-	/* Priority structure already marked as good - return */
-	if (priority->resolved) return;
+	/*
+	 * When you turn on this code, also uncomment "p_ptr->birth_roll_requirement = "
+	 * below.  Because it makes the autoroller (even) more effective, it would also
+	 * be a good idea to re-balance manual and auto-rolling.  Perhaps a small maximum
+	 * stat penalty for auto-rolled characters?  But then you need to tweak the
+	 * rarity calcs...
+	 */
 
-	/* Keep resolving until all are done. */
-	while (resolved_count < A_MAX)
+
+	/* We want to set up the stat priority table */
+	if (prioritize)
 	{
-		/* Count and map of matches at current (unresolved) priority */
-		int current_count = 0;
-		bool current_matches[A_MAX] = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
+		int j, stat, count;
 
-		/* Fill count and map */
-		for (i = 0; i < A_MAX; i++)
+		/* Randomize start and end points for the scan loop */
+		int start = rand_int(A_MAX);
+		int end = start + A_MAX;
+
+		/* Scan all possible stat requests until the priority table is filled */
+		for (i = 0, count = 0; count < A_MAX; i++)
 		{
-			if (priority->stat[i] == current_priority)
+			/* Loop through the stats (random start to resolve ties) */
+			for (j = start; j < end; j++)
 			{
-				current_count++;
-				current_matches[i] = TRUE;
+				/* Get stat */
+				stat = j % A_MAX;
+
+				/* Sort stats by increasing priority */
+				if (stat_ask[stat] == i)
+				{
+					/* Save this stat, increment count */
+					stat_order[A_MAX - 1 - (count++)] = stat;
+				}
 			}
 		}
-
-		/*
-		 * Randomly try assigning stats to the next resolved
-		 * priority until a legal choice is made. Note that
-		 * this block is grossly inefficient; that should be
-		 * OK, since it is called so rarely, and I don't have
-		 * a better way that is as compact.  -BR-
-		 */
-		while (current_count > 0)
-		{
-			int some_stat = rand_int(A_MAX);
-			if (current_matches[some_stat])
-			{
-				current_count--;
-				current_matches[some_stat] = FALSE;
-				resolved_priorities[some_stat] = resolved_count;
-				resolved_count++;
-			}
-		}
-
-		/* look for matches at next unresolved priority */
-		current_priority++;
 	}
 
-	/* Assign resolved priorities back to the original struct. */
-	for (i = 0; i < A_MAX; i++)
+	/* We want to clear it */
+	else
 	{
-		priority->stat[i] = resolved_priorities[i];
+		for (i = 0; i < A_MAX; i++) stat_order[i] = -1;
 	}
-
-	/* Mark as resolved and return */
-	priority->resolved = TRUE;
-	return;
 }
 
+
 /*
- * Roll for a character's stats
- *
+ * Roll up character stats
  * Added ability to create an ordered list of stats. -CJN-
  *
  * The "priority" struct must contain a list of stat priorities (lower
  * is better).  If the struct contains ties, or values above A_MAX - 1,
  * these problems will be resolved by "calc_stat_rank"
  */
-static void get_stats(stat_priority *priority)
+static void get_stats(void)
 {
-	int i, j, tmp;
+	int i, j, total;
 
-	int bonus;
+	int stat, bonus;
 
 	int dice[3 * A_MAX];
 	int stats[A_MAX];
-	int sorted_stats[A_MAX];
 
 	int min = 7 * A_MAX;
 	int max = 9 * A_MAX;
 
-	/* Generate clean priorities (0-5, no ties) */
-	calc_stat_rank(priority);
 
 	/* Roll and verify some stats */
 	while (TRUE)
 	{
 		/* Roll some dice */
-		for (j = i = 0; i < 3 * A_MAX; i++)
+		for (total = i = 0; i < 3 * A_MAX; i++)
 		{
 			/* Roll the dice */
 			dice[i] = randint(3 + i % 3);
 
-			/* Collect the maximum */
-			j += dice[i];
+			/* Sum up totals */
+			total += dice[i];
 		}
 
-		/* Verify totals */
-		if ((j > min) && (j < max)) break;
-	}
-
-	/* Collect the stats for future manipulation */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Extract 5 + 1d3 + 1d4 + 1d5 */
-		sorted_stats[i] = 5 + dice[3 * i] + dice[3 * i + 1] + dice[3 * i + 2];
-	}
-
-	/* Assign stats in order */
-
-	/* Produce sorted stat array ... */
-	for (i = 0; i < A_MAX; i++)
-	{
-		tmp = sorted_stats[i];
-		for (j = i; j > 0 && sorted_stats[j - 1] < tmp; j--)
+		/* Require that totals fall within a set range */
+		if ((total > min) && (total < max))
 		{
-			sorted_stats[j] = sorted_stats[j - 1];
+			/* Each base stat ... */
+			for (i = 0; i < A_MAX; i++)
+			{
+				/* ... is the sum of 5 + 1d3 + 1d4 + 1d5 */
+				stats[i] = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
+			}
+
+			/* Accept */
+			break;
 		}
-		sorted_stats[j] = tmp;
 	}
 
-	/* ... and assign the stats in the order preference */
-	for (i = 0; i < A_MAX; i++)
+	/* We are using a stat priority array */
+	if (stat_order[0] >= 0)
 	{
-		stats[i] = sorted_stats[priority->stat[i]];
+		/* Sort the stats, highest to lowest */
+		for (i = 0; i < A_MAX - 1; i++)
+		{
+			for (j = 0; j < A_MAX - 1; j++)
+			{
+				/* Bubble sort - descending values */
+				if (stats[j] < stats[j + 1])
+				{
+					int tmp = stats[j];
+
+					stats[j] = stats[j + 1];
+
+					stats[j + 1] = tmp;
+				}
+			}
+		}
 	}
 
-
-	/* Save the stats */
+	/* Save and adjust stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		/* Save that value */
-		p_ptr->stat_max[i] = stats[i];
+		/* Stats may or may not be prioritized */
+		if (stat_order[0] >= 0) stat = stat_order[i];
+		else                    stat = i;
+
+		/* Save the base stat value */
+		p_ptr->stat_max[stat] = stats[i];
 
 		/* Get racial bonus to stat */
-		bonus = rp_ptr->r_adj[i];
+		bonus = rp_ptr->r_adj[stat];
 
 		/* Start fully healed */
-		p_ptr->stat_birth[i] = p_ptr->stat_cur[i] = p_ptr->stat_max[i];
+		p_ptr->stat_birth[stat] = p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
 
 		/* Apply the racial adjustment directly to maximum */
-		stat_use[i] = modify_stat(p_ptr->stat_max[i], bonus);
+		stat_use[stat] = modify_stat(p_ptr->stat_max[stat], bonus);
 	}
 }
 
@@ -727,7 +714,7 @@ static void get_money(void)
 	int i, gold;
 
 	/* Social class determines starting gold */
-	gold = (p_ptr->sc * 5) + rand_range(150, 200);
+	gold = (p_ptr->sc * 5) + rand_range(100, 150);
 
 	/* Process the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -849,14 +836,11 @@ void player_wipe(bool full)
 	/* No stealing */
 	num_recent_thefts = 0;
 
-	/* No active sub-windows */
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
-	{
-		op_ptr->window_flag[i] = 0;
-	}
-
 	/* Character type is always normal to begin with */
 	p_ptr->character_type = PCHAR_NORMAL;
+
+	/* And does not use multiple lives  XXX */
+	op_ptr->opt[OPT_beginner_play] = FALSE;
 
 
 	/* The below is only done when needed */
@@ -899,12 +883,12 @@ void player_wipe(bool full)
  *
  * They have to be quite terse - there's not much space...
  */
-static void desc_birth_options()
+static void desc_birth_options(void)
 {
 	int i;
 	byte a = TERM_L_BLUE;
 
-	char buf[80];
+	char buf[DESC_LEN];
 
 
 	/* Clear from x = 50, between y = 20 and y = 24 */
@@ -921,21 +905,19 @@ static void desc_birth_options()
 	move_cursor(19, 50);
 
 	/* Print out title */
-	c_roff(TERM_WHITE, format("%s\n", buf), 50, 80);
+	c_roff(TERM_WHITE, format("%s\n", buf), 50, display_width());
 
 	/* Display character type details */
-	c_roff(a, "-", 50, 80);
-	c_roff(a, character_type_desc[p_ptr->character_type], 50, 80);
-	c_roff(a, "\n", 50, 80);
+	c_roff(a, format("-%s\n", character_type_desc[p_ptr->character_type]), 50, display_width());
 
 	/* Print out option descriptions */
-	if (birth_autoroll) c_roff(a, "-Using the autoroller.\n", 50, 80);
-	else c_roff(a, "-Using manual rolling.\n", 50, 80);
-	if (birth_no_stores) c_roff(a, "-Cannot use stores.\n", 50, 80);
-	if (birth_no_artifacts) c_roff(a, "-No artifacts.\n", 50, 80);
+	if (birth_autoroll) c_roff(a, "-Using the autoroller.\n", 50, display_width());
+	else c_roff(a, "-Using manual rolling.\n", 50, display_width());
+	if (birth_no_stores) c_roff(a, "-Cannot use stores.\n", 50, display_width());
+	if (birth_no_artifacts) c_roff(a, "-No artifacts.\n", 50, display_width());
 	if ((p_ptr->character_type != PCHAR_IRONMAN) && birth_no_return_stair)
-		c_roff(a, "-No stairs back.\n", 50, 80);
-	if (birth_smart_cheat) c_roff(a, "-Monsters cheat-learn.\n", 50, 80);
+		c_roff(a, "-No stairs back.\n", 50, display_width());
+	if (birth_smart_cheat) c_roff(a, "-Monsters cheat-learn.\n", 50, display_width());
 }
 
 
@@ -1075,7 +1057,7 @@ static int player_birth_aux_1(void)
 
 	char p2 = ')';
 
-	char buf[120];
+	char buf[DESC_LEN];
 
 	bool dummy;
 
@@ -1086,7 +1068,7 @@ static int player_birth_aux_1(void)
 	(void)Term_clear();
 
 	/* Get a title, center it */
-	center_string(buf, sizeof(buf), format("Create a %s Character", VERSION_NAME), 80);
+	center_string(buf, sizeof(buf), format("Create a %s Character", VERSION_NAME), display_width());
 
 	/* Print it out */
 	prt(buf, 0, 0);
@@ -1143,7 +1125,7 @@ static int player_birth_aux_1(void)
 			}
 
 			/* Build a prompt */
-			sprintf(buf, "%c-%c) Choose a gender", I2A(0), I2A(n-1));
+			(void)strnfmt(buf, sizeof(buf), "%c-%c) Choose a gender", I2A(0), I2A(n-1));
 
 			/* Fill in help text */
 			if (!can_quick_start)
@@ -1174,7 +1156,7 @@ static int player_birth_aux_1(void)
 			}
 
 			/* Build a prompt */
-			sprintf(buf, "%c-%c) Choose a race  ", I2A(0), I2A(n-1));
+			(void)strnfmt(buf, sizeof(buf), "%c-%c) Choose a race  ", I2A(0), I2A(n-1));
 
 			/* Fill in help text */
 			c_put_str(a, format("%s  *) Choose at random        ", buf), 19, 1);
@@ -1190,7 +1172,7 @@ static int player_birth_aux_1(void)
 			else if (question == 1) move_cursor(5, 10);
 
 
-			ch = inkey();
+			ch = inkey(FALSE);
 
 			/* Quit */
 			if ((ch == 'Q') || (ch == 'q')) quit(NULL);
@@ -1227,7 +1209,7 @@ static int player_birth_aux_1(void)
 			else if (ch == '=')
 			{
 				/* Save screen */
-				screen_save();
+				screen_save(TRUE);
 
 				/* Interact with options -- birth options only */
 				do_cmd_options_aux(4, "Birth/Difficulty Options", &dummy);
@@ -1327,8 +1309,6 @@ static int player_birth_aux_1(void)
 	return (2);
 }
 
-
-static int stat_ask[A_MAX];
 
 
 /*
@@ -1443,7 +1423,7 @@ static bool player_birth_aux_2(bool quick_start)
 	bool prev = FALSE;
 
 	char ch;
-	char buf[80];
+	char buf[DESC_LEN];
 
 	s16b stat_limit[A_MAX];
 
@@ -1452,10 +1432,6 @@ static bool player_birth_aux_2(bool quick_start)
 	s32b auto_round = 0L;
 
 	s32b last_round;
-
-	stat_priority priority;
-
-	s16b max_requested_stat;
 
 
 	/* Reset character rolls  (this can be abused...) */
@@ -1468,12 +1444,12 @@ static bool player_birth_aux_2(bool quick_start)
 	if (birth_autoroll && !quick_start)
 	{
 		int mval[A_MAX];
-		char rtitle[80];
+		char rtitle[DESC_LEN];
 
-		char inp[80];
+		char inp[DESC_LEN];
 
 		/* Clear screen */
-		clear_from(0);
+		(void)Term_clear();
 
 		/* Store the race name */
 		strcpy(rtitle, rp_ptr->title);
@@ -1485,9 +1461,9 @@ static bool player_birth_aux_2(bool quick_start)
 		c_put_str(TERM_L_BLUE, format("%s", sp_ptr->title), 3, 10);
 		c_put_str(TERM_L_BLUE, format("%s", rp_ptr->title), 4, 10);
 
-
+		/* Print instructions */
 		move_cursor(7, 0);
-		roff(format("     Please specify minimum values for your character's vital statistics.  When you are done, you will be told how unusual your desired adventurer is.  It is possible (indeed, easy) to ask for stats beyond what any %s can have.", rtitle), 5, 75);
+		roff(format("     Please specify minimum values for your character's vital statistics.  When you are done, you will be told how unusual your desired adventurer is.  It is possible (indeed, easy) to ask for stats beyond what any %s can have.", rtitle), 5, display_width() - 5);
 
 		/* Prompt for the minimum stats */
 		put_str("Enter minimum value for: ", 12, 2);
@@ -1514,13 +1490,13 @@ static bool player_birth_aux_2(bool quick_start)
 				/* Above 18 */
 				if (m > 18)
 				{
-					sprintf(inp, "(Max of 18/%02d):", (m - 18));
+					(void)strnfmt(inp, sizeof(inp), "(Max of 18/%02d):", (m - 18));
 				}
 
 				/* From 3 to 18 */
 				else
 				{
-					sprintf(inp, "(Max of %2d):", m);
+					(void)strnfmt(inp, sizeof(inp), "(Max of %2d):", m);
 				}
 
 				/* Prepare a prompt */
@@ -1639,6 +1615,14 @@ static bool player_birth_aux_2(bool quick_start)
 				/* Choice */
 				if (get_check("Accept these odds, and roll up a character?"))
 				{
+					/*
+					 * Because the new stat prioritizing code makes it faster to roll up
+					 * good characters, we save the rarity here. ....  Or will, once we
+					 * actually turn on said code!
+					 */
+					/* p_ptr->birth_roll_requirement = rarity; */
+
+
 					break;
 				}
 				else
@@ -1659,22 +1643,8 @@ static bool player_birth_aux_2(bool quick_start)
 	/* Repeat until satisfied */
 	while (TRUE)
 	{
-		/*
-		 * Initialize priority (autoroller may override)
-		 *
-		 * We must do this inside the loop or the user will
-		 * see a systematic bias when rerolling after the
-		 * priority array resolves.
-		 */
-
-		/* Ties are not resolved */
-		priority.resolved = FALSE;
-
-		/* Set all priorities to 0 (max) */
-		for (i = 0; i < A_MAX; i++) priority.stat[i] = 0;
-
-		/* Set priority to 1 (not max) for Charisma */
-		priority.stat[A_CHR] = 1;
+		/* Prioritize stats if autorolling, remove priorities otherwise */
+		prioritize_stats(birth_autoroll);
 
 		/* We've not loaded a character based on a previous one */
 		if (!quick_start)
@@ -1702,7 +1672,7 @@ static bool player_birth_aux_2(bool quick_start)
 					put_str(stat_names[i], 3+i, col);
 
 					/* Put the stat */
-					cnv_stat(stat_limit[i], buf);
+					cnv_stat(buf, sizeof(buf), stat_limit[i]);
 					c_put_str(TERM_L_BLUE, buf, 3+i, col+5);
 				}
 
@@ -1715,53 +1685,13 @@ static bool player_birth_aux_2(bool quick_start)
 				/* Indicate the state */
 				put_str("(Hit ESC to stop)", 12, col+13);
 
-				/* Remove racial bonuses from stat_limit */
-				for (i = 0; i < A_MAX; i++)
-				{
-					stat_limit[i] -= rp_ptr->r_adj[i];
-				}
-
-
-				max_requested_stat = 0;
-
-				/* Find highest required stat */
-				for (i = 0; i < A_MAX; i++)
-				{
-					if (max_requested_stat < stat_limit[i])
-					{
-						max_requested_stat = stat_limit[i];
-					}
-				}
-
-				/*
-				 * Assign a temp priority to each stat (lowest
-				 * number is highest priority).
-				 */
-				for (i = 0; i < A_MAX; i++)
-				{
-					priority.stat[i] = max_requested_stat - stat_limit[i];
-				}
-
-				/* Restore racial bonuses to stat_limit */
-				for (i = 0; i < A_MAX; i++)
-				{
-					stat_limit[i] += rp_ptr->r_adj[i];
-				}
-
-
-				/*
-				 * We may have generated ties or
-				 * non-consecutive priorities.  Flag to fix
-				 */
-				priority.resolved = FALSE;
-
 				/* Auto-roll */
 				while (TRUE)
 				{
 					bool accept = TRUE;
 
 					/* Get a new character */
-					get_stats(&priority);
+					get_stats();
 
 					/* Advance the round */
 					auto_round++;
@@ -1798,7 +1728,7 @@ static bool player_birth_aux_2(bool quick_start)
 						for (i = 0; i < A_MAX; i++)
 						{
 							/* Put the stat */
-							cnv_stat(stat_use[i], buf);
+							cnv_stat(buf, sizeof(buf), stat_use[i]);
 							c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
 
 							/* Put the percent */
@@ -1806,7 +1736,7 @@ static bool player_birth_aux_2(bool quick_start)
 							{
 								int p = 1000L * stat_match[i] / auto_round;
 								byte attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
-								sprintf(buf, "%3d.%d%%", p/10, p%10);
+								(void)strnfmt(buf, sizeof(buf), "%3d.%d%%", p/10, p%10);
 								c_put_str(attr, buf, 3+i, col+13);
 							}
 
@@ -1830,7 +1760,7 @@ static bool player_birth_aux_2(bool quick_start)
 						inkey_scan = TRUE;
 
 						/* Check for a keypress */
-						if (inkey()) break;
+						if (inkey(FALSE)) break;
 					}
 				}
 			}
@@ -1838,8 +1768,8 @@ static bool player_birth_aux_2(bool quick_start)
 			/* Otherwise just get a character */
 			else
 			{
-				/* Get a new character - random stats */
-				get_stats(&priority);
+				/* Get a new character */
+				get_stats();
 			}
 
 			/* Flush input */
@@ -1902,7 +1832,7 @@ static bool player_birth_aux_2(bool quick_start)
 			prt("['r' to reroll, 'S' to restart, or Return to accept]", 23, 0);
 
 			/* Prompt and get a command */
-			ch = inkey();
+			ch = inkey(FALSE);
 
 			/* Quit */
 			if ((ch == 'Q') || (ch == 'q')) quit(NULL);
@@ -1971,6 +1901,7 @@ static bool player_birth_aux_2(bool quick_start)
 static int player_birth_aux(void)
 {
 	char ch;
+	char buf[1024];
 
 	/*
 	 * Ask questions.  Return -1 for cancel everything, 0 for repeat,
@@ -1990,11 +1921,16 @@ static int player_birth_aux(void)
 	/* Display the player (again) */
 	display_player(0);
 
+
+	/* Center the prompt */
+	center_string(buf, sizeof(buf),
+		"['Q' to quit, 'S' to start over, or any other key to continue]", display_width());
+
 	/* Prompt for it */
-	prt("['Q' to quit, 'S' to start over, or any other key to continue]", 23, 10);
+	prt(buf, 23, 0);
 
 	/* Get a key */
-	ch = inkey();
+	ch = inkey(FALSE);
 
 	/* Quit */
 	if ((ch == 'Q') || (ch == 'q')) quit(NULL);
@@ -2108,10 +2044,9 @@ bool player_birth(void)
 {
 	int n, choice;
 
-	int old_rows = screen_rows;
 
-	/* Set to 25 screen rows */
-	(void)Term_rows(FALSE);
+	/* Use the standard display and center an 80 column view */
+	display_change(DSP_REMEMBER | DSP_NORM | DSP_CX, 80, 0);
 
 	/* Create a new character */
 	while (TRUE)
@@ -2123,10 +2058,16 @@ bool player_birth(void)
 		choice = player_birth_aux();
 
 		/* Accept */
-		if (choice > 0) break;
+		if (choice != 0) break;
+	}
 
-		/* Cancel */
-		if (choice < 0) return (FALSE);
+	/* Allow cancel */
+	if (choice < 0)
+	{
+		/* Restore previous display */
+		display_change(DSP_RESTORE, 0, 0);
+
+		return (FALSE);
 	}
 
 
@@ -2162,8 +2103,10 @@ bool player_birth(void)
 		store_maint(n, TRUE);
 	}
 
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50) (void)Term_rows(TRUE);
+	p_ptr->specialty = SPECIALTY_NONE;
+
+	/* Restore previous display */
+	display_change(DSP_RESTORE, 0, 0);
 
 	/* Success */
 	return (TRUE);

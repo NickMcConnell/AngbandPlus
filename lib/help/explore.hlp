@@ -4,8 +4,8 @@
     (1) Symbols on your Map                               (symbols.txt)
     (2) The Town                                          (town.txt)
     (3) The Dungeon                                       (dungeon.txt)
-    (4) Objects and Monsters                              (objs-mon.txt)
-
+    (4) Objects                                           (objects.txt)
+    (5) Monsters                                          (monsters.txt)
 
 
 
@@ -23,4 +23,5 @@ Help Commands:
 ***** [1] symbols.txt
 ***** [2] town.txt
 ***** [3] dungeon.txt
-***** [4] objs-mon.txt
+***** [4] objects.txt
+***** [5] monsters.txt

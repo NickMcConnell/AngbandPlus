@@ -1,40 +1,38 @@
-# File: artifact.txt
-
-
+#
 # This file contains information about artifacts.
+#
 
-# Do not modify this file unless you know exactly what you are doing,
-# unless you wish to risk possible system crashes and broken savefiles.
-
-# The artifact indexes are defined in "defines.h", and must not be changed.
-
-# Artifacts 1-21 are amulets, rings, and lights, 22-96 are armours, 97-185 
+#
+# Artifacts 1-21 are amulets, rings, and lights, 22-96 are armors, 97-185 
 # are weapons, and 186-190 are diggers.  There are plenty of free
 # indexes after each base object kind, so you can add new shields after old.
-
+#
 # Artifacts come with descriptions that appear when they are normally 
 # identified.  Special thanks to J.R.R Tolkien, without whom the words would 
 # be unwritten, the images unconceived.  -LM-
 # Thanks also to Charlie Ball, and to Jeff Butler, Neal Hackler, 
 # Ethan Sicotte, Pat Tracy, and Yuanli Zhou
-
+#
 
 # Version stamp (required)
 
-V:0.9.9
+V:1.0.0
 
-
+#
 # N: artifact index: artifact name
 # I: base object tval (general kind): base object sval (specific type)
 # W: depth: rarity: weight in deci-pounds: value
-# C: base armour class: damage done when wielded or thrown: 
-#    Bonus to Skill: Bonus to Deadliness: Bonus to armour class: 
+# C: base armor class: damage done when wielded or thrown: 
+#    Bonus to Skill: Bonus to Deadliness: Bonus to armor class: 
 #    Activation Index (0 if item does not activate)
 # P: pval values
 # 1, 2, 3: flags associated with up to three pval values
 # F: flag | flag | etc
 # X: special random attributes
 # D: Artifact descriptions.
+#
+# For more information, see ego_item.txt and /lib/info/modify.txt.
+#
 
 
 # N:0 -- Blank slot used for temporary artifacts
@@ -184,17 +182,16 @@ N:14:of Power 'Narya'
 I:45:44
 W:70:45:2:350000
 C:0:1d1:0:0:0:11
-P:2:10
-1:STR | CON | CHR
+P:1:10
+1:STR | INT | WIS | DEX | CON | CHR | INVIS
 2:SPEED
-F:HIDE_TYPE | FREE_ACT |
-F:SLOW_DIGEST | REGEN |
-F:SUST_CON | IM_FIRE |
+F:HIDE_TYPE | FREE_ACT | SEE_INVIS | 
+F:SLOW_DIGEST | REGEN | 
+F:SUST_STR | SUST_DEX | IM_FIRE | 
 F:INSTA_ART
-D:The Ring of Ruby -- "Take this ring, Master, for your labours will be 
-D:heavy; butit will support you in the weariness that you have taken upon
-D:yourself. For this is the Ring of Fire, and with it you may rekindle
-D:hearts in a world that grows chill."
+D:The Ring of Fire, set with a ruby that glows like flame.  Narya is one 
+D:of the three Rings of Power created by the Elves and hidden by them from 
+D:Sauron.
 
 
 # The Ring of Power 'Nenya'
@@ -203,14 +200,15 @@ N:15:of Power 'Nenya'
 I:45:45
 W:80:55:2:425000
 C:0:1d1:0:0:0:12
-P:4:10
-1:INT | WIS | DEX | AWARENESS
+P:2:10
+1:STR | INT | WIS | DEX | CON | CHR | INVIS
 2:SPEED
-F:HIDE_TYPE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
-F:SUST_INT | SUST_WIS | IM_COLD | FEATHER
+F:HIDE_TYPE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
+F:FEATHER | REGEN | 
+F:SUST_INT | SUST_WIS | IM_COLD | 
 F:INSTA_ART
-D:The Ring of Adamant, with a pure white stone as centerpiece. Nenya is chief
-D:among the three Rings of Power created by the Elves and hidden by them from
+D:The Ring of Adamant, with a pure white stone as centerpiece.  Nenya is one 
+D:of the three Rings of Power created by the Elves and hidden by them from 
 D:Sauron.
 
 
@@ -221,16 +219,16 @@ I:45:46
 W:90:65:2:500000
 C:0:1d1:0:0:0:13
 P:3:10
-1:STR | INT | WIS | DEX | CON | CHR | AWARENESS
+1:STR | INT | WIS | DEX | CON | CHR | INVIS
 2:SPEED
 F:HIDE_TYPE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | SLOW_DIGEST | REGEN | 
-F:SUST_INT | SUST_WIS | SUST_STR | SUST_CHR | IM_ELEC | 
+F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC | 
 F:INSTA_ART
 D:The Ring of Sapphire, with clear blue gems that shine like stars, 
 D:glittering untouchable despite all that Morgoth ever wrought.  Vilya is 
-D:the greatest of the three Rings of Power created by the Elves and hidden
-D:by them from Sauron.
+D:one of the three Rings of Power created by the Elves and hidden by them 
+D:from Sauron.
 
 
 # The One Ring
@@ -306,7 +304,7 @@ D:and disruptive magics, that protects the life force of its wearer like
 D:nothing else can.
 
 
-# The Full Plate Armour of Isildur
+# The Full Plate Armor of Isildur
 
 N:27:of Isildur
 I:37:15
@@ -320,7 +318,7 @@ D:A gleaming steel suit covering the wearer from neck to foot, with runes of
 D:warding and stability deeply engraved into its surface.
 
 
-# The Brigandine Armour of the Rohirrim
+# The Brigandine Armor of the Rohirrim
 
 N:28:of the Rohirrim
 I:37:1
@@ -331,7 +329,7 @@ P:2
 F:HIDE_TYPE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONFU | RES_SOUND
 D:Strong metal plates cover an inner layer of sturdy canvas, and both bear 
 D:scenes of hunting and war.  You feel the spirit of Eorl the Young, matchless 
-D:in combat, around you as you put his armour on.
+D:in combat, around you as you put his armor on.
 
 
 # The Mithril Chain Mail 'Belegennon'
@@ -398,7 +396,7 @@ D:enhance body and mind lie within, and no door can bar the wearer's path.
 
 
 
-# The Hard Leather Armour of Himring
+# The Hard Leather Armor of Himring
 
 N:36:of Himring
 I:36:6
@@ -409,15 +407,15 @@ D:Contained within this studded cuirass of pliable leather is the memory of
 D:unvanquished Himring, defiant fortress surrounded by the legions of Morgoth.
 
 
-# The Soft Leather Armour 'Hithlomir'
+# The Soft Leather Armor 'Hithlomir'
 
 N:37:'H[^i]thl['o]m[^i]r'
 I:36:4
 W:20:4:70:45000
 C:4:0d0:0:0:20:0
-P:2
-1:STEALTH | INVIS
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK | HIDE_TYPE
+P:4
+1:STEALTH
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK
 D:Familar with the secret ways hidden in darkness, this black leather 
 D:cuirass is truely more than it appears.
 
@@ -594,9 +592,9 @@ D:A great helm as steady as the Hero of the Westdike.  Mighty were the
 D:blows of Helm the Hammerhand!
 
 
-# The Dragon Helm of Dor-Lomin
+# The Dragon Helm of Dor-lomin
 
-N:56:of Dor-L['o]min
+N:56:of Dor-l['o]min
 I:32:7
 W:70:5:50:300000
 C:8:1d3:0:0:20:0
@@ -738,10 +736,10 @@ D:this prove insufficient, the Gate-Cloak can whisk you far away.
 
 N:71:of L['u]thien
 I:35:4
-W:55:30:5:80000
+W:55:30:5:60000
 C:4:0d0:0:0:20:45
 P:2
-1:INT | WIS | CHR | INVIS
+1:INT | WIS | CHR
 F:HIDE_TYPE | RES_COLD | RES_DARK | RES_NETHR | RES_CHAOS
 D:As the diamond-studded midnight folds of this cloak swirl around you, 
 D:you feel a hint, a fragment of the knowledge and power to restore that 
@@ -752,10 +750,10 @@ D:lay in L['u]thien, the most beautiful being who ever knew death.
 
 N:72:of Tuor
 I:35:4
-W:40:30:5:60000
+W:40:30:5:45000
 C:4:0d0:0:0:15:0
-P:3
-1:STEALTH | INVIS
+P:4
+1:STEALTH
 F:FREE_ACT | IM_ACID | SEE_INVIS
 D:From the ruin of Gondolin did Tuor escape, through secret ways and 
 D:travail, mantled by sea-commanding Ulmo's kingly gift from a multitude 
@@ -781,7 +779,7 @@ P:2
 1:STR | CON
 F:HIDE_TYPE | SHOW_MODS
 D:A hero's handgear that lends great prowess in battle.  It is known as 
-D:'The Mighty Hand', and can stop an armoured man with a blow.
+D:'The Mighty Hand', and can stop an armored man with a blow.
 
 
 # The Set of Leather Gloves 'Cammithrim'
@@ -1366,7 +1364,7 @@ P:3:-5
 1:STR | DEX
 2:STEALTH
 F:SLAY_DRAGON | SLAY_DEMON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
-F:FREE_ACT | RES_CHAOS | RES_FEAR | SHOW_MODS
+F:FREE_ACT | RES_FEAR | RES_CHAOS | SHOW_MODS
 D:This weapon of berserker wrath dives hungrily into the yielding flesh of 
 D:your enemies.  You yourself fall under the shadow of death even as you 
 D:inflict wounds that will not heal.
@@ -1410,8 +1408,8 @@ N:128:'Whispering Death'
 I:23:27
 W:95:10:9:125000
 C:0:2d7:26:30:0
-P:4
-1:STEALTH | INVIS
+P:5
+1:STEALTH
 F:THROWING | VORPAL | PERFECT_BALANCE | RETURNING
 D:The weapon of Thrakheira, Death-Goddess of Kanwaith, whose whispering 
 D:knives are very harbingers of doom.  Endless is the sleep of those she lulls!
@@ -1436,7 +1434,7 @@ P:3
 F:HIDE_TYPE | 
 F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | SHOW_MODS
 D:Theoden of Rohan, wise and enduring, wielded this axe once; even the 
-D:armour of dragons is no proof against it, and the minds of its enemies 
+D:armor of dragons is no proof against it, and the minds of its enemies 
 D:stand naked and revealed.
 
 
@@ -1560,7 +1558,7 @@ F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS |
 F:TWO_HANDED_DES | HIDE_TYPE | SHOW_MODS
 D:The massive twin axe heads of this ancient demon's dread gleam with 
 D:mithril inlay, which tell sagas of endurance, envoking the powers of 
-D:Kazad-d[^u]m to protect the wielder and slay all evils found underground.
+D:Khazad-d[^u]m to protect the wielder and slay all evils found underground.
 
 
 # The Great Axe of Eonwe
@@ -1996,7 +1994,7 @@ F:SLAY_GIANT | SLAY_EVIL | BRAND_ELEC |
 F:IM_ELEC | THROWING | PERFECT_BALANCE | RETURNING
 D:The throwing hammer of the Norse god Thor, hard to control because 
 D:of the shortness of its handle.  It crackles with lightning as you hurl it, 
-D:and has sent many a giant wailing, head smashed, to Nifiheim.
+D:and has sent many a giant wailing, head smashed, to Niflheim.
 
 
 # Artifact 174 is unused

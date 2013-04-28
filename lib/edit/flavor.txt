@@ -1,226 +1,221 @@
-# File: flavor.txt
-
-
+#
 # This file contains information about object flavors.
-
-# Do not modify this file unless you know exactly what you are doing,
-# unless you wish to risk possible system crashes.
-
 #
-# Flavor indexes are auto-asssigned at game start; they should not be 
-# specified here.
-#
-
-# N:<tval>:<sval -- only if flavor is fixed>
-# A:<usual minimum depth; may be omitted>
-# G:<character>:<color index>
-# D:<flavor name>
 
 # Version stamp (required)
 
-V:0.9.9
+V:1.0.0
+
+#
+# N:<index>:<tval>:<sval -- only if flavor is fixed>:<minimum level -- optional>
+# G:<character>:<color index>
+# D:<flavor name>
+#
+# For more information, see ego_item.txt and /lib/info/modify.txt.
+#
 
 
-##### Rings #####
+##### Rings ####
 
 # Fixed: The One Ring
-N:45:47
+N:1:45:47
 G:=:y
 D:Plain Gold
 
-N:45
+N:2:45:-1:40
 G:=:G
 D:Adamantite
 
-N:45
+N:3:45
 G:=:p
 D:Agate
 
-N:45
+N:4:45
 G:=:v
 D:Alexandrite
 
-N:45
+N:5:45
 G:=:P
 D:Amethyst
 
-N:45
+N:6:45
 G:=:B
 D:Aquamarine
 
-N:45
+N:7:45
 G:=:Z
 D:Azurite
 
-N:45
+N:8:45
 G:=:G
 D:Beryl
 
-N:45
+N:9:45
 G:=:r
 D:Bloodstone
 
-N:45
+N:10:45
 G:=:o
 D:Bronze
 
-N:45
+N:11:45
 G:=:w
 D:Calcite
 
-N:45
+N:12:45
 G:=:r
 D:Carnelian
 
-N:45
+N:13:45
 G:=:r
 D:Corundum
 
-N:45
+# A "-1" in the sval position means "use for any sval" (the default)
+N:14:45:-1:25
 G:=:w
 D:Diamond
 
-N:45
+N:15:45
 G:=:g
 D:Emerald
 
-N:45
+N:16:45
 G:=:W
 D:Engagement
 
-N:45
+N:17:45
 G:=:G
 D:Fluorite
 
-N:45
+N:18:45
 G:=:r
 D:Garnet
 
-N:45
+N:19:45
 G:=:y
 D:Gold
 
-N:45
+N:20:45
 G:=:s
 D:Granite
 
-N:45
+N:21:45
 G:=:D
 D:Hematite
 
-N:45
+N:22:45
 G:=:g
 D:Jade
 
-N:45
+N:23:45
 G:=:u
 D:Jasper
 
-N:45
+N:24:45
 G:=:D
 D:Jet
 
-N:45
+N:25:45
 G:=:b
 D:Lapis Lazuli
 
-N:45
+N:26:45
 G:=:g
 D:Malachite
 
-N:45
+N:27:45
 G:=:w
 D:Marble
 
-N:45
+N:28:45:-1:45
 G:=:B
 D:Mithril
 
-N:45
+N:29:45
 G:=:W
 D:Moonstone
 
-N:45
+N:30:45
 G:=:w
 D:Mother-of-Pearl
 
-N:45
+N:31:45
 G:=:g
 D:Nephrite
 
-N:45
+N:32:45
 G:=:D
 D:Obsidian
 
-N:45
+N:33:45
 G:=:D
 D:Onyx
 
-N:45
+N:34:45
 G:=:W
 D:Opal
 
-N:45
+N:35:45
 G:=:I
 D:Pearl
 
-N:45
+N:36:45
 G:=:W
 D:Platinum
 
-N:45
+N:37:45
 G:=:w
 D:Quartz
 
-N:45
+N:38:45
 G:=:W
 D:Quartzite
 
-N:45
+N:39:45
 G:=:R
 D:Rhodonite
 
-N:45
+N:40:45
 G:=:I
 D:Rose Quartz
 
-N:45
+N:41:45
 G:=:r
 D:Ruby
 
-N:45
+N:42:45
 G:=:b
 D:Sapphire
 
-N:45
+N:43:45:-1:50
 G:=:t
 D:Serpent
 
-N:45
+N:44:45
 G:=:W
 D:Silver
 
-N:45
+N:45:45
 G:=:w
 D:Steel
 
-N:45
+N:46:45
 G:=:y
 D:Tanzanite
 
-N:45
+N:47:45
 G:=:U
 D:Tiger Eye
 
-N:45
+N:48:45
 G:=:y
 D:Topaz
 
-N:45
+N:49:45
 G:=:B
 D:Turquoise
 
-N:45
+N:50:45
 G:=:Z
 D:Zircon
 
@@ -231,127 +226,127 @@ D:Zircon
 ##### Amulets #####
 
 
-N:40
+N:65:40
 G:":W
 D:Agate
 
-N:40
+N:66:40:-1:40
 G:":o
 D:Amber
 
-N:40
+N:67:40
 G:":B
 D:Azure
 
-N:40
+N:68:40
 G:":o
 D:Bead
 
-N:40
+N:69:40
 G:":w
 D:Bone
 
-N:40
+N:70:40
 G:":g
 D:Cloverleaf
 
-N:40
+N:71:40
 G:":r
 D:Cochineal
 
-N:40
+N:72:40
 G:":U
 D:Copper
 
-N:40
+N:73:40
 G:":i
 D:Coral
 
-N:40
+N:74:40
 G:":W
 D:Crystal
 
-N:40
+N:75:40:-1:50
 G:":G
 D:Dragon's Claw
 
-N:40
+N:76:40
 G:":u
 D:Driftwood
 
-N:40
+N:77:40
 G:":b
 D:Enameled
 
-N:40
+N:78:40
 G:":W
 D:Faceted
 
-N:40
+N:79:40
 G:":y
 D:Gold
 
-N:40
+N:80:40
 G:":Y
 D:Golden
 
-N:40
+N:81:40
 G:":w
 D:Horn
 
-N:40
+N:82:40
 G:":w
 D:Ivory
 
-N:40
+N:83:40
 G:":g
 D:Jade
 
-N:40
+N:84:40
 G:":p
 D:Jeweled
 
-N:40
+N:85:40
 G:":D
 D:Obsidian
 
-N:40
+N:86:40:-1:35
 G:":b
 D:Pentagrammatic
 
-N:40
+N:87:40
 G:":u
 D:Scarab
 
-N:40
+N:88:40:-1:25
 G:":g
 D:Serpentine
 
-N:40
+N:89:40:-1:20
 G:":s
 D:Shark's Tooth
 
-N:40
+N:90:40
 G:":w
 D:Silver
 
-N:40
+N:91:40
 G:":P
 D:Stained Glass
 
-N:40
+N:92:40
 G:":B
 D:Starstone
 
-N:40
+N:93:40
 G:":t
 D:Tortoise Shell
 
-N:40
+N:94:40
 G:":u
 D:Carved Oak
 
-N:40
+N:95:40:-1:30
 G:":y
 D:Maiden's Hair
 
@@ -361,227 +356,227 @@ D:Maiden's Hair
 
 ##### Staves #####
 
-N:55
+N:105:55
 G:_:G
 D:Applewood
 
-N:55
+N:106:55
 G:_:U
 D:Aspen
 
-N:55
+N:107:55
 G:_:U
 D:Bamboo
 
-N:55
+N:108:55
 G:_:U
 D:Banyan
 
-N:55
+N:109:55
 G:_:w
 D:Beech
 
-N:55
+N:110:55
 G:_:U
 D:Birch
 
-N:55
+N:111:55
 G:_:y
 D:Butternut
 
-N:55
+N:112:55
 G:_:U
 D:Cedar
 
-N:55
+N:113:55:-1:25
 G:_:D
 D:Charred
 
-N:55
+N:114:55
 G:_:r
 D:Cherry
 
-N:55
+N:115:55
 G:_:U
 D:Cypress
 
-N:55
+N:116:55
 G:_:s
 D:Driftwood
 
-N:55
+N:117:55:-1:65
 G:_:B
 D:Druj-infested
 
-N:55
+N:118:55
 G:_:U
 D:Elm
 
-N:55
+N:119:55
 G:_:s
 D:Elder
 
-N:55
+N:120:55
 G:_:U
 D:Eucalyptus
 
-N:55
+N:121:55
 G:_:u
 D:Fir
 
-N:55
+N:122:55
 G:_:y
 D:Golden
 
-N:55
+N:123:55
 G:_:U
 D:Hazel
 
-N:55
+N:124:55
 G:_:U
 D:Hawthorn
 
-N:55
+N:125:55
 G:_:m
 D:Hemlock
 
-N:55
+N:126:55
 G:_:U
-D:Hickory  
+D:Hickory
 
-N:55
+N:127:55
 G:_:U
 D:Holly
 
-N:55
+N:128:55
 G:_:z
 D:Ironwood
 
-N:55
+N:129:55
 G:_:W
 D:Ivory
 
-N:55
+N:130:55
 G:_:s
 D:Laurel
 
-N:55
+N:131:55:-1:40
 G:_:D
 D:Lebethron
 
-N:55
+N:132:55
 G:_:w
 D:Linden
 
-N:55
+N:133:55
 G:_:m
 D:Locust
 
-N:55
+N:134:55
 G:_:u
 D:Mahogany
 
-N:55
+N:135:55
 G:_:U
 D:Maple
 
-N:55
+N:136:55:-1:60
 G:_:Y
 D:Mallorn
 
-N:55
+N:137:55:-1:30
 G:_:g
 D:Mistletoe
 
-N:55
+N:138:55
 G:_:U
 D:Mulberry
 
-N:55
+N:139:55
 G:_:U
 D:Oak
 
-N:55
+N:140:55
 G:_:G
 D:Olive
 
-N:55
+N:141:55
 G:_:m
 D:Palmwood
 
-N:55
+N:142:55:-1:35
 G:_:B
 D:Phosphorescent
 
-N:55
+N:143:55
 G:_:u
 D:Poplar
 
-N:55
+N:144:55
 G:_:U
 D:Pine
 
-N:55
+N:145:55
 G:_:r
 D:Redwood
 
-N:55
+N:146:55
 G:_:R
 D:Rosewood
 
-N:55
+N:147:55
 G:_:u
 D:Rowan
 
-N:55
+N:148:55:-1:25
 G:_:u
 D:Runed
 
-N:55
+N:149:55
 G:_:t
 D:Seaweed
 
-N:55
+N:150:55
 G:_:W
 D:Sequoia
 
-N:55
+N:151:55
 G:_:U
 D:Spruce
 
-N:55
+N:152:55
 G:_:D
 D:Sycamore
 
-N:55
+N:153:55
 G:_:u
 D:Teak
 
-N:55
+N:154:55
 G:_:t
 D:Waterwood
 
-N:55
+N:155:55
 G:_:U
 D:Walnut
 
-N:55
+N:156:55
 G:_:s
 D:Willow
 
-N:55
+N:157:55:-1:25
 G:_:z
 D:Witch Elm
 
-N:55
+N:158:55
 G:_:D
 D:Yew
 
-N:55
+N:159:55:-1:45
 G:_:b
 D:Woaded
 
-N:55
+N:160:55:-1:55
 G:_:D
 D:Widdershins
 
@@ -592,217 +587,225 @@ D:Widdershins
 ##### Wands (also rods) #####
 
 
-N:65
+N:175:65:-1:35
 G:-:G
 D:Adamantium
 
-N:65
+N:176:65
 G:-:W
 D:Aluminum
 
-N:65
+N:177:65
 G:-:s
 D:Antimony
 
-N:65
+N:178:65:-1:25
 G:-:t
 D:Aqueous
 
-N:65
+N:179:65
 G:-:u
 D:Billon
 
-N:65
+N:180:65
 G:-:D
 D:Blackened
 
-N:65
+N:181:65
 G:-:U
 D:Brass
 
-N:65
+N:182:65
 G:-:o
 D:Bronze
 
-N:65
+N:183:65
 G:-:D
 D:Carbonized
 
-N:65
+N:184:65
 G:-:D
 D:Cast Iron
 
-N:65
+N:185:65
 G:-:w
 D:Chromium
 
-N:65
+N:186:65
 G:-:b
 D:Cobalt
 
-N:65
+N:187:65
 G:-:u
 D:Copper
 
-N:65
+N:188:65
 G:-:r
 D:Corroded
 
-N:65
+N:189:65
 G:-:r
 D:Corundum
 
-N:65
+N:190:65:-1:35
 G:-:B
 D:Damascened
 
-N:65
+N:191:65:-1:25
 G:-:Y
 D:Electrum
 
-N:65
+N:192:65:-1:55
 G:-:v
 D:Eldritch
 
-N:65
+N:193:65
 G:-:r
 D:Feathered
 
-N:65
+N:194:65
 G:-:D
 D:Galvorn
 
-N:65
+N:195:65
 G:-:w
 D:Glass
 
-N:65
+N:196:65
 G:-:Y
 D:Gleaming
 
-N:65
+N:197:65:-1:25
 G:-:Y
 D:Glittering
 
-N:65
+N:198:65
 G:-:y
 D:Gold
 
-N:65
+N:199:65:-1:25
 G:-:P
 D:Iridescent
 
-N:65
+N:200:65
 G:-:s
 D:Iron
 
-N:65
+N:201:65
 G:-:w
 D:Ivory
 
-N:65
+N:202:65:-1:25
 G:-:p
 D:Jeweled
 
-N:65
+N:203:65
 G:-:s
 D:Lead
 
-N:65
+N:204:65:-1:40
 G:-:D
 D:Mithril
 
-N:65
+N:205:65
 G:-:W
 D:Nickel
 
-N:65
+N:206:65
 G:-:W
 D:Palladium
 
-N:65
+N:207:65
 G:-:W
 D:Platinum
 
-N:65
+N:208:65
 G:-:s
 D:Pewter
 
-N:65
+N:209:65
 G:-:w
 D:Rhodium
 
-N:65
+N:210:65:-1:35
 G:-:R
 D:Runed
 
-N:65
+N:211:65
 G:-:r
 D:Rusty
 
-N:65
+N:212:65
 G:-:b
 D:Sapphire
 
-N:65
+N:213:65
 G:-:Y
 D:Shining
 
-N:65
+N:214:65:-1:30
 G:-:V
 D:Shimmering
 
-N:65
+N:215:65
 G:-:W
 D:Silver
 
-N:65
+N:216:65
 G:-:s
 D:Smoking
 
-N:65
+N:217:65
 G:-:w
 D:Steel
 
-N:65
+N:218:65
 G:-:y
 D:Stubby
 
-N:65
+N:219:65
 G:-:m
 D:Tarnished
 
-N:65
+N:220:65
 G:-:s
 D:Tin
 
-N:65
+N:221:65
 G:-:z
 D:Titanium
 
-N:65
+N:222:65:-1:30
 G:-:I
 D:Translucent
 
-N:65
+N:223:65
 G:-:z
 D:Tungsten
 
-N:65
+N:224:65:-1:35
 G:-:g
 D:Verdigreed
 
-N:65
+N:225:65
 G:-:W
 D:Vibrating
 
-N:65
+N:226:65
 G:-:D
 D:Wrought Iron
 
-N:65
+N:227:65
 G:-:s
 D:Zinc
+
+N:228:65:-1:65
+G:-:R
+D:Phoenix feather
+
+N:229:65
+G:-:W
+D:Corkscrew
 
 # space for more wand/rod flavors here
 
@@ -811,123 +814,123 @@ D:Zinc
 ##### Mushrooms #####
 
 
-N:80
+N:245:80
 G:,:b
 D:Blue
 
-N:80
+N:246:80
 G:,:D
 D:Black
 
-N:80
+N:247:80
 G:,:D
 D:Black Spotted
 
-N:80
+N:248:80
 G:,:u
 D:Brown
 
-N:80
+N:249:80
 G:,:b
 D:Dark Blue
 
-N:80
+N:250:80
 G:,:g
 D:Dark Green
 
-N:80
+N:251:80
 G:,:r
 D:Dark Red
 
-N:80
+N:252:80
 G:,:G
 D:Ecru
 
-N:80
+N:253:80
 G:,:W
 D:Furry
 
-N:80
+N:254:80
 G:,:M
 D:Fuzzy
 
-N:80
+N:255:80
 G:,:m
 D:Greasy
 
-N:80
+N:256:80
 G:,:g
 D:Green
 
-N:80
+N:257:80
 G:,:s
 D:Grey
 
-N:80
+N:258:80
 G:,:y
 D:Lemon Speckled
 
-N:80
+N:259:80
 G:,:B
 D:Light Blue
 
-N:80
+N:260:80
 G:,:G
 D:Light Green
 
-N:80
+N:261:80
 G:,:B
 D:Luminescent
 
-N:80
+N:262:80
 G:,:o
 D:Orange-capped
 
-N:80
+N:263:80
 G:,:I
 D:Pink
 
-N:80
+N:264:80
 G:,:p
 D:Purple Blotched
 
-N:80
+N:265:80
 G:,:r
 D:Red
 
-N:80
+N:266:80
 G:,:R
 D:Red Spotted
 
-N:80
+N:267:80
 G:,:s
 D:Slimy
 
-N:80
+N:268:80
 G:,:D
 D:Smelly
 
-N:80
+N:269:80
 G:,:U
 D:Tan
 
-N:80
+N:270:80
 G:,:v
 D:Violet
 
-N:80
+N:271:80
 G:,:w
 D:White
 
-N:80
+N:272:80
 G:,:w
 D:White Spotted
 
-N:80
+N:273:80
 G:,:u
 D:Wrinkled
 
-N:80
+N:274:80
 G:,:y
 D:Yellow
 
@@ -938,346 +941,346 @@ D:Yellow
 ##### Potions #####
 
 # Fixed: water
-N:75:0
+N:290:75:0
 G:!:w
 D:Clear
 
 # Fixed: apple juice
-N:75:1
+N:291:75:1
 G:!:U
 D:Light Brown
 
 # Fixed: slime mold juice
-N:75:2
+N:293:75:2
 G:!:g
 D:Icky Green
 
 # Fixed: essences
-N:75:3
+N:294:75:3
 G:!:w
 D:Swirling
 
-N:75
+N:295:75
 G:!:o
 D:Amber
 
-N:75
+N:296:75
 G:!:w
 D:Ashen
 
-N:75
+N:297:75
 G:!:u
 D:Auburn
 
-N:75
+N:298:75
 G:!:B
 D:Azure
 
-N:75
+N:299:75
 G:!:D
 D:Black
 
-N:75
+N:300:75
 G:!:b
 D:Blue
 
-N:75
+N:301:75
 G:!:b
 D:Blue Speckled
 
-N:75
+N:302:75
 G:!:u
 D:Brown
 
-N:75
+N:303:75
 G:!:u
 D:Brown Speckled
 
-N:75
+N:304:75
 G:!:W
 D:Bubbling
 
-N:75
+N:305:75
 G:!:R
 D:Carnation
 
-N:75
+N:306:75
 G:!:G
 D:Chartreuse
 
-N:75
+N:307:75
 G:!:u
 D:Chocolate-brown
 
-N:75
+N:308:75
 G:!:B
 D:Clear Blue
 
-N:75
+N:309:75
 G:!:r
 D:Clotted Red
 
-N:75
+N:310:75
 G:!:s
 D:Cloudy
 
-N:75
+N:311:75
 G:!:Z
 D:Cobalt
 
-N:75
+N:312:75
 G:!:u
 D:Coppery
 
-N:75
+N:313:75
 G:!:R
 D:Crimson
 
-N:75
+N:314:75
 G:!:t
 D:Cyan
 
-N:75
+N:315:75
 G:!:b
 D:Dark Blue
 
-N:75
+N:316:75
 G:!:g
 D:Dark Green
 
-N:75
+N:317:75
 G:!:r
 D:Dark Red
 
-N:75
+N:318:75
 G:!:m
 D:Dirty
 
-N:75
+N:319:75
 G:!:s
 D:Frothing
 
-N:75
+N:320:75
 G:!:m
 D:Gloopy Green
 
-N:75
+N:321:75
 G:!:y
 D:Gold
 
-N:75
+N:322:75
 G:!:y
 D:Gold Speckled
 
-N:75
+N:323:75
 G:!:U
 D:Golden Brown
 
-N:75
+N:324:75
 G:!:g
 D:Green
 
-N:75
+N:325:75
 G:!:G
 D:Greenish
 
-N:75
+N:326:75
 G:!:s
 D:Grey
 
-N:75
+N:327:75
 G:!:s
 D:Grey Speckled
 
-N:75
+N:328:75
 G:!:w
 D:Hazy
 
-N:75
+N:329:75
 G:!:b
 D:Indigo
 
-N:75
+N:330:75
 G:!:W
 D:Ivory White
 
-N:75
+N:331:75
 G:!:V
 D:Lavender
 
-N:75
+N:332:75
 G:!:Z
 D:Light Blue
 
-N:75
+N:333:75
 G:!:G
 D:Light Green
 
-N:75
+N:334:75
 G:!:w
 D:Limpid
 
-N:75
+N:335:75
 G:!:g
 D:Lincoln Green
 
-N:75
+N:336:75
 G:!:i
 D:Magenta
 
-N:75
+N:337:75
 G:!:r
 D:Maroon
 
-N:75
+N:338:75
 G:!:b
 D:Metallic Blue
 
-N:75
+N:339:75
 G:!:r
 D:Metallic Red
 
-N:75
+N:340:75
 G:!:p
 D:Metallic Purple
 
-N:75
+N:341:75
 G:!:W
 D:Misty
 
-N:75
+N:342:75
 G:!:m
 D:Moldy
 
-N:75
+N:343:75
 G:!:m
 D:Muddy
 
-N:75
+N:344:75
 G:!:M
 D:Mustard Green
 
-N:75
+N:345:75
 G:!:g
 D:Myrtle Green
 
-N:75
+N:346:75
 G:!:y
 D:Oily Yellow
 
-N:75
+N:347:75
 G:!:o
 D:Orange
 
-N:75
+N:348:75
 G:!:o
 D:Orange Speckled
 
-N:75
+N:349:75
 G:!:I
 D:Peach
 
-N:75
+N:350:75
 G:!:I
 D:Pink
 
-N:75
+N:351:75
 G:!:w
 D:Pearl-grey
 
-N:75
-G:!:m
+N:352:75
+G:!:u
 D:Puce
 
-N:75
+N:353:75
 G:!:G
 D:Pungent
 
-N:75
+N:354:75
 G:!:p
 D:Purple
 
-N:75
+N:355:75
 G:!:P
 D:Purple Speckled
 
-N:75
+N:356:75
 G:!:r
 D:Red
 
-N:75
+N:357:75
 G:!:R
 D:Red Speckled
 
-N:75
+N:358:75
 G:!:p
 D:Tyrian Purple
 
-N:75
+N:359:75
 G:!:R
 D:Rosy
 
-N:75
+N:360:75
 G:!:t
 D:Sea-blue
 
-N:75
+N:361:75
 G:!:Y
 D:Shimmering
 
-N:75
+N:362:75
 G:!:Y
 D:Shining
 
-N:75
+N:363:75
 G:!:G
 D:Sickly Green
 
-N:75
+N:364:75
 G:!:W
 D:Silver Speckled
 
-N:75
+N:365:75
 G:!:D
 D:Smoky
 
-N:75
+N:366:75
 G:!:o
 D:Tangerine
 
-N:75
+N:367:75
 G:!:u
 D:Tawny
 
-N:75
+N:368:75
 G:!:U
 D:Turgid
 
-N:75
+N:369:75
 G:!:u
 D:Umber
 
-N:75
+N:370:75
 G:!:v
 D:Violet
 
-N:75
+N:371:75
 G:!:R
 D:Vermilion
 
-N:75
+N:372:75
 G:!:i
 D:Viscous Pink
 
-N:75
+N:373:75
 G:!:w
 D:White
 
-N:75
+N:374:75
 G:!:y
 D:Yellow
 
-N:75
+N:375:75
 G:!:Y
 D:Yellow Dappled
 
@@ -1286,13 +1289,7 @@ D:Yellow Dappled
 
 # All scrolls use the same flavor; titles are stored in a separate array.
 # Sval of "255" means this flavor is assigned to all objects of that kind.
-N:70:255
+N:399:70:255
 G:?:w
 D:<<none>>
-
-
-#
-# Count the "N:"s to find out how many flavors are active.
-#
-
 

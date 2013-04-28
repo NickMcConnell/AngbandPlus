@@ -3,14 +3,15 @@
 
 /*
  * Display inventory and equipment.  Wear and remove equipment.  Drop and
- * destroy.  Inspecting, inscribing, refueling and lighting objects.  Learn
- * about a symbol.  Stealing and trap setting.
+ * destroy.  Looking around.  Inspecting, inscribing, refueling and lighting
+ * objects.  Learn about a symbol.  Stealing and trap setting.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -22,14 +23,14 @@
  */
 void do_cmd_inven(void)
 {
-	char string[80];
+	char string[DESC_LEN];
 
 	/* Note that we are in "inventory" mode */
 	p_ptr->command_wrk = (USE_INVEN);
 
 
 	/* Save screen */
-	screen_save();
+	screen_save(FALSE);
 
 	/* Hack -- show empty slots */
 	item_tester_full = TRUE;
@@ -42,27 +43,25 @@ void do_cmd_inven(void)
 
 
 	/* Insert the total burden and character capacity into a string. */
-	if (use_metric) sprintf(string,
+	if (use_metric) (void)strnfmt(string, sizeof(string),
 		"(Inventory) burden %d.%d kg (%d%% of capacity). Command: ",
 		make_metric(p_ptr->total_weight) / 10,
 		make_metric(p_ptr->total_weight) % 10,
 		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
-	else sprintf(string,
+	else (void)strnfmt(string, sizeof(string),
 		"(Inventory) burden %d.%d lb (%d%% of capacity). Command: ",
 		p_ptr->total_weight / 10, p_ptr->total_weight % 10,
 		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
-
 
 
 	/* Output that string, and prompt for a command. */
 	prt(string, 0, 0);
 
 	/* Hack -- Get a new command */
-	p_ptr->command_new = inkey();
+	p_ptr->command_new = inkey(FALSE);
 
 	/* Load screen */
 	screen_load();
-
 
 	/* Hack -- Process "Escape" */
 	if (p_ptr->command_new == ESCAPE)
@@ -85,14 +84,14 @@ void do_cmd_inven(void)
  */
 void do_cmd_equip(void)
 {
-	char string[80];
+	char string[DESC_LEN];
 
 	/* Note that we are in "equipment" mode */
 	p_ptr->command_wrk = (USE_EQUIP);
 
 
 	/* Save screen */
-	screen_save();
+	screen_save(FALSE);
 
 	/* Hack -- show empty slots */
 	item_tester_full = TRUE;
@@ -105,15 +104,21 @@ void do_cmd_equip(void)
 
 
 	/* Insert the total burden and character capacity into a string. */
-	if (use_metric) sprintf(string,
-		"(Equipment) burden %d.%d kg (%d%% of capacity). Command: ",
-		make_metric(p_ptr->total_weight) / 10,
-		make_metric(p_ptr->total_weight) % 10,
-		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
-	else sprintf(string,
-		"(Equipment) burden %d.%d lb (%d%% of capacity). Command: ",
-		p_ptr->total_weight / 10, p_ptr->total_weight % 10,
-		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
+	if (use_metric)
+	{
+		(void)strnfmt(string, sizeof(string),
+			"(Equipment) burden %d.%d kg (%d%% of capacity). Command: ",
+			make_metric(p_ptr->total_weight) / 10,
+			make_metric(p_ptr->total_weight) % 10,
+			p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
+	}
+	else
+	{
+		(void)strnfmt(string, sizeof(string),
+			"(Equipment) burden %d.%d lb (%d%% of capacity). Command: ",
+			p_ptr->total_weight / 10, p_ptr->total_weight % 10,
+			p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
+	}
 
 
 	/* Output that string, and prompt for a command. */
@@ -121,7 +126,7 @@ void do_cmd_equip(void)
 
 
 	/* Hack -- Get a new command */
-	p_ptr->command_new = inkey();
+	p_ptr->command_new = inkey(FALSE);
 
 	/* Load screen */
 	screen_load();
@@ -237,7 +242,7 @@ static bool activate_hidden_curse(object_type *o_ptr)
 {
  	int chance;
 
-	char o_name[120];
+	char o_name[DESC_LEN];
 	cptr act;
 
 	u32b f1, f2, f3;
@@ -340,7 +345,7 @@ static bool activate_hidden_curse(object_type *o_ptr)
 
 
 		/* Describe the object (briefly) */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 		/* Describe action */
 		if (is_any_weapon(o_ptr)) act = "wielded";
@@ -398,7 +403,7 @@ void do_cmd_wield(void)
 
 	cptr q, s;
 
-	char o_name[120];
+	char o_name[DESC_LEN];
 
 	bool remove_two_weapons = FALSE;
 	bool hidden_curse = FALSE;
@@ -407,7 +412,7 @@ void do_cmd_wield(void)
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
 
-	/* Shapechanges forbid any armour wearing */
+	/* Shapechanges forbid any armor wearing */
 	if (p_ptr->schange)
 	{
 		/* Restrict the choices more rigorously */
@@ -582,7 +587,7 @@ void do_cmd_wield(void)
 	if ((slot < INVEN_Q1) && (cursed_cling(&inventory[slot])))
 	{
 		/* Describe it */
-		object_desc(o_name, &inventory[slot], FALSE, 0);
+		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
 
 		/* Message */
 		msg_format("The %s you are %s appears to be cursed.",
@@ -592,8 +597,25 @@ void do_cmd_wield(void)
 		return;
 	}
 
+
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+	/* Activate hidden curses, which may or may not be caught in time */
+	if (o_ptr->flags3 & (TR3_CURSE_HIDDEN))
+	{
+		if (!activate_hidden_curse(o_ptr)) return;
+
+		/* No further messages or effects */
+		hidden_curse = TRUE;
+	}
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Obtain local object */
+	object_copy(i_ptr, o_ptr);
+
 
 	/* Usually, we wear or wield only one item. */
 	num = 1;
@@ -648,21 +670,6 @@ void do_cmd_wield(void)
 		/* Quiver will be reorganized (again) later. */
 		p_ptr->notice |= (PN_COMBINE);
 	}
-
-	/* Activate hidden curses, which may or may not be caught in time */
-	if (o_ptr->flags3 & (TR3_CURSE_HIDDEN))
-	{
-		if (!activate_hidden_curse(o_ptr)) return;
-
-		/* No further messages or effects */
-		hidden_curse = TRUE;
-	}
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Obtain local object */
-	object_copy(i_ptr, o_ptr);
 
 	/* Modify quantity */
 	i_ptr->number = num;
@@ -764,9 +771,10 @@ void do_cmd_wield(void)
 	}
 
 	/* Describe the result */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Message */
+	sound(MSG_WIELD);
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
 
@@ -783,6 +791,8 @@ void do_cmd_wield(void)
 	/* Cursed! */
 	if (cursed_cling(o_ptr))
 	{
+		sound(MSG_CURSED);
+
 		/* Special case -- the One Ring */
 		if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_POWER))
 		{
@@ -866,7 +876,7 @@ void do_cmd_takeoff(void)
 	cptr q, s;
 
 
-	/* Shapechanges forbid any taking off of armour */
+	/* Shapechanges forbid any taking off of armor */
 	if (p_ptr->schange)
 	{
 		/* Restrict the choices more rigorously */
@@ -994,9 +1004,8 @@ void do_cmd_destroy(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	char o_name[120];
-
-	char out_val[160];
+	char o_name[DESC_LEN];
+	char out_val[DESC_LEN];
 
 	cptr q, s;
 
@@ -1037,12 +1046,12 @@ void do_cmd_destroy(void)
 	i_ptr->number = amt;
 
 	/* Describe the destroyed object */
-	object_desc(o_name, i_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 	/* Verify destruction */
 	if (verify_destroy)
 	{
-		sprintf(out_val, "Really destroy %s?", o_name);
+		(void)strnfmt(out_val, sizeof(out_val), "Really destroy %s?", o_name);
 		if (!get_check(out_val)) return;
 	}
 
@@ -1085,7 +1094,7 @@ void do_cmd_destroy(void)
 	}
 
 	/* Message */
-	msg_format("You destroy %s.", o_name);
+	message_format(MSG_DESTROY, 0, "You destroy %s.", o_name);
 
 	/* Reduce the charges of rods/wands */
 	reduce_charges(o_ptr, amt);
@@ -1136,7 +1145,7 @@ void do_cmd_destroy(void)
  * Display specialized object information.  -LM-
  *
  * Unidentified:
- *	Weapons and Armour -> description of specific object type (dagger,
+ *	Weapons and Armor -> description of specific object type (dagger,
  *	  etc.).
  *	Others -> description only of general object kind (scroll, etc.)
  * Identified or aware:
@@ -1157,8 +1166,6 @@ void do_cmd_destroy(void)
 void do_cmd_observe(object_type *o_ptr, bool in_store)
 {
 	int item = -1;
-	int y, x;
-	int i;
 
 	u16b aware, known, mental;
 
@@ -1166,16 +1173,14 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	char o_name[120];
+	char o_name[DESC_LEN];
 
 	char info_text[1024];
-	char object_kind_info[256];
-
-	bool special_text_flag = FALSE;
+	char object_kind_info[1024];
 
 	cptr q, s;
 
-	int old_rows = screen_rows;
+	int old_cursor_vis;
 
 
 	/* Initialize object description. */
@@ -1224,13 +1229,14 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 
 	/* Describe the object */
 	if ((in_store) || (known && !aware))
-	     object_desc_store(o_name, i_ptr, FALSE, 2);
-	else object_desc(o_name, i_ptr, FALSE, 2);
+		object_desc_store(o_name, sizeof(o_name), i_ptr, FALSE, 2);
+	else
+		object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 2);
 
 
 	/*
 	 * Hack - Avoid giving away too much info in normal stores about objects
-	 * other than weapons and armour (no sneaky learning about wand damages!).
+	 * other than weapons and armor (no sneaky learning about wand damages!).
 	 */
 	if ((in_store) && (!(k_ptr->special & (SPECIAL_KNOWN_EFFECT))) &&
 		(!is_wargear(k_ptr)))
@@ -1255,7 +1261,8 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 		object_info(info_text, i_ptr);
 
 		/* Get information about the general object kind. */
-		(void)my_strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]), 256);
+		(void)my_strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]),
+			sizeof(object_kind_info));
 	}
 
 	/*
@@ -1265,27 +1272,32 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 	else
 	{
 		/* Get information about the general object kind. */
-		(void)my_strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]), 256);
+		(void)my_strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]),
+			sizeof(object_kind_info));
 
 		/* Do not display the name of an unaware object  XXX */
 		if (!object_aware_p(i_ptr)) strcpy(o_name, "  ");
 	}
 
-	/* Save screen */
-	screen_save();
+	/* Save and center screen */
+	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CX, 80, 0);
 
-	/* Clear the screen */
-	(void)Term_clear();
+	/* Set up a 1-column left border  XXX XXX */
+	text_border_left = 1;
 
-	/* Set to 25 screen rows */
-	(void)Term_rows(FALSE);
+	/* Clear some space */
+	clear_space(0, 0, 80);
+	clear_space(1, 0, 80);
+	clear_space(2, 0, 80);
 
+	/* Move cursor to top-left corner */
+	(void)Term_gotoxy(0, 0);
 
 	/* Label the information. */
-	roff(format("Item Information:  %s\n\n", o_name), 3, 0);
+	c_roff_centered(TERM_WHITE, format("Item Information:  %s\n---\n", o_name), 0, 80);
 
 	/* Object type or artifact information. */
-	c_roff(TERM_L_BLUE, info_text, 3, 77);
+	c_roff(TERM_L_BLUE, info_text, 0, 80);
 
 
 	/* Object has (unusual) hidden qualities  XXX XXX */
@@ -1295,11 +1307,11 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 		((o_ptr->flags3 & ~(k_ptr->flags3)) &&
 		 (((o_ptr->flags3 & ~(k_ptr->flags3)) != (TR3_LIGHT_CURSE))))))
 	{
-		char buf_sname[80];
+		char buf_sname[DESC_LEN];
 
 		strip_name(buf_sname, o_ptr->k_idx);
 
-		c_roff(TERM_L_BLUE, format("  This %s may possess hidden qualities.", buf_sname), 3, 77);
+		c_roff(TERM_L_BLUE, format("  This %s may possess hidden qualities.", buf_sname), 0, 80);
 	}
 
 
@@ -1312,80 +1324,63 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 		if (a_ptr->set_index)
 		{
 			/* Advance two lines */
-			roff("\n\n", 0, 0);
+			roff("\n\n", 0, 80);
 
 			/* Set notification */
-			c_roff(TERM_GREEN,"Set Item: ", 3, 77);
+			c_roff(TERM_GREEN,"Set Item: ", 0, 80);
 
 			/* Require full ID to describe the specific set */
 			if (mental)
 			{
 				set_type *s_ptr = &s_info[a_ptr->set_index];
-				c_roff(TERM_GREEN, s_ptr->set_desc, 3, 77);
+				c_roff(TERM_GREEN, s_ptr->set_desc, 0, 80);
 			}
 
 			/* Generic description */
-			else c_roff(TERM_GREEN,"It gains power when combined with matching items", 3, 77);
+			else c_roff(TERM_GREEN,"It gains power when combined with matching items", 0, 80);
 
 			c_roff(TERM_GREEN, ".", 0, 0);
-
-			special_text_flag = TRUE;
 		}
 	}
 
 
 	/* Spacing */
-	roff("\n\n", 0, 0);
-	if (!special_text_flag) roff("\n", 0, 0);
+	roff("\n\n\n", 0, 80);
 
 	/* Fully describe the object. */
 	object_details(i_ptr, mental, known);
 
-	/* Obtain the cursor location */
-	(void)Term_locate(&x, &y);
-
 	/* Object is not fully identified */
 	if (!mental)
 	{
-		/* Spacing. */
-		for (i = y; i < 18; i++) roff("\n", 0, 0);
+		/* Spacing */
+		roff("\n\n", 0, 80);
 
 		/* Object kind information. */
-		roff(object_kind_info, 3, 77);
+		roff(object_kind_info, 0, 80);
 	}
 
-	/* Hack -- attempt to stay on screen. */
-	for (i = y; i < Term->hgt; i++)
-	{
-		/* No more space! */
-		if (i > Term->hgt - 2) break;
+	/* Spacing */
+	roff("\n", 0, 80);
 
-		/* Advance one line. */
-		roff("\n", 0, 0);
-
-		/* Enough clear space.  Done. */
-		if (i == (y + 2)) break;
-	}
+	/* Clear left border request */
+	text_border_left = 0;
 
 
-	/* The exit sign. */
-	roff("(Press any key to continue.)", 25, 0);
-	(void)inkey();
+	/* Save the previous main screen cursor visibility */
+	old_cursor_vis = inkey_cursor_hack[TERM_MAIN];
 
+	/* Hide the cursor on the main screen  XXX XXX */
+	inkey_cursor_hack[TERM_MAIN] = -1;
 
-	/* Clear the screen */
-	(void)Term_clear();
+	/* Wait for it */
+	(void)inkey(ALLOW_CLICK);
 
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50)
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(TRUE);
-	}
+	/* Restore old cursor visibility */
+	inkey_cursor_hack[TERM_MAIN] = old_cursor_vis;
 
-
-	/* Load screen */
-	screen_load();
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 }
 
 
@@ -1446,9 +1441,9 @@ void do_cmd_inscribe(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
-	char tmp[80];
+	char tmp[DESC_LEN];
 
 	cptr q, s;
 
@@ -1468,7 +1463,7 @@ void do_cmd_inscribe(void)
 
 
 	/* Describe the activity */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Message */
 	msg_format("Inscribing %s.", o_name);
@@ -1481,7 +1476,7 @@ void do_cmd_inscribe(void)
 	if (o_ptr->note)
 	{
 		/* Start with the old inscription */
-		(void)strnfmt(tmp, 80, "%s", quark_str(o_ptr->note));
+		(void)strnfmt(tmp, sizeof(tmp), "%s", quark_str(o_ptr->note));
 	}
 
 	/* Get a new inscription (possibly empty) */
@@ -1730,12 +1725,12 @@ void do_cmd_refill(void)
 
 
 /*
- * An "item_tester_hook" for light sources
+ * An "item_tester_hook" for light sources which can be lit and doused.
  *
  * We do not allow other shining objects to be doused.  A blazing sword
  * always blazes.
  */
-static bool item_tester_light_source(const object_type *o_ptr)
+bool item_tester_light_source(const object_type *o_ptr)
 {
 	/* Return "is a light source" */
 	return (o_ptr->tval == TV_LITE);
@@ -1749,7 +1744,7 @@ void do_cmd_light_and_douse(void)
 	int item;
 
 	object_type *o_ptr;
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	cptr own_str = "";
 
@@ -1762,11 +1757,11 @@ void do_cmd_light_and_douse(void)
 	/* Get an item (not in the backpack) */
 	q = "Light or douse which light source?";
 	s = "You have no light sources.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_FLOOR | USE_AUTO))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_FLOOR))) return;
 	item_to_object(o_ptr, item);
 
 	/* Get an object description */
-	object_desc(o_name, o_ptr, FALSE, 1);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
 
 	/* Get an ownership string */
 	if (item >= 0) own_str = "your";
@@ -1825,10 +1820,10 @@ void do_cmd_target(void)
  *
  * Note that we can look around even when blind or hallucinating.  XXX XXX
  */
-void do_cmd_look(void)
+void do_cmd_look(u16b mode)
 {
 	/* Look around */
-	if (target_set_interactive(TARGET_LOOK))
+	if (target_set_interactive(TARGET_LOOK | mode))
 	{
 		msg_print("Target Selected.");
 	}
@@ -1852,9 +1847,8 @@ void do_cmd_locate(void)
 	int dir, y1, x1, y2, x2;
 	int wy, wx;
 
-	char tmp_val[80];
-
-	char out_val[160];
+	char tmp_val[DESC_LEN];
+	char out_val[DESC_LEN];
 
 	/* Immediately shift panel to give a better view up and down */
 	if ((p_ptr->move_dir >= 1) && (p_ptr->move_dir <= 9) &&
@@ -1890,15 +1884,15 @@ void do_cmd_locate(void)
 		}
 		else
 		{
-			sprintf(tmp_val, "%s%s of",
+			(void)strnfmt(tmp_val, sizeof(tmp_val), "%s%s of",
 				((y2 < y1) ? " North" : (y2 > y1) ? " South" : ""),
 				((x2 < x1) ? " West" : (x2 > x1) ? " East" : ""));
 		}
 
 		/* Prepare to ask which way to look */
-		sprintf(out_val,
+		(void)strnfmt(out_val, sizeof(out_val),
 			"Map sector [%d,%d], which is%s your sector.  Direction?",
-			(y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
+			(y2 / get_panel_hgt()), (x2 / get_panel_wid()), tmp_val);
 
 		/* Assume no direction */
 		dir = 0;
@@ -2175,7 +2169,7 @@ void do_cmd_query_symbol(void)
 	int i, j, n, r_idx;
 	int start = 0, last_level = 0;
 	char sym, query;
-	char buf[128];
+	char buf[DESC_LEN];
 
 	bool all = FALSE;
 	bool uniq = FALSE;
@@ -2191,8 +2185,26 @@ void do_cmd_query_symbol(void)
 	/* Interact */
 	while (TRUE)
 	{
+		/* We are showing a pop-up help window */
+		if (screen_depth)
+		{
+			put_str(format(" %-46s", "Press:"), 1, 5);
+			put_str(format(" %-46s", "Control-A for the full monster list"), 2, 5);
+			put_str(format(" %-46s", "Control-U for the unique monster list"), 3, 5);
+			put_str(format(" %-46s", "Control-N for the non-unique monster list"), 4, 5);
+			put_str(format(" %-46s", "Control-K for the killed monster list"), 5, 5);
+			put_str(format(" %-46s", "ESCAPE to cancel"), 6, 5);
+			put_str(format(" %-46s", "RETURN to show this help window, or"), 7, 5);
+			put_str(format(" %-46s", "Any other key to display information about it"), 8, 5);
+			put_str(format(" %-46s", ""), 9, 5);
+		}
+
 		/* Get a character, or abort */
-		if (!get_com("Enter character to be identified (RET for help, ESC to cancel):", &sym)) return;
+		if (!get_com("Enter character to be identified (RET for help, ESC to cancel):", &sym))
+		{
+			if (screen_depth) screen_load();
+			return;
+		}
 
 		/* Describe */
 		if (sym == KTRL('A'))
@@ -2225,25 +2237,19 @@ void do_cmd_query_symbol(void)
 		}
 		else if ((sym == '\r') || (sym == '\n'))
 		{
-			screen_save();
-			clear_from(0);
-
-			move_cursor(4, 15);
-			c_roff(TERM_WHITE, "Press:\nControl-A for the full monster list\nControl-U for the unique monster list\nControl-N for the non-unique monster list\nControl-K for the killed monster list\nESCAPE to cancel\nRETURN to show this help window, or\nAny other key to display information about it", 15, 65);
-
-			(void)inkey();
-			screen_load();
+			if (!screen_depth) screen_save(FALSE);
+			else               screen_load();
 		}
 		else
 		{
-			/* Try to match the key with a info entry */
+			/* Try to match the key with an ident_info entry */
 			for (i = 0; ident_info[i]; ++i)
 			{
 				if (sym == ident_info[i][0]) break;
 			}
 			if (ident_info[i])
 			{
-				sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
+				(void)strnfmt(buf, sizeof(buf), "%c - %s.", sym, ident_info[i] + 2);
 				break;
 			}
 			else if (!isalpha(sym))
@@ -2253,6 +2259,10 @@ void do_cmd_query_symbol(void)
 			}
 		}
 	}
+
+	/* Close pop-up window */
+	if (screen_depth) screen_load();
+
 
 	/* Display the result */
 	prt(buf, 0, 0);
@@ -2274,7 +2284,7 @@ void do_cmd_query_symbol(void)
 		if ((!cheat_know || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
 		    && (!l_ptr->sights))
 		{
-			 continue;
+			continue;
 		}
 
 		/* Skip unused monsters */
@@ -2309,7 +2319,7 @@ void do_cmd_query_symbol(void)
 	put_str("Recall details? (y/n, (k)ills, (l)evel)", 0, 40);
 
 	/* Query */
-	query = inkey();
+	query = inkey(FALSE);
 
 	/* Restore */
 	prt(buf, 0, 0);
@@ -2414,7 +2424,7 @@ void do_cmd_query_symbol(void)
 			if (recall)
 			{
 				/* Save screen */
-				screen_save();
+				screen_save(FALSE);
 
 				/* Recall on screen */
 				screen_roff(who[i]);
@@ -2426,7 +2436,7 @@ void do_cmd_query_symbol(void)
 			}
 
 			/* Command */
-			query = inkey();
+			query = inkey(FALSE);
 
 			/* Unrecall */
 			if (recall)
@@ -2516,13 +2526,14 @@ void py_steal(int y, int x)
 	monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	char m_name[80];
+	char m_name[DESC_LEN];
 
 	int i;
 	int filching_power, theft_protection;
 
 	bool success = FALSE;
 	bool purse = FALSE;
+	bool undetected = FALSE;
 
 
 	/* Fair warning */
@@ -2632,7 +2643,7 @@ void py_steal(int y, int x)
 		/* Occasionally, amuse the player with a message. */
 		if ((one_in_(4)) && (purse) && (r_ptr->flags2 & (RF2_SMART)))
 		{
-			char act[80];
+			char act[DESC_LEN];
 			monster_desc(m_name, m_ptr, 0x40);
 			strcpy(act, desc_victim_outcry[rand_int(OUTCRY_MAX)]);
 			msg_format("%^s cries out %s", m_name, act);
@@ -2656,18 +2667,20 @@ void py_steal(int y, int x)
 	else if (success && purse)
 	{
 		msg_print("Your theft goes undiscovered!");
+		undetected = TRUE;
 	}
 
 	/* Failed to steal, but at least didn't get caught */
 	else if (!success)
 	{
 		msg_print("You fail to steal anything, but luckily avoid detection.");
+		undetected = TRUE;
 	}
 
 	/* Gain some practice in Burglary */
 	if (purse)
 	{
-		practice_skill(5 + p_ptr->depth, S_BURGLARY);
+		practice_skill(5 + p_ptr->depth * p_ptr->depth / 3, S_BURGLARY);
 	}
 
 
@@ -2678,31 +2691,30 @@ void py_steal(int y, int x)
 	handle_stuff();
 
 
-	/* Lots of stealing */
-	if (num_recent_thefts > get_skill(S_STEALTH, 3, 5))
+	/* If detected, other monsters may notice too */
+	if (undetected == FALSE)
 	{
-		/* Aggravate and speed up all monsters on level. */
-		aggravate_monsters(-1, TRUE,
-			"The hue and cry sounds!  The entire dungeon is in an uproar!");
+		/* Lots of stealing */
+		if (num_recent_thefts > get_skill(S_STEALTH, 3, 5))
+		{
+			/* Aggravate and speed up all monsters on level. */
+			aggravate_monsters(-1, TRUE,
+				"The hue and cry sounds!  The entire dungeon is in an uproar!");
 
-		/* Any monster on the level that can become wary does */
-		(void)make_monsters_wary(y, x, FALSE, FALSE);
-	}
+			/* Any monster on the level that can become wary does */
+			(void)make_monsters_wary(y, x, FALSE, FALSE);
+		}
 
-	/* A moderate amount of stealing */
-	else if ((num_recent_thefts > get_skill(S_STEALTH, 1, 3)) || (one_in_(8)))
-	{
-		/* Aggravate monsters nearby */
-		aggravate_monsters(-1, FALSE,
-			"You hear hunting parties scouring the area for a notorious burglar.");
+		/* A moderate amount of stealing */
+		else if ((num_recent_thefts > get_skill(S_STEALTH, 1, 3)) || (one_in_(8)))
+		{
+			/* Aggravate monsters nearby */
+			aggravate_monsters(-1, FALSE,
+				"You hear hunting parties scouring the area for a notorious burglar.");
 
-		/* Monsters in LOS may become wary */
-		(void)make_monsters_wary(y, x, TRUE, TRUE);
-	}
-	else
-	{
-		/* Monsters in LOS may become wary */
-		(void)make_monsters_wary(y, x, TRUE, TRUE);
+			/* Monsters in LOS or in earshot may become wary */
+			(void)make_monsters_wary(y, x, TRUE, FALSE);
+		}
 	}
 
 

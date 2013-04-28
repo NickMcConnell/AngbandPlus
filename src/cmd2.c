@@ -5,14 +5,16 @@
  * tunnel, disarm, bash, alter a grid, and spike.  Movement and resting
  * commands.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
+
 
 
 /*
@@ -28,7 +30,7 @@ void do_cmd_go_up(void)
 	}
 
 	/* Ironman */
-	if (p_ptr->character_type == PCHAR_IRONMAN)
+	if ((p_ptr->character_type == PCHAR_IRONMAN) && (!p_ptr->total_winner))
 	{
 		msg_print("The only way back is through Morgoth, Lord of Darkness!");
 		return;
@@ -38,7 +40,7 @@ void do_cmd_go_up(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
+	message(MSG_STAIRS_UP, 0, "You enter a maze of up staircases.");
 
 	/* Create a way back (usually) */
 	p_ptr->create_stair = FEAT_MORE;
@@ -77,7 +79,7 @@ void do_cmd_go_down(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
+	message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
 	/* Create a way back (usually) */
 	p_ptr->create_stair = FEAT_LESS;
@@ -175,51 +177,50 @@ static s16b chest_check(int y, int x)
 static byte get_choice(int lev)
 {
 	byte choice = rand_int(100);
-	int specialty = SPECIALTY_NONE;
 	int tval = TV_NONE;
 
 
 	/* Get the character specialty */
-	(void)get_title(30, FALSE, FALSE, &specialty);
+	(void)get_title(30, FALSE, FALSE);
 
 	/* Sometimes go for a specialized item type */
-	if (((specialty == SPECIALTY_FIGHT_BURGLAR) ||
-	     (specialty == SPECIALTY_FIGHTER)) && (choice < 33))
+	if (((p_ptr->specialty == SPECIALTY_FIGHT_BURGLAR) ||
+	     (p_ptr->specialty == SPECIALTY_FIGHTER)) && (choice < 33))
 	{
 		int s = sweapon(inventory[INVEN_WIELD].tval);
 		if (s == S_SWORD) return (TV_SWORD);
 		if (s == S_HAFTED) return (TV_HAFTED);
 		if (s == S_POLEARM) return (TV_POLEARM);
 	}
-	else if ((specialty == SPECIALTY_P_WIZARD) && (choice < 33) && (lev >= 40))
+	else if ((p_ptr->specialty == SPECIALTY_P_WIZARD) && (choice < 33) && (lev >= 40))
 		return (TV_MAGIC_BOOK);
-	else if ((specialty == SPECIALTY_H_WIZARD) && (choice < 20) && (lev >= 40))
+	else if ((p_ptr->specialty == SPECIALTY_H_WIZARD) && (choice < 20) && (lev >= 40))
 		return (TV_MAGIC_BOOK);
-	else if ((specialty == SPECIALTY_P_PRIEST) && (choice < 33) && (lev >= 40))
+	else if ((p_ptr->specialty == SPECIALTY_P_PRIEST) && (choice < 33) && (lev >= 40))
 		return (TV_PRAYER_BOOK);
-	else if ((specialty == SPECIALTY_H_PRIEST) && (choice < 20) && (lev >= 40))
+	else if ((p_ptr->specialty == SPECIALTY_H_PRIEST) && (choice < 20) && (lev >= 40))
 		return (TV_PRAYER_BOOK);
-	else if ((specialty == SPECIALTY_P_DRUID) && (choice < 33) && (lev >= 40))
+	else if ((p_ptr->specialty == SPECIALTY_P_DRUID) && (choice < 33) && (lev >= 40))
 		return (TV_NATURE_BOOK);
-	else if ((specialty == SPECIALTY_H_DRUID) && (choice < 20) && (lev >= 40))
+	else if ((p_ptr->specialty == SPECIALTY_H_DRUID) && (choice < 20) && (lev >= 40))
 		return (TV_NATURE_BOOK);
-	else if ((specialty == SPECIALTY_P_NECRO) && (choice < 33) && (lev >= 40))
+	else if ((p_ptr->specialty == SPECIALTY_P_NECRO) && (choice < 33) && (lev >= 40))
 		return (TV_DARK_BOOK);
-	else if ((specialty == SPECIALTY_H_NECRO) && (choice < 20) && (lev >= 40))
+	else if ((p_ptr->specialty == SPECIALTY_H_NECRO) && (choice < 20) && (lev >= 40))
 		return (TV_DARK_BOOK);
-	else if ((specialty == SPECIALTY_SWORDS) && (choice < 40))
+	else if ((p_ptr->specialty == SPECIALTY_SWORDS) && (choice < 40))
 		return (TV_SWORD);
-	else if ((specialty == SPECIALTY_POLEARMS) && (choice < 40))
+	else if ((p_ptr->specialty == SPECIALTY_POLEARMS) && (choice < 40))
 		return (TV_POLEARM);
-	else if ((specialty == SPECIALTY_HAFTED) && (choice < 40))
+	else if ((p_ptr->specialty == SPECIALTY_HAFTED) && (choice < 40))
 		return (TV_HAFTED);
-	else if ((specialty == SPECIALTY_CROSSBOW) && (choice < 40))
+	else if ((p_ptr->specialty == SPECIALTY_CROSSBOW) && (choice < 40))
 		return (TV_BOLT);
-	else if ((specialty == SPECIALTY_BOW) && (choice < 40))
+	else if ((p_ptr->specialty == SPECIALTY_BOW) && (choice < 40))
 		return (TV_ARROW);
-	else if ((specialty == SPECIALTY_SLING) && (choice < 40))
+	else if ((p_ptr->specialty == SPECIALTY_SLING) && (choice < 40))
 		return (TV_SHOT);
-	else if ((specialty == SPECIALTY_DEVICE) && (choice < 40))
+	else if ((p_ptr->specialty == SPECIALTY_DEVICE) && (choice < 40))
 	{
 		if (one_in_(3)) return (TV_STAFF);
 		if (one_in_(2)) return (TV_WAND);
@@ -482,7 +483,7 @@ static void chest_death(bool scattered, int y, int x, object_type *o_ptr)
 	get_obj_num_hook = NULL;
 
 	/* Prepare allocation table */
-	(void)get_obj_num_prep();
+	get_obj_num_prep();
 
 
 	/* Empty */
@@ -613,41 +614,41 @@ bool hit_chest_trap(int y, int x, object_type *o_ptr)
 		/* Drain strength */
 		if (choice == 1)
 		{
-			take_hit(damroll(1, 4), 0, "A small needle has pricked you!",
+			(void)take_hit(damroll(1, 4), 0, "A small needle has pricked you!",
 				"a poison needle");
 			(void)do_dec_stat(A_STR, d, FALSE, "You feel weakened!", NULL);
 		}
 		else if (choice == 2)
 		{
-			take_hit(damroll(1, 4), 0, "A small needle has pricked you!",
+			(void)take_hit(damroll(1, 4), 0, "A small needle has pricked you!",
 				"a poison needle");
 			(void)do_dec_stat(A_CON, d, FALSE, "Your health is damaged!",
 				"Your body resists the effects of the disease.");
 		}
 		else if (choice == 3)
 		{
-			take_hit(damroll(1, 4), 0, "A small needle has pricked you!",
+			(void)take_hit(damroll(1, 4), 0, "A small needle has pricked you!",
 				"a poison needle");
 			(void)do_dec_stat(A_DEX, d, FALSE, "Your nerves go limp!",
 				"Your dexterity is sustained.");
 		}
 		else if (choice == 4)
 		{
-			take_hit(damroll(1, 4), 0, "Something is invading your mind!",
+			(void)take_hit(damroll(1, 4), 0, "Something is invading your mind!",
 				"a poison needle");
 			(void)do_dec_stat(A_INT, d, FALSE, "Your intelligence drains away!",
 				"You feel dull-witted for a moment, but quickly recover.");
 		}
 		else if (choice == 5)
 		{
-			take_hit(damroll(1, 4), 0, "Something is crushing your mind!",
+			(void)take_hit(damroll(1, 4), 0, "Something is crushing your mind!",
 				"a poison needle");
 			(void)do_dec_stat(A_WIS, d, FALSE, "You suddenly feel naive!",
 				"Your wisdom resists the attack.");
 		}
 		else if (choice == 6)
 		{
-			take_hit(damroll(1, 4), 0, "Something is clawing at your mind!",
+			(void)take_hit(damroll(1, 4), 0, "Something is clawing at your mind!",
 				"a poison needle");
 			(void)do_dec_stat(A_CHR, d, FALSE, "Your charisma diminishes!",
 				"Your charisma is sustained.");
@@ -756,6 +757,9 @@ bool hit_chest_trap(int y, int x, object_type *o_ptr)
 		/* Details are random */
 		Rand_quick = FALSE;
 
+		/* Summon sound */
+		sound(MSG_SUM_MONSTER);
+
 		/* Summon monsters */
 		if (choice <= 2)
 		{
@@ -859,6 +863,7 @@ bool hit_chest_trap(int y, int x, object_type *o_ptr)
 				/* Place the chest there. */
 				drop_near(o_ptr, 0, y1, x1, 0x00);
 
+				/* Delete the original chest (later) */
 				destroy_chest = TRUE;
 
 				/* Done. */
@@ -888,7 +893,7 @@ bool hit_chest_trap(int y, int x, object_type *o_ptr)
 
 			/* Shards -- Full damage to adjacent grids */
 			(void)project_ball(0, 3, y, x, y, x, o_ptr->pval * 4,
-									 GF_SHARD, 0L, 20);
+				GF_SHARD, 0L, 20);
 		}
 	}
 
@@ -1152,7 +1157,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	if (rand_int(100) < chance)
 	{
 		/* Message */
-		msg_print("You have disarmed the chest.");
+		message_format(MSG_DISARM, 0, "You have disarmed the chest.");
 
 		/* Gain some experience */
 		gain_exp(randint(o_ptr->pval + (o_ptr->pval * o_ptr->pval / 20)),
@@ -1725,15 +1730,6 @@ void do_cmd_close(void)
 	bool more = FALSE;
 
 
-#if 0  /* Interacts poorly with door locking */
-
-	/* Handle a single open door  -TNB- */
-	if (count_feats(&y, &x, is_open, FALSE) == 1)
-	{
-		p_ptr->command_dir = coords_to_dir(y, x);
-	}
-#endif
-
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
@@ -1775,7 +1771,7 @@ void do_cmd_close(void)
 	/* Monster is in the way - attempt to slam the door  -LM-  */
 	if (cave_m_idx[y][x] > 0)
 	{
-		char m_name[80];
+		char m_name[DESC_LEN];
 
 		/* Get the monster */
 		monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
@@ -1902,7 +1898,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 {
 	bool more = FALSE;
 
-	char buf[80];
+	char buf[DESC_LEN];
 
 	/* Verify legality */
 	if (!do_cmd_tunnel_test(y, x)) return (FALSE);
@@ -2100,9 +2096,12 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			/* Message */
 			msg_print("You have removed the rubble.");
 
-			/* Hack -- place an object */
-			if (one_in_(33))
+			/* There is a hidden object here */
+			if (cave_loose_rock(y, x))
 			{
+				/* Remove the loose rock */
+				remove_trap_kind(y, x, TRAP_LOOSE_ROCK);
+
 				/* Create a simple object */
 				place_object(y, x, FALSE, FALSE, FALSE);
 
@@ -2189,8 +2188,8 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		}
 	}
 
-	/* Doors */
-	else if (cave_closed_door(y, x))
+	/* Known closed doors */
+	else if (cave_known_closed_door(y, x))
 	{
 		/* No chance */
 		if (p_ptr->skill_dig <= 20)
@@ -2997,8 +2996,8 @@ void do_cmd_alter(bool deliberate)
 		more = do_cmd_tunnel_aux(y, x);
 	}
 
-	/* Open closed doors */
-	else if (cave_closed_door(y, x))
+	/* Open known closed doors */
+	else if (cave_known_closed_door(y, x))
 	{
 		bool flag = FALSE;
 
@@ -3095,8 +3094,8 @@ static bool do_cmd_spike_test(int y, int x)
 		return (FALSE);
 	}
 
-	/* Require a closed door */
-	if (!cave_closed_door(y, x))
+	/* Require a known closed door */
+	if (!cave_known_closed_door(y, x))
 	{
 		/* Message */
 		msg_print("You see nothing there to spike.");
@@ -3245,12 +3244,12 @@ static bool do_cmd_walk_test(int y, int x)
 	if ((p_ptr->wraithform) && (!cave_permwall(y, x))) return (TRUE);
 
 	/* Otherwise, require passable terrain */
-	if (!cave_passable_bold(y, x) || cave_secret_door(y, x))
+	if (!cave_passable_bold(y, x))
 	{
-		/* Door */
-		if (cave_closed_door(y, x))
+		/* Known closed doors */
+		if (cave_known_closed_door(y, x))
 		{
-		/* Doors can be opened. */
+			/* Doors can be opened. */
 			return (TRUE);
 		}
 
@@ -3438,14 +3437,8 @@ static void do_cmd_hold_or_stay(int pickup)
 	/* Hack -- enter a store if we are on one */
 	if (cave_shop_bold(p_ptr->py, p_ptr->px))
 	{
-		/* Disturb */
-		disturb(0, 0);
-
-		/* Hack -- enter store */
-		p_ptr->command_new = '_';
-
-		/* Free turn XXX XXX XXX */
-		p_ptr->energy_use = 0;
+		/* Enter the store */
+		do_cmd_store();
 	}
 }
 
@@ -3489,7 +3482,7 @@ void do_cmd_rest(void)
 	{
 		cptr p = "Rest (0-9999, '*' for HP/SP, '&' as needed):";
 
-		char out_val[80];
+		char out_val[DESC_LEN];
 
 		/* Default */
 		strcpy(out_val, "&");

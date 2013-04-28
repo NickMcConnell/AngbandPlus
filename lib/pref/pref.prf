@@ -11,7 +11,7 @@
 #
 # Order in which preferences and other rules are read in Sangband:
 # - "lib/pref/pref.prf"   (this file and files called from it)
-# - "lib/pref/font.prf" or "lib/pref/graf.prf"  (for text mode or graphics)
+# - "lib/pref/tiles.prf"  (character remapping for fonts or graphics)
 # - "lib/pref/user.prf"
 # - "lib/user/user.prf"
 # - the savefile
@@ -36,18 +36,19 @@
 
 
 ## Hack -- default values for certain things
+
 # Delay
-D:4
+D:5
 
 # Hitpoint warning (x10%)
-H:4
+H:3
 
 # Autosave  (autosave, frequency)
 a:1:1000
 
-# Screen  (force_25_rows, text_50_rows, rows used to show dungeon, 
+# Screen  (more_standard_display, more_special_display, map_display_precise_fit, 
 # distance from top/bottom and side edges at which to shift the view)
-t:1:0:22:2:4
+t:1:0:1:2:4
 
 
 
@@ -392,14 +393,14 @@ E:93:P
 ?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS gtk]]
 %:pref-x11.prf
 
-
-
-
 ?:[EQU $SYS gcu]
 %:pref-gcu.prf
 
 ?:[EQU $SYS mac]
 %:pref-mac.prf
+
+?:[EQU $SYS sdl]
+%:pref-sdl.prf
 
 ?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
 %:pref-win.prf

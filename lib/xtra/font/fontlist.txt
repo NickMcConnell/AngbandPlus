@@ -1,0 +1,24 @@
+# Listing of fonts used by the game.  If there are two or more fonts of 
+# the same size, the first one listed will be chosen by preference.
+
+4x6x.fon
+5x8x.fon
+6x10x.fon
+8x8x.fon
+8x12x.fon
+8xx12xb.fon
+8x16x.fon
+10x14x.fon
+10x14xb.fon
+11x16xrb.fon
+12x16xrb.fon
+12x18x.fon
+12x18xrb.fon
+14x20xrb.fon
+16x16x.fon
+16x24xrb.fon
+16x24x.fon
+16x24xg.fon
+20x30xrb.fon
+28x32xrb.fon
+

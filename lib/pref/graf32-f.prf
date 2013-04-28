@@ -1,0 +1,352 @@
+# File: graf32-f.prf
+
+
+#
+# This file defines special attr/char mappings for use in graphics mode 
+# "32x32-f" (32x32 tiles for terrain, spells, traps, and specials, but fonts 
+# for objects and monsters) using David Gervais's 32x32 tiles.  From AngbandTK, 
+# by way of Angband.
+#
+# See "lib/help/pref.txt" and "src/files.c" for more information.
+#
+
+
+#
+# Use extended fonts as a default
+#
+%:font.prf
+
+
+
+# Feature attr/char definitions
+
+#
+# Note:  
+# If lighting is turned on, Sangband uses two shades for almost all features 
+# (a second was added where necessary).  If an option is set, Sangband also uses 
+# a third shade for some features which gleam yellow under torch light; in this 
+# case, the file contains bright-torch, bright, and dim, with normal replaced.
+#
+
+
+
+# <darkness>
+F:0:+0/+0
+
+# open floor
+# Normal, bright, dim
+F:1:+23/+1:+23/+0:+23/+2:torch_only
+
+# up shaft
+F:4:+25/+96:+25/+96:+25/+97
+
+# down shaft
+F:5:+25/+98:+25/+98:+25/+99
+
+# open door
+F:6:+25/+92:+25/+92:+25/+93
+
+# broken door
+F:7:+25/+94:+25/+94:+25/+95
+
+# up staircase
+F:8:+25/+100:+25/+100:+25/+101
+
+# down staircase
+F:9:+25/+102:+25/+102:+25/+103
+
+# lava
+F:10:+23/+36:+23/+36:+23/+38
+
+# water
+F:11:+23/+72:+23/+72:+23/+74
+
+# trees
+F:12:+21/+103:+21/+102:+21/+104:torch_only
+
+
+# door
+F:32:+25/+90:+25/+90:+25/+91
+
+# pile of rubble
+F:49:+21/+106:+21/+105:+21/+107:torch_only
+
+# magma vein
+F:50:+22/+51:+22/+51:+22/+53
+
+# quartz vein
+F:51:+22/+58:+22/+58:+22/+59
+
+# magma vein with treasure
+F:54:+22/+54:+22/+54:+22/+56
+
+# quartz vein with treasure
+F:55:+22/+61:+22/+61:+22/+62
+
+# granite wall
+F:56:+22/+1:+22/+1:+22/+2
+
+# permanent wall
+F:60:+26/+0:+26/+0:+26/+2
+
+# permanent wall (#2)
+F:61:+26/+0:+26/+0:+26/+2
+
+# pillar
+F:64:+21/+109:+21/+108:+21/+110:torch_only
+
+# pillar of gold
+F:65:+21/+112:+21/+111:+21/+113:torch_only
+
+
+# General Store
+F:84:+26/+3:+26/+3:+26/+72
+
+# Armory
+F:85:+26/+4:+26/+4:+26/+73
+
+# Weapon Smiths
+F:86:+26/+5:+26/+5:+26/+74
+
+# Temple
+F:87:+26/+6:+26/+6:+26/+75
+
+# Alchemy Shop
+F:88:+26/+7:+26/+7:+26/+76
+
+# Magic Shop
+F:89:+26/+8:+26/+8:+26/+77
+
+# Bookstore
+F:90:+26/+9:+26/+9:+26/+78
+
+# Home
+F:91:+26/+23:+26/+23:+26/+80
+
+# Inn
+F:92:+26/+12:+26/+12:+26/+79
+
+
+
+
+
+
+#
+# Traps
+#
+
+# loose rock
+N:1:+7:+35
+
+# glyph of warding
+N:2:+7:+41
+
+# monster trap
+N:5:+7:+40
+
+# trap door
+N:6:+7:+38
+
+# pit
+N:7:+7:+36
+
+# dart trap
+N:8:+7:+56
+
+# discolored spot
+N:9:+7:+61
+
+# gas trap
+N:10:+7:+55
+
+# strange rune
+N:11:+7:+61
+
+# strange rune
+N:12:+7:+61
+
+# hex
+N:13:+7:+59
+
+# shimmering portal
+N:14:+7:+58
+
+# murder hole
+N:15:+7:+60
+
+
+
+
+
+
+
+#
+# Spell graphics.  Default to "magical" light grey bolts and explosions.
+#
+
+S:0:+1/+0:+1/+1:+1/+2:+1/+3:+1/+70
+
+# Rock
+S:1:+2/+120:+2/+121:+2/+122:+2/+123:+2/+120
+
+# Shot
+S:2:+2/+112:+2/+113:+2/+114:+2/+115:+2/+106
+
+# Arrow
+S:3:+2/+108:+2/+109:+2/+110:+2/+111:+2/+105
+
+# Missile
+S:4:+2/+116:+2/+117:+2/+118:+2/+119:+2/+107
+
+# Poisoned missile
+S:5:+2/+124:+2/+125:+2/+126:+2/+127:+2/+104
+
+# Whip
+S:6:+2/+108:+2/+109:+2/+110:+2/+111:+2/+105
+
+# Acid
+S:8:+1/+8:+1/+9:+1/+10:+1/+11:+1/+71
+
+# Electricity
+S:9:+1/+20:+1/+21:+1/+22:+1/+23:+1/+62
+
+# Fire
+S:10:+1/+12:+1/+13:+1/+14:+1/+15:+1/+60
+
+# Frost
+S:11:+1/+0:+1/+1:+1/+2:+1/+3:+1/+70
+
+# Poison
+S:12:+1/+16:+1/+17:+1/+18:+1/+19:+1/+61
+
+# Plasma
+S:13:+1/+40:+1/+41:+1/+42:+1/+43:+1/+68
+
+# Hellfire
+S:14:+1/+48:+1/+48:+1/+48:+1/+48:+1/+72
+
+# Ice
+S:15:+1/+24:+1/+25:+1/+26:+1/+27:+1/+107
+
+# Weak light
+S:20:+1/+28:+1/+29:+1/+30:+1/+31:+1/+64
+
+# Light
+S:21:+1/+36:+1/+37:+1/+38:+1/+39:+1/+99
+
+# Strong light
+S:22:+1/+36:+1/+37:+1/+38:+1/+39:+1/+105
+
+# Weak darkness
+S:23:+1/+44:+1/+45:+1/+46:+1/+47:+2/+99  
+
+# Darkness
+S:24:+1/+44:+1/+45:+1/+46:+1/+47:+2/+100
+
+# Morgul-Darkness
+S:25:+2/+59:+2/+59:+2/+59:+2/+59:+2/+101
+
+# Confusion
+S:26:+1/+28:+1/+29:+1/+30:+1/+31:+1/+64
+
+# Sound
+S:27:+1/+28:+1/+29:+1/+30:+1/+31:+1/+64
+
+# Shards
+S:28:+2/+24:+2/+25:+2/+26:+2/+27:+2/+102
+
+# Inertia
+S:29:+1/+0:+1/+1:+1/+2:+1/+3:+1/+70
+
+# Gravity
+S:30:+1/+4:+1/+5:+1/+6:+1/+7:+1/+65
+
+# Force
+S:31:+2/+24:+2/+25:+2/+26:+2/+27:+2/+102
+
+# Water
+S:32:+1/+24:+1/+25:+1/+26:+1/+27:+1/+101
+
+# Wind
+S:33:+1/+0:+1/+1:+1/+2:+1/+3:+1/+70
+
+# Storm
+S:34:+2/+97:+2/+97:+2/+97:+2/+97:+2/+98
+
+# Nexus
+S:40:+2/+32:+2/+33:+2/+34:+2/+35:+2/+60
+
+# Nether
+S:41:+2/+36:+2/+37:+2/+38:+2/+39:+2/+62
+
+# Chaos
+S:42:+1/+59:+1/+59:+1/+59:+1/+59:+1/+86
+
+# Disenchentment
+S:43:+1/+44:+1/+45:+1/+46:+1/+47:+1/+86
+
+# Time
+S:44:+2/+28:+2/+29:+2/+30:+2/+31:+1/+69
+
+# Mana
+S:45:+2/+40:+2/+41:+2/+42:+2/+43:+2/+61
+
+
+# Holy orb
+S:54:+1/+4:+1/+5:+1/+6:+1/+7:+1/+85
+
+# Black orb
+S:55:+1/+44:+1/+45:+1/+46:+1/+47:+1/+71  
+
+# Death
+S:56:+2/+59:+2/+59:+2/+59:+2/+59:+2/+67
+
+# Vampiric drain
+S:57:+2/+59:+2/+59:+2/+59:+2/+59:+2/+67
+
+# Death cloud
+S:58:+2/+59:+2/+59:+2/+59:+2/+59:+2/+67
+
+# Spore
+S:59:+2/+108:+2/+109:+2/+110:+2/+111:+2/+96
+
+# Forget
+S:60:+1/+32:+1/+33:+1/+34:+1/+35:+1/+67
+
+# Curse
+S:64:+2/+59:+2/+59:+2/+59:+2/+59:+2/+67
+
+# Make water
+S:110:+1/+24:+1/+25:+1/+26:+1/+27:+1/+63
+
+# Make trees
+S:111:+1/+16:+1/+17:+1/+18:+1/+19:+1/+61
+
+# Make lava
+S:112:+1/+12:+1/+13:+1/+14:+1/+15:+1/+60
+
+# Enlightenment
+S:130:+1/+36:+1/+37:+1/+38:+1/+39:+1/+66
+
+# Gain Level
+S:131:+2/+36:+2/+37:+2/+38:+2/+39:+2/+62
+
+
+
+
+
+#
+# Miscellaneous and special graphics
+#
+
+# cursor
+I:1:+27:+72
+
+# unknown monster
+I:2:+6:+82
+
+
+
+#
+# Monsters and graphics are displayed using text.
+#

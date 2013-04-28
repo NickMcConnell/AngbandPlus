@@ -3,11 +3,12 @@
 /*
  * Read the files in "/lib/edit", use them to fill in various arrays.
  *
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 2007 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -2889,8 +2890,6 @@ errr parse_q_info(char *buf, header *head)
 }
 
 
-static int fl_count = 0;
-
 /*
  * Initialize the "flavor_info" array, by parsing an ascii "template" file
  */
@@ -2903,34 +2902,45 @@ errr parse_flavor_info(char *buf, header *head)
 	/* Process 'N' for "Number" */
 	if (buf[0] == 'N')
 	{
-		int tval, sval;
+		int index, tval, sval, level;
 
-		/* Scan the value */
-		if (2 != sscanf(buf, "N:%d:%d", &tval, &sval))
+		/* Scan the value -- sval and level are optional */
+		if (4 != sscanf(buf, "N:%d:%d:%d:%d", &index, &tval, &sval, &level))
 		{
-			sval = SV_ANY;
+			level = 0;
 
-			if (1 != sscanf(buf, "N:%d", &tval))
-				return (PARSE_ERROR_GENERIC);
+			if (3 != sscanf(buf, "N:%d:%d:%d", &index, &tval, &sval))
+			{
+				sval = SV_ANY;
+
+				if (2 != sscanf(buf, "N:%d:%d", &index, &tval))
+					return (PARSE_ERROR_GENERIC);
+			}
 		}
 
-		/* Increment the flavor count */
-		fl_count++;
+		/* Verify information */
+		if (index <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 		/* Verify information */
-		if (fl_count >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
+		if (index >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
 
 		/* Save the index */
-		error_idx = fl_count;
+		error_idx = index;
 
-		/* Point at the "info" */
-		flavor_ptr = (flavor_type*)head->info_ptr + fl_count;
+		/* Point at the "info", using the given index */
+		flavor_ptr = (flavor_type*)head->info_ptr + index;
+
+		/* Hack -- Allow use of "-1" to mean "any sval" */
+		if (sval < 0) sval = SV_ANY;
 
 		/* Save the tval */
 		flavor_ptr->tval = (byte)tval;
 
 		/* Save the sval */
 		flavor_ptr->sval = (byte)sval;
+
+		/* Save the minimum level */
+		flavor_ptr->level = (byte)level;
 	}
 
 	/* Process 'G' for "Graphics" */
@@ -3075,7 +3085,7 @@ errr parse_store(void)
 {
 	int i;
 	byte b;
-	char str[81];
+	char str[DESC_LEN];
 	int num = -1;
 	s32b val;
 	bool okay = FALSE;

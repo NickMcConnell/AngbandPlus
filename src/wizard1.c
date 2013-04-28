@@ -3,11 +3,12 @@
 /*
  * Generation of object, artifact, and monster spoilers.
  *
- * Copyright (c) 1997 Ben Harrison, and others
+ * Copyright (c) 2007 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -56,9 +57,9 @@ static void spoiler_underline(cptr str)
  */
 static void print_header(cptr spoiler_type)
 {
-	char buf[80];
+	char buf[DESC_LEN];
 
-	sprintf(buf, "%s Spoilers for %s %d.%d.%d",
+	(void)strnfmt(buf, sizeof(buf), "%s Spoilers for %s %d.%d.%d",
 		spoiler_type, VERSION_NAME,
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
@@ -130,11 +131,11 @@ static grouper group_item[] =
 	{ TV_HAFTED,     NULL },
 	{ TV_DIGGING,    NULL },
 
-	{ TV_SOFT_ARMOR, "Armour (Body)" },
+	{ TV_SOFT_ARMOR, "Armor (Body)" },
 	{ TV_HARD_ARMOR, NULL },
 	{ TV_DRAG_ARMOR, NULL },
 
-	{ TV_CLOAK,      "Armour (Misc)" },
+	{ TV_CLOAK,      "Armor (Misc)" },
 	{ TV_SHIELD,     NULL },
 	{ TV_HELM,       NULL },
 	{ TV_CROWN,      NULL },
@@ -221,7 +222,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Description (too brief) */
-	object_desc_store(buf, i_ptr, FALSE, 0);
+	object_desc_store(buf, sizeof(buf), i_ptr, FALSE, 0);
 
 
 	/* Misc info */
@@ -243,7 +244,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_BOLT:
 		case TV_ARROW:
 		{
-			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
+			(void)strnfmt(dam, 32, "%dd%d", i_ptr->dd, i_ptr->ds);
 			break;
 		}
 
@@ -253,11 +254,11 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
+			(void)strnfmt(dam, 32, "%dd%d", i_ptr->dd, i_ptr->ds);
 			break;
 		}
 
-		/* Armour */
+		/* Armor */
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
@@ -268,16 +269,22 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
-			sprintf(dam, "%d", i_ptr->ac);
+			(void)strnfmt(dam, 32, "%d", i_ptr->ac);
 			break;
 		}
 	}
 
 
 	/* Weight */
-	if (use_metric) sprintf(wgt, "%3d.%d", make_metric(i_ptr->weight) / 10,
-		make_metric(i_ptr->weight) % 10);
-	else sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
+	if (use_metric)
+	{
+		(void)strnfmt(wgt, 32, "%3d.%d", make_metric(i_ptr->weight) / 10,
+			make_metric(i_ptr->weight) % 10);
+	}
+	else
+	{
+		(void)strnfmt(wgt, 32, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
+	}
 
 }
 extern void spoil_obj_desc(cptr fname);
@@ -289,12 +296,12 @@ void spoil_obj_desc(cptr fname)
 {
 	int i, k, s, t, n = 0;
 
-	u16b who[200];
+	u16b who[256];
 
 	char buf[1024];
 
-	char wgt[80];
-	char dam[80];
+	char wgt[DESC_LEN];
+	char dam[DESC_LEN];
 
 	/* We use either ascii or system-specific encoding */
 	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
@@ -482,7 +489,7 @@ static void spoil_obj_gen(cptr fname)
 
 	object_type *i_ptr;
 	object_type object_type_body;
-	char o_name[120];
+	char o_name[DESC_LEN];
 
 	char buf[1024];
 
@@ -909,7 +916,7 @@ static void spoil_artifact(cptr fname)
 			a_ptr = &a_info[i_ptr->artifact_index];
 
 			/* Write a description of the artifact */
-			object_desc_store(buf, i_ptr, TRUE, 1);
+			object_desc_store(buf, sizeof(buf), i_ptr, TRUE, 1);
 			x_fprintf(fff, encoding, buf);
 			fprintf(fff, "\n");
 
@@ -958,13 +965,13 @@ static void spoil_mon_desc(cptr fname)
 	/* We use either ascii or system-specific encoding */
 	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
-	char nam[80];
-	char lev[80];
-	char rar[80];
-	char spd[80];
-	char ac[80];
-	char hp[80];
-	char exp[80];
+	char nam[DESC_LEN];
+	char lev[32];
+	char rar[32];
+	char spd[32];
+	char ac[32];
+	char hp[32];
+	char exp[32];
 
 	u16b *who;
 	u16b why = 2;
@@ -1041,31 +1048,31 @@ static void spoil_mon_desc(cptr fname)
 
 
 		/* Level */
-		sprintf(lev, "%d", r_ptr->level);
+		(void)strnfmt(lev, sizeof(lev), "%d", r_ptr->level);
 
 		/* Rarity */
-		sprintf(rar, "%d", r_ptr->rarity);
+		(void)strnfmt(rar, sizeof(rar), "%d", r_ptr->rarity);
 
 		/* Speed */
-		sprintf(spd, "%+d", (r_ptr->speed - 110));
+		(void)strnfmt(spd, sizeof(spd), "%+d", (r_ptr->speed - 110));
 
 
 		/* Armor Class */
-		sprintf(ac, "%d", r_ptr->ac);
+		(void)strnfmt(ac, sizeof(ac), "%d", r_ptr->ac);
 
 		/* Hitpoints */
 		if (r_ptr->flags1 & (RF1_FIXED_HPS))
 		{
-			sprintf(hp, "%d", (int)r_ptr->hitpoints);
+			(void)strnfmt(hp, sizeof(hp), "%d", (int)r_ptr->hitpoints);
 		}
 		else
 		{
-			sprintf(hp, "~%d", (int)r_ptr->hitpoints);
+			(void)strnfmt(hp, sizeof(hp), "~%d", (int)r_ptr->hitpoints);
 		}
 
 
 		/* Experience */
-		sprintf(exp, "%ld", (long)(r_ptr->mexp));
+		(void)strnfmt(exp, sizeof(exp), "%ld", (long)(r_ptr->mexp));
 
 		/* Hack -- use visual instead */
 		(void)strnfmt(exp, sizeof(exp), "%s '%c'", attr_to_text(r_ptr->d_attr),
@@ -1179,54 +1186,54 @@ static void spoil_mon_info(cptr fname)
 		text_out(attr_to_text(r_ptr->d_attr));
 
 		/* Symbol --(-- */
-		sprintf(buf, " '%c')\n", r_ptr->d_char);
+		(void)strnfmt(buf, sizeof(buf), " '%c')\n", r_ptr->d_char);
 		text_out(buf);
 
 
 		/* Indent */
-		sprintf(buf, "=== ");
+		(void)strnfmt(buf, sizeof(buf), "=== ");
 		text_out(buf);
 
 		/* Number */
-		sprintf(buf, "Num:%d  ", r_idx);
+		(void)strnfmt(buf, sizeof(buf), "Num:%d  ", r_idx);
 		text_out(buf);
 
 		/* Level */
-		sprintf(buf, "Lev:%d  ", r_ptr->level);
+		(void)strnfmt(buf, sizeof(buf), "Lev:%d  ", r_ptr->level);
 		text_out(buf);
 
 		/* Rarity */
-		sprintf(buf, "Rar:%d  ", r_ptr->rarity);
+		(void)strnfmt(buf, sizeof(buf), "Rar:%d  ", r_ptr->rarity);
 		text_out(buf);
 
 		/* Speed */
 		if (r_ptr->speed >= 110)
 		{
-			sprintf(buf, "Spd:+%d  ", (r_ptr->speed - 110));
+			(void)strnfmt(buf, sizeof(buf), "Spd:+%d  ", (r_ptr->speed - 110));
 		}
 		else
 		{
-			sprintf(buf, "Spd:-%d  ", (110 - r_ptr->speed));
+			(void)strnfmt(buf, sizeof(buf), "Spd:-%d  ", (110 - r_ptr->speed));
 		}
 		text_out(buf);
 
 		/* Hitpoints */
 		if (r_ptr->flags1 & (RF1_FIXED_HPS))
 		{
-			sprintf(buf, "%d", (int)r_ptr->hitpoints);
+			(void)strnfmt(buf, sizeof(buf), "%d", r_ptr->hitpoints);
 		}
 		else
 		{
-			sprintf(buf, "~%d", (int)r_ptr->hitpoints);
+			(void)strnfmt(buf, sizeof(buf), "~%d", r_ptr->hitpoints);
 		}
 		text_out(buf);
 
 		/* Armor Class */
-		sprintf(buf, "Ac:%d  ", r_ptr->ac);
+		(void)strnfmt(buf, sizeof(buf), "Ac:%d  ", r_ptr->ac);
 		text_out(buf);
 
 		/* Experience */
-		sprintf(buf, "Exp:%ld\n", (long)(r_ptr->mexp));
+		(void)strnfmt(buf, sizeof(buf), "Exp:%ld\n", (long)(r_ptr->mexp));
 		text_out(buf);
 
 		/* Describe */
@@ -1266,7 +1273,7 @@ void do_cmd_spoilers(void)
 
 
 	/* Save screen */
-	screen_save();
+	screen_save(TRUE);
 
 
 	/* Drop priv's */
@@ -1296,7 +1303,7 @@ void do_cmd_spoilers(void)
 		prt("Command:", 12, 0);
 
 		/* Get a choice */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Escape */
 		if (ch == ESCAPE)

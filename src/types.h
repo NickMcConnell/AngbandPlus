@@ -1,16 +1,15 @@
-
-
 /* File: types.h */
 
 /*
- * Major structures used in the game.  Monster, object, artifact,
+ * Global structures used in the game.  Monster, object, artifact,
  * character, etc.
  *
- * Copyright (c) 1998 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 
@@ -110,6 +109,7 @@ typedef struct color_type color_type;
 typedef struct flavor_type flavor_type;
 typedef struct move_moment_type move_moment_type;
 typedef struct proj_graphics_type proj_graphics_type;
+typedef struct graphics_data_type graphics_data_type;
 
 
 /**** Available structs ****/
@@ -323,7 +323,7 @@ struct object_type
 
 	s16b to_h;                /* Skill Bonus */
 	s16b to_d;                /* Deadliness Bonus */
-	s16b to_a;                /* Armour Bonus */
+	s16b to_a;                /* Armor Bonus */
 
 	s16b ac;                  /* Normal AC */
 
@@ -372,7 +372,7 @@ struct artifact_type
 
 	s16b to_h;                /* Skill Bonus */
 	s16b to_d;                /* Deadliness Bonus */
-	s16b to_a;                /* Armour Bonus */
+	s16b to_a;                /* Armor Bonus */
 
 	s16b ac;                  /* Base armor */
 
@@ -421,7 +421,7 @@ struct ego_item_type
 
 	s16b mod_to_h;            /* Maximum Skill bonus */
 	s16b mod_to_d;            /* Maximum Deadliness bonus */
-	s16b mod_to_a;            /* Maximum armour bonus */
+	s16b mod_to_a;            /* Maximum armor bonus */
 
 	byte activate;            /* Activation */
 
@@ -483,7 +483,7 @@ struct set_element
 
 	s16b to_h;                /* Skill Bonus */
 	s16b to_d;                /* Deadliness Bonus */
-	s16b to_a;                /* Armour Bonus */
+	s16b to_a;                /* Armor Bonus */
 
 	s16b ac;                  /* Base armor */
 	byte dd, ds;              /* Damage dice */
@@ -548,7 +548,7 @@ struct monster_race
 
 	u16b hitpoints;         /* Monster hitpoints */
 
-	byte ac;						/* Armour Class */
+	byte ac;						/* Armor Class */
 
 	s16b sleep;					/* Inactive counter (base) */
 	byte aaf;					/* Area affect radius (1-100) */
@@ -884,11 +884,12 @@ struct store_type
  */
 struct magic_type
 {
-	byte index;			/* The internal spell index. */
-	byte slevel;		/* Required level (to learn) */
-	byte smana;			/* Required mana (to cast) */
-	byte sfail;			/* Base chance of failure */
-	byte sexp;			/* Encoded experience bonus */
+	byte index;         /* The internal spell index */
+	byte slevel;        /* Required level (to learn) */
+	byte smana;         /* Required mana (to cast) */
+	byte sfail;         /* Base chance of failure */
+	byte sexp;          /* Encoded experience bonus */
+	cptr sname;         /* Spell name */
 };
 
 
@@ -899,14 +900,14 @@ struct magic_type
  */
 struct player_magic
 {
-	cptr title;					/* Name of realm */
-	byte spell_book;		/* Tval of spell books (if any) */
-	byte spell_stat;		/* Primary stat (used for spells, if any) */
-	byte spell_skill;		/* Skill that improves magic */
-	s16b spell_weight;	/* Max armour weight that avoids mana penalties */
-	byte spell_number;	/* Total available spells in that realm. */
-	byte book_start_index[11];/* Index of 1st spell for all books. */
-	magic_type info[PY_MAX_SPELLS];	/* The available spells */
+	cptr title;                /* Name of realm */
+	byte spell_book;           /* Tval of spell books (if any) */
+	byte spell_stat;           /* Primary stat (used for spells, if any) */
+	byte spell_skill;          /* Skill that improves magic */
+	s16b spell_weight;         /* Max armor weight that avoids mana penalties */
+	byte spell_number;         /* Total available spells in that realm */
+	byte book_start_index[11]; /* Index of 1st spell for all books */
+	magic_type info[PY_MAX_SPELLS];       /* The available spells */
 };
 
 /*
@@ -1024,7 +1025,7 @@ struct player_other
 
 	bool opt[OPT_MAX];			/* Options */
 
-	u32b window_flag[ANGBAND_TERM_MAX];		/* Window flags */
+	u32b window_flag[TERM_MAX];		/* Window flags */
 
 	byte hitpoint_warn;			/* Hitpoint warning (0 to 9) */
 
@@ -1116,7 +1117,7 @@ struct player_type
 	s16b berserk;				/* Timed -- Berserkergang */
 	s16b necro_rage;			/* Timed -- Necromantic rage */
 	s16b shield;				/* Timed -- Shield Spell */
-	s16b steelskin;			/* Timed -- Armoured skin (same as shield) */
+	s16b steelskin;			/* Timed -- Armored skin (same as shield) */
 	s16b blessed;				/* Timed -- Blessed */
 	s16b holy;					/* Timed -- Holy Aura */
 	s16b tim_invis;			/* Timed -- Invisibility */
@@ -1332,6 +1333,7 @@ struct player_type
 
 	s32b birth_roll_requirement;   /* Number of times character was rolled up */
 
+	s16b specialty;		/* Character skill specialty (for title and icon display) */
 
 	byte suppress;				/* Stop auto-display of specific things */
 
@@ -1344,7 +1346,7 @@ struct player_type
 
 	u32b dungeon_flags;         /* Special "dungeon environment" conditions */
 
-	byte character_type;        /* Type of player character */
+	byte character_type;        /* Type of player character (normal, ironman, etc.) */
 
 
 	/*** Extracted fields ***/
@@ -1449,6 +1451,10 @@ struct player_type
 	bool nomagic;				/* Dispelled magic -- No spell-casting */
 	bool twoweap;				/* Currently wielding two weapons */
 	bool hitpoint_warning;      /* Display a hitpoint warning later */
+
+	byte crossing_dir;			/* Direction of terrain crossing movement */
+	byte crossing_moves;		/* Number of turns spent crossing */
+
 };
 
 
@@ -1506,7 +1512,7 @@ struct color_type
 {
 	char index_char;            /* Character index:  'r' = red, etc. */
 
-	char name[20];              /* Color name */
+	char name[32];              /* Color name */
 
 	s16b color_translate;       /* Index used in 16-color mode */
 
@@ -1543,7 +1549,7 @@ struct flavor_type
  *
  * Among the possible future uses for "flags" is to allow transparency.
  * Among the possible future uses for "unused" is to allow multiple
- *   user-editable colors (using a different array, indexed by this value).
+ * user-editable colors (using a different array, indexed by this value).
  */
 struct proj_graphics_type
 {
@@ -1568,13 +1574,32 @@ struct proj_graphics_type
 
 
 /*
+ * A graphics type
+ *
+ * Width of tiles (if constant), height of tiles (if constant),
+ * unused, flags (such as masking),
+ * file name (8 character max + '\0'), full name (24 character max)
+ */
+struct graphics_data_type
+{
+	byte tile_wid;       /* width of tiles */
+	char tile_hgt;       /* height of tiles */
+
+	byte unused;         /* unused */
+	byte flags;          /* flags (such as masking) */
+
+	char file_name[9];   /* file name (used to choose bitmap files and such) */
+	char full_name[24];  /* full name (used for display) */
+	char desc[256];      /* description */
+};
+
+
+/*
  * A list of monster and character movement moments.
  *
  * A "movement moment" is the exact time within the course of a game
  * turn in which the monster or character has exactly 100 energy, and
  * may move.  Other "entities", such as effects, may easily be added.
- *
- * This array is optimized for 32-bit systems.
  */
 struct move_moment_type
 {

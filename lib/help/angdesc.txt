@@ -34,9 +34,8 @@ helpful changes and bug fixes.
 
 This file was last updated for Angband 3.0.1.
 
-Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
-the Official Angband Home Page ("http://thangorodrim.angband.org") for the most
-up to date information about Angband.
+Make sure to read the Forum ("http://angband.oook.cz/forum/") for the most up to
+date information about Angband.
 
 Angband has an incredibly complex history, and is the result of a lot of work by
 a lot of people, all of whom have contributed their time and energy for free,
@@ -109,8 +108,7 @@ allowed simple porting to many new and existing platforms (including X11, IBM
 machines, OS2, Windows, Amiga, and Linux), and made possible the explosion of
 variants that adds such vigor to the game today.
 
-Major changes made in this period include: .
-
+  Major changes made in this period include:
 - macros and keymaps
 - user preference files
 - user-customizable template files for monsters, objects, ego-items,
@@ -134,7 +132,7 @@ ego-items, player races and classes, monsters, items and artifacts - have led to
 the current version.
 
 
-=== Contributors (incomplete) ===
+Contributors (incomplete):
 
 Peter Berger, "Prfnoff", Arcum Dagsson, Ed Cogburn, Matthias Kurzke, Ben
 Harrison, Steven Fuerst, Julian Lighton, Andrew Hill, Werner Baer, Tom Morton,
@@ -144,7 +142,7 @@ Wei-Hwa Huang, Nikodemus, Timo Pietilä, Greg Wooledge, Keldon Jones, Shayne
 Steele, Dr. Andrew White, Musus Umbra, Jonathan Ellis
 
 
-=== A Posting from the Original Author of Moria ===
+A Posting from the Original Author of Moria:
 
 From: koeneke@ionet.net (Robert Alan Koeneke) Newsgroups:
 rec.games.roguelike.angband,rec.games.roguelike.moria Subject: Early history of
@@ -252,8 +250,7 @@ me!  That would be nice...  I never got to play Moria and be surprised...
 Robert Alan Koeneke koeneke@ionet.net
 
 
-=============================
-(The following was posted by Geoff Hill on the Angband newsgroup on 2004-10-31.
+Posted by Geoff Hill on the Angband newsgroup on 2004-10-31:
 
 Well, Alex and Andy are the true fathers of Angband. And probably
 Andy most of all. He's a talented coder, and I *think* (I could ask
@@ -322,9 +319,6 @@ The existing paragraph somewhat suggests that Sean and I released a
 first variant of Angband but as it was the only version release it
 became vanilla?
 If so, that is ironic really, given comments earlier in this thread...
-
-====================================================
-
 
 
 
@@ -407,12 +401,6 @@ This software may be copied and distributed for educational, research, and not
 for profit purposes provided that this copyright and statement are included in
 all such copies.  Other copyrights may also apply.
 
-All changes made by Ben Harrison and Robert Ruehlmann are also available under
-the GNU GENERAL PUBLIC LICENSE (GPL).  Note that this doesn't influence the
-current distribution, since parts of the source are still only available under
-the old Moria/Angband license.  Until all parts of Angband are distributed under
-the GPL the only valid license remains the original Moria/Angband license.
-
 
 --- The Sangband copyright ---
 
@@ -422,20 +410,47 @@ Sangband 0.8.5 - 0.9.3  : Apr 04, 1997  Michael Gorse (mgorse@wpi.edu)
 
 Sangband 0.9.4 - 0.9.5  : Jul 14, 1998  Julian Lighton (jl8e@fragment.com)
 
-Sangband 1.0.0          : ??? ??, ????  Leon Marrick (sangband@runegold.org)
+Sangband 1.0.0          : May 26, 2007  Leon Marrick
+
+Copyright (c) 2007
+Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License.  Parts may also be
+available under the terms of the Moria license.  For more details, see
+"/docs/copying.txt".
 
 
-Copyright (c) 2001  Ben Harrison, James E. Wilson, Robert A. Koeneke
-Portions also copyright (c) 2005  Leon Marrick  (-LM-)
+--- The Sangband Manual Copyright ---
 
-This software may be copied and distributed for educational, research, and not
-for profit purposes provided that this copyright and statement are included in
-all such copies.  Other copyrights may also apply.
+The Sangband Manual is copyright (c) 2007 Leon Marrick (-LM-) and others.
 
-All Sangband-specific code is available under either the traditional
-Moria/Angband license, or the GNU General Public License (GPL), whichever you
-prefer.
+     This work, or any portions thereof, may be freely adopted, revised,
+translated, or converted into other formats, with or without explicit
+permission, as long as this copyright is retained on major portions and credit
+given otherwise.  Other arrangements may be made by application.
 
+
+Informal Bibliography
+     This work draws upon the following sources:
+
+The Umoria 5.5.2 documentation
+     Probable authors:  Robert Alan Koeneke and/or James E. Wilson
+
+The Angband 2.0 documentation
+     Probable authors and revisors:  Alexander Cutler and/or Andy Astrand
+
+The Angband 3.0.3 documentation
+     Authors and revisors:  Ben Harrison, Robert Ruehlmann, and others.
+
+The Oangband 0.5.2 documentation
+     Authors and revisors:  Leon Marrick, Bahman Rabii.
+
+The Angband Macro FAQ
+     Author:  Jim Lyon
+
+The Angband FAQ, parts 1 and 2
+     Authors and revisors:  Jason Holtzapple, Ben Harrison, James Andrewartha
 
 
 

@@ -1,4 +1,3 @@
-
 /* File: spells2.c */
 
 /*
@@ -10,11 +9,12 @@
  * hinder, aggravate, genocide, probing.  Detection spells.  Dungeon-effect
  * magics:  destruction, light and unlight rooms, other spells.  Weather.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -137,8 +137,10 @@ bool mon_explode(int who, int rad, int y0, int x0, int dam, int typ)
  * Handle arc spells.
  *
  * Arcs are a pie-shaped segment (with a width determined by "degrees")
- * of a explosion outwards from the source grid.  They are centered
+ * of an explosion outwards from the source grid.  They are centered
  * along a line extending from the source towards the target.  -LM-
+ *
+ * There are 360 degrees in a circle (until later translation).
  *
  * Because all arcs start out as being one grid wide, arc spells with a
  * value for degrees of arc less than (roughly) 60 do not dissipate as
@@ -204,20 +206,27 @@ bool project_arc(int who, int rad, int y0, int x0, int y1, int x1, int dam,
  *
  * Starbursts always do full damage to every grid they affect:  however,
  * the chances of affecting grids drop off significantly towards the
- * edge of the starburst.  They always "jump" to their target and affect
- * items on the floor.
+ * edge of the starburst.
  */
-bool project_star(int who, int rad, int y0, int x0, int dam, int typ, u32b flg)
+bool project_star(int who, int rad, int y0, int x0, int y1, int x1, int dam,
+	int typ, u32b flg)
 {
-	/* Add the star bitflags */
-	flg |= PROJECT_STAR | PROJECT_BOOM | PROJECT_GRID | PROJECT_JUMP |
+	/* Add the star bitflags (including no visible trail to the target) */
+	flg |= PROJECT_STAR | PROJECT_BOOM | PROJECT_GRID | PROJECT_NO_TRAIL |
 	       PROJECT_ITEM | PROJECT_KILL;
+
+	/* Add the STOP flag if appropriate */
+	if ((who < 0) &&
+	    (!target_okay() || y1 != p_ptr->target_row || x1 != p_ptr->target_col))
+	{
+		flg |= (PROJECT_STOP);
+	}
 
 	/* Hurt the character unless he controls the spell */
 	if (who != -1) flg |= (PROJECT_PLAY);
 
 	/* Cast a star */
-	return (project(who, rad, y0, x0, y0, x0, dam, typ, flg, 0, 0));
+	return (project(who, rad, y0, x0, y1, x1, dam, typ, flg, 0, 0));
 }
 
 
@@ -388,7 +397,7 @@ bool fire_star(int typ, int dir, int dam, int rad)
 	adjust_target(dir, p_ptr->py, p_ptr->px, &y1, &x1);
 
 	/* Cast a star */
-	return (project_star(-1, rad, y1, x1, dam, typ, 0L));
+	return (project_star(-1, rad, p_ptr->py, p_ptr->px, y1, x1, dam, typ, 0L));
 }
 
 
@@ -619,7 +628,7 @@ void fire_storm(int who, int typ0, int y0, int x0, int dam, int rad, int len,
 		/* Clear all lingering spell effects on screen XXX */
 		for (y = p_ptr->wy; y < p_ptr->wy + map_rows; y++)
 		{
-			for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+			for (x = p_ptr->wx; x < p_ptr->wx + map_cols; x++)
 			{
 				lite_spot(y, x);
 			}
@@ -881,7 +890,8 @@ void thrust_away(int who, int t_y, int t_x, int grids_away)
 {
 	int y, x, yy, xx;
 	int i, d, first_d;
-	int angle;
+	int centerline, angle;
+	int dy, dx;
 
 	int c_y, c_x;
 
@@ -906,8 +916,8 @@ void thrust_away(int who, int t_y, int t_x, int grids_away)
 	y = t_y - c_y + 20;
 	x = t_x - c_x + 20;
 
-	/* Find the angle (/2) of the line from caster to target. */
-	angle = get_angle_to_grid[y][x];
+	/* Find the normalized angle from caster to target */
+	centerline = ABS(120 - get_angle_to_grid[y][x]);
 
 	/* Start at the target grid. */
 	y = t_y;
@@ -926,43 +936,19 @@ void thrust_away(int who, int t_y, int t_x, int grids_away)
 		/* Look around. */
 		for (d = first_d; d < 8 + first_d; d++)
 		{
-			/* Reject angles more than 44 degrees from line. */
-			if (d % 8 == 0)	/* 135 */
-			{
-				if ((angle > 157) || (angle < 114)) continue;
-			}
-			if (d % 8 == 1)	/* 45 */
-			{
-				if ((angle > 66) || (angle < 23)) continue;
-			}
-			if (d % 8 == 2)	/* 0 */
-			{
-				if ((angle > 21) && (angle < 159)) continue;
-			}
-			if (d % 8 == 3)	/* 90 */
-			{
-				if ((angle > 112) || (angle < 68)) continue;
-			}
-			if (d % 8 == 4)	/* 158 */
-			{
-				if ((angle > 179) || (angle < 136)) continue;
-			}
-			if (d % 8 == 5)	/* 113 */
-			{
-				if ((angle > 134) || (angle < 91)) continue;
-			}
-			if (d % 8 == 6)	/* 22 */
-			{
-				if ((angle > 44) || (angle < 1)) continue;
-			}
-			if (d % 8 == 7)	/* 67 */
-			{
-				if ((angle > 89) || (angle < 46)) continue;
-			}
+			/* Get change in position */
+			dy = ddy_ddd[d % 8];
+			dx = ddx_ddd[d % 8];
+
+			/* Get angle for this direction */
+			angle = ABS(120 - get_angle_to_grid[20 + dy][20 + dx]);
+
+			/* Ignore if angular difference is too great (45 degrees+) */
+			if (ABS(centerline - angle) > 30) continue;
 
 			/* Extract adjacent location */
-			yy = y + ddy_ddd[d % 8];
-			xx = x + ddx_ddd[d % 8];
+			yy = y + dy;
+			xx = x + dx;
 
 			/* Cannot switch places with stronger monsters. */
 			if (cave_m_idx[yy][xx] != 0)
@@ -1263,13 +1249,13 @@ void teleport_player(int dist, bool safe, bool require_los)
 		/* The player may hit a tree, slam into rubble, or even land in lava. */
 		if ((cave_feat[y][x] == FEAT_TREE) && (one_in_(2)))
 		{
-			take_hit(damroll(2, 8), 0, "You hit a tree!",
+			(void)take_hit(damroll(2, 8), 0, "You hit a tree!",
 				"being hurtled into a tree");
 			if (!one_in_(3)) set_stun(p_ptr->stun + damroll(2, 8));
 		}
 		else if ((cave_feat[y][x] == FEAT_RUBBLE) && (one_in_(2)))
 		{
-			take_hit(damroll(2, 14), 0, "You slam into jagged rock!",
+			(void)take_hit(damroll(2, 14), 0, "You slam into jagged rock!",
 				"being slammed into rubble");
 			if (one_in_(3)) set_stun(p_ptr->stun + damroll(2, 14));
 			if (!one_in_(3)) set_cut(p_ptr->cut + damroll(2, 14) * 2);
@@ -1345,7 +1331,7 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 	}
 
 	/* Sound (assumes monster is moving) */
-	sound(SOUND_TPOTHER);
+	sound(MSG_TPOTHER);
 
 	/* Move monster */
 	monster_swap(oy, ox, y, x);
@@ -1411,7 +1397,7 @@ void teleport_player_to(int ny, int nx, int dis, bool allow_vault, int mode)
 	/* Handle special modes of operation - only if monster is target */
 	if ((mode) && (cave_m_idx[ny][nx] > 0))
 	{
-		char m_name[80];
+		char m_name[DESC_LEN];
 
 		/* Get the monster */
 		monster_type *m_ptr = &m_list[cave_m_idx[ny][nx]];
@@ -1576,7 +1562,7 @@ bool do_blink_away(int who)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	/* Get abd randomize skill */
+	/* Get and randomize skill */
 	int skill = randint(get_skill(S_WIZARDRY, 0, 100));
 
 
@@ -1817,7 +1803,7 @@ static int minus_ac(void)
 {
 	object_type *o_ptr = NULL;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	u32b f1, f2, f3;
 
@@ -1850,7 +1836,7 @@ static int minus_ac(void)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 	/* Object resists */
 	if (f2 & (TR2_IGNORE_ACID))
@@ -1892,7 +1878,7 @@ void acid_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	/* Assume no message */
 	minus_ac_msg = NULL;
 
-	/* Resistances reduce the chance to attack armour */
+	/* Resistances reduce the chance to attack armor */
 	odds = 2;
 	if (p_ptr->resist_acid) odds *= 2;
 	if (p_ptr->oppose_acid) odds *= 2;
@@ -1922,7 +1908,7 @@ void acid_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	if (p_ptr->oppose_acid) dam = div_round(dam, 3);
 
 	/* Take damage */
-	take_hit(dam, msg_type, hit_str, kb_str);
+	(void)take_hit(dam, msg_type, hit_str, kb_str);
 
 
 	/* Player is still alive */
@@ -1981,7 +1967,7 @@ void elec_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	if (p_ptr->resist_elec) dam = div_round(dam, 3);
 
 	/* Take damage */
-	take_hit(dam, msg_type, hit_str, kb_str);
+	(void)take_hit(dam, msg_type, hit_str, kb_str);
 
 
 	/* Player is still alive */
@@ -2042,7 +2028,7 @@ void fire_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	if (p_ptr->oppose_fire) dam = div_round(dam, 3);
 
 	/* Take damage */
-	take_hit(dam, msg_type, hit_str, kb_str);
+	(void)take_hit(dam, msg_type, hit_str, kb_str);
 
 
 	/* Player is still alive */
@@ -2096,7 +2082,7 @@ void cold_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	if (p_ptr->oppose_cold) dam = div_round(dam, 3);
 
 	/* Take damage */
-	take_hit(dam, msg_type, hit_str, kb_str);
+	(void)take_hit(dam, msg_type, hit_str, kb_str);
 
 
 	/* Player is still alive */
@@ -2134,7 +2120,7 @@ bool apply_disenchant(int dam)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 
 	/* Character is gone */
@@ -2153,10 +2139,10 @@ bool apply_disenchant(int dam)
 			shapechange(SHAPE_NORMAL);
 		}
 
-		/* A shapechanged character's armour is safe from disenchantment */
+		/* A shapechanged character's armor is safe from disenchantment */
 		else
 		{
-			/* Pick a random slot -- armour is safe */
+			/* Pick a random slot -- armor is safe */
 			switch (randint(9))
 			{
 				case 1: slot = INVEN_WIELD; break;
@@ -2173,7 +2159,7 @@ bool apply_disenchant(int dam)
 	}
 	else
 	{
-		/* Pick a random slot -- weapons and armour are both fair game */
+		/* Pick a random slot -- weapons and armor are both fair game */
 		switch (randint(9))
 		{
 			case 1: slot = INVEN_WIELD; break;
@@ -2229,7 +2215,7 @@ bool apply_disenchant(int dam)
 
 
 	/* Describe the object */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 
 	/* Artifacts have a two-thirds chance to resist */
@@ -2288,7 +2274,7 @@ int apply_draining(int power)
 	object_type *o_ptr;
 	object_kind *k_ptr;
 
-	char o_name[120];
+	char o_name[DESC_LEN];
 
 
 	/* Check for protective blanket */
@@ -2365,7 +2351,7 @@ int apply_draining(int power)
 		}
 
 		/* Get short object name */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 		/* Make it lowercase */
 		strlower(o_name);
@@ -2518,6 +2504,9 @@ void apply_nexus(int fy, int fx, int dam)
 			break;
 		}
 	}
+
+	/* Disturbing */
+	disturb(0, 0);
 }
 
 
@@ -2985,7 +2974,7 @@ bool do_dec_stat(int stat, int points, bool perm, cptr msg_drain,
 		/* Special message */
 		if (msg_drain)
 		{
-			msg_format("%s", msg_drain);
+			message_format(MSG_DRAIN_STAT, 0, "%s", msg_drain);
 		}
 
 		/* Standard message -- loss is permanent */
@@ -3008,7 +2997,7 @@ bool do_dec_stat(int stat, int points, bool perm, cptr msg_drain,
 		/* Standard message -- loss is merely temporary */
 		else
 		{
-			msg_format("You feel very %s.", desc_stat_neg[stat]);
+			message_format(MSG_DRAIN_STAT, 0, "You feel very %s.", desc_stat_neg[stat]);
 		}
 
 		/* Notice effect */
@@ -3330,7 +3319,7 @@ void curse_player(int power)
 		/* Drain away luck (30%) */
 		if (choice <= 30)
 		{
-			(void)set_luck(p_ptr->luck - (2 + power / 12),
+			(void)set_luck(p_ptr->luck - rand_range((2 + power / 12), (10 + power / 3)),
 				"You feel strangely unlucky...");
 		}
 
@@ -3411,7 +3400,7 @@ void curse_player(int power)
 			disease(&dam);
 
 			/* Hurt (not very much) */
-			take_hit(dam / 2, 0, NULL, "disease");
+			(void)take_hit(dam / 2, 0, NULL, "disease");
 		}
 
 		/* Suck away some exp (10%) */
@@ -3782,14 +3771,14 @@ void aggravate_monsters(int who, bool the_entire_level, cptr msg)
 
 
 /*
- * Make monsters wary.  Option to make only monsters in LOS wary.
+ * Make monsters wary.  Option to make only monsters in LOS/earshot wary.
  * -JG-, -LM-
  */
 bool make_monsters_wary(int y, int x, bool req_los, bool trap)
 {
 	int i;
 	bool notice = FALSE;
-	int dist = 20;
+	int dist = 10;  /* Earshot */
 
 
 	/*
@@ -3811,11 +3800,15 @@ bool make_monsters_wary(int y, int x, bool req_los, bool trap)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Option -- Skip distant monsters */
-		if ((req_los) && (distance(y, x, m_ptr->fy, m_ptr->fx) > dist)) continue;
-
-		/* Option -- Skip monsters not in LOS */
-		if ((req_los) && (!los(y, x, m_ptr->fy, m_ptr->fx))) continue;
+		/* Option -- Skip distant monsters not in LOS */
+		if (req_los)
+		{
+			if ((distance(y, x, m_ptr->fy, m_ptr->fx) > dist) &&
+			    (!los(y, x, m_ptr->fy, m_ptr->fx)))
+			{
+				continue;
+			}
+		}
 
 		/* Skip stupid and motionless monsters */
 		if (r_ptr->flags2 & (RF2_STUPID)) continue;
@@ -3841,13 +3834,13 @@ bool make_monsters_wary(int y, int x, bool req_los, bool trap)
 		    (player_can_see_bold(m_ptr->fy, m_ptr->fx)))
 		{
 			cptr note = "";
-			char m_name[80];
+			char m_name[DESC_LEN];
 
 			/* Describe the monster */
 			monster_desc(m_name, m_ptr, 0x40);
 
 			/* Message -- awareness */
-			if ((strchr("phntyPdDGLOoTuUvV", r_ptr->d_char)) ||
+			if ((strchr("phntyPdDGILOoTuUvV&", r_ptr->d_char)) ||
 				(r_ptr->flags2 & (RF2_SMART)))
 			{
 				if (trap) note = "becomes aware of your crafty abilities.";
@@ -3887,9 +3880,10 @@ bool genocide(char typ)
 	/* Mega-Hack -- Get a monster symbol */
 	if (!typ)
 	{
-		if(!get_com("Choose a monster race (by symbol) to genocide:", &typ))
+		if (!get_com("Choose a monster race (by symbol) to genocide:", &typ))
 		{
-			return FALSE;
+			/* Allow cancel */
+			return (FALSE);
 		}
 	}
 
@@ -3918,8 +3912,7 @@ bool genocide(char typ)
 		delete_monster_idx(i);
 
 		/* Take some damage */
-		if (play) take_hit(randint(4), 0, NULL, "the strain of casting Genocide");
-
+		if (play) (void)take_hit(randint(4), 0, NULL, "the strain of casting Genocide");
 	}
 
 	return (TRUE);
@@ -3964,7 +3957,7 @@ bool mass_genocide(int y, int x)
 
 		/* Take some damage */
 		if (play)
-			take_hit(randint(3), 0, NULL, "the strain of casting Mass Genocide");
+			(void)take_hit(randint(3), 0, NULL, "the strain of casting Mass Genocide");
 
 		/* Note effect */
 		result = TRUE;
@@ -4002,7 +3995,7 @@ bool probing(void)
 		/* Probe visible monsters */
 		if (m_ptr->ml)
 		{
-			char m_name[80];
+			char m_name[DESC_LEN];
 
 			/* Start the message */
 			if (!probe) msg_print("Probing...");
@@ -4012,14 +4005,14 @@ bool probing(void)
 
 			/* Describe the monster */
 			if (!(r_ptr->mana))
-				 msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
+				msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
 			else
-				 msg_format("%^s has %d hit points and %d mana.", m_name, m_ptr->hp, m_ptr->mana);
+				msg_format("%^s has %d hit points and %d mana.", m_name, m_ptr->hp, m_ptr->mana);
 
-			/* Learn all of the non-spell, non-treasure flags */
-			if (lore_do_probe(i))
+			/* If monster is fully visible, learn all of the non-spell, non-treasure flags */
+			if ((m_ptr->ml >= ML_FULL) && (lore_do_probe(i)))
 			{
-				char buf[80];
+				char buf[DESC_LEN];
 
 				/* Get base name of monster */
 				strcpy(buf, (r_name + r_ptr->name));
@@ -4836,7 +4829,7 @@ bool detect_monsters(bool extended, bool match, u32b flags, int flag_set,
 			}
 
 			/* Update the monster */
-			(void)update_mon(i, FALSE, FALSE);
+			(void)update_mon(i, FALSE);
 		}
 	}
 
@@ -5197,9 +5190,10 @@ bool collapse_ceiling(int cy, int cx, int severity)
 			if (TRUE)
 			{
 				/* Get base distance.  Must not be 0. */
-				dist = MAX(1, distance(cy, cx, yy, xx));
+				dist = distance(cy, cx, yy, xx);
+				if (dist < 1) dist = 1;
 
-				/* Solid walls in adjacent grids offer protection */
+				/* Impassable terrain in adjacent grids offer protection */
 				for (i = 0; i < 8; i++)
 				{
 					/* Get adjacent grid */
@@ -5268,7 +5262,7 @@ bool collapse_ceiling(int cy, int cx, int severity)
 						case 3: case 4: case 5:
 						{
 							damage = damroll(1, damage);
-							take_hit(damage, 0, "You are pummeled with debris!",
+							(void)take_hit(damage, 0, "You are pummeled with debris!",
 								"a collapsing ceiling");
 
 							(void)set_stun(p_ptr->stun + randint(5));
@@ -5277,7 +5271,7 @@ bool collapse_ceiling(int cy, int cx, int severity)
 						case 6: case 7:
 						{
 							damage = damroll(2, damage);
-							take_hit(damage, 0, "You are bashed by rubble!",
+							(void)take_hit(damage, 0, "You are bashed by rubble!",
 								"a collapsing ceiling");
 
 							(void)set_stun(p_ptr->stun + randint(20));
@@ -5286,7 +5280,7 @@ bool collapse_ceiling(int cy, int cx, int severity)
 						case 8: case 9:
 						{
 							damage = damroll(3, damage);
-							take_hit(damage, 0, "You are crushed by falling rock!",
+							(void)take_hit(damage, 0, "You are crushed by falling rock!",
 								"a collapsing ceiling");
 
 							(void)set_stun(p_ptr->stun + rand_range(10, 30));
@@ -5295,7 +5289,7 @@ bool collapse_ceiling(int cy, int cx, int severity)
 						case 10:
 						{
 							damage = damroll(5, damage);
-							take_hit(damage, 0, "You are severely crushed!",
+							(void)take_hit(damage, 0, "You are severely crushed!",
 								"a collapsing ceiling");
 
 							(void)set_stun(p_ptr->stun + rand_range(20, 50));
@@ -5323,7 +5317,7 @@ bool collapse_ceiling(int cy, int cx, int severity)
 					    !(r_ptr->flags2 & (RF2_PASS_WALL)) &&
 					    !(r_ptr->flags3 & (RF3_HURT_ROCK)))
 					{
-						char m_name[80];
+						char m_name[DESC_LEN];
 
 						/* Describe the monster */
 						monster_desc(m_name, m_ptr, 0x40);
@@ -5509,7 +5503,7 @@ void earthquake(int cy, int cx, int r)
 		{
 			/* Message and damage */
 			damage = damroll(5, 80);
-			take_hit(damage, 0, "You are severely crushed!", "an earthquake");
+			(void)take_hit(damage, 0, "You are severely crushed!", "an earthquake");
 
 		}
 
@@ -5528,7 +5522,7 @@ void earthquake(int cy, int cx, int r)
 				case 2:
 				{
 					damage = damroll(10, 4);
-					take_hit(damage, 0, "You are bashed by rubble!", "an earthquake");
+					(void)take_hit(damage, 0, "You are bashed by rubble!", "an earthquake");
 
 					(void)set_stun(p_ptr->stun + randint(50));
 					break;
@@ -5536,7 +5530,7 @@ void earthquake(int cy, int cx, int r)
 				case 3:
 				{
 					damage = damroll(10, 8);
-					take_hit(damage, 0,
+					(void)take_hit(damage, 0,
 						p_ptr->depth ? "You are crushed between the floor and ceiling!" : "You are severely shaken!",
 						"an earthquake");
 
@@ -5573,7 +5567,7 @@ void earthquake(int cy, int cx, int r)
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
 				    !(r_ptr->flags2 & (RF2_PASS_WALL)))
 				{
-					char m_name[80];
+					char m_name[DESC_LEN];
 
 					/* Assume not safe */
 					sn = 0;
@@ -5783,7 +5777,7 @@ static void cave_temp_room_lite(void)
 					/* Notice the "waking up" */
 					if (mon_fully_visible(m_ptr))
 					{
-						char m_name[80];
+						char m_name[DESC_LEN];
 
 						/* Get the monster name */
 						monster_desc(m_name, m_ptr, 0x40);
@@ -5944,7 +5938,7 @@ bool unlite_area(int dam, int rad)
  * -DarkGod-, -LM-
  */
 int concentrate_light(int who, int y0, int x0, int radius, char *desc,
-	bool for_real)
+	size_t desc_len, bool for_real)
 {
 	int light = 0;
 	int y, x, r;
@@ -5999,7 +5993,7 @@ int concentrate_light(int who, int y0, int x0, int radius, char *desc,
 						if (cave_m_idx[y][x] > 0)
 						{
 							/* Update the monster */
-							(void)update_mon(cave_m_idx[y][x], FALSE, FALSE);
+							(void)update_mon(cave_m_idx[y][x], FALSE);
 						}
 
 						/* Redraw */
@@ -6034,13 +6028,13 @@ int concentrate_light(int who, int y0, int x0, int radius, char *desc,
 
 
 	/* Vary description based on strength */
-	if      (light <=  10) sprintf(desc, "in a tiny bolt.");
-	else if (light <=  25) sprintf(desc, "in a small bolt.");
-	else if (light <=  45) sprintf(desc, "as a bolt.");
-	else if (light <=  70) sprintf(desc, "as a large bolt.");
-	else if (light <= 100) sprintf(desc, "as a large bolt!");
-	else if (light <= 145) sprintf(desc, "in a powerful bolt!");
-	else                   sprintf(desc, "in a massive bolt!");
+	if      (light <=  10) (void)strnfmt(desc, desc_len, "in a tiny bolt.");
+	else if (light <=  25) (void)strnfmt(desc, desc_len, "in a small bolt.");
+	else if (light <=  45) (void)strnfmt(desc, desc_len, "as a bolt.");
+	else if (light <=  70) (void)strnfmt(desc, desc_len, "as a large bolt.");
+	else if (light <= 100) (void)strnfmt(desc, desc_len, "as a large bolt!");
+	else if (light <= 145) (void)strnfmt(desc, desc_len, "in a powerful bolt!");
+	else                   (void)strnfmt(desc, desc_len, "in a massive bolt!");
 
 	/* Note how much light we concentrated */
 	return (light);
@@ -6222,9 +6216,9 @@ void predict_weather(int accuracy)
 	else if (humid ==  2) desc_humid = "humid";
 	else if (humid ==  3) desc_humid = "soggy";
 	else if (humid ==  4) desc_humid = "wet";
-	else if (humid ==  5) desc_humid = "wringing wet";
+	else if (humid ==  5) desc_humid = "drenched";
 	else if (humid ==  6) desc_humid = "downpour";
-	else                  desc_humid = "water everywhere";
+	else                  desc_humid = "flash flood";
 
 	/* Describe winds */
 	if      (wind <= -7) desc_wind = "paralyzed";
@@ -6270,7 +6264,7 @@ void predict_weather(int accuracy)
 
 
 /*
- * Change weather.
+ * Change weather.  -LM-
  *
  * We are called with inputs of 0, 0, 0 to change weather semi-randomly,
  * and with non-zero inputs for exact adjustments.

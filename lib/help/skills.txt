@@ -3,18 +3,18 @@
 
      You can normally raise as many skills as you have the experience to afford.
 The major exception is that you need to choose between becoming a pure
-spellcaster, a spellcaster/fighter/burglar, or a pure fighter.  Any of these,
-however, can become great at object-creation.
+spellcaster, a pure burglar, a spellcaster/fighter/burglar, or a pure fighter.
+Any of these, however, can become great at object-creation.
 
 
---- The Price of Skills --
+--- The Price of Skills ---
 
 Striking a balance:
      You should strike a balance between focusing on too few skills (the cost to
 raise skills goes up rapidly with level) and too many (which fritters away your
 hard-earned exp).  Raising too many skills that depend on objects (most kinds of
 combat or forging, say) can also cause real problems with managing your
-inventory; you just don't have enough space for everything.
+inventory; you won't have enough space for everything.
      As mentioned before, the fewer times you raise skills to defeat a given
 opponent, the higher your score.
 
@@ -30,11 +30,19 @@ Swordsmanship skill 20 points, you can expect to pay considerably over the odds.
 This is an excellent reason not to raise a skill too far, too fast.  This only
 applies to skills that directly earn you experience - any of the combat skills,
 burglary, disarming, magic, and magical devices.
-     You practice skills whenever you gain experience, and whenever you do
+     You practice skills whenever you gain experience and whenever you do
 physical damage to a monster.
      When a skill is more difficult to raise because of lack of practice, the
 skills screen will display its cost first in grey, then in yellow, orange, and
 red.
+
+Reduction in cost for similar skills:
+     If you raise a skill, the cost to raise any similar skills up to that level
+is reduced.  For example, if you raise Swordsmanship to 30, then also raising
+Jousting to 30 costs 1/2 the exp it would normally.  This reduction also applies
+to the second skill's effect on your score and on character power.  Therefore,
+raising Swordsmanship and Jousting costs a combined total of 18 for all
+purposes.
 
 
 --- Oaths ---
@@ -51,7 +59,7 @@ stats, get the most bonuses to missile might and shooting speed, the most
 hitpoints, and have access to several very powerful talents.  However, they can
 learn no realm of magic, and cannot raise their magical device skill past 50.
      You gain access to the Oath of Iron by raising a combat skill to level 45
-or above (the exception being Archery -- slings, in which you need 55).
+or above (the exception being Slings, in which you need 55).
 
 The Magic-users' Oaths:
      Each realm of magic also has an Oath.  Wizards may take the Oath of
@@ -63,20 +71,21 @@ etc.).
      Spellcasters that have taken the Oath associated with their realm cast
 spells at full power, have another +2 bonus to their spell stat, and eventually
 get plenty of mana.  However, they also are worse for their skill in all kinds
-of non-magical combat, have a hard time with heavy armour, and get fewer
+of non-magical combat, have a hard time with heavy armor, and get fewer
 hitpoints.  Spellcasters that haven't taken any special Oath have only a few of
 these limitations, but get 40% less mana, and cast spells at 75% maximum
 strength.
 
 Joining the Burglars' Guild:
-     If you have not taken any other Oath, and attain level 25 in Burglary, you
-may join the Burglars' Guild.  This allows you to continue advancing your
-Burglary skill past 30.  Most of the advantages to joining the Guild depend on
-your Burglary skill, but all Brothers and Sisters of the Guild get monster
-awareness bonuses, which make it safer to navigate darkened rooms.  They also
-get a +2 bonus to Dexterity, an increase to critical hit chance when fighting or
-shooting out of a darkened area, and can (if skilled at fighting) attack
-multiple weaker monsters at once.
+     If you have not taken any other Oath, and attain a skill of 20 in Burglary,
+you may join the Burglars' Guild.  This lets you take fullest advantage from
+further increases in Burglary (otherwise the effect of a skill above 20 is
+halved).  Most of the advantages to joining the Guild depend on your Burglary
+skill, but all Brothers and Sisters of the Guild get monster awareness bonuses,
+which make it safer to navigate darkened rooms.  They also get a +2 bonus to
+Dexterity, an increase to critical hit chance when fighting or shooting out of a
+darkened area, and can (if skilled at fighting) attack multiple weaker monsters
+at once.
      The most important disadvantage to joining the Guild is simply that you
 cannot take any other Oath, placing the most powerful magics and warrior
 techniques out of your grasp.  You get slightly fewer hitpoints than a normal
@@ -88,36 +97,36 @@ character.  Also, shopkeepers are more wary of you:  your charisma drops by 2
 
 Swordsmanship   (cost - 12):
      Determines hit chance and critical hits with swords and other bladed
-weapons.  Allows characters to wield heavier weapons without penalty, and handle
+weapons.  Allows characters to wield heavier weapons without penalty and handle
 two weapons at once more effectively.
      Bladed weapons are relatively light and easy to use.  Many a hero of old
 has chosen them; their battle-blades still exist.  However, most swords do not
 have the raw power that the greater hafted weapons and polearms possess.
-     Swordsmanship also advances other skills:  Jousting rises 1/2 as quickly,
-Clubbing rises 1/4 as quickly.
+     Swordsmanship reduces the cost of other skills:  Jousting by 1/2, Clubbing
+by 1/4.
 
 Clubbing   (cost - 12):
      Determines hit chance and critical hits with blunt weapons.  Allows
-characters to wield heavier weapons without penalty, and handle two weapons at
+characters to wield heavier weapons without penalty and handle two weapons at
 once more effectively.
      Hafted weapons tend to be heavy, sometimes very heavy, but potentially do
 more raw damage than either swords or polearms.  They are also effective against
 monsters that resist edged weapons (swords and polearms).  Critical hits with
 blunt weapons occasionally stun monsters.
-     Clubbing also advances other skills:  Swordsmanship rises 1/4 as quickly,
-Jousting rises 1/4 as quickly.
+     Clubbing reduces the cost of other skills:  Swordsmanship by 1/4, Jousting
+by 1/4.
 
 Jousting   (cost - 12):
      Determines hit chance and critical hits with pole-mounted edged weapons
 (spears, axes, halberds, quarterstaves, etc.).  Allows characters to wield
-heavier weapons without penalty, and handle two weapons at once more
-effectively.  Increases any armour bonus that polearms provide (bonus can be up
-to five times normal).
+heavier weapons without penalty and handle two weapons at once more effectively.
+Increases any armor bonus that polearms provide (bonus can be up to five times
+normal).
      The more powerful polearms often require two hands to use, a real
-disadvantage.  However, many polearms grant significant bonuses to armour class,
+disadvantage.  However, many polearms grant significant bonuses to armor class,
 and critical hits with polearms directly rob monsters of energy.
-     Jousting also advances other skills:  Swordsmanship rises 1/2 as quickly,
-Clubbing rises 1/4 as quickly.
+     Jousting reduces the cost of other skills:  Swordsmanship by 1/2, Clubbing
+by 1/4.
 
 Archery - Xbows   (cost - 9):
 Archery - Bows   (cost - 9):
@@ -128,7 +137,10 @@ extra shots, and slings get both.  Characters that have taken the Oath of Iron
 get the most bonuses and specialist spellcasters get the fewest.  Slingshot are
 considered blunt weapons, and are therefore a good backup for characters who
 rely on bladed melee weapons.  Arrows and bolts are considered to be edged.
-     Crossbow and bow skills improve each other (1/2 as quickly).
+     Archery - Xbows and Archery - Bows reduce the cost of the other by 1/3rd,
+and of Archery - Slings by 1/6th.
+     Archery - Slings reduces the cost of both Archery - Xbows and Archery -
+Bows by 1/6th.
 
 Throwing   (cost - 9):
      Determines hit chance with any thrown object.  Increases the damage and/or
@@ -230,25 +242,25 @@ cannot learn both Holy Alliance and Blood Dominion.
      If you are not a necromancer, learning blood dominion also gives you two
 special talents:  sense undead (25) and restore experience (85).
 
-Magical Device   (cost - 13):
+Magical Device   (cost - 15):
      Determines success rate with magical devices and all activatable items
 except dragon scale mail, and increases their power when used.  Makes recharging
 less likely to blow up items.  Allows you to learn the true effects of magical
 devices and activatable items more quickly and to automatically sense charges
 (70).
 
-Burglary   (cost - 14):
+Burglary   (cost - 12):
      Allows you to steal objects from monsters, lock doors, and get highly
 effective sneak attacks against sleeping monsters and backstabs against fleeing
-ones.  Renders you far more silent in all kinds of mon-magical combat, and
+ones.  Renders you far more silent in all kinds of non-magical combat, and
 allows you to set deadly traps for unwary monsters.  Burglars become worse with
 heavy melee weapons but much better with light ones as their skills improve.  If
 you raise Burglary to the point at which you can steal (level 4), shopkeepers
 start to mistrust you; your Charisma drops by 2.  You must join the Burglars'
-Guild to raise your Burglary past 30.
-     Burglary also advances other skills:  Disarming rises 3/4ths as quickly,
-perception and stealth rise 1/3rd as quickly, and dodging rises 1/4th as
-quickly.
+Guild to get the full effect of increasing your skill past 20 (otherwise it is
+halved).
+     Burglary reduces the cost of other skills:  Disarming by 3/4, Stealth by
+1/3, Dodging by 1/3.
      Burglary grants three talents:  Detect and Nab objects (40), poison ammo
 (55), and hit and run (70).  It also grants three special abilities:  stealing
 (4), locking doors (7), and trap-setting (10).
@@ -276,20 +288,22 @@ effects of this skill are maximized.  Increases the power of various
 camouflaging and concealment magics.  Most importantly, stealth makes it more
 likely that monsters will be generated asleep and reduces the rate at which they
 enter the dungeon.
+     Stealth reduces the cost of Burglary by 1/3rd of its own cost.
      Stealth grants two talents:  Sneaking (10) and superstealth (75).
 
 Disarming   (cost - 4):
      Improves your ability to safely disarm traps and chests and unlock doors.
 The higher you raise it compared to dungeon depth, the more likely that you will
 get guaranteed safe disarming (magic, in contrast, is always slightly chancy),
-and be able to automatically avoid any trap you walk onto unawares.  A skill
-level of 100 provides perfect disarming and protection.  At very high skill
-levels (or a high skill level relative to current depth), you can even sometimes
-loot traps as you disarm them!
+and be able to automatically avoid any trap you walk onto unawares.  A skill of
+100 provides perfect disarming and protection.  With very high skill (or high
+skill relative to current depth), you can sometimes loot traps as you disarm
+them!
+     Disarming reduces the cost of Burglary by 3/4ths of its own cost.
 
 Dodging   (cost - 6):
-     Improves ability to retain spellpoints when wearing heavy armour.  Gives
-you a guaranteed armour class even if you are wearing no armour.  Is the most
+     Improves ability to retain spellpoints when wearing heavy armor.  Gives you
+a guaranteed armor class even if you are wearing no armor.  Is the most
 important factor in your ability to dodge missiles, both magical and physical,
 and some kinds of traps.  Also gives you protection against melee attacks
 (especially attempts to steal).
@@ -297,6 +311,7 @@ and some kinds of traps.  Also gives you protection against melee attacks
 make the game act as though you had no skill at all.  See the talent "dodging"
 for how to maximize your dodging ability.  Your character screen takes all
 factors into account.
+     Dodging reduces the cost of Burglary by 1/3rd of its own cost.
 
 Spell resistance   (cost - 6):
      Increases your saving throw against magical and mental attacks (blinding,
@@ -304,30 +319,31 @@ confusion, paralyzation, etc.).  Attention paid to this skill can save your
 life...
 
 Weaponsmithing   (cost - 10):
-     Once you raise this skill to 15, allows you to forge melee and throwing
-weapons from components found in the dungeon.  Note:  you also need to be
-moderately skilled in using the weapon type you are making to get good results.
+     Once you raise it to 15, allows you to forge melee and throwing weapons
+from components found in the dungeon.  Note:  you also need to be moderately
+skilled in using the weapon type you are making to get good results.
+     Weaponsmithing reduces the cost of Bowmaking by 2/5ths.
 
 Bowmaking   (cost - 10):
-     Once you raise this skill to 15, allows you to forge missile weapons and
-missiles from components found in the dungeon.  Note:  you also need to be
-moderately skilled in using the weapon or ammunition you are making to get good
-results.
+     With a skill of 15, allows you to forge missile weapons and missiles from
+components found in the dungeon.  Note:  you also need to be moderately skilled
+in using the weapon or ammunition you are making to get good results.
+     Bowmaking reduces the cost of Weaponsmithing by 2/5ths.
 
-Armour forging   (cost - 14):
-     Once you raise this skill to 15, allows you to forge armour from components
-found in the dungeon.  Armour forging is very powerful, because there are almost
-no object qualities that cannot be had with enough skill, good enough
-components, and a dash of luck.
+Armor forging   (cost - 14):
+     With a skill of 15, allows you to forge armor from components found in the
+dungeon.  Armor forging is very powerful, because there are almost no object
+qualities that cannot be had with enough skill, good enough components, and a
+dash of luck.
 
-Alchemy   (cost - 9):
+Alchemy   (cost - 8):
      Allows you to create potions, scrolls, rings and amulets.  You need a skill
 of 10 to create potions and scrolls, and a skill of 35 to create rings and
 amulets.
 
 Magical infusion   (cost - 13):
      Infusion is among the most powerful of skills, because it allows you to use
-magical essences to control the powers that armour, weapons, and missiles get,
+magical essences to control the powers that armor, weapons, and missiles get,
 pack essences into potions that explode violently when thrown, and make more
 potions and scrolls using a given number of essences.  You need an infusion
 skill of 10 to infuse forged items.
@@ -336,8 +352,6 @@ essences, especially deep in the dungeon (Perception also helps a little).  You
 cannot search for essences at all unless you have a Magical Infusion skill of 10
 or higher.
      Infusion grants one talent:  Recharging with essences (30).
-
-
 
 
 

@@ -1,8 +1,6 @@
-# File: vault.txt
-
-
+#
 # This file contains information about vaults.
-
+#
 # Some of these vaults are from Angband.
 # The rest were created by the Sangband maintainers and the following 
 # people:
@@ -12,26 +10,29 @@
 # -CW-  Chris Weisiger
 # -FoF- fearoffours
 
-# Vaults are fun and easy to create; see the file "lib/info/modify.txt"
-# for useful advice.
 
 # Version stamp (required)
 
-V:0.9.9
+V:1.0.0
 
-
-#N: vault index: name
-#X: vault type: increase in level feeling: height of description: 
+#
+# N: vault index: name
+# X: vault type: increase in level feeling: height of description: 
 #     width of description: min level the vault can be found at: max level
-#D: A square-by-square description of the vault.  Make certain you add 
+# D: A square-by-square description of the vault.  Make certain you add 
 #     spaces if necessary, to make the description exactly square.
-
+#
 # Note that vaults may be created flipped upside down, or flipped left to 
 # right, or both.
+#
+# For more information, see /lib/info/modify.txt.
+#
+
 
 # Use this to measure columns                                                                        1
 #          1         2         3         4         5         6         7         8         9         0
 # 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
 
 
 ### Interesting Rooms (type 7) ###
@@ -933,7 +934,7 @@ D:%X##.n.##X%
 D:%XXXXXXXXX%
 D:%%%%%%%%%%%
 
-N:58:giants' armoury
+N:58:giants' armory
 X:7:3:9:15:20:0
 D:%%%%%%%%%%%%%%%
 D:%.............%

@@ -1,0 +1,4034 @@
+# File: graf16-g.prf
+
+
+#
+# This file defines special attr/char mappings for use in graphics mode 
+# "16x16-g" (Adam Bolt's 16x16 tiles for everything).
+# From AngbandTK, by way of Angband.
+#
+# This file is very incomplete.
+#
+# See "lib/help/pref.txt" and "src/files.c" for more information.
+#
+
+
+#
+# Use extended fonts as a default
+#
+%:font.prf
+
+
+#
+# Terrain graphics
+#
+
+# <darkness>
+F:0:+0/+0
+
+# open floor
+# Normal, bright, dim
+F:1:+0/+3:+0/+1:+0/+2:torch_only
+
+# up shaft
+F:4:+0/+24
+
+# down shaft
+F:5:+0/+27
+
+# open door
+F:6:+2/+4
+
+# broken door
+F:7:+2/+5
+
+# up staircase
+F:8:+0/+24
+
+# down staircase
+F:9:+0/+27
+
+# lava
+F:10:+54/+29:+54/+29:+54/+30
+
+# water
+F:11:+3/+2:+3/+2:+3/+1
+
+# trees
+F:12:+62/+2:+62/+0:+62/+1:torch_only
+
+
+# door
+F:32:+2/+3:+2/+3:+2/+3
+
+# pile of rubble
+F:49:+62/+5:+62/+3:+62/+4:torch_only
+
+# magma vein
+F:50:+0/+15:+0/+15:+0/+14
+
+# quartz vein
+F:51:+0/+9:+0/+9:+0/+8
+
+# magma vein with treasure
+F:54:+0/+18:+0/+18:+0/+17
+
+# quartz vein with treasure
+F:55:+0/+12:+0/+12:+0/+11
+
+# granite wall
+F:56:+0/+6:+0/+6:+0/+5
+
+# permanent wall
+F:60:+0/+21:+0/+21:+0/+20
+
+# permanent wall (#2)
+F:61:+0/+21:+0/+21:+0/+20
+
+# pillar
+F:64:+62/+8:+62/+6:+62/+7:torch_only
+
+# pillar of gold
+F:65:+62/+11:+62/+9:+62/+10:torch_only
+
+
+# General Store
+F:84:+2/+7
+
+# Armory
+F:85:+2/+8
+
+# Weapon Smiths
+F:86:+2/+9
+
+# Temple
+F:87:+2/+10
+
+# Alchemy Shop
+F:88:+2/+11
+
+# Magic Shop
+F:89:+2/+12
+
+# Bookstore
+F:90:+2/+13
+
+# Home
+F:91:+2/+15
+
+# Inn
+F:92:+2/+14
+
+
+
+
+#
+# Traps
+#
+
+# loose rock
+N:1:+13/+2
+
+# glyph of warding
+N:2:+13/+11
+
+# monster trap
+N:5:+13/+9
+
+# trap door
+N:6:+1/+4
+
+# pit
+N:7:+1/+3
+
+# dart trap
+N:8:+1/+1
+
+# discolored spot
+N:9:+1/+2
+
+# gas trap
+N:10:+1/+0
+
+# strange rune
+N:11:+1/+8
+
+# strange rune
+N:12:+1/+8
+
+# hex
+N:13:+1/+9
+
+# shimmering portal
+N:14:+1/+5
+
+# murder hole
+N:15:+1/+2
+
+
+
+
+
+#
+# Spell graphics.  Default to "magical" light grey bolts and explosions.
+#
+S:0:+16/+4:+16/+5:+16/+6:+16/+7:+17/+26
+
+# Poisoned missile
+S:5:+15/+12:+15/+13:+15/+14:+15/+15:+17/+11
+
+# Acid
+S:8:+16/+4:+16/+5:+16/+6:+16/+7:+17/+17
+
+# Electricity
+S:9:+15/+4:+15/+5:+15/+6:+15/+7:+17/+9
+
+# Fire
+S:10:+15/+0:+15/+1:+15/+2:+15/+3:+17/+8
+
+# Frost
+S:11:+17/+28:+17/+39:+17/+30:+17/+31:+17/+27
+
+# Poison
+S:12:+15/+12:+15/+13:+15/+14:+15/+15:+17/+11
+
+# Plasma
+S:13:+16/+16:+16/+17:+16/+18:+16/+19:+17/+23
+
+# Hellfire
+S:14:+15/+0:+15/+1:+15/+2:+15/+3:+17/+8
+
+# Ice
+S:15:+15/+8:+15/+9:+15/+10:+15/+11:+17/+9
+
+# Weak light
+S:20:+15/+24:+15/+25:+15/+26:+15/+27:+17/+14
+
+# Light
+S:21:+15/+24:+15/+25:+15/+26:+15/+27:+17/+14
+
+# Strong light
+S:22:+15/+24:+15/+25:+15/+26:+15/+27:+17/+14
+
+# Weak darkness
+S:23:+15/+28:+15/+29:+15/+30:+15/+31:+17/+15
+
+# Darkness
+S:24:+15/+28:+15/+29:+15/+30:+15/+31:+17/+15
+
+# Morgul-Darkness
+S:25:+17/+0:+17/+1:+17/+2:+17/+3:+17/+18
+
+# Confusion
+S:26:+16/+16:+16/+17:+16/+18:+16/+19:+17/+23
+
+# Sound
+S:27:+16/+28:+16/+29:+16/+30:+16/+31:+17/+19
+
+# Shards
+S:28:+16/+28:+16/+29:+16/+30:+16/+31:+17/+19
+
+# Inertia
+S:29:+15/+16:+15/+17:+15/+18:+15/+19:+17/+17
+
+# Gravity
+S:30:+17/+0:+17/+1:+17/+2:+17/+3:+17/+24
+
+# Force
+S:31:+16/+28:+16/+29:+16/+30:+16/+31:+17/+19
+
+# Water
+S:32:+15/+8:+15/+9:+15/+10:+15/+11:+17/+9
+
+# Wind
+S:33:+15/+16:+15/+17:+15/+18:+15/+19:+17/+12
+
+# Storm
+S:34:+15/+8:+15/+9:+15/+10:+15/+11:+17/+10
+
+# Nexus
+S:40:+16/+12:+16/+13:+16/+14:+16/+15:+17/+20
+
+# Nether
+S:41:+16/+24:+16/+25:+16/+26:+16/+27:+17/+22
+
+# Chaos
+S:42:+16/+0:+16/+1:+16/+2:+16/+3:+17/+21
+
+# Disenchentment
+S:43:+16/+8:+16/+9:+16/+10:+16/+11:+17/+18
+
+# Time
+S:44:+15/+16:+15/+17:+15/+18:+15/+19:+17/+12
+
+# Mana
+S:45:+15/+20:+15/+21:+15/+22:+15/+23:+17/+13
+
+
+# Holy orb
+S:54:+17/+28:+17/+39:+17/+30:+17/+31:+17/+27
+
+# Black orb
+S:55:+17/+0:+17/+1:+17/+2:+17/+3:+17/+24
+
+# Death
+S:56:+16/+24:+16/+25:+16/+26:+16/+27:+17/+22
+
+# Vampiric drain
+S:57:+16/+24:+16/+25:+16/+26:+16/+27:+17/+22
+
+# Death cloud
+S:58:+16/+24:+16/+25:+16/+26:+16/+27:+17/+22
+
+# Spore
+S:59:+16/+28:+16/+29:+16/+30:+16/+31:+17/+19
+
+# Curse
+S:64:+17/+0:+17/+1:+17/+2:+17/+3:+17/+24
+
+# Make water
+S:110:+1/+24:+1/+25:+1/+26:+1/+27:+1/+63
+
+# Make trees
+S:111:+15/+12:+15/+13:+15/+14:+15/+15:+17/+11
+
+# Make lava
+S:112:+15/+0:+15/+1:+15/+2:+15/+3:+17/+8
+
+# Enlightenment
+S:130:+15/+24:+15/+25:+15/+26:+15/+27:+17/+14
+
+# Gain Level
+S:131:+15/+16:+15/+17:+15/+18:+15/+19:+17/+12
+
+
+
+
+#
+# Miscellaneous and special graphics
+#
+
+# cursor
+I:1:+0:+31
+
+# unknown monster (not yet used in this tileset)
+# I:2:+??:+??
+
+
+
+
+
+
+#
+# Monster attr/char definitions
+#
+# A lot of the new and a few of the old monsters have pretty lousy pictures; work 
+# is needed here.
+#
+
+# <player>  (zeros here mean "use special graphics")
+R:0:0:0
+
+
+# Filthy street urchin
+R:1:+42/+0
+
+# Inkeeper
+R:2:+42:+3
+
+# Village idiot
+R:3:+42/+4
+
+# Pitiful-looking beggar
+R:4:+42/+5
+
+# Mangy-looking leper
+R:5:+42/+6
+
+# Squint-eyed rogue
+R:6:+42/+7
+
+# Singing, happy drunk
+R:7:+42/+8
+
+# Aimless-looking merchant
+R:8:+42/+9
+
+# Mean-looking mercenary
+R:9:+42/+10
+
+# Battle-scarred veteran
+R:10:+42/+11
+
+# Boil-covered wretch
+R:11:+42/+3
+
+# Scrawny cat
+R:12:+39/+2
+
+# Scruffy little dog
+R:13:+29/+26
+
+# Bill Ferny
+R:19:+42:+13
+
+# Small kobold
+R:22:+40/+25
+
+# Blue yeek
+R:23:+45/+7
+
+# Whirlwind
+R:24:+44:+21
+
+# Fruit bat
+R:25:+37/+15
+
+# Giant yellow centipede
+R:26:+37/+20
+
+# Rock lizard
+R:27:+34/+6
+
+# Large white snake
+R:28:+34/+5
+
+# Jackal
+R:29:+29/+27
+
+# White worm mass
+R:30:+44/+29
+
+# Grey mold
+R:31:+40/+31
+
+# Grey mushroom patch
+R:32:+29/+5
+
+# White icky thing
+R:33:+40/+3
+
+# Blue ooze
+R:34:+40/+15
+
+# Floating eye
+R:35:+38/+27
+
+# Slime mold
+R:36:+40:+7
+
+# Novice warrior
+R:38:+42:+12
+
+# Novice rogue
+R:39:+42:+13
+
+# Novice mage
+R:40:+42:+15
+
+# Animated torch
+R:41:+14:+11
+
+# Wild cat
+R:42:+39/+3
+
+# Giant black ant
+R:43:+37/+8
+
+# Giant white ant
+R:44:+37/+9
+
+# Metallic green centipede
+R:45:+37/+22
+
+# Giant green frog
+R:46:+34/+7
+
+# Salamander
+R:47:+34/+8
+
+# Green worm mass
+R:48:+44/+30
+
+# Shrieker mushroom patch
+R:367:+29/+6
+
+# Yellow mushroom patch
+R:50:+29/+7
+
+# Blubbering icky thing
+R:51:+40/+5
+
+# White jelly
+R:52:+40/+10
+
+# Kobold
+R:54:+40/+26
+
+# Brown yeek
+R:55:+45/+8
+
+# Cave spider
+R:56:+34/+29
+
+# Novice priest
+R:57:+42:+14
+
+# Metallic blue centipede
+R:58:+37/+23
+
+# Dwarf python
+R:59:+34:++4
+
+# Giant white louse
+R:60:+40/+29
+
+# Yellow worm mass
+R:61:+44/+31
+
+# Spotted mushroom patch
+R:62:+29/+8
+
+# Silver jelly
+R:63:+40/+12
+
+# Yellow jelly
+R:64:+40/+13
+
+# Radiation eye
+R:65:+38/+28
+
+# Black naga
+R:66:+41/+8
+
+# Poltergeist
+R:67:+31/+25
+
+# Novice paladin
+R:70:+42/+18
+
+# Novice ranger
+R:71:+42/+17
+
+# Metallic red centipede
+R:72:+37/+24
+
+# Clear worm mass
+R:73:+45/+0
+
+# Blue jelly
+R:74:+40/+14
+
+# Creeping copper coins
+R:75:+29/+0
+
+# Skeleton kobold
+R:76:+44/+9
+
+# Brown mold
+R:77:+41/+1
+
+# Green glutton ghost
+R:80:+31/+26
+
+# Large kobold
+R:81:+40/+27
+
+# Grey rat
+R:82:+44/+6
+
+# Soldier ant
+R:83:+37/+7
+
+# Brain ooze
+R:84:+40/+17
+
+# Green jelly
+R:85:+40/+16
+
+# Bloodshot eye
+R:86:+38/+30
+
+# Green naga
+R:87:+41/+9
+
+# Animated dagger
+R:88:+10:+16
+
+# Novice warrior
+R:91:+42/+12
+
+# Novice rogue
+R:92:+42/+13
+
+# Novice mage
+R:93:+42/+15
+
+# Green icky thing
+R:94:+40/+7
+
+# Green mold
+R:95:+41/+2
+
+# Night lizard
+R:96:+34/+15
+
+# Rattlesnake
+R:97:+34/+13
+
+# Blue worm mass
+R:98:+45/+1
+
+# Giant pink frog
+R:99:+34/+14
+
+# Snaga
+R:100:+41/+14
+
+# Creeping silver coins
+R:101:+29/+1
+
+# Giant clear centipede
+R:102:+37/+26
+
+# Flesh golem
+R:103:+39/+9
+
+# Dark elf
+R:106:+39/+21
+
+# Novice priest
+R:107:+42/+14
+
+# Yellow yeek
+R:108:+45/+10
+
+# Kobold dart-thrower
+R:109:+40/+26
+
+# Manes
+R:110:+32/+17
+
+# Giant salamander
+R:111:+34/+16
+
+# Pink naga
+R:112:+41/+10
+
+# Bloodshot icky thing
+R:113:+40/+8
+
+# Purple mushroom patch
+R:114:+29/+9
+
+# Giant black louse
+R:115:+40/+30
+
+# Wood spider
+R:119:+34/+30
+
+# Cave orc
+R:120:+41/+15
+
+# Novice paladin
+R:121:+42/+18
+
+# Novice ranger
+R:122:+42/+17
+
+# Pink jelly
+R:123:+40/+17
+
+# Red worm mass
+R:124:+45/+2
+
+# Lemure
+R:125:+32/+18
+
+# Hairy mold
+R:128:+41/+3
+
+# Disenchanter eye
+R:129:+38/+29
+
+# Novice archer
+R:130:+42/+23
+
+# Spitting cobra
+R:131:+34/+17
+
+# Skeleton human
+R:132:+44/+11
+
+# Orc shaman
+R:133:+41/+18
+
+# Zombified kobold
+R:134:+45/+12
+
+# Baby blue dragon
+R:135:+37/+29
+
+# Baby white dragon
+R:136:+37/+30
+
+# Baby black dragon
+R:137:+38/+0
+
+# Wolf
+R:138:+29/+30
+
+# Baby green dragon
+R:141:+37/+31
+
+# Dark elven mage
+R:142:+39/+22
+
+# Dark elven warrior
+R:143:+39/+23
+
+# Panther
+R:144:+39/+4
+
+# Giant fruit fly
+R:145:+31/+17
+
+# Giant blue ant
+R:146:+37/+11
+
+# Clear mushroom patch
+R:147:+29/+10
+
+# Air spirit
+R:148:+30/+31
+
+# Killer brown beetle
+R:149:+32/+27
+
+# Tengu
+R:150:+32/+19
+
+# Hill orc
+R:153:+41/+17
+
+# Gnome mage
+R:154:+39/+24
+
+# Hippogriff
+R:156:+32/+10
+
+# Knobble-stick
+R:157:+16/+15
+
+# Lost soul
+R:158:+31/+27
+
+# Baby red dragon
+R:159:+38/+1
+
+# Giant yellow scorpion
+R:160:+35/+5
+
+# Clay golem
+R:161:+39/+10
+
+# Creeping gold coins
+R:164:+29/+2
+
+# Swordsman
+R:165:+42/+31
+
+# Master yeek
+R:166:+45/+10
+
+# Stegocentipede
+R:167:+37/+25
+
+# Pseudo-dragon
+R:168:+38/+2
+
+# White wolf
+R:169:+29/+31
+
+# Rock worm mass
+R:170:+45/+0
+
+# Grape jelly
+R:171:+40/+18
+
+# Spotted jelly
+R:172:+40/+19
+
+# Zombified human
+R:173:+45/+14
+
+# Light hound
+R:174:+36/+19
+
+# Dark hound
+R:175:+36/+20
+
+# Black ooze
+R:176:+40/+22
+
+# Dark naga
+R:177:+41/+8
+
+# Bilge rat
+R:178:+44/+8
+
+# Giant tarantula
+R:181:+35/+1
+
+# Black orc
+R:182:+41/+21
+
+# Baby multi-hued dragon
+R:183:+38/+3
+
+# Black mamba
+R:186:+34/+18
+
+# Giant white dragon fly
+R:187:+31/+19
+
+# Blue icky thing
+R:188:+40/+9
+
+# Water spirit
+R:189:+31/+0
+
+# Ogre
+R:190:+33/+11
+
+# Hill giant
+R:191:+33/+17
+
+# Druid
+R:192:+43/+1
+
+# Clear hound
+R:193:+36/+21
+
+# Mummified orc
+R:194:+33/+8
+
+# Disenchanter mold
+R:197:+41/+4
+
+# Ochre jelly
+R:198:+40/+20
+
+# Shambling mound
+R:199:+29/+12
+
+# Tiger
+R:200:+39/+5
+
+# Giant silver ant
+R:201:+37/+12
+
+# Drider
+R:202:+35/+0
+
+# Wererat
+R:203:+44/+8
+
+# Magic mushroom patch
+R:204:+29/+11
+
+# Ghostly bat
+R:205:+37/+16
+
+# Memory moss
+R:206:+41/+6
+
+# Warg
+R:208:+30/+0
+
+# Gnome mage
+R:209:+39/+24
+
+# Mirkwood spider
+R:210:+35/+2
+
+# Griffon
+R:211:+32/+11
+
+# Water naga
+R:212:+41/+11
+
+# Earth spirit
+R:213:+31/+1
+
+# Half-orc
+R:214:+41/+23
+
+# Frost giant
+R:215:+33/+18
+
+# Killer stag beetle
+R:216:+32/+29
+
+# Giant pink scorpion
+R:219:+35/+3
+
+# Giant green dragon fly
+R:220:+31/+20
+
+# Nether worm mass
+R:221:+45/+3
+
+# Gelatinous cube
+R:222:+40/+21
+
+# Orc captain
+R:223:+41/+24
+
+# Fire hound
+R:224:+36/+22
+
+# Cold hound
+R:225:+36/+23
+
+# Energy hound
+R:226:+36/+24
+
+# Mummified human
+R:227:+33/+9
+
+# Banshee
+R:228:+31/+29
+
+# Vampire bat
+R:229:+37/+19
+
+# Blink dog
+R:230:+30/+1
+
+# Bandit
+R:232:+42/+27
+
+# Lightningjaw
+R:233:+15/+5
+
+# Priest
+R:234:+42/+30
+
+# Red mold
+R:235:+41/+5
+
+# Black ogre
+R:236:+33/+12
+
+# Skeleton serpent
+R:237:+34/+5
+
+# Crypt creep
+R:238:+56/+10
+
+# Forest wight
+R:239:+35/+30
+
+# Quasit
+R:240:+32/+21
+
+# Whirling hatchet
+R:241:+11/+16
+
+# Giant marksman ant
+R:243:+37/+11
+
+# Giant black dragon fly
+R:244:+31/+22
+
+# Harpy
+R:245:+32/+9
+
+# Fire spirit
+R:246:+31/+2
+
+# Forest troll
+R:247:+35/+9
+
+# Imp
+R:248:+32/+22
+
+# Fire vortex
+R:249:+44/+20
+
+# Water vortex
+R:250:+44/+21
+
+# Cold vortex
+R:251:+44/+22
+
+# Zombified lion
+R:252:+48/+5
+
+# Gazing eye
+R:253:+39/+29
+
+# Death watch beetle
+R:254:+33/+2
+
+# Fire giant
+R:257:+33/+19
+
+# Blue dragon bat
+R:258:+37/+17
+
+# Werewolf
+R:259:+30/+2
+
+# Uruk
+R:260:+41/+25
+
+# Young blue dragon
+R:261:+38/+4
+
+# Young white dragon
+R:262:+38/+5
+
+# Young black dragon
+R:263:+38/+13
+
+# Homunculus
+R:264:+32/+20
+
+# Lurker
+R:265:+45/+31
+
+# Mimic (potion)
+R:266:+29/+14
+
+# Evil eye
+R:269:+38/+29
+
+# Imperial cobra
+R:270:+41/+9
+
+# Giant gold dragon fly
+R:271:+31/+23
+
+# Young green dragon
+R:272:+38/+6
+
+# Giant bronze dragon fly
+R:273:+31/+24
+
+# Hummerhorn
+R:274:+31/+22
+
+# Dark elven cultist
+R:277:+39/+25
+
+# Hashishin
+R:278:+42/+13
+
+# Disenchanter bat
+R:280:+37/+19
+
+# Stone golem
+R:281:+39/+11
+
+# White wraith
+R:282:+35/+31
+
+# Guardian naga
+R:283:+41/+11
+
+# Sabre-tooth tiger
+R:285:+39/+6
+
+# Red dragon bat
+R:286:+37/+18
+
+# Earth hound
+R:287:+36/+25
+
+# Air hound
+R:288:+36/+26
+
+# Water hound
+R:289:+36/+27
+
+# Chimera
+R:290:+32/+12
+
+# Quylthulg
+R:291:+33/+26
+
+# Cave ogre
+R:292:+33/+13
+
+# Mummified troll
+R:293:+33/+10
+
+# Young bronze dragon
+R:294:+38/+7
+
+# Creeping mithril coins
+R:295:+29/+3
+
+# Stone giant
+R:298:+33/+20
+
+# Killer pink beetle
+R:299:+32/+31
+
+# Black pudding
+R:300:+40/+24
+
+# Umber hulk
+R:301:+35/+25
+
+# Shadow drake
+R:302:+38/+8
+
+# Young gold dragon
+R:303:+38/+16
+
+# Young red dragon
+R:304:+38/+20
+
+# Phase spider
+R:305:+35/+4
+
+# Illusionist
+R:307:+43/+0
+
+# Giant black scorpion
+R:308:+35/+7
+
+# Grave wight
+R:309:+36/+0
+
+# Ogre shaman
+R:310:+33/+15
+
+# Stone troll
+R:311:+35/+10
+
+# Ghoul
+R:312:+52/+15
+
+# Nruling
+R:313:+33/+0
+
+# Mimic (scroll)
+R:314:+29/+13
+
+# Dark elven druid
+R:315:+39/+31
+
+# Energy vortex
+R:316:+44/+23
+
+# Giant skeleton troll
+R:317:+44/+13
+
+# Young crystal drake
+R:318:+38/+10
+
+# Brigand
+R:321:+42/+27
+
+# Giant army ant
+R:322:+46/+1
+
+# Disenchanter worm mass
+R:323:+45/+6
+
+# Iron golem
+R:324:+39/+12
+
+# Troll priest
+R:325:+35/+11
+
+# Ghost
+R:326:+31/+30
+
+# Stormcrow
+R:327:+17/+10
+
+# Hardened warrior
+R:330:+43/+3
+
+# Shimmering mold
+R:331:+41/+6
+
+# Dwarven priest
+R:332:+20/+5
+
+# Cloud giant
+R:335:+33/+22
+
+# Pukel-man
+R:336:+39/+13
+
+# Ogre mage
+R:337:+33/+14
+
+# Killer iridescent beetle
+R:338:+32/+30
+
+# Bat of Gorgoroth
+R:339:+55/+18
+
+# Lucksucker
+R:341:+58/+8
+
+# Carrion crawler
+R:342:+37/+28
+
+# Algroth
+R:343:+35/+12
+
+# Vampire
+R:344:+35/+26
+
+# Blade naga
+R:345:+41/+9
+
+# Dark elven lord
+R:347:+39/+28
+
+# Slinger
+R:348:+42/+8
+
+# Gorgimera
+R:349:+32/+13
+
+# Spectral hunter
+R:350:+32/+1
+
+# Young multi-hued dragon
+R:351:+38/+15
+
+# Mana fly
+R:352:+57/+10
+
+# Vibration hound
+R:355:+36/+28
+
+# Nexus hound
+R:356:+36/+29
+
+# Haunted helmet
+R:357:+54/+5
+
+# Spectral anaconda
+R:358:+34/+18
+
+# Mountain ogre
+R:359:+33/+16
+
+# Giant purple worm
+R:361:+45/+5
+
+# Ice troll
+R:362:+35/+13
+
+# Barrow wight
+R:363:+36/+1
+
+# Ethereal drake
+R:364:+38/+12
+
+# Shrieker mushroom patch
+R:367:+29/+6
+
+# Black knight
+R:368:+43/+8
+
+# Mage
+R:369:+43/+10
+
+# Killer slicer beetle
+R:370:+33/+1
+
+# Shade
+R:372:+31/+31
+
+# Nexus quylthulg
+R:373:+33/+27
+
+# Forge giant
+# R:376:+33/+20
+
+# Mind flayer
+R:377:+43/+11
+
+# Sharpshooter
+# R:378:+22/+13
+
+# Basilisk
+R:379:+34/+23
+
+# Abyss spider
+# R:380:+34/+31
+
+# Giant firefly
+# R:381:+48/+29
+
+# Lamia
+# R:382:+32/+21
+
+# Nexus vortex
+R:383:+46/+0
+
+# Silent watcher
+R:384:+49/+14
+
+# Night-drake
+# R:+30/+13
+
+# Colbran
+R:386:+39/+14
+
+# Venom mold
+# R:+41/+2
+
+# Catoblepas
+R:388:+44/+1
+
+# Invisible stalker
+R:389:+31/+5
+
+# Cave troll
+R:390:+35/+14
+
+# Mimic (ring)
+R:391:+45/+30
+
+# Demonologist
+R:394:+43/+19
+
+# Wereworm
+R:395:+45/+4
+
+# Manticore
+R:396:+32/+14
+
+# Xorn
+R:397:+36/+15
+
+# Spirit naga
+R:400:+41/+12
+
+# Ninja
+R:401:+43/+12
+
+# Grey wraith
+R:402:+36/+2
+
+# Master rogue
+R:405:+43/+4
+
+# Thunder giant
+# R:406:+33/+22
+
+# Mature blue dragon
+R:407:+38/+17
+
+# Mature white dragon
+R:408:+38/+14
+
+# Mature black dragon
+R:409:+38/+24
+
+# Half-troll
+R:410:+35/+15
+
+# Monadic Deva
+R:411:+29/+23
+
+# Displacer beast
+R:412:+39/+7
+
+# Pink elephant
+# R:415:+47/+5
+
+# Memory moss
+R:416:+41/+6
+
+# Mithril golem
+R:417:+39/+15
+
+# Fire elemental
+R:418:+31/+3
+
+# Spectre
+R:419:+32/+0
+
+# Mature green dragon
+R:420:+38/+18
+
+# Creeping adamantite coins
+R:421:+29/+4
+
+# Mystic
+R:424:+43/+13
+
+# Mature bronze dragon
+R:425:+38/+19
+
+# Chaos tile
+# R:426:+47/+1
+
+# Bodak
+R:427:+32/+24
+
+# Berserker
+R:430:+56/+21
+
+# Water elemental
+R:431:+31/+4
+
+# Water troll
+R:432:+35/+19
+
+# Mature gold dragon
+R:433:+38/+22
+
+# Gnomish wizard
+# R:436:+28/+4
+
+# Crystal mold
+# R:437:+49/+6
+
+# Earth elemental
+R:438:+31/+6
+
+# Mature red dragon
+R:439:+38/+21
+
+# Phantom
+# R:440:+32/+3
+
+# Greater plague rat
+# R:441:+44/+8
+
+# Dagashi
+R:443:+43/+16
+
+# Hellhound
+# R:444:+30/+3
+
+# Lich
+# R:445::+33/+3
+
+# Master vampire
+R:446:+35/+27
+
+# Crystal drake
+R:447:+38/+23
+
+# Olog
+R:448:+35/+20
+
+# Plasma vortex
+R:449:+44/+24
+
+# Blade of slaughter
+# R:450:+53/+14
+
+# Gravity hound
+R:453:+36/+30
+
+# Inertia hound
+R:454:+36/+31
+
+# Impact hound
+R:455:+37/+0
+
+# Acidic cytoplasm
+R:456:+40/+23
+
+# Eog golem
+R:457:+39/+16
+
+# Air elemental
+R:458:+31/+7
+
+# Giant chieftain
+# R:<todo>
+
+# Mature multi-hued dragon
+R:460:+38/+25
+
+# Emperor wight
+R:461:+36/+3
+
+# Will o' the wisp
+R:462:+31/+11
+
+# Witch
+# R:465:+51/+30
+
+# Mumak
+R:466:+44/+2
+
+# Beholder
+R:467:+38/+31
+
+# Bile elemental
+# R:468:+56/+26
+
+# Eldrak
+R:469:+35/+22
+
+# Dread
+R:470:+32/+1
+
+# Chaos drake
+R:471:+38/+9
+
+# Archpriest
+R:474:+43/+23
+
+# Ice elemental
+R:475:+31/+10
+
+# Law drake
+R:476:+38/+10
+
+# Erinyes
+R:477:+45/+15
+
+# Trapper
+R:478:+45/+31
+
+# Colossus
+R:481:+50/+9
+
+# Death knight
+R:484:+43/+20
+
+# Time vortex
+R:485:+44/+25
+
+# Shimmering vortex
+R:486:+44/+26
+
+# Black wraith
+R:487:+36/+4
+
+# Balance drake
+R:488:+38/+11
+
+# Shadow
+R:489:+32/+2
+
+# Unmagic worm mass
+# R:492:+45/+6
+
+# Night mare
+R:493:+44/+3
+
+# Magma elemental
+R:494:+31/+12
+
+# Death quasit
+R:495:+32/+25
+
+# Vrock
+R:496:+45/+16
+
+# Enchantress
+R:499:+43/+22
+
+# Giant roc
+R:500:+29/+23
+
+# Minotaur
+R:501:+32/+15
+
+# Xaren
+R:502:+36/+16
+
+# Rotting quylthulg
+R:503:+33/+28
+
+# Demonic quylthulg
+R:504:+33/+29
+
+# Spirit troll
+R:505:+33/+30
+
+# Ettin
+R:506:+35/+23
+
+# Spirit troll
+R:507:+35/+24
+
+# Spectral killer
+# R:508:+51/+13
+
+# Dark elven sorcerer
+R:511:+40/+1
+
+# Master thief
+R:512:+43/+14
+
+# Ancient blue dragon
+R:513:+30/+8
+
+# Ancient white dragon
+R:514:+30/+10
+
+# Ancient black dragon
+R:515:+30/+12
+
+# Astral deva
+# R:516:+29/+18
+
+# Nether hound
+R:519:+37/+1
+
+# Dread
+R:520:+32/+1
+
+# Ancient green dragon
+R:521:+30/+11
+
+# Assassin
+# R:524:+50/+10
+
+# Hezrou
+R:526:+45/+17
+
+# Living tornado
+# R:527:+46/+21
+
+# Dreadmaster
+R:530:+32/+5
+
+# Nether wraith
+# R:531:+36/+5
+
+# Glabrezu
+R:532:+45/+18
+
+# Horde mumak
+# R:534:+44/+4
+
+# Giant emerald
+# R:535:<todo>
+
+# Ancient bronze dragon
+R:536:+30/+9
+
+# Ancient red dragon
+R:537:+30/+14
+
+# Mana vortex
+# R:539:+44/+27
+
+# Death drake
+R:540:+30/+13
+
+# Nalfeshnee
+R:541:+45/+19
+
+# Giant emerald
+# R:<todo>
+
+# Blizzard gargantuan
+# R:<todo>
+
+# Death mold
+R:545:+41/+7
+
+# Ancient gold dragon
+R:546:+30/+15
+
+# Archangel
+R:547:+29/+16
+
+# Stone serpent
+# R:<todo>
+
+# Necromancer
+R:551:+43/+17
+
+# Undead beholder
+R:552:+39/+0
+
+# Vampire lord
+R:553:+35/+28
+
+# Giant ruby
+# R:<todo>
+
+# Master lich
+R:557:+33/+4
+
+# Marilith
+R:558:+45/+20
+
+# Master mystic
+R:561:+43/+27
+
+# Great crystal drake
+R:562:+30/+16
+
+# Ancient multi-hued dragon
+R:563:+30/+17
+
+# Giant diamond
+# R:<todo>
+
+# Undead mystic
+# R:567:+57/+15
+
+# Time hound
+R:568:+37/+2
+
+# Plasma hound
+R:569:+37/+3
+
+# Hand druj
+R:570:+44/+14
+
+# Planetar
+# R:571:+29/+19
+
+# Patriarch
+R:574:+43/+26
+
+# Ethereal wyrm
+# R:<todo>
+
+# Barbazu
+# R:<todo>
+
+# Dracolich
+R:579:+30/+21
+
+# Dracolisk
+R:580:+30/+20
+
+# Jabberwock
+# R:<todo>
+
+# Nimshaitan
+# R:<todo>
+
+# Legendary hobbit rogue
+# R:<todo>
+
+# Chaos vortex
+R:588:+44/+27
+
+# Nightwing
+R:590:+45/+29
+
+# Great Storm Wyrm
+R:591:+30/+23
+
+# Great Ice Wyrm
+R:592:+30/+24
+
+# Nightcrawler
+R:595:+36/+12
+
+# Master quylthulg
+R:596:+33/+31
+
+# Great cacophony wyrm
+# R:<todo>
+
+# Chaos hound
+R:602:+37/+5
+
+# Great Hell Wyrm
+R:603:+30/+25
+
+# Lesser Balrog
+R:604:+45/+21
+
+# Great wyrm of Venom
+# R:<todo>
+
+# Solar
+# R:608:+29/+22
+
+# Drolem
+R:611:+39/+18
+
+# Spectral destroyer
+# R:612:+51/+9
+
+# Lesser titan
+R:613:+33/+23
+
+# Sky drake
+# R:<todo>
+
+# Great Wyrm of Perplexity
+# R:<todo>
+
+# Aether vortex
+R:617:+44/+28
+
+# Eye druj
+R:618:+44/+15
+
+# Dreadlord
+R:620:+32/+6
+
+# Shadow breeder
+# R:621:+57/+14
+
+# Hammer of the Underworld
+# R:623:+53/+10
+
+# Greater demonic quylthulg
+# R:624:+33/+29
+
+# Great Wyrm of Many Colours
+# R:625:+51/+19
+
+# Sorcerer
+R:626:+43/+24
+
+# Greater rotting quylthulg
+R:628:+34/+1
+
+# Great Wyrm of Chaos
+R:629:+30/+27
+
+# Great Wyrm of Law
+R:630:+30/+28
+
+# Black reaver
+R:633:+33/+5
+
+# Greater draconic quylthulg
+R:635:+34/+0
+
+# Aether hound
+R:636:+37/+6
+
+# Great Wyrm of Balance
+R:638:+30/+29
+
+# Skull druj
+R:639:+44/+16
+
+# Grand master mystic
+R:642:+43/+29
+
+# Mimic (large jeweled chest)
+# R:<todo>
+
+# Greater titan
+R:647:+33/+24
+
+# Nightwalker
+R:649:+36/+13
+
+# Elder elementalist
+# R:650:+52/+12
+
+# Wizard of the High Council
+# R:651:+51/+30
+
+# Balrog
+# R:653:+45/+22
+
+# Unmaker
+# R:655:+48/+4
+
+# Greater Unseen
+# R:<todo>
+
+# Tyrant of Hell
+# R:<todo>
+
+# Aetheroi
+# R:659:+52/+17
+
+# Storm of Unmagic
+# R:661:+56/+23
+
+# Great wyrm of Power
+# R:663:+52/+7
+
+# Grip, Farmer Maggot's dog
+R:681:+29/+28
+
+# Fang, Farmer Maggot's dog
+R:682:+29/+29
+
+# Feldisham, the Guard
+# R:683:+50/+6
+
+# Bullroarer the Hobbit
+R:684:+39/+20
+
+# Mughash the Kobold Lord
+R:685:+40/+28
+
+# Wormtongue, Agent of Saruman
+R:686:+42/+24
+
+# Brodda, the Easterling
+R:687:+42/+28
+
+# Lagduf, the Snaga
+R:688:+41/+16
+
+# Orfax, Son of Boldor
+R:689:+45/+9
+
+# Smeagol
+R:690:+42/+16
+
+# Grishnakh, the Hill Orc
+R:691:+41/+19
+
+# Golfimbul, the Hill Orc Chief
+R:692:+41/+20
+
+# Ufthak of Cirith Ungol
+R:693:+41/+22
+
+# Boldor, King of the Yeeks
+R:694:+45/+11
+
+# Ulfast, Son of Ulfang
+R:695:+43/+2
+
+# Nar, the Dwarf
+R:696:+39/+25
+
+# Shagrat, the Orc Captain
+R:697:+41/+26
+
+# Gorbag, the Orc Captain
+R:698:+41/+27
+
+# Bolg, Son of Azog
+R:699:+41/+28
+
+# Lugdush, the Uruk
+R:700:+41/+30
+
+# Ugluk, the Uruk
+R:701:+41/+29
+
+# Azog, King of the Uruk-Hai
+R:702:+41/+31
+
+# Sangahyando of Umbar
+R:703:+43/+5
+
+# Angamaite of Umbar
+R:704:+43/+6
+
+# Ibun, Son of Mim
+R:705:+39/+27
+
+# Khim, Son of Mim
+R:706:+39/+28
+
+# Draebor, the Imp
+R:709:+32/+23
+
+# The Queen Ant
+R:710:+37/+14
+
+# Bert the Stone Troll
+R:711:+35/+16
+
+# Bill the Stone Troll
+R:712:+35/+17
+
+# Tom the Stone Troll
+R:713:+35/+18
+
+# Ulfang the Black
+R:714:+43/+15
+
+# Lokkak, the Ogre Chieftain
+R:715:+33/+16
+
+# Rogrog the Black Troll
+R:716:+35/+21
+
+# Mim, Betrayer of Turin
+R:717:+40/+0
+
+# Castamir the Usurper
+R:718:+43/+21
+
+# Ar-Pharazon the Golden
+# R:<todo>
+
+# Shelob, Spider of Darkness
+R:720:+35/+6
+
+# Vargo, Tyrant of Fire
+R:721:+31/+13
+
+# Waldern, King of Water
+R:722:+31/+14
+
+# Kavlax the Many-Headed
+R:723:+38/+26
+
+# Lorgan, Chief of the Easterlings
+R:724:+43/+18
+
+# Gorlim, Betrayer of Barahir
+R:725:+43/+25
+
+# Quaker, Master of Earth
+R:726:+31/+15
+
+# Ariel, Queen of Air
+R:727:+31/+17
+
+# Itangast the Fire Drake
+R:728:+30/+22
+
+# Uvatha the Horseman
+R:729:+36/+6
+
+# Draugluin, Sire of All Werewolves
+R:730:+30/+5
+
+# Baphomet the Minotaur Lord
+R:731:+32/+16
+
+# Harowen the Black Hand
+R:732:+43/+28
+
+# Adunaphel the Quiet
+R:733:+36/+7
+
+# Thuringwethil
+# R:734:+35/+29
+
+# Akhorahil the Blind
+R:735:+36/+8
+
+# Scatha the Worm
+R:736:+45/+27
+
+# Fundin Bluecloak
+R:737:+40/+2
+
+# Ren the Unclean
+R:738:+45/+29
+
+# The Phoenix
+R:739:+29/+24
+
+# Ji Indur Dawndeath
+R:740:+45/+28
+
+# Smaug the Golden
+R:741:+30/+19
+
+# Muar, the Balrog
+# R:742:+52/+2
+
+# Maeglin, Betrayer of Gondolin
+# R:<todo>
+
+# Dwar, Dog Lord of Waw
+R:744:+36/+9
+
+# Hoarmurath of Dir
+R:745:+36/+10
+
+# Glaurung, Father of the Dragons
+R:746:+45/+26
+
+# Saruman of Many Colours
+R:747:+43/+30
+
+# Tevildo, Prince of Cats
+# R:<todo>
+
+# Azriel, Angel of Death
+R:749:+29/+21
+
+# Lungorthin, the Balrog of White Fire
+R:750:+45/+23
+
+# Feagwath the Undead Sorceror
+R:751:+33/+7
+
+# Gabriel, the Messenger
+R:752:+29/+22
+
+# Carcharoth, the Jaws of Thirst
+R:753:+30/+6
+
+# Khamul, the Black Easterling
+R:754:+36/+11
+
+# Ungoliant, the Unlight
+R:755:+35/+8
+
+# Omarax, the Eye Tyrant
+R:756:+39/+1
+
+# The Emperor Quylthulg
+R:757:+34/+2
+
+# Tselakus, the Dreadlord
+R:758:+32/+7
+
+# Ancalagon the Black
+R:759:+30/+26
+
+# The Mouth of Sauron
+R:760:+43/+31
+
+# Murazor, Witch-King of Angmar
+# R:761:+36/+14
+
+# The Tarrasque
+R:762:+34/+28
+
+# Vecna, the Emperor Lich
+R:763:+33/+6
+
+# Cantoras, the Skeletal Lord
+R:764:+44/+17
+
+# Qlzqqlzuup, the Lord of Flesh
+# R:765:+34/+3
+
+# Gothmog, the High Captain of Balrogs
+R:766:+45/+24
+
+# Sauron, the Sorcerer
+R:767:+44/+0
+
+# Morgoth, Lord of Darkness
+R:768:+33/+25
+
+# Gyrus, Necromancer-King
+# R:<todo>
+
+# Skeleton
+# R:<todo>
+
+# Zombie
+# R:<todo>
+
+# Spirit
+# R:<todo>
+
+# Mummy
+# R:<todo>
+
+# Wight
+# R:<todo>
+
+# Ghost
+R:780:+31/+30
+
+# Vampire
+R:781:+35/+26
+
+# Phantom
+R:782:+32/+3
+
+# Lich
+R:783:+33/+3
+
+# Nether wraith
+R:784:+36/+5
+
+# Deathlord
+# R:<todo>
+
+
+
+
+#
+# Player graphics.  Listing is by races, with each possible specialty getting an 
+# attr/char pair.  Specialties are (in order):
+#
+# None, hand burglar, weapon burglar, pure burglar, pure wizard, half-wizard, 
+# pure priest, half-priest, pure druid, half-druid, pure necromancer, half-necro, 
+# fighter (swords), fighter (polearms), fighter (hafted), missile weapon +magic combo, 
+# archer (crossbows), archer (bows), archer (slings), fighter (wrestling), 
+# fighter (karate), fighter (throwing), fighter (generalist), wand-wielder, smith, 
+# alchemist, infusor, burglar (with wizardry), burglar (with piety), 
+# burglar (with druidic lore), burglar (with necromancy).
+#
+
+# Human (the "-1" means "also apply to any races not specified")
+B:-1:+18/+0:+21/+0:+21/+0:+21/+0:+28/+0:+24/+0:+19/+0:+20/+0:+63/+0:+22/+0:+25/+0:+27/+0:+18/+0:+18/+0:+18/+0:+22/+0:+18/+0:+18/+0:+18/+0:+26/+0:+26/+0:+26/+0:+18/+0:+28/+0:+27/+0:+28/+0:+28/+0:+21/+0:+21/+0:+21/+0:+21/+0:
+
+# Elf
+B:1:+18/+1:+21/+1:+21/+1:+21/+1:+28/+1:+24/+1:+19/+1:+20/+1:+63/+1:+22/+1:+25/+1:+27/+1:+18/+1:+18/+1:+18/+1:+22/+1:+18/+1:+18/+1:+18/+1:+26/+1:+26/+1:+26/+1:+18/+1:+28/+1:+27/+1:+28/+1:+28/+1:+21/+1:+21/+1:+21/+1:+21/+1:
+
+# Hobbit
+B:2:+18/+4:+21/+4:+21/+4:+21/+4:+28/+4:+24/+4:+19/+4:+20/+4:+63/+4:+22/+4:+25/+4:+27/+4:+18/+4:+18/+4:+18/+4:+22/+4:+18/+4:+18/+4:+18/+4:+26/+4:+26/+4:+26/+4:+18/+4:+28/+4:+27/+4:+28/+4:+28/+4:+21/+4:+21/+4:+21/+4:+21/+4:
+
+# Gnome
+B:3:+18/+3:+21/+3:+21/+3:+21/+3:+28/+3:+24/+3:+19/+3:+20/+3:+63/+3:+22/+3:+25/+3:+27/+3:+18/+3:+18/+3:+18/+3:+22/+3:+18/+3:+18/+3:+18/+3:+26/+3:+26/+3:+26/+3:+18/+3:+28/+3:+27/+3:+28/+3:+28/+3:+21/+3:+21/+3:+21/+3:+21/+3:
+
+# Dwarf
+B:4:+18/+5:+21/+5:+21/+5:+21/+5:+28/+5:+24/+5:+19/+5:+20/+5:+63/+5:+22/+5:+25/+5:+27/+5:+18/+5:+18/+5:+18/+5:+22/+5:+18/+5:+18/+5:+18/+5:+26/+5:+26/+5:+26/+5:+18/+5:+28/+5:+27/+5:+28/+5:+28/+5:+21/+5:+21/+5:+21/+5:+21/+5:
+
+# Half-orc
+B:5:+18/+6:+21/+6:+21/+6:+21/+6:+28/+6:+24/+6:+19/+6:+20/+6:+63/+6:+22/+6:+25/+6:+27/+6:+18/+6:+18/+6:+18/+6:+22/+6:+18/+6:+18/+6:+18/+6:+26/+6:+26/+6:+26/+6:+18/+6:+28/+6:+27/+6:+28/+6:+28/+6:+21/+6:+21/+6:+21/+6:+21/+6:
+
+# Half-Troll
+B:6:+18/+7:+21/+7:+21/+7:+21/+7:+28/+7:+24/+7:+19/+7:+20/+7:+63/+7:+22/+7:+25/+7:+27/+7:+18/+7:+18/+7:+18/+7:+22/+7:+18/+7:+18/+7:+18/+7:+26/+7:+26/+7:+26/+7:+18/+7:+28/+7:+27/+7:+28/+7:+28/+7:+21/+7:+21/+7:+21/+7:+21/+7:
+
+# Dunadan
+B:7:+18/+10:+21/+10:+21/+10:+21/+10:+28/+10:+24/+10:+19/+10:+20/+10:+63/+10:+22/+10:+25/+10:+27/+10:+18/+10:+18/+10:+18/+10:+22/+10:+18/+10:+18/+10:+18/+10:+26/+10:+26/+10:+26/+10:+18/+10:+28/+10:+27/+10:+28/+10:+28/+10:+21/+10:+21/+10:+21/+10:+21/+10:
+
+# High-Elf
+B:8:+18/+2:+21/+2:+21/+2:+21/+2:+28/+2:+24/+2:+19/+2:+20/+2:+63/+2:+22/+2:+25/+2:+27/+2:+18/+2:+18/+2:+18/+2:+22/+2:+18/+2:+18/+2:+18/+2:+26/+2:+26/+2:+26/+2:+18/+2:+28/+2:+27/+2:+28/+2:+28/+2:+21/+2:+21/+2:+21/+2:+21/+2:
+
+# Dark-Elf
+B:9:+18/+9:+21/+9:+21/+9:+21/+9:+28/+9:+24/+9:+19/+9:+20/+9:+63/+9:+22/+9:+25/+9:+27/+9:+18/+9:+18/+9:+18/+9:+22/+9:+18/+9:+18/+9:+18/+9:+26/+9:+26/+9:+26/+9:+18/+9:+28/+9:+27/+9:+28/+9:+28/+9:+21/+9:+21/+9:+21/+9:+21/+9:
+
+# Giant
+B:10:+18/+13:+21/+13:+21/+13:+21/+13:+28/+13:+24/+13:+19/+13:+20/+13:+63/+13:+22/+13:+25/+13:+27/+13:+18/+13:+18/+13:+18/+13:+22/+13:+18/+13:+18/+13:+18/+13:+26/+13:+26/+13:+26/+13:+18/+13:+28/+13:+27/+13:+28/+13:+28/+13:+21/+13:+21/+13:+21/+13:+21/+13:
+
+
+
+
+
+#
+# Object attr/char definitions
+#
+
+# & Slime Mold~
+K:30:+14/+5
+
+# & Hard Biscuit~
+K:31:+14/+2
+
+# & Strip~ of Beef Jerky
+K:32:+14/+3
+
+# & Ration~ of Food
+K:33:+14/+4
+
+# & Cake~ of the Beornings
+#K:34:+:+
+
+# & Piece~ of Elvish Waybread
+K:35:+14/+6
+
+# & Pint~ of Fine Ale
+K:36:+14/+0
+
+# & Pint~ of Fine Wine
+K:37:+14/+0
+
+# & Sprig~ of Athelas
+#K:38:+:+
+
+# & Dram~ of Orcish Firewater
+#K:39:+:+
+
+# & Broken Sword~
+K:42:+10/+14
+
+# & Throwing Knife~
+#K:43:+:+
+
+# & Dagger~
+K:44:+10/+15
+
+# & Main Gauche~
+K:45:+10/+16
+
+# & Rapier~
+K:47:+10/+17
+
+# & Small Sword~
+K:48:+10/+18
+
+# & Short Sword~
+K:50:+10/+20
+
+# & Sabre~
+K:51:+10/+19
+
+# & Cutlass~
+K:52:+10/+22
+
+# & Sacrificial Dagger~
+#K:55:+:+
+
+# & Broad Sword~
+K:56:+10/+24
+
+# & Long Sword~
+K:57:+10/+25
+
+# & Scimitar~
+K:58:+10/+23
+
+# & Katana~
+K:60:+10/+27
+
+# & Bastard Sword~
+K:61:+10/+14
+
+# & Two-Handed Sword~
+K:65:+10/+28
+
+# & Fellblade~
+#K:67:+:+
+
+# & Executioner's Sword~
+K:68:+10/+29
+
+# & Bluesteel Blade~
+#K:69:+:+
+
+# & Blade~ of Chaos
+K:70:+10/+30
+
+# & Whip~
+K:72:+10/+31
+
+# & Quarterstaff~
+K:73:+11/+2
+
+# & Throwing Hammer~
+#K:74:+:+
+
+# & Mace~
+#K:75:+:+
+
+# & Ball-and-Chain~
+K:76:+11/+6
+
+# & War Hammer~
+K:78:+11/+0
+
+# & Spiked Club~
+#K:80:+:+
+
+# & Morning Star~
+K:82:+11/+4
+
+# & Flail~
+K:83:+11/+3
+
+# & Lead-Filled Mace~
+K:85:+11/+5
+
+# & Two-Handed Flail~
+K:88:+11/+7
+
+# & Mace~
+K:90:+11/+1
+
+# & Javelin~
+#K:96:+:+
+
+# & Spear~
+K:97:+11/+9
+
+# & Warspike~
+K:98:+11/+11
+
+# & Trident~
+K:99:+11/+10
+
+# & Pike~
+K:100:+11/+15
+
+# & Throwing Axe~
+#K:103:+:+
+
+# & Beaked Axe~
+K:104:+11/+16
+
+# & Broad Axe~
+K:105:+11/+17
+
+# & Battle Axe~
+K:106:+11/+14
+
+# & Great Axe~
+K:107:+11/+21
+
+# & Glaive~
+K:110:+11/+18
+
+# & Halberd~
+K:111:+11/+19
+
+# & Scythe~
+K:113:+11/+22
+
+# & Scythe of Slicing~
+K:114:+11/+22
+
+# & Sling~
+K:127:+11/+28
+
+# & Short Bow~
+K:130:+11/+24
+
+# & Long Bow~
+K:131:+11/+25
+
+# & Hand Crossbow~
+#K:133:+/+
+
+# & Light Crossbow~
+K:134:+11/+26
+
+# & Heavy Crossbow~
+K:135:+11/+27
+
+# & Triple Crossbow~
+#K:136:+/+
+
+# & Stone Pebble~
+K:137:+12/+4
+
+# & Lead Shot~
+K:138:+12/+5
+
+# & Seeker Shot~
+K:139:+54/+15
+
+# & Arrow~
+K:141:+12/+0
+
+# & Arrow~
+K:142:+12/+0
+
+# & Seeker Arrow~
+K:143:+12/+1
+
+# & Bolt~
+K:145:+12/+2
+
+# & Bolt~
+K:146:+12/+2
+
+# & Seeker Bolt~
+K:147:+12/+3
+
+# & Shovel~
+K:150:+14/+15
+
+# & Gnomish Shovel~
+K:151:+14/+16
+
+# & Dwarven Shovel~
+K:152:+14/+17
+
+# & Pick~
+K:153:+14/+12
+
+# & Orcish Pick~
+K:154:+14/+13
+
+# & Dwarven Pick~
+K:155:+14/+17
+
+# & Pair~ of Leather Sandals
+K:158:+8/+14
+
+# & Pair~ of Soft Leather Boots
+K:159:+8/+14
+
+# & Pair~ of Hard Leather Boots
+K:160:+8/+15
+
+# & Pair~ of Metal Shod Boots
+K:161:+8/+16
+
+# & Pair~ of Dwarven Boots
+K:162:+8/+16
+
+# & Hard Leather Cap~
+K:167:+7/+24
+
+# & Metal Cap~
+K:168:+7/+25
+
+# & Barbut~
+K:169:+54/+5
+
+# & Iron Helm~
+K:170:+7/+26
+
+# & Steel Helm~
+K:171:+7/+27
+
+# & Dragon Helm~
+#K:172:+/+
+
+# & Iron Crown~
+K:175:+7/+28
+
+# & Golden Crown~
+K:176:+7/+29
+
+# & Jewel Encrusted Crown~
+K:177:+7/+30
+
+# & Filthy Rag~
+K:180:+9/+11
+
+# & Robe~
+K:181:+9/+12
+
+# Soft Leather Armor~
+K:182:+9/+13
+
+# Soft Studded Leather~
+K:183:+9/+14
+
+# Hard Leather Armor~
+K:184:+9/+15
+
+# Hard Studded Leather~
+K:185:+9/+16
+
+# Leather Scale Mail~
+K:188:+9/+17
+
+# Brigandine Armor~
+K:191:+9/+24
+
+# Rusty Chain Mail~
+K:192:+9/+19
+
+# Chain Mail~
+K:192:+9/+19
+
+# Metal Scale Mail~
+K:194:+9/+18
+
+# Augmented Plate Mail~
+K:196:+9/+22
+
+# Segmented Plate Mail~
+K:198:+9/+23
+
+# Partial Plate Armor~
+K:200:+9/+25
+
+# Full Plate Armor~
+K:202:+9/+27
+
+# Imperial Plate Armor
+K:204:+9/+28
+
+# Mithril Chain Mail~
+K:206:+9/+20
+
+# Mithril Plate Armor
+K:208:+9/+30
+
+# Adamantite Plate Armor
+K:210:+9/+31
+
+# Black Dragon Scale Mail~
+K:213:+10/+2
+
+# Blue Dragon Scale Mail~
+K:214:+10/+0
+
+# White Dragon Scale Mail~
+K:215:+10/+1
+
+# Red Dragon Scale Mail~
+K:216:+10/+3
+
+# Green Dragon Scale Mail~
+K:217:+10/+4
+
+# Multi-Hued Dragon Scale Mail~
+K:218:+10/+11
+
+# Ethereal Dragon Scale Mail~
+K:220:+10/+7
+
+# Morphic Dragon Scale Mail~
+K:222:+10/+7
+
+# Bronze Dragon Scale Mail~
+K:223:+10/+5
+
+# Gold Dragon Scale Mail~
+K:224:+10/+6
+
+# Chaos Dragon Scale Mail~
+K:226:+10/+8
+
+# Law Dragon Scale Mail~
+K:227:+10/+9
+
+# Balance Dragon Scale Mail~
+K:228:+10/+10
+
+# Power Dragon Scale Mail~
+K:229:+10/+12
+
+# & Cloak~
+K:230:+9/+8
+
+# & Battle Cape~
+K:231:+9/+8
+
+# & Elven Cloak~
+K:232:+9/+8
+
+# & Shadow Cloak~
+K:233:+9/+9
+
+# & Ethereal Cloak~
+K:235:+9/+8
+
+# & Set~ of Leather Gloves
+K:237:+8/+17
+
+# & Set~ of Mail Gauntlets
+K:238:+8/+18
+
+# & Set~ of Steel Gauntlets
+K:239:+8/+18
+
+# & Set~ of Cesti
+K:240:+8/+19
+
+# & Wicker Shield~
+K:244:+8/+20
+
+# & Small Leather Shield~
+K:245:+8/+20
+
+# & Small Metal Shield~
+K:246:+8/+22
+
+# & Large Leather Shield~
+K:247:+8/+21
+
+# & Large Metal Shield~
+K:248:+8/+23
+
+# & Knight's Shield~
+#K:249:+/+
+
+# & Body Shield~
+#K:250:+/+
+
+# & Shield~ of Deflection
+K:253:+8/+24
+
+
+# All known scrolls
+K:320:+3/+30
+K:321:+3/+30
+K:322:+3/+30
+K:323:+3/+30
+K:324:+3/+30
+K:325:+3/+30
+K:326:+3/+30
+K:327:+3/+30
+K:328:+3/+30
+K:329:+3/+30
+K:330:+3/+30
+K:331:+3/+30
+K:332:+3/+30
+K:333:+3/+30
+K:334:+3/+30
+K:335:+3/+30
+K:336:+3/+30
+K:337:+3/+30
+K:338:+3/+30
+K:339:+3/+30
+K:340:+3/+30
+K:341:+3/+30
+K:342:+3/+30
+K:343:+3/+30
+K:344:+3/+30
+K:345:+3/+30
+K:346:+3/+30
+K:347:+3/+30
+K:348:+3/+30
+K:349:+3/+30
+K:350:+3/+30
+K:351:+3/+30
+K:352:+3/+30
+K:353:+3/+30
+K:354:+3/+30
+K:355:+3/+30
+K:356:+3/+30
+K:357:+3/+30
+K:358:+3/+30
+K:359:+3/+30
+K:360:+3/+30
+K:361:+3/+30
+K:362:+3/+30
+K:363:+3/+30
+K:364:+3/+30
+K:365:+3/+30
+K:366:+3/+30
+K:367:+3/+30
+K:368:+3/+30
+K:369:+3/+30
+K:370:+3/+30
+K:371:+3/+30
+K:372:+3/+30
+K:373:+3/+30
+K:374:+3/+30
+K:375:+3/+30
+K:376:+3/+30
+K:377:+3/+30
+K:378:+3/+30
+K:379:+3/+30
+
+
+# & Small wooden chest~
+K:616:+4/+25
+
+# & Large wooden chest~
+K:617:+4/+26
+
+# & Small iron chest~
+K:618:+4/+27
+
+# & Large iron chest~
+K:619:+4/+28
+
+# & Small steel chest~
+K:620:+4/+29
+
+# & Large steel chest~
+K:621:+4/+30
+
+# & Small jeweled chest~
+K:622:+61/+0
+
+# & Large jeweled chest~
+K:623:+61/+1
+
+# & Iron Spike~
+K:626:+14/+9
+
+# & Wooden Torch~
+K:627:+14/+11
+
+# & Brass Lantern~
+K:628:+14/+10
+
+# & Flask~ of oil
+K:629:+14/+8
+
+# & Shard~ of Pottery
+K:636:+14/+18
+
+# & Broken Stick~
+K:637:+14/+19
+
+# & boulder~
+#K:638:+/+
+
+# & Blanket~
+#K:639:+/+
+
+# & Broken Skull~
+K:641:+14/+20
+
+# & Canine Skeleton~
+K:642:+14/+26
+
+# & Gnome Skeleton~
+K:643:+14/+25
+
+# & Elf Skeleton~
+K:644:+14/+23
+
+# & Dwarf Skeleton~
+K:645:+14/+24
+
+# & Human Skeleton~
+K:646:+14/+22
+
+# & Giant skeleton~
+#K:647:+/+
+
+# & Mumak skeleton~
+#K:648:+/+
+
+# [Apprentice Magic]
+K:650:+12/+6
+
+# [Lesser Conjury]
+K:651:+12/+7
+
+# [Elemental Sorcery]
+K:652:+12/+9
+
+# [Phantasms and Illusions]
+K:653:+12/+10
+
+# [Mordenkainen's Escapes]
+K:654:+12/+11
+
+# [Grimoire of Wizardry]
+K:655:+12/+12
+
+# [Raal's Tome of Destruction]
+K:656:+12/+14
+
+# [Novitiate]
+K:660:+12/+15
+
+# [Words of Wisdom]
+K:661:+12/+16
+
+# [Holy of Holies]
+K:662:+12/+17
+
+# [Shining Spirit]
+K:663:+12/+19
+
+# [Canon of Judgment]
+K:664:+12/+20
+
+# [Insight and Purifications]
+K:665:+12/+21
+
+# [Testament of the Almighty]
+K:666:+12/+23
+
+# [Call of the Wild]
+K:670:+13/+0
+
+# [Communion with Nature]
+K:671:+13/+1
+
+# [Book of Combat]
+K:672:+13/+3
+
+# [Druidic Transformations]
+K:673:+13/+4
+
+# [Weather Mastery]
+K:674:+13/+5
+
+# [Primal Forces]
+K:675:+13/+6
+
+# [Spirit of Yavanna]
+K:676:+13/+7
+
+# [Beginner's Curses]
+K:680:+13/+8
+
+# [Darker Elements]
+K:681:+13/+9
+
+# [Frightful Realms]
+K:682:+13/+11
+
+# [Mysteries of Angmar]
+K:683:+13/+12
+
+# [Doomspells]
+K:684:+13/+13
+
+# [Triumph of the Will]
+K:685:+13/+14
+
+# [Necronomicon]
+K:686:+13/+15
+
+# copper
+K:700:+3/+17
+
+# silver
+K:701:+3/+18
+
+# garnets
+K:702:+3/+22
+
+# amber
+K:703:+3/+18
+
+# beryls
+K:704:+3/+18
+
+# amethysts
+K:705:+3/+18
+
+# gold
+K:706:+3/+19
+
+# pearls
+K:707:+3/+23
+
+# platinum
+K:708:+3/+23
+
+# mithril
+K:709:+3/+20
+
+# adamantite
+K:710:+3/+21
+
+# & large sapphire
+K:715:+3/+24
+
+# & large emerald
+K:716::+3/+27
+
+# & large ruby
+K:717::+3/+25
+
+# & large diamond
+K:718::+3/+26
+
+# & Aetheroi fang
+#K:723:+/+
+
+# & Mighty Hammer~
+K:731:+8/+30
+
+# & Massive Iron Crown~
+K:732:+7/+28
+
+# & Phial~
+K:733:+14/+29
+
+# & Star~
+K:734:+14/+30
+
+# & Arkenstone~
+K:735:+14/+31
+
+# & Palantir~
+K:736:+14/+31
+
+#& Amulet~ of Carlammas
+K:738:+4/+22
+
+#& Amulet~ of Ingwe
+K:739:+4/+23
+
+#& Necklace~ of the Dwarves
+K:740:+4/+24
+
+
+# The Ring of Barahir
+K:743:+4/+15
+
+# The Ring of Tulkas
+K:744:+4/+17
+
+# The Ring of Power (Narya)
+K:745:+4/+18
+
+# The Ring of Power (Nenya)
+K:746:+4/+19
+
+# The Ring of Power (Vilya)
+K:747:+4/+20
+
+# The One Ring
+K:748:+4/+21
+
+# copper
+#K:755:+/+
+
+# Bronze
+#K:756:+/+
+
+# Iron
+#K:757:+/+
+
+# Steel
+#K:758:+/+
+
+# Runegold
+#K:759:+/+
+
+# Mithril
+#K:760:+/+
+
+# Adamant
+#K:761:+/+
+
+# & blank Parchment~ (Paper)
+K:763:+3/+28
+
+# & blank Parchment~ (Vellum)
+K:764:+3/+28
+
+# & blank Parchment~ (Silk)
+K:765:+3/+28
+
+# & blank Parchment~ (Ether)
+K:766:+3/+28
+
+# & empty Bottle~ (Glass)
+#K:769:+/+
+
+# & empty Bottle~ (Crystal)
+#K:770:+/+
+
+# & empty Bottle~ (Agate)
+#K:771:+/+
+
+# & Empty Bottle~
+K:772:+14/+7
+
+# Acid
+#K:774:+61/+13
+
+# Lightning
+#K:775:+61/+5
+
+# Fire
+#K:776:+61/+4
+
+# Frost
+#K:777:+61/+23
+
+# Venom
+#K:778:+61/+7
+
+# Light
+#K:779:+61/+10
+
+# Darkness
+#K:780:+61/+11
+
+# Confusion
+#K:781:+61/+19
+
+# Force
+#K:782:+61/+15
+
+# Nexus
+#K:783:+61/+16
+
+# Nether
+#K:784:+61/+18
+
+# Chaos
+#K:785:+61/+17
+
+# Time
+#K:786:+61/+8
+
+# Magic
+#K:787:+61/+9
+
+# Life
+#K:788:+61/+21
+
+# Death
+#K:789:+61/+20
+
+# Knowledge
+#K:790:+61/+21
+
+# Protection
+#K:791:+61/+19
+
+# Blessing
+#K:792:+61/+10
+
+
+
+
+
+
+#
+# Object flavours
+#
+
+##### Rings ####
+
+# Fixed: The One Ring 
+# Plain Gold
+L:1:+4/+10
+
+# Adamantite
+L:2:+4/+12
+
+# Agate
+L:3:+4/+10
+
+# Alexandrite
+L:4:+4/+10
+
+# Amethyst
+L:5:+4/+9
+
+# Aquamarine
+L:6:+4/+13
+
+# Azurite
+L:7:+4/+14
+
+# Beryl
+L:8:+4/+12
+
+# Bloodstone
+L:9:+4/+3
+
+# Bronze
+L:10:+4/+2
+
+# Calcite
+L:11:+4/+0
+
+# Carnelian
+L:12:+4/+3
+
+# Corundum
+L:13:+4/+3
+
+# Diamond
+L:14:+4/+0
+
+# Emerald
+L:15:+4/+4
+
+# Engagement
+L:16:+4/+8
+
+# Fluorite
+L:17:+4/+12
+
+# Garnet
+L:18:+4/+3
+
+# Gold
+L:19:+4/+10
+
+# Granite
+L:20:+4/+1
+
+# Hematite
+L:21:+4/+7
+
+# Jade
+L:22:+4/+4
+
+# Jasper
+L:23:+4/+6
+
+# Jet
+L:24:+4/+7
+
+# Lapis Lazuli
+L:25:+4/+5
+
+# Malachite
+L:26:+4/+4
+
+# Marble
+L:27:+4/+0
+
+# Mithril
+L:28:+4/+13
+
+# Moonstone
+L:29:+4/+8
+
+# Mother-of-Pearl
+L:30:+4/+0
+
+# Nephrite
+L:31:+4/+4
+
+# Obsidian
+L:32:+4/+7
+
+# Onyx
+L:33:+4/+7
+
+# Opal
+L:34:+4/+8
+
+# Pearl
+L:35:+4/+12
+
+# Platinum
+L:36:+4/+8
+
+# Quartz
+L:37:+4/+0
+
+# Quartzite
+L:38:+4/+8
+
+# Rhodonite
+L:39:+4/+11
+
+# Rose Quartz
+L:40:+4/+12
+
+# Ruby
+L:41:+4/+3
+
+# Sapphire
+L:42:+4/+5
+
+# Serpent
+L:43:+4/+6
+
+# Silver
+L:44:+4/+8
+
+# Steel
+L:45:+4/+0
+
+# Tanzanite
+L:46:+4/+10
+
+# Tiger Eye
+L:47:+4/+14
+
+# Topaz
+L:48:+4/+10
+
+# Turquoise
+L:49:+4/+13
+
+# Zircon
+L:50:+4/+14
+
+
+
+##### Amulets #####
+
+
+# Agate
+L:65:+7/+8
+
+# Amber
+L:66:+7/+2
+
+# Azure
+L:67:+7/+13
+
+# Bead
+L:68:+7/+2
+
+# Bone
+L:69:+7/+0
+
+# Cloverleaf
+L:70:+7/+4
+
+# Cochineal
+L:71:+7/+3
+
+# Copper
+L:72:+7/+14
+
+# Coral
+L:73:+7/+11
+
+# Crystal
+L:74:+7/+8
+
+# Dragon's Claw
+L:75:+7/+12
+
+# Driftwood
+L:76:+7/+6
+
+# Enameled
+L:77:+7/+5
+
+# Faceted
+L:78:+7/+8
+
+# Gold
+L:79:+7/+10
+
+# Gold
+L:80:+7/+10
+
+# Horn
+L:81:+7/+0
+
+# Ivory
+L:82:+7/+0
+
+# Jade
+L:83:+7/+4
+
+# Jeweled
+L:84:+7/+9
+
+# Obsidian
+L:85:+7/+7
+
+# Pentagrammatic
+L:86:+7/+5
+
+# Scarab
+L:87:+7/+6
+
+# Serpentine
+L:88:+7/+4
+
+# Shark's Tooth
+L:89:+7/+1
+
+# Silver
+L:90:+7/+0
+
+# Stained Glass
+L:91:+7/+9
+
+# Starstone
+L:92:+7/+13
+
+# Scarab
+L:93:+7/+5
+
+# Carved Oak
+L:94:+7/+6
+
+# Maiden's Hair
+L:95:+7/+10
+
+# space for more amulet flavors here
+
+
+
+##### Staves #####
+
+# Applewood
+L:105:+6/+28
+
+# Aspen
+L:106:+6/+30
+
+# Bamboo
+L:107:+6/+30
+
+# Banyan
+L:108:+6/+30
+
+# Beech
+L:109:+6/+16
+
+# Birch
+L:110:+6/+30
+
+# Butternut
+L:111:+6/+26
+
+# Cedar
+L:112:+6/+30
+
+# Charred
+L:113:+6/+23
+
+# Cherry
+L:114:+6/+19
+
+# Cypress
+L:115:+6/+30
+
+# Driftwood
+L:116:+6/+17
+
+# Druj-infested
+L:117:+6/+29
+
+# Elm
+L:118:+6/+30
+
+# Elder
+L:119:+6/+17
+
+# Eucalyptus
+L:120:+6/+30
+
+# Fir
+L:121:+6/+22
+
+# Golden
+L:122:+6/+26
+
+# Hazel
+L:123:+6/+30
+
+# Hawthorn
+L:124:+6/+30
+
+# Hemlock
+L:125:+6/+20
+
+# Hickory  
+L:126:+6/+30
+
+# Holly
+L:127:+6/+30
+
+# Ironwood
+L:128:+6/+17
+
+# Ivory
+L:129:+6/+24
+
+# Laurel
+L:130:+6/+17
+
+# Lebethron
+L:131:+6/+23
+
+# Linden
+L:132:+6/+16
+
+# Locust
+L:133:+6/+20
+
+# Mahogany
+L:134:+6/+22
+
+# Maple
+L:135:+6/+30
+
+# Mallorn
+L:136:+6/+26
+
+# Mistletoe
+L:137:+6/+20
+
+# Mulberry
+L:138:+6/+30
+
+# Oak
+L:139:+6/+30
+
+# Olive
+L:140:+6/+28
+
+# Palmwood
+L:141:+6/+20
+
+# Phosphorescent
+L:142:+6/+29
+
+# Poplar
+L:143:+6/+22
+
+# Pine
+L:144:+6/+30
+
+# Redwood
+L:145:+6/+19
+
+# Rosewood
+L:146:+6/+27
+
+# Rowan
+L:147:+6/+22
+
+# Runed
+L:148:+6/+22
+
+# Seaweed
+L:149:+6/+20
+
+# Sequoia
+L:150:+6/+24
+
+# Spruce
+L:151:+6/+30
+
+# Sycamore
+L:152:+6/+23
+
+# Teak
+L:153:+6/+22
+
+# Waterwood
+L:154:+6/+20
+
+# Walnut
+L:155:+6/+30
+
+# Willow
+L:156:+6/+17
+
+# Witch Elm
+L:157:+6/+17
+
+# Yew
+L:158:+6/+23
+
+# Woaded
+L:159:+6/+21
+
+# Widdershins
+L:160:+6/+23
+
+# space for more staff flavors here
+
+
+
+##### Wands (also rods) #####
+
+
+# Adamantium
+L:175:+6/+12
+
+# Aluminum
+L:176:+6/+8
+
+# Antimony
+L:177:+6/+1
+
+# Aqueous
+L:178:+6/+5
+
+# Billon
+L:179:+6/+6
+
+# Blackened
+L:180:+6/+7
+
+# Brass
+L:181:+6/+14
+
+# Bronze
+L:182:+6/+2
+
+# Carbonized
+L:183:+6/+7
+
+# Cast Iron
+L:184:+6/+7
+
+# Chromium
+L:185:+6/+0
+
+# Cobalt
+L:186:+6/+5
+
+# Copper
+L:187:+6/+6
+
+# Corroded
+L:188:+6/+3
+
+# Corundum
+L:189:+6/+3
+
+# Damascened
+L:190:+6/+13
+
+# Electrum
+L:191:+6/+10
+
+# Eldritch
+L:192:+6/+9
+
+# Feathered
+L:193:+6/+3
+
+# Galvorn
+L:194:+6/+7
+
+# Glass
+L:195:+6/+0
+
+# Gleaming
+L:196:+6/+10
+
+# Glittering
+L:197:+6/+10
+
+# Gold
+L:198:+6/+10
+
+# Iridescent
+L:199:+6/+9
+
+# Iron
+L:200:+6/+1
+
+# Ivory
+L:201:+6/+0
+
+# Jeweled
+L:202:+6/+9
+
+# Lead
+L:203:+6/+1
+
+# Mithril
+L:204:+6/+7
+
+# Nickel
+L:205:+6/+8
+
+# Palladium
+L:206:+6/+8
+
+# Platinum
+L:207:+6/+8
+
+# Pewter
+L:208:+6/+1
+
+# Rhodium
+L:209:+6/+0
+
+# Runed
+L:210:+6/+11
+
+# Rusty
+L:211:+6/+3
+
+# Sapphire
+L:212:+6/+5
+
+# Shining
+L:213:+6/+10
+
+# Shimmering
+L:214:+6/+9
+
+# Silver
+L:215:+6/+8
+
+# Smoking
+L:216:+6/+1
+
+# Steel
+L:217:+6/+0
+
+# Stubby
+L:218:+6/+10
+
+# Tarnished
+L:219:+6/+4
+
+# Tin
+L:220:+6/+1
+
+# Titanium
+L:221:+6/+1
+
+# Translucent
+L:222:+6/+11
+
+# Tungsten
+L:223:+6/+1
+
+# Verdigreed
+L:224:+6/+4
+
+# Vibrating
+L:225:+6/+8
+
+# Wrought Iron
+L:226:+6/+7
+
+# Zinc
+L:227:+6/+1
+
+# Pheonix feather
+L:228:+6/+11
+
+# Corkscrew
+L:229:+6/+8
+
+# space for more wand/rod flavors here
+
+
+
+##### Mushrooms #####
+
+
+# Blue
+L:245:+5/+21
+
+# Black
+L:246:+5/+23
+
+# Black Spotted
+L:247:+5/+23
+
+# Brown
+L:248:+5/+22
+
+# Dark Blue
+L:249:+5/+21
+
+# Dark Green
+L:250:+5/+20
+
+# Dark Red
+L:251:+5/+19
+
+# Ecru
+L:252:+5/+28
+
+# Furry
+L:253:+5/+24
+
+# Fuzzy
+L:254:+5/+30
+
+# Greasy
+L:255:+5/+20
+
+# Green
+L:256:+5/+20
+
+# Grey
+L:257:+5/+17
+
+# Lemon Speckled
+L:258:+5/+26
+
+# Light Blue
+L:259:+5/+29
+
+# Light Green
+L:260:+5/+28
+
+# Luminescent
+L:261:+5/+29
+
+# Orange-capped
+L:262:+5/+18
+
+# Pink
+L:263:+5/+27
+
+# Purple Blotched
+L:264:+5/+25
+
+# Red
+L:265:+5/+19
+
+# Red Spotted
+L:266:+5/+27
+
+# Slimy
+L:267:+5/+17
+
+# Smelly
+L:268:+5/+23
+
+# Tan
+L:269:+5/+30
+
+# Violet
+L:270:+5/+25
+
+# White
+L:271:+5/+16
+
+# White Spotted
+L:272:+5/+16
+
+# Wrinkled
+L:273:+5/+22
+
+# Yellow
+L:274:+5/+26
+
+# space for more mushroom flavors here
+
+
+
+##### Potions #####
+
+# Fixed: water
+# Clear
+L:290:+5/+0
+
+# Fixed: apple juice
+# Light Brown
+L:291:+5/+14
+
+# Fixed: slime mold juice
+# Icky Green
+L:293:+5/+4
+
+# Fixed: essences
+# Swirling
+L:294:+5/+0
+
+# Amber
+L:295:+5/+2
+
+# Ashen
+L:296:+5/+0
+
+# Auburn
+L:297:+5/+6
+
+# Azure
+L:298:+5/+13
+
+# Black
+L:299:+5/+7
+
+# Blue
+L:300:+5/+5
+
+# Blue Speckled
+L:301:+5/+5
+
+# Brown
+L:302:+5/+6
+
+# Brown Speckled
+L:303:+5/+6
+
+# Bubbling
+L:304:+5/+8
+
+# Carnation
+L:305:+5/+11
+
+# Chartreuse
+L:306:+5/+12
+
+# Chocolate-brown
+L:307:+5/+6
+
+# Clear Blue
+L:308:+5/+13
+
+# Clotted Red
+L:309:+5/+3
+
+# Cloudy
+L:310:+5/+1
+
+# Cobalt
+L:311:+5/+13
+
+# Coppery
+L:312:+5/+6
+
+# Crimson
+L:313:+5/+11
+
+# Clear Blue
+L:314:+5/+13
+
+# Dark Blue
+L:315:+5/+5
+
+# Dark Green
+L:316:+5/+4
+
+# Dark Red
+L:317:+5/+3
+
+# Dirty
+L:318:+5/+4
+
+# Frothing
+L:319:+5/+1
+
+# Gloopy Green
+L:320:+5/+4
+
+# Gold
+L:321:+5/+10
+
+# Gold Speckled
+L:322:+5/+10
+
+# Golden Brown
+L:323:+5/+14
+
+# Green
+L:324:+5/+4
+
+# Greenish
+L:325:+5/+12
+
+# Grey
+L:326:+5/+1
+
+# Grey Speckled
+L:327:+5/+1
+
+# Hazy
+L:328:+5/+0
+
+# Indigo
+L:329:+5/+5
+
+# Ivory White
+L:330:+5/+8
+
+# Lavender
+L:331:+5/+9
+
+# Light Blue
+L:332:+5/+13
+
+# Light Green
+L:333:+5/+12
+
+# Limpid
+L:334:+5/+0
+
+# Lincoln Green
+L:335:+5/+4
+
+# Magenta
+L:336:+5/+11
+
+# Maroon
+L:337:+5/+3
+
+# Metallic Blue
+L:338:+5/+5
+
+# Metallic Red
+L:339:+5/+3
+
+# Metallic Purple
+L:340:+5/+9
+
+# Misty
+L:341:+5/+8
+
+# Moldy
+L:342:+5/+4
+
+# Muddy
+L:343:+5/+4
+
+# Mustard Green
+L:344:+5/+14
+
+# Myrtle Green
+L:345:+5/+4
+
+# Oily Yellow
+L:346:+5/+10
+
+# Orange
+L:347:+5/+2
+
+# Orange Speckled
+L:348:+5/+2
+
+# Peach
+L:349:+5/+11
+
+# Pink
+L:350:+5/+11
+
+# Pearl-grey
+L:351:+5/+0
+
+# Puce
+L:352:+5/+6
+
+# Pungent
+L:353:+5/+12
+
+# Purple
+L:354:+5/+9
+
+# Purple Speckled
+L:355:+5/+9
+
+# Red
+L:356:+5/+3
+
+# Red Speckled
+L:357:+5/+11
+
+# Tyrian Purple
+L:358:+5/+9
+
+# Rosy
+L:359:+5/+11
+
+# Clear Blue
+L:360:+5/+13
+
+# Yellow
+L:361:+5/+10
+
+# Yellow
+L:362:+5/+10
+
+# Sickly Green
+L:363:+5/+12
+
+# Silver Speckled
+L:364:+5/+8
+
+# Smoky
+L:365:+5/+7
+
+# Tangerine
+L:366:+5/+2
+
+# Tawny
+L:367:+5/+6
+
+# Turgid
+L:368:+5/+14
+
+# Umber
+L:369:+5/+6
+
+# Violet
+L:370:+5/+9
+
+# Vermilion
+L:371:+5/+11
+
+# Viscous Pink
+L:372:+5/+11
+
+# White
+L:373:+5/+0
+
+# Yellow
+L:374:+5/+10
+
+# Yellow Dappled
+L:375:+5/+10
+
+
+### Scrolls ###
+
+# all unknown scrolls
+L:399:+3/+31
+
+
+
+
+
+
+
+
+
+

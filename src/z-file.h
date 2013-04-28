@@ -1,11 +1,12 @@
 /* File: z-file.h */
 
 /*
- * Copyright (c) 1997 Ben Harrison, and others
+ * Copyright (c) 2007 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #ifndef INCLUDED_Z_FILE_H
@@ -36,9 +37,6 @@ extern errr my_fgets(FILE *fff, char *buf, size_t n);
 extern errr my_fputs(FILE *fff, cptr buf, size_t n);
 extern errr fd_kill(cptr file);
 extern errr fd_move(cptr file, cptr what);
-#if 0
-extern errr fd_copy(cptr file, cptr what);
-#endif
 extern int fd_make(cptr file, int mode);
 extern int fd_open(cptr file, int flags);
 extern errr fd_lock(int fd, int what);

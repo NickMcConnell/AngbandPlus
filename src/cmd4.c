@@ -1,19 +1,19 @@
-
 /* File: cmd4.c */
 
 /*
  * Redraw the screen, change character name, display previous messages.
  * Interact with options.  Code to generate preference files.  Interact
  * with macros, visuals, colors.  Take notes, display level feeling and
- * quests, save and load screen dumps.  Interact with the character
+ * quests, save and load screen shots.  Interact with the character
  * knowledge menu (Display score, known objects, monsters, and artifacts,
  * contents of the home, kill count, and quests).
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -24,8 +24,8 @@
  * Hack -- redraw the screen
  *
  * This command performs various low level updates, clears all the "extra"
- * windows, does a total redraw of the main window, and requests all of the
- * interesting updates and redraws that I can think of.
+ * windows, does a total redraw of the main window, and requests all possible
+ * updates and redraws.
  *
  * This command is also used to "instantiate" the results of the user
  * selecting various things, such as graphics mode, so it must call
@@ -49,26 +49,17 @@ void do_cmd_redraw(void)
 	(void)Term_xtra(TERM_XTRA_REACT, 0);
 
 
-	/* Combine and Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-
-	/* Update torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_SCORE | PU_HP | PU_MANA | PU_SPELLS);
-
-	/* Fully update the visuals */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+	/* Update everything */
+	p_ptr->update = 0xFFFFFFFF;
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+	p_ptr->redraw = 0xFFFFFFFF;
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 |
-	                  PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT |
-	                  PW_M_LIST | PW_O_LIST | PW_CMDLIST);
+	/* Refresh everything */
+	p_ptr->window = 0xFFFFFFFF;
+
+	/* Combine and Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 
 	/* Clear screen */
@@ -78,24 +69,24 @@ void do_cmd_redraw(void)
 	handle_stuff();
 
 
-	/* Redraw every window */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	/* Redraw every window (bottommost first) */
+	for (j = 0; j < TERM_MAX; j++)
 	{
-		/* Dead window */
-		if (!angband_term[j]) continue;
+		/* Get the z order of this window */
+		int term_idx = term_z_order[j];
+
+		/* No term, or term is unavailable */
+		if ((!angband_term[term_idx]) || (!angband_term[term_idx]->mapped_flag)) continue;
 
 		/* Activate */
-		(void)Term_activate(angband_term[j]);
+		(void)Term_activate(angband_term[term_idx]);
 
 		/* Redraw */
 		(void)Term_redraw();
-
-		/* Refresh */
-		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 
@@ -105,39 +96,34 @@ void do_cmd_redraw(void)
 void do_cmd_change_name(void)
 {
 	char ch;
+	char buf[1024];
 
 	int mode = 0;
 
-	int old_rows = screen_rows;
-
-	cptr p;
-
-	/* Prompt */
-	p = "['c': change name, 'h': change mode, 'f': save a char dump, '?': help, or ESC]";
-
-
-	/* Save screen */
-	screen_save();
-
-	/* Set to 25 screen rows */
-	(void)Term_rows(FALSE);
 
 	/* Make sure everything is properly updated */
 	p_ptr->update |= (PU_BONUS);
 	update_stuff();
 
+	/* Save screen */
+	display_change(DSP_REMEMBER | DSP_SAVE | DSP_NORM | DSP_CX, 80, 0);
 
-	/* Forever */
+	/* Display a prompt */
+	center_string(buf, sizeof(buf),
+		"['c': change name, 'h': change mode, 'f': save a char dump, '?': help, or ESC]", display_width());
+
+
+	/* Interact until satisfied */
 	while (TRUE)
 	{
 		/* Display the player */
 		display_player(mode);
 
 		/* Prompt */
-		(void)Term_putstr(0, 23, -1, TERM_WHITE, p);
+		prt(buf, 23, 0);
 
 		/* Query */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Move cursor to top row */
 		move_cursor(0, 0);
@@ -159,9 +145,9 @@ void do_cmd_change_name(void)
 		/* File dump */
 		else if (ch == 'f')
 		{
-			char ftmp[80];
+			char ftmp[DESC_LEN];
 
-			sprintf(ftmp, "%s.txt", op_ptr->base_name);
+			(void)strnfmt(ftmp, sizeof(ftmp), "%s.txt", op_ptr->base_name);
 
 			if (get_string("File name:", ftmp, 80))
 			{
@@ -220,15 +206,8 @@ void do_cmd_change_name(void)
 		message_flush();
 	}
 
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50)
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(TRUE);
-	}
-
-	/* Load screen */
-	screen_load();
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 }
 
 
@@ -256,13 +235,11 @@ void do_cmd_messages(void)
 	char ch;
 	bool shift_key = FALSE;
 
-	int old_rows = screen_rows;
-
 	int i, j, n, add;
 	int wid, hgt, num;
 
-	char shower[80];
-	char finder[80];
+	char shower[256];
+	char finder[256];
 
 
 	/* Wipe finder */
@@ -281,18 +258,16 @@ void do_cmd_messages(void)
 	/* Get size */
 	(void)Term_get_size(&wid, &hgt);
 
-	/* Save screen */
-	screen_save();
 
+	/* Save the screen and center it */
+	if (more_tall_display)
+		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_CX, 80, 0);
+	else
+		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_TALL | DSP_CX, 80, 0);
 
-	/* We want 50 rows */
-	if (text_50_rows) (void)Term_rows(TRUE);
-
-	/* We don't */
-	else (void)Term_rows(FALSE);
 
 	/* Note height of screen */
-	hgt = screen_rows;
+	hgt = Term->rows;
 
 
 	/* Process requests until done */
@@ -308,14 +283,14 @@ void do_cmd_messages(void)
 			byte attr = message_color((s16b)(i+num));
 
 			/* Handle multi-line messages (approximately) */
-			if (strlen(msg) >= 80) add += (strlen(msg) / 75);
+			if ((int)strlen(msg) >= wid) add += (strlen(msg) / (wid-5));
 
 			/* Stop at the top */
 			if (j + add >= hgt - 4) break;
 
 			/* Dump the messages, bottom to top */
 			(void)Term_gotoxy(0, hgt - 3 - j - add);
-			text_out_wrap = 80;
+			text_out_wrap = wid;
 			text_out_indent = 2;
 			text_out_to_screen(attr, msg);
 		}
@@ -388,11 +363,18 @@ void do_cmd_messages(void)
 		/* Display prompt */
 		prt("Press direction keys to move, '/' search, '&' show, or ESCAPE]", hgt - 1, 0);
 
-		/* Get a command */
-		ch = inkey();
+		/* Wait for legal input */
+		while (TRUE)
+		{
+			/* Get key */
+			ch = inkey(ALLOW_CLICK);
 
-		/* Allow all direction keys and shift-movement */
-		get_ui_direction(&ch, TRUE, TRUE, TRUE, &shift_key);
+			/* Allow orthogonal direction keys */
+			get_ui_direction(&ch, UI_NODIAG, &shift_key);
+
+			/* Accept anything except untranslated mouse actions */
+			if (ch != MOUSEKEY) break;
+		}
 
 
 		/* Hack -- Save the old index */
@@ -485,7 +467,7 @@ void do_cmd_messages(void)
 			prt("Find: ", hgt - 1, 0);
 
 			/* Get a "finder" string, or continue */
-			if (!askfor_aux(finder, 80, FALSE)) continue;
+			if (!askfor_aux(finder, wid, FALSE)) continue;
 
 			/* Show it (search in lowercase) */
 			strcpy(shower, finder);
@@ -517,7 +499,7 @@ void do_cmd_messages(void)
 		/* Go to a specific line */
 		else if (ch == '#')
 		{
-			char tmp[80];
+			char tmp[DESC_LEN];
 			prt("Goto Line: ", hgt - 1, 0);
 			strcpy(tmp, "0");
 			if (askfor_aux(tmp, 80, FALSE))
@@ -529,24 +511,8 @@ void do_cmd_messages(void)
 		}
 	}
 
-
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50)
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(TRUE);
-	}
-
-	/* Set to 25 rows, if we were showing 25 before */
-	else
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(FALSE);
-	}
-
-
-	/* Load screen */
-	screen_load();
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 }
 
 
@@ -569,7 +535,7 @@ static void prt_options_screen_navigation(int row, int set)
 }
 
 /*
- * Modify the "window" options
+ * Modify the "sub-window" options
  *
  * Return 0 if we want to leave, 1 if we want to advance to the next
  * option set, and -1 if we want to retreat to the previous option set.
@@ -578,24 +544,28 @@ static s16b do_cmd_options_win(bool *modified)
 {
 	int i, j, d;
 	int action = 0;
+	int window_displays = TOTAL_WINDOW_DISPLAYS;
 
 	int y = 0;
-	int x = 1;
+	int x = TERM_SUBWINDOW;
+
+	term *old = Term;
 
 	char ch;
 
-	u32b old_flag[ANGBAND_TERM_MAX];
+	u32b old_flag[TERM_MAX];
 
 
 	/* Memorize old flags */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
 	{
 		old_flag[j] = op_ptr->window_flag[j];
 	}
 
+	/* Use the standard display and center an 80 column view */
+	display_change(DSP_REMEMBER | DSP_CLEAR | DSP_NORM | DSP_CX,
+		80, 0);
 
-	/* Clear screen */
-	(void)Term_clear();
 
 	/* Interact */
 	while (TRUE)
@@ -604,10 +574,10 @@ static s16b do_cmd_options_win(bool *modified)
 		prt("Window flags (<dir> to move, 't' to toggle, or ESC)", 0, 0);
 
 		/* Print the navigation bar -- highlight set #0 */
-		prt_options_screen_navigation(screen_rows - 1, 0);
+		prt_options_screen_navigation(Term->rows - 1, 0);
 
-		/* Display the windows */
-		for (j = 1; j < ANGBAND_TERM_MAX; j++)
+		/* Display the sub-windows */
+		for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
 		{
 			byte a = TERM_WHITE;
 
@@ -617,11 +587,11 @@ static s16b do_cmd_options_win(bool *modified)
 			if (j == x) a = TERM_L_BLUE;
 
 			/* Window name, staggered, centered */
-			(void)Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
+			(void)Term_putstr(35 + (j-TERM_SUBWINDOW) * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
 		}
 
 		/* Display the options */
-		for (i = 0; i < 32; i++)
+		for (i = 0; i < TOTAL_WINDOW_DISPLAYS; i++)
 		{
 			byte a = TERM_WHITE;
 
@@ -637,12 +607,18 @@ static s16b do_cmd_options_win(bool *modified)
 				str = "(Unused option)";
 			}
 
+			/* Remember the last option with a name */
+			else
+			{
+				window_displays = i;
+			}
+
 
 			/* Flag name */
 			(void)Term_putstr(0, i + 5, -1, a, str);
 
-			/* Display the windows */
-			for (j = 1; j < ANGBAND_TERM_MAX; j++)
+			/* Display the sub-windows */
+			for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
 			{
 				char c = '.';
 
@@ -654,15 +630,15 @@ static s16b do_cmd_options_win(bool *modified)
 				if (op_ptr->window_flag[j] & (1L << i)) c = 'X';
 
 				/* Flag value */
-				(void)Term_putch(35 + j * 5, i + 5, a, c);
+				(void)Term_putch(35 + (j-TERM_SUBWINDOW) * 5, i + 5, a, c);
 			}
 		}
 
 		/* Place Cursor */
-		(void)Term_gotoxy(35 + x * 5, y + 5);
+		(void)Term_gotoxy(35 + (x-TERM_SUBWINDOW) * 5, y + 5);
 
 		/* Get key */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Allow escape */
 		if (ch == ESCAPE)
@@ -701,9 +677,9 @@ static s16b do_cmd_options_win(bool *modified)
 		/* Move, if able */
 		if (d != 0)
 		{
-			x = (x + ddx[d] +  8) %  8;
-			if (x == 0) x = 1;
-			y = (y + ddy[d] + 16) % 16;
+			x = (x + ddx[d] +  TERM_MAX) %  TERM_MAX;
+			if (x < TERM_SUBWINDOW) x = TERM_SUBWINDOW;
+			y = (y + ddy[d] + (window_displays + 1)) % (window_displays + 1);
 		}
 
 		/* Not a direction -- Toggle */
@@ -714,7 +690,7 @@ static s16b do_cmd_options_win(bool *modified)
 			new_value = 1L << y;
 
 			/* Hack -- ignore the main window */
-			if (x == 0)
+			if (x < TERM_SUBWINDOW)
 			{
 				bell("Cannot set main window flags!");
 			}
@@ -733,13 +709,11 @@ static s16b do_cmd_options_win(bool *modified)
 		}
 	}
 
-	/* Notice changes */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	/* Notice changes (sub-windows only) */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
 	{
-		term *old = Term;
-
-		/* Dead window */
-		if (!angband_term[j]) continue;
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* Ignore non-changes */
 		if (op_ptr->window_flag[j] == old_flag[j]) continue;
@@ -753,37 +727,20 @@ static s16b do_cmd_options_win(bool *modified)
 		/* Refresh */
 		(void)Term_fresh();
 
-		/* Restore */
-		(void)Term_activate(old);
-
 		/* Note change */
 		*modified = TRUE;
 	}
+
+	/* Restore old term */
+	(void)Term_activate(old);
+
+	/* Restore previous display */
+	display_change(DSP_RESTORE, 0, 0);
 
 	/* Return */
 	return (action);
 }
 
-
-
-/*
- * Toggle amount of space used to display the map
- */
-static void toggle_map_rows(bool increment)
-{
-	int block = BLOCK_HGT;
-
-	/* Change map rows */
-	if (increment) map_rows += BLOCK_HGT;
-	else           map_rows -= BLOCK_HGT;
-
-	/* Require that map rows be divisible by BLOCK_HGT (currently 11) */
-	if (map_rows % (block)) map_rows = map_rows * BLOCK_HGT / BLOCK_HGT;
-
-	/* Enforce limits */
-	if (map_rows > 4 * BLOCK_HGT) map_rows = 4 * BLOCK_HGT;
-	if (map_rows < 2 * BLOCK_HGT) map_rows = 2 * BLOCK_HGT;
-}
 
 /*
  * Modify the main screen layout
@@ -796,31 +753,36 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 	int action = 0;
 	char ch;
 
-	int i, k = 0, n = 5;
+	int i, k = 0, n = 4;
 
-	char buf[80];
+	char buf[DESC_LEN];
 
 
+	/* Clear screen */
+	(void)Term_clear();
 
 	/* Interact with the player */
 	while (TRUE)
 	{
+		/* Get the map term */
+		term *t = use_special_map ? term_map : term_main;
+
 		/* Get best minimum view distance */
-		int max_view_y = (map_rows   - PANEL_HGT) / 2;
-		int max_view_x = (SCREEN_WID - PANEL_WID) / 2;
+		int max_view_y = (t->rows - get_panel_hgt()) / 2;
+		int max_view_x = (t->cols - get_panel_wid()) / 2;
 
 		/* Automatically correct minimum view distance */
 		if (clear_y > max_view_y) clear_y = max_view_y;
 		if (clear_x > max_view_x) clear_x = max_view_x;
 
-		/* Clear screen */
-		(void)Term_clear();
+		/* Clear any description text */
+		for (i = n + 5; i < n + 15; i++) clear_row(i);
 
-		/* Prompt XXX XXX XXX */
+		/* Prompt */
 		prt("Screen Layout (RET to advance, y/n to set, '+/-' to adjust number, or ESC) ", 0, 0);
 
 		/* Print the navigation bar -- highlight set #1 */
-		prt_options_screen_navigation(screen_rows - 1, 1);
+		prt_options_screen_navigation(Term->rows - 1, 1);
 
 		/* Display the options */
 		for (i = 0; i < n; i++)
@@ -835,44 +797,35 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 			if (i == 0)
 			{
-				/* Display the option text - force_25_rows */
-				sprintf(buf, "%-46s: %s     (%s)",
-					"Display the main window in 25 rows",
-					force_25_rows ? "yes" : "no ", "force_25_rows");
+				/* Display the option text -- more_tall_display */
+				(void)strnfmt(buf, sizeof(buf), "%-46s: %s   (%s)",
+					"Show more things (like text) in tall display",
+					more_tall_display ? "yes" : "no ", "more_tall_display");
 				c_prt(a, buf, i + 2, 0);
 			}
 
 			if (i == 1)
 			{
-				/* Display the option text - text_in_50_rows */
-				sprintf(buf, "%-46s: %s     (%s)",
-					"Display more things (like text) in 50 rows",
-					text_50_rows ? "yes" : "no ", "text_50_rows");
+				/* Display the option text -- map_display_precise_fit */
+				(void)strnfmt(buf, sizeof(buf), "%-46s: %s   (%s)",
+					"Show the largest map the screen will allow",
+					map_display_precise_fit ? "yes" : "no ", "map_display_precise_fit");
 				c_prt(a, buf, i + 2, 0);
 			}
 
 			if (i == 2)
 			{
-				/* Display the option text - dungeon rows */
-				sprintf(buf, "%-46s: %2d      (%s)",
-					"Number of rows used to display the dungeon",
-					map_rows, "map_rows");
-				c_prt(a, buf, i + 2, 0);
-			}
-
-			if (i == 3)
-			{
-				/* Display the option text - vertical view */
-				sprintf(buf, "%-46s: %2d      (%s)",
+				/* Display the option text -- vertical view */
+				(void)strnfmt(buf, sizeof(buf), "%-46s: %2d    (%s)",
 					"Minimum vertical view distance",
 					clear_y, "clear_y");
 				c_prt(a, buf, i + 2, 0);
 			}
 
-			if (i == 4)
+			if (i == 3)
 			{
-				/* Display the option text - horizontal view */
-				sprintf(buf, "%-46s: %2d      (%s)",
+				/* Display the option text -- horizontal view */
+				(void)strnfmt(buf, sizeof(buf), "%-46s: %2d    (%s)",
 					"Minimum horizontal view distance",
 					clear_x, "clear_x");
 				c_prt(a, buf, i + 2, 0);
@@ -881,24 +834,26 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 			/* Special explanatory text */
 			if (i == k)
 			{
-				(void)Term_gotoxy(10, 10);
+				(void)Term_gotoxy(n + 5, 10);
+
+				if (k == 0)
+				{
+					c_roff(a, "Various interfaces, such as stores, lists, and help, appear in the tall (46+ row) display.  This option is most helpful to those with large screens.", 5, display_width() - 5);
+				}
 
 				if (k == 1)
 				{
+					c_roff(a, format("The dungeon is laid out in %dx%d blocks; detection and panel shifting work the same way.  If you choose to make the map fit precisely, you may (depending on your screen size) see more of the dungeon, but you may also notice a slightly less clean appearance and find it less easy to keep track of detected areas.", BLOCK_HGT, BLOCK_WID), 5, display_width() - 5);
 				}
 
 				if (k == 2)
 				{
+					c_roff(a, format("The maximum vertical view for the way you have currently set up the screen is %d.\n\n     The traditional vertical view is 2.  If you can display at least %d map rows, about three or four below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_y, 3 * BLOCK_HGT), 5, display_width() - 5);
 				}
 
 				if (k == 3)
 				{
-					c_roff(a, format("The maximum vertical view for the way you have currently set up the screen is %d.\n\n     The traditional vertical view is 2, and with bigscreen about three or four below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_y), 5, 75);
-				}
-
-				if (k == 4)
-				{
-					c_roff(a, format("The maximum horizontal view for the way you have currently set up the screen is %d.\n\n     The traditional horizontal view is 4, and with bigscreen about three or four below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_x), 5, 75);
+					c_roff(a, format("The maximum horizontal view for the way you have currently set up the screen is %d.\n\n     The traditional horizontal view is 4.  If you can display at least %d map columns, about three or four below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_x, 4 * BLOCK_HGT), 5, display_width() - 5);
 				}
 			}
 		}
@@ -908,7 +863,7 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 
 		/* Get key */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Allow escape */
 		if (ch == ESCAPE)
@@ -943,7 +898,7 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 		/* Next option */
 		else if ((ch == '2') || (ch == ' ') || (ch == '\n') ||
-		         (ch == '\r') ||(ch == 'j'))
+		         (ch == '\r') || (ch == '\t') || (ch == 'j'))
 		{
 			k = (n + k + 1) % n;
 		}
@@ -953,30 +908,21 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 		{
 			if (k == 0)
 			{
-				/* Force 25_row mode, reset map_rows, advance */
-				force_25_rows = TRUE;
-
-				map_rows = 2 * BLOCK_HGT;
-
+				more_tall_display = TRUE;
 				*modified = TRUE;
-
-				/* Reset clear_x and clear_y */
-				if (clear_y > 5) clear_y = 2;
-				if (clear_y > 8) clear_y = 4;
 
 				k = (k + 1) % n;
 			}
 
 			else if (k == 1)
 			{
-				/* Toggle option, reset map_rows, advance */
-				text_50_rows = TRUE;
+				map_display_precise_fit = TRUE;
+				*modified = TRUE;
 
 				k = (k + 1) % n;
 			}
-			else continue;
 
-			*modified = TRUE;
+			else continue;
 		}
 
 		/* Turn off this option */
@@ -984,9 +930,7 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 		{
 			if (k == 0)
 			{
-				/* Turn off 25_row mode, advance */
-				force_25_rows = FALSE;
-
+				more_tall_display = FALSE;
 				*modified = TRUE;
 
 				k = (k + 1) % n;
@@ -994,31 +938,29 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 			else if (k == 1)
 			{
-				/* Toggle option, advance */
-				text_50_rows = FALSE;
+				map_display_precise_fit = FALSE;
+				*modified = TRUE;
 
 				k = (k + 1) % n;
 			}
-			else continue;
 
-			*modified = TRUE;
+			else continue;
 		}
 
 		/* Decrease this quantity */
 		else if ((ch == '-') || (ch == '_'))
 		{
 			if (k == 0) continue;
-			if (k == 1) continue;
-			if (k == 2) toggle_map_rows(FALSE);
-			if (k == 3)
+			else if (k == 1) continue;
+			else if (k == 2)
 			{
 				clear_y--;
 				if (clear_y < 2) clear_y = 2;
 			}
-			if (k == 4)
+			else if (k == 3)
 			{
 				clear_x--;
-				if (clear_x < 4) clear_x = 4;
+				if (clear_x < 2) clear_x = 2;
 			}
 			*modified = TRUE;
 		}
@@ -1027,17 +969,13 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 		else if ((ch == '=') || (ch == '+'))
 		{
 			if (k == 0) continue;
-			if (k == 1) continue;
-			if (k == 2)
-			{
-				if (!force_25_rows) toggle_map_rows(TRUE);
-			}
-			if (k == 3)
+			else if (k == 1) continue;
+			else if (k == 2)
 			{
 				clear_y++;
 				if (clear_y > max_view_y) clear_y = max_view_y;
 			}
-			if (k == 4)
+			else if (k == 3)
 			{
 				clear_x++;
 				if (clear_x > max_view_x) clear_x = max_view_x;
@@ -1061,8 +999,6 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 
 
-
-
 /*
  * Modify the side panel
  *
@@ -1078,10 +1014,10 @@ static s16b do_cmd_options_panel(bool *modified)
 	int i, j, k, num;
 
 	/* Indexes of available options, and whether they are displayed */
-	int option_avail[80][2];
+	int option_avail[DESC_LEN][2];
 
 	/* Get the maximum number of left panel slots available */
-	int slots_avail = map_rows - ROW_CUSTOM;
+	int slots_avail = MIN(80, term_main->rows - ROW_CUSTOM - 2);
 
 	/* Start out selecting the first option in the left column */
 	bool left_column = TRUE;
@@ -1121,14 +1057,17 @@ static s16b do_cmd_options_panel(bool *modified)
 		}
 	}
 
-	/* Clear screen */
-	(void)Term_clear();
+	/* Center an 80 column view, using the tall display only if necessary and allowed */
+	if ((more_tall_display) && (num >= Term->rows - 3))
+	{
+		display_change(DSP_REMEMBER | DSP_CLEAR | DSP_TALL | DSP_CX, 80, 0);
+	}
+	else
+	{
+		display_change(DSP_REMEMBER | DSP_CLEAR | DSP_NORM | DSP_CX, 80, 0);
+	}
 
-	/* Set to 50 rows if necessary */
-	if (num >= 22) (void)Term_rows(TRUE);
-
-
-	/* Prompt XXX XXX XXX */
+	/* Prompt */
 	prt("Left Panel (<dir> to move, Return to set/unset, +/- to swap, !, or ESC)", 0, 0);
 
 
@@ -1169,7 +1108,7 @@ static s16b do_cmd_options_panel(bool *modified)
 		}
 
 		/* Print a separator line */
-		for (i = 4; i < screen_rows - 1; i++)
+		for (i = 4; i < Term->rows - 1; i++)
 		{
 			(void)Term_putstr(39, i, 2, TERM_L_WHITE, "|");
 		}
@@ -1213,10 +1152,10 @@ static s16b do_cmd_options_panel(bool *modified)
 		}
 
 		/* Print the navigation bar -- highlight set #2 */
-		prt_options_screen_navigation(screen_rows - 1, 2);
+		prt_options_screen_navigation(Term->rows - 1, 2);
 
 		/* Get key */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Allow escape */
 		if (ch == ESCAPE)
@@ -1242,7 +1181,7 @@ static s16b do_cmd_options_panel(bool *modified)
 		/* Help me. */
 		else if (ch == '?')
 		{
-			show_file("options.txt#customized left panel rows:", NULL, 0, 1);
+			show_file("options.txt#Customized left panel rows :", NULL, 0, 1);
 			(void)Term_clear();
 		}
 
@@ -1467,7 +1406,7 @@ static s16b do_cmd_options_panel(bool *modified)
 		else if ((isalpha(ch)) && (left_column))
 		{
 			/* Convert to uppercase */
-			ch = FORCEUPPER(ch);
+			ch = toupper(ch);
 
 			/* Wrap around the list of available options */
 			for (j = -1, i = selected; i < num + selected; i++)
@@ -1497,8 +1436,8 @@ static s16b do_cmd_options_panel(bool *modified)
 		else bell("Illegal command for Panel options!");
 	}
 
-	/* Set to 25 rows if we were showing 50 */
-	(void)Term_rows(FALSE);
+	/* Restore previous display */
+	display_change(DSP_RESTORE, 0, 0);
 
 	/* Return */
 	return (action);
@@ -1530,6 +1469,7 @@ static void do_cmd_options_screen(bool *modified, bool *screen_change)
 		/* Main screen layout */
 		else if (option_set == 1)
 		{
+			/* Interact with layout options */
 			tmp = do_cmd_options_layout(modified, screen_change);
 		}
 
@@ -1584,10 +1524,11 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 	char ch;
 
 	int i, k = 0, n = 0;
+	bool dummy;
 
 	int opt[OPT_PAGE_PER];
 
-	char buf[80];
+	char buf[DESC_LEN];
 
 
 	/* Scan the options */
@@ -1608,15 +1549,14 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 		}
 	}
 
-
 	/* Clear screen */
 	(void)Term_clear();
 
 	/* Interact with the player */
 	while (TRUE)
 	{
-		/* Prompt XXX XXX XXX */
-		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
+		/* Prompt */
+		(void)strnfmt(buf, sizeof(buf), "%s (RET to advance, y/n to set, ESC to accept) ", info);
 		prt(buf, 0, 0);
 
 		/* Display the options */
@@ -1630,7 +1570,7 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 			/* Special case - print a blank line or a header  XXX XXX */
 			if (option_desc[opt[i]][0] == ' ')
 			{
-				sprintf(buf, "%-60s", option_desc[opt[i]]);
+				(void)strnfmt(buf, sizeof(buf), "%-60s", option_desc[opt[i]]);
 
 				prt(buf, i + 2, 0);
 
@@ -1642,7 +1582,7 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 			else
 			{
 				/* Build the option text */
-				sprintf(buf, "%-46s: %s     (%s)",
+				(void)strnfmt(buf, sizeof(buf), "%-46s: %s     (%s)",
 					option_desc[opt[i]],
 					op_ptr->opt[opt[i]] ? "yes" : "no ",
 					option_text[opt[i]]);
@@ -1655,7 +1595,11 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 		move_cursor(k + 2, 48);
 
 		/* Get a key */
-		ch = inkey();
+		ch = inkey(FALSE);
+
+		/* Allow direction and roguelike keys */
+		get_ui_direction(&ch, UI_NODIAG, &dummy);
+
 
 		/* Analyze */
 		switch (ch)
@@ -1665,9 +1609,7 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 				return;
 			}
 
-			case '-':
 			case '8':
-			case 'k':
 			{
 				k = (n + k - 1) % n;
 
@@ -1678,8 +1620,8 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 			case ' ':
 			case '\n':
 			case '\r':
+			case '\t':
 			case '2':
-			case 'j':
 			{
 				k = (k + 1) % n;
 				break;
@@ -1695,9 +1637,10 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 				break;
 			}
 
+			case '=':
+			case '+':
 			case 'y':
 			case '6':
-			case 'l':
 			{
 				op_ptr->opt[opt[k]] = TRUE;
 
@@ -1707,9 +1650,10 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 				break;
 			}
 
+			case '-':
+			case '_':
 			case 'n':
 			case '4':
-			case 'h':
 			{
 				op_ptr->opt[opt[k]] = FALSE;
 
@@ -1721,7 +1665,7 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 
 			case '?':
 			{
-				sprintf(buf, "options.txt#%s", option_text[opt[k]]);
+				(void)strnfmt(buf, sizeof(buf), "options.txt#[%s]", option_text[opt[k]]);
 				show_file(buf, NULL, 0, 1);
 				(void)Term_clear();
 				break;
@@ -1754,6 +1698,8 @@ static cptr dump_seperator = "### (Automatic deletion marker) ###";
 /*
  * Remove old lines from pref files
  * -Mogami-
+ *
+ * THIS FUNCTION IS AVAILABLE ONLY UNDER THE MORIA LICENSE.
  */
 static void remove_old_dump(cptr orig_file, cptr mark)
 {
@@ -1900,7 +1846,7 @@ static void pref_footer(FILE *fff, cptr mark)
  */
 void do_cmd_pref(void)
 {
-	char tmp[80];
+	char tmp[DESC_LEN];
 
 	/* Default */
 	strcpy(tmp, "");
@@ -1921,7 +1867,7 @@ void do_cmd_pref(void)
  */
 static void do_cmd_pref_file_hack(int row, cptr file_name)
 {
-	char ftmp[80];
+	char ftmp[DESC_LEN];
 
 	/* Prompt */
 	prt("Command: Load a user pref file", row, 0);
@@ -1930,10 +1876,10 @@ static void do_cmd_pref_file_hack(int row, cptr file_name)
 	prt("File: ", row + 2, 0);
 
 	/* Default filename */
-	if (!file_name) sprintf(ftmp, "%s.prf", op_ptr->base_name);
+	if (!file_name) (void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 	/* Specific filename */
-	else sprintf(ftmp, "%s.prf", file_name);
+	else (void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", file_name);
 
 	/* Ask for a file (or cancel) */
 	if (!askfor_aux(ftmp, 80, TRUE)) return;
@@ -2011,10 +1957,12 @@ static errr option_dump(cptr fname)
 
 	}
 
-	/* Dump window flags */
-	for (i = 1; i < ANGBAND_TERM_MAX; i++)
+	/* Dump sub-window flags */
+	for (i = TERM_SUBWINDOW; i < TERM_MAX; i++)
 	{
-		/* Require a real window */
+		bool window_flag = FALSE;
+
+		/* No term data */
 		if (!angband_term[i]) continue;
 
 		/* Check each flag */
@@ -2023,22 +1971,30 @@ static errr option_dump(cptr fname)
 			/* Require a real flag */
 			if (!window_flag_desc[j]) continue;
 
-			/* Comment */
-			fprintf(fff, "# Window '%s', Flag '%s'\n",
-				angband_term_name[i], window_flag_desc[j]);
-
-			/* Dump the flag */
+			/* Dump the flag -- only one flag affects a window */
 			if (op_ptr->window_flag[i] & (1L << j))
 			{
-				fprintf(fff, "W:%d:%d:1\n", i, j);
-			}
-			else
-			{
-				fprintf(fff, "W:%d:%d:0\n", i, j);
-			}
+				/* Comment */
+				fprintf(fff, "# Window '%s', Flag '%s'\n",
+					angband_term_name[i], window_flag_desc[j]);
 
-			/* Skip a line */
-			fprintf(fff, "\n");
+				/* Values */
+				fprintf(fff, "W:%d:%d:1\n\n", i, j);
+
+				/* Notice active display */
+				window_flag = TRUE;
+				break;
+			}
+		}
+
+		/* This sub-window has no displays */
+		if (!window_flag)
+		{
+			/* Comment */
+			fprintf(fff, "# Window '%s', No display flags\n", angband_term_name[i]);
+
+			/* Cancel ALL displays */
+			fprintf(fff, "W:%d:-1:0\n\n", i);
 		}
 	}
 
@@ -2067,10 +2023,10 @@ static errr option_dump(cptr fname)
 	/* Dump screen options */
 	if (TRUE)
 	{
-		fprintf(fff, "# Screen  (force_25_rows, text_50_rows, map rows, y-margin, x-margin)\n");
-		fprintf(fff, "t:%c:%c:%d:%d:%d\n\n",
-			(force_25_rows ? '1' : '0'), (text_50_rows ? '1' : '0'),
-			map_rows, clear_y, clear_x);
+		fprintf(fff, "# Screen  (zero, more_tall_display, map_display_precise_fit, y-margin, x-margin)\n");
+		fprintf(fff, "t:%c:%c:%c:%d:%d\n\n",
+			'0', (more_tall_display ? '1' : '0'),
+			(map_display_precise_fit ? '1' : '0'), clear_y, clear_x);
 	}
 
 	/* Skip a line */
@@ -2102,15 +2058,12 @@ void do_cmd_options(void)
 	bool modified = FALSE;
 
 	/* No screen change */
-	bool screen_change = FALSE;
+	bool change = FALSE;
 
-	int old_rows = screen_rows;
 
-	/* Save screen */
-	screen_save();
+	/* Save the screen, center it, and use the standard display */
+	display_change(DSP_REMEMBER | DSP_SAVE | DSP_NORM | DSP_CX, 80, 0);
 
-	/* Set to 25 screen rows */
-	(void)Term_rows(FALSE);
 
 	/* Interact */
 	while (TRUE)
@@ -2128,16 +2081,15 @@ void do_cmd_options(void)
 		prt("(4) Screen Display", 7, 5);
 		prt("(5) Difficulty", 8, 5);
 
-		/* Blank space */
-
 		/* Special choices */
+		if (Term->user_hook) prt("(!) User Interface", 10, 5);
 		prt("(D) Base Delay Factor", 11, 5);
 		prt("(H) Hitpoint Warning", 12, 5);
 		prt("(A) Autosave Options", 13, 5);
 
-		/* Load and Append */
-		prt("(L) Load a user preference file", 15, 5);
-		prt("(S) Save options to a file", 16, 5);
+		/* Save and load */
+		prt("(S) Save as default options", 15, 5);
+		prt("(L) Load an options file", 16, 5);
 
 		/* Get help */
 		prt("(?) Get help", 18, 5);
@@ -2146,7 +2098,7 @@ void do_cmd_options(void)
 		prt("Command: ", 20, 0);
 
 		/* Get command */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Exit */
 		if (ch == ESCAPE)
@@ -2175,13 +2127,22 @@ void do_cmd_options(void)
 		/* Screen Display Options */
 		else if (ch == '4')
 		{
-			do_cmd_options_screen(&modified, &screen_change);
+			do_cmd_options_screen(&modified, &change);
 		}
 
 		/* Difficulty Options */
 		else if (ch == '5')
 		{
 			do_cmd_options_aux(4, "Difficulty Options", &modified);
+		}
+
+		/* User Interface Options */
+		else if (ch == '!')
+		{
+			(void)Term_user(0);
+
+			/* Re-calculate display centering */
+			screen_center_x(80);
 		}
 
 		/* Load a user pref file */
@@ -2194,10 +2155,11 @@ void do_cmd_options(void)
 			modified = FALSE;
 		}
 
-		/* Append options to a file */
+		/* Save options to file */
 		else if ((ch == 'S') || (ch == 's'))
 		{
-			char ftmp[80];
+			char ftmp[DESC_LEN];
+
 
 			/* Prompt */
 			prt("Command: Save options to a file", 20, 0);
@@ -2205,8 +2167,15 @@ void do_cmd_options(void)
 			/* Prompt */
 			prt("File: ", 22, 0);
 
+			/* Display some helpful text on recent changes */
+			(void)Term_gotoxy(45, 15);
+
+			c_roff(TERM_L_WHITE, "The current options are automatically stored in your savefile when you next save the game.  You only need to save options explicitly if you want to create a default set for new characters.  For more details, consult the online help.", 40, display_width());
+
+			(void)Term_gotoxy(6, 22);
+
 			/* Default filename */
-			sprintf(ftmp, "user.prf");
+			(void)strnfmt(ftmp, sizeof(ftmp), "user.prf");
 
 			/* Ask for a file */
 			if (!askfor_aux(ftmp, 80, FALSE)) continue;
@@ -2265,7 +2234,7 @@ void do_cmd_options(void)
 				}
 				prt("New autosave frequency (-/2 to lower, +/8 to raise, or ESC): ", 22, 0);
 
-				cx = inkey();
+				cx = inkey(FALSE);
 				if (cx == ESCAPE) break;
 
 				/* Go backwards */
@@ -2308,7 +2277,7 @@ void do_cmd_options(void)
 			{
 				int amt;
 				int msec = op_ptr->delay_factor * op_ptr->delay_factor;
-				char buf[80];
+				char buf[DESC_LEN];
 
 				/* Prompt */
 				prt(format("Current base delay factor: %d (%d msec)",
@@ -2316,7 +2285,7 @@ void do_cmd_options(void)
 				prt("New base delay factor (0-30 or Return to accept): ", 22, 0);
 
 				/* Build the default */
-				sprintf(buf, "%d", op_ptr->delay_factor);
+				(void)strnfmt(buf, sizeof(buf), "%d", op_ptr->delay_factor);
 
 				/* Ask the user for a string, allow cancel */
 				if (!askfor_aux(buf, 3, FALSE)) break;
@@ -2358,7 +2327,7 @@ void do_cmd_options(void)
 					op_ptr->hitpoint_warn * 10), 23, 0);
 				prt("New hitpoint warning (0-9 or ESC to accept): ", 22, 0);
 
-				cx = inkey();
+				cx = inkey(FALSE);
 				if (cx == ESCAPE) break;
 				if (isdigit(cx)) op_ptr->hitpoint_warn = D2I(cx);
 				else bell("Illegal hitpoint warning!");
@@ -2386,24 +2355,16 @@ void do_cmd_options(void)
 		message_flush();
 	}
 
+
 	/* Apply screen changes */
-	if (screen_change)
+	if (change)
 	{
-		/* Apply force_25_rows */
-		if (force_25_rows) (void)Term_rows(FALSE);
-
-		/* Cancel force_25_rows */
-		else (void)Term_rows(TRUE);
-
 		/* Adjust the panels if necessary */
 		verify_panel(5, FALSE);
 	}
 
-	/* Otherwise, set to 50 screen rows if we were showing 50 before */
-	else if (old_rows == 50) (void)Term_rows(TRUE);
-
-	/* Load screen */
-	screen_load();
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 	/* Do a complete screen refresh  XXX XXX */
 	if (modified) do_cmd_redraw();
@@ -2502,7 +2463,7 @@ static void do_cmd_macro_aux(char *buf)
 	inkey_base = TRUE;
 
 	/* First key */
-	ch = inkey();
+	ch = inkey(FALSE);
 
 	/* Read the pattern */
 	while (ch != '\0')
@@ -2517,7 +2478,7 @@ static void do_cmd_macro_aux(char *buf)
 		inkey_scan = TRUE;
 
 		/* Attempt to read a key */
-		ch = inkey();
+		ch = inkey(FALSE);
 	}
 
 	/* Terminate */
@@ -2551,7 +2512,7 @@ static void do_cmd_macro_aux_keymap(char *buf)
 
 
 	/* Get a key */
-	buf[0] = inkey();
+	buf[0] = inkey(FALSE);
 	buf[1] = '\0';
 
 
@@ -2678,8 +2639,6 @@ void do_cmd_macros(void)
 	int mode;
 	int attr;
 
-	int old_rows = screen_rows;
-
 	bool changed_macro = FALSE;
 	bool changed_keymap = FALSE;
 
@@ -2700,12 +2659,8 @@ void do_cmd_macros(void)
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-
-	/* Save screen */
-	screen_save();
-
-	/* Set to 25 screen rows */
-	(void)Term_rows(FALSE);
+	/* Save the screen, center it, and use the standard display */
+	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX, 80, 0);
 
 
 	/* Process requests until done */
@@ -2751,7 +2706,7 @@ void do_cmd_macros(void)
 		prt("Command: ", 16, 0);
 
 		/* Get a command */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Leave */
 		if (ch == ESCAPE) break;
@@ -2766,7 +2721,7 @@ void do_cmd_macros(void)
 		/* Save macros */
 		else if (ch == '2')
 		{
-			char ftmp[80];
+			char ftmp[DESC_LEN];
 
 			/* Prompt */
 			prt("Command: Append macros to a file", 16, 0);
@@ -2775,7 +2730,7 @@ void do_cmd_macros(void)
 			prt("File: ", 18, 0);
 
 			/* Default filename */
-			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+			(void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
 			if (!askfor_aux(ftmp, 80, FALSE)) continue;
@@ -2895,7 +2850,7 @@ void do_cmd_macros(void)
 		/* Save keymaps */
 		else if (ch == '6')
 		{
-			char ftmp[80];
+			char ftmp[DESC_LEN];
 
 			/* Prompt */
 			prt("Command: Append keymaps to a file", 16, 0);
@@ -2904,7 +2859,7 @@ void do_cmd_macros(void)
 			prt("File: ", 18, 0);
 
 			/* Default filename */
-			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+			(void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
 			if (!askfor_aux(ftmp, 80, FALSE)) continue;
@@ -3065,25 +3020,37 @@ void do_cmd_macros(void)
 		message_flush();
 	}
 
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50)
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(TRUE);
-	}
-
-	/* Load screen */
-	screen_load();
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 }
 
 /*
  * Display helpful information about characters and colors.
  */
-static void do_cmd_visual_info(void)
+static void do_cmd_visual_info(cptr command)
 {
 	int i;
 
-	clear_from(0);
+	(void)Term_clear();
+
+
+	/* Handle requests for special displays */
+	if (command)
+	{
+		/* Help me edit features */
+		if (strstr(command, "help-features"))
+		{
+			/* Set cursor to line 1 */
+			move_cursor(1, 0);
+
+			/* Print help */
+			roff("     Each terrain has three lighting values:  Normal, bright, and dim.  If lighting effects are turned off (in game options), only normal is used.  Otherwise:\n- Bright is used when torch light is turned on, you can see the grid directly, and it is lit.   If \"lights up under torch light only\" is set, only torch light counts.  Otherwise, any light does.\n- Dim is used when you cannot see the grid directly.\n- Normal is used in all other cases.\n\n     Typing '!' toggles \"lights up under torch light only\".\n\n     Press any key to continue editing.", 0, display_width());
+		}
+
+		/* Done */
+		return;
+	}
+
 
 	/* List all the available characters in the current font */
 	for (i = 0; i < 256; i++)
@@ -3149,7 +3116,7 @@ static int do_cmd_visual_change(cptr str, int max_idx, int *cur_idx, int *move,
 		format("Edit: %s (index: n/N/^n, attr: a/A/^a, char: c/C/^c): ", str));
 
 	/* Get a command */
-	ch = inkey();
+	ch = inkey(FALSE);
 
 
 	/* Accept changes */
@@ -3240,7 +3207,7 @@ static FILE *fff_visuals = NULL;
  */
 static bool do_cmd_visuals_file(cptr str, bool automatic, char *mark)
 {
-	char ftmp[80];
+	char ftmp[DESC_LEN];
 	char buf[1024];
 
 	/* Handle automatic usage */
@@ -3260,7 +3227,7 @@ static bool do_cmd_visuals_file(cptr str, bool automatic, char *mark)
 		prt("File: ", 18, 0);
 
 		/* Default filename */
-		sprintf(ftmp, "%s.prf", op_ptr->base_name);
+		(void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 		/* Get a filename, allow cancel */
 		if (!askfor_aux(ftmp, 80, FALSE)) return (FALSE);
@@ -3308,6 +3275,8 @@ static bool do_cmd_visuals_file(cptr str, bool automatic, char *mark)
  *
  * Visuals currently include monster, object, feature, flavor, and effect
  * attributes and characters.  -BEN-, -LM-
+ *
+ * We will want to use the map term (if present) for this...
  */
 void do_cmd_visuals(char cmd)
 {
@@ -3320,7 +3289,7 @@ void do_cmd_visuals(char cmd)
 	/* Allow automatic usage */
 	bool automatic = isdigit(cmd);
 
-	char mark[80];
+	char mark[DESC_LEN];
 
 	/* Keep track of changes */
 	bool changed_monster = FALSE;
@@ -3330,8 +3299,9 @@ void do_cmd_visuals(char cmd)
 	bool changed_spell = FALSE;
 
 
-	/* Save screen */
-	screen_save();
+	/* Save the screen and center it */
+	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_CX, 80, 0);
+
 
 	/* Interact until done */
 	while (TRUE)
@@ -3377,8 +3347,7 @@ void do_cmd_visuals(char cmd)
 			if (isdigit(cmd)) ch = cmd;
 			else
 			{
-				screen_load();
-				return;
+				break;
 			}
 
 			/* Issue automatic command only once */
@@ -3392,7 +3361,7 @@ void do_cmd_visuals(char cmd)
 			prt("Command: ", 16, 0);
 
 			/* Prompt */
-			ch = inkey();
+			ch = inkey(FALSE);
 		}
 
 		/* Leave */
@@ -3413,7 +3382,7 @@ void do_cmd_visuals(char cmd)
 			index = 0;
 
 			/* Display various information */
-			do_cmd_visual_info();
+			do_cmd_visual_info(NULL);
 
 			/* Query until done */
 			while (TRUE)
@@ -3465,7 +3434,7 @@ void do_cmd_visuals(char cmd)
 			index = 0;
 
 			/* Display various information */
-			do_cmd_visual_info();
+			do_cmd_visual_info(NULL);
 
 			/* Query until done */
 			while (TRUE)
@@ -3531,7 +3500,7 @@ void do_cmd_visuals(char cmd)
 			index = 1;
 
 			/* Display various information */
-			do_cmd_visual_info();
+			do_cmd_visual_info(NULL);
 
 
 			/* Query until done */
@@ -3578,7 +3547,7 @@ void do_cmd_visuals(char cmd)
 
 				/* Prompt */
 				(void)Term_putstr(0, 16, -1, TERM_WHITE,
-					"Edit feature: (index: n/N/^n, attr: a/A/^a, char: c/C/^c, <dir>, or '!'): ");
+					"Edit feature: (index: n/N/^n, attr: a/A/^a, char: c/C/^c, <dir>, '!', or '?'): ");
 
 				/* Store current values */
 				if (pair == 0)
@@ -3597,13 +3566,18 @@ void do_cmd_visuals(char cmd)
 					fc = (byte)f_ptr->x_char_dim;
 				}
 
+				/* Wait for legal input */
+				while (TRUE)
+				{
+					/* Get key */
+					ch = inkey(FALSE);
 
-				/* Get a command */
-				ch = inkey();
+					/* Allow orthogonal direction keys */
+					get_ui_direction(&ch, UI_NODIAG | UI_NOMOUSE, &dummy);
 
-				/* Allow orthogonal direction keys */
-				get_ui_direction(&ch, TRUE, TRUE, FALSE, &dummy);
-
+					/* Accept anything except untranslated mouse actions */
+					if (ch != MOUSEKEY) break;
+				}
 
 				/* Accept changes */
 				if ((ch == ESCAPE) || (ch == '\n') || (ch == '\r')) break;
@@ -3709,6 +3683,18 @@ void do_cmd_visuals(char cmd)
 						f_ptr->flags |= (TF_TORCH_ONLY);
 				}
 
+				else if (ch == '?')
+				{
+					/* Display help on features */
+					do_cmd_visual_info("help-features");
+
+					/* Wait for it */
+					(void)inkey(ALLOW_CLICK);
+
+					/* Display standard information */
+					do_cmd_visual_info(NULL);
+				}
+
 				/* Save modified values */
 				if (pair == old_pair)
 				{
@@ -3744,7 +3730,7 @@ void do_cmd_visuals(char cmd)
 			index = 0;
 
 			/* Display various information */
-			do_cmd_visual_info();
+			do_cmd_visual_info(NULL);
 
 			/* Query until done */
 			while (TRUE)
@@ -3811,11 +3797,11 @@ void do_cmd_visuals(char cmd)
 			index = 1;
 
 			/* Display various information */
-			do_cmd_visual_info();
+			do_cmd_visual_info(NULL);
 
 			/*
 			 * For ease of use, only the more common projections can be
-			 * edited in-game.  All can, of course, be edited in the pref
+			 * edited in-game.  All of them can be edited in the pref
 			 * files themselves.
 			 */
 			for (max_editable = 1; max_editable < 256; max_editable++)
@@ -3921,11 +3907,18 @@ void do_cmd_visuals(char cmd)
 				}
 
 
-				/* Get a command */
-				ch = inkey();
+				/* Wait for legal input */
+				while (TRUE)
+				{
+					/* Get key */
+					ch = inkey(FALSE);
 
-				/* Allow orthogonal direction keys */
-				get_ui_direction(&ch, TRUE, TRUE, FALSE, &dummy);
+					/* Allow orthogonal direction keys */
+					get_ui_direction(&ch, UI_NODIAG | UI_NOMOUSE, &dummy);
+
+					/* Accept anything except untranslated mouse actions */
+					if (ch != MOUSEKEY) break;
+				}
 
 
 				/* Accept changes */
@@ -4119,7 +4112,7 @@ void do_cmd_visuals(char cmd)
 			/* Dump objects */
 			for (i = 0; i < z_info->k_max; i++)
 			{
-				char o_name[80];
+				char o_name[DESC_LEN];
 				object_kind *k_ptr = &k_info[i];
 
 				/* Skip non-entries */
@@ -4213,7 +4206,11 @@ void do_cmd_visuals(char cmd)
 			/* Dump flavors */
 			for (i = 0; i < z_info->flavor_max; i++)
 			{
+				/* Get this flavor */
 				flavor_type *flavor_ptr = &flavor_info[i];
+
+				/* Ignore unused */
+				if (!flavor_ptr->text) continue;
 
 				/* Dump a comment */
 				fprintf(fff_visuals, "# %s\n", (flavor_text + flavor_ptr->text));
@@ -4258,7 +4255,7 @@ void do_cmd_visuals(char cmd)
 
 				/* Only dump changed projections */
 				if ((i > 0) &&
-					(pg_ptr->attr_vert  == proj_graphics[0].attr_vert) &&
+				    (pg_ptr->attr_vert  == proj_graphics[0].attr_vert) &&
 				    (pg_ptr->char_vert  == proj_graphics[0].char_vert) &&
 				    (pg_ptr->attr_horiz == proj_graphics[0].attr_horiz) &&
 				    (pg_ptr->char_horiz == proj_graphics[0].char_horiz) &&
@@ -4341,8 +4338,9 @@ void do_cmd_visuals(char cmd)
 		message_flush();
 	}
 
-	/* Load screen */
-	screen_load();
+
+	/* Restore previous screen */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 	/* Do a complete screen refresh  XXX XXX */
 	do_cmd_redraw();
@@ -4350,84 +4348,82 @@ void do_cmd_visuals(char cmd)
 
 
 
-
-
 /*
- * Asks to the user for specific color values.
+ * Asks the user for specific color values.
  * Returns TRUE if the color was modified.
  */
 static bool askfor_color_values(int idx)
 {
-  	char str[10];
+	char str[10];
 
-  	int k, r, g, b;
+	int k, r, g, b;
 
-  	/* Get the default value */
-  	sprintf(str, "%d", color_table[idx].rv);
+	/* Get the default value */
+	(void)strnfmt(str, sizeof(str), "%d", color_table[idx].rv);
 
-  	/* Query, check for ESCAPE */
-  	if (!get_string("Red (0-255) ", str, sizeof(str))) return (FALSE);
+	/* Query, check for ESCAPE */
+	if (!get_string("Red (0-255) ", str, sizeof(str))) return (FALSE);
 
-  	/* Convert to number */
-  	r = atoi(str);
+	/* Convert to number */
+	r = atoi(str);
 
-  	/* Check bounds */
-  	if (r < 0) r = 0;
-  	if (r > 255) r = 255;
+	/* Check bounds */
+	if (r < 0) r = 0;
+	if (r > 255) r = 255;
 
-  	/* Get the default value */
-  	sprintf(str, "%d", color_table[idx].gv);
+	/* Get the default value */
+	(void)strnfmt(str, sizeof(str), "%d", color_table[idx].gv);
 
-  	/* Query, check for ESCAPE */
-  	if (!get_string("Green (0-255) ", str, sizeof(str))) return (FALSE);
+	/* Query, check for ESCAPE */
+	if (!get_string("Green (0-255) ", str, sizeof(str))) return (FALSE);
 
-  	/* Convert to number */
-  	g = atoi(str);
+	/* Convert to number */
+	g = atoi(str);
 
-  	/* Check bounds */
-  	if (g < 0) g = 0;
-  	if (g > 255) g = 255;
+	/* Check bounds */
+	if (g < 0) g = 0;
+	if (g > 255) g = 255;
 
-  	/* Get the default value */
-  	sprintf(str, "%d", color_table[idx].bv);
+	/* Get the default value */
+	(void)strnfmt(str, sizeof(str), "%d", color_table[idx].bv);
 
- 	/* Query, check for ESCAPE */
-  	if (!get_string("Blue (0-255) ", str, sizeof(str))) return (FALSE);
+	/* Query, check for ESCAPE */
+	if (!get_string("Blue (0-255) ", str, sizeof(str))) return (FALSE);
 
- 	/* Convert to number */
-  	b = atoi(str);
+	/* Convert to number */
+	b = atoi(str);
 
-  	/* Check bounds */
-  	if (b < 0) b = 0;
-  	if (b > 255) b = 255;
+	/* Check bounds */
+	if (b < 0) b = 0;
+	if (b > 255) b = 255;
 
-  	/* Get the default value */
-  	sprintf(str, "%d", color_table[idx].kv);
+	/* Get the default value */
+	(void)strnfmt(str, sizeof(str), "%d", color_table[idx].kv);
 
-  	/* Query, check for ESCAPE */
-  	if (!get_string("Extra (0-255) ", str, sizeof(str))) return (FALSE);
+	/* Query, check for ESCAPE */
+	if (!get_string("Extra (0-255) ", str, sizeof(str))) return (FALSE);
 
-  	/* Convert to number */
-  	k = atoi(str);
+	/* Convert to number */
+	k = atoi(str);
 
-  	/* Check bounds */
-  	if (k < 0) k = 0;
-  	if (k > 255) k = 255;
+	/* Check bounds */
+	if (k < 0) k = 0;
+	if (k > 255) k = 255;
 
-  	/* Do nothing if the color is not modified */
-  	if ((k == color_table[idx].kv) &&
-        (r == color_table[idx].rv) &&
-        (g == color_table[idx].gv) &&
-        (b == color_table[idx].bv)) return (FALSE);
+	/* Do nothing if the color is not modified */
+	if ((k == color_table[idx].kv) &&
+	    (r == color_table[idx].rv) &&
+	    (g == color_table[idx].gv) &&
+	    (b == color_table[idx].bv)) return (FALSE);
 
-  	/* Modify the color table */
- 	color_table[idx].kv = k;
- 	color_table[idx].rv = r;
- 	color_table[idx].gv = g;
-  	color_table[idx].bv = b;
+	/* Modify the color table */
+	color_table[idx].kv = k;
+	color_table[idx].rv = r;
+	color_table[idx].gv = g;
+	color_table[idx].bv = b;
 
-  	/* Success */
-  	return (TRUE);
+	/* Success */
+	return (TRUE);
 }
 
 
@@ -4459,81 +4455,96 @@ static void modify_colors(void)
 {
 	int x, y, idx, old_idx;
 	char ch;
-	char msg[100];
+	char msg[DESC_LEN];
 
 	/* Flags */
- 	bool do_move, do_update;
+	bool do_move, do_update;
+	bool do_redraw = TRUE;
 
 	int max_legal_edit = MIN(MAX_COLORS_EDIT, max_system_colors);
 
 
-  	/* Clear the screen */
-  	(void)Term_clear();
-
-  	/* Draw the color table */
-  	for (idx = 0; idx < max_legal_edit; idx++)
-  	{
-    	/* Get coordinates, the x value is adjusted to show a fake cursor */
-    	x = COLOR_X(idx) + 1;
-    	y = COLOR_Y(idx);
-
-    	/* Show a sample of the color */
-    	if (IS_BLACK(idx)) c_put_str(TERM_WHITE, BLACK_SAMPLE, y, x);
-    	else
-    	{
-			byte attr = color_char_to_attr(color_table[idx].index_char);
-			c_put_str(attr, COLOR_SAMPLE, y, x);
-		}
-  	}
-
-  	/* Show screen commands and help */
-  	y = 2;
-  	x = 42;
-  	put_str("Commands:", y, x);
-  	put_str("ESC: Return", y + 2, x);
-  	put_str("Arrows: Move to color", y + 3, x);
-  	put_str("n: Rename color", y + 4, x);
-   	put_str("i: Assign color an index character", y + 5, x);
- 	put_str("k,K: Incr,Decr extra value", y + 6, x);
-  	put_str("r,R: Incr,Decr red value", y + 7, x);
-  	put_str("g,G: Incr,Decr green value", y + 8, x);
-  	put_str("b,B: Incr,Decr blue value", y + 9, x);
-  	put_str("c: Copy from color", y + 10, x);
-  	put_str("v: Set specific values", y + 11, x);
-  	put_str("First column: base colors", y + 13, x);
-  	put_str("Other columns: extra colors.", y + 14, x);
-
-  	put_str("Please note: Colors may not display", y + 16, x);
-  	put_str("correctly until you assign them a ", y + 17, x);
-  	put_str("unique index character.", y + 18, x);
-
-	/* Note that system colors are limited */
-	if (max_system_colors < 128)
-	{
-		put_str(format("Colors after #%d are \"extended colors\";",
-			max_system_colors - 1), y + 20, x);
-		put_str("Your system will display them", y + 21, x);
-		put_str("using the basic colors.", y + 22, x);
-	}
-
-  	/* Hack - We want to show the fake cursor */
-  	do_move = TRUE;
+	/* Hack - We want to show the fake cursor */
+	do_move = TRUE;
 	do_update = TRUE;
 
-  	/* Start with the first color */
-  	idx = 0;
+	/* Start with the first color */
+	idx = 0;
 
-  	/* Used to erase the old position of the fake cursor */
-  	old_idx = -1;
+	/* Used to erase the old position of the fake cursor */
+	old_idx = -1;
 
-  	while (TRUE)
-  	{
-    	/* Movement request */
-    	if (do_move)
-    	{
-      		/* Erase the old fake cursor */
-      		if (old_idx >= 0)
-      		{
+	/* Interact until satisfied */
+	while (TRUE)
+	{
+		/* Redraw request */
+		if (do_redraw)
+		{
+			int tmp_idx = idx;
+
+			/* Clear the screen */
+			(void)Term_clear();
+
+			/* Draw the color table */
+			for (idx = 0; idx < max_legal_edit; idx++)
+			{
+				/* Get coordinates, the x value is adjusted to show a fake cursor */
+				x = COLOR_X(idx) + 1;
+				y = COLOR_Y(idx);
+
+				/* Show a sample of the color */
+				if (IS_BLACK(idx)) c_put_str(TERM_WHITE, BLACK_SAMPLE, y, x);
+				else
+				{
+					byte attr = color_char_to_attr(color_table[idx].index_char);
+					c_put_str(attr, COLOR_SAMPLE, y, x);
+				}
+			}
+
+			/* Restore current color index */
+			idx = tmp_idx;
+
+			/* Show screen commands and help */
+			y = 2;
+			x = 42;
+			put_str("Commands:", y, x);
+			put_str("ESC: Return    ?: Help", y + 2, x);
+			put_str("Arrows: Move to color", y + 3, x);
+			put_str("n: Rename color", y + 4, x);
+			put_str("i: Assign color an index character", y + 5, x);
+			put_str("k,K: Incr,Decr extra value", y + 6, x);
+			put_str("r,R: Incr,Decr red value", y + 7, x);
+			put_str("g,G: Incr,Decr green value", y + 8, x);
+			put_str("b,B: Incr,Decr blue value", y + 9, x);
+			put_str("c: Copy from color", y + 10, x);
+			put_str("v: Set specific values", y + 11, x);
+			put_str("First column: base colors", y + 13, x);
+			put_str("Other columns: extra colors.", y + 14, x);
+
+			put_str("Please note: Colors may not display", y + 16, x);
+			put_str("correctly until you assign them a ", y + 17, x);
+			put_str("unique index character.", y + 18, x);
+
+			/* Note that system colors are limited */
+			if (max_system_colors < 128)
+			{
+				put_str(format("Colors after #%d are \"extended colors\";",
+					max_system_colors - 1), y + 20, x);
+				put_str("Your system will display them", y + 21, x);
+				put_str("using the basic colors.", y + 22, x);
+			}
+
+			/* Done with the redraw; now perform an update */
+			do_redraw = FALSE;
+			do_move = do_update = TRUE;
+		}
+
+		/* Movement request */
+		if (do_move)
+		{
+			/* Erase the old fake cursor */
+			if (old_idx >= 0)
+			{
 				/* Get coordinates */
 				x = COLOR_X(old_idx);
 				y = COLOR_Y(old_idx);
@@ -4541,143 +4552,145 @@ static void modify_colors(void)
 				/* Draw spaces */
 				c_put_str(TERM_WHITE, " ", y, x);
 				c_put_str(TERM_WHITE, " ", y, x + 4);
-      		}
+			}
 
-      		/* Show the current fake cursor */
-      		/* Get coordinates */
-      		x = COLOR_X(idx);
-      		y = COLOR_Y(idx);
+			/* Show the current fake cursor */
+			/* Get coordinates */
+			x = COLOR_X(idx);
+			y = COLOR_Y(idx);
 
-      		/* Draw the cursor */
-      		c_put_str(TERM_WHITE, ">", y, x);
-      		c_put_str(TERM_WHITE, "<", y, x + 4);
+			/* Draw the cursor */
+			c_put_str(TERM_WHITE, ">", y, x);
+			c_put_str(TERM_WHITE, "<", y, x + 4);
 
-      		/* Format the name of the color */
-      		(void)my_strcpy(msg, format("Color = %d:  %c : %s",
-      			idx, color_table[idx].index_char,
-	    		color_table[idx].name), sizeof(msg));
+			/* Format the name of the color */
+			(void)my_strcpy(msg, format("Color = %d:  %c : %s",
+				idx, color_table[idx].index_char,
+				color_table[idx].name), sizeof(msg));
 
-      		/* Show the name and some whitespace */
-      		c_put_str(TERM_WHITE, format("%-40s", msg), 2, 0);
-    	}
+			/* Show the name and some whitespace */
+			c_put_str(TERM_WHITE, format("%-40s", msg), 2, 0);
+		}
 
-    	/* Color update request */
-    	if (do_update)
-    	{
-      		/* Get coordinates, adjust x */
-      		x = COLOR_X(idx) + 1;
-      		y = COLOR_Y(idx);
+		/* Color update request */
+		if (do_update)
+		{
+			/* Get coordinates, adjust x */
+			x = COLOR_X(idx) + 1;
+			y = COLOR_Y(idx);
 
-      		/* Hack - Redraw the sample if needed */
-      		if (IS_BLACK(idx)) c_put_str(TERM_WHITE, BLACK_SAMPLE, y, x);
+			/* Hack - Redraw the sample if needed */
+			if (IS_BLACK(idx))
+			{
+				c_put_str(TERM_WHITE, BLACK_SAMPLE, y, x);
+			}
 			else
 			{
 				byte attr = color_char_to_attr(color_table[idx].index_char);
 				c_put_str(attr, COLOR_SAMPLE, y, x);
 			}
 
-      		/* Notify the changes in the color table to the terminal */
-      		(void)Term_xtra(TERM_XTRA_REACT, 0);
+			/* Notify the changes in the color table to the terminal */
+			(void)Term_xtra(TERM_XTRA_REACT, 0);
 
-      		/* The user is playing with white, redraw all */
-      		if (idx == TERM_WHITE) (void)Term_redraw();
+			/* The user is playing with white, redraw all */
+			if (idx == TERM_WHITE) (void)Term_redraw();
 
-      		/* Or reduce flickering by redrawing the changes only */
-      		else (void)Term_redraw_section(x, y, x + 2, y);
-    	}
+			/* Or reduce flickering by redrawing the changes only */
+			else (void)Term_redraw_section(x, y, x + 2, y);
+		}
 
-    	/* Common code, show the values in the color table */
-    	if (do_move || do_update)
-    	{
-      		/* Format the view of the color values */
-		(void)my_strcpy(msg, format("K = %d / R,G,B = %d, %d, %d",
-	    			color_table[idx].kv,
-	    			color_table[idx].rv,
-	    			color_table[idx].gv,
+		/* Common code, show the values in the color table */
+		if (do_move || do_update)
+		{
+			/* Format the view of the color values */
+			(void)my_strcpy(msg, format("K = %d / R,G,B = %d, %d, %d",
+					color_table[idx].kv,
+					color_table[idx].rv,
+					color_table[idx].gv,
 					color_table[idx].bv), sizeof(msg));
 
 			/* Show color values and some whitespace */
-      		c_put_str(TERM_WHITE, format("%-40s", msg), 4, 0);
+			c_put_str(TERM_WHITE, format("%-40s", msg), 4, 0);
+		}
 
-    	}
+		/* Reset flags */
+		do_move = FALSE;
+		do_update = FALSE;
+		old_idx = -1;
 
-    	/* Reset flags */
-    	do_move = FALSE;
-    	do_update = FALSE;
-    	old_idx = -1;
+		/* Get a command */
+		if (!get_com("Command: Modify colors ", &ch)) break;
 
-    	/* Get a command */
-    	if (!get_com("Command: Modify colors ", &ch)) break;
-
-    	switch(ch)
-    	{
-      		/* Down */
-      		case '2':
+		switch (ch)
+		{
+			/* Down */
+			case '2':
 			{
-	  			/* Check bounds */
-	  			if (idx + 1 >= max_legal_edit) break;
+				/* Check bounds */
+				if (idx + 1 >= max_legal_edit) break;
 
-	  			/* Erase the old cursor */
-	  			old_idx = idx;
+				/* Erase the old cursor */
+				old_idx = idx;
 
-	  			/* Get the new position */
-	  			++idx;
+				/* Get the new position */
+				++idx;
 
-	  			/* Request movement */
-	  			do_move = TRUE;
-	  			break;
+				/* Request movement */
+				do_move = TRUE;
+				break;
 			}
 
-      		/* Up */
-      		case '8':
+			/* Up */
+			case '8':
 			{
 
 				/* Check bounds */
-	  			if (idx - 1 < 0) break;
+				if (idx - 1 < 0) break;
 
-	  			/* Erase the old cursor */
-	  			old_idx = idx;
+				/* Erase the old cursor */
+				old_idx = idx;
 
-	  			/* Get the new position */
-	  			--idx;
+				/* Get the new position */
+				--idx;
 
-	  			/* Request movement */
-	  			do_move = TRUE;
-	  			break;
+				/* Request movement */
+				do_move = TRUE;
+				break;
 			}
 
-      		/* Left */
-      		case '4':
+			/* Left */
+			case '4':
 			{
-	  			/* Check bounds */
-	  			if (idx - 16 < 0) break;
+				/* Check bounds */
+				if (idx - 16 < 0) break;
 
-	  			/* Erase the old cursor */
-	  			old_idx = idx;
+				/* Erase the old cursor */
+				old_idx = idx;
 
-	  			/* Get the new position */
-	  			idx -= 16;
+				/* Get the new position */
+				idx -= 16;
 
-	  			/* Request movement */
-	  			do_move = TRUE;
-	  			break;
+				/* Request movement */
+				do_move = TRUE;
+				break;
 			}
 
-	  		/* Right */
-      		case '6':
+			/* Right */
+			case '6':
 			{
-	  			/* Check bounds */
-	  			if (idx + 16 >= max_legal_edit) break;
+				/* Check bounds */
+				if (idx + 16 >= max_legal_edit) break;
 
-	  			/* Erase the old cursor */
-	  			old_idx = idx;
+				/* Erase the old cursor */
+				old_idx = idx;
 
-	  			/* Get the new position */
-	  			idx += 16;
+				/* Get the new position */
+				idx += 16;
 
-	  			/* Request movement */
-	  			do_move = TRUE;
-	  			break;
+				/* Request movement */
+				do_move = TRUE;
+				break;
 			}
 
 			/* Assign color an index character */
@@ -4694,7 +4707,7 @@ static void modify_colors(void)
 					put_str("Use which letter as an index character (must not already be used)?", 0, 5);
 
 					/* Get a character */
-					ch2 = inkey();
+					ch2 = inkey(FALSE);
 
 					/* Note escape */
 					if (ch2 == ESCAPE) break;
@@ -4716,9 +4729,9 @@ static void modify_colors(void)
 					/* Save this character */
 					color_table[idx].index_char = ch2;
 
-	  				/* Request update and refresh color */
-	  				do_update = TRUE;
-	  				do_move = TRUE;
+					/* Request update and refresh color */
+					do_update = TRUE;
+					do_move = TRUE;
 
 					break;
 				}
@@ -4729,7 +4742,7 @@ static void modify_colors(void)
 			case 'n':
 			case 'N':
 			{
-				char str[80];
+				char str[DESC_LEN];
 				u16b max_length = sizeof(color_table[idx].name);
 
 				/* Continue until satisfied */
@@ -4754,8 +4767,8 @@ static void modify_colors(void)
 					/* Save the name */
 					(void)my_strcpy(color_table[idx].name, str, max_length);
 
-	  				/* Refresh the color information */
-	  				do_move = TRUE;
+					/* Refresh the color information */
+					do_move = TRUE;
 
 					break;
 				}
@@ -4763,161 +4776,178 @@ static void modify_colors(void)
 			}
 
 			/* Copy from color */
-      		case 'c':
+			case 'c':
 			{
-	  			char str[10];
-	  			int src;
+				char str[10];
+				int src;
 
-	  			/* Get the default value, the base color */
-	  			strcpy(str, "1");
+				/* Get the default value, the base color */
+				strcpy(str, "1");
 
-	  			/* Query, check for ESCAPE */
-	  			if (!get_string(format("Copy from color (0-%d) ",
+				/* Query, check for ESCAPE */
+				if (!get_string(format("Copy from color (0-%d) ",
 					max_legal_edit - 1), str, sizeof(str))) break;
 
-	  			/* Convert to number */
-	  			src = atoi(str);
+				/* Convert to number */
+				src = atoi(str);
 
-	  			/* Check bounds */
-	  			if (src < 0) src = 0;
-	  			if (src >= max_legal_edit) src = max_legal_edit - 1;
+				/* Check bounds */
+				if (src < 0) src = 0;
+				if (src >= max_legal_edit) src = max_legal_edit - 1;
 
-	  			/* Do nothing if the colors are the same */
-	  			if (src == idx) break;
+				/* Do nothing if the colors are the same */
+				if (src == idx) break;
 
-	  			/* Modify the color table */
-	  			color_table[idx].kv = color_table[src].kv;
-	  			color_table[idx].rv = color_table[src].rv;
-	  			color_table[idx].gv = color_table[src].gv;
-	  			color_table[idx].bv = color_table[src].bv;
-
-	  			/* Request update */
-	  			do_update = TRUE;
-	  			break;
-			}
-
-      		/* Increase the extra value */
-      		case 'k':
-			{
-	  			/* Get a pointer to the proper value */
-	  			byte *k_ptr = &color_table[idx].kv;
-
-	  			/* Modify the value */
-	  			*k_ptr = (byte)(*k_ptr + 1);
-
-	  			/* Request update */
-	  			do_update = TRUE;
-	  			break;
-			}
-
-      		/* Decrease the extra value */
-      		case 'K':
-			{
-
-	  			/* Get a pointer to the proper value */
-	  			byte *k_ptr = &color_table[idx].kv;
-
-	  			/* Modify the value */
-	  			*k_ptr = (byte)(*k_ptr - 1);
-
-	  			/* Request update */
-	  			do_update = TRUE;
-	  			break;
-			}
-
-      		/* Increase the red value */
-      		case 'r':
-			{
-	  			/* Get a pointer to the proper value */
-	  			byte *r_ptr = &color_table[idx].rv;
-
-	  			/* Modify the value */
-	  			*r_ptr = (byte)(*r_ptr + 1);
-
-	  			/* Request update */
-	  			do_update = TRUE;
-	  			break;
-			}
-
-      		/* Decrease the red value */
-      		case 'R':
-			{
-
-	  			/* Get a pointer to the proper value */
-	  			byte *r_ptr = &color_table[idx].rv;
-
-	  			/* Modify the value */
-	  			*r_ptr = (byte)(*r_ptr - 1);
-
-	  			/* Request update */
-	  			do_update = TRUE;
-	  			break;
-			}
-
-	  		/* Increase the green value */
-      		case 'g':
-			{
-	  			/* Get a pointer to the proper value */
-	  			byte *g_ptr = &color_table[idx].gv;
-
-	  			/* Modify the value */
-	  			*g_ptr = (byte)(*g_ptr + 1);
-
-	  			/* Request update */
-	  			do_update = TRUE;
-	  			break;
-			}
-
-	  		/* Decrease the green value */
-      		case 'G':
-			{
-	  			/* Get a pointer to the proper value */
-	  			byte *g_ptr = &color_table[idx].gv;
-
-	  			/* Modify the value */
-	  			*g_ptr = (byte)(*g_ptr - 1);
-
-	  			/* Request update */
-	  			do_update = TRUE;
-	  			break;
-			}
-
-	  		/* Increase the blue value */
-      		case 'b':
-			{
-	  			/* Get a pointer to the proper value */
-	  			byte *b_ptr = &color_table[idx].bv;
-
-	  			/* Modify the value */
-	  			*b_ptr = (byte)(*b_ptr + 1);
+				/* Modify the color table */
+				color_table[idx].kv = color_table[src].kv;
+				color_table[idx].rv = color_table[src].rv;
+				color_table[idx].gv = color_table[src].gv;
+				color_table[idx].bv = color_table[src].bv;
 
 				/* Request update */
-	  			do_update = TRUE;
-	  			break;
+				do_update = TRUE;
+				break;
 			}
 
-      		/* Decrease the blue value */
-      		case 'B':
+			/* Increase the extra value */
+			case 'k':
 			{
-	  			/* Get a pointer to the proper value */
-	  			byte *b_ptr = &color_table[idx].bv;
+				/* Get a pointer to the proper value */
+				byte *k_ptr = &color_table[idx].kv;
 
 				/* Modify the value */
-	  			*b_ptr = (byte)(*b_ptr - 1);
+				*k_ptr = (byte)(*k_ptr + 1);
 
-	  			/* Request update */
-	  			do_update = TRUE;
-	  			break;
+				/* Request update */
+				do_update = TRUE;
+				break;
 			}
 
-	  		/* Ask for specific values */
-      		case 'v':
+			/* Decrease the extra value */
+			case 'K':
 			{
-	  			do_update = askfor_color_values(idx);
-	  			break;
+
+				/* Get a pointer to the proper value */
+				byte *k_ptr = &color_table[idx].kv;
+
+				/* Modify the value */
+				*k_ptr = (byte)(*k_ptr - 1);
+
+				/* Request update */
+				do_update = TRUE;
+				break;
 			}
-    	}
-  	}
+
+			/* Increase the red value */
+			case 'r':
+			{
+				/* Get a pointer to the proper value */
+				byte *r_ptr = &color_table[idx].rv;
+
+				/* Modify the value */
+				*r_ptr = (byte)(*r_ptr + 1);
+
+				/* Request update */
+				do_update = TRUE;
+				break;
+			}
+
+			/* Decrease the red value */
+			case 'R':
+			{
+
+				/* Get a pointer to the proper value */
+				byte *r_ptr = &color_table[idx].rv;
+
+				/* Modify the value */
+				*r_ptr = (byte)(*r_ptr - 1);
+
+				/* Request update */
+				do_update = TRUE;
+				break;
+			}
+
+			/* Increase the green value */
+			case 'g':
+			{
+				/* Get a pointer to the proper value */
+				byte *g_ptr = &color_table[idx].gv;
+
+				/* Modify the value */
+				*g_ptr = (byte)(*g_ptr + 1);
+
+				/* Request update */
+				do_update = TRUE;
+				break;
+			}
+
+			/* Decrease the green value */
+			case 'G':
+			{
+				/* Get a pointer to the proper value */
+				byte *g_ptr = &color_table[idx].gv;
+
+				/* Modify the value */
+				*g_ptr = (byte)(*g_ptr - 1);
+
+				/* Request update */
+				do_update = TRUE;
+				break;
+			}
+
+			/* Increase the blue value */
+			case 'b':
+			{
+				/* Get a pointer to the proper value */
+				byte *b_ptr = &color_table[idx].bv;
+
+				/* Modify the value */
+				*b_ptr = (byte)(*b_ptr + 1);
+
+				/* Request update */
+				do_update = TRUE;
+				break;
+			}
+
+			/* Decrease the blue value */
+			case 'B':
+			{
+				/* Get a pointer to the proper value */
+				byte *b_ptr = &color_table[idx].bv;
+
+				/* Modify the value */
+				*b_ptr = (byte)(*b_ptr - 1);
+
+				/* Request update */
+				do_update = TRUE;
+				break;
+			}
+
+			/* Ask for specific values */
+			case 'v':
+			{
+				do_update = askfor_color_values(idx);
+				break;
+			}
+
+			/* Help me. */
+			case '?':
+			{
+				p_ptr->get_help_index = HELP_CMD_COLORS;
+				do_cmd_help();
+
+				/* Request redraw */
+				do_redraw = TRUE;
+
+				break;
+			}
+
+			default:
+			{
+				break;
+			}
+		}
+	}
 }
 
 
@@ -4934,17 +4964,11 @@ void do_cmd_colors(void)
 	char buf[1024];
 
 
-	int old_rows = screen_rows;
-
-
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Save screen */
-	screen_save();
-
-	/* Set to 25 screen rows */
-	(void)Term_rows(FALSE);
+	/* Save the screen and center it */
+	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_CX, 80, 0);
 
 
 	/* Interact until done */
@@ -4966,7 +4990,7 @@ void do_cmd_colors(void)
 		prt("Command: ", 9, 0);
 
 		/* Prompt */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Done */
 		if (ch == ESCAPE) break;
@@ -4990,10 +5014,10 @@ void do_cmd_colors(void)
 		else if (ch == '2')
 		{
 			static cptr mark = "Color redefinitions";
-			char ftmp[80];
+			char ftmp[DESC_LEN];
 
 			/* Required filename  XXX XXX */
-			sprintf(ftmp, "color.prf");
+			(void)strnfmt(ftmp, sizeof(ftmp), "color.prf");
 
 			/* Build the filename */
 			(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
@@ -5025,7 +5049,7 @@ void do_cmd_colors(void)
 			for (i = 0; i < MAX_COLORS_EDIT; i++)
 			{
 				char index_char = color_table[i].index_char;
-				char name[80];
+				char name[DESC_LEN];
 
 				int kv = color_table[i].kv;
 				int rv = color_table[i].rv;
@@ -5081,11 +5105,8 @@ void do_cmd_colors(void)
 	}
 
 
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50) (void)Term_rows(TRUE);
-
-	/* Load screen */
-	screen_load();
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 	/* Do a complete screen refresh  XXX XXX */
 	do_cmd_redraw();
@@ -5094,17 +5115,17 @@ void do_cmd_colors(void)
 
 
 /*
- * Note something in the message recall
+ * Note something in the message recall.  -CK-
  */
 void do_cmd_note(void)
 {
-	char tmp[80];
+	char tmp[1024];
 
 	/* Default */
 	strcpy(tmp, "");
 
 	/* Input */
-	if (!get_string("Note:", tmp, 80)) return;
+	if (!get_string("Note:", tmp, 1024)) return;
 
 	/* Ignore empty notes */
 	if (!tmp[0] || (tmp[0] == ' ')) return;
@@ -5221,7 +5242,7 @@ void do_cmd_quest(void)
 			q_out = describe_quest(p_ptr->cur_quest, QMODE_FULL);
 
 			/* Break into two lines if necessary */
-			if (strlen(q_out) < 70) msg_print(q_out);
+			if ((int)strlen(q_out) < Term->cols - 5) msg_print(q_out);
 			else
 			{
 				q_out = describe_quest(p_ptr->cur_quest, QMODE_HALF_1);
@@ -5236,56 +5257,6 @@ void do_cmd_quest(void)
 	else msg_print("You are not currently undertaking a quest.");
 }
 
-/*
- * Translates screen characters to ascii characters -JM-
- */
-static char ascii_char(char c)
-{
-	switch (c)
-	{
-		case 127: /* Granite wall */
-			return '#';
-		case 1: /* Block */
-		case 2: /* Speckeled block */
-			return '#';
-		case 3: /* Quartz */
-			return '#';
-		case 4: /* Thick mist */
-		case 5: /* Mist */
-		case 6: /* Thin mist */
-			return '*';
-		case 7: /* Non-visible squares */
-			return '.';
-		case 8: /* Small bullet */
-		case 9: /* Bullet */
-		case 10: /* Large bullet */
-			return '*';
-		case 11: /* Rubble */
-			return ':';
-		case 12: /* Vein of treasure */
-			return '*';
-		case 13: /* Closed door */
-			return '+';
-		case 14: /* Open door */
-		case 15: /* Bashed door */
-			return '\'';
-		case 16: /* Pillar */
-		case 17: /* Water */
-		case 18: /* Forest */
-		case 19: /* Lava */
-			return '#';
-		case 20: /* Dashed O */
-			return 'O';
-			break;
-		case '.': /* Floor */
-			return '.';
-		case ' ': /* Unseen */
-			return ' ';
-		default:
-			return c;
-
-	}
-}
 
 
 /*
@@ -5293,40 +5264,288 @@ static char ascii_char(char c)
  */
 static void write_html_escape_char(FILE *htm, char c)
 {
-	char tmp;
 	switch (c)
 	{
-		case '<': /* Up stairs */
+		case '<':
 			fprintf(htm, "&lt;");
 			break;
-		case '>': /* Down stairs */
+		case '>':
 			fprintf(htm, "&gt;");
 			break;
-		case '&': /* Greater Demon, chest */
+		case '&':
 			fprintf(htm, "&amp;");
 			break;
 		default:
-			tmp = ascii_char(c);
-			fprintf(htm, "%c", tmp);
+			fprintf(htm, "%c", c);
 			break;
+	}
+}
+
+/*
+ * Take an html or vBulletin screenshot of both the main and the map term.
+ * Used when "use_special_map" is ON.
+ *
+ * HACK -- Hard-coded handling of the status line below the map.  XXX XXX
+ */
+static void html_screenshot_aux_map(FILE *htm, int mode)
+{
+	int y, x, y1, x1;
+	int wid, hgt, wid_main, hgt_main, wid_map, hgt_map;
+	int status_line_y;
+
+	byte a;
+	byte oa = TERM_WHITE;
+	char c = ' ';
+
+
+	/* Retrieve current term size */
+	(void)Term_get_size(&wid_main, &hgt_main);
+
+	/* Activate the map term */
+	(void)Term_activate(term_map);
+
+	/* Retrieve current map term size */
+	(void)Term_get_size(&wid_map, &hgt_map);
+
+	/* Activate the main term again */
+	(void)Term_activate(term_main);
+
+
+	/* The total size must accomodate the map plus all main term displays */
+	if (wid_main >= wid_map + COL_MAP)     wid = wid_main;
+	else                                   wid = wid_map + COL_MAP;
+	if (hgt_main >= hgt_map + ROW_MAP + 1) hgt = hgt_main;
+	else                                   hgt = hgt_map + ROW_MAP + 1;
+
+	/* Hack -- the status line always goes at the bottom */
+	status_line_y = hgt - 1;
+
+
+	/* Dump both main and map terms */
+	for (y = 0; y < hgt; y++)
+	{
+		for (x = 0; x < wid; x++)
+		{
+			/* Which term should we get data from? */
+			if ((y >= ROW_MAP) && (y != status_line_y) && (x >= COL_MAP))
+			{
+				/* The map term is offset within the main term */
+				(void)Term_activate(term_map);
+				y1 = y - ROW_MAP;
+				x1 = x - COL_MAP;
+			}
+			else
+			{
+				/* The main term is not offset */
+				(void)Term_activate(term_main);
+				y1 = y;
+				x1 = x;
+
+				/* ... except for the status line, which must come last  XXX XXX */
+				if (y == status_line_y) y1 = ROW_STATUS;
+			}
+
+			/* Handle illegal space by making it blank */
+			if ((y1 >= Term->rows) || (x1 >= Term->cols))
+			{
+				/* Use current color, if legal */
+				a = ((oa != 255) ? oa : TERM_WHITE);
+
+				/* Print spaces */
+				c = ' ';
+			}
+
+			/* If legal, get the ASCII tile */
+			else
+			{
+				a = Term->scr->a[y1][x1];
+				c = Term->scr->c[y1][x1];
+			}
+
+			/* Color change -- only for non-space */
+			if ((a != oa) && (c != ' '))
+			{
+				/* From the default white to another color */
+				if (oa == TERM_WHITE)
+				{
+					if (mode == 1)
+					{
+						fprintf(htm, "[color=\"#%02X%02X%02X\"]",
+							color_table[a].rv,
+							color_table[a].gv,
+							color_table[a].bv);
+					}
+					else
+					{
+						fprintf(htm, "<font color=\"#%02X%02X%02X\">",
+							color_table[a].rv,
+							color_table[a].gv,
+							color_table[a].bv);
+					}
+				}
+
+				/* From another color to the default white */
+				else if (a == TERM_WHITE)
+				{
+					/* Close the <font> or [color] tag */
+					if (mode == 1) fprintf(htm, "[/color]");
+					else           fprintf(htm, "</font>");
+				}
+
+				/* Change colors */
+				else
+				{
+					if (mode == 1)
+					{
+						fprintf(htm, "[/color][color=\"#%02X%02X%02X\"]",
+							color_table[a].rv,
+							color_table[a].gv,
+							color_table[a].bv);
+					}
+					else
+					{
+						fprintf(htm, "</font><font color=\"#%02X%02X%02X\">",
+							color_table[a].rv,
+							color_table[a].gv,
+							color_table[a].bv);
+					}
+				}
+
+				/* Remember the last color */
+				oa = a;
+			}
+
+			/* Write the character and escape special HTML characters */
+			if (mode == 1) fprintf(htm, "%c", c);
+			else           write_html_escape_char(htm, c);
+		}
+
+		/* End the row */
+		fprintf(htm, "\n");
+	}
+
+	/* Close the last <font> or [color] tag */
+	if (mode == 1) fprintf(htm, "[/color]");
+	else           fprintf(htm, "</font>");
+
+	/* Close out the "white" tag if necessary */
+	if (oa != TERM_WHITE)
+	{
+		if (mode == 1) fprintf(htm, "[/color]");
+		else           fprintf(htm, "</font>");
+	}
+}
+
+
+
+/*
+ * Take an html or vBulletin screenshot of the current term (only).
+ * Used when "use_special_map" is OFF.
+ */
+void html_screenshot_aux_main(FILE *htm, int mode)
+{
+	int y, x;
+	int wid, hgt;
+
+	byte a;
+	byte oa = TERM_WHITE;
+	char c = ' ';
+
+	/* Retrieve current screen size */
+	(void)Term_get_size(&wid, &hgt);
+
+
+	/* Dump the screen */
+	for (y = 0; y < hgt; y++)
+	{
+		for (x = 0; x < wid; x++)
+		{
+			/* Get the ASCII tile */
+			a = Term->scr->a[y][x];
+			c = Term->scr->c[y][x];
+
+			/* Color change -- only for non-space */
+			if ((a != oa) && (c != ' '))
+			{
+				/* From the default white to another color */
+				if (oa == TERM_WHITE)
+				{
+					if (mode == 1)
+					{
+						fprintf(htm, "[color=\"#%02X%02X%02X\"]",
+							color_table[a].rv,
+							color_table[a].gv,
+							color_table[a].bv);
+					}
+					else
+					{
+						fprintf(htm, "<font color=\"#%02X%02X%02X\">",
+							color_table[a].rv,
+							color_table[a].gv,
+							color_table[a].bv);
+					}
+				}
+
+				/* From another color to the default white */
+				else if (a == TERM_WHITE)
+				{
+					/* Close the <font> or [color] tag */
+					if (mode == 1) fprintf(htm, "[/color]");
+					else           fprintf(htm, "</font>");
+				}
+
+				/* Change colors */
+				else
+				{
+					if (mode == 1)
+					{
+						fprintf(htm, "[/color][color=\"#%02X%02X%02X\"]",
+							color_table[a].rv,
+							color_table[a].gv,
+							color_table[a].bv);
+					}
+					else
+					{
+						fprintf(htm, "</font><font color=\"#%02X%02X%02X\">",
+							color_table[a].rv,
+							color_table[a].gv,
+							color_table[a].bv);
+					}
+				}
+
+				/* Remember the last color */
+				oa = a;
+			}
+
+			/* Write the character and escape special HTML characters */
+			if (mode == 1) fprintf(htm, "%c", c);
+			else           write_html_escape_char(htm, c);
+		}
+
+		/* End the row */
+		fprintf(htm, "\n");
+	}
+
+	/* Close the last <font> or [color] tag */
+	if (mode == 1) fprintf(htm, "[/color]");
+	else           fprintf(htm, "</font>");
+
+	/* Close out the "white" tag if necessary */
+	if (oa != TERM_WHITE)
+	{
+		if (mode == 1) fprintf(htm, "[/color]");
+		else           fprintf(htm, "</font>");
 	}
 }
 
 
 /*
- * Take an html screenshot.
+ * Take an html or vBulletin screenshot.
  *
  * Idea from ToME, code from Angband.
  */
-static void html_screenshot(cptr name)
+static void html_screenshot(cptr name, int mode)
 {
-	int y, x;
-	int wid, hgt;
-
-	byte a = 0;
-	byte oa = TERM_WHITE;
-	char c = ' ';
-
 	FILE *htm;
 
 	char buf[1024];
@@ -5347,75 +5566,145 @@ static void html_screenshot(cptr name)
 		return;
 	}
 
-	/* Retrieve current screen size */
-	(void)Term_get_size(&wid, &hgt);
+	/* Write headers */
+	if (mode == 1)
+	{
+		/* Write vBulletin headers */
+		fprintf(htm, "[code][tt][bc=black][color=white]\n");
+	}
+	else
+	{
+		/* Write HTML headers */
+		fprintf(htm, "<html>\n");
+		fprintf(htm, "<head>\n");
+		fprintf(htm, "<meta name=\"generator\" Content=\"%s %d.%d.%d\">\n",
+			VERSION_NAME, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		fprintf(htm, "<title>%s</title>\n", name);
+		fprintf(htm, "</head>\n\n");
+		fprintf(htm, "<body bgcolor=\"#000000\"><font color=\"#FFFFFF\">\n");
+		fprintf(htm, "<pre><tt>\n");
+	}
 
-	fprintf(htm, "<HTML>\n");
-	fprintf(htm, "<HEAD>\n");
-	fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"%s %d.%d.%d\">\n",
-	             VERSION_NAME, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-	fprintf(htm, "<TITLE>%s</TITLE>\n", name);
-	fprintf(htm, "</HEAD>\n\n");
-	fprintf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">\n");
-	fprintf(htm, "<PRE><TT>\n");
+	/* Save screen information to file */
+	if (use_special_map)
+	{
+		html_screenshot_aux_map(htm, mode);
+	}
+	else
+	{
+		html_screenshot_aux_main(htm, mode);
+	}
+
+	/* Close out the codes */
+	if (mode == 1)
+	{
+		/* Close out the vBulletin codes */
+		fprintf(htm, "[/bc][/tt][/code]\n");
+	}
+	else
+	{
+		/* Close out the HTML codes */
+		fprintf(htm, "</tt></pre>\n");
+		fprintf(htm, "</body>\n");
+		fprintf(htm, "</html>\n");
+	}
+
+	/* Close the file */
+	(void)my_fclose(htm);
+}
+
+
+/*
+ * Take a textual screenshot of both the main and the map term.  Used when
+ * "use_special_map" is ON.
+ *
+ * HACK -- Hard-coded handling of the status line below the map.  XXX XXX
+ */
+static void text_screenshot_aux_map(FILE *fp)
+{
+	int y, x, y1, x1;
+	int wid, hgt, wid_main, hgt_main, wid_map, hgt_map;
+	int status_line_y;
+
+	byte a = 0;
+	char c = ' ';
+	char buf[1024];
+
+
+	/* Retrieve current term size */
+	(void)Term_get_size(&wid_main, &hgt_main);
+
+	/* Activate the map term */
+	(void)Term_activate(term_map);
+
+	/* Retrieve current map term size */
+	(void)Term_get_size(&wid_map, &hgt_map);
+
+	/* Activate the main term again */
+	(void)Term_activate(term_main);
+
+
+	/* The total size must accomodate the map plus all main term displays */
+	if (wid_main >= wid_map + COL_MAP)     wid = wid_main;
+	else                                   wid = wid_map + COL_MAP;
+	if (hgt_main >= hgt_map + ROW_MAP + 1) hgt = hgt_main;
+	else                                   hgt = hgt_map + ROW_MAP + 1;
+
+	/* Hack -- the status line always goes at the bottom */
+	status_line_y = hgt - 1;
+
 
 	/* Dump the screen */
 	for (y = 0; y < hgt; y++)
 	{
+		/* Dump each row */
 		for (x = 0; x < wid; x++)
 		{
-			/* Get the ASCII tile */
-			a = Term->scr->a[y][x];
-			c = Term->scr->c[y][x];
-
-			/* Color change */
-			if (oa != a)
+			/* Which term should we get data from? */
+			if ((y >= ROW_MAP) && (y != status_line_y) && (x >= COL_MAP))
 			{
-				/* From the default white to another color */
-				if (oa == TERM_WHITE)
-				{
-					fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">",
-					        color_table[a].rv,
-					        color_table[a].gv,
-					        color_table[a].bv);
-				}
-				/* From another color to the default white */
-				else if (a == TERM_WHITE)
-				{
-					fprintf(htm, "</FONT>");
-				}
-				/* Change colors */
-				else
-				{
-					fprintf(htm, "</FONT><FONT COLOR=\"#%02X%02X%02X\">",
-					        color_table[a].rv,
-					        color_table[a].gv,
-					        color_table[a].bv);
-				}
+				/* The map term is offset within the main term */
+				(void)Term_activate(term_map);
+				y1 = y - ROW_MAP;
+				x1 = x - COL_MAP;
+			}
+			else
+			{
+				/* The main term is not offset */
+				(void)Term_activate(term_main);
+				y1 = y;
+				x1 = x;
 
-				/* Remember the last color */
-				oa = a;
+				/* ... except for the status line, which must come last */
+				if (y == status_line_y) y1 = ROW_STATUS;
 			}
 
-			/* Write the character and escape special HTML characters */
-			write_html_escape_char(htm, c);
+			/* Handle illegal space by making it blank */
+			if ((y1 >= Term->rows) || (x1 >= Term->cols))
+			{
+				a = TERM_WHITE;
+				c = ' ';
+			}
+
+			/* If legal, get the ASCII tile */
+			else
+			{
+				/* Get the attr/char */
+				(void)(Term_what(x1, y1, &a, &c));
+			}
+
+			/* Dump it */
+			buf[x] = c;
 		}
 
+		/* Terminate */
+		buf[x] = '\0';
+
 		/* End the row */
-		fprintf(htm, "\n");
+		fprintf(fp, "%s\n", buf);
 	}
-
-	/* Close the last <font> tag if necessary */
-	if (a != TERM_WHITE) fprintf(htm, "</FONT>");
-
-	fprintf(htm, "</TT></PRE>\n");
-
-	fprintf(htm, "</BODY>\n");
-	fprintf(htm, "</HTML>\n");
-
-	/* Close it */
-	(void)my_fclose(htm);
 }
+
 
 
 /*
@@ -5450,27 +5739,37 @@ static void text_screenshot(cptr name)
 		return;
 	}
 
-	/* Retrieve current screen size */
-	(void)Term_get_size(&wid, &hgt);
-
-	/* Dump the screen */
-	for (y = 0; y < hgt; y++)
+	/* Different handling if a special map term exists */
+	if (use_special_map)
 	{
-		/* Dump each row */
-		for (x = 0; x < wid; x++)
+		text_screenshot_aux_map(fp);
+	}
+
+	/* Standard case */
+	else
+	{
+		/* Retrieve current screen size */
+		(void)Term_get_size(&wid, &hgt);
+
+		/* Dump the screen */
+		for (y = 0; y < hgt; y++)
 		{
-			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
+			/* Dump each row */
+			for (x = 0; x < wid; x++)
+			{
+				/* Get the attr/char */
+				(void)(Term_what(x, y, &a, &c));
 
-			/* Dump it */
-			buf[x] = ascii_char(c);
+				/* Dump it */
+				buf[x] = c;
+			}
+
+			/* Terminate */
+			buf[x] = '\0';
+
+			/* End the row */
+			fprintf(fp, "%s\n", buf);
 		}
-
-		/* Terminate */
-		buf[x] = '\0';
-
-		/* End the row */
-		fprintf(fp, "%s\n", buf);
 	}
 
 	/* End the file */
@@ -5482,40 +5781,58 @@ static void text_screenshot(cptr name)
 
 
 /*
- * Hack -- save a screen dump to a file.  Choose between B&W text
- * (suitable for newsgroup posts) or HTML (for graphical interfaces).
+ * Save a screen shot to file.
  */
 void do_cmd_save_screen(void)
 {
-	char tmp_val[256] = "";
+	char filename[80] = "";
 	char c = ESCAPE;
 	int i;
-	bool text = TRUE;
+	int mode = 0;
 
 
 	/* Choose */
 	while (TRUE)
 	{
-		if (!get_com("Choose a screenshot:  ('t' for text, 'h' for html):", &c)) return;
+		if (!get_com("Choose a screenshot:  ('t' for text, 'f' for forum, 'h' for html, '?' for help):", &c)) return;
 
-		if (strchr("TtHh", c)) break;
+		/* Pick a screenshot type */
+		if (strchr("TtFfHh", c)) break;
+
+		/* Get help */
+		if (c == '?')
+		{
+			/* Save the screen */
+			screen_save(TRUE);
+
+			/* Show contextual help */
+			p_ptr->get_help_index = HELP_SCREENSHOT;
+			do_cmd_help();
+
+			/* Load the screen */
+			screen_load();
+		}
 	}
 
 	/* Choose text or html */
 	if ((c == 't') || (c == 'T'))
 	{
-		strcpy(tmp_val, "dump.txt");
-		text = TRUE;
-
+		strcpy(filename, "dump.txt");
+		mode = 0;
+	}
+	else if ((c == 'f') || (c == 'F'))
+	{
+		strcpy(filename, "dump-vB.txt");
+		mode = 1;
 	}
 	else
 	{
-		strcpy(tmp_val, "dump.html");
-		text = FALSE;
+		strcpy(filename, "dump.html");
+		mode = 2;
 	}
 
 	/* Ask for a file, allow cancel */
-	if (!get_string("File: ", tmp_val, sizeof(tmp_val))) return;
+	if (!get_string("Save screenshot as: ", filename, sizeof(filename))) return;
 
 	/* Save custom graphic preferences */
 	do_cmd_visuals('6');
@@ -5524,14 +5841,15 @@ void do_cmd_save_screen(void)
 	do_cmd_visuals('9');
 	do_cmd_visuals('0');
 
+
 	/* Extract default attr/char code for features */
 	for (i = 0; i < z_info->f_max; i++)
 	{
 		feature_type *f_ptr = &f_info[i];
 
 		/* Assume we will use the underlying values */
-		f_ptr->x_attr = f_ptr->d_attr;
-		f_ptr->x_char = f_ptr->d_char;
+		f_ptr->x_attr_lit = f_ptr->x_attr_dim = f_ptr->x_attr = f_ptr->d_attr;
+		f_ptr->x_char_lit = f_ptr->x_char_dim = f_ptr->x_char = f_ptr->d_char;
 	}
 
 	/* Extract default attr/char code for objects */
@@ -5554,7 +5872,6 @@ void do_cmd_save_screen(void)
 		r_ptr->x_char = r_ptr->d_char;
 	}
 
-
 	/* Extract default attr/char code for flavors */
 	for (i = 0; i < z_info->flavor_max; i++)
 	{
@@ -5565,16 +5882,19 @@ void do_cmd_save_screen(void)
 		flavor_ptr->x_char = flavor_ptr->d_char;
 	}
 
+	/* Process the basic text-mode preferences (no extended characters) */
+	(void)process_pref_file("font-xxx.prf");
+
 	/* Do a complete screen refresh */
 	do_cmd_redraw();
 
 	/* Save screen */
-	screen_save();
+	screen_save(FALSE);
 
 
 	/* Take a screenshot */
-	if (text) text_screenshot(tmp_val);
-	else      html_screenshot(tmp_val);
+	if      (mode == 0) text_screenshot(filename);
+	else                html_screenshot(filename, mode);
 
 
 	/* Reset the visuals, reload preferences */
@@ -5590,7 +5910,7 @@ void do_cmd_save_screen(void)
 	do_cmd_redraw();
 
 	/* Message */
-	msg_format("Screenshot saved in the \"lib/user\" directory as \"%s\".", tmp_val);
+	msg_format("Screenshot saved in the \"lib/user\" directory as \"%s\".", filename);
 }
 
 
@@ -5625,7 +5945,7 @@ static void do_cmd_knowledge_score(void)
 }
 
 
-#define BROWSER_ROWS	 (text_50_rows ? 41 : 16)
+#define BROWSER_ROWS	 (Term->rows - 9)
 
 
 
@@ -5808,8 +6128,8 @@ static obj_struct object_group[] =
 	{ TV_CROWN,       "Crowns" },
 	{ TV_SHIELD,      "Shields" },
 	{ TV_CLOAK,       "Cloaks" },
-	{ TV_SOFT_ARMOR,  "Soft Body Armour" },
-	{ TV_HARD_ARMOR,  "Hard Body Armour" },
+	{ TV_SOFT_ARMOR,  "Soft Body Armor" },
+	{ TV_HARD_ARMOR,  "Hard Body Armor" },
 	{ TV_DRAG_ARMOR,  "Dragon Scale Mail" },
 	{ TV_MAGIC_BOOK,  "Books of Sorcery" },
 	{ TV_PRAYER_BOOK, "Books of Piety" },
@@ -6030,6 +6350,9 @@ static void observe_object_fake(int k_idx, int a_idx)
 	{
 		/* Create the object */
 		object_prep(o_ptr, k_idx);
+
+		/* We must be aware of the object kind */
+		if (!object_aware_p(o_ptr)) return;
 	}
 
 	/* We know basic information about this specific object */
@@ -6054,7 +6377,7 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 	bool shift_key = FALSE;
 
 	/* Allow all direction keys and shift-movement */
-	get_ui_direction(&ch, TRUE, TRUE, TRUE, &shift_key);
+	get_ui_direction(&ch, 0x00, &shift_key);
 
 
 	/* Move up one page */
@@ -6145,7 +6468,7 @@ static void display_artifact_list(int col, int row, int per_page,
 	int object_idx[], int object_cur, int object_top)
 {
 	int i;
-	char o_name[80];
+	char o_name[DESC_LEN];
 	object_type *o_ptr;
 	object_type forge;
 
@@ -6169,7 +6492,7 @@ static void display_artifact_list(int col, int row, int per_page,
 		make_fake_artifact(o_ptr, a_idx);
 
 		/* Get its name */
-		object_desc_store(o_name, o_ptr, TRUE, 0);
+		object_desc_store(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);
@@ -6241,7 +6564,7 @@ static void do_cmd_knowledge_artifacts(void)
 		/* Handle a redraw request */
 		if (redraw)
 		{
-			clear_from(0);
+			(void)Term_clear();
 
 			/* Redraw */
 			prt("Knowledge - artifacts", 2, 0);
@@ -6263,14 +6586,7 @@ static void do_cmd_knowledge_artifacts(void)
 		}
 
 		/* Scroll group list */
-		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + BROWSER_ROWS)
-			grp_top = grp_cur - BROWSER_ROWS + 1;
-
-		/* Scroll object list (artifact) */
-		if (object_cur < object_top) object_top = object_cur;
-		if (object_cur >= object_top + BROWSER_ROWS)
-			object_top = object_cur - BROWSER_ROWS + 1;
+		grp_top = MAX(0, grp_cur - BROWSER_ROWS + 1);
 
 		/* Display a list of object groups (artifact) */
 		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, TRUE,
@@ -6279,15 +6595,20 @@ static void do_cmd_knowledge_artifacts(void)
 		/* Get a list of artifacts in the current group */
 		object_cnt = collect_artifacts(grp_idx[grp_cur], object_idx);
 
+		/* Never leave the list */
+		if (object_cur >= object_cnt) object_cur = MAX(0, object_cnt - 1);
+
+		/* Scroll object list (artifact) */
+		object_top = MAX(0, object_cur - BROWSER_ROWS + 1);
+
 		/* Display a list of artifacts in the current group */
 		display_artifact_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur,
 			object_top);
 
+
 		/* Prompt */
-		if (column)
-			prt("<dir>, return to inspect, ESC", BROWSER_ROWS + 7, 0);
-		else
-			prt("<dir>, ESC", BROWSER_ROWS + 7, 0);
+		if (column) prt("<dir>, return to inspect, ESC", BROWSER_ROWS + 7, 0);
+		else        prt("<dir>, ESC", BROWSER_ROWS + 7, 0);
 
 		/* The "current" object changed */
 		if (object_old != object_idx[object_cur])
@@ -6308,7 +6629,7 @@ static void do_cmd_knowledge_artifacts(void)
 			(void)Term_gotoxy(max + 3, 6 + (object_cur - object_top));
 		}
 
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Handle commands */
 		switch (ch)
@@ -6331,6 +6652,8 @@ static void do_cmd_knowledge_artifacts(void)
 				/* Fall through */
 			}
 
+			case 'R':
+			case 'r':
 			case 'I':
 			case 'i':
 			{
@@ -6383,8 +6706,8 @@ static void display_monster_list(int col, int row, int per_page,
 		/* Display the monster name */
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
-			char name[80];
-			sprintf(name, "%s, the %s", ghost_name, r_name + r_ptr->name);
+			char name[DESC_LEN];
+			(void)strnfmt(name, sizeof(name), "%s, the %s", ghost_name, r_name + r_ptr->name);
 			c_prt(attr, name, row + i, col);
 		}
 		else
@@ -6474,7 +6797,7 @@ static void do_cmd_knowledge_monsters(void)
 
 		if (redraw)
 		{
-			clear_from(0);
+			(void)Term_clear();
 
 			prt("Knowledge - Monsters", 2, 0);
 			prt("Group", 4, 0);
@@ -6496,12 +6819,7 @@ static void do_cmd_knowledge_monsters(void)
 		}
 
 		/* Scroll group list */
-		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
-
-		/* Scroll monster list */
-		if (mon_cur < mon_top) mon_top = mon_cur;
-		if (mon_cur >= mon_top + BROWSER_ROWS) mon_top = mon_cur - BROWSER_ROWS + 1;
+		grp_top = MAX(0, grp_cur - BROWSER_ROWS + 1);
 
 		/* Display a list of monster groups */
 		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, FALSE,
@@ -6510,17 +6828,22 @@ static void do_cmd_knowledge_monsters(void)
 		/* Get a list of monsters in the current group */
 		mon_cnt = collect_monsters(grp_idx[grp_cur], mon_idx, 0x00);
 
+		/* Never leave the list */
+		if (mon_cur >= mon_cnt) mon_cur = MAX(0, mon_cnt - 1);
+
+		/* Scroll monster list */
+		mon_top = MAX(0, mon_cur - BROWSER_ROWS + 1);
+
 		/* Display a list of monsters in the current group */
 		display_monster_list(max + 3, 6, BROWSER_ROWS, mon_idx, mon_cur, mon_top);
 
 		/* Track selected monster, to enable recall in sub-win */
 		p_ptr->monster_race_idx = mon_idx[mon_cur];
 
+
 		/* Prompt */
-		if (column)
-			prt("<dir>, return to recall, ESC", BROWSER_ROWS + 7, 0);
-		else
-			prt("<dir>, ESC", BROWSER_ROWS + 7, 0);
+		if (column) prt("<dir>, return to recall, ESC", BROWSER_ROWS + 7, 0);
+		else        prt("<dir>, ESC", BROWSER_ROWS + 7, 0);
 
 		/* Mega Hack -- track this monster race */
 		if (mon_cnt) monster_race_track(mon_idx[mon_cur]);
@@ -6537,7 +6860,7 @@ static void do_cmd_knowledge_monsters(void)
 			(void)Term_gotoxy(max + 3, 6 + (mon_cur - mon_top));
 		}
 
-		ch = inkey();
+		ch = inkey(ALLOW_CLICK);
 
 		switch (ch)
 		{
@@ -6561,6 +6884,8 @@ static void do_cmd_knowledge_monsters(void)
 
 			case 'R':
 			case 'r':
+			case 'I':
+			case 'i':
 			{
 				/* Recall on screen */
 				if (mon_idx[mon_cur])
@@ -6569,7 +6894,7 @@ static void do_cmd_knowledge_monsters(void)
 					screen_roff(mon_idx[mon_cur]);
 
 					/* Wait for a keypress */
-					(void)inkey();
+					(void)inkey(ALLOW_CLICK);
 
 					redraw = TRUE;
 				}
@@ -6604,9 +6929,7 @@ static void do_cmd_knowledge_kill_count(void)
 	FILE *fp;
 
 	char file_name[1024];
-	char buf[120];
-
-	int old_rows = screen_rows;
+	char buf[DESC_LEN];
 
 	u32b kills = 0;
 	u32b k;
@@ -6874,30 +7197,24 @@ static void do_cmd_knowledge_kill_count(void)
 	(void)my_fclose(fp);
 
 
-	/* We want 50 rows */
-	if (text_50_rows) (void)Term_rows(TRUE);
-
-	/* We don't */
-	else (void)Term_rows(FALSE);
-
+	/* Use the standard or tall display and center an 80 column view */
+	if (more_tall_display)
+	{
+		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_TALL | DSP_CX,
+			80, 0);
+	}
+	else
+	{
+		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX,
+			80, 0);
+	}
 
 	/* Display the file contents */
 	(void)show_file(file_name, "Kill Count", 0, 2);
 
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50)
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(TRUE);
-	}
-
-	/* Set to 25 rows, if we were showing 25 before */
-	else
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(FALSE);
-	}
 
 	/* Reset "text_out()" vars */
 	text_out_wrap   = 0;
@@ -6916,21 +7233,25 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 	int object_cur, int object_top)
 {
 	int i;
+	object_kind *k_ptr;
+	byte attr, cursor;
+
 
 	/* Display lines until done */
-	for (i = 0; i < per_page && object_idx[i]; i++)
+	for (i = 0; i < per_page; i++)
 	{
 		/* Get the object index */
 		int k_idx = object_idx[object_top + i];
 
+		/* Stop at end of list */
+		if (k_idx <= 0) break;
+
 		/* Access the object */
-		object_kind *k_ptr = &k_info[k_idx];
+		k_ptr = &k_info[k_idx];
 
 		/* Choose a color */
-		byte attr =   ((k_ptr->special & (SPECIAL_AWARE)) ?
-			TERM_WHITE : TERM_SLATE);
-		byte cursor = ((k_ptr->special & (SPECIAL_AWARE)) ?
-			TERM_L_BLUE : TERM_BLUE);
+		attr =   ((k_ptr->special & (SPECIAL_AWARE)) ? TERM_WHITE : TERM_SLATE);
+		cursor = ((k_ptr->special & (SPECIAL_AWARE)) ? TERM_L_BLUE : TERM_BLUE);
 
 		/* Highlight selected object */
 		attr = ((i + object_top == object_cur) ? cursor : attr);
@@ -7018,7 +7339,7 @@ static void do_cmd_knowledge_objects(void)
 
 		if (redraw)
 		{
-			clear_from(0);
+			(void)Term_clear();
 
 			prt("Knowledge - objects", 2, 0);
 			prt("Group", 4, 0);
@@ -7040,13 +7361,7 @@ static void do_cmd_knowledge_objects(void)
 		}
 
 		/* Scroll group list */
-		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
-
-		/* Scroll object list */
-		if (object_cur < object_top) object_top = object_cur;
-		if (object_cur >= object_top + BROWSER_ROWS)
-			object_top = object_cur - BROWSER_ROWS + 1;
+		grp_top = MAX(0, grp_cur - BROWSER_ROWS + 1);
 
 		/* Display a list of object groups */
 		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, TRUE,
@@ -7055,15 +7370,20 @@ static void do_cmd_knowledge_objects(void)
 		/* Get a list of objects in the current group */
 		object_cnt = collect_objects(grp_idx[grp_cur], object_idx);
 
+		/* Never leave the list */
+		if (object_cur >= object_cnt) object_cur = MAX(0, object_cnt - 1);
+
+		/* Scroll object list */
+		object_top = MAX(0, object_cur - BROWSER_ROWS + 1);
+
 		/* Display a list of objects in the current group */
 		display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur,
 			object_top);
 
+
 		/* Prompt */
-		if (column)
-			prt("<dir>, return to inspect, ESC", BROWSER_ROWS + 7, 0);
-		else
-			prt("<dir>, ESC", BROWSER_ROWS + 7, 0);
+		if (column) prt("<dir>, return to inspect, ESC", BROWSER_ROWS + 7, 0);
+		else        prt("<dir>, ESC", BROWSER_ROWS + 7, 0);
 
 		/* Mega Hack -- track this object kind */
 		if (object_cnt) object_kind_track(object_idx[object_cur]);
@@ -7087,7 +7407,7 @@ static void do_cmd_knowledge_objects(void)
 			(void)Term_gotoxy(max + 3, 6 + (object_cur - object_top));
 		}
 
-		ch = inkey();
+		ch = inkey(ALLOW_CLICK);
 
 		switch (ch)
 		{
@@ -7109,6 +7429,8 @@ static void do_cmd_knowledge_objects(void)
 				/* Fall through */
 			}
 
+			case 'R':
+			case 'r':
 			case 'I':
 			case 'i':
 			{
@@ -7149,7 +7471,7 @@ static void do_cmd_knowledge_home(void)
 	FILE *fp;
 
 	object_type *o_ptr;
-	char o_name[120];
+	char o_name[DESC_LEN];
 
 	char file_name[1024];
 
@@ -7174,7 +7496,7 @@ static void do_cmd_knowledge_home(void)
 			o_ptr = &st_ptr->stock[k];
 
 			/* Get object description */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 			/* Print a message */
 			fprintf(fp, "     %s\n", o_name);
@@ -7197,7 +7519,6 @@ static void do_cmd_knowledge_home(void)
  */
 void do_cmd_knowledge_quests(FILE *fp)
 {
-	char buf[100];
 	int wid;
 	int i, level;
 	bool quests = FALSE;
@@ -7206,10 +7527,11 @@ void do_cmd_knowledge_quests(FILE *fp)
 
 	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
 
-	char name[80];
-	char intro[80];
-	char targets[80];
-	char where[80];
+	char buf[DESC_LEN];
+	char name[DESC_LEN];
+	char intro[DESC_LEN];
+	char targets[DESC_LEN];
+	char where[DESC_LEN];
 
 	char file_name[1024];
 
@@ -7323,7 +7645,8 @@ void do_cmd_knowledge_quests(FILE *fp)
 
 				else if (my_is_vowel(name[0]))
 					(void)my_strcpy(targets, format("an %s", name), sizeof(targets));
-				else (void)my_strcpy(targets, format("a %s",  name), sizeof(targets));
+				else
+					(void)my_strcpy(targets, format("a %s",  name), sizeof(targets));
 			}
 
 			/* The location of the quest */
@@ -7332,9 +7655,10 @@ void do_cmd_knowledge_quests(FILE *fp)
 			if (!depth_in_feet) strcpy(where, format("on level %d", level));
 			else
 			{
-				if (!use_metric) strcpy(where, format("at %d feet",
-					level * 50));
-				else strcpy(where, format("at %d meters", level * 15));
+				if (!use_metric)
+					(void)strcpy(where, format("at %d feet", level * 50));
+				else
+					(void)strcpy(where, format("at %d meters", level * 15));
 			}
 
 			/* Print this quest */
@@ -7377,23 +7701,19 @@ void do_cmd_knowledge(void)
 {
 	char ch;
 
-	int old_rows = screen_rows;
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
+	/* Save and center screen */
+	display_change(DSP_REMEMBER | DSP_LOCK | DSP_CX, 80, 0);
 
-	/* Save screen */
-	screen_save();
-
-	/* We want 25 rows */
-	(void)Term_rows(FALSE);
 
 	/* Interact until done */
 	while (TRUE)
 	{
-		/* Clear screen */
-		(void)Term_clear();
+		/* Clear screen and switch to standard view */
+		display_change(DSP_CLEAR | DSP_NORM, 0, 0);
 
 		/* Ask for a choice */
 		prt("Display current knowledge", 2, 0);
@@ -7409,10 +7729,10 @@ void do_cmd_knowledge(void)
 		if (p_ptr->self_knowledge) prt("(8) Self Knowledge",      11, 5);
 
 		/* Prompt */
-		prt("Command: ", (p_ptr->self_knowledge ? 12 : 11), 0);
+		prt("Choice: ", (p_ptr->self_knowledge ? 13 : 12), 0);
 
 		/* Prompt */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Done */
 		if (ch == ESCAPE) break;
@@ -7420,10 +7740,10 @@ void do_cmd_knowledge(void)
 		/* Game Score */
 		if (ch == '1')
 		{
-			if (text_50_rows)
+			if (more_tall_display)
 			{
-				clear_from(0);
-				(void)Term_rows(TRUE);
+				/* Clear screen and switch to large view */
+				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
 			}
 			do_cmd_knowledge_score();
 		}
@@ -7431,10 +7751,9 @@ void do_cmd_knowledge(void)
 		/* Artifacts */
 		else if (ch == '2')
 		{
-			if (text_50_rows)
+			if (more_tall_display)
 			{
-				clear_from(0);
-				(void)Term_rows(TRUE);
+				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
 			}
 			do_cmd_knowledge_artifacts();
 		}
@@ -7442,10 +7761,9 @@ void do_cmd_knowledge(void)
 		/* Uniques */
 		else if (ch == '3')
 		{
-			if (text_50_rows)
+			if (more_tall_display)
 			{
-				clear_from(0);
-				(void)Term_rows(TRUE);
+				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
 			}
 			do_cmd_knowledge_monsters();
 		}
@@ -7453,10 +7771,9 @@ void do_cmd_knowledge(void)
 		/* Monster killed count */
 		else if (ch == '4')
 		{
-			if (text_50_rows)
+			if (more_tall_display)
 			{
-				clear_from(0);
-				(void)Term_rows(TRUE);
+				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
 			}
 			do_cmd_knowledge_kill_count();
 		}
@@ -7464,10 +7781,9 @@ void do_cmd_knowledge(void)
 		/* Objects */
 		else if (ch == '5')
 		{
-			if (text_50_rows)
+			if (more_tall_display)
 			{
-				clear_from(0);
-				(void)Term_rows(TRUE);
+				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
 			}
 			do_cmd_knowledge_objects();
 		}
@@ -7475,10 +7791,9 @@ void do_cmd_knowledge(void)
 		/* The home */
 		else if (ch == '6')
 		{
-			if (text_50_rows)
+			if (more_tall_display)
 			{
-				clear_from(0);
-				(void)Term_rows(TRUE);
+				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
 			}
 			do_cmd_knowledge_home();
 		}
@@ -7500,25 +7815,11 @@ void do_cmd_knowledge(void)
 			self_knowledge(p_ptr->self_knowledge ? TRUE : FALSE);
 		}
 
-		/* Reset screen to 25 rows */
-		if (text_50_rows)
-		{
-			clear_from(0);
-			(void)Term_rows(FALSE);
-		}
-
 		/* Flush messages */
 		message_flush();
 	}
 
-	/* Set to original screen rows, if different */
-	if (old_rows != screen_rows)
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(old_rows == 50 ? TRUE : FALSE);
-	}
-
-	/* Load screen */
-	screen_load();
+	/* Restore previous screen */
+	display_change(DSP_RESTORE | DSP_UNLOCK, 0, 0);
 }
 

@@ -1,42 +1,40 @@
-# File: object.txt
-
-
+#
 # This file contains information about object kinds.
-
-# Do not modify this file unless you know exactly what you are doing, 
-# unless you wish to risk possible system crashes and broken savefiles.
-
+#
+#
 # Objects may have descriptions (taken from Oangband).  These descriptions 
 # only appear if the player is at least aware of the object kind.  Food, 
-# weapons, armours, junk, and tools have complete descriptions, while those 
+# weapons, armors, junk, and tools have complete descriptions, while those 
 # of magical devices also use the object flavor (the kind of material) and 
 # often insert extra numerical information (indicated by a '~').  Artifacts 
-# are described in a_info.txt.
-
+# are described in artifact.txt.
+#
 # Special thanks to J.R.R Tolkien for fundamental concepts, and to Pat 
-# Tracy, a primary source for weapon and armour descriptions.  -LM-
-
+# Tracy, a primary source for weapon and armor descriptions.  -LM-
+#
 # Note that object zero is used for the "stack" picture (currently unused).
-
+#
 
 # Version stamp (required)
 
-V:0.9.9
+V:1.0.0
 
-
-#N: object index: name
-#G: ASCII char used to display the object: color symbol : pval
-#I: object tval (general kind): object sval (specific type)
-#W: object level : activation: 
-#     weight (in deci-pounds): value
-#M: probability (%) of object appearing in quantity, die roll for number
-#A: All depths/abundances of the item (max of three pairs possible)
-#C: Base armour class: damage done when wielded or thrown: 
-#     Bonus to Skill: Bonus to Deadliness: Bonus to armour class
-#F: All item-specific flags (special qualities).  Some depend on pval.
-#D: The object descripion, used to provide more information when it is 
-#   'I'nspected.
-
+#
+# N: object index: name
+# G: ASCII char used to display the object: color symbol : pval
+# I: object tval (general kind): object sval (specific type)
+# W: object level : activation: 
+#      weight (in deci-pounds): value
+# M: probability (%) of object appearing in quantity, die roll for number
+# A: All depths/abundances of the item (max of three pairs possible)
+# C: Base armor class: damage done when wielded or thrown: 
+#      Bonus to Skill: Bonus to Deadliness: Bonus to armor class
+# F: All item-specific flags (special qualities).  Some depend on pval.
+# D: The object descripion, used to provide more information when it is 
+#    'I'nspected.
+#
+# For more information, see ego_item.txt and /lib/info/modify.txt
+#
 
 ##### Non-kind (contains the "pile" picture) #####
 
@@ -244,7 +242,7 @@ M:80:2d4
 D:Eat it, and your ability to recover from natural ailments will strengthen 
 D:greatly for a time.
 
-N:27:Armouring
+N:27:Armoring
 G:,:d
 I:80:26:50
 W:50:0:1:300
@@ -317,7 +315,7 @@ W:1:0:5:1
 A:1/33:10/0
 D:Made from the barley of Eriador, and brewed to golden perfection.
 
-N:37:& Pint~ of Fine Wine
+N:37:& Flagon~ of Fine Wine
 G:,:r
 I:80:36:1000
 W:1:0:10:2
@@ -805,7 +803,7 @@ W:20:0:120:300
 A:20/75:100/40
 C:0:2d6:0:0:0
 F:SHOW_MODS
-D:A simple, single-bladed war axe capable of chopping though limbs or armour.
+D:A simple, single-bladed war axe capable of chopping though limbs or armor.
 
 N:106:& Battle Axe~
 G:/:D
@@ -921,7 +919,7 @@ A:10/30:20/80
 C:0:3d1:0:0:0
 F:SHOW_MODS
 D:As tall as a man, the longbow can drive an arrow through the heaviest 
-D:armour.
+D:armor.
 
 ## XXX 132 XXX ##
 
@@ -1300,7 +1298,7 @@ D:of gems and jewels; worthy of an emperor.
 
 
 
-##### Armour - Soft body armour #####
+##### Armor - Soft body armor #####
 
 N:180:& Filthy Rag~
 G:(:D
@@ -1319,7 +1317,7 @@ A:1/100:10/50:100/20
 C:2:0d0:0:0:0
 D:A practical garment of thick wool or velvet, draping from neck to heels.
 
-N:182:Soft Leather Armour~
+N:182:Soft Leather Armor~
 G:(:U
 I:36:4:0
 W:3:0:70:20
@@ -1335,7 +1333,7 @@ A:4/75:50/15
 C:5:1d1:0:0:0
 D:A cuirass of pliable leather studded with metal rivets.
 
-N:184:Hard Leather Armour~
+N:184:Hard Leather Armor~
 G:(:U
 I:36:6:0
 W:5:0:100:80
@@ -1370,15 +1368,15 @@ D:leather.
 ## XXX 190 XXX ##
 
 
-##### Armour - Hard body armour #####
+##### Armor - Hard body armor #####
 
-N:191:Brigandine Armour~
+N:191:Brigandine Armor~
 G:[:D
 I:37:1:0
 W:20:0:170:500
 A:20/70:80/10
 C:12:1d4:-2:0:0
-D:A stiff suit of armour composed of small metal plates sewn to an inner 
+D:A stiff suit of armor composed of small metal plates sewn to an inner 
 D:layer of heavy canvas, and covered with a second layer of cloth.
 
 N:192:Rusty Chain Mail~
@@ -1434,7 +1432,7 @@ D:around the shoulders and chest with segmented plates of steel.
 
 ## XXX 199 XXX ##
 
-N:200:Partial Plate Armour~
+N:200:Partial Plate Armor~
 G:[:W
 I:37:12:0
 W:40:0:260:1400
@@ -1444,7 +1442,7 @@ D:A steel corselet and vambraces over a skirt and leggings of chain.
 
 ## XXX 201 XXX ##
 
-N:202:Full Plate Armour~
+N:202:Full Plate Armor~
 G:[:W
 I:37:15:0
 W:45:0:300:1900
@@ -1455,13 +1453,13 @@ D:by chain, and light padding underneath.
 
 ## XXX 203 XXX ##
 
-N:204:Imperial Plate Armour~
+N:204:Imperial Plate Armor~
 G:[:W
 I:37:18:0
 W:50:0:310:2500
 A:50/50:70/30
 C:28:1d6:-3:0:0
-D:A full suit of finely fitted metal armour consisting of steel plates 
+D:A full suit of finely fitted metal armor consisting of steel plates 
 D:reinforced by ridging.  Shell-shaped gussets protect the joints and a 
 D:gorget shields the neck.
 
@@ -1475,11 +1473,11 @@ A:60/9
 C:28:1d3:-1:0:0
 F:IGNORE_ACID
 D:Rare and wondrous is chain mail made of true-silver, for it offers more 
-D:protection for the weight than any other armour.
+D:protection for the weight than any other armor.
 
 ## XXX 207 XXX ##
 
-N:208:Mithril Plate Armour~
+N:208:Mithril Plate Armor~
 G:[:B
 I:37:25:0
 W:65:0:140:17000
@@ -1491,7 +1489,7 @@ D:legend.  It gleams with purest white as you gaze upon it.
 
 ## XXX 209 XXX ##
 
-N:210:Adamantite Plate Armour~
+N:210:Adamantite Plate Armor~
 G:[:G
 I:37:30:0
 W:75:0:350:12500
@@ -1507,7 +1505,7 @@ D:in Middle Earth gives as much protection.
 
 
 
-##### Armour -- Dragon Scale Mail #####
+##### Armor -- Dragon Scale Mail #####
 
 N:213:Black Dragon Scale Mail~
 G:[:s
@@ -1550,7 +1548,7 @@ C:30:2d4:-2:0:10
 F:RES_FIRE | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, with all the reds of every fire ever lit.  The scar 
-D:tissue from an old burn aches as you put this armour on.
+D:tissue from an old burn aches as you put this armor on.
 
 N:217:Green Dragon Scale Mail~
 G:[:g
@@ -1621,7 +1619,7 @@ C:30:2d4:-2:0:10
 F:RES_SOUND | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales in mirror-like gold.  You hear nothing unusual as you 
-D:wear this armour, yet your ears ache as though in the midst of a 
+D:wear this armor, yet your ears ache as though in the midst of a 
 D:cacophony.
 
 ## XXX 225 XXX ##
@@ -1676,7 +1674,7 @@ D:elemental and ethereal.
 
 
 
-##### Armour - Cloaks #####
+##### Armor - Cloaks #####
 
 N:230:& Cloak~
 G:(:g
@@ -1697,7 +1695,7 @@ D:A heavy cape of leather, worn in battle as a first layer of protection.
 N:232:& Elven Cloak~
 G:(:G
 I:35:3:2
-W:35:0:5:450
+W:35:0:5:1500
 A:35/20
 C:2:0d0:0:0:0
 F:STEALTH
@@ -1706,10 +1704,11 @@ D:takes on the hues and shapes of its surroundings.
 
 N:233:& Shadow Cloak~
 G:(:D
-I:35:4:0
-W:50:0:5:1200
-A:50/40
-C:4:0d0:0:0:4
+I:35:4:1
+W:50:0:5:1500
+A:50/33
+C:2:0d0:0:0:4
+F:INVIS
 D:A midnight-hued cloak that wreathes the wearer in folds of shadow.
 
 ## XXX 234 XXX ##
@@ -1728,7 +1727,7 @@ D:iridescent patterns around you.  It weighs absolutely nothing.
 
 
 
-##### Armour - Handgear #####
+##### Armor - Handgear #####
 
 N:237:& Set~ of Leather Gloves
 G:]:U
@@ -1769,7 +1768,7 @@ D:A massive set of hand sheathings, bound with steel and thrice-cured leather.
 ## XXX 243 XXX ##
 
 
-##### Armour - Shields #####
+##### Armor - Shields #####
 
 N:244:& Wicker Shield~
 G:):U
@@ -1848,7 +1847,7 @@ D:all hurt and harm from you.
 ## XXX 254 XXX ##
 
 
-##### Space for miscellanious armours #####
+##### Space for miscellanious armors #####
 
 ## XXX 255 XXX ##
 
@@ -1999,7 +1998,7 @@ I:45:17:0
 W:10:0:2:500
 A:10/100:20/100:40/0
 E:SHIELD 1
-D:that magically affects your armour class.
+D:that magically affects your armor class.
 
 N:278:Acid
 G:=:d
@@ -2103,7 +2102,7 @@ I:45:28:0
 W:20:0:2:100
 A:20/100:100/15
 F:STR | HIDE_TYPE
-D:that enhances your strength.
+D:that affects your strength.
 
 N:289:Dexterity
 G:=:d
@@ -2111,7 +2110,7 @@ I:45:29:0
 W:20:0:2:100
 A:20/100:100/15
 F:DEX | HIDE_TYPE
-D:that enhances your dexterity.
+D:that affects your dexterity.
 
 N:290:Constitution
 G:=:d
@@ -2119,31 +2118,13 @@ I:45:30:0
 W:20:0:2:100
 A:20/100:100/15
 F:CON | HIDE_TYPE
-D:that enhances your constitution.
+D:that affects your constitution.
 
-#what happens when a ring of strength goes bad
-N:291:Weakness
-G:=:d
-I:45:31:0
-W:20:0:2:0
-F:STR | HIDE_TYPE | LIGHT_CURSE
-D:that saps your strength.
+## XXX 291 XXX ##
 
-#what happens when a ring of dexterity goes bad
-N:292:Clumsiness
-G:=:d
-I:45:32:0
-W:20:0:2:0
-F:DEX | HIDE_TYPE | LIGHT_CURSE
-D:that reduces your dexterity.
+## XXX 292 XXX ##
 
-#what happens when a ring of constitution goes bad
-N:293:Vulnerability
-G:=:d
-I:45:33:0
-W:20:0:2:0
-F:CON | HIDE_TYPE | LIGHT_CURSE
-D:that attacks your constitution.
+## XXX 293 XXX ##
 
 N:294:Skill
 G:=:d
@@ -2208,7 +2189,7 @@ W:10:0:3:50
 A:4/10:12/50:40/0
 F:INFRA | HIDE_TYPE
 E:FIRE 1
-D:that allows you to see warm-blooded creatures nearby.
+D:that affects your ability to see warm-blooded creatures nearby.
 
 N:303:Slow Digestion
 G:":d
@@ -2264,7 +2245,7 @@ W:50:229:3:4000
 A:50/15
 F:MANA | HIDE_TYPE
 E:MAGIC 3
-D:that increases your mana.
+D:that affects your available mana.
 
 N:309:Recharging
 G:":d
@@ -2293,7 +2274,7 @@ W:20:0:3:100
 A:20/100:30/100:70/10
 F:INT | HIDE_TYPE
 E:KNOWLEDGE 1 | BLESSING 1
-D:that enhances your intelligence.
+D:that affects your intelligence.
 
 N:312:Wisdom
 G:":d
@@ -2302,7 +2283,7 @@ W:20:0:3:100
 A:20/100:30/100:70/10
 F:WIS | HIDE_TYPE
 E:KNOWLEDGE 1 | BLESSING 1
-D:that enhances your wisdom.
+D:that affects your wisdom.
 
 N:313:Charisma
 G:":d
@@ -2310,31 +2291,13 @@ I:40:13:0
 W:18:0:3:100
 A:18/100:25/100:40/5
 F:CHR | HIDE_TYPE
-D:that enhances your charisma.
+D:that affects your charisma.
 
-#what happens when an amulet of intelligence goes bad
-N:314:Stupidity
-G:":d
-I:40:14:0
-W:20:0:3:0
-F:INT | HIDE_TYPE
-D:that reduces your intelligence.
+## XXX 314 XXX ##
 
-#what happens when an amulet of wisdom goes bad
-N:315:Naivete
-G:":d
-I:40:15:0
-W:20:0:3:0
-F:WIS | HIDE_TYPE
-D:that reduces your wisdom.
+## XXX 315 XXX ##
 
-#what happens when an amulet of charisma goes bad
-N:316:Ugliness
-G:":d
-I:40:16:0
-W:18:0:3:0
-F:CHR | HIDE_TYPE
-D:that reduces your charisma.
+## XXX 316 XXX ##
 
 N:317:Magical Protection
 G:":d
@@ -2355,7 +2318,7 @@ D:that affects your saving throw against magic.
 # The essences listed can often make many scrolls, depending on skill and 
 # item cost
 N:320:Darkness
-G:?:d
+G:?:w
 I:70:0:0
 W:1:0:5:0
 A:1/100:10/5
@@ -2363,56 +2326,56 @@ E:DARK 1
 D:that darkens the nearby area.
 
 N:321:Aggravate Monster
-G:?:d
+G:?:w
 I:70:1:0
 W:4:0:5:0
 A:4/100:70/5
 D:that provokes enemies to seek you out.
 
 N:322:Curse Armor
-G:?:d
+G:?:w
 I:70:2:0
 W:65:0:5:0
 A:65/25:75/0
 D:that shatters a piece of armor.
 
 N:323:Curse Weapon
-G:?:d
+G:?:w
 I:70:3:0
 W:65:0:5:0
 A:65/25:75/0
 D:that smashes a weapon.
 
 N:324:Summon Monster
-G:?:d
+G:?:w
 I:70:4:0
 W:2:0:5:0
 A:2/100:30/0
 D:that brings unwelcome visitors.
 
 N:325:Summon Undead
-G:?:d
+G:?:w
 I:70:5:0
 W:15:0:5:0
 A:15/100:50/0
 D:that calls dark forces after you.
 
 N:326:Summon the Host of Hell
-G:?:d
+G:?:w
 I:70:6:0
 W:65:0:5:0
 A:65/40:75/10
 D:that conjures up powerful demonic adversaries.
 
 N:327:Trap Creation
-G:?:d
+G:?:w
 I:70:7:0
 W:10:0:5:0
 A:10/50:20/0
 D:that lays traps to ensnare you.
 
 N:328:Phase Door
-G:?:d
+G:?:w
 I:70:8:0
 W:1:0:5:15
 A:1/50:50/25
@@ -2421,7 +2384,7 @@ E:NEXUS 1
 D:that teleports you a short distance.
 
 N:329:Teleportation
-G:?:d
+G:?:w
 I:70:9:0
 W:10:0:5:75
 A:10/100
@@ -2430,7 +2393,7 @@ E:NEXUS 2
 D:that teleports you a long distance.
 
 N:330:Teleport Level
-G:?:d
+G:?:w
 I:70:10:0
 W:20:0:5:50
 A:20/50
@@ -2438,7 +2401,7 @@ E:NEXUS 2
 D:that sends you up or down one level.
 
 N:331:Word of Recall
-G:?:d
+G:?:w
 I:70:11:0
 W:5:0:5:100
 A:5/50
@@ -2447,7 +2410,7 @@ D:that transports you from the depths to the town and visa versa.
 D:There is a delay before it takes effect.
 
 N:332:Learn Magic
-G:?:d
+G:?:w
 I:70:12:0
 W:1:0:5:15
 A:1/150:10/80:40/0
@@ -2455,10 +2418,10 @@ M:80:2d3
 E:KNOWLEDGE 1
 D:that reveals the number of charges on wands and staffs, the plusses on 
 D:certain kinds of rings and amulets, and will give you some idea of the quality 
-D:of unknown weapons and armour.
+D:of unknown weapons and armor.
 
 N:333:Identify
-G:?:d
+G:?:w
 I:70:13:0
 W:5:0:5:75
 A:2/50:100/75
@@ -2467,7 +2430,7 @@ E:KNOWLEDGE 1
 D:that reveals the name and obvious powers of an object.
 
 N:334:*Identify*
-G:?:d
+G:?:w
 I:70:14:0
 W:20:0:5:1000
 A:20/25:70/100
@@ -2476,7 +2439,7 @@ D:that reveals in full detail the true nature of an object, and imprints it
 D:in your mind so that you never forget it.
 
 N:335:Remove Curse
-G:?:d
+G:?:w
 I:70:15:0
 W:5:0:5:75
 A:5/100:50/10
@@ -2484,24 +2447,24 @@ E:BLESSING 1
 D:that frees you from the grip of a lightly cursed item.
 
 N:336:*Remove Curse*
-G:?:d
+G:?:w
 I:70:16:0
 W:55:0:5:7000
 A:55/40
 E:BLESSING 5
 D:that frees you from the grip of a heavily cursed item.
 
-N:337:Enchant Armour
-G:?:d
+N:337:Enchant Armor
+G:?:w
 I:70:17:0
 W:7:0:5:150
 A:7/70:40/70:80/5
 E:SHIELD 1
-D:that improves a piece of armour.  It is less likely to succeed on 
+D:that improves a piece of armor.  It is less likely to succeed on 
 D:strongly enchanted items and large piles.
 
 N:338:Enchant Weapon (Skill)
-G:?:d
+G:?:w
 I:70:18:0
 W:10:0:5:150
 A:10/70:40/70:80/5
@@ -2510,7 +2473,7 @@ D:that makes a weapon more accurate.  It is less likely to succeed on
 D:strongly enchanted items and large piles.
 
 N:339:Enchant Weapon (Deadliness)
-G:?:d
+G:?:w
 I:70:19:0
 W:10:0:5:150
 A:10/70:40/70:80/5
@@ -2519,7 +2482,7 @@ D:that makes a weapon more deadly.  It is less likely to succeed on
 D:strongly enchanted items and large piles.
 
 N:340:*Enchant Armor*
-G:?:d
+G:?:w
 I:70:20:0
 W:35:0:5:6000
 A:35/10
@@ -2529,7 +2492,7 @@ D:(non-ego) item special abilities.  It is less likely to succeed on
 D:strongly enchanted items and large piles.
 
 N:341:*Enchant Weapon*
-G:?:d
+G:?:w
 I:70:21:0
 W:30:0:5:6000
 A:30/10
@@ -2539,7 +2502,7 @@ D:(non-ego) item special abilities.  It is less likely to succeed on
 D:strongly enchanted items and large piles.
 
 N:342:Recharging
-G:?:d
+G:?:w
 I:70:22:0
 W:15:0:5:125
 A:8/33:15/100
@@ -2549,7 +2512,7 @@ D:that recharges a magic item.  The item may be destroyed, especially
 D:if it has many charges.
 
 N:343:*Recharging*
-G:?:d
+G:?:w
 I:70:23:0
 W:70:0:5:300
 A:70/50
@@ -2559,7 +2522,7 @@ D:that recharges a magic item.  It is more likely than lesser scrolls
 D:to succeed on items with many charges, but is still not a sure thing.
 
 N:344:Light
-G:?:d
+G:?:w
 I:70:24:0
 W:0:0:5:15
 A:0/100:20/0
@@ -2568,7 +2531,7 @@ E:LIGHT 1
 D:that lights up the area.
 
 N:345:Magic Mapping
-G:?:d
+G:?:w
 I:70:25:0
 W:7:0:5:45
 A:7/50:50/10
@@ -2577,7 +2540,7 @@ E:LIGHT 1
 D:that reveals the nearby dungeon, and finds doors and stairs.
 
 N:346:Treasure Detection
-G:?:d
+G:?:w
 I:70:26:0
 W:1:0:5:12
 A:1/100:20/0
@@ -2586,7 +2549,7 @@ E:KNOWLEDGE 1
 D:that reaveals nearby precious metals and gems.
 
 N:347:Object Detection
-G:?:d
+G:?:w
 I:70:27:0
 W:3:0:5:12
 A:3/100:20/0
@@ -2595,7 +2558,7 @@ E:KNOWLEDGE 1
 D:that reveals nearby objects.
 
 N:348:Trap Location
-G:?:d
+G:?:w
 I:70:28:0
 W:2:0:5:12
 A:2/100:20/0
@@ -2604,7 +2567,7 @@ E:KNOWLEDGE 1
 D:that reveal nearby traps.
 
 N:349:Door/Stair Location
-G:?:d
+G:?:w
 I:70:29:0
 W:2:0:5:12
 A:2/100:20/0
@@ -2613,7 +2576,7 @@ E:KNOWLEDGE 1
 D:that reveals nearby doors and stairs.
 
 N:350:Detect Invisible
-G:?:d
+G:?:w
 I:70:30:0
 W:1:0:5:12
 A:1/150:20/0
@@ -2622,7 +2585,7 @@ E:KNOWLEDGE 1
 D:that reveals nearby invisible monsters.
 
 N:351:Elemental Attacks
-G:?:d
+G:?:w
 I:70:31:0
 W:25:0:5:800
 A:25/50
@@ -2631,7 +2594,7 @@ D:that temporarily infuses your blows with elemental power.
 
 # expensive by deliberate policy
 N:352:Satisfy Hunger
-G:?:d
+G:?:w
 I:70:32:0
 W:25:0:5:80
 A:25/75
@@ -2639,34 +2602,34 @@ E:LIFE 1
 D:that fills you up completely.
 
 N:353:Blessing
-G:?:d
+G:?:w
 I:70:33:0
 W:1:0:5:15
 A:1/33:20/33:25/0
 M:70:2d4
 E:BLESSING 1
-D:that grants you a brief bonus to combat skills and armour class.
+D:that grants you a brief bonus to combat skills and armor class.
 
 N:354:Holy Chant
-G:?:d
+G:?:w
 I:70:34:0
 W:15:0:5:35
 A:15/33:50/0
 M:70:2d4
 E:BLESSING 1
-D:that grants you a temporary bonus to combat skills and armour class.
+D:that grants you a temporary bonus to combat skills and armor class.
 
 N:355:Holy Prayer
-G:?:d
+G:?:w
 I:70:35:0
 W:30:0:5:80
 A:30/33
 M:70:2d4
 E:BLESSING 1
-D:that grants you a long lasting bonus to combat skills and armour class.
+D:that grants you a long lasting bonus to combat skills and armor class.
 
 N:356:Monster Confusion
-G:?:d
+G:?:w
 I:70:36:0
 W:1:0:5:25
 A:1/40:60/5
@@ -2675,7 +2638,7 @@ E:CONFUSION 1
 D:that may confuse the next few monsters you strike.
 
 N:357:Protection from Evil
-G:?:d
+G:?:w
 I:70:37:0
 W:30:0:5:100
 A:30/70
@@ -2683,7 +2646,7 @@ E:SHIELD 1
 D:that wards off some of the blows of evil enemies.
 
 N:358:Rune of Protection
-G:?:d
+G:?:w
 I:70:38:0
 W:40:0:5:2500
 A:40/30:80/50
@@ -2692,7 +2655,7 @@ D:that creates a place of sanctuary which is difficult for enemies to
 D:penetrate.
 
 N:359:Force Door
-G:?:d
+G:?:w
 I:70:39:0
 W:1:0:5:10
 A:1/10:9/10:15/0
@@ -2705,14 +2668,14 @@ D:metal spikes can make it even stronger if you have to stop a dragon.
 
 # This scroll cannot be made, and seldom appears really deep in the dungeon.
 N:360:Questing
-G:?:d
+G:?:w
 I:70:40:0
 W:30:0:5:25000
 A:30/6:55/6:80/0
 D:that opens a magical portal to lands of wonder and fantasy.
 
 N:361:*Destruction*
-G:?:d
+G:?:w
 I:70:41:0
 W:50:0:5:1250
 A:50/50
@@ -2720,7 +2683,7 @@ E:FORCE 3
 D:that obliterates almost everything nearby.  Unique monsters will escape.
 
 N:362:Poison Cloud
-G:?:d
+G:?:w
 I:70:42:0
 W:20:0:5:150
 A:20/40:40/40:60/2
@@ -2730,7 +2693,7 @@ D:that creates a lingering cloud of poison that attacks everything in its
 D:area of effect.
 
 N:363:Invoke Nexus
-G:?:d
+G:?:w
 I:70:43:0
 W:75:0:5:600
 A:75/50
@@ -2739,7 +2702,7 @@ E:NEXUS 1
 D:that casts a nexus storm around you.
 
 N:364:Genocide
-G:?:d
+G:?:w
 I:70:44:0
 W:45:0:5:750
 A:45/40
@@ -2748,7 +2711,7 @@ D:that banishes all monsters of a given type from the level.  Unique
 D:foes are immune, as are those in protected areas.
 
 N:365:Mass Genocide
-G:?:d
+G:?:w
 I:70:45:0
 W:60:0:5:1100
 A:60/40
@@ -2757,7 +2720,7 @@ D:that banishes all nearby monsters from the level.  Unique foes are
 D:immune, as are those in protected areas.
 
 N:366:Acquirement
-G:?:d
+G:?:w
 I:70:46:0
 W:25:0:5:18000
 A:25/12
@@ -2765,7 +2728,7 @@ E:MAGIC 5
 D:that summons a good magic item to you.
 
 N:367:*Acquirement*
-G:?:d
+G:?:w
 I:70:47:0
 W:65:0:5:50000
 A:65/6
@@ -2773,7 +2736,7 @@ E:MAGIC 12
 D:that summons several good magic items to you.
 
 N:368:Alter Reality
-G:?:d
+G:?:w
 I:70:48:0
 W:55:0:5:1000
 A:55/25
@@ -2781,7 +2744,7 @@ E:CHAOS 1
 D:that instantly changes the current dungeon level.
 
 N:369:Madness
-G:?:d
+G:?:w
 I:70:49:0
 W:60:0:5:3500
 A:60/33
@@ -2789,7 +2752,7 @@ E:CONFUSION 2
 D:with spells to drive your enemies insane.
 
 N:370:Nightfall
-G:?:d
+G:?:w
 I:70:50:0
 W:75:0:5:3500
 A:75/33
@@ -2799,7 +2762,7 @@ D:eternally, and strikes at every creature on the level that does not
 D:resist Darkness.
 
 N:371:Forests
-G:?:d
+G:?:w
 I:70:51:0
 W:25:0:5:300
 A:25/50
@@ -2807,7 +2770,7 @@ E:LIFE 1
 D:that creates a stand of trees.
 
 N:372:the Sea
-G:?:d
+G:?:w
 I:70:52:0
 W:35:0:5:400
 A:35/50
@@ -2815,7 +2778,7 @@ E:ACID 1
 D:that creates a pond.
 
 N:373:Magma
-G:?:d
+G:?:w
 I:70:53:0
 W:45:0:5:500
 A:45/50
@@ -2951,11 +2914,13 @@ D:that weakens your spirit.
 
 ## XXX 395 XXX ##
 
+# Potions of reduce stat are more common early on than potions of increase stat because 
+# the latter appear fairly often in "good" drops starting about 1000'.
 N:396:Weakness
 G:!:d
 I:75:16:0
 W:25:0:4:0
-A:25/10:45/50:55/0
+A:25/20:40/50:55/0
 C:0:1d1:0:0:0
 D:that saps your strength.
 
@@ -2963,7 +2928,7 @@ N:397:Stupidity
 G:!:d
 I:75:17:0
 W:25:0:4:0
-A:25/10:45/50:55/0
+A:25/20:40/50:55/0
 C:0:1d1:0:0:0
 D:that dulls your mind.
 
@@ -2971,7 +2936,7 @@ N:398:Naivety
 G:!:d
 I:75:18:0
 W:25:0:4:0
-A:25/10:45/50:55/0
+A:25/20:40/50:55/0
 C:0:1d1:0:0:0
 D:that breaks down your will.
 
@@ -2979,7 +2944,7 @@ N:399:Clumsiness
 G:!:d
 I:75:19:0
 W:25:0:4:0
-A:25/10:45/50:55/0
+A:25/20:40/50:55/0
 C:0:1d1:0:0:0
 D:that attacks your coordination.
 
@@ -2987,7 +2952,7 @@ N:400:Sickliness
 G:!:d
 I:75:20:0
 W:20:0:4:0
-A:20/15:40/50:50/0
+A:25/20:40/50:55/0
 C:0:1d1:0:0:0
 D:that ravages your body.
 
@@ -2995,7 +2960,7 @@ N:401:Ugliness
 G:!:d
 I:75:21:0
 W:19:0:4:0
-A:20/10:45/50:55/0
+A:20/20:35/50:55/0
 C:0:1d1:0:0:0
 D:that scars your form and dulls your charm.
 
@@ -3683,7 +3648,14 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:CHAOS 1 | MAGIC 1
 D:with wild and wondrous magics, unsafe for any but the skilled.
 
-## XXX 486 XXX ##
+N:486:Spark
+G:-:d
+I:65:31:28
+W:0:0:10:25
+A:1/100:2/100:5/0
+C:0:1d1:0:0:0
+E:ELEC 1
+D:that zaps monsters nearby.
 
 ## XXX 487 XXX ##
 
@@ -4544,7 +4516,7 @@ I:1:3:0
 W:5:0:40:0
 A:5/40:25/0
 C:0:1d2:0:0:0
-D:This merry gnome's last trick failed him, and filthy kobolds now toss his 
+D:This merry gnome's last trick failed him and filthy kobolds now toss his 
 D:bones from hand to hand.
 
 N:644:& Elf skeleton~
@@ -4790,7 +4762,7 @@ G:?:D
 I:93:0:0
 W:5:0:30:35
 A:5/60:30/0
-C:0:2d9:-5:0:0
+C:0:2d6:-5:0:0
 
 N:681:[Darker Elements]
 G:?:D

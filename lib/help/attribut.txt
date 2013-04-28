@@ -1,6 +1,4 @@
 
-====== Character Attributes ======
-
 --- Basic Attributes ---
 
 Score:
@@ -20,8 +18,6 @@ Approximate equation:
      - Plus:  +100% for defeating Morgoth, or +50% for defeating Sauron
      - Plus:  square_root(gold / 1000).
      - Choosing some difficulty options and races affects your score.
-
-                "The best score yet reported is 4614."
 
 Experience:
      As you kill monsters, learn about objects by using or eating them, cast
@@ -57,13 +53,13 @@ Spellpoints:
 mana depends on your magic power skill and your intelligence (if you are using
 sorcery and necromancy) or wisdom (if you are using natural or holy magics).
 Ways to recover mana faster than by resting are rare and greatly desired.
-     Mana goes down if you wear heavy armour, or are in any shape other than
-your normal one.
+     Mana goes down if you wear heavy armor, or are in any shape other than your
+normal one.
 
-Armour Class:
-     Armour class (AC) makes you harder to hit in melee, and reduces the damage
+Armor Class:
+     Armor class (AC) makes you harder to hit in melee, and reduces the damage
 you take from almost all monster blows.  You can raise it by equipping more and
-better armour, by increasing your Dexterity, and by activating various temporary
+better armor, by increasing your Dexterity, and by activating various temporary
 effects.  As time passes, you will find this value rising past 100, even to 150
 and above at very high levels.
 
@@ -95,7 +91,7 @@ Values for stats:
 that stat influences.  The lowest "safe" figure for most stats is 7, but you
 can't expect any significant bonuses until the stat reaches 18 or higher.  Once
 you get a stat that high, further increases will greatly enhance your abilities,
-eventually making it possible to slay some truly formidable monsters.  Stats max
+eventually making it possible to slay some truly formidable monsters.  Stats top
 out at 18/220.
      Stats depend on your internal stats, the equipment you are wearing, your
 shapechange, and various temporary conditions.
@@ -150,8 +146,8 @@ bonuses to strength and dexterity.
 
      In addition to your stats, certain basic abilities define your character.
 They depend on race, stats, and skill level, and may be powerfully influenced by
-temporary conditions.  You can most effectively keep track of your abilities by
-using the Character screen.
+wielded equipment and temporary conditions.  You can most effectively keep track
+of your abilities by using the Character screen.
 
 Melee Ability:
      The higher your melee ability, the more frequently you will hit in hand-to-
@@ -208,7 +204,70 @@ Infra-vision:
 creatures, even when invisible or not lit.
 
 
+--- Conditions ---
 
+     Your character may benefit or suffer from many different conditions.  The
+most important ones are displayed on the bottom row of the main screen.  We
+describe them as they are displayed, from left to right.
+
+Hunger:
+     You need to eat every so often.  If you eat too much, you become bloated
+and slow down.  If you eat too little, you become hungry (no special effects),
+weak (slower recovery), feel faint (pass out every so often), and finally starve
+(take damage every turn).
+
+Temporary conditions:
+  Paralyzed : You cannot do ANYTHING until the effects wear off.
+  Wounds    : Instead of recovering battle damage, you take additional damage
+              every turn.
+  Stunning  : Your combat and spellcasting abilities decrease - slightly when
+              stunned, considerably when heavily stunned.  If you are too
+              heavily stunned, you can be knocked out!
+  Blindness : You cannot see most monsters, it is harder to learn about objects
+              or what's around you, and get only vague information when many
+              things happen.  You often miss monsters, and cannot cast spells
+              or read scrolls.
+  Confusion : You move and attack in random directions, cannot cast spells or
+              read scrolls, and have difficulty using magical devices.
+  Hallucination : You see weird stuff everywhere, cannot target anything, cannot
+              cast spells or read scrolls, and have difficulty using magical
+              devices.
+  Poison    : Instead of recovering battle damage, you take additional damage
+              every turn.
+  Disease   : Similar, but is harder to recover from.
+  Fear      : You cannot attack monsters in melee, and find it slightly more
+              difficult to use missile weapons, throw things, cast spells, or
+              use magical devices.
+  Recall    : You are about to teleport to the surface, or to the deepest level
+              of the dungeon that you have ever visited.
+
+     There are many other temporary conditions, most of which are explained by
+the objects or spells that cause them.
+
+State:
+     You can sometimes be in one of several different states.
+
+  Rest      : You are resting (doubles the rate at which you recover HPs and
+              mana).
+  Repeat    : You are repeating an action (like tunneling).
+  Sneaking  : You are sneaking around (greatly improves your stealth, but slows
+              you down)
+  Crossing  : You are traversing rough or difficult terrain
+
+Speed:
+     The faster you are, the less time you take to perform all kinds of actions.
+It is vital not to become too slow.  As you descend into the dungeon, you need
+to find ways to hasten yourself temporarily and permanently.
+     A speed of +10 is double speed ("fast"), and one of +20 is triple speed
+("very fast").  A speed of -10 is half speed ("slow"), and one of -20 is one
+third speed ("very slow").
+     Permanent speed bonuses add to your base speed.  Temporary effects may
+increase or reduce speed by 10.
+
+Depth:
+     How deep in the dungeon you are.  This display may be colored:  Greys
+indicate relative safety, whites normal conditions, yellow-orange-red indicate
+increasing danger or rewards, and violet means that you are on a special level.
 
 
 

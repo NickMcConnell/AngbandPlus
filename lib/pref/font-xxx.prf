@@ -11,8 +11,6 @@
 
 #### Terrain attr/char values ####
 
-
-
 F:1:w/.:y/.:s/.:torch_only
 F:4:U/<:U/<:U/<
 F:5:U/>:U/>:U/>
@@ -33,7 +31,7 @@ F:56:w/#:w/#:W/#
 F:60:w/#:w/#:W/#
 F:61:w/#:w/#:W/#
 F:64:w/#:w/#:W/#
-F:65:o/#:y/#:o/#:torch_only
+F:65:o/#:y/#:o/#
 
 
 
@@ -48,7 +46,7 @@ F:65:o/#:y/#:o/#:torch_only
 # Spell colors should normally not be specified in text mode.
 #
 
-?:[NOT [IOR [EQU $SYS x11] [EQU $SYS gtk] [EQU $SYS win]]]
+?:[NOT [IOR [EQU $SYS x11] [EQU $SYS gtk] [EQU $SYS win] [EQU $SYS sdl]]]
 S:0:0/'|':0/'-':0/'/':0/'\':0/'*'
 
 

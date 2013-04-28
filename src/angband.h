@@ -1,15 +1,17 @@
 /* File: angband.h */
 
 /*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #ifndef INCLUDED_ANGBAND_H
 #define INCLUDED_ANGBAND_H
+
 
 /*
  * Include the low-level includes.
@@ -35,55 +37,42 @@
 #include "externs.h"
 
 
-
-
-/***** Some older copyright messages follow below *****/
-
-
-/*
- * Note that these copyright messages apply to an ancient version
- * of Angband, as in, from pre-2.4.frog-knows days, and thus the
- * references to version numbers may be rather misleading...
- */
-
-/*
- * UNIX ANGBAND Version 5.0
- */
-
-/* Original copyright message follows. */
-
-/*
- * ANGBAND Version 4.8	COPYRIGHT (c) Robert Alan Koeneke
- *
- *	 I lovingly dedicate this game to hackers and adventurers
- *	 everywhere...
- *
- *	 Designer and Programmer:
- *		Robert Alan Koeneke
- *		University of Oklahoma
- *
- *	 Assistant Programmer:
- *		Jimmey Wayne Todd
- *		University of Oklahoma
- *
- *	 Assistant Programmer:
- *		Gary D. McAdoo
- *		University of Oklahoma
- *
- *	 UNIX Port:
- *		James E. Wilson
- *		UC Berkeley
- *		wilson@ernie.Berkeley.EDU
- *		ucbvax!ucbernie!wilson
- */
-
-/*
- *	 ANGBAND may be copied and modified freely as long as the above
- *	 credits are retained.	No one who-so-ever may sell or market
- *	 this software in any form without the expressed written consent
- *	 of the author Robert Alan Koeneke.
- */
-
-
 #endif
+
+
+
+
+/* The Moria license (retained for historical reasons) */
+
+/*
+ * MORIA Version 4.8   COPYRIGHT (c) Robert Alan Koeneke
+ *
+ *   I lovingly dedicate this game to hackers and adventurers
+ *     everywhere...
+ *
+ *   Designer and Programmer:
+ *     Robert Alan Koeneke
+ *     University of Oklahoma
+ *
+ *   Assistant Programmer:
+ *     Jimmey Wayne Todd
+ *     University of Oklahoma
+ *
+ *   Assistant Programmer:
+ *     Gary D. McAdoo
+ *     University of Oklahoma
+ *
+ *   UNIX Port:
+ *     James E. Wilson
+ *     UC Berkeley
+ *     wilson@ernie.Berkeley.EDU
+ *     ucbvax!ucbernie!wilson
+ */
+
+/*
+ * Moria may be copied and modified freely as long as the above
+ * credits are retained.	No one who-so-ever may sell or market
+ * this software in any form without the expressed written consent
+ * of the author Robert Alan Koeneke.
+ */
 

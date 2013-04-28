@@ -57,7 +57,7 @@ Pval:
      After sval comes the pval figure.  It is used for so many disparate customizations that a full explaination is in order:
 
 - food and mushrooms:  food value.  Rations have a food value of 5000.
-- weapons and armour:  affects all pval-dependant object flags (Appendix I).
+- weapons and armor:  affects all pval-dependant object flags (Appendix I).
 - missiles:  pval has no effect
 - rings and amulets:  pval has no affect, except for a few cursed items
 - scrolls and potions:  pval has no effect
@@ -81,7 +81,7 @@ Activation:
      See Addendum B for the activation list.
 
 Value:
-     For most objects, the value is the base price of the item.  This figure is often adjusted for pvals, better dice, plusses, and ego-item status (note that items that rely on pvals or plusses have low base values).  If the item is an artifact, only the artifact value is used.
+     For most objects, the value is the base price of the item.  This figure is often adjusted for pval-dependent attributes (if better than what the object has intrinsically), better dice, plusses, and ego-item status.  If the item is an artifact, only the artifact value is used.
      Real treasure values range between 1/2 and the full value.
 
 Probability of object appearing in quantity:
@@ -112,7 +112,7 @@ Damage done when wielded or thrown:
      Most words or numbers in an artifact listing are adequately explained in the file itself, but a few warrant special mention:
 
 Rarity: 
-     Artifact rarity depends both on the base object kind's rarity and on the artifact's own rarity.  This means that although the most powerful artifacts should also be the rarest, an armour like Bladeturner is rare not because the artifact is rare, but because the base object kind (a suit of Power Dragon Scale Mail) is both exceedingly rare and high-level.  These comments do not apply to the special artifact lights, rings, and amulets; only their artifact rarity applies.
+     Artifact rarity depends both on the base object kind's rarity and on the artifact's own rarity.  This means that although the most powerful artifacts should also be the rarest, an armor like Bladeturner is rare not because the artifact is rare, but because the base object kind (a suit of Power Dragon Scale Mail) is both exceedingly rare and high-level.  These comments do not apply to the special artifact lights, rings, and amulets; only their artifact rarity applies.
 
 Description:
      Half the coolness of an artifact are the legends that have grown up around it.  If you're going to spend time getting the words exactly right, let it be here.
@@ -122,7 +122,7 @@ Description:
 ====== ego_item.txt ======
 
 
-     This file controls most abilities of ego-weapons and armour.
+     This file controls most abilities of ego-weapons and armor.
 
      Most words or numbers in an artifact listing are adequately explained in the file itself, but a few warrant special mention:
 
@@ -153,7 +153,7 @@ P:3:1
 3:STEALTH
 F:RES_FIRE | RES_ACID | RES_COLD | RES_ELEC | SLAY_ANIMAL
 
-     Such a weapon would be a little uncommon, and almost never appear above level 25.  It would add 12 to the level rating, add (at least) 10000 gold to the base price of the object, have penalties to both Skill and Deadliness (in practice, somewhere between -15 and -25), grant a bonus to armour class of 1d10, be able to be any sword, hafted weapon, or polearm, increase Wisdom by 1d3 (between 1 and 3), increase Stealth by 1d1 (1), do extra damage against natural creatures, and grant resistance to the elements.
+     Such a weapon would be a little uncommon, and almost never appear above level 25.  It would add 12 to the level rating, add (at least) 10000 gold to the base price of the object, have penalties to both Skill and Deadliness (in practice, somewhere between -15 and -25), grant a bonus to armor class of 1d10, be able to be any sword, hafted weapon, or polearm, increase Wisdom by 1d3 (between 1 and 3), increase Stealth by 1d1 (1), do extra damage against natural creatures, and grant resistance to the elements.
 
 
 
@@ -419,7 +419,7 @@ IGNORE_FIRE     Item cannot be destroyed or damaged by fire
 IGNORE_COLD     Item cannot be destroyed or damaged by cold
 
 EASY_KNOW
-     Item is fully known if aware.  For example, once you know one Mushroom of Restoring, you know them all.  This flag should not be given to items whose pvals, armour class, or bonuses to armour class, Skill, or Deadliness can vary.
+     Item is fully known if aware.  For example, once you know one Mushroom of Restoring, you know them all.  This flag should not be given to items whose pvals, armor class, or bonuses to armor class, Skill, or Deadliness can vary.
      Ego-item does not display obvious bonuses in various places.
 HIDE_TYPE
      Item hides full description of pval-dependant flags.  Used for rings and amulets.
@@ -864,7 +864,7 @@ TALK - used by aimless merchants to pass the time of day
 
 List of monster blow effects:
 
-     The raw damage of all non-elemental attacks is reduced by character armour.  All blow types accept a damage figure, and a few require one to have any effect.
+     The raw damage of all non-elemental attacks is reduced by character armor.  All blow types accept a damage figure, and a few require one to have any effect.
 
 HURT - reduce player HPs.
 WOUND - Hurt, with extra cutting
@@ -909,12 +909,12 @@ EXP_80 - reduces exp by 80d6 + 2%.  Hold life is effective 50% of the time.
 Definition of "good":  
    - Generation depth is increased by 10.
    - Increased chance of special artifact
-   - If a weapon or armour, will have plusses.  Better chance for ego-item or better.
+   - If a weapon or armor, will have plusses.  Better chance for ego-item or better.
    - Any other object will be quite good for that depth and likely be very useful.
 
 Definition of "great":  
    - Same as "good", plus:
-   - If a weapon or armour, will be an ego-item or better.
+   - If a weapon or armor, will be an ego-item or better.
 
 
 '%' granite (outer)
@@ -935,9 +935,9 @@ Definition of "great":
 
 '~' chest
 
-     All specific items below have a bonus of three to their object generation level.  Both weapons and armour are guaranteed "good", food is never guaranteed "good", and all other specific items will be guaranteed "good" 25% of the time.
+     All specific items below have a bonus of three to their object generation level.  Both weapons and armor are guaranteed "good", food is never guaranteed "good", and all other specific items will be guaranteed "good" 25% of the time.
 
-']' armour
+']' armor
 '|' a melee or missile weapon
 '=' ring
 '"' amulet
@@ -1029,6 +1029,7 @@ See "lib/pref/colors.prf" for an exact list of available colors.
 
      For usage examples, consult the edit files.
 
+
 ===============================
 
 
@@ -1036,6 +1037,6 @@ Have fun customizing the game!  :-)
 
 
 Leon Marrick
-October, 2005
+April, 2007
 
 

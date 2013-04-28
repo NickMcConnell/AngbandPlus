@@ -1,0 +1,141 @@
+###################################################################
+#
+#  Makefile.bcc - Sangband makefile for Borland C++ 5.5 (Win32)
+#
+###################################################################
+
+#
+# Compile main-win.c for a Windows 32-bit machine using the Borland free 
+# commandline tools, available from "http://www.inprise.com".
+#
+# Although designed for use from the command line, these tools work much better 
+# with a code editor set up to do things like jump to compiler messages.  I use 
+# TextEdit.
+#
+#
+# Options:  
+#  - Use SDL support (read "makefile.sdl")
+#  - debug
+#  - turn on and off warnings
+#
+
+
+###################################################################
+#
+#       Borland specific directives ---
+#
+.AUTODEPEND
+
+#
+# If the above line gives you an error of the form "missing separator" or 
+# something else equally wierd, then you may have several "make.exe"s on 
+# your machine.  The solution is simple:  Rename the file 
+# "/BCC55/bin/make.exe" to "makebcc.exe", and use it instead.
+#
+
+###################################################################
+#
+# Set tool and version names:
+
+CC         = bcc32
+LINKER     = ilink32
+RC         = brc32
+
+###################################################################
+#
+# Name of the *.exe-file
+
+EXE_FILE = sangwin.exe
+
+
+###################################################################
+#
+# Debug mode and/or optimization.
+
+DBGOPT= -v -x -xp -y 
+#OOPT= -O2
+
+
+###################################################################
+#
+# Warnings (most turned on, some annoying ones turned off)
+
+WARNOPTS = -wuse -wnak -wnod -wamb   -w-aus -w-ccc -w-csu -w-rch -w-8017
+
+
+###################################################################
+#
+# OPTION (for music and multi-channel sound)
+# Include SDL (you will need to change these directories)
+#
+# The Simple DirectMedia Layer (SDL) and SDL_Mixer are available from
+# "http://www.libsdl.org/".
+#
+# You must use SDL development libraries compiled for Borland; they are 
+# available pre-compiled for both SDL and SDL_mixer.
+#
+#SDLOPTS = -DUSE_SDL  -DUSE_SOUND  -LC:\coding\SDL\Borland\lib  -IC:\coding\SDL\include
+#SDLLIBS = SDL.lib SDL_mixer.lib
+
+
+###################################################################
+#
+# Set any compiler options
+
+CCOPTS = -tWM -lGnw -e$(EXE_FILE) \
+	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400
+
+# Compile flags:
+CCFLAGS= $(CCOPTS) $(DBGOPT) $(OOPT) $(SDLOPTS) $(WARNOPTS) 
+
+
+
+######################## Targets ##################################
+
+OBJ = \
+  main-win.obj \
+  attack.obj birth.obj cave.obj cmd1.obj cmd2.obj \
+  cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
+  dungeon.obj effects.obj files.obj generate.obj info.obj init1.obj \
+  init2.obj intrface.obj loadsave.obj monattk.obj monmove.obj \
+  monster1.obj monster2.obj obj_make.obj object1.obj \
+  object2.obj quest.obj randart.obj skills.obj spells1.obj \
+  spells2.obj spells3.obj store.obj tables.obj talents.obj \
+  traps.obj util.obj \
+  variable.obj wizard1.obj wizard2.obj xtra1.obj \
+  xtra2.obj z-file.obj z-form.obj z-rand.obj z-term.obj \
+  z-util.obj z-virt.obj \
+  borgdumb.obj \
+  win\readdib.obj 
+
+
+all : $(EXE_FILE)
+	copy $(EXE_FILE) ..
+
+clean:
+#	-@if exist *.obj del *.obj >nul
+	-@if exist *.exe del *.exe >nul
+	-@if exist *.res del *.res >nul
+	-@if exist *.tds del *.tds >nul
+	-@if exist *.ilc del *.ilc >nul
+	-@if exist *.ild del *.ild >nul
+	-@if exist *.ilf del *.ilf >nul
+	-@if exist *.ils del *.ils >nul
+
+install: $(EXE_FILE)
+	copy $(EXE_FILE) ..
+
+
+########################### Explicit Rules ########################
+$(EXE_FILE): $(OBJ) angband.res
+	$(LINKER) -aa -x $(SDLOPTS) $(OBJ) c0w32.obj, $(EXE_FILE),, $(SDLLIBS) cw32.lib import32.lib,, win\angband.res
+
+angband.res: win\angband.rc
+	$(RC) -r win\angband.rc
+
+########################### Implicit Rules ########################
+.c.obj:
+	$(CC) $(CCFLAGS) -c {$? }
+
+.obj.exe:
+	$(CC) $(CCFLAGS) $<

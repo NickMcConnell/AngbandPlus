@@ -1,17 +1,16 @@
-
 /* File: init2.c */
-
 
 /*
  * Read files in "lib/data" and fill in various arrays.  Initialize and close
  * down the game.  Allocate and deallocate memory for variable-size global
  * arrays.
  *
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 2007 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -118,18 +117,6 @@ void init_file_paths(char *path)
 	/*** Build the sub-directory names ***/
 
 	/* Build a path name */
-	strcpy(tail, "apex");
-	ANGBAND_DIR_APEX = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "bone");
-	ANGBAND_DIR_BONE = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "data");
-	ANGBAND_DIR_DATA = string_make(path);
-
-	/* Build a path name */
 	strcpy(tail, "edit");
 	ANGBAND_DIR_EDIT = string_make(path);
 
@@ -144,10 +131,6 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "info");
 	ANGBAND_DIR_INFO = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "save");
-	ANGBAND_DIR_SAVE = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "pref");
@@ -170,12 +153,6 @@ void init_file_paths(char *path)
 #endif /* PRIVATE_USER_PATH */
 
 #ifdef USE_PRIVATE_PATHS
-
-	/* Free old paths */
-	(void)string_free(ANGBAND_DIR_APEX);
-	(void)string_free(ANGBAND_DIR_BONE);
-	(void)string_free(ANGBAND_DIR_DATA);
-	(void)string_free(ANGBAND_DIR_SAVE);
 
 	/* Build the path to the user specific sub-directory */
 	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
@@ -213,12 +190,6 @@ void init_file_paths(char *path)
 
 #else /* USE_PRIVATE_PATHS */
 
-	/* Free old paths */
-	(void)string_free(ANGBAND_DIR_APEX);
-	(void)string_free(ANGBAND_DIR_BONE);
-	(void)string_free(ANGBAND_DIR_DATA);
-	(void)string_free(ANGBAND_DIR_SAVE);
-
 	/* Build a path name */
 	strcpy(tail, "apex");
 	ANGBAND_DIR_APEX = string_make(path);
@@ -229,7 +200,7 @@ void init_file_paths(char *path)
 
 	/* Build a path name - support fat binaries */
 	if (fat_data_suffix)
-		sprintf(tail, "data-%s", fat_data_suffix);
+		(void)strnfmt(tail, sizeof(tail), "data-%s", fat_data_suffix);
 	else
 		strcpy(tail, "data");
 	ANGBAND_DIR_DATA = string_make(path);
@@ -260,7 +231,7 @@ void create_user_dirs(void)
 
 
 	/* Get an absolute path from the filename */
-	(void)path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
+	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
 
 	/* Create the ~/.angband/ directory */
 	mkdir(dirpath, 0700);
@@ -1112,7 +1083,7 @@ static errr init_other(void)
 
 
 	/* Initialize the window flags */
-	for (n = 0; n < ANGBAND_TERM_MAX; n++)
+	for (n = 0; n < TERM_MAX; n++)
 	{
 		/* Assume no flags */
 		op_ptr->window_flag[n] = 0L;
@@ -1144,6 +1115,9 @@ static errr init_other(void)
 			}
 		}
 	}
+
+	/* Cancel any special cursor visibility */
+	for (i = 0; i < TERM_MAX; i++) inkey_cursor_hack[i] = 0;
 
 
 	/* Success */
@@ -1376,8 +1350,7 @@ static errr init_alloc(void)
  */
 static void init_note(cptr str)
 {
-	clear_row(Term->hgt - 1);
-	(void)Term_putstr(25, Term->hgt - 1, -1, TERM_WHITE, str);
+	put_str(format("%-60s", str), Term->rows - 1, (Term->cols - 40) / 2);
 	(void)Term_fresh();
 }
 
@@ -1439,15 +1412,10 @@ static void init_angband_aux(cptr why)
  *
  * We load the default "user pref files" here in case any "color"
  * changes are needed before character creation.
- *
- * Note that the "graf-xxx.prf" file must be loaded separately,
- * if needed, in the first (?) pass through "TERM_XTRA_REACT".
  */
 void init_angband(void)
 {
 	int fd;
-
-	FILE *fp;
 
 	int mode = 0644;
 
@@ -1462,7 +1430,7 @@ void init_angband(void)
 	/* Attempt to open the file */
 	fd = fd_open(buf, O_RDONLY);
 
-	/* Failure */
+	/* Failure (use as a quick test of file system integrity */
 	if (fd < 0)
 	{
 		char why[1024];
@@ -1479,7 +1447,6 @@ void init_angband(void)
 
 
 	/* Process color definitions */
-	init_note("[Loading color definitions]");
 	(void)process_pref_file("color.prf");
 
 	/* Hack -- React to color changes */
@@ -1488,20 +1455,12 @@ void init_angband(void)
 
 	/*** Display the "news" file ***/
 
-	/* Clear screen */
-	(void)Term_clear();
-
 	/* Build the filename */
 	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
 
-	/* Open the file */
-	fp = my_fopen(buf, "r");
-
 	/* Display the file */
-	(void)display_file(fp);
+	(void)display_file(buf);
 
-	/* Refresh the screen XXX XXX */
-	(void)Term_fresh();
 
 
 	/*** Verify (or create) the "high score" file ***/

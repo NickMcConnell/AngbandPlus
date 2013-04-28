@@ -4,7 +4,7 @@
      I owe more to more people than I ever have before.  Nothing could have been accomplished save for the designers of variants popular and unknown, independant coders, authors, and idea contributors, and a superb (and very patient) group of players.
 
 
-     Note that the sources credited are usually, but not always, the original creators.  If you feel anything below is incorrect, please email me at "sangband@runegold.org".
+     Note that the sources credited are usually, but not always, the original creators.  If you feel anything below is incorrect, please contact me at the email listed at "www.runegold.org/sangband".
 
 --------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ Eric Bock (Eric Bock's Angband, Rangband, Zceband, various patches)
 - wiz_display_item handles artifact levels correctly
 - r_info rewriting code (very handy!)
 
-Fangband
+FAngband
 - triple crossbows
 - deferred feelings
 - new resistance rings
@@ -65,7 +65,7 @@ Hengband
 - character titles, etc.
 - The Throwing Hammer 'Mjollnir'
 
-NPPAngband
+NPPAngband -- Jeff Greene, Diego González
 - The color change interface
 - The idea and some code to allow burglars to steal objects (instead of gold) from monsters.  Code for wary monsters.
 - A large number of smaller but useful enhancements and bugfixes
@@ -75,18 +75,19 @@ PsiAngband
 - the basic concept of traps that use objects to attack monsters
 - searching turned into "awareness", also helps with pseudo-ID
 
-ToME -- DarkGod, also Improv and other coders
+ToME -- DarkGod, also Improv, Eric Stevens and other coders
 - essences
 - idea for recipies
 - drain light, cast bolt spell
 - p_ptr->holy (holy aura)
 - savefile management (allows interactive savefile loading)
-- combination of the loading and saving code.
-- idea for combination of the spell/magic device information and effect code.
+- combination of the loading and saving code
+- idea for combination of the spell/magic device information and effect code
 - the spear of Melkor
-- show visible monsters in a sub-window.
+- show visible monsters in a sub-window
+- Some of the main-sdl code
 
-UnAngband
+UnAngband -- 
 - attempts to reduce the dependance of characters on identification, and encourage them to learn about stuff by using it, which potentially makes many objects a lot more interesting.  
 - Gemstone monsters
 - clouds that surround monsters
@@ -103,9 +104,13 @@ Zangband (usually Topi Ylinen, Robert Ruehlmann, or Steven Fuerst unless otherwi
 - basic code for calculating time elapsed
 - "one_in_(x)" notation
 
+Falcon's Eye (isometric interface for NetHack)
+- Several songs
+
+
 
 clefs
-- A large number of great bug reports, patches and suggestions, especially to interface.  A dedicated plattester and commentator.
+- A large number of great bug reports, patches and suggestions, especially to interface.  A dedicated playtester and commentator.
 - a kinder pack overflow method (objects inscribed with "!*" or "!d" don't drop)
 - inscribed unique drops, browsing spellbooks in stores, etc.
 - The guy who finally made savefile management work correctly.
@@ -145,12 +150,29 @@ Takeshi Mogami
 Christer Nyfält
 - Cleaned up X11 port with reasonable support for 50-line mode.
 - GTK port
-- Corrections to system-specific code, some cleanup of header, config, and term files
+- Corrections to system-specific code, some cleanup of header, config, and term files, helped to reduce the amount of code bloat in various places, such as the spell system.
 - reorganization of file-handling code into a separate module:  z-file.c and z-file.h
 - POSIX file locking
 - Updates for various UNIX and Linux defines and preferences.
+- The stat-prioritization code for the autoroller.
 - Error suppresion of various sorts
+- A great deal of proofreading
 - Many excellent ideas about gameplay and interface
+
+Adam Bolt
+- The 16x16 graphics
+
+David Gervais
+- The 32x32 graphics
+
+Gregory Velichansky
+- Screen shot code in the SDL port
+
+Eric Stevens
+- Some of the keypress saving code in the SDL port, some helpful SDL examples.
+
+Reenen Laurie, Cosmic Gerbil
+- The .it format songs in /lib/xtra/music.  See "/lib/xtra/music/jukebox.cfg" for more details.
 
 
 Tua Xiong

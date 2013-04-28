@@ -3,11 +3,12 @@
 /*
  * File-handling functions.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "z-file.h"
@@ -350,6 +351,7 @@ errr my_fclose(FILE *fff)
 
 #ifdef HAVE_MKSTEMP
 
+
 FILE *my_fopen_temp(char *buf, size_t max)
 {
 	int fd;
@@ -583,30 +585,6 @@ errr fd_move(cptr file, cptr what)
 	return (rename(buf, aux));
 }
 
-
-#if 0   /* Broken! XXX XXX */
-/*
- * Hack -- attempt to copy a file
- */
-errr fd_copy(cptr file, cptr what)
-{
-	char buf[1024];
-	char aux[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(aux, sizeof(aux), what)) return (-1);
-
-	/* Copy XXX XXX XXX */
-	/* (void)rename(buf, aux); */
-
-	/* Assume success XXX XXX XXX */
-	return (1);
-}
-#endif
-
 /*
  * Hack -- attempt to open a file descriptor (create file)
  *
@@ -703,7 +681,7 @@ errr fd_lock(int fd, int what)
 	 * Change F_SETLKW to F_SETLK if it's preferable to return
 	 * without locking and reporting an error instead of waiting.
 	 */
-	return(fcntl(fd, F_SETLKW, &lock));
+	return (fcntl(fd, F_SETLKW, &lock));
 
 
 #else /* SET_UID */

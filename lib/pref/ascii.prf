@@ -1,0 +1,41 @@
+# File: font.prf
+
+#
+# This file defines special attr/char mappings for use in pure text mode
+#
+# This file includes, if appropriate, various "sub-files"
+#
+# See "lib/help/pref.txt" and "src/files.c" for more information.
+#
+
+
+##### Standard font file #####
+
+%:font-xxx.prf
+
+
+##### System Specific Subfiles #####
+
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj] [EQU $SYS gtk]]
+%:ascii-x11.prf
+
+?:[EQU $SYS gcu]
+%:ascii-gcu.prf
+
+?:[EQU $SYS mac]
+%:ascii-mac.prf
+
+?:[EQU $SYS sdl]
+%:ascii-sdl.prf
+
+?:[EQU $SYS win]
+%:ascii-win.prf
+
+?:[EQU $SYS dos]
+%:ascii-dos.prf
+
+?:[EQU $SYS ibm]
+%:ascii-ibm.prf
+
+?:1
+

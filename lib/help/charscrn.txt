@@ -183,5 +183,3 @@ attributes that affect melee, the right, those that affect shooting.
 
 
 
-
-

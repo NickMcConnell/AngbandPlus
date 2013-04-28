@@ -5,7 +5,7 @@
 # system-specific files.
 #
 # Rules in this file and its subfiles override anything else in the "/lib/pref" 
-# directory, but is in turn overridden by anything in the file "/lib/user/user.
+# directory, but are in turn overridden by anything in the file "/lib/user/user.
 # prf", or the file "lib/user/<<basename>>.prf, or the savefile.
 #
 # See "lib/help/pref.txt" and "src/files.c" for more information.
@@ -25,6 +25,9 @@
 
 ?:[EQU $SYS mac]
 %:user-mac.prf
+
+?:[EQU $SYS sdl]
+%:user-sdl.prf
 
 ?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
 %:user-win.prf

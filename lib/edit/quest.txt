@@ -1,12 +1,6 @@
-# File: quest.txt
-
+#
 # This file contains quest information.
-
-# Do not modify this file unless you know exactly what you are doing,
-# unless you wish to risk possible system crashes and broken savefiles.
-
-# Note that there are a total of 4 available quests (modifiable in z_info). Any quests
-# not allocated here will be available to assignment as random quests.
+#
 
 # Format:
 # N:<quest index>:<quest name>
@@ -14,11 +8,11 @@
 
 # Version stamp (required)
 
-V:0.9.9
+V:1.0.0
 
 
 # empty quest
-N:0:Fake quest
+N:0:empty quest
 W:0:0:0
 
 N:1:Sauron

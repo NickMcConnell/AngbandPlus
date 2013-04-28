@@ -1,0 +1,233 @@
+
+SAngband 0.9.5b  (07/29/98):
+1) Various bug fixes and cleanups.
+2) Life is less hard on low-level spellcasters.
+3) Multiple blows are somewhat easier.
+4) Giants get better histories.
+5) Some talents are easier, and a new one has been added.
+
+SAngband 0.9.5:
+1) Heavy revisions to: skills, talents, object forging, the spell
+list, ego-item generation, weather, invisibility, and possibly other
+things.
+2) A bunch of new monsters have been added, along with one artifact,
+a few ego items, a couple of objects, and some new creature abilities.
+3) Activations have been reorganized to pave the way for future
+random artifacts.
+4) The code has been updated to Angband 2.8.3
+5) The concept of "level" has been completely removed from the game.
+6) The bug with destroying the wrong item while fenneling has been
+fixed.
+7) Experience drains now primarily attack your skills.
+8) Scolls of questing have been reworked.
+9) The monster RES_(whatever) flags now do something.
+
+
+SAngband 0.9.4  (10/11/97):
+1) Hellfire now updates the fear indicator correctly.
+2) Dispel * effects now only work on the appropriate type of critter,
+as does Slow Undead.
+3) The player no longer move at double speed. (Fix by Greg Wooledge.)
+4) The 'C' screen should no longer crash the game. (Fix by Greg
+Wooledge.)
+5) The player no longer forgets spells they've recently learned.
+6) *Identify*, Self Knowledge, and monster memory now know about
+all the new flags.
+7) Artifacts now appear with proper rarity.
+8) Skullcleaver now has an activation.
+9) Poisonous weapons work correctly.
+10) Resistance to weapon types works correctly.
+11) Ego items get their random abilities.
+12) Objects stacking on floor works.
+13) Combat damage has been reorganized, and the potential for absurd
+amounts of damage has been scaled back significantly.
+14) Making wands, staves, potions, and scrolls can now produce useful
+objects.
+15) A number of bugs involving scrolls of questing have been fixed.
+16) Holy Defender weapons no longer have strange penalties.
+17) The Dual Wield skill should now work. (Loosly based on a patch
+by Brian Pope <brpope@terra.geology.indiana.edu>.)
+18) For game balance reasons, weapons providing extra attacks give no
+more than two.
+19) The documentation has been brought a bit more up to date.
+20) The spell info has been cleaned up.
+21) The shapechanging code has been re-written.
+22) Iron will has been toned down.
+23) Fenneling has been partially re-written and (hopefully)
+made more balanced.
+24) The 'C' screen now knows about Giant and Dark Elf intrinsics.
+(fix by Jens Gislev.)
+25) Teleportation no longer has the potential to lock up the game.
+(fix by Jens Gislev.)
+26) What abilities are available on which forged objects has been
+slightly reorganized.
+27) A few things in the various info.txt files have been changed.
+28) Predict weather works a lot better now, and the weather code
+has been modified slightly.
+29) A potential crash involving objects with very long names has been
+dealt with.
+30) A number of cosmetic problems have been cleaned up.
+
+
+===================================================
+
+Julian Lighton took over as maintainer in Summer, 1997 (roughly). 
+
+===================================================
+
+
+
+
+SAngband 0.9.3 (04/04/97):
+1) "Mystic" weapons should now work.
+2) Priest spells are matched correctly.  Also, the "elemental brand" prayer
+will properly brand weapons.
+3) Luck cannot be minimized with the autoroller and is not displayed until
+the player casts self-knowledge.  Players no longer become extremely lucky by
+going back to a previous character.
+4) Weapons with "venom" now work correctly.
+5) Self-knowledge has been fixed to display all flags.
+6) The player's "spell level" is calculated differently so that it cannot be
+higher than 50.  The "teleport" prayer should not lock up the game.
+7) Serpentine weapons are no longer vorpal (I had them erroneously defined as
+being the same :).)  Weapons that were vorpal in v0.8.9 are once again
+vorpal.
+8) No more cursed "holy avenger" boots (oops...)
+9) The screen should always withdraw from the talent screen.
+10) Angband 2.8.0 -> 2.8.1 changes apply.
+11) There is now a maximum speed of +70.  (A player reported getting his
+speed higher than this and losing the ability to move, so I have put in a
+max.)
+12) No more "Bootses" or "Gauntletses" when forged boots or gloves stack.
+
+SAngband 0.9.2 (01/25/97):
+1) The "spiritual hammer" prayer now works correctly.
+2) To-dam modifiers of weapons now work.
+3) A number of cosmetic things have been fixed (the spell info is correct for
+all few more spells, the word "Invisible" is now taken off the screen when
+the player is no longer invisible, etc.)
+4) All races, except humans, dunedain, and high-elves get much less "life
+experience" when starting out.
+5) Fixed a bug which would cause the player to start out with a large amount
+of negative exp if the total of his stat mods were negative.
+
+SAngband 0.9.1 (01/11/97):
+1) The cursor is now moved properly when choosing stat modifiers.
+2) Weaponsmithing, armor forging, bowmaking, and fennling all work correctly.
+Bowmaking will never create a seeker arrow when a bow is requested.
+Forged/fennled items no longer lose their properties when the game is saved.
+3) The necro "Infuse Weapon" and "Curse Weapon" spells no longer work on
+artifacts.  "Curse Weapon" now works correctly.
+4) Fixed a bug which caused some spells not to take a turn if they had no
+effect on the player (eg, casting Curse Weapon on a weapon that was already
+cursed).
+5) Fixed the bug which caused Morgoth not to exist (so you can actually win
+the game...)
+6) V0.9.0 would erroneously flag all priest, druid, and necro spells as being
+untried.  Fixed.
+7) "Nothing" items no longer appear in the temple.  (I'm not exactly sure why
+they were appearing, actually, but they will no longer appear.)
+8) "Recall()" is now called "recall_player()" to avoid conflicting with the
+recall variables in some term packages (Acorn, Amiga, X11, Xaw).  Thanks to
+Greg Wooledge (wooledge@kellnet.com) for pointing this out.
+9) Special druid and necro books are now considered "good" (treated as
+special magic and prayer books are).
+10) The spell info (which is displayed when browsing books, etc) is now
+correct.
+11) The amount of weight that the player is carrying is now updated properly
+when altering the number of objects in a stack with wizard mode.
+12) See invisible now works.
+13) Hellfire does less damage now.  Monsters that appear in groups no longer
+cast it.  ALso, this attack is now described as a spell rather than a breath.
+
+
+
+     Before 0.9.1, no formal change lists were made public.
+
+
+
+
+===================================================
+
+Michael Gorse took over as maintainer sometime in the period 199-1996; 
+information about his maintainership is extremely scanty. 
+
+===================================================
+
+
+
+Tales of the early days:
+
+     The first roguelike contribution I ever made was to send a bug-report 
+(long since lost) to either Chris Petit or Michael Gorse (not exactly sure 
+whom), in late 1994 or (more probably) early 1995.  What version of Sangband 
+I was playing at the time I don't remember; the figure 0.8.7 suggests itself, 
+but it could easily have been a couple of releases on either side.  The game 
+I was playing was a pre-compiled binary; I want to say on Macintosh, which 
+means that the version had to have been at least 0.8.5.
+
+     In any event, that game was one of the most hilariously buggy roguelikes 
+I've ever experienced (and not for lack of competition, be assured!); one bug 
+I particularly remember was that every single monster with a drop also 
+dropped Grond and the Iron Crown of Morgoth.  At the time, this bug seemed 
+unbelievable; it was only many years later that I realized just how small a 
+code error could have triggered it.
+
+     My email actually got a response.  However, my respondant said he had 
+ceased work on Sangband and would try to forward my report to whoever had 
+taken over (I seem to remember that he was unsure whom).  This makes me think 
+that I might have emailed Chris Petit, but the problem with that hypothesis 
+is that Chris Petit had graduated the previous May.  He might still have had 
+access to his school email account, though.
+
+
+Leon Marrick
+
+
+
+===========================
+
+
+
+
+Post for Sangband 0.8.5 by Chris Petit (April 29th, 1994)
+
+Ok. I just uploaded the New Improved Sangband. It will be available within 
+a few days. A lot of bugs have been fixed. Also, as in Fangband, monsters 
+(except Uniques) will become Afraid when they are really hurt---and when 
+afraid, they cast NASTY spells at you as they run away. 
+Some of the more dramatic modifications: 
+Pink elephants moved MUCH deeper in the dungeon 
+Sangband.doc file is a reference to ALL the spells and races in Sangband. 
+ALL creatures have MANY more HP and some move faster (i.e. Dragons) so it 
+isn't a total cakewalk. It's still doable, just not totally easy now. 
+Scrolls of Questing and Adamantine Shields are much rarer now. Adamantine 
+shields are even COOLER. They have a special ability now... 
+Sound and Confusion attacks are much more reasonable now. Mages and Priests 
+can do some of these attacks. 
+Turn Undead really makes Undead run in fear now, if they fail their save. 
+Bookstore owners aren't nearly as impatient. 
+Hellfire does more damage---watch out for Demons now. 
+Mages can Induce Terror now, instead of mere Confusion. 
+
+
+
+Post for Sangband 0.8.0 by Chris Petit (March 29th, 1994)
+
+Giants more magical and hardier (but are LOUSY at other skills). 
+1/2 Trolls Regenerate now. 
+Skills of Weaponsmithing+Armor Forging have been balanced. 
+A "help" function exists in the Advance skill--it gives a brief description of 
+the skill the cursor is on. 
+Necromancy realm balanced out. 
+Druid realm replaces the Monk realm. 
+Skills are listed in the text file printed about your character. 
+Online help screen shows the new Sangband key commands. 
+Pink Elephants added at low dungeon levels. 
+(Let's just put it this way---you'll DIE laughing) 
+BUGFIXES FROM 0.5 
+Character HP generation bug fixed---characters now all roll up at a normal 
+speed. 
+The "missing swing" bug has been fixed---you now see accurate indication of 
+"hit/miss" status. 
+Other small bugfixes (as always). 

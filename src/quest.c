@@ -3,14 +3,15 @@
 /*
  * Handle random quests, as supplied by the Inn.
  *
- * Copyright (c) 2002
+ * Copyright (c) 2007
  * Eytan Zweig, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
- *
  * This file comes from EyAngband 0.5.0.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -40,7 +41,7 @@ void plural_aux(char *name)
 	if (strstr(name, "Mimic ("))
 	{
 		cptr aider = strstr(name, " (");
-		char dummy[80];
+		char dummy[DESC_LEN];
 		int i = 0;
 		cptr ctr = name;
 
@@ -68,7 +69,7 @@ void plural_aux(char *name)
 	else if (strstr(name, " of "))
 	{
 		cptr aider = strstr(name, " of ");
-		char dummy[80];
+		char dummy[DESC_LEN];
 		int i = 0;
 		cptr ctr = name;
 
@@ -94,7 +95,7 @@ void plural_aux(char *name)
 	}
 	else if ((strstr(name, "coins")) || (strstr(name, "gems")))
 	{
-		char dummy[80];
+		char dummy[DESC_LEN];
 		strcpy(dummy, "piles of ");
 		strcat(dummy, name);
 		strcpy(name, dummy);
@@ -155,8 +156,8 @@ void plural_aux(char *name)
 		strcpy (&(name[name_len - 1]), "ves");
 	}
 	else if (suffix(name, "ch") ||
-			 suffix(name, "sh") ||
-			 suffix(name, "nx") || suffix(name, "s") || suffix(name, "o"))
+	         suffix(name, "sh") ||
+	         suffix(name, "nx") || suffix(name, "s") || suffix(name, "o"))
 	{
 		strcpy(&(name[name_len]), "es");
 	}
@@ -173,10 +174,10 @@ void plural_aux(char *name)
 cptr describe_quest(s16b level, int mode)
 {
 	int q_idx = quest_num(level);
-	char name[80];
-	char intro[80];
-	char targets[80];
-	char where[80];
+	char name[DESC_LEN];
+	char intro[DESC_LEN];
+	char targets[DESC_LEN];
+	char where[DESC_LEN];
 
 	cptr s_kill = "kill";
 
@@ -212,22 +213,22 @@ cptr describe_quest(s16b level, int mode)
 		}
 
 		else if (my_is_vowel(name[0]))
-			(void)my_strcpy(targets, format("an %s", name), sizeof(targets));
+		     (void)my_strcpy(targets, format("an %s", name), sizeof(targets));
 		else (void)my_strcpy(targets, format("a %s", name), sizeof(targets));
 	}
 
 	/* The type of the quest */
 	if (q_ptr->type == QUEST_FIXED)
-	     strcpy(intro, "For eternal glory, you must");
-	else strcpy(intro, "To fulfill your task, you must");
+	     (void)strcpy(intro, "For eternal glory, you must");
+	else (void)strcpy(intro, "To fulfill your task, you must");
 
 	/* The location of the quest */
 	if (!depth_in_feet) strcpy(where, format("on dungeon level %d.", level));
 	else
 	{
-		if (!use_metric) strcpy(where, format("at a depth of %d feet.",
+		if (!use_metric) (void)strcpy(where, format("at a depth of %d feet.",
 			level * 50));
-		else strcpy(where, format("at a depth of %d meters.", level * 15));
+		else (void)strcpy(where, format("at a depth of %d meters.", level * 15));
 	}
 
 
@@ -323,13 +324,11 @@ static void grant_reward(byte reward_level, byte type, int diff)
 
 
 	/* Generate object at quest level */
-	object_level = reward_level + 10;
-
-	/* Bonus for difficult quests at high level */
-	if ((diff > 1) && (reward_level > 50)) reward_level += (diff-1) * 3;
+	object_level = reward_level + 4 + diff * 3;
 
 	/* Get local object */
 	i_ptr = &forge;
+
 
 	/* Create a gold reward */
 	if (type == REWARD_GOLD)
@@ -355,11 +354,12 @@ static void grant_reward(byte reward_level, byte type, int diff)
 	{
 		/* Get a minimum value of reward */
 		value_threshold = ((3L + p_ptr->fame) + (reward_level)) *
-		   (35 + p_ptr->fame / 2 + reward_level / 5);
+			(30 + p_ptr->fame / 2 + reward_level / 5);
 
 		/* Special bonus for higher difficulty */
 		if      (diff == 3) value_threshold = value_threshold * 6 / 4;
 		else if (diff == 2) value_threshold = value_threshold * 5 / 4;
+
 
 		/* Try hard to find an acceptable item */
 		for (i = 0; i < 2000; i++)
@@ -386,30 +386,43 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				continue;
 			}
 
-			/* Item is a magical device, a potion, a scroll, or food */
-			if ((is_magical_device(i_ptr)) || (i_ptr->tval == TV_POTION) ||
-			    (i_ptr->tval == TV_SCROLL) || (i_ptr->tval == TV_FOOD))
-			{
-				/* If we've already become aware of this object, we aren't interested */
-				if (object_aware_p(i_ptr)) continue;
-			}
-
 			/* Special case -- light sources would otherwise be too common */
-			if ((i_ptr->tval == TV_LITE) && (!one_in_(3))) continue;
+			if ((i_ptr->tval == TV_LITE) && (!one_in_(2))) continue;
 
 			/* Hack -- Remove any hidden curse */
 			i_ptr->flags3 &= ~(TR3_CURSE_HIDDEN);
 
 
+
 			/* Calculate the value of the item */
 			value = (i_ptr->number * object_value_real(i_ptr));
 
-			/* Special case -- magical devices are worth more */
-			if (is_magical_device(i_ptr)) value = value * 4 / 3;
+			/* Use object value as an initial test */
+			if (is_wearable(i_ptr))
+			{
+				if (value < value_threshold) continue;
+			}
+			else
+			{
+				if (value < value_threshold / 2) continue;
+			}
 
-			/* Cheap things are not appropriate */
-			if (value < value_threshold) continue;
 
+			/* Item is a magical device, a potion, a scroll, or food */
+			if ((is_magical_device(i_ptr)) || (i_ptr->tval == TV_POTION) ||
+			    (i_ptr->tval == TV_SCROLL) || (i_ptr->tval == TV_FOOD))
+			{
+				/*
+				 * If we've already become aware of this object, and its
+				 * "level" is less than our max depth + diff * 3, we
+				 * aren't interested.
+				 */
+				if ((object_aware_p(i_ptr)) &&
+				    (k_info[i_ptr->k_idx].level <= p_ptr->max_depth + diff * 3))
+				{
+					continue;
+				}
+			}
 
 			/* Check spellbooks */
 			if (is_magic_book(i_ptr))
@@ -452,11 +465,12 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				/* Already have that book */
 				if (already_own_book) continue;
 
+				/* Otherwise, accept */
 				break;
 			}
 
 			/* Check melee and missile weapons */
-			if (is_any_weapon(i_ptr))
+			else if (is_any_weapon(i_ptr))
 			{
 				/* Too heavy */
 				if (adj_str_hold[p_ptr->stat_ind[A_STR]] < (i_ptr->weight / 10))
@@ -514,6 +528,26 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				}
 			}
 
+			/* Check missiles */
+			else if (is_missile(i_ptr))
+			{
+				int skill_idx = S_NOSKILL;
+
+				if (i_ptr->tval == TV_SHOT) skill_idx = S_SLING;
+				if (i_ptr->tval == TV_ARROW) skill_idx = S_BOW;
+				if (i_ptr->tval == TV_BOLT) skill_idx = S_CROSSBOW;
+
+				/* If you can't use the ammo, inappropriate */
+				if ((p_ptr->ammo_tval != i_ptr->tval) ||
+				    (get_skill(skill_idx, 0, 100) < p_ptr->power / 2))
+				{
+					continue;
+				}
+
+				/* Assume appropriate */
+				break;
+			}
+
 			/* Check gloves */
 			else if (i_ptr->tval == TV_GLOVES)
 			{
@@ -553,7 +587,6 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				break;
 			}
 
-
 			/* Check amulets */
 			else if (i_ptr->tval == TV_AMULET)
 			{
@@ -564,26 +597,6 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				/* Refuse if the same type */
 				if (i_ptr->sval == j_ptr->sval) continue;
 
-				break;
-			}
-
-			/* Check missiles */
-			else if (is_missile(i_ptr))
-			{
-				int skill_idx = S_NOSKILL;
-
-				if (i_ptr->tval == TV_SHOT) skill_idx = S_SLING;
-				if (i_ptr->tval == TV_ARROW) skill_idx = S_BOW;
-				if (i_ptr->tval == TV_BOLT) skill_idx = S_CROSSBOW;
-
-				/* If you can't use the ammo, inappropriate */
-				if ((p_ptr->ammo_tval != i_ptr->tval) ||
-				    (get_skill(skill_idx, 0, 100) < p_ptr->power / 2))
-				{
-					continue;
-				}
-
-				/* Assume appropriate */
 				break;
 			}
 
@@ -621,6 +634,14 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				if (i_ptr->sval == SV_POTION_GRENADE) continue;
 			}
 
+			/* Check chests */
+			else if (i_ptr->tval == TV_CHEST)
+			{
+				/* If its base level is reasonable, we want it */
+				if (k_info[i_ptr->k_idx].level <= p_ptr->max_depth - 6 + diff * 3) continue;
+				else break;
+			}
+
 			/* Various things are not OK */
 			else if ((i_ptr->tval == TV_SKELETON) ||
 			         (i_ptr->tval == TV_JUNK) ||
@@ -643,6 +664,13 @@ static void grant_reward(byte reward_level, byte type, int diff)
 			return;
 		}
 
+
+		/* Hack -- Chest rewards are not trapped */
+		if (i_ptr->tval == TV_CHEST)
+		{
+			if (i_ptr->pval > 0) i_ptr->pval = -(i_ptr->pval);
+		}
+
 		/* Drop the object */
 		drop_near(i_ptr, 0, p_ptr->py, p_ptr->px, 0x00);
 	}
@@ -662,7 +690,6 @@ static void grant_reward(byte reward_level, byte type, int diff)
 		/* Drop the object */
 		drop_near(j_ptr, 0, p_ptr->py, p_ptr->px, 0x00);
 	}
-
 }
 
 /*
@@ -1054,14 +1081,15 @@ void display_inn(void)
 				p = "A difficult";
 			}
 
-			put_str(format("%c)", 'a' + i), 9 + i, 3);
+			put_str(format("%c)", '1' + i), 9 + i, 3);
 			c_put_str(attr, format ("%s quest.", p), 9 + i, 7);
 		}
 
 
-		prt(format("%c-%c) Get a quest.", 'a', 'a' + (avail_quest - 1)), 22, 31);
+		prt(format("%c-%c) Get a quest.", '1', '1' + (avail_quest - 1)), Term->rows - 3, 3);
 	}
 
+	/* Describe current quest */
 	else
 	{
 		put_str("Your current quest:", 7, 3);
@@ -1077,16 +1105,6 @@ void display_inn(void)
 			put_str(q_out, 10, 3);
 		}
 	}
-
-	prt("?) Get help.", 22, 60);
-
-	/* We have an unresearched quest, and have the gold to get information */
-	if ((p_ptr->cur_quest) &&  !(q_info[p_ptr->cur_quest].flags & (0x01)) &&
-	    (p_ptr->au >= (1 + p_ptr->power + p_ptr->max_depth) * 25))
-	{
-		prt(format("r) Learn about quest monster (price %d gold).",
-			(1 + p_ptr->power + p_ptr->max_depth) * 25), 23, 3);
-	}
 }
 
 /*
@@ -1096,10 +1114,10 @@ static int get_quest(void)
 {
 	int item;
 	char which;
-	char buf[160];
+	char buf[DESC_LEN];
 
 	/* Build the prompt */
-	sprintf(buf, "(Items %c-%c, ESC to exit)", '1', '1' + (avail_quest - 1));
+	(void)strnfmt(buf, sizeof(buf), "(Items %c-%c, ESC to exit)", '1', '1' + (avail_quest - 1));
 
 	/* Ask until done */
 	while (TRUE)

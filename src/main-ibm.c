@@ -44,8 +44,7 @@
  * Note the "Term_user_ibm()" function hook, which could allow the user
  * to interact with the "main-ibm.c" visual system.  Currently this hook
  * is unused, but, for example, it could allow the user to toggle "sound"
- * or "graphics" modes, or to select the number of screen rows, with the
- * extra screen rows being used for the mirror window.
+ * or "graphics" modes.
  */
 
 
@@ -56,11 +55,10 @@
 
 #ifdef USE_IBM
 
-
 /*
- * Use a "virtual" screen to "buffer" screen writes.
+ * Undefine things this port can't handle, like graphics
  */
-#define USE_VIRTUAL
+#undef USE_GRAPHICS
 
 
 #include <bios.h>
@@ -154,24 +152,13 @@ static int cols = 80;
 /*
  * Physical Screen
  */
-# define PhysicalScreen ((byte *)(0xB800 << 4))
+#define PhysicalScreen ((byte *)(0xB800 << 4))
 
-
-#ifdef USE_VIRTUAL
 
 /*
  * Virtual Screen Contents
  */
 static byte *VirtualScreen;
-
-#else
-
-/*
- * Physical screen access
- */
-#define VirtualScreen PhysicalScreen
-
-#endif
 
 
 /*
@@ -496,7 +483,7 @@ static errr Term_xtra_ibm_event(int v)
 	if ((s <= 58) || (s == 0xE0))
 	{
 		/* Enqueue it */
-		if (k) Term_keypress(k);
+		if (k) (void)Term_keypress(k);
 
 		/* Success */
 		return (0);
@@ -513,19 +500,16 @@ static errr Term_xtra_ibm_event(int v)
 	Term_keypress(31);
 
 	/* Hack -- Send the modifiers */
-	if (mc) Term_keypress('C');
-	if (ms) Term_keypress('S');
-	if (ma) Term_keypress('A');
+	if (mc) (void)Term_keypress('C');
+	if (ms) (void)Term_keypress('S');
+	if (ma) (void)Term_keypress('A');
 
 	/* Introduce the hexadecimal scan code */
 	Term_keypress('x');
 
 	/* Encode the hexadecimal scan code */
-	Term_keypress(hexsym[s/16]);
-	Term_keypress(hexsym[s%16]);
-
-	/* End the "macro trigger" */
-	Term_keypress(13);
+	(void)Term_keypress(hexsym[s/16]);
+	(void)Term_keypress(hexsym[s%16]);
 
 	/* Success */
 	return (0);
@@ -567,22 +551,17 @@ static errr Term_xtra_ibm(int n, int v)
 		/* Flush one line of output */
 		case TERM_XTRA_FROSH:
 		{
-
-#ifdef USE_VIRTUAL
-
-# ifdef USE_WAT
+#ifdef USE_WAT
 
 			/* Copy the virtual screen to the physical screen */
 			memcpy(PhysicalScreen + (v*160), VirtualScreen + (v*160), 160);
 
-# else /* USE_WAT */
+#else /* USE_WAT */
 
 			/* Apply the virtual screen to the physical screen */
 			ScreenUpdateLine(VirtualScreen + ((v*cols) << 1), v);
 
-# endif /* USE_WAT */
-
-#endif /* USE_VIRTUAL */
+#endif /* USE_WAT */
 
 			/* Success */
 			return (0);
@@ -598,21 +577,17 @@ static errr Term_xtra_ibm(int n, int v)
 				memcpy((VirtualScreen + ((i*cols) << 1)), wiper, (cols << 1));
 			}
 
-# ifdef USE_VIRTUAL
-
-#  ifdef USE_WAT
+#ifdef USE_WAT
 
 			/* Copy the virtual screen to the physical screen */
 			memcpy(PhysicalScreen, VirtualScreen, rows*cols*2);
 
-#  else /* USE_WAT */
+#else /* USE_WAT */
 
 			/* Erase the physical screen */
 			ScreenClear();
 
-#  endif /* USE_WAT */
-
-# endif /* USE_VIRTUAL */
+#endif /* USE_WAT */
 
 			/* Success */
 			return (0);
@@ -705,6 +680,53 @@ static errr Term_wipe_ibm(int x, int y, int n)
 
 	/* Success */
 	return (0);
+}
+
+
+/*
+ * Translate from ISO Latin-1 characters 128+ to 8-bit IBM extended ASCII.
+ *
+ * Many IBM extended characters are semi-graphical; we carefully do not
+ * translate them.
+ */
+const byte ibm_char_conv[128] =
+{
+	  0,   0,   0,   0,   0,   0,   0,   0,
+	  0,   0,   0,   0,   0,   0,   0,   0,
+	  0,   0,   0,   0,   0,   0,   0,   0,
+	  0,   0,   0,   0,   0,   0,   0,   0,
+	  0, 173, 135, 136,   0, 137,   0,  21,
+	  0,   0,   0,   0,   0,   0,   0,   0,
+	  0,   0,   0,   0,   0,   0,   0,   0,
+	  0,   0,   0,   0,   0,   0,   0, 168,
+	'A', 'A', 'A', 'A', 142, 143, 146, 128,
+	144, 'E', 'E', 'E', 152, 152, 152, 152,
+	'D', 165, 'O', 'O', 'O', 'O', 153,   0,
+	'O', 'U', 'U', 'U', 154, 'Y',   0, 225,
+	133, 160, 131, 'a', 132, 134, 145, 135,
+	138, 130, 136, 137, 'i', 161, 140, 139,
+	'o', 164, 149, 162, 147, 'o', 148,   0,
+	237, 151, 163, 150, 129, 'y',   0, 'y'
+};
+
+
+/*
+ * Given a position in the ISO Latin-1 character set, return
+ * the IBM ASCII equivalent.
+ */
+static byte Term_xchar_ibm(byte c)
+{
+	byte s;
+
+	/* 7-bit characters are not changed */
+	if (c < 128) return (c);
+
+	/* Translate extended characters */
+	s = ibm_char_conv[c - 128];
+
+	/* Ignore translations to zero */
+	if (s) return (s);
+	return (c);
 }
 
 
@@ -1000,23 +1022,27 @@ const char help_ibm[] = "IBM Visual Display Support";
 
 
 /*
- * Change the number of text lines shown on the screen.
+ * Change the display.
  *
  * We only switch between 25-line display, using a font taller than it is
  * wide, and 50-line display, using a font of equal height and width.
  */
-static errr Term_rows_ibm(bool fifty_rows)
+static errr switch_display_ibm(int display)
 {
 	union REGS r;
+	term *old = Term;
 
-	/* Set to 50-row display */
-	if (fifty_rows)
+	/* Make sure that the main term is active */
+	(void)Term_activate(term_main);
+
+	/* Use the tall display (50 rows in our case) */
+	if (display)
 	{
 #ifdef USE_WAT
 
 		/* I need someone with a Watcom compiler to make this work... */
 		_setvideomode(_TEXTC80);
-		_settextrows(rows);
+		_settextrows(50);
 
 #else /* USE_WAT */
 
@@ -1028,11 +1054,11 @@ static errr Term_rows_ibm(bool fifty_rows)
 
 #endif /* USE_WAT */
 
-		/* We have 50 rows */
-		screen_rows = 50;
+		/* Resize the main term to 80x50 */
+		(void)Term_resize(80, 50);
 	}
 
-	/* Set to 25-line display */
+	/* Use the regular display (25 rows) */
 	else
 	{
 #ifdef USE_WAT
@@ -1051,12 +1077,36 @@ static errr Term_rows_ibm(bool fifty_rows)
 
 #endif /* USE_WAT */
 
-		/* We have 25 rows */
-		screen_rows = 25;
+		/* Resize the main term to 80x25 */
+		(void)Term_resize(80, 25);
 	}
+
+	/* Redraw the main term */
+	(void)Term_redraw();
+
+	/* Restore previous term (if different) */
+	(void)Term_activate(old);
 
 	/* Assume success */
 	return (0);
+}
+
+
+/*
+ * Free any structures specific to the IBM port
+ */
+static void hook_quit(cptr str)
+{
+	/* Display a message */
+	if (str)
+	{
+		prt(str, 0, 0);
+		(void)Term_fresh();
+		(void)inkey(FALSE);
+	}
+
+	/* Free the virtual screen */
+	FREE(VirtualScreen);
 }
 
 
@@ -1138,17 +1188,17 @@ errr init_ibm(int argc, char **argv)
 
 
 	/* Use 50 text lines */
-	Term_rows_ibm(TRUE);
+	switch_display_ibm(TRUE);
 
 	/* Instantiate the color set */
 	activate_color_complex();
 
+/* This port can use bitmapped character graphics, but they have not been updated. */
 #ifdef USE_GRAPHICS
 
 
-
 	/* Try to activate bitmap graphics */
-	if (arg_graphics)
+	if (arg_graphics == GRAPHICS_CHAR)
 	{
 		FILE *f;
 
@@ -1179,7 +1229,7 @@ errr init_ibm(int argc, char **argv)
 			activate_color_complex();
 
 			/* Use graphics */
-			use_graphics = TRUE;
+			use_graphics = GRAPHICS_CHAR;
 		}
 	}
 
@@ -1196,13 +1246,11 @@ errr init_ibm(int argc, char **argv)
 	}
 
 
-#ifdef USE_VIRTUAL
-
 	/* Make the virtual screen */
 	C_MAKE(VirtualScreen, rows * cols * 2, byte);
 
-#endif /* USE_VIRTUAL */
-
+	/* Set the exit hook */
+	quit_aux = hook_quit;
 
 	/* Erase the screen */
 	Term_xtra_ibm(TERM_XTRA_CLEAR, 0);
@@ -1226,7 +1274,7 @@ errr init_ibm(int argc, char **argv)
 
 
 	/* Initialize the term */
-	term_init(t, cols, rows-1, 256);
+	(void)term_init(t, cols, rows-1, 256);
 
 	/* Always use "Term_pict()" */
 	t->always_pict = TRUE;
@@ -1245,37 +1293,18 @@ errr init_ibm(int argc, char **argv)
 	t->wipe_hook = Term_wipe_ibm;
 	t->text_hook = Term_text_ibm;
 	t->pict_hook = Term_pict_ibm;
-	t->rows_hook = Term_rows_ibm;
+	t->xchar_hook = Term_xchar_ibm;
+	switch_display_hook = switch_display_ibm;
 
 	/* Save it */
-	term_screen = t;
+	angband_term[TERM_MAIN] = t;
 
 	/* Activate it */
-	Term_activate(term_screen);
+	Term_activate(term_main);
 
 	/* Success */
 	return (0);
 }
 
 
-
-/*
- * Free any structures specific to the IBM port
- */
-void cleanup_ibm(void)
-{
-#ifdef USE_VIRTUAL
-
-	/* Free the virtual screen */
-	FREE(VirtualScreen);
-
-#endif /* USE_VIRTUAL */
-}
-
-
-
-
-
-
 #endif /* USE_IBM */
-

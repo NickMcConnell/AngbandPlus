@@ -1,4 +1,3 @@
-
 /* File: tables.c */
 
 /*
@@ -8,13 +7,15 @@
  * data and titles.  Chest traps, set items, color and stat names.
  * Window names, option names, descriptions, and default values.  Custom
  * display text, inscription text.  Monster spells.  Skills, talents,
- * object flags, precognition messages.
+ * object flags, precognition messages.  Graphics modes, special attr/char
+ * pairs.
  *
- * Copyright (c) 1998 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -81,7 +82,7 @@ s16b nearby_grids_x[37] =
  * For all grids within a distance of five from an origin at (5, 5),
  * store the grids that could block line of sight to it.  -LM-
  *
- * For example, LOS to the origin and all neighors is blocked by nothing,
+ * For example, LOS to the origin and all neighbors is blocked by nothing,
  * but LOS to the grid (10, 6) can be blocked at (6, 5) and (7, 5).
  *
  * Calculated using "los()", but slightly stricter at long range to
@@ -456,20 +457,20 @@ const byte adj_dis[] =
 	128 - 12	/* 3 */,
 	128 - 7	/* 4 */,
 	128 - 3	/* 5 */,
-	128 - 2	/* 6 */,
-	128 - 1	/* 7 */,
-	128 - 1	/* 8 */,
+	128 - 1	/* 6 */,
+	128 + 0	/* 7 */,
+	128 + 0	/* 8 */,
 	128 + 0	/* 9 */,
 	128 + 0	/* 10 */,
 	128 + 0	/* 11 */,
-	128 + 1	/* 12 */,
+	128 + 0	/* 12 */,
 	128 + 1	/* 13 */,
 	128 + 1	/* 14 */,
-	128 + 2	/* 15 */,
+	128 + 1	/* 15 */,
 	128 + 2	/* 16 */,
 	128 + 2	/* 17 */,
 	128 + 3	/* 18/00-18/09 */,
-	128 + 3	/* 18/10-18/19 */,
+	128 + 4	/* 18/10-18/19 */,
 	128 + 4	/* 18/20-18/29 */,
 	128 + 4	/* 18/30-18/39 */,
 	128 + 5	/* 18/40-18/49 */,
@@ -503,9 +504,9 @@ const byte adj_dex_ta[] =
 	128 + -7	/* 4 */,
 	128 + -4	/* 5 */,
 	128 + -2	/* 6 */,
-	128 + -2	/* 7 */,
-	128 + -1	/* 8 */,
-	128 + -1	/* 9 */,
+	128 + 0	/* 7 */,
+	128 + 0	/* 8 */,
+	128 + 0	/* 9 */,
 	128 + 0	/* 10 */,
 	128 + 0	/* 11 */,
 	128 + 0	/* 12 */,
@@ -593,22 +594,22 @@ const byte adj_str_td[] =
 {
 	128 + -8	/* 3 */,
 	128 + -4	/* 4 */,
-	128 + -3	/* 5 */,
-	128 + -2	/* 6 */,
-	128 + -2	/* 7 */,
-	128 + -1	/* 8 */,
-	128 + -1	/* 9 */,
+	128 + -2	/* 5 */,
+	128 + -1	/* 6 */,
+	128 + 0	/* 7 */,
+	128 + 0	/* 8 */,
+	128 + 0	/* 9 */,
 	128 + 0	/* 10 */,
 	128 + 0	/* 11 */,
-	128 + 1	/* 12 */,
-	128 + 1	/* 13 */,
-	128 + 2	/* 14 */,
-	128 + 2	/* 15 */,
-	128 + 3	/* 16 */,
-	128 + 3	/* 17 */,
-	128 + 4	/* 18/00-18/09 */,
+	128 + 0	/* 12 */,
+	128 + 0	/* 13 */,
+	128 + 0	/* 14 */,
+	128 + 0	/* 15 */,
+	128 + 1	/* 16 */,
+	128 + 2	/* 17 */,
+	128 + 3	/* 18/00-18/09 */,
 	128 + 4	/* 18/10-18/19 */,
-	128 + 5	/* 18/20-18/29 */,
+	128 + 4	/* 18/20-18/29 */,
 	128 + 5	/* 18/30-18/39 */,
 	128 + 6	/* 18/40-18/49 */,
 	128 + 7	/* 18/50-18/59 */,
@@ -642,20 +643,20 @@ const byte adj_dex_th[] =
 	128 + -10	/* 4 */,
 	128 +  -6	/* 5 */,
 	128 +  -3	/* 6 */,
-	128 +  -2	/* 7 */,
-	128 +  -1	/* 8 */,
-	128 +  -1	/* 9 */,
+	128 +  -1	/* 7 */,
+	128 +   0	/* 8 */,
+	128 +   0	/* 9 */,
 	128 +   0	/* 10 */,
 	128 +   0	/* 11 */,
-	128 +   1	/* 12 */,
-	128 +   1	/* 13 */,
-	128 +   2	/* 14 */,
-	128 +   2	/* 15 */,
-	128 +   3	/* 16 */,
-	128 +   3	/* 17 */,
-	128 +   4	/* 18/00-18/09 */,
+	128 +   0	/* 12 */,
+	128 +   0	/* 13 */,
+	128 +   0	/* 14 */,
+	128 +   0	/* 15 */,
+	128 +   1	/* 16 */,
+	128 +   2	/* 17 */,
+	128 +   3	/* 18/00-18/09 */,
 	128 +   4	/* 18/10-18/19 */,
-	128 +   5	/* 18/20-18/29 */,
+	128 +   4	/* 18/20-18/29 */,
 	128 +   5	/* 18/30-18/39 */,
 	128 +   6	/* 18/40-18/49 */,
 	128 +   7	/* 18/50-18/59 */,
@@ -875,28 +876,28 @@ const byte adj_con_mhp[] =
 	128 + -5	/* 3 */,
 	128 + -3	/* 4 */,
 	128 + -2	/* 5 */,
-	128 + -2	/* 6 */,
-	128 + -1	/* 7 */,
-	128 + -1	/* 8 */,
-	128 + 0	/* 9 */,
-	128 + 0	/* 10 */,
-	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 1	/* 13 */,
-	128 + 1	/* 14 */,
-	128 + 2	/* 15 */,
-	128 + 2	/* 16 */,
-	128 + 3	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
-	128 + 4	/* 18/10-18/19 */,
-	128 + 4	/* 18/20-18/29 */,
-	128 + 5	/* 18/30-18/39 */,
-	128 + 5	/* 18/40-18/49 */,
-	128 + 6	/* 18/50-18/59 */,
-	128 + 6	/* 18/60-18/69 */,
-	128 + 7	/* 18/70-18/79 */,
-	128 + 8	/* 18/80-18/89 */,
-	128 + 9	/* 18/90-18/99 */,
+	128 + -1	/* 6 */,
+	128 + 0 	/* 7 */,
+	128 + 0 	/* 8 */,
+	128 + 0 	/* 9 */,
+	128 + 0 	/* 10 */,
+	128 + 0 	/* 11 */,
+	128 + 0 	/* 12 */,
+	128 + 0 	/* 13 */,
+	128 + 0 	/* 14 */,
+	128 + 1 	/* 15 */,
+	128 + 1 	/* 16 */,
+	128 + 2 	/* 17 */,
+	128 + 3 	/* 18/00-18/09 */,
+	128 + 4 	/* 18/10-18/19 */,
+	128 + 4 	/* 18/20-18/29 */,
+	128 + 4 	/* 18/30-18/39 */,
+	128 + 4 	/* 18/40-18/49 */,
+	128 + 5 	/* 18/50-18/59 */,
+	128 + 6 	/* 18/60-18/69 */,
+	128 + 7 	/* 18/70-18/79 */,
+	128 + 8 	/* 18/80-18/89 */,
+	128 + 9 	/* 18/90-18/99 */,
 	128 + 10	/* 18/100-18/109 */,
 	128 + 11	/* 18/110-18/119 */,
 	128 + 12	/* 18/120-18/129 */,
@@ -1097,7 +1098,7 @@ const byte deadliness_conversion[151] =
  */
 const byte blows_table[12][12] =
 {
-	            /*  <- Dexterity factor -> */
+	            /*  <- Dexterity factor ->  */
   /* 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11+ */
   {  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 }, /*  0         */
   {  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  3,  3 }, /*  1    ^    */
@@ -1441,7 +1442,7 @@ player_race race_info[MAX_RACES] =
  * organized into spellbooks.  -LM-
  *
  *    Character title, Spell book tval, Spell stat, Special skill that
- *    aids magic, Max armour weight that avoids mana penalties.
+ *    aids magic, Max armor weight that avoids mana penalties.
  *
  *    Number of spells (max is 64), array (not spell) index of first
  *    spell in each of the active books, listed by sval.
@@ -1453,7 +1454,7 @@ player_race race_info[MAX_RACES] =
 const player_magic magic_info[MAX_REALM + 1] =
 {
 	{
-		/*** Warrior ***/
+		/*** (no magic) ***/
 
 		"Warrior", 0,  A_STR,  0,  0,
 
@@ -1461,70 +1462,70 @@ const player_magic magic_info[MAX_REALM + 1] =
 		0,	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
 		{
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0},
-			{  0,   99,  0,  0,   0}
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL },
+			{  0,   99,  0,  0,   0, NULL }
 		}
 	},
 
@@ -1538,83 +1539,83 @@ const player_magic magic_info[MAX_REALM + 1] =
 
 		{
 			/* Apprentice's Magic (sval 0) */
-			{  0,    1,  2, 20,   0},    /* Magic Missile */
-			{  1,    1,  2, 20,   0},    /* Detect Monsters */
-			{  2,    3,  2, 20,   0},    /* Phase Door */
-			{  3,    6,  3, 20,   0},    /* Light Area */
-			{  4,    6,  3, 20,   0},    /* Bar Door */
-			{  5,    8,  3, 25,   0},    /* Cure Light Wounds */
-			{  6,   10,  4, 35,   0},    /* Detect Doors and Stairs */
-			{  7,   11,  4, 25,   0},    /* Stinking Cloud */
-			{  8,   12,  2, 25,   0},    /* Confuse Monster */
-			{  9,   14,  4, 25,   0},    /* Spear of Light */
+			{  0,    1,  2, 20,   0, "Magic Missile"},
+			{  1,    1,  2, 20,   0, "Detect Monsters"},
+			{  2,    3,  2, 20,   0, "Phase Door"},
+			{  3,    6,  3, 20,   0, "Light Area"},
+			{  4,    6,  3, 20,   0, "Bar Door"},
+			{  5,    8,  3, 25,   0, "Cure Light Wounds"},
+			{  6,   10,  4, 35,   0, "Detect Doors and Stairs"},
+			{  7,   11,  4, 25,   0, "Stinking Cloud"},
+			{  8,   12,  2, 25,   0, "Confuse Monster"},
+			{  9,   14,  4, 25,   0, "Spear of Light"},
 
 			/* Conjurings and Tricks (sval 1) */
-			{ 10,   18,255, 25,   1},    /* Wonder */
-			{ 11,   20,  5, 25,   1},    /* Teleport Self */
-			{ 12,   22,  3, 25,   1},    /* Blink Away */
-			{ 13,   24,  3, 25,   1},    /* Sleep Monster */
-			{ 14,   26,  5, 25,   2},    /* Sound Blast */
-			{ 15,   28,  6, 25,   2},    /* Fireflash */
-			{ 16,   30,  6, 25,   2},    /* Magic Disarm */
-			{ 17,   32,  3, 25,   2},    /* Slow Monster */
-			{ 18,   34,  6, 30,   3},    /* Fire Bolt */
-			{ 19,   36,  5, 35,   3},    /* Polymorph */
+			{ 10,   18,255, 25,   1, "Wonder"},
+			{ 11,   20,  5, 25,   1, "Teleport Self"},
+			{ 12,   22,  3, 25,   1, "Blink Away"},
+			{ 13,   24,  3, 25,   1, "Sleep Monster"},
+			{ 14,   26,  5, 25,   2, "Sound Blast"},
+			{ 15,   28,  6, 25,   2, "Fireflash"},
+			{ 16,   30,  6, 25,   2, "Magic Disarm"},
+			{ 17,   32,  3, 25,   2, "Slow Monster"},
+			{ 18,   34,  6, 30,   3, "Fire Bolt"},
+			{ 19,   36,  5, 35,   3, "Polymorph"},
 
 			/* Elemental Sorcery (sval 2) */
-			{ 20,   38,  8, 35,   3},    /* Identify */
-			{ 21,   40,  4, 30,   3},    /* Evasion */
-			{ 22,   42,  2, 30,   4},    /* Tap Magical Energy */
-			{ 23,   46,  8, 35,   4},    /* Elemental Protection */
-			{ 24,   46, 10, 30,   4},    /* Cone of Cold */
-			{ 25,   50,  6, 35,   4},    /* Detect Enchantment */
-			{ 26,   54, 12, 30,   5},    /* Haste Self */
-			{ 27,   58, 13, 30,   6},    /* Wall of Fire */
-			{ 28,   64, 18, 30,   9},    /* Chromatic Burst */
+			{ 20,   38,  8, 35,   3, "Identify"},
+			{ 21,   40,  4, 30,   3, "Evasion"},
+			{ 22,   42,  2, 30,   4, "Tap Magical Energy"},
+			{ 23,   46,  8, 35,   4, "Elemental Protection"},
+			{ 24,   46, 10, 30,   4, "Cone of Cold"},
+			{ 25,   50,  6, 35,   4, "Detect Enchantment"},
+			{ 26,   54, 12, 30,   5, "Haste Self"},
+			{ 27,   60, 14, 30,   6, "Wall of Fire"},
+			{ 28,   70, 20, 30,   9, "Chromatic Burst"},
 
 			/* Phantasms and Illusions (sval 3) */
-			{ 29,   50,  5, 25,   4},    /* Frighten Monster */
-			{ 30,   54, 10, 25,   5},    /* Cloaking */
-			{ 31,   60, 12, 25,   8},    /* Mass Confusion */
-			{ 32,   66, 19, 25,  12},    /* Chaos Cloud */
-			{ 33,   72,255, 25,  20},    /* Blinding and Befuddlement */
+			{ 29,   50,  5, 25,   4, "Frighten Monster"},
+			{ 30,   54, 10, 25,   5, "Cloaking"},
+			{ 31,   60, 12, 25,   8, "Mass Confusion"},
+			{ 32,   66, 22, 25,  12, "Chaos Cloud"},
+			{ 33,   72,255, 25,  20, "Blinding and Befuddlement"},
 
 			/* Mordenkainen's Escapes (sval 4) */
-			{ 34,   54,  8, 25,   6},    /* Door Creation */
-			{ 35,   60, 10, 25,   8},    /* Stair Creation */
-			{ 36,   62, 11, 25,   9},    /* Dancing Feet */
-			{ 37,   64, 13, 25,  11},    /* Teleport Other */
-			{ 38,   68, 13, 25,  16},    /* Teleport Level */
-			{ 39,   70, 10, 25,  20},    /* Phase Warp */
-			{ 40,   74, 22, 25,  25},    /* Word of Recall */
+			{ 34,   54,  8, 25,   6, "Door Creation"},
+			{ 35,   60, 10, 25,   8, "Stair Creation"},
+			{ 36,   62, 11, 25,   9, "Dancing Feet"},
+			{ 37,   64, 13, 25,  11, "Teleport Other"},
+			{ 38,   68, 13, 25,  16, "Teleport Level"},
+			{ 39,   70, 10, 25,  20, "Phase Warp"},
+			{ 40,   74, 22, 25,  25, "Word of Recall"},
 
 			/* Grimoire of Wizardry (sval 5) */
-			{ 41,   58, 12, 30,  10},    /* Detection */
-			{ 42,   64, 14, 30,  15},    /* Magic Shield */
-			{ 43,   68, 16, 30,  25},    /* Aura of Frost */
-			{ 44,   68, 16, 30,  25},    /* Aura of Fire */
-			{ 45,   78, 25, 35,  22},    /* Foes a-Phasing */
-			{ 46,   88, 20, 35,  45},    /* Wizardly Enhancement */
+			{ 41,   58, 12, 30,  10, "Detection"},
+			{ 42,   64, 14, 30,  15, "Magic Shield"},
+			{ 43,   68, 16, 30,  25, "Aura of Frost"},
+			{ 44,   68, 16, 30,  25, "Aura of Fire"},
+			{ 45,   78, 25, 35,  22, "Foes a-Phasing"},
+			{ 46,   88, 20, 35,  45, "Wizardly Enhancement"},
 
 			/* Raal's Tome of Destruction (sval 6) */
-			{ 47,   70, 15, 30,  22},    /* Arc of Force */
-			{ 48,   74, 40, 30,  25},    /* Call Destruction */
-			{ 49,   82, 23, 30,  30},    /* Plasma Vortex */
-			{ 50,   86, 13, 30,  42},    /* Rift */
-			{ 51,   90, 27, 30,  52},    /* Mana Storm */
-			{ 52,   94,255, 30,  65},    /* Prismatic Armageddon */
+			{ 47,   70, 15, 30,  22, "Arc of Force"},
+			{ 48,   74, 40, 30,  25, "Call Destruction"},
+			{ 49,   82, 23, 30,  30, "Plasma Vortex"},
+			{ 50,   86, 13, 30,  42, "Rift"},
+			{ 51,   90, 27, 30,  52, "Mana Storm"},
+			{ 52,   94,255, 30,  65, "Prismatic Armageddon"},
 
-			{ 53,  255,  0,  0,   0},
-			{ 54,  255,  0,  0,   0},
-			{ 55,  255,  0,  0,   0},
-			{ 56,  255,  0,  0,   0},
-			{ 57,  255,  0,  0,   0},
-			{ 58,  255,  0,  0,   0},
-			{ 59,  255,  0,  0,   0},
-			{ 60,  255,  0,  0,   0},
-			{ 61,  255,  0,  0,   0},
-			{ 62,  255,  0,  0,   0},
-			{ 63,  255,  0,  0,   0}
+			{ 53,  255,  0,  0,   0, NULL },
+			{ 54,  255,  0,  0,   0, NULL },
+			{ 55,  255,  0,  0,   0, NULL },
+			{ 56,  255,  0,  0,   0, NULL },
+			{ 57,  255,  0,  0,   0, NULL },
+			{ 58,  255,  0,  0,   0, NULL },
+			{ 59,  255,  0,  0,   0, NULL },
+			{ 60,  255,  0,  0,   0, NULL },
+			{ 61,  255,  0,  0,   0, NULL },
+			{ 62,  255,  0,  0,   0, NULL },
+			{ 63,  255,  0,  0,   0, NULL }
 		}
 	},
 
@@ -1628,83 +1629,83 @@ const player_magic magic_info[MAX_REALM + 1] =
 
 		{
 			/* Novitiate (sval 0) */
-			{ 64,    1,  2, 20,   0},    /* Detect Evil */
-			{ 65,    1,  2, 20,   0},    /* Cure Minor Wounds */
-			{ 66,    3,  2, 20,   0},    /* Bless */
-			{ 67,    4,  2, 25,   0},    /* Boldness */
-			{ 68,    6,  2, 20,   0},    /* Radiance */
-			{ 69,    7,  3, 15,   0},    /* Spiritual Hammer */
-			{ 70,    8,  3, 30,   0},    /* Detect Doors and Stairs */
-			{ 71,   10,  3, 20,   0},    /* Scare Monster */
-			{ 72,   11,  4, 20,   0},    /* Dispel Poison */
-			{ 73,   13,  4, 25,   0},    /* Blink */
+			{ 64,    1,  2, 20,   0, "Detect Evil"},
+			{ 65,    1,  2, 20,   0, "Cure Minor Wounds"},
+			{ 66,    3,  2, 20,   0, "Bless"},
+			{ 67,    4,  2, 25,   0, "Boldness"},
+			{ 68,    6,  2, 20,   0, "Radiance"},
+			{ 69,    7,  3, 15,   0, "Spiritual Hammer"},
+			{ 70,    8,  3, 30,   0, "Detect Doors and Stairs"},
+			{ 71,   10,  3, 20,   0, "Scare Monster"},
+			{ 72,   11,  4, 20,   0, "Dispel Poison"},
+			{ 73,   13,  4, 25,   0, "Blink"},
 
 			/* Words of Wisdom (sval 1) */
-			{ 74,   14,  4, 25,   0},    /* Sense Invisible */
-			{ 75,   16,  4, 25,   0},    /* Shining Spear */
-			{ 76,   18,  4, 25,   1},    /* Scan Object */
-			{ 77,   20,  5, 30,   1},    /* Sustenance */
-			{ 78,   22,  7, 30,   2},    /* Orb of Draining */
-			{ 79,   24,  7, 35,   1},    /* Sense Surroundings */
-			{ 80,   26,  7, 25,   2},    /* Remove Curse */
-			{ 81,   28,  4, 30,   2},    /* Resist Heat and Cold */
-			{ 82,   30,  4, 25,   2},    /* Turn Evil */
-			{ 83,   33,  8, 25,   3},    /* Cure Major Wounds */
+			{ 74,   14,  4, 25,   0, "Sense Invisible"},
+			{ 75,   16,  4, 25,   0, "Shining Spear"},
+			{ 76,   18,  4, 25,   1, "Scan Object"},
+			{ 77,   20,  5, 30,   1, "Sustenance"},
+			{ 78,   22,  7, 30,   2, "Orb of Draining"},
+			{ 79,   24,  7, 35,   1, "Sense Surroundings"},
+			{ 80,   26,  7, 25,   2, "Remove Curse"},
+			{ 81,   28,  4, 30,   2, "Resist Heat and Cold"},
+			{ 82,   30,  4, 25,   2, "Turn Evil"},
+			{ 83,   33,  8, 25,   3, "Cure Major Wounds"},
 
 			/* Holy of Holies (sval 2) */
-			{ 84,   35,  5, 30,   4},    /* Prayer */
-			{ 85,   38,  7, 30,   3},    /* Protection from Evil */
-			{ 86,   40,  8, 30,   4},    /* Exorcism */
-			{ 87,   44, 10, 30,   4},    /* Dispel Evil */
-			{ 88,   48, 11, 30,   3},    /* Divine Light */
-			{ 89,   50,  1, 30,   4},    /* Meditation */
-			{ 90,   58, 12, 30,   5},    /* Portal */
-			{ 91,   60, 22, 30,   6},    /* Heal */
-			{ 92,   69, 30, 40,  15},    /* Glyph of Warding */
-			{ 93,   75, 30, 35,  22},    /* Holy Word */
+			{ 84,   35,  5, 30,   4, "Prayer"},
+			{ 85,   38,  7, 30,   3, "Protection from Evil"},
+			{ 86,   40,  8, 30,   4, "Exorcism"},
+			{ 87,   44, 10, 30,   4, "Dispel Evil"},
+			{ 88,   48, 11, 30,   3, "Divine Light"},
+			{ 89,   50,  1, 30,   4, "Meditation"},
+			{ 90,   58, 12, 30,   5, "Portal"},
+			{ 91,   60, 22, 30,   6, "Heal"},
+			{ 92,   69, 30, 40,  15, "Glyph of Warding"},
+			{ 93,   75, 30, 35,  22, "Holy Word"},
 
 			/* Shining Spirit (sval 3) */
-			{ 94,   52,  5, 30,   8},    /* Unbarring Ways */
-			{ 95,   52,  5, 30,   8},    /* Untrapping Chant */
-			{ 96,   56,  6, 30,   9},    /* Eyes Undeceivable */
-			{ 97,   56,  6, 30,   9},    /* Unveil Traps */
-			{ 98,   72, 20, 30,  15},    /* Light Chambers */
-			{ 99,   84, 50, 35,  35},    /* Clairvoyance */
+			{ 94,   52,  5, 30,   8, "Unbarring Ways"},
+			{ 95,   52,  5, 30,   8, "Untrapping Chant"},
+			{ 96,   56,  6, 30,   9, "Eyes Undeceivable"},
+			{ 97,   56,  6, 30,   9, "Unveil Traps"},
+			{ 98,   72, 20, 30,  15, "Light Chambers"},
+			{ 99,   84, 50, 35,  35, "Clairvoyance"},
 
 			/* Canon of Judgment (sval 4) */
-			{100,   54, 12, 25,   9},    /* Holy Lance */
-			{101,   54, 17, 30,   9},    /* Concentrate Light */
-			{102,   58, 20, 30,  13},    /* Banishment */
-			{103,   64, 20, 30,  19},    /* Judgment */
-			{104,   78, 24, 35,  32},    /* Starburst */
+			{100,   54, 12, 25,   9, "Holy Lance"},
+			{101,   54, 17, 30,   9, "Concentrate Light"},
+			{102,   58, 20, 30,  13, "Banishment"},
+			{103,   64, 20, 30,  19, "Judgment"},
+			{104,   78, 24, 35,  32, "Starburst"},
 
 			/* Insight and Purifications (sval 5) */
-			{105,   60,  8, 25,  11},    /* Resist Ethereal */
-			{106,   62, 18, 30,  13},    /* Perception */
-			{107,   64, 18, 40,  15},    /* Self Knowledge */
-			{108,   70, 30, 40,  22},    /* Dispel Curse */
-			{109,   72, 18, 40,  27},    /* Holy Aura */
-			{110,   80, 60, 50,  35},    /* Restoration */
-			{111,   80, 60, 50,  35},    /* Remembrance */
+			{105,   60,  8, 25,  11, "Resist Ethereal"},
+			{106,   62, 18, 30,  13, "Perception"},
+			{107,   64, 18, 40,  15, "Self Knowledge"},
+			{108,   70, 30, 40,  22, "Dispel Curse"},
+			{109,   72, 18, 40,  27, "Holy Aura"},
+			{110,   80, 60, 50,  35, "Restoration"},
+			{111,   80, 60, 50,  35, "Remembrance"},
 
 			/* Testament of the Almighty (sval 6) */
-			{112,   76, 13, 30,  32},    /* Sacred Shield */
-			{113,   76, 25, 30,  32},    /* Life */
-			{114,   82, 24, 40,  37},    /* Word of Destruction */
-			{115,   86, 25, 32,  45},    /* Smite Evil */
-			{116,   86, 23, 32,  45},    /* Annihilation */
-			{117,   96, 30, 25,  75},    /* Call on Varda */
+			{112,   76, 13, 30,  32, "Sacred Shield"},
+			{113,   76, 25, 30,  32, "Life"},
+			{114,   82, 24, 40,  37, "Word of Destruction"},
+			{115,   86, 25, 32,  45, "Smite Evil"},
+			{116,   86, 23, 32,  45, "Annihilation"},
+			{117,   96, 30, 25,  75, "Call on Varda"},
 
-			{118,  255,  0,  0,   0},
-			{119,  255,  0,  0,   0},
-			{120,  255,  0,  0,   0},
-			{121,  255,  0,  0,   0},
-			{122,  255,  0,  0,   0},
-			{123,  255,  0,  0,   0},
-			{124,  255,  0,  0,   0},
-			{125,  255,  0,  0,   0},
-			{126,  255,  0,  0,   0},
-			{127,  255,  0,  0,   0}
+			{118,  255,  0,  0,   0, NULL },
+			{119,  255,  0,  0,   0, NULL },
+			{120,  255,  0,  0,   0, NULL },
+			{121,  255,  0,  0,   0, NULL },
+			{122,  255,  0,  0,   0, NULL },
+			{123,  255,  0,  0,   0, NULL },
+			{124,  255,  0,  0,   0, NULL },
+			{125,  255,  0,  0,   0, NULL },
+			{126,  255,  0,  0,   0, NULL },
+			{127,  255,  0,  0,   0, NULL }
 		}
 	},
 
@@ -1718,83 +1719,83 @@ const player_magic magic_info[MAX_REALM + 1] =
 
 		{
 			/* Call of the Wild (sval 0) */
-			{128,    1,  2, 20,   0},    /* Lightning Spark */
-			{129,    1,  2, 20,   0},    /* Sense Life */
-			{130,    3,  2, 20,   0},    /* Minor Healing */
-			{131,    6,  3, 20,   0},    /* Song of Morning */
-			{132,    8,  3, 20,   0},    /* Sustain Self */
-			{133,   10,  3, 22,   0},    /* Blink */
-			{134,   11,  4, 22,   0},    /* Regain Health */
-			{135,   12,  4, 22,   0},    /* Frost Bolt */
-			{136,   14,  4, 22,   0},    /* Ray of Sunlight */
-			{137,   16,  4, 22,   0},    /* Turn Stone to Mud */
+			{128,    1,  2, 20,   0, "Lightning Spark"},
+			{129,    1,  2, 20,   0, "Sense Life"},
+			{130,    3,  2, 20,   0, "Minor Healing"},
+			{131,    6,  3, 20,   0, "Song of Morning"},
+			{132,    8,  3, 20,   0, "Sustain Self"},
+			{133,   10,  3, 22,   0, "Blink"},
+			{134,   11,  4, 22,   0, "Regain Health"},
+			{135,   12,  4, 22,   0, "Frost Bolt"},
+			{136,   14,  4, 22,   0, "Ray of Sunlight"},
+			{137,   16,  4, 22,   0, "Turn Stone to Mud"},
 
 			/* Communion with Nature (sval 1) */
-			{138,   18,  3, 22,   1},    /* Sleep Creature */
-			{139,   19,  5, 22,   1},    /* Counter-Poison */
-			{140,   21,  6, 22,   1},    /* Detect Traps/Doors */
-			{141,   22,  6, 25,   1},    /* Snuff Small Life */
-			{142,   24,  7, 25,   1},    /* Ignite Blaze */
-			{143,   26,  2, 25,   2},    /* Change Weather */
-			{144,   28,  7, 25,   2},    /* Form of the Goat */
-			{145,   30,  9, 25,   2},    /* Sense Area */
-			{146,   32,  7, 25,   3},    /* Poison Bolt */
-			{147,   34,  9, 25,   3},    /* Resist Elements */
+			{138,   18,  3, 22,   1, "Sleep Creature"},
+			{139,   19,  5, 22,   1, "Purge Poison"},
+			{140,   21,  6, 22,   1, "Detect Traps/Doors"},
+			{141,   22,  6, 25,   1, "Snuff Small Life"},
+			{142,   24,  7, 25,   1, "Ignite Blaze"},
+			{143,   26,  2, 25,   2, "Change Weather"},
+			{144,   28,  7, 25,   2, "Form of the Goat"},
+			{145,   30,  9, 25,   2, "Sense Area"},
+			{146,   32,  7, 25,   3, "Poison Bolt"},
+			{147,   34,  9, 25,   3, "Resist Elements"},
 
 			/* Book of Combat (sval 2) */
-			{148,   36,  9, 30,   3},    /* Acid Blast */
-			{149,   39, 10, 30,   4},    /* Wither Foe */
-			{150,   44,255, 30,   4},    /* Blizzard */
-			{151,   46,255, 30,   4},    /* Fireball */
-			{152,   50, 14, 40,   5},    /* Form of the Bear */
-			{153,   54,  1, 30,   6},    /* Natural Vitality */
-			{154,   58,255, 30,   7},    /* Chain Lightning */
-			{155,   62, 16, 40,   8},    /* Detect all */
-			{156,   66, 16, 35,   9},    /* Identify */
-			{157,   74, 24, 35,  14},    /* Thunderclap */
+			{148,   36,  9, 30,   3, "Acid Blast"},
+			{149,   39, 10, 30,   4, "Wither Foe"},
+			{150,   44,255, 30,   4, "Blizzard"},
+			{151,   46,255, 30,   4, "Fireball"},
+			{152,   50, 14, 40,   5, "Form of the Bear"},
+			{153,   54,  1, 30,   6, "Natural Vitality"},
+			{154,   58,255, 30,   7, "Chain Lightning"},
+			{155,   62, 16, 40,   8, "Detect All"},
+			{156,   66, 16, 35,   9, "Identify"},
+			{157,   74, 24, 35,  14, "Thunderclap"},
 
 			/* Druidic Transformations (sval 3) */
-			{158,   30,  4, 40,   7},    /* Form of the Mouse */
-			{159,   36,  9, 40,  10},    /* Form of the Hound */
-			{160,   46, 12, 40,  15},    /* Form of the Cheetah */
-			{161,   56, 18, 40,  20},    /* Form of the Lion */
-			{162,   82, 29, 45,  30},    /* Form of the Dragon */
+			{158,   30,  4, 40,   7, "Form of the Mouse"},
+			{159,   36,  9, 40,  10, "Form of the Hound"},
+			{160,   46, 12, 40,  15, "Form of the Cheetah"},
+			{161,   56, 18, 40,  20, "Form of the Lion"},
+			{162,   82, 29, 45,  30, "Form of the Dragon"},
 
 			/* Weather Mastery (sval 4) */
-			{163,   60, 8, 40,  20},    /* Hold Weather */
-			{164,   66, 9, 38,  22},    /* Summer's Gaze */
-			{165,   66, 9, 38,  22},    /* Winter's Grip */
-			{166,   72, 9, 37,  25},    /* Drought */
-			{167,   72, 9, 37,  25},    /* Deluge */
-			{168,   76, 9, 35,  27},    /* Wind Songs */
-			{169,   76, 9, 35,  27},    /* Still Winds */
+			{163,   60,  8, 40,  20, "Hold Weather"},
+			{164,   66,  9, 38,  22, "Summer's Gaze"},
+			{165,   66,  9, 38,  22, "Winter's Grip"},
+			{166,   72,  9, 37,  25, "Drought"},
+			{167,   72,  9, 37,  25, "Deluge"},
+			{168,   76,  9, 35,  27, "Wind Songs"},
+			{169,   76,  9, 35,  27, "Still Winds"},
 
 			/* Primal Forces (sval 5) */
-			{170,   70, 20, 30,  22},    /* Ice Storm */
-			{171,   75, 20, 30,  22},    /* Essence of Flame */
-			{172,   79, 21, 30,  27},    /* Lethal Plague */
-			{173,   81, 21, 35,  30},    /* Cyclone */
-			{174,   84, 22, 30,  30},    /* Hurricane of Acid */
-			{175,   88, 22, 30,  35},    /* Thunder Strike */
+			{170,   70, 20, 30,  22, "Ice Storm"},
+			{171,   75, 20, 30,  22, "Essence of Flame"},
+			{172,   79, 21, 30,  27, "Lethal Plague"},
+			{173,   81, 21, 35,  30, "Cyclone"},
+			{174,   84, 22, 30,  30, "Hurricane of Acid"},
+			{175,   88, 22, 30,  35, "Thunder Strike"},
 
 			/* Spirit of Yavanna (sval 6) */
-			{176,   60,  9, 30,  15},    /* Song of Protection */
-			{177,   68, 18, 30,  20},    /* Essence of Speed */
-			{178,   74, 28, 30,  30},    /* Herbal Healing */
-			{179,   76, 30, 35,  32},    /* Create Athelas */
-			{180,   80, 30, 35,  37},    /* Form of the Ent */
-			{181,   98, 34, 25,  70},    /* Intervention of Yavanna */
+			{176,   60,  9, 30,  15, "Song of Protection"},
+			{177,   68, 18, 30,  20, "Essence of Speed"},
+			{178,   74, 28, 30,  30, "Herbal Healing"},
+			{179,   76, 30, 35,  32, "Create Athelas"},
+			{180,   80, 30, 35,  37, "Form of the Ent"},
+			{181,   98, 34, 25,  70, "Intervention of Yavanna"},
 
-			{182,  255,  0,  0,   0},
-			{183,  255,  0,  0,   0},
-			{184,  255,  0,  0,   0},
-			{185,  255,  0,  0,   0},
-			{186,  255,  0,  0,   0},
-			{187,  255,  0,  0,   0},
-			{188,  255,  0,  0,   0},
-			{189,  255,  0,  0,   0},
-			{190,  255,  0,  0,   0},
-			{191,  255,  0,  0,   0}
+			{182,  255,  0,  0,   0, NULL },
+			{183,  255,  0,  0,   0, NULL },
+			{184,  255,  0,  0,   0, NULL },
+			{185,  255,  0,  0,   0, NULL },
+			{186,  255,  0,  0,   0, NULL },
+			{187,  255,  0,  0,   0, NULL },
+			{188,  255,  0,  0,   0, NULL },
+			{189,  255,  0,  0,   0, NULL },
+			{190,  255,  0,  0,   0, NULL },
+			{191,  255,  0,  0,   0, NULL }
 		}
 	},
 
@@ -1804,425 +1805,89 @@ const player_magic magic_info[MAX_REALM + 1] =
 		"Necromancer", TV_DARK_BOOK,  A_INT,  S_DOMINION,  250,
 
 		/* 54 curses in seven books */
-		54,	{ 0, 10, 20, 30, 36, 42, 48, 54, 54, 54, 54},
+		54,	{ 0, 10, 20, 29, 35, 41, 48, 54, 54, 54, 54},
 
 		{
 			/* Beginner's Curses (sval 0) */
-			{192,    1,  2, 20,   0},    /* Magic Bolt */
-			{193,    1,  2, 20,   0},    /* Detect Evil */
-			{194,    3,  3, 25,   0},    /* Sense Blood */
-			{195,    6,  2, 20,   0},    /* Break Curse */
-			{196,    6,  2, 25,   0},    /* Black Blessing */
-			{197,    8,  3, 20,   0},    /* Malediction */
-			{198,   10,  2, 20,   0},    /* Horrify */
-			{199,   13,  3, 45,   1},    /* Become Bat */
-			{200,   15,  3, 20,   0},    /* Dark Bolt */
-			{201,   18,  4, 20,   0},    /* Noxious Fumes */
+			{192,    1,  2, 20,   0, "Magic Bolt"},
+			{193,    1,  2, 20,   0, "Detect Evil"},
+			{194,    3,  3, 25,   0, "Sense Blood"},
+			{195,    6,  2, 20,   0, "Break Curse"},
+			{196,    6,  2, 25,   0, "Black Blessing"},
+			{197,    8,  3, 20,   0, "Malediction"},
+			{198,   10,  2, 20,   0, "Horrify"},
+			{199,   13,  3, 45,   1, "Become Bat"},
+			{200,   15,  3, 20,   0, "Dark Bolt"},
+			{201,   18,  4, 20,   0, "Noxious Fumes"},
 
 			/* Darker Elements (sval 1) */
-			{202,   19,  5, 25,   1},    /* Cure Poison */
-			{203,   20,  5, 10,   1},    /* Invoke Spirits */
-			{204,   22,  5, 30,   1},    /* Dispel Evil */
-			{205,   24,  5, 25,   1},    /* Eyes of the Night */
-			{206,   26,  6, 50,   2},    /* Shadow Shifting */
-			{207,   30,  8, 55,   2},    /* Detect Traps */
-			{208,   32,  8, 55,   2},    /* Detect Doors/Stairs */
-			{209,   34,  6, 25,   2},    /* Death Claw */
-			{210,   36,  6, 30,   3},    /* Mental Awareness */
-			{211,   38,  6, 30,   4},    /* Mass Panic */
+			{202,   19,  5, 25,   1, "Cure Poison"},
+			{203,   20,  5, 10,   1, "Invoke Spirits"},
+			{204,   22,  5, 30,   1, "Dispel Evil"},
+			{205,   24,  5, 25,   1, "Eyes of the Night"},
+			{206,   26,  6, 50,   2, "Shadow Shifting"},
+			{207,   30,  8, 55,   2, "Detect Traps"},
+			{208,   32,  8, 55,   2, "Detect Doors/Stairs"},
+			{209,   34,  6, 25,   2, "Death Claw"},
+			{210,   36,  6, 30,   3, "Mental Awareness"},
+			{211,   38,  6, 30,   4, "Mass Panic"},
 
 			/* Frightful Realms (sval 2) */
-			{212,   42,  7, 30,   4},    /* Mists of Lethargy */
-			{213,   44,  9, 30,   4},    /* Spear of Ice */
-			{214,   46, 10, 30,   4},    /* Doom Bolt */
-			{215,   46, 10, 50,   4},    /* Shadow Warping */
-			{216,   50, 18, 40,   5},    /* Feed off Light */
-			{217,   54,255, 30,   5},    /* Dark Ball */
-			{218,   58, 30, 35,   6},    /* Genocide */
-			{219,   62, 14, 30,   6},    /* Exorcism */
-			{220,   66, 19, 30,   8},    /* Mists of Death */
-			{221,   72, 22, 30,  15},    /* The Overmind */
+			{212,   42,  7, 30,   4, "Mists of Lethargy"},
+			{213,   44,  9, 30,   4, "Spear of Ice"},
+			{214,   46, 10, 30,   4, "Doom Bolt"},
+			{215,   46, 10, 50,   4, "Shadow Warping"},
+			{216,   50, 18, 40,   5, "Feed off Light"},
+			{217,   54,255, 30,   5, "Dark Ball"},
+			{218,   60, 13, 35,   6, "Thaumacurse"},
+			{219,   64, 14, 30,   6, "Exorcism"},
+			{220,   70, 19, 30,   8, "Mists of Death"},
 
 			/* Mysteries of Angmar (sval 3) */
-			{222,   48,  4, 25,   6},    /* Corpse Light */
-			{223,   52,  6, 30,   7},    /* Probing */
-			{224,   60,  9, 35,  12},    /* Shadow Mapping */
-			{225,   68, 12, 35,  20},    /* Interrogate */
-			{226,   75, 19, 35,  30},    /* Shadow Shield */
-			{227,   82, 35, 40,  40},    /* Wraithform */
+			{221,   48,  4, 25,   6, "Corpse Light"},
+			{222,   52,  6, 30,   7, "Probing"},
+			{223,   60,  9, 35,  12, "Shadow Mapping"},
+			{224,   68, 12, 35,  20, "Interrogation"},
+			{225,   75, 19, 35,  30, "Shadow Shield"},
+			{226,   82, 35, 40,  40, "Wraithform"},
 
 			/* Doomspells (sval 4) */
-			{228,   60, 12, 25,  12},    /* Darkfire */
-			{229,   64, 19, 30,  16},    /* Vampiric Drain */
-			{230,   68, 20, 30,  20},    /* Blight Upon Nature */
-			{231,   72, 21, 35,  25},    /* Smash Undead */
-			{232,   76, 30, 35,  30},    /* Destroy Cavern */
-			{233,   86, 22, 35,  40},    /* Annihilation */
+			{227,   60, 12, 25,  12, "Darkfire"},
+			{228,   64, 19, 30,  16, "Vampiric Drain"},
+			{229,   68, 20, 30,  20, "Blight Upon Nature"},
+			{230,   72, 21, 35,  25, "Smash Undead"},
+			{231,   76, 30, 35,  30, "Destroy Cavern"},
+			{232,   86, 22, 35,  40, "Annihilation"},
 
 			/* Triumph of the Will (sval 5) */
-			{234,   60, 10, 30,  15},    /* Mind over Body */
-			{235,   64, 11, 30,  17},    /* Ward Against Evil */
-			{236,   66, 15, 35,  18},    /* Necromantic Rage */
-			{237,   68, 19, 35,  22},    /* Dispel Curse */
-			{238,   78,  0, 35,  30},    /* Ritual of Blood */
-			{239,   84, 20, 35,  40},    /* Mental Barrier */
+			{233,   60, 10, 30,  15, "Mind over Body"},
+			{234,   64, 11, 30,  17, "Ward Against Evil"},
+			{235,   66, 15, 35,  18, "Necromantic Rage"},
+			{236,   68, 19, 35,  22, "Dispel Curse"},
+			{237,   72, 22, 30,  25, "The Overmind"},
+			{238,   78,  0, 35,  30, "Ritual of Blood"},
+			{239,   86, 20, 35,  40, "Mental Barrier"},
 
 			/* Necronomicon (sval 6) */
-			{240,   72, 20, 30,  25},    /* Teleport Other */
-			{241,   74, 20, 30,  27},    /* Forbid Summoning */
-			{242,   81, 20, 35,  35},    /* Lich Powers */
-			{243,   82, 60, 35,  35},    /* Mass Genocide */
-			{244,   92, 23, 30,  50},    /* Darkness Storm */
-			{245,   96,255, 30,  70},    /* Mana Frenzy */
+			{240,   72, 20, 30,  25, "Teleport Other"},
+			{241,   74, 20, 30,  27, "Forbid Summoning"},
+			{242,   81, 20, 35,  35, "Lich Powers"},
+			{243,   82, 60, 35,  35, "Mass Genocide"},
+			{244,   92, 23, 30,  50, "Darkness Storm"},
+			{245,   96,255, 30,  70, "Mana Frenzy"},
 
-			{246,  255,  0,  0,   0},
-			{247,  255,  0,  0,   0},
-			{248,  255,  0,  0,   0},
-			{249,  255,  0,  0,   0},
-			{250,  255,  0,  0,   0},
-			{251,  255,  0,  0,   0},
-			{252,  255,  0,  0,   0},
-			{253,  255,  0,  0,   0},
-			{254,  255,  0,  0,   0},
-			{255,  255,  0,  0,   0}
+			{246,  255,  0,  0,   0, NULL },
+			{247,  255,  0,  0,   0, NULL },
+			{248,  255,  0,  0,   0, NULL },
+			{249,  255,  0,  0,   0, NULL },
+			{250,  255,  0,  0,   0, NULL },
+			{251,  255,  0,  0,   0, NULL },
+			{252,  255,  0,  0,   0, NULL },
+			{253,  255,  0,  0,   0, NULL },
+			{254,  255,  0,  0,   0, NULL },
+			{255,  255,  0,  0,   0, NULL }
 		}
 	}
-};
-
-
-/*
- * Names of the spells (mage spells, priestly prayers, nature magics,
- * and Necromantic spells).  Spells are listed by index (see table above
- * for index assignments, and cmd5.c for the effects associated with each
- * index).
- */
-cptr spell_names[256] =
-{
-/*** Wizard's Spells ***/
-
-	/* Apprentice's Magic (sval 0) */
-	"Magic Missile",                /* Index 0 */
-	"Detect Monsters",
-	"Phase Door",
-	"Light Area",
-	"Bar Door",
-	"Cure Light Wounds",
-	"Detect Doors and Stairs",
-	"Stinking Cloud",
-	"Confuse Monster",
-	"Spear of Light",
-
-	/* Lesser Conjury (sval 1) */
-	"Wonder",                      /* Index 10 */
-	"Teleport Self",
-	"Blink Away",
-	"Sleep Monster",
-	"Sound Blast",
-	"Fireflash",
-	"Magic Disarm",
-	"Slow Monster",
-	"Fire Bolt",
-	"Polymorph",
-
-	/* Elemental Sorcery (sval 2) */
-	"Identify",                    /* Index 19 */
-	"Evasion",
-	"Tap Magical Energy",
-	"Elemental Protection",
-	"Cone of Cold",
-	"Detect Enchantment",
-	"Haste Self",
-	"Wall of Fire",
-	"Chromatic Burst",
-
-	/* Phantasms and Illusions (sval 3) */
-	"Frighten Monster",                     /* Index 28 */
-	"Cloaking",
-	"Mass Confusion",
-	"Chaos Cloud",
-	"Blinding and Befuddlement",
-
-	/* Mordenkainen's Escapes (sval 4) */
-	"Door Creation",                /* Index 34 */
-	"Stair Creation",
-	"Dancing Feet",
-	"Teleport Other",
-	"Teleport Level",
-	"Phase Warp",
-	"Word of Recall",
-
-	/* Grimoire of Wizardry (sval 5) */
-	"Detection",                 /* Index 41 */
-	"Magic Shield",
-	"Aura of Frost",
-	"Aura of Fire",
-	"Foes a-Phasing",
-	"Wizardly Enhancement",
-
-	/* Raal's Tome of Destruction (sval 6) */
-	"Arc of Force",                 /* Index 47 */
-	"Call Destruction",
-	"Plasma Vortex",
-	"Rift",
-	"Mana Storm",
-	"Prismatic Armageddon",
-
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-
-
-/*** Priestly Prayers ***/
-
-	/* Novitiate (sval 0) */
-	"Detect Evil",                  /* Index 64 */
-	"Cure Minor Wounds",
-	"Bless",
-	"Boldness",
-	"Radiance",
-	"Spiritual Hammer",
-	"Detect Doors and Stairs",
-	"Scare Monster",
-	"Dispel Poison",
-	"Blink",
-
-	/* Words of Wisdom (sval 1) */
-	"Sense Invisible",                  /* Index 74 */
-	"Shining Spear",
-	"Scan Object",
-	"Sustenance",
-	"Orb of Draining",
-	"Sense Surroundings",
-	"Remove Curse",
-	"Resist Heat and Cold",
-	"Turn Evil",
-	"Cure Major Wounds",
-
-	/* Holy of Holies (sval 2) */
-	"Prayer",                       /* Index 84 */
-	"Protection from Evil",
-	"Exorcism",
-	"Dispel Evil",
-	"Divine Light",
-	"Meditation",
-	"Portal",
-	"Heal",
-	"Glyph of Warding",
-	"Holy Word",
-
-	/* Shining Spirit (sval 3) */
-	"Unbarring Ways",               /* Index 94 */
-	"Untrapping Chant",
-	"Eyes Undeceivable",
-	"Unveil Traps",
-	"Light Chambers",
-	"Clairvoyance",
-
-	/* Canon of Judgment (sval 4) */
-	"Holy Lance",                 /* Index 100 */
-	"Concentrate Light",
-	"Banishment",
-	"Judgment",
-	"Starburst",
-
-	/* Insight and Purifications (sval 5) */
-	"Resist Ethereal",                   /* Index 106 */
-	"Perception",
-	"Self Knowledge",
-	"Dispel Curse",
-	"Holy Aura",
-	"Restoration",
-	"Remembrance",
-
-	/* Testament of the Almighty (sval 6) */
-	"Sacred Shield",                         /* Index 112 */
-	"Life",
-	"Word of Destruction",
-	"Smite Evil",
-	"Annihilation",
-	"Call on Varda",
-
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-
-
-/*** Druidic Lore ***/
-
-	/* Call of the Wild (sval 0) */
-	"Lightning Spark",              /* Index 128 */
-	"Sense Life",
-	"Minor Healing",
-	"Song of Morning",
-	"Sustain Self",
-	"Blink",
-	"Regain Health",
-	"Frost Bolt",
-	"Ray of Sunlight",
-	"Turn Stone to Mud",
-
-	/* Communion with Nature (sval 1) */
-	"Sleep Creature",               /* Index 138 */
-	"Counter-Poison",
-	"Detect Traps/Doors",
-	"Snuff Small Life",
-	"Ignite Blaze",
-	"Change Weather",
-	"Form of the Goat",
-	"Sense Area",
-	"Poison Bolt",
-	"Resist Elements",
-
-	/* Book of Combat (sval 2) */
-	"Acid Blast",                    /* Index 148 */
-	"Wither Foe",
-	"Blizzard",
-	"Fireball",
-	"Form of the Bear",
-	"Natural Vitality",
-	"Chain Lightning",
-	"Detect all",
-	"Identify",
-	"Thunderclap",
-
-	/* Druidic Transformations (sval 3) */
-	"Form of the Mouse",            /* Index 158 */
-	"Form of the Hound",
-	"Form of the Cheetah",
-	"Form of the Lion",
-	"Form of the Dragon",
-
-	/* Weather Mastery (sval 4) */
-	"Hold Weather",                 /* Index 163 */
-	"Summer's Gaze",
-	"Winter's Grip",
-	"Drought",
-	"Deluge",
-	"Wind Songs",
-	"Still Winds",
-
-	/* Primal Forces (sval 5) */
-	"Ice Storm",             /* Index 170 */
-	"Essence of Flame",
-	"Lethal Plague",
-	"Cyclone",
-	"Hurricane of Acid",
-	"Thunder Strike",
-
-	/* Spirit of Yavanna (sval 6) */
-	"Song of Protection",           /* Index 176 */
-	"Essence of Speed",
-	"Herbal Healing",
-	"Create Athelas",
-	"Form of the Ent",
-	"Intervention of Yavanna",
-
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-
-/*** Necromantic Curses ***/
-
-	/* Beginner's Curses (sval 0) */
-	"Magic Bolt",                   /* Index 192 */
-	"Detect Evil",
-	"Sense Blood",
-	"Break Curse",
-	"Black Blessing",
-	"Malediction",
-	"Horrify",
-	"Become Bat",
-	"Dark Bolt",
-	"Noxious Fumes",
-
-	/* Darker Elements (sval 1) */
-	"Cure Poison",                  /* Index 202 */
-	"Invoke Spirits",
-	"Dispel Evil",
-	"Eyes of the Night",
-	"Shadow Shifting",
-	"Detect Traps",
-	"Detect Doors/Stairs",
-	"Death Claw",
-	"Mental Awareness",
-	"Mass Panic",
-
-	/* Frightful Realms (sval 2) */
-	"Mists of Lethargy",            /* Index 212 */
-	"Spear of Ice",
-	"Doom Bolt",
-	"Shadow Warping",
-	"Feed off Light",
-	"Dark Ball",
-	"Genocide",
-	"Exorcism",
-	"Mists of Death",
-	"The Overmind",
-
-	/* Mysteries of Angmar (sval 3) */
-	"Corpse Light",                 /* Index 222 */
-	"Probing",
-	"Shadow Mapping",
-	"Interrogate",
-	"Shadow Shield",
-	"Wraithform",
-
-	/* Doomspells (sval 4) */
-	"Darkfire",                     /* Index 228 */
-	"Vampiric Drain",
-	"Blight Upon Nature",
-	"Smash Undead",
-	"Destroy Cavern",
-	"Annihilation",
-
-	/* Bodily Infusions (sval 5) */
-	"Mind over Body",               /* Index 234 */
-	"Ward Against Evil",
-	"Necromantic Rage",
-	"Dispel Curse",
-	"Ritual of Blood",
-	"Mental Barrier",
-
-	/* Necronomicon (sval 6) */
-	"Teleport Other",               /* Index 240 */
-	"Forbid Summoning",
-	"Lich Powers",
-	"Mass Genocide",
-	"Darkness Storm",
-	"Mana Frenzy",
-
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)",
-	"(blank)"
 };
 
 
@@ -2392,7 +2057,7 @@ set_type s_info[MAX_S_IDX] =
 	{
 		"Shadow Ward", 2, "It is one of the Shadow Ward items",
 		{
-			/* The Soft Leather Armour 'Hithlomir' */
+			/* The Soft Leather Armor 'Hithlomir' */
 			{ART_HITHLOMIR,        0,  0,  0,       0,  0,  0,
 			  0, (TR_PVAL_AWARE),
 			  0, 0L,
@@ -2419,7 +2084,7 @@ set_type s_info[MAX_S_IDX] =
 			  0, 0L,
 			  0L, 0L, (TR3_REGEN) },
 
-			/* The Metal Brigandine Armour of the Rohirrim */
+			/* The Metal Brigandine Armor of the Rohirrim */
 			{ART_ROHIRRIM,         0,  0,  0,       0,  0,  0,
 			  0, 0L,
 			  0, 0L,
@@ -2475,7 +2140,7 @@ set_type s_info[MAX_S_IDX] =
  */
 color_type color_table[MAX_COLORS] =
 {
-	{ 'd', "Dark",           0, 0, 0, 0, 0 },
+	{ 'd', "Dark",           0, 0, 0,     0,   0 },
 	{ 'w', "White",          1, 0, 255, 255, 255 },
 	{ 's', "Slate",          2, 0, 144, 144, 144 },
 	{ 'o', "Orange",         3, 0, 255, 128,   0 },
@@ -2494,6 +2159,7 @@ color_type color_table[MAX_COLORS] =
 
 	/* Rest to be filled in when the game loads */
 };
+
 
 
 /*
@@ -2676,7 +2342,7 @@ cptr option_text[OPT_MAX] =
 	NULL,
 	NULL,
 	NULL,
-	"help_know",				/* OPT_cheat_know */
+	"cheat_know",				/* OPT_cheat_know */
 	"beginner_play",			/* OPT_beginner_play */
 	NULL,
 	NULL,
@@ -2710,7 +2376,7 @@ cptr option_desc[OPT_MAX] =
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	NULL,
 	"Pick things up by default",			/* OPT_always_pickup */
-	"Display things before picking them up",			/* OPT_query_floor */
+	"Display things before picking them up",		/* OPT_query_floor */
 	"Never haggle in stores",				/* OPT_never_haggle */
 	"Use old target by default",			/* OPT_use_old_target */
 	"Ignore stairs when running",				/* OPT_run_ignore_stairs */
@@ -3646,43 +3312,43 @@ byte spell_range_RF7[32] =
  *
  * Position of skill in this table should correspond with the skill index.
  *
- * Note: Burglary gives a bonus to disarming
+ * Note: Many skills reduce the cost of similar skills, if higher.
  */
 const skill_type skill_info[NUM_SKILLS] =
 {
-	{"Swordsmanship", "ability to fight with swords",                   11},
-	{"Clubbing", "ability to fight with blunt (hafted) weapons",        11},
-	{"Jousting", "ability to fight with pole-mounted weapons",          11},
+	{"Swordsmanship", "ability to fight with swords",                   12},
+	{"Clubbing", "ability to fight with blunt (hafted) weapons",        12},
+	{"Jousting", "ability to fight with pole-mounted weapons",          12},
 	{"Archery - Xbows", "ability to use crossbows",                      9},
 	{"Archery - Bows", "ability to use bows",                            9},
 	{"Archery - Slings", "ability to use slings",                        7},
 	{"Throwing", "ability to throw weapons and objects",                 9},
 
-	{"Wrestling", "ability to grapple and throw your opponents",        11},
-	{"Karate", "ability to kick and punch your opponents",              11},
+	{"Wrestling", "ability to grapple and slam your opponents",         10},
+	{"Karate", "ability to kick and punch your opponents",              10},
 
-	{"Spellcasting", "spell level",                                     16},
-	{"Magical Power", "mana supply",                                    12},
+	{"Spellcasting", "ability to master powerful spells",               16},
+	{"Magical Power", "ability to gather and use mana",                 12},
 
 	{"Wizardry", "understanding of sorcery and raw magic",               6},
 	{"Holy Alliance", "understanding of piety and faith",                6},
 	{"Nature Lore", "understanding of nature",                           6},
 	{"Blood Dominion", "understanding of necromancy and the undead",     6},
 
-	{"Magical Device", "understanding of magical devices",              16},
-	{"Burglary", "skill in thievery and trap-setting",                  10},
+	{"Magical Device", "understanding of magical devices",              15},
+	{"Burglary", "skill in thievery and trap-setting",                  12},
 
 	{"Perception", "ability to notice the things around you",            7},
 	{"Stealth", "stealth",                                               6},
 	{"Disarming", "ability to disarm traps",                             4},
-	{"Dodging", "ability to evade attacks and use armour effectively",   6},
+	{"Dodging", "ability to evade attacks and use armor effectively",   6},
 	{"Spell Resistance", "resistance to magical attacks",                6},
 
-	{"Weaponsmithing", "ability to forge weapons",                       8},
-	{"Bowmaking", "ability to make bows and arrows",                     8},
-	{"Armor Forging", "ability to forge armor",                         16},
+	{"Weaponsmithing", "ability to forge weapons",                      10},
+	{"Bowmaking", "ability to make bows and arrows",                    10},
+	{"Armor Forging", "ability to forge armor",                         14},
 	{"Alchemy", "ability to create scrolls, potions, rings, & amulets",  8},
-	{"Magical Infusion", "ability to magically enhance objects",        12},
+	{"Magical Infusion", "ability to magically enhance objects",        13},
 
 	{NULL, NULL, 0},
 	{NULL, NULL, 0},
@@ -3701,7 +3367,7 @@ const skill_type skill_info[NUM_SKILLS] =
  *
  * name, index, skill, min_level, timeout
  *
- * Name - name of the talent.  Names longer then 23 characters are trouble.
+ * Name - name of the talent.  Names longer than 22 characters are trouble.
  * Index char - the list index of the talent, and therefore the command
  *    that the player will press to use it.  You can use the same index for
  *    more than one talent, but only if the character can match the require-
@@ -3751,7 +3417,7 @@ talent_type talent_info[NUM_TALENTS] =
 	{NULL,                          '?', NUM_SKILLS,      0,   0},
 
 	/* Burglary */
-	{"Detect and nab objects",      'o', S_BURGLARY,     40,   0},
+	{"Detect & nab objects",        'o', S_BURGLARY,     40,   0},
 	{"Poison ammo",                 'p', S_BURGLARY,     55,   0},
 	{"Hit and run",                 'q', S_BURGLARY,     70,  10},
 	{NULL,                          '?', NUM_SKILLS,      0,   0},
@@ -3770,10 +3436,10 @@ talent_type talent_info[NUM_TALENTS] =
 	/* Object-manipulation talents */
 	{"Recharging",                  'v', S_INFUSION,     30,   0},
 	{"Weapon forging",              'w', S_FORGE_WEAPON, 15,   0},
-	{"Armour forging",              'x', S_FORGE_ARMOR,  15,   0},
-	{"Bowmaking and Fletchery",     'y', S_FORGE_BOW,    15,   0},
+	{"Armor forging",               'x', S_FORGE_ARMOR,  15,   0},
+	{"Bowmaking/Fletchery",         'y', S_FORGE_BOW,    15,   0},
 	{"Alchemy",                     'z', S_ALCHEMY,      LEV_REQ_ALCHEMY,   0},
-	{"Save/stop saving bottl/parch",'$', S_ALCHEMY,      LEV_REQ_ALCHEMY,   0},
+	{"Save/stop saving",            '$', S_ALCHEMY,      LEV_REQ_ALCHEMY,   0},
 	{NULL,                          '?', NUM_SKILLS,      0,   0},
 	{NULL,                          '?', NUM_SKILLS,      0,   0},
 	{NULL,                          '?', NUM_SKILLS,      0,   0},
@@ -4010,3 +3676,82 @@ cptr character_type_desc[PCHAR_MAX] =
 	"Ironman character: Cannot go upwards or recall.",
 	""
 };
+
+
+/*
+ * Table of data for graphical modes.
+ *
+ * Width of tiles (if constant), height of tiles (if constant),
+ * unused, flags (such as masking),
+ * file_name (8 character max),
+ * full_name (24 character max),
+ * description (256 character max)
+ *
+ *
+ * Flags:  0x01 = graphical (uses bitmaps), 0x02 = uses a mask
+ *
+ * HACK -- everything in a file name starting with a '-' is ignored when
+ * seeking bitmap files.  This bit of ugliness allows us to use a single
+ * bitmap for more than one graphics mode.
+ */
+graphics_data_type graphics_data[GRAPHICS_MAX] =
+{
+	/* Pure ASCII */
+	{  0,  0,  0, 0x00, "none", "Pure ASCII", "The \"old school\" display:  Pure text with no special characters (except accents)." },
+
+	/* Extended fonts with special characters */
+	{  0,  0,  0, 0x00, "font", "Extended fonts", "Fonts designed specifically for this game offer customized shapes for terrain and spells but use ASCII for objects and monsters.  This is the standard graphics mode." },
+
+	/* Custom pseudo-graphical fonts and character sets (unused) */
+	{  0,  0,  0, 0x00, "chargraf", "", "" },
+	/* "Pseudo-graphical fonts", "(Mike Marcelais' old DOS graphical font would be handled by this mode)" */
+
+	/* Adam Bolt 16x16 graphics */
+	{ 16, 16,  0, 0x03, "16x16-f", "16x16 plus font", "Use Adam Bolt's 16x16 tiles for terrain, spells, and some other stuff, but use text characters to show all objects and monsters." },
+	{ 16, 16,  0, 0x03, "16x16-g", "16x16 full", "Use Adam Bolt's 16x16 tiles for everything.  Some objects and monsters lack appropriate graphics; this is a work in progress." },
+
+	/* David Gervais 32x32 graphics */
+	{ 32, 32,  0, 0x03, "32x32-f", "32x32 plus font", "Use David Gervais' 32x32 tiles for terrain, spells, and some other stuff, but use text characters to show all objects and monsters." },
+	{ 32, 32,  0, 0x03, "32x32-g", "32x32 full", "Use David Gervais' 32x32 tiles for everything.  Some objects and monsters lack appropriate graphics; this is a work in progress." }
+};
+
+
+
+/*
+ * Each game terminal type has an absolute minimum size.  In most cases, these
+ * values are due to hard-coded things that would take a lot of work to change.
+ *
+ * Note that the tall display (if present) shares data with the main term.
+ */
+byte term_size_min[TERM_MAX + 1][2] =
+{
+	{ 80, 24 },  /* The main game window MUST be 80 cols, 24 rows */
+	{ 2 * BLOCK_WID, 2 * BLOCK_HGT },  /* The map display can be 2x2 dungeon blocks */
+	{ 10,  1 },  /* Sub-windows can be quite small */
+	{ 10,  1 },
+	{ 10,  1 },
+	{ 10,  1 },
+	{ 10,  1 },
+	{ 10,  1 },
+	{ 10,  1 },
+	{ 10,  1 },
+	{ 80, 46 }  /* The tall display needs to show 46 rows */
+};
+
+
+/*
+ * Attr, char pairs for various miscellaneous graphics.  Default values (before
+ * pref files get involved) are stored here.
+ */
+byte misc_graphics_info[MISC_GRAPHICS_MAX][2] =
+{
+	{ TERM_WHITE,  ' ' },    /* Blank space (unused) */
+	{ TERM_YELLOW,  '_' },    /* Cursor  (only used in graphical modes) */
+	{ TERM_WHITE,  '*' },    /* Partly seen monster of unknown type */
+	{ TERM_WHITE,  '*' },    /* Partly seen monster (for expansion) */
+	{ TERM_WHITE,  '*' },    /* Partly seen monster (for expansion) */
+	{ TERM_WHITE,  '*' },    /* Partly seen monster (for expansion) */
+
+	{ TERM_WHITE,  ' ' }     /* (unused) */
+};
+

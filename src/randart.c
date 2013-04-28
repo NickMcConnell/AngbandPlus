@@ -3,21 +3,21 @@
 /*
  * Random artifacts (also forged items).
  *
- * Selling and providing qualities.  Choosing a object type and kind,
+ * Selling and providing qualities.  Choosing an object type and kind,
  * determining the potential, depth and rarity of the artifact.  Artifact
  * themes.  Adding semi-random qualities.  Cursing an artifact, removing
  * contradictory flags, naming, initializing.  Adding new names to the
  * a_name array.  Initializing all random artifacts.
  *
- * Copyright (c) 2002
- * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Leon Marrick
  *
  * I owe thanks to Greg Wooledge for his support and string-handling code
  * and to W. Sheldon Simms for his Tolkienesque random name generator.
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -307,7 +307,7 @@ static void get_quality(bool credit, int purchase, int val, int a_idx)
 	 */
 	if ((is_missile(a_ptr)) || (a_ptr->flags1 & (TR1_THROWING)))
 	{
-		 /* Pval-dependant qualities require that the object be wielded */
+		/* Pval-dependant qualities require that the object be wielded */
 		if (purchase < 32) return;
 
 		/* Many flags require that the object be wielded */
@@ -757,7 +757,7 @@ int get_max_potential(int a_idx)
 
 /*
  * Assign a tval and sval.  Currently, we make weapons, missiles, and
- * armour.
+ * armor.
  *
  * Return maximum artifact potential.
  */
@@ -787,7 +787,7 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 			/* Skip "empty" objects */
 			if (!k_ptr->name) continue;
 
-			/* Skip objects that are not weapons, missiles, or armour */
+			/* Skip objects that are not weapons, missiles, or armor */
 			if (!is_wargear(k_ptr)) continue;
 
 			/* Scan all three allocation chance values */
@@ -955,7 +955,7 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 
 	/*
 	 * Store the base values of a bunch of data.  To avoid unbalancing the
-	 * game, bonuses to Skill, Deadliness, and Armour Class are cut in half.
+	 * game, bonuses to Skill, Deadliness, and Armor Class are cut in half.
 	 * Dragon scale mail activations are preserved.  Base object cost is
 	 * preserved if sufficiently high.
 	 */
@@ -1078,7 +1078,7 @@ static void get_potential(int a_idx)
 
 /*
  * Pick an initial set of qualities, based on a theme.  Also add a bonus to
- * armour class, Skill, and Deadliness.
+ * armor class, Skill, and Deadliness.
  */
 static void choose_basic_theme(int a_idx)
 {
@@ -1660,7 +1660,7 @@ static void choose_basic_theme(int a_idx)
 						a_ptr->activate = ACTIV_RANDOM_BLESS;
 				}
 
-				/* Grant a bonus to armour class. */
+				/* Grant a bonus to armor class. */
 				get_quality(TRUE, ADD_AC,
 					randint(6) + potential / 800, a_idx);
 
@@ -1716,10 +1716,10 @@ static void choose_basic_theme(int a_idx)
 			break;
 		}
 
-		/* I'm a piece of body armour... */
+		/* I'm a piece of body armor... */
 		case TV_SOFT_ARMOR: case TV_HARD_ARMOR: case TV_DRAG_ARMOR:
 		{
-			/* ...with a bonus to armour class, and... */
+			/* ...with a bonus to armor class, and... */
 			a_ptr->to_a += (rand_range(5, 12) + potential / 500);
 
 
@@ -1798,7 +1798,7 @@ static void choose_basic_theme(int a_idx)
 				if (one_in_(3))
 					get_quality(TRUE, RES_COLD, 0, a_idx);
 			}
-			/* ...with an amazing armour class. */
+			/* ...with an amazing armor class. */
 			else if (selection < 62)
 			{
 				/* Possibly assign an activation for free. */
@@ -1838,7 +1838,7 @@ static void choose_basic_theme(int a_idx)
 				/* Resist dark. */
 				get_quality(FALSE, RES_DARK, 0, a_idx);
 
-				/* Mark the armour for a later bonus to stealth. */
+				/* Mark the armor for a later bonus to stealth. */
 				add_pval_later |= (TR_PVAL_STEALTH);
 
 				/* Grant see invisible. */
@@ -1985,7 +1985,7 @@ static void choose_basic_theme(int a_idx)
 		/* I'm a shield... */
 		case TV_SHIELD:
 		{
-			/* ...with a bonus to armour class, and... */
+			/* ...with a bonus to armor class, and... */
 			a_ptr->to_a += (rand_range(5, 12) + potential / 500);
 
 			/* ...that resists most or all of the elements. */
@@ -2070,7 +2070,7 @@ static void choose_basic_theme(int a_idx)
 		/* I'm a pair of boots... */
 		case TV_BOOTS:
 		{
-			/* ...with a bonus to armour class, and... */
+			/* ...with a bonus to armor class, and... */
 			a_ptr->to_a += (rand_range(5, 10) + potential / 700);
 
 			/* ...that makes he who wears me run like the wind. */
@@ -2177,7 +2177,7 @@ static void choose_basic_theme(int a_idx)
 		/* I'm a cloak... */
 		case TV_CLOAK:
 		{
-			/* ...with a bonus to armour class, and... */
+			/* ...with a bonus to armor class, and... */
 			a_ptr->to_a += (rand_range(5, 10) + potential / 600);
 
 
@@ -2267,7 +2267,7 @@ static void choose_basic_theme(int a_idx)
 		/* I'm a helm or crown... */
 		case TV_HELM: case TV_CROWN:
 		{
-			/* ...with a bonus to armour class, and... */
+			/* ...with a bonus to armor class, and... */
 			a_ptr->to_a += (rand_range(5, 10) + potential / 800);
 
 
@@ -2379,7 +2379,7 @@ static void choose_basic_theme(int a_idx)
 		/* I'm a pair of gloves... */
 		case TV_GLOVES:
 		{
-			/* ...with a bonus to armour class, and... */
+			/* ...with a bonus to armor class, and... */
 			a_ptr->to_a += (rand_range(5, 10) + potential / 800);
 
 
@@ -3083,8 +3083,8 @@ static void haggle_till_done(int a_idx)
 			}
 		}
 
-		/* I'm any piece of armour */
-		else if (is_any_armour(a_ptr))
+		/* I'm any piece of armor */
+		else if (is_any_armor(a_ptr))
 		{
 			/* Collect a resistance */
 			grant_resist(a_idx);
@@ -3117,7 +3117,7 @@ static void haggle_till_done(int a_idx)
 		}
 	}
 
-	/* Frequently neaten bonuses to Armour Class, Skill, and Deadliness. */
+	/* Frequently neaten bonuses to Armor Class, Skill, and Deadliness. */
 	if (TRUE)
 	{
 		if      ((a_ptr->to_a % 5 == 4) && (one_in_(2)))  a_ptr->to_a++;
@@ -3171,7 +3171,7 @@ static void make_terrible(int a_idx)
 		/* Choose a curse, biased towards penalties to_a, to_d, and to_h */
 		if ((is_any_weapon(a_ptr)) && (a_ptr->to_h > 0) && (one_in_(3)))
 		     wheel_of_doom = 1;
-		if ((is_any_armour(a_ptr)) && (a_ptr->to_a > 0) && (one_in_(3)))
+		if ((is_any_armor(a_ptr)) && (a_ptr->to_a > 0) && (one_in_(3)))
 			wheel_of_doom = 2;
 		else wheel_of_doom = randint(4);
 
@@ -3188,7 +3188,7 @@ static void make_terrible(int a_idx)
 				if (!one_in_(3)) a_ptr->to_d = -(rand_range(6, 12) * 2);
 			}
 
-			/* All armours. */
+			/* All armors. */
 			else
 			{
 				/* Reverse any magics. */
@@ -3217,16 +3217,16 @@ static void make_terrible(int a_idx)
 			}
 		}
 
-		/* Blast base armour class or inflict a penalty to armour class. */
+		/* Blast base armor class or inflict a penalty to armor class. */
 		if (wheel_of_doom == 2)
 		{
-			/* Blast armour and twist magics. */
+			/* Blast armor and twist magics. */
 			if ((a_ptr->ac > 0) && (one_in_(6)))
 			{
 				a_ptr->cost -= a_ptr->ac * 500L;
 				a_ptr->ac = 0;
 			}
-			if ((is_any_armour(a_ptr)) && (a_ptr->to_a >= 0))
+			if ((is_any_armor(a_ptr)) && (a_ptr->to_a >= 0))
 			{
 				a_ptr->to_a = -(rand_range(6, 12) * 2);
 			}
@@ -3309,10 +3309,11 @@ static void make_terrible(int a_idx)
 
 	/* Apply curses, aggravation, and various nasty stuff. */
 	a_ptr->flags3 |= (TR3_LIGHT_CURSE);
-
 	if (heavy_curse)       a_ptr->flags3 |= (TR3_HEAVY_CURSE);
 
-	if(!is_missile(a_ptr))
+
+	/* Handle equipment item curses */
+	if (is_wearable(a_ptr) && !is_missile(a_ptr))
 	{
 		if (aggravation)       a_ptr->flags3 |= (TR3_AGGRAVATE);
 		if (one_in_(6))        a_ptr->flags3 |= (TR3_TELEPORT);
@@ -3404,10 +3405,11 @@ static void build_prob(void)
 	FILE *f;
 	char buf [BUFLEN];
 
-	/* Open the file containing our lexicon, and read from it.  Warn the
+	/*
+	 * Open the file containing our lexicon, and read from it.  Warn the
 	 * rest of the code that random names are unavailable on failure.
 	 */
-	(void)path_build (buf, BUFLEN, ANGBAND_DIR_FILE, NAMES_FILE);
+	(void)path_build(buf, BUFLEN, ANGBAND_DIR_FILE, NAMES_FILE);
 	if ((f = my_fopen(buf, "r")) == NULL)
 	{
 		find_all_names = TRUE;
@@ -3421,19 +3423,19 @@ static void build_prob(void)
 
 		do
 		{
-			c_next = fgetc (f);
-		} while (!isalpha (c_next) && (c_next != EOF));
+			c_next = fgetc(f);
+		} while (!isalpha(c_next) && (c_next != EOF));
 		if (c_next == EOF) break;
 
 		do
 		{
-			c_next = tolower (c_next) - 'a';	/* ASCII */
+			c_next = tolower(c_next) - 'a';	/* ASCII */
 			lprobs[c_prev][c_cur][c_next]++;
 			ltotal[c_prev][c_cur]++;
 			c_prev = c_cur;
 			c_cur = c_next;
-			c_next = fgetc (f);
-		} while (isalpha (c_next));
+			c_next = fgetc(f);
+		} while (isalpha(c_next));
 
 		lprobs [c_prev][c_cur][E_WORD]++;
 		ltotal [c_prev][c_cur]++;
@@ -3515,13 +3517,13 @@ static char *make_word(void)
  */
 static char *find_word(int a_idx)
 {
-	static char art_name[81];
+	static char art_name[DESC_LEN];
 	artifact_type *a_ptr = &a_info[a_idx];
 	art_name[0] = '\0';
 
 	/*
 	 * Select a file, depending on whether the artifact is a weapon or
-	 * armour, and whether or not it is cursed.  Get a random line from
+	 * armor, and whether or not it is cursed.  Get a random line from
 	 * that file.
 	 */
 	if (a_ptr->flags3 & (TR3_LIGHT_CURSE))
@@ -3579,7 +3581,7 @@ static char *find_word(int a_idx)
 static void name_artifact(int a_idx)
 {
 	char *word;
-	char buf [BUFLEN];
+	char buf[BUFLEN];
 
 
 	/*
@@ -3593,15 +3595,15 @@ static void name_artifact(int a_idx)
 		word = make_word();
 
 		if (one_in_(3))
-			sprintf(buf, "'%s'", word);
+			(void)strnfmt(buf, sizeof(buf), "'%s'", word);
 		else
-			sprintf(buf, "of %s", word);
+			(void)strnfmt(buf, sizeof(buf), "of %s", word);
 	}
 	else
 	{
 		word = find_word(a_idx);
 
-		sprintf(buf, "%s", word);
+		(void)strnfmt(buf, sizeof(buf), "%s", word);
 	}
 
 
@@ -3679,7 +3681,7 @@ void design_temporary_artifact(int a_idx, int v, bool corrupted)
 	else
 	{
 		/* Add some plusses */
-		if (is_any_armour(a_ptr))
+		if (is_any_armor(a_ptr))
 		{
 			a_ptr->to_a = 2 + rand_range(potential / 300, potential / 150);
 		}

@@ -1,0 +1,153 @@
+
+====== Monsters ======
+
+Monsters are worth experience:
+     Defeat a monster, and you will gain experience.  The amount you gain
+depends on the base monster value (which goes up rapidly deeper in the dungeon).
+This is divided by your own total experience value:  the combination of spent
+plus unspent experience, ranging from 1 to 100.  Note that raising skills has no
+effect whatsoever on this value.
+
+Your Monster Memory:
+     When you see a monster for the first time, all you know are its physical
+attributes and whatever information the monster description may provide.  As you
+fight and kill monsters, use various attacks on them, probe them with magic, and
+get killed by them, you learn more about their strengths and weaknesses.
+     You recall this memory in one of two ways:  'l'ooking at / e'x'amining the
+monster and then pressing 'r' for recall, or by pressing '/' and typing the
+monster's letter.
+     Unlike object memory, monster memory can be passed on even after your
+character dies, by loading his savefile and creating a new character.
+
+The Monster Health Bar:
+     A good way to keep track of a specific monster is to target it.  When you
+do so, its health bar appears on the left side of the main screen, just below
+the hitpoint and mana indicators.  Similar health bars are also used when
+looking around and when displaying the closest monsters.
+     The health bar uses several colors to tell you more about the monster.
+Frightened - violet, Confused - brown, Stunned - light blue, Sleeping - dark
+blue.  Otherwise - dark and light green when healthy, and yellow, orange, and
+red when wounded.
+     The health bar is bracketed in green when you have direct line of fire to
+the monster, in white when monsters block your line of fire, and grey when walls
+or something else non-passable does.
+
+Extra monster health bars:
+     You can display additional monster health bars on the left side of your
+main screen or (in most interfaces) in separate windows.  Consult the options
+section for more details.
+
+Monster attributes:
+     The special attributes of monsters can make all the difference to the
+danger they pose to you.  Some of the more interesting are listed and described.
+
+  Hitpoints : Some monsters die easily, others can withstand almost anything.
+  Armor : Some monsters are easy to hit with melee blows or missiles, others
+       very difficult.
+  Awareness : Some monsters will stay asleep even if you dance in front of them,
+       others are ever vigilant.  The distance that monsters can perceive you
+      (if you are not in line of sight) also varies greatly.
+
+  Color : The color of a monster can be a valuable hint; different kinds
+       of power and magic are associated with particular colors.
+  Multi-hued : Changes colors randomly.  Often you can tell what a dragon
+       can breathe by watching it flicker.
+  Invisible : Cannot be seen with normal sight.
+  Warm-blooded : Some monsters can be seen with infravision, others can not.
+  Telepathy : Some monsters are always visible with telepathy, others are
+       rarely visible, and others still never visible.
+  Uses symbol : Appears exactly like whatever terrain it is on.
+  Shining : Can be seen even in shadow
+
+  Groups : Monsters may appear in groups, or have escorts.
+  Multiply : Some monsters breed explosively!
+
+  Drops : Monsters may drop anything from nothing at all to large quantities
+       of marvelous objects.
+  Experience : The experience you get from killing monsters varies greatly.
+
+  Regenerate : Recovers battle damage unusually quickly.
+  Evasive : Monster is especially hard to hit with melee blows, missiles, or
+       bolt spells.
+  Clouds : Monster constantly releases clouds of venom, fire, etc. around it.
+       Approaching such creatures is especially hazardous.
+
+  Bash Door : Most monsters (but not all) can either bash down or open doors.
+       Everyone can close doors, and some characters can lock or bar doors to
+       delay their foes considerably.
+  Pass Wall : Ghosts and some other creatures can float right through ordinary
+       walls.
+  Flying : Can float or fly over hostile terrain or monster traps.
+
+  Hurt by ... : Monsters can be especially susceptible to light, rock remover,
+       fire, or cold.
+  Resistant to ... : Monsters can be especially resistant to edged and/or blunt
+       weapons, any or all of the elements or poison, or any of the esoteric
+       magics.
+  Cannot be ... : Monsters can be immune to fear, slowing, stunning, sleeping,
+       or confusion.
+
+  Spells : Monsters may fire physical missiles, breathe, cast spells to hurt and
+       hinder you, blink and teleport you and themselves, heal and cure and
+       restore themselves, haste themselves or other monsters, summon more
+       opponents, and many other things!
+  Casting speed : Be careful of monsters that cast spells very often, especially
+       if they also move quickly.
+  Smart : Monsters can be skilled at choosing spells, somewhat skilled, or
+       unskilled.
+  Breath Powerfully : Dragon breaths lose less power with range.
+  Archer : Can fire physical missiles most of the time.
+  Morgul-Spells : Poisonous missiles, and cold, poison, and darkness spells
+       become much more nasty.
+  Spells of Udun : Fire become Hellfire, a dreadful combination of darkness and
+       fire.
+
+  Blows : Monsters can do great damage and inflict nasty effects in melee.  A
+       few monsters never miss.
+
+
+Detecting monsters:
+     There are many ways to find out if monsters are nearby.  Bright light
+reveals all but invisible creatures; if you can light up an area, you are much
+less likely to be surprised.  Many spells and magical devices, and some talents
+detect monsters, and you may perhaps be able to find and wear an item that
+grants telepathy.
+     A number of skills can also be very helpful here, as they allow you to
+sense nearby creatures.  The effect of each skill is given below.
+
+     Nature Lore:  powerful detection of natural creatures
+     Holy Alliance:  powerful detection of demonic creatures, some ability
+          to sense evil at high level
+     Blood Dominion:  powerful detection of undead creatures
+     Wizardry:  some detection of magic-users with mana at high level
+
+     Stealth:  If you are in pitch darkness, gives you a significant bonus
+          when listening for monsters
+     Perception:  perception skill may reveal invisible creatures adjacent
+          to you, and at high level this skill can help you hear distant
+          monsters not mentioned above
+     Burglary (Guild):  general bonus to hearing and sensing ability
+
+
+Player Ghosts:
+     Player ghosts vary from game to game depending on the name, sex, race, and
+spell realm of the adventurer or legendary Hero whose bones file was used during
+ghost creation.  Should your character die, information about him will often be
+added to a new bones file, inside the folder /lib/bones, and a future game might
+bring him back from the dead...
+     Should a ghost be slain, he may vanish forever, or he may re-emerge later
+in a new, more powerful form!
+
+
+
+
+
+
+
+
+
+
+
+
+
+

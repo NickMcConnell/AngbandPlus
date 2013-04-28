@@ -1,35 +1,20 @@
-
 /* File: talents.c */
 
 /*
  * Sangband talents.  Pseudo-probe, dodging, can forge, talent descriptions
  * and effects.
  *
- * Copyright (c) 2002
- * Leon Marrick, Julian Lighton, Michael Gorse, Chris Petit
+ * Copyright (c) 2007 Leon Marrick
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * Based on originals by Julian Lighton, Michael Gorse, and Chris Petit
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
-
-
-
-
-/*
- * If more than 18 talents are available, we print a second column.
- *
- * The actual number of lines used to display talents is three greater than
- * this: one for instructions and two more for spacing.
- *
- * If more than 36 talents become possible, this number will have to
- * increase.  If the description text starts to get squeezed out, your best
- * option will probably be to use 50-line mode.
- */
-#define BREAK_NUM        18
-
 
 
 
@@ -41,7 +26,7 @@
  */
 void pseudo_probe(void)
 {
-	char m_name[80];
+	char m_name[DESC_LEN];
 
 	/* Acquire the target monster */
 	int m_idx = p_ptr->target_who;
@@ -152,7 +137,7 @@ void pseudo_probe(void)
  * Accept maximum value for dodging.
  *
  * Dodging ability mostly depends on dodging skill, but the weight of worn
- * armour and of the backpack, and character DEX is also very important.
+ * armor and of the backpack, and character DEX is also very important.
  * Characters will need to work on all of these factors in order to dodge
  * effectively.
  *
@@ -941,10 +926,10 @@ static cptr do_talent(int talent, int mode)
 			}
 			break;
 		}
-		case TALENT_ARMOUR_SMITH:
+		case TALENT_ARMOR_SMITH:
 		{
 			if (info) return ("");
-			if (desc) return (format("Create armour.  %sYou need components (hunks of metal) and knowledge of the kind of armour being created.  Essences are very handy if you want to add specific magical powers.  Increasing the armour forging skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.", (p_ptr->character_type == PCHAR_IRONMAN) ? "" : "Only works in town.  "));
+			if (desc) return (format("Create armor.  %sYou need components (hunks of metal) and knowledge of the kind of armor being created.  Essences are very handy if you want to add specific magical powers.  Increasing the armor forging skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.", (p_ptr->character_type == PCHAR_IRONMAN) ? "" : "Only works in town.  "));
 			if (check)
 			{
 				/* Must satisfy a number of conditions */
@@ -952,12 +937,12 @@ static cptr do_talent(int talent, int mode)
 			}
 			if (use)
 			{
-				/* Make armour */
+				/* Make armor */
 				if (good_work_cond(TRUE, TRUE))
 				{
 					p_ptr->get_help_index = HELP_FORGING;
 
-					use = make_armour();
+					use = make_armor();
 				}
 			}
 			break;
@@ -1083,7 +1068,7 @@ static cptr do_talent(int talent, int mode)
 				/* Message */
 				msg_format("You breathe %s.", str);
 
-				/* Determine how quickly the breath spreads out */
+  				/* Determine how quickly the breath spreads out */
 				if      (typ == GF_POIS)  spread = 90;
 				else if (typ == GF_SOUND) spread = 75;
 				else if (typ == GF_FORCE) spread = 60;
@@ -1149,21 +1134,38 @@ int can_use_talent(int talent)
 /*
  * Print a list of talents.
  */
-static void print_talents(const s16b *talents)
+static void print_talents(const s16b *talents, int *end_row)
 {
-	int i, tmp;
+	int i, cnt, breakpoint, space;
 	int attr;
 
 	const talent_type *t_ptr;
 
-	char out_val[160];
+	char out_val[DESC_LEN];
 
-	/* Start at row 2, column 0 */
+	/* Start at row 2, one-third of the way across the screen */
 	int row = 2;
-	int col = 0;
+	int col = MAX(0, (Term->cols - 80) / 3);
+
+
+	/* Tally up available talents */
+	for (cnt = 0, i = 0; i < NUM_TALENTS; i++)
+	{
+		if (talents[i] >= 0) cnt++;
+	}
+
+	/* Divide evenly between two columns */
+	*end_row = breakpoint = 1 + (cnt + 1) / 2;
+
+	/* Determine space needed for all information */
+	space = 2 + breakpoint;
+
+	/* Clear space */
+	for (i = row; i < space; i++) clear_space(i, col, 80);
+
 
 	/* Dump the talents */
-	for (tmp = 0, i = 0; i < NUM_TALENTS; i++)
+	for (cnt = 0, i = 0; i < NUM_TALENTS; i++)
 	{
 		/* Get the talent */
 		t_ptr = &talent_info[i];
@@ -1172,21 +1174,21 @@ static void print_talents(const s16b *talents)
 		if (talents[i] < 0) continue;
 
 		/* New talent */
-		tmp++;
+		cnt++;
 
 		/* Shift to next column */
-		if (tmp == BREAK_NUM)
+		if (cnt == breakpoint)
 		{
 			row = 2;
-			col = 40;
+			col = 40 + MAX(0, (Term->cols - 80) / 3);
 		}
 
 		/* Print the talent index */
 		c_put_str((p_ptr->ptalents[i].marked ? TERM_YELLOW : TERM_WHITE),
-			format("%c) ", t_ptr->index), row, col);
+			format("%c) ", t_ptr->index), row, col + 1);
 
 		/* Build the talent index, name, and information */
-		sprintf(out_val, "%-22s %-12s", t_ptr->name,
+		(void)strnfmt(out_val, sizeof(out_val), "%-22s %-12s", t_ptr->name,
 			do_talent(i, TALENT_INFO));
 
 		/* Talents that cannot be used are printed in gray */
@@ -1194,7 +1196,7 @@ static void print_talents(const s16b *talents)
 		else                attr = TERM_SLATE;
 
 		/* Print the talent */
-		c_prt(attr, out_val, row, col + 3);
+		c_put_str(attr, out_val, row, col + 4);
 
 		/* Go to next row */
 		row++;
@@ -1226,18 +1228,17 @@ static int get_talent_from_index(char ch)
  * Use or browse talents.
  *
  * Allow instant selection of talents, selection from a menu, and browsing.
- * Interface is a mix of the skills and the spellcasting interfaces.  I
- * admit that the code is a tad clunky.
+ * Interface is a mix of the skills and the spellcasting interfaces.
  *
  * We must be careful to control access to talents:  some can be used,
  * others browsed but not used, and others neither browsed nor used.
+ *
+ * This is ugly code -- replace if as and when list interfaces are unified.
  */
 void do_cmd_talents(void)
 {
 	int i;
 	int talent = -2;
-
-	int old_rows = screen_rows;
 
 	int selected_talent = -1;
 
@@ -1258,12 +1259,14 @@ void do_cmd_talents(void)
 	char first_index = '\0';
 	char last_index  = '\0';
 
-	char out_val[160];
-	char p1[80];
+	char out_val[DESC_LEN];
+	char p1[DESC_LEN];
 
 	int num_browse = 0;
 	int num_use = 0;
 	char choice;
+	int end_row = 18;
+	int col = MAX(0, (Term->cols - 80) / 3);
 
 
 	/* Determine whether talents can be browsed and/or used  */
@@ -1320,7 +1323,7 @@ void do_cmd_talents(void)
 		if (mode == 0)
 		{
 			/* Build a prompt */
-			(void)strnfmt(out_val, 78, "Use (Talents %c-%c, ! to mark, * to browse, %s",
+			(void)strnfmt(out_val, sizeof(out_val), "Use (Talents %c-%c, ! to mark, * to browse, %s",
 				first_index, last_index, p1);
 		}
 
@@ -1328,7 +1331,7 @@ void do_cmd_talents(void)
 		else if (mode == 1)
 		{
 			/* Build a prompt */
-			(void)strnfmt(out_val, 78, "Browse (Talents %c-%c, ! to mark, * to use, %s",
+			(void)strnfmt(out_val, sizeof(out_val), "Browse (Talents %c-%c, ! to mark, * to use, %s",
 				first_index, last_index, p1);
 		}
 
@@ -1336,7 +1339,7 @@ void do_cmd_talents(void)
 		else
 		{
 			/* Build a prompt */
-			(void)strnfmt(out_val, 78, "Mark (Talents %c-%c, * to browse, %s",
+			(void)strnfmt(out_val, sizeof(out_val), "Mark (Talents %c-%c, * to browse, %s",
 				first_index, last_index, p1);
 		}
 
@@ -1354,11 +1357,13 @@ void do_cmd_talents(void)
 		}
 
 		/* Clear the "message" line (only when a list is being shown) */
-		if (redraw) clear_row(1);
+		if (redraw) clear_space(1, col, col + 80);
 
+		/* Leave */
+		if (choice == ESCAPE) break;
 
 		/* Show a menu */
-		if (choice == ' ')
+		else if (choice == ' ')
 		{
 			/* Only show the menu, don't hide it  XXX XXX */
 			if (!redraw)
@@ -1366,17 +1371,14 @@ void do_cmd_talents(void)
 				/* Show list */
 				redraw = TRUE;
 
-				/* Save screen */
-				screen_save();
-
-				/* Clear screen */
-				(void)Term_clear();
-
-				/* Set to 25 screen rows */
-				(void)Term_rows(FALSE);
+				/* Pop-up window */
+				display_change(DSP_POPUP, 0, 0);
 
 				/* List the talents */
-				print_talents(talent_avail);
+				print_talents(talent_avail, &end_row);
+
+				/* Clear the "message" line */
+				clear_space(1, col, col + 80);
 			}
 		}
 
@@ -1384,18 +1386,26 @@ void do_cmd_talents(void)
 		else if (choice == '?')
 		{
 			p_ptr->get_help_index = HELP_TALENTS;
+
+			/* Hack -- Hide the list temporarily */
+			if (redraw) screen_load();
+
+			/* Show contextual help */
 			do_cmd_help();
 
-			/* Redraw the talents */
-			(void)Term_clear();
-			print_talents(talent_avail);
+			/* Hack -- Show the list again */
+			if (redraw)
+			{
+				screen_save(FALSE);
+				show_list = TRUE;
+			}
 		}
 
 
 		/* Go into mark mode */
 		else if (choice == '!')
 		{
-			if (redraw) prt("A marked talent will let you know when you can use it again.", 1, 10);
+			if (redraw) put_str("A marked talent will let you know when you can use it again.", 1, 10);
 
 			/* Hack -- require a list */
 			else show_list = TRUE;
@@ -1413,7 +1423,7 @@ void do_cmd_talents(void)
 			else           mode = 1;
 
 			/* Hack -- browse mode requires a list */
-			if ((mode == 1) && (!redraw)) show_list = TRUE;
+			show_list = TRUE;
 		}
 
 		/* (Try to) Get talent using index */
@@ -1430,22 +1440,22 @@ void do_cmd_talents(void)
 					p_ptr->ptalents[talent].marked = FALSE;
 
 					center_string(out_val, sizeof(out_val), format("You have unmarked \"%s\".",
-						talent_info[talent].name), 78);
+						talent_info[talent].name), 79);
 
-					prt(out_val, 1, 1);
+					put_str(out_val, 1, col + 1);
 
-					print_talents(talent_avail);
+					print_talents(talent_avail, &end_row);
 				}
 				else
 				{
 					p_ptr->ptalents[talent].marked = TRUE;
 
 					center_string(out_val, sizeof(out_val), format("You have marked \"%s\".",
-						talent_info[talent].name), 80);
+						talent_info[talent].name), 79);
 
-					prt(out_val, 1, 0);
+					put_str(out_val, 1, col + 1);
 
-					print_talents(talent_avail);
+					print_talents(talent_avail, &end_row);
 				}
 			}
 
@@ -1456,14 +1466,14 @@ void do_cmd_talents(void)
 				if (redraw)
 				{
 					/* Clear some space */
-					clear_from(MIN(num_browse, BREAK_NUM) + 2);
+					for (i = end_row + 1; i < end_row + 6; i++) clear_space(i, col, 80);
 
 					/* Move cursor */
-					move_cursor(MIN(num_browse, BREAK_NUM) + 2, 7);
+					move_cursor(end_row + 1, col + 5);
 
 					/* Print talent description */
 					c_roff(TERM_L_BLUE, format("%s",
-						do_talent(talent, TALENT_DESC)), 2, 78);
+						do_talent(talent, TALENT_DESC)), col + 2, col + 78);
 				}
 
 				/* We are at the basic prompt */
@@ -1484,29 +1494,17 @@ void do_cmd_talents(void)
 		/* Error message */
 		else if (talent != -2)
 		{
-			if (redraw) c_prt(TERM_YELLOW, "Illegal talent choice.", 1, 30);
+			if (redraw) c_put_str(TERM_YELLOW, "Illegal talent choice.", 1, 30);
+
 			else bell("Illegal talent choice.");
 		}
-
-		/* Hack -- hide the cursor  XXX XXX */
-		(void)Term_gotoxy(0, 26);
 	}
 
 	/* Restore the screen */
 	if (redraw)
 	{
-		/* Erase the screen */
-		clear_from(0);
-
-		/* Set to 50 screen rows, if we were showing 50 before */
-		if (old_rows == 50)
-		{
-			p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-			(void)Term_rows(TRUE);
-		}
-
-		/* Restore main screen */
-		screen_load();
+		/* Clear pop-up window */
+		display_change(DSP_POPDOWN, 0, 0);
 	}
 
 	/* Use a talent */

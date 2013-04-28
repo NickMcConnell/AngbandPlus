@@ -1,11 +1,12 @@
 /* File: z-form.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 2007 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 /* Purpose: Low level text formatting -BEN- */
@@ -200,13 +201,13 @@ byte char_tables[256][CHAR_TABLE_SLOTS] =
 	{ 159,   159,           0L },               /*       Unused      */
 	{ 160,   160,           0L },               /*       Unused      */
 
-	{ 161,   161,   CHAR_PUNCT },               /*       iexcl       */
-	{ 162,   162,   CHAR_PUNCT },               /*        euro       */
-	{ 163,   163,   CHAR_PUNCT },               /*       pound       */
-	{ 164,   164,   CHAR_PUNCT },               /*      curren       */
-	{ 165,   165,   CHAR_PUNCT },               /*         yen       */
-	{ 166,   166,   CHAR_PUNCT },               /*      brvbar       */
-	{ 167,   167,   CHAR_PUNCT },               /*        sect       */
+	{ 161,   161,   CHAR_PUNCT },               /*       iexcl   ¡   */
+	{ 162,   162,   CHAR_PUNCT },               /*        euro   ¢   */
+	{ 163,   163,   CHAR_PUNCT },               /*       pound   £   */
+	{ 164,   164,   CHAR_PUNCT },               /*      curren   ¤   */
+	{ 165,   165,   CHAR_PUNCT },               /*         yen   ¥   */
+	{ 166,   166,   CHAR_PUNCT },               /*      brvbar   ¦   */
+	{ 167,   167,   CHAR_PUNCT },               /*        sect   §   */
 	{ 168,   168,  CHAR_SYMBOL },               /*  Bolt - vert      */
 	{ 169,   169,  CHAR_SYMBOL },               /*  Bolt - horz      */
 	{ 170,   170,  CHAR_SYMBOL },               /*  Bolt -rdiag      */
@@ -232,72 +233,72 @@ byte char_tables[256][CHAR_TABLE_SLOTS] =
 	{ 189,   189,           0L },               /*       Unused      */
 	{ 190,   190,           0L },               /*       Unused      */
 
-	{ 191,   191,   CHAR_PUNCT },               /*      iquest       */
-	{ 192,   224,   CHAR_UPPER | CHAR_VOWEL },  /*      Agrave       */
-	{ 193,   225,   CHAR_UPPER | CHAR_VOWEL },  /*      Aacute       */
-	{ 194,   226,   CHAR_UPPER | CHAR_VOWEL },  /*       Acirc       */
-	{ 195,   227,   CHAR_UPPER | CHAR_VOWEL },  /*      Atilde       */
-	{ 196,   228,   CHAR_UPPER | CHAR_VOWEL },  /*        Auml       */
-	{ 197,   229,   CHAR_UPPER | CHAR_VOWEL },  /*       Aring       */
-	{ 198,   230,   CHAR_UPPER | CHAR_VOWEL },  /*       Aelig       */
-	{ 199,   231,   CHAR_UPPER },               /*      Ccedil       */
-	{ 200,   232,   CHAR_UPPER | CHAR_VOWEL },  /*      Egrave       */
-	{ 201,   233,   CHAR_UPPER | CHAR_VOWEL },  /*      Eacute       */
-	{ 202,   234,   CHAR_UPPER | CHAR_VOWEL },  /*       Ecirc       */
-	{ 203,   235,   CHAR_UPPER | CHAR_VOWEL },  /*        Euml       */
-	{ 204,   236,   CHAR_UPPER | CHAR_VOWEL },  /*      Igrave       */
-	{ 205,   237,   CHAR_UPPER | CHAR_VOWEL },  /*      Iacute       */
-	{ 206,   238,   CHAR_UPPER | CHAR_VOWEL },  /*       Icirc       */
-	{ 207,   239,   CHAR_UPPER | CHAR_VOWEL },  /*        Iuml       */
-	{ 208,   240,   CHAR_UPPER },               /*         ETH       */
-	{ 209,   241,   CHAR_UPPER },               /*      Ntilde       */
-	{ 210,   242,   CHAR_UPPER | CHAR_VOWEL },  /*      Ograve       */
-	{ 211,   243,   CHAR_UPPER | CHAR_VOWEL },  /*      Oacute       */
-	{ 212,   244,   CHAR_UPPER | CHAR_VOWEL },  /*       Ocirc       */
-	{ 213,   245,   CHAR_UPPER | CHAR_VOWEL },  /*      Otilde       */
-	{ 214,   246,   CHAR_UPPER | CHAR_VOWEL },  /*        Ouml       */
+	{ 191,   191,   CHAR_PUNCT },               /*      iquest   ¿   */
+	{ 192,   224,   CHAR_UPPER | CHAR_VOWEL },  /*      Agrave   À   */
+	{ 193,   225,   CHAR_UPPER | CHAR_VOWEL },  /*      Aacute   Á   */
+	{ 194,   226,   CHAR_UPPER | CHAR_VOWEL },  /*       Acirc   Â   */
+	{ 195,   227,   CHAR_UPPER | CHAR_VOWEL },  /*      Atilde   Ã   */
+	{ 196,   228,   CHAR_UPPER | CHAR_VOWEL },  /*        Auml   Ä   */
+	{ 197,   229,   CHAR_UPPER | CHAR_VOWEL },  /*       Aring   Å   */
+	{ 198,   230,   CHAR_UPPER | CHAR_VOWEL },  /*       Aelig   Æ   */
+	{ 199,   231,   CHAR_UPPER },               /*      Ccedil   Ç   */
+	{ 200,   232,   CHAR_UPPER | CHAR_VOWEL },  /*      Egrave   È   */
+	{ 201,   233,   CHAR_UPPER | CHAR_VOWEL },  /*      Eacute   É   */
+	{ 202,   234,   CHAR_UPPER | CHAR_VOWEL },  /*       Ecirc   Ê   */
+	{ 203,   235,   CHAR_UPPER | CHAR_VOWEL },  /*        Euml   Ë   */
+	{ 204,   236,   CHAR_UPPER | CHAR_VOWEL },  /*      Igrave   Ì   */
+	{ 205,   237,   CHAR_UPPER | CHAR_VOWEL },  /*      Iacute   Í   */
+	{ 206,   238,   CHAR_UPPER | CHAR_VOWEL },  /*       Icirc   Î   */
+	{ 207,   239,   CHAR_UPPER | CHAR_VOWEL },  /*        Iuml   Ï   */
+	{ 208,   240,   CHAR_UPPER },               /*         ETH   Ð   */
+	{ 209,   241,   CHAR_UPPER },               /*      Ntilde   Ñ   */
+	{ 210,   242,   CHAR_UPPER | CHAR_VOWEL },  /*      Ograve   Ò   */
+	{ 211,   243,   CHAR_UPPER | CHAR_VOWEL },  /*      Oacute   Ó   */
+	{ 212,   244,   CHAR_UPPER | CHAR_VOWEL },  /*       Ocirc   Ô   */
+	{ 213,   245,   CHAR_UPPER | CHAR_VOWEL },  /*      Otilde   Õ   */
+	{ 214,   246,   CHAR_UPPER | CHAR_VOWEL },  /*        Ouml   Ö   */
 	{ 215,   215,           0L },               /*       Unused      */
-	{ 216,   248,   CHAR_UPPER | CHAR_VOWEL },  /*      Oslash       */
-	{ 217,   249,   CHAR_UPPER | CHAR_VOWEL },  /*      Ugrave       */
-	{ 218,   250,   CHAR_UPPER | CHAR_VOWEL },  /*      Uacute       */
-	{ 219,   251,   CHAR_UPPER | CHAR_VOWEL },  /*       Ucirc       */
-	{ 220,   252,   CHAR_UPPER | CHAR_VOWEL },  /*        Uuml       */
-	{ 221,   253,   CHAR_UPPER },               /*      Yacute       */
-	{ 222,   254,   CHAR_UPPER },               /*       THORN       */
-	{ 223,   223,   CHAR_LOWER },               /*       szlig       */
+	{ 216,   248,   CHAR_UPPER | CHAR_VOWEL },  /*      Oslash   Ø   */
+	{ 217,   249,   CHAR_UPPER | CHAR_VOWEL },  /*      Ugrave   Ù   */
+	{ 218,   250,   CHAR_UPPER | CHAR_VOWEL },  /*      Uacute   Ú   */
+	{ 219,   251,   CHAR_UPPER | CHAR_VOWEL },  /*       Ucirc   Û   */
+	{ 220,   252,   CHAR_UPPER | CHAR_VOWEL },  /*        Uuml   Ü   */
+	{ 221,   253,   CHAR_UPPER },               /*      Yacute   Ý   */
+	{ 222,   254,   CHAR_UPPER },               /*       THORN   Þ   */
+	{ 223,   223,   CHAR_LOWER },               /*       szlig   ß   */
 
-	{ 192,   224,   CHAR_LOWER | CHAR_VOWEL },  /*      agrave       */
-	{ 193,   225,   CHAR_LOWER | CHAR_VOWEL },  /*      aacute       */
-	{ 194,   226,   CHAR_LOWER | CHAR_VOWEL },  /*       acirc       */
-	{ 195,   227,   CHAR_LOWER | CHAR_VOWEL },  /*      atilde       */
-	{ 196,   228,   CHAR_LOWER | CHAR_VOWEL },  /*        auml       */
-	{ 197,   229,   CHAR_LOWER | CHAR_VOWEL },  /*       aring       */
-	{ 198,   230,   CHAR_LOWER | CHAR_VOWEL },  /*       aelig       */
-	{ 199,   231,   CHAR_LOWER },               /*      ccedil       */
-	{ 200,   232,   CHAR_LOWER | CHAR_VOWEL },  /*      egrave       */
-	{ 201,   233,   CHAR_LOWER | CHAR_VOWEL },  /*      eacute       */
-	{ 202,   234,   CHAR_LOWER | CHAR_VOWEL },  /*       ecirc       */
-	{ 203,   235,   CHAR_LOWER | CHAR_VOWEL },  /*        euml       */
-	{ 204,   236,   CHAR_LOWER | CHAR_VOWEL },  /*      igrave       */
-	{ 205,   237,   CHAR_LOWER | CHAR_VOWEL },  /*      iacute       */
-	{ 206,   238,   CHAR_LOWER | CHAR_VOWEL },  /*       icirc       */
-	{ 207,   239,   CHAR_LOWER | CHAR_VOWEL },  /*        iuml       */
-	{ 208,   240,   CHAR_LOWER },               /*         eth       */
-	{ 209,   241,   CHAR_LOWER },               /*      ntilde       */
-	{ 210,   242,   CHAR_LOWER | CHAR_VOWEL },  /*      ograve       */
-	{ 211,   243,   CHAR_LOWER | CHAR_VOWEL },  /*      oacute       */
-	{ 212,   244,   CHAR_LOWER | CHAR_VOWEL },  /*       ocirc       */
-	{ 213,   245,   CHAR_LOWER | CHAR_VOWEL },  /*      otilde       */
-	{ 214,   246,   CHAR_LOWER | CHAR_VOWEL },  /*        ouml       */
+	{ 192,   224,   CHAR_LOWER | CHAR_VOWEL },  /*      agrave   à   */
+	{ 193,   225,   CHAR_LOWER | CHAR_VOWEL },  /*      aacute   á   */
+	{ 194,   226,   CHAR_LOWER | CHAR_VOWEL },  /*       acirc   â   */
+	{ 195,   227,   CHAR_LOWER | CHAR_VOWEL },  /*      atilde   ã   */
+	{ 196,   228,   CHAR_LOWER | CHAR_VOWEL },  /*        auml   ä   */
+	{ 197,   229,   CHAR_LOWER | CHAR_VOWEL },  /*       aring   å   */
+	{ 198,   230,   CHAR_LOWER | CHAR_VOWEL },  /*       aelig   æ   */
+	{ 199,   231,   CHAR_LOWER },               /*      ccedil   ç   */
+	{ 200,   232,   CHAR_LOWER | CHAR_VOWEL },  /*      egrave   è   */
+	{ 201,   233,   CHAR_LOWER | CHAR_VOWEL },  /*      eacute   é   */
+	{ 202,   234,   CHAR_LOWER | CHAR_VOWEL },  /*       ecirc   ê   */
+	{ 203,   235,   CHAR_LOWER | CHAR_VOWEL },  /*        euml   ë   */
+	{ 204,   236,   CHAR_LOWER | CHAR_VOWEL },  /*      igrave   ì   */
+	{ 205,   237,   CHAR_LOWER | CHAR_VOWEL },  /*      iacute   í   */
+	{ 206,   238,   CHAR_LOWER | CHAR_VOWEL },  /*       icirc   î   */
+	{ 207,   239,   CHAR_LOWER | CHAR_VOWEL },  /*        iuml   ï   */
+	{ 208,   240,   CHAR_LOWER },               /*         eth   ð   */
+	{ 209,   241,   CHAR_LOWER },               /*      ntilde   ñ   */
+	{ 210,   242,   CHAR_LOWER | CHAR_VOWEL },  /*      ograve   ò   */
+	{ 211,   243,   CHAR_LOWER | CHAR_VOWEL },  /*      oacute   ó   */
+	{ 212,   244,   CHAR_LOWER | CHAR_VOWEL },  /*       ocirc   ô   */
+	{ 213,   245,   CHAR_LOWER | CHAR_VOWEL },  /*      otilde   õ   */
+	{ 214,   246,   CHAR_LOWER | CHAR_VOWEL },  /*        ouml   ö   */
 	{ 247,   247,           0L },               /*       Unused      */
-	{ 216,   248,   CHAR_LOWER | CHAR_VOWEL },  /*      oslash       */
-	{ 217,   249,   CHAR_LOWER | CHAR_VOWEL },  /*      ugrave       */
-	{ 218,   250,   CHAR_LOWER | CHAR_VOWEL },  /*      uacute       */
-	{ 219,   251,   CHAR_LOWER | CHAR_VOWEL },  /*       ucirc       */
-	{ 220,   252,   CHAR_LOWER | CHAR_VOWEL },  /*        uuml       */
-	{ 221,   253,   CHAR_LOWER },               /*      yacute       */
-	{ 222,   254,   CHAR_LOWER },               /*       thorn       */
-	{ 121,   255,   CHAR_LOWER },               /*        yuml       */
+	{ 216,   248,   CHAR_LOWER | CHAR_VOWEL },  /*      oslash   ø   */
+	{ 217,   249,   CHAR_LOWER | CHAR_VOWEL },  /*      ugrave   ù   */
+	{ 218,   250,   CHAR_LOWER | CHAR_VOWEL },  /*      uacute   ú   */
+	{ 219,   251,   CHAR_LOWER | CHAR_VOWEL },  /*       ucirc   û   */
+	{ 220,   252,   CHAR_LOWER | CHAR_VOWEL },  /*        uuml   ü   */
+	{ 221,   253,   CHAR_LOWER },               /*      yacute   ý   */
+	{ 222,   254,   CHAR_LOWER },               /*       thorn   þ   */
+	{ 121,   255,   CHAR_LOWER },               /*        yuml   ÿ   */
 };
 
 
@@ -306,39 +307,39 @@ byte char_tables[256][CHAR_TABLE_SLOTS] =
  */
 static const xchar_type latin1_encode[] =
 {
-	{ "`A", 192 },  { "'A", 193 },  { "^A", 194 },  { "~A", 195 },
-	{ "\"A", 196 },  { "*A", 197 },  { ",C", 199 },  { "`E", 200 },
-	{ "'E", 201 },  { "^E", 202 }, { "\"E", 203 },  { "`I", 204 },
-	{ "'I", 205 },  { "^I", 206 }, { "\"I", 207 },  { "~N", 209 },
-	{ "`O", 210 },  { "'O", 211 },  { "^O", 212 },  { "~O", 213 },
-	{ "\"O", 214 },  { "/O", 216 },  { "`U", 217 },  { "'U", 218 },
-	{ "^U", 219 }, { "\"U", 220 },  { "'Y", 221 },  { "`a", 224 },
-	{ "'a", 225 },  { "^a", 226 },  { "~a", 227 }, { "\"a", 228 },
-	{ "*a", 229 },  { ",c", 231 },  { "`e", 232 },  { "'e", 233 },
-	{ "^e", 234 }, { "\"e", 235 },  { "`i", 236 },  { "'i", 237 },
-	{ "^i", 238 }, { "\"i", 239 },  { "~n", 241 },  { "`o", 242 },
-	{ "'o", 243 },  { "^o", 244 },  { "~o", 245 }, { "\"o", 246 },
-	{ "/o", 248 },  { "`u", 249 },  { "'u", 250 },  { "^u", 251 },
-	{ "\"u", 252 },  { "'y", 253 }, { "\"y", 255 },
+    { "`A", 192 },  { "'A", 193 },  { "^A", 194 },  { "~A", 195 },
+   { "\"A", 196 },  { "*A", 197 },  { ",C", 199 },  { "`E", 200 },
+    { "'E", 201 },  { "^E", 202 }, { "\"E", 203 },  { "`I", 204 },
+    { "'I", 205 },  { "^I", 206 }, { "\"I", 207 },  { "~N", 209 },
+    { "`O", 210 },  { "'O", 211 },  { "^O", 212 },  { "~O", 213 },
+   { "\"O", 214 },  { "/O", 216 },  { "`U", 217 },  { "'U", 218 },
+    { "^U", 219 }, { "\"U", 220 },  { "'Y", 221 },  { "`a", 224 },
+    { "'a", 225 },  { "^a", 226 },  { "~a", 227 }, { "\"a", 228 },
+    { "*a", 229 },  { ",c", 231 },  { "`e", 232 },  { "'e", 233 },
+    { "^e", 234 }, { "\"e", 235 },  { "`i", 236 },  { "'i", 237 },
+    { "^i", 238 }, { "\"i", 239 },  { "~n", 241 },  { "`o", 242 },
+    { "'o", 243 },  { "^o", 244 },  { "~o", 245 }, { "\"o", 246 },
+    { "/o", 248 },  { "`u", 249 },  { "'u", 250 },  { "^u", 251 },
+   { "\"u", 252 },  { "'y", 253 }, { "\"y", 255 },
 
-	{ "iexcl", 161 }, { "euro", 162 }, { "pound", 163 }, { "curren", 164 },
-	{ "yen", 165 },   { "brvbar", 166 }, { "sect", 167 }, { "Agrave", 192 },
-	{ "Aacute", 193 }, { "Acirc", 194 }, { "Atilde", 195 }, { "Auml", 196 },
-	{ "Aring", 197 }, { "Aelig", 198 }, { "Ccedil", 199 }, { "Egrave", 200 },
-	{ "Eacute", 201 }, { "Ecirc", 202 }, { "Euml", 203 }, { "Igrave", 204 },
-	{ "Iacute", 205 }, { "Icirc", 206 }, { "Iuml", 207 }, { "ETH", 208 },
-	{ "Ntilde", 209 }, { "Ograve", 210 }, { "Oacute", 211 }, { "Ocirc", 212 },
-	{ "Otilde", 213 }, { "Ouml", 214 }, { "Oslash", 216 }, { "Ugrave", 217 },
-	{ "Uacute", 218 }, { "Ucirc", 219 }, { "Uuml", 220 }, { "Yacute", 221 },
-	{ "THORN", 222 }, { "szlig", 223 }, { "agrave", 224 }, { "aacute", 225 },
-	{ "acirc", 226 }, { "atilde", 227 }, { "auml", 228 }, { "aring", 229 },
-	{ "aelig", 230 }, { "ccedil", 231 }, { "egrave", 232 }, { "eacute", 233 },
-	{ "ecirc", 234 }, { "euml", 235 }, { "igrave", 236 }, { "iacute", 237 },
-	{ "icirc", 238 }, { "iuml", 239 }, { "eth", 240 },   { "ntilde", 241 },
-	{ "ograve", 242 }, { "oacute", 243 }, { "ocirc", 244 }, { "otilde", 245 },
-	{ "ouml", 246 }, { "oslash", 248 }, { "ugrave", 249 }, { "uacute", 250 },
-	{ "ucirc", 251 }, { "uuml", 252 }, { "yacute", 253 }, { "thorn", 254 },
-	{ "yuml", 255 },   { "\0", 0 }
+    { "iexcl", 161 }, { "euro", 162 }, { "pound", 163 }, { "curren", 164 },
+    { "yen", 165 },   { "brvbar", 166 }, { "sect", 167 }, { "Agrave", 192 },
+    { "Aacute", 193 }, { "Acirc", 194 }, { "Atilde", 195 }, { "Auml", 196 },
+    { "Aring", 197 }, { "Aelig", 198 }, { "Ccedil", 199 }, { "Egrave", 200 },
+    { "Eacute", 201 }, { "Ecirc", 202 }, { "Euml", 203 }, { "Igrave", 204 },
+    { "Iacute", 205 }, { "Icirc", 206 }, { "Iuml", 207 }, { "ETH", 208 },
+    { "Ntilde", 209 }, { "Ograve", 210 }, { "Oacute", 211 }, { "Ocirc", 212 },
+    { "Otilde", 213 }, { "Ouml", 214 }, { "Oslash", 216 }, { "Ugrave", 217 },
+    { "Uacute", 218 }, { "Ucirc", 219 }, { "Uuml", 220 }, { "Yacute", 221 },
+    { "THORN", 222 }, { "szlig", 223 }, { "agrave", 224 }, { "aacute", 225 },
+    { "acirc", 226 }, { "atilde", 227 }, { "auml", 228 }, { "aring", 229 },
+    { "aelig", 230 }, { "ccedil", 231 }, { "egrave", 232 }, { "eacute", 233 },
+    { "ecirc", 234 }, { "euml", 235 }, { "igrave", 236 }, { "iacute", 237 },
+    { "icirc", 238 }, { "iuml", 239 }, { "eth", 240 },   { "ntilde", 241 },
+    { "ograve", 242 }, { "oacute", 243 }, { "ocirc", 244 }, { "otilde", 245 },
+    { "ouml", 246 }, { "oslash", 248 }, { "ugrave", 249 }, { "uacute", 250 },
+    { "ucirc", 251 }, { "uuml", 252 }, { "yacute", 253 }, { "thorn", 254 },
+    { "yuml", 255 },   { "\0", 0 }
 };
 
 
@@ -359,6 +360,107 @@ void xchar_trans_hook(char *s, int encoding)
 		if (*s < 0) *s = xchar_trans(*s);
 	}
 }
+
+
+/*
+ * Given a Latin-1 character, return the table position of the matching encode.
+ */
+static int xchar_encode(byte c)
+{
+	int i;
+
+	/* Scan until we hit the end-of-table marker */
+	for (i = 0; latin1_encode[i].c; i++)
+	{
+		/* We found the encode; return its position */
+		if (latin1_encode[i].c == c) return (i);
+	}
+
+	/* This encode is not recognized */
+	return (-1);
+}
+
+/*
+ * Convert a Latin-1 string to an encoded form.
+ *
+ * Used when printing text to files that the game will later read.
+ */
+void xstr_encode(char *str, size_t len)
+{
+	/* Assume no encodes in this string */
+	bool flag = FALSE;
+
+	int n;
+
+	char *s, *b, *t;
+	char buf[1024];
+	char encode[80];
+
+	/* Require a string */
+	if (!str) return;
+
+	/* Note maximum length (less a one-character reserve) */
+	len = MIN(sizeof(buf), len) - 1;
+
+	/* Start at the beginning */
+	s = str;
+	b = buf;
+
+	/* Scan the string */
+	for (; *s; s++)
+	{
+		/* Paranoia -- check bounds */
+		if ((size_t)(b - buf) >= len) break;
+
+		/* Character is extended */
+		if (*s < 0)
+		{
+			/* Translate this character */
+			byte tmp = *s;
+
+			/* Find the encode */
+			n = xchar_encode(tmp);
+
+			/* Encode not found -- print a space XXX */
+			if (n < 0)
+			{
+				*b++ = ' ';
+			}
+
+			/* Encode found -- save it */
+			else
+			{
+				/* Get the encode (within brackets) */
+				my_strcpy(encode, format("[%s]", latin1_encode[n].tag), sizeof(encode));
+
+				/* Save it (making sure not to overflow the string) */
+				for (t = encode; *t; t++)
+				{
+					*b++ = *t;
+					if ((size_t)(b - buf) >= len) break;
+				}
+
+				flag = TRUE;
+			}
+		}
+
+		/* 7-bit characters are easy */
+		else
+		{
+			/* Copy the character */
+			*b++ = *s;
+		}
+	}
+
+	/* End the string */
+	*b = '\0';
+
+	/* Copy the edited string back, if we've found encodes */
+	if (flag) strcpy(str, buf);
+}
+
+
+
 
 
 /*

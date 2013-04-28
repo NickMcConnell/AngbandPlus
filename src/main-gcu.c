@@ -3,18 +3,16 @@
 /*
  * Copyright (c) 1997 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 
 /*
- * Temporary main-gcu file updated by Bahman Rabii and Christer Nyfalt.
- * Be warned that font-swapping doesn't work, and various other problems
- * might exist.
+ * This file is updated for Sangband by Christer Nyfalt.
  */
-
 
 /*
  * This file helps Angband run on Unix/Curses machines.
@@ -39,11 +37,7 @@
  *
  * This file will attempt to redefine the screen colors to conform to
  * standard Angband colors.  It will only do so if the terminal type
- * indicates that it can do so.  See the page:
- *
- *     http://www.umr.edu/~keldon/ang-patch/ncurses_color.html
- *
- * for information on this.
+ * indicates that it can do so.
  *
  * Consider the use of "savetty()" and "resetty()".  XXX XXX XXX
  *
@@ -90,14 +84,21 @@
 # undef USE_TPOSIX
 #endif
 
-
-
+/*
+ * Hack -- Windows Console mode uses PDCURSES and cannot do any terminal stuff
+ * Hack -- Windows needs Sleep(), and I really don't want to pull in all
+ *         the Win32 headers for this one function
+ */
+#if defined(WIN32_CONSOLE_MODE)
+# undef USE_TPOSIX
+_stdcall void Sleep(int);
+#define usleep(v) Sleep(v / 1000)
+#endif
 
 /*
  * POSIX stuff
  */
 #ifdef USE_TPOSIX
-/* # include <sys/ioctl.h> */
 # include <termios.h>
 #endif
 
@@ -167,8 +168,8 @@ static struct termios  game_termios;
 #endif
 
 
-/* static bool           split_window=TRUE; */
-static bool           split_window=FALSE;
+static bool           split_window=TRUE;
+
 
 /*
  * Information about a term
@@ -180,18 +181,30 @@ struct term_data
 	term t;                 /* All term info */
 
 	WINDOW *win;            /* Pointer to the curses window */
+
+	bool active;            /* The window is active */
 };
 
-/* Max number of windows on screen */
-#define MAX_TERM_DATA 4
+/* Max number of windows on screen, 2x2 + 1 unused for map */
+#define MAX_TERM_DATA 5
 
 /* minimum dimensions to split into multiple windows */
-#define MIN_ROWS_SPLIT 30
-#define MIN_COLS_SPLIT 105
+/* add 1 for spacing between the windows */
+#define MIN_ROWS_SPLIT (term_size_min[WINDOW_DISPLAY][1] + term_size_min[TERM_SUBWINDOW][1] + 1)
+#define MIN_COLS_SPLIT (term_size_min[WINDOW_DISPLAY][0] + term_size_min[TERM_SUBWINDOW][0] + 1)
 
 /* Information about our windows */
 static term_data data[MAX_TERM_DATA];
 
+/*
+ * Hack -- the old screen maximum size
+ */
+static int y_max, x_max;
+
+/*
+ * Hack -- it's safe to run the resize code.
+ */
+static bool resize_safe = FALSE;
 
 /*
  * Hack -- Number of initialized "term" structures
@@ -242,14 +255,6 @@ static void keymap_norm(void)
 
 }
 
-const char help_gcu[] = "GCU Visual Display Support";
-
-#if 0
-static int panel_row_min = 0;
-static int panel_row_max = 0;
-static int panel_col_min = 0;
-static int panel_col_max = 0;
-#endif
 
 /*
  * Place the "keymap" into the "game" state
@@ -325,6 +330,9 @@ static void keymap_game_prepare(void)
  */
 static errr Term_xtra_gcu_alive(int v)
 {
+	int x, y;
+
+
 	/* Suspend */
 	if (!v)
 	{
@@ -342,13 +350,11 @@ static errr Term_xtra_gcu_alive(int v)
 		/* Flush the curses buffer */
 		(void)refresh();
 
-#ifdef SPECIAL_BSD
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+		/* Get current cursor position */
+		getyx(curscr, y, x);
+
+		/* Move the cursor to bottom right corner */
+		mvcur(y, x, LINES - 1, 0);
 
 		/* Exit curses */
 		endwin();
@@ -378,32 +384,7 @@ static errr Term_xtra_gcu_alive(int v)
 }
 
 
-/*
- * Change the number of text lines shown on the screen.
- *
- * We only switch between 25-line display, using a font taller than it is
- * wide, and 50-line display, using a font of equal height and width.
- */
-static errr Term_rows_gcu(bool_hack fifty_rows)
-{
-
-	/* Set to 50-row display */
-	if (fifty_rows)
-	{
-		screen_rows = 50;
-	}
-
-	/* Set to 25-line display */
-	else
-	{
-		screen_rows = 25;
-	}
-
-	/* Assume success */
-	return (0);
-}
-
-
+const char help_gcu[] = "Curses Visual Display Support";
 
 /*
  * Init the "curses" system
@@ -411,6 +392,14 @@ static errr Term_rows_gcu(bool_hack fifty_rows)
 static void Term_init_gcu(term *t)
 {
 	term_data *td = (term_data *)(t->data);
+
+#ifdef USE_GETCH
+	/*
+	 * This is necessary to keep the first call to getch()
+	 * from clearing the screen
+	 */
+	wrefresh(stdscr);
+#endif /* USE_GETCH */
 
 	/* Count init's, handle first */
 	if (active++ != 0) return;
@@ -434,6 +423,7 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
+	int x, y;
 	term_data *td = (term_data *)(t->data);
 
 	/* Delete this window */
@@ -450,13 +440,11 @@ static void Term_nuke_gcu(term *t)
 	start_color();
 #endif
 
-#ifdef SPECIAL_BSD
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+	/* Get current cursor position */
+	getyx(curscr, y, x);
+
+	/* Move the cursor to bottom right corner */
+	mvcur(y, x, LINES - 1, 0);
 
 	/* Flush the curses buffer */
 	(void)refresh();
@@ -581,6 +569,7 @@ static errr Term_xtra_gcu_event(int v)
  */
 static errr Term_xtra_gcu_react(void)
 {
+
 #ifdef A_COLOR
 
 	int i;
@@ -697,7 +686,7 @@ static errr Term_wipe_gcu(int x, int y, int n)
 	wmove(td->win, y, x);
 
 	/* Clear to end of line */
-	if (x + n >= td->t.wid)
+	if (x + n >= td->t.cols)
 	{
 		wclrtoeol(td->win);
 	}
@@ -797,6 +786,22 @@ static errr Term_user_gcu(int n)
 	return (0);
 }
 
+/*
+ * Change the display.
+ *
+ * At present, we do not change Term size when switching between standard
+ * and tall displays; we use a terminal window large enough for both.
+ */
+static errr switch_display_gcu(int display)
+{
+	/* Nothing changes */
+	(void)display;
+
+	/* Assume success */
+	return (0);
+}
+
+
 
 /*
  * Create a window for the given "term_data" argument.
@@ -839,7 +844,11 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 	t->curs_hook = Term_curs_gcu;
 	t->xtra_hook = Term_xtra_gcu;
 	t->user_hook = Term_user_gcu;
-	if (i == 0) t->rows_hook = Term_rows_gcu;
+	switch_display_hook = switch_display_gcu;
+
+
+	/* Flag as active */
+	td->active = TRUE;
 
 	/* Save the data */
 	t->data = td;
@@ -851,22 +860,24 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 	return (0);
 }
 
+/*
+ * Display error message and quit (see "z-util.c")
+ */
 static void hook_quit(cptr str)
 {
-	int i, num_term = MAX_TERM_DATA;
+	int i;
 
-	if (!split_window) num_term=1;
+	/* Unused parameter XXX XXX */
+	(void)str;
+
+	/* Nuke all possible terms (if defined) */
+	for (i = 0; i < TERM_MAX; i++)
+	{
+		(void)term_nuke(angband_term[i]);
+	}
 
 	/* Exit curses */
 	endwin();
-
-	/* Free windows */
-	for (i = 0; i < num_term; i++)
-	{
-		term_data *td = &data[i];
-		term *t = &td->t;
-		(void)term_nuke(t);
-	}
 }
 
 /*
@@ -888,7 +899,7 @@ errr init_gcu(int argc, char *argv[])
 	{
 		if (prefix(argv[i], "-x"))
 		{
-		        split_window=FALSE;
+			split_window = FALSE;
 			continue;
 		}
 
@@ -911,8 +922,17 @@ errr init_gcu(int argc, char *argv[])
  	quit_aux = hook_quit;
 
 	/* Hack -- Require large screen, or Quit with message */
-	i = ((LINES < 50) || (COLS < 80));
-	if (i) quit("Angband needs an 80x50 'curses' screen");
+	if ((LINES < term_size_min[WINDOW_DISPLAY][1]) ||
+	    (COLS < term_size_min[WINDOW_DISPLAY][0]))
+	{
+		quit(format("Sangband needs at least an %dx%d 'curses' screen",
+			    term_size_min[WINDOW_DISPLAY][0],
+			    term_size_min[WINDOW_DISPLAY][1]));
+	}
+
+	/* Remember screen size */
+	y_max = COLS;
+	x_max = LINES;
 
 #ifdef A_COLOR
 
@@ -1007,30 +1027,44 @@ errr init_gcu(int argc, char *argv[])
 
 	/*** Now prepare the term(s) ***/
 
-	if (!split_window) num_term=1;
+	if (!split_window) num_term = 1;
 
 	/* Create one or several terms */
 	for (i = 0; i < num_term; i++)
 	{
+		/*
+		 * Variables rows & cols are first used to contain the main
+		 * window size, until they are reassigned to contain the
+		 * current window size in the case statments.
+		 */
 		int rows, cols, y, x;
+
+		/* Flag as inactive */
+		data[next_win].active = FALSE;
 
 		if (split_window)
 		{
-		        /* Hack - the main window is huge */
-		        /* Sub windows require a width of at least 25 and a height
-			 * if at least 6.  Furth excess height is split between the
-			 * main window and the others.
+			/*
+			 * Sub windows must show least 10 columns, 1 row.  Excess
+			 * space goes to the sub windows.
+			 *
+			 * We could add code that would add excess space to
+			 * the main window instead if we have more than
+			 * 161x71 space.  XXX XXX
 			 */
-		        if (COLS > MIN_COLS_SPLIT) cols = 80 + (COLS - MIN_COLS_SPLIT) / 2;
-			else cols = COLS;
-			if (LINES > MIN_ROWS_SPLIT) rows = 24 + (LINES - MIN_ROWS_SPLIT) / 2;
-			else rows = LINES;
+			if (COLS > MIN_COLS_SPLIT)
+				cols = term_size_min[WINDOW_DISPLAY][0];
+			else
+				cols = COLS;
+			if (LINES > MIN_ROWS_SPLIT)
+				rows = term_size_min[WINDOW_DISPLAY][1];
+			else
+				rows = LINES;
 		}
 		else
 		{
-		        screen_rows = 50;
-		        cols=80;
-			rows=50;
+			cols = term_size_min[WINDOW_DISPLAY][0];
+			rows = term_size_min[WINDOW_DISPLAY][1];
 		}
 
 		/* Decide on size and position */
@@ -1041,22 +1075,32 @@ errr init_gcu(int argc, char *argv[])
 				y = x = 0;
 				break;
 
-			/* Lower left */
+			/* Hack - Ignore Map */
 			case 1:
+				/* Code added to assign space & pos, even if unused */
+				y = x = 0;
+				cols = term_size_min[TERM_MAP][0];
+				rows = term_size_min[TERM_MAP][1];
+
+				next_win++;
+				continue;
+
+			/* Lower left */
+			case 2:
 				y = rows + 1;
 				x = 0;
 				rows = LINES - (rows + 1);
 				break;
 
 			/* Upper right */
-			case 2:
+			case 3:
 				y = 0;
 				x = cols + 1;
 				cols = COLS - (cols + 1);
 				break;
 
 			/* Lower right */
-			case 3:
+			case 4:
 				y = rows + 1;
 				x = cols + 1;
 				rows = LINES - (rows + 1);
@@ -1085,8 +1129,8 @@ errr init_gcu(int argc, char *argv[])
 	/* Activate the "Angband" window screen */
 	(void)Term_activate(&data[0].t);
 
-	/* Remember the active screen */
-	term_screen = &data[0].t;
+	/* Resizing is safe */
+	resize_safe = TRUE;
 
 	/* Success */
 	return (0);

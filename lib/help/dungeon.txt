@@ -16,18 +16,18 @@ less frequently take advantage of terrain, monsters benefit more from favorable
 and suffer less from unfavorable terrain than your character does.
 
 Rubble:
-     Slows down the character and all monsters that cannot bore or pass through
-rock.  Ends LOS, stops missiles, bolts, and beams, and reduces the radius of
-ball spells.  Grants the character and monsters within it some protection from
-melee, ranged, or magical attacks.  Rubble may dissolve to normal floor.
+     Greatly slows down any creature that cannot bore or pass through rock.
+Ends LOS, stops missiles, bolts, and beams, and reduces the radius of ball
+spells.  Grants the character and monsters within it some protection from melee,
+ranged, or magical attacks.  Rubble may dissolve to normal floor.
 
 Water:
      Cannot be passed by fiery, earthbound monsters, slows down other most other
 monsters.  Slows you down, and cannot be crossed if you are carrying too much.
 You and your enemies are easier to hit when in water, and most spells
 (especially water-based ones) gain in strength.  It is hard to dodge in water.
-Fire-based spells become much less powerful, so find a lake if you battle Smaug.
-Water may evaporate.
+However, fire-based spells become much less powerful, so find a lake if you
+battle Smaug.  Water may evaporate.
 
 Lava:
      Can be passed by any character, but inflicts substantial fire damage (less
@@ -80,9 +80,9 @@ attempt to close the door.  If you succeed, the monster retreats out of the way
 and loses a turn.
 
 Traps:
-     Traps also await you in the dungeon.  They look like normal floor squares
-until found, too often by your being caught by one.  They start out weak and
-easy to disarm, but can get truly nasty further down...
+     Traps also await you in the dungeon.  They look like normal terrain until
+found, too often by your being caught by one.  They start out weak and easy to
+disarm, but can get truly nasty further down...
      You find hidden traps by using the 's'earch command.  Many characters can
 also use magic and everyone can use the appropriate magical device.  Be warned:
 although magical disarming is convenient, it is never a sure thing.
@@ -130,21 +130,23 @@ Darkness:
      But darkness can be useful too.  Unseen monsters are harder to hit with
 physical attacks, and take less damage from spells (because you can't aim at
 them precisely).  You, likewise, are harder to hit if in and surrounded by
-darkness, and will take less damage from ranged attacks.
+darkness, and will take less damage from ranged attacks.  Depending on your
+skills, staying in darkness may yield other advantages as well.
 
 Food and Regeneration:
      Never risk being without food.  You must eat every so often in order to
 avoid starvation.  The speed at which you consume food depends on your race
-(trolls need to eat a lot) and the items you wear.
+(trolls and giants need to eat a lot) and the items you wear.
      The speed at which you regenerate is doubled when you are resting (so rest
 in place instead of staying in place whenever possible), and is also affected by
 various object attributes and temporary conditions.
 
 Noise:
-     Characters make a certain amount of noise all the time, which decreases as
-stealth improves.  Moving more quickly increases noise somewhat, because you
-perform more actions in a given period of time.  Resting, sneaking, and (if you
-have any stealth skill) moving in the dark all reduce base noise substantially.
+     Characters make a certain amount of noise all the time; this innate noise
+decreases as stealth improves.  Moving more quickly increases noise somewhat
+because you perform more actions in a given period of time.  Resting, sneaking,
+and (if you have any stealth skill) moving in the dark all reduce base noise
+substantially.
      To base noise is added extra noise.  Every time you engage in combat, cast
 most kinds of spells that hurt monsters, bash a door or a chest, kill a monster,
 or wreck the dungeon, you make extra noise.  Extra noise dies down over time.
@@ -178,7 +180,8 @@ effect), out of depth uniques (larger effect), out of depth objects, artifacts
 and other powerful kinds of objects, and very unusual rooms.
      You will occasionally get the message "You feel there is something special
 about this level.", indicating that this is either a quest level, or that there
-is an active player ghost lurking there.  Artifacts do not make a level special.
+is an active player ghost lurking there.  Artifacts and special rooms do not
+make a level special.
 
 Precognition Messages:
      If your Perception skill is great enough, you will start to get
@@ -222,8 +225,6 @@ spends half that time in darkness and the other half in light.
      Every 10 game turns, every monster on the level gets a chance to recover
 from all temporary conditions.  Every 100 game turns, monsters regenerate
 hitpoints.
-
-
 
 
 

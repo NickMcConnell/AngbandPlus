@@ -1,4 +1,3 @@
-
 /* File: skills.c */
 
 /*
@@ -6,12 +5,14 @@
  * Realms, Oaths, and specializations, effect of skills on each other, the
  * skills improvement screen.
  *
- * Copyright (c) 2002
- * Leon Marrick, Julian Lighton, Michael Gorse, Chris Petit
+ * Copyright (c) 2007 Leon Marrick
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * Based on originals by Julian Lighton, Michael Gorse, and Chris Petit
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -45,48 +46,6 @@ static bool cannot_learn_prayers;
 int selected = -1;
 
 
-
-
-
-/*
- * Returns the maximum score of a skill, either actual or virtual
- *
- * Written by JM
- */
-
-int get_virtual_skill(int skill)
-{
-	int tmp = p_ptr->pskills[skill].cur;
-	switch (skill){
-	case S_SWORD:
-		tmp = MAX(tmp, p_ptr->pskills[S_HAFTED].cur / 4);
-		tmp = MAX(tmp, p_ptr->pskills[S_POLEARM].cur / 2);
-		break;
-	case S_HAFTED:
-		tmp = MAX(tmp, p_ptr->pskills[S_SWORD].cur / 4);
-		tmp = MAX(tmp, p_ptr->pskills[S_POLEARM].cur / 4);
-		break;
-	case S_POLEARM:
-		tmp = MAX(tmp, p_ptr->pskills[S_HAFTED].cur / 4);
-		tmp = MAX(tmp, p_ptr->pskills[S_SWORD].cur / 2);
-		break;
-	case S_BOW:
-		tmp = MAX(tmp, p_ptr->pskills[S_CROSSBOW].cur / 2);
-		break;
-	case S_CROSSBOW:
-		tmp = MAX(tmp, p_ptr->pskills[S_BOW].cur / 2);
-		break;
-	default:
-		break;
-	}
-
-	return tmp;
-}
-
-
-
-
-
 /*
  * This function is used to get effective values for all skills.
  *
@@ -114,7 +73,7 @@ s16b get_skill(int skill, int min, int max)
 
 
 	/* Get the current skill percentage */
-	tmp = get_virtual_skill(skill);
+	tmp = p_ptr->pskills[skill].cur;
 
 
 	/*** Handle special cases ***/
@@ -450,13 +409,16 @@ static void practice_penalty(int skill, s32b *cost)
 		case S_THROWING:
 		case S_WRESTLING:
 		case S_KARATE:
-		case S_DEVICE:
 		case S_DISARM:
 		{
 			leeway = 4;
 			break;
 		}
-
+		case S_DEVICE:
+		{
+			leeway = 6;
+			break;
+		}
 		case S_BURGLARY:
 		{
 			leeway = 9;
@@ -509,11 +471,220 @@ static void practice_penalty(int skill, s32b *cost)
 	*cost += penalty;
 }
 
-/* Calculates the minumum level for calculating costs for advancement of a skill */
 
-int min_level(void)
+/*
+ * Actually perform the calculations for cost/power/score penalty reduction.
+ */
+static s32b adv_cost_reduce_aux(int skill, int level, byte mode)
 {
-	return MAX(1, -8 + (p_ptr->power * 8) / 10 + (p_ptr->power*p_ptr->power)/400);
+	s32b reduction = 0L;
+
+	/* Case #1:  We want to calculate cost reduction */
+	if (mode == 1)
+	{
+		s32b tmp, divisor;
+
+		/* Get the difference in exp needed for this skill level and the next */
+		tmp = player_exp[level + 1] - player_exp[level];
+
+		/* Multiply by skill cost adjustment (10x inflation) */
+		tmp *= (skill_info[skill].cost_adj);
+
+		/* Divide by the experience adjustment, and deflate */
+		divisor = (long)(EXP_ADJ * 10);
+
+		/* Get the actual cost (standard rounding) */
+		reduction = (tmp + divisor / 2) / divisor;
+	}
+
+	/* Case #2:  We want to calculate power reduction (x10 inflation) */
+	else if (mode == 2)
+	{
+		/* Get the cost to get to the current skill level */
+		reduction = player_exp[level];
+
+		/* Apply level difficulty factor (10x inflation) */
+		reduction *= skill_info[skill].cost_adj;
+
+		/* Result will be deflated later */
+	}
+
+	/* Case #3:  We want to calculate score penalty reduction */
+	else
+	{
+		/* Get maximum skill level and multiply by inherent difficulty */
+		reduction = (s32b)(level * skill_info[skill].cost_adj);
+	}
+
+	return (reduction);
+}
+
+
+/*
+ * Helper function to both "adv_cost" and "total_points()".  Calculate the
+ * reduction in:  1) cost, 2) effect on character power, and 3) future score
+ * penalty, of investing in this skill when you already have raised a paired
+ * skill.
+ *
+ * The below is a monstrous hard-coded hack, but it's not as bad as what it
+ * replaced.  In particular, skill costs, character power, and score now all
+ * play by similar rules, and you get the same cost reduction regardless of
+ * the order in which you raise skills (before minimum cost is applied).
+ *
+ * One rule that has to be applied differently for score and cost is the case
+ * of both paired skills being equal.  In these cases, cost cannot be reduced -
+ * because it would become possible to take advantage of the cost reduction
+ * for /each/ skill instead of for the /pair/ - and power and score penalty
+ * must be, but only for one of the two tests - because otherwise the benefits
+ * would either be forfited or doubled.
+ */
+void adv_cost_reduce_similar(int skill, s32b *base_cost, byte mode)
+{
+	int level = p_ptr->pskills[skill].max;
+	int skill_max = p_ptr->pskills[skill].max;
+
+	/* Assume no cost, power, or score penalty reduction */
+	s32b reduction = 0L;
+
+	/*
+	 * 3/4ths of Disarming is included in Burglary.  When calculating cost (or
+	 * power), we require that the matching skill be higher.  When calculating
+	 * score, we also test (once!) for equality.
+	 */
+	if ((skill == S_BURGLARY) &&
+	    (((mode == 1) && (p_ptr->pskills[S_DISARM].max >  skill_max)) ||
+	     ((mode != 1) && (p_ptr->pskills[S_DISARM].max >= skill_max))))
+	{
+		reduction += 3L * adv_cost_reduce_aux(S_DISARM, level, mode) / 4L;
+	}
+	if ((skill == S_DISARM) &&
+	    (p_ptr->pskills[S_BURGLARY].max > skill_max))
+	{
+		reduction += 3L * adv_cost_reduce_aux(S_DISARM, level, mode) / 4L;
+	}
+
+	/* 1/3rd of Stealth is included in Burglary */
+	if ((skill == S_BURGLARY) &&
+	    (((mode == 1) && (p_ptr->pskills[S_STEALTH].max >  skill_max)) ||
+	     ((mode != 1) && (p_ptr->pskills[S_STEALTH].max >= skill_max))))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_STEALTH, level, mode) / 3L;
+	}
+	if ((skill == S_STEALTH) &&
+	    (p_ptr->pskills[S_BURGLARY].max > skill_max))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_STEALTH, level, mode) / 3L;
+	}
+
+	/* 1/3rd of Dodging is included in Burglary */
+	if ((skill == S_BURGLARY) &&
+	    (((mode == 1) && (p_ptr->pskills[S_DODGING].max >  skill_max)) ||
+	     ((mode != 1) && (p_ptr->pskills[S_DODGING].max >= skill_max))))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_DODGING, level, mode) / 3L;
+	}
+	if ((skill == S_DODGING) &&
+	    (p_ptr->pskills[S_BURGLARY].max > skill_max))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_DODGING, level, mode) / 3L;
+	}
+
+
+	/* 1/2nd of Jousting is included in Swordsmanship, and vice versa */
+	if ((skill == S_SWORD) &&
+	    (((mode == 1) && (p_ptr->pskills[S_POLEARM].max >  skill_max)) ||
+	     ((mode != 1) && (p_ptr->pskills[S_POLEARM].max >= skill_max))))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_POLEARM, level, mode) / 2L;
+	}
+	if ((skill == S_POLEARM) &&
+	    (p_ptr->pskills[S_SWORD].max > skill_max))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_SWORD, level, mode) / 2L;
+	}
+
+	/* 1/4th of Jousting and Swordsmanship are each included in Clubbing, and vice versa */
+	if ((skill == S_SWORD) &&
+	    (((mode == 1) && (p_ptr->pskills[S_HAFTED].max >  skill_max)) ||
+	     ((mode != 1) && (p_ptr->pskills[S_HAFTED].max >= skill_max))))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_HAFTED, level, mode) / 4L;
+	}
+	if ((skill == S_HAFTED) &&
+	    (p_ptr->pskills[S_SWORD].max > skill_max))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_SWORD, level, mode) / 4L;
+	}
+	if ((skill == S_POLEARM) &&
+	    (((mode == 1) && (p_ptr->pskills[S_HAFTED].max >  skill_max)) ||
+	     ((mode != 1) && (p_ptr->pskills[S_HAFTED].max >= skill_max))))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_HAFTED, level, mode) / 4L;
+	}
+	if ((skill == S_HAFTED) &&
+	    (p_ptr->pskills[S_POLEARM].max > skill_max))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_POLEARM, level, mode) / 4L;
+	}
+
+
+	/* 1/3rd of Bows is included in Crossbows, and vice versa */
+	if ((skill == S_BOW) &&
+	    (((mode == 1) && (p_ptr->pskills[S_CROSSBOW].max >  skill_max)) ||
+	     ((mode != 1) && (p_ptr->pskills[S_CROSSBOW].max >= skill_max))))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_CROSSBOW, level, mode) / 3L;
+	}
+	if ((skill == S_CROSSBOW) &&
+	    (p_ptr->pskills[S_BOW].max > skill_max))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_BOW, level, mode) / 3L;
+	}
+
+	/* 1/6th of Bows and Crossbows are each included in Slings, and vice versa */
+	if ((skill == S_BOW) &&
+	    (((mode == 1) && (p_ptr->pskills[S_SLING].max >  skill_max)) ||
+	     ((mode != 1) && (p_ptr->pskills[S_SLING].max >= skill_max))))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_SLING, level, mode) / 6L;
+	}
+	if ((skill == S_SLING) &&
+	    (p_ptr->pskills[S_BOW].max > skill_max))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_BOW, level, mode) / 6L;
+	}
+	if ((skill == S_CROSSBOW) &&
+	    (((mode == 1) && (p_ptr->pskills[S_SLING].max >  skill_max)) ||
+	     ((mode != 1) && (p_ptr->pskills[S_SLING].max >= skill_max))))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_SLING, level, mode) / 6L;
+	}
+	if ((skill == S_SLING) &&
+	    (p_ptr->pskills[S_CROSSBOW].max > skill_max))
+	{
+		reduction += 1L * adv_cost_reduce_aux(S_CROSSBOW, level, mode) / 6L;
+	}
+
+
+	/* 2/5ths of Weaponsmithing is included in Bowmaking, and vice versa */
+	if ((skill == S_FORGE_WEAPON) &&
+	    (((mode == 1) && (p_ptr->pskills[S_FORGE_BOW].max >  skill_max)) ||
+	     ((mode != 1) && (p_ptr->pskills[S_FORGE_BOW].max >= skill_max))))
+	{
+		reduction += 2L * adv_cost_reduce_aux(S_FORGE_BOW, level, mode) / 5L;
+	}
+	if ((skill == S_FORGE_BOW) &&
+	    (p_ptr->pskills[S_FORGE_WEAPON].max > skill_max))
+	{
+		reduction += 2L * adv_cost_reduce_aux(S_FORGE_WEAPON, level, mode) / 5L;
+	}
+
+	/* Sanity check:  Cost reduction cannot be more than 90% */
+	if (reduction > 9L * *base_cost / 10L)
+		reduction = 9L * *base_cost / 10L;
+
+	/* Adjust cost */
+	*base_cost -= reduction;
 }
 
 
@@ -539,8 +710,10 @@ s32b adv_cost(int skill, bool add_practice_cost)
 
 	int level = p_ptr->pskills[skill].cur;
 
+
 	/* Paranoia - skill must be less than 100 */
 	if (level >= PY_MAX_POWER) return (-1);
+
 
 	/* Get the difference in exp needed for this skill level and the next */
 	tmp = player_exp[level + 1] - player_exp[level];
@@ -556,38 +729,46 @@ s32b adv_cost(int skill, bool add_practice_cost)
 
 
 	/* Get the actual cost (standard rounding) */
-	cost = (tmp + divisor / 2) / divisor;
+	cost = (tmp + divisor / 2L) / divisor;
+
+	/* Similar skills reduce cost for each other */
+	adv_cost_reduce_similar(skill, &cost, 1);
 
 
 	/* Drained skills are three times as easy to restore */
 	if (level < p_ptr->pskills[skill].max)
 	{
-		cost /= 3;
+		cost /= 3L;
 	}
 
-	/* Otherwise, require a minimum cost */
-	else if (p_ptr->power >= 10)
+	/* If the skill is not drained, ... */
+	else
 	{
-		int tmp_pow = min_level();
+		/* Apply minimum cost rules */
+		if (p_ptr->power >= 10)
+		{
+			int tmp_pow = MAX(2, (p_ptr->power - 8) * 8 / 10);
 
-		/* Minimum cost depends on character power */
-		s32b min_cost = player_exp[tmp_pow] - player_exp[tmp_pow - 1];
+			/* Minimum cost depends on character power */
+			s32b min_cost = player_exp[tmp_pow] - player_exp[tmp_pow - 1];
 
-		/* It also depends on the inherent cost of the skill */
-		min_cost *= skill_info[skill].cost_adj;
-		min_cost *= race_adj_cost_skill[skill][p_ptr->prace];
+			/* It also depends on the inherent cost of the skill */
+			min_cost *= skill_info[skill].cost_adj;
+			min_cost *= race_adj_cost_skill[skill][p_ptr->prace];
 
-		/* Deflate */
-		min_cost /= (EXP_ADJ * 100L);
+			/* Deflate */
+			min_cost /= (EXP_ADJ * 100L);
 
-		/* Enforce minimum */
-		if (cost < min_cost) cost = min_cost;
+			/* Enforce minimum */
+			if (cost < min_cost) cost = min_cost;
+		}
 
-		/* Handle practice penalty */
+		/* Apply practice penalty, if any */
 		if (add_practice_cost) practice_penalty(skill, &cost);
 	}
 
-	/* Cost must be at least one */
+
+	/* Cost must always be at least one */
 	if (cost < 1L) cost = 1L;
 
 	/* Round off cost (slightly) */
@@ -778,7 +959,7 @@ static bool can_raise_skill_confirm(int warning)
 	while (TRUE)
 	{
 		/* Answer */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Note accept */
 		if ((ch == 'y') || (ch == 'Y'))
@@ -1479,13 +1660,13 @@ static int adv_skill(int skill, bool pay_exp)
 			if (skill == S_BOW) p_ptr->ammo_tval = TV_ARROW;
 			if (skill == S_SLING) p_ptr->ammo_tval = TV_SHOT;
 
-			/* Do we get a increase in shooting speed? */
+			/* Do we get an increase in shooting speed? */
 			i = missile_bonus(TR_PVAL_SHOTS, p_ptr->pskills[skill].cur);
 			j = missile_bonus(TR_PVAL_SHOTS, p_ptr->pskills[skill].cur - 1);
 
 			if (i > j) skill_comment(TERM_L_BLUE, "You now shoot more quickly.");
 
-			/* Do we get a increase in shooting force? */
+			/* Do we get an increase in shooting force? */
 			i = missile_bonus(TR_PVAL_MIGHT, p_ptr->pskills[skill].cur);
 			j = missile_bonus(TR_PVAL_MIGHT, p_ptr->pskills[skill].cur - 1);
 
@@ -1495,43 +1676,26 @@ static int adv_skill(int skill, bool pay_exp)
 			p_ptr->ammo_tval = old_ammo_tval;
 		}
 
-
 		/* Wrestling */
 		if (skill == S_WRESTLING)
 		{
-			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT1)
+			if (p_ptr->pskills[skill].max == LEV_REQ_WRESTLE_STR_BONUS1)
 				skill_comment(TERM_L_BLUE, "Your strength increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT2)
+			if (p_ptr->pskills[skill].max == LEV_REQ_WRESTLE_STR_BONUS2)
 				skill_comment(TERM_L_BLUE, "Your strength increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT3)
-				skill_comment(TERM_L_BLUE, "Your strength increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_FA)
-				skill_comment(TERM_L_BLUE, "You feel protected from slowing and paralysis.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_RESIST)
-				skill_comment(TERM_L_BLUE, "Your are no longer troubled by sound attacks.");
-			
+			if (p_ptr->pskills[skill].max == LEV_REQ_WRESTLE_DEX_BONUS1)
+				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
 		}
 
 		/* Karate */
 		if (skill == S_KARATE)
-		{ 
-			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT1)
+		{
+			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_STR_BONUS1)
+				skill_comment(TERM_L_BLUE, "Your strength increases.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_DEX_BONUS1)
 				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT2)
+			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_DEX_BONUS2)
 				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT3)
-				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_FA)
-				skill_comment(TERM_L_BLUE, "You feel protected from slowing and paralysis.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_RESIST)
-				skill_comment(TERM_L_BLUE, "Your are no longer troubled by confusion attacks.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_SPEED1)
-				skill_comment(TERM_L_BLUE, "You accelerate.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_SPEED2)
-				skill_comment(TERM_L_BLUE, "You accelerate.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_SPEED3)
-				skill_comment(TERM_L_BLUE, "You accelerate.");
-		
 		}
 
 		/* Piety */
@@ -1635,8 +1799,9 @@ static int adv_skill(int skill, bool pay_exp)
 	/* Spend experience */
 	if (pay_exp) p_ptr->exp -= cost;
 
-	/* Recalculate character power and hitpoints */
+	/* Recalculate character power */
 	calc_power();
+
 
 	/* Redraw and update some stuff (later) */
 	p_ptr->redraw |= (PR_EXP | PR_HP | PR_TITLE);
@@ -1686,7 +1851,7 @@ static bool special_skill_command(int skill, bool *must_accept)
 				skill_msg(TERM_WHITE, "Take the Oath of Iron? [y/n] ");
 
 				/* Answer */
-				answer = inkey();
+				answer = inkey(FALSE);
 
 				/* The Oath of Iron */
 				if ((answer == 'Y') || (answer == 'y'))
@@ -1704,7 +1869,7 @@ static bool special_skill_command(int skill, bool *must_accept)
 
 					/* Wait for it */
 					skill_msg(TERM_WHITE, "Press any key to continue.");
-					(void)inkey();
+					(void)inkey(ALLOW_CLICK);
 				}
 				else
 				{
@@ -1730,7 +1895,7 @@ static bool special_skill_command(int skill, bool *must_accept)
 				skill_msg(TERM_WHITE, "Take the Oath of Sorcery? [y/n] ");
 
 				/* Answer */
-				answer = inkey();
+				answer = inkey(FALSE);
 
 				/* The Oath of Sorcery */
 				if ((answer == 'Y') || (answer == 'y'))
@@ -1764,7 +1929,7 @@ static bool special_skill_command(int skill, bool *must_accept)
 				skill_msg(TERM_WHITE, "Subscribe to the Covenant of Faith? [y/n] ");
 
 				/* Answer */
-				answer = inkey();
+				answer = inkey(FALSE);
 
 				/* The Covenant of Faith */
 				if ((answer == 'Y') || (answer == 'y'))
@@ -1798,7 +1963,7 @@ static bool special_skill_command(int skill, bool *must_accept)
 				skill_msg(TERM_WHITE, "Join Yavanna's Fellowship? [y/n] ");
 
 				/* Answer */
-				answer = inkey();
+				answer = inkey(FALSE);
 
 				/* Yavanna's Fellowship */
 				if ((answer == 'Y') || (answer == 'y'))
@@ -1832,7 +1997,7 @@ static bool special_skill_command(int skill, bool *must_accept)
 				skill_msg(TERM_WHITE, "Bind yourself to the Black Mystery? [y/n] ");
 
 				/* Answer */
-				answer = inkey();
+				answer = inkey(FALSE);
 
 				/* The Black Mystery */
 				if ((answer == 'Y') || (answer == 'y'))
@@ -1869,7 +2034,7 @@ static bool special_skill_command(int skill, bool *must_accept)
 					skill_msg(TERM_WHITE, "Become a Brother in the Guild of Burglars? [y/n] ");
 
 				/* Answer */
-				answer = inkey();
+				answer = inkey(FALSE);
 
 				/* The Guild of Burglars */
 				if ((answer == 'Y') || (answer == 'y'))
@@ -1911,9 +2076,11 @@ static bool special_skill_command(int skill, bool *must_accept)
  */
 static void prt_skill_select(int skill)
 {
-	char out[100];
-	char buf[100];
+	char out[DESC_LEN];
+	char buf[DESC_LEN];
+
 	cptr cmddesc = "";
+
 	int lev;
 	byte attr = TERM_WHITE;
 
@@ -1925,7 +2092,7 @@ static void prt_skill_select(int skill)
 		u16b cost   = adv_cost(skill, TRUE);
 		u16b b_cost = adv_cost(skill, FALSE);
 
-		sprintf(out, "XP needed to advance %s: ",
+		(void)strnfmt(out, sizeof(out), "XP needed to advance %s: ",
 			skill_info[skill].name);
 
 		/* Display */
@@ -1959,7 +2126,7 @@ static void prt_skill_select(int skill)
 	}
 
 	/* Print unspent exp */
-	sprintf(out, "Unspent XP: %ld", p_ptr->exp);
+	(void)strnfmt(out, sizeof(out), "Unspent XP: %ld", p_ptr->exp);
 	prt(out, 0, 56);
 
 
@@ -1969,20 +2136,20 @@ static void prt_skill_select(int skill)
 		/* Print a special message for those forbidden to learn magic */
 		if (p_ptr->oath & (OATH_OF_IRON))
 		{
-			sprintf(out, "The Oath of Iron forbids you to learn magic.");
+			(void)strnfmt(out, sizeof(out), "The Oath of Iron forbids you to learn magic.");
 		}
 
 		/* Print a special message for able to start spellcasting */
 		else
 		{
-			sprintf(out, "Allows you to choose a realm of magic.");
+			(void)strnfmt(out, sizeof(out), "Allows you to choose a realm of magic.");
 		}
 	}
 
 	/* Generic skill description */
 	else
 	{
-		sprintf(out, "Improves your %s.", skill_info[skill].desc);
+		(void)strnfmt(out, sizeof(out), "Improves your %s.", skill_info[skill].desc);
 	}
 
 	/* Display the skill description */
@@ -2105,14 +2272,14 @@ static void prt_skill_select(int skill)
 	/* Display the special command key */
 	if (strlen(cmddesc))
 	{
-		(void)Term_gotoxy(27, 23);
+		(void)Term_gotoxy(28, 22);
 		c_roff(attr, format("*) %s", cmddesc), 0, 0);
 	}
 
 	/* Special key to raise skill back up to maximum */
 	else if (p_ptr->pskills[skill].cur < p_ptr->pskills[skill].max)
 	{
-		(void)Term_gotoxy(27, 23);
+		(void)Term_gotoxy(28, 22);
 		c_roff(TERM_WHITE, "!) Recover skill", 0, 0);
 	}
 }
@@ -2181,13 +2348,13 @@ static void prt_skill_rank(int skill)
 	}
 
 	/* Display the skill percentage */
-	sprintf(buf2, "%3d%%", (int)p_ptr->pskills[skill].cur);
+	(void)strnfmt(buf2, sizeof(buf2), "%3d%%", (int)p_ptr->pskills[skill].cur);
 
 	/* The character corresponding to the skill */
 	c = index_chars_lower[skill];
 
 	/* Format the string */
-	sprintf(buf1, "%c) %-18s%c %s", c, skill_info[skill].name,
+	(void)strnfmt(buf1, sizeof(buf1), "%c) %-18s%c %s", c, skill_info[skill].name,
 		(drained ? '!' : ':'), buf2);
 
 	/* Print the skill */
@@ -2248,69 +2415,52 @@ static void print_all_skills(bool must_accept)
 {
 	int i;
 
-	char buf[100];
+	char buf[DESC_LEN];
 
 	/* Get realm color */
 	byte attr = realm_color();
 
 	/* Clear all of the screen except the special message area */
-	for (i = 0; i < Term->hgt; i++)
+	for (i = 0; i < Term->rows; i++)
 	{
 		if ((i < 17) || (i > 20)) clear_row(i);
 	}
 
 	/* Print the static information */
-	prt(format("%c-%c) Select skills                        +/=) Advance skills",
+	prt(format("%c-%c) Select skills                          +/=) Advance skills",
 		index_chars_lower[0], index_chars_lower[NUM_SK_USED - 1]),
-		23, 5);
+		22, 8);
 
+	/* Available commands */
 	if (!must_accept)
-		prt("ESC) Cancel      RETURN) Accept             ?) Get help      ",
-			24, 5);
+	{
+		prt("dir) Move    ESC) Cancel    RETURN) Accept    ?) Get help      ",
+			23, 8);
+	}
 	else
-		prt("                 RETURN) Accept             ?) Get help      ",
-			24, 5);
+	{
+		prt("dir) Move                   RETURN) Accept    ?) Get help      ",
+			23, 8);
+	}
 
-	c_prt(TERM_L_BLUE, format("Min Level: %2d    Power: %d", min_level(), p_ptr->power), 22, 52);
+	/* Update hitpoints and mana */
 	calc_hitpoints();
-	c_prt(TERM_L_GREEN, format("HP: %d", p_ptr->mhp), 23, 69);
 	calc_mana();
-	if(p_ptr->msp) c_prt(TERM_L_GREEN, format("SP: %d", p_ptr->msp), 24, 69);
+
+	/* Display hitpoints and mana -JM- */
+	c_put_str(TERM_L_BLUE, format("Power: %d", p_ptr->power), 21, 0);
+	c_put_str(TERM_L_BLUE, format("HP/MP: %d/%d", p_ptr->mhp, p_ptr->msp), 21, 66);
 
 	/* Center realm description */
-	center_string(buf, sizeof(buf), realm_desc(), 78);
+	center_string(buf, sizeof(buf), realm_desc(), display_width() - 28);
 
 	/* Print out realm description */
-	c_prt(attr, buf, 21, 0);
+	c_put_str(attr, buf, 21, 14);
 
 	/* Print all the skills */
 	for (i = 0; i < NUM_SK_USED; i++) prt_skill_rank(i);
 }
 
-
-/*
- * Handle the case where raising one skill also increases others.
- *
- * First skill must be undrained.  No skill can benefit if its maximum
- * is higher than the first skill's.
- */
-static void raise_other_skills(int skill)
-{
-	int level = p_ptr->pskills[skill].max;
-
-	/* Recovering a drained skill has no effect on other skills */
-	if (p_ptr->pskills[skill].cur < p_ptr->pskills[skill].max) return;
-
-	/* Burglary */
-	if (skill == S_BURGLARY)
-	{
-		/* Raise disarming 3/4rds as fast as burglary rises */
-		if (level > p_ptr->pskills[S_DISARM].max)
-		{
-			if (level % 4 != 0) (void)adv_skill(S_DISARM, FALSE);
-		}
-	}
-}
 
 
 /*
@@ -2338,14 +2488,14 @@ static bool realm_check(int realm)
 	if (realm == PRIEST)
 	{
 		realm_text = "Piety";
-		warn_text = "Acolytes of divine lore must purge themselves of all within them that is unholy; all your Blood Dominion will be lost if you cultivate Piety.";
+		warn_text = "Acolytes of divine lore must purge themselves of all within them that is unholy; all your skill in Blood Dominion will be lost if you cultivate Piety.";
 		warn_attr = TERM_L_BLUE;
 		lost_skill = "Blood Dominion";
 	}
 	if (realm == NECRO)
 	{
 		realm_text = "Necromancy";
-		warn_text = "Students of the Dark Arts cannot retain any ties to the Divine; all your Holy Alliance will be lost if you cultivate necromancy.";
+		warn_text = "Students of the Dark Arts cannot retain any ties to the Divine; all your skill in Holy Alliance will be lost if you cultivate necromancy.";
 		warn_attr = TERM_L_PURPLE;
 		lost_skill = "Holy Alliance";
 	}
@@ -2361,7 +2511,7 @@ static bool realm_check(int realm)
 	while (TRUE)
 	{
 		/* Answer */
-		char ch = inkey();
+		char ch = inkey(FALSE);
 
 		/* Note accept */
 		if ((ch == 'y') || (ch == 'Y'))
@@ -2384,9 +2534,7 @@ static bool realm_check(int realm)
 
 
 /*
- * Make certain that a player who has invested in Piety wants to become a
- * Necromancer, or that one who has invested in Blood Dominion wants to
- * become a Priest.
+ * Choose a realm of magic.
  */
 static bool choose_realm(void)
 {
@@ -2394,7 +2542,7 @@ static bool choose_realm(void)
 
 	/* May pick a realm */
 	skill_msg(TERM_WHITE, "You may pick a realm of magic.");
-	(void)inkey();
+	(void)inkey(ALLOW_CLICK);
 
 	/* Apply limitations */
 	if ((cannot_learn_magic) && (cannot_learn_prayers))
@@ -2421,7 +2569,7 @@ static bool choose_realm(void)
 	}
 
 	/* Get command */
-	ch = inkey();
+	ch = inkey(FALSE);
 
 
 	switch (ch)
@@ -2517,8 +2665,6 @@ void do_cmd_skills(void)
 
 	int i;
 
-	int old_rows = screen_rows;
-
 	bool accepted = FALSE;
 	bool must_accept = FALSE;
 
@@ -2530,7 +2676,7 @@ void do_cmd_skills(void)
 
 	/*
 	 * Winners cannot continue to raise their skills (no trying everything
-	 * in a single game).
+	 * in a single game).  XXX XXX
 	 */
 	if (p_ptr->total_winner)
 	{
@@ -2540,18 +2686,15 @@ void do_cmd_skills(void)
 	}
 
 
-	/* Save screen */
-	screen_save();
+	/* Save the screen, use the standard display, and center the view */
+	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX, 80, 0);
 
-	/* Set to 25 screen rows */
-	(void)Term_rows(FALSE);
-
-	/* Clear screen */
-	(void)Term_clear();
 
 	/* Select the skill last advanced */
 	selected = p_ptr->lastadv;
 
+	/* Hide the cursor on the main screen (will be cancelled after we leave) */
+	inkey_cursor_hack[TERM_MAIN] = -1;
 
 	/* Save old status */
 	for (i = 0; i < NUM_SKILLS; i++)
@@ -2573,11 +2716,9 @@ void do_cmd_skills(void)
 		/* Print information on the current skill */
 		prt_skill_select(selected);
 
-		/* Hack -- hide the cursor  XXX XXX */
-		(void)Term_gotoxy(0, 26);
-
 		/* Get a command */
-		ch = inkey();
+		ch = inkey(ALLOW_CLICK);
+
 
 		/* Cancel */
 		if (ch == ESCAPE)
@@ -2585,7 +2726,7 @@ void do_cmd_skills(void)
 			if (must_accept)
 			{
 				skill_msg(realm_color(), "Once taken, an Oath is binding!");
-				(void)inkey();
+				(void)inkey(ALLOW_CLICK);
 				continue;
 			}
 			else
@@ -2611,22 +2752,22 @@ void do_cmd_skills(void)
 			continue;
 		}
 
-		/* Move about the list -- go up one skill */
-		if ((ch == '8') || ((rogue_like_commands) && (ch == 'k')))
+		/* Go up one skill */
+		if (ch == '8')
 		{
 			if (selected > 0) selected--;
 			continue;
 		}
 
-		/* Move about the list -- go down one skill */
-		if ((ch == '2') || ((rogue_like_commands) && (ch == 'j')))
+		/* Go down one skill */
+		if (ch == '2' || ch == '\t' || ch == ' ')
 		{
 			if (selected < NUM_SK_USED-1) selected++;
 			continue;
 		}
 
-		/* Move about the list -- go left one column */
-		if ((ch == '4') || ((rogue_like_commands) && (ch == 'h')))
+		/* Go left one column */
+		if (ch == '4')
 		{
 			if (selected >= (NUM_SK_USED+1) / 2)
 			    selected -= (NUM_SK_USED+1) / 2;
@@ -2635,8 +2776,8 @@ void do_cmd_skills(void)
 			continue;
 		}
 
-		/* Move about the list -- go right one column */
-		if ((ch == '6') || ((rogue_like_commands) && (ch == 'l')))
+		/* Go right one column */
+		if (ch == '6')
 		{
 			if (selected <  (NUM_SK_USED+1) / 2)
 			    selected += (NUM_SK_USED+1) / 2;
@@ -2652,10 +2793,9 @@ void do_cmd_skills(void)
 			if (special_skill_command(selected, &must_accept)) continue;
 		}
 
-		/* Advance the skill if the key was '+' or '=' */
+		/* Advance the skill */
 		if (ch == '+' || ch == '=')
 		{
-			bool restoration = (p_ptr->pskills[selected].cur < p_ptr->pskills[selected].max)?TRUE:FALSE;
 			int advance = adv_skill(selected, TRUE);
 
 			/* Cannot raise the skill */
@@ -2696,9 +2836,6 @@ void do_cmd_skills(void)
 					p_ptr->pskills[S_PIETY].cur = 0;
 					p_ptr->pskills[S_PIETY].max = 0;
 				}
-
-				/* Handle skills that help other skills */
-				if (!restoration) raise_other_skills(selected);
 			}
 
 			prt_skill_rank(selected);
@@ -2714,7 +2851,7 @@ void do_cmd_skills(void)
 				if (adv_skill(selected, TRUE) <= 0)
 				{
 					skill_msg(TERM_WHITE, "You cannot raise this skill further.");
-					(void)inkey();
+					(void)inkey(ALLOW_CLICK);
 					break;
 				}
 			}
@@ -2744,7 +2881,6 @@ void do_cmd_skills(void)
 		{
 			bell("Illegal skill option.");
 		}
-
 	}
 
 	/* Remember selected skill */
@@ -2758,12 +2894,15 @@ void do_cmd_skills(void)
 		if (must_accept)
 		{
 			skill_msg(realm_color(), "Once taken, an Oath is binding!");
-			(void)inkey();
+			(void)inkey(ALLOW_CLICK);
 		}
+
+		/* Allow the cancellation */
 		else
 		{
 			bool changed = FALSE;
 
+			/* Restore previous skill values */
 			for (i = 0; i < NUM_SKILLS; i++)
 			{
 				if (p_ptr->pskills[i].cur != old_pskills[i].cur)
@@ -2778,11 +2917,14 @@ void do_cmd_skills(void)
 				}
 			}
 
+			/* Restore previous unspent experience */
 			if (p_ptr->exp != old_exp)
 			{
 				p_ptr->exp = old_exp;
 				changed = TRUE;
 			}
+
+			/* Restore old spell realm */
 			if (p_ptr->realm != old_realm)
 			{
 				p_ptr->realm = old_realm;
@@ -2806,15 +2948,8 @@ void do_cmd_skills(void)
 	message_flush();
 
 
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50)
-	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		(void)Term_rows(TRUE);
-	}
-
-	/* Restore main screen */
-	screen_load();
+	/* Restore previous display */
+	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
 
 	/* If one bare-handed skill is obviously the primary, choose it */
@@ -2830,6 +2965,9 @@ void do_cmd_skills(void)
 	{
 		do_cmd_barehanded();
 	}
+
+	/* Combine and Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Update various things */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_TORCH);

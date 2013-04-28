@@ -1,0 +1,384 @@
+
+
+Sangband Version 1.0.0 Final released May 26th, 2007
+
+Hotfixes for v1.0.0  (April - May, 2007)
+======================================
+
+Bugfixes - applicable to other variants:
+- (variants with the Oangband monster allocation code) Error in my original setup of quick monster allocation corrected; this fixes a rare problem with vaults and interesting rooms not always having the correct monster types.
+- Stopped the screen flickering unecessarily in some interactive interfaces by not doing a "Term_fresh()" after every command and instead overwriting text or clearing individual rows.  This problem exists in all variants, but with efficient display code it's almost unnoticable.  Unfortunately, no known SDL-based port qualifies as "efficient" by this metric.  :-/
+- The AltGr key again works correctly (reported by Mikko Lehtinen).  This bugfix probably also applies to Hengband, Entroband, ToME, and other variants with extended international keyboard support code in the Windows port.
+- (variants with EyAngband knowledge screen enhancements) You will no longer see wierd (potentially undefined) objects/artifacts/monsters when going from a long list to a short one.
+- Monsters bump into things much more often when confused (logic error in my original code for 4GAI).
+- Fixed errors in stock and inventory sorting code that caused unaware and un-IDed objects not to sort properly in some cases, causing problems with tests placed below them (in Sangband's case, boulders and light sources).
+- (variants with the xchar patch) Lines that contain the '%' character will no longer be garbled or cause crashes when printing to file.  (reported by Alex Power)
+
+Bugfixes - Sangband-specific (mostly...):
+- Fixed a (new) bug in the arc code that made arc spells fire off toward only approximately the right angle.
+- Made character dumps and text/html screenshots cooperate with the special map display.
+- Fixed an omission that hid monsters' carried items.
+- Closed doors are no longer considered "passable" for various purposes.
+- Traps are forgotten when "wiz_dark()" is applied.
+- The store display is no longer messed up when you wear something.
+- You can no longer take off stuff when shapechanged in stores.  (reported by Alex Power)
+- The SDL port works much better on Linux.
+- The custom left panel cooperates with the special map.
+- Scores are shown properly on game exit.  (reported by Mikko Lehtinen)
+- Monsters can open doors again.  (reported by Mikko Lehtinen)
+- Accented characters are correctly encoded in the savegame list file.
+- Tweaks to the pickup code as a result of porting it to Angband.  The biggest change is that people can play human vacuum cleaner if they so desire.
+- SDL port display glitches in windowed mode fixed.
+- Troll-slaying weapons work correctly
+- The quest listing is again '1', '2', etc. because using letters broke the roguelike keys (reported by Alex Power).  If you have problems with using numbers let me know.
+- Wand and rod sounds play after you aim the device.  (reported by Christer Nyfält)
+- The IBM port correctly resizes the main term to accomodate standard and tall views (it didn't have to before, and I forgot to make this change when it became necessary).
+- New Burglar's Guild rules now correctly documented (reported by Seventh Holy Scripture)
+- The code to handle terminal overlapping is now much more robust and less given to glitches.
+- The Windows ports correctly refreshes the screen when restored.  (reported by Mikko Lehtinen)
+- Lighting in town during daytime cooperates with local darkness (as from spells).  (reported by Fuma)
+- The savefile management screen updates properly when a savefile is deleted.  (reported by Fuma)
+- Invoke spirits is no longer so dangerous when you're badly hurt.  (reported by Mikko Lehtinen)
+- Thrown and fired stuff no longer ever pass through closed doors.  (reported by Mikko Lehtinen) 
+- A bunch of minor and miscellaneous stuff
+
+
+Code cleanups and fixes by Christer Nyfält applied, including: 
+- removal of deadwood
+- correct casting to void
+- code re-formatting
+- removal of potentially dangerous code, such as "sprintf".
+- removal of defines and code for old systems unlikely ever to get a Sangband port (DOS and RISCOS excepted).
+- and a great many assorted fixes
+
+Fixes by Joshua Middendorf applied:
+- Correct pronominalization in activation of Palantir
+- More correct handling of secret doors.
+- Various actions can be cancelled without costing energy.
+- You get a message and are disturbed when randomly teleported by various means.
+- Monsters don't cast teleport to if already adjacent and don't breathe at you if you're in a wall.
+- Uniques are better at pushing past other monsters.
+- First you visibly move, THEN you hit the trap.
+- Either archery - slings or throwing skill lets you forge effective slingshot.
+- Simplified (and less generous) knowledge rules when objects combine.
+- Priests do not get angels as quest monsters.
+- Quests are listed a, b, c instead of 1, 2, 3.
+- Various things are correctly considered disturbing, including shapechanges and the effect of nexus fields.
+- Cursed randart armor get the right curses.
+- You learn the effects of fully IDed wands and staffs, not just fully IDed rods.
+- Sustain INT no longer marvelously protects you against most stat-draining traps.
+- Intrinsic attribute cancellations correctly suppress that attribute, regardless of how it was acquired.
+
+Changes:
+- The GCU port is updated for Sangband and again shows both normal and split screen; various Angband updates applied.  (Christer Nyfält)
+- Poison breaths are more powerful for a given monster strength.
+- A low spell stat no longer hurts your spell level.
+- The Windows port minizes the application window when you press either Windows key.
+- The SDL and Windows ports will accept requests to change the basic display mode and will use it when the game starts up again.
+- Both also accept requests to show a windowed application that is smaller than the screen.  Quick how-to:  Open up the file "config.txt" (appears once the game has been run once), edit the lines "ScreenWid" and "ScreenHgt", and set "Display mode" to "2".  If you do something illegal, like asking for a "ScreenWid" of -5, the game will /usually/ ignore you.
+- Requests to update, refresh, and display sub-windows now explicitly clear the request variables.  This means that we can request "p_ptr->redraw = 0xFFFFFFFF", and therefore no longer have to add every define individually to the redraw functions and in other places (a common "gotcha").  This solution may not be appropriate for all variants.  For example, if any other function than "redraw_stuff()" relies on bitflags in "p_ptr->redraw", then these new semantics might cause trouble.
+- Some changes to skill costs suggested by Joshua Middendorf:
+	- Alchemy cost reduced to 8.
+	- Burglary cost reduced to 12.
+	- Magical Device cost increased to 15.
+- Players can now take vBulletin screenshots for the Angband Forum.  The screenshot code no longer supresses lighting effects.
+- Martial arts are (once again) weakened just a hair in the early game.
+- Display changes are much easier to request correctly.  A number of other changes made while rewriting this code, such as adding centering to almost all displays that still lacked it.
+- Two new large-size Roman fonts for big screens.  One experimental font removed.
+- The five (!) separate inventory sorting functions condensed into two (only the quiver is still unmerged).  Some old and new bugs removed.  Spellbooks now really do resort correctly in stores when your spell realm changes.  (suggestions by Joshua Middendorf and Alex Power).
+- Current hitpoints and mana are also now displayed on the skills screen. (Joshua Middendorf)
+- Moving into a store is now included in moving into the store's entranceway, or of standing still on that entranceway.  The '_' command no longer exists and the key is now free.  Docs updated.  (suggested by Joshua Middendorf)
+- Hallucination works better.
+- Shadow cloaks have an intrinsic +1 to invisibility.  (suggested by Joshua Middendorf)
+- Noticed that the words "armor" and "armour" were used interchangeably, causing problems in skills on-line help.  Arguments raged:  The Moria/Umoria creators and Chris Petit write "Armor"; the Angband creators and I write "Armour".  The latter came later and are outvoted; it's back to "Armor" from now on.
+- Added a commonly-used commands cue sheet written by Mikko Lehtinen in printable pdf format.
+- The Windows port automatically turns off Numlock on game start (on Windows versions post '98).  Got tired of getting zapped by this issue.
+- Various other changes suggested by folks
+
+
+Known bugs:
+- The SDL port is unstable on Macs.  Some people report only a few problems, others a veritable minefield.  I am working with folks to resolve these issues and make binaries available for Mac players.
+- There are some remaining display glitches.  See "readme.html" for a troubleshooting guide.
+
+
+
+Sangband 1.0.0  (April, 2007)
+======================================
+
+	After a very long period of beta releases, Sangband is now finally at the point where I consider it ready for version 1 status.  Interface was my major priority for this release; it's been neglected too long.  A big thanks for assistance in the two most recent updates goes to rather a lot of people, Adam Bolt, David Gervais, Mikko Lehtinen, Joshua Middendorf, Christer Nyfält, and Scott Yost most especially.  Several other important contributors are also cited in specific sections.
+
+
+Changes - major user interface (described in more detail at the bottom of the v1.0.0 section):
+- Flexible dungeon map
+- 16x16 and 32x32 graphics
+- Sound and music
+- Modernized Windows port
+- New cross-platform SDL port
+- Greatly improved support for large screens
+
+
+Changes - major gameplay:
+- The whole concept of linked skills, such as Burglary and Disarming or Swordsmanship and Jousting, has been rethought.  Now, such skills are treated as linked pairs.  For each pair, it is 1) cheaper to advance the paired skill if lower (either one), and 2) overall character power and score penalty does not increase as much when both are advanced.  The most important gameplay effect of all this is that weapon-users and burglars will find it easier to get good scores.  Some new pairings created, including one between Weaponsmithing and Bowmaking.  (problems with the old system pointed out by a very patient and well-informed Mikko Lehtinen)
+
+
+Changes - copyright:
+- What copyright applies to what Sangband material is now laid out much more clearly, with both the GPL and the Moria License being options for virtually all of the source code (see "/docs/copying.txt"), and the terms for each artistic work more carefully described.  See the files themselves for more details.
+- Sangband source code, despite some statements by myself (LM) during the development of version 1.0.0, is not yet fully dual-source.  It is merely very nearly so; known exceptions are specially marked.
+
+
+Bugfixes - applicable to other variants:
+- (most variants) The code in "projectable()" no longer overwrites the projection path array (a "gotcha" that got me)
+- (variants with my lingering effect code) Some more polishing here.  Self-illuminating spells, bugfixed advancing walls, and effect graphics saved and loaded.
+- (variants with my projection code) Starburst spells no longer behave oddly if cast in a compass direction (as opposed to a target).
+- (variants with my angular math code) The angle table now goes from 0 to 240, instead of 0 to 180.  This fixes subtle but annoying problems with the shapes of breaths, advancing walls, and other spells.
+- (all modern variants) The code to dump flavor prefs skips unused flavors.
+- (all modern variants) Pop-up display positioning handles screens of variable size better, less often take up the whole screen width, and are more likely to have full borders.  Hacked in a quick fix for a weakness in "text_out_to_screen()" that caused it not to print consistant margins.
+- (all variants) A pref file read error is no longer incorrectly generated when the file exists in the "pref" directory but not in the "user" directory.
+- (variants with Eric Bock's pillared rooms code) - Error in the stagger-pillar code fixed.
+
+
+Bugfixes - Sangband-specific:
+- The quest rewards code is better balanced.  You won't see such outrageously good magical devices (I thought a Wand of Doomblasts was a bit rich for killing some Ologs), but will get more spellbooks of your realm (if any).
+- Stores no longer get poorer when they buy something from you for less than it's worth.  (reported by Pav Lucistnik)
+- Weak wounding/battering attacks actually wound and stun you (lightly).
+- Triple crossbows damage adjusted correctly
+- The silly hack that required character HPs to be at least 3 * overall power has been removed.  Characters with low constitutions will suffer as they should!
+- A couple of irksome bugs in the projection code squelched.
+- When stealing from monsters, your misdeeds really are undetected if you are told so.
+
+
+Changes - code cleanup:
+- Various "magic numbers" for string lengths and list sizes replaced 
+- The combat code cleaned up a bit (about time too!)
+- When we use a functions that return a value, and we aren't interested in it, we more often properly cast it to void.
+- Finally got around to adopting Angband's addition of string length to the formerly rather dangerous "object_desc()" function.
+- Same story with "sprintf()" to "strnfmt()".
+
+
+Changes - other user interface:
+- Dungeons are less short and less wide, and individual rooms are less stretched horizonally on average, due to the fact that screen tiles have become generally wider for their height.  The new custom fonts were deliberately designed to make this possible.  Dungeon generation is now optimized for tile proportions of roughly 1.5 to 1 instead of the old 2 to 1.  This change also benefits users of graphics (all current graphic sets have ratios of 1 to 1).
+- The game notes various actions, such as using an object or casting a spell, in the message recall.  This makes it easier to remember what your character was doing at a given point.
+- The game is more careful about stopping stuff if you are killed.
+- Some, but not all, interfaces accept screens of variable size, instead of always assuming 80 columns.
+- Terms now store horizontal and vertical offsets.  Various functions in "z-term.c" use these offsets when positioning stuff or reading values.  This means that it is now trival to center displays.
+- Various displays centered on screens of arbitrary size.
+- Angband 2.0.6's sound events added.  Hooks to allow game events to generate sounds are still woefully lacking, as are the sounds themselves, but things are now a little better.  Bit by bit!
+- Replaced the calls to switch between 25-row and 50-rows with very similar, but somewhat more cleanly written, calls to switch between a display that guarantees at least 24 rows and one which (should) guarantee at least 46 rows.  Various related code simplications to make this feature easier to use (yes, I realize it was just a tad irksome before).
+- Some special graphics are now customizable, including the player, unknown monster symbols, and the cursor.
+- There are some more customized extended fonts in /lib/xtra/font, ranging in size up to 28x32 and including a gothic font that makes for highly interesting map displays.
+- Both the Windows and the SDL port include a simple timer to allow real-time flicker of multi-hued things.  No, terrain does not flicker, I promise.
+- Some new code to make sure cursors show and hide when told to, made essential by the arrival of a separate map term.  It's extremely hackish, but it does get the job done.
+- Some formerly full-screen interfaces are now pop-up displays.
+- The code to toggle map rows is gone, replaced with a flexible map view.  You have the option to ensure that the map sizes in multiples of 11, to harmonize with the way the dungeon is laid out, or to make the map size perfectly to screen, for maximal useage of space.
+- Clearer help text about saving options.  
+- The code to unify the effects of direction keys is more powerful and now handles mouse actions as well.
+- New array to control the minimum sizes of terms.
+- The pref file reader accepts numbers preceeded by a '+' sign.  The '+' means "add 128".
+- Trap graphics are controlled by pref files.
+- Player graphics are controlled by pref files.  Character specialties can each have a graphic assigned.
+- Some tweaks to allow a single pref command to establish defaults, such as turning all sub-window displays off.  This makes it easier to ensure that preferences are set precisely as desired.
+- The 'S' key, not the '|' key, is now used to save data to file in the show file interface.
+- The 'C' key, not the 'L' key, chooses a different character in the character loading/creation interface.
+- Allow messages to be sent to a window only if we're pretty sure the window is requested and available.
+- When targeting and looking, direction keypresses send the cursor to more logical positions.
+- You can no longer get exact details on what a monster is carrying by looking at it.
+- Terrain feature descriptions are available when looking around.
+- The "display_file" function is cleaner and more efficient.
+- Spell names are included in the spell data array instead of having their own array
+- You can look along the outside edges of the dungeon.
+- Graphic data (size of tiles, name, filename, and description) is stored in a single table instead of being hacked into individual ports.
+- The show visible monsters and show nearest objects sub-window displays will now also show the other if space permits.  They also handle small (and large) display sizes better, display monster/object picts, and refresh in a few more cases when they should.
+
+
+Changes - miscellaneous:
+- Rubble takes fours turns for you to walk through; monsters have a 25% chance to pass each turn.  New status indicator lets you know how many turns you've been struggling over it.
+- New wand of Spark for novice magic device users.  Allows you to rely more on devices early.
+- Rubble no longer is hacked to randomly yield treasure when dug or dissolved.  Instead, rubble in corridors and vaults (but generally not ordinary rooms) sometimes has a hidden treasure assigned.  (suggested by Michael Searle)
+- Necromancers have a new ritual that taps into curses on equipped objects to conjure up powerful starbursts of nether.  This ritual replaces genocide, making this spell realm very different - and hopefully even more interesting - to play.  (idea by Mikko Lehtinen)
+- "The Overmind" ritual moved to the dungeon book "Triumph of the Will"; some high-level rituals in "Frightful Realms" moved up in level to cover the gap.
+- The Wizard spell "Chromatic Burst" needed some help, so it now casts a burst of your chosen element.  It is now higher-level.
+- stealing and backstabbing practice the burglary skill more.
+- missiles of impact are more effective
+- Some rebalances and minor polishing to various spells, including Wonder and miscast magic
+- Rings of Strength, Dexterity, and Constitution and Amulets of Intelligence, Wisdom, and Charisma still change their name if they inflict penalties, but this is no longer done by changing their type.  Rings of Protection and Amulets of Magical Protection are now also handled.
+- More consistent rules on object recharging.  If an object is wearable, then it recharges at 1/3rd speed if not worn.  Otherwise, it recharges at 1/3rd speed if on the floor.
+- Some rethinking of monster detection and visibility.
+- Poison and Disease reduce your hitpoints less quickly for a given severity.
+- Monsters forget about recent thefts less quickly
+- You recover luck less quickly and magical luck-draining is more effective
+- The effect of total bad luck is not so extreme (the code is written more carefully)
+- Unseen monsters are described as "something" rather than "it" in various situations.  I find this reads better.
+- Noise is generated in more cases when it logically would be.
+- Monster confusion magics toned down, slowing beefed up, both are no longer fully cumulative (this last actually qualifies as a bugfix).
+- Shopkeepers talk to each other about good hagglers
+- New Wizard/debug code to check terrain flags
+- Silly ambush hit messages are gone.  Let me know if you missed them.
+- Guild-Burglars get a smaller bonus to critical hit chance in the dark
+- More colorful multi-hued monsters and objects.
+- Wizard lighting need not necessarily light up the dungeon. (I needed to test torchlight)
+- As in Angband, there is a little hack to let identified scrolls get individual picts.
+- Slightly more dungeon rooms are built, overlapping rooms are more common early and are more likely to contain lakes, pillared rooms can be larger, some other minor changes.
+- The tunneling code only changes impassable terrain to floors.
+- A higher level rating is required to trigger the major level feelings.
+- Object flavors can be reserved for high-level (or low-level) objects.
+- Only sub-window options are saved in the savefile.
+- The character's ability to hide in darkness depends greatly on stealth
+- Throwing skill, not melee skills, now correctly limits the forging of thrown weapons.
+- Shopkeeper reactions to bad purchases are (even) more interesting.
+- Streamer generation in the dungeon is replaced with seam generation (using the starburst code).  Magma and quartz are now more common; treasure abundance is roughly unchanged.
+- Secret doors look like surrounding walls.
+- It is harder to find secret doors and traps unless you invest in Perception.
+- Room positioning is more suited to variable-size dungeon maps (and less suited to the traditional 22x66 map).
+- Essences may appear for monsters with clouds surrounding them.  They no longer appear because of a monster immunity to a basic element or poison.
+
+
+
+(Details about stuff mentioned earlier.  This is mostly for people looking at the source code or who want to modify stuff.)
+
+
+The flexible dungeon view:
+
+     I promised a flexible map view more than a year ago and it's finally arrived:  The characters you use in the map view no longer need to be the same as those you use in the main screen.  No, this isn't another rendition of "big tile", it's a real (albiet imperfect) fix of the underlying problem.  Once a port has been set up to use the flexible map, it will appear in its own term on top of the main term, and can be configured independently.  The map can now display as little as 22x22 grids, which means that you folks who want to display fancy 54x54 isometric tiles now have the tools to get the job done right.
+     The "Term" display module remains terribly restrictive - it will need to be further revised before *band interfaces can advance much futher - but the flexible map view nevertheless opens up abundant possibilities.  I do not pretend, however, that the code is particularly clean, easy to install, or free from hacks.  It works.  That will suffice for now.
+
+
+Graphics:
+
+     Sangband now has graphics.  There are no fewer than six display modes available on ports capable of graphics:  Pure ASCII, extended custom fonts, Adam Bolt's 16x16 graphics for everything, 16x16 graphics for everything except monsters and objects, David Gervais' 32x32 graphics for everything, and 32x32 graphics for everything except monsters and objects.  I am not a graphic artist, so many of the new monsters and objects will be shown with colored characters until kind souls remedy the lack.
+
+	Associated changes:
+- The pref file pharser now accepts a new +num notation that makes it figure out which pict something is using.  Doing this BEFORE generating pref files saved me loads of time.
+- Ports that display graphics now also can display centered transparent text.  This makes missing monsters and objects look much less primitive.
+- I'm not good enough to draw objects and monsters from scratch, but I can re-colorize and tweak pixels.  There are lots of "new" images, most actually derived from Adam and David's original works.  Terrain graphics, especially in the 32x32 graphics set, are reworked to enhance the effect of lighting and improve overall appearance.  Floors and rubble gleam yellow, doors and stairs may brighten and darken, new terrain has graphics.  Many spell effects look better, bolts are often larger, spell picts use more standard colors, missing colors are filled in.  Same story with magical devices (I went nuts colorizing staffs in the 32x32 graphics set).  New (recolorized, actually) character graphics in the 16x16 set.  A number of other picts show more subtle changes.
+- Some work on the palettes of 16x16.bmp and 32x32.bmp.  Both suffer from unbalanced palettes - excessive usage of slots for almost identical colors and not enough shades and tones in useful hues.  A small amount of color re-assignment (be careful if you move graphics from Sangband's versions of the bitmaps to Angband's).  Some more comments in the /lib/xtra/graf directory.
+
+
+Game Port:
+
+     The Windows port has been rewritten.  Together with previous changes, it now looks very nearly the way I wanted it to when I started out.  Right out of the box, you get a full-screen game that automatically sizes itself to your monitor, displaying a main term, the flexible map term, and several sub-windows, all in suitable fonts without you having to fiddle with any options.  The code is more efficient, it is easier to read, and it supports many new features (more in the next section).
+
+     There is a new SDL (Simple DirectMedia Layer) port.  This is the fourth or fifth go at writing an SDL *band port (the first that I know of being Gregory Velichansky's 2001 effort for Angband), but I believe you will find it to be more than a re-invention of the same wheel.  It does everything the Windows port does, portably:  It is known to work on 32-bit Linux and Windows machines, and /should/ (unless I made a mistake somewhere) also compile on at least Mac OS X, and /possibly/ Mac OS 9 and BSD as well.  The downside is that it does require installing extra libraries (except on Windows where the .dlls come packaged with the executable).  It does have some missing features, interactive window resizing and network support being two.
+
+
+Display Module (code in "intrface.c"):
+
+     Instead of two bodies of code that pretty much do the same thing, we combine (some of the) commonly-used code into a display module.  It handles display windows, interactive display controls, sound and music backends, and the game configuration file.
+
+     Display windows:
+     Robert Rhuelmann's highly successful DOS port implemented terms as display surfaces within a common application window, instead of creating a separate window for each term.  Now the Windows and SDL ports do the same.  Although this reduces player ability to fine-tune window position, it makes it much easier to get him a good-looking game without need for such fiddling.
+     There are four basic display modes:  fullscreen, larger map; fullscreen, more sub-windows; windowed, larger map; windowed, more sub-windows.  Each of these causes the game to read from first a large array of default window positions and then from the configuration file, with the latter taking priority.  The game can also automatically size windows to fit a non-standard screen size.  The resulting window layout bears some resemblance to Master of Orion II.
+     In order for the game to accomodate increasingly fancy graphics and interfaces, the code can now handle three different types of special display:  The flexible map (optional - a port need not implement it), the large display that is used for various interfaces such as the splash screen (more-or-less required, although people have written Sangband ports without it), and a new special display that gives the game total control of the application window/screen (optional).  
+     This last is used (in the Windows and SDL ports) when you type 'M' to show the mini-map.  The game requests that the port find a way to display enough rows and columns to show the entire dungeon at once, the display module requests that the port change fonts, shrink graphics, and size windows to suit, and then replies back with the display size it can actually provide.  When the user is done, the previous window is restored.  This code replaces the graphical mini-map in the Angband Windows port.
+
+     Display controls:
+     The menu is gone, replaced by a control screen that you access through the game options interface.
+
+     Fonts and text:
+     Sangband has gathered quite a collection of 256-character (Latin-1) customized bitmap fonts, stored in .fon files (which can be easily converted to other formats such as .bdf).  The display module helps ports offer these fonts and change them automatically when requested, but does not actually read them.
+
+     Sound and music backend:
+     The sound code comes from the Windows port and needs little explanation.  Music, however, is new.  Among the many neat features of the TOME SDL port, written largely by Eric Stevens, is that it plays music for you, using really quite lovely songs provided by Reenen Laurie and Cosmic Gerbil.  For more information, see /lib/xtra/music/jukebox.cfg.
+
+     The jukebox:
+     To take fullest advantage of mood-enhancing music Sangband now includes a jukebox.  Each player turn, the game calculates what sort of music should be playing, based on various factors such as danger and difficulty.  The jukebox receives this data and, based on how long the current song's been playing and the urgency of the request, changes music to suit.  Feel free to add your own tunes to jukebox.cfg (instructions are provided).
+
+     Configuration file:
+     Any graphical port of this game needs a way to store display and interface data between game sessions.  One solution is to use an external configuration file.  The code is a cross-platform re-implementation of (part of) Microsoft's .ini file API:  Strings and integers are accepted and the code stores or reads them in a specific line of a specific section of the file.  Pre-parsing code speeds up the lookup process and thus game load.  I believe, but lack the experience to be sure, that this code is suitable for multi-user installations; it does seem to store the config files in safe places.
+
+
+Mouse support:
+
+     The SDL and Windows ports are now capable of feeding mouse movement and clicks to the game in the form of keypresses.  Unlike in UnAngband and FAAngband, this game doesn't actually do much with the information yet - look around and set targets is the limit at present - but the code is in place to allow all interfaces to do as much with the mouse as they please.  If you want mouse support, or even if you already offer mouse support, I urge you to look at this implementation, because it's easy to understand and a quick install.
+     The major reason why I have not activated the mouse in most interfaces is that I don't want to tack on separate code to each individual list, screen, and pop-up box to tell it what to do when I press the mouse.  I want to see unified handling of this sort of thing.  The idea I'm currently mulling is for the game to calculate the size of interface it wants (in text rows and columns), fill in a global 2D array (rows and columns) with data, feed that data to the display code to show it (perhaps with extra eye candy?) and handle user input, using pre-calculated locators to figure out which row and column was selected/affected/chosen.  That wouldn't just be useful for mouse support, it would also make coding a graphical user interface much easier.
+
+
+
+
+
+
+Beta 21 (development release only - changelog is only partial)  (roughly January 2006, portions also in August)
+======================================
+
+
+Bugfixes - applicable to other variants:
+- (all variants except Hengband/Entroband) As in Hengband, looping preference file links do not freeze the game.
+- (all variants) The sub-window control panel no longer lets you use a single sub-window for more than one purpose  (Scott Yost).  It also no longer lets the main window be edited (because doing so has no effect).
+- (all variants) You stop running when the next run step would take you adjacent to a monster.  This sorts out the old "running into Death Molds" problem.
+- (all variants) Discovered that the "display_map()" function was using up rather a lot of memory (by *band standards) and reworked it.
+- (NPPAngband) The color screen does not allow people to edit more colors then their system can handle.  (reported by Kamil Nemec)
+- (all variants) Special lighting effects are turned off (efficiently) in town during daylight.
+- (variants with EyAngband quests) Completed but unrewarded quests show up properly in the quest knowledge screen (reported by Pav Lucistnik)
+
+
+Bugfixes - Sangband-specific:
+- The blindness check in the "show_pile()" function no longer assumes the character's own grid.  (reported by Mikolaj Konarski)
+- Gravity is no longer partly pitch-black.
+- Titles with quotes are now correct in store displays.  (reported by Kamil Nemec)
+- User-created color prefs are now stored in the user directory (this solves a security issue on multi-user machines).
+- The learn about quest monster command can now only be used once (because it's a waste of money to use it more than once).  The monster lore remembers quest monster depth once you learn it.  (reported by Mikolaj Konarski)
+- Sub-windows are properly refreshed when a hidden curse activates.  (reported by Scott Yost)
+
+
+Changes - user interface:
+- Adopted the xchar patch source code, allowing for accents and other extended characters in character, object, artifact, and monster names and descriptions, inscriptions, messages, and text files (input and output).  The new fonts and improved X11, WIN, IBM, and GTK ports were adopted in beta 20d.
+- As in Hengband, various text can be edited, not just overwritten.  When changing an inscription, for example, you can use direction keys and backspace to add and remove individual characters.  On some systems, the delete key also works.
+- Applied Andrew Sidwell's patch to make the savefile management interface look more like other interfaces.
+- Several interfaces - show previous messages, show file, object/artifact/monster knowledge, change colors, targetting, and several others - recognize numbers, roguelike keys, and arrows keys as valid direction commands; some also allow the use of shift to move faster.  Directions 7/y (home) takes you to the top of a list, 1/b takes you to the bottom, 3/n scrolls down a page, and 9/u scrolls up a page.  Commands in the show previous messages and the show file interfaces work exactly the same now.  Some related changes in various places.
+- As in Hengband, the messages sub-window orders messages with newest at the bottom; this better matches the show previous messages command.  Also messages other than the newest are normally (but not always) printed in light grey.
+- As in Angband, object flavors are specified in external text files and pref files.
+- Some user input commands now display the prompt at the current cursor location, instead of always at the top-left corner.
+- Revised the interact with visuals screen to clean up the code, add displays of characters and colors, use (as in Hengband) control-command to jump to a given value, correct wrapping, and to ignore empty things (no names), mimiced things (because hidden traps always look like floors), or those which cannot be changed (like flavored objects when using the change object visuals command).
+- Removed the special terrain arrays that allowed different symbols to be used in 25-line and 50-line modes.
+- Spell graphics are now user-customizeable.  Graphics may be precisely configured for each projection type and saved to pref files.  The new fonts allow multiple kinds of bolt and explosion graphics in text mode.
+- Removed the old "misc_to_attr" and "misc_to_char" tables; they have been replaced by the new flavor and spell graphics code.
+- As in Hengband, if you inscribe a fully identified object with %all, you get a list of resistances, slay/brands, etc.  Inscribing % gets you a list of random attributes.
+- The game now uses "character types" to handle ironman, normal (one life), and beginner (multi-life) games, and the character screen displays ironman and beginner mode more clearly.  (idea and basic code by Christer Nyfält)
+- Some related changes to options:  Birth, difficulty, and cheating options are now grouped together.
+
+
+Changes - Ports and compatability:
+- Custom extended fonts are available for WIN, X11, and GTK.
+- Preference files these ports take advantage of the new fonts.
+- The X11 and GTK ports are able to use custom fonts in addition to system fonts.  (Deigo González)
+- The Windows port uses the new extended fonts.
+- Back quote (`) is no longer hard-coded to be the same as ESCAPE, except in ports that use the "curses" library.  This business of one OS reducing standard keys for users of all other OSes needs to come to an end.
+
+
+Changes - code cleanup:  (Christer Nyfält, unless otherwise specified)
+- System-specific code moved from files.c to z-file.c, and from util.c to z-util.c.
+- Removed various outdated and messy things from the code entirely, including check_load and non-POSIX locking
+- Further simplification of config.h, h-config.h, and h-system.h.
+- XAW is no longer a supported port.
+- The GCU port now assumes the XSI curses standard.  It also works on pre XSI-standard systems, if POSIX-compliant.
+- ALLOW_VISUALS, ALLOW_MACROS, and ALLOW_COLORS removed (always on).
+- Redundant combat damage calculation code combined  (LM).
+- Added Andrew Sidwell's code to support fat binaries.
+
+
+Changes - miscellaneous:
+- When looking around, the amount of detail you see about objects depends on whether they can be seen directly or are in a lit grid.
+- The transparency code is now fully integrated into the game.  (Christer Nyfält)
+- You get less gold at birth.  Starting charisma has a more important effect.
+- Sangband no longer supports text colors 128+; they are needed to indicate graphics.
+- Color 'B' is less teal and more blue by default.
+- The game pauses briefly when a monster summons; this decreases the risk of instadeath through momentary inattention.
+- You no longer learn spells:  the 'G' command is now unused.  Spells become available as your skill increases (there is a penalty for a very low spell stat).  You may forget already cast spells temporarily if your skill or stat decrease too much.  The "study" indicator is now called the "uncast" indicator, and only reflects spells in books that you have actually seen.  (some code by Christer Nyfält)
+- As has been done in a number of variants already, Unangband in particular, terrain now in part uses user-editable flags (in "lib/edit/terrain.txt") to control what it does, rather than depending on index (except for specific types) or on magic numbers.  This will make adding new terrain types or editing old ones much easier.  However, this process is far from complete:  walls, doors, and stairs still use separate terrains to indicate type and strength.
+- The edit file now stores the mini-map priority values of terrain.
+- Stores moved down 20 spaces to clear some room for wall terrain.
+- Many of the effects of terrain are now dependant on user-editable values and attributes in "lib/edit/terrain.txt".
+- The terrain edit file has a special marker at the end that activates some verification code designed to make terrain-editing a little less hard to do right.  This idea may be helpful to other edit files as well.
+- Pillared rooms have actual pillars, as in Zangband and some other variants.
+- Lighting code rewritten for simplicity and flexibility (especially with graphics).  Pref files may now specify bright and dim attr/char pairs for all kinds of terrain.  The pharser for this kind of pref entry accepts one, two, or three possible pairs of attr/chars, so "simple" prefs work just fine.  It also allows you to specify whether terrain lights up in any light, or only under torch light.  Some related changes to the pref file pharsing code.  The in-game pref editor allows all of these new things to be tweaked.
+- You no longer get a hitpoint warning each time you are hurt; the message is now displayed once, just before you take your turn.  (suggested by Scott Yost)
+- The Oath of Iron no longer imposes a hard limit on magical device skill.  Instead, it reduces magical device skill by 50%  (this is a considerably stronger penalty).
+- You need not join the Burglar's Guild to raise your Burglary past 30.  However, joining it allows Burglary skill to be fully effective (skill raises past 20 count half as much for amateurs).
+- Self knowledge now lasts for a few turns; this makes potions of Self knowledge much more interesting.  They are now less common and more valuable.  A new random artifact activation for self knowledge.  
+- Player ghost attributes now in part depend on the skill specialties of the dead adventurer.  A pure mage player ghost is now very different than a burglar mage player ghost.
+- Missile weapons split up into slings, bows, and crossbows.
+- Readable books always come first in the bookshop list.  Artifact and ego-items generally come first in shop listings (except the home).  (Suggested by Joshua Middendorf)
+- Objects with hidden qualities note this when normally (but not completely) identified.  (Suggested by Pav Lucistnik)
+
+
+
+

@@ -1,0 +1,50 @@
+# File: tiles.prf
+
+#
+# This file is called directly from the game and in turn calls various sub-
+# files to remap attr/char pairs for use with all the available graphical 
+# modes.
+#
+# See "lib/help/pref.txt" and "src/files.c" for more information.
+#
+
+
+##### Call font or graphics preference files as needed #####
+
+#
+# The available graphics modes are:
+#
+# "none", "font", "chargraf" (not functional), "16x16-f", "16x16-g" (not 
+# fully implemented), "32x32-f", "32x32-g"
+#
+
+# Pure plain text
+?:[EQU $GRAF none]
+%:ascii.prf
+
+# Extended fonts with special characters (default display mode)
+?:[EQU $GRAF font]
+%:font.prf
+
+# Custom graphical fonts and character sets
+?:[EQU $GRAF chargraf]
+%:chargraf.prf
+
+# Adam Bolt's 16x16 tiles (but not for objects and monsters)
+?:[EQU $GRAF 16x16-f]
+%:graf16-f.prf
+
+# Adam Bolt's 16x16 tiles (for everything)
+?:[EQU $GRAF 16x16-g]
+%:graf16-g.prf
+
+# David Gervais' 32x32 tiles (but not for objects and monsters)
+?:[EQU $GRAF 32x32-f]
+%:graf32-f.prf
+
+# David Gervais' 32x32 tiles (for everything)
+?:[EQU $GRAF 32x32-g]
+%:graf32-g.prf
+
+?:1
+

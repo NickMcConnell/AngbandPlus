@@ -1,0 +1,627 @@
+
+beta 15d (4/30/2005 by Scott Yost):
+======================================
+
+object2.c:
+	Fixed glitch in object-dropping code that would cause stack overruns and crashes.
+
+cmd4.c:
+	Typo in screen size options.
+
+generate.c:
+	Starburst rooms fix (Diego Gonzalez)
+
+main-win.c:
+  Fixed z-ordering bug on startup.
+
+artifact.txt:
+  Repaired activations for Bard and Buckland.
+
+store.c:
+  Just went ahead and made all stores keep the same level of credit.
+	
+files.c:
+	fixed bug in pref file reading (these and below from Diego Gonzalez)
+	
+util.c:
+	upgraded function "text_to_ascii"
+	added function "trigger_text_to_ascii" (Vanilla 3.0.5)
+	
+z-form.c:
+z-form.h:
+	added function "strnfcat" (needed by "trigger_text_to_ascii")
+
+
+beta 15c (8/23/04 by Scott Yost):
+
+store.c:
+	Stores now receive credit when you sell to them, and credit increases faster.
+
+spells2.c:
+	It is now possible to identify-on-wear your items after they have been forgotten by amnesia.
+	
+attack.c:
+	Brands are now effective against opponents even if your weapon is not.
+
+spells1.c:
+	Polymorph and Sleep now behave correctly with regard to learning monster resists
+	Fixed another instance of the bug where spells are too powerful on water terrain.
+
+wizard1.c:
+cmd4.c:
+object1.c:
+	Stones of lore were being incorrectly labelled "books" in some cases.
+
+cmd6.c:
+	Mushrooms of Disease should not kill the player outright now. They cause _slightly_ less disease now.
+	Potions of augmentation now correctly restore AND increment the stat. 
+	Potions of augmentation are now more powerful when quaffed un-ided.
+	
+cmd3.c:
+	Was possible to remove a cursed offhand weapon by equipping a two-handed weapon.
+
+tables.c:
+defines.h:
+monmove.c:
+	Several fixes to deal with missing information for wind spells. Added cost 
+	information, spell AI info, and AI learning info for wind. Also makes mana
+	ball spell now castable.
+
+
+beta 15b (6/20/04 by Scott Yost):
+======================================
+
+cmd6.c:
+	Removed the race polymorph effect from mushrooms of metamorphosis. It's just too frustrating when it nails you. 
+
+spells2.c:
+	Call destruction can now hit its epicenter. This makes Call Destruction useful 		again.
+
+spells3.c:
+	Characters with extremely high perception no longer get pseudo-id messages,
+	it just happens. (saves a lot of time at the very high levels)
+
+info.c:
+	Fixed typo in KILL_DRAGON self knowledge.
+
+monattk.c:
+	Wizardly protection now gives a saving throw against charge-draining attacks.
+	Storm spells are 25% less damaging.
+
+spells1.c:
+	Scrolls of Magma, Sea, and Forest can no longer obliterate the stairs down
+	from town. 
+	Fixed a bug where high saving throw made you more vulnerable to mind blasting.
+	Fixed a bug where all non-fire spells were too powerful on water. (thanks to Diego Gonzalez)
+
+object.txt
+	Fixed typo in staff of chaos description.
+	Fixed typo in staff of dispel evil description.
+
+store.c:
+	Fixed a item loss bug when taking off equipment in a store and also using the quiver.
+
+cmd5.c:
+	Fireflash now has 50% more damage under aura_fire, same as the other fire spells.
+	Plasma Vortex no longer jumps to its target, so it will blast around the 
+	target instead of around the caster.
+
+ego_items.txt:
+	Made whips of the balrog activate for ego_whip instead of identify.
+
+
+beta 15 (3/8/04 by Scott Yost): 
+
+cmd1.c:
+	Eliminated redundant -more- prompts when walking over a single item. 
+	Fixed a possible overflow when 24 items were on the floor. 
+
+cmd2.c
+	Fixed wraithform so you can now walk through walls too, not just doors.
+
+cmd5.c:
+	Added detect doors/stairs to Shadow Mapping, as per the description of the spell. 
+	
+files.c:
+	Removed static from display_scores so it can be linked from the main file.
+	Made the game not worry about the UID when there is no UID to deal with.
+	(i.e. Windows)
+
+obj_make.c:
+	Fixed a problem with certain variables that were used uninitialized. 
+	
+object1.c:
+	Clipped the output from object_desc at 80 characters so very long item names 
+	can not overflow stack buffers.
+	
+quest.c: 
+	Removed code that pushed quests deeper into the dungeon when the player's power 
+	level was higher than depth. They will now appear every 2-3 levels like in Eyangband.
+	Made it less likely that you will get arrows.
+	Made it less likely that unarmed specialists will get weapons.
+	Made quests give more fame. 
+	Made better quest rewards more likely. 
+
+spells1.c
+	Fixed dodging messages. ("Tengu dodges!")
+	
+spells2.c:
+	Fixed probing messages on uniques. ("You now know more about Morgoth, Lords of Darkness")
+	
+store.c 
+	Made credit at all stores increase much faster.
+	
+wizard2.c
+	The wizard-mode 'o' command can now be used to manually set the ego-item flag on an object.
+	
+monster.txt:
+	Gave Morgoth FUNKY_DEATH so he can drop Grond and the Massive Iron Crown as expected.
+	
+object.txt:
+	Fixed scrolls of invoke nexus. (they were previously activated as scrolls of genocide)
+
+
+
+==========
+
+     Family matters occupied much of my time between spring 2003 and summer 2004.  During that period, Scott Yost kept the flame going by issuing beta 15.
+
+==========
+
+
+
+Beta 14b (internal version -- was apparently never released)
+======================================
+
+Bug Fixes:
+- magical devices are no longer so absurdly easy to use (see the changes section)
+- major problem with jumping ball spells (and therefore most monster ball spells) fixed.  Monsters are now allowed to target you with ball spells again.
+- some interface and message glitches with monster traps fixed
+- ammo-firing traps work correctly
+- combat traps no longer take advantage of intrinsic attack bonuses (like fiery hands)
+- fixes to scores.  They sort correctly, display proper titles, and have extra flavor text.
+- you can no longer spend essences several times when infusing forged items
+- several bugs in monster movement fixed or patched
+- two-weapon wield is no longer penalized twice
+- elemental attacks are now saved, and appear on the custom left panel displays
+- you cannot poison more ammo than you have
+- two duplicate wizard spells replaced
+
+
+Changes:
+- damage done by combat traps rebalanced.  Melee traps are more effective early, and not quite so deadly late.  Missile traps are better early and late, as are traps that use throwing weapons.
+- druids get a range 3 electric spark and bolt of frost earlier.
+- you get less starting gold
+- you get three experience points to spend at the start of the game, which makes it much easier to start characters that don't rely on melee.
+- monster attack special effects rebalanced some more, mostly in the character's favour.  Stunning and cutting is less easy to avoid, but less likely to get really nasty.  It is very difficult to be knocked out, and effects increase more smoothly with damage.
+- blindness no longer protects against gazing attacks
+- gazing and spore-release now hit more often than do other kinds of attacks, but are not guaranteed to hit.  This means a decrease in power for gazing, and an increase in power for spore-release attacks.
+- the easy rest keymap is now mapped to TAB, not 'x', and is available in both keysets.
+- you get messages about maximum mana as you raise the spellpower skill.
+- objects that fall to the floor will combine better.
+- changes to disarming.  Some of them are:  a) it is not quite so easy to become invulnerable to low-level traps, b) you cannot open a chest without disarming it first, c) you get a little less experience from disarming, d) berserk rage makes it harder to disarm and pick locks.
+- many new chest traps.  Chest traps are often nastier, but a chest never has more than one trap.
+- high-level forged missile launchers are not quite so outrageously powerful.  They are still definitely artifact-quality, though.
+- some improvements to the interface of debug commands
+- as in ADOM, and as suggested by clefs, blankets exist which may protect against acid, fire, cold, electricity, disenchantment, cursing, charges drain, or several of these things.  Cursed blankets are nasty.  Blankets take damage and eventually get destroyed.  Blankets cannot stack (to maximize flexibility in adding new features, like curses).
+- if you cast a spell without sufficient mana, you are often not paralyzed unless you're short a significant amount of mana.  You are paralyzed for a shorter period of time.
+- you get a few extra points for accumulating wealth.  1 extra point for 1000 gold, 32 extra points for 1,000,000 gold.
+- radius of priestly starburst prayer reduced
+- you can increase the delay factor up to 30 (almost a second's delay) if you so desire
+- Cammithrim does (even) more damage, but no longer activates every turn.
+- Cammithrim (new copies, anyway) no longer grants a bonus to light radius.
+- You get a lot less information about monsters when hallucinating.
+- quiver slots are numbered 1 - 10 instead of 0 - 9.  This is primarily for better use with macros.
+- well-known (or fully identified) magical devices and activatable objects display their failure chance when inspected.  This should remove an issue that was preventing them from competing fairly with spells.
+- However, magical devices are considerably harder to use; you really do have to raise your device skill now if you want to get very good with them.
+- smashing potions (traps or throwing), activating scrolls (traps), or using magical devices (traps) can both identify and (eventually) give you full knowledge about objects of that type.
+- a phasing foes spell only blinks monsters nearby.
+- wands of clone monster no longer appear deep in the dungeon.  We should have cloning, but not /predictable/ cloning.
+- rewrite of monster-hindrance.  I went to school on the Moria code (for must be like the tenth time), and learned that R. Keoneke allowed non-immune monsters of any level to be slept, confused, and frightened, at least on rare occasions.  So that is what Sangband is going to do too for powerful spells.  Each of the realms is especially good at one or more kinds of hindrance.
+- pure magical hindrance is more effective, but other kinds of magic (ice, water, blasts of confusion, chaos, etc.) do not daze and confuse monsters nearly so much.  Added another lost Moria message that I had neglected to do earlier.  It is now easier to explain how hindrance works, and the docs supply a bit more detail.
+- explicit monster haste and slowing, as featured in Hengband.
+- many staffs and hinderance devices are more useful in traps.
+- blink away spells give you more blinks
+- some graphical changes to the monster health bar in order to clearly indicate hasted and slowed creatures.
+- the teleportation code works better in small dungeons, and is more tolerant of unusual situations in general.  It may therefore be less likely to blink you between the same two rooms over and over again, but I make no guarantees!.
+- burglars start getting special melee bonuses and penalties 
+- In order to prevent risk-free vault-scumming, *destruction* deletes artifacts (unknown ones are preserved).  This is inconsistant with artifacts refusing to be destroyed by hand, but consistant with the treatment of monster uniques.
+- revisions to the documentation, resulting from a rewrite of the Angband documentation.
+
+
+
+
+Beta 14  (spring, 2003)
+======================================
+
+Fixes:
+- some relatively minor fixes to monster-related code
+- ammo properly disappears into the darkness (clefs)
+- dodging messages are shown correctly if a ceiling collapses on you (clefs)
+- traps are properly placed in certain kinds of rooms, as are doors.
+
+Savefile management:
+- The command-line options work correctly (Mogami), 
+- the game no longer gets confused when you change character names (clefs)
+- the savefile-management screen updates information better
+- quickstart is more stable
+- there is a new option that allows you to change savefile names whenever you change the character name (the Macintosh method)
+- the documentation is a bit more informative
+     Note that there are probably still some remaining problems.
+
+Other changes:
+- there is a new skills screen command to restore a drained skill (clefs)
+- lightning spark displays range (clefs)
+- various lingering effects practice the proper skills.  Sneak-attacks practice burglary.  (clefs)
+- characters will wake monsters up far more quickly if they are making lots of extra noise, or have large bonuses to speed.  Low-level characters will notice little difference.  This actually qualifies as a bugfix.
+- various JLE-inspired edits to monster descriptions and characteristics.  Major dragons do somewhat more melee damage (but still not as much as in Angband 3.0.#).  A couple of new monsters.
+- overlapping, cross, and large room stop being rare sooner, but are less abundant deep in the dungeon.
+
+
+
+- I will start putting files into folders before compressing.  This will annoy users of some software (like the one I use), but prevent files from spewing out all over the place for other folks.
+
+
+
+
+Beta 13:
+======================================
+
+Fixes:
+- macros are now not flushed in yes/no prompts, so the suggested macro/keymap to destroy items on the floor works as advertised
+- some corrections to the documentation on macros and keymaps
+- I made a mistake in allowing stuff to be activated from the backpack.  You must again wear items to activate them.
+- you will not get any quests for lurker-type monsters.  They are just too hard to find.
+- scrolls of *enchant weapon* and *enchant armour* turn things into ego-items, and then use the best damage dice and plusses.  This can be very powerful, so these scrolls are now rarer and more expensive.
+- screen layout options are memorized automatically, and correctly save to pref files
+- various other things save and load properly
+
+Changes:
+- the Iron Crown of Beruthiel is now useful.
+- some artifacts give a lesser bonus to awareness.  Two now grant it that didn't before.
+- all the storm spells (chain lightning, blinding and defuddlement, prismatic armageddon, mana frenzy) are more powerful
+- chaos doesn't confuse monsters so much
+- the phase warp talent and the phase warp spell are somewhat more chancy
+- you get slightly more mana with very high spell stats
+- A very high perception skill makes pseudo-sensing more certain.  Characters with the Oath of Iron can (eventually) pseudo-sense every piece of wargear they walk on.
+- only high-level spells have a chance to permanently damage Constitution if you cast them without enough mana
+- dwarves learn about polearms faster, half-trolls and half-giants learn about swords slower and polearms faster
+- you need 55 skill in slings, not 45, to gain access to the Oath of Iron
+
+
+
+
+Beta 12  (February 27th, 2003)
+======================================
+
+Bug fixes:
+- there were some problems with the new pickup code.  The most important ones were that 1) monster visibility was not being updated before you issued pickup commands and 2) the game would let you issue a command for a second turn without letting you cancel if something went really wrong after the first.  The first problem is fixed.  The second is greatly reduced by canceling all automatic actions if you get hurt.
+- some bugs and ommissions in missile weapon special attacks fixed
+- prices in stores should no longer be random
+- Arvedui is again chain mail
+- various Angband CVS fixes and additions
+- various minor fixes and improvements
+
+
+Changes:
+- you cannot continue to raise your skills after defeating Morgoth.  This change is intended to improve replayability, but also to keep the player in control (he can delay killing Morgoth as long as he likes).
+- changes to the scoring system.  Low skill levels reduce score more; dabbling in all the skills will damage your score severely!  The probable scores of powerful characters have not changed much, so new scores are comparable to old ones.  See the docs for the new equation.
+- quiver indicator in inventory also shows amount of ammo  -clefs
+- rods and activatible items recharge in both the equipment and the backpack.  Both recharge more slowly on the dungeon floor.  This means that you can tote around dragon scale mail and Rings of Flames just for the activation, and still wear your Nifty Forged Thing or Ring of Speed.  You can activate items in the backpack.
+- blue and black dragon scale mail have slightly weaker breaths, elemental rings are found slightly deeper in the dungeon
+- you should no longer see nearly as many dangerous interesting rooms on levels 1 and 2.
+- souleating weapons are nastier
+- fairly minor tweaks to quest rewards.  The difference in rewards between easy and hard quests is slightly greater now.
+- cave-like rooms and starbursts now look somewhat better
+- wrestling and karate give stat bonuses later, but you get notification of them on the skills screen
+- bearform is not so powerful, lionform is more powerful.  Shapechanges never give bonuses to weapon-using combat, but can make a real difference when using the martial arts.
+- lemming's colorized headers for character screen listings
+
+The to-do list:
+- the monster trap system needs another round of rebalancing.  Comments invited.  Further burglary enhancements are a priority for the next release.  Burglary should have an Oath associated with it.
+- the talents could stand to be made more interesting.  In particular, we can easily get rid of the "detect evil", "detect animals, "detect undead", and "sense charges" talents.  Suggestions for new and replacement talents appreciated.
+- should improve the interface of adding pval-dependent qualities to forged items
+- need to make savefile-management work better on multi-user machines, and get all the command-line options to work
+- think about chancy trap detection for traps not in LOS.  And, of course, lots more traps (but not /too/ nasty...).
+
+What else needs improvement?
+
+
+
+
+Beta 11d
+======================================
+
+- preference files are no longer appended to, but overwritten (you can change this behavior easily if you want to, though).  This means that your user preference files will always stay a manageable size.  -Mogami-
+- revised preference file system:  a character's individual options and preferences, especially those saved in the savefile, have higher priority.  The whole setup is somewhat easier to understand now.  Better documentation in both the major preference files themselves and the manual.  Slight improvements to the option-saving interface.
+- improvements in the screen options interface  -clefs-
+- improvements to the object pickup interface.  Changes to how the options work (be sure to experiment; you can get pure auto-pickup, pure just looking around, or choose one of two alternatives in between).
+- I decided that I had made a mistake in changing the name of the melee skills, and have restored the traditional names
+- some bug fixes and changes
+
+
+
+Beta 11a - c
+======================================
+
+Fixes:
+- corrections to the abundance of various kinds of essences
+- quests were not giving interesting enough "good" objects
+- wall to mud spells were not eating walls
+- various talents don't use time when cancelled
+- identified scrolls of trap creation make traps that don't grant exp
+- the Windows port releases font files correctly.  It also lets you know 
+that you can use the menu commands to handle savefiles, should you so desire.
+- making magical grenades did not work quite right
+- etc.
+- damage of Snuff Small Life substantially increased
+
+New stuff:
+- different messages when you dodge (as opposed to deflect) a monster's melee blow.
+- continuing code tidying (math made more simple or correct, repeated code combined, prompts regularized)
+- a few new monsters.  The deep dungeon is a little better populated.
+- forget forgets (most) items on the floor too
+- [y/n] prompts changed.  You will get more "cancelled" messages (so that you're /sure/ the game didn't try to do something), and will be able to review questions and answers in the message recall
+- It was pointed out to me by clefs that swords were still the best weapon class for most characters.  So polearms now grant up to five times base armour class with high skill, and powerful swords get lesser enhancements to damage dice.  More types of blunt weapons can be unusually heavy and powerful.  Polearms rob monsters of energy and blunt weapons occasionally stun if you get criticals with them.
+- all detections that work some of the time now work correctly.  Visibility code revised extensively.
+- skills screen is slightly easier to use.  Thanks to Takashi Mogami, you can cancel skills purchases (but never oaths).
+- thanks to clefs, those who desire can use 50-line mode for more displays, help in particular.
+
+Objects:
+- you can learn details about the power and duration of many mushrooms, potions, and scrolls
+- scrolls of Curse weapon and Curse armour leave artifacts strictly alone.  However, they are better at finding any non-artifact weapons and armours in your possession.
+- neither potions of Detonations nor (unaware) potions of Death can kill you instantly.  They are, however, quite nasty to drink.  They pseudo-ID as "cursed".
+- potions of reduce stat reduce stats by a larger amount, and can even drain them permanently, but are now found at the same depth that potions of increase stat are found at.
+- many potions and scrolls work better if you quaff them unaware and unsensed (the effects of surprise).  If you quaff every potion unaware, your total stat-gain (gains minus permanent losses) will improve by about 3.  Assuming you have no sustains.  Plus you get loads of exp.
+- potions of healing don't cure as well as they did
+- potions of *healing* cure just fine and are more common really deep in the dungeon.
+
+Picking up objects:
+- when you have "auto_pickup" and "always_query" ON, you get asked when you step on any object.  The annoying thing was that you have to answer yes, no, or ESC.  Now, if you type anything but 'y'/'Y', not only does the prompt go away, but if you type a movement key, it is used as your next command.  So you can walk over items comfortably, regardless of the options you have set.
+- When you type 'g' to pick up objects, you don't get asked again for every object.
+- Important change:  The options you have set no longer make a difference to the amount of energy you use when picking up objects.  Unless you use the stay still command, you are always charged 1/10th of a turn, over and above any movement cost, for every object you pick up.  So be careful about turning on "always_pickup" without also turning on "always_query".
+
+Sorcery:
+- fewer utility spells that copy magical devices
+- more ways to move around, protect yourself, and kill monsters
+- more interesting destruction spell
+
+
+
+Beta 11  (February 2nd, 2003)
+======================================
+
+Lots of bugs fixed, including those which:
+- made special artifacts way too common,
+- allowed you to sometimes hit monsters not in line of fire,
+- set the level of your previous quests to zero, 
+- made your arrows break and your equipment get damaged by acid too often, 
+- made store-bought rods behave strangely, 
+- caused problems when you changed your character name, 
+- could make set items excessively powerful, 
+- made the Black Breath too wimpy,
+- made stealth and noise work somewhat oddly,
+- gave you a increased light radius with any piety at all,
+- made drain-exp attacks too annoying (and sometimes too powerful),
+- made Scrolls of Nightfall and Staffs of Chaos less useful than they should be,
+- and made dragon scale mail breaths too hard to activate.  Dragon scale mail is now really easy to use, not really hard.
+
+
+- Nature Lore, not perception skill, now determines accuracy of weather reports.  It now costs 7.  The reason for these changes is that Nature magic cost more to be effective than any other realm, and Nature Lore was a better buy than the other specialized realm skills, which didn't seem very fair.
+- boulders break less often, and have gained a second increase in damage.  While heavy and bulky, they are quite deadly...
+- throwing weapons damage relies on skill more, and can be higher.  New throwing weapon artifact, adopted from Hengband.  Throwing weapons are more common.
+- extra display of visible monsters, taken from ToME.  Note that the color-coding is somewhat different.
+- slight decreases in the strength, but also the cost, of some attack spells.
+- Nrulings cast spells half as often and some level 1 and 2 monsters are easier to hit with weapons and missiles.
+- many healing objects and spells are more effective, because they heal a percentage of your total hitpoints, not your wounds.
+- some stores are now more likely to stock special items (the general store), others are less likely (the alchemist and the temple).
+- amulets of Magic Mastery are a lot less common, somewhat less powerful, and cost more (especially with high pvals).  Plusses to Magic Mastery are rarer on forged items and random artifacts, and harder to get.
+- staffs of Doomspells are less dangerous to you when used correctly.  They do even more damage to your enemies.  Staffs of Starburst and of Chaos display more information.
+- Changes in skill names:  Swordsmanship => Blademastery, Clubbing => Blunt-Mastery, Jousting => Polearm-Mastery.  Comments invited.
+- the kill count display looks prettier
+- character dumps display birth, difficulty, and cheat options, and also some other special advantages and disadvantages, in a more interesting fashion.
+- the malediction spell no longer does damage when resisted, but it will be resisted slightly less often.  It can also suck away haste and superheal spells from monsters.
+- More interesting stuff happens when you defeat Sauron and Morgoth.
+- Invisibility can be gotten earlier (through potions), and is noticeably more effective, but only if you stay quiet.
+- perception skill now does not give you intrinsic see invisible, but it does (as in EyAngband) allow you to sometimes 'hear' unseen creatures adjacent to you.  This should make ghosts a lot more manageable early on.
+- when blessed, you do full damage to immaterial monsters with martial arts
+- however, karate stuns, slows, and confusion attacks are not cumulative, and don't work as often against monsters early on
+- however, karate stuns, slows, and confusion attacks work better and more often against high-level monsters (given enough skill)
+- again as in EyAngband, wearable items that used to increase searching now increase "awareness".  In addition to making traps and doors easier to find, awareness improves your chance to hear unseen creatures adjacent to you, and of sensing objects.
+- the true Black Breath (as opposed to mere exp-draining objects) is nastier now.
+- monster damage reduction through AC is smoother; every point counts with every monster.  Small amounts of AC are more useful.
+- new custom display rows for total noise and current target (helps you learn how to stay quiet and check if your target grid can actually be hit)
+- some new vaults
+- you should see fewer monsters deep in the dungeon, on average
+- more up stairs, always one non-shaft on each level
+- most objects and spells display lower values for the duration of temporary conditions when you already have it active.  This was confusing players, so I have improved the wording.
+- some wizard and holy spells upgraded slightly
+
+
+Object Forging:
+- You do not have to have ever seen a ring or amulet to create it, but (in order to keep things sane) you now have to invest components, and component level helps determine maximum object level.
+- chance for failure when making rings, amulets, potions and scrolls tweaked.  Sometimes it is higher now, sometimes lower.  The same general rules apply, though.
+- You can make three potions of essences ("magical grenades") for the price of one.  This should make them more competitive.
+- the object-selection screen has a better interface
+- Your forged missile launchers will likely be better weapons, but grant fewer resistances.
+- You need reasonable skill in using swords, hafted weapons, polearms, or the archery skills in order to forge powerful objects of these types.
+- The weapon-forging skill is slightly less expensive.  The armour-forging skill is slightly more expensive.  You cannot forge diggers any more.
+
+
+
+
+Sangband 0.9.9, Betas up to 10  (late 2001 - Feb, 2003)
+
+- Rewrote virtually all of the Sangband-specific code (about the only exceptions being precognition messages, the activation of the Pick of Erebor, and the damage-adustment code for weather).
+
+- Updated to Angband 2.8.3, 2.9.3, or 3.0.0 (depending on preference), and to Oangband 0.5.0.  Adopted a large amount of code from other variants.
+
+- Starting with beta 5, the source code was sufficiently safe to re-release publicly.  None of these betas, however, were particularly stable.
+
+
+Major gameplay changes (edit:  as of beta 10):
+
+
+1)   You advance your character by building up a stock of exp, and then by pressing the '$' key to improve skills.  This means you have extraordinary flexibility to develop your character over time.  You can play and win the game using melee, archery, throwing weapons and objects, magic (four different realms), magical devices, by setting traps, or even by forging powerful equipment and supplies.
+
+
+2)   As you will start to appreciate when you see the opening screen, the interface is some changed.  The game automatically toggles between displaying 25 rows and 50 rows of text or graphics.  Every significant screen or interface is enhanced in some way.
+
+
+3)   The options have also changed.  Some of the more interesting new ones are those that allow you to change the number of rows used to display the dungeon, offer various methods of alerting you to low hitpoints, allow you to precisely control how the screen shifts as you move about, and let you customize part of the main screen's left panel.
+
+
+4)   The non-magical combat system is based on that of Oangband.  If you are not yet familiar with it, the help docs walk you through the basics (and the details too).  The most important changes are that blows and plusses are less important, and damage dice and special weapon attributes more important.  
+
+
+5)   Again as in Oangband, the monsters are very, very dangerous.  They can track you down from halfway across the dungeon, vanish out of sight or pop right in front of you, and are truly cunning spellcasters.  Fortunately they do not often appear in vast numbers, have limited mana and sensing ability, are harder to summon, and the loot they drop is much more likely to be interesting.
+
+
+6)   When I say that you can play and win the game using melee, archery, thrown weapons and objects, spells, or magical devices, I mean it.  Every single one of these ways of killing monsters benefits from special object attributes or temporary enhancements.  You can burgle, sneak around, and set traps, you can cast hinderance spells, you can quaff and eat and read and zap stuff, or you can forge something super-cool.  There is always another way to fight that tough monster.
+
+
+7)   Sangband offers an insane variety of magical effects and spell projections.  "Cones of Cold" are cones of cold, "Starbursts" are explosion-shaped, "Walls of Fire" are real walls of fire.  You can suck in the surrounding light, you can lay patches of fire that hunt creatures down, cast spells over and over again and do more damage each time, change the very weather to enhance your magic, and drive monsters mad.  You'll never forget the day you first see the "Prismatic Armageddon" spell in action.
+
+
+8)   There are a lot fewer items with little or no use.  After you've gotten some experience under your belt, you may well find yourself carrying Potions of Boldness, Staffs of Cure Medium Wounds, some of the many new mushrooms, and many other things.  Pseudo-identify is instantaneous; you don't have to lug masses of metalware around until you get a feeling.
+
+
+9)   The town is some different.  Most townsfolk walk from store to store; only the relatively rare thieves will normally bother you.  You can now build and maintain relationships with shopkeepers, and they won't be completely forgotten when owners shuffle.  As you purchase stuff from them, they start to stock better items.  Shopkeepers with low purses offer sales more often and generally have better final prices.  The haggling system is much more friendly, and you will find it worthwhile to learn the art of wheeling and dealing.
+
+
+10)   There is a great deal of in-game information available to you.  In addition to the standard help files and contextual help, you can look at monsters and the dungeon ('l' or 'x'), inspect objects ('I'), use the character knowledge menu ('~'), examine the 'C'haracter screen (press 'h' to show more details), or customize the left panel to display information that's important to you.
+
+
+
+---------------------------------------------------------------------
+
+
+Significant changes (code and text):
+
+- artifact legends, and ego-item and object text
+- many hundreds of changes to in-game strings, many taken directly from Moria
+and early Angband, others inspired by the spirit of the original designers
+- a second complete rewrite of the documentation.
+- general changes to any and all text I felt needed some help; code
+documentation, edit file documentation, preferences documentation, monster
+descriptions and recall, and so on.  Text is my forte, and I have gone all-out.
+
+- three different kinds of quests
+- stores stock what you tell them to stock, haggling is much more friendly, and
+your relationship with the store owners can be more rewarding
+- more powerful, correct, or flexible use of terrain, monster and object
+generation and object enchantment, object-manipulation, and the autoroller
+- rooms of any size are made as requested, the tunneling code connects vaults
+properly, themed monsters guard special rooms; dungeons are much, much more
+interesting
+
+- guaranteed, user-customizable, hot bigscreen (called "hot" because it toggles
+rows on command).  Is easy for coders to understand, use, and exploit.
+- heavy revisions or outright reworking of virtually all the secondary game
+displays and interfaces, from the character screen to the player knowledge
+panel, from the splash screen to the tombstone of death, from the object
+information display to the character knowledge menu
+- same story with spell listings, the on-line help, the left panel (can now be
+customized), the status line (uses a priority queue), hit messages, and
+visibility/panel shifting.
+
+- monster mana, spellpower, and a new monster spellist
+- monster spellcasting, learning, movement, and processing code from 4GAI
+- faster, wider-range monster flow.  Monsters use it better.
+
+- reflexive, mathematically-correct line of fire
+- a more powerful spell projection system; many new projection shapes
+- many new temporary conditions and spell types
+- dozens of new spells:  spells that linger, spells that build up with repeated
+casts, that rely on temporary conditions, and that have variable mana costs
+
+- more ways of winning battles:  melee and missiles makes sense, throwing can
+win battles early and late, magical devices and activations stomp, traps can be
+loaded with just about anything, all of the spell realms (including piety) offer
+many new ways to hinder and kill monsters, and object-forging is very powerful
+indeed.
+
+- hundreds of new objects, ego-items, artifacts, monsters, traps, vaults,
+terrains, stores and store owners, and character titles.  Heavy revisions to
+virtually everything else.  Most objects are useful in at least some situations.
+Most monsters can be dangerous if not treated with care.
+
+- skills, talents, object-forging, randarts, titles and immortal fame, player
+ghosts, artifact sets, shapechanges, and a victory screen that's worth taking
+Morgoth down to see.
+
+
+======================
+
+     Sangband 0.9.7 and 0.9.8 were short-lived betas, neither of which were released.  I changed the savefile code so often, and Sangband was so far away from what I considered a version 1.0.0 state, that I was obliged to start using the "sf_xtra" variable.  Hence the long series of betas of 0.9.9 that follow.
+
+
+
+
+
+
+===================================================
+
+Julian Lighton passed the maintainership to Leon Marrick in June, 2001. 
+
+===================================================
+
+
+
+
+
+======================
+
+     When I applied to Julian Lighton to become the new Sangband maintainer in June 2001, I supplied the below changes to prove my bonafides.  
+
+---
+
+This folder contains a copy of the Sangband 0.9.5b source code and libraries updated to Angband 2.9.2 code.  You will note that the version number actually says "0.9.6"; this was the easiest way to make changes to the savefile code and still keep Sangband 0.9.5b files compatable.
+
+In addition to the update, there are various trivial bugfixes and a general code re-format using Ben Harrison's methods.
+
+But all this comes with a price.  This code is beta-quality, has known areas of weakness, and includes plenty of "iffy" bits.  I stopped work when the game actually saved and loaded, and made a conscious decision not to try to sort out various bits of code (ego-items being just one example).  At this point, real choices have to be made between Angband and Sangband methods, choices only the maintainer can make.
+
+------------------------
+
+Issues and problems outstanding:
+
+- detect_general doesn't update lore flags
+- the ego-item code is broken.  All weapons are Holy Avengers.  The reason for this is because Angband uses a different (and rather more involved) system to determine ego-item rarities, minimum depths, etc.  The current code in Sangband assumes that this system will be adopted*, but the e_info.txt file has not yet been updated.
+
+* there is one area of special note:  the usage of the 'X' line.  I've included both bits of code, with the Angband 2.9.2 method #ifdef-ed out.
+
+- ... and there are surely lots of other areas of weakness.
+
+-------------------------
+
+Angband 2.9.2 features that didn't get added:
+
+- "msg_format()" still exists, even though the function intended to replace it has been added.  I use "msg_format()" a lot in bugtesting, and have grown fond of it.
+
+- the files "h_info.txt", "g_info.txt", and "p_info.txt" are not present, and the old code to handle player races, racial histories, and racial price modifiers has not been replaced.  There are two reasons for this:  1)  It is both harder and more tedious to make races do what I want them to in the new way.  2) Races should be highly individual, sharply defined, true to themselves; players should not be allowed to swap around racial attributes as though they were trying on new clothes.
+
+- the code related to "good" objects has not been changed.  actually, it probably has; this needs to be checked.
+
+- Most of the code related to Tim Baker's easy patch actually comes from Oangband.  The pickup code is the most important example.  Also, Tim Baker's code is not #ifdef-ed.
+
+------------------------
+
+Notes:
+
+     I've forgotten most of what I should be telling you, but some things spring to mind:
+
+1) I use the word QWERTY in two places, both in places where the code is especially problematic.
+
+2) the repeat command in Tim Baker's easy patch is control-V.  This means that entering stores needs a new command.  I pulled one out of the air, and choose control-B.
+
+3) the "user" and "pref" folders have not been sorted out.
+
+
+-------------------------
+
+The code's gotten a spring-cleaning, in an attempt to use Ben Harrison-style formatting consistantly.  If this doesn't suit, some fairly straightforward find-and-replace commands should make things right again.
+
+
+
+

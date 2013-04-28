@@ -1,4 +1,6 @@
 
+(This file is not up to date:  Most changes since about 0.9.9, Beta 16 are not included.)
+
 
 ============== Changes made in Sangband 1.0.0 ==============
 
@@ -8,7 +10,7 @@
      This file lists most of the significant (or at least interesting) changes made in Sangband 1.0.0 from Angband 3.0.6 (sometimes 2.9.3).  It does not include many of the one-line changes or various Sangband-specific stuff.  A lot of the changes are also to be found in Oangband, released by Bahman Rabii.
 
 
-Leon Marrick October, 2005
+Leon Marrick April, 2007
 
 
 
@@ -32,15 +34,15 @@ Variants:
 - Cthangband, sCthangband
 - Eric Bock's Angband, Rangband, Zceband, etc.
 - EyAngband
-- Fangband
+- FAngband
 - Hengband
 - Kangband
 - Kamband
 - NPPAngband
 - Oangband
-- PernAngband and ToME
 - PsiAngband
 - Sangband 0.8.5, 0.9.5
+- ToME, PernAngband
 - UnAngband
 - Zangband 2.1.0, 2.3.5, and 2.7.1
 
@@ -60,17 +62,7 @@ Textual works:
 - Edit files from everywhere
 
 
-====== Citations (giving credit) ======
 
-     I have a certain reputation for being hard-nosed about due credit.  But I practice what I preach.  When using code from Sangband, all I ask is that you treat work in Sangband as Sangband treats the work of others.
-
-How Sangband gives credit:
-     Whenever significant bodies of written work are used, the author gets credit.  "quest.txt" is a good example here, as is the Sangband manual.
-     Whenever an individual source file has been drastically modified, so much so that entire parts of the game just don't work the same or are entirely new, you will see a change in the copyright information at the top of the file. Examples include:  attack.c, generate.c, loadsave.c, monattk.c, monmove.c, obj_make.c, quest.c, skills.c, and talents.c.  This rule is (or at least should be) applied in all cases, but it can sometimes be difficult to decide when it is appropriate.
-     Whenever an important function has changed so greatly as to warrant a re- write of the code documentation, the initials of the author or some other citation appears.  This rule is only strictly applied for outside contributions not great enough to warrant a change in the source file copyright.  Examples can be found all over the place.
-     For contributions for which neither of these cases apply, one or both of two ways of giving credit are used:  If actual code is used, the contributer's intials appear.  Whether it is or isn't, the contributor's name (person or body of code) appears in the credits.
-
-     These rules are applied only loosely for the base codesets for Sangband: Angband and Oangband.  It therefore follows that they apply only loosely to any variant based on Sangband.
 
 
 
@@ -79,21 +71,18 @@ How Sangband gives credit:
 
 --- The Ideal ---
 
-     If the code of Sangband is the physical child of modern Angband and Oangband, it is the spiritual child of Moria and Fangband.  We have forgotten many - appalling many! - of the lessons taught in the roguelikes of old.
+     If the code of Sangband is the physical child of modern Angband and Oangband, it is the spiritual child of Moria and FAngband.  We have forgotten too many of the lessons taught in the roguelikes of old.
 
 
 --- Game Text ---
 
      Angband is a text-oriented game; the quality of the text is, in large measure, the quality of the game.  I was therefore extremely disturbed when I discovered that a fair number of the more interesting game messages had been rationalized away sometime after version 2.6.2.  Examples include stat-loss, blindness, Green Glutton Ghosts, haggling, and various special object and action strings (especially artifact activations).
-     Sangband includes a number of messages and strings from Umoria and Angband 2.6.2, Fangband and early Zangband, and generally tries to recover the vigor of the old text wherever it can.
+     Sangband includes a number of messages and strings from Umoria and Angband 2.6.2, FAngband and early Zangband, and generally tries to recover the vigor of the old text wherever it can.
 
 
 --- Code documentation, code layout ---
 
-- Several hundred corrections and updates to the code documentation.  Spelling errors fixed, comments made more informative.  If you use Sangband code/structures/flags/etc., be aware that they are usually documented where similar Angband ones are.
-- a small number of functions have moved
-- various new source files, a few replaced ones
-- replacement of tabs in various tables and arrays with spaces
+- Several hundred corrections and updates to the code documentation.  Spelling errors fixed, comments made more informative.
 
 
 --- The treatment of power versus depth (applies to Angband 2.9.6; some problems fixed in later versions) ---
@@ -102,8 +91,7 @@ How Sangband gives credit:
      Usually the problem is that power doesn't increase fast enough with depth: Traps do the same damage, and are as easy to find and disarm early and late. Locked and jammed doors are the same average strength everywhere.  Monster hindrance attacks, both melee and ranged, vary little if at all.  Character hindrance attacks, ditto.  Various monster damage attacks and spells, ditto. Monsters repopulate the dungeon at the same rate early as late, despite the fact that the character moves at double or even triple speed late in the game. Attacks that test saving throw are deadly early, and wimpy late.
      There are some cases of power increasing too quickly:  Deep monsters recover excessively quickly from hindrance attacks.  The onset of stat-gain is far too abrupt.  Identification is too rare early and too common late. Interesting dungeons are too rare early, and objects and monsters are too abundant late.  Strong artifacts, ego-items, and monsters are found too early in the game (The JLE patch has, however, done a good job of adding interest to the last 2000').
 
-     In Oangband, and more so in Sangband, all of this has changed, although many more (unmentioned) problems still need fixing.  We have still not quite come to grips with the decade-old change from 50 levels to 100, and from 40
-character levels to 50.
+     In Oangband, and more so in Sangband, all of this has changed, although many more (unmentioned) problems still need fixing.  We have still not quite come to grips with the decade-old change from 50 levels to 100, and from 40 character levels to 50.
 
 
 
@@ -112,8 +100,7 @@ character levels to 50.
 
 --- The in-game documentation ---
 
-     The text of the basic manual is the text of the in-game docs.  Updates to the documentation are simply a matter of revising the manual, breaking lines at column 80, then cut-and-pasting the new text over the old help file (we might 
-even automate this when the manual becomes more stable).
+     The text of the basic manual is the text of the in-game docs.  Updates to the documentation are simply a matter of revising the manual, breaking lines at column 80, then cut-and-pasting the new text over the old help file (we might even automate this when the manual becomes more stable).
 
      The in-game docs (apart from the menus) are not marked up in any way; they are pure plain text.  New code makes it possible to get context-specific help and display headers in light blue with no need for markups.
 
@@ -352,6 +339,7 @@ Object-forging materials:
 
 --- terrain.txt ---
 
+- As in UnAngband, terrain uses bitflags to control effects.  This isn't as complete or developed as in UnAngband, however.
 - the traps are gone
 - up and down shafts, water, trees, and lava, and some stores are new
 - the temple is now blue (because blue is the color of holy magic)
@@ -377,6 +365,9 @@ cmd1.c and cmd2.c).  There is a certain amount of "featuritis" here...
 
 "test_hit_combat()"
 - simplified code.
+
+
+
 
 "critical_melee()"
 - critical hits depend on skill.  They do /not/ depend on weapon weight.
@@ -674,14 +665,13 @@ before...
 - already sensed objects get more exact inscriptions.  Various other bits of code handling inscriptions have also changed.  Game-generated inscriptions are stored in "o_ptr->inscrip", not "o_ptr->discount".
 
 "do_cmd_observe()"
-     The best object-observation code currently available.  Displays almost all known attributes, background information, general knowledge, and legends about any object.  This is used to give the player special information about classes of objects and specific object kinds, display activation and magical item damages and effects, and to add all sorts of "flavor text".  It is as important an information resource as the monster memory.
+     Displays almost all known attributes, background information, general knowledge, and legends about any object.  This is used to give the player special information about classes of objects and specific object kinds, display activation and magical item damages and effects, and to add all sorts of "flavor text".  It is as important an information resource as the monster memory.
 
 "do_cmd_refill_lamp()"
 - lanterns that are used to refill other lanterns get emptied, not destroyed. As with ring swapping, I don't think this was my original idea.
 
 "do_cmd_locate()"
-- as in older Angbands, using this command immediately moves the panel to give you more visibility.  Unlike them, the game uses your current direction of 
-movement (if any) to determine how it should optimize the view.
+- as in older Angbands, using this command immediately moves the panel to give you more visibility.  Unlike them, the game uses your current direction of movement (if any) to determine how it should optimize the view.
 
 "ident_info()"
 - various changes
@@ -711,8 +701,7 @@ movement (if any) to determine how it should optimize the view.
 - Any key that is not used for navigation can be used to toggle window flags.  I always thought that 't' was a silly choice.
 
 "do_cmd_options_layout()"
-     Sangband has what is known as "hot" bigscreen; the game is capable of switching between 25-line and 50-line modes on command.  See "main-ibm.c" for more details.  You may set the game to use 25 or 50 lines to show the main screen, display the dungeon in 22, 33, or 44 rows, and precisely adjust how close to the edge you need to get before the game shifts panels.  If you display the main window in 50 lines, and use 44 rows to display the dungeon, you are guaranteed MAX_SIGHT viewing in your direction of travel every time you use the
-'L' key.  This is one of the three most important things Sangband has done to reduce off-screen instadeaths.
+     Sangband has what is known as "hot" bigscreen; the game is capable of switching between 25-line and 50-line modes on command.  See "main-ibm.c" for more details.  You may set the game to use 25 or 50 lines to show the main screen, display the dungeon in 22, 33, or 44 rows, and precisely adjust how close to the edge you need to get before the game shifts panels.  If you display the main window in 50 lines, and use 44 rows to display the dungeon, you are guaranteed MAX_SIGHT viewing in your direction of travel every time you use the 'L' key.  This is one of the three most important things Sangband has done to reduce off-screen instadeaths.
 
 "do_cmd_options_panel()"
      Of the rows on the left panel, only 20 are needed for fixed displays; the rest you may customize.  The actual number of customizable rows varies depending on the number of rows you use to display the dungeon - it can be as little as 5
@@ -761,8 +750,7 @@ or as many as 27.  See "xtra1.c" for more details.
      Quick and detailed recall of all known artifacts.
 
 "do_cmd_knowledge_objects()"
-     Displays objects that you have seen at least once.  See usage of the
-"k_ptr->special & (SPECIAL_AWARE)" and "k_ptr->special & (SPECIAL_EVER_SEEN)" flags in various places.
+     Displays objects that you have seen at least once.  See usage of the "k_ptr->special & (SPECIAL_AWARE)" and "k_ptr->special & (SPECIAL_EVER_SEEN)" flags in various places.
 
 "do_cmd_knowledge_kill_count()"
      Probably by Topi Ylinen, the monster kill count lists the monsters you've killed.  Various minor interface changes in Sangband.
@@ -805,8 +793,7 @@ or as many as 27.  See "xtra1.c" for more details.
 
 "spell_chance()"
 - the base (not final) prayer failure rate goes up for wielding an unblessed edged weapon
-- minimum failure chance removed.  For some spells (like heal, escape), even a
-1% failure rate is playing Russian Rolette, so in Sangband you can get 0% with sufficiently well-known spells and reasonably good stats.  Adjustments made to base spell failure chance (in tables.c).
+- minimum failure chance removed.  For some spells (like heal, escape), even a 1% failure rate is playing Russian Rolette, so in Sangband you can get 0% with sufficiently well-known spells and reasonably good stats.  Adjustments made to base spell failure chance (in tables.c).
 - bonus given to level and to stats reduced considerably
 - simplified code
 
@@ -819,10 +806,10 @@ or as many as 27.  See "xtra1.c" for more details.
      Some spells start off very weak but get very powerful, others start off strong but never improve much.  The inherent reliability of spells varies greatly.  No damage-dealing spell costs less than two mana.
      Invulnerability is gone, as are the "money-making" spells.  Genocide is rare, as is dungeon destruction.  Mana-recovery is rare.  Spells to enhance combat abilities are uncommon.  Healing is uncommon, but curing is not.  Ways to learn about objects are much more commmon.  Detection spells are not handed out over-generously.  Hindrance spells are much more powerful.  There are lots of damage-dealing spells (Priests in particular now have a good selection).
      Spells and/or spell names that originally came from variants other than those comprising the base code include:
-- bar door            (Fangband)
+- bar door            (FAngband)
 - phase warp          (PsiAngband)
 - rift                (GWAngband)
-- spiritual hammer    (Fangband)
+- spiritual hammer    (FAngband)
 - exorcism            (Zangband 2.2.#)
 - judgement           (PsiAngband)
 - holy aura           (ToME)
@@ -867,12 +854,10 @@ Food and mushrooms:
      As elsewhere, a lot of the code that reads "rand_int(6) + 5" has been changed to "rand_range(5, 10)".  This is partly for pretty, partly to make things easier to understand (and write spoilers about).
 
 Potions:
-- potions of essences explode when drunk.  This can have any number of effects
-(mostly bad).
+- potions of essences explode when drunk.  This can have any number of effects (mostly bad).
 - potions of invisibility
 - potions of temporary ESP
-- potions of cure light wounds are much more useful.  They, potions of cure serious wounds, and potions of cure critical wounds all fix a number of conditions to some degree.  These three kinds of potions also restore more hitpoints.  For serious curing, you must turn to mushrooms or potions of healing
-(or better).
+- potions of cure light wounds are much more useful.  They, potions of cure serious wounds, and potions of cure critical wounds all fix a number of conditions to some degree.  These three kinds of potions also restore more hitpoints.  For serious curing, you must turn to mushrooms or potions of healing (or better).
 - rewrite of Potions of Death.  "How nasty can we get without actually killing the char?"
 - potions of increase stats use the traditional Moria/Angband text.  They can increase the stat twice if drunk unaware.
 - potions of restore stat can increase stats if drunk unaware
@@ -915,7 +900,7 @@ Scrolls:
 - rods of lightningstrike, northwinds, dragonfire, and Glaurung's blood are good enough to fight Morgoth with.
 
 "use_device()"
-- there is no limit on how hard magical devices may be to use, so really high- level objects require great skill.
+- there is no limit on how hard magical devices may be to use, so really high-level objects require great skill.
 - the math that determines how often you fail with magical devices is different. It is now possible to get a failure rate of zero (which is crucial for those who depend on Rods of Healing).  I also find the new math easier to understand.
 - the timeouts of rods are determined in object.txt
 - you may learn the true damage done by magical devices by repeated uses.  This takes a lot of the guesswork out of using them (which was a major nuisance).
@@ -994,7 +979,7 @@ Scrolls:
 - you can learn about rings and amulets by wearing them for a longish period of time
 - rods recharge anywhere in the dungeon
 - random teleportation is no longer safe (in other words, the code feels no compunctions about slamming the character into things)
-- as in Fangband, level feelings take a while on the current level (not the last) to learn.  Perception greatly affects this time.
+- as in FAngband, level feelings take a while on the current level (not the last) to learn.  Perception greatly affects this time.
 - some weather-related stuff
 
 "enter_wizard_mode()", "verify_debug_mode()"
@@ -1008,8 +993,7 @@ Scrolls:
      We explicitly update certain displays right before the character takes a turn, such as lit objects, quest monsters, and offscreen monster threat displays.
 
 "refresh_visuals_after()"
-     This function is important.  Before, it was not practicable to code methods of detect monsters that worked semi-randomly, correctly, and cleanly. There was also some code duplication, inefficiencies, and unecessary complexity.  The new code is slower in the best case, but faster in the worst
-(which is what matters).
+     This function is important.  Before, it was not practicable to code methods of detect monsters that worked semi-randomly, correctly, and cleanly. There was also some code duplication, inefficiencies, and unecessary complexity.  The new code is slower in the best case, but faster in the worst (which is what matters).
      We've removed the "repair_mflag_show" and "shimmer_monsters" code.  At the end of every action taking energy, the character attempts to sense monsters.  Monsters thus sensed will stay sensed until the end of the next action.
      This function also shimmers monsters one time per character action.  It also handles any "update distances" requests.
 
@@ -1035,8 +1019,7 @@ Scrolls:
 "play_game()"
 - interactive loading of savefiles (in beta)
 - comforting message appears when using an ancestor's monster memory
-- "PLAYER" is the default savefile name on all machines, but the game can load a savefile of any (short) name using a savefile record (as in ToME).  See
-"loadsave.c"
+- "PLAYER" is the default savefile name on all machines, but the game can load a savefile of any (short) name using a savefile record (as in ToME).  See "loadsave.c"
 - we print a status message asking the player to wait, rather than flushing a message, because it reduces screen "jumpiness" when starting up the game.
 - set number of screen rows according to the current options
 - different handling of options files.  Information stored in the savefile now takes precedence over anything in the "pref" directory, and anything in 
@@ -1068,7 +1051,7 @@ Scrolls:
 --- files.c ---
 
 "process_pref_file_command()"
-- various new preference file commands added.  Note the (somewhat ugly) code that allows the game to specify one character or icon for showing terrain in 50- line mode, and another in 25-line mode.
+- various new preference file commands added.
 
 "slain_opponent()"
      Skills-Angband is fundamentally about intense character development.  To help deepen the involvement the player has with his character, the toughest monster killed is displayed on the character screen.  The inspiration comes from the saga of Beowulf, hero in an age where the valorious slain were remembered in song.
@@ -1104,12 +1087,10 @@ Scrolls:
 - displays strings of certain types in light blue.  This should make it much easier to scan a help file for a particular bit of information.
 
 "do_cmd_help()"
-     Sangband has the beginnings of context-specific help.  If the variable
-"p_ptr->get_help_index" is non-zero, the on-line help will immediately show a specific file and section.
+     Sangband has the beginnings of context-specific help.  If the variable "p_ptr->get_help_index" is non-zero, the on-line help will immediately show a specific file and section.
 
 "display_file()"
-     Displays static information in pretty colors.  Used to show the new
-"news.txt", "dead.txt", and "victory.txt" files.
+     Displays static information in pretty colors.  Used to show the new "news.txt", "dead.txt", and "victory.txt" files.
      Files that wish to display colors are divided into two parts:  text goes in the first, and color encoding goes in the second.
 
 "do_cmd_suicide()"
@@ -1192,8 +1173,7 @@ blocks.
      Builds a great variety of irregular caverns, which are sometimes populated by orcs.
 
 "build_type1_pillars()"
-     A heavily modified version of Eric Bock's pillar room code.  Produces a great variety of pillared and ragged-edged rooms.  Rooms are always symetrical
-(unlike in Angband, in which they can be quite ugly).
+     A heavily modified version of Eric Bock's pillar room code.  Produces a great variety of pillared and ragged-edged rooms.  Rooms are always symetrical (unlike in Angband, in which they can be quite ugly).
 
 "build_type1()", "build_type2()"
 - Various additions to take advantage of the new terrain features and monster allocation code.
@@ -1211,8 +1191,7 @@ blocks.
      Builds rooms consisting of many little chambers, all connected by doors. They have partially replaced monster pits, and make for much more interesting tactical challenges.  Hunting down 40 vortexes in close quarters gets really hairy!
 
 "build_vault()"
-     The first important change that Oangband made to dungeon generation was the addition of "interesting room", minor vaults that are treated as ordinary rooms: They allow for an unlimited variety of rooms at any level, and present formerly uninteresting monsters in novel ways (kobold dens, yeek warrens, centiped caves,
-...).  You want circular rooms?  No need to write code, just include them in the vault list.
+     The first important change that Oangband made to dungeon generation was the addition of "interesting room", minor vaults that are treated as ordinary rooms: They allow for an unlimited variety of rooms at any level, and present formerly uninteresting monsters in novel ways (kobold dens, yeek warrens, centiped caves, ...).  You want circular rooms?  No need to write code, just include them in the vault list.
      The second big change was the addition of new vault symbols, especially ones that allowed vault designers to specify particular kinds of monster and objects (armories guarded by trolls, people guarding wizard's stashes, etc.).
 
 Other changes include:
@@ -1237,8 +1216,7 @@ Other changes include:
      Smarter, faster, but more complex tunneling code.  Among the tricks it knows are:
 - robust handing of staggered and double outer walls (which is essential if you want non-rectangular rooms to be connected reliably)
 - can almost always find and head for vault entrances
-- is very good at finding a way past impenetrable obstacles (which makes the old
-"vault cuts off half the dungeon" problem go away)
+- is very good at finding a way past impenetrable obstacles (which makes the old "vault cuts off half the dungeon" problem go away)
 - better treatment of varied terrain types.  (Although it will take work to port)
 - tunnels less often turn the dungeon into Swiss cheese
 - they less often turn rooms into sieves
@@ -1289,8 +1267,7 @@ Other changes include:
 
 --- init1.c ---
 
-     Various updates to handle new flags and qualities for all of the text files
-(activations, min/max depths, monster mana and spellpower, multiple pvals, etc.)
+     Various updates to handle new flags and qualities for all of the text files (activations, min/max depths, monster mana and spellpower, multiple pvals, etc.)
      Some text files in Angband are not used in Sangband.
 
 "init_q_info()"
@@ -1324,8 +1301,7 @@ Other changes include:
 "savefile_menu()"
      As in ToME, if the game sees no savefile it can load, or the savefile it tries to load contains a dead character, it will display a savefile management screen.  This allows you to start a new character or manually load a savefile by typing its name.  Usage of this screen is optional; menu commands (in ports with windows) are still available.
 
-- a lot of things are now saved that weren't before; in particular, note the inclusion of various monster AI variables, cave_info flags, and some options
-(like autosave).
+- a lot of things are now saved that weren't before; in particular, note the inclusion of various monster AI variables, cave_info flags, and some options (like autosave).
 
 "savefile_load()"
      Includes interactive savefile management; you can load a savefile, see the character screen that pops up, load another savefile if you so desire, and repeat until satisfied.  Without breaking any menu commands.  Note that this is still in beta!
@@ -1336,6 +1312,37 @@ Other changes include:
 --- main.* ---
 
      Various changes to allow "hot" bigscreen.
+
+
+--- main-win.c ---
+
+     Major changes here, amounting to a rewrite of more than half the code.  Briefly:  Instead of optimizing control, we now optimize visual elegance and ease of use.  A number of things that used to be done with hacks are now done "natively".  However, there are some new hacks for new features.  Code tends to progress like this. :-/
+
+     It is a good general rule of thumb not to let code do things that it does badly - such as trying to squeeze a bitmapped font into a tile too small for it.  So great was the emphasis on control in the old Windows port that, not only did it let a user shoot himself in the foot like this, it provided a graphical user interface for the pistol.
+
+- All of the term displays are combined into a single application window, similar to the DOS port.  I also had the interface of Master of Orion II in mind.  The player can choose to maximize the window (like the IBM port and indeed MOO2) or play in windowed mode (like the DOS port).  This change has both advantages and disadvantages:
+     The key advantage is that, for the first time, this port can be said to be truly "immersive", taking complete control of the screen to maximize the player's game experience like professional games do.  Other advantages include larger display space (and therefore better font and graphics options, especially on smaller monitors), reduced code bulk and special cases, and easier support for special displays (which we'll get to in a moment).
+     The key disadvantage is that users have less control over the position of term displays.  There is no longer an in-game interface for moving windows around.  Instead, it's all handled by a selection of defaults (up to four possibilities on large monitors) that allow a choice between maximizing main screen space or showing more sub-windows.  Of course, people who really want to tweak can still do so by editing the .ini file and they have just as much control this way as they ever did (actually more).
+
+- The game recognizes the user's screen size, finds the most appropriate set of window defaults (there are defaults for a variety of resolutions from 640x480 to 1600x1200), overwrites them with user preferences from the .ini file (if present), and (if needed) adjusts the display to cover an oddly-sized screen (such as the 1900x1200 behemoth my computer lab just got).  No longer will you be confronted with a game that requires tweaking before it stops trying to be a dumb terminal!
+
+- The visually distracting and space-consuming menu has been replaced with a (semi) Angband-standard interface for tweaking multimedia options, available by pressing '!'.  What you can do within the game has changed.  You can now switch between full-screen and windowed mode, turn on the mouse, and toggle the special map display.  You can no longer adjust tile width and height, move and resize displays, or 
+
+- The code relating to the borg and the screensaver is gone (I had to rewrite the stuff it was within and lack a borg to make it workwhile to add back in).
+
+- The code relating to "bizarre displays" is gone (a hack no longer needed).
+
+- Graphics now work in 256-color mode.  However, I wasn't able to get masking debugged so graphics will always be opaque.
+
+- The text-output code is slightly more efficient.  It is also more powerful and better able to handle differences between tile and font size.
+
+- "Term_pict_win()" is /three times/ as fast as in Angband 3.06 (if the StretchBlit method is not enhanced, which the player has the option to do).  It also know how to handle text.
+
+- Text can be centered and display without background, so you can mix and match graphics and text by feeding both to "Term_pict_win()".  This will be a *real blessing* for maintainers who have monsters and/or objects without graphics!
+
+- Various miscellaneous changes incident on my adding graphics to Sangband, such as graphical cursors.
+
+
 
 
 --- makefile.ibm ---
@@ -2258,8 +2265,7 @@ Changes in this function:
      Fires beams in truly random directions (not just the boring old staff of starlight stuff!).
 
 "doomspells()"
-     One of Chris Petit's most inspired creations, the most deadly magical device anywhere:  Staffs of Doomspells.  Doing this right requires some special 
-hacks in various places but, hey, this is a game, not a coding exercise.
+     One of Chris Petit's most inspired creations, the most deadly magical device anywhere:  Staffs of Doomspells.  Doing this right requires some special hacks in various places but, hey, this is a game, not a coding exercise.
 
 "call_chaos()"
      A worthy companion to Staffs of Doomspells.
@@ -2283,11 +2289,9 @@ hacks in various places but, hey, this is a game, not a coding exercise.
 "collapse_ceiling()"
      Collapses the ceiling.  Original idea by Heino Vander Sanden.
 
-"earthquke()", etc.
+"earthquake()", etc.
 - Monsters are not stuck in rock (Tim Baker).
-- Destruction spells delete artifacts (but unknown ones are preserved), as in 
-Hengband.  The rationale for this is a bit fuzzy, but it removes a nasty game 
-abuse.
+- Destruction spells delete artifacts (but unknown ones are preserved), as in Hengband.  The rationale for this is a bit fuzzy, but it removes a nasty game abuse.
 
 "mark_floors()"
      Allows starbursts to retain their shape when portions are out of LOF.
@@ -2303,8 +2307,7 @@ abuse.
 - beams may be of limited range
 
 "project_ball()"
-- balls may have varying source diameters.  A ball with a source diameter of 10
-feet exhibits the usual behavior:  damage is strength / radius for any given radius.  Balls with source diameters of 20 do full damage to all adjacent grids and are universally used for caster-centered projections.  Poison "clouds" often have at least half strength at the edge, and holy "orbs" do full damage to everything (they have a source diameter equal to (radius+1) * 10).
+- balls may have varying source diameters.  A ball with a source diameter of 10 feet exhibits the usual behavior:  damage is strength / radius for any given radius.  Balls with source diameters of 20 do full damage to all adjacent grids and are universally used for caster-centered projections.  Poison "clouds" often have at least half strength at the edge, and holy "orbs" do full damage to everything (they have a source diameter equal to (radius+1) * 10).
 
 "project_arc()"
      Arc spells are wedge-shaped segments of a caster-centered ball.  Their width is finely adjustable, and it affects how quickly the arc loses strength away from the source.  Arcs are correctly shaped when cast in any direction (we use a mathematically correct table of angles instead of the "distance()" function).
@@ -2328,8 +2331,7 @@ feet exhibits the usual behavior:  damage is strength / radius for any given rad
      Weather-related functions.
 
 "passwall_finish()", "passwall()"
-     Julian Lighton's Pick of Erebor, which allows you to pass instantly from 
-one side of a wall to another.
+     Julian Lighton's Pick of Erebor, which allows you to pass instantly from one side of a wall to another.
 
 
 --- store.c ---
@@ -2425,7 +2427,7 @@ one side of a wall to another.
 "buy_and_sell()"
 - buying and selling have been condensed into one function
 - various textual changes
-- player asks me to add the "auto_more" patch.  I tell him "no can do".  He says he understands but would like it if stores had fewer messages, especially on small stuff.  I turn the "You quickly agree upon the price" message into a status indicator.
+- the "You quickly agree upon the price" message is now a status indicator (cuts down on keypresses, retains info).
 - if you empty out a store, you can often convince the shopkeeper to retire
 
 "store_inspect()"
@@ -2475,8 +2477,7 @@ one side of a wall to another.
      Strength has no effect on non-magical combat Skill, dexterity has a larger effect.
 
 "adj_str_wgt()"
-     It takes more strength to reach the maximum carrying capacity.  
-Low-strength characters can carry slightly more.
+     It takes more strength to reach the maximum carrying capacity.  Low-strength characters can carry slightly more.
 
 "adj_str_hold()"
      Substantial drop in the weight of weapons that can be wielded with less than godly strength.  Reasons for this include lower weapon weights and greater power of heavy weapons.
@@ -2651,11 +2652,10 @@ range.
      Given a flag, return its index (within a set of 32 flags)
 
 "msg_flush()"
-     Quick_messages turns off if your hitpoints are below the hitpoint warning level.  The reason why I added this was because I have gotten killed several 
-times by holding down the 's' key to search, only to have a nasty critter come through the secret door and stomp on me.
+     Quick_messages turns off if your hitpoints are below the hitpoint warning level.  The reason why I added this was because I have gotten killed several times by holding down the 's' key to search, only to have a nasty critter come through the secret door and stomp on me.
 
 "message()"
-     Ethen Sicotte once proposed that some messages should flush pending output and delay the game.  This idea has been been implemented; it is currently used whenever the character gets hit hard.
+     Ethen Sicotte once proposed that some messages should flush pending output and delay the game.  This idea has been implemented; it is currently used whenever the character gets hit hard.
 
 "c_roff()", "roff()"
      Old functions, retained because they are useful wrappers around "text_out".
@@ -2744,8 +2744,7 @@ times by holding down the 's' key to search, only to have a nasty critter come t
 
 "wiz_create_itemtype()"
 - you use this interface to create artifacts too
-- tvals spaced out, with blank lines between major categories.  I find this 
-makes it easier to find the tval I want.
+- tvals spaced out, with blank lines between major categories.  I find this makes it easier to find the tval I want.
 
 "wiz_reroll_item()"
 - as in Zangband, you can roll for artifacts.
@@ -2818,7 +2817,7 @@ makes it easier to find the tval I want.
      I also direct your attention to Hengband's method of compressing all status indicators to fit the space available.
 
 "prt_speed()"
-- we can add plusses before non-negative numbers by using the "%+d" format. There is no need for "+%d".
+- we can add plusses before non-negative numbers by using the "%+d" format (on all semi-modern machines). There is no need for "+%d".
 
 "prt_study()"
 - EyAngband-style numerical display of spells one can learn

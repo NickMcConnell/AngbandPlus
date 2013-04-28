@@ -1,15 +1,15 @@
-
 /* File: cmd5.c */
 
 /*
  * Spell browsing, learning, and casting.  Effects of all spells.
  *
- * Copyright (c) 2002
+ * Copyright (c) 2007
  * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -90,53 +90,43 @@ byte realm_color(void)
 
 
 /*
- * Fires elemental arcs.
+ * Fires an arc of the chosen element.  Return TRUE if character cast the spell.
  */
-static void chromatic_burst(int dam, int reliability, int dir)
+static bool chromatic_burst(int dam, int dir)
 {
-	int angle, angle_tmp;
-	int i;
-	int y, x;
+	int typ = GF_FIRE;
+	char ch;
 
-	int dtypes[4] = {GF_FIRE, GF_ACID, GF_COLD, GF_ELEC};
-
-	TARGET_DECLARE
-
-	/* Remember old target */
-	TARGET_PRESERVE
-
-	/* Get angle to target or in this direction */
-	angle = 180 + get_angle_to_target(p_ptr->py, p_ptr->px,
-		p_ptr->target_row, p_ptr->target_col, dir);
-
-	/* Mix up the projections */
-	for (i = 0; i < 4; i++)
+	/* Ask until done */
+	while (TRUE)
 	{
-		int typ1 = dtypes[i];
-		int typ2 = dtypes[(i + randint(3)) % 4];
-		int tmp  = typ1;
+		/* Ask */
+		if (!get_com("Invoke which element  (F=Fire, C=Frost, E=Lightning, A=Acid) ?", &ch)) return (FALSE);
 
-		typ1 = typ2;
-		typ2 = tmp;
+		/* Make request lowercase */
+		ch = tolower(ch);
+
+		/* Get the projection type */
+		if      (ch == 'f') typ = GF_FIRE;
+		else if (ch == 'c') typ = GF_COLD;
+		else if (ch == 'e') typ = GF_ELEC;
+		else if (ch == 'a') typ = GF_ACID;
+		else
+		{
+			bell("Unknown element.");
+			continue;
+		}
+
+		/* Fire the arc */
+		fire_arc(typ, dir, dam, 6, rand_range(50, 70));
+
+		/* Done */
+		break;
 	}
 
-	/* Fire the four elements */
-	for (i = 0; i < 4; i++)
-	{
-		int spread = MAX(10, 60 - (3 * reliability / 2));
+	/* Done */
+	return (TRUE);
 
-		/* Concentrate arcs around the centerline as reliability improves */
-		angle_tmp = rand_spread(angle, spread) % 180;
-
-		/* Hack -- set new target in this direction */
-		get_grid_using_angle(angle_tmp, p_ptr->py, p_ptr->px, &y, &x);
-		target_set_location(y, x);
-
-		fire_arc(dtypes[i], 5, dam, 6, 90 - reliability);
-	}
-
-	/* Restore old target */
-	TARGET_RESTORE
 }
 
 /*
@@ -194,18 +184,19 @@ static void wonder(int dir)
 	int skill = get_skill(S_WIZARDRY, 0, 100);
 
 	/* Power and safety increase with Wizardry skill */
-	int die = rand_range(skill / 10, 20 + 3 * skill / 10);
+	int die = rand_range(skill / 15, 20 + 3 * skill / 10);
 
 	/* Miscellaneous magics */
 	if      (die <= 3) clone_monster(dir);
 	else if (die <= 4) heal_monster(dir, 100);
 	else if (die <= 5) speed_monster(dir);
-	else if (die <= 7) poly_monster(dir, 75 + 3 * skill / 4);
-	else if (die <= 9) confuse_monster(dir, 30 + 2 * skill / 3);
+	else if (die <= 7) poly_monster(dir, 70 + 3 * skill / 4);
+	else if (die <= 9) confuse_monster(dir, 25 + 2 * skill / 3);
 
 	/* Chance for really weird magic */
 	else if (one_in_(15))
 	{
+		msg_print("The spell alters the dungeon around you!");
 		if (one_in_(2)) fire_star(GF_FORCE_DOOR,   0, 20,    8);
 		else            fire_star(GF_DISINTEGRATE, 0, skill, 6);
 	}
@@ -247,12 +238,11 @@ static void wonder(int dir)
 		}
 
 
-		/* Damage increases rapidly with skill (max of 250) */
-		dam = skill + (skill * skill / 67);
+		/* Damage increases rapidly with skill (max of 225) */
+		dam = skill + (skill * skill / 80);
 
 		/* But you need to take the Oath of Sorcery for full effect */
 		if (!(p_ptr->oath & (OATH_OF_SORCERY))) dam = 2 * dam / 3;
-
 
 		/* Fire a bolt */
 		if (die < 20)
@@ -271,7 +261,7 @@ static void wonder(int dir)
 		}
 
 		/* Fire a ball */
-		else if ((die < 36) || (die > 44))
+		else if (rand_range(36, 49) >= die)
 		{
 			if (strlen(typ_desc))
 				msg_format("You cast a ball of %s.", typ_desc);
@@ -342,8 +332,8 @@ static void invoke_spirits(int reliability)
 			}
 		}
 
-		/* Usual case -- blast the character */
-		else if (die < 7)
+		/* Usual case -- blast the character (but don't kill him - normally) */
+		else if ((die < 7) && (p_ptr->chp > (10 + p_ptr->depth * 2)))
 		{
 			/* Damage depends on character depth, randomized slightly */
 			int power = (5 + p_ptr->depth);
@@ -558,6 +548,89 @@ static void invoke_spirits(int reliability)
 	TARGET_RESTORE
 }
 
+
+/*
+ * Turn curses on equipped items into starbursts of nether.  -LM-
+ *
+ * Idea by Mikko Lehtinen.
+ */
+static bool thaumacurse(bool verbose, int power)
+{
+	int i, dam;
+	int curse_count = 0;
+	object_type *o_ptr;
+	bool notice = FALSE;
+
+
+	/* Count curses */
+	for (i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* All cursed objects have TR3_LIGHT_CURSE.  Perma-cursed objects count double. */
+		if (o_ptr->flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE)) curse_count++;
+		if (o_ptr->flags3 & (TR3_PERMA_CURSE)) curse_count++;
+	}
+
+	/* There are no curses to use */
+	if (curse_count == 0)
+	{
+		if (verbose) msg_print("Your magic fails to find a focus ... and dissipates harmlessly.");
+		return (FALSE);
+	}
+
+
+	/* Calculate damage for 1 cursed item (between about 61 and 139) (10x inflation) */
+	dam = power * 6;
+
+	/*
+	 * Increase damage for each curse found (10x inflation).
+	 * Diminishing effect for each, but damage can potentially be very high indeed.
+	 */
+	dam *= rsqrt(curse_count * 100);
+
+	/* Deflate */
+	dam = div_round(dam, 100);
+
+	/* Fire an explosion of nether */
+	notice = fire_star(GF_NETHER, 0, dam, 3 + curse_count / 2);
+
+
+	/* Break light curses */
+	for (i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Object isn't cursed -- ignore */
+		if (!cursed_p(o_ptr)) continue;
+
+		/* Ignore heavy and permanent curses */
+		if (o_ptr->flags3 & (TR3_HEAVY_CURSE | TR3_PERMA_CURSE)) continue;
+
+		/* Uncurse the object 1 time in 3 */
+		if (one_in_(3)) uncurse_object(o_ptr);
+
+		/* Hack -- Assume felt */
+		o_ptr->ident |= (IDENT_SENSE);
+
+		/* Recalculate the bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_EQUIP);
+
+		/* Notice */
+		notice = TRUE;
+	}
+
+	/* Return "something was noticed" */
+	return (notice);
+}
+
+
 /*
  * Wild magic effects for sorcery spells.  Idea from Zangband.
  *
@@ -752,6 +825,8 @@ static void wild_magic_sorcery(int spell)
 		/* Message */
 		if (strlen(typ_desc) > 1)
 			msg_format("The wild magic creates explosions of %s!", typ_desc);
+		else if (typ == GF_LITE_WEAK)
+			msg_print("Sparkles of light appear around you.");
 
 		/* Fire some meteors */
 		for (i = 0; i < 1 + oops / 30; i++)
@@ -774,7 +849,7 @@ static void wild_magic_sorcery(int spell)
 
 
 /*
- * Perilous side-effects for necromantic spells.  Idea from Zangband.
+ * Perilous side-effects for necromantic spells.  From Zangband.
  *
  * Make sure that values for "spell" do not exceed the number of spells
  * necromancers get.
@@ -801,7 +876,7 @@ static void perilous_effect_necro(int spell, bool necronomicon)
 
 	else if (!one_in_(3))
 	{
-		take_hit(1 + oops / 2, 0, "It hurts!", "a miscast Death spell");
+		(void)take_hit(1 + oops / 2, 0, "It hurts!", "a miscast Death spell");
 	}
 
 	/* The undead not infrequently appear */
@@ -827,8 +902,8 @@ static void perilous_effect_necro(int spell, bool necronomicon)
 		/* Determine spell type */
 		i = randint(20 + oops);
 
-		if      (i <  30) typ = GF_DARK;
-		else if (i <  70) typ = GF_POIS;
+		if      (i <  40) typ = GF_DARK;
+		else if (i <  75) typ = GF_POIS;
 		else if (i < 110) typ = GF_NETHER;
 		else              typ = GF_MORGUL_DARK;
 
@@ -1120,10 +1195,6 @@ static s16b spell_chance(int spell)
 	/* Fear makes spells a little harder */
 	if (p_ptr->afraid) fail += 10;
 
-	/* Non-necromatic spells are harder in the dark */
-	if(no_light() && (p_ptr->realm != NECRO)) fail += 15 - get_skill(S_PERCEPTION, 0, 15);
-
-
 	/* Always a 5 percent chance of working */
 	if (fail > 95) fail = 95;
 	if (fail <  0) fail =  0;
@@ -1143,6 +1214,7 @@ static bool can_study_or_cast(void)
 	if (p_ptr->realm == NONE) note = "You know no magical realm.";
 	else if (p_ptr->berserk)  note = "You are too berserk!";
 	else if (p_ptr->blind)    note = "You are blind!";
+	else if (no_light())      note = "It is dark; you cannot see!";
 	else if (p_ptr->confused) note = "You are too confused!";
 	else if (p_ptr->image)    note = "You are hallucinating!";
 
@@ -1180,7 +1252,7 @@ static bool spell_okay(int spell)
  */
 void print_spells(int tval, int sval, int y, int x)
 {
-	int i, left_justi;
+	int i;
 	int j = 0;
 	int first_spell, after_last_spell;
 
@@ -1188,8 +1260,8 @@ void print_spells(int tval, int sval, int y, int x)
 
 	byte attr_book, attr_name, attr_extra;
 
-	char comment[80];
-	char out_val[160];
+	char comment[DESC_LEN];
+	char out_val[DESC_LEN];
 
 	object_kind *k_ptr = &k_info[lookup_kind(tval, sval)];
 	cptr basenm = (k_name + k_ptr->name);
@@ -1231,16 +1303,16 @@ void print_spells(int tval, int sval, int y, int x)
 	/* Find the first spell in the next book. */
 	after_last_spell = mp_ptr->book_start_index[sval+1];
 
-	/* Choose a left margin for the spellbook name. */
-	left_justi = ((80 - x) - strlen(basenm)) / 2;
 
 	/* Center the spellbook name */
-	prt("", y, x);
-	c_put_str(attr_book, format("%s", basenm), y, x + left_justi);
+	center_string(out_val, sizeof(out_val), basenm, 65);
+
+	/* Print it out */
+	c_put_str(attr_book, format("%s", out_val), y, x);
 
 
 	/* Title the list */
-	prt("", y + 1, x);
+	clear_space(y + 1, x, 65);
 	put_str("Name", y + 1, x + 5);
 	put_str("Lv Mana Fail Info", y + 1, x + 35);
 
@@ -1256,7 +1328,7 @@ void print_spells(int tval, int sval, int y, int x)
 		/* Skip illegible spells.  This should actually never appear. */
 		if (s_ptr->slevel > PY_MAX_POWER)
 		{
-			sprintf(out_val, "  %c) %-30s", I2A(i - first_spell),
+			(void)strnfmt(out_val, sizeof(out_val), "  %c) %-30s", I2A(i - first_spell),
 				"(illegible)");
 			c_prt(TERM_SLATE, out_val, y + j + 1, x);
 			continue;
@@ -1292,15 +1364,11 @@ void print_spells(int tval, int sval, int y, int x)
 			attr_extra = TERM_L_BLUE;
 		}
 
-		/* Clear line */
-		prt("", y + j + 1, x);
-
 		/* Spell index */
-		put_str(format("  %c) ", I2A(i - first_spell)), y + j + 1, x);
+		put_str(format(" %c)  ", I2A(i - first_spell)), y + j + 1, x);
 
 		/* Spell name */
-		c_put_str(attr_name, format("%-30s", spell_names[s_ptr->index]),
-			y + j + 1, x + 5);
+		c_put_str(attr_name, format("%-30s", s_ptr->sname), y + j + 1, x + 5);
 
 		/* Get spell mana cost */
 		(void)do_spell(SPELL_MANA, i);
@@ -1310,11 +1378,11 @@ void print_spells(int tval, int sval, int y, int x)
 		   spell_chance(i)), y + j + 1, x + 35);
 
 		/* Spell information */
-		c_put_str(attr_extra, format("%s", comment), y + j + 1, x + 48);
+		c_put_str(attr_extra, format(" %-*s", 17, comment), y + j + 1, x + 47);
 	}
 
 	/* Clear the bottom line */
-	prt("", y + j + 2, x);
+	clear_space(y + j + 2, x, 65);
 }
 
 
@@ -1325,16 +1393,14 @@ void print_spells(int tval, int sval, int y, int x)
  */
 void display_koff(int k_idx)
 {
-	int y;
-
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 
 	/* Erase the window */
-	for (y = 0; y < Term->hgt; y++) clear_row(y);
+	(void)Term_clear();
 
 	/* No info */
 	if (!k_idx) return;
@@ -1348,7 +1414,7 @@ void display_koff(int k_idx)
 
 
 	/* Describe */
-	object_desc_store(o_name, i_ptr, FALSE, 0);
+	object_desc_store(o_name, sizeof(o_name), i_ptr, FALSE, 0);
 
 	/* Mention the object name */
 	(void)Term_putstr(0, 0, -1, TERM_WHITE, o_name);
@@ -1357,14 +1423,14 @@ void display_koff(int k_idx)
 	/* Warriors are illiterate */
 	if (p_ptr->realm == NONE) return;
 
+
 	/* Display spells in readable books */
 	if (i_ptr->tval == mp_ptr->spell_book)
 	{
 		/* Print spells */
-		print_spells(i_ptr->tval, i_ptr->sval, 1, 14);
+		print_spells(i_ptr->tval, i_ptr->sval, 1, 0);
 	}
 }
-
 
 /*
  * Allow user to choose a spell/prayer from the given book.
@@ -1388,9 +1454,12 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval)
 	bool flag, redraw, okay;
 	char choice;
 
+	/* If we have already saved the screen, we need to keep the spell list shown */
+	bool always_show = (screen_depth != 0);
+
 	const magic_type *s_ptr;
 
-	char out_val[160];
+	char out_val[DESC_LEN];
 
 	cptr p = "";
 
@@ -1457,22 +1526,21 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval)
 	/* No redraw yet */
 	redraw = FALSE;
 
-
 	/* Build a prompt (accept all spells) */
-	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s?",
+	(void)strnfmt(out_val, sizeof(out_val), "(%^ss %c-%c, *=List, ESC=exit) %^s which %s?",
 		p, I2A(0), I2A(after_last_spell - first_spell - 1), prompt, p);
 
 	/* Option -- automatically show lists */
-	if (always_show_list)
+	if ((always_show_list) || (always_show))
 	{
 		/* Show list */
 		redraw = TRUE;
 
 		/* Save screen */
-		screen_save();
+		if (!always_show) screen_save(FALSE);
 
 		/* Display a list of spells */
-		print_spells(tval, sval, 1, 14);
+		print_spells(tval, sval, 1, (Term->cols - 40) / 3);
 	}
 
 	/* Get a spell from the user */
@@ -1481,6 +1549,9 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval)
 		/* Request redraw */
 		if ((choice == ' ') || (choice == '*') || (choice == '?'))
 		{
+			/* Allow us to keep the list up */
+			if (always_show) continue;
+
 			/* Hide the list */
 			if (redraw)
 			{
@@ -1498,10 +1569,10 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval)
 				redraw = TRUE;
 
 				/* Save screen */
-				screen_save();
+				screen_save(FALSE);
 
 				/* Display a list of spells */
-				print_spells(tval, sval, 1, 14);
+				print_spells(tval, sval, 1, (Term->cols - 40) / 3);
 			}
 
 			/* Ask again */
@@ -1539,7 +1610,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval)
 		/* Verify it */
 		if (verify)
 		{
-			char tmp_val[160];
+			char tmp_val[DESC_LEN];
 
 			/* Get the spell */
 			s_ptr = &mp_ptr->info[spell];
@@ -1548,9 +1619,8 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval)
 			(void)do_spell(SPELL_MANA, spell);
 
 			/* Prompt */
-			(void)strnfmt(tmp_val, 70, "%^s %s (%d mana, %d%% fail)?",
-				prompt, spell_names[s_ptr->index],
-				mana_cost, spell_chance(spell));
+			(void)strnfmt(tmp_val, sizeof(tmp_val), "%^s %s (%d mana, %d%% fail)?",
+				prompt, s_ptr->sname, mana_cost, spell_chance(spell));
 
 			/* Belay that order */
 			if (!get_check(tmp_val)) continue;
@@ -1562,11 +1632,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval)
 
 
 	/* Restore the screen */
-	if (redraw)
-	{
-		/* Load screen */
-		screen_load();
-	}
+	if ((redraw) && (!always_show)) screen_load();
 
 
 	/* Abort if needed */
@@ -1595,10 +1661,10 @@ void do_cmd_browse_aux(object_type *o_ptr)
 
 
 	/* Save screen */
-	screen_save();
+	screen_save(FALSE);
 
 	/* Display the spells */
-	print_spells(o_ptr->tval, o_ptr->sval, 1, 14);
+	print_spells(o_ptr->tval, o_ptr->sval, 1, (Term->cols - 40) / 3);
 
 	/* Prompt for a command */
 	prt("", 0, 0);
@@ -1627,21 +1693,28 @@ void do_cmd_browse_aux(object_type *o_ptr)
 				0, 11);
 
 			/* Any key cancels if no spells are available. */
-			if (inkey()) break;
+			if (inkey(ALLOW_CLICK)) break;
 		}
 
 		/* Clear lines (Hack -- leave lots of space  XXX) */
-		for (i = lines; i < lines + 6; i++) (void)Term_erase(14, i, 255);
+		for (i = lines; i < lines + 6; i++)
+		{
+			clear_space(i, (Term->cols - 40) / 3, 65);
+		}
 
 		/* Move cursor */
-		move_cursor(lines + 1, 14);
+		move_cursor(lines + 1, (Term->cols - 40) / 3 + 6);
 
 		/* Get the spell */
 		s_ptr = &mp_ptr->info[spell];
 
 		/* Display that spell's information. */
-		c_roff(TERM_L_BLUE, do_spell(SPELL_DESC, spell), 16, 0);
+		c_roff(TERM_L_BLUE, do_spell(SPELL_DESC, spell),
+			(Term->cols - 40) / 3 + 1, (Term->cols - 40) / 3 + 64);
 	}
+
+	/* Clear the message line */
+	prt("", 0, 0);
 
 	/* Load screen */
 	screen_load();
@@ -1699,14 +1772,16 @@ void do_cmd_browse(void)
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 	item_to_object(o_ptr, item);
 
-
 	/* Track the object kind */
 	object_kind_track(o_ptr->k_idx);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-	/* Actually browse the books */
+	/* Hack -- Update the screen */
+	(void)Term_fresh();
+
+	/* Browse this book */
 	do_cmd_browse_aux(o_ptr);
 }
 
@@ -1741,7 +1816,7 @@ cptr do_spell(int mode, int spell)
 	int dice, sides;
 	int rad, i;
 
-	char dummy[80];
+	char dummy[DESC_LEN];
 
 	object_type *o_ptr;
 
@@ -1795,8 +1870,8 @@ cptr do_spell(int mode, int spell)
 
 		/* Determine method description. */
 		if (p_ptr->realm == MAGE)   t = "cast";
-		if (p_ptr->realm == PRIEST) t = "pray";
-		if (p_ptr->realm == DRUID)  t = "use";
+		if (p_ptr->realm == PRIEST) t = "chant";
+		if (p_ptr->realm == DRUID)  t = "evoke";
 		if (p_ptr->realm == NECRO)  t = "perform";
 
 
@@ -1872,6 +1947,13 @@ cptr do_spell(int mode, int spell)
 			if (!get_check("Attempt it anyway?")) return ("");
 		}
 
+		/* Make a sound */
+		if (p_ptr->realm != PRIEST) sound(MSG_SPELL);
+		else                        sound(MSG_PRAYER);
+
+		/* Note action in saved messages */
+		msg_add(format("You %s %s.", t, s_ptr->sname));
+
 
 		/* Spell failure chance */
 		chance = spell_chance(spell);
@@ -1885,9 +1967,9 @@ cptr do_spell(int mode, int spell)
 			if (p_ptr->realm == MAGE)
 				msg_print("You failed to get the spell off!");
 			if (p_ptr->realm == PRIEST)
-				msg_print("Eru ignores your prayer!");
+				msg_print("You lost your concentration!");
 			if (p_ptr->realm == DRUID)
-				msg_print("You fail to control the natural forces!");
+				msg_print("You lost your concentration!");
 			if (p_ptr->realm == NECRO)
 				msg_print("You perform the ritual incorrectly!");
 
@@ -2119,7 +2201,7 @@ cptr do_spell(int mode, int spell)
 				if (mana)
 				{
 					/* Cost increases with Wizardry skill */
-					mana_cost = 4 + reliability / 8;
+					mana_cost = 4 + reliability / 7;
 					return ("");
 				}
 				if (desc) return ("Invokes strange magics, which might conjure up bolts, beams, or balls of esoteric forces, or affect your foes in ways pleasing and displeasing.  You can do great damage with this spell, especially if your Wizardry skill is high.");
@@ -2432,6 +2514,9 @@ cptr do_spell(int mode, int spell)
 					/* Created by the character and capable of hurting him, */
 					x_list[i].flags |= (EF1_HURT_PLAY | EF1_CHARACTER);
 
+					/* Is self-illuminating, */
+					x_list[i].flags |= (EF1_SHINING);
+
 					/* Spreads out for three or four grids each way, */
 					x_list[i].power2 = (spower >= 75 ? 4 : 3);
 
@@ -2444,14 +2529,15 @@ cptr do_spell(int mode, int spell)
 			/* Chromatic Burst */
 			case 28:
 			{
-				dam = 2 * spower / 3;
+				dam1 = 3 * spower / 2;
+				dam2 = 5 * spower / 2;
 
-				if (info) return (format("dam %d each arc", dam));
-				if (desc) return ("Arcs of the four elements shoot out from you; the higher your Wizardry skill, the more they concentrate their power in the direction you choose.");
+				if (info) return (format("dam %d-%d", dam1, dam2));
+				if (desc) return ("Fires a burst of any of the four elements.");
 				if (cast)
 				{
 					if (!get_aim_dir(&dir)) return (NULL);
-					chromatic_burst(dam, reliability + 20, dir);
+					if (!chromatic_burst(rand_range(dam1, dam2), dir)) return (NULL);
 				}
 				break;
 			}
@@ -2518,7 +2604,7 @@ cptr do_spell(int mode, int spell)
 				dam = 4 * spower / 3;
 				rad = 6 + reliability / 8;
 
-				if (info) return (format("dam %d/missile, rad %d", dam, rad));
+				if (info) return (format("dam %d/ea, rad %d", dam, rad));
 				if (desc) return ("Fires a swirl of sorcerous missiles; light, darkness, and confusion.  This spell is much more effective, but also somewhat more costly, when cast out in the open.");
 				if (mana)
 				{
@@ -2647,7 +2733,7 @@ cptr do_spell(int mode, int spell)
 				if (p_ptr->shield) extra = "longer";
 
 				if (info) return (format("dur %d-%d %s", dur1, dur2, extra));
-				if (desc) return ("Temporarily increases armour class by 50.");
+				if (desc) return ("Temporarily increases armor class by 50.");
 				if (cast)
 				{
 					(void)set_shield(p_ptr->shield + rand_range(dur1, dur2),
@@ -2879,7 +2965,7 @@ cptr do_spell(int mode, int spell)
 				if (p_ptr->blessed) extra = "longer";
 
 				if (info) return (format("dur %d-%d %s", dur1, dur2, extra));
-				if (desc) return ("Short-duration bonus to fighting ability and armour class.");
+				if (desc) return ("Short-duration bonus to fighting ability and armor class.");
 				if (cast)
 				{
 					(void)set_blessed(p_ptr->blessed + rand_range(dur1, dur2), NULL);
@@ -3146,7 +3232,7 @@ cptr do_spell(int mode, int spell)
 				if (p_ptr->blessed) extra = "longer";
 
 				if (info) return (format("dur %d-%d %s", dur1, dur2, extra));
-				if (desc) return ("Long-duration bonus to fighting ability and armour class.");
+				if (desc) return ("Long-duration bonus to fighting ability and armor class.");
 				if (cast)
 				{
 					(void)set_blessed(p_ptr->blessed + rand_range(dur1, dur2), NULL);
@@ -3386,7 +3472,7 @@ cptr do_spell(int mode, int spell)
 				if (desc) return ("Permanently lights up the entire dungeon level, except for vaults, and detects everything nearby.");
 				if (cast)
 				{
-					wiz_lite(FALSE);
+					wiz_lite(FALSE, TRUE);
 					(void)detect_all(FALSE, TRUE);
 				}
 				break;
@@ -3417,7 +3503,7 @@ cptr do_spell(int mode, int spell)
 				rad = 5 + xtra_spower / 13;
 
 				/* Check grids available to tap */
-				dam = 5 * concentrate_light(-1, py, px, rad, dummy, FALSE) / 4;
+				dam = 5 * concentrate_light(-1, py, px, rad, dummy, sizeof(dummy), FALSE) / 4;
 
 				if (info)
 				{
@@ -3442,7 +3528,7 @@ cptr do_spell(int mode, int spell)
 				if (cast)
 				{
 					/* Drain light */
-					dam = concentrate_light(-1, py, px, rad, dummy, TRUE);
+					dam = concentrate_light(-1, py, px, rad, dummy, sizeof(dummy), TRUE);
 
 					/* No effect */
 					if (!dam)
@@ -3614,7 +3700,7 @@ cptr do_spell(int mode, int spell)
 				if (p_ptr->shield) extra = "longer";
 
 				if (info) return (format("dur %d-%d %s", dur1, dur2, extra));
-				if (desc) return ("Temporarily increases armour class by 50.");
+				if (desc) return ("Temporarily increases armor class by 50.");
 				if (cast)
 				{
 					(void)set_shield(p_ptr->shield + rand_range(dur1, dur2),
@@ -3963,6 +4049,9 @@ cptr do_spell(int mode, int spell)
 
 					/* Created by the character and capable of hurting him, */
 					x_list[i].flags |= (EF1_HURT_PLAY | EF1_CHARACTER);
+
+					/* Is self-illuminating, */
+					x_list[i].flags |= (EF1_SHINING);
 
 					/* And lasts for a certain period of time. */
 					x_list[i].lifespan = (50 + spower / 4) /
@@ -4592,7 +4681,7 @@ cptr do_spell(int mode, int spell)
 				if (p_ptr->shield) extra = "longer";
 
 				if (info) return (format("dur %d-%d %s", dur1, dur2, extra));
-				if (desc) return ("Temporarily increases armour class by 50.");
+				if (desc) return ("Temporarily increases armor class by 50.");
 				if (cast)
 				{
 					(void)set_shield(p_ptr->shield + rand_range(dur1, dur2),
@@ -4756,7 +4845,7 @@ cptr do_spell(int mode, int spell)
 				if (p_ptr->blessed) extra = "longer";
 
 				if (info) return (format("dur %d-%d %s", dur1, dur2, extra));
-				if (desc) return ("Short-duration bonus to fighting ability and armour class.");
+				if (desc) return ("Short-duration bonus to fighting ability and armor class.");
 				if (cast)
 				{
 					(void)set_blessed(p_ptr->blessed + rand_range(dur1, dur2),
@@ -4956,7 +5045,7 @@ cptr do_spell(int mode, int spell)
 				if (cast)
 				{
 					if (!get_aim_dir(&dir)) return (NULL);
-					take_hit(damroll(2, 3), 0, "Your life is drained.",
+					(void)take_hit(damroll(2, 3), 0, "Your life is drained.",
 						"the dark arts");
 
 					/* Beams above 40 BD skill, always above 55 */
@@ -5049,7 +5138,7 @@ cptr do_spell(int mode, int spell)
 				if (desc) return ("Random large-range displacement.");
 				if (cast)
 				{
-					take_hit(damroll(2, 6), 0, "Ouch!", "shadow dislocation");
+					(void)take_hit(damroll(2, 6), 0, "Ouch!", "shadow dislocation");
 					teleport_player(100, TRUE, FALSE);
 				}
 				break;
@@ -5063,7 +5152,7 @@ cptr do_spell(int mode, int spell)
 				if (info)
 				{
 					/* Check grids available to tap */
-					pow = concentrate_light(-1, py, px, rad, dummy, FALSE) * 50;
+					pow = concentrate_light(-1, py, px, rad, dummy, sizeof(dummy), FALSE) * 50;
 
 					/* Hack -- Use the "simple" RNG */
 					Rand_quick = TRUE;
@@ -5086,7 +5175,7 @@ cptr do_spell(int mode, int spell)
 				if (cast)
 				{
 					/* Drain light */
-					pow = concentrate_light(-1, py, px, rad, dummy, TRUE) * 50;
+					pow = concentrate_light(-1, py, px, rad, dummy, sizeof(dummy), TRUE) * 50;
 
 					/* Message */
 					if (pow > 500)
@@ -5121,18 +5210,14 @@ cptr do_spell(int mode, int spell)
 				break;
 			}
 
-			/* Genocide */
+			/* Thaumacurse */
 			case 218:
 			{
 				if (info) return ("");
-				if (desc) return ("Deletes all monsters of the symbol you choose from the level, except uniques and special quest monsters.");
+				if (desc) return ("Taps into curses on equipped items to devastate nearby foes.  Each equipped cursed item (quiver doesn't count) boosts the spell's strength.  Light curses are one-use and broken, but heavy curses are a permanent source of power.");
 				if (cast)
 				{
-					if (!genocide(0))
-					{
-						/* Only costs mana if spell is completed */
-						return (NULL);
-					}
+					(void)thaumacurse(TRUE, (spower + spower * spower / 80));
 				}
 				break;
 			}
@@ -5225,26 +5310,8 @@ cptr do_spell(int mode, int spell)
 				break;
 			}
 
-			/* The Overmind */
-			case 221:
-			{
-				pow = (p_ptr->mental_barrier ? 3 * spower / 2 : spower);
-
-				if (info) return (format("power %d", pow));
-				if (desc) return ("Attempts to smash the minds of all creatures in line of sight.  This spell is extremely risky, but also very powerful.  A high saving throw helps.");
-				if (cast)
-				{
-					/* Message */
-					msg_print("Mind-warping forces emanate from your brain!");
-
-					/* Engage all viewable monsters in mental combat */
-					project_los(p_ptr->py, p_ptr->px, GF_PSI, pow);
-				}
-				break;
-			}
-
 			/* Corpse Light */
-			case 222:
+			case 221:
 			{
 				if (info) return ("");
 				if (desc) return ("Permanently lights up a room or the area lit by your light source.");
@@ -5256,7 +5323,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Probing */
-			case 223:
+			case 222:
 			{
 				if (info) return ("");
 				if (desc) return ("Learns most attributes of all monsters in sight.");
@@ -5268,7 +5335,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Shadow Mapping */
-			case 224:
+			case 223:
 			{
 				if (info) return ("");
 				if (desc) return ("Maps the immediate area, reveals doors and stairs.");
@@ -5282,7 +5349,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Interrogate */
-			case 225:
+			case 224:
 			{
 				if (info) return ("");
 				if (desc) return ("Identifies an object.");
@@ -5294,14 +5361,14 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Shadow Shield */
-			case 226:
+			case 225:
 			{
 				dur1 = (p_ptr->shield ?          1 : spower / 4);
 				dur2 = (p_ptr->shield ? spower / 4 : spower / 2);
 				if (p_ptr->shield) extra = "longer";
 
 				if (info) return (format("dur %d-%d %s", dur1, dur2, extra));
-				if (desc) return ("Temporarily increases armour class by 50.");
+				if (desc) return ("Temporarily increases armor class by 50.");
 				if (cast)
 				{
 					(void)set_shield(p_ptr->shield + rand_range(dur1, dur2),
@@ -5311,7 +5378,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Wraithform */
-			case 227:
+			case 226:
 			{
 				dur1 = (p_ptr->wraithform ?          1 : spower / 2);
 				dur2 = (p_ptr->wraithform ? spower / 4 : spower);
@@ -5328,7 +5395,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Darkfire */
-			case 228:
+			case 227:
 			{
 				dam = 4 * spower / 3;
 
@@ -5343,7 +5410,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Vampiric Drain */
-			case 229:
+			case 228:
 			{
 				dam = 2 * spower / 3;
 
@@ -5358,7 +5425,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Blight Upon Nature */
-			case 230:
+			case 229:
 			{
 				dam1 = 2 * xtra_spower;
 				dam2 = 2 * spower;
@@ -5373,7 +5440,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Smash Undead */
-			case 231:
+			case 230:
 			{
 				dam1 = 5 * xtra_spower / 2;
 				dam2 = 5 * spower / 2;
@@ -5388,13 +5455,13 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Destroy Cavern */
-			case 232:
+			case 231:
 			{
 				if (info) return ("");
 				if (desc) return ("Destroys almost all objects nearby, deletes ordinary monsters, and banishes uniques from the level.");
 				if (cast)
 				{
-					take_hit(damroll(6, 5), 0, "You are hit!",
+					(void)take_hit(damroll(6, 5), 0, "You are hit!",
 						"incautious casting of the dark arts");
 					destroy_area(py, px, 15, TRUE, FALSE);
 				}
@@ -5402,7 +5469,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Annihilation */
-			case 233:
+			case 232:
 			{
 				dam = 3 * (spower - 10);
 
@@ -5417,7 +5484,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Mind over Body */
-			case 234:
+			case 233:
 			{
 				pow = get_heal_amount(20, 50);
 
@@ -5436,7 +5503,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Ward Against Evil */
-			case 235:
+			case 234:
 			{
 				dur1 = (p_ptr->protevil ?  1 : 30);
 				dur2 = (p_ptr->protevil ? 20 : 40);
@@ -5452,7 +5519,7 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Necromantic Rage */
-			case 236:
+			case 235:
 			{
 				dur1 = (p_ptr->necro_rage ?  1 : 30);
 				dur2 = (p_ptr->necro_rage ? 15 : 50);
@@ -5472,13 +5539,31 @@ cptr do_spell(int mode, int spell)
 			}
 
 			/* Dispel Curse */
-			case 237:
+			case 236:
 			{
 				if (info) return ("");
 				if (desc) return ("Removes both normal and heavy curses.");
 				if (cast)
 				{
 					(void)remove_all_curse();
+				}
+				break;
+			}
+
+			/* The Overmind */
+			case 237:
+			{
+				pow = (p_ptr->mental_barrier ? 3 * spower / 2 : spower);
+
+				if (info) return (format("power %d", pow));
+				if (desc) return ("Attempts to smash the minds of all creatures in line of sight.  This spell is extremely risky, but also very powerful.  A high saving throw helps.");
+				if (cast)
+				{
+					/* Message */
+					msg_print("Mind-warping forces emanate from your brain!");
+
+					/* Engage all viewable monsters in mental combat */
+					project_los(p_ptr->py, p_ptr->px, GF_PSI, pow);
 				}
 				break;
 			}
@@ -5499,7 +5584,7 @@ cptr do_spell(int mode, int spell)
 						(void)sp_player(pow, NULL);
 
 						/* It hurts! */
-						take_hit(diff, 0,
+						(void)take_hit(diff, 0,
 							"Your lifeforce becomes magical power.",
 							"the dark arts");
 					}

@@ -1,7 +1,7 @@
 # File: font.prf
 
 #
-# This file defines special attr/char mappings for use in "text" mode
+# This file defines special attr/char mappings for use in "extended text" mode
 #
 # This file includes, if appropriate, various "sub-files"
 #
@@ -24,6 +24,9 @@
 
 ?:[EQU $SYS mac]
 %:font-mac.prf
+
+?:[EQU $SYS sdl]
+%:font-sdl.prf
 
 ?:[EQU $SYS win]
 %:font-win.prf

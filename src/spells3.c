@@ -1,4 +1,3 @@
-
 /* File: spells3.c */
 
 /*
@@ -9,11 +8,12 @@
  * identification.  Recharge and tap magical devices.  The effects of
  * specific objects.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -420,7 +420,7 @@ bool potion_smash_effect(int who, int y, int x, object_type *o_ptr)
 		/* Throwing a potion is less effective than observing a trap */
 		else if ((who == -2) || (one_in_(3)))
 		{
-			char o_name[80];
+			char o_name[DESC_LEN];
 
 			object_aware(o_ptr);
 
@@ -459,7 +459,7 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 	int k, used_up, lev, pow, sav;
 	int fy, fx;
 
-	char m_name[80];
+	char m_name[DESC_LEN];
 
 	int skill = get_skill(S_BURGLARY, 0, 100);
 
@@ -715,7 +715,8 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 
 		case SV_SCROLL_GENOCIDE:
 		{
-			genocide(r_ptr->d_char);
+			(void)genocide(r_ptr->d_char);
+
 			notice = TRUE;
 			break;
 		}
@@ -757,21 +758,21 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 
 		case SV_SCROLL_TREES:
 		{
-			notice = project_star(who, rand_range(6, 9), fy, fx, 0,
+			notice = project_star(who, rand_range(6, 9), fy, fx, fy, fx, 0,
 				GF_MAKE_TREES, 0L);
 			break;
 		}
 
 		case SV_SCROLL_WATER:
 		{
-			notice = project_star(who, rand_range(5, 8), fy, fx, 0,
+			notice = project_star(who, rand_range(5, 8), fy, fx, fy, fx, 0,
 				GF_MAKE_WATER, 0L);
 			break;
 		}
 
 		case SV_SCROLL_LAVA:
 		{
-			notice = project_star(who, rand_range(5, 7), fy, fx, 0,
+			notice = project_star(who, rand_range(5, 7), fy, fx, fy, fx, 0,
 				GF_MAKE_LAVA, 0L);
 			break;
 		}
@@ -799,7 +800,7 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 		}
 		else
 		{
-			char o_name[80];
+			char o_name[DESC_LEN];
 
 			object_aware(o_ptr);
 
@@ -1371,6 +1372,12 @@ bool device_use_effect(int mode, int power, int y, int x, object_type *o_ptr)
 				break;
 			}
 
+			case SV_WAND_SPARK:
+			{
+				notice = explosion(who, 0, y, x, damroll(2, 4), GF_ELEC);
+				break;
+			}
+
 			default:
 			{
 				break;
@@ -1598,7 +1605,7 @@ bool device_use_effect(int mode, int power, int y, int x, object_type *o_ptr)
 	/* If a monster trap used the device, learn about it */
 	if ((mode == -2) && (notice))
 	{
-		char o_name[80];
+		char o_name[DESC_LEN];
 
 		if (object_aware_p(o_ptr))
 		{
@@ -1698,7 +1705,7 @@ void fire_off_devices(int chance)
 				}
 
 				/* Target in a random direction */
-				get_grid_using_angle(rand_int(180), p_ptr->py, p_ptr->px, &y, &x);
+				get_grid_using_angle(rand_int(240), p_ptr->py, p_ptr->px, &y, &x);
 				target_set_location(y, x);
 
 				/* Use device (randomly) */
@@ -1788,8 +1795,8 @@ bool check_blanket(int mode, int dam)
 		object_type *o_ptr = &inventory[ind];
 
 		/* Describe the blanket */
-		char o_name[80];
-		object_desc(o_name, o_ptr, FALSE, 0);
+		char o_name[DESC_LEN];
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 		/* Remember previous protective value */
 		i = o_ptr->ac;
@@ -1800,7 +1807,7 @@ bool check_blanket(int mode, int dam)
 		/* Blanket has no resistance left */
 		if (o_ptr->ac <= 0)
 		{
-			msg_format("Your %s is destroyed!", o_name);
+			message_format(MSG_DESTROY, 0, "Your %s is destroyed!", o_name);
 
 			/* Destroy the blanket */
 			inven_item_increase(ind, -1);
@@ -2061,10 +2068,10 @@ int inven_damage(inven_func typ, int perc0, int dam)
 {
 	int i, j, k, amt;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	/* Have a special message if you get hit hard */
-	bool severe = (perc0 >= 20);
+	bool severe = (perc0 >= 10);
 
 	/* Count the casualties */
 	k = 0;
@@ -2094,7 +2101,7 @@ int inven_damage(inven_func typ, int perc0, int dam)
 			}
 
 			/* Many object types are hard to destroy */
-			if (((is_any_weapon(o_ptr)) || (is_any_armour(o_ptr)) ||
+			if (((is_any_weapon(o_ptr)) || (is_any_armor(o_ptr)) ||
 			     (is_magical_device(o_ptr)) || (o_ptr->tval == TV_RING) ||
 			     (o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_CHEST)) &&
 			    (dam < rand_range(10, 20)))
@@ -2152,12 +2159,12 @@ int inven_damage(inven_func typ, int perc0, int dam)
 					if (o_ptr->ac > 0)
 					{
 						/* Describe */
-						object_desc(o_name, o_ptr, FALSE, 0);
+						object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 						/* Note damage */
 						msg_format("Your %s (%c) %s damaged!",
-								 o_name, index_to_label(i),
-								((o_ptr->number > 1) ? "were" : "was"));
+							o_name, index_to_label(i),
+							((o_ptr->number > 1) ? "were" : "was"));
 
 						/* No deaths */
 						continue;
@@ -2166,10 +2173,10 @@ int inven_damage(inven_func typ, int perc0, int dam)
 
 
 				/* Get a description */
-				object_desc(o_name, o_ptr, FALSE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 				/* Message */
-				msg_format("%sour %s (%c) %s destroyed!",
+				message_format(MSG_DESTROY, 0, "%sour %s (%c) %s destroyed!",
 				      ((o_ptr->number > 1) ?
 				      ((amt == o_ptr->number) ? "All of y" :
 				       (amt > 1 ? "Some of y" : "One of y")) : "Y"),
@@ -2210,9 +2217,9 @@ bool curse_armor(void)
 	int i, item;
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
-	/* Look several times for a non-artifact armour */
+	/* Look several times for a non-artifact armor */
 	for (i = 0; i < 100; i++)
 	{
 		/* Choose a slot at random */
@@ -2231,14 +2238,14 @@ bool curse_armor(void)
 		/* Nothing to curse */
 		if (!o_ptr->k_idx) continue;
 
-		/* Must be some sort of armour */
-		if (!is_any_armour(o_ptr)) continue;
+		/* Must be some sort of armor */
+		if (!is_any_armor(o_ptr)) continue;
 
 		/* Must not be an artifact */
 		if (artifact_p(o_ptr)) continue;
 
 		/* Describe */
-		object_desc(o_name, o_ptr, FALSE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 		/* Never allow a saving throw (because artifacts are safe). */
 
@@ -2288,7 +2295,7 @@ bool curse_weapon(void)
 	int i, item;
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	/* Look several times for a non-artifact weapon */
 	for (i = 0; i < 100; i++)
@@ -2324,12 +2331,12 @@ bool curse_weapon(void)
 		if (artifact_p(o_ptr)) continue;
 
 		/* Describe */
-		object_desc(o_name, o_ptr, FALSE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 		/* Never allow a saving throw (because artifacts are safe). */
 
 		/* Describe */
-		object_desc(o_name, o_ptr, FALSE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 		/* Oops */
 		msg_format("A terrible black aura blasts your %s!", o_name);
@@ -2398,8 +2405,8 @@ void curse_equipment(int power)
 	/* Extra, biased saving throw for blessed items */
 	if ((f3 & (TR3_BLESSED)) && (randint(888) > power))
 	{
-		char o_name[256];
-		object_desc(o_name, o_ptr, FALSE, 0);
+		char o_name[DESC_LEN];
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 		msg_format("Your %s resists cursing!", o_name);
 		return;
 	}
@@ -2438,7 +2445,7 @@ void curse_equipment(int power)
 /*
  * Hack -- Removes curse from an object.
  */
-static void uncurse_object(object_type *o_ptr)
+void uncurse_object(object_type *o_ptr)
 {
 	/* Uncurse it */
 	o_ptr->flags3 &= ~(TR3_LIGHT_CURSE);
@@ -2488,10 +2495,10 @@ static int remove_curse_aux(int heavy)
 		/* Object isn't cursed -- ignore */
 		if (!cursed_p(o_ptr)) continue;
 
-		/* Heavily Cursed Items need a special spell */
+		/* Heavily cursed items need a special spell */
 		if (!heavy && (o_ptr->flags3 & (TR3_HEAVY_CURSE))) continue;
 
-		/* Perma-Cursed Items can NEVER be uncursed */
+		/* Perma-cursed items can NEVER be uncursed */
 		if (o_ptr->flags3 & (TR3_PERMA_CURSE)) continue;
 
 		/* Uncurse the object */
@@ -2577,9 +2584,9 @@ static bool item_tester_hook_ammo(const object_type *o_ptr)
 }
 
 /*
- * Hook to specify "armour"
+ * Hook to specify "armor"
  */
-static bool item_tester_hook_armour(const object_type *o_ptr)
+static bool item_tester_hook_armor(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -2616,7 +2623,7 @@ static bool item_tester_sense_magic(const object_type *o_ptr)
 		if (object_aware_p(o_ptr)) return (TRUE);
 	}
 
-	/* Can sense any weapon or armour */
+	/* Can sense any weapon or armor */
 	if (is_wargear(o_ptr)) return (TRUE);
 
 	return (FALSE);
@@ -2927,7 +2934,7 @@ static bool turn_into_ego_item(object_type *o_ptr)
 
 /*
  * Enchant an item (in the inventory or on the floor)
- * Note that "num_ac" requires armour, else weapon
+ * Note that "num_ac" requires armor, else weapon
  * Returns TRUE if attempted, FALSE if cancelled
  */
 bool enchant_spell(int num_hit, int num_dam, int num_ac, bool ego)
@@ -2937,15 +2944,15 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac, bool ego)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	cptr q, s;
 
-	char effect_desc[80];
+	char effect_desc[DESC_LEN];
 
 
 	/* Enchant armor or weapon as requested */
-	if (num_ac) item_tester_hook = item_tester_hook_armour;
+	if (num_ac) item_tester_hook = item_tester_hook_armor;
 	else        item_tester_hook = item_tester_hook_weapon;
 
 	/* Get an item */
@@ -2957,7 +2964,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac, bool ego)
 
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 	/* Note power of enchantment */
 	if (num_hit + num_dam + num_ac == 1) strcpy(effect_desc, "faintly");
@@ -3025,7 +3032,7 @@ bool brand_missile(int ammo_type, int brand_type)
 	cptr q, s;
 
 
-	 /* Hack -- check for restricted choice */
+	/* Hack -- check for restricted choice */
 	if ((ammo_type >= TV_SHOT) && (ammo_type <= TV_BOLT))
 		item_tester_tval = ammo_type;
 
@@ -3135,7 +3142,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	int chance;
 
@@ -3206,7 +3213,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 				if (slot >= 0)
 				{
 					/* Get an object description */
-					object_desc(o_name, o_ptr, TRUE, 2);
+					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 2);
 
 					/* Message */
 					msg_format("You sense the charges on %s (%c).",
@@ -3236,14 +3243,14 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 			object_aware(o_ptr);
 
 			/* Get an object description */
-			object_desc(o_name, o_ptr, TRUE, 2);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 2);
 
 			/* Output a message */
 			if (slot == INVEN_LEFT)  tmp = "on your left hand";
 			if (slot == INVEN_RIGHT) tmp = "on your right hand";
 			if (slot == INVEN_NECK)  tmp = "on your neck";
 
-			msg_format("You feel you are wearing %s %s.", o_name, tmp);
+			message_format(MSG_PSEUDOID, 0, "You feel you are wearing %s %s.", o_name, tmp);
 
 			/* Gain a significant amount of exp  (this is a hack) */
 			gain_exp(level * level / 2, S_NOSKILL);
@@ -3254,7 +3261,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	}
 
 
-	/* Otherwise, object must be a weapon or armour */
+	/* Otherwise, object must be a weapon or armor */
 	if (!is_wargear(o_ptr)) return;
 
 
@@ -3331,7 +3338,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 			object_known(o_ptr);
 
 			/* Get a full object description */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 			/* Describe */
 			if (slot >= INVEN_WIELD)
@@ -3443,12 +3450,12 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 		    (!suppress_msg))
 		{
 			/* Get a short object description */
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 			/* Message (equipment) */
 			if (slot >= INVEN_WIELD)
 			{
-				msg_format("You feel the %s (%c) you are %s %s%s %s...",
+				message_format(MSG_PSEUDOID, 0, "You feel the %s (%c) you are %s %s%s %s...",
 					o_name, index_to_label(slot), describe_use(slot),
 					((o_ptr->number == 1) ? "is"        : "are"),
 					((old_inscrip)        ? " actually" : ""),
@@ -3458,7 +3465,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 			/* Message (inventory) */
 			else if (slot >= 0)
 			{
-				msg_format("You feel the %s (%c) in your pack %s%s %s...",
+				message_format(MSG_PSEUDOID, 0, "You feel the %s (%c) in your pack %s%s %s...",
 					o_name, index_to_label(slot),
 					((o_ptr->number == 1) ? "is"        : "are"),
 					((old_inscrip)        ? " actually" : ""),
@@ -3477,7 +3484,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 				/* Message -- if not on floor */
 				if (slot != -4)
 				{
-					msg_format("You feel the %s %s %s%s %s...",
+					message_format(MSG_PSEUDOID, 0, "You feel the %s %s %s%s %s...",
 						o_name, use_desc,
 						((o_ptr->number == 1) ? "is"            : "are"),
 						((old_inscrip)        ? " actually"     : ""),
@@ -3520,7 +3527,7 @@ bool scan_object_priest(bool full)
 	object_type *o_ptr;
 	object_kind *k_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	cptr q, s;
 
@@ -3666,7 +3673,7 @@ bool scan_object_priest(bool full)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 
 	/* We identified the object */
@@ -3695,7 +3702,7 @@ bool scan_object_priest(bool full)
 	else if ((feel) && (feel != INSCRIP_UNCERTAIN) &&
 	         (feel != INSCRIP_UNCERTAIN_SENSED))
 	{
-		char feeling_text[80];
+		char feeling_text[DESC_LEN];
 
 		/* Usually use the standard feeling inscription */
 		strcpy(feeling_text, inscrip_text[feel]);
@@ -3705,12 +3712,12 @@ bool scan_object_priest(bool full)
 		if (feel == INSCRIP_VERY_BLESSED) strcpy(feeling_text, "truly blessed");
 
 		/* Get an object description */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 		/* Message (equipment) */
 		if (item >= INVEN_WIELD)
 		{
-			msg_format("You feel the %s (%c) you are %s %s %s...",
+			message_format(MSG_PSEUDOID, 0, "You feel the %s (%c) you are %s %s %s...",
 				o_name, index_to_label(item), describe_use(item),
 				((o_ptr->number == 1) ? "is" : "are"), feeling_text);
 		}
@@ -3718,14 +3725,14 @@ bool scan_object_priest(bool full)
 		/* Message (inventory) */
 		else if (item >= 0)
 		{
-			msg_format("You feel the %s (%c) in your pack %s %s...",
+			message_format(MSG_PSEUDOID, 0, "You feel the %s (%c) in your pack %s %s...",
 				o_name, index_to_label(item),
 				((o_ptr->number == 1) ? "is" : "are"),
 				feeling_text);
 		}
 		else
 		{
-			msg_format("You feel the %s on the ground %s %s...",
+			message_format(MSG_PSEUDOID, 0, "You feel the %s on the ground %s %s...",
 				o_name, ((o_ptr->number == 1) ? "is" : "are"),
 				feeling_text);
 		}
@@ -3799,7 +3806,7 @@ void learn_about_wearable(object_type *o_ptr, int slot, bool strong)
 
 /*
  * Learn about charges on magical devices, pvals on rings and amulets,
- * and scan weapons and armour.
+ * and scan weapons and armor.
  */
 bool sense_magic(void)
 {
@@ -3807,7 +3814,7 @@ bool sense_magic(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	cptr q, s;
 
@@ -3823,7 +3830,7 @@ bool sense_magic(void)
 	item_to_object(o_ptr, item);
 
 
-	/* Object is a weapon or armour -- sense it */
+	/* Object is a weapon or armor -- sense it */
 	if (is_wargear(o_ptr))
 	{
 		/* Get object kind */
@@ -3889,7 +3896,7 @@ bool sense_magic(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Describe */
 	if (item >= INVEN_WIELD)
@@ -3924,7 +3931,7 @@ bool ident_spell(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	cptr q, s;
 
@@ -3943,6 +3950,25 @@ bool ident_spell(void)
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
+
+	/* Possibly play a sound depending on object quality. */
+	if (object_value(o_ptr) == 0)
+	{
+		/* This is a cursed item. */
+		if (cursed_p(o_ptr)) sound(MSG_IDENT_BAD);
+	}
+	else if (o_ptr->artifact_index)
+	{
+		/* We have a good artifact. */
+		sound(MSG_IDENT_ART);
+	}
+	else if (o_ptr->ego_item_index)
+	{
+		/* We have a good ego item. */
+		sound(MSG_IDENT_EGO);
+	}
+
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -3953,7 +3979,7 @@ bool ident_spell(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Describe */
 	if (item >= INVEN_WIELD)
@@ -3989,7 +4015,7 @@ bool identify_fully(void)
 	object_type *o_ptr;
 	object_kind *k_ptr;
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	cptr q, s;
 
@@ -4012,9 +4038,8 @@ bool identify_fully(void)
 	object_known(o_ptr);
 	object_mental(o_ptr);
 
-	/* Reveal the special properties of items */
+	/* Become fully aware of the effects  XXX XXX (think about this some more) */
 	k_ptr->special |= (SPECIAL_KNOWN_EFFECT);
-	
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -4029,7 +4054,7 @@ bool identify_fully(void)
 	handle_stuff();
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Describe */
 	if (item >= INVEN_WIELD)
@@ -4172,7 +4197,7 @@ bool recharge(int power, bool essence)
 	byte fail_type = 1;
 
 	cptr q, s;
-	char o_name[120];
+	char o_name[DESC_LEN];
 
 	/* Get magical device skill */
 	int skill = get_skill(S_DEVICE, 0, 100);
@@ -4309,7 +4334,7 @@ bool recharge(int power, bool essence)
 		/* Artifacts are never destroyed. */
 		if (artifact_p(o_ptr))
 		{
-			object_desc(o_name, o_ptr, TRUE, 0);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 			msg_format("The recharging backfires - %s is completely drained!", o_name);
 
 			/* Artifact rods. */
@@ -4332,7 +4357,7 @@ bool recharge(int power, bool essence)
 		else
 		{
 			/* Get the object description */
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 			/*** Determine Seriousness of Failure ***/
 
@@ -4483,7 +4508,7 @@ bool recharge(int power, bool essence)
 			bool plural = (o_ptr->number > 1);
 
 			/* Get the object name */
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 			/* Identify it */
 			object_known(o_ptr);
@@ -4653,7 +4678,7 @@ void nightfall(void)
 		/* Skip permanent lights */
 		if (f3 & (TR3_NOFUEL)) continue;
 
-		/* Kill the light XXX XXX */
+		/* Hack -- Kill the light XXX XXX */
 		if (!o_ptr->flags_pval1) o_ptr->pval = 0;
 	}
 
@@ -4692,8 +4717,8 @@ void nightfall(void)
 		/* Creatures of darkness become more powerful */
 		if ((dark) && (!light))
 		{
-			char m_name[80];
-			char m_poss[80];
+			char m_name[DESC_LEN];
+			char m_poss[DESC_LEN];
 
 			/* Get the monster name (or "it") */
 			monster_desc(m_name, m_ptr, 0x40);
@@ -4767,6 +4792,9 @@ void doomspells(bool hurt, int skill)
 
 		/* Blast */
 		(void)explosion(0, 5, py, px, rand_range(dam1, dam2), GF_BLACK_ORB);
+
+		/* Leave? */
+		if (p_ptr->is_dead) return;
 
 		/* Slash */
 		set_cut(p_ptr->cut + WOUND_MORTAL);
@@ -4900,10 +4928,7 @@ void slaughterfield(int dam, object_type *o_ptr)
 	if ((ty == 0) && (tx == 0))
 	{
 		/* Kill! */
-		take_hit(dam * 2, MSG_RED, "You are the only living thing in sight!  The axe satisfies its bloodlust on you!", "the Throwing Axe 'Slaughterfield'");
-
-		/* Not dead yet. */
-		if (!p_ptr->is_dead)
+		if (!take_hit(dam * 2, MSG_RED, "You are the only living thing in sight!  The axe satisfies its bloodlust on you!", "the Throwing Axe 'Slaughterfield'"))
 		{
 			/* Cut */
 			set_cut(p_ptr->cut + rand_range(dam, dam * 5));
@@ -4967,6 +4992,7 @@ int stare_into_the_palantir(void)
 
 	int timeout;
 	int i, maxlev = 0, midx = 0;
+	int msex;
 
 	bool safe = FALSE;
 
@@ -5007,8 +5033,8 @@ int stare_into_the_palantir(void)
 	/* Fight for control of the Palantir */
 	if (midx)
 	{
-		char m_name[80];
-		char m_pron[80];
+		char m_name[DESC_LEN];
+		char m_pron[DESC_LEN];
 		char *name1;
 		char *name2;
 
@@ -5036,8 +5062,13 @@ int stare_into_the_palantir(void)
 		}
 		else
 		{
+			/* Note gender */
+			if      (r_ptr->flags1 & (RF1_FEMALE)) msex = 2;
+			else if (r_ptr->flags1 & (RF1_MALE))   msex = 1;
+			else                                   msex = 0;
+
 			name1 = m_name;
-			name2 = m_pron;
+			name2 = (msex == 2) ? "she" : ((msex == 1) ? "he" : "it");
 			short_m_name(m_name);
 		}
 
@@ -5063,6 +5094,9 @@ int stare_into_the_palantir(void)
 			{
 				/* Oh no. */
 				msg_format("%s seizes control of the Palantir ...", m_name);
+
+				/* Darkness */
+				(void)explosion(0, 3, p_ptr->py, p_ptr->px, 0, GF_DARK_WEAK);
 
 				/* Palantir is useless for a long time */
 				timeout = 1000;
@@ -5091,17 +5125,11 @@ int stare_into_the_palantir(void)
 			/* You have won */
 			else if ((he_loses) && (!you_lose))
 			{
-				cptr wd_him[3] = {"it",  "him", "her"};
-				int msex = 0;
-
-				if      (r_ptr->flags1 & (RF1_FEMALE)) msex = 2;
-				else if (r_ptr->flags1 & (RF1_MALE))   msex = 1;
-				
 				/* Yay! */
 				msg_print("You regain control of the Palantir ...");
 
 				/* Yay! */
-				msg_format("You break %s's will, and beat %s back!", m_name, wd_him[msex]);
+				msg_format("You break %s's will, and beat %s back!", m_name, m_pron);
 
 				/* Confuse (no resist) */
 				m_ptr->confused = 20;
@@ -5122,8 +5150,11 @@ int stare_into_the_palantir(void)
 	}
 
 
+	/* Flash of light */
+	(void)explosion(0, 2, p_ptr->py, p_ptr->px, 0, GF_LITE_WEAK);
+
 	/* Illuminate entire dungeon, including vaults (!) */
-	wiz_lite(TRUE);
+	wiz_lite(TRUE, TRUE);
 	msg_print("You suddenly see a vision of the entire dungeon!");
 
 	/* If not immune... */

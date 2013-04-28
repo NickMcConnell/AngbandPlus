@@ -7,29 +7,29 @@
  * in melee and when shooting/throwing, the effects of weapon attributes.
  * Martial arts, shield bashing, melee attacks.  Archery.  Throwing.
  *
- * Copyright (c) 2002
+ * Copyright (c) 2007
  * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
+
 
 
 /*
  * Determine if character or monster blows hit.
  *
  * The chance to hit increases with attack accuracy and decreases with
- * armour.  It never rises above 95% and never falls below 5%.
+ * armor.  It never rises above 95% and never falls below 5%.
  */
 bool test_hit_combat(int chance, int ac, int visible)
 {
-	int percent = 0;
-
-	/* Power competes against armour */
-	percent = div_round(100 * (chance - ac), MAX(1, chance));
+	/* Power competes against armor */
+	int percent = div_round(100 * (chance - ac), MAX(1, chance));
 
 	/* Invisible entities are harder to hit */
 	if (!visible) percent /= 2;
@@ -66,7 +66,7 @@ bool monster_evade_or_resist(object_type *o_ptr,
 
 	cptr p, note = "";
 
-	char m_name[80];
+	char m_name[DESC_LEN];
 
 	/* Get "the monster" or "it" */
 	monster_desc(m_name, m_ptr, 0x40);
@@ -212,7 +212,7 @@ bool monster_evade_or_resist(object_type *o_ptr,
 			/* Take note of new resist */
 			if (learn)
 			{
-				if (resist >= 80)
+				if (resist >= 85)
 					msg_format("Your %s does almost no damage to %s!",
 						p, m_name);
 				else if (resist >= 70)
@@ -222,7 +222,7 @@ bool monster_evade_or_resist(object_type *o_ptr,
 					msg_format("Your %s does little damage to %s!",
 						p, m_name);
 				else
-					msg_format("Your %s is slightly resisted by %s.",
+					msg_format("Your %s is partially resisted by %s.",
 						p, m_name);
 			}
 
@@ -277,23 +277,6 @@ static int terrain_ac_adjust(monster_race *r_ptr, int feat)
 
 
 /*
- * Silly combat messages, used when the character gets a critical hit
- * against a sleeping, visible monster.  Do not display them too often.
- */
-static cptr silly_hit_msg[8] =
-{
-	"Wakey, wakey!",
-	"Good morning!",
-	"Gotcha!",
-	"Take that!",
-	"Eat some!",
-	"Having fun yet?",
-	"Yeah!",
-	"What a way to start up a fight!"
-};
-
-
-/*
  * Calculation of critical hits by the player in hand-to-hand combat.
  * -LM-
  *
@@ -318,6 +301,7 @@ static int critical_melee(int chance, bool visible, char m_name[],
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	u32b f1, f2, f3;
+	int max;
 
 	bool vorpal = FALSE;
 	bool sneak_attack = FALSE;
@@ -356,34 +340,32 @@ static int critical_melee(int chance, bool visible, char m_name[],
 	if (p_ptr->special_attack & (ATTACK_SNEAK)) sneak_attack = TRUE;
 
 
-	/* Calculate slay bonus (can - rarely - be as great as 60 points). */
-	if (TRUE)
+	/*** Calculate slay bonus (can be as great as 60 points) ***/
+	max = 10;
+
+	/* Those without a realm get a larger bonus */
+	if (!p_ptr->realm) max = 40;
+
+	/* Pure warriors get the maximum bonus */
+	if (p_ptr->oath & (OATH_OF_IRON)) max = 60;
+
+	/* Note that bonuses are not cumulative */
+	if (r_ptr->flags3 & (RF3_DEMON))
 	{
-		int max = 10;
-
-		/* Those without a realm get a larger bonus */
-		if (!p_ptr->realm) max = 40;
-
-		/* Pure warriors get the maximum bonus */
-		if (p_ptr->oath & (OATH_OF_IRON)) max = 60;
-
-		/* Note that bonuses are not cumulative */
-		if (r_ptr->flags3 & (RF3_DEMON))
-		{
-			add_power = MAX(get_skill(S_PIETY,    0, max), add_power);
-		}
-		if (r_ptr->flags3 & (RF3_ANIMAL))
-		{
-			add_power = MAX(get_skill(S_NATURE,   0, max), add_power);
-		}
-		if (r_ptr->flags3 & (RF3_UNDEAD))
-		{
-			add_power = MAX(get_skill(S_DOMINION, 0, max), add_power);
-		}
-
-		/* Add slay bonus */
-		power += add_power;
+		add_power = MAX(get_skill(S_PIETY,    0, max), add_power);
 	}
+	if (r_ptr->flags3 & (RF3_ANIMAL))
+	{
+		add_power = MAX(get_skill(S_NATURE,   0, max), add_power);
+	}
+	if (r_ptr->flags3 & (RF3_UNDEAD))
+	{
+		add_power = MAX(get_skill(S_DOMINION, 0, max), add_power);
+	}
+
+	/* Add slay bonus */
+	power += add_power;
+
 
 	/* Penalize some conditions */
 	if (p_ptr->confused || p_ptr->image || !visible)
@@ -412,23 +394,13 @@ static int critical_melee(int chance, bool visible, char m_name[],
 		/* Encourage the player to beat on sleeping monsters. */
 		if ((m_ptr->csleep) && (visible))
 		{
-			/* More "interesting" messages if we get a seriously good hit. */
+			/* More "interesting" messages if we get a seriously good hit */
 			if (add_dice >= 4)
 			{
-				/* Upon rare occasion, display a cute message. */
-				if (one_in_(15))
-				{
-					cptr msg = silly_hit_msg[rand_int(8)];
-
-					message(MSG_HIT, 0, format("%s", msg));
-				}
-				else
-				{
-					message(MSG_HIT, 0, "You ruthlessly sneak attack!");
-				}
+				message(MSG_HIT, 0, "You ruthlessly sneak attack!");
 			}
 
-			/* Standard "wakeup call". */
+			/* Standard "wakeup call" */
 			else
 			{
 				message(MSG_HIT, 0, "You rudely awaken the monster!");
@@ -445,18 +417,18 @@ static int critical_melee(int chance, bool visible, char m_name[],
 			 */
 			if (add_dice <= 2)
 			{
-				message_format(MSG_HIT, 0, "You strike %s.", m_name);
+				message_format(MSG_HIT_GOOD, 0, "You strike %s.", m_name);
 			}
 
 			else if (add_dice == 3)
 			{
 				if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
 				{
-					message_format(MSG_HIT, 0, "You hack at %s!", m_name);
+					message_format(MSG_HIT_GREAT, 0, "You hack at %s!", m_name);
 				}
 				else
 				{
-					message_format(MSG_HIT, 0, "You pound %s!", m_name);
+					message_format(MSG_HIT_GREAT, 0, "You pound %s!", m_name);
 				}
 			}
 
@@ -466,17 +438,17 @@ static int critical_melee(int chance, bool visible, char m_name[],
 				{
 					if (vorpal)
 					{
-						message_format(MSG_HIT, 0,
-							"Your vorpal blade goes snicker-snack!", m_name);
+						message_format(MSG_HIT_SUPERB, 0,
+							"Your vorpal blade goes snicker-snack!");
 					}
 					else
 					{
-						message_format(MSG_HIT, 0, "You slice into %s!", m_name);
+						message_format(MSG_HIT_SUPERB, 0, "You slice into %s!", m_name);
 					}
 				}
 				else
 				{
-					message_format(MSG_HIT, 0, "You bludgeon %s!", m_name);
+					message_format(MSG_HIT_SUPERB, 0, "You bludgeon %s!", m_name);
 				}
 			}
 
@@ -485,12 +457,12 @@ static int critical_melee(int chance, bool visible, char m_name[],
 				if ((vorpal) && ((o_ptr->tval == TV_SWORD) ||
 					(o_ptr->tval == TV_POLEARM)))
 				{
-					message_format(MSG_HIT, 0,
+					message_format(MSG_HIT_HI_GREAT, 0,
 						"Your vorpal blade goes snicker-snack!", m_name);
 				}
 				else
 				{
-					message_format(MSG_HIT, 0, "You *smite* %s!", m_name);
+					message_format(MSG_HIT_HI_GREAT, 0, "You *smite* %s!", m_name);
 				}
 			}
 		}
@@ -539,7 +511,7 @@ static int critical_melee(int chance, bool visible, char m_name[],
 	}
 
 	/* Sneak-attacks practice the burglary skill a little */
-	if (sneak_attack) practice_skill(r_ptr->level / 2, S_BURGLARY);
+	if (sneak_attack) practice_skill(3 + r_ptr->level * r_ptr->level / 3, S_BURGLARY);
 
 
 	/* Return the number of damage dice to add. */
@@ -566,9 +538,10 @@ static int critical_shot(int chance, bool thrown_weapon, bool visible,
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	char o_name[80];
+	char o_name[DESC_LEN];
 
 	u32b f1, f2, f3;
+	int max;
 
 	bool vorpal = FALSE;
 
@@ -585,7 +558,7 @@ static int critical_shot(int chance, bool thrown_weapon, bool visible,
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Obtain a terse object description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 
 	/* Throwing weapons get more critical hits. */
@@ -607,34 +580,32 @@ static int critical_shot(int chance, bool thrown_weapon, bool visible,
 	}
 
 
-	/* Calculate slay bonus (can - rarely - be as great as 60 points). */
-	if (TRUE)
+	/*** Calculate slay bonus (can be as great as 60 points) ***/
+	max = 10;
+
+	/* Those without a realm get a larger bonus */
+	if (!p_ptr->realm) max = 40;
+
+	/* Pure warriors get the maximum bonus */
+	if (p_ptr->oath & (OATH_OF_IRON)) max = 60;
+
+	/* Note that bonuses are not cumulative */
+	if (r_ptr->flags3 & (RF3_DEMON))
 	{
-		int max = 10;
-
-		/* Those without a realm get a larger bonus */
-		if (!p_ptr->realm) max = 40;
-
-		/* Pure warriors get the maximum bonus */
-		if (p_ptr->oath & (OATH_OF_IRON)) max = 60;
-
-		/* Note that bonuses are not cumulative */
-		if (r_ptr->flags3 & (RF3_DEMON))
-		{
-			add_power = MAX(get_skill(S_PIETY,    0, max), add_power);
-		}
-		if (r_ptr->flags3 & (RF3_ANIMAL))
-		{
-			add_power = MAX(get_skill(S_NATURE,   0, max), add_power);
-		}
-		if (r_ptr->flags3 & (RF3_UNDEAD))
-		{
-			add_power = MAX(get_skill(S_DOMINION, 0, max), add_power);
-		}
-
-		/* Add slay bonus */
-		power += add_power;
+		add_power = MAX(get_skill(S_PIETY,    0, max), add_power);
 	}
+	if (r_ptr->flags3 & (RF3_ANIMAL))
+	{
+		add_power = MAX(get_skill(S_NATURE,   0, max), add_power);
+	}
+	if (r_ptr->flags3 & (RF3_UNDEAD))
+	{
+		add_power = MAX(get_skill(S_DOMINION, 0, max), add_power);
+	}
+
+	/* Add slay bonus */
+	power += add_power;
+
 
 	/* Penalize some conditions */
 	if (p_ptr->blind || p_ptr->confused || p_ptr->image || !visible) power /= 3;
@@ -654,12 +625,7 @@ static int critical_shot(int chance, bool thrown_weapon, bool visible,
 		if ((m_ptr->csleep) && (mon_fully_visible(m_ptr)))
 		{
 			/* More "interesting" messages if we get an especially good hit. */
-			if ((add_dice >= 3) && (one_in_(10)))
-			{
-				message(MSG_HIT, 0, format("%s", silly_hit_msg[rand_int(8)]));
-			}
-
-			else if ((thrown_weapon) && (add_dice >= 3))
+			if ((thrown_weapon) && (add_dice >= 3))
 			{
 				message(MSG_HIT, 0, "Assassin strike!");
 			}
@@ -690,7 +656,7 @@ static int critical_shot(int chance, bool thrown_weapon, bool visible,
 
 			else if (add_dice >= 4)
 			{
-				message_format(MSG_HIT, 0, "The %s transpierces %s!",
+				message_format(MSG_HIT_HI_SUPERB, 0, "The %s transpierces %s!",
 					o_name, m_name);
 			}
 		}
@@ -733,130 +699,6 @@ static void dec_special_atk(void)
 		p_ptr->special_attack &= ~(ATTACK_HOLY);
 	}
 }
-
-
-
-
-/*
- * Increase chance for weapons with appropriate slays to hit monsters
- * 
- * For now, we'll use a moderate increase of 10 on average
- * (equivalent to additional +5 on weapons)
- *
- * Brands do not affect tohit chance -- just slays
- *
- * We won't modify the lore -- adjust_dam should still handle that
- *
- * Written by JM
- */
-int adjust_tohit(object_type *o_ptr, monster_type *m_ptr, bool is_trap)
-{
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	int add=0;
-
-	u32b f1 = 0L, f2 = 0L, f3 = 0L;
-
-	/* Get object attributes */
-	if (o_ptr->tval) object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Handle actual melee combat */
-	if (!is_trap)
-	{
-		u32b fc1, fc2, fc3;
-
-		/* Get character flags */
-		player_flags(&fc1, &fc2, &fc3, TRUE, FALSE);
-
-		/* Apply character flags */
-		f1 |= fc1;    f2 |= fc2;    f3 |= fc3;
-
-		/* Get "cancelled" flags */
-		player_flags_cancel(&fc1, &fc2, &fc3, TRUE);
-
-		/* Apply character cancellation flags (cancels everything) */
-		f1 &= ~fc1;    f2 &= ~fc2;    f3 &= ~fc3;
-	}
-
-	/* Wielded weapons and diggers and fired missiles may do extra damage. */
-	switch (o_ptr->tval)
-	{
-		/* Martial arts can get slay and brand bonuses */
-		case 0:
-		{
-			/* Fall through */
-		}
-
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		{
-			/* Slay Animal */
-			if ((f1 & (TR1_SLAY_ANIMAL)) && (r_ptr->flags3 & (RF3_ANIMAL)))
-			{
-				if (add < 10) add = 10;
-			}
-
-			/* Slay Evil */
-			if ((f1 & (TR1_SLAY_EVIL)) && (r_ptr->flags3 & (RF3_EVIL)))
-			{
-				if (add < 6) add = 6;
-			}
-
-			/* Slay Undead */
-			if ((f1 & (TR1_SLAY_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
-			{
-				if (add < 10) add = 10;
-			}
-
-			/* Slay Demon */
-			if ((f1 & (TR1_SLAY_DEMON)) && (r_ptr->flags3 & (RF3_DEMON)))
-			{
-				if (add < 10) add = 10;
-			}
-
-			/* Slay Orc */
-			if ((f1 & (TR1_SLAY_ORC)) && (r_ptr->flags3 & (RF3_ORC)))
-			{
-				if (add < 10) add = 10;
-			}
-
-			/* Slay Troll */
-			if ((f1 & (TR1_SLAY_TROLL)) && (r_ptr->flags3 & (RF3_TROLL)))
-			{
-				if (add < 10)  add = 10;
-			}
-
-			/* Slay Giant */
-			if ((f1 & (TR1_SLAY_GIANT)) && (r_ptr->flags3 & (RF3_GIANT)))
-			{
-				if (add < 10)  add = 10;
-			}
-
-			/* Slay Dragon */
-			if (((f1 & (TR1_SLAY_DRAGON)) || (f1 & (TR1_KILL_DRAGON))) &&
-			     (r_ptr->flags3 & (RF3_DRAGON)))
-			{
-				if ((f1 & (TR1_KILL_DRAGON)) && (add < 20)) add = 15;
-				else if (add < 10) add = 10;
-			}
-			break;
-
-		default:
-			break;
-
-		}
-	}
-
-	return add;
-}
-
-
-
 
 /*
  * Handle all special adjustments to the damage done by a non-magical attack.
@@ -1007,7 +849,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					l_ptr->flags3 |= (RF3_TROLL);
 				}
 
-				else if (add < 18)  add = 18;
+				if (add < 18)  add = 18;
 			}
 
 			/* Slay Giant */
@@ -1376,7 +1218,7 @@ static bool shield_bash(int y, int x, monster_race *r_ptr,
 	/* Variables for the bashing code */
 	int bash_chance, bash_quality, bash_dam;
 
-	char m_name[80];
+	char m_name[DESC_LEN];
 
 	int wskill = get_skill(sweapon(weapon_ptr->tval), 0, 100);
 
@@ -1506,7 +1348,7 @@ static bool contact_danger_check(monster_race *r_ptr)
 {
 	int i;
 
-	int blow_type[MONSTER_BLOW_MAX] = {0, 0, 0, 0};
+	int blow_type[MONSTER_BLOW_MAX] = { 0, 0, 0, 0 };
 	int ele_blow_cnt = 0;
 
 	cptr name = (r_name + r_ptr->name);
@@ -1522,8 +1364,8 @@ static bool contact_danger_check(monster_race *r_ptr)
 	/* If the monster is a Death Mold, you're in trouble. */
 	if (strstr(name, "Death mold"))
 	{
-		take_hit(damroll(25, 25) - (protection * 10),
-		   0, "Oh no!  You've touched a Death mold!",
+		(void)take_hit(damroll(25, 25) - (protection * 10),
+			0, "Oh no!  You've touched a Death mold!",
 			"touching a Death mold");
 		return (TRUE);
 	}
@@ -1594,7 +1436,7 @@ static bool contact_danger_check(monster_race *r_ptr)
 			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
 			{
 				(void)set_poisoned(p_ptr->poisoned + damage);
-				take_hit(damage / 2, 0, NULL, "touching a poisonous creature");
+				(void)take_hit(damage / 2, 0, NULL, "touching a poisonous creature");
 				return (TRUE);
 			}
 		}
@@ -1604,11 +1446,25 @@ static bool contact_danger_check(monster_race *r_ptr)
 	return (FALSE);
 }
 
+/*
+ * Describe a bare-handed attack.
+ *
+ * ToDo:  Replace this wimpy stuff.  XXX XXX
+ */
+static cptr barehand_attack_desc[4][3] =
+{
+	{ "punch", "kick", "hit" },
+	{ "Flying-kick", "Belt", "Strike" },
+	{ "grab", "squeeze", "slam" },
+	{ "Grip", "Crush", "Body-slam" }
+};
+
+
 
 /*
  * Learn about the damage done in martial arts.
  *
- * The damage displayed is a approximate running average, with recent
+ * The damage displayed is an approximate running average, with recent
  * attacks slowly overriding old ones.
  */
 static void learn_about_ma_damage(int damage, bool karate)
@@ -1640,233 +1496,6 @@ static void learn_about_ma_damage(int damage, bool karate)
 	}
 }
 
-
-/*
- * Describe a bare-handed attack.
- *
- * ToDo:  Replace this wimpy stuff.  XXX XXX
- *
- * Wimpy stuff replaced, hopefully with less wimpy stuff - JM
- * This code is reasonably ugly, but it works
- *
- */
-
-/* 
-static cptr barehand_attack_desc[4][3] =
-{
-	{ "punch", "kick", "hit"},
-	{ "Flying-kick", "Belt", "Strike" },
-	{ "grab", "squeeze", "slam" },
-	{ "Grip", "Crush", "Body-slam" }
-};
-
-*/
-
-
-void barehand_attack_desc(int damage, char attack_desc[])
-{
-	int elemental=0;
-
-	bool add_to_later=FALSE, add_on_later=FALSE;
-
-	/* Count how many elemental types are present */
-	if(p_ptr->cold_attack) elemental++;
-	if(p_ptr->fire_attack) elemental++;
-	if(p_ptr->elec_attack) elemental++;
-	if(p_ptr->acid_attack) elemental++;
-	if(p_ptr->pois_attack) elemental++;
-
-
-	/* Change text a bit depending on elemental damage */
-	if(elemental && p_ptr->barehand == S_KARATE)
-	{
-		if(one_in_(2)){
-			sprintf(attack_desc, "You deliver a");
-			add_to_later = TRUE;
-		}
-		else
-		{
-			sprintf(attack_desc, "You land a");
-			add_on_later = TRUE;
-		}
-	}
-	else
-	{
-		sprintf(attack_desc, "You");
-	}
-
-
-	/* Select one elemental type to add a descriptor based on */
-
-	if(p_ptr->cold_attack && elemental)
-	{
-		if(one_in_(elemental--))
-		{
-			if(one_in_(2))
-			{
-				/* Make sure to get proper article */
-				if(p_ptr->barehand == S_KARATE) sprintf(attack_desc, "%sn", attack_desc);
-				sprintf(attack_desc, "%s icy", attack_desc);
-			}
-			else sprintf(attack_desc, "%s freezing", attack_desc);
-			elemental = 0;
-		}
-	}
-	if(p_ptr->fire_attack && elemental)
-	{
-		if(one_in_(elemental--))
-		{
-			if(one_in_(2)) sprintf(attack_desc, "%s flaming", attack_desc);
-			else sprintf(attack_desc, "%s burning", attack_desc);
-			elemental = 0;
-		}
-	}
-
-	if(p_ptr->acid_attack && elemental)
-	{
-		if(one_in_(elemental--))
-		{
-			if(one_in_(2)) sprintf(attack_desc, "%s acidic", attack_desc);
-			else sprintf(attack_desc, "%s melting", attack_desc);
-			elemental = 0;
-		}
-	}
-
-	if(p_ptr->elec_attack && elemental)
-	{
-		if(one_in_(elemental--))
-		{
-			if(one_in_(2))
-			{
-				/* Make sure to get proper article */
-				if(p_ptr->barehand == S_KARATE) sprintf(attack_desc, "%sn", attack_desc);
-				sprintf(attack_desc, "%s electric", attack_desc);
-			}
-			else sprintf(attack_desc, "%s shocking", attack_desc);
-			elemental = 0;
-		}
-	}
-
-	if(p_ptr->pois_attack && elemental)
-	{
-		if(one_in_(elemental--))
-		{
-			sprintf(attack_desc, "%s poisonous", attack_desc);
-			elemental = 0;
-		}
-	}
-
-
-
-
-	/* Choose a name of attack based on damage dealt and weapon type
-	 * Easy place to add more names, if desired */
-
-	if(p_ptr->barehand == S_KARATE)
-	{
-		if(damage > 55)
-		{
-			sprintf(attack_desc, "%s dragon-kick", attack_desc);
-		}
-		else if (damage > 47)
-		{
-			sprintf(attack_desc, "%s mountain punch", attack_desc);
-		}
-		else if (damage > 39)
-		{
-			sprintf(attack_desc, "%s tiger claw", attack_desc);
-		}
-		else if (damage > 32)
-		{
-			sprintf(attack_desc, "%s pummel", attack_desc);
-		}
-		else if (damage > 26)
-		{
-			sprintf(attack_desc, "%s roundhouse", attack_desc);
-		}
-		else if (damage > 20)
-		{
-			sprintf(attack_desc, "%s headbutt", attack_desc);
-		}
-		else if (damage > 15)
-		{
-			sprintf(attack_desc, "%s flying kick", attack_desc);
-		}
-		else if (damage > 10)
-		{
-			sprintf(attack_desc, "%s karate chop", attack_desc);
-		}
-		else if (damage > 7)
-		{
-			sprintf(attack_desc, "%s hit", attack_desc);
-		}
-		else if (damage > 4)
-		{
-			sprintf(attack_desc, "%s kick", attack_desc);
-		}
-		else
-		{
-			sprintf(attack_desc, "%s punch", attack_desc);
-		}
-	}
-	else
-	{
-		if(damage > 90)
-		{
-			sprintf(attack_desc, "%s body slam", attack_desc);
-		}
-		if(damage > 80)
-		{
-			sprintf(attack_desc, "%s crunch", attack_desc);
-		}
-		else if (damage > 70)
-		{
-			sprintf(attack_desc, "%s headlock", attack_desc);
-		}
-		else if (damage > 60)
-		{
-			sprintf(attack_desc, "%s slam", attack_desc);
-		}
-		else if (damage > 50)
-		{
-			sprintf(attack_desc, "%s pin", attack_desc);
-		}
-		else if (damage > 40)
-		{
-			sprintf(attack_desc, "%s wrench", attack_desc);
-		}
-		else if (damage > 30)
-		{
-			sprintf(attack_desc, "%s crush", attack_desc);
-		}
-		else if (damage > 25)
-		{
-			sprintf(attack_desc, "%s hurl", attack_desc);
-		}
-		else if (damage > 17)
-		{
-			sprintf(attack_desc, "%s squish", attack_desc);
-		}
-		else if (damage > 10)
-		{
-			sprintf(attack_desc, "%s squeeze", attack_desc);
-		}
-		else if (damage > 6)
-		{
-			sprintf(attack_desc, "%s throw", attack_desc);
-		}
-		else
-		{
-			sprintf(attack_desc, "%s grab", attack_desc);
-		}
-	}
-
-	if(add_to_later) sprintf(attack_desc, "%s to", attack_desc);
-	else if(add_on_later) sprintf(attack_desc, "%s on", attack_desc);
-	return;
-}
-
-
 /*
  * Bare-handed combat.
  *
@@ -1879,14 +1508,14 @@ void barehand_attack_desc(int damage, char attack_desc[])
 static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 	bool *do_stun, bool *do_conf, bool *do_throw)
 {
-	int skill, max;
+	int bonus, max;
 	int dice, sides;
-	int damage, bonus, divisor;
+	int damage;
 	int add_power = 0;
+	int set;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	char m_name[80];
-	char attack_desc[80];
+	char m_name[DESC_LEN];
 
 	object_type *o_ptr;
 	object_type object_type_body;
@@ -1896,64 +1525,51 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 	bool critical = FALSE;
 
 
-
-	/* Using karate, max of 6 blows
-	 *
-	 * Maximum damage by oath per blow
-	 * Oath of Iron: 50 = 13 (dex + str) + 24 (skill) + 13 (quadratic)
-	 * Burglar:      46 = 13 (dex + str) + 23 (skill) + 10 (quadratic)
-	 * Spellcasting: 43 = 13 (dex + str) + 20 (skill) + 10 (quadratic)
-	 * None:         45 = 13 (dex + str) + 22 (skill) + 10 (quadratic)
-	 */
+	/* Using karate - about 115 * 2 max average damage */
 	if (p_ptr->barehand == S_KARATE)
 	{
-		/* Strength and Dexterity add to damage */
-		bonus = (adj_ma[p_ptr->stat_ind[A_STR]] + adj_ma[p_ptr->stat_ind[A_DEX]]) / 3;
+		/* Dexterity and strength are helpful */
+		bonus = (adj_ma[p_ptr->stat_ind[A_STR]] / 2) +
+					adj_ma[p_ptr->stat_ind[A_DEX]];
 
-		/* Skill and specialization adjust damage */
-		if (p_ptr->oath & (OATH_OF_IRON))   damage = get_skill(S_KARATE, 1, 24 + bonus / 2 );
-		if (p_ptr->oath & (BURGLARS_GUILD)) damage = get_skill(S_KARATE, 1, 23 + bonus / 2 );
-		else if (p_ptr->oath)               damage = get_skill(S_KARATE, 1, 20 + bonus / 2 );
-		else								damage = get_skill(S_KARATE, 1, 22 + bonus / 2 );
-		
-		/* Half of damage is applied to damage directly, other half is added to max */
-		damage += (bonus + 1) / 2;
+		/* Effective skill max depends on specialization */
+		max = get_skill(S_KARATE, 35, 75);
+		if (p_ptr->oath & (OATH_OF_IRON))   max = get_skill(S_KARATE, 40, 85);
+		if (p_ptr->oath & (BURGLARS_GUILD)) max = get_skill(S_KARATE, 35, 75);
+		else if (p_ptr->oath)               max = get_skill(S_KARATE, 25, 60);
 
-		/* Quadratic bonus for very high skills -- Oath of Iron characters get a larger bonus */
-		skill = get_skill(S_KARATE, 1, 100);
-		divisor = (p_ptr->oath & (OATH_OF_IRON))? 750 : 1000;
-		damage += (skill * skill) / divisor;
+		/* Damage depends on skill (and also stats) */
+		damage = get_skill(S_KARATE, 1, max + bonus);
 
- 
+		/* Chance of various special attacks */
+		if ((one_in_(3)) && (randint(damage) >= 3 * r_ptr->level / 4))
+		{
+			if      (one_in_(3)) *do_conf = TRUE;
+			else if (one_in_(2)) *do_slow = TRUE;
+			else                 *do_stun = TRUE;
+		}
 	}
 
-	/* Using wrestling, max of 4 blows
-	 *
-	 * Maximum damage by oath per blow
-	 * Oath of Iron: 79 = 20 (str) + 35 (skill) + 25 (quadratic)
-	 * Burglar:      72 = 20 (str) + 32 (skill) + 20 (quadratic)
-	 * Spellcasting: 67 = 20 (str) + 27 (skill) + 20 (quadratic)
-	 * None:         70 = 20 (str) + 30 (skill) + 20 (quadratic)
-	 */
+	/* Wrestling - about 130 * 2 max average damage */
 	else
 	{
-		/* Strength add to damage */
-		bonus = adj_ma[p_ptr->stat_ind[A_STR]];
+		/* Strength is very important */
+		bonus = adj_ma[p_ptr->stat_ind[A_STR]] * 2;
 
-		/* Skill and specialization adjust damage */
-		if (p_ptr->oath & (OATH_OF_IRON))   damage = get_skill(S_WRESTLING, 1, 34 + bonus / 2 );
-		if (p_ptr->oath & (BURGLARS_GUILD)) damage = get_skill(S_WRESTLING, 1, 27 + bonus / 2 );
-		else if (p_ptr->oath)               damage = get_skill(S_WRESTLING, 1, 24 + bonus / 2 );
-		else								damage = get_skill(S_WRESTLING, 1, 28 + bonus / 2 );
-		
-		/* Half of damage is applied to damage directly, other half is added to max */
-		damage += (bonus + 1) / 2;
+		/* Effective skill max depends on specialization */
+		max = get_skill(S_WRESTLING, 40, 80);
+		if (p_ptr->oath & (OATH_OF_IRON))   max = get_skill(S_WRESTLING, 45, 90);
+		if (p_ptr->oath & (BURGLARS_GUILD)) max = get_skill(S_WRESTLING, 40, 80);
+		else if (p_ptr->oath)               max = get_skill(S_WRESTLING, 30, 65);
 
-		/* Quadratic bonus for very high skills  -- Oath of Iron characters get a larger bonus */
-		skill = get_skill(S_WRESTLING, 1, 100);
-		divisor = (p_ptr->oath & (OATH_OF_IRON))? 400 : 500;
-		damage += (skill * skill) / divisor;
+		/* Damage depends on skill (and also stats) */
+		damage = get_skill(S_WRESTLING, 1, max + bonus);
 
+		/* Give the player a chance to throw the opponent */
+		if ((one_in_(4)) && (randint(damage) >= 3 * r_ptr->level / 4))
+		{
+			*do_throw = TRUE;
+		}
 	}
 
 	/* Turn base damage into dice */
@@ -2007,10 +1623,10 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 
 	/* Guild-Burglars get more critical hits when in the dark */
 	if ((p_ptr->oath & (BURGLARS_GUILD)) &&
-	    (no_light()) && (m_ptr->ml))
+	    (no_light()) && (m_ptr->ml >= ML_FULL))
 	{
-		/* 30% more citical hits if darkness both here and nearby */
-		critical_hit_chance += 30 * darkness_ratio(1) / 100;
+		/* 20% more citical hits if darkness both here and nearby */
+		critical_hit_chance += 20 * darkness_ratio(1) / 100;
 	}
 
 	/* Penalize some conditions (note that blindness is not a problem) */
@@ -2025,18 +1641,25 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 		/* Add 50% to damage XXX */
 		damage += damage / 2;
 
+		/* Use critical hit messages */
+		if (p_ptr->barehand == S_KARATE) set = 1;
+		else                             set = 3;
+		critical = TRUE;
 	}
-
-	/* Get appropriate descriptor of attack */
-	barehand_attack_desc(damage, attack_desc);
+	else
+	{
+		/* Use normal messages */
+		if (p_ptr->barehand == S_KARATE) set = 0;
+		else                             set = 2;
+	}
 
 
 	/* Get monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0x40);
 
 	/* Message */
-	message_format(MSG_HIT, 0, "%s %s%c",
-		attack_desc, m_name,
+	message_format(MSG_HIT, 0, "You %s %s%c",
+		barehand_attack_desc[set][rand_int(3)], m_name,
 		critical ? '!' : '.');
 
 	/* Learn about martial art damage (before slay/brand) */
@@ -2051,35 +1674,6 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 
 	/* Apply slay and brand bonuses (if any) */
 	adjust_dam(&damage, o_ptr, m_ptr, FALSE);
-
-
-
-
-	/* See if player manages to do mean things to the monster */
-	/* Moved down here to increase variability of special attacks */
-	if (p_ptr->barehand == S_KARATE)
-	{
-		/* Chance of various special attacks */
-		if ((one_in_(6)) &&
-			 (randint(damage) >= r_ptr->level / 4 + 3))
-		{
-			if      (one_in_(3)) *do_conf = TRUE;
-			else if (one_in_(2)) *do_slow = TRUE;
-			else                 *do_stun = TRUE;
-		}
-
-	}
-
-	else
-	{
-		/* Give the player a chance to throw the opponent */
-		if ((one_in_(6)) &&
-			 (randint(damage) >= r_ptr->level / 2 + 5))
-		{
-			*do_throw = TRUE;
-		}
-	}
-
 
 	return (damage);
 }
@@ -2178,10 +1772,10 @@ bool py_attack(int y, int x)
 	/* hit count */
 	int hits = 0;
 
-	/* Bonus to attack if monster is sleeping. */
+	/* Bonus to attack if monster is sleeping */
 	int sleeping_bonus = 0;
 
-	/* Terrain adjustments to effective monster ac. */
+	/* Terrain adjustments to effective monster AC */
 	int terrain_adjust = 0;
 
 	/* Skill */
@@ -2210,7 +1804,7 @@ bool py_attack(int y, int x)
 
 	object_type *o_ptr;
 
-	char m_name[80];
+	char m_name[DESC_LEN];
 
 	bool fear = FALSE;
 
@@ -2257,7 +1851,7 @@ bool py_attack(int y, int x)
 		}
 		else
 		{
-			char m_pronoun[80];
+			char m_pronoun[DESC_LEN];
 
 			/* Get monster pronoun ("him", "her", "it") */
 			monster_desc(m_pronoun, m_ptr, 0x31);
@@ -2312,6 +1906,8 @@ bool py_attack(int y, int x)
 		{
 			/* Message */
 			msg_format("You are too afraid to attack %s!", m_name);
+
+			/* You already knew this */
 			p_ptr->energy_use = 0;
 		}
 		else
@@ -2365,9 +1961,10 @@ bool py_attack(int y, int x)
 			/* Monster can be seen -- explain why nothing happened */
 			else
 			{
+				/* Message */
 				msg_format("You cannot harm %s with martial arts unless blessed.", m_name);
 
-				/* Don't penalize a turn if you know it's there and you can't hurt it */
+				/* If you already knew this, don't take a turn */
 				if (l_ptr->flags2 & (RF2_PASS_WALL)) p_ptr->energy_use = 0;
 
 				/* Learn about the monster */
@@ -2474,8 +2071,7 @@ bool py_attack(int y, int x)
 			else             bonus = o_ptr->to_h;
 
 			/* Calculate the attack quality. */
-			chance = p_ptr->skill_thn + BTH_PLUS_ADJ * bonus
-				     + adjust_tohit(o_ptr, m_ptr, FALSE);
+			chance = p_ptr->skill_thn + BTH_PLUS_ADJ * bonus;
 
 
 			/* This blow missed */
@@ -2494,7 +2090,7 @@ bool py_attack(int y, int x)
 			/* Character is wielding a weapon */
 			if (is_melee_weapon(o_ptr))
 			{
-				char dummy[80];
+				char dummy[DESC_LEN];
 
 				/* Get object flags */
 				object_flags(o_ptr, &f1, &f2, &f3);
@@ -2525,7 +2121,7 @@ bool py_attack(int y, int x)
 			hit = TRUE;
 
 			/* Sound */
-			sound(SOUND_HIT);
+			sound(MSG_HIT);
 
 			/* If this is the first hit, make some noise. */
 			if (hits == 1)
@@ -2584,24 +2180,34 @@ bool py_attack(int y, int x)
 			if ((p_ptr->special_attack & (ATTACK_CONFUSE)) &&
 				 (!m_ptr->confused))
 			{
-				/* Confuse the monster */
+				/* Notice resistance */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
 				{
-					if (m_ptr->ml)
+					if (m_ptr->ml >= ML_FULL)
 					{
 						l_ptr->flags3 |= (RF3_NO_CONF);
+						msg_format("%^s is unaffected.", m_name);
 					}
-
-					msg_format("%^s is unaffected.", m_name);
 				}
+
+				/* Allow saving throw */
 				else if (rand_int(p_ptr->power + 25) <
 							r_ptr->level + randint(10))
 				{
-					msg_format("%^s shakes off the confusion.", m_name);
+					if (m_ptr->ml >= ML_FULL)
+					{
+						msg_format("%^s shakes off the confusion.", m_name);
+					}
 				}
+
+				/* Confuse the monster (never cumulative) */
 				else
 				{
-					message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
+					if (m_ptr->ml >= ML_FULL)
+					{
+						message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
+					}
+
 					m_ptr->confused = 10;
 				}
 
@@ -2613,6 +2219,9 @@ bool py_attack(int y, int x)
 
 					/* Cancel special confusion attack */
 					p_ptr->special_attack &= ~(ATTACK_CONFUSE);
+
+					/* Redraw the state */
+					p_ptr->redraw |= (PR_STATE);
 				}
 			}
 
@@ -2623,7 +2232,7 @@ bool py_attack(int y, int x)
 				if (r_ptr->flags3 & (RF3_UNDEAD))
 				{
 					/* Learn about visible monster */
-					if (m_ptr->ml)
+					if (m_ptr->ml >= ML_FULL)
 					{
 						l_ptr->flags3 |= (RF3_UNDEAD);
 					}
@@ -2634,18 +2243,28 @@ bool py_attack(int y, int x)
 				/* All other monsters get a saving throw. */
 				else if ((rand_int(160)) < (r_ptr->level + rand_int(60)))
 				{
-					msg_format("%^s wards off your deadly blow.", m_name);
+					if (m_ptr->ml >= ML_FULL)
+					{
+						msg_format("%^s wards off your deadly blow.", m_name);
+					}
 				}
 
 				/* Tasting some of their own medicine... */
 				else if (!(m_ptr->mflag & (MFLAG_BLBR)))
 				{
 					m_ptr->mflag |= (MFLAG_BLBR);
-					message_format(MSG_HIT, 0, "%^s is stricken with the Black Breath!", m_name);
+
+					if (m_ptr->ml >= ML_FULL)
+					{
+						message_format(MSG_HIT, 0, "%^s is stricken with the Black Breath!", m_name);
+					}
 				}
 
 				/* Cancel black breath */
 				p_ptr->special_attack &= ~(ATTACK_BLKBRTH);
+
+				/* Redraw the state */
+				p_ptr->redraw |= (PR_STATE);
 
 				/* Message */
 				msg_print("Your hands stop radiating Night.");
@@ -2666,6 +2285,9 @@ bool py_attack(int y, int x)
 					/* Cancel the fleeing spell */
 					p_ptr->special_attack &= ~(ATTACK_FLEE);
 
+					/* Redraw the state */
+					p_ptr->redraw |= (PR_STATE);
+
 					/* Stop attacking */
 					stop = TRUE;
 				}
@@ -2685,7 +2307,7 @@ bool py_attack(int y, int x)
 		if (hit == FALSE)
 		{
 			/* Sound */
-			sound(SOUND_MISS);
+			sound(MSG_MISS);
 
 			/* Message */
 			message_format(MSG_MISS, 0, "You miss %s.", m_name);
@@ -2848,7 +2470,7 @@ bool py_attack(int y, int x)
 		if (fear && m_ptr->ml)
 		{
 			/* Sound */
-			sound(SOUND_FLEE);
+			sound(MSG_FLEE);
 
 			/* Message */
 			message_format(MSG_FLEE, 0, "%^s flees in terror!", m_name);
@@ -2885,7 +2507,6 @@ bool py_attack(int y, int x)
 			}
 		}
 	}
-
 
 	/* Print "special attacks" */
 	left_panel_display(DISPLAY_SPECIAL_ATTACK, 0);
@@ -3002,8 +2623,8 @@ static void calc_ranged_path(int range, int y0, int x0, int *ty, int *tx,
 		/* Inaccuracy changes the angle of projection */
 		angle = Rand_normal(angle, inaccuracy);
 
-		/* Handle the 0-180 angle discontinuity */
-		if (angle < 0) angle = 180 + angle;
+		/* Handle the 0-240 angle discontinuity */
+		if (angle < 0) angle = 240 + angle;
 
 		/* Get a grid using the adjusted angle, target it */
 		get_grid_using_angle(angle, y0, x0, &ty2, &tx2);
@@ -3050,7 +2671,7 @@ void do_cmd_fire(void)
 
 	int break_chance;
 
-	int armour, bonus = 0, total_deadliness;
+	int armor, bonus = 0, total_deadliness;
 
 	int sleeping_bonus = 0;
 	int inaccuracy;
@@ -3081,9 +2702,9 @@ void do_cmd_fire(void)
 	byte missile_attr;
 	char missile_char;
 
-	char o_name[120];
-	char m_name[80];
-	char msg_hit[80];
+	char o_name[DESC_LEN];
+	char m_name[DESC_LEN];
+	char msg_hit[DESC_LEN];
 
 	bool no_pile = FALSE;
 
@@ -3119,7 +2740,7 @@ void do_cmd_fire(void)
 	p_ptr->energy_use = div_round(200, p_ptr->num_fire);
 
 	/* Sound */
-	sound(SOUND_SHOOT);
+	sound(MSG_SHOOT);
 
 
 	/* Get local object */
@@ -3169,17 +2790,18 @@ void do_cmd_fire(void)
 		damage += special_dam;
 
 		/* Inflict both normal and wound damage. */
-		take_hit(damage, 0, "Your missile turns in midair and strikes you!",
-		   "ammo of backbiting");
-
-		set_cut(randint(damage * 3));
+		if (!take_hit(damage, 0, "Your missile turns in midair and strikes you!",
+		   "ammo of backbiting"))
+		{
+			set_cut(randint(damage * 3));
+		}
 
 		/* That ends that shot! */
 		return;
 	}
 
 	/* Describe the object */
-	object_desc(o_name, i_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
 
 	/* Strength increases distance, weight reduces it */
 	tdis = adj_str_blow[p_ptr->stat_ind[A_STR]] * 8 /
@@ -3214,7 +2836,7 @@ void do_cmd_fire(void)
 	/* Cursed launchers are tricky to use */
 	else if (cursed_p(o_ptr))
 	{
-		char weapon_name[80];
+		char weapon_name[DESC_LEN];
 
 		/* Get the short name of the missile weapon */
 		strip_name(weapon_name, o_ptr->k_idx);
@@ -3314,6 +2936,9 @@ void do_cmd_fire(void)
 			/* Cancel the special attack */
 			p_ptr->special_attack &= ~(ATTACK_BARD);
 		}
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATE);
 	}
 
 	/* Get (adjusted) missile attributes */
@@ -3326,16 +2951,11 @@ void do_cmd_fire(void)
 	/* Learn some flags */
 	if (f3 & (TR3_IMPACT)) impact = TRUE;
 
-	if (TRUE)
-	{
-		monster_type *m_ptr = &m_list[p_ptr->health_who];
 
+	/* Calculate the quality of the shot */
+	bonus = (o_ptr->to_h + i_ptr->to_h);
+	chance = p_ptr->skill_thb + (BTH_PLUS_ADJ * bonus);
 
-		/* Calculate the quality of the shot */
-		bonus = (o_ptr->to_h + i_ptr->to_h);
-		chance = p_ptr->skill_thb + (BTH_PLUS_ADJ * bonus)
-				 + adjust_tohit(o_ptr, m_ptr, FALSE);
-	}
 	/* Sum all the applicable additions to Deadliness. */
 	total_deadliness = p_ptr->to_d + o_ptr->to_d + i_ptr->to_d;
 
@@ -3364,8 +2984,8 @@ void do_cmd_fire(void)
 		int m = (path_n <= 4 ? msec : (path_n <= 8 ? msec*2/3 : msec/2));
 
 
-		/* Collide with walls */
-		if (cave_wall_bold(ny, nx))
+		/* Collide with anything non-projectable */
+		if (!cave_project_bold(ny, nx))
 		{
 			hit_wall = TRUE;
 			break;
@@ -3436,16 +3056,16 @@ void do_cmd_fire(void)
 			}
 
 			/* Apply effects of terrain to AC of monster. */
-			armour = r_ptr->ac + terrain_ac_adjust(r_ptr, cave_feat[y][x]);
+			armor = r_ptr->ac + terrain_ac_adjust(r_ptr, cave_feat[y][x]);
 
-			/* Weapons of velocity sometimes almost negate monster armour. */
-			if (special_hit) armour /= 3;
+			/* Weapons of velocity sometimes almost negate monster armor. */
+			if (special_hit) armor /= 3;
 
 			/* Deadly shots hit more often */
-			if (special_deadly) armour = armour * 2 / 3;
+			if (special_deadly) armor = armor * 2 / 3;
 
 			/* Did we hit it? */
-			if (!test_hit_combat(chance + sleeping_bonus, armour, m_ptr->ml))
+			if (!test_hit_combat(chance + sleeping_bonus, armor, m_ptr->ml))
 			{
 				/* Object whizzes right past the monster */
 				continue;
@@ -3525,17 +3145,17 @@ void do_cmd_fire(void)
 				/* Monsters can be thrust back by an impact missile. */
 				if (impact)
 				{
-					/* Minimum chance is 35%, and it rises for powerful hits */
-					int tmp = 35 + (125 * damage / m_ptr->maxhp);
+					/* Minimum chance is 40%, and it rises for powerful hits */
+					int tmp = 40 + (200 * damage / m_ptr->maxhp);
 
-					/* Chance triples for special impact hits */
-					if (special_impact) tmp *= 3;
+					/* Special impact hits are guaranteed */
+					if (special_impact) tmp = 100;
 
 					/* Force the monster back */
 					if (tmp > rand_int(100))
 					{
 						int k = damage;
-						if (special_impact) k *= 3;
+						if (special_impact) k *= 4;
 
 						if (!(r_ptr->flags4 & (RF4_BRTH_FORCE)))
 						{
@@ -3543,8 +3163,8 @@ void do_cmd_fire(void)
 							if (strchr("DGP#", r_ptr->d_char)) k /= 3;
 							else if (strchr("OTdgv", r_ptr->d_char)) k /= 2;
 
-							/* Thrust away */
-							thrust_away(-1, m_ptr->fy, m_ptr->fx, MIN(6, 1 + k / 10));
+							/* Thrust away (minimum of 2 spaces) */
+							thrust_away(-1, m_ptr->fy, m_ptr->fx, MIN(6, 2 + k / 10));
 						}
 					}
 				}
@@ -3663,11 +3283,11 @@ void do_cmd_throw(void)
 	byte missile_attr;
 	char missile_char;
 
-	char o_name[120];
-	char m_name[80];
+	char o_name[DESC_LEN];
+	char m_name[DESC_LEN];
 
 	cptr q, s;
-	char msg_hit[80];
+	char msg_hit[DESC_LEN];
 
 	bool no_pile = FALSE;
 
@@ -3699,7 +3319,7 @@ void do_cmd_throw(void)
 	/* You cannot unwield cursed objects by throwing them */
 	if ((cursed_cling(o_ptr)) && (item >= INVEN_WIELD))
 	{
-		/* Get a object kind name */
+		/* Get an object kind name */
 		strip_name(o_name, o_ptr->k_idx);
 
 		if ((artifact_p(o_ptr)) && (object_known_p(o_ptr)))
@@ -3767,7 +3387,7 @@ void do_cmd_throw(void)
 
 
 	/* Describe the object */
-	object_desc(o_name, i_ptr, FALSE, 2);
+	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 2);
 
 
 	/* Strength increases distance, weight reduces it */
@@ -3814,10 +3434,7 @@ void do_cmd_throw(void)
 	 */
 	if (throwing_weapon)
 	{
-		monster_type *m_ptr = &m_list[p_ptr->health_who];
-		chance = p_ptr->skill_tht + (BTH_PLUS_ADJ * i_ptr->to_h)
-			     + adjust_tohit(o_ptr, m_ptr, FALSE);
-;
+		chance = p_ptr->skill_tht + (BTH_PLUS_ADJ * i_ptr->to_h);
 		total_deadliness = p_ptr->to_d + i_ptr->to_d;
 
 		/* Special case -- Half-Trolls are clumsy with throwing weapons */
@@ -3826,9 +3443,7 @@ void do_cmd_throw(void)
 	}
 	else
 	{
-		monster_type *m_ptr = &m_list[p_ptr->health_who];
-		chance = (3 * p_ptr->skill_tht / 2) + (BTH_PLUS_ADJ * i_ptr->to_h)
-			     + adjust_tohit(o_ptr, m_ptr, FALSE);
+		chance = (3 * p_ptr->skill_tht / 2) + (BTH_PLUS_ADJ * i_ptr->to_h);
 		total_deadliness = i_ptr->to_d;
 	}
 
@@ -3866,8 +3481,8 @@ void do_cmd_throw(void)
 		/* Delay depends on length of path */
 		int m = (path_n <= 4 ? msec : (path_n <= 8 ? 2*msec/3 : msec/2));
 
-		/* Collide with walls */
-		if (cave_wall_bold(ny, nx))
+		/* Collide with anything non-projectable */
+		if (!cave_project_bold(ny, nx))
 		{
 			hit_wall = TRUE;
 			break;
@@ -4040,7 +3655,7 @@ void do_cmd_throw(void)
 
 			/* Hit the monster, check for death */
 			else if (mon_take_hit(cave_m_idx[y][x], -1, damage,
-				 &fear, death_string(r_ptr)))
+				&fear, death_string(r_ptr)))
 			{
 				/* Dead monster */
 			}

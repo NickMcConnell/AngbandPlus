@@ -20,34 +20,34 @@ hand-to-hand combat.
 Bonus to Skill:
      The dagger above increases melee Skill by 6.  This bonus improves your
 chance to strike a monster and the number and quality of critical hits.  Except
-for certain rare gloves, armours seldom have bonuses to Skill.  Some have small
+for certain rare gloves, armors seldom have bonuses to Skill.  Some have small
 penalties.
 
 Bonus to Deadliness:
      The dagger above increases melee Deadliness by 4.  This increases the
-damage of every blow you land.  Except for certain rare gloves, armours seldom
+damage of every blow you land.  Except for certain rare gloves, armors seldom
 have bonuses to Deadliness.
 
 
 Example 2:  a Pair of Hard Leather Boots [3, +8]
 
-Bonus to Base Armour Class (AC):
-     All armours have bonuses to base AC.  The boots shown increase this value
-by 3.  Some weapons also have bonuses to base armour class, usually because they
+Bonus to Base Armor Class (AC):
+     All armors have bonuses to base AC.  The boots shown increase this value by
+3.  Some weapons also have bonuses to base armor class, usually because they
 help keep monsters further away from you or parry blows.
 
-Bonus, Plus to Armour Class (AC):
-     Armour of unusually good quality or that is magical also increases your
-plus to AC.  These boots add an additional 8 to AC, giving them a total bonus of
-11.  Only rare weapons do the same.
+Bonus, Plus to Armor Class (AC):
+     Armor of unusually good quality or that is magical also increases your plus
+to AC.  These boots add an additional 8 to AC, giving them a total bonus of 11.
+Only rare weapons do the same.
 
 
 
 --- Basic object attributes ---
 
-Armour Class:
-     Armour Class, or AC, lessens your chances of being hit by any monster blow,
-and also reduces the pure damage they deal.  AC reduces cutting and stunning
+Armor Class:
+     Armor Class, or AC, lessens your chances of being hit by any monster blow,
+and also reduces the pure damage hits inflict.  AC reduces cutting and stunning
 from melee attacks, and your chances of being hit by thrown physical objects
 (such as boulders or arrows).  It has no effect on magic.
 
@@ -136,8 +136,7 @@ Damage bonuses  (only the best applies):
  Brand Pois    :  +14 against everything not resistant to poison
 
  Impact        :  +14 against rocky creatures
- Tunneling    :  +14 against rocky creatures (if bonus to tunneling is at least
-1)
+ Tunneling     :  +14 against rocky creatures (if bonus to tunneling is >= 1)
  Light         :  +14 against creatures susceptible to light
 
  Kill Dragon   :  +27 against dragons
@@ -206,7 +205,7 @@ carrying in inventory can still be destroyed on rare occasions.
 
 Immunity to Acid:
      You take no damage from acid.  Worn items will not be affected by acid.
-Staffs, missiles, weapons, armour, and scrolls in your backpack become highly
+Staffs, missiles, weapons, armor, and scrolls in your backpack become highly
 resistant to destruction.
 
 Immunity to Electricity:
@@ -219,7 +218,7 @@ resistant to destruction.
 
 Immunity to Fire:
      You take no damage from fire.  Spellbooks, scrolls, staffs, and burnable
-weapons, missiles, and armour in your backpack become highly resistant to
+weapons, missiles, and armor in your backpack become highly resistant to
 destruction.
 
 
@@ -229,7 +228,7 @@ destruction.
 don't.
 
 Resist Acid:
-     You take one-thirds damage from acid.  Staffs, missiles, weapons, armour,
+     You take one-thirds damage from acid.  Staffs, missiles, weapons, armor,
 and scrolls in your backpack become a little more resistant to destruction.
 Your equipment is attacked by acid half as often.
 
@@ -243,7 +242,7 @@ little more resistant to destruction.
 
 Resist Fire:
      You take one-thirds damage from fire.  Spellbooks, scrolls, staffs, and
-burnable weapons, missiles, and armour in your backpack become a little more
+burnable weapons, missiles, and armor in your backpack become a little more
 resistant to destruction.
 
 Resist Poison:
@@ -335,7 +334,7 @@ Hold Life:
 skills.
 
 No Fuel:
-     Some light sources require no fuel.
+     Some light sources shine eternally.
 
 
 --- Curses and other Nastiness ---
@@ -355,7 +354,7 @@ and whisk you around the dungeon.
 Aggravate:
      Aggravation effectively reduces your stealth to nil, immediately waking up
 all monsters nearby.  Some rings and amulets possess curses that aggravate, and
-some weapons and armours are so powerful that no creature can ignore them.
+some weapons and armors are so powerful that no creature can ignore them.
 
 Drain Exp:
      Objects that drain experience are perilous, because they slowly but surely
@@ -363,9 +362,9 @@ erase your accumulated memories.  Of course, you can keep killing monsters to
 replace the experience which you lose.
 
 Hidden Curse:
-     Certain rare weapons and armour bear foul magics so well concealed that
-they only reveal themselves when you wear the item.  When activated, a hidden
-curse hideously transforms the object into something quite dangerous.
+     Certain rare weapons and armor bear foul magics so well concealed that they
+only reveal themselves when you wear the item.  When activated, a hidden curse
+hideously transforms the object into something quite dangerous.
 
 Light (ordinary) Curse:
      Many wearable objects have light curses.  A scroll of Remove Curse will
@@ -378,8 +377,6 @@ of Remove Cure fails, find and read one of *Remove Curse*.
 Permanent Curse:
      There is a great and terrible Ring, seen by perhaps one character in ten
 thousand, that can never be removed once put on.
-
-
 
 
 

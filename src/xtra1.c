@@ -1,4 +1,3 @@
-
 /* File: xtra1.c */
 
 /*
@@ -6,13 +5,14 @@
  * some things in sub-windows.  Calculate spells, mana, hitpoints, torch
  * radius, and regeneration rate.  Apply bonuses and attributes to the
  * character from stats, shapechanges, equipment, and temporary conditions.
- * Calculate blows, shots, armour, and so on.
+ * Calculate blows, shots, armor, and so on.  The game updating code.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -271,10 +271,10 @@ static cptr pure_necro[10] =
 
 static cptr h_necro[10] =
 {
+	"Dacoit",
 	"Acolyte",
 	"Dark Soldier",
 	"Nightfighter",
-	"Ghostbuster",
 	"Undead-Hunter",
 	"Death-Warrior",
 	"Vampire-Slayer",
@@ -456,7 +456,7 @@ static cptr forger[10] =
 static cptr title_aux(int level, cptr *list, int array_elements, bool quotes, u16b max_len)
 {
 	int i;
-	char buf[80];
+	char buf[DESC_LEN];
 	char *s, *t;
 
 	/* Paranoia -- require that level be in bounds */
@@ -510,7 +510,7 @@ static cptr title_aux(int level, cptr *list, int array_elements, bool quotes, u1
 	/* Length of title exceeds our maximum */
 	if (strlen(buf) > max_len)
 	{
-		char tmp[80];
+		char tmp[DESC_LEN];
 
 		/* Check for the word " of " */
 		t = strstr(buf, " of ");
@@ -573,11 +573,11 @@ static cptr title_aux(int level, cptr *list, int array_elements, bool quotes, u1
 /*
  * Character titles vary depending on relative skill levels.  -LM-
  *
- * Remember and return character specialty.
+ * Store character specialty.
  *
  * If "wizard" is TRUE, we allow "winner" and "wizard" titles.
  */
-cptr get_title(int len, bool wizard, bool quotes, int *specialty)
+cptr get_title(int len, bool wizard, bool quotes)
 {
 	/* Store all the skills that affect titles for handy reference */
 	int s_sword = get_skill(S_SWORD, 0, 100);
@@ -606,7 +606,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 
 	/* Groups of skills */
 	int fighting_skill, weapon_skill, missile_skill, unarmed_skill,
-		 magic_combat_skill, forging_skill, creation_skill;
+		magic_combat_skill, forging_skill, creation_skill;
 
 	int s;
 
@@ -655,7 +655,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 	/* No experience yet */
 	if (!calc_spent_exp())
 	{
-		*specialty = SPECIALTY_NONE;
+		p_ptr->specialty = SPECIALTY_NONE;
 		return ("Adventurer");
 	}
 
@@ -706,13 +706,13 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Concentration on hand-to-hand combat */
 				if (unarmed_skill == fighting_skill)
 				{
-					*specialty = SPECIALTY_HAND_BURGLAR;
+					p_ptr->specialty = SPECIALTY_HAND_BURGLAR;
 					return (title_aux(s, hand_burglar,
 					                  N_ELEMENTS(hand_burglar), quotes, len));
 				}
 
 				/* Concentration on melee or throwing */
-				*specialty = SPECIALTY_FIGHT_BURGLAR;
+				p_ptr->specialty = SPECIALTY_FIGHT_BURGLAR;
 				return (title_aux(s, fighting_burglar,
 				                  N_ELEMENTS(fighting_burglar), quotes, len));
 			}
@@ -728,7 +728,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				    (p_ptr->realm == MAGE) &&
 				    (s_wizardry >= 3 * fighting_skill / 4))
 				{
-					*specialty = SPECIALTY_H_WIZARD;
+					p_ptr->specialty = SPECIALTY_H_WIZARD;
 					return (title_aux(s, h_wizard, N_ELEMENTS(h_wizard), quotes, len));
 				}
 
@@ -737,7 +737,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				    (p_ptr->realm == PRIEST &&
 				     s_piety >= 2 * magic_combat_skill / 3))
 				{
-					*specialty = SPECIALTY_H_PRIEST;
+					p_ptr->specialty = SPECIALTY_H_PRIEST;
 					return (title_aux(s, h_priest, N_ELEMENTS(h_priest), quotes, len));
 				}
 
@@ -749,7 +749,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 					/* Require actual magic at higher levels */
 					if ((p_ptr->power <= 50) || (p_ptr->realm == DRUID))
 					{
-						*specialty = SPECIALTY_H_DRUID;
+						p_ptr->specialty = SPECIALTY_H_DRUID;
 						return (title_aux(s, h_druid, N_ELEMENTS(h_druid), quotes, len));
 					}
 				}
@@ -759,7 +759,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				    (p_ptr->realm == NECRO &&
 				     s_dominion >= 2 * magic_combat_skill / 3))
 				{
-					*specialty = SPECIALTY_H_NECRO;
+					p_ptr->specialty = SPECIALTY_H_NECRO;
 					return (title_aux(s, h_necro, N_ELEMENTS(h_necro), quotes, len));
 				}
 			}
@@ -771,7 +771,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Concentration on swords */
 				if ((s_sword >= 5 * s_polearm / 3) && (s_sword >= s_hafted * 2))
 				{
-					*specialty = SPECIALTY_SWORDS;
+					p_ptr->specialty = SPECIALTY_SWORDS;
 					s = (s_sword + p_ptr->power) / 2;
 					return (title_aux(s, swordfighter, N_ELEMENTS(swordfighter),
 						quotes, len));
@@ -780,7 +780,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Concentration on polearms */
 				if ((s_polearm >= 5 * s_sword / 3) && (s_polearm >= s_hafted * 2))
 				{
-					*specialty = SPECIALTY_POLEARMS;
+					p_ptr->specialty = SPECIALTY_POLEARMS;
 					s = (s_polearm + p_ptr->power) / 2;
 					return (title_aux(s, spearfighter, N_ELEMENTS(spearfighter),
 						quotes, len));
@@ -789,7 +789,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Concentration on hafted weapons */
 				if ((s_hafted >= s_polearm * 2) && (s_hafted >= s_sword * 2))
 				{
-					*specialty = SPECIALTY_HAFTED;
+					p_ptr->specialty = SPECIALTY_HAFTED;
 					s = (s_hafted + p_ptr->power) / 2;
 					return (title_aux(s, macefighter, N_ELEMENTS(macefighter),
 						quotes, len));
@@ -806,7 +806,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				if ((p_ptr->realm) && (s_bow > 2 * missile_skill / 3) &&
 				    (s_crossbow > 2 * missile_skill / 3))
 				{
-					*specialty = SPECIALTY_MISSILE_MAGIC;
+					p_ptr->specialty = SPECIALTY_MISSILE_MAGIC;
 					return (title_aux(s, missilefighter,
 					                  N_ELEMENTS(missilefighter), quotes, len));
 				}
@@ -814,7 +814,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Specialist in crossbows */
 				if (s_crossbow == missile_skill)
 				{
-					*specialty = SPECIALTY_CROSSBOW;
+					p_ptr->specialty = SPECIALTY_CROSSBOW;
 					return (title_aux(s, crossbowfighter,
 					                  N_ELEMENTS(crossbowfighter), quotes, len));
 				}
@@ -822,7 +822,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Specialist with bows */
 				if (s_bow == missile_skill)
 				{
-					*specialty = SPECIALTY_BOW;
+					p_ptr->specialty = SPECIALTY_BOW;
 					return (title_aux(s, bowfighter, N_ELEMENTS(bowfighter),
 						quotes, len));
 				}
@@ -830,7 +830,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Specialist with slings */
 				if (s_sling == missile_skill)
 				{
-					*specialty = SPECIALTY_SLING;
+					p_ptr->specialty = SPECIALTY_SLING;
 					return (title_aux(s, slingfighter, N_ELEMENTS(slingfighter),
 						quotes, len));
 				}
@@ -840,8 +840,8 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 			if ((unarmed_skill == fighting_skill) &&
 			    (unarmed_skill > 5 * MAX(weapon_skill, missile_skill) / 4))
 			{
-				if (s_karate >= s_wrestling) *specialty = SPECIALTY_KARATE;
-				else                         *specialty = SPECIALTY_WRESTLING;
+				if (s_karate >= s_wrestling) p_ptr->specialty = SPECIALTY_KARATE;
+				else                         p_ptr->specialty = SPECIALTY_WRESTLING;
 				s = (MAX(s_karate, s_wrestling) + p_ptr->power) / 2;
 				return (title_aux(s,
 					(s_karate >= s_wrestling ? karatefighter : wrestlingfighter),
@@ -853,7 +853,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 			if ((s_throwing == fighting_skill) &&
 			    (s_throwing > 4 * MAX(weapon_skill, missile_skill) / 3))
 			{
-				*specialty = SPECIALTY_THROWING;
+				p_ptr->specialty = SPECIALTY_THROWING;
 				s = (s_throwing + p_ptr->power) / 2;
 				return (title_aux(s, throwerfighter, N_ELEMENTS(throwerfighter),
 						quotes, len));
@@ -862,7 +862,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 			/* Generalist */
 			if (TRUE)
 			{
-				*specialty = SPECIALTY_FIGHTER;
+				p_ptr->specialty = SPECIALTY_FIGHTER;
 				s = (fighting_skill + p_ptr->power) / 2;
 				return (title_aux(s, fighter_general,
 				                  N_ELEMENTS(fighter_general), quotes, len));
@@ -912,7 +912,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Wizardry */
 				if (p_ptr->realm == MAGE)
 				{
-					*specialty = SPECIALTY_MAGE_BURGLAR;
+					p_ptr->specialty = SPECIALTY_MAGE_BURGLAR;
 					return (title_aux(s, mage_burglar,
 						N_ELEMENTS(mage_burglar), quotes, len));
 				}
@@ -920,7 +920,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Piety */
 				if (p_ptr->realm == PRIEST)
 				{
-					*specialty = SPECIALTY_PRIEST_BURGLAR;
+					p_ptr->specialty = SPECIALTY_PRIEST_BURGLAR;
 					return (title_aux(s, priest_burglar,
 						N_ELEMENTS(priest_burglar), quotes, len));
 				}
@@ -928,7 +928,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Nature */
 				if (p_ptr->realm == DRUID)
 				{
-					*specialty = SPECIALTY_DRUID_BURGLAR;
+					p_ptr->specialty = SPECIALTY_DRUID_BURGLAR;
 					return (title_aux(s, druid_burglar,
 						N_ELEMENTS(druid_burglar), quotes, len));
 				}
@@ -936,14 +936,14 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 				/* Blood dominion */
 				if (p_ptr->realm == NECRO)
 				{
-					*specialty = SPECIALTY_NECRO_BURGLAR;
+					p_ptr->specialty = SPECIALTY_NECRO_BURGLAR;
 					return (title_aux(s, necro_burglar,
 						N_ELEMENTS(necro_burglar), quotes, len));
 				}
 			}
 
 			/* Otherwise, we are considered a "pure" burglar */
-			*specialty = SPECIALTY_PURE_BURGLAR;
+			p_ptr->specialty = SPECIALTY_PURE_BURGLAR;
 
 			s = (s_burglary + p_ptr->power) / 2;
 			return (title_aux(s, pure_burglar,
@@ -980,7 +980,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 			/* We're a wizard */
 			if (p_ptr->realm == MAGE)
 			{
-				*specialty = SPECIALTY_P_WIZARD;
+				p_ptr->specialty = SPECIALTY_P_WIZARD;
 				s = (s_magic + s_wizardry + p_ptr->power) / 3;
 				return (title_aux(s, pure_wizard, N_ELEMENTS(pure_wizard), quotes, len));
 			}
@@ -988,7 +988,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 			/* We're a priest */
 			if (p_ptr->realm == PRIEST)
 			{
-				*specialty = SPECIALTY_P_PRIEST;
+				p_ptr->specialty = SPECIALTY_P_PRIEST;
 				s = (s_magic + s_piety + p_ptr->power) / 3;
 				return (title_aux(s, pure_priest, N_ELEMENTS(pure_priest), quotes, len));
 			}
@@ -996,7 +996,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 			/* We're a druid */
 			if (p_ptr->realm == DRUID)
 			{
-				*specialty = SPECIALTY_P_DRUID;
+				p_ptr->specialty = SPECIALTY_P_DRUID;
 				s = (s_magic + s_nature + p_ptr->power) / 3;
 				return (title_aux(s, pure_druid, N_ELEMENTS(pure_druid), quotes, len));
 			}
@@ -1004,7 +1004,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 			/* We're a necromancer */
 			if (p_ptr->realm == NECRO)
 			{
-				*specialty = SPECIALTY_P_NECRO;
+				p_ptr->specialty = SPECIALTY_P_NECRO;
 				s = (s_magic + s_dominion + p_ptr->power) / 3;
 				return (title_aux(s, pure_necro, N_ELEMENTS(pure_necro), quotes, len));
 			}
@@ -1014,7 +1014,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 	/* We're a specialist in magical devices */
 	if (s_device > creation_skill)
 	{
-		*specialty = SPECIALTY_DEVICE;
+		p_ptr->specialty = SPECIALTY_DEVICE;
 		s = (s_device + p_ptr->power) / 2;
 		return (title_aux(s, device_user, N_ELEMENTS(device_user), quotes, len));
 	}
@@ -1025,7 +1025,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 		/* We're an object-forger */
 		if (forging_skill == creation_skill)
 		{
-			*specialty = SPECIALTY_FORGING;
+			p_ptr->specialty = SPECIALTY_FORGING;
 			s = (forging_skill + p_ptr->power) / 2;
 			return (title_aux(s, forger, N_ELEMENTS(forger), quotes, len));
 		}
@@ -1033,7 +1033,7 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 		/* We're an alchemist */
 		if (s_alchemy == creation_skill)
 		{
-			*specialty = SPECIALTY_ALCHEMY;
+			p_ptr->specialty = SPECIALTY_ALCHEMY;
 			s = (s_alchemy + p_ptr->power) / 2;
 			return (title_aux(s, alchemist, N_ELEMENTS(alchemist), quotes, len));
 		}
@@ -1041,14 +1041,14 @@ cptr get_title(int len, bool wizard, bool quotes, int *specialty)
 		/* We're an infuser */
 		if (s_infusion == creation_skill)
 		{
-			*specialty = SPECIALTY_INFUSION;
+			p_ptr->specialty = SPECIALTY_INFUSION;
 			s = (s_infusion + p_ptr->power) / 2;
 			return (title_aux(s, infuser, N_ELEMENTS(infuser), quotes, len));
 		}
 	}
 
 	/* Can't seem to find anything that matches */
-	*specialty = SPECIALTY_NONE;
+	p_ptr->specialty = SPECIALTY_NONE;
 	return ("Adventurer");
 }
 
@@ -1137,7 +1137,7 @@ void get_fame_desc(int *attr, char *fame_desc)
 /*
  * Converts stat num into a six-char (right justified) string
  */
-void cnv_stat(int val, char *out_val)
+void cnv_stat(char *out_val, size_t size, int val)
 {
 	/* Above 18 */
 	if (val > 18)
@@ -1146,22 +1146,22 @@ void cnv_stat(int val, char *out_val)
 
 		if (bonus >= 220)
 		{
-			sprintf(out_val, "18/%3s", "***");
+			(void)strnfmt(out_val, size, "18/%3s", "***");
 		}
 		else if (bonus >= 100)
 		{
-			sprintf(out_val, "18/%03d", bonus);
+			(void)strnfmt(out_val, size, "18/%03d", bonus);
 		}
 		else
 		{
-			sprintf(out_val, " 18/%02d", bonus);
+			(void)strnfmt(out_val, size, " 18/%02d", bonus);
 		}
 	}
 
 	/* From 3 to 18 */
 	else
 	{
-		sprintf(out_val, "    %2d", val);
+		(void)strnfmt(out_val, size, "    %2d", val);
 	}
 }
 
@@ -1241,8 +1241,8 @@ static void prt_short_name(void)
  */
 static void prt_title(void)
 {
-	int i, dummy;
-	cptr title = get_title(13, TRUE, FALSE, &dummy);
+	int i;
+	cptr title = get_title(13, TRUE, FALSE);
 
 	/* Dump 13 spaces to clear */
 	c_put_str(TERM_WHITE, "             ", ROW_TITLE, COL_TITLE);
@@ -1270,7 +1270,7 @@ static void prt_exp(void)
 		if (p_ptr->pskills[i].cur < p_ptr->pskills[i].max) skdrain = TRUE;
 	}
 
-	sprintf(out_val, "%8ld", (long)p_ptr->exp);
+	(void)strnfmt(out_val, sizeof(out_val), "%8ld", (long)p_ptr->exp);
 
 	/* Skills have not been drained */
 	if (!skdrain)
@@ -1296,7 +1296,7 @@ static void prt_gold(void)
 	char tmp[32];
 
 	put_str("AU ", ROW_GOLD, COL_GOLD);
-	sprintf(tmp, "%9ld", (long)p_ptr->au);
+	(void)strnfmt(tmp, sizeof(tmp), "%9ld", (long)p_ptr->au);
 	c_put_str(TERM_L_GREEN, tmp, ROW_GOLD, COL_GOLD + 3);
 }
 
@@ -1311,7 +1311,6 @@ static void prt_equippy(void)
 	char c;
 
 	object_type *o_ptr;
-
 
 	/* Dump equippy chars */
 	for (i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++)
@@ -1368,7 +1367,7 @@ static void prt_stat(int stat)
 	if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
 	{
 		put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
-		cnv_stat(p_ptr->stat_use[stat], tmp);
+		cnv_stat(tmp, sizeof(tmp), p_ptr->stat_use[stat]);
 		c_put_str(TERM_YELLOW, tmp, ROW_STAT + stat, COL_STAT + 6);
 	}
 
@@ -1376,7 +1375,7 @@ static void prt_stat(int stat)
 	else
 	{
 		put_str(stat_names[stat], ROW_STAT + stat, 0);
-		cnv_stat(p_ptr->stat_use[stat], tmp);
+		cnv_stat(tmp, sizeof(tmp), p_ptr->stat_use[stat]);
 		c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
 	}
 
@@ -1451,7 +1450,7 @@ static void prt_ac(void)
 	char tmp[32];
 
 	put_str("Cur AC ", ROW_AC, COL_AC);
-	sprintf(tmp, "%5d", p_ptr->dis_ac + p_ptr->dis_to_a);
+	(void)strnfmt(tmp, sizeof(tmp), "%5d", p_ptr->dis_ac + p_ptr->dis_to_a);
 	c_put_str(TERM_L_GREEN, tmp, ROW_AC, COL_AC + 7);
 }
 
@@ -1477,14 +1476,14 @@ static void prt_hp(void)
 	else                                           a = TERM_GREEN;
 
 	/* Display current hitpoints */
-	sprintf(tmp, "%4d", p_ptr->chp);
+	(void)strnfmt(tmp, sizeof(tmp), "%4d", p_ptr->chp);
 	c_put_str(a, tmp, ROW_HP, COL_HP + 3);
 
 	/* Divider */
 	put_str("/", ROW_HP, COL_HP + 7);
 
 	/* Format and display maximum hitpoints */
-	sprintf(tmp, "%4d", p_ptr->mhp);
+	(void)strnfmt(tmp, sizeof(tmp), "%4d", p_ptr->mhp);
 	c_put_str(TERM_L_GREEN, tmp, ROW_HP, COL_HP + 8);
 }
 
@@ -1515,14 +1514,14 @@ static void prt_sp(void)
 	else                                           a = TERM_GREEN;
 
 	/* Display current spell points */
-	sprintf(tmp, "%4d", p_ptr->csp);
+	(void)strnfmt(tmp, sizeof(tmp), "%4d", p_ptr->csp);
 	c_put_str(a, tmp, ROW_SP, COL_SP + 3);
 
 	/* Divider */
 	put_str("/", ROW_SP, COL_SP + 7);
 
 	/* Format and display maximum spell points */
-	sprintf(tmp, "%4d", p_ptr->msp);
+	(void)strnfmt(tmp, sizeof(tmp), "%4d", p_ptr->msp);
 	c_put_str(TERM_L_GREEN, tmp, ROW_SP, COL_SP + 8);
 }
 
@@ -1679,37 +1678,37 @@ static void prt_hunger(void)
 	/* Fainting / Starving */
 	if (p_ptr->food < p_ptr->food_fainting)
 	{
-		c_put_str(TERM_RED, "Weak! ", map_rows + 1, COL_HUNGRY);
+		c_put_str(TERM_RED, "Weak! ", ROW_STATUS, COL_HUNGRY);
 	}
 
 	/* Weak */
 	else if (p_ptr->food < p_ptr->food_weak)
 	{
-		c_put_str(TERM_ORANGE, "Weak  ", map_rows + 1, COL_HUNGRY);
+		c_put_str(TERM_ORANGE, "Weak  ", ROW_STATUS, COL_HUNGRY);
 	}
 
 	/* Hungry */
 	else if (p_ptr->food < p_ptr->food_hungry)
 	{
-		c_put_str(TERM_YELLOW, "Hungry", map_rows + 1, COL_HUNGRY);
+		c_put_str(TERM_YELLOW, "Hungry", ROW_STATUS, COL_HUNGRY);
 	}
 
 	/* Normal */
 	else if (p_ptr->food < p_ptr->food_full)
 	{
-		c_put_str(TERM_L_GREEN, "      ", map_rows + 1, COL_HUNGRY);
+		c_put_str(TERM_L_GREEN, "      ", ROW_STATUS, COL_HUNGRY);
 	}
 
 	/* Full */
 	else if (p_ptr->food < p_ptr->food_bloated)
 	{
-		c_put_str(TERM_L_GREEN, "Full  ", map_rows + 1, COL_HUNGRY);
+		c_put_str(TERM_L_GREEN, "Full  ", ROW_STATUS, COL_HUNGRY);
 	}
 
 	/* Gorged */
 	else
 	{
-		c_put_str(TERM_GREEN, "Gorged", map_rows + 1, COL_HUNGRY);
+		c_put_str(TERM_GREEN, "Gorged", ROW_STATUS, COL_HUNGRY);
 	}
 }
 
@@ -1918,8 +1917,8 @@ static bool prt_oppose(byte r_margin)
  */
 static void left_panel_display_aux(byte item, byte row, int tmp)
 {
-	/* Require that map window be showing  XXX */
-	if (character_icky) return;
+	/* Main screen must be active */
+	if (main_screen_inactive) return;
 
 	/* Clear the row */
 	put_str("             ", row, 0);
@@ -1942,7 +1941,7 @@ static void left_panel_display_aux(byte item, byte row, int tmp)
 				int attr = TERM_RED;
 				int attr2;
 				int path;
-				char m_name[80];
+				char m_name[DESC_LEN];
 
 				/* Get the monster index */
 				int m_idx = cave_m_idx[ty][tx];
@@ -2044,7 +2043,7 @@ static void left_panel_display_aux(byte item, byte row, int tmp)
 		case DISPLAY_FAME:
 		{
 			int a;
-			char fame_desc[80];
+			char fame_desc[DESC_LEN];
 
 			/* Get and print a color and description of fame */
 			get_fame_desc(&a, fame_desc);
@@ -2555,7 +2554,7 @@ static void print_left_panel(bool health_bars_only)
 	int health_bars = 0;
 
 	/* Refresh all the customized displays */
-	for (i = 0; i < map_rows - ROW_CUSTOM; i++)
+	for (i = 0; i < term_main->rows - ROW_CUSTOM - 1; i++)
 	{
 		int item = custom_display[i];
 
@@ -2590,14 +2589,14 @@ bool left_panel_display(byte item, byte mode)
 	int i, row;
 
 	/* Do we want to display this item?  If so, where? */
-	for (i = 0; i < map_rows - ROW_CUSTOM; i++)
+	for (i = 0; i < term_main->rows - ROW_CUSTOM - 1; i++)
 	{
 		/* Accept matches */
 		if (custom_display[i] == item) break;
 	}
 
 	/* No match */
-	if (i >= map_rows - ROW_CUSTOM) return (FALSE);
+	if (i >= term_main->rows - ROW_CUSTOM - 1) return (FALSE);
 
 	/* Just note whether we display the item or not */
 	if (mode == 1) return (TRUE);
@@ -2630,7 +2629,7 @@ static void prt_conditions(void)
 	/* Get right margin (leave a blank space) */
 	byte r_margin = COL_STATE - 2;
 
-	char buf[80];
+	char buf[256];
 
 	int length = COL_STATE - COL_CONDITIONS;
 
@@ -2638,11 +2637,11 @@ static void prt_conditions(void)
 	center_string(buf, sizeof(buf), "", length);
 
 	/* Clear the conditions display */
-	c_put_str(TERM_WHITE, buf, map_rows + 1, COL_CONDITIONS);
+	c_put_str(TERM_WHITE, buf, ROW_STATUS, COL_CONDITIONS);
 
 
 	/* Move the cursor */
-	move_cursor(map_rows + 1, COL_CONDITIONS);
+	move_cursor(ROW_STATUS, COL_CONDITIONS);
 
 	/* Show Black Breath */
 	if (p_ptr->black_breath)
@@ -2680,12 +2679,14 @@ static void prt_conditions(void)
 		if (c_roff_insert(TERM_ORANGE, "Confused", r_margin)) return;
 	}
 
-	/* Show poison, otherwise show disease */
+	/* Show poison */
 	if (p_ptr->poisoned)
 	{
 		if (prt_poisoned(r_margin)) return;
 	}
-	else if (p_ptr->diseased)
+
+	/* Show disease */
+	if (p_ptr->diseased)
 	{
 		if (prt_diseased(r_margin)) return;
 	}
@@ -2850,12 +2851,21 @@ static void prt_state(void)
 	{
 		if (p_ptr->command_rep > 999)
 		{
-			sprintf(text, "Rep. %3d00", p_ptr->command_rep / 100);
+			(void)strnfmt(text, sizeof(text), "Rep. %3d00", p_ptr->command_rep / 100);
 		}
 		else
 		{
-			sprintf(text, "Repeat %3d", p_ptr->command_rep);
+			(void)strnfmt(text, sizeof(text), "Repeat %3d", p_ptr->command_rep);
 		}
+	}
+
+	/* Crossing */
+	else if (p_ptr->crossing_dir)
+	{
+		if (p_ptr->crossing_moves >= 10)
+			strcpy(text, "Crossing +");
+		else
+			(void)strnfmt(text, sizeof(text), "Crossing %d", p_ptr->crossing_moves);
 	}
 
 	/* Sneaking */
@@ -2871,7 +2881,7 @@ static void prt_state(void)
 	}
 
 	/* Display the info (or blanks) */
-	c_put_str(attr, text, map_rows + 1, COL_STATE);
+	c_put_str(attr, text, ROW_STATUS, COL_STATE);
 
 	/* Hack -- If character color changes with damage taken, redraw */
 	if (colored_hurt_char) lite_spot(p_ptr->py, p_ptr->px);
@@ -2899,7 +2909,7 @@ static void prt_speed(void)
 		if      (s > base) attr = TERM_GREEN;
 		else if (s < base) attr = TERM_YELLOW;
 		else               attr = TERM_L_GREEN;
-		sprintf(buf, "Fast (%+d)", (s - 110));
+		(void)strnfmt(buf, sizeof(buf), "Fast (%+d)", (s - 110));
 	}
 
 	/* Slow */
@@ -2908,7 +2918,7 @@ static void prt_speed(void)
 		if      (s > base) attr = TERM_L_WHITE;
 		else if (s < base) attr = TERM_ORANGE;
 		else               attr = TERM_L_UMBER;
-		sprintf(buf, "Slow (%+d)", (s - 110));
+		(void)strnfmt(buf, sizeof(buf), "Slow (%+d)", (s - 110));
 	}
 
 	/* Normal speed */
@@ -2918,7 +2928,7 @@ static void prt_speed(void)
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-11s", buf), map_rows + 1, COL_SPEED);
+	c_put_str(attr, format("%-11s", buf), ROW_STATUS, COL_SPEED);
 }
 
 /*
@@ -2931,16 +2941,16 @@ static void prt_uncast(void)
 		if (p_ptr->uncast_spells < 10)
 		{
 			put_str(format("Uncast: %d", p_ptr->uncast_spells),
-				map_rows + 1, COL_UNCAST);
+				ROW_STATUS, COL_UNCAST);
 		}
 		else
 		{
-			put_str("Uncast: *", map_rows + 1, COL_UNCAST);
+			put_str("Uncast: *", ROW_STATUS, COL_UNCAST);
 		}
 	}
 	else
 	{
-		put_str("         ", map_rows + 1, COL_UNCAST);
+		put_str("         ", ROW_STATUS, COL_UNCAST);
 	}
 }
 
@@ -2958,12 +2968,12 @@ static void prt_depth(void)
 	}
 	else if (depth_in_feet)
 	{
-		if (use_metric) sprintf(depths, "%d m", p_ptr->depth * 15);
-		else sprintf(depths, "%d ft", p_ptr->depth * 50);
+		if (use_metric) (void)strnfmt(depths, sizeof(depths), "%d m", p_ptr->depth * 15);
+		else (void)strnfmt(depths, sizeof(depths), "%d ft", p_ptr->depth * 50);
 	}
 	else
 	{
-		sprintf(depths, "Lev %d", p_ptr->depth);
+		(void)strnfmt(depths, sizeof(depths), "Lev %d", p_ptr->depth);
 	}
 
 	/* Get color of level based on feeling  -JSV- */
@@ -2982,7 +2992,7 @@ static void prt_depth(void)
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	c_prt(attr, format("%7s", depths), map_rows + 1, COL_DEPTH);
+	c_prt(attr, format("%7s", depths), ROW_STATUS, COL_DEPTH);
 }
 
 
@@ -3063,13 +3073,13 @@ static void fix_inven(void)
 {
 	int j;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
+	term *old = Term;
 
-		/* No window */
-		if (!angband_term[j]) continue;
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	{
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_INVEN))) continue;
@@ -3082,11 +3092,12 @@ static void fix_inven(void)
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
+
 /*
  * Hack -- display equipment in sub-windows
  */
@@ -3094,13 +3105,13 @@ static void fix_equip(void)
 {
 	int j;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
+	term *old = Term;
 
-		/* No window */
-		if (!angband_term[j]) continue;
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	{
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_EQUIP))) continue;
@@ -3113,10 +3124,10 @@ static void fix_equip(void)
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 /*
@@ -3126,13 +3137,13 @@ static void fix_player_0(void)
 {
 	int j;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
+	term *old = Term;
 
-		/* No window */
-		if (!angband_term[j]) continue;
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	{
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_PLAYER_0))) continue;
@@ -3145,10 +3156,10 @@ static void fix_player_0(void)
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 
@@ -3160,13 +3171,13 @@ static void fix_player_1(void)
 {
 	int j;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
+	term *old = Term;
 
-		/* No window */
-		if (!angband_term[j]) continue;
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	{
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_PLAYER_1))) continue;
@@ -3179,10 +3190,10 @@ static void fix_player_1(void)
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 
@@ -3197,13 +3208,13 @@ static void fix_message(void)
 	int w, h;
 	int x, y;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
+	term *old = Term;
 
-		/* No window */
-		if (!angband_term[j]) continue;
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	{
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_MESSAGE))) continue;
@@ -3234,10 +3245,10 @@ static void fix_message(void)
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 
@@ -3253,13 +3264,13 @@ static void fix_overhead(void)
 
 	int j;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
+	term *old = Term;
 
-		/* No window */
-		if (!angband_term[j]) continue;
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	{
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_OVERHEAD))) continue;
@@ -3271,17 +3282,17 @@ static void fix_overhead(void)
 		cave_m_idx[py][px] = 0;
 
 		/* Redraw map */
-		display_map(NULL, NULL, FALSE);
+		display_map(NULL, NULL);
 
 		/* Hack -- Show player XXX XXX XXX */
 		cave_m_idx[py][px] = -1;
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 
@@ -3292,13 +3303,13 @@ static void fix_monster(void)
 {
 	int j;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
+	term *old = Term;
 
-		/* No window */
-		if (!angband_term[j]) continue;
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	{
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_MONSTER))) continue;
@@ -3311,10 +3322,10 @@ static void fix_monster(void)
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 
@@ -3325,13 +3336,13 @@ static void fix_object(void)
 {
 	int j;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
+	term *old = Term;
 
-		/* No window */
-		if (!angband_term[j]) continue;
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	{
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_OBJECT))) continue;
@@ -3344,10 +3355,10 @@ static void fix_object(void)
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 
@@ -3358,13 +3369,13 @@ static void fix_m_list(void)
 {
 	int j;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
+	term *old = Term;
 
-		/* No window */
-		if (!angband_term[j]) continue;
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	{
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_M_LIST))) continue;
@@ -3372,15 +3383,15 @@ static void fix_m_list(void)
 		/* Activate */
 		(void)Term_activate(angband_term[j]);
 
-		/* Display visible monsters */
-		display_m_list();
+		/* Display visible monsters (and then objects if space exists) */
+		display_m_list(0, 0, TRUE);
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 
@@ -3391,13 +3402,13 @@ static void fix_o_list(void)
 {
 	int j;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
+	term *old = Term;
 
-		/* No window */
-		if (!angband_term[j]) continue;
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	{
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_O_LIST))) continue;
@@ -3405,15 +3416,15 @@ static void fix_o_list(void)
 		/* Activate */
 		(void)Term_activate(angband_term[j]);
 
-		/* Display nearby objects */
-		display_nearby_objects();
+		/* Display nearby objects (and then monsters if space exists) */
+		display_nearby_objects(0, 0, TRUE);
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 
@@ -3434,7 +3445,7 @@ static void roff_chunk(cptr str, int l_margin, int r_margin)
 	(void)Term_get_size(&w, &h);
 
 	/* Notice that string will cross the right edge */
-	if (x + len >= w)
+	if ((x > 0) && (x + len >= w))
 	{
 		/* Go to the next line */
 		move_cursor(y + 1, l_margin);
@@ -3452,14 +3463,13 @@ static void fix_cmdlist(void)
 {
 	int j, w, h;
 
+	term *old = Term;
 
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	/* Scan sub-windows */
+	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
 	{
-		term *old = Term;
-
-		/* No window */
-		if (!angband_term[j]) continue;
+		/* No term, or term is unavailable */
+		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
 
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_CMDLIST))) continue;
@@ -3488,7 +3498,7 @@ static void fix_cmdlist(void)
 			roff_chunk(" C  Character screen     ", 0, w);
 			roff_chunk(" e  Equipment list       ", 0, w);
 			roff_chunk(" i  Inventory list       ", 0, w);
-			roff_chunk(" I  Observe an item      ", 0, w);
+			roff_chunk(" I  Inspect an item      ", 0, w);
 			roff_chunk(" l  Look around          ", 0, w);
 			roff_chunk(" s  Search               ", 0, w);
 			roff_chunk(" ~  Knowledge            ", 0, w);
@@ -3510,7 +3520,7 @@ static void fix_cmdlist(void)
 			roff_chunk(" v  Throw an item        ", 0, w);
 			roff_chunk(" w  Wear/wield           ", 0, w);
 			roff_chunk(" z  Zap a rod            ", 0, w);
-			roff_chunk(" {  Inscribe an object   ", 0, w);
+			roff_chunk(" {  Inscribe an item     ", 0, w);
 			roff_chunk("\n", 0, w);
 			if (h >= 20) roff_chunk("\n", 0, w);
 
@@ -3522,7 +3532,6 @@ static void fix_cmdlist(void)
 			roff_chunk(" *  Target monster       ", 0, w);
 			roff_chunk(" $  Advance skills       ", 0, w);
 			roff_chunk(" [  Use talents          ", 0, w);
-			roff_chunk(" ]  End shapechange      ", 0, w);
 			roff_chunk("\n", 0, w);
 			if (h >= 22) roff_chunk("\n", 0, w);
 
@@ -3560,9 +3569,9 @@ static void fix_cmdlist(void)
 			roff_chunk(" C  Character screen     ", 0, w);
 			roff_chunk(" e  Equipment list       ", 0, w);
 			roff_chunk(" i  Inventory list       ", 0, w);
-			roff_chunk(" I  Observe an item      ", 0, w);
+			roff_chunk(" I  Inspect object       ", 0, w);
 			roff_chunk(" s  Search               ", 0, w);
-			roff_chunk(" x  Look around          ", 0, w);
+			roff_chunk(" x  Examine area         ", 0, w);
 			roff_chunk(" ~  Knowledge            ", 0, w);
 			roff_chunk(" ?  Help                 ", 0, w);
 			roff_chunk("\n", 0, w);
@@ -3582,7 +3591,7 @@ static void fix_cmdlist(void)
 			roff_chunk(" w  Wear/wield           ", 0, w);
 			roff_chunk(" z  Zap a wand           ", 0, w);
 			roff_chunk(" Z  Use a staff          ", 0, w);
-			roff_chunk(" {  Inscribe an object   ", 0, w);
+			roff_chunk(" {  Inscribe an item     ", 0, w);
 			roff_chunk("\n", 0, w);
 			if (h >= 20) roff_chunk("\n", 0, w);
 
@@ -3594,7 +3603,6 @@ static void fix_cmdlist(void)
 			roff_chunk(" *  Target monster       ", 0, w);
 			roff_chunk(" $  Advance skills       ", 0, w);
 			roff_chunk(" [  Use talents          ", 0, w);
-			roff_chunk(" ]  End shapechange      ", 0, w);
 			roff_chunk("\n", 0, w);
 			if (h >= 22) roff_chunk("\n", 0, w);
 
@@ -3623,10 +3631,10 @@ static void fix_cmdlist(void)
 
 		/* Fresh */
 		(void)Term_fresh();
-
-		/* Restore */
-		(void)Term_activate(old);
 	}
+
+	/* Restore */
+	(void)Term_activate(old);
 }
 
 
@@ -3640,9 +3648,7 @@ static void fix_cmdlist(void)
  */
 static void calc_spells(void)
 {
-	int i, level;
-
-	int stat = p_ptr->stat_ind[mp_ptr->spell_stat];
+	int i;
 
 	const magic_type *s_ptr;
 
@@ -3664,14 +3670,8 @@ static void calc_spells(void)
 	p = spell_type();
 
 
-	/* Determine spell-casting level */
-	level = get_skill(S_MAGIC, 0, 100);
-
-	/* Adjust for low stat (below 18) */
-	if (stat < 15) level = level * stat / 15;
-
 	/* Save our new spell level */
-	p_ptr->spell_level = level;
+	p_ptr->spell_level = get_skill(S_MAGIC, 0, 100);
 
 
 	/* Forget and remember spells */
@@ -3687,8 +3687,7 @@ static void calc_spells(void)
 			if (p_ptr->spell_flags[i] & (PY_SPELL_FORGOTTEN))
 			{
 				/* Message */
-				msg_format("You have remembered the %s of %s.",
-					p, spell_names[s_ptr->index]);
+				msg_format("You have remembered the %s of %s.", p, s_ptr->sname);
 
 				/* No longer forgotten */
 				p_ptr->spell_flags[i] &= ~(PY_SPELL_FORGOTTEN);
@@ -3702,8 +3701,7 @@ static void calc_spells(void)
 		    (!(p_ptr->spell_flags[i] & (PY_SPELL_FORGOTTEN))))
 		{
 			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-				spell_names[s_ptr->index]);
+			msg_format("You have forgotten the %s of %s.", p, s_ptr->sname);
 
 			/* Forget it */
 			p_ptr->spell_flags[i] |= (PY_SPELL_FORGOTTEN);
@@ -3840,7 +3838,7 @@ void calc_mana(void)
 	{
 		max_wgt = mp_ptr->spell_weight;
 
-		/* A high dodging skill relaxes armour restrictions */
+		/* A high dodging skill relaxes armor restrictions */
 		max_wgt += get_skill(S_DODGING, 0, 100);
 
 		/* Heavy armor penalizes mana by a percentage. */
@@ -3850,7 +3848,7 @@ void calc_mana(void)
 			p_ptr->cumber_armor = TRUE;
 
 			/*
-			 * Pure spellcasters lose half their mana if their armour
+			 * Pure spellcasters lose half their mana if their armor
 			 * is twice as heavy as max_wgt (ranges between 50 and 80
 			 * pounds)
 			 */
@@ -3861,7 +3859,7 @@ void calc_mana(void)
 
 			/*
 			 * Non-specialist spellcasters lose half their mana if their
-			 * armour is four times as heavy as max_wgt (ranges between
+			 * armor is four times as heavy as max_wgt (ranges between
 			 * 100 and 160 pounds)
 			 */
 			else
@@ -3930,7 +3928,7 @@ void calc_mana(void)
  *
  * Adjust current hitpoints if necessary
  */
-extern void calc_hitpoints(void)
+void calc_hitpoints(void)
 {
 	int bonus, mhp;
 
@@ -3970,15 +3968,12 @@ extern void calc_hitpoints(void)
 	/* Calculate hitpoints */
 	mhp = p_ptr->player_hp[p_ptr->power - 1] + bonus;
 
-	/* Hack -- Always have at least three hitpoints per level of power */
-	if (mhp < p_ptr->power * 3) mhp = p_ptr->power * 3;
 
-
-	/* Hack -- Factor in heroism and berserk strength  XXX */
+	/* Factor in heroism and berserk strength  XXX */
 	if (p_ptr->hero)    mhp += 10;
 	if (p_ptr->berserk) mhp += 30;
 
-	/* Hack -- Wrestlers get +1 HP per skill level above 50 */
+	/* Wrestlers get +1 HP per skill level above 50 */
 	if (get_skill(S_WRESTLING, 0, 100) >= 50)
 	{
 		mhp += get_skill(S_WRESTLING, -50, 50);
@@ -4020,6 +4015,8 @@ extern void calc_hitpoints(void)
  * various special conditions.  The brightest wielded object counts as
  * the light source; they are not cumulative.  The maximum light radius
  * is 5 (see cave.c).
+ *
+ * This function does not allow light sources of radius 0.
  */
 static void calc_torch(void)
 {
@@ -4065,20 +4062,20 @@ static void calc_torch(void)
 		/* Get object flags */
 		object_flags(o_ptr, &f1, &f2, &f3);
 
-		/* Light sources */
-		if (o_ptr->tval == TV_LITE)
+		/* Handle light sources (unless negative) */
+		if ((o_ptr->tval == TV_LITE) && (tmp >= 0))
 		{
-			/* Object is doused */
-			if (!(o_ptr->flags3 & (TR3_IS_LIT))) tmp = 0;
+			/* Ignore if doused */
+			if (!(o_ptr->flags3 & (TR3_IS_LIT))) continue;
 
 			/* Object needs fuel */
 			else if (!(f3 & (TR3_NOFUEL)))
 			{
-				/* No fuel */
-				if (!o_ptr->pval) tmp = 0;
+				/* No fuel -- ignore */
+				if (o_ptr->pval <= 0) continue;
 
 				/* Torches with low fuel burn more dimly */
-				if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
+				if (o_ptr->sval == SV_LITE_TORCH)
 				{
 					if ((o_ptr->pval < TORCH_LOW) && (tmp > 1)) tmp -= 1;
 				}
@@ -4098,7 +4095,7 @@ static void calc_torch(void)
 	/* Maximum light radius is 5 */
 	if (p_ptr->cur_lite > 5) p_ptr->cur_lite = 5;
 
-	/* Minimum is zero */
+	/* Minimum is 0 */
 	if (p_ptr->cur_lite < 0) p_ptr->cur_lite = 0;
 
 	/* Notice changes in the light radius */
@@ -4370,7 +4367,6 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 	int to_d = 0;
 
 	int weapon_skill;
-	int skill;
 
 	/* Set to the racial flags */
 	*f1 = rp_ptr->flags1;
@@ -4390,21 +4386,15 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 	/* Get non-magical combat skill */
 	weapon_skill = sweapon(inventory[INVEN_WIELD].tval);
 
-	/*
-	 * Special immunities for high-level martial arts experts
-	 * No longer requires character to be fighting with karate or wrestling -JM-
-	 */
+	/* Special immunities for high-level martial arts experts */
+	if ((weapon_skill == S_KARATE) || (weapon_skill == S_WRESTLING))
+	{
+		int skill = get_skill(weapon_skill, 0, 100);
 
-	/* Karate bonuses */
-	skill = get_skill(S_KARATE, 0, 100);
-	if (skill >= LEV_REQ_MARTIAL_FA) *f3 |= (TR3_FREE_ACT);
-	if (skill >= LEV_REQ_MARTIAL_RESIST) *f2 |= (TR2_RES_CONFU);
-
-	/* Wrestling bonuses */
-	skill = get_skill(S_WRESTLING, 0, 100);
-	if (skill >= LEV_REQ_MARTIAL_FA) *f3 |= (TR3_FREE_ACT);
-	if (skill >= LEV_REQ_MARTIAL_RESIST) *f2 |= (TR2_RES_SOUND);
-
+		if (skill >= 86) *f3 |= (TR3_FREE_ACT);
+		if (skill >= 92) *f2 |= (TR2_RES_SOUND);
+		if (skill >= 98) *f2 |= (TR2_RES_CONFU);
+	}
 
 	/* Wizardly protection */
 	if (p_ptr->wiz_prot)
@@ -4727,9 +4717,6 @@ int player_flags_pval(u32b flag_pval, bool shape)
 	/* Handle racial modifiers to infravision */
 	if (flag_pval == TR_PVAL_INFRA) pval += rp_ptr->infra;
 
-	/* Handle perception modifiers to infravision */
-	if (flag_pval == TR_PVAL_INFRA) pval += MAX(0, get_skill(S_PERCEPTION, -1, 4));
-
 	/* Giants are great at tunneling */
 	if (flag_pval == TR_PVAL_TUNNEL)
 	{
@@ -4791,26 +4778,21 @@ int player_flags_pval(u32b flag_pval, bool shape)
 	if (flag_pval == TR_PVAL_STR)
 	{
 		int skill = get_skill(S_WRESTLING, 0, 100);
-		if (skill >= LEV_REQ_MARTIAL_STAT1) pval++;
-		if (skill >= LEV_REQ_MARTIAL_STAT2) pval++;
-		if (skill >= LEV_REQ_MARTIAL_STAT3) pval++;
+		if (skill >= LEV_REQ_WRESTLE_STR_BONUS1) pval++;
+		if (skill >= LEV_REQ_WRESTLE_STR_BONUS2) pval++;
+
+		skill = get_skill(S_KARATE, 0, 100);
+		if (skill >= LEV_REQ_KARATE_STR_BONUS1) pval++;
 	}
 	if (flag_pval == TR_PVAL_DEX)
 	{
 		int skill = get_skill(S_KARATE, 0, 100);
-		if (skill >= LEV_REQ_MARTIAL_STAT1) pval++;
-		if (skill >= LEV_REQ_MARTIAL_STAT2) pval++;
-		if (skill >= LEV_REQ_MARTIAL_STAT3) pval++;
-	}
+		if (skill >= LEV_REQ_KARATE_DEX_BONUS1) pval++;
+		if (skill >= LEV_REQ_KARATE_DEX_BONUS2) pval++;
 
-	if (flag_pval == TR_PVAL_SPEED)
-	{
-		int skill = get_skill(S_KARATE, 0, 100);
-		if(skill >= LEV_REQ_KARATE_SPEED1) pval++;
-		if(skill >= LEV_REQ_KARATE_SPEED2) pval++;
-		if(skill >= LEV_REQ_KARATE_SPEED3) pval++;
+		skill = get_skill(S_WRESTLING, 0, 100);
+		if (skill >= LEV_REQ_WRESTLE_DEX_BONUS1) pval++;
 	}
-
 
 	/* Handle wrestling bonus to digging */
 	if (flag_pval == TR_PVAL_TUNNEL) pval += get_skill(S_WRESTLING, 0, 3);
@@ -5145,21 +5127,8 @@ static void analyze_weapons(void)
 	/* Using bare-handed combat */
 	else
 	{
-		/* Karate gets up to 6 attacks */
-		if (p_ptr->barehand == S_KARATE)
-		{
-			int str_factor   = get_skill(S_KARATE,0,11);
-			p_ptr->num_blow  = blows_table[MIN(11,str_factor)]
-				                          [MIN(11,adj_dex_blow[p_ptr->stat_ind[A_DEX]])];
-		}
-
-		/* Wrestling gets up to 4 attacks */
-		else
-		{
-			int dex_factor  = get_skill(S_WRESTLING,0,5);
-			p_ptr->num_blow  = blows_table[MIN(11,adj_str_blow[p_ptr->stat_ind[A_STR]]/15)]
-										  [MIN(11,dex_factor)];
-		}
+		/* Two blows in all circumstances */
+		p_ptr->num_blow = 2;
 
 		/* Note that we are bare-handed */
 		p_ptr->barehanded = TRUE;
@@ -5437,8 +5406,8 @@ static void calc_bonuses(void)
 		p_ptr->skill_stl += 1;
 
 
-	/* Perception ability (ranges from ~5 to ~130) */
-	p_ptr->skill_srh  = 10 + rp_ptr->r_srh;
+	/* Perception ability (ranges from ~0 to ~125) */
+	p_ptr->skill_srh  = 5 + rp_ptr->r_srh;
 
 	/* Searching ability goes up with perception skill (can reach 100) */
 	p_ptr->skill_srh +=
@@ -5486,7 +5455,7 @@ static void calc_bonuses(void)
 		p_ptr->skill_sav += get_skill(S_SAVE, -80, 20);
 
 	/* Bad luck reduces saving throw somewhat */
-	p_ptr->skill_sav += (p_ptr->luck - 100) / 5;
+	p_ptr->skill_sav += (p_ptr->luck - 100) / 4;
 
 	/* Mana bonus */
 	p_ptr->mana_bonus = 0;
@@ -5505,7 +5474,9 @@ static void calc_bonuses(void)
 	/* Melee Combat (ranges from ~12 to ~140 (~200 with martial arts)) */
 	p_ptr->skill_thn  = 10 + rp_ptr->r_thn;
 	p_ptr->skill_thn += add_special_melee_skill();
-	p_ptr->skill_thn += get_skill_race(weapon_skill, 8, 115);
+
+	if (get_skill(weapon_skill, 0, 100))
+		p_ptr->skill_thn += get_skill_race(weapon_skill, 5, 115);
 
 	/* Hack -- special bonus for high-level martial arts experts */
 	if ((weapon_skill == S_KARATE) || (weapon_skill == S_WRESTLING))
@@ -5521,12 +5492,16 @@ static void calc_bonuses(void)
 
 	/* Ranged Combat (ranges from ~11 (with skill of 1) to ~140) */
 	p_ptr->skill_thb = 10 + rp_ptr->r_thb;
-	p_ptr->skill_thb += get_skill_race(bow_skill, 10, 115);
+
+	if (get_skill(bow_skill, 0, 100))
+		p_ptr->skill_thb += get_skill_race(bow_skill, 5, 115);
 
 
 	/* Throwing (ranges from ~15 (with skill of 1) to ~140) */
 	p_ptr->skill_tht = 10 + rp_ptr->r_tht;
-	p_ptr->skill_tht += get_skill_race(S_THROWING, 10, 115);
+
+	if (get_skill(S_THROWING, 0, 100))
+		p_ptr->skill_tht += get_skill_race(S_THROWING, 5, 115);
 
 
 
@@ -5722,7 +5697,7 @@ static void calc_bonuses(void)
 
 	/*** Apply modifier bonuses ***/
 
-	/* Apply stat modifiers to Skill, Deadliness, and armour class */
+	/* Apply stat modifiers to Skill, Deadliness, and armor class */
 	hit_bonus       += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_d     += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
@@ -5915,60 +5890,6 @@ static void calc_bonuses(void)
 		}
 	}
 
-	/*** Cancellation of flags ***/
-
-	/* Extract the player cancellation flags (including shapechanges) */
-	player_flags_cancel(&f1, &f2, &f3, TRUE);
-
-	/* Sustain flags */
-	if (f1 & (TR1_SUST_STR))       p_ptr->sustain_str   = FALSE;
-	if (f1 & (TR1_SUST_INT))       p_ptr->sustain_int   = FALSE;
-	if (f1 & (TR1_SUST_WIS))       p_ptr->sustain_wis   = FALSE;
-	if (f1 & (TR1_SUST_DEX))       p_ptr->sustain_dex   = FALSE;
-	if (f1 & (TR1_SUST_CON))       p_ptr->sustain_con   = FALSE;
-	if (f1 & (TR1_SUST_CHR))       p_ptr->sustain_chr   = FALSE;
-
-	/* Immunity flags */
-	if (f2 & (TR2_IM_ACID))        p_ptr->immune_acid   = FALSE;
-	if (f2 & (TR2_IM_ELEC))        p_ptr->immune_elec   = FALSE;
-	if (f2 & (TR2_IM_FIRE))        p_ptr->immune_fire   = FALSE;
-	if (f2 & (TR2_IM_COLD))        p_ptr->immune_cold   = FALSE;
-
-	/* Resistance flags */
-	if (f2 & (TR2_RES_ACID))       p_ptr->resist_acid   = FALSE;
-	if (f2 & (TR2_RES_ELEC))       p_ptr->resist_elec   = FALSE;
-	if (f2 & (TR2_RES_FIRE))       p_ptr->resist_fire   = FALSE;
-	if (f2 & (TR2_RES_COLD))       p_ptr->resist_cold   = FALSE;
-	if (f2 & (TR2_RES_POIS))       p_ptr->resist_pois   = FALSE;
-	if (f2 & (TR2_RES_LITE))       p_ptr->resist_lite   = FALSE;
-	if (f2 & (TR2_RES_DARK))       p_ptr->resist_dark   = FALSE;
-	if (f2 & (TR2_RES_FEAR))       p_ptr->resist_fear   = FALSE;
-	if (f2 & (TR2_RES_BLIND))      p_ptr->resist_blind  = FALSE;
-	if (f2 & (TR2_RES_CONFU))      p_ptr->resist_confu  = FALSE;
-	if (f2 & (TR2_RES_SOUND))      p_ptr->resist_sound  = FALSE;
-	if (f2 & (TR2_RES_SHARD))      p_ptr->resist_shard  = FALSE;
-	if (f2 & (TR2_RES_NEXUS))      p_ptr->resist_nexus  = FALSE;
-	if (f2 & (TR2_RES_NETHR))      p_ptr->resist_nethr  = FALSE;
-	if (f2 & (TR2_RES_CHAOS))      p_ptr->resist_chaos  = FALSE;
-	if (f2 & (TR2_RES_DISEN))      p_ptr->resist_disen  = FALSE;
-
-	/* Miscellaneous flags */
-	if (f3 & (TR3_SLOW_DIGEST))    p_ptr->slow_digest   = FALSE;
-	if (f3 & (TR3_FEATHER))        p_ptr->ffall         = FALSE;
-	if (f3 & (TR3_LITE))           p_ptr->glowing       = FALSE;
-	if (f3 & (TR3_REGEN))          p_ptr->regenerate    = FALSE;
-	if (f3 & (TR3_TELEPATHY))      p_ptr->telepathy     = FALSE;
-	if (f3 & (TR3_SEE_INVIS))      p_ptr->see_inv       = FALSE;
-	if (f3 & (TR3_FREE_ACT))       p_ptr->free_act      = FALSE;
-	if (f3 & (TR3_HOLD_LIFE))      p_ptr->hold_life     = FALSE;
-	if (f3 & (TR3_BLESSED))        p_ptr->bless_blade   = FALSE;
-
-	/* Bad flags */
-	if (f3 & (TR3_NOMAGIC))        p_ptr->nomagic       = FALSE;
-	if (f3 & (TR3_TELEPORT))       p_ptr->teleport      = FALSE;
-	if (f3 & (TR3_AGGRAVATE))      p_ptr->aggravate     = FALSE;
-	if (f3 & (TR3_DRAIN_EXP))      p_ptr->drain_exp     = FALSE;
-	if (f3 & (TR3_DRAIN_HP))       p_ptr->being_crushed = FALSE;
 
 	/*** Temporary conditions ***/
 
@@ -6132,7 +6053,7 @@ static void calc_bonuses(void)
 		p_ptr->invisible += p_ptr->tim_inv_pow;
 	}
 
-	/* Dodging yields a minimum base armour class */
+	/* Dodging yields a minimum base armor class */
 	if (p_ptr->ac < get_skill(S_DODGING, 0, 50))
 	{
 		p_ptr->dis_ac = p_ptr->ac = get_skill(S_DODGING, 0, 50);
@@ -6155,6 +6076,63 @@ static void calc_bonuses(void)
 
 	/*** Analyze weapons ***/
 	analyze_weapons();
+
+
+
+	/*** Cancellation of flags ***/
+
+	/* Extract the player cancellation flags (including shapechanges) */
+	player_flags_cancel(&f1, &f2, &f3, TRUE);
+
+	/* Sustain flags */
+	if (f1 & (TR1_SUST_STR))       p_ptr->sustain_str   = FALSE;
+	if (f1 & (TR1_SUST_INT))       p_ptr->sustain_int   = FALSE;
+	if (f1 & (TR1_SUST_WIS))       p_ptr->sustain_wis   = FALSE;
+	if (f1 & (TR1_SUST_DEX))       p_ptr->sustain_dex   = FALSE;
+	if (f1 & (TR1_SUST_CON))       p_ptr->sustain_con   = FALSE;
+	if (f1 & (TR1_SUST_CHR))       p_ptr->sustain_chr   = FALSE;
+
+	/* Immunity flags */
+	if (f2 & (TR2_IM_ACID))        p_ptr->immune_acid   = FALSE;
+	if (f2 & (TR2_IM_ELEC))        p_ptr->immune_elec   = FALSE;
+	if (f2 & (TR2_IM_FIRE))        p_ptr->immune_fire   = FALSE;
+	if (f2 & (TR2_IM_COLD))        p_ptr->immune_cold   = FALSE;
+
+	/* Resistance flags */
+	if (f2 & (TR2_RES_ACID))       p_ptr->resist_acid   = FALSE;
+	if (f2 & (TR2_RES_ELEC))       p_ptr->resist_elec   = FALSE;
+	if (f2 & (TR2_RES_FIRE))       p_ptr->resist_fire   = FALSE;
+	if (f2 & (TR2_RES_COLD))       p_ptr->resist_cold   = FALSE;
+	if (f2 & (TR2_RES_POIS))       p_ptr->resist_pois   = FALSE;
+	if (f2 & (TR2_RES_LITE))       p_ptr->resist_lite   = FALSE;
+	if (f2 & (TR2_RES_DARK))       p_ptr->resist_dark   = FALSE;
+	if (f2 & (TR2_RES_FEAR))       p_ptr->resist_fear   = FALSE;
+	if (f2 & (TR2_RES_BLIND))      p_ptr->resist_blind  = FALSE;
+	if (f2 & (TR2_RES_CONFU))      p_ptr->resist_confu  = FALSE;
+	if (f2 & (TR2_RES_SOUND))      p_ptr->resist_sound  = FALSE;
+	if (f2 & (TR2_RES_SHARD))      p_ptr->resist_shard  = FALSE;
+	if (f2 & (TR2_RES_NEXUS))      p_ptr->resist_nexus  = FALSE;
+	if (f2 & (TR2_RES_NETHR))      p_ptr->resist_nethr  = FALSE;
+	if (f2 & (TR2_RES_CHAOS))      p_ptr->resist_chaos  = FALSE;
+	if (f2 & (TR2_RES_DISEN))      p_ptr->resist_disen  = FALSE;
+
+	/* Miscellaneous flags */
+	if (f3 & (TR3_SLOW_DIGEST))    p_ptr->slow_digest   = FALSE;
+	if (f3 & (TR3_FEATHER))        p_ptr->ffall         = FALSE;
+	if (f3 & (TR3_LITE))           p_ptr->glowing       = FALSE;
+	if (f3 & (TR3_REGEN))          p_ptr->regenerate    = FALSE;
+	if (f3 & (TR3_TELEPATHY))      p_ptr->telepathy     = FALSE;
+	if (f3 & (TR3_SEE_INVIS))      p_ptr->see_inv       = FALSE;
+	if (f3 & (TR3_FREE_ACT))       p_ptr->free_act      = FALSE;
+	if (f3 & (TR3_HOLD_LIFE))      p_ptr->hold_life     = FALSE;
+	if (f3 & (TR3_BLESSED))        p_ptr->bless_blade   = FALSE;
+
+	/* Bad flags */
+	if (f3 & (TR3_NOMAGIC))        p_ptr->nomagic       = FALSE;
+	if (f3 & (TR3_TELEPORT))       p_ptr->teleport      = FALSE;
+	if (f3 & (TR3_AGGRAVATE))      p_ptr->aggravate     = FALSE;
+	if (f3 & (TR3_DRAIN_EXP))      p_ptr->drain_exp     = FALSE;
+	if (f3 & (TR3_DRAIN_HP))       p_ptr->being_crushed = FALSE;
 
 
 
@@ -6353,16 +6331,47 @@ static void calc_bonuses(void)
 	}
 
 	/* Print "regen" (unless dead or in a special display) */
-	if ((!p_ptr->is_dead) && (!character_icky)) left_panel_display(DISPLAY_REGEN, 0);
+	if ((!p_ptr->is_dead) && (!main_screen_inactive))
+		left_panel_display(DISPLAY_REGEN, 0);
 }
 
 
 
+/*
+ * Allow messages to be sent to a window only if we're pretty sure the window is
+ * requested and available.  Otherwise, this option makes a lovely pistol.
+ */
+static void verify_message_to_window(void)
+{
+	int j;
 
+	/* Assume that messages cannot be automatically sent to a window */
+	message_to_window_active = FALSE;
+
+	/* Verify that requested windows include one for messages */
+	if (message_to_window)
+	{
+		/* Scan sub-windows */
+		for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+		{
+			/* No term, or term is unavailable */
+			if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
+
+			/* No relevant flags */
+			if (!(op_ptr->window_flag[j] & (PW_MESSAGE))) continue;
+
+			/* Turn on the option */
+			message_to_window_active = TRUE;
+
+			/* All done */
+			return;
+		}
+	}
+}
 
 
 /*
- * Handle "p_ptr->notice"
+ * Handle "p_ptr->notice".  Do not set it to 0.
  */
 void notice_stuff(void)
 {
@@ -6382,13 +6391,13 @@ void notice_stuff(void)
 	if (p_ptr->notice & (PN_REORDER))
 	{
 		p_ptr->notice &= ~(PN_REORDER);
-		reorder_pack();
+		(void)reorder_pack(-1, -1, TRUE);
 	}
 }
 
 
 /*
- * Handle "p_ptr->update"
+ * Handle "p_ptr->update", setting it to 0 when complete.
  */
 void update_stuff(void)
 {
@@ -6434,8 +6443,8 @@ void update_stuff(void)
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
 
-	/* Character is in "icky" mode, no screen updates */
-	if (character_icky) return;
+	/* Main screen is inactive, no screen updates */
+	if (main_screen_inactive) return;
 
 
 	if (p_ptr->update & (PU_FORGET_VIEW))
@@ -6475,11 +6484,14 @@ void update_stuff(void)
 		(void)total_points();
 		left_panel_display(DISPLAY_SCORE, 0);
 	}
+
+	/* No further updates */
+	p_ptr->update = 0L;
 }
 
 
 /*
- * Handle "p_ptr->redraw"
+ * Handle "p_ptr->redraw", setting it to 0 when complete.
  */
 void redraw_stuff(void)
 {
@@ -6489,8 +6501,8 @@ void redraw_stuff(void)
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
 
-	/* Character is in "icky" mode, no screen updates */
-	if (character_icky) return;
+	/* No screen updates if main screen is inactive */
+	if (main_screen_inactive) return;
 
 
 	if (p_ptr->redraw & (PR_MAP))
@@ -6634,24 +6646,25 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_DEPTH);
 		prt_depth();
 	}
+
+	/* No further redraws */
+	p_ptr->update = 0L;
 }
 
 
 /*
- * Handle "p_ptr->window"
+ * Handle "p_ptr->window", setting it to 0 when complete.
  */
 void window_stuff(void)
 {
 	int j;
-
 	u32b mask = 0L;
-
 
 	/* Nothing to do */
 	if (!p_ptr->window) return;
 
 	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < TERM_MAX; j++)
 	{
 		/* Save usable flags */
 		if (angband_term[j])
@@ -6661,11 +6674,8 @@ void window_stuff(void)
 		}
 	}
 
-	/* Apply usable flags */
-	p_ptr->window &= (mask);
-
-	/* Verify that requested windows include one for messages */
-	message_to_window_active = (message_to_window && (mask & (PW_MESSAGE)));
+	/* Allow messages to be sent to a window only if safe */
+	verify_message_to_window();
 
 
 	/* Nothing to do */
@@ -6706,16 +6716,12 @@ void window_stuff(void)
 		fix_message();
 	}
 
-	/* Display monster list */
-	if (p_ptr->window & (PW_M_LIST))
+	/* Display nearby monster and object lists */
+	if (p_ptr->window & (PW_M_LIST | PW_O_LIST))
 	{
 		p_ptr->window &= ~(PW_M_LIST);
 		fix_m_list();
-	}
 
-	/* Display object list */
-	if (p_ptr->window & (PW_O_LIST))
-	{
 		p_ptr->window &= ~(PW_O_LIST);
 		fix_o_list();
 	}
@@ -6747,6 +6753,9 @@ void window_stuff(void)
 		p_ptr->window &= ~(PW_CMDLIST);
 		fix_cmdlist();
 	}
+
+	/* No further sub-window refreshes */
+	p_ptr->window = 0L;
 }
 
 

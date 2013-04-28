@@ -36,12 +36,6 @@
 
 /**** Simple "Macros" ****/
 
-/*
- * Force a character to lowercase/uppercase
- */
-#define FORCELOWER(A)  ((isupper((unsigned char)(A))) ? tolower((unsigned char)(A)) : (A))
-#define FORCEUPPER(A)  ((islower((unsigned char)(A))) ? toupper((unsigned char)(A)) : (A))
-
 
 /*
  * Non-typed minimum value macro

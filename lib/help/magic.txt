@@ -78,7 +78,7 @@ attacked by the dark forces they failed to bind.
 Mana:
      Your mana depends on your magic power skill and your spell stat.  All
 spellcasters lose a percentage (not a fixed amount) of mana for wearing heavy
-armour; specialist spellcasters are most affected.  You can reduce this penalty
+armor; specialist spellcasters are most affected.  You can reduce this penalty
 by increasing your dodging skill.
 
 Spell failure chance:
@@ -134,27 +134,27 @@ Oath by selecting the special realm skill in the skills screen, and typing '*'.
 some monster races; some actually do extra damage against certain foes.
 
 3)   Use spells in the right tactical settings.  Many magics only reveal their
-true usefulness in particular tactical settings; they often differ greatly from
+true usefulness in particular environments; these often differ greatly from
 those that may be familiar to you from other games of this type.
 
 4)  Be aware of special conditions.  Druidic magic relies heavily on the
 weather; if conditions are sufficiently adverse, natural magic just fizzles out.
 Wizards, Priests, and Necromancers all also have magic that works best when cast
 repeatedly, or when other spells are cast previously, or when a lot of light
-exists nearby.  The spell comments will mention such requirements.
+exists nearby.  The spell comments will mention such matters.
 
 5)  Test unfamiliar spells.  All attack and hindrance magics are known to be
 effective, but the best way to use them may not be easy to discover.  In
-general, the more random or resist able the spell, the more powerful it can be
+general, the more random or resist-able the spell, the more powerful it can be
 when used appropriately.
 
 
 --- Spell Projection Types ---
 
      The names of spells and magical devices sometimes give you information
-about what areas they affect, and what shapes they take.
+about what areas they affect and what shapes they take.
 
-"Bolt", "Missile":
+"Bolt", "Missile"
      Fires a magical bolt in a direction or at your chosen target.  Are stopped
 by the first monster or wall in their way; monsters in walls take full damage.
 Some also "Beam" upon occasion.
@@ -186,7 +186,7 @@ usually have small explosions.
      A fair number of spells affect all monsters in line of sight (no walls,
 rubble, or trees between you and them, up to a range of 20).
 
-<<various>>
+{various}
      Ball spells that center on you do full damage to all adjacent grids.  Ball
 spells can take the form of starburst explosions; they do full damage to all
 grids they affect, but are less likely to hit grids further away from the
@@ -234,7 +234,7 @@ it.
      Wands, staffs, and rods are an important part of many adventurers'
 arsenals, and some specialize in their use.  In addition to these items, certain
 rare rings and amulets can be 'A'ctivated and there are rumours of weapons and
-armour with extraordinary powers.
+armor with extraordinary powers.
      If you depend on magical devices much, it is important to have a high
 enough magical device skill.  This applies especially to magical devices that
 hinder monsters.
@@ -250,8 +250,6 @@ Recharging:
 recharging depends on item type (wands are more fragile than staffs), item
 level, your magical device skill, and the power of the recharging spell you are
 using.  A high magical device skill makes magical recharging much safer.
-
-
 
 
 

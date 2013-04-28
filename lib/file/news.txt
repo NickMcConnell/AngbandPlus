@@ -1,5 +1,5 @@
 #charattr - this file uses the char/attr parsing system
-#rows50 - use 50-line mode to show this file
+#fulldisplay - use the full display (46+ lines) to show this file
   ******  *         High adventure in a   *  world of magic and cold steel   *
  ***   ****                             ***                                ***
 ***      **                              **                                 ** 
@@ -11,7 +11,7 @@
 ****   ***   *** ***   **   **  $.*s$$$$$$$$$$$$$$`$$ss***   **   **  ***  ***
 *  ******     ***  ** **** **** "$$$$$$$$$$$$$$$$$$o$$$  ** **,* ****  ****  **
                                s$$$$$$$$$$$$$$$$$$$$$$$$s,  ,s
-   Version 0.9.9, beta 21      s$$$$$$$$$"$$$$$$""""$$$$$$"$$$$$,
+   Version 1.0.0 Final        s$$$$$$$$$"$$$$$$""""$$$$$$"$$$$$,
                               s$$$$$$$$$$s""$$$$ssssss"$$$$$$$$"
                              s$$$$$$$$$$'         `"""ss"$"$s""
                              s$$$$$$$$$$,              `"""""$  .s$$s
@@ -25,19 +25,17 @@
     \       Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke       /
     |           and Umoria:   Copyright (c) 1989 James E. Wilson           |
      \                                                                    /
-      |                 Angband 2.0 - 2.4 - 2.6.2 by:                    |
+      |                            Angband by:                           |
        \            Alex Cutler, Andy Astrand, Sean Marsh,              /
-       |          Geoff Hill, Charles Teague, Charles Swiger            |
-       |                                                                |
-       |            Angband 2.7.0 - 2.8.5 by Ben Harrison               |
-       /          Angband 2.9.0 - 3.0.x by Robert R["u]hlmann              \
-      |                                                                  |
+       |          Geoff Hill, Charles Teague, Charles Swiger,           |
+       |            Ben Harrison, and Robert R["u]hlmann                   |
+      /                                                                  \
      /                             Sangband by:                           \ 
     /        Chris Petit, Michael Gorse, Julian Lighton, Leon Marrick      \
    /                                                                        \
-  /        Sangband Home Page at "http://www.runegold.org/sangband/"         \
- |     Send comments, bug reports, and patches to "sangband@runegold.org"     |
- |     Browse the Angband newsgroup at "news:rec.games.roguelike.angband"     |
+  /                                                                          \
+ |               Visit the website "http://runegold.org/sangband/"            |
+ |              Browse the Forum at "http://angband.oook.cz/forum/"           |
  \           _________________                   __________________           /
  {\     ____/$"   $$$$$$$$$$$$\_____        ____/         .###$$$$$\____     /
  ) \___/\.         "$$$$$$$$$$$$$###\__  __/      -TX ..####$$$$$$$$$$$"\___/
@@ -79,15 +77,13 @@ y  yyyyyy     yyy  yy yyyy yyyy rrrrrrrrrrrrrrrrrrRwRrr  yy yyuy yyyy  yyyy  yy
        w                                                                w
        w                                                                w
        w                                                                w
-       w                                                                w
-       w                                                                w
       w                                                                  w
      w                                                                    w
     w                                                                      w
    w                                                                        w
-  w                              DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD         w
- w                                                DBBBBBBBBBBBBBBBBBBBBBD     w
- w                                     DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD     w
+  w                                                                          w
+ w                                 DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD            w
+ w                                  DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD           w
  w           wwwwwwwwwwwwwwwww                   wwwwwwwwwwwwwwwwww           w
  Rw     wwwwwrr   rrrrRRRRrrrrwwwwww        wwwww         rrrrrrRrrwwwww     w
  R wwwwwRR         rrrrrRRRRRrrrrrrrwww  www      rrr rrrrrrrrRrRrrrrrrrwwwww

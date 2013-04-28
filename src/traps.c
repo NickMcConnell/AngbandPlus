@@ -6,12 +6,13 @@
  * Disarm and load traps.  Monster trap effects.  Character trap effects.
  *
  *
- * Copyright (c) 2002
+ * Copyright (c) 2007
  * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
@@ -821,7 +822,7 @@ static void display_traps(int y, int x, int *count)
 
 			/* Display this trap */
 			prt(format(" %c) %.30s", index_chars_lower[*count],
-				t_kind_info[t_ptr->t_idx].name), *count + 1, Term->wid - 34);
+				t_kind_info[t_ptr->t_idx].name), *count + 1, Term->cols - 34);
 
 			/* Remember this trap */
 			trap_indexes[(*count)++] = i;
@@ -829,7 +830,7 @@ static void display_traps(int y, int x, int *count)
 	}
 
 	/* Print a blank line below the list of traps */
-	prt("                                  ", i, Term->wid - 34);
+	prt("                                  ", i, Term->cols - 34);
 }
 
 
@@ -884,7 +885,7 @@ bool get_trap(int y, int x, int *idx)
 	else
 	{
 		/* Save the screen */
-		screen_save();
+		screen_save(FALSE);
 
 		/* Display traps */
 		display_traps(y, x, &count);
@@ -1076,7 +1077,7 @@ int load_trap(int y, int x)
 	int i, idx, item;
 	int action = 0;
 
-	char o_name[120];
+	char o_name[DESC_LEN];
 	char ch;
 	object_type *o_ptr;
 	object_type *i_ptr;
@@ -1105,7 +1106,7 @@ int load_trap(int y, int x)
 	t_ptr = &t_list[idx];
 
 	/* Save the screen */
-	screen_save();
+	screen_save(FALSE);
 
 
 	/* Interact with the trap */
@@ -1124,7 +1125,7 @@ int load_trap(int y, int x)
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Get the object name */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 			/* Print object */
 			prt(format("%s", o_name), i, 0);
@@ -1156,7 +1157,7 @@ int load_trap(int y, int x)
 
 
 		/* Get a command */
-		ch = inkey();
+		ch = inkey(FALSE);
 
 		/* Blank the message line */
 		prt("", 0, 0);
@@ -1612,7 +1613,7 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 	if (fear && m_ptr->ml)
 	{
 		/* Sound */
-		sound(SOUND_FLEE);
+		sound(MSG_FLEE);
 
 		/* Get "the monster" or "it" */
 		monster_desc(m_name, m_ptr, 0x40);
@@ -1660,7 +1661,7 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	monster_type *m_ptr = &m_list[who];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-	char m_name[80];
+	char m_name[DESC_LEN];
 
 	trap_type *t_ptr = &t_list[t_idx];
 
@@ -1776,10 +1777,6 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 
 	/* Trap has no objects to use */
 	if (!t_ptr->hold_o_idx) return;
-
-
-	/* Many kinds of monsters in LOS get wary */
-	(void)make_monsters_wary(y, x, TRUE, TRUE);
 
 
 	/* Power goes up with skill (ranging from 10 to 136) */
@@ -2011,6 +2008,10 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	skill_being_used = S_NOSKILL;
 
 
+	/* Many kinds of monsters in LOS/earshot become wary */
+	(void)make_monsters_wary(y, x, TRUE, TRUE);
+
+
 	/* Note that objects or the trap itself may be destroyed at this point. */
 }
 
@@ -2026,7 +2027,7 @@ static int check_trap_hit(int power)
 {
 	int percent = 0;
 
-	/* Power competes against armour */
+	/* Power competes against armor */
 	if (power)
 	{
 		percent = div_round(100 * (power - dodging_ability(100)), power);
@@ -2554,7 +2555,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			{
 				msg_print("You fall through a trap door!");
 				dam = damroll(2, 8);
-				take_hit(dam, 0, NULL, "falling through a trap door");
+				(void)take_hit(dam, 0, NULL, "falling through a trap door");
 			}
 
 			/* New depth */
@@ -2604,7 +2605,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 						dam = damroll(20, 20);
 
 						/* Take the damage */
-						take_hit(dam, 0,
+						(void)take_hit(dam, 0,
 						   "A single coldly gleaming dagger pierces you deeply!",
 							"a Blade of Morgul");
 
@@ -2637,7 +2638,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 						dam += damroll(8, 8 + p_ptr->depth / 2);
 
 						/* Take the damage. */
-						take_hit(dam, 0, "Daggers pierce you everywhere!",
+						(void)take_hit(dam, 0, "Daggers pierce you everywhere!",
 							"a pit of daggers");
 
 						Rand_quick = TRUE;
@@ -2671,7 +2672,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 					disease(&dam);
 
 					/* Take the damage */
-					take_hit(dam, 0, "You are impaled on disease-bearing spikes!",
+					(void)take_hit(dam, 0, "You are impaled on disease-bearing spikes!",
 					   "a disease pit");
 
 					/* Cause cuts */
@@ -2694,7 +2695,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 					}
 
 					/* Take the damage */
-					take_hit(dam, 0, "You are impaled on venomous spikes!",
+					(void)take_hit(dam, 0, "You are impaled on venomous spikes!",
 					   "a poison spiked pit");
 
 					/* Cause cuts */
@@ -2728,7 +2729,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 					dam = damroll(3, 3 + p_ptr->depth / 4);
 
 					/* Take the damage */
-					take_hit(dam, 0, "You are impaled!", "a spiked pit");
+					(void)take_hit(dam, 0, "You are impaled!", "a spiked pit");
 
 					/* Cause cuts */
 					(void)set_cut(p_ptr->cut + randint(dam));
@@ -2750,7 +2751,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 					Rand_quick = FALSE;
 
 					dam = damroll(2, 6);
-					take_hit(dam, 0, NULL, "a pit trap");
+					(void)take_hit(dam, 0, NULL, "a pit trap");
 
 					Rand_quick = TRUE;
 				}
@@ -2813,7 +2814,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 
 				/* Hit the character */
 				dam = damroll(1, 4);
-				take_hit(dam, 0, msg, "a dart trap");
+				(void)take_hit(dam, 0, msg, "a dart trap");
 
 				/* Drain the stat */
 				if ((!p_ptr->is_dead) && (!sust))
@@ -3040,7 +3041,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			/* Sometimes summon thieves */
 			if ((p_ptr->depth > 8) && (one_in_(5)))
 			{
-				msg_print("You have aroused a den of thieves!");
+				message(MSG_SUM_MONSTER, 0, "You have aroused a den of thieves!");
 
 				Rand_quick = FALSE;
 
@@ -3053,7 +3054,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			/* Sometimes summon a nasty unique */
 			else if (one_in_(8))
 			{
-				msg_print("You are enveloped in a cloud of smoke!");
+				message(MSG_SUM_MONSTER, 0, "You are enveloped in a cloud of smoke!");
 
 				Rand_quick = FALSE;
 
@@ -3066,7 +3067,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			/* Otherwise, the ordinary summon monsters */
 			else
 			{
-				msg_print("You are enveloped in a cloud of smoke!");
+				message(MSG_SUM_MONSTER, 0, "You are enveloped in a cloud of smoke!");
 
 				Rand_quick = FALSE;
 
@@ -3112,7 +3113,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 				if (!p_ptr->wraithform)
 				{
 					dam = damroll(15, 15);
-					take_hit(dam, 0, NULL, "a dungeon destruction trap");
+					(void)take_hit(dam, 0, NULL, "a dungeon destruction trap");
 				}
 			}
 
@@ -3135,7 +3136,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 				/* Falling rock trap */
 				if (nastiness >= 6)
 				{
-					take_hit(damroll(2, p_ptr->depth), 0,
+					(void)take_hit(damroll(2, p_ptr->depth), 0,
 						"A boulder falls on your head.", "a falling boulder");
 
 					(void)set_stun(p_ptr->stun + rand_range(10, 20));
@@ -3147,7 +3148,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 				else
 				{
 					dam = damroll(1, 8);
-					take_hit(dam, 0, "A bunch of pebbles rain down on you.",
+					(void)take_hit(dam, 0, "A bunch of pebbles rain down on you.",
 						"falling pebbles");
 				}
 			}
@@ -3258,7 +3259,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			/* Trap of teleport off the level (rare) */
 			else
 			{
-				msg_print("You are teleported to a entirely different dungeon!");
+				msg_print("You are teleported to an entirely different dungeon!");
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -3348,12 +3349,12 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 					(void)set_cut(p_ptr->cut + randint(dam));
 				}
 
-				/* Player armour reduces damage */
+				/* Player armor reduces damage */
 				dam = 1 + dam * 110 / (110 + p_ptr->ac + p_ptr->to_a);
 
 				Rand_quick = TRUE;
 
-				take_hit(dam, 0, NULL, format("a %s trap", missile_name));
+				(void)take_hit(dam, 0, NULL, format("a %s trap", missile_name));
 			}
 
 			/* Notice misses. */
@@ -3380,7 +3381,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			if (who < 0)
 			{
 				dam = damroll(3, 4);
-				take_hit(dam, 0, "A dagger is thrown at you from the shadows!",
+				(void)take_hit(dam, 0, "A dagger is thrown at you from the shadows!",
 					"a dagger trap");
 			}
 
