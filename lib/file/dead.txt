@@ -24,23 +24,23 @@
 #endchar
 
 
-                       ss_______________________
-      y               s /          D            \         WWW   sss
-                     s / D                     D \ WWW   W  sW  wsw WWs
-                    s / D D       D               \   W  W  sssssDsssssW
-                   s /      DD          D   DD    D\  W WWWWsDsDsD:ssssW
-                  s /     D D             D D       \WWW    s  DsDWWWWDWW
-                 s |       D    D        D    D      |   WWWD  Dss
-                 s |  DD      D             DD       |  W   W  Dsss
-                 s |   D                      D D    |  W   W   DssD
-                 s |    D             D  D       D   | WWWWWWW   WDWW
-                 s |  D D D    D     D D             |          W D  W
-                 s |    D  D          D  D           |          W    W
-                 s |      D            D  D     D    |          W    W
-                 s |         D    D D    DD       D  |         WWWWWWWW
-                 s | D             D            D D  |
-                 s |D D     D       D           D  D |
-                 s | D  D               D          D |
-                *s |   *     *     *    *   *     * D| *
-        _______ggg_|gg_g_g___ggg___ggg_ggg_ggg__gggg_g_g_______
+                       sswwwwwwwwwwwwwwwwwwwwwww
+      y               s w          D            w         WWW   sss
+                     s w D                     D w WWW   W  sW  wsw WWs
+                    s w D D       D               w   W  W  sssssDsssssW
+                   s w      DD          D   DD    Dw  W WWWWsDsDsD:ssssW
+                  s w     D D             D D       wWWW    s  DsDWWWWDWW
+                 s w       D    D        D    D      w   WWWD  Dss
+                 s w  DD      D             DD       w  W   W  Dsss
+                 s w   D                      D D    w  W   W   DssD
+                 s w    D             D  D       D   w WWWWWWW   WDWW
+                 s w  D D D    D     D D             w          W D  W
+                 s w    D  D          D  D           w          W    W
+                 s w      D            D  D     D    w          W    W
+                 s w         D    D D    DD       D  w         WWWWWWWW
+                 s w D             D            D D  w
+                 s wD D     D       D           D  D w
+                 s w D  D               D          D w
+                *s w   *     *     *    *   *     * Dw *
+        wwwwwwwgggwwggwgwgwwwgggwwwgggwgggwgggwwggggwgwgwwwwwww
 

@@ -21,9 +21,6 @@
  */
 static void do_cmd_wiz_flow(void)
 {
-
-#ifdef MONSTER_FLOW
-
 	char cmd;
 
 	int py = p_ptr->py;
@@ -48,6 +45,7 @@ static void do_cmd_wiz_flow(void)
 				{
 					byte a;
 
+					/* How old is the scent here? */
 					int age = get_scent(y, x);
 
 					/* Must have scent */
@@ -55,15 +53,14 @@ static void do_cmd_wiz_flow(void)
 
 					/* Pretty colors by age */
 					if (age > SMELL_STRENGTH) a = TERM_L_DARK;
-
-					else if (age < 10) a = TERM_BLUE;
-					else if (age < 20) a = TERM_L_BLUE;
-					else if (age < 30) a = TERM_GREEN;
-					else if (age < 40) a = TERM_L_GREEN;
-					else if (age < 50) a = TERM_YELLOW;
-					else if (age < 60) a = TERM_ORANGE;
-					else if (age < 70) a = TERM_L_RED;
-					else a = TERM_RED;
+					else if (age < 10)        a = TERM_BLUE;
+					else if (age < 20)        a = TERM_L_BLUE;
+					else if (age < 30)        a = TERM_GREEN;
+					else if (age < 40)        a = TERM_L_GREEN;
+					else if (age < 50)        a = TERM_YELLOW;
+					else if (age < 60)        a = TERM_ORANGE;
+					else if (age < 70)        a = TERM_L_RED;
+					else                      a = TERM_RED;
 
 
 					/* Display player/floors/walls */
@@ -95,9 +92,10 @@ static void do_cmd_wiz_flow(void)
 		case 'n':
 		{
 
-			/* Get a "debug command" */
+			/* Get a debug command */
 			if (!get_com("Press 'D' for direction of flow, 'C' for actual cost values:", &cmd)) return;
 
+			/* Indicate directions */
 			if ((cmd == 'D') || (cmd == 'd'))
 			{
 				/* Update map */
@@ -183,7 +181,7 @@ static void do_cmd_wiz_flow(void)
 							{
 								print_rel('@', a, y, x);
 							}
-							else if (cave_floor_bold(y, x))
+							else if (cave_nonwall_bold(y, x))
 							{
 								print_rel('*', a, y, x);
 							}
@@ -230,14 +228,6 @@ static void do_cmd_wiz_flow(void)
 
 	/* Redraw map */
 	prt_map();
-
-#else /* MONSTER_FLOW */
-
-	/* Oops */
-	msg_print("Monster flow is not included in this copy of the game.");
-
-#endif /* MONSTER_FLOW */
-
 }
 
 
@@ -394,7 +384,7 @@ static void wiz_display_item(const object_type *o_ptr)
 
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
 	/* Describe fully */
 	object_desc_store(buf, o_ptr, TRUE, 3);
@@ -448,7 +438,7 @@ static void wiz_display_item(const object_type *o_ptr)
 
 
 	/* Display the current generation level */
-	center_string(buf, format("Generation depth:  %d", p_ptr->depth), 80);
+	center_string(buf, sizeof(buf), format("Generation depth:  %d", p_ptr->depth), 80);
 	c_put_str(TERM_L_GREEN, buf, 15, 0);
 
 
@@ -492,9 +482,9 @@ static void wiz_display_item(const object_type *o_ptr)
  */
 tval_desc tvals[] =
 {
-	{ TV_SHOT,         "Shots",              FALSE },
-	{ TV_ARROW,        "Arrows",             FALSE },
-	{ TV_BOLT,         "Bolts",              FALSE },
+	{ TV_SHOT,         "Shots",              TRUE  },
+	{ TV_ARROW,        "Arrows",             TRUE  },
+	{ TV_BOLT,         "Bolts",              TRUE  },
 	{ TV_BOW,          "Missile Weapon",     TRUE  },
 	{ -1,              " ",                  FALSE },
 	{ TV_DIGGING,      "Digger",             TRUE  },
@@ -508,8 +498,8 @@ tval_desc tvals[] =
 	{ TV_CROWN,        "Crown",              TRUE  },
 	{ TV_SHIELD,       "Shield",             TRUE  },
 	{ TV_CLOAK,        "Cloak",              TRUE  },
-	{ TV_SOFT_ARMOR,   "Soft Armor",         TRUE  },
-	{ TV_HARD_ARMOR,   "Hard Armor",         TRUE  },
+	{ TV_SOFT_ARMOR,   "Soft Armour",        TRUE  },
+	{ TV_HARD_ARMOR,   "Hard Armour",        TRUE  },
 	{ TV_DRAG_ARMOR,   "Dragon Scale Mail",  TRUE  },
 	{ -1,              " ",                  FALSE },
 	{ TV_LITE,         "Light Source",       TRUE  },
@@ -600,12 +590,12 @@ static int wiz_create_itemtype(bool artifact, bool wizard)
 	(void)wizard;
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
 	/* List all tval indexes and their descriptions */
 	for (i = 0, num = 0; (num < 60) && tvals[i].tval; i++)
 	{
-		/* Don't show tvals with no artifacts. */
+		/* If we want artifacts, don't show tvals with none. */
 		if (artifact && !(tvals[i].can_be_artifact)) continue;
 
 		/* This is a legal tval */
@@ -664,7 +654,7 @@ static int wiz_create_itemtype(bool artifact, bool wizard)
 	/*** And now we go for k_idx ***/
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
 	/* If choosing an artifact... */
 	if (artifact)
@@ -725,7 +715,7 @@ static int wiz_create_itemtype(bool artifact, bool wizard)
 		}
 	}
 
-	/* We need to know the maximal possible remembered object_index */
+	/* Remember the maximum legal index */
 	max_num = num;
 
 	/* Choose! */
@@ -819,6 +809,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 	char ch;
 
 	bool changed = FALSE;
+	bool allow_specific_ego = TRUE;
 
 	/* Save some old variables */
 	byte old_iy = o_ptr->iy;
@@ -829,6 +820,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 	s16b old_held_m_idx = o_ptr->held_m_idx;
 	byte old_number = o_ptr->number;
 	u16b old_note = o_ptr->note;
+	s16b old_weight = o_ptr->weight;
 
 
 	/* Hack -- leave artifacts alone */
@@ -873,9 +865,48 @@ static void wiz_reroll_item(object_type *o_ptr)
 		/* Apply great magic, but first clear object */
 		else if (ch == 'E' || ch == 'e')
 		{
-			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
-			changed = TRUE;
+			/* Allow forcing of ego items  -SKY- */
+			if (!allow_specific_ego)
+			{
+				object_prep(i_ptr, o_ptr->k_idx);
+				apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
+				changed = TRUE;
+				allow_specific_ego = FALSE;
+			}
+			else
+			{
+				char tmp_val[80];
+				cptr p = "Enter new ego index (0 for random):";
+
+				/* Query */
+				sprintf(tmp_val, "%d", o_ptr->ego_item_index);
+				if (!get_string(p, tmp_val, 6)) return;
+
+				/* Random change */
+				if (atoi(tmp_val) == 0)
+				{
+					object_prep(i_ptr, o_ptr->k_idx);
+					apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
+					changed = TRUE;
+					allow_specific_ego = FALSE;
+				}
+
+				/* Forced change */
+				else if ((atoi(tmp_val) > 0) && (atoi(tmp_val) < z_info->e_max))
+				{
+					/* Clear object, set ego-item index */
+					object_prep(i_ptr, o_ptr->k_idx);
+					i_ptr->ego_item_index = atoi(tmp_val);
+
+					/* No not re-roll for ego/artifact */
+					obj_gen_flags |= (OBJ_GEN_NO_ROLLS);
+
+					/* Apply magic appropriate to this ego-item */
+					apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+					obj_gen_flags = 0;
+					changed = TRUE;
+				}
+			}
 		}
 
 		/* Apply wondrous magic, but first clear object */
@@ -884,10 +915,10 @@ static void wiz_reroll_item(object_type *o_ptr)
 			int i;
 
 			/* Brute-force artifact-creation XXX XXX */
-			for (i = 0; i < 1000; i++)
+			for (i = 0; i < 10000; i++)
 			{
 				object_prep(i_ptr, o_ptr->k_idx);
-				apply_magic(i_ptr, p_ptr->depth + i / 10, TRUE, TRUE, TRUE);
+				apply_magic(i_ptr, p_ptr->depth + (i / 100), TRUE, TRUE, TRUE);
 
 				if (artifact_p(i_ptr)) break;
 			}
@@ -895,7 +926,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 			/* Report failure */
 			if (!artifact_p(i_ptr))
 			{
-				prt("Attempt to turn this item into an artifact failed.  Please any key to continue.", 0, 0);
+				prt("Attempt to turn this item into an artifact failed.  Press any key to continue.", 0, 0);
 				(void)inkey();
 			}
 
@@ -925,6 +956,21 @@ static void wiz_reroll_item(object_type *o_ptr)
 		o_ptr->note = old_note;
 		if (!artifact_p(o_ptr)) o_ptr->number = old_number;
 
+		/* Recalculate burden  XXX */
+		if (o_ptr->weight != old_weight)
+		{
+			int i;
+			object_type *j_ptr;
+
+			/* Add the weights of all real objects in inven/equip */
+			for (i = 0, p_ptr->total_weight = 0; i < INVEN_TOTAL; i++)
+			{
+				j_ptr = &inventory[i];
+				if (!j_ptr->k_idx) continue;
+				p_ptr->total_weight += (j_ptr->number * j_ptr->weight);
+			}
+		}
+
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -945,13 +991,8 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 
 /*
- * Try to create an item again. Output some statistics. -Bernd-
- *
- * The statistics are correct now.  We acquire a clean grid, and then
- * repeatedly place an object in this grid, copying it into an item
- * holder, and then deleting the object.  We fiddle with the artifact
- * counter flags to prevent weirdness.  We use the items to collect
- * statistics on item creation relative to the initial item.
+ * Output statistics on the rarity of an object, and on how its plusses compare
+ * to those of similar items at the current generation depth.  -Bernd-
  */
 static void wiz_statistics(object_type *o_ptr)
 {
@@ -1037,7 +1078,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 				/* Dump the stats */
 				prt(format(q, i, matches, better, worse, other), 0, 0);
-				Term_fresh();
+				(void)Term_fresh();
 			}
 
 
@@ -1119,8 +1160,8 @@ static void wiz_quantity_item(object_type *o_ptr)
 	sprintf(tmp_val, "%d", o_ptr->number);
 
 	/* Query */
-	num = get_quantity(format("Quantity (currently %d):", o_ptr->number),
-	          	MAX_STACK_SIZE - 1);
+	num = (int)get_quantity(format("Quantity (currently %d):", o_ptr->number),
+	          	0, MAX_STACK_SIZE - 1);
 
 	/* Paranoia */
 	if (num < 1) num = 1;
@@ -1145,7 +1186,7 @@ static void wiz_quantity_item(object_type *o_ptr)
  */
 static void do_cmd_wiz_play(void)
 {
-	int item;
+	int item, i;
 	int old_rows = screen_rows;
 
 	object_type *i_ptr;
@@ -1167,15 +1208,14 @@ static void do_cmd_wiz_play(void)
 		return;
 	item_to_object(o_ptr, item);
 
-	/* The item was not changed */
+	/* Assume not changed */
 	changed = FALSE;
-
 
 	/* Save screen */
 	screen_save();
 
 	/* Set to 50 screen rows */
-	Term_rows(TRUE);
+	(void)Term_rows(TRUE);
 
 
 	/* Get local object */
@@ -1255,6 +1295,14 @@ static void do_cmd_wiz_play(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+		/* Recalculate burden (always) */
+		for (i = 0, p_ptr->total_weight = 0; i < INVEN_TOTAL; i++)
+		{
+			object_type *j_ptr = &inventory[i];
+			if (!j_ptr->k_idx) continue;
+			p_ptr->total_weight += (j_ptr->number * j_ptr->weight);
+		}
 	}
 
 	/* Ignore change */
@@ -1271,7 +1319,7 @@ static void do_cmd_wiz_play(void)
  * Hack -- this routine always makes a "dungeon object", and applies
  * magic to it.  XXX XXX XXX
  */
-static void wiz_create_item(void)
+static void wiz_create_item(int k_idx)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1279,33 +1327,35 @@ static void wiz_create_item(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	int k_idx;
-
 	int old_rows = screen_rows;
+	int num = 1;
 
 
-	/* Save screen */
-	screen_save();
-
-	/* Set to 25 screen rows */
-	Term_rows(FALSE);
-
-	/* Get object base type */
-	k_idx = wiz_create_itemtype(FALSE, TRUE);
-
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50)
+	/* Get object index, unless a legal one is already chosen */
+	if ((k_idx <= 0) || (k_idx >= z_info->k_max))
 	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		Term_rows(TRUE);
+		/* Save screen */
+		screen_save();
+
+		/* Set to 25 screen rows */
+		(void)Term_rows(FALSE);
+
+		/* Get object base type */
+		k_idx = wiz_create_itemtype(FALSE, TRUE);
+
+		/* Set to 50 screen rows, if we were showing 50 before */
+		if (old_rows == 50)
+		{
+			p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+			(void)Term_rows(TRUE);
+		}
+
+		/* Load screen */
+		screen_load();
+
+		/* Return if failed */
+		if (!k_idx) return;
 	}
-
-	/* Load screen */
-	screen_load();
-
-
-	/* Return if failed */
-	if (!k_idx) return;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -1316,12 +1366,14 @@ static void wiz_create_item(void)
 	/* Get quantity  -LM- */
 	if ((i_ptr->tval != TV_GOLD) && (!i_ptr->artifact_index))
 	{
-		int num = get_quantity("Make how many objects?", 99);
-		i_ptr->number = MAX(1, num);
+		num = (int)get_quantity("Make how many objects?", 1, 99);
 	}
 
 	/* Apply magic (no artifacts) */
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+
+	/* Set correct number */
+	i_ptr->number = num;
 
 	/*
 	 * Hack -- Since treasure objects are not affected by apply_magic,
@@ -1340,7 +1392,7 @@ static void wiz_create_item(void)
 	i_ptr->marked = TRUE;
 
 	/* Drop the object from heaven */
-	drop_near(i_ptr, -1, py, px);
+	drop_near(i_ptr, 0, py, px, DROP_HERE);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -1349,34 +1401,39 @@ static void wiz_create_item(void)
 /*
  * Create an artifact
  */
-static void wiz_create_artifact(void)
+static void wiz_create_artifact(int a_idx)
 {
 	object_type object_type_body;
 	object_type *o_ptr;
-	int a_idx;
+	char o_name[120];
 
 	int old_rows = screen_rows;
 
 
-	/* Save screen */
-	screen_save();
-
-	/* Set to 25 screen rows */
-	Term_rows(FALSE);
-
-	/* Get artifact index */
-	a_idx = wiz_create_itemtype(TRUE, TRUE);
-
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50)
+	/* Get artifact index, unless a legal one is already chosen */
+	if ((a_idx <= 0) || (a_idx >= z_info->a_max))
 	{
-		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		Term_rows(TRUE);
+		/* Save screen */
+		screen_save();
+
+		/* Set to 25 screen rows */
+		(void)Term_rows(FALSE);
+
+		a_idx = wiz_create_itemtype(TRUE, TRUE);
+
+		/* Set to 50 screen rows, if we were showing 50 before */
+		if (old_rows == 50)
+		{
+			p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+			(void)Term_rows(TRUE);
+		}
+
+		/* Load screen */
+		screen_load();
+
+		/* Return if failed */
+		if (!a_idx) return;
 	}
-
-	/* Load screen */
-	screen_load();
-
 
 	/* Get local object */
 	o_ptr = &object_type_body;
@@ -1384,11 +1441,18 @@ static void wiz_create_artifact(void)
 	/* Attempt to create the artifact */
 	if (!make_fake_artifact(o_ptr, a_idx)) return;
 
+	/* Identify it  XXX */
+	object_aware(o_ptr);
+	object_known(o_ptr);
+
 	/* Drop the artifact from heaven */
-	drop_near(o_ptr, -1, p_ptr->py, p_ptr->px);
+	drop_near(o_ptr, 0, p_ptr->py, p_ptr->px, DROP_HERE);
+
+	/* Describe the artifact */
+	object_desc(o_name, o_ptr, TRUE, 0);
 
 	/* All done */
-	msg_print("Allocated.");
+	msg_format("You have created %s.", o_name);
 }
 
 
@@ -1436,7 +1500,7 @@ static void do_cmd_wiz_cure_all(void)
 	p_ptr->black_breath = FALSE;
 
 	/* No longer hungry */
-	(void)set_food(p_ptr->food_bloated - 1);
+	(void)set_food(p_ptr->food_bloated - 50);
 
 	/* Redraw everything */
 	do_cmd_redraw();
@@ -1499,8 +1563,8 @@ static void do_cmd_wiz_learn(void)
 	/* Choose a level */
 	if (!p_ptr->command_arg)
 	{
-		p_ptr->command_arg =
-			get_quantity("Learn about object kinds up to which level?", MAX_DEPTH);
+		p_ptr->command_arg = (s16b)
+			get_quantity("Learn about object kinds up to which level?", 0, MAX_DEPTH);
 	}
 
 	/* Allow forgetting */
@@ -1554,12 +1618,7 @@ static void do_cmd_wiz_summon(int num)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i;
-
-	for (i = 0; i < num; i++)
-	{
-		(void)summon_specific(py, px, FALSE, p_ptr->depth, 0);
-	}
+	(void)summon_specific(py, px, FALSE, p_ptr->depth, 0, num);
 }
 
 
@@ -1582,8 +1641,8 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 	/* Paranoia -- ignore empty or illegal monsters */
 	if (!r_idx)
 	{
-		r_idx = get_quantity("Which monster would you like to summon?",
-		                     z_info->r_max);
+		r_idx = (s16b)get_quantity("Which monster would you like to summon?",
+		                     0, z_info->r_max);
 
 		if (!r_idx) return;
 	}
@@ -1835,7 +1894,8 @@ static void wiz_detect_all(int d)
 		if (distance(y, x, p_ptr->py, p_ptr->px) > d) continue;
 
 		/* Hack -- Reveal the monster */
-		m_ptr->mflag &= ~(MFLAG_DLIM | MFLAG_MIME);
+		m_ptr->mflag &= ~(MFLAG_MIME);
+		if (m_ptr->ml < ML_FULL) m_ptr->ml = ML_FULL;
 
 		/* Monster will stay fully visible until next turn */
 		m_ptr->mflag |= (MFLAG_FULL | MFLAG_SHOW);
@@ -1867,7 +1927,7 @@ static void do_cmd_wiz_query(void)
 
 
 	/* Get a "debug command" */
-	if (!get_com("Cave_info flag query (m, g, r, i, s, v, t, w, f, p, 1-4):", &cmd)) return;
+	if (!get_com("Cave_info flag query (m, g, G, r, i, s, v, t, w, f, l, p, o, e, ?):", &cmd)) return;
 
 	/* Extract a flag */
 	switch (cmd)
@@ -1882,18 +1942,17 @@ static void do_cmd_wiz_query(void)
 		case 'w': mask |= (CAVE_WALL); flag_desc = "cave_wall"; break;
 
 		case 'f': mask |= (CAVE_FIRE); flag_desc = "cave_fire"; break;
+		case 'G': mask |= (CAVE_LITE); flag_desc = "cave_lite"; break;
 
-		case '1': mask |= (CAVE_ATT1);
-			flag_desc = "lingering spell display 1"; break;
-		case '2': mask |= (CAVE_ATT2);
-			flag_desc = "lingering spell display 2"; break;
-		case '3': mask |= (CAVE_ATT3);
-			flag_desc = "lingering spell display 3"; break;
-		case '4': mask |= (CAVE_ATT4);
-			flag_desc = "lingering spell display 4"; break;
+		case 'o': mask |= (CAVE_TRAP);
+			flag_desc = "trap markers"; break;
+		case 'e': mask |= (CAVE_EFFT);
+			flag_desc = "lingering effect"; break;
 
 		/* Special functions */
 		case 'p': flag_desc = "projectable"; break;
+		case 'l': flag_desc = "line of sight as per \"los()\""; break;
+		case '?': flag_desc = ""; break;
 
 		default:
 		{
@@ -1901,6 +1960,20 @@ static void do_cmd_wiz_query(void)
 			return;
 		}
 	}
+
+
+	/* We asked for help */
+	if (cmd == '?')
+	{
+		msg_print("m = marked, g = permanently lit, r = in a room, i = vault (icky), ");
+		msg_print("s = character can see, v = character can see if light exists, ");
+		msg_print("t = temporary marking, w = wall/non-floor, f = in line of fire, ");
+		msg_print("p = clear shot/blocked shot/no shot, l = test of \"los()\", ");
+		msg_print("o = flagged as trap, e = lingering effect, G = temporarily lit");
+		msg_print(NULL);
+		return;
+	}
+
 
 	/* Scan map */
 	for (y = panel_row_min; y <= panel_row_max; y++)
@@ -1912,16 +1985,26 @@ static void do_cmd_wiz_query(void)
 			/* Given no mask, apply special code */
 			if (!mask)
 			{
+				if (cmd == 'l')
+				{
+					if (los(py, px, y, x)) a = TERM_YELLOW;
+				}
+
 				if (cmd == 'p')
 				{
 					int path;
 					path = projectable(y, x, py, px, PROJECT_CHCK);
 					if (path != projectable(py, px, y, x, PROJECT_CHCK))
-						a = TERM_RED;
+					{
+						if (projectable(py, px, y, x, PROJECT_CHCK))
+							a = TERM_L_RED;
+						else
+							a = TERM_RED;
+					}
 					else if (path == PROJECT_NO) a = TERM_SLATE;
 					else if (path == PROJECT_NOT_CLEAR) a = TERM_WHITE;
 					else if (path == PROJECT_CLEAR) a = TERM_L_GREEN;
-					else a = TERM_VIOLET;
+					else a = TERM_PURPLE;
 				}
 			}
 
@@ -1932,7 +2015,7 @@ static void do_cmd_wiz_query(void)
 				if (!(cave_info[y][x] & mask)) continue;
 
 				/* Color */
-				if (cave_floor_bold(y, x)) a = TERM_YELLOW;
+				if (cave_nonwall_bold(y, x)) a = TERM_YELLOW;
 			}
 
 			/* Display player/floors/walls */
@@ -1940,7 +2023,7 @@ static void do_cmd_wiz_query(void)
 			{
 				print_rel('@', a, y, x);
 			}
-			else if (cave_floor_bold(y, x))
+			else if (cave_nonwall_bold(y, x))
 			{
 				print_rel('*', a, y, x);
 			}
@@ -1968,14 +2051,6 @@ static void do_cmd_wiz_query(void)
 extern void do_cmd_spoilers(void);
 
 #endif
-
-
-
-/*
- * Hack -- declare external function
- */
-extern void do_cmd_debug(void);
-
 
 
 /*
@@ -2027,21 +2102,21 @@ void do_cmd_debug(void)
 		/* Select a target, and teleport to it. */
 		case 'b':
 		{
-			phase_warp(999, 0, TRUE);
+			(void)phase_warp(999, 0, TRUE);
 			break;
 		}
 
 		/* Create any object */
 		case 'c':
 		{
-			wiz_create_item();
+			wiz_create_item(p_ptr->command_arg);
 			break;
 		}
 
 		/* Create any artifact */
 		case 'C':
 		{
-			wiz_create_artifact();
+			wiz_create_artifact(p_ptr->command_arg);
 			break;
 		}
 
@@ -2143,7 +2218,42 @@ void do_cmd_debug(void)
 		/* Phase Door */
 		case 'p':
 		{
-			teleport_player(10, TRUE);
+			teleport_player(10, TRUE, FALSE);
+			break;
+		}
+
+		/* More info on objects, monsters, and rooms */
+		case 'P':
+		{
+			if (!cheat_peek)
+			{
+				if (get_check("Get more information on objects generated?"))
+					p_ptr->noscore |= (CHEAT_PEEK);
+			}
+			else
+			{
+				if (get_check("Stop getting more information on objects generated?")) p_ptr->noscore &= ~(CHEAT_PEEK);
+			}
+
+			if (!cheat_hear)
+			{
+				if (get_check("Get more information on monsters generated?"))
+					p_ptr->noscore |= (CHEAT_HEAR);
+			}
+			else
+			{
+				if (get_check("Stop getting more information on monsters generated?")) p_ptr->noscore &= ~(CHEAT_HEAR);
+			}
+
+			if (!cheat_room)
+			{
+				if (get_check("Get more information on special rooms generated?"))
+					p_ptr->noscore |= (CHEAT_ROOM);
+			}
+			else
+			{
+				if (get_check("Stop getting more information on special rooms generated?")) p_ptr->noscore &= ~(CHEAT_ROOM);
+			}
 			break;
 		}
 
@@ -2160,7 +2270,7 @@ void do_cmd_debug(void)
 			if (p_ptr->command_arg <= 0)
 			{
 				p_ptr->command_arg =
-					get_quantity("How many monsters would you like to summon?", 99);
+					(s16b)get_quantity("How many monsters would you like to summon?", 0, 99);
 			}
 			do_cmd_wiz_summon(p_ptr->command_arg);
 			break;
@@ -2222,7 +2332,7 @@ void do_cmd_debug(void)
 		/* Teleport */
 		case 't':
 		{
-			teleport_player(100,TRUE);
+			teleport_player(100, TRUE, FALSE);
 			break;
 		}
 
@@ -2272,10 +2382,10 @@ void do_cmd_debug(void)
 
 			/* New screen */
 			screen_save();
-			Term_clear();
+			(void)Term_clear();
 
 			/* Set to 25 screen rows */
-			Term_rows(FALSE);
+			(void)Term_rows(FALSE);
 
 			/* Header */
 			move_cursor(1, 0);
@@ -2295,13 +2405,14 @@ void do_cmd_debug(void)
 			prt("'j'  : jump to any level", 13, 0);
 			prt("'k'  : self-knowledge", 14, 0);
 			prt("'K'  : forget carried objects and map", 15, 0);
-			prt("'l'  : learn about object kinds", 16, 0);
+			prt("'l'  : learn (& forget) about objects", 16, 0);
+			prt("'L'  : probing", 17, 0);
 
-			prt("'L'  : probing", 3, 40);
-			prt("'m'  : magic mapping", 4, 40);
-			prt("'n'  : summon specific monster *", 5, 40);
-			prt("'o'  : tweak or reroll an object", 6, 40);
-			prt("'p'  : phase door", 7, 40);
+			prt("'m'  : magic mapping", 3, 40);
+			prt("'n'  : summon specific monster *", 4, 40);
+			prt("'o'  : tweak or reroll an object", 5, 40);
+			prt("'p'  : phase door", 6, 40);
+			prt("'P'  : More info on objs/monsters/rooms", 7, 40);
 			prt("'q'  : query cave flags, projection", 8, 40);
 			prt("'s'  : summon random monsters *", 9, 40);
 			prt("'S'  : forget skills, cancel magic", 10, 40);
@@ -2328,7 +2439,7 @@ void do_cmd_debug(void)
 			if (old_rows == 50)
 			{
 				p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-				Term_rows(TRUE);
+				(void)Term_rows(TRUE);
 			}
 
 			/* Restore old screen */

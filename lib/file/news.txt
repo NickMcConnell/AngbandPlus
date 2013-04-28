@@ -8,10 +8,10 @@
    *******       ***   **   **  **   ** $,* $, **  ,   ***   **   **  **    **
 *      ****   *** **   **   **  **   ** "ss.$ss.*.s' ** **   **   **  **    **
 **      ***  **   **   **   **  ,**** .ss$$$$$$$$$$s,   **   **   **  **    **
-****   ***   *** ***   **   **  $.*s$$$$$$$$$$$$$$`$$Ss***   **   **  ***  ***
+****   ***   *** ***   **   **  $.*s$$$$$$$$$$$$$$`$$ss***   **   **  ***  ***
 *  ******     ***  ** **** **** "$$$$$$$$$$$$$$$$$$o$$$  ** **,* ****  ****  **
                                s$$$$$$$$$$$$$$$$$$$$$$$$s,  ,s
-   Version 0.9.9, beta 13      s$$$$$$$$$"$$$$$$""""$$$$$$"$$$$$,
+   Version 0.9.9, beta 20c     s$$$$$$$$$"$$$$$$""""$$$$$$"$$$$$,
                               s$$$$$$$$$$s""$$$$ssssss"$$$$$$$$"
                              s$$$$$$$$$$'         `"""ss"$"$s""
                              s$$$$$$$$$$,              `"""""$  .s$$s
@@ -35,8 +35,8 @@
      /                             Sangband by:                           \ 
     /        Chris Petit, Michael Gorse, Julian Lighton, Leon Marrick      \
    /                                                                        \
-  /      Sangband Home Page at "http://home.sprintmail.com/~leon2m/sang/"    \
- |     Send comments, bug reports, and patches to "leon2m@sprintmail.com"     |
+  /        Sangband Home Page at "http://www.runegold.org/sangband/"         \
+ |     Send comments, bug reports, and patches to "sangband@runegold.org"     |
  |     Browse the Angband newsgroup at "news:rec.games.roguelike.angband"     |
  \           _________________                   __________________           /
  {\     ____/$"   $$$$$$$$$$$$\_____        ____/         .###$$$$$\____     /
@@ -66,32 +66,32 @@ y  yyyyyy     yyy  yy yyyy yyyy rrrrrrrrrrrrrrrrrrRwRrr  yy yyuy yyyy  yyyy  yy
                              rrrrRrrrRrrr         rrrrrrrrrrrrR
                              rrrRrrrrRrrr              rrrrrrr  rrrrr
                              rrrRrrrrRRrrrrrrrr               srrrr  s
-                         rrrrrrrrRrrrrr  Rrrrrrrrrrrrrrr     rrrrrs   s rs
-                           rrrrrrrrrrr /\ RRrrrrrrrrrrrrrrrrrrrr     rrrr
-   ___                           r ___/  \___ RRrrrrrrrrrrrrrr     rrrrr  ___
-  |   \________              _____/          \_____ rrrrrrrrrr   ________/   |
-  \            \____________/                      \____________/            /
-   \                                                                        /
-    \                                                                      /
-    |                                                                      |
-     \                                                                    /
-      |                                                                  |
-       \                                                                /
-       |                                                                |
-       |                                                                |
-       |                                                                |
-       /                                                                \
-      |                                                                  |
-     /                                                                    \
-    /                                                                      \
-   /                                                                        \
-  /                            DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD    \
- |                                                DBBBBBBBBBBBBBBBBBBBBBD     |
- |                                     DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD     |
- \           _________________                   __________________           /
- R\     ____/rr   rrrrRRRRrrrr\_____        ____/         rrrrrrRrr\____     /
- R \___/RR         rrrrrRRRRRrrrrrrr\__  __/      rrr rrrrrrrrRrRrrrrrrr\___/
-R   Rr R  R        rrrrrrrrRRRRRrrrrrrr\/rrrrrrrrrrrrrrrrrrrrRRrrrrrrr
+                         rrrrrrrrRrrrrr  Rrrrrrrrrrrrrrr     rrrrrs   r rs
+                           rrrrrrrrrrr ww RRrrrrrrrrrrrrrrrrrrrr     rrrr
+   www                           r wwww  wwww RRrrrrrrrrrrrrrr     rrrrr  www
+  w   wwwwwwwww              wwwwww          wwwwww rrrrrrrrrr   wwwwwwwww   w
+  w            wwwwwwwwwwwwww                      wwwwwwwwwwwwww            w
+   w                                                                        w
+    w                                                                      w
+    w                                                                      w
+     w                                                                    w
+      w                                                                  w
+       w                                                                w
+       w                                                                w
+       w                                                                w
+       w                                                                w
+       w                                                                w
+      w                                                                  w
+     w                                                                    w
+    w                                                                      w
+   w                                                                        w
+  w                              DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD         w
+ w                                                DBBBBBBBBBBBBBBBBBBBBBD     w
+ w                                     DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD     w
+ w           wwwwwwwwwwwwwwwww                   wwwwwwwwwwwwwwwwww           w
+ Rw     wwwwwrr   rrrrRRRRrrrrwwwwww        wwwww         rrrrrrRrrwwwww     w
+ R wwwwwRR         rrrrrRRRRRrrrrrrrwww  www      rrr rrrrrrrrRrRrrrrrrrwwwww
+R   Rr R  R        rrrrrrrrRRRRRrrrrrrrwwrrrrrrrrrrrrrrrrrrrrRRrrrrrrr
 R   Rrr  R R     rrrr  rrrrrrrrRRRRRRRrrRrrrrrRrrrrRrrrRRrRRrrrrrrrrrr
  R  Rrrrr R R  r      r   rrrrrrrrrrrrrRrRrRrRrRrRrrRrRrrrrrrrrrrr  rrr
   R   rrrrrr  rrr    rrrrrrrrrrruurrrrrrrrrrrrrrrrrrrrrrrrrrrr        s

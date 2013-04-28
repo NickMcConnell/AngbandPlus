@@ -52,6 +52,9 @@ void pseudo_probe(void)
 	int approx_hp;
 
 
+	/* Must not be hallucinating */
+	if (p_ptr->image) return;
+
 	/* If no target monster, fail. */
 	if (p_ptr->target_who < 1)
 	{
@@ -66,6 +69,9 @@ void pseudo_probe(void)
 
 		/* Approximate monster HPs */
 		approx_hp = rand_spread(m_ptr->hp, m_ptr->hp / 4);
+
+		/* Round the result */
+		approx_hp = round_it(approx_hp, 8);
 
 		/* Describe the monster */
 		msg_format("%^s has about %d hit points.", m_name, approx_hp);
@@ -113,9 +119,17 @@ void pseudo_probe(void)
 		if ((r_ptr->flags3 & (RF3_IM_BLUNT)) && (!one_in_(10)))
 			l_ptr->flags3 |= (RF3_IM_BLUNT);
 
+		/* Get base name of monster */
+		strcpy(m_name, (r_name + r_ptr->name));
 
-		/* Confirm success. */
-		msg_print("You feel you know more about this monster...");
+		/* Pluralize it (unless unique) */
+		if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+		{
+			plural_aux(m_name);
+		}
+
+		/* Note that we learnt some new flags */
+		msg_format("You feel you know more about %s.", m_name);
 
 		/* Update monster recall window */
 		if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -126,7 +140,10 @@ void pseudo_probe(void)
 	}
 }
 
-
+/*
+ * Maximal base dodging.
+ */
+#define DODGE_MAX    150
 
 /*
  * Calculate the character's ability to dodge blows, missiles, and traps.
@@ -140,47 +157,48 @@ void pseudo_probe(void)
  * effectively.
  *
  * It's hard to dodge with a big, heavy shield.  The weight of a wielded
- * shield is multiplied by 10 for these calculations.
+ * shield is multiplied by at least 3 for these calculations.
  *
- * Speed could be an input, but it's pretty powerful already...
+ * Special bonuses can make this function return a value higher than "max".
  */
 int dodging_ability(int max)
 {
-	int dexterity_factor, weight_factor;
-	int burden = 0;
+	int dexterity_factor, encumbrance;
+	int burden = 0, limit;
 	int raw_dodging;
-	int dodging;
 
 	/* Get the dodging skill (between 0 and 100) */
-	int dodging_skill = get_skill(S_DODGING, 0, 100);
+	int skill = get_skill(S_DODGING, 0, 100);
 
-	/* Bonus of up to 10 for karate experts */
-	dodging_skill += get_skill(S_KARATE, 0, 10);
+	/* Base dodging */
+	int dodging_skill = skill;
 
 
 	/* Sometimes we cannot dodge at all */
 	if ((p_ptr->blind) || (p_ptr->confused) || (p_ptr->paralyzed))
 	{
-		return (0);
+		/* No dodging, unless skill is maximal, and not paralyzed */
+		if ((skill < 100) || (p_ptr->paralyzed)) return (0);
 	}
 
 	/* Hallucinating characters are not as good at dodging */
 	if (p_ptr->image)
 	{
-		dodging_skill /= 2;
+		if (skill < 95) dodging_skill /= 2;
 	}
 
 	/* Stunned characters are not as good at dodging */
 	if (p_ptr->stun)
 	{
-		dodging_skill -= p_ptr->stun;
-		if (dodging_skill < 0) dodging_skill = 0;
+		if (skill < 98)
+		{
+			dodging_skill -= p_ptr->stun * dodging_skill / 100;
+			if (dodging_skill < 0) dodging_skill = 0;
+		}
 	}
 
-	/* Get dexterity factor (usually between 10 and 30) */
-	dexterity_factor = 2 * (adj_dex_ta[p_ptr->stat_ind[A_DEX]] - 121);
-	if (dexterity_factor < 0) dexterity_factor = 0;
-
+	/* Get dexterity factor (usually between 0 and 45) */
+	dexterity_factor = MAX(0, 3 * (p_ptr->stat_ind[A_DEX] - 3) / 2);
 
 	/* It is hard to dodge with a shield, especially a heavy one. */
 	if (TRUE)
@@ -191,44 +209,62 @@ int dodging_ability(int max)
 		if (o_ptr->tval == TV_SHIELD)
 		{
 			/* (shield weight is also counted in total weight) */
-			burden = o_ptr->weight * 9;
+			burden = o_ptr->weight * (7 - (skill / 20));
 		}
 	}
 
 	/* Add carried weight to shield weight */
 	burden += p_ptr->total_weight;
 
-	/* Never get too high a bonus */
-	if (burden < 300) burden = 300;
+	/* Calculate encumbrance (usu. between 20 and 75) */
+	encumbrance = burden / adj_str_wgt[p_ptr->stat_ind[A_STR]];
 
-	/* Get weight factor (usually between 10 and 45.  Can be lower) */
-	weight_factor = 300 * (adj_str_wgt[p_ptr->stat_ind[A_STR]] + 15) /
-		burden;
+	/* Increases in skill raise the amount you can carry without penalty */
+	limit = 33 + skill / 4;
 
-	/*
-	 * Calculate a raw value for dodging.  This can range anywhere from
-	 * 0 to about 185.
-	 */
-	raw_dodging = dodging_skill + dexterity_factor + weight_factor;
+	/* No penalty at "limit" or below.  Triple "limit" means no dodging. */
+	burden = (50 * encumbrance / limit) - limit;
 
-	/* Penalize inattention to skill, Dex, or weight */
-	raw_dodging = MIN(dodging_skill    * 2, raw_dodging);
-	raw_dodging = MIN(dexterity_factor * 8, raw_dodging);
-	raw_dodging = MIN(weight_factor    * 5, raw_dodging);
+	/* Set bounds */
+	if (burden > 100) burden = 100;
+	if (burden <   0) burden =   0;
+
+
+	/* Dodging depends mostly on skill and dex (ranges from 0 to ~145) */
+	raw_dodging = dodging_skill + dexterity_factor;
+
+	/* Penalize inattention to dexterity or weight */
+	raw_dodging = MIN(dexterity_factor * 4, raw_dodging);
+	raw_dodging = ((raw_dodging * (100 - burden)) + 50) / 100;
+
+	/* Set limit on basic dodging ability */
+	if (raw_dodging > DODGE_MAX) raw_dodging = DODGE_MAX;
 
 
 	/* Allow magical enhancements */
 	if (p_ptr->evasion)
 	{
-		raw_dodging += get_skill(S_WIZARDRY, 40, 90);
+		raw_dodging += get_skill(S_WIZARDRY, 30, 60);
 	}
 
-	/* Maximal or near-maximal raw dodging - return the maximum. */
-	if (raw_dodging >= 185) return (max);
+	/* It is much easier for Burglars to dodge in the dark */
+	if ((no_light()) && (get_skill(S_BURGLARY, 0, 100)))
+	{
+		/* Calculate maximum possible bonus */
+		int dark_factor = get_skill(S_BURGLARY, 5, 55) + (raw_dodging / 4);
 
-	/* Translate raw dodging into a proportion of the maximum. */
-	else dodging = (s16b)(max * raw_dodging / 185);
-	return (dodging);
+		/* Need darkness both here and adjacent to get full benefit */
+		raw_dodging += dark_factor * darkness_ratio(1) / 100;
+	}
+
+	/* It is hard to dodge in water */
+	if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_WATER)
+	{
+		raw_dodging /= 3;
+	}
+
+	/* Translate raw dodging into a proportion of the (base) maximum */
+	return ((s16b)(raw_dodging * max / DODGE_MAX));
 }
 
 
@@ -237,16 +273,26 @@ int dodging_ability(int max)
  */
 bool can_precog(int max_chance, int cutoff)
 {
+	int skill = get_skill(S_PERCEPTION, 0, 100);
+	int chance;
+
+	/* No chance if below the cutoff, or if cutoff is 100 */
+	if (skill < cutoff) return (FALSE);
+	if (cutoff == 100) return (FALSE);
+
+	/* Otherwise, chance is always at least 20% */
+	chance = 20;
+
+	/*
+	 * The remaining chance between 20 and max_chance depends on the
+	 * skill level above the cutoff.  At a skill of 100, chance is
+	 * max_chance.
+	 */
+	chance += div_round((s32b)((skill - cutoff) * (max_chance - 20)),
+	                    (100L - cutoff));
+
 	/* Can get a message */
-	if (randint(get_skill(S_PERCEPTION, 0, 100)) >= cutoff)
-	{
-		/* "Rarity roll" passed */
-		if ((max_chance >= 100) || (max_chance > rand_int(100)))
-		{
-			/* Message */
-			return (TRUE);
-		}
-	}
+	if (randint(100) <= chance) return (TRUE);
 
 	/* No message */
 	return (FALSE);
@@ -259,7 +305,7 @@ bool can_precog(int max_chance, int cutoff)
  */
 static bool good_work_cond(bool msg, bool must_be_in_town)
 {
-	if ((must_be_in_town) && (p_ptr->depth != 0))
+	if ((must_be_in_town) && (p_ptr->depth != 0) && (!birth_ironman))
 	{
 		if (msg) msg_print("You may only create items in the town.");
 		return (FALSE);
@@ -325,7 +371,7 @@ static bool item_tester_unknown_charges(const object_type *o_ptr)
  */
 static cptr do_talent(int talent, int mode)
 {
-	char can_use = TRUE;
+	bool can_use = TRUE;
 
 	/* Function modes */
 	bool use   = (mode == TALENT_USE);
@@ -456,12 +502,17 @@ static cptr do_talent(int talent, int mode)
 			}
 			if (use)
 			{
-				/* Get a target. */
+				/* Get a target */
 				msg_print("Target a monster to probe.");
 				if (!get_aim_dir(&dir)) return ("");
 
-				/* Low-level probe spell. */
-				pseudo_probe();
+				/* Low-level probe spell, or cancel */
+				if (dir == 5) pseudo_probe();
+				else
+				{
+					msg_print("You must actually target a monster.");
+					use = FALSE;
+				}
 			}
 			break;
 		}
@@ -487,8 +538,8 @@ static cptr do_talent(int talent, int mode)
 		}
 		case TALENT_PHASE_WARP:
 		{
-			pow1 = 10 + (reliability / 5);
-			pow2 = 12 - (reliability / 10);
+			pow1 = 9 + (reliability / 5);
+			pow2 = 9 - (reliability / 5);
 
 			if (info) return (format("rng %d var %d", pow1, pow2));
 			if (desc) return ("Semi-controlled teleportation.");
@@ -503,14 +554,14 @@ static cptr do_talent(int talent, int mode)
 			}
 			if (use)
 			{
-				phase_warp(pow1, pow2, FALSE);
+				if (!phase_warp(pow1, pow2, FALSE)) use = FALSE;
 			}
 			break;
 		}
 		case TAP_ENERGY:
 		{
 			if (info) return ("");
-			if (desc) return ("Turns rod, wand, or staff energy into mana.  The higher-level the item, the more energy it provides.  Rods have little usable energy.");
+			if (desc) return ("Turn rod, wand, or staff energy into mana.  The higher-level the item, and the more charges it has, the more magical energy it provides.  Rods have little usable energy, and staffs quite a bit.");
 			if (check)
 			{
 				/* Wizards have a spell */
@@ -522,7 +573,7 @@ static cptr do_talent(int talent, int mode)
 			}
 			if (use)
 			{
-				tap_magical_energy();
+				if (!tap_magical_energy()) use = FALSE;
 			}
 			break;
 		}
@@ -543,7 +594,7 @@ static cptr do_talent(int talent, int mode)
 			if (use)
 			{
 				/* Never get extended range */
-				(void)detect_evil(FALSE);
+				(void)detect_evil(FALSE, TRUE);
 			}
 			break;
 		}
@@ -581,8 +632,8 @@ static cptr do_talent(int talent, int mode)
 			}
 			if (use)
 			{
-				/* Extended range with reliability >= 35 */
-				(void)detect_animals(reliability >= 35);
+				/* Extended range with reliability >= 45 */
+				(void)detect_animals(reliability >= 45, TRUE);
 			}
 			break;
 		}
@@ -635,8 +686,8 @@ static cptr do_talent(int talent, int mode)
 			}
 			if (use)
 			{
-				/* Extended range with reliability >= 35 */
-				(void)detect_undead(reliability >= 35);
+				/* Extended range with reliability >= 45 */
+				(void)detect_undead(reliability >= 45, TRUE);
 			}
 			break;
 		}
@@ -646,9 +697,6 @@ static cptr do_talent(int talent, int mode)
 			if (desc) return ("Restore experience level.");
 			if (check)
 			{
-				/* Necromancers have a ritual */
-				if (p_ptr->realm == NECRO) return ("N");
-
 				/* Must not be confused or berserk */
 				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
 					return ("B");
@@ -678,12 +726,12 @@ static cptr do_talent(int talent, int mode)
 			break;
 		}
 
-		case TALENT_NAB_OBJECT:
+		case TALENT_D_OR_NAB_OBJECT:
 		{
 			pow = get_skill(t_ptr->skill, 0, 300);
 
 			if (info) return ("");   /* Deliberate -- no weight data */
-			if (desc) return ("Fetch an object (must be in line of sight and not too heavy).");
+			if (desc) return ("Detect objects and gold (either in the current room or in line of sight), or Nab an object (must be in line of sight and not too heavy).");
 			if (check)
 			{
 				/* Must not be confused, blind, or berserk */
@@ -695,8 +743,29 @@ static cptr do_talent(int talent, int mode)
 			}
 			if (use)
 			{
-				if (!get_aim_dir(&dir)) return (NULL);
-				(void)fetch_obj(dir, pow);
+				char c;
+
+				/* Repeat until something happens, or user cancels */
+				while (TRUE)
+				{
+					/* Get a character, or abort */
+					if (!get_com("Detect objects in current room, or Nab an object? (d, n):", &c)) return (NULL);
+
+					/* Detect */
+					if ((c == 'D') || (c == 'd'))
+					{
+						(void)detect_objects_in_room(p_ptr->py, p_ptr->px);
+						break;
+					}
+
+					/* Nab */
+					else if ((c == 'N') || (c == 'n'))
+					{
+						if (!get_aim_dir(&dir)) return (NULL);
+						(void)fetch_obj(dir, pow);
+						break;
+					}
+				}
 			}
 			break;
 		}
@@ -705,7 +774,7 @@ static cptr do_talent(int talent, int mode)
 			pow1 = get_skill(t_ptr->skill, 0, 4);
 			pow2 = get_skill(t_ptr->skill, 0, 12);
 
-			if (info) return (format("poison ~ %d-%d", pow1, pow2));
+			if (info) return (format("poison %d-%d", pow1, pow2));
 			if (desc) return ("Poison some ammo.  Mushroom of Poison or (especially) of Envenomation are the best poisoners, but some other kinds of mushrooms and Potions of Poison also work.  Missiles must be ordinary -- no slays or brands.");
 			if (check)
 			{
@@ -744,8 +813,8 @@ static cptr do_talent(int talent, int mode)
 		}
 		case TALENT_PRED_WEATH:
 		{
-			int accur = get_skill(S_NATURE, 50, 200) - p_ptr->depth;
-			if (accur <  10) accur =  10;
+			/* Accuracy depends on skill and depth */
+			int accur = get_skill(S_NATURE, 40, 200) - MIN(100, p_ptr->depth);
 			if (accur > 100) accur = 100;
 
 			if (info) return (format("accuracy: %d%%", accur));
@@ -805,11 +874,11 @@ static cptr do_talent(int talent, int mode)
 		}
 		case TALENT_SUPERSTEALTH:
 		{
-			dur1 = (p_ptr->tim_stealth ?  1 : 20 + reliability);
-			dur2 = (p_ptr->tim_stealth ? 20 : 40 + reliability);
+			dur1 = (p_ptr->tim_invis ?  1 : 30);
+			dur2 = (p_ptr->tim_invis ? 25 : 50);
 
 			if (info) return (format("dur %d-%d", dur1, dur2));
-			if (desc) return ("Become especially quiet and stealthy.");
+			if (desc) return ("Become partially invisible.");
 			if (check)
 			{
 				/* Must not be confused, aggravating, or berserk */
@@ -821,7 +890,8 @@ static cptr do_talent(int talent, int mode)
 			}
 			if (use)
 			{
-				(void)set_tim_stealth(p_ptr->tim_stealth + rand_range(dur1, dur2));
+				(void)set_invis(p_ptr->tim_invis + rand_range(dur1, dur2),
+				                get_skill(S_STEALTH, 20, 40));
 			}
 			break;
 		}
@@ -831,6 +901,13 @@ static cptr do_talent(int talent, int mode)
 			if (desc) return ("Recharge magical devices using essences.  Becomes much safer and more powerful with further increases in Infusion.");
 			if (check)
 			{
+				/* Recharging talent requires decent device skill */
+				if ((talent == TALENT_RECHARGING) &&
+					(get_skill(S_DEVICE, 0, 100) < LEV_REQ_RECHARGE))
+				{
+					return ("N");
+				}
+
 				/* Must not be confused or berserk */
 				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
 					return ("B");
@@ -838,7 +915,7 @@ static cptr do_talent(int talent, int mode)
 			if (use)
 			{
 				/* Essence-based recharging */
-				recharge(get_skill(S_INFUSION, 80, 230), TRUE);
+				use = recharge(get_skill(S_INFUSION, 80, 230), TRUE);
 			}
 
 			break;
@@ -846,7 +923,7 @@ static cptr do_talent(int talent, int mode)
 		case TALENT_WEAPON_SMITH:
 		{
 			if (info) return ("");
-			if (desc) return ("Create hand weapons.  Only works in town.  You need components (hunks of metal) and knowledge of the kind of weapon being created.  Essences are very handy if you want to add specific magical powers.  Increasing the weaponsmithing skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.");
+			if (desc) return (format("Create hand weapons.  %sYou need components (hunks of metal) and knowledge of the kind of weapon being created.  Essences are very handy if you want to add specific magical powers.  Increasing the weaponsmithing skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.", birth_ironman ? "" : "Only works in town.  "));
 			if (check)
 			{
 				/* Must satisfy a number of conditions */
@@ -867,7 +944,7 @@ static cptr do_talent(int talent, int mode)
 		case TALENT_ARMOUR_SMITH:
 		{
 			if (info) return ("");
-			if (desc) return ("Create armour.  Only works in town.  You need components (hunks of metal) and knowledge of the kind of armour being created.  Essences are very handy if you want to add specific magical powers.  Increasing the armour forging skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.");
+			if (desc) return (format("Create armour.  %sYou need components (hunks of metal) and knowledge of the kind of armour being created.  Essences are very handy if you want to add specific magical powers.  Increasing the armour forging skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.", birth_ironman ? "" : "Only works in town.  "));
 			if (check)
 			{
 				/* Must satisfy a number of conditions */
@@ -888,7 +965,7 @@ static cptr do_talent(int talent, int mode)
 		case TALENT_MISSILE_SMITH:
 		{
 			if (info) return ("");
-			if (desc) return ("Create missile weapons and ammunition.  Only works in town.  You need components (hunks of metal) and knowledge of the kind of item being created.  Essences are very handy if you want to add specific magical powers.  Increasing the bowmaking skill allows you to forge better items in greater quantity.  Increasing the infusion skill lets you add more powers using essences, to larger numbers of objects.");
+			if (desc) return (format("Create missile weapons and ammunition.  %sYou need components (hunks of metal) and knowledge of the kind of item being created.  Essences are very handy if you want to add specific magical powers.  Increasing the bowmaking skill allows you to forge better items in greater quantity.  Increasing the infusion skill lets you add more powers using essences, to larger numbers of objects.", birth_ironman ? "" : "Only works in town.  "));
 			if (check)
 			{
 				/* Must satisfy a number of conditions */
@@ -927,10 +1004,33 @@ static cptr do_talent(int talent, int mode)
 			}
 			break;
 		}
+		case TALENT_SAVE_BOTTLE:
+		{
+			if (info) return ("");
+			if (desc) return ("Save or stop saving empty bottles and blank parchments.  Useful when your inventory space runs low, or you need to start accumulating more supplies.");
+			if (use)
+			{
+				if (p_ptr->suppress_bottle)
+				{
+					msg_print("You are now saving parchments and bottles.");
+					p_ptr->suppress_bottle = FALSE;
+				}
+				else
+				{
+					msg_print("You are no longer saving parchments and bottles.");
+					p_ptr->suppress_bottle = TRUE;
+				}
+
+				/* Use no time */
+				use = FALSE;
+			}
+			break;
+		}
+
 		case TALENT_DRAGON_BREATHING:
 		{
-			dam1 = (5 * (p_ptr->power - 10) / 2) - 25;
-			dam2 = (5 * (p_ptr->power - 10) / 2) + 25;
+			dam1 = (3 * (p_ptr->power - 10)) - 25;
+			dam2 = (3 * (p_ptr->power - 10)) + 25;
 
 			if (info) return (format("dam %d-%d", dam1, dam2));
 			if (desc) return ("When in dragonform, you can use essences to fuel powerful breaths.  You get bonuses to damage for the basic elements and poison, and penalties for less resistible breaths.");
@@ -985,9 +1085,9 @@ static cptr do_talent(int talent, int mode)
 
 				/* Determine how quickly the breath spreads out */
 				if      (typ == GF_POIS)  spread = 90;
-				else if (typ == GF_SOUND) spread = 90;
-				else if (typ == GF_FORCE) spread = 75;
-				else                      spread = 60;
+				else if (typ == GF_SOUND) spread = 75;
+				else if (typ == GF_FORCE) spread = 60;
+				else                      spread = 45;
 
 				/* Determine damage */
 				dam = rand_range(dam1, dam2);
@@ -1270,10 +1370,10 @@ void do_cmd_talents(void)
 				screen_save();
 
 				/* Clear screen */
-				Term_clear();
+				(void)Term_clear();
 
 				/* Set to 25 screen rows */
-				Term_rows(FALSE);
+				(void)Term_rows(FALSE);
 
 				/* List the talents */
 				print_talents(talent_avail);
@@ -1287,7 +1387,7 @@ void do_cmd_talents(void)
 			do_cmd_help();
 
 			/* Redraw the talents */
-			Term_clear();
+			(void)Term_clear();
 			print_talents(talent_avail);
 		}
 
@@ -1329,7 +1429,7 @@ void do_cmd_talents(void)
 				{
 					p_ptr->ptalents[talent].marked = FALSE;
 
-					center_string(out_val, format("You have unmarked \"%s\".",
+					center_string(out_val, sizeof(out_val), format("You have unmarked \"%s\".",
 						talent_info[talent].name), 78);
 
 					prt(out_val, 1, 1);
@@ -1340,7 +1440,7 @@ void do_cmd_talents(void)
 				{
 					p_ptr->ptalents[talent].marked = TRUE;
 
-					center_string(out_val, format("You have marked \"%s\".",
+					center_string(out_val, sizeof(out_val), format("You have marked \"%s\".",
 						talent_info[talent].name), 80);
 
 					prt(out_val, 1, 0);
@@ -1389,7 +1489,7 @@ void do_cmd_talents(void)
 		}
 
 		/* Hack -- hide the cursor  XXX XXX */
-		Term_gotoxy(0, 26);
+		(void)Term_gotoxy(0, 26);
 	}
 
 	/* Restore the screen */
@@ -1402,7 +1502,7 @@ void do_cmd_talents(void)
 		if (old_rows == 50)
 		{
 			p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-			Term_rows(TRUE);
+			(void)Term_rows(TRUE);
 		}
 
 		/* Restore main screen */

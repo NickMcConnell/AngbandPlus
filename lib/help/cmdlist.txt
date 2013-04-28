@@ -10,7 +10,7 @@
 Command Summary -- Original keyset
 
  a  Aim a wand                           A  Activate an artifact
- b  Browse a book                        B  Bash a door
+ b  Browse a book                        B  Bash a door or Yell
  c  Close a door                         C  Character description
  d  Drop an item                         D  Disarm a trap/Desanctify a glyph
  e  Equipment list                       E  Eat some food
@@ -32,7 +32,7 @@ Command Summary -- Original keyset
  u  Use a staff                          U  (unused)
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  (unused)
- x  (unused - easy rest macro)           X  (unused - switch weapon macro)
+ x  (unused)                             X  (unused - switch weapon macro)
  y  (unused)                             Y  (unused)
  z  Zap a rod                            Z  (unused)
  !  Interact with system                ^A  (special - debug command)
@@ -43,8 +43,8 @@ Command Summary -- Original keyset
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  (unused)
  *  Target monster or location          ^H  (unused)
- (  Load screen dump                    ^I  (special - tab)
- )  Dump screen dump                    ^J  (special - linefeed)
+ (  Light or douse a light source       ^I  (special - tab)
+ )  Take a screen shot                  ^J  (special - linefeed)
  {  Inscribe an object                  ^K  (unused)
  }  Uninscribe an object                ^L  (unused)
  [  Use talents                         ^M  (special - return)
@@ -56,7 +56,7 @@ Command Summary -- Original keyset
  ;  Walk (normal pickup)                ^S  Save and don't quit
  :  Take notes                          ^T  (unused)
  '  (unused)                            ^U  (unused)
- "  (unused)                            ^V  (unused)
+ "  (unused)                            ^V  Repeat last command
  ,  Stay still for one turn             ^W  (special - wizard mode)
  <  Go up staircase                     ^X  Save and quit
  .  Run                                 ^Y  (unused)
@@ -64,6 +64,9 @@ Command Summary -- Original keyset
  \  (special - bypass keymap)            |  Change barehanded combat method
  `  (special - escape)                   ~  Check knowledge
  /  Identify symbol                      ?  Help
+
+              TAB   Rest in place macro
+         F1 - F12   Unused (available for macros)
 
 * NOTE:  For Burglars, this command also locks doors, sets traps, and steals.
 
@@ -86,7 +89,7 @@ Command Summary -- Roguelike keyset
  c  Close a door                         C  Character description
  d  Drop an item                         D  Disarm a trap/Desanctify a glyph
  e  Equipment list                       E  Eat some food
- f  Bash a door (force)                  F  Fuel your lantern/torch
+ f  Force (bash) a door or Yell          F  Fuel your lantern/torch
  g  Get object on floor                  G  Gain new spells/prayers
  h  (walk - west)                        H  (run - west)
  i  Inventory list                       I  Observe an item
@@ -115,8 +118,8 @@ Command Summary -- Roguelike keyset
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  (unused)
  *  Target monster or location          ^H  (alter - west)
- (  Load screen dump                    ^I  (special - tab)
- )  Dump screen dump                    ^J  (alter - south)
+ (  Light or douse a light source       ^I  (special - tab)
+ )  Take a screen shot                  ^J  (alter - south)
  {  Inscribe an object                  ^K  (alter - north)
  }  Uninscribe an object                ^L  (alter - east)
  [  Use talents                         ^M  (special - return)
@@ -128,7 +131,7 @@ Command Summary -- Roguelike keyset
  ;  Walk (normal pickup)                ^S  Save and don't quit
  :  Take notes                          ^T  Dig a Tunnel
  '  Repeat last command                 ^U  (alter - north east)
- "  (unused)                            ^V  Examine current target
+ "  (unused)                            ^V  Repeat last command
  ,  Run                                 ^W  (special - wizard mode)
  <  Go up staircase                     ^X  Save and quit
  .  Stay still for one turn             ^Y  (alter - north west)
@@ -137,7 +140,11 @@ Command Summary -- Roguelike keyset
  `  (special - escape)                   ~  Check knowledge
  /  Identify symbol                      ?  Help
 
+              TAB   Rest in place macro
+         F1 - F12   Unused (available for macros)
+
 * NOTE:  For Burglars, this command also locks doors, sets traps, and steals.
+
 
 
 

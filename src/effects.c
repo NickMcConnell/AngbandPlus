@@ -3,7 +3,7 @@
 /*
  * Special lingering spell effects.
  *
- * Copyright (c) 2002
+ * Copyright (c) 2003
  * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -48,101 +48,6 @@ int effect_prep(void)
 
 
 
-
-/*
- * Zap a grid.  Allow mere display of color or actual spell effects.
- */
-static bool do_effect_grid(int x_idx, int y, int x, bool for_real)
-{
-	/* Get this effect */
-	effect_type *x_ptr = &x_list[x_idx];
-
-	u32b flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAY | PROJECT_ITEM |
-	           PROJECT_GRID;
-
-	bool wall = FALSE;
-
-	/* Note walls */
-	if (cave_info[y][x] & (CAVE_WALL)) wall = TRUE;
-
-	/* Handle various flags */
-	if (x_ptr->flags)
-	{
-		/* Affect only evil */
-		if (x_ptr->flags & (0x0001)) p_ptr->proj_mon_flags = (RF3_EVIL);
-	}
-
-
-	/* Zap the grid */
-	if (for_real)
-	{
-		/* Has hit the character */
-		if ((y == p_ptr->py) && (x == p_ptr->px))
-		{
-			/* Print messages  XXX */
-			switch (x_ptr->type)
-			{
-				case GF_ACID:  msg_print("You are covered in acid!");  break;
-				case GF_ELEC:  msg_print("You are struck by lightning!");  break;
-				case GF_FIRE:  msg_print("You are enveloped in fire!");  break;
-				case GF_COLD:  msg_print("You are very cold!");  break;
-				case GF_POIS:  msg_print("You are surrounded by poison!");  break;
-
-				case GF_PLASMA:  msg_print("You are enveloped in electric fire!");  break;
-				case GF_HELLFIRE:  msg_print("You are enveloped by Udun-fire!");  break;
-				case GF_ICE:  msg_print("You are hit by shards of ice!");  break;
-
-				default:  msg_print("You are hit!");  break;
-			}
-		}
-
-		/* Cast the spell */
-		(void)project(-1, 0, y, x, y, x, x_ptr->power, x_ptr->type, flg, 0, 0);
-	}
-
-	/* Display lingering spell colors (require ability to see) */
-	if (player_can_see_bold(y, x))
-	{
-		byte a[4];
-
-		/* Translate the 16 basic colors to binary values */
-		switch (spell_color(x_ptr->type))
-		{
-			case TERM_WHITE:   a[0] = 0; a[1] = 0; a[2] = 0; a[3] = 1; break;
-			case TERM_SLATE:   a[0] = 0; a[1] = 0; a[2] = 1; a[3] = 0; break;
-			case TERM_ORANGE:  a[0] = 0; a[1] = 0; a[2] = 1; a[3] = 1; break;
-			case TERM_RED:     a[0] = 0; a[1] = 1; a[2] = 0; a[3] = 0; break;
-			case TERM_GREEN:   a[0] = 0; a[1] = 1; a[2] = 0; a[3] = 1; break;
-			case TERM_BLUE:    a[0] = 0; a[1] = 1; a[2] = 1; a[3] = 0; break;
-			case TERM_UMBER:   a[0] = 0; a[1] = 1; a[2] = 1; a[3] = 1; break;
-			case TERM_L_DARK:  a[0] = 1; a[1] = 0; a[2] = 0; a[3] = 0; break;
-			case TERM_L_WHITE: a[0] = 1; a[1] = 0; a[2] = 0; a[3] = 1; break;
-			case TERM_VIOLET:  a[0] = 1; a[1] = 0; a[2] = 1; a[3] = 0; break;
-			case TERM_YELLOW:  a[0] = 1; a[1] = 0; a[2] = 1; a[3] = 1; break;
-			case TERM_L_RED:   a[0] = 1; a[1] = 1; a[2] = 0; a[3] = 0; break;
-			case TERM_L_GREEN: a[0] = 1; a[1] = 1; a[2] = 0; a[3] = 1; break;
-			case TERM_L_BLUE:  a[0] = 1; a[1] = 1; a[2] = 1; a[3] = 0; break;
-			case TERM_L_UMBER: a[0] = 1; a[1] = 1; a[2] = 1; a[3] = 1; break;
-
-			default:           a[0] = 0; a[1] = 0; a[2] = 0; a[3] = 0; break;
-		}
-
-		/* Translate to flags, mark the dungeon */
-		if (a[0]) cave_info[y][x] |= (CAVE_ATT1);
-		if (a[1]) cave_info[y][x] |= (CAVE_ATT2);
-		if (a[2]) cave_info[y][x] |= (CAVE_ATT3);
-		if (a[3]) cave_info[y][x] |= (CAVE_ATT4);
-
-		/* Redraw this grid */
-		lite_spot(y, x);
-	}
-
-	/* Return */
-	return (!wall);
-}
-
-
-
 /*
  * Adjust effects.
  *
@@ -158,7 +63,7 @@ static void adjust_effect(int x_idx)
 	if (!x_ptr->index) return;
 
 	/* This effect has already been tweaked */
-	if (x_ptr->flags & (0x8000)) return;
+	if (x_ptr->flags & (EF1_TWEAKED)) return;
 
 
 	/*
@@ -188,40 +93,242 @@ static void adjust_effect(int x_idx)
 	}
 
 	/* This effect has been tweaked */
-	x_ptr->flags |= (0x8000);
+	x_ptr->flags |= (EF1_TWEAKED);
+}
+
+
+
+/*
+ * Get (one of) the effects impacting the given grid.
+ *
+ * The lingering effect code can have multiple entries for a given grid
+ * at any one time.  This may occur due to two different effects zapping
+ * the grid, or to the grid being zapped between effect turns.  As long
+ * as a character or monster only gets zapped once when they enter a
+ * grid, regardless of the number of effects in that grid, this isn't a
+ * problem.  If this changes, however, then we have to rewrite.  We
+ * might also have to rebalance.
+ */
+int effect_grid_idx(int y, int x)
+{
+	/* Start at the last record */
+	int i = effect_grid_n - 1;
+
+	/* Search for the grid (backwards) */
+	for (; i >= 0; i--)
+	{
+		/* We found the grid */
+		if ((effect_grid[i].y == y) && (effect_grid[i].x == x))
+		{
+			/* Return index of effect */
+			return (effect_grid[i].x_idx);
+		}
+	}
+
+	/* We did not find the grid -- remove effect marker XXX XXX */
+	cave_info[y][x] &= ~(CAVE_EFFT);
+
+	/* Return "no effect" */
+	return (-1);
+}
+
+/*
+ * Get the projection type (and thus the graphics) for an effect.
+ */
+int effect_grid_proj_type(int y, int x)
+{
+	/* Start at the last record */
+	int i = effect_grid_n - 1;
+
+	/* Search for the grid (backwards) */
+	for (; i >= 0; i--)
+	{
+		/* We found the grid */
+		if ((effect_grid[i].y == y) && (effect_grid[i].x == x))
+		{
+			/* Return projection type of effect in this grid */
+			return (x_list[effect_grid[i].x_idx].type);
+		}
+	}
+
+	/* We did not find the grid -- remove effect marker XXX XXX */
+	cave_info[y][x] &= ~(CAVE_EFFT);
+
+	/* Return "no projection type" */
+	return (-1);
+}
+
+
+
+/*
+ * Sorting hook -- comp function -- array of elements four bytes in size.
+ */
+static bool ang_sort_comp_hook_effect_grids(const void *u, const void *v, int a, int b)
+{
+	effect_grid_type *x_grid = (effect_grid_type*)(u);
+
+	/* Unused parameter */
+	(void)v;
+
+	/* Sort by y, then by x, in descending order */
+	if (x_grid[a].y > x_grid[b].y) return (TRUE);
+	if (x_grid[a].y < x_grid[b].y) return (FALSE);
+	return (x_grid[a].x >= x_grid[b].x);
+}
+
+/*
+ * Sorting hook -- swap function -- array of elements four bytes in size.
+ */
+static void ang_sort_swap_hook_effect_grids(void *u, void *v, int a, int b)
+{
+	effect_grid_type *x_grid = (effect_grid_type*)(u);
+	effect_grid_type temp_grid;
+
+	/* Unused parameter */
+	(void)v;
+
+	/* Swap records */
+	COPY(&temp_grid, &x_grid[a], effect_grid_type);
+	COPY(&x_grid[a], &x_grid[b], effect_grid_type);
+	COPY(&x_grid[b], &temp_grid, effect_grid_type);
 }
 
 
 /*
- * Redraw an effect.   XXX XXX
+ * Remove all grids belonging to a given effect from the effect grid
+ * array, then sort and compact it.
  */
-static void redraw_effect(int x_idx)
+static void optimize_effect_array(int x_idx)
 {
-	int y, x;
+	int i;
 
-	/* Get this effect */
-	effect_type *x_ptr = &x_list[x_idx];
-
-	/* The lingering graphics flags */
-	u16b flg = CAVE_ATT1 | CAVE_ATT2 | CAVE_ATT3 | CAVE_ATT4;
-
-	/* Clear all lingering spell effects near center XXX XXX */
-	for (y = x_ptr->y0 - 10; y < x_ptr->y0 + 10; y++)
+	/* Remove all of the effect's markers and graphics */
+	for (i = 0; i < effect_grid_n; i++)
 	{
-		for (x = x_ptr->x0 - 10; x < x_ptr->x0 + 10; x++)
+		/* Get the grid */
+		effect_grid_type *xg_ptr = &effect_grid[i];
+
+		/* Grid belongs to this effect */
+		if (xg_ptr->x_idx == x_idx)
 		{
-			if (in_bounds(y, x))
-			{
-				if (cave_info[y][x] & (flg))
-				{
-					cave_info[y][x] &= ~(flg);
-					lite_spot(y, x);
-				}
-			}
+			/* Save the grid */
+			int y = xg_ptr->y;
+			int x = xg_ptr->x;
+
+			/* Wipe this array entry */
+			WIPE(xg_ptr, effect_grid_type);
+
+			/* Refresh the graphics, remove marker if necessary */
+			lite_spot(y, x);
 		}
+	}
+
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook_effect_grids;
+	ang_sort_swap = ang_sort_swap_hook_effect_grids;
+
+	/* Sort the array (descending order by grid location) */
+	ang_sort(effect_grid, 0, effect_grid_n);
+
+
+	/* Work from the end of the array, compacting as we go */
+	for (i = effect_grid_n - 1; i >= 0; i--)
+	{
+		/* Ignore all records with zero y-values */
+		if (!effect_grid[i].y) effect_grid_n--;
 	}
 }
 
+
+
+/*
+ * Effect zaps a grid with lingering effect.  Used for all effects that
+ * need to display graphics and effect monsters/the character/the dungeon
+ * between turns.
+ */
+bool do_effect_linger(int x_idx, int y, int x)
+{
+	/* Get this effect */
+	effect_type *x_ptr = &x_list[x_idx];
+
+	/* Note walls */
+	bool wall = ((cave_info[y][x] & (CAVE_WALL)) ? TRUE : FALSE);
+
+	/* Basic projection flags */
+	u32b flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID;
+
+	/* Get caster (who gets exp, etc.) */
+	int who = ((x_ptr->flags & (EF1_CHARACTER)) ? -1 : 0);
+
+
+	/* Optional flags */
+	if (x_ptr->flags)
+	{
+		/* Affect only evil */
+		if (x_ptr->flags & (EF1_HURT_EVIL)) p_ptr->proj_mon_flags = (RF3_EVIL);
+
+		/* Hurt the character */
+		if (x_ptr->flags & (EF1_HURT_PLAY)) flg |= (PROJECT_PLAY);
+	}
+
+	/* Usually, do not affect impassable terrain */
+	if (!cave_passable_bold(y, x)) return (FALSE);
+
+
+	/* We have not run out of space in the effect grid array */
+	if (effect_grid_n < EFFECT_GRID_MAX-1)
+	{
+		/* Mark the grid */
+		cave_info[y][x] |= (CAVE_EFFT);
+
+		/* Store location and effect index */
+		effect_grid[effect_grid_n].y = y;
+		effect_grid[effect_grid_n].x = x;
+		effect_grid[effect_grid_n].x_idx = x_idx;
+
+		/* Another entry in the array */
+		effect_grid_n++;
+	}
+
+
+	/* Has hit the character */
+	if ((y == p_ptr->py) && (x == p_ptr->px))
+	{
+		/* Print messages  XXX */
+		switch (x_ptr->type)
+		{
+			case GF_ACID:  msg_print("You are covered in acid!");  break;
+			case GF_ELEC:  msg_print("You are struck by lightning!");  break;
+			case GF_FIRE:  msg_print("You are enveloped in fire!");  break;
+			case GF_COLD:  msg_print("You are very cold!");  break;
+			case GF_POIS:  msg_print("You are surrounded by poison!");  break;
+
+			case GF_PLASMA:  msg_print("You are enveloped in electric fire!");  break;
+			case GF_HELLFIRE:  msg_print("You are enveloped by Udun-fire!");  break;
+			case GF_ICE:  msg_print("You are hit by shards of ice!");  break;
+
+			default:  msg_print("You are hit!");  break;
+		}
+	}
+
+	/* Practice a skill */
+	if (x_ptr->practice_skill) skill_being_used = x_ptr->practice_skill;
+
+	/* Cast the spell */
+	(void)project(who, 0, y, x, y, x, x_ptr->power, x_ptr->type, flg, 0, 0);
+
+
+	/* Display lingering spell colors (require ability to see) */
+	if (player_can_see_bold(y, x))
+	{
+		/* Redraw this grid */
+		lite_spot(y, x);
+	}
+
+	/* Return whether we hit a wall */
+	return (!wall);
+}
 
 
 /*
@@ -232,39 +339,42 @@ static void process_effect(int x_idx)
 	/* Get this effect */
 	effect_type *x_ptr = &x_list[x_idx];
 
-	/* Assume that we're just refreshing the graphics */
-	bool for_real = FALSE;
-
-	int path_n = 0;
-	u16b path_g[256];
-
 	int i, j, axis;
 	int y, x;
 	int y0, x0;
 
 	int grids = 0;
-	int walls = 0;
 
 
 	/* Paranoia -- no processing dead effects */
 	if (!x_ptr->index) return;
 
+	/* Count down to next turn, return if not yet ready */
+	if (--x_ptr->time_count > 0) return;
 
-	/* Decrement turn counter */
-	if (x_ptr->time_count > 0) x_ptr->time_count--;
 
-	/* This effect can take a "turn" */
-	if (x_ptr->time_count == 0)
-	{
-		/* Do it for real */
-		for_real = TRUE;
-
-		/* Reset count */
-		x_ptr->time_count = x_ptr->time_delay;
-	}
+	/* Reset count */
+	x_ptr->time_count = x_ptr->time_delay;
 
 	/* If the effect has recently been "born", make various tweaks to it */
 	if (x_ptr->age == 0) adjust_effect(x_idx);
+
+	/* End any lingering effects and clear graphics */
+	optimize_effect_array(x_idx);
+
+	/* Effects eventually "die" */
+	if (x_ptr->age >= x_ptr->lifespan)
+	{
+		/* Special message for clouds of death (they have no graphics) */
+		if (x_ptr->index == EFFECT_DEATH_CLOUD)
+		{
+			msg_print("The cloud of death dissipates.");
+		}
+
+		/* Effect is "dead" */
+		x_ptr->index = 0;
+		return;
+	}
 
 
 
@@ -281,17 +391,15 @@ static void process_effect(int x_idx)
 		y = x_ptr->y0;
 		x = x_ptr->x0;
 
-		/* Actual attack */
-		if (for_real)
-		{
-			/* Add the kill flags */
-			flg |= PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY;
 
-			dam = x_ptr->power;
+		/* Add the kill flags */
+		flg |= PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY;
 
-			/* Cast a star */
-			(void)project(-1, rad, y, x, y, x, dam, typ, flg, 0, 0);
-		}
+		/* Damage equals power */
+		dam = x_ptr->power;
+
+		/* Cast a star */
+		(void)project(-1, rad, y, x, y, x, dam, typ, flg, 0, 0);
 	}
 
 
@@ -302,25 +410,25 @@ static void process_effect(int x_idx)
 		int major_axis =
 			get_angle_to_target(x_ptr->y0, x_ptr->x0, x_ptr->y1, x_ptr->x1, 0);
 
-		/* Get the directions of spread (angular dir is 2x this)*/
-		int minor_axis1 = (major_axis +  45) % 180;
-		int minor_axis2 = (major_axis + 135) % 180;
-
 		/* Get the length of the wall on either side of the major axis */
-		int spread = 2 + x_ptr->power / 33;
-		if (spread > 8) spread = 8;
+		int spread = x_ptr->power2;
 
 		/* Store target grid */
 		y = x_ptr->y1;
 		x = x_ptr->x1;
 
 		/* Calculate the projection path -- require orthogonal movement */
-		path_n = project_path(path_g, 99, x_ptr->y0, x_ptr->x0,
+		(void)project_path(99, x_ptr->y0, x_ptr->x0,
 			&y, &x, PROJECT_PASS | PROJECT_THRU | PROJECT_ORTH);
 
 		/* Require a working projection path */
 		if (path_n > x_ptr->age)
 		{
+			/* Remember delay factor */
+			int old_delay = op_ptr->delay_factor;
+
+			int wall = 0;
+
 			/* Get center grid (walls travel one grid per turn) */
 			y0 = GRID_Y(path_g[x_ptr->age]);
 			x0 = GRID_X(path_g[x_ptr->age]);
@@ -328,52 +436,117 @@ static void process_effect(int x_idx)
 			/* Count grid */
 			grids++;
 
-			/* Zap grid, count walls */
-			if (!do_effect_grid(x_idx, y0, x0, for_real)) walls++;
+			/* Set delay to half normal */
+			op_ptr->delay_factor /= 2;
 
-
-			/* Process the left, then the right-hand sides of the wall */
-			for (i = 0; i < 2; i++)
+			/* Zap center grid, note wall */
+			if (!do_effect_linger(x_idx, y0, x0))
 			{
-				if (i == 0) axis = minor_axis1;
-				else        axis = minor_axis2;
-
-				/* Get the target grid for this side */
-				get_grid_using_angle(axis, y0, x0, &y, &x);
-
-				/* If we have a legal target, */
-				if ((y != y0) || (x != x0))
+				wall = 1;
+				if (!x_ptr->age)
 				{
-					/* Calculate the path of projection */
-					path_n = project_path(path_g, spread, y0, x0, &y, &x,
-						PROJECT_PASS | PROJECT_THRU);
-
-					/* Zap all the grids */
-					for (j = 0; j < path_n; j++)
-					{
-						/* Get grid */
-						y = GRID_Y(path_g[j]);
-						x = GRID_X(path_g[j]);
-
-						/* Count grid */
-						grids++;
-
-						/* Zap grid, count walls */
-						if (!do_effect_grid(x_idx, y, x, for_real)) walls++;
-					}
+					x_ptr->age = 250;
+					spread = 0;
 				}
 			}
+
+			/* If this wall spreads out from the origin, */
+			if (spread >= 1)
+			{
+				/* Get the directions of spread (angular dir is 2x this) */
+				int minor_axis1 = (major_axis +  45) % 180;
+				int minor_axis2 = (major_axis + 135) % 180;
+
+				/* Process the left, then right-hand sides of the wall */
+				for (i = 0; i < 2; i++)
+				{
+					int blockage = 0;
+
+					if (i == 0) axis = minor_axis1;
+					else        axis = minor_axis2;
+
+					/* Get the target grid for this side */
+					get_grid_using_angle(axis, y0, x0, &y, &x);
+
+					/* If we have a legal target, */
+					if ((y != y0) || (x != x0))
+					{
+						/* Calculate the path of projection */
+						(void)project_path(spread, y0, x0, &y, &x,
+							PROJECT_PASS | PROJECT_THRU);
+
+						/* Zap all the grids */
+						for (j = 0; j < path_n; j++)
+						{
+							/* Get grid */
+							y = GRID_Y(path_g[j]);
+							x = GRID_X(path_g[j]);
+
+							/* Count grid */
+							grids++;
+
+							/* Zap grid */
+							if (!do_effect_linger(x_idx, y, x))
+							{
+								/* We've hit a wall; seek to the sides */
+								if (!y0 - y)
+								{
+									/* We must find open space somewhere */
+									if (((!in_bounds_fully(y, x + 1)) ||
+									     (!cave_wall_bold(y, x + 1))) &&
+									    ((!in_bounds_fully(y, x - 1)) ||
+									     (!cave_wall_bold(y, x - 1))))
+									{
+										/* We're blocked everywhere -- stop */
+										for (; j < path_n; j++) blockage++;
+										break;
+									}
+
+								}
+								else if (!x0 - x)
+								{
+									/* We must find open space somewhere */
+									if (((!in_bounds_fully(y + 1, x)) ||
+									     (!cave_wall_bold(y + 1, x))) &&
+									    ((!in_bounds_fully(y - 1, x)) ||
+									     (!cave_wall_bold(y - 1, x))))
+									{
+										/* We're blocked everywhere -- stop */
+										for (; j < path_n; j++) blockage++;
+										break;
+									}
+								}
+								else
+								{
+									/* We're blocked everywhere -- stop */
+									for (; j < path_n; j++) blockage++;
+									break;
+								}
+							}
+						}
+					}
+
+					/* Note if this direction is completely blocked */
+					if (blockage >= spread) wall++;
+				}
+			}
+
+			/* Kill wall if it hits too many obstructions */
+			if ((wall >= 2) && (x_ptr->age > 0))
+			{
+				if (player_can_see_bold(y0, x0))
+					msg_print("The spell fizzles out.");
+				x_ptr->age = 250;
+			}
+
+			/* Restore standard delay */
+			op_ptr->delay_factor = old_delay;
 		}
 
-		/* If the effect is not just being refreshed */
-		if (for_real)
+		/* No working projection path -- kill the wall */
+		else
 		{
-			/* Wall spells die if they hit too many walls at once */
-			if ((walls >= 3) && (walls > grids / 2)) x_ptr->lifespan = 0;
-
-			/* Walls spells weaken when they hit walls */
-			else if (walls > grids / 3)
-				x_ptr->power = x_ptr->power * grids / (grids + walls);
+			x_ptr->age = 250;
 		}
 	}
 
@@ -384,126 +557,117 @@ static void process_effect(int x_idx)
 		int dir;
 		int ty = 0, tx = 0;
 
-		/* If refreshing the graphics, zap the current grid */
-		if (!for_real)
+		/* Check around (and under) the vortex */
+		for (dir = 0; dir < 9; dir++)
 		{
-			(void)do_effect_grid(x_idx, x_ptr->y0, x_ptr->x0, for_real);
+			/* Extract adjacent (legal) location */
+			y = x_ptr->y0 + ddy_ddd[dir];
+			x = x_ptr->x0 + ddx_ddd[dir];
+
+			/* Count passable grids */
+			if (cave_passable_bold(y, x)) grids++;
+		}
+
+		/*
+		 * Vortexes only seek in open spaces.  This makes them useful in
+		 * rooms and not too powerful in corridors.
+		 */
+		if      (grids >= 5) i = 85;
+		else if (grids == 4) i = 50;
+		else                 i = 0;
+
+		/* Seek out monsters */
+		if (rand_int(100) < i)
+		{
+			/* Try to get a target (nearest or next-nearest monster) */
+			get_closest_los_monster(randint(2), x_ptr->y0, x_ptr->x0,
+				&ty, &tx, FALSE);
+		}
+
+		/* No valid target, or monster is in an impassable wall */
+		if (((ty == 0) && (tx == 0)) || (!cave_passable_bold(ty, tx)))
+		{
+			/* Move randomly */
+			dir = randint(9);
+		}
+
+		/* Valid target in passable terrain */
+		else
+		{
+			/* Get change in position from current location to target */
+			int dy = x_ptr->y0 - ty;
+			int dx = x_ptr->x0 - tx;
+
+			/* Calculate vertical and horizontal distances */
+			int ay = ABS(dy);
+			int ax = ABS(dx);
+
+			/* We mostly want to move vertically */
+			if (ay > (ax * 2))
+			{
+				/* Choose between directions '8' and '2' */
+				if (dy > 0) dir = 8;
+				else        dir = 2;
+			}
+
+			/* We mostly want to move horizontally */
+			else if (ax > (ay * 2))
+			{
+				/* Choose between directions '4' and '6' */
+				if (dx > 0) dir = 4;
+				else        dir = 6;
+			}
+
+			/* We want to move up and sideways */
+			else if (dy > 0)
+			{
+				/* Choose between directions '7' and '9' */
+				if (dx > 0) dir = 7;
+				else        dir = 9;
+			}
+
+			/* We want to move down and sideways */
+			else
+			{
+				/* Choose between directions '1' and '3' */
+				if (dx > 0) dir = 1;
+				else        dir = 3;
+			}
+		}
+
+		/* Convert dir into a grid */
+		for (i = 0; i < 100; i++)
+		{
+			/* Extract adjacent (legal) location */
+			y = x_ptr->y0 + ddy[dir];
+			x = x_ptr->x0 + ddx[dir];
+
+			/* Require passable grids */
+			if (cave_passable_bold(y, x))
+			{
+				/* Try not to stay in place */
+				if ((y != x_ptr->y0) || (x != x_ptr->x0)) break;
+			}
+
+			/* Move randomly */
+			dir = randint(9);
+		}
+
+		/* Note failure */
+		if (i == 100)
+		{
+			y = x_ptr->y0;
+			x = x_ptr->x0;
 		}
 
 		/* Move the vortex */
-		else
-		{
-			/* Check around (and under) the vortex */
-			for (dir = 0; dir < 9; dir++)
-			{
-				/* Extract adjacent (legal) location */
-				y = x_ptr->y0 + ddy_ddd[dir];
-				x = x_ptr->x0 + ddx_ddd[dir];
+		x_ptr->y0 = y;
+		x_ptr->x0 = x;
 
-				/* Count passable grids */
-				if (cave_passable_bold(y, x)) grids++;
-			}
-
-			/*
-			 * Vortexes only seek in open spaces.  This makes them useful in
-			 * rooms and not too powerful in corridors.
-			 */
-			if      (grids >= 5) i = 85;
-			else if (grids == 4) i = 50;
-			else                 i = 0;
-
-			/* Seek out monsters */
-			if (rand_int(100) < i)
-			{
-				/* Try to get a target */
-				get_closest_los_monster(1, x_ptr->y0, x_ptr->x0, &ty, &tx, FALSE);
-
-			}
-
-			/* No valid target, or monster is in an impassable wall */
-			if (((ty == 0) && (tx == 0)) || (!cave_passable_bold(ty, tx)))
-			{
-				/* Move randomly */
-				dir = randint(9);
-			}
-
-			/* Valid target in passable terrain */
-			else
-			{
-				/* Get change in position from current location to target */
-				int dy = x_ptr->y0 - ty;
-				int dx = x_ptr->x0 - tx;
-
-				/* Calculate vertical and horizontal distances */
-				int ay = ABS(dy);
-				int ax = ABS(dx);
-
-				/* We mostly want to move vertically */
-				if (ay > (ax * 2))
-				{
-					/* Choose between directions '8' and '2' */
-					if (dy > 0) dir = 8;
-					else        dir = 2;
-				}
-
-				/* We mostly want to move horizontally */
-				else if (ax > (ay * 2))
-				{
-					/* Choose between directions '4' and '6' */
-					if (dx > 0) dir = 4;
-					else        dir = 6;
-				}
-
-				/* We want to move up and sideways */
-				else if (dy > 0)
-				{
-					/* Choose between directions '7' and '9' */
-					if (dx > 0) dir = 7;
-					else        dir = 9;
-				}
-
-				/* We want to move down and sideways */
-				else
-				{
-					/* Choose between directions '1' and '3' */
-					if (dx > 0) dir = 1;
-					else        dir = 3;
-				}
-			}
-
-			/* Convert dir into a grid */
-			for (i = 0; i < 100; i++)
-			{
-				/* Extract adjacent (legal) location */
-				y = x_ptr->y0 + ddy[dir];
-				x = x_ptr->x0 + ddx[dir];
-
-				/* Require passable grids */
-				if (cave_passable_bold(y, x))
-				{
-					/* Try not to stay in place */
-					if ((y != x_ptr->y0) || (x != x_ptr->x0)) break;
-				}
-
-				/* Move randomly */
-				dir = randint(9);
-			}
-
-			/* Note failure */
-			if (i == 100)
-			{
-				y = x_ptr->y0;
-				x = x_ptr->x0;
-			}
-
-			/* Move the vortex */
-			x_ptr->y0 = y;
-			x_ptr->x0 = x;
-
-			/* Zap the new grid */
-			(void)do_effect_grid(x_idx, x_ptr->y0, x_ptr->x0, for_real);
-		}
+		/* Zap the new grid */
+		(void)do_effect_linger(x_idx, x_ptr->y0, x_ptr->x0);
 	}
+
 
 	/* Clouds of death */
 	else if (x_ptr->index == EFFECT_DEATH_CLOUD)
@@ -520,7 +684,7 @@ static void process_effect(int x_idx)
 				if (dist >= x_ptr->power)
 				{
 					msg_print("Your violent motions tear apart the cloud of death.");
-					x_ptr->index = 0;
+					x_ptr->age = 250;
 					return;
 				}
 
@@ -536,37 +700,15 @@ static void process_effect(int x_idx)
 			x_ptr->x0 = p_ptr->px;
 		}
 
-		if (for_real)
-		{
-			/* Fire a star-shaped cloud of death */
-			fire_star(GF_DEATH_CLOUD, 0, randint(x_ptr->power), x_ptr->power2);
-		}
+		/* Fire a star-shaped cloud of death */
+		fire_star(GF_DEATH_CLOUD, 0, randint(x_ptr->power), x_ptr->power2);
 	}
 
 
-	/* Handle aging on active turns only */
-	if (for_real)
-	{
-		/* Effects age */
-		x_ptr->age++;
-
-		/* Effects can "die" */
-		if (x_ptr->age >= x_ptr->lifespan)
-		{
-			/* Special message for clouds of death (they have no graphics) */
-			if (x_ptr->index == EFFECT_DEATH_CLOUD)
-			{
-				msg_print("The cloud of death dissipates.");
-			}
-
-			/* Effect is "dead" */
-			x_ptr->index = 0;
-
-			/* Hack -- erase the graphics */
-			redraw_effect(x_idx);
-		}
-	}
+	/* Effects age */
+	x_ptr->age++;
 }
+
 
 /*
  * Process effects.
@@ -575,20 +717,7 @@ void process_effects(void)
 {
 	int i;
 
-	/* Scan all effects -- graphics */
-	for (i = 0; i < z_info->x_max; i++)
-	{
-		/* Get this effect */
-		effect_type *x_ptr = &x_list[i];
-
-		/* Skip empty effects */
-		if (!x_ptr->index) continue;
-
-		/* Clean up lingering graphics */
-		redraw_effect(i);
-	}
-
-	/* Scan all effects -- actions */
+	/* Process all effects */
 	for (i = 0; i < z_info->x_max; i++)
 	{
 		/* Get this effect */

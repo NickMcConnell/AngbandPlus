@@ -280,7 +280,6 @@ extern term *Term;
 
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
-extern errr Term_rows(bool fifty_rows);
 
 #ifdef USE_TRANSPARENCY
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
@@ -326,6 +325,6 @@ extern errr term_nuke(term *t);
 extern errr term_init(term *t, int w, int h, int k);
 
 
-#endif
+#endif  /* INCLUDED_Z_TERM_H */
 
 

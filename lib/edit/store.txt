@@ -38,59 +38,59 @@ G:bargain_difficulty = 108
 #
 !:STORE_OWNERS
 N:0 (General store)
-D:Bilbo the Friendly,         6000,  160, 108, 14, 15, RACE_HOBBIT
-D:Rincewind the Chicken,      4000,  165, 107, 12, 12, RACE_HUMAN
-D:Snafu the Midget,          10000,  160, 107, 10, 15, RACE_GNOME
-D:Lyar-el the Comely,         8000,  155, 107, 14, 18, RACE_ELF
-D:Owitu the Owlish,           6000,  170, 105, 12, 10, RACE_GNOME
-D:Gorgrund the Haggler,      12000,  190, 107,  8, 17, RACE_HALF_ORC
+D:Bilbo the Friendly,         6000,  160, 108, 14, 25, RACE_HOBBIT
+D:Rincewind the Chicken,      4000,  165, 107, 12, 20, RACE_HUMAN
+D:Snafu the Midget,          10000,  160, 107, 10, 20, RACE_GNOME
+D:Lyar-el the Comely,         8000,  155, 107, 14, 25, RACE_ELF
+D:Owitu the Owlish,           6000,  170, 105, 12, 15, RACE_GNOME
+D:Gorgrund the Haggler,      12000,  190, 107,  8, 13, RACE_HALF_ORC
 
 N:1 (Armoury)
-D:Kon-Dar the Ugly,           5000,  185, 105, 10, 10, RACE_HALF_ORC
-D:Darg-Low the Grim,         10000,  180, 110, 10, 10, RACE_HUMAN
-D:Decado the Handsome,       25000,  175, 112, 12, 10, RACE_DUNADAN
-D:Mauglin the Grumpy,        30000,  190, 115, 12,  7, RACE_DWARF
-D:Jurmanjand Thunderbrows,   20000,  160, 112, 16,  7, RACE_GIANT
-D:Vivirion True-Forger,      15000,  175, 112, 10,  9, RACE_DARK_ELF
+D:Kon-Dar the Ugly,           5000,  185, 105, 10, 15, RACE_HALF_ORC
+D:Darg-Low the Grim,         10000,  180, 110, 10, 12, RACE_HUMAN
+D:Decado the Handsome,       25000,  175, 112, 12, 20, RACE_DUNADAN
+D:Mauglin the Grumpy,        30000,  190, 115, 12,  8, RACE_DWARF
+D:Jurmanjand Thunderbrows,   20000,  160, 112, 16,  8, RACE_GIANT
+D:Vivirion True-Forger,      15000,  175, 112, 10, 20, RACE_DARK_ELF
 
 N:2 (Weapon Smith)
-D:Ithyl-Mak the Beastly,      5000,  180, 108, 12,  9, RACE_HALF_TROLL
-D:Arndal Beast-Slayer,       15000,  170, 110, 12,  9, RACE_ELF
-D:Tarl Stronginthearm,       25000,  175, 115, 12,  8, RACE_HOBBIT
-D:Oglign Dragon-Slayer,      30000,  175, 115, 12, 10, RACE_DWARF
-D:Jarl the Generous,         20000,  150, 105, 10, 15, RACE_HUMAN
+D:Ithyl-Mak the Beastly,      5000,  180, 108, 12, 10, RACE_HALF_TROLL
+D:Arndal Beast-Slayer,       15000,  170, 110, 12, 15, RACE_ELF
+D:Tarl Stronginthearm,       25000,  175, 115, 12, 18, RACE_HOBBIT
+D:Oglign Dragon-Slayer,      30000,  175, 115, 12, 18, RACE_DWARF
+D:Jarl the Generous,         20000,  150, 105, 10, 25, RACE_HUMAN
 D:William Wrathful,           7500,  180, 108, 14,  6, RACE_HUMAN
 
 N:3 (Temple)
-D:Ludwig the Humble,          5000,  165, 108, 14, 35, RACE_HUMAN
+D:Ludwig the Humble,          5000,  165, 108, 14, 30, RACE_HUMAN
 D:Gunnar the Paladin,        15000,  175, 110, 12, 18, RACE_HUMAN
-D:Delilah the Pure,          25000,  170, 112, 14, 20, RACE_ELF
-D:Bosk the Wise,             30000,  175, 115, 12, 15, RACE_DWARF
-D:Sevestor the Silent,       20000,  180, 110, 14, 12, RACE_DARK_ELF
-D:Fuduk the Hammer,          10000,  170, 110, 14, 14, RACE_HALF_TROLL
+D:Delilah the Pure,          25000,  170, 112, 14, 22, RACE_ELF
+D:Bosk the Wise,             30000,  175, 115, 12, 20, RACE_DWARF
+D:Sevestor the Silent,       20000,  180, 110, 14, 18, RACE_DARK_ELF
+D:Fuduk the Hammer,          10000,  170, 110, 14, 15, RACE_HALF_TROLL
 
 N:4 (Alchemist)
-D:Elroia the Chemist,        10000,  180, 111, 12, 11, RACE_ELF
+D:Elroia the Chemist,        10000,  180, 111, 12, 20, RACE_ELF
 D:Grugdash the Chaotic,       7500,  180, 106, 12, 10, RACE_HALF_ORC
-D:Ga-nat the Greedy,         15000,  195, 115,  8, 13, RACE_GNOME
-D:Vella the Slender,         10000,  170, 111, 12, 13, RACE_HUMAN
-D:Drumondorio the Apothecary,12500,  170, 110, 14, 16, RACE_GIANT
-D:Oroglad the Thaumaturge,   15000,  180, 112, 12, 12, RACE_DUNADAN
+D:Ga-nat the Greedy,         15000,  195, 115,  8,  9, RACE_GNOME
+D:Vella the Slender,         10000,  170, 111, 12, 20, RACE_HUMAN
+D:Drumondorio the Apothecary,12500,  170, 110, 14, 15, RACE_GIANT
+D:Oroglad the Thaumaturge,   15000,  180, 112, 12, 15, RACE_DUNADAN
 
 N:5 (Magic Shop)
-D:Ariel the Sorceress,       20000,  170, 110, 16,  8, RACE_ELF
-D:Buggerby the Great!,       20000,  190, 113, 10, 10, RACE_GNOME
-D:Inglorian the Mage,        30000,  170, 115, 14, 10, RACE_HUMAN
-D:Luthien Starshine,         30000,  165, 115, 16, 11, RACE_HIGH_ELF
-D:Balthazar of Earverian,    25000,  180, 109, 12,  9, RACE_GNOME
-D:Murid the Skinflint,       10000,  180, 110, 10, 11, RACE_HUMAN
+D:Ariel the Sorceress,       20000,  170, 110, 16, 15, RACE_ELF
+D:Buggerby the Great!,       20000,  190, 113, 10, 15, RACE_GNOME
+D:Inglorian the Mage,        30000,  170, 115, 14, 15, RACE_HUMAN
+D:Luthien Starshine,         30000,  165, 115, 16, 25, RACE_HIGH_ELF
+D:Balthazar of Earverian,    25000,  180, 109, 12, 15, RACE_GNOME
+D:Murid the Skinflint,       10000,  180, 110,  9,  9, RACE_HUMAN
 
 N:6 (Bookseller)
-D:Nastra the Dusty,          10000,  155, 105, 12, 11, RACE_HUMAN
-D:Gabberam the Sage,         20000,  180, 118, 10,  9, RACE_GNOME
-D:Feadro the Tome-master,    20000,  165, 113, 12, 12, RACE_HOBBIT
-D:Hastiel the Encyclopedist, 30000,  160, 115, 14, 12, RACE_DUNADAN
-D:Dreol of Drugladdan,       15000,  180, 107, 10, 12, RACE_DARK_ELF
+D:Naestra the Dusty,         10000,  155, 105, 12, 13, RACE_HUMAN
+D:Gabberam the Sage,         20000,  180, 118, 10, 18, RACE_GNOME
+D:Feadro the Tome-master,    20000,  165, 113, 12, 18, RACE_HOBBIT
+D:Hastiel the Encyclopedist, 30000,  160, 115, 14, 18, RACE_DUNADAN
+D:Dreol of Drugladdan,       15000,  180, 107, 10, 13, RACE_DARK_ELF
 D:Silmarien the Joyous,      25000,  170, 110, 14, 30, RACE_HIGH_ELF
 
 
@@ -99,11 +99,11 @@ D:Silmarien the Joyous,      25000,  170, 110, 14, 30, RACE_HIGH_ELF
 #
 # k_idx, chance, usual quantity
 #
-# It is helpful to include comments, as it's not immediately obvious that a 
-# k_idx of 153 means "Pick".  Everything after a '#' will be ignored.
+# It is helpful to include comments, as it's not immediately obvious that an 
+# object index of 153 means "Pick".  Everything after a '#' will be ignored.
 #
 # There are some items that are rare by deliberate policy, including 
-# lanterns, longbows, light crossbows, and scrolls of teleport.
+# lanterns, longbows, and light crossbows.
 #
 # You may insert new items.  Be careful, though:  The code that generates 
 # stock in stores tries hard to make the items you request.  This may leave 
@@ -173,7 +173,8 @@ D:106,  33,  3  # Battle Axe
 D:127, 100,  5  # Sling
 D:130, 100,  5  # Short Bow
 D:131,  15,  2  # Long Bow
-D:134,  33,  2  # Light Crossbow
+D:133, 100,  2  # Hand Crossbow
+D:134,  15,  2  # Light Crossbow
 D:138, 100, 75  # Shot
 D:142, 100, 75  # Arrow
 D:146, 100, 75  # Bolt
@@ -188,12 +189,12 @@ D: 82,  50,  5  # Morning Star
 D: 83,  50,  5  # Flail
 D:335, 100, 15  # Scroll of Remove Curse
 D:336,  10,  1  # Scroll of *Remove Curse*
-D:353, 100, 50  # Scroll of Blessing
+D:353, 100, 20  # Scroll of Blessing
 D:354,  33,  7  # Scroll of Holy Chant
-D:414, 100, 50  # Potion of Cure Light Wounds
+D:414, 100, 30  # Potion of Cure Light Wounds
 D:415, 100, 15  # Potion of Cure Serious
-D:416,  50, 15  # Potion of Cure Critical
-D:421,  33,  1  # Potion of Restore Skills
+D:416, 100, 15  # Potion of Cure Critical
+D:421,  75,  1  # Potion of Restore Skills
 D:422, 100,  2  # Potion of Restore Strength
 D:423, 100,  2  # Potion of Restore Intelligence
 D:424, 100,  2  # Potion of Restore Wisdom
@@ -203,7 +204,7 @@ D:427, 100,  2  # Potion of Restore Charisma
 
 D: -1,   4,  0  # Start of Store marker (Alchemist)
 D:328, 100, 25  # Scroll of Phase Door
-D:329,  40, 10  # Scroll of Teleport
+D:329, 100, 14  # Scroll of Teleport
 D:331, 100,  6  # Scroll of Word of Recall
 D:332, 100, 40  # Scroll of Learn Magic
 D:333, 100, 20  # Scroll of Identify
@@ -250,17 +251,17 @@ D:504,  50,  2  # Staff of Teleportation
 D:505,  80,  2  # Staff of Perception
 
 D: -1,   6,  0  # Start of Store marker (Bookstore)
-D:650, 100, 20  # [Apprentice Magic]
-D:651, 100,  5  # [Conjurings and Tricks]
+D:650, 100,  8  # [Apprentice Magic]
+D:651, 100,  4  # [Conjurings and Tricks]
 D:652, 100,  2  # [Elemental Sorcery]
-D:660, 100, 20  # [Novitiate]
-D:661, 100,  5  # [Words of Wisdom]
+D:660, 100,  8  # [Novitiate]
+D:661, 100,  4  # [Words of Wisdom]
 D:662, 100,  2  # [Holy of Holies]
-D:670, 100, 20  # [Call of the Wild]
-D:671, 100,  5  # [Communion with Nature]
+D:670, 100,  8  # [Call of the Wild]
+D:671, 100,  4  # [Communion with Nature]
 D:672, 100,  2  # [Book of Combat]
-D:680, 100, 20  # [Beginner's Curses]
-D:681, 100,  5  # [Darker Elements]
+D:680, 100,  8  # [Beginner's Curses]
+D:681, 100,  4  # [Darker Elements]
 D:682, 100,  2  # [Frightful Realms]
 
 D: -1, 255,  0  # End of array marker
@@ -282,14 +283,32 @@ D: -1, 255,  0  # End of array marker
 # NATURE_BOOK, DARK_BOOK, ESSENCE
 #
 !:TVAL_SELL
-D:FOOD, LITE, DIGGING, CLOAK, COMPONENT, 0, 0, 0, 0, 0
+
+# General Store
+D:FOOD, LITE, DIGGING, CLOAK, COMPONENT, JUNK, 0, 0, 0, 0
+
+# Armoury
 D:BOOTS, GLOVES, HELM, CROWN, SHIELD, SOFT_ARMOR, HARD_ARMOR, DRAG_ARMOR, 0, 0
+
+# Weapon Smith
 D:SWORD, POLEARM, BOW, SHOT, ARROW, BOLT, 0, 0, 0, 0
+
+# Temple
 D:HAFTED, SCROLL, POTION, 0, 0, 0, 0, 0, 0, 0
+
+# Alchemist
 D:SCROLL, POTION, 0, 0, 0, 0, 0, 0, 0, 0
+
+# Magic Shop
 D:AMULET, RING, WAND, STAFF, ROD, 0, 0, 0, 0, 0
+
+# Bookseller
 D:MAGIC_BOOK, PRAYER_BOOK, NATURE_BOOK, DARK_BOOK, 0, 0, 0, 0, 0, 0
+
+# Your Home
 D:0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+# The Inn (quests)
 D:0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
@@ -305,7 +324,7 @@ D:0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 # The more a race is disliked, the better it will treat itself.
 #
 # In general, shopkeepers treat other races as they are treated.
-# Half-orcish and half-trollish shopkeepers are the main exception:
+# Half-orcish and half-trollish shopkeepers are the main exceptions:
 # they sell for less than one might expect.
 # High-Elven shopkeepers tend to be a tad pricey.
 #

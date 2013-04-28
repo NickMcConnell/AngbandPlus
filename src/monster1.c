@@ -61,98 +61,90 @@ static char *wd_rarity(byte rarity, bool unique)
 
 
 /*
- * Determine if the "armor" is known
- * The higher the level, the fewer kills needed.
+ * Determine if the armour class of the monster is known.
+ *
+ * You need to kill about 25 low-level or 4 high-level monsters to
+ * know their armour class.
  */
-static bool know_armour(int r_idx, const monster_lore *l_ptr)
+bool know_armour(int r_idx, const monster_lore *l_ptr)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	s32b level = r_ptr->level;
+	int level = 20 + r_ptr->level;
 
-	s32b kills = l_ptr->tkills;
+	int kills = l_ptr->tkills;
 
-	/* Hack -- Those skilled in nature learn quickly. */
-	if (get_skill(S_NATURE, 0, 100) >= 20 + r_ptr->level / 2) kills *= 2;
+	/* Uniques are easier to know */
+	int diff = (r_ptr->flags1 & (RF1_UNIQUE)) ? 250 : 500;
 
-	/* Normal monsters */
-	if (kills > 304 / (4 + level)) return (TRUE);
+	/* Those skilled in nature lore learn more quickly */
+	diff -= MIN(0, get_skill(S_NATURE, 0, 150) - r_ptr->level);
 
-	/* Skip non-uniques */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+	/* Test for knowledge */
+	if (kills > div_round(diff, level)) return (TRUE);
 
-	/* Unique monsters */
-	if (kills > 304 / (38 + (5 * level / 4))) return (TRUE);
-
-	/* Assume false */
+	/* We don't know AC yet */
 	return (FALSE);
 }
 
 
 /*
- * Determine if the "mana" is known
- * The higher the level, the fewer kills needed.
+ * Determine if the starting mana of the monster is known.
+ *
+ * You need to kill about 25 low-level or 4 high-level monsters to
+ * know their mana.
  */
 bool know_mana(int r_idx, const monster_lore *l_ptr)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	s32b level = r_ptr->level;
+	int level = 20 + r_ptr->level;
 
-	s32b kills = l_ptr->tkills;
+	int kills = l_ptr->tkills;
 
-	/* Hack -- Those skilled in wizardry learn quickly. */
-	kills *= get_skill(S_WIZARDRY, 1, 4);
+	/* Uniques are easier to know */
+	int diff = (r_ptr->flags1 & (RF1_UNIQUE)) ? 250 : 500;
 
-	/* Normal monsters */
-	if (kills > 304 / (4 + level)) return (TRUE);
+	/* Those skilled in wizardry learn more quickly */
+	diff -= MIN(0, get_skill(S_WIZARDRY, 0, 150) - r_ptr->level);
 
-	/* Skip non-uniques */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+	/* Test for knowledge */
+	if (kills > div_round(diff, level)) return (TRUE);
 
-	/* Unique monsters */
-	if (kills > 304 / (38 + (5 * level) / 4)) return (TRUE);
-
-	/* Assume false */
+	/* We don't know mana yet */
 	return (FALSE);
 }
 
 
 /*
- * Determine if the "damage" of the given attack is known
- * the higher the level of the monster, the fewer the attacks you need,
- * the more damage an attack does, the more attacks you need
+ * Determine if the damage of a monster's melee attack is known.
+ *
+ * You need to suffer approximately 15-20 blows to know their damage,
+ * less if you are skilled in Nature Lore.
  */
 static bool know_damage(int r_idx, const monster_lore *l_ptr, int i)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	s32b level = r_ptr->level;
+	int level = 20 + r_ptr->level;
 
-	s32b a = l_ptr->blows[i];
+	int hits = l_ptr->blows[i];
 
-	s32b d1 = r_ptr->blow[i].d_dice;
-	s32b d2 = r_ptr->blow[i].d_side;
+	int diff = 20 + (r_ptr->blow[i].d_dice * r_ptr->blow[i].d_side / 4);
 
-	s32b d = 1 + (d1 * d2 / 2);
+	/* Nature lore gives faster knowledge */
+	int skill_div = MIN(30, 10 + (get_skill(S_NATURE, 0, 300) / level));
 
-	/* Hack - keep the target number reasonable */
-	if (d > 100) d = 100;
+	/* Normal monsters - standard difficulty */
+	if (!(r_ptr->flags1 & (RF1_UNIQUE))) diff = diff * 10 / skill_div;
 
-	/* Hack -- Those skilled in nature learn quickly. */
-	if (get_skill(S_NATURE, 0, 100) >= 20 + r_ptr->level / 2)
-		level = 10 + 3 * level / 2;
+	/* Uniques are easier to learn about */
+	else                                 diff = diff * 5 / skill_div;
 
-	/* Normal monsters */
-	if ((4 + level) * a > 80 * d) return (TRUE);
+	/* Chance to learn increases with depth and blows suffered */
+	if ((level) * hits > 40 * diff) return (TRUE);
 
-	/* Skip non-uniques */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
-
-	/* Unique monsters */
-	if ((8 + level) * a > 40 * d) return (TRUE);
-
-	/* Assume false */
+	/* We don't know damage yet */
 	return (FALSE);
 }
 
@@ -187,7 +179,7 @@ static void describe_monster_desc(int r_idx)
 	/* Notice "Quest" monsters */
 	if (r_ptr->flags1 & (RF1_QUESTOR))
 	{
-		text_out_c(TERM_VIOLET, "You feel an intense desire to kill this monster...  ");
+		text_out_c(TERM_PURPLE, "You feel an intense desire to kill this monster...  ");
 	}
 
 	/* New paragraph. */
@@ -207,6 +199,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	const monster_race *r_ptr = &r_info[r_idx];
 	int m, n;
 	int msex = 0;
+	bool innate = FALSE;
 	bool breath = FALSE;
 	bool magic = FALSE;
 	int vn;
@@ -243,7 +236,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	{
 		if (spower < 5) vp[vn++] = "sling pebbles";
 		else if (spower < 15) vp[vn++] = "sling leaden pellets";
-		else vp[vn++] = "sling seeker shot";
+		else vp[vn++] = "sling seeker shots";
 	}
 	if (l_ptr->flags4 & (RF4_ARROW))
 	{
@@ -272,28 +265,27 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	/* Describe innate attacks */
 	if (vn)
 	{
-		/* Intro */
-		text_out(format("%^s", wd_he[msex]));
+		/* Note innate */
+		innate = TRUE;
 
-		/* Scan */
+		/* Intro */
+		text_out(format("%^s may ", wd_he[msex]));
+		if (l_ptr->flags2 & (RF2_ARCHER)) text_out("frequently ");
+
+		/* List the innate attacks */
 		for (n = 0; n < vn; n++)
 		{
-			/* Intro */
-			if (n == 0)
+			/* Conjunction text between descriptions */
+			if (n != 0)
 			{
-				text_out(" may ");
-				if (l_ptr->flags2 & (RF2_ARCHER)) text_out("frequently ");
+				if      (n < vn-1) text_out(", ");
+				else if (n != 1)   text_out(", or ");
+				else               text_out(" or ");
 			}
-			else if (n < vn-1) text_out(", ");
-			else if (n != 1)   text_out(", or ");
-			else               text_out(" or ");
 
-			/* Dump */
+			/* Describe */
 			text_out(vp[n]);
 		}
-
-		/* End */
-		text_out(".  ");
 	}
 
 	/* Collect breaths */
@@ -337,20 +329,25 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		breath = TRUE;
 
 		/* Intro */
-		text_out(format("%^s", wd_he[msex]));
+		if (innate) text_out(", and breathe ");
+		else        text_out(format("%^s may breathe ", wd_he[msex]));
 
-		/* Scan */
+		/* List the breaths */
 		for (n = 0; n < vn; n++)
 		{
-			/* Intro */
-			if (n == 0) text_out(" may breathe ");
-			else if (n < vn-1) text_out(", ");
-			else if (n != 1)   text_out(", or ");
-			else               text_out(" or ");
+			/* Conjunction text between descriptions */
+			if (n != 0)
+			{
+				if      (n < vn-1) text_out(", ");
+				else if (n != 1)   text_out(", or ");
+				else               text_out(" or ");
+			}
 
-			/* Dump */
+			/* Describe */
 			text_out(vp[n]);
 		}
+
+		/* Note powerful breaths */
 		if (l_ptr->flags2 & (RF2_POWERFUL)) text_out(" powerfully");
 	}
 
@@ -484,7 +481,12 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags5 & (RF5_BOLT_ICE))     vp[vn++] = "produce ice bolts";
 	if (l_ptr->flags5 & (RF5_BOLT_WATER))   vp[vn++] = "produce water bolts";
 	if (l_ptr->flags5 & (RF5_BOLT_NETHR))   vp[vn++] = "produce nether bolts";
-	if (l_ptr->flags5 & (RF5_BOLT_MANA))    vp[vn++] = "produce mana bolts";
+	if (l_ptr->flags5 & (RF5_BOLT_MANA))
+	{
+		if      (spower <  7) vp[vn++] = "produce magic missiles";
+		else if (spower < 40) vp[vn++] = "produce magic bolts";
+		else                  vp[vn++] = "produce mana bolts";
+	}
 	if (l_ptr->flags5 & (RF5_BEAM_ELEC))    vp[vn++] = "shoot sparks of lightning";
 	if (l_ptr->flags5 & (RF5_BEAM_ICE))     vp[vn++] = "cast lances of ice";
 	if (l_ptr->flags5 & (RF5_BEAM_NETHR))
@@ -498,14 +500,12 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		if (l_ptr->flags2 & (RF2_UDUN_MAGIC))
 		{
 			if (spower < 50) vp[vn++] = "produce columns of hellfire";
-			else if (spower < 100) vp[vn++] = "envelop you in hellfire";
-			else vp[vn++] = "breath like the Balrog";
+			else vp[vn++] = "envelop you in hellfire";
 		}
 		else
 		{
 			if (spower < 50) vp[vn++] = "produce columns of fire";
-			else if (spower < 100) vp[vn++] = "envelop you in fire";
-			else vp[vn++] = "envelop you in flamestrikes";
+			else vp[vn++] = "raise storms of fire";
 		}
 	}
 
@@ -570,9 +570,15 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		if (l_ptr->flags7 & (RF7_S_KIN))
 		{
 			if (l_ptr->flags1 & (RF1_UNIQUE))
-				vp[vn++] = "its minions";
+			{
+				if (r_ptr->flags1 & (RF1_FEMALE)) vp[vn++] = "her minions";
+				else if (r_ptr->flags1 & (RF1_MALE)) vp[vn++] = "his minions";
+				else vp[vn++] = "its minions";
+			}
 			else
+			{
 				vp[vn++] = "similar monsters";
+			}
 		}
 		if (l_ptr->flags7 & (RF7_S_MONSTER))       vp[vn++] = "a monster";
 		if (l_ptr->flags7 & (RF7_S_MONSTERS))      vp[vn++] = "monsters";
@@ -602,7 +608,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		magic = TRUE;
 
 		/* Intro */
-		if (breath)
+		if ((breath) || (innate))
 		{
 			text_out(", and is also");
 		}
@@ -616,14 +622,15 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		text_out(" magical, casting");
 
 		/* Describe magic */
-		if ((l_ptr->flags2 & (RF2_UDUN_MAGIC)) && (l_ptr->flags2 & (RF2_MORGUL_MAGIC)))
-			text_out_c(TERM_VIOLET, " perilous spells of Morgul and of Udun");
+		if ((l_ptr->flags2 & (RF2_UDUN_MAGIC)) &&
+		    (l_ptr->flags2 & (RF2_MORGUL_MAGIC)))
+			text_out_c(TERM_PURPLE, " perilous spells of Morgul and of Udun");
 		else if (l_ptr->flags2 & (RF2_MORGUL_MAGIC))
-			text_out_c(TERM_VIOLET, " Morgul-spells");
+			text_out_c(TERM_PURPLE, " Morgul-spells");
 		else if (l_ptr->flags2 & (RF2_UDUN_MAGIC))
-			text_out_c(TERM_RED, " spells of Udun");
-
-		else text_out(" spells");
+			text_out_c(TERM_L_RED, " spells of Udun");
+		else
+			text_out(" spells");
 
 		/* Adverb */
 		if (l_ptr->flags2 & (RF2_SMART))
@@ -663,7 +670,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	}
 
 	/* End the sentence about innate/other spells */
-	if (breath || magic)
+	if (innate || breath || magic)
 	{
 		/* Total casting */
 		m = l_ptr->ranged;
@@ -672,7 +679,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		n = r_ptr->freq_ranged;
 
 		/* Describe the spell frequency */
-		if (m > 100)
+		if (m > 50)
 		{
 			text_out(format("; 1 time in %d", 100 / n));
 		}
@@ -855,7 +862,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		/* No method yet */
 		p = NULL;
 
-		/* Acquire the method */
+		/* Get the method */
 		switch (method)
 		{
 			case RBM_HIT:           p = "hit"; break;
@@ -888,7 +895,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		/* Default effect */
 		q = NULL;
 
-		/* Acquire the effect */
+		/* Get the effect */
 		switch (effect)
 		{
 			case RBE_HURT:          q = "attack"; break;
@@ -1018,6 +1025,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	cptr vp[64];
 
 	int msex = 0;
+	bool flag_resist = FALSE;
 
 	char name[160];
 
@@ -1132,7 +1140,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) text_out(" is hurt by ");
+			if (n == 0) text_out(" is badly hurt by ");
 			else if (n < vn-1) text_out(", ");
 			else if (n == 1) text_out(" and ");
 			else text_out(", and ");
@@ -1179,15 +1187,22 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 		/* End */
 		text_out(".  ");
+
+		/* Note that some resistances are known */
+		flag_resist = TRUE;
 	}
 
 
 	/* Collect high resistances */
 	vn = 0;
-
-	if (l_ptr->flags4 & (RF4_BRTH_LITE)) vp[vn++] = "light";
-	if ((l_ptr->flags4 & (RF4_BRTH_DARK)) || (l_ptr->flags2 & (RF2_MORGUL_MAGIC)) ||
-	    (l_ptr->flags3 & (RF3_ORC))) vp[vn++] = "darkness";
+	if ((l_ptr->flags4 & (RF4_BRTH_LITE)) || (r_ptr->d_char == 'A'))
+		vp[vn++] = "light";
+	if ((l_ptr->flags4 & (RF4_BRTH_DARK)) ||
+	    (l_ptr->flags2 & (RF2_MORGUL_MAGIC)) ||
+	    ((l_ptr->flags3 & (RF3_ORC)) && (flag_resist)))
+	{
+		vp[vn++] = "darkness";
+	}
 
 	if (l_ptr->flags4 & (RF4_BRTH_CONFU)) vp[vn++] = "confusion";
 	if (l_ptr->flags4 & (RF4_BRTH_SOUND)) vp[vn++] = "sound";
@@ -1205,10 +1220,10 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if ((l_ptr->flags4 & (RF4_BRTH_PLAS)) || (l_ptr->flags3 & (RF3_RES_PLAS)) ||
 	    ((vn) && ((l_ptr->flags3 & (RF3_IM_ELEC)) || (l_ptr->flags3 & (RF3_IM_FIRE)))))
 	{
-	    vp[vn++] = "plasma";
-	 }
+		vp[vn++] = "plasma";
+	}
 
-	if ((l_ptr->flags3 & (RF3_UNDEAD)) ||
+	if (((l_ptr->flags3 & (RF3_ORC)) && (flag_resist)) ||
 	    (l_ptr->flags3 & (RF3_RES_NETHR)) ||
 	    (l_ptr->flags4 & (RF4_BRTH_NETHR))) vp[vn++] = "nether";
 
@@ -1291,7 +1306,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 		/* Dodges blows - add to other text */
 		if (l_ptr->flags2 & (RF2_EVASIVE))
-			text_out(", and it often dodges attacks");
+			text_out(format(", and %s often dodges attacks", wd_he[msex]));
 
 		/* End */
 		text_out(".  ");
@@ -1299,7 +1314,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Dodges blows - insert as a sentence */
 	else if (l_ptr->flags2 & (RF2_EVASIVE))
-		text_out("It often dodges attacks.  ");
+		text_out(format("%^s often dodges attacks.  ", wd_he[msex]));
 
 
 	/* Do we know how aware it is? */
@@ -1333,23 +1348,23 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		{
 			act = "takes quite a while to see";
 		}
-		else if (r_ptr->sleep > 25)
+		else if (r_ptr->sleep > 30)
 		{
 			act = "takes a while to see";
 		}
-		else if (r_ptr->sleep > 15)
+		else if (r_ptr->sleep > 20)
 		{
-			act = "tends to notice";
+			act = "will soon notice";
 		}
-		else if (r_ptr->sleep > 8)
+		else if (r_ptr->sleep > 14)
 		{
 			act = "is fairly observant of";
 		}
-		else if (r_ptr->sleep > 4)
+		else if (r_ptr->sleep > 8)
 		{
 			act = "is observant of";
 		}
-		else if (r_ptr->sleep > 2)
+		else if (r_ptr->sleep > 4)
 		{
 			act = "is very observant of";
 		}
@@ -1381,7 +1396,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	{
 		text_out(format("%^s usually appears in %sgroups.  ",
 			    wd_he[msex],
-			    ((l_ptr->flags1 & (RF1_FRIENDS)) ? "large " : "")));
+			    ((l_ptr->flags1 & (RF1_FRIENDS)) ? "large " : "small ")));
 	}
 }
 
@@ -1578,7 +1593,7 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 			    (long)i, (long)j,
 			    (((i == 1) && (j == 0)) ? "" : "s")));
 
-			/* Mention the dependance on the player's skill */
+			/* Mention the dependence on the player's skill */
 			text_out(" for a character of your skill.  ");
 		}
 	}
@@ -1648,7 +1663,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 
 		else if (r_ptr->flags1 & (RF1_FORCE_DEPTH))
 		{
-			text_out(format(" is %s, always found %s",
+			text_out(format(" is %s, never found above %s",
 				wd_rarity(r_ptr->rarity, unique),
 				depth_desc));
 		}
@@ -1720,12 +1735,12 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 	{
 		if (r_ptr->speed > 110)
 		{
-			if (r_ptr->speed > 130) text_out(" much");
+			if (r_ptr->speed > 120) text_out(" much");
 			text_out(" faster than you");
 		}
 		else if (r_ptr->speed < 110)
 		{
-			if (r_ptr->speed < 90) text_out(" much");
+			if (r_ptr->speed < 100) text_out(" much");
 			text_out(" slower than you");
 		}
 		else
@@ -1794,16 +1809,16 @@ static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
 
 	/* Hack -- maximal drops */
 	l_ptr->drop_gold = l_ptr->drop_item =
-	(((r_ptr->flags1 & RF1_DROP_4D2) ? 8 : 0) +
-	 ((r_ptr->flags1 & RF1_DROP_3D2) ? 6 : 0) +
-	 ((r_ptr->flags1 & RF1_DROP_2D2) ? 4 : 0) +
-	 ((r_ptr->flags1 & RF1_DROP_1D2) ? 2 : 0) +
-	 ((r_ptr->flags1 & RF1_DROP_90)  ? 1 : 0) +
-	 ((r_ptr->flags1 & RF1_DROP_60)  ? 1 : 0));
+	(((r_ptr->flags1 & (RF1_DROP_4D2)) ? 8 : 0) +
+	 ((r_ptr->flags1 & (RF1_DROP_3D2)) ? 6 : 0) +
+	 ((r_ptr->flags1 & (RF1_DROP_2D2)) ? 4 : 0) +
+	 ((r_ptr->flags1 & (RF1_DROP_1D2)) ? 2 : 0) +
+	 ((r_ptr->flags1 & (RF1_DROP_90))  ? 1 : 0) +
+	 ((r_ptr->flags1 & (RF1_DROP_60))  ? 1 : 0));
 
 	/* Hack -- but only "valid" drops */
-	if (r_ptr->flags1 & RF1_ONLY_GOLD) l_ptr->drop_item = 0;
-	if (r_ptr->flags1 & RF1_ONLY_ITEM) l_ptr->drop_gold = 0;
+	if (r_ptr->flags1 & (RF1_ONLY_GOLD)) l_ptr->drop_item = 0;
+	if (r_ptr->flags1 & (RF1_ONLY_ITEM)) l_ptr->drop_gold = 0;
 
 	/* Hack -- observe many spells */
 	l_ptr->ranged = MAX_UCHAR;
@@ -1920,33 +1935,33 @@ void roff_top(int r_idx, int row)
 	clear_row(row);
 
 	/* Reset the cursor */
-	Term_gotoxy(0, row);
+	(void)Term_gotoxy(0, row);
 
 	/* Special treatment for player ghosts. */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
-		Term_addstr(-1, TERM_WHITE, ghost_name);
-		Term_addstr(-1, TERM_WHITE, ", the ");
+		(void)Term_addstr(-1, TERM_WHITE, ghost_name);
+		(void)Term_addstr(-1, TERM_WHITE, ", the ");
 	}
 
 	/* A title (use "The" for non-uniques) */
 	else if (!(r_ptr->flags1 & (RF1_UNIQUE)))
 	{
-		Term_addstr(-1, TERM_WHITE, "The ");
+		(void)Term_addstr(-1, TERM_WHITE, "The ");
 	}
 
 	/* Dump the racial name. */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	(void)Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
 
 	/* Append the "standard" attr/char info */
-	Term_addstr(-1, TERM_WHITE, " ('");
-	Term_addch(a1, c1);
-	Term_addstr(-1, TERM_WHITE, "')");
+	(void)Term_addstr(-1, TERM_WHITE, " ('");
+	(void)Term_addch(a1, c1);
+	(void)Term_addstr(-1, TERM_WHITE, "')");
 
 	/* Append the "adjusted" attr/char info */
-	Term_addstr(-1, TERM_WHITE, "/('");
-	Term_addch(a2, c2);
-	Term_addstr(-1, TERM_WHITE, "'):");
+	(void)Term_addstr(-1, TERM_WHITE, "/('");
+	(void)Term_addch(a2, c2);
+	(void)Term_addstr(-1, TERM_WHITE, "'):");
 }
 
 
@@ -1963,6 +1978,7 @@ void screen_roff(int r_idx)
 
 	/* Hack -- wrap at 80 columns (for now) */
 	text_out_wrap = 80;
+	text_out_indent = 0;
 
 	/* Output to the screen */
 	text_out_hook = text_out_to_screen;
@@ -1984,7 +2000,7 @@ void display_roff(int r_idx)
 	clear_from(0);
 
 	/* Begin recall */
-	Term_gotoxy(0, 1);
+	(void)Term_gotoxy(0, 1);
 
 	/* Output to the screen */
 	text_out_hook = text_out_to_screen;
@@ -1995,6 +2011,185 @@ void display_roff(int r_idx)
 	/* Describe monster */
 	roff_top(r_idx, 0);
 }
+
+
+
+/*
+ * Display visible monsters in a window
+ */
+void display_m_list(void)
+{
+	int y, x, w, h, num = 0;
+	int i;
+	int attr = TERM_WHITE;
+
+	char *m_name;
+
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+	monster_lore *l_ptr;
+
+	u16b *race_count;
+	int total_count = 0;
+
+
+	/* Erase the window */
+	clear_from(0);
+
+
+	/* Hallucination */
+	if (p_ptr->image)
+	{
+		/* No list when hallucinating. */
+		c_prt(TERM_L_PURPLE, "You can't believe what you are seeing!  It's like a dream!", 0, 0);
+
+		/* Flush it */
+		(void)Term_fresh();
+
+		return;
+	}
+
+	/* Allocate the array */
+	C_MAKE(race_count, z_info->r_max, u16b);
+
+	/* Scan the monster list */
+	for (i = 1; i < m_max; i++)
+	{
+		m_ptr = &m_list[i];
+
+		/* Skip monsters that are not fully visible */
+		if (!mon_fully_visible(&m_list[i])) continue;
+
+		/* Bump the count for this race */
+		race_count[m_ptr->r_idx]++;
+
+		/* Bump the total count */
+		total_count++;
+	}
+
+
+	/* Note no visible monsters */
+	if (!total_count)
+	{
+		prt("You see no monsters.", 0, 0);
+		goto end_of_function;
+	}
+
+	/* Message */
+	prt(format("You can see %d monster%s:",
+		total_count, (total_count > 1 ? "s" : "")), 0, 0);
+
+
+	/* Get size of window */
+	(void)Term_get_size(&w, &h);
+
+
+	/* Display the monsters */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		/* No monsters of this race are visible */
+		if (!race_count[i]) continue;
+
+		/* Get monster */
+		r_ptr = &r_info[i];
+		l_ptr = &l_list[i];
+
+		/* Get the monster name */
+		m_name = r_name + r_ptr->name;
+
+		/* Monster has killed one or more of our ancestors) */
+		if (l_ptr->deaths)
+		{
+			/* Unique versus non-unique */
+			if (r_ptr->flags1 & RF1_UNIQUE) attr = TERM_RED;
+			else                            attr = TERM_L_RED;
+		}
+
+		/* First sighting by this character  XXX */
+		else if (l_ptr->sights <= 1)
+		{
+			/* Unique versus non-unique */
+			if (r_ptr->flags1 & RF1_UNIQUE) attr = TERM_L_PURPLE;
+			else                            attr = TERM_L_BLUE;
+		}
+
+		/* Normal monster (no reason to suspect dangerous) */
+		else
+		{
+			/* Unique versus non-unique */
+			if (r_ptr->flags1 & RF1_UNIQUE) attr = TERM_L_PURPLE;
+			else                            attr = TERM_WHITE;
+		}
+
+		/* Monsters are listed in columns 40 characters wide  XXX */
+		y = (num % (h - 1)) + 1;
+		x =  num / (h - 1) * 40;
+
+		/* Dump the monster name and number visible */
+		if (race_count[i] == 1)
+		{
+			c_prt(attr, r_name + r_ptr->name, y, x);
+		}
+		else
+		{
+			c_prt(attr,
+				format("%s (x%d)", r_name + r_ptr->name, race_count[i]),
+				y, x);
+		}
+
+		/* Listed another monster */
+		num++;
+	}
+
+	/* End of function */
+	end_of_function:
+
+
+	/* Free the race counters */
+	FREE(race_count);
+}
+
+
+
+/*
+ * Give the short form of a monster's name, without titles.
+ */
+void short_m_name(char *name)
+{
+	char *s;
+
+	/* Scan through the copied name */
+	for (s = name; *s; s++)
+	{
+		/* Next character is a ',' -- stop now */
+		if (*s == ',')
+		{
+			break;
+		}
+
+		/* Next character is a space -- look ahead */
+		else if (*s == ' ')
+		{
+			/* Stop on "of" or "the" */
+			if (*(s+1) && (*(s+1) == 'o') && *(s+2) && (*(s+2) == 'f'))
+			{
+				break;
+			}
+			else if (*(s+1) && (*(s+1) == 't') && *(s+2) && (*(s+2) == 'h') &&
+			         *(s+3) && (*(s+3) == 'e'))
+			{
+				break;
+			}
+		}
+	}
+
+	/* Truncate the copy */
+	*s = '\0';
+}
+
+
+
+
 
 
 /*
@@ -2338,7 +2533,6 @@ static void process_ghost_realm(int ghost_realm, int r_idx, monster_type *m_ptr)
 			if (dun_level > 39) r_ptr->flags6 |= (RF6_HOLD);
 
 			if (dun_level > 19) r_ptr->flags6 |= (RF6_HASTE);
-			if (dun_level > 39) m_ptr->mspeed += 5;
 			if (m_ptr->mspeed > 130) m_ptr->mspeed = 130;
 
 			r_ptr->flags6 |= (RF6_BLINK);
@@ -2472,6 +2666,18 @@ static void process_ghost_realm(int ghost_realm, int r_idx, monster_type *m_ptr)
 
 			break;
 		}
+	}
+
+	/* Hack -- clean up illogical combinations of flags */
+	if ((r_ptr->flags3 & (RF3_IM_FIRE)) &&
+	    (r_ptr->flags3 & (RF3_HURT_FIRE)))
+	{
+		r_ptr->flags3 &= ~(RF3_IM_FIRE | RF3_HURT_FIRE);
+	}
+	if ((r_ptr->flags3 & (RF3_IM_COLD)) &&
+	    (r_ptr->flags3 & (RF3_HURT_COLD)))
+	{
+		r_ptr->flags3 &= ~(RF3_IM_COLD | RF3_HURT_COLD);
 	}
 }
 

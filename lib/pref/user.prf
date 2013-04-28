@@ -32,11 +32,6 @@
 ?:[EQU $SYS emx]
 %:user-emx.prf
 
-?:[EQU $SYS acn]
-%:user-acn.prf
-
-
-##### Race Specific Subfiles #####
-
-?:1
+?:[EQU $SYS gtk]
+%:user-gtk.prf
 

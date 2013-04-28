@@ -7,40 +7,57 @@ all benefit greatly from various qualities that your equipped items may possess.
 Defence is similarly equipment-dependent.
 
 
---- Ordinary Attributes ---
+--- Damage Dice and Plusses ---
 
-Example 1:  A Glaive (3d4) (+6, +4) [8, +0]
+Example 1:  A Dagger (1d4) (+6,+4)
+
+Damage Dice:
+     All objects have damage dice, which express how much damage they do when
+thrown.  For example, if you throw this dagger, it will do 1d4 damage (one die
+with four sides).  Melee weapons (like this one) also use their damage dice in
+hand-to-hand combat.
 
 Bonus to Skill:
-     The glaive above increases melee Skill by 6.  This bonus improves your
-chance to strike a monster and the number and quality of critical hits.  Apart
-from rare gloves, armours seldom have bonuses to Skill.  Some have small
+     The dagger above increases melee Skill by 6.  This bonus improves your
+chance to strike a monster and the number and quality of critical hits.  Except
+for certain rare gloves, armours seldom have bonuses to Skill.  Some have small
 penalties.
 
 Bonus to Deadliness:
-     The glaive above increases melee Deadliness by 4.  This increases the
-damage of every blow you land.  Apart from rare gloves, armours seldom have
-bonuses to Deadliness.
+     The dagger above increases melee Deadliness by 4.  This increases the
+damage of every blow you land.  Except for certain rare gloves, armours seldom
+have bonuses to Deadliness.
 
-Bonus to Base Armour Class:
-     All armours have bonuses to base armour class.  Glaives and some other
-weapons have bonuses to base armour class, usually because they help keep
-monsters further away from you, or parry blows.  The example above increases
-this value by 8.
-     When wielding a weapon, your armour class can increase by up to five times
-its base value, depending on your skill.
 
-Bonus, Plus to Armour Class:
+Example 2:  a Pair of Hard Leather Boots [3, +8]
+
+Bonus to Base Armour Class (AC):
+     All armours have bonuses to base AC.  The boots shown increase this value
+by 3.  Some weapons also have bonuses to base armour class, usually because they
+help keep monsters further away from you or parry blows.
+
+Bonus, Plus to Armour Class (AC):
      Armour of unusually good quality or that is magical also increases your
-plus to armour class.  This adds to your total protection value.  Only rare
-weapons do the same.
+plus to AC.  These boots add an additional 8 to AC, giving them a total bonus of
+11.  Only rare weapons do the same.
+
+
+
+--- Basic object attributes ---
+
+Armour Class:
+     Armour Class, or AC, lessens your chances of being hit by any monster blow,
+and also reduces the pure damage they deal.  AC reduces cutting and stunning
+from melee attacks, and your chances of being hit by thrown physical objects
+(such as boulders or arrows).  It has no effect on magic.
+
 
 
 --- Adjustments to Vital statistics and Abilities ---
 
 Stat Bonuses:
-     Any kind of wearable item may affect one or more stats.  See the help file
-"abilattr.txt" to find out more about what altering a stat does.
+     Any kind of wearable item may affect one or more stats.  See the section on
+your character to find out more about what altering a stat does.
 
 Sustain Stats:
      Any kind of wearable item may sustain one or more stats.  This ensures that
@@ -67,27 +84,31 @@ Tunneling:
 All special digging tools have a bonus to tunneling.
 
 Speed:
-     Boots, rings, and weapons that hasten you are rare and powerful, for a fast
-player can perform several actions in the time it used to take to do just one.
-Players moving at speed -10 are half as fast as normal, at +10 are twice as fast
-as normal, and at +20 are three times as fast as normal.  The maximum useful
-speed is (roughly) +40.
+     Boots, rings, and other items that hasten you are rare and powerful, for a
+fast player can perform several actions in the time it used to take to do just
+one.  Players moving at speed -10 are half as fast as normal, at +10 are twice
+as fast as normal, and at +20 are three times as fast as normal.  The maximum
+useful speed is (roughly) +35.
 
 Invisibility:
      You can become partially invisible; the greater your invisibility rating,
 the more likely it is that most monsters will move about randomly instead of
-attacking you.  This is true especially if you stay quiet and don't get too near
-to them.
+attacking you.  This is true especially if you stay quiet and do not aggravate
+them.  Invisibility from equipment and temporary sources combine, and characters
+in and surrounded by pitch darkness are harder to see.  Many monsters, however,
+are hard to fool; the undead, invisible creatures, uniques, and hurt, nearby, or
+wary monsters are especially watchful.
 
 Disarming:
      Increases your ability to disarm traps and chests and unlock doors.
 
-Magic Mastery:
-     Certain amulets and gloves improve your skills with magical devices and
-activatable items.
+Devices:
+     Certain amulets and gloves improve your chance of using magical devices and
+activatable items.  Note that they do not increase damage or enhance effects;
+only increasing your Magical Device skill does that.
 
 Save:
-     Increases your saving throw.
+     Improves your resistance to magic and various hindrance attacks.
 
 Mana:
      Increases your mana.
@@ -115,10 +136,13 @@ Damage bonuses  (only the best applies):
  Brand Pois    :  +14 against everything not resistant to poison
 
  Impact        :  +14 against rocky creatures
+ Tunneling    :  +14 against rocky creatures (if bonus to tunneling is at least
+1)
+ Light         :  +14 against creatures susceptible to light
 
- Kill Dragon   :  +27 against dragons  (rare)
- Brand Flame   :  +22 against everything not resistant to fire  (rare)
- Brand Venom   :  +22 against everything not resistant to poison  (rare)
+ Kill Dragon   :  +27 against dragons
+ Brand Flame   :  +22 against everything not resistant to fire
+ Brand Venom   :  +22 against everything not resistant to poison
 
 Blows:
      Gives you extra melee blows.
@@ -126,13 +150,13 @@ Blows:
 Extra Shots:
      Rare missile launchers may allow the player to shoot more quickly than
 normal.  Each shot takes a fraction of a turn, making your target appear to move
-in slow motion.  Some classes get innate extra shots.
+in slow motion.  Those skilled with bows and slings get innate extra shots.
      The amount of time you take to fire a shot is 200 / shots.  The value for
 shots is usually 2, so a shot normally takes 100 energy (one turn).
 
 Extra Might:
      Rare missile launchers have a greater than normal missile damage
-multiplier.  For example: a "Sling of Extra Might (x3)" multiplies damage, not
+multiplier.  For example, a "Sling of Extra Might (x3)" multiplies damage, not
 by two like lesser slings, but by three.  The true missile weapon multiplier is
 never known for sure until the object is identified.
 
@@ -145,9 +169,9 @@ Perfect Balance:
      Some weapons can be thrown with unusual force, adding 50% to the amount of
 damage done (before any slay/brand bonuses) should it hit.
 
-Vorpal:
-     Vorpal weapons get lots of critical hits, and reduce the effect of monster
-resistances.
+Vorpal (Concussive):
+     Vorpal (or Concussive) weapons get lots of critical hits, and reduce the
+effect of monster resistances.
 
 Blessed:
      Blessed weapons may be used by pious characters without penalty.
@@ -155,6 +179,13 @@ Blessed:
 Impact:
      Weapons of impact do +14 damage to rocky creatures and will often force
 opponents back.
+
+Tunneling:
+     Weapons that grant a bonus (at least +1) to tunneling do +14 damage to
+rocky creatures.
+
+Light:
+     Weapons of permanent light do +14 damage to creatures susceptible to light.
 
 Two-handed Wield Required:
      Glaives, Halberds, Quarterstaff, and all digging tools require two hands to
@@ -194,7 +225,7 @@ destruction.
 
 --- Resistances ---
 
-     Resistances from equipment cannot be combined; You either have it or you
+     Resistances from equipment cannot be combined; you either have it or you
 don't.
 
 Resist Acid:
@@ -236,7 +267,8 @@ shards.
 
 Resist Nexus:
      The damage you take from nexus attacks is reduced.  You cannot be randomly
-teleported by nexus, and will sometimes resist being warped around by gravity.
+teleported or altered by nexus, and will sometimes resist being warped around by
+gravity.
 
 Resist Nether:
      The damage you take from nether is reduced.  You cannot lose experience to
@@ -250,6 +282,9 @@ to confusion.
 Resist Disenchantment:
      Rarest of all the resistances, this reduces damage from disenchantment
 attacks and renders your equipment immune to disenchantment.
+
+Ignore acid, electricity, fire, and cold:
+     Some objects cannot be damaged or destroyed by elemental attacks.
 
 
 --- Survival Attributes ---
@@ -283,9 +318,9 @@ Regeneration:
 mana 3/2rds as quickly.  They also need to eat more.
 
 Telepathy (ESP):
-     It is not easy to acquire this, but players who do can see smart monsters
-nearby.  Stupid monsters never appear, and "kind of smart" monsters only appear
-occasionally.
+     It is not easy to acquire this, but players who do can see intelligent
+monsters nearby.  Mindless monsters never appear, and semi-intelligent monsters
+only appear occasionally.
 
 See Invisible:
      Allows you to see and target monsters invisible to ordinary sight.
@@ -307,7 +342,7 @@ No Fuel:
 
 Soulsteal:
      Some weapons need to be fed with the blood of your foes.  If they hunger,
-and you do not feed them, they will eat at your lifeforce.
+and you do not feed them, they will suck away your lifeforce.
 
 No Magic:
      A few objects are so unmagical that you cannot cast spells while using
@@ -327,16 +362,21 @@ Drain Exp:
 erase your accumulated memories.  Of course, you can keep killing monsters to
 replace the experience which you lose.
 
-Light (Normal) Curse:
-     Many objects have light curses.  If you should wear or wield one, read a
-scroll of remove curse.
+Hidden Curse:
+     Certain rare weapons and armour bear foul magics so well concealed that
+they only reveal themselves when you wear the item.  When activated, a hidden
+curse hideously transforms the object into something quite dangerous.
+
+Light (ordinary) Curse:
+     Many wearable objects have light curses.  A scroll of Remove Curse will
+purge all ordinary curses from equipped items.
 
 Heavy Curse:
      The curses on some objects are less easy to remove.  If a ordinary scroll
 of Remove Cure fails, find and read one of *Remove Curse*.
 
 Permanent Curse:
-     There is a great and terrible Ring, seen by perhaps one character in a
+     There is a great and terrible Ring, seen by perhaps one character in ten
 thousand, that can never be removed once put on.
 
 

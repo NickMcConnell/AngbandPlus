@@ -1,0 +1,131 @@
+###################################################################
+#
+#  makefile.bcc - Angband makefile for Borland C++ 5.5 (Win32)
+#
+###################################################################
+
+###################################################################
+#
+#       Borland specific directives ---
+#
+.AUTODEPEND
+
+###################################################################
+#
+# Set tool and version names:
+
+CPP        = bcc32
+LINKER     = ilink32
+RC         = brc32
+
+###################################################################
+#
+# Name of the *.exe-file
+
+EXE_FILE = sangband.exe
+
+
+###################################################################
+#
+# Debug mode (un-comment for debugging)
+
+DBGOPT= -v -N -x -xp
+
+
+###################################################################
+#
+# Set any compiler options
+
+CCOPTS = -Hc -tW -lGn -e$(EXE_FILE) -w- \
+	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400 \
+	-DUSE_TRANSPARENCY
+
+# Compile flags:
+CPPFLAGS= $(CCOPTS) $(DBGOPT)
+
+
+######################## Targets ##################################
+
+OBJ = \
+	z-file.obj \
+	z-virt.obj \
+	z-util.obj \
+	z-term.obj \
+	z-rand.obj \
+	z-form.obj \
+	xtra2.obj \
+	xtra1.obj \
+	wizard2.obj \
+	wizard1.obj \
+	variable.obj \
+	util.obj \
+   traps.obj \
+   talents.obj \
+	tables.obj \
+	store.obj \
+	spells3.obj \
+	spells2.obj \
+	spells1.obj \
+   skills.obj \
+   readdib.obj \
+	randart.obj \
+   quest.obj \
+	object2.obj \
+	object1.obj \
+   obj_make.obj \
+	monster2.obj \
+	monster1.obj \
+   monmove.obj \
+   monattk.obj \
+	main-win.obj \
+	loadsave.obj \
+	init2.obj \
+	init1.obj \
+   info.obj \
+	generate.obj \
+	files.obj \
+	effects.obj \
+	dungeon.obj \
+	cmd6.obj \
+	cmd5.obj \
+	cmd4.obj \
+	cmd3.obj \
+	cmd2.obj \
+	cmd1.obj \
+	cave.obj \
+	birth.obj \
+   attack.obj
+
+all : $(EXE_FILE)
+
+clean:
+	-@if exist *.obj del *.obj >nul
+	-@if exist *.exe del *.exe >nul
+	-@if exist *.res del *.res >nul
+	-@if exist *.tds del *.tds >nul
+	-@if exist *.ilc del *.ilc >nul
+	-@if exist *.ild del *.ild >nul
+	-@if exist *.ilf del *.ilf >nul
+	-@if exist *.ils del *.ils >nul
+
+install: $(EXE_FILE)
+	copy $(EXE_FILE) ..
+
+
+########################### Explicit Rules ########################
+$(EXE_FILE): $(OBJ) angband.res
+	$(LINKER) -aa -x $(OBJ) c0w32.obj, $(EXE_FILE),, cw32.lib import32.lib,, angband.res
+
+angband.res: angband.rc
+	$(RC) -r angband.rc
+
+########################### Implicit Rules ########################
+.c.obj:
+	$(CPP) $(CPPFLAGS) -c {$? }
+
+.c.i:
+	$(CPP) $(CPPFLAGS) -c -Sr -Sd {$? }
+
+.obj.exe:
+	$(CPP) $(CPPFLAGS) $<
+

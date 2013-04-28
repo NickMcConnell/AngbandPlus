@@ -1,9 +1,9 @@
 /* File: traps.c */
 
 /*
- * Trap-handling.  Table of trap kinds, tests for kinds of traps, display
- * traps and graphics, pick a trap and place it.  Disarm and load traps.
- * Monster trap effects.  Character trap effects.
+ * YATS (Yet another trap system).  Table of trap kinds, tests for kinds
+ * of traps, display traps and graphics, pick a trap and place it.
+ * Disarm and load traps.  Monster trap effects.  Character trap effects.
  *
  *
  * Copyright (c) 2002
@@ -224,8 +224,8 @@ bool cave_invisible_trap(int y, int x)
  * We should probably have better handling of stacked traps, but that can
  * wait until we do, in fact, have stacked traps under normal conditions.
  *
- * Note:  If an error should have occurred, and there is in fact no trap
- * in this grid, we clear the CAVE_TRAP flag and return FALSE.
+ * Note:  If an error has occurred, and there is in fact no trap in this
+ * grid, we clear the CAVE_TRAP flag and return FALSE.
  */
 bool get_trap_graphics(int y, int x, byte *a, char *c, bool require_visible)
 {
@@ -309,11 +309,6 @@ bool reveal_trap(int y, int x, int chance, bool msg, bool see_loose_rocks)
 	int found_trap = 0;
 	int found_rock = 0;
 
-	/* Reveal at least one trap */
-	int num = 1;
-
-	/* Allow all traps to be revealed */
-	if (chance >= 100) num = 0;
 
 	/* Check the trap marker */
 	if (!cave_trap(y, x)) return (FALSE);
@@ -345,18 +340,8 @@ bool reveal_trap(int y, int x, int chance, bool msg, bool see_loose_rocks)
 				/* We found a loose rock */
 				if (t_ptr->t_idx == TRAP_LOOSE_ROCK) found_rock++;
 
-				/* We have a limit on the number of traps we can find */
-				if (num)
-				{
-					/* Use up some of the limit */
-					num--;
-
-					/* Try to extend the limit */
-					if (rand_int(100) < chance) num++;
-
-					/* Stop when we've reached the limit */
-					if (num <= 0) break;
-				}
+				/* If chance is < 100, sometimes stop */
+				if ((chance < 100) && (randint(100) > chance)) break;
 			}
 		}
 	}
@@ -592,7 +577,7 @@ bool place_trap(int y, int x, int t_idx, int trap_level)
 	}
 
 	/* We've been called with an illegal index; choose a random trap */
-	if ((t_idx < 0) || (t_idx >= TRAP_KIND_MAX))
+	if ((t_idx <= 0) || (t_idx >= TRAP_KIND_MAX))
 	{
 		t_idx = pick_trap(trap_level);
 	}
@@ -765,7 +750,7 @@ static void remove_trap_aux(trap_type *t_ptr, int y, int x)
 		delete_object_idx(t_ptr->hold_o_idx);
 
 		/* Drop the copy */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, 0, y, x, DROP_HERE);
 	}
 
 	/* Wipe the trap */
@@ -778,7 +763,7 @@ static void remove_trap_aux(trap_type *t_ptr, int y, int x)
  * If called with t_idx < 0, will remove all traps in the location given.
  * Otherwise, will remove the trap with the given index.
  *
- * Return TRUE if ny traps now exist in this grid.
+ * Return TRUE if no traps now exist in this grid.
  */
 bool remove_trap(int y, int x, int t_idx)
 {
@@ -1034,44 +1019,81 @@ bool magic_disarm(int y, int x, int chance)
 {
 	int i;
 	bool obvious = FALSE;
+	object_type *o_ptr;
 
-	/* Scan the current trap list */
-	for (i = 0; i < t_max; i++)
+
+	/* There is a trap in this grid */
+	if (cave_info[y][x] & (CAVE_TRAP))
 	{
-		/* Point to this trap */
-		trap_type *t_ptr = &t_list[i];
-
-		/* Find a trap in this position */
-		if ((t_ptr->fy == y) && (t_ptr->fx == x))
+		/* Scan the current trap list */
+		for (i = 0; i < t_max; i++)
 		{
-			/* Ignore glyphs, monster traps, and loose rocks */
-			if ((t_ptr->t_idx == TRAP_GLYPH) ||
-			    (t_ptr->t_idx == TRAP_MONSTER) ||
-			    (t_ptr->t_idx == TRAP_LOOSE_ROCK))
-			{
-				continue;
-			}
+			/* Point to this trap */
+			trap_type *t_ptr = &t_list[i];
 
+			/* Find a trap in this position */
+			if ((t_ptr->fy == y) && (t_ptr->fx == x))
+			{
+				/* Ignore glyphs, monster traps, and loose rocks */
+				if ((t_ptr->t_idx == TRAP_GLYPH) ||
+					 (t_ptr->t_idx == TRAP_MONSTER) ||
+					 (t_ptr->t_idx == TRAP_LOOSE_ROCK))
+				{
+					continue;
+				}
+
+				/* Attempt to disarm the trap */
+				if (rand_int(100) < chance)
+				{
+					/* Check line of sight */
+					if (player_has_los_bold(y, x))
+					{
+						msg_print("There is a bright flash of light.");
+						obvious = TRUE;
+					}
+
+					/* Kill the trap */
+					remove_trap(y, x, i);
+				}
+
+				/* Some chance of setting off the trap. */
+				else
+				{
+					msg_print("Your magic was too weak!");
+					(void)hit_trap(-1, y, x);
+					obvious = TRUE;
+				}
+			}
+		}
+	}
+
+	/* Scan objects in the grid */
+	for (o_ptr = get_first_object(y, x); o_ptr;
+		  o_ptr = get_next_object(o_ptr))
+	{
+		/* Look for traps */
+		if (check_chest_traps(o_ptr, FALSE))
+		{
 			/* Attempt to disarm the trap */
 			if (rand_int(100) < chance)
 			{
-				/* Check line of sight */
-				if (player_has_los_bold(y, x))
-				{
-					msg_print("There is a bright flash of light.");
-					obvious = TRUE;
-				}
+				/* Hack -- mark the chest as being untrapped */
+				o_ptr->pval = (0 - o_ptr->pval);
 
-				/* Kill the trap */
-				remove_trap(y, x, i);
+				msg_print("Click!");
 			}
 
-			/* Some chance of setting off the trap. */
+			/* Oops */
 			else
 			{
-				msg_print("Your magic was too weak!");
-				(void)hit_trap(-1, y, x);
+				/* Hit the trap */
+				(void)hit_chest_trap(y, x, o_ptr);
+
+				/* Notice */
 				obvious = TRUE;
+
+				/* Stop */
+				break;
 			}
 		}
 	}
@@ -1160,7 +1182,7 @@ int load_trap(int y, int x)
 
 		/* Print some helpful notes */
 		move_cursor(i, 0);
-		c_roff(TERM_L_BLUE, "     Traps may be loaded with a single melee weapon, a single missile launcher, any number of wands, rods, or staffs, any number of potions or scrolls, or any number of weapons or objects that you wish to be thrown.\n     Traps can usually only contain one type of object.  However, if you have loaded it with a missile weapon, you also need to supply ammunition.  You can also have any number of boulders.\n ", 0, 80);
+		c_roff(TERM_L_BLUE, "     Traps may be loaded with a single melee weapon, a single missile launcher, any number of wands, rods, or staffs, any number of potions or scrolls, or any number of weapons or objects that you wish to be thrown.\n          Traps can usually only contain one type of object.  However, if you have loaded a missile weapon, you also need to supply ammunition (after you load the weapon).  You can also have any number of boulders.\n ", 0, 80);
 
 		/* Instructions (similar to stores, etc.) */
 		if (no_objects)
@@ -1182,20 +1204,9 @@ int load_trap(int y, int x)
 		/* Disarm the trap */
 		if ((ch == 'k') || (ch == 'K') || (ch == '+'))
 		{
-			/* No objects -- ask for disarm */
-			if (no_objects)
-			{
-				/* Restore screen, exit */
-				screen_load();
-				return (-1);
-			}
-
-			/* Ask to empty the trap first */
-			else
-			{
-				msg_print("You need to empty the trap before you can disarm it.");
-				message_flush();
-			}
+			/* Restore screen, exit */
+			screen_load();
+			return (-1);
 		}
 
 		/* Load new objects */
@@ -1208,6 +1219,26 @@ int load_trap(int y, int x)
 				continue;
 			item_to_object(o_ptr, item);
 
+			/* Refuse to load cursed items from equipment */
+			if ((cursed_cling(o_ptr)) && (item > INVEN_PACK))
+			{
+				msg_print("Hmmm, it seems to be cursed.");
+				message_flush();
+				continue;
+			}
+
+			/* Refuse to take off some equipment when shapechanged */
+			if ((p_ptr->schange) && (item > INVEN_PACK))
+			{
+				/* Test for items that cannot be taken off */
+				if (!item_tester_hook_wear_shapechange(o_ptr))
+				{
+					msg_print("You cannot take off equipment while shapechanged.");
+					msg_print("Use the ']' command to return to your normal form.");
+					message_flush();
+					continue;
+				}
+			}
 
 			/* Forbid double-loading with any object other than ammo */
 			if ((t_ptr->hold_o_idx) && (!is_missile(o_ptr)) &&
@@ -1239,8 +1270,7 @@ int load_trap(int y, int x)
 			/* Determine how many items we wish to load the trap with */
 			if (o_ptr->number > 1)
 			{
-				i = get_quantity(format("How many items (0-%d)?", o_ptr->number),
-				                 o_ptr->number);
+				i = (int)get_quantity(format("How many items (0-%d)?", o_ptr->number), 0, o_ptr->number);
 
 				/* Cancel */
 				if (!i)	continue;
@@ -1377,7 +1407,10 @@ int load_trap(int y, int x)
 				t_ptr->hold_o_idx = o_ptr->next_o_idx;
 
 				/* Give the object to the character */
-				give_object(o_ptr);
+				give_object(o_ptr, FALSE);
+
+				/* Flush messages */
+				message_flush();
 
 				/* We did something */
 				action = TRUE;
@@ -1414,7 +1447,7 @@ int load_trap(int y, int x)
  * "attack.c".
  */
 static void trap_combat(int mode, int y, int x, object_type *o_ptr,
-	object_type *i_ptr, int power)
+	object_type *i_ptr, int power, char *m_name)
 {
 	int i, tmp;
 	int dice;
@@ -1448,6 +1481,13 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 	r_ptr = &r_info[m_ptr->r_idx];
 
 
+	/* Monster evaded or resisted */
+	if (monster_evade_or_resist(o_ptr, m_ptr, BLOW_TRAP))
+	{
+		return;
+	}
+
+
 	/* Using melee */
 	if (mode == 1)
 	{
@@ -1455,7 +1495,7 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 		if (!is_melee_weapon(o_ptr)) return;
 
 		total_deadliness = o_ptr->to_d;
-		chance = (BTH_PLUS_ADJ * o_ptr->to_h) + power;
+		chance = 15 + (BTH_PLUS_ADJ * o_ptr->to_h) + power;
 	}
 
 	/* Using archery (no accuracy penalty for point-blank range) */
@@ -1468,21 +1508,21 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 		if (!is_missile(o_ptr)) return;
 
 		total_deadliness = i_ptr->to_d + o_ptr->to_d;
-		chance = (BTH_PLUS_ADJ * (i_ptr->to_h + o_ptr->to_h)) + power;
+		chance = 15 + (BTH_PLUS_ADJ * (i_ptr->to_h + o_ptr->to_h)) + power;
 	}
 
 	/* Throwing the object (no penalty for point-blank range) */
 	else
 	{
 		total_deadliness = o_ptr->to_d;
-		chance = (BTH_PLUS_ADJ * o_ptr->to_h) + power;
+		chance = 15 + (BTH_PLUS_ADJ * o_ptr->to_h) + power;
 	}
 
 	/* Using archery */
 	if (mode == 2)
 	{
 		/* Hack -- transfer launcher attributes to the missile */
-		transfer_attributes_to_missile(i_ptr, o_ptr);
+		transfer_attributes_to_missile(o_ptr, i_ptr);
 	}
 
 	/* Get weapon, missile, or thrown object flags */
@@ -1512,10 +1552,10 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 		int divisor = 10 + (o_ptr->weight / 12);
 
 		/* More powerful traps get more blows */
-		attacks = 1 + div_round(power, divisor);
+		attacks = 1 + div_round((2 * power / 3), divisor);
 
 		/* Limit blows */
-		if (attacks > 6) attacks = 6;
+		if (attacks > 5) attacks = 5;
 
 		/* Apply extra blows */
 		attacks += get_object_pval(o_ptr, TR_PVAL_BLOWS);
@@ -1525,13 +1565,14 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 	else if (mode == 2)
 	{
 		/* Apply missile weapon multiplier (200% - 500%) */
-		mult *= get_object_pval(i_ptr, TR_PVAL_MIGHT);
+		mult *= o_ptr->dd + get_object_pval(i_ptr, TR_PVAL_MIGHT);
 
-		/* Hack -- handle triple crossbows  XXX XXX */
-		if (o_ptr->sval == SV_TRIPLE_XBOW) mult += 2;
+		/* Handle shots.  Triple crossbows shoot more quickly. */
+		if (o_ptr->sval == SV_TRIPLE_XBOW) tmp = 300;
+		else                               tmp = 100;
 
-		/* Calculate shooting speed (110% - ~400%) */
-		tmp = 100 + (get_object_pval(i_ptr, TR_PVAL_SHOTS) * 50) + power;
+		/* Calculate shooting speed (115% - ~400%) */
+		tmp += (get_object_pval(i_ptr, TR_PVAL_SHOTS) * 50) + (3 * power / 2);
 
 		/* Translate into attacks */
 		attacks = MAX(1, div_round(tmp, 100));
@@ -1540,10 +1581,10 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 	/* Throwing */
 	else
 	{
-		/* We are throwing a weapon designed for such use (200% - 1265%) */
+		/* We are throwing a weapon designed for such use (200% - 1600%) */
 		if (f1 & (TR1_THROWING))
 		{
-			mult += 40 + (6 * power);
+			mult += 40 + (9 * power);
 
 			/* We are throwing a perfectly balanced weapon */
 			if (f1 & (TR1_PERFECT_BALANCE)) mult += mult / 2;
@@ -1568,7 +1609,7 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 	for (damage = 0, i = 0; i < attacks; i++)
 	{
 		/* Check for hit */
-		if (!test_hit_combat(chance, r_ptr->ac, TRUE)) continue;
+		if (!test_hit_combat(chance, r_ptr->ac, 2)) continue;
 
 		/* Roll for damage */
 		tmp = damroll(dice, (s16b)sides);
@@ -1576,24 +1617,45 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 		/* Adjust damage for slays, brands, resists. */
 		adjust_dam(&tmp, o_ptr, m_ptr, TRUE);
 
+		/* HACK - help missile and thrown weapons  XXX XXX */
+		if ((mode == 2) || (mode == 3)) tmp += 2 + power / 15;
+
 		/* Add to total */
 		damage += tmp;
 	}
 
-	/* Monster gets hit (note that we give experience for trap kills) */
-	if (mon_take_hit(m_idx, -1, (s16b)damage, &fear, NULL)) return;
+	/* Player is in line of sight */
+	if (player_has_los_bold(y, x))
+	{
+		/* Note hits */
+		if (damage > 0)
+		{
+			msg_format("%^s sets off your cunning trap!", m_name);
+		}
+
+		/* Note misses */
+		else
+		{
+			msg_format("%^s dodges your trap.", m_name);
+		}
+	}
+
+
+	/* Monster gets hurt (note that we give experience for trap kills) */
+	if (damage > 0)
+	{
+		if (mon_take_hit(m_idx, -1, (s16b)damage, &fear, NULL)) return;
+	}
 
 
 	/* Take note of fear */
 	if (fear && m_ptr->ml)
 	{
-		char m_name[80];
-
 		/* Sound */
 		sound(SOUND_FLEE);
 
 		/* Get "the monster" or "it" */
-		monster_desc(m_name, m_ptr, 0);
+		monster_desc(m_name, m_ptr, 0x40);
 
 		/* Message */
 		msg_format("%^s flees in terror!", m_name);
@@ -1608,6 +1670,8 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 		else
 			msg_print("You hear anguished yells.");
 	}
+
+	return;
 }
 
 
@@ -1616,11 +1680,13 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
  * -LM-
  *
  * Rogues may set traps for monsters.  They can be fairly deadly, but
- * monsters can also sometimes disarm, smash, or fly over them.
+ * monsters can also sometimes disarm, smash, or fly over them.  They can
+ * also become wary.
  *
  * Traps need objects to do damage; damage depends partly on object quality
  * and partly on burglary skill.  The relative importance of these two
- * factors varies greatly; this may cause balance problems.  XXX XXX
+ * factors varies greatly on the class of object used; this may cause
+ * balance problems.  XXX XXX
  *
  * Traps almost always give experience for killed monsters.
  *
@@ -1635,7 +1701,6 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 	char m_name[80];
-	char o_name[80];
 
 	trap_type *t_ptr = &t_list[t_idx];
 
@@ -1647,18 +1712,25 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 
 	bool do_throw = FALSE;
 	bool kill_trap = FALSE;
+	int break_chance;
 
-	bool ident = FALSE;
+	int ident = 0;
 
 	int skill = get_skill(S_BURGLARY, 0, 100);
 	int power;
 
+	/* Is this grid lit? */
+	bool light = (cave_info[y][x] & (CAVE_GLOW | CAVE_SEEN));
 
-	/* Get the monster name */
-	monster_desc(m_name, m_ptr, 0);
+
+	/* Get the monster name (or "something") */
+	if (m_ptr->ml) monster_desc(m_name, m_ptr, 0x40);
+	else           strcpy(m_name, "Something");
+
 
 	/* Ghosts can usually avoid traps entirely.  XXX XXX */
-	if ((r_ptr->flags2 & (RF2_PASS_WALL)) && (!one_in_(4)))
+	if ((r_ptr->flags2 & (RF2_PASS_WALL)) && (!strchr("gEX", r_ptr->d_char)) &&
+	    (!one_in_(light ? 5 : 3)))
 	{
 		/* Message */
 		if (m_ptr->ml) msg_format("%^s floats over your trap.", m_name);
@@ -1667,7 +1739,7 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	}
 
 	/* Evasive monsters can usually avoid traps entirely. */
-	if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!one_in_(3)))
+	if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!one_in_(light ? 4 : 2)))
 	{
 		if (m_ptr->ml)
 		{
@@ -1685,10 +1757,12 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	/* Traps can sometimes be disarmed */
 	if ((r_ptr->flags2 & (RF2_SMART)) && (!m_ptr->confused))
 	{
-		int chance = 6;
-		if (m_ptr->stunned) chance = 10;
+		int odds = 8;
+		if (m_ptr->stunned) odds = 12;
+		if (!light) odds *= 2;
+		if (monster_wary(m_ptr)) odds /= 2;
 
-		if (one_in_(chance))
+		if (one_in_(odds))
 		{
 			/* Messages */
 			if (m_ptr->ml)
@@ -1707,11 +1781,13 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	/* Any non-ghostly monster can sometimes smash traps */
 	else if (!(r_ptr->flags2 & (RF2_PASS_WALL)))
 	{
-		int chance = 15;
-		if (m_ptr->stunned) chance += 5;
-		if (m_ptr->confused) chance += 15;
+		int odds = 16;
+		if (m_ptr->stunned) odds += 6;
+		if (m_ptr->confused) odds += 16;
+		if (!light) odds = 3 * odds / 2;
+		if (monster_wary(m_ptr)) odds /= 2;
 
-		if (one_in_(chance))
+		if (one_in_(odds))
 		{
 			/* Messages */
 			if (m_ptr->ml)
@@ -1742,10 +1818,14 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	if (!t_ptr->hold_o_idx) return;
 
 
+	/* Many kinds of monsters in LOS get wary */
+	(void)make_monsters_wary(y, x, TRUE, TRUE);
+
+
 	/* Power goes up with skill (ranging from 10 to 136) */
 	power = skill;
 
-	/* High-level burglars get extra bonuses */
+	/* Highly skilled burglars get extra bonuses */
 	if (skill > 70) power += (skill - 70) / 2;
 	if (skill > 85) power += (skill - 85);
 	if (skill > 94) power += (skill - 94);
@@ -1755,22 +1835,9 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	skill_being_used = S_BURGLARY;
 
 
-	/* Player is in line of sight */
-	if (player_has_los_bold(y, x))
-	{
-		/* Acquire the monster name/poss */
-		if (m_ptr->ml) monster_desc(m_name, m_ptr, 0);
-
-		/* Default name */
-		else strcpy(m_name, "Something");
-
-		msg_format("%^s sets off your cunning trap!", m_name);
-	}
-
 
 	/* Get this trap's first object */
 	o_ptr = &o_list[t_ptr->hold_o_idx];
-
 
 	/* Object is a melee weapon */
 	if (is_melee_weapon(o_ptr))
@@ -1790,7 +1857,7 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 		if (!do_throw)
 		{
 			/* Engage in combat (type 1 = melee) */
-			trap_combat(1, y, x, o_ptr, o_ptr, power);
+			trap_combat(1, y, x, o_ptr, o_ptr, power, m_name);
 		}
 	}
 
@@ -1798,7 +1865,7 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	else if (o_ptr->tval == TV_BOW)
 	{
 		/* Scan the trap's objects, use the first stack of ammo */
-		for (this_o_idx = o_ptr->next_o_idx; next_o_idx;
+		for (this_o_idx = o_ptr->next_o_idx; this_o_idx;
 		     this_o_idx = next_o_idx)
 		{
 			/* Get the object */
@@ -1808,26 +1875,33 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 			if (is_missile(i_ptr))
 			{
 				/* Is this object the right sort of ammunition?  XXX XXX */
-				if (((o_ptr->sval == SV_SLING) && (i_ptr->tval == TV_SHOT)) ||
-				    (((o_ptr->sval == SV_SHORT_BOW) ||
-				     (o_ptr->sval == SV_LONG_BOW)) && (i_ptr->tval == TV_ARROW)) ||
-				    (((o_ptr->sval == SV_LIGHT_XBOW) ||
-				     (o_ptr->sval == SV_HEAVY_XBOW)) && (i_ptr->tval == TV_BOLT)))
+				if (((is_sling(o_ptr->sval))    && (i_ptr->tval == TV_SHOT)) ||
+				    ((is_bow(o_ptr->sval))      && (i_ptr->tval == TV_ARROW)) ||
+				    ((is_crossbow(o_ptr->sval)) && (i_ptr->tval == TV_BOLT)))
 				{
-					/* Engage in combat (type 2 = archery) */
-					trap_combat(2, y, x, i_ptr, o_ptr, power);
-
 					/* Get local object */
 					j_ptr = &object_type_body;
 
-					/* Copy the missiles */
+					/* Make a temporary copy of the missiles */
 					object_copy(j_ptr, i_ptr);
 
-					/* Set quantity of new object to 1 */
+					/* Engage in combat (type 2 = archery) */
+					trap_combat(2, y, x, j_ptr, o_ptr, power, m_name);
+
+					/* Get local object (forget fired missile) */
+					j_ptr = &object_type_body;
+
+					/* Restore the old missiles */
+					object_copy(j_ptr, i_ptr);
+
+					/* Fire one object at a time */
 					j_ptr->number = 1;
 
+					/* Determine chance to break */
+					break_chance = breakage_chance(j_ptr);
+
 					/* Drop the fired object */
-					drop_near(j_ptr, -1, y, x);
+					drop_near(j_ptr, break_chance, y, x, DROP_NO_MSG);
 
 					/* Delete one object from the trap */
 					i_ptr->number--;
@@ -1852,22 +1926,14 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	/* Object is a potion */
 	else if (o_ptr->tval == TV_POTION)
 	{
-		/* Potion explodes (special case of character = -2) */
-		ident = potion_smash_effect(-2, y, x, o_ptr);
-
-		/* An identification was made */
-		if ((ident) && (!object_aware_p(o_ptr)))
+		/* Player is in line of sight */
+		if (player_has_los_bold(y, x))
 		{
-			/* Learn about the objects, do not gain experience */
-			object_aware(o_ptr);
-
-			/* Describe the object */
-			strip_name(o_name, o_ptr->k_idx);
-
-			/* Message */
-			msg_format("That was a Potion of %s that just exploded.", o_name);
+			msg_format("%^s sets off your cunning trap!", m_name);
 		}
 
+		/* Potion explodes (special case of character = -2) */
+		(bool)potion_smash_effect(-2, y, x, o_ptr);
 
 		/* Remove one potion */
 		o_ptr->number--;
@@ -1886,25 +1952,18 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	/* Object is a scroll */
 	else if (o_ptr->tval == TV_SCROLL)
 	{
+		/* Player is in line of sight */
+		if (player_has_los_bold(y, x))
+		{
+			msg_format("%^s sets off your cunning trap!", m_name);
+		}
+
 		/* Read the scroll */
-		int did_read = scroll_read_effect(-1, y, x, o_ptr);
+		ident = scroll_read_effect(-1, y, x, o_ptr);
 
 		/* The scroll was read */
-		if (did_read)
+		if (ident)
 		{
-			/* An identification was made */
-			if ((did_read == 1) && (!object_aware_p(o_ptr)))
-			{
-				/* Learn about the objects, do not gain experience */
-				object_aware(o_ptr);
-
-				/* Describe the object */
-				strip_name(o_name, o_ptr->k_idx);
-
-				/* Message */
-				msg_format("That was a Scroll of %s that just activated.", o_name);
-			}
-
 			/* Remove one scroll */
 			o_ptr->number--;
 
@@ -1920,29 +1979,30 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 		}
 	}
 
+	/* Object is food */
+	else if (o_ptr->tval == TV_FOOD)
+	{
+		/* Player is in line of sight */
+		if (player_has_los_bold(y, x))
+		{
+			msg_format("%^s sets off your cunning trap!", m_name);
+		}
+
+		/* Use the food */
+		(void)food_hit_effect(-2, y, x, o_ptr);
+	}
+
 	/* Object is a magical device */
 	else if (is_magical_device(o_ptr))
 	{
-		/* Use the magical device */
-		int notice = device_use_effect(-1, power, y, x, o_ptr);
-
-		/* An identification was made */
-		if ((notice) && (!object_aware_p(o_ptr)))
+		/* Player is in line of sight */
+		if (player_has_los_bold(y, x))
 		{
-			cptr tv_desc = "Staff";
-			if (o_ptr->tval == TV_WAND) tv_desc = "Wand";
-			if (o_ptr->tval == TV_ROD) tv_desc = "Rod";
-
-			/* Learn about the objects, do not gain experience */
-			object_aware(o_ptr);
-
-			/* Describe the object */
-			strip_name(o_name, o_ptr->k_idx);
-
-			/* Message */
-			msg_format("The trap appears to be using a %s of %s.",
-				tv_desc, o_name);
+			msg_format("%^s sets off your cunning trap!", m_name);
 		}
+
+		/* Use the magical device */
+		(void)device_use_effect(-2, power, y, x, o_ptr);
 	}
 
 	/* Object is anything else */
@@ -1965,10 +2025,13 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 		i_ptr->number = 1;
 
 		/* Engage in combat (type 3 = throwing) */
-		trap_combat(3, y, x, o_ptr, o_ptr, power);
+		trap_combat(3, y, x, o_ptr, o_ptr, power, m_name);
+
+		/* Determine chance to break */
+		break_chance = breakage_chance(i_ptr);
 
 		/* Drop the thrown object */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, break_chance, y, x, DROP_NO_MSG);
 
 		/* Delete one object from the trap */
 		o_ptr->number--;
@@ -2029,10 +2092,388 @@ static int check_trap_hit(int power)
 
 
 /*
+ * Loot a trap.
+ *
+ * Return TRUE if an object was created.
+ */
+bool loot_trap(int y, int x, int t_idx)
+{
+	trap_type *t_ptr = &t_list[t_idx];
+	int i;
+
+	/* Assume no object */
+	int tval = 0, sval = -1, quan = 1, pval = 0;
+
+	object_type *i_ptr;
+	object_type forge;
+
+	/* Dangerousness of trap varies, but is usually near current depth */
+	int lev = Rand_normal(p_ptr->depth, p_ptr->depth / 6);
+
+
+	/* Analyze */
+	switch (t_ptr->t_idx)
+	{
+		/* Loose rock */
+		case TRAP_LOOSE_ROCK:
+		{
+			/* Get local object */
+			i_ptr = &forge;
+
+			/* Make the object */
+			if (make_object(i_ptr, FALSE, FALSE, FALSE))
+			{
+				/* Coolness */
+				msg_print("Hmm.  There was something under this rock.");
+
+				/* Drop the object */
+				drop_near(i_ptr, 0, y, x, DROP_HERE);
+			}
+
+			break;
+		}
+
+		/* Trap door */
+		case TRAP_DOOR:
+		{
+			/* Upon occasion, get Scrolls of Teleport Level */
+			if (one_in_(3))
+			{
+				tval = TV_SCROLL;
+				sval = SV_SCROLL_TELEPORT_LEVEL;
+				quan = rand_range(2, 5);
+			}
+
+			break;
+		}
+
+		/* Pits */
+		case TRAP_PIT:
+		{
+			/* Poison loot */
+			if (lev > 5)
+			{
+				/* Poison 'shrooms */
+				if (one_in_(2))
+				{
+					tval = TV_FOOD;
+					quan = rand_range(4, 6);
+
+					if      (lev <= 15) sval = SV_FOOD_POISON;
+					else if (lev <= 30) sval = SV_FOOD_SICKNESS;
+					else if (lev <= 45) sval = SV_FOOD_ENVENOMATION;
+					else if (lev <= 60) sval = SV_FOOD_DISEASE;
+					else                sval = SV_FOOD_RUINATION;
+				}
+
+				/* Melee weapons (random) */
+				else
+				{
+					i = randint(3);
+					if      (i == 1) tval = TV_SWORD;
+					else if (i == 2) tval = TV_POLEARM;
+					else             tval = TV_HAFTED;
+				}
+			}
+
+			break;
+		}
+
+		/* Stat-reducing dart traps */
+		case TRAP_DART:
+		{
+			/* Nothing */
+			break;
+		}
+
+		/* Discolored spots */
+		case TRAP_SPOT:
+		{
+			/* Magical grenades in elementalist flavours */
+			if (one_in_(2))
+			{
+				tval = TV_POTION;
+				sval = SV_POTION_GRENADE;
+				quan = rand_range(4, 6);
+
+				i = randint(4);
+				if      (i == 1) pval = ESSENCE_ACID;
+				else if (i == 2) pval = ESSENCE_ELEC;
+				else if (i == 3) pval = ESSENCE_FIRE;
+				else             pval = ESSENCE_COLD;
+			}
+
+			/* Random magical devices  XXX */
+			else
+			{
+				i = randint(3);
+				if      (i == 1) tval = TV_STAFF;
+				else if (i == 2) tval = TV_WAND;
+				else             tval = TV_ROD;
+			}
+
+			break;
+		}
+
+		/* Gas traps */
+		case TRAP_GAS:
+		{
+			/* Magical grenades in illusionist flavours */
+			if (one_in_(2))
+			{
+				tval = TV_POTION;
+				sval = SV_POTION_GRENADE;
+				quan = rand_range(4, 6);
+
+				i = randint(4);
+				if      (i == 1) pval = ESSENCE_LITE;
+				else if (i == 2) pval = ESSENCE_DARK;
+				else if (i == 3) pval = ESSENCE_CONFU;
+				else             pval = ESSENCE_MAGIC;
+			}
+
+			/* Random magical devices  XXX */
+			else
+			{
+				i = randint(3);
+				if      (i == 1) tval = TV_STAFF;
+				else if (i == 2) tval = TV_WAND;
+				else             tval = TV_ROD;
+			}
+
+			break;
+		}
+
+		/* Summoning traps */
+		case TRAP_SUMMON:
+		{
+			i = randint(5);
+
+			/* A variety of summoning tools, mostly useless */
+			if (i == 1)
+			{
+				tval = TV_SCROLL;
+				if      (lev < 30) sval = SV_SCROLL_SUMMON_MONSTER;
+				else if (lev < 60) sval = SV_SCROLL_SUMMON_UNDEAD;
+				else               sval = SV_SCROLL_SUMMON_DEMONS;
+			}
+			else if ((i == 2) && (lev >= 15))
+			{
+				tval = TV_STAFF;
+				sval = SV_STAFF_SUMMONING;
+			}
+			else if (i == 3)
+			{
+				tval = TV_WAND;
+				sval = SV_WAND_CLONE_MONSTER;
+			}
+			else if ((i == 4) && (lev >= 20))
+			{
+				tval = TV_ROD;
+				sval = SV_ROD_SUMMON_HITHER;
+			}
+
+			/* Some life essence grenades */
+			else
+			{
+				tval = TV_POTION;
+				sval = SV_POTION_GRENADE;
+				pval = ESSENCE_LIFE;
+				quan = rand_range(4, 6);
+			}
+
+			break;
+		}
+
+		/* Dungeon alteration traps */
+		case TRAP_ALTER_DUNGEON:
+		{
+			i = randint(4);
+
+			/* A variety of destruction tools */
+			if ((i == 1) && (lev >= 35))
+			{
+				tval = TV_SCROLL;
+				sval = SV_SCROLL_STAR_DESTRUCTION;
+				quan = (lev > 50 ? randint(2) : 1);
+			}
+			else if ((i == 2) && (lev >= 10))
+			{
+				tval = TV_STAFF;
+				if (lev < 70) sval = SV_STAFF_EARTHQUAKES;
+				else          sval = SV_STAFF_DESTRUCTION;
+			}
+			else if (i == 3)
+			{
+				tval = TV_JUNK;
+				sval = SV_BOULDER;
+			}
+
+			/* Some force essence grenades */
+			else
+			{
+				tval = TV_POTION;
+				sval = SV_POTION_GRENADE;
+				pval = ESSENCE_FORCE;
+				quan = rand_range(4, 6);
+			}
+
+			break;
+		}
+
+		/* Character and equipment-alteration traps */
+		case TRAP_HEX:
+		{
+			/* Magical grenades in destructive flavours */
+			if (one_in_(2))
+			{
+				tval = TV_POTION;
+				sval = SV_POTION_GRENADE;
+				quan = rand_range(4, 6);
+
+				i = randint(4);
+				if      (i == 1) pval = ESSENCE_NETHR;
+				else if (i == 2) pval = ESSENCE_CHAOS;
+				else if (i == 3) pval = ESSENCE_TIME;
+				else             pval = ESSENCE_DEATH;
+			}
+
+			/* Random magical devices  XXX */
+			else
+			{
+				i = randint(3);
+				if      (i == 1) tval = TV_STAFF;
+				else if (i == 2) tval = TV_WAND;
+				else             tval = TV_ROD;
+			}
+
+			break;
+		}
+
+		/* Teleport trap */
+		case TRAP_PORTAL:
+		{
+			i = randint(4);
+
+			/* A variety of teleportation tools */
+			if (i == 1)
+			{
+				tval = TV_SCROLL;
+				if (one_in_(2)) sval = SV_SCROLL_PHASE_DOOR;
+				else            sval = SV_SCROLL_TELEPORT;
+				quan = rand_range(2, 5);
+			}
+			else if ((i == 2) && (lev >= 35))
+			{
+				tval = TV_STAFF;
+				sval = SV_STAFF_TELEPORTATION;
+			}
+			else if ((i == 3) && (lev >= 15))
+			{
+				tval = TV_ROD;
+				sval = SV_ROD_BLINKING;
+			}
+
+			/* Some nexus essence grenades */
+			else
+			{
+				tval = TV_POTION;
+				sval = SV_POTION_GRENADE;
+				pval = ESSENCE_NEXUS;
+				quan = rand_range(4, 6);
+			}
+
+			break;
+		}
+
+		/* Murder holes */
+		case TRAP_MURDER_HOLE:
+		{
+			i = randint(3);
+
+			if      (i == 1) tval = TV_SHOT;
+			else if (i == 2) tval = TV_ARROW;
+			else             tval = TV_BOLT;
+
+			if (lev > rand_range(50, 90)) sval = SV_AMMO_HEAVY;
+			else                          sval = SV_AMMO_NORMAL;
+
+			quan = rand_range(10, 15);
+
+			break;
+		}
+
+		/* Undefined trap */
+		default:
+		{
+			break;
+		}
+	}
+
+	/* We have an object we want to make */
+	if (tval > 0)
+	{
+		/* Get local object */
+		i_ptr = &forge;
+
+		/* We have a specific object in mind */
+		if (sval >= 0)
+		{
+			/* Make the object */
+			object_prep(i_ptr, lookup_kind(tval, sval));
+
+			/* Note success */
+			if (i_ptr->tval)
+			{
+				/* Apply magic */
+				apply_magic(i_ptr, lev, FALSE, FALSE, FALSE);
+			}
+			else return (FALSE);
+		}
+
+		/* We want a random object of a given general kind */
+		else
+		{
+			bool success;
+
+			/* Require the given tval */
+			required_tval = tval;
+
+			/* Make the object */
+			success = make_object(i_ptr, FALSE, FALSE, TRUE);
+
+			/* Clear tval restriction */
+			required_tval = tval;
+
+			/* Note failure */
+			if (!success) return (FALSE);
+		}
+
+		/* Specify pval */
+		if (pval) i_ptr->pval = pval;
+
+		/* Specify quantity */
+		i_ptr->number = MAX(1, quan);
+
+		/* Drop the object right here (suppress all messages) */
+		drop_near(i_ptr, 0, y, x, DROP_HERE | DROP_NO_MSG | DROP_CHAR_DROP);
+
+		/* Note generation of object */
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
+
+
+/*
  * Handle hitting a real trap.
  *
  * Rewritten in Oangband to allow a greater variety of traps, with
  * effects controlled by dungeon level.
+ *
  * To allow a trap to choose one of a variety of effects consistently,
  * the quick RNG is often used, and trap location input as a seed value.
  */
@@ -2040,7 +2481,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 {
 	trap_type *t_ptr = &t_list[t_idx];
 
-	int i, num;
+	int num;
 	int dam = 0;
 
 	/* Assume trap actually does go off */
@@ -2073,29 +2514,20 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 				object_type *i_ptr;
 				object_type forge;
 
+				/* Use current depth as object level */
+				object_level = p_ptr->depth;
+
 				/* Get local object */
 				i_ptr = &forge;
 
 				/* Make the object */
 				if (make_object(i_ptr, FALSE, FALSE, FALSE))
 				{
-					char o_name[80];
-
 					/* Coolness */
 					msg_print("Hmm.  There was something under this rock.");
 
-					/* See the object */
-					if (player_can_see_bold(y, x))
-					{
-						/* Describe object (briefly) */
-						object_desc(o_name, i_ptr, TRUE, 0);
-
-						/* Message */
-						msg_format("You see %s.", o_name);
-					}
-
-					/* Place the object (pretend object was dropped) */
-					drop_near(i_ptr, 0, y, x);
+					/* Drop the object */
+					drop_near(i_ptr, 0, y, x, DROP_HERE);
 				}
 				else
 				{
@@ -2183,7 +2615,8 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			else if (one_in_(5)) nastiness += 10;
 
 			/* Player is now in pit */
-			if (who < 0) monster_swap(p_ptr->py, p_ptr->px, y, x);
+			if ((who < 0) && ((p_ptr->py != y) || (p_ptr->px != x)))
+				monster_swap(p_ptr->py, p_ptr->px, y, x);
 
 			/* Center on player */
 			y = p_ptr->py;
@@ -2220,16 +2653,14 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 						{
 							/* Activate the Black Breath */
 							p_ptr->black_breath = TRUE;
-							msg_print("You feel a deadly chill slowly withering your soul.");
+							message(MSG_L_RED, 200, "You feel the Black Breath infecting your soul...");
 
 							/* Undead may be attracted */
 							if (one_in_(2))
 							{
-								msg_print("Undead suddenly appear and call you to them!");
-								for (i = 0; i < rand_range(3, 5); i++)
-								{
-									summon_specific(y, x, FALSE, p_ptr->depth, SUMMON_UNDEAD);
-								}
+								msg_print("Undead appear and call you to them!");
+								summon_specific(y, x, FALSE, p_ptr->depth,
+									SUMMON_UNDEAD, rand_range(3, 5));
 							}
 						}
 
@@ -2653,12 +3084,8 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 
 				Rand_quick = FALSE;
 
-				num = rand_range(3, 5);
-				for (i = 0; i < num; i++)
-				{
-					(void)summon_specific(y, x, FALSE, p_ptr->depth + 2,
-						SUMMON_THIEF);
-				}
+				(void)summon_specific(y, x, FALSE, p_ptr->depth + 2,
+						SUMMON_THIEF, rand_range(3, 5));
 
 				Rand_quick = TRUE;
 			}
@@ -2670,7 +3097,8 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 
 				Rand_quick = FALSE;
 
-				(void)summon_specific(y, x, FALSE, p_ptr->depth + 5, SUMMON_UNIQUE);
+				(void)summon_specific(y, x, FALSE, p_ptr->depth + 5,
+					SUMMON_UNIQUE, 1);
 
 				Rand_quick = TRUE;
 			}
@@ -2682,11 +3110,8 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 
 				Rand_quick = FALSE;
 
-				num = rand_range(3, 5);
-				for (i = 0; i < num; i++)
-				{
-					(void)summon_specific(y, x, FALSE, p_ptr->depth + 2, 0);
-				}
+				(void)summon_specific(y, x, FALSE, p_ptr->depth + 2,
+					0, rand_range(3, 5));
 
 				Rand_quick = TRUE;
 			}
@@ -2713,23 +3138,28 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			/* Dungeon destruction trap */
 			if ((nastiness > 60) && (one_in_(12)))
 			{
-				msg_print("A ear-splitting howl shatters your mind as the dungeon is smashed by hammer blows!");
+				msg_print("The dungeon is smashed by hammer blows!");
 
 				(void)destroy_level(FALSE);
 
-				/* the player is hard-hit */
+				msg_print("An ear-splitting howl shatters your mind!");
+
+				/* the player is hard-hit (ignore resistances) */
 				(void)set_confused(p_ptr->confused + rand_range(20, 30));
 				(void)set_blind(p_ptr->blind + rand_range(30, 45), NULL);
 				(void)set_stun(p_ptr->stun + rand_range(50, 100));
-				dam = damroll(15, 15);
-				take_hit(dam, 0, NULL, "a dungeon destruction trap");
+
+				if (!p_ptr->wraithform)
+				{
+					dam = damroll(15, 15);
+					take_hit(dam, 0, NULL, "a dungeon destruction trap");
+				}
 			}
 
 			/* Collapse ceiling trap */
 			if ((nastiness > 35) && (one_in_(3)))
 			{
-				if (collapse_ceiling(y, x, p_ptr->depth))
-					msg_print("The ceiling collapses!");
+				(void)collapse_ceiling(y, x, p_ptr->depth);
 			}
 
 			/* Earthquake trap */
@@ -2739,20 +3169,27 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 				earthquake(y, x, 10);
 			}
 
-			/* Falling rock trap */
-			else if ((nastiness > 4) && (one_in_(2)))
+			/* Characters in wraithform are safe from rock traps */
+			else if (!p_ptr->wraithform)
 			{
-				dam = damroll(2, 10);
-				take_hit(dam, 0, "A rock falls on your head.", "falling rock");
-				(void)set_stun(p_ptr->stun + rand_range(10, 20));
-			}
+				/* Falling rock trap */
+				if (nastiness >= 6)
+				{
+					take_hit(damroll(2, p_ptr->depth), 0,
+						"A boulder falls on your head.", "a falling boulder");
 
-			/* A few pebbles */
-			else
-			{
-				dam = damroll(1, 8);
-				take_hit(dam, 0, "A bunch of pebbles rain down on you.",
-					"falling rock");
+					(void)set_stun(p_ptr->stun + rand_range(10, 20));
+
+					make_boulder(y, x, p_ptr->depth);
+				}
+
+				/* A few pebbles */
+				else
+				{
+					dam = damroll(1, 8);
+					take_hit(dam, 0, "A bunch of pebbles rain down on you.",
+						"falling pebbles");
+				}
 			}
 
 			Rand_quick = TRUE;
@@ -2767,7 +3204,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 		 */
 		case TRAP_HEX:
 		{
-			/* Determine how dangerous the trap is allowed to be. */
+			/* Random effect, based on grid location. */
 			int choice = rand_int(100);
 
 			/* These are all one-time traps */
@@ -2786,7 +3223,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			/* Trap of forgetting */
 			else if (choice < 40)
 			{
-				if (rand_int(100) < p_ptr->skill_sav)
+				if (check_save(25 + p_ptr->depth))
 				{
 					msg_print("You hang on to your memories!");
 				}
@@ -2796,13 +3233,11 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 				}
 			}
 
-			/* Trap of alter reality */
+			/* Trap of draining */
 			else if (choice < 55)
 			{
-				msg_print("The world changes!");
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
+				/* Drain a device */
+				(void)apply_draining(p_ptr->depth);
 			}
 
 			/* Trap of remold player */
@@ -2812,7 +3247,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 				msg_print("You feel yourself being twisted by wild magic!");
 
 				/* Resist */
-				if ((p_ptr->resist_nexus) || (rand_int(100) < p_ptr->skill_sav))
+				if ((p_ptr->resist_nexus) || (check_save(25 + p_ptr->depth)))
 				{
 					msg_print("You resist the effects!");
 				}
@@ -2827,7 +3262,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			/* Time ball trap */
 			else
 			{
-				msg_print("You feel time itself assault you!");
+				msg_print("Time twists around you!");
 
 				/* Target the player with a radius 1 ball attack. */
 				(void)project_ball(0, 1, y, x, y,
@@ -2839,7 +3274,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			break;
 		}
 
-		/* Teleport trap */
+		/* Teleport and alter reality trap */
 		case TRAP_PORTAL:
 		{
 			/* Determine how dangerous the trap is allowed to be. */
@@ -2849,13 +3284,24 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			{
 				msg_print("You teleport across the dungeon.");
 
-				teleport_player(150, FALSE);
+				Rand_quick = FALSE;
+				teleport_player(150, FALSE, FALSE);
+				Rand_quick = TRUE;
 			}
-			else
+			else if ((nastiness < 40) || (!one_in_(3)))
 			{
 				(void)set_dancing_feet(p_ptr->dancing_feet +
 						rand_range(10, 20),
 						"You start to blink around uncontrollably!", FALSE);
+			}
+
+			/* Trap of teleport off the level (rare) */
+			else
+			{
+				msg_print("You are teleported to a entirely different dungeon!");
+
+				/* Leaving */
+				p_ptr->leaving = TRUE;
 			}
 
 			break;
@@ -2950,7 +3396,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 				take_hit(dam, 0, NULL, format("a %s trap", missile_name));
 			}
 
-			/* Explain what just happened. */
+			/* Notice misses. */
 			else msg_format("A %s whizzes by your head.", missile_name);
 
 			/* Get local object */
@@ -2960,7 +3406,7 @@ static bool hit_trap_aux(int who, int y, int x, int t_idx)
 			object_prep(o_ptr, lookup_kind(tval, sval));
 			object_aware(o_ptr);
 			object_known(o_ptr);
-			drop_near(o_ptr, -1, y, x);
+			drop_near(o_ptr, 0, y, x, 0x00);
 
 			/* These are one-time traps */
 			remove_trap(y, x, t_idx);

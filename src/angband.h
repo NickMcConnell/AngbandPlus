@@ -11,6 +11,13 @@
 #ifndef INCLUDED_ANGBAND_H
 #define INCLUDED_ANGBAND_H
 
+/* Warning suppression for Visual C++ */
+#ifdef WIN32
+ #ifdef _MBCS
+  #pragma warning(disable : 4244  4761)
+ #endif
+#endif
+
 /*
  * Include the low-level includes.
  */
@@ -24,6 +31,7 @@
 #include "z-form.h"
 #include "z-rand.h"
 #include "z-term.h"
+#include "z-file.h"
 
 /*
  * Include the high-level includes.

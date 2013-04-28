@@ -73,6 +73,7 @@ s16b character_silent;			/* No messages when updating certain things */
 
 u32b seed_flavor;				/* Hack -- consistent object colors */
 u32b seed_town;					/* Hack -- consistent town layout */
+u16b seed_detection = 0;      /* Hack -- efficient randomized detection */
 
 s16b object_level;				/* Current object creation level */
 s16b old_object_level;				/* Old object creation level */
@@ -94,6 +95,15 @@ bool use_transparency = FALSE; /* Use transparent tiles */
  * Autosave-related global variables.
  */
 s16b autosave_freq = 0;			/* Autosave frequency */
+
+
+/*
+ * We assume that the game is running in VGA 16-color text mode.  If a
+ * port enables a graphics mode capable of displaying more colors, then
+ * it needs to change this value.
+ */
+s16b max_system_colors = 16;
+
 
 
 /*
@@ -133,6 +143,11 @@ bool text_50_rows = FALSE;
 s16b clear_y = 2;
 s16b clear_x = 4;
 
+/*
+ * Offscreen monster threat display.
+ */
+u16b threat_display = 0x0000;
+
 
 
 s16b image_count;  		/* Grids until next random image    */
@@ -164,6 +179,19 @@ s16b t_max = 0;					/* Number of allocated traps */
 char summon_kin_type;			/* Hack -- see summon_specific() */
 int summon_index_type;			/* Hack -- see summon_specific() */
 
+int detect_y = -1;                 /* Center of detection */
+int detect_x = -1;                 /* Center of detection */
+
+
+
+
+
+
+
+/* Messages can automatically move to a sub-window */
+bool message_to_window_active = FALSE;
+
+
 
 /*
  * Prevent potion smashing causing potion smashing causing ...
@@ -181,7 +209,7 @@ s16b level_rating;			/* Level's current rating */
 byte dungeon_hgt = DUNGEON_HGT_MAX;   /* Current height and width of dungeon */
 byte dungeon_wid = DUNGEON_WID_MAX;
 
-bool good_item_flag;			/* True if "Artifact" on this level */
+bool good_item_flag;			/* True if ghost or quest level */
 
 bool closing_flag;				/* Dungeon is closing */
 
@@ -240,6 +268,8 @@ char angband_term_name[ANGBAND_TERM_MAX][16] =
 	"Term-7"
 };
 
+
+
 /*
  * Variables for the macro trigger patch
  */
@@ -250,29 +280,6 @@ cptr macro_modifier_name[MAX_MACRO_MOD];
 cptr macro_trigger_name[MAX_MACRO_TRIGGER];
 cptr macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
 
-
-/*
- * Global table of color definitions (mostly zeros)
- */
-byte angband_color_table[256][4] =
-{
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
-	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
-	{0x00, 0x90, 0x90, 0x90},	/* TERM_SLATE */
-	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
-	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
-	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
-	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE */
-	{0x00, 0x90, 0x40, 0x00},	/* TERM_UMBER */
-	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
-	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
-	{0x00, 0xC0, 0x00, 0xC0},	/* TERM_VIOLET */
-	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x30, 0x30},	/* TERM_L_RED */
-	{0x00, 0x00, 0xF0, 0x00},	/* TERM_L_GREEN */
-	{0x00, 0x00, 0xF0, 0xF0},	/* TERM_L_BLUE */
-	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
-};
 
 /*
  * Standard sound (and message) names
@@ -330,6 +337,18 @@ u16b *temp_g;
 byte *temp_y;
 byte *temp_x;
 
+/*
+ * Array[LITE_MAX] used by "process_player()"
+ */
+int lite_n = 0;
+u16b *lite_g;
+
+/*
+ * Arrays[EFFECT_GRID_MAX] used for effects
+ */
+int effect_grid_n = 0;
+effect_grid_type *effect_grid;
+
 
 /*
  * Array[DUNGEON_HGT_MAX][256] of cave grid info flags (padded)
@@ -372,8 +391,6 @@ s16b(*cave_m_idx)[DUNGEON_WID_MAX];
 
 
 
-#ifdef MONSTER_FLOW
-
 /*
  * Array[DUNGEON_HGT_MAX][DUNGEON_WID_MAX] of cave grid flow "cost" values
  * Used to simulate character noise.
@@ -405,9 +422,13 @@ int update_center_x;
  */
 int cost_at_center = 0;
 
-#endif	/* MONSTER_FLOW */
 
-
+/*
+ * Projection path and information
+ */
+u16b path_g[120];  /* Grids in the projection path */
+byte path_gx[120];  /* Special information about each grid */
+int path_n = 0;   /* Number of grids in the path */
 
 
 /*
@@ -482,11 +503,28 @@ alloc_entry *alloc_race_table;
 
 
 /*
+ * Number of entries in the movement moment table
+ */
+s16b move_moment_num = 0;
+
+
+/*
+ * The movement moment table
+ */
+move_moment_type *move_moment;
+
+
+
+#if 0 /* Temporarily removed (until we need them again) */
+
+/*
  * Specify attr/char pairs for visual special effects
  * Be sure to use "index & 0xFF" to avoid illegal access
  */
 byte misc_to_attr[256];
 char misc_to_char[256];
+
+#endif  /* temp */
 
 
 /*
@@ -625,8 +663,8 @@ char *q_text;
  * Noise builds up as the character does certain things, and diminishes
  * over time.
  */
-s16b add_wakeup_chance = 0;
-s16b total_wakeup_chance = 0;
+s32b add_wakeup_chance = 0;
+s32b total_wakeup_chance = 0;
 
 
 
@@ -642,79 +680,6 @@ cptr ANGBAND_SYS = "xxx";
  * This variable is used to choose an appropriate "graf-xxx" file
  */
 cptr ANGBAND_GRAF = "old";
-
-
-/*
- * Path name: The main "lib" directory
- * This variable is not actually used anywhere in the code
- */
-cptr ANGBAND_DIR;
-
-/*
- * High score files (binary)
- * These files may be portable between platforms
- */
-cptr ANGBAND_DIR_APEX;
-
-/*
- * Bone files for player ghosts (ascii)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_BONE;
-
-/*
- * Binary image files for the "*_info" arrays (binary)
- * These files are not portable between platforms
- */
-cptr ANGBAND_DIR_DATA;
-
-/*
- * Textual template files for the "*_info" arrays (ascii)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_EDIT;
-
-/*
- * Various extra files (ascii)
- * These files may be portable between platforms
- */
-cptr ANGBAND_DIR_FILE;
-
-/*
- * Help files (normal) for the online help (ascii)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_HELP;
-
-/*
- * Miscellaneous text files, also contains any spoilers (ascii)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_INFO;
-
-/*
- * Savefiles for current characters (binary)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_SAVE;
-
-/*
- * Default user "preference" files (ascii)
- * These files are rarely portable between platforms
- */
-cptr ANGBAND_DIR_PREF;
-
-/*
- * User Defined "preference" files (ascii)
- * These files are rarely portable between platforms
- */
-cptr ANGBAND_DIR_USER;
-
-/*
- * Various extra files (binary)
- * These files are rarely portable between platforms
- */
-cptr ANGBAND_DIR_XTRA;
 
 
 /*
@@ -781,16 +746,23 @@ bool(*old_get_obj_num_hook)(int k_idx);
 
 
 /*
- * The type of object the item generator should make, if specified.  -LM-
+ * The type of object the item generator should make, if specified.
  */
 byte required_tval = 0;
 byte old_required_tval = 0;
 
+
 /*
- * Quality-control variable to make object-generation in stores more
- * efficient and predictable.
+ * Set of bitflags adjusting various things about object generation.
+ * See "defines.h" for flags.
  */
-bool in_store_quality = FALSE;
+u32b obj_gen_flags = 0L;
+
+/*
+ * Modifiers for the "object_desc()" function.
+ */
+s16b object_desc_flavour = 0;
+s16b object_desc_plural = 0;
 
 
 /*
@@ -799,6 +771,11 @@ bool in_store_quality = FALSE;
 u32b alloc_race_total;
 u32b alloc_kind_total;
 
+
+/*
+ * The default quantity passed to the "get_quantity()" function.
+ */
+s32b get_quantity_default = 1;
 
 
 /*
@@ -826,9 +803,15 @@ int text_out_wrap = 0;
 int text_out_indent = 0;
 
 /*
- * The "highscore" file descriptor, if available.
+ * The highscore file descriptor, if available.
  */
 int highscore_fd = -1;
+
+/*
+ * A file descriptor (for saving screen info), if available.
+ */
+int dump_file_fd = -1;
+
 
 /*
  * Game can be saved
@@ -848,25 +831,25 @@ s16b skill_being_used;
 /*
  * The bones file a restored player ghost should use to collect extra
  * flags, a sex, and a unique name.  This also indicates that there is
- * a ghost active.  -LM-
+ * a ghost active.
  */
 byte bones_selector;
 
 /*
- * The player ghost template index. -LM-
+ * The player ghost template index.
  */
 int r_ghost;
 
 /*
  * The player ghost name is stored here for quick reference by the
- * description function.  -LM-
+ * description function.
  */
 char ghost_name[80];
 
 /*
  * Is the player partly through trees, rubble, or water and, if so, in which
  * direction is he headed?  Monsters are handled more simply:  They have
- * a 33% or 50% chance of walking through.  -LM-
+ * a 33% or 50% chance of walking through.
  */
 byte player_is_crossing;
 
@@ -884,5 +867,4 @@ byte num_trap_on_level;
 /*
  * Limit thefts
  */
-byte num_theft_on_level;
-
+byte num_recent_thefts;

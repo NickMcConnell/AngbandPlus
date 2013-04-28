@@ -5,7 +5,7 @@
 combat, by using missile weapons, or by throwing objects at them.
 
 
---- Quick Review ---
+--- Quick Review (any kind of weapon) ---
 
 1) Sabre (1d7)
    1 die rolling 7.  The average damage of a die with 7 sides is 4.
@@ -34,10 +34,10 @@ weapons multiplier.
 
 Number of Blows:
      On the left side of your character screen is displayed the number of blows
-you can get per turn.  If you are wielding no weapon, you get two blows.  If
-your weapon is too heavy for you to wield properly, you get one blow.
-Otherwise, you get between two and six blows, depending solely on weapon weight,
-Dexterity, and Strength.  It is possible for items to give you extra blows.
+you can get per turn.  If your weapon is too heavy for you to wield properly,
+you get one blow.  Otherwise, you get between two and six blows, depending
+solely on weapon weight, Dexterity, and Strength.  It is possible for items to
+give you extra blows.
 
 Your Weapon:
      All weapons have damage dice displayed after their name (1d4, 2d5, etc.);
@@ -63,14 +63,14 @@ the <<monster name>>".
 using throwing weapons, they add between one and three.
 
 Deadliness:
-     Deadliness acts as a percentage bonus to damage (you may inspect your
-current bonus on the character screen).  High-level characters may have bonuses
+     Deadliness acts as a percentage bonus to damage.  You may inspect your
+current bonus on the character screen.  High-level characters may have bonuses
 of 200% displayed on their character screens, and therefore triple the damage
 they do with the Deadliness multiplier alone.  All equipped items can affect
 your Deadliness.
 
 Brands and Slays:
-     Some remarkable weapons do extra damage to various kinds of  monsters; a
+     Some remarkable weapons do extra damage to various kinds of monsters; a
 Dagger of Fire, for instance, would do extra damage to creatures not immune to
 fire.  Slays, in contrast, do extra damage to particular monster races, so wield
 that Mace of Orc Slaying if you come upon any orcs.  Only the best applicable
@@ -83,8 +83,7 @@ adjustments, except monster resistances.
 
 Unarmed Combat:
      The unarmed combat methods, Karate and Wrestling, are known as martial
-arts.  When using a martial art, you always get two blows.  Martial arts do not
-depend on equipment, and get no permanent bonuses from other equipped items.
+arts.  When using a martial art, you always get two blows.
      They are effective against almost all sorts of monsters, are relatively
 inexpensive to learn, and really come into their own against monsters that seem
 to resist everything.  But be warned!  You need to be blessed (Scrolls of
@@ -92,7 +91,9 @@ Blessing work) to do damage to non-material beings, and touching certain kinds
 of monsters can be quite painful...
      You can get (temporary) slays and brands with martial arts.  You can also
 get critical hits on occasion, especially if you have skill in Piety, Blood
-Dominion, or Nature Lore, or get vorpal blows or sneak attacks.
+Dominion, or Nature Lore, or get vorpal blows or sneak attacks.  Bonuses (and
+penalties) to Skill from non-weapon equipment count when using martial arts, but
+bonuses to Deadliness do not.
 
 Damage Display:
      The melee section of your character screen changes when you use a martial
@@ -110,7 +111,7 @@ While it doesn't do as much direct damage as wrestling, no other combat method
 can hinder your foes quite as much.  Given enough skill, you can stun, slow, or
 confuse your foes - and a hindered monster may soon enough be a dead one.
 
-Special notes:
+Special abilities:
      Most scrolls, potions, spells, or talents that grant extra powers or
 abilities to melee are fully effective when used with martial arts.
 
@@ -123,12 +124,12 @@ at a safe distance.
 Setting up to Shoot:
      Slings shoot shots and seeker shots, bows shoot arrows and seeker arrows,
 and crossbows shoot bolts and seeker bolts.  Simply equip the weapon and keep
-plenty of the ammo on hand and you're ready.
+plenty of ammunition to hand.
 
 The Quiver Slots:
      Ammo is best kept in special quiver slots.  You may "wield" up to ten
-different groups of ammo, then fire them just as you would those in the
-backpack.  Ammo in the quiver will use space in your backpack.
+different piles of ammo, then fire them just as you would those in the backpack.
+Ammo in the quiver will use space in your backpack.
 
 Shooting:
      You shoot at a monster by typing 'f' (or 't' in the rogue-like command
@@ -147,9 +148,9 @@ would multiply the normal damage of the ammo it fires by three.  This multiplier
 is applied before the brand/slay bonus and after everything else.
 
 Brands and Slays:
-     Ammo can have bonuses to Skill and to Deadliness, and occasionally possess
-the same kinds of slays and brands found on melee weapons.  Missile launchers
-are also capable of imparting slays and brands.
+     Ammunition occasionally possesses the same kinds of slays and brands found
+on melee weapons.  Missile launchers are also capable of imparting slays and
+brands.
 
 
 --- Throwing ---
@@ -170,17 +171,22 @@ interface described in the section on commands.
 Number of throws:
      You may never throw more than one item per turn.
 
+Hitting more often:
+     Get close to what you're aiming at, especially when your skill is
+relatively low.  Improve your throwing skill, and wear things (rings, for
+example) that increase your overall combat Skill.
+
 Special throwing weapons:
      A boulder with damage dice of 10d9 does an average of 50 damage.  It gets
-no Skill or Deadliness bonuses from equipment, no slays or brands, and cannot
-get critical hits.
+no Deadliness bonuses from equipment, no slays or brands, and cannot get
+critical hits.
      However, special throwing weapons (weapons like throwing knives and
 javelins that are designed for throwing), get the following advantages:
-- They benefit from all Skill and Deadliness bonuses other than those granted by
-your melee and missile weapons.
+- They benefit from all Deadliness bonuses other than those granted by your
+melee and missile weapons.
 - They may have slays or brands.
 - They not infrequently get critical hits.
-- They get a special damage multiplier.  This ranges from 2 1/2 to 10, depending
+- They get a special damage multiplier.  This ranges from 2 to 10, depending
   on throwing skill and whether you are a specialist spellcaster, a specialist
   warrior, or anyone else.  Perfectly balanced weapons (marked "well-balanced")
   increase this multiplier by 50%.
@@ -212,11 +218,11 @@ affecting reliability.
      This last can make all the difference when fighting tough monsters.
 
 3) Getting more critical hits.  Critical hits are important; the fewer base dice
-your weapon or ammo has, the more important they are.  It is quite easy to
-double the average damage you do with critical hits alone.  You can get more
-criticals by:
+your weapon or ammo has, the more important they are.  It is possible to double
+the average damage you do with critical hits alone.  You can get more criticals
+by:
 - raising your total Skill,
-- attacking sleeping monsters (especially if you are in sneaking mode!),
+- attacking sleeping monsters (especially if you are sneaking),
 - increasing your piety, nature lore, or blood dominion skills, or
 - wielding vorpal weapons.
 
@@ -226,15 +232,16 @@ base damage and critical hits up high enough, Deadliness can make you
 formidable.
 
 5) Having the right slay or brand for the job.  If you're serious about melee,
-have more than one weapon on hand.  Also, watch out for resistant monsters.
+have more than one weapon on hand.  Also, watch out for monsters that resist
+either edged or blunt weapons (virtually no monster resists both).
 
 6) Taking the Oath of Iron.  The advantages include:
 - better bonuses to missile weapon multiplier and shooting speed.
 - better thrown weapon multiplier.
 - better critical hit bonuses from piety, nature lore, and blood dominion.
 - better wrestling and karate damage.
-- can handle heavy weapons much more easily.
-- no limits to combat-related skill raises.
+- heavy weapons are much easier to handle.
+- no limits to combat-related skill increases.
 
 
 --- Winning "unwinnable" fights ---
@@ -242,7 +249,8 @@ have more than one weapon on hand.  Also, watch out for resistant monsters.
      Some monsters are simply too tough to just clobber; fortunately, there are
 scrolls, potions, mushrooms, and magical devices that can turn a losing battle
 into a major victory.  If your enemies seem too tough to kill now, maybe they
-won't be after you've enhanced yourself and hindered them.
+won't be after you've enhanced yourself, hindered them, and chosen the right
+battlefield.
 
 
 --- Details ---
@@ -254,16 +262,16 @@ Monster Susceptibilities:
      Bonus to damage of frost brand is increased by 50%.
 
 Monster Resistances:
-- Resistant to edged weapons
-     Swords, polearms, arrows, and bolts do one-half damage.
-- Almost immune to edged weapons
-     Swords, polearms, arrows, and bolts do one-sixth damage.
-- Resistant to blunt weapons
-     Hafted weapons and sling shots do one-half damage.
-- Almost immune to blunt weapons
-     Hafted weapons and sling shots do one-sixth damage.
+- Resistant to edged weapons (common to rocky, bony, and metallic monsters)
+     Swords, polearms, arrows, and bolts do no damage on almost 2/3rds of hits.
+- Almost immune to edged weapons (common to rocky and metallic monsters)
+     Swords, polearms, arrows, and bolts do no damage on about 5/6ths of hits.
+- Resistant to blunt weapons (common among incorporeal beings)
+     Hafted weapons and sling shots do no damage on almost 2/3rds of hits.
+- Almost immune to blunt weapons (common among incorporeal beings)
+     Hafted weapons and sling shots do no damage on about 5/6ths of hits.
 
-Vorpal/piercing and concussive weapons reduce the effect of all monster
+Vorpal/piercing and concussive weapons reduce the effect of the above monster
 resistances.
 
 
@@ -282,6 +290,8 @@ your sword arm) and, if that misses, your secondary weapon.  If one weapon runs
 out of blows, you continue with the other until it, too, has expended them all.
 Your total number of blows does not increase.  Your digging ability is the
 better of that granted by either weapon.
+     Wielding two weapons is particularly helpful against evasive creatures, and
+against those who resist edged or blunt weapons.
 
 Special shield bonuses:
      Most melee weapons fit comfortably in one hand, keeping your shield arm
@@ -301,20 +311,24 @@ monster, you will inflict damage, and possibly stunning or even confusion.  You
 may also stumble, and lose normal melee blows.
 
 Two-handed weapons:
-     Other weapons require two hands (but many of these can be wielded in one
+     Some weapons require two hands (but many of these can be wielded in one
 hand by very strong players).  Any shield worn is transferred to your back.
 This negates base armour protection and removes the special shield abilities
-above, but has no effect on magical protection, resistances, or other
+described above, but has no effect on magical protection, resistances, or other
 attributes.
 
 Ranged fire inaccuracy:
      Distance from the target has a significant effect on the accuracy of ranged
 fire and throwing.  You may need to get quite close to hit tough monsters,
-especially if your skill is relatively low.
+especially if your skill is relatively low.  Inaccuracy and obstructions can
+make aiming into diagonal slits (and in some cases around multiple sharp
+corners) very difficult.  Firing out of a slit yourself, however, is
+advantageous.
 
 Special Notes:
      In order to attack a creature that you can't see in a wall or door, you
 must issue the Tunnel or alter adjacent grid command.
+
 
 
 

@@ -14,39 +14,41 @@
  */
 
 
-#include <stdio.h>
+/*** ANSI C headers ***/
+
 #include <ctype.h>
 #include <errno.h>
-
-#if defined(NeXT)
+#include <stdarg.h>
+#include <stdio.h>
+#if defined(NeXT)  /* BAD - NeXT uses non-standard headers!  XXX XXX */
 # include <libc.h>
 #else
 # include <stdlib.h>
 #endif
-
-
-#ifdef SET_UID
-
-# include <sys/types.h>
-
-# if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
-     defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
-     defined(__osf__) || defined(ISC) || defined(SGI) || \
-     defined(linux)
-#  include <sys/time.h>
-# endif
-
-# if !defined(SGI) && !defined(ULTRIX)
-#  include <sys/timeb.h>
-# endif
-
-#endif
-
-
+#include <string.h>
 #include <time.h>
 
 
+/*** POSIX headers ***/
 
+#if !defined(NeXT) && !defined(RISCOS)
+# include <fcntl.h>
+#endif
+
+#ifdef SET_UID
+# include <pwd.h>
+# include <sys/stat.h>
+# include <sys/types.h>
+# include <unistd.h>
+#endif
+
+#if defined(__DJGPP__) || defined(__MWERKS__)
+#include <unistd.h>
+#endif /* __DJGPP__ || __MWERKS__ */
+
+/*
+ * Other headers
+ */
 #ifdef MACINTOSH
 # include <unix.h>
 #endif
@@ -55,53 +57,52 @@
 # include <io.h>
 #endif
 
-#if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
-# if defined(__TURBOC__) || defined(__WATCOMC__)
-#  include <mem.h>
-# else
-#  include <memory.h>
-# endif
-#endif
-
-
-#if !defined(NeXT) && !defined(ACORN)
-# include <fcntl.h>
-#endif
-
 
 #ifdef SET_UID
 
-# ifndef USG
+#ifndef HAVE_USLEEP
+
+/* struct timeval in usleep requires sys/time.h */
+/* Is this last if defined test for system required? */
+# if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
+     defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
+     defined(__osf__) || defined(ISC) || defined(SGI) || \
+     defined(linux)
+#  include <sys/time.h>
+# endif
+
+#endif /* HAVE_USLEEP */
+
+#endif /* SET_UID */
+
+
+
+/*** Other headers ***/
+/* Will remove if not needed:  tell maintainer if needed.  XXX XXX */
+
+#if 0 /* Deprecated */
+#ifdef SET_UID
+
+# if !defined(SGI) && !defined(ULTRIX)
+#  include <sys/timeb.h>
+# endif
+
+# ifndef USG  /* Probably for pre POSIX locking and can be removed ? */
 #  include <sys/param.h>
 #  include <sys/file.h>
 # endif
 
-# ifdef linux
+# ifdef linux  /* Probably for pre POSIX locking and can be removed ? */
 #  include <sys/file.h>
 # endif
 
-# include <pwd.h>
-
-# include <unistd.h>
-
-# include <sys/stat.h>
-
-# if defined(SOLARIS)
+# if defined(SOLARIS)  /* Probably for CHECK_LOAD ? */
 #  include <netdb.h>
 # endif
 
-#endif
+#endif /* SET_UID */
+#endif /* Deprecated */
 
-#if defined(__DJGPP__) || defined(__MWERKS__)
-#include <unistd.h>
-#endif /* __DJGPP__ || __MWERKS__ */
-
-#include <string.h>
-
-#include <stdarg.h>
-
-
-#endif
+#endif /* INCLUDED_H_SYSTEM_H */
 
 

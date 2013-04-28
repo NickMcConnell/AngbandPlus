@@ -2,12 +2,11 @@
 /* File: loadsave.c */
 
 /*
- * Savefile management.  Save, load, convert, extract information from, and
- * print error messages about savefiles.  Provide in-game tools to manage
+ * Savefile management.  Save, load, convert, extract information from,
+ * and print error messages about savefiles.  In-game tools to manage
  * savefiles.
  *
- * Copyright (c) 2002 Ben Harrison
- * (Some code also by DarkGod and Improv)
+ * Copyright (c) 2002 Ben Harrison and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
@@ -38,7 +37,7 @@
  * the "next" pointers are saved, so all necessary knowledge is present.
  *
  * The unified saving and loading code has no explicit safeguards against
- * data being changed during the writing of a savfile.  At present, the
+ * data being changed during the writing of a savefile.  At present, the
  * low-level code is extremely simple, and will not fail when used cor-
  * rectly.  If new features are added, like compression or new methods of
  * encryption, care must be taken to avoid this danger.
@@ -127,6 +126,16 @@ static void do_byte(byte *v)
 	else
 	{
 		byte val = *v;
+		sf_put(val);
+	}
+}
+
+static void do_char(char *v)
+{
+	if (load_file) *v = sf_get();
+	else
+	{
+		char val = *v;
 		sf_put(val);
 	}
 }
@@ -248,6 +257,9 @@ static void strip_bytes(int n)
  */
 static bool older_than(byte x, byte y, byte z)
 {
+	/* Paranoia */
+	if (!load_file) return (FALSE);
+
 	/* Much older, or much more recent */
 	if (sf_major < x) return (TRUE);
 	if (sf_major > x) return (FALSE);
@@ -281,7 +293,7 @@ static void note(cptr msg)
 	if (++y >= 24) y = 2;
 
 	/* Flush it */
-	Term_fresh();
+	(void)Term_fresh();
 }
 
 /*
@@ -481,8 +493,9 @@ static errr do_item(object_type *o_ptr)
 			if (!e_ptr->name) o_ptr->ego_item_index = 0;
 		}
 
-		/* Insure that rods all recharge at the same speed */
-		if (o_ptr->tval == TV_ROD)
+		/* Insure that ordinary rods all recharge at the same speed */
+		if ((o_ptr->tval == TV_ROD) &&
+		    (!o_ptr->ego_item_index) && (!o_ptr->artifact_index))
 		{
 			if (o_ptr->pval != k_ptr->pval * o_ptr->number)
 			{
@@ -510,7 +523,10 @@ static errr do_item(object_type *o_ptr)
 /*
  * Special monster flags that get saved in the savefile
  */
-#define SAVE_MON_FLAGS (MFLAG_MIME | MFLAG_ACTV | MFLAG_TOWN | MFLAG_MADD)
+#define SAVE_MON_FLAGS \
+(MFLAG_MIME | MFLAG_ACTV | MFLAG_TOWN | MFLAG_MADD | MFLAG_WARY | MFLAG_BLBR)
+
+
 
 /*
  * Handle a monster
@@ -518,6 +534,7 @@ static errr do_item(object_type *o_ptr)
 static void do_monster(monster_type *m_ptr)
 {
 	u16b tmp16u;
+	byte tmp8u;
 
 	/* Monster race */
 	do_s16b(&m_ptr->r_idx);
@@ -533,7 +550,16 @@ static void do_monster(monster_type *m_ptr)
 	do_byte(&m_ptr->stunned);
 	do_byte(&m_ptr->confused);
 	do_byte(&m_ptr->monfear);
-	do_byte(&m_ptr->black_breath);
+	if (sf_extra >= 16)
+	{
+		do_byte(&m_ptr->slowed);
+		do_byte(&m_ptr->hasted);
+	}
+	if (sf_extra < 19)
+	{
+		do_byte(&tmp8u);
+		if (tmp8u) m_ptr->mflag |= (MFLAG_BLBR);
+	}
 
 	if (load_file)
 	{
@@ -671,7 +697,8 @@ static void do_obj_lore(int k_idx)
 		if (k_ptr->special & (SPECIAL_AWARE))        tmp8u |= 0x01;
 		if (k_ptr->special & (SPECIAL_TRIED))        tmp8u |= 0x02;
 		if (k_ptr->special & (SPECIAL_KNOWN_EFFECT)) tmp8u |= 0x04;
-		if (k_ptr->special & (SPECIAL_EVER_SEEN))    tmp8u |= 0x08;
+		if (k_ptr->special & (SPECIAL_MESSAGE))      tmp8u |= 0x08;
+		if (k_ptr->special & (SPECIAL_EVER_SEEN))    tmp8u |= 0x10;
 
 		do_byte(&tmp8u);
 	}
@@ -684,7 +711,8 @@ static void do_obj_lore(int k_idx)
 		if (tmp8u & (0x01)) k_ptr->special |= (SPECIAL_AWARE);
 		if (tmp8u & (0x02)) k_ptr->special |= (SPECIAL_TRIED);
 		if (tmp8u & (0x04)) k_ptr->special |= (SPECIAL_KNOWN_EFFECT);
-		if (tmp8u & (0x08)) k_ptr->special |= (SPECIAL_EVER_SEEN);
+		if (tmp8u & (0x08)) k_ptr->special |= (SPECIAL_MESSAGE);
+		if (tmp8u & (0x10)) k_ptr->special |= (SPECIAL_EVER_SEEN);
 	}
 }
 
@@ -809,7 +837,7 @@ static void do_options(void)
 {
 	int i, k, n;
 
-	byte tmp, max;
+	byte tmp, max, dummy;
 	u32b flag[8];
 	u32b mask[8];
 	u32b window_flag[ANGBAND_TERM_MAX];
@@ -986,7 +1014,8 @@ static void do_options(void)
 		if (i > max) continue;
 
 		/* Save or restore this custom display */
-		do_byte(&custom_display[i]);
+		if ((sf_extra < 17) && (load_file)) do_byte(&dummy);
+		else do_byte(&custom_display[i]);
 	}
 
 	/* Screen options */
@@ -1020,7 +1049,7 @@ static char *my_strdup(const char *s)
  * Read the saved random artifacts from a savefile, and add them to the
  * a_name structure.  From Greg Wooledge's random artifacts patch.
  *
- * This code is very, very ugly.  XXX XXX XXX
+ * This code is somewhat ugly.  XXX XXX
  */
 static int convert_saved_names(void)
 {
@@ -1032,48 +1061,9 @@ static int convert_saved_names(void)
 	int i;
 
 	/* Temporary space for names, while reading and randomizing them. */
-	char *names[300];
+	char *names[ART_LIST_SIZE];
 
 
-if (FALSE)
-{
-	/* Add the permanent artifact names to the temporary array. */
-	for (i = 0; i < ART_MIN_RANDOM; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
-		names[i] = a_name + a_ptr->name;
-	}
-
-	/* Add the random artifact names to the temporary array. */
-	for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
-	{
-		do_string(temp, 64);
-
-		names[i] = my_strdup(temp);
-	}
-
-	/* Convert our names array into an a_name structure for later use. */
-	name_size = 0;
-	for (i = 1; i < z_info->a_max; i++)
-	{
-		name_size += strlen (names[i-1]) + 2;	/* skip first char */
-	}
-
-	C_MAKE(a_base, name_size, char);
-
-	a_next = a_base + 1;	/* skip first char */
-
-	for (i = 1; i < z_info->a_max; i++)
-	{
-		strcpy(a_next, names[i-1]);
-		if (a_info[i].tval > 0)		/* skip unused! */
-			a_info[i].name = a_next - a_base;
-		a_next += strlen(names[i-1]) + 1;
-	}
-}
-
-else
-{
 	/* Add the permanent artifact names to the temporary array. */
 	for (i = 0; i < ART_MIN_RANDOM; i++)
 	{
@@ -1107,7 +1097,6 @@ else
 			a_info[i].name = a_next - a_base;
 		a_next += strlen(names[i]) + 1;
 	}
-}
 
 
 	/* Free the old names */
@@ -1124,10 +1113,6 @@ else
 
 	return (0);
 }
-
-
-
-
 
 
 
@@ -1389,7 +1374,7 @@ static errr do_character(void)
 	if (sf_extra > 8) do_s16b(&p_ptr->steelskin);
 	do_s16b(&p_ptr->blessed);
 	do_s16b(&p_ptr->holy);
-	do_s16b(&p_ptr->tim_stealth);
+	do_s16b(&p_ptr->unsanctified);
 	do_s16b(&p_ptr->tim_invis);
 	do_s16b(&p_ptr->tim_inv_pow);
 	do_s16b(&p_ptr->tim_infra);
@@ -1407,7 +1392,10 @@ static errr do_character(void)
 	do_s16b(&p_ptr->wraithform);
 	do_s16b(&p_ptr->trollform);
 	do_s16b(&p_ptr->dragonform);
-	do_u16b(&blank_u16b);
+
+	do_byte((byte *)&p_ptr->suppress_bottle);
+	do_byte(&blank_u8b);
+
 	do_u16b(&blank_u16b);   /* Space for more temporary shapechanges */
 	do_u16b(&blank_u16b);
 	do_u16b(&blank_u16b);
@@ -1456,6 +1444,15 @@ static errr do_character(void)
 
 	do_u16b(&p_ptr->special_attack);
 
+	if (sf_extra >= 16)
+	{
+		do_s16b(&p_ptr->acid_attack);
+		do_s16b(&p_ptr->elec_attack);
+		do_s16b(&p_ptr->fire_attack);
+		do_s16b(&p_ptr->cold_attack);
+		do_s16b(&p_ptr->pois_attack);
+	}
+
 	do_s16b(&p_ptr->soul_reserve);
 
 	do_byte(&p_ptr->trap_set.time);
@@ -1479,10 +1476,10 @@ static errr do_character(void)
 	do_s16b(&p_ptr->wind_forecast);
 	do_s16b(&p_ptr->temp_forecast);
 
-	/* Number of glyphs, traps, and thefts on level */
+	/* Number of glyphs and traps on level, and recent thefts */
 	do_byte(&num_glyph_on_level);
 	do_byte(&num_trap_on_level);
-	do_byte(&num_theft_on_level);
+	do_byte(&num_recent_thefts);
 
 	/* Food values */
 	do_s32b(&p_ptr->food_bloated);
@@ -1546,10 +1543,7 @@ static errr do_character(void)
 	}
 
 	/* Pouch of essences */
-	for (i = 0; i < tmp16s; i++)
-	{
-		do_byte(&p_ptr->essence[i]);
-	}
+	for (i = 0; i < tmp16s; i++) do_byte(&p_ptr->essence[i]);
 
 
 	/* Hack -- the two "special RNG seeds" */
@@ -1564,11 +1558,16 @@ static errr do_character(void)
 	do_u16b(&p_ptr->noscore);
 	do_byte((byte *)&p_ptr->wizard);
 
-	/* Place stairs */
-	if (sf_extra > 9)
+	/* Deaths (convert "age" in old savefiles) */
+	if (sf_extra >= 18) do_s16b(&p_ptr->deaths);
+	else if (load_file)
 	{
-		do_s16b(&p_ptr->create_stair);
+		if (p_ptr->noscore & (CHEAT_DEATH)) p_ptr->deaths = p_ptr->age;
+		p_ptr->deaths = 0;
 	}
+
+	/* Place stairs */
+	if (sf_extra >= 10) do_s16b(&p_ptr->create_stair);
 
 	/* Bones file selector */
 	do_byte(&bones_selector);
@@ -1581,7 +1580,12 @@ static errr do_character(void)
 	do_byte((byte *)&no_feeling_yet);
 
 	/* Read "noise" */
-	if (sf_extra > 10) do_s16b(&total_wakeup_chance);
+	if      (sf_extra >= 17) do_s32b(&total_wakeup_chance);
+	else if (sf_extra >=  9)
+	{
+		do_s16b(&tmp16s);
+		total_wakeup_chance = tmp16s;
+	}
 
 	/* Save index for Inn name */
 	do_s16b(&p_ptr->inn_name);
@@ -1751,7 +1755,7 @@ static errr do_inventory(void)
 			/* Read the item */
 			if (do_item(i_ptr))
 			{
-				note("Error reading item");
+				note(format("Error reading item (%d)", n));
 				return (-1);
 			}
 
@@ -1765,7 +1769,7 @@ static errr do_inventory(void)
 			/* Verify slot */
 			if (n >= INVEN_TOTAL)
 			{
-				note("inven slot is too high");
+				note("Inventory slot is too high.");
 				return (-1);
 			}
 
@@ -1780,6 +1784,12 @@ static errr do_inventory(void)
 
 				/* One more item */
 				p_ptr->equip_cnt++;
+
+				/* Light sources are explicitly lit */
+				if ((sf_extra < 19) && (n == INVEN_LITE))
+				{
+					i_ptr->flags3 |= (TR3_IS_LIT);
+				}
 			}
 
 			/* Warning -- backpack is full */
@@ -1822,7 +1832,7 @@ static errr do_inventory(void)
 static void do_messages(void)
 {
 	s16b i, num;
-	char buf[128];
+	char buf[1024];
 	u16b tmp16u;
 
 
@@ -1855,7 +1865,7 @@ static void do_messages(void)
 		for (i = 0; i < num; i++)
 		{
 			/* Read the message */
-			do_string(buf, 128);
+			do_string(buf, 1024);
 
 			/* Read the message type */
 			do_u16b(&tmp16u);
@@ -1872,8 +1882,7 @@ static void do_messages(void)
 /*
  * Cave grid flags that get saved in the savefile
  */
-#define SAVE_CAVE_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_ROOM | \
-                         CAVE_ATT1 | CAVE_ATT2 | CAVE_ATT3 | CAVE_ATT4)
+#define SAVE_CAVE_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_ROOM)
 
 /*
  * Handle the dungeon
@@ -2361,11 +2370,11 @@ static errr do_dungeon(void)
 			do_byte(&x_ptr->y0);
 			do_byte(&x_ptr->x0);
 
-			do_byte(&x_ptr->y1);
-			do_byte(&x_ptr->x1);
+			do_s16b(&x_ptr->y1);
+			do_s16b(&x_ptr->x1);
 
-			do_byte(&x_ptr->time_count);
-			do_byte(&x_ptr->time_delay);
+			do_char(&x_ptr->time_count);
+			do_char(&x_ptr->time_delay);
 
 			do_byte(&x_ptr->age);
 			do_byte(&x_ptr->lifespan);
@@ -2377,7 +2386,6 @@ static errr do_dungeon(void)
 
 			/* Expansion space */
 			if (sf_extra >= 13) do_u16b(&blank_u16b);
-			do_u16b(&blank_u16b);
 			do_u16b(&blank_u16b);
 			do_u16b(&blank_u16b);
 		}
@@ -2466,11 +2474,6 @@ static errr do_savefile(void)
 	byte tmp8u;
 	u16b tmp16u;
 
-#ifdef VERIFY_CHECKSUMS
-	u32b n_x_check, n_v_check;
-	u32b o_x_check, o_v_check;
-#endif
-
 
 	/* Saving a file -- Store version information */
 	if (!load_file)
@@ -2497,9 +2500,12 @@ static errr do_savefile(void)
 	{
 		strip_bytes(4);
 
-		/* Mention the savefile version */
-		note(format("Loading a %d.%d.%d savefile...",
-			sf_major, sf_minor, sf_patch));
+		/* Mention the savefile version, if old */
+		if (older_than(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH))
+		{
+			note(format("Loading a %d.%d.%d savefile...",
+				sf_major, sf_minor, sf_patch));
+		}
 	}
 
 
@@ -2629,6 +2635,9 @@ static errr do_savefile(void)
 
 			if (sf_extra >= 13) do_byte(&q_info[i].slack);
 
+			if (sf_extra >= 20) do_byte(&q_info[i].diff);
+			else                q_info[i].diff = 1;
+
 			/* Loading a file -- Activate current quest */
 			if ((load_file) && (q_info[i].active_level || q_info[i].reward))
 			{
@@ -2729,6 +2738,7 @@ static errr do_savefile(void)
 		return (-1);
 	}
 
+
 	/* Handle stores */
 	for (i = 0; i < tmp16u; i++)
 	{
@@ -2742,10 +2752,12 @@ static errr do_savefile(void)
 		if (load_file) note("Restoring Dungeon...");
 		if (do_dungeon())
 		{
-			note("Error reading dungeon data");
+			if (load_file) note("Error reading dungeon data");
+			else           note("Error writing dungeon data");
 			return (-1);
 		}
 	}
+
 
 	/* Saving a file -- write checksums (always) */
 	if (!load_file)
@@ -2762,41 +2774,6 @@ static errr do_savefile(void)
 		/* Successful save */
 		return (0);
 	}
-
-
-#ifdef VERIFY_CHECKSUMS
-
-	/* Saving a file -- verify checksums */
-	if (!load_file)
-	{
-		/* Save the checksum */
-		n_v_check = v_check;
-
-		/* Read the old checksum */
-		do_u32b(&o_v_check);
-
-		/* Verify */
-		if (o_v_check != n_v_check)
-		{
-			note("Invalid checksum");
-			return (-1);
-		}
-
-
-		/* Save the encoded checksum */
-		n_x_check = x_check;
-
-		/* Read the checksum */
-		do_u32b(&o_x_check);
-
-		/* Verify */
-		if (o_x_check != n_x_check)
-		{
-			note("Invalid encoded checksum");
-			return (-1);
-		}
-	}
-#endif
 
 	/* Success */
 	return (0);
@@ -2900,13 +2877,6 @@ bool save_player(void)
 	strcpy(safe, savefile);
 	strcat(safe, ".new");
 
-#ifdef VM
-	/* Hack -- support "flat directory" usage on VM/ESA */
-	strcpy(safe, savefile);
-	strcat(safe, "n");
-#endif /* VM */
-
-
 	/* Grab permissions */
 	safe_setuid_grab();
 
@@ -2924,11 +2894,6 @@ bool save_player(void)
 		/* Old savefile */
 		strcpy(temp, savefile);
 		strcat(temp, ".old");
-#ifdef VM
-		/* Hack -- support "flat directory" usage on VM/ESA */
-		strcpy(temp, savefile);
-		strcat(temp, "o");
-#endif /* VM */
 
 		/* Grab permissions */
 		safe_setuid_grab();
@@ -3206,7 +3171,7 @@ errr load_player(bool silent)
 		sf_extra = vvv[3];
 
 		/* Clear screen */
-		Term_clear();
+		(void)Term_clear();
 
 		/* Attempt to load */
 		err = load_player_aux();
@@ -3267,6 +3232,9 @@ errr load_player(bool silent)
 			}
 		}
 
+		/* A character exists on this savefile */
+		character_existed = TRUE;
+
 		/* Player is dead */
 		if (p_ptr->is_dead)
 		{
@@ -3291,9 +3259,6 @@ errr load_player(bool silent)
 
 			/* Forget turns */
 			turn = old_turn = 0;
-
-			/* A character once existed on this savefile  -EZ- */
-			character_existed = TRUE;
 
 			/* Done */
 			return (0);
@@ -3528,7 +3493,7 @@ static bool savefile_menu()
 
 	int i;
 
-	char buf[80];
+	char buf[256];
 
 	char pre, post;
 
@@ -3551,10 +3516,11 @@ static bool savefile_menu()
 	while (TRUE)
 	{
 		/* Clear screen */
-		Term_clear();
+		(void)Term_clear();
 
 		/* Build a header, center it */
-		center_string(buf, format("Welcome to %s.  To play you will need a character.", VERSION_NAME), 78);
+		center_string(buf, sizeof(buf),
+			format("Welcome to %s.  To play you will need a character.", VERSION_NAME), Term->wid - 2);
 
 		/* Display the header */
 		c_put_str(TERM_L_BLUE, buf, 1, 1);
@@ -3562,7 +3528,8 @@ static bool savefile_menu()
 		/* Display system-specific comments */
 		if (strstr(ANGBAND_SYS, "win"))
 		{
-			center_string(buf, "You may also use the menu commands to handle savefiles.", 78);
+			center_string(buf, sizeof(buf),
+				"You may also use the menu commands to handle savefiles.", Term->wid - 2);
 
 			put_str(buf, 20, 0);
 		}
@@ -3626,7 +3593,7 @@ static bool savefile_menu()
 			}
 
 			/* Hide the cursor */
-			Term_gotoxy(0, 26);
+			(void)Term_gotoxy(0, 26);
 		}
 
 		/* Get response */

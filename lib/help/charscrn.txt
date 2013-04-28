@@ -1,64 +1,69 @@
 
 ====== The character screen (in detail) ======
 
-     The character information display allows you to review your attributes,
-change names, and save character dumps to file (which appear in the "lib/user"
-directory).  The save character to file command saves several bits of
-information including the main character screen, character background, inventory
-and equipment, skill levels, and the contents of the home.
+     The character information display allows you to review attributes, change
+names, and save character dumps to file.  The save character to file command
+saves the character screen, character background, inventory and equipment, skill
+levels, and the contents of the home.
 
      This interface has four modes, which you may cycle through by typing 'h'.
 
 
 --- Main character screen ---
 
+First Row:
 - Name, title, gender, and race
-- Age, height, weight, and either social class (affects starting gold) or your
-greatest victory.
+
+- Age : in years
+- Height : in feet and inches or centimeters
+- Weight : in pounds or kilograms
+- Either social class (affects starting gold) or your greatest victory.
+
 - Your base (undrained) vital statistics (stats) and sometimes their drained
 values
-- Maximum and current hitpoints
 
-- The number of blows you get in hand-to-hand combat, also known as melee
-(always starts out as two; may eventually rise or fall)
-- Plus to melee Skill (affects how often and how well you hit monsters when
-attacking hand-to-hand)
-- Percentage bonus to Deadliness:  The melee damage you do is adjusted by this
-percentage.
-(If you are not wielding a melee weapon, you see a guess at the average damage
-you've done recently in karate or wrestling).
+Second row:
+- Maximum hitpoints
+- Current hitpoints
+- Blows/Round : the number of blows you get per turn in hand-to-hand combat
+- + to Skill : bonus to melee Skill
+- Deadliness (%) : the melee damage you do is adjusted by this percentage.
+     If you are using martial arts, you instead see a guess at the average
+damage you've done recently.
 
-- Your character power (affects hitpoints and many other things)
-- Score (how well you are doing in the game.  Always starts at zero.)
-- Unspent experience (the experience you've earned that you haven't yet spent on
-advancing skills)
-- Gold
-- Maximum depth you've ventured down in the dungeon.
+- Power : affects hitpoints and some other things
+- Score : how well you are doing in the game.  Always starts at zero.
+- Unspent experience : the experience you've earned that you haven't yet spent
+  on advancing skills
+- Gold : money on hand (in gold pieces)
+- Max Depth : the furthest you've ventured down in the dungeon, and your recall
+  depth
 
-- Maximum and current mana (you need to learn magic to increase these)
-- The number of shots you get per turn.  Starts out at zero, increases to 1 if
-you wield any missile weapon, and may rise further.
-- Plus to missile Skill (affects how often and how well you hit monsters when
-shooting)
-- Percentage bonus to Deadliness:  The missile damage you do is adjusted by this
-percentage.
+- Maximum mana (spellpoints)
+- Current mana
+- Shots/Round : the number of shots you get per turn
+- + to Skill : bonus to missile Skill
+- Deadliness (%) : the missile damage you do is adjusted by this percentage.
 
-- Your overall melee Skill.
-- Your overall shooting Skill.
-- Your overall throwing Skill.
-- Your ability to dig through rock
-- Your saving throw (protects you from all sorts of nasty magic)
-- Your stealth (how naturally quiet you are)
-- Your ability to find traps and hidden doors
-- Your ability to disarm traps and unlock doors
-- Your ability to use magical devices (wands, staffs, rods, etc.)
-- How good you are at automatically dodging melee blows and some missiles
-- How famous you are
-- How far you can see warm-blooded creatures, even when invisible or in darkness
+- Melee : your hand-to-hand combat skill (inherent skill, plus bonuses)
+- Shooting : your missile combat skill (inherent skill, plus bonuses)
+- Throwing : your throwing skill (inherent skill, plus bonuses)
+- Digging : your ability to dig through rock
+- Saving Throw : your resistance to magic
+- Stealth : how naturally quiet you are
+- Perception : your ability to find traps and hidden doors
+- Disarming : your ability to disarm traps and unlock doors
+- Magic Device : your ability to use staffs, wands, rods, and activations
+- Dodging : how good you are at automatically dodging melee blows and missiles
+- Fame : how famous you are
+- Infravision : how far you can see warm-blooded creatures, even when invisible
+  or in darkness
 
-     The descriptions of your basic abilities improve as the abilities
-themselves do, but may decrease as you rise in power.  A given disarming skill
-is much more impressive at dungeon level 10 than at level 60.
+     Descriptions of abilities go from awful -> very bad -> bad -> poor -> iffy
+-> fair -> good -> very good -> excellent -> superb -> heroic -> legendary.
+They improve as the abilities themselves do, but may decrease as you rise in
+power or descend into the dungeon.  A given disarming skill is much more
+impressive at 500' than at 3000'.
 
 
 --- History display ---
@@ -97,7 +102,7 @@ Numeric Modifiers:
 
 Attributes:
      The bottom of the screen displays most other non-combat attributes.  White
-'+' and colored '*'s indicate the present of the attribute; colored 'X's
+'+' and colored '*'s indicate the presence of the attribute; colored 'X's
 indicate that this attribute is canceled (you cannot have it).
 - Fire  : plus = resist fire, star = immunity to fire
 - Cold  : plus = resist cold, star = immunity to cold
@@ -116,8 +121,8 @@ indicate that this attribute is canceled (you cannot have it).
 - Chaos : plus = resist chaos (alteration, disorder, and unmaking)
 - Disen : plus = resist disenchantment
 - Food  : plus = slow digestion
-- Feath : plus = resist
-- Shine : plus = shining object.  +1 to total ligth radius
+- Feath : plus = feather fall, no falling damage
+- Shine : plus = shining object.  +1 to total light radius
 - Regen : plus = faster regeneration of hitpoints and mana
 - ESP   : plus = telepathy (see all nearby monsters with minds)
 - SeeIn : plus = see invisible
@@ -157,9 +162,12 @@ attributes that affect melee, the right, those that affect shooting.
 - Pois Brand  : bonus against creatures not resistant to poison
 - Blessed     : melee weapon may be used by pious characters
 - Vorpal      : gets more critical hits
-- Impact      : throws monsters back
+- Impact      : throws monsters back, bonus against rocky creatures
+- Tunneling   : tunneling weapons get a bonus against rocky creatures
+- Light       : bonus when attacking creatures susceptible to light
 - Throwing    : plus = good for throwing, star = perfect balance
 - Two-handed  : plus = usually needs two hands, star = always does
+
 
 
 

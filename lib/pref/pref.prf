@@ -6,18 +6,21 @@
 #
 # - Default values of some options (we may move all the default values here)
 # - Keymaps (original and roguelike command sets, special mappings)
-# - the default inventory colors for various tvals
-# - links to the message colors preferences, and system-specific preferences
+# - Default inventory colors for various tvals
+# - Links to the message colors preferences, and system-specific preferences
 #
 # Order in which preferences and other rules are read in Sangband:
-# - "lib/pref/pref.prf"   (this file)
-# - "lib/pref/font.prf" or "lib/pref/graf.prf"
+# - "lib/pref/pref.prf"   (this file and files called from it)
+# - "lib/pref/font.prf" or "lib/pref/graf.prf"  (for text mode or graphics)
 # - "lib/pref/user.prf"
 # - "lib/user/user.prf"
 # - the savefile
 # - "lib/user/<<basename of character>>.prf"
 #
 # Files read later override anything in previous files.
+#
+# Color definitions are an exception to the above rules - They MUST go in
+# "lib/pref/color.prf"
 #
 # Note that these comments are not correct for most variants!
 #
@@ -86,9 +89,9 @@ C:0:X
 A:^V
 C:0:n
 
-# Hack -- Oangband convenience
+# Hack -- Sangband convenience
 A:R*\r
-C:0:x
+C:0:\t
 
 
 ##### Roguelike Keyset Mappings #####
@@ -242,9 +245,9 @@ C:1:X
 A:^V
 C:1:'
 
-
-###########################
-
+# Hack -- Sangband convenience
+A:R*\r
+C:1:\t
 
 
 
@@ -252,152 +255,149 @@ C:1:'
 
 
 # SKELETON
-E:1:0x01
+E:1:w
 
 # JUNK
-E:2:0x01
+E:2:w
 
 # SPIKE
-E:3:0x02
-
+E:3:s
 
 # COMPONENT
-E:5:0x07
+E:5:u
 
 # PARCHEMENT
-E:6:0x0B
+E:6:y
 
 # BOTTLE
-E:7:0x01
+E:7:w
 
 # CHEST
-E:10:0x02
+E:10:P
 
 # SHOT
-E:16:0x0F
+E:16:U
 
 # ARROW
-E:17:0x0F
+E:17:U
 
 # BOLT
-E:18:0x0F
+E:18:U
 
 # BOW
-E:19:0x07
+E:19:u
 
 # DIGGING
-E:20:0x02
+E:20:s
 
 # HAFTED
-E:21:0x01
+E:21:w
 
 # POLEARM
-E:22:0x01
+E:22:w
 
 # SWORD
-E:23:0x01
+E:23:w
 
 # BOOTS
-E:30:0x0F
+E:30:U
 
 # GLOVES
-E:31:0x0F
+E:31:U
 
 # HELM
-E:32:0x0F
+E:32:U
 
 # CROWN
-E:33:0x0F
+E:33:U
 
 # SHIELD
-E:34:0x0F
+E:34:U
 
 # CLOAK
-E:35:0x0F
+E:35:U
 
 # SOFT_ARMOR
-E:36:0x02
+E:36:s
 
 # HARD_ARMOR
-E:37:0x02
+E:37:s
 
 # DRAG_ARMOR
-E:38:0x02
+E:38:s
 
-# LITE
-E:39:0x0B
+# LIGHT
+E:39:y
 
 # AMULET
-E:40:0x03
+E:40:o
 
 # RING
-E:45:0x04
+E:45:r
 
 # STAFF
-E:55:0x0F
+E:55:U
 
 # WAND
-E:65:0x05
+E:65:g
 
 # ROD
-E:66:0x0A
+E:66:P
 
 # SCROLL
-E:70:0x01
+E:70:w
 
 # POTION
-E:75:0x0E
+E:75:B
 
 # FLASK
-E:77:0x0B
+E:77:y
 
 # FOOD
-E:80:0x0F
+E:80:U
 
 # MAGIC_BOOK
-E:90:0x0C
+E:90:R
 
 # PRAYER_BOOK
-E:91:0x0E
+E:91:B
 
 # NATURE_BOOK
-E:92:0x0D
+E:92:G
 
 # DARK_BOOK
-E:93:0x0A
+E:93:P
+
+
 
 
 ###########################
 
-# Message colors
+# Message preferences
 %:message.prf
 
 
 ##### System Specific Subfiles #####
 
-?:[IOR [EQU $SYS xaw] [EQU $SYS x11]]
+# Use pref-x11.prf for x11, since it seems to work.
+# We can make a customized one later if needed.
+#?:[EQU $SYS gtk]
+#%:pref-gtk.prf
+
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS gtk]]
 %:pref-x11.prf
 
-?:[IOR [EQU $SYS gcu] [EQU $SYS lsl]]
+
+
+
+?:[EQU $SYS gcu]
 %:pref-gcu.prf
-
-?:[EQU $SYS gtk]
-%:pref-gtk.prf
-
-?:[EQU $SYS ami]
-%:pref-ami.prf
 
 ?:[EQU $SYS mac]
 %:pref-mac.prf
 
 ?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
 %:pref-win.prf
-
-?:[EQU $SYS emx]
-%:pref-emx.prf
-
-?:[EQU $SYS acn]
-%:pref-acn.prf
 
 ?:1
 

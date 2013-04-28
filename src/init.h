@@ -44,8 +44,9 @@
 #define PARSE_ERROR_UNKNOWN_ARRAY           24
 #define PARSE_ERROR_NO_ARRAY_SPECIFIED      25
 #define PARSE_ERROR_INVALID_STORE           26
+#define PARSE_ERROR_UNKNOWN_COLOR           27
 
-#define PARSE_ERROR_MAX                     27
+#define PARSE_ERROR_MAX                     28
 
 
 typedef struct header header;

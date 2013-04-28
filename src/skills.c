@@ -2,9 +2,9 @@
 /* File: skills.c */
 
 /*
- * Sangband skills.  Determination of internal skills-based values, alter
- * and restore skills, print out and interact with the skills improvement
- * screen.
+ * Sangband skills.  Cost of skills, increase, restore, and reduce skills.
+ * Realms, Oaths, and specializations, effect of skills on each other, the
+ * skills improvement screen.
  *
  * Copyright (c) 2002
  * Leon Marrick, Julian Lighton, Michael Gorse, Chris Petit
@@ -20,8 +20,8 @@
 /*
  * Special limits on skills.  A "warrior" is a character that has taken the
  * Oath of Iron.  A "spellcaster" is a magic-using character that has taken
- * the oath associated with his realm.  A "half-spellcaster" is a magic-user
- * that hasn't taken such an oath.
+ * the Oath associated with his realm.  A "half-spellcaster" is a magic-user
+ * that hasn't taken such an Oath.
  *
  * Note:  Holy warriors can raise their blunt weapon skill to the max.
  */
@@ -33,9 +33,9 @@
 #define PIOUS_EDGED_WEAPON_LIMIT     30  /* Pious chars don't like swords */
 #define PRIEST_BLUNT_WEAPON_LIMIT    75  /* Priests are OK with blunt weapons */
 
-#define HALF_SPELLCASTER_MANA_LIMIT  50  /* Half-spellcasters get 1/2 the mana */
-
 #define OATH_OF_IRON_REQ             45  /* Skill required to take the Oath of Iron */
+#define NON_GUILDBROTHERS_LIMIT      30  /* Burglary limit for non-Guild */
+
 
 static bool cannot_learn_magic;
 static bool cannot_learn_prayers;
@@ -53,21 +53,24 @@ int selected = -1;
  * range of outputs.  A non-standard difference between min and max
  * will stretch or shrink it.
  *
- * Non-linear effective values are handled as special cases.
+ * We use average character power when asked to calculate S_NOSKILL.
+ *
+ * Non-linear effective values are handled as special cases (see
+ * especially "calc_bonuses()".
  */
 s16b get_skill(int skill, int min, int max)
 {
 	int tmp, std_max;
 
 
-	/* Illegal skill */
-	if ((skill <= -1) || (skill >= NUM_SKILLS)) return (0);
+	/* Illegal or empty skill */
+	if ((skill < 0) || (skill >= NUM_SKILLS)) return (0);
 
 	/* Verify input maximum */
 	if (max <= min) return (min);
 
 
-	/* Get the skill percentage */
+	/* Get the current skill percentage */
 	tmp = p_ptr->pskills[skill].cur;
 
 	/* Get the standard maximum */
@@ -77,7 +80,7 @@ s16b get_skill(int skill, int min, int max)
 	/* If difference between the maximum and the minimum is non-standard, */
 	if ((max - min) != std_max)
 	{
-		/* Stretch or shrink the range of possible outputs to fit. */
+		/* Stretch or shrink the range of possible outputs to fit (do not randomize). */
 		tmp = (tmp * (max - min) + (std_max / 2)) / std_max;
 	}
 
@@ -93,43 +96,83 @@ s16b get_skill(int skill, int min, int max)
 
 
 /*
- * Determine which weapon skill we're using
+ * Adjust skill effect depending on racial aptitude.
+ *
+ * See usage in "calc_bonuses()".
  */
-int sweapon(void)
+s16b get_skill_race(int skill, int min, int max)
 {
-	object_type *o_ptr = &inventory[INVEN_WIELD];
+	int range = max - min;
+	int factor;
 
+
+	/* Some skills are strongly affected by racial aptitude */
+	if (skill == S_SWORD || skill == S_HAFTED || skill == S_POLEARM ||
+	    skill == S_CROSSBOW || skill == S_BOW || skill == S_SLING ||
+	    skill == S_THROWING || skill == S_WRESTLING || skill == S_KARATE)
+	{
+		/* 1-point change in cost means ~8% change in base ability */
+		factor = 2;
+	}
+
+	/* Some other skills are affected less by racial aptitude */
+	else if (skill == S_DEVICE || skill == S_PERCEPTION || skill == S_STEALTH ||
+	         skill == S_DISARM)
+	{
+		/* 1-point change in cost means ~5% change in base ability */
+		factor = 10;
+	}
+
+	/* All other skills are not affected at all */
+	else
+	{
+		factor = -999;
+	}
+
+
+	/* Make adjustments, depending on race */
+	if ((range > 0) && (factor > -10))
+	{
+		/* Get racial ability to learn this skill (plus factor) */
+		int cost     = factor + race_adj_cost_skill[skill][p_ptr->prace];
+		int cost_ave = factor + 10;
+
+		/* The greater the cost to learn, the less effective the skill */
+		range = ((range * cost_ave) + (cost / 2)) / (cost);
+
+		/* Adjust maximum */
+		max = min + range;
+	}
+
+	/* Call the standard function */
+	return (get_skill(skill, min, max));
+}
+
+
+
+/*
+ * Determine which melee weapon skill we're using.
+ */
+int sweapon(int tval)
+{
 	/* Check for a known weapon */
-	if (o_ptr->tval == TV_SWORD)
-		return (S_SWORD);
-	if (o_ptr->tval == TV_HAFTED)
-		return (S_HAFTED);
-	if ((o_ptr->tval == TV_POLEARM) || (o_ptr->tval == TV_DIGGING))
-		return (S_POLEARM);
+	if (tval == TV_SWORD) return (S_SWORD);
+	if (tval == TV_HAFTED) return (S_HAFTED);
+	if ((tval == TV_POLEARM) || (tval == TV_DIGGING)) return (S_POLEARM);
 
-	/* Otherwise, assume barehanded */
+	/* Otherwise, we are using either wrestling or karate */
 	return (p_ptr->barehand);
 }
 
 /*
- * Determine which bow skill we're using
+ * Determine which archery skill we're using.
  */
 int sbow(int sval)
 {
 	/* Check for a known missile weapon */
-	if (sval == SV_SLING)
-	{
-		return (S_SLING);
-	}
-	if ((sval == SV_SHORT_BOW) || (sval == SV_LONG_BOW))
-	{
-		return (S_BOW);
-	}
-	if ((sval == SV_LIGHT_XBOW) || (sval == SV_HEAVY_XBOW) ||
-	    (sval == SV_TRIPLE_XBOW))
-	{
-		return (S_CROSSBOW);
-	}
+	if (is_sling(sval))    return (S_SLING);
+	if (is_bow(sval))      return (S_BOW);
+	if (is_crossbow(sval)) return (S_CROSSBOW);
 
 	/* Otherwise, assume none */
 	return (S_NOSKILL);
@@ -152,6 +195,8 @@ static cptr realm_desc(void)
 		{
 			if (p_ptr->oath & (OATH_OF_IRON))
 				return ("You are a specialist warrior.");
+			else if (p_ptr->oath & (BURGLARS_GUILD))
+				return ("You are a specialist burglar.");
 			else
 				return ("You are not familiar with any magical art.");
 		}
@@ -169,7 +214,11 @@ static cptr realm_user_desc(void)
 		case PRIEST: return ("priest");    /* Could stand to be changed */
 		case DRUID:  return ("druid");
 		case NECRO:  return ("necromancer");
-		default:     return ("warrior");
+		default:
+		{
+			if (p_ptr->oath & (BURGLARS_GUILD)) return ("burglar");
+			return ("warrior");
+		}
 	}
 }
 
@@ -180,11 +229,11 @@ static cptr realm_user_desc(void)
 static void skill_msg(int attr, const char *msg)
 {
 	/* Clear part of line, position cursor */
-	Term_erase(0, 0, 55);
-	Term_gotoxy(2, 0);
+	(void)Term_erase(0, 0, 55);
+	(void)Term_gotoxy(2, 0);
 
-	/* Dump the attr/text */
-	Term_addstr(-1, attr, msg);
+	/* Display colored text */
+	(void)Term_addstr(-1, attr, msg);
 }
 
 
@@ -193,10 +242,10 @@ static void skill_msg(int attr, const char *msg)
  */
 static void erase_skill_comment(void)
 {
-	clear_row(17);
 	clear_row(18);
 	clear_row(19);
 	clear_row(20);
+	clear_row(21);
 }
 
 
@@ -209,7 +258,7 @@ static void skill_comment(int attr, const char *msg)
 	erase_skill_comment();
 
 	/* Move the cursor, indent message */
-	move_cursor(17, 7);
+	move_cursor(18, 7);
 
 	/* Print new message */
 	c_roff(attr, msg, 2, 78);
@@ -441,22 +490,20 @@ s32b adv_cost(int skill, bool add_practice_cost)
 	/* Get the actual cost (standard rounding) */
 	cost = (tmp + divisor / 2) / divisor;
 
-	/* Handle practice penalty */
-	if (add_practice_cost) practice_penalty(skill, &cost);
 
-
-	/* Drained skills are twice as easy to restore */
+	/* Drained skills are three times as easy to restore */
 	if (level < p_ptr->pskills[skill].max)
 	{
-		cost /= 2;
+		cost /= 3;
 	}
 
 	/* Otherwise, require a minimum cost */
-	else
+	else if (p_ptr->power >= 10)
 	{
+		int tmp_pow = MAX(2, (p_ptr->power - 8) * 8 / 10);
+
 		/* Minimum cost depends on character power */
-		int i = MAX(0, 2 * p_ptr->power / 5 - 5);
-		s32b min_cost = player_exp[i];
+		s32b min_cost = player_exp[tmp_pow] - player_exp[tmp_pow - 1];
 
 		/* It also depends on the inherent cost of the skill */
 		min_cost *= skill_info[skill].cost_adj;
@@ -467,11 +514,16 @@ s32b adv_cost(int skill, bool add_practice_cost)
 
 		/* Enforce minimum */
 		if (cost < min_cost) cost = min_cost;
-	}
 
+		/* Handle practice penalty */
+		if (add_practice_cost) practice_penalty(skill, &cost);
+	}
 
 	/* Cost must be at least one */
 	if (cost < 1L) cost = 1L;
+
+	/* Round off cost (slightly) */
+	cost = round_it(cost, 50);
 
 	/* Return cost */
 	return (cost);
@@ -499,6 +551,19 @@ static bool can_take_oath(byte oath)
 			if (p_ptr->pskills[S_DEVICE].max > WARRIOR_DEVICE_LIMIT)
 				return (FALSE);
 
+			/* Require skill at any form of non-magical combat */
+			if ((p_ptr->pskills[S_SWORD].max < OATH_OF_IRON_REQ) &&
+			    (p_ptr->pskills[S_HAFTED].max < OATH_OF_IRON_REQ) &&
+			    (p_ptr->pskills[S_POLEARM].max < OATH_OF_IRON_REQ) &&
+			    (p_ptr->pskills[S_CROSSBOW].max < OATH_OF_IRON_REQ) &&
+			    (p_ptr->pskills[S_BOW].max < OATH_OF_IRON_REQ) &&
+			    (p_ptr->pskills[S_SLING].max < OATH_OF_IRON_REQ + 10) &&
+			    (p_ptr->pskills[S_THROWING].max < OATH_OF_IRON_REQ) &&
+			    (p_ptr->pskills[S_WRESTLING].max < OATH_OF_IRON_REQ) &&
+			    (p_ptr->pskills[S_KARATE].max < OATH_OF_IRON_REQ))
+			{
+				return (FALSE);
+			}
 			break;
 		}
 
@@ -541,6 +606,14 @@ static bool can_take_oath(byte oath)
 			break;
 		}
 
+		case BURGLARS_GUILD:
+		{
+			/* Must have a Burglary skill of at least 25 */
+			if (p_ptr->pskills[S_BURGLARY].max < LEV_REQ_GUILD) return (FALSE);
+
+			break;
+		}
+
 		default:
 		{
 			return (FALSE);
@@ -559,7 +632,10 @@ static bool can_take_oath(byte oath)
 #define SPELLCASTER_WEAPON     3
 #define NON_WARRIOR            4
 #define WARRIOR_DEVICE         5
-#define PIETY_AND_DOMINION     6
+#define WARRIOR_SPELLS         6
+#define PIETY_AND_DOMINION     7
+#define THIEVING               8
+
 
 /*
  * Warn players if raising a skill would cost them opportunities to take
@@ -605,11 +681,23 @@ static bool can_raise_skill_confirm(int warning)
 			break;
 		}
 
+		case WARRIOR_SPELLS:
+		{
+			warn_text = "If you learn spells, you will not be able to take the Oath of Iron.";
+			break;
+		}
+
 		case PIETY_AND_DOMINION:
 		{
 			warn_text = "Never can one character learn both holy Piety and dark Blood Dominion.  If you choose to raise one skill, the other will be set to zero.";
 			break;
 		}
+
+		case THIEVING:
+		{
+			warn_text = "If you raise this skill any higher, shopkeepers will start to notice; your Charisma will drop by 2.";
+		}
+
 
 		/* Called with an undefined warning - assume acceptable  XXX XXX */
 		default:  return (TRUE);
@@ -622,14 +710,27 @@ static bool can_raise_skill_confirm(int warning)
 	/* Ask */
 	skill_msg(TERM_WHITE, "Advance this skill? [y/n] ");
 
-	/* Answer */
-	ch = inkey();
+	/* Ask until we get a clear answer */
+	while (TRUE)
+	{
+		/* Answer */
+		ch = inkey();
 
-	/* Note accept */
-	if ((ch == 'y') || (ch == 'Y')) accept = TRUE;
+		/* Note accept */
+		if ((ch == 'y') || (ch == 'Y'))
+		{
+			accept = TRUE;
+			break;
+		}
 
-	/* Note cancel */
-	if (!accept) skill_msg(TERM_WHITE, "Cancelled.");
+		/* Note cancel */
+		if ((ch == 'n') || (ch == 'N') || (ch == ESCAPE))
+		{
+			accept = FALSE;
+			skill_msg(TERM_WHITE, "Cancelled.");
+			break;
+		}
+	}
 
 
 	/* Erase message */
@@ -653,7 +754,7 @@ static bool can_raise_skill_confirm(int warning)
  *
  * Return TRUE if skill can be raised by 1%.
  */
-static bool can_raise_skill(int skill, bool verbose, int auto_raise)
+static int can_raise_skill(int skill, bool verbose, int auto_raise)
 {
 	int lev = p_ptr->pskills[skill].max;
 
@@ -662,11 +763,11 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 	cannot_learn_prayers = FALSE;
 
 	/* Can never raise any skill past 100 */
-	if (p_ptr->pskills[skill].cur >= PY_MAX_POWER) return (FALSE);
+	if (p_ptr->pskills[skill].cur >= PY_MAX_POWER) return (-1);
 
 
 	/* If we've taken an oath, some warnings are unnecessary */
-	if ((p_ptr->oath) && (!auto_raise)) auto_raise = -1;
+	if ((p_ptr->oath) && (!auto_raise)) auto_raise = 1;
 
 	/* If the skill is not at maximum, we always allow advances */
 	if (p_ptr->pskills[skill].cur < p_ptr->pskills[skill].max)
@@ -757,7 +858,7 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 				if (lev < PIOUS_EDGED_WEAPON_LIMIT) return (TRUE);
 
 				else if (verbose) prt("The pious cannot raise their edged weapons skills any higher than this.", 1, 2);
-				return (FALSE);
+				return (-1);
 			}
 
 
@@ -770,7 +871,7 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 				if (lev < SPELLCASTER_WEAPON_LIMIT) return (TRUE);
 
 				if (verbose) prt("A specialist spellcaster cannot raise his weapons skills any higher than this.", 1, 2);
-				return (FALSE);
+				return (-1);
 			}
 
 			/* Character is a non-specialist spellcaster */
@@ -790,7 +891,7 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 				else if (lev < NON_WARRIOR_LIMIT) return (TRUE);
 
 				if (verbose) prt("A magic-user cannot raise his weapons skills any higher than this.", 1, 2);
-				return (FALSE);
+				return (-1);
 			}
 
 			break;
@@ -858,7 +959,7 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 					if (lev < PRIEST_BLUNT_WEAPON_LIMIT) return (TRUE);
 
 					if (verbose) prt("The Covenant of Faith forbids you to focus on blunt weapons any more than this.", 1, 2);
-					return (FALSE);
+					return (-1);
 				}
 
 				/* Character hasn't */
@@ -887,7 +988,7 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 				if (lev < SPELLCASTER_WEAPON_LIMIT) return (TRUE);
 
 				if (verbose) prt(format("Oath-bound %ss cannot raise their weapon skills any higher than this.", realm_user_desc()), 1, 2);
-				return (FALSE);
+				return (-1);
 			}
 
 			/* Character is a non-specialist spellcaster */
@@ -906,7 +1007,7 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 				if (lev < NON_WARRIOR_LIMIT) return (TRUE);
 
 				if (verbose) prt("Spellcasters of your realm cannot raise their weapons skills any higher than this.", 1, 2);
-				return (FALSE);
+				return (-1);
 			}
 
 			break;
@@ -932,7 +1033,7 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 			{
 				if (verbose) prt("The Oath of Iron forbids the learning of magic.",
 					1, 2);
-				return (FALSE);
+				return (-1);
 			}
 
 			/* Must not be too focused on melee weapons */
@@ -955,7 +1056,7 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 			{
 				if (verbose) prt("You are too much the fighter to learn spells or prayers.",
 					1, 2);
-				return (FALSE);
+				return (-1);
 			}
 
 			/* Explain limitations */
@@ -974,6 +1075,26 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 				return (TRUE);
 			}
 
+			/* Notice possibility of taking the Oath of Iron */
+			if ((!p_ptr->oath) &&
+			    (p_ptr->pskills[S_DEVICE].max <= WARRIOR_DEVICE_LIMIT) &&
+			   ((p_ptr->pskills[S_SWORD].max >= OATH_OF_IRON_REQ) ||
+			    (p_ptr->pskills[S_HAFTED].max >= OATH_OF_IRON_REQ) ||
+			    (p_ptr->pskills[S_POLEARM].max >= OATH_OF_IRON_REQ) ||
+			    (p_ptr->pskills[S_CROSSBOW].max >= OATH_OF_IRON_REQ) ||
+			    (p_ptr->pskills[S_BOW].max >= OATH_OF_IRON_REQ) ||
+			    (p_ptr->pskills[S_SLING].max >= OATH_OF_IRON_REQ + 10) ||
+			    (p_ptr->pskills[S_THROWING].max >= OATH_OF_IRON_REQ) ||
+			    (p_ptr->pskills[S_WRESTLING].max >= OATH_OF_IRON_REQ) ||
+			    (p_ptr->pskills[S_KARATE].max >= OATH_OF_IRON_REQ)))
+			{
+				if (auto_raise) return (auto_raise > 0);
+				else
+				{
+					return (can_raise_skill_confirm(WARRIOR_SPELLS));
+				}
+			}
+
 			break;
 		}
 
@@ -983,53 +1104,14 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 			if (p_ptr->oath & (OATH_OF_IRON))
 			{
 				if (verbose) prt("The Oath of Iron forbids the learning of magic.", 1, 2);
-				return (FALSE);
+				return (-1);
 			}
 
 			/* No realm chosen -- Ask the player to increase Spellcasting */
 			else if (!p_ptr->realm)
 			{
 				if (verbose) prt("Raise your Spellcasting skill to choose a magic realm.", 1, 2);
-				return (FALSE);
-			}
-
-			/* Pure spellcasters have no limits */
-			else if ((p_ptr->oath & (OATH_OF_SORCERY)) ||
-			         (p_ptr->oath & (COVENANT_OF_FAITH)) ||
-			         (p_ptr->oath & (YAVANNAS_FELLOWSHIP)) ||
-			         (p_ptr->oath & (BLACK_MYSTERY)))
-			{
-				return (TRUE);
-			}
-
-			/* Non-specialist spellcasters get limited mana */
-			else
-			{
-				if (lev < HALF_SPELLCASTER_MANA_LIMIT) return (TRUE);
-
-				if (verbose)
-				{
-					cptr s;
-					if (p_ptr->realm == MAGE)
-						s = "taken the Oath of Sorcery";
-					else if (p_ptr->realm == PRIEST)
-						s = "subscribed to the Covenant of Faith";
-					else if (p_ptr->realm == DRUID)
-						s = "joined Yavanna's Fellowship";
-					else if (p_ptr->realm == NECRO)
-						s = "bound themselves to the Black Mystery";
-					else s = "specialized in magic";
-
-					/* Clear line 1, move cursor */
-					clear_row(1);
-
-					/* Message */
-					c_roff_centered(TERM_YELLOW, format("Only those who have %s can raise this skill any higher.", s), 5, 75);
-
-					/* Hide cursor  XXX */
-					move_cursor(26, 0);
-				}
-				return (FALSE);
+				return (-1);
 			}
 
 			break;
@@ -1043,7 +1125,7 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 				if (lev < WARRIOR_DEVICE_LIMIT) return (TRUE);
 
 				if (verbose) prt("Warriors cannot raise their magic mastery skill any higher than this.", 1, 2);
-				return (FALSE);
+				return (-1);
 			}
 
 			/* Warn if we would lose the chance to take the Oath of Iron */
@@ -1063,20 +1145,41 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 			break;
 		}
 
+		case S_BURGLARY:
+		{
+			/* Must join the Burglars' Guild to get very good at Burglary */
+			if (!(p_ptr->oath & (BURGLARS_GUILD)))
+			{
+				if (lev < NON_GUILDBROTHERS_LIMIT) return (TRUE);
+
+				if (verbose) prt("To raise this skill further, you must first join the Burglars' Guild.", 1, 2);
+				return (-1);
+			}
+
+			/* Allow raises */
+			return (TRUE);
+
+			break;
+		}
+
 		case S_PIETY:
 		{
-			/* The Black Mystery forbids gaining holy wisdom */
-			if (p_ptr->oath & (BLACK_MYSTERY))
+			/* Necromantic magic forbids holy alliance */
+			if (p_ptr->realm == NECRO)
 			{
-				if (verbose) prt("Those bound by the Black Mystery cannot increase Holy Alliance.", 1, 2);
-				return (FALSE);
+				if (verbose) prt("Users of the necromantic arts cannot learn Holy Alliance.", 1, 2);
+
+				/* Paranoia -- set Holy Alliance to zero */
+				p_ptr->pskills[S_PIETY].max = p_ptr->pskills[S_PIETY].cur = 0;
+
+				return (-1);
 			}
 
 			/* Increasing Piety sets Blood Dominion to zero */
 			if (p_ptr->pskills[S_DOMINION].max > 0)
 			{
 				/* We never automatically raise a forbidden skill */
-				if (auto_raise) return (FALSE);
+				if (auto_raise) return (-1);
 
 				/* We may allow the player to manually raise the skill */
 				else
@@ -1089,18 +1192,22 @@ static bool can_raise_skill(int skill, bool verbose, int auto_raise)
 
 		case S_DOMINION:
 		{
-			/* The Covenant of Faith forbids gaining dark knowledge */
+			/* Holy lore forbids gaining dark knowledge */
 			if (p_ptr->oath & (COVENANT_OF_FAITH))
 			{
-				if (verbose) prt("Those subscribing to the Covenant of Faith cannot learn Blood Dominion.", 1, 2);
-				return (FALSE);
+				if (verbose) prt("Acolytes of holy lore cannot learn Blood Dominion.", 1, 2);
+
+				/* Paranoia -- set Blood Dominion to zero */
+				p_ptr->pskills[S_DOMINION].max = p_ptr->pskills[S_DOMINION].cur = 0;
+
+				return (-1);
 			}
 
 			/* Increasing Blood Dominion sets Piety to zero */
 			if (p_ptr->pskills[S_PIETY].max > 0)
 			{
 				/* We never automatically raise a forbidden skill */
-				if (auto_raise) return (FALSE);
+				if (auto_raise) return (-1);
 
 				/* We may allow the player to manually raise the skill */
 				else
@@ -1144,7 +1251,7 @@ bool alter_skill(int skill, int change, bool perm)
 	if (change == 1)
 	{
 		/* Check to see if the skill can be raised */
-		if (!can_raise_skill(skill, FALSE, -1)) return (FALSE);
+		if (can_raise_skill(skill, FALSE, -1) <= 0) return (FALSE);
 
 		/* Adjust maximum skill */
 		if (p_ptr->pskills[skill].max == p_ptr->pskills[skill].cur)
@@ -1211,19 +1318,44 @@ bool alter_skill(int skill, int change, bool perm)
  */
 bool raise_skills(int amount)
 {
-	int i, skill, cost;
+	int i, skill, level, cost;
+	s32b k;
 
 	bool notice = FALSE;
+	s16b skill_raise_chance[NUM_SK_USED];
+	s32b skill_raise_total = 0L;
 
-
-	/* Raise skills */
-	for (i = 0; i < 200; i++)
+	/* Build a table of increasable skills */
+	for (i = 0; i < NUM_SK_USED; i++)
 	{
-		skill = rand_int(NUM_SK_USED);
+		/* Get maximum level of this skill */
+		level = p_ptr->pskills[i].max;
 
-		/* Pick an already raised skill at random */
-		if (p_ptr->pskills[skill].cur > 0)
+		/* Bias in favour of higher-level skills */
+		skill_raise_chance[i] = level * level;
+
+		/* Sum up probabilities */
+		skill_raise_total += level * level;
+	}
+
+	/* Raise skills -- if any exist to raise */
+	if (skill_raise_total)
+	{
+		for (i = 0; i < 200; i++)
 		{
+			/* Randomize */
+			k = rand_int(skill_raise_total);
+
+			/* Find the skill */
+			for (skill = S_SWORD; skill < NUM_SK_USED; skill++)
+			{
+				/* Found the entry */
+				if (k < skill_raise_chance[skill]) break;
+
+				/* Decrement */
+				k -= skill_raise_chance[skill];
+			}
+
 			/* Get the cost of raising this skill */
 			cost = adv_cost(skill, TRUE);
 
@@ -1242,6 +1374,17 @@ bool raise_skills(int amount)
 
 				/* Charge cost */
 				amount -= cost;
+
+
+				/* Handle special cases XXX XXX */
+				if ((skill == S_INFUSION) &&
+					 (p_ptr->pskills[skill].max >= LEV_REQ_GRENADE))
+				{
+					/* Hack - learn about potions of essences */
+					k_info[lookup_kind(TV_POTION,
+						SV_POTION_GRENADE)].special |=
+						(SPECIAL_AWARE | SPECIAL_EVER_SEEN);
+				}
 			}
 		}
 	}
@@ -1263,9 +1406,10 @@ bool raise_skills(int amount)
  *
  * Used when purchasing skill advances.
  */
-static bool adv_skill(int skill, bool pay_exp)
+static int adv_skill(int skill, bool pay_exp)
 {
 	s32b cost;
+	int advance;
 
 	/* Get the cost of raising this skill */
 	cost = adv_cost(skill, TRUE);
@@ -1274,18 +1418,23 @@ static bool adv_skill(int skill, bool pay_exp)
 	if (cost == -1)
 	{
 		prt("You have raised this skill to the maximum.", 1, 2);
-		return (FALSE);
+		pause_for(250);
+		return (-1);
 	}
 
 	/* Note too expensive */
 	if ((pay_exp) && (cost > p_ptr->exp))
 	{
 		prt("You do not have enough unspent experience to raise this skill.", 1, 2);
-		return (FALSE);
+		pause_for(250);
+		return (-1);
 	}
 
 	/* Check to see if the skill can be raised, output error messages */
-	if (!can_raise_skill(skill, TRUE, 0)) return (FALSE);
+	advance = can_raise_skill(skill, TRUE, 0);
+
+	/* Skill is forbidden, or raise was cancelled */
+	if (advance <= 0) return (advance);
 
 
 	/* Advance the skill by 1% */
@@ -1307,6 +1456,33 @@ static bool adv_skill(int skill, bool pay_exp)
 			/* Print notice */
 			skill_comment(TERM_L_BLUE, format("You can now use the talent \"%s\".",
 				talent_info[new_talent].name));
+		}
+
+		/* Archery */
+		if ((skill == S_CROSSBOW) || (skill == S_BOW) || (skill == S_SLING))
+		{
+			int old_ammo_tval = p_ptr->ammo_tval;
+			int i, j;
+
+			/* Hack -- assume we're ready to use this skill */
+			if (skill == S_CROSSBOW) p_ptr->ammo_tval = TV_BOLT;
+			if (skill == S_BOW) p_ptr->ammo_tval = TV_ARROW;
+			if (skill == S_SLING) p_ptr->ammo_tval = TV_SHOT;
+
+			/* Do we get a increase in shooting speed? */
+			i = missile_bonus(TR_PVAL_SHOTS, p_ptr->pskills[skill].cur);
+			j = missile_bonus(TR_PVAL_SHOTS, p_ptr->pskills[skill].cur - 1);
+
+			if (i > j) skill_comment(TERM_L_BLUE, "You now shoot more quickly.");
+
+			/* Do we get a increase in shooting force? */
+			i = missile_bonus(TR_PVAL_MIGHT, p_ptr->pskills[skill].cur);
+			j = missile_bonus(TR_PVAL_MIGHT, p_ptr->pskills[skill].cur - 1);
+
+			if (i > j) skill_comment(TERM_L_BLUE, "You now shoot with greater force.");
+
+			/* Hack -- restore actual ammo */
+			p_ptr->ammo_tval = old_ammo_tval;
 		}
 
 		/* Wrestling */
@@ -1331,14 +1507,17 @@ static bool adv_skill(int skill, bool pay_exp)
 				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
 		}
 
-		/* Wizardry */
-		if (skill == S_WIZARDRY)
+		/* Spellpower */
+		if (skill == S_MPOWER)
 		{
-			/* We can see essences */
-			if (p_ptr->pskills[skill].max == LEV_REQ_SEE_ESSENCE)
+			/* Recalculate mana */
+			calc_mana();
+
+			/* Note current mana -- if any */
+			if (p_ptr->msp)
 			{
-				/* Print notice */
-				skill_comment(TERM_L_BLUE, "You can now search for essences.");
+				skill_comment(TERM_L_BLUE,
+					format("Your maximum mana is now %d.", p_ptr->msp));
 			}
 		}
 
@@ -1357,10 +1536,10 @@ static bool adv_skill(int skill, bool pay_exp)
 		if (skill == S_BURGLARY)
 		{
 			/* We can steal */
-			if (p_ptr->pskills[skill].max == LEV_REQ_STEAL)
+			if (p_ptr->pskills[skill].max == LEV_REQ_BURGLE)
 			{
 				/* Print notice */
-				skill_comment(TERM_L_BLUE, "You can now steal gold from monsters.");
+				skill_comment(TERM_L_BLUE, "You can now steal things from monsters.  You also get accuracy bonuses with light melee weapons and penalties with heavy ones.  Your Charisma drops by 2.");
 			}
 
 			/* We can lock doors */
@@ -1385,13 +1564,23 @@ static bool adv_skill(int skill, bool pay_exp)
 			if (p_ptr->pskills[skill].max == LEV_REQ_PRECOG)
 			{
 				/* Print notice */
-				skill_comment(TERM_L_BLUE, "You will sometimes feel the presence of monsters or objects on levels you enter.");
+				skill_comment(TERM_L_BLUE, "You will sometimes feel the presence of monsters or objects on levels you enter.  Note that not all precognition messages are true.");
 			}
 		}
 
 		/* Alchemy */
 		if (skill == S_ALCHEMY)
 		{
+			/* We can make potions and scrolls */
+			if (p_ptr->pskills[skill].max == LEV_REQ_ALCHEMY)
+			{
+				/* Print notice */
+				skill_comment(TERM_L_BLUE, "You can now make potions and scrolls, and will now save empty bottles and blank parchments.");
+
+				/* Start saving bottles and parchments */
+				p_ptr->suppress_bottle = FALSE;
+			}
+
 			/* We can make rings and amulets */
 			if (p_ptr->pskills[skill].max == LEV_REQ_ALCHEMY_RING)
 			{
@@ -1407,14 +1596,25 @@ static bool adv_skill(int skill, bool pay_exp)
 			if (p_ptr->pskills[skill].max == LEV_REQ_INFUSE)
 			{
 				/* Print notice */
-				skill_comment(TERM_L_BLUE, "You can now infuse forged items.");
+				skill_comment(TERM_L_BLUE, "You can now infuse forged items and search for essences.");
 			}
 
 			/* We can make grenades */
 			if (p_ptr->pskills[skill].max == LEV_REQ_GRENADE)
 			{
 				/* Print notice */
-				skill_comment(TERM_L_BLUE, "You can now create potions of essences to throw at your foes.");
+				if (p_ptr->pskills[S_ALCHEMY].cur >= LEV_REQ_ALCHEMY)
+				{
+					skill_comment(TERM_L_BLUE, "You can now create potions of essences to throw at your foes.");
+				}
+				else
+				{
+					skill_comment(TERM_L_BLUE, "Once you raise your Alchemy skill to 10, you will be able to create potions of essences to throw at your foes.");
+				}
+
+				/* Hack - learn about potions of essences */
+				k_info[lookup_kind(TV_POTION, SV_POTION_GRENADE)].special |=
+					(SPECIAL_AWARE | SPECIAL_EVER_SEEN);
 			}
 		}
 	}
@@ -1455,6 +1655,7 @@ static bool special_skill_command(int skill, bool *must_accept)
 		case S_SLING:
 		case S_BOW:
 		case S_CROSSBOW:
+		case S_THROWING:
 		{
 			/* Normal skill requirement to take this Oath */
 			int req_skill = OATH_OF_IRON_REQ;
@@ -1613,7 +1814,7 @@ static bool special_skill_command(int skill, bool *must_accept)
 			if (can_take_oath(BLACK_MYSTERY))
 			{
 				/* Warning */
-				skill_comment(TERM_VIOLET, "The rituals of the true necromancers are the very stuff of nightmares.  This most perilous of magics requires extraordinary dedication; mastery comes only at the price of lost hitpoints and reduced combat skills.\n     Once taken, an Oath cannot be revoked!");
+				skill_comment(TERM_PURPLE, "The rituals of the true necromancers are the very stuff of nightmares.  This most perilous of magics requires extraordinary dedication; mastery comes only at the price of lost hitpoints and reduced combat skills.\n     Once taken, an Oath cannot be revoked!");
 
 				/* Ask */
 				skill_msg(TERM_WHITE, "Bind yourself to the Black Mystery? [y/n] ");
@@ -1633,7 +1834,43 @@ static bool special_skill_command(int skill, bool *must_accept)
 				{
 					skill_msg(TERM_WHITE, "Cancelled.");
 				}
+			}
 
+			/* Nothing happens */
+			else return (FALSE);
+
+			break;
+		}
+
+		case S_BURGLARY:
+		{
+			/* Check if an oath allowed */
+			if (can_take_oath(BURGLARS_GUILD))
+			{
+				/* Warning */
+				skill_comment(TERM_SLATE, format("The lore and cunning of the %s of Misrule is shared only with fellow Guild members.  Scofflaws, cutpurses, wastrels, vagabonds, keenfingers, and common thugs need not apply; such scum are mere prey to the Shadowknives.\n     But remember one thing:  \"Once a Guild%s, always a Guild%s!\"", (p_ptr->psex == 0 ? "Daughters" : "Sons"), (p_ptr->psex == 0 ? "sister" : "brother"), (p_ptr->psex == 0 ? "sister" : "brother")));
+
+				/* Ask */
+				if (p_ptr->psex == 0)
+					skill_msg(TERM_WHITE, "Become a Sister in the Guild of Burglars? [y/n] ");
+				else
+					skill_msg(TERM_WHITE, "Become a Brother in the Guild of Burglars? [y/n] ");
+
+				/* Answer */
+				answer = inkey();
+
+				/* The Guild of Burglars */
+				if ((answer == 'Y') || (answer == 'y'))
+				{
+					p_ptr->oath |= (BURGLARS_GUILD);
+
+					/* Refuse to cancel */
+					*must_accept = TRUE;
+				}
+				else
+				{
+					skill_msg(TERM_WHITE, "Cancelled.");
+				}
 			}
 
 			/* Nothing happens */
@@ -1666,11 +1903,11 @@ static void prt_skill_select(int skill)
 	char buf[100];
 	cptr cmddesc = "";
 	int lev;
-	byte attr;
+	byte attr = TERM_WHITE;
 
 
 	/* Get and display cost to advance this skill */
-	if (can_raise_skill(skill, FALSE, 1))
+	if (can_raise_skill(skill, FALSE, 1) > 0)
 	{
 		/* Get the cost with and without the practice penalty */
 		u16b cost   = adv_cost(skill, TRUE);
@@ -1736,11 +1973,39 @@ static void prt_skill_select(int skill)
 		sprintf(out, "Improves your %s.", skill_info[skill].desc);
 	}
 
-	/* Center the text */
-	center_string(buf, out, 80);
+	/* Display the skill description */
+	move_cursor(1, 0);
+	c_roff_centered(TERM_L_BLUE, out, 0, 80);
 
-	/* Output the description */
-	c_prt(TERM_L_BLUE, buf, 1, 2);
+	/* Display a rate of learning indicator */
+	if (TRUE)
+	{
+		cptr rate_desc = "";
+
+		int adj_cost = race_adj_cost_skill[skill][p_ptr->prace];
+
+		/* Describe rate of learning */
+		if      (adj_cost >= 17) rate_desc = "extremely slowly";
+		else if (adj_cost >= 14) rate_desc = "very slowly";
+		else if (adj_cost >= 12) rate_desc = "slowly";
+		else if (adj_cost == 11) rate_desc = "a bit slowly";
+		else if (adj_cost == 10) rate_desc = "at normal speed";
+		else if (adj_cost ==  9) rate_desc = "relatively quickly";
+		else if (adj_cost ==  8) rate_desc = "quickly";
+		else if (adj_cost <=  7) rate_desc = "very quickly";
+
+		/* Note unusual rate of learning */
+		if (adj_cost != 10)
+		{
+			strcpy(buf, format("(A %s learns this skill %s.)",
+				race_info[p_ptr->prace].title, rate_desc));
+
+			/* Display a rate of learning indicator */
+			move_cursor(2, 0);
+			c_roff_centered(TERM_L_WHITE, buf, 0, 80);
+		}
+	}
+
 
 	/* Get this skill's level */
 	lev = p_ptr->pskills[skill].cur;
@@ -1757,15 +2022,12 @@ static void prt_skill_select(int skill)
 		case S_BOW:
 		case S_CROSSBOW:
 		{
-			/* Normal skill requirement to take this Oath */
-			int req_skill = OATH_OF_IRON_REQ;
-
-			/* Slings have a higher requirement */
-			if (skill == S_SLING) req_skill += 10;
-
 			/* Can take the Oath of Iron */
-			if ((lev >= req_skill) && (can_take_oath(OATH_OF_IRON)))
+			if (can_take_oath(OATH_OF_IRON))
+			{
 				cmddesc = "Oath of Iron";
+				attr = TERM_L_UMBER;
+			}
 			break;
 		}
 
@@ -1773,7 +2035,10 @@ static void prt_skill_select(int skill)
 		{
 			/* Check if an oath allowed */
 			if (can_take_oath(OATH_OF_SORCERY))
+			{
 				cmddesc = "Oath of Sorcery";
+				attr = TERM_L_RED;
+			}
 			break;
 		}
 
@@ -1781,7 +2046,10 @@ static void prt_skill_select(int skill)
 		{
 			/* Check if an oath allowed */
 			if (can_take_oath(COVENANT_OF_FAITH))
+			{
 				cmddesc = "Covenant of Faith";
+				attr = TERM_BLUE;
+			}
 			break;
 		}
 
@@ -1789,7 +2057,10 @@ static void prt_skill_select(int skill)
 		{
 			/* Check if an oath allowed */
 			if (can_take_oath(YAVANNAS_FELLOWSHIP))
+			{
 				cmddesc = "Yavanna's Fellowship";
+				attr = TERM_GREEN;
+			}
 			break;
 		}
 
@@ -1797,7 +2068,21 @@ static void prt_skill_select(int skill)
 		{
 			/* Check if an oath allowed */
 			if (can_take_oath(BLACK_MYSTERY))
+			{
 				cmddesc = "Black Mystery";
+				attr = TERM_PURPLE;
+			}
+			break;
+		}
+
+		case S_BURGLARY:
+		{
+			/* Check if an oath allowed */
+			if (can_take_oath(BURGLARS_GUILD))
+			{
+				cmddesc = "Burglar's Guild";
+				attr = TERM_SLATE;
+			}
 			break;
 		}
 	}
@@ -1805,11 +2090,15 @@ static void prt_skill_select(int skill)
 	/* Display the special command key */
 	if (strlen(cmddesc))
 	{
-		attr = realm_color();
-		if (skill == S_DOMINION) attr = TERM_VIOLET;
-
-		Term_gotoxy(27, 23);
+		(void)Term_gotoxy(27, 23);
 		c_roff(attr, format("*) %s", cmddesc), 0, 0);
+	}
+
+	/* Special key to raise skill back up to maximum */
+	else if (p_ptr->pskills[skill].cur < p_ptr->pskills[skill].max)
+	{
+		(void)Term_gotoxy(27, 23);
+		c_roff(TERM_WHITE, "!) Recover skill", 0, 0);
 	}
 }
 
@@ -1824,6 +2113,8 @@ static void prt_skill_rank(int skill)
 	int row, col;
 	char c;
 
+	bool drained = (p_ptr->pskills[skill].cur < p_ptr->pskills[skill].max);
+
 	byte a = TERM_WHITE;
 
 	/* Highlight selected skill */
@@ -1834,7 +2125,7 @@ static void prt_skill_rank(int skill)
 	if (!(skill_info[skill].name)) return;
 
 	/* Skill cannot be raised further */
-	if (!can_raise_skill(skill, FALSE, -1))
+	if (can_raise_skill(skill, FALSE, 1) <= 0)
 	{
 		/* Skill is not allowed at all */
 		if (p_ptr->pskills[skill].cur == 0)
@@ -1859,6 +2150,12 @@ static void prt_skill_rank(int skill)
 		else                   a = TERM_SLATE;
 	}
 
+	/* Skill is zero */
+	else if (p_ptr->pskills[skill].max == 0 && !(skill == selected))
+	{
+		a = TERM_L_WHITE;
+	}
+
 	/* Work out the row and column of the screen to use */
 	row = 3 + skill;
 	if (skill < ((NUM_SK_USED + 1) / 2)) col = 0;
@@ -1876,17 +2173,16 @@ static void prt_skill_rank(int skill)
 
 	/* Format the string */
 	sprintf(buf1, "%c) %-18s%c %s", c, skill_info[skill].name,
-		((p_ptr->pskills[skill].cur < p_ptr->pskills[skill].max) ? '!' : ':'),
-		buf2);
+		(drained ? '!' : ':'), buf2);
 
 	/* Print the skill */
 	c_prt(a, buf1, row, col);
 
 	/* Move the cursor */
-	Term_gotoxy(col + 28, row);
+	(void)Term_gotoxy(col + 28, row);
 
 	/* Get and display cost to advance this skill (unless forbidden) */
-	if (can_raise_skill(skill, FALSE, 1))
+	if (can_raise_skill(skill, FALSE, 1) > 0)
 	{
 		byte attr;
 
@@ -1897,12 +2193,31 @@ static void prt_skill_rank(int skill)
 		/* Determine a color to display the exp cost in */
 		if      (cost > MIN(b_cost * 5, b_cost + 2500)) attr = TERM_RED;
 		else if (cost > MIN(b_cost * 3, b_cost + 1500)) attr = TERM_ORANGE;
-		else if (cost > MIN(5*b_cost/3, b_cost +  300)) attr = TERM_YELLOW;
+		else if (cost > MIN(b_cost*5/3, b_cost +  300)) attr = TERM_YELLOW;
 		else if (cost > b_cost)                         attr = TERM_SLATE;
 		else                                            attr = TERM_WHITE;
 
 		/* Display the exp cost */
 		c_roff(attr, format(" %5d ", cost), 0, 0);
+
+		/* Skill has some investment in it */
+		if (p_ptr->pskills[skill].max)
+		{
+			if (cost <= p_ptr->exp)
+			{
+				/* Color the ':' green if skill is not too costly to raise */
+				a = (skill == selected) ? TERM_GREEN : TERM_L_GREEN;
+			}
+			else
+			{
+				/* Color the ':' red if skill is too costly to raise */
+				a = (skill == selected) ? TERM_RED : TERM_L_RED;
+			}
+
+			/* Print a ":" or a "!" */
+			(void)Term_putch(col + 21, row, a, (drained ? '!' : ':'));
+		}
+
 	}
 	else
 	{
@@ -1914,7 +2229,7 @@ static void prt_skill_rank(int skill)
 /*
  * Print out all the skills, along with their ranks.
  */
-void print_all_skills(void)
+static void print_all_skills(bool must_accept)
 {
 	int i;
 
@@ -1930,14 +2245,22 @@ void print_all_skills(void)
 	}
 
 	/* Print the static information */
-	prt(format("%c-%c) Select skills                             +/=) Advance skills",
+	prt(format("%c-%c) Select skills                        +/=) Advance skills",
 		index_chars_lower[0], index_chars_lower[NUM_SK_USED - 1]),
 		23, 5);
-	prt("ESC) Cancel      RETURN) Accept                  ?) Get help      ",
-		24, 5);
+
+	if (!must_accept)
+		prt("ESC) Cancel      RETURN) Accept             ?) Get help      ",
+			24, 5);
+	else
+		prt("                 RETURN) Accept             ?) Get help      ",
+			24, 5);
+
+	c_prt(TERM_L_BLUE, format("Power: %d", p_ptr->power), 24, 69);
+
 
 	/* Center realm description */
-	center_string(buf, realm_desc(), 78);
+	center_string(buf, sizeof(buf), realm_desc(), 78);
 
 	/* Print out realm description */
 	c_prt(attr, buf, 21, 0);
@@ -1950,8 +2273,8 @@ void print_all_skills(void)
 /*
  * Handle the case where raising one skill also increases others.
  *
- * First skill must be undrained.
- * No skill can benefit if its maximum is higher than the first skill's.
+ * First skill must be undrained.  No skill can benefit if its maximum
+ * is higher than the first skill's.
  */
 static void raise_other_skills(int skill)
 {
@@ -1963,10 +2286,10 @@ static void raise_other_skills(int skill)
 	/* Burglary */
 	if (skill == S_BURGLARY)
 	{
-		/* Raise disarming 2/3rds as fast as burglary rises */
+		/* Raise disarming 3/4rds as fast as burglary rises */
 		if (level > p_ptr->pskills[S_DISARM].max)
 		{
-			if (level % 3 != 0) (void)adv_skill(S_DISARM, FALSE);
+			if (level % 4 != 0) (void)adv_skill(S_DISARM, FALSE);
 		}
 
 		/* Raise perception 1/3rd as fast as burglary rises */
@@ -2058,11 +2381,204 @@ static void raise_other_skills(int skill)
 }
 
 
+/*
+ * Make certain that a player who has invested in Piety wants to become a
+ * Necromancer, or that one who has invested in Blood Dominion wants to
+ * become a Priest.
+ */
+static bool realm_check(int realm)
+{
+	cptr warn_text = "", lost_skill = "", realm_text = "";
+	int warn_attr = TERM_WHITE;
+
+	/* Some realms need no special checks */
+	if ((realm != PRIEST) && (realm != NECRO)) return (TRUE);
+
+	/* We only need to check sometimes */
+	if ((realm == PRIEST) && (p_ptr->pskills[S_DOMINION].max == 0))
+		return (TRUE);
+
+	if ((realm == NECRO) && (p_ptr->pskills[S_PIETY].max == 0))
+		return (TRUE);
+
+
+	/* Get warning text */
+	if (realm == PRIEST)
+	{
+		realm_text = "Piety";
+		warn_text = "Acolytes of divine lore must purge themselves of all within them that is unholy; all your Blood Dominion will be lost if you cultivate Piety.";
+		warn_attr = TERM_L_BLUE;
+		lost_skill = "Blood Dominion";
+	}
+	if (realm == NECRO)
+	{
+		realm_text = "Necromancy";
+		warn_text = "Students of the Dark Arts cannot retain any ties to the Divine; all your Holy Alliance will be lost if you cultivate necromancy.";
+		warn_attr = TERM_L_PURPLE;
+		lost_skill = "Holy Alliance";
+	}
+
+	/* Warning */
+	skill_comment(TERM_L_BLUE, warn_text);
+
+	/* Ask */
+	prt("", 0, 0);
+	skill_msg(TERM_WHITE, format("Choose %s, and forfeit all %s? [y/n] ", realm_text, lost_skill));
+
+	/* Ask until we get a clear answer */
+	while (TRUE)
+	{
+		/* Answer */
+		char ch = inkey();
+
+		/* Note accept */
+		if ((ch == 'y') || (ch == 'Y'))
+		{
+			skill_comment(TERM_WHITE, "");
+			return (TRUE);
+		}
+
+		/* Note cancel */
+		if ((ch == 'n') || (ch == 'N') || (ch == ESCAPE))
+		{
+			skill_msg(TERM_WHITE, "Cancelled.");
+			skill_comment(TERM_WHITE, "");
+			return (FALSE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/*
+ * Make certain that a player who has invested in Piety wants to become a
+ * Necromancer, or that one who has invested in Blood Dominion wants to
+ * become a Priest.
+ */
+static bool choose_realm(void)
+{
+	char ch;
+
+	/* May pick a realm */
+	skill_msg(TERM_WHITE, "You may pick a realm of magic.");
+	(void)inkey();
+
+	/* Apply limitations */
+	if ((cannot_learn_magic) && (cannot_learn_prayers))
+	{
+		skill_msg(TERM_WHITE, "You can learn no magic.");
+	}
+
+	/* Apply limitations */
+	else if (cannot_learn_magic)
+	{
+		skill_msg(TERM_WHITE, "Press 'P' to study Piety.");
+	}
+
+	/* Apply limitations */
+	else if (cannot_learn_prayers)
+	{
+		prt("Will you study S)orcery, D)ruidic magic, or N)ecromancy?", 0, 2);
+	}
+
+	/* No limitations */
+	else
+	{
+		prt("Will you study S)orcery, P)iety, D)ruidic magic, or N)ecromancy? ", 0, 2);
+	}
+
+	/* Get command */
+	ch = inkey();
+
+
+	switch (ch)
+	{
+		case 's':
+		case 'S':
+		{
+			if (!cannot_learn_magic)
+			{
+				p_ptr->realm = MAGE;
+			}
+			break;
+		}
+		case 'p':
+		case 'P':
+		{
+			if (!cannot_learn_prayers)
+			{
+				if (realm_check(PRIEST))
+					p_ptr->realm = PRIEST;
+			}
+			break;
+		}
+		case 'd':
+		case 'D':
+		{
+			if (!cannot_learn_magic)
+			{
+				p_ptr->realm = DRUID;
+			}
+			break;
+		}
+		case 'n':
+		case 'N':
+		{
+			if (!cannot_learn_magic)
+			{
+				if (realm_check(NECRO))
+					p_ptr->realm = NECRO;
+			}
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+	/* Allow cancel */
+	if (!p_ptr->realm)
+	{
+		/* Hack -- undo skill purchase */
+		p_ptr->pskills[selected].cur = 0;
+		p_ptr->pskills[selected].max = 0;
+		p_ptr->exp += adv_cost(selected, TRUE);
+		return (FALSE);
+	}
+
+	/* New magic realm */
+	mp_ptr = &magic_info[p_ptr->realm];
+
+	/* We are now a user of holy lore */
+	if (p_ptr->realm == PRIEST)
+	{
+		/* Set Blood Dominion to zero */
+		p_ptr->pskills[S_DOMINION].max = 0;
+		p_ptr->pskills[S_DOMINION].cur = 0;
+	}
+
+	/* We are now a user of necromantic arts */
+	if (p_ptr->realm == NECRO)
+	{
+		/* Set Piety to zero */
+		p_ptr->pskills[S_PIETY].max = 0;
+		p_ptr->pskills[S_PIETY].cur = 0;
+	}
+
+	/* Update preferences for chosen realm */
+	(void)process_pref_file("realm.prf");
+
+	return (TRUE);
+}
+
+
 
 /*
  * Allow the player to examine and improve his skill levels.
  */
-void do_cmd_skills()
+void do_cmd_skills(void)
 {
 	char ch;
 	int num;
@@ -2080,7 +2596,10 @@ void do_cmd_skills()
 	byte old_oath, old_realm;
 
 
-	/* Winners cannot continue to raise their skills */
+	/*
+	 * Winners cannot continue to raise their skills (no trying everything
+	 * in a single game).
+	 */
 	if (p_ptr->total_winner)
 	{
 		/* Message */
@@ -2092,11 +2611,11 @@ void do_cmd_skills()
 	/* Save screen */
 	screen_save();
 
-	/* Clear screen */
-	Term_clear();
-
 	/* Set to 25 screen rows */
-	Term_rows(FALSE);
+	(void)Term_rows(FALSE);
+
+	/* Clear screen */
+	(void)Term_clear();
 
 	/* Select the skill last advanced */
 	selected = p_ptr->lastadv;
@@ -2117,13 +2636,13 @@ void do_cmd_skills()
 	while (TRUE)
 	{
 		/* Print out the skills */
-		print_all_skills();
+		print_all_skills(must_accept);
 
 		/* Print information on the current skill */
 		prt_skill_select(selected);
 
 		/* Hack -- hide the cursor  XXX XXX */
-		Term_gotoxy(0, 26);
+		(void)Term_gotoxy(0, 26);
 
 		/* Get a command */
 		ch = inkey();
@@ -2131,8 +2650,17 @@ void do_cmd_skills()
 		/* Cancel */
 		if (ch == ESCAPE)
 		{
-			accepted = FALSE;
-			break;
+			if (must_accept)
+			{
+				skill_msg(realm_color(), "Once taken, an Oath is binding!");
+				(void)inkey();
+				continue;
+			}
+			else
+			{
+				accepted = FALSE;
+				break;
+			}
 		}
 
 		/* Confirm */
@@ -2147,7 +2675,7 @@ void do_cmd_skills()
 		{
 			p_ptr->get_help_index = HELP_SKILLS + selected;
 			do_cmd_help();
-			Term_clear();
+			(void)Term_clear();
 			continue;
 		}
 
@@ -2195,11 +2723,22 @@ void do_cmd_skills()
 		/* Advance the skill if the key was '+' or '=' */
 		if (ch == '+' || ch == '=')
 		{
+			int advance = adv_skill(selected, TRUE);
+
 			/* Cannot raise the skill */
-			if (!adv_skill(selected, TRUE))
+			if (advance < 0)
 			{
 				skill_msg(TERM_WHITE, "You cannot raise this skill further.");
-				(void)inkey();
+				(void)Term_fresh();
+				pause_for(250);
+			}
+
+			/* Choose not to raise the skill */
+			else if (advance == 0)
+			{
+				skill_msg(TERM_WHITE, "Cancelled...");
+				(void)Term_fresh();
+				pause_for(250);
 			}
 
 			/* Can raise the skill */
@@ -2208,104 +2747,18 @@ void do_cmd_skills()
 				/* Choose a magic realm */
 				if ((selected == S_MAGIC) && (!p_ptr->realm))
 				{
-					/* May pick a realm */
-					skill_msg(TERM_WHITE, "You may pick a realm of magic.");
-					(void)inkey();
-
-					/* Apply limitations */
-					if ((cannot_learn_magic) && (cannot_learn_prayers))
-					{
-						skill_msg(TERM_WHITE, "You can learn no magic.");
-					}
-
-					/* Apply limitations */
-					else if (cannot_learn_magic)
-					{
-						skill_msg(TERM_WHITE, "Press 'P' to study Piety.");
-					}
-
-					/* Apply limitations */
-					else if (cannot_learn_prayers)
-					{
-						prt("Will you study S)orcery, D)ruidic magic, or N)ecromancy?", 0, 2);
-					}
-
-					/* No limitations */
-					else
-					{
-						prt("Will you study S)orcery, P)iety, D)ruidic magic, or N)ecromancy? ", 0, 2);
-					}
-
-					/* Get command */
-					ch = inkey();
-
-
-					switch (ch)
-					{
-						case 's':
-						case 'S':
-						{
-							if (!cannot_learn_magic)
-							{
-								p_ptr->realm = MAGE;
-							}
-							break;
-						}
-						case 'p':
-						case 'P':
-						{
-							if (!cannot_learn_prayers)
-							{
-								p_ptr->realm = PRIEST;
-							}
-							break;
-						}
-						case 'd':
-						case 'D':
-						{
-							if (!cannot_learn_magic)
-							{
-								p_ptr->realm = DRUID;
-							}
-							break;
-						}
-						case 'n':
-						case 'N':
-						{
-							if (!cannot_learn_magic)
-							{
-								p_ptr->realm = NECRO;
-							}
-							break;
-						}
-						default:
-						{
-							break;
-						}
-					}
-
 					/* Allow cancel */
-					if (!p_ptr->realm)
-					{
-						/* Hack -- undo skill purchase */
-						p_ptr->pskills[selected].cur = 0;
-						p_ptr->pskills[selected].max = 0;
-						p_ptr->exp += adv_cost(selected, TRUE);
-						continue;
-					}
-
-					/* New magic realm */
-					mp_ptr = &magic_info[p_ptr->realm];
+					if (!choose_realm()) continue;
 				}
 
 				/* Piety and Blood Dominion never mix */
-				if (selected == S_PIETY)
+				else if (selected == S_PIETY)
 				{
 					p_ptr->pskills[S_DOMINION].cur = 0;
 					p_ptr->pskills[S_DOMINION].max = 0;
 				}
 
-				if (selected == S_DOMINION)
+				else if (selected == S_DOMINION)
 				{
 					p_ptr->pskills[S_PIETY].cur = 0;
 					p_ptr->pskills[S_PIETY].max = 0;
@@ -2313,6 +2766,24 @@ void do_cmd_skills()
 
 				/* Handle skills that help other skills */
 				raise_other_skills(selected);
+			}
+
+			prt_skill_rank(selected);
+			continue;
+		}
+
+		/* Fix the skill */
+		if (ch == '!')
+		{
+			while (p_ptr->pskills[selected].cur < p_ptr->pskills[selected].max)
+			{
+				/* Cannot raise the skill */
+				if (adv_skill(selected, TRUE) <= 0)
+				{
+					skill_msg(TERM_WHITE, "You cannot raise this skill further.");
+					(void)inkey();
+					break;
+				}
 			}
 
 			prt_skill_rank(selected);
@@ -2381,6 +2852,7 @@ void do_cmd_skills()
 			if (p_ptr->realm != old_realm)
 			{
 				p_ptr->realm = old_realm;
+				mp_ptr = &magic_info[NONE];
 				changed = TRUE;
 			}
 
@@ -2391,26 +2863,52 @@ void do_cmd_skills()
 			if (changed)
 			{
 				skill_msg(TERM_WHITE, "Cancelled...");
-				Term_fresh();
-				Term_xtra(TERM_XTRA_DELAY, 250);
+				pause_for(250);
 			}
 		}
 	}
+
+	/* Flush any pending messages */
+	message_flush();
 
 
 	/* Set to 50 screen rows, if we were showing 50 before */
 	if (old_rows == 50)
 	{
 		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		Term_rows(TRUE);
+		(void)Term_rows(TRUE);
 	}
 
 	/* Restore main screen */
 	screen_load();
 
+
+	/* If one bare-handed skill is obviously the primary, choose it */
+	if ((p_ptr->barehand == S_KARATE) &&
+	       (p_ptr->pskills[S_WRESTLING].cur >
+	    3 * p_ptr->pskills[S_KARATE].cur))
+	{
+		do_cmd_barehanded();
+	}
+	if ((p_ptr->barehand == S_WRESTLING) &&
+	       (p_ptr->pskills[S_KARATE].cur >
+	    3 * p_ptr->pskills[S_WRESTLING].cur))
+	{
+		do_cmd_barehanded();
+	}
+
 	/* Update various things */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_TORCH);
 
 	/* Update stuff */
-	update_stuff();
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_CMDLIST);
+
+	/* Handle stuff */
+	handle_stuff();
 }

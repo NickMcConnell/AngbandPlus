@@ -2,66 +2,65 @@
 ====== Races ======
 
      There are eleven different races that you may choose among, representing
-most of the speaking peoples found in Tolkien's books, plus Gnomes and Half-
-Giants.  Races differ in abilities, and tend to be better at some skills than at
-others.
+most of the speaking peoples found in Tolkien's books, plus Gnomes and Giants.
+Races differ in abilities, and tend to be better at some skills than at others.
 
 Human:
-     Most widespread of all the races, humans can live just about everywhere and
-do just about anything.  They have no special adjustments to stats, no special
-strengths or weaknesses, and learn all skills at an average rate.  This gives
-them the greatest flexibility of all races; this, combined with their solid
-hitpoints, makes them effective adventurers.  Humans get small bonuses with
-crossbows and have no infravision.  They probably get the best prices in stores,
-on average.
+     A flexible and adaptive race, humans are found all over Middle-Earth, from
+desert Harad to icy Horodwaith.  They have no special adjustments to stats and
+learn all skills at an average rate.  This, combined with their solid hitpoints,
+makes them effective adventurers.  Humans have no infravision.  They probably
+get the best prices in stores, on average.
 
 Elf:
-     Known as the Elder Race, Elves are famed for their knowledge and
-craftsmanship.  They are somewhat lighter, weaker, and less robust than humans,
-but have superior wisdom and intelligence, learn magic more easily, and are
-somewhat better at most basic skills.  They are fond of bows, somewhat weak in
-melee, and have no infravision.  They resist light inherently.
+     Known as the Elder Race, and as the First-Born, Elves are famed for their
+knowledge and craftsmanship.  They are somewhat lighter, weaker, and less robust
+than humans, but have superior wisdom and intelligence, learn magic more easily,
+and are somewhat better at most basic skills.  They are fond of bows, somewhat
+weak in melee, and have no infravision.  They resist light inherently.
 
 Hobbit:
-     Hobbits are shy, retiring folk with enough good sense to share.  They are
-the smallest of all the races.  Although they have few hitpoints, they are
-highly resistant to magic and can sometimes endure ailments that would lay other
-races low.  They are fairly poor at melee combat, but good at most other skills.
-In particular, nobody can match a hobbit slinger or burglar.  Hobbits are
-stealthy, perceptive, and have innate infravision.  They sustain dexterity
-inherently.
+     Hobbits are shy, retiring folk with enough good sense to share.  They live
+in homes with circular entranceways built partially underground, and are the
+smallest of all the races.  Although they have few hitpoints, they are highly
+resistant to magic and can sometimes endure ailments that would lay other races
+low.  They are fairly poor at melee combat, but good at most other skills.  In
+particular, nobody can match a hobbit slinger or burglar.  Hobbits are stealthy,
+perceptive, and have innate infravision.  They sustain dexterity inherently.
 
 Gnome:
      Gnomes are the pudgy pranksters of the dungeon; if they can kill something
 in a humorous way, so much the better.  They may be small and ugly, but can
 outbargain and outwit just about anyone.  They are among the frailer races, and
-not powerful in combat, but are good at magic, unmatchable with devices, and
-immune to paralyzation.  Gnomes are highly intelligent and have innate
-infravision.
+not powerful in combat, but are good at magic, unmatchable with devices, and --
+most importantly -- are immune to paralyzation.  Gnomes are highly intelligent
+and have innate infravision.
 
 Dwarf:
      Dwarves are the headstrong miners and fighters of legend.  They are strong,
 wise, tough, and resistant to magic; although not very good at casting spells,
 they make excellent priests and smiths.  They are better than average at melee
 combat, but don't know the first thing about bows.  Dwarves have good innate
-infravision and can never be blinded.  They do have one big drawback, though:
-Dwarves are loudmouthed and proud, singing in loud voices, arguing with
-themselves for no good reason, screaming out challenges at imagined foes.  In
-other words, dwarves have a miserable stealth.
+infravision and -- a major advantage -- can never be blinded.  They do have one
+big drawback, though:  Dwarves are loudmouthed and proud, singing in loud
+voices, arguing with themselves for no good reason, screaming out challenges at
+imagined foes.  In other words, dwarves have a miserable stealth.
 
 Half-Orc:
      The bastard offspring of humans and orcs, half-orcs are ugly, strong, and
 have very bad attitudes.  Their magic is a little suspect, as are most of their
 skills, but they know how to fight and can take as much damage as they dish out.
-Half-orcs have innate infravision and resist darkness inherently.
+Half-orcs have innate infravision and, like orcs themselves, resist darkness and
+its effects.
 
 Half-Troll:
      Half-trolls are built like blocks of granite; no other race can match their
-strength or recover hitpoints as quickly.  Their combat prowess is fearsome,
-they throw boulders with deadly force, and their stomach capacity is impressive.
-Unfortunately, they have poor skills, need to eat a lot, and have a hard time in
-stores.  Half-trolls will be bad at anything that requires heavy thinking.  They
-have innate infravision and always have their strength sustained.
+strength, their hitpoints, or their powers of recovery.  Their combat prowess is
+fearsome, they throw boulders with deadly force, their stomach capacity is
+remarkable, and their skin becomes ever-stronger over time.  Unfortunately, they
+have poor general skills, need to eat a lot, and have a hard time in stores.
+Half-trolls will be bad at anything that requires heavy thinking.  They have
+innate infravision and always have their strength sustained.
 
 Dunadan   (easier to win with -- 20% penalty to score):
      Dunedain are a race of hardy men from the West.  This elder race surpasses
@@ -71,12 +70,15 @@ which makes them a great choice for players whose other characters die too
 quickly.  Dunedain always have their constitution sustained.
 
 High-Elf   (easier to win with -- 20% penalty to score):
-    High-elves are undying beings dating from the beginning of the world.  They
-are masters of all skills, and are agile and intelligent, although their wisdom
-is sometimes suspect.  No other race is quite as good at magic.  Despite these
-great advantages, they learn just as quickly as other elves do, which makes them
-a great choice for players whose other characters die too quickly.  High-elves
-begin their lives able to see the unseen, and have innate resistance to light.
+      High-Elves are descended from those among the Elves who heard and answered
+the call from the Valar at the very beginning of time, before the sun and moon
+were made, and lived in the Blessed Realm for long ages before returning to
+mortal lands.  They are masters of all skills, and are agile and intelligent,
+although their wisdom is a little suspect.  No other race is quite as good at
+magic.  Despite these great advantages, they learn just as quickly as other
+elves do, which makes them a great choice for players whose other characters die
+too quickly.  High-elves are able to see the unseen, and have innate resistance
+to light.
 
 Dark-elf:
      Some elves prefer the darkness to the light, caverns to forests, sorcery
@@ -87,16 +89,16 @@ skills are also weak.  They do, however, learn forging quickly and well.  Dark-
 elves always have their intelligence sustained.
 
 Giant:
-     Eight feet tall, nine, even ten feet tall they stand, and broad in
-proportion.  Giants have more hitpoints than any other race and make formidable
-wrestlers.  Their high strength and constitution make them decent fighters,
-especially with clubs and thrown objects, and they can readily learn magic or
-object-creation.  Unfortunately, all those tales about the naivete and
-clumsiness of giants have a large grain of truth to them.  No other race is less
-perceptive than giants, and none is more easy to spot.
+     Eight feet tall, nine, even ten feet tall they stand, and thick and broad
+in proportion.  Giants have more hitpoints than any other race and make
+formidable wrestlers.  Their high strength and constitution make them decent
+fighters, especially with clubs and thrown objects, good tunnelers, and they can
+readily learn magic or object-creation.  Unfortunately, all those tales about
+the naivete and clumsiness of giants have a large grain of truth to them.  No
+other race is less perceptive than a giant, and none is more easy to spot.
 
 
-Racial adjustments to stats:
+Racial Adjustments:
 
                STR  INT   WIS   DEX   CON   CHR  Hit Dice  Infravision
  Human          0     0     0     0     0     0     10        0
@@ -124,59 +126,60 @@ Racial Abilities:
  Hobbit        9       7      10       8      10       1       7       7
  Gnome         8      10       5       6       6       2       5       5
  Dwarf         3       5       9       3       5       8       4       4
- Half-Orc      3       3       3       4       4       6       3       4
- Half-Troll    1       2       3       4       3       9       1       6*
+ Half-Orc      3       3       3       4       4       6       3       5
+ Half-Troll    1       1       3       4       3       9       1       6*
  Dunadan       6       8       7       6       8       7       7       7
  High-Elf     10       9       8       7       9       5       9       9
  Dark-Elf      9       8       5       7       7       4       5       5
  Giant         2       4       5       3       1       5       4       4
 
      Abilities are ranked on a comparative scale ranging from 1 to 10.
-* Half-trolls are very bad with thrown weapons, though.
+* Half-trolls are bad with thrown weapons, though.
 
 
-Racial skill cost adjustments:
-
-Racial skill cost adjustments:
+Racial Aptitudes:
 
                Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia
- sword          10   11   12   13   10    8   10   10   10    9   12
- hafted         10   13   13   12    9    9    7   10   12   13    7
+ sword          10   11   12   12   10    8    9   10   10    9   11
+ hafted         10   13   13   12    9    9    7   10   12   13   10
  polearm        10   12   14   12    8    9    9   10   11   11   10
- crossbow       10   11   11   10   10   11   12   10   10   11   13
- bow            10    8    9   10   15   11   13   10    8    9   14
- sling          10   10    7   10   14   11   14   10   10   10   14
- throwing       10   10    8   10   11   11    8   10    9   11   10
- wrestling      10   14   15   14   10   11    9   10   12   15    7
- karate         10    8   10   10   12   13   15   10    8   11   14
+ crossbow       10   11   11   10   10   10   10   10   10   11   13
+ bow            10    8    9   10   14   10   13   10    8    9   13
+ sling          10   10    7   10   13   10   15   10   10   10   13
+ throwing       10   10    8   10   12   10    8   10    9   11   10
+ wrestling      10   14   15   14    9   10    9   10   12   13    7
+ karate         10    8   10   10   12   13   15   10    8   11   13
 
  spell level    10    9   11    9   11   11   12   10   10    8   10
- mana           10    9   10    9   10   11   11   10    9    8    9
+ mana           10    9   10    9   10   11   11   10    9    8   10
 
  wizard         10    9   11    8   12   12   13   10    9    9   11
  piety          10   11   11   10    8   11   11   10   11   10   12
  nature         10    8   10   10   12   15   10   10    8   14    9
- dominion       10   11   11    9   10    9   10   10    9    9    9
+ dominion       10   11   11    9   10    9    9   10   10    9   10
 
- device         10    9   11    8   10   12   13   10    9    8   11
+ device         10    9   11    8   10   12   16   10    9    8   11
  burglary       10   10    7   10   12   10   12   10   10    9   14
 
- perception     10    9    8    9   11   11   12   10    9    8   11
- stealth        10    8    7   10   14   10   13   10    8    9   14
+ perception     10    9    8    9   11   11   12   10    9    8   15
+ stealth        10    8    7   10   15   10   13   10    8    9   15
  disarming      10   10    7   10   10   10   12   10   10   11   13
- dodging        10    9    8   10   10   10   13   10    9   10   14
+ dodging        10    9    8   10   10   10   20   10    9   10   15
  saving throw   10   10    8   10    8   11   12   10    9    9   11
 
  forge weapon   10   12   11   11    7   10   11   10   12    8    9
  forge bow      10   10   11   11   11   11   11   10   10    8   12
- forge armor    10   12   11   11    7   10   11   10   12   11   10
+ forge armour   10   12   11   11    7   10   11   10   12   11    9
  alchemy        10   11   12    8   14   13   11   10   11   10   13
- infusion       10   10   13    9   11   13   13   10   10    7   11
+ infusion       10   10   13    9   11   13   13   10   10    7   13
                Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia
 
 
-     Higher values mean that the skill is more expensive to raise.  All races
-can (eventually) attain maximum level in any skill.
+     Higher values mean that the skill is more expensive to raise.
+     For the non-magical combat skills, magical device, perception, stealth, and
+disarming, a higher value also means that improving the skill has a somewhat
+smaller effect on your ability.  Elves, for example, are innately better at
+karate than are dwarves.
 
 
 

@@ -14,8 +14,8 @@ influenced by them.
      Sangband grew out of Chris Petit's interest in developing a version of
 Angband with a skills system rather than character classes.  It was first
 released March the 3rd, 1994, using the Angband 2.5.x codebase as modified in
-Bangband (another of his variants).  When Chris Petit graduated a few months
-later, development stopped for about a year at version 0.8.5.
+Bangband (another of his variants).  When Chris Petit graduated, development
+stopped for about a year at version 0.8.5 (released April 29th, 1994).
      After that, Michael Gorse took over the project, re-releasing version
 0.8.5, then taking the game up to 0.9.3 between 1995 and 1997.
      Julian Lighton happened to stumble across Sangband, and (aided by Greg
@@ -24,8 +24,10 @@ available on a website, then decided he had too much free time and took over
 Sangband officially, releasing 0.9.4 in 1997 and 0.9.5 in 1998.  His work sorted
 out the major game bugs and updated the code to Angband 2.8.3.
      In 2001, he passed the maintainership to Leon Marrick, who had played
-Sangband almost since the beginning and modeled parts of his own variant on it.
-     (The history of LM's maintainership will be written by someone else.)
+Sangband almost since the beginning (first bug report in '95) and modeled parts
+of his own variant on it.   Scott Yost released beta 15, making a number of
+helpful changes and bug fixes.
+     (more history between 2001 and the present will appear later)
 
 
 --- The History of Angband ---
@@ -142,7 +144,7 @@ Wei-Hwa Huang, Nikodemus, Timo Pietilä, Greg Wooledge, Keldon Jones, Shayne
 Steele, Dr. Andrew White, Musus Umbra, Jonathan Ellis
 
 
-=== A Posting from the Original Author ===
+=== A Posting from the Original Author of Moria ===
 
 From: koeneke@ionet.net (Robert Alan Koeneke) Newsgroups:
 rec.games.roguelike.angband,rec.games.roguelike.moria Subject: Early history of
@@ -250,6 +252,81 @@ me!  That would be nice...  I never got to play Moria and be surprised...
 Robert Alan Koeneke koeneke@ionet.net
 
 
+=============================
+(The following was posted by Geoff Hill on the Angband newsgroup on 2004-10-31.
+
+Well, Alex and Andy are the true fathers of Angband. And probably
+Andy most of all. He's a talented coder, and I *think* (I could ask
+him, perhaps!) that Angband was partly driven by him looking for a
+challenge. By this, that he found Nethack a little easy, so wanted a
+beefed up hack type variant, and (U)Moria seemed a good base.
+
+And he (and I to a lesser intent) were heavily involved in Warwick LP
+Mud and it was a creative time in the games world - the internet was
+still fairly fresh - we were using the Joint Academic Network (JANET)
+and it is a wonder that anyone ever completed their education!
+
+Andy, to the best of my knowledge, has not ever completed Angband,
+although I have heard he has been playing Z (its been a while since I
+asked).
+
+When Andy and Alex graduated it was left playable and about 2/3 of the
+release it became. Sean and I picked it up from then. I think Sean
+was more of a driving force, because he wanted to move it forward to
+release. In my case I was just keen to tinker the game balance (I was
+the completion specialist, I guess) and add and amend some things.
+
+So we added about 1/3 of the artifacts, monsters, vault types. Added
+high resists (up until then we only had the elements). Added new
+breathe types. Tweaked game balance. Tweaked player races and added
+race special abilities. The most time consuming part was rewriting (or
+in some cases writing from scratch) the monster descriptions. It took
+me forever! And it is difficult to be creative at 4am after a night
+in the bar. Qllqllzuup is witness to that (drunk when that one was
+done!).
+
+Some of the artifacts from that time are remarkably untested at
+release. I still think of that '1/3' as being 'new' ones and not the
+true artifacts, I guess because I had a hand in writing them. So,
+ones like Deathwreaker, Tulkas, Bladeturner etc are relatively untried
+before release.
+
+One area that Sean and I had a difference in opinion was in the
+'Tolkien' element. I felt that it should stay more true to the
+Angband theme, and he was less bothered about that. I disagreed with
+him putting in Gabriel, Azriel etc as frankly I felt they had no part
+in a Tolkien based world. But, no matter, Azriel has made a point of
+killing me ever since to put me straight ;-).
+
+Sean and I released it to the wider world (with the help of Charles
+Teague? I am not sure when he became involved, I would perhaps have to
+ask Sean for more background asI am still in touch with him). Charles
+may have become involved after release, or before, I am not certain.
+
+At that point it was only set up to make on a SunOS system, so I
+suspect that many people who are better coders than me then went mad
+converting it to their own systems.
+
+I suppose if one wanted to tweak the background paragraph with any of
+the above, you could, but it is largely correct as it stands. Perhaps
+for completness at Sean and I's involvement it could say
+
+'Sean Marsh and Geoff Hill took Angband over when Alex and Andy
+graduated from the University of Warwick. They updated Angband with
+some much needed depth, and worked remotely with Charles Teague to
+release it to the community. ' and then as before about frog-knows.
+Charles was not at the Uni, of course. I forget his location, as we
+only ever emailed him.
+The existing paragraph somewhat suggests that Sean and I released a
+'copy' known as frog-knows. I suppose in some respects it was the
+first variant of Angband but as it was the only version release it
+became vanilla?
+If so, that is ironic really, given comments earlier in this thread...
+
+====================================================
+
+
+
 
 ====== Copyrights ======
 
@@ -345,11 +422,11 @@ Sangband 0.8.5 - 0.9.3  : Apr 04, 1997  Michael Gorse (mgorse@wpi.edu)
 
 Sangband 0.9.4 - 0.9.5  : Jul 14, 1998  Julian Lighton (jl8e@fragment.com)
 
-Sangband 1.0.0          : ??? ??, 2003  Leon Marrick (leon2m@sprintmail.com)
+Sangband 1.0.0          : ??? ??, ????  Leon Marrick (sangband@runegold.org)
 
 
 Copyright (c) 2001  Ben Harrison, James E. Wilson, Robert A. Koeneke
-Portions also copyright (c) 2003  Leon Marrick  (-LM-)
+Portions also copyright (c) 2005  Leon Marrick  (-LM-)
 
 This software may be copied and distributed for educational, research, and not
 for profit purposes provided that this copyright and statement are included in
@@ -358,6 +435,7 @@ all such copies.  Other copyrights may also apply.
 All Sangband-specific code is available under either the traditional
 Moria/Angband license, or the GNU General Public License (GPL), whichever you
 prefer.
+
 
 
 

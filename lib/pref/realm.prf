@@ -1,0 +1,16 @@
+
+
+?:[EQU $REALM Warrior]
+%:warrior.prf
+
+?:[EQU $REALM Wizard]
+%:wizard.prf
+
+?:[EQU $REALM Priest]
+%:priest.prf
+
+?:[EQU $REALM Druid]
+%:druid.prf
+
+?:[EQU $REALM Necromancer]
+%:necromancer.prf

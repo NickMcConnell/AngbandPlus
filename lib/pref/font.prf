@@ -9,15 +9,6 @@
 #
 
 
-## #
-## # OPTION: Display "veins" (white "%") as "normal walls" (white "#").
-## #
-## F:50:0x01/0x23
-## F:51:0x01/0x23
-## F:52:0x01/0x23
-## F:53:0x01/0x23
-
-
 ##### Standard font file #####
 
 %:font-xxx.prf
@@ -31,9 +22,6 @@
 ?:[EQU $SYS gcu]
 %:font-gcu.prf
 
-?:[EQU $SYS ami]
-%:font-ami.prf
-
 ?:[EQU $SYS mac]
 %:font-mac.prf
 
@@ -45,12 +33,6 @@
 
 ?:[EQU $SYS ibm]
 %:font-ibm.prf
-
-?:[EQU $SYS emx]
-%:font-emx.prf
-
-?:[EQU $SYS acn]
-%:font-acn.prf
 
 ?:1
 

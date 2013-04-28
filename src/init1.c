@@ -79,6 +79,7 @@ static cptr r_info_blow_method[] =
 	"BEG",
 	"INSULT",
 	"SNEER",
+	"TALK",
 	"XXX5",
 	NULL
 };
@@ -482,7 +483,7 @@ static cptr k_info_flags1[] =
 	"BRAND_POIS",
 	"BRAND_FLAME",
 	"BRAND_VENOM",
-	"XXX8",
+	"RETURNING",
 	"VORPAL",
 	"THROWING",
 	"PERFECT_BALANCE",
@@ -551,7 +552,7 @@ static cptr k_info_flags3[] =
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"XXX4",
+	"ATTR_MULTI",
 	"XXX5",
 	"NO_FUEL",
 	"SOULSTEAL",
@@ -1128,8 +1129,8 @@ errr parse_f_info(char *buf, header *head)
 		/* Extract the attr */
 		tmp = color_char_to_attr(buf[4]);
 
-		/* Paranoia */
-		if (tmp < 0) return (PARSE_ERROR_GENERIC);
+		/* Verify color */
+		if ((tmp == TERM_WHITE) && (buf[4] != 'w')) return (PARSE_ERROR_UNKNOWN_COLOR);
 
 		/* Save the values */
 		f_ptr->d_attr = tmp;
@@ -1332,8 +1333,8 @@ errr parse_k_info(char *buf, header *head)
 		/* Extract the attr */
 		tmp = color_char_to_attr(buf[4]);
 
-		/* Paranoia */
-		if (tmp < 0) return (PARSE_ERROR_GENERIC);
+		/* Verify color */
+		if ((tmp == TERM_WHITE) && (buf[4] != 'w')) return (PARSE_ERROR_UNKNOWN_COLOR);
 
 		/* Save the values */
 		k_ptr->d_attr = tmp;
@@ -1394,9 +1395,6 @@ errr parse_k_info(char *buf, header *head)
 			/* Sanity check */
 			if (i > 3) return (PARSE_ERROR_TOO_MANY_ALLOCATIONS);
 
-			/* Default chance */
-			k_ptr->chance[i] = 1;
-
 			/* Store the attack damage index */
 			k_ptr->locale[i] = atoi(s+1);
 
@@ -1409,8 +1407,7 @@ errr parse_k_info(char *buf, header *head)
 			/* If the slash is "nearby", use it */
 			if (t && (!s || t < s))
 			{
-				int chance = atoi(t+1);
-				if (chance > 0) k_ptr->chance[i] = chance;
+				k_ptr->chance[i] = MAX(0, atoi(t+1));
 			}
 		}
 	}
@@ -1733,17 +1730,30 @@ errr parse_a_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, rarity, wgt;
+		int level, rarity, wgt, num;
 		long cost;
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld", &level, &rarity, &wgt, &cost))
+		/* Scan for the values -- including max_num */
+		if (5 != sscanf(buf+2, "%d:%d:%d:%ld:%d",
+			&level, &rarity, &wgt, &cost, &num))
 		{
-			return (PARSE_ERROR_GENERIC);
+			/* Assume one artifact */
+			a_ptr->max_num = 1;
+
+			/* Scan for the values -- no max num */
+			if (4 != sscanf(buf+2, "%d:%d:%d:%ld", &level, &rarity, &wgt, &cost))
+			{
+				return (PARSE_ERROR_GENERIC);
+			}
 		}
+		else
+		{
+			a_ptr->max_num = (byte)num;
+		}
+
 
 		/* Save the values */
 		a_ptr->level =  level;
@@ -2412,8 +2422,8 @@ errr parse_r_info(char *buf, header *head)
 		/* Extract the attr */
 		tmp = color_char_to_attr(buf[4]);
 
-		/* Paranoia */
-		if (tmp < 0) return (PARSE_ERROR_GENERIC);
+		/* Verify color */
+		if ((tmp == TERM_WHITE) && (buf[4] != 'w')) return (PARSE_ERROR_UNKNOWN_COLOR);
 
 		/* Save the values */
 		r_ptr->d_attr = tmp;
@@ -2423,16 +2433,31 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int spd, hp, aaf, ac, slp;
+		int spd, hp, aaf, ac, slp, rng, nos;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
+
 		/* Scan for the other values */
-		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
-			&spd, &hp, &aaf, &ac, &slp))
+		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
+			&spd, &hp, &aaf, &ac, &slp, &rng, &nos))
 		{
-			return (PARSE_ERROR_GENERIC);
+			/* Scan for the other values */
+			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+				&spd, &hp, &aaf, &ac, &slp, &rng))
+			{
+				/* Scan for the other values (no value for range) */
+				if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+					&spd, &hp, &aaf, &ac, &slp))
+				{
+					return (PARSE_ERROR_GENERIC);
+				}
+				rng = 0;
+			}
+
+			/* Assume a noise of 20, unless specified */
+			nos = 20;
 		}
 
 		/* Save the values */
@@ -2441,6 +2466,8 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->aaf = aaf;
 		r_ptr->ac = ac;
 		r_ptr->sleep = slp;
+		r_ptr->combat_range = rng;
+		r_ptr->noise = nos;
 	}
 
 	/* Process 'W' for "More Info" (one line only) */

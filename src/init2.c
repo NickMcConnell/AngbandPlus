@@ -3,8 +3,9 @@
 
 
 /*
- * Read files in "lib/data" and fill in various arrays.  Initialize most
- * global arrays used in the game, deallocate most arrays on exit.
+ * Read files in "lib/data" and fill in various arrays.  Initialize and close
+ * down the game.  Allocate and deallocate memory for variable-size global
+ * arrays.
  *
  * Copyright (c) 1997 Ben Harrison
  *
@@ -80,9 +81,9 @@ void init_file_paths(char *path)
 {
 	char *tail;
 
-#ifdef SET_UID
+#ifdef PRIVATE_USER_PATH
 	char buf[1024];
-#endif /* SET_UID */
+#endif /* PRIVATE_USER_PATH */
 
 	/*** Free everything ***/
 
@@ -110,28 +111,6 @@ void init_file_paths(char *path)
 
 	/* Prepare to append to the Base Path */
 	tail = path + strlen(path);
-
-
-#ifdef VM
-
-
-	/*** Use "flat" paths with VM/ESA ***/
-
-	/* Use "blank" path names */
-	ANGBAND_DIR_APEX = string_make("");
-	ANGBAND_DIR_BONE = string_make("");
-	ANGBAND_DIR_DATA = string_make("");
-	ANGBAND_DIR_EDIT = string_make("");
-	ANGBAND_DIR_FILE = string_make("");
-	ANGBAND_DIR_HELP = string_make("");
-	ANGBAND_DIR_INFO = string_make("");
-	ANGBAND_DIR_SAVE = string_make("");
-	ANGBAND_DIR_PREF = string_make("");
-	ANGBAND_DIR_USER = string_make("");
-	ANGBAND_DIR_XTRA = string_make("");
-
-
-#else /* VM */
 
 
 	/*** Build the sub-directory names ***/
@@ -188,11 +167,55 @@ void init_file_paths(char *path)
 
 #endif /* PRIVATE_USER_PATH */
 
+#ifdef USE_PRIVATE_PATHS
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_APEX = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "bone");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_BONE = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "data");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_DATA = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "save");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_SAVE = string_make(buf);
+
+#else /* USE_PRIVATE_PATHS */
+
+	/* Build a path name */
+	strcpy(tail, "apex");
+	ANGBAND_DIR_APEX = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "bone");
+	ANGBAND_DIR_BONE = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "data");
+	ANGBAND_DIR_DATA = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "save");
+	ANGBAND_DIR_SAVE = string_make(path);
+
+#endif /* USE_PRIVATE_PATHS */
+
 	/* Build a path name */
 	strcpy(tail, "xtra");
 	ANGBAND_DIR_XTRA = string_make(path);
-
-#endif /* VM */
 
 
 #ifdef NeXT
@@ -233,6 +256,61 @@ void init_file_paths(char *path)
 #endif /* NeXT */
 
 }
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+void create_user_dirs(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
+
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
+
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+
+#ifdef USE_PRIVATE_PATHS
+	/* Build the path to the scores sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "bone");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "data");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "save");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+#endif /* USE_PRIVATE_PATHS */
+}
+
+#endif /* PRIVATE_USER_PATH */
 
 
 
@@ -277,7 +355,8 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"more than four different kinds of essences for the same object",
 	"unknown array",
 	"no array specified",
-	"invalid store (out of bounds)"
+	"invalid store (out of bounds)",
+	"Color index is not recognized by the game"
 };
 
 
@@ -697,6 +776,9 @@ static errr init_k_info(void)
 	k_name = k_head.name_ptr;
 	k_text = k_head.text_ptr;
 
+	/* Hack -- assign "easy know" flags XXX XXX */
+	if (!err) easy_know_init();
+
 	return (err);
 }
 
@@ -868,15 +950,21 @@ static errr init_other(void)
 
 	/*** Prepare grid arrays ***/
 
-	/* Array of grids */
+	/* Array of grids (view) */
 	C_MAKE(view_g, VIEW_MAX, u16b);
 
-	/* Array of grids */
+	/* Array of grids (many temporary purposes) */
 	C_MAKE(temp_g, TEMP_MAX, u16b);
+
+	/* Array of grids (glowing light sources) */
+	C_MAKE(lite_g, LITE_MAX, u16b);
 
 	/* Hack -- use some memory twice */
 	temp_y = ((byte*)(temp_g)) + 0;
 	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
+
+	/* Array of effect grids */
+	C_MAKE(effect_grid, EFFECT_GRID_MAX, effect_grid_type);
 
 
 	/*** Prepare dungeon arrays ***/
@@ -891,13 +979,9 @@ static errr init_other(void)
 	C_MAKE(cave_o_idx, DUNGEON_HGT_MAX, s16b_wid);
 	C_MAKE(cave_m_idx, DUNGEON_HGT_MAX, s16b_wid);
 
-#ifdef MONSTER_FLOW
-
 	/* Flow arrays */
 	C_MAKE(cave_cost, DUNGEON_HGT_MAX, byte_wid);
 	C_MAKE(cave_when, DUNGEON_HGT_MAX, byte_wid);
-
-#endif /* MONSTER_FLOW */
 
 	/*** Prepare "vinfo" array ***/
 
@@ -1259,6 +1343,9 @@ static errr init_alloc(void)
 		}
 	}
 
+	/*** Initialize the array of movement moments ***/
+	C_MAKE(move_moment, z_info->m_max, move_moment_type);
+
 
 	/*** Initialize quest monsters ***/
 
@@ -1298,8 +1385,8 @@ static errr init_alloc(void)
 static void init_note(cptr str)
 {
 	clear_row(Term->hgt - 1);
-	Term_putstr(25, Term->hgt - 1, -1, TERM_WHITE, str);
-	Term_fresh();
+	(void)Term_putstr(25, Term->hgt - 1, -1, TERM_WHITE, str);
+	(void)Term_fresh();
 }
 
 
@@ -1399,10 +1486,18 @@ void init_angband(void)
 	fd_close(fd);
 
 
+	/* Process color definitions */
+	init_note("[Loading color definitions]");
+	(void)process_pref_file("color.prf");
+
+	/* Hack -- React to color changes */
+	(void)Term_xtra(TERM_XTRA_REACT, 0);
+
+
 	/*** Display the "news" file ***/
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
@@ -1412,6 +1507,9 @@ void init_angband(void)
 
 	/* Display the file */
 	(void)display_file(fp);
+
+	/* Refresh the screen XXX XXX */
+	(void)Term_fresh();
 
 
 	/*** Verify (or create) the "high score" file ***/
@@ -1497,6 +1595,7 @@ void init_angband(void)
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
 
 
+
 	/*** Load default user pref files ***/
 
 	/* Process the basic pref file */
@@ -1543,7 +1642,6 @@ void cleanup_angband(void)
 	/* Free the left panel custom display array */
 	FREE(custom_display);
 
-
 	/* Free the lore, monster, and object lists */
 	FREE(l_list);
 	FREE(m_list);
@@ -1553,13 +1651,12 @@ void cleanup_angband(void)
 	FREE(x_list);
 	FREE(t_list);
 
-#ifdef MONSTER_FLOW
+	/* Free the movement moments */
+	FREE(move_moment);
 
 	/* Flow arrays */
 	FREE(cave_when);
 	FREE(cave_cost);
-
-#endif /* MONSTER_FLOW */
 
 	/* Free the cave */
 	FREE(cave_o_idx);
@@ -1567,11 +1664,18 @@ void cleanup_angband(void)
 	FREE(cave_feat);
 	FREE(cave_info);
 
+	/* Free the feature chars */
+	FREE(feat_x_char_25);
+	FREE(feat_x_char_50);
+
 	/* Free the "update_view()" array */
 	FREE(view_g);
 
 	/* Free the temp array */
 	FREE(temp_g);
+
+	/* Free the effect grids array */
+	FREE(effect_grid);
 
 	/* Free the messages */
 	messages_free();

@@ -2,7 +2,7 @@
 /* File: xtra2.c */
 
 /*
- * Set temporarary conditions, print messages and update various displays
+ * Set temporary conditions, print messages and update various displays
  * as needed.  Change shape, practice skills, gain and lose experience,
  * drain and recover skills.  Hurt the character.  Handle map panels.  The
  * targeting code.  Get and confuse a direction.  Precognition messages.
@@ -19,13 +19,13 @@
 
 
 /*
- * Set a player condition.
+ * Set a player condition.  -LM-
  *
  * Note that the condition must be stored in a s16b value, not an "int" or
  * a "bool".
  *
- * This function may also be used to call updates using the "flg" value,
- * but only if that would actually make things easier.
+ * This function may (in future) be used to call updates using the "flg"
+ * value, but only if that would actually make things easier.
  */
 static bool set_condition(s16b *condition, int v, u16b flg,
 	const char *msg_start, const char *msg_end)
@@ -106,13 +106,10 @@ bool set_blind(int v, cptr msg)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_M_LIST);
+	p_ptr->window |= (PW_OVERHEAD | PW_M_LIST | PW_O_LIST);
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
-
-	/* Print "blind" */
-	left_panel_display(DISPLAY_BLIND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -140,9 +137,6 @@ bool set_confused(int v)
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
-
-	/* Print "confused" */
-	left_panel_display(DISPLAY_CONFUSED, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -175,10 +169,7 @@ bool set_image(int v)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_M_LIST);
-
-	/* Print "image" */
-	left_panel_display(DISPLAY_IMAGE, 0);
+	p_ptr->window |= (PW_OVERHEAD | PW_M_LIST | PW_O_LIST);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -202,9 +193,6 @@ bool set_poisoned(int v)
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
-
-	/* Print "poisoned" */
-	left_panel_display(DISPLAY_POISONED, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -230,9 +218,6 @@ bool set_diseased(int v, cptr msg)
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
-
-	/* Print "diseased" */
-	left_panel_display(DISPLAY_DISEASED, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -373,6 +358,10 @@ bool set_shield(int v, cptr msg)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Print "shield" */
+	left_panel_display(DISPLAY_PROT_BLESS, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -401,6 +390,9 @@ bool set_steelskin(int v, cptr msg)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Print "steelskin" */
+	left_panel_display(DISPLAY_PROT_BLESS, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -431,7 +423,8 @@ bool set_blessed(int v, cptr msg)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Print "blessed/holy" */
-	left_panel_display(DISPLAY_BLESSED, 0);
+	left_panel_display(DISPLAY_PROT_BLESS, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
@@ -466,7 +459,8 @@ bool set_holy(int v)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Print "blessed/holy" */
-	left_panel_display(DISPLAY_BLESSED, 0);
+	left_panel_display(DISPLAY_PROT_BLESS, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
@@ -507,6 +501,7 @@ bool set_bold(int v)
 
 	/* Print "fear/bold/hero" */
 	left_panel_display(DISPLAY_FEAR, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
@@ -539,7 +534,7 @@ bool set_hero(int v)
 
 	/* Set hero, output messages */
 	notice = set_condition(&p_ptr->hero, v, 0L,
-	        "You feel like a hero!",
+	        "You feel heroic!",
 	        "The heroism wears off.");
 
 	/* Nothing to notice */
@@ -626,7 +621,7 @@ bool set_berserk(int v)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Print "berserk" */
-	left_panel_display(DISPLAY_BERSERK, 0);
+	left_panel_display(DISPLAY_FEAR, 0);
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
@@ -698,7 +693,7 @@ bool set_necro_rage(int v)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Print "necro_rage" */
-	left_panel_display(DISPLAY_NECRO_RAGE, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
@@ -727,7 +722,8 @@ bool set_protevil(int v)
 
 
 	/* Print "protevil" */
-	left_panel_display(DISPLAY_PROTEVIL, 0);
+	left_panel_display(DISPLAY_PROT_BLESS, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -757,7 +753,7 @@ bool set_wiz_prot(int v)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Print "wiz_prot" */
-	left_panel_display(DISPLAY_WIZ_PROT, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -792,6 +788,9 @@ bool set_detect_inv(int v)
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
 
+	/* Print "detect_inv" */
+	left_panel_display(DISPLAY_REALM_COND, 0);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -816,15 +815,11 @@ bool set_esp_evil(int v)
 	if (!notice) return (FALSE);
 
 
-	/* Fully update the visuals */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
 
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
-
+	/* Update the monsters XXX */
+	p_ptr->update |= (PU_MONSTERS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -885,7 +880,7 @@ bool set_tim_infra(int v)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Print "tim_infra" */
-	left_panel_display(DISPLAY_TIM_INFRA, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
@@ -908,8 +903,11 @@ bool set_invis(int v, int p)
 
 	/* Set tim_invis, output messages */
 	notice = set_condition(&p_ptr->tim_invis, v, 0L,
-	        "You feel your body fade away.",
-	        "You are no longer invisible.");
+			"You feel your body fade away.",
+			(p_ptr->invisible > p_ptr->tim_inv_pow) ?
+			"Your invisibility is no longer enhanced." :
+			"You are no longer invisible.");
+
 
 	/* Set strength of invisibility */
 	if (p_ptr->tim_invis) p_ptr->tim_inv_pow = p;
@@ -932,38 +930,8 @@ bool set_invis(int v, int p)
 	return (TRUE);
 }
 
-
 /*
- * Set "p_ptr->tim_stealth", notice observable changes
- */
-bool set_tim_stealth(int v)
-{
-	bool notice = FALSE;
-
-	/* Set tim_stealth, output messages */
-	notice = set_condition(&p_ptr->tim_stealth, v, 0L,
-	        "You are moving very quietly...",
-	        "Your movement is no longer especially silent.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Print "tim_stealth" */
-	left_panel_display(DISPLAY_TIM_STEALTH, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->hold_weather", do not notice observable changes
+ * Set "p_ptr->hold_weath", do not notice observable changes
  */
 bool set_hold_weather(int v)
 {
@@ -1073,9 +1041,6 @@ bool set_mania(int v)
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
-	/* Print "mania" */
-	left_panel_display(DISPLAY_MANIA, 0);
-
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
 
@@ -1103,7 +1068,7 @@ bool set_res_dam(int v)
 
 
 	/* Print "res_dam" */
-	left_panel_display(DISPLAY_RES_DAM, 0);
+	left_panel_display(DISPLAY_PROT_BLESS, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1129,7 +1094,7 @@ bool set_oppose_acid(int v)
 
 	/* Set oppose_acid, output messages (hack -- except when ending) */
 	notice = set_condition(&p_ptr->oppose_acid, v, 0L,
-	        "You feel resistant to acid!", "");
+	        p_ptr->immune_acid ? "" : "You feel resistant to acid!", "");
 
 	/* Shut */
 	if (end)
@@ -1153,7 +1118,8 @@ bool set_oppose_acid(int v)
 		/* Usual case */
 		else
 		{
-			msg_print("You feel less resistant to acid.");
+			if (!p_ptr->immune_acid)
+				msg_print("You feel less resistant to acid.");
 		}
 	}
 
@@ -1184,8 +1150,8 @@ bool set_oppose_elec(int v)
 
 	/* Set oppose_elec, output messages */
 	notice = set_condition(&p_ptr->oppose_elec, v, 0L,
-	        "You feel resistant to electricity!",
-	        "You feel less resistant to electricity.");
+	        p_ptr->immune_elec ? "" : "You feel resistant to electricity!",
+	        p_ptr->immune_elec ? "" : "You feel less resistant to electricity.");
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1213,8 +1179,8 @@ bool set_oppose_fire(int v)
 
 	/* Set oppose_fire, output messages */
 	notice = set_condition(&p_ptr->oppose_fire, v, 0L,
-	        "You feel resistant to fire!",
-	        "You feel less resistant to fire.");
+	        p_ptr->immune_fire ? "" : "You feel resistant to fire!",
+	        p_ptr->immune_fire ? "" : "You feel less resistant to fire.");
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1241,8 +1207,8 @@ bool set_oppose_cold(int v)
 
 	/* Set oppose_cold, output messages */
 	notice = set_condition(&p_ptr->oppose_cold, v, 0L,
-	        "You feel resistant to cold!",
-	        "You feel less resistant to cold.");
+	        p_ptr->immune_cold ? "" : "You feel resistant to cold!",
+	        p_ptr->immune_cold ? "" : "You feel less resistant to cold.");
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1332,10 +1298,15 @@ bool set_acid_attack(int v)
 
 	bool notice = FALSE;
 
+	/* Build the messages */
+	char desc_start[80];
+	char desc_end[80];
+	sprintf(desc_start, "Your %s drip with acid!", desc);
+	sprintf(desc_end, "Your %s are no longer acidic.", desc);
+
 	/* Set acid_attack, output messages */
 	notice = set_condition(&p_ptr->acid_attack, v, 0L,
-	        format("Your %s drip with acid!", desc),
-	        format("Your %s are no longer acidic.", desc));
+	        desc_start, desc_end);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1363,10 +1334,15 @@ bool set_elec_attack(int v)
 
 	bool notice = FALSE;
 
+	/* Build the messages */
+	char desc_start[80];
+	char desc_end[80];
+	sprintf(desc_start, "Your %s crackle with electricity!", desc);
+	sprintf(desc_end, "Your %s are no longer electric.", desc);
+
 	/* Set elec_attack, output messages */
 	notice = set_condition(&p_ptr->elec_attack, v, 0L,
-	        format("Your %s crackle with electricity!", desc),
-	        format("Your %s are no longer electric.", desc));
+	        desc_start, desc_end);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1394,10 +1370,15 @@ bool set_fire_attack(int v)
 
 	bool notice = FALSE;
 
+	/* Build the messages */
+	char desc_start[80];
+	char desc_end[80];
+	sprintf(desc_start, "Your %s burn with fire!", desc);
+	sprintf(desc_end, "Your %s are no longer fiery.", desc);
+
 	/* Set fire_attack, output messages */
 	notice = set_condition(&p_ptr->fire_attack, v, 0L,
-	        format("Your %s burn with fire!", desc),
-	        format("Your %s are no longer fiery.", desc));
+	        desc_start, desc_end);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1425,10 +1406,15 @@ bool set_cold_attack(int v)
 
 	bool notice = FALSE;
 
+	/* Build the messages */
+	char desc_start[80];
+	char desc_end[80];
+	sprintf(desc_start, "Your %s glitter with frost!", desc);
+	sprintf(desc_end, "Your %s are no longer icy.", desc);
+
 	/* Set cold_attack, output messages */
 	notice = set_condition(&p_ptr->cold_attack, v, 0L,
-	        format("Your %s glitter with frost!", desc),
-	        format("Your %s are no longer icy.", desc));
+	        desc_start, desc_end);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1456,10 +1442,15 @@ bool set_pois_attack(int v)
 
 	bool notice = FALSE;
 
+	/* Build the messages */
+	char desc_start[80];
+	char desc_end[80];
+	sprintf(desc_start, "Your %s gleam with poison!", desc);
+	sprintf(desc_end, "Your %s are no longer venomous.", desc);
+
 	/* Set pois_attack, output messages */
 	notice = set_condition(&p_ptr->pois_attack, v, 0L,
-	        format("Your %s gleam with poison!", desc),
-	        format("Your %s are no longer venomous.", desc));
+	        desc_start, desc_end);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1498,6 +1489,8 @@ bool set_stun(int v)
 	/* Knocked out */
 	if (p_ptr->stun >= KNOCKED_OUT)
 	{
+		/* No more stunning when knocked out */
+		if (v > p_ptr->stun) v = p_ptr->stun;
 		old_aux = 3;
 	}
 	/* Heavy stun */
@@ -1542,7 +1535,7 @@ bool set_stun(int v)
 		new_aux = 0;
 	}
 
-	/* Increase cut */
+	/* Increase stun */
 	if (new_aux > old_aux)
 	{
 		/* Describe the state */
@@ -1568,7 +1561,7 @@ bool set_stun(int v)
 		notice = TRUE;
 	}
 
-	/* Decrease cut */
+	/* Decrease stun */
 	else if (new_aux < old_aux)
 	{
 		/* Describe the state */
@@ -1599,9 +1592,6 @@ bool set_stun(int v)
 
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
-
-	/* Print "stun" */
-	left_panel_display(DISPLAY_STUN, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1796,9 +1786,6 @@ bool set_cut(int v)
 	/* Redraw conditions status */
 	p_ptr->redraw |= (PR_CONDITIONS);
 
-	/* Print "cut" */
-	left_panel_display(DISPLAY_CUT, 0);
-
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1931,12 +1918,12 @@ bool set_food(s32b v)
 			case 5:
 			msg_print("You have gorged yourself!");
 			break;
-
 		}
 
 		/* Change */
 		notice = TRUE;
 	}
+
 	/* Food decrease */
 	else if (new_aux < old_aux)
 	{
@@ -2045,6 +2032,8 @@ bool set_dancing_feet(int v, cptr msg, bool safe)
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
+	/* Print "dancing_feet" */
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2072,6 +2061,8 @@ bool set_phasing_foes(int v, cptr msg)
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
+	/* Print "phasing_foes" */
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2096,6 +2087,8 @@ bool set_blink_away(int v)
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
+	/* Print "blink_away" */
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2123,6 +2116,9 @@ bool set_evasion(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Print "evasion" */
+	left_panel_display(DISPLAY_REALM_COND, 0);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -2149,14 +2145,18 @@ bool set_aura_cold(int v)
 	if ((start) && (p_ptr->oppose_cold < v)) p_ptr->oppose_cold = v;
 
 	/* Hack -- do not allow auras of fire and frost at the same time */
-	if (v) p_ptr->aura_fire = 0;
+	if (v && p_ptr->aura_fire)
+	{
+		p_ptr->aura_fire = 0;
+		notice = TRUE;
+	}
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
 
 	/* Print "aura" */
-	left_panel_display(DISPLAY_AURA, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2185,14 +2185,18 @@ bool set_aura_fire(int v)
 	if ((start) && (p_ptr->oppose_fire < v)) p_ptr->oppose_fire = v;
 
 	/* Hack -- do not allow auras of fire and frost at the same time */
-	if (v) p_ptr->aura_cold = 0;
+	if (v && p_ptr->aura_cold)
+	{
+		p_ptr->aura_cold = 0;
+		notice = TRUE;
+	}
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
 
 	/* Print "aura" */
-	left_panel_display(DISPLAY_AURA, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2222,7 +2226,7 @@ bool set_mental_barrier(int v)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Print "mental_barrier" */
-	left_panel_display(DISPLAY_MENTAL_BARRIER, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2248,7 +2252,7 @@ bool set_forbid_summoning(int v)
 
 
 	/* Print "forbid_summoning" */
-	left_panel_display(DISPLAY_FORBID_SUMMONING, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2296,7 +2300,7 @@ bool set_wraithform(int v)
 
 
 	/* Print "wraithform" */
-	left_panel_display(DISPLAY_WRAITHFORM, 0);
+	left_panel_display(DISPLAY_REALM_COND, 0);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2387,9 +2391,6 @@ bool set_pois_power(int v, int dur)
 	/* Adjust poison power */
 	else p_ptr->pois_power = v;
 
-	/* Print "aura" */
-	left_panel_display(DISPLAY_AURA, 0);
-
 	/* Never notice */
 	return (FALSE);
 }
@@ -2423,7 +2424,7 @@ bool set_nexus_field(int v, int dam)
 {
 	bool notice = FALSE;
 
-	/* Set confusion, output messages */
+	/* Set nexus_field, output messages */
 	notice = set_condition(&p_ptr->nexus_field, v, 0L,
 	        "You are surrounded in a nexus field!",
 	        "You are no longer surrounded in a nexus field.");
@@ -2435,14 +2436,8 @@ bool set_nexus_field(int v, int dam)
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
-	/* Redraw conditions status */
-	p_ptr->redraw |= (PR_CONDITIONS);
-
 	/* Handle stuff */
 	handle_stuff();
-
-	/* Print "aura" */
-	left_panel_display(DISPLAY_AURA, 0);
 
 	/* Result */
 	return (TRUE);
@@ -2489,6 +2484,36 @@ bool set_luck(int v, cptr msg)
 	return (TRUE);
 }
 
+/*
+ * Set "p_ptr->unsanctified", notice observable changes
+ */
+bool set_unsanctified(int v)
+{
+	bool notice = FALSE;
+
+	/* Nothing happened */
+	if (v == p_ptr->unsanctified) return (FALSE);
+
+	/* Set unsanctified, output messages */
+	notice = set_condition(&p_ptr->unsanctified, v, 0L,
+	        "\"Angels fight for the Light; you must not be their enemy.\"\nYou have committed a sin, and you feel the Divine turn away from you.",
+	        "You feel the Divine forgive you.  \"Sin no more, I ask.\"");
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw conditions status */
+	p_ptr->redraw |= (PR_CONDITIONS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 
 /*
@@ -2555,7 +2580,7 @@ void shapechange(s16b shape)
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1 | PW_M_LIST);
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1 | PW_M_LIST | PW_O_LIST);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
@@ -2588,7 +2613,7 @@ void do_cmd_unchange(bool voluntary)
 	p_ptr->trollform = 0;
 	p_ptr->dragonform = 0;
 
-	/* Use some energy */
+	/* Use some energy  XXX */
 	if (voluntary) p_ptr->energy_use = 100;
 }
 
@@ -2613,7 +2638,7 @@ void practice_skill(s32b amount, s16b skill)
 		if (skill == S_SLING)    mult = 35;
 		if (skill == S_THROWING) mult = 40;
 		if (skill == S_DEVICE)   mult = 50;
-		if (skill == S_DISARM)   mult = 2000;
+		if (skill == S_DISARM)   mult = 3000;
 		if (skill == S_BURGLARY) mult = 50;
 
 		/* Speed of practice depends on race (varies from ~7 to ~15) */
@@ -2712,8 +2737,10 @@ void gain_exp(s32b amount, s16b skill)
 void lose_exp(s32b amount, bool perm)
 {
 	int i, j;
-	int skill = S_NOSKILL;
+	int count = 0;
+
 	s32b cost;
+	s16b *old_skills;
 
 
 	/* Hack -- Restrict exp loss */
@@ -2728,8 +2755,6 @@ void lose_exp(s32b amount, bool perm)
 	/* Otherwise, attack only skills */
 	else if (amount)
 	{
-		s16b *old_skills;
-
 		/* Allocate some space */
 		C_MAKE(old_skills, NUM_SK_USED, s16b);
 
@@ -2742,6 +2767,8 @@ void lose_exp(s32b amount, bool perm)
 		/* Hunt around for skills to suck away */
 		for (i = 0; i < 50; i++)
 		{
+			int skill = S_NOSKILL;
+
 			/* Power all gone */
 			if (amount <= 0L) break;
 
@@ -2774,21 +2801,55 @@ void lose_exp(s32b amount, bool perm)
 					if (!alter_skill(skill, -1, perm)) cost = 0;
 				}
 
-				/* Always reduce attack strength */
+				/* Reduce attack strength by cost */
 				amount -= cost;
 			}
 		}
 
-		/* Scan the skills again */
+		/* Count decreased skills */
 		for (i = 0; i < NUM_SK_USED; i++)
 		{
-			/* Skill has decreased */
-			if (p_ptr->pskills[i].cur < old_skills[i])
+			/* Skill has decreased - count it */
+			if (p_ptr->pskills[i].cur < old_skills[i]) count++;
+		}
+
+		/* Display list of reduced skills */
+		if (count)
+		{
+			/* Just to make sure we have plenty of space */
+			char buf[2048];
+
+			/* Clear the string */
+			strcpy(buf, "");
+
+			/* Scan through the skills */
+			for (i = 0, j = 0; i < NUM_SK_USED; i++)
 			{
-				/* Notice */
-				msg_format("You feel your %s diminishing.",
-					skill_info[i].desc);
+				/* This skill has been reduced */
+				if (p_ptr->pskills[i].cur < old_skills[i])
+				{
+					/* Listing another skill */
+					j++;
+
+					/* Add it to the list */
+					strcat(buf, skill_info[i].desc);
+
+					/* Commas separate members of a list of more than two. */
+					if ((count > 2) && (j < count)) strcat(buf, ",");
+
+					/* "and" before final member of a list of more than one. */
+					if ((count > 1) && (j == count - 1))
+					{
+						strcat(buf, " and");
+					}
+
+					/* Insert a space */
+					strcat(buf, " ");
+				}
 			}
+
+			/* Display a list of skills reduced. */
+			msg_format("You feel your %sdiminishing.", buf);
 		}
 	}
 
@@ -2874,8 +2935,8 @@ void take_hit(int dam, int msg_type, cptr hit_str, cptr kb_str)
 #endif
 
 
-	/* Character is leaving, or no damage is being done */
-	if ((p_ptr->is_dead) || (dam <= 0)) return;
+	/* Character is dead or leaving */
+	if ((p_ptr->is_dead) || (p_ptr->leaving)) return;
 
 	/* Disturb (vigorously) */
 	if (dam > 0) disturb(2, 0);
@@ -2896,11 +2957,11 @@ void take_hit(int dam, int msg_type, cptr hit_str, cptr kb_str)
 
 		/* Delay when badly hurt */
 		if (msg_type == MSG_HIT_MEDIUM)
-			delay = MAX(10, op_ptr->delay_factor * op_ptr->delay_factor * 1);
-		if (msg_type == MSG_HIT_HARD)
 			delay = MAX(20, op_ptr->delay_factor * op_ptr->delay_factor * 2);
+		if (msg_type == MSG_HIT_HARD)
+			delay = MAX(50, op_ptr->delay_factor * op_ptr->delay_factor * 4);
 		if (msg_type == MSG_HIT_DEADLY)
-			delay = MAX(50, op_ptr->delay_factor * op_ptr->delay_factor * 5);
+			delay = MAX(100, op_ptr->delay_factor * op_ptr->delay_factor * 8);
 
 		/* Output the hit message */
 		message(msg_type, delay, hit_str);
@@ -3186,9 +3247,15 @@ static void look_mon_desc(char *buf, int m_idx)
 
 	bool flag = FALSE;
 
+	/* Describe a few special conditions */
 	if (m_ptr->mflag & (MFLAG_MADD))
 	{
 		strcpy(buf, "insane");
+		flag = TRUE;
+	}
+	else if (m_ptr->mflag & (MFLAG_WARY))
+	{
+		strcpy(buf, "wary");
 		flag = TRUE;
 	}
 	else if (m_ptr->mflag & (MFLAG_TOWN))
@@ -3221,9 +3288,9 @@ static void look_mon_desc(char *buf, int m_idx)
 
 			if (flag) strcat(buf, ", ");
 
-			/* Calculate value shown, using accuracy */
+			/* Calculate and show approximate, rounded mana */
 			strcat(buf, format("~%d mana",
-				rand_spread(m_ptr->mana, spread)));
+				(int)round_it(rand_spread(m_ptr->mana, spread), 8)));
 
 			/* Stop using the quick RNG */
 			Rand_quick = FALSE;
@@ -3350,11 +3417,16 @@ static bool mimic_desc(char *m_name, const monster_race *r_ptr)
 
 		case '+':
 		{
-#if 0
-			if (strstr(name, "torch")) strcpy(m_name, "a giant Sapphire");
-			else if ()
-#endif
-			strcpy(m_name, "a door");
+			if (strstr(m_name, "Sapphire"))
+				strcpy(m_name, "a large sapphire");
+			else if (strstr(m_name, "Ruby"))
+				strcpy(m_name, "a large ruby");
+			else if (strstr(m_name, "Emerald"))
+				strcpy(m_name, "a large emerald");
+			else if (strstr(m_name, "Diamond"))
+				strcpy(m_name, "a large diamond");
+
+			else strcpy(m_name, "a door");
 			return (TRUE);
 		}
 
@@ -3967,7 +4039,9 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				if (m_ptr->mflag & (MFLAG_MIME))
 				{
 					/* Perceptive characters sometimes notice nearby mimics */
-					if (m_ptr->cdis < randint(get_skill(S_PERCEPTION, 0, 10)))
+					if ((!p_ptr->image) && (!p_ptr->confused) &&
+					    (m_ptr->ml >= ML_FULL) &&
+					    (m_ptr->cdis < randint(get_skill(S_PERCEPTION, 0, 8))))
 					{
 						/* Get the monster name ("a kobold") */
 						monster_desc(m_name, m_ptr, 0x88);
@@ -3986,8 +4060,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					/* Most mimics look like something.  Some are camouflaged. */
 					else if (mimic_desc(m_name, r_ptr))
 					{
-						/* Hack -- handle the limited view flag */
-						if (m_ptr->mflag & (MFLAG_DLIM))
+						/* Hack -- handle limited visibility */
+						if (m_ptr->ml < ML_FULL)
 							strcpy(m_name, "a bright light");
 
 						/* Describe the monster */
@@ -4029,8 +4103,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Monster is not hidden */
 				if (!(m_ptr->mflag & (MFLAG_MIME)))
 				{
-					/* Limited display of monster */
-					if (m_ptr->mflag & (MFLAG_DLIM))
+					/* Limited monster visibility */
+					if (m_ptr->ml < ML_FULL)
 					{
 						/* Not boring */
 						boring = FALSE;
@@ -4071,7 +4145,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					}
 
 					/* Full visibility */
-					else
+					else if (m_ptr->ml >= ML_FULL)
 					{
 						bool recall = FALSE;
 
@@ -4103,7 +4177,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 								screen_roff(m_ptr->r_idx);
 
 								/* Hack -- Complete the prompt (again) */
-								Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
+								(void)Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
 
 								/* Command */
 								query = inkey();
@@ -4119,7 +4193,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 								int cx, cy;
 
-								/* Print conjuction and monster name */
+								/* Print conjunction and monster name */
 								prt(format("%s%s%s%s ", s1, s2, s3, m_name), 0, 0);
 
 								/* Obtain the cursor */
@@ -4132,7 +4206,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 								look_mon_desc(buf, cave_m_idx[y][x]);
 
 								/* Print special monster condition text */
-								add_str(format(" (%s)", buf));
+								if (strlen(buf)) add_str(format(" (%s)", buf));
 
 								/* Print available commands */
 								add_str(format(" [r,%s]", info));
@@ -4324,6 +4398,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					/* Print a blank line below the list of traps */
 					prt("                               ", i, Term->wid - 31);
 				}
+
+				s3 = "";
 
 				/* Select grid, wait for command */
 				move_cursor_relative(y, x);
@@ -5070,7 +5146,7 @@ bool get_aim_dir(int *dp)
  * Return TRUE if a direction was chosen, otherwise return FALSE.
  *
  * This function should be used for all "repeatable" commands, such as
- * run, walk, open, close, bash, disarm, spike, tunnel, etc, as well
+ * run, walk, open, close, disarm, spike, tunnel, etc, as well
  * as all commands which must reference a grid adjacent to the player,
  * and which may not reference the grid under the player.
  *
@@ -5148,7 +5224,7 @@ bool confuse_dir(int *dp)
 	if (p_ptr->confused)
 	{
 		/* Apply confusion XXX XXX XXX */
-		if ((dir == 5) || (one_in_(4)))
+		if ((dir == 5) || (!one_in_(4)))
 		{
 			/* Random direction */
 			dir = ddd[rand_int(8)];
@@ -5173,50 +5249,142 @@ bool confuse_dir(int *dp)
 }
 
 
+
 /*
- * Handle messages generated by precognition.  -JL-
- *
- * If the dungeon is ready, prints the message immediately. A message
- * of NULL causes the printing of any messages accumulated during
- * dungeon generation.  At present, we do not print precognition mesages
- * for objects generated during normal play.
- *
- * During dungeon generation, saves the messages for later printing.
- * A message of NULL erases all stored messages.
- *
- * This function can only be called with constant strings or global
- * variables, unless you know that it isn't being called in the middle
- * of dungeon generation. Bad Things(tm) will happen if you don't.
+ * Efficient version of '(T) += sprintf((T), "%u", (N))'
  */
-void precog_msg(cptr msg)
+#define object_desc_num_macro(T,N) do { \
+	\
+	uint n = (N); \
+	\
+	uint p; \
+	\
+	/* Find "size" of "n" */ \
+	for (p = 1; n >= p * 10; p = p * 10) /* loop */; \
+	\
+	/* Dump each digit */ \
+	while (p >= 1) \
+{ \
+	/* Dump the digit */ \
+	*(T)++ = I2D(n / p); \
+	\
+	/* Remove the digit */ \
+	n = n % p; \
+	\
+	/* Process next digit */ \
+	p = p / 10; \
+} \
+	\
+} while (0)
+
+/*
+ * Handle messages generated by precognition.  -LM-
+ *
+ * Store messages in an array.  When requested, print them all at once.
+ */
+void precog_msg(int precog_msg_idx)
 {
 	int i;
-	static cptr msg_store[128];
-	static s16b msg_count;
+	static s16b msg_store[PRECOG_MSG_INDEX_MAX];
 
-	if (!character_dungeon)
+	/* Store a new message (no messages in town) */
+	if ((precog_msg_idx > 0) && (precog_msg_idx < PRECOG_MSG_INDEX_MAX))
 	{
-		if (msg == NULL)
-		{
-			msg_count = 0;
-			return;
-		}
-
-		/* Don't overflow the message array */
-		if (msg_count == 128) return;
-		msg_store[msg_count] = msg;
-		msg_count++;
+		if (p_ptr->depth) msg_store[precog_msg_idx]++;
 	}
-	else
+
+	/* Wipe the messages */
+	else if (precog_msg_idx == PRECOG_WIPE)
 	{
-		if (msg == NULL)
+		for (i = 0; i < PRECOG_MSG_INDEX_MAX; i++)
 		{
-			for (i = 0; i < msg_count; i++) msg_print(msg_store[i]);
-			msg_count = 0;
+			msg_store[i] = 0;
 		}
-		else
+	}
+
+	/* Print out the messages */
+	else if (precog_msg_idx == PRECOG_DISPLAY)
+	{
+		char buf[120];
+		cptr s;
+		char *t;
+
+		/* Scan through the possible precognition messages */
+		for (i = 1; i < PRECOG_MSG_INDEX_MAX; i++)
 		{
-			/* We only print precog msgs during dungeon generation */
+			/* We have at least one of this type of message */
+			if (msg_store[i])
+			{
+				/* Scan the raw text */
+				for (s = precog_msg_text[i], t = buf; *s; s++)
+				{
+					/* Look for a '&' */
+					if (*s == '&')
+					{
+						/* Only one message of this type */
+						if (msg_store[i] == 1)
+						{
+							/* Insert an 'a' */
+							*t++ = 'a';
+
+							/* Next non-space is a vowel - insert an 'n' */
+							if (is_a_vowel(*(s+2))) *t++ = 'n';
+						}
+
+						/* Multiple messages of this type */
+						else
+						{
+							/* Insert the digits */
+							object_desc_num_macro(t, msg_store[i]);
+						}
+					}
+
+					/* Look for a '*' */
+					else if (*s == '*')
+					{
+						/* Insert a 's', if plural */
+						if (msg_store[i] > 1) *t++ = 's';
+					}
+
+					/* Look for a '@' */
+					else if (*s == '@')
+					{
+						/* More than one message */
+						if (msg_store[i] > 1)
+						{
+							/* Insert the digits */
+							object_desc_num_macro(t, msg_store[i]);
+
+							/* Insert "time" or "times"  XXX */
+							*t++ = ' ';     *t++ = 't';
+							*t++ = 'i';     *t++ = 'm';
+							*t++ = 'e';     *t++ = 's';
+						}
+
+						/* One message */
+						else
+						{
+							/* Delete any preceding space */
+							if (*(t-1) == ' ') t--;
+						}
+					}
+
+					/* Handle ordinary characters */
+					else
+					{
+						*t++ = *s;
+					}
+				}
+
+				/* End the string */
+				*t++ = '\0';
+
+				/* Display the edited message */
+				msg_format("%s", buf);
+			}
 		}
+
+		/* Display all the messages */
+		flush();
 	}
 }

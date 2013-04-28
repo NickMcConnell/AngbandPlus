@@ -4,7 +4,7 @@
      You begin your adventures in the town.  It consists of eight buildings,
 each with a shop entranceway (and one also with an inn), and is well populated.
 The first time you are in town it will be daytime, but the sun rises and sets as
-time passes.
+time passes.  Nighttime in the town can be dangerous...
 
 Townspeople:
      Most townsfolk go about their daily tasks, paying little or no attention to
@@ -19,10 +19,11 @@ for killing the town inhabitants, though you may acquire treasure.
      You enter buildings by walking onto their entranceways, which (in text
 mode) are represented by numbers from 1 to 8 or the '+' sign.
      A new display then replaces the old.  For most buildings, you see the name
-and race of the store owner, the name of the store, and the maximum amount of
-cash that the store owner will pay for any one item.  Below it is displayed the
-inventory; if it is numerous, you may display another page by typing space.
-Near the bottom of the screen is displayed a list of commonly-used commands.
+and race of the store owner, the name of the store, and the maximum number of
+gold pieces that the store owner will pay for any one item.  Below it is
+displayed the inventory; if it is numerous, you may display another page by
+typing space.  Near the bottom of the screen is displayed a list of commonly-
+used commands.
 - 'g' or 'p': get/purchase an item.
 - 'd' or 's': drop/sell an item.
 - 'I': inspect an item (reveals any known special properties, reads spellbooks)
@@ -43,13 +44,13 @@ The Temple ("4"):
      Buys and sells blunt weapons, healing and restoration supplies, and various
 other holy items.
 
-The Alchemy shop ("5"):
+The Alchemy Shop ("5"):
      Buys and sells potions and scrolls.
 
 The Magic User's Shop ("6"):
      Buys and sells rings, amulets, wands, rods, and staffs.
 
-The Black Market ("7"):
+The Bookstore ("7"):
      Buys and sells spellbooks.
 
 Your Home ("8"):
@@ -71,12 +72,13 @@ cost, how well your and the store owner's races get along*, your Charisma, and
 the innate greediness of the store owner.
 
      * Everyone likes his or her own race best.
-     * Elves and Dwarves detest each other.
+     * Humans will trade with anyone, and nobody really hates them.
+     * Dwarves and orcs are at war; dwarves and elves don't much get along.
      * Nobody loves a Half-Orc or Half-Troll but another orc or troll.
 
      Stores never have everything in stock; as time passes, their inventory
-slowly changes (but only when you are in the dungeon).  The store owner fully
-identifies everything you sell him; you also become aware of objects of that
+slowly changes (but only when you are in the dungeon).  Store owners fully
+identify everything you sell them; you also become aware of objects of that
 type.
 
 Bargaining:
@@ -97,11 +99,12 @@ insult the shopkeeper) nor too much (which is a sign of inexperience, and will
 be taken advantage of).  Some shopkeepers like to haggle more, other are
 impatient and demand good offers, but you have always have enough leeway to
 succeed.
-     If you've gotten the shopkeeper to admit his final price, your reputation
-with him goes up.  Otherwise, it goes down.  The higher your reputation as a
-haggler, the more items that the shopkeeper will just go straight to his final
-price on (he knows he can't fool you).  It is quite possible to get a shopkeeper
-to immediately offer the final price on just about everything.
+     If you've gotten the shopkeeper to admit his final price, and you close the
+sale, your reputation with him goes up.  If you accept a bad deal (no "Final
+offer"), your reputation goes down.  The higher your reputation as a haggler,
+the more items that the shopkeeper will just go straight to his final price on
+(he knows he can't fool you).  It is quite possible to get a shopkeeper to
+immediately offer the final price on just about everything.
      Just be careful not to antagonize the shopkeepers too much.  You have to
 work at it, but you can get any shopkeeper mad enough to throw you out of the
 store.  When this happens, you can't get back in for maybe three or four days.
@@ -119,12 +122,17 @@ Stores can upgrade their inventory:
      Every time you buy something new, especially something valuable, from a
 store, it has more money to spend on items it wouldn't normally carry.  As time
 passes, and you continue to patronize particular stores, you will notice two
-things:
-firstly, the shopkeepers will start paying special attention to you, and
-secondly, that they will begin to stock a few unusual items.  It takes quite a
-while, but stores can significantly upgrade their inventory over time.
+things:  firstly, the shopkeepers will start paying special attention to you,
+and secondly, that they will begin to stock a few unusual items.  It takes quite
+a while, but stores can significantly upgrade their inventory over time.
      Be aware that shopkeepers mark up the prices of these unusual items.  For
 valuable things, this markup can be considerable.
+
+Investing in stores:
+     You can also give shopkeepers money directly by investing in their store.
+Use the '*' command, then type 'I' to invest money.  In addition to making the
+store more likely to stock nice stuff, investing in stores also improves the
+shopkeeper's attitude, and may make him forget any bad bargains.
 
 Shopkeepers can retire and be replaced:
      Shopkeepers do retire, but only very rarely.  The new shopkeeper benefits
@@ -143,6 +151,9 @@ success can become great indeed.
 once you enter the quest level, you cannot leave for any length of time without
 running a risk of failing the quest.  Failure reduces your prestige, and you may
 get poorer rewards from the quest-givers until you recover their respect.
+
+     Be warned:  If you are not a really good player, "moderate" and "difficult"
+quests can get your characters killed fast!
 
 
 

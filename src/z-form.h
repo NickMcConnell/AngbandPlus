@@ -48,10 +48,8 @@ extern void plog_fmt(cptr fmt, ...);
 /* Vararg interface to "quit()", using "format()" */
 extern void quit_fmt(cptr fmt, ...);
 
-/* Vararg interface to "core()", using "format()" */
-extern void core_fmt(cptr fmt, ...);
+extern void strnfcat(char *str, size_t max, size_t *end, cptr fmt, ...);
 
-
-#endif
+#endif  /* INCLUDED_Z_FORM_H */
 
 

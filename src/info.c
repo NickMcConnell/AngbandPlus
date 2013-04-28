@@ -2,7 +2,7 @@
 
 /*
  * Tables containing object kind descriptions.  Extended object descriptions
- * and information.  Self Knowledge.
+ * and information.  Self Knowledge.  Object info for character dumps.
  *
  * Copyright (c) 2002 Leon Marrick, Ben Harrison, James E. Wilson,
  * Robert A. Koeneke
@@ -89,44 +89,14 @@ void object_info(char *buf, object_type *o_ptr)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->artifact_index];
 
-#ifdef DELAY_LOAD_A_TEXT
-
-		int fd;
-
-		/* Build the filename */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "artifact.raw");
-
-		/* Open the "raw" file */
-		fd = fd_open(buf, O_RDONLY);
-
-		/* Use file */
-		if (fd >= 0)
-		{
-			huge pos;
-
-			/* Starting position */
-			pos = a_ptr->text;
-
-			/* Additional offsets */
-			pos += a_head->head_size;
-			pos += a_head->info_size;
-			pos += a_head->name_size;
-
-			/* Seek */
-			fd_seek(fd, pos);
-
-			/* Read a chunk of data */
-			fd_read(fd, buf, sizeof(buf));
-
-			/* Close it */
-			fd_close(fd);
-		}
-
-#else
-		/* If already in memory, simple to access */
+		/* Get artifact name */
 		my_strcpy(buf, a_text + a_ptr->text, 2048);
 
-#endif
+		/* Notice lack of description */
+		if (!strlen(buf))
+		{
+			strcpy(buf, "This is an artifact; although all knowledge of it has been forgotten, it has lost none of its power.");
+		}
 
 		/* Return the description, if any. */
 		return;
@@ -135,46 +105,8 @@ void object_info(char *buf, object_type *o_ptr)
 	/* All non-artifact or random artifact objects. */
 	else
 	{
-
-#ifdef DELAY_LOAD_K_TEXT
-
-		int fd;
-
-		/* Build the filename */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "object.raw");
-
-		/* Open the "raw" file */
-		fd = fd_open(buf, O_RDONLY);
-
-		/* Use file */
-		if (fd >= 0)
-		{
-			huge pos;
-
-			/* Starting position */
-			pos = k_ptr->text;
-
-			/* Additional offsets */
-			pos += k_head->head_size;
-			pos += k_head->info_size;
-			pos += k_head->name_size;
-
-			/* Seek */
-			fd_seek(fd, pos);
-
-			/* Read a chunk of data */
-			fd_read(fd, buf, sizeof(buf));
-
-			/* Close it */
-			fd_close(fd);
-		}
-
-#else
-
-		/* If already in memory, simple to access */
+		/* Get object kind name */
 		strcpy(buf, k_text + k_ptr->text);
-
-#endif
 
 		/* No object description, so return failure. */
 		if (!buf[0]) return;
@@ -255,48 +187,8 @@ void object_info(char *buf, object_type *o_ptr)
 			ego_item_type *e_ptr = &e_info[o_ptr->ego_item_index];
 			char ebuf[1024];
 
-			/* First, find the information in memory, or get it from
-			 * the binary file.
-			 */
-#ifdef DELAY_LOAD_E_TEXT
-
-			int fd;
-
-			/* Build the filename */
-			path_build(ebuf, sizeof(ebuf), ANGBAND_DIR_DATA, "ego_item.raw");
-
-			/* Open the "raw" file */
-			fd = fd_open(ebuf, O_RDONLY);
-
-			/* Use file */
-			if (fd >= 0)
-			{
-				huge pos;
-
-				/* Starting position */
-				pos = e_ptr->text;
-
-				/* Additional offsets */
-				pos += e_head->head_size;
-				pos += e_head->info_size;
-				pos += e_head->name_size;
-
-				/* Seek */
-				fd_seek(fd, pos);
-
-				/* Read a chunk of data */
-				fd_read(fd, ebuf, sizeof(ebuf));
-
-				/* Close it */
-				fd_close(fd);
-			}
-
-#else
-
-			/* If already in memory, simple to access */
+			/* Get ego-item name */
 			strcpy(ebuf, e_text + e_ptr->text);
-
-#endif
 
 			/* Point to the ego-item information. */
 			egoinfo = ebuf;
@@ -376,7 +268,21 @@ void object_info(char *buf, object_type *o_ptr)
 					}
 				}
 
-				/* Otherwise, no extra information. */
+				/* Devices show failure rate if well known */
+				if ((k_ptr->special & (SPECIAL_KNOWN_EFFECT)) &&
+				   ((o_ptr->tval == TV_STAFF) ||
+					 (o_ptr->tval == TV_WAND) ||
+					 (o_ptr->tval == TV_ROD)))
+				{
+					char buf2[80];
+
+					/* Build a failure rate string */
+					strcpy(buf2, format(" [%d%% fail]", 100 -
+						device_chance(o_ptr)));
+
+					/* Insert the new text */
+					for (v = buf2; *v; v++) *t++ = *v;
+				}
 			}
 
 			/* Copy over the string. */
@@ -447,16 +353,18 @@ static cptr pval_desc_text[32] =
 
 /*
  * Display most of what is known about any object.  Rewritten to
- * use "roff" and to harmonize with other description code.
+ * use "roff" and to harmonize with other description code.  -LM-
  *
  * Fully known objects display all information, known objects display
- * everything except the non pval-dependant and random flags, and others
- * display only basic help text.
+ * pval-dependant and obvious flags, and others display only basic help
+ * text.
  */
 void object_details(object_type *o_ptr, bool mental, bool known)
 {
 	int i, j, k, tmp1, tmp2;
 	int y, x;
+
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	int pval[32][2];
 
@@ -466,27 +374,34 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 	int attr_num = 0;
 
 
+	/* Hack -- boulders are always "known" if their effects are known */
+	if ((o_ptr->tval == TV_JUNK) && (o_ptr->sval == SV_BOULDER) &&
+	    (k_ptr->special & (SPECIAL_KNOWN_EFFECT)))
+	{
+		known = TRUE;
+	}
+
 
 	/* Object is not known -- jump straight to the basic information */
 	if (!known) goto basic_info;
 
 
+	/* Get known object flags */
+	object_flags_known(o_ptr, &f1, &f2, &f3);
 
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
 
-
-	/* Describe activation, if present. */
+	/* Describe activation, if present and known. */
 	if (o_ptr->activate)
 	{
-		object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
 		if ((mental) || (k_ptr->special |= (SPECIAL_KNOWN_EFFECT)))
 		{
-			cptr buf = do_activation_aux(OBJECT_INFO, o_ptr);
-
+			/* Build an activation string */
 			roff("Activation:  ", 3, 77);
-			roff(format("%s\n\n", buf), 3, 77);
+			roff(format("%s.", do_activation_aux(OBJECT_INFO, o_ptr)), 3, 77);
+
+			/* Build a failure rate string */
+			roff(format("  [%d%% fail]\n\n", 100 - device_chance(o_ptr)),
+				3, 77);
 		}
 	}
 
@@ -505,13 +420,6 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 			roff(format("It provides light (radius %d) when fueled.\n",
 				radius), 3, 77);
 		}
-	}
-
-	/* Magical devices can be damaged  XXX XXX */
-	if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)) &&
-		  (o_ptr->ac < k_info[o_ptr->k_idx].ac))
-	{
-		roff("This object is damaged.\n", 3, 77);
 	}
 
 
@@ -537,9 +445,9 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 
 		/* Show exact values for new and unfamiliar pvals  XXX XXX */
 		pval[14][0] = get_object_pval(o_ptr, TR_PVAL_DISARM) * 10;
-		pval[15][0] = get_object_pval(o_ptr, TR_PVAL_DEVICE) *  8;
+		pval[15][0] = get_object_pval(o_ptr, TR_PVAL_DEVICE) *  5;
 		pval[16][0] = get_object_pval(o_ptr, TR_PVAL_SAVE)   *  5;
-		pval[17][0] = get_object_pval(o_ptr, TR_PVAL_MANA)   * 20;
+		pval[17][0] = get_object_pval(o_ptr, TR_PVAL_MANA)   * 15;
 		pval[18][0] = 0;  /* Do not show light radius here */
 		pval[19][0] = 0;
 
@@ -649,116 +557,43 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 		}
 	}
 
-
-
-
-	/* Require full identification for most info */
-	if (mental)
+	/* Sustain stats. */
+	if ((f1 & (TR1_SUST_STR)) || (f1 & (TR1_SUST_INT)) ||
+		 (f1 & (TR1_SUST_WIS)) || (f1 & (TR1_SUST_DEX)) ||
+		 (f1 & (TR1_SUST_CON)) || (f1 & (TR1_SUST_CHR)))
 	{
-		/* Sustain stats. */
-		if ((f1 & (TR1_SUST_STR)) || (f1 & (TR1_SUST_INT)) ||
-			 (f1 & (TR1_SUST_WIS)) || (f1 & (TR1_SUST_DEX)) ||
-			 (f1 & (TR1_SUST_CON)) || (f1 & (TR1_SUST_CHR)))
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many attributes need to be listed? */
+		if (f1 & (TR1_SUST_STR)) attr_num++;
+		if (f1 & (TR1_SUST_INT)) attr_num++;
+		if (f1 & (TR1_SUST_WIS)) attr_num++;
+		if (f1 & (TR1_SUST_DEX)) attr_num++;
+		if (f1 & (TR1_SUST_CON)) attr_num++;
+		if (f1 & (TR1_SUST_CHR)) attr_num++;
+
+		/* Special case:  sustain all stats */
+		if (attr_num == 6)
 		{
-			/* Clear number of items to list, and items listed. */
-			attr_num = 0;
-			attr_listed = 0;
-
-			/* How many attributes need to be listed? */
-			if (f1 & (TR1_SUST_STR)) attr_num++;
-			if (f1 & (TR1_SUST_INT)) attr_num++;
-			if (f1 & (TR1_SUST_WIS)) attr_num++;
-			if (f1 & (TR1_SUST_DEX)) attr_num++;
-			if (f1 & (TR1_SUST_CON)) attr_num++;
-			if (f1 & (TR1_SUST_CHR)) attr_num++;
-
-			/* Special case:  sustain all stats */
-			if (attr_num == 6)
-			{
-				roff("It sustains all your stats", 3, 77);
-			}
-			else
-			{
-				roff("It sustains your", 3, 77);
-
-				/* Loop for number of attributes in this group. */
-				for (j = 0; j < 6; j++)
-				{
-					bool list_ok = FALSE;
-
-					if ((j == 0) && (f1 & (TR1_SUST_STR))) list_ok = TRUE;
-					if ((j == 1) && (f1 & (TR1_SUST_INT))) list_ok = TRUE;
-					if ((j == 2) && (f1 & (TR1_SUST_WIS))) list_ok = TRUE;
-					if ((j == 3) && (f1 & (TR1_SUST_DEX))) list_ok = TRUE;
-					if ((j == 4) && (f1 & (TR1_SUST_CON))) list_ok = TRUE;
-					if ((j == 5) && (f1 & (TR1_SUST_CHR))) list_ok = TRUE;
-
-					if (!list_ok) continue;
-
-					/* Listing another attribute. */
-					attr_listed++;
-
-					/* Commas separate members of a list of more than two. */
-					if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
-
-					/* "and" before final member of a list of more than one. */
-					if ((attr_num > 1) && (j != 0))
-					{
-						if (attr_num == attr_listed) roff(" and", 3, 77);
-					}
-
-					/* List the attribute description, in its proper place. */
-					if (j == 0) roff(" strength", 3, 77);
-					if (j == 1) roff(" intelligence", 3, 77);
-					if (j == 2) roff(" wisdom", 3, 77);
-					if (j == 3) roff(" dexterity", 3, 77);
-					if (j == 4) roff(" constitution", 3, 77);
-					if (j == 5) roff(" charisma", 3, 77);
-				}
-			}
-
-			/* End sentence.  Go to next line. */
-			roff(". \n", 3, 77);
+			roff("It sustains all your stats", 3, 77);
 		}
-
-
-		/* Slays. */
-		if ((f1 & (TR1_SLAY_ANIMAL)) || (f1 & (TR1_SLAY_EVIL)) ||
-			 (f1 & (TR1_SLAY_UNDEAD)) || (f1 & (TR1_SLAY_DEMON)) ||
-			 (f1 & (TR1_SLAY_ORC))    || (f1 & (TR1_SLAY_TROLL)) ||
-			 (f1 & (TR1_SLAY_GIANT))  || (f1 & (TR1_SLAY_DRAGON)) ||
-			 (f1 & (TR1_KILL_DRAGON)))
+		else
 		{
-			/* Clear number of items to list, and items listed. */
-			attr_num = 0;
-			attr_listed = 0;
-
-			/* How many normal slays need to be listed? */
-			if (f1 & (TR1_SLAY_ANIMAL)) attr_num++;
-			if (f1 & (TR1_SLAY_EVIL))   attr_num++;
-			if (f1 & (TR1_SLAY_UNDEAD)) attr_num++;
-			if (f1 & (TR1_SLAY_DEMON))  attr_num++;
-			if (f1 & (TR1_SLAY_ORC))    attr_num++;
-			if (f1 & (TR1_SLAY_TROLL))  attr_num++;
-			if (f1 & (TR1_SLAY_GIANT))  attr_num++;
-			if (f1 & (TR1_SLAY_DRAGON)) attr_num++;
-
-			/* Start the sentence */
-			if (attr_num) roff("It slays", 3, 77);
+			roff("It sustains your", 3, 77);
 
 			/* Loop for number of attributes in this group. */
-			for (j = 0; j < 8; j++)
+			for (j = 0; j < 6; j++)
 			{
 				bool list_ok = FALSE;
 
-				if ((j == 0) && (f1 & (TR1_SLAY_ANIMAL))) list_ok = TRUE;
-				if ((j == 1) && (f1 & (TR1_SLAY_EVIL))) list_ok = TRUE;
-				if ((j == 2) && (f1 & (TR1_SLAY_UNDEAD))) list_ok = TRUE;
-				if ((j == 3) && (f1 & (TR1_SLAY_DEMON))) list_ok = TRUE;
-				if ((j == 4) && (f1 & (TR1_SLAY_ORC))) list_ok = TRUE;
-				if ((j == 5) && (f1 & (TR1_SLAY_TROLL))) list_ok = TRUE;
-				if ((j == 6) && (f1 & (TR1_SLAY_GIANT))) list_ok = TRUE;
-				if ((j == 7) && (f1 & (TR1_SLAY_DRAGON))) list_ok = TRUE;
+				if ((j == 0) && (f1 & (TR1_SUST_STR))) list_ok = TRUE;
+				if ((j == 1) && (f1 & (TR1_SUST_INT))) list_ok = TRUE;
+				if ((j == 2) && (f1 & (TR1_SUST_WIS))) list_ok = TRUE;
+				if ((j == 3) && (f1 & (TR1_SUST_DEX))) list_ok = TRUE;
+				if ((j == 4) && (f1 & (TR1_SUST_CON))) list_ok = TRUE;
+				if ((j == 5) && (f1 & (TR1_SUST_CHR))) list_ok = TRUE;
 
 				if (!list_ok) continue;
 
@@ -775,519 +610,599 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 				}
 
 				/* List the attribute description, in its proper place. */
-				if (j == 0) roff(" animals", 3, 77);
-				if (j == 1) roff(" evil", 3, 77);
-				if (j == 2) roff(" undead", 3, 77);
-				if (j == 3) roff(" demons", 3, 77);
-				if (j == 4) roff(" orcs", 3, 77);
-				if (j == 5) roff(" trolls", 3, 77);
-				if (j == 6) roff(" giants", 3, 77);
-				if (j == 7) roff(" dragons", 3, 77);
+				if (j == 0) roff(" strength", 3, 77);
+				if (j == 1) roff(" intelligence", 3, 77);
+				if (j == 2) roff(" wisdom", 3, 77);
+				if (j == 3) roff(" dexterity", 3, 77);
+				if (j == 4) roff(" constitution", 3, 77);
+				if (j == 5) roff(" charisma", 3, 77);
 			}
-
-			/* Special cases for the heavy slays */
-			if (f1 & (TR1_KILL_DRAGON))
-			{
-				/* Conjunction */
-				if (attr_num) roff(", and ", 3, 77);
-				else          roff("It ", 3, 77);
-
-				/* Text */
-				roff("is the bane of dragons everywhere", 3, 77);
-			}
-
-			/* End sentence.  Go to next line. */
-			roff(". \n", 3, 77);
 		}
 
+		/* End sentence.  Go to next line. */
+		roff(". \n", 3, 77);
+	}
 
-		/* Elemental and poison brands. */
-		if ((f1 & (TR1_BRAND_ACID)) || (f1 & (TR1_BRAND_ELEC)) ||
-			 (f1 & (TR1_BRAND_FIRE)) || (f1 & (TR1_BRAND_COLD)) ||
-			 (f1 & (TR1_BRAND_POIS)) || (f1 & (TR1_BRAND_FLAME)) ||
-			 (f1 & (TR1_BRAND_VENOM)))
+
+	/* Slays. */
+	if ((f1 & (TR1_SLAY_ANIMAL)) || (f1 & (TR1_SLAY_EVIL)) ||
+		 (f1 & (TR1_SLAY_UNDEAD)) || (f1 & (TR1_SLAY_DEMON)) ||
+		 (f1 & (TR1_SLAY_ORC))    || (f1 & (TR1_SLAY_TROLL)) ||
+		 (f1 & (TR1_SLAY_GIANT))  || (f1 & (TR1_SLAY_DRAGON)) ||
+		 (f1 & (TR1_KILL_DRAGON)))
+	{
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many normal slays need to be listed? */
+		if (f1 & (TR1_SLAY_ANIMAL)) attr_num++;
+		if (f1 & (TR1_SLAY_EVIL))   attr_num++;
+		if (f1 & (TR1_SLAY_UNDEAD)) attr_num++;
+		if (f1 & (TR1_SLAY_DEMON))  attr_num++;
+		if (f1 & (TR1_SLAY_ORC))    attr_num++;
+		if (f1 & (TR1_SLAY_TROLL))  attr_num++;
+		if (f1 & (TR1_SLAY_GIANT))  attr_num++;
+		if (f1 & (TR1_SLAY_DRAGON)) attr_num++;
+
+		/* Start the sentence */
+		if (attr_num) roff("It slays", 3, 77);
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 8; j++)
 		{
-			/* Clear number of items to list, and items listed. */
-			attr_num = 0;
-			attr_listed = 0;
+			bool list_ok = FALSE;
 
-			/* How many normal brands need to be listed? */
-			if (f1 & (TR1_BRAND_ACID)) attr_num++;
-			if (f1 & (TR1_BRAND_ELEC)) attr_num++;
-			if (f1 & (TR1_BRAND_FIRE)) attr_num++;
-			if (f1 & (TR1_BRAND_COLD)) attr_num++;
-			if (f1 & (TR1_BRAND_POIS)) attr_num++;
+			if ((j == 0) && (f1 & (TR1_SLAY_ANIMAL))) list_ok = TRUE;
+			if ((j == 1) && (f1 & (TR1_SLAY_EVIL))) list_ok = TRUE;
+			if ((j == 2) && (f1 & (TR1_SLAY_UNDEAD))) list_ok = TRUE;
+			if ((j == 3) && (f1 & (TR1_SLAY_DEMON))) list_ok = TRUE;
+			if ((j == 4) && (f1 & (TR1_SLAY_ORC))) list_ok = TRUE;
+			if ((j == 5) && (f1 & (TR1_SLAY_TROLL))) list_ok = TRUE;
+			if ((j == 6) && (f1 & (TR1_SLAY_GIANT))) list_ok = TRUE;
+			if ((j == 7) && (f1 & (TR1_SLAY_DRAGON))) list_ok = TRUE;
 
-			/* Start the sentence */
-			if (attr_num) roff("It", 3, 77);
+			if (!list_ok) continue;
 
-			/* Loop for number of attributes in this group. */
-			for (j = 0; j < 5; j++)
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list of more than two. */
+			if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+
+			/* "and" before final member of a list of more than one. */
+			if ((attr_num > 1) && (j != 0))
 			{
-				bool list_ok = FALSE;
-
-				if ((j == 0) && (f1 & (TR1_BRAND_FIRE))) list_ok = TRUE;
-				if ((j == 1) && (f1 & (TR1_BRAND_COLD))) list_ok = TRUE;
-				if ((j == 2) && (f1 & (TR1_BRAND_ACID))) list_ok = TRUE;
-				if ((j == 3) && (f1 & (TR1_BRAND_ELEC))) list_ok = TRUE;
-				if ((j == 4) && (f1 & (TR1_BRAND_POIS))) list_ok = TRUE;
-
-				if (!list_ok) continue;
-
-				/* Listing another attribute. */
-				attr_listed++;
-
-				/* Commas separate members of a list of more than two. */
-				if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
-
-				/* "and" before final member of a list of more than one. */
-				if ((attr_num > 1) && (j != 0))
-				{
-					if (attr_num == attr_listed) roff(" and", 3, 77);
-				}
-
-				/* List the attribute description, in its proper place. */
-				if (j == 0) roff(" burns", 3, 77);
-				if (j == 1) roff(" freezes", 3, 77);
-				if (j == 2) roff(" melts", 3, 77);
-				if (j == 3) roff(" electrocutes", 3, 77);
-				if (j == 4) roff(" poisons", 3, 77);
+				if (attr_num == attr_listed) roff(" and", 3, 77);
 			}
 
-			/* End the sentence */
-			if (attr_num) roff(" your foes", 3, 77);
-
-			/* Special cases for the heavy brands */
-			if ((f1 & (TR1_BRAND_FLAME)) || (f1 & (TR1_BRAND_VENOM)))
-			{
-				/* Conjunction */
-				if (attr_num) roff(", and ", 3, 77);
-				else          roff("It ", 3, 77);
-
-				/* Text */
-				if ((f1 & (TR1_BRAND_FLAME)) && (f1 & (TR1_BRAND_VENOM)))
-					roff("incinerates and injects poison into everything it touches", 3, 77);
-				else if (f1 & (TR1_BRAND_FLAME))
-					roff("incinerates everything it touches", 3, 77);
-				else if (f1 & (TR1_BRAND_VENOM))
-					roff("injects deadly poisons into everything it touches", 3, 77);
-			}
-
-			/* End sentence.  Go to next line. */
-			roff(". \n", 3, 77);
+			/* List the attribute description, in its proper place. */
+			if (j == 0) roff(" animals", 3, 77);
+			if (j == 1) roff(" evil", 3, 77);
+			if (j == 2) roff(" undead", 3, 77);
+			if (j == 3) roff(" demons", 3, 77);
+			if (j == 4) roff(" orcs", 3, 77);
+			if (j == 5) roff(" trolls", 3, 77);
+			if (j == 6) roff(" giants", 3, 77);
+			if (j == 7) roff(" dragons", 3, 77);
 		}
 
-		/* Vorpal weapons and missile launchers. */
-		if (f1 & (TR1_VORPAL))
+		/* Special cases for the heavy slays */
+		if (f1 & (TR1_KILL_DRAGON))
 		{
-			if (o_ptr->tval == TV_BOW)
+			/* Conjunction */
+			if (attr_num) roff(", and ", 3, 77);
+			else          roff("It ", 3, 77);
+
+			/* Text */
+			roff("is the bane of dragons everywhere", 3, 77);
+		}
+
+		/* End sentence.  Go to next line. */
+		roff(". \n", 3, 77);
+	}
+
+
+	/* Elemental and poison brands. */
+	if ((f1 & (TR1_BRAND_ACID)) || (f1 & (TR1_BRAND_ELEC)) ||
+		 (f1 & (TR1_BRAND_FIRE)) || (f1 & (TR1_BRAND_COLD)) ||
+		 (f1 & (TR1_BRAND_POIS)) || (f1 & (TR1_BRAND_FLAME)) ||
+		 (f1 & (TR1_BRAND_VENOM)))
+	{
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many normal brands need to be listed? */
+		if (f1 & (TR1_BRAND_ACID)) attr_num++;
+		if (f1 & (TR1_BRAND_ELEC)) attr_num++;
+		if (f1 & (TR1_BRAND_FIRE)) attr_num++;
+		if (f1 & (TR1_BRAND_COLD)) attr_num++;
+		if (f1 & (TR1_BRAND_POIS)) attr_num++;
+
+		/* Start the sentence */
+		if (attr_num) roff("It", 3, 77);
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 5; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j == 0) && (f1 & (TR1_BRAND_FIRE))) list_ok = TRUE;
+			if ((j == 1) && (f1 & (TR1_BRAND_COLD))) list_ok = TRUE;
+			if ((j == 2) && (f1 & (TR1_BRAND_ACID))) list_ok = TRUE;
+			if ((j == 3) && (f1 & (TR1_BRAND_ELEC))) list_ok = TRUE;
+			if ((j == 4) && (f1 & (TR1_BRAND_POIS))) list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list of more than two. */
+			if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+
+			/* "and" before final member of a list of more than one. */
+			if ((attr_num > 1) && (j != 0))
 			{
-				roff("The missiles this weapon shoots drive deeply into their targets. \n", 3, 77);
+				if (attr_num == attr_listed) roff(" and", 3, 77);
 			}
-			else if (o_ptr->tval == TV_HAFTED)
+
+			/* List the attribute description, in its proper place. */
+			if (j == 0) roff(" burns", 3, 77);
+			if (j == 1) roff(" freezes", 3, 77);
+			if (j == 2) roff(" melts", 3, 77);
+			if (j == 3) roff(" electrocutes", 3, 77);
+			if (j == 4) roff(" poisons", 3, 77);
+		}
+
+		/* End the sentence */
+		if (attr_num) roff(" your foes", 3, 77);
+
+		/* Special cases for the heavy brands */
+		if ((f1 & (TR1_BRAND_FLAME)) || (f1 & (TR1_BRAND_VENOM)))
+		{
+			/* Conjunction */
+			if (attr_num) roff(", and ", 3, 77);
+			else          roff("It ", 3, 77);
+
+			/* Text */
+			if ((f1 & (TR1_BRAND_FLAME)) && (f1 & (TR1_BRAND_VENOM)))
+				roff("incinerates and injects poison into everything it touches", 3, 77);
+			else if (f1 & (TR1_BRAND_FLAME))
+				roff("incinerates everything it touches", 3, 77);
+			else if (f1 & (TR1_BRAND_VENOM))
+				roff("injects deadly poisons into everything it touches", 3, 77);
+		}
+
+		/* End sentence.  Go to next line. */
+		roff(". \n", 3, 77);
+	}
+
+	/* Vorpal weapons and missile launchers. */
+	if (f1 & (TR1_VORPAL))
+	{
+		if (o_ptr->tval == TV_BOW)
+		{
+			roff("The missiles this weapon shoots drive deeply into their targets. \n", 3, 77);
+		}
+		else if (o_ptr->tval == TV_HAFTED)
+		{
+			roff("It is a weapon of concussion. \n", 3, 77);
+		}
+		else if (!is_missile(o_ptr))
+		{
+			roff("It is a vorpal blade. \n", 3, 77);
+		}
+		else
+		{
+			roff("It drives deeply into your foes. \n", 3, 77);
+		}
+	}
+
+	/* Must be a melee weapon */
+	if (is_melee_weapon(o_ptr))
+	{
+		/* Throwing weapons. */
+		if (f1 & (TR1_THROWING))
+		{
+			if (f1 & (TR1_PERFECT_BALANCE))
 			{
-				roff("It is a weapon of concussion. \n", 3, 77);
-			}
-			else if (!is_missile(o_ptr))
-			{
-				roff("It is a vorpal blade. \n", 3, 77);
+				roff("It is deadly when thrown. \n", 3, 77);
 			}
 			else
 			{
-				roff("It drives deeply into your foes. \n", 3, 77);
-			}
-		}
-
-		/* Must be a melee weapon */
-		if (is_melee_weapon(o_ptr))
-		{
-			/* Throwing weapons. */
-			if (f1 & (TR1_THROWING))
-			{
-				if (f1 & (TR1_PERFECT_BALANCE))
-				{
-					roff("It can be thrown hard and fast. \n", 3, 77);
-				}
 				roff("It can be thrown effectively. \n", 3, 77);
 			}
-
-			/* Two-handed weapons. */
-			if (f1 & (TR1_TWO_HANDED_REQ))
-			{
-				roff("It requires two hands to wield. \n", 3, 77);
-			}
-			else if (f1 & (TR1_TWO_HANDED_DES))
-			{
-				roff("Only the strongest can wield this weapon in one hand. \n", 3, 77);
-			}
 		}
 
-
-		/* Elemental immunities. */
-		if ((f2 & (TR2_IM_ACID)) || (f2 & (TR2_IM_ELEC)) ||
-			 (f2 & (TR2_IM_FIRE)) || (f2 & (TR2_IM_COLD)))
+		/* Two-handed weapons. */
+		if (f1 & (TR1_TWO_HANDED_REQ))
 		{
-			/* Clear number of items to list, and items listed. */
-			attr_num = 0;
-			attr_listed = 0;
-
-			/* How many attributes need to be listed? */
-			if (f2 & (TR2_IM_ACID)) attr_num++;
-			if (f2 & (TR2_IM_ELEC)) attr_num++;
-			if (f2 & (TR2_IM_FIRE)) attr_num++;
-			if (f2 & (TR2_IM_COLD)) attr_num++;
-
-			roff("It provides immunity to", 3, 77);
-
-			/* Loop for number of attributes in this group. */
-			for (j = 0; j < 4; j++)
-			{
-				bool list_ok = FALSE;
-
-				if ((j == 0) && (f2 & (TR2_IM_ACID))) list_ok = TRUE;
-				if ((j == 1) && (f2 & (TR2_IM_ELEC))) list_ok = TRUE;
-				if ((j == 2) && (f2 & (TR2_IM_FIRE))) list_ok = TRUE;
-				if ((j == 3) && (f2 & (TR2_IM_COLD))) list_ok = TRUE;
-
-				if (!list_ok) continue;
-
-				/* Listing another attribute. */
-				attr_listed++;
-
-				/* Commas separate members of a list of more than two. */
-				if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
-
-				/* "and" before final member of a list of more than one. */
-				if ((attr_num > 1) && (j != 0))
-				{
-					if (attr_num == attr_listed) roff(" and", 3, 77);
-				}
-
-				/* List the attribute description, in its proper place. */
-				if (j == 0) roff(" acid", 3, 77);
-				if (j == 1) roff(" electricity", 3, 77);
-				if (j == 2) roff(" fire", 3, 77);
-				if (j == 3) roff(" frost", 3, 77);
-			}
-
-			/* End sentence.  Go to next line. */
-			roff(". \n", 3, 77);
+			roff("It requires two hands to wield. \n", 3, 77);
 		}
-
-
-		/* Resistances. */
-		if ((f2 & (TR2_RES_ACID))  || (f2 & (TR2_RES_ELEC)) ||
-			 (f2 & (TR2_RES_FIRE))  || (f2 & (TR2_RES_COLD)) ||
-			 (f2 & (TR2_RES_POIS))  || (f2 & (TR2_RES_LITE)) ||
-			 (f2 & (TR2_RES_DARK))  || (f2 & (TR2_RES_SOUND)) ||
-			 (f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) ||
-			 (f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) ||
-			 (f2 & (TR2_RES_DISEN)))
+		else if (f1 & (TR1_TWO_HANDED_DES))
 		{
-			/* Clear number of items to list, and items listed. */
-			attr_num = 0;
-			attr_listed = 0;
-
-			/* How many attributes need to be listed? */
-			if (f2 & (TR2_RES_ACID))  attr_num++;
-			if (f2 & (TR2_RES_ELEC))  attr_num++;
-			if (f2 & (TR2_RES_FIRE))  attr_num++;
-			if (f2 & (TR2_RES_COLD))  attr_num++;
-			if (f2 & (TR2_RES_POIS))  attr_num++;
-			if (f2 & (TR2_RES_LITE))  attr_num++;
-			if (f2 & (TR2_RES_DARK))  attr_num++;
-			if (f2 & (TR2_RES_SOUND)) attr_num++;
-			if (f2 & (TR2_RES_SHARD)) attr_num++;
-			if (f2 & (TR2_RES_NEXUS)) attr_num++;
-			if (f2 & (TR2_RES_NETHR)) attr_num++;
-			if (f2 & (TR2_RES_CHAOS)) attr_num++;
-			if (f2 & (TR2_RES_DISEN)) attr_num++;
-
-			roff("It provides resistance to", 3, 77);
-
-			/* Loop for number of attributes in this group. */
-			for (j = 0; j < 13; j++)
-			{
-				bool list_ok = FALSE;
-
-				if ((j ==  0) && (f2 & (TR2_RES_ACID)))  list_ok = TRUE;
-				if ((j ==  1) && (f2 & (TR2_RES_ELEC)))  list_ok = TRUE;
-				if ((j ==  2) && (f2 & (TR2_RES_FIRE)))  list_ok = TRUE;
-				if ((j ==  3) && (f2 & (TR2_RES_COLD)))  list_ok = TRUE;
-				if ((j ==  4) && (f2 & (TR2_RES_POIS)))  list_ok = TRUE;
-				if ((j ==  5) && (f2 & (TR2_RES_LITE)))  list_ok = TRUE;
-				if ((j ==  6) && (f2 & (TR2_RES_DARK)))  list_ok = TRUE;
-				if ((j ==  7) && (f2 & (TR2_RES_SOUND))) list_ok = TRUE;
-				if ((j ==  8) && (f2 & (TR2_RES_SHARD))) list_ok = TRUE;
-				if ((j ==  9) && (f2 & (TR2_RES_NEXUS))) list_ok = TRUE;
-				if ((j == 10) && (f2 & (TR2_RES_NETHR))) list_ok = TRUE;
-				if ((j == 11) && (f2 & (TR2_RES_CHAOS))) list_ok = TRUE;
-				if ((j == 12) && (f2 & (TR2_RES_DISEN))) list_ok = TRUE;
-
-				if (!list_ok) continue;
-
-				/* Listing another attribute. */
-				attr_listed++;
-
-				/* Commas separate members of a list of more than two. */
-				if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
-
-				/* "and" before final member of a list of more than one. */
-				if ((attr_num > 1) && (j != 0))
-				{
-					if (attr_num == attr_listed) roff(" and", 3, 77);
-				}
-
-				/* List the attribute description, in its proper place. */
-				if (j ==  0) roff(" acid", 3, 77);
-				if (j ==  1) roff(" electricity", 3, 77);
-				if (j ==  2) roff(" fire", 3, 77);
-				if (j ==  3) roff(" frost", 3, 77);
-				if (j ==  4) roff(" poison", 3, 77);
-				if (j ==  5) roff(" light", 3, 77);
-				if (j ==  6) roff(" darkness", 3, 77);
-				if (j ==  7) roff(" sound", 3, 77);
-				if (j ==  8) roff(" shards", 3, 77);
-				if (j ==  9) roff(" nexus", 3, 77);
-				if (j == 10) roff(" nether", 3, 77);
-				if (j == 11) roff(" chaos", 3, 77);
-				if (j == 12) roff(" disenchantment", 3, 77);
-			}
-
-			/* End sentence.  Go to next line. */
-			roff(". \n", 3, 77);
+			roff("Only the strongest can wield this weapon in one hand. \n", 3, 77);
 		}
+	}
 
 
-		/* Clear a listing variable. */
+	/* Elemental immunities. */
+	if ((f2 & (TR2_IM_ACID)) || (f2 & (TR2_IM_ELEC)) ||
+		 (f2 & (TR2_IM_FIRE)) || (f2 & (TR2_IM_COLD)))
+	{
+		/* Clear number of items to list, and items listed. */
 		attr_num = 0;
+		attr_listed = 0;
 
-		/* Special processing for the three "survival resists" */
-		if (f2 & (TR2_RES_FEAR)) attr_num++;
-		if (f2 & (TR2_RES_BLIND)) attr_num++;
-		if (f2 & (TR2_RES_CONFU)) attr_num++;
+		/* How many attributes need to be listed? */
+		if (f2 & (TR2_IM_ACID)) attr_num++;
+		if (f2 & (TR2_IM_ELEC)) attr_num++;
+		if (f2 & (TR2_IM_FIRE)) attr_num++;
+		if (f2 & (TR2_IM_COLD)) attr_num++;
 
-		if (f2 & (TR2_RES_FEAR))
+		roff("It provides immunity to", 3, 77);
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 4; j++)
 		{
-			roff("It renders you fearless", 3, 77);
-			if (attr_num == 1) roff(". \n", 3, 77);
-			else roff(", and", 3, 77);
-		}
+			bool list_ok = FALSE;
 
-		if (f2 & (TR2_RES_BLIND))
-		{
-			if ((attr_num > 1) && (f2 & (TR2_RES_FEAR)))
-				roff(" provides resistance to blindness", 3, 77);
-			else roff("It provides resistance to blindness", 3, 77);
+			if ((j == 0) && (f2 & (TR2_IM_ACID))) list_ok = TRUE;
+			if ((j == 1) && (f2 & (TR2_IM_ELEC))) list_ok = TRUE;
+			if ((j == 2) && (f2 & (TR2_IM_FIRE))) list_ok = TRUE;
+			if ((j == 3) && (f2 & (TR2_IM_COLD))) list_ok = TRUE;
 
-			if (f2 & (TR2_RES_CONFU)) roff(" and", 3, 77);
-			else roff(". \n", 3, 77);
-		}
+			if (!list_ok) continue;
 
-		if (f2 & (TR2_RES_CONFU))
-		{
-			if ((attr_num > 1) && (!(f2 & (TR2_RES_BLIND))))
-				roff(" provides resistance to confusion.\n", 3, 77);
-			else if (attr_num > 1) roff(" confusion.\n", 3, 77);
-			else roff("It provides resistance to confusion.\n", 3, 77);
-		}
+			/* Listing another attribute. */
+			attr_listed++;
 
+			/* Commas separate members of a list of more than two. */
+			if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
 
-		/* Miscellaneous abilities. */
-		if ((f3 & (TR3_SLOW_DIGEST)) || (f3 & (TR3_FEATHER)) ||
-			 (f3 & (TR3_LITE))        || (f3 & (TR3_REGEN)) ||
-			 (f3 & (TR3_TELEPATHY))   || (f3 & (TR3_SEE_INVIS)) ||
-			 (f3 & (TR3_FREE_ACT))    || (f3 & (TR3_HOLD_LIFE)) ||
-			 (f3 & (TR3_IMPACT))      || (f3 & (TR3_BLESSED)))
-		{
-			/* Clear number of items to list, and items listed. */
-			attr_num = 0;
-			attr_listed = 0;
-
-			/* How many attributes need to be listed? */
-			if (f3 & (TR3_SLOW_DIGEST)) attr_num++;
-			if (f3 & (TR3_FEATHER))     attr_num++;
-			if (f3 & (TR3_LITE))        attr_num++;
-			if (f3 & (TR3_REGEN))       attr_num++;
-			if (f3 & (TR3_TELEPATHY))   attr_num++;
-			if (f3 & (TR3_SEE_INVIS))   attr_num++;
-			if (f3 & (TR3_FREE_ACT))    attr_num++;
-			if (f3 & (TR3_HOLD_LIFE))   attr_num++;
-			if (f3 & (TR3_IMPACT))      attr_num++;
-			if (f3 & (TR3_BLESSED))     attr_num++;
-
-			roff("It", 3, 77);
-
-			/* Loop for number of attributes in this group. */
-			for (j = 0; j < 10; j++)
+			/* "and" before final member of a list of more than one. */
+			if ((attr_num > 1) && (j != 0))
 			{
-				bool list_ok = FALSE;
-
-				if ((j == 0) && (f3 & (TR3_SLOW_DIGEST))) list_ok = TRUE;
-				if ((j == 1) && (f3 & (TR3_FEATHER)))     list_ok = TRUE;
-				if ((j == 2) && (f3 & (TR3_LITE)))        list_ok = TRUE;
-				if ((j == 3) && (f3 & (TR3_REGEN)))       list_ok = TRUE;
-				if ((j == 4) && (f3 & (TR3_TELEPATHY)))   list_ok = TRUE;
-				if ((j == 5) && (f3 & (TR3_SEE_INVIS)))   list_ok = TRUE;
-				if ((j == 6) && (f3 & (TR3_FREE_ACT)))    list_ok = TRUE;
-				if ((j == 7) && (f3 & (TR3_HOLD_LIFE)))   list_ok = TRUE;
-				if ((j == 8) && (f3 & (TR3_IMPACT)))      list_ok = TRUE;
-				if ((j == 9) && (f3 & (TR3_BLESSED)))     list_ok = TRUE;
-
-				if (!list_ok) continue;
-
-				/* Listing another attribute. */
-				attr_listed++;
-
-				/* Commas separate members of a list of more than two. */
-				if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
-
-				/* "and" before final member of a list of more than one. */
-				if ((attr_num > 1) && (j != 0))
-				{
-					if (attr_num == attr_listed) roff(" and", 3, 77);
-				}
-
-				/* List the attribute description, in its proper place. */
-				if (j == 0) roff(" slows your metabolism", 3, 77);
-				if (j == 1) roff(" grants feather falling", 3, 77);
-				if (j == 2) roff(" provides permanent light", 3, 77);
-				if (j == 3) roff(" speeds your regenerative powers", 3, 77);
-				if (j == 4) roff(" gives telepathic powers", 3, 77);
-				if (j == 5) roff(" allows you to see invisible monsters", 3, 77);
-				if (j == 6) roff(" provides immunity to paralysis", 3, 77);
-				if (j == 7) roff(" provides resistance to life draining", 3, 77);
-				if (j == 8) roff(" is an impact weapon", 3, 77);
-				if (j == 9) roff(" has been blessed by the gods", 3, 77);
+				if (attr_num == attr_listed) roff(" and", 3, 77);
 			}
 
-			/* End sentence.  Go to next line. */
-			roff(". \n", 3, 77);
+			/* List the attribute description, in its proper place. */
+			if (j == 0) roff(" acid", 3, 77);
+			if (j == 1) roff(" electricity", 3, 77);
+			if (j == 2) roff(" fire", 3, 77);
+			if (j == 3) roff(" frost", 3, 77);
 		}
 
-		/* Nastiness. */
-		if ((f3 & (TR3_SOULSTEAL)) || (f3 & (TR3_NOMAGIC)) ||
-			 (f3 & (TR3_TELEPORT))  || (f3 & (TR3_AGGRAVATE)) ||
-			 (f3 & (TR3_DRAIN_EXP)) || (f3 & (TR3_DRAIN_HP)) ||
-			 (cursed_p(o_ptr)))
+		/* End sentence.  Go to next line. */
+		roff(". \n", 3, 77);
+	}
+
+
+	/* Resistances. */
+	if ((f2 & (TR2_RES_ACID))  || (f2 & (TR2_RES_ELEC)) ||
+		 (f2 & (TR2_RES_FIRE))  || (f2 & (TR2_RES_COLD)) ||
+		 (f2 & (TR2_RES_POIS))  || (f2 & (TR2_RES_LITE)) ||
+		 (f2 & (TR2_RES_DARK))  || (f2 & (TR2_RES_SOUND)) ||
+		 (f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) ||
+		 (f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) ||
+		 (f2 & (TR2_RES_DISEN)))
+	{
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many attributes need to be listed? */
+		if (f2 & (TR2_RES_ACID))  attr_num++;
+		if (f2 & (TR2_RES_ELEC))  attr_num++;
+		if (f2 & (TR2_RES_FIRE))  attr_num++;
+		if (f2 & (TR2_RES_COLD))  attr_num++;
+		if (f2 & (TR2_RES_POIS))  attr_num++;
+		if (f2 & (TR2_RES_LITE))  attr_num++;
+		if (f2 & (TR2_RES_DARK))  attr_num++;
+		if (f2 & (TR2_RES_SOUND)) attr_num++;
+		if (f2 & (TR2_RES_SHARD)) attr_num++;
+		if (f2 & (TR2_RES_NEXUS)) attr_num++;
+		if (f2 & (TR2_RES_NETHR)) attr_num++;
+		if (f2 & (TR2_RES_CHAOS)) attr_num++;
+		if (f2 & (TR2_RES_DISEN)) attr_num++;
+
+		roff("It provides resistance to", 3, 77);
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 13; j++)
 		{
-			/* Clear number of items to list, and items listed. */
-			attr_num = 0;
-			attr_listed = 0;
+			bool list_ok = FALSE;
 
-			/* How many attributes need to be listed? */
-			if (f3 & (TR3_SOULSTEAL)) attr_num++;
-			if (f3 & (TR3_NOMAGIC))   attr_num++;
-			if (f3 & (TR3_TELEPORT))  attr_num++;
-			if (f3 & (TR3_AGGRAVATE)) attr_num++;
-			if (f3 & (TR3_DRAIN_EXP)) attr_num++;
-			if (f3 & (TR3_DRAIN_HP)) attr_num++;
+			if ((j ==  0) && (f2 & (TR2_RES_ACID)))  list_ok = TRUE;
+			if ((j ==  1) && (f2 & (TR2_RES_ELEC)))  list_ok = TRUE;
+			if ((j ==  2) && (f2 & (TR2_RES_FIRE)))  list_ok = TRUE;
+			if ((j ==  3) && (f2 & (TR2_RES_COLD)))  list_ok = TRUE;
+			if ((j ==  4) && (f2 & (TR2_RES_POIS)))  list_ok = TRUE;
+			if ((j ==  5) && (f2 & (TR2_RES_LITE)))  list_ok = TRUE;
+			if ((j ==  6) && (f2 & (TR2_RES_DARK)))  list_ok = TRUE;
+			if ((j ==  7) && (f2 & (TR2_RES_SOUND))) list_ok = TRUE;
+			if ((j ==  8) && (f2 & (TR2_RES_SHARD))) list_ok = TRUE;
+			if ((j ==  9) && (f2 & (TR2_RES_NEXUS))) list_ok = TRUE;
+			if ((j == 10) && (f2 & (TR2_RES_NETHR))) list_ok = TRUE;
+			if ((j == 11) && (f2 & (TR2_RES_CHAOS))) list_ok = TRUE;
+			if ((j == 12) && (f2 & (TR2_RES_DISEN))) list_ok = TRUE;
 
-			/* This one will display one of three possible descriptions. */
-			if (cursed_p(o_ptr)) attr_num++;
+			if (!list_ok) continue;
 
-			roff("It", 3, 77);
+			/* Listing another attribute. */
+			attr_listed++;
 
-			/* Loop for number of attributes in this group. */
-			for (j = 0; j < 7; j++)
+			/* Commas separate members of a list of more than two. */
+			if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+
+			/* "and" before final member of a list of more than one. */
+			if ((attr_num > 1) && (j != 0))
 			{
-				bool list_ok = FALSE;
-
-				if ((j == 0) && (f3 & (TR3_SOULSTEAL)))   list_ok = TRUE;
-				if ((j == 1) && (f3 & (TR3_NOMAGIC)))     list_ok = TRUE;
-				if ((j == 2) && (f3 & (TR3_TELEPORT)))    list_ok = TRUE;
-				if ((j == 3) && (f3 & (TR3_AGGRAVATE)))   list_ok = TRUE;
-				if ((j == 4) && (f3 & (TR3_DRAIN_EXP)))   list_ok = TRUE;
-				if ((j == 5) && (f3 & (TR3_DRAIN_HP)))    list_ok = TRUE;
-				if ((j == 6) && (cursed_p(o_ptr)))        list_ok = TRUE;
-
-				if (!list_ok) continue;
-
-				/* Listing another attribute. */
-				attr_listed++;
-
-				/* Commas separate members of a list of more than two. */
-				if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
-
-				/* "and" before final member of a list of more than one. */
-				if ((attr_num > 1) && (j != 0))
-				{
-					if (attr_num == attr_listed) roff(" and", 3, 77);
-				}
-
-				/* List the attribute description, in its proper place. */
-				if (j == 0) roff(" must be fed with blood", 3, 77);
-				if (j == 1) roff(" prevents you from casting spells", 3, 77);
-				if (j == 2) roff(" induces random teleportation", 3, 77);
-				if (j == 3) roff(" aggravates nearby creatures", 3, 77);
-				if (j == 4) roff(" drains experience", 3, 77);
-				if (j == 5) roff(" drains hitpoints", 3, 77);
-				if (j == 6)
-				{
-					if (f3 & (TR3_PERMA_CURSE))
-						roff(" can never be taken off once put on", 3, 77);
-					else if (f3 & (TR3_HEAVY_CURSE))
-						roff(" is powerfully cursed", 3, 77);
-					else
-						roff(" is cursed", 3, 77);
-				}
+				if (attr_num == attr_listed) roff(" and", 3, 77);
 			}
 
-			/* End sentence.  Go to next line. */
-			roff(". \n", 3, 77);
+			/* List the attribute description, in its proper place. */
+			if (j ==  0) roff(" acid", 3, 77);
+			if (j ==  1) roff(" electricity", 3, 77);
+			if (j ==  2) roff(" fire", 3, 77);
+			if (j ==  3) roff(" frost", 3, 77);
+			if (j ==  4) roff(" poison", 3, 77);
+			if (j ==  5) roff(" light", 3, 77);
+			if (j ==  6) roff(" darkness", 3, 77);
+			if (j ==  7) roff(" sound", 3, 77);
+			if (j ==  8) roff(" shards", 3, 77);
+			if (j ==  9) roff(" nexus", 3, 77);
+			if (j == 10) roff(" nether", 3, 77);
+			if (j == 11) roff(" chaos", 3, 77);
+			if (j == 12) roff(" disenchantment", 3, 77);
 		}
 
+		/* End sentence.  Go to next line. */
+		roff(". \n", 3, 77);
+	}
 
-		/* Ignore various elements. */
-		if ((f2 & (TR2_IGNORE_ACID)) || (f2 & (TR2_IGNORE_ELEC)) ||
-			(f2 & (TR2_IGNORE_FIRE)) || (f2 & (TR2_IGNORE_COLD)))
+
+	/* Clear a listing variable. */
+	attr_num = 0;
+
+	/* Special processing for the three "survival resists" */
+	if (f2 & (TR2_RES_FEAR)) attr_num++;
+	if (f2 & (TR2_RES_BLIND)) attr_num++;
+	if (f2 & (TR2_RES_CONFU)) attr_num++;
+
+	if (f2 & (TR2_RES_FEAR))
+	{
+		roff("It renders you fearless", 3, 77);
+		if (attr_num == 1) roff(". \n", 3, 77);
+		else roff(", and", 3, 77);
+	}
+
+	if (f2 & (TR2_RES_BLIND))
+	{
+		if ((attr_num > 1) && (f2 & (TR2_RES_FEAR)))
+			roff(" provides resistance to blindness", 3, 77);
+		else roff("It provides resistance to blindness", 3, 77);
+
+		if (f2 & (TR2_RES_CONFU)) roff(" and", 3, 77);
+		else roff(". \n", 3, 77);
+	}
+
+	if (f2 & (TR2_RES_CONFU))
+	{
+		if ((attr_num > 1) && (!(f2 & (TR2_RES_BLIND))))
+			roff(" provides resistance to confusion.\n", 3, 77);
+		else if (attr_num > 1) roff(" confusion.\n", 3, 77);
+		else roff("It provides resistance to confusion.\n", 3, 77);
+	}
+
+
+	/* Miscellaneous abilities. */
+	if ((f3 & (TR3_SLOW_DIGEST)) || (f3 & (TR3_FEATHER)) ||
+		 (f3 & (TR3_LITE))        || (f3 & (TR3_REGEN)) ||
+		 (f3 & (TR3_TELEPATHY))   || (f3 & (TR3_SEE_INVIS)) ||
+		 (f3 & (TR3_FREE_ACT))    || (f3 & (TR3_HOLD_LIFE)) ||
+		 (f3 & (TR3_IMPACT))      || (f3 & (TR3_BLESSED)))
+	{
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many attributes need to be listed? */
+		if (f3 & (TR3_SLOW_DIGEST)) attr_num++;
+		if (f3 & (TR3_FEATHER))     attr_num++;
+		if (f3 & (TR3_LITE))        attr_num++;
+		if (f3 & (TR3_REGEN))       attr_num++;
+		if (f3 & (TR3_TELEPATHY))   attr_num++;
+		if (f3 & (TR3_SEE_INVIS))   attr_num++;
+		if (f3 & (TR3_FREE_ACT))    attr_num++;
+		if (f3 & (TR3_HOLD_LIFE))   attr_num++;
+		if (f3 & (TR3_IMPACT))      attr_num++;
+		if (f3 & (TR3_BLESSED))     attr_num++;
+
+		roff("It", 3, 77);
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 10; j++)
 		{
-			/* Clear number of items to list, and items listed. */
-			attr_num = 0;
-			attr_listed = 0;
+			bool list_ok = FALSE;
 
-			/* How many attributes need to be listed? */
-			if (f2 & (TR2_IGNORE_ACID)) attr_num++;
-			if (f2 & (TR2_IGNORE_ELEC)) attr_num++;
-			if (f2 & (TR2_IGNORE_FIRE)) attr_num++;
-			if (f2 & (TR2_IGNORE_COLD)) attr_num++;
+			if ((j == 0) && (f3 & (TR3_SLOW_DIGEST))) list_ok = TRUE;
+			if ((j == 1) && (f3 & (TR3_FEATHER)))     list_ok = TRUE;
+			if ((j == 2) && (f3 & (TR3_LITE)))        list_ok = TRUE;
+			if ((j == 3) && (f3 & (TR3_REGEN)))       list_ok = TRUE;
+			if ((j == 4) && (f3 & (TR3_TELEPATHY)))   list_ok = TRUE;
+			if ((j == 5) && (f3 & (TR3_SEE_INVIS)))   list_ok = TRUE;
+			if ((j == 6) && (f3 & (TR3_FREE_ACT)))    list_ok = TRUE;
+			if ((j == 7) && (f3 & (TR3_HOLD_LIFE)))   list_ok = TRUE;
+			if ((j == 8) && (f3 & (TR3_IMPACT)))      list_ok = TRUE;
+			if ((j == 9) && (f3 & (TR3_BLESSED)))     list_ok = TRUE;
 
-			roff("It cannot be damaged by", 3, 77);
+			if (!list_ok) continue;
 
-			/* Loop for number of attributes in this group. */
-			for (j = 0; j < 4; j++)
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list of more than two. */
+			if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+
+			/* "and" before final member of a list of more than one. */
+			if ((attr_num > 1) && (j != 0))
 			{
-				bool list_ok = FALSE;
-
-				if ((j == 0) && (f2 & (TR2_IGNORE_ACID))) list_ok = TRUE;
-				if ((j == 1) && (f2 & (TR2_IGNORE_ELEC))) list_ok = TRUE;
-				if ((j == 2) && (f2 & (TR2_IGNORE_FIRE))) list_ok = TRUE;
-				if ((j == 3) && (f2 & (TR2_IGNORE_COLD))) list_ok = TRUE;
-
-				if (!list_ok) continue;
-
-				/* Listing another attribute. */
-				attr_listed++;
-
-				/* Commas separate members of a list of more than two. */
-				if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
-
-				/* "or" before final member of a list of more than one. */
-				if ((attr_num > 1) && (j != 0))
-				{
-					if (attr_num == attr_listed) roff(" or", 3, 77);
-				}
-
-				/* List the attribute description, in its proper place. */
-				if (j == 0) roff(" acid", 3, 77);
-				if (j == 1) roff(" electricity", 3, 77);
-				if (j == 2) roff(" fire", 3, 77);
-				if (j == 3) roff(" frost", 3, 77);
+				if (attr_num == attr_listed) roff(" and", 3, 77);
 			}
 
-			/* End sentence.  Go to next line. */
-			roff(". \n", 3, 77);
+			/* List the attribute description, in its proper place. */
+			if (j == 0) roff(" slows your metabolism", 3, 77);
+			if (j == 1) roff(" grants feather falling", 3, 77);
+			if (j == 2)
+			{
+				if ((is_missile(o_ptr)) ||
+					 (is_melee_weapon(o_ptr) && (f1 & (TR1_THROWING))))
+				{
+					roff(" shines brightly and hurts creatures susceptible to light", 3, 77);
+				}
+				else if (is_melee_weapon(o_ptr))
+					roff(" provides permanent light and hurts creatures susceptible to light", 3, 77);
+				else
+					roff(" provides permanent light (+1 light radius)", 3, 77);
+			}
+			if (j == 3) roff(" speeds your regenerative powers", 3, 77);
+			if (j == 4) roff(" gives telepathic powers", 3, 77);
+			if (j == 5) roff(" allows you to see invisible monsters", 3, 77);
+			if (j == 6) roff(" provides immunity to paralysis", 3, 77);
+			if (j == 7) roff(" provides resistance to life draining", 3, 77);
+			if (j == 8) roff(" is an impact weapon", 3, 77);
+			if (j == 9) roff(" has been blessed by the gods", 3, 77);
 		}
+
+		/* End sentence.  Go to next line. */
+		roff(". \n", 3, 77);
+	}
+
+	/* Nastiness. */
+	if ((f3 & (TR3_SOULSTEAL)) || (f3 & (TR3_NOMAGIC)) ||
+		 (f3 & (TR3_TELEPORT))  || (f3 & (TR3_AGGRAVATE)) ||
+		 (f3 & (TR3_DRAIN_EXP)) || (f3 & (TR3_DRAIN_HP)) ||
+		 (cursed_p(o_ptr)))
+	{
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many attributes need to be listed? */
+		if (f3 & (TR3_SOULSTEAL)) attr_num++;
+		if (f3 & (TR3_NOMAGIC))   attr_num++;
+		if (f3 & (TR3_TELEPORT))  attr_num++;
+		if (f3 & (TR3_AGGRAVATE)) attr_num++;
+		if (f3 & (TR3_DRAIN_EXP)) attr_num++;
+		if (f3 & (TR3_DRAIN_HP)) attr_num++;
+
+		/* This one will display one of three possible descriptions. */
+		if (cursed_p(o_ptr)) attr_num++;
+
+		roff("It", 3, 77);
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 7; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j == 0) && (f3 & (TR3_SOULSTEAL)))   list_ok = TRUE;
+			if ((j == 1) && (f3 & (TR3_NOMAGIC)))     list_ok = TRUE;
+			if ((j == 2) && (f3 & (TR3_TELEPORT)))    list_ok = TRUE;
+			if ((j == 3) && (f3 & (TR3_AGGRAVATE)))   list_ok = TRUE;
+			if ((j == 4) && (f3 & (TR3_DRAIN_EXP)))   list_ok = TRUE;
+			if ((j == 5) && (f3 & (TR3_DRAIN_HP)))    list_ok = TRUE;
+			if ((j == 6) && (cursed_p(o_ptr)))        list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list of more than two. */
+			if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+
+			/* "and" before final member of a list of more than one. */
+			if ((attr_num > 1) && (j != 0))
+			{
+				if (attr_num == attr_listed) roff(" and", 3, 77);
+			}
+
+			/* List the attribute description, in its proper place. */
+			if (j == 0) roff(" must be fed with blood", 3, 77);
+			if (j == 1) roff(" prevents you from casting spells", 3, 77);
+			if (j == 2) roff(" induces random teleportation", 3, 77);
+			if (j == 3) roff(" aggravates nearby creatures", 3, 77);
+			if (j == 4) roff(" drains experience", 3, 77);
+			if (j == 5) roff(" drains hitpoints", 3, 77);
+			if (j == 6)
+			{
+				if (f3 & (TR3_PERMA_CURSE))
+					roff(" can never be taken off once put on", 3, 77);
+				else if (f3 & (TR3_HEAVY_CURSE))
+					roff(" is powerfully cursed", 3, 77);
+				else
+					roff(" is cursed", 3, 77);
+			}
+		}
+
+		/* End sentence.  Go to next line. */
+		roff(". \n", 3, 77);
+	}
+
+
+	/* Ignore various elements. */
+	if ((f2 & (TR2_IGNORE_ACID)) || (f2 & (TR2_IGNORE_ELEC)) ||
+		(f2 & (TR2_IGNORE_FIRE)) || (f2 & (TR2_IGNORE_COLD)))
+	{
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many attributes need to be listed? */
+		if (f2 & (TR2_IGNORE_ACID)) attr_num++;
+		if (f2 & (TR2_IGNORE_ELEC)) attr_num++;
+		if (f2 & (TR2_IGNORE_FIRE)) attr_num++;
+		if (f2 & (TR2_IGNORE_COLD)) attr_num++;
+
+		roff("It cannot be damaged by", 3, 77);
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 4; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j == 0) && (f2 & (TR2_IGNORE_ACID))) list_ok = TRUE;
+			if ((j == 1) && (f2 & (TR2_IGNORE_ELEC))) list_ok = TRUE;
+			if ((j == 2) && (f2 & (TR2_IGNORE_FIRE))) list_ok = TRUE;
+			if ((j == 3) && (f2 & (TR2_IGNORE_COLD))) list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list of more than two. */
+			if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+
+			/* "or" before final member of a list of more than one. */
+			if ((attr_num > 1) && (j != 0))
+			{
+				if (attr_num == attr_listed) roff(" or", 3, 77);
+			}
+
+			/* List the attribute description, in its proper place. */
+			if (j == 0) roff(" acid", 3, 77);
+			if (j == 1) roff(" electricity", 3, 77);
+			if (j == 2) roff(" fire", 3, 77);
+			if (j == 3) roff(" frost", 3, 77);
+		}
+
+		/* End sentence.  Go to next line. */
+		roff(". \n", 3, 77);
 	}
 
 
@@ -1302,6 +1217,13 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 	if (y > Term->hgt - 4) return;
 
 
+	/* Magical devices can be damaged  XXX XXX */
+	if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)) &&
+		  (o_ptr->ac < k_info[o_ptr->k_idx].ac))
+	{
+		roff("This item is damaged.\n", 3, 77);
+	}
+
 	/* Note durability */
 	if ((o_ptr->ac > 0) &&
 		 ((o_ptr->tval == TV_POTION) ||
@@ -1312,9 +1234,21 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 	     (o_ptr->tval == TV_ARROW) ||
 	     (o_ptr->tval == TV_BOLT) ||
 	     (o_ptr->tval == TV_STAFF) ||
-	     (o_ptr->tval == TV_WAND)))
+	     (o_ptr->tval == TV_WAND) ||
+	     (is_missile(o_ptr))))
 	{
 		roff("This item is unusually durable.\n", 3, 77);
+	}
+
+	/* Various throwable objects display damage information */
+	if ((known) &&
+	    (((k_ptr->tval == TV_POTION) && (k_ptr->sval == SV_POTION_GRENADE)) ||
+	    ((o_ptr->tval == TV_JUNK) && (o_ptr->sval == SV_BOULDER)) ||
+	    ((!is_wargear(o_ptr)) &&
+	     (o_ptr->dd * o_ptr->ds >= 6 + p_ptr->power / 7))))
+	{
+		roff(format("It does %dd%d damage when thrown.\n",
+			o_ptr->dd, o_ptr->ds), 3, 77);
 	}
 
 
@@ -1358,7 +1292,7 @@ static cptr modifier_blurb[32][2] =
 	{ "strong",                       "weak"                           },
 	{ "intelligent",                  "unintelligent"                  },
 	{ "wise",                         "naive"                          },
-	{ "dexterous",                     "clumsy"                        },
+	{ "dexterous",                    "clumsy"                         },
 	{ "resilient",                    "fragile"                        },
 	{ "charismatic",                  "uncharismatic"                  },
 	{ "XXX6",                         "XXX6"                           },
@@ -1373,7 +1307,7 @@ static cptr modifier_blurb[32][2] =
 	{ "skilled with magical devices", "unskilled with magical devices" },
 	{ "resistant to magical effects", "susceptible to magical effects" },
 	{ "capable of gathering mana",    "poor at gathering mana"         },
-	{ "shining",                      "darkened"                       },
+	{ "shining with light",           "darkened"                       },
 	{ "XX19",                         "XX19"                           },
 	{ "rapid in melee",               "slow in melee"                  },
 	{ "quick-firing",                 "slow with missile weapons"      },
@@ -1436,6 +1370,7 @@ void self_knowledge(bool full)
 {
 	int i, j, k;
 	int weapons = 0;
+	int dummy;
 
 	int attr_num = 0;
 	int attr_listed = 0;
@@ -1509,7 +1444,6 @@ void self_knowledge(bool full)
 	}
 
 
-
 	/* Save screen */
 	screen_save();
 
@@ -1517,13 +1451,13 @@ void self_knowledge(bool full)
 	clear_from(0);
 
 	/* Set to 50 screen rows */
-	Term_rows(TRUE);
+	(void)Term_rows(TRUE);
 
 	/* Move cursor to top-left corner of screen */
 	move_cursor(0, 0);
 
 	/* Get title */
-	title = get_title(80, FALSE);
+	title = get_title(80, FALSE, &dummy);
 
 	/* Note that title is meant to be in quotes, skip past marker */
 	if (title[0] == '#')
@@ -1539,7 +1473,7 @@ void self_knowledge(bool full)
 			  (quotes ? '\"' : '\0'));
 
 	/* Display character name and title */
-	c_roff_centered(TERM_VIOLET, buf, 0, 0);
+	c_roff_centered(TERM_PURPLE, buf, 0, 0);
 
 	/* Underline it */
 	c_roff_centered(TERM_WHITE,
@@ -1593,7 +1527,7 @@ void self_knowledge(bool full)
 	{
 		roff("You land gently.", sk_get_col(), 0);
 	}
-	if (p_ptr->lite)
+	if (p_ptr->glowing)
 	{
 		roff("You are glowing with light.", sk_get_col(), 0);
 	}
@@ -2119,13 +2053,12 @@ void self_knowledge(bool full)
 	{
 		roff("You feel righteous.", sk_get_col(), 0);
 	}
-	if (p_ptr->tim_stealth)
+	if (p_ptr->tim_invis)
 	{
-		roff("You are especially well-hidden.", sk_get_col(), 0);
-	}
-	if (p_ptr->regen_hp)
-	{
-		roff("You have enhanced stealth.", sk_get_col(), 0);
+		if (p_ptr->invisible)
+			roff("Your invisibility is enhanced.", sk_get_col(), 0);
+		else
+			roff("You are temporarily invisible.", sk_get_col(), 0);
 	}
 	if (p_ptr->regen_hp)
 	{
@@ -2290,7 +2223,8 @@ void self_knowledge(bool full)
 				if (f[1] & (TR1_SLAY_GIANT))  attr_num++;
 				if (f[1] & (TR1_SLAY_DRAGON)) attr_num++;
 
-				roff("slays", 0, 0);
+				/* Mention slays, if there are ordinary slays to mention */
+				if (attr_num) roff("slays", 0, 0);
 
 				/* Loop for number of attributes in this group. */
 				for (j = 0; j < 8; j++)
@@ -2336,7 +2270,6 @@ void self_knowledge(bool full)
 				{
 					/* Conjunction */
 					if (attr_num) roff(", and ", 3, 77);
-					else          roff("It ", 3, 77);
 
 					/* Text */
 					roff("is the bane of dragons everywhere", 3, 77);
@@ -2367,7 +2300,7 @@ void self_knowledge(bool full)
 				else if (flag1) roff(", and ", 0, 0);
 
 				/* Start off this section */
-				if (attr_num) roff("is branded with ", 0, 0);
+				if (attr_num) roff("is branded with", 0, 0);
 
 				/* Loop for number of attributes in this group. */
 				for (j = 0; j < 5; j++)
@@ -2470,6 +2403,12 @@ void self_knowledge(bool full)
 				else roff("It can ", 0, 0);
 
 				roff("be thrown effectively.  ", 0, 0);
+			}
+
+			/* Returning weapons */
+			if (f[1] & (TR1_RETURNING))
+			{
+				roff("It returns to you when wielded and thrown.  ", 0, 0);
 			}
 
 			/* Hungry */
@@ -2691,4 +2630,833 @@ void self_knowledge(bool full)
 
 	/* Load screen */
 	screen_load();
+}
+
+
+
+
+/*
+ * Short descriptions of pval-dependent qualities.
+ */
+static cptr short_pval_desc_text[32] =
+{
+	"STR",
+	"INT",
+	"WIS",
+	"DEX",
+	"CON",
+	"CHR",
+	"XXX6",
+	"XXX7",
+	"Stealth",
+	"Awareness",
+	"Infravision",
+	"Tunneling",
+	"Speed",
+	"Invisibility",
+	"Disarm",
+	"Device",
+	"Save",
+	"Mana",
+	"Light",
+	"XX19",
+	"Blows",
+	"Shots",
+	"Might",
+	"XX23",
+	"XX24",
+	"XX25",
+	"XX26",
+	"XX27",
+	"XX28",
+	"XX29",
+	"XX30",
+	"XX31"
+};
+
+
+/*
+ * Brief object info text for character dumps.  This code repeats stuff
+ * in "object_details()", but the required differences in knowledge and
+ * formatting make it difficult to combine the two.
+ */
+void dump_obj_attrib(FILE *fff, object_type *o_ptr, int know_all)
+{
+	int i, j, k, tmp1, tmp2;
+
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	/* Format and output strings */
+	char buf[1000];
+	char desc[1000];
+
+	/* Table of pvals */
+	int pval[32][2];
+
+	u32b f1, f2, f3;
+
+	int attr_listed = 0;
+	int attr_num = 0;
+
+	/* Determine our level of knowledge */
+	bool known = (object_known_p(o_ptr) ? TRUE : FALSE);
+	bool mental = o_ptr->ident & (IDENT_MENTAL);
+
+
+	/* Force full knowledge */
+	if (know_all) mental = known = TRUE;
+
+	/* Otherwise, require existing knowledge */
+	else if (!known) return;
+
+
+	/* Default desc (indented) */
+	strcpy(buf, "     ");
+	strcpy(desc, "");
+
+
+	/* We ignore many kinds of ordinary objects with no extra qualities */
+	if ((!o_ptr->ego_item_index) && (!o_ptr->artifact_index))
+	{
+		/* Get extra object flags */
+		object_flags_extra(o_ptr, &f1, &f2, &f3);
+
+		/* Object has no "extra" flags */
+		if (!f1 && !f2 && !f3)
+		{
+			/* Object does not cost very much */
+			if ((o_ptr->b_cost < 5000L) ||
+			     ((k_ptr->flags3 & (TR3_EASY_KNOW)) && (o_ptr->b_cost < 10000L)))
+			{
+				/* Display only basic information */
+				goto basic_info;
+			}
+		}
+	}
+
+	/* Many ego-items are also fairly obvious */
+	else if (o_ptr->ego_item_index)
+	{
+		/* Check "easy_know */
+		if (e_info[o_ptr->ego_item_index].flags3 & (TR3_EASY_KNOW))
+		{
+			/* Get extra object flags */
+			object_flags_extra(o_ptr, &f1, &f2, &f3);
+
+			/* Object has no "extra" flags - display the basics only */
+			if (!f1 && !f2 && !f3) goto basic_info;
+		}
+	}
+
+
+	/* Force full knowledge - use all object flags */
+	if (know_all) object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Otherwise - use known object flags */
+	else object_flags_known(o_ptr, &f1, &f2, &f3);
+
+
+	/* Describe activation, if present and known. */
+	if (o_ptr->activate)
+	{
+		if ((mental) || (k_ptr->special |= (SPECIAL_KNOWN_EFFECT)))
+		{
+			/* Save character power */
+			int old_power = p_ptr->power;
+
+			/* Hack -- correct damages when spoiling */
+			if (know_all == 2)
+			{
+				/* Get object level */
+				int lev = k_ptr->level;
+				if (o_ptr->artifact_index)
+					lev = a_info[o_ptr->artifact_index].level;
+
+				/* Temporary character power based on object level */
+				p_ptr->power = MIN(100, lev + 5);
+			}
+
+			/* Build an activation string */
+			strcat(buf, "Activates for ");
+			strcat(buf, format("%s.", do_activation_aux(OBJECT_INFO, o_ptr)));
+
+			/* Build a failure rate string (except for spoilers) */
+			if (know_all < 2)
+			{
+				strcat(buf, format("  [%d", 100 - device_chance(o_ptr)));
+				strcat(buf, "%% fail]\n");
+			}
+			else
+			{
+				strcat(buf, "\n");
+			}
+
+			/* Restore character power */
+			if (p_ptr->power != old_power) p_ptr->power = old_power;
+		}
+	}
+
+
+	/* Object has a pval of some kind */
+	if (get_object_pval(o_ptr, 0L))
+	{
+		int list_length = 0;
+
+		/* Get the values of a lot of pval-dependant qualities */
+		pval[0][0]  = get_object_pval(o_ptr, TR_PVAL_STR);
+		pval[1][0]  = get_object_pval(o_ptr, TR_PVAL_INT);
+		pval[2][0]  = get_object_pval(o_ptr, TR_PVAL_WIS);
+		pval[3][0]  = get_object_pval(o_ptr, TR_PVAL_DEX);
+		pval[4][0]  = get_object_pval(o_ptr, TR_PVAL_CON);
+		pval[5][0]  = get_object_pval(o_ptr, TR_PVAL_CHR);
+		pval[6][0]  = 0;
+		pval[7][0]  = 0;
+
+		pval[8][0]  = get_object_pval(o_ptr, TR_PVAL_STEALTH);
+		pval[9][0]  = get_object_pval(o_ptr, TR_PVAL_AWARE);
+		pval[10][0] = get_object_pval(o_ptr, TR_PVAL_INFRA);
+		pval[11][0] = get_object_pval(o_ptr, TR_PVAL_TUNNEL);
+		pval[12][0] = get_object_pval(o_ptr, TR_PVAL_SPEED);
+		pval[13][0] = get_object_pval(o_ptr, TR_PVAL_INVIS);
+
+		/* Show exact values for new and unfamiliar pvals  XXX XXX */
+		pval[14][0] = get_object_pval(o_ptr, TR_PVAL_DISARM) * 10;
+		pval[15][0] = get_object_pval(o_ptr, TR_PVAL_DEVICE) *  5;
+		pval[16][0] = get_object_pval(o_ptr, TR_PVAL_SAVE)   *  5;
+		pval[17][0] = get_object_pval(o_ptr, TR_PVAL_MANA)   * 15;
+		pval[18][0] = 0;  /* Do not show light radius here */
+		pval[19][0] = 0;
+
+		pval[20][0] = get_object_pval(o_ptr, TR_PVAL_BLOWS);
+		pval[21][0] = get_object_pval(o_ptr, TR_PVAL_SHOTS);
+		pval[22][0] = get_object_pval(o_ptr, TR_PVAL_MIGHT);
+		pval[23][0] = 0;
+		pval[24][0] = 0;
+		pval[25][0] = 0;
+		pval[26][0] = 0;
+		pval[27][0] = 0;
+		pval[28][0] = 0;
+		pval[29][0] = 0;
+		pval[30][0] = 0;
+		pval[31][0] = 0;
+
+		/* Special case:  all stats */
+		if ((pval[0][0] != 0) &&
+		    (pval[1][0] == pval[0][0]) && (pval[2][0] == pval[0][0]) &&
+		    (pval[3][0] == pval[0][0]) && (pval[4][0] == pval[0][0]) &&
+		    (pval[5][0] == pval[0][0]))
+		{
+			strcat(buf, format("%+d all stats", ABS(pval[0][0])));
+
+			/* Hack -- stats have been displayed */
+			pval[0][0] = pval[1][0] = pval[2][0] = pval[3][0] =
+			             pval[4][0] = pval[5][0] = 0;
+
+			/* Six pvals listed */
+			list_length += 6;
+		}
+
+		/* Save the original indexes */
+		for (i = 0; i < 32; i++)
+		{
+			pval[i][1] = i;
+		}
+
+		/* Sort all the pvals by value */
+		for (i = 0; i < 32 - 1; i++)
+		{
+			for (j = 0; j < 32 - 1; j++)
+			{
+				/* Bubble sort */
+				if (pval[j][0] < pval[j + 1][0])
+				{
+					tmp1 = pval[j][0];
+					tmp2 = pval[j][1];
+					pval[j][0] = pval[j + 1][0];
+					pval[j][1] = pval[j + 1][1];
+					pval[j + 1][0] = tmp1;
+					pval[j + 1][1] = tmp2;
+				}
+			}
+		}
+
+		/* List all the pvals by value */
+		for (k = 0; k < 32;)
+		{
+			/* Get pval */
+			tmp1 = pval[k][0];
+
+			/* Skip pvals of 0 */
+			if (!tmp1)
+			{
+				k++;
+				continue;
+			}
+
+			/* Figure out how many items use this pval */
+			for (j = k + 1, attr_num = 1; j < 32; j++, attr_num++)
+			{
+				if (pval[j][0] != tmp1) break;
+			}
+
+			/* We've already listed some qualities */
+			if (list_length) strcat(buf, "; ");
+
+			/* Note pval */
+			strcat(buf, format("%+d ", tmp1));
+
+			/* List all the items with this pval */
+			for (j = k, attr_listed = 0; (j < 32) && (attr_listed < attr_num);
+			     j++)
+			{
+				/* Listing another attribute */
+				attr_listed++;
+
+				/* Commas separate members of a list */
+				if (attr_listed > 1) strcat(buf, ", ");
+
+				/* Item desc */
+				strcat(buf, format("%s", short_pval_desc_text[pval[j][1]]));
+			}
+
+			/* Note # of pvals listed thus far */
+			list_length += attr_listed;
+
+			/* Advance to next set of pvals */
+			k = j;
+		}
+
+		/* End the listing of all pvals. */
+		if (list_length) strcat(buf, ".|");
+	}
+
+
+	/* Sustain stats. */
+	if (f1 & (TR1_SUST_STR | TR1_SUST_INT | TR1_SUST_WIS |
+	          TR1_SUST_DEX | TR1_SUST_CON | TR1_SUST_CHR))
+	{
+		/* Clear number of items to list */
+		attr_listed = 0;
+
+		/* Special case:  sustain all stats */
+		if ((f1 & (TR1_SUST_STR)) && (f1 & (TR1_SUST_INT)) &&
+			 (f1 & (TR1_SUST_WIS)) && (f1 & (TR1_SUST_DEX)) &&
+			 (f1 & (TR1_SUST_CON)) && (f1 & (TR1_SUST_CHR)))
+		{
+			strcat(buf, "Sustain all stats");
+		}
+		else
+		{
+			strcat(buf, "Sustain ");
+
+			/* Loop for number of attributes in this group. */
+			for (j = 0; j < 6; j++)
+			{
+				bool list_ok = FALSE;
+
+				if ((j == 0) && (f1 & (TR1_SUST_STR))) list_ok = TRUE;
+				if ((j == 1) && (f1 & (TR1_SUST_INT))) list_ok = TRUE;
+				if ((j == 2) && (f1 & (TR1_SUST_WIS))) list_ok = TRUE;
+				if ((j == 3) && (f1 & (TR1_SUST_DEX))) list_ok = TRUE;
+				if ((j == 4) && (f1 & (TR1_SUST_CON))) list_ok = TRUE;
+				if ((j == 5) && (f1 & (TR1_SUST_CHR))) list_ok = TRUE;
+
+				if (!list_ok) continue;
+
+				/* Listing another attribute. */
+				attr_listed++;
+
+				/* Commas separate members of a list */
+				if (attr_listed > 1) strcat(buf, ", ");
+
+				/* List the attribute description, in its proper place. */
+				if (j == 0) strcat(buf, "STR");
+				if (j == 1) strcat(buf, "INT");
+				if (j == 2) strcat(buf, "WIS");
+				if (j == 3) strcat(buf, "DEX");
+				if (j == 4) strcat(buf, "CON");
+				if (j == 5) strcat(buf, "CHR");
+			}
+		}
+
+		/* End sentence */
+		strcat(buf, ".|");
+	}
+
+
+	/* Slays. */
+	if ((f1 & (TR1_SLAY_ANIMAL)) || (f1 & (TR1_SLAY_EVIL)) ||
+		 (f1 & (TR1_SLAY_UNDEAD)) || (f1 & (TR1_SLAY_DEMON)) ||
+		 (f1 & (TR1_SLAY_ORC))    || (f1 & (TR1_SLAY_TROLL)) ||
+		 (f1 & (TR1_SLAY_GIANT))  || (f1 & (TR1_SLAY_DRAGON)) ||
+		 (f1 & (TR1_KILL_DRAGON)))
+	{
+		/* Clear number of items to list */
+		attr_listed = 0;
+
+		/* Start the sentence */
+		strcat(buf, "Slay ");
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 9; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j == 0) && (f1 & (TR1_SLAY_ANIMAL))) list_ok = TRUE;
+			if ((j == 1) && (f1 & (TR1_SLAY_EVIL)))   list_ok = TRUE;
+			if ((j == 2) && (f1 & (TR1_SLAY_UNDEAD))) list_ok = TRUE;
+			if ((j == 3) && (f1 & (TR1_SLAY_DEMON)))  list_ok = TRUE;
+			if ((j == 4) && (f1 & (TR1_SLAY_ORC)))    list_ok = TRUE;
+			if ((j == 5) && (f1 & (TR1_SLAY_TROLL)))  list_ok = TRUE;
+			if ((j == 6) && (f1 & (TR1_SLAY_GIANT)))  list_ok = TRUE;
+			if ((j == 7) && (f1 & (TR1_SLAY_DRAGON))) list_ok = TRUE;
+			if ((j == 8) && (f1 & (TR1_KILL_DRAGON))) list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list */
+			if (attr_listed > 1) strcat(buf, ", ");
+
+			/* List the attribute description, in its proper place. */
+			if (j == 0) strcat(buf, "Animal");
+			if (j == 1) strcat(buf, "Evil");
+			if (j == 2) strcat(buf, "Undead");
+			if (j == 3) strcat(buf, "Demon");
+			if (j == 4) strcat(buf, "Orc");
+			if (j == 5) strcat(buf, "Troll");
+			if (j == 6) strcat(buf, "Giant");
+			if (j == 7) strcat(buf, "Dragon");
+			if (j == 8) strcat(buf, "XDragon");
+		}
+
+		/* End sentence */
+		strcat(buf, ".|");
+	}
+
+
+	/* Elemental and poison brands. */
+	if ((f1 & (TR1_BRAND_ACID)) || (f1 & (TR1_BRAND_ELEC)) ||
+		 (f1 & (TR1_BRAND_FIRE)) || (f1 & (TR1_BRAND_COLD)) ||
+		 (f1 & (TR1_BRAND_POIS)) || (f1 & (TR1_BRAND_FLAME)) ||
+		 (f1 & (TR1_BRAND_VENOM)))
+	{
+		/* Clear number of items to list */
+		attr_listed = 0;
+
+		/* Start the sentence */
+		strcat(buf, "Brand ");
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 7; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j == 0) && (f1 & (TR1_BRAND_FIRE))) list_ok = TRUE;
+			if ((j == 1) && (f1 & (TR1_BRAND_COLD))) list_ok = TRUE;
+			if ((j == 2) && (f1 & (TR1_BRAND_ACID))) list_ok = TRUE;
+			if ((j == 3) && (f1 & (TR1_BRAND_ELEC))) list_ok = TRUE;
+			if ((j == 4) && (f1 & (TR1_BRAND_POIS))) list_ok = TRUE;
+			if ((j == 5) && (f1 & (TR1_BRAND_FLAME))) list_ok = TRUE;
+			if ((j == 6) && (f1 & (TR1_BRAND_VENOM))) list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list */
+			if (attr_listed > 1) strcat(buf, ", ");
+
+			/* List the attribute description, in its proper place. */
+			if (j == 0) strcat(buf, "Fire");
+			if (j == 1) strcat(buf, "Frost");
+			if (j == 2) strcat(buf, "Acid");
+			if (j == 3) strcat(buf, "Lightning");
+			if (j == 4) strcat(buf, "Poison");
+			if (j == 5) strcat(buf, "Flame");
+			if (j == 6) strcat(buf, "Venom");
+		}
+
+		/* End sentence */
+		strcat(buf, ".|");
+	}
+
+	/* Vorpal weapons and missile launchers. */
+	if (f1 & (TR1_VORPAL))
+	{
+		if (o_ptr->tval == TV_BOW) strcat(buf, "Deadly shooter.|");
+		else if (o_ptr->tval == TV_HAFTED) strcat(buf, "Concussive.|");
+		else if (!is_missile(o_ptr)) strcat(buf, "Vorpal.|");
+		else strcat(buf, "Piercing.|");
+	}
+
+	/* Must be a melee weapon */
+	if (is_melee_weapon(o_ptr))
+	{
+		/* Throwing weapons (except obvious). */
+		if (f1 & (TR1_THROWING))
+		{
+			if (f1 & (TR1_PERFECT_BALANCE))
+			{
+				strcat(buf, "Well-Balanced.|");
+			}
+			else if (!(k_ptr->flags1 & (TR1_THROWING)))
+			{
+				strcat(buf, "Throwing Weapon.|");
+			}
+		}
+
+		/* Two-handed weapons. */
+		if (needs_two_hands(f1, o_ptr->weight))
+		{
+			strcat(buf, "Two hands required.|");
+		}
+	}
+
+
+	/* Elemental immunities. */
+	if ((f2 & (TR2_IM_ACID)) || (f2 & (TR2_IM_ELEC)) ||
+		 (f2 & (TR2_IM_FIRE)) || (f2 & (TR2_IM_COLD)))
+	{
+		/* Clear number of items to list */
+		attr_listed = 0;
+
+		strcat(buf, "Immunity to ");
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 4; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j == 0) && (f2 & (TR2_IM_ACID))) list_ok = TRUE;
+			if ((j == 1) && (f2 & (TR2_IM_ELEC))) list_ok = TRUE;
+			if ((j == 2) && (f2 & (TR2_IM_FIRE))) list_ok = TRUE;
+			if ((j == 3) && (f2 & (TR2_IM_COLD))) list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list */
+			if (attr_listed > 1) strcat(buf, ", ");
+
+			/* List the attribute description, in its proper place. */
+			if (j == 0) strcat(buf, "Acid");
+			if (j == 1) strcat(buf, "Lightning");
+			if (j == 2) strcat(buf, "Fire");
+			if (j == 3) strcat(buf, "Cold");
+		}
+
+		/* End sentence */
+		strcat(buf, ".|");
+	}
+
+
+	/* Resistances. */
+	if ((f2 & (TR2_RES_ACID))  || (f2 & (TR2_RES_ELEC)) ||
+		 (f2 & (TR2_RES_FIRE))  || (f2 & (TR2_RES_COLD)) ||
+		 (f2 & (TR2_RES_POIS))  || (f2 & (TR2_RES_LITE)) ||
+		 (f2 & (TR2_RES_DARK))  || (f2 & (TR2_RES_SOUND)) ||
+		 (f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) ||
+		 (f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) ||
+		 (f2 & (TR2_RES_DISEN)) || (f2 & (TR2_RES_FEAR)) ||
+		 (f2 & (TR2_RES_BLIND)) || (f2 & (TR2_RES_CONFU)))
+	{
+		/* Clear number of items to list */
+		attr_listed = 0;
+
+		strcat(buf, "Resist ");
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 16; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j ==  0) && (f2 & (TR2_RES_ACID)))  list_ok = TRUE;
+			if ((j ==  1) && (f2 & (TR2_RES_ELEC)))  list_ok = TRUE;
+			if ((j ==  2) && (f2 & (TR2_RES_FIRE)))  list_ok = TRUE;
+			if ((j ==  3) && (f2 & (TR2_RES_COLD)))  list_ok = TRUE;
+			if ((j ==  4) && (f2 & (TR2_RES_POIS)))  list_ok = TRUE;
+			if ((j ==  5) && (f2 & (TR2_RES_LITE)))  list_ok = TRUE;
+			if ((j ==  6) && (f2 & (TR2_RES_DARK)))  list_ok = TRUE;
+			if ((j ==  7) && (f2 & (TR2_RES_SOUND))) list_ok = TRUE;
+			if ((j ==  8) && (f2 & (TR2_RES_SHARD))) list_ok = TRUE;
+			if ((j ==  9) && (f2 & (TR2_RES_NEXUS))) list_ok = TRUE;
+			if ((j == 10) && (f2 & (TR2_RES_NETHR))) list_ok = TRUE;
+			if ((j == 11) && (f2 & (TR2_RES_CHAOS))) list_ok = TRUE;
+			if ((j == 12) && (f2 & (TR2_RES_DISEN))) list_ok = TRUE;
+			if ((j == 13) && (f2 & (TR2_RES_FEAR)))  list_ok = TRUE;
+			if ((j == 14) && (f2 & (TR2_RES_BLIND))) list_ok = TRUE;
+			if ((j == 15) && (f2 & (TR2_RES_CONFU))) list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list */
+			if (attr_listed > 1) strcat(buf, ", ");
+
+			/* List the attribute description, in its proper place. */
+			if (j ==  0) strcat(buf, "Acid");
+			if (j ==  1) strcat(buf, "Lightning");
+			if (j ==  2) strcat(buf, "Fire");
+			if (j ==  3) strcat(buf, "Cold");
+			if (j ==  4) strcat(buf, "Poison");
+			if (j ==  5) strcat(buf, "Light");
+			if (j ==  6) strcat(buf, "Dark");
+			if (j ==  7) strcat(buf, "Sound");
+			if (j ==  8) strcat(buf, "Shards");
+			if (j ==  9) strcat(buf, "Nexus");
+			if (j == 10) strcat(buf, "Nether");
+			if (j == 11) strcat(buf, "Chaos");
+			if (j == 12) strcat(buf, "Disenchantment");
+			if (j == 13) strcat(buf, "Fear");
+			if (j == 14) strcat(buf, "Blindness");
+			if (j == 15) strcat(buf, "Confusion");
+		}
+
+		/* End sentence */
+		strcat(buf, ".|");
+	}
+
+
+	/* Miscellaneous abilities and nastiness. */
+	if ((f3 & (TR3_SLOW_DIGEST)) || (f3 & (TR3_FEATHER)) ||
+		 (f3 & (TR3_LITE))        || (f3 & (TR3_REGEN)) ||
+		 (f3 & (TR3_TELEPATHY))   || (f3 & (TR3_SEE_INVIS)) ||
+		 (f3 & (TR3_FREE_ACT))    || (f3 & (TR3_HOLD_LIFE)) ||
+		 (f3 & (TR3_IMPACT))      || (f3 & (TR3_BLESSED)) ||
+	    (f3 & (TR3_SOULSTEAL))   || (f3 & (TR3_NOMAGIC)) ||
+		 (f3 & (TR3_TELEPORT))    || (f3 & (TR3_AGGRAVATE)) ||
+		 (f3 & (TR3_DRAIN_EXP))   || (f3 & (TR3_DRAIN_HP)) ||
+		 (cursed_p(o_ptr)))
+	{
+		/* Clear number of items to list */
+		attr_listed = 0;
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 17; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j ==  0) && (f3 & (TR3_SLOW_DIGEST))) list_ok = TRUE;
+			if ((j ==  1) && (f3 & (TR3_FEATHER)))     list_ok = TRUE;
+			if ((j ==  2) && (f3 & (TR3_LITE)))        list_ok = TRUE;
+			if ((j ==  3) && (f3 & (TR3_REGEN)))       list_ok = TRUE;
+			if ((j ==  4) && (f3 & (TR3_TELEPATHY)))   list_ok = TRUE;
+			if ((j ==  5) && (f3 & (TR3_SEE_INVIS)))   list_ok = TRUE;
+			if ((j ==  6) && (f3 & (TR3_FREE_ACT)))    list_ok = TRUE;
+			if ((j ==  7) && (f3 & (TR3_HOLD_LIFE)))   list_ok = TRUE;
+			if ((j ==  8) && (f3 & (TR3_IMPACT)))      list_ok = TRUE;
+			if ((j ==  9) && (f3 & (TR3_BLESSED)))     list_ok = TRUE;
+			if ((j == 10) && (f3 & (TR3_SOULSTEAL)))   list_ok = TRUE;
+			if ((j == 11) && (f3 & (TR3_NOMAGIC)))     list_ok = TRUE;
+			if ((j == 12) && (f3 & (TR3_TELEPORT)))    list_ok = TRUE;
+			if ((j == 13) && (f3 & (TR3_AGGRAVATE)))   list_ok = TRUE;
+			if ((j == 14) && (f3 & (TR3_DRAIN_EXP)))   list_ok = TRUE;
+			if ((j == 15) && (f3 & (TR3_DRAIN_HP)))    list_ok = TRUE;
+			if ((j == 16) && (cursed_p(o_ptr)))        list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Semicolons separate members of this list */
+			if (attr_listed > 1) strcat(buf, "; ");
+
+			/* List the attribute description, in its proper place. */
+			if (j ==  0) strcat(buf, "Slow Digestion");
+			if (j ==  1) strcat(buf, "Feather Falling");
+			if (j ==  2)
+			{
+				if ((is_missile(o_ptr)) ||
+					 (is_melee_weapon(o_ptr) && (f1 & (TR1_THROWING))))
+				{
+					strcat(buf, "Light Brand");
+				}
+				else if (is_melee_weapon(o_ptr))
+					strcat(buf, "Permanent Light and Light Brand");
+				else
+					strcat(buf, "Permanent Light");
+			}
+			if (j ==  3) strcat(buf, "Regeneration");
+			if (j ==  4) strcat(buf, "ESP");
+			if (j ==  5) strcat(buf, "See Invisible");
+			if (j ==  6) strcat(buf, "Free Action");
+			if (j ==  7) strcat(buf, "Hold Life");
+			if (j ==  8) strcat(buf, "Impact");
+			if (j ==  9) strcat(buf, "Blessed Blade");
+			if (j == 10) strcat(buf, "Must be Fed");
+			if (j == 11) strcat(buf, "No Magic");
+			if (j == 12) strcat(buf, "Random Teleport");
+			if (j == 13) strcat(buf, "Aggravates");
+			if (j == 14) strcat(buf, "Drains Exp");
+			if (j == 15) strcat(buf, "Drains HPs");
+			if (j == 16)
+			{
+				if (f3 & (TR3_PERMA_CURSE))
+					strcat(buf, " Permanently Cursed");
+				else if (f3 & (TR3_HEAVY_CURSE))
+					strcat(buf, " Heavily Cursed");
+				else
+					strcat(buf, " Cursed");
+			}
+		}
+		/* End sentence */
+		strcat(buf, ".|");
+	}
+
+
+	/* All objects can display certain basic text */
+	basic_info:
+
+
+	/* Various throwable objects display damage information */
+	if (((k_ptr->tval == TV_POTION) && (k_ptr->sval == SV_POTION_GRENADE)) ||
+	    ((o_ptr->tval == TV_JUNK) && (o_ptr->sval == SV_BOULDER)) ||
+	    ((!is_wargear(o_ptr)) &&
+	     (o_ptr->dd * o_ptr->ds >= 6 + p_ptr->power / 7)))
+	{
+		strcat(buf, format("Does %dd%d thrown damage;  ", o_ptr->dd, o_ptr->ds));
+	}
+
+	/* Describe light sources */
+	if (get_object_pval(o_ptr, TR_PVAL_LIGHT) > 0)
+	{
+		int radius = get_object_pval(o_ptr, TR_PVAL_LIGHT);
+
+		/* Ignore ordinary torches and lanterns */
+		if ((o_ptr->tval != TV_LITE) || (radius != k_ptr->pval) ||
+		    (f3 & (TR3_NOFUEL)))
+		{
+			if ((o_ptr->tval != TV_LITE) || (f3 & (TR3_NOFUEL)))
+				strcat(buf, format("Permanent Light (radius %d);  ", radius));
+			else
+				strcat(buf, format("Light source (radius %d);  ", radius));
+		}
+	}
+
+	/* Magical devices can be damaged  XXX XXX */
+	if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)) &&
+		  (o_ptr->ac < k_info[o_ptr->k_idx].ac))
+	{
+		strcat(buf, "Damaged;  ");
+	}
+
+	/* Note durability */
+	if ((o_ptr->ac > 0) &&
+		 ((o_ptr->tval == TV_POTION) ||
+	     (o_ptr->tval == TV_BOTTLE) ||
+	     (o_ptr->tval == TV_SCROLL) ||
+	     (o_ptr->tval == TV_PARCHMENT) ||
+	     (o_ptr->tval == TV_SHOT) ||
+	     (o_ptr->tval == TV_ARROW) ||
+	     (o_ptr->tval == TV_BOLT) ||
+	     (o_ptr->tval == TV_STAFF) ||
+	     (o_ptr->tval == TV_WAND)))
+	{
+		strcat(buf, "Unusually durable;  ");
+	}
+
+
+	/* No information */
+	if (strlen(buf) <= 6) return;
+
+
+	/* Format the attribute description string */
+	if (TRUE)
+	{
+		cptr s, u;
+		char *t;
+
+		/* Start at column 5 */
+		i = 5;
+
+		/* Scan the whole text */
+		for (s = buf, t = desc; *s;)
+		{
+			/* Break on ';' or ',' if line is getting long */
+			if ((*s == '\n') || ((i > 60) && ((*s == ';') || (*s == ','))))
+			{
+				/* Do not copy a ';' or a return */
+				if ((*s != ';') && (*s != '\n')) *t++ = *s++;
+				else s++;
+
+				/* End this line, indent the next */
+				*t++ = '\n';
+				*t++ = ' '; *t++ = ' '; *t++ = ' '; *t++ = ' '; *t++ = ' ';
+
+				/* Skip over any spaces */
+				while (*s == ' ') s++;
+
+				/* Start again at column 5 */
+				i = 5;
+			}
+
+			/* Copy normally, increment column */
+			else if (*s != '|')
+			{
+				*t++ = *s++;
+				i++;
+			}
+
+			/* When we see the '|' marker, look ahead */
+			else
+			{
+				/* Skip the marker */
+				s++;
+
+				/* Search for the next '|', or the end of the text */
+				for ((j = 0, u = s); (*u != '|'); (u++, j++))
+				{
+					if (!*u) break; /* loop */
+				}
+
+				/* We do not have enough space to insert another section */
+				if (i + j >= 60)
+				{
+					/* Replace the first '|' with a return, and indent */
+					*t++ = '\n';
+					*t++ = ' '; *t++ = ' '; *t++ = ' '; *t++ = ' '; *t++ = ' ';
+
+					/* Skip over any spaces */
+					while (*s == ' ') s++;
+
+					/* Start again at column 5 */
+					i = 5;
+				}
+
+				/* We do have enough space */
+				else
+				{
+					/* Replace the first '|' with two spaces */
+					*t++ = ' ';
+					*t++ = ' ';
+
+					/* Increment two columns */
+					i += 2;
+				}
+			}
+		}
+
+		/* Delete any trailing spaces and semicolons */
+		t--;
+		while ((*t == ' ') || (*t == ';')) t--;
+		t++;
+
+		/* Insert a return, if necessary */
+		if (i != 5) *t++ = '\n';
+
+		/* End the text */
+		*t++ = '\0';
+	}
+
+	/* Dump to file */
+	fprintf(fff, desc);
 }

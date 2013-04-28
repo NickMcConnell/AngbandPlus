@@ -19,7 +19,7 @@
  */
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(RISCOS)
 
 
 #include "main.h"
@@ -42,17 +42,9 @@ static const struct module modules[] =
 	{ "x11", help_x11, init_x11 },
 #endif /* USE_X11 */
 
-#ifdef USE_XPJ
-	{ "xpj", help_xpj, init_xpj },
-#endif /* USE_XPJ */
-
 #ifdef USE_GCU
 	{ "gcu", help_gcu, init_gcu },
 #endif /* USE_GCU */
-
-#ifdef USE_CAP
-	{ "cap", help_cap, init_cap },
-#endif /* USE_CAP */
 
 #ifdef USE_DOS
 	{ "dos", help_dos, init_dos },
@@ -70,21 +62,9 @@ static const struct module modules[] =
 	{ "sla", help_sla, init_sla },
 #endif /* USE_SLA */
 
-#ifdef USE_LSL
-	{ "lsl", help_lsl, init_lsl },
-#endif /* USE_LSL */
-
 #ifdef USE_AMI
 	{ "ami", help_ami, init_ami },
 #endif /* USE_AMI */
-
-#ifdef USE_VME
-	{ "vme", help_vme, init_vme },
-#endif /* USE_VME */
-
-#ifdef USE_VCS
-	{ "vcs", help_vcs, init_vcs }
-#endif /* USE_VCS */
 };
 
 
@@ -122,45 +102,6 @@ __near long __stack = 32768L;
 #endif /* AMIGA */
 
 
-/*
- * Set the stack size and overlay buffer (see main-286.c")
- */
-#ifdef USE_286
-# include <dos.h>
-extern unsigned _stklen = 32768U;
-extern unsigned _ovrbuffer = 0x1500;
-#endif /* USE_286 */
-
-
-#ifdef PRIVATE_USER_PATH
-
-/*
- * Create an ".angband/" directory in the user's home directory.
- *
- * ToDo: Add error handling.
- * ToDo: Only create the directories when actually writing files.
- */
-static void create_user_dir(void)
-{
-	char dirpath[1024];
-	char subdirpath[1024];
-
-
-	/* Get an absolute path from the filename */
-	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
-
-	/* Create the ~/.angband/ directory */
-	mkdir(dirpath, 0700);
-
-	/* Build the path to the variant-specific sub-directory */
-	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
-
-	/* Create the directory */
-	mkdir(subdirpath, 0700);
-}
-
-#endif /* PRIVATE_USER_PATH */
-
 
 /*
  * Initialize and verify the file paths, and the score file.
@@ -177,8 +118,7 @@ static void create_user_dir(void)
  * since the "init_file_paths()" function will simply append the
  * relevant "sub-directory names" to the given path.
  *
- * Note that the "path" must be "Angband:" for the Amiga, and it
- * is ignored for "VM/ESA", so I just combined the two.
+ * Note that the "path" must be "Angband:" for the Amiga.
  *
  * Make sure that the path doesn't overflow the buffer.  We have
  * to leave enough space for the path separator, directory, and
@@ -188,12 +128,12 @@ static void init_stuff(void)
 {
 	char path[1024];
 
-#if defined(AMIGA) || defined(VM)
+#if defined(AMIGA)
 
 	/* Hack -- prepare "path" */
 	strcpy(path, "Angband:");
 
-#else /* AMIGA / VM */
+#else /* AMIGA */
 
 	cptr tail = NULL;
 
@@ -213,7 +153,7 @@ static void init_stuff(void)
 	/* Hack -- Add a path separator (only if needed) */
 	if (!suffix(path, PATH_SEP)) my_strcat(path, PATH_SEP, sizeof(path));
 
-#endif /* AMIGA / VM */
+#endif /* AMIGA */
 
 	/* Initialize */
 	init_file_paths(path);
@@ -364,15 +304,6 @@ int main(int argc, char *argv[])
 	argv0 = argv[0];
 
 
-#ifdef USE_286
-	/* Attempt to use XMS (or EMS) memory for swap space */
-	if (_OvrInitExt(0L, 0L))
-	{
-		_OvrInitEms(0, 0, 64);
-	}
-#endif /* USE_286 */
-
-
 #ifdef SET_UID
 
 	/* Default permissions on files */
@@ -389,11 +320,6 @@ int main(int argc, char *argv[])
 
 	/* Get the user id (?) */
 	player_uid = getuid();
-
-#ifdef VMS
-	/* Mega-Hack -- Factor group id */
-	player_uid += (getgid() * 1000);
-#endif /* VMS */
 
 # ifdef SAFE_SETUID
 
@@ -439,19 +365,13 @@ int main(int argc, char *argv[])
 		quit("The gates to Angband are closed (bad time).");
 	}
 
-	/* Initialize the "load" checker */
-	if (check_load_init() || check_load())
-	{
-		quit("The gates to Angband are closed (bad load).");
-	}
-
 	/* Get the "user name" as a default player name */
 	user_name(op_ptr->full_name, sizeof(op_ptr->full_name), player_uid);
 
 #ifdef PRIVATE_USER_PATH
 
-	/* Create a directory for the user's files. */
-	create_user_dir();
+	/* Create directories for the users files */
+	create_user_dirs();
 
 #endif /* PRIVATE_USER_PATH */
 
@@ -598,8 +518,8 @@ int main(int argc, char *argv[])
 		argv[1] = NULL;
 	}
 
-	/* Process the player name (if any) */
-	if (strlen(op_ptr->full_name) >= 1) process_player_name(TRUE);
+	/* Process the player name (but only if one is specified) */
+	if (strlen(op_ptr->full_name)) process_player_name(TRUE);
 
 	/* Install "quit" hook */
 	quit_aux = quit_hook;
@@ -654,5 +574,5 @@ int main(int argc, char *argv[])
 	return (0);
 }
 
-#endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN) */
+#endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(RISCOS) */
 

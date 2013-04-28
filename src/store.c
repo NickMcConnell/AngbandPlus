@@ -43,6 +43,22 @@ static store_type *st_ptr = NULL;
  */
 static owner_type *ot_ptr = NULL;
 
+/*
+ * Number of stock items shown on screen at any one time.  Usually 12
+ * (can be 24).
+ */
+static int stock_displayed = 12;
+
+/*
+ * Stock index and quantity of item being purchased.
+ */
+static int item_buy_idx = -1;
+static int item_buy_num =  0;
+
+/*
+ * Hack -- set this to leave the store
+ */
+static bool leave_store = FALSE;
 
 
 /*
@@ -54,6 +70,13 @@ static owner_type *ot_ptr = NULL;
  */
 byte bargain_difficulty = 108;
 
+
+/*
+ * Range of shopkeeper attitudes (affects haggling text).  If tolerance
+ * is at least always_polite, the shopkeeper is always relatively polite.
+ */
+#define ALWAYS_POLITE  25
+#define ALWAYS_RUDE     5
 
 /*
  * Store owners
@@ -72,77 +95,80 @@ byte bargain_difficulty = 108;
  *      offers, but it takes long haggling to knock them down to their final
  *      price.  Values of about 12 are average.
  * Tolerance determines how many insults a shopkeeper will take before
- *      throwing the character out of his store.
+ *      throwing the character out of the store, and also affects haggling
+ *      text.
+ *
+ * Overwritten by "store.txt".
  */
 owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	/* General store */
 	{
-	 { "Bilbo the Friendly",         6000,  160, 108, 14, 15, RACE_HOBBIT},
-	 { "Rincewind the Chicken",      4000,  165, 107, 12, 12, RACE_HUMAN},
-	 { "Snafu the Midget",          10000,  160, 107, 10, 15, RACE_GNOME},
-	 { "Lyar-el the Comely",         8000,  155, 107, 14, 18, RACE_ELF},
-	 { "Owitu the Owlish",           6000,  170, 105, 12, 10, RACE_GNOME},
-	 { "Gorgrund the Haggler",      12000,  190, 107,  8, 17, RACE_HALF_ORC}
+	 { "Bilbo the Friendly",         6000,  160, 108, 14, 25, RACE_HOBBIT},
+	 { "Rincewind the Chicken",      4000,  165, 107, 12, 20, RACE_HUMAN},
+	 { "Snafu the Midget",          10000,  160, 107, 10, 20, RACE_GNOME},
+	 { "Lyar-el the Comely",         8000,  155, 107, 14, 25, RACE_ELF},
+	 { "Owitu the Owlish",           6000,  170, 105, 12, 15, RACE_GNOME},
+	 { "Gorgrund the Haggler",      12000,  190, 107,  8, 13, RACE_HALF_ORC}
 	},
 
 	/* Armoury */
 	{
-	 { "Kon-Dar the Ugly",           5000,  185, 105, 10, 10, RACE_HALF_ORC},
-	 { "Darg-Low the Grim",         10000,  180, 110, 10, 10, RACE_HUMAN},
-	 { "Decado the Handsome",       25000,  175, 112, 12, 10, RACE_DUNADAN},
-	 { "Mauglin the Grumpy",        30000,  190, 115, 12,  7, RACE_DWARF},
-	 { "Jurmanjand Thunderbrows",   20000,  160, 112, 16,  7, RACE_GIANT},
-	 { "Vivirion True-Forger",      15000,  175, 112, 10,  9, RACE_DARK_ELF}
+	 { "Kon-Dar the Ugly",           5000,  185, 105, 10, 15, RACE_HALF_ORC},
+	 { "Darg-Low the Grim",         10000,  180, 110, 10, 12, RACE_HUMAN},
+	 { "Decado the Handsome",       25000,  175, 112, 12, 20, RACE_DUNADAN},
+	 { "Mauglin the Grumpy",        30000,  190, 115, 12,  8, RACE_DWARF},
+	 { "Jurmanjand Thunderbrows",   20000,  160, 112, 16,  8, RACE_GIANT},
+	 { "Vivirion True-Forger",      15000,  175, 112, 10, 20, RACE_DARK_ELF}
 	},
 
 	 /* Weapon Smith */
 	{
-	 { "Ithyl-Mak the Beastly",      5000,  180, 108, 12,  9, RACE_HALF_TROLL},
-	 { "Arndal Beast-Slayer",       15000,  170, 110, 12,  9, RACE_ELF},
-	 { "Tarl Stronginthearm",       25000,  175, 115, 12,  8, RACE_HOBBIT},
-	 { "Oglign Dragon-Slayer",      30000,  175, 115, 12, 10, RACE_DWARF},
-	 { "Jarl the Generous",         20000,  150, 105, 10, 15, RACE_HUMAN},
+	 { "Ithyl-Mak the Beastly",      5000,  180, 108, 12, 10, RACE_HALF_TROLL},
+	 { "Arndal Beast-Slayer",       15000,  170, 110, 12, 15, RACE_ELF},
+	 { "Tarl Stronginthearm",       25000,  175, 115, 12, 18, RACE_HOBBIT},
+	 { "Oglign Dragon-Slayer",      30000,  175, 115, 12, 18, RACE_DWARF},
+	 { "Jarl the Generous",         20000,  150, 105, 10, 25, RACE_HUMAN},
 	 { "William Wrathful",           7500,  180, 108, 14,  6, RACE_HUMAN}
 	},
 
 	 /* Temple */
 	{
-	 { "Ludwig the Humble",          5000,  165, 108, 14, 35, RACE_HUMAN},
+	 { "Ludwig the Humble",          5000,  165, 108, 14, 30, RACE_HUMAN},
 	 { "Gunnar the Paladin",        15000,  175, 110, 12, 18, RACE_HUMAN},
-	 { "Delilah the Pure",          25000,  170, 112, 14, 20, RACE_ELF},
-	 { "Bosk the Wise",             30000,  175, 115, 12, 15, RACE_DWARF},
-	 { "Sevestor the Silent",       20000,  180, 110, 14, 12, RACE_DARK_ELF},
-	 { "Fuduk the Hammer",          10000,  170, 110, 14, 14, RACE_HALF_TROLL}
+	 { "Delilah the Pure",          25000,  170, 112, 14, 22, RACE_ELF},
+	 { "Bosk the Wise",             30000,  175, 115, 12, 20, RACE_DWARF},
+	 { "Sevestor the Silent",       20000,  180, 110, 14, 18, RACE_DARK_ELF},
+	 { "Fuduk the Hammer",          10000,  170, 110, 14, 15, RACE_HALF_TROLL}
 	},
 
 	/* Alchemist's */
 	{
-	 { "Elroia the Chemist",        10000,  180, 111, 12, 11, RACE_ELF},
+	 { "Elroia the Chemist",        10000,  180, 111, 12, 20, RACE_ELF},
 	 { "Grugdash the Chaotic",       7500,  180, 106, 12, 10, RACE_HALF_ORC},
-	 { "Ga-nat the Greedy",         15000,  195, 115,  8, 13, RACE_GNOME},
-	 { "Vella the Slender",         10000,  170, 111, 12, 13, RACE_HUMAN},
-	 { "Drumondorio the Apothecary",12500,  170, 110, 14, 16, RACE_GIANT},
-	 { "Oroglad the Thaumaturge",   15000,  180, 112, 12, 12, RACE_DUNADAN}
+	 { "Ga-nat the Greedy",         15000,  195, 115,  8,  9, RACE_GNOME},
+	 { "Vella the Slender",         10000,  170, 111, 12, 20, RACE_HUMAN},
+	 { "Drumondorio the Apothecary",12500,  170, 110, 14, 15, RACE_GIANT},
+	 { "Oroglad the Thaumaturge",   15000,  180, 112, 12, 15, RACE_DUNADAN}
 	},
 
 	/* Magic Shop */
 	{
-	 { "Ariel the Sorceress",       20000,  170, 110, 16,  8, RACE_ELF},
-	 { "Buggerby the Great!",       20000,  190, 113, 10, 10, RACE_GNOME},
-	 { "Inglorian the Mage",        30000,  170, 115, 14, 10, RACE_HUMAN},
-	 { "Luthien Starshine",         30000,  165, 115, 16, 11, RACE_HIGH_ELF},
-	 { "Balthazar of Earvernan",    25000,  180, 109, 12,  9, RACE_GNOME},
-	 { "Murid the Skinflint",       10000,  180, 110, 10, 11, RACE_HUMAN}
+	 { "Ariel the Sorceress",       20000,  170, 110, 16, 15, RACE_ELF},
+	 { "Buggerby the Great!",       20000,  190, 113, 10, 15, RACE_GNOME},
+	 { "Inglorian the Mage",        30000,  170, 115, 14, 15, RACE_HUMAN},
+	 { "Luthien Starshine",         30000,  165, 115, 16, 25, RACE_HIGH_ELF},
+	 { "Balthazar of Earvernan",    25000,  180, 109, 12, 15, RACE_GNOME},
+	 { "Murid the Skinflint",       10000,  180, 110,  9,  9, RACE_HUMAN}
 	},
 
 	/* Bookseller */
 	{
-	 { "Nastra the Dusty",          10000,  155, 105, 12, 11, RACE_HUMAN},
-	 { "Gabberam the Sage",         20000,  180, 118, 10,  9, RACE_GNOME},
-	 { "Feadro the Tome-master",    20000,  165, 113, 12, 12, RACE_HOBBIT},
-	 { "Hastiel the Encyclopedist", 30000,  160, 115, 14, 12, RACE_DUNADAN},
-	 { "Dreol of Drugladdan",       15000,  180, 107, 10, 12, RACE_DARK_ELF},
+	 { "Naestra the Dusty",         10000,  155, 105, 12, 13, RACE_HUMAN},
+	 { "Gabberam the Sage",         20000,  180, 118, 10, 18, RACE_GNOME},
+	 { "Feadro the Tome-master",    20000,  165, 113, 12, 18, RACE_HOBBIT},
+	 { "Hastiel the Encyclopedist", 30000,  160, 115, 14, 18, RACE_DUNADAN},
+	 { "Dreol of Drugladdan",       15000,  180, 107, 10, 13, RACE_DARK_ELF},
 	 { "Silmarien the Joyous",      25000,  170, 110, 14, 30, RACE_HIGH_ELF}
 	},
 
@@ -170,7 +196,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 /*
  * Objects sold in the stores
  *
- * k_idx, chance, usual quantity
+ * k_idx, chance, usual quantity*
+ *
+ * Overwritten by "store.txt".
  */
 stock_type store_stock[] =
 {
@@ -245,7 +273,8 @@ stock_type store_stock[] =
 	{127, 100,  5},  /* Sling */
 	{130, 100,  5},  /* Short Bow */
 	{131,  15,  2},  /* Long Bow */
-	{134,  33,  2},  /* Light Crossbow */
+	{133, 100,  2},  /* Hand Crossbow */
+	{134,  15,  2},  /* Light Crossbow */
 	{138, 100, 75},  /* Shot */
 	{142, 100, 75},  /* Arrow */
 	{146, 100, 75},  /* Bolt */
@@ -267,7 +296,7 @@ stock_type store_stock[] =
 	{354,  33,  7},  /* Scroll of Holy Chant */
 	{414, 100, 50},  /* Potion of Cure Light Wounds */
 	{415, 100, 15},  /* Potion of Cure Serious */
-	{416,  50, 15},  /* Potion of Cure Critical */
+	{416, 100, 15},  /* Potion of Cure Critical */
 	{421,  33,  1},  /* Potion of Restore Skills */
 	{422, 100,  2},  /* Potion of Restore Strength */
 	{423, 100,  2},  /* Potion of Restore Intelligence */
@@ -281,7 +310,7 @@ stock_type store_stock[] =
 	{ -1, STORE_ALCHEMY, 0},   /* Start of store marker */
 
 	{328, 100, 25},  /* Scroll of Phase Door */
-	{329,  40, 10},  /* Scroll of Teleport */
+	{329, 100, 14},  /* Scroll of Teleport */
 	{331, 100,  6},  /* Scroll of Word of Recall */
 	{332, 100, 40},  /* Scroll of Learn Magic */
 	{333, 100, 20},  /* Scroll of Identify */
@@ -333,17 +362,17 @@ stock_type store_stock[] =
 	/* Bookstore */
 	{ -1, STORE_SPELLBOOK, 0},   /* Start of store marker */
 
-	{650, 100, 20},  /* [Apprentice Magic] */
-	{651, 100,  5},  /* [Conjurings and Tricks] */
+	{650, 100,  8},  /* [Apprentice Magic] */
+	{651, 100,  4},  /* [Conjurings and Tricks] */
 	{652, 100,  2},  /* [Elemental Sorcery] */
-	{660, 100, 20},  /* [Novitiate] */
-	{661, 100,  5},  /* [Words of Wisdom] */
+	{660, 100,  8},  /* [Novitiate] */
+	{661, 100,  4},  /* [Words of Wisdom] */
 	{662, 100,  2},  /* [Holy of Holies] */
-	{670, 100, 20},  /* [Call of the Wild] */
-	{671, 100,  5},  /* [Communion with Nature] */
+	{670, 100,  8},  /* [Call of the Wild] */
+	{671, 100,  4},  /* [Communion with Nature] */
 	{672, 100,  2},  /* [Book of Combat] */
-	{680, 100, 20},  /* [Beginner's Curses] */
-	{681, 100,  5},  /* [Darker Elements] */
+	{680, 100,  8},  /* [Beginner's Curses] */
+	{681, 100,  4},  /* [Darker Elements] */
 	{682, 100,  2},  /* [Frightful Realms] */
 
 
@@ -387,10 +416,12 @@ stock_type store_stock[] =
 
 /*
  * General item kinds that stores sell
+ *
+ * Overwritten by "store.txt".
  */
 byte tval_sell[MAX_STORES][10] =
 {
-	{TV_FOOD, TV_LITE, TV_DIGGING, TV_CLOAK, TV_COMPONENT, 0, 0, 0, 0, 0},
+	{TV_FOOD, TV_LITE, TV_DIGGING, TV_CLOAK, TV_COMPONENT, TV_JUNK, 0, 0, 0, 0},
 	{TV_BOOTS, TV_GLOVES, TV_HELM, TV_CROWN, TV_SHIELD, TV_SOFT_ARMOR,
 	      TV_HARD_ARMOR, TV_DRAG_ARMOR, 0, 0},
 	{TV_SWORD, TV_POLEARM, TV_BOW, TV_SHOT, TV_ARROW, TV_BOLT, 0, 0, 0, 0},
@@ -417,6 +448,8 @@ byte tval_sell[MAX_STORES][10] =
  * Half-orcish and half-trollish shopkeepers are the main exception:
  * they sell for less than one might expect.
  * High-Elven shopkeepers tend to be a tad pricey.
+ *
+ * Overwritten by "store.txt".
  */
 byte rgold_adj[MAX_RACES][MAX_RACES] =
 {
@@ -453,7 +486,7 @@ byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  {110, 115, 115, 110, 125, 120, 125, 110, 120, 100, 125},
 
 	  /* Giant */
-	  {110, 125, 115, 110, 110, 115, 110, 110, 125, 125,  95}
+	  {110, 120, 115, 110, 110, 115, 110, 110, 125, 125,  95}
 };
 
 
@@ -478,7 +511,7 @@ static void shopkeeper_short_name(char *short_name, cptr full_name)
 
 
 /*
- * Shopkeeper comment (avoids the "-more-"s from appearing)
+ * Shopkeeper comment (avoids the "(+)"s from appearing)
  *
  * See "msg_format()".
  */
@@ -528,7 +561,7 @@ static cptr comment_welcome[MAX_COMMENT_WELCOME] =
 	"%s: \"Welcome back, %s.\"",
 	"%s: \"A pleasure to see you again, %s.\"",
 	"%s: \"How may I be of assistance, good %s?\"",
-	"%s: \"You do honor to my humble store, noble %s.\"",
+	"%s: \"You do honour to my humble store, noble %s.\"",
 	"%s: \"I and my family are entirely at your service, glorious %s.\""
 };
 
@@ -537,8 +570,8 @@ static cptr comment_welcome[MAX_COMMENT_WELCOME] =
 
 static cptr comment_1a[MAX_COMMENT_1A] =
 {
-	"Okay.",
-	"Fine.",
+	"Works for me!",
+	"Deal!",
 	"Accepted!",
 	"Agreed!",
 	"Done!",
@@ -554,8 +587,8 @@ static cptr comment_1b[MAX_COMMENT_1B] =
   "You'll force me bankrupt, but it's a deal.",
   "Sigh.  I'll take it.",
   "My poor sick children may starve, but done!",
-  "Finally!  I accept.",
-  "Robbed again.",
+  "I'm never going to make a profit off of you, I can see that.",
+  "Agreed, but I would *never* have accepted this price from anyone else.",
   "I'm cutting me own throat, but OK.",   /* Apologies to T. Prachett */
   "You're a prince of hagglers, and I accept your price.",
   "I'll end my days a beggar if I keep dealing with you.  Done.",
@@ -568,48 +601,52 @@ static cptr comment_1b[MAX_COMMENT_1B] =
 
 static cptr comment_2a[MAX_COMMENT_2A] =
 {
-	"I'll let this go for no less than %s; take it or leave it.",
+	"I'll let this go for %s; take it or leave it.",
 	"%s is as low as I go.",
 	"%s and that's final.",
-	"The price is %s.  No lower.",
+	"Final price:  %s - I just can't go lower.",
 	"Final price:  %s, and you can't do better anywhere."
 };
 
 
-#define MAX_COMMENT_2B	30
+#define MAX_COMMENT_2B	31
 
+/*
+ * Ordered by "rudeness".
+ */
 static cptr comment_2b[MAX_COMMENT_2B] =
 {
-	"You just can't get quality like this for that money.  %s gold.",
-	"Why do you even waste my time?  %s gold, and I am generous.",
-	"%s gold, and that only because you are my friend.",
-	"The good jest.  A more serious price would be %s gold.",
-	"I'm losing money just talking to you!  %s gold.",
-	"I have five customers eyeing this.  %s gold, and you pay the tax.",
-	"%s gold, and be grateful it's even available!",
-	"Do you realize how hard it is to find this?  %s gold.",
-	"Shop around.  Come back to me when you're ready to pay %s.",
-	"%s gold; tomorrow it will be higher.",
+	"Hmm.  I'm prepared to accept %s gold.",
 	"%s gold, and I am almost giving it away.",
-	"You know full well it's worth at least %s gold pieces!",
+	"You just can't get this quality for that money.  %s gold.",
+	"%s gold, and that only because you are my friend.",
 	"I can take no less than %s gold pieces.",
 	"%s gold, and it's worth twice that.",
-	"I paid more than that for it myself, try %s",
-	"I paid more than that!  Why, %s is too little already!",
-	"My poor, sick, starving children need %s at least!",
-	"Thou knave!  No less than %s gold pieces.",
+	"I paid more than that for it myself, try %s.",
 	"Far, far too little.  How about %s?",
 	"Sell this for such a pittance?  Give me %s gold.",
-	"As scrap this would bring that.  Try %s in gold.",
 	"I will accept no less than %s gold pieces.",
 	"Why, I'll take no less than %s gold pieces.",
+	"Work with me a little.  How about %s gold pieces?",
+	"As scrap this would bring that.  Try %s in gold.",
 	"That's a pittance.  Try %s.",
-	"That's absurd!  How about %s gold pieces?",
-	"Still not good enough.  How about %s gold pieces?",
+	"Huh!  %s gold pieces.",
+	"You know full well it's worth at least %s gold pieces.",
+	"%s gold; tomorrow it will be higher.",
+	"The good jest.  A more serious price would be %s gold.",
+	"I paid more than that!  Why, %s is too little already!",
+	"My poor, sick, starving children need %s at least!",
+	"I'm selling below cost here!  How about %s gold pieces?",
+	"I have five customers eyeing this.  %s gold, and you pay the tax.",
+	"Shop around.  Come back to me when you're ready to pay %s.",
+	"Why do you even waste my time?  %s gold, and I am generous.",
+	"Do you realize how hard it is to find this?  %s gold.",
+	"Your mother was an Ogre!  %s or I'll tell.",
+	"%s gold, and be grateful it's even available!",
 	"May the fleas of a thousand orcs molest you!  I want %s.",
+	"I'm losing money just talking to you!  %s gold.",
 	"May your favourite bits and pieces go mouldy!  I want %s in gold!",
-	"May Morgoth find you tasty!  I want %s, and no clipped coins!",
-	"Your mother was an Ogre!  %s or I'll tell."
+	"May Morgoth find you tasty!  I want %s, and no clipped coins!"
 };
 
 
@@ -626,39 +663,44 @@ static cptr comment_3a[MAX_COMMENT_3A] =
 };
 
 
-#define MAX_COMMENT_3B	29
+#define MAX_COMMENT_3B	31
 
+/*
+ * Ordered by "rudeness".
+ */
 static cptr comment_3b[MAX_COMMENT_3B] =
 {
-	"I look at that dreck, and I sniff and sneer.  %s gold.",
-	"Shall I parade my sick, starving children before you?  %s gold.",
+	"How about %s?",
+	"Marry, %s gold is an honest price.",
+	"%s gold is more than fair.",
+	"Try %s gold pieces.",
+	"Perhaps %s gold pieces?",
+	"Friend, it's just not worth that much.  Accept %s gold.",
+	"Be reasonable.  How about %s.",
+	"I can afford no more than %s gold.",
+	"Yes it's nice, but you're asking too much.  %s gold?",
+	"Hmm.  For the sake of your future business, %s in gold.",
+	"I offer you %s gold, and that only because we've done business before.",
+	"%s gold pieces and not a copper more.",
 	"Come now.  Even %s gold would be generous.",
 	"What you have, I don't want for more than %s gold.",
-	"I want some of whatever you're smoking.  %s gold.",
-	"Let us end this farce, and say %s gold.",
-	"Hah!  %s gold is already too high!",
-	"It's pretty, but nobody wants it.  %s gold.",
-	"Friend, it's just not worth that much.  Accept %s gold.",
-	"I offer you %s gold, and that only because we've done business before.",
-	"Where you get your prices from, I will never know.  %s gold.",
-	"Perhaps %s gold pieces?",
-	"What kobold-warren did you find this in?  %s gold pieces.",
-	"Hmm.  For the sake of your future business, %s in gold.",
-	"I will pay no more than %s gold.",
-	"I can afford no more than %s gold.",
-	"Be reasonable.  How about %s.",
-	"I'll buy it as scrap for %s.",
-	"For that piece of junk?  No more than %s.",
-	"For what you ask I could own ten of those.  %s gold.",
 	"That looks war surplus!  Say %s gold.",
+	"It's pretty, but nobody wants it.  %s gold.",
+	"Hah!  %s gold is already too high!",
 	"NEVER!  %s is more like it.",
+	"I'll buy it as scrap for %s.",
 	"Only in your dreams.  %s.",
+	"Shall I parade my sick, starving children before you?  %s gold.",
+	"Let us end this farce, and say %s gold.",
 	"*CHOKE* For that!?  Let's say %s.",
-	"How about %s?",
-	"Try %s gold pieces.",
+	"For what you ask I could own ten of those.  %s gold.",
 	"%s gold pieces and be thankful for it!",
-	"%s gold pieces and not a copper more.",
-    "I wouldn't pay that for your tongue on a platter.  Try %s."
+	"For that piece of junk?  No more than %s.",
+	"What kobold-warren did you find this in?  %s gold pieces.",
+	"Where you get your prices from, I will never know.  %s gold.",
+	"I want some of whatever you're smoking.  %s gold.",
+    "I wouldn't pay that for your tongue on a platter.  Try %s.",
+	"I look at that dreck, and I sniff and sneer.  %s gold."
 };
 
 
@@ -676,7 +718,7 @@ static cptr comment_4a[MAX_COMMENT_4A] =
 };
 
 
-#define MAX_COMMENT_4B	7
+#define MAX_COMMENT_4B	6
 
 static cptr comment_4b[MAX_COMMENT_4B] =
 {
@@ -685,25 +727,35 @@ static cptr comment_4b[MAX_COMMENT_4B] =
 	"Get out of my sight!",
 	"Begone, you scoundrel!",
 	"Disappear, and take your junk with you!",
-	"out... Out... OUT!!!",
-	"Come back when thou art richer."
+	"out... Out... OUT!!!"
 };
 
 
-#define MAX_COMMENT_5	10
+#define MAX_COMMENT_5	18
 
+/*
+ * In order of impatience.
+ */
 static cptr comment_5[MAX_COMMENT_5] =
 {
-	"I'm not here to waste time with you.",
-	"Come back to me with a reasonable price!",
-	"Improve your price, choose something else, or leave.",
-	"That's an insult!",
+	"Let me humbly propose a different price.",
+	"Please try again.",
+	"I can't hear you...",
+	"I really cannot accept that price.  Really.",
+	"Can we please be reasonable?",
+	"You need to work with me here...",
+	"*Grumblegrumblegrumble*",
+	"Do you wish to do business or not?",
+	"That's a joke, right?",
+	"You've got to be kidding!",
 	"I warn you, that price was insulting.",
 	"You will have to do better than that!",
-	"Do you wish to do business or not?",
-	"You've got to be kidding!",
-	"You'd better be kidding!",
-	"You try my patience."
+	"Improve your price, choose something else, or leave.",
+	"You try my patience sorely.",
+	"Come back to me with a reasonable price!",
+	"That's an insult!",
+	"My patience is almost exhausted!",
+	"Much more of this nonsense, and we're done!"
 };
 
 
@@ -740,14 +792,14 @@ static cptr comment_6b[MAX_COMMENT_6B] =
 
 static cptr comment_7a[MAX_COMMENT_7A] =
 {
-	"Arrgghh!",
+	"ARRGGHH!",
 	"You hear a shriek!",
 	"Curse you and crush you!",
 	"How did I let myself get robbed like this?",
 	"Identify your crap before you sell it, bastard!",
 	"Go ahead, teach me some MORE painful lessons!",
 	"Sell the dreck you find on the floor to someone else!",
-	"You hear someone sobbing...",
+	"NO!  This can't be happening to me!",
 	"Aii!  I'm ruined, ruined!",
 	"The shopkeeper howls in agony!"    /* Deliberate lack of name */
 };
@@ -797,13 +849,52 @@ static cptr comment_7d[MAX_COMMENT_7D] =
 
 
 /*
- * Successful haggle.
+ * Close the deal.
  */
 static void say_comment_1(bool perfect_haggle)
 {
 	if (perfect_haggle) comment(comment_1b[rand_int(MAX_COMMENT_1B)]);
 	else                comment(comment_1a[rand_int(MAX_COMMENT_1A)]);
 }
+
+
+/*
+ * Determine haggle message based on politeness.
+ */
+static int comment_choice(bool buying)
+{
+	int rudeness, this_comment;
+
+	/* Get average tolerance/politeness */
+	int toler_range = ALWAYS_POLITE - ALWAYS_RUDE;
+
+	/* Get maximum allowable comment index */
+	int max = (buying ? MAX_COMMENT_2B : MAX_COMMENT_3B);
+
+
+	/* Rudeness ranges from 0 to tolerance range */
+	rudeness = ALWAYS_POLITE - ot_ptr->insult_max;
+	if (rudeness < 0) rudeness = 0;
+	if (rudeness > toler_range) rudeness = toler_range;
+
+
+	/* Start out one-sixth of the way down the comment list */
+	this_comment = div_round(max, 6);
+
+	/* Can go to five-sixths down the list if maximally rude */
+	this_comment += (rudeness * 4 * max) / (6 * toler_range);
+
+	/* Randomize (by a sixth) */
+	this_comment = rand_spread(this_comment, div_round(max, 6));
+
+	/* Set bounds */
+	if (this_comment < 0) this_comment = 0;
+	if (this_comment >= max) this_comment = max - 1;
+
+	/* Return comment */
+	return (this_comment);
+}
+
 
 
 /*
@@ -827,7 +918,7 @@ static void say_comment_2(s32b value, bool final)
 	else
 	{
 		/* Formatted message */
-		comment(comment_2b[rand_int(MAX_COMMENT_2B)], tmp_val);
+		comment(comment_2b[comment_choice(TRUE)], tmp_val);
 	}
 }
 
@@ -853,7 +944,7 @@ static void say_comment_3(s32b value, bool final)
 	else
 	{
 		/* Formatted message */
-		comment(comment_3b[rand_int(MAX_COMMENT_3B)], tmp_val);
+		comment(comment_3b[comment_choice(FALSE)], tmp_val);
 	}
 }
 
@@ -873,7 +964,21 @@ static void say_comment_4(void)
  */
 static void say_comment_5(void)
 {
-	comment(comment_5[rand_int(MAX_COMMENT_5)]);
+	/* Get remaining tolerance */
+	int tolerance = MIN(30, ot_ptr->insult_max - st_ptr->insult_cur);
+
+	/* Base comment (from 2 to MAX_COMMENT_5 - 3) */
+	int base = 2 + (MAX_COMMENT_5 - 5) * (30 - tolerance) / 30;
+
+	/* Randomize comment */
+	int tmp = Rand_normal(base, MAX_COMMENT_5 / 8);
+
+	/* Verify comment */
+	if (tmp < 0) tmp = 0;
+	if (tmp >= MAX_COMMENT_5) tmp = MAX_COMMENT_5 - 1;
+
+	/* Display warning (increasingly impatient) */
+	comment(comment_5[tmp]);
 }
 
 
@@ -1208,6 +1313,7 @@ static bool store_will_buy(const object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 				case TV_SKELETON:
+				case TV_JUNK:
 				case TV_COMPONENT:
 				case TV_FOOD:
 				case TV_LITE:
@@ -1677,108 +1783,6 @@ static void store_delete(void)
 
 
 
-/*
- * Make any necessary adjustments to store stock items.  This includes
- * applying price adjustments and adjusting wand/rod pvals.
- */
-static void adjust_store_object(object_type *o_ptr, bool special)
-{
-	int max_purse;
-	int discount, chance;
-
-	s32b cost = object_value(o_ptr);
-	bool missile = (bool)is_missile(o_ptr);
-
-
-	/*
-	 * Determine the discount probability modifier.   The purpose of this is to
-	 * make shopkeepers with low purses offer more sales, as one might expect.
-	 * -LM-
-	 */
-
-	/* Hack -- determine the maximum possible purse available at any one store. */
-	if (store_num == STORE_GENERAL) max_purse = 12000;
-	if (store_num == STORE_ALCHEMY) max_purse = 15000;
-	else max_purse = 30000;
-
-	/* Determine discount probability but stay reasonable. */
-	chance = div_round(30 * ot_ptr->max_cost, max_purse);
-
-
-	/* Assume no discount */
-	discount = 0;
-
-	/* Sometimes discount non-special items */
-	if ((cost >= 5) && (one_in_(chance)))
-	{
-		int tmp = randint(100);
-
-		/* 75% chance of a 25% discount */
-		if      (tmp <= 75)
-		{
-			discount = 25;
-		}
-
-		/* 12% chance of a 50% discount */
-		else if (tmp <= 87)
-		{
-			discount = 50;
-			if (!missile) o_ptr->number =
-				rand_range((o_ptr->number + 1) / 2, o_ptr->number);
-		}
-
-		/* 8% chance of a 75% discount */
-		else if (tmp <= 95)
-		{
-			discount = 75;
-			if (!missile) o_ptr->number =
-				rand_range((o_ptr->number + 3) / 4, (o_ptr->number + 1) / 2);
-		}
-
-		/* 5% chance of a 90% discount */
-		else
-		{
-			discount = 90;
-			if (!missile) o_ptr->number =
-				rand_range(1, (o_ptr->number + 1) / 2);
-		}
-	}
-
-	/* Save the discount */
-	o_ptr->cost_adjust = 100 - discount;
-
-
-	/* Special items, especially valuable ones, cost more */
-	if (special && cost > 1000L)
-	{
-		/* Calculate cost increase */
-		long k = div_round(cost - 1000L, 100L);
-
-		/* Never add more than 120% to price */
-		if (k > 120L) k = 120L;
-
-		/* Apply cost adjustment */
-		o_ptr->cost_adjust += (byte)k;
-
-		/* Hack -- neaten (and reduce) discounts */
-		if (o_ptr->cost_adjust < 100)
-		{
-			/* No 75% and 90% discounts, but some 10% ones */
-			if      (o_ptr->cost_adjust <= 50) o_ptr->cost_adjust = 50;
-			else if (o_ptr->cost_adjust <= 75) o_ptr->cost_adjust = 75;
-			else if (o_ptr->cost_adjust <= 90) o_ptr->cost_adjust = 90;
-			else                               o_ptr->cost_adjust = 100;
-		}
-	}
-
-
-	/* Fix wand and rod pvals */
-	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
-	{
-		o_ptr->pval *= o_ptr->number;
-	}
-}
-
 
 /*
  * Create an item and try to stock it.
@@ -1790,6 +1794,13 @@ static void store_item_create(int k_idx, int level, bool special, int num)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+	int max_purse;
+	int discount, odds;
+
+	s32b cost;
+	bool missile;
+
+
 
 	/* Try up to ten times */
 	for (tries = 0; tries < 10; tries++)
@@ -1800,8 +1811,23 @@ static void store_item_create(int k_idx, int level, bool special, int num)
 		/* Create a new object of the chosen kind */
 		object_prep(i_ptr, k_idx);
 
+		/* Balance -- Stores sell weak ammo early on  XXX XXX */
+		if ((is_missile(i_ptr)) && (p_ptr->power < 15))
+		{
+			k_idx--;
+			object_prep(i_ptr, k_idx);
+		}
+
+		/* Balance -- Stores do not sell Javelins early on  XXX XXX */
+		if ((i_ptr->tval == TV_POLEARM) && (i_ptr->sval == SV_JAVELIN) && (p_ptr->power < 15))
+		{
+			/* Do not make the item */
+			return;
+		}
+
+
 		/* We're creating an object in a store */
-		in_store_quality = TRUE;
+		obj_gen_flags |= (OBJ_GEN_STORE);
 
 		/* Normally make mundane items */
 		if (!special)
@@ -1813,20 +1839,22 @@ static void store_item_create(int k_idx, int level, bool special, int num)
 		/* If special, make good items (but never artifacts) */
 		else
 		{
-			apply_magic(i_ptr, level, FALSE, TRUE, (one_in_(10)));
+			/* 1 in 10 -> 1 in 3 great */
+			odds = 10 - MIN(7, rsqrt(st_ptr->total_buy / 25000));
+
+			/* Make object */
+			apply_magic(i_ptr, level, FALSE, TRUE, (one_in_(odds)));
 		}
 
 		/* Clear quality-control variable */
-		in_store_quality = FALSE;
+		obj_gen_flags &= ~(OBJ_GEN_STORE);
 
 
 		/* Hack -- Standard charges for light sources */
 		if ((i_ptr->tval == TV_LITE) && (i_ptr->pval))
 		{
-			if (i_ptr->sval == SV_LITE_TORCH)
-				i_ptr->pval = FUEL_TORCH / 2 + 1000;
-			if (i_ptr->sval == SV_LITE_LANTERN)
-				i_ptr->pval = FUEL_LAMP / 2;
+			if (i_ptr->sval == SV_LITE_TORCH)   i_ptr->pval = FUEL_TORCH / 2;
+			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->pval = FUEL_LAMP / 2;
 		}
 
 		/* The object is "known" */
@@ -1842,6 +1870,7 @@ static void store_item_create(int k_idx, int level, bool special, int num)
 			/* Get object kind */
 			object_kind *k_ptr = &k_info[i_ptr->k_idx];
 
+			/* Limit numbers */
 			if (i_ptr->ego_item_index)
 			{
 				num = 1;
@@ -1856,8 +1885,105 @@ static void store_item_create(int k_idx, int level, bool special, int num)
 		/* Adjust quantity */
 		i_ptr->number = num;
 
-		/* Determine cost adjustments and other things */
-		adjust_store_object(i_ptr, special);
+
+		/* Is this item a missile? */
+		missile = (bool)is_missile(i_ptr);
+
+		/* Get the value of this item */
+		cost = object_value(i_ptr);
+
+
+		/*
+		 * Determine the discount probability modifier.   The purpose of
+		 * this is to make shopkeepers with low purses offer more sales,
+		 * as one might expect.  -LM-
+		 */
+
+		/* Hack -- determine the maximum purse at this type of store. */
+		if (store_num == STORE_GENERAL) max_purse = 12000;
+		if (store_num == STORE_ALCHEMY) max_purse = 15000;
+		else max_purse = 30000;
+
+		/* Determine discount probability but stay reasonable. */
+		odds = div_round(30 * ot_ptr->max_cost, max_purse);
+
+
+		/* Assume no discount */
+		discount = 0;
+
+		/* Sometimes discount non-special items */
+		if ((cost >= 5) && (one_in_(odds)))
+		{
+			int tmp = randint(100);
+
+			/* 75% chance of a 25% discount */
+			if      (tmp <= 75)
+			{
+				discount = 25;
+			}
+
+			/* 12% chance of a 50% discount */
+			else if (tmp <= 87)
+			{
+				discount = 50;
+				if (!missile) i_ptr->number =
+					rand_range((i_ptr->number + 1) / 2,
+					i_ptr->number);
+			}
+
+			/* 8% chance of a 75% discount */
+			else if (tmp <= 95)
+			{
+				discount = 75;
+				if (!missile) i_ptr->number =
+					rand_range((i_ptr->number + 3) / 4,
+					(i_ptr->number + 1) / 2);
+			}
+
+			/* 5% chance of a 90% discount */
+			else
+			{
+				discount = 90;
+				if (!missile) i_ptr->number =
+					rand_range(1, (i_ptr->number + 1) / 2);
+			}
+		}
+
+		/* Special case -- weak ammo is always discounted */
+		if ((missile) && (i_ptr->dd == 1) && (discount < 50)) discount = 50;
+
+		/* Save the discount */
+		i_ptr->cost_adjust = 100 - discount;
+
+
+		/* Special items, especially valuable ones, cost more */
+		if (special && cost > 1000L)
+		{
+			/* Calculate cost increase */
+			long k = div_round(cost - 1000L, 100L);
+
+			/* Never add more than 120% to price */
+			if (k > 120L) k = 120L;
+
+			/* Apply cost adjustment */
+			i_ptr->cost_adjust += (byte)k;
+
+			/* Hack -- neaten (and reduce) discounts */
+			if (i_ptr->cost_adjust < 100)
+			{
+				/* No 75% and 90% discounts, but some 10% ones */
+				if      (i_ptr->cost_adjust <= 50) i_ptr->cost_adjust = 50;
+				else if (i_ptr->cost_adjust <= 75) i_ptr->cost_adjust = 75;
+				else if (i_ptr->cost_adjust <= 90) i_ptr->cost_adjust = 90;
+				else                               i_ptr->cost_adjust = 100;
+			}
+		}
+
+		/* Fix wand and rod pvals */
+		if ((i_ptr->tval == TV_ROD) || (i_ptr->tval == TV_WAND))
+		{
+			i_ptr->pval *= i_ptr->number;
+		}
 
 		/* Attempt to carry the (known) object */
 		(void)store_carry(i_ptr);
@@ -1874,7 +2000,7 @@ static void store_item_create(int k_idx, int level, bool special, int num)
  */
 static void store_adjust(int table_idx)
 {
-	int i, level;
+	int i, j, level;
 	int stock_idx;
 	int tval = 0;
 
@@ -1939,7 +2065,7 @@ static void store_adjust(int table_idx)
 	}
 
 
-	/* Adjust inherant probability of good items  XXX XXX */
+	/* Adjust inherent probability of good items  XXX XXX */
 	switch (store_num)
 	{
 		case STORE_GENERAL:    divisor =  900;  break;
@@ -1965,14 +2091,25 @@ static void store_adjust(int table_idx)
 		if ((tval > 0) && (tval < TV_MAX)) upscale = TRUE;
 	}
 
-	/* Go upscale */
+	/* Go upscale (add +10 to level for "good" quality) */
 	if (upscale)
 	{
 		/* Stock is too large -- sell something */
 		if (st_ptr->stock_num > STORE_MAX_KEEP) store_delete();
 
 		/* Allow fairly high object levels (plus 10 for "good" quality) */
-		level = MIN(rsqrt(st_ptr->total_buy / 785), 50) + 20;
+		if (store_num != STORE_SPELLBOOK)
+		{
+			/* Level 80 (some chance of higher) with 2m invested */
+			level = MIN(rsqrt(st_ptr->total_buy / 785), 50) + 20;
+		}
+
+		/* Special case -- the bookstore */
+		else
+		{
+			/* Harder to get high, but can reach any level */
+			level = rsqrt(st_ptr->total_buy / 370);
+		}
 
 		/* Restrict to our chosen tval */
 		required_tval = tval;
@@ -1992,9 +2129,9 @@ static void store_adjust(int table_idx)
 			k_idx = get_obj_num(level);
 
 			/* Check existing items */
-			for (i = 0; i < st_ptr->stock_num; i++)
+			for (j = 0; j < st_ptr->stock_num; j++)
 			{
-				if (k_idx == st_ptr->stock[i].k_idx)
+				if (k_idx == st_ptr->stock[j].k_idx)
 				{
 					okay = FALSE;
 					break;
@@ -2050,17 +2187,18 @@ static int price_markup(s32b price)
 	/* Markup depends on price */
 	int markup = (2 + rsqrt(price / 150L)) * 2;
 
-	/* Never need to haggle for small stuff (ignore any bad haggles) */
+	/* Never a need to haggle for small stuff (ignore any bad haggles) */
 	if (price < 250L) return (0);
 
 	/* Good hagglers are rewarded, bad ones are penalized */
-	markup -= (2 * st_ptr->good_buy - (4 * st_ptr->bad_buy));
+	markup -= (st_ptr->good_buy * st_ptr->good_buy) -
+	          (4 * st_ptr->bad_buy);
 
 	/* We never get too nasty */
 	if (markup > 33) markup = 33;
 
 	/* If the markup is low, we cancel it entirely */
-	if ((markup <= 4) && (!never_haggle)) markup = 0;
+	if (markup <= 4) markup = 0;
 
 	/* Return */
 	return (markup);
@@ -2080,26 +2218,44 @@ static void display_entry(int item)
 	char o_name[80];
 	char out_val[160];
 	int maxwid;
+	int lines = stock_displayed;
+	int label_attr = TERM_WHITE;
 
 
 	/* Must be on current "page" to get displayed */
-	if (!((item >= store_top) && (item < store_top + 12))) return;
+	if (!((item >= store_top) && (item < store_top + lines))) return;
+
+	/* Highlight the object if necessary */
+	if (item == item_buy_idx) label_attr = TERM_YELLOW;
 
 
 	/* Get the object */
 	o_ptr = &st_ptr->stock[item];
 
 	/* Get the row */
-	y = (item % 12) + 6;
+	y = (item % lines) + 6;
 
-	/* Label it, clear the line --(-- */
+	/* Label it */
 	sprintf(out_val, "%c) ", store_to_label(item));
-	prt(out_val, y, 0);
 
 	/* Describe an item in the home */
 	if (store_num == STORE_HOME)
 	{
 		byte attr;
+
+		/* Print label, clear the line --(-- */
+		if (o_ptr->ident & (IDENT_MENTAL))
+		{
+			c_prt(TERM_L_BLUE, out_val, y, 0);
+		}
+		else if ((object_known_p(o_ptr)) || (object_aware_p(o_ptr)))
+		{
+			prt(out_val, y, 0);
+		}
+		else
+		{
+			c_prt(TERM_L_WHITE, out_val, y, 0);
+		}
 
 		maxwid = 75;
 
@@ -2132,6 +2288,9 @@ static void display_entry(int item)
 	{
 		byte attr;
 
+		/* Clear the line --(-- */
+		prt(out_val, y, 0);
+
 		/* Must leave room for the "price" */
 		maxwid = 65;
 
@@ -2148,14 +2307,21 @@ static void display_entry(int item)
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
 
-		/* Show weights */
+		/* Note that we are buying it */
+		if (item == item_buy_idx)
+		{
+			c_put_str(label_attr, format("(buying %d)", item_buy_num),
+				y, 4 + strlen(o_name));
+		}
+
+		/* Show weights (one space before, for neatness) */
 		if (show_weights)
 		{
 			/* Only show the weight of a single object */
 			int wgt = use_metric ? make_metric(o_ptr->weight) : o_ptr->weight;
 
-			sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
-			put_str(out_val, y, 62);
+			sprintf(out_val, " %3d.%d", wgt / 10, wgt % 10);
+			c_prt(label_attr, out_val, y, 61);
 		}
 
 
@@ -2177,7 +2343,7 @@ static void display_entry(int item)
 		{
 			/* Display the final price */
 			sprintf(out_val, "%8ld", (long)x);
-			c_put_str(TERM_WHITE, out_val, y, 69);
+			c_prt(label_attr, out_val, y, 69);
 		}
 
 		/* Display a "haggle" cost */
@@ -2192,7 +2358,10 @@ static void display_entry(int item)
 
 			/* Display the price (with markup) */
 			sprintf(out_val, "%8ld", (long)x);
-			c_put_str(TERM_L_WHITE, out_val, y, 69);
+			if (item == item_buy_idx)
+				c_put_str(TERM_ORANGE, out_val, y, 69);
+			else
+				c_put_str(TERM_L_WHITE, out_val, y, 69);
 		}
 	}
 }
@@ -2206,9 +2375,10 @@ static void display_entry(int item)
 static void display_inventory(void)
 {
 	int i, k;
+	int lines = stock_displayed;
 
-	/* Display the next 12 items */
-	for (k = 0; k < 12; k++)
+	/* Display the next page of stock */
+	for (k = 0; k < lines; k++)
 	{
 		/* Stop when we run out of items */
 		if (store_top + k >= st_ptr->stock_num) break;
@@ -2218,19 +2388,19 @@ static void display_inventory(void)
 	}
 
 	/* Erase the extra lines and the "more" prompt */
-	for (i = k; i < 13; i++) prt("", i + 6, 0);
+	for (i = k; i < lines + 1; i++) prt("", i + 6, 0);
 
 	/* Assume "no current page" */
 	put_str("        ", 5, 20);
 
 	/* Visual reminder of "more items" */
-	if (st_ptr->stock_num > 12)
+	if (st_ptr->stock_num > lines)
 	{
-		/* Show "more" reminder (after the last object ) */
+		/* Show "more" reminder (after the last object) */
 		prt("-more-", k + 6, 3);
 
 		/* Indicate the "current page" */
-		put_str(format("(Page %d)", store_top / 12 + 1), 5, 20);
+		put_str(format("(Page %d)", store_top / lines + 1), 5, 20);
 	}
 }
 
@@ -2241,10 +2411,10 @@ static void store_prt_gold(void)
 {
 	char out_val[64];
 
-	prt("Gold Remaining: ", 19, 52);
+	prt("Gold Remaining: ", screen_rows - 5, 52);
 
 	sprintf(out_val, "%9ld", (long)p_ptr->au);
-	prt(out_val, 19, 68);
+	prt(out_val, screen_rows - 5, 68);
 }
 
 
@@ -2258,7 +2428,7 @@ static void display_store(void)
 
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
 	/* The "Home" is special */
 	if (store_num == STORE_HOME)
@@ -2310,13 +2480,46 @@ static void display_store(void)
 		put_str("Price", 5, 72);
 	}
 
-	/* Display the current gold */
-	store_prt_gold();
-
 	/* Draw in the inventory */
 	display_inventory();
+
+	/* Display the current gold */
+	store_prt_gold();
 }
 
+
+
+/*
+ * Helper function to browse store inventory
+ */
+static void store_browse_aux(void)
+{
+	int lines = stock_displayed;
+
+	if (st_ptr->stock_num <= lines)
+	{
+		/* Nothing to see */
+		msg_print("Entire inventory is shown.");
+	}
+
+	else if (store_top == 0)
+	{
+		/* Page 2 */
+		store_top = lines;
+
+		/* Redisplay wares */
+		display_inventory();
+	}
+
+	else
+	{
+		/* Page 1 */
+		store_top = 0;
+
+		/* Redisplay wares */
+		display_inventory();
+	}
+}
 
 
 /*
@@ -2369,6 +2572,13 @@ static bool get_stock(int *com_val, cptr pmt)
 
 		/* Escape */
 		if (!get_com(buf, &which)) return (FALSE);
+
+		/* Hack -- Browse the store inventory */
+		if (which == ' ')
+		{
+			store_browse_aux();
+			continue;
+		}
 
 		/* Note verify */
 		verify = (isupper((unsigned char)which) ? TRUE : FALSE);
@@ -2436,6 +2646,8 @@ static void prt_welcome(void)
 {
 	int attitude = rsqrt(st_ptr->total_buy);
 	int i = 0;
+	int dummy;
+
 	char short_name[80];
 	char buf[80];
 	char welcome[80];
@@ -2458,7 +2670,7 @@ static void prt_welcome(void)
 		shopkeeper_short_name(short_name, ot_ptr->owner_name);
 
 		/* Get either the character title or name */
-		if (i == 4) strcpy(buf, get_title(40, FALSE));
+		if (i == 4) strcpy(buf, get_title(40, FALSE, &dummy));
 		else        strcpy(buf, op_ptr->full_name);
 
 		/* Get the comment */
@@ -2795,8 +3007,9 @@ static bool haggle(s32b *price, s32b final_price, bool buying,
 			/* Player accepts the current price */
 			else if (offer == cur_price)
 			{
-				/* Stop haggling */
-				done = TRUE;
+				/* Stop haggling (if final, or price has changed) */
+				if (final || cur_price != *price) done = TRUE;
+
 				break;
 			}
 
@@ -2805,11 +3018,11 @@ static bool haggle(s32b *price, s32b final_price, bool buying,
 		}
 
 		/* Stop haggling */
-		if (final || offer == last_offer) break;
+		if (final || done) break;
 
 
 		/*
-		 * Calculate the percentage of the remaining price diffference the
+		 * Calculate the percentage of the remaining price difference the
 		 * player is surrendering (minimum of 1).
 		 */
 		percent2 = percent = MAX(1, 100L * ABS(last_offer - offer) /
@@ -2941,7 +3154,7 @@ static bool haggle(s32b *price, s32b final_price, bool buying,
  *
  * Return TRUE if purchase is successful.
  */
-static bool buy_and_sell(object_type *o_ptr, s32b *price, bool buying,
+static int buy_and_sell(object_type *o_ptr, s32b *price, bool buying,
 	bool *perfect_haggle)
 {
 	s32b purse, cur_price, final_price;
@@ -3032,8 +3245,15 @@ static bool buy_and_sell(object_type *o_ptr, s32b *price, bool buying,
 	/* Save the initial price */
 	*price = cur_price;
 
-	/* Haggle -- return TRUE if successful */
-	return (haggle(price, final_price, buying, perfect_haggle));
+	/* Haggle */
+	if (haggle(price, final_price, buying, perfect_haggle))
+	{
+		/* Return 2 if fixed price, 1 if haggled */
+		return (final ? 2 : 1);
+	}
+
+	/* Cancelled */
+	return (0);
 }
 
 
@@ -3044,6 +3264,7 @@ static void store_purchase(void)
 {
 	int n;
 	int amt;
+	int markup;
 	bool accept;
 	int item, item_new;
 	bool perfect_haggle = FALSE;
@@ -3058,6 +3279,7 @@ static void store_purchase(void)
 	char o_name[80];
 
 	char out_val[160];
+	int lines = stock_displayed;
 
 
 	/* Empty? */
@@ -3091,11 +3313,38 @@ static void store_purchase(void)
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
 
+
+	/* Determine markup */
+	if (o_ptr->ident & (IDENT_FIXED)) markup = 0;
+	else markup = price_markup(object_value(o_ptr));
+
+	/* Determine price */
+	price = price_item(o_ptr, ot_ptr->min_inflate, FALSE, markup);
+	if (price < 1) price = 1;
+
+	/* Check gold (but only if item is fixed price) */
+	if ((p_ptr->au < price) && (!markup) && (store_num != STORE_HOME))
+	{
+		msg_print("You do not have the gold to buy it.");
+		return;
+	}
+
+
 	/* You can get multiples of anything, except staffs */
 	if (o_ptr->tval != TV_STAFF)
 	{
+		/* Assume we can buy (or get) it all */
+		s32b tmp_amt = o_ptr->number;
+
+		/* Object does not need to be haggled for */
+		if (((!markup) || (never_haggle)) && (store_num != STORE_HOME))
+		{
+			/* Restrict maximum quantity based on price */
+			if (tmp_amt > p_ptr->au / price) tmp_amt = p_ptr->au / price;
+		}
+
 		/* Get a quantity */
-		amt = get_quantity(NULL, o_ptr->number);
+		amt = (int)get_quantity(NULL, 0, tmp_amt);
 	}
 	else
 	{
@@ -3134,15 +3383,34 @@ static void store_purchase(void)
 	/* Attempt to buy it */
 	if (store_num != STORE_HOME)
 	{
-		/* Describe the object (fully) */
-		object_desc_store(o_name, i_ptr, TRUE, 3);
+		/* Output a message if item is not displayed */
+		if (!((item >= store_top) && (item < store_top + lines)))
+		{
+			/* Describe the object (fully) */
+			object_desc_store(o_name, i_ptr, TRUE, 3);
 
-		/* Message */
-		msg_format("Buying %s (%c).", o_name, store_to_label(item));
-		message_flush();
+			/* Message */
+			msg_format("Buying %s (%c).", o_name, store_to_label(item));
+			message_flush();
+		}
+
+		/* If item is displayed, just highlight it */
+		else
+		{
+			item_buy_idx = item;
+			item_buy_num = amt;
+			display_entry(item);
+		}
 
 		/* Haggle for a final price */
 		accept = buy_and_sell(i_ptr, &price, FALSE, &perfect_haggle);
+
+		/* Cancel highlight */
+		item_buy_idx = -1;
+
+		/* Clear the highlight if no purchase */
+		if (!accept) display_entry(item);
+
 
 		/* Hack -- Got kicked out */
 		if (st_ptr->store_open >= turn) return;
@@ -3153,8 +3421,8 @@ static void store_purchase(void)
 			/* Player can afford it */
 			if (p_ptr->au >= price)
 			{
-				/* Say "okay" */
-				say_comment_1(perfect_haggle);
+				/* Say "okay" (unless fixed price) */
+				if (accept < 2) say_comment_1(perfect_haggle);
 
 				/* Be happy */
 				decrease_insults();
@@ -3291,7 +3559,7 @@ static void store_purchase(void)
 				else if (st_ptr->stock_num != n)
 				{
 					/* Only one screen left */
-					if (st_ptr->stock_num <= 12)
+					if (st_ptr->stock_num <= lines)
 					{
 						store_top = 0;
 					}
@@ -3311,6 +3579,9 @@ static void store_purchase(void)
 			/* Player cannot afford it */
 			else
 			{
+				/* Unhighlight the item */
+				display_entry(item);
+
 				/* Simple message (no insult) */
 				msg_print("You do not have enough gold.");
 			}
@@ -3343,7 +3614,7 @@ static void store_purchase(void)
 		if (st_ptr->stock_num != n)
 		{
 			/* Only one screen left */
-			if (st_ptr->stock_num <= 12)
+			if (st_ptr->stock_num <= lines)
 			{
 				store_top = 0;
 			}
@@ -3408,7 +3679,7 @@ static void store_sell(void)
 
 
 	/* Hack -- Cannot remove cursed objects */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	if ((item >= INVEN_WIELD) && cursed_cling(o_ptr))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -3418,7 +3689,7 @@ static void store_sell(void)
 	}
 
 	/* Get a quantity */
-	amt = get_quantity(NULL, o_ptr->number);
+	amt = (int)get_quantity(NULL, 0, o_ptr->number);
 
 	/* Allow user abort */
 	if (amt <= 0) return;
@@ -3466,6 +3737,69 @@ static void store_sell(void)
 		msg_format("Selling %s (%c).", o_name, index_to_label(item));
 		message_flush();
 
+
+		/* The shopkeeper has a 50% chance of discovering hidden curses */
+		if ((i_ptr->flags3 & (TR3_CURSE_HIDDEN)) && (one_in_(2)) &&
+		    (make_cursed_ego_item(i_ptr)))
+		{
+			char buf[80];
+
+			int attitude = rsqrt(st_ptr->total_buy);
+
+			int quantity = o_ptr->number;
+
+			/* Identify the object XXX XXX */
+			object_aware(i_ptr);
+			object_known(i_ptr);
+
+			/* Get name of object kind */
+			strip_name(buf, i_ptr->k_idx);
+
+			/* Describe the object (briefly) */
+			object_desc(o_name, i_ptr, FALSE, 0);
+
+
+			/* What is this?!?! */
+			msg_format("The shopkeeper stares hard at your %s...   ", buf);
+			if (!p_ptr->image)
+				msg_format("Suddenly, it mutates!  It is, in fact, an evilly cursed %s!", o_name);
+
+			/* This doesn't belong in my store! */
+			if (attitude < 50)
+			{
+				msg_print("How dare you peddle this hideous crap here?  GET OUT OF MY STORE!");
+
+				/* Reopen a few hours from now */
+				st_ptr->store_open = turn + rand_range(2000L, 4000L);
+
+				/* Leave */
+				leave_store = TRUE;
+
+			}
+			else if (attitude < 150)
+			{
+				msg_print("AAARGH!  Don't show this sort of thing to me!  It's an insult!");
+
+				/* Become more insulted */
+				increase_insults();
+				if (attitude < 100) increase_insults();
+			}
+			else
+			{
+				msg_print("*Scowls*  Now this I just CANNOT buy.  Please don't let me see it again!");
+			}
+
+			/* Hack -- copy changes back to original object  XXX XXX */
+			object_copy(o_ptr, i_ptr);
+
+			/* Restore old quantity */
+			o_ptr->number = quantity;
+
+			/* Cancel action */
+			return;
+		}
+
+
 		/* Haggle for it */
 		accept = buy_and_sell(i_ptr, &price, TRUE, &perfect_haggle);
 
@@ -3478,8 +3812,8 @@ static void store_sell(void)
 			/* When we haggle right, the whole pile becomes fixed-price */
 			if (perfect_haggle) o_ptr->ident |= (IDENT_FIXED);
 
-			/* Say "okay" */
-			say_comment_1(perfect_haggle);
+			/* Say "okay" (if haggled) */
+			if (accept < 2) say_comment_1(perfect_haggle);
 
 			/* Be happy */
 			decrease_insults();
@@ -3496,6 +3830,29 @@ static void store_sell(void)
 			/* Identify original object */
 			object_aware(o_ptr);
 			object_known(o_ptr);
+
+
+			/* Discover hidden curses */
+			if ((i_ptr->flags3 & (TR3_CURSE_HIDDEN)) &&
+			    (make_cursed_ego_item(i_ptr)))
+			{
+				/* Save old quantity */
+				int quantity = o_ptr->number;
+
+				/* Identify sold object */
+				object_aware(i_ptr);
+				object_known(i_ptr);
+
+				/* Original object also changes  XXX XXX */
+				object_copy(o_ptr, i_ptr);
+
+				/* Restore old quantity */
+				o_ptr->number = quantity;
+
+				/* Note change */
+				msg_print("A hidden curse triggers; the object is not what it appeared to be!");
+			}
+
 
 			/* Combine / Reorder the pack (later) */
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -3521,10 +3878,7 @@ static void store_sell(void)
 			/* Remove special inscription, if any */
 			i_ptr->inscrip = 0;
 
-			/*
-			 * Hack -- Allocate charges between those wands or rods sold
-			 * and retained, unless all are being sold.
-			 */
+			/* Allocate charges of rods/wands */
 			distribute_charges(o_ptr, i_ptr, amt);
 
 			/* Price becomes fixed */
@@ -3548,6 +3902,9 @@ static void store_sell(void)
 			inven_item_describe(item);
 			inven_item_optimize(item);
 
+			/* Store grows richer from good deals  -JM */
+			if (price < value) st_ptr->total_buy += price - value;
+
 			/* Handle stuff */
 			handle_stuff();
 
@@ -3563,7 +3920,7 @@ static void store_sell(void)
 		}
 	}
 
-	/* Player is at home */
+	/* The home */
 	else
 	{
 		/* Distribute charges of wands/rods */
@@ -3636,11 +3993,6 @@ static void store_inspect(void)
 }
 
 
-/*
- * Hack -- set this to leave the store
- */
-static bool leave_store = FALSE;
-
 
 /*
  * Process a command in a store
@@ -3683,40 +4035,10 @@ static void store_process_command(bool inn_cmd)
 			break;
 		}
 
-
 		/* Browse */
 		case ' ':
 		{
-			if (inn_cmd)
-			{
-				legal = FALSE;
-				break;
-			}
-
-			if (st_ptr->stock_num <= 12)
-			{
-				/* Nothing to see */
-				msg_print("Entire inventory is shown.");
-			}
-
-			else if (store_top == 0)
-			{
-				/* Page 2 */
-				store_top = 12;
-
-				/* Redisplay wares */
-				display_inventory();
-			}
-
-			else
-			{
-				/* Page 1 */
-				store_top = 0;
-
-				/* Redisplay wares */
-				display_inventory();
-			}
-
+			store_browse_aux();
 			break;
 		}
 
@@ -3747,9 +4069,9 @@ static void store_process_command(bool inn_cmd)
 		/* Learn about quest monster */
 		case 'r':
 		{
-			/* We're in the inn, and have a quest */
+			/* We're in the inn, have a quest, and have enough money */
 			if ((inn_cmd && p_ptr->cur_quest) &&
-			    (p_ptr->au >= (1 + p_ptr->power + p_ptr->max_depth) * 25))
+			    (p_ptr->au >= (1L + p_ptr->power + p_ptr->max_depth) * 25L))
 			{
 				int r_idx = q_info[quest_num(p_ptr->cur_quest)].r_idx;
 				monster_race *r_ptr = &r_info[r_idx];
@@ -3765,7 +4087,7 @@ static void store_process_command(bool inn_cmd)
 				if (!r_idx) break;
 
 				/* Take some money */
-				p_ptr->au -= (1 + p_ptr->power + p_ptr->max_depth) * 25;
+				p_ptr->au -= MAX(2L, p_ptr->power + p_ptr->max_depth) * 25L;
 
 				/* We have now "seen" this monster */
 				if (!l_ptr->sights) l_ptr->sights = 1;
@@ -3822,12 +4144,105 @@ static void store_process_command(bool inn_cmd)
 			break;
 		}
 
-
 		/* Examine */
 		case 'I':
 		{
 			if (!inn_cmd) store_inspect();
 			else legal = FALSE;
+			break;
+		}
+
+		/* Use special commands */
+		case '*':
+		{
+			/* Only in normal stores */
+			if ((!inn_cmd) && (store_num != STORE_HOME))
+			{
+				char ch;
+
+				/* Prompt */
+				prt("Command (I to invest money, ESC to return)?", 0, 0);
+
+				ch = inkey();
+
+				/* Invest money */
+				if ((ch == 'I') || (ch == 'i'))
+				{
+					s32b invest, tmp32s;
+					char short_name[80];
+
+					invest = get_quantity("Invest how much of your money in the store?", 0, p_ptr->au);
+
+					/* Stay legal */
+					if (invest < 1)
+					{
+						prt("", 0, 0);
+						break;
+					}
+
+					/* Remove money */
+					p_ptr->au -= invest;
+
+					/* Make store richer */
+					st_ptr->total_buy += invest;
+
+					/* Shopkeeper improves his opinion of the character */
+					st_ptr->good_buy += div_round(invest, 10000L);
+					st_ptr->bad_buy  -= div_round(invest, 30000L);
+
+					/* Reduce insults */
+					tmp32s = div_round(invest, 1000L);
+					st_ptr->insult_cur -=
+						MIN(tmp32s, st_ptr->insult_cur);
+
+					/* Get the short shopkeeper name */
+					shopkeeper_short_name(short_name, ot_ptr->owner_name);
+
+					/* Shopkeeper is happy. */
+					if (invest < 100)
+					{
+						msg_format("%s says \"Well, every little bit helps.\".", short_name);
+					}
+					else if (invest < 5000)
+					{
+						msg_format("%s thanks you for your investment.", short_name);
+					}
+					else if (invest < 25000)
+					{
+						msg_format("%s is grateful to you for your investment.", short_name);
+						msg_print("This store may be able to buy higher quality goods.");
+					}
+					else if (invest < 100000L)
+					{
+						msg_format("%s is very grateful to you!", short_name);
+						msg_print("This store will certainly be able to buy higher quality goods.");
+					}
+					else
+					{
+						msg_format("%s is exceedingly grateful to you!", short_name);
+						msg_print("This store will stock some of the finest goods available!");
+					}
+
+					message_flush();
+
+					/* Re-display the store */
+					do_cmd_redraw();
+					display_store();
+				}
+
+#if 0
+				/* This command should also allow shopkeepers to be bought out. */
+				else if ((ch == 'B') || (ch == 'b'))
+				{
+					/* But it's expensive! */
+				}
+#endif
+				/* Clear the message line, wait for other commands */
+				else
+				{
+					prt("", 0, 0);
+				}
+			}
 			break;
 		}
 
@@ -3897,7 +4312,6 @@ static void store_process_command(bool inn_cmd)
 		}
 
 
-
 		/*** Use various objects ***/
 
 		/* Inscribe an object */
@@ -3913,7 +4327,6 @@ static void store_process_command(bool inn_cmd)
 			do_cmd_uninscribe();
 			break;
 		}
-
 
 
 		/*** Help and Such ***/
@@ -3962,7 +4375,7 @@ static void store_process_command(bool inn_cmd)
 		/* Interact with visuals */
 		case '%':
 		{
-			do_cmd_visuals();
+			do_cmd_visuals('\0');
 			break;
 		}
 
@@ -3999,13 +4412,6 @@ static void store_process_command(bool inn_cmd)
 			break;
 		}
 
-		/* Repeat level feeling */
-		case KTRL('F'):
-		{
-			do_cmd_feeling();
-			break;
-		}
-
 		/* Show previous message */
 		case KTRL('O'):
 		{
@@ -4028,13 +4434,6 @@ static void store_process_command(bool inn_cmd)
 			break;
 		}
 
-		/* Load "screen dump" */
-		case '(':
-		{
-			do_cmd_load_screen();
-			break;
-		}
-
 		/* Save "screen dump" */
 		case ')':
 		{
@@ -4054,7 +4453,12 @@ static void store_process_command(bool inn_cmd)
 	/* Not a legal command */
 	if (!legal)
 	{
-		if (!inn_cmd) msg_print("That command does not work in stores.");
+		if (!inn_cmd)
+		{
+			if (store_num != STORE_HOME)
+			     msg_print("That command does not work in stores.");
+			else msg_print("That command does not work in your home.");
+		}
 		else msg_print("That command does not work in the Inn.");
 	}
 }
@@ -4082,8 +4486,7 @@ void do_cmd_store(void)
 
 
 	/* Verify a store */
-	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
+	if (!cave_shop_bold(py, px))
 	{
 		msg_print("You see no store here.");
 		return;
@@ -4130,14 +4533,21 @@ void do_cmd_store(void)
 	store_top = 0;
 
 
-	/* If we are not in 25-line mode */
-	if (old_rows != 25)
-	{
-		/* Clear the screen */
-		Term_clear();
+	/* Clear the screen */
+	(void)Term_clear();
 
-		/* Set to 25 screen rows */
-		Term_rows(FALSE);
+	/* Allow 50 rows for stores other than the inn */
+	if ((text_50_rows) && (store_num != STORE_INN))
+	{
+		(void)Term_rows(TRUE);
+		stock_displayed = 24;
+	}
+
+	/* We don't */
+	else
+	{
+		(void)Term_rows(FALSE);
+		stock_displayed = 12;
 	}
 
 	/* Display the store */
@@ -4159,34 +4569,54 @@ void do_cmd_store(void)
 		tmp_chr = p_ptr->stat_use[A_CHR];
 
 		/* Clear */
-		if (store_num != STORE_INN) clear_from(21);
+		if (store_num != STORE_INN)
+		{
+			clear_from(screen_rows - 4);
+		}
 		else
 		{
-			clear_from(24);
+			clear_from(screen_rows - 1);
 		}
 
 		/* Basic commands  XXX */
-		move_cursor(22, 0);
-		Term_addstr(-1, TERM_WHITE, " ESC) Exit from Building.");
+		move_cursor(screen_rows - 3, 0);
+		(void)Term_addstr(-1, TERM_WHITE, " ESC)   Exit from building.");
+
 
 		/* Browse if necessary */
-		if (st_ptr->stock_num > 12)
+		if (st_ptr->stock_num > stock_displayed)
 		{
-			prt(" SPACE) Next page of stock", 23, 0);
+			prt(" SPACE) Show more stock.", screen_rows - 2, 0);
+		}
+
+		/* Allow special commands */
+		if ((store_num != STORE_HOME) && (store_num != STORE_INN))
+		{
+			prt(" *)     Use special commands.", screen_rows - 1, 0);
 		}
 
 		/* Commands */
 		if (store_num != STORE_INN)
 		{
-			prt(" g) Get/Purchase an item.", 22, 29);
-			prt(" d) Drop/Sell an item.", 23, 29);
+			if (store_num != STORE_HOME)
+			{
+				prt(" g) Purchase an item.", screen_rows - 3, 31);
+				prt(" d) Sell an item.", screen_rows - 2, 31);
+			}
+			else
+			{
+				prt(" g) Get an item.", screen_rows - 3, 31);
+				prt(" d) Drop an item.", screen_rows - 2, 31);
+			}
 
-			prt("   I) Inspect an item.", 22, 55);
-			prt("   ?) Get help.", 23, 55);
+			prt("   I) Inspect an item.", screen_rows - 3, 56);
+			prt("   ?) Get help.", screen_rows - 2, 56);
+
+
 		}
 
 		/* Prompt */
-		prt("You may: ", 21, 0);
+		prt("You may: ", screen_rows - 4, 0);
 
 		/* Get a command */
 		request_command(TRUE);
@@ -4203,7 +4633,7 @@ void do_cmd_store(void)
 		/* Pack Overflow XXX XXX XXX */
 		if (inventory[INVEN_PACK].k_idx)
 		{
-			int item = INVEN_PACK;
+			int item = INVEN_PACK - p_ptr->pack_size_reduce;
 
 			object_type *o_ptr = &inventory[item];
 
@@ -4305,15 +4735,14 @@ void do_cmd_store(void)
 
 
 	/* Clear the screen */
-	Term_clear();
+	(void)Term_clear();
 
-	/* Set to 50 screen rows, if we were showing 50 before */
-	if (old_rows == 50)
+	/* Set to original screen rows, if different */
+	if (old_rows != screen_rows)
 	{
 		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
-		Term_rows(TRUE);
+		(void)Term_rows(old_rows == 50 ? TRUE : FALSE);
 	}
-
 
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -4413,7 +4842,7 @@ void store_maint(int num, bool full)
 		return;
 	}
 
-	/* We're rebulding the stock */
+	/* We're rebuilding the stock */
 	if (full)
 	{
 		/* Total forgiveness */
@@ -4437,14 +4866,17 @@ void store_maint(int num, bool full)
 		store_adjust(0);
 	}
 
-	/* Shopkeepers talk to each other about big spenders */
-	for (i = 0; i < MAX_STORES; i++)
+	/* During gameplay, handle other effects */
+	if (!full)
 	{
-		/* Credit at all stores is at least 1/25th that at the best store */
-		if (st_ptr->total_buy < store[i].total_buy / 25)
+		/* Shopkeepers talk to each other about big spenders */
+		for (i = 0; i < MAX_STORES; i++)
 		{
-			/* (Remove this later)  XXX XXX */
-			st_ptr->total_buy = store[i].total_buy / 25;
+			/* Credit at all stores is at least 1/9th that at the best */
+			if (st_ptr->total_buy < store[i].total_buy / 9)
+			{
+				st_ptr->total_buy = store[i].total_buy / 9;
+			}
 		}
 	}
 
@@ -4475,11 +4907,11 @@ void store_init(int which)
 
 
 	/* Initialize the store */
-	st_ptr->store_open = 0;
 	st_ptr->insult_cur = 0;
 	st_ptr->good_buy = 0;
 	st_ptr->bad_buy = 0;
-	st_ptr->total_buy = 0;
+	st_ptr->store_open = 0L;
+	st_ptr->total_buy = 0L;
 
 	/* Nothing in stock */
 	st_ptr->stock_num = 0;

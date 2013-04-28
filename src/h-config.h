@@ -11,8 +11,8 @@
  * A lot of these definitions take effect in "h-system.h"
  *
  * Note that most of these "options" are defined by the compiler,
- * the "Makefile", the "project file", or something similar, and
- * should not be defined by the user.
+ * the "Makefile", the "project file", system libraries or something
+ * similar, and should not be defined by the user.
  */
 
 #ifndef INCLUDED_H_CONFIG_H
@@ -120,11 +120,11 @@
 #endif
 
 /*
- * Extract the "ACORN" flag from the compiler
+ * Extract the "RISCOS" flag from the compiler
  */
 #ifdef __riscos
-# ifndef ACORN
-#  define ACORN
+# ifndef RISCOS
+#  define RISCOS
 # endif
 #endif
 
@@ -181,8 +181,18 @@
  * OPTION: Define "L64" if a "long" is 64-bits.  See "h-types.h".
  * The only such platform that angband is ported to is currently
  * DEC Alpha AXP running OSF/1 (OpenVMS uses 32-bit longs).
+ *
+ * Try to use __WORDSIZE to test for 64-bit platforms.
+ * I don't know how portable this is.
+ * -CJN-
  */
-#if defined(__alpha) && defined(__osf__)
+#ifdef __WORDSIZE
+# if __WORDSIZE == 64
+#  define L64
+# endif
+#endif
+
+#if defined(__alpha) && defined(__osf__) && !defined(L64)
 # define L64
 #endif
 
@@ -197,21 +207,22 @@
  * functions to extract user names and expand "tildes" in filenames.
  * It is also used for "locking" and "unlocking" the score file.
  * Basically, SET_UID should *only* be set for "UNIX" machines,
- * or for the "Atari" platform which is Unix-like, apparently
+ * or for the "Atari" platform which is Unix-like, apparently.
  */
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
     !defined(MSDOS) && !defined(USE_EMX) && \
-    !defined(AMIGA) && !defined(ACORN) && !defined(VM)
+    !defined(AMIGA) && !defined(RISCOS)
 # define SET_UID
 #endif
 
 
 /*
  * OPTION: Set "USG" for "System V" versions of UNIX
- * This is used to choose a "lock()" function, and to choose
- * which header files ("string.h" vs "strings.h") to include.
- * It is also used to allow certain other options, such as options
- * involving userid's, or multiple users on a single machine, etc.
+ *
+ * This was used to choose a "lock()" function, before POSIX locking
+ * was introduced.
+ *
+ * It is also used by main-gcu for certain system specific stuff.
  */
 #ifdef SET_UID
 # if defined(SYS_III) || defined(SYS_V) || defined(SOLARIS) || \
@@ -227,10 +238,8 @@
  * Every system seems to use its own symbol as a path separator.
  * Default to the standard UNIX slash, but attempt to change this
  * for various other systems.  Note that any system that uses the
- * "period" as a separator (i.e. ACORN) will have to pretend that
+ * "period" as a separator (i.e. RISCOS) will have to pretend that
  * it uses the slash, and do its own mapping of period <-> slash.
- * Note that the VM system uses a "flat" directory, and thus uses
- * the empty string for "PATH_SEP".
  */
 #undef PATH_SEP
 #define PATH_SEP "/"
@@ -254,16 +263,13 @@
 # undef PATH_SEP
 # define PATH_SEP "/"
 #endif
-#ifdef VM
-# undef PATH_SEP
-# define PATH_SEP ""
-#endif
+
 
 
 /*
  * The Macintosh allows the use of a "file type" when creating a file
  */
-#if defined(MACINTOSH) && !defined(applec)
+#if defined(MACINTOSH) || defined(MACH_O_CARBON)
 # define FILE_TYPE_TEXT 'TEXT'
 # define FILE_TYPE_DATA 'DATA'
 # define FILE_TYPE_SAVE 'SAVE'
@@ -276,15 +282,11 @@
 /*
  * OPTION: See the Makefile(s), where several options may be declared.
  *
- * Some popular options include "USE_GCU" (allow use with UNIX "curses"),
- * "USE_X11" (allow basic use with UNIX X11), "USE_XAW" (allow use with
- * UNIX X11 plus the Athena Widget set), and "USE_CAP" (allow use with
- * the "termcap" library, or with hard-coded vt100 terminals).
- *
- * The old "USE_NCU" option has been replaced with "USE_GCU".
- *
- * Several other such options are available for non-unix machines,
- * such as "MACINTOSH", "WINDOWS", "USE_IBM", "USE_EMX".
+ * Options for unix machines include:
+ * "USE_GCU" (allow use with UNIX "curses"),
+ * "USE_X11" (allow basic use with UNIX X11),
+ * "USE_XAW" (allow use with UNIX X11 plus the Athena widget set).
+ * "USE_GTK" (allow use with the GTK widget set library)
  *
  * You may also need to specify the "system", using defines such as
  * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
@@ -320,8 +322,9 @@
 /*
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
  * Hack -- This option will not work on most BSD machines
+ * But it *will* work on Linux, which is not System V.  -uav
  */
-#ifdef SYS_V
+#if defined (SYS_V) || defined(linux)
 # define USE_CURS_SET
 #endif
 
@@ -366,7 +369,7 @@
  * for storing pref-files and character-dumps.
  */
 #ifdef SET_UID
-#define PRIVATE_USER_PATH "~/.angband"
+#define PRIVATE_USER_PATH "~/.sangband"
 #endif /* SET_UID */
 
 
@@ -379,6 +382,18 @@
 
 
 /*
+ * Hack -- Mach-O (native binary format of OS X) is basically a Un*x
+ * but has Mac OS/Windows-like user interface
+ */
+#ifdef MACH_O_CARBON
+# ifdef SAVEFILE_USE_UID
+#  undef SAVEFILE_USE_UID
+# endif
+#endif
+
+
+
+/*
  * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
  * the '-d<what>=<path>' command line option (except for '-du=<path>').
  *
@@ -388,14 +403,6 @@
 #ifdef SET_UID
 #define FIXED_PATHS
 #endif /* SET_UID */
-
-
-/*
- * OPTION: Capitalize the "user_name" (for "default" player name)
- * This option is only relevant on SET_UID machines.
- */
-#define CAPITALIZE_USER_NAME
-
 
 
 
@@ -451,31 +458,17 @@
 #define DEFAULT_X11_FONT_0		"10x20"
 #define DEFAULT_X11_FONT_1		"9x15"
 #define DEFAULT_X11_FONT_2		"9x15"
-#define DEFAULT_X11_FONT_3		"5x8"
-#define DEFAULT_X11_FONT_4		"5x8"
-#define DEFAULT_X11_FONT_5		"5x8"
-#define DEFAULT_X11_FONT_6		"5x8"
-#define DEFAULT_X11_FONT_7		"5x8"
+#define DEFAULT_X11_FONT_3		"6x10"
+#define DEFAULT_X11_FONT_4		"6x10"
+#define DEFAULT_X11_FONT_5		"6x10"
+#define DEFAULT_X11_FONT_6		"6x10"
+#define DEFAULT_X11_FONT_7		"6x10"
 
 
 /*
- * OPTION: Default small font (when using X11) (only for main window).
+ * OPTION: Default small font (when using X11) (only for main window in 50-line mode).
  */
-#define DEFAULT_X11_SFONT_0		"-*-fixed-*-r-normal--10-*-*-*-*-100-iso8859-1"
-
-/*
- * OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
- */
-/* #define HAS_STRICMP */
-
-/*
- * Linux has "stricmp()" with a different name
- */
-#if defined(linux)
-# define HAS_STRICMP
-# define stricmp(S,T) strcasecmp((S),(T))
-#endif
-
+#define DEFAULT_X11_SFONT_0		"7x13"
 
 
 /*
@@ -492,6 +485,12 @@
 
 
 
-#endif
+/*
+ * OPTION: Check the modification time of *.raw files
+ */
+#define CHECK_MODIFICATION_TIME
 
+
+
+#endif  /* INCLUDED_H_CONFIG_H */
 

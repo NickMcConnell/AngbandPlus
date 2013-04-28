@@ -4,7 +4,7 @@
      I owe more to more people than I ever have before.  Nothing could have been accomplished save for the designers of variants popular and unknown, independant coders, authors, and idea contributors, and a superb (and very patient) group of players.
 
 
-     Note that the sources credited are usually, but not always, the original creators.  If you feel anything below is incorrect, please email me at "leon2m@sprintmail.com".
+     Note that the sources credited are usually, but not always, the original creators.  If you feel anything below is incorrect, please email me at "sangband@runegold.org".
 
 --------------------------------------------------------------------------
 
@@ -65,6 +65,11 @@ Hengband
 - character titles, etc.
 - The Throwing Hammer 'Mjollnir'
 
+NPPAngband
+- The color change interface
+- The idea and some code to allow burglars to steal objects (instead of gold) from monsters.  Code for wary monsters.
+- A large number of smaller but useful enhancements and bugfixes
+
 PsiAngband
 - some psionic effects, backlashes
 - the basic concept of traps that use objects to attack monsters
@@ -86,7 +91,6 @@ UnAngband
 - Gemstone monsters
 - clouds that surround monsters
 - various other ideas
-
 
 Zangband (usually Topi Ylinen, Robert Ruehlmann, or Steven Fuerst unless otherwise noted)
 - Wonder, Exorcism, Invoke Spirits, Dimension door, Doom Bolts, one or two other spell ideas.  Also some code.
@@ -113,11 +117,14 @@ Jurrian Kalkman
 Heino Vander Sanden
 - idea for collapsing ceilings
 
-JDL
+Julian Lighton
 - project_hack affects monsters in two passes, which avoids trouble if monster deaths have side-effects.
 
 Jim Lyon:
 - helpful review of inscriptions, macros, and preference files.
+
+Hugo Kornelis
+- Basic idea - use "movement moments" - that, when implemented, finally solved the movement clumping bug.
 
 Joseph W. Dixon
 - changes to some color definitions
@@ -126,16 +133,27 @@ Paul Sexton, by way of Zangband
 - potion smash effects
 
 Tom Morton
-- Object naming through inscriptions
+- Original idea for object naming through inscriptions
 
 Takeshi Mogami
-- the X11 port
+- basic X11 porting
 - ability to cancel skill advances
 - code to rewrite, instead of appending to, options files.  Very important.
 - changes to the targeting and object-selection code
 - a large number of bug reports and suggestions.  The guy who fixed a particularly nasty bug in "get_closest_los_monster()"
 
+Christer Nyfält
+- Cleaned up X11 port with reasonable support for 50-line mode.
+- GTK port
+- Corrections to system-specific code, some cleanup of header, config, and term files
+- reorganization of file-handling code into a separate module:  z-file.c and z-file.h
+- POSIX file locking
+- Updates for various UNIX and Linux defines and preferences.
+- Error suppresion of various sorts
+- Many excellent ideas about gameplay and interface
+
+
 Tua Xiong
-- The dragon art in "news.txt"
+- The dragon art in "news.txt".  His authorship of this magnificant piece of ASCII art is not accepted by all parties, and you will sometimes see the dragon without any signature, but my best attempts to research the matter indicate that Tua Xiong's is the only name that we can reasonably assign.
 
 

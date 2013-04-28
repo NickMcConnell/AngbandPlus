@@ -19,6 +19,143 @@
 #include "angband.h"
 
 
+/*
+ * Food hits a monster, observe effects
+ *
+ * If "who" is -1, use throwing skill for some things.
+ * If "who" is -2, use burglary skill for some things.
+ * Otherwise, use character power  XXX XXX
+ *
+ * We never explicitly notice anything ('shrooms are meant to be eaten),
+ * but the observant player can avoid certain items by watching for and
+ * remembering their effects.
+ *
+ * We could use user-editable dice and sides to control damage and power,
+ * but this would require a deal of coding in various places not to be
+ * misleading for some items.
+ */
+void food_hit_effect(int who, int y, int x, object_type *o_ptr)
+{
+	int typ = 0;
+	int dam = 0;
+	u32b flg;
+
+	/* By default, use character power for effects */
+	int skill = S_NOSKILL;
+
+	/* If "who" is -1, use throwing skill for some things. */
+	if (who == -1) skill = S_THROWING;
+
+	/* If "who" is -2, use burglary skill for some things. */
+	if (who == -2) skill = S_BURGLARY;
+
+
+	/* Analyze the food */
+	switch (o_ptr->sval)
+	{
+		case SV_FOOD_BLINDNESS:
+		case SV_FOOD_CONFUSION:
+		case SV_FOOD_HALLUCINATION:
+		{
+			typ = GF_DO_CONF;
+			dam = get_skill(skill, 20, 65);
+			break;
+		}
+
+		case SV_FOOD_PARANOIA:
+		{
+			typ = GF_DO_FEAR;
+			dam = get_skill(skill, 20, 65);
+			break;
+		}
+
+		case SV_FOOD_PARALYSIS:
+		{
+			typ = GF_DO_SLEEP;
+			dam = get_skill(skill, 25, 75);
+			break;
+		}
+
+		case SV_FOOD_POISON:
+		{
+			typ = GF_POIS;
+			dam = get_skill(skill, 10, 30);
+			break;
+		}
+
+		case SV_FOOD_ENVENOMATION:
+		{
+			typ = GF_POIS;
+			dam = get_skill(skill, 30, 150);
+			break;
+		}
+
+		case SV_FOOD_SICKNESS:
+		{
+			typ = GF_POIS;
+			dam = get_skill(skill, 20, 60);
+			break;
+		}
+
+		case SV_FOOD_DISEASE:
+		{
+			typ = GF_POIS;
+			dam = get_skill(skill, 40, 150);
+			break;
+		}
+
+		case SV_FOOD_RUINATION:
+		{
+			typ = GF_POIS;
+			dam = get_skill(skill, 60, 250);
+			break;
+		}
+
+		case SV_FOOD_METAMORPHOSIS:
+		{
+			typ = GF_DO_POLY;
+			dam = get_skill(skill, 40, 120);
+			break;
+		}
+
+		case SV_FOOD_REGEN_MANA:
+		{
+			typ = GF_MANA;
+			dam = get_skill(skill, 0, 100);
+			break;
+		}
+
+		/* No special effects for most things */
+		default:
+		{
+			/* Most things must be thrown or used in a trap */
+			if (who)
+			{
+				typ = GF_HURT;
+
+				/* Damage ranges from 0.5x to 1.5x normal */
+				dam = damroll(o_ptr->dd, o_ptr->ds) * get_skill(skill, 5, 15);
+				dam = div_round(dam, 10);
+			}
+			break;
+		}
+	}
+
+	/* No damage, no effects */
+	if (!dam) return;
+
+
+	/* Jump to target, no graphics, ignore objects and the dungeon */
+	flg = PROJECT_BOOM | PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAY |
+	      PROJECT_HIDE;
+
+	/* Cast the projection, do not notice effects */
+	(void)project((who < -1 ? -1 : who), 0, y, x, y, x, dam,
+	              typ, flg, 0, 0);
+}
+
+
+
 
 /*
  * Smash a potion, observe effects
@@ -45,10 +182,11 @@ bool potion_smash_effect(int who, int y, int x, object_type *o_ptr)
 	int dice, sides;
 	u32b flg;
 
-	int skill = 0;
+	int skill = S_NOSKILL;
+	bool notice;
 
 
-	/* Potions are not allowed to smash */
+	/* Check if potions are allowed to smash */
 	if (!allow_activate) return (FALSE);
 
 
@@ -65,7 +203,10 @@ bool potion_smash_effect(int who, int y, int x, object_type *o_ptr)
 		case SV_POTION_GRENADE:
 		{
 			int dummy, p = o_ptr->pval;
+
+			/* Pval of potion -> sval of essence -> kind of magic */
 			typ = essence_to_magic(&dummy, &p);
+
 			dam = damroll(o_ptr->dd, o_ptr->ds);
 			rad = 1 + div_round(dam, 100);
 			break;
@@ -74,8 +215,8 @@ bool potion_smash_effect(int who, int y, int x, object_type *o_ptr)
 		case SV_POTION_SLOWNESS:
 		{
 			typ = GF_DO_SLOW;
-			if (who < 0) dam = get_skill(skill, 10, 65);
-			else         dam = 10;
+			if (who < 0) dam = get_skill(skill, 20, 75);
+			else         dam = 20;
 			break;
 		}
 
@@ -89,30 +230,25 @@ bool potion_smash_effect(int who, int y, int x, object_type *o_ptr)
 		}
 
 		case SV_POTION_BLINDNESS:
-		{
-			typ = GF_DARK;
-			break;
-		}
-
 		case SV_POTION_CONFUSION:
 		{
 			typ = GF_DO_CONF;
-			if (who < 0) dam = get_skill(skill, 8, 63);
-			else         dam = 8;
+			if (who < 0) dam = get_skill(skill, 20, 65);
+			else         dam = 20;
 			break;
 		}
 
 		case SV_POTION_SLEEP:
 		{
 			typ = GF_DO_SLEEP;
-			if (who < 0) dam = get_skill(skill, 10, 65);
-			else         dam = 10;
+			if (who < 0) dam = get_skill(skill, 20, 70);
+			else         dam = 20;
 			break;
 		}
 
 		case SV_POTION_LOSE_MEMORIES:
 		{
-			typ = GF_DEATH;
+			typ = GF_FORGET;
 			if (who < 0) dice = get_skill(skill, 5, 20);
 			else         dice = 10;
 			dam = damroll(dice, 8);
@@ -128,9 +264,8 @@ bool potion_smash_effect(int who, int y, int x, object_type *o_ptr)
 		case SV_POTION_DEC_CHR:
 		{
 			typ = GF_CURSE;
-			if (who < 0) dice = get_skill(skill, 5, 20);
-			else         dice = 10;
-			dam = damroll(dice, 8);
+			if (who < 0) dam = get_skill(skill, 20, 80);
+			else         dam = 40;
 			break;
 		}
 
@@ -268,11 +403,36 @@ bool potion_smash_effect(int who, int y, int x, object_type *o_ptr)
 	/* Special case -- tone down accidental destruction of potions */
 	if (!who) dam /= 3;
 
-	/* Hack -- Allow differing "characters" */
-	if (who < -1) who = -1;
 
 	/* Cast the projection, notice effects, reset "allow_activate" */
-	return (project(who, rad, y, x, y, x, dam, typ, flg, 0, 0));
+	notice = project((who < -1 ? -1 : who),
+		rad, y, x, y, x, dam, typ, flg, 0, 0);
+
+
+	/* If the character or his traps smashed the potion, learn about it */
+	if ((who < 0) && (notice))
+	{
+		if (object_aware_p(o_ptr))
+		{
+			learn_details(o_ptr);
+		}
+
+		/* Throwing a potion is less effective than observing a trap */
+		else if ((who == -2) || (one_in_(3)))
+		{
+			char o_name[80];
+
+			object_aware(o_ptr);
+
+			/* Describe the object */
+			strip_name(o_name, o_ptr->k_idx);
+
+			/* Message */
+			msg_format("That was a Potion of %s that just exploded.", o_name);
+		}
+	}
+
+	return (notice);
 }
 
 
@@ -300,6 +460,8 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 	int fy, fx;
 
 	char m_name[80];
+
+	int skill = get_skill(S_BURGLARY, 0, 100);
 
 
 	/* Forbid scrolls from activating more scrolls or potions */
@@ -331,7 +493,7 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 	fy = m_ptr->fy;     fx = m_ptr->fx;
 
 	/* Get a monster description */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0x40);
 
 
 	/* Object level */
@@ -360,27 +522,22 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 
 		case SV_SCROLL_SUMMON_MONSTER:
 		{
-			for (k = 0; k < randint(3); k++)
+			if (summon_specific(fy, fx, FALSE, p_ptr->depth + 2, 0,
+				randint(3)))
 			{
-				if (summon_specific(fy, fx, FALSE, p_ptr->depth + 2, 0))
-				{
-					/* Assume "noticed"  XXX XXX */
-					notice = TRUE;
-				}
+				/* Assume "noticed"  XXX XXX */
+				notice = TRUE;
 			}
 			break;
 		}
 
 		case SV_SCROLL_SUMMON_UNDEAD:
 		{
-			for (k = 0; k < randint(3); k++)
+			if (summon_specific(fy, fx, FALSE, p_ptr->depth + 3,
+				SUMMON_UNDEAD, randint(3)))
 			{
-				if (summon_specific(fy, fx, FALSE, p_ptr->depth + 3,
-					SUMMON_UNDEAD))
-				{
-					/* Assume "noticed"  XXX XXX */
-					notice = TRUE;
-				}
+				/* Assume "noticed"  XXX XXX */
+				notice = TRUE;
 			}
 			break;
 		}
@@ -389,15 +546,12 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 		{
 			notice = explosion(who, 3, fy, fx, 5, GF_DARK_WEAK);
 
-			for (k = 0; k < 6; k++)
+			if (summon_specific(fy, fx, FALSE,
+					MAX(p_ptr->depth, lev) + 3, SUMMON_HI_DEMON, 6))
 			{
-				if (summon_specific(fy, fx, FALSE,
-				        MAX(p_ptr->depth, lev) + 3, SUMMON_HI_DEMON))
-				{
-					/* Assume "noticed"  XXX XXX */
-					notice = TRUE;
-				}
+				notice = TRUE;
 			}
+
 			break;
 		}
 
@@ -411,12 +565,12 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 		{
 			/* Check for resistance */
 			pow = 10;
-			if (r_ptr->flags3 & (RF3_RES_NEXUS)) pow = 5;
+			if (r_ptr->flags3 & (RF3_RES_NEXUS)) pow = 4;
 			if (r_ptr->flags3 & (RF3_RES_TPORT)) pow = 0;
 
 			if (pow)
 			{
-				teleport_away(m_idx, pow);
+				teleport_away(m_idx, pow, FALSE);
 				if (player_can_see_bold(fy, fx)) notice = TRUE;
 			}
 			break;
@@ -426,12 +580,12 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 		{
 			/* Check for resistance */
 			pow = 100;
-			if (r_ptr->flags3 & (RF3_RES_NEXUS)) pow = 50;
+			if (r_ptr->flags3 & (RF3_RES_NEXUS)) pow = 20;
 			if (r_ptr->flags3 & (RF3_RES_TPORT)) pow = 0;
 
 			if (pow)
 			{
-				teleport_away(m_idx, pow);
+				teleport_away(m_idx, pow, FALSE);
 				if (player_can_see_bold(fy, fx)) notice = TRUE;
 			}
 			break;
@@ -493,20 +647,21 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 
 		case SV_SCROLL_MONSTER_CONFUSION:
 		{
-			notice = explosion(who, 0, fy, fx, 2 * p_ptr->depth / 3, GF_DO_CONF);
+			notice = explosion(who, 0, fy, fx, 15 + 7 * skill / 10,
+				GF_DO_CONF);
 			break;
 		}
 
 		case SV_SCROLL_RUNE_OF_PROTECTION:
 		{
-			notice = explosion(who, 0, fy, fx, 75 + p_ptr->depth, GF_HOLY_ORB);
+			notice = explosion(who, 0, fy, fx, 75 + skill, GF_HOLY_ORB);
 			break;
 		}
 
 		case SV_SCROLL_STAR_DESTRUCTION:
 		{
 			msg_print("You hear a terrible explosion!");
-			destroy_area(fy, fx, 15, TRUE);
+			destroy_area(fy, fx, 15, TRUE, FALSE);
 
 			/* You have our attention. */
 			notice = TRUE;
@@ -532,8 +687,11 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 			x_list[k].y0 = x_list[k].y1 = fy;
 			x_list[k].x0 = x_list[k].x1 = fx;
 
+			/* Practices the burglary (trap-setting) skill */
+			x_list[k].practice_skill = S_BURGLARY;
+
 			/* It attacks every 10 -> 5 game turns, */
-			x_list[k].time_delay = 10 - p_ptr->power / 20;
+			x_list[k].time_delay = 10 - skill / 20;
 
 			/* Does damage, has a large radius, */
 			x_list[k].power = rand_range(12, 16);
@@ -549,7 +707,7 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 		case SV_SCROLL_NEXUS_STORM:
 		{
 			/* Fire a storm of nexus beams */
-			fire_storm(-1, GF_NEXUS, fy, fx, 75, 13, 5, 30, 1, FALSE);
+			fire_storm(-1, GF_NEXUS, fy, fx, 75, 13, 5, 1, FALSE);
 
 			notice = TRUE;
 			break;
@@ -631,6 +789,27 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 	/* Hack -- allow certain scrolls to be "preserved" */
 	if (!used_up) return (0);
 
+	/* If the character or his traps activated the scroll, learn about it */
+	if ((who < 0) && (notice))
+	{
+		if (object_aware_p(o_ptr))
+		{
+			learn_details(o_ptr);
+		}
+		else
+		{
+			char o_name[80];
+
+			object_aware(o_ptr);
+
+			/* Describe the object */
+			strip_name(o_name, o_ptr->k_idx);
+
+			/* Message */
+			msg_format("That was a Scroll of %s that just activated.", o_name);
+		}
+	}
+
 	/* Return "noticed" */
 	return (notice ? 1 : -1);
 }
@@ -643,8 +822,10 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
  *
  * The explosions of devices can activate more devices, causing endless
  * loops.  We therefore use a special "allow_activate" flag.  XXX XXX
+ *
+ * When called from a monster trap, "power" may be as great as 136.
  */
-bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
+bool device_use_effect(int mode, int power, int y, int x, object_type *o_ptr)
 {
 	monster_race *r_ptr;
 	monster_type *m_ptr;
@@ -653,7 +834,10 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 
 	bool notice = FALSE;
 
-	int k, lev, dam, pow, m_idx;
+	int lev, dam, pow, m_idx;
+
+	int who = mode;
+	if (who < -1) who = -1;
 
 
 	/* Forbid devices from activating more devices */
@@ -702,43 +886,130 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 
 			case SV_STAFF_SLOWNESS:
 			{
-				dam = 15 + power / 4;
-				notice = explosion(who, 0, y, x, dam, GF_DO_SLOW);
+				dam = 5 + power / 4;
+				notice = project_los(y, x, dam, GF_DO_SLOW);
 				break;
 			}
 
 			case SV_STAFF_HASTE_MONSTERS:
 			{
-				notice = explosion(who, 0, y, x, 0, GF_DO_SPEED);
+				notice = project_los(y, x, 0, GF_DO_SPEED);
 				break;
 			}
 
 			case SV_STAFF_SUMMONING:
 			{
-				for (k = 0; k < randint(4); k++)
-				{
-					if (summon_specific(y, x, FALSE, p_ptr->depth + 3, 0))
+				if (summon_specific(y, x, FALSE, p_ptr->depth + 3, 0, 4))
 						notice = TRUE;
-				}
+				break;
+			}
+
+			case SV_STAFF_MAPPING:
+			{
+				/* Set detection center to this grid */
+				detect_y = y;
+				detect_x = x;
+
+				/* Use extended mapping */
+				map_area(y, x, TRUE);
+				break;
+			}
+
+			case SV_STAFF_DETECT_GOLD:
+			{
+				/* Set detection center to this grid */
+				detect_y = y;
+				detect_x = x;
+
+				/* Detect gold and treasure */
+				if (detect_treasure(TRUE)) notice = TRUE;
+				if (detect_objects_gold(TRUE)) notice = TRUE;
+				break;
+			}
+
+			case SV_STAFF_DETECT_ITEM:
+			{
+				/* Set detection center to this grid */
+				detect_y = y;
+				detect_x = x;
+
+				/* Detect objects */
+				if (detect_objects_normal(TRUE)) notice = TRUE;
+				break;
+			}
+
+			case SV_STAFF_DETECT_TRAP:
+			{
+				/* Set detection center to this grid */
+				detect_y = y;
+				detect_x = x;
+
+				/* Detect traps */
+				if (detect_traps(TRUE, FALSE)) notice = TRUE;
+				break;
+			}
+
+			case SV_STAFF_DETECT_DOOR:
+			{
+				/* Set detection center to this grid */
+				detect_y = y;
+				detect_x = x;
+
+				/* Detect doors and stairs */
+				if (detect_doors(TRUE)) notice = TRUE;
+				if (detect_stairs(TRUE)) notice = TRUE;
+				break;
+			}
+
+			case SV_STAFF_DETECT_INVIS:
+			{
+				/* Set detection center to this grid */
+				detect_y = y;
+				detect_x = x;
+
+				/* Detect invisible monsters */
+				if (detect_monsters_invis(TRUE, FALSE)) notice = TRUE;
+				break;
+			}
+
+			case SV_STAFF_DETECT_EVIL:
+			{
+				/* Set detection center to this grid */
+				detect_y = y;
+				detect_x = x;
+
+				/* Detect evil */
+				if (detect_evil(TRUE, FALSE)) notice = TRUE;
+				break;
+			}
+
+			case SV_STAFF_DETECTION:
+			{
+				/* Set detection center to this grid */
+				detect_y = y;
+				detect_x = x;
+
+				/* Detect many things */
+				if (detect_all(FALSE, FALSE)) notice = TRUE;
 				break;
 			}
 
 			case SV_STAFF_TELEPORTATION:
 			{
 				pow = 100;
-				if (r_ptr->flags3 & (RF3_RES_NEXUS)) pow = 50;
+				if (r_ptr->flags3 & (RF3_RES_NEXUS)) pow = 20;
 				if (r_ptr->flags3 & (RF3_RES_TPORT)) pow = 0;
 
 				if (player_can_see_bold(y, x)) notice = TRUE;
 
-				if (pow) teleport_away(m_idx, pow);
+				if (pow) teleport_away(m_idx, pow, FALSE);
 				break;
 			}
 
 			case SV_STAFF_STARLIGHT:
 			{
 				dam = 20 + power / 4;
-				pow = rand_range(10, 30);
+				pow = rand_range(15, 25);
 
 				/* Starlight */
 				notice = beam_burst(y, x, GF_LITE, pow, dam);
@@ -754,21 +1025,37 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 			case SV_STAFF_BANISHMENT:
 			{
 				p_ptr->proj_mon_flags = (RF3_EVIL);
-				notice = explosion(who, 9, y, x, 40, GF_AWAY);
+				notice = project_los(y, x, 40, GF_AWAY);
+				break;
+			}
+
+			case SV_STAFF_CURE_MEDIUM:
+			{
+				notice = explosion(who, 0, y, x, 40 + power / 3, GF_DO_HEAL);
+				break;
+			}
+
+			case SV_STAFF_HEALING:
+			{
+				notice = explosion(who, 0, y, x, 300, GF_DO_HEAL);
 				break;
 			}
 
 			case SV_STAFF_SLEEP_MONSTERS:
 			{
-				pow = 10 + power / 3;
-				notice = explosion(who, 9, y, x, pow, GF_DO_SLEEP);
+				pow = 25 + power / 2;
+
+				/* Maximum-diameter cloud of sleeping */
+				notice = project_los(y, x, pow, GF_DO_SLEEP);
 				break;
 			}
 
 			case SV_STAFF_SLOW_MONSTERS:
 			{
-				pow = 10 + power / 3;
-				notice = explosion(who, 9, y, x, pow, GF_DO_SLOW);
+				pow = 25 + power / 2;
+
+				/* Maximum-diameter cloud of slowing */
+				notice = project_los(y, x, pow, GF_DO_SLOW);
 				break;
 			}
 
@@ -787,46 +1074,27 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 
 			case SV_STAFF_DISPEL_EVIL:
 			{
+				pow = 40 + power / 3;
+
 				p_ptr->proj_mon_flags = (RF3_EVIL);
-				notice = explosion(who, 9, y, x, 55, GF_DISPEL);
+				notice = project_los(y, x, pow, GF_DISPEL);
 				break;
 			}
 
 			case SV_STAFF_POWER:
 			{
-				notice = explosion(who, 9, y, x, 80, GF_DISPEL);
+				pow = 50 + power / 2;
+
+				notice = project_los(y, x, pow, GF_DISPEL);
 				break;
 			}
 
 			case SV_STAFF_HOLINESS:
 			{
+				pow = 75 + power / 2;
+
 				p_ptr->proj_mon_flags = (RF3_EVIL);
-				notice = explosion(who, 9, y, x, 80, GF_DISPEL);
-				break;
-			}
-
-			case SV_STAFF_GENOCIDE:
-			{
-				char c;
-
-				/* Get a monster symbol */
-				if (m_idx)
-				{
-					/* Get the monster in this grid */
-					m_ptr = &m_list[m_idx];
-
-					/* Get the monster race */
-					r_ptr = &r_info[m_ptr->r_idx];
-
-					c = r_ptr->d_char;
-				}
-				else
-				{
-					/* Now, THIS is a hack. */
-					c = index_chars[rand_int(88)];
-				}
-
-				notice = genocide(c);
+				notice = project_los(y, x, pow, GF_DISPEL);
 				break;
 			}
 
@@ -841,19 +1109,25 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 			case SV_STAFF_DESTRUCTION:
 			{
 				msg_print("You hear a terrible explosion!");
-				destroy_area(y, x, 15, TRUE);
+				destroy_area(y, x, 15, TRUE, FALSE);
 				break;
 			}
 
 			case SV_STAFF_DOOMSPELLS:
 			{
-				notice = explosion(who, 4, y, x, 175, GF_MANA);
+				pow = 100 + power;
+
+				notice = project_ball(who, 4, y, x, y, x, pow,
+					GF_MANA, PROJECT_JUMP, 100);
 				break;
 			}
 
 			case SV_STAFF_CHAOS:
 			{
-				notice = explosion(who, 4, y, x, 175, GF_CHAOS);
+				pow = 90 + power;
+
+				notice = project_ball(who, 4, y, x, y, x, pow,
+					GF_CHAOS, PROJECT_JUMP, 100);
 				break;
 			}
 
@@ -882,6 +1156,9 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 		{
 			sval = rand_int(SV_WAND_WIZARDRY);
 			while (sval == SV_WAND_WONDER) sval = rand_int(SV_WAND_WIZARDRY);
+
+			/* Increase power by 50% */
+			power += power / 2;
 		}
 
 		/* Nothing happens without charges */
@@ -892,7 +1169,7 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 		{
 			case SV_WAND_HEAL_MONSTER:
 			{
-				notice = explosion(who, 0, y, x, 50, GF_DO_HEAL);
+				notice = explosion(who, 0, y, x, 20 + power, GF_DO_HEAL);
 				break;
 			}
 
@@ -944,25 +1221,25 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 
 			case SV_WAND_SLEEP_MONSTER:
 			{
-				notice = explosion(who, 0, y, x, 15 + power / 3, GF_DO_SLEEP);
+				notice = explosion(who, 0, y, x, 25 + 2 * power / 3, GF_DO_SLEEP);
 				break;
 			}
 
 			case SV_WAND_SLOW_MONSTER:
 			{
-				notice = explosion(who, 0, y, x, 15 + power / 3, GF_DO_SLOW);
+				notice = explosion(who, 0, y, x, 25 + 2 * power / 3, GF_DO_SLOW);
 				break;
 			}
 
 			case SV_WAND_CONFUSE_MONSTER:
 			{
-				notice = explosion(who, 0, y, x, 15 + power / 3, GF_DO_CONF);
+				notice = explosion(who, 0, y, x, 25 + 2 * power / 3, GF_DO_CONF);
 				break;
 			}
 
 			case SV_WAND_FEAR_MONSTER:
 			{
-				notice = explosion(who, 0, y, x, 15 + power / 3, GF_DO_FEAR);
+				notice = explosion(who, 0, y, x, 25 + 2 * power / 3, GF_DO_FEAR);
 				break;
 			}
 
@@ -1054,35 +1331,35 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 
 			case SV_WAND_ANNIHILATION:
 			{
-				dam = 120 + 3 * power / 4;
+				dam = 100 + power;
 				notice = explosion(who, 0, y, x, dam, GF_DEATH);
 				break;
 			}
 
 			case SV_WAND_DRAGON_FIRE:
 			{
-				dam = 120 + 3 * power / 4;
+				dam = 90 + power;
 				notice = explosion(who, 3, y, x, dam, GF_FIRE);
 				break;
 			}
 
 			case SV_WAND_DRAGON_COLD:
 			{
-				dam = 120 + 3 * power / 4;
+				dam = 90 + power;
 				notice = explosion(who, 3, y, x, dam, GF_COLD);
 				break;
 			}
 
 			case SV_WAND_DRAGON_BREATH:
 			{
-				dam = 130 + 4 * power / 5;
+				dam = 130 + power;
 				notice = explosion(who, 3, y, x, dam, GF_ACID + rand_int(5));
 				break;
 			}
 
 			case SV_WAND_DOOM_BOLT:
 			{
-				dam = 125 + 3 * power / 4;
+				dam = 80 + power;
 				notice = explosion(who, 0, y, x, dam, GF_MANA);
 				break;
 			}
@@ -1113,6 +1390,36 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 		/* Analyze the rod */
 		switch (o_ptr->sval)
 		{
+			case SV_ROD_DETECT_TRAP:
+			{
+				/* Set detection center to this grid */
+				detect_y = y;
+				detect_x = x;
+
+				/* Detect traps */
+				if (detect_traps(FALSE, FALSE)) notice = TRUE;
+				break;
+			}
+
+			case SV_ROD_DETECT_DOOR:
+			{
+				/* Set detection center to this grid */
+				detect_y = y;
+				detect_x = x;
+
+				/* Detect doors and stairs */
+				if (detect_doors(FALSE)) notice = TRUE;
+				if (detect_stairs(FALSE)) notice = TRUE;
+				break;
+			}
+
+			case SV_ROD_MAPPING:
+			{
+				/* Use short-range mapping */
+				map_area(y, x, FALSE);
+				break;
+			}
+
 			case SV_ROD_ILLUMINATION:
 			{
 				notice = explosion(who, 3, y, x, 0, GF_LITE_WEAK);
@@ -1160,12 +1467,12 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 			case SV_ROD_BLINKING:
 			{
 				pow = 10;
-				if (r_ptr->flags3 & (RF3_RES_NEXUS)) pow = 5;
+				if (r_ptr->flags3 & (RF3_RES_NEXUS)) pow = 4;
 				if (r_ptr->flags3 & (RF3_RES_TPORT)) pow = 0;
 
 				if (pow)
 				{
-					teleport_away(m_idx, pow);
+					teleport_away(m_idx, pow, FALSE);
 					if (player_can_see_bold(y, x)) notice = TRUE;
 				}
 
@@ -1175,7 +1482,7 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 			case SV_ROD_SUMMON_HITHER:
 			{
 				/* (Try to) Teleport the player to the monster */
-				teleport_player_to(y, x, 1, TRUE);
+				teleport_player_to(y, x, 1, TRUE, 2);
 				notice = TRUE;
 				break;
 			}
@@ -1251,28 +1558,28 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 
 			case SV_ROD_LIGHTINGSTRIKE:
 			{
-				dam = damroll(18 + power / 6, 8);
+				dam = damroll(1 + power / 3, 8);
 				notice = explosion(who, 0, y, x, dam, GF_ELEC);
 				break;
 			}
 
 			case SV_ROD_NORTHWINDS:
 			{
-				dam = damroll(21 + power / 6, 8);
+				dam = damroll(4 + power / 3, 8);
 				notice = explosion(who, 0, y, x, dam, GF_COLD);
 				break;
 			}
 
 			case SV_ROD_DRAGONFIRE:
 			{
-				dam = damroll(24 + power / 6, 8);
+				dam = damroll(7 + power / 3, 8);
 				notice = explosion(who, 0, y, x, dam, GF_FIRE);
 				break;
 			}
 
 			case SV_ROD_GLAURUNGS:
 			{
-				dam = damroll(27 + power / 6, 8);
+				dam = damroll(10 + power / 3, 8);
 				notice = explosion(who, 0, y, x, dam, GF_ACID);
 				break;
 			}
@@ -1285,6 +1592,33 @@ bool device_use_effect(int who, int power, int y, int x, object_type *o_ptr)
 
 		/* Drain the rod(s) */
 		o_ptr->timeout += k_ptr->pval;
+	}
+
+	/* If a monster trap used the device, learn about it */
+	if ((mode == -2) && (notice))
+	{
+		char o_name[80];
+
+		if (object_aware_p(o_ptr))
+		{
+			learn_details(o_ptr);
+		}
+		else
+		{
+			cptr tv_desc = "Staff";
+			if (o_ptr->tval == TV_WAND) tv_desc = "Wand";
+			if (o_ptr->tval == TV_ROD) tv_desc = "Rod";
+
+			/* Learn about the object */
+			object_aware(o_ptr);
+
+			/* Describe the object */
+			strip_name(o_name, o_ptr->k_idx);
+
+			/* Message */
+			msg_format("The trap appears to be using a %s of %s.",
+				tv_desc, o_name);
+		}
 	}
 
 	/* Return "anything noticed" */
@@ -1399,6 +1733,100 @@ void fire_off_devices(int chance)
 
 	/* Restore target coordinates */
 	TARGET_RESTORE
+}
+
+/*
+ * Check for the presence of a magical blanket in inventory.
+ *
+ * If the right kind of blanket is found, damage it.  Damage value is
+ * inventory destruction chance (usually 0-40) for elemental attacks,
+ * and 1 for disenchantment, draining, and cursing.
+ */
+bool check_blanket(int mode, int dam)
+{
+	int i;
+	int ind = -1;
+
+
+	/* Scan the inventory */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip everything but blankets */
+		if ((o_ptr->tval != TV_JUNK) || (o_ptr->sval != SV_BLANKET))
+			continue;
+
+		/* Skip cursed blankets */
+		if (cursed_p(o_ptr)) continue;
+
+		/* Check for the protection we need */
+		if ((mode == CHECK_BLANKET_ACID) &&
+		    (o_ptr->flags2 & (TR2_RES_ACID))) ind = i;
+		else if ((mode == CHECK_BLANKET_ELEC) &&
+		    (o_ptr->flags2 & (TR2_RES_ELEC))) ind = i;
+		else if ((mode == CHECK_BLANKET_FIRE) &&
+		    (o_ptr->flags2 & (TR2_RES_FIRE))) ind = i;
+		else if ((mode == CHECK_BLANKET_COLD) &&
+		    (o_ptr->flags2 & (TR2_RES_COLD))) ind = i;
+		else if ((mode == CHECK_BLANKET_DISEN) &&
+		    (o_ptr->flags2 & (TR2_RES_DISEN))) ind = i;
+		else if ((mode == CHECK_BLANKET_DRAIN) &&
+		    (o_ptr->flags2 & (TR2_RES_DRAIN))) ind = i;
+		else if ((mode == CHECK_BLANKET_CURSE) &&
+		    (o_ptr->flags3 & (TR3_BLESSED))) ind = i;
+	}
+
+	/* We have protection */
+	if (ind >= 0)
+	{
+		/* Get the blanket */
+		object_type *o_ptr = &inventory[ind];
+
+		/* Describe the blanket */
+		char o_name[80];
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		/* Remember previous protective value */
+		i = o_ptr->ac;
+
+		/* Damage the blanket (never by more then 50) */
+		o_ptr->ac -= MIN(50, dam);
+
+		/* Blanket has no resistance left */
+		if (o_ptr->ac <= 0)
+		{
+			msg_format("Your %s is destroyed!", o_name);
+
+			/* Destroy the blanket */
+			inven_item_increase(ind, -1);
+			inven_item_describe(ind);
+			inven_item_optimize(ind);
+		}
+
+		/* Blanket is almost ruined */
+		else if ((o_ptr->ac <= o_ptr->pval / 4) &&
+		         (i > o_ptr->pval / 4))
+		{
+			msg_format("Your %s is almost destroyed.", o_name);
+		}
+
+		/* Blanket has significant damage */
+		else if ((o_ptr->ac <= o_ptr->pval / 2) &&
+		         (i > o_ptr->pval / 2))
+		{
+			msg_format("Your %s is damaged.", o_name);
+		}
+
+		/* Blanket protects */
+		return (TRUE);
+	}
+
+	/* No protection available */
+	return (FALSE);
 }
 
 
@@ -1624,14 +2052,14 @@ int set_cold_destroy(const object_type *o_ptr)
  *
  * Returns number of items destroyed.
  */
-int inven_damage(inven_func typ, int perc)
+int inven_damage(inven_func typ, int perc0, int dam)
 {
 	int i, j, k, amt;
 
-	object_type *o_ptr;
-
 	char o_name[80];
 
+	/* Have a special message if you get hit hard */
+	bool severe = (perc0 >= 20);
 
 	/* Count the casualties */
 	k = 0;
@@ -1639,7 +2067,8 @@ int inven_damage(inven_func typ, int perc)
 	/* Scan through the slots backwards */
 	for (i = 0; i < INVEN_PACK; i++)
 	{
-		o_ptr = &inventory[i];
+		object_type *o_ptr = &inventory[i];
+		int perc = perc0;
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -1651,16 +2080,28 @@ int inven_damage(inven_func typ, int perc)
 		if ((*typ)(o_ptr))
 		{
 			/* Scrolls and potions are more vulnerable. */
-			if ((o_ptr->tval == TV_POTION) || (o_ptr->tval == TV_POTION))
+			if ((o_ptr->tval == TV_SCROLL) || (o_ptr->tval == TV_POTION))
 			{
 				perc = 3 * perc / 2;
 
 				/* Some potions and scrolls are tough. */
-				if (o_ptr->ac > 0) perc -= (perc * o_ptr->ac / 25);
+				if (o_ptr->ac > 0) perc -= (perc * o_ptr->ac / 20);
 			}
 
-			/* Rods are hard to destroy */
-			if (o_ptr->tval == TV_ROD) perc /= 3;
+			/* Many object types are hard to destroy */
+			if (((is_any_weapon(o_ptr)) || (is_any_armour(o_ptr)) ||
+			     (is_magical_device(o_ptr)) || (o_ptr->tval == TV_RING) ||
+			     (o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_CHEST)) &&
+			    (dam < rand_range(10, 20)))
+			{
+				perc = 0;
+			}
+			else if ((is_magic_book(o_ptr)) && (dam < rand_range(5, 10)))
+			{
+				perc = 0;
+			}
+
+			else if (o_ptr->tval == TV_ROD) perc /= 3;
 
 			/* Count the casualties */
 			for (amt = j = 0; j < o_ptr->number; ++j)
@@ -1671,6 +2112,29 @@ int inven_damage(inven_func typ, int perc)
 			/* Some casualties */
 			if (amt)
 			{
+				/* Special message (similar to those of Moria) */
+				if (severe)
+				{
+					/* Only once */
+					severe = FALSE;
+
+					/* Acid */
+					if (typ == set_acid_destroy)
+						msg_print("There is an acrid smell coming from your pack!");
+
+					/* Lightning */
+					if (typ == set_elec_destroy)
+						msg_print("Sparks fly from your pack!");
+
+					/* Fire */
+					if (typ == set_fire_destroy)
+						msg_print("Smoke billows out of your pack!");
+
+					/* Frost */
+					if (typ == set_cold_destroy)
+						msg_print("Your pack freezes over!");
+				}
+
 				/* Some magical devices can be damaged instead of destroyed. */
 				if (((o_ptr->tval == TV_STAFF) ||
 					  (o_ptr->tval == TV_WAND)) &&
@@ -1859,52 +2323,39 @@ bool curse_weapon(void)
 
 		/* Never allow a saving throw (because artifacts are safe). */
 
-
 		/* Describe */
 		object_desc(o_name, o_ptr, FALSE, 3);
 
-		/* Attempt a saving throw */
-		if (artifact_p(o_ptr) && (one_in_(2)))
-		{
-			/* Cool */
-			msg_format("A %s tries to %s, but your %s resists the effects!",
-				"terrible black aura", "surround your weapon", o_name);
-		}
+		/* Oops */
+		msg_format("A terrible black aura blasts your %s!", o_name);
 
-		/* Not artifact or failed save... */
-		else
-		{
-			/* Oops */
-			msg_format("A terrible black aura blasts your %s!", o_name);
+		/* Shatter the weapon */
+		o_ptr->artifact_index = 0;
+		o_ptr->ego_item_index = EGO_SHATTERED;
+		o_ptr->to_h = 0 - damroll(2, 5);
+		o_ptr->to_d = 0 - damroll(2, 5);
+		o_ptr->to_a = 0;
+		o_ptr->ac = 0;
+		o_ptr->dd = 0;
+		o_ptr->ds = 0;
 
-			/* Shatter the weapon */
-			o_ptr->artifact_index = 0;
-			o_ptr->ego_item_index = EGO_SHATTERED;
-			o_ptr->to_h = 0 - damroll(2, 5);
-			o_ptr->to_d = 0 - damroll(2, 5);
-			o_ptr->to_a = 0;
-			o_ptr->ac = 0;
-			o_ptr->dd = 0;
-			o_ptr->ds = 0;
+		/* Curse it */
+		o_ptr->flags3 |= (TR3_LIGHT_CURSE);
 
-			/* Curse it */
-			o_ptr->flags3 |= (TR3_LIGHT_CURSE);
+		/* Note curse */
+		o_ptr->ident |= (IDENT_CURSED);
 
-			/* Note curse */
-			o_ptr->ident |= (IDENT_CURSED);
+		/* No value */
+		o_ptr->b_cost = 0L;
 
-			/* No value */
-			o_ptr->b_cost = 0L;
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
 
-			/* Recalculate bonuses */
-			p_ptr->update |= (PU_BONUS);
+		/* Recalculate mana */
+		p_ptr->update |= (PU_MANA);
 
-			/* Recalculate mana */
-			p_ptr->update |= (PU_MANA);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-		}
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 		break;
 	}
@@ -1925,7 +2376,12 @@ void curse_equipment(int power)
 	u32b f1, f2, f3;
 
 	/* Pick one (non-quiver) equipment slot at random */
-	object_type *o_ptr = &inventory[INVEN_WIELD + rand_int(12)];
+	object_type *o_ptr =
+		&inventory[rand_range(INVEN_WIELD, INVEN_SUBTOTAL - 1)];
+
+
+	/* Check for protective blanket */
+	if (check_blanket(CHECK_BLANKET_CURSE, 1)) return;
 
 	/* Get object attributes */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -1966,11 +2422,11 @@ void curse_equipment(int power)
 		o_ptr->ident |=  (IDENT_CURSED);
 	}
 
-	/* Note new curses */
+	/* Note new curses (special marking for "uncurse_object()" */
 	if (changed)
 	{
 		msg_print("There is a malignant black aura surrounding you...");
-		o_ptr->inscrip = INSCRIP_CURSED;
+		o_ptr->inscrip = INSCRIP_CURSED2;
 	}
 }
 
@@ -1986,8 +2442,17 @@ static void uncurse_object(object_type *o_ptr)
 	/* Note removal of curse */
 	o_ptr->ident &= ~(IDENT_CURSED);
 
-	/* Remove special inscription (no need to mark it as "uncursed") */
-	o_ptr->inscrip = 0;
+	/* Explicitly mark all normal "cursed" items as "uncursed" */
+	if (o_ptr->inscrip != INSCRIP_CURSED2)
+	{
+		o_ptr->inscrip = INSCRIP_UNCURSED;
+	}
+
+	/* Quietly remove special "cursed" indicator (gotten through spells) */
+	else
+	{
+		o_ptr->inscrip = 0;
+	}
 
 	/* The object has been "sensed" */
 	o_ptr->ident |= (IDENT_SENSE);
@@ -1995,7 +2460,7 @@ static void uncurse_object(object_type *o_ptr)
 
 
 /*
- * Removes curses from items in inventory.
+ * Removes curses from items in inventory (both obvious and hidden).
  *
  * Note that Items which are "Perma-Cursed" (The One Ring, The Crown of
  * Morgoth) can NEVER be uncursed.
@@ -2015,7 +2480,7 @@ static int remove_curse_aux(int heavy)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Uncursed already */
+		/* Object isn't cursed -- ignore */
 		if (!cursed_p(o_ptr)) continue;
 
 		/* Heavily Cursed Items need a special spell */
@@ -2026,15 +2491,6 @@ static int remove_curse_aux(int heavy)
 
 		/* Uncurse the object */
 		uncurse_object(o_ptr);
-
-		/* Chance to reverse various values, unless an artifact -JKalkman- */
-		if ((one_in_(20)) && !artifact_p(o_ptr))
-		{
-			if (o_ptr->to_a < 0) o_ptr->to_a =- o_ptr->to_a;
-			if (o_ptr->to_h < 0) o_ptr->to_h =- o_ptr->to_h;
-			if (o_ptr->to_d < 0) o_ptr->to_d =- o_ptr->to_d;
-			if (o_ptr->pval < 0) o_ptr->pval =- o_ptr->pval;
-		}
 
 		/* Hack -- Assume felt */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -2057,7 +2513,7 @@ static int remove_curse_aux(int heavy)
 /*
  * Remove light curses
  */
-bool remove_curse(void)
+int remove_curse(void)
 {
 	return (remove_curse_aux(FALSE));
 }
@@ -2065,7 +2521,7 @@ bool remove_curse(void)
 /*
  * Remove light and heavy curses
  */
-bool remove_all_curse(void)
+int remove_all_curse(void)
 {
 	return (remove_curse_aux(TRUE));
 }
@@ -2139,7 +2595,7 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 
 
 /*
- * Hook to specify objects objects with sensable magic
+ * Hook to specify objects with sensable magic
  */
 static bool item_tester_sense_magic(const object_type *o_ptr)
 {
@@ -2193,7 +2649,7 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
 static const int enchant_table[16] =
 {
 	0, 10, 50, 100, 200,
-	300, 400, 500, 700, 950,
+	250, 300, 400, 650, 950,
 	990, 992, 995, 997, 999,
 	1000
 };
@@ -2361,10 +2817,10 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 /*
  * Turn the object into an ego-item.
  *
- * Note that this function can be used on "piles" of items, and the larger the
- * pile, the lower the chance of success.
+ * Note that this function can be used on "piles" of items, and the larger
+ * the pile, the lower the chance of success.
  *
- * We save old hitdice and plusses.  This can be tad abusable.  XXX
+ * We save old hitdice and plusses.  This can be a tad abusable.  XXX
  */
 static bool turn_into_ego_item(object_type *o_ptr)
 {
@@ -2527,7 +2983,8 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac, bool ego)
 		if (flush_failure) flush();
 
 		/* Aw shucks */
-		strcat(effect_desc, ", but fades");
+		strcat(effect_desc, ", but fade");
+		if (o_ptr->number == 1) strcat(effect_desc, "s");
 	}
 
 	/* Describe */
@@ -2621,7 +3078,7 @@ bool brand_missile(int ammo_type, int brand_type)
 		case EGO_FLAME:
 		{
 			/* Print message and fire brand missiles. */
-			msg_print("Your missiles are covered in a fiery aura!");
+			msg_print("Your missiles burn with fire!");
 			break;
 		}
 
@@ -2678,8 +3135,13 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	/* Equipment bonuses make a real difference, but never too much */
 	int aware = MIN(p_ptr->skill_awr, 30);
 
+	/* Use artifact or object kind level */
+	int level = (o_ptr->artifact_index ?
+		a_info[o_ptr->artifact_index].level : k_ptr->level);
+
 	bool heavy = FALSE;
 	bool full  = FALSE;
+	bool supress_msg = FALSE;
 
 	int feel;
 	int old_inscrip = o_ptr->inscrip;
@@ -2711,13 +3173,9 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 		if ((get_skill(S_PERCEPTION, 0, 100) >= 15) &&
 			 (get_skill(S_DEVICE, 0, 100) >= 10))
 		{
-			/* Use artifact or object kind level */
-			int level = (o_ptr->artifact_index ?
-				a_info[o_ptr->artifact_index].level : k_ptr->level);
-
 			/* Determine change of learning about the item */
-			chance = get_skill(S_PERCEPTION, 0, 65) +
-			         get_skill(S_DEVICE, 0, 65) + aware -
+			chance = get_skill(S_PERCEPTION, 0, 100) +
+			         get_skill(S_DEVICE, 0, 100) + aware -
 			         level;
 
 			/* No information gained */
@@ -2760,27 +3218,28 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	    ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)))
 	{
 		/* Chance to become aware of the item kind */
-		chance = get_skill(S_PERCEPTION, 15, 55) + aware;
+		chance = get_skill(S_PERCEPTION, 15, 75) + aware - level / 3;
 
 		/* Try to become aware */
 		if (chance >= randint(100))
 		{
+			cptr tmp = "";
+
+			/* Become aware of this object */
 			object_aware(o_ptr);
 
 			/* Get an object description */
-			object_desc(o_name, o_ptr, FALSE, 2);
+			object_desc(o_name, o_ptr, TRUE, 2);
 
-			/* Message (equipment) */
-			if (slot >= INVEN_WIELD)
-			{
-				cptr tmp = "";
-				if (slot == INVEN_LEFT)  tmp = "on your left hand";
-				if (slot == INVEN_RIGHT) tmp = "on your right hand";
-				if (slot == INVEN_NECK)  tmp = "on your neck";
+			/* Output a message */
+			if (slot == INVEN_LEFT)  tmp = "on your left hand";
+			if (slot == INVEN_RIGHT) tmp = "on your right hand";
+			if (slot == INVEN_NECK)  tmp = "on your neck";
 
-				msg_format("You feel you are wearing %s %s %s.",
-					(o_ptr->artifact_index ? "the" : "a"), o_name, tmp);
-			}
+			msg_format("You feel you are wearing %s %s.", o_name, tmp);
+
+			/* Gain a significant amount of exp  (this is a hack) */
+			gain_exp(level * level / 2, S_NOSKILL);
 		}
 
 		/* Done */
@@ -2793,17 +3252,16 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 
 
 	/* Get base chance.  Gains are rapid early on, less rapid later */
-	chance = rsqrt(get_skill(S_PERCEPTION, 0, 3025)) + aware;
+	chance = rsqrt(get_skill(S_PERCEPTION, 0, 4900)) + aware - level / 5;
 
 	/* Chance is improved if we're using strong sensing */
-	if (strong) chance += 25;
+	if (strong) chance += 30;
 
-	/* A relatively high perception skill gets you "heavy" sensing */
-	if (chance >= rand_range(50, 55)) heavy = TRUE;
+	/* Roll for "heavy" sensing */
+	if (chance >= rand_range(65, 70)) heavy = TRUE;
 
-	/* A very high perception skill gives you near-guaranteed sensing */
-	if (get_skill(S_PERCEPTION, 0, 100) >= 95)
-		chance += (get_skill(S_PERCEPTION, 0, 100) - 94) * 5;
+	/* Suppress messages if very skilled  -SKY- */
+	if (get_skill(S_PERCEPTION, 0, 100) >= 90) supress_msg = TRUE;
 
 	/* Those who have taken the Oath of Iron are great at IDing wargear */
 	if (p_ptr->oath & (OATH_OF_IRON))
@@ -2813,8 +3271,8 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 		/* Warriors can instantly identify equipped wargear in some cases */
 		if ((heavy) && (strong) && (slot >= INVEN_WIELD)) full = TRUE;
 
-		/* They usually get heavy sensing (and always when forced strong) */
-		else if (chance >= 40) heavy = TRUE;
+		/* They usually get heavy sensing (always when forced strong) */
+		else if (chance >= 50) heavy = TRUE;
 	}
 
 	/* Those who have no magic realm are also fairly good */
@@ -2833,19 +3291,14 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	/* Object has a pval - increase sensing chance */
 	if (get_object_pval(o_ptr, 0L)) chance += 20;
 
-	/* Hard to miss a burning blade */
-	if (f1 & (TR1_BRAND_FIRE))
+
+	/* Brands are hard to miss */
+	if (f1 & (TR1_BRAND_FIRE | TR1_BRAND_ACID | TR1_BRAND_ELEC |
+	          TR1_BRAND_COLD | TR1_BRAND_POIS | TR1_BRAND_FLAME |
+	          TR1_BRAND_VENOM))
 	{
 		chance += 50;
 		if (chance < 90) chance = 90;
-	}
-
-	/* Other brands are not quite as obvious */
-	else if (f1 & (TR1_BRAND_ACID | TR1_BRAND_ELEC | TR1_BRAND_COLD |
-	               TR1_BRAND_POIS))
-	{
-		chance += 30;
-		if (chance < 70) chance = 70;
 	}
 
 	/* Holy alliance helps reveal bless & curse  -clefs- */
@@ -2886,8 +3339,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 			}
 			else
 			{
-				msg_format("On the ground: %s.",
-						o_name);
+				msg_format("On the ground: %s.", o_name);
 			}
 
 			/* All done */
@@ -2905,6 +3357,15 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 		{
 			return;
 		}
+
+		/* We have a clear priestly sense of the object */
+		if ((!heavy) &&
+			 ((old_inscrip == INSCRIP_VERY_BLESSED) ||
+			  (old_inscrip == INSCRIP_VERY_CURSED)))
+		{
+			return;
+		}
+
 
 		/* Artifacts */
 		if (artifact_p(o_ptr))
@@ -2955,6 +3416,14 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 		else if (o_ptr->to_h + o_ptr->to_d > k_ptr->to_h + k_ptr->to_d)
 			feel = INSCRIP_GOOD;
 
+		/* Penalty to AC */
+		else if (o_ptr->to_a < k_ptr->to_a) feel = INSCRIP_BROKEN;
+
+		/* Penalty to sum of Skill and Deadliness */
+		else if (o_ptr->to_h + o_ptr->to_d < k_ptr->to_h + k_ptr->to_d)
+			feel = INSCRIP_BROKEN;
+
+
 		/* Default to "average" */
 		else
 		{
@@ -2962,8 +3431,9 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 			else       feel = INSCRIP_UNCERTAIN;
 		}
 
-		/* We got a definite feeling */
-		if ((feel != INSCRIP_UNCERTAIN) && (feel != old_inscrip))
+		/* We got a definite feeling, and are not suppressing messages */
+		if ((feel != INSCRIP_UNCERTAIN) && (feel != old_inscrip) &&
+		    (!supress_msg))
 		{
 			/* Get a short object description */
 			object_desc(o_name, o_ptr, FALSE, 0);
@@ -2997,17 +3467,24 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 				if (slot == -3) use_desc = "in your pack";
 				if (slot == -4) use_desc = "on the floor";
 
-				msg_format("You feel the %s %s %s%s %s...",
-					o_name, use_desc,
-					((o_ptr->number == 1) ? "is"            : "are"),
-					((old_inscrip)        ? " actually"     : ""),
-					inscrip_text[feel]);
+				/* Message -- if not on floor */
+				if (slot != -4)
+				{
+					msg_format("You feel the %s %s %s%s %s...",
+						o_name, use_desc,
+						((o_ptr->number == 1) ? "is"            : "are"),
+						((old_inscrip)        ? " actually"     : ""),
+						inscrip_text[feel]);
+				}
 			}
 		}
 	}
 
-	/* Sense the object */
-	o_ptr->inscrip = feel;
+	/* Sense the object (but don't overwrite with "unknown") */
+	if (!(o_ptr->ident & (IDENT_SENSE)) || (feel != INSCRIP_UNCERTAIN))
+	{
+		o_ptr->inscrip = feel;
+	}
 
 	/* The object has been "sensed" */
 	o_ptr->ident |= (IDENT_SENSE);
@@ -3105,9 +3582,11 @@ bool scan_object_priest(bool full)
 			}
 
 			/* Object has (unusual) hidden qualities */
-			else if ((o_ptr->flags1 & ~k_ptr->flags1) ||
-			         (o_ptr->flags2 & ~k_ptr->flags2) ||
-			         (o_ptr->flags3 & ~k_ptr->flags3))
+			else if ((o_ptr->flags1 & ~(k_ptr->flags1)) ||
+			         (o_ptr->flags2 & ~(k_ptr->flags2)) ||
+			         ((o_ptr->flags3 & ~(k_ptr->flags3)) &&
+			          (((o_ptr->flags3 & ~(k_ptr->flags3)) !=
+			             (TR3_LIGHT_CURSE)))))
 			{
 				intense = TRUE;
 			}
@@ -3138,12 +3617,10 @@ bool scan_object_priest(bool full)
 		/* Object is "cursed" when its actual value is less than base value */
 		else if (object_value_real(o_ptr) < object_value(o_ptr))
 		{
-			if (intense) feel = INSCRIP_VERY_CURSED;
-
 			/* Hack -- low-value scrolls and potions are not "cursed" */
-			else if (((o_ptr->tval == TV_SCROLL) ||
-			          (o_ptr->tval == TV_POTION)) &&
-			         (object_value_real(o_ptr) > 0))
+			if (((o_ptr->tval == TV_SCROLL) ||
+			     (o_ptr->tval == TV_POTION)) &&
+			    (object_value_real(o_ptr) > 0))
 			{
 				feel = 0;
 			}
@@ -3153,15 +3630,19 @@ bool scan_object_priest(bool full)
 		/* No good reason to call the object "cursed" or "blessed" */
 		else
 		{
-			/* No feeling */
+			feel = INSCRIP_UNCERTAIN_SENSED;
 		}
 	}
 
 	/* We got a feeling */
 	if (feel)
 	{
-		/* Sense the object */
-		o_ptr->inscrip = feel;
+		/* Inscribe the object (usually) */
+		if ((feel != INSCRIP_UNCERTAIN_SENSED) ||
+		    (o_ptr->inscrip == INSCRIP_UNCERTAIN))
+		{
+			o_ptr->inscrip = feel;
+		}
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -3204,7 +3685,8 @@ bool scan_object_priest(bool full)
 
 
 	/* We got a definite feeling */
-	else if (feel)
+	else if ((feel) && (feel != INSCRIP_UNCERTAIN) &&
+	         (feel != INSCRIP_UNCERTAIN_SENSED))
 	{
 		char feeling_text[80];
 
@@ -3223,8 +3705,7 @@ bool scan_object_priest(bool full)
 		{
 			msg_format("You feel the %s (%c) you are %s %s %s...",
 				o_name, index_to_label(item), describe_use(item),
-				((o_ptr->number == 1) ? "is" : "are"),
-				inscrip_text[feel]);
+				((o_ptr->number == 1) ? "is" : "are"), feeling_text);
 		}
 
 		/* Message (inventory) */
@@ -3233,13 +3714,13 @@ bool scan_object_priest(bool full)
 			msg_format("You feel the %s (%c) in your pack %s %s...",
 				o_name, index_to_label(item),
 				((o_ptr->number == 1) ? "is" : "are"),
-				inscrip_text[feel]);
+				feeling_text);
 		}
 		else
 		{
 			msg_format("You feel the %s on the ground %s %s...",
 				o_name, ((o_ptr->number == 1) ? "is" : "are"),
-				inscrip_text[feel]);
+				feeling_text);
 		}
 	}
 
@@ -3315,7 +3796,7 @@ void learn_about_wearable(object_type *o_ptr, int slot, bool strong)
  */
 bool sense_magic(void)
 {
-	int item;
+	int item, feel;
 
 	object_type *o_ptr;
 
@@ -3335,10 +3816,46 @@ bool sense_magic(void)
 	item_to_object(o_ptr, item);
 
 
-	/* Object is a weapon or armour -- sense it (force heavy sensing) */
+	/* Object is a weapon or armour -- sense it */
 	if (is_wargear(o_ptr))
 	{
-		learn_about_wearable(o_ptr, (item < 0 ? -4 : item), TRUE);
+		/* Get object kind */
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+		/* Assume "average" */
+		feel = INSCRIP_AVERAGE;
+
+		/* Cursed items */
+		if (cursed_p(o_ptr)) feel = INSCRIP_CURSED;
+
+		/* Valueless items */
+		else if (broken_p(o_ptr)) feel = INSCRIP_BROKEN;
+
+		/* Bonuses or interesting qualities */
+		else if ((artifact_p(o_ptr)) || (ego_item_p(o_ptr)) ||
+		         (o_ptr->to_h + o_ptr->to_d > k_ptr->to_h + k_ptr->to_d) ||
+		         (o_ptr->to_a > k_ptr->to_a))
+		{
+			feel = INSCRIP_GOOD;
+		}
+
+		/* Penalties */
+		else if ((o_ptr->to_h + o_ptr->to_d < k_ptr->to_h + k_ptr->to_d) ||
+		         (o_ptr->to_a < k_ptr->to_a))
+		{
+			feel = INSCRIP_BROKEN;
+		}
+
+
+		/* Sense the object (or re-sense it, if we have no information yet) */
+		if (!(o_ptr->ident & (IDENT_SENSE)) ||
+		     (o_ptr->inscrip == INSCRIP_UNCERTAIN))
+		{
+			o_ptr->inscrip = feel;
+
+			/* The object has been "sensed" */
+			o_ptr->ident |= (IDENT_SENSE);
+		}
 	}
 
 	/* Object is a ring or amulet */
@@ -3390,9 +3907,9 @@ bool sense_magic(void)
 
 
 /*
- * Identify an object in the inventory (or on the floor)
- * This routine does *not* automatically combine objects.
- * Returns TRUE if something was identified, else FALSE.
+ * Identify an object.
+ *
+ * Return TRUE if something was identified.
  */
 bool ident_spell(void)
 {
@@ -3454,9 +3971,9 @@ bool ident_spell(void)
 
 
 /*
- * Fully "identify" an object in the inventory
+ * Fully identify an object.
  *
- * This routine returns TRUE if an item was identified.
+ * Return TRUE if something was identified.
  */
 bool identify_fully(void)
 {
@@ -3473,8 +3990,8 @@ bool identify_fully(void)
 	item_tester_hook = item_tester_unknown_star;
 
 	/* Get an item */
-	q = "*Identify* which item?";
-	s = "You have nothing to *identify*.";
+	q = "Fully identify which item?";
+	s = "You have nothing to fully identify.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
 		return (FALSE);
 	item_to_object(o_ptr, item);
@@ -3488,24 +4005,11 @@ bool identify_fully(void)
 	object_known(o_ptr);
 	object_mental(o_ptr);
 
-	/*
-	 * If the object is flavored, also make all items of that type,
-	 * except for variable rings and amulets, fully known.
-	 */
-	if (k_ptr->flavor)
+	/* Become fully aware of the effects of easy_know objects */
+	if (k_ptr->flags3 & (TR3_EASY_KNOW))
 	{
-		if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) &&
-		    (k_ptr->flags3 & (TR3_EASY_KNOW)))
-		{
-			k_ptr->special |= (SPECIAL_KNOWN_EFFECT);
-		}
-		else if ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_STAFF) ||
-		         (o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
-		{
-			k_ptr->special |= (SPECIAL_KNOWN_EFFECT);
-		}
+		k_ptr->special |= (SPECIAL_KNOWN_EFFECT);
 	}
-
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -3546,8 +4050,8 @@ bool identify_fully(void)
 }
 
 /*
- * Identify everything being carried.
- * Done by a potion of "self knowledge".
+ * Identify everything being carried or worn.
+ * Done by a potion of *Enlightenment*.
  */
 void identify_pack(void)
 {
@@ -3742,8 +4246,7 @@ bool recharge(int power, bool essence)
 		/* All staffs, unstacked wands. */
 		else
 		{
-			recharge_strength = (power - lev -
-				(8 * o_ptr->pval)) / 10;
+			recharge_strength = (power - lev - (8 * o_ptr->pval)) / 10;
 		}
 
 		/* Back-fire */
@@ -3773,11 +4276,10 @@ bool recharge(int power, bool essence)
 			if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
 			{
 				recharge_amount /= o_ptr->number;
-				if (recharge_amount < 1) recharge_amount = 1;
 			}
 
-			/* Recharge the wand or staff. */
-			o_ptr->pval += recharge_amount;
+			/* Recharge the wand or staff (by at least 1). */
+			o_ptr->pval += MAX(1, recharge_amount);
 
 			/* Hack - Artifacts have a maximum # of charges. */
 			if (artifact_p(o_ptr) && (o_ptr->pval > k_ptr->pval))
@@ -3793,10 +4295,12 @@ bool recharge(int power, bool essence)
 		}
 	}
 
-
 	/* Inflict the penalties for failing a recharge. */
 	if (fail)
 	{
+		/* Failure */
+		if (flush_failure) flush();
+
 		/* Artifacts are never destroyed. */
 		if (artifact_p(o_ptr))
 		{
@@ -3816,7 +4320,7 @@ bool recharge(int power, bool essence)
 		else if ((o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(6)))
 		{
 			msg_print("The staff escapes from your control!");
-			doomspells(one_in_(2));
+			doomspells(one_in_(2), MAX(50, p_ptr->depth));
 		}
 
 		/* Normal object */
@@ -3847,17 +4351,16 @@ bool recharge(int power, bool essence)
 				if (o_ptr->tval == TV_WAND)
 				{
 					/* Drain, blow up a wand, or blow up all wands */
-					if      (25 + skill >= randint(150)) fail_type = 1;
-					else if (50 + skill >= randint(100)) fail_type = 2;
+					if           (skill > rand_int(100)) fail_type = 1;
+					else if (40 + skill > rand_int(100)) fail_type = 2;
 					else                                 fail_type = 3;
 				}
 
-				/* Staffs -- more resiliant */
+				/* Staffs -- more resilient */
 				else if (o_ptr->tval == TV_STAFF)
 				{
-					/* Do nothing, drain, or blow up something */
-					if      (     skill >= randint(150)) fail_type = 0;
-					else if (50 + skill >= randint(125)) fail_type = 1;
+					/* Drain, or blow up one staff */
+					if (40 + skill > rand_int(100))      fail_type = 1;
 					else                                 fail_type = 2;
 				}
 
@@ -3954,8 +4457,9 @@ bool recharge(int power, bool essence)
 	else if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) &&
 	         (object_aware_p(o_ptr)))
 	{
-		chance = get_skill(S_PERCEPTION, 0, 90) + get_skill(S_DEVICE, 0, 90) -
-		         lev;
+		/* Use perception or device skill (device skill is worth more) */
+		skill = MAX(get_skill(S_PERCEPTION, 0, 140), get_skill(S_DEVICE, 0, 180));
+		chance = skill - lev;
 
 		/* No information gained */
 		if (chance < randint(100))
@@ -4002,7 +4506,7 @@ bool recharge(int power, bool essence)
 /*
  * Mages can get mana from magical objects at need. -LM-
  */
-void tap_magical_energy(void)
+bool tap_magical_energy(void)
 {
 	int item, lev;
 	int energy = 0;
@@ -4019,7 +4523,7 @@ void tap_magical_energy(void)
 	/* Get an item */
 	q = "Drain charges from which item?";
 	s = "You have nothing to drain charges from.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
 	item_to_object(o_ptr, item);
 
 
@@ -4094,6 +4598,8 @@ void tap_magical_energy(void)
 			msg_format("Your mana was already at maximum.  %^s not drained.", item_name);
 		}
 	}
+
+	return (TRUE);
 }
 
 
@@ -4185,7 +4691,7 @@ void nightfall(void)
 			char m_poss[80];
 
 			/* Get the monster name (or "it") */
-			monster_desc(m_name, m_ptr, 0x00);
+			monster_desc(m_name, m_ptr, 0x40);
 
 			/* Get the monster possessive ("his"/"her"/"its") */
 			monster_desc(m_poss, m_ptr, 0x22);
@@ -4215,10 +4721,7 @@ void nightfall(void)
 			}
 
 			/* Haste */
-			if (m_ptr->mspeed < r_ptr->speed + 10)
-			{
-				m_ptr->mspeed = r_ptr->speed + 10;
-			}
+			m_ptr->hasted = MIN(200, m_ptr->hasted + 100);
 		}
 
 		/* All other monsters get zapped hard */
@@ -4233,28 +4736,35 @@ void nightfall(void)
 /*
  * Special code for staffs of doomspells.
  */
-void doomspells(bool hurt)
+void doomspells(bool hurt, int skill)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	/* Damage depends on skill (or current depth) */
+	int dam1 =   0 + skill * 2;
+	int dam2 = 100 + skill * 2;
+
 	/* Huge black orb - full-strength attack on everything */
 	if (!hurt)
 	{
-		fire_orb(GF_BLACK_ORB, 0, rand_range(175, 275), 5);
+		fire_orb(GF_BLACK_ORB, 0, rand_range(dam1, dam2), 5);
+
+		/* Add a fair amount of noise */
+		add_wakeup_chance += 2500;
 	}
 
 	/* Dispel the character */
 	else
 	{
 		/* Oh no. */
-		message(TERM_RED, 50, "The staff turns on you! You stare death in the face!");
+		message(TERM_RED, 250, "The staff turns on you! You stare death in the face!");
 
 		/* Blast */
-		(void)explosion(0, 5, py, px, rand_range(175, 275), GF_BLACK_ORB);
+		(void)explosion(0, 5, py, px, rand_range(dam1, dam2), GF_BLACK_ORB);
 
-		/* Curse */
-		set_cut(p_ptr->cut + 500);
+		/* Slash */
+		set_cut(p_ptr->cut + WOUND_MORTAL);
 
 		/* Drain */
 		p_ptr->csp     /= 2;
@@ -4263,9 +4773,6 @@ void doomspells(bool hurt)
 		/* Get 'em ALL awake! */
 		aggravate_monsters(-1, TRUE, "You hear monsters screaming balefully!");
 	}
-
-	/* Hard not to notice. */
-	add_wakeup_chance = 10000;
 }
 
 
@@ -4330,7 +4837,7 @@ void call_chaos(int dam)
 			(void)collapse_ceiling(py, px, dam);
 		}
 
-		/* Summon (a pack of) chaos hounds */
+		/* Summon (a pack of) chaos hounds (rarely) */
 		else if (one_in_(3))
 		{
 			int count = 0;
@@ -4339,7 +4846,7 @@ void call_chaos(int dam)
 			summon_index_type = MON_CHAOS_HOUND;
 
 			/* Attempt to summon chaos hounds */
-			if (summon_specific(py, px, FALSE, 100, SUMMON_INDEX)) count++;
+			count = summon_specific(py, px, FALSE, 100, SUMMON_INDEX, 1);
 
 			if ((count) && (player_can_see_bold(py, px)))
 			{
@@ -4362,7 +4869,7 @@ void call_chaos(int dam)
 
 /*
  * The Axe 'Slaughterfield'
- *
+ * -LM-
  * This axe can even go through walls...  XXX XXX
  */
 void slaughterfield(int dam, object_type *o_ptr)
@@ -4417,10 +4924,10 @@ void slaughterfield(int dam, object_type *o_ptr)
 				/* Visual effects */
 				print_rel(missile_char, missile_attr, y, x);
 				move_cursor_relative(y, x);
-				Term_fresh();
-				Term_xtra(TERM_XTRA_DELAY, msec);
+				(void)Term_fresh();
+				pause_for(msec);
 				lite_spot(y, x);
-				Term_fresh();
+				(void)Term_fresh();
 			}
 
 			/* Kill! */
@@ -4438,7 +4945,7 @@ void slaughterfield(int dam, object_type *o_ptr)
 	}
 
 	/* No more victims <<whimper>>.  Maybe he will throw us again... */
-	drop_near(o_ptr, -1, y, x);
+	drop_near(o_ptr, 0, y, x, DROP_HERE);
 }
 
 
@@ -4450,10 +4957,11 @@ void slaughterfield(int dam, object_type *o_ptr)
  */
 int stare_into_the_palantir(void)
 {
-	monster_type *m_ptr = &m_list[0];
+	monster_type *m_ptr;
+	monster_race *r_ptr;
 
 	int timeout;
-	int i;
+	int i, maxlev = 0, midx = 0;
 
 	bool safe = FALSE;
 
@@ -4463,117 +4971,141 @@ int stare_into_the_palantir(void)
 
 	/* Flash of light, pause */
 	lite_area(damroll(2, 15), 5);
-	Term_xtra(TERM_XTRA_DELAY, 50);
+	pause_for(50);
 
-	/*
-	 * Morgoth and Sauron, if present, will grapple with the character in
-	 * mental combat.
-	 */
-	if ((p_ptr->depth == 99) || (p_ptr->depth == 100))
+
+	/* Scan the monster list */
+	for (i = 1; i < m_max; i++)
 	{
-		/* Scan the monster list */
-		for (i = 1; i > m_max; i++)
+		/* Access the monster */
+		m_ptr = &m_list[i];
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Ignore dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Get the highest-level intelligent unique monster */
+		if ((r_ptr->level > maxlev) &&
+		    (r_ptr->flags1 & (RF1_UNIQUE)) &&
+		    (r_ptr->flags2 & (RF2_SMART)))
 		{
-			/* Access the monster */
-			m_ptr = &m_list[i];
+			/* Monster must not be in LOF  XXX */
+			if (!player_can_fire_bold(m_ptr->fy, m_ptr->fx))
+			{
+				maxlev = r_ptr->level;
+				midx = i;
+			}
+		}
+	}
 
-			/* Ignore dead monsters */
-			if (!m_ptr->r_idx) continue;
 
-			/* Sauron is present */
-			if (m_ptr->r_idx == MON_SAURON) break;
+	/* Fight for control of the Palantir */
+	if (midx)
+	{
+		char m_name[80];
+		char m_pron[80];
+		char *name1;
+		char *name2;
 
-			/* Morgoth is present */
-			if (m_ptr->r_idx == MON_MORGOTH) break;
+		m_ptr = &m_list[midx];
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Get the monster's name */
+		my_strcpy(m_name, format("%s", r_name + r_ptr->name), sizeof(m_name));
+
+		/* Get monster pronoun */
+		monster_desc(m_pron, m_ptr, 0x31);
+
+		/* Describe the battle -- special-case Sauron, Morgoth */
+		if (m_ptr->r_idx == MON_SAURON)
+		{
+			name1 = "The Lidless Eye";
+			short_m_name(m_name);
+			name2 = m_name;
+		}
+		else if (m_ptr->r_idx == MON_MORGOTH)
+		{
+			name1 = "The Lord of Darkness";
+			short_m_name(m_name);
+			name2 = m_name;
+		}
+		else
+		{
+			name1 = m_name;
+			name2 = m_pron;
+			short_m_name(m_name);
 		}
 
-		/* Either Sauron or Morgoth is present */
-		if ((m_ptr->r_idx == MON_SAURON) || (m_ptr->r_idx == MON_MORGOTH))
+		/* Messages */
+		message_format(MSG_YELLOW, 0, "%^s stares straight back at you!", name1);
+		message_format(MSG_YELLOW, 0, "You and %s meet in mental combat!", name2);
+
+
+		/* Fight */
+		while (TRUE)
 		{
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			bool he_loses = FALSE;
+			bool you_lose = FALSE;
 
-			if (m_ptr->r_idx == MON_SAURON)
+			/* Opponent has a saving throw of native level */
+			if (rand_int(r_ptr->level) < 5) he_loses = TRUE;
+
+			/* Character uses saving throw */
+			if (rand_int(p_ptr->skill_sav) < 5) you_lose = TRUE;
+
+			/* You have lost */
+			if ((you_lose) && (!he_loses))
 			{
-				/* The Lidless Eye! */
-				msg_print("The Lidless Eye stares straight back at you!");
-				msg_print("You and Sauron meet in mental combat!");
+				/* Oh no. */
+				msg_format("%s seizes control of the Palantir ...", m_name);
+
+				/* Palantir is useless for a long time */
+				timeout = 1000;
+
+				/* Half of maximum HPs */
+				take_hit(p_ptr->mhp / 2, 0, "Your mind is smashed!",
+					format("gazing at %s in the Palantir", m_name));
+
+				/* Blind (no resist) */
+				set_blind(p_ptr->blind + rand_range(200, 300),
+					"Everything goes black!");
+
+				/* Confuse (no resist) */
+				set_confused(p_ptr->confused + rand_range(100, 150));
+
+				/* Fear (no resist) */
+				set_afraid(p_ptr->afraid + rand_range(200, 300));
+
+				/* Paralyzation (no resist) */
+				set_paralyzed(p_ptr->paralyzed + rand_range(2, 4));
+
+				/* Can't do anything now... */
+				return (timeout);
 			}
-			else
+
+			/* You have won */
+			else if ((he_loses) && (!you_lose))
 			{
-				/* The Lord of Darkness! */
-				msg_print("The Lord of Darkness stares straight back at you!");
-				msg_print("You and Morgoth meet in mental combat!");
-			}
+				/* Yay! */
+				msg_print("You regain control of the Palantir ...");
 
-			/* Fight */
-			while (TRUE)
-			{
-				bool he_loses = FALSE;
-				bool you_lose = FALSE;
+				/* Yay! */
+				msg_format("You break %s's will, and beat him back!", m_name);
 
-				/* Opponent has a saving throw of native level */
-				if (rand_int(r_ptr->level) <= 5) he_loses = TRUE;
+				/* Confuse (no resist) */
+				m_ptr->confused = 20;
 
-				/* Character uses saving throw */
-				if (rand_int(p_ptr->skill_sav) <= 5) you_lose = TRUE;
+				/* Frighten (no resist) */
+				m_ptr->monfear = 30;
 
-				/* You have lost */
-				if ((you_lose) && (!he_loses))
-				{
-					/* Oh no. */
-					msg_format("%s seizes control of the Palantir!",
-						(m_ptr->r_idx == MON_SAURON ? "Sauron" : "Morgoth"));
+				/* Stun (no resist) */
+				m_ptr->stunned = 40;
 
-					/* Palantir is useless for a long timeout */
-					timeout = 10000;
+				/* We're safe from all negative effects now */
+				safe = TRUE;
 
-					/* Half of maximum HPs */
-					take_hit(p_ptr->mhp / 2, 0, "Your mind is smashed!",
-						format("gazing at %s in the Palantir",
-						(m_ptr->r_idx == MON_SAURON ? "Sauron" : "Morgoth")));
-
-					/* Blind (no resist) */
-					set_blind(p_ptr->blind + rand_range(300, 450),
-						"Everything goes black!");
-
-					/* Confuse (no resist) */
-					set_confused(p_ptr->confused + rand_range(100, 150));
-
-					/* Fear (no resist) */
-					set_afraid(p_ptr->afraid + rand_range(200, 300));
-
-					/* Paralyzation (no resist) */
-					set_paralyzed(p_ptr->paralyzed + rand_range(2, 4));
-
-					/* Can't do anything now... */
-					return (timeout);
-				}
-
-				/* You have won */
-				else if ((he_loses) && (!you_lose))
-				{
-					/* Yay! */
-					msg_print("You regain control of the Palantir!");
-
-					/* Yay! */
-					msg_format("You break %s's will, and beat him back!",
-						(m_ptr->r_idx == MON_SAURON ? "Sauron" : "Morgoth"));
-
-					/* Confuse (no resist) */
-					m_ptr->confused = 20;
-
-					/* Frighten (no resist) */
-					m_ptr->monfear = 30;
-
-					/* Stun (no resist) */
-					m_ptr->stunned = 40;
-
-					/* We're safe from all negative effects now */
-					safe = TRUE;
-
-					/* Fight over */
-					break;
-				}
+				/* Fight over */
+				break;
 			}
 		}
 	}
@@ -4590,14 +5122,14 @@ int stare_into_the_palantir(void)
 		aggravate_monsters(0, FALSE, NULL);
 
 		/* Can blind, confuse, cause paralysis, and induce hallucinations */
-		if ((!p_ptr->resist_blind) && (rand_int(100) >= p_ptr->skill_sav))
+		if ((!p_ptr->resist_blind) && (!check_save(100)))
 		{
 			set_blind(p_ptr->blind + rand_range(4, 8), "You go blind!");
 		}
 
-		if ((!p_ptr->resist_confu) && (rand_int(100) >= p_ptr->skill_sav))
+		if ((!p_ptr->resist_confu) && (!check_save(100)))
 		{
-			if (rand_int(100) >= p_ptr->skill_sav)
+			if (!check_save(100))
 			{
 				set_image(p_ptr->image + rand_range(15, 30));
 				set_confused(p_ptr->confused + rand_range(15, 30));
@@ -4608,12 +5140,12 @@ int stare_into_the_palantir(void)
 			}
 		}
 
-		if ((!p_ptr->free_act) && (rand_int(100) >= p_ptr->skill_sav))
+		if ((!p_ptr->free_act) && (!check_save(100)))
 		{
 			set_paralyzed(p_ptr->paralyzed + rand_range(4, 12));
 		}
 	}
 
-	/* Standard timeout */
+	/* Standard timeout  XXX */
 	return (rand_range(175, 350));
 }

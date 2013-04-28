@@ -119,10 +119,7 @@ void plural_aux(char *name)
 	{
 		strcpy(&(name[name_len - 4]), "ice");
 	}
-	else if (streq(&(name[name_len - 4]), "lung"))
-	{
-		strcpy (&(name[name_len - 4]), "lungen");
-	}
+
 	else if (streq(&(name[name_len - 3]), "sus"))
 	{
 		strcpy (&(name[name_len - 3]), "si");
@@ -131,29 +128,23 @@ void plural_aux(char *name)
 	{
 		strcpy(&(name[name_len - 2]), "i");
 	}
-	else if (streq(&(name[name_len - 6]), "kelman"))
+	else if (( streq(&(name[name_len - 3]), "man")) &&
+	         (!streq(&(name[name_len - 5]), "human")) &&
+	         (!streq(&(name[name_len - 6]), "shaman")))
 	{
-		strcpy(&(name[name_len - 6]), "kelmen");
+		strcpy(&(name[name_len - 3]), "men");
 	}
-	else if (streq(&(name[name_len - 8]), "wordsman"))
+	else if (streq(&(name[name_len - 4]), "uruk"))
 	{
-		strcpy(&(name[name_len - 8]), "wordsmen");
+		strcpy(&(name[name_len - 4]), "uruk-hai");
 	}
-	else if (streq(&(name[name_len - 7]), "oodsman"))
+	else if (streq(&(name[name_len - 4]), "olog"))
 	{
-		strcpy(&(name[name_len - 7]), "oodsmen");
+		strcpy(&(name[name_len - 4]), "olog-hai");
 	}
-	else if (streq(&(name[name_len - 7]), "eastman"))
+	else if (streq(&(name[name_len - 5]), "mumak"))
 	{
-		strcpy(&(name[name_len - 7]), "eastmen");
-	}
-	else if (streq(&(name[name_len - 8]), "izardman"))
-	{
-		strcpy(&(name[name_len - 8]), "izardmen");
-	}
-	else if (streq(&(name[name_len - 5]), "geist"))
-	{
-		strcpy(&(name[name_len - 5]), "geister");
+		strcpy(&(name[name_len - 5]), "mumakil");
 	}
 	else if (streq(&(name[name_len - 2]), "ex"))
 	{
@@ -199,7 +190,7 @@ cptr describe_quest(s16b level, int mode)
 	strcpy(name, r_name + r_ptr->name);
 
 
-	/* Multiple quest monsters */
+	/* Multiple quest monsters (handle current and past quests) */
 	if (((q_ptr->max_num - q_ptr->cur_num) > 1) ||
 	    ((!q_ptr->active_level) && (q_ptr->max_num > 1)))
 	{
@@ -310,13 +301,11 @@ void insure_quest_monsters(void)
 
 
 /*
- * Give a reward to the player
+ * Give a reward to the character.
  *
- * Hack - The entire "tailored item" routine makes quite a few assumptions
- * as to what's a good reward, plus it relies a lot of item price to make
- * deductions. It is basically a list of special cases.
+ * (rewritten by LM for Sangband)
  */
-static void grant_reward(byte reward_level, byte type)
+static void grant_reward(byte reward_level, byte type, int diff)
 {
 	int i, j;
 	bool great = ((type == REWARD_GREAT_ITEM) ? TRUE : FALSE);
@@ -324,10 +313,19 @@ static void grant_reward(byte reward_level, byte type)
 
 	object_type *i_ptr, *j_ptr;
 	object_type forge;
-	store_type *st_ptr = &store[STORE_HOME];
+
+	s32b value, value_threshold;
+
+
+	/* Paranoia -- correct difficulties greater than 3 */
+	if (diff > 3) diff = 3;
+
 
 	/* Generate object at quest level */
-	object_level = reward_level;
+	object_level = reward_level + 10;
+
+	/* Bonus for difficult quests at high level */
+	if ((diff > 1) && (reward_level > 50)) reward_level += (diff-1) * 3;
 
 	/* Get local object */
 	i_ptr = &forge;
@@ -335,64 +333,89 @@ static void grant_reward(byte reward_level, byte type)
 	/* Create a gold reward */
 	if (type == REWARD_GOLD)
 	{
-		/* Make the gold a little more interesting */
-		object_level += 10;
+		value_threshold = ((3L + p_ptr->fame) + (reward_level)) * 35 * diff;
 
-		for (i = 0; i < 5; i++)
+		/* Keep making gold until satisfied */
+		for (value = 0, i = 0; value < value_threshold; i++)
 		{
 			/* Make some gold */
 			if (!make_gold(i_ptr)) continue;
 
+			/* Note value */
+			value += i_ptr->pval;
+
 			/* Drop it */
-			drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+			drop_near(i_ptr, 0, p_ptr->py, p_ptr->px, 0x00);
 		}
 	}
+
 	/* Create an item reward */
 	else
 	{
-		s32b price_threshold = ((p_ptr->au * (10 + p_ptr->fame)) / 100);
-		int force_item = rand_int(p_ptr->fame);
-		int x_fame;
+		/* Get a minimum value of reward */
+		value_threshold = ((3L + p_ptr->fame) + (reward_level)) *
+		   (35 + p_ptr->fame / 2 + reward_level / 5);
 
-		/* Boundary check */
-		if (price_threshold < p_ptr->au)
-			price_threshold = (p_ptr->au < 10000 ? 10000 : p_ptr->au);
+		/* Special bonus for higher difficulty */
+		if      (diff == 3) value_threshold = value_threshold * 6 / 4;
+		else if (diff == 2) value_threshold = value_threshold * 5 / 4;
 
-		if (price_threshold > 250000L) price_threshold = 250000L;
-
-		/* 100 attempts at finding a decent item */
-		for (i = 0; i < 100; i++)
+		/* Try hard to find an acceptable item */
+		for (i = 0; i < 2000; i++)
 		{
-			/* Temporary fame */
-			x_fame = ((p_ptr->fame - i) < 1) ? 0 : (p_ptr->fame - i);
-
 			/* Make a good (or great) object (if possible) */
-			if (!make_object(i_ptr, TRUE, great, FALSE)) continue;
+			if (i < reward_level / 3)
+			{
+				if (!make_object(i_ptr, FALSE, FALSE, FALSE)) continue;
+			}
+			else
+			{
+				if (!make_object(i_ptr, TRUE, great, FALSE)) continue;
+			}
 
-			/* It is identified */
-			object_known(i_ptr);
+			/* Atmosphere -- No standard artifacts */
+			if ((i_ptr->artifact_index) && (i_ptr->artifact_index < ART_MIN_RANDOM))
+			{
+				/* XXX XXX XXX (fix this properly later) */
+				a_info[i_ptr->artifact_index].cur_num = 0;
+				continue;
+			}
 
-			/* Sometimes give inappropriate rewards */
-			if (i > p_ptr->fame) force_item = rand_int(p_ptr->fame);
+			/* Item is a magical device, a potion, a scroll, or food */
+			if ((is_magical_device(i_ptr)) || (i_ptr->tval == TV_POTION) ||
+			    (i_ptr->tval == TV_SCROLL) || (i_ptr->tval == TV_FOOD))
+			{
+				/* If we've already become aware of this object, we aren't interested */
+				if (object_aware_p(i_ptr)) continue;
+			}
 
-			if (force_item < 4) break;
+			/* Special case -- light sources would otherwise be too common */
+			if ((i_ptr->tval == TV_LITE) && (!one_in_(3))) continue;
 
-			/* Relatively expensive items are always appropriate */
-			if ((i_ptr->number * object_value(i_ptr)) > price_threshold) break;
+			/* Hack -- Remove any hidden curse */
+			i_ptr->flags3 &= ~(TR3_CURSE_HIDDEN);
+
+
+			/* Calculate the value of the item */
+			value = (i_ptr->number * object_value_real(i_ptr));
+
+			/* Special case -- magical devices are worth more */
+			if (is_magical_device(i_ptr)) value = value * 4 / 3;
+
+			/* Cheap things are not appropriate */
+			if (value < value_threshold) continue;
+
 
 			/* Check spellbooks */
-			if ((i_ptr->tval == TV_MAGIC_BOOK) ||
-			    (i_ptr->tval == TV_PRAYER_BOOK) ||
-			    (i_ptr->tval == TV_NATURE_BOOK) ||
-			    (i_ptr->tval == TV_DARK_BOOK))
+			if (is_magic_book(i_ptr))
 			{
 				bool already_own_book = FALSE;
 
+				store_type *st_ptr = &store[STORE_HOME];
+
+
 				/* Check if you can use them */
 				if (i_ptr->tval != mp_ptr->spell_book) continue;
-
-				/* Sometimes, check if we already have them */
-				if (rand_int(p_ptr->fame) < 15) break;
 
 				/* Look for item in the pack */
 				for (j = 0; j < INVEN_PACK; j++)
@@ -402,21 +425,22 @@ static void grant_reward(byte reward_level, byte type)
 
 					if (!j_ptr->k_idx) continue;
 
-					if ((j_ptr->tval == i_ptr->tval) && (j_ptr->sval == i_ptr->sval))
+					if ((j_ptr->tval == i_ptr->tval) &&
+					    (j_ptr->sval == i_ptr->sval))
+					{
 						already_own_book = TRUE;
+					}
 				}
 
 				/* Look for item in home */
-				if (st_ptr->stock_num)
+				for (j = 0; j < st_ptr->stock_num; j++)
 				{
-					for (j = 0; j < st_ptr->stock_num; j++)
+					j_ptr = &st_ptr->stock[j];
+
+					if ((j_ptr->tval == i_ptr->tval) &&
+						(j_ptr->sval == i_ptr->sval))
 					{
-						j_ptr = &st_ptr->stock[j];
-						if ((j_ptr->tval == i_ptr->tval) &&
-						    (j_ptr->sval == i_ptr->sval))
-						{
-							already_own_book = TRUE;
-						}
+						already_own_book = TRUE;
 					}
 				}
 
@@ -425,7 +449,141 @@ static void grant_reward(byte reward_level, byte type)
 
 				break;
 			}
-			else if ((wield_slot(i_ptr) != -1) && (i_ptr->tval != TV_RING))
+
+			/* Check melee and missile weapons */
+			if (is_any_weapon(i_ptr))
+			{
+				/* Too heavy */
+				if (adj_str_hold[p_ptr->stat_ind[A_STR]] < (i_ptr->weight / 10))
+					continue;
+
+				/* Get object flags */
+				object_flags(i_ptr, &f1, &f2, &f3);
+
+				/* Skill check for throwing weapons */
+				if (f1 & (TR1_THROWING))
+				{
+					if (get_skill(S_THROWING, 0, 100) < p_ptr->power / 2)
+						continue;
+					else
+						break;
+				}
+
+				/* Skill check for missile weapons */
+				if (i_ptr->tval == TV_BOW)
+				{
+					if (get_skill(sbow(i_ptr->sval), 0, 100) < p_ptr->power / 2)
+						continue;
+					else
+						break;
+				}
+
+				/* Skill check for melee weapons */
+				else
+				{
+					/* Get martial arts and melee weapons skills */
+					int unarmed_skill =
+						get_skill(p_ptr->barehanded, 0, 100);
+					int weapon_skill =
+						get_skill(sweapon(i_ptr->tval), 0, 100);
+
+					/* No weapons if strongly barehanded  -SKY- */
+					if (unarmed_skill >= weapon_skill * 3 / 2)
+					{
+						continue;
+					}
+
+					/* Skill check */
+					else if (weapon_skill < p_ptr->power / 2)
+					{
+						continue;
+					}
+
+					/* No unblessed edged weapons for users of holy magic */
+					else if (p_ptr->realm == PRIEST)
+					{
+						/* Limit to legal weapon types */
+						if ((i_ptr->tval != TV_HAFTED) && !(f3 & (TR3_BLESSED)))
+							continue;
+					}
+				}
+			}
+
+			/* Check gloves */
+			else if (i_ptr->tval == TV_GLOVES)
+			{
+				object_flags(i_ptr, &f1, &f2, &f3);
+
+				/* Player is only comfortable with certain gloves */
+				if (p_ptr->oath & (OATH_OF_SORCERY) ||
+					p_ptr->oath & (BLACK_MYSTERY))
+				{
+					/* Limit to legal glove types */
+					if (!(f3 & (TR3_FREE_ACT)) &&
+						(get_object_pval(i_ptr, TR_PVAL_DEVICE) <= 0) &&
+						(get_object_pval(i_ptr, TR_PVAL_DEX) <= 0))
+					{
+						continue;
+					}
+				}
+			}
+
+			/* Check rings */
+			else if (i_ptr->tval == TV_RING)
+			{
+				/* Right hand ring -- accept if empty */
+				j_ptr = &inventory[INVEN_RIGHT];
+				if (!j_ptr->k_idx) break;
+
+				/* Refuse if the same type */
+				if (i_ptr->sval == j_ptr->sval) continue;
+
+				/* Left hand ring -- accept if empty */
+				j_ptr = &inventory[INVEN_LEFT];
+				if (!j_ptr->k_idx) break;
+
+				/* Refuse if the same type */
+				if (i_ptr->sval == j_ptr->sval) continue;
+
+				break;
+			}
+
+
+			/* Check amulets */
+			else if (i_ptr->tval == TV_AMULET)
+			{
+				/* Neck amulet -- accept if empty */
+				j_ptr = &inventory[INVEN_NECK];
+				if (!j_ptr->k_idx) break;
+
+				/* Refuse if the same type */
+				if (i_ptr->sval == j_ptr->sval) continue;
+
+				break;
+			}
+
+			/* Check missiles */
+			else if (is_missile(i_ptr))
+			{
+				int skill_idx = S_NOSKILL;
+
+				if (i_ptr->tval == TV_SHOT) skill_idx = S_SLING;
+				if (i_ptr->tval == TV_ARROW) skill_idx = S_BOW;
+				if (i_ptr->tval == TV_BOLT) skill_idx = S_CROSSBOW;
+
+				/* If you can't use the ammo, inappropriate */
+				if ((p_ptr->ammo_tval != i_ptr->tval) ||
+				    (get_skill(skill_idx, 0, 100) < p_ptr->power / 2))
+				{
+					continue;
+				}
+
+				/* Assume appropriate */
+				break;
+			}
+
+			/* Check all other wearable items */
+			else if (is_wearable(i_ptr))
 			{
 				/* Wearable items - compare to item already in slot */
 				j = wield_slot(i_ptr);
@@ -435,160 +593,135 @@ static void grant_reward(byte reward_level, byte type)
 				/* Compare value of the item with the old item */
 				if (j_ptr->k_idx)
 				{
-					if ((object_value_real(i_ptr)) <= ((object_value_real(j_ptr) *
-					    (90 + x_fame)) / 100))
+					/* Similar items also get weeded out */
+					if (value <= object_value_real(j_ptr))
 					{
 						continue;
 					}
 				}
-
-				/* Sometimes, more sophisticated checks */
-				if (rand_int(p_ptr->fame) < 7) break;
-
-				/* Weapons - additional checks */
-				if (j == INVEN_WIELD)
-				{
-					object_flags(i_ptr, &f1, &f2, &f3);
-
-					if (p_ptr->realm == PRIEST)
-					{
-						/* Limit to legal weapon types */
-						if ((i_ptr->tval != TV_HAFTED) && !(f3 & (TR3_BLESSED)))
-							continue;
-					}
-
-					/* Too heavy */
-					if (adj_str_hold[p_ptr->stat_ind[A_STR]] < (i_ptr->weight / 10))
-						continue;
-				}
-
-				/* Gloves - additional checks */
-				if (j == INVEN_HANDS)
-				{
-					object_flags(i_ptr, &f1, &f2, &f3);
-
-					/* Player is only comfortable with certain gloves */
-					if (p_ptr->oath & (OATH_OF_SORCERY) ||
-					    p_ptr->oath & (BLACK_MYSTERY))
-					{
-						/* Limit to legal glove types */
-						if (!(f3 & (TR3_FREE_ACT)) &&
-						    (get_object_pval(i_ptr, TR_PVAL_DEVICE) <= 0) &&
-						    (get_object_pval(i_ptr, TR_PVAL_DEX) <= 0))
-						{
-							continue;
-						}
-					}
-				}
-
-				break;
 			}
-			else if ((i_ptr->tval == TV_RING))
+
+			/* Check magical devices */
+			else if (is_magical_device(i_ptr))
 			{
-				/* Rings - compare to cheaper of worn rings */
-				j = (object_value_real(&inventory[INVEN_LEFT]) >
-				     object_value_real(&inventory[INVEN_RIGHT]))
-				     ? INVEN_LEFT : INVEN_RIGHT;
-
-				j_ptr = &inventory[j];
-
-				if (!j_ptr->k_idx) break;
-
-				/* Compare value of the item with the old item */
-				if ((object_value_real(i_ptr)) <= ((object_value_real(j_ptr) *
-				    (90 + x_fame)) / 100))
-				{
-					continue;
-				}
-
-				break;
+				if (get_skill(S_DEVICE, 0, 100) < p_ptr->power / 2) continue;
+				else break;
 			}
-			else if (is_missile(i_ptr))
+
+			/* Check potions */
+			else if (i_ptr->tval == TV_POTION)
 			{
-				/* If you can't use the ammo, inappropriate */
-				if (p_ptr->ammo_tval != i_ptr->tval) continue;
-
-				/* For high fame, ammo rewards are rare */
-				if (randint(p_ptr->fame) > 30) continue;
-
-				/* Assume appropriate */
-				break;
+				/* Forbid certain potions */
+				if (i_ptr->sval == SV_POTION_AUGMENTATION) continue;
+				if (i_ptr->sval == SV_POTION_GRENADE) continue;
 			}
 
-			/* Other item types are always appropriate */
+			/* Various things are not OK */
+			else if ((i_ptr->tval == TV_SKELETON) ||
+			         (i_ptr->tval == TV_JUNK) ||
+			         (i_ptr->tval == TV_COMPONENT) ||
+			         (i_ptr->tval == TV_PARCHMENT) ||
+			         (i_ptr->tval == TV_BOTTLE))
+			{
+				continue;
+			}
+
+
+			/* All other things are OK  XXX XXX */
 			break;
+		}
+
+		/* Paranoia -- Handle failure */
+		if (i == 2000)
+		{
+			grant_reward(reward_level, REWARD_GOLD, diff);
+			return;
 		}
 
 		/* Identify it fully */
 		object_aware(i_ptr);
+		object_known(i_ptr);
 		object_mental(i_ptr);
 
 		/* Drop the object */
-		drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+		drop_near(i_ptr, 0, p_ptr->py, p_ptr->px, 0x00);
 	}
 
 	/* Reset object level */
 	object_level = p_ptr->depth;
+
+	/* Special -- give Athelas to fix Black Breath */
+	if (p_ptr->black_breath)
+	{
+		/* Get local object */
+		j_ptr = &forge;
+
+		/* Make some Athelas */
+		object_prep(j_ptr, lookup_kind(TV_FOOD, SV_FOOD_ATHELAS));
+
+		/* Drop the object */
+		drop_near(j_ptr, 0, p_ptr->py, p_ptr->px, 0x00);
+	}
+
 }
 
 /*
  * Actually give the character a quest
  */
-static bool place_mon_quest(int q, int lev, int number, int difficulty)
+static bool place_mon_quest(int q, int lev, int m_level, int diff)
 {
-	int i, chance;
+	int i, j, chance;
 	int mcount = 0;
-	int lev_diff;
+	int lev_diff = 0;
+
 	monster_race *r_ptr;
 	int *monster_idx;
+
+	int power, num;
 
 	/* Allocate the "monster_idx" array */
 	C_MAKE(monster_idx, z_info->r_max, int);
 
-	/* Monsters are at least 1 level out of depth with difficulty 0 */
-	lev_diff = 1 + difficulty + lev / 30;
 
+	/* Get a monster */
 	while (mcount < 5)
 	{
-		/* After trying for a while, give up */
-		if ((lev_diff < (-50)) || (lev + lev_diff < 1)) break;
-
-		/* There's a chance of climbing up */
-		if ((lev_diff < (difficulty - 3)) || (lev + lev_diff <= 1)) chance = 0;
-		else if (lev_diff > difficulty) chance = 80;
-		else chance = 20;
-
-		if (rand_int(100) < chance)
-		{
-			if (lev_diff <= difficulty) number += (damroll(2, 2) - 1);
-			lev_diff--;
-			continue;
-		}
-
-		/* Paranoia */
-		if (lev + lev_diff <= 0) lev_diff = 1 - lev;
-
 		/* Count possible monsters */
 		for (i = 0; i < z_info->r_max; i++)
 		{
+			bool okay = TRUE;
 			r_ptr = &r_info[i];
 
 			/* Check for appropriate level */
-			if (r_ptr->level != (lev + lev_diff)) continue;
+			if (r_ptr->level < (m_level - lev_diff) ||
+			    r_ptr->level > (m_level + lev_diff)) continue;
 
-			/* Never any monster that multiplies */
+			/* No monsters that multiply */
 			if (r_ptr->flags2 & (RF2_MULTIPLY)) continue;
 
-			/* Never any lurker-type monsters */
+			/* No lurker-type monsters */
 			if (r_ptr->flags2 & (RF1_CHAR_CLEAR)) continue;
 
-			/* Never fixed-depth monsters */
+			/* No fixed-depth monsters */
 			if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) continue;
+
+			/* No uniques */
+			if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+			/* Refuse to repeat quests, unless very desperate */
+			for (j = 0; (j < MAX_QM_IDX) && (lev_diff < 5); j++)
+			{
+				if ((p_ptr->quest_memory[j].type != 0) &&
+					(p_ptr->quest_memory[j].r_idx == i))
+				{
+					continue;
+				}
+			}
 
 			/* Monster can't move - check ranged attacks */
 			if (r_ptr->flags1 & (RF1_NEVER_MOVE))
 			{
-				bool okay = FALSE;
+				okay = FALSE;
 
 				/* Allow if the monster can summon */
 				if (r_ptr->flags7) okay = TRUE;
@@ -604,28 +737,32 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 				if (!okay) continue;
 			}
 
-			/* No uniques */
-			if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+			/* No quests for thieves */
+			for (okay = TRUE, j = 0; j < MONSTER_BLOW_MAX; j++)
+			{
+				/* Extract information about the blow effect */
+				int effect = r_ptr->blow[j].effect;
+				if ((effect == RBE_EAT_GOLD) || (effect == RBE_EAT_ITEM))
+				{
+					okay = FALSE;
+					break;
+				}
+			}
+			if (!okay) continue;
 
 			/* Allow monster */
 			monster_idx[mcount++] = i;
 		}
 
-		/* Climb up until you find a suitable monster type */
-		if (mcount < 5)
-		{
-			/* Add some monsters to balance difficulty (sort-of) */
-			if (mcount == 0) number += (damroll(2, 2) - 1);
-
-			lev_diff--;
-		}
+		/* Increase the range of acceptable depths */
+		lev_diff++;
 	}
 
 	/* Paranoia */
 	if (mcount == 0)
 	{
 		/* No monsters - no quest */
-		msg_print("There are no eligible monsters to quest for");
+		msg_print("There are no eligible monsters to quest for.");
 
 		/* XXX XXX Free the "monster_idx" array */
 		FREE(monster_idx);
@@ -633,19 +770,27 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 		return (FALSE);
 	}
 
-	/* choose random monster */
+
+	/* Choose random monster */
 	i = rand_int(mcount);
 
 	/* Get monster */
 	r_ptr = &r_info[monster_idx[i]];
 
+
+	/* Get adjusted power */
+	power = 5 + div_round(p_ptr->power, 12);
+
+	/* How many monsters? */
+	num = rand_range(power, power * 2) + div_round(p_ptr->fame, 25);
+
 	/* You must quest for more monsters if they come in groups */
-	if      (r_ptr->flags1 & (RF1_FRIENDS)) number = 3 * mcount / 2;
-	else if (r_ptr->flags1 & (RF1_FRIEND))  number = 4 * mcount / 3;
+	if      (r_ptr->flags1 & (RF1_FRIENDS)) num = 2 * num;
+	else if (r_ptr->flags1 & (RF1_FRIEND))  num = 4 * num / 3;
 
 	/* Paranoia */
-	if (number <= 0) number = 1;
-	if (number > 63) number = 63;
+	if (num <= 0) num =  1;
+	if (num > 70) num = 70;
 
 
 	/* Actually write the quest */
@@ -653,9 +798,10 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 	q_info[q].base_level = lev;
 	q_info[q].active_level = lev;
 	q_info[q].r_idx = monster_idx[i];
-	q_info[q].max_num = number;
+	q_info[q].max_num = num;
 	q_info[q].cur_num = 0;
 	q_info[q].started = FALSE;
+	q_info[q].diff = diff;
 
 	/* Fail the quest on the third quest_fail check */
 	q_info[q].slack = 3;
@@ -664,8 +810,8 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 	p_ptr->cur_quest = lev;
 
 
-	/* Chance of gold reward */
-	chance = 90 - ((difficulty - 2) * 20) - (lev * 5);
+	/* Chance of gold reward (only early on) */
+	chance = 150 - ((diff-1) * 30) - (lev * 15);
 
 	/* First roll for gold award */
 	if (rand_int(100) < chance)
@@ -677,7 +823,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 	else
 	{
 		/* Chance of good item reward */
-		chance = 105 - ((difficulty - 2) * 10) - (lev);
+		chance = 150 - ((diff-1) * 30) - (lev * 5);
 
 		/* Roll for good or great item */
 		if (rand_int(100) < chance)
@@ -701,10 +847,11 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 }
 
 
+
 /*
  * Various possible names for the Inn
  */
-cptr inn_names[11] =
+cptr inn_names[MAX_INN_NAMES] =
 {
 	NULL,
 	"The Green Dragon",
@@ -716,7 +863,7 @@ cptr inn_names[11] =
 	"The Black Rose",
 	"Gestolfo's Pub",
 	"Journey's End",
-	"The Red Bull",
+	"The Red Bull"
 };
 
 
@@ -750,10 +897,17 @@ void display_inn(void)
 			if (q_info[i].reward)
 			{
 				/* Create the reward */
-				grant_reward(q_info[i].base_level, q_info[i].reward);
+				grant_reward(q_info[i].base_level, q_info[i].reward, q_info[i].diff);
 
-				/* Grant fame bonus */
-				p_ptr->fame += rand_range(4, 6);
+				/* Grant fame bonus (not so much if expectations are high) */
+				if (p_ptr->fame >= p_ptr->max_depth)
+				{
+					p_ptr->fame += rand_range(2, 4);
+				}
+				else
+				{
+					p_ptr->fame += rand_range(4, 6);
+				}
 
 				/* Reset the reward */
 				q_info[i].reward = 0;
@@ -840,30 +994,30 @@ void display_inn(void)
 		attr = TERM_L_GREEN;
 		p = "deeds have earned you respect";
 	}
-	else if (p_ptr->fame < 35)
+	else if (p_ptr->fame < 32)
 	{
 		attr = TERM_L_GREEN;
 		p = "name is spoken with praise";
 	}
-	else if (p_ptr->fame < 45)
+	else if (p_ptr->fame < 55)
 	{
 		attr = TERM_GREEN;
 		p = "name is well-known";
 	}
-	else if (p_ptr->fame < 60)
+	else if (p_ptr->fame < 70)
 	{
 		attr = TERM_GREEN;
 		p = "name commands respect";
 	}
-	else if (p_ptr->fame < 75)
+	else if (p_ptr->fame < 85)
 	{
 		attr = TERM_L_BLUE;
 		p = "victories are far-famed";
 	}
-	else if (p_ptr->fame < 90)
+	else if (p_ptr->fame < 100)
 	{
 		attr = TERM_L_BLUE;
-		p = "accomplishments are of legendary stature";
+		p = "accomplishments are legendary";
 	}
 	else
 	{
@@ -892,12 +1046,12 @@ void display_inn(void)
 
 		for (i = 0; i < avail_quest; i++)
 		{
-			if (inn_quests[i] <= 3)
+			if (i == 0)
 			{
 				attr = TERM_L_GREEN;
 				p = "An easy";
 			}
-			else if (inn_quests[i] <= 5)
+			else if (i == 1)
 			{
 				attr = TERM_YELLOW;
 				p = "A moderate";
@@ -936,7 +1090,7 @@ void display_inn(void)
 
 	/* We have a quest, and have the gold to get information */
 	if ((p_ptr->cur_quest) &&
-	    (p_ptr->au >= (p_ptr->power + p_ptr->max_depth) * 10))
+	    (p_ptr->au >= (1 + p_ptr->power + p_ptr->max_depth) * 25))
 	{
 		prt(format("r) Learn about quest monster (price %d gold).",
 			(1 + p_ptr->power + p_ptr->max_depth) * 25), 23, 3);
@@ -985,8 +1139,10 @@ static int get_quest(void)
 void inn_purchase(int item)
 {
 	int slot = 0;
-	int i, qlev, num;
+	int i, qlev;
 	bool found = FALSE;
+	int m_level;
+	int add_depth;
 
 	/* We always offer easy quests */
 	avail_quest = 1;
@@ -1016,13 +1172,22 @@ void inn_purchase(int item)
 	/* Quit if no quest chosen */
 	if (item == -1) return;
 
-	/* Get level for quest  (beta code) */
-	qlev = MAX(1, p_ptr->max_depth) + rand_range(2, 3);
-	if (p_ptr->power > qlev) qlev += (p_ptr->power - qlev) / 3;
+	/* Get added depth of monsters (no variance for very early quest) */
+	add_depth = inn_quests[item] = ((p_ptr->max_depth <= 1) ? 2 : rand_range(2, 3));
+
+
+	/* Get level for quest */
+	qlev = MAX(1, p_ptr->max_depth) + add_depth;
+
+	/* Get approximate level of monster (apply character power if high) */
+	m_level = MAX(2 * p_ptr->power / 3, qlev);
+
+	/* Adjust approximate level of monster according to depth */
+	m_level = 1 + m_level + qlev / 30;
 
 
 	/* We've run out of OOD monsters.  XXX */
-	if (qlev >= 88)
+	if (m_level >= 85 + add_depth)
 	{
 		msg_print("Alas, we have no quests that are worthy of you.");
 		return;
@@ -1054,9 +1219,7 @@ void inn_purchase(int item)
 	{
 		if (item < 3)
 		{
-			/* How many monsters? */
-			num = damroll(5, 3) + (p_ptr->fame / 30);
-			if (!place_mon_quest(slot, qlev, num, inn_quests[item])) return;
+			if (!place_mon_quest(slot, qlev, m_level, item + 1)) return;
 		}
 		else return;
 	}
@@ -1064,7 +1227,7 @@ void inn_purchase(int item)
 	else msg_print("You can't accept any more quests!");
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
 	display_inn();
 
@@ -1180,14 +1343,14 @@ void check_quest_failure(int mode)
 			/* We have left the quest level */
 			if (p_ptr->cur_quest != p_ptr->depth)
 			{
-				int chance = 0;
+				int odds = 0;
 
 				/* Get chances against failing the quest */
-				if      (mode == 1) chance = 300;
-				else if (mode == 2) chance =   3;
+				if      (mode == 1) odds = 300;
+				else if (mode == 2) odds =   3;
 
 				/* Get closer to failure every so often */
-				if (one_in_(chance))
+				if (one_in_(odds))
 				{
 					if (q_ptr->slack) q_ptr->slack--;
 

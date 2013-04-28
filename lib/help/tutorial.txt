@@ -1,7 +1,3 @@
-
-===================== Game Tutorial:  The Novice's Guide ======================
-
-
      When you begin the game, you start out in a town with stores happy to sell
 you whatever they stock and you can afford.  Visit the stores and stop by your
 very own home (the symbol '8'), where you can safely stash all sorts of useful
@@ -14,25 +10,26 @@ but you can gain more experience points by killing monsters and more gold by
 selling the loot they drop.
      Below these are the six vital statistics:  Strength, Intelligence, Wisdom,
 Dexterity, Constitution, and Charisma.  Near the bottom, you will see your
-armour class, hit points, and (when you learn magic) your spell points.  Armour
+armour class, hit points, and (if you learn magic) your spell points.  Armour
 class shields you from direct damage.  Hitpoints are your life wrapped up in a
 number, so run from anything that drops them too low, too fast.
 
      Get familiar with some of the commands you have available to you, either by
 reading the help, or by experimenting, whichever you prefer.  If you mistype,
 the game will offer to bring up a list of commands.
-     To exit this tutorial, hit escape.  When ready to continue, type '?' to
-open up help, then press '1' twice.
+     To exit this tutorial, hit '?'.  When ready to continue, type '?' to
+open up help, then press '1', then '2'.
 
-
-
-     Okay, time to get playing!  Pick up an inexpensive weapon (store 3), some
-flasks of oil (store 1) or a sling and some shots (store 3), some light armor
-(stores 1 and 2), and some phase door scrolls and potions of cure light wounds
-(Stores 4 or 5).  If one is available, get your hands on a lantern, because the
-extra light it provides is very handy.  Once you've earned a little money,
-invest in a shovel or a pickaxe.  Now, 'w'ear a torch or your lantern, your
-armor, and your weapon.
+     Okay, time to get playing!  Type '$', and the skills screen appears.  You
+have earned just enough experience to choose some basic skills; it is a smart
+idea to do this before entering the dungeon.  The best choice for a new player
+is either throwing or slings.
+     Pick up an inexpensive weapon (Weapon Smith), either some throwable flasks
+of oil (General Store) or a sling and some shots (Weapon Smith), some light
+armour (Armoury, General Store), and - if you can afford them - one or two phase
+door scrolls and potions of cure light wounds (Temple, Alchemy Shop).  Once
+you've earned a little money, invest in a lantern and a shovel or pickaxe.  Now,
+'w'ear a torch, your armour, and your weapon.
      See that down staircase '>'?  It's the entrance to the deadly, lucrative
 dungeon.  Head down (Once on top of the staircase, type '>').
      Once you do that, you will find yourself in a dungeon of rooms and
@@ -41,11 +38,10 @@ you are not in a magically lit room.  Go off and explore the dungeon.  When your
 light runs out, re'F'uel it.  When you get hungry, 'E'at some of the food your
 character started out with.
      When you meet your first monster, pepper it with sling shots (press 'f' to
-fire) until it reaches you, and hit it with your weapon (move into it) until
-it's dead.  If your HPs drop too low, quaff a potion of cure light wounds, read
-a scroll of phase door, or run away.
-     When you get enough money and objects to sell, go back up to the town.
-When you get a little experience to spend, type '$' and put it to good use.  If
+fire) or throw flasks of oil (press 'v' to throw) until it reaches you, and hit
+it with your weapon (move into it) until it's dead.  If your HPs drop too low,
+quaff a potion of cure light wounds, read a scroll of phase door, or run away.
+     When you get enough money and objects to sell, go back up to the town.  If
 you have questions, the '?' key is there to help.
 
 Have fun!

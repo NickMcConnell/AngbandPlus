@@ -2,12 +2,11 @@
 /* File: util.c */
 
 /*
- * File-handling functions.  Macros.  Process keypresses.  Store object
- * inscriptions.  Messages.  Save, load, and clear the screen.  Print text
- * out to screen in various ways.  Ask for commands, strings, and numbers.
- * Handle repeated commands.  Gamma correction and colors.  Turn dice into
- * damage and back again, math functions.  Angular math.  Special utility
- * functions.
+ * Macros.  Process keypresses.  Object inscription storage.  Messages.
+ * Save, load, and clear the screen.  Print text out to screen and files.
+ * Ask for commands, strings, and numbers.  Handle repeated commands.
+ * Gamma correction and colors.  Math functions (dice, angular math, etc.).
+ * Special utility functions.
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
@@ -21,760 +20,25 @@
 
 
 
-
 /*
- * The concept of the "file" routines below (and elsewhere) is that all
- * file handling should be done using as few routines as possible, since
- * every machine is slightly different, but these routines always have the
- * same effects.
- *
- * In fact, perhaps we should use the "path_parse()" routine below to convert
- * from "canonical" filenames (optional leading tilde's, internal wildcards,
- * slash as the path separator, etc) to "system" filenames (no special symbols,
- * system-specific path separator, etc).  This would allow the program itself
- * to assume that all filenames are "UNIX" filenames, and explicitly "extract"
- * such filenames if needed (by "path_parse()", or perhaps "path_canon()").
- *
- * Note that "path_temp" should probably return a "canonical" filename.
- *
- * Note that "my_fopen()" and "my_open()" and "my_make()" and "my_kill()"
- * and "my_move()" and "my_copy()" should all take "canonical" filenames.
- *
- * Note that "canonical" filenames use a leading "slash" to indicate
- * an absolute path, and a leading "tilde" to indicate a special
- * directory, and default to a relative path, but MSDOS uses a leading
- * "drivename plus colon" to indicate the use of a "special drive",
- * and then the rest of the path is parsed "normally", and MACINTOSH
- * uses a leading colon to indicate a relative path, and an embedded
- * colon to indicate a "drive plus absolute path", and finally
- * defaults to a file in the current working directory, which may or
- * may not be defined.
- *
- * We should probably parse a leading "~~/" as referring to "ANGBAND_DIR". (?)
+ * Pause the game.  Argument is number of milliseconds.
  */
-
-
-#ifdef ACORN
-
-
-/*
- * Most of the "file" routines for "ACORN" should be in "main-ros.c"
- */
-
-
-#else /* ACORN */
-
-
-#ifdef SET_UID
-
-/*
- * Extract a "parsed" path from an initial filename
- * Normally, we simply copy the filename into the buffer
- * But leading tilde symbols must be handled in a special way
- * Replace "~user/" by the home directory of the user named "user"
- * Replace "~/" by the home directory of the current user
- */
-errr path_parse(char *buf, size_t max, cptr file)
+void pause_for(int msec)
 {
-	cptr u, s;
-	struct passwd *pw;
-	char user[128];
-
-
-	/* Assume no result */
-	buf[0] = '\0';
-
-	/* No file? */
-	if (!file) return (-1);
-
-	/* File needs no parsing */
-	if (file[0] != '~')
-	{
-		my_strcpy(buf, file, max);
-		return (0);
-	}
-
-	/* Point at the user */
-	u = file + 1;
-
-	/* Look for non-user portion of the file */
-	s = strstr(u, PATH_SEP);
-
-	/* Hack -- no long user names */
-	if (s && (s >= u + sizeof(user))) return (1);
-
-	/* Extract a user name */
-	if (s)
-	{
-		int i;
-
-		for (i = 0; u < s; ++i) user[i] = *u++;
-		user[i] = '\0';
-		u = user;
-	}
-
-	/* Look up the "current" user */
-	if (u[0] == '\0') u = getlogin();
-
-	/* Look up a user (or "current" user) */
-	if (u) pw = getpwnam(u);
-	else   pw = getpwuid(getuid());
-
-	/* Nothing found? */
-	if (!pw) return (1);
-
-	/* Make use of the info */
-	my_strcpy(buf, pw->pw_dir, max);
-
-	/* Append the rest of the filename, if any */
-	if (s) my_strcat(buf, s, max);
-
-	/* Success */
-	return (0);
-}
-
-
-#else /* SET_UID */
-
-
-/*
- * Extract a "parsed" path from an initial filename
- *
- * This requires no special processing on simple machines,
- * except for verifying the size of the filename.
- */
-errr path_parse(char *buf, size_t max, cptr file)
-{
-	/* Accept the filename */
-	strnfmt(buf, max, "%s", file);
-
-	/* Success */
-	return (0);
-}
-
-
-#endif /* SET_UID */
-
-
-#ifndef HAVE_MKSTEMP
-
-/*
- * Hack -- acquire a "temporary" file name if possible
- *
- * This filename is always in "system-specific" form.
- */
-static errr path_temp(char *buf, size_t max)
-{
-	cptr s;
-
-	/* Temp file */
-	s = tmpnam(NULL);
-
-	/* Oops */
-	if (!s) return (-1);
-
-	/* Format to length */
-	strnfmt(buf, max, "%s", s);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* HAVE_MKSTEMP */
-
-
-
-/*
- * Create a new path by appending a file (or directory) to a path
- *
- * This requires no special processing on simple machines, except
- * for verifying the size of the filename, but note the ability to
- * bypass the given "path" with certain special file-names.
- *
- * Note that the "file" may actually be a "sub-path", including
- * a path and a file.
- *
- * Note that this function yields a path which must be "parsed"
- * using the "parse" function above.
- */
-errr path_build(char *buf, size_t max, cptr path, cptr file)
-{
-	/* Special file */
-	if (file[0] == '~')
-	{
-		/* Use the file itself */
-		strnfmt(buf, max, "%s", file);
-	}
-
-	/* Absolute file, on "normal" systems */
-	else if (prefix(file, PATH_SEP) && !streq(PATH_SEP, ""))
-	{
-		/* Use the file itself */
-		strnfmt(buf, max, "%s", file);
-	}
-
-	/* No path given */
-	else if (!path[0])
-	{
-		/* Use the file itself */
-		strnfmt(buf, max, "%s", file);
-	}
-
-	/* Path and File */
-	else
-	{
-		/* Build the new path */
-		strnfmt(buf, max, "%s%s%s", path, PATH_SEP, file);
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- replacement for "fopen()"
- */
-FILE *my_fopen(cptr file, cptr mode)
-{
-	char buf[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (NULL);
-
-	/* Attempt to fopen the file anyway */
-	return (fopen(buf, mode));
-}
-
-
-/*
- * Hack -- replacement for "fclose()"
- */
-errr my_fclose(FILE *fff)
-{
-	/* Require a file */
-	if (!fff) return (-1);
-
-	/* Close, check for error */
-	if (fclose(fff) == EOF) return (1);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* ACORN */
-
-
-#ifdef HAVE_MKSTEMP
-
-FILE *my_fopen_temp(char *buf, size_t max)
-{
-	int fd;
-
-	/* Prepare the buffer for mkstemp */
-	my_strcpy(buf, "/tmp/anXXXXXX", max);
-
-	/* Secure creation of a temporary file */
-	fd = mkstemp(buf);
-
-	/* Check the file-descriptor */
-	if (fd < 0) return (NULL);
-
-	/* Return a file stream */
-	return (fdopen(fd, "w"));
-}
-
-#else /* HAVE_MKSTEMP */
-
-FILE *my_fopen_temp(char *buf, size_t max)
-{
-	/* Generate a temporary filename */
-	if (path_temp(buf, max)) return (NULL);
-
-	/* Open the file */
-	return (my_fopen(buf, "w"));
-}
-
-#endif /* HAVE_MKSTEMP */
-
-
-/*
- * Hack -- replacement for "fgets()"
- *
- * Read a string, without a newline, to a file
- *
- * Process tabs, strip internal non-printables
- *
- * This code is currently in beta.
- */
-errr my_fgets(FILE *fff, char *buf, size_t n)
-{
-	size_t i = 0;
-
-	while (TRUE)
-	{
-		int c = fgetc(fff);
-
-		if (c == EOF)
-		{
-			/* Terminate */
-			buf[i] = '\0';
-
-			/* Success (0) if some characters were read */
-			return (i == 0);
-		}
-
-		/* Handle newline -- DOS (\015\012), Mac (\015), UNIX (\012) */
-		else if (c == '\015')
-		{
-			c = fgetc(fff);
-			if (c != '\012')
-			ungetc(c, fff);
-
-			/* Terminate */
-			buf[i] = '\0';
-
-			/* Success */
-			return (0);
-		}
-		else if (c == '\012')
-		{
-			c = fgetc(fff);
-			if (c != '\015')
-			ungetc(c, fff);
-
-			/* Terminate */
-			buf[i] = '\0';
-
-			/* Success */
-			return (0);
-		}
-
-		/* Handle tabs */
-		else if (c == '\t')
-		{
-			/* Hack -- require room */
-			if (i + 8 >= n) break;
-
-			/* Append 1-8 spaces */
-			do { buf[i++] = ' '; } while (i % 8);
-		}
-
-		/* Handle printables */
-		else if (isprint(c))
-		{
-			/* Copy */
-			buf[i++] = c;
-
-			/* Check length */
-			if (i >= n) break;
-		}
-	}
-
-	/* Nothing */
-	buf[0] = '\0';
-
-	/* Failure */
-	return (1);
-}
-
-
-/*
- * Hack -- replacement for "fputs()"
- *
- * Dump a string, plus a newline, to a file
- *
- * Perhaps this function should handle internal weirdness.
- */
-errr my_fputs(FILE *fff, cptr buf, size_t n)
-{
-	/* Unused paramter */
-	(void)n;
-
-	/* Dump, ignore errors */
-	(void)fprintf(fff, "%s\n", buf);
-
-	/* Success */
-	return (0);
-}
-
-
-
-#ifdef ACORN
-
-
-/*
- * Most of the "file" routines for "ACORN" should be in "main-ros.c"
- *
- * Many of them can be rewritten now that only "fd_open()" and "fd_make()"
- * and "my_fopen()" should ever create files.
- */
-
-
-#else /* ACORN */
-
-
-/*
- * Several systems have no "O_BINARY" flag
- */
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif /* O_BINARY */
-
-
-/*
- * Hack -- attempt to delete a file
- */
-errr fd_kill(cptr file)
-{
-	char buf[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-	/* Remove */
-	(void)remove(buf);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to move a file
- */
-errr fd_move(cptr file, cptr what)
-{
-	char buf[1024];
-	char aux[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(aux, sizeof(aux), what)) return (-1);
-
-	/* Rename */
-	(void)rename(buf, aux);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to copy a file
- */
-errr fd_copy(cptr file, cptr what)
-{
-	char buf[1024];
-	char aux[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(aux, sizeof(aux), what)) return (-1);
-
-	/* Copy XXX XXX XXX */
-	/* (void)rename(buf, aux); */
-
-	/* Assume success XXX XXX XXX */
-	return (1);
-}
-
-
-/*
- * Hack -- attempt to open a file descriptor (create file)
- *
- * This function should fail if the file already exists
- *
- * Note that we assume that the file should be "binary"
- */
-int fd_make(cptr file, int mode)
-{
-	char buf[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-#if defined(MACINTOSH)
-
-	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));
-
-#else
-
-	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
-
-#endif
+	if (msec > 0) (void)Term_xtra(TERM_XTRA_DELAY, msec);
 
 }
 
 
 /*
- * Hack -- attempt to open a file descriptor (existing file)
- *
- * Note that we assume that the file should be "binary"
+ * Make a string lower case.
  */
-int fd_open(cptr file, int flags)
+void strlower(char *buf)
 {
-	char buf[1024];
+	char *s;
 
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-#if defined(MACINTOSH) || defined(WINDOWS)
-
-	/* Attempt to open the file */
-	return (open(buf, flags | O_BINARY));
-
-#else
-
-	/* Attempt to open the file */
-	return (open(buf, flags | O_BINARY, 0));
-
-#endif
-
-}
-
-
-/*
- * Hack -- attempt to lock a file descriptor
- *
- * Legal lock types -- F_UNLCK, F_RDLCK, F_WRLCK
- */
-errr fd_lock(int fd, int what)
-{
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#ifdef SET_UID
-
-#ifdef USG
-
-#if defined(F_ULOCK) && defined(F_LOCK)
-
-	/* Un-Lock */
-	if (what == F_UNLCK)
-	{
-		/* Unlock it, Ignore errors */
-		lockf(fd, F_ULOCK, 0);
-	}
-
-	/* Lock */
-	else
-	{
-		/* Lock the score file */
-		if (lockf(fd, F_LOCK, 0) != 0) return (1);
-	}
-
-#endif /* defined(F_ULOCK) && defined(F_LOCK) */
-
-#else
-
-#if defined(LOCK_UN) && defined(LOCK_EX)
-
-	/* Un-Lock */
-	if (what == F_UNLCK)
-	{
-		/* Unlock it, Ignore errors */
-		(void)flock(fd, LOCK_UN);
-	}
-
-	/* Lock */
-	else
-	{
-		/* Lock the score file */
-		if (flock(fd, LOCK_EX) != 0) return (1);
-	}
-
-#  endif /* defined(LOCK_UN) && defined(LOCK_EX) */
-
-# endif /* USG */
-
-#else /* SET_UID */
-
-	/* Unused parameter */
-	(void)what;
-
-#endif /* SET_UID */
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to seek on a file descriptor
- */
-errr fd_seek(int fd, long n)
-{
-	long p;
-
-	/* Verify fd */
-	if (fd < 0) return (-1);
-
-	/* Seek to the given position */
-	p = lseek(fd, n, SEEK_SET);
-
-	/* Failure */
-	if (p < 0) return (1);
-
-	/* Failure */
-	if (p != n) return (1);
-
-	/* Success */
-	return (0);
-}
-
-/*
- * Hack -- attempt to read data from a file descriptor
- */
-errr fd_read(int fd, char *buf, size_t n)
-{
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#ifndef SET_UID
-
-	/* Read pieces */
-	while (n >= 16384)
-	{
-		/* Read a piece */
-		if (read(fd, buf, 16384) != 16384) return (1);
-
-		/* Shorten the task */
-		buf += 16384;
-
-		/* Shorten the task */
-		n -= 16384;
-	}
-
-#endif
-
-	/* Read the final piece */
-	if (read(fd, buf, n) != (int)n) return (1);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- Attempt to write data to a file descriptor
- */
-errr fd_write(int fd, cptr buf, size_t n)
-{
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#ifndef SET_UID
-
-	/* Write pieces */
-	while (n >= 16384)
-	{
-		/* Write a piece */
-		if (write(fd, buf, 16384) != 16384) return (1);
-
-		/* Shorten the task */
-		buf += 16384;
-
-		/* Shorten the task */
-		n -= 16384;
-	}
-
-#endif
-
-	/* Write the final piece */
-	if (write(fd, buf, n) != (int)n) return (1);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to close a file descriptor
- */
-errr fd_close(int fd)
-{
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-	/* Close */
-	(void)close(fd);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
-}
-
-
-#ifdef CHECK_MODIFICATION_TIME
-# ifdef MACINTOSH
-#  include <stat.h>
-# else
-#  include <sys/types.h>
-#  include <sys/stat.h>
-# endif /* MACINTOSH */
-
-errr check_modification_date(int fd, cptr template_file)
-{
-	char buf[1024];
-
-	struct stat txt_stat, raw_stat;
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, template_file);
-
-	/* Get stats on text file */
-	if (stat(buf, &txt_stat))
-	{
-		/* No text file - continue */
-	}
-
-	/* Get stats on raw file */
-	else if (fstat(fd, &raw_stat))
-	{
-		/* Error */
-		return (-1);
-	}
-
-	/* Ensure text file is not newer than raw file */
-	else if (txt_stat.st_mtime > raw_stat.st_mtime)
-	{
-		/* Reprocess text file */
-		return (-1);
-	}
-
-	return (0);
-}
-
-#endif /* CHECK_MODIFICATION_TIME */
-
-#endif /* ACORN */
-
-
-
-
-/*
- * Make a word lowercase.
- */
-cptr strlower(char *str)
-{
-	int i;
-	char lower[81];
-	cptr s = lower;
-
-	for (i = 0; str[i] && i < 80; i++)
-	{
-		if (isupper(str[i])) lower[i] = tolower(str[i]);
-		else                 lower[i] = str[i];
-	}
-	lower[i] = '\0';
-
-	return (format("%s", s));
+	/* Lowercase the string */
+	for (s = buf; *s != 0; s++) *s = tolower((unsigned char)*s);
 }
 
 
@@ -821,6 +85,136 @@ static int dehex(char c)
 	return (0);
 }
 
+/*
+ * Transform macro trigger name ('\[alt-D]' etc..)
+ * into macro trigger key code ('^_O_64\r' or etc..)
+ */
+static size_t trigger_text_to_ascii(char *buf, size_t max, cptr *strptr)
+{
+	cptr str = *strptr;
+	bool mod_status[MAX_MACRO_MOD];
+
+	int i, len = 0;
+	int shiftstatus = 0;
+	cptr key_code;
+
+	size_t current_len = strlen(buf);
+
+	/* No definition of trigger names */
+	if (macro_template == NULL) return 0;
+
+	/* Initialize modifier key status */
+	for (i = 0; macro_modifier_chr[i]; i++)
+		mod_status[i] = FALSE;
+
+	str++;
+
+	/* Examine modifier keys */
+	while (TRUE)
+	{
+		/* Look for modifier key name */
+		for (i = 0; macro_modifier_chr[i]; i++)
+		{
+			len = strlen(macro_modifier_name[i]);
+
+			if (!my_strnicmp(str, macro_modifier_name[i], len))
+				break;
+		}
+
+		/* None found? */
+		if (!macro_modifier_chr[i]) break;
+
+		/* Proceed */
+		str += len;
+
+		/* This modifier key is pressed */
+		mod_status[i] = TRUE;
+
+		/* Shift key might be going to change keycode */
+		if ('S' == macro_modifier_chr[i])
+			shiftstatus = 1;
+	}
+
+	/* Look for trigger name */
+	for (i = 0; i < max_macrotrigger; i++)
+	{
+		len = strlen(macro_trigger_name[i]);
+
+		/* Found it and it is ending with ']' */
+		if (!my_strnicmp(str, macro_trigger_name[i], len) && (']' == str[len]))
+			break;
+	}
+
+	/* Invalid trigger name? */
+	if (i == max_macrotrigger)
+	{
+		/*
+		 * If this invalid trigger name ends with ']',
+		 * skip all of it to avoid defining a strange macro trigger
+		 */
+		str = strchr(str, ']');
+
+		if (str)
+		{
+			strnfcat(buf, max, &current_len, "\x1F\r");
+
+			*strptr = str; /* where **strptr == ']' */
+		}
+
+		return (current_len);
+	}
+
+	/* Get keycode for this trigger name */
+	key_code = macro_trigger_keycode[shiftstatus][i];
+
+	/* Proceed */
+	str += len;
+
+	/* Begin with '^_' */
+	strnfcat(buf, max, &current_len, "\x1F");
+
+	/* Write key code style trigger using template */
+	for (i = 0; macro_template[i]; i++)
+	{
+		char ch = macro_template[i];
+		int j;
+
+		switch (ch)
+		{
+			case '&':
+			{
+				/* Modifier key character */
+				for (j = 0; macro_modifier_chr[j]; j++)
+				{
+					if (mod_status[j])
+						strnfcat(buf, max, &current_len, "%c", macro_modifier_chr[j]);
+				}
+				break;
+			}
+			case '#':
+			{
+				/* Key code */
+				strnfcat(buf, max, &current_len, "%s", key_code);
+				break;
+			}
+			default:
+			{
+				/* Fixed string */
+				strnfcat(buf, max, &current_len, "%c", ch);
+				break;
+			}
+		}
+	}
+
+	/* End with '\r' */
+	strnfcat(buf, max, &current_len, "\r");
+
+	/* Succeed */
+	*strptr = str; /* where **strptr == ']' */
+
+	return (current_len);
+}
+
 
 /*
  * Hack -- convert a printable string into real ascii
@@ -847,6 +241,15 @@ void text_to_ascii(char *buf, size_t len, cptr str)
 
 			/* Paranoia */
 			if (!(*str)) break;
+
+			/* Macro Trigger */
+			if (*str == '[')
+			{
+				/* Terminate before appending the trigger */
+				*s = '\0';
+
+				s += trigger_text_to_ascii(buf, len, &str);
+			}
 
 			/* Hack -- simple way to specify Escape */
 			if (*str == 'e')
@@ -1438,7 +841,7 @@ static char inkey_aux(void)
 			if (w >= 100) break;
 
 			/* Delay */
-			Term_xtra(TERM_XTRA_DELAY, w);
+			pause_for(w);
 		}
 	}
 
@@ -1647,7 +1050,7 @@ char inkey(void)
 		parse_under = FALSE;
 
 		/* Forget old keypresses */
-		Term_flush();
+		(void)Term_flush();
 	}
 
 
@@ -1663,7 +1066,7 @@ char inkey(void)
 
 
 	/* Hack -- Activate main screen */
-	Term_activate(term_screen);
+	(void)Term_activate(term_screen);
 
 
 	/* Get a key */
@@ -1681,13 +1084,13 @@ char inkey(void)
 		if (!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
 		{
 			/* Hack -- activate proper term */
-			Term_activate(old);
+			(void)Term_activate(old);
 
 			/* Flush output */
-			Term_fresh();
+			(void)Term_fresh();
 
 			/* Hack -- activate main screen */
-			Term_activate(term_screen);
+			(void)Term_activate(term_screen);
 
 			/* Mega-Hack -- reset saved flag */
 			character_saved = FALSE;
@@ -1739,7 +1142,7 @@ char inkey(void)
 					if (w >= 100) break;
 
 					/* Delay */
-					Term_xtra(TERM_XTRA_DELAY, w);
+					pause_for(w);
 				}
 			}
 
@@ -1804,10 +1207,10 @@ char inkey(void)
 	}
 
 	/* Hack -- restore the term */
-	Term_activate(old);
+	(void)Term_activate(old);
 
 	/* Restore the cursor */
-	Term_set_cursor(cursor_state);
+	(void)Term_set_cursor(cursor_state);
 
 	/* Cancel the various "global parameters" */
 	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
@@ -1825,7 +1228,7 @@ char inkey(void)
 void bell(cptr reason)
 {
 	/* Mega-Hack -- Flush the output */
-	Term_fresh();
+	(void)Term_fresh();
 
 	/* Hack -- memorize the reason if possible */
 	if (character_generated && reason)
@@ -1856,7 +1259,7 @@ void sound(int val)
 	if (!use_sound) return;
 
 	/* Make a sound (if allowed) */
-	Term_xtra(TERM_XTRA_SOUND, val);
+	(void)Term_xtra(TERM_XTRA_SOUND, val);
 }
 
 
@@ -2152,7 +1555,7 @@ static byte message_type_color(u16b type)
 		color = message__color[type];
 	}
 
-	/* Hack -- Colorized messages  XXX XXX */
+	/* Hack -- Colourized messages  XXX XXX */
 	else if ((type >= 200) && (type < 216))
 	{
 		color = TERM_DARK - 200 + type;
@@ -2449,24 +1852,27 @@ void messages_free(void)
  */
 static void msg_flush(int x)
 {
-	byte a = TERM_L_BLUE;
+	byte attr = TERM_L_BLUE;
 
 	/* Pause for response */
-	Term_putstr(x, 0, -1, a, "-more-");
+	(void)Term_putstr(x, 0, -1, attr, "(+)");
 
 	/* Get an acceptable keypress */
-	while (TRUE)
+	if (!message_to_window_active)
 	{
-		char ch;
-		ch = inkey();
-		if (!p_ptr->playing) break;
-		if (quick_messages)
+		while (TRUE)
 		{
-			if (p_ptr->chp >= p_ptr->mhp * op_ptr->hitpoint_warn / 10) break;
+			char ch;
+			ch = inkey();
+			if (!p_ptr->playing) break;
+			if (quick_messages)
+			{
+				if (p_ptr->chp >= p_ptr->mhp * op_ptr->hitpoint_warn / 10) break;
+			}
+			if ((ch == ESCAPE) || (ch == ' ')) break;
+			if ((ch == '\n') || (ch == '\r')) break;
+			/* bell("Illegal response to a '(+)' prompt!"); */
 		}
-		if ((ch == ESCAPE) || (ch == ' ')) break;
-		if ((ch == '\n') || (ch == '\r')) break;
-		bell("Illegal response to a 'more' prompt!");
 	}
 
 	/* Clear the line */
@@ -2525,7 +1931,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	n = (msg ? strlen(msg) : 0);
 
 	/* Hack -- flush when requested or needed */
-	if (message_column && (!msg || ((message_column + n) > (w - 8))))
+	if (message_column && (!msg || ((message_column + n) > (w - 4))))
 	{
 		/* Flush */
 		msg_flush(message_column);
@@ -2555,6 +1961,8 @@ static void msg_print_aux(u16b type, cptr msg)
 	/* Copy it */
 	my_strcpy(buf, msg, sizeof(buf));
 
+	n++;
+
 	/* Analyze the buffer */
 	t = buf;
 
@@ -2569,10 +1977,10 @@ static void msg_print_aux(u16b type, cptr msg)
 		int check, split;
 
 		/* Default split */
-		split = (w - 8);
+		split = (w - 4);
 
 		/* Find the "best" split point */
-		for (check = (w / 2); check < (w - 8); check++)
+		for (check = (w / 2); check < (w - 4); check++)
 		{
 			/* Found a valid split point */
 			if (t[check] == ' ') split = check;
@@ -2585,7 +1993,7 @@ static void msg_print_aux(u16b type, cptr msg)
 		t[split] = '\0';
 
 		/* Display part of the message */
-		Term_putstr(0, 0, split, color, t);
+		(void)Term_putstr(0, 0, split, color, t);
 
 		/* Flush it */
 		msg_flush(split + 1);
@@ -2601,7 +2009,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	}
 
 	/* Display the tail of the message */
-	Term_putstr(message_column, 0, n, color, t);
+	(void)Term_putstr(message_column, 0, n, color, t);
 
 	/* Remember the message */
 	msg_flag = TRUE;
@@ -2610,7 +2018,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	message_column += n + 1;
 
 	/* Optional refresh */
-	if (fresh_after) Term_fresh();
+	if (fresh_after) (void)Term_fresh();
 }
 
 
@@ -2676,7 +2084,7 @@ void debug(cptr fmt, ...)
 /*
  * Display a message and play the associated sound.
  *
- * The "delay" parameter, if non-zero, flushes pending input and delays the
+ * The "delay" parameter, if non-zero, flushes pending input and pauses the
  * game.  -LM-
  */
 void message(u16b type, s16b delay, cptr text)
@@ -2690,7 +2098,7 @@ void message(u16b type, s16b delay, cptr text)
 		flush();
 
 		/* Delay the game */
-		Term_xtra(TERM_XTRA_DELAY, delay);
+		pause_for(delay);
 	}
 
 	msg_print_aux(type, text);
@@ -2747,7 +2155,7 @@ void message_flush(void)
  */
 void move_cursor(int row, int col)
 {
-	Term_gotoxy(col, row);
+	(void)Term_gotoxy(col, row);
 }
 
 
@@ -2810,7 +2218,7 @@ void clear_from(int row)
 void clear_row(int row)
 {
 	/* Erase the line */
-	Term_erase(0, row, 255);
+	(void)Term_erase(0, row, 255);
 }
 
 
@@ -2823,8 +2231,11 @@ void clear_row(int row)
  */
 void c_put_str(byte attr, cptr str, int row, int col)
 {
+	/* Translate color if necessary */
+	if (attr >= max_system_colors) attr = color_table[attr].color_translate;
+
 	/* Position cursor, Dump the attr/text */
-	Term_putstr(col, row, -1, attr, str);
+	(void)Term_putstr(col, row, -1, attr, str);
 }
 
 
@@ -2834,7 +2245,7 @@ void c_put_str(byte attr, cptr str, int row, int col)
 void put_str(cptr str, int row, int col)
 {
 	/* Spawn */
-	Term_putstr(col, row, -1, TERM_WHITE, str);
+	(void)Term_putstr(col, row, -1, TERM_WHITE, str);
 }
 
 
@@ -2846,10 +2257,13 @@ void put_str(cptr str, int row, int col)
 void c_prt(byte attr, cptr str, int row, int col)
 {
 	/* Clear line, position cursor */
-	Term_erase(col, row, 255);
+	(void)Term_erase(col, row, 255);
+
+	/* Translate color if necessary */
+	if (attr >= max_system_colors) attr = color_table[attr].color_translate;
 
 	/* Dump the attr/text */
-	Term_addstr(-1, attr, str);
+	(void)Term_addstr(-1, attr, str);
 }
 
 
@@ -2868,25 +2282,30 @@ void prt(cptr str, int row, int col)
  */
 void add_str(cptr str)
 {
-	Term_addstr(-1, TERM_WHITE, str);
+	(void)Term_addstr(-1, TERM_WHITE, str);
 }
 
 
 /*
- * Centers a string.
+ * Center a string.
  */
-void center_string(char *buf, cptr str, int length)
+void center_string(char *buf, int len, cptr str, int length)
 {
 	int i, j;
+	char tmp[1024];
 
 	/* Total length */
 	i = strlen(str);
+
+	/* Paranoia -- avoid overflow */
+	if (i > 1024) return;
 
 	/* Necessary border */
 	j = (length / 2) - (i / 2);
 
 	/* Mega-Hack */
-	sprintf(buf, "%*s%s%*s", j, "", str, (i % 2) ? j - 1 : j, "");
+	sprintf(tmp, "%*s%s%*s", j, "", str, (i % 2) ? j - 1 : j, "");
+	my_strcpy(buf, tmp, len);
 }
 
 
@@ -2914,6 +2333,8 @@ void text_out_to_screen(byte a, cptr str)
 
 	cptr s;
 
+	/* Translate color if necessary */
+	if (a >= max_system_colors) a = color_table[a].color_translate;
 
 	/* Obtain the size */
 	(void)Term_get_size(&wid, &h);
@@ -2940,7 +2361,7 @@ void text_out_to_screen(byte a, cptr str)
 			y++;
 
 			/* Clear line, move cursor */
-			Term_erase(x, y, 255);
+			(void)Term_erase(x, y, 255);
 
 			continue;
 		}
@@ -2963,7 +2384,7 @@ void text_out_to_screen(byte a, cptr str)
 				for (i = wrap - 2; i >= 0; i--)
 				{
 					/* Grab existing attr/char */
-					Term_what(i, y, &av[i], &cv[i]);
+					(void)Term_what(i, y, &av[i], &cv[i]);
 
 					/* Break on space */
 					if (cv[i] == ' ') break;
@@ -2977,20 +2398,20 @@ void text_out_to_screen(byte a, cptr str)
 			if (n == 0) n = wrap;
 
 			/* Clear line */
-			Term_erase(n, y, 255);
+			(void)Term_erase(n, y, 255);
 
 			/* Wrap */
 			x = text_out_indent;
 			y++;
 
 			/* Clear line, move cursor */
-			Term_erase(x, y, 255);
+			(void)Term_erase(x, y, 255);
 
 			/* Wrap the word (if any) */
 			for (i = n; i < wrap - 1; i++)
 			{
 				/* Dump */
-				Term_addch(av[i], cv[i]);
+				(void)Term_addch(av[i], cv[i]);
 
 				/* Advance (no wrap) */
 				if (++x > wrap) x = wrap;
@@ -2998,7 +2419,7 @@ void text_out_to_screen(byte a, cptr str)
 		}
 
 		/* Dump */
-		Term_addch(a, ch);
+		(void)Term_addch(a, ch);
 
 		/* Advance */
 		if (++x > wrap) x = wrap;
@@ -3110,6 +2531,7 @@ void text_out_to_file(byte attr, cptr str)
 }
 
 
+
 /*
  * Output text to the screen (in color) or to a file depending on the
  * selected hook.
@@ -3164,7 +2586,7 @@ void roff(cptr str, byte l_margin, byte r_margin)
 
 /*
  * Format a string, with word wrap and centering.  Accept margins.
- * Overwrite (but do not clear) any existing text.
+ * Overwrite (but do not clear) any existing text.  -LM-
  *
  * We do not print spaces.  This makes the tombstone look better.
  *
@@ -3210,6 +2632,8 @@ void c_roff_centered(byte a, cptr str, int l_margin, int r_margin)
 	/* Locate the cursor (again) */
 	(void)Term_locate(&x, &y);
 
+	/* Translate color if necessary */
+	if (a >= max_system_colors) a = color_table[a].color_translate;
 
 	/* Process the string */
 	for (s = str; *s; s++)
@@ -3298,7 +2722,7 @@ void c_roff_centered(byte a, cptr str, int l_margin, int r_margin)
 		if (wrap)
 		{
 			/* Center the text */
-			center_string(tmp2, tmp, width);
+			center_string(tmp2, sizeof(tmp2), tmp, width);
 
 			/* Dump the text to screen */
 			for (j = 0; tmp2[j] != '\0'; j++)
@@ -3336,6 +2760,7 @@ void c_roff_centered(byte a, cptr str, int l_margin, int r_margin)
  *
  * Normal chars clear the default and append the char.
  * Backspace clears the default or deletes the final char.
+ * Control-U clears the line.
  * Return accepts the current buffer contents and returns TRUE.
  * Escape clears the buffer and the window and returns FALSE.
  *
@@ -3354,7 +2779,7 @@ bool askfor_aux(char *buf, size_t len)
 
 
 	/* Locate the cursor */
-	Term_locate(&x, &y);
+	(void)Term_locate(&x, &y);
 
 
 	/* Paranoia */
@@ -3369,14 +2794,14 @@ bool askfor_aux(char *buf, size_t len)
 
 
 	/* Display the default answer */
-	Term_erase(x, y, (int)len);
-	Term_putstr(x, y, -1, TERM_YELLOW, buf);
+	(void)Term_erase(x, y, (int)len);
+	(void)Term_putstr(x, y, -1, TERM_YELLOW, buf);
 
 	/* Process input */
 	while (!done)
 	{
 		/* Place cursor */
-		Term_gotoxy(x + k, y);
+		(void)Term_gotoxy(x + k, y);
 
 		/* Should we ignore macros?  If not, why? */
 
@@ -3418,6 +2843,12 @@ bool askfor_aux(char *buf, size_t len)
 				break;
 			}
 
+			case KTRL('U'):
+			{
+				k = 0;
+				break;
+			}
+
 			default:
 			{
 				if ((k < len-1) && (isprint((unsigned char)ch)))
@@ -3436,8 +2867,8 @@ bool askfor_aux(char *buf, size_t len)
 		buf[k] = '\0';
 
 		/* Update the entry */
-		Term_erase(x, y, (int)len);
-		Term_putstr(x, y, -1, TERM_WHITE, buf);
+		(void)Term_erase(x, y, (int)len);
+		(void)Term_putstr(x, y, -1, TERM_WHITE, buf);
 	}
 
 	/* Done */
@@ -3473,36 +2904,39 @@ bool get_string(cptr prompt, char *buf, size_t len)
 	return (res);
 }
 
-
-
 /*
  * Request a "quantity" from the user
  *
  * Allow "p_ptr->command_arg" to specify a quantity
+ *
+ * Allow "get_quantity_default" to suggest a default quantity
  */
-s16b get_quantity(cptr prompt, int max)
+s32b get_quantity(cptr prompt, s32b min, s32b max)
 {
-	int amt = 1;
+	/* Default quantity must be between min and max, inclusive */
+	s32b amt = get_quantity_default;
+	if (amt < min) amt = min;
+	if (amt > max) amt = max;
 
 
 	/* Use "command_arg" */
 	if (p_ptr->command_arg)
 	{
 		/* Extract a number */
-		amt = p_ptr->command_arg;
+		amt = (s32b)p_ptr->command_arg;
 
 		/* Clear "command_arg" */
 		p_ptr->command_arg = 0;
 	}
 
 	/* Get the item index */
-	else if ((max != 1) && allow_quantity && repeat_pull(&amt))
+	else if ((max != 1L) && allow_quantity && repeat_pull((int *)&amt))
 	{
 		/* nothing */
 	}
 
 	/* Prompt if needed */
-	else if ((max != 1) && allow_quantity)
+	else if ((max != 1L) && allow_quantity)
 	{
 		char tmp[80];
 
@@ -3512,20 +2946,20 @@ s16b get_quantity(cptr prompt, int max)
 		if (!prompt)
 		{
 			/* Build a prompt */
-			sprintf(tmp, "Quantity (0-%d):", max);
+			sprintf(tmp, "Quantity (0-%ld):", max);
 
 			/* Use that prompt */
 			prompt = tmp;
 		}
 
 		/* Build the default */
-		sprintf(buf, "%d", amt);
+		sprintf(buf, "%ld", amt);
 
 		/* Ask for a quantity */
 		if (!get_string(prompt, buf, 7)) return (0);
 
 		/* Extract a number */
-		amt = atoi(buf);
+		amt = (s32b)atoi(buf);
 
 		/* A letter means "all" */
 		if (isalpha((unsigned char)buf[0])) amt = max;
@@ -3535,10 +2969,13 @@ s16b get_quantity(cptr prompt, int max)
 	if (amt > max) amt = max;
 
 	/* Enforce the minimum */
-	if (amt < 0) amt = 0;
+	if (amt < min) amt = min;
 
 	/* Save this command */
-	if (amt) repeat_push(amt);
+	if (amt) repeat_push((s16b)amt);
+
+	/* Clear suggested quantity */
+	get_quantity_default = 1L;
 
 	/* Return the result */
 	return (amt);
@@ -3548,7 +2985,7 @@ s16b get_quantity(cptr prompt, int max)
 /*
  * Verify something with the user
  *
- * The "prompt" should take the form "Query?"
+ * The "prompt" should take the form "<question>?"
  *
  * Note that "[y/n]" is appended to the prompt.
  */
@@ -3560,6 +2997,11 @@ bool get_check(cptr prompt)
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
+
+#ifdef ALLOW_BORG
+	/* The dumbborg never commits to anything */
+	if (count_stop) return (FALSE);
+#endif
 
 	/* Hack -- Build a "useful" prompt */
 	strnfmt(buf, 78, "%.70s [y/n] ", prompt);
@@ -3583,7 +3025,10 @@ bool get_check(cptr prompt)
 	prt("", 0, 0);
 
 	/* Remember the question and the answer  -LM- */
-	message_add(format("%s  %c", prompt, ch), MSG_GENERIC);
+	if (character_generated)
+	{
+		message_add(format("%s  %c", prompt, ch), MSG_GENERIC);
+	}
 
 	/* Normal negation */
 	if ((ch != 'Y') && (ch != 'y'))
@@ -3611,7 +3056,7 @@ bool get_com(cptr prompt, char *command)
 {
 	char ch;
 
-	/* Paranoia XXX XXX XXX */
+	/* Paranoia XXX XXX XXX (we lose inkey flag info here) */
 	message_flush();
 
 	/* Display a prompt */
@@ -3751,6 +3196,8 @@ void request_command(bool shopping)
 	/* Get command */
 	while (TRUE)
 	{
+		bool skip_keymap = FALSE;
+
 		/* Hack -- auto-commands */
 		if (p_ptr->command_new)
 		{
@@ -3882,7 +3329,13 @@ void request_command(bool shopping)
 			(void)get_com("Command:", &ch);
 
 			/* Hack -- bypass keymaps */
-			if (!inkey_next) inkey_next = "";
+			skip_keymap = TRUE;
+
+			/*
+			 * -TNB-
+			 * XXX Can't set inkey_next, because inkey() may get
+			 * called to get a control char, which clears inkey_next!
+			 */
 		}
 
 
@@ -3898,7 +3351,7 @@ void request_command(bool shopping)
 		act = keymap_act[mode][(byte)(ch)];
 
 		/* Apply keymap if not inside a keymap already */
-		if (act && !inkey_next)
+		if (act && !skip_keymap && !inkey_next)
 		{
 			/* Install the keymap (limited buffer size) */
 			strnfmt(request_command_buffer, 256, "%s", act);
@@ -4194,8 +3647,8 @@ void repeat_check(void)
  *   3/4        0.75            0.82            0.84          #d7
  *   4/4        1.00            1.00            1.00          #ff
  *
- * Note that some machines (i.e. most IBM x286 machines) are limited to
- * a hard-coded set of colors, and so the information above is useless.
+ * Note that some machines (i.e. most IBM x286 machines) are limited to a
+ * hard-coded set of colors, and so for them the information above is useless.
  */
 
 
@@ -4302,34 +3755,50 @@ void build_gamma_table(int gamma)
 
 
 /*
- * Convert a "color letter" into an "actual" color
- * The colors are: dwsorgbuDWvyRGBU, as shown below
+ * Accept a color index character, return the color.  -LM-
+ *
+ * We have to maintain 16-color compatability in order to run on VGA
+ * monitors.  Therefore, all colors defined above with indexes over 15
+ * must be translated if the system only allows 16 colors.
  */
 int color_char_to_attr(char c)
 {
-	switch (c)
-	{
-		case 'd': return (TERM_DARK);
-		case 'w': return (TERM_WHITE);
-		case 's': return (TERM_SLATE);
-		case 'o': return (TERM_ORANGE);
-		case 'r': return (TERM_RED);
-		case 'g': return (TERM_GREEN);
-		case 'b': return (TERM_BLUE);
-		case 'u': return (TERM_UMBER);
+	int a;
 
-		case 'D': return (TERM_L_DARK);
-		case 'W': return (TERM_L_WHITE);
-		case 'v': return (TERM_VIOLET);
-		case 'y': return (TERM_YELLOW);
-		case 'R': return (TERM_L_RED);
-		case 'G': return (TERM_L_GREEN);
-		case 'B': return (TERM_L_BLUE);
-		case 'U': return (TERM_L_UMBER);
+	/* Is a space or '\0' -- return black */
+	if (c == '\0' || c == ' ') return (TERM_DARK);
+
+	/* Search the color table */
+	for (a = 0; a < MAX_COLORS; a++)
+	{
+		/* Look for the index */
+		if (color_table[a].index_char == c) break;
 	}
 
-	return (-1);
+	/* If we don't find the color, we assume white */
+	if (a == MAX_COLORS) return (TERM_WHITE);
+
+	/* System cannot display this color */
+	if (a >= max_system_colors)
+	{
+		/* Translate to 16-color mode */
+		a = color_table[a].color_translate;
+	}
+
+	/* Return the (possibly translated) color */
+	return (a);
 }
+
+/*
+ * Verify a color.  Change to the 16-color equivalent, if necessary.
+ */
+byte verify_color(byte attr)
+{
+	if (attr < max_system_colors) return (attr);  /* Do nothing */
+
+	return (color_table[attr].color_translate);  /* Translate */
+}
+
 
 /*
  * Generates damage for "2d6" style dice rolls
@@ -4355,8 +3824,11 @@ int damroll(int num, int sides)
  * Turn damage into dice (with optional randomization).
  *
  * dam = (dd * (ds + 1) / 2)
+ *
+ * This function MUST be fed byte values for dice and sides, or it will break
+ * on some compilers (such as DJGPP).
  */
-void dam_to_dice(int dam, byte *dice, byte *sides, bool allow_random)
+void dam_to_dice(int dam, int *dice, int *sides, bool allow_random)
 {
 	/* Damage is too small */
 	if (dam <= 0)
@@ -4366,33 +3838,40 @@ void dam_to_dice(int dam, byte *dice, byte *sides, bool allow_random)
 	}
 
 	/* Damage is too great */
-	if (dam >= 62500L)
+	else if (dam > 30000)
 	{
-		*dice = 250;
-		*sides = 250;
+		*dice = 240;
+		*sides = 249;
 	}
 
 	/* Damage is reasonable */
 	else
 	{
-		if      (dam <  4) *dice = 1;
-		else if (dam < 16) *dice = 2;
-		else               *dice = rsqrt(dam) - 2;
+		/* Need a large enough space to calculate integers in */
+		int tmp_dice, tmp_sides;
 
-		*sides = (dam * 2 / *dice) - 1;
+		if      (dam <  4) tmp_dice = 1;
+		else if (dam < 16) tmp_dice = 2;
+		else               tmp_dice = rsqrt(dam) - 2;
+
+		tmp_sides = (dam * 2 / tmp_dice) - 1;
 
 		/* Adjust dice for accuracy (perfect or standard rounding) */
-		if (dam % *dice)
+		if (dam % tmp_dice)
 		{
 			if (allow_random)
 			{
-				if (rand_int(*dice) < (dam % (*dice))) *sides += 1;
+				if (rand_int(tmp_dice) < (dam % (tmp_dice))) tmp_sides += 1;
 			}
 			else
 			{
-				if ((*dice / 2) < (dam % (*dice))) *sides += 1;
+				if ((tmp_dice / 2) < (dam % (tmp_dice))) tmp_sides += 1;
 			}
 		}
+
+		/* Store the calculated values */
+		*dice  = (byte)tmp_dice;
+		*sides = (byte)tmp_sides;
 	}
 }
 
@@ -4456,7 +3935,6 @@ u16b rsqrt(s32b input)
 		/* Save current guess */
 		else tmp = root;
 	}
-
 
 	/* Get the square of the truncated square root */
 	tmp2 = root * root;
@@ -4538,6 +4016,47 @@ u16b rsqrt(u32b val)
 
 
 /*
+ * Round a given value.
+ *
+ * "frac" controls the maximum amount of rounding compared to the given
+ * value.  If "frac" is 8, for example, the given value must be at least
+ * 80 for it to be rounded to the nearest 10.
+ */
+s32b round_it(const s32b v, int frac)
+{
+	s32b round = 5L;
+	s32b abs_v = ABS(v);
+
+	/* Rounding fraction must be at least 2, or no rounding happens */
+	if (frac < 2) return (v);
+
+	/* Small numbers aren't rounded */
+	if (v / frac < 2L) return (v);
+
+	/* Round by 5, then by 10, then by 25, then by 50, ... */
+	while (TRUE)
+	{
+		if (v / frac < round) break;
+		round *= 2L;  /* 10, 100, ... */
+		if (v / frac < round) break;
+		round *= 5L;
+		round /= 2L;  /* 25, 250, ... */
+		if (v / frac < round) break;
+		round *= 2L;  /* 50, 500, ... */
+	}
+
+	/* Apply rounding */
+	if ((abs_v % round) >= round / 2) abs_v += (round - (abs_v % round));
+	else abs_v -= (abs_v % round);
+
+	/* Return signed value */
+	if (v < 0) return (-abs_v);
+	return (abs_v);
+}
+
+
+
+/*
  * Accept values for y and x (considered as the endpoints of lines) between
  * 0 and 40, and return an angle in degrees (divided by two).  -LM-
  *
@@ -4553,12 +4072,12 @@ u16b rsqrt(u32b val)
  * The output of this table also needs to be massaged, in order to avoid the
  * discontinuity at 0/180 degrees.  This can be done by:
  *   rotate = 90 - first value
- *   this rotates the first input to the 90 degree line)
+ *   --- this rotates the first input to the 90 degree line
  *   tmp = ABS(second value + rotate) % 180
  *   diff = ABS(90 - tmp) = the angular difference (divided by two) between
  *   the first and second values.
  *
- * Note that grids diagonal to the origin have unique angles.
+ * Note that grids exactly diagonal to the origin have unique angles.
  */
 byte get_angle_to_grid[41][41] =
 {
@@ -4617,7 +4136,6 @@ byte get_angle_to_grid[41][41] =
 int get_angle_to_target(int y0, int x0, int y1, int x1, int dir)
 {
 	int ny, nx;
-	int dist_conv;
 
 	/* No valid compass direction given */
 	if ((dir == 0) || (dir == 5) || (dir > 9))
@@ -4626,25 +4144,29 @@ int get_angle_to_target(int y0, int x0, int y1, int x1, int dir)
 		if ((y1) && (x1))
 		{
 			/* Get absolute distance between source and target */
-			int dy = ABS(y1 - y0);
-			int dx = ABS(x1 - x0);
+			int ay = ABS(y1 - y0);
+			int ax = ABS(x1 - x0);
+			int delta = MAX(ay, ax);
 
-			/* Calculate distance conversion factor */
-			if ((dy > 20) || (dx > 20))
+			/* If distance is too great, shorten it */
+			if (delta > 20)
 			{
-				/* Must shrink the distance to avoid illegal table access */
-				if (dy > dx) dist_conv = 1 + (10 * dy / 20);
-				else         dist_conv = 1 + (10 * dx / 20);
-			}
-			else
-			{
-				dist_conv = 10;
-			}
-			/* Convert and reorient grid for table access */
-			ny = 20 + 10 * (y1 - y0) / dist_conv;
-			nx = 20 + 10 * (x1 - x0) / dist_conv;
+				/* Shorten distances in both directions */
+				ay = (20 * ay + delta/2) / delta;
+				ax = (20 * ax + delta/2) / delta;
 
-			/* Illegal table access is bad */
+				/* Change target, using new distances */
+				if (y1 - y0 > 0) y1 = y0 + ay;
+				else             y1 = y0 - ay;
+				if (x1 - x0 > 0) x1 = x0 + ax;
+				else             x1 = x0 - ax;
+			}
+
+			/* Reorient grid for table access */
+			ny = 20 + (y1 - y0);
+			nx = 20 + (x1 - x0);
+
+			/* Paranoia -- Illegal table access is bad */
 			if ((ny < 0) || (ny > 40) || (nx < 0) || (nx > 40))
 			{
 				/* Note error */
@@ -4663,8 +4185,8 @@ int get_angle_to_target(int y0, int x0, int y1, int x1, int dir)
 	else
 	{
 		/* Step in that direction a bunch of times, get target */
-		y1 = y0 + (ddy_ddd[dir] * 10);
-		x1 = x0 + (ddx_ddd[dir] * 10);
+		y1 = y0 + (ddy[dir] * 10);
+		x1 = x0 + (ddx[dir] * 10);
 
 		/* Convert to table grids */
 		ny = 20 + (y1 - y0);
@@ -4675,16 +4197,19 @@ int get_angle_to_target(int y0, int x0, int y1, int x1, int dir)
 	return (get_angle_to_grid[ny][nx]);
 }
 
+
 /*
  * Using the angle given, find a grid that is in that direction from the
- * origin.
+ * origin.  Angle given must be half of actual (so 240 degrees --> 120).
  *
  * Note:  This function does not yield very good results when the
- * character is adjacent to the outer wall of the dungeon and the projection
- * heads towards it.
+ * character is adjacent to the outer wall of the dungeon and the
+ * projection heads towards it.
  */
 void get_grid_using_angle(int angle, int y0, int x0, int *ty, int *tx)
 {
+	int y_top, y_bottom, x_left, x_right;
+
 	int y, x;
 	int best_y = 0, best_x = 0;
 
@@ -4696,14 +4221,53 @@ void get_grid_using_angle(int angle, int y0, int x0, int *ty, int *tx)
 	/* Angle must be legal */
 	if ((angle < 0) || (angle >= 180)) return;
 
-	/* Scan the table, get as good a match as possible */
-	for (y = 0; y < 41; y++)
-	{
-		for (x = 0; x < 41; x++)
-		{
-			/* Corresponding grid in dungeon must be fully in bounds  XXX */
-			if (!in_bounds_fully(y0 - 20 + y, x0 - 20 + x)) continue;
 
+	/* Assume maximum grids, but stay (fully) within the dungeon */
+	y_top =    MAX(y0 - 20, 1);
+	y_bottom = MIN(y0 + 20, dungeon_hgt - 1);
+	x_left =   MAX(x0 - 20, 1);
+	x_right =  MIN(x0 + 20, dungeon_wid - 1);
+
+	/* Translate to table coordinates */
+	y_top =    y_top    - y0 + 20;
+	y_bottom = y_bottom - y0 + 20;
+	x_left =   x_left   - x0 + 20;
+	x_right =  x_right  - x0 + 20;
+
+	/* Constrain to the quadrant of the table that contains this angle */
+	if (angle >= 135)
+	{
+		y_top =    MAX(y_top, 20);
+		x_left =   MAX(x_left, 20);
+	}
+	else if (angle >= 90)
+	{
+		y_top =    MAX(y_top, 20);
+		x_right =  MIN(x_right, 21);
+	}
+	else if (angle >= 45)
+	{
+		y_bottom = MIN(y_bottom, 21);
+		x_right =  MIN(x_right, 21);
+	}
+	else
+	{
+		y_bottom = MIN(y_bottom, 21);
+		x_left =   MAX(x_left, 20);
+	}
+
+	/* Paranoia -- no illegal table access (should never happen) */
+	if (y_top < 0 || y_top > 40 || y_bottom < 0 || y_bottom > 40 ||
+	    x_left < 0 || x_left > 40 || x_right < 0 || x_right > 40)
+	{
+		return;
+	}
+
+	/* Scan that portion of the table we have limited ourselves to */
+	for (y = y_top; y < y_bottom; y++)
+	{
+		for (x = x_left; x < x_right; x++)
+		{
 			/* Check this table grid */
 			this_angle = get_angle_to_grid[y][x];
 
@@ -4781,18 +4345,8 @@ int usleep(huge usecs)
 {
 	struct timeval Timer;
 
-	int nfds = 0;
-
-#ifdef FD_SET
-	fd_set *no_fds = NULL;
-
-#else
-	int *no_fds = NULL;
-
-#endif
-
 	/* Paranoia -- No excessive sleeping */
-	if (usecs > 4000000L) core("Illegal usleep() call");
+	if (usecs > 4000000L) quit("Illegal usleep() call");
 
 
 	/* Wait for it */
@@ -4800,7 +4354,7 @@ int usleep(huge usecs)
 	Timer.tv_usec = (usecs % 1000000L);
 
 	/* Wait for it */
-	if (select(nfds, no_fds, no_fds, no_fds, &Timer) < 0)
+	if (select(0, NULL, NULL, NULL, &Timer) < 0)
 	{
 		/* Hack -- ignore interrupts */
 		if (errno != EINTR) return (-1);
@@ -4832,11 +4386,9 @@ void user_name(char *buf, size_t len, int id)
 		/* Get the first 15 characters of the user name */
 		my_strcpy(buf, pw->pw_name, len);
 
-#ifdef CAPITALIZE_USER_NAME
 		/* Hack -- capitalize the user name */
 		if (islower((unsigned char)buf[0]))
 			buf[0] = toupper((unsigned char)buf[0]);
-#endif /* CAPITALIZE_USER_NAME */
 
 		return;
 	}
@@ -4846,3 +4398,66 @@ void user_name(char *buf, size_t len, int id)
 }
 
 #endif /* SET_UID */
+
+
+
+/*
+ * Execute the "Term->rows_hook" hook, if available (see above).
+ *
+ * It may (or may not) be a good idea for this function to blank the
+ * screen before resetting the number of rows, in order to cut down on
+ * screen flicker.  It is probably not a good idea to ask the user to
+ * clear any pending messages before resetting.
+ *
+ * This function moved from "z-term.c" to avoid circular dependencies.
+ */
+errr Term_rows(bool fifty_rows)
+{
+	bool change = FALSE;
+
+	/* Verify the hook (only exists on main term) */
+	if (!Term->rows_hook) return (-1);
+
+	/* Only if necessary */
+	if ((fifty_rows) && (screen_rows != 50))
+	{
+		change = TRUE;
+	}
+	else if ((!fifty_rows) && (screen_rows == 50))
+	{
+		change = TRUE;
+	}
+
+	/* Make changes */
+	if (change)
+	{
+		/* Adjust terrain fonts (not in graphics mode) */
+		if (!use_graphics && z_info)
+		{
+			int i;
+
+			/* Swap the terrain charsets */
+			for (i = 0; i < z_info->f_max; i++)
+			{
+				/* Load the characters used when displaying 25 rows */
+				if (!fifty_rows)
+				{
+					f_info[i].x_char = feat_x_char_25[i];
+				}
+
+				/* Load the characters used when displaying 50 rows */
+				else
+				{
+					f_info[i].x_char = feat_x_char_50[i];
+				}
+			}
+		}
+
+		/* Change the number of rows */
+		return ((*Term->rows_hook)(fifty_rows));
+	}
+
+	/* Don't make changes */
+	return (0);
+}
+

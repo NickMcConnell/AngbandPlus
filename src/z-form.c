@@ -27,7 +27,7 @@
  *
  * The format strings allow the basic "sprintf()" format sequences, though
  * some of them are processed slightly more carefully or portably, as well
- * as a few "special" sequences, including the "capilitization" sequences of
+ * as a few "special" sequences, including the "capitalization" sequences of
  * "%C" and "%S".
  *
  * Note that some "limitations" are enforced by the current implementation,
@@ -711,24 +711,27 @@ void quit_fmt(cptr fmt, ...)
 }
 
 
-
 /*
- * Vararg interface to core()
+ * Add a formatted string to the end of a string
  */
-void core_fmt(cptr fmt, ...)
+void strnfcat(char *str, size_t max, size_t *end, cptr fmt, ...)
 {
-	char *res;
+	size_t len;
+
 	va_list vp;
+
+	/* Paranoia */
+	if (*end >= max) return;
 
 	/* Begin the Varargs Stuff */
 	va_start(vp, fmt);
 
-	/* If requested, Do a virtual fprintf to stderr */
-	res = vformat(fmt, vp);
+	/* Build the string */
+	len = vstrnfmt(&str[*end], max - *end, fmt, vp);
 
 	/* End the Varargs Stuff */
 	va_end(vp);
 
-	/* Call core() */
-	core(res);
+	/* Change the end value */
+	*end += len;
 }

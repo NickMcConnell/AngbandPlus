@@ -1,26 +1,27 @@
 
 ====== Character Attributes ======
 
+--- Basic Attributes ---
 
 Score:
      Sangband uses a scoring system.  You get points by defeating unique (named)
-opponents, and lose them for buying more skills.  However, once you earn a
-score, it can never go down; you will never be penalized for buying skills after
-you defeat an opponent.
+opponents.  The lower your total skills, the higher the score you get for a
+given victory.  Your score never goes down:  Investing in skills after defeating
+an opponent only has an effect on the points you get for future victories.
      Because there are relatively few limits on skill advancement, you can
 become very strong indeed before you fight opponents.  However, those who buy
 fewer and less expensive skills to build their character get better scores.
 
 Approximate equation:
-     (250 * monster_depth * monster_depth),
-     divided by
+     (250 * monster_depth * monster_depth), divided by
      (level of each skill, times the base cost of that skill, all summed
-      together)
-+50% for defeating Sauron or
-+100% for defeating Morgoth
+     together)
+
+     - Plus:  +100% for defeating Morgoth, or +50% for defeating Sauron
+     - Plus:  square_root(gold / 1000).
+     - Choosing some difficulty options and races affects your score.
 
                 "The best score yet reported is 4614."
-
 
 Experience:
      As you kill monsters, learn about objects by using or eating them, cast
@@ -38,18 +39,18 @@ Gold:
 enough of the stuff.  Characters start out with an amount of gold determined by
 stats (lower is better, except charisma, where higher is better).  Social class
 greatly influences starting gold (higher is better).
-     Inside the dungeon lies more gold than you will ever find, more seams of
-treasure than you will ever dig, and more monsters carrying loot than you will
-ever kill.
+      Within the Pits of Angband lies more gold than you will ever find, more
+seams of treasure than you will ever dig, and more monsters carrying loot than
+you will ever kill.
 
 Hitpoints:
      Your hitpoints are your life wrapped up in a number; if they ever drop
 below zero, you die.  Resting will restore hitpoints, but you should always have
 some quicker way to heal yourself on hand.  Your maximum hitpoints depends on
-your overall power, race, and constitution.  It also varies according to skill:
-Those who have taken the Oath of Iron have the highest number of hitpoints,
-Oath-bound magic-users have the lowest, and all other characters fall somewhere
-in between.
+your overall power and race, plus a constitution bonus (which can be
+considerable).  It also varies according to skill:  Those who have taken the
+Oath of Iron have the most hitpoints, Oath-bound magic-users have the fewest,
+and all other characters fall somewhere in between.
 
 Spellpoints:
      If you use magic, you will also have spellpoints, or mana.  Your maximum
@@ -57,13 +58,12 @@ mana depends on your magic power skill and your intelligence (if you are using
 sorcery and necromancy) or wisdom (if you are using natural or holy magics).
 Ways to recover mana faster than by resting are rare and greatly desired.
      Mana goes down if you wear heavy armour, or are in any shape other than
-your normal one.  Sorcerers and Necromancers also lose a chunk of mana if they
-wear most (but not all) kinds of gloves.
+your normal one.
 
-Armor Class:
-     Armor class makes you harder to hit in melee, and reduces the damage you
-take from almost all monster blows.  You may raise it by equipping more and
-better armor, by increasing your Dexterity, and by activating various temporary
+Armour Class:
+     Armour class (AC) makes you harder to hit in melee, and reduces the damage
+you take from almost all monster blows.  You can raise it by equipping more and
+better armour, by increasing your Dexterity, and by activating various temporary
 effects.  As time passes, you will find this value rising past 100, even to 150
 and above at very high levels.
 
@@ -87,26 +87,25 @@ screen layout -> left panel, and activate the "luck" display.
 effects, and how you juggle equipment to boost some stats at the expense of
 others can greatly help or hinder your adventuring.  Deep in the dungeon,
 potions exist that can permanently raise your stats.
+
+Values for stats:
+     Stats range from 3 to 18/220.  The progression of stats goes from 3 -> 17,
+18, 18/10, 18/20 -> 18/220.  A value of 18/19 is the same as 18/10.
      The lowest any stat can go is 3, a level that greatly reduces any abilities
 that stat influences.  The lowest "safe" figure for most stats is 7, but you
 can't expect any significant bonuses until the stat reaches 18 or higher.  Once
 you get a stat that high, further increases will greatly enhance your abilities,
 eventually making it possible to slay some truly formidable monsters.  Stats max
 out at 18/220.
-     Stats depend on your internal stats (which range from 3 to 18/100), the
-equipment you are wearing, your shapechange, and various temporary conditions.
-Learning any magic realm increases its spell stat by 2.  If you also take the
-Oath associated with that realm, this bonus increases to 4.  Taking the Oath of
-Iron increases the combat stats, and good wrestlers and users of Karate get
-bonuses to strength and dexterity.
-
+     Stats depend on your internal stats, the equipment you are wearing, your
+shapechange, and various temporary conditions.
 
 Strength:
      Strength is critical to fighting effectively in melee and with missile
 weapons.  Increases in Strength increase damage, allow you to get more blows
 with heavier weapons, and boost the effectiveness of shield bashes.  Strength
 also improves your tunneling ability, allows you to bear more weight without
-being slowed down, and wield heavier melee and missile weapons effectively.
+being slowed down, and to wield heavier weapons effectively.
 
 Intelligence:
      Intelligent characters use magic devices, pick locks, and disarm traps more
@@ -130,7 +129,7 @@ rate of recovery from stuns.
 
 Constitution:
      Constitution determines your ability to resist physical damage and disease,
-and your rate of recovery from from poison, disease, and cuts.  It makes a great
+and your rate of recovery from poison, disease, and cuts.  It makes a great
 difference to the amount of hitpoints you have and the speed at which you
 recover them, and so is a vital stat for any character.
 
@@ -140,18 +139,27 @@ with a high charisma will receive better prices from store owners, whereas a
 character with a very low charisma will be robbed blind.
 
 
+Intrinsic Modifiers:
+     Learning any magic realm increases its spell stat by 2.  If you also take
+the Oath associated with that realm, this bonus increases to 4.  Taking the Oath
+of Iron increases the combat stats, and good wrestlers and users of Karate get
+bonuses to strength and dexterity.
+
+
 --- Abilities ---
 
      In addition to your stats, certain basic abilities define your character.
-They depend on race, stats, and skill level.  You can most effectively keep
-track of your abilities by using the Character screen.
+They depend on race, stats, and skill level, and may be powerfully influenced by
+temporary conditions.  You can most effectively keep track of your abilities by
+using the Character screen.
 
 Melee Ability:
      The higher your melee ability, the more frequently you will hit in hand-to-
 hand combat and the more critical hits you will get.  Your race, dexterity,
-melee weapon or barehanded skill, plusses to Skill on equipped items, and
-temporary effects are all factored into the skill value displayed on your
-character screen.  This also holds true for missile and throwing ability.
+melee weapon or barehanded skill, plusses to Skill on equipped items (except for
+other weapons), and temporary effects are all factored into the skill value
+displayed on your character screen.  This also holds true for missile and
+throwing ability.
 
 Shooting Ability:
      The higher your shooting ability, the more frequently you will hit with
@@ -172,30 +180,34 @@ skill.
 Stealth:
      The ability to move silently about is very useful.  If your stealth is good
 enough, you can avoid fights, get in the first blow, and fight monsters one at a
-time.  Stealth depends on race and your stealth skill.
+time.  Stealth depends on race, your stealth skill, and equipped objects.
 
 Disarming:
      The higher your disarming ability, the more quickly and safely you can pick
-locks and disarm chests and traps.  Dexterity and Intelligence both affect this
-ability, as does the disarming skill.
+locks and disarm chests and traps.  Race, your disarming skill, dexterity,
+intelligence, and equipped objects all affect this ability.
 
 Magical Devices:
-     Determines how likely you are to succeed in using staffs, wands, rods, or
-any activatable item.  Race and intelligence both affect this ability, as does
-your magical device skill.  You need a lot of skill to handle high-level wands,
-staffs, and rods, and also a fair amount for certain rings, amulets, and special
-wearable items.
+     Determines how likely you are to successfully use magical devices and most
+activatable items - dragon scale mail being the exception.  Race, magical device
+skill, intelligence, and equipped objects all affect this ability.  You need a
+lot of skill to handle high-level wands, staffs, rods, rings, and amulets, and
+also a fair amount for most other activatable items.  Confusion, hallucination,
+blindness, stunning, fear, berserk rage, and necro rage all reduce your ability
+to use magical devices.
 
 Perception:
-     The higher your perception, the more likely it is that you will see traps
+     The better your perception, the more likely it is that you will see traps
 and secret doors automatically or by searching for them.  Perception depends on
-race and your perception skill.
+race, perception skill, and equipped objects.
      Note that this ability has no direct relationship to your ability to sense
 objects or hear monsters.
 
 Infra-vision:
      The higher your infravision, the further away you can see warm-blooded
 creatures, even when invisible or not lit.
+
+
 
 
 

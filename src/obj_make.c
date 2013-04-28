@@ -18,6 +18,10 @@
 
 
 
+static int grenade_pval = -1;
+static int grenade_essence_num = 0;
+static int ave_potential = 0;
+
 /*
  * Open up the pouch, display it, and (optionally) select an essence.
  *
@@ -25,7 +29,7 @@
  * but keeping it separate will make it easier to improve.
  *
  * Return -2 if no essences are available, -1 if the user cancelled, or
- * the sval of the chosen essence(s).
+ * the sval of the chosen essence(s) if successful.
  */
 int get_essence(bool just_looking)
 {
@@ -36,7 +40,7 @@ int get_essence(bool just_looking)
 	object_kind *k_ptr;
 
 	char ch;
-	int i, j, k, l, z = 0;
+	int i, j, k, l, z;
 	int col, len, lim, num;
 
 	char o_name[80];
@@ -55,7 +59,7 @@ int get_essence(bool just_looking)
 	lim = 79 - 3;
 
 	/* Find the "final" slot */
-	for (i = 0; i < NUM_ESSENCE; i++)
+	for (z = 0, i = 0; i < NUM_ESSENCE; i++)
 	{
 		/* Skip empty slots */
 		if (!p_ptr->essence[i]) continue;
@@ -173,10 +177,13 @@ int get_essence(bool just_looking)
 				/* Convert choice to a number */
 				num = A2I(ch);
 
+				/* Convert to essence type */
+				i = out_index[num];
+
 				/* Asking for an essence we have */
-				if (num < z)
+				if (p_ptr->essence[i])
 				{
-					essence_sval = out_index[num];
+					essence_sval = i;
 					break;
 				}
 			}
@@ -224,10 +231,12 @@ int essence_to_magic(int *adjust, int *sval)
 		case ESSENCE_KNOW:   *adjust =  60;  return (GF_ENLIGHTENMENT);
 		case ESSENCE_SHIELD: *adjust =  60;  return (GF_PROTECTION);
 		case ESSENCE_BLESS:  *adjust =  60;  return (GF_HOLY_ORB);
-		default:             *adjust =  80;  return (GF_MISSILE);
+		default:             *adjust =  80;  return (GF_HURT);
 	}
-}
 
+	/* Oops */
+	return (-1);
+}
 
 
 
@@ -321,21 +330,23 @@ static int alchemy_choose_item(int tval, int *sval,
 	int old_rows = screen_rows;
 	int tmp_rows;
 
+	bool is_grenade = FALSE;
+
 
 	/* Save screen */
 	screen_save();
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
 	/* Set to 50 screen rows if scrolls or potions, 25 otherwise  XXX */
 	if ((tval == TV_SCROLL) || (tval == TV_POTION))
 	{
-		Term_rows(TRUE);
+		(void)Term_rows(TRUE);
 	}
 	else
 	{
-		Term_rows(FALSE);
+		(void)Term_rows(FALSE);
 	}
 
 	/* Get working height of screen */
@@ -345,7 +356,7 @@ static int alchemy_choose_item(int tval, int *sval,
 	/* Interact until satisfied */
 	while (TRUE)
 	{
-		int x, y;
+		int x = 0, y = 0;
 
 		/* Search the whole item list. */
 		for (num = 0, i = 1; i < z_info->k_max; i++)
@@ -358,10 +369,19 @@ static int alchemy_choose_item(int tval, int *sval,
 			/* Hack -- Skip instant artifacts */
 			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
 
+			/* Test for magical grenades (which have special rules) */
+			if ((k_ptr->tval == TV_POTION) &&
+			    (k_ptr->sval == SV_POTION_GRENADE)) is_grenade = TRUE;
+			else                                    is_grenade = FALSE;
+
 			/* Usually require awareness or seen */
 			if ((tval != TV_RING) && (tval != TV_AMULET))
 			{
-				if (!(k_ptr->special & (SPECIAL_EVER_SEEN | SPECIAL_AWARE)))
+				if (is_grenade)
+				{
+					/* Grenades are always known */
+				}
+				else if (!(k_ptr->special & (SPECIAL_EVER_SEEN | SPECIAL_AWARE)))
 				{
 					continue;
 				}
@@ -371,8 +391,7 @@ static int alchemy_choose_item(int tval, int *sval,
 			if (k_ptr->level > max_level) continue;
 
 			/* Hack -- you need some infusion skill to make grenades */
-			if ((k_ptr->tval == TV_POTION) &&
-			    (k_ptr->sval == SV_POTION_GRENADE))
+			if (is_grenade)
 			{
 				if (get_skill(S_INFUSION, 0, 100) < LEV_REQ_GRENADE) continue;
 			}
@@ -384,7 +403,7 @@ static int alchemy_choose_item(int tval, int *sval,
 			if (need_essence)
 			{
 				/* No essence cost, so must be illegal */
-				if (!k_ptr->e_type[0]) continue;
+				if ((!k_ptr->e_type[0]) && (!is_grenade)) continue;
 
 				/* Scan the essence costs */
 				for (j = 0; j < 4; j++)
@@ -503,7 +522,7 @@ static int alchemy_choose_item(int tval, int *sval,
 				if (cost_too_high) attr = TERM_SLATE;
 
 				/* Display cost */
-				center_string(buf, buf1, 80);
+				center_string(buf, sizeof(buf), buf1, 80);
 				c_prt(attr, buf, tmp_rows - 2, 0);
 			}
 
@@ -511,10 +530,10 @@ static int alchemy_choose_item(int tval, int *sval,
 			k_ptr = &k_info[choice[last_num]];
 
 
-			/* Hack -- three grenades can be made at a time */
+			/* Hack -- up to four grenades can be made at a time */
 			if ((tval == TV_POTION) && (k_ptr->sval == SV_POTION_GRENADE))
 			{
-				quantity = 3;
+				quantity = get_skill(S_INFUSION, 2, 4);
 			}
 
 			/* Potions and scrolls can be made in quantity */
@@ -522,7 +541,7 @@ static int alchemy_choose_item(int tval, int *sval,
 			{
 				/* Number depends on infusion skill and object value */
 				quantity = get_skill(S_INFUSION, 0, 70) /
-					MAX(1, rsqrt(k_ptr->cost));
+					MAX(3, rsqrt(k_ptr->cost));
 				if (quantity > 15) quantity = 15;
 				if (quantity <  1) quantity =  1;
 			}
@@ -536,7 +555,7 @@ static int alchemy_choose_item(int tval, int *sval,
 			/* Display the number that can be made */
 			strcat(buf2, format("%d", quantity));
 
-			/* It is dangeous to make lots of non-grenades at once */
+			/* It is dangerous to make lots of non-grenades at once */
 			if ((quantity > 1) &&
 				 ((tval != TV_POTION) || (k_ptr->sval != SV_POTION_GRENADE)))
 			{
@@ -544,7 +563,7 @@ static int alchemy_choose_item(int tval, int *sval,
 			}
 
 			/* Display */
-			center_string(buf, buf2, 80);
+			center_string(buf, sizeof(buf), buf2, 80);
 			c_prt(TERM_WHITE, buf, tmp_rows - 1, 0);
 
 			/* Move cursor */
@@ -570,7 +589,7 @@ static int alchemy_choose_item(int tval, int *sval,
 		{
 			p_ptr->get_help_index = HELP_FORGING;
 			do_cmd_help();
-			Term_clear();
+			(void)Term_clear();
 		}
 
 		/* Pressed RETURN */
@@ -583,7 +602,7 @@ static int alchemy_choose_item(int tval, int *sval,
 				if (need_essence && cost_too_high)
 				{
 					/* Complain */
-					center_string(buf, "You don't have enough essences to make this object.", 80);
+					center_string(buf, sizeof(buf), "You don't have enough essences to make this object.", 80);
 					c_prt(TERM_YELLOW, buf, 1, 0);
 
 					/* Move cursor */
@@ -601,7 +620,7 @@ static int alchemy_choose_item(int tval, int *sval,
 			else
 			{
 				/* Complain */
-				center_string(buf, "Please choose an object first.", 80);
+				center_string(buf, sizeof(buf), "Please choose an object first.", 80);
 				c_prt(TERM_YELLOW, buf, 1, 0);
 
 				/* Move cursor */
@@ -641,7 +660,8 @@ static int alchemy_choose_item(int tval, int *sval,
 				else
 				{
 					/* Complain */
-					center_string(buf, "You have never seen this object.  You can make it, but know nothing about it.", 80);
+					center_string(buf, sizeof(buf),
+						"You have never seen this object.  You can make it, but know nothing about it.", 80);
 					c_prt(TERM_YELLOW, buf, 1, 0);
 
 					/* Move cursor */
@@ -653,7 +673,7 @@ static int alchemy_choose_item(int tval, int *sval,
 			else
 			{
 				/* Complain */
-				center_string(buf, "Please choose an object first.", 80);
+				center_string(buf, sizeof(buf), "Please choose an object first.", 80);
 				c_prt(TERM_YELLOW, buf, 1, 0);
 
 				/* Move cursor */
@@ -687,7 +707,8 @@ static int alchemy_choose_item(int tval, int *sval,
 			else
 			{
 				/* Complain */
-				center_string(buf, "Please type an index to choose an object, RETURN to accept, or ESC to cancel.", 80);
+				center_string(buf, sizeof(buf),
+					"Please type an index to choose an object, RETURN to accept, or ESC to cancel.", 80);
 				c_prt(TERM_YELLOW, buf, 1, 0);
 
 				/* Move cursor */
@@ -703,7 +724,7 @@ static int alchemy_choose_item(int tval, int *sval,
 	else *sval = k_info[choice[last_num]].sval;
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
 	/* Set to previous screen rows */
 	if (old_rows != screen_rows)
@@ -741,6 +762,22 @@ void essence_wild_magic(object_type *o_ptr, int dam)
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
+	/* We have not calculated a damage yet */
+	if (dam < 0)
+	{
+		/* Damage depends on item level */
+		dam = k_ptr->level + 1;
+
+		/* Rings and amulets are particularly dangerous */
+		if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) dam *= 2;
+
+		/* Special case - potions of essences */
+		if ((o_ptr->tval == TV_POTION) && (o_ptr->sval == SV_POTION_GRENADE))
+		{
+			dam = damroll(o_ptr->dd, o_ptr->ds);
+		}
+	}
+
 	/* Store essence costs */
 	for (total = 0, i = 0; i < 4; i++)
 	{
@@ -750,6 +787,13 @@ void essence_wild_magic(object_type *o_ptr, int dam)
 
 		/* Sum up total number of essences required */
 		total += k_ptr->e_num[i];
+	}
+
+	/* Special case - potions of essences */
+	if ((o_ptr->tval == TV_POTION) && (o_ptr->sval == SV_POTION_GRENADE))
+	{
+		type[0] = o_ptr->pval;
+		total = 1;
 	}
 
 	/* Paranoia -- Require some essence cost */
@@ -768,7 +812,7 @@ void essence_wild_magic(object_type *o_ptr, int dam)
 		}
 
 		/* Get the essence sval */
-		essence_sval = type[i + 1];
+		essence_sval = type[i];
 
 		/* Given an essence sval, convert to a magic type */
 		typ = essence_to_magic(&dummy, &essence_sval);
@@ -801,23 +845,20 @@ void essence_wild_magic(object_type *o_ptr, int dam)
  */
 static bool kaboom(object_type *o_ptr)
 {
-	int dam;
-
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int dam;
 
 	/* Object usually does not survive */
 	bool object_survives = FALSE;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-
 	/* Damage depends on item level */
 	dam = k_ptr->level + 1;
 
 	/* Rings and amulets are particularly dangerous */
 	if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) dam *= 2;
-
 
 	/* Potions often smash */
 	if ((o_ptr->tval == TV_POTION) && (one_in_(2)))
@@ -831,7 +872,7 @@ static bool kaboom(object_type *o_ptr)
 	{
 		msg_print("The binding spells go wild!");
 
-		if (rand_int(150) < p_ptr->skill_sav)
+		if (check_save(50 + k_ptr->level))
 		{
 			msg_print("You resist the effects!");
 		}
@@ -840,19 +881,19 @@ static bool kaboom(object_type *o_ptr)
 			take_hit(damroll(2, k_ptr->level + 1), 0,
 				"Your mind is blasted!", "binding magics gone wild");
 
-			if (randint(k_ptr->level) >= 5)
-			{
-				(void)set_slow(p_ptr->slow + rand_range(4, 8));
-			}
-			if ((!p_ptr->resist_confu) && (randint(k_ptr->level) >= 10))
+			if ((!p_ptr->resist_confu) && (randint(k_ptr->level) >= 4))
 			{
 				(void)set_confused(p_ptr->confused + rand_range(4, 8));
 			}
-			if ((!p_ptr->resist_blind) && (randint(k_ptr->level) >= 15))
+			if (randint(k_ptr->level) >= 8)
+			{
+				(void)set_slow(p_ptr->slow + rand_range(4, 8));
+			}
+			if ((!p_ptr->resist_blind) && (randint(k_ptr->level) >= 12))
 			{
 				(void)set_blind(p_ptr->blind + rand_range(8, 16), NULL);
 			}
-			if ((!p_ptr->free_act) && (randint(k_ptr->level) >= 20))
+			if ((!p_ptr->free_act) && (randint(k_ptr->level) >= 24))
 			{
 				(void)set_paralyzed(p_ptr->paralyzed + rand_range(4, 8));
 			}
@@ -865,7 +906,7 @@ static bool kaboom(object_type *o_ptr)
 		msg_print("The magic escapes from your control!");
 
 		/* Magic goes wild */
-		essence_wild_magic(o_ptr, dam);
+		essence_wild_magic(o_ptr, -1);
 	}
 
 
@@ -904,8 +945,8 @@ static bool kaboom(object_type *o_ptr)
 
 	/*
 	 * In addition to normal effects, all items except scrolls can cause
-	 * physical destruction and hurt the character when they go off
-	 * bang.  Alchemists are notorious for rearranging the landscape.
+	 * physical destruction when they go off bang.  Alchemists are
+	 * notorious for rearranging the landscape.
 	 */
 	if ((o_ptr->tval != TV_SCROLL) && (dam > rand_range(10, 50)))
 	{
@@ -925,62 +966,81 @@ static bool kaboom(object_type *o_ptr)
 }
 
 
-static int grenade_typ = -1;
-static long grenade_dam = 0L;
-static int essence_num = 0;
-
 /*
  * Arm the Grenades of War!
+ *
+ * Return the damage of the grenade.
+ *
+ * The grenade code is very ugly; we will want to clean it up sometime...
  */
-static bool make_grenade(object_type *o_ptr, int skill)
+static int make_grenade(object_type *o_ptr, bool use_essence)
 {
-	byte dice, sides;
+	int dice, sides;
+	int dam, adjust;
 
-	/* We have not already chosen an essence */
-	if (grenade_typ < 0)
+	/* Making grenades depends on infusion skill, not alchemy */
+	int skill = get_skill(S_INFUSION, 0, 100);
+
+
+	/* All grenades in a batch are of the same type */
+	if (use_essence)
 	{
-		int sval = -1;
-		int adjust;
+		grenade_essence_num = 0;
+		grenade_pval = -1;
+	}
+
+	/* We have not already chosen a grenade type */
+	if (grenade_pval < 0)
+	{
 		int max;
 
-		/* Choose an essence type */
-		grenade_typ = essence_to_magic(&adjust, &sval);
+		/* Choose a type of grenade */
+		(void)essence_to_magic(&adjust, &grenade_pval);
 
-		/* Note failure */
-		if (grenade_typ == -1)
+		/* We cancelled */
+		if (grenade_pval == -1)
 		{
 			msg_print("Cancelled.");
-			return (0);
+			return (-1);
 		}
 
 		/* May not use more than three essences (or whatever you've got) */
-		max = MIN(p_ptr->essence[sval], 3);
+		max = MIN(p_ptr->essence[grenade_pval], 3);
 
 		/* Decide how many essences to use */
-		essence_num =
-			get_quantity(format("Use how many essences (max is %d)?",
-			max), max);
-
-		/* Note cancel */
-		if (!essence_num)
-		{
-			msg_print("Cancelled.");
-			return (FALSE);
-		}
-
-		/* Hack -- Use up the essences */
-		if (p_ptr->essence[sval] >= essence_num)
-		    p_ptr->essence[sval] -= essence_num;
-		else return (FALSE);
-
-		/* More essences, more damage */
-		if      (essence_num == 1) grenade_dam = 13L;
-		else if (essence_num == 2) grenade_dam = 19L;
-		else                       grenade_dam = 24L;
-
-		/* Damage depends on essence type, number, and skill */
-		grenade_dam = (grenade_dam * skill * rsqrt(skill) * adjust) / 10000L;
+		grenade_essence_num =
+			(int)get_quantity(format("Use how many essences (max is %d)?",
+			max), 0, max);
 	}
+	else
+	{
+		/* Choose a type of grenade */
+		(void)essence_to_magic(&adjust, &grenade_pval);
+	}
+
+	/* Note cancel */
+	if (!grenade_essence_num)
+	{
+		msg_print("Cancelled.");
+		return (-1);
+	}
+
+	/* Hack -- Use up the essences */
+	if (use_essence)
+	{
+		if (p_ptr->essence[grenade_pval] >= grenade_essence_num)
+			 p_ptr->essence[grenade_pval] -= grenade_essence_num;
+
+		else return (-1);
+	}
+
+	/* More essences, more damage */
+	if      (grenade_essence_num == 1) dam = 14L;
+	else if (grenade_essence_num == 2) dam = 22L;
+	else                               dam = 28L;
+
+	/* Damage depends on essence type, number, and skill */
+	dam = (dam * skill * adjust) / 1000L;
 
 	/* Make a grenade */
 	object_prep(o_ptr, lookup_kind(TV_POTION, SV_POTION_GRENADE));
@@ -990,19 +1050,20 @@ static bool make_grenade(object_type *o_ptr, int skill)
 	object_known(o_ptr);
 
 	/* Turn into dice - always have the same dice for a given damage */
-	dam_to_dice((int)grenade_dam, &dice, &sides, FALSE);
+	dam_to_dice((int)dam, &dice, &sides, FALSE);
 
 	/* Adjust damage dice */
 	o_ptr->dd = dice;
 	o_ptr->ds = sides;
 
 	/* Store essence type */
-	o_ptr->pval = grenade_typ;
+	o_ptr->pval = grenade_pval;
 
 	/* Grenades have some value */
-	o_ptr->b_cost = (grenade_dam * grenade_dam / 40L);
+	o_ptr->b_cost = 1L + (dam * dam / 40L);
 
-	return (TRUE);
+	/* Return the number of essence we used */
+	return (grenade_essence_num);
 }
 
 
@@ -1034,7 +1095,7 @@ static bool do_alchemy_aux(int input_tval, int output_tval,
 	/* Require at least one essence */
 	for (i = 0; i <= NUM_ESSENCE; i++)
 	{
-		if (p_ptr->essence[i]) has_essence = TRUE;
+		if (p_ptr->essence[i] >= 1) has_essence = TRUE;
 	}
 
 	/* No essences */
@@ -1165,17 +1226,18 @@ static bool do_alchemy_aux(int input_tval, int output_tval,
 			/* Special case -- Grenades */
 			if (grenade)
 			{
-				/* Making grenades depends on infusion skill, not alchemy */
-				skill = get_skill(S_INFUSION, 0, 100);
+				int pow;
 
 				/* Make the grenade  (Hack -- use up essences immediately) */
-				if (!make_grenade(o_ptr, skill)) return (i != 0);
+				pow = make_grenade(o_ptr, i == 0);
+
+				if (pow <= 0) return (i != 0);
 
 				/* Chance depends on damage, bottle level, and skill */
-				kaboom_chance = grenade_dam - (k_ptr->level * 3) - skill;
+				kaboom_chance = pow - (k_ptr->level * 3) - skill;
 
-				/* Never get too nasty */
-				if (kaboom_chance > 50) kaboom_chance = 50;
+				/* Chance depends on damage, bottle level, and skill */
+				kaboom_chance = (pow * 15) - (k_ptr->level / 3) - skill / 3;
 			}
 
 			/* Durability of item depends on base item used */
@@ -1220,14 +1282,13 @@ static bool do_alchemy_aux(int input_tval, int output_tval,
 				/* High-level inputs and low-level objects are good */
 				kaboom_chance = kaboom_chance * slevel / k_ptr->level;
 			}
-		}
 
-		/* There is a penalty for making more than one object at a time */
-		if ((i > 0) && (!grenade))
-		{
-			kaboom_chance += (i * 100) / (get_skill(S_INFUSION, 2, 10) * max);
+			/* There is a penalty for making more than one object at a time */
+			if (i > 0)
+			{
+				kaboom_chance += (i * 100) / (get_skill(S_INFUSION, 2, 10) * max);
+			}
 		}
-
 
 		/* Use up essences */
 		if ((i == 0) && (!grenade)) use_up_essences(o_ptr);
@@ -1257,7 +1318,7 @@ static bool do_alchemy_aux(int input_tval, int output_tval,
 			object_known(o_ptr);
 
 			/* Give it to the character */
-			give_object(o_ptr);
+			give_object(o_ptr, FALSE);
 		}
 	}
 
@@ -1349,19 +1410,19 @@ bool do_alchemy(void)
 static void forging_essence_navbar(int row, int set)
 {
 	/* First set */
-	c_prt((set == 0 ? TERM_YELLOW : TERM_SLATE), "Pvals", row, 1);
+	c_prt((set == 0 ? TERM_YELLOW : TERM_SLATE), "Sustain/Slay", row, 0);
 
 	/* Second set */
-	c_prt((set == 1 ? TERM_YELLOW : TERM_SLATE), "Sustain/Slay", row, 9);
+	c_prt((set == 1 ? TERM_YELLOW : TERM_SLATE), "Resist", row, 14);
 
 	/* Third set */
-	c_prt((set == 2 ? TERM_YELLOW : TERM_SLATE), "Resist", row, 24);
+	c_prt((set == 2 ? TERM_YELLOW : TERM_SLATE), "Qualities", row, 22);
 
 	/* Fourth set */
-	c_prt((set == 3 ? TERM_YELLOW : TERM_SLATE), "Qualities", row, 33);
+	c_prt((set == 3 ? TERM_YELLOW : TERM_SLATE), "Bonuses", row, 33);
 
 	/* Instructions */
-	c_prt(TERM_WHITE, "'<' for previous, '>' for next set", row, 45);
+	c_prt(TERM_WHITE, "'<' for previous, '>' for next screen", row, 42);
 }
 
 
@@ -1432,9 +1493,48 @@ static int color_potential(int potential)
 	else                       return (TERM_L_DARK);
 }
 
+
 /*
- * Get the approximate proportion of used to total potential, and
- * return a warning color.
+ * Calculate chance to infuse the object with this flag.
+ *
+ *  cost =     1     2     3     5
+ *
+ *  invested  success percentage
+ *  1         30     0     0     0
+ *  2         53    30     0     0
+ *  3         69    48    30     0
+ *  4         79    61    44     0
+ *  5         86    70    55    30
+ *  6         90    78    64    40
+ *  7         90    83    71    49
+ *  8         90    88    77    56
+ *  9         90    90    82    62
+ *  10        90    90    85    68
+ *  11        90    90    88    72
+ */
+static int calc_infusion_chance(int cost, int invested)
+{
+	int i;
+
+	/* You get a 30% chance if you invest the minimum */
+	int chance = 30;
+
+	/* High cost hurts chance, high investment helps it */
+	for (i = cost; i < invested; i++)
+	{
+		/* Each additional essence helps less */
+		chance += (100 - chance) / (MIN(cost, 8) + 2);
+	}
+
+	/* Return chance (max of 90%), if investment is at least cost */
+	if (invested < cost) return (0);
+	return (MIN(90, chance));
+}
+
+
+
+/*
+ * Briefly name an essence.
  */
 static cptr short_essence_name(int sval)
 {
@@ -1473,14 +1573,14 @@ static cptr short_essence_name(int sval)
  */
 static void prt_essences_avail(void)
 {
-	int i;
+	int i, j;
 
 	char buf[320];
 	cptr str;
 
 
 	/* Build up information about available essences */
-	for (buf[0] = '\0', i = 0; i < NUM_ESSENCE; i++)
+	for (buf[0] = '\0', i = 0, j = 0; i < NUM_ESSENCE; i++)
 	{
 		/* Character must have some of this essence */
 		if (!p_ptr->essence[i]) continue;
@@ -1489,14 +1589,14 @@ static void prt_essences_avail(void)
 		str = short_essence_name(i);
 
 		/* Add spaces between essence types */
-		if (i != 0) strcat(buf, "  ");
+		if (j++ != 0) strcat(buf, "  ");
 
 		/* Build the essence available string */
 		strcat(buf, format("%-5s:%3d", str, essences_available(i)));
 	}
 
 	/* Position the cursor (allow four lines for display) */
-	move_cursor(20, 0);
+	move_cursor(17, 0);
 
 	/* Show the essences */
 	c_roff(TERM_WHITE, buf, 1, 80);
@@ -1508,7 +1608,7 @@ static void prt_essences_avail(void)
  *
  * Note that this display is only capable of showing 26 flags.
  */
-static s16b do_forging_essence_pval(s16b *pval_val, int potential)
+static s16b do_forging_essence_pval(s16b *pval_val)
 {
 	int action = 0;
 
@@ -1533,7 +1633,7 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
 
 	/* Fill in flag index reference */
@@ -1562,35 +1662,35 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 	/* Interact */
 	while (TRUE)
 	{
-		/* Print the navigation bar -- highlight set #0 */
-		forging_essence_navbar(24, 0);
+		/* Print the navigation bar -- highlight set #3 */
+		forging_essence_navbar(21, 3);
 
 		/* Get and center the potential display */
-		center_string(desc, "Potential", 80);
+		center_string(desc, sizeof(desc), "Potential", 80);
 
-		/* Get a warning color and display it */
-		c_prt(color_potential(potential), desc, 19, 0);
+		/* Get a warning color and display it (use average potential) */
+		c_prt(color_potential(ave_potential), desc, 16, 0);
 
 		/* Print essences */
 		prt_essences_avail();
 
 		/* Print pvals */
 		c_put_str((selection == -3 ? TERM_YELLOW : TERM_WHITE),
-			"Pval #1: ", 3, 17);
-		c_put_str(TERM_L_BLUE, format("%2d", pval_val[1]), 3, 26);
+			"Bonus #1: ", 0, 14);
+		c_put_str(TERM_L_BLUE, format("%2d", pval_val[1]), 0, 23);
 
 		c_put_str((selection == -2 ? TERM_YELLOW : TERM_WHITE),
-			"Pval #2: ", 3, 34);
-		c_put_str(TERM_L_GREEN, format("%2d", pval_val[2]), 3, 43);
+			"Bonus #2: ", 0, 34);
+		c_put_str(TERM_L_GREEN, format("%2d", pval_val[2]), 0, 43);
 
 		c_put_str((selection == -1 ? TERM_YELLOW : TERM_WHITE),
-			"Pval #3: ", 3, 51);
-		c_put_str(TERM_VIOLET, format("%2d", pval_val[3]), 3, 60);
+			"Bonus #3: ", 0, 54);
+		c_put_str(TERM_PURPLE, format("%2d", pval_val[3]), 0, 63);
 
-		c_prt(TERM_SLATE, "Attribute           Bonus Max  Spent    Attribute           Bonus Max  Spent", 4, 0);
+		c_prt(TERM_L_WHITE, "Attribute              Bonus   Spent    Attribute              Bonus   Spent", 2, 0);
 
 		/* Display the pval-dependant flags */
-		for (col = 0, row = 5, z = 0; z < num; z++)
+		for (col = 0, row = 3, z = 0; z < num; z++)
 		{
 			/* Get flag from index */
 			i = index_to_flag[z];
@@ -1599,7 +1699,7 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 			if (z == (num + 1) / 2)
 			{
 				col = 40;
-				row = 5;
+				row = 3;
 			}
 
 			/* Get color of flag name */
@@ -1616,32 +1716,35 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 			if (MAX(1, cost) <=
 				p_ptr->essence[flag_creation_data[i].essence_sval])
 			{
-				/* Color-colded pvals */
+				/* Color-coded pvals */
 				attr = TERM_WHITE;
 				if (ffi[i].p_index == 1) attr = TERM_L_BLUE;
 				if (ffi[i].p_index == 2) attr = TERM_L_GREEN;
-				if (ffi[i].p_index == 3) attr = TERM_VIOLET;
+				if (ffi[i].p_index == 3) attr = TERM_PURPLE;
 
 				/* Print out this flag's pval */
-				c_prt(attr, format("%2d", pval_val[ffi[i].p_index]), row, col + 22);
-
-				/* Print out this flag's maximum pval */
-				prt(format("%d", ffi[i].max), row, col + 27);
+				c_prt(attr, format("%2d", pval_val[ffi[i].p_index]), row, col + 25);
 
 				/* Display invested essences */
 				if (ffi[i].p_index)
 				{
-					/* Colorful indicator of approximate chance of success */
-					if      (cost*3 <= ffi[i].invested-1) attr = TERM_BLUE;
-					else if (cost*2 <= ffi[i].invested-1) attr = TERM_L_BLUE;
-					else if (cost   <= ffi[i].invested)   attr = TERM_WHITE;
-					else                                  attr = TERM_RED;
+					/* Get chance of success */
+					int chance = calc_infusion_chance(cost, ffi[i].invested);
 
+					/* Colorful indicator of success chance */
+					if      (chance >= 90) attr = TERM_PURPLE;
+					else if (chance >= 80) attr = TERM_BLUE;
+					else if (chance >= 70) attr = TERM_L_BLUE;
+					else if (chance >= 50) attr = TERM_WHITE;
+					else                   attr = TERM_SLATE;
+
+					/* Display */
 					c_prt(attr, format("%2d", ffi[i].invested), row, col + 31);
 				}
 				else
 				{
-					c_prt(TERM_L_DARK, format("%s",
+					/* Print the essence needed to buy this flag */
+					c_prt(TERM_SLATE, format("%s",
 						short_essence_name(flag_creation_data[i].essence_sval)),
 						row, col + 31);
 				}
@@ -1650,6 +1753,7 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 			/* Note that attribute is too expensive to buy */
 			else
 			{
+				/* Print the essence needed to buy this flag */
 				c_prt(TERM_L_DARK, format("%s",
 					short_essence_name(flag_creation_data[i].essence_sval)),
 					row, col + 31);
@@ -1660,11 +1764,12 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 		}
 
 		/* Prompt */
-		prt("Pvals     2/8 to move, +/- to adjust numbers, 4/6 to change pval indexes", 0, 0);
-		prt("          </> to change flag sets, '?' for help, Return to accept, ESC to cancel", 1, 0);
+		prt("Bonuses    2/8 to move, +/- to alter essences or bonuses, 4/6 to swap bonus", 23, 0);
+		prt("           </> to change screens, '?' for help, Return to accept, ESC to cancel", 24, 0);
 
-		/* Hide the cursor XXX */
-		move_cursor(26, 0);
+
+		/* Hide the cursor  XXX */
+		move_cursor(0, 81);
 
 
 		/* Get key */
@@ -1687,7 +1792,7 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 			break;
 		}
 
-		/* Switch to next flag set */
+		/* Switch to next screen */
 		else if ((ch == '\t') || (ch == '>'))
 		{
 			action = 1;
@@ -1699,7 +1804,7 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 		{
 			p_ptr->get_help_index = HELP_INFUSION;
 			do_cmd_help();
-			Term_clear();
+			(void)Term_clear();
 		}
 
 		/* Switch to previous flag set */
@@ -1747,22 +1852,16 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 				i = index_to_flag[selection];
 
 				/* Jump from no to base number of essences */
-				if (ffi[i].invested == 0)
-				{
-					invest = flag_cost[i];
-				}
+				if (ffi[i].invested == 0) invest = flag_cost[i];
 
-				/* Increment investment by 1 */
-				else
-				{
-					invest = ffi[i].invested + 1;
-				}
+				/* Otherwise, increment investment by 1 */
+				else invest = ffi[i].invested + 1;
 
 				/* Get essence kind */
 				sval = flag_creation_data[i].essence_sval;
 
 				/* Ante up if we have enough essences of this kind */
-				if (p_ptr->essence[sval] >= invest)
+				if (essences_available(sval) + ffi[i].invested  >= invest)
 				{
 					/* New flag being bought -- get potential cost */
 					ffi[i].loss = get_cost_of_flag(i, pval_val[ffi[i].p_index]);
@@ -1783,7 +1882,7 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 				if (selection == -2) pval_val[2]--;
 				if (selection == -1) pval_val[3]--;
 
-				/* Minumum pval of 0 */
+				/* Minimum pval of 0 */
 				if (pval_val[1] < 0) pval_val[1] = 0;
 				if (pval_val[2] < 0) pval_val[2] = 0;
 				if (pval_val[3] < 0) pval_val[3] = 0;
@@ -1824,7 +1923,7 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 			/* Only works when a flag is selected */
 			if (selection >= 0)
 			{
-				/* get flag position */
+				/* Get flag position */
 				i = index_to_flag[selection];
 
 				if ((ch == '6') || (ch == 'l'))
@@ -1902,8 +2001,7 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 					if (ffi[i].invested)
 					{
 						/* Recalculate potential cost */
-						ffi[i].loss =
-							get_cost_of_flag(i, pval);
+						ffi[i].loss = get_cost_of_flag(i, pval);
 					}
 				}
 			}
@@ -1920,10 +2018,8 @@ static s16b do_forging_essence_pval(s16b *pval_val, int potential)
 
 /*
  * Choose non pval-dependant qualities.
- *
- * There is a bit of a space problem on this screen.
  */
-static s16b do_forging_essence_flags(int set, int potential)
+static s16b do_forging_essence_flags(int set)
 {
 	int action = 0;
 
@@ -1942,11 +2038,11 @@ static s16b do_forging_essence_flags(int set, int potential)
 	int i, z, attr, invest, sval, cost;
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
 
 	/* Fill in flag index reference */
-	for (i = set * 32; (i < set * 32 + 32); i++)
+	for (i = 32 + set * 32; (i < set * 32 + 64); i++)
 	{
 		/* We're allowed to purchase this flag */
 		if (ffi[i].max)
@@ -1964,21 +2060,21 @@ static s16b do_forging_essence_flags(int set, int potential)
 	while (TRUE)
 	{
 		/* Print the navigation bar -- highlight current set */
-		forging_essence_navbar(24, set);
+		forging_essence_navbar(21, set);
 
 		/* Get and center the potential display */
-		center_string(desc, "Potential", 80);
+		center_string(desc, sizeof(desc), "Potential", 80);
 
 		/* Get a warning color and display it */
-		c_prt(color_potential(potential), desc, 19, 0);
+		c_prt(color_potential(ave_potential), desc, 16, 0);
 
-		/* Display available esences */
+		/* Display available essences */
 		prt_essences_avail();
 
-		c_prt(TERM_SLATE, "Attribute               Cost   Spent    Attribute               Cost   Spent", 3, 0);
+		c_prt(TERM_L_WHITE, "Attribute               Cost   Spent    Attribute               Cost   Spent", 0, 0);
 
 		/* Display the flags in this set */
-		for (col = 0, row = 4, z = 0; z < num; z++)
+		for (col = 0, row = 1, z = 0; z < num; z++)
 		{
 			/* Get flag from index */
 			i = index_to_flag[z];
@@ -1987,7 +2083,7 @@ static s16b do_forging_essence_flags(int set, int potential)
 			if (z == (num + 1) / 2)
 			{
 				col = 40;
-				row = 4;
+				row = 1;
 			}
 
 			/* Get color of flag name */
@@ -2006,17 +2102,30 @@ static s16b do_forging_essence_flags(int set, int potential)
 			/* Display invested essences */
 			if (ffi[i].invested)
 			{
-				/* Colorful indicator of approximate chance of success */
-				if      (cost*3 <= ffi[i].invested-1) attr = TERM_BLUE;
-				else if (cost*2 <= ffi[i].invested-1) attr = TERM_L_BLUE;
-				else if (cost   <= ffi[i].invested)   attr = TERM_WHITE;
-				else                                  attr = TERM_RED;
+				/* Get chance of success */
+				int chance = calc_infusion_chance(cost, ffi[i].invested);
 
+				/* Colorful indicator of success chance */
+				if      (chance >= 90) attr = TERM_PURPLE;
+				else if (chance >= 80) attr = TERM_BLUE;
+				else if (chance >= 70) attr = TERM_L_BLUE;
+				else if (chance >= 50) attr = TERM_WHITE;
+				else                   attr = TERM_SLATE;
+
+				/* Display */
 				c_prt(attr, format(":%2d", ffi[i].invested), row, col + 31);
 			}
+
+			/* No essences invested yet */
 			else
 			{
-				c_prt(TERM_L_DARK, format("%s",
+				if (p_ptr->essence[flag_creation_data[i].essence_sval] >= cost)
+					attr = TERM_SLATE;
+				else
+					attr = TERM_L_DARK;
+
+				/* Display type of essence needed */
+				c_prt(attr, format("%s",
 					short_essence_name(flag_creation_data[i].essence_sval)),
 					row, col + 31);
 			}
@@ -2026,11 +2135,11 @@ static s16b do_forging_essence_flags(int set, int potential)
 		}
 
 		/* Prompt */
-		prt("Flags     2/8 to move, +/- to adjust numbers, </> to change flag sets", 0, 0);
-		prt("          '?' for help, Return to accept, ESC to cancel", 1, 0);
+		prt("Qualities  2/8 to move, +/- to invest essences", 23, 0);
+		prt("           </> to change screens, '?' for help, Return to accept, ESC to cancel", 24, 0);
 
-		/* Hide the cursor */
-		move_cursor(26, 0);
+		/* Hide the cursor  XXX */
+		move_cursor(0, 81);
 
 		/* Get key */
 		ch = inkey();
@@ -2068,7 +2177,7 @@ static s16b do_forging_essence_flags(int set, int potential)
 		{
 			p_ptr->get_help_index = HELP_INFUSION;
 			do_cmd_help();
-			Term_clear();
+			(void)Term_clear();
 		}
 
 		/* Go to previous flag */
@@ -2105,7 +2214,7 @@ static s16b do_forging_essence_flags(int set, int potential)
 			sval = flag_creation_data[i].essence_sval;
 
 			/* Ante up if we have enough essences of this kind */
-			if (p_ptr->essence[sval] >= invest)
+			if (essences_available(sval) + ffi[i].invested  >= invest)
 			{
 				/* New flag being bought -- get potential cost */
 				ffi[i].loss = get_cost_of_flag(i, 0);
@@ -2157,6 +2266,8 @@ static bool do_forging_essence(int a_idx, int *potential)
 	int tmp = 0;
 	int i, j, k;
 
+	int old_rows = screen_rows;
+
 	bool is_melee_weapon = FALSE;
 	bool is_digger       = FALSE;
 	bool is_launcher     = FALSE;
@@ -2177,11 +2288,14 @@ static bool do_forging_essence(int a_idx, int *potential)
 	int num_modes = 4;
 
 	/* Pval storage (first entry is always zero) */
-	s16b pval_val[4] = { 0, 0, 0, 0 };
+	s16b pval_val[4] = { 0, 1, 0, 0 };
 
 
 	/* Save the screen */
 	screen_save();
+
+	/* Set to 25 screen rows */
+	(void)Term_rows(FALSE);
 
 
 	/* Wipe the flag-creation information */
@@ -2314,15 +2428,15 @@ static bool do_forging_essence(int a_idx, int *potential)
 	while (TRUE)
 	{
 		/* Pval-dependant flags */
-		if (mode == 0)
+		if (mode == 3)
 		{
-			tmp = do_forging_essence_pval(pval_val, *potential);
+			tmp = do_forging_essence_pval(pval_val);
 		}
 
 		/* Non-pval flags */
 		else
 		{
-			tmp = do_forging_essence_flags(mode, *potential);
+			tmp = do_forging_essence_flags(mode);
 		}
 
 		/* Advance to next set */
@@ -2342,6 +2456,13 @@ static bool do_forging_essence(int a_idx, int *potential)
 		/* Cancel or accept changes */
 		else if (tmp != 0)
 		{
+			/* Set to 50 screen rows, if we were showing 50 before */
+			if (old_rows == 50)
+			{
+				p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+				(void)Term_rows(TRUE);
+			}
+
 			/* Load the screen */
 			screen_load();
 
@@ -2364,6 +2485,14 @@ static bool do_forging_essence(int a_idx, int *potential)
 	if (!tmp)
 	{
 		clear_from(0);
+
+		/* Set to 50 screen rows, if we were showing 50 before */
+		if (old_rows == 50)
+		{
+			p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+			(void)Term_rows(TRUE);
+		}
+
 		screen_load();
 		return (TRUE);
 	}
@@ -2404,11 +2533,8 @@ static bool do_forging_essence(int a_idx, int *potential)
 		/* We have enough essences */
 		if (p_ptr->essence[flag_creation_data[i].essence_sval] >= ffi[i].invested)
 		{
-			/* High cost hurts chance, high investment helps it */
-			for (chance = 30, j = cost; j < ffi[i].invested; j++)
-			{
-				chance += (100 - chance) / (MIN(cost, 8) + 2);
-			}
+			/* Calculate chance */
+			chance = calc_infusion_chance(cost, ffi[i].invested);
 
 			/* We succeeded in making this flag */
 			if (chance > rand_int(100))
@@ -2458,6 +2584,13 @@ static bool do_forging_essence(int a_idx, int *potential)
 	/* Clear the screen */
 	clear_from(0);
 
+	/* Set to 50 screen rows, if we were showing 50 before */
+	if (old_rows == 50)
+	{
+		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+		(void)Term_rows(TRUE);
+	}
+
 	/* Load the screen */
 	screen_load();
 
@@ -2474,21 +2607,33 @@ static bool do_forging_essence(int a_idx, int *potential)
  * Note that a combat skill of 60 removes any restrictions; we're pretty
  * lenient.
  */
-static int do_forging_adjust_power(int tval, int sval, int power)
+static int do_forging_adjust_power(object_type *i_ptr, int power)
 {
 	int skill = -1;
 
+
 	/* Find the appropriate skill */
-	if      (tval == TV_SWORD)   skill = S_SWORD;
-	else if (tval == TV_POLEARM) skill = S_POLEARM;
-	else if (tval == TV_HAFTED)  skill = S_HAFTED;
-	else if (tval == TV_SHOT)    skill = S_SLING;
-	else if (tval == TV_ARROW)   skill = S_BOW;
-	else if (tval == TV_BOLT)    skill = S_CROSSBOW;
-	else if (tval == TV_BOW)     skill = sbow(sval);
+	if (i_ptr->flags1 & (TR1_THROWING)) skill = S_THROWING;
+	else if (i_ptr->tval == TV_SWORD)   skill = S_SWORD;
+	else if (i_ptr->tval == TV_POLEARM) skill = S_POLEARM;
+	else if (i_ptr->tval == TV_HAFTED)  skill = S_HAFTED;
+	else if (i_ptr->tval == TV_SHOT)    skill = S_SLING;
+	else if (i_ptr->tval == TV_ARROW)   skill = S_BOW;
+	else if (i_ptr->tval == TV_BOLT)    skill = S_CROSSBOW;
+	else if (i_ptr->tval == TV_BOW)     skill = sbow(i_ptr->sval);
 
 	/* Restrict forging power if necessary */
-	if (skill >= 0) power = MIN(get_skill(skill, 10, 160), power);
+	if (skill >= 0)
+	{
+		int s = get_skill(skill, 10, 160);
+
+		/* Note restriction */
+		if (power > s)
+		{
+			msg_print("Your lack of skill in using this object makes it more difficult to forge...");
+			power = s;
+		}
+	}
 
 	/* Return */
 	return (power);
@@ -2557,15 +2702,15 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	if (!alchemy_choose_item(tval, &sval, FALSE, max_level, output_name))
 		return (FALSE);
 
-	/* Note type of object, adjust power if necessary */
-	max_level = do_forging_adjust_power(tval, sval, max_level);
-
 
 	/* Get local object */
 	i_ptr = &forge;
 
 	/* Make object */
 	object_prep(i_ptr, lookup_kind(tval, sval));
+
+	/* Reduce forging ability if you don't know how to use the object */
+	max_level = do_forging_adjust_power(i_ptr, max_level);
 
 	/* Get object name */
 	strip_name(buf, i_ptr->k_idx);
@@ -2579,22 +2724,25 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	if (max_potential > 7000) max_potential = 7000;
 
 	/* High-level objects get (slightly) less potential. */
-	level = k_ptr->level / 4;
+	level = div_round(k_ptr->level, 4);
 
 	/* Never allow low-level objects to get too good or safe */
-	if (level < max_level / 5) level = max_level / 5;
+	if (level < max_level / 10) level = max_level / 10;
 
-	/* The potential ranges up to about 6200 ... */
-	potential = (max_level - level) * 84 - 500;
+	/* The potential ranges up to about 6500, */
+	potential = (max_level - level) * 80 - 500;
 
-	/* ... with some variation (usually not more than 20%) */
-	potential = Rand_normal(potential, potential / 10);
-
-	/* Adjust according to maximum potential */
+	/* But is adjusted according to maximum potential */
 	tmp = (s32b)potential * max_potential / 7000;
 
 	/* Always allow something to work with */
 	potential = MAX(200, (int)tmp);
+
+	/* Remember average potential */
+	ave_potential = potential;
+
+	/* Randomize actual potential slightly */
+	potential = Rand_normal(potential, potential / 10);
 
 	/* Remember initial potential */
 	initial_potential = potential;
@@ -2642,16 +2790,13 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	}
 
 
-	/* Base failure chance depends on forging skill */
-	chance = 40 - div_round(skill, 5);
 
-	/* Failure chance is affected by object level and component quality */
-	chance = div_round(chance * level, component_level);
+	/* Failure chance is determined by object level versus max level */
+	chance = div_round(150 * level, max_level);
 
 	/* Failure chance increases with amount of potential used on essences */
 	chance += (initial_potential - potential) /
 	          (get_skill(S_INFUSION, 6, 30) * get_skill(S_INFUSION, 6, 20));
-
 
 	/* Check for failure */
 	if (chance > rand_int(100))
@@ -2665,7 +2810,7 @@ static bool do_forging(int skill, int tval, cptr output_name)
 			/* Explode (can do more than 350 damage on rare occasions) */
 			(void)explosion(0, (int)(1 + (initial_potential / 1200)),
 			                p_ptr->py, p_ptr->px,
-			                (int)(25 + initial_potential / 20), GF_SHARD);
+			                (int)(20 + initial_potential / 20), GF_SHARD);
 
 			/* Sometimes cause an earthquake */
 			if (!p_ptr->leaving)
@@ -2717,6 +2862,8 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	i_ptr->dd = a_ptr->dd;
 	i_ptr->ds = a_ptr->ds;
 
+	/* Hack -- extract the "cursed" flag */
+	if (i_ptr->flags3 & (TR3_LIGHT_CURSE)) i_ptr->ident |= (IDENT_CURSED);
 
 	/* Transfer weight */
 	i_ptr->weight = a_ptr->weight;
@@ -2724,13 +2871,13 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	/* Allow some variance for mithril (light) and adamant (heavy) */
 	if (o_ptr->sval == SV_COMPONENT_MITHRIL)
 	{
-		if (i_ptr->weight >= 40)
-			i_ptr->weight -= (i_ptr->weight / 40) * 10;
+		if (i_ptr->weight >= 35)
+			i_ptr->weight -= (i_ptr->weight / 20) * 5;
 	}
 	if (o_ptr->sval == SV_COMPONENT_ADAMANT)
 	{
-		if (i_ptr->weight >= 40)
-			i_ptr->weight += (i_ptr->weight / 40) * 10;
+		if (i_ptr->weight >= 35)
+			i_ptr->weight += (i_ptr->weight / 20) * 5;
 	}
 
 	/* Hack -- Activations on forged items are rare */
@@ -2761,7 +2908,10 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	}
 
 	/* Hack -- assume that corrupted items have no base value */
-	else               i_ptr->b_cost = 0L;
+	else
+	{
+		i_ptr->b_cost = 0L;
+	}
 
 
 	/* Hack -- If an object resists an element, it also ignores it */
@@ -2780,17 +2930,17 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	 */
 	 if (component_sval == SV_COMPONENT_COPPER)
 	     i_ptr->ego_item_index = EGO_FORGED_COPPER;
-	 if (component_sval == SV_COMPONENT_BRONZE)
+	 else if (component_sval == SV_COMPONENT_BRONZE)
 	     i_ptr->ego_item_index = EGO_FORGED_BRONZE;
-	 if (component_sval == SV_COMPONENT_IRON)
+	 else if (component_sval == SV_COMPONENT_IRON)
 	     i_ptr->ego_item_index = EGO_FORGED_IRON;
-	 if (component_sval == SV_COMPONENT_STEEL)
+	 else if (component_sval == SV_COMPONENT_STEEL)
 	     i_ptr->ego_item_index = EGO_FORGED_STEEL;
-	 if (component_sval == SV_COMPONENT_RUNEGOLD)
+	 else if (component_sval == SV_COMPONENT_RUNEGOLD)
 	     i_ptr->ego_item_index = EGO_FORGED_RUNEGOLD;
-	 if (component_sval == SV_COMPONENT_MITHRIL)
+	 else if (component_sval == SV_COMPONENT_MITHRIL)
 	     i_ptr->ego_item_index = EGO_FORGED_MITHRIL;
-	 if (component_sval == SV_COMPONENT_ADAMANT)
+	 else if (component_sval == SV_COMPONENT_ADAMANT)
 	     i_ptr->ego_item_index = EGO_FORGED_ADAMANT;
 
 
@@ -2799,7 +2949,7 @@ static bool do_forging(int skill, int tval, cptr output_name)
 	object_mental(i_ptr);
 
 	/* Give the forged object to the character */
-	give_object(i_ptr);
+	give_object(i_ptr, FALSE);
 
 	/* Describe the object fully (also reset screen rows) */
 	do_cmd_observe(i_ptr, FALSE);
@@ -3077,10 +3227,13 @@ bool poison_ammo(int val)
 		/* We can poison missiles until either of our inputs run out */
 		can_poison = MIN(o_ptr->number * num, i_ptr->number);
 		num_to_poison =
-			get_quantity(format("Poison how many missiles (out of %d)?", i_ptr->number), can_poison);
+			(int)get_quantity(format("Poison how many missiles (out of %d)?", i_ptr->number), 0, can_poison);
 
 		poisons_used = (num_to_poison + (num-1)) / num;
 	}
+
+	/* Cannot poison more ammo than we have */
+	else num_to_poison = i_ptr->number;
 
 	/* Get local object */
 	j_ptr = &object_type_body;
@@ -3139,7 +3292,7 @@ bool poison_ammo(int val)
 	}
 
 	/* Give the poisoned missiles to the character */
-	give_object(j_ptr);
+	give_object(j_ptr, FALSE);
 
 	return (TRUE);
 }

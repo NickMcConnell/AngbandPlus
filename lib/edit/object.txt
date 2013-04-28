@@ -13,8 +13,8 @@
 # often insert extra numerical information (indicated by a '~').  Artifacts 
 # are described in a_info.txt.
 
-# Special thanks to J.R.R Tolkien for fundamental concepts and a poem, and 
-# to Pat Tracy, a primary source for weapon and armour descriptions.  -LM-
+# Special thanks to J.R.R Tolkien for fundamental concepts, and to Pat 
+# Tracy, a primary source for weapon and armour descriptions.  -LM-
 
 # Note that object zero is used for the "stack" picture (currently unused).
 
@@ -48,7 +48,7 @@ G:*:w
 
 N:1:Blindness
 G:,:d
-I:80:0:500
+I:80:0:50
 W:5:0:1:0
 A:5/50:15/1
 M:75:2d5
@@ -56,7 +56,7 @@ D:Eat it, and it will probably blind you.
 
 N:2:Paranoia
 G:,:d
-I:80:1:500
+I:80:1:50
 W:3:0:1:0
 A:3/50:15/1
 M:75:2d5
@@ -64,7 +64,7 @@ D:Eat it, and it will probably make you terrified.
 
 N:3:Confusion
 G:,:d
-I:80:2:500
+I:80:2:50
 W:5:0:1:0
 A:5/50:15/1
 M:75:2d5
@@ -72,7 +72,7 @@ D:Eat it, and it will probably confuse you.
 
 N:4:Hallucination
 G:,:d
-I:80:3:500
+I:80:3:50
 W:8:0:1:0
 A:8/50:20/1
 M:75:2d5
@@ -80,7 +80,7 @@ D:Eat it, and you'll see psychedellic visions and fantasies.
 
 N:5:Paralysis
 G:,:d
-I:80:4:500
+I:80:4:50
 W:10:0:1:0
 A:10/50:20/1
 M:75:2d5
@@ -92,59 +92,54 @@ N:7:Poison
 G:,:d
 I:80:6:0
 W:5:0:1:10
-A:5/50:20/50:35/1
-M:75:2d4
-C:0:1d12:0:0:0
+A:5/40:15/40:35/1
+M:75:2d5
 D:Eat it, and it will probably poison you.
 
 N:8:Envenomation
 G:,:d
 I:80:7:0
-W:30:0:1:100
-A:30/33:70/20
-M:75:2d4
-C:0:6d12:0:0:0
+W:30:0:1:10
+A:30/40:40/40:70/1
+M:75:2d5
 D:Eat it, and it will almost certainly poison you badly.
 
 N:9:Sickness
 G:,:d
 I:80:8:0
 W:15:0:1:10
-A:15/33:50/1
+A:15/40:25/40:50/1
 M:75:2d5
-C:0:3d12:0:0:0
 D:Eat it, and you will become quite sick.
 
 N:10:Disease
 G:,:d
 I:80:9:0
-W:45:0:1:150
-A:45/33:80/20
-M:75:2d4
-C:0:9d12:0:0:0
+W:45:0:1:10
+A:45/40:60/40:80/1
+M:75:2d5
 D:A deadly fungus that bears a wasting disease.
 
 N:11:Ruination
 G:,:d
-I:80:10:500
-W:60:0:1:250
-A:60/40:80/5
-M:75:2d3
-C:0:15d12:0:0:0
+I:80:10:0
+W:60:0:1:10
+A:60/40
+M:75:2d5
 D:Even touching this fungus is extremely dangerous.  Imagine what it could do 
 D:if eaten!
 
 N:12:Metamorphosis
 G:,:d
-I:80:11:500
+I:80:11:50
 W:40:0:1:0
-A:30/5:40/50:50/5
-M:75:2d5
+A:40/50:55/50:50/5
+M:75:2d4
 D:Eat it, and strange things will happen to you.
 
 N:13:Mania
 G:,:d
-I:80:12:500
+I:80:12:50
 W:50:0:1:0
 A:40/5:50/50:60/5
 M:50:2d2
@@ -155,16 +150,16 @@ D:Eat it, and you will become manic-depressive.
 
 N:15:Mana
 G:,:d
-I:80:14:100
+I:80:14:0
 W:8:0:1:45
-A:8/50:50/10
-M:70:2d4
+A:8/40
+M:70:2d5
 D:A strange, magical mushroom that increases your mana a little and makes you 
 D:recover it more quickly for a while.
 
 N:16:Cure Poison
 G:,:d
-I:80:15:500
+I:80:15:50
 W:5:0:1:50
 A:5/50:20/50:40/5
 M:80:2d6
@@ -172,7 +167,7 @@ D:A sure cure for poison and disease.
 
 N:17:Cure Blindness
 G:,:d
-I:80:16:500
+I:80:16:50
 W:5:0:1:25
 A:5/50:40/50:60/5
 M:80:2d6
@@ -180,7 +175,7 @@ D:An eye balm of the first order.
 
 N:18:Cure Confusion
 G:,:d
-I:80:17:500
+I:80:17:50
 W:5:0:1:25
 A:5/50:40/50:60/5
 M:80:2d6
@@ -188,35 +183,35 @@ D:The healer's sovereign remedy for confusion and hallucinations.
 
 N:19:Mending
 G:,:d
-I:80:18:500
-W:25:0:1:90
-A:15/5:25/50:60/10
-M:70:2d6
+I:80:18:50
+W:20:0:1:90
+A:15/5:25/50:60/0
+M:70:2d4
 D:The juices of this fungus are precious, for they instantly heal any 
 D:wound or stun, and are some help against poison, disease, and raw damage.
 
 N:20:Curing
 G:,:d
-I:80:19:500
-W:35:0:1:150
-A:20/5:35/50:80/10
-M:70:2d6
+I:80:19:50
+W:30:0:1:150
+A:20/5:35/50:80/25
+M:70:2d4
 D:The most potent cure-all in the herbalist's store, this fungus cures 
 D:poison, most diseases, blindness, confusion, hallucinations, and minor 
 D:stuns and cuts.
 
 N:21:Restoring
 G:,:d
-I:80:20:500
+I:80:20:50
 W:55:0:1:1000
-A:35/10:60/60
+A:35/10:60/50
 D:A powerful natural remedy for ills of the body and mind.
 
 ## XXX 25 XXX ##
 
 N:23:Boldness
 G:,:d
-I:80:22:500
+I:80:22:50
 W:3:0:1:12
 A:3/50:15/50:30/1
 M:75:2d6
@@ -224,25 +219,25 @@ D:Eat it, and your courage is restored and sustained.
 
 N:24:Heroism
 G:,:d
-I:80:23:500
+I:80:23:50
 W:20:0:1:40
 A:10/10:30/40
 M:70:2d3
-D:Eat of this mushroom, and your courage and battle skills will strengthen 
+D:Eat of it, and your courage and battle skills will strengthen 
 D:greatly for a time.
 
 N:25:Berserkergang
 G:,:d
-I:80:24:500
+I:80:24:50
 W:40:0:1:100
-A:40/15:55/35
+A:40/15:55/30
 M:80:2d2
 D:All men fear those posessed by the dread berserkergang:  rising, wrathful, 
 D:raging.  Dare you eat of the Elixir of War?
 
 N:26:Vitality
 G:,:d
-I:80:25:500
+I:80:25:50
 W:15:0:1:50
 A:15/50:100/10
 M:80:2d4
@@ -251,11 +246,11 @@ D:greatly for a time.
 
 N:27:Armouring
 G:,:d
-I:80:26:500
+I:80:26:50
 W:50:0:1:300
 A:50/20:65/35
 M:70:2d2
-D:Eat it, and your skill will become as steel.
+D:Eat it, and your skin will become as steel.
 
 
 ## XXX 28 XXX ##
@@ -265,10 +260,10 @@ D:Eat it, and your skill will become as steel.
 ##### Normal Food #####
 
 N:30:& Slime Mold~
-G:,:g
+G:,:m
 I:80:29:2000
 W:1:0:5:2
-A:1/50:100/2
+A:1/50:15/0
 D:An utterly hideous fungal growth.  It is strangely appealing...
 
 N:31:& Hard Biscuit~
@@ -294,8 +289,8 @@ I:80:32:5000
 W:0:0:10:3
 A:0/20:10/75:50/5
 M:80:1d4
-D:Also known as Cram or Waybread, this nutritious but fairly bland food is 
-D:familiar to anyone contemplating long journeys.
+D:Also known as Cram, this nutritious but fairly bland food is familiar 
+D:to anyone contemplating long journeys.
 
 N:34:& Cake~ of the Beornings
 G:,:U
@@ -312,8 +307,8 @@ I:80:34:0
 W:50:0:3:60
 A:50/40
 M:70:1d4
-D:Small golden-brown wafers wrapped in silven leaves.  Made with elvish art, 
-D:it sustains life where nothing else can.
+D:Small golden-brown lembas wafers wrapped in silven leaves.  Made with 
+D:elvish art, they sustain life where nothing else can.
 
 N:36:& Pint~ of Fine Ale
 G:,:y
@@ -333,11 +328,19 @@ N:38:& Sprig~ of Athelas
 G:,:g
 I:80:37:0
 W:35:0:2:450
-A:35/40:80/80
-D:Athelas will break the grip of the Black Breath.
+A:25/5:35/40:80/80
+D:'When the black breath blows / And death's shadow grows /
+D:And all lights pass / Come Athelas! Come Athelas! /
+D:Life to the dying / In the King's hands lying.'
 
-## XXX 39 XXX ##
-
+N:39:& Dram~ of Orcish Firewater
+G:,:R
+I:80:38:0
+W:5:0:3:25
+A:5/5:100/10
+D:Foul-smelling but potent, Orcish Firewater can have amazing effects 
+D:on you.  
+M:100:3d3
 
 
 ##### Edged Weapons #####
@@ -355,16 +358,17 @@ C:0:1d2:-2:-4:0
 F:SHOW_MODS
 D:Above the hilt, a foot of steel rises, ending in a jagged edge.
 
+# Deeper in the dungeon, dice can rise as high as 1d6
 N:43:& Throwing Knife~
 G:|:o
 I:23:3:0
 W:1:0:8:8
-A:1/30:5/30:15/0
+A:1/30:60/30:85/0
 C:0:1d3:0:0:0
 M:100:4d3
 F:SHOW_MODS | THROWING
-D:A small but sharp blade, well-balanced for throwing by the skilled.  Like 
-D:other special throwing weapons, it is unsuitable for melee combat.
+X:ADD_DICE_SIDES
+D:A small but sharp blade, suitable for throwing by the skilled.  
 
 N:44:& Dagger~
 G:|:W
@@ -394,7 +398,8 @@ A:7/50:40/15
 C:0:1d6:0:0:0
 F:SHOW_MODS
 X:MAYBE_VORPAL
-D:A long, thin thrusting blade, mainly used in duels.
+D:A long, thin thrusting blade, mainly used in duels.  It can sometimes 
+D:be vorpal.
 
 N:48:& Small Sword~
 G:|:W
@@ -440,9 +445,9 @@ D:A large, curved chopper with a basket hilt, well known to seamen.
 ## XXX 54 XXX ##
 
 N:55:& Sacrificial Dagger~
-G:|:R
+G:|:W
 I:23:15:0
-W:20:0:12:1800
+W:20:0:12:1500
 A:20/20
 C:0:2d4:5:5:0
 F:SHOW_MODS | BLESSED
@@ -516,10 +521,18 @@ D:A great, double-edged broadsword which few can wield in one hand.
 
 ## XXX 66 XXX ##
 
-## XXX 67 XXX ##
+N:67:& Fellblade~
+G:|:o
+I:23:27:0
+W:85:0:9:1250
+A:85/25
+C:0:2d5:5:5:0
+M:100:4d3
+F:SHOW_MODS | THROWING
+D:A small but razor-sharp circlet of steel.  No finer throwing weapon exists.
 
 N:68:& Executioner's Sword~
-G:|:r
+G:|:W
 I:23:28:0
 W:50:0:190:1250
 A:50/60:100/35
@@ -539,7 +552,7 @@ D:A steel-blue sword, crafted with skill and sorcery, capable of inflicting
 D:deadly wounds.
 
 N:70:& Blade~ of Chaos
-G:|:v
+G:|:P
 I:23:30:0
 W:85:0:100:5500
 A:85/7
@@ -596,14 +609,14 @@ X:CAN_BE_HEAVY
 D:A war club with an iron head, usually flanged or spiked.
 
 N:76:& Ball-and-Chain~
-G:\:s
+G:\:D
 I:21:6:0
 W:15:0:120:160
 A:15/50:40/25:60/20
 C:0:2d5:0:0:0
 F:SHOW_MODS
 X:CAN_BE_HEAVY
-D:A weighty iron ball, suspended by a chain from a sturdy oaken handle.
+D:A weighty iron ball connected to a loose chain.
 
 ## XXX 77 XXX ##
 
@@ -615,12 +628,13 @@ A:20/80:100/50
 C:0:3d3:0:0:0
 F:SHOW_MODS
 X:CAN_BE_HEAVY
-D:A mallet with a tapered head and a long handle.
+D:A steel mallet connected to a long wooden handle.  One end of the hammer is blunt, 
+D:the other clawed.
 
 ## XXX 79 XXX ##
 
 N:80:& Spiked Club~
-G:\:D
+G:\:U
 I:21:10:0
 W:3:0:130:60
 A:3/50:20/0
@@ -632,15 +646,15 @@ D:classic brigand's weapon.
 ## XXX 81 XXX ##
 
 N:82:& Morning Star~
-G:\:s
+G:\:W
 I:21:12:0
 W:15:0:110:325
 A:15/80:100/50
 C:0:2d6:0:0:0
 F:SHOW_MODS 
 X:CAN_BE_HEAVY
-D:A sturdy wooden pole connected by a chain to a ball of steel, which often 
-D:has projecting spikes.
+D:A sturdy wooden pole connected by a chain to a ball of steel with projecting 
+D:spikes.
 
 N:83:& Flail~
 G:\:u
@@ -650,8 +664,7 @@ A:12/80:100/50
 C:0:2d6:0:0:0
 F:SHOW_MODS 
 X:CAN_BE_HEAVY
-D:Two heavy bars of wood connected by a short link of chain, capable of 
-D:delivering crushing blows.
+D:A stout wooden staff with multiple chains attached.
 
 ## XXX 84 XXX ##
 
@@ -678,14 +691,14 @@ A:55/50:100/35
 C:0:3d6:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 X:CAN_BE_HEAVY
-D:Two great bars of wood connected by a massive chain, needing two hands 
-D:to properly wield.
+D:A massive oaken block with multiple gleaming chains attached to slash flesh and 
+D:bone.
 
 
 ## XXX 89 XXX ##
 
 N:90:& Mace~ of Disruption
-G:\:v
+G:\:P
 I:21:20:0
 W:85:0:300:4500
 A:85/10
@@ -713,8 +726,8 @@ D:and spirit.  Rare items of this type may deal impact blows.
 N:96:& Javelin~
 G:/:o
 I:22:1:0
-W:10:0:15:18
-A:10/33:25/33:45/5
+W:5:0:15:18
+A:8/33:25/33:45/5
 M:100:4d3
 C:0:1d5:0:0:0
 F:THROWING | SHOW_MODS
@@ -729,8 +742,7 @@ A:2/150:15/150:70/25
 C:0:1d6:0:0:0
 F:SHOW_MODS
 X:CAN_BE_HEAVY
-D:The basic polearm, with a double-edged knife mounted on a light shaft.  
-D:This weapon can be thrown effectively.
+D:The basic polearm, with a double-edged knife mounted on a light shaft.
 
 N:98:& Warspike~
 G:/:D
@@ -769,7 +781,7 @@ D:A long, heavy spear with an iron head and reinforced shaft.
 N:103:& Throwing Axe~
 G:/:o
 I:22:8:0
-W:30:0:30:80
+W:30:0:25:80
 A:30/33:50/33:70/5
 C:0:2d3:0:0:0
 M:100:4d3
@@ -819,7 +831,7 @@ D:compete to see who can cleave the most orc heads.
 ## XXX 109 XXX ##
 
 N:110:& Glaive~
-G:/:s
+G:/:W
 I:22:15:0
 W:35:0:190:550
 A:35/25:30/75:100/40
@@ -829,7 +841,7 @@ D:A reinforced wooden pole eight feet long, topped by a massive knife blade
 D:that can be used to thrust or chop.
 
 N:111:& Halberd~
-G:/:s
+G:/:W
 I:22:16:0
 W:40:0:190:750
 A:40/75:100/50
@@ -841,7 +853,7 @@ D:with a heavy axe blade and opposing spike, and topped by a thrusting spine.
 ## XXX 112 XXX ##
 
 N:113:& Scythe~
-G:/:r
+G:/:W
 I:22:18:0
 W:45:0:180:1000
 A:45/50:100/30
@@ -851,7 +863,7 @@ D:The long crescent blade stands out from the handle of this polearm, and
 D:it is swung with two hands to harvest grain or blood.
 
 N:114:& Scythe~ of Slicing
-G:/:r
+G:/:B
 I:22:19:0
 W:70:0:180:4000
 A:70/15
@@ -896,7 +908,7 @@ N:130:& Short Bow~
 G:}:U
 I:19:12:0
 W:5:0:30:50
-A:1/30:5/70:40/0
+A:1/30:5/70:25/0
 C:0:2d1:0:0:0
 F:SHOW_MODS
 D:The traditional hunter's weapon, this light bow is easily drawn.
@@ -913,12 +925,20 @@ D:armour.
 
 ## XXX 132 XXX ##
 
-## XXX 133 XXX ##
+N:133:& Hand Crossbow~
+G:}:u
+I:19:22:0
+W:5:0:60:80
+A:1/30:5/70:25/0
+C:0:2d1:0:0:0
+F:SHOW_MODS
+D:A light mechanical bow made of wood, equipped with a simple iron bar for cocking.  
+D:Primarily a hunting weapon, it shoots bolts with only moderate force.
 
 N:134:& Light Crossbow~
 G:}:W
 I:19:23:0
-W:25:0:110:270
+W:25:0:80:270
 A:15/20:40/65:60/40
 C:0:3d1:0:0:0
 F:SHOW_MODS
@@ -928,7 +948,7 @@ D:its wielder.
 N:135:& Heavy Crossbow~
 G:}:s
 I:19:24:0
-W:45:0:200:400
+W:45:0:140:400
 A:40/20:60/55:100/35
 C:0:4d1:0:0:0
 F:SHOW_MODS
@@ -947,78 +967,106 @@ D:incredible speed at which it fires turns your enemies into pincushions.
 D:         (Special rule:  Missiles fired by triple crossbows get 1/3rd the 
 D:normal slay/brand bonus)
 
-## XXX 137 XXX ##
-
 
 
 ##### Missiles #####
 
+
+N:137:& Stone Pebble~
+G:{:W
+I:16:1:0
+W:1:0:1:1
+A:1/75:10/0
+M:100:6d7
+C:0:1d2:0:0:0
+F:THROWING | SHOW_MODS
+D: A large smooth stone suitable for throwing and slinging.
+
+# Needs to be level 5 or deeper because of the damage dice
 N:138:& Lead Shot~
 G:{:s
-I:16:1:0
-W:1:0:1:2
-A:1/80:20/70:80/50
+I:16:2:0
+W:4:0:1:2
+A:4/75:80/50
 M:100:6d7
-C:0:1d3:0:0:0
-F:SHOW_MODS
-D:A grapestone-shaped slug of lead, the right heft for hurling from a sling.
+C:0:2d2:0:0:0
+F:THROWING | SHOW_MODS
+D:A grapestone-shaped slug of lead, the right heft for hurling from a sling.  
+D:Can also be thrown effectively.
 
 N:139:& Seeker Shot~
 G:{:o
-I:16:2:0
-W:40:0:2:20
-A:30/20:100/50
+I:16:3:0
+W:50:0:2:80
+A:40/20:100/50
 M:100:6d7
-C:0:1d7:0:0:0
-F:SHOW_MODS
-D:A massive slug of lead that sinks deeply into its target.
+C:0:2d4:0:0:0
+F:THROWING | SHOW_MODS
+D:A massive slug of lead that sinks deeply into its target.  Can also be 
+D:thrown effectively.
 
 ## XXX 140 XXX ##
 
-## XXX 141 XXX ##
+N:141:& Arrow~
+G:{:W
+I:17:1:0
+W:1:0:1:1
+A:1/70:10/0
+M:100:6d7
+C:0:1d2:0:0:0
+F:SHOW_MODS
+D:A cheaply made arrow, flighted with the feathers of whatever bird came handy.
 
 N:142:& Arrow~
 G:{:U
-I:17:1:0
-W:3:0:1:4
-A:3/45:40/80
+I:17:2:0
+W:5:0:1:4
+A:5/70:80/50
 M:100:6d7
-C:0:1d4:0:0:0
+C:0:2d2:0:0:0
 F:SHOW_MODS
 D:A standard clothyard arrow, straight and cleanly fletched.
 
 N:143:& Seeker Arrow~
 G:{:G
-I:17:2:0
-W:60:0:1:40
-A:50/15:100/45
+I:17:3:0
+W:60:0:1:85
+A:50/20:100/50
 M:100:6d7
-C:0:1d9:0:0:0
+C:0:2d4:0:0:0
 F:SHOW_MODS
 D:Carved from a rare wood, this arrow is inscribed with fell runes and 
 D:fletched with eagle feathers.
 
 ## XXX 144 XXX ##
 
-## XXX 145 XXX ##
+N:145:& Bolt~
+G:{:D
+I:18:1:0
+W:1:0:2:1
+A:1/70:10/0
+M:100:6d7
+C:0:1d3:0:0:0
+F:SHOW_MODS
+D:A short, heavy arrow, used for crossbow practice.
 
 N:146:& Bolt~
 G:{:s
-I:18:1:0
-W:15:0:2:5
-A:15/40:50/80
+I:18:2:0
+W:6:0:2:5
+A:6/70:80/50
 M:100:6d7
-C:0:1d5:0:0:0
+C:0:2d3:0:0:0
 F:SHOW_MODS
 D:A short, heavy arrow shot from a crossbow.
 
 N:147:& Seeker Bolt~
 G:{:B
-I:18:2:0
-W:65:0:2:45
-A:55/20:100/45
+I:18:3:0
+W:65:0:2:90
+A:55/20:100/50
 M:100:6d7
-C:0:1d11:0:0:0
+C:0:2d5:0:0:0
 F:SHOW_MODS
 D:A mighty quarrel, bound about with battle magics.
 
@@ -1038,7 +1086,7 @@ N:150:& Shovel~
 G:\:s
 I:20:1:1
 W:1:0:60:60
-A:1/8:30/0
+A:1/15:30/0
 C:0:1d2:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS | TUNNEL
 D:A compact and sturdy spade.
@@ -1055,8 +1103,8 @@ D:A small spade forged of steel with gnomish craftmanship.
 N:152:& Dwarven Shovel~
 G:\:B
 I:20:3:4
-W:50:0:80:500
-A:50/12:100/20
+W:50:0:80:700
+A:50/12
 C:0:1d3:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS | TUNNEL
 D:A broad shovel, fit for the strong shoulders of a dwarf.  It bears runes 
@@ -1066,7 +1114,7 @@ N:153:& Pick~
 G:\:s
 I:20:4:1
 W:5:0:120:80
-A:5/10:67/0
+A:5/15:30/0
 C:0:1d3:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS | TUNNEL
 D:A heavy mining tool with a long, slightly curved head that tapers 
@@ -1076,17 +1124,17 @@ N:154:& Orcish Pick~
 G:\:g
 I:20:5:2
 W:20:0:150:200
-A:20/40:50/10
+A:20/40:50/0
 C:0:1d3:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS | TUNNEL
 D:A crude, ugly, but effective pickaxe.  Made in enormous quantities for 
 D:the slave-mines of Durthang.
 
 N:155:& Dwarven Pick~
-G:\:b
+G:\:B
 I:20:6:5
 W:55:0:120:800
-A:55/12:100/20
+A:55/12
 C:0:1d4:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS | TUNNEL
 D:A short but sturdy pick, like those that delved deep Moria, with runes to 
@@ -1203,7 +1251,7 @@ I:32:7:0
 W:70:0:50:15000
 A:70/6
 C:8:1d3:0:0:0
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 D:A dragon-winged great helm, glowing in all the colors of the rainbow.  
 D:It grants resistance to the elements.
@@ -1237,7 +1285,7 @@ D:It looks like it should be resting over the brow of a king.
 
 # Crowns are treasures, good for selling
 N:177:& Jewel Encrusted Crown~
-G:]:v
+G:]:P
 I:33:12:0
 W:70:0:30:5000
 A:70/40
@@ -1298,7 +1346,7 @@ D:A boiled leather cuirass and shoulder plates.
 N:185:Hard Studded Leather~
 G:(:U
 I:36:7:0
-W:10:0:110:160
+W:10:0:110:140
 A:10/75:60/20
 C:7:1d2:-1:0:0
 D:A strong leather breastplate and shoulder guards over a sleeved shirt 
@@ -1325,11 +1373,11 @@ D:leather.
 ##### Armour - Hard body armour #####
 
 N:191:Brigandine Armour~
-G:[:o
+G:[:D
 I:37:1:0
 W:20:0:170:500
 A:20/70:80/10
-C:12:1d4:-3:0:0
+C:12:1d4:-2:0:0
 D:A stiff suit of armour composed of small metal plates sewn to an inner 
 D:layer of heavy canvas, and covered with a second layer of cloth.
 
@@ -1338,7 +1386,7 @@ G:[:r
 I:37:2:0
 W:5:0:170:50
 A:5/40:40/0
-C:14:1d4:-4:0:-5
+C:14:1d4:-3:0:-5
 D:Each link of this suit is brittle with rust, and the corroded rings 
 D:are stiff and weakened.
 
@@ -1347,18 +1395,18 @@ G:[:s
 I:37:3:0
 W:25:0:170:800
 A:25/70:100/30
-C:14:1d4:-3:0:0
+C:14:1d4:-2:0:0
 D:A sleeved hauberk of interlocking steel rings, well padded with leather.  
-D:Chain mail takes skill to make, but offers good protection and relatively 
+D:Chain mail takes skill to make, but offers good protection with relatively 
 D:low weight.
 
 N:194:Metal Scale Mail~
-G:[:w
+G:[:D
 I:37:4:0
 W:25:0:220:550
 A:25/70:100/20
-C:15:1d4:-4:0:0
-D:A heavy shirt of overlapping steel scales backed by leather, with 
+C:15:1d4:-3:0:0
+D:A heavy shirt of overlapping iron scales backed by leather, with 
 D:matching skirt and sleeves.
 
 ## XXX 195 XXX ##
@@ -1368,7 +1416,7 @@ G:[:s
 I:37:6:0
 W:30:0:200:900
 A:30/50:100/30
-C:16:1d4:-4:0:0
+C:16:1d4:-2:0:0
 D:A hauberk, leggings, and sleeves of interlocking steel rings, 
 D:strategically reinforced at vital locations with a second layer 
 D:of chain, all over a layer of heavy padding.
@@ -1380,8 +1428,8 @@ G:[:s
 I:37:8:0
 W:35:0:220:1200
 A:35/70:100/40
-C:19:1d4:-4:0:0
-D:A hauberk, leggings, and sleeves of chainmail, reinforced 
+C:19:1d4:-2:0:0
+D:A hauberk, leggings, and sleeves of chain mail, reinforced 
 D:around the shoulders and chest with segmented plates of steel.
 
 ## XXX 199 XXX ##
@@ -1391,7 +1439,7 @@ G:[:W
 I:37:12:0
 W:40:0:260:1400
 A:40/50:100/25
-C:21:1d4:-5:0:0
+C:21:1d4:-3:0:0
 D:A steel corselet and vambraces over a skirt and leggings of chain.
 
 ## XXX 201 XXX ##
@@ -1401,7 +1449,7 @@ G:[:W
 I:37:15:0
 W:45:0:300:1900
 A:45/70:100/40
-C:25:1d6:-6:0:0
+C:25:1d6:-3:0:0
 D:A full suit of carefully fitted plates, with hinged joints backed 
 D:by chain, and light padding underneath.
 
@@ -1411,8 +1459,8 @@ N:204:Imperial Plate Armour~
 G:[:W
 I:37:18:0
 W:50:0:310:2500
-A:50/50:100/35
-C:28:1d6:-6:0:0
+A:50/50:70/30
+C:28:1d6:-3:0:0
 D:A full suit of finely fitted metal armour consisting of steel plates 
 D:reinforced by ridging.  Shell-shaped gussets protect the joints and a 
 D:gorget shields the neck.
@@ -1422,9 +1470,9 @@ D:gorget shields the neck.
 N:206:Mithril Chain Mail~
 G:[:B
 I:37:20:0
-W:60:0:120:12000
+W:60:0:110:14000
 A:60/9
-C:28:1d3:-2:0:0
+C:28:1d3:-1:0:0
 F:IGNORE_ACID
 D:Rare and wondrous is chain mail made of true-silver, for it offers more 
 D:protection for the weight than any other armour.
@@ -1434,9 +1482,9 @@ D:protection for the weight than any other armour.
 N:208:Mithril Plate Armour~
 G:[:B
 I:37:25:0
-W:65:0:160:15000
+W:65:0:140:17000
 A:65/9
-C:35:1d4:-3:0:0
+C:35:1d4:-2:0:0
 F:IGNORE_ACID
 D:A shimmering suit of true-silver, forged long ago by dwarven smiths of 
 D:legend.  It gleams with purest white as you gaze upon it.
@@ -1446,9 +1494,9 @@ D:legend.  It gleams with purest white as you gaze upon it.
 N:210:Adamantite Plate Armour~
 G:[:G
 I:37:30:0
-W:75:0:360:12500
+W:75:0:350:12500
 A:75/10
-C:40:1d7:-6:0:0
+C:40:1d7:-4:0:0
 F:IGNORE_ACID
 D:Adamantite, hard as diamonds, forms this exquisite suit; nothing else 
 D:in Middle Earth gives as much protection.
@@ -1467,7 +1515,7 @@ I:38:1:0
 W:40:239:180:25000
 A:40/5:70/0
 C:30:2d4:-2:0:10
-F:RES_ACID | 
+F:RES_ACID | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of utterly black scales, against which no metal or wood can rest.
 
@@ -1477,7 +1525,7 @@ I:38:2:0
 W:40:240:180:25000
 A:40/5:70/0
 C:30:2d4:-2:0:10
-F:RES_ELEC | 
+F:RES_ELEC | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales as blue as sapphires, emitting eerie sparks and flashes as 
 D:you move about in it.
@@ -1499,7 +1547,7 @@ I:38:4:0
 W:45:242:180:27500
 A:45/5:80/0
 C:30:2d4:-2:0:10
-F:RES_FIRE | 
+F:RES_FIRE | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, with all the reds of every fire ever lit.  The scar 
 D:tissue from an old burn aches as you put this armour on.
@@ -1510,21 +1558,21 @@ I:38:5:0
 W:50:243:180:45000
 A:50/5:100/0
 C:30:2d4:-2:0:10
-F:RES_POIS | 
+F:RES_POIS | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, glistening in sickly green, out from which falls the 
 D:skeleton of a rat who touched it and died in agony.
 
 N:218:Multi-Hued Dragon Scale Mail~
-G:[:v
+G:[:P
 I:38:6:0
 W:55:244:180:80000
 A:55/5:100/2
 C:30:2d4:-2:0:10
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:A suit of scales that throbs with angry energies; it takes all your energy 
-D:to master the Elements fighting an endless war trapped inside.
+D:A suit of scales that throbs with angry energies; it takes unceasing effort 
+D:to master the Elements fighting an endless war inside.
 
 ## XXX 219 XXX ##
 
@@ -1534,7 +1582,7 @@ I:38:10:0
 W:55:246:180:40000
 A:55/5:100/0
 C:30:2d4:-2:0:10
-F:RES_LITE | RES_DARK |
+F:RES_LITE | RES_DARK | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales shining like a beacon of Light even as it greedily sucks 
 D:the energy away from everything that glows into Dark insatiate.
@@ -1542,12 +1590,12 @@ D:the energy away from everything that glows into Dark insatiate.
 ## XXX 221 XXX ##
 
 N:222:Morphic Dragon Scale Mail~
-G:[:R
+G:[:M
 I:38:13:0
 W:50:248:180:35000
 A:50/5
 C:30:2d4:-2:0:10
-F:RES_NEXUS
+F:RES_NEXUS | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales that seems to writhe and shimmy in marvelous forms.  As 
 D:you put it on, you feel that draconic shapes can be yours at will.
@@ -1558,7 +1606,7 @@ I:38:14:0
 W:50:249:180:30000
 A:50/5:100/0
 C:30:2d4:-2:0:10
-F:RES_CONFU | 
+F:RES_CONFU | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, gleaming in rich engraved bronze.  The more you look at 
 D:the the maze of whorls and lines that close inspection reveal on its 
@@ -1570,7 +1618,7 @@ I:38:16:0
 W:55:250:180:30000
 A:55/5:100/0
 C:30:2d4:-2:0:10
-F:RES_SOUND | 
+F:RES_SOUND | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales in mirror-like gold.  You hear nothing unusual as you 
 D:wear this armour, yet your ears ache as though in the midst of a 
@@ -1579,12 +1627,12 @@ D:cacophony.
 ## XXX 225 XXX ##
 
 N:226:Chaos Dragon Scale Mail~
-G:[:v
+G:[:P
 I:38:18:0
 W:65:252:180:60000
 A:65/3
 C:30:2d4:-2:0:10
-F:RES_CHAOS | RES_DISEN | 
+F:RES_CHAOS | RES_DISEN | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales.  Every shape, in every color imaginable, riot and 
 D:contend upon its surface as you stare in fascination.
@@ -1595,32 +1643,32 @@ I:38:19:0
 W:60:253:180:50000
 A:60/3
 C:30:2d4:-2:0:10
-F:RES_SOUND | RES_SHARD | 
+F:RES_SOUND | RES_SHARD | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales in stern blue and silver.  You feel the slightest tremor 
 D:as you touch it, like massed trumpets heard and cyclones felt from afar.
 
 N:228:Balance Dragon Scale Mail~
-G:[:v
+G:[:P
 I:38:20:0
 W:80:254:180:100000
 A:80/2
 C:30:2d4:-2:0:10
-F:RES_SOUND | RES_SHARD | RES_CHAOS | RES_DISEN | 
+F:RES_SOUND | RES_SHARD | RES_CHAOS | RES_DISEN | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales.  Featureless grey to casual inspection, yet a closer 
 D:look reveals patterns within patterns of iridescence that throb with 
 D:leashed energies bound as though by chains of adamant.
 
 N:229:Power Dragon Scale Mail~
-G:[:v
+G:[:P
 I:38:30:0
 W:105:255:180:300000
 A:105/1
-C:40:2d4:-3:0:15
+C:40:2d4:-2:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
-F:RES_SOUND | RES_SHARD | RES_DISEN | 
+F:RES_SOUND | RES_SHARD | RES_DISEN | ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit with scales of every color, surrounded in a nimbus of perfectly 
 D:untramelled yet inextricably intermingled and utterly mastered powers 
@@ -1669,7 +1717,7 @@ D:A midnight-hued cloak that wreathes the wearer in folds of shadow.
 N:235:& Ethereal Cloak~
 G:(:W
 I:35:6:0
-W:50:0:0:2500
+W:70:0:0:2500
 A:70/20
 C:0:0d0:0:0:10
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
@@ -1750,7 +1798,7 @@ D:A round shield of wood reinforced with metal rims and central disk.
 N:247:& Large Leather Shield~
 G:):U
 I:34:4:0
-W:25:0:110:60
+W:25:0:110:90
 A:25/80:100/20
 C:6:1d4:0:0:0
 D:A large oval shield made of layered wooden strips with a thick leather 
@@ -1788,7 +1836,7 @@ D:almost completely covers the bearer.
 ## XXX 252 XXX ##
 
 N:253:& Shield~ of Deflection
-G:[:B
+G:):B
 I:34:10:0
 W:70:0:80:4000
 A:70/20
@@ -1821,8 +1869,8 @@ G:=:d
 I:45:0:-5
 W:30:0:2:0
 A:30/100:50/0
+C:0:5d15:0:0:0
 F:LIGHT_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
-F:RES_NEXUS | FREE_ACT
 D:with dreadful hexes of wretchedness and wandering laid upon it.  You 
 D:will follow its path, and none other.
 
@@ -1850,22 +1898,22 @@ D:that seizes control of your movement.
 N:265:Holiness
 G:=:d
 I:45:5:0
-W:65:218:2:13000
+W:65:218:2:11000
 A:65/20
 F:RES_LITE | SUST_WIS | SUST_STR | SUST_CON | EASY_KNOW | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:LIGHT 3 | LIFE 2 | BLESSING 5
+E:LIGHT 3 | LIFE 2 | BLESSING 3
 D:that provides resistance to light, sustains your wisdom, strength, and 
 D:constitution, and activates to bless you for a short period of time.
 
 N:266:Darkness
 G:=:d
 I:45:6:0
-W:65:0:2:12000
+W:65:0:2:10000
 A:65/20
 F:RES_DARK | RES_NETHR | SUST_INT | SUST_DEX | SUST_CHR | DRAIN_EXP | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-E:DARK 3 | NETHER 3 | DEATH 3
+E:DARK 2 | NETHER 2 | DEATH 3
 D:that feeds on your life force, but in return protects you against darkness 
 D:and nether, and sustains your intelligence, dexterity, and charisma.
 
@@ -1957,7 +2005,7 @@ N:278:Acid
 G:=:d
 I:45:18:0
 W:45:219:2:6000
-A:45/18:100/10
+A:45/15:100/6
 F:RES_ACID | IGNORE_ACID
 E:ACID 8 | SHIELD 2
 D:with an aura of acidic protection and damage.
@@ -2002,17 +2050,17 @@ D:with an aura of poison protection and damage.
 N:283:Free Action
 G:=:d
 I:45:23:0
-W:25:0:2:1000
-A:15/10:25/100:60/20
+W:28:0:2:1000
+A:15/5:28/80:60/20
 F:FREE_ACT | EASY_KNOW
 E:TIME 1 | SHIELD 2
-D:that protects you from becoming paralyzed.
+D:that protects you from paralyzation and most slowing effects.
 
 N:284:See Invisible
 G:=:d
 I:45:24:0
 W:25:0:2:1000
-A:15/10:25/100:60/20
+A:15/5:25/80:60/20
 F:SEE_INVIS | EASY_KNOW
 E:KNOWLEDGE 1 | DARK 1
 D:that grants sight beyond sight.
@@ -2021,7 +2069,7 @@ D:that grants sight beyond sight.
 N:285:Awareness
 G:=:d
 I:45:25:0
-W:5:0:2:100
+W:5:0:2:50
 A:5/75:45/0
 F:AWARENESS | HIDE_TYPE
 E:KNOWLEDGE 2
@@ -2032,17 +2080,17 @@ D:and notice monsters that you otherwise cannot see.
 N:286:Invisibility
 G:=:d
 I:45:26:0
-W:50:0:2:500
+W:50:0:2:50
 A:50/25
 F:INVIS | HIDE_TYPE
-E:DARK 4 | BLESSING 1
+E:DARK 3 | BLESSING 1
 D:that makes you at least partially invisible to monsters.
 
 # Most of this object's value comes from its pval
 N:287:Speed
 G:=:d
 I:45:27:0
-W:70:0:2:25000
+W:70:0:2:5000
 A:70/30
 F:SPEED | HIDE_TYPE
 E:TIME 10
@@ -2101,8 +2149,8 @@ N:294:Skill
 G:=:d
 I:45:34:0
 W:25:0:2:100
-A:25/100:100/25
-E:KNOWLEDGE 2 | MAGIC 2
+A:25/70:45/70:65/10
+E:KNOWLEDGE 1 | MAGIC 1
 D:that makes you highly accurate (or inaccurate) whether fighting or 
 D:shooting.
 
@@ -2110,17 +2158,19 @@ N:295:Deadliness
 G:=:d
 I:45:35:0
 W:25:0:2:100
-A:25/100:100/25
-E:DEATH 2 | MAGIC 2
+A:25/70:45/70:65/10
+C:0:3d10:0:0:0
+E:DEATH 1 | MAGIC 1
 D:that influences how forceful your blows are in melee or in archery.
 
 N:296:Combat
 G:=:d
 I:45:36:0
 W:40:0:2:100
-A:40/100:100/30
+A:40/70:55/70:75/10
+C:0:4d10:0:0:0
 F:SHOW_MODS
-E:KNOWLEDGE 2 | DEATH 2 | MAGIC 2
+E:KNOWLEDGE 1 | DEATH 1 | MAGIC 1
 D:that affects both how well you aim and how hard you hit in melee or when 
 D:shooting.
 
@@ -2138,6 +2188,7 @@ G:":d
 I:40:0:-5
 W:50:0:3:0
 A:50/50:100/0
+C:0:4d50:0:0:0
 F:HEAVY_CURSE | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
 D:that calls a terrible curse down upon you.
 
@@ -2150,13 +2201,20 @@ F:LIGHT_CURSE | TELEPORT | EASY_KNOW
 E:NEXUS 1
 D:that seizes control of your movement.
 
-## XXX 302 XXX ##
+N:302:Infravision
+G:":d
+I:40:2:0
+W:10:0:3:50
+A:4/10:12/50:40/0
+F:INFRA | HIDE_TYPE
+E:FIRE 1
+D:that allows you to see warm-blooded creatures nearby.
 
 N:303:Slow Digestion
 G:":d
 I:40:3:0
-W:7:0:2:350
-A:7/100:40/0
+W:7:0:2:300
+A:7/50:40/0
 F:SLOW_DIGEST | EASY_KNOW
 E:LIFE 1
 D:that reduces the number of meals you must eat.
@@ -2164,21 +2222,20 @@ D:that reduces the number of meals you must eat.
 N:304:Feather Falling
 G:":d
 I:40:4:0
-W:5:0:2:200
-A:5/100:40/0
+W:5:0:2:250
+A:5/50:40/0
 F:FEATHER | EASY_KNOW
 E:NEXUS 1
 D:that makes you light on your feet.
 
 # Most of this object's value comes from its pval
-# We are phasing this item out -- it is just too unbalancing
 N:305:Magical Item Mastery
 G:":d
 I:40:5:0
 W:28:0:3:100
 A:28/10:100/5
 F:DEVICE | HIDE_TYPE
-E:MAGIC 7 | KNOWLEDGE 7
+E:MAGIC 1 | KNOWLEDGE 2
 D:that affects your ability to use magical objects.
 
 N:306:Sustenance
@@ -2187,7 +2244,7 @@ I:40:6:0
 W:37:227:3:3500
 A:37/20:100/10
 F:SLOW_DIGEST | EASY_KNOW
-E:LIFE 5
+E:LIFE 4
 D:that magically feeds you.
 
 N:307:Escaping
@@ -2196,7 +2253,7 @@ I:40:7:0
 W:43:228:3:3500
 A:43/25
 F:EASY_KNOW
-E:NEXUS 5
+E:NEXUS 4
 D:that allows quick escapes from tight spots.
 
 # Some of this object's value comes from its pval
@@ -2206,7 +2263,7 @@ I:40:8:0
 W:50:229:3:4000
 A:50/15
 F:MANA | HIDE_TYPE
-E:MAGIC 7
+E:MAGIC 3
 D:that increases your mana.
 
 N:309:Recharging
@@ -2215,7 +2272,7 @@ I:40:9:0
 W:58:230:3:10000
 A:58/15
 F:EASY_KNOW
-E:MAGIC 8
+E:MAGIC 5
 D:that recharges magical devices.
 
 N:310:the Magi
@@ -2233,25 +2290,25 @@ N:311:Intelligence
 G:":d
 I:40:11:0
 W:20:0:3:100
-A:20/100:100/25
+A:20/100:30/100:70/10
 F:INT | HIDE_TYPE
-E:KNOWLEDGE 2 | BLESSING 1
+E:KNOWLEDGE 1 | BLESSING 1
 D:that enhances your intelligence.
 
 N:312:Wisdom
 G:":d
 I:40:12:0
 W:20:0:3:100
-A:20/100:100/25
+A:20/100:30/100:70/10
 F:WIS | HIDE_TYPE
-E:KNOWLEDGE 2 | BLESSING 1
+E:KNOWLEDGE 1 | BLESSING 1
 D:that enhances your wisdom.
 
 N:313:Charisma
 G:":d
 I:40:13:0
-W:15:0:3:100
-A:15/100:100/15
+W:18:0:3:100
+A:18/100:25/100:40/5
 F:CHR | HIDE_TYPE
 D:that enhances your charisma.
 
@@ -2275,11 +2332,18 @@ D:that reduces your wisdom.
 N:316:Ugliness
 G:":d
 I:40:16:0
-W:15:0:3:0
+W:18:0:3:0
 F:CHR | HIDE_TYPE
 D:that reduces your charisma.
 
-## XXX 317 XXX ##
+N:317:Magical Protection
+G:":d
+I:40:17:0
+W:35:0:3:100
+A:35/20:55/20:70/0
+F:SAVE | HIDE_TYPE
+E:MAGIC 1 | SHIELD 2
+D:that affects your saving throw against magic.
 
 ## XXX 318 XXX ##
 
@@ -2308,22 +2372,22 @@ D:that provokes enemies to seek you out.
 N:322:Curse Armor
 G:?:d
 I:70:2:0
-W:55:0:5:0
-A:55/50:70/0
+W:65:0:5:0
+A:65/25:75/0
 D:that shatters a piece of armor.
 
 N:323:Curse Weapon
 G:?:d
 I:70:3:0
-W:45:0:5:0
-A:45/50:70/0
+W:65:0:5:0
+A:65/25:75/0
 D:that smashes a weapon.
 
 N:324:Summon Monster
 G:?:d
 I:70:4:0
-W:1:0:5:0
-A:1/100:30/0
+W:2:0:5:0
+A:2/100:30/0
 D:that brings unwelcome visitors.
 
 N:325:Summon Undead
@@ -2370,15 +2434,15 @@ G:?:d
 I:70:10:0
 W:20:0:5:50
 A:20/50
-E:NEXUS 3
+E:NEXUS 2
 D:that sends you up or down one level.
 
 N:331:Word of Recall
 G:?:d
 I:70:11:0
-W:5:0:5:150
+W:5:0:5:100
 A:5/50
-E:NEXUS 3
+E:NEXUS 1
 D:that transports you from the depths to the town and visa versa.  
 D:There is a delay before it takes effect.
 
@@ -2390,13 +2454,13 @@ A:1/150:10/80:40/0
 M:80:2d3
 E:KNOWLEDGE 1
 D:that reveals the number of charges on wands and staffs, the plusses on 
-D:certain kinds of rings and amulets, and will sometimes sense unidentified 
-D:weapons and armour.
+D:certain kinds of rings and amulets, and will give you some idea of the quality 
+D:of unknown weapons and armour.
 
 N:333:Identify
 G:?:d
 I:70:13:0
-W:2:0:5:75
+W:5:0:5:75
 A:2/50:100/75
 M:100:1d5
 E:KNOWLEDGE 1
@@ -2424,7 +2488,7 @@ G:?:d
 I:70:16:0
 W:55:0:5:7000
 A:55/40
-E:BLESSING 8
+E:BLESSING 5
 D:that frees you from the grip of a heavily cursed item.
 
 N:337:Enchant Armour
@@ -2459,7 +2523,7 @@ G:?:d
 I:70:20:0
 W:35:0:5:6000
 A:35/10
-E:SHIELD 8
+E:SHIELD 6
 D:that greatly improves a piece of armor, and may even give a normal 
 D:(non-ego) item special abilities.  It is less likely to succeed on 
 D:strongly enchanted items and large piles.
@@ -2469,7 +2533,7 @@ G:?:d
 I:70:21:0
 W:30:0:5:6000
 A:30/10
-E:MAGIC 8
+E:MAGIC 6
 D:that greatly improves a weapon, and may even give a normal 
 D:(non-ego) item special abilities.  It is less likely to succeed on 
 D:strongly enchanted items and large piles.
@@ -2480,7 +2544,7 @@ I:70:22:0
 W:15:0:5:125
 A:8/33:15/100
 M:50:1d4
-E:MAGIC 2
+E:MAGIC 1
 D:that recharges a magic item.  The item may be destroyed, especially 
 D:if it has many charges.
 
@@ -2490,7 +2554,7 @@ I:70:23:0
 W:70:0:5:300
 A:70/50
 M:33:1d4
-E:MAGIC 3
+E:MAGIC 1
 D:that recharges a magic item.  It is more likely than lesser scrolls 
 D:to succeed on items with many charges, but is still not a sure thing.
 
@@ -2509,7 +2573,7 @@ I:70:25:0
 W:7:0:5:45
 A:7/50:50/10
 M:50:1d6
-E:LIGHT 1 | KNOWLEDGE 1
+E:LIGHT 1
 D:that reveals the nearby dungeon, and finds doors and stairs.
 
 N:346:Treasure Detection
@@ -2577,7 +2641,7 @@ D:that fills you up completely.
 N:353:Blessing
 G:?:d
 I:70:33:0
-W:1:0:5:20
+W:1:0:5:15
 A:1/33:20/33:25/0
 M:70:2d4
 E:BLESSING 1
@@ -2586,7 +2650,7 @@ D:that grants you a brief bonus to combat skills and armour class.
 N:354:Holy Chant
 G:?:d
 I:70:34:0
-W:15:0:5:50
+W:15:0:5:35
 A:15/33:50/0
 M:70:2d4
 E:BLESSING 1
@@ -2595,7 +2659,7 @@ D:that grants you a temporary bonus to combat skills and armour class.
 N:355:Holy Prayer
 G:?:d
 I:70:35:0
-W:30:0:5:100
+W:30:0:5:80
 A:30/33
 M:70:2d4
 E:BLESSING 1
@@ -2615,15 +2679,15 @@ G:?:d
 I:70:37:0
 W:30:0:5:100
 A:30/70
-E:BLESSING 1 | SHIELD 1
+E:SHIELD 1
 D:that wards off some of the blows of evil enemies.
 
 N:358:Rune of Protection
 G:?:d
 I:70:38:0
 W:40:0:5:2500
-A:40/30:80/70
-E:SHIELD 4
+A:40/30:80/50
+E:SHIELD 2
 D:that creates a place of sanctuary which is difficult for enemies to 
 D:penetrate.
 
@@ -2631,7 +2695,7 @@ N:359:Force Door
 G:?:d
 I:70:39:0
 W:1:0:5:10
-A:1/10:9/10:15/1
+A:1/10:9/10:15/0
 M:100:3d6
 E:FORCE 1
 D:that smashes open locked and jammed doors, and magically closes and spikes 
@@ -2644,31 +2708,34 @@ N:360:Questing
 G:?:d
 I:70:40:0
 W:30:0:5:25000
-A:30/7:75/7:80/0
+A:30/6:55/6:80/0
 D:that opens a magical portal to lands of wonder and fantasy.
 
 N:361:*Destruction*
 G:?:d
 I:70:41:0
 W:50:0:5:1250
-A:50/100
-E:FORCE 5
+A:50/50
+E:FORCE 3
 D:that obliterates almost everything nearby.  Unique monsters will escape.
 
 N:362:Poison Cloud
 G:?:d
 I:70:42:0
 W:20:0:5:150
-A:20/100:40/100:60/10
-E:POISON 2
-D:that creates a lingering cloud of poison that attacks everything in its area of effect.
+A:20/40:40/40:60/2
+M:100:1d4
+E:POISON 1
+D:that creates a lingering cloud of poison that attacks everything in its 
+D:area of effect.
 
 N:363:Invoke Nexus
 G:?:d
-I:70:44:0
-W:75:0:5:800
-A:75/100
-E:NEXUS 2
+I:70:43:0
+W:75:0:5:600
+A:75/50
+M:100:1d4
+E:NEXUS 1
 D:that casts a nexus storm around you.
 
 N:364:Genocide
@@ -2676,7 +2743,7 @@ G:?:d
 I:70:44:0
 W:45:0:5:750
 A:45/40
-E:DEATH 3
+E:DEATH 2
 D:that banishes all monsters of a given type from the level.  Unique 
 D:foes are immune, as are those in protected areas.
 
@@ -2685,7 +2752,7 @@ G:?:d
 I:70:45:0
 W:60:0:5:1100
 A:60/40
-E:DEATH 5
+E:DEATH 3
 D:that banishes all nearby monsters from the level.  Unique foes are 
 D:immune, as are those in protected areas.
 
@@ -2700,8 +2767,8 @@ D:that summons a good magic item to you.
 N:367:*Acquirement*
 G:?:d
 I:70:47:0
-W:70:0:5:50000
-A:70/6
+W:65:0:5:50000
+A:65/6
 E:MAGIC 12
 D:that summons several good magic items to you.
 
@@ -2717,7 +2784,7 @@ N:369:Madness
 G:?:d
 I:70:49:0
 W:60:0:5:3500
-A:60/25
+A:60/33
 E:CONFUSION 2
 D:with spells to drive your enemies insane.
 
@@ -2725,8 +2792,8 @@ N:370:Nightfall
 G:?:d
 I:70:50:0
 W:75:0:5:3500
-A:75/25
-E:DARK 4
+A:75/33
+E:DARK 2
 D:that blots out light and memory, snuffs all the lights that do not shine 
 D:eternally, and strikes at every creature on the level that does not 
 D:resist Darkness.
@@ -2736,7 +2803,7 @@ G:?:d
 I:70:51:0
 W:25:0:5:300
 A:25/50
-E:LIFE 2
+E:LIFE 1
 D:that creates a stand of trees.
 
 N:372:the Sea
@@ -2744,7 +2811,7 @@ G:?:d
 I:70:52:0
 W:35:0:5:400
 A:35/50
-E:ACID 2
+E:ACID 1
 D:that creates a pond.
 
 N:373:Magma
@@ -2752,7 +2819,7 @@ G:?:d
 I:70:53:0
 W:45:0:5:500
 A:45/50
-E:FIRE 2
+E:FIRE 1
 D:that creates a pool of lava.
 
 ## XXX 374 XXX ##
@@ -2806,10 +2873,10 @@ D:more wonderful than liquified slime mold.
 N:383:Essences
 G:!:d
 I:75:3:0
-W:20:0:4:0
-A:20/100
+W:3:0:4:0
+A:3/10:60/50
 C:0:1d1:0:0:0
-E:MAGIC 1
+M:100:3d4
 D:with concentrated essences packed inside.
 
 N:384:Slowness
@@ -2939,7 +3006,7 @@ W:65:0:4:3000
 A:65/70
 C:0:10d49:0:0:0
 F:LIGHT_CURSE
-E:FORCE 3
+E:FORCE 2
 D:that you dare not drop.
 
 N:403:Death
@@ -2949,7 +3016,7 @@ W:90:0:4:5500
 A:80/5:100/80
 C:0:13d49:0:0:0
 F:LIGHT_CURSE
-E:DEATH 4
+E:DEATH 3
 D:drawn from the river of the damned.
 
 N:404:Infra-vision
@@ -2984,26 +3051,27 @@ N:407:Mental Awareness
 G:!:d
 I:75:27:0
 W:30:0:4:80
-A:20/20:50/100
+A:25/20:40/100:70/0
 C:0:1d1:0:0:0
-E:KNOWLEDGE 2
+E:KNOWLEDGE 1
 D:that grants temporary awareness of all creatures with brains.
 
 N:408:Invisibility
 G:!:d
 I:75:28:0
-W:25:0:4:100
-A:5/20:25/80:55/80
+W:20:0:4:180
+A:5/20:25/80:55/0
 C:0:1d1:0:0:0
 E:DARK 2
 D:that temporarily makes you partially invisible and lets you see invisible.  
 D:The effectiveness of this potion depends on your Stealth skill.
 
+# Needs to be available at all depths
 N:409:Speed
 G:!:d
 I:75:29:0
 W:1:0:4:175
-A:1/80
+A:1/50:70/100
 C:0:1d1:0:0:0
 E:TIME 2
 D:that makes you supernaturally fast.
@@ -3012,7 +3080,7 @@ N:410:Resist Fire
 G:!:d
 I:75:30:0
 W:5:0:4:30
-A:5/75:80/0
+A:5/75:50/0
 C:0:1d1:0:0:0
 E:FIRE 1
 D:that offers additional protection against fire.
@@ -3021,7 +3089,7 @@ N:411:Resist Cold
 G:!:d
 I:75:31:0
 W:5:0:4:30
-A:5/75:80/0
+A:5/75:50/0
 C:0:1d1:0:0:0
 E:COLD 1
 D:that offers additional protection against cold.
@@ -3039,7 +3107,7 @@ N:413:Resistance
 G:!:d
 I:75:33:0
 W:35:0:4:400
-A:35/35:60/75
+A:35/50:60/75
 C:0:1d1:0:0:0
 E:ACID 1 | ELEC 1 | FIRE 1 | COLD 1
 D:that offers additional protection from fire, cold, acid, and electricity.
@@ -3059,7 +3127,7 @@ I:75:35:100
 W:5:0:4:40
 A:5/100:15/100:30/0
 C:0:1d1:0:0:0
-E:LIFE 2
+E:LIFE 1
 D:that heals moderate wounds, and some blinding, confusion, poisoning, 
 D:and disease.
 
@@ -3069,7 +3137,7 @@ I:75:36:100
 W:15:0:4:120
 A:15/100:40/100:70/0
 C:0:1d1:0:0:0
-E:LIFE 2
+E:LIFE 1
 D:that heals you considerably and cures a fair amount of blinding, 
 D:confusion, poisoning, and disease.
 
@@ -3117,7 +3185,7 @@ I:75:41:0
 W:45:0:4:750
 A:30/10:50/80
 C:0:1d1:0:0:0
-E:LIFE 2 | BLESSING 2
+E:LIFE 1 | BLESSING 1
 D:that restores your stolen life force.
 
 N:422:Restore Strength
@@ -3232,7 +3300,7 @@ I:75:56:0
 W:30:0:4:3000
 A:30/30:100/50
 C:0:1d1:0:0:0
-E:KNOWLEDGE 3 | LIGHT 2
+E:KNOWLEDGE 2 | LIGHT 2
 D:that reveals the entire level and magically lights up most of it.
 
 N:437:*Enlightenment*
@@ -3248,11 +3316,12 @@ D:identifies your possesions, and gives self knowledge.
 N:438:Self Knowledge
 G:!:d
 I:75:58:0
-W:30:0:4:2000
-A:30/50
+W:30:0:4:500
+A:10/25:40/75
 C:0:1d1:0:0:0
-E:KNOWLEDGE 3
-D:that reveals your hidden attributes.
+E:KNOWLEDGE 2
+D:that reveals your hidden attributes.  Very useful for finding out what 
+D:unknown pieces of equipment do.
 
 # The essence cost of these two potions is deliberate
 N:439:Gain Skill
@@ -3288,7 +3357,7 @@ I:75:62:0
 W:50:0:4:1500
 A:30/10:70/30
 C:0:1d1:0:0:0
-E:CHAOS 3
+E:CHAOS 2
 D:that temporarily turns you into a dragon, whose breath is death.
 
 ## XXX 443 XXX ##
@@ -3340,8 +3409,8 @@ D:that energizes a foe.
 N:457:Clone Monster
 G:-:d
 I:65:2:6
-W:15:0:10:0
-A:15/75:40/0
+W:5:0:10:0
+A:5/75:25/0
 C:0:1d1:0:0:0
 E:MAGIC 1
 D:that duplicates most foes.
@@ -3358,8 +3427,8 @@ D:that teleports foes away.
 
 N:459:Disarming
 G:-:d
-I:65:4:12
-W:15:0:10:700
+I:65:4:18
+W:15:0:10:500
 A:15/50:80/15
 C:0:1d1:0:0:0
 E:MAGIC 1
@@ -3379,7 +3448,7 @@ D:metal spikes can make it even stronger if you have to stop a dragon.
 
 N:461:Stone to Mud
 G:-:d
-I:65:6:16
+I:65:6:24
 W:10:0:10:300
 A:10/50:60/10
 C:0:1d1:0:0:0
@@ -3390,14 +3459,14 @@ N:462:Light
 G:-:d
 I:65:7:16
 W:3:0:10:200
-A:3/60:35/0
+A:3/80:20/80:35/0
 C:0:1d1:0:0:0
 E:LIGHT 1
 D:that shoots beams of light.
 
 N:463:Sleep Monster
 G:-:d
-I:65:8:12
+I:65:8:16
 W:5:0:10:500
 A:5/50:60/10
 C:0:1d1:0:0:0
@@ -3406,7 +3475,7 @@ D:that sends a foe to the land of dreams.
 
 N:464:Slow Monster
 G:-:d
-I:65:9:12
+I:65:9:16
 W:5:0:10:500
 A:5/50:60/10
 C:0:1d1:0:0:0
@@ -3415,7 +3484,7 @@ D:that renders a foe slow and sluggish.
 
 N:465:Confuse Monster
 G:-:d
-I:65:10:12
+I:65:10:16
 W:5:0:10:500
 A:5/50:60/10
 C:0:1d1:0:0:0
@@ -3424,7 +3493,7 @@ D:that confuses a foe.
 
 N:466:Scare Monster
 G:-:d
-I:65:11:12
+I:65:11:16
 W:10:0:10:500
 A:10/33:70/10
 C:0:1d1:0:0:0
@@ -3442,63 +3511,63 @@ D:that strangely alters a monster.
 
 N:468:Stinking Cloud
 G:-:d
-I:65:13:12
+I:65:13:14
 W:5:0:10:400
-A:5/60:40/0
+A:5/100:15/100:30/0
 C:0:1d1:0:0:0
 E:POISON 1
 D:that launches poisonous clouds.
 
 N:469:Magic Missile
 G:-:d
-I:65:14:16
+I:65:14:18
 W:2:0:10:200
-A:2/75:10/75:30/0
+A:2/100:8/100:20/0
 C:0:1d1:0:0:0
 E:MAGIC 1
 D:that fires magical bolts.
 
 N:470:Acid Bolts
 G:-:d
-I:65:15:12
-W:32:0:10:1000
-A:32/100:68/0
+I:65:15:16
+W:27:0:10:1000
+A:27/100:35/100:55/0
 C:0:1d1:0:0:0
 E:ACID 1
 D:that launches bolts or beams of acid.
 
 N:471:Lightning Bolts
 G:-:d
-I:65:16:12
-W:18:0:10:600
-A:18/100:57/0
+I:65:16:16
+W:9:0:10:400
+A:9/100:18/100:38/0
 C:0:1d1:0:0:0
 E:ELEC 1
 D:that fires bolts or beams of electricity.
 
 N:472:Fire Bolts
 G:-:d
-I:65:17:12
-W:34:0:10:1200
-A:34/100:71/0
+I:65:17:16
+W:30:0:10:1200
+A:30/100:38/100:58/0
 C:0:1d1:0:0:0
 E:FIRE 1
 D:that shoots bolts or beams of fire.
 
 N:473:Frost Bolts
 G:-:d
-I:65:18:12
-W:22:0:10:800
-A:22/100:61/0
+I:65:18:16
+W:16:0:10:700
+A:16/100:25/100:45/0
 C:0:1d1:0:0:0
 E:COLD 1
 D:that fires bolts or beams of frost.
 
 N:474:Acid Balls
 G:-:d
-I:65:19:9
-W:50:0:10:2400
-A:50/100:75/100:100/50
+I:65:19:11
+W:46:0:10:2400
+A:46/100:66/100:90/10
 C:0:1d1:0:0:0
 F:IGNORE_ACID
 E:ACID 1
@@ -3506,9 +3575,9 @@ D:that launches balls of noxious acid.
 
 N:475:Lightning Balls
 G:-:d
-I:65:20:9
-W:40:0:10:1750
-A:40/100:65/100:100/50
+I:65:20:11
+W:38:0:10:1750
+A:38/100:58/100:80/10
 C:0:1d1:0:0:0
 F:IGNORE_ELEC
 E:ELEC 1
@@ -3516,9 +3585,9 @@ D:that launches lightning balls.
 
 N:476:Fire Balls
 G:-:d
-I:65:21:9
-W:55:0:10:2750
-A:55/100:80/100:100/50
+I:65:21:11
+W:50:0:10:2750
+A:50/100:70/100:90/10
 C:0:1d1:0:0:0
 F:IGNORE_FIRE
 E:FIRE 1
@@ -3526,9 +3595,9 @@ D:that launches fiery balls.
 
 N:477:Cold Balls
 G:-:d
-I:65:22:9
-W:45:0:10:2100
-A:45/100:70/100:100/50
+I:65:22:11
+W:42:0:10:2100
+A:42/100:62/100:80/10
 C:0:1d1:0:0:0
 F:IGNORE_COLD
 E:COLD 1
@@ -3536,9 +3605,9 @@ D:that launches icy balls.
 
 N:478:Wonder
 G:-:d
-I:65:23:12
-W:9:0:10:600
-A:9/75:40/0
+I:65:23:14
+W:10:0:10:500
+A:10/100:20/100:40/0
 C:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:CHAOS 1
@@ -3548,7 +3617,7 @@ N:479:Drain Life
 G:-:d
 I:65:24:8
 W:50:0:10:3000
-A:50/80
+A:50/75:80/75:100/50
 C:0:1d1:0:0:0
 E:DEATH 1
 D:that sucks the life out of a foe.
@@ -3593,7 +3662,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:ACID 1 | ELEC 1
 D:that breathes storms of any element or poison.
 
-N:484:Doom Bolts
+N:484:Doomblasts
 G:-:d
 I:65:29:12
 W:75:0:10:8000
@@ -3863,7 +3932,7 @@ W:45:0:50:3000
 A:45/80
 C:10:1d2:0:0:0
 E:BLESSING 1
-D:that envokes the powers of Good against your foes.
+D:that invokes the powers of Good against your foes.
 
 N:525:Power
 G:_:d
@@ -3930,7 +3999,7 @@ W:80:0:50:12500
 A:75/33
 C:20:1d2:0:0:0
 E:CHAOS 2
-D:that unleashes storms of chaos~, which can have any number of side-effects.  
+D:that unleashes storms of chaos, which can have any number of side-effects.  
 D:It is most effective when used repeatedly.
 
 ## XXX 533 XXX ##
@@ -3966,7 +4035,6 @@ D:It is most effective when used repeatedly.
 
 
 ##### Rods #####
-# Note:  Rods tend to be rarer, but recharge more quickly now.
 
 N:568:Trap Location
 G:-:d
@@ -4010,7 +4078,7 @@ N:572:Illumination
 G:-:d
 I:66:4:20
 W:5:0:15:800
-A:15/50:65/10
+A:15/50:45/50:65/10
 C:5:1d1:0:0:0
 E:LIGHT 1
 D:that magically lights up a room or your immediate surroundings.
@@ -4038,10 +4106,10 @@ D:that reveals the hidden strengths and weaknesses of foes.
 N:576:Curing
 G:-:d
 I:66:8:100
-W:65:0:15:11000
+W:65:0:15:8000
 A:65/8
 C:10:1d1:0:0:0
-E:LIFE 2
+E:LIFE 1
 D:that removes a variety of specialized ailments.
 
 N:577:Healing
@@ -4050,7 +4118,7 @@ I:66:9:100
 W:78:0:15:25000
 A:78/7
 C:10:1d1:0:0:0
-E:LIFE 3
+E:LIFE 2
 D:that restores your hitpoints.
 
 N:578:Restoration
@@ -4103,8 +4171,8 @@ D:that shoots a beam of light.
 N:584:Blinking
 G:-:d
 I:66:16:16
-W:15:0:15:1100
-A:15/30:100/10
+W:20:0:15:1100
+A:20/30:40/30:50/10
 C:10:1d1:0:0:0
 E:NEXUS 1
 D:that shifts you a short distance.
@@ -4112,8 +4180,8 @@ D:that shifts you a short distance.
 N:585:Summon Hither
 G:-:d
 I:66:17:20
-W:20:0:15:1500
-A:20/25:100/5
+W:22:0:15:1500
+A:22/25:42/25:55/5
 C:5:1d1:0:0:0
 E:NEXUS 1
 D:that attempts to both teleport a monster next to you and slow it down 
@@ -4122,17 +4190,17 @@ D:momentarily.
 N:586:Drain Life
 G:-:d
 I:66:18:16
-W:60:0:15:6000
-A:60/33
+W:65:0:15:7750
+A:65/60:70/60:100/0
 C:10:1d1:0:0:0
-E:DEATH 2
+E:DEATH 1
 D:that sucks the life force from a foe.
 
 N:587:Polymorph
 G:-:d
 I:66:19:20
 W:35:0:15:1200
-A:35/50:60/20
+A:35/50:60/10
 C:5:1d1:0:0:0
 E:CHAOS 1
 D:that strangely alters a foe.
@@ -4140,35 +4208,35 @@ D:that strangely alters a foe.
 N:588:Acid Bolts
 G:-:d
 I:66:20:15
-W:35:0:15:2700
-A:35/50:74/0
+W:30:0:15:2700
+A:30/75:45/75:65/0
 C:5:1d1:0:0:0
 E:ACID 1
 D:that shoots bolts of acid.
 
 N:589:Lightning Bolts
 G:-:d
-I:66:21:12
-W:23:0:15:2000
-A:23/50:63/0
+I:66:21:15
+W:17:0:15:1500
+A:17/75:30/75:55/0
 C:5:1d1:0:0:0
 E:ELEC 1
 D:that shoots electric bolts.
 
 N:590:Fire Bolts
 G:-:d
-I:66:22:16
-W:37:0:15:3000
-A:37/50:77/0
+I:66:22:15
+W:33:0:15:3000
+A:33/75:48/75:65/0
 C:5:1d1:0:0:0
 E:FIRE 1
 D:that shoots fire bolts.
 
 N:591:Frost Bolts
 G:-:d
-I:66:23:13
-W:27:0:15:2350
-A:27/50:67/0
+I:66:23:15
+W:23:0:15:2000
+A:23/75:35/75:60/0
 C:5:1d1:0:0:0
 E:COLD 1
 D:that shoots frost bolts.
@@ -4176,8 +4244,8 @@ D:that shoots frost bolts.
 N:592:Acid Balls
 G:-:d
 I:66:24:27
-W:55:0:15:5000
-A:55/50
+W:52:0:15:5500
+A:53/75:70/75:85/10
 C:10:1d1:0:0:0
 E:ACID 1
 D:that launches balls of acid.
@@ -4186,7 +4254,7 @@ N:593:Lightning Balls
 G:-:d
 I:66:25:21
 W:45:0:15:4000
-A:45/50
+A:45/75:60/75:75/10
 C:5:1d1:0:0:0
 E:ELEC 1
 D:that launches balls of lightning.
@@ -4194,8 +4262,8 @@ D:that launches balls of lightning.
 N:594:Fire Balls
 G:-:d
 I:66:26:30
-W:60:0:15:6000
-A:60/50
+W:57:0:15:6000
+A:57/75:70/75:90/10
 C:10:1d1:0:0:0
 E:FIRE 1
 D:that launches balls of fire.
@@ -4203,8 +4271,8 @@ D:that launches balls of fire.
 N:595:Cold Balls
 G:-:d
 I:66:27:24
-W:50:0:15:4500
-A:50/50
+W:49:0:15:4500
+A:49/75:65/75:80/10
 C:10:1d1:0:0:0
 E:COLD 1
 D:that launches balls of frost.
@@ -4213,41 +4281,41 @@ N:596:Lightning Strike
 G:-:d
 I:66:28:24
 W:73:0:15:12500
-A:73/20
+A:73/25
 C:10:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:ELEC 1
-D:that launches a bolt or beam of chain lightning.
+D:that launches a bolt of chain lightning.
 
 N:597:Northwinds
 G:-:d
 I:66:29:26
 W:78:0:15:15000
-A:78/20
+A:78/25
 C:15:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:COLD 1
-D:that launches a bolt or beam of killing ice.
+D:that launches a bolt of killing ice.
 
 N:598:Dragonfire
 G:-:d
 I:66:30:28
 W:82:0:15:17500
-A:82/20
+A:82/25
 C:15:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:FIRE 1
-D:that launches a bolt or beam of raging fire.
+D:that launches a bolt of raging fire.
 
 N:599:Glaurung's Blood
 G:-:d
 I:66:31:30
 W:85:0:15:20000
-A:85/15
+A:85/18
 C:15:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:ACID 1
-D:that launches a bolt or beam of acid as deadly as Glaurung's blood.
+D:that launches a bolt of acid as deadly as Glaurung's blood.
 
 ## XXX 600 XXX ##
 
@@ -4283,13 +4351,13 @@ D:that launches a bolt or beam of acid as deadly as Glaurung's blood.
 
 
 
-##### Chests #####
+##### Chests (1-4 are small, 5-8 are large) #####
 
 N:616:& Small wooden chest~
 G:~:u
 I:10:1:0
 W:15:0:200:600
-A:15/14:40/0
+A:15/10:30/0
 C:0:2d3:0:0:0
 D:An unassuming box, with room for a few items.
 
@@ -4297,7 +4365,7 @@ N:617:& Large wooden chest~
 G:~:u
 I:10:5:0
 W:25:0:350:1200
-A:25/10:50/0
+A:25/8:45/0
 C:0:2d5:0:0:0
 D:An unassuming box, with room for several items.
 
@@ -4305,7 +4373,7 @@ N:618:& Small iron chest~
 G:~:W
 I:10:2:0
 W:40:0:300:1800
-A:40/11:65/0
+A:40/10:60/0
 C:0:2d4:0:0:0
 D:A sturdy metal container, with room for a few items.
 
@@ -4313,7 +4381,7 @@ N:619:& Large iron chest~
 G:~:W
 I:10:6:0
 W:50:0:550:3000
-A:50/8:75/0
+A:50/8:70/0
 C:0:2d6:0:0:0
 D:A sturdy metal container, with room for several items.
 
@@ -4321,7 +4389,7 @@ N:620:& Small steel chest~
 G:~:B
 I:10:3:0
 W:65:0:300:4000
-A:65/11:90/0
+A:65/10:85/0
 C:0:2d4:0:0:0
 D:A formidable chest, with room for a few items.
 
@@ -4329,23 +4397,23 @@ N:621:& Large steel chest~
 G:~:B
 I:10:7:0
 W:75:0:550:6000
-A:75/8:100/0
+A:75/8:95/0
 C:0:2d6:0:0:0
 D:A formidable chest, with room for several items.
 
 N:622:& Small jeweled chest~
-G:~:v
+G:~:P
 I:10:4:0
 W:85:0:350:7000
-A:85/11
+A:85/10
 C:0:2d4:0:0:0
 D:A magnificent chest, with room for a few items.
 
 N:623:& Large jeweled chest~
-G:~:v
+G:~:P
 I:10:8:0
-W:95:0:650:9000
-A:95/8
+W:90:0:650:9000
+A:90/8
 C:0:2d6:0:0:0
 D:A magnificent chest, with room for several items.
 
@@ -4360,10 +4428,10 @@ D:A magnificent chest, with room for several items.
 N:626:& Iron Spike~
 G:`:W
 I:3:0:0
-W:2:0:6:1
-A:2/50:30/0
-M:100:3d5
-C:0:1d1:0:0:0
+W:1:0:6:1
+A:1/50:30/50:60/0
+M:100:3d4
+C:0:1d8:0:0:0
 D:A small pointed metal bar, suitable for wedging under doors to slow down 
 D:pursuit.
 
@@ -4371,7 +4439,7 @@ N:627:& Wooden Torch~
 G:~:U
 I:39:0:4000
 W:1:0:30:2
-A:1/75:10/75:25/1
+A:1/75:15/75:25/1
 C:0:1d1:0:0:0
 F:EASY_KNOW
 D:A wooden firebrand wrapped in oil-soaked rags.  It can be quite bright, 
@@ -4381,20 +4449,20 @@ N:628:& Brass Lantern~
 G:~:U
 I:39:1:7500
 W:5:0:50:35
-A:5/40:25/75:55/2
+A:5/40:35/75:50/2
 C:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE
-D:The standard portable light source; it requires oil to operate.
+D:The standard portable light source; it usually requires oil to operate.
 
 # Flasks of oil need to be common enough for ironman play
 N:629:& Flask~ of oil
 G:!:y
 I:77:0:7500
 W:2:0:8:3
-A:2/75
-C:0:2d6:0:0:0
+A:2/100
+C:0:2d5:0:0:0
 M:100:1d5
-D:Useful along with lamps, or by itself as a homemade missile.
+D:Fuel for lamps.
 
 ## XXX 630 XXX ##
 
@@ -4420,7 +4488,7 @@ C:0:1d1:0:0:0
 D:A fragment of an old jug.  You think you catch a wiff of spoiled wine.
 
 N:637:& broken stick~
-G:`:r
+G:`:U
 I:2:2:0
 W:0:0:3:0
 A:0/50:10/0
@@ -4430,7 +4498,7 @@ D:Now, it's kindling.
 
 # Boulders have special code that controls weight and damage
 N:638:& boulder~
-G:#:U
+G:#:s
 I:2:3:0
 W:0:0:5:0
 A:0/0
@@ -4438,8 +4506,14 @@ C:0:1d1:0:0:0
 D:A large rock.  The heavier it is, the greater the damage it does when 
 D:thrown.
 
-
-## XXX 639 XXX ##
+N:639:& Blanket~
+G:~:D
+I:2:4:0
+W:35:0:20:500
+A:35/10
+C:0:1d1:0:0:0
+D:A large sheet of magical fabric that grants protection to everything in your 
+D:backpack until it is destroyed.
 
 ## XXX 640 XXX ##
 
@@ -4450,7 +4524,7 @@ D:thrown.
 N:641:& Broken skull~
 G:`:w
 I:1:1:0
-W:0:0:1:0
+W:0:0:2:0
 A:0/50:30/0
 C:0:1d1:0:0:0
 D:A musty skull that even the rats no longer investigate.
@@ -4458,7 +4532,7 @@ D:A musty skull that even the rats no longer investigate.
 N:642:& Canine skeleton~
 G:`:w
 I:1:3:0
-W:1:0:10:0
+W:1:0:20:0
 A:1/50:30/0
 C:0:1d1:0:0:0
 D:The pathetic remains of a jackal.
@@ -4466,7 +4540,7 @@ D:The pathetic remains of a jackal.
 N:643:& Gnome skeleton~
 G:`:w
 I:1:3:0
-W:5:0:30:0
+W:5:0:40:0
 A:5/40:25/0
 C:0:1d2:0:0:0
 D:This merry gnome's last trick failed him, and filthy kobolds now toss his 
@@ -4475,7 +4549,7 @@ D:bones from hand to hand.
 N:644:& Elf skeleton~
 G:`:w
 I:1:4:0
-W:10:0:40:0
+W:10:0:60:0
 A:10/40:30/0
 C:0:1d2:0:0:0
 D:A wandering elf lies here, far from green glades or the haunting sound of 
@@ -4484,7 +4558,7 @@ D:the sea.  His spirit rests in Valinor; his body is but food for jackals.
 N:645:& Dwarf skeleton~
 G:`:w
 I:1:5:0
-W:10:0:50:0
+W:10:0:60:0
 A:10/40:30/0
 C:0:1d2:0:0:0
 D:His axe broken, and his helm clove asunder, a brave dwarf has left his 
@@ -4493,7 +4567,7 @@ D:last memorial here.
 N:646:& Human skeleton~
 G:`:w
 I:1:6:0
-W:5:0:60:0
+W:5:0:80:0
 A:5/60:25/0
 C:0:1d2:0:0:0
 D:Bones that might be the last earthly remains of a fallen hero - or of a town 
@@ -4502,7 +4576,7 @@ D:fool that ventured too deep.
 N:647:& Giant skeleton~
 G:`:w
 I:1:7:0
-W:20:0:500:0
+W:20:0:600:0
 A:20/40:35/0
 C:0:2d6:0:0:0
 D:Nine feet of bleached bones.  The femur alone must weigh ten pounds.
@@ -4510,8 +4584,8 @@ D:Nine feet of bleached bones.  The femur alone must weigh ten pounds.
 N:648:& Mumak skeleton~
 G:`:w
 I:1:8:0
-W:30:0:700:2500
-A:30/30:45/0
+W:45:0:700:6500
+A:35/10:50/30:60/0
 C:0:1d2:0:0:0
 D:The great ivory-tusked carcass of the mumak.
 
@@ -4525,28 +4599,28 @@ G:?:R
 I:90:0:0
 W:5:0:30:35
 A:5/60:30/0
-C:0:0d0:0:0:0
+C:0:2d4:0:0:0
 
 N:651:[Lesser Conjury]
 G:?:R
 I:90:1:0
 W:10:0:30:225
 A:10/60:40/0
-C:0:0d0:0:0:0
+C:0:3d7:0:0:0
 
 N:652:[Elemental Sorcery]
 G:?:R
 I:90:2:0
 W:25:0:30:1000
 A:25/60:60/5
-C:0:0d0:0:0:0
+C:0:5d11:0:0:0
 
 N:653:[Phantasms and Illusions]
 G:?:r
 I:90:3:0
 W:40:0:30:4000
-A:40/40:100/20
-C:0:0d0:0:0:0
+A:40/40:55/40:75/10
+C:0:7d14:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:654:[Mordenkainen's Escapes]
@@ -4554,7 +4628,7 @@ G:?:r
 I:90:4:0
 W:60:0:30:15000
 A:60/35:100/25
-C:0:0d0:0:0:0
+C:0:8d19:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:655:[Grimoire of Wizardry]
@@ -4562,15 +4636,17 @@ G:?:r
 I:90:5:0
 W:75:0:30:40000
 A:75/30
-C:0:0d0:0:0:0
+C:0:9d28:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
+# does 240 damage when thrown
 N:656:[Raal's Tome of Destruction]
 G:?:r
 I:90:6:0
 W:95:0:30:100000
 A:95/25
-C:0:0d0:0:0:0
+C:0:10d47:0:0:0
+F:ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ## XXX 657 XXX ##
@@ -4587,28 +4663,28 @@ G:?:B
 I:91:0:0
 W:5:0:30:35
 A:5/60:30/0
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
 
 N:661:[Words of Wisdom]
 G:?:B
 I:91:1:0
 W:10:0:30:225
 A:10/60:40/0
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
 
 N:662:[Holy of Holies]
 G:?:B
 I:91:2:0
 W:25:0:30:1000
 A:25/60:60/5
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
 
 N:663:[Shining Spirit]
 G:?:b
 I:91:3:0
 W:40:0:30:4000
-A:40/40:100/20
-C:0:0d0:0:0:0
+A:40/40:55/40:75/10
+C:0:1d3:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:664:[Canon of Judgment]
@@ -4616,7 +4692,7 @@ G:?:b
 I:91:4:0
 W:60:0:30:15000
 A:60/35:100/25
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:665:[Insight and Purifications]
@@ -4624,7 +4700,7 @@ G:?:b
 I:91:5:0
 W:75:0:30:40000
 A:75/30
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:666:[Testament of the Almighty]
@@ -4632,7 +4708,8 @@ G:?:b
 I:91:6:0
 W:95:0:30:100000
 A:95/25
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
+F:ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ## XXX 667 XXX ##
@@ -4649,28 +4726,28 @@ G:?:G
 I:92:0:0
 W:5:0:30:35
 A:5/60:30/0
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
 
 N:671:[Communion with Nature]
 G:?:G
 I:92:1:0
 W:10:0:30:225
 A:10/60:40/0
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
 
 N:672:[Book of Combat]
 G:?:G
 I:92:2:0
 W:25:0:30:1000
 A:25/60:60/5
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
 
 N:673:[Druidic Transformations]
 G:?:g
 I:92:3:0
 W:40:0:30:4000
-A:40/40:100/20
-C:0:0d0:0:0:0
+A:40/40:55/40:75/10
+C:0:1d3:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:674:[Weather Mastery]
@@ -4678,7 +4755,7 @@ G:?:g
 I:92:4:0
 W:60:0:30:15000
 A:60/35:100/25
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:675:[Primal Forces]
@@ -4686,7 +4763,7 @@ G:?:g
 I:92:5:0
 W:75:0:30:40000
 A:75/30
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:676:[Spirit of Yavanna]
@@ -4694,7 +4771,8 @@ G:?:g
 I:92:6:0
 W:95:0:30:100000
 A:95/25
-C:0:0d0:0:0:0
+C:0:1d3:0:0:0
+F:ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ## XXX 677 XXX ## 
@@ -4711,28 +4789,28 @@ G:?:D
 I:93:0:0
 W:5:0:30:35
 A:5/60:30/0
-C:0:0d0:0:0:0
+C:0:2d9:-5:0:0
 
 N:681:[Darker Elements]
 G:?:D
 I:93:1:0
 W:10:0:30:225
 A:10/60:40/0
-C:0:0d0:0:0:0
+C:0:4d8:-5:0:0
 
 N:682:[Frightful Realms]
 G:?:D
 I:93:2:0
 W:25:0:30:1000
 A:25/60:60/5
-C:0:0d0:0:0:0
+C:0:5d17:-5:0:0
 
 N:683:[Mysteries of Angmar]
 G:?:v
 I:93:3:0
 W:40:0:30:4000
-A:40/40:100/20
-C:0:0d0:0:0:0
+A:40/40:55/40:75/10
+C:0:5d29:-5:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:684:[Doomspells]
@@ -4740,7 +4818,7 @@ G:?:v
 I:93:4:0
 W:60:0:30:15000
 A:60/35:100/25
-C:0:0d0:0:0:0
+C:0:5d43:-5:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:685:[Triumph of the Will]
@@ -4748,7 +4826,7 @@ G:?:v
 I:93:5:0
 W:75:0:30:40000
 A:75/30
-C:0:0d0:0:0:0
+C:0:5d59:-5:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:686:[Necronomicon]
@@ -4756,7 +4834,8 @@ G:?:v
 I:93:6:0
 W:95:0:30:100000
 A:95/25
-C:0:0d0:0:0:0
+C:0:6d65:-5:0:0
+F:ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ## XXX 687 XXX ##
@@ -4815,7 +4894,7 @@ I:100:4:0
 W:16:0:0:110
 
 N:704:beryls
-G:$:g
+G:$:t
 I:100:5:0
 W:24:0:0:125
 
@@ -4893,7 +4972,7 @@ W:0:0:0:3000
 N:723:& Aetheroi fang
 G:+:B
 I:100:24:0
-W:0:0:0:6000
+W:0:0:0:25000
 
 ## XXX 724 XXX ##
 
@@ -4959,7 +5038,7 @@ F:INSTA_ART
 # The Phial of Galadriel -- see artifact list
 
 N:733:& Phial~
-G:~:y
+G:~:Y
 I:39:4:0
 W:0:0:0:0
 F:INSTA_ART
@@ -5058,7 +5137,7 @@ I:45:46:0
 W:0:0:0:0
 F:INSTA_ART
 
-# The Ring of Power (The One Ring) -- see artifact list
+# The One Ring -- see artifact list
 
 N:748:& Ring~
 G:=:y
@@ -5096,23 +5175,23 @@ G:%:o
 I:5:1:0
 W:10:0:80:600
 A:10/50:19/50:35/0
-C:4:2d4:0:0:0
+C:4:2d7:0:0:0
 D:A large piece of bronze.
 
 N:757:Iron
 G:%:s
 I:5:2:0
 W:20:0:100:1500
-A:20/67:32/67:55/0
-C:6:2d5:0:0:0
+A:20/50:32/50:55/0
+C:6:2d9:0:0:0
 D:A large piece of pig-iron.
 
 N:758:Steel
 G:%:W
 I:5:3:0
 W:33:0:90:3000
-A:33/67:45/67:75/5
-C:8:2d4:0:0:0
+A:33/50:45/50:75/5
+C:8:3d9:0:0:0
 D:A large piece of forged steel.  "Thrice striking hot!  Thrice quenching cold!"
 
 N:759:Runegold
@@ -5120,7 +5199,7 @@ G:%:y
 I:5:4:0
 W:50:0:90:6000
 A:50/50:65/50:75/10
-C:11:2d4:0:0:0
+C:11:3d16:0:0:0
 D:A large piece of thaumaturgic gold, glittering with unearthly brilliancy.
 
 #note that objects made of mithril are unusually light
@@ -5128,8 +5207,8 @@ N:760:Mithril
 G:%:B
 I:5:5:0
 W:70:0:50:12000
-A:70/50:80/50:100/40
-C:14:2d3:0:0:0
+A:70/30:80/40:100/33
+C:14:4d18:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A large piece of true-silver: light, strong, and magical.
 
@@ -5138,8 +5217,8 @@ N:761:Adamant
 G:%:G
 I:5:6:0
 W:86:0:130:14000
-A:80/10:90/50
-C:16:2d6:0:0:0
+A:80/10:90/40
+C:16:5d20:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A large piece of almost impenetrable adamantite; heavy, but stronger than 
 D:anything else that exists.
@@ -5149,36 +5228,36 @@ D:anything else that exists.
 # Both blank parchements and empty bottles are relatively rare because 
 # alchemists get most of their supply by using up scrolls and potions.
 
-N:763:& blank Parchement~ (Paper)
+N:763:& blank Parchment~ (Paper)
 G:?:y
 I:6:1:1
-W:1:0:5:5
+W:1:0:5:1
 A:1/50:20/50:30/5
 C:0:0d0:0:0:0
 D:A standard white paper, the most common material used to make scrolls.
 
-N:764:& blank Parchement~ (Vellum)
+N:764:& blank Parchment~ (Vellum)
 G:?:y
 I:6:2:1
-W:25:0:5:60
+W:25:0:5:30
 A:25/25:40/25:45/5
 C:0:0d0:0:0:0
 D:Made from the finest calfskin, vellum is traditionally used for sacred and 
 D:magical writings.
 
-N:765:& blank Parchement~ (Silk)
+N:765:& blank Parchment~ (Silk)
 G:?:y
 I:6:3:1
-W:45:0:5:1000
+W:45:0:5:500
 A:45/35:70/10
 C:15:0d0:0:0:0
 D:From lands beyond the sunrise comes material so fine as to make one wonder 
 D:if human hands truly spun it.  Few can afford this marvelous substance.
 
-N:766:& blank Parchement~ (Ether)
+N:766:& blank Parchment~ (Ether)
 G:?:y
 I:6:4:1
-W:75:0:0:3000
+W:75:0:0:2750
 A:75/40
 C:20:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -5193,33 +5272,33 @@ D:and the light and magic spun together.  Such is ether.
 N:769:& empty Bottle~ (Glass)
 G:!:y
 I:7:1:1
-W:1:0:4:5
+W:0:0:4:1
 A:1/50:20/50:30/5
 D:Bottles of blown glass are the most common material used to make potions.
 
 N:770:& empty Bottle~ (Crystal)
 G:!:y
 I:7:2:1
-W:25:0:4:50
+W:25:0:4:30
 A:25/25:40/25:50/5
-C:0:0d0:0:0:0
+C:5:0d0:0:0:0
 D:Gleaming crystal is used for potions too strong for ordinary glass to 
 D:contain.
 
 N:771:& empty Bottle~ (Agate)
 G:!:y
 I:7:3:1
-W:50:0:10:1500
+W:50:0:10:800
 A:50/35:75/35:85/10
-C:15:0d0:0:0:0
+C:15:3d3:0:0:0
 D:Geodes of agate carved by hand can hold some powerful potions.
 
 N:772:& empty Bottle~ (Diamond)
 G:!:y
 I:7:4:1
-W:80:0:4:15000
+W:80:0:4:3500
 A:80/40
-C:20:0d0:0:0:0
+C:20:5d8:0:0:0
 D:A hollow, egg-shaped diamond, carved with sigils and radiating magic.  It 
 D:is the best container for a potion an alchemist can hope to find.
 
@@ -5286,9 +5365,10 @@ I:98:10:0
 W:0:0:0:100
 
 N:785:Chaos
-G:*:v
+G:*:P
 I:98:11:0
 W:0:0:0:100
+F:ATTR_MULTI
 
 N:786:Time
 G:*:B
@@ -5296,7 +5376,7 @@ I:98:12:0
 W:0:0:0:100
 
 N:787:Magic
-G:*:v
+G:*:P
 I:98:13:0
 W:0:0:0:100
 

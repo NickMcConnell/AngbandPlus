@@ -7,14 +7,13 @@ news:rec.games.roguelike.angband
 Sangband.  Lots of friendly people.  You may post character dumps there and ask
 for and offer advice.  Please put a "[S]" before Sangband-specific posts.
 
-leon2m@sprintmail.com
+sangband@runegold.org
      The current maintainer's email address.  All bug reports and comments sent
 here get read.
 
-http://home.sprintmail.com/~leon2m/sangband/
-     The temporary Sangband home page.  Contains the current source and
-executables, special files, helpful comments, hints, and links, and the latest
-Sangband news.
+http://www.runegold.org/sangband
+     The Sangband home page.  Contains the current source and executables, and
+various interesting things like screenshots and news updates.
 
 http://www.thangorodrim.net/angband.html
      The largest clearinghouse of Angband and Angband variant information on the
@@ -35,14 +34,6 @@ Angband.  Lots of fun.
 
 http://wkweb5.cableinet.co.uk/bablos/angband/
      Links to, and clear information about, most Angband variants.
-
-http://www.pitsofangband.com/
-     A mix of Angband and a DIKU MUD.  If you're into MUDing, this may well be
-worth checking out.
-
-http://www.fragment.com/~jl8e/angband/faq.txt
-     Concise information about virtually every Angband variant in existence, new
-and old.
 
 http://www.mirc.com/
      If you like interactive chat, there is a channel dedicated to Angband.  Go

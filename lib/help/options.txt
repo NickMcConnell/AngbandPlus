@@ -10,7 +10,7 @@ Various concepts mentioned below
 Options you may want to change to your preferences include:
 - Roguelike commands, if you are used to the commands used in certain other
   roguelike games.
-- Checking that the Hitpoint warning is non-zero can save your character's life.
+- Checking that the hitpoint warning is non-zero can save your character's life.
 - Set the delay factor to two or more if you want to see pretty ball
   explosions and whatnot.
 - Playing around with the lighting options in the Visual Interface section
@@ -18,9 +18,9 @@ Options you may want to change to your preferences include:
 
 Saving options:
      Whenever you save options, you have essentially three choices of filenames:
-- <<character's name>>.prf : affects only that character
-- <<race name>>.prf        : affects all characters of that race
-- user.prf                 : affects all of your characters
+- <<savefile name>>.prf  : affects only that character
+- <<race name>>.prf      : affects all characters of that race
+- user.prf               : affects all of your characters
 
      These rules also apply to other kinds of preferences.
 
@@ -75,21 +75,23 @@ Verify destruction of objects                 [verify_destroy]  (on) :
      Gives you an "are you sure" message when you try to destroy an object.
 
 Pick things up by default                     [always_pickup]  (off) :
-     When you walk onto any object, you will attempt to pick it up.  Note the
-"-" command, which can be used to reverse this option for a single turn.
-     Because picking up objects always takes time (1/10th of a turn for every
-object picked up, unless you are staying still), it is recommended that you also
-turn on "query_floor".
-
 Display things before picking them up         [query_floor]  (on) :
-     The game will display more information about objects you walk on, including
-their weight.
-     If you have the "always_pickup" option on, it will prompt you to pick up
-objects.  If you don't, it will simply display a list.
+     When "always_pickup" is on, the game assumes you want to pick up any object
+you encounter.  If "query_floor" is off, you pick up objects automatically.
+Otherwise, you are shown a list, and prompted to pick up.
+     When "always_pickup" is off, the game assumes you want to pick things up
+selectively.  If "query_floor" is off, you get a one-line description of the
+object or pile.  If "query_floor" is on, you see a full list, including weights.
+In either case, you can start picking things up by typing "g".
+
+     When standing still, you are never charged extra time for picking up
+objects.  When walking, you always take a second partial turn to pick up
+objects; each object picked up takes 1/10th of a turn.
 
 Never haggle in stores                        [never_haggle]  (off) :
      You never haggle in stores, regardless of the markup the shopkeeper asks
-(which can be as great as 33% on extremely valuable items).
+(which is very little or nothing on inexpensive stuff, but can be as great as
+33% on extremely valuable items).
 
 Use old target by default                     [use_old_target]  (off) :
      Forces all commands which normally ask for a direction to use the current
@@ -117,25 +119,29 @@ Merge discounts when stacking                 [stack_force_costs]  (off) :
 discounts.  The resulting stack keeps the largest discount.
 
 Allow quantity specification                  [allow_quantity]  (on) :
-    Prompt for a quantity when necessary, instead of defaulting to a single
+     Prompt for a quantity when necessary, instead of defaulting to a single
 object.  If you prefer to enter command counts before commands instead of typing
 quantities when prompted, turn this option off.
+
+Change savefile names                         [change_save_names]  (off) :
+     When you start a a new character, a "base name" is created from the full
+name.  It is used for the savefile, character-specific preference files, and
+character dumps.  The base name normally does not change after birth, but if
+this option is on, it will change whenever you rename your character.
+     Traditionally, the Macintosh port allowed base names to change after birth
+and most other ports did not.
 
 
 --- Option Set #2:  Disturbance and Warning ---
 
 Disturb whenever any monster moves            [disturb_move]  (on) :
      Disturb the player when any visible monster moves, appears, or disappears,
-whether in line of sight or out of it.
-
-Disturb whenever viewable monster moves       [disturb_near]  (on) :
-     Disturb the player when any viewable (visible and in direct line of sight)
-monster moves, whenever any monster becomes viewable, and whenever any viewable
-monster becomes no longer viewable.
+whether in line of sight or out of it.  This increases safety, but may cause
+trouble when you have telepathy and are trying to rest.
 
 Disturb whenever map panel changes            [disturb_panel]  (on) :
-     This option causes you to be disturbed by the screen scrolling, as it does
-when your character gets close to the edge of the screen.
+     Disturbs you when the map panel shifts.  This slows down your exploration,
+but makes it easier to avoid leaving a detected area.
 
 Disturb whenever player state changes         [disturb_state]  (on) :
      This option causes you to be disturbed whenever the player state changes,
@@ -150,14 +156,11 @@ Alert user to critical hitpoints              [alert_hitpoint]  (on) :
      Make a noise and flush all pending input when your hitpoints reach the
 hitpoint warning.  Make certain you also adjust the hitpoint warning.
 
-Alert user to various failures                [alert_failure]  (off) :
-     This option is currently unused.
-
-Ring bell on error                            [ring_bell]  (on) :
-     Attempt to make a "bell" sound upon various failures or illegal inputs.
+Ring bell on error                            [ring_bell]       (on) :
+     Make a bell sound when errors occur (such as typing an invalid key).
 
 Activate quick messages                       [quick_messages]  (on) :
-     Allows the use of any keypress as a response to the "-more-" prompt, except
+     Allows the use of any keypress as a response to the "(+)" prompt, except
 when you are badly wounded.
 
 Compress messages in savefiles                [compress_savefile]  (off) :
@@ -168,15 +171,19 @@ message information.
 Flush input on various failures               [flush_failure]  (on) :
      This option forces the game to flush all pending input whenever various
 failures occur, such as failure to cast a spell, failure to use a wand, etc.
-This is very useful if you use macros that include directional components with
-commands that can fail, since it will prevent you from walking towards monsters
-when your spells fail.
+This is very useful if you use macros, as it will prevent you from walking
+towards monsters when your spells fail.
 
 Flush input whenever disturbed                [flush_disturb]  (on) :
      This option forces the game to flush all pending input whenever the
 character is disturbed.  This is useful if you use macros that take time, since
 it will prevent you from continuing your macro while being attacked by a
 monster.
+
+Delay on failure                              [delay_failure]  (on) :
+     The game pauses for a fraction of a second whenever various failures occur,
+such as failure to cast a spell, failure to use a wand, etc.  This helps prevent
+you taking unplanned steps (and thus wasting a turn in the middle of a battle).
 
 Colored messages when hit hard                [colored_hit_msg]  (on) :
      The harder you are hit, the more colorful the damage message will be.
@@ -188,22 +195,20 @@ Special colors for hurt character             [colored_hurt_char]  (on) :
 --- Option Set #3:  Visual Interface ---
 
 Map remembers all perma-lit grids             [view_perma_grids]  (on) :
-     Memorize all perma-lit floor grids seen by the player.   This option allows
-you to keep track of which explored floor grids were perma-lit.
-     Turning off this option allows the player to always know which lit floor
-grids are in line of sight, but (if you are using color) this is better
-accomplished by the "view_sight_light" option.  Note that any non-floor grids
-seen by the player are always memorized, and objects seen by the player are
-memorized independently from the grid itself.
+     Memorize all permanently lit floor grids.  Turning this option off allows
+you to know which lit floor grids are in line of sight.  If you are using color,
+however, the "view_sight_light" option works better.
 
 Map remembers all torch-lit grids             [view_torch_grids]  (off) :
-     Memorize all floor grids which have ever been lit up by the player.
+     Memorize all floor grids that have ever been lit up by the player.  If both
+this and the "view_floor_light" option are turned on, you get a visual record of
+which areas you have explored on the current level.
 
 Use special colors for torch-lit grids        [view_torch_light]  (off) :
      If the option "view_floor_light" is also on, floor grids that are only lit
-by the player's own light source will appear yellow.  If the option
-"view_wall_light" is on, walls will be colored in the same way.  Turning this
-option off will slightly increase the speed of the game.
+by the player's own light source or light sources on the floor will appear
+yellow.  If the option "view_wall_light" is on, walls will be colored in the
+same way.  Turning this option off will slightly increase the speed of the game.
 
 Use special colors for field of view          [view_sight_light]  (off) :
      If the option "view_floor_light" is also on, those floor grids that the
@@ -262,8 +267,15 @@ Use Metric (SI) measurements                  [use_metric]  (off) :
      Display a variety of measurable quantities using metric measurements.
 Conversions are:  3 meters ~ 10 feet, 1.0 kilograms ~ 2.2 pounds.
 
-Menus pop up when selecting various things    [always show list]  (on) :
+Menus pop up when selecting various things    [always_show_list]  (on) :
      If selecting anything from a list, that list will automatically pop up.
+
+Move old messages to sub-window automatically [message_to_window]  (off) :
+     If this option is on, and a sub-window is set to display messages, messages
+will be automatically pushed off the main screen to the sub-window, instead of
+manually through keypresses.  However, at present this option will still work if
+the sub-window is closed or moved off-screen, so use with caution!
+
 
 
 
@@ -271,27 +283,36 @@ Menus pop up when selecting various things    [always show list]  (on) :
 
 Window Flags:
      Some platforms support multiple windows, which can display all sorts of
-useful information.  The best thing about these windows is that they are
-(usually) updated automatically to reflect the current state of the world.
+useful information.
 
-  inven/equip:       Display the player inventory (and equipment).
-  equip/inven:       Display the player equipment (and inventory).
+  inventory:         Display the character's inventory (and equipment when
+requested).
+  equipment:         Display the character's equipment (and inventory when
+requested).
   character screen:  Display the main character screen.
-  equipment flags:   Display the character screen's equipment flags section.
+  equip attributes:  Display the character screen's equipment attributes
+section.
+  visible monsters:  Display visible monsters.  The names of those that have
+                     killed at least one of your ancestors are in red, those
+                     that have never been seen before by this character are in
+                     light blue, uniques are in violet, and other monsters are
+                     in white.
+  nearby objects:    Display objects in line of sight.
   messages:          Display recent messages and notes.
   overhead view:     Display an overhead view of the dungeon.
   monster recall:    Display a description of the target monster.
   object recall:     Display a description of the most recently selected
-       object.  Currently this only affects spellbooks and prayerbooks.  This
-       window flag may be usefully combined with others, such as monster recall.
-  snap-shot:        This window flag is currently unused.
+                     object.
 
 Screen Layout:
 
 Force 25_line mode:   (on) :
-     The main screen will appear in 25 lines, using a font higher than it is
-wide.  If this option is off, the main screen will appear in 50 lines, using a
-font of equal width and height.
+     The main screen will appear in 25 lines.  If this option is off, the main
+screen will appear in 50 lines.
+
+Text_50_rows:  (off) :
+     Various special displays, such as stores, lists, and help, appear in 50
+lines.  This option is most helpful to those with large screens.
 
 Number of rows used to show the dungeon:  (22) :
      If force_25_line mode is on, the dungeon will always appear in 22 rows.
@@ -303,54 +324,117 @@ travel whenever you hit the 'L' (or 'W') key.  Secondly, even the biggest rooms
 fit within a screen 44 grids high and 66 wide.  Thirdly, you have more space for
 custom display rows.
 
-Minimum vertical view distance:    (2)  :
-     Fully documented on-screen.
+Minimum vertical view distance:    (2) :
+     Fully documented on-screen, but note that this allows you to get "center on
+player".
 
 Minimum horizontal view distance:  (4) :
      Fully documented on-screen.
 
 Customized left panel rows:   (none preset) :
-     Below the monster health bar on the left side of the main screen are a
-number of empty rows in which you can display information.  A few of these
-duplicate information also shown below the main map.
-     The single most useful display item is that showing the closest monster;
-with it active, you need never be surprised by an offscreen breather again.
+     Below the monster health bar on the left side of the main screen is empty
+space suitable for display information that's important to you.
+
+  (blank line)   : Useful for spacing out information
+
+  Health         : Shows the 1st, 2nd, 3rd, etc. closest monster.  Very useful
+                   to see offscreen breathers!  Uses the same colors and
+                   brackets as the main health bar.
+
+  Kill Count     : Number of monsters you've killed
+
+  Score          : Current score
+
+  Fame           : Fame.  Same as that displayed on the character screen
+
+  Time           : How much time your character has spent alive.  Deliberately
+                   does not show minutes -- the passage of time is "fuzzy".
+
+  Luck           : How unlucky are you?  Green is normal luck, yellow, orange,
+                   and red indicate trouble.
+
+  Regeneration   : How rapidly do you recover hitpoints and mana?
+                   red -> orange -> yellow -> white (normal) -> light green ->
+                   green -> light blue -> blue -> violet
+
+  Quest Status   : Appearance and number of quest monsters
+
+  Active Target  : Last known direction and distance of your target monster or
+                   location.  Especially helpful if you have the option "use
+                   old target by default" set.
+
+  Realm-Specific : Temporary conditions gained through magic, such as priestly
+                   blessing.  Especially useful for Wizards, Priests and
+                   Necromancers.
+
+  Attack Modify  : Elemental and vorpal blows, temporary bonuses to shots, hit
+                   and run, etc.
+
+  Oppositions    : What elements (acid, elec, fire, cold, pois) do you tempor-
+                   arily oppose (over and above any equipment resistances)?
+
+  Fear/Bold/Hero : Are you afraid, bold (immune to fear), heroic, or berserk?
+
+  Protection & ..: Are you blessed, shielded, protected from evil, resistant
+                   to damage, and the like?
+
+  Weather        : What is the weather like?  Extremely useful for Druids.
+                   humid:  'D' for dry, 'W' for wet.  Uses the colors yellow ->
+                           brown -> white -> grey -> white -> green -> blue
+                   wind :  'S' for still, 'B' for blowing.  Uses the colors
+                           violet -> blue -> white -> grey, and back again
+                   temp :  'C' for cold, 'H' for hot.  Uses the colors blue ->
+                           white -> grey -> white -> yellow -> orange -> red
+
+  Noise          : How much noise are you making?  colors are dark grey -> grey
+                   white -> yellow -> orange -> red.  Also notes aggravation.
+
+  Invisibility   : Are you invisible (makes you harder to find and to hit), and
+                   if so, how strongly are you hidden from normal sight?
+                   slate-> white-> light blue-> blue-> violet
 
 
---- Option Set #5:  Difficulty and Cheating ---
+--- Option Set #5:  Difficulty and Assistance ---
 
-Peek into object creation                     [cheat_peek]  (off) :
-     Cheaters never win.  But they can peek at object creation.
+Know complete monster info                    [help_know]  (off) :
+     You can know all about monsters.  Score is reduced by 33%.
 
-Peek into monster creation                    [cheat_hear]  (off) :
-     Cheaters never win.  But they can peek at monster creation.
-
-Peek into dungeon creation                    [cheat_room]  (off) :
-     Cheaters never win.  But they can peek at room creation.
-
-Know complete monster info                    [cheat_know]  (off) :
-     Cheaters never win.  But they can know all about monsters.
-
-Allow player to avoid death                   [cheat_live]  (off) :
-     Cheaters never win.  But they can cheat death.
+Allow character to avoid death                [help_live]  (off) :
+     You can cheat death.  If you do, your score will be placed in "()"s.  This
+is, in truth, a cheat, but many people find it helpful when first learning the
+game.
 
 
 --- Miscellaneous Options ---
 
 Hitpoint warning:
-     If non-zero, is the percentage of maximal hitpoints (x10) that you start
-get special warnings and cannot use most keys to clear messages.  It is also
-used as the cut-off for using red to display both hitpoints and mana, and (if
-the "colored hurt char" option is active) for displaying your character in red.
+     If non-zero, is the percentage of maximal hitpoints (x10) at which you
+start to get special warnings and cannot use most keys to clear messages.  It is
+also used as the cut-off for using red to display both hitpoints and mana, and
+(if the "colored hurt char" option is active) for displaying your character in
+red.
 
 Delay Factor:
      The "delay_factor" value, if non-zero, will slow down the visual effects
 used for missile, bolt, beam, and ball attacks.  The actual time delay is equal
-to "delay_factor" squared, in milliseconds.
+to "delay_factor" squared, in milliseconds.  A value of five works well on many
+machines.
 
 Autosave:
      You may set the game to save your character every so often by using the
 autosave option.  Tweak the timer until you are satisfied.
+
+
+--- Options Commands ---
+
+Load a user preference file:
+     Reads user preferences (including options) from a file you choose.
+Normally used when preferences don't load automatically, and you want to rewrite
+them to a file that will.
+
+Save options to a file:
+     Saves options to file.  See the preferences section for help on what
+filename to use (the file "user.prf" usually works).
 
 
 

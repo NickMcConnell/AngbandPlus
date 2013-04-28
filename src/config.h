@@ -101,53 +101,11 @@
 
 
 /*
- * OPTION: Allow characters to be "auto-rolled"
- */
-#define ALLOW_AUTOROLLER
-
-
-/*
  * OPTION: Allow parsing of the ASCII template files in "init.c".
  * This must be defined if you do not have valid binary image files.
  * It should be usually be defined anyway to allow easy updating.
  */
 #define ALLOW_TEMPLATES
-
-/*
- * OPTION: Delay the loading of the "f_text" array until it is actually
- * needed, saving ~1K, since "feature" descriptions are unused.
- */
-#define DELAY_LOAD_F_TEXT
-
-/*
- * OPTION: Delay the loading of the "k_text" array until it is actually
- * needed, saving ?K, but slowing down the display of object descriptions.
- */
-/* #define DELAY_LOAD_K_TEXT */
-
-/*
- * OPTION: Delay the loading of the "a_text" array until it is actually
- * needed, saving ?K, but slowing down the display of artifact descriptions.
- */
-/* #define DELAY_LOAD_A_TEXT */
-
-/*
- * OPTION: Delay the loading of the "e_text" array until it is actually
- * needed, saving ?K, but slowing down the display of ego-item descriptions.
- */
-/* #define DELAY_LOAD_E_TEXT */
-
-/*
- * OPTION: Delay the loading of the "r_text" array until it is actually
- * needed, saving ?K, but "simplifying" the "monster" descriptions.
- */
-/* #define DELAY_LOAD_R_TEXT */
-
-/*
- * OPTION: Delay the loading of the "v_text" array until it is actually
- * needed, saving ?K, but "destroying" the "vault" generation.
- */
-/* #define DELAY_LOAD_V_TEXT */
 
 
 /*
@@ -160,31 +118,11 @@
  */
 /* #define SCORE_BORGS */
 
-/*
- * OPTION: Allow "Cheaters" to yield "high scores"
- */
-/* #define SCORE_CHEATERS */
-
-
-
-/*
- * OPTION: Allow monsters to use noise and scent information to better
- * track the character.  This feature requires a significant amount of
- * memory, but makes monsters behave much more intelligently.
- */
-#define MONSTER_FLOW
-
 
 /*
  * OPTION: Gamma correct colours (with X11)
  */
 #define SUPPORT_GAMMA
-
-
-/*
- * OPTION: Check the modification time of *.raw files
- */
-#define CHECK_MODIFICATION_TIME
 
 
 /*
@@ -196,8 +134,6 @@
  * OPTION: Allow the use of "graphics" in various places
  */
 #define USE_GRAPHICS
-
-
 
 
 /*
@@ -226,6 +162,25 @@
 #endif
 
 
+/*
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref-files and character-dumps.
+ */
+#ifdef SET_UID
+# ifndef PRIVATE_USER_PATH
+#  define PRIVATE_USER_PATH "~/.angband"
+# endif /* PRIVATE_USER_PATH */
+#endif /* SET_UID */
+
+
+/*
+ * OPTION: Create and use hidden directories in the users home directory
+ * for storing save files, data files, and high-scores
+ */
+#ifdef PRIVATE_USER_PATH
+/* # define USE_PRIVATE_PATHS */
+#endif /* PRIVATE_USER_PATH */
+
 
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
@@ -236,63 +191,22 @@
  * OPTION: Check the "load" against "lib/file/load.txt"
  * This may require the 'rpcsvs' library
  */
+
+#if 0
+/*
+ * This code is deprecated, and will disappear eventually.  If this is a
+ * problem for you, let the maintainer know.
+ */
+
 /* #define CHECK_LOAD */
 
-
-/*
- * OPTION: Some advanced computers have bid "good riddance" to the command
- * line interface, and make it easy to see and manipulate your own files.
- * The finest example of putting the user, not the rules, in charge is
- * Macintosh, which allows you to name files just about anything and save
- * them just about anywhere you please.  Allow the fortunate users of such
- * machines the ability to rename savefiles when the character name does.
- *
- * You thought that was a little jingoistic?  Check this out:
- *
- * OPTION: For some brain-dead computers with no command line interface,
- * namely Macintosh, there has to be some way of "naming" your savefiles.
- * The current "Macintosh" hack is to make it so whenever the character
- * name changes, the savefile is renamed accordingly.  But on normal
- * machines, once you manage to "load" a savefile, it stays that way.
- * Macintosh is particularly weird because you can load savefiles that
- * are not contained in the "lib:save:" folder, and if you change the
- * player's name, it will then save the savefile elsewhere.  Note that
- * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
- *
- * Leaving the verbiage aside now:
- *
- * OPTION:  Change savefile names when the character's name does.  In
- * Sangband, this is not recommended (in any port), because it confuses
- * the system-independant savefile management system.  The game should
- * be able to handle things if you do define this, however, especially if
- * your port uses menus.
- */
-/* #define SAVEFILE_MUTABLE */
-
-
+#endif
 
 
 /*
- * OPTION: Address to contact if something goes wrong.
+ * Address of current maintainer.
  */
 #define MAINTAINER_NAME "Leon Marrick"
-#define MAINTAINER	"leon2m@sprintmail.com"
-
-
-
-/*
- * OPTION: Attempt to prevent all "cheating"
- */
-/* #define VERIFY_HONOR */
-
-
-/*
- * React to the "VERIFY_HONOR" flag
- */
-#ifdef VERIFY_HONOR
-# define VERIFY_SAVEFILE
-# define VERIFY_CHECKSUMS
-# define VERIFY_TIMESTAMP
-#endif
+#define MAINTAINER	"sangband@runegold.org"
 
 
