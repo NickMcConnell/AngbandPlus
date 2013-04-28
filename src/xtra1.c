@@ -3311,7 +3311,6 @@ void calc_bonuses(void)
 	/* Clear all the flags */
 	p_ptr->cursed = 0L;
 	p_ptr->bless_blade = FALSE;
-	p_ptr->xtra_might = FALSE;
 	for (i = 0; i < MAX_HANDS; i++)
 		p_ptr->impact[i] = FALSE;
 	p_ptr->pass_wall = FALSE;

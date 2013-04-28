@@ -3642,7 +3642,6 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
 
 	/* Calculate the Multiplier */
 	tmul = bow_tmul(bow->sval);
-	if (p_ptr->xtra_might) tmul++;
 	tmul += p_ptr->shooter_info.to_mult;
 
 	if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS))

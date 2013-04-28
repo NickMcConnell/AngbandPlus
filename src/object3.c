@@ -838,6 +838,15 @@ s32b jewelry_cost(object_type *o_ptr)
 			cost_calc_hook(dbg_msg);
 		}
 	}
+	if (have_flag(flgs, TR_XTRA_MIGHT))
+	{
+		p += 50000;
+		if (cost_calc_hook)
+		{
+			sprintf(dbg_msg, "  * Extra Might: p = %d", p);
+			cost_calc_hook(dbg_msg);
+		}
+	}
 
 	/* Stats */
 	q = _stats_q(flgs, o_ptr->pval);

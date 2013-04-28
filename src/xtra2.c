@@ -5542,7 +5542,6 @@ int bow_range(int sval)
 
 	default:
 		tmul = bow_tmul(sval);
-		if (p_ptr->xtra_might) tmul++;
 		tmul += p_ptr->shooter_info.to_mult;
 		tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 		tdis = 13 + tmul/80;

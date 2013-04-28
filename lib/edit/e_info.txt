@@ -512,8 +512,6 @@ F:SPEED | AGGRAVATE
 
 ### Weapons ###
 
-# OneSustain
-
 N:64:(¿ª¿Ôº‘)
 E:(Crusade)
 X:24:30
@@ -523,8 +521,6 @@ F:WIS |
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
 F:SEE_INVIS | BLESSED | RES_FEAR | ONE_SUSTAIN
 
-# OneSustain
-
 N:65:(À…±“º‘)
 E:(Defender)
 X:24:25
@@ -532,10 +528,8 @@ W:0:36:0:10000
 C:4:4:8:4
 F:STEALTH | 
 F:FREE_ACT | SEE_INVIS |
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | ONE_SUSTAIN |
+F:ONE_SUSTAIN |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-# OneAbility
 
 N:66:(ΩÀ °)
 E:(Blessed)
@@ -565,7 +559,7 @@ C:0:0:0:3
 F:BLOWS
 
 N:70:ª¶Ÿ§§Œ
-E:of Slaying
+E:(Armageddon)
 X:24:15
 W:0:18:0:500
 C:0:0:0:0

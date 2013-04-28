@@ -1114,7 +1114,7 @@ void equip_calc_bonuses(void)
 		if (have_flag(flgs, TR_SPELL_POWER)) p_ptr->spell_power -= o_ptr->pval;
 		if (have_flag(flgs, TR_SPELL_CAP))   p_ptr->spell_cap += o_ptr->pval;
 		if (have_flag(flgs, TR_BLESSED))     p_ptr->bless_blade = TRUE;
-		if (have_flag(flgs, TR_XTRA_MIGHT))  p_ptr->xtra_might = TRUE;
+		if (have_flag(flgs, TR_XTRA_MIGHT))  p_ptr->shooter_info.to_mult++;
 		if (have_flag(flgs, TR_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
 		if (have_flag(flgs, TR_REGEN))       p_ptr->regenerate = TRUE;
 		if (have_flag(flgs, TR_TELEPATHY))   p_ptr->telepathy = TRUE;

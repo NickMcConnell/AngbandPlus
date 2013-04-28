@@ -2138,9 +2138,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 		/* Mega-Hack -- Extract the "base power" */
 		power = bow_tmul(o_ptr->sval);
-
-		/* Apply the "Extra Might" flag */
-		if (have_flag(flgs, TR_XTRA_MIGHT)) power++;
 		power += p_ptr->shooter_info.to_mult;
 
 		/* Append a special "damage" string */
@@ -2216,7 +2213,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		if (known) avgdam += (o_ptr->to_d * 10);
 
 		/* Get extra "power" from "extra might" */
-		if (p_ptr->xtra_might) tmul++;
 		tmul += p_ptr->shooter_info.to_mult;
 
 		tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);

@@ -2474,11 +2474,26 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power, int mode)
 					if (one_in_(4) && (level > 40))
 						add_flag(o_ptr->art_flags, TR_BLOWS);
 					break;
-				case EGO_DF:
-					if (one_in_(3))
-						add_flag(o_ptr->art_flags, TR_RES_POIS);
-					else if (one_in_(3))
-						one_high_resistance(o_ptr);
+				case EGO_DEFENDER:
+					if (one_in_(4))
+					{
+						int i;
+						int ct = 4;
+						if (one_in_(3)) 
+							ct++;
+
+						for (i = 0; i < ct; i++)
+							one_high_resistance(o_ptr);
+					}
+					else
+					{
+						add_flag(o_ptr->art_flags, TR_RES_FIRE);
+						add_flag(o_ptr->art_flags, TR_RES_COLD);
+						add_flag(o_ptr->art_flags, TR_RES_ACID);
+						add_flag(o_ptr->art_flags, TR_RES_ELEC);
+						if (one_in_(3)) 
+							add_flag(o_ptr->art_flags, TR_RES_POIS);
+					}
 					if (one_in_(3))
 						add_flag(o_ptr->art_flags, TR_WARNING);
 					if (one_in_(3))
@@ -2555,7 +2570,16 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power, int mode)
 					}
 					
 					if (one_in_(5))
-						add_flag(o_ptr->art_flags, TR_BRAND_POIS);
+					{
+						switch (randint1(5))
+						{
+						case 1: add_flag(o_ptr->art_flags, TR_BRAND_ELEC); break;
+						case 2: add_flag(o_ptr->art_flags, TR_BRAND_FIRE); break;
+						case 3: add_flag(o_ptr->art_flags, TR_BRAND_COLD); break;
+						case 4: add_flag(o_ptr->art_flags, TR_BRAND_ACID); break;
+						default: add_flag(o_ptr->art_flags, TR_BRAND_POIS); break;
+						}
+					}
 
 					if (o_ptr->tval == TV_SWORD && one_in_(3))
 						add_flag(o_ptr->art_flags, TR_VORPAL);
@@ -2584,6 +2608,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power, int mode)
 					break;
 				case EGO_SHARPNESS:
 					o_ptr->pval = m_bonus(5, level) + 1;
+					while (one_in_(2)) o_ptr->dd++;
 					break;
 				case EGO_EARTHQUAKES:
 					if (one_in_(3) && (level > 60))

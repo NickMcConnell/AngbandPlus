@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 15
+#define VER_PATCH 16
 #define VER_EXTRA 0
 
 
@@ -1642,7 +1642,7 @@
 
 /* Weapons */
 #define EGO_HA                  64
-#define EGO_DF                  65
+#define EGO_DEFENDER            65
 #define EGO_BLESS_BLADE         66
 /* xxx */
 #define EGO_WEST                68
@@ -2344,6 +2344,7 @@
 #define SV_RING_DEVOURING_DARKNESS      62
 #define SV_RING_RESISTANCE              63
 #define SV_RING_HIGH_RESISTANCE         64
+#define SV_RING_EXTRA_MIGHT             65
 
 #define SV_EXPRESS_CARD                  0
 

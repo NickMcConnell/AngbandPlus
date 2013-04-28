@@ -959,7 +959,6 @@ static int _bow_mult(int sval)
 {
 	int mult = _bow_mult_base(sval);
 
-	if (p_ptr->xtra_might) mult++;
 	mult += p_ptr->shooter_info.to_mult;
 
 	if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS))
