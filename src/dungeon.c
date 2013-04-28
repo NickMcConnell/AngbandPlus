@@ -2290,16 +2290,12 @@ static void process_command(void)
 			break;
 		}
 
-#ifndef VERIFY_SAVEFILE
-
 		/* Hack -- Save and don't quit */
 		case KTRL('S'):
 		{
 			do_cmd_save_game(FALSE);
 			break;
 		}
-
-#endif
 
 		/* Save and quit */
 		case KTRL('X'):

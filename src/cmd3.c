@@ -697,9 +697,9 @@ void do_cmd_wield(void)
 	/* Hack -- Removing two weapons at a time requires special-case code */
 	if (remove_two_weapons)
 	{
-		/* Take off both existing weapons */
-		(void)inven_takeoff(INVEN_WIELD, 255);
+		/* Take off both existing weapons, removing arm slot first - JM */
 		(void)inven_takeoff(INVEN_ARM, 255);
+		(void)inven_takeoff(INVEN_WIELD, 255);
 	}
 
 	/* Removal of one item */

@@ -1,0 +1,20 @@
+
+Bugs
+* Quests should no longer repeat, at least it should be really unlikely now, this time for sure.
+* Some effects of doomspells will no longer be activated with wands of spark!
+* Wielding a 2-hander while wielding two weapons no longer deletes the weapon on the arm.
+* Items which cure stunning no longer automatically identified (a fix in set_stun)
+* Throwing now displays the ability to take the Oath of Iron properly
+* Plasma Hounds gain IM_FIRE, as they're plasma breathers
+* Turns now displayed in character screen
+* Stores should now order items properly
+* Fixed error in Oath of Iron martial art damage
+
+Additional code cleanup by Christer Nyfält
+
+Known Bugs
+* Town graphics bug
+* Game crash bug
+* Jeweled mimics don't show up in recall properly until you kill them
+
+Hopefully the first two of these are local to the SDL port, and therefore releasing a Windows port without SDL will clear these up for the time being.

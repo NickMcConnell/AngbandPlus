@@ -2200,6 +2200,7 @@ static void prt_skill_select(int skill)
 		case S_SLING:
 		case S_BOW:
 		case S_CROSSBOW:
+		case S_THROWING:
 		{
 			int req_skill = OATH_OF_IRON_REQ;
 			if (skill == S_SLING) req_skill += 10;

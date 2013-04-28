@@ -298,7 +298,7 @@ byte char_tables[256][CHAR_TABLE_SLOTS] =
 	{ 220,   252,   CHAR_LOWER | CHAR_VOWEL },  /*        uuml   ü   */
 	{ 221,   253,   CHAR_LOWER },               /*      yacute   ý   */
 	{ 222,   254,   CHAR_LOWER },               /*       thorn   þ   */
-	{ 121,   255,   CHAR_LOWER },               /*        yuml   ÿ   */
+	{ 121,   255,   CHAR_LOWER },               /*        yuml       */
 };
 
 
@@ -431,7 +431,7 @@ void xstr_encode(char *str, size_t len)
 			else
 			{
 				/* Get the encode (within brackets) */
-				my_strcpy(encode, format("[%s]", latin1_encode[n].tag), sizeof(encode));
+				(void)my_strcpy(encode, format("[%s]", latin1_encode[n].tag), sizeof(encode));
 
 				/* Save it (making sure not to overflow the string) */
 				for (t = encode; *t; t++)

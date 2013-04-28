@@ -14,6 +14,7 @@
 
 #include "h-basic.h"
 
+extern int player_egid;
 extern cptr ANGBAND_DIR;
 extern cptr ANGBAND_DIR_APEX;
 extern cptr ANGBAND_DIR_BONE;

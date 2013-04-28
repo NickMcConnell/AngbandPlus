@@ -747,9 +747,11 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 				if ((p_ptr->quest_memory[j].type != 0) &&
 					(p_ptr->quest_memory[j].r_idx == i))
 				{
-					continue;
+					okay = FALSE;
 				}
 			}
+
+			if(!okay) continue;
 
 			/* Monster can't move - check ranged attacks */
 			if (r_ptr->flags1 & (RF1_NEVER_MOVE))

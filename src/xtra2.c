@@ -1675,7 +1675,7 @@ bool set_stun(int v)
 	}
 
 	/* Decrease stun */
-	else if (!new_aux)
+	else if (!new_aux && old_aux)
 	{
 		/* Message */
 		message(MSG_RECOVER, 0, "You are no longer stunned.");

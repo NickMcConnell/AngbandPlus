@@ -4347,7 +4347,8 @@ bool recharge(int power, bool essence)
 		}
 
 		/* Staffs of doomspells have a mind of their own */
-		else if ((o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(6)))
+		else if ((o_ptr->tval == TV_STAFF) &&
+		    (o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(6)))
 		{
 			msg_print("The staff escapes from your control!");
 			doomspells(one_in_(2), MAX(50, p_ptr->depth));

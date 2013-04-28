@@ -18,9 +18,6 @@
 #ifndef INCLUDED_H_CONFIG_H
 #define INCLUDED_H_CONFIG_H
 
-#include <limits.h>
-
-
 
 /*
  * OPTION: Compile on a Macintosh machine
@@ -88,27 +85,6 @@
 # ifdef WINDOWS
 #  undef WINDOWS
 # endif
-#endif
-
-
-
-/*
- * OPTION: Define "L64" if a "long" is 64-bits.  See "h-types.h".
- * The only such platform that angband is ported to is currently
- * DEC Alpha AXP running OSF/1 (OpenVMS uses 32-bit longs).
- *
- * Try to use __WORDSIZE to test for 64-bit platforms.
- * I don't know how portable this is.
- * -CJN-
- */
-#ifdef __WORDSIZE
-# if __WORDSIZE == 64
-#  define L64
-# endif
-#endif
-
-#if defined(__alpha) && defined(__osf__) && !defined(L64)
-# define L64
 #endif
 
 
@@ -185,23 +161,10 @@
 
 
 /*
- * OPTION: for multi-user machines running the game setuid to some other
- * user (like 'games') this SAFE_SETUID option allows the program to drop
- * its privileges when saving files that allow for user specified pathnames.
- * This lets the game be installed system wide without major security
- * concerns.  There should not be any side effects on any machines.
- *
- * This will handle "gids" correctly once the permissions are set right.
+ * OPTION: Assume that setegid is available, 
+ * if not undefine to use setgid instead.
  */
-#define SAFE_SETUID
-
-
-/*
- * This flag enables the "POSIX" methods for "SAFE_SETUID".
- */
-#ifdef _POSIX_SAVED_IDS
-# define SAFE_SETUID_POSIX
-#endif
+#define HAVE_SETEGID
 
 
 /*

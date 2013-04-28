@@ -3551,6 +3551,7 @@ int main(int argc, char *argv[])
 
 	/* Get the user id */
 	player_uid = getuid();
+	player_egid = getegid();
 
 #endif /* SET_UID */
 

@@ -6283,7 +6283,7 @@ int reorder_pack(int slot, int store_num, bool verbose)
 			if (!object_aware_p(o_ptr) && object_aware_p(j_ptr)) continue;
 
 			/* New non-aware objects go below old */
-			if (!object_aware_p(o_ptr) && !object_aware_p(j_ptr)) continue;
+			if (!object_aware_p(o_ptr) && !object_aware_p(j_ptr) && !(st_ptr)) continue;
 
 			/* If aware, objects sort by increasing sval */
 			if (o_ptr->sval < j_ptr->sval) break;

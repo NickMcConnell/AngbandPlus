@@ -4462,7 +4462,8 @@ void use_device(int tval)
 			if (flush_failure) flush();
 
 			/* Staffs of Doomspells have a mind of their own. */
-			if ((o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(10)))
+		if ((o_ptr->tval == TV_STAFF) &&
+		    (o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(10)))
 			{
 				doomspells(one_in_(2), MAX(50, p_ptr->depth));
 				used_via_failure = TRUE;

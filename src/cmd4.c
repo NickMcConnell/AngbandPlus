@@ -149,7 +149,7 @@ void do_cmd_change_name(void)
 
 			(void)strnfmt(ftmp, sizeof(ftmp), "%s.txt", op_ptr->base_name);
 
-			if (get_string("File name:", ftmp, 80))
+			if (get_string("File name:", ftmp, sizeof(ftmp)))
 			{
 				if (ftmp[0] && (ftmp[0] != ' '))
 				{
@@ -402,7 +402,7 @@ void do_cmd_messages(void)
 		else if ((ch == '-') || (ch == '_') || (ch == '4'))
 		{
 			/* Go older if legal */
-			if (i + (hgt - 4)/2 < n) i += (hgt - 4)/2;
+			if (i + (hgt - 4) / 2 < n) i += (hgt - 4) / 2;
 		}
 
 		/* Recall 1 older message */
@@ -425,7 +425,7 @@ void do_cmd_messages(void)
 		else if ((ch == '+') || (ch == '=') || (ch == '6'))
 		{
 			/* Go newer (if able) */
-			i = (i >= (hgt - 4)/2) ? (i - (hgt - 4)/2) : 0;
+			i = (i >= (hgt - 4) / 2) ? (i - (hgt - 4) / 2) : 0;
 		}
 
 		/* Recall a full page of newer messages */
@@ -449,7 +449,7 @@ void do_cmd_messages(void)
 			prt("Show: ", hgt - 1, 0);
 
 			/* Get a "shower" string, or continue */
-			if (!askfor_aux(shower, 80, FALSE)) continue;
+			if (!askfor_aux(shower, sizeof(shower), FALSE)) continue;
 
 			/* Make "shower" lowercase */
 			strlower(shower);
@@ -500,9 +500,11 @@ void do_cmd_messages(void)
 		else if (ch == '#')
 		{
 			char tmp[DESC_LEN];
+
 			prt("Goto Line: ", hgt - 1, 0);
 			strcpy(tmp, "0");
-			if (askfor_aux(tmp, 80, FALSE))
+
+			if (askfor_aux(tmp, sizeof(tmp), FALSE))
 			{
 				i = atoi(tmp);
 				if (i > n - hgt + 4) i = n - hgt + 4;
@@ -1014,7 +1016,7 @@ static s16b do_cmd_options_panel(bool *modified)
 	int i, j, k, num;
 
 	/* Indexes of available options, and whether they are displayed */
-	int option_avail[DESC_LEN][2];
+	int option_avail[DISPLAY_MAX][2];
 
 	/* Get the maximum number of left panel slots available */
 	int slots_avail = MIN(80, term_main->rows - ROW_CUSTOM - 2);
@@ -1698,8 +1700,6 @@ static cptr dump_seperator = "### (Automatic deletion marker) ###";
 /*
  * Remove old lines from pref files
  * -Mogami-
- *
- * THIS FUNCTION IS AVAILABLE ONLY UNDER THE MORIA LICENSE.
  */
 static void remove_old_dump(cptr orig_file, cptr mark)
 {
@@ -1852,7 +1852,7 @@ void do_cmd_pref(void)
 	strcpy(tmp, "");
 
 	/* Ask for a "user pref command" */
-	if (!get_string("Pref:", tmp, 80)) return;
+	if (!get_string("Pref:", tmp, sizeof(tmp))) return;
 
 	/* Process that pref command */
 	(void)process_pref_file_command(tmp);
@@ -1882,7 +1882,7 @@ static void do_cmd_pref_file_hack(int row, cptr file_name)
 	else (void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", file_name);
 
 	/* Ask for a file (or cancel) */
-	if (!askfor_aux(ftmp, 80, TRUE)) return;
+	if (!askfor_aux(ftmp, sizeof(ftmp), TRUE)) return;
 
 	/* Process the given filename */
 	if (process_pref_file(ftmp))
@@ -2178,7 +2178,7 @@ void do_cmd_options(void)
 			(void)strnfmt(ftmp, sizeof(ftmp), "user.prf");
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80, FALSE)) continue;
+			if (!askfor_aux(ftmp, sizeof(ftmp), FALSE)) continue;
 
 			/* Dump the options */
 			if (option_dump(ftmp))
@@ -2809,7 +2809,7 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80, FALSE))
+			if (askfor_aux(tmp, sizeof(tmp), FALSE))
 			{
 				/* Convert to ascii */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
@@ -2862,7 +2862,7 @@ void do_cmd_macros(void)
 			(void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80, FALSE)) continue;
+			if (!askfor_aux(ftmp, sizeof(tmp), FALSE)) continue;
 
 			/* Dump the macros */
 			(void)keymap_dump(ftmp);
@@ -2938,7 +2938,7 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80, FALSE))
+			if (askfor_aux(tmp, sizeof(tmp), FALSE))
 			{
 				/* Convert to ascii */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
@@ -2995,7 +2995,7 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80, FALSE))
+			if (askfor_aux(tmp, sizeof(tmp), FALSE))
 			{
 				/* Extract an action */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
@@ -3230,7 +3230,7 @@ static bool do_cmd_visuals_file(cptr str, bool automatic, char *mark)
 		(void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 		/* Get a filename, allow cancel */
-		if (!askfor_aux(ftmp, 80, FALSE)) return (FALSE);
+		if (!askfor_aux(ftmp, sizeof(ftmp), FALSE)) return (FALSE);
 	}
 
 	/* Build the filename */
@@ -5125,7 +5125,7 @@ void do_cmd_note(void)
 	strcpy(tmp, "");
 
 	/* Input */
-	if (!get_string("Note:", tmp, 1024)) return;
+	if (!get_string("Note:", tmp, sizeof(tmp))) return;
 
 	/* Ignore empty notes */
 	if (!tmp[0] || (tmp[0] == ' ')) return;

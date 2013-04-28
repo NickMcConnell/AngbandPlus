@@ -1556,6 +1556,7 @@ static void display_player_middle(void)
 
 	prt_lnum("Unspent Exp   ",   p_ptr->exp,       12, 27, TERM_L_GREEN);
 	prt_lnum("Gold          ",   p_ptr->au,        13, 27, TERM_L_GREEN);
+	prt_lnum("Turns         ",   turn,             14, 27, TERM_L_BLUE);
 
 
 
@@ -3800,7 +3801,7 @@ errr file_character(cptr name, bool full)
 			fprintf(fff, "  [Last Messages]\n\n");
 			while (msgs-- > 0)
 			{
-				my_strcpy(buf, message_str(msgs), sizeof(buf));
+				(void)my_strcpy(buf, message_str(msgs), sizeof(buf));
 				x_fprintf(fff, encoding, "%s\n", format_literal(buf));
 			}
 			fprintf(fff, "\n\n");
@@ -6382,15 +6383,15 @@ static errr enter_score(void)
 	(void)strnfmt(the_score.what, sizeof(the_score.what), "%s", VERSION_STRING);
 
 	/* Calculate and save the points */
-	sprintf(the_score.pts, "%9ld", (long)total_points());
+	(void)strnfmt(the_score.pts, sizeof(the_score.pts), "%9ld", (long)total_points());
 	the_score.pts[9] = '\0';
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9ld", (long)p_ptr->au);
+	(void)strnfmt(the_score.gold, sizeof(the_score.gold), "%9ld", (long)p_ptr->au);
 	the_score.gold[9] = '\0';
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9ld", (long)turn);
+	(void)strnfmt(the_score.turns, sizeof(the_score.turns), "%9ld", (long)turn);
 	the_score.turns[9] = '\0';
 
 	/* Save the date in standard encoded form (9 chars) */
@@ -6400,10 +6401,10 @@ static errr enter_score(void)
 	(void)strnfmt(the_score.who, sizeof(the_score.who), "%-.30s", op_ptr->full_name);
 
 	/* Save the player info XXX XXX XXX */
-	sprintf(the_score.uid, "%7d", player_uid);
-	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_mag, "%2d", p_ptr->realm);
+	(void)strnfmt(the_score.uid, sizeof(the_score.uid), "%7d", player_uid);
+	(void)strnfmt(the_score.sex, sizeof(the_score.sex), "%c", (p_ptr->psex ? 'm' : 'f'));
+	(void)strnfmt(the_score.p_r, sizeof(the_score.p_r), "%2d", p_ptr->prace);
+	(void)strnfmt(the_score.p_mag, sizeof(the_score.p_mag), "%2d", p_ptr->realm);
 
 	/* Save the title */
 	character_title = get_title(25, FALSE, FALSE);
@@ -6420,8 +6421,8 @@ static errr enter_score(void)
 	}
 
 	/* Save the level and such */
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
+	(void)strnfmt(the_score.cur_dun, sizeof(the_score.cur_dun), "%3d", p_ptr->depth);
+	(void)strnfmt(the_score.max_dun, sizeof(the_score.max_dun), "%3d", p_ptr->max_depth);
 
 	/* Save the cause of death (31 chars) */
 	(void)strnfmt(the_score.how, sizeof(the_score.how), "%-.31s", p_ptr->died_from);
@@ -6526,13 +6527,13 @@ errr predict_score(void)
 	(void)strnfmt(the_score.what, sizeof(the_score.what), "%s", VERSION_STRING);
 
 	/* Calculate and save the points */
-	sprintf(the_score.pts, "%9ld", (long)total_points());
+	(void)strnfmt(the_score.pts, sizeof(the_score.pts), "%9ld", (long)total_points());
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9ld", (long)p_ptr->au);
+	(void)strnfmt(the_score.gold, sizeof(the_score.gold), "%9ld", (long)p_ptr->au);
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9ld", (long)turn);
+	(void)strnfmt(the_score.turns, sizeof(the_score.turns), "%9ld", (long)turn);
 
 	/* Hack -- no time needed */
 	strcpy(the_score.day, "TODAY");
@@ -6542,12 +6543,12 @@ errr predict_score(void)
 
 	/* Save the player info XXX XXX XXX */
 #ifdef SAVEFILE_USE_UID
-	sprintf(the_score.uid, "%7d", player_uid);
+	(void)strnfmt(the_score.uid, sizeof(the_score.uid), "%7d", player_uid);
 #endif /* SAVEFILE_USE_UID */
 
-	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_mag, "%2d", p_ptr->realm);
+	(void)strnfmt(the_score.sex, sizeof(the_score.sex), "%c", (p_ptr->psex ? 'm' : 'f'));
+	(void)strnfmt(the_score.p_r, sizeof(the_score.p_r), "%2d", p_ptr->prace);
+	(void)strnfmt(the_score.p_mag, sizeof(the_score.p_mag), "%2d", p_ptr->realm);
 
 	/* Save the title */
 	character_title = get_title(25, FALSE, FALSE);
@@ -6564,8 +6565,8 @@ errr predict_score(void)
 	}
 
 	/* Save the level and such */
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
+	(void)strnfmt(the_score.cur_dun, sizeof(the_score.cur_dun), "%3d", p_ptr->depth);
+	(void)strnfmt(the_score.max_dun, sizeof(the_score.max_dun), "%3d", p_ptr->max_depth);
 
 	/* Hack -- no cause of death */
 	strcpy(the_score.how, "alive and well");

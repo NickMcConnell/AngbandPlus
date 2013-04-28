@@ -245,8 +245,6 @@ bool closing_flag;				/* Dungeon is closing */
  * Player info
  */
 int player_uid;
-int player_euid;
-int player_egid;
 
 
 /*

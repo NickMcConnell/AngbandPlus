@@ -1535,7 +1535,7 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 		/* Effective skill max depends on specialization */
 		max = get_skill(S_KARATE, 35, 75);
 		if (p_ptr->oath & (OATH_OF_IRON))   max = get_skill(S_KARATE, 40, 85);
-		if (p_ptr->oath & (BURGLARS_GUILD)) max = get_skill(S_KARATE, 35, 75);
+		else if (p_ptr->oath & (BURGLARS_GUILD)) max = get_skill(S_KARATE, 35, 75);
 		else if (p_ptr->oath)               max = get_skill(S_KARATE, 25, 60);
 
 		/* Damage depends on skill (and also stats) */
@@ -1559,7 +1559,7 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 		/* Effective skill max depends on specialization */
 		max = get_skill(S_WRESTLING, 40, 80);
 		if (p_ptr->oath & (OATH_OF_IRON))   max = get_skill(S_WRESTLING, 45, 90);
-		if (p_ptr->oath & (BURGLARS_GUILD)) max = get_skill(S_WRESTLING, 40, 80);
+		else if (p_ptr->oath & (BURGLARS_GUILD)) max = get_skill(S_WRESTLING, 40, 80);
 		else if (p_ptr->oath)               max = get_skill(S_WRESTLING, 30, 65);
 
 		/* Damage depends on skill (and also stats) */

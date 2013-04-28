@@ -3024,7 +3024,8 @@
 #define DISPLAY_INVISIBILITY      21   /* p_ptr->invisibility */
 /* xxx */
 
-
+/* Maximum number of custom 'displays' */
+#define DISPLAY_MAX               23
 
 /*
  * Start of customized display area
@@ -5265,11 +5266,6 @@
 #define MAX_MACRO_TRIGGER 200
 #define MAX_MACRO_MOD 12
 
-
-/*
- * Given an array, determine how many elements are in the array.
- */
-#define N_ELEMENTS(a) (int)(sizeof(a) / sizeof((a)[0]))
 
 /*
  * Quest description modes.

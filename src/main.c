@@ -216,18 +216,6 @@ static void change_path(cptr info)
 			break;
 		}
 
-#ifdef VERIFY_SAVEFILE
-
-		case 'b':
-		case 'd':
-		case 'e':
-		case 's':
-		{
-			quit_fmt("Restricted option '-d%s'", info);
-		}
-
-#else /* VERIFY_SAVEFILE */
-
 		case 'b':
 		{
 			(void)string_free(ANGBAND_DIR_BONE);
@@ -255,8 +243,6 @@ static void change_path(cptr info)
 			ANGBAND_DIR_SAVE = string_make(s+1);
 			break;
 		}
-
-#endif /* VERIFY_SAVEFILE */
 
 #endif /* FIXED_PATHS */
 
@@ -318,15 +304,8 @@ int main(int argc, char *argv[])
 	/* Get the user id (?) */
 	player_uid = getuid();
 
-# ifdef SAFE_SETUID
-
-#  if defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX)
-
 	/* Save some info for later */
-	player_euid = geteuid();
 	player_egid = getegid();
-
-#  endif /* defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX) */
 
 #  if 0	/* XXX XXX XXX */
 
@@ -344,8 +323,6 @@ int main(int argc, char *argv[])
 	}
 
 #  endif /* 0 */
-
-# endif /* SAFE_SETUID */
 
 #endif /* SET_UID */
 

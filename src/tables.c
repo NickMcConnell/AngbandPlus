@@ -2786,7 +2786,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
  *
  * See "defines.h" for indexes.
  */
-cptr custom_display_text[] =
+cptr custom_display_text[DISPLAY_MAX] =
 {
 	"",
 	"(blank line)",
