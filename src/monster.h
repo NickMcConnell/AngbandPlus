@@ -99,6 +99,15 @@
 #define S_UNIQUE     0x00002000L /* Summon uniques */
 #define S_GUNDEAD    0x00004000L /* Summon greater undead */
 #define S_ANCIENTD   0x00008000L /* Summon ancient dragon */
+#define S_PLAGUE     0x00010000L /* Serious disease attack */
+#define HELLFIRE     0x00020000L /* MAJOR damage---demons */
+
+#define R_EDGED      0x04000000L /* 1/2 damage from edged weapons */
+#define R_BLUNT      0x08000000L /* 1/2 damage from blunt weapons */
+#define I_EDGED      0x10000000L /* NO damage from edged weapons */
+#define I_BLUNT      0x20000000L /* NO damage from blunt weapons */
+#define S_NOMISS     0x40000000L /* Never misses if this is set */
+#define S_SAMESPD    0x80000000L /* Always matches PC's speed */
 
 #define ANIMAL		0x00000001
 #define EVIL		0x00000002
@@ -125,4 +134,6 @@
 #define DESTRUCT        0x00400000
 #define QUESTOR         0x00800000 /* killing it completes a quest */
 #define INTELLIGENT     0x01000000 /* casts spells intelligently */
+#define IM_SOUND        0x40000000  
+#define IM_CONFUSION    0x20000000
 #define UNIQUE          0x80000000 /* unique monster */

@@ -211,7 +211,7 @@ void eat()
 	      /* use identified it, gain experience */
 	      m_ptr = &py.misc;
 	      /* round half-way case up */
-	      m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;
+	      m_ptr->exp += (i_ptr->level + (get_level() >> 1)) / get_level();
 	      prt_experience();
 
 	      identify (&item_val);

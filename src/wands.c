@@ -50,8 +50,8 @@ void aim()
 	    }
 	  ident = FALSE;
 	  m_ptr = &py.misc;
-	  chance = m_ptr->save + stat_adj(A_INT) - (int)i_ptr->level
-	    + (class_level_adj[m_ptr->pclass][CLA_DEVICE] * m_ptr->lev / 3);
+	  chance = smod(S_SAVE) + stat_adj(A_INT) - (int)i_ptr->level
+	    + (smod(S_DEVICE));
 	  if (py.flags.confused > 0)
 	    chance = chance / 2;
 	  if (chance <= 0)  chance = 1;
@@ -75,13 +75,13 @@ void aim()
 		      done_effect = 1;
 		      break;
 		    case WD_DRG_FIRE:
-		      fire_ball(GF_FIRE,dir,k,l,100,
+		      fire_ball(GF_FIRE,dir,k,l,150,
 				        "huge ball of Fire");
 		      ident = TRUE;
 		      done_effect = 1;
 		      break;
 		    case WD_DRG_FRST:
-		      fire_ball(GF_FROST,dir,k,l,80,
+		      fire_ball(GF_FROST,dir,k,l,120,
 				        "huge ball of Frost");
 		      ident = TRUE;
 		      done_effect = 1;
@@ -89,43 +89,43 @@ void aim()
 		    case WD_DRG_BREA:
 		      switch(randint(5)) {
 		      case 1:
-			fire_ball(GF_FIRE,dir,k,l,100,
+			fire_ball(GF_FIRE,dir,k,l,140,
 				"huge ball of Fire"); break;
 		      case 2:
-			fire_ball(GF_FROST,dir,k,l,80,
+			fire_ball(GF_FROST,dir,k,l,130,
 				"huge ball of Frost"); break;
 		      case 3:
-			fire_ball(GF_ACID,dir,k,l,90,
+			fire_ball(GF_ACID,dir,k,l,120,
 				"huge ball of Acid"); break;
 		      case 4:
-			fire_ball(GF_LIGHTNING,dir,k,l,70,
+			fire_ball(GF_LIGHTNING,dir,k,l,110,
 				"huge ball of Lightning"); break;
 		      default:
-			fire_ball(GF_POISON_GAS,dir,k,l,70,
+			fire_ball(GF_POISON_GAS,dir,k,l,100,
 				"huge ball of Gas"); break;
 		      }
                       ident = TRUE;
 		      done_effect = 1;
 		      break;
         	    case WD_AC_BLTS: /* Acid , New */
-		      fire_bolt(GF_ACID,dir,k,l,damroll(5,8),"Acid Bolt");
+		      fire_bolt(GF_ACID,dir,k,l,damroll(7,9),"Acid Bolt");
 		      ident=TRUE;
 		      done_effect=1;
 		      break;
 		    case WD_LT_BLTS: /* Lightning */
-		      fire_bolt(GF_LIGHTNING, dir, k, l, damroll(3, 8),
+		      fire_bolt(GF_LIGHTNING, dir, k, l, damroll(6, 8),
 				spell_names[10]);
 		      ident = TRUE;
 		      done_effect = 1;
 		      break;
 		    case WD_FT_BLTS: /* Frost*/
-		      fire_bolt(GF_FROST, dir, k, l, damroll(4, 8),
+		      fire_bolt(GF_FROST, dir, k, l, damroll(8, 8),
 				spell_names[16]);
 		      ident = TRUE;
 		      done_effect = 1;
 		      break;
 		    case WD_FR_BLTS: /* Fire */
-		      fire_bolt(GF_FIRE, dir, k, l, damroll(6, 8),
+		      fire_bolt(GF_FIRE, dir, k, l, damroll(9, 10),
 				spell_names[24]);
 		      ident = TRUE;
 		      done_effect = 1;
@@ -139,19 +139,19 @@ void aim()
 		      done_effect = 1;
 		      break;
 		    case WD_HEAL_MN:
-		      ident = hp_monster(dir, k, l, -damroll(4, 6));
+		      ident = hp_monster(dir, k, l, -damroll(8, 6));
 		      done_effect = 1;
 		      break;
 		    case WD_HAST_MN:
-		      ident = speed_monster(dir, k, l, 1);
+		      ident = speed_monster(dir, k, l, 2);
 		      done_effect = 1;
 		      break;
 		    case WD_SLOW_MN:
 		      ident = speed_monster(dir, k, l, -1);
 		      done_effect = 1;
 		      break;
-		    case WD_CONF_MN:
-		      ident = confuse_monster(dir, k, l);
+		    case WD_SCARE_MN:
+		      ident = scare_monster(dir, k, l);
 		      done_effect = 1;
 		      break;
 		    case WD_SLEE_MN:
@@ -159,11 +159,11 @@ void aim()
 		      done_effect = 1;
 		      break;
 		    case WD_DRAIN:
-		      ident = drain_life(dir, k, l, 75);
+		      ident = drain_life(dir, k, l, 100);
 		      done_effect = 1;
 		      break;
 		    case WD_ANHIL:
-		      ident = drain_life(dir, k, l, 125);
+		      ident = drain_life(dir, k, l, 250);
 		      done_effect = 1;
 		      break;
         	    case WD_TR_DEST:
@@ -171,7 +171,7 @@ void aim()
 		      done_effect = 1;
 		      break;
 		    case WD_MAG_MIS:
-		      fire_bolt(GF_MAGIC_MISSILE, dir, k, l, damroll(2, 6),
+		      fire_bolt(GF_MAGIC_MISSILE, dir, k, l, damroll(5, 5),
 				spell_names[0]);
 		      ident = TRUE;
 		      done_effect = 1;
@@ -193,32 +193,38 @@ void aim()
 		      done_effect = 1;
 		      break;
 		    case WD_LT_BALL:
-		      fire_ball(GF_LIGHTNING, dir, k, l, 32, "Lightning Ball");
+		      fire_ball(GF_LIGHTNING, dir, k, l, 50, "Lightning Ball");
 		      ident = TRUE;
 		      done_effect = 1;
 		      break;
 		    case WD_CD_BALL:
-		      fire_ball(GF_FROST, dir, k, l, 48, "Cold Ball");
+		      fire_ball(GF_FROST, dir, k, l, 70, "Cold Ball");
 		      ident = TRUE;
 		      done_effect = 1;
 		      break;
 		    case WD_FR_BALL:
-		      fire_ball(GF_FIRE, dir, k, l, 72, spell_names[30]);
+		      fire_ball(GF_FIRE, dir, k, l, 90, spell_names[30]);
 		      ident = TRUE;
 		      done_effect = 1;
 		      break;
 		    case WD_ST_CLD:
-		      fire_ball(GF_POISON_GAS, dir, k, l, 12, spell_names[8]);
+		      fire_ball(GF_POISON_GAS, dir, k, l, 30, spell_names[8]);
 		      ident = TRUE;
 		      done_effect = 1;
 		      break;
 		    case WD_AC_BALL:
-		      fire_ball(GF_ACID, dir, k, l, 60, "Acid Ball");
+		      fire_ball(GF_ACID, dir, k, l, 100, "Acid Ball");
 		      ident = TRUE;
 		      done_effect = 1;
 		      break;
 		    case WD_WONDER:
 		      i = randint(23);
+		      break;
+		    case WD_THUNDER: /* Lightning along a line */
+		      fire_bolt(GF_LIGHTNING, dir, k, l, -150, "lightning");
+		      break;
+		    case WD_SPIKES: /* Magic missile along a line */
+		      fire_bolt(GF_MAGIC_MISSILE, dir, k, l, -220, "spike");
 		      break;
 		    default:
 		      msg_print("Internal error in wands() ");
@@ -233,8 +239,8 @@ void aim()
 		    {
 		      m_ptr = &py.misc;
 		      /* round half-way case up */
-		      m_ptr->exp += (i_ptr->level +(m_ptr->lev >> 1)) /
-			m_ptr->lev;
+		      m_ptr->exp += (i_ptr->level +(get_level() >> 1)) /
+			get_level();
 		      prt_experience();
 
 		      identify(&item_val);

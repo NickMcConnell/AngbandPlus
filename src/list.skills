@@ -1,0 +1,34 @@
+Name			Effect			Program Name		Number
+
+Swordsmanship*		Fighting w/swords	S_SWORD			1
+Clubbing*		Fighting w/hafted	S_HAFTED
+Staff Use*		Fighting w/polearms	S_POLEARM
+Endurance*		Extra HP/"level"	S_ENDURANCE
+Archery*		Fighting w/bows		S_ARCHERY		5
+Magical Devices		Use magic devices	S_DEVICE
+Spellcasting*		Level of spells		S_MAGIC
+Spell Resistance*	Improve Saving Throw	S_SAVE
+Disarming*		Disarm Traps better	S_DISARM
+Backstabbing*		Backstab "level"	S_BACKSTAB		10
+Sneaking*		Improves Stealth	S_STEALTH
+Magical Power*		Improves Mana+level	S_MPOWER
+			spells cast at
+Two-Handed Combat*	Two-handed Fighting	S_2HANDED
+Dodging*		Improves innate AC	S_DODGING
+			if using light armor
+Karate*			Bare-Handed Fighting	S_KARATE		15
+Weaponsmithing		Forge weapons		S_WEAPON
+Armor Forging		Forge Armor		S_ARMOR
+Perception*		Increase Perception	S_PERCEPTION
+Morality*		Increase AC+fighting	S_SLAY_EVIL
+			when fighting evil
+Hunting*		Increase AC+fighting	S_SLAY_ANIMAL		20
+			when fighting animals
+Vampire Hunting*	Increase AC+fighting	S_SLAY_UNDEAD
+			when fighting undead
+Precognition		Lets you sense powerful	S_PRECOG
+			monsters on the level
+Wrestling		Bare-hands fighting	S_WRESTLING
+Bow Making		Make bows/arrows	S_BOWMAKE		24
+Alchemy			Make potions/scrolls	S_ALCHEMY
+Magical Infusion	Make wands/staves	S_INFUSION

@@ -22,12 +22,16 @@
 #endif
 #endif
 
+extern int noprecog;
+
 typedef struct coords {
   int x, y;
 } coords;
 
 static coords doorstk[100];
 static int doorindex;
+
+int is_scroll; /* If set, we have a scroll on the level */
 
 static void build_type2();
 
@@ -324,6 +328,8 @@ int y, x;
   register int cur_pos;
   register cave_type *cave_ptr;
 
+  if (dun_level <= 0)
+    return; /* We need to FORCE entry to the Quest Level */
   cave_ptr = &cave[y][x];
   if (cave_ptr->tptr != 0)
     (void) delete_object(y, x);
@@ -340,15 +346,13 @@ int y, x;
   register int cur_pos;
   register cave_type *cave_ptr;
 
-  if (is_quest(dun_level)) {
-    place_up_stairs(y, x);
-    return;
-  }
   cave_ptr = &cave[y][x];
   if (cave_ptr->tptr != 0)
     (void) delete_object(y, x);
   cur_pos = popt();
   cave_ptr->tptr = cur_pos;
+  if (dun_level<0)
+    return; /* You need another scroll to escape */
   invcopy(&t_list[cur_pos], OBJ_DOWN_STAIR);
 }
 
@@ -753,12 +757,15 @@ int y, x, rank;
 static void build_room(yval, xval)
 int yval, xval;
 {
-  register int i, j, y_depth, x_right, x, y;
-  int y_height, x_left, width,height,area;
+  register int i, j, y_depth, x_right;
+  int y_height, x_left,dun;
   int8u floor;
   register cave_type *c_ptr, *d_ptr;
 
-  if (dun_level <= randint(25))
+  dun=dun_level;
+  if (dun==-1)
+    dun=70;
+  if (dun <= randint(25))
     floor = LIGHT_FLOOR;	/* Floor with light	*/
   else
     floor = DARK_FLOOR;		/* Dark floor		*/
@@ -824,12 +831,14 @@ static void build_type1(yval, xval)
 int yval, xval;
 {
   int y_height, y_depth;
-  int x_left, x_right, limit;
+  int x_left, x_right, limit, dun;
   register int i0, i, j;
   int8u floor;
   register cave_type *c_ptr, *d_ptr;
 
-  if (dun_level <= randint(25))
+  dun=dun_level;
+  if (dun==-1) dun=70;
+  if (dun <= randint(25))
     floor = LIGHT_FLOOR;	/* Floor with light	*/
   else
     floor = DARK_FLOOR;		/* Dark floor		*/
@@ -894,15 +903,17 @@ int yval, xval;
 static void build_type5(yval,xval)
 int yval,xval;
 {
-  register int i,j,k,type,x,y,x1,y1,vault;
-  int width,height;
+  register int x,y,x1,y1,vault;
+  int width,height,dun;
   char *template;
   char buf[50];
   int8u floor;
   int8u wall;
-  register cave_type *c_ptr, *d_ptr;
+  register cave_type *c_ptr;
 
-  if (dun_level <= randint(25))
+  dun=dun_level;
+  if (dun==-1) dun=70;
+  if (dun <= randint(25))
     floor = LIGHT_FLOOR;	/* Floor with light	*/
   else
     floor = DARK_FLOOR;     /* Dark floor		*/
@@ -1269,11 +1280,13 @@ static void build_type2(yval, xval)
 int yval, xval;
 {
   register int i, j, y_height, x_left;
-  int y_depth, x_right, tmp;
+  int y_depth, x_right, tmp,dun;
   int8u floor;
   register cave_type *c_ptr, *d_ptr;
 
-  if (dun_level <= randint(25))
+  dun=dun_level;
+  if (dun==-1) dun=70;
+  if (dun <= randint(25))
     floor = LIGHT_FLOOR;	/* Floor with light	*/
   else
     floor = DARK_FLOOR;		/* Dark floor		*/
@@ -1523,12 +1536,14 @@ static void build_type3(yval, xval)
 int yval, xval;
 {
   int y_height, y_depth;
-  int x_left, x_right;
+  int x_left, x_right, dun;
   register int tmp, i, j;
   int8u floor;
   register cave_type *c_ptr;
 
-  if (dun_level <= randint(25))
+  dun=dun_level;
+  if (dun==-1) dun=70;
+  if (dun <= randint(25))
     floor = LIGHT_FLOOR;	/* Floor with light	*/
   else
     floor = DARK_FLOOR;		/* Dark floor		*/
@@ -1707,7 +1722,7 @@ static void special_pit(yval, xval, type)
 int yval, xval, type;
 {
   register int i, j, y_height, x_left;
-  int y_depth, x_right, tmp, colour;
+  int y_depth, x_right, colour;
   int8u floor;
   register cave_type *c_ptr, *d_ptr;
 
@@ -2086,10 +2101,12 @@ int16 *y, *x;
 static void build_pit(yval, xval)
   int yval, xval;
 {
-  int tmp;
+  int tmp,dun;
+  dun=dun_level;
+  if (dun==-1) dun=70;
 
-  if (randint((dun_level*dun_level*dun_level)+1)<25000) good_item_flag = TRUE;
-  tmp = randint(dun_level>80?80:dun_level);
+  if (randint((dun*dun*dun)+1)<25000) good_item_flag = TRUE;
+  tmp = randint(dun>80?80:dun);
   rating += 10;
   if (tmp < 10)      special_pit(yval, xval,1);
   else if (tmp < 20) special_pit(yval, xval,2);
@@ -2112,8 +2129,10 @@ static void cave_gen()
   int y1, x1, y2, x2, pick1, pick2, tmp;
   int row_rooms, col_rooms, alloc_level;
   int16 yloc[400], xloc[400];
-  int pit_ok;
+  int pit_ok,dun;
 
+  dun=dun_level;
+  if (dun==-1) dun=70;
   rating=0;
   pit_ok=TRUE;
   row_rooms = 2*(cur_height/SCREEN_HEIGHT);
@@ -2131,19 +2150,19 @@ static void cave_gen()
 	{
 	  yloc[k] = i * (SCREEN_HEIGHT >> 1) + QUART_HEIGHT;
 	  xloc[k] = j * (SCREEN_WIDTH >> 1) + QUART_WIDTH;
-	  if (dun_level > randint(DUN_UNUSUAL))
+	  if (dun > randint(DUN_UNUSUAL))
 	    {
 	      tmp = randint(5);
 	      if (tmp == 1)	 build_type1(yloc[k], xloc[k]);
 	      else if (tmp == 2) build_type2(yloc[k], xloc[k]);
 	      else if (tmp == 3) build_type3(yloc[k], xloc[k]);
-	      else if ((tmp == 4) && dun_level > randint(DUN_UNUSUAL)) {
+	      else if ((tmp == 4) && dun > randint(DUN_UNUSUAL)) {
 		build_type5(yloc[k], xloc[k]);
 		if (j+1<col_rooms) room_map[i][j+1]=FALSE;
 		if (j+1<col_rooms && i+1<row_rooms) room_map[i+1][j+1]=FALSE;
 		if (j>0 && i+1<row_rooms) room_map[i+1][j-1]=FALSE;
 		if (i+1<row_rooms) room_map[i+1][j]=FALSE;
-	      } else if (dun_level > randint(DUN_UNUSUAL) && pit_ok) {
+	      } else if (dun > randint(DUN_UNUSUAL) && pit_ok) {
 		build_pit(yloc[k], xloc[k]);
 		pit_ok=FALSE;
 	      } else {
@@ -2191,7 +2210,7 @@ static void cave_gen()
       try_door(doorstk[i].y-1, doorstk[i].x);
       try_door(doorstk[i].y+1, doorstk[i].x);
     }
-  alloc_level = (dun_level/3);
+  alloc_level = (dun/3);
   if (alloc_level < 2)
     alloc_level = 2;
   else if (alloc_level > 10)
@@ -2348,6 +2367,8 @@ void generate_cave()
   char_row = -1;
   char_col = -1;
 
+  is_scroll=0; /* So we can get a Quest Scroll to leave */
+  noprecog=1; /* Don't flood us */
   tlink();
   mlink();
   blank_cave();
@@ -2372,4 +2393,7 @@ void generate_cave()
       panel_col = max_panel_cols;
       cave_gen();
     }
+  noprecog=0;
+  if (dun_level==-1)
+    wizard_light(TRUE);
 }

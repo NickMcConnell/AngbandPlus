@@ -9,7 +9,7 @@ Command summary: (@ is optional count, ~ is direction, ^R redraws, ESC aborts)
   p	  Pray.			    |	Q	Quit the game.
   q	  Quaff a potion.	    | @ R	Rest for a period.
   r	  Read a scroll.	    | @ S ~	Spike a door.
-@ s	  Search for traps or doors.|	T	Take off an item.
+  CTRL-A  Advance a Skill           |	T	Take off an item.
   t	  Throw an item.	    |   A       Activate an Artifact
   v	  Version info		    |	W	Where: locate self.
   w	  Wear/Wield an item.	    |	X	Exchange weapon.
@@ -17,14 +17,18 @@ Command summary: (@ is optional count, ~ is direction, ^R redraws, ESC aborts)
   z	  Zap a wand.		    |	#	Search Mode.
   =	  Set options.		    |	<	Go up an up-staircase.
   /	  Identify a character.	    |	>	Go down a down-staircase.
-  a       Activate a rod.           |   g       get an item (OPTIONAL)
+  a       Activate a rod.           |   CTRL-T  Use a Talent
 @ CTRL-P  Previous message review   |	{	Inscribe an object.
 @ -  ~	  Move without pickup.	    |	?	Type this page.
 @ CTRL	~ Tunnel in a direction.    |	CTRL-X	Save character and exit.
-  ]	  Start/Stop Dodging	    |   `       Stop doing karate technique
+  s       Shoot an arrow/bolt	    |   `       Stop doing a Transformation
 Directions:     y  k  u
 		h  .  l  [. is stay]
 		b  j  n
+
+Commands (Continued): 
+(@ is optional count, ~ is direction, ^R redraws, ESC aborts)
+  ]	  Select Karate or Wrestling|	~	See all artifacts encountered
 
 To give a count to a command, type the number in digits, then the command.
 A count of 0 defaults to a count of 99. Counts only work with some
@@ -50,3 +54,5 @@ just typed in.  To avoid this, you can either enter ^H as two characters
 (^ and then H), or you can type ' ' (i.e. the space character) after the
 number at which point you will get a command prompt and backspace will
 work correctly.
+
+

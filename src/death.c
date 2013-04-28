@@ -126,71 +126,8 @@ char *in_str;
 void display_scores(from, to)
   int from, to;
 {
-  register int i = 0, j, k, l;
-  int fd;
-  high_scores score;
- /* MAX_SAVE_HISCORES scores, 2 lines per score */
-  char list[2*MAX_SAVE_HISCORES][128];
-  char hugebuffer[10000];
-  char string[100];
-
-  vtype tmp_str;
-
-  if (to<0) to=20;
-  if (to>MAX_SAVE_HISCORES) to=MAX_SAVE_HISCORES;
-#ifdef SET_UID
-  if (1 > (fd = open(ANGBAND_TOP, O_RDONLY, 0644))) {
-#else
-  if (1 > (fd = open(ANGBAND_TOP, O_RDONLY, 0666))) {
-#endif
-    (void) sprintf(string, "Error opening score file \"%s\"\n", ANGBAND_TOP);
-    prt(string, 0, 0);
-    return ;
-  }
-
-  while (0 < read(fd, (char *)&score, sizeof(high_scores))) {
-    (void) sprintf(hugebuffer, "%3d) %-7ld %s the %s %s (Level %d)",
-		   i/2+1,
-		   score.points, score.name,
-		   race[score.prace].trace, class[score.pclass].title,
-		   (int)score.lev);
-    strncpy(list[i],hugebuffer,127);
-    (void) sprintf(hugebuffer, "\t Killed by %s on Dungeon Level %d.",
-		   score.died_from, score.dun_level);
-    strncpy(list[i+1],hugebuffer,127);
-    i+=2;
-    if (i>=(MAX_SAVE_HISCORES*2)) break;
-  }
-
-  signal(SIGTSTP,SIG_IGN);
-  k = from*2;
-  do {
-    if (k>0) {
-      sprintf(tmp_str, "\t\tAngband Hall of Fame (from position %d)", 
-	      (k/2)+1);
-      put_buffer(tmp_str, 0, 0);
-    } else {
-      put_buffer("\t\tAngband Hall of Fame                     ", 0, 0);
-    }
-    put_buffer("Score", 1, 0);
-    l=0;
-    for (j = k; j<i && j<(to*2) && j<(k+20); j++, l++)
-      put_buffer(list[j], l+2, 0);
-    k+=20;
-    if (!look_line(23)) {
-      register int i;
-
-      /* What happens upon dying.				-RAK-	 */
-      msg_print(NULL);
-      clear_screen();
-      flush ();  /* flush all input */
-      nosignals ();	 /* Can't interrupt or suspend. */
-      (void) save_char ();		/* Save the memory at least. */
-      restore_term();
-      exit(0);
-    }
-    clear_screen();
-  } while (k<(to*2) && k<i);
+  return; /* This seems REAL weird, but scorefiles no longer exist---why
+	     bother printing them? */
 }
 
 /* Pauses for user response before returning		-RAK-	*/
@@ -220,11 +157,11 @@ static void print_tomb()
 
   if (strcmp(died_from, "Interrupting") && !wizard) {
     sprintf(str, "%s%d", ANGBAND_BONES, dun_level);
-    if ((fp = fopen(str, "r")) == NULL && (dun_level>1)) {
-      if ((fp = fopen(str, "w")) != NULL) {
+    if ((fp = (FILE *)my_tfopen(str, "r")) == NULL && (dun_level>1)) {
+      if ((fp = (FILE *)my_tfopen(str, "w")) != NULL) {
 	(void) fchmod(fileno(fp), 0666);
-	fprintf(fp, "%s\n%d\n%d\n%d", 
-		py.misc.name, py.misc.mhp, py.misc.prace, py.misc.pclass);
+	fprintf(fp, "%s\n%d\n%d\n", 
+		py.misc.name, py.misc.mhp, py.misc.prace);
 	fclose(fp);
       }
     } else {
@@ -253,14 +190,14 @@ static void print_tomb()
   put_buffer ("|", 9, 9);
   put_buffer ("|  :   :", 9, 43);
   if (!total_winner)
-    p = class[py.misc.pclass].title;
+    p = "";
   else if (py.misc.male)
     p = "*King*";
   else
     p = "*Queen*";
   (void) sprintf(str,"| %s | _;,,,;_   ____", center_string (tmp_str, p));
   put_buffer (str, 10, 9);
-  (void) sprintf (str, "Level : %d", (int) py.misc.lev);
+  (void) sprintf (str, "Average Level : %d", (int) get_level());
   (void) sprintf (str,"| %s |          /    \\", center_string (tmp_str, str));
   put_buffer (str, 11, 9);
   (void) sprintf(str, "%ld Exp", py.misc.exp);
@@ -327,137 +264,14 @@ long total_points()
 /* Enters a players name on a hi-score table...    SM */
 static int top_twenty()
 {
-  register int i, j, k;
-  high_scores scores[MAX_SAVE_HISCORES], myscore;
-  char *tmp;
-
-  clear_screen();
-
-  if (wizard || to_be_wizard) {
-    display_scores (0, 10);
-    (void) save_char();
-    restore_term();
-    exit(0);
-  }
-
-  if (!total_winner && !strcmp(died_from, "Interrupting")) {
-    msg_print("Score not registered due to interruption.");
-    display_scores (0, 10);
-    (void) save_char();
-    restore_term();
-    exit(0);
-  }
-
-  if (!total_winner && !strcmp(died_from, "Quitting")) {
-    msg_print("Score not registered due to quitting.");
-    display_scores (0, 10);
-    (void) save_char();
-    restore_term();
-    exit(0);
-  }
-
-  myscore.points = total_points();
-  myscore.dun_level = dun_level;
-  myscore.lev = py.misc.lev;
-  myscore.max_lev = py.misc.max_dlv;
-  myscore.mhp = py.misc.mhp;
-  myscore.chp = py.misc.chp;
-  myscore.uid = -1;
-  /* First character of sex, lower case */
-  myscore.sex = py.misc.male;
-  myscore.prace = py.misc.prace;
-  myscore.pclass = py.misc.pclass;
-  (void) strcpy(myscore.name, py.misc.name);
-  (void) strncpy(myscore.died_from, died_from, strlen(died_from));
-  myscore.died_from[strlen(died_from)] = '\0';
-  /* Get rid of '.' at end of death description */
-
-  /*  First, get a lock on the high score file so no-one else tries */
-  /*  to write to it while we are using it */
-  if (0 != flock(highscore_fd, LOCK_EX))
-    {
-      printf("\n");
-      perror("Error gaining lock for score file");
-      exit_game();
-    }
-
-  /*  Check to see if this score is a high one and where it goes */
-  i = 0;
-#ifndef BSD4_3
-  (void) lseek(highscore_fd, (long)0, L_SET);
-#else
-  (void) lseek(highscore_fd, (off_t)0, L_SET);
-#endif
-  while ((i < MAX_SAVE_HISCORES)
-	&& (0 != read(highscore_fd, (char *)&scores[i], sizeof(high_scores))))
-    {
-      i++;
-    }
-
-  j = 0;
-  while (j < i && (scores[j].points >= myscore.points))
-    {
-      j++;
-    }
-  /* i is now how many scores we have, and j is where we put this score */
-
-  /* If its the first score, or it gets appended to the file */
-  if (!i || (i == j && j < MAX_SAVE_HISCORES)) {
-    (void) lseek(highscore_fd, (long)(j * sizeof(high_scores)), L_SET);
-    (void) write(highscore_fd, (char *)&myscore, sizeof(high_scores));
-  } else if (j < i) {
-    /* If it gets inserted in the middle */
-    /* Bump all the scores up one place */
-    for (k = MIN(i, (MAX_SAVE_HISCORES-1)); k > j ; k--)	{
-      (void) lseek(highscore_fd, (long)(k * sizeof(high_scores)), L_SET);
-      (void) write(highscore_fd, (char *)&scores[k - 1], sizeof(high_scores));
-    }
-    /* Write out your score */
-    (void) lseek(highscore_fd, (long)(j * sizeof(high_scores)), L_SET);
-    (void) write(highscore_fd, (char *)&myscore, sizeof(high_scores));
-  }
-
-  (void) flock(highscore_fd, LOCK_UN);
-  (void) close(highscore_fd);
-  if (j<10) {
-    display_scores(0, 10);
-  } else if (j>(i-10)) {
-    display_scores(i-10, i);
-  } else display_scores(j-5, j+5);
+  return;
 }
 
 /* Enters a players name on the hi-score table     SM	 */
 delete_entry(which)
   int which;
 {
-  register int i, j, k;
-  high_scores scores[MAX_SAVE_HISCORES];
-  char *tmp;
-
-  if (0 != flock(highscore_fd, LOCK_EX)) {
-    perror("Error gaining lock for score file");
-    exit_game();
-  }
-
-  /*  Check to see if this score is a high one and where it goes */
-  i = 0;
-  (void) lseek(highscore_fd, (off_t)0, L_SET);
-  while ((i<MAX_SAVE_HISCORES) && 
-	 (0 != read(highscore_fd, (char *)&scores[i], sizeof(high_scores))))
-    i++;
-  
-  /* If its the first score, or it gets appended to the file */
-  lseek(highscore_fd, 0, L_SET);
-  write(highscore_fd, (char *)&scores[0], (which-1)*sizeof(high_scores));
-  write(highscore_fd, (char *)&scores[which], (i-which)*sizeof(high_scores));
-
-  (void) flock(highscore_fd, LOCK_UN);
-  (void) close(highscore_fd);
-  if (which<10) {
-    display_scores(0, 10);
-  } else if (which>(i-10)) {
-    display_scores(i-10, i);
-  } else display_scores(which-5, which+5);
+  return;
 }
 
 /* Change the player into a King!			-RAK-	 */

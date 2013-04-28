@@ -146,6 +146,9 @@ char *argv[];
   int generate, i;
   int result, FIDDLE=FALSE;
   FILE *fp;
+#ifdef LOGGING
+  FILE *logfile;
+#endif
   int new_game = FALSE;
   int force_rogue_like = FALSE;
   int force_keys_to, FORGET;
@@ -201,7 +204,7 @@ char *argv[];
     be_nasty=FALSE;
 
   (void)gethostname(thishost, sizeof thishost);	/* get host */
-  if ((fp=fopen(ANGBAND_LOAD, "r")) == NULL) {
+  if ((fp=(FILE *)my_tfopen(ANGBAND_LOAD, "r")) == NULL) {
     perror("Can't get load-check.\n");
     exit(0);
   }
@@ -298,6 +301,7 @@ char *argv[];
     }
 
   /* use curses */
+  
   init_curses();
 
   /* Check operating hours			*/
@@ -484,25 +488,12 @@ char *argv[];
       char_inven_init();
       py.flags.food = 7500;
       py.flags.food_digested = 2;
-        if (class[py.misc.pclass].spell == MAGE)
-	{	  /* Magic realm   */
-	  clear_screen(); /* makes spell list easier to read */
-	  calc_spells(A_INT);
-	  calc_mana(A_INT);
-	}
-      else if (class[py.misc.pclass].spell == PRIEST)
-	{	  /* Clerical realm*/
-	  calc_spells(A_WIS);
-	  clear_screen(); /* force out the 'learn prayer' message */
-	  calc_mana(A_WIS);
-	}
-      else if (class[py.misc.pclass].spell == MONK)
-        {         /* Monk realm */
-	  calc_spells(A_DEX);
-	  clear_screen();
-	  calc_mana(A_DEX);
-	}
-        if (!_new_log())
+      for(i=0;i<8;i++)
+	py.flags.flags[i]=0;
+      py.flags.flags[F_BAREHAND]=S_KARATE;
+      py.flags.flags[F_WCHANGE]=100+randint(150);
+      /* Grant normal weather for now */
+      if (!_new_log())
 	{
 	  (void) sprintf(string, "Can't get at log file \"%s\".", ANGBAND_LOG);
 	  msg_print(string);
@@ -522,7 +513,21 @@ char *argv[];
 
   /* Begin the game				*/
   clear_screen();
+#ifdef LOGGING
+  logfile=my_tfopen("logfile","w");
+  fprintf(logfile,"clear_screen()\n");
+  fclose(logfile);
+#endif
+  /*  >>>>>>>>> Program ends after printing stat block.  If stat block not
+      printed, program ends after printing map. Program will output the stat
+      block OR the dungeon, but not both.  Then the program dies.
+        <<<<<<<< */
   prt_stat_block();
+#ifdef LOGGING
+  logfile=my_tfopen("logfile","a");
+  fprintf(logfile,"prt_stat_block()\n");
+  fclose(logfile);
+#endif
   if (generate)
     generate_cave();
 
@@ -557,24 +562,13 @@ char *argv[];
 /* Init players with some belongings			-RAK-	*/
 static void char_inven_init()
 {
-  register int i, j;
-  inven_type inven_init;
+  register int i;
 
   /* this is needed for bash to work right, it can't hurt anyway */
   for (i = 0; i < INVEN_ARRAY_SIZE; i++)
     invcopy(&inventory[i], OBJ_NOTHING);
 
-  for (i = 0; i < 5; i++)
-    {
-      j = player_init[py.misc.pclass][i];
-      invcopy(&inven_init, j);
-      store_bought(&inven_init);
-      if (inven_init.tval == TV_SWORD || inven_init.tval == TV_HAFTED
-	  || inven_init.tval == TV_BOW)
-	inven_init.ident |= ID_SHOW_HITDAM;
-      (void) inven_carry(&inven_init);
-    }
-
+  /* We give person no items, but much more $$$ */
   /* wierd place for it, but why not? */
   for (i = 0; i < 64; i++)
     spell_order[i] = 99;
@@ -645,6 +639,7 @@ d_check(a)
       msg_print("Yuch! No control characters, Thankyou!");
       exit_game();
     } else a++;
+ return 0;
 }
 
 

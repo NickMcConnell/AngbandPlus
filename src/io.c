@@ -1106,12 +1106,19 @@ int get_com(prompt, command)
 char *prompt;
 char *command;
 {
-  int res;
+  int res,no_esc;
 
+  no_esc=FALSE; /* Set to true if we have a / as 1st char of prompt */
   if (prompt)
-    prt(prompt, 0, 0);
+    if (prompt[0]=='/')
+      {
+	no_esc=TRUE;
+	prt(prompt+1, 0, 0); /* Print the rest of the prompt */
+      }
+    else /* Already checked for prompt existing */
+      prt(prompt, 0, 0);
   *command = inkey();
-  if (*command == 0 || *command == ESCAPE)
+  if (*command == 0 || (*command == ESCAPE && !no_esc))
     res = FALSE;
   else
     res = TRUE;

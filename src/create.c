@@ -39,8 +39,9 @@ struct previous {
 
 short autoroll; /* If >0, we are autorolling */
 int minstat[6]; /* Min stats, for autoroll */
+int modstat[6]; /* Modifiers to stats, chosen by player */
 static char statstr[]="StrIntWisDexConChrLuc";
-extern int peek;
+extern int peek, notarget;
 
 /* Generates character's stats				-JWT-	*/
 static void get_stats()
@@ -57,7 +58,7 @@ static void get_stats()
 	  tot += dice[i];
 	}
     }
-  while (tot <= 52 || tot >= 72);
+  while (tot <= 42 || tot >= 72);
 
   for (i = 0; i < 7; i++)
     py.stats.max_stat[i] = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
@@ -123,7 +124,7 @@ static int get_prev_stats() {
   py.misc.ptodam = todam_adj();
   py.misc.ptohit = tohit_adj();
   py.misc.pac    = toac_adj();
-  py.misc.timeout = 400; /* So we can breathe first time in */
+  py.misc.timeout = 0; /* Used for Iron Will */
   prev.str=0;
   return 1;
 }
@@ -135,7 +136,7 @@ static void get_all_stats ()
   register player_type *p_ptr;
   register race_type *r_ptr;
   register int j;
-
+  
   prev.str = (int16u)py.stats.max_stat[0];
   prev.itl = (int16u)py.stats.max_stat[1];
   prev.wis = (int16u)py.stats.max_stat[2];
@@ -145,7 +146,7 @@ static void get_all_stats ()
   prev.luc = (int16u)py.stats.max_stat[6];
   p_ptr = &py;
   r_ptr = &race[p_ptr->misc.prace];
-  get_stats ();
+  get_stats (); 
   change_stat (A_STR, r_ptr->str_adj);
   change_stat (A_INT, r_ptr->int_adj);
   change_stat (A_WIS, r_ptr->wis_adj);
@@ -154,28 +155,27 @@ static void get_all_stats ()
   change_stat (A_CHR, r_ptr->chr_adj);
   change_stat (A_LUC, r_ptr->luc_adj);
   for (j = 0; j < 7; j++)
-    {
+    { /* set_use_stat(j) is crashing */
       py.stats.cur_stat[j] = py.stats.max_stat[j];
-      set_use_stat (j);
+      set_use_stat (j); 
     }
-
   p_ptr->misc.srh    = r_ptr->srh;
-  p_ptr->misc.bth    = r_ptr->bth;
-  p_ptr->misc.bth2   = r_ptr->bth2;
-  p_ptr->misc.bthb   = r_ptr->bthb;
-  p_ptr->misc.fos    = r_ptr->fos;
-  p_ptr->misc.stl    = r_ptr->stl;
-  p_ptr->misc.save   = r_ptr->bsav;
   p_ptr->misc.hitdie = r_ptr->bhitdie;
-  p_ptr->misc.lev    = 1;
   p_ptr->misc.ptodam = todam_adj();
   p_ptr->misc.ptohit = tohit_adj();
-  p_ptr->misc.ptoac  = 0;
-  p_ptr->misc.pac    = toac_adj();
+  p_ptr->misc.ptoac  = toac_adj();
+  p_ptr->misc.pac    = 0;
   p_ptr->misc.expfact = r_ptr->b_exp;
   p_ptr->flags.see_infra = r_ptr->infra;
 }
 
+/* Modified set_use_stat, so we don't get "you can learn new spells now"
+message all the time */
+void set_stat(stat)
+int stat;
+{
+ py.stats.use_stat[stat]=modify_stat(stat,py.stats.mod_stat[stat]);
+}
 
 /* Allows player to select a race			-JWT-	*/
 static void choose_race()
@@ -226,6 +226,16 @@ static void choose_race()
   r_ptr = &race[j];
   p_ptr->misc.prace  = j;
   put_buffer(r_ptr->trace, 3, 15);
+  /* Now we roll up the skills */
+  for (j=0;j<S_NUM;j++)
+    {
+      exit_flag=race[py.misc.prace].start[j];
+      k=(exit_flag&0xF)+(((exit_flag>>4)&0xF)<<4)/3+1;
+      py.skills.cur_skill[j]=randint(k)+randint(k)+randint(k);
+      py.skills.max_skill[j]=py.skills.cur_skill[j];
+      py.skills.min_skill[j]=py.skills.cur_skill[j];
+      py.skills.adv_skill[j]=0;
+    }
 }
 
 
@@ -427,69 +437,31 @@ static void get_prev_ahw()
 }
 
 
-/* Gets a character class				-JWT-	*/
-static void get_class()
+/* We now use this to modify stats */
+static void mod_stats()
 {
-  register int i, j;
-  int k, l, m, min_value, max_value;
-  int cl[MAX_CLASS], exit_flag;
+  register int i, tmp;
+  int min_value, max_value;
   int percent;
   char buf[50];
   register struct misc *m_ptr;
   register player_type *p_ptr;
-  class_type *c_ptr;
-  char tmp_str[80], s;
-  int32u mask;
 
-  c_ptr = &class[py.misc.pclass];
   p_ptr = &py;	
-  change_stat (A_STR, c_ptr->madj_str);
-  change_stat (A_INT, c_ptr->madj_int);
-  change_stat (A_WIS, c_ptr->madj_wis);
-  change_stat (A_DEX, c_ptr->madj_dex);
-  change_stat (A_CON, c_ptr->madj_con);
-  change_stat (A_CHR, c_ptr->madj_chr);
-  change_stat (A_LUC, c_ptr->madj_luc);
+  m_ptr = &(py.misc);
 
-  for(i = 0; i < 7; i++)
-    {
-      p_ptr->stats.cur_stat[i] = p_ptr->stats.max_stat[i];
-      set_use_stat(i);
-    }
-  p_ptr->misc.ptodam = todam_adj();	/* Real values		*/
-  p_ptr->misc.ptohit = tohit_adj();
-  p_ptr->misc.ptoac  = toac_adj();
-  p_ptr->misc.pac    = 0;
-  p_ptr->misc.dis_td = p_ptr->misc.ptodam; /* Displayed values	*/
-  p_ptr->misc.dis_th = p_ptr->misc.ptohit;
-  p_ptr->misc.dis_tac= p_ptr->misc.ptoac;
-  p_ptr->misc.dis_ac = p_ptr->misc.pac + p_ptr->misc.dis_tac;
-  
-  /* now set misc stats, do this after setting stats because
-    of con_adj() for hitpoints */
-  m_ptr = &py.misc;
-  m_ptr->hitdie += c_ptr->adj_hd;
   m_ptr->mhp = con_adj() + m_ptr->hitdie;
-  m_ptr->chp = m_ptr->mhp;
-  m_ptr->chp_frac = 0;
-  
+
   /* initialize hit_points array */
-  /* put bounds on total possible hp, only succeed if it is within
-    1/8 of average value */
-  min_value = (MAX_PLAYER_LEVEL*3/8 * (m_ptr->hitdie-1)) +
-    MAX_PLAYER_LEVEL;
-  max_value = (MAX_PLAYER_LEVEL*5/8 * (m_ptr->hitdie-1)) +
-    MAX_PLAYER_LEVEL;
-  if (is_wizard(player_uid) && !(peek || wizard)) {
-    min_value = (MAX_PLAYER_LEVEL/2 * (m_ptr->hitdie-1)) +
-      MAX_PLAYER_LEVEL;
-    max_value = (MAX_PLAYER_LEVEL*6/8 * (m_ptr->hitdie-1)) +
-      MAX_PLAYER_LEVEL;
-  }
+  /* We eliminated the requirements---the way we roll HP makes really low
+     HP impossible */
+  min_value = 0;
+  max_value = 65535;
   player_hp[0] = m_ptr->hitdie;
+  tmp=m_ptr->hitdie/3+1;
   do {
     for (i = 1; i < MAX_PLAYER_LEVEL; i++) {
-      player_hp[i] = randint((int)m_ptr->hitdie);
+      player_hp[i] = randint(tmp)+randint(tmp)+randint(tmp);
       player_hp[i] += player_hp[i-1];
     }
   }
@@ -502,16 +474,6 @@ static void get_class()
     sprintf(buf, "%d%% Life Rating", percent);
     msg_print(buf);
   }
-
-  m_ptr->bth += c_ptr->mbth;
-  m_ptr->bth2 += c_ptr->mbth2;
-  m_ptr->bthb += c_ptr->mbthb;	/*RAK*/
-  m_ptr->srh += c_ptr->msrh;
-  m_ptr->disarm += c_ptr->mdis;
-  m_ptr->fos += c_ptr->mfos;
-  m_ptr->stl += c_ptr->mstl;
-  m_ptr->save += c_ptr->msav;
-  m_ptr->expfact += c_ptr->m_exp;
 }
 
 void rerate() {
@@ -519,9 +481,9 @@ void rerate() {
   char buf[50];
   struct misc *m_ptr = &py.misc;
 
-  min_value = (MAX_PLAYER_LEVEL*3/8 * (m_ptr->hitdie-1)) +
+  min_value = (MAX_PLAYER_LEVEL*2/8 * (m_ptr->hitdie-1)) +
     MAX_PLAYER_LEVEL;
-  max_value = (MAX_PLAYER_LEVEL*5/8 * (m_ptr->hitdie-1)) +
+  max_value = (MAX_PLAYER_LEVEL*7/8 * (m_ptr->hitdie-1)) +
     MAX_PLAYER_LEVEL;
   player_hp[0] = m_ptr->hitdie;
   do {
@@ -544,68 +506,28 @@ void rerate() {
   msg_print(buf);
 }
 
-/* Gets a character class				-JWT-	*/
-static void get_class_choice()
+/* Modifies stats based on player preferences */
+static void get_stats_choice()
 {
-  register int i, j;
-  int k, l, m, min_value, max_value,cstat;
-  int cl[MAX_CLASS], exit_flag;
-  register struct misc *m_ptr;
-  register player_type *p_ptr;
-  class_type *c_ptr;
+  register int i, j, total;
+  int k, l, m, cstat;
+  int exit_flag;
   char tmp_str[80], s;
-  int32u mask;
 
-  for (j = 0; j < MAX_CLASS; j++)
-    cl[j] = 0;
   i = py.misc.prace;
   j = 0;
   k = 0;
   l = 2;
   m = 21;
-  mask = 0x1;
+  notarget=-128; /* Special value so calc_bonuses will ignore inventory when
+		    first starting out */
   clear_from (20);
-  put_buffer("Choose a class (? for Help):", 20, 2);
-  do
-    {
-      if (race[i].rtclass & mask)
-	{
-	  (void) sprintf(tmp_str, "%c) %s", k+'a', class[j].title);
-	  put_buffer(tmp_str, m, l);
-	  cl[k] = j;
-	  l += 15;
-	  if (l > 70)
-	    {
-	      l = 2;
-	      m++;
-	    }
-	  k++;
-	}
-      j++;
-      mask <<= 1;
-    }
-  while (j < MAX_CLASS);
-  py.misc.pclass = 0;
   exit_flag = FALSE;
-  do {
-      move_cursor (20, 31);
-      s = inkey();
-      j = s - 'a';
-      if ((j < k) && (j >= 0))
-	{
-	  py.misc.pclass = cl[j];
-	  c_ptr = &class[py.misc.pclass];
-	  exit_flag = TRUE;
-	  clear_from (20);
-	  put_buffer(c_ptr->title, 5, 15);
-
-	}
-    } while (!exit_flag);
- put_buffer("Press 'Y' if you want to autoroll",22,2);
- for(exit_flag=0;exit_flag<=5;exit_flag++)
-  minstat[exit_flag]=0; /* Accept anything */
- autoroll=0;
- s=inkey();
+  put_buffer("Press 'Y' if you want to autoroll",22,2);
+  for(exit_flag=0;exit_flag<=5;exit_flag++)
+    minstat[exit_flag]=0; /* Accept anything */
+  autoroll=0;
+  s=inkey();
  if (s=='y' || s=='Y')
  {
   clear_from (15);
@@ -621,9 +543,38 @@ static void get_class_choice()
   minstat[cstat]=atoi(tmp_str);  
   if (minstat[cstat]<2) minstat[cstat]=2;
   if (minstat[cstat]>118) minstat[cstat]=118;
+  modstat[cstat]=0;
   }
-  clear_from(15); /* Make a fresh screen */
- } 
+ }
+  put_buffer("Press 'Y' if you want to apply modifiers to your stats.",22,2);  
+  s=inkey();
+  if (s=='y' || s=='Y')
+    {
+      total=50;
+      while(total>10)
+	{
+	  clear_from(15);
+	  put_buffer("Please enter a modifier for each stat.",13,6);
+	  put_buffer
+	    ("NOTE:  The total of the modifiers may be no larger than 10.",
+		 14,6);
+	  total=0;
+	  for(cstat=0;cstat<6;cstat++) /* Leave Luck random */
+	    {
+	      strncpy(tmp_str,statstr+cstat*3,3);
+	      tmp_str[3]=0;
+	      strcat(tmp_str,":");
+	      put_buffer(tmp_str,17+cstat,2);
+	      while (!get_string(tmp_str,17+cstat,6,3)); /* Waiting for # */
+	      modstat[cstat]=atoi(tmp_str);  
+	      if (modstat[cstat]<-7) modstat[cstat]=-7;
+	      if (modstat[cstat]>7) modstat[cstat]=7;
+	      total+=modstat[cstat];
+	    }
+	}
+      clear_from(13); /* Make a fresh screen */
+    }
+  py.misc.realm=NONE;
 }
 
 
@@ -632,7 +583,7 @@ static void get_class_choice()
 static int monval (i)
 int16u i;
 {
-  return 5 * ((int)i - 10);
+  return 7 * ((int)i - 10);
 }
 
 
@@ -655,7 +606,7 @@ static void get_money()
                                 /* She slept with the banker.. :) -GDH- */
   if (gold < 80)
     gold = 80;			/* Minimum */
-  py.misc.au = gold;
+  py.misc.au = gold*4+900;
 }
 
 
@@ -665,37 +616,40 @@ void create_character()
 {
   register int exit_flag = 1,holding,loop,bye;
   register char c;
-  char turns[6];
-  class_type *c_ptr;
+  char str[80];
 
   min_hp=0; /* Just so we don't die immediately */
   put_character();
   choose_race();
   get_sex();
-  get_class_choice();
-  
-  /* here we start a loop giving a player a choice of characters -RGM- */
+  get_stats_choice();
+  bye=1;
   holding=0;
-  while(holding<20000) /* 20000 turns max */
-  {
-   bye=1;
-   get_all_stats(); 
-   get_history();
-   get_ahw();
-   get_class();
-  ++holding; /* Prevents waiting for ungodly stats */
-  for(loop=0;loop<6;loop++)
-   if (py.stats.max_stat[loop]<minstat[loop])
-    bye=0; /* Don't leave yet */
-  if (bye)
-   holding=22000; /* Got one! */
-  }
-   clear_from (13);
-   calc_bonuses(); /* So we see class bonuses as well */
-   print_history();
-   put_misc1();
-   put_stats();
-
+  put_buffer("Rolling Char",12,30);
+  while(holding<20000 && bye)
+    {
+      sprintf(str,"%d       ",holding);
+      put_buffer(str,12,7);
+      ++holding;
+      bye=0;
+      get_all_stats();
+      mod_stats();
+      get_history();
+      get_ahw();
+      for(loop=0;loop<6;loop++)
+	{
+	  change_stat(loop,modstat[loop]);
+	  if (minstat[loop]>py.stats.max_stat[loop])
+	    bye=1;
+	  py.stats.cur_stat[loop]=py.stats.max_stat[loop];
+	  set_stat(loop); /* was set_use_stat(loop) */
+	}
+    }
+  clear_from (13);
+  print_history();
+  put_misc1();
+  put_stats();
+  
   clear_from (20);
   if (!autoroll) /* ONLY show this if we didn't autoroll */
   {
@@ -709,11 +663,16 @@ void create_character()
       } else if (c == ' ') {
 	get_all_stats();
 	get_history();
+	mod_stats();
 	get_ahw();
+	  for(loop=0;loop<6;loop++)
+	    {
+	      change_stat(loop,modstat[loop]);
+	      py.stats.cur_stat[loop]=py.stats.max_stat[loop];
+	      set_stat(loop);
+	    }
 	print_history();
 	put_misc1();
-	get_class();
-        calc_bonuses(); /* To see class bonuses as well */
 	put_stats();
       } else if (c == CTRL('P')) {
 	if (get_prev_stats()) {
@@ -721,6 +680,12 @@ void create_character()
 	  get_prev_ahw();
 	  print_history();
 	  put_misc1();
+	  for(loop=0;loop<6;loop++)
+	    {
+	      change_stat(loop,modstat[loop]);
+	      py.stats.cur_stat[loop]=py.stats.max_stat[loop];
+	      set_stat(loop);
+	    }
 	  put_stats();
 	} else {
 	  bell();
@@ -731,12 +696,20 @@ void create_character()
     }		    /* done with stats generation */
   while (exit_flag == 1);
  }
+  calc_bonuses();
+  py.misc.exp+=30*race[py.misc.prace].lifexp;
+  bye=0;
+  for(loop=0;loop<6;loop++)
+    bye+=modstat[loop];
+  if (bye<10)
+    py.misc.exp+=60*(10-bye);
   get_money();
   put_stats();
   put_misc2();
   put_misc3();
+  targetx=-128; /* No targeting yet */
+  py.misc.realm=NONE;
   get_name();
-
   /* This delay may be reduced, but is recommended to keep players	*/
   /* from continuously rolling up characters, which can be VERY	*/
   /* expensive CPU wise.						*/

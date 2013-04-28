@@ -28,6 +28,7 @@ void read_scroll()
   register int ident, l;
   register inven_type *i_ptr;
   register struct misc *m_ptr;
+  register cave_type *c_ptr;
 
   free_turn_flag = TRUE;
   if (py.flags.blind > 0)
@@ -165,7 +166,9 @@ void read_scroll()
 		}
 	      break;
 	    case 6:
-	      ident = light_area(char_row, char_col);
+	      msg_print("You suddenly see a vision of the entire dungeon!");
+	      ident = TRUE;
+	      wizard_light(TRUE);
 	      break;
 	    case 7:
 	      for (k = 0; k < randint(3); k++)
@@ -412,8 +415,20 @@ void read_scroll()
 		}
 	      break;
 	    case 38:
-	      ident = TRUE;
-	      bless(randint(12)+6);
+	      ident = FALSE;
+	      for (i = panel_row_min; i <= panel_row_max; i++)
+		for (j = panel_col_min; j <= panel_col_max; j++)
+		  {
+		    c_ptr = &cave[i][j];
+		    if ((c_ptr->tptr != 0) &&
+			(t_list[c_ptr->tptr].flags2 & TR_ARTIFACT) &&
+			!test_light(i, j))
+		      {
+			c_ptr->fm = TRUE;
+			lite_spot(i, j);
+			ident = TRUE;
+		      }
+		  }
 	      break;
 	    case 39:
 	      ident = TRUE;
@@ -441,6 +456,12 @@ void read_scroll()
 	      special_random_object(char_row, char_col, 1);
 	      prt_map();
 	      break;
+	    case 45: /* Make a cool staircase */
+	      if (dun_level>0)
+		msg_print("This scroll does not work in the dungeon.");
+	      else if (dun_level==0 || dun_level==-1)
+		(void) stair_creation();
+	      break;
 	    default:
 	      msg_print("Internal error in scroll()");
 	      break;
@@ -454,7 +475,7 @@ void read_scroll()
 	    {
 	      m_ptr = &py.misc;
 	      /* round half-way case up */
-	      m_ptr->exp += (i_ptr->level +(m_ptr->lev >> 1)) / m_ptr->lev;
+	      m_ptr->exp += (i_ptr->level +(get_level() >> 1)) / get_level();
 	      prt_experience();
 
 	      identify(&item_val);

@@ -40,7 +40,9 @@ static char *desc_atype[] = {
   "eat your food",
   "absorb light",
   "absorb charges",
-  "reduce all stats" };
+  "reduce all stats",
+  "cause disease",
+  "dispel magic"};
 static char *desc_amethod[] = {
   "make an undefined advance",
   "hit",
@@ -156,7 +158,7 @@ static char *desc_spell[] = {
   "gravity",
   "darkness",
   "plasma",           /* end */
-  "fires arrows",
+  "fire arrows",
   "summon Ringwraiths",
   "cast darkness storms",
   "cast mana storms",
@@ -165,6 +167,14 @@ static char *desc_spell[] = {
   "summon unique creatures",
   "summon greater undead",
   "summon ancient dragons",
+  "cause plagues",
+  "summon hellfire",
+  "resists edged attacks",
+  "resists blunt attacks",
+  "is immune to edged attacks",
+  "is immune to blunt attacks",
+  "let it always hit",
+  "let it always move at your speed"
 };
 static char *desc_weakness[] = {
   "bright light",
@@ -175,7 +185,9 @@ static char *desc_immune[] = {
   "fire",
   "lightning",
   "poison",
-  "acid"
+  "acid",
+  "confusion",
+  "sound"
 };
 
 static vtype roffbuf;		/* Line buffer. */
@@ -224,7 +236,7 @@ int mon_num;
   vtype temp;
   register recall_type *mp;
   register creature_type *cp;
-  register int i, k;
+  register int i, k, lev;
   int32u j;
   int mspeed;
   int32u rcmove, rspells, rspells2, rspells3;
@@ -248,7 +260,7 @@ int mon_num;
     mp->r_cdefense = cp->cdefense;
     mp->r_spells = cp->spells | CS_FREQ;
     mp->r_spells2 = cp->spells2;
-    mp->r_spells3 = cp->spells3;
+    mp->r_spells3 = cp->spells3 & 0x000FFFFFL; /* Yanks out the specials */
     j = 0;
     pu = cp->damage;
     while (*pu != 0 && j < 4) {
@@ -410,28 +422,28 @@ int mon_num;
       else if (cp->cdefense & TROLL)
 	roff(" troll");
       else roff(" creature");
-
+      lev=get_level();
       /* calculate the integer exp part */
-      i = (long)cp->mexp * cp->level / py.misc.lev;
+      i = (long)cp->mexp * cp->level / lev;
       /* calculate the fractional exp part scaled by 100,
 	 must use long arithmetic to avoid overflow */
-      j = (((long)cp->mexp * cp->level % py.misc.lev) * (long)1000 /
-	   py.misc.lev+5) / 10;
+      j = (((long)cp->mexp * cp->level % lev) * (long)1000 /
+	   lev+5) / 10;
 
       (void) sprintf(temp, " is worth %d.%02ld point%s", i,
 		     j, (i == 1 && j == 0 ? "" : "s"));
       roff(temp);
 
-      if ((py.misc.lev / 10) == 1) p = "th";
+      if ((lev / 10) == 1) p = "th";
       else
 	{
-	  i = py.misc.lev % 10;
+	  i = lev % 10;
 	  if (i == 1)		p = "st";
 	  else if (i == 2)	p = "nd";
 	  else if (i == 3)      p = "rd";
 	  else			p = "th";
 	}
-      i = py.misc.lev;
+      i = lev;
       if ((i == 8) || (i == 11) || (i == 18)) q = "n";
       else				q = "";
       (void) sprintf(temp, " for a%s %d%s level character.", q, i, p);

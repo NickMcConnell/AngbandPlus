@@ -27,6 +27,7 @@ static void insert_store();
 static void store_create();
 #endif
 
+
 extern int is_home;
 
 /* Returns the value for any given object		-RAK-	*/
@@ -34,10 +35,16 @@ int32 item_value(i_ptr)
 register inven_type *i_ptr;
 {
   register int32 value;
+  int tval;
 
+  tval=i_ptr->tval;
   value = i_ptr->cost;
-  /* don't purchase known cursed items */
-  if (i_ptr->ident & ID_DAMD)
+  /* don't purchase known cursed items, but NEVER consider a spellbook
+     "cursed" */
+  if (i_ptr->ident & ID_DAMD && !(tval==TV_MAGIC_BOOK ||
+				  tval==TV_PRAYER_BOOK ||
+				  tval==TV_NATURE_BOOK ||
+				  tval==TV_DARK_BOOK))
     value = 0;
   else if (((i_ptr->tval >= TV_BOW) && (i_ptr->tval <= TV_SWORD)) ||
 	   ((i_ptr->tval >= TV_BOOTS) && (i_ptr->tval <= TV_ROBE)))
@@ -141,7 +148,6 @@ register inven_type *i_ptr;
     value = value * i_ptr->number;
   return(value);
 }
-
 
 /* Asking price for an item				-RAK-	*/
 int32 sell_price(snum, max_sell, min_sell, item)
@@ -257,7 +263,6 @@ inven_type *t_ptr;
 		  if (subt > ITEM_GROUP_MIN)
 		    {
 		      (void) sell_price (store_num, &icost, &dummy, i_ptr);
-		      s_ptr->store_inven[item_val].scost = -icost;
 		    }
 		  /* must let group objects (except torches) stack over 24
 		     since there may be more than 24 in the group */
@@ -330,7 +335,7 @@ void store_init()
   register store_type *s_ptr;
 
   i = MAX_OWNERS / MAX_STORES;
-  for (j = 0; j <= MAX_STORES; j++)
+  for (j = 0; j < MAX_STORES; j++)
     {
       s_ptr = &store[j];
       s_ptr->owner = MAX_STORES*(randint(i)-1) + j;
@@ -353,19 +358,22 @@ static void store_create(store_num)
 int store_num;
 {
   register int i, tries, real_store;
-  int cur_pos, dummy;
+  int cur_pos, dummy, is_home;
   register store_type *s_ptr;
   register inven_type *t_ptr;
 
   tries = 0;
+  is_home=FALSE;
   cur_pos = popt();
   real_store=store_num;
-  if (real_store==8)
-   real_store-=2; /* Need to skip Home AND Black Market */
+  if (real_store==7)
+    is_home=TRUE;
+  if (real_store>7)
+    real_store-=2; /* Stores after Home and Black Market need to skip a bit */
   s_ptr = &store[store_num];
   do
     {
-      if (store_num != 7)
+      if (!is_home)
       {
 	i = store_choice[real_store][randint(STORE_CHOICES)-1];
         /* If the Black Market, do something special */
@@ -373,8 +381,6 @@ int store_num;
 	   i = randint(MAX_DUNGEON_OBJ);
 	invcopy(&t_list[cur_pos], i);
 	magic_treasure(cur_pos, OBJ_TOWN_LEVEL, FALSE, TRUE);
-        if (store_num==6) /* Black Markets have POWERFUL items! */
-         magic_treasure(cur_pos, 50, FALSE, TRUE);
 	t_ptr = &t_list[cur_pos];
 	if (store_check_num(t_ptr, store_num))
 	  {
@@ -409,7 +415,7 @@ int store_num;
 	tries++;
        }
       }
-   }
+    }
   while (tries <= 3);
   pusht((int8u)cur_pos);
 }
@@ -444,7 +450,7 @@ void store_maint()
   register int i, j;
   register store_type *s_ptr;
 
-  for (i = 0; i <= (MAX_STORES-1); i++)
+  for (i = 0; i < MAX_STORES; i++)
     {
       if (i!=7)
       {

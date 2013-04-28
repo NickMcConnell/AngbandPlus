@@ -81,24 +81,21 @@
 creature_type c_list[MAX_CREATURES] = {
 
 {"Filthy street urchin"	    ,(MV_ATT_NORM|MV_20|THRO_DR|PICK_UP)
-			    ,(NONE8),(NONE8),(NONE8),(NONE8)
-			    ,0,40,4,1,11,'p',{1,4},{72,148,0,0},0,1},
-
-{"Filthy street urchin"	    ,(MV_ATT_NORM|MV_20|THRO_DR|PICK_UP)
 			    ,(NONE8),(GROUP),(NONE8),(NONE8)
-			    ,0,40,4,1,11,'p',{1,4},{72,148,0,0},0,2},
+			    ,0,40,4,1,10,'p',{1,4},{72,148,0,0},0,2},
 
 {"Scrawny cat"              ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL),(NONE8)
                             ,(NONE8)
-			    ,0,10,30,1,11,'f',{1,2},{49,0,0,0},0,3},
+			    ,0,10,30,1,12,'f',{5,2},{49,0,0,0},0,3},
 
 {"Scruffy little dog"       ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL),(NONE8)
                             ,(NONE8)
-			    ,0,5,20,1,11,'C',{1,3},{24,0,0,0},0,3},
+			    ,0,5,20,1,12,'C',{2,3},{24,0,0,0},0,3},
 
 {"Farmer Maggot"            ,(MV_ATT_NORM|CARRY_OBJ|HAS_90),(NONE8)
-                            ,(UNIQUE|MAX_HP|CHARM_SLEEP|GOOD),(NONE8),(NONE8)
-			    ,0,3,40,10,11,'p',{25,15},{283,283,0,0},0,4},
+                            ,(UNIQUE|MAX_HP|CHARM_SLEEP|SPECIAL),(NONE8),
+                             (NONE8)
+			    ,0,3,40,10,11,'h',{25,15},{283,283,0,0},0,4},
 
 {"Blubbering idiot"	    ,(MV_ATT_NORM|MV_20|THRO_DR|PICK_UP)
 			    ,(NONE8),(NONE8),(NONE8),(NONE8)
@@ -110,7 +107,7 @@ creature_type c_list[MAX_CREATURES] = {
 
 {"Village idiot"	    ,(MV_ATT_NORM|MV_20|THRO_DR|PICK_UP)
 			    ,(NONE8),(NONE8),(NONE8),(NONE8)
-			    ,0,0,6,1,12,'p',{4,4},{79,0,0,0},0,1},
+			    ,0,0,6,1,12,'p',{4,7},{79,0,0,0},0,1},
 
 {"Pitiful looking beggar"   ,(MV_ATT_NORM|MV_20|THRO_DR|PICK_UP)
 			    ,(NONE8),(NONE8),(NONE8),(NONE8)
@@ -123,90 +120,91 @@ creature_type c_list[MAX_CREATURES] = {
 {"Squint eyed rogue"	    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|
 			      MV_ATT_NORM|THRO_DR|PICK_UP)
 			    ,(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,0,99,10,8,11,'p',{2,8},{5,149,0,0},0,1},
+			    ,0,99,10,8,11,'p',{4,8},{5,149,0,0},0,1},
 
 {"Singing, happy drunk"	    ,(CARRY_GOLD|HAS_60|
 			      MV_ATT_NORM|MV_40|THRO_DR|PICK_UP)
 			    ,(NONE8),(NONE8),(NONE8),(NONE8)
-			    ,0,0,10,1,11,'p',{2,3},{72,0,0,0},0,1},
+			    ,0,0,10,1,11,'p',{2,5},{72,0,0,0},0,1},
 
 {"Aimless looking merchant" ,(CARRY_GOLD|HAS_60|
 			      MV_ATT_NORM|MV_40|THRO_DR|PICK_UP)
 			    ,(NONE8),(NONE8),(NONE8),(NONE8)
-			    ,0,1000,10,1,11,'p',{3,3},{2,0,0,0},0,1},
+			    ,0,1000,10,1,11,'p',{3,5},{2,0,0,0},0,1},
 
 {"Mean looking mercenary"   ,(CARRY_GOLD|CARRY_OBJ|HAS_90|
 			      MV_ATT_NORM|MV_40|THRO_DR|PICK_UP)
 			    ,(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,0,250,10,20,11,'p',{5,8},{9,0,0,0},0,1},
+			    ,0,250,10,20,11,'p',{6,8},{9,0,0,0},0,1},
 
 {"Feldisham, the Guard"     ,(HAS_2D2|HAS_90|
 			      MV_ATT_NORM|THRO_DR|PICK_UP)
-			    ,(NONE8), (UNIQUE|GOOD|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,50,250,10,40,11,'p',{7,6},{15,0,0,0},1,1},
+			    ,(NONE8), (UNIQUE|GOOD|CHARM_SLEEP|MAX_HP),
+                             (NONE8),(NONE8)
+			    ,50,250,10,40,11,'p',{6,12},{15,15,0,0},1,1},
 
 {"Grey mold"		   ,(MV_ONLY_ATT),(NONE8),(CHARM_SLEEP|ANIMAL),(NONE8)
-			   ,(NONE8),3,0,2,1,11,'m',{1,2},{3,3,0,0},1,1},
+			   ,(NONE8),3,0,2,1,11,'m',{5,8},{3,3,0,0},1,1},
 
 {"Grey mushroom patch"	   ,(MV_ONLY_ATT),(NONE8),(CHARM_SLEEP|ANIMAL),(NONE8)
-			   ,(NONE8),1,0,2,1,11,',',{1,2},{91,0,0,0},1,1},
+			   ,(NONE8),1,0,2,1,11,',',{4,6},{91,0,0,0},1,1},
 
 {"Giant yellow centipede"   ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,2,30,8,12,11,'c',{2,6},{26,60,0,0},1,1},
+			    ,2,30,8,12,11,'c',{6,8},{26,60,0,0},1,1},
 
 {"Giant white centipede"    ,(MV_ATT_NORM|MV_40),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),2,40,7,10,11,'c',{3,5},{25,59,0,0},1,1},
+			    ,(NONE8),2,40,7,10,11,'c',{8,7},{25,59,0,0},1,1},
 
 {"White icky thing"	    ,(MV_ATT_NORM|MV_75),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),2,10,12,7,11,'i',{3,5},{63,0,0,0},1,1},
+			    ,(NONE8),2,10,12,7,11,'i',{8,7},{63,0,0,0},1,1},
 
 {"Clear icky thing"	    ,(MV_ATT_NORM|MV_75|MV_INVIS),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,1,10,12,6,11,'i',{2,5},{63,0,0,0},1,1},
+			    ,1,10,12,6,11,'i',{6,7},{63,0,0,0},1,1},
 
 {"Giant white mouse"	    ,(MV_ATT_NORM|MV_40|MULTIPLY),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,1,20,8,4,11,'r',{1,3},{25,0,0,0},1,1},
+			    ,1,20,8,4,11,'r',{2,3},{25,0,0,0},1,1},
 
 {"Large brown snake"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,3,99,4,35,10,'R',{4,6},{26,73,0,0},1,1},
+			    ,3,99,4,35,10,'R',{10,6},{26,73,0,0},1,1},
 
 {"Large white snake"	    ,(MV_ATT_NORM|MV_40),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,2,99,4,30,11,'R',{3,6},{24,0,0,0},1,1},
+			    ,2,99,4,30,11,'R',{8,6},{24,0,0,0},1,1},
 
 {"Small kobold"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|
 			     THRO_DR|MV_ATT_NORM),(NONE8),(EVIL)
 			    ,(NONE8),(NONE8)
-			    ,5,10,20,16,11,'k',{2,7},{4,0,0,0},1,1},
+			    ,5,10,20,16,12,'k',{6,8},{4,0,0,0},1,1},
 
 {"Kobold"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|
 			     THRO_DR|MV_ATT_NORM),(NONE8),(EVIL)
 			    ,(NONE8),(NONE8)
-			    ,5,10,20,16,11,'k',{3,7},{5,0,0,0},1,1},
+			    ,5,10,20,16,12,'k',{8,11},{5,0,0,0},1,1},
 
 {"White worm mass"	    ,(MULTIPLY|MV_75|MV_ATT_NORM),(NONE8)
 			    ,(ANIMAL|HURT_LIGHT|IM_POISON)
 			    ,(NONE8),(NONE8)
-			    ,2,10,7,1,10,'w',{4,4},{173,0,0,0},1,1},
+			    ,2,10,7,1,10,'w',{5,6},{173,0,0,0},1,1},
 
 {"Floating eye"		    ,(MV_ONLY_ATT),(NONE8),(ANIMAL|HURT_LIGHT)
 			    ,(NONE8),(NONE8)
-			    ,1,10,2,6,11,'e',{3,6},{146,0,0,0},1,1},
+			    ,1,10,2,6,11,'e',{6,8},{146,0,0,0},1,1},
 
 {"Rock lizard"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,2,15,20,4,11,'R',{3,4},{24,0,0,0},1,1},
+			    ,2,15,20,4,11,'R',{6,6},{24,24,0,0},1,1},
 
 {"Jackal"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,1,10,10,3,11,'C',{1,4},{24,0,0,0},1,1},
+			    ,1,10,10,3,12,'C',{5,6},{24,24,0,0},1,1},
 
 {"Soldier ant"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,3,10,10,3,11,'a',{2,5},{25,0,0,0},1,1},
+			    ,3,10,10,3,11,'a',{6,7},{25,25,0,0},1,1},
 
 {"Fruit bat"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,1,10,20,3,12,'b',{1,6},{24,0,0,0},1,1},
+			    ,1,10,20,3,12,'b',{5,8},{24,24,0,0},1,1},
 
 {"Shrieker mushroom patch"  ,(MV_ONLY_ATT),(NONE8),(CHARM_SLEEP|ANIMAL)
 			    ,(NONE8),(NONE8)
@@ -215,101 +213,98 @@ creature_type c_list[MAX_CREATURES] = {
 {"Blubbering icky thing"    ,(CARRY_GOLD|CARRY_OBJ|HAS_90|
 			      PICK_UP|THRO_CREAT|MV_40|MV_ATT_NORM)
 			    ,(NONE8),(ANIMAL|IM_POISON),(NONE8),(NONE8)
-			    ,8,10,14,4,11,'i',{5,6},{174,210,0,0},2,1},
+			    ,8,10,14,4,11,'i',{14,8},{174,210,0,0},2,1},
 
 {"Metallic green centipede" ,(MV_40|MV_ATT_NORM),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,3,10,5,4,12,'c',{4,4},{68,0,0,0},2,1},
+			    ,3,10,5,4,12,'c',{10,7},{68,0,0,0},2,1},
 
 {"Novice warrior"	    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
-			      MV_ATT_NORM),(NONE8),(NONE8),(NONE8),(NONE8)
-			    ,6,5,20,16,11,'p',{9,4},{6,5,0,0},2,1},
+			      MV_ATT_NORM),(0xDL),(NONE8),(NONE8),(ARROW)
+			    ,6,5,20,16,11,'p',{16,12},{6,5,6,5},2,1},
 
 {"Novice rogue"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
-			      MV_ATT_NORM),(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,6,5,20,12,11,'p',{8,4},{5,148,0,0},2,1},
+			      MV_ATT_NORM),(0x8L),(EVIL),(NONE8),(ARROW)
+			    ,10,5,20,12,11,'p',{10,11},{5,148,0,0},2,1},
 
 {"Novice priest"	    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
 			      MV_ATT_NORM),(0xCL|CAUSE_LIGHT|FEAR)
 			    ,(NONE8),(HEAL),(NONE8)
-			    ,7,10,20,10,11,'p',{7,4},{4,0,0,0},2,1},
+			    ,7,10,20,10,11,'p',{13,8},{4,0,0,0},2,1},
 
 {"Novice mage"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
 			      MV_ATT_NORM),(0xCL|CONFUSION|MAG_MISS|BLINK)
 			    ,(NONE8),(NONE8),(NONE8)
-			    ,7,5,20,6,11,'p',{6,4},{3,0,0,0},2,1},
+			    ,7,5,20,6,11,'p',{12,9},{3,0,0,0},2,1},
 
 {"Yellow mushroom patch"   ,(MV_ONLY_ATT),(NONE8),(CHARM_SLEEP|ANIMAL),(NONE8)
 			   ,(NONE8),2,0,2,1,11,',',{1,1},{100,0,0,0},2,1},
 
 {"White jelly"		    ,(MV_ONLY_ATT),(NONE8)
 			    ,(CHARM_SLEEP|ANIMAL|HURT_LIGHT|IM_POISON),(NONE8)
-			    ,(NONE8),10,99,2,1,12,'j',{8,8},{168,0,0,0},2,1},
+			    ,(NONE8),10,99,2,1,12,'j',{18,9},{168,0,0,0},2,1},
 
 {"Giant green frog"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),6,30,12,8,11,'R',{2,8},{26,0,0,0},2,1},
+			    ,(NONE8),6,30,12,8,11,'R',{8,12},{26,0,0,0},2,1},
 
 {"Giant black ant"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),8,80,8,20,11,'a',{3,6},{27,0,0,0},2,1},
+			    ,(NONE8),8,80,8,20,11,'a',{8,9},{27,0,0,0},2,1},
 
 {"Salamander"		    ,(MV_ATT_NORM|MV_20),(NONE8),(IM_FIRE|ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,10,80,8,20,11,'R',{4,6},{105,0,0,0},2,1},
+			    ,10,80,8,20,11,'R',{10,9},{105,0,0,0},2,1},
 
 {"White harpy"		    ,(MV_ATT_NORM|MV_40),(NONE8),(ANIMAL|EVIL),(NONE8)
-			  ,(NONE8),5,10,16,17,11,'H',{2,5},{49,49,25,0},2,1},
+			  ,(NONE8),5,10,16,17,11,'H',{7,8},{49,49,25,0},2,1},
 
 {"Blue yeek"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
 			     MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),4,10,18,14,11,'y',{2,6},{4,0,0,0},2,1},
+			    ,(NONE8),4,10,18,14,11,'y',{8,7},{4,0,0,0},2,1},
 
 {"Grip, Farmer Maggot's dog" ,(MV_ATT_NORM|MV_20),(NONE8),(UNIQUE|MAX_HP|
 			      CHARM_SLEEP|ANIMAL),(NONE8),(NONE8)
-			     ,30,0,30,30,12,'C',{5,5},{27,0,0,0},2,1},
+			     ,30,0,30,30,12,'C',{15,12},{27,0,0,0},2,1},
 
 {"Fang, Farmer Maggot's dog" ,(MV_ATT_NORM|MV_20),(NONE8),(UNIQUE|MAX_HP|
 			      CHARM_SLEEP|ANIMAL),(NONE8),(NONE8)
-			     ,30,0,30,30,12,'C',{5,5},{27,0,0,0},2,1},
+			     ,30,0,30,30,12,'C',{15,12},{27,0,0,0},2,1},
 
 {"Green worm mass"	    ,(MULTIPLY|MV_75|MV_ATT_NORM),(NONE8)
 			    ,(ANIMAL|HURT_LIGHT|IM_ACID),(NONE8)
-			    ,(NONE8),3,10,7,3,10,'w',{6,4},{140,0,0,0},2,1},
-
-{"Large black snake"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),9,75,5,38,10,'R',{4,8},{27,74,0,0},2,1},
+			    ,(NONE8),3,10,7,3,10,'w',{9,5},{140,0,0,0},2,1},
 
 {"Cave spider"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL|GROUP),(NONE8)
-			    ,(NONE8),7,80,8,16,12,'S',{2,6},{27,0,0,0},2,1},
+			    ,(NONE8),7,80,8,16,12,'S',{6,7},{27,0,0,0},2,1},
 
 {"Wild cat"                 ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8)
-                            ,(NONE8),8,0,40,12,12,'f',{3,5},{51,51,0,0},2,2},
+                            ,(NONE8),8,0,40,12,12,'f',{20,8},{51,51,0,0},2,2},
 
 {"Smeagol"		    ,(HAS_1D2|CARRY_GOLD|HAS_60|THRO_DR|MV_75|
-			      MV_ATT_NORM|MV_INVIS),(NONE8),(EVIL|UNIQUE)
-			    ,(NONE8),(NONE8)
-			    ,16,5,20,12,13,'p',{11,4},{3,148,0,0},3,2},
+			      MV_ATT_NORM|MV_INVIS),(0xC),(EVIL|UNIQUE)
+			    ,(NONE8),(ARROW)
+			    ,16,5,20,12,13,'p',{25,13},{3,148,0,0},3,2},
 
 {"Green ooze"		    ,(HAS_90|CARRY_GOLD|CARRY_OBJ|MV_75|
 			      MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,4,80,8,16,12,'j',{3,4},{140,0,0,0},3,2},
+			    ,4,80,8,16,12,'j',{10,8},{140,0,0,0},3,2},
 
 {"Poltergeist"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|HAS_90|PICK_UP|
 			     MV_INVIS|THRO_WALL|MV_40|MV_75|
 			     MV_ATT_NORM),(BLINK|0xFL)
 			    ,(CHARM_SLEEP|HURT_LIGHT|EVIL|NO_INFRA|UNDEAD)
 			    ,(NONE8),(NONE8)
-			    ,8,10,8,15,13,'G',{2,5},{93,0,0,0},3,1},
+			    ,8,10,8,15,13,'G',{8,6},{93,0,0,0},3,1},
 
 {"Metallic blue centipede"  ,(MV_40|MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),7,15,6,6,12,'c',{4,5},{69,0,0,0},3,1},
+			    ,(NONE8),7,15,6,6,12,'c',{10,8},{69,69,0,0},3,1},
 
 {"Giant white louse"	    ,(MULTIPLY|MV_ATT_NORM|MV_75)
 			    ,(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,1,10,6,5,12,'l',{1,1},{24,0,0,0},3,1},
+			    ,1,10,6,5,12,'l',{2,5},{24,0,0,0},3,1},
 
 {"Black naga"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|MV_ATT_NORM|
 			      MV_20),(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,20,120,16,40,11,'n',{6,8},{75,0,0,0},3,1},
+			    ,20,120,16,40,11,'n',{16,12},{75,75,0,0},3,1},
 
 {"Spotted mushroom patch"   ,(MV_ONLY_ATT),(NONE8)
 			    ,(CHARM_SLEEP|ANIMAL|IM_POISON),(NONE8)
@@ -317,122 +312,122 @@ creature_type c_list[MAX_CREATURES] = {
 
 {"Silver jelly"		    ,(MV_ONLY_ATT),(0xFL|MANA_DRAIN),
 			     (CHARM_SLEEP|ANIMAL|HURT_LIGHT|IM_POISON),(NONE8)
-			  ,(NONE8),12,99,2,1,12,'j',{10,8},{213,213,0,0},3,2},
+			 ,(NONE8),12,99,2,1,12,'j',{17,16},{213,213,0,0},3,2},
 
 {"Yellow jelly"		    ,(MV_ONLY_ATT),(0xFL|MANA_DRAIN),
 			     (CHARM_SLEEP|ANIMAL|HURT_LIGHT|IM_POISON),(NONE8)
-			    ,(NONE8),12,99,2,1,12,'j',{10,8},{169,0,0,0},3,1},
+			   ,(NONE8),12,99,2,1,12,'j',{13,16},{169,0,0,0},3,1},
 
 {"Scruffy looking hobbit"   ,(CARRY_GOLD|CARRY_OBJ|HAS_60|THRO_DR|
-			      MV_ATT_NORM),(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,4,10,16,8,11,'h',{3,5},{3,148,0,0},3,1},
+			      MV_ATT_NORM),(0x7L|BLINK),(EVIL),(NONE8),(ARROW)
+			    ,12,10,16,8,11,'h',{12,9},{3,148,0,0},3,1},
 
 {"Giant white ant"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,7,80,8,16,11,'a',{3,6},{27,0,0,0},3,1},
+			    ,7,80,8,16,11,'a',{8,8},{27,0,0,0},3,1},
 
 {"Yellow mold"		   ,(MV_ONLY_ATT),(NONE8),(CHARM_SLEEP|ANIMAL),(NONE8)
-			   ,(NONE8),9,99,2,10,11,'m',{8,8},{3,0,0,0},3,1},
+			   ,(NONE8),9,99,2,10,11,'m',{12,16},{3,0,0,0},3,1},
 
 {"Metallic red centipede"   ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),12,20,8,9,12,'c',{4,8},{69,0,0,0},3,1},
+			    ,(NONE8),12,20,8,9,12,'c',{10,11},{69,0,0,0},3,1},
 
 {"Yellow worm mass"	    ,(MULTIPLY|MV_75|MV_ATT_NORM),(NONE8)
 			    ,(ANIMAL|HURT_LIGHT),(NONE8),(NONE8)
-			    ,4,10,7,4,10,'w',{4,8},{182,0,0,0},3,2},
+			    ,4,10,7,4,10,'w',{8,10},{182,0,0,0},3,2},
 
 {"Clear worm mass"	    ,(MULTIPLY|MV_INVIS|MV_75|MV_ATT_NORM),(NONE8)
 			    ,(ANIMAL|HURT_LIGHT|IM_POISON),(NONE8),(NONE8)
-			    ,4,10,7,1,10,'w',{4,4},{173,0,0,0},3,2},
+			    ,4,10,7,1,10,'w',{6,8},{173,0,0,0},3,2},
 
 {"Radiation eye"	    ,(MV_ONLY_ATT),(0xBL|MANA_DRAIN)
 			    ,(ANIMAL|HURT_LIGHT),(NONE8),(NONE8)
-			    ,6,10,2,6,11,'e',{3,6},{88,0,0,0},3,1},
+			    ,6,10,2,6,11,'e',{12,10},{88,0,0,0},3,1},
 
 {"Cave lizard"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,8,80,8,16,11,'R',{3,6},{28,0,0,0},4,1},
+			    ,8,80,8,16,11,'R',{9,9},{28,0,0,0},4,1},
 
 {"Novice Ranger"	    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
-			      MV_ATT_NORM),(0x9L|MAG_MISS)
-			    ,(NONE8),(NONE8),(NONE8)
-			    ,18,5,20,6,11,'p',{6,8},{4,4,0,0},4,1},
+			      MV_ATT_NORM),(0x9L)
+			    ,(NONE8),(NONE8),(ARROW)
+			    ,18,5,20,6,11,'p',{10,10},{4,4,0,0},4,1},
 
 {"Novice paladin"           ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
 			     MV_ATT_NORM),(0x9L|CAUSE_LIGHT|FEAR),(NONE8)
 			    ,(NONE8),(NONE8)
-			    ,20,5,20,16,11,'p',{6,8},{6,6,0,0},4,2},
+			    ,20,5,20,16,11,'p',{16,13},{6,6,6,0},4,2},
 
 {"Blue jelly"		    ,(MV_ONLY_ATT),(NONE8)
 			    ,(CHARM_SLEEP|ANIMAL|HURT_LIGHT|IM_FROST|NO_INFRA)
 			    ,(NONE8),(NONE8)
-			    ,14,99,2,1,11,'j',{12,8},{125,0,0,0},4,1},
+			    ,14,99,2,1,11,'j',{16,16},{125,0,0,0},4,1},
 
 {"Creeping copper coins"    ,(HAS_1D2|CARRY_GOLD|MV_ATT_NORM)
 			    ,(NONE8),(CHARM_SLEEP|ANIMAL|IM_POISON|NO_INFRA)
 			    ,(NONE8),(NONE8)
-			    ,9,10,3,24,10,'$',{7,8},{3,170,0,0},4,2},
+			    ,9,10,3,24,10,'$',{17,10},{3,170,0,0},4,2},
 
 {"Giant white rat"	    ,(MULTIPLY|MV_20|MV_ATT_NORM),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,1,30,8,7,11,'r',{2,2},{153,0,0,0},4,1},
+			    ,1,30,8,7,11,'r',{3,8},{153,0,0,0},4,1},
 
 {"Blue worm mass"	    ,(MULTIPLY|MV_ATT_NORM|MV_75),(NONE8)
 			    ,(ANIMAL|HURT_LIGHT|IM_FROST|NO_INFRA),(NONE8)
-			    ,(NONE8),5,10,7,12,10,'w',{5,8},{129,0,0,0},4,1},
+			    ,(NONE8),5,10,7,12,10,'w',{12,9},{129,0,0,0},4,1},
 
 {"Large grey snake"	    ,(MV_20|MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),14,50,6,41,10,'R',{6,8},{28,75,0,0},4,1},
+			    ,(NONE8),14,50,6,41,10,'R',{16,12},{28,75,0,0},4,1},
 
 {"Bullroarer the Hobbit"    ,(CARRY_OBJ|HAS_2D2|THRO_DR|
-			      MV_ATT_NORM),(NONE8),(UNIQUE|GOOD|MAX_HP)
-			    ,(NONE8),(NONE8)
-			    ,90,10,16,8,12,'h',{8,8},{5,149,148,0},5,3},
+			      MV_ATT_NORM),(0xF),(UNIQUE|GOOD|MAX_HP)
+			    ,(NONE8),(ARROW)
+			    ,90,10,16,8,12,'h',{19,25},{5,149,148,0},5,3},
 
 {"Novice mage"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
 			      MV_ATT_NORM),(0xCL|CONFUSION|MAG_MISS|BLINK|
 			      BLINDNESS),(GROUP),(NONE8),(NONE8)
-			    ,7,20,20,6,11,'p',{6,4},{3,0,0,0},5,1},
+			    ,7,20,20,6,11,'p',{12,8},{3,0,0,0},5,1},
 
 {"Green naga"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|PICK_UP|
 			     MV_ATT_NORM|MV_20),(NONE8),(EVIL|IM_ACID),(NONE8)
-			 ,(NONE8),30,120,18,40,11,'n',{9,8},{75,118,0,0},5,1},
+			 ,(NONE8),30,120,18,40,11,'n',{24,9},{75,118,0,0},5,1},
 
 {"Blue ooze"		    ,(HAS_60|CARRY_GOLD|CARRY_OBJ|MV_75|
 			      MV_ATT_NORM),(NONE8),(ANIMAL|GROUP),(NONE8)
-			    ,(NONE8),7,80,8,16,11,'j',{3,4},{129,0,0,0},3,1},
+			    ,(NONE8),7,80,8,16,11,'j',{6,8},{129,0,0,0},3,1},
 
 {"Green glutton ghost"	    ,(CARRY_GOLD|CARRY_OBJ|HAS_60|HAS_90|
 			      THRO_WALL|MV_INVIS|MV_ATT_NORM|MV_40|MV_75)
 			   ,(NONE8),(CHARM_SLEEP|EVIL|NO_INFRA|UNDEAD),(NONE8)
-			   ,(NONE8),15,10,10,20,13,'G',{3,4},{211,0,0,0},5,1},
+			   ,(NONE8),15,10,10,20,13,'G',{8,8},{211,0,0,0},5,1},
 
 {"Green jelly"		    ,(MV_ONLY_ATT),(NONE8)
 			    ,(CHARM_SLEEP|ANIMAL|HURT_LIGHT|IM_ACID),(NONE8)
-			    ,(NONE8),18,99,2,1,12,'j',{22,8},{136,0,0,0},5,1},
+			    ,(NONE8),18,99,2,1,12,'j',{25,19},{136,0,0,0},5,1},
 
 {"Large kobold"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_90|THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,25,30,20,32,11,'k',{13,9},{9,0,0,0},5,1},
+			    ,25,30,20,32,12,'k',{30,12},{9,9,0,0},5,1},
 
 {"Skeleton kobold"	    ,(THRO_DR|MV_ATT_NORM),(NONE8)
 			    ,(CHARM_SLEEP|UNDEAD|EVIL|IM_FROST|NO_INFRA|
 			     IM_POISON)
 			    ,(NONE8),(NONE8)
-			    ,12,40,20,26,11,'s',{5,8},{5,0,0,0},5,1},
+			    ,12,40,20,26,11,'s',{32,10},{5,5,0,0},5,1},
 
 {"Grey icky thing"	    ,(MV_ATT_NORM|MV_40),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),10,15,14,12,11,'i',{4,8},{66,0,0,0},5,1},
+			    ,(NONE8),10,15,14,12,11,'i',{10,10},{66,0,0,0},5,1},
 
 {"Disenchanter eye"	    ,(MV_ONLY_ATT),(MANA_DRAIN|0x9L)
 			    ,(ANIMAL|HURT_LIGHT),(NONE8),(NONE8)
-			    ,20,10,2,10,10,'e',{7,8},{207,0,0,0},5,2},
+			    ,20,10,2,10,10,'e',{20,20},{207,0,0,0},5,2},
 
 {"Red worm mass"	    ,(MULTIPLY|MV_ATT_NORM|MV_75),(NONE8)
 			    ,(ANIMAL|HURT_LIGHT|IM_FIRE),(NONE8),(NONE8)
-			    ,6,10,7,12,10,'w',{5,8},{111,0,0,0},5,1},
+			    ,6,10,7,12,10,'w',{9,9},{111,0,0,0},5,1},
 
 {"Copperhead snake"	    ,(MV_ATT_NORM|MV_40),(NONE8),(ANIMAL|IM_POISON)
 			    ,(NONE8),(NONE8)
-			    ,15,1,6,20,11,'R',{4,6},{158,0,0,0},5,1},
+			    ,15,1,6,20,11,'R',{18,8},{158,0,0,0},5,1},
 
 {"Purple mushroom patch"    ,(MV_ONLY_ATT),(NONE8),(CHARM_SLEEP|ANIMAL)
 			    ,(NONE8),(NONE8)
@@ -441,226 +436,226 @@ creature_type c_list[MAX_CREATURES] = {
 {"Novice priest"	    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
 			     MV_ATT_NORM),(0xCL|CAUSE_LIGHT|FEAR),(GROUP)
 			    ,(HEAL),(NONE8)
-			    ,7,5,20,10,11,'p',{7,4},{4,0,0,0},6,2},
+			    ,7,5,20,10,11,'p',{12,9},{4,0,0,0},6,2},
 
 {"Novice warrior"	    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
-			     MV_ATT_NORM),(NONE8),(GROUP),(NONE8),(NONE8)
-			    ,6,5,20,16,11,'p',{9,4},{6,5,0,0},6,2},
+			     MV_ATT_NORM),(0xDL),(GROUP),(NONE8),(ARROW)
+			    ,6,5,20,16,11,'p',{15,12},{6,5,6,5},6,2},
 
 {"Novice rogue"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
-			     MV_ATT_NORM),(NONE8),(EVIL|GROUP),(NONE8)
-			    ,(NONE8)
-			    ,6,5,20,12,11,'p',{8,4},{5,148,0,0},6,2},
+			     MV_ATT_NORM),(0x8L),(EVIL|GROUP),(NONE8)
+			    ,(ARROW)
+			    ,15,5,20,12,11,'p',{10,12},{5,148,0,0},6,2},
 
 {"Brown mold"		    ,(MV_ONLY_ATT),(NONE8),(CHARM_SLEEP|ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,20,99,2,12,11,'m',{15,8},{89,0,0,0},6,1},
+			    ,20,99,2,12,11,'m',{25,10},{89,0,0,0},6,1},
 
 {"Giant brown bat"	    ,(MV_40|MV_20|MV_ATT_NORM),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,10,30,10,15,13,'b',{3,8},{26,0,0,0},6,1},
+			    ,10,30,10,15,13,'b',{12,9},{26,26,0,0},6,1},
 
 {"Novice archer"	    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|HAS_1D2)
 			    ,(0x3L),(NONE8),(NONE8),(ARROW)
-			    ,20,5,20,10,12,'p',{6,8},{3,3,0,0},6,2},
+			    ,20,5,20,10,12,'p',{20,12},{3,3,0,0},6,2},
 
 {"Creeping silver coins"    ,(HAS_1D2|CARRY_GOLD|HAS_60|MV_ATT_NORM)
 			    ,(NONE8),(CHARM_SLEEP|ANIMAL|IM_POISON|NO_INFRA)
 			    ,(NONE8),(NONE8)
-			    ,18,10,4,30,10,'$',{12,8},{5,171,0,0},6,2},
+			    ,18,10,4,30,10,'$',{18,12},{5,171,0,0},6,2},
 
 {"Snaga"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(ORC|EVIL|GROUP|HURT_LIGHT),(NONE8)
-			    ,(NONE8),15,30,20,32,11,'o',{8,8},{7,0,0,0},6,1},
+			    ,(NONE8),15,30,20,32,11,'o',{16,9},{7,0,0,0},6,1},
 
 {"Rattlesnake"		    ,(MV_ATT_NORM|MV_40),(NONE8),(ANIMAL|IM_POISON)
 			    ,(NONE8),(NONE8)
-			    ,20,1,6,24,11,'R',{6,7},{159,0,0,0},6,1},
+			    ,20,1,6,24,11,'R',{12,7},{159,0,0,0},6,1},
 
 {"Cave Orc"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(ORC|EVIL|GROUP|HURT_LIGHT),(NONE8)
-			    ,(NONE8),20,30,20,32,11,'o',{11,9},{7,0,0,0},7,1},
+			    ,(NONE8),20,30,20,32,11,'o',{13,14},{7,0,0,0},7,1},
 
 {"Wood spider"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL|GROUP|IM_POISON)
 			    ,(NONE8),(NONE8)
-			    ,15,80,8,16,12,'S',{3,6},{26,165,0,0},7,3},
+			    ,15,80,8,16,12,'S',{8,8},{26,165,0,0},7,3},
 
 {"Manes"		    ,(THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(DEMON|EVIL|GROUP|IM_FIRE),(NONE8)
-			    ,(NONE8),16,30,20,32,11,'I',{8,8},{7,0,0,0},7,2},
+			    ,(NONE8),16,30,20,32,11,'I',{18,9},{7,0,0,0},7,2},
 
 {"Bloodshot eye"	    ,(MV_ONLY_ATT),(0x7L|MANA_DRAIN)
 			    ,(ANIMAL|HURT_LIGHT),(NONE8),(NONE8)
-			    ,15,10,2,6,11,'e',{5,8},{143,0,0,0},7,3},
+			    ,15,10,2,6,11,'e',{20,25},{143,0,0,0},7,3},
 
 {"Red naga"		    ,(CARRY_GOLD|CARRY_OBJ|HAS_60|MV_ATT_NORM|
 			      MV_20|PICK_UP),(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,40,120,20,40,11,'n',{11,8},{76,82,0,0},7,2},
+			    ,40,120,20,40,11,'n',{13,18},{76,82,0,0},7,2},
 
 {"Red jelly"		    ,(MV_ONLY_ATT),(NONE8)
 			    ,(CHARM_SLEEP|ANIMAL|HURT_LIGHT),(NONE8),(NONE8)
-			    ,26,99,2,1,11,'j',{26,8},{87,0,0,0},7,1},
+			    ,26,99,2,1,11,'j',{28,20},{87,0,0,0},7,1},
 
 {"Giant red frog"	    ,(MV_ATT_NORM|MV_40),(NONE8),(ANIMAL),(NONE8)
-			    ,(NONE8),16,50,12,16,11,'R',{5,8},{83,0,0,0},7,1},
+			    ,(NONE8),16,50,12,16,11,'R',{16,12},{83,0,0,0},7,1},
 
 {"Green icky thing"	    ,(MV_ATT_NORM|MV_40),(NONE8),(ANIMAL),(NONE8)
-			   ,(NONE8),18,20,14,12,11,'i',{5,8},{137,0,0,0},7,2},
+			   ,(NONE8),18,20,14,12,11,'i',{14,9},{137,0,0,0},7,2},
 
 {"Zombie kobold"	    ,(THRO_DR|MV_ATT_NORM),(NONE8),
 			     (CHARM_SLEEP|UNDEAD|EVIL|IM_FROST|NO_INFRA|
 			     IM_POISON),(NONE8),(NONE8)
-			     ,14,30,20,14,11,'z',{6,8},{1,1,0,0},7,1},
+			     ,14,30,20,14,11,'z',{16,10},{1,1,0,0},7,1},
 
 {"Lost soul"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|HAS_90|
 			      PICK_UP|MV_INVIS|THRO_WALL|MV_ATT_NORM|
 			      MV_20|MV_40),(0xFL|TELE|MANA_DRAIN)
 			    ,(CHARM_SLEEP|UNDEAD|EVIL|IM_FROST|NO_INFRA)
 			    ,(NONE8),(NONE8)
-			    ,18,10,12,10,11,'G',{2,8},{11,185,0,0},7,2},
+			    ,18,10,12,10,11,'G',{12,10},{11,185,0,0},7,2},
 
 {"Dark elf"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_90|THRO_DR|
 			      MV_ATT_NORM),(0xAL|CONFUSION),(EVIL|HURT_LIGHT)
 			    ,(DARKNESS)
-			    ,(NONE8),25,20,20,16,11,'h',{7,10},{5,5,0,0},7,2},
+			    ,(NONE8),25,20,20,16,11,'h',{13,10},{5,5,0,0},7,2},
 
 {"Night lizard"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,35,30,20,16,11,'R',{4,8},{29,29,0,0},7,2},
+			    ,35,30,20,16,11,'R',{19,12},{29,29,0,0},7,2},
 
 {"Mughash the Kobold Lord"  ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(NONE8),(EVIL|IM_POISON|MAX_HP|UNIQUE|GOOD)
 			    ,(NONE8),(NONE8)
-			    ,100,20,20,20,11,'k',{12,12},{9,9,9,0},7,3},
+			    ,100,20,20,20,12,'k',{35,30},{9,9,9,0},7,3},
 
 {"Wormtongue, Agent of Saruman",
 			     (MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(0x5L|FROST_BOLT|SLOW)
 			    ,(EVIL|MAX_HP|UNIQUE|SPECIAL)
 			    ,(TRAP_CREATE|HEAL|ST_CLOUD),(NONE8)
-			    ,150,20,20,30,11,'p',{25,10},{4,4,148,0},8,1},
+			    ,150,20,20,30,11,'p',{46,25},{4,4,148,0},8,1},
 
 {"Lagduf, the Snaga"	    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(NONE8),(EVIL|MAX_HP|UNIQUE|GOOD),(NONE8)
 			    ,(NONE8)
-			    ,80,30,20,32,11,'o',{16,12},{9,9,8,8},8,2},
+			    ,80,30,20,32,11,'o',{28,25},{9,9,8,8},8,2},
 
 {"Brown yeek"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
 			      MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,11,10,18,18,11,'y',{4,8},{5,0,0,0},8,1},
+			    ,11,10,18,18,11,'y',{12,11},{5,0,0,0},8,1},
 
 {"Novice Ranger"	    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|
-			     MV_ATT_NORM),(0x9L|MAG_MISS),(GROUP)
-			    ,(NONE8),(NONE8)
-			    ,18,5,20,6,11,'p',{6,8},{4,4,0,0},8,1},
+			     MV_ATT_NORM),(0x9L),(GROUP)
+			    ,(NONE8),(ARROW)
+			    ,18,5,20,6,11,'p',{12,10},{4,4,0,0},8,1},
 
 {"Giant salamander"	    ,(MV_ATT_NORM|MV_20),(0x9L|BREATH_FI)
 			    ,(ANIMAL|IM_FIRE),(NONE8)
-			    ,(NONE8),50,1,6,40,11,'R',{6,7},{106,0,0,0},8,1},
+			    ,(NONE8),50,1,6,40,11,'R',{18,11},{106,106,0,0},8,1},
 
 {"Green mold"		    ,(MV_ONLY_ATT),(NONE8),
 			     (CHARM_SLEEP|ANIMAL|IM_ACID),(NONE8),(NONE8)
-			    ,28,75,2,14,11,'m',{21,8},{94,0,0,0},8,2},
+			    ,28,75,2,14,11,'m',{25,30},{94,0,0,0},8,2},
 
 {"Skeleton orc"		    ,(MV_ATT_NORM|THRO_DR),
 			     (NONE8),(CHARM_SLEEP|ORC|UNDEAD|EVIL|IM_POISON|
 			     IM_FROST|NO_INFRA),(NONE8),(NONE8)
-			    ,26,40,20,36,11,'s',{10,8},{14,0,0,0},8,1},
+			    ,26,40,20,36,11,'s',{30,11},{14,0,0,0},8,1},
 
 {"Seedy looking human"	    ,(HAS_1D2|CARRY_OBJ|CARRY_GOLD|THRO_DR|
 			      MV_ATT_NORM),(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,22,20,20,26,11,'p',{8,9},{17,0,0,0},8,1},
+			    ,22,20,20,26,11,'p',{26,25},{17,17,17,0},8,1},
 
 {"Lemure"		    ,(THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(DEMON|EVIL|GROUP|IM_FIRE)
 			    ,(NONE8),(NONE8)
-			    ,16,30,20,32,11,'I',{13,9},{7,0,0,0},8,3},
+			    ,16,30,20,32,11,'I',{30,11},{7,0,0,0},8,3},
 
 {"Hill Orc"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(ORC|EVIL|GROUP),(NONE8),(NONE8)
-			    ,25,30,20,32,11,'o',{13,9},{9,0,0,0},8,1},
+			    ,25,30,20,32,11,'o',{24,14},{9,9,0,0},8,1},
 
 {"Bandit"		    ,(HAS_1D2|CARRY_OBJ|CARRY_GOLD|THRO_DR|
 			      MV_ATT_NORM),(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,26,10,20,24,11,'p',{8,8},{13,148,0,0},8,2},
+			    ,26,10,20,24,11,'p',{20,16},{13,148,0,0},8,2},
 
 {"Yeti"			    ,(THRO_DR|MV_ATT_NORM),(NONE8),(ANIMAL|IM_FROST)
 			    ,(NONE8),(NONE8)
-			    ,30,10,20,24,11,'Y',{11,9},{51,51,27,0},9,3},
+			    ,30,10,20,24,11,'Y',{28,10},{51,51,27,0},9,3},
 
 {"Bloodshot icky thing"	    ,(MV_ATT_NORM|MV_40),(0xBL|MANA_DRAIN)
 			    ,(ANIMAL|IM_POISON),(NONE8),(NONE8)
-			    ,24,20,14,18,11,'i',{7,8},{65,139,0,0},9,3},
+			    ,24,20,14,18,11,'i',{25,13},{65,139,0,0},9,3},
 
 {"Giant grey rat"	    ,(MULTIPLY|MV_ATT_NORM|MV_20),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,2,20,8,12,11,'r',{2,3},{154,0,0,0},9,1},
+			    ,2,20,8,12,11,'r',{3,6},{154,0,0,0},9,1},
 
 {"Black harpy"		    ,(MV_ATT_NORM|MV_20),(NONE8),(EVIL|ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,19,10,16,22,12,'H',{3,8},{50,50,26,0},9,1},
+			    ,19,10,16,22,12,'H',{16,12},{50,50,26,0},9,1},
 
 {"Orc shaman"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_90|THRO_DR|MV_ATT_NORM)
 			    ,(0x8L|MAG_MISS|CAUSE_LIGHT|BLINK)
 			    ,(EVIL|ORC|HURT_LIGHT)
 			    ,(NONE8),(NONE8)
-			    ,30,20,20,15,11,'o',{9,8},{5,5,0,0},9,1},
+			    ,30,20,20,15,11,'o',{26,11},{5,5,0,0},9,1},
 
 {"Baby blue dragon"	    ,(MV_ATT_NORM|HAS_1D2|CARRY_GOLD|HAS_60|THRO_DR)
 			    ,(0xBL|BREATH_L),(IM_LIGHTNING|EVIL|DRAGON|
 			     MAX_HP),(NONE8),(NONE8)
-			    ,35,70,20,30,11,'d',{10,10},{51,51,28,0},9,2},
+			    ,35,70,20,30,11,'d',{24,11},{51,51,28,0},9,2},
 
 {"Baby white dragon"	    ,(MV_ATT_NORM|HAS_1D2|CARRY_GOLD|HAS_60|THRO_DR)
 			    ,(0xBL|BREATH_FR),(IM_FROST|EVIL|DRAGON|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,35,70,20,30,11,'d',{10,10},{51,51,28,0},9,2},
+			    ,35,70,20,30,11,'d',{24,13},{51,51,28,0},9,2},
 
 {"Baby green dragon"	    ,(MV_ATT_NORM|HAS_1D2|CARRY_GOLD|HAS_60|THRO_DR)
 			    ,(0xBL|BREATH_G),(IM_POISON|EVIL|DRAGON|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,35,70,20,30,11,'d',{10,10},{51,51,28,0},9,2},
+			    ,35,70,20,30,11,'d',{22,14},{51,51,28,0},9,2},
 
 {"Baby black dragon"	    ,(MV_ATT_NORM|HAS_1D2|CARRY_GOLD|HAS_60|THRO_DR)
 			    ,(0xBL|BREATH_A),(IM_ACID|EVIL|DRAGON|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,35,70,20,30,11,'d',{10,10},{51,51,28,0},9,2},
+			    ,35,70,20,30,11,'d',{26,13},{51,51,28,0},9,2},
 
 {"Baby red dragon"	    ,(MV_ATT_NORM|HAS_1D2|CARRY_GOLD|HAS_60|THRO_DR)
 			    ,(0xBL|BREATH_FI),(IM_FIRE|EVIL|DRAGON|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,35,70,20,30,11,'d',{10,11},{51,51,28,0},9,2},
+			    ,35,70,20,30,11,'d',{22,13},{51,51,28,0},9,2},
 
 {"Giant red ant"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,22,60,12,34,11,'a',{4,8},{27,85,0,0},9,2},
+			    ,22,60,12,34,11,'a',{15,12},{27,85,0,0},9,2},
 
 {"Brodda, the Easterling"   ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(NONE8),(MAX_HP|UNIQUE|GOOD),(NONE8),(NONE8)
-			    ,100,20,20,25,11,'p',{30,7},{10,10,10,10},9,2},
+			    ,100,20,20,25,11,'p',{49,16},{10,10,10,10},9,2},
 
 {"King cobra"		    ,(MV_ATT_NORM|MV_40),(NONE8),(ANIMAL|IM_POISON)
 			    ,(NONE8),(NONE8)
-			    ,28,1,8,30,11,'R',{8,10},{144,161,0,0},9,2},
+			    ,28,1,8,30,12,'R',{22,14},{144,161,0,0},9,2},
 
 {"Giant spider"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL|IM_POISON),(NONE8)
 			    ,(NONE8)
-			    ,35,80,8,16,11,'S',{10,10},{32,156,156,32},10,2},
+			    ,35,80,8,16,12,'S',{28,13},{32,156,156,32},10,2},
 
 {"Dark elven mage"	    ,(CARRY_OBJ|HAS_1D2|THRO_DR|MV_ATT_NORM)
 			    ,(0x5L|BLINDNESS|MAG_MISS|CONFUSION)
 			    ,(EVIL|IM_POISON|HURT_LIGHT)
 			    ,(ST_CLOUD|DARKNESS),(NONE8)
-			    ,50,20,20,16,12,'h',{7,10},{5,5,0,0},10,1},
+			    ,50,20,20,16,12,'h',{16,10},{5,5,0,0},10,1},
 
 {"Orfax, Son of Boldor"    ,(CARRY_OBJ|HAS_90|THRO_DR|MV_ATT_NORM)
 			    ,(0x4L|MONSTER|TELE_TO|BLINK|CONFUSION|SLOW)
 			    ,(INTELLIGENT|ANIMAL|EVIL|UNIQUE|GOOD|MAX_HP)
 			    ,(HEAL),(NONE8)
-			   ,80,10,18,20,12,'y',{12,10},{8,7,268,268},10,3},
+			   ,80,10,18,20,12,'y',{28,16},{8,7,268,268},10,3},
 
 {"Dark elven warrior"	    ,(CARRY_OBJ|CARRY_GOLD|HAS_1D2|THRO_DR|
 			      MV_ATT_NORM),(NONE),(EVIL|HURT_LIGHT)
 			    ,(NONE8),(NONE8)
-			    ,50,20,20,16,11,'h',{10,11},{7,7,0,0},10,1},
+			    ,50,20,20,16,12,'h',{36,25},{7,7,7,7},10,1},
 
 {"Clear mushroom patch"	    ,(MULTIPLY|MV_ONLY_ATT|MV_INVIS)
 			    ,(NONE8),(CHARM_SLEEP|ANIMAL|NO_INFRA)
@@ -670,45 +665,45 @@ creature_type c_list[MAX_CREATURES] = {
 {"Grishnakh, the Hill orc"  ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(NONE8),(ORC|EVIL|IM_POISON|MAX_HP|UNIQUE|GOOD)
 			    ,(NONE8),(NONE8)
-			    ,160,20,20,20,11,'o',{15,15},{10,9,10,9},10,3},
+			    ,160,20,20,20,11,'o',{35,23},{10,9,10,9},10,3},
 
 {"Giant white tick"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL|IM_POISON),(NONE8)
-			 ,(NONE8),27,20,12,40,10,'t',{12,8},{160,0,0,0},10,2},
+			 ,(NONE8),27,20,12,40,10,'t',{15,18},{160,0,0,0},10,2},
 
 {"Hairy mold"		   ,(MV_ONLY_ATT),(NONE8),(ANIMAL|CHARM_SLEEP),(NONE8)
-			 ,(NONE8),32,70,2,15,11,'m',{15,8},{151,0,0,0},10,2},
+			 ,(NONE8),32,70,2,15,11,'m',{28,12},{151,0,0,0},10,2},
 
 {"Disenchanter mold"	    ,(MV_ONLY_ATT),(MANA_DRAIN|0xBL)
 			    ,(ANIMAL|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,40,70,2,20,11,'m',{16,8},{206,0,0,0},10,2},
+			    ,40,70,2,20,11,'m',{36,26},{206,0,0,0},10,2},
 
 {"Pseudo dragon"	    ,(MV_ATT_NORM|CARRY_OBJ|CARRY_GOLD|HAS_60)
 			    ,(0xBL|FEAR|CONFUSION),(DRAGON|MAX_HP)
 			    ,(NONE8),(BREATH_LT|BREATH_DA)
-			    ,150,40,20,30,11,'d',{22,9},{51,51,28,0},10,2},
+			    ,150,40,20,30,11,'d',{36,10},{51,51,28,0},10,2},
 
 {"Tengu"		    ,(THRO_DR|MV_ATT_NORM)
 			    ,(0x3L|BLINK|TELE_TO),(DEMON|EVIL|IM_FIRE),(NONE8)
-			   ,(NONE8),40,30,20,32,12,'I',{16,9},{7,0,0,0},10,1},
+			   ,(NONE8),40,30,20,32,12,'I',{35,12},{7,0,0,0},10,1},
 
 {"Creeping gold coins"	    ,(MV_ATT_NORM|HAS_1D2|HAS_90|CARRY_GOLD),(NONE8)
 			    ,(ANIMAL|IM_POISON|NO_INFRA|CHARM_SLEEP)
 			    ,(NONE8),(NONE8)
-			    ,32,10,5,36,10,'$',{18,8},{14,172,0,0},10,3},
+			    ,32,10,5,36,11,'$',{44,10},{14,172,0,0},10,3},
 
 {"Wolf"			  ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL|GROUP),(NONE8)
-			  ,(NONE8),30,20,30,30,12,'C',{6,6},{29,0,0,0},10,1},
+			  ,(NONE8),30,20,30,30,12,'C',{16,8},{29,0,0,0},10,1},
 
 {"Giant fruit fly"	    ,(MULTIPLY|MV_ATT_NORM|MV_75),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,4,10,8,14,12,'F',{2,2},{25,0,0,0},10,6},
+			    ,4,10,8,14,12,'F',{3,5},{25,0,0,0},10,6},
 
 {"Panther"                  ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-                            ,25,0,40,30,12,'f',{10,8},{54,54,0,0},10,2},
+                            ,25,0,40,30,12,'f',{35,20},{54,54,0,0},10,2},
 
 {"Brigand"		    ,(HAS_1D2|CARRY_OBJ|CARRY_GOLD|THRO_DR|
-			      MV_ATT_NORM),(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,35,10,20,32,11,'p',{9,8},{13,149,0,0},10,2},
+			      MV_ATT_NORM),(0x3L),(EVIL),(NONE8),(ARROW)
+			    ,35,10,20,32,11,'p',{25,19},{13,149,0,0},10,2},
 
 {"Baby multi-hued dragon"   ,(MV_ATT_NORM|HAS_1D2|CARRY_GOLD|HAS_60|THRO_DR)
 			    ,(0xBL|BREATH_FI|BREATH_FR|BREATH_G|BREATH_A|
@@ -716,136 +711,136 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(IM_FIRE|IM_FROST|IM_POISON|IM_ACID|IM_LIGHTNING|
 			     EVIL|DRAGON|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,45,70,20,30,11,'d',{10,13},{51,51,28,0},11,2},
+			    ,45,70,20,30,11,'d',{24,16},{51,51,28,0},11,2},
 
 {"Hippogriff"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,30,10,12,14,11,'H',{20,9},{14,35,0,0},11,1},
+			    ,30,10,12,14,12,'H',{38,12},{14,35,0,0},11,1},
 
 {"Orc zombie"		    ,(THRO_DR|MV_ATT_NORM),(NONE8)
 			    ,(CHARM_SLEEP|EVIL|UNDEAD|ORC|IM_FROST|NO_INFRA|
 			     IM_POISON),(NONE8),(NONE8)
-			    ,30,25,20,24,11,'z',{11,8},{3,3,3,0},11,1},
+			    ,30,25,20,24,11,'z',{36,9},{3,3,3,0},11,1},
 
 {"Gnome mage"		    ,(HAS_1D2|CARRY_OBJ|CARRY_GOLD|MV_ATT_NORM|
 			     THRO_DR)
 			    ,(0x4L|BLINK|FROST_BOLT|MONSTER),(EVIL)
 			    ,(DARKNESS),(NONE8)
-			    ,38,10,18,20,11,'h',{7,8},{4,0,0,0},11,2},
+			    ,38,10,18,20,11,'h',{16,11},{4,0,0,0},11,2},
 
 {"Black mamba"		    ,(MV_ATT_NORM|MV_40),(NONE8),(ANIMAL|IM_POISON)
 			    ,(NONE8),(NONE8)
-			    ,40,1,10,32,12,'R',{10,8},{163,0,0,0},12,3},
+			    ,40,1,10,32,12,'R',{28,9},{163,0,0,0},12,3},
 
 {"White wolf"		    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL|GROUP|
 			      IM_FROST),(NONE8),(NONE8)
-			    ,30,20,30,30,12,'C',{7,7},{26,27,0,0},12,1},
+			    ,30,20,30,30,12,'C',{16,9},{26,27,0,0},12,1},
 
 {"Grape jelly"		    ,(MV_ONLY_ATT),(MANA_DRAIN|0xBL)
 			    ,(HURT_LIGHT|CHARM_SLEEP|IM_POISON),(NONE8)
-			  ,(NONE8),60,99,2,1,11,'j',{52,8},{186,0,0,0},12,3},
+			  ,(NONE8),60,99,2,1,11,'j',{58,9},{186,0,0,0},12,3},
 
 {"Nether worm mass"	    ,(MULTIPLY|MV_ATT_NORM|MV_75),(NONE8)
 			    ,(ANIMAL|HURT_LIGHT),(NONE8),(NONE8)
-			    ,6,3,10,15,10,'w',{5,8},{186,0,0,0},12,3},
+			    ,6,3,10,15,10,'w',{7,10},{186,0,0,0},12,3},
 
 {"Golfimbul, the Hill Orc Chief"   ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_2D2)
 			    ,(NONE8),(ORC|EVIL|IM_POISON|IM_FROST|IM_FIRE|
 			     IM_LIGHTNING|MAX_HP|UNIQUE|GOOD)
 			    ,(NONE8),(NONE8)
-			    ,230,20,20,60,11,'o',{30,8},{10,10,9,9},12,3},
+			    ,230,20,20,60,11,'o',{46,18},{10,10,9,9},12,3},
 
 {"Master yeek"		    ,(CARRY_GOLD|CARRY_OBJ|HAS_60|THRO_DR|
 			     MV_ATT_NORM),(0x4L|BLINK|TELE|MONSTER|
 			     BLINDNESS|SLOW),(ANIMAL|EVIL),(ST_CLOUD),(NONE8)
-			    ,28,10,18,24,11,'y',{12,9},{7,0,0,0},12,2},
+			    ,28,10,18,24,12,'y',{25,11},{7,0,0,0},12,2},
 
 {"Priest"		    ,(HAS_1D2|CARRY_GOLD|CARRY_OBJ|MV_ATT_NORM|
 			    THRO_DR),(0x3L|CAUSE_SERIOUS|MONSTER|FEAR)
 			    ,(EVIL|INTELLIGENT)
 			    ,(HEAL),(NONE8)
-			    ,36,40,20,22,11,'p',{12,8},{12,12,0,0},12,1},
+			    ,36,40,20,22,11,'p',{35,10},{12,12,0,0},12,1},
 
 {"Dark elven priest"	    ,(CARRY_OBJ|HAS_1D2|THRO_DR|MV_ATT_NORM)
 			    ,(0x5L|BLINDNESS|CAUSE_SERIOUS|CONFUSION)
 			    ,(EVIL|INTELLIGENT|HURT_LIGHT)
-			    ,(HEAL|DARKNESS),(NONE8)
-			    ,50,30,20,30,12,'h',{7,10},{8,9,0,0},12,1},
+			    ,(HEAL|DARKNESS),(HELLFIRE)
+			    ,50,30,20,30,12,'h',{32,13},{8,9,0,0},12,1},
 
 {"Air spirit"		    ,(THRO_DR|MV_INVIS|MV_ATT_NORM|MV_75),(NONE8)
 			    ,(EVIL|NO_INFRA|IM_POISON|
 			      CHARM_SLEEP),(NONE8),(NONE8)
-			    ,40,20,12,40,13,'E',{8,8},{2,0,0,0},12,2},
+			    ,40,20,12,40,13,'E',{26,10},{2,0,0,0},12,2},
 
 {"Skeleton human"	    ,(THRO_DR|MV_ATT_NORM),(NONE8),
 			     (EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|NO_INFRA|
-			     IM_POISON),(NONE8),(NONE8)
-			    ,38,30,20,30,11,'s',{10,8},{7,0,0,0},12,1},
+			     IM_POISON),(NONE8),(R_EDGED)
+			    ,38,30,20,30,11,'s',{32,10},{7,0,0,0},12,1},
 
 {"Zombie human"		    ,(THRO_DR|MV_ATT_NORM),(NONE8),
 			     (EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|NO_INFRA|
 			     IM_POISON),(NONE8),(NONE8)
-			    ,34,20,20,24,11,'z',{12,8},{3,3,0,0},12,1},
+			    ,34,20,20,24,11,'z',{28,9},{3,3,0,0},12,1},
 
 {"Tiger"                    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-                            ,40,0,40,40,12,'f',{12,10},{54,54,29,0},12,2},
+                            ,40,0,40,40,12,'f',{60,23},{54,54,29,0},12,2},
 
 {"Moaning spirit"	    ,(CARRY_GOLD|CARRY_OBJ|HAS_60|HAS_90|
 			      THRO_WALL|MV_INVIS|MV_ATT_NORM|MV_20)
 			    ,(0xFL|TELE|FEAR)
 			    ,(CHARM_SLEEP|EVIL|UNDEAD|IM_FROST|NO_INFRA)
 			    ,(NONE8),(NONE8)
-			    ,44,10,14,20,12,'G',{5,8},{99,178,0,0},12,2},
+			    ,44,10,14,20,12,'G',{14,9},{99,178,0,0},12,2},
 
 {"Swordsman"		    ,(HAS_1D2|CARRY_GOLD|CARRY_OBJ|THRO_DR|
 			      MV_ATT_NORM),(NONE8),(NONE8)
 			    ,(NONE8),(NONE8)
-			    ,40,20,20,34,11,'p',{12,8},{18,18,0,0},12,1},
+			    ,40,20,20,34,11,'p',{35,30},{18,18,18,18},12,1},
 
 {"Stegocentipede"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,40,30,12,30,12,'c',{13,8},{34,34,62,0},12,2},
+			    ,40,30,12,30,12,'c',{35,9},{34,34,62,0},12,2},
 
 {"Spotted jelly"	    ,(THRO_DR|MV_ONLY_ATT|PICK_UP),(NONE8)
 			    ,(IM_ACID|IM_POISON|ANIMAL|CHARM_SLEEP|NO_INFRA)
 			    ,(NONE8),(NONE8)
-			    ,33,1,12,18,12,'j',{13,8},{115,138,138,0},12,3},
+			    ,33,1,12,18,12,'j',{36,12},{115,138,138,0},12,3},
 
 {"Drider"		    ,(MV_ATT_NORM),(0x8L|CAUSE_LIGHT|CONFUSION)
 			    ,(EVIL|IM_POISON),(DARKNESS),(NONE8)
-			    ,55,80,8,30,11,'S',{10,13},{10,10,156,0},13,2},
+			    ,125,80,8,30,13,'S',{45,30},{10,10,156,0},13,2},
 
 {"Killer brown beetle"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,38,30,10,40,11,'K',{13,8},{41,0,0,0},13,2},
+			    ,38,30,10,40,11,'K',{35,12},{41,0,0,0},13,2},
 
 {"Boldor, King of the Yeeks",(CARRY_OBJ|HAS_90|HAS_1D2|THRO_DR|
 			     MV_ATT_NORM),(0x3L|BLINK|TELE|MONSTER|
 			     BLINDNESS|SLOW),(MAX_HP|
 			     INTELLIGENT|ANIMAL|EVIL|UNIQUE|GOOD),(HEAL)
-			  ,(NONE8),200,10,18,24,12,'y',{20,9},{8,8,7,0},13,3},
+			  ,(NONE8),200,10,18,24,12,'y',{39,16},{8,8,7,0},13,3},
 
 {"Ogre"			    ,(HAS_60|CARRY_GOLD|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(EVIL|GROUP|GIANT),(NONE8),(NONE8)
-			   ,50,30,20,33,11,'O',{13,9},{16,0,0,0},13,2},
+			   ,50,30,20,33,11,'O',{38,11},{16,0,0,0},13,2},
 
 {"Creeping mithril coins"   ,(MV_ATT_NORM|HAS_2D2|HAS_90|CARRY_GOLD),(NONE8)
-			    ,(ANIMAL|IM_POISON|NO_INFRA),(NONE8),(NONE8)
-			   ,45,10,5,50,11,'$',{20,8},{14,172,0,0},13,4},
+			    ,(ANIMAL|IM_POISON|NO_INFRA),(NONE8),(R_EDGED)
+			   ,45,10,5,50,11,'$',{56,12},{14,172,0,0},13,4},
 
 {"Illusionist"		    ,(HAS_1D2|CARRY_GOLD|CARRY_OBJ|THRO_DR|
 			      MV_ATT_NORM),(0x3L|BLINK|TELE|BLINDNESS|
 			      CONFUSION|SLOW|HOLD_PERSON),(EVIL|INTELLIGENT)
 			    ,(HASTE|DARKNESS),(NONE8)
-			    ,50,10,20,10,11,'p',{12,8},{11,0,0,0},13,2},
+			    ,50,10,20,10,12,'p',{32,9},{11,0,0,0},13,2},
 
 {"Druid"		    ,(MV_ATT_NORM|CARRY_OBJ|CARRY_GOLD|HAS_1D2|
 			     THRO_DR),(0x3L|BLINK|HOLD_PERSON|BLINDNESS|
 			     SLOW|FIRE_BOLT),(EVIL|INTELLIGENT)
 			    ,(HASTE|LIGHT_BOLT),(NONE8)
-			    ,50,10,20,10,11,'p',{12,12},{13,13,0,0},13,2},
+			    ,50,10,20,10,12,'p',{34,14},{13,13,0,0},13,2},
 
 {"Black orc"		    ,(HAS_60|CARRY_GOLD|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(EVIL|ORC|GROUP|HURT_LIGHT)
 			    ,(NONE8),(NONE8)
-			    ,45,20,20,36,11,'o',{12,10},{17,17,0,0},13,2},
+			    ,45,20,20,36,11,'o',{34,11},{17,17,0,0},13,2},
 
 {"Ochre jelly"		    ,(THRO_DR|MV_ATT_NORM|PICK_UP),(NONE8)
 			    ,(IM_ACID|IM_POISON|ANIMAL|CHARM_SLEEP|NO_INFRA)
@@ -854,52 +849,54 @@ creature_type c_list[MAX_CREATURES] = {
 
 {"Giant flea"		    ,(MULTIPLY|MV_ATT_NORM|MV_75),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,4,10,8,25,12,'F',{2,2},{25,0,0,0},14,1},
+			    ,4,10,8,25,12,'F',{2,6},{25,0,0,0},14,1},
 
 {"Ufthak of Cirith Ungol"   ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(NONE8),(ORC|EVIL|IM_POISON|IM_FROST|MAX_HP|
 			     UNIQUE|GOOD),(NONE8),(NONE8)
-			    ,200,20,20,50,11,'o',{40,8},{17,17,17,17},14,3},
+			    ,200,20,20,50,11,'o',{65,18},{17,17,17,17},14,3},
 
 {"Giant white dragon fly"   ,(MV_ATT_NORM|MV_40),(BREATH_FR|0xAL)
 			    ,(ANIMAL|IM_FROST),(NONE8),(NONE8)
-			    ,60,50,20,20,11,'F',{5,8},{122,0,0,0},14,3},
+			    ,60,50,20,20,12,'F',{24,9},{122,0,0,0},14,3},
 
 {"Blue icky thing"	    ,(MV_ATT_NORM|MV_40|THRO_DR|MULTIPLY)
 			    ,(0x8L|FEAR|BLINDNESS|CONFUSION)
 			    ,(ANIMAL|IM_POISON|EVIL),(NONE8),(NONE8)
-			    ,20,20,15,20,10,'i',{10,6},{174,210,3,3},14,4},
+			    ,20,20,15,20,10,'i',{30,7},{174,210,3,3},14,4},
 
 {"Hill giant"		    ,(MV_ATT_NORM|HAS_60|CARRY_GOLD|CARRY_OBJ|
 			     THRO_DR|MV_ATT_NORM),(NONE8),(EVIL|GIANT)
 			    ,(NONE8),(NONE8)
-			    ,60,50,20,45,11,'P',{16,10},{19,19,0,0},14,1},
+			    ,60,50,20,45,11,'P',{50,12},{19,19,0,0},14,1},
 
 {"Flesh golem"		    ,(MV_ATT_NORM),(NONE8),(IM_LIGHTNING|CHARM_SLEEP)
 			    ,(NONE8),(NONE8)
-			    ,50,10,12,30,11,'g',{12,8},{5,5,0,0},14,1},
+			    ,50,10,12,30,11,'g',{42,9},{5,5,0,0},14,1},
 
 {"Warg"			    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL|EVIL|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,40,40,20,20,12,'C',{8,8},{31,0,0,0},14,2},
+			    ,40,40,20,20,12,'C',{20,12},{31,0,0,0},14,2},
 
-{"Giant black louse"	    ,(MULTIPLY|MV_ATT_NORM|MV_40),(NONE8),(NONE8)
-			    ,(NONE8),(NONE8)
-			    ,3,10,6,7,12,'l',{1,2},{25,0,0,0},14,1},
+{"Gremlin"	            ,(CARRY_OBJ|MV_ATT_NORM|MV_40|HAS_90|THRO_DR),
+                             (0x4L|CONFUSION|FEAR|SLOW|BLINDNESS|HOLD_PERSON),
+                             (EVIL|GROUP|IM_ACID|IM_LIGHTNING|CHARM_SLEEP)
+			    ,(HEAL|TRAP_CREATE),(NONE8)
+			    ,40,10,6,7,12,'k',{20,23},{54,54,0,0},14,1},
 
 {"Lurker"                   ,(MV_ONLY_ATT|MV_INVIS),(NONE8)
                             ,(NO_INFRA|CHARM_SLEEP|MAX_HP),(NONE8),(NONE8)
-			    ,80,10,30,25,11,'.',{20,10},{7,7,0,0},14,3},
+			    ,80,10,30,25,11,'.',{48,15},{7,7,0,0},14,3},
 
 {"Wererat"		    ,(MV_ATT_NORM|CARRY_GOLD|HAS_60|THRO_DR)
 			    ,(0x9L|CAUSE_SERIOUS|BLINK|FROST_BOLT)
 			    ,(EVIL|ANIMAL),(ST_CLOUD),(NONE8)
-			    ,45,10,10,10,11,'r',{20,8},{54,54,36,0},15,2},
+			    ,45,10,10,10,12,'r',{60,12},{54,54,36,0},15,2},
 
 {"Black ogre"		    ,(HAS_60|CARRY_GOLD|CARRY_OBJ|THRO_DR
 			      |MV_ATT_NORM|MV_20)
 			    ,(NONE8),(EVIL|GROUP|GIANT),(NONE8),(NONE8)
-			    ,75,30,20,33,11,'O',{20,9},{16,16,0,0},15,2},
+			    ,75,30,20,33,11,'O',{52,10},{16,16,0,0},15,2},
 
 {"Magic mushroom patch"	    ,(MV_ONLY_ATT),(0x1L|BLINK|FEAR|SLOW)
 			    ,(ANIMAL|GROUP|CHARM_SLEEP),(DARKNESS),(NONE8)
@@ -908,66 +905,66 @@ creature_type c_list[MAX_CREATURES] = {
 {"Guardian naga"	    ,(HAS_1D2|CARRY_GOLD|CARRY_OBJ|HAS_60|
 			     THRO_DR|MV_ATT_NORM|MV_20),(NONE8),(EVIL),(NONE8)
 			     ,(NONE8)
-			    ,80,120,20,65,11,'n',{24,11},{77,31,31,0},15,2},
+			    ,80,120,20,65,11,'n',{48,14},{77,31,31,0},15,2},
 
 {"Light hound"		   ,(MV_ATT_NORM),(0x5L),(ANIMAL|GROUP),(NONE8)
 			    ,(BREATH_LT)
-			    ,50,0,30,30,11,'Z',{6,6},{29,0,0,0},15,1},
+			    ,50,0,30,30,11,'Z',{7,8},{29,0,0,0},15,1},
 
 {"Dark hound"		  ,(MV_ATT_NORM),(0x5L),(ANIMAL|GROUP),(NONE8)
 			    ,(BREATH_DA)
-			    ,50,0,30,30,11,'Z',{6,6},{29,0,0,0},15,1},
+			    ,50,0,30,30,11,'Z',{7,8},{29,0,0,0},15,1},
 
 {"Half-orc"		    ,(HAS_60|CARRY_GOLD|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(EVIL|ORC|GROUP),(NONE8),(NONE8)
-			    ,50,20,20,40,11,'o',{16,10},{17,17,0,0},15,3},
+			    ,50,20,20,40,11,'o',{38,12},{17,17,0,0},15,3},
 
 {"Giant tarantula"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL|IM_POISON)
 			    ,(NONE8),(NONE8)
-			    ,70,80,8,32,12,'S',{10,15},{156,156,156,0},15,3},
+			    ,70,80,8,32,12,'S',{36,25},{156,156,156,0},15,3},
 
 {"Giant clear centipede"    ,(MV_INVIS|MV_ATT_NORM),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,30,30,12,30,11,'c',{5,8},{34,62,0,0},15,2},
+			    ,30,30,12,30,11,'c',{7,10},{34,62,0,0},15,2},
 
 {"Mirkwood spider"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL|GROUP|IM_POISON)
 			    ,(NONE8),(NONE8)
-			    ,25,80,15,25,12,'S',{9,8},{31,156,156,0},15,2},
+			    ,25,80,15,25,12,'S',{24,12},{31,156,156,0},15,2},
 
 {"Frost giant"		    ,(MV_ATT_NORM|HAS_60|CARRY_GOLD|CARRY_OBJ|
 			     THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(EVIL|IM_FROST|GIANT),(NONE8),(NONE8)
-			    ,75,50,20,50,11,'P',{17,10},{120,16,0,0},15,1},
+			    ,75,50,20,50,11,'P',{50,12},{120,16,0,0},15,1},
 
 {"Griffon"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,70,10,12,15,11,'H',{30,8},{17,36,0,0},15,1},
+			    ,70,10,12,15,11,'H',{65,10},{17,36,0,0},15,1},
 
 {"Homonculous"		    ,(THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(DEMON|EVIL|IM_FIRE),(NONE8),(NONE8)
-			    ,40,30,20,32,11,'I',{8,8},{145,9,0,0},15,3},
+			    ,40,30,20,32,11,'I',{32,12},{145,9,0,0},15,3},
 
 {"Gnome mage"		    ,(CARRY_OBJ|CARRY_GOLD|HAS_60|MV_ATT_NORM|THRO_DR)
 			    ,(0x4L|BLINK|FROST_BOLT|MONSTER),(EVIL|GROUP)
 			    ,(DARKNESS),(NONE8)
-			    ,40,20,20,20,11,'h',{7,8},{4,0,0,0},15,2},
+			    ,40,20,20,20,12,'h',{22,11},{4,0,0,0},15,2},
 
 {"Ethereal hound"	    ,(MV_ATT_NORM|MV_INVIS),(NONE8),(ANIMAL|GROUP)
-			    ,(NONE8),(NONE8)
-			    ,50,0,30,30,11,'Z',{10,6},{29,29,29,0},15,2},
+			    ,(NONE8),(R_EDGED)
+			    ,50,0,30,30,11,'Z',{14,9},{29,29,29,0},15,2},
 
 {"Clay golem"		    ,(MV_ATT_NORM),(NONE8),
 			     (HURT_ROCK|IM_FIRE|IM_LIGHTNING|IM_FROST|
 			      IM_POISON|NO_INFRA|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,50,10,12,30,11,'g',{14,8},{7,7,0,0},15,2},
+			    ,50,10,12,30,11,'g',{19,9},{7,7,0,0},15,2},
 
 {"Umber hulk"		    ,(MV_ATT_NORM),(NONE8)
 			    ,(EVIL|ANIMAL|BREAK_WALL|HURT_ROCK|IM_POISON|
 			     NO_INFRA),(NONE8),(NONE8)
-			    ,75,10,20,50,11,'U',{20,10},{92,5,5,36},16,1},
+			    ,75,10,20,50,12,'U',{56,12},{92,5,5,36},16,1},
 
 {"Orc captain"		    ,(HAS_90|CARRY_GOLD|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(EVIL|ORC),(NONE8),(NONE8)
-			    ,40,20,20,59,11,'o',{20,10},{17,17,17,0},16,3},
+			    ,40,20,20,59,11,'o',{58,14},{17,17,17,0},16,3},
 
 {"Gelatinous cube"	    ,(THRO_DR|MV_ATT_NORM|PICK_UP|HAS_4D2|
 			      CARRY_GOLD|CARRY_OBJ|HAS_60|HAS_90),(NONE8)
@@ -978,169 +975,173 @@ creature_type c_list[MAX_CREATURES] = {
 
 {"Giant green dragon fly"   ,(MV_ATT_NORM|MV_75),(BREATH_G|0xAL),
 			     (IM_POISON|ANIMAL),(NONE8),(NONE8)
-			    ,70,50,12,20,11,'F',{3,8},{156,0,0,0},16,2},
+			    ,70,50,12,20,12,'F',{20,11},{156,0,0,0},16,2},
 
 {"Fire giant"		    ,(MV_ATT_NORM|HAS_60|CARRY_GOLD|CARRY_OBJ|
 			     THRO_DR|MV_ATT_NORM)
 			    ,(NONE8),(EVIL|IM_FIRE|GIANT),(NONE8),(NONE8)
-			    ,54,50,20,60,11,'P',{20,8},{102,102,0,0},16,2},
+			    ,54,50,20,60,11,'P',{56,10},{102,102,0,0},16,2},
 
 {"Hummerhorn"		    ,(MULTIPLY|MV_ATT_NORM|MV_75),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,4,10,8,14,12,'F',{2,2},{234,0,0,0},16,5},
+			    ,4,10,8,14,12,'F',{2,7},{234,0,0,0},16,5},
 
 {"Ulfast, Son of Ulfang"     ,(HAS_90|CARRY_OBJ|THRO_DR|PICK_UP|
 			      MV_ATT_NORM),(NONE8),(EVIL|UNIQUE|GOOD|MAX_HP)
 			     ,(NONE8),(NONE8)
-			     ,200,40,20,40,11,'p',{20,17},{18,18,18,18},16,3},
+			     ,200,40,20,40,11,'p',{36,25},{18,18,18,18},16,3},
 
 {"Quasit"		    ,(MV_ATT_NORM|MV_20|MV_INVIS|
 			      CARRY_OBJ|HAS_1D2),(0xAL|BLINK|TELE_TO|TELE|FEAR
 			     |CONFUSION|BLINDNESS)
 			    ,(INTELLIGENT|DEMON|IM_FIRE|EVIL)
 			    ,(TELE_LEV),(NONE8)
-			    ,50,20,20,30,11,'I',{6,8},{176,51,51,0},16,2},
+			    ,50,20,20,30,11,'I',{18,11},{176,51,51,0},16,2},
 
 {"Imp"			     ,(MV_ATT_NORM|MV_20|MV_INVIS|
 			      CARRY_OBJ|HAS_1D2),(0xAL|BLINK|TELE_TO|TELE|FEAR
 			     |CONFUSION|BLINDNESS),
 			     (DEMON|IM_FIRE|EVIL|NO_INFRA|INTELLIGENT)
 			    ,(TELE_LEV),(NONE8)
-			    ,55,20,20,30,11,'I',{6,8},{152,152,0,0},17,2},
+			    ,55,20,20,30,11,'I',{16,9},{152,152,0,0},17,2},
 
 {"Forest troll"		    ,(MV_ATT_NORM|THRO_DR|HAS_60|CARRY_GOLD|
 			     CARRY_OBJ),(NONE8),(TROLL|EVIL|HURT_LIGHT|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,70,40,20,50,11,'T',{20,10},{3,3,29,0},17,1},
+			    ,70,40,20,50,11,'T',{48,11},{3,3,29,0},17,1},
 
 {"Nar, the Dwarf"	    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|CARRY_OBJ|
 			     HAS_1D2),(0x6L|CAUSE_SERIOUS|BLINDNESS|CONFUSION)
 			    ,(CHARM_SLEEP|IM_POISON|IM_FIRE|IM_FROST|GOOD|
 			     MAX_HP|UNIQUE),(MIND_BLAST|HEAL),(NONE8)
-			    ,250,25,25,70,11,'h',{45,10},{18,18,18,18},17,2},
+			    ,250,25,25,70,11,'h',{55,25},{18,18,18,18},17,2},
 
 {"2-headed hydra"	    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|HAS_1D2)
 			    ,(0xBL|FEAR),(ANIMAL),(NONE8),(NONE8)
-			    ,80,20,20,60,11,'R',{100,3},{36,36,0,0},17,2},
+			    ,80,20,20,60,11,'R',{100,6},{36,36,0,0},17,2},
 
 {"Water spirit"		    ,(MV_ATT_NORM|MV_20),(NONE8),
 			     (EVIL|IM_POISON|NO_INFRA|CHARM_SLEEP)
 			    ,(NONE8),(NONE8)
-			    ,58,40,12,28,12,'E',{9,8},{13,13,0,0},17,1},
+			    ,58,40,12,28,12,'E',{32,11},{13,13,0,0},17,1},
 
 {"Giant brown scorpion"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,62,20,12,44,11,'S',{11,8},{34,86,0,0},17,1},
+			    ,62,20,12,44,11,'S',{32,9},{34,86,0,0},17,1},
 
 {"Earth spirit"		    ,(MV_ATT_NORM|MV_20|THRO_WALL|THRO_DR|PICK_UP)
 			    ,(NONE8),(EVIL|HURT_ROCK|IM_POISON|NO_INFRA|
 			     IM_FIRE|IM_FROST|IM_LIGHTNING|CHARM_SLEEP)
 			    ,(NONE8),(NONE8)
-			    ,64,50,10,40,12,'E',{13,8},{7,7,0,0},17,2},
+			    ,64,50,10,40,12,'E',{34,9},{7,7,0,0},17,2},
 
 {"Fire spirit"		    ,(MV_ATT_NORM|MV_20),
 			     (NONE8),(EVIL|IM_POISON|IM_FIRE|CHARM_SLEEP)
 			    ,(NONE8),(NONE8)
-			    ,75,20,16,30,12,'E',{10,9},{101,101,0,0},18,2},
+			    ,75,20,16,30,12,'E',{38,10},{101,101,0,0},18,2},
 
 {"Fire hound"		  ,(MV_ATT_NORM),(0xAL|BREATH_FI)
 			    ,(ANIMAL|GROUP|IM_FIRE),(NONE8)
 			    ,(NONE8)
-			    ,70,0,30,30,11,'Z',{10,6},{105,105,105,0},18,1},
+			    ,70,0,30,30,11,'Z',{11,8},{105,105,105,0},18,1},
 
 {"Cold hound"		  ,(MV_ATT_NORM),(0xAL|BREATH_FR)
 			    ,(ANIMAL|GROUP|IM_FROST),(NONE8)
 			    ,(NONE8)
-			    ,70,0,30,30,11,'Z',{10,6},{122,54,29,0},18,1},
+			    ,70,0,30,30,11,'Z',{11,8},{122,54,29,0},18,1},
 
 {"Energy hound"		   ,(MV_ATT_NORM),(0xAL|BREATH_L)
 			    ,(ANIMAL|GROUP|IM_LIGHTNING),(NONE8)
 			    ,(NONE8)
-			    ,70,0,30,30,11,'Z',{10,6},{131,131,131,0},18,1},
+			    ,70,0,30,30,11,'Z',{11,8},{131,131,131,0},18,1},
 
 {"Mimic"                    ,(MV_ONLY_ATT),(0x6L|FROST_BOLT|BLINDNESS|FEAR|
 			     CONFUSION|CAUSE_SERIOUS),(NO_INFRA|CHARM_SLEEP)
 			    ,(NONE8),(NONE8)
-			    ,60,0,25,30,11,'!',{10,10},{152,12,12,0},18,3},
+			    ,60,0,25,30,11,'!',{32,16},{152,12,12,0},18,3},
 
 {"Blink dog"		    ,(MV_ATT_NORM|MV_20),(0x4L|BLINK|TELE_TO)
 			    ,(ANIMAL|GROUP),(NONE8),(NONE8)
-			    ,50,10,20,20,12,'C',{8,8},{31,0,0,0},18,2},
+			    ,50,10,20,20,12,'C',{9,9},{31,0,0,0},18,2},
 
 {"Uruk-Hai"		    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|CARRY_OBJ|HAS_60)
 			    ,(NONE8),(ORC|EVIL|IM_POISON|MAX_HP|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,68,20,20,50,11,'o',{10,8},{18,18,0,0},18,1},
+			    ,68,20,20,50,11,'o',{35,10},{18,18,0,0},18,1},
 
 {"Shagrat, the orc captain", (MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			     ,(NONE8),(ORC|EVIL|IM_POISON|MAX_HP|UNIQUE|GOOD)
 			     ,(NONE8),(NONE8)
-			     ,400,20,20,60,11,'o',{40,10},{20,20,18,18},18,2},
+			     ,400,20,20,60,11,'o',{60,18},{20,20,18,18},18,2},
 
 {"Gorbag, the orc captain", (MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			     ,(NONE8),(ORC|EVIL|IM_POISON|MAX_HP|UNIQUE|GOOD)
 			     ,(NONE8),(NONE8)
-			     ,400,20,20,60,11,'o',{40,10},{20,20,18,18},18,3},
+			     ,400,20,20,60,11,'o',{63,13},{20,20,18,18},18,3},
 
 {"Shambling mound"	    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|HAS_90)
 			    ,(NONE8),(CHARM_SLEEP|ANIMAL|EVIL),(NONE8),(NONE8)
-			    ,75,40,20,16,11,',',{20,6},{203,7,7,0},18,2},
+			    ,75,40,20,16,11,',',{50,9},{203,7,7,0},18,2},
 
 {"Stone giant"		    ,(MV_ATT_NORM|PICK_UP|THRO_DR|CARRY_GOLD|
 			     CARRY_OBJ|HAS_60),(NONE8),(EVIL|GIANT)
 			    ,(NONE8),(NONE8)
-			    ,90,50,20,75,11,'P',{24,8},{20,20,0,0},18,1},
+			    ,90,50,20,75,11,'P',{64,10},{20,20,0,0},18,1},
 
 {"Giant black dragon fly"   ,(MV_ATT_NORM|MV_75),(BREATH_A|0x9L),
 			     (IM_ACID|ANIMAL),(NONE8),(NONE8)
-			    ,68,50,12,20,12,'F',{3,8},{0,0,0,0},18,2},
+			    ,68,50,12,20,12,'F',{15,10},{0,0,0,0},18,2},
 
 {"Stone golem"		    ,(MV_ATT_NORM),(NONE8),(HURT_ROCK|IM_FIRE|
 			     IM_FROST|IM_LIGHTNING|IM_POISON|CHARM_SLEEP|
-			     NO_INFRA),(NONE8),(NONE8)
-			    ,100,10,12,75,10,'g',{28,8},{9,9,0,0},19,2},
+			     NO_INFRA),(NONE8),(R_EDGED)
+			    ,100,10,12,75,10,'g',{35,9},{9,9,0,0},19,2},
 
 {"Red mold"		    ,(MV_ONLY_ATT),(NONE8),(IM_FIRE|IM_POISON|ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,64,70,2,16,11,'m',{17,8},{108,0,0,0},19,1},
+			    ,64,70,2,16,11,'m',{38,23},{108,0,0,0},19,1},
+
+{"Pink elephant"            ,(MV_ATT_NORM|MV_20|THRO_DR), (0xEL|BLINK),
+                             (ANIMAL|MAX_HP),(NONE8),(R_EDGED)
+			    ,500,0,40,150,12,'E',{70,60},{286,286,0,0},19,1},
 
 {"Giant gold dragon fly"    ,(MV_ATT_NORM|MV_75),(0x9L),
-			     (IM_FIRE|ANIMAL),(BREATH_SD),(NONE8)
-			    ,78,50,12,20,12,'F',{3,8},{26,0,0,0},18,2},
+			     (IM_FIRE|ANIMAL),(BREATH_SD|IM_SOUND),(NONE8)
+			    ,78,50,12,20,12,'F',{20,12},{26,0,0,0},18,2},
 
 {"Bolg, Son of Azog"	    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_2D2)
 			    ,(NONE8),(ORC|EVIL|IM_POISON|MAX_HP|UNIQUE|GOOD)
 			    ,(NONE8),(NONE8)
-			    ,800,20,20,50,12,'o',{50,10},{19,19,19,19},20,4},
+			    ,800,20,20,50,12,'o',{67,19},{19,19,19,19},20,4},
 
 {"Phase spider"		    ,(MV_ATT_NORM),(0x5L|BLINK|TELE_TO)
 			    ,(ANIMAL|GROUP|IM_POISON),(NONE8),(NONE8)
-			    ,60,80,15,25,12,'S',{6,8},{31,156,156,0},20,2},
+			    ,60,80,15,25,12,'S',{7,10},{31,156,156,0},20,2},
 
 {"3-headed hydra"	    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|HAS_2D2|HAS_1D2)
 			    ,(0x9L|FEAR),(ANIMAL),(NONE8),(NONE8)
-			    ,350,20,20,65,12,'R',{100,5},{36,36,36,0},20,2},
+			    ,350,20,20,65,12,'R',{100,10},{36,36,36,0},20,2},
 
 {"Earth hound"		    ,(MV_ATT_NORM),(0xAL)
 			    ,(ANIMAL|GROUP),(BREATH_SH)
 			    ,(NONE8)
-			    ,200,0,30,30,11,'Z',{15,8},{31,31,58,58},20,1},
+			    ,200,0,30,30,11,'Z',{19,10},{31,31,58,58},20,1},
 
 {"Air hound"		    ,(MV_ATT_NORM),(0xAL|BREATH_G)
 			    ,(ANIMAL|GROUP|IM_POISON),(NONE8)
 			    ,(NONE8)
-			    ,200,0,30,30,11,'Z',{15,8},{31,31,58,58},20,1},
+			    ,200,0,30,30,11,'Z',{19,10},{31,31,58,58},20,1},
 
 {"Sabre-tooth tiger"        ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-                            ,120,0,40,50,12,'f',{20,14},{56,56,32,32},20,2},
+                            ,120,0,40,50,13,'f',{70,30},{56,56,32,32},20,2},
 
 {"Water hound"		    ,(MV_ATT_NORM),(0xAL|BREATH_A)
 			    ,(ANIMAL|GROUP|IM_ACID),(NONE8)
 			    ,(NONE8)
-			    ,200,0,30,30,11,'Z',{15,8},{113,113,58,58},20,2},
+			    ,200,0,30,30,11,'Z',{19,10},{113,113,58,58},20,2},
 
 {"Chimera"		    ,(MV_ATT_NORM),(0xAL|BREATH_FI),(IM_FIRE)
 			    ,(NONE8),(NONE8)
-			    ,200,10,12,15,11,'H',{13,8},{32,105,105,0},20,1},
+			    ,200,10,12,15,11,'H',{40,9},{32,105,105,0},20,1},
 
 {"Quylthulg"		    ,(MV_INVIS),(0x4L|BLINK|MONSTER),(CHARM_SLEEP)
 			    ,(NONE8),(NONE8)
@@ -1148,66 +1149,66 @@ creature_type c_list[MAX_CREATURES] = {
 
 {"Sasquatch"		    ,(MV_ATT_NORM|THRO_DR),(NONE8),(ANIMAL|IM_FROST)
 			    ,(NONE8),(NONE8)
-			    ,180,10,15,40,12,'Y',{20,19},{56,56,37,0},20,3},
+			    ,180,10,15,40,12,'Y',{52,22},{56,56,37,0},20,3},
 
 {"Werewolf"		    ,(MV_ATT_NORM|MV_20|PICK_UP|THRO_DR)
 			    ,(NONE8),(ANIMAL|EVIL),(NONE8),(NONE8)
-			    ,150,70,15,30,11,'C',{20,22},{29,29,32,0},20,1},
+			    ,150,70,15,30,11,'C',{48,27},{29,29,32,0},20,1},
 
 {"Dark elven lord"	    ,(CARRY_OBJ|HAS_2D2|THRO_DR|MV_ATT_NORM)
 			    ,(0x5L|BLINDNESS|FROST_BOLT|FIRE_BOLT|CONFUSION)
 			    ,(EVIL|HURT_LIGHT),(HASTE|DARKNESS),(NONE8)
-			    ,500,30,20,40,12,'h',{18,15},{20,18,0,0},20,2},
+			    ,500,30,20,40,13,'h',{52,22},{20,18,0,0},20,2},
 
 {"Cloud giant"		    ,(MV_ATT_NORM|THRO_DR|PICK_UP|CARRY_OBJ|
 			      CARRY_GOLD|HAS_90)
 			    ,(NONE8),(EVIL|GIANT|IM_LIGHTNING),(NONE8),(NONE8)
-			    ,125,50,20,60,11,'P',{24,10},{130,130,0,0},20,1},
+			    ,125,50,20,60,11,'P',{70,15},{130,130,0,0},20,1},
 
 {"Ugluk, the Uruk-Hai"	    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			     ,(NONE8),(ORC|EVIL|IM_POISON|MAX_HP|UNIQUE|GOOD)
 			     ,(NONE8),(NONE8)
-			    ,550,20,20,90,11,'o',{40,16},{18,18,18,18},20,4},
+			    ,550,20,20,90,11,'o',{69,25},{18,18,18,18},20,4},
 
 {"Lugdush, the Uruk-Hai"    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(NONE8),(ORC|EVIL|IM_POISON|IM_FROST|IM_FIRE|
 			     MAX_HP|GOOD|UNIQUE|CHARM_SLEEP)
 			    ,(NONE8),(NONE8)
-			    ,550,20,20,95,11,'o',{40,18},{20,20,18,18},21,3},
+			    ,550,20,20,95,11,'o',{58,27},{20,20,18,18},21,3},
 
 {"Blue dragon bat"	    ,(MV_ATT_NORM|MV_40),(BREATH_L|0x4L)
 			    ,(ANIMAL|IM_LIGHTNING),(NONE8),(NONE8)
-			    ,54,50,12,26,13,'b',{4,4},{131,0,0,0},21,1},
+			    ,54,50,12,26,13,'b',{15,9},{131,0,0,0},21,1},
 
 {"Mimic"                    ,(MV_ONLY_ATT),(0x5L|FIRE_BOLT|CAUSE_SERIOUS|FEAR|
 			     BLINDNESS|CONFUSION|MONSTER),(NO_INFRA|
 			     CHARM_SLEEP),(NONE8),(NONE8)
-			    ,60,0,30,40,11,'?',{10,14},{152,132,12,12},21,3},
+			    ,60,0,30,40,11,'?',{38,18},{152,132,12,12},21,3},
 
 {"Fire vortex"		    ,(MV_ATT_NORM|MV_40),(BREATH_FI|0x6L)
 			    ,(IM_FIRE|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,100,0,100,30,11,'v',{9,9},{239,0,0,0},21,1},
+			    ,100,0,100,30,12,'v',{11,12},{239,0,0,0},21,1},
 
 {"Water vortex"		    ,(MV_ATT_NORM|MV_40),(BREATH_A|0x6L)
 			    ,(IM_ACID|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,100,0,100,30,11,'v',{9,9},{240,0,0,0},21,1},
+			    ,100,0,100,30,12,'v',{11,12},{240,0,0,0},21,1},
 
 {"Cold vortex"		    ,(MV_ATT_NORM|MV_40),(BREATH_FR|0x6L)
 			    ,(IM_FROST|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,100,0,100,30,11,'v',{9,9},{241,0,0,0},21,1},
+			    ,100,0,100,30,12,'v',{11,12},{241,0,0,0},21,1},
 
 {"Energy vortex"	    ,(MV_ATT_NORM|MV_40),(BREATH_L|0x6L)
 			    ,(IM_LIGHTNING|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,130,0,100,30,11,'v',{12,12},{242,0,0,0},21,1},
+			    ,130,0,100,30,12,'v',{17,14},{242,0,0,0},21,1},
 
 {"Mummified orc"	    ,(MV_ATT_NORM|CARRY_GOLD|CARRY_OBJ|HAS_90|THRO_DR)
 			    ,(NONE8),(EVIL|ORC|UNDEAD|IM_FROST|NO_INFRA|
 			     IM_POISON|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,56,75,20,28,11,'M',{15,8},{13,13,0,0},21,1},
+			    ,56,75,20,28,11,'M',{48,10},{13,13,0,0},21,1},
 
 {"Killer stag beetle"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,80,30,12,55,11,'K',{20,8},{41,10,0,0},22,1},
+			    ,80,30,12,55,11,'K',{52,11},{41,10,0,0},22,1},
 
 {"Iron golem"		    ,(MV_ATT_NORM),(SLOW|0x7L)
 			    ,(IM_FIRE|IM_FROST|IM_LIGHTNING|IM_POISON|
@@ -1216,86 +1217,87 @@ creature_type c_list[MAX_CREATURES] = {
 
 {"Giant yellow scorpion"    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8)
 			    ,(NONE8)
-			    ,60,20,12,38,11,'S',{12,8},{31,167,0,0},22,1},
+			    ,60,20,12,38,11,'S',{44,11},{31,167,0,0},22,1},
 
 {"Black ooze"		    ,(CARRY_GOLD|CARRY_OBJ|HAS_60|PICK_UP|MULTIPLY|
 			      THRO_DR|THRO_CREAT|MV_ATT_NORM|MV_40)
 			    ,(0xBL|MANA_DRAIN),(IM_POISON|ANIMAL),(NONE8)
 			    ,(NONE8)
-			    ,7,1,10,6,9,'j',{6,8},{138,0,0,0},23,1},
+			    ,7,1,10,6,9,'j',{16,11},{138,0,0,0},23,1},
 
 {"Hardened warrior"	    ,(HAS_1D2|CARRY_GOLD|CARRY_OBJ|THRO_DR|PICK_UP|
-			      MV_ATT_NORM),(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,60,40,20,40,11,'p',{15,11},{18,18,0,0},23,1},
+			      MV_ATT_NORM),(NONE8),(EVIL),(NONE8),(ARROW)
+			    ,60,40,20,40,12,'p',{60,32},{18,18,18,18},23,1},
 
 {"Azog, King of the Uruk-Hai",(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_2D2)
 			   ,(NONE8),(ORC|EVIL|IM_POISON|MAX_HP|UNIQUE|GOOD)
 			   ,(NONE8),(NONE8)
-			   ,1111,20,20,80,12,'o',{60,15},{23,23,23,0},23,5},
+			   ,1111,20,20,80,12,'o',{72,28},{23,23,23,0},23,5},
 
 {"Master Rogue"		    ,(HAS_2D2|CARRY_GOLD|CARRY_OBJ
-			     |THRO_DR|PICK_UP|MV_ATT_NORM),(NONE8)
-			    ,(EVIL),(NONE8),(NONE8)
-			   ,110,40,20,30,12,'p',{15,9},{16,16,231,0},23,2},
+			     |THRO_DR|PICK_UP|MV_ATT_NORM),(0x3L)
+			    ,(EVIL),(NONE8),(ARROW)
+			   ,110,40,20,30,13,'p',{42,30},{16,16,231,0},23,2},
 
 {"Red dragon bat"	    ,(MV_ATT_NORM|MV_40),(BREATH_FI|0x4L)
 			    ,(IM_FIRE|ANIMAL),(NONE8),(NONE8)
-			    ,60,50,12,28,13,'b',{3,8},{105,0,0,0},23,1},
+			    ,60,50,12,28,13,'b',{15,12},{105,0,0,0},23,1},
 
 {"Killer blue beetle"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL),(NONE8)
-			  ,(NONE8),85,30,14,55,11,'K',{20,8},{44,0,0,0},23,1},
+			  ,(NONE8),85,30,14,55,11,'K',{55,11},{44,0,0,0},23,1},
 
 {"Giant bronze dragon fly"  ,(MV_ATT_NORM|MV_75),(0x9L),
-			     (CHARM_SLEEP|ANIMAL),(BREATH_CO),(NONE8)
-			    ,70,50,12,20,12,'F',{3,8},{0,0,0,0},18,1},
+			     (CHARM_SLEEP|ANIMAL),(BREATH_CO|IM_CONFUSION),
+                             (NONE8)
+			    ,70,50,12,20,12,'F',{12,12},{0,0,0,0},18,1},
 
 {"Forest wight"		    ,(MV_ATT_NORM|MV_20|THRO_DR|CARRY_GOLD|
 			      CARRY_OBJ|HAS_60|HAS_90)
 			    ,(0xAL|FEAR|MANA_DRAIN)
 			    ,(EVIL|NO_INFRA|UNDEAD|IM_FROST|IM_POISON|
 			      HURT_LIGHT|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,140,30,20,30,11,'W',{12,8},{5,5,187,0},24,1},
+			    ,140,30,20,30,11,'W',{38,9},{5,5,187,0},24,1},
 
 {"Ibun, Son of Mim"	    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(0x8L|SLOW|FIRE_BOLT),(UNIQUE|IM_FROST|IM_FIRE|
 			     GOOD|CHARM_SLEEP|MAX_HP),(HEAL),(NONE8)
-			    ,300,10,20,80,11,'h',{55,15},{19,19,19,204},24,2},
+			    ,300,10,20,80,11,'h',{67,18},{19,19,19,204},24,2},
 
 {"Khim, Son of Mim"	    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(0x8L|SLOW|FIRE_BOLT),(UNIQUE|IM_FROST|IM_FIRE|
 			     GOOD|CHARM_SLEEP|MAX_HP),(HEAL),(NONE8)
-			    ,300,10,20,80,11,'h',{55,15},{19,19,19,204},24,2},
+			    ,300,10,20,80,11,'h',{62,18},{19,19,19,204},24,2},
 
 {"4-headed hydra"	    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|HAS_4D2)
 			    ,(0x7L|FEAR),(ANIMAL),(NONE8),(NONE8)
-			    ,350,20,20,70,12,'R',{100,6},{36,36,36,36},24,2},
+			    ,350,20,20,70,12,'R',{100,15},{36,36,36,36},24,2},
 
 {"Mummified human"	    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_90)
 			    ,(NONE8),(EVIL|NO_INFRA|UNDEAD|IM_FROST|
 			     IM_POISON|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,70,60,20,34,11,'M',{17,9},{13,13,0,0},24,1},
+			    ,70,60,20,34,11,'M',{52,11},{13,13,0,0},24,1},
 
 {"Vampire bat"		    ,(MV_ATT_NORM|MV_40),(NONE8)
 			    ,(EVIL|UNDEAD|IM_FROST|IM_POISON|
 			     CHARM_SLEEP|NO_INFRA),(NONE8),(NONE8)
-			    ,150,50,12,40,12,'b',{9,10},{236,236,0,0},24,2},
+			    ,150,50,12,40,13,'b',{38,14},{236,236,0,0},24,2},
 
 {"Sangahyando of Umbar"	    ,(MV_ATT_NORM|CARRY_OBJ|HAS_1D2|HAS_90|THRO_DR)
 			    ,(0x4L|SLOW),(CHARM_SLEEP|IM_FIRE|UNIQUE|
 			     IM_LIGHTNING|GOOD|MAX_HP),(FORGET),(NONE8)
-			,400,25,25,80,11,'p',{80,10},{22,22,22,22},24,2},
+			,400,25,25,80,11,'p',{89,19},{22,22,22,22},24,2},
 
 {"Angamaite of Umbar"	    ,(MV_ATT_NORM|CARRY_OBJ|HAS_1D2|HAS_90|THRO_DR)
 			    ,(0x4L|SLOW),(CHARM_SLEEP|IM_FIRE|IM_LIGHTNING|
 			     GOOD|MAX_HP|UNIQUE),(FORGET),(NONE8)
-			,400,25,25,80,11,'p',{80,10},{22,22,22,22},24,2},
+			,400,25,25,80,11,'p',{93,15},{22,22,22,22},24,2},
 
 {"Banshee"		    ,(MV_ATT_NORM|MV_20|MV_40|CARRY_GOLD|CARRY_OBJ|
 			     HAS_1D2|THRO_WALL|MV_INVIS|PICK_UP)
 			    ,(0xFL|TELE|MANA_DRAIN)
 			    ,(NO_INFRA|UNDEAD|EVIL|IM_FROST|
 			     CHARM_SLEEP|IM_POISON),(NONE8),(NONE8)
-			    ,60,10,20,24,12,'G',{6,8},{99,188,0,0},24,2},
+			    ,60,10,20,24,12,'G',{55,16},{99,188,0,0},24,2},
 
 {"Pukelman"		    ,(MV_ATT_NORM),(ACID_BOLT|SLOW|CONFUSION|0x4L)
 			    ,(IM_FIRE|IM_FROST|IM_LIGHTNING|IM_POISON|
@@ -1305,94 +1307,94 @@ creature_type c_list[MAX_CREATURES] = {
 {"Dark elven druid"	    ,(MV_ATT_NORM|CARRY_OBJ|HAS_1D2|THRO_DR)
 			    ,(0x6L|MONSTER|CONFUSION),(IM_POISON|
 			     CHARM_SLEEP|EVIL|HURT_LIGHT)
-			    ,(HEAL|S_SPIDER|DARKNESS),(NONE8)
-			    ,500,10,15,75,12,'h',{20,20},{6,6,20,0},25,3},
+			    ,(HEAL|S_SPIDER|DARKNESS),(HELLFIRE)
+			    ,500,10,15,75,12,'h',{55,23},{6,6,20,0},25,3},
 
 {"Stone troll"		    ,(MV_ATT_NORM|THRO_DR|HAS_60|CARRY_GOLD|
 			     CARRY_OBJ),(NONE8)
 			    ,(TROLL|EVIL|HURT_LIGHT|HURT_ROCK|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,85,50,20,40,11,'T',{23,10},{5,5,41,0},25,1},
+			    ,85,50,20,40,11,'T',{56,13},{5,5,41,0},25,1},
 
 {"Troll priest"		    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|CARRY_OBJ|
 			     HAS_90),(0x5L|CAUSE_LIGHT|BLINK|FEAR|MAG_MISS)
 			    ,(TROLL|EVIL|HURT_LIGHT|CHARM_SLEEP|MAX_HP)
 			    ,(DARKNESS),(NONE8)
-			    ,100,30,20,50,11,'T',{23,13},{7,7,41,0},25,1},
+			    ,100,30,20,50,11,'T',{52,15},{7,7,41,0},25,1},
 
 {"Wereworm"		    ,(MV_ATT_NORM),(NONE8),(IM_ACID|ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,300,20,15,70,11,'w',{100,11},{32,139,224,156},
+			    ,300,20,15,70,12,'w',{128,13},{32,139,224,156},
 								    25,3},
 
 {"Carrion crawler"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL|IM_POISON)
 			    ,(NONE8),(NONE8)
-			    ,60,10,15,40,11,'c',{20,12},{253,253,0,0},25,2},
+			    ,60,10,15,40,12,'c',{65,18},{253,253,0,0},25,2},
 
 {"Killer red beetle"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,85,30,14,50,11,'K',{20,8},{84,0,0,0},25,2},
+			    ,85,30,14,50,11,'K',{52,11},{84,0,0,0},25,2},
 
 {"Giant grey ant lion"	    ,(MV_ATT_NORM|MV_20|THRO_CREAT),(NONE8),(ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,90,40,10,40,11,'a',{19,8},{39,0,0,0},26,1},
+			    ,90,40,10,40,11,'a',{56,10},{39,0,0,0},26,1},
 
 {"Ulwarth, Son of Ulfang"      ,(HAS_90|CARRY_OBJ|THRO_DR|PICK_UP|
 			      MV_ATT_NORM),(NONE8),(EVIL|UNIQUE|GOOD)
 			    ,(NONE8),(NONE8)
-			    ,500,40,20,40,11,'p',{80,11},{22,22,22,0},26,4},
+			    ,500,40,20,40,11,'p',{84,25},{22,22,22,0},26,4},
 
 {"Displacer beast"          ,(MV_ATT_NORM|MV_INVIS),(NONE8),(ANIMAL)
                             ,(NONE8),(NONE8)
-			    ,100,20,35,100,11,'f',{25,10},{37,9,9,9},26,2},
+			    ,100,20,35,100,12,'f',{56,12},{37,9,9,9},26,2},
 
 {"Giant fire tick"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL|IM_FIRE)
 			    ,(NONE8),(NONE8)
-			    ,90,20,14,54,11,'t',{16,8},{109,0,0,0},26,1},
+			    ,90,20,14,54,11,'t',{45,10},{109,0,0,0},26,1},
 
 {"Cave ogre"		    ,(HAS_60|CARRY_GOLD|CARRY_OBJ|THRO_DR
 			      |MV_ATT_NORM)
 			    ,(NONE8),(EVIL|GROUP|GIANT),(NONE8),(NONE8)
-			    ,42,30,20,33,11,'O',{30,9},{20,20,0,0},26,1},
+			    ,42,30,20,33,11,'O',{72,11},{20,20,0,0},26,1},
 
 {"White wraith"		    ,(CARRY_GOLD|CARRY_OBJ|HAS_1D2|THRO_DR|
 			     MV_ATT_NORM),(0x8L|FEAR|CAUSE_SERIOUS)
 			    ,(UNDEAD|EVIL|NO_INFRA|IM_FROST|IM_POISON|
 			      CHARM_SLEEP|HURT_LIGHT),(DARKNESS),(NONE8)
-			    ,175,10,20,40,11,'W',{15,8},{5,5,189,0},26,1},
+			    ,175,10,20,40,11,'W',{70,23},{5,5,189,0},26,1},
 
 {"Monadic Deva"		    ,(MV_ATT_NORM|THRO_DR|PICK_UP|CARRY_OBJ|
 			      HAS_2D2)
 			    ,(0x3L|FEAR|BLINDNESS|CONFUSION)
 			    ,(IM_POISON|IM_ACID|CHARM_SLEEP|MAX_HP)
 			    ,(FORGET),(NONE8)
-			    ,220,255,30,60,11,'A',{25,12}
+			    ,220,255,30,60,11,'A',{65,30}
 			    ,{17,17,17,17},26,6},
 
 {"Mim, betrayer of Turin"   ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_2D2)
 			    ,(0x6L|FEAR|ACID_BOLT),(EVIL|MAX_HP|IM_FROST|
 			     IM_FIRE|IM_POISON|IM_ACID|IM_LIGHTNING|UNIQUE|
 			     GOOD|CHARM_SLEEP),(ACID_BALL|HEAL),(NONE8)
-			    ,1000,20,20,80,12,'h',{100,11},{20,20,20,204},
+			    ,1000,20,20,80,12,'h',{120,23},{20,20,20,204},
 								   27,4},
 
 {"Killer fire beetle"	    ,(MV_ATT_NORM),(NONE8),(IM_FIRE|ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,95,30,14,45,11,'K',{13,8},{41,110,0,0},27,1},
+			    ,95,30,14,45,11,'K',{70,30},{41,110,0,0},27,1},
 
 {"Creeping adamantite coins",(MV_ATT_NORM|HAS_2D2|HAS_90|CARRY_GOLD),(NONE8)
 			    ,(ANIMAL|IM_POISON|NO_INFRA),(NONE8),(NONE8)
-			   ,45,10,5,50,12,'$',{20,25},{161,172,10,10},27,4},
+			   ,45,10,5,50,12,'$',{65,29},{161,172,10,10},27,4},
 
 {"Algroth"		    ,(MV_ATT_NORM|THRO_DR|HAS_60|CARRY_GOLD|
 			     CARRY_OBJ),(NONE8),(TROLL|EVIL|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,150,40,20,60,11,'T',{21,12},{238,238,29,0},27,1},
+			    ,150,40,20,60,11,'T',{65,17},{238,238,29,0},27,1},
 
 {"Vibration hound"	      ,(MV_ATT_NORM),(0x5L)
 			    ,(ANIMAL|GROUP|CHARM_SLEEP),(BREATH_SD)
 			    ,(NONE8)
-			    ,250,0,30,30,11,'Z',{25,10},{36,36,58,58},27,3},
+			    ,250,0,30,30,11,'Z',{28,12},{36,36,58,58},27,3},
 
 {"Nexus hound"		  ,(MV_ATT_NORM),(0x5L)
 			    ,(ANIMAL|GROUP|CHARM_SLEEP),(BREATH_NE)
@@ -1402,24 +1404,24 @@ creature_type c_list[MAX_CREATURES] = {
 {"Ogre magi"		,(CARRY_GOLD|CARRY_OBJ|HAS_1D2|THRO_DR|MV_ATT_NORM)
 			    ,(0x4L|HOLD_PERSON|FROST_BALL|MONSTER)
 			    ,(EVIL|GIANT),(HEAL|TRAP_CREATE),(NONE8)
-			  ,300,30,20,40,11,'O',{30,12},{20,20,20,20},27,2},
+			  ,300,30,20,40,12,'O',{69,30},{20,20,20,20},27,2},
 
 {"Lokkak, the Ogre Chieftan",(MV_ATT_NORM|CARRY_OBJ|HAS_2D2|THRO_DR)
 			    ,(NONE8),(GIANT|EVIL|IM_POISON|MAX_HP|GOOD|UNIQUE)
 			    ,(NONE8),(NONE8)
-			,1500,20,20,100,12,'O',{90,16},{235,235,235,0},27,2},
+			,1500,20,20,100,12,'O',{115,25},{235,235,235,0},27,2},
 
 {"Vampire"		    ,(HAS_1D2|CARRY_GOLD|CARRY_OBJ|HAS_60|
 			      THRO_DR|MV_ATT_NORM)
 			    ,(0x9L|HOLD_PERSON|FEAR|TELE_TO|CAUSE_SERIOUS)
 			    ,(UNDEAD|EVIL|NO_INFRA|IM_FROST|IM_POISON|
 			     CHARM_SLEEP|HURT_LIGHT)
-			    ,(MIND_BLAST|FORGET|DARKNESS),(NONE8)
-			    ,175,10,20,45,11,'V',{25,12},{5,5,190,0},27,1},
+			    ,(MIND_BLAST|FORGET|DARKNESS),(R_EDGED)
+			    ,175,10,20,45,12,'V',{95,30},{5,5,190,0},27,1},
 
 {"Gorgimera"		    ,(MV_ATT_NORM),(0x8L|BREATH_FI),(IM_FIRE)
 			    ,(NONE8),(NONE8)
-			  ,200,10,12,55,11,'H',{25,20},{105,105,32,223},27,2},
+			  ,200,10,12,55,11,'H',{56,24},{105,105,32,223},27,2},
 
 {"Colbran"		    ,(MV_ATT_NORM),(0x3L)
 			    ,(IM_LIGHTNING|IM_POISON|NO_INFRA|CHARM_SLEEP)
@@ -1431,34 +1433,34 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(0x4L|BLINDNESS)
 			    ,(EVIL|CHARM_SLEEP)
 			    ,(MIND_BLAST|DARKNESS|HEAL),(NONE8)
-			    ,60,120,20,75,11,'n',{30,15},{77,77,31,31},28,2},
+			    ,60,120,20,75,12,'n',{78,18},{77,77,31,31},28,2},
 
 {"5-headed hydra"	    ,(MV_ATT_NORM|CARRY_GOLD|HAS_4D2|HAS_1D2)
 			    ,(0x5L|FEAR),(ANIMAL|IM_POISON)
 			    ,(ST_CLOUD),(NONE8)
-		       ,350,20,20,80,12,'R',{100,8},{163,163,163,163},28,2},
+		       ,350,20,20,80,12,'R',{110,19},{163,163,163,163},28,2},
 
 {"Black knight"		   ,(HAS_1D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM|CARRY_GOLD)
 			    ,(0x8L|CAUSE_CRIT|BLINDNESS|FEAR),(EVIL)
 			    ,(DARKNESS),(NONE8)
-			    ,240,10,20,70,12,'p',{30,10},{23,23,23,0},28,1},
+			    ,240,10,20,70,12,'p',{95,16},{23,23,23,0},28,1},
 
 {"Uldor the Accursed"	  ,(HAS_1D2|CARRY_OBJ|THRO_DR|PICK_UP|
 			      MV_ATT_NORM),(NONE8),(EVIL|UNIQUE|GOOD)
 			    ,(NONE8),(NONE8)
-			    ,600,40,20,70,11,'p',{50,20},{22,22,22,18},28,4},
+			    ,600,40,20,70,11,'p',{80,38},{22,22,22,18},28,4},
 
 {"Mage"			    ,(HAS_1D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(0x3L|TELE|TELE_TO|BLINDNESS|FROST_BOLT|FIRE_BOLT
 			     |CONFUSION|MONSTER),(EVIL|INTELLIGENT)
 			    ,(LIGHT_BOLT|HASTE),(NONE8)
-			    ,150,10,20,40,11,'p',{15,8},{14,14,0,0},28,1},
+			    ,150,10,20,40,12,'p',{55,30},{14,14,0,0},28,1},
 
 {"Mind flayer"		    ,(HAS_1D2|CARRY_OBJ|HAS_60|THRO_DR|MV_ATT_NORM)
 			    ,(0x8L|HOLD_PERSON|FEAR|BLINDNESS)
 			    ,(EVIL|CHARM_SLEEP|MAX_HP)
 			    ,(MIND_BLAST|BRAIN_SMASH|FORGET),(NONE8)
-			    ,200,10,20,60,11,'p',{18,8},{225,225,0,0},28,1},
+			    ,200,10,20,60,12,'p',{63,25},{225,225,0,0},28,1},
 
 {"Draebor, the Imp"	    ,(MV_ATT_NORM|MV_20|MV_INVIS|
 			     CARRY_OBJ|HAS_4D2),(0x5L|BLINK|TELE_TO|TELE|FEAR
@@ -1466,22 +1468,22 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(DEMON|IM_FIRE|MAX_HP|EVIL|UNIQUE
 			      |GOOD|INTELLIGENT)
 			    ,(TELE_LEV|TELE_AWAY),(NONE8)
-			    ,750,20,20,50,12,'I',{40,13},{152,152,17,0},28,5},
+			    ,750,20,20,50,12,'I',{65,26},{152,152,17,0},28,5},
 
 {"Basilisk"		    ,(MV_ATT_NORM|CARRY_OBJ|HAS_1D2|THRO_DR)
 			    ,(NONE8),(ANIMAL|CHARM_SLEEP)
 			    ,(NONE8),(NONE8)
-			    ,300,30,15,90,12,'R',{20,30},{146,39,39,39},28,3},
+			    ,300,30,15,90,12,'R',{60,33},{146,39,39,39},28,3},
 
 {"Ice troll"		    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|CARRY_GOLD|
 			     HAS_60),(NONE8),
 			    (EVIL|TROLL|IM_FROST|HURT_LIGHT|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,160,50,20,56,11,'T',{24,10},{4,4,123,4},28,1},
+			    ,160,50,20,56,11,'T',{85,25},{4,4,123,4},28,1},
 
 {"Giant purple worm"	    ,(MV_ATT_NORM),(NONE8),(IM_ACID|ANIMAL)
 			    ,(NONE8),(NONE8)
-			    ,400,30,14,65,11,'w',{65,8},{7,113,166,0},29,3},
+			    ,400,30,14,65,11,'w',{65,15},{7,113,166,0},29,3},
 
 {"Movanic Deva"		    ,(MV_ATT_NORM|THRO_DR|PICK_UP|CARRY_OBJ|
 			      HAS_2D2)
@@ -1489,97 +1491,103 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(IM_POISON|IM_FIRE|IM_FROST|CHARM_SLEEP|MAX_HP|
 			      INTELLIGENT)
 			    ,(HEAL|HASTE),(NONE8)
-			    ,400,255,30,68,11,'A',{25,16}
+			    ,400,255,30,68,11,'A',{73,30}
 			    ,{18,18,18,18},29,6},
 
 {"Catoblepas"		    ,(MV_ATT_NORM|CARRY_GOLD|HAS_2D2)
 			    ,(NONE8)
 			    ,(IM_POISON|ANIMAL),(NONE8),(NONE8)
-			    ,400,40,15,55,11,'q',{30,10}
+			    ,400,40,15,55,11,'q',{34,13}
 			    ,{221,222,228,39},29,2},
 
 {"Mimic"                    ,(MV_ONLY_ATT),(0x4L|FEAR|CONFUSION|BLINDNESS|
 			     FIRE_BOLT|FROST_BOLT|ACID_BOLT|CAUSE_SERIOUS|
 			     MONSTER),(CHARM_SLEEP|NO_INFRA),(LIGHT_BOLT|
 			     FORGET),(NONE8)
-			,200,100,30,60,12,']',{10,35},{152,152,152,152},29,3},
+			,200,100,30,60,12,']',{35,39},{152,152,152,152},29,3},
 
 {"Young blue dragon"	    ,(MV_ATT_NORM|HAS_1D2|HAS_60|HAS_90|THRO_DR|
 			      CARRY_GOLD|CARRY_OBJ),(0xBL|FEAR|BREATH_L)
 			    ,(IM_LIGHTNING|EVIL|DRAGON|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,300,70,20,50,11,'d',{33,8},{52,52,29,0},29,1},
+			    ,300,70,20,50,11,'d',{76,11},{52,52,29,0},29,1},
 
 {"Young white dragon"	    ,(MV_ATT_NORM|HAS_1D2|HAS_60|HAS_90|THRO_DR|
 			      CARRY_GOLD|CARRY_OBJ),(0xBL|FEAR|BREATH_FR)
 			    ,(IM_FROST|EVIL|DRAGON|MAX_HP),(NONE8),(NONE8)
-			    ,275,70,20,50,11,'d',{32,8},{52,52,29,0},29,1},
+			    ,275,70,20,50,11,'d',{76,11},{52,52,29,0},29,1},
 
 {"Young green dragon"	    ,(MV_ATT_NORM|HAS_1D2|HAS_60|HAS_90|THRO_DR|
 			      CARRY_GOLD|CARRY_OBJ),(0xBL|FEAR|BREATH_G)
 			    ,(IM_POISON|EVIL|DRAGON|MAX_HP),(NONE8),(NONE8)
-			    ,290,70,20,60,11,'d',{32,8},{52,52,29,0},29,1},
+			    ,290,70,20,60,11,'d',{76,11},{52,52,29,0},29,1},
 
 {"Young bronze dragon"	    ,(MV_ATT_NORM|HAS_2D2|HAS_60|HAS_90|
 			     CARRY_GOLD|CARRY_OBJ|THRO_DR),
 			     (0xBL|FEAR)
 			    ,(DRAGON|MAX_HP|CHARM_SLEEP)
-			    ,(BREATH_CO),(NONE8)
-			    ,310,150,20,63,11,'d',{34,8},{52,52,29,0},29,3},
+			    ,(BREATH_CO|IM_CONFUSION),(NONE8)
+			    ,310,150,20,63,11,'d',{80,11},{52,52,29,0},29,3},
 
 {"Mithril golem"	    ,(MV_ATT_NORM|CARRY_GOLD|HAS_2D2),(NONE8)
 			    ,(IM_FROST|IM_FIRE|IM_LIGHTNING|IM_POISON
-			      |NO_INFRA|CHARM_SLEEP),(NONE8),(NONE8)
-			  ,500,10,12,100,11,'g',{80,15},{20,20,23,23},30,4},
+			      |NO_INFRA|CHARM_SLEEP),(NONE8),(R_EDGED)
+			  ,500,10,12,100,11,'g',{83,19},{20,20,23,23},30,4},
 
 {"Shadow drake"		    ,(MV_ATT_NORM|MV_20|MV_INVIS|THRO_DR|HAS_2D2|
 			    CARRY_OBJ|PICK_UP),(0x6L|FEAR|CONFUSION|SLOW)
 			    ,(ANIMAL|EVIL|IM_FROST|DRAGON)
 			    ,(HASTE|DARKNESS),(NONE8)
-			  ,700,30,25,50,11,'d',{20,10},{122,122,122,0},30,2},
+			  ,700,30,25,50,12,'d',{60,15},{122,122,122,0},30,2},
 
 {"Skeleton troll"	    ,(MV_ATT_NORM|THRO_DR),(NONE8)
 			    ,(UNDEAD|EVIL|TROLL|NO_INFRA|IM_FROST|CHARM_SLEEP|
-			     IM_POISON),(NONE8),(NONE8)
-			    ,225,20,20,55,11,'s',{20,10},{5,5,41,0},30,1},
+			     IM_POISON),(NONE8),(R_EDGED)
+			    ,225,20,20,55,11,'s',{258,15},{5,5,41,0},30,1},
 
-{"Manticore"		    ,(MV_ATT_NORM),(0x5L),(EVIL|MAX_HP),(MISSILE)
-			    ,(NONE8)
-			    ,300,10,12,15,12,'H',{25,10},{17,17,17,17},30,2},
+{"Manticore"		    ,(MV_ATT_NORM),(0x5L),(EVIL|MAX_HP),(NONE8)
+			    ,(ARROW)
+			    ,300,10,12,15,12,'H',{54,14},{17,17,17,17},30,2},
 
 {"Giant static ant"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL|IM_LIGHTNING)
 			    ,(NONE8),(NONE8)
-			    ,80,60,10,50,11,'a',{8,8},{134,0,0,0},30,2},
+			    ,80,60,10,50,11,'a',{35,12},{134,0,0,0},30,2},
+
+{"Death"                    ,(MV_ATT_NORM|HAS_4D2|CARRY_OBJ|THRO_WALL|THRO_DR),
+			     (NONE8),
+                             (IM_POISON|MAX_HP|CHARM_SLEEP|GOOD),(NONE8),
+                             (S_NOMISS|S_SAMESPD)
+			    ,2000,0,300,250,12,'G',{80,78},{285,0,0,0},30,2},
 
 {"Giant army ant"	    ,(MV_ATT_NORM|MV_20|THRO_CREAT),(NONE8)
 			    ,(ANIMAL|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,90,40,10,40,12,'a',{19,6},{39,0,0,0},30,3},
+			    ,90,40,10,40,13,'a',{65,10},{39,39,0,0},30,3},
 
 {"Grave wight"		    ,(MV_ATT_NORM|MV_20|THRO_DR|HAS_1D2|CARRY_OBJ)
 			    ,(0x8L|CAUSE_CRIT|FEAR)
 			    ,(UNDEAD|EVIL|NO_INFRA|IM_FROST|IM_POISON|
-			      HURT_LIGHT|CHARM_SLEEP),(DARKNESS),(NONE8)
-			    ,325,30,20,50,11,'W',{12,10},{6,6,191,0},30,1},
+			      HURT_LIGHT|CHARM_SLEEP),(DARKNESS),(R_EDGED)
+			    ,325,30,20,50,11,'W',{90,35},{6,6,191,0},30,1},
 
 {"Killer slicer beetle"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,200,30,14,60,11,'K',{22,10},{48,48,0,0},30,2},
+			    ,200,30,14,60,11,'K',{60,13},{48,48,0,0},30,2},
 
 {"Ghost"		    ,(MV_ATT_NORM|MV_20|HAS_1D2|CARRY_OBJ|CARRY_GOLD|
 			     HAS_60|THRO_WALL|PICK_UP|MV_INVIS)
 			    ,(0xFL|HOLD_PERSON|MANA_DRAIN|BLINDNESS)
 			    ,(UNDEAD|EVIL|IM_FROST|NO_INFRA|CHARM_SLEEP|
-			     IM_POISON),(NONE8),(NONE8)
-			    ,350,10,20,30,12,'G',{13,8},{99,192,184,0},31,1},
+			     IM_POISON),(NONE8),(R_EDGED)
+			    ,350,10,20,30,12,'G',{60,29},{99,192,184,0},31,1},
 
 {"Death watch beetle"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,190,30,16,60,11,'K',{25,12},{47,67,0,0},31,3},
+			    ,190,30,16,60,11,'K',{70,14},{47,67,0,0},31,3},
 
 {"Ogre shaman"		    ,(MV_ATT_NORM|THRO_DR|HAS_90|CARRY_OBJ)
 			    ,(0x5L|TELE|HOLD_PERSON|CAUSE_SERIOUS|
 			     FEAR|MONSTER|FIRE_BOLT),(EVIL|GIANT)
-			    ,(TRAP_CREATE),(NONE8)
-			    ,250,30,20,55,11,'O',{14,10},{19,19,19,0},32,2},
+			    ,(TRAP_CREATE|HASTE),(NONE8)
+			    ,250,30,20,55,12,'O',{95,30},{19,19,19,0},32,2},
 
 {"Nexus Quylthulg"	    ,(MV_INVIS),(0x1L|BLINK),(CHARM_SLEEP)
 			    ,(TELE_AWAY),(NONE8)
@@ -1590,11 +1598,11 @@ creature_type c_list[MAX_CREATURES] = {
 			     ,(ANIMAL|EVIL|UNIQUE|HURT_LIGHT|CHARM_SLEEP|
 			     MAX_HP|GOOD|INTELLIGENT),(RAZOR|HEAL|S_SPIDER|
 			     TRAP_CREATE),(NONE8)
-			  ,1200,80,8,80,11,'S',{120,10},{38,167,85,167},32,3},
+			  ,1200,80,8,80,11,'S',{128,25},{38,167,85,167},32,3},
 
 {"Ninja"		   ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|CARRY_GOLD|HAS_1D2)
 			    ,(NONE8),(EVIL|CHARM_SLEEP),(NONE8),(NONE8)
-			    ,300,10,20,60,12,'p',{13,12},{152,80,80,0},32,2},
+			    ,300,10,20,60,13,'p',{160,25},{152,80,80,0},32,2},
 
 {"Memory moss"              ,(MV_ONLY_ATT),(0x6L),(CHARM_SLEEP|ANIMAL)
                             ,(FORGET),(NONE8)
@@ -1605,104 +1613,115 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(0x8L|FEAR|CONFUSION|BLINK|TELE_TO)
 			    ,(EVIL|GIANT|IM_LIGHTNING|IM_FROST|MAX_HP)
 			    ,(LIGHT_BOLT|LIGHT_BALL),(NONE8)
-			  ,1500,40,20,60,11,'P',{24,16},{215,215,215,0},32,1},
+			  ,1500,40,20,60,11,'P',{120,25},{215,215,215,0},32,1},
 
 {"Cave troll"		    ,(MV_ATT_NORM|THRO_DR|HAS_60|
 			      CARRY_OBJ|CARRY_GOLD),(NONE8)
 			    ,(TROLL|EVIL|IM_POISON|HURT_LIGHT|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,350,50,20,50,11,'T',{24,12},{18,7,7,7},33,1},
+			    ,350,50,20,50,11,'T',{66,14},{18,7,7,7},33,1},
 
 {"Half-troll"		    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_90)
 			    ,(NONE8),(TROLL|EVIL|IM_POISON|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,300,50,20,50,11,'T',{25,14},{53,53,53,36},33,2},
+			    ,300,50,20,50,11,'T',{60,15},{53,53,53,36},33,2},
 
 {"Mystic"		    ,(MV_ATT_NORM|HAS_1D2|CARRY_OBJ|MV_INVIS)
 			    ,(0x6L),(IM_POISON|IM_ACID|MAX_HP|CHARM_SLEEP)
 			    ,(HEAL|S_SPIDER),(NONE8)
-			 ,500,5,30,50,12,'p',{10,35},{266,266,266,266},33,3},
+			 ,500,5,30,50,12,'p',{50,62},{266,266,266,266},33,3},
+
+{"Brawler"	            ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_90)
+			    ,(MAX_HP|CHARM_SLEEP|GOOD|IM_POISON|IM_FROST|
+			      IM_FIRE),(GROUP),
+                             (NONE8),(NONE8)
+			    ,300,40,4,1,12,'p',{49,50},{2,2,0,0},33,1},
 
 {"Barrow wight"		    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|
 			      CARRY_GOLD|HAS_60),(0x8L|CAUSE_SERIOUS|
 			      HOLD_PERSON|FEAR)
 			    ,(EVIL|UNDEAD|NO_INFRA|IM_FROST|IM_POISON|
-			      HURT_LIGHT|CHARM_SLEEP|GROUP),(DARKNESS),(NONE8)
-			    ,375,10,20,40,11,'W',{15,10},{7,7,193,0},33,3},
+			      HURT_LIGHT|CHARM_SLEEP|GROUP),(DARKNESS),
+			      (R_EDGED)
+			    ,375,10,20,40,11,'W',{83,23},{7,7,193,0},33,3},
 
 {"Giant skeleton troll"	    ,(MV_ATT_NORM|THRO_DR),(NONE8)
 			    ,(TROLL|EVIL|UNDEAD|IM_FROST|IM_POISON|
-			      NO_INFRA|CHARM_SLEEP|MAX_HP),(NONE8),(NONE8)
-			    ,325,20,20,50,11,'s',{45,10},{8,8,28,28},33,1},
+			      NO_INFRA|CHARM_SLEEP|MAX_HP),(NONE8),(R_EDGED)
+			    ,325,20,20,50,11,'s',{96,25},{8,8,28,28},33,1},
 
 {"Chaos drake"		    ,(MV_ATT_NORM|THRO_DR|HAS_2D2|CARRY_OBJ)
 			    ,(0x6L|FEAR|CONFUSION|SLOW),(EVIL|IM_FIRE|
-			     CHARM_SLEEP|MAX_HP|DRAGON),(BREATH_DI)
+			     CHARM_SLEEP|MAX_HP|DRAGON|IM_CONFUSION),
+			      (BREATH_DI)
 			    ,(NONE8)
-			  ,700,30,25,100,11,'d',{50,10},{54,54,36,0},33,3},
+			  ,700,30,25,100,12,'d',{95,12},{54,54,36,0},33,3},
 
 {"Law drake"		    ,(MV_ATT_NORM|THRO_DR|HAS_2D2|CARRY_OBJ)
 			    ,(0x6L|FEAR|CONFUSION|SLOW),(EVIL|IM_FROST|
-			     CHARM_SLEEP|MAX_HP|DRAGON),(BREATH_SH|
+			     CHARM_SLEEP|MAX_HP|DRAGON|IM_SOUND),(BREATH_SH|
 			     BREATH_SD),(NONE8)
-			  ,700,30,25,100,11,'d',{50,11},{54,54,36,0},33,3},
+			  ,700,30,25,100,12,'d',{95,12},{54,54,36,0},33,3},
 
 {"Balance drake"	    ,(MV_ATT_NORM|THRO_DR|HAS_2D2|CARRY_OBJ)
 			    ,(0x6L|FEAR|CONFUSION|SLOW),(EVIL|IM_FIRE|
-			     IM_FROST|CHARM_SLEEP|MAX_HP|DRAGON)
+			     IM_FROST|CHARM_SLEEP|MAX_HP|DRAGON|IM_SOUND)
 			    ,(BREATH_DI|BREATH_SD|BREATH_SH),(NONE8)
-			  ,700,30,25,100,11,'d',{50,12},{54,54,36,0},33,3},
+			  ,700,30,25,100,12,'d',{95,14},{54,54,36,0},33,3},
 
 {"Ethereal drake"	    ,(MV_ATT_NORM|THRO_DR|HAS_2D2|CARRY_OBJ|MV_INVIS|
 			     THRO_WALL)
 			    ,(0x6L|FEAR|CONFUSION|SLOW)
 			    ,(EVIL|CHARM_SLEEP|MAX_HP)
 			    ,(NONE8),(BREATH_LT|BREATH_DA)
-			  ,700,15,25,100,11,'d',{50,9},{54,54,36,0},33,3},
+			  ,700,15,25,100,12,'d',{95,12},{54,54,36,0},33,3},
 
 {"Bert the Stone Troll"	  ,(MV_ATT_NORM|PICK_UP|THRO_DR|HAS_1D2|
 			      CARRY_OBJ),(NONE8)
 			    ,(TROLL|EVIL|IM_POISON|MAX_HP|UNIQUE|HURT_ROCK|
-			      HURT_LIGHT|GOOD|IM_FROST),(NONE8),(NONE8)
-			   ,2000,50,20,70,11,'T',{55,20},{23,38,33,0},33,7},
+			      HURT_LIGHT|GOOD|IM_FROST),(NONE8),(R_EDGED|
+								 R_BLUNT)
+			   ,2000,50,20,70,11,'T',{83,35},{23,38,33,0},33,7},
 
 {"Bill the Stone Troll"	  ,(MV_ATT_NORM|PICK_UP|THRO_DR|HAS_1D2|
 			      CARRY_OBJ),(NONE8)
 			    ,(TROLL|EVIL|IM_POISON|MAX_HP|UNIQUE|HURT_ROCK|
-			      HURT_LIGHT|GOOD|IM_FROST),(NONE8),(NONE8)
-			  ,2000,50,20,70,11,'T',{55,20},{23,38,33,0},33,7},
+			      HURT_LIGHT|GOOD|IM_FROST),(NONE8),(R_EDGED|
+								 R_BLUNT)
+			  ,2000,50,20,70,11,'T',{83,35},{23,38,33,0},33,7},
 
 {"Tom the Stone Troll"	 ,(MV_ATT_NORM|PICK_UP|THRO_DR|HAS_1D2|
 			      CARRY_OBJ),(NONE8)
 			    ,(TROLL|EVIL|IM_POISON|MAX_HP|UNIQUE|HURT_ROCK|
-			      HURT_LIGHT|GOOD|IM_FROST),(NONE8),(NONE8)
-			  ,2000,50,20,70,11,'T',{55,20},{23,38,33,0},33,7},
+			      HURT_LIGHT|GOOD|IM_FROST),(NONE8),(R_EDGED|
+								 R_BLUNT)
+			  ,2000,50,20,70,11,'T',{83,35},{23,38,33,0},33,7},
 
 {"Shade"		    ,(MV_ATT_NORM|MV_20|CARRY_OBJ|HAS_2D2|
 			     HAS_90|THRO_WALL|PICK_UP|MV_INVIS)
 			    ,(0xFL|HOLD_PERSON|MANA_DRAIN|BLINDNESS)
 			    ,(UNDEAD|EVIL|IM_FROST|NO_INFRA|CHARM_SLEEP|
 			     IM_POISON),(FORGET),(NONE8)
-			  ,350,10,20,30,12,'G',{14,20},{99,192,184,0},33,3},
+			  ,350,10,20,30,12,'G',{40,50},{99,192,184,0},33,3},
 
 {"Spectre"		    ,(MV_ATT_NORM|MV_20|CARRY_OBJ|HAS_2D2|
 			     HAS_90|THRO_WALL|PICK_UP|MV_INVIS)
 			    ,(0xFL|HOLD_PERSON|MANA_DRAIN|BLINDNESS)
 			    ,(UNDEAD|EVIL|IM_FROST|NO_INFRA|CHARM_SLEEP|
 			     IM_POISON),(FORGET),(NONE8)
-			  ,350,10,20,30,12,'G',{14,20},{99,192,237,0},33,3},
+			  ,350,10,20,30,12,'G',{45,48},{99,192,237,0},33,3},
 
 {"Water troll"		     ,(MV_ATT_NORM|THRO_DR|HAS_60|
 			      CARRY_OBJ|CARRY_GOLD),(NONE8)
 			    ,(TROLL|EVIL|IM_POISON|IM_FROST|HURT_LIGHT|
-			      MAX_HP|GROUP),(NONE8),(NONE8)
-			    ,420,50,20,50,11,'T',{26,14},{8,8,11,11},33,1},
+			      MAX_HP|GROUP),(NONE8),(R_BLUNT)
+			    ,420,50,20,50,12,'T',{74,15},{8,8,11,11},33,1},
 
 {"Fire elemental"	    ,(MV_ATT_NORM|MV_20|THRO_CREAT)
 			    ,(0x6L|FIRE_BOLT)
 			    ,(EVIL|IM_POISON|CHARM_SLEEP|IM_FIRE)
 			    ,(NONE8),(NONE8)
-			    ,350,50,12,50,11,'E',{30,8},{103,103,0,0},33,2},
+			    ,350,50,12,50,11,'E',{90,35},{103,103,0,0},33,2},
 
 {"Astral Deva"		    ,(MV_ATT_NORM|THRO_DR|PICK_UP|CARRY_OBJ|
 			      HAS_2D2|HAS_1D2)
@@ -1710,33 +1729,33 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(IM_POISON|IM_FIRE|IM_FROST|INTELLIGENT|
 			      IM_ACID|IM_LIGHTNING|CHARM_SLEEP|MAX_HP)
 			    ,(HEAL|HASTE|MIND_BLAST|SUMMON),(NONE8)
-			    ,400,255,30,68,12,'A',{25,18}
+			    ,400,255,30,68,12,'A',{75,40}
 			    ,{21,20,21,20},33,6},
 
 {"Water elemental"	    ,(MV_ATT_NORM|MV_20|THRO_CREAT)
 			    ,(0x6L|FROST_BOLT)
 			    ,(EVIL|IM_POISON|CHARM_SLEEP|NO_INFRA)
 			    ,(NONE8),(NONE8)
-			    ,325,50,12,40,11,'E',{25,8},{9,9,9,0},33,2},
+			    ,325,50,12,40,11,'E',{80,40},{9,9,9,0},33,2},
 
 {"Invisible stalker"	    ,(MV_ATT_NORM|MV_40|MV_INVIS|THRO_DR)
 			    ,(NONE8),(IM_LIGHTNING|EVIL|IM_POISON|CHARM_SLEEP|
 			     NO_INFRA),(NONE8),(NONE8)
-			    ,300,20,20,46,13,'E',{19,12},{5,5,5,0},34,3},
+			    ,300,20,20,46,13,'E',{56,26},{5,5,5,0},34,3},
 
 {"Carrion crawler"	    ,(MV_ATT_NORM|MV_20),(NONE8),(ANIMAL|IM_POISON|
 			     GROUP),(NONE8),(NONE8)
-			    ,100,10,15,40,11,'c',{20,12},{253,253,0,0},34,2},
+			    ,100,10,15,40,12,'c',{45,30},{253,253,0,0},34,2},
 
 {"Master Thief"		    ,(HAS_2D2|HAS_90|CARRY_GOLD|CARRY_OBJ
-			     |THRO_DR|PICK_UP|MV_ATT_NORM),(NONE8)
-			    ,(EVIL),(NONE8),(NONE8)
-			  ,350,40,20,30,13,'p',{18,10},{16,17,231,232},34,2},
+			     |THRO_DR|PICK_UP|MV_ATT_NORM),(0x3L)
+			    ,(EVIL),(NONE8),(ARROW)
+			  ,350,40,20,30,13,'p',{80,45},{16,17,231,232},34,2},
 
 {"Ulfang the Black"	    ,(HAS_2D2|CARRY_OBJ|THRO_DR|PICK_UP|
 			      MV_ATT_NORM),(NONE8),(EVIL|UNIQUE|GOOD)
 			    ,(NONE8),(NONE8)
-			  ,1200,40,20,90,12,'p',{80,13},{23,23,23,23},34,5},
+			  ,1200,40,20,90,12,'p',{115,23},{23,23,23,23},34,5},
 
 {"Lich"			    ,(MV_ATT_NORM|THRO_DR|HAS_1D2|CARRY_OBJ|
 			      CARRY_GOLD)
@@ -1745,8 +1764,8 @@ creature_type c_list[MAX_CREATURES] = {
 			      SLOW|FEAR)
 			    ,(EVIL|UNDEAD|IM_FROST|IM_POISON|NO_INFRA|
 			      MAX_HP|HURT_LIGHT|CHARM_SLEEP|INTELLIGENT)
-			    ,(BRAIN_SMASH|TELE_AWAY),(NONE8)
-			 ,800,60,20,60,11,'L',{25,12},{179,179,194,214},34,3},
+			    ,(BRAIN_SMASH|TELE_AWAY),(R_EDGED)
+			 ,800,60,20,60,12,'L',{95,50},{179,179,194,214},34,3},
 
 {"Master Vampire"	   ,(MV_ATT_NORM|THRO_DR|HAS_4D2|CARRY_OBJ|CARRY_GOLD)
 			    ,(0x6L|TELE_TO|CAUSE_CRIT|HOLD_PERSON|
@@ -1754,42 +1773,42 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(CHARM_SLEEP|HURT_LIGHT|EVIL|UNDEAD|IM_FROST|
 			     MAX_HP|IM_POISON|NO_INFRA)
 			    ,(DARKNESS|MIND_BLAST|FORGET|NETHER_BOLT),(NONE8)
-			    ,750,10,20,60,11,'V',{28,12},{5,5,195,0},34,3},
+			    ,750,10,20,60,12,'V',{85,43},{5,5,195,0},34,3},
 
 {"Giant red scorpion"	    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
-			    ,275,40,12,50,12,'S',{18,20},{29,165,0,0},34,4},
+			    ,275,40,12,50,12,'S',{42,25},{29,165,0,0},34,4},
 
 {"Earth elemental"	    ,(THRO_WALL|PICK_UP|MV_ATT_NORM)
 			    ,(0x8L|ACID_BOLT)
 			    ,(IM_POISON|IM_FIRE|IM_FROST|IM_LIGHTNING|
 			      CHARM_SLEEP|HURT_ROCK|EVIL|NO_INFRA)
 			    ,(NONE8),(NONE8)
-			    ,375,90,10,60,10,'E',{30,10},{22,22,22,0},34,2},
+			    ,375,90,10,60,12,'E',{160,30},{22,22,22,0},34,2},
 
 {"Air elemental"	    ,(MV_ATT_NORM|MV_20|THRO_CREAT),(0x8L)
 			    ,(EVIL|IM_POISON|CHARM_SLEEP|IM_FIRE|IM_FROST|
 			      IM_LIGHTNING|IM_ACID|IM_POISON|NO_INFRA)
 			    ,(LIGHT_BOLT),(NONE8)
-			    ,390,50,12,50,12,'E',{30,5},{9,89,9,0},34,2},
+			    ,390,50,12,50,13,'E',{160,21},{9,89,9,0},34,2},
 
 {"Hell Hound"		    ,(MV_ATT_NORM|MV_20),(0x5L|BREATH_FI),
 			     (ANIMAL|EVIL|MAX_HP|IM_FIRE),(NONE8),(NONE8)
-			  ,600,0,25,80,12,'C',{25,16},{107,107,107,0},35,3},
+			  ,600,0,25,80,12,'C',{49,20},{107,107,107,0},35,3},
 
 {"Eog golem"		    ,(MV_ATT_NORM|CARRY_GOLD|HAS_2D2),(NONE8)
 			    ,(IM_FROST|IM_FIRE|IM_LIGHTNING|IM_POISON
-			      |NO_INFRA|CHARM_SLEEP),(NONE8),(NONE8)
+			      |NO_INFRA|CHARM_SLEEP),(NONE8),(I_EDGED)
 		     ,1200,10,12,125,10,'g',{100,20},{218,218,235,235},35,4},
 
 {"Olog-Hai"		    ,(MV_ATT_NORM|THRO_DR|HAS_60|
 			      CARRY_OBJ|CARRY_GOLD),(NONE8)
 			    ,(TROLL|EVIL|IM_POISON|MAX_HP|GROUP)
-			    ,(NONE8),(NONE8)
-			    ,400,50,20,50,11,'T',{30,14},{10,10,33,33},35,1},
+			    ,(NONE8),(R_BLUNT)
+			    ,400,50,20,50,12,'T',{76,16},{10,10,33,33},35,1},
 
 {"Dagashi"		   ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|CARRY_GOLD|HAS_1D2)
 			    ,(NONE8),(EVIL|CHARM_SLEEP),(NONE8),(NONE8)
-			  ,500,10,20,70,12,'p',{13,25},{152,80,80,152},35,4},
+			  ,500,10,20,70,12,'p',{90,40},{152,80,80,152},35,4},
 
 {"Gravity hound"	    ,(MV_ATT_NORM),(0x5L)
 			    ,(ANIMAL|GROUP),(NONE8)
@@ -1806,76 +1825,76 @@ creature_type c_list[MAX_CREATURES] = {
 {"Inertia hound"	    ,(MV_ATT_NORM),(0x5L)
 			    ,(ANIMAL|GROUP|CHARM_SLEEP),(NONE8)
 			    ,(BREATH_SL)
-			    ,500,0,30,30,11,'Z',{35,10},{39,39,39,58},35,2},
+			    ,500,0,30,30,11,'Z',{38,12},{39,39,39,58},35,2},
 
 {"Impact hound"		   ,(MV_ATT_NORM),(0x8L)
 			    ,(ANIMAL|GROUP|CHARM_SLEEP),(NONE8)
 			    ,(BREATH_WA)
-			    ,500,0,30,30,11,'Z',{35,10},{39,39,39,58},35,2},
+			    ,500,0,30,30,11,'Z',{38,12},{39,39,39,58},35,2},
 
 {"Dread"		    ,(MV_ATT_NORM|MV_20|CARRY_OBJ|HAS_2D2|
 			     HAS_60|THRO_WALL|PICK_UP|MV_INVIS)
 			    ,(0xFL|HOLD_PERSON|MANA_DRAIN|BLINDNESS|CONFUSION)
 			    ,(UNDEAD|EVIL|IM_FROST|NO_INFRA|CHARM_SLEEP|
 			     IM_POISON),(NETHER_BOLT),(NONE8)
-			    ,600,10,20,30,12,'G',{25,20},{235,235,80,0},35,2},
+			    ,600,10,20,30,12,'G',{50,50},{235,235,80,0},35,2},
 
 {"Ooze elemental"	    ,(MV_ATT_NORM|THRO_DR)
 			    ,(0x5L|ACID_BOLT)
 			    ,(IM_POISON|IM_FIRE|IM_FROST|IM_LIGHTNING|IM_ACID|
 			      CHARM_SLEEP|EVIL|NO_INFRA),(ACID_BALL),(NONE8)
-			  ,300,90,10,80,11,'E',{13,10},{115,115,115,0},35,3},
+			  ,300,90,10,80,11,'E',{50,24},{115,115,115,0},35,3},
 
 {"Smoke elemental"	    ,(MV_ATT_NORM)
 			    ,(0x5L|FIRE_BOLT)
 			    ,(IM_POISON|IM_FIRE|IM_FROST|IM_LIGHTNING|
 			      CHARM_SLEEP|EVIL),(DARKNESS),(NONE8)
-			    ,375,90,10,80,12,'E',{15,10},{36,36,0,0},35,3},
+			    ,375,90,10,80,12,'E',{60,25},{36,36,0,0},35,3},
 
 {"Young black dragon"	    ,(MV_ATT_NORM|HAS_1D2|HAS_60|HAS_90|
 			     CARRY_GOLD|CARRY_OBJ|THRO_DR),
 			     (BREATH_A|0xBL|FEAR)
 			    ,(EVIL|IM_ACID|DRAGON|MAX_HP),(NONE8),(NONE8)
-			    ,620,50,20,60,11,'d',{32,8},{53,53,29,0},35,1},
+			    ,620,50,20,60,11,'d',{78,11},{53,53,29,0},35,1},
 
 {"Mumakil"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL),(NONE8),(NONE8)
 			 ,2100,100,20,55,11,'q',{90,10},{227,227,233,0},35,3},
 
 {"Giant red ant lion"	    ,(MV_ATT_NORM|THRO_CREAT),(NONE8)
 			    ,(ANIMAL|IM_FIRE|MAX_HP|GROUP),(NONE8),(NONE8)
-			    ,350,40,14,49,11,'a',{25,8},{107,107,0,0},35,1},
+			    ,350,40,14,49,11,'a',{72,10},{107,107,0,0},35,1},
 
 {"Mature white Dragon"	    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|CARRY_OBJ|
 			      HAS_2D2),(0xAL|BREATH_FR|FEAR)
 			    ,(CHARM_SLEEP|IM_FROST|EVIL|DRAGON|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,1000,70,20,65,11,'d',{50,8},{54,54,37,0},35,1},
+			    ,1000,70,20,65,12,'d',{115,11},{54,54,37,0},35,1},
 
 {"Xorn"			    ,(MV_ATT_NORM|THRO_WALL|THRO_DR|PICK_UP)
 			    ,(NONE8),(IM_FIRE|IM_FROST|IM_POISON|NO_INFRA|
 			     IM_LIGHTNING|CHARM_SLEEP|HURT_ROCK|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,650,10,20,80,11,'X',{20,8},{5,5,5,5},36,2},
+			    ,650,10,20,80,11,'X',{60,10},{5,5,5,5},36,2},
 
 {"Shadow"		    ,(MV_ATT_NORM|THRO_WALL|MV_INVIS|CARRY_OBJ|
 			     HAS_1D2),(0x8L|TELE_TO|SLOW),(UNDEAD|EVIL|
 			     IM_FROST|IM_POISON|NO_INFRA|CHARM_SLEEP)
 			    ,(NONE8),(NONE8)
-			    ,400,20,30,30,12,'G',{10,20},{200,200,184,252},
+			    ,400,20,30,30,12,'G',{40,60},{200,200,184,252},
 								  36,3},
 
 {"Phantom"		    ,(MV_ATT_NORM|THRO_WALL|MV_INVIS|CARRY_OBJ|
 			     HAS_1D2),(0x5L),(UNDEAD|EVIL|IM_FROST|IM_POISON|
 			     NO_INFRA|CHARM_SLEEP),(FORGET),(NONE8)
-			    ,400,20,30,30,12,'G',{20,25},{200,200,184,252},
+			    ,400,20,30,30,12,'G',{55,50},{200,200,184,252},
 								  36,3},
 
 {"Grey Wraith"		    ,(MV_ATT_NORM|THRO_DR|HAS_60|HAS_90|
 			      CARRY_GOLD|CARRY_OBJ)
 			    ,(0x7L|CAUSE_CRIT|HOLD_PERSON|FEAR)
 			   ,(UNDEAD|EVIL|NO_INFRA|CHARM_SLEEP|IM_FROST|MAX_HP|
-			     IM_POISON),(DARKNESS),(NONE8)
-			    ,700,10,20,50,11,'W',{24,8},{9,9,196,0},36,1},
+			     IM_POISON),(DARKNESS),(R_EDGED)
+			    ,700,10,20,50,12,'W',{95,33},{9,9,196,0},36,1},
 
 {"Young Multi-Hued Dragon"  ,(MV_ATT_NORM|HAS_4D2|CARRY_GOLD|CARRY_OBJ|
 			      THRO_DR|HAS_60|HAS_90)
@@ -1884,7 +1903,7 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(IM_FROST|IM_ACID|IM_POISON|IM_LIGHTNING|
 			      IM_FIRE|EVIL|DRAGON|CHARM_SLEEP|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,1320,50,20,60,11,'d',{40,8},{55,55,38,0},36,1},
+			    ,1320,50,20,60,11,'d',{80,11},{55,55,38,0},36,1},
 
 {"Colossus"		    ,(MV_ATT_NORM),(NONE8),(MAX_HP|CHARM_SLEEP|
 			     NO_INFRA|IM_POISON|IM_FIRE|IM_FROST|IM_LIGHTNING)
@@ -1895,109 +1914,109 @@ creature_type c_list[MAX_CREATURES] = {
 			     CARRY_GOLD|CARRY_OBJ|THRO_DR),
 			     (0xBL|FEAR)
 			    ,(DRAGON|MAX_HP)
-			    ,(BREATH_SD),(NONE8)
-			    ,950,150,20,63,11,'d',{38,8},{54,54,37,0},36,2},
+			    ,(BREATH_SD|IM_SOUND),(NONE8)
+			    ,950,150,20,63,11,'d',{92,12},{54,54,37,0},36,2},
 
 {"Rogrog the Black Troll"   ,(MV_ATT_NORM|PICK_UP|THRO_DR|HAS_2D2|
 			      CARRY_OBJ),(NONE8)
 			    ,(TROLL|EVIL|IM_POISON|MAX_HP|UNIQUE|
-			      GOOD|IM_FROST),(NONE8),(NONE8)
-			  ,5000,50,20,70,12,'T',{55,28},{235,38,33,229},36,5},
+			      GOOD|IM_FROST),(NONE8),(R_BLUNT)
+			  ,5000,50,20,70,12,'T',{95,33},{235,38,33,229},36,5},
 
 {"Mature blue Dragon"	    ,(HAS_2D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x9L|BREATH_L|FEAR)
 			    ,(EVIL|DRAGON|IM_LIGHTNING|CHARM_SLEEP|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,1200,70,20,75,11,'d',{49,8},{54,54,38,0},36,1},
+			    ,1200,70,20,75,12,'d',{100,12},{54,54,38,0},36,1},
 
 {"Mature green Dragon"	    ,(HAS_2D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x9L|BREATH_G|FEAR)
 			    ,(EVIL|DRAGON|IM_POISON|CHARM_SLEEP|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,1100,70,20,70,11,'d',{49,8},{52,52,29,0},36,1},
+			    ,1100,70,20,70,12,'d',{110,12},{52,52,29,0},36,1},
 
 {"Mature bronze Dragon"	    ,(HAS_4D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x9L|FEAR|CONFUSION)
 			    ,(DRAGON|CHARM_SLEEP|MAX_HP)
-			    ,(BREATH_CO),(NONE8)
-			    ,1300,150,20,70,11,'d',{55,8},{54,54,38,0},36,2},
+			    ,(BREATH_CO|IM_CONFUSION),(NONE8)
+			    ,1300,150,20,70,12,'d',{120,12},{54,54,38,0},36,2},
 
 {"Young red dragon"	    ,(MV_ATT_NORM|HAS_1D2|HAS_60|HAS_90|
 			     CARRY_GOLD|CARRY_OBJ|THRO_DR),
 			     (BREATH_FI|0xBL|FEAR)
 			    ,(EVIL|IM_FIRE|DRAGON|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,640,50,20,63,11,'d',{36,8},{54,54,37,0},36,1},
+			    ,640,50,20,63,11,'d',{116,11},{54,54,37,0},36,1},
 
 {"Trapper"                  ,(MV_ONLY_ATT|MV_INVIS),(NONE8)
                             ,(NO_INFRA|CHARM_SLEEP|MAX_HP),(NONE8),(NONE8)
-			    ,580,10,30,75,12,'.',{50,12},{20,20,265,265},36,3},
+			    ,580,10,30,75,12,'.',{53,40},{20,20,265,265},36,3},
 
 {"Bodak"		    ,(PICK_UP|MV_ATT_NORM|THRO_DR)
 			    ,(0x4L|FIRE_BALL|FIRE_BOLT|S_DEMON)
 			    ,(IM_POISON|IM_FIRE|CHARM_SLEEP|EVIL)
 			    ,(NONE8),(NONE8)
-			  ,750,90,10,68,11,'I',{35,10},{103,103,224,0},36,2},
+			  ,750,90,10,68,12,'I',{38,36},{103,103,224,0},36,2},
 
 {"Ice elemental"	    ,(PICK_UP|MV_ATT_NORM)
 			    ,(0x5L|FROST_BALL)
 			    ,(IM_POISON|IM_FROST|IM_LIGHTNING|
 			     CHARM_SLEEP|EVIL|NO_INFRA),(ICE_BOLT),(NONE8)
-			   ,650,90,10,60,11,'E',{35,10},{121,22,121,0},36,2},
+			   ,650,90,10,60,12,'E',{95,40},{121,22,121,0},36,2},
 
 {"Necromancer"		    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(0x3L|TELE|TELE_TO|CAUSE_CRIT|HOLD_PERSON|
 			   S_UNDEAD|FEAR|BLINDNESS),(EVIL|MAX_HP|INTELLIGENT)
 			    ,(NETHER_BOLT|HASTE),(NONE8)
-			    ,630,10,20,50,11,'p',{25,11},{15,15,0,0},36,2},
+			    ,630,10,20,50,12,'p',{65,30},{15,15,0,0},36,2},
 
 {"Lorgan, Chief of the Easterlings"
 			    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_2D2)
 			    ,(0x4L|TELE_TO),(EVIL|MAX_HP|CHARM_SLEEP|IM_ACID|
 			     IM_POISON|IM_FIRE|IM_FROST|IM_LIGHTNING|GOOD|
 			     UNIQUE),(SUMMON),(NONE8)
-		       ,1200,10,25,100,12,'p',{50,35},{235,235,20,20},36,2},
+		       ,1200,10,25,100,12,'p',{95,50},{235,235,20,20},36,2},
 
 {"Demonist"		    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2)
 			    ,(0x2L|TELE|HOLD_PERSON|
 			     S_DEMON),(EVIL|MAX_HP|INTELLIGENT)
 			    ,(NONE8),(NONE8)
-			    ,700,10,20,50,12,'p',{25,11},{15,15,14,0},36,2},
+			    ,700,10,20,50,12,'p',{63,30},{15,15,14,0},36,2},
 
 {"Mummified troll"	    ,(HAS_60|CARRY_GOLD|CARRY_OBJ|
 			     THRO_DR|MV_ATT_NORM),(NONE8)
 			    ,(UNDEAD|IM_FROST|CHARM_SLEEP|IM_POISON|
 			      TROLL|EVIL|NO_INFRA|MAX_HP),(NONE8),(NONE8)
-			    ,420,50,20,50,11,'M',{19,10},{15,15,0,0},37,1},
+			    ,420,50,20,50,11,'M',{95,40},{15,15,0,0},37,1},
 
 {"The Queen Ant"	    ,(MV_ATT_NORM|CARRY_OBJ|HAS_2D2|THRO_DR)
 			    ,(0x2L),(ANIMAL|MAX_HP|UNIQUE|CHARM_SLEEP|
 			     GOOD),(NONE8),(S_ANT)
-			 ,1000,10,30,100,12,'a',{120,12},{39,39,37,37},37,2},
+			 ,1000,10,30,100,12,'a',{135,30},{39,39,37,37},37,2},
 
 {"Will o' the Wisp"	    ,(MV_ATT_NORM|MV_40|MV_INVIS|THRO_DR|THRO_WALL)
 			    ,(0x2L|BLINK|CAUSE_SERIOUS|CONFUSION|TELE)
 			    ,(CHARM_SLEEP|IM_FIRE|IM_FROST|IM_POISON|
 			     IM_ACID|IM_LIGHTNING|MAX_HP|INTELLIGENT)
-			    ,(NONE8),(NONE8)
-			    ,500,0,30,150,13,'E',{20,10},{8,8,8,8},37,4},
+			    ,(NONE8),(R_EDGED|R_BLUNT)
+			    ,500,0,30,150,13,'E',{90,50},{8,8,8,8},37,4},
 
 {"Magma elemental"	    ,(THRO_WALL|PICK_UP|MV_ATT_NORM)
 			    ,(0x7L|FIRE_BALL)
 			    ,(IM_POISON|IM_FIRE|IM_LIGHTNING|
 			      CHARM_SLEEP|EVIL),(PLASMA_BOLT),(NONE8)
-			    ,950,90,10,70,11,'E',{35,10},{102,22,102,0},37,2},
+			    ,950,90,10,70,12,'E',{113,24},{102,22,102,0},37,2},
 
 {"Black pudding"	    ,(THRO_DR|MV_ATT_NORM|PICK_UP|HAS_1D2|
 			      CARRY_GOLD|CARRY_OBJ|HAS_60|HAS_90),(NONE8)
 			    ,(IM_ACID|IM_FIRE|IM_LIGHTNING|IM_POISON|IM_FROST|
 			      ANIMAL|CHARM_SLEEP|MAX_HP|NO_INFRA|GROUP)
 			    ,(NONE8),(NONE8)
-			    ,36,1,12,18,11,'j',{50,8},{115,115,115,115},37,5},
+			    ,36,1,12,18,11,'j',{60,9},{115,115,115,115},37,5},
 
 {"Iridescent beetle"	    ,(MV_ATT_NORM),(NONE8)
 			    ,(ANIMAL|IM_LIGHTNING|MAX_HP),(NONE8),(NONE8)
-			    ,850,30,16,60,11,'K',{32,8},{45,10,146,0},37,2},
+			    ,850,30,16,60,11,'K',{85,12},{45,10,146,0},37,2},
 
 {"Nexus vortex"		    ,(MV_ATT_NORM|MV_75),(0x6L)
 			    ,(CHARM_SLEEP),(BREATH_NE),(NONE8)
@@ -2005,32 +2024,32 @@ creature_type c_list[MAX_CREATURES] = {
 
 {"Plasma vortex"	    ,(MV_ATT_NORM|MV_75),(0x6L)
 			    ,(IM_FIRE|CHARM_SLEEP),(NONE8),(BREATH_PL)
-			    ,800,0,100,40,12,'v',{32,10},{243,0,0,0},37,1},
+			    ,800,0,100,40,12,'v',{37,12},{243,0,0,0},37,1},
 
 {"Mature red Dragon"	    ,(HAS_4D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x9L|BREATH_FI|FEAR|CONFUSION)
 			    ,(EVIL|DRAGON|IM_FIRE|CHARM_SLEEP|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,1400,30,20,80,11,'d',{60,8},{52,56,39,0},37,1},
+			    ,1400,30,20,80,12,'d',{168,30},{52,56,39,0},37,1},
 
 {"Mature gold Dragon"	    ,(HAS_4D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x9L|FEAR|CONFUSION)
 			    ,(DRAGON|CHARM_SLEEP|MAX_HP)
-			    ,(BREATH_SD),(NONE8)
-			    ,1500,150,20,80,11,'d',{70,8},{52,56,39,0},37,2},
+			    ,(BREATH_SD|IM_SOUND),(NONE8)
+			    ,1500,150,20,80,12,'d',{170,12},{52,56,39,0},37,2},
 
 {"Crystal drake"	    ,(MV_ATT_NORM|MV_INVIS|THRO_DR|HAS_4D2|
 			     CARRY_OBJ)
 			    ,(0x6L|FEAR|CONFUSION|SLOW)
 			    ,(EVIL|IM_FROST|CHARM_SLEEP|MAX_HP|DRAGON)
-			    ,(BREATH_SH),(NONE8)
-			   ,1500,30,25,100,12,'d',{50,10},{52,52,35,0},37,2},
+			    ,(BREATH_SH),(R_EDGED)
+			   ,1500,30,25,100,12,'d',{120,12},{52,52,35,0},37,2},
 
 {"Mature black Dragon"	    ,(HAS_2D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x9L|BREATH_A|FEAR)
 			    ,(EVIL|DRAGON|IM_ACID|CHARM_SLEEP|MAX_HP),(NONE8)
 			    ,(NONE8)
-			    ,1350,30,20,55,11,'d',{58,8},{54,54,38,0},37,1},
+			    ,1350,30,20,55,12,'d',{130,11},{54,54,38,0},37,1},
 
 {"Mature Multi-Hued Dragon" ,(MV_ATT_NORM|HAS_4D2|CARRY_GOLD|CARRY_OBJ|
 			      THRO_DR|HAS_60|HAS_90|HAS_2D2)
@@ -2039,19 +2058,19 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(IM_FROST|IM_ACID|IM_POISON|IM_LIGHTNING|
 			      IM_FIRE|EVIL|DRAGON|CHARM_SLEEP|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,1700,50,20,65,11,'d',{81,8},{56,56,39,0},38,2},
+			    ,1700,50,20,65,12,'d',{190,20},{56,56,39,0},38,2},
 
 {"Death knight"		    ,(HAS_2D2|HAS_1D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(0x5L|CAUSE_CRIT|BLINDNESS|FEAR)
 			    ,(EVIL|IM_FROST|NO_INFRA|MAX_HP|INTELLIGENT)
 			    ,(NETHER_BOLT|SUMMON),(NONE8)
-			  ,1000,10,20,100,12,'p',{30,20},{235,23,23,0},38,1},
+			  ,3000,10,20,100,12,'p',{85,50},{235,23,23,23},38,1},
 
 {"Castamir the Usurper"	    ,(HAS_2D2|CARRY_OBJ|THRO_DR|PICK_UP|
 			      MV_ATT_NORM),(0x2L|FIRE_BOLT|FROST_BOLT)
 			    ,(EVIL|MAX_HP|UNIQUE|GOOD|INTELLIGENT)
 			    ,(TRAP_CREATE|ICE_BOLT|HEAL|LIGHT_BOLT),(NONE8)
-			    ,1600,40,20,90,12,'p',{80,11},{23,23,23,23},38,5},
+			    ,1600,40,20,90,12,'p',{115,25},{23,23,23,23},38,5},
 
 {"Time vortex"		    ,(MV_ATT_NORM|MV_75),(0x6L)
 			    ,(CHARM_SLEEP),(NONE8),(BREATH_TI)
@@ -2059,34 +2078,35 @@ creature_type c_list[MAX_CREATURES] = {
 
 {"Shimmering vortex"	    ,(MV_ATT_NORM|MV_75),(0x6L)
 			    ,(CHARM_SLEEP),(NONE8),(BREATH_LT)
-			    ,200,0,100,30,14,'v',{6,12},{203,203,0,0},38,4},
+			    ,200,0,100,30,14,'v',{12,12},{203,203,0,0},38,4},
 
 {"Ancient blue Dragon"	    ,(HAS_4D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x9L|BREATH_L|FEAR|BLINDNESS
 			      |CONFUSION)
 			    ,(EVIL|DRAGON|IM_LIGHTNING|CHARM_SLEEP|MAX_HP)
-			    ,(NONE8),(NONE8)
-			    ,1500,80,20,80,12,'D',{88,8},{54,54,37,0},38,1},
+			    ,(NONE8),(R_EDGED)
+			    ,1500,80,20,80,13,'D',{190,30},{54,54,37,0},38,1},
 
 {"Ancient bronze Dragon"    ,(HAS_4D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_2D2|
 			      HAS_60|MV_ATT_NORM)
 			    ,(0x6L|FEAR|BLINDNESS|CONFUSION)
-			    ,(DRAGON|CHARM_SLEEP|MAX_HP),(BREATH_CO),(NONE8)
-			    ,1700,200,20,100,12,'D',{92,8},{54,54,38,0},38,2},
+			    ,(DRAGON|CHARM_SLEEP|MAX_HP),
+			      (BREATH_CO|IM_CONFUSION),(R_EDGED)
+			    ,1700,200,20,100,13,'D',{210,35},{54,54,38,0},38,2},
 
 {"Beholder"		    ,(MV_ATT_NORM)
 			    ,(0x2L|FIRE_BOLT|FROST_BOLT|ACID_BOLT|
 			      MANA_DRAIN|BLINDNESS|CONFUSION|FEAR|SLOW)
 			    ,(ANIMAL|EVIL|CHARM_SLEEP|MAX_HP|IM_POISON)
 			    ,(FORGET|MIND_BLAST|DARKNESS),(NONE8)
-			,6000,10,30,80,12,'e',{80,20},{223,224,225,226},38,4},
+			,6000,10,30,80,12,'e',{95,35},{223,224,225,226},38,4},
 
 {"Emperor Wight"	    ,(HAS_4D2|CARRY_OBJ|HAS_90|THRO_DR|MV_ATT_NORM)
 			    ,(0x6L|CAUSE_CRIT|HOLD_PERSON|FEAR)
 			    ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|
 			      IM_POISON|NO_INFRA|HURT_LIGHT)
-			    ,(NETHER_BOLT),(NONE8)
-			    ,1600,10,20,40,12,'W',{48,8},{10,10,199,0},38,2},
+			    ,(NETHER_BOLT),(R_EDGED)
+			    ,1600,10,20,40,13,'W',{98,63},{10,10,199,0},38,2},
 
 {"Planetar"		    ,(MV_ATT_NORM|THRO_DR|PICK_UP|CARRY_OBJ|
 			      HAS_2D2|HAS_1D2)
@@ -2095,86 +2115,86 @@ creature_type c_list[MAX_CREATURES] = {
 			      IM_ACID|IM_LIGHTNING|CHARM_SLEEP|MAX_HP)
 			    ,(HEAL|HASTE|SUMMON|TELE_AWAY|PLASMA_BOLT|S_ANGEL)
 			    ,(NONE8)
-			    ,1800,255,30,68,12,'A',{50,10}
+			    ,1800,255,30,68,12,'A',{95,30}
 			    ,{22,23,23,22},38,6},
 
 {"Vargo, Tyrant of Fire"    ,(MV_ATT_NORM|MV_20|THRO_CREAT)
 			    ,(0x4L|FIRE_BALL)
 			   ,(EVIL|IM_POISON|CHARM_SLEEP|IM_FIRE|MAX_HP|UNIQUE)
 			   ,(PLASMA_BOLT),(NONE8)
-			,3000,50,12,50,12,'E',{60,25},{103,103,103,103},38,3},
+			,3000,50,12,50,12,'E',{110,68},{103,103,103,103},38,3},
 
 {"Black Wraith"		    ,(HAS_2D2|CARRY_OBJ|HAS_1D2|THRO_DR|MV_ATT_NORM)
 			    ,(0x7L|CAUSE_CRIT|HOLD_PERSON|FEAR|BLINDNESS)
 			    ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|
 			      IM_POISON|HURT_LIGHT|NO_INFRA)
-			    ,(NETHER_BOLT),(NONE8)
-			    ,1700,10,20,55,12,'W',{50,10},{10,10,199,0},38,2},
+			    ,(NETHER_BOLT),(R_EDGED)
+			    ,1700,10,20,55,13,'W',{200,25},{10,10,199,0},38,2},
 
 {"Erinyes"		    ,(MV_ATT_NORM|HAS_60|CARRY_OBJ|THRO_DR)
-			    ,(0x7L|BLINDNESS|CONFUSION|FIRE_BOLT)
+			    ,(0x4L|BLINDNESS|CONFUSION)
 			    ,(EVIL|DEMON|CHARM_SLEEP|IM_FIRE|MAX_HP|IM_POISON)
-			    ,(NONE8),(NONE8)
-			    ,1000,80,20,50,11,'&',{18,8},{17,87,0,0},38,2},
+			    ,(NONE8),(HELLFIRE)
+			    ,1000,80,20,50,11,'&',{40,35},{17,87,0,0},38,2},
 
 {"Nether Wraith"	    ,(HAS_4D2|CARRY_OBJ|HAS_90|THRO_DR|MV_ATT_NORM|
 			      MV_INVIS|THRO_WALL)
 			    ,(0x6L|CAUSE_CRIT|FEAR|BLINDNESS)
 			    ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|
 			      HURT_LIGHT|NO_INFRA|IM_POISON)
-			    ,(NETHER_BOLT|MIND_BLAST|DARKNESS),(NONE8)
-			    ,1700,10,20,55,12,'W',{60,8},{10,10,202,0},39,2},
+			    ,(NETHER_BOLT|MIND_BLAST|DARKNESS),(R_EDGED)
+			    ,1700,10,20,55,12,'W',{120,25},{10,10,202,0},39,2},
 
 {"Eldrakyn"		    ,(MV_ATT_NORM|PICK_UP|THRO_DR|HAS_60|
 			      CARRY_OBJ|CARRY_GOLD),(NONE8)
 			    ,(TROLL|EVIL|IM_POISON|MAX_HP|CHARM_SLEEP)
-			    ,(NONE8),(NONE8)
-			    ,800,50,20,80,11,'T',{30,25},{17,17,17,0},39,3},
+			    ,(NONE8),(R_BLUNT)
+			    ,800,50,20,80,12,'T',{76,17},{17,17,17,0},39,3},
 
 {"Ettin"		    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2),(NONE8)
 			    ,(TROLL|EVIL|IM_POISON|MAX_HP|CHARM_SLEEP)
-			    ,(NONE8),(NONE8)
-			    ,1000,30,20,100,11,'T',{50,30},{19,19,19,0},39,3},
+			    ,(NONE8),(R_BLUNT)
+			    ,1000,30,20,100,12,'T',{70,16},{19,19,19,0},39,3},
 
 {"Waldern, King of Water"   ,(MV_ATT_NORM|MV_20|THRO_CREAT)
 			    ,(0x4L|FROST_BALL)
 			    ,(EVIL|IM_POISON|CHARM_SLEEP|MAX_HP|UNIQUE
 			      |NO_INFRA)
 			    ,(WATER_BOLT|WATER_BALL|ICE_BOLT),(NONE8)
-			    ,3250,50,12,40,12,'E',{80,25},{23,23,23,23},39,3},
+			    ,3250,50,12,40,12,'E',{120,40},{23,23,23,23},39,3},
 
 {"Kavlax the Many-headed"   ,(MV_ATT_NORM|HAS_4D2|CARRY_OBJ|THRO_DR)
 			    ,(0x4L|BREATH_FI|BREATH_FR|BREATH_L|BREATH_A)
 			    ,(EVIL|DRAGON|CHARM_SLEEP|MAX_HP|UNIQUE|GOOD|
 			     IM_ACID|IM_FROST|IM_FIRE|IM_LIGHTNING)
 			    ,(BREATH_CO|BREATH_SD|BREATH_SH|BREATH_NE)
-			    ,(BREATH_GR)
-		       ,3000,30,20,85,12,'d',{130,10},{56,39,39,39},39,3},
+			    ,(BREATH_GR|R_BLUNT)
+		       ,3000,30,20,85,13,'d',{200,45},{56,39,39,39},39,3},
 
 {"Ancient white Dragon"	    ,(HAS_4D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_2D2|
 			      HAS_60|MV_ATT_NORM)
 			    ,(0x9L|BREATH_FR|FEAR|BLINDNESS|CONFUSION)
 			    ,(EVIL|DRAGON|IM_FROST|CHARM_SLEEP|MAX_HP)
-			    ,(NONE8),(NONE8)
-			    ,2500,80,20,90,12,'D',{88,8},{55,55,39,0},39,1},
+			    ,(NONE8),(R_EDGED)
+			    ,2500,80,20,90,13,'D',{200,30},{55,55,39,0},39,1},
 
 {"Ancient green Dragon"	    ,(HAS_4D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_2D2|
 			      HAS_60|MV_ATT_NORM)
 			    ,(0x9L|BREATH_G|FEAR|BLINDNESS|CONFUSION)
 			    ,(EVIL|DRAGON|IM_POISON|CHARM_SLEEP|MAX_HP)
-			    ,(NONE8),(NONE8)
-			    ,2400,80,20,85,12,'D',{90,8},{54,54,38,0},39,1},
+			    ,(NONE8),(R_EDGED)
+			    ,2400,80,20,85,13,'D',{205,25},{54,54,38,0},39,1},
 
 {"7-headed hydra"	    ,(MV_ATT_NORM|CARRY_GOLD|HAS_4D2|HAS_2D2)
 			    ,(0x5L|FEAR|BREATH_G)
 			    ,(ANIMAL|IM_POISON),(ST_CLOUD),(NONE8)
-		     ,2000,20,20,90,12,'R',{100,10},{162,162,162,144},39,2},
+		     ,2000,20,20,90,12,'R',{150,20},{162,162,162,144},39,2},
 
 {"Night Mare"		    ,(MV_ATT_NORM|THRO_DR|HAS_2D2|CARRY_GOLD)
 			    ,(NONE8),(UNDEAD|IM_POISON|IM_FROST|EVIL|
 			     CHARM_SLEEP|NO_INFRA|MAX_HP)
 			    ,(NONE8),(NONE8)
-			,2900,0,30,85,12,'q',{150,10},{236,20,20,216},39,3},
+			,2900,0,30,85,12,'q',{250,10},{236,20,20,216},39,3},
 
 {"Vampire Lord"		    ,(MV_ATT_NORM|THRO_DR|HAS_4D2|CARRY_GOLD|
 			     CARRY_OBJ|HAS_60)
@@ -2182,15 +2202,15 @@ creature_type c_list[MAX_CREATURES] = {
 			      BLINDNESS)
 			    ,(UNDEAD|EVIL|MAX_HP|CHARM_SLEEP|HURT_LIGHT|
 			      IM_FROST|HURT_LIGHT|NO_INFRA|IM_POISON)
-			    ,(BRAIN_SMASH|NETHER_BOLT|RAZOR|DARKNESS),(NONE8)
-			    ,1800,10,20,70,12,'V',{62,25},{5,5,5,198},39,3},
+			    ,(BRAIN_SMASH|NETHER_BOLT|RAZOR|DARKNESS),(R_EDGED)
+			    ,1800,10,20,70,13,'V',{250,38},{5,5,5,198},39,3},
 
 {"Ancient black Dragon"	    ,(HAS_4D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_2D2|
 			      HAS_60|MV_ATT_NORM)
 			    ,(0x9L|BREATH_A|FEAR|BLINDNESS|CONFUSION)
 			    ,(EVIL|DRAGON|IM_ACID|CHARM_SLEEP|MAX_HP)
-			    ,(NONE8),(NONE8)
-			    ,2500,70,20,90,12,'D',{90,8},{55,55,38,0},39,1},
+			    ,(NONE8),(R_EDGED)
+			    ,2500,70,20,90,13,'D',{210,38},{55,55,38,0},39,1},
 
 {"Disenchanter worm"	    ,(MULTIPLY|MV_ATT_NORM|MV_40),(NONE8),
 			     (ANIMAL|HURT_LIGHT),(NONE8),(NONE8)
@@ -2204,59 +2224,59 @@ creature_type c_list[MAX_CREATURES] = {
 {"Spirit troll"		    ,(MV_INVIS|MV_ATT_NORM|THRO_WALL|THRO_DR|
 			     CARRY_OBJ|CARRY_GOLD|HAS_90)
 			    ,(NONE8),(EVIL|TROLL|IM_POISON|IM_FROST|MAX_HP|
-			     CHARM_SLEEP|IM_LIGHTNING),(NONE8),(NONE8)
-			,900,5,20,90,11,'T',{40,25},{19,18,18,0},40,3},
+			     CHARM_SLEEP|IM_LIGHTNING),(NONE8),(R_BLUNT)
+			,900,5,20,90,12,'T',{86,11},{19,18,18,0},40,3},
 
 {"Lesser titan"		    ,(MV_ATT_NORM|THRO_DR|PICK_UP|CARRY_OBJ|
 			      CARRY_GOLD|HAS_4D2|HAS_2D2)
 			    ,(0x3L|FEAR|TELE_TO)
 			    ,(EVIL|GIANT|MAX_HP|INTELLIGENT)
-			    ,(SUMMON|HEAL),(NONE8)
-		       ,3500,15,30,80,12,'P',{35,30},{216,216,216,216},40,3},
+			    ,(SUMMON|HEAL),(R_BLUNT)
+		       ,3500,15,30,80,12,'P',{105,36},{216,216,216,216},40,3},
 
 {"9-headed hydra"	    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|HAS_4D2|HAS_2D2)
 			    ,(0x4L|FEAR|FIRE_BOLT|BREATH_FI)
 			    ,(ANIMAL|IM_FIRE),(NONE8),(NONE8)
-		       ,3000,20,20,95,12,'R',{100,12},{106,106,106,106},40,2},
+		       ,3000,20,20,95,12,'R',{140,22},{106,106,106,106},40,2},
 
 {"Enchantress"		    ,(HAS_2D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(0x2L|S_DRAGON|BLINDNESS)
 			    ,(EVIL|CHARM_SLEEP|MAX_HP|GOOD),(NONE8),(NONE8)
-			    ,2100,10,20,60,13,'p',{40,13},{15,15,16,0},40,4},
+			    ,2100,10,20,60,13,'p',{85,35},{15,15,16,0},40,4},
 
 {"Archpriest"		    ,(HAS_2D2|CARRY_OBJ|HAS_90|THRO_DR|MV_ATT_NORM)
 			    ,(0x2L|HOLD_PERSON|BLINDNESS|CONFUSION|
 			      MONSTER|S_UNDEAD|CAUSE_CRIT)
 			    ,(INTELLIGENT|EVIL|CHARM_SLEEP|MAX_HP)
-			    ,(HEAL),(NONE8)
-			    ,1800,10,20,60,12,'p',{40,13},{17,17,18,0},40,2},
+			    ,(HEAL),(R_EDGED|HELLFIRE)
+			    ,1800,10,20,60,12,'p',{95,38},{17,17,18,0},40,2},
 
 {"Sorceror"		    ,(HAS_4D2|CARRY_OBJ|HAS_90|THRO_DR|MV_ATT_NORM)
 			    ,(0x2L|BLINK|TELE_TO|BLINDNESS|CONFUSION|
 			      MONSTER|S_UNDEAD|CAUSE_CRIT|S_DRAGON|
 			      FIRE_BALL|FROST_BALL|ACID_BOLT)
-			    ,(EVIL|CHARM_SLEEP|MAX_HP),(TRAP_CREATE),(NONE8)
-			    ,2150,10,20,60,13,'p',{40,13},{16,16,16,0},40,2},
+			    ,(EVIL|CHARM_SLEEP|MAX_HP),(TRAP_CREATE),(R_BLUNT)
+			    ,2150,10,20,60,13,'p',{85,25},{16,16,16,0},40,2},
 
 {"Xaren"		     ,(MV_ATT_NORM|THRO_WALL|THRO_DR|PICK_UP)
 			    ,(NONE8),(IM_FIRE|IM_FROST|IM_POISON|NO_INFRA|
 			     IM_LIGHTNING|CHARM_SLEEP|HURT_ROCK|MAX_HP)
 			    ,(NONE8),(NONE8)
-			    ,1200,10,20,80,12,'X',{40,8},{17,17,17,17},40,1},
+			    ,1200,10,20,80,12,'X',{94,12},{17,17,17,17},40,1},
 
 {"Giant roc"                ,(MV_ATT_NORM),(NONE8),(ANIMAL|IM_LIGHTNING)
                             ,(NONE8),(NONE8)
-			    ,1000,10,20,70,11,'B',{80,13},{78,78,284,0},40,3},
+			    ,1000,10,20,70,12,'B',{125,30},{78,78,284,0},40,3},
 
 {"Uvatha the Horseman"	    ,(HAS_2D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(NONE8)
 			    ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|UNIQUE
 			      |HURT_LIGHT|GOOD|NO_INFRA|IM_POISON)
-			    ,(NONE8),(NONE8)
-			 ,7000,10,90,60,12,'W',{35,35},{235,23,23,199},40,3},
+			    ,(NONE8),(I_EDGED)
+			 ,7000,10,90,60,12,'W',{250,65},{235,23,23,199},40,3},
 
 {"Minotaur"		    ,(MV_ATT_NORM),(NONE8),(EVIL),(NONE8),(NONE8)
-			    ,2100,10,13,25,13,'H',{100,10}
+			    ,2100,10,13,25,13,'H',{106,10}
 			    ,{227,227,228,228},40,2},
 
 {"Medusa, the Gorgon"	    ,(MV_ATT_NORM|THRO_DR|HAS_2D2|HAS_1D2|CARRY_OBJ)
@@ -2264,47 +2284,48 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(EVIL|IM_FIRE|CHARM_SLEEP|UNIQUE|INTELLIGENT|
 			     GOOD|IM_POISON|MAX_HP|IM_ACID)
 			    ,(PLASMA_BOLT|ACID_BALL),(S_REPTILE)
-			,9000,5,30,100,12,'n',{40,60},{246,267,235,235},40,3},
+			,9000,5,30,100,12,'n',{190,70},{246,267,235,235},40,3},
 
 {"Death drake"		    ,(MV_ATT_NORM|MV_INVIS|THRO_DR|HAS_2D2|HAS_4D2|
 			     CARRY_OBJ|PICK_UP|THRO_WALL)
 			    ,(0x6L|FEAR|CONFUSION|SLOW)
 			    ,(EVIL|IM_FROST|CHARM_SLEEP|MAX_HP|DRAGON)
-			    ,(BREATH_LD),(NONE8)
-			 ,3500,30,25,100,12,'D',{105,10},{56,56,236,0},40,2},
+			    ,(BREATH_LD),(R_EDGED)
+			 ,3500,30,25,100,13,'D',{190,40},{56,56,236,0},40,2},
 
 {"Ancient red Dragon"	    ,(HAS_4D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_2D2|
 			      HAS_60|MV_ATT_NORM)
 			    ,(0x6L|BREATH_FI|FEAR|BLINDNESS|CONFUSION)
 			    ,(EVIL|DRAGON|IM_FIRE|CHARM_SLEEP|MAX_HP)
-			    ,(NONE8),(NONE8)
-			 ,2750,70,20,100,12,'D',{105,10},{56,56,40,0},40,1},
+			    ,(NONE8),(R_EDGED)
+			 ,2750,70,20,100,13,'D',{230,35},{56,56,40,0},40,1},
 
 {"Ancient gold Dragon"	    ,(HAS_4D2|CARRY_GOLD|CARRY_OBJ|HAS_90|HAS_2D2|
 			      HAS_60|MV_ATT_NORM)
 			    ,(0x6L|FEAR|BLINDNESS|CONFUSION)
-			    ,(DRAGON|CHARM_SLEEP|MAX_HP),(BREATH_SD),(NONE8)
-			 ,4000,200,20,100,12,'D',{150,10},{56,56,40,0},40,2},
+			    ,(DRAGON|CHARM_SLEEP|MAX_HP),
+			      (BREATH_SD|IM_SOUND),(R_EDGED)
+			 ,4000,200,20,100,13,'D',{235,23},{56,56,40,0},40,2},
 
 {"Great Crystal Drake"	    ,(MV_ATT_NORM|MV_INVIS|THRO_DR|HAS_4D2|HAS_2D2|
 			     CARRY_OBJ)
 			    ,(0x6L|FEAR|CONFUSION|SLOW)
 			    ,(EVIL|IM_FROST|CHARM_SLEEP|MAX_HP|DRAGON)
-			    ,(BREATH_SH),(NONE8)
-			   ,3500,30,25,100,11,'D',{50,30},{55,55,39,0},40,2},
+			    ,(BREATH_SH),(R_EDGED)
+			   ,3500,30,25,100,13,'D',{220,40},{55,55,39,0},40,2},
 
 {"Vrock"		    ,(MV_ATT_NORM|HAS_60|CARRY_OBJ|THRO_DR)
-			    ,(0x8L|BLINDNESS|CONFUSION)
+			    ,(0x9L)
 			    ,(EVIL|DEMON|CHARM_SLEEP|IM_FIRE|MAX_HP|GROUP)
-			    ,(NONE8),(NONE8)
-			    ,1000,80,20,50,11,'&',{20,11},{17,78,78,0},40,2},
+			    ,(NONE8),(HELLFIRE)
+			    ,1000,80,20,50,12,'&',{40,45},{17,78,78,0},40,2},
 
 {"Death Quasit"		    ,(HAS_4D2|HAS_2D2|HAS_90|CARRY_OBJ|MV_INVIS|
 			      THRO_WALL|MV_ATT_NORM)
 			  ,(0xAL|FEAR|CONFUSION|BLINDNESS|CAUSE_CRIT|S_DEMON)
 			    ,(EVIL|IM_POISON|CHARM_SLEEP|MAX_HP|DEMON|IM_FIRE
 			      |INTELLIGENT),(FORGET),(NONE8)
-			    ,1000,0,20,80,13,'I',{55,8},{177,58,58,0},40,3},
+			    ,1000,0,20,80,13,'I',{59,12},{177,58,58,0},40,3},
 
 {"Adunaphel the Quiet"	   ,(HAS_4D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM|MV_INVIS
 			     |THRO_WALL)
@@ -2312,45 +2333,45 @@ creature_type c_list[MAX_CREATURES] = {
 			      |MONSTER|FIRE_BOLT|FROST_BOLT|ACID_BOLT)
 			    ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|UNIQUE
 			      |HURT_LIGHT|GOOD|NO_INFRA|IM_POISON)
-			    ,(FORGET|NETHER_BOLT),(NONE8)
-			  ,8000,10,90,60,12,'W',{35,35},{23,23,199,0},41,3},
+			    ,(FORGET|NETHER_BOLT),(I_EDGED)
+			  ,8000,10,90,60,12,'W',{225,60},{23,23,199,0},41,3},
 
 {"Dark elven sorceror"	    ,(HAS_4D2|CARRY_OBJ|HAS_90|THRO_DR|MV_ATT_NORM)
 			    ,(0x2L|BLINK|TELE_TO|BLINDNESS|CONFUSION|
 			      MONSTER|S_UNDEAD|CAUSE_CRIT|S_DEMON|
 			      FIRE_BALL|FROST_BALL|ACID_BOLT)
 			    ,(EVIL|CHARM_SLEEP|INTELLIGENT|MAX_HP|HURT_LIGHT)
-			    ,(HEAL|DARKNESS),(NONE8)
-			    ,3000,10,20,70,13,'h',{40,20},{16,16,16,0},41,2},
+			    ,(HEAL|DARKNESS),(HELLFIRE)
+			    ,3000,10,20,70,13,'h',{60,40},{16,16,16,0},41,2},
 
 {"Master Lich"		    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_4D2|HAS_2D2)
 			    ,(0x3L|FEAR|CONFUSION|BLINDNESS|HOLD_PERSON|
 			      CAUSE_CRIT|MANA_DRAIN|TELE_TO|BLINK|S_UNDEAD)
 			    ,(UNDEAD|IM_POISON|IM_FROST|EVIL|MAX_HP|
 			      CHARM_SLEEP|NO_INFRA|INTELLIGENT)
-			    ,(BRAIN_SMASH|RAZOR),(NONE8)
-		       ,10000,50,20,80,12,'L',{42,42},{181,201,214,181},41,2},
+			    ,(BRAIN_SMASH|RAZOR),(R_EDGED)
+		       ,10000,50,20,80,13,'L',{160,60},{181,201,214,181},41,2},
 
 {"Hezrou"		    ,(MV_ATT_NORM|HAS_2D2|CARRY_OBJ|THRO_DR)
-			    ,(0x9L|S_DEMON|FIRE_BOLT)
+			    ,(0x5L|S_DEMON)
 			    ,(EVIL|DEMON|CHARM_SLEEP|IM_FIRE|MAX_HP|GROUP)
-			    ,(NONE8),(NONE8)
-			    ,1500,80,20,40,11,'&',{20,15},{17,17,0,0},41,3},
+			    ,(NONE8),(HELLFIRE)
+			    ,1500,80,20,40,12,'&',{45,50},{17,17,0,0},41,3},
 
 {"Akhorahil the Blind"	    ,(HAS_4D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(0x3L|CAUSE_CRIT|HOLD_PERSON|FEAR|BLINDNESS
 			      |MONSTER|FIRE_BOLT|FROST_BOLT)
 			    ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|UNIQUE
 			      |GOOD|IM_POISON|NO_INFRA)
-			    ,(NETHER_BOLT|DARKNESS),(NONE8)
-			  ,12000,10,90,70,12,'W',{35,50},{23,23,199,99},41,3},
+			    ,(NETHER_BOLT|DARKNESS),(HELLFIRE|I_EDGED)
+			  ,12000,10,90,70,12,'W',{205,55},{23,23,199,99},41,3},
 
 {"Gorlim, Betrayer of Barahir",(MV_ATT_NORM|HAS_2D2|CARRY_OBJ|THRO_DR)
 			    ,(0x2L|CAUSE_CRIT|MANA_BOLT)
 			    ,(GOOD|UNIQUE|MAX_HP|INTELLIGENT|CHARM_SLEEP|
 			     IM_POISON|IM_FROST|IM_ACID|IM_FROST|IM_LIGHTNING)
 			    ,(WATER_BOLT),(NONE8)
-		       ,7000,40,20,120,12,'p',{80,20},{218,218,230,230},41,3},
+		       ,7000,40,20,120,12,'p',{115,35},{218,218,230,230},41,3},
 
 {"Solar"		    ,(MV_ATT_NORM|THRO_DR|PICK_UP|CARRY_OBJ|
 			      CARRY_GOLD|HAS_4D2|HAS_2D2|HAS_1D2)
@@ -2359,42 +2380,42 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(IM_POISON|IM_FIRE|IM_FROST|IM_ACID|IM_LIGHTNING|
 			      GOOD|INTELLIGENT)
 			    ,(S_ANGEL|RAZOR),(NONE8)
-			    ,15000,255,30,140,13,'A',{120,30}
+			    ,15000,255,30,140,13,'A',{135,40}
 			    ,{217,217,218,218},41,6},
 
 {"Glabrezu"		    ,(MV_ATT_NORM|HAS_90|CARRY_OBJ|THRO_DR)
-			    ,(0x9L|S_DEMON|FIRE_BOLT)
+			    ,(0x7L|S_DEMON)
 			    ,(EVIL|DEMON|CHARM_SLEEP|IM_FIRE|MAX_HP)
-			    ,(NONE8),(NONE8)
-			    ,1750,80,20,40,11,'&',{22,15},{17,17,0,0},41,2},
+			    ,(NONE8),(HELLFIRE)
+			    ,1750,80,20,40,12,'&',{60,70},{17,17,0,0},41,2},
 
 {"Ren the Unclean"	    ,(HAS_4D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM|MV_INVIS)
 			    ,(0x3L|CAUSE_CRIT|HOLD_PERSON|FEAR|BLINDNESS
 			      |MONSTER|FIRE_BALL|FIRE_BOLT)
 			    ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|UNIQUE
 			      |HURT_LIGHT|IM_FIRE|GOOD|IM_POISON|NO_INFRA)
-			    ,(NETHER_BOLT),(NONE8)
-			  ,13000,10,90,70,12,'W',{35,50},{23,23,199,99},41,3},
+			    ,(NETHER_BOLT),(HELLFIRE|I_EDGED)
+			  ,13000,10,90,70,12,'W',{165,80},{23,23,199,99},41,3},
 
 {"Nalfeshnee"		    ,(MV_ATT_NORM|HAS_1D2|CARRY_OBJ|THRO_DR)
 			    ,(0x9L|BLINDNESS|CONFUSION|BREATH_FI|S_DEMON)
 			    ,(EVIL|DEMON|CHARM_SLEEP|IM_FIRE|MAX_HP)
-			    ,(NONE8),(NONE8)
-			    ,2000,80,20,50,11,'&',{30,15},{17,17,17,0},42,2},
+			    ,(NONE8),(HELLFIRE)
+			    ,2000,80,20,50,12,'&',{65,75},{17,17,17,0},42,2},
 
 {"Undead beholder"	    ,(MV_ATT_NORM)
 			    ,(0x2L|S_UNDEAD|SLOW|MANA_DRAIN|MANA_BOLT)
 			    ,(ANIMAL|UNDEAD|EVIL|CHARM_SLEEP|MAX_HP|IM_POISON
 			     |IM_FIRE|IM_LIGHTNING|IM_ACID|IM_FROST|NO_INFRA)
 			    ,(FORGET|MIND_BLAST|RAZOR|BRAIN_SMASH),(NONE8)
-		     ,4000,10,30,100,12,'e',{90,30},{223,224,225,226},42,4},
+		     ,4000,10,30,100,12,'e',{90,50},{223,224,225,226},42,4},
 
 {"Dread"		    ,(MV_ATT_NORM|MV_20|CARRY_OBJ|
 			     HAS_60|THRO_WALL|PICK_UP|MV_INVIS)
 			    ,(0xFL|HOLD_PERSON|MANA_DRAIN|BLINDNESS|CONFUSION)
 			    ,(UNDEAD|EVIL|IM_FROST|NO_INFRA|CHARM_SLEEP|GROUP|
 			     IM_POISON),(NETHER_BOLT),(NONE8)
-			    ,600,10,20,30,12,'G',{25,20},{235,235,80,0},43,1},
+			    ,600,10,20,30,12,'G',{63,25},{235,235,80,0},43,1},
 
 {"Mumakil"		    ,(MV_ATT_NORM),(NONE8),(ANIMAL|GROUP)
 			    ,(NONE8),(NONE8)
@@ -2406,15 +2427,15 @@ creature_type c_list[MAX_CREATURES] = {
 			      BREATH_FI|FEAR|CONFUSION|BLINDNESS)
 			    ,(IM_FROST|IM_ACID|IM_POISON|IM_LIGHTNING|
 			      IM_FIRE|EVIL|DRAGON|CHARM_SLEEP|MAX_HP)
-			    ,(NONE8),(NONE8)
-			  ,13000,70,20,100,12,'D',{52,40},{57,57,42,0},43,1},
+			    ,(NONE8),(R_EDGED)
+			  ,13000,70,20,100,13,'D',{165,80},{57,57,42,0},43,1},
 
 {"Ethereal Dragon"	   ,(MV_ATT_NORM|THRO_DR|HAS_60|HAS_90|HAS_4D2|
 			    HAS_2D2|HAS_1D2|CARRY_OBJ|MV_INVIS|THRO_WALL)
 			   ,(0x5L|CONFUSION|BLINDNESS)
 			   ,(DRAGON|CHARM_SLEEP|MAX_HP)
-			   ,(BREATH_CO),(BREATH_LT|BREATH_DA)
-			,11000,15,25,100,12,'D',{52,40},{57,57,42,0},43,2},
+			   ,(BREATH_CO),(BREATH_LT|BREATH_DA|R_EDGED)
+			,11000,15,25,100,13,'D',{190,50},{57,57,42,0},43,2},
 
 {"Ji Indur Dawndeath"	   ,(HAS_4D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM|MV_INVIS)
 			    ,(0x3L|FIRE_BALL|CAUSE_CRIT|HOLD_PERSON|
@@ -2422,44 +2443,44 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|UNIQUE
 			      |HURT_LIGHT|IM_FIRE|GOOD|IM_POISON|NO_INFRA)
 			    ,(NETHER_BALL)
-			    ,(NONE8)
-			  ,12000,10,90,70,12,'W',{35,50},{23,23,199,0},43,4},
+			    ,(HELLFIRE|I_EDGED)
+			  ,12000,10,90,70,12,'W',{210,47},{23,23,199,0},43,4},
 
 {"Marilith"		    ,(MV_ATT_NORM|HAS_1D2|CARRY_OBJ|THRO_DR)
-			    ,(0x9L|CAUSE_SERIOUS|BLINDNESS|S_DEMON)
+			    ,(0x5L|CAUSE_SERIOUS|BLINDNESS|S_DEMON)
 			    ,(EVIL|DEMON|CHARM_SLEEP|IM_FIRE|MAX_HP)
-			    ,(NONE8),(NONE8)
-			    ,5000,80,20,75,12,'&',{40,15},{19,19,19,19},43,2},
+			    ,(NONE8),(HELLFIRE)
+			    ,5000,80,20,75,13,'&',{75,70},{19,19,19,19},43,2},
 
 {"Quaker, Master of Earth"  ,(THRO_WALL|PICK_UP|MV_ATT_NORM),(0x6L|ACID_BOLT)
 			    ,(IM_POISON|IM_FIRE|IM_FROST|IM_LIGHTNING|
 			      CHARM_SLEEP|HURT_ROCK|EVIL|MAX_HP|NO_INFRA|
 			      DESTRUCT|UNIQUE),(ACID_BALL),(NONE8)
-			,6000,90,10,97,11,'E',{90,20},{212,235,235,235},43,4},
+			,6000,90,10,97,11,'E',{155,35},{212,235,235,235},43,4},
 
 {"Balor"		    ,(MV_ATT_NORM|HAS_2D2|HAS_1D2|
 			      CARRY_OBJ|THRO_DR)
 			   ,(0x4L|CONFUSION|BLINDNESS|S_DEMON|BREATH_FI)
 			    ,(EVIL|DEMON|CHARM_SLEEP|IM_FIRE|MAX_HP)
-			    ,(NONE8),(NONE8)
-			,8000,80,20,50,12,'&',{60,30},{101,22,101,23},44,3},
+			    ,(NONE8),(HELLFIRE)
+			,8000,80,20,50,13,'&',{65,40},{101,22,101,23},44,3},
 
 {"Ariel, Queen of Air"	    ,(MV_ATT_NORM|MV_20|THRO_CREAT),(0x5L|FROST_BALL)
 			    ,(EVIL|IM_POISON|CHARM_SLEEP|IM_FIRE|IM_FROST|
 			      IM_LIGHTNING|IM_ACID|IM_POISON|MAX_HP|UNIQUE|
 			      NO_INFRA),(LIGHT_BALL|LIGHT_BOLT),(NONE8)
-			,8000,50,12,50,13,'E',{60,45},{22,89,22,89},44,4},
+			,8000,50,12,50,13,'E',{80,65},{22,89,22,89},44,4},
 
 {"11-headed hydra"	    ,(MV_ATT_NORM|THRO_DR|CARRY_GOLD|HAS_4D2|HAS_2D2)
 			    ,(0x4L|FEAR|FIRE_BOLT|FIRE_BALL|BREATH_FI)
 			    ,(ANIMAL|IM_FIRE),(PLASMA_BOLT),(NONE8)
-		      ,6000,20,20,100,12,'R',{100,18},{107,107,107,107},44,2},
+		      ,6000,20,20,100,12,'R',{140,28},{107,107,107,107},44,2},
 
 {"Patriarch"		    ,(HAS_4D2|CARRY_OBJ|HAS_90|THRO_DR|MV_ATT_NORM)
-			    ,(0x2L|HOLD_PERSON|BLINDNESS|S_UNDEAD)
+			    ,(0x3L|HOLD_PERSON|BLINDNESS|S_UNDEAD)
 			    ,(EVIL|CHARM_SLEEP|MAX_HP|INTELLIGENT)
-			    ,(HEAL|BRAIN_SMASH|RAZOR|SUMMON),(NONE8)
-			,5000,10,20,60,12,'p',{40,20},{17,17,18,0},44,2},
+			    ,(HEAL|BRAIN_SMASH|RAZOR|SUMMON),(HELLFIRE)
+			,5000,10,20,60,12,'p',{105,35},{17,17,18,0},44,2},
 
 {"Dreadmaster"		   ,(MV_ATT_NORM|MV_20|HAS_4D2|CARRY_OBJ|HAS_1D2|
 			     THRO_WALL|PICK_UP|MV_INVIS)
@@ -2468,13 +2489,13 @@ creature_type c_list[MAX_CREATURES] = {
 			   ,(UNDEAD|EVIL|IM_FROST|NO_INFRA|CHARM_SLEEP|MAX_HP|
 			     INTELLIGENT|IM_POISON)
 			   ,(NETHER_BOLT|RAZOR|TELE_LEV),(NONE8)
-			,8000,10,20,100,12,'G',{60,20},{235,235,80,80},44,2},
+			,8000,10,20,100,12,'G',{95,40},{235,235,80,80},44,2},
 
 {"Master mystic"	   ,(MV_ATT_NORM|HAS_2D2|HAS_1D2|CARRY_OBJ|MV_INVIS)
 			   ,(0x3L),(IM_FROST|IM_FIRE|IM_POISON|IM_LIGHTNING|
 			    IM_ACID|MAX_HP|CHARM_SLEEP)
 			   ,(HEAL|S_SPIDER),(NONE8)
-			,6000,5,30,60,13,'p',{20,55},{266,266,264,265},44,3},
+			,6000,5,30,60,13,'p',{65,70},{266,266,264,265},44,3},
 
 /*
  * Unique monsters have no word before them e.g Tiamat etc.. hits you
@@ -2489,84 +2510,84 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(DRAGON|CHARM_SLEEP|IM_FROST|IM_FIRE|
 			     IM_POISON|IM_LIGHTNING|MAX_HP|NO_INFRA)
 			    ,(MISSILE),(NONE8)
-		      ,12000,30,25,130,12,'g',{100,30},{48,48,238,238},44,3},
+		      ,12000,30,25,130,12,'g',{145,30},{48,48,238,238},44,3},
 
 {"Scatha the Worm"	    ,(HAS_4D2|CARRY_OBJ|HAS_90|HAS_2D2|
 			      HAS_60|MV_ATT_NORM)
 			    ,(0x3L|BREATH_FR|CAUSE_CRIT|CONFUSION)
 			    ,(EVIL|DRAGON|IM_FROST|CHARM_SLEEP|MAX_HP|
-			      UNIQUE|GOOD),(NONE8),(NONE8)
-			,17000,70,20,130,12,'D',{150,12},{56,56,56,276},44,2},
+			      UNIQUE|GOOD),(NONE8),(I_EDGED)
+			,17000,70,20,130,13,'D',{255,30},{56,56,56,276},44,2},
 
 {"Dwar, Dog Lord of Waw"    ,(HAS_4D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(0x3L|FIRE_BALL|CAUSE_CRIT|HOLD_PERSON|
 			      FEAR|BLINDNESS|S_UNDEAD)
 			    ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|UNIQUE
 			      |HURT_LIGHT|IM_FIRE|GOOD|INTELLIGENT|IM_POISON|
-			     NO_INFRA),(NETHER_BALL|SUMMON|S_HOUND),(NONE8)
-			 ,13000,10,90,90,12,'W',{40,50},{23,23,199,99},44,3},
+			     NO_INFRA),(NETHER_BALL|SUMMON|S_HOUND),(R_BLUNT)
+			 ,13000,10,90,90,12,'W',{95,70},{23,23,199,99},44,3},
 
 {"Smaug the Golden"	    ,(HAS_4D2|CARRY_OBJ|HAS_90|HAS_2D2|
 			      HAS_60|MV_ATT_NORM)
 			    ,(0x3L|BREATH_FI|CAUSE_CRIT|CONFUSION)
 			    ,(EVIL|DRAGON|IM_FIRE|CHARM_SLEEP|MAX_HP|
-			      UNIQUE|GOOD),(NONE8),(NONE8)
-			 ,19000,70,20,100,12,'D',{150,13},{56,56,56,276},45,2},
+			      UNIQUE|GOOD),(NONE8),(I_EDGED)
+			 ,19000,70,20,100,13,'D',{250,55},{56,56,56,276},45,2},
 
 {"Dracolich"		    ,(MV_ATT_NORM|THRO_DR|HAS_2D2|HAS_4D2|
 			     CARRY_OBJ|PICK_UP)
 			    ,(0x6L|FEAR|CONFUSION|MANA_BOLT|BREATH_FR)
 			    ,(EVIL|IM_FROST|CHARM_SLEEP|UNDEAD|
-			    MAX_HP|DRAGON|IM_POISON|NO_INFRA),(NONE8),(NONE8)
-			,18000,30,25,120,12,'D',{70,50},{57,57,236,236},46,2},
+			    MAX_HP|DRAGON|IM_POISON|NO_INFRA),(NONE8),(I_EDGED)
+			,18000,30,25,120,13,'D',{175,90},{57,57,236,236},46,2},
 
 {"Greater titan"	    ,(MV_ATT_NORM|THRO_DR|PICK_UP|CARRY_OBJ|
 			      CARRY_GOLD|HAS_4D2|HAS_2D2)
 			    ,(0x3L|TELE_TO)
 			    ,(EVIL|GIANT|MAX_HP|INTELLIGENT)
-			    ,(SUMMON|HEAL),(NONE8)
-		      ,13500,15,30,125,12,'P',{75,50},{269,269,269,269},46,3},
+			    ,(SUMMON|HEAL),(R_BLUNT)
+		      ,13500,15,30,125,12,'P',{180,80},{269,269,269,269},46,3},
 
 {"Dracolisk"		    ,(MV_ATT_NORM|THRO_DR|HAS_4D2|CARRY_OBJ)
 			    ,(0x6L|HOLD_PERSON|FEAR|BREATH_FI)
 			    ,(ANIMAL|EVIL|CHARM_SLEEP|MAX_HP|DRAGON|IM_FIRE|
 			     IM_ACID),(BREATH_NE),(NONE8)
-			,14000,30,25,120,12,'H',{70,50},{39,39,48,146},46,2},
+			,14000,30,25,120,12,'H',{150,80},{39,39,48,146},46,2},
 
-{"Death mold"		    ,(MV_ONLY_ATT|THRO_DR),(NONE8),(IM_FIRE|IM_POISON|
+{"Crystal mold"		    ,(MV_ONLY_ATT|THRO_DR),(0x5L),(IM_FIRE|IM_POISON|
 			     IM_FROST|IM_ACID|IM_LIGHTNING|ANIMAL|EVIL)
-			    ,(NONE8),(NONE8)
-		      ,1000,0,200,60,14,'m',{200,10},{257,257,257,202},47,1},
+			    ,(BREATH_SH),(ARROW)
+		      ,8000,0,200,60,14,'m',{90,50},{235,235,0,0},47,1},
 
 {"Itangast the Fire Drake"  ,(HAS_4D2|CARRY_OBJ|HAS_90|HAS_2D2|
 			      HAS_60|MV_ATT_NORM)
 			    ,(0x3L|BREATH_FI|CAUSE_CRIT|CONFUSION)
 			    ,(EVIL|DRAGON|IM_FIRE|CHARM_SLEEP|MAX_HP|
-			      UNIQUE|GOOD),(NONE8),(NONE8)
-		       ,20000,70,20,100,12,'D',{150,15},{56,56,276,277},47,4},
+			      UNIQUE|GOOD),(NONE8),(R_EDGED)
+		       ,20000,70,20,100,12,'D',{220,40},{56,56,276,277},47,4},
 
 {"Glaurung, Father of the Dragons"
 			    ,(HAS_4D2|CARRY_OBJ|HAS_90|HAS_2D2|
 			      HAS_60|MV_ATT_NORM)
 			    ,(0x5L|BREATH_FI|CAUSE_CRIT|CONFUSION|S_DRAGON)
 			    ,(EVIL|DRAGON|IM_FIRE|CHARM_SLEEP|MAX_HP|
-			      UNIQUE|GOOD),(NONE8),(NONE8)
-		      ,25000,70,20,120,12,'D',{110,25},{272,272,279,279},48,2},
+			      UNIQUE|GOOD),(NONE8),(I_EDGED)
+		      ,25000,70,20,120,12,'D',{250,60},{272,272,279,279},48,2},
 
 {"Muar, the Balrog",	     (MV_ATT_NORM|HAS_4D2|HAS_2D2|HAS_1D2|
 			      CARRY_OBJ|HAS_60|HAS_90|THRO_DR)
-			    ,(0x4L|FEAR|S_UNDEAD|BREATH_FI|CONFUSION|S_DEMON)
+			    ,(0x3L|FEAR|S_UNDEAD|BREATH_FI|CONFUSION|S_DEMON)
 			    ,(EVIL|DEMON|CHARM_SLEEP|IM_FIRE|MAX_HP|
-			      UNIQUE|GOOD),(NONE8),(NONE8)
-		       ,30000,80,20,100,12,'&',{50,60},{104,78,214,0},50,3},
+			      UNIQUE|GOOD),(NONE8),(HELLFIRE|R_EDGED|R_BLUNT)
+		       ,30000,80,20,100,13,'&',{95,105},{104,78,214,0},50,3},
 
 {"Nightwing"		    ,(MV_ATT_NORM|HAS_2D2|CARRY_OBJ|THRO_DR)
 			    ,(0x4L|FEAR|S_UNDEAD|BLINDNESS|MANA_BOLT)
 			    ,(EVIL|UNDEAD|IM_FROST|IM_POISON|CHARM_SLEEP|
 			     INTELLIGENT|GOOD|NO_INFRA)
 			    ,(BRAIN_SMASH|RAZOR|NETHER_BALL|NETHER_BOLT)
-			    ,(NONE8)
-		      ,6000,10,20,120,12,'W',{60,30},{172,172,230,230},50,4},
+			    ,(R_EDGED)
+		      ,6000,10,20,120,12,'W',{67,34},{172,172,230,230},50,4},
 
 {"Nether hound"		    ,(MV_ATT_NORM|THRO_DR),(0x5L)
 			    ,(ANIMAL|GROUP|CHARM_SLEEP),(BREATH_LD)
@@ -2591,33 +2612,34 @@ creature_type c_list[MAX_CREATURES] = {
 			      MV_ATT_NORM),(0x6L|BREATH_L|FEAR|BLINDNESS
 			      |CONFUSION)
 			    ,(EVIL|DRAGON|IM_LIGHTNING|CHARM_SLEEP
-			     |MAX_HP|GOOD),(NONE8),(NONE8)
-			  ,17000,80,30,150,12,'D',{50,60},{57,57,57,277},51,2},
+			     |MAX_HP|GOOD),(NONE8),(R_EDGED)
+			  ,17000,80,30,150,13,'D',{57,83},{57,57,57,277},51,2},
 
 {"Baphomet the Minotaur Lord" ,(HAS_4D2|HAS_1D2|CARRY_OBJ|MV_ATT_NORM)
 			    ,(0x6L|SLOW|MANA_BOLT),(EVIL|CHARM_SLEEP|UNIQUE|
 			     MAX_HP|GOOD|IM_POISON|IM_FIRE),(PLASMA_BOLT|
 			     MISSILE|LIGHT_BALL),(BREATH_WA)
-		      ,18000,30,30,120,13,'H',{70,50},{282,282,212,212},51,4},
+		      ,18000,30,30,120,13,'H',{160,90},{282,282,212,212},51,4},
 
 {"Harowen the Black Hand"   ,(HAS_4D2|HAS_1D2|CARRY_OBJ|MV_ATT_NORM)
 			    ,(0x6L),(CHARM_SLEEP|MAX_HP|UNIQUE|
 			     GOOD|IM_POISON),(TRAP_CREATE),(NONE8)
-			,20000,0,40,90,14,'p',{50,50},{258,259,260,261},52,3},
+			,20000,0,40,90,14,'p',{90,80},{258,259,260,261},52,3},
 
 {"Hoarmurath of Dir",	(HAS_4D2|HAS_2D2|CARRY_OBJ|THRO_DR|MV_ATT_NORM)
 			    ,(0x3L|FROST_BALL|CAUSE_CRIT|HOLD_PERSON
 			      |FROST_BOLT|FEAR|BLINDNESS|S_UNDEAD)
 			    ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|UNIQUE
 			      |HURT_LIGHT|GOOD|INTELLIGENT|IM_POISON|
-			     NO_INFRA),(RAZOR|NETHER_BALL|MIND_BLAST),(NONE8)
-		       ,40000,10,90,100,12,'W',{50,50},{212,23,199,99},52,3},
+			     NO_INFRA),(RAZOR|NETHER_BALL|MIND_BLAST),
+				(HELLFIRE|I_EDGED)
+		       ,40000,10,90,100,12,'W',{130,110},{212,23,199,99},52,3},
 
 {"Grand master mystic"	  ,(MV_ATT_NORM|HAS_4D2|CARRY_OBJ|MV_INVIS)
 			  ,(0x2L),(IM_FROST|IM_FIRE|IM_POISON|IM_LIGHTNING|
 			   IM_ACID|MAX_HP|CHARM_SLEEP)
-			  ,(HEAL|S_HOUND|S_SPIDER|S_REPTILE),(NONE8)
-		      ,15000,5,30,80,13,'p',{40,55},{263,266,264,265},53,3},
+			  ,(HEAL|S_HOUND|S_SPIDER|S_REPTILE),(R_BLUNT)
+		      ,15000,5,30,80,13,'p',{45,68},{263,266,264,265},53,3},
 
 {"Khamul the Easterling", (HAS_4D2|HAS_2D2|CARRY_OBJ|HAS_1D2|THRO_DR|
 			  MV_ATT_NORM)
@@ -2626,8 +2648,8 @@ creature_type c_list[MAX_CREATURES] = {
 		       ,(EVIL|UNDEAD|CHARM_SLEEP|IM_FROST|MAX_HP|UNIQUE
 			 |HURT_LIGHT|IM_FIRE|IM_POISON|IM_ACID|GOOD
 			 |INTELLIGENT|NO_INFRA)
-			,(NETHER_BALL|TELE_LEV|RAZOR),(NONE8)
-		      ,50000,10,90,100,12,'W',{70,50},{212,23,199,199},53,3},
+			,(NETHER_BALL|TELE_LEV|RAZOR),(HELLFIRE|I_EDGED)
+		      ,50000,10,90,100,12,'W',{155,120},{212,23,199,199},53,3},
 
 {"Ethereal hound"	   ,(MV_ATT_NORM|THRO_DR|MV_INVIS|THRO_WALL)
 			   ,(0x5L),(ANIMAL|GROUP|CHARM_SLEEP)
@@ -2638,36 +2660,36 @@ creature_type c_list[MAX_CREATURES] = {
 			      MV_ATT_NORM),(0x6L|BREATH_FR|FEAR|BLINDNESS
 			      |CONFUSION)
 			    ,(EVIL|DRAGON|IM_FROST|CHARM_SLEEP
-			     |MAX_HP|GOOD),(NONE8),(NONE8)
-			,20000,80,30,170,12,'D',{50,60},{57,57,271,277},54,2},
+			     |MAX_HP|GOOD),(NONE8),(R_EDGED)
+			,20000,80,30,170,13,'D',{205,80},{57,57,271,277},54,2},
 
 {"The Phoenix"          ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_2D2)
                         ,(0x3L|FIRE_BOLT|FIRE_BALL|BREATH_FI)
 			,(ANIMAL|CHARM_SLEEP|IM_FIRE|IM_LIGHTNING|IM_POISON|
 			 IM_ACID|GOOD|UNIQUE|MAX_HP),(PLASMA_BOLT)
 			,(BREATH_LT|BREATH_PL)
- 		      ,40000,0,60,130,12,'B',{36,100},{251,251,220,220},54,3},
+ 		      ,40000,0,60,130,13,'B',{100,90},{251,251,220,220},54,3},
 
 {"Nightcrawler"		,(MV_ATT_NORM|HAS_2D2|CARRY_OBJ|HAS_1D2|THRO_DR)
 			,(0x4L|FEAR|S_UNDEAD|BLINDNESS|MANA_BOLT)
 			,(EVIL|UNDEAD|IM_FROST|IM_POISON|IM_FIRE|CHARM_SLEEP|
 			 INTELLIGENT|GOOD|NO_INFRA),(BRAIN_SMASH|NETHER_BALL|
-			 NETHER_BOLT|BREATH_LD),(NONE8)
-		      ,8000,10,20,160,12,'W',{80,60},{254,254,255,255},54,4},
+			 NETHER_BOLT|BREATH_LD),(R_EDGED)
+		      ,8000,10,20,160,12,'W',{85,60},{254,254,255,255},54,4},
 
 {"Hand druj"		,(MV_ONLY_ATT)
 			,(0x1L|FEAR|BLINDNESS|CONFUSION|CAUSE_CRIT)
 			,(EVIL|NO_INFRA|IM_FROST|CHARM_SLEEP|MAX_HP|UNDEAD
 			  |INTELLIGENT|IM_POISON)
 			,(DARKNESS|FORGET|TELE_AWAY),(NONE8)
-			,12000,10,20,110,13,'s',{30,20},{0,0,0,0},55,4},
+			,12000,10,20,110,13,'s',{60,25},{0,0,0,0},55,4},
 
 {"Eye druj"		,(MV_ONLY_ATT)
 			,(0x1L|S_UNDEAD|MANA_BOLT)
 			,(EVIL|UNDEAD|CHARM_SLEEP|NO_INFRA|MAX_HP|IM_FROST
 			  |IM_POISON|IM_FIRE|INTELLIGENT)
 			,(NETHER_BOLT|NETHER_BALL),(NONE8)
-			,24000,10,20,90,13,'s',{40,25},{246,246,0,0},55,4},
+			,24000,10,20,90,13,'s',{85,25},{246,246,0,0},55,4},
 
 {"Skull druj"		,(MV_ONLY_ATT)
 			,(0x1L|S_UNDEAD|SLOW)
@@ -2675,11 +2697,11 @@ creature_type c_list[MAX_CREATURES] = {
 			  |IM_POISON|IM_FIRE|INTELLIGENT)
 			,(MIND_BLAST|TRAP_CREATE|NETHER_BOLT|PLASMA_BOLT
 			  |BRAIN_SMASH|RAZOR|WATER_BALL),(NONE8)
-			,25000,10,20,120,13,'s',{50,27},{247,236,248,249},55,
+			,25000,10,20,120,13,'s',{105,27},{247,236,248,249},55,
 									4},
 
 {"Chaos vortex"		     ,(MV_ATT_NORM|MV_75),(0x6L)
-			    ,(CHARM_SLEEP),(BREATH_CH),(NONE8)
+			    ,(CHARM_SLEEP),(BREATH_CH|IM_CONFUSION),(NONE8)
 			    ,4000,0,100,80,14,'v',{32,20},{0,0,0,0},55,1},
 
 {"Aether vortex"	    ,(MV_ATT_NORM|MV_75),(0x6L|BREATH_FI|BREATH_FR|
@@ -2699,7 +2721,7 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(CHARM_SLEEP|IM_FIRE|IM_POISON|UNIQUE|ANIMAL|
 			     INTELLIGENT|MAX_HP)
 			    ,(PLASMA_BOLT|ST_CLOUD),(S_REPTILE)
-		    ,20000,20,20,140,12,'R',{100,43},{250,250,251,251},55,2},
+		    ,20000,20,20,140,12,'R',{190,66},{250,250,251,251},55,2},
 
 {"Thuringwethil"	    ,(MV_ATT_NORM|THRO_DR|HAS_4D2|HAS_2D2|HAS_1D2|
 			     CARRY_OBJ|HAS_60|HAS_90)
@@ -2708,14 +2730,14 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(UNDEAD|EVIL|MAX_HP|CHARM_SLEEP|INTELLIGENT|
 			     IM_FROST|HURT_LIGHT|NO_INFRA|UNIQUE|GOOD|
 			    IM_POISON),(NETHER_BALL|RAZOR|BRAIN_SMASH),(NONE8)
-		      ,23000,10,20,145,13,'V',{100,40},{48,216,216,198},55,4},
+		      ,23000,10,20,145,13,'V',{175,95},{48,216,216,198},55,4},
 
 {"Great Hell Wyrm"	    ,(HAS_1D2|HAS_4D2|HAS_2D2|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x6L|BREATH_FI|FEAR|BLINDNESS
 			      |CONFUSION)
 			    ,(EVIL|DRAGON|IM_FIRE|CHARM_SLEEP|MAX_HP|GOOD)
-			    ,(NONE8),(NONE8)
-			,23000,40,40,170,12,'D',{90,60},{57,57,271,277},55,2},
+			    ,(NONE8),(R_EDGED)
+			,23000,40,40,170,13,'D',{205,90},{57,57,271,277},55,2},
 
 {"Dragonic Quylthulg"	     ,(MV_INVIS)
 			    ,(0x2L|S_DRAGON|BLINK|TELE),(MAX_HP|ANIMAL|EVIL|
@@ -2727,7 +2749,7 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(CHARM_SLEEP|MAX_HP|GOOD|IM_POISON|IM_FROST|
 			     IM_FIRE|IM_ACID|IM_LIGHTNING|UNIQUE),(FORGET|
 			     RAZOR|HEAL|SUMMON|BRAIN_SMASH),(NONE8)
-		     ,20000,10,25,195,13,'h',{100,48},{212,218,218,218},56,2},
+		     ,20000,10,25,195,13,'h',{105,60},{212,218,218,218},56,2},
 
 {"Uriel, Angel of Fire"	    ,(MV_ATT_NORM|THRO_DR|PICK_UP|CARRY_OBJ|
 			      HAS_4D2|HAS_2D2|HAS_1D2)
@@ -2735,8 +2757,8 @@ creature_type c_list[MAX_CREATURES] = {
 			      |FIRE_BALL|FIRE_BOLT|MANA_BOLT)
 			    ,(IM_POISON|IM_FIRE|IM_FROST|IM_ACID|IM_LIGHTNING|
 			      GOOD|INTELLIGENT|MAX_HP|UNIQUE)
-			    ,(S_ANGEL),(NONE8)
-			    ,25000,10,40,160,13,'A',{220,25}
+			    ,(S_ANGEL),(HELLFIRE)
+			    ,25000,10,40,160,13,'A',{250,40}
 			    ,{220,103,212,212},56,3},
 
 
@@ -2746,8 +2768,8 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(IM_POISON|IM_FIRE|IM_FROST|IM_ACID|IM_LIGHTNING|
 			      GOOD|INTELLIGENT|MAX_HP|UNIQUE)
 			    ,(S_ANGEL|BREATH_LD|NETHER_BOLT|NETHER_BALL)
-			    ,(NONE8)
-			    ,30000,10,40,170,13,'A',{240,25}
+			    ,(HELLFIRE)
+			    ,30000,10,40,170,13,'A',{280,45}
 			    ,{202,260,212,212},57,3},
 
 {"Ancalagon the Black"	    ,(HAS_4D2|CARRY_OBJ|HAS_90|HAS_2D2|THRO_DR|
@@ -2755,15 +2777,15 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(0x2L|BREATH_A|FEAR|BLINDNESS|CONFUSION|S_DRAGON)
 			    ,(EVIL|DRAGON|IM_FIRE|IM_ACID|
 			      UNIQUE|CHARM_SLEEP|MAX_HP|GOOD)
-			    ,(NONE8),(S_ANCIENTD)
-		      ,30000,70,20,125,12,'D',{110,70},{273,274,275,281},58,3},
+			    ,(NONE8),(S_ANCIENTD|I_EDGED)
+		      ,30000,70,20,125,13,'D',{220,95},{273,274,275,281},58,3},
 
 {"Nightwalker"		    ,(MV_ATT_NORM|HAS_4D2|CARRY_OBJ|THRO_DR)
 			    ,(0x4L|FEAR|S_UNDEAD|BLINDNESS|MANA_BOLT)
 			    ,(EVIL|UNDEAD|IM_FROST|IM_POISON|IM_LIGHTNING|GOOD
 			     |IM_FIRE|CHARM_SLEEP|INTELLIGENT|NO_INFRA)
-			    ,(BRAIN_SMASH|NETHER_BALL|NETHER_BOLT),(NONE8)
-		      ,15000,10,20,175,13,'W',{50,65},{256,256,257,257},59,4},
+			    ,(BRAIN_SMASH|NETHER_BALL|NETHER_BOLT),(R_EDGED)
+		      ,15000,10,20,175,13,'W',{58,69},{256,256,257,257},59,4},
 
 {"Gabriel, the Messenger"   ,(MV_ATT_NORM|THRO_DR|PICK_UP|CARRY_OBJ|
 			      HAS_4D2|HAS_2D2|HAS_1D2)
@@ -2771,7 +2793,7 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(IM_POISON|IM_FIRE|IM_FROST|IM_ACID|IM_LIGHTNING|
 			      GOOD|INTELLIGENT|MAX_HP|UNIQUE)
 			    ,(S_ANGEL),(NONE8)
-			    ,35000,10,40,180,13,'A',{140,55}
+			    ,35000,10,40,180,13,'A',{195,63}
 			    ,{230,103,212,212},59,3},
 
 {"Saruman of Many Colours"  ,(MV_ATT_NORM|HAS_4D2|HAS_2D2|HAS_1D2|
@@ -2782,9 +2804,9 @@ creature_type c_list[MAX_CREATURES] = {
 			      |MAX_HP|UNIQUE|GOOD|IM_POISON|INTELLIGENT)
 			     ,(RAZOR|WATER_BALL|ACID_BALL|TELE_AWAY|FORGET|
 			       ICE_BOLT|MIND_BLAST|TRAP_CREATE|HEAL|HASTE)
-			     ,(NONE8)
+			     ,(HELLFIRE)
 			     ,35000,0,100,100,12
-			     ,'p',{100,50},{230,230,23,23},60,1},
+			     ,'p',{120,85},{230,230,23,23},60,1},
 
 {"Dreadlord"		  ,(MV_ATT_NORM|MV_20|HAS_4D2|CARRY_OBJ|HAS_2D2|
 			   HAS_60|THRO_WALL|PICK_UP|MV_INVIS|HAS_1D2)
@@ -2792,44 +2814,46 @@ creature_type c_list[MAX_CREATURES] = {
 			    S_UNDEAD|CONFUSION)
 			   ,(UNDEAD|EVIL|IM_FROST|NO_INFRA|CHARM_SLEEP|MAX_HP|
 			    IM_POISON),(NETHER_BALL),(NONE8)
-		      ,20000,10,20,150,12,'G',{100,27},{235,235,81,81},62,2},
+		      ,20000,10,20,150,12,'G',{105,30},{235,235,81,81},62,2},
 
 {"The Cat Lord"           ,(MV_ATT_NORM|MV_INVIS|THRO_DR|CARRY_OBJ|HAS_4D2)
                           ,(0x3L|TELE_TO),(CHARM_SLEEP|MAX_HP|GOOD|UNIQUE|
 			   IM_FIRE|IM_FROST|IM_POISON),(NONE8),(NONE8)
-		      ,30000,0,100,200,13,'f',{80,60},{269,181,260,265},64,3},
+		      ,30000,0,100,200,13,'f',{125,80},{269,181,260,265},64,3},
 
 {"Jabberwock"		    ,(CARRY_OBJ|HAS_90|HAS_60|MV_ATT_NORM)
 			    ,(0x5L)
 			    ,(ANIMAL|MAX_HP),(BREATH_CH|RAZOR)
 			    ,(NONE8)
-			   ,19000,255,35,125,13,'J',{80,40},{212,212,212,212},
+			   ,19000,255,35,125,13,'J',{90,53},{212,212,212,212},
 			     65,4},
 
 {"Chaos hound"		    ,(MV_ATT_NORM),(0x5L)
-			    ,(ANIMAL|GROUP|CHARM_SLEEP),(BREATH_CH)
+			    ,(ANIMAL|GROUP|CHARM_SLEEP|IM_CONFUSION),
+   (BREATH_CH)
 			    ,(NONE8)
 			  ,10000,0,30,100,12,'Z',{60,30},{39,39,39,58},65,1},
 
 {"Great Wyrm of Chaos"	    ,(HAS_1D2|HAS_4D2|HAS_2D2|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x3L|FEAR|BLINDNESS|CONFUSION|
-			     S_DRAGON),(EVIL|DRAGON|CHARM_SLEEP|MAX_HP|GOOD)
+			     S_DRAGON),(EVIL|DRAGON|CHARM_SLEEP|MAX_HP|GOOD|
+					IM_CONFUSION)
 			    ,(BREATH_CH|BREATH_DI),(NONE8)
-		       ,29000,20,40,170,12,'D',{65,70},{273,273,274,280},67,2},
+		       ,29000,20,40,170,13,'D',{209,80},{273,273,274,280},67,2},
 
 {"Great Wyrm of Law"	    ,(HAS_1D2|HAS_4D2|HAS_2D2|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x3L|FEAR|BLINDNESS|CONFUSION|
 			     S_DRAGON),(DRAGON|CHARM_SLEEP|MAX_HP|GOOD)
 			    ,(BREATH_SH|BREATH_SD),(NONE8)
-		      ,29000,400,40,170,12,'D',{70,65},{273,273,274,280},67,2},
+		      ,29000,400,40,170,13,'D',{225,85},{273,273,274,280},67,2},
 
 {"Great Wyrm of Balance"    ,(HAS_1D2|HAS_4D2|HAS_2D2|CARRY_OBJ|HAS_90|HAS_60|
 			      MV_ATT_NORM),(0x3L|FEAR|BLINDNESS|S_DRAGON
 			      |CONFUSION)
-			    ,(DRAGON|CHARM_SLEEP|MAX_HP|GOOD)
+			    ,(DRAGON|CHARM_SLEEP|MAX_HP|GOOD|IM_SOUND)
 			    ,(BREATH_SH|BREATH_SD|BREATH_CH|BREATH_DI),
 			     (S_ANCIENTD)
-		      ,31000,400,40,170,12,'D',{70,70},{273,273,274,280},67,4},
+		      ,31000,400,40,170,13,'D',{205,90},{273,273,274,280},67,4},
 
 {"Tselakus, the Dreadlord" ,(MV_ATT_NORM|HAS_4D2|CARRY_OBJ|HAS_2D2|
 			   THRO_WALL|MV_INVIS|HAS_1D2)
@@ -2837,7 +2861,7 @@ creature_type c_list[MAX_CREATURES] = {
 			   ,(UNDEAD|EVIL|IM_FROST|NO_INFRA|CHARM_SLEEP|MAX_HP|
 			    IM_POISON|GOOD|UNIQUE)
 			   ,(NETHER_BALL),(S_GUNDEAD|DARK_STORM|S_WRAITH)
-		      ,35000,10,20,150,13,'G',{100,67},{81,81,212,212},68,2},
+		      ,35000,10,20,150,13,'G',{205,90},{81,81,212,212},68,2},
 
 {"Tiamat, Celestial Dragon of Evil",(MV_ATT_NORM|HAS_4D2|CARRY_OBJ|
 			      THRO_DR|HAS_60|HAS_90|HAS_2D2|HAS_1D2)
@@ -2846,7 +2870,7 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(IM_FROST|IM_ACID|IM_POISON|IM_LIGHTNING|
 			      IM_FIRE|EVIL|DRAGON|CHARM_SLEEP|MAX_HP|
 			      UNIQUE|SPECIAL),(NONE8),(S_ANCIENTD)
-		   ,45000,70,20,125,13,'D',{100,100},{274,275,275,281},70,4},
+		   ,45000,70,20,125,13,'D',{220,140},{274,275,275,281},70,4},
 
 {"Black Reaver"		    ,(MV_ATT_NORM|THRO_DR|CARRY_OBJ|HAS_1D2|HAS_2D2)
 			    ,(0x3L|CONFUSION|BLINDNESS|HOLD_PERSON|
@@ -2854,7 +2878,7 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(UNDEAD|IM_POISON|IM_FROST|EVIL|MAX_HP|GOOD|
 			      CHARM_SLEEP|NO_INFRA|INTELLIGENT|BREAK_WALL)
 			    ,(BRAIN_SMASH|RAZOR|NETHER_BALL),(MANA_STORM)
-		      ,23000,50,20,170,12,'L',{60,60},{230,230,81,81},71,3},
+		      ,23000,50,20,170,13,'L',{139,65},{230,230,81,81},71,3},
 
 {"Master Quylthulg"	    ,(MV_INVIS)
 			,(0x2L|MONSTER|S_UNDEAD|S_DRAGON),(CHARM_SLEEP|
@@ -2877,8 +2901,8 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(UNDEAD|IM_POISON|IM_FROST|EVIL|MAX_HP|
 			      CHARM_SLEEP|NO_INFRA|UNIQUE|GOOD|INTELLIGENT)
 			   ,(NETHER_BALL|TRAP_CREATE|RAZOR|SUMMON|BRAIN_SMASH)
-			    ,(MANA_STORM)
-		      ,30000,50,20,85,13,'L',{90,50},{181,201,214,181},72,2},
+			    ,(MANA_STORM|HELLFIRE)
+		      ,30000,50,20,85,13,'L',{185,105},{181,201,214,181},72,2},
 
 {"Omarax the Eye tyrant"    ,(MV_ATT_NORM)
 			    ,(0x2L|FIRE_BOLT|FROST_BOLT|ACID_BOLT|
@@ -2886,7 +2910,7 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(ANIMAL|EVIL|CHARM_SLEEP|MAX_HP|
 			      IM_POISON|UNIQUE|INTELLIGENT)
 			    ,(FORGET|MIND_BLAST|DARKNESS),(DARK_STORM)
-		       ,16000,10,30,80,13,'e',{80,80},{223,224,225,226},73,4},
+		       ,16000,10,30,80,13,'e',{120,98},{223,224,225,226},73,4},
 
 {"Ungoliant, the Unlight"   ,(MV_ATT_NORM|CARRY_OBJ|HAS_4D2)
 			    ,(0x3L|FEAR|BLINDNESS|CONFUSION|SLOW|BREATH_G)
@@ -2894,7 +2918,7 @@ creature_type c_list[MAX_CREATURES] = {
 			      CHARM_SLEEP|GOOD|INTELLIGENT|IM_POISON)
 			    ,(HEAL|S_SPIDER|DARKNESS)
 			    ,(DARK_STORM|BREATH_DA)
-		     ,35000,80,8,160,12,'S',{130,100},{162,162,167,167},75,1},
+		     ,35000,80,8,160,12,'S',{145,120},{162,162,167,167},75,1},
 
 {"Aether hound"		    ,(MV_ATT_NORM),(0x5L|BREATH_FI|BREATH_FR|BREATH_G|
 					    BREATH_A|BREATH_L)
@@ -2913,7 +2937,7 @@ creature_type c_list[MAX_CREATURES] = {
 			     |INTELLIGENT|IM_FROST|IM_FIRE|IM_LIGHTNING),
 			     (TRAP_CREATE|WATER_BALL|PLASMA_BOLT|NETHER_BALL)
 			    ,(MANA_STORM|DARK_STORM)
-		    ,38000,10,60,100,13,'p',{700,10},{230,230,214,214},78,3},
+		    ,38000,10,60,100,13,'p',{720,25},{230,230,214,214},78,3},
 
 {"The Emperor Quylthulg"    ,(MV_INVIS|CARRY_OBJ|HAS_4D2)
 			    ,(0x2L),(ANIMAL|EVIL|MAX_HP|UNIQUE|CHARM_SLEEP)
@@ -2926,7 +2950,7 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(SUMMON|S_ANGEL|S_SPIDER|S_HOUND)
 			    ,(S_REPTILE|S_ANT|S_GUNDEAD|S_ANCIENTD|S_UNIQUE|
 			      S_WRAITH)
-		      ,20000,0,30,1,13,'Q',{500,10},{0,0,0,0},78,3},
+		      ,20000,0,30,1,13,'Q',{550,25},{0,0,0,0},78,3},
 
 {"Murazor, the Witch-King of Angmar",
                        (HAS_4D2|HAS_2D2|CARRY_OBJ|HAS_1D2|THRO_DR|MV_ATT_NORM)
@@ -2936,15 +2960,15 @@ creature_type c_list[MAX_CREATURES] = {
 				|IM_POISON|HURT_LIGHT|UNIQUE|GOOD|NO_INFRA
 				|INTELLIGENT)
 			      ,(NETHER_BALL|BRAIN_SMASH|TELE_AWAY|SUMMON)
-			      ,(S_WRAITH|S_ANCIENTD|S_GUNDEAD)
-                     ,42000,10,90,120,13,'W',{120,50},{212,23,199,199},80,3},
+			      ,(S_WRAITH|S_ANCIENTD|S_GUNDEAD|HELLFIRE)
+                     ,42000,10,90,120,13,'W',{280,115},{212,23,199,199},80,3},
 
 {"Pazuzu, Lord of Air"     ,(MV_ATT_NORM|THRO_DR|MV_INVIS|CARRY_OBJ|HAS_4D2)
                            ,(0x3L|MANA_BOLT),(EVIL|DEMON|CHARM_SLEEP|
 			    MAX_HP|IM_FROST|IM_FIRE|IM_LIGHTNING|IM_ACID|
 			    IM_POISON|GOOD|UNIQUE),(LIGHT_BOLT|LIGHT_BALL|
 			    MIND_BLAST),(NONE8)
-		      ,30000,10,40,125,14,'B',{100,55},{284,284,284,284},82,2},
+		      ,30000,10,40,125,14,'B',{200,120},{284,284,284,284},82,2},
 
 {"Hell Hound"		    ,(MV_ATT_NORM|MV_20),(0x5L|BREATH_FI),
  			(ANIMAL|EVIL|MAX_HP|IM_FIRE|GROUP),(NONE8),(NONE8)
@@ -2957,30 +2981,30 @@ creature_type c_list[MAX_CREATURES] = {
                             ,(EVIL|UNIQUE|UNDEAD|CHARM_SLEEP|IM_FROST|NO_INFRA
 			      |IM_POISON|IM_FIRE|MAX_HP|INTELLIGENT|SPECIAL)
 			    ,(WATER_BALL|RAZOR|BRAIN_SMASH|ICE_BOLT|
-			      NETHER_BALL),(S_GUNDEAD)
-			    ,45000,80,20,120,14,'s',{150,45},{246,172,172,0},
+			      NETHER_BALL),(S_GUNDEAD|HELLFIRE|I_EDGED)
+			    ,45000,80,20,120,14,'s',{155,136},{246,172,172,0},
 								    84,2},
 
 {"The Tarrasque"	    ,(MV_ATT_NORM|HAS_4D2|HAS_2D2|THRO_DR|CARRY_OBJ)
 			    ,(0x2L|BREATH_FR)
 			    ,(EVIL|CHARM_SLEEP|IM_FIRE|MAX_HP|UNIQUE|GOOD)
 			    ,(BREATH_DI),(NONE8)
-		     ,35000,20,50,185,13,'R',{85,95},{212,212,214,214},84,2},
+		     ,35000,20,50,185,13,'R',{98,110},{212,212,214,214},84,2},
 
 {"Lungorthin, the Balrog of White Fire",
 			     (MV_ATT_NORM|HAS_4D2|HAS_2D2|HAS_1D2|
                               CARRY_OBJ|HAS_60|HAS_90|THRO_DR)
-                            ,(0x4L|FEAR|BLINDNESS|S_DEMON|
+                            ,(0x3L|FEAR|BLINDNESS|S_DEMON|
                       	      BREATH_FI|CONFUSION)
                             ,(EVIL|DEMON|CHARM_SLEEP|IM_FIRE|MAX_HP|
-			      UNIQUE|GOOD),(NONE8),(S_GUNDEAD)
-		     ,37000,80,20,125,13,'&',{80,95},{104,104,78,214},85,2},
+			      UNIQUE|GOOD),(NONE8),(S_GUNDEAD|HELLFIRE)
+		     ,37000,80,20,125,13,'&',{175,140},{104,104,78,214},85,2},
 
 {"Draugluin, Sire of All Werewolves",(MV_ATT_NORM|MV_20|PICK_UP|THRO_DR)
 			    ,(0x3L|FEAR)
 			    ,(ANIMAL|EVIL|UNIQUE|IM_POISON|MAX_HP|GOOD)
 			    ,(SUMMON|S_HOUND),(NONE8)
-		     ,40000,90,80,90,13,'C',{100,70},{58,58,160,160},87,2},
+		     ,40000,90,80,90,13,'C',{112,85},{58,58,160,160},87,2},
 
 {"Feagwath the Undead Sorceror",(MV_ATT_NORM|HAS_4D2|HAS_2D2|HAS_1D2|
                               CARRY_OBJ|HAS_60|HAS_90|THRO_DR)
@@ -2990,32 +3014,32 @@ creature_type c_list[MAX_CREATURES] = {
 			      |MAX_HP|UNIQUE|SPECIAL|IM_POISON|INTELLIGENT
 			      |NO_INFRA|UNDEAD)
 			     ,(BRAIN_SMASH|RAZOR|SUMMON),(MANA_STORM|
-			      S_GUNDEAD)
+			      S_GUNDEAD|HELLFIRE|I_EDGED)
 			     ,45000,0,100,100,13
-			     ,'L',{120,50},{230,230,23,23},90,3},
+			     ,'L',{220,110},{230,230,23,23},90,3},
 
 {"Carcharoth, the Jaws of Thirst",(MV_ATT_NORM|MV_20|PICK_UP|THRO_DR)
 			    ,(0x4L|BREATH_FI|FEAR)
 			    ,(ANIMAL|EVIL|UNIQUE|IM_POISON|IM_FIRE|
 			      MAX_HP|GOOD|CHARM_SLEEP)
 			    ,(HEAL|BRAIN_SMASH|S_HOUND),(NONE8)
-		     ,40000,10,80,110,13,'C',{150,50},{58,58,163,163},92,2},
+		     ,40000,10,80,110,13,'C',{198,75},{58,58,163,163},92,2},
 
 {"Cerberus, Guardian of Hades",(MV_ATT_NORM|HAS_4D2|CARRY_OBJ|THRO_DR)
 			    ,(0x3L|BREATH_FI),(ANIMAL|EVIL|UNIQUE|IM_FIRE|
-			     MAX_HP|GOOD|CHARM_SLEEP)
+			     MAX_HP|SPECIAL|CHARM_SLEEP)
 			    ,(BREATH_LD|S_HOUND),(DARK_STORM)
-		  ,40000,10,50,160,13,'C',{100,100},{220,220,220,220},94,1},
+		  ,40000,10,50,160,13,'C',{109,115},{220,220,220,220},94,1},
 
 {"Gothmog, the High Captain of Balrogs",
 			     (MV_ATT_NORM|HAS_4D2|HAS_2D2|HAS_1D2|
                               CARRY_OBJ|HAS_60|HAS_90|THRO_DR)
-                            ,(0x3L|FEAR|BLINDNESS|S_DEMON|
+                            ,(0x2L|FEAR|BLINDNESS|S_DEMON|
                               BREATH_FI|CONFUSION)
                             ,(EVIL|DEMON|CHARM_SLEEP|IM_FIRE|
 			      IM_LIGHTNING|MAX_HP|UNIQUE|SPECIAL)
-			    ,(NONE8),(S_GUNDEAD)
-	             ,43000,0,100,140,13,'&',{100,80},{220,220,78,214},95,1},
+			    ,(NONE8),(S_GUNDEAD|HELLFIRE)
+	             ,43000,0,100,140,13,'&',{175,102},{220,220,78,214},95,1},
 
 {"Sauron, the Sorcerer",     (MV_ATT_NORM|HAS_4D2|HAS_2D2|HAS_1D2|
                               CARRY_OBJ|HAS_60|HAS_90|THRO_DR)
@@ -3026,9 +3050,10 @@ creature_type c_list[MAX_CREATURES] = {
 			      INTELLIGENT)
 			    ,(BRAIN_SMASH|NETHER_BALL|ICE_BOLT|PLASMA_BOLT|
 			      WATER_BALL|TELE_LEV|FORGET|DARKNESS|SUMMON|
-			      RAZOR),(MANA_STORM|S_ANCIENTD|S_GUNDEAD)
+			      RAZOR),(MANA_STORM|S_ANCIENTD|S_GUNDEAD|
+				      HELLFIRE)
 			     ,50000,0,100,160,13
-			     ,'p',{99,105},{270,270,214,214},99,1},
+			     ,'p',{195,180},{270,270,214,214},99,1},
 
 {"Morgoth, Lord of Darkness",(MV_ATT_NORM|HAS_4D2|HAS_2D2|HAS_1D2|
                               CARRY_OBJ|HAS_60|HAS_90|THRO_DR|WINNER)
@@ -3037,9 +3062,10 @@ creature_type c_list[MAX_CREATURES] = {
 			     IM_POISON|IM_ACID|MAX_HP|UNIQUE|SPECIAL|
 			     BREAK_WALL|DESTRUCT|INTELLIGENT)
 			    ,(SUMMON|BRAIN_SMASH|NETHER_BALL),(S_WRAITH|
-			      MANA_STORM|S_ANCIENTD|S_GUNDEAD|S_UNIQUE)
+			      MANA_STORM|S_ANCIENTD|S_GUNDEAD|S_UNIQUE|
+							       HELLFIRE)
 			    ,60000,0,100,150,14
-		            ,'P',{180,95},{262,262,245,214},100,10},
+		            ,'P',{220,160},{262,262,245,214},100,10},
 
 {"                                                                                                    " /* Players Ghost! */    ,(NONE8)
                             ,(NONE8)
@@ -3172,6 +3198,8 @@ struct m_attack_type monster_attacks[N_MONS_ATTS] = {
 /*282 */{ 1,20, 12,13},
 /*283 */{ 1,23,  0, 0},
 /*284 */{ 8, 1, 12,12},
+/*285 */{ 1, 1,  4, 6},
+/*286 */{ 1,16,  8,20} /* Elephant squashes you */
 };
 
 

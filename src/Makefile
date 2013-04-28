@@ -11,22 +11,24 @@ OBJDIR = $(COMPDIR)
 LIBDIR = $(THISDIR)
 BINDIR = $(THISDIR)
 
-CFLAGS = -g -fwritable-strings -DLIBDIR=\"$(LIBDIR)\" 
+CFLAGS = -O -fwritable-strings -DLIBDIR=\"$(LIBDIR)\" 
 CC = gcc
 
 SOURCES = main.c misc1.c misc2.c store1.c files.c io.c create.c desc.c\
 	generate.c sets.c dungeon.c creature.c death.c eat.c help.c magic.c\
-	potions.c prayer.c save.c staffs.c wands.c scrolls.c spells.c\
+	potions.c prayer.c save.c staffs.c wands.c scrolls.c spells.c items.c\
 	wizard.c store2.c signals.c moria1.c moria2.c monsters.c\
 	treasure.c variable.c rnd.c recall.c unix.c undef.c\
-	player.c tables.c describe_mon.c rods.c monk.c
+	player.c tables.c describe_mon.c rods.c druid.c necros.c skills.c\
+	talents.c 
 
 OBJECTS = main.o misc1.o misc2.o store1.o files.o io.o create.o desc.o\
 	generate.o sets.o dungeon.o creature.o death.o eat.o help.o magic.o\
-	potions.o prayer.o save.o staffs.o wands.o scrolls.o spells.o\
+	potions.o prayer.o save.o staffs.o wands.o scrolls.o spells.o items.o\
 	wizard.o store2.o signals.o moria1.o moria2.o monsters.o\
 	treasure.o variable.o rnd.o recall.o unix.o undef.o\
-	player.o tables.o describe_mon.o rods.o monk.o
+	player.o tables.o describe_mon.o rods.o druid.o necros.o skills.o\
+	talents.o
 
 SRCS = $(SOURCES:%.c=$(SRCDIR)/%.c)
 
@@ -62,6 +64,9 @@ query:
 	egrep '^{"' describe_mon.c | wc -l
 
 create.o: constant.h types.h externs.h config.h
+talents.o: constant.h types.h externs.h config.h
+items.o: constant.h types.h externs.h config.h monster.h
+skills.o: constant.h types.h externs.h config.h
 creature.o: constant.h types.h externs.h config.h monster.h
 death.o: constant.h types.h externs.h config.h
 desc.o: constant.h types.h externs.h config.h
@@ -85,6 +90,7 @@ recall.o: constant.h config.h types.h externs.h monster.h
 rnd.o: constant.h types.h
 save.o: constant.h types.h externs.h config.h
 scrolls.o: constant.h types.h externs.h config.h monster.h
+necros.o: constant.h types.h externs.h config.h monster.h
 sets.o: constant.h config.h types.h
 signals.o: constant.h types.h externs.h config.h
 spells.o: constant.h types.h externs.h config.h monster.h
@@ -99,7 +105,7 @@ rods.o: constant.h types.h externs.h config.h monster.h
 wands.o: constant.h types.h externs.h config.h monster.h
 wizard.o: constant.h types.h externs.h config.h
 describe_mon.o: monster.h externs.h types.h
-monk.o: constant.h types.h externs.h config.h monster.h
+druid.o: constant.h types.h externs.h config.h monster.h
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

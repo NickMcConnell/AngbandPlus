@@ -22,6 +22,9 @@
 #include <strings.h>
 #endif
 
+extern int noprecog;
+extern int notarget;
+
 /* These are here so the attack2 routine can use them, too */
 
   int k, blows;
@@ -65,6 +68,9 @@ int y, x;
   p_ptr = &py.misc;
   t_ptr = &t_list[c_ptr->tptr];
   dam = pdamroll(t_ptr->damage);
+  i = t_ptr->subval;
+  if ((i==1 || i==3 || i==4) && py.flags.ffall)
+    return; /* Player doesn't fall into pits/trap doors */
   switch(t_ptr->subval)
     {
     case 1:  /* Open pit*/
@@ -224,6 +230,11 @@ int y, x;
       break;
     case 19: /*Secret Door*/
       break;
+    case 20: /*Deadly spikes*/
+      msg_print("Metal blades rip into your skin!");
+      take_hit(dam,tmp);
+      py.flags.cut=dam*2;
+      break;
     case 99: /* Scare Mon*/
       break;
 
@@ -266,9 +277,9 @@ int y, x;
 /* returns -1 if no spells in book
    returns 1 if choose a spell in book to cast
    returns 0 if don't choose a spell, i.e. exit with an escape */
-int cast_spell(prompt, item_val, sn, sc)
+int cast_spell(prompt, item_val, sn, sc, tval)
 char *prompt;
-int item_val;
+int item_val,tval;
 int *sn, *sc;
 {
   int32u j1, j2;
@@ -283,11 +294,11 @@ int *sn, *sc;
   first_spell = bit_pos(&j1);
   /* set j1 again, since bit_pos modified it */
   j1 = inventory[item_val].flags & spell_learned;
-  s_ptr = magic_spell[py.misc.pclass-1];
+  s_ptr = magic_spell[py.misc.realm];
   while (j1)
     {
       k = bit_pos(&j1);
-      if (s_ptr[k].slevel <= py.misc.lev)
+      if (s_ptr[k].slevel <= py.skills.cur_skill[S_MAGIC])
 	{
 	  spell[i] = k;
 	  i++;
@@ -299,7 +310,7 @@ int *sn, *sc;
   while (j2)
     {
       k = bit_pos(&j2);
-      if (s_ptr[k+32].slevel <= py.misc.lev)
+      if (s_ptr[k+32].slevel <= py.skills.cur_skill[S_MAGIC])
 	{
 	  spell[i] = k+32;
 	  i++;
@@ -307,12 +318,12 @@ int *sn, *sc;
     }
   if (i > 0)
     {
-      result = get_spell(spell, i, sn, sc, prompt, first_spell);
-      if (result && magic_spell[py.misc.pclass-1][*sn].smana > py.misc.cmana)
+      result = get_spell(spell, i, sn, sc, prompt, first_spell, tval);
+      if (result && magic_spell[py.misc.realm][*sn].smana > py.misc.cmana)
 	{
-	  if (class[py.misc.pclass].spell==MAGE)
+	  if (tval==TV_MAGIC_BOOK)
 	    result = get_check("You summon your limited strength to cast this one! Confirm?");
-	  else if (class[py.misc.pclass].spell==PRIEST)
+	  else if (tval==TV_PRAYER_BOOK)
 	    result = get_check("The gods may think you presumptuous for this! Confirm?");
 	  else
 	    result = get_check("You feel you could hurt yourself.  Confirm?");
@@ -583,6 +594,7 @@ int32u win;
   int32u holder;	/* avoid a compiler bug */
 #endif
 
+  targetx=-128;
   if (win) {
     register int i, j, k;
     register cave_type *c_ptr;
@@ -765,6 +777,13 @@ int monptr, dam;
   m_ptr = &m_list[monptr];
   m_ptr->hp -= dam;
   m_ptr->csleep = 0;
+  if ((m_ptr->hp < (c_list[m_ptr->mptr].hd[0]*
+		   c_list[m_ptr->mptr].hd[1])/5) &&
+      !((c_list[m_ptr->mptr].cdefense & UNIQUE) ||
+	(c_list[m_ptr->mptr].cmove & WINNER)))
+  {
+    m_ptr->afraid=100;
+  }
   if (m_ptr->hp < 0)
     {
       if (m_ptr->mptr == (MAX_CREATURES - 1)) {
@@ -837,9 +856,11 @@ int monptr, dam;
 	u_list[m_ptr->mptr].exist = 0;
 	u_list[m_ptr->mptr].dead = 1;
       }
-      new_exp = ((long)c_ptr->mexp * c_ptr->level) / p_ptr->lev;
-      new_exp_frac = ((((long)c_ptr->mexp * c_ptr->level) % p_ptr->lev)
-	* 0x10000L / p_ptr->lev) + p_ptr->exp_frac;
+      new_exp = ((long)c_ptr->mexp * c_ptr->level) / get_level();
+      if (py.flags.soulsteal)
+	new_exp/=2; /* Gain less XP when soul being stolen */
+      new_exp_frac = ((((long)c_ptr->mexp * c_ptr->level) % get_level())
+	* 0x10000L / get_level()) + p_ptr->exp_frac;
       if (new_exp_frac >= 0x10000L)
 	{
 	  new_exp++;
@@ -866,16 +887,18 @@ int monptr, dam;
 }
 
 
+
 /* Player attacks a (poor, defenseless) creature	-RAK-	*/
 void py_attack(y, x, special)
 int y, x, special; /* Special means we do an elemental attack, monks only */
 {
   inven_type temp;
-  short int twohanded;
+  short int twohanded,wskill;
   twohanded=0; /* If !=0, we fight 2-handed */
   if (inventory[INVEN_ARM].tval!=TV_SHIELD &&
       inventory[INVEN_ARM].tval!=TV_NOTHING) /* Fighting 2-handed! */
     twohanded=1;
+  wskill=sweapon(); /* Gets the skill value given weapon we're wielding */
   crptr = cave[y][x].cptr;
   monptr = m_list[crptr].mptr;
   m_list[crptr].csleep = 0;
@@ -889,38 +912,14 @@ int y, x, special; /* Special means we do an elemental attack, monks only */
     else
       (void) sprintf(m_name, "the %s", c_list[monptr].name);
   }
-  if (i_ptr->tval != TV_NOTHING)		/* Proper weapon */
+  blows=0;
+  if (wskill != S_KARATE && wskill != S_WRESTLING)
     blows = attack_blows((int)i_ptr->weight, &tot_tohit);
-  else					  /* Bare hands?   */
-    {
-      blows = 2;
-      tot_tohit = -3;
-    }
   /* If we're using a heavy weapon and using shield, penalize player */
   did_die=0;
+  blows+=sblows(wskill);
   if (i_ptr->weight >=180 && inventory[INVEN_ARM].tval==TV_SHIELD)
-    tot_tohit-=5; /* Ugh! This weapon is too heavy! */
-  /* Warriors get greater hits/round if have a heavy weapon >12 lbs; rogues
-     for a light weapon <5 lbs */
-  if (py.misc.pclass==0 && (i_ptr->weight >=120))
-    blows+=py.misc.lev/10+1;
-  else if (py.misc.pclass==3 && (i_ptr->weight <=50))
-    blows+=py.misc.lev/8+1;
-  else if (py.misc.pclass==3 && (i_ptr->weight >120))
-    blows-=2; /* But rogues do less attacks if using heavy weapon */
-  else if (py.misc.pclass==1)
-    blows-=2;
-  else if (py.misc.pclass==6) /* Monks get LOTS of blows/round */
-  {
-   if (i_ptr->tval == TV_NOTHING) /* Only with bare hands */
-    blows=2+py.misc.lev/8; /* Max blows = 8 */
-   else /* ONE blow */
-    blows=1;
-  }
-  else if (py.misc.pclass==7) /* Dragons have claws, though */
-  {
-   blows=2+py.misc.lev/7; /* Max blows = 9 */
-  }
+    blows/=2;
   if (blows<1)
    blows=1;
   if ((i_ptr->tval >= TV_SLING_AMMO) && (i_ptr->tval <= TV_ARROW))
@@ -934,16 +933,14 @@ int y, x, special; /* Special means we do an elemental attack, monks only */
   if (m_list[crptr].ml)
     base_tohit = p_ptr->bth;
   else
-    base_tohit = (p_ptr->bth / 2) - (tot_tohit * (BTH_PLUS_ADJ-1))
-      - (p_ptr->lev * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
+    base_tohit = (p_ptr->bth / 2) - (tot_tohit * (BTH_PLUS_ADJ-1));
    }
   else
     {
     if (m_list[crptr].ml)
       base_tohit = p_ptr->bth2;
     else
-      base_tohit = (p_ptr->bth2 / 2) - (tot_tohit * (BTH_PLUS_ADJ-1))
-        - (p_ptr->lev * class_level_adj[p_ptr->pclass][CLA_BTH2] / 2);
+      base_tohit = (p_ptr->bth2 / 2) - (tot_tohit * (BTH_PLUS_ADJ-1));
 
     }
  /* Now we can call ANOTHER routine to attack---this permits 2-handed
@@ -955,8 +952,9 @@ int y, x, special; /* Special means we do an elemental attack, monks only */
      /* Must recalc base tohit with our stat */
       base_tohit=p_ptr->bth2;
       if (m_list[crptr].ml)
-	base_tohit=(p_ptr->bth2/2) - (tot_tohit * (BTH_PLUS_ADJ-1))
-	  - (p_ptr->lev * class_level_adj[p_ptr->pclass][CLA_BTH2] / 2);
+	base_tohit=(py.skills.cur_skill[S_2HANDED]/2) -
+	  (tot_tohit * (BTH_PLUS_ADJ-1))
+	  - (smod(S_2HANDED) * 3 / 2);
      attack2(blows);
      temp=inventory[INVEN_WIELD]; /* Exchange the weapons */
      inventory[INVEN_WIELD]=inventory[INVEN_ARM];
@@ -966,6 +964,7 @@ int y, x, special; /* Special means we do an elemental attack, monks only */
      blows = attack_blows((int)i_ptr->weight, &tot_tohit);
      if (!did_die) /* Don't hit a dead critter */
        attack2(blows); /* And attack with the other in this round */
+     blows+=sblows(wskill);
      temp=inventory[INVEN_WIELD]; /* Exchange them back to get normal */
      inventory[INVEN_WIELD]=inventory[INVEN_ARM];
      inventory[INVEN_ARM]=temp;
@@ -977,55 +976,97 @@ int y, x, special; /* Special means we do an elemental attack, monks only */
 void attack2(blows)
 int blows;
 {
+  register int vorpal,sharpness,lev,tt,miss,resist;
+  register int wskill;
+  vorpal=0;
+  sharpness=0;
+  if (inventory[INVEN_WIELD].flags2 & TR_VORPAL)
+    vorpal=1;
   /* Do the attacks */
+  wskill=sweapon();
+  lev=smod(wskill);
+  resist=0; /* If set, take 1/2 damage and NO critical hits */
+  tt=smoddam((long)c_list[monptr].cdefense,
+	     (long)c_list[monptr].spells3);
+  if (tt<-4000) /* Critter resists this type of attack */
+    { tt=0; resist=1; }
   do
     {
-      if (test_hit(base_tohit, (int)p_ptr->lev, tot_tohit,
-		   (int)c_list[monptr].ac, CLA_BTH))
+      miss=1; /* If 0, we hit the critter */
+      if (test_hit(base_tohit, lev, tot_tohit,
+		   (int)c_list[monptr].ac, 3))
 	{
-/*	  (void) sprintf(out_val, "You hit %s.", m_name);
-	  msg_print(out_val);  Old message system*/
-	  if (i_ptr->tval != TV_NOTHING)
+	  miss=0;
+	  if (wskill != py.flags.flags[F_BAREHAND])
 	    {
-             if (m_list[crptr].csleep==0 || py.misc.pclass!=3)
+             if (m_list[crptr].csleep==0 || smod(S_BACKSTAB)<=0)
 	      {
 	       k = pdamroll(i_ptr->damage);
-	       k = tot_dam(i_ptr, k, monptr);
-               if (py.misc.pclass==6) /* Monks do ZERO damage with weapon */
-                k = 0;
-	       k = critical_blow((int)i_ptr->weight, tot_tohit, k, CLA_BTH);
-	      } /* Rogue Backstabbing Attack Below! */
-              else
-	      {
-               k = pdamroll(i_ptr->damage)*(1+py.misc.lev/9);
-               k = tot_dam(i_ptr, k,monptr);
-               k = critical_blow((int) i_ptr->weight, tot_tohit, k,
-				 CLA_BTH + 40 + py.misc.lev*2);
+	       k = tot_dam(i_ptr, k, monptr)/(1+resist);
+	       /* Note:  A routine to modify damage based on ALL skills
+		  (i.e. S_SLAY_EVIL or S_SWORD) */
+	       if (tt>0)
+		 k+=tt;
+	       if (!resist)
+		 k = critical_blow((int)i_ptr->weight, tot_tohit, k, CLA_BTH);
+	       if (vorpal)
+		 {
+		   if (randint(20)==1 && !resist) /* MEGA damage */
+		     {
+		       msg_print("Your vorpal blade goes snicker snack!");
+		       k+=70;
+		       k*=3; /* Does TRIPLE damage */
+		     }
+		 }
 	      }
-	    }
-	  else			      /* Bare hands!?  */
-	    {
-             if (py.misc.pclass!=6 && py.misc.pclass!=7)
-	     {
-	      k = damroll(py.misc.lev/15+1, py.misc.lev/10+1);
+              else
+	      { 
+		if (smod(S_BACKSTAB)>=1 &&
+		    randint(30)<(py.skills.cur_skill[S_BACKSTAB]/5) &&
+		    !resist)
+		  {
+		    k = pdamroll(i_ptr->damage)*(smod(S_BACKSTAB));
+		    sprintf(out_val,"You stabbed %s in the back!",m_name);
+		    msg_print(out_val);
+		  }
+               k = tot_dam(i_ptr, k,monptr);
+		if (tt>0)
+		  k += tt;
+	       if (vorpal)
+		 {
+		   if (randint(20)==1 && !resist) /* MEGA damage */
+		     {
+		       msg_print("Your vorpal blade goes snicker snack!");
+		       k+=50;
+		       k*=3; /* Does TRIPLE damage */
+		     }
+		 }
+		if (!resist)
+		  k = critical_blow((int) i_ptr->weight, tot_tohit, k,
+				    CLA_BTH + 40);
+	     }
+	   }
+	  else if (py.flags.flags[F_BAREHAND]==S_KARATE)
+	    { /* Max=8d8 per round */
+    	      k = (damroll((lev-50)/27+1, (lev-50)/47+4))/(1+resist);
+	      if (tt>0)
+		k += tt;
 	      k = critical_blow(1, 0, k, CLA_BTH);
-	     }
-             else if (py.misc.pclass==7)
-	       {
-                k = damroll(1+py.misc.lev/26,10+py.misc.lev/15);
-		k = critical_blow(1, 0, k, CLA_BTH);
-	       }
-             else /* Monks do LOTS of damage */
-	     {
-              k = damroll(1+py.misc.lev/8,3+py.misc.lev/7)+py.flags.todam*4;
-              k = critical_blow(1, 0, k, CLA_BTH+py.flags.tohit*2);
-	     }
 	    }
+	  else /* Wrestling! */
+	    { /* Max=15d21 */
+	      k = (damroll((lev-50)/14+1,(lev-50)/11+3))/(1+resist);
+	      if (tt>0)
+		k += tt;
+	      k = critical_blow(1, 0, k, CLA_BTH*8);
+	    }
+	}
 	  k += p_ptr->ptodam;
 /* temp new message */
 	  if (wizard) (void) sprintf(out_val,
           "You hit %s with %d hp, doing %d+%d damage.",
-          m_name, m_list[crptr].hp, (k-p_ptr->ptodam), p_ptr->ptodam);
+          m_name, m_list[crptr].hp, (k-p_ptr->ptodam/(1+resist)),
+				     p_ptr->ptodam);
 	  else (void) sprintf(out_val,"You hit %s.",m_name);
 	  msg_print(out_val);
 
@@ -1076,12 +1117,11 @@ int blows;
 		  calc_bonuses();
 		}
 	    }
-	}
-      else
-	{
-	  (void) sprintf(out_val, "You miss %s.", m_name);
-	  msg_print(out_val);
-	}
+	  else if (miss && blows)
+	    {
+	      (void) sprintf(out_val, "You miss %s.", m_name);
+	      msg_print(out_val);
+	    }
       blows--;
     }
   while (blows >= 1);
@@ -1094,9 +1134,11 @@ int dir, do_pickup;
 {
   int old_row, old_col, old_find_flag;
   int y, x;
-  register int i, j;
+  register int i, j, tfos;
   register cave_type *c_ptr, *d_ptr;
 
+  if (dir!=5) /* Can rest in place and keep targetting on */
+    targetx=-128;
   if (((py.flags.confused>0) || (py.flags.stun>0)) && /*Confused/Stunned?  */
       (randint(4)>1) &&	                              /*75% random movement*/
       (dir != 5))		                 /* Never random if sitting*/
@@ -1134,7 +1176,10 @@ int dir, do_pickup;
 		area_affect(dir, char_row, char_col);
 	      /* Check to see if he notices something  */
 	      /* fos may be negative if have good rings of searching */
-	      if ((py.misc.fos <= 1) || (randint(py.misc.fos) == 1) ||
+	      tfos=py.misc.fos;
+	      if (tfos>30)
+		tfos=30;
+	      if ((tfos <= 1) || (randint(tfos) == 1) ||
 		  (search_flag))
 		search(char_row, char_col, py.misc.srh);
 	      /* A room of light should be lit.	     */
@@ -1173,8 +1218,10 @@ int dir, do_pickup;
 		      if (c_ptr->tptr != 0)
 			{
 			  i = t_list[c_ptr->tptr].tval;
-			  if (i == TV_INVIS_TRAP || i == TV_VIS_TRAP
-			      || i == TV_STORE_DOOR)
+			  if ((i == TV_INVIS_TRAP || i == TV_VIS_TRAP) &&
+			      !py.flags.ffall) /* Can float over traps */
+			    hit_trap(char_row, char_col);
+			  if (i == TV_STORE_DOOR)
 			    hit_trap(char_row, char_col);
 			}
 		    }
@@ -1314,9 +1361,7 @@ void openobject()
 	t_ptr = &t_list[c_ptr->tptr];
 	if (t_ptr->p1 > 0) {
 	  p_ptr = &py.misc;
-	  i = p_ptr->disarm + 2*todis_adj() + stat_adj(A_INT)
-	    + (class_level_adj[p_ptr->pclass][CLA_DISARM]
-	       * p_ptr->lev / 3);
+	  i = todis_adj() + stat_adj(A_INT) + smod(S_DISARM);
 	  if (py.flags.confused > 0)
 	    msg_print("You are too confused to pick the lock.");
 	  else if ((i-t_ptr->p1) > randint(100)) {
@@ -1340,8 +1385,7 @@ void openobject()
       /* Open a closed chest.		     */
       else if (t_list[c_ptr->tptr].tval == TV_CHEST) {
 	p_ptr = &py.misc;
-	i = p_ptr->disarm + 2*todis_adj() + stat_adj(A_INT)
-	  + (class_level_adj[p_ptr->pclass][CLA_DISARM] * p_ptr->lev / 3);
+	i = smod(S_DISARM)+ todis_adj() + stat_adj(A_INT);
 	t_ptr = &t_list[c_ptr->tptr];
 	flag = FALSE;
 	if (CH_LOCKED & t_ptr->flags)
@@ -1502,7 +1546,7 @@ int y, x, t1, t2;
 void tunnel(dir)
 int dir;
 {
-  register int i, tabil;
+  register int i, tabil, tskill, baredig;
   register cave_type *c_ptr;
   register inven_type *i_ptr;
   int y, x;
@@ -1521,6 +1565,14 @@ int dir;
   /* strength, and type of tool used			   */
   tabil = py.stats.use_stat[A_STR];
   i_ptr = &inventory[INVEN_WIELD];
+  if (i_ptr->tval==TV_NOTHING)
+    {
+      baredig=(py.skills.cur_skill[sweapon()]-100)/10;
+      if (baredig<1)
+	baredig=0;
+      else
+	baredig+=10;
+    }
   if (c_ptr->cptr > 1)
     {
       m_ptr = &m_list[c_ptr->cptr];
@@ -1541,8 +1593,8 @@ int dir;
       else
 	msg_print("You are too afraid!");
     }
-  else if (i_ptr->tval != TV_NOTHING || py.misc.pclass==6 || py.misc.pclass==7)
-    { /* Monks/Dragons can dig with their bare hands */
+  else if (i_ptr->tval != TV_NOTHING || baredig)
+    { /* May dig with bare hands IF very skilled */
       if (TR_TUNNEL & i_ptr->flags)
 	tabil += 25 + i_ptr->p1*50;
       else
@@ -1552,10 +1604,8 @@ int dir;
 	  /* divide by two so that digging without shovel isn't too easy */
 	  tabil >>= 1;
 	}
-       if (py.misc.pclass==6)
-         tabil=25+py.misc.lev*3; /*   Boy can we dig well as a monk! */
-       if (py.misc.pclass==7)
-	 tabil=10+py.misc.lev; /* Dragons' claws aren't that hard */
+      if (i_ptr->tval==TV_NOTHING) /* Must be bare-handed */
+	tabil += baredig;
       /* Regular walls; Granite, magma intrusion, quartz vein  */
       /* Don't forget the boundary walls, made of titanium (255)*/
       switch(c_ptr->fval)
@@ -1630,7 +1680,6 @@ int dir;
     msg_print("You dig with your hands, making no progress.");
 }
 
-
 /* Disarms a trap					-RAK-	*/
 void disarm_trap()
 {
@@ -1643,6 +1692,7 @@ void disarm_trap()
 
   y = char_row;
   x = char_col;
+  notarget=1;
   if (get_dir(NULL, &dir))
     {
       (void) mmove(dir, &y, &x);
@@ -1662,8 +1712,7 @@ void disarm_trap()
 	}
       else if (c_ptr->tptr != 0)
 	{
-	  tot = py.misc.disarm + 2*todis_adj() + stat_adj(A_INT)
-	    + (class_level_adj[py.misc.pclass][CLA_DISARM] * py.misc.lev / 3);
+	  tot = todis_adj() + stat_adj(A_INT) + smod(S_DISARM);
 	  if ((py.flags.blind > 0) || (no_light()))
 	    tot = tot / 10;
 	  if (py.flags.confused > 0)
@@ -1678,7 +1727,8 @@ void disarm_trap()
 	      if ((tot + 100 - level) > randint(100))
 		{
 		  msg_print("You have disarmed the trap.");
-		  py.misc.exp += (i_ptr->p1*(1+9*(py.misc.pclass==3)));
+		  py.misc.exp += (i_ptr->p1)*
+		    (1+(py.skills.cur_skill[S_DISARM]/25));
 		  (void) delete_object(y, x);
 		  /* make sure we move onto the trap even if confused */
 		  tmp = py.flags.confused;
@@ -1719,7 +1769,8 @@ confused */
 			i_ptr->name2 = SN_DISARMED;
 		      msg_print("You have disarmed the chest.");
 		      known2(i_ptr);
-		      py.misc.exp += (level*(1+4*(py.misc.pclass==3)));
+		      py.misc.exp += level*
+			(1+(py.skills.cur_skill[S_DISARM]/20));
 		      prt_experience();
 		    }
 		  else if ((tot > 5) && (randint(tot) > 5))
@@ -1749,6 +1800,7 @@ confused */
 	  free_turn_flag = TRUE;
 	}
     }
+  notarget=0;
 }
 
 
@@ -2018,7 +2070,7 @@ register int x, y;
 int *transparent;
 {
   char *dstring, *string, query;
-  char mon_strength[20];
+  char mon_strength[20],mon_info[40];
   register cave_type *c_ptr;
   register int j;
   long hp_frac;
@@ -2052,7 +2104,6 @@ int *transparent;
       hp_frac = m_list[c_ptr->cptr].hp;
       hp_frac = hp_frac*100;
       hp_frac = hp_frac / (c_list[j].hd[0]*c_list[j].hd[1]);
-     /* ### */
       if (hp_frac>60)
        strcpy(mon_strength,"healthy");
       else if (hp_frac>45)
@@ -2063,10 +2114,19 @@ int *transparent;
        strcpy(mon_strength,"badly wounded");
       else
        strcpy(mon_strength,"nearly dead");
-      (void) sprintf(out_val, "%s %s %s (%s). [(r)ecall]",
+      mon_info[0]=0; /* Erase the string */
+      if (m_list[c_ptr->cptr].confused)
+	strcat(mon_info," confused");
+      if (m_list[c_ptr->cptr].stunned)
+	strcat(mon_info," stunned");
+      if (m_list[c_ptr->cptr].csleep)
+	strcat(mon_info," asleep");
+      if (m_list[c_ptr->cptr].afraid)
+	strcat(mon_info," afraid");
+      (void) sprintf(out_val, "%s %s %s (%s%s). [(r)ecall]",
 		     dstring,
 		     is_a_vowel( c_list[j].name[0] ) ? "an" : "a",
-		     c_list[j].name,mon_strength);
+		     c_list[j].name,mon_strength,mon_info);
       dstring = "It is on";
       prt(out_val, 0, 0);
       move_cursor_relative(y, x);
@@ -2160,21 +2220,30 @@ static void facts(i_ptr, tbth, tpth, tdam, tdis)
 register inven_type *i_ptr;
 int *tbth, *tpth, *tdam, *tdis;
 {
-  register int tmp_weight;
+  register int tmp_weight,where,tohit,todam;
+  /* Where is INVEN_WIELD or INVEN_AUX; set to wherever we have the proper
+     throwing tool */
+  where=INVEN_WIELD;
+  if (inventory[where].tval!=TV_BOW)
+    where=INVEN_AUX;
+  if (inventory[where].tval!=TV_BOW)
+    where=INVEN_WIELD; /* Go back to 'normal' item */
 
   if (i_ptr->weight < 1)
     tmp_weight = 1;
   else
     tmp_weight = i_ptr->weight;
 
+  tohit=0;
+  todam=0; /* Change these for bow-skilled classes */
   /* Throwing objects			*/
   *tdam = pdamroll(i_ptr->damage) + i_ptr->todam;
   *tbth = py.misc.bthb * 75 / 100;
   *tpth = py.misc.ptohit + i_ptr->tohit;
 
   /* Add this back later if the correct throwing device. -CJS- */
-  if (inventory[INVEN_WIELD].tval != TV_NOTHING)
-    *tpth -= inventory[INVEN_WIELD].tohit;
+  if (inventory[where].tval != TV_NOTHING)
+    *tpth -= inventory[where].tohit;
 
   *tdis = (((py.stats.use_stat[A_STR]+20)*10)/tmp_weight);
   if (*tdis > 10)  *tdis = 10;
@@ -2183,16 +2252,16 @@ int *tbth, *tpth, *tdam, *tdis;
      missile/weapon combo, this makes them much more useful */
 
   /* Using Bows,  slings,  or crossbows	*/
-  if (inventory[INVEN_WIELD].tval == TV_BOW)
-    switch(inventory[INVEN_WIELD].p1)
+  if (inventory[where].tval == TV_BOW)
+    switch(inventory[where].p1)
       {
       case 1:
 	if (i_ptr->tval == TV_SLING_AMMO) /* Sling and ammo */
 	  {
 	    *tbth = py.misc.bthb;
-	    *tpth += 2 * inventory[INVEN_WIELD].tohit;
-	    *tdam += inventory[INVEN_WIELD].todam;
-	    *tdam = *tdam * 2;
+	    *tpth += 3 * inventory[where].tohit+tohit;
+	    *tdam += inventory[where].todam + todam;
+	    *tdam = *tdam * 3;
 	    *tdis = 20;
 	  }
 	break;
@@ -2200,9 +2269,9 @@ int *tbth, *tpth, *tdam, *tdis;
 	if (i_ptr->tval == TV_ARROW)      /* Short Bow and Arrow	*/
 	  {
 	    *tbth = py.misc.bthb;
-	    *tpth += 2 * inventory[INVEN_WIELD].tohit;
-	    *tdam += inventory[INVEN_WIELD].todam;
-	    *tdam = *tdam * 2;
+	    *tpth += 3 * inventory[where].tohit+tohit;
+	    *tdam += inventory[where].todam+todam;
+	    *tdam = *tdam * 3;
 	    *tdis = 25;
 	  }
 	break;
@@ -2210,19 +2279,20 @@ int *tbth, *tpth, *tdam, *tdis;
 	if (i_ptr->tval == TV_ARROW)      /* Long Bow and Arrow	*/
 	  {
 	    *tbth = py.misc.bthb;
-	    *tpth += 2 * inventory[INVEN_WIELD].tohit;
-	    *tdam += inventory[INVEN_WIELD].todam;
-	    *tdam = *tdam * 3;
+	    *tpth += 4 * inventory[where].tohit+tohit;
+	    *tdam += inventory[where].todam+todam;
+	    *tdam = *tdam * 4;
 	    *tdis = 30;
 	  }
 	break;
       case 4:
-	if (i_ptr->tval == TV_ARROW)      /* Composite Bow and Arrow*/
+	if (i_ptr->tval == TV_ARROW ||
+	    i_ptr->tval == TV_BOLT)      /* Crystal Bow and Arrow OR bolt */
 	  {
 	    *tbth = py.misc.bthb;
-	    *tpth += 2 * inventory[INVEN_WIELD].tohit;
-	    *tdam += inventory[INVEN_WIELD].todam;
-	    *tdam = *tdam * 4;
+	    *tpth += 5 * inventory[where].tohit+tohit;
+	    *tdam += inventory[where].todam+todam;
+	    *tdam = *tdam * 5;
 	    *tdis = 35;
 	  }
 	break;
@@ -2230,9 +2300,9 @@ int *tbth, *tpth, *tdam, *tdis;
 	if (i_ptr->tval == TV_BOLT)      /* Light Crossbow and Bolt*/
 	  {
 	    *tbth = py.misc.bthb;
-	    *tpth += 2 * inventory[INVEN_WIELD].tohit;
-	    *tdam += inventory[INVEN_WIELD].todam;
-	    *tdam = *tdam * 3;
+	    *tpth += 4 * inventory[where].tohit+tohit;
+	    *tdam += inventory[where].todam;
+	    *tdam = *tdam * 4;
 	    *tdis = 25;
 	  }
 	break;
@@ -2240,9 +2310,9 @@ int *tbth, *tpth, *tdam, *tdis;
 	if (i_ptr->tval == TV_BOLT)      /* Heavy Crossbow and Bolt*/
 	  {
 	    *tbth = py.misc.bthb;
-	    *tpth += 2 * inventory[INVEN_WIELD].tohit;
-	    *tdam += inventory[INVEN_WIELD].todam;
-	    *tdam = *tdam * 4;
+	    *tpth += 5 * inventory[where].tohit+tohit;
+	    *tdam += inventory[where].todam;
+	    *tdam = *tdam * 5;
 	    *tdis = 35;
 	  }
 	break;
@@ -2301,30 +2371,101 @@ inven_type *t_ptr;
 /* Note: Flasks of oil do fire damage				 */
 /* Note: Extra damage and chance of hitting when missiles are used*/
 /*	 with correct weapon.  I.E.  wield bow and throw arrow.	 */
-void throw_object()
+void throw_object(tmp)
+int tmp; /* If 0, normal, otherwise we ONLY 'throw' arrows/bolts/pebbles */
 {
-  int item_val, tbth, tpth, tdam, tdis;
-  int y, x, oldy, oldx, cur_dis, dir;
-  int flag, visible;
+  int item_val, tbth, tpth, tdam, tdis,loop,findme;
+  int y, x, oldy, oldx, cur_dis, dir, tdist, root;
+  int flag, visible, target;
   bigvtype out_val, tmp_str;
   inven_type throw_obj;
   register cave_type *c_ptr;
   register monster_type *m_ptr;
   register int i;
   char tchar;
-
+  int do_throw; /* If 0, don't throw it, otherwise do it */
+  do_throw=1;
+  target=FALSE;
+  if (targetx>-128)
+    {
+      target=TRUE;
+      tdist=(targetx*targetx)+(targety*targety);
+      root=1; i=1;
+      while(tdist>0)
+	{
+	  tdist-=i;
+	  i+=2;
+	  ++root;
+	}
+      tdist=root; /* Finds distance so can't throw more easily */
+    }
+  /* This will find and match, so if we have bow, we fire arrows, etc */
+  y=INVEN_WIELD;
+  findme=0;
+  switch(inventory[y].p1)
+    {
+    case 1:
+      findme=TV_SLING_AMMO;
+      break;
+    case 2: case 3: case 4: /* Bows */
+      findme=TV_ARROW;
+      break;
+    case 5: case 6: /* Crossbows */
+      findme=TV_BOLT;
+      break;
+    }
+  if (inventory[y].tval!=TV_BOW || !findme)
+    findme=255; /* We don't have a missile weapon */
   if (inven_ctr == 0)
     {
       msg_print("But you are not carrying anything.");
       free_turn_flag = TRUE;
     }
-  else if (get_item(&item_val, "Fire/Throw which one?", 0, inven_ctr-1, 0))
+  if (!tmp)
+    do_throw=get_item(&item_val, "Fire/Throw which one?", 0, inven_ctr-1, 0);
+  else /* Start from bottom of inventory, look for first arrow/bolt/etc and
+	  throw that */
     {
+      loop=INVEN_WIELD; /* Start here */
+      while(inventory[loop].tval!=findme && loop>=0)
+	  --loop;
+      if (loop==-1) /* Cannot (s)hoot; no matching ammo! */
+	{
+	  if (findme==TV_ARROW)
+	    msg_print("You need arrows for your bow.");
+	  else if (findme==TV_BOLT)
+	    msg_print("You need bolts for your crossbow.");
+	  else if (findme==TV_SLING_AMMO)
+	    msg_print("You need pebbles for your sling.");
+	  else
+	    msg_print("You don't have a missile weapon!");
+	  do_throw=0;
+	  item_val = INVEN_WIELD;
+	}
+      else
+	item_val=loop;
+    }
+  /* This asks for confirmation BEFORE throwing items! */
+  if (do_throw)
+    {
+      if (inventory[item_val].tval!=TV_ARROW &&
+	   inventory[item_val].tval!=TV_BOLT &&
+	   inventory[item_val].tval!=TV_SLING_AMMO)
+    {
+      objdes(tmp_str,&inventory[item_val],1);
+      sprintf(out_val,"Do you REALLY want to throw %s?",tmp_str);
+      do_throw=get_check(out_val);
+    }
+    }
+
+      if (do_throw)
+	{
       if (get_dir(NULL, &dir))
 	{
 	  desc_remain(item_val);
 	  if (py.flags.confused > 0)
 	    {
+	      target=FALSE;
 	      msg_print("You are confused.");
 	      do
 		{
@@ -2343,7 +2484,11 @@ void throw_object()
 	  cur_dis = 0;
 	  do
 	    {
-	      (void) mmove(dir, &y, &x);
+	      if (!target)
+		(void) mmove(dir, &y, &x);
+	      else
+		{ y=char_row+targety; x=char_col+targetx; oldy=y; oldx=x;
+		cur_dis = tdist-1;}
 	      cur_dis++;
 	      lite_spot(oldy, oldx);
 	      if (cur_dis > tdis)  flag = TRUE;
@@ -2360,10 +2505,9 @@ void throw_object()
 			 depending on distance */
 		      if (!m_ptr->ml)
 			tbth = (tbth / (cur_dis+2))
-			  - (py.misc.lev *
-			     class_level_adj[py.misc.pclass][CLA_BTHB] / 2)
+			  - (get_level() * 3)
 			    - (tpth * (BTH_PLUS_ADJ-1));
-		      if (test_hit(tbth, (int)py.misc.lev, tpth,
+		      if (test_hit(tbth, (int)get_level(), tpth,
 				   (int)c_list[m_ptr->mptr].ac, CLA_BTHB))
 			{
 			  i = m_ptr->mptr;
@@ -2439,7 +2583,6 @@ void throw_object()
     }
 }
 
-
 /* Make a bash attack on someone.				-CJS-
    Used to be part of bash above. */
 static void py_bash(y, x)
@@ -2467,10 +2610,11 @@ int y, x;
     + py.misc.wt/10;
   if (!m_ptr->ml)
     base_tohit = (base_tohit / 2) - (py.stats.use_stat[A_DEX]*(BTH_PLUS_ADJ-1))
-      - (py.misc.lev * class_level_adj[py.misc.pclass][CLA_BTH] / 2);
+      - (get_level() * 3);
 
-  if (test_hit(base_tohit, (int)py.misc.lev,
-	       (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH+
+  if (test_hit(base_tohit,(int)get_level(),
+	       (int)py.stats.use_stat[A_DEX]+get_level(), 
+	       (int)c_ptr->ac, CLA_BTH+
 	       (py.flags.ac_mod==-1)*30))
     {
       (void) sprintf(out_val, "You hit %s.", m_name);

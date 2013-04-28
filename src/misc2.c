@@ -31,17 +31,20 @@ char *index();
 #include <strings.h>
 #endif
 
+
+#define BOTTOM 23
+
+
 #if defined(LINT_ARGS)
 static void prt_lnum(char *, int32, int, int);
 static void prt_num(char *, int, int, int);
 static void prt_long(int32, int, int);
 static void prt_int(int, int, int);
-static void gain_level(void);
 #endif
 
 static char *stat_names[] = { "STR: ", "INT: ", "WIS: ",
 				 "DEX: ", "CON: ", "CHR: ","LUC: " };
-#define BLANK_LENGTH	24
+#define BLANK_LENGTH	BOTTOM
 static char blank_string[] = "                        ";
 
 extern int peek;
@@ -107,17 +110,22 @@ int y, x;
 {
   register int i, cur_pos;
   register inven_type *t_ptr;
+  int dun;
+  long d;
 
+  dun=dun_level;
+  if (dun==-1)  dun=90;
+  d=(dun/3+8);
   cur_pos = popt();
-  i = ((randint(dun_level+2)+2) / 2) - 1;
+  i = ((randint(dun+2)+2) / 2) - 1;
   if (randint(OBJ_GREAT) == 1)
-    i += randint(dun_level+1);
+    i += randint(dun+1);
   if (i >= MAX_GOLD)
     i = MAX_GOLD - 1;
   cave[y][x].tptr = cur_pos;
   invcopy(&t_list[cur_pos], OBJ_GOLD_LIST+i);
   t_ptr = &t_list[cur_pos];
-  t_ptr->cost += (8L * (long)randint((int)t_ptr->cost)) + randint(8);
+  t_ptr->cost += (d * (long)randint((int)t_ptr->cost)) + randint(8);
   if (cave[y][x].cptr == 1)
     msg_print ("You feel something roll beneath your feet.");
 }
@@ -329,18 +337,6 @@ int special_place_object(y, x)
     else good_item_flag=TRUE;
     BARAHIR=dun_level;
     break;
-  case (SPECIAL_OBJ+11):
-   done++;
-   if (randint(15)>1) goto again;
-   if (ROBEMED && ROBEMED!=dun_level) goto again; /* Robe of Meditations */
-   if ((object_list[tmp].level-40)>dun_level) goto again;
-   if ((object_list[tmp].level>dun_level) && (randint(60+luc)>1))
-     goto again;
-   if ((wizard||peek))
-     sprintf(str,"Robe of Meditations");
-   else good_item_flag=TRUE;
-   ROBEMED=dun_level;
-   break;
   }
   if (strlen(str)>0 && (wizard || peek)) msg_print(str);
   cur_pos = popt();
@@ -355,11 +351,38 @@ int special_place_object(y, x)
   return (-1);
 }
 
+/* Places a specific type of object at a given row, column and level of
+object */
+void place_general(y,x,tval,lvl)
+int y,x,lvl;
+int tval;
+{
+  register int cur_pos, tmp, dun_lev, charges;
+
+  cur_pos = popt();
+  cave[y][x].tptr = cur_pos;
+  dun_lev=lvl; /* Level of "droppped" object */
+  tmp = 0;
+  while (object_list[sorted_objects[tmp]].tval!=tval)
+    tmp = get_obj_num(dun_lev, FALSE);
+  invcopy(&t_list[cur_pos], sorted_objects[tmp]);
+  if (tval==TV_WAND || tval==TV_STAFF)
+    {
+      charges=randint(lvl/2)+5;
+      if (charges<0) charges=-charges;
+      t_list[cur_pos].p1=charges;
+    }
+  if (tval==TV_ROD)
+    t_list[cur_pos].p1=0;
+  if (cave[y][x].cptr == 1)
+    msg_print ("You feel something roll beneath your feet.");
+}
+
 /* Places an object at given row, column co-ordinate	-RAK-	*/
 void place_object(y, x)
 int y, x;
 {
-  register int cur_pos, tmp, luc;
+  register int cur_pos, tmp, luc, dun_lev;
 
   luc = luck()/10;
   if (luc>8)
@@ -369,13 +392,16 @@ int y, x;
       return;
   cur_pos = popt();
   cave[y][x].tptr = cur_pos;
-  tmp = get_obj_num(dun_level, FALSE);
+  dun_lev=dun_level;
+  if (dun_lev==-1)
+    dun_lev=70;
+  tmp = get_obj_num(dun_lev, FALSE);
   invcopy(&t_list[cur_pos], sorted_objects[tmp]);
-  magic_treasure(cur_pos, dun_level, FALSE, 0);
-  if (object_list[sorted_objects[tmp]].level > dun_level)
-    rating += object_list[sorted_objects[tmp]].level - dun_level;
+  magic_treasure(cur_pos, dun_lev, FALSE, 0);
+  if (object_list[sorted_objects[tmp]].level > dun_lev)
+    rating += object_list[sorted_objects[tmp]].level - dun_lev;
   if (peek) {
-    if (object_list[sorted_objects[tmp]].level > dun_level) {
+    if (object_list[sorted_objects[tmp]].level > dun_lev) {
       char buf[200];
       int8u tmp;
 
@@ -543,7 +569,7 @@ char *out_val;
       part1 = 18;
       part2 = stat - 18;
       if (part2 >= 220)
-	(void) sprintf(out_val, "%2d/*** ", part1, part2);
+	(void) sprintf(out_val, "%2d/*** ", part1);
       else if (part2 >= 100)
 	(void) sprintf(out_val, "%2d/%03d ", part1, part2);
       else
@@ -760,11 +786,18 @@ int con_adj()
 char *title_string()
 {
   register char *p;
-
-  if (py.misc.lev < 1)
+  register int lvl;
+  lvl=get_level();
+  if (lvl < 1)
     p = "Babe in arms";
-  else if (py.misc.lev <= MAX_PLAYER_LEVEL)
-    p = player_title[py.misc.pclass][py.misc.lev-1];
+  else if (lvl<10)
+    p = "Novice Player";
+  else if (lvl<20)
+    p = "Average Player";
+  else if (lvl<40)
+    p = "Expert Player";
+  else if (lvl<=50)
+    p = "Master";
   else if (py.misc.male)
     p = "**KING**";
   else
@@ -776,14 +809,13 @@ char *title_string()
 /* Prints title of character				-RAK-	*/
 void prt_title()
 {
-  prt_field(title_string(), 3, STAT_COLUMN);
 }
 
 
 /* Prints level						-RAK-	*/
 void prt_level()
 {
-  prt_int((int)py.misc.lev, 13, STAT_COLUMN+6);
+  prt_int(get_level(), 13, STAT_COLUMN+6);
 }
 
 
@@ -829,8 +861,10 @@ void prt_depth()
   register int depth;
 
   depth = dun_level*50;
-  if (depth == 0)
-    (void) strcpy(depths, "* Town >");
+  if (depth < 0)
+    (void) strcpy(depths,  "  Quest   ");
+  else if (depth == 0)
+    (void) strcpy(depths,  "* Town >  ");
   else
     (void) sprintf(depths, "< %d ft >", depth);
   put_buffer(depths, 4, 0);
@@ -841,11 +875,11 @@ void prt_depth()
 void prt_hunger()
 {
   if (PY_WEAK & py.flags.status)
-    put_buffer("Weak  ", 24, 0);
+    put_buffer("Weak  ", BOTTOM, 0);
   else if (PY_HUNGRY & py.flags.status)
-    put_buffer("Hungry", 24, 0);
+    put_buffer("Hungry", BOTTOM, 0);
   else
-    put_buffer("      ", 24, 0);
+    put_buffer("      ", BOTTOM, 0);
 }
 
 
@@ -853,9 +887,9 @@ void prt_hunger()
 void prt_blind()
 {
   if (PY_BLIND & py.flags.status)
-    put_buffer("Blind", 24, 7);
+    put_buffer("Blind", BOTTOM, 7);
   else
-    put_buffer("     ", 24, 7);
+    put_buffer("     ", BOTTOM, 7);
 }
 
 
@@ -863,9 +897,9 @@ void prt_blind()
 void prt_confused()
 {
   if (PY_CONFUSED & py.flags.status)
-    put_buffer("Confused", 24, 13);
+    put_buffer("Confused", BOTTOM, 13);
   else
-    put_buffer("        ", 24, 13);
+    put_buffer("        ", BOTTOM, 13);
 }
 
 
@@ -873,9 +907,9 @@ void prt_confused()
 void prt_afraid()
 {
   if (PY_FEAR & py.flags.status)
-    put_buffer("Afraid", 24, 22);
+    put_buffer("Afraid", BOTTOM, 22);
   else
-    put_buffer("      ", 24, 22);
+    put_buffer("      ", BOTTOM, 22);
 }
 
 
@@ -883,9 +917,9 @@ void prt_afraid()
 void prt_poisoned()
 {
   if (PY_POISONED & py.flags.status)
-    put_buffer("Poisoned", 24, 29);
+    put_buffer("Poisoned", BOTTOM, 29);
   else
-    put_buffer("        ", 24, 29);
+    put_buffer("        ", BOTTOM, 29);
 }
 
 
@@ -896,27 +930,27 @@ void prt_state()
 
   py.flags.status &= ~PY_REPEAT;
   if (py.flags.paralysis > 1)
-    put_buffer ("Paralysed ", 24, 38);
+    put_buffer ("Paralysed ", BOTTOM, 38);
   else if (PY_REST & py.flags.status)
     {
       if (py.flags.rest>0)
 	(void) sprintf (tmp, "Rest %-5d", py.flags.rest);
       else if (py.flags.rest==-1)
 	(void) sprintf (tmp, "Rest *****");
-      put_buffer (tmp, 24, 38);
+      put_buffer (tmp, BOTTOM, 38);
     }
   else if (command_count > 0)
     {
       (void) sprintf (tmp, "Repeat %-3d", command_count);
       py.flags.status |= PY_REPEAT;
-      put_buffer (tmp, 24, 38);
+      put_buffer (tmp, BOTTOM, 38);
       if (PY_SEARCH & py.flags.status)
-	put_buffer ("Search    ", 24, 38);
+	put_buffer ("Search    ", BOTTOM, 38);
     }
   else if (PY_SEARCH & py.flags.status)
-    put_buffer("Searching ", 24, 38);
+    put_buffer("Searching ", BOTTOM, 38);
   else		/* "repeat 999" is 10 characters */
-    put_buffer("          ", 24, 38);
+    put_buffer("          ", BOTTOM, 38);
 }
 
 
@@ -929,31 +963,31 @@ void prt_speed ()
   if (PY_SEARCH & py.flags.status)   /* Search mode. */
     i--;
   if (i > 2)
-    put_buffer ("Extremely Slow", 24, 49);
+    put_buffer ("Extremely Slow", BOTTOM, 49);
   else if (i == 2)
-    put_buffer ("Very Slow     ", 24, 49);
+    put_buffer ("Very Slow     ", BOTTOM, 49);
   else if (i == 1)
-    put_buffer ("Slow          ", 24, 49);
+    put_buffer ("Slow          ", BOTTOM, 49);
   else if (i == 0)
-    put_buffer ("              ", 24, 49);
+    put_buffer ("              ", BOTTOM, 49);
   else if (i == -1)
-    put_buffer ("Fast          ", 24, 49);
+    put_buffer ("Fast          ", BOTTOM, 49);
   else if (i == -2)
-    put_buffer ("Very Fast     ", 24, 49);
+    put_buffer ("Very Fast     ", BOTTOM, 49);
   else if (i == -3)
-    put_buffer ("Extremely Fast", 24, 49);
+    put_buffer ("Extremely Fast", BOTTOM, 49);
   else if (i == -4)
-    put_buffer ("Deadly Speed  ", 24, 49);
+    put_buffer ("Deadly Speed  ", BOTTOM, 49);
   else
-    put_buffer ("Light Speed   ", 24, 49);
+    put_buffer ("Light Speed   ", BOTTOM, 49);
   if (py.flags.tim_invis)
-    put_buffer("Invisible",24,69);
+    put_buffer("Invisible",BOTTOM,69);
   else
-    put_buffer("         ",24,69);
+    put_buffer("         ",BOTTOM,69);
   if (py.flags.dodge)
-    put_buffer("Dodging",24,30);
+    put_buffer("Dodging",BOTTOM,30);
   else
-    put_buffer("       ",24,30);
+    put_buffer("       ",BOTTOM,30);
 }
 
 
@@ -961,9 +995,9 @@ void prt_study()
 {
   py.flags.status &= ~PY_STUDY;
   if (py.flags.new_spells == 0)
-    put_buffer ("     ", 24, 63);
+    put_buffer ("     ", BOTTOM, 63);
   else
-    put_buffer ("Study", 24, 63);
+    put_buffer ("Study", BOTTOM, 63);
 }
 
 void cut_player(c)
@@ -1111,28 +1145,17 @@ void set_use_stat(stat)
 int stat;
 {
   py.stats.use_stat[stat] = modify_stat (stat, py.stats.mod_stat[stat]);
-
   if (stat == A_STR)
     {
       py.flags.status |= PY_STR_WGT;
       calc_bonuses();
-    }
+    } 
   else if (stat == A_DEX)
     calc_bonuses();
-  else if (stat == A_INT && class[py.misc.pclass].spell == MAGE)
+  else if (stat == prime_stat[py.misc.realm] && py.misc.realm!=NONE)
     {
-      calc_spells(A_INT);
-      calc_mana(A_INT);
-    }
-  else if (stat == A_WIS && class[py.misc.pclass].spell == PRIEST)
-    {
-      calc_spells(A_WIS);
-      calc_mana(A_WIS);
-    }
-  else if (stat == A_DEX && class[py.misc.pclass].spell == MONK)
-    {
-      calc_spells(A_DEX);
-      calc_mana(A_DEX);
+      calc_spells(prime_stat[py.misc.realm]);
+      calc_mana(prime_stat[py.misc.realm]);
     }
   else if (stat == A_CON)
     calc_hitpoints();
@@ -1317,21 +1340,30 @@ int toac_adj()
 /* Returns a character's adjustment to disarm		 -RAK-	 */
 int todis_adj()
 {
-  register int stat;
+  register int stat,tmp,t2;
 
   stat = py.stats.use_stat[A_DEX];
-  if	  (stat <   3)	return(-8);
-  else if (stat ==  4)	return(-6);
-  else if (stat ==  5)	return(-4);
-  else if (stat ==  6)	return(-2);
-  else if (stat ==  7)	return(-1);
-  else if (stat <  13)	return( 0);
-  else if (stat <  16)	return( 1);
-  else if (stat <  18)	return( 2);
-  else if (stat <  59)	return( 4);
-  else if (stat <  94)	return( 5);
-  else if (stat < 117)	return( 6);
-  else                  return( 8);
+  if	  (stat <   3)	tmp=(-16);
+  else if (stat ==  4)	tmp=(-12);
+  else if (stat ==  5)	tmp=(-8);
+  else if (stat ==  6)	tmp=(-4);
+  else if (stat ==  7)	tmp=(-2);
+  else if (stat <  13)	tmp=( 0);
+  else if (stat <  16)	tmp=( 2);
+  else if (stat <  18)	tmp=( 4);
+  else if (stat <  59)	tmp=( 8);
+  else if (stat <  94)	tmp=( 10);
+  else if (stat < 117)	tmp=( 12);
+  else                  tmp=( 16); /* All are DOUBLED */
+  /* Skill for disarming here */
+  t2=py.skills.cur_skill[S_DISARM];
+  if (t2<30)
+    tmp-=(30-t2)/4;
+  else if (t2<50)
+    tmp+=(t2-30)/4;
+  else
+    tmp+=(t2-50)/3;
+  return tmp;
 }
 
 
@@ -1375,11 +1407,9 @@ void prt_stat_block()
 
   m_ptr = &py.misc;
   prt_field(race[py.misc.prace].trace,	  1, STAT_COLUMN);
-  prt_field(class[py.misc.pclass].title,  2, STAT_COLUMN);
-  prt_field(title_string(),		  3, STAT_COLUMN);
   for (i = 0; i < 7; i++)
     prt_stat (i);
-  prt_num ("LEV", (int)m_ptr->lev,    13, STAT_COLUMN);
+  prt_num ("LEV", (int)get_level(),    13, STAT_COLUMN);
   prt_lnum("EXP", m_ptr->exp,	       14, STAT_COLUMN);
   prt_num ("MNA", m_ptr->cmana,	 15, STAT_COLUMN);
   prt_num ("MHP", m_ptr->mhp,	       16, STAT_COLUMN);
@@ -1434,7 +1464,6 @@ void put_character()
       put_buffer (m_ptr->name, 2, 15);
       put_buffer (race[m_ptr->prace].trace, 3, 15);
       put_buffer ((m_ptr->male ? "Male" : "Female"), 4, 15);
-      put_buffer (class[m_ptr->pclass].title, 5, 15);
     }
 }
 
@@ -1507,13 +1536,10 @@ void put_misc2()
   register struct misc *m_ptr;
 
   m_ptr = &py.misc;
-  prt_num("Level      ", (int)m_ptr->lev, 9, 29);
+  prt_num("Level      ", (int)get_level(), 9, 29);
   prt_lnum("Experience ", m_ptr->exp, 10, 29);
   prt_lnum("Max Exp    ", m_ptr->max_exp, 11, 29);
-  prt_lnum("Exp to Adv.", ((m_ptr->lev>=MAX_PLAYER_LEVEL)?0L
-	                  :(int32)(player_exp[m_ptr->lev-1] *
-				   m_ptr->expfact/100)), 12, 29);
-  prt_lnum("Gold       ", m_ptr->au, 13, 29);
+  prt_lnum("Gold       ", m_ptr->au, 12, 29);
   prt_num("Max Hit Points ", m_ptr->mhp, 10, 52);
   prt_num("Cur Hit Points ", m_ptr->chp, 11, 52);
   prt_num("Max Mana       ", m_ptr->mana, 12, 52);
@@ -1521,66 +1547,14 @@ void put_misc2()
 }
 
 
-/* Prints ratings on certain abilities			-RAK-	*/
+/* This used to put ratings on abilities, but this is now done via skills */
 void put_misc3()
-{
-  int xbth, xbthb, xfos, xsrh, xstl, xdis, xsave, xdev, xbth2, xmag, xdodge;
-  vtype xinfra;
-  register struct misc *p_ptr;
-
-  clear_from(14);
-  p_ptr = &py.misc;
-  xbth	= p_ptr->bth + p_ptr->ptohit*BTH_PLUS_ADJ
-    + (class_level_adj[p_ptr->pclass][CLA_BTH] * p_ptr->lev);
-  xbth2 = p_ptr->bth2 + p_ptr->ptohit*BTH_PLUS_ADJ
-    + (class_level_adj[p_ptr->pclass][CLA_BTH2] * p_ptr->lev);
-  xmag = (race[py.misc.prace].base_mag+class[py.misc.pclass].magicity)/2;
-  xdodge = do_dodge();
-  xbthb = p_ptr->bthb + p_ptr->ptohit*BTH_PLUS_ADJ
-    + (class_level_adj[p_ptr->pclass][CLA_BTHB] * p_ptr->lev);
-  /* this results in a range from 0 to 29 */
-  xfos	= 40 - p_ptr->fos;
-  if (xfos < 0)	 xfos = 0;
-  xsrh	= p_ptr->srh;
-  /* this results in a range from 0 to 9 */
-  xstl	= p_ptr->stl + 1;
-  xdis	= p_ptr->disarm + 2*todis_adj() + stat_adj(A_INT)
-    + (class_level_adj[p_ptr->pclass][CLA_DISARM] * p_ptr->lev / 3);
-  xsave = p_ptr->save + stat_adj(A_WIS)
-    + (class_level_adj[p_ptr->pclass][CLA_SAVE] * p_ptr->lev / 3);
-  xdev	= p_ptr->save + stat_adj(A_INT)
-    + (class_level_adj[p_ptr->pclass][CLA_DEVICE] * p_ptr->lev / 3);
-
-  (void) sprintf(xinfra, "%d feet", py.flags.see_infra*10);
-
-  put_buffer ("(Miscellaneous Abilities)", 16, 25);
-  put_buffer ("Fighting    :", 17, 1);
-  put_buffer (likert (xbth, 12), 17, 15);
-  put_buffer ("Bows/Throw  :", 18, 1);
-  put_buffer (likert (xbthb, 12), 18, 15);
-  put_buffer ("Saving Throw:", 19, 1);
-  put_buffer (likert (xsave, 6), 19, 15);
-
-  put_buffer ("Stealth     :", 17, 28);
-  put_buffer (likert (xstl, 1), 17, 42);
-  put_buffer ("Disarming   :", 18, 28);
-  put_buffer (likert (xdis, 8), 18, 42);
-  put_buffer ("Magic Device:", 19, 28);
-  put_buffer (likert (xdev, 6), 19, 42);
-
-  put_buffer ("Perception  :", 17, 55);
-  put_buffer (likert (xfos, 3), 17, 69);
-  put_buffer ("Searching   :", 18, 55);
-  put_buffer (likert (xsrh, 6), 18, 69);
-  put_buffer ("Infra-Vision:", 20, 55);
-  put_buffer (xinfra, 20, 69);
-
-  put_buffer ("Two-Handed  :", 20, 1);
-  put_buffer (likert (xbth2, 12), 20, 15);
-  put_buffer ("Magicity    :", 20, 28);
-  put_buffer (likert (xmag, 21), 20, 42);
-  put_buffer ("Dodging     :", 19, 55);
-  put_buffer (likert(xdodge,14), 19, 69);
+{  /* All this does now is print Infravision out */
+  char out[80]; 
+  sprintf(out,"Infra      :  %3d ft",py.flags.see_infra*10);
+  prt(out,13,29);
+  prt_num("Cur Mana       ", py.misc.cmana, 13, 52);
+  return;
 }
 
 
@@ -1826,7 +1800,6 @@ void check_strength()
 {
   register int i;
   register inven_type *i_ptr;
-  static int notlike=FALSE;
 
   i_ptr = &inventory[INVEN_WIELD];
   if (i_ptr->tval != TV_NOTHING
@@ -1861,12 +1834,6 @@ void check_strength()
       pack_heavy = i;
     }
   py.flags.status &= ~PY_STR_WGT;
-  if (py.misc.pclass==2 && !notlike) {
-    if (i_ptr->tval==TV_SWORD || i_ptr->tval==TV_POLEARM) {
-      notlike=TRUE;
-      msg_print("You do not feel comfortable with your weapon.");
-    }
-  }
 }
 
 
@@ -1918,22 +1885,20 @@ int spell;
 {
   register spell_type *s_ptr;
   register int chance;
-  register int stat,slvl;
-  int minfail;
+  register int stat,slvl,slevel;
+  int minfail,sk;
 
-  slvl=py.misc.lev*(class[py.misc.pclass].magicity+
-		    race[py.misc.prace].base_mag)/200;
-  s_ptr = &magic_spell[py.misc.pclass-1][spell];
-  if (s_ptr->slevel<slvl)
-   chance = s_ptr->sfail - 3*(slvl-s_ptr->slevel);
-  else /* Semi-magical class; get penalties */
-   chance = s_ptr->sfail + 4*(s_ptr->slevel-slvl);
-  if (class[py.misc.pclass].spell == MAGE)
-    stat = A_INT;
-  else if (class[py.misc.pclass].spell == PRIEST)
-    stat = A_WIS;
+  slvl=smod(S_MAGIC);
+  /* Here we modify the failure SLIGHTLY for the Relevant Skill which
+     enhances the power of said spells */
+  slvl+=(py.skills.cur_skill[magical[py.misc.realm]]/30)-4;
+  s_ptr = &magic_spell[py.misc.realm][spell];
+  slevel=(s_ptr->slevel);
+  if (slevel<slvl)
+   chance = s_ptr->sfail - 3*(slvl-slevel);
   else
-    stat = A_DEX;
+   chance = s_ptr->sfail + 4*(slevel-slvl);
+  stat = prime_stat[py.misc.realm];
   chance -= 3 * (stat_adj(stat)-1);
   if (s_ptr->smana > py.misc.cmana)
     chance += 5 * (s_ptr->smana-py.misc.cmana);
@@ -1952,9 +1917,12 @@ int spell;
      case 15: case 16: minfail = 1; break; /* /171 - /200 */
      default: minfail = 0; break; /* > 18/200 */
    }   
-   if ((minfail < 5) && (py.misc.pclass != 1) && (py.misc.pclass != 2) &&
-                        (py.misc.pclass != 6))
-     minfail = 5; /* only mages/priests/monks can get best chances... */
+   if ((minfail < 10) && slvl<30)
+     minfail = 10; /* only true magic users get best failure rates */
+  else if ((minfail < 5) && slvl<37)
+    minfail = 5;
+  else if ((minfail < 1) && slvl<45)
+    minfail = 1;
   if (chance > 95)
     chance = 95;
   else if (chance < minfail)
@@ -1966,12 +1934,13 @@ int spell;
 /* Print list of spells					-RAK-	*/
 /* if nonconsec is -1: spells numbered consecutively from 'a' to 'a'+num
                   >=0: spells numbered by offset from nonconsec */
-void print_spells(spell, num, comment, nonconsec)
+void print_spells(spell, num, comment, nonconsec, tval)
 int *spell;
 register int num;
-int comment, nonconsec;
+int comment, nonconsec, tval; /* Last is used to find spell offset */
 {
   register int i, j;
+  char ok[4];
   vtype out_val;
   register spell_type *s_ptr;
   int col, offset;
@@ -1982,19 +1951,24 @@ int comment, nonconsec;
     col = 22;
   else
     col = 31;
-  offset = (class[py.misc.pclass].spell==MAGE ? SPELL_OFFSET : PRAYER_OFFSET);
-  if (class[py.misc.pclass].spell==MONK)
-   offset = MONK_OFFSET;
+  if (tval==TV_MAGIC_BOOK)
+    offset = SPELL_OFFSET;
+  else if (tval==TV_PRAYER_BOOK)
+    offset = PRAYER_OFFSET;
+  else if (tval==TV_NATURE_BOOK)
+    offset = DRUID_OFFSET;
+  else
+    offset = NECROS_OFFSET;
   erase_line(1, col);
   put_buffer("Name", 1, col+5);
-  put_buffer("Lv Mana Fail", 1, col+35);
+  put_buffer("Ok? Mana Fail", 1, col+35);
   /* only show the first 22 choices */
   if (num > 22)
     num = 22;
   for (i = 0; i < num; i++)
     {
       j = spell[i];
-      s_ptr = &magic_spell[py.misc.pclass-1][j];
+      s_ptr = &magic_spell[py.misc.realm][j];
       if (comment == FALSE)
 	p = "";
       else if (j>=32?((spell_forgotten2 & (1L << (j-32))) != 0)
@@ -2015,8 +1989,12 @@ int comment, nonconsec;
 	spell_char = 'a' + i;
       else
 	spell_char = 'a' + j - nonconsec;
-      (void) sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s", spell_char,
-		     spell_names[j+offset], s_ptr->slevel, s_ptr->smana,
+      if (s_ptr->slevel>smod(S_MAGIC))
+	strcpy(ok,"No ");
+      else
+	strcpy(ok,"Yes");
+      (void) sprintf(out_val, "  %c) %-30s%s %4d %3d%%%s", spell_char,
+		     spell_names[j+offset], ok, s_ptr->smana,
 		     spell_chance (j), p);
       prt(out_val, 2+i, col);
     }
@@ -2024,10 +2002,10 @@ int comment, nonconsec;
 
 
 /* Returns spell pointer				-RAK-	*/
-int get_spell(spell, num, sn, sc, prompt, first_spell)
+int get_spell(spell, num, sn, sc, prompt, first_spell, tval)
 int *spell;
 register int num;
-register int *sn, *sc;
+register int *sn, *sc, tval;
 char *prompt;
 int first_spell;
 {
@@ -2042,9 +2020,14 @@ int first_spell;
 		 spell[0]+'a'-first_spell, spell[num-1]+'a'-first_spell,
 		 prompt);
   redraw = FALSE;
-  offset = (class[py.misc.pclass].spell==MAGE ? SPELL_OFFSET : PRAYER_OFFSET);
-  if (class[py.misc.pclass].spell==MONK)
-   offset = MONK_OFFSET;
+  if (tval==TV_MAGIC_BOOK)
+    offset = SPELL_OFFSET;
+  else if (tval==TV_PRAYER_BOOK)
+    offset = PRAYER_OFFSET;
+  else if (tval==TV_NATURE_BOOK)
+    offset = DRUID_OFFSET;
+  else
+    offset = NECROS_OFFSET;
   while (flag == FALSE && get_com (out_str, &choice))
     {
       if (isupper((int)choice))
@@ -2058,7 +2041,7 @@ int first_spell;
 	    *sn = -2;
 	  else
 	    {
-	      s_ptr = &magic_spell[py.misc.pclass-1][*sn];
+	      s_ptr = &magic_spell[py.misc.realm][*sn];
 	      (void) sprintf (tmp_str, "Cast %s (%d mana, %d%% fail)?",
 			      spell_names[*sn+offset], s_ptr->smana,
 			      spell_chance (*sn));
@@ -2087,7 +2070,7 @@ int first_spell;
 	    {
 	      save_screen ();
 	      redraw = TRUE;
-	      print_spells (spell, num, FALSE, first_spell);
+	      print_spells (spell, num, FALSE, first_spell, tval);
 	    }
 	}
       else if (isalpha((int)choice))
@@ -2098,10 +2081,12 @@ int first_spell;
 	  bell();
 	}
       if (*sn == -2) {
-	sprintf(tmp_str, "You don't know that %s.",
-		(class[py.misc.pclass].spell == MAGE)?"spell":"prayer");
-	if (class[py.misc.pclass].spell == MONK)
-	  sprintf(tmp_str, "You don't know that technique.");
+	if (tval==TV_MAGIC_BOOK || tval==TV_DARK_BOOK)
+	  sprintf(tmp_str, "You don't know that spell.");
+	else if (tval==TV_PRAYER_BOOK)
+	  sprintf(tmp_str,"You don't know that prayer.");
+	else if (tval==TV_NATURE_BOOK)
+	  sprintf(tmp_str,"You don't know that technique.");
 	msg_print(tmp_str);
       }
     }
@@ -2132,28 +2117,32 @@ int stat;
   register spell_type *msp_ptr;
 
   p_ptr = &py.misc;
-  msp_ptr = &magic_spell[p_ptr->pclass-1][0];
-  if (stat == A_INT)
+  msp_ptr = &magic_spell[p_ptr->realm][0];
+  if (stat == prime_stat[MAGE])
     {
       p = "spell";
       offset = SPELL_OFFSET;
     }
-  else if (stat == A_WIS)
+  else if (stat == prime_stat[PRIEST])
     {
       p = "prayer";
       offset = PRAYER_OFFSET;
     }
-  else
+  else if (stat == prime_stat[DRUID])
     {
       p = "technique";
-      offset = MONK_OFFSET;
+      offset = DRUID_OFFSET;
     }
-
+  else if (stat == prime_stat[NECROS])
+    {
+      p = "spell";
+      offset = NECROS_OFFSET;
+    }
   /* check to see if know any spells greater than level, eliminate them */
   for (i = 31, mask = 0x80000000L; mask; mask >>= 1, i--) {
     if (mask & spell_learned)
       {
-	if (msp_ptr[i].slevel > p_ptr->lev)
+	if (msp_ptr[i].slevel > smod(S_MAGIC))
 	  {
 	    spell_learned &= ~mask;
 	    spell_forgotten |= mask;
@@ -2164,7 +2153,7 @@ int stat;
       }
     if (mask & spell_learned2)
       {
-	if (msp_ptr[i+32].slevel > p_ptr->lev)
+	if (msp_ptr[i+32].slevel > smod(S_MAGIC))
 	  {
 	    spell_learned2 &= ~mask;
 	    spell_forgotten2 |= mask;
@@ -2176,7 +2165,11 @@ int stat;
   }
 
   /* calc number of spells allowed */
-  levels = p_ptr->lev - class[p_ptr->pclass].first_spell_lev + 1;
+  levels = smod(S_MAGIC);
+  if (levels<12)
+    levels=levels/2+1;/* REAL slow learning */
+  else if (levels<25)
+    levels=levels*2/3+1; /* Still kinda slow */
   switch(stat_adj(stat))
     {
     case 0:		    num_allowed = 0; break;
@@ -2185,7 +2178,6 @@ int stat;
     case 6:		    num_allowed = 2 * levels; break;
     default:		    num_allowed = 5 * levels / 2; break;
     }
-
   num_known = 0;
   for (mask = 0x1; mask; mask <<= 1) {
     if (mask & spell_learned)
@@ -2213,7 +2205,7 @@ int stat;
             if (j < 32) { /* use spell_learned, spell_forgotten... -CFT */
             mask = 1L << j; /* bit in spell fields */
             if (mask & spell_forgotten){            
-              if (msp_ptr[j].slevel <= p_ptr->lev) {
+              if (msp_ptr[j].slevel <= smod(S_MAGIC)) {
                 spell_forgotten &= ~mask;
                 spell_learned |= mask;
                 new_spells--;
@@ -2227,7 +2219,7 @@ int stat;
           else { /* j > 31, use spell_learned2, spell_forgotten2... -CFT */
             mask = 1L << (j - 32); /* bit in spell fields */
             if (mask & spell_forgotten2){           
-              if (msp_ptr[j].slevel <= p_ptr->lev) {
+              if (msp_ptr[j].slevel <= smod(S_MAGIC)) {
                 spell_forgotten2 &= ~mask;
                 spell_learned2 |= mask;
                 new_spells--;
@@ -2252,7 +2244,7 @@ int stat;
 	    if (spell_flag & mask)
 	      {
 		spell_flag &= ~mask;
-		if (msp_ptr[j].slevel <= p_ptr->lev)
+		if (msp_ptr[j].slevel <= smod(S_MAGIC))
 		  i++;
 	      }
 	  spell_flag = 0x7FFFFFFFL & ~spell_learned2;
@@ -2261,7 +2253,7 @@ int stat;
 	    if (spell_flag & mask)
 	      {
 		spell_flag &= ~mask;
-		if (msp_ptr[j].slevel <= p_ptr->lev)
+		if (msp_ptr[j].slevel <= smod(S_MAGIC))
 		  i++;
 	      }
 
@@ -2308,7 +2300,7 @@ int stat;
        new_spells = 0; /* we've forgotten, so we shouldn't be learning any... */
 }
 
-  if (new_spells != py.flags.new_spells)
+  if (new_spells != py.flags.new_spells && py.misc.realm!=NONE)
     {
       if (new_spells > 0 && py.flags.new_spells == 0)
 	{
@@ -2349,28 +2341,29 @@ void gain_spells()
   new_spells = py.flags.new_spells;
   diff_spells = 0;
   p_ptr = &py.misc;
-  msp_ptr = &magic_spell[p_ptr->pclass-1][0];
-  if (class[p_ptr->pclass].spell == MAGE) {
-    stat = A_INT;
+  msp_ptr = &magic_spell[py.misc.realm][0];
+  stat = prime_stat[py.misc.realm];
+  if (py.misc.realm == MAGE)
     offset = SPELL_OFFSET;
-  } else if (class[p_ptr->pclass].spell == PRIEST) {
-    stat = A_WIS;
+  else if (py.misc.realm == PRIEST)
     offset = PRAYER_OFFSET;
-  } else if (class[p_ptr->pclass].spell == MONK) {
-    stat = A_DEX;
-    offset = MONK_OFFSET;
-  }
+  else if (py.misc.realm == DRUID)
+    offset = DRUID_OFFSET;
+  else if (py.misc.realm == NECROS)
+    offset = NECROS_OFFSET;
 
   for (last_known = 0; last_known < 64; last_known++)
     if (spell_order[last_known] == 99)
       break;
 
-  if (!new_spells && class[py.misc.pclass].spell != MONK)
+  if (!new_spells && py.misc.realm != DRUID)
     (void) sprintf(tmp_str, "You can't learn any new %ss!",
 		   (stat == A_INT ? "spell" : "prayer"));
-  if (!new_spells && class[py.misc.pclass].spell == MONK)
+  if (!new_spells && py.misc.realm == DRUID)
     (void) sprintf(tmp_str,"You can't learn any new techniques!");
-    if (!new_spells) {
+  if (!new_spells && py.misc.realm == NECROS)
+    (void) sprintf(tmp_str,"You can't learn any new spells!");
+  if (!new_spells) {
     msg_print(tmp_str);
     free_turn_flag = TRUE;
     }
@@ -2380,9 +2373,11 @@ void gain_spells()
     spell_flag = 0;
     spell_flag2 = 0;
     for (i = 0; i < inven_ctr; i++)
-      if (((stat == A_INT) && (inventory[i].tval == TV_MAGIC_BOOK))
-	  || ((stat == A_WIS) && (inventory[i].tval == TV_PRAYER_BOOK))
-	  || ((stat == A_DEX) && (inventory[i].tval == TV_MONK_BOOK))) {
+      if (((stat == prime_stat[0]) && (inventory[i].tval == TV_MAGIC_BOOK))
+	  || ((stat == prime_stat[1]) && (inventory[i].tval == TV_PRAYER_BOOK))
+	  || ((stat == prime_stat[2]) && (inventory[i].tval == TV_NATURE_BOOK))
+	  || ((stat == prime_stat[3]) && (inventory[i].tval==TV_DARK_BOOK)))
+	{
 	    spell_flag |= inventory[i].flags;
 	    spell_flag2 |= inventory[i].flags2;
 	  }
@@ -2397,14 +2392,14 @@ void gain_spells()
   for (j = 0, mask = 0x1; (spell_flag|spell_flag2); mask <<= 1, j++) {
     if (spell_flag & mask) {
       spell_flag &= ~mask;
-      if (msp_ptr[j].slevel <= p_ptr->lev) {
+      if (msp_ptr[j].slevel <= smod(S_MAGIC)) {
 	spells[i] = j;
 	i++;
       }
     }
     if (spell_flag2 & mask) {
       spell_flag2 &= ~mask;
-      if (msp_ptr[j+32].slevel <= p_ptr->lev) {
+      if (msp_ptr[j+32].slevel <= smod(S_MAGIC)) {
 	spells[i] = j+32;
 	i++;
       }
@@ -2418,10 +2413,15 @@ void gain_spells()
   }
   if (new_spells == 0)
     ;
-  else if (stat == A_INT || stat == A_DEX) {
+  else if (py.misc.realm!=PRIEST) {
     /* get to choose which mage spells will be learned */
     save_screen();
-    print_spells (spells, i, FALSE, -1);
+    if (py.misc.realm==MAGE)
+      print_spells (spells, i, FALSE, -1, TV_MAGIC_BOOK);
+    else if (py.misc.realm==DRUID)
+      print_spells (spells, i, FALSE, -1, TV_NATURE_BOOK);
+    else if (py.misc.realm==NECROS)
+      print_spells (spells, i, FALSE, -1, TV_DARK_BOOK);
     while (new_spells && get_com ("What do you want to learn?", &query)) {
       j = query - 'a';
       /* test j < 23 in case i is greater than 22, only 22 spells
@@ -2437,7 +2437,12 @@ void gain_spells()
 	  spells[j] = spells[j+1];
 	i--;
 	erase_line (j+1, 31);
-	print_spells (spells, i, FALSE, -1);
+	if (py.misc.realm==MAGE)
+	  print_spells (spells, i, FALSE, -1, TV_MAGIC_BOOK);
+	else if (py.misc.realm==DRUID)
+	  print_spells (spells, i, FALSE, -1, TV_NATURE_BOOK);
+	else if (py.misc.realm==NECROS)
+	  print_spells (spells, i, FALSE, -1, TV_DARK_BOOK);
       } else
 	bell();
     }
@@ -2475,17 +2480,19 @@ void gain_spells()
 void calc_mana(stat)
 int stat;
 {
-  register int new_mana, levels;
+  register int new_mana, levels,tmp;
   register struct misc *p_ptr;
   register int32 value;
 
   p_ptr = &py.misc;
   if (spell_learned != 0 || spell_learned2 != 0)
     {
-      levels = p_ptr->lev - class[p_ptr->pclass].first_spell_lev + 1;
-      levels = levels * (class[p_ptr->pclass].magicity+
-			 race[p_ptr->prace].base_mag) / 200;
-      /* Semi-magical classes get less mana, too */
+      levels = smod(S_MPOWER);
+      if (levels<20)
+	levels=levels/2+1;
+      else if (levels<35)
+	levels=levels*2/3+1;
+      tmp=stat_adj(stat);
       switch(stat_adj(stat))
 	{
 	case 0: new_mana = 0; break;
@@ -2502,18 +2509,44 @@ int stat;
 	case 12: new_mana = 13 * levels / 2; break;
 	case 13: new_mana = 7 * levels; break;
 	case 14: new_mana = 15 * levels / 2; break;
-	default: new_mana = 8 * levels; break;
+	case 15: new_mana = 8 * levels; break;
+	case 16: new_mana = 9 * levels; break;
+	default: new_mana = 10 * levels; break;
 	}
       /* increment mana by one, so that first level chars have 2 mana */
       if (new_mana > 0)
 	new_mana++;
-      if ((inventory[INVEN_HANDS].tval != TV_NOTHING) &&
-	  (py.misc.pclass==1 || py.misc.pclass==3 || py.misc.pclass==4)) {
-	new_mana=(3*new_mana)/4;
-      }
-      if (py.misc.pac>35) {
-	new_mana-=(py.misc.pac-35);
-      }
+      switch(py.misc.realm) /* Restrictions for various realms */
+	{
+	case NONE:
+	  break;
+	case MAGE:
+	  if (p_ptr->pac > 20)
+	    new_mana-=2*(p_ptr->pac-20);
+	  if (inventory[INVEN_HANDS].tval!=TV_NOTHING)
+	    if (!(inventory[INVEN_HANDS].flags & TR_FREE_ACT))
+	      new_mana=(new_mana/2)+1;
+	  break;
+	case PRIEST:
+	  if (p_ptr->pac > 40)
+	    new_mana-=(p_ptr->pac-40);
+	  break;
+	case DRUID:
+	  if (inventory[INVEN_HANDS].tval!=TV_NOTHING)
+	    if (!(inventory[INVEN_HANDS].flags & TR_FREE_ACT))
+	      new_mana=(new_mana*2/3)+1;
+	  if (p_ptr->pac > 50)
+	    new_mana-=(p_ptr->pac-50);
+	  break;
+	case NECROS:
+	  if (p_ptr->pac > 30)
+	    new_mana-=(p_ptr->pac-30);
+	  if (inventory[INVEN_HANDS].tval!=TV_NOTHING)
+	    if (!(inventory[INVEN_HANDS].flags & TR_FREE_ACT))
+	      new_mana=(new_mana*2/3)+1;
+	  break;
+	}
+      if (new_mana<0) new_mana=0;
       /* mana can be zero when creating character */
       if (p_ptr->mana != new_mana)
 	{
@@ -2545,48 +2578,6 @@ int stat;
     }
 }
 
-
-/* Increases hit points and level			-RAK-	*/
-static void gain_level()
-{
-  register int32 dif_exp, need_exp;
-  vtype out_val;
-  register struct misc *p_ptr;
-  register class_type *c_ptr;
-
-  p_ptr = &py.misc;
-  p_ptr->lev++;
-  (void) sprintf(out_val, "Welcome to level %d.", (int)p_ptr->lev);
-  msg_print(out_val);
-  calc_hitpoints();
-
-  need_exp = player_exp[p_ptr->lev-1] * p_ptr->expfact / 100;
-  if (p_ptr->exp > need_exp)
-    {
-      /* lose some of the 'extra' exp when gain a level */
-      dif_exp = p_ptr->exp - need_exp;
-      p_ptr->exp = need_exp + (dif_exp / 2);
-    }
-  prt_level();
-  prt_title();
-  c_ptr = &class[p_ptr->pclass];
-  if (c_ptr->spell == MAGE)
-    {
-      calc_spells(A_INT);
-      calc_mana(A_INT);
-    }
-  else if (c_ptr->spell == PRIEST)
-    {
-      calc_spells(A_WIS);
-      calc_mana(A_WIS);
-    }
-  else if (c_ptr->spell == MONK)
-    {
-      calc_spells(A_DEX);
-      calc_mana(A_DEX);
-    }
-}
-
 /* Prints experience					-RAK-	*/
 void prt_experience()
 {
@@ -2596,31 +2587,29 @@ void prt_experience()
   p_ptr = &py.misc;
   if (p_ptr->exp > MAX_EXP)
     p_ptr->exp = MAX_EXP;
-  if (p_ptr->lev < MAX_PLAYER_LEVEL)
-    {
-      while ((player_exp[p_ptr->lev-1] * p_ptr->expfact / 100) <= p_ptr->exp
-	     && p_ptr->lev < MAX_PLAYER_LEVEL)
-	gain_level();
-    }
   if (p_ptr->exp > p_ptr->max_exp)
     p_ptr->max_exp = p_ptr->exp;
   (void) sprintf(out_val, "%8ld", p_ptr->exp);
   put_buffer(out_val, 14, STAT_COLUMN+4);
+  prt_level();
 }
 
 
 /* Calculate the players hit points */
+/* This seems to screw up */
 void calc_hitpoints()
 {
-  register int hitpoints;
+  register int hitpoints,lvl;
   register struct misc *p_ptr;
   register int32 value;
 
+  lvl=get_level();
   p_ptr = &py.misc;
-  hitpoints = player_hp[p_ptr->lev-1] + (con_adj() * p_ptr->lev);
+  hitpoints = player_hp[lvl-1] + (con_adj() * lvl) +
+    (smod(S_ENDURANCE)*lvl);
   /* always give at least one point per level + 1 */
-  if (hitpoints < (p_ptr->lev + 1))
-    hitpoints = p_ptr->lev + 1;
+  if (hitpoints < (lvl + 1))
+    hitpoints = lvl + 1;
   calc_bonuses();
   if (py.flags.status & PY_HERO)
     hitpoints += 10;
@@ -2895,6 +2884,12 @@ int monster;
 	  tdam = tdam * 3;
 	  r_ptr->r_cdefense |= DEMON;
 	}
+      /* Venom         */
+      else if ((!(m_ptr->cdefense & IM_POISON))
+	       && (i_ptr->flags2 & TR_VENOM))
+	{
+	  tdam = tdam * 4;
+	}
       /* Frost	       */
       else if ((!(m_ptr->cdefense & IM_FROST))
 	       && (i_ptr->flags & TR_FROST_BRAND))
@@ -2941,9 +2936,7 @@ int attack_type;
   critical = dam;
   /* Weight of weapon, plusses to hit, and character level all	    */
   /* contribute to the chance of a critical			   */
-  if (randint(5000) <= (int)(weight + 5 * plus
-			     + (class_level_adj[py.misc.pclass][attack_type]
-				* py.misc.lev)))
+  if (randint(3000) <= (int)(weight + 5 * plus))
     {
       weight += randint(650);
       if (weight < 400)
@@ -3032,14 +3025,12 @@ register int *y, *x;
 /* Saving throws for player character.		-RAK-	*/
 int player_saves()
 {
-  int tt;
-  /* MPW C couldn't handle the expression, so split it into two parts */
-  int16 temp = class_level_adj[py.misc.pclass][CLA_SAVE];
+  int tt,t2;
 
-  tt = py.misc.save + stat_adj(A_WIS)+(temp*py.misc.lev/3);
+  t2 = smod(S_SAVE);
+  tt = stat_adj(A_WIS)+t2;
   tt += luck(); /* % modifier for luck */
-  if (randint(100) <= (py.misc.save + stat_adj(A_WIS)
-		       + (temp * py.misc.lev / 3)))
+  if (randint(100) <= tt)
     return(TRUE);
   else
     return(FALSE);

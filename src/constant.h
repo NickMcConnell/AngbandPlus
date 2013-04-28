@@ -33,6 +33,59 @@
 #define FALSE 0
 #endif
 
+/* Skills here.  This permits ONE routine to be called to return MANY skills */
+#define S_SWORD   0 /* Sword use---fighting */
+#define S_HAFTED  1 /* Hafted use---i.e. clubbing */
+#define S_POLEARM 2 /* Polearm use---i.e. Staff using */
+#define S_ENDURANCE 3 /* Extra HP */
+#define S_ARCHERY   4 /* Bow use */
+#define S_DEVICE  5   /* Use of magic device */
+#define S_MAGIC   6   /* Spellcasting ability (in ONE realm only) */
+#define S_SAVE    7   /* Spell Resistance--i.e. saving throw */
+#define S_DISARM  8   /* Disarming skill */
+#define S_BACKSTAB  9
+#define S_STEALTH 10  /* Affects Stealth stat */
+#define S_MPOWER  11  /* Magical power---determine level for mana calcs */
+#define S_2HANDED 12  /* Two-handed weapons use */
+#define S_DODGING 13  /* Innate AC bonus---NOT the stat */
+#define S_KARATE  14  /* Bare-hands combat */
+#define S_WEAPON  15  /* Weaponsmithing (use Smithy's skill) */
+#define S_ARMOR   16  /* Armor forging */
+#define S_PERCEPTION 17 /* Affect Perception+Searching */
+#define S_SLAY_EVIL 18 /* Fight better+Protect better against Evil */
+#define S_SLAY_ANIMAL 19
+#define S_SLAY_UNDEAD 20 /* ALL these are 'blank' for future use */
+#define S_PRECOG      21 /* See the "future" */
+#define S_WRESTLING   22
+#define S_BOWMAKE     23
+#define S_ALCHEMY     24
+#define S_INFUSION    25
+#define S_SK7 26
+#define S_SK8 27
+#define S_SK9 28
+#define S_SK10 29
+#define S_NUM 30 /* # of skills we have altogether. */
+
+/* These are what the 8 flags are used for: */
+
+#define F_WCHANGE  0    /* When hits 0, change weather */
+#define F_DISEASE  1    /* Disease---lowers stat for duration */
+#define F_NOMAGIC  2    /* Dispelled magic---NO spell-casting OR item use */
+#define F_SKILLS   3    /* Talent timeout */
+#define F_BAREHAND 4    /* Skill we use when have no weapon */
+#define F_LASTADV  6    /* Says which skill we last advanced */
+#define F_WEATHER  7    /* Weather description---changes every 400 turns */
+
+
+/* Use these with the F_WEATHER flag to find exact condtions.  If NEITHER
+   flag matches, we have a "median" condition */
+#define W_DRY   0x01
+#define W_MOIST 0x02
+#define W_STILL 0x04
+#define W_WINDY 0x08
+#define W_COOL  0x10
+#define W_WARM  0x20
+
 #define MAX_UCHAR	255
 #define MAX_SHORT	32767		/* maximum short/long signed ints */
 #define MAX_LONG	0x7FFFFFFFL
@@ -93,7 +146,7 @@
 #define OBJ_GREAT      11     /* 1/n Chance of item being a Great Item */
 
 /* Number of dungeon objects */
-#define MAX_DUNGEON_OBJ  425
+#define MAX_DUNGEON_OBJ  443
 
 /* Note that the following constants are all related, if you change one,
    you must also change all succeeding ones.  Also, player_init[] and
@@ -116,7 +169,8 @@
 /*Special start for rings amulets etc... */
 #define SPECIAL_OBJ             (MAX_DUNGEON_OBJ+79)
   /* Number of objects for universe*/
-#define MAX_OBJECTS             (MAX_DUNGEON_OBJ+91)
+#define OBJ_SCROLL              (MAX_DUNGEON_OBJ+91)
+#define MAX_OBJECTS             (MAX_DUNGEON_OBJ+92)
 
 #define OBJECT_IDENT_SIZE 1024 /*was 7*64, see object_offset() in desc.c,
 				 could be MAX_OBJECTS o_o() rewritten
@@ -147,8 +201,8 @@
 #define OBJ_RUNE_PROT	 550  /* Rune of protection resistance	       */
 
 /* Creature constants*/
-#define MAX_CREATURES	  549 /* Number of creatures defined for univ  */
-#define N_MONS_ATTS	  285 /* Number of monster attack types.	*/
+#define MAX_CREATURES	  550 /* Number of creatures defined for univ  */
+#define N_MONS_ATTS	  287 /* Number of monster attack types.	*/
 /* with MAX_MALLOC 101, it is possible to get compacting monsters messages
    while breeding/cloning monsters */
 #define MAX_MALLOC	 1500 /* Max that can be allocated	      */
@@ -185,8 +239,8 @@
 /* Player constants						*/
 #define MAX_PLAYER_LEVEL  50  /* Maximum possible character level      */
 #define MAX_EXP	    99999999L  /* Maximum amount of experience -CJS- */
-#define MAX_RACES	  10   /* Number of defined races	       */
-#define MAX_CLASS	  8   /* Number of defined classes	       */
+#define MAX_RACES	  12   /* Number of defined races	       */
+#define MAX_REALMS         4   /* Number of defined magical realms */
 #define USE_DEVICE	  3   /* x> Harder devices x< Easier devices   */
 #define MAX_BACKGROUND	  128 /* Number of types of histories for univ */
 #define PLAYER_FOOD_FULL 10000/* Getting full			       */
@@ -203,7 +257,7 @@
 #define PLAYER_EXIT_PAUSE 2   /* Pause time before player can re-roll  */
 
 /* class level adjustment constants */
-#define CLA_BTH		0
+#define CLA_BTH		3
 #define CLA_BTHB	1
 #define CLA_DEVICE	2
 #define CLA_DISARM	3
@@ -281,16 +335,18 @@
 /* Column for stats    */
 #define STAT_COLUMN	0
 
-/* Class spell types */
-#define NONE	0
-#define MAGE	1
-#define PRIEST	2
-#define MONK    3
+/* Different realms here */
+#define MAGE	0
+#define PRIEST	1
+#define DRUID   2
+#define NECROS  3
+#define NONE  255
 
 /* offsets to spell names in spell_names[] array */
 #define SPELL_OFFSET	0
 #define PRAYER_OFFSET	63
-#define MONK_OFFSET     126
+#define DRUID_OFFSET    126
+#define NECROS_OFFSET   184
 
 /* definitions for the psuedo-normal distribution generation */
 #define NORMAL_TABLE_SIZE	256
@@ -397,9 +453,12 @@
 #define TR_RES_BLIND	0x00800000L
 #define TR_RES_NETHER   0x01000000L
 #define TR_ARTIFACT     0x02000000L
-#define TR_INVISIBLE    0x04000000L
-#define TR_INVISIBLE2   0x08000000L /* MUCH more powerful */
+#define TR_IRONWILL     0x04000000L
+#define TR_NOMAGIC      0x08000000L /* Cannot cast spells w/this */
 #define TR_EXTRAHP      0x10000000L /* Can get negative HP for a time */
+#define TR_VORPAL       0x20000000L /* Extra damage sometimes */
+#define TR_SOULSTEAL    0x40000000L /* You take double damage from EVERYTHING*/
+#define TR_VENOM        0x80000000L /* Venom --- poison damage */
 
 /* definitions for chests */
 #define CH_LOCKED	0x00000001L
@@ -459,6 +518,10 @@
 #define CS_INT1         0x80060020L /* mask of good spells */
 #define CS_INT2         0x51023400L /* to escape with :-)  */
 #define CS_INT3         0x00000000L /* Creatures aren't daft yunno? */
+#define CS_FEAR1        0x00066A30L /* Terrified---and desperate */
+#define CS_FEAR2        0xF1427000L
+#define CS_FEAR3        0x0002F900L
+
 #define CS_BREATHE	0x00F80000L
 #define CS_BREATHE2	0x8000003FL
 #define CS_BREATHE3	0x0000007FL
@@ -692,10 +755,24 @@
 #define SN_DEATHWREAKER	       172
 #define SN_AVAVIR	       173
 #define SN_TARATOL	       174
-#define SN_RAZORBACK	       175
+#define SN_SKULLCLEAVER	       175
 #define SN_BLADETURNER	       176
 #define SN_ROBEMED             177
-#define SN_ARRAY_SIZE	       178 /* must be at end of this list */
+/* Used for items forged by Smithy */
+#define SN_HOLYDEF             178
+#define SN_MACE                179
+#define SN_HELM                180
+#define SN_ARMOR               181
+#define SN_BOOTS               182
+#define SN_SHIELD              183
+#define SN_GLOVES              184
+#define SN_SERPENT             185
+#define SN_STAFF               186
+#define SN_BOW                 187
+#define SN_XBOW                188
+#define SN_FROST               189
+#define SN_LIGHTNING           190
+#define SN_ARRAY_SIZE	       191 /* must be at end of this list */
 
 /* defines for treasure type values (tval) */
 #define TV_NEVER	-1 /* used by find_range() for non-search */
@@ -733,6 +810,7 @@
 /* max tval for wearable items */
 #define TV_MAX_WEAR	50
 #define TV_MONK         51 
+#define TV_COMPONENT    52   /* For alchemy and armor-forging */
 #define TV_STAFF	55
 #define TV_WAND		65
 #define TV_ROD		66
@@ -744,7 +822,8 @@
 #define TV_FOOD 	80
 #define TV_MAGIC_BOOK	90
 #define TV_PRAYER_BOOK	91
-#define TV_MONK_BOOK    92
+#define TV_NATURE_BOOK  92
+#define TV_DARK_BOOK    93
 /* objects with tval above this are never picked up by monsters */
 #define TV_MAX_OBJECT	99
 #define TV_GOLD		100
@@ -775,6 +854,9 @@
 #define GF_FROST	4
 #define GF_FIRE		5
 #define GF_HOLY_ORB	6
+#define GF_SOUND        7
+#define GF_CONFUSION    8
+#define GF_SPIRIT       9
 
 #define WD_LT	        1L
 #define WD_LT_BLTS	2L
@@ -785,7 +867,7 @@
 #define WD_HEAL_MN	7L
 #define WD_HAST_MN	8L
 #define WD_SLOW_MN	9L
-#define WD_CONF_MN	10L
+#define WD_SCARE_MN	10L
 #define WD_SLEE_MN	11L
 #define WD_DRAIN	12L
 #define WD_TR_DEST	13L
@@ -805,11 +887,13 @@
 #define WD_DRG_BREA	27L
 #define WD_AC_BLTS	28L
 #define WD_ANHIL	29L
+#define WD_THUNDER      30L
+#define WD_SPIKES       31L
 
 #define RD_LT	        1L
 #define RD_LT_BLTS	2L
-#define RD_FT_BLTS	3L
-#define RD_FR_BLTS	4L
+#define RD_SONIC_BLTS	3L
+#define RD_CHAOS_BLTS	4L
 #define RD_ST_MUD	5L
 #define RD_POLY		6L
 #define RD_SLOW_MN	7L
@@ -830,7 +914,7 @@
 #define RD_MAPPING	22L
 #define RD_IDENT	23L
 #define RD_CURE 	24L
-#define RD_HEAL 	25L
+#define RD_DRAINING 	25L
 #define RD_DETECT	26L
 #define RD_RESTORE	27L
 #define RD_SPEED	28L

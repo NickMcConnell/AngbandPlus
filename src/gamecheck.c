@@ -29,7 +29,7 @@ void log_game();
 int game_exists(gamename)
      char *gamename;
 {
-  struct stat	buf;
+  struct stats	buf;
   int i=0;
 
   while (strcmp(dir_list[i],"END")) { /* Go through list of possibles */

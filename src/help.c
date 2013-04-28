@@ -30,9 +30,9 @@ void ident_char()
       case '$': prt("$ - Treasure.", 0, 0); break;
       case '%':
 	if (highlight_seams == TRUE)
-	  prt("% - A magma or quartz vein.", 0, 0);
+	  prt("% - A magma or quartz vein OR a component.", 0, 0);
 	else
-	  prt("% - Not used.", 0, 0);
+	  prt("% - A weapon or armor component.", 0, 0);
 	break;
       case '&': prt("& - Demon (Oh dear!).", 0, 0); break;
       case '\'': prt("' - An open door.", 0, 0); break;
@@ -53,7 +53,7 @@ void ident_char()
       case '6': prt("6 - Entrance to Magic-Users store.", 0, 0); break;
       case '7': prt("7 - Entrance to the Healers.", 0, 0); break;
       case '8': prt("8 - Entrance to your home.", 0, 0); break;
-      case '9': prt("9 - Entrance to the Dojo", 0, 0);  break;
+      case '9': prt("9 - Entrance to the Bookstore", 0, 0);  break;
       case ':': prt(": - Rubble.", 0, 0); break;
       case ';': prt("; - A loose rock.", 0, 0); break;
       case '<': prt("< - An up staircase.", 0, 0); break;
@@ -65,7 +65,7 @@ void ident_char()
       case 'B': prt("B - Birds", 0, 0); break; 
       case 'C': prt("C - Canine.", 0, 0); break;
       case 'D': prt("D - An Ancient Dragon (Beware).", 0, 0); break;
-      case 'E': prt("E - Elemental.", 0, 0); break;
+      case 'E': prt("E - Elemental or Elephant.", 0, 0); break;
       case 'F': prt("F - Giant Fly.", 0, 0); break;
       case 'G': prt("G - Ghost.", 0, 0); break;
       case 'H': prt("H - Hybrid.", 0, 0); break;
@@ -103,7 +103,7 @@ void ident_char()
       case 'h': prt("h - Demi-humans.", 0, 0); break; 
       case 'i': prt("i - Icky Thing.", 0, 0); break;
       case 'j': prt("j - Jelly.", 0, 0); break;
-      case 'k': prt("k - Kobold.", 0, 0); break;
+      case 'k': prt("k - Kobold or other goblin", 0, 0); break;
       case 'l': prt("l - Giant Louse.", 0, 0); break;
       case 'm': prt("m - Mold.", 0, 0); break;
       case 'n': prt("n - Naga.", 0, 0); break;

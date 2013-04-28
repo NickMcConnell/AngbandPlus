@@ -24,6 +24,10 @@ char  days[7][29] = { "SUN:XXXXXXXXXXXXXXXXXXXXXXXX",
 		    "SAT:XXXXXXXXXXXXXXXXXXXXXXXX" };
 #endif
 
+/* Are prime stats for each type of magic user---MAGE,PRIEST,DRUID,NECROS */
+int prime_stat[4] = {A_INT,A_WIS,A_WIS,A_CON};
+int magical[4] = {S_MPOWER,S_SLAY_EVIL,S_PERCEPTION,S_SLAY_UNDEAD};
+
 store_type store[MAX_STORES];
 
 /* Store owners have different characteristics for pricing and haggling*/
@@ -32,9 +36,9 @@ owner_type owners[MAX_OWNERS] = {
 {"Rincewind the Chicken  (Human)      General Store",
 	 3500,	175,  108,    4, 0, 12},
 {"Mauglin the Grumpy     (Dwarf)      Armoury"	    ,
-	32000,	200,  112,    4, 5,  5},
+	30000,	200,  112,    4, 5,  5},
 {"Arndal Beast-Slayer    (Half-Elf)   Weaponsmith"  ,
-	10000,	185,  110,    5, 1,  8},
+	30000,	185,  110,    5, 1,  8},
 {"Ludwig the Humble      (Human)      Temple"	    ,
 	 3500,	175,  109,    6, 0, 15},
 {"Ga-nat the Greedy      (Gnome)      Alchemist"    ,
@@ -42,92 +46,106 @@ owner_type owners[MAX_OWNERS] = {
 {"Luthien Starshine      (Elf)        Magic Shop"   ,
 	32000,	175,  110,    5, 2, 11},
 {"Durwin the Shifty      (Human)      Black Market" ,
-        32000,	250,  190,    10, 0, 5},
+        32000,	250,  217,    10, 0, 5},
 {"Your home"   ,
 	    1,    1,    1,    1, 1, 1},
-{"Dojin the Honorable    (Human)      Dojo"         ,
-        15000,  130,  120,    5, 3, 30},
+{"Dolaf the Greedy  (Human)      Bookstore",
+	10000,	175,  108,    4, 0, 12},
 {"Bilbo the Friendly     (Hobbit)     General Store",
 	 4000,	170,  108,    5, 3, 15},
 {"Darg-Low the Grim      (Human)      Armoury"	    ,
-	10000,	190,  111,    4, 0,  9},
+	20000,	217,  111,    4, 0,  9},
 {"Oglign Dragon-Slayer   (Dwarf)      Weaponsmith"  ,
 	32000,	195,  112,    4, 5,  8},
 {"Gunnar the Paladin     (Human)      Temple"	    ,
 	 5000,	185,  110,    5, 0, 23},
 {"Mauser the Chemist     (Half-Elf)   Alchemist"    ,
-	10000,	190,  111,    5, 1,  8},
+	10000,	217,  111,    5, 1,  8},
 {"Buggerby the Great!    (Gnome)      Magic Shop"   ,
 	20000,	215,  113,    6, 4, 10},
 {"Histor the Goblin      (Orc)        Black Market"   ,
-	32000,	250,  190,    10, 6, 5},
+	32000,	250,  217,    10, 6, 5},
 {"Your sweet abode"   ,
 	    1,    1,    1,    1, 1, 1},
-{"Ronin the Patient      (Elf)        Dojo"         ,
-        13500,  190,  130,    6, 4, 35},
+{"Ro-sha the Patient     (Elf)      Bookstore"    ,
+        30000,  140,  105,    6, 2, 12},
 {"Lyar-el the Comely     (Elf)        General Store",
 	 3000,	165,  107,    6, 2, 18},
 {"Decado the Handsome    (Human)      Armoury",
-	25000,  200,  112,    4, 5, 10},
+	20000,  200,  112,    4, 5, 10},
 {"Ithyl-Mak the Beastly  (Half-Troll) Weaponsmith"  ,
-	 3000,	210,  115,    6, 7,  8},
+	30000,	210,  115,    6, 7,  8},
 {"Delilah the Pure       (Half-Elf)   Temple"	    ,
 	25000,	180,  107,    6, 1, 20},
 {"Wizzle the Chaotic     (Hobbit)     Alchemist"    ,
-	10000,	190,  110,    6, 3,  8},
+	10000,	217,  110,    6, 3,  8},
 {"Inglorian the Mage     (Human?)     Magic Shop"   ,
 	32000,	200,  110,    7, 0, 10},
 {"Drago the Fair?        (Elf)        Black Market" ,
-	32000,	250,  190,    10, 2, 5},
+	32000,	250,  217,    12, 5, 4},
 {"Your house"   ,
 	    1,    1,    1,    1, 1, 1},
-{"Gandros the Neutral    (Half-Elf)   Dojo"         ,
-        12000,   140,  105,    3, 2, 30}
+{"Gandar the Neutral     (Dark Elf)   Bookstore"     ,
+        25000,  120,  110,    7,10, 19},
 };
 
 /* Buying and selling adjustments for character race VS store	*/
 /* owner race							 */
 int8u rgold_adj[MAX_RACES][MAX_RACES] = {
-			/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE*/
-/*Human		 */	 { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
-/*Half-Elf	 */	 { 110, 100, 100, 105, 110, 120, 125, 130, 110, 100},
-/*Elf		 */	 { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100},
-/*Halfling	 */	 { 115, 110, 105,  95, 105, 110, 115, 130, 115, 105},
-/*Gnome		 */	 { 115, 115, 110, 105,  95, 110, 115, 130, 115, 110},
-/*Dwarf		 */	 { 115, 120, 120, 110, 110,  95, 125, 135, 115, 120},
-/*Half-Orc	 */	 { 115, 120, 125, 115, 115, 130, 110, 115, 115, 125},
-/*Half-Troll	 */	 { 110, 115, 115, 110, 110, 130, 110, 110, 110, 115},
-/*Dunedain 	 */	 { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
-/*High_Elf	 */	 { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100}
-			};
+			/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE DkE*/
+/*Human		 */	 { 100, 105, 105, 110, 115, 115, 120, 125, 100, 105,
+ 100,110},
+/*Half-Elf	 */	 { 110, 100, 100, 105, 110, 120, 125, 130, 110, 100,
+ 110,105},
+/*Elf		 */	 { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100,
+ 120,110},
+/*Halfling	 */	 { 115, 110, 105,  95, 105, 110, 115, 130, 115, 105,
+ 110,100},
+/*Gnome		 */	 { 115, 115, 110, 105,  95, 110, 115, 130, 115, 110,
+ 105,100},
+/*Dwarf		 */	 { 115, 120, 120, 110, 110,  95, 125, 135, 115, 120,
+ 110,105},
+/*Half-Orc	 */	 { 115, 120, 125, 115, 115, 130, 110, 115, 115, 125,
+ 105,110},
+/*Half-Troll	 */	 { 110, 115, 115, 110, 110, 130, 110, 110, 110, 115,
+ 110,120},
+/*Dunedain 	 */	 { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105,
+ 105, 85},
+/*High_Elf	 */	 { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100,
+ 130, 80},
+/* Dark Elf      */      { 110, 105, 120, 110, 105, 110, 120, 105, 115, 110,
+  50,110},
+/* Giant         */      { 110, 115, 120, 125, 115, 110, 110, 110,  80,  60,
+ 120, 20}
+};
 
 #define MDO MAX_DUNGEON_OBJ
 
 /* object_list[] index of objects that may appear in the store */
 int16u store_choice[MAX_STORES][STORE_CHOICES] = {
 	/* General Store */
-{MDO,MDO,MDO,MDO,MDO,MDO,MDO,MDO,MDO+21,MDO+21,MDO+21,MDO+21,MDO+22,MDO+22,
- MDO+22,MDO+1,MDO+2,MDO+3,MDO+4,
+{MDO,MDO,MDO,85,85,85,MDO,443,MDO+21,MDO+21,MDO+21,MDO+21,MDO+22,443,
+ 443,MDO+1,MDO+2,MDO+3,MDO+4,
  MDO+22,MDO+20,MDO+21,MDO+5,MDO+6,84,84,123,MDO+22,MDO+22,MDO+21},
 	/* Armoury	 */
 {103,104,105,106,107,108,109,91,92,125,126,128,129,130,91,92,94,95,96,
  103,104,105,125,128,94,95,111,112,113,121},
 	/* Weaponsmith	 */
-{29,29,29,31,34,35,42,46,49,58,60,61,63,64,68,73,74,75,77,78,80,82,83,83,
- 78,80,82,35,65,66},
+{29,29,29,31,34,35,42,46,49,58,60,61,63,64,68,73,74,75,78,78,80,82,78,78,
+ 78,80,83,35,65,66},
 	/* Temple	 */
-{334,335,336,337,334,335,336,337,257,237,261,262,233,233,240,241,260,
+{188,181,186,187,185,217,197,180,257,237,261,262,233,233,240,241,260,
  260,MDO+14,MDO+15,MDO+15,MDO+15,53,54,55,52,335,180,237,240},
 	/* Alchemy shop	 */
-{227,227,230,230,236,206,252,252,253,253,MDO+7,MDO+7,MDO+7,MDO+8,MDO+8,MDO+8,
- MDO+9,MDO+10,MDO+11,MDO+12,MDO+13,MDO+15,MDO+15,173,174,175,185,185,185,206},
+{227,227,230,230,236,206,423,252,253,253,MDO+7,MDO+7,MDO+7,MDO+8,MDO+8,MDO+8,
+ MDO+9,MDO+10,MDO+11,MDO+12,MDO+13,MDO+15,MDO+15,173,174,175,185,185,423,423},
 	/* Magic-User store*/
-{330,331,332,333,330,331,332,333,326,293,293,299,303,301,302,318,326,
- 282,277,279,292,164,167,168,153,137,142,326,328,299},
+{359,360,361,362,363,364,365,365,326,293,293,299,303,301,302,318,326,
+ 282,277,279,292,164,167,168,153,137,142,378,378,299},
         /* Note:  Black Market has ANYTHING, while Home has nothing */
-        /* Dojo */
-{349, 349, 350,101,101,102,MDO,MDO,350,351,351,352,352,349, 85, 85, 350,
- 220, 220, 220,102,102,123,123,91,91,268,92,268,93} 
+        /* Bookstore */
+{330,331,332,333,330,331,332,333,334,335,336,337,334,335,336,337,
+ 338,339,340,341,338,339,352,353,354,355,352,353,354,355}
 };
 
 #ifndef MAC
@@ -135,16 +153,12 @@ int16u store_choice[MAX_STORES][STORE_CHOICES] = {
    with a function call on mac */
 /* functions defined in sets.c */
 extern int general_store(), armory(), weaponsmith(), temple(),
-  alchemist(), magic_shop();
-
-int dojo();
-int blackmarket();
-int home();
+  alchemist(), magic_shop(), bookstore(), blackmarket(), home();
 
 /* Each store will buy only certain items, based on TVAL */
 int (*store_buy[MAX_STORES])() = {
        general_store, armory, weaponsmith, temple, alchemist, magic_shop,
-       blackmarket, home, dojo};
+       blackmarket, home, bookstore};
 #endif
 
 /* Following are arrays for descriptive pieces			*/
@@ -294,3 +308,6 @@ int16u normal_table[NORMAL_TABLE_SIZE] = {
    32763,   32763,   32763,   32764,   32764,	32764,	 32764,	  32765,
    32765,   32765,   32765,   32766,   32766,	32766,	 32766,	  32766,
 };
+
+int targetx,targety;
+int noprecog; /* Used while creating a level */

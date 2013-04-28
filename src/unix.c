@@ -53,7 +53,9 @@ typedef struct { int stuff; } fpvmach;
 #endif
 #endif
 
+#ifndef unix
 #include <pwd.h>
+#endif
 #include <sys/errno.h>
 
 #ifdef USG
@@ -307,7 +309,7 @@ char *file, *exp;
 
 /* open a file just as does fopen, but allow a leading ~ to specify a home
    directory */
-FILE *tfopen(file, mode)
+FILE *my_tfopen(file, mode)
 char *file;
 char *mode;
 {
@@ -322,7 +324,7 @@ char *mode;
 
 /* open a file just as does open, but expand a leading ~ into a home directory
    name */
-int topen(file, flags, mode)
+int my_topen(file, flags, mode)
 char *file;
 int flags, mode;
 {

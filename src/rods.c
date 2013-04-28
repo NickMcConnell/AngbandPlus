@@ -46,20 +46,20 @@ void activate_rod()
   free_turn_flag = TRUE;
   if (inven_ctr == 0)
     msg_print("But you are not carrying anything.");
-  else if (!find_range(TV_ROD, TV_NEVER, &j, &k))
-    msg_print("You are not carrying any rods.");
-  else if (get_item(&item_val, "Activate which rod?", j, k, 0)) {
+  if (!find_range(TV_ROD, TV_NEVER, &j, &k))
+      msg_print("You are not carrying any rods.");
+  else if (get_item(&item_val, "What do you want to activate?", j, k, 0)) {
     i_ptr = &inventory[item_val];
     free_turn_flag = FALSE;
     ident = FALSE;
     m_ptr = &py.misc;
-    chance = m_ptr->save + (stat_adj(A_INT)*2) -
+    chance = smod(S_SAVE) + (stat_adj(A_INT)*2) -
       (int)((i_ptr->level>50)?50:i_ptr->level)
-      + (class_level_adj[m_ptr->pclass][CLA_DEVICE] * m_ptr->lev / 3);
+      + (smod(S_DEVICE));
     if (py.flags.confused > 0)
       chance = chance / 2;
     if (chance <= 0)  chance = 1;
-    if (randint(chance) < USE_DEVICE)
+    else if (randint(chance) < USE_DEVICE)
       msg_print("You failed to use the rod properly.");
     else if (i_ptr->timeout <= 0) {
       i = i_ptr->flags;
@@ -67,41 +67,43 @@ void activate_rod()
       l = char_col;
       switch(i) {
       case RD_LT:
-	if (!direction(&dir)) goto no_charge;
-	msg_print("A line of blue shimmering light appears.");
-	light_line(dir, char_row, char_col);
+	light_area(k,l);
+	msg_print("Blue shimmering light radiates out from you!");
+	for(i=1;i<=9;i++)
+	  if (i!=5)
+	    light_line(i, char_row, char_col);
 	ident = TRUE;
-	i_ptr->timeout=9;
+	i_ptr->timeout=5;
 	break;
       case RD_ILLUME:
-	light_area(k,l);
+	wizard_light(TRUE);
 	ident=TRUE;
-	i_ptr->timeout=30;
+	i_ptr->timeout=900;
 	break;
       case RD_AC_BLTS: /* Acid , New */
 	if (!direction(&dir)) goto no_charge;
-	fire_bolt(GF_ACID,dir,k,l,damroll(6,8),"Acid Bolt");
+	fire_bolt(GF_ACID,dir,k,l,damroll(8,10),"Acid Bolt");
 	ident=TRUE;
 	i_ptr->timeout=12;
 	break;
       case RD_LT_BLTS: /* Lightning */
 	if (!direction(&dir)) goto no_charge;
-	fire_bolt(GF_LIGHTNING, dir, k, l, damroll(3, 8),
+	fire_bolt(GF_LIGHTNING, dir, k, l, damroll(6, 9),
 		  spell_names[10]);
 	ident = TRUE;
 	i_ptr->timeout=11;
 	break;
-      case RD_FT_BLTS: /* Frost*/
+      case RD_SONIC_BLTS: /* Sound */
 	if (!direction(&dir)) goto no_charge;
-	fire_bolt(GF_FROST, dir, k, l, damroll(5, 8),
-		  spell_names[16]);
+	fire_bolt(GF_SOUND, dir, k, l, damroll(11, 11),
+		  "wave of sound");
 	ident = TRUE;
 	i_ptr->timeout=13;
 	break;
-      case RD_FR_BLTS: /* Fire */
+      case RD_CHAOS_BLTS: /* Confusion */
 	if (!direction(&dir)) goto no_charge;
-	fire_bolt(GF_FIRE, dir, k, l, damroll(8, 8),
-		  spell_names[24]);
+	fire_bolt(GF_CONFUSION, dir, k, l, damroll(10, 12),
+		  "colored swirl");
 	ident = TRUE;
 	i_ptr->timeout=15;
 	break;
@@ -122,7 +124,7 @@ void activate_rod()
 	break;
       case RD_DRAIN:
 	if (!direction(&dir)) goto no_charge;
-	ident = drain_life(dir, k, l, 75);
+	ident = drain_life(dir, k, l, 100);
 	i_ptr->timeout=23;
 	break;
       case RD_TELE:
@@ -137,25 +139,25 @@ void activate_rod()
 	break;
       case RD_LT_BALL:
 	if (!direction(&dir)) goto no_charge;
-	fire_ball(GF_LIGHTNING, dir, k, l, 32, "Lightning Ball");
+	fire_ball(GF_LIGHTNING, dir, k, l, 50, "Lightning Ball");
 	ident = TRUE;
 	i_ptr->timeout=23;
 	break;
       case RD_CD_BALL:
 	if (!direction(&dir)) goto no_charge;
-	fire_ball(GF_FROST, dir, k, l, 48, "Cold Ball");
+	fire_ball(GF_FROST, dir, k, l, 60, "Cold Ball");
 	ident = TRUE;
 	i_ptr->timeout=25;
 	break;
       case RD_FR_BALL:
 	if (!direction(&dir)) goto no_charge;
-	fire_ball(GF_FIRE, dir, k, l, 72, spell_names[30]);
+	fire_ball(GF_FIRE, dir, k, l, 90, spell_names[30]);
 	ident = TRUE;
 	i_ptr->timeout=30;
 	break;
       case RD_AC_BALL:
 	if (!direction(&dir)) goto no_charge;
-	fire_ball(GF_ACID, dir, k, l, 60, "Acid Ball");
+	fire_ball(GF_ACID, dir, k, l, 80, "Acid Ball");
 	ident = TRUE;
 	i_ptr->timeout=27;
 	break;
@@ -191,26 +193,11 @@ void activate_rod()
 	}
 	i_ptr->timeout=888;
 	break;
-      case RD_HEAL:
-	ident = hp_player(500);
-	if (py.flags.stun>0) {
-	  if (py.flags.stun>50) {
-	    py.misc.ptohit+=20;
-	    py.misc.ptodam+=20;
-	  } else {
-	    py.misc.ptohit+=5;
-	    py.misc.ptodam+=5;
-	  }
-	  py.flags.stun=0;
-	  ident = TRUE;
-	  msg_print("You're head stops stinging.");
-	}
-	if (py.flags.cut>0) {
-	  py.flags.cut=0;
-	  ident = TRUE;
-	  msg_print("You feel better.");
-	}
-	i_ptr->timeout=888;
+      case RD_DRAINING:
+	if (!direction(&dir)) goto no_charge;
+	drain_life(dir,char_row,char_col,-200);
+	ident = TRUE;
+	i_ptr->timeout=80;
 	break;
       case RD_RECALL:
 	if (py.flags.word_recall == 0)
@@ -227,7 +214,7 @@ void activate_rod()
       case RD_DETECT:
 	detection();
 	ident = TRUE;
-	i_ptr->timeout=99;
+	i_ptr->timeout=5;
 	break;
       case RD_RESTORE:
 	if (restore_level() || res_stat(A_STR) || res_stat(A_INT) ||
@@ -249,8 +236,8 @@ void activate_rod()
 	if (!known1_p(i_ptr)) {
 	  m_ptr = &py.misc;
 	  /* round half-way case up */
-	  m_ptr->exp += (i_ptr->level +(m_ptr->lev >> 1)) /
-	    m_ptr->lev;
+	  m_ptr->exp += (i_ptr->level +(get_level() >> 1)) /
+	    get_level();
 	  prt_experience();
 
 	  identify(&item_val);

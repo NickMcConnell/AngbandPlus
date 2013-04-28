@@ -253,7 +253,7 @@ int *item;
   i_ptr = &inventory[*item];
 
   if ((i_ptr->flags & TR_CURSED) && (i_ptr->tval != TV_MAGIC_BOOK) &&
-      (i_ptr->tval != TV_PRAYER_BOOK) && (i_ptr->tval != TV_MONK_BOOK))
+      (i_ptr->tval != TV_PRAYER_BOOK) && (i_ptr->tval != TV_NATURE_BOOK))
     add_inscribe(i_ptr, ID_DAMD);
 
   if (!known1_p(i_ptr))
@@ -343,15 +343,17 @@ int pref;
       break;
     case  TV_BOW:
       if (!strcmp("& Light Crossbow", object_list[i_ptr->index].name))	
-	(void) strcpy(damstr, " (x3)");
-      else if (!strcmp("& Heavy Crossbow", object_list[i_ptr->index].name))
 	(void) strcpy(damstr, " (x4)");
+      else if (!strcmp("& Heavy Crossbow", object_list[i_ptr->index].name))
+	(void) strcpy(damstr, " (x5)");
+      else if (!strcmp("& Crystal Bow", object_list[i_ptr->index].name))
+	(void) strcpy(damstr, " (x5)");
       else if (!strcmp("& Sling", object_list[i_ptr->index].name))
-	(void) strcpy(damstr, " (x2)");
-      else if (!strcmp("& Short Bow", object_list[i_ptr->index].name))
-	(void) strcpy(damstr, " (x2)");
-      else if (!strcmp("& Long Bow", object_list[i_ptr->index].name))
 	(void) strcpy(damstr, " (x3)");
+      else if (!strcmp("& Short Bow", object_list[i_ptr->index].name))
+	(void) strcpy(damstr, " (x3)");
+      else if (!strcmp("& Long Bow", object_list[i_ptr->index].name))
+	(void) strcpy(damstr, " (x4)");
       break;
     case  TV_HAFTED:
     case  TV_POLEARM:
@@ -463,13 +465,21 @@ int pref;
       modstr = basenm;
       basenm = "& Book~ of Magic Spells %s";
       break;
+    case TV_COMPONENT:
+      modstr = basenm;
+      basenm = "& chunk~ of %s";
+      break;
     case  TV_PRAYER_BOOK:
       modstr = basenm;
       basenm = "& Holy Book~ of Prayers %s";
       break;
-    case TV_MONK_BOOK:
+    case TV_NATURE_BOOK:
       modstr = basenm;
-      basenm = "& Book~ of Karate Techniques %s";
+      basenm = "& Book~ of Nature %s";
+      break;
+    case TV_DARK_BOOK:
+      modstr = basenm;
+      basenm = "& Dark Spellbook~ of Curses %s";
       break;
     case TV_OPEN_DOOR:
     case TV_CLOSED_DOOR:

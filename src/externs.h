@@ -22,9 +22,17 @@ extern char *copyright[5];
 extern int player_uid;
 extern int NO_SAVE;
 
+extern int magical[4]; /* Relevant skill for each of the 4 magic realms */
+
+extern int notarget;
+extern int targety,targetx;
+extern char *snames[S_NUM];
+
 /* horrible hack: needed because compact_monster() can be called from deep
    within creatures() via place_monster() and summon_monster() */
 extern int hack_monptr;
+
+extern int prime_stat[4];
 
 extern int16 log_index;		/* Index to log file. -CJS- */
 extern vtype died_from;
@@ -125,15 +133,12 @@ extern cave_type cave[MAX_HEIGHT][MAX_WIDTH];
 /* Following are player variables				*/
 extern player_type py;
 #ifdef MACGAME
-extern char *(*player_title)[MAX_PLAYER_LEVEL];
 extern race_type *race;
 extern background_type *background;
 #else
-extern char *player_title[MAX_CLASS][MAX_PLAYER_LEVEL];
 extern race_type race[MAX_RACES];
 extern background_type background[MAX_BACKGROUND];
 #endif
-extern int32u player_exp[MAX_PLAYER_LEVEL];
 extern int16u player_hp[MAX_PLAYER_LEVEL];
 extern int16 char_row;
 extern int16 char_col;
@@ -141,14 +146,11 @@ extern int16 char_col;
 extern char *dsp_race[MAX_RACES];	/* Short strings for races. -CJS- */
 extern int8u rgold_adj[MAX_RACES][MAX_RACES];
 
-extern class_type class[MAX_CLASS];
-extern int16 class_level_adj[MAX_CLASS][MAX_LEV_ADJ];
-
 /* Warriors don't have spells, so there is no entry for them. */
 #ifdef MACGAME
 extern spell_type (*magic_spell)[63];
 #else
-extern spell_type magic_spell[MAX_CLASS-1][63];
+extern spell_type magic_spell[MAX_REALMS-1][63];
 #endif
 extern char *spell_names[127];
 extern int32u spell_learned;	/* Bit field for spells learnt -CJS- */
@@ -158,7 +160,6 @@ extern int32u spell_worked2;	/* Bit field for spells tried -CJS- */
 extern int32u spell_forgotten;	/* Bit field for spells forgotten -JEW- */
 extern int32u spell_forgotten2;	/* Bit field for spells forgotten -JEW- */
 extern int8u spell_order[64];	/* remember order that spells are learned in */
-extern int16u player_init[MAX_CLASS][5];
 extern int16 total_winner;
 
 /* Following are store definitions				*/
@@ -231,6 +232,8 @@ extern char *rocks[MAX_ROCKS];
 extern char *amulets[MAX_AMULETS];
 extern char *syllables[MAX_SYLLABLES];
 #endif
+
+extern int8u **store_class_adj;
 
 extern int8u blows_table[11][12];
 
@@ -352,9 +355,11 @@ void restore_screen(void);
 void bell(void);
 void screen_map(void);
 
+/* item.c  */
+void activate_item(int);
+
 /* magic.c */
 void cast(void);
-void player_breathe(void);
 
 /* main.c */
 int main(int, char **);
@@ -395,9 +400,11 @@ int magik(int);
 int m_bonus(int, int, int);
 void magic_treasure(int, int);
 void set_options(void);
+int no_magic(void);
 
 /* misc2.c */
 int luck(void);
+void place_general(int,int,char,int);
 void place_trap(int, int, int);
 void place_rubble(int, int);
 void place_gold(int, int);
@@ -460,7 +467,7 @@ int inven_check_weight(struct inven_type *);
 void check_strength(void);
 int inven_carry(struct inven_type *);
 int spell_chance(int);
-void print_spells(int *, int, int, int);
+void print_spells(int *, int, int, int, int);
 int get_spell(int *, int, int *, int *, char *, int);
 void calc_spells(int);
 void gain_spells(void);
@@ -479,11 +486,14 @@ int find_range(int, int, int *, int *);
 void teleport(int);
 void check_view(void);
 
-/* monk.c */
+/* druid.c */
 
-void monk(void);
+void druid(void);
 
 /* monsters.c */
+
+int fetch(int,int,int,int);
+void necros(void);
 
 /* moria1.c */
 void change_speed(int);
@@ -525,7 +535,7 @@ void light_dam(int, char *);
 void acid_dam(int, char *);
 
 /* moria2.c */
-int cast_spell(char * ,int, int *, int *);
+int cast_spell(char * ,int, int *, int *, int);
 void delete_monster(int);
 void fix1_delete_monster(int);
 void fix2_delete_monster(int);
@@ -596,6 +606,8 @@ int set_corr(int);
 int set_floor(int);
 int set_corrodes(inven_type *);
 int set_flammable(inven_type *);
+int set_holy_destroy(inven_type *);
+int set_poison_destroy(inven_type *);
 int set_frost_destroy(inven_type *);
 int set_acid_affect(inven_type *);
 int set_lightning_destroy(inven_type *);
@@ -619,6 +631,20 @@ void init_signals(void);
 void ignore_signals(void);
 void default_signals(void);
 void restore_signals(void);
+
+/* skills.c */
+int smod(int);
+int stodam(int);
+int sblows(int);
+int get_level(void);
+long get_xp(int);
+void smodperm(int,int,int);
+int smoddam(long,long);
+int stoac(long);
+int sweapon(void);
+void prt_skills(char *);
+void sadvance(void);
+int advance(int,int);
 
 /* spells.c */
 void monster_name(char *, struct monster_type *, struct creature_type *);
@@ -650,6 +676,7 @@ int recharge(int);
 int hp_monster(int, int, int, int);
 int drain_life(int, int, int);
 int speed_monster(int, int, int, int);
+int scare_monster(int,int,int);
 int confuse_monster(int, int, int);
 int sleep_monster(int, int, int);
 int wall_to_mud(int, int, int);
@@ -665,7 +692,8 @@ int genocide(void);
 int speed_monsters(int);
 int sleep_monsters2(void);
 int mass_poly(void);
-int detect_evil(void);
+int detection(void);
+int detect_general(short,long,char *);
 int hp_player(int);
 int cure_confusion(void);
 int cure_blindness(void);
@@ -691,6 +719,9 @@ void destroy_area(int, int);
 int enchant(int16 *);
 int remove_curse(void);
 int restore_level(void);
+int banishment(int,int);
+int weather(int,int);
+void predict_weather(int);
 
 /* staffs.c */
 void use(void);
@@ -709,6 +740,9 @@ void updatebargain(int, int32, int32);
 /* store2.c */
 void enter_store(int);
 
+/* talents.c */
+void talents();
+
 /* treasur1.c */
 
 /* treasur2.c */
@@ -721,9 +755,9 @@ int system_cmd(char *);
 #endif
 void user_name(char *);
 int tilde(char *, char *);
-FILE *tfopen(char *, char *);
-int topen(char *, int, int);
 #endif
+FILE *my_tfopen(char *, char *);
+int my_topen(char *, int, int);
 
 /* variable.c */
 
@@ -1124,7 +1158,6 @@ int genocide();
 int speed_monsters();
 int sleep_monsters2();
 int mass_poly();
-int detect_evil();
 int hp_player();
 int cure_confusion();
 int cure_blindness();
@@ -1202,8 +1235,3 @@ void artifact_check();
 
 #endif
 
-#ifdef unix
-/* call functions which expand tilde before calling open/fopen */
-#define open topen
-#define fopen tfopen
-#endif

@@ -20,6 +20,10 @@
 #include <strings.h>
 #endif
 
+extern int notarget;
+
+extern int summon_general(int *,int *,char);
+
 static char original_commands();
 static void do_command();
 static int valid_countcommand();
@@ -31,7 +35,7 @@ static void examine_book();
 static void activate();
 static void go_up();
 static void go_down();
-static void jamdoor();
+void jamdoor(int);
 static void refill_lamp();
 static int regen_monsters();
 
@@ -72,7 +76,7 @@ void dungeon()
   else
     player_light = FALSE;
   /* Check for a maximum level		   */
-  if (dun_level > p_ptr->max_dlv)
+  if (dun_level > p_ptr->max_dlv && (dun_level!=-1))
     p_ptr->max_dlv = dun_level;
 
   /* Reset flags and initialize variables  */
@@ -234,8 +238,6 @@ void dungeon()
 
       /* Update counters and messages			*/
       /* Check food status	       */
-      if (py.misc.timeout<400)
-       ++py.misc.timeout; /* Get breath weapon ready */
       regen_amount = PLAYER_REGEN_NORMAL;
       if (f_ptr->food < PLAYER_FOOD_ALERT)
 	{
@@ -703,7 +705,44 @@ void dungeon()
 	  if (f_ptr->resist_poison == 0)
 	    msg_print ("You no longer feel safe from poison.");
 	}
-
+      /* Skill timeout */
+      if (f_ptr->flags[F_SKILLS])
+	--f_ptr->flags[F_SKILLS];
+      /* Weather */
+      if (!f_ptr->flags[F_WCHANGE])
+	{
+	  f_ptr->flags[F_WCHANGE]=100+randint(150);
+	  /* Now form the weather */
+	  i=0;
+	  if (randint(3)==1)
+	    i|=W_DRY; /* Indicates particularly dry weather */
+	  else if (randint(3)==1)
+	    i|=W_MOIST; /* Indicates particularly moist weather */
+	  if (randint(3)==1)
+	    i|=W_COOL; /* Particularly cool weather */
+	  else if (randint(3)==1)
+	    i|=W_WARM; /* Particularly warm weather */
+	  if (randint(3)==1)
+	    i|=W_WINDY;  /* Very windy weather */
+	  else if (randint(3)==1)
+	    i|=W_STILL;  /* Very still winds */
+	  f_ptr->flags[F_WEATHER]=i;
+	}
+      --f_ptr->flags[F_WCHANGE];
+      /* Disease */
+      if (f_ptr->flags[F_DISEASE])
+	{
+	  --f_ptr->flags[F_DISEASE];
+	  take_hit("disease",(f_ptr->flags[F_DISEASE]/10)+1);
+	  if (!f_ptr->flags[F_DISEASE])
+	    msg_print("You recover from the disease");
+	}
+      if (py.misc.timeout>0 && randint(2)==1)
+	{
+	 --py.misc.timeout;
+	 if (!py.misc.timeout)
+	   msg_print("You feel your will return to normal.");
+	}
       /* Timeout Artifacts  */
       for (i = 22; i < (INVEN_ARRAY_SIZE-1); i++) {
 	i_ptr = &inventory[i];
@@ -766,15 +805,15 @@ void dungeon()
 	  if ((PY_TIM_INFRA & f_ptr->status) == 0)
 	    {
 	      f_ptr->status |= PY_TIM_INFRA;
-	      f_ptr->see_infra++;
+	      f_ptr->see_infra+=6;
 	      /* light but don't move creatures */
 	      creatures (FALSE);
 	    }
-	  f_ptr->tim_infra--;
+	  --f_ptr->tim_infra;
 	  if (f_ptr->tim_infra == 0)
 	    {
 	      f_ptr->status &= ~PY_TIM_INFRA;
-	      f_ptr->see_infra--;
+	      f_ptr->see_infra-=6;
 	      /* unlight but don't move creatures */
 	      creatures (FALSE);
 	    }
@@ -790,6 +829,11 @@ void dungeon()
 	      {
 		dun_level = 0;
 		msg_print("You feel yourself yanked upwards!");
+	      }
+	    else if (dun_level==-1) /* Lowest level! */
+	      {
+		msg_print("The word-of-recall spell has failed.");
+		new_level_flag = FALSE;
 	      }
 	    else if (py.misc.max_dlv != 0)
 	      {
@@ -858,13 +902,6 @@ void dungeon()
       /* Allow for a slim chance of detect enchantment -CJS- */
       /* for 1st level char, check once every 2160 turns
 	 for 40th level char, check once every 416 turns */
-      if (py.misc.pclass==2?
-	  ((f_ptr->confused == 0) && (py.misc.pclass!=0) &&
-	   (randint((int)(10000/(py.misc.lev*py.misc.lev+40)) + 1) == 1))
-	  :
-	  (((turn & 0xF) == 0) && (f_ptr->confused == 0)
-	  && (randint((int)(10 + 750 / (5 + py.misc.lev))) == 1))
-	  )
 	{
 	  vtype tmp_str;
 
@@ -872,59 +909,10 @@ void dungeon()
 	    if (i == inven_ctr)
 	      i = 22;
 	    i_ptr = &inventory[i];
-	    /* if in inventory, succeed 1 out of 50 times,
-	    if in equipment list, success 1 out of 10 times,
-	    unless your a priest or rogue... */
-	    if ((i_ptr->tval != TV_NOTHING) && special_check(i_ptr) &&
-		((py.misc.pclass==2 || py.misc.pclass==3)?
-		 (randint(i < 22 ? 5 : 1) == 1)
-		 :
-		 (randint(i < 22 ? 50 : 10) == 1)))
-	      {
-		extern char *describe_use();
-
-		if (py.misc.pclass==0||py.misc.pclass==3||py.misc.pclass==5)
-		  if ((i_ptr->tval==TV_SWORD) ||
-		      (i_ptr->tval==TV_HAFTED) ||
-		      (i_ptr->tval==TV_POLEARM) ||
-		      (i_ptr->tval==TV_BOW) ||
-		      (i_ptr->tval==TV_BOLT) ||
-		      (i_ptr->tval==TV_ARROW) ||
-		      (i_ptr->tval==TV_DIGGING) ||
-		      (i_ptr->tval==TV_SLING_AMMO) ||
-		      (i_ptr->tval==TV_SOFT_ARMOR) ||
-		      (i_ptr->tval==TV_ROBE) ||
-		      (i_ptr->tval==TV_HARD_ARMOR) ||
-		      (i_ptr->tval==TV_HELM) ||
-		      (i_ptr->tval==TV_BOOTS) ||
-		      (i_ptr->tval==TV_CLOAK) ||
-		      (i_ptr->tval==TV_GLOVES) ||
-		      (i_ptr->tval==TV_SHIELD))
-		    continue;
-		(void) sprintf(tmp_str,
-			       "There's something %s about what you are %s...",
-			       special_check(i_ptr)>0?"good":"bad",
-			       describe_use(i));
-		disturb(0, 0);
-		msg_print(tmp_str);
-		add_inscribe(i_ptr, (special_check(i_ptr)>0)?
-			   ID_MAGIK:ID_DAMD);
-	      }
-	  }
-	}
-
-      /* Warriors, Rogues, Paladins and Monks inbuilt ident */
-      if (((py.misc.pclass==0) && (f_ptr->confused == 0) &&
-	  (randint((int)(9000/(py.misc.lev*py.misc.lev+40)) + 1) == 1))
-	  ||
-	  ((py.misc.pclass==3) && (f_ptr->confused == 0) &&
-	  (randint((int)(20000/(py.misc.lev*py.misc.lev+40)) + 1) == 1))
-	  ||
-	  ((py.misc.pclass==5) && (f_ptr->confused == 0) &&
-	  (randint((int)(80000/(py.misc.lev*py.misc.lev+40)) + 1) == 1))
-	  ||
-	  ((py.misc.pclass==6) && (f_ptr->confused == 0) &&
-	  (randint((int)(25000/(py.misc.lev*py.misc.lev+40)) + 1) == 1))) {
+	    
+      if (((f_ptr->confused == 0) &&
+	  (randint(py.skills.cur_skill[S_PERCEPTION])>100)))
+	{
 	  vtype tmp_str;
 	  char *value_check();
 
@@ -994,7 +982,8 @@ void dungeon()
 	      }
 	  }
 	}
-
+	  }
+	}
       if ((py.flags.paralysis < 1) &&	     /* Accept a command?     */
 	  (py.flags.rest == 0) &&
 	  (py.flags.stun < 100) &&
@@ -1168,14 +1157,17 @@ char com_val;
     case CTRL('K'):	/*^K = exit    */
       com_val = 'Q';
       break;
-    case CTRL('J'):
     case CTRL('M'):
       com_val = '+';
       break;
     case CTRL('P'):	/*^P = repeat  */
     case CTRL('W'):	/*^W = password*/
     case CTRL('X'):	/*^X = save    */
-    case ' ':
+    case ':':
+      break;
+    case ';':
+      com_val = ';';
+      break;
     case '!':
       break;
     case '`':  /* Stop doing a karate technique */
@@ -1201,11 +1193,11 @@ char com_val;
     case '/':
     case '<':
     case '>':
-    case '-':
     case '=':
     case '{':
     case '?':
     case 'A':
+    case '-':
       break;
     case '1':
       com_val = 'b';
@@ -1279,7 +1271,7 @@ char com_val;
       break;
     case 'c':
       break;
-    case 'd':
+    case ']':
       com_val = ']';
       break;
     case 'e':
@@ -1303,8 +1295,9 @@ char com_val;
     case 'p':
     case 'q':
     case 'r':
-    case 's':
       break;
+    case 's':
+      com_val = 's'; /* (s)hoot an arrow/bolt/sling */
     case 't':
       com_val = 'T';
       break;
@@ -1317,12 +1310,17 @@ char com_val;
     case 'V':
     case 'w':
       break;
+    case CTRL('A'):
+      com_val = CTRL('A');
+      break;
     case 'x':
       com_val = 'X';
       break;
-
+    case CTRL('T'):	/*^T = Use (T)alents*/
+      com_val = CTRL('T');
+      break;
       /* wizard mode commands follow */
-    case CTRL('A'): /*^A = cure all */
+    case CTRL('R'): /*^R = all (R)emidies */
       break;
     case CTRL('B'):	/*^B = objects */
       com_val = CTRL('O');
@@ -1336,15 +1334,19 @@ char com_val;
       break;
     case CTRL('^'):	/*^^ = identify all up to a level */
       break;
+    case '%':
+      com_val = '%';
+      break;
     case CTRL('L'):	/*^L = wizlight*/
       com_val = '*';
       break;
-    case ':':
-    case CTRL('T'):	/*^T = teleport*/
     case CTRL('E'):	/*^E = wizchar */
     case CTRL('F'):	/*^F = genocide*/
     case CTRL('G'):	/*^G = treasure*/
     case CTRL('V'):	/*^V = treasure*/
+    case '[':            /* ^ = Warp */
+      com_val = '[';
+      break;
     case '@':
     case '+':
       break;
@@ -1478,15 +1480,16 @@ char com_val;
 
   switch(com_val)
     {
+    case CTRL('T'):   /* Talents */
+      talents(0);
+      break;
     case '`':   /* Stop doing a karate technique */
-      if (py.misc.pclass!=6)
-	msg_print("You don't know any karate techniques.");
-      else if (py.flags.whichone<=0)
+      if (py.flags.whichone<=0)
 	msg_print("You aren't doing a karate technique right now.");
       else
 	{
-	 strcpy(technique,spell_names[(py.flags.whichone&0x7F)+MONK_OFFSET]);
-	 sprintf(tstr,"Press 'Y' to stop doing %s.",technique);
+	 strcpy(technique,spell_names[(py.flags.whichone&0x7F)+DRUID_OFFSET]);
+	 sprintf(tstr,"Press 'Y' to stop the %s.",technique);
 	 msg_print(tstr);
 	 technique[0]=inkey();
 	 if (technique[0]=='y' || technique[0]=='Y')
@@ -1600,7 +1603,6 @@ char com_val;
       free_turn_flag = TRUE;
       break;
     case ESCAPE:	/* (ESC)   do nothing. */
-    case ' ':		/* (space) do nothing. */
       free_turn_flag = TRUE;
       break;
     case 'b':		/* (b) down, left	(1) */
@@ -1663,6 +1665,9 @@ char com_val;
 	  rest();
 	}
       break;
+    case CTRL('A'):
+      sadvance();
+      break;
     case '<':		/* (<) go down a staircase */
       go_up();
       break;
@@ -1677,7 +1682,9 @@ char com_val;
       free_turn_flag = TRUE;
       break;
     case 'f':		/* (f)orce		(B)ash */
+      notarget=1;
       bash();
+      notarget=0;
       break;
     case 'A':		/* (A)ctivate		(A)ctivate */
       activate();
@@ -1689,7 +1696,9 @@ char com_val;
       free_turn_flag = TRUE;
       break;
     case 'D':		/* (D)isarm trap */
+      notarget=1;
       disarm_trap();
+      notarget=0;
       break;
     case 'E':		/* (E)at food */
       eat();
@@ -1812,12 +1821,31 @@ char com_val;
       free_turn_flag = TRUE;
       break;
     case 'c':		/* (c)lose an object */
+      notarget=1;
       closeobject();
+      notarget=0;
       break;
     case ']':
-      py.flags.dodge=1-py.flags.dodge;
-      prt_speed(); /* Let player know he's dodging */
-      calc_bonuses();
+      msg_print(
+       "Will you (W)restle, use (K)arate, or (S)ee what you're doing?");
+      x=inkey();
+      if (x=='w' || x=='W')
+	{
+	  msg_print("You are now wrestling.");
+	  py.flags.flags[F_BAREHAND]=S_WRESTLING;
+	}
+      if (x=='k' || x=='K')
+	{
+	  msg_print("You are now using karate.");
+	  py.flags.flags[F_BAREHAND]=S_KARATE;
+	}
+      else if (x=='s' || x=='S')
+	{
+	  if (py.flags.flags[F_BAREHAND]==S_WRESTLING)
+	    msg_print("You are currently wrestling.");
+	  if (py.flags.flags[F_BAREHAND]==S_KARATE)
+	    msg_print("You are currently using karate.");
+	}
       break;
     case 'd':		/* (d)rop something */
       inven_command('d');
@@ -1826,13 +1854,13 @@ char com_val;
       inven_command('e');
       break;
     case 't':		/* (t)hrow something	(f)ire something */
-      throw_object();
+      throw_object(0);
       break;
     case 'i':		/* (i)nventory list */
       inven_command('i');
       break;
     case 'S':		/* (S)pike a door	(j)am a door */
-      jamdoor();
+      jamdoor(0);
       break;
     case 'x':		/* e(x)amine surrounds	(l)ook about */
       look();
@@ -1842,7 +1870,9 @@ char com_val;
       cast();
       break;
     case 'o':		/* (o)pen something */
+      notarget=1;
       openobject();
+      notarget=0;
       break;
     case 'p':		/* (p)ray */
       pray();
@@ -1853,8 +1883,11 @@ char com_val;
     case 'r':		/* (r)ead */
       read_scroll();
       break;
-    case 's':		/* (s)earch for a turn */
-      search(char_row, char_col, py.misc.srh);
+    case '~':
+      artifact_check();
+      break;
+    case 's':		/* (s)hoot an arrow */
+      throw_object(1);
       break;
     case 'T':		/* (T)ake off something	(t)ake off */
       inven_command('t');
@@ -1878,7 +1911,7 @@ char com_val;
 	  free_turn_flag = TRUE; /* Wizard commands are free moves*/
 	  switch(com_val)
 	    {
-	    case CTRL('A'):	/*^A = Cure all*/
+	    case CTRL('R'):	/*^R = Remedy all*/
 	      (void) remove_curse();
 	      (void) cure_blindness();
 	      (void) cure_confusion();
@@ -1994,13 +2027,10 @@ char com_val;
 	    case ':':
 	      map_area();
 	      break;
-	    case '~':
-	      artifact_check();
-	      break;
 	    case '%':
 	      self_knowledge();
 	      break;
-	    case CTRL('T'):	/*^T = teleport*/
+	    case '[':	/* [ = teleport*/
 	      teleport(100);
 	      break;
 	    case '+':
@@ -2018,7 +2048,9 @@ char com_val;
 	    case '&':	/*& = summon  */
 	      y = char_row;
 	      x = char_col;
-	      (void) summon_monster(&y, &x, TRUE);
+	      msg_print("Which type of creature do you want to summon?");
+	      i=inkey();
+	      (void) summon_general(&y,&x,(char)i);
 	      creatures(FALSE);
 	      break;
 	    case '@':
@@ -2120,7 +2152,7 @@ char c;
     case CTRL('U'):
     case CTRL('L'):
     case CTRL('N'):
-    case CTRL('J'):
+    case '^':
     case CTRL('B'):
     case CTRL('H'):
     case 'S':
@@ -2177,12 +2209,13 @@ int percent;
 {
   register struct misc *p_ptr;
   register int32 new_mana, new_mana_frac;
+  register int mod,tm; /* Affects how fast mana comes back */
   int old_cmana;
-
+  
   p_ptr = &py.misc;
   old_cmana = p_ptr->cmana;
-  new_mana = ((long)p_ptr->mana) * percent + PLAYER_REGEN_MNBASE;
-  p_ptr->cmana += new_mana >> 16;  /* div 65536 */
+  new_mana = ((long)p_ptr->mana) * PLAYER_REGEN_MNBASE;
+ p_ptr->cmana += new_mana >> 16;  /* div 65536 */
   /* check for overflow */
   if (p_ptr->cmana < 0 && old_cmana > 0)
     p_ptr->cmana = MAX_SHORT;
@@ -2201,6 +2234,8 @@ int percent;
       p_ptr->cmana = p_ptr->mana;
       p_ptr->cmana_frac = 0;
     }
+  if (old_cmana > p_ptr->cmana)
+    p_ptr->cmana=old_cmana; /* Stop overflow */
   if (old_cmana != p_ptr->cmana)
     prt_cmana();
 }
@@ -2254,18 +2289,20 @@ register int stat;
 }
 
 static void activate() {
-  int i, a, flag, first, num, j, redraw, dir;
-  char out_str[200], tmp[200], tmp2[200], tmp3[200], choice;
+  int i, a, flag, first, num, j, redraw, dir, index, k;
+  char out_str[200], tmp[200], tmp2[200], choice;
   inven_type *i_ptr;
-  treasure_type *t_ptr;
   struct misc *m_ptr;
 
   flag=FALSE;
   redraw=FALSE;
   num=0;
   first=0; /* i=22 is what it started at */
-  for (i=0; i<(INVEN_ARRAY_SIZE-1); i++) {
-    if ((inventory[i].flags2 & TR_ACTIVATE) && (known2_p(&(inventory[i])))) {
+  /* We need to skip magic books for activation */
+  for (i=0; i<(INVEN_ARRAY_SIZE-1); i++) {k=inventory[i].tval;
+    if ((inventory[i].flags2 & TR_ACTIVATE) && (known2_p(&(inventory[i])))
+	    && (k!=TV_MAGIC_BOOK && k!=TV_NATURE_BOOK && k!=TV_DARK_BOOK
+		 && k!=TV_PRAYER_BOOK)) {
       num++;
       if (!flag) first=i;
       flag=TRUE;
@@ -2275,44 +2312,49 @@ static void activate() {
     msg_print("You are not wearing/wielding anything that can be activated.");
     return;
   }
-  sprintf(out_str, "Activate which item? (%c-%c, * to list, ESC to exit) ?",
+  sprintf(out_str, "/Activate which item? (%c-%c, * to list, ESC to exit) ?",
 	  'a', 'a'+(num-1));
   flag=FALSE;
+  redraw=FALSE;
   while (!flag && get_com(out_str, &choice)) {
-    if (choice=='*') {
-      save_screen();
+    if (choice=='*') { /* Only print again if not done already */
       j=0;
-      if (!redraw) {
-	for (i=first; i<(INVEN_ARRAY_SIZE-1); i++) {
-	  if ((inventory[i].flags2 & TR_ACTIVATE) && known2_p(&(inventory[i]))) {
-	    objdes(tmp2, &inventory[i], TRUE);
-	    sprintf(tmp, "%c) %-40s", 'a'+j, tmp2);
-	    prt(tmp, 1+j, 36);
-	    j++;
-	  }
+      if (!redraw)
+	save_screen();
+      redraw=TRUE;
+      for (i=first; i<(INVEN_ARRAY_SIZE-1); i++) { 
+	k=inventory[i].tval;
+	if ((inventory[i].flags2 & TR_ACTIVATE) && known2_p(&(inventory[i]))
+	    && (k!=TV_MAGIC_BOOK && k!=TV_NATURE_BOOK && k!=TV_DARK_BOOK
+		 && k!=TV_PRAYER_BOOK)) {
+	  objdes(tmp2, &inventory[i], TRUE);
+	  sprintf(tmp, "%c) %-40s", 'a'+j, tmp2);
+	  prt(tmp, 1+j, 36);
+	  j++;
 	}
-	redraw=TRUE;
-	continue;
       }
+      continue;
     } else {
       if (choice>='A' && choice<=('A'+(num-1)))
 	choice-='A';
       else if (choice>='a' && choice<=('a'+(num-1)))
 	choice-='a';
-      else if (choice=='\033') {
-	if (redraw)
+      else if (choice==ESCAPE) {
+	if (redraw) 
 	  restore_screen();
+	msg_print("Exiting...");
 	free_turn_flag = TRUE;
 	break;
       }
+      if (choice>num) continue;
       if (redraw)
 	restore_screen();
-
-      if (choice>num) continue;
       flag=TRUE;
       j=0;
       for (i=first; i<(INVEN_ARRAY_SIZE-1); i++) {
-	  if ((inventory[i].flags2 & TR_ACTIVATE) && known2_p(&(inventory[i]))) {
+	  if ((inventory[i].flags2 & TR_ACTIVATE) && known2_p(&(inventory[i]))
+	    && (k!=TV_MAGIC_BOOK && k!=TV_NATURE_BOOK && k!=TV_DARK_BOOK
+		 && k!=TV_PRAYER_BOOK)) {
 	    if (j==choice) break;
 	    j++;
 	  }
@@ -2321,17 +2363,43 @@ static void activate() {
 	msg_print("It whines, glows and fades...");
 	break;
       }
+      if (inventory[i].tval==TV_MISC)
+	{ activate_item(i); return; }
+      index=inventory[i].index;
+      /* Lets us modify it under some conditions */
       if (py.stats.use_stat[A_INT]<randint(18) &&
-	  randint(object_list[inventory[i].index].level)>py.misc.lev) {
+	  randint(object_list[inventory[i].index].level)>get_level()) {
 	msg_print("You fail to activate it properly.");
 	break;
       }
       msg_print("You activate it...");
-      switch (inventory[i].index) {
+#undef TESTING
+#ifdef TESTING
+      (void) sprintf(tmp,"index = %d",inventory[i].index);
+      msg_print(tmp);
+#endif
+      switch (index) {
+      case (56):  /* Skullcleaver */
+	if (get_dir(NULL, &dir)) {
+	  if (py.flags.confused > 0) {
+	    msg_print("You are confused.");
+	    do {dir = randint(9);} while (dir == 5);
+	  }
+	  msg_print("Your axe blazes in white lightning!");
+	  fire_bolt(GF_LIGHTNING, dir, char_row, char_col, 500,
+		    "Lightning Storm");
+	  inventory[i].timeout=5+randint(10);
+	}
+	inventory[i].timeout=300+randint(300);
+	break;
+      case (101): /* Mystic Robe */
+	msg_print("You are enveloped with a feeling of wisdom and understanding.");
+	py.misc.cmana=py.misc.mana;
+	(void) prt_cmana();
+	(void) wizard_light(TRUE);
+	inventory[i].timeout=1000;
+	break;
       case (29):
-      case (395):
-      case (396): /* The dreaded daggers:-> */
-      case (397):
 	if (inventory[i].name2 == SN_NARTHANC) {
 	  msg_print("Your Dagger is covered in fire...");
 	  if (get_dir(NULL, &dir)) {
@@ -2393,6 +2461,33 @@ static void activate() {
 	  }
 	}
 	break;
+      case (79): /* Crystal Bows of DEATH! */
+	if (inventory[i].name2 == SN_BARD)
+	  {
+	    msg_print("You feel a surge of power flow through you.");
+	    py.flags.stun=0;
+	    (void) hp_player(2000);
+	    (void) remove_fear();
+	    (void) cure_poison();
+	    py.flags.cut=0;
+	    py.flags.invuln+=20+randint(20);
+	    inventory[i].timeout=1000;
+	  }
+	else /* Other cool one, more offensively based */
+	  {
+	    msg_print("Your sacred bow glows white.  All of your arrows are affected!");
+	    for(j=0;j<INVEN_AUX;j++)
+	      if (inventory[j].tval==TV_ARROW && inventory[j].name2==SN_NULL)
+		{
+		  inventory[j].flags|=TR_SLAY_X_DRAGON|TR_SLAY_UNDEAD|
+		    TR_SLAY_ANIMAL|TR_SLAY_EVIL;
+		  inventory[j].flags2|=TR_SLAY_ORC|TR_SLAY_TROLL|TR_SLAY_DEMON;
+		  inventory[j].name2|=SN_SLAYING;
+		  inventory[j].tohit+=1;
+		  inventory[j].todam+=4;
+		}
+	  }
+	inventory[i].timeout=3000;
       case (91):
 	if (inventory[i].name2 == SN_DAL) {
 	  msg_print("You feel energy flow through your feet...");
@@ -2410,8 +2505,9 @@ static void activate() {
 	      msg_print("You are confused.");
 	      do {dir = randint(9);} while (dir == 5);
 	    }
-	    fire_ball(GF_FROST, dir, char_row, char_col, 100,
+	    fire_ball(GF_FROST, dir, char_row, char_col, 300,
 		      "storm of Ice");
+	    py.flags.fast+=150;
 	    inventory[i].timeout=300;
 	  }
 	} else if (inventory[i].name2 == SN_ANDURIL) {
@@ -2624,7 +2720,6 @@ static void activate() {
 	}
 	break;
       case (123): /* Cloak */
-      case (411):
 	if (inventory[i].name2 == SN_COLLUIN) {
 	  msg_print("Your cloak glows many colours...");
 	  msg_print("You feel you can resist anything.");
@@ -2752,6 +2847,11 @@ static void activate() {
 	inventory[i].timeout=500;
 	}
 	break;
+      case (SPECIAL_OBJ+11): /* Adamantine Shield */
+	msg_print("A gray aura surrounds you!");
+	py.flags.invuln+=8+randint(8);
+	inventory[i].timeout=555+randint(555);
+	break;
       case (SPECIAL_OBJ-1): /* Narya */
 	msg_print("The ring glows deep red...");
         if (get_dir(NULL, &dir)) {
@@ -2790,7 +2890,7 @@ static void activate() {
 	break;
       case (SPECIAL_OBJ+2): /* Power */
 	msg_print("The ring glows intensely black...");
-	switch (randint(17)+(8-py.misc.lev/10)) {
+	switch (randint(17)+(get_level()/10)) {
 	case 5:
 	  dispel_creature(0xFFFFFFFL, 1000);
 	  break;
@@ -2798,10 +2898,7 @@ static void activate() {
 	case 7:
 	  msg_print("You are surrounded by a malignant aura");
 	  m_ptr = &py.misc;
-	  m_ptr->lev--;
-	  m_ptr->exp=player_exp[m_ptr->lev-2]*m_ptr->expfact/100 +
-	    randint((player_exp[m_ptr->lev-1]*m_ptr->expfact/100) -
-		    (player_exp[m_ptr->lev-2]*m_ptr->expfact/100));
+	  m_ptr->exp-=(m_ptr->max_exp/2);
 	  m_ptr->max_exp=m_ptr->exp;
 	  prt_experience();
 	  ruin_stat(A_STR);
@@ -2811,16 +2908,10 @@ static void activate() {
 	  ruin_stat(A_CON);
 	  ruin_stat(A_CHR);
 	  calc_hitpoints();
-	  if (class[m_ptr->pclass].spell == MAGE) {
-	    calc_spells(A_INT);
-	    calc_mana(A_INT);
-	  } else if (class[m_ptr->pclass].spell == PRIEST) {
-	    calc_spells(A_WIS);
-	    calc_mana(A_WIS);
-	  } else if (class[m_ptr->pclass].spell == MONK) {
-            calc_spells(A_DEX);
-            calc_mana(A_DEX);
-          }
+	  if (py.misc.realm != NONE) {
+	    calc_spells(prime_stat[py.misc.realm]);
+	    calc_mana(prime_stat[py.misc.realm]);
+	  }
 	  prt_level();
 	  prt_title();
 	  take_hit((py.misc.chp>2)?py.misc.chp/2:0, "malignant aura");
@@ -2833,7 +2924,7 @@ static void activate() {
 	      msg_print("You are confused.");
 	      do {dir = randint(9);} while (dir == 5);
 	    }
-	    fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col, 300,
+	    fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col, 500,
 		      "huge ball of Raw Mana");
 	  }
 	  break;
@@ -2843,13 +2934,13 @@ static void activate() {
 	      msg_print("You are confused.");
 	      do {dir = randint(9);} while (dir == 5);
 	    }
-	    fire_bolt(GF_MAGIC_MISSILE, dir, char_row, char_col, 250,
+	    fire_bolt(GF_MAGIC_MISSILE, dir, char_row, char_col, 800,
 		      "bolt of Raw Mana");
 	  }
 	}
 	inventory[i].timeout=444+randint(444);
 	break;
-      case (389): /* Blue */
+      case (392): /* Blue */
 	msg_print("You breathe Lightning...");
 	if (get_dir(NULL, &dir)) {
 	  if (py.flags.confused > 0) {
@@ -2861,7 +2952,7 @@ static void activate() {
 	  inventory[i].timeout=444+randint(444);
 	}
 	break;
-      case (390): /* White */
+      case (393): /* White */
 	msg_print("You breathe Frost...");
 	if (get_dir(NULL, &dir)) {
 	  if (py.flags.confused > 0) {
@@ -2873,7 +2964,7 @@ static void activate() {
 	  inventory[i].timeout=444+randint(444);
 	}
 	break;
-      case (391): /* Black */
+      case (394): /* Black */
 	msg_print("You breathe Acid...");
 	if (get_dir(NULL, &dir)) {
 	  if (py.flags.confused > 0) {
@@ -2885,7 +2976,7 @@ static void activate() {
 	  inventory[i].timeout=444+randint(444);
 	}
 	break;
-      case (392): /* Gas */
+      case (395): /* Gas */
 	msg_print("You breathe Poison Gas...");
 	if (get_dir(NULL, &dir)) {
 	  if (py.flags.confused > 0) {
@@ -2897,7 +2988,7 @@ static void activate() {
 	  inventory[i].timeout=444+randint(444);
 	}
 	break;
-      case (393): /* Fire */
+      case (396): /* Fire */
 	msg_print("You breathe Fire...");
 	if (get_dir(NULL, &dir)) {
 	  if (py.flags.confused > 0) {
@@ -2909,65 +3000,58 @@ static void activate() {
 	  inventory[i].timeout=444+randint(444);
 	}
 	break;
-      case (394): /* Multi-hued */
-	if (inventory[i].name2 == SN_RAZORBACK) {
-	  msg_print("A storm of lightning spikes fires in all directions...");
-	  starball(char_row, char_col);
-	  inventory[i].timeout=1000;
-        }
-	else {
-	  if (get_dir(NULL, &dir)) {
-	    if (py.flags.confused > 0) {
-	      msg_print("You are confused.");
-	      do {dir = randint(9);} while (dir == 5);
-	    }
-	    choice=randint(5);
-	    sprintf(tmp2, "You breathe %s...",
-	            ((choice==1)?"Lightning":
-	             ((choice==2)?"Frost":
-		      ((choice==3)?"Acid":
-		       ((choice==4)?"Poison Gas":"Fire")))));
-	    msg_print(tmp2);
-	    sprintf(tmp2, "huge %s of %s", ((choice==4)?"cloud":"ball"),
-	            ((choice==1)?"Lightning":
-	             ((choice==2)?"Frost":
-		      ((choice==3)?"Acid":
-		       ((choice==4)?"Poison Gas":"Fire")))));
-	    fire_ball(((choice==1)?GF_LIGHTNING:
-	               ((choice==2)?GF_FROST:
-	                ((choice==3)?GF_ACID:
-	                 ((choice==4)?GF_POISON_GAS:GF_FIRE)))),
-		      dir, char_row, char_col, 250,
-		      tmp2);
-	    inventory[i].timeout=222+randint(222);
+      case (397): /* Multi-hued */
+	if (get_dir(NULL, &dir)) {
+	  if (py.flags.confused > 0) {
+	    msg_print("You are confused.");
+	    do {dir = randint(9);} while (dir == 5);
 	  }
-	}
+	  choice=randint(5);
+	  sprintf(tmp2, "You breathe %s...",
+		  ((choice==1)?"Lightning":
+		   ((choice==2)?"Frost":
+		    ((choice==3)?"Acid":
+		       ((choice==4)?"Poison Gas":"Fire")))));
+	  msg_print(tmp2);
+	  sprintf(tmp2, "huge %s of %s", ((choice==4)?"cloud":"ball"),
+		  ((choice==1)?"Lightning":
+		   ((choice==2)?"Frost":
+		    ((choice==3)?"Acid":
+		     ((choice==4)?"Poison Gas":"Fire")))));
+	  fire_ball(((choice==1)?GF_LIGHTNING:
+		     ((choice==2)?GF_FROST:
+		      ((choice==3)?GF_ACID:
+		       ((choice==4)?GF_POISON_GAS:GF_FIRE)))),
+		    dir, char_row, char_col, 250,
+		    tmp2);
+	  inventory[i].timeout=222+randint(222);
+	  }
 	break;
-      case (408): /* Bronze */
+      case (410): /* Bronze */
 	msg_print("You breathe Confusion...");
 	if (get_dir(NULL, &dir)) {
 	  if (py.flags.confused > 0) {
 	    msg_print("You are confused.");
 	    do {dir = randint(9);} while (dir == 5);
 	  }
-	  fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col, 120,
+	  fire_ball(GF_CONFUSION, dir, char_row, char_col, 300,
 		    "huge blast of Confusion");
-	  inventory[i].timeout=444+randint(444);
+	  inventory[i].timeout=100+randint(100);
 	}
       break;
-      case (409): /* Gold */
+      case (411): /* Gold */
 	msg_print("You breathe Sound...");
 	if (get_dir(NULL, &dir)) {
 	  if (py.flags.confused > 0) {
 	    msg_print("You are confused.");
 	    do {dir = randint(9);} while (dir == 5);
 	  }
-	  fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col, 130,
+	  fire_ball(GF_SOUND, dir, char_row, char_col, 300,
 		    "huge blast of Sound");
-	  inventory[i].timeout=444+randint(444);
+	  inventory[i].timeout=100+randint(100);
 	}
       break;
-      case (415): /* Chaos */
+      case (417): /* Chaos */
 	if (get_dir(NULL, &dir)) {
 	  if (py.flags.confused > 0) {
 	    msg_print("You are confused.");
@@ -2983,7 +3067,7 @@ static void activate() {
 	  inventory[i].timeout=300+randint(300);
 	}
         break;
-      case (416): /* Law */
+      case (418): /* Law */
         if (get_dir(NULL, &dir)) {
           if (py.flags.confused > 0) {
             msg_print("You are confused.");
@@ -2999,7 +3083,7 @@ static void activate() {
           inventory[i].timeout=300+randint(300);
         }
         break;
-      case (417): /* Balance */
+      case (419): /* Balance */
 	if (get_dir(NULL, &dir)) {
           if (py.flags.confused > 0) {
             msg_print("You are confused.");
@@ -3019,7 +3103,7 @@ static void activate() {
           inventory[i].timeout=300+randint(300);
         }
         break;
-      case (418): /* Shining */
+      case (420): /* Shining */
         if (get_dir(NULL, &dir)) {
           if (py.flags.confused > 0) {
             msg_print("You are confused.");
@@ -3035,40 +3119,27 @@ static void activate() {
           inventory[i].timeout=300+randint(300);
         }
         break;
-      case (419): /* Power Dragon Scale Mail */
-	if (inventory[i].name2 == SN_BLADETURNER) {
-	  msg_print("Your armour glows many colours...");
-	  msg_print("You enter a berserk rage...");
-	  py.flags.hero += randint(50)+50;
-	  py.flags.shero += randint(50)+50;
-	  bless(randint(50)+50);
-	  py.flags.resist_heat += randint(50)+50;
-	  py.flags.resist_cold += randint(50)+50;
-	  py.flags.resist_light += randint(50)+50;
-	  py.flags.resist_acid += randint(50)+50;
-	  inventory[i].timeout=400;
-        }
-        else {
-          msg_print("You breathe the Elements...");
-          if (get_dir(NULL, &dir)) {
-            if (py.flags.confused > 0) {
-              msg_print("You are confused.");
-              do {dir = randint(9);} while (dir == 5);
-            }
-            fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col, 300,
-                      "massive ball of the Elements");
-            inventory[i].timeout=300+randint(300);
-          }
+      case (421): /* Power Dragon Scale Mail */
+	msg_print("You breathe the Elements...");
+	if (get_dir(NULL, &dir)) {
+	  if (py.flags.confused > 0) {
+	    msg_print("You are confused.");
+	    do {dir = randint(9);} while (dir == 5);
+	  }
+	  fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col, 300,
+		    "massive ball of the Elements");
+	  inventory[i].timeout=300+randint(300);
 	}
         break;
       case (SPECIAL_OBJ+3):
 	msg_print("The phial wells with clear light...");
 	light_area(char_row, char_col);
+	(void) detection();
 	inventory[i].timeout=10+randint(10);
 	break;
       case (SPECIAL_OBJ+4):
 	msg_print("An aura of good floods the area...");
-	dispel_creature(EVIL, (int)(5*py.misc.lev));
+	dispel_creature(EVIL, (int)(5*get_level()));
 	inventory[i].timeout=444+randint(222);
 	break;
       case (SPECIAL_OBJ+5):
@@ -3081,6 +3152,7 @@ static void activate() {
 	msg_print("The star shines brightly...");
 	msg_print("And you sense your surroundings...");
 	map_area();
+	(void) detection();
 	inventory[i].timeout=50+randint(50);
         break;
       case (SPECIAL_OBJ+7):
@@ -3093,25 +3165,14 @@ static void activate() {
 	py.flags.fast += randint(100) + 50;
 	inventory[i].timeout=200;
 	break;
-      case (SPECIAL_OBJ+11):
-        msg_print("A white aura envelops the robe.");
-	(void) remove_fear();
-        py.flags.confused=0;
-	py.flags.blind=0;
-        py.flags.cut=0;
-	py.misc.cmana=py.misc.mana;
-	msg_print("You feel totally refreshed.");
-	inventory[i].timeout=500;
-        break;
-      default:
-	(void) sprintf(tmp2, "Inventory num %d, index %d", i,
-		       inventory[i].index);
-	msg_print(tmp2);
+      default: 
+	break;
       }
+      if (redraw)
+	restore_screen();
+      prt_map();
     }
   }
-  if (redraw && !flag)
-    restore_screen();
 }
 
 /* Examine a Book					-RAK-	*/
@@ -3123,13 +3184,19 @@ static void examine_book()
   int spell_index[63];
   register inven_type *i_ptr;
   register spell_type *s_ptr;
-  char tmp[100];
-  if (class[py.misc.pclass].spell != MONK)
+  if (py.misc.realm == MAGE || py.misc.realm == PRIEST)
     temp=find_range(TV_MAGIC_BOOK, TV_PRAYER_BOOK, &i, &k);
+  else if (py.misc.realm == DRUID)
+   temp=find_range(TV_NATURE_BOOK, TV_NEVER, &i, &k);
+  else if (py.misc.realm == NECROS)
+    temp=find_range(TV_DARK_BOOK, TV_NEVER, &i, &k);
   else
-   temp=find_range(TV_MONK_BOOK, TV_NEVER, &i, &k);
+    {
+      msg_print("You don't understand any magic languages yet.");
+      return;
+    }
   if (!temp)
-      msg_print("You are not carrying any books.");
+    msg_print("You are not carrying any books.");
   else if (py.flags.blind > 0)
     msg_print("You can't see to read your spell book!");
   else if (no_light())
@@ -3140,19 +3207,24 @@ static void examine_book()
     {
       flag = TRUE;
       i_ptr = &inventory[item_val];
-      if (class[py.misc.pclass].spell == MAGE)
+      if (py.misc.realm == MAGE)
 	{
 	  if (i_ptr->tval != TV_MAGIC_BOOK)
 	    flag = FALSE;
 	}
-      else if (class[py.misc.pclass].spell == PRIEST)
+      else if (py.misc.realm == PRIEST)
 	{
 	  if (i_ptr->tval != TV_PRAYER_BOOK)
 	    flag = FALSE;
 	}
-      else if (class[py.misc.pclass].spell == MONK)
+      else if (py.misc.realm == NECROS)
         {
-          if (i_ptr->tval != TV_MONK_BOOK)
+	  if (i_ptr->tval != TV_DARK_BOOK)
+	    flag = FALSE;
+	}
+      else if (py.misc.realm == DRUID)
+        {
+          if (i_ptr->tval != TV_NATURE_BOOK)
 	    flag = FALSE;
 	}
       else
@@ -3167,8 +3239,8 @@ static void examine_book()
 	  while (j1)
 	    {
 	      k = bit_pos(&j1);
-	      s_ptr = &magic_spell[py.misc.pclass-1][k];
-	      if (s_ptr->slevel < 99)
+	      s_ptr = &magic_spell[py.misc.realm][k];
+	      if (s_ptr->slevel < 255)
 		{
 		  spell_index[i] = k;
 		  i++;
@@ -3178,15 +3250,15 @@ static void examine_book()
 	  while (j2)
 	    {
 	      k = bit_pos(&j2);
-	      s_ptr = &magic_spell[py.misc.pclass-1][k+32];
-	      if (s_ptr->slevel < 99)
+	      s_ptr = &magic_spell[py.misc.realm][k+32];
+	      if (s_ptr->slevel < 255)
 		{
 		  spell_index[i] = (k+32);
 		  i++;
 		}
 	    }
 	  save_screen();
-	  print_spells(spell_index, i, TRUE, -1);
+	  print_spells(spell_index, i, TRUE, -1, i_ptr->tval);
 	  pause_line(0);
 	  restore_screen();
 	}
@@ -3203,10 +3275,10 @@ static void go_up()
   if (c_ptr->tptr != 0)
     if (t_list[c_ptr->tptr].tval == TV_UP_STAIR)
       {
-	if (dun_level == Q_PLANE) {
+	if (dun_level == -1) {
 	  dun_level=0;
-	  new_level_flag=TRUE;
-	  msg_print("You enter an inter-dimensional staircase.");
+	  new_level_flag=FALSE;
+	  msg_print("The staircase turns back on itself.");
 	} else {
 	  dun_level--;
 	  new_level_flag = TRUE;
@@ -3237,12 +3309,13 @@ static void go_down()
   if (c_ptr->tptr != 0)
     if (t_list[c_ptr->tptr].tval == TV_DOWN_STAIR)
       {
-	if (dun_level == Q_PLANE) {
+	if (dun_level == -1) {
 	  dun_level=0;
 	  new_level_flag=TRUE;
 	  msg_print("You enter an inter-dimensional staircase.");
 	} else {
-	  dun_level++;
+	  if (dun_level<127)
+	    dun_level++; /* So no overflow */
 	  new_level_flag = TRUE;
 	  create_up_stair = TRUE;
 	  msg_print("You enter a maze of down staircases.");
@@ -3262,7 +3335,8 @@ static void go_down()
 
 
 /* Jam a closed door					-RAK-	*/
-static void jamdoor()
+void jamdoor(tmp)
+int tmp; /* If 0, do 'normal' door jam.  Otherwise, do magical door jam */
 {
   int y, x, dir, i, j;
   register cave_type *c_ptr;
@@ -3274,7 +3348,24 @@ static void jamdoor()
   x = char_col;
   if (get_dir(NULL, &dir))
     {
-      (void) mmove(dir, &y, &x);
+      if (!tmp)
+	(void) mmove(dir, &y, &x);
+      else /* Search for nearest door, in 25-block range */
+	{
+	  i=25;
+	  while(i)
+	    {
+	      --i;
+	      (void) mmove(dir, &y, &x);
+	      c_ptr = &cave[y][x];
+	      if (c_ptr->tptr != 0)
+		{
+		  t_ptr = &t_list[c_ptr->tptr];
+		  if (t_ptr->tval == TV_CLOSED_DOOR)
+		    i=0;
+		}
+	    }
+	}
       c_ptr = &cave[y][x];
       if (c_ptr->tptr != 0)
 	{
@@ -3282,20 +3373,26 @@ static void jamdoor()
 	  if (t_ptr->tval == TV_CLOSED_DOOR)
 	    if (c_ptr->cptr == 0)
 	      {
-		if (find_range(TV_SPIKE, TV_NEVER, &i, &j))
-		  {
+		if (find_range(TV_SPIKE, TV_NEVER, &i, &j) || tmp)
+		  { /* No spikes needed for magical spiking */
 		    free_turn_flag = FALSE;
-		    count_msg_print("You jam the door with a spike.");
+		    if (!tmp)
+		      count_msg_print("You jam the door with a spike.");
+		    else
+		      count_msg_print("Magical spikes slam into the door.");
 		    if (t_ptr->p1 > 0)
 		      t_ptr->p1 = -t_ptr->p1;	/* Make locked to stuck. */
 		    /* Successive spikes have a progressively smaller effect.
 		       Series is: 0 20 30 37 43 48 52 56 60 64 67 70 ... */
 		    t_ptr->p1 -= 1 + 190 / (10 - t_ptr->p1);
-		    i_ptr = &inventory[i];
-		    if (i_ptr->number > 1)
-		      i_ptr->number--;
-		    else
-		      inven_destroy(i);
+		    if (!tmp)
+		      {
+			i_ptr = &inventory[i];
+			if (i_ptr->number > 1)
+			  i_ptr->number--;
+			else
+			  inven_destroy(i);
+		      }
 		  }
 		else
 		  msg_print("But you have no spikes.");

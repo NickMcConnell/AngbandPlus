@@ -11,10 +11,9 @@
 ^I - Identify.
 ^^ - (HOME) Identify all objects upto a certain level.
 ^O - Print random objects sample.
-^T - Teleport player.
+[  - Teleport player.
 ^W - Wizard password on/off.
-@  - Create any object *CAN CAUSE FATAL ERROR*
+@  - Create any object
 +  - Gain experience.
 &  - Summon monster.
-~  - Save 'found' artifact names to a file
 %  - Self-knowledge

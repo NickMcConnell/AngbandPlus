@@ -8,7 +8,9 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <curses.h>
 
+#include "monster.h"
 #include "constant.h"
 #include "config.h"
 #include "types.h"
@@ -36,6 +38,10 @@ static int see_nothing(int, int, int);
 static int see_wall();
 #endif
 
+extern int set_poison_destroy(inven_type *);
+
+int notarget;
+
 /* Changes speed of monsters relative to player		-RAK-	*/
 /* Note: When the player is sped up or slowed down, I simply	 */
 /*	 change the speed of all the monsters.	This greatly	 */
@@ -48,21 +54,9 @@ register int num;
   py.flags.speed += num;
   py.flags.status |= PY_SPEED;
   for (i = mfptr - 1; i >= MIN_MONIX; i--)
-      m_list[i].cspeed += num;
+   if (!(c_list[m_list[i].mptr].spells3 & S_SAMESPD))
+    m_list[i].cspeed += num;
 }
-
-/* Dodge value - returns total dodge value */
-int do_dodge(void)
-{
- int temp;
- temp=(class[py.misc.pclass].mdodge+race[py.misc.prace].bdodge+
-       py.misc.lev * class_level_adj[py.misc.pclass][CLA_DODGE]+
-       4*todis_adj());
- /* Disarm adjustment makes a Dexterity factor in here */
- return temp;
-}
-
-
 
 /* Player bonuses					-RAK-	*/
 /* When an item is worn or taken off, this re-adjusts the player */
@@ -115,37 +109,19 @@ void calc_bonuses()
 {
   register int32u item_flags;
   register int32u item_flags2;
-  int old_dis_ac;
+  int old_dis_ac, toac;
   register struct flags *p_ptr;
   register struct misc *m_ptr;
   register inven_type *i_ptr;
   register int i,plus_ac,tohit,todam,nowear;
   nowear=1;
-  for (i = INVEN_WIELD; i < INVEN_LIGHT; i++)
-  {
-   if (inventory[i].tval!=TV_NOTHING && inventory[i].tval!=TV_AMULET &&
-       inventory[i].tval!=TV_RING && inventory[i].tval!=TV_ROBE &&
-       inventory[i].tval!=TV_CLOAK && inventory[i].tval!=TV_BOOTS)
-      /* Wearing amulets+rings+robes+cloaks is OK */
-     nowear=0;
-  }
+  toac=toac_adj();
   p_ptr = &py.flags;
   m_ptr = &py.misc;
-  plus_ac=0; /* Modifiers for classes */
+  plus_ac=smod(S_DODGING); /* AC mod for the skill */
   tohit=0; /* Bonuses for classes */
   todam=0;
   min_hp=0;
-  if (py.flags.whichone<0)
-    min_hp=(py.misc.mhp/5); /* Can drop to 20% BELOW max HP */
-  if (py.misc.pclass==0) /* Warrior  +todam bonuses */
-    todam=py.misc.lev/8+2;
-  if (py.misc.pclass==3) /* Rogues get +tohit */
-    tohit=2+py.misc.lev/8;
-  if (py.misc.pclass==7) /* Dragons get NICE AC bonus */
-    {
-     plus_ac=5+py.misc.lev*11/4;
-     tohit=-2; /* But are REALLY clumsy */
-    }
   if (p_ptr->slow_digest)
        p_ptr->food_digested++;
   if (p_ptr->regenerate)
@@ -156,7 +132,7 @@ void calc_bonuses()
     p_ptr->see_inv   = FALSE;
   p_ptr->invisible = 0;
   p_ptr->teleport    = FALSE;
-  if (py.misc.prace == 4 || py.misc.pclass==7)
+  if (py.misc.prace == 4)
     p_ptr->free_act  = TRUE;
   else
     p_ptr->free_act  = FALSE;
@@ -166,7 +142,10 @@ void calc_bonuses()
     p_ptr->sustain_str = TRUE;
   else
     p_ptr->sustain_str = FALSE;
-  p_ptr->sustain_int = FALSE;
+  if (py.misc.prace == 10)
+    p_ptr->sustain_int = TRUE;
+  else
+    p_ptr->sustain_int = FALSE;
   p_ptr->sustain_wis = FALSE;
   if (py.misc.prace == 8)
     p_ptr->sustain_con = TRUE;
@@ -178,13 +157,13 @@ void calc_bonuses()
     p_ptr->sustain_dex = FALSE;
   p_ptr->sustain_chr = FALSE;
   p_ptr->fire_resist = FALSE;
-  if (py.misc.prace==7 && py.misc.pclass==7)
-   p_ptr->fire_resist=TRUE;
   p_ptr->acid_resist = FALSE;
   p_ptr->cold_resist = FALSE;
-  if (py.misc.prace==6 && py.misc.pclass==7)
-   p_ptr->cold_resist=TRUE;
+  if (py.misc.prace == 11)
+   {  p_ptr->fire_resist = TRUE; p_ptr->cold_resist = TRUE; }
   p_ptr->regenerate = FALSE;
+  if (py.misc.prace == 7)
+    p_ptr->regenerate = TRUE;
   p_ptr->lght_resist = FALSE;
   if (py.misc.prace == 9)
     p_ptr->ffall     = TRUE;
@@ -196,8 +175,6 @@ void calc_bonuses()
   p_ptr->fire_im     = FALSE;
   p_ptr->acid_im     = FALSE;
   p_ptr->poison_im   = FALSE;
-  if (py.misc.pclass==5)
-    p_ptr->poison_im = TRUE; /* Paladins immune to poison */
   p_ptr->cold_im     = FALSE;
   p_ptr->light_im    = FALSE;
   p_ptr->light       = FALSE;
@@ -205,58 +182,24 @@ void calc_bonuses()
   p_ptr->sound_resist= FALSE;
   p_ptr->light_resist= FALSE;
   p_ptr->dark_resist = FALSE;
+  if (py.misc.prace == 6)
+    p_ptr->dark_resist = TRUE;
   p_ptr->chaos_resist= FALSE;
+  if (py.misc.prace==10)
+    p_ptr->chaos_resist = TRUE;
   p_ptr->disenchant_resist= FALSE;
   p_ptr->shards_resist=FALSE;
   p_ptr->nexus_resist=FALSE;
-  if (py.misc.pclass==7)
-  {
-    if (py.misc.lev>4)
-     { p_ptr->disenchant_resist=TRUE; p_ptr->sound_resist=TRUE; }
-    if (py.misc.lev>9)
-      { p_ptr->acid_im=TRUE; p_ptr->fire_resist=TRUE;
-	p_ptr->cold_resist=TRUE; p_ptr->poison_resist=TRUE;
-      }
-    if (py.misc.lev>14)
-      { p_ptr->light_resist=TRUE; p_ptr->dark_resist=TRUE; }
-    if (py.misc.lev>19)
-      { p_ptr->hold_life=TRUE; p_ptr->confusion_resist=TRUE; }
-    if (py.misc.lev>24)
-      { p_ptr->shards_resist=TRUE; p_ptr->blindness_resist=TRUE; }
-    if (py.misc.lev>29)
-      { p_ptr->nexus_resist=TRUE; p_ptr->nether_resist=TRUE;
-        p_ptr->chaos_resist=TRUE; }
-  }
   if (py.misc.prace == 5)
     p_ptr->blindness_resist = TRUE;
   else
     p_ptr->blindness_resist=FALSE;
   p_ptr->nether_resist=FALSE;
-  /* Monks */
-  if (py.misc.pclass==6 && nowear)
-    {  /* ONLY get the bonus if no armor on */
-     if (py.misc.lev<20)
-      plus_ac=5+py.misc.lev*3/2;
-     else if (py.misc.lev<41)
-      plus_ac=40+(py.misc.lev-20)*4;
-     else
-      plus_ac=120+py.misc.lev;
-     if (py.misc.lev>=20)
-      p_ptr->nexus_resist=TRUE;
-     if (py.misc.lev>=10)
-      p_ptr->hold_life=TRUE; 
-     if (py.misc.lev>=30)
-      p_ptr->disenchant_resist = TRUE;
-     p_ptr->poison_resist=TRUE;
-     p_ptr->fire_resist=TRUE; /* They're VERY hardy souls */
-     p_ptr->cold_resist=TRUE;
-    }
+  p_ptr->soulsteal=FALSE; /* Take >2x normal damage with this! */
   old_dis_ac = m_ptr->dis_ac;
-  if (py.flags.dodge) /* Get lower tohit */
-    tohit-=3; /* Harder to hit critters while dodging */
   m_ptr->ptohit	 = tohit_adj()+tohit;	      /* Real To Hit   */
   m_ptr->ptodam	 = todam_adj()+todam;	      /* Real To Dam   */
-  m_ptr->ptoac	 = toac_adj()+plus_ac;	      /* Real To AC    */
+  m_ptr->ptoac	 = toac+plus_ac;	      /* Real To AC    */
   m_ptr->pac	 = race[py.misc.prace].base_ac; /* Real AC	     */
   m_ptr->dis_th	 = m_ptr->ptohit+tohit;  /* Display To Hit	    */
   m_ptr->dis_td	 = m_ptr->ptodam+todam;  /* Display To Dam	    */
@@ -279,16 +222,6 @@ void calc_bonuses()
 	  m_ptr->dis_td  += i_ptr->todam;	/* Bows can't damage. -CJS- */
 	m_ptr->dis_tac += i_ptr->toac;
       }
-    }
-  }
-
-  if (py.misc.pclass == 2) {
-    i_ptr = &inventory[INVEN_WIELD];
-    if (i_ptr->tval==TV_SWORD || i_ptr->tval==TV_POLEARM) {
-      m_ptr->ptohit /= 2;
-      m_ptr->ptodam /= 2;
-      m_ptr->dis_th /= 2;
-      m_ptr->dis_td /= 2;
     }
   }
 
@@ -372,8 +305,6 @@ void calc_bonuses()
     }
   if (TR_EXTRAHP & item_flags)
     min_hp = py.misc.mhp/4;
-  /* Was code here to get TR_INVISIBLE and TR_INVISIBLE2, but permanent
-     invisiblity is WAY too powerful */
   if (TR_SLOW_DIGEST & item_flags)
     p_ptr->slow_digest = TRUE;
   if (TR_AGGRAVATE & item_flags)
@@ -390,8 +321,12 @@ void calc_bonuses()
     p_ptr->cold_resist = TRUE;
   if (TR_POISON & item_flags)
     p_ptr->poison_resist = TRUE;
+  if (TR_IRONWILL & item_flags2)
+    p_ptr->invisible = TRUE; /* Functions as pseudo Iron-Will */
   if (TR_HOLD_LIFE & item_flags2)
     p_ptr->hold_life = TRUE;
+  if (TR_SOULSTEAL & item_flags2)
+    p_ptr->soulsteal = TRUE;
   if (TR_TELEPATHY & item_flags2)
     p_ptr->telepathy = TRUE;
   if (TR_IM_FIRE & item_flags2)
@@ -465,12 +400,8 @@ void calc_bonuses()
   if (p_ptr->regenerate)
        p_ptr->food_digested += 3;
 
-  if (class[py.misc.pclass].spell == MAGE)
-      calc_mana(A_INT);
-  else if (class[py.misc.pclass].spell == PRIEST)
-      calc_mana(A_WIS);
-  else if (class[py.misc.pclass].spell == MONK)
-      calc_mana(A_DEX);
+  if (py.misc.realm != NONE)
+    calc_mana(prime_stat[py.misc.realm]);
 }
 
 /* Displays inventory items from r1 to r2	-RAK-	*/
@@ -816,6 +747,7 @@ int new_scr;
     }
 }
 
+
 /* This does all the work. */
 void inven_command(command)
 char command;
@@ -1119,20 +1051,27 @@ char command;
 			case TV_SLING_AMMO: case TV_BOLT: case TV_ARROW:
 			case TV_BOW: case TV_HAFTED: case TV_POLEARM:
 			case TV_SWORD: case TV_DIGGING:
+			  if (inventory[item].tval==TV_SWORD)
+			    msg_print("This feels like a sword.");
+			  else if (inventory[item].tval==TV_HAFTED)
+			    msg_print("This feels like a mace.");
+			  else if (inventory[item].tval==TV_POLEARM)
+			    msg_print("This feels like a staff.");
+ 			   slot = INVEN_WIELD;
 			 if (inventory[INVEN_ARM].tval==TV_NOTHING &&
 			     inventory[INVEN_WIELD].tval!=TV_NOTHING)
-			   if (inventory[INVEN_WIELD].weight<80)
+			   if (inventory[INVEN_WIELD].weight<120)
 			     {
-			      slot = INVEN_ARM; /* Try to fight two-handed */
-			      msg_print("You are fighting two-handed.");
+			       if (get_check("Fight two-handed?"))
+				 {
+				   slot = INVEN_ARM;
+				   msg_print("You are fighting two-handed.");
+				 }
+			       else
+				 slot = INVEN_WIELD;
 			     }
 			   else
-			     {
-			      msg_print("Your weapon is too heavy for you to fight two-handed.");
-			      item = -1;
-			     }
-			 else
-			   slot = INVEN_WIELD;
+			     slot = INVEN_WIELD;
 			 break;
 			case TV_LIGHT: slot = INVEN_LIGHT; break;
 			case TV_BOOTS: slot = INVEN_FEET; break;
@@ -1208,17 +1147,10 @@ char command;
 			      item = -1;
 			    }
 			}
-		      if (py.misc.pclass==7 && slot!=INVEN_LIGHT && slot!=
-			  INVEN_NECK && slot!=INVEN_LEFT && slot!=INVEN_RIGHT)
-			msg_print("Dragons can't wear armor or weapons!");
-		      else if (py.misc.pclass==1 && slot==INVEN_WIELD &&
-			       inventory[item].tval!=TV_DIGGING)
-			msg_print("Wizards can't use any weapons.");
-		      else if (item >= 0)
+		      if (item >= 0)
 			{
 			  /* OK. Wear it. */
 			  free_turn_flag = FALSE;
-
 			  /* first remove new item from inventory */
 			  tmp_obj = inventory[item];
 			  i_ptr = &tmp_obj;
@@ -1601,13 +1533,18 @@ int *dir;
   char command;
   int save;
   static char prev_dir;		/* Direction memory. -CJS- */
-
+  static int oldx,oldy;
+  int dx,dy,deltax,deltay;
   if (default_dir)	/* used in counted commands. -CJS- */
     {
       *dir = prev_dir;
       return TRUE;
     }
-  if (prompt == NULL)
+  if (!notarget && targetx>-128)
+    return TRUE; /* Already targetted */
+  if (prompt == NULL && !notarget)
+    prompt = "Which direction? (* to Target)";
+  else if (prompt == NULL)
     prompt = "Which direction?";
   for (;;)
     {
@@ -1622,12 +1559,50 @@ int *dir;
 	  return FALSE;
 	}
       command_count = save;
+      if (command=='*' && !notarget)
+	{
+	  prt("Targeting (ESC to abort, Space to set).",0,0);
+	  if (targetx>-128)
+	    { deltay=targety; deltax=targetx; }
+	  else
+	    { deltay=0; deltax=0; }
+	  move(char_row-panel_row_min+deltay+1
+	       ,char_col-panel_col_min+deltax+13);
+	  command=0;
+	  while(command!=' ' && command!=27)
+	    {
+	      command=inkey();
+	      if (rogue_like_commands)
+		command = map_roguedir(command);
+	      dx=((command=='3')||(command=='6')||(command=='9'))-
+		((command=='1')||(command=='4')||(command=='7'));
+	      dy=((command=='1')||(command=='2')||(command=='3'))-
+		((command=='7')||(command=='8')||(command=='9'));
+	      if (char_row+dy<panel_row_min || char_row+dy>panel_row_max)
+		dy=0;
+	      if (char_col+dx<panel_col_min || char_col+dx>panel_col_max)
+		dx=0;
+	      deltax+=dx; deltay+=dy;
+	      move(char_row-panel_row_min+deltay+1
+		   ,char_col-panel_col_min+deltax+13);
+	    }
+	  if (command!=27)
+	    { targetx=deltax; targety=deltay;
+	      if (los(char_row,char_col,char_row+deltay,char_col+deltax))
+	      return TRUE;
+	    else
+	    return FALSE; /* No invisible places */
+	    }
+	  else
+	    return FALSE;
+	}
       if (rogue_like_commands)
 	command = map_roguedir(command);
       if (command >= '1' && command <= '9' && command != '5')
 	{
 	  prev_dir = command - '0';
 	  *dir = prev_dir;
+	  targetx=-128; targety=0; /* Force 'normal' targetting */
 	  return TRUE;
 	}
       bell();
@@ -1761,7 +1736,6 @@ int y,x;
 void light_room(y, x)
 int y, x;
 {
-  register cave_type *c_ptr;
   register int tmp;
   tmp=cave[y][x].tl;
   cave[y][x].tl=FALSE;
@@ -1789,7 +1763,6 @@ int y, x;
 void darken_room(y, x)
 int y, x;
 {
-  register cave_type *c_ptr;
   register int tmp;
   tmp=cave[y][x].tl;
   cave[y][x].tl=FALSE;
@@ -2022,11 +1995,11 @@ void rest_off()
 int test_hit(bth, level, pth, ac, attack_type)
 int bth, level, pth, ac, attack_type;
 {
-  register int i, die;
-
+  register int i, die, wskill;
+  wskill=sweapon();
   disturb (1, 0);
   i = bth + pth * BTH_PLUS_ADJ
-    + (level * class_level_adj[py.misc.pclass][attack_type]);
+    + py.skills.cur_skill[wskill];
   /* pth could be less than 0 if player wielding weapon too heavy for him */
   /* always miss 1 out of 20, always hit 1 out of 20 */
   die = randint (20);
@@ -2044,9 +2017,32 @@ void take_hit(damage, hit_from)
 int damage;
 char *hit_from;
 {
+  int d;
   if (py.flags.invuln>0 && damage<9000)  damage = 0;
+  if (py.flags.invisible) /* Now does pseudo Iron-Will */
+    {
+      damage=damage*2/3; /* Not nearly as strong, since it's permanent */
+      ++damage;
+    }
+  if (py.misc.timeout)
+    {
+      d=py.misc.timeout; /* Used to watch for overflow */
+      py.misc.timeout-=damage/3;
+      damage/=3;
+      ++damage; /* Resist damage */
+      if (damage>py.misc.chp)
+	{
+	  py.misc.timeout-=damage/2;
+	  damage=py.misc.chp;
+	}
+      if (d<py.misc.timeout || py.misc.timeout<10) /* Fini */
+	{
+	py.misc.timeout=0;
+	msg_print("You feel your will return to normal.");
+      }
+    }
   py.misc.chp -= damage;
-  if (py.misc.chp < min_hp) {
+  if (py.misc.chp < 0) {
     if (!death)	{
       death = TRUE;
       (void) strcpy(died_from, hit_from);
@@ -2093,6 +2089,8 @@ int y, x, chance;
   register struct flags *p_ptr;
   bigvtype tmp_str, tmp_str2;
 
+  if (chance<5)
+    chance=5;
   p_ptr = &py.flags;
   if (p_ptr->confused > 0)
     chance = chance / 10;
@@ -2667,9 +2665,16 @@ char *kb_str;
   if (py.flags.poison_resist) dam = (dam * 3) / 5;
   if (py.flags.poison_im) dam=1;
   take_hit(dam, kb_str);
+  if (py.misc.timeout>(dam/2))
+    {
+      dam=0; /* So we don't take poison damage */
+      py.misc.timeout-=dam/2;
+    }
   if (!(py.flags.poison_resist || py.flags.resist_poison
 	|| py.flags.poison_im))
     py.flags.poisoned += 12 + randint(dam);
+  if (inven_damage(set_poison_destroy, 7))
+    msg_print("Something reeks inside your pack!");
 }
 
 
@@ -2719,6 +2724,8 @@ char *kb_str;
   if (py.flags.light_im)
     dam = 1;
   take_hit(dam, kb_str);
+  if (inven_damage(set_lightning_destroy, 3))
+    msg_print("There are sparks coming from your pack!");
 }
 
 

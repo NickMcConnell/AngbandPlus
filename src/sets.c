@@ -75,6 +75,13 @@ int set_flammable(inven_type *e) /* changed -CFT */
 }
 
 
+int set_holy_destroy(inven_type *e)
+{
+ if (e->flags & TR_CURSED && !(e->flags2 & TR_ARTIFACT))
+   return(TRUE); /* Demolish all cursed items */
+ return(FALSE);
+}
+
 int set_frost_destroy(inven_type *e) /* changed -CFT */
 {
   int element = e->tval;
@@ -103,6 +110,13 @@ int set_acid_affect(inven_type *e) /* changed -CFT */
         return(TRUE);
     }
   return(FALSE);
+}
+
+int set_poison_destroy(inven_type *e)
+{
+ if (e->tval == TV_FOOD)
+   return(TRUE); /* Makes food worthless and destroys it */
+ return(FALSE);
 }
 
 int set_lightning_destroy(inven_type *e) /* changed -CFT */
@@ -182,19 +196,20 @@ int element;
     {
     case TV_DIGGING: case TV_BOOTS: case TV_CLOAK: case TV_FOOD:
     case TV_FLASK: case TV_LIGHT: case TV_SPIKE: case TV_ROBE:
+    case TV_COMPONENT:
       return(TRUE);
     }
   return(FALSE);
 }
 
 
-int dojo(element)
+int bookstore(element)
 int element;
 {
  switch(element)
    {
-   case TV_BOOTS: case TV_CLOAK: case TV_FOOD: case TV_ROBE:
-   case TV_LIGHT: case TV_FLASK: case TV_MONK_BOOK:
+   case TV_NATURE_BOOK: case TV_DARK_BOOK: case TV_MAGIC_BOOK:
+   case TV_PRAYER_BOOK: 
      return(TRUE);
    }
  return(FALSE);

@@ -147,6 +147,10 @@ void quaff()
 	      break;
 	    case 15:
 	      ident = hp_player(damroll(8, 7));
+	      if (py.flags.flags[F_DISEASE]) {
+		msg_print("You purge the illness from your body.");
+		py.flags.flags[F_DISEASE]=0;
+		}
 	      if (py.flags.cut>0) {
 		py.flags.cut=0;
 		ident = TRUE;
@@ -167,6 +171,10 @@ void quaff()
 	      break;
 	    case 16:
 	      ident = hp_player(400);
+	      if (py.flags.flags[F_DISEASE]) {
+		msg_print("You purge the illness from your body.");
+		py.flags.flags[F_DISEASE]=0;
+		}
 	      if (py.flags.stun>0) {
 		if (py.flags.stun>50) {
 		  py.misc.ptohit+=20;
@@ -196,7 +204,7 @@ void quaff()
 	      m_ptr = &py.misc;
 	      if (m_ptr->exp < MAX_EXP)
 		{
-		  l = (m_ptr->exp / 2) + 10;
+		  l = (get_level()*get_level())*250;
 		  if (l > 100000L)  l = 100000L;
 		  m_ptr->exp += l;
 		  msg_print("You feel more experienced.");
@@ -369,6 +377,11 @@ void quaff()
 	      break;
 	    case 47:
 	      f_ptr = &py.flags;
+	      if (randint(3)==1 && f_ptr->see_infra<10)
+		{
+		  msg_print("Your eyes feel more senesitive.");
+		  f_ptr->see_infra+=2;
+		}
 	      if (f_ptr->tim_infra == 0)
 		{
 		  msg_print("Your eyes begin to tingle.");
@@ -392,11 +405,16 @@ void quaff()
 	      ident=TRUE;
 	      break;
 	    case 50:
-	      msg_print("A feeling of Death flows through your body.");
-	      take_hit(5000,"a potion of Death");
+	      msg_print("A feeling of Everlasting Life flows through your body!");
+	      take_hit(5000,"a potion of Immortality");
 	      ident=TRUE;
 	      break;
 	    case 51:
+	      if (py.flags.flags[F_DISEASE]) {
+		msg_print("You purge the illness from your body.");
+		py.flags.flags[F_DISEASE]=0;
+		ident = TRUE;
+		}
 	      if (restore_level() | res_stat(A_STR) | res_stat(A_CON) |
 		  res_stat(A_DEX) | res_stat(A_WIS) | res_stat(A_INT) |
 		  res_stat(A_CHR) | hp_player(5000) | cure_poison() |
@@ -447,6 +465,11 @@ void quaff()
 	      break; 
 	    case 56: /*  *Healing*  */
               ident = hp_player(1200);
+	      if (py.flags.flags[F_DISEASE]) {
+		msg_print("You purge the illness from your body.");
+		py.flags.flags[F_DISEASE]=0;
+		ident = TRUE;
+		}
               if (py.flags.stun>0) {
                 if (py.flags.stun>50) {
                   py.misc.ptohit+=20;
@@ -485,7 +508,7 @@ void quaff()
 	    {
 	      m_ptr = &py.misc;
 	      /* round half-way case up */
-	      m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) / m_ptr->lev;
+	      m_ptr->exp += (i_ptr->level + (get_level() >> 1)) / get_level();
 	      prt_experience();
 
 	      identify(&item_val);

@@ -55,9 +55,9 @@ void exit();
 init_scorefile()
 {
 #ifdef SET_UID
-  if (1 > (highscore_fd = open(ANGBAND_TOP, O_RDWR | O_CREAT, 0644)))
+  if (1 > (highscore_fd = my_topen(ANGBAND_TOP, O_RDWR | O_CREAT, 0644)))
 #else
-  if (1 > (highscore_fd = open(ANGBAND_TOP, O_RDWR | O_CREAT, 0666)))
+  if (1 > (highscore_fd = my_topen(ANGBAND_TOP, O_RDWR | O_CREAT, 0666)))
 #endif
     {
       (void) fprintf (stderr, "Can't open score file \"%s\"\n", ANGBAND_TOP);
@@ -77,7 +77,7 @@ void read_times()
 #ifdef ANGBAND_HOU
   /* Attempt to read hours.dat.	 If it does not exist,	   */
   /* inform the user so he can tell the wizard about it	 */
-  if ((file1 = fopen(ANGBAND_HOU, "r")) != NULL)
+  if ((file1 = (FILE *)my_tfopen(ANGBAND_HOU, "r")) != NULL)
     {
       while (fgets(in_line, 80, file1) != NULL)
 	if (strlen(in_line) > 3)
@@ -109,7 +109,7 @@ void read_times()
   /* Check the hours, if closed	then exit. */
   if (!check_time())
     {
-      if ((file1 = fopen(ANGBAND_HOU, "r")) != NULL)
+      if ((file1 = (FILE *)my_tfopen(ANGBAND_HOU, "r")) != NULL)
 	{
 	  clear_screen();
 	  for (i = 0; fgets(in_line, 80, file1) != NULL; i++)
@@ -121,7 +121,7 @@ void read_times()
     }
 
   /* Print the introduction message, news, etc.		 */
-  if ((file1 = fopen(ANGBAND_MOR, "r")) != NULL)
+  if ((file1 = (FILE *)my_tfopen(ANGBAND_MOR, "r")) != NULL)
     {
       clear_screen();
       for (i = 0; fgets(in_line, 80, file1) != NULL; i++)
@@ -142,7 +142,7 @@ char *filename;
   char input;
   int i;
 
-  file = fopen(filename, "r");
+  file = (FILE *)my_tfopen(filename, "r");
   if (file == NULL)
     {
       (void) sprintf (tmp_str, "Can not find help file \"%s\".\n", filename);
@@ -198,7 +198,7 @@ void print_objects()
 	{
 	  if (strlen(filename1) == 0)
 	    return;
-	  if ((file1 = fopen(filename1, "w")) != NULL)
+	  if ((file1 = (FILE *)my_tfopen(filename1, "w")) != NULL)
 	    {
 	      (void) sprintf(tmp_str, "%d", nobj);
 	      prt(strcat(tmp_str, " random objects being produced..."), 0, 0);
@@ -328,8 +328,7 @@ void print_objects()
 int file_character(filename1)
 char *filename1;
 {
-  register int i;
-  int j, xbth, xbthb, xfos, xsrh, xstl, xdis, xsave, xdev, xmag, xbth2, xdodge;
+  register int i, j;
   vtype xinfra;
   int fd;
   register FILE *file1;
@@ -344,14 +343,14 @@ char *filename1;
     {
       (void) sprintf(out_val, "Replace existing file %s?", filename1);
       if (get_check(out_val))
-	fd = open(filename1, O_WRONLY, 0644);
+	fd = my_topen(filename1, O_WRONLY, 0644);
     }
   if (fd >= 0)
     {
-      /* on some non-unix machines, fdopen() is not reliable, hence must call
-	 close() and then fopen() */
+      /* on some non-unix machines, fdmy_topen() is not reliable, hence must call
+	 close() and then my_tfopen() */
       (void) close(fd);
-      file1 = fopen(filename1, "w");
+      file1 = (FILE *)my_tfopen(filename1, "w");
     }
   else
     file1 = NULL;
@@ -376,9 +375,7 @@ char *filename1;
       (void) fprintf(file1, " Weight%8s %6d", colon, (int)py.misc.wt);
       cnv_stat(py.stats.use_stat[A_WIS], prt1);
       (void) fprintf(file1, "   WIS : %s\n", prt1);
-      (void) fprintf(file1, " Class%8s %-23s", colon,
-		     class[py.misc.pclass].title);
-      (void) fprintf(file1, " Social Class : %6d", py.misc.sc);
+      (void) fprintf(file1, "%39sSocial Class : %6d", blank,py.misc.sc);
       cnv_stat(py.stats.use_stat[A_DEX], prt1);
       (void) fprintf(file1, "   DEX : %s\n", prt1);
       (void) fprintf(file1, " Title%8s %-23s", colon, title_string());
@@ -400,47 +397,12 @@ char *filename1;
       (void) fprintf(file1, "%8sGold%8s %6ld", blank, colon, py.misc.au);
       (void) fprintf(file1, "    Max Mana%8s %6d\n", colon, py.misc.mana);
       (void) fprintf(file1, "   Total AC  : %6d", py.misc.dis_ac);
-      (void) fprintf(file1, "%27s", blank);
+      (void) fprintf(file1, "%8sInfra      : %3d ft", blank,
+		     py.flags.see_infra*10);
       (void) fprintf(file1, "    Cur Mana%8s %6d\n\n", colon, py.misc.cmana);
 
-      p_ptr = &py.misc;
-      xbth = p_ptr->bth + p_ptr->ptohit * BTH_PLUS_ADJ
-	+ (class_level_adj[p_ptr->pclass][CLA_BTH] * p_ptr->lev);
-      xbth2 = p_ptr->bth2 + p_ptr->ptohit * BTH_PLUS_ADJ
-	+ (class_level_adj[p_ptr->pclass][CLA_BTH2] * p_ptr->lev);
-      xbthb = p_ptr->bthb + p_ptr->ptohit * BTH_PLUS_ADJ
-	+ (class_level_adj[p_ptr->pclass][CLA_BTHB] * p_ptr->lev);
-      /* this results in a range from 0 to 29 */
-      xdodge=do_dodge();
-      xmag=(class[py.misc.pclass].magicity+race[py.misc.prace].base_mag)/200;
-      xfos = 40 - p_ptr->fos;
-      if (xfos < 0)
-	xfos = 0;
-      xsrh = p_ptr->srh;
-      /* this results in a range from 0 to 9 */
-      xstl = p_ptr->stl + 1;
-      xdis = p_ptr->disarm + 2 * todis_adj() + stat_adj(A_INT)
-	+ (class_level_adj[p_ptr->pclass][CLA_DISARM] * p_ptr->lev / 3);
-      xsave = p_ptr->save + stat_adj(A_WIS)
-	+ (class_level_adj[p_ptr->pclass][CLA_SAVE] * p_ptr->lev / 3);
-      xdev = p_ptr->save + stat_adj(A_INT)
-	+ (class_level_adj[p_ptr->pclass][CLA_DEVICE] * p_ptr->lev / 3);
+      prt_skills("*** Current Skills ***",file1);
 
-      (void) sprintf(xinfra, "%d feet", py.flags.see_infra * 10);
-
-      (void) fprintf(file1, "(Miscellaneous Abilities)\n\n");
-      (void) fprintf(file1, " Fighting    : %-10s", likert(xbth, 12));
-      (void) fprintf(file1, "   Stealth     : %-10s", likert(xstl, 1));
-      (void) fprintf(file1, "   Perception  : %s\n", likert(xfos, 3));
-      (void) fprintf(file1, " Bows/Throw  : %-10s", likert(xbthb, 12));
-      (void) fprintf(file1, "   Disarming   : %-10s", likert(xdis, 8));
-      (void) fprintf(file1, "   Searching   : %s\n", likert(xsrh, 6));
-      (void) fprintf(file1, " Saving Throw: %-10s", likert(xsave, 6));
-      (void) fprintf(file1, "   Magic Device: %-10s", likert(xdev, 6));
-      (void) fprintf(file1, " Two-Handed    : %-10s", likert(xbth2,12));
-      (void) fprintf(file1, "   Magicity    : %-10s", likert(xmag, 21));
-      (void) fprintf(file1, "   Dodging     : %-10s", likert(xdodge,14));
-      (void) fprintf(file1, "   Infra-Vision: %s\n\n", xinfra);
       /* Write out the character's history     */
       (void) fprintf(file1, "Character Background\n");
       for (i = 0; i < 4; i++)

@@ -38,8 +38,8 @@ void use()
       i_ptr = &inventory[item_val];
       free_turn_flag = FALSE;
       m_ptr = &py.misc;
-      chance = m_ptr->save + stat_adj(A_INT) - (int)i_ptr->level - 5
-	+ (class_level_adj[m_ptr->pclass][CLA_DEVICE] * m_ptr->lev / 3);
+      chance = smod(S_SAVE) + stat_adj(A_INT) - (int)i_ptr->level - 5
+	+ (smod(S_DEVICE));
       if (py.flags.confused > 0)
 	chance = chance / 2;
       if (chance <= 0)	chance = 1;
@@ -84,11 +84,11 @@ void use()
 	    ident = TRUE;
 	    break;
 	  case ST_HOLYNESS:
-	    dispel_creature(EVIL,120);
+	    dispel_creature(EVIL,200);
 	    protect_evil();
 	    cure_poison();
 	    remove_fear();
-	    hp_player(50);
+	    hp_player(100);
 	    if (py.flags.stun>0) {
 	      if (py.flags.stun>50) {
 		py.misc.ptohit+=20;
@@ -122,7 +122,7 @@ void use()
 	    }
 	    break;
 	  case ST_POWER:
-	    dispel_creature(0xFFFFFFFFL,120);
+	    dispel_creature(0xFFFFFFFFL,150);
             break;
 	  case ST_SURROUND:
 	    map_area();
@@ -169,7 +169,7 @@ void use()
 	    starlite(char_row, char_col);
 	    break;
 	  case ST_HAST_MN:
-	    ident = speed_monsters(1);
+	    ident = speed_monsters(2);
 	    break;
 	  case ST_SLOW_MN:
 	    ident = speed_monsters(-1);
@@ -191,8 +191,14 @@ void use()
 	      py.flags.fast += randint(5);
 	    break;
           case ST_SLOW:
-	    if (py.flags.slow == 0) ident = TRUE;
-	    py.flags.slow += randint(30) + 15;
+	    msg_print("A black spirit engulfs you! You feel deathly ill!");
+	    py.flags.cut+=damroll(20,10)+20;
+	    py.flags.slow+=damroll(20,10)+20;
+	    py.flags.stun+=damroll(20,10)+20;
+	    py.misc.cmana=0;
+	    msg_print("You hear monsters screaming balefully!");
+	    aggravate_monster(200); /* Get 'em ALL awake! */
+	    speed_monsters(3);
 	    break;
 	  case ST_REMOVE:
 	    if (remove_curse())
@@ -203,7 +209,7 @@ void use()
 	    }
 	    break;
 	  case ST_DET_EVI:
-	    ident = detect_evil();
+	    ident = detect_general(0,EVIL,"evil");
             break;
 	  case ST_CURING:
 	    if ((cure_blindness()) || (cure_poison()) ||
@@ -225,7 +231,7 @@ void use()
 	    }
 	    break;
 	  case ST_DSP_EVI:
-	    ident = dispel_creature(EVIL, 60);
+	    ident = dispel_creature(EVIL, 90);
             break;
 	  case ST_DARK:
 	    ident = unlight_area(char_row, char_col);
@@ -240,8 +246,8 @@ void use()
 		{
 		  m_ptr = &py.misc;
 		  /* round half-way case up */
-		  m_ptr->exp += (i_ptr->level + (m_ptr->lev >> 1)) /
-		    m_ptr->lev;
+		  m_ptr->exp += (i_ptr->level + (get_level() >> 1)) /
+		    get_level();
 		  prt_experience();
 
 		  identify(&item_val);

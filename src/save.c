@@ -295,13 +295,16 @@ static int sv_write()
   wr_short(m_ptr->age);
   wr_short(m_ptr->ht);
   wr_short(m_ptr->wt);
-  wr_short(m_ptr->lev);
   wr_short(m_ptr->max_dlv);
-  wr_short((int16u)m_ptr->srh);
-  wr_short((int16u)m_ptr->fos);
-  wr_short((int16u)m_ptr->bth);
-  wr_short((int16u)m_ptr->bth2);
-  wr_short((int16u)m_ptr->bthb);
+  /* Put the skills out */
+  for(i=0;i<S_NUM;i++)
+    {
+      wr_byte((int8u)py.skills.min_skill[i]);
+      wr_byte((int8u)py.skills.max_skill[i]);
+      wr_byte((int8u)py.skills.cur_skill[i]);
+      wr_byte((int8u)py.skills.adv_skill[i]);
+    }
+  wr_byte((int8u)m_ptr->realm);
   wr_short((int16u)m_ptr->mana);
   wr_short((int16u)m_ptr->mhp);
   wr_short((int16u)m_ptr->ptohit);
@@ -312,14 +315,8 @@ static int sv_write()
   wr_short((int16u)m_ptr->dis_td);
   wr_short((int16u)m_ptr->dis_ac);
   wr_short((int16u)m_ptr->dis_tac);
-  wr_short((int16u)m_ptr->disarm);
-  wr_short((int16u)m_ptr->save);
-  wr_short((int16u)m_ptr->sc);
-  wr_short((int16u)m_ptr->stl);
-  wr_byte(m_ptr->pclass);
   wr_byte(m_ptr->prace);
   wr_byte(m_ptr->hitdie);
-  wr_byte(m_ptr->expfact);
   wr_short((int16u)m_ptr->cmana);
   wr_short(m_ptr->cmana_frac);
   wr_short((int16u)m_ptr->chp);
@@ -336,6 +333,9 @@ static int sv_write()
   f_ptr = &py.flags;
   wr_long(f_ptr->status);
   wr_byte(f_ptr->dodge);
+  for(i=0;i<8;i++)
+    wr_short((int16u)f_ptr->flags[i]);
+  wr_short((int16u)f_ptr->soulsteal);
   wr_short((int16u)f_ptr->rest);
   wr_short((int16u)f_ptr->blind);
   wr_short((int16u)f_ptr->paralysis);
@@ -578,8 +578,7 @@ static int sv_write()
 
 int save_char()
 {
-  int i;
-  int fd;
+
   vtype temp;
   char *tmp2;
 
@@ -624,9 +623,9 @@ char *fnam;
   fd = -1;
   fileptr = NULL;		/* Do not assume it has been init'ed */
 #ifdef SET_UID
-  fd = open(fnam, O_RDWR|O_CREAT|O_EXCL, 0600);
+  fd = my_topen(fnam, O_RDWR|O_CREAT|O_EXCL, 0600);
 #else
-  fd = open(fnam, O_RDWR|O_CREAT|O_EXCL, 0666);
+  fd = my_topen(fnam, O_RDWR|O_CREAT|O_EXCL, 0666);
 #endif
   if (fd < 0 && access(fnam, 0) >= 0 &&
       (from_savefile ||
@@ -634,10 +633,10 @@ char *fnam;
     {
 #ifdef SET_UID
       (void) chmod(fnam, 0600);
-      fd = open(fnam, O_RDWR|O_TRUNC, 0600);
+      fd = my_topen(fnam, O_RDWR|O_TRUNC, 0600);
 #else
       (void) chmod(fnam, 0666);
-      fd = open(fnam, O_RDWR|O_TRUNC, 0666);
+      fd = my_topen(fnam, O_RDWR|O_TRUNC, 0666);
 #endif
   }
   if (fd >= 0)
@@ -646,9 +645,9 @@ char *fnam;
 #endif /* ATARIST_MWC */
       /* GCC for atari st defines atarist */
 #if defined(atarist) || defined(ATARIST_MWC)
-      fileptr = fopen(savefile, "wb");
+      fileptr = (FILE *)my_tfopen(savefile, "wb");
 #else
-      fileptr = fopen(savefile, "w");
+      fileptr = (FILE *)my_tfopen(savefile, "w");
 #endif
 #ifndef ATARIST_MWC
     }
@@ -680,9 +679,9 @@ char *fnam;
 	(void) unlink(fnam);
       signals();
       if (fd >= 0)
-	(void) sprintf(temp, "Error writing to savefile", fnam);
+	(void) sprintf(temp, "Error writing to savefile");
       else
-	(void) sprintf(temp, "Can't create new savefile", fnam);
+	(void) sprintf(temp, "Can't create new savefile");
       msg_print(temp);
       return FALSE;
     }
@@ -730,7 +729,7 @@ int *generate;
 
   clear_screen();
 
-  (void) sprintf(temp, "Restoring Character.", savefile);
+  (void) sprintf(temp, "Restoring Character.");
   put_buffer(temp, 23, 0);
   sleep(1);
 
@@ -740,12 +739,12 @@ int *generate;
   /* Allow restoring a file belonging to someone else - if we can delete it. */
   /* Hence first try to read without doing a chmod. */
 
-  else if ((fd = open(savefile, O_RDONLY)) < 0)
+  else if ((fd = my_topen(savefile, O_RDONLY)) < 0)
     msg_print("Can't open file for reading.");
   else
     {
 #ifndef SET_UID
-      struct stat statbuf;
+      struct stats statbuf;
 #endif
       turn = -1;
       log_index = -1;
@@ -756,7 +755,7 @@ int *generate;
 #endif
       (void) close(fd);
       /* GCC for atari st defines atarist */
-      fileptr = fopen(savefile, "r");
+      fileptr = (FILE *)my_tfopen(savefile, "r");
       if (fileptr == NULL)
 	goto error;
 
@@ -771,6 +770,7 @@ int *generate;
       rd_byte(&patch_level);
       xor_byte = 0;
       rd_byte(&xor_byte);
+      targetx=-128; /* No target when we come in */
 
       /* COMPAT support savefiles from 5.0.14 to 5.0.17 */
       /* support savefiles from 5.1.0 to present */
@@ -990,13 +990,15 @@ int *generate;
 	  rd_short(&m_ptr->age);
 	  rd_short(&m_ptr->ht);
 	  rd_short(&m_ptr->wt);
-	  rd_short(&m_ptr->lev);
 	  rd_short(&m_ptr->max_dlv);
-	  rd_short((int16u *)&m_ptr->srh);
-	  rd_short((int16u *)&m_ptr->fos);
-	  rd_short((int16u *)&m_ptr->bth);
-	  rd_short((int16u *)&m_ptr->bth2);
-	  rd_short((int16u *)&m_ptr->bthb);
+	  for(i=0;i<S_NUM;i++)
+	    {
+	      rd_byte((int8u *)&py.skills.min_skill[i]);
+	      rd_byte((int8u *)&py.skills.max_skill[i]);
+	      rd_byte((int8u *)&py.skills.cur_skill[i]);
+	      rd_byte((int8u *)&py.skills.adv_skill[i]);
+	    }
+	  rd_byte((int8u *)&m_ptr->realm);
 	  rd_short((int16u *)&m_ptr->mana);
 	  rd_short((int16u *)&m_ptr->mhp);
 	  rd_short((int16u *)&m_ptr->ptohit);
@@ -1007,14 +1009,8 @@ int *generate;
 	  rd_short((int16u *)&m_ptr->dis_td);
 	  rd_short((int16u *)&m_ptr->dis_ac);
 	  rd_short((int16u *)&m_ptr->dis_tac);
-	  rd_short((int16u *)&m_ptr->disarm);
-	  rd_short((int16u *)&m_ptr->save);
-	  rd_short((int16u *)&m_ptr->sc);
-	  rd_short((int16u *)&m_ptr->stl);
-	  rd_byte(&m_ptr->pclass);
 	  rd_byte(&m_ptr->prace);
 	  rd_byte(&m_ptr->hitdie);
-	  rd_byte(&m_ptr->expfact);
 	  rd_short((int16u *)&m_ptr->cmana);
 	  rd_short(&m_ptr->cmana_frac);
 	  rd_short((int16u *)&m_ptr->chp);
@@ -1031,6 +1027,9 @@ int *generate;
 	  f_ptr = &py.flags;
 	  rd_long(&f_ptr->status);
 	  rd_byte(&f_ptr->dodge);
+	  for(i=0;i<8;i++)
+	    rd_short((int16u *)&f_ptr->flags[i]);
+	  rd_short((int16u *)&f_ptr->soulsteal);
 	  rd_short((int16u *)&f_ptr->rest);
 	  rd_short((int16u *)&f_ptr->blind);
 	  rd_short((int16u *)&f_ptr->paralysis);
@@ -1197,6 +1196,9 @@ int *generate;
 	      if (py.flags.food < 100)
 		py.flags.food = 10000;
 	      /* don't let him die of poison again immediately */
+	      py.flags.status &= ~(PY_WEAK|PY_HUNGRY);
+	      if (py.flags.cut) /* Ditto for Mortal Wounds */
+		py.flags.cut=0;
 	      if (py.flags.poisoned > 1)
 		py.flags.poisoned = 1;
 	      dun_level = 0; /* Resurrect on the town level. */
@@ -1576,6 +1578,7 @@ register monster_type *mon;
   wr_byte(mon->ml);
   wr_byte(mon->stunned);
   wr_byte(mon->confused);
+  wr_byte(mon->afraid);
 }
 
 static void rd_byte(ptr)
@@ -1708,4 +1711,5 @@ register monster_type *mon;
   rd_byte(&mon->ml);
   rd_byte(&mon->stunned);
   rd_byte(&mon->confused);
+  rd_byte(&mon->afraid);
 }

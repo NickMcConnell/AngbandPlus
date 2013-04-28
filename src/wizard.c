@@ -20,6 +20,8 @@
 #include <strings.h>
 #endif
 
+extern void pause_if_screen_full(int *, int);
+
 long atol();
 
 int is_wizard(uid)
@@ -29,7 +31,7 @@ int is_wizard(uid)
   char buf[100];
   int test;
 
-  if ((fp=fopen(ANGBAND_WIZ, "r"))==NULL) {
+  if ((fp=(FILE *)my_tfopen(ANGBAND_WIZ, "r"))==NULL) {
     fprintf(stderr, "Can't get wizard check...");
     exit_game();
   }
@@ -49,139 +51,224 @@ int is_wizard(uid)
 /* Check to see which artifacts have been seen		*/
 void artifact_check()
 {
-  FILE *file1;
-  vtype filename;
-  {
-    prt("Checking for artifacts that have been seen... ", 0, 0);
-    prt("File name: ", 0, 0);
-    if (get_string(filename, 0, 11, 64))
-      {
-	if (strlen(filename) == 0)
-	  return;
-	if ((file1 = fopen(filename, "w")) != NULL)
-	  {
-	    (void) fprintf(file1, "Artifacts that have been seen\n");
-	    (void) fprintf(file1, "\n");
-	    if (GROND) fprintf(file1, "Grond\n");
-	    if (RINGIL) fprintf(file1, "Ringil\n");
-	    if (AEGLOS) fprintf(file1, "Aeglos\n");
-	    if (ARUNRUTH) fprintf(file1, "Arunruth\n");
-	    if (MORMEGIL) fprintf(file1, "Mormegil\n");
-	    if (ANGRIST) fprintf(file1, "Angrist\n");
-	    if (GURTHANG) fprintf(file1, "Gurthang\n");
-	    if (CALRIS) fprintf(file1, "Calris\n");
-	    if (ANDURIL) fprintf(file1, "Anduril\n");
-	    if (STING) fprintf(file1, "Sting\n");
-	    if (ORCRIST) fprintf(file1, "Orcrist\n");
-	    if (GLAMDRING) fprintf(file1, "Glamdring\n");
-	    if (DURIN) fprintf(file1, "Durin\n");
-	    if (AULE) fprintf(file1, "Aule\n");
-	    if (THUNDERFIST) fprintf(file1, "Thunderfist\n");
-	    if (BLOODSPIKE) fprintf(file1, "Bloodspike\n");
-	    if (DOOMCALLER) fprintf(file1, "Doomcaller\n");
-	    if (NARTHANC) fprintf(file1, "Narthanc\n");
-	    if (NIMTHANC) fprintf(file1, "Nimthanc\n");
-	    if (DETHANC) fprintf(file1, "Dethanc\n");
-	    if (GILETTAR) fprintf(file1, "Gilettar\n");
-	    if (RILIA) fprintf(file1, "Rilia\n");
-	    if (BELANGIL) fprintf(file1, "Belangil\n");
-	    if (BALLI) fprintf(file1, "Balli Stonehand\n");
-	    if (LOTHARANG) fprintf(file1, "Lotharang\n");
-	    if (FIRESTAR) fprintf(file1, "Firestar\n");
-	    if (ERIRIL) fprintf(file1, "Eriril\n");
-	    if (CUBRAGOL) fprintf(file1, "Cubragol\n");
-	    if (BARD) fprintf(file1, "Longbow of Bard\n");
-	    if (COLLUIN) fprintf(file1, "Colluin\n");
-	    if (HOLCOLLETH) fprintf(file1, "Holcolleth\n");
-	    if (TOTILA) fprintf(file1, "Totila\n");
-	    if (PAIN) fprintf(file1, "Glaive of Pain\n");
-	    if (ELVAGIL) fprintf(file1, "Elvagil\n");
-	    if (AGLARANG) fprintf(file1, "Aglarang\n");
-	    if (EORLINGAS) fprintf(file1, "Eorlingas\n");
-	    if (BARUKKHELED) fprintf(file1, "Barukkheled\n");
-	    if (WRATH) fprintf(file1, "Trident of Wrath\n");
-	    if (HARADEKKET) fprintf(file1, "Haradekket\n");
-	    if (MUNDWINE) fprintf(file1, "Mundwine\n");
-	    if (GONDRICAM) fprintf(file1, "Gondricam\n");
-	    if (ZARCUTHRA) fprintf(file1, "Zarcuthra\n");
-	    if (CARETH) fprintf(file1, "Careth Asdriag\n");
-	    if (FORASGIL) fprintf(file1, "Forasgil\n");
-	    if (CRISDURIAN) fprintf(file1, "Crisdurian\n");
-	    if (COLANNON) fprintf(file1, "Colannon\n");
-	    if (HITHLOMIR) fprintf(file1, "Hithlomir\n");
-	    if (THALKETTOTH) fprintf(file1, "Thalkettoth\n");
-	    if (ARVEDUI) fprintf(file1, "Arvedui\n");
-	    if (THRANDUIL) fprintf(file1, "Thranduil\n");
-	    if (THENGEL) fprintf(file1, "Thengel\n");
-	    if (HAMMERHAND) fprintf(file1, "Hammerhand\n");
-       	    if (CELEFARN) fprintf(file1, "Celefarn\n");
-	    if (THROR) fprintf(file1, "Thror\n");
-	    if (MAEDHROS) fprintf(file1, "Maedhros\n");
-	    if (OLORIN) fprintf(file1, "Olorin\n");
-	    if (ANGUIREL) fprintf(file1, "Anguirel\n");
-	    if (OROME) fprintf(file1, "Orome\n");
-	    if (EONWE) fprintf(file1, "Eonwe\n");
-	    if (THEODEN) fprintf(file1, "Theoden\n");
-	    if (ULMO) fprintf(file1, "Trident of Ulmo\n");
-	    if (OSONDIR) fprintf(file1, "Osondir\n");
-	    if (TURMIL) fprintf(file1, "Turmil\n");
-	    if (TIL) fprintf(file1, "Til-i-arc\n");
-	    if (DEATHWREAKER) fprintf(file1, "Deathwreaker\n");
-	    if (AVAVIR) fprintf(file1, "Avavir\n");
-	    if (TARATOL) fprintf(file1, "Taratol\n");
-	    if (DOR_LOMIN) fprintf(file1, "Dor-Lomin\n");
-	    if (BELEGENNON) fprintf(file1, "Belegennon\n");
-	    if (FEANOR) fprintf(file1, "Feanor\n");
-	    if (ISILDUR) fprintf(file1, "Isildur\n");
-	    if (SOULKEEPER) fprintf(file1, "Soulkeeper\n");
-	    if (FINGOLFIN) fprintf(file1, "Fingolfin\n");
-	    if (ANARION) fprintf(file1, "Anarion\n");
-	    if (BELEG) fprintf(file1, "Beleg Cuthalion\n");
-	    if (DAL) fprintf(file1, "Dal-i-thalion\n");
-	    if (PAURHACH) fprintf(file1, "Paurhach\n");
-	    if (PAURNIMMEN) fprintf(file1, "Paurnimmen\n");
-	    if (PAURAEGEN) fprintf(file1, "Pauragen\n");
-	    if (PAURNEN) fprintf(file1, "Paurnen\n");
-	    if (CAMMITHRIM) fprintf(file1, "Cammithrin\n");
-	    if (CAMBELEG) fprintf(file1, "Cambeleg\n");
-	    if (HOLHENNETH) fprintf(file1, "Holhenneth\n");
-	    if (AEGLIN) fprintf(file1, "Aeglin\n");
-	    if (CAMLOST) fprintf(file1, "Camlost\n");
-	    if (NIMLOTH) fprintf(file1, "Nimloth\n");
-	    if (NAR) fprintf(file1, "Nar-i-vagil\n");
-	    if (BERUTHIEL) fprintf(file1, "Beruthiel\n");
-	    if (GORLIM) fprintf(file1, "Gorlim\n");
-	    if (THORIN) fprintf(file1, "Thorin\n");
-	    if (CELEBORN) fprintf(file1, "Celeborn\n");
-	    if (GONDOR) fprintf(file1, "Gondor\n");
-	    if (THINGOL) fprintf(file1, "Thingol\n");
-	    if (THORONGIL) fprintf(file1, "Thorongil\n");
-	    if (LUTHIEN) fprintf(file1, "Luthien\n");
-	    if (TUOR) fprintf(file1, "Tuor\n");
-	    if (ROHAN) fprintf(file1, "Rohan\n");
-	    if (CASPANION) fprintf(file1, "Caspanion\n");
-	    if (NARYA) fprintf(file1, "Narya\n");
-	    if (NENYA) fprintf(file1, "Nenya\n");
-	    if (VILYA) fprintf(file1, "Vilya\n");
-	    if (POWER) fprintf(file1, "The One Ring\n");
-	    if (PHIAL) fprintf(file1, "The Phial of Galadriel\n");
-	    if (INGWE) fprintf(file1, "The Amulet of Ingwe\n");
-	    if (CARLAMMAS) fprintf(file1, "The Amulet of Carlammas\n");
-	    if (TULKAS) fprintf(file1, "The Ring of Tulkas\n");
-	    if (NECKLACE) fprintf(file1, "The Amulet of the Dwarves\n");
-	    if (BARAHIR) fprintf(file1, "The Ring of Barahir\n");
-	    if (ELENDIL) fprintf(file1, "The Star of Elendil\n");
-	    if (THRAIN) fprintf(file1, "The Arkenstone of Thrain\n");
-	    if (RAZORBACK) fprintf(file1, "Razorback\n");
-	    if (BLADETURNER) fprintf(file1, "Bladeturner\n");
-	    if (ROBEMED) fprintf(file1, "Robe of Enlightement\n");
-          }
-	(void) fclose(file1);
-	prt("Done...", 0, 0);
-      }
-    else
-      prt("File could not be opened.", 0, 0);
-  }
+  int i,j;
+  j=15;
+  save_screen();
+  for(i=1;i<23;i++) erase_line(i, j-2);
+  i=2;
+  prt("Artifacts that Have Been Seen:",1,30);
+  if (GROND) prt("Grond", i++, j);
+  if (RINGIL) prt("Ringil", i++, j);
+  if (AEGLOS) prt("Aeglos", i++, j);
+  if (ARUNRUTH) prt("Arunruth", i++, j);
+  if (MORMEGIL) prt("Mormegil", i++, j);
+  if (ANGRIST) prt("Angrist", i++, j);
+  if (GURTHANG) prt("Gurthang", i++, j);
+  if (CALRIS) prt("Calris", i++, j);
+  if (ANDURIL) prt("Anduril", i++, j);
+  if (STING) prt("Sting", i++, j);
+  if (ORCRIST) prt("Orcrist", i++, j);
+  if (GLAMDRING) prt("Glamdring", i++, j);
+  if (DURIN) prt("Durin", i++, j);
+  if (AULE) prt("Aule", i++, j);
+  if (THUNDERFIST) prt("Thunderfist", i++, j);
+  if (BLOODSPIKE) prt("Bloodspike", i++, j);
+  pause_if_screen_full(&i, j);
+  if (DOOMCALLER) prt("Doomcaller", i++, j);
+  pause_if_screen_full(&i, j);
+  if (NARTHANC) prt("Narthanc", i++, j);
+  pause_if_screen_full(&i, j);
+  if (NIMTHANC) prt("Nimthanc", i++, j);
+  pause_if_screen_full(&i, j);
+  if (DETHANC) prt("Dethanc", i++, j);
+  pause_if_screen_full(&i, j);
+  if (GILETTAR) prt("Gilettar", i++, j);
+  pause_if_screen_full(&i, j);
+  if (RILIA) prt("Rilia", i++, j);
+  pause_if_screen_full(&i, j);
+  if (BELANGIL) prt("Belangil", i++, j);
+  pause_if_screen_full(&i, j);
+  if (BALLI) prt("Balli Stonehand", i++, j);
+  pause_if_screen_full(&i, j);
+  if (LOTHARANG) prt("Lotharang", i++, j);
+  pause_if_screen_full(&i, j);
+  if (FIRESTAR) prt("Firestar", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ERIRIL) prt("Eriril", i++, j);
+  pause_if_screen_full(&i, j);
+  if (CUBRAGOL) prt("Cubragol", i++, j);
+  pause_if_screen_full(&i, j);
+  if (BARD) prt("Longbow of Bard", i++, j);
+  pause_if_screen_full(&i, j);
+  if (COLLUIN) prt("Colluin", i++, j);
+  pause_if_screen_full(&i, j);
+  if (HOLCOLLETH) prt("Holcolleth", i++, j);
+  pause_if_screen_full(&i, j);
+  if (TOTILA) prt("Totila", i++, j);
+  pause_if_screen_full(&i, j);
+  if (PAIN) prt("Glaive of Pain", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ELVAGIL) prt("Elvagil", i++, j);
+  pause_if_screen_full(&i, j);
+  if (AGLARANG) prt("Aglarang", i++, j);
+  pause_if_screen_full(&i, j);
+  if (EORLINGAS) prt("Eorlingas", i++, j);
+  pause_if_screen_full(&i, j);
+  if (BARUKKHELED) prt("Barukkheled", i++, j);
+  pause_if_screen_full(&i, j);
+  if (WRATH) prt("Trident of Wrath", i++, j);
+  pause_if_screen_full(&i, j);
+  if (HARADEKKET) prt("Haradekket", i++, j);
+  pause_if_screen_full(&i, j);
+  if (MUNDWINE) prt("Mundwine", i++, j);
+  pause_if_screen_full(&i, j);
+  if (GONDRICAM) prt("Gondricam", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ZARCUTHRA) prt("Zarcuthra", i++, j);
+  pause_if_screen_full(&i, j);
+  if (CARETH) prt("Careth Asdriag", i++, j);
+  pause_if_screen_full(&i, j);
+  if (FORASGIL) prt("Forasgil", i++, j);
+  pause_if_screen_full(&i, j);
+  if (CRISDURIAN) prt("Crisdurian", i++, j);
+  pause_if_screen_full(&i, j);
+  if (COLANNON) prt("Colannon", i++, j);
+  pause_if_screen_full(&i, j);
+  if (HITHLOMIR) prt("Hithlomir", i++, j);
+  pause_if_screen_full(&i, j);
+  if (THALKETTOTH) prt("Thalkettoth", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ARVEDUI) prt("Arvedui", i++, j);
+  pause_if_screen_full(&i, j);
+  if (THRANDUIL) prt("Thranduil", i++, j);
+  pause_if_screen_full(&i, j);
+  if (THENGEL) prt("Thengel", i++, j);
+  pause_if_screen_full(&i, j);
+  if (HAMMERHAND) prt("Hammerhand", i++, j);
+  pause_if_screen_full(&i, j);
+  if (CELEFARN) prt("Celefarn", i++, j);
+  pause_if_screen_full(&i, j);
+  if (THROR) prt("Thror", i++, j);
+  pause_if_screen_full(&i, j);
+  if (MAEDHROS) prt("Maedhros", i++, j);
+  pause_if_screen_full(&i, j);
+  if (OLORIN) prt("Olorin", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ANGUIREL) prt("Anguirel", i++, j);
+  pause_if_screen_full(&i, j);
+  if (OROME) prt("Orome", i++, j);
+  pause_if_screen_full(&i, j);
+  if (EONWE) prt("Eonwe", i++, j);
+  pause_if_screen_full(&i, j);
+  if (THEODEN) prt("Theoden", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ULMO) prt("Trident of Ulmo", i++, j);
+  pause_if_screen_full(&i, j);
+  if (OSONDIR) prt("Osondir", i++, j);
+  pause_if_screen_full(&i, j);
+  if (TURMIL) prt("Turmil", i++, j);
+  pause_if_screen_full(&i, j);
+  if (TIL) prt("Til-i-arc", i++, j);
+  pause_if_screen_full(&i, j);
+  if (DEATHWREAKER) prt("Deathwreaker", i++, j);
+  pause_if_screen_full(&i, j);
+  if (AVAVIR) prt("Avavir", i++, j);
+  pause_if_screen_full(&i, j);
+  if (TARATOL) prt("Taratol", i++, j);
+  pause_if_screen_full(&i, j);
+  if (DOR_LOMIN) prt("Dor-Lomin", i++, j);
+  pause_if_screen_full(&i, j);
+  if (BELEGENNON) prt("Belegennon", i++, j);
+  pause_if_screen_full(&i, j);
+  if (FEANOR) prt("Feanor", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ISILDUR) prt("Isildur", i++, j);
+  pause_if_screen_full(&i, j);
+  if (SOULKEEPER) prt("Soulkeeper", i++, j);
+  pause_if_screen_full(&i, j);
+  if (FINGOLFIN) prt("Fingolfin", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ANARION) prt("Anarion", i++, j);
+  pause_if_screen_full(&i, j);
+  if (BELEG) prt("Beleg Cuthalion", i++, j);
+  pause_if_screen_full(&i, j);
+  if (DAL) prt("Dal-i-thalion", i++, j);
+  pause_if_screen_full(&i, j);
+  if (PAURHACH) prt("Paurhach", i++, j);
+  pause_if_screen_full(&i, j);
+  if (PAURNIMMEN) prt("Paurnimmen", i++, j);
+  pause_if_screen_full(&i, j);
+  if (PAURAEGEN) prt("Pauragen", i++, j);
+  pause_if_screen_full(&i, j);
+  if (PAURNEN) prt("Paurnen", i++, j);
+  pause_if_screen_full(&i, j);
+  if (CAMMITHRIM) prt("Cammithrin", i++, j);
+  pause_if_screen_full(&i, j);
+  if (CAMBELEG) prt("Cambeleg", i++, j);
+  pause_if_screen_full(&i, j);
+  if (HOLHENNETH) prt("Holhenneth", i++, j);
+  pause_if_screen_full(&i, j);
+  if (AEGLIN) prt("Aeglin", i++, j);
+  pause_if_screen_full(&i, j);
+  if (CAMLOST) prt("Camlost", i++, j);
+  pause_if_screen_full(&i, j);
+  if (NIMLOTH) prt("Nimloth", i++, j);
+  pause_if_screen_full(&i, j);
+  if (NAR) prt("Nar-i-vagil", i++, j);
+  pause_if_screen_full(&i, j);
+  if (BERUTHIEL) prt("Beruthiel", i++, j);
+  pause_if_screen_full(&i, j);
+  if (GORLIM) prt("Gorlim", i++, j);
+  pause_if_screen_full(&i, j);
+  if (THORIN) prt("Thorin", i++, j);
+  pause_if_screen_full(&i, j);
+  if (CELEBORN) prt("Celeborn", i++, j);
+  pause_if_screen_full(&i, j);
+  if (GONDOR) prt("Gondor", i++, j);
+  pause_if_screen_full(&i, j);
+  if (THINGOL) prt("Thingol", i++, j);
+  pause_if_screen_full(&i, j);
+  if (THORONGIL) prt("Thorongil", i++, j);
+  pause_if_screen_full(&i, j);
+  if (LUTHIEN) prt("Luthien", i++, j);
+  pause_if_screen_full(&i, j);
+  if (TUOR) prt("Tuor", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ROHAN) prt("Rohan", i++, j);
+  pause_if_screen_full(&i, j);
+  if (CASPANION) prt("Caspanion", i++, j);
+  pause_if_screen_full(&i, j);
+  if (NARYA) prt("Narya", i++, j);
+  pause_if_screen_full(&i, j);
+  if (NENYA) prt("Nenya", i++, j);
+  pause_if_screen_full(&i, j);
+  if (VILYA) prt("Vilya", i++, j);
+  pause_if_screen_full(&i, j);
+  if (POWER) prt("The One Ring", i++, j);
+  pause_if_screen_full(&i, j);
+  if (PHIAL) prt("The Phial of Galadriel", i++, j);
+  pause_if_screen_full(&i, j);
+  if (INGWE) prt("The Amulet of Ingwe", i++, j);
+  pause_if_screen_full(&i, j);
+  if (CARLAMMAS) prt("The Amulet of Carlammas", i++, j);
+  pause_if_screen_full(&i, j);
+  if (TULKAS) prt("The Ring of Tulkas", i++, j);
+  pause_if_screen_full(&i, j);
+  if (NECKLACE) prt("The Amulet of the Dwarves", i++, j);
+  pause_if_screen_full(&i, j);
+  if (BARAHIR) prt("The Ring of Barahir", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ELENDIL) prt("The Star of Elendil", i++, j);
+  pause_if_screen_full(&i, j);
+  if (THRAIN) prt("The Arkenstone of Thrain", i++, j);
+  pause_if_screen_full(&i, j);
+  if (RAZORBACK) prt("Skullcleaver", i++, j);
+  pause_if_screen_full(&i, j);
+  if (BLADETURNER) prt("Bladeturner", i++, j);
+  pause_if_screen_full(&i, j);
+  if (ROBEMED) prt("Robe of Enlightement", i++, j);
+  pause_line(i);
+  restore_screen();
 }
 
 /* Light up the dungeon					-RAK-	*/
@@ -218,7 +305,7 @@ void wizard_light(light)
 /* Wizard routine for gaining on stats			-RAK-	*/
 void change_character()
 {
-  register int tmp_val;
+  register int tmp_val, loop;
   register int32 tmp_lval;
   int16u *a_ptr;
   vtype tmp_str;
@@ -375,78 +462,24 @@ void change_character()
   else
     return;
 
-  (void) sprintf(tmp_str, "Current=%d  (0-200) Searching = ", m_ptr->srh);
-  tmp_val = strlen(tmp_str);
-  prt(tmp_str, 0, 0);
-  if (get_string(tmp_str, 0, tmp_val, 3))
+  for(loop=0;loop<S_NUM;loop++)
     {
-      tmp_val = atoi(tmp_str);
-      if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0'))
-	m_ptr->srh  = tmp_val;
+      if (snames[loop][0])
+	{
+	  (void) sprintf(tmp_str, "Current=%d (0-255) %s = ",
+			 py.skills.cur_skill[loop],snames[loop]);
+	  tmp_val = strlen(tmp_str);
+	  prt(tmp_str, 0, 0);
+	  if (get_string(tmp_str, 0, tmp_val, 3))
+	    {
+	      tmp_val = atoi(tmp_str);
+	      if ((tmp_val > -1) && (tmp_val < 256) && (*tmp_str != '\0'))
+		py.skills.cur_skill[loop]  = tmp_val;
+	    }
+	  else
+	    return;
+	}
     }
-  else
-    return;
-
-  (void) sprintf(tmp_str, "Current=%d  (-1-18) Stealth = ", m_ptr->stl);
-  tmp_val = strlen(tmp_str);
-  prt(tmp_str, 0, 0);
-  if (get_string(tmp_str, 0, tmp_val, 3))
-    {
-      tmp_val = atoi(tmp_str);
-      if ((tmp_val > -2) && (tmp_val < 19) && (*tmp_str != '\0'))
-	m_ptr->stl  = tmp_val;
-    }
-  else
-    return;
-
-  (void) sprintf(tmp_str, "Current=%d  (0-200) Disarming = ", m_ptr->disarm);
-  tmp_val = strlen(tmp_str);
-  prt(tmp_str, 0, 0);
-  if (get_string(tmp_str, 0, tmp_val, 3))
-    {
-      tmp_val = atoi(tmp_str);
-      if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0'))
-	m_ptr->disarm = tmp_val;
-    }
-  else
-    return;
-
-  (void) sprintf(tmp_str, "Current=%d  (0-100) Save = ", m_ptr->save);
-  tmp_val = strlen(tmp_str);
-  prt(tmp_str, 0, 0);
-  if (get_string(tmp_str, 0, tmp_val, 3))
-    {
-      tmp_val = atoi(tmp_str);
-      if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0'))
-	m_ptr->save = tmp_val;
-    }
-  else
-    return;
-
-  (void) sprintf(tmp_str, "Current=%d  (0-200) Base to hit = ", m_ptr->bth);
-  tmp_val = strlen(tmp_str);
-  prt(tmp_str, 0, 0);
-  if (get_string(tmp_str, 0, tmp_val, 3))
-    {
-      tmp_val = atoi(tmp_str);
-      if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0'))
-	m_ptr->bth  = tmp_val;
-    }
-  else
-    return;
-
-  (void) sprintf(tmp_str, "Current=%d  (0-200) Bows/Throwing = ", m_ptr->bthb);
-  tmp_val = strlen(tmp_str);
-  prt(tmp_str, 0, 0);
-  if (get_string(tmp_str, 0, tmp_val, 3))
-    {
-      tmp_val = atoi(tmp_str);
-      if ((tmp_val > -1) && (tmp_val < 201) && (*tmp_str != '\0'))
-	m_ptr->bthb = tmp_val;
-    }
-  else
-    return;
-
   (void) sprintf(tmp_str, "Current=%d  Weight = ", m_ptr->wt);
   tmp_val = strlen(tmp_str);
   prt(tmp_str, 0, 0);
@@ -476,16 +509,15 @@ void change_character()
 void wizard_create()
 {
   register int tmp_val;
-  int flag, i, j, k;
+  int i, j, k;
   int32 tmp_lval;
   char tmp_str[100];
   register inven_type *i_ptr;
   treasure_type t_type, *t_ptr;
   inven_type forge;
   register cave_type *c_ptr;
-  char pattern[4];
   char ch;
-  int more = FALSE, where;
+  int more = FALSE;
 
   t_ptr = &t_type;
   i_ptr = &forge;
@@ -604,7 +636,7 @@ void wizard_create()
   case 'o':
     prt("What type of Object?    : ", 0, 0);
     prt(
-"[R]ing, [P]otion, [W]and/staff, [S]croll, [M]agicbook, [A]mulet, [T]ool.",
+"[R]ing, [P]otion, [W]and/staff, [S]croll, [M]agicbook, [A]mulet, [T]ool",
 	1, 0);
     if (!get_com((char *)0, &ch))
       {restore_screen();return;}
@@ -651,8 +683,8 @@ void wizard_create()
       break;
     case 'M':
     case 'm':
-      prt("Spellbook, Prayerbook, or Monkbook?    : ", 0, 0);
-      prt("[S]pellbook, [P]rayerbook, [M]onkbook", 1, 0);
+      prt("Spellbook, Prayerbook, Naturebook, or Darkbook?    : ", 0, 0);
+      prt("[S]pellbook, [P]rayerbook, [N]aturebook, [D]arkbook", 1, 0);
       if (!get_com((char *)0, &ch))
 	{restore_screen();return;}
       switch (ch) {
@@ -664,9 +696,13 @@ void wizard_create()
       case 's':
 	i_ptr->tval=TV_MAGIC_BOOK;
 	break;
-      case 'M':
-      case 'm':
-	i_ptr->tval=TV_MONK_BOOK;
+      case 'N':
+      case 'n':
+	i_ptr->tval=TV_NATURE_BOOK;
+	break;
+      case 'D':
+      case 'd':
+	i_ptr->tval=TV_DARK_BOOK;
 	break;
       default:
 	restore_screen();
@@ -676,7 +712,7 @@ void wizard_create()
     case 'T':
     case 't':
       prt("Which Tool etc...?  : ", 0, 0);
-      prt("[S]pike, [D]igger, [C]hest, [L]ight, [F]ood, [O]il.", 1, 0);
+      prt("[S]pike, [D]igger, [C]hest, [L]ight, [F]ood, [O]il, [P]iece", 1, 0);
       if (!get_com((char *)0, &ch))
 	{restore_screen();return;}
       switch (ch) {
@@ -687,6 +723,10 @@ void wizard_create()
       case 'd':
       case 'D':
 	i_ptr->tval=TV_DIGGING;
+	break;
+      case 'P':
+      case 'p':
+	i_ptr->tval=TV_COMPONENT;
 	break;
       case 'C':
       case 'c':

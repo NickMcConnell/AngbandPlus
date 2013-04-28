@@ -99,6 +99,7 @@ typedef struct monster_type
   int8u fx;		/* X Pointer into map	*/
   int8u cdis;		/* Cur dis from player	*/
   int8u ml;
+  int8u afraid;
   int8u stunned;
   int8u confused;
 } monster_type;
@@ -192,17 +193,25 @@ typedef struct player_type
       int16 save;	/* Saving throw		*/
       int16 sc;		/* Social Class		*/
       int16 stl;	/* Stealth factor	*/
-      int8u pclass;	/* # of class		*/
       int8u prace;	/* # of race		*/
       int8u hitdie;	/* Char hit die		*/
       int8u expfact;	/* Experience factor	*/
       int16 cmana;	/* Cur mana pts		*/
       int16u cmana_frac; /* Cur mana fraction * 2^16 */
       int16 chp;	/* Cur hit pts		*/
+      int8u realm;      /* Says which magic realm we know */
       int16 timeout;    /* Timeout for breath weapon */
       int16u chp_frac;	/* Cur hit fraction * 2^16 */
       char history[4][60]; /* History record	*/
     } misc;
+  /* Skills are in arrays for same reason */
+  struct skills
+    {
+      int8u adv_skill[S_NUM]; /* # of times skill was advanced */
+      int8u min_skill[S_NUM]; /* Needed for advancement--where it started */
+      int8u max_skill[S_NUM];
+      int8u cur_skill[S_NUM];
+    } skills;
   /* Stats now kept in arrays, for more efficient access. -CJS- */
   struct stats
     {
@@ -213,9 +222,11 @@ typedef struct player_type
     } stats;
   struct flags
     {
+      short int flags[8];       /* 8 flags, various uses */
       short int ac_mod;         /* Magical mod to AC   */
       short int tohit;          /* Magical mod tohit   */
       short int todam;          /* Same, to damage     */
+      int8u soulsteal;          /* Take 2x normal damage if set */
       int8u tim_invis;          /* Timed invisibility  */
       int8u invisible;          /* Item invisibility   */
       int8u tspeed;             /* Monk Hasting        */
@@ -331,39 +342,13 @@ typedef struct race_type
   int8u bhitdie;	       /* Base hit points for race	*/
   int8u infra;	       /* See infra-red			*/
   int8u b_exp;	       /* Base experience factor	*/
-  int8u rtclass;       /* Bit field for class types	*/
   int8u base_ac;       /* Base AC for this race         */
-  short int base_mag;  /* Base magic level modifier     */
+  int16 lifexp;        /* Indicator of how much general XP the race got */
   int8u bth2;          /* Base to 2-handed fighting     */
   int8u bdodge;        /* Base dodging */
+  int8u skills[S_NUM]; /* Tells us how quickly we advance */
+  int8u start[S_NUM];  /* (start>>4 & 0xF)d(start&0xF) starting skill */
 } race_type;
-
-typedef struct class_type
-{
-  char *title;		/* type of class		*/
-  int8u adj_hd;		/* Adjust hit points		*/
-  int8u mdis;		/* mod disarming traps		*/
-  int8u msrh;		/* modifier to searching	*/
-  int8u mstl;		/* modifier to stealth		*/
-  int8u mfos;		/* modifier to freq-of-search	*/
-  int8u mbth;		/* modifier to base to hit	*/
-  int8u mbthb;		/* modifier to base to hit - bows*/
-  int8u msav;		/* Class modifier to save	*/
-  int16 madj_str;	/* Class modifier for strength	*/
-  int16 madj_int;	/* Class modifier for intelligence*/
-  int16 madj_wis;	/* Class modifier for wisdom	*/
-  int16 madj_dex;	/* Class modifier for dexterity */
-  int16 madj_con;	/* Class modifier for constitution*/
-  int16 madj_chr;	/* Class modifier for charisma	*/
-  int16 madj_luc;       /* Class modifier for luck */
-  int8u spell;		/* class use mage spells	*/
-  int8u m_exp;		/* Class experience factor	*/
-  int8u first_spell_lev;/* First level where class can use spells. */
-  int8u magicity;       /* How magical--affects spell failure rate AND
-			   spell effectiveness */
-  int8u mbth2;          /* Mod to 2-handed fighting */
-  int8u mdodge;      /* Mod to dodging */
-} class_type;
 
 typedef struct background_type
 {
@@ -414,19 +399,3 @@ typedef struct store_type
   int16u bad_buy;
   inven_record store_inven[STORE_INVEN_MAX];
 } store_type;
-
-typedef struct high_scores
-{
-  int32 points;
-  int16u lev;
-  int16u max_lev;
-  int16 mhp;
-  int16 chp;
-  int16 uid;
-  int16 dun_level;
-  int8u sex;
-  vtype name;
-  vtype died_from;
-  int8u pclass;
-  int8u prace;
-} high_scores;

@@ -28,6 +28,9 @@ static void replace_spot(int, int, int);
 static void replace_spot();
 #endif
 
+extern int set_poison_destroy(inven_type *);
+extern int set_holy_destroy(inven_type *);
+
 char *pain_message();
 
 /* Following are spell procedure/functions			-RAK-	*/
@@ -92,13 +95,14 @@ void tele_level() {
 int sleep_monsters1(y, x)
 int y, x;
 {
-  register int i, j;
+  register int i, j, lev;
   register cave_type *c_ptr;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
   int sleep;
   vtype out_val, m_name;
 
+  lev=(smod(S_MAGIC)+get_level())/2;
   sleep = FALSE;
   for (i = y-1; i <= y+1; i++)
     for (j = x-1; j <= x+1; j++)
@@ -111,7 +115,7 @@ int y, x;
 
 	    monster_name (m_name, m_ptr, r_ptr);
 	    if ((r_ptr->level >
-		 randint((py.misc.lev-10)<1?1:(py.misc.lev-10))+10) ||
+		 randint((lev-10)<1?1:(lev-10))+10) ||
 		(CHARM_SLEEP & r_ptr->cdefense) || (r_ptr->cdefense & UNIQUE))
 	      {
 		if (m_ptr->ml && (r_ptr->cdefense & CHARM_SLEEP))
@@ -300,10 +304,19 @@ int stair_creation()
           (void) delete_object(char_row, char_col);
         cur_pos = popt();
         c_ptr->tptr = cur_pos;
-        if (randint(2)==1 || is_quest(dun_level))
-          invcopy(&t_list[cur_pos], OBJ_UP_STAIR);
+	if (dun_level==0 || dun_level==-1)
+	  { /* Force special actions on a level */
+	    msg_print("A pulsing dimensional gate appears.");
+	    if (dun_level==0)
+	      invcopy(&t_list[cur_pos], OBJ_UP_STAIR);
+	    else
+	      invcopy(&t_list[cur_pos], OBJ_DOWN_STAIR);
+	    return;
+	  }
+        if (randint(2)==1)
+	  invcopy(&t_list[cur_pos], OBJ_UP_STAIR);
         else
-          invcopy(&t_list[cur_pos], OBJ_DOWN_STAIR);
+	  invcopy(&t_list[cur_pos], OBJ_DOWN_STAIR);
         }
       else
         msg_print("The object resists the spell.");
@@ -434,8 +447,7 @@ int unlight_area(y, x)
 int y, x;
 {
   register int i, j;
-  int tmp1, tmp2, unlight;
-  int start_row, start_col, end_row, end_col;
+  int unlight;
   register cave_type *c_ptr;
 
   unlight = FALSE;
@@ -791,6 +803,21 @@ int (**destroy)();
       *harm_type   = 0;
       *destroy	   = set_null;
       break;
+    case GF_CONFUSION:
+      *weapon_type = 0;
+      *harm_type   = IM_CONFUSION;
+      *destroy     = set_null;
+      break;
+    case GF_SOUND:
+      *weapon_type = 0;
+      *harm_type   = IM_SOUND;
+      *destroy     = set_frost_destroy;
+      break;
+    case GF_SPIRIT:
+      *weapon_type = 0;
+      *harm_type   = UNDEAD;
+      *destroy     = set_null;
+      break;
     case GF_LIGHTNING:
       *weapon_type = CS_BR_LIGHT;
       *harm_type   = IM_LIGHTNING;
@@ -799,7 +826,7 @@ int (**destroy)();
     case GF_POISON_GAS:
       *weapon_type = CS_BR_GAS;
       *harm_type   = IM_POISON;
-      *destroy	   = set_null;
+      *destroy	   = set_poison_destroy;
       break;
     case GF_ACID:
       *weapon_type = CS_BR_ACID;
@@ -819,7 +846,7 @@ int (**destroy)();
     case GF_HOLY_ORB:
       *weapon_type = 0;
       *harm_type   = EVIL;
-      *destroy	   = set_null;
+      *destroy	   = set_holy_destroy;
       break;
     default:
       msg_print("ERROR in get_flags()\n");
@@ -827,12 +854,57 @@ int (**destroy)();
 }
 
 
+/* Fetch an item (teleport it right underneath the caster) */
+int fetch(dir, y, x, wgt)
+int dir, y, x, wgt;
+{
+ int dy, dx, i, oldy, oldx, dist, flag, gotit;
+ cave_type *c_ptr;
+ treasure_type *t_ptr;
+  dy = y; /* Where to drop the item */
+  dx = x;
+  oldy = y;
+  oldx = x;
+  dist = 0;
+  gotit = 0;
+  flag = FALSE;
+  do
+    {
+      (void) mmove(dir, &y, &x);
+      dist++;
+      c_ptr = &cave[y][x];
+      if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE)
+	flag = TRUE;
+      else
+	{
+	  if (c_ptr->tptr > 1)
+	    {
+	      flag = TRUE;
+	      t_ptr = &object_list[c_ptr->tptr];
+	      if (t_ptr->weight <= wgt) /* Light enough to 'fetch' */
+		{
+		  i = c_ptr->tptr;
+		  c_ptr->tptr=0;
+		  cave[dy][dx].tptr=i; /* 'move' it */
+		  gotit=1;
+		}
+	    }
+
+	}
+      oldy = y;
+      oldx = x;
+    }
+  while (!flag);
+ (void) prt_map();
+ return gotit;
+}
+
 /* Shoot a bolt in a given direction			-RAK-	*/
 void fire_bolt(typ, dir, y, x, dam, bolt_typ)
 int typ, dir, y, x, dam;
 char *bolt_typ;
 {
-  int i, oldy, oldx, dist, flag;
+  int i, oldy, oldx, dist, flag, target, w, is_ray;
   int32u weapon_type, harm_type;
   int (*dummy)();
   register cave_type *c_ptr;
@@ -845,10 +917,20 @@ char *bolt_typ;
   oldy = y;
   oldx = x;
   dist = 0;
+  is_ray = 0; /* If >0, we are using a "ray" attack */
+  target=FALSE;
+  if (targetx>-128)
+    target=TRUE;
+  if (dam<0)
+    { dam=-dam; is_ray=1; target=FALSE; }
   do
     {
-      (void) mmove(dir, &y, &x);
+      if (!target)
+	(void) mmove(dir, &y, &x);
       dist++;
+      if (target)
+	{ oldx=targetx+char_col; oldy=targety+char_row; x=oldx; y=oldy; 
+	  flag = TRUE; }
       c_ptr = &cave[y][x];
       lite_spot(oldy, oldx);
       if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE)
@@ -873,16 +955,45 @@ char *bolt_typ;
 	      lower_monster_name(m_name, m_ptr, r_ptr);
 	      (void) sprintf(out_val, "The %s strikes %s.", bolt_typ, m_name);
 	      msg_print(out_val);
+	      if (is_ray) flag=FALSE; /* Keep going for rays */
 	      if (harm_type & r_ptr->cdefense)
 		{
 		  if (harm_type == EVIL)
-		    dam = (dam*3)/2;
+		    dam = dam*3/2;
+		  else if (harm_type != UNDEAD)
+		    { flag=TRUE; /* Stop ray */
+		    dam = dam/9; }
 		  else
-		    dam = dam/9;
+		    { flag=TRUE; dam=0; }
 		  c_recall[m_ptr->mptr].r_cdefense |= harm_type;
 		}
+	      else if (harm_type == EVIL) /* Make it weaker for non-evil */
+		{ dam = dam/6; }
+	      if ((typ==GF_CONFUSION || typ==GF_SOUND) &&
+		  (r_ptr->cdefense & CHARM_SLEEP))
+		dam=dam/4; /* Weaken damage to non-charmable critters */
 	      monster_name(m_name, m_ptr, r_ptr);
-	      i = mon_take_hit((int)c_ptr->cptr, dam);
+	      /* Weaken bolts less over distance */
+	      if (is_ray)
+		i = mon_take_hit((int)c_ptr->cptr, dam/(dist/3+1));
+	      else
+		i = mon_take_hit((int)c_ptr->cptr,dam);
+	      if (typ==GF_CONFUSION && !(IM_CONFUSION & r_ptr->cdefense) &&
+		  !(r_ptr->cdefense & UNIQUE) &&
+		  !((r_ptr->cdefense & CHARM_SLEEP) && randint(3)==1))
+		{
+		  m_ptr->confused+=25+randint(dam)+dam;
+		  (void) sprintf(out_val,"%s is confused!",m_name);
+		  msg_print(out_val);
+	        }
+	      if (typ==GF_SOUND && !(IM_SOUND & r_ptr->cdefense) &&
+		  !(r_ptr->cdefense & UNIQUE) &&
+		  !((r_ptr->cdefense & CHARM_SLEEP) && randint(3)==1))
+		{
+		  m_ptr->stunned+=20+randint(dam)+dam;
+		  (void) sprintf(out_val,"%s is stunned!",m_name);
+		  msg_print(out_val);
+	        }
 	      if (i >= 0)
 		{
 		  if (r_ptr->cdefense & UNDEAD)
@@ -930,18 +1041,16 @@ char *bolt_typ;
         to control secondary effects of the bolt (ie lose experience from
         nether bolt).  If it doesn't hit the player, then no 2ndary effects
         should happen. -CFT       */
-  int bolt(typ, y, x, dam_hp, ddesc, ptr, monptr)
-    int typ, y, x, dam_hp;
+  int bolt(typ, y, x, dam, ddesc, ptr, monptr)
+    int typ, y, x, dam;
     char *ddesc;
     monster_type *ptr;
     int monptr;
   {
-    register int i=ptr->fy, j=ptr->fx, k;
-    int dam, max_dis;
-    int32u weapon_type, harm_type;
+    register int i=ptr->fy, j=ptr->fx;
+    int32u harm_type;
     int32u tmp, treas;
     register cave_type *c_ptr;
-    int (*destroy)();
     register monster_type *m_ptr;
     register creature_type *r_ptr;
     int y2, x2; /* deltas */
@@ -949,7 +1058,6 @@ char *bolt_typ;
     int dy, dx; /* 1, 0, or -1 */
     char bolt_char;
     int retval = 0; /* return value -CFT */
-  
     y2 = y - ptr->fy; /* calc deltas to target (player... *grin*) */
     x2 = x - ptr->fx;
   
@@ -992,7 +1100,6 @@ char *bolt_typ;
         if (c_ptr->cptr > 1 && c_ptr->cptr != monptr) {
           m_ptr = &m_list[c_ptr->cptr];
           r_ptr = &c_list[m_ptr->mptr];
-          dam = dam_hp;
           if (harm_type & r_ptr->cdefense) {
             if (harm_type == EVIL)
               dam = dam*2;
@@ -1021,26 +1128,24 @@ char *bolt_typ;
           break;
         } else if (c_ptr->cptr == 1) {
           retval = 1; /* it hit the player, activate 2ndary effects -CFT */
-          if (dam_hp == 0)
-            dam_hp = 1;
 	  switch(typ) {
           case GF_LIGHTNING:
-            light_dam(dam_hp, ddesc);
+            light_dam(dam, ddesc);
             break;
           case GF_POISON_GAS:
-            poison_gas(dam_hp, ddesc);
+            poison_gas(dam, ddesc);
             break;
           case GF_ACID:
-            acid_dam(dam_hp, ddesc);
+            acid_dam(dam, ddesc);
             break;
           case GF_FROST:
-            cold_dam(dam_hp, ddesc);
+            cold_dam(dam, ddesc);
             break;
           case GF_FIRE:
-            fire_dam(dam_hp, ddesc);
+            fire_dam(dam, ddesc);
             break;
           case GF_MAGIC_MISSILE:
-            take_hit(dam_hp, ddesc);
+            take_hit(dam, ddesc);
             break;
 	}
           disturb(1, 0);
@@ -1166,13 +1271,13 @@ int typ, dir, y, x, dam_hp;
 char *descrip;
 {
   register int i, j;
-  int dam, max_dis, thit, tkill, k, tmp, monptr;
+  int dam, max_dis, thit, tkill, k, tmp, monptr, target, w;
   int oldy, oldx, dist, flag;
   int32u weapon_type, harm_type;
   int (*destroy)();
   register cave_type *c_ptr;
-  register monster_type *m_ptr, *M_ptr;
-  register creature_type *r_ptr, *R_ptr;
+  register monster_type *m_ptr;
+  register creature_type *r_ptr;
   vtype m_name;
   vtype out_val;
 
@@ -1184,9 +1289,16 @@ char *descrip;
   oldy = y;
   oldx = x;
   dist = 0;
+  target=FALSE;
+  if (targetx>-128)
+    target=TRUE;
   do {
-    (void) mmove(dir, &y, &x);
+    if (!target)
+      (void) mmove(dir, &y, &x);
     dist++;
+    if (target)
+      { oldx=targetx+char_col; oldy=targety+char_row; x=oldx; y=oldy; 
+      flag = TRUE; } /* Auto-hit, so we can get nearby critters */
     lite_spot(oldy, oldx);
     if (dist > OBJ_BOLT_RANGE)
       flag = TRUE;
@@ -1222,13 +1334,37 @@ char *descrip;
 
 		  thit++;
 		  dam = dam_hp;
+		  monster_name(m_name, m_ptr, r_ptr);
+		  if ((typ==GF_CONFUSION || typ==GF_SOUND) &&
+		      !(r_ptr->cdefense & CHARM_SLEEP))
+		    dam=dam/4; /* Weaken damage to non-charmable critters */
 		  if (harm_type & r_ptr->cdefense) {
 		    if (harm_type == EVIL)
 		      dam = dam*2;
+		    else if (harm_type != UNDEAD)
+		      dam = dam/6;
 		    else
-		      dam = dam/9;
+		      dam = 0;
 		    c_recall[m_ptr->mptr].r_cdefense |=harm_type;
 		  }
+		  else if (harm_type == EVIL)
+		    dam = dam/5; /* Reduces OoD damage to non-evil */
+	      if (typ==GF_CONFUSION && !(IM_CONFUSION & r_ptr->cdefense) &&
+		  !(r_ptr->cdefense & UNIQUE) &&
+		  !((r_ptr->cdefense & CHARM_SLEEP) && randint(3)==1))
+		{
+		  m_ptr->confused+=25+randint(dam)+dam;
+		  (void) sprintf(out_val,"%s is confused!",m_name);
+		  msg_print(out_val);
+	        }
+	      if (typ==GF_SOUND && !(IM_SOUND & r_ptr->cdefense) &&
+		  !(r_ptr->cdefense & UNIQUE) &&
+		  !((r_ptr->cdefense & CHARM_SLEEP) && randint(3)==1))
+		{
+		  m_ptr->stunned+=30+randint(dam)+dam;
+		  (void) sprintf(out_val,"%s is stunned!",m_name);
+		  msg_print(out_val);
+	        }
 		  dam = (dam/(distance(i, j, y, x)+1));
 		  k = mon_take_hit((int)c_ptr->cptr, dam);
 		  if (k >= 0)
@@ -1502,12 +1638,18 @@ int drain_life(dir, y, x, dam)
 int dir, y, x, dam;
 {
   register int i;
-  int flag, dist, drain;
+  int flag, dist, drain, hp;
   register cave_type *c_ptr;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
   vtype out_val, m_name;
 
+  hp = 0;
+  if (dam<0)
+    {
+      hp = 1;
+      dam=-dam;
+    }
   drain = FALSE;
   flag = FALSE;
   dist = 0;
@@ -1528,6 +1670,13 @@ int dir, y, x, dam;
 	    {
 	      drain = TRUE;
 	      monster_name (m_name, m_ptr, r_ptr);
+	      if (hp) /* Give some HP to player */
+		{
+		  if (m_list[c_ptr->cptr].hp < dam)
+		    hp_player(m_list[c_ptr->cptr].hp/2+1);
+		  else
+		    hp_player(dam/2+1);
+		}
 	      i = mon_take_hit((int)c_ptr->cptr, dam);
 	      if (i >= 0)
 		{
@@ -1561,11 +1710,13 @@ int speed_monster(dir, y, x, spd)
 int dir, y, x, spd;
 {
   int flag, dist, speed;
+  register int lev;
   register cave_type *c_ptr;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
   vtype out_val, m_name;
 
+  lev=(smod(S_MAGIC)+get_level())/2;
   speed = FALSE;
   flag = FALSE;
   dist = 0;
@@ -1591,7 +1742,7 @@ int dir, y, x, spd;
 	      speed = TRUE;
 	    }
 	  else if ((r_ptr->level >
-		    randint((py.misc.lev-10)<1?1:(py.misc.lev-10))+10) ||
+		    randint((lev-10)<1?1:(lev-10))+10) ||
 		   (r_ptr->cdefense & UNIQUE))
 	    {
 	      (void) sprintf(out_val, "%s is unaffected.", m_name);
@@ -1617,6 +1768,7 @@ int confuse_monster(dir, y, x)
 int dir, y, x;
 {
   int flag, dist, confuse;
+  register int lev;
   register cave_type *c_ptr;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
@@ -1624,6 +1776,7 @@ int dir, y, x;
 
   confuse = FALSE;
   flag = FALSE;
+  lev=(smod(S_MAGIC)+get_level())/2;
   dist = 0;
   do
     {
@@ -1639,7 +1792,7 @@ int dir, y, x;
 	  monster_name (m_name, m_ptr, r_ptr);
 	  flag = TRUE;
 	  if ((r_ptr->level >
-	       randint((py.misc.lev-10)<1?1:(py.misc.lev-10))+10) ||
+	       randint((lev-10)<1?1:(lev-10))+10) ||
 	      (r_ptr->cdefense & UNIQUE))
 	    {
 	      if (m_ptr->ml && (r_ptr->cdefense & CHARM_SLEEP))
@@ -1662,12 +1815,66 @@ int dir, y, x;
 }
 
 
+/* Scare a creature					-RAK-	*/
+int scare_monster(dir, y, x)
+int dir, y, x;
+{
+  int flag, dist, confuse;
+  register int lev;
+  register cave_type *c_ptr;
+  register monster_type *m_ptr;
+  register creature_type *r_ptr;
+  vtype out_val, m_name;
+
+  confuse = FALSE;
+  flag = FALSE;
+  lev=(smod(S_MAGIC)+get_level())/2;
+  lev=(5+lev)*2;
+  if (lev<10) lev=10;
+  dist = 0;
+  do
+    {
+      (void) mmove(dir, &y, &x);
+      dist++;
+      c_ptr = &cave[y][x];
+      if ((dist > OBJ_BOLT_RANGE) || c_ptr->fval >= MIN_CLOSED_SPACE)
+	flag = TRUE;
+      else if (c_ptr->cptr > 1)
+	{
+	  m_ptr = &m_list[c_ptr->cptr];
+	  r_ptr = &c_list[m_ptr->mptr];
+	  monster_name (m_name, m_ptr, r_ptr);
+	  flag = TRUE;
+	  if ((r_ptr->level > randint(lev)) ||
+	      (r_ptr->cdefense & UNIQUE) || (randint(3)==1))
+	    {
+	      if (m_ptr->ml && (r_ptr->cdefense & CHARM_SLEEP))
+		c_recall[m_ptr->mptr].r_cdefense |= CHARM_SLEEP;
+	      (void) sprintf(out_val, "%s is unaffected.", m_name);
+	      msg_print(out_val);
+	    }
+	  else
+	    {
+	      m_ptr->afraid = 30;
+	      confuse = TRUE;
+	      m_ptr->csleep = 0;
+	      (void) sprintf(out_val, "%s seems terrified.", m_name);
+	      msg_print(out_val);
+	    }
+	}
+    }
+  while (!flag);
+  return(confuse);
+}
+
+
 /* Sleep a creature.					-RAK-	*/
 int sleep_monster(dir, y, x)
 int dir, y, x;
 {
   int flag, dist, sleep;
   register cave_type *c_ptr;
+  register int lev;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
   vtype out_val, m_name;
@@ -1675,6 +1882,7 @@ int dir, y, x;
   sleep = FALSE;
   flag = FALSE;
   dist = 0;
+  lev=(smod(S_MAGIC)+get_level())/2;
   do
     {
       (void) mmove(dir, &y, &x);
@@ -1692,7 +1900,7 @@ int dir, y, x;
 	  flag = TRUE;
 	  monster_name (m_name, m_ptr, r_ptr);
 	  if ((r_ptr->level >
-	       randint((py.misc.lev-10)<1?1:(py.misc.lev-10))+10) ||
+	       randint((lev-10)<1?1:(lev-10))+10) ||
 	      (r_ptr->cdefense & UNIQUE)||(r_ptr->cdefense & CHARM_SLEEP))
 	    {
 	      if (m_ptr->ml && (r_ptr->cdefense & CHARM_SLEEP))
@@ -1841,11 +2049,13 @@ int poly_monster(dir, y, x)
 int dir, y, x;
 {
   int dist, flag, flag2, poly;
+  register int lev;
   register cave_type *c_ptr;
   register creature_type *r_ptr;
   register monster_type *m_ptr;
   vtype out_val, m_name;
 
+  lev=(smod(S_MAGIC)+get_level())/2;
   poly = FALSE;
   flag = FALSE;
   flag2= FALSE;
@@ -1862,7 +2072,7 @@ int dir, y, x;
 	  m_ptr = &m_list[c_ptr->cptr];
 	  r_ptr = &c_list[m_ptr->mptr];
 	  if ((r_ptr->level <
-	       randint((py.misc.lev-10)<1?1:(py.misc.lev-10))+10) &&
+	       randint((lev-10)<1?1:(lev-10))+10) &&
 	       !(r_ptr->cdefense & UNIQUE))
 	    {
 	      flag2=FALSE;
@@ -2137,16 +2347,17 @@ int mass_genocide(spell)
 void mass_sleep()
 {
  register int i;
+ register int lev;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
-  vtype out_val;
+  lev=(smod(S_MAGIC)+get_level())/2;
 
     for (i = mfptr - 1; i >= MIN_MONIX; i--)
       {
 	m_ptr = &m_list[i];
 	r_ptr = &c_list[m_ptr->mptr];
 	if (r_ptr->cdefense & CHARM_SLEEP) /* Put it to sleep */
-	  m_ptr->csleep+=800+randint(py.misc.lev*10);
+	  m_ptr->csleep+=800+randint(lev*10);
       }
 
  msg_print("A hush falls over the level.");
@@ -2203,11 +2414,12 @@ int genocide(spell)
 int speed_monsters(spd)
 int spd;
 {
-  register int i, speed;
+  register int i, speed, lev;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
   vtype out_val, m_name;
 
+  lev=(smod(S_MAGIC)+get_level())/2;
   speed = FALSE;
   for (i = mfptr - 1; i >= MIN_MONIX; i--)
     {
@@ -2230,7 +2442,7 @@ int spd;
 	    }
 	}
       else if ((r_ptr->level <
-	       randint((py.misc.lev-10)<1?1:(py.misc.lev-10))+10) &&
+	       randint((lev-10)<1?1:(lev-10))+10) &&
 	       !(r_ptr->cdefense & UNIQUE))
   	{
 	  m_ptr->cspeed += spd;
@@ -2255,11 +2467,12 @@ int spd;
 /* Sleep any creature .		-RAK-	*/
 int sleep_monsters2()
 {
-  register int i, sleep;
+  register int i, sleep, lev;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
   vtype out_val, m_name;
 
+  lev=(smod(S_MAGIC)+get_level())/2;
   sleep = FALSE;
   for (i = mfptr - 1; i >= MIN_MONIX; i--)
     {
@@ -2270,7 +2483,7 @@ int sleep_monsters2()
 	/* do nothing */
 	;
       else if ((r_ptr->level >
-		randint((py.misc.lev-10)<1?1:(py.misc.lev-10))+10) ||
+		randint((lev-10)<1?1:(lev-10))+10) ||
 	       (r_ptr->cdefense & UNIQUE)||(r_ptr->cdefense & CHARM_SLEEP))
 	{
 	  if (m_ptr->ml)
@@ -2354,18 +2567,23 @@ monster_type *m_ptr2;
   return(mass);
 }
 
-/* Display evil creatures on current panel		-RAK-	*/
-int detect_evil()
+/* More general detection; this will detect any creature that has at least one
+   of the passed bits set.  Or, if this is <0, will detect only creatures
+   WITHOUT any of the bits set */
+int detect_general(inv, flag2, str)
+short inv;
+long flag2;
+char *str;
 {
+  char tmp_str[30];
   register int i, flag;
   register monster_type *m_ptr;
-
   flag = FALSE;
   for (i = mfptr - 1; i >= MIN_MONIX; i--)
     {
       m_ptr = &m_list[i];
       if (panel_contains((int)m_ptr->fy, (int)m_ptr->fx) &&
-	  (EVIL & c_list[m_ptr->mptr].cdefense))
+	  (inv ^ (flag2 & c_list[m_ptr->mptr].cdefense)))
 	{
 	  m_ptr->ml = TRUE;
 	  /* works correctly even if hallucinating */
@@ -2376,14 +2594,14 @@ int detect_evil()
     }
   if (flag)
     {
-      msg_print("You sense the presence of evil!");
+      sprintf(tmp_str,"You sense the presence of %s!",str);
+      msg_print(tmp_str);
       msg_print(NULL);
       /* must unlight every monster just lighted */
       creatures(FALSE);
     }
   return(flag);
 }
-
 
 /* Change players hit points in some manner		-RAK-	*/
 int hp_player(num)
@@ -2576,15 +2794,16 @@ void earthquake()
 /* Evil creatures don't like this.		       -RAK-   */
 int protect_evil()
 {
-  register int res;
+  register int res, lev;
   register struct flags *f_ptr;
 
+  lev=(smod(S_MAGIC)+get_level())/2;
   f_ptr = &py.flags;
   if (f_ptr->protevil == 0)
     res = TRUE;
   else
     res = FALSE;
-  f_ptr->protevil += randint(25) + 3*py.misc.lev;
+  f_ptr->protevil += randint(25) + 3*lev;
   return(res);
 }
 
@@ -2592,26 +2811,10 @@ int protect_evil()
 /* Create some high quality mush for the player.	-RAK-	*/
 void create_food()
 {
-  register cave_type *c_ptr;
-
-  c_ptr = &cave[char_row][char_col];
-  if (c_ptr->tptr != 0)
-    {
-      /* take no action here, don't want to destroy object under player */
-      msg_print ("There is already an object under you.");
-      /* set free_turn_flag so that scroll/spell points won't be used */
-      free_turn_flag = TRUE;
-    }
-  else
-    {
-      int cur_pos, tmp;
-
-      cur_pos = popt();
-      cave[char_row][char_col].tptr = cur_pos;
-      tmp = get_obj_num(dun_level, FALSE);
-      invcopy(&t_list[cur_pos], OBJ_MUSH);
-      msg_print ("You feel something roll beneath your feet.");
-    }
+  msg_print("You feel less hungry.");
+  add_food(3000);
+  py.flags.status &= ~(PY_WEAK|PY_HUNGRY);
+  prt_hunger();
 }
 
 int banish_creature(cflag, distance)
@@ -2619,10 +2822,9 @@ int32u cflag;
 int distance;
 {
   register int i;
-  int k, dispel, visible;
+  int dispel;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
-  vtype out_val, m_name;
 
   dispel = FALSE;
   for (i = mfptr - 1; i >= MIN_MONIX; i--)
@@ -2644,7 +2846,6 @@ int probing()
 {
   register int i;
   int probe;
-  char ch;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
   vtype out_val, m_name;
@@ -2677,6 +2878,48 @@ int probing()
     msg_print("You find nothing to probe.");
   move_cursor_relative(char_row,char_col);
   return (probe);
+}
+
+/* Attempts to banish a type of creature.  Creatures get a save */
+int banishment(cflag,level)
+int cflag,level; /* Is level spell is cast at */
+{
+ register int i;
+ int k, banish, visible;
+ register monster_type *m_ptr;
+ register creature_type *r_ptr;
+ vtype out_val, m_name;
+
+ banish=FALSE;
+ for (i = mfptr - 1; i>= MIN_MONIX; i--)
+   {
+      m_ptr = &m_list[i];
+      if ((cflag & c_list[m_ptr->mptr].cdefense) &&
+	  los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx))
+	{
+	  r_ptr = &c_list[m_ptr->mptr];
+	  c_recall[m_ptr->mptr].r_cdefense |= cflag;
+	  monster_name (m_name, m_ptr, r_ptr);
+	  visible = m_ptr->ml;  /* set this before call mon_take_hit */
+	  if (randint(level)>r_ptr->level && !(r_ptr->cdefense & UNIQUE) &&
+	      randint(2)==1)
+	    k = 1; /* Critter failed its save */
+	  else
+	    k = 0; /* Critter STAYS HERE! */
+	  if (visible)
+	    {
+	      if (k >= 0)
+		{
+		(void) sprintf(out_val, "%s is wooshed away in a swirl of magic!", m_name);
+		(void) teleport_away(i,level/2+20);
+	      }
+	      else
+		(void) sprintf(out_val, "%s stands its ground!", m_name);
+	      msg_print(out_val);
+	      banish = TRUE;
+	    }
+	}
+   }
 }
 
 /* Attempts to destroy a type of creature.  Success depends on	*/
@@ -2720,14 +2963,15 @@ int damage;
 }
 
 
-/* Attempt to turn (confuse) undead creatures.	-RAK-	*/
+/* Attempt to turn undead creatures.	-RAK-	*/
 int turn_undead()
 {
-  register int i, turn_und;
+  register int i, turn_und, lev;
   register monster_type *m_ptr;
   register creature_type *r_ptr;
   vtype out_val, m_name;
 
+  lev=(smod(S_MAGIC)+get_level())/2;
   turn_und = FALSE;
   for (i = mfptr - 1; i >= MIN_MONIX; i--)
     {
@@ -2737,7 +2981,7 @@ int turn_undead()
 	  && (los(char_row, char_col, (int)m_ptr->fy, (int)m_ptr->fx)))
 	{
 	  monster_name (m_name, m_ptr, r_ptr);
-	  if (((py.misc.lev+1) > r_ptr->level) ||
+	  if (((lev+1) > r_ptr->level) ||
 	      (randint(5) == 1))
 	    {
 	      if (m_ptr->ml)
@@ -2747,7 +2991,7 @@ int turn_undead()
 		  turn_und = TRUE;
 		  c_recall[m_ptr->mptr].r_cdefense |= UNDEAD;
 		}
-	      m_ptr->confused = TRUE;
+	      m_ptr->afraid = 200;
 	    }
 	  else if (m_ptr->ml)
 	    {
@@ -2870,9 +3114,8 @@ void lose_chr()
 void lose_exp(amount)
 int32 amount;
 {
-  register int i;
+  register int i,sk;
   register struct misc *m_ptr;
-  register class_type *c_ptr;
 
   m_ptr = &py.misc;
   if (amount > m_ptr->exp)
@@ -2882,38 +3125,27 @@ int32 amount;
   prt_experience();
 
   i = 0;
-  while (((player_exp[i]*m_ptr->expfact/100)<=m_ptr->exp)
-    && (i<MAX_PLAYER_LEVEL))
-    i++;
-  /* increment i once more, because level 1 exp is stored in player_exp[0] */
-  i++;
-  if (i>MAX_PLAYER_LEVEL) i=MAX_PLAYER_LEVEL;
-  if (m_ptr->lev != i)
+  calc_hitpoints();
+  if (py.misc.realm != NONE)
     {
-      m_ptr->lev = i;
-
-      calc_hitpoints();
-      c_ptr = &class[m_ptr->pclass];
-      if (c_ptr->spell == MAGE)
-	{
-	  calc_spells(A_INT);
-	  calc_mana(A_INT);
-	}
-      else if (c_ptr->spell == PRIEST)
-	{
-	  calc_spells(A_WIS);
-	  calc_mana(A_WIS);
-	}
-      else
-	{
-         calc_spells(A_DEX);
-	 calc_mana(A_DEX);
-	}
-      prt_level();
-      prt_title();
+      calc_spells(prime_stat[py.misc.realm]);
+      calc_mana(prime_stat[py.misc.realm]);
+    }
+  prt_level();
+  prt_title();
+  msg_print("You feel less skilled!");
+  if (!py.flags.hold_life)
+    for(i=1;i<5;i++)
+      {
+	sk=randint(S_NUM);
+	advance(sk,-4);
+      }
+  else
+    {
+      sk=randint(S_NUM);
+      advance(sk,-2);
     }
 }
-
 
 /* Slow Poison						-RAK-	*/
 int slow_poison()
@@ -3172,13 +3404,13 @@ int remove_all_curse()
 }
 
 
-/* Restores any drained experience			-RAK-	*/
+/* Restores any drained experience and skills		-RAK-	*/
 int restore_level()
 {
-  register int restore;
+  register int restore,loop,r2;
   register struct misc *m_ptr;
 
-  restore = FALSE;
+  restore = FALSE; r2 = FALSE; /* If r2=TRUE, we have restored skills */
   m_ptr = &py.misc;
   if (m_ptr->max_exp > m_ptr->exp)
     {
@@ -3191,12 +3423,17 @@ int restore_level()
 	  prt_experience();
 	}
     }
+  for(loop=0;loop<S_NUM;loop++)
+    if (py.skills.cur_skill[loop]<py.skills.max_skill[loop])
+     { advance(loop,255); restore = TRUE; r2 = TRUE; }
+  if (r2)
+    msg_print("You feel your skills return to normal.");
   return(restore);
 }
 
 /* this fn only exists to avoid duplicating this code in the selfknowledge
    fn. -CFT */
-static void pause_if_screen_full(int *i, int j){
+void pause_if_screen_full(int *i, int j){
   int t;
   if (*i == 22){ /* is screen full? */
     prt("-- more --", *i, j);
@@ -3270,7 +3507,24 @@ void self_knowledge(void){
     prt("You can learn some more spells.", i++, j);
   if (py.flags.word_recall > 0)
     prt("You will soon be recalled.", i++, j);
-
+  switch(py.misc.realm)
+    {
+    case MAGE:
+      prt("You know the Magic arts.", i++, j);
+      break;
+    case PRIEST:
+      prt("You are a pious character.", i++, j);
+      break;
+    case DRUID:
+      prt("You feel in harmony with the world.", i++, j);
+      break;
+    case NECROS:
+      prt("You understand the forces of life and death.", i++, j);
+      break;
+    case NONE:
+      prt("You are not familiar with any magical art.", i++, j);
+      break;
+    }
   if (f & TR_STEALTH)
     prt("You are hard to find.", i++, j);  
   if (f & TR_SEARCH){
@@ -3286,7 +3540,7 @@ void self_knowledge(void){
     pause_if_screen_full(&i, j);
 }
   if (py.flags.ffall){
-    prt("You land gently.", i++, j);
+    prt("You are levitating.", i++, j);
     pause_if_screen_full(&i, j);
 }
   if (py.flags.free_act){
@@ -3315,7 +3569,7 @@ void self_knowledge(void){
 }
 
   if (py.flags.blindness_resist){
-    prt("Your eye are resistant to blindness.", i++, j);    
+    prt("Your eyes are resistant to blindness.", i++, j);    
     pause_if_screen_full(&i, j);
 }
   if (py.flags.fire_im){
@@ -3523,6 +3777,15 @@ void self_knowledge(void){
     prt("Your weapon electrocutes your foes.", i++, j);
     pause_if_screen_full(&i, j);
 }
+  if (f2 & TR_IRONWILL){
+    prt("Your will to live protects you.", i++, j);
+  }
+  if (f2 & TR_VORPAL){
+    prt("Your weapon is extremely sharp.", i++, j);
+}
+  if (f2 & TR_VENOM){
+    prt("Your weapon is tipped with deadly poison.", i++, j);
+}
   if (f2 & TR_IMPACT)
     prt("The unbelievable impact of your weapon can cause earthquakes.", i++, j);
 
@@ -3530,3 +3793,91 @@ void self_knowledge(void){
   restore_screen();
 }
 
+
+/* This will return the amount of damage this type of attack should do in
+   this weather */
+int weather(typ,da)
+int da;
+int typ;
+{
+  int w,dam;
+  dam=da;
+  w=py.flags.flags[F_WEATHER];
+  switch(typ)
+    {
+    case GF_MAGIC_MISSILE: /* "winds" */
+      if (w & W_WINDY)
+	dam=dam*4/3;
+      else if (w & W_STILL)
+	dam=0;
+      break;
+    case GF_FIRE:
+      if (w & W_WARM)
+	dam=dam*4/3;
+      else if (w & W_COOL)
+	dam=0;
+	break;
+    case GF_FROST:
+      if (w & W_COOL)
+	dam*=4/3;
+      else if (w & W_WARM)
+	dam=0;
+      break;
+    case GF_LIGHTNING:
+      if (w & W_DRY)
+	dam=dam*4/3;
+      else if (w & W_MOIST)
+	dam=dam/2;
+      if (w & W_COOL)
+	dam=dam*4/3;
+      else if (w & W_WARM)
+	dam=dam/2;
+      if (dam<(da/3))
+	dam=0;
+      break;
+    case GF_POISON_GAS:
+      if (w & W_STILL)
+	dam=dam*4/3;
+      else if (w & W_WINDY)
+	dam=0;
+      break;
+    }
+  return dam;
+}
+
+/* This predicts the weather.  Has the given failure rate */
+void predict_weather(fail)
+int fail;
+{
+ int dry,cool,windy,w;
+ char out[80];
+ w=py.flags.flags[F_WEATHER];
+ if (w&W_DRY) dry=1;
+ else if (w&W_MOIST) dry=-1;
+ if (w&W_STILL) windy=-1;
+ else if (w&W_WINDY) windy=1;
+ if(w&W_COOL) cool=1;
+ else if (w&W_WARM) cool=-1;
+ if (randint(100)>fail)
+   {
+     dry+=randint(3)-1;
+     cool+=randint(3)-1;
+     windy+=randint(3)-1;
+   }
+ if (dry<-1) dry=-1;
+ else if (dry>1) dry=1;
+ if (cool<-1) cool=-1;
+ else if (cool>1) cool=1;
+ if (windy<-1) windy=-1;
+ else if (windy>1) windy=1;
+ sprintf(out,"The weather seems to be:"); 
+ if (dry<0) strcat(out,"dry,");
+ else if (dry>0) strcat(out,"humid,");
+ if (cool<0) strcat(out,"cool,");
+ else if (cool>0) strcat(out,"warm,");
+ if (windy<0) strcat(out,"still");
+ else if (windy>0) strcat(out,"windy");
+ if (!windy && !cool && !dry)
+   strcat(out,"normal");
+ msg_print(out);
+}
