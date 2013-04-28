@@ -45,14 +45,70 @@ int min_depth(void)
 	return (d);
 }
 
+
+void note_lost_greater_vault(void)
+{
+	char note[120];
+	char *fmt = "Left without entering %s";
+	int y, x;
+	bool discovered = FALSE;
+
+	/* Handle lost greater vaults */
+	if (g_vault_name[0] != '\0')
+	{
+		/* Analyze the actual map */
+		for (y = 0; y < p_ptr->cur_map_hgt; y++)
+		{
+			for (x = 0; x < p_ptr->cur_map_wid; x++)
+			{
+				if ((cave_info[y][x] & (CAVE_G_VAULT)) && (cave_info[y][x] & (CAVE_MARK)))
+				{
+					discovered = TRUE;
+				}
+			}
+		}
+		
+		if (discovered)
+		{
+			strnfmt(note, sizeof(note), fmt, g_vault_name);
+			do_cmd_note(note, p_ptr->depth);
+		}
+		
+		g_vault_name[0] = '\0';
+	}
+}
+
+
 /*
- * Go up one level
+ * Determines whether a staircase is 'trapped' like a false floor trap.
+ * This means you fall a level below where you expected to end up (if you were going upwards),
+ * take some minor damage, and have no stairs back.
+ *
+ * It gets more likely the more stairs you have recently taken.
+ * It is designed to stop you stair-scumming.
+ */
+bool trapped_stairs(void)
+{
+	int chance;
+	
+	chance = p_ptr->staircasiness / 100;
+	chance = chance * chance * chance;	
+	chance = chance / 10000;
+	
+	//msg_debug("%d, %d", p_ptr->staircasiness, chance);
+	
+	if (percent_chance(chance))		return (TRUE);
+	else							return (FALSE);
+}
+
+
+/*
+ * Go up a staircase
  */
 void do_cmd_go_up(void)
 {	
 	int min;
 	int new;
-	int amount;
 	
 	/* Verify stairs */
 	if (!cave_up_stairs(p_ptr->py, p_ptr->px))
@@ -82,19 +138,7 @@ void do_cmd_go_up(void)
 		return;
 	}
 	
-	// extra food consumption (100 turns worth)
-	amount = 100;
-	if (p_ptr->hunger < 0)
-	{
-		amount /= int_exp(3,-(p_ptr->hunger));
-	}
-	else
-	{
-		amount *= int_exp(3,p_ptr->hunger);
-	}
-	if (p_ptr->food > amount)		p_ptr->food -= amount;
-	else							p_ptr->food = 0;
-
+	// calculate the new depth to arrive at
 	min = min_depth();
 	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_LESS_SHAFT) && (p_ptr->depth > 0))
 	{
@@ -110,32 +154,56 @@ void do_cmd_go_up(void)
 
 		new = p_ptr->depth - 1;
 	}	
-	
+
+	// deal with most cases where you can't find your way
 	if ((new < min) && (p_ptr->depth != MORGOTH_DEPTH))
 	{
-		if (p_ptr->depth == min)
+		message(MSG_STAIRS, 0, "You enter a maze of up staircases, but cannot find your way.");
+		
+		// deal with trapped stairs when trying and failing to go upwards
+		if (trapped_stairs())
 		{
-			message(MSG_STAIRS, 0, "You enter a maze of up staircases, but cannot find your way.");
-			message(MSG_STAIRS, 0, "You emerge near where you began.");
+			msg_print("The stairs crumble beneath you!");
+			message_flush();
+			msg_print("You fall through...");
+			message_flush();
+			msg_print("...and land somewhere deeper in the Iron Hells.");
+			message_flush();
+			
+			// take some damage
+			falling_damage(FALSE);
+			
+			// no stairs back
+			p_ptr->create_stair = FALSE;
 		}
+		
 		else
 		{
-			message(MSG_STAIRS, 0, "You enter a maze of up staircases, but cannot find your way.");
-			message(MSG_STAIRS, 0, "You emerge even deeper in the dungeon.");
+			if (p_ptr->depth == min)
+			{
+				message(MSG_STAIRS, 0, "You emerge near where you began.");
+			}
+			else
+			{
+				message(MSG_STAIRS, 0, "You emerge even deeper in the dungeon.");
+			}
+			
+			if (p_ptr->create_stair == FEAT_MORE)
+			{
+				/* Change the way back */
+				p_ptr->create_stair = FEAT_LESS;
+			}
+			else
+			{
+				/* Change the way back */
+				p_ptr->create_stair = FEAT_LESS_SHAFT;
+			}
 		}
-
-		if (p_ptr->create_stair == FEAT_MORE)
-		{
-			/* Change the way back */
-			p_ptr->create_stair = FEAT_LESS;
-		}
-		else
-		{
-			/* Change the way back */
-			p_ptr->create_stair = FEAT_LESS_SHAFT;
-		}
+		
 		new = min;
 	}
+	
+	// deal with cases where you can find your way
 	else
 	{
 		message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
@@ -144,6 +212,7 @@ void do_cmd_go_up(void)
 		{
 			message(MSG_STAIRS, 0, "The divine light reveals the way.");
 		}
+		
 		if (p_ptr->depth == MORGOTH_DEPTH)
 		{
 			if (!p_ptr->morgoth_slain)
@@ -158,16 +227,38 @@ void do_cmd_go_up(void)
 			// remove the 'truce' flag if it hasn't been done already
 			p_ptr->truce = FALSE;
 		}
+		
+		// deal with trapped stairs when going upwards
+		else if (trapped_stairs())
+		{
+			msg_print("The stairs crumble beneath you!");
+			message_flush();
+			msg_print("You fall through...");
+			message_flush();
+			msg_print("...and land somewhere deeper in the Iron Hells.");
+			message_flush();
+			
+			// take some damage
+			falling_damage(FALSE);
+			
+			// no stairs back
+			p_ptr->create_stair = FALSE;
+			
+			// go to a lower floor
+			new++;
+		}
+		
 	}
 	
-	// extra time taken
-	playerturn += 100;
+	// make a note if the player loses a greater vault
+	note_lost_greater_vault();
 	
 	/* New depth */
 	p_ptr->depth = new;
 
 	// another staircase has been used...
 	p_ptr->stairs_taken++;
+	p_ptr->staircasiness += 1000;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -175,13 +266,12 @@ void do_cmd_go_up(void)
 
 
 /*
- * Go down one level
+ * Go down a staircase
  */
 void do_cmd_go_down(void)
 {
 	int min;
 	int new;
-	int amount;
 
 	/* Verify stairs */
 	if (!cave_down_stairs(p_ptr->py, p_ptr->px))
@@ -253,19 +343,6 @@ void do_cmd_go_down(void)
 
 	// store the action type
 	p_ptr->previous_action[0] = ACTION_MISC;
-
-	// extra food consumption (100 turns worth)
-	amount = 100;
-	if (p_ptr->hunger < 0)
-	{
-		amount /= int_exp(3,-(p_ptr->hunger));
-	}
-	else
-	{
-		amount *= int_exp(3,p_ptr->hunger);
-	}
-	if (p_ptr->food > amount)		p_ptr->food -= amount;
-	else							p_ptr->food = 0;	
 	
 	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
 
@@ -277,6 +354,23 @@ void do_cmd_go_down(void)
 		p_ptr->create_stair = FEAT_MORE;
 		new = MORGOTH_DEPTH - 1;
 	}
+
+	// deal with trapped stairs
+	else if (trapped_stairs())
+	{
+		msg_print("The stairs crumble beneath you!");
+		message_flush();
+		msg_print("You fall through...");
+		message_flush();
+		msg_print("...and land somewhere deeper in the Iron Hells.");
+		message_flush();
+		
+		// take some damage
+		falling_damage(FALSE);
+
+		// no stairs back
+		p_ptr->create_stair = FALSE;
+	}
 	
 	else if (new < min)
 	{
@@ -284,14 +378,15 @@ void do_cmd_go_down(void)
 		new = min;
 	}
 	
-	// extra time taken
-	playerturn += 100;
-	
+	// make a note if the player loses a greater vault
+	note_lost_greater_vault();
+
 	/* New depth */
 	p_ptr->depth = new;
 
 	// another staircase has been used...
 	p_ptr->stairs_taken++;
+	p_ptr->staircasiness += 1000;
 		
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -1905,7 +2000,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 	switch (cave_feat[y][x])
 	{
-		case FEAT_TRAP_TRAPDOOR:
+		case FEAT_TRAP_FALSE_FLOOR:
 		{
 			power = 6;
 			break;
@@ -3128,7 +3223,7 @@ void do_cmd_fire(int quiver)
 		ty = p_ptr->py;
 		tx = p_ptr->px;
 	}
-	
+
 	/* Handle player fear */
 	if (p_ptr->afraid)
 	{
@@ -3138,7 +3233,7 @@ void do_cmd_fire(int quiver)
 		/* Done */
 		return;
 	}
-	
+		
 	/* Get local object */
 	i_ptr = &object_type_body;
 	
@@ -3510,6 +3605,14 @@ void do_cmd_fire(int quiver)
 						}
 						
 						// Morgoth drops his iron crown if he is hit for 20 or more raw damage
+						if ((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR))
+						{
+							if (net_dam > 10)
+							{
+								////////////$$$$$$
+							}
+							drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
+						}
 						if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && (dam >= 25))
 						{
 							drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
@@ -3951,6 +4054,16 @@ void do_cmd_throw(void)
 	{
 		ty = p_ptr->py;
 		tx = p_ptr->px;
+	}
+
+	/* Handle player fear */
+	if (p_ptr->afraid)
+	{
+		/* Message */
+		msg_print("You are too afraid to aim properly!");
+		
+		/* Done */
+		return;
 	}
 		
 	/* Get local object */

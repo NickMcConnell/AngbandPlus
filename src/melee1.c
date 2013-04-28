@@ -2058,7 +2058,11 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			msg_format("%^s breathes darkness.", m_name);
 			mon_arc(m_idx, GF_DARK, TRUE, r_ptr->spell_power, get_sides(attack), -1,
 					r_ptr->spell_power/2, 60);
-			
+
+			/* Make a lot of noise */
+			update_noise(m_ptr->fy, m_ptr->fx, FLOW_MON_NOISE);
+			monster_perception(FALSE, FALSE, -10);
+						
 			break;
 		}
 			
@@ -2573,6 +2577,7 @@ void display_combat_rolls(void)
 	int b_min = 0;
 	int b_max = 0;
 	
+	int total_player_attacks = 0;
 	int player_attacks = 0;
 	int monster_attacks = 0;
 	
@@ -2594,16 +2599,24 @@ void display_combat_rolls(void)
 	{
 		/* Erase the line */
 		Term_erase(0, i, 255);
-		if (i == 6)
-		{
-			Term_putstr(0, i, 80, TERM_L_DARK, "_______________________________|_______________________________________________");
-		}
-		else
-		{
-			Term_putstr(0, i, 32, TERM_L_DARK, "                               |");
-		}
+		//if (i == 6)
+		//{
+		//	Term_putstr(0, i, 80, TERM_L_DARK, "_______________________________|_______________________________________________");
+		//}
+		//else
+		//{
+		//	Term_putstr(0, i, 32, TERM_L_DARK, "                               |");
+		//}
 	}	
 	
+	for (i = 0; i < combat_number; i++)
+	{
+		if ((combat_rolls[i].attacker_char == r_info[0].d_char) &&
+		    (combat_rolls[i].attacker_attr == r_info[0].d_attr))
+		{
+			total_player_attacks++;
+		}
+	}
 
 	for (i = 0; i < combat_number; i++)
 	{
@@ -2642,8 +2655,8 @@ void display_combat_rolls(void)
 			player_attacks++;
 
 			// Can only display the first four player attacks
-			if (player_attacks <= 4)
-			{
+			//if (player_attacks <= 4)
+			//{
 				a_att = TERM_L_BLUE;
 				a_evn = TERM_WHITE;
 				a_hit = TERM_L_RED;
@@ -2656,13 +2669,13 @@ void display_combat_rolls(void)
 					a_prot_roll = TERM_DARK;
 				
 				line = player_attacks;
-			}
-			else
-			{
-				line = player_attacks;
-				Term_putstr(0, 5, 6, TERM_WHITE, "   ...");
-				continue;
-			}
+			//}
+			//else
+			//{
+			//	line = player_attacks;
+			//	Term_putstr(0, 5, 6, TERM_WHITE, "   ...");
+			//	continue;
+			//}
 		}
 		else
 		{
@@ -2679,7 +2692,7 @@ void display_combat_rolls(void)
 			else
 				a_prot_roll = TERM_DARK;
 						
-			line = 7 + monster_attacks;
+			line = 1 + total_player_attacks + monster_attacks;
 		}
 	
 		/* Display the entry itself */
@@ -2747,7 +2760,7 @@ void display_combat_rolls(void)
 		
 		if ((net_att > 0) || (combat_rolls[i].att_type == AUTO))
 		{
-			Term_addstr(-1, TERM_L_DARK, "  | ");
+			Term_addstr(-1, TERM_L_DARK, "  ->");
 
 			if (combat_rolls[i].ds < 10)
 			{

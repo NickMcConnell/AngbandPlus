@@ -801,10 +801,11 @@ static errr rd_extra(void)
 	rd_u16b(&p_ptr->csp_frac);
 
 	rd_s16b(&p_ptr->max_depth);
-	strip_bytes(2);
 
 	/* Hack -- Repair maximum dungeon level */
 	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
+
+	rd_u16b(&p_ptr->staircasiness);
 
 	/* More info */
 	rd_s16b(&p_ptr->sc);

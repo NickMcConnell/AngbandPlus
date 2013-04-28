@@ -210,6 +210,10 @@ C:2:C
 A:O
 C:2:=
 
+# Interact with a square
+A:/
+C:2:+
+
 # Set Macros
 A:$
 C:2:@
@@ -227,7 +231,8 @@ A:A
 C:2:Z
 A:A
 C:2:O
-
+A:A
+C:2:/
 
 ##### Angband-like Keyset Mappings with hjkl movement #####
 
@@ -348,6 +353,10 @@ C:3:C
 A:O
 C:3:=
 
+# Interact with a square
+A:/
+C:3:+
+
 # Set Macros
 A:$
 C:3:@
@@ -363,7 +372,8 @@ A:A
 C:3:Z
 A:A
 C:3:O
-
+A:A
+C:3:/
 
 # Message colors
 %:message.prf

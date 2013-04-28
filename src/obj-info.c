@@ -339,8 +339,9 @@ static bool describe_handedness(const object_type *o_ptr, u32b f3)
 	if ((n == TV_DIGGING) || (n == TV_HAFTED) ||
 		(n == TV_POLEARM) || (n == TV_SWORD))
 	{
-		if (f3 & (TR3_HAND_AND_A_HALF)) p_text_out("It does extra damage when wielded with both hands.  ");
-		if (f3 & (TR3_TWO_HANDED)) p_text_out("It requires both hands to wield it properly.  ");
+		if (f3 & (TR3_HAND_AND_A_HALF))		p_text_out("It does extra damage when wielded with both hands.  ");
+		else if (f3 & (TR3_TWO_HANDED))		p_text_out("It requires both hands to wield it properly.  ");
+		else								return (FALSE);
 
 		return (TRUE);
 	}
@@ -765,6 +766,7 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_handedness(o_ptr, ff3))				something = TRUE;
 	if (describe_polearmness(ff3))						something = TRUE;
 	if (describe_archery(o_ptr))						something = TRUE;
+
 	
 	/* We are done. */
 	return something;

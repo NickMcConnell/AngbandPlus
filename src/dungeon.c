@@ -128,6 +128,7 @@ bool can_be_pseudo_ided(const object_type *o_ptr)
     	case TV_LIGHT:
       	{
 			if (o_ptr->sval == SV_LIGHT_LANTERN) return (TRUE);
+			if (o_ptr->sval == SV_LIGHT_LESSER_JEWEL) return (TRUE);
 			if (o_ptr->sval == SV_LIGHT_FEANORIAN) return (TRUE);
 			break;
       	}
@@ -1195,11 +1196,11 @@ static void process_command(void)
 		/*** Looking at Things (nearby or on map) ***/
 
 		/* Full dungeon map */
-		//case 'M':
-		//{
-		//	do_cmd_view_map();
-		//	break;
-		//}
+		case 'M':
+		{
+			do_cmd_view_map();
+			break;
+		}
 
 		/* Locate player on map */
 		case 'L':
@@ -1978,7 +1979,7 @@ static void process_player(void)
 		ident_passive();
 	}
 	
-		/*** Damage over Time ***/
+	/*** Damage over Time ***/
 
 	/* Take damage from poison */
 	if (p_ptr->poisoned)
@@ -2044,6 +2045,15 @@ static void process_player(void)
 		take_hit(i, "starvation");
 	}
 
+	/* Lower the staircasiness */
+	if (p_ptr->staircasiness > 0)
+	{
+		// amount is one thousandth of the current value, rounding up 
+		amount = (p_ptr->staircasiness + 999) / 1000;
+	
+		p_ptr->staircasiness -= amount;
+	}
+	
 	/* Default regeneration multiplier */
 	regen_multiplier = 1;
 
@@ -2671,7 +2681,7 @@ static void death_knowledge(void)
  * If the savefile does not exist, cannot be loaded, or contains a dead
  * (non-wizard-mode) character, then a new game will be started.
  *
- * Several platforms (Windows, Macintosh, Amiga) start brand new games
+ * Several platforms (Windows, Macintosh) start brand new games
  * with "savefile" and "op_ptr->base_name" both empty, and initialize
  * them later based on the player name.  To prevent weirdness, we must
  * initialize "op_ptr->base_name" to "nameless" if it is empty.
@@ -2889,18 +2899,6 @@ void play_game(bool new_game)
 
 		/* Handle "quit and save" */
 		if (!p_ptr->playing && !p_ptr->is_dead) break;
-
-		/* Handle lost greater vaults */
-		if (g_vault_name[0] != '\0')
-		{
-			char note[120];
-			char *fmt = "Left without entering the %s";
-
-			strnfmt(note, sizeof(note), fmt, g_vault_name);
-			do_cmd_note(note, p_ptr->depth);
-
-		  	g_vault_name[0] = '\0';
-		}
 
 		/* Erase the old cave */
 		/* If the character is dead, then we don't erase yet */

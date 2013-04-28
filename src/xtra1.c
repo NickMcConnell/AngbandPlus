@@ -954,22 +954,28 @@ static void health_redraw(void)
 	/* Tracking an unseen monster */
 	else if (!mon_list[p_ptr->health_who].ml)
 	{
-		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_L_DARK, "  --------  ");
+		/* Erase the health bar */
+		Term_erase(COL_INFO, ROW_INFO, 12);
+		/* Erase the morale bar */
+		Term_erase(COL_INFO, ROW_INFO+1, 12);
 	}
 
 	/* Tracking a hallucinatory monster */
 	else if (p_ptr->image)
 	{
-		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_L_DARK, "  --------  ");
+		/* Erase the health bar */
+		Term_erase(COL_INFO, ROW_INFO, 12);
+		/* Erase the morale bar */
+		Term_erase(COL_INFO, ROW_INFO+1, 12);
 	}
 
 	/* Tracking a dead monster (?) */
 	else if (mon_list[p_ptr->health_who].hp <= 0)
 	{
-		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_L_DARK, "  --------  ");
+		/* Erase the health bar */
+		Term_erase(COL_INFO, ROW_INFO, 12);
+		/* Erase the morale bar */
+		Term_erase(COL_INFO, ROW_INFO+1, 12);
 	}
 
 	/* Tracking a visible monster */
@@ -1007,12 +1013,7 @@ static void health_redraw(void)
 
 		Term_erase(COL_INFO, ROW_INFO+1, 12);
 
-		if (r_ptr->flags2 & (RF2_MINDLESS))
-		{
-			my_strcpy(buf, "Mindless", sizeof(tmp));
-			attr = TERM_L_DARK;
-		}
-		else if (m_ptr->alertness < ALERTNESS_UNWARY)
+		if (m_ptr->alertness < ALERTNESS_UNWARY)
 		{
 			my_strcpy(buf, "Sleeping", sizeof(tmp));
 			attr = TERM_BLUE;
@@ -1024,24 +1025,33 @@ static void health_redraw(void)
 		}
 		else
 		{
-			if (m_ptr->stance == STANCE_FLEEING)
+			if (r_ptr->flags2 & (RF2_MINDLESS))
 			{
-				my_strcpy(tmp, "Fleeing", sizeof(tmp));
-				attr = TERM_VIOLET;
+				my_strcpy(buf, "Mindless", sizeof(tmp));
+				attr = TERM_L_DARK;
 			}
-			else if (m_ptr->stance == STANCE_CONFIDENT)
+			else
 			{
-				my_strcpy(tmp, "Confident", sizeof(tmp));
-				attr = TERM_L_WHITE;
-			}
-			else if (m_ptr->stance == STANCE_AGGRESSIVE)
-			{
-				my_strcpy(tmp, "Aggress", sizeof(tmp));
-				attr = TERM_L_WHITE;
+				if (m_ptr->stance == STANCE_FLEEING)
+				{
+					my_strcpy(tmp, "Fleeing", sizeof(tmp));
+					attr = TERM_VIOLET;
+				}
+				else if (m_ptr->stance == STANCE_CONFIDENT)
+				{
+					my_strcpy(tmp, "Confident", sizeof(tmp));
+					attr = TERM_L_WHITE;
+				}
+				else if (m_ptr->stance == STANCE_AGGRESSIVE)
+				{
+					my_strcpy(tmp, "Aggress", sizeof(tmp));
+					attr = TERM_L_WHITE;
+				}
+				
+				if (m_ptr->morale >= 0)	sprintf(buf, "%s %d", tmp, (m_ptr->morale + 9) / 10);
+				else					sprintf(buf, "%s %d", tmp, m_ptr->morale / 10);
 			}
 
-			if (m_ptr->morale >= 0)	sprintf(buf, "%s %d", tmp, (m_ptr->morale + 9) / 10);
-			else					sprintf(buf, "%s %d", tmp, m_ptr->morale / 10);
 		}
 		
 		Term_putstr(COL_INFO+(13-strlen(buf))/2, ROW_INFO+1, MIN(strlen(buf),12), attr, buf);
@@ -1625,6 +1635,13 @@ bool weapon_glows(object_type *o_ptr)
 }
 
 
+#define RADIUS_TORCH		1
+#define RADIUS_LESSER_JEWEL	1
+#define RADIUS_LANTERN		2
+#define RADIUS_FEANORIAN	3
+#define RADIUS_ARTEFACT		3
+#define RADIUS_SILMARIL		7
+
 /*
  * Extract and set the current "lite radius"
  */
@@ -1663,28 +1680,22 @@ void calc_torch(void)
 		{
 			bool extinguished = FALSE;
 			
-			/* Feanorian Lamps provide permanent, bright, light */
-			if ((o_ptr->sval == SV_LIGHT_FEANORIAN) || (o_ptr->sval == SV_LIGHT_SILMARIL))
-			{
-				p_ptr->cur_light += o_ptr->pval;
-			}
-
-			/* Artefact Lites provide permanent, bright, light */
-			else if (artefact_p(o_ptr))
-			{
-				p_ptr->cur_light += 3;
-			}
+			/* Some items provide permanent, bright, light */
+			if (o_ptr->sval == SV_LIGHT_LESSER_JEWEL)		p_ptr->cur_light += RADIUS_LESSER_JEWEL;
+			else if (o_ptr->sval == SV_LIGHT_FEANORIAN)		p_ptr->cur_light += RADIUS_FEANORIAN;
+			else if (o_ptr->sval == SV_LIGHT_SILMARIL)		p_ptr->cur_light += RADIUS_SILMARIL;
+			else if (artefact_p(o_ptr))						p_ptr->cur_light += RADIUS_ARTEFACT;
 
 			/* Torches (with fuel) provide some light */
 			else if ((o_ptr->sval == SV_LIGHT_TORCH) && (o_ptr->timeout > 0))
 			{
-				p_ptr->cur_light += light_up_to(1, o_ptr);
+				p_ptr->cur_light += light_up_to(RADIUS_TORCH, o_ptr);
 			}
 
 			/* Lanterns (with fuel) provide more light */
 			else if ((o_ptr->sval == SV_LIGHT_LANTERN) && (o_ptr->timeout > 0))
 			{
-				p_ptr->cur_light += light_up_to(2, o_ptr);
+				p_ptr->cur_light += light_up_to(RADIUS_LANTERN, o_ptr);
 			}
 			
 			else
@@ -1832,7 +1843,7 @@ int ability_bonus(int skilltype, int abilitynum)
 			}
 			case SNG_AULE:
 			{
-				bonus = skill / 3;
+				bonus = skill / 5;
 				break;
 			}
 			case SNG_STAYING:
@@ -1979,6 +1990,26 @@ static void calc_bonuses(void)
 
 	int armour_weight = 0;
 
+	// Remove off-hand weapons if you cannot wield them
+	if (!p_ptr->active_ability[S_MEL][MEL_TWO_WEAPON])
+	{
+		o_ptr = &inventory[INVEN_ARM];
+		
+		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_DIGGING))
+		{
+			char o_name[80];
+			
+			/* Full object description */
+			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+			
+			/* Print the messages */
+			msg_print("You can no longer wield both weapons.");
+			
+			// take it off
+			do_cmd_takeoff(o_ptr, INVEN_ARM);
+		}
+	}
+	
 	/*** Memorize ***/
 
 	/* Save the old speed */
@@ -2803,14 +2834,25 @@ void update_lore_aux(object_type *o_ptr)
 				gain_exp(new_exp);
 				p_ptr->ident_exp += new_exp;
 				
-				/* Get a shorter description to fit the notes file */
-				object_desc(shorter_desc, sizeof(shorter_desc), o_ptr, TRUE, 0);
-				
-				/* Build note and write */
-				sprintf(note, "Found %s", shorter_desc);
-				
-				/* Record the depth where the artefact was created */
-				do_cmd_note(note, o_ptr->xtra1);
+				// display a note for new artefacts
+				if ((o_ptr->name1 != ART_MORGOTH_2) && (o_ptr->name1 != ART_MORGOTH_1) && (o_ptr->name1 != ART_MORGOTH_0))
+				{
+					/* Get a shorter description to fit the notes file */
+					object_desc(shorter_desc, sizeof(shorter_desc), o_ptr, TRUE, 0);
+					
+					/* Build note and write */
+					if (o_ptr->xtra1 == p_ptr->depth)
+					{
+						sprintf(note, "Found %s", shorter_desc);
+					}
+					else
+					{
+						sprintf(note, "Found %s (from %d ft)", shorter_desc, o_ptr->xtra1 * 50);
+					}
+					
+					/* Record the depth where the artefact was identified */
+					do_cmd_note(note, p_ptr->depth);
+				}
 			}
 		}
 		

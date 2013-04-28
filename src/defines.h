@@ -50,7 +50,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.0"
+#define VERSION_STRING	"1.0.1"
 
 
 /*
@@ -58,7 +58,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	0
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -894,19 +894,19 @@
 #define FEAT_TRAP_HEAD       0x10
 #define FEAT_TRAP_TAIL       0x1C
 
-#define FEAT_TRAP_TRAPDOOR	 0x10
-#define FEAT_TRAP_PIT	     0x11
-#define FEAT_TRAP_SPIKED_PIT 0x12
-#define FEAT_TRAP_DART       0x13
-#define FEAT_TRAP_GAS_CONF   0x14
-#define FEAT_TRAP_GAS_MEMORY 0x15
-#define FEAT_TRAP_ALARM	     0x16
-#define FEAT_TRAP_FLASH	     0x17
-#define FEAT_TRAP_CALTROPS   0x18
-#define FEAT_TRAP_ROOST      0x19
-#define FEAT_TRAP_WEB        0x1A
-#define FEAT_TRAP_DEADFALL   0x1B
-#define FEAT_TRAP_ACID       0x1C
+#define FEAT_TRAP_FALSE_FLOOR 0x10
+#define FEAT_TRAP_PIT	      0x11
+#define FEAT_TRAP_SPIKED_PIT  0x12
+#define FEAT_TRAP_DART        0x13
+#define FEAT_TRAP_GAS_CONF    0x14
+#define FEAT_TRAP_GAS_MEMORY  0x15
+#define FEAT_TRAP_ALARM	      0x16
+#define FEAT_TRAP_FLASH	      0x17
+#define FEAT_TRAP_CALTROPS    0x18
+#define FEAT_TRAP_ROOST       0x19
+#define FEAT_TRAP_WEB         0x1A
+#define FEAT_TRAP_DEADFALL    0x1B
+#define FEAT_TRAP_ACID        0x1C
 
 /* Doors */
 #define FEAT_DOOR_HEAD	0x20
@@ -1138,10 +1138,11 @@
 #define SV_MITHRIL_CORSLET			20
 
 /* The sval codes for TV_LIGHT */
-#define SV_LIGHT_TORCH		0
+#define SV_LIGHT_TORCH			0
 #define SV_LIGHT_LANTERN		1
-#define SV_LIGHT_FEANORIAN	8
-#define SV_LIGHT_SILMARIL	9
+#define SV_LIGHT_LESSER_JEWEL	2
+#define SV_LIGHT_FEANORIAN		8
+#define SV_LIGHT_SILMARIL		9
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_ADORNMENT			0
@@ -2200,7 +2201,7 @@
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_GLOW			0x00000020	/* Monster's own square is lit */
 #define RF2_RF2XXX1			0x00000040	/* (?) */
-#define RF2_WEIRD_MIND		0x00000080	/* Monster avoids telepathy sometimes */
+#define RF2_RF2XXX2			0x00000080	/* (?) */
 #define RF2_MULTIPLY		0x00000100	/* Monster reproduces */
 #define RF2_REGENERATE		0x00000200	/* Monster regenerates especially quickly */
 #define RF2_RF2XXX3			0x00000400	/* (?) */

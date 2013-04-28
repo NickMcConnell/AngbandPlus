@@ -753,7 +753,6 @@ static void wr_options(void)
 static void wr_extra(void)
 {
 	int i, j;
-	s16b tmp16s = 0;
 
 	wr_string(op_ptr->full_name);
 
@@ -817,7 +816,8 @@ static void wr_extra(void)
 
 	/* Max Dungeon Level */
 	wr_s16b(p_ptr->max_depth);
-	wr_s16b(tmp16s);
+	
+	wr_u16b(p_ptr->staircasiness);
 
 	/* More info */
 	wr_s16b(p_ptr->sc);

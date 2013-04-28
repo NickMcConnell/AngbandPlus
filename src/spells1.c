@@ -31,12 +31,6 @@ void teleport_away(int m_idx, int dis)
 
 	monster_type *m_ptr = &mon_list[m_idx];
 
-	/* no teleporting on certain levels */
-	if ((p_ptr->depth == 0) || (p_ptr->depth == MORGOTH_DEPTH))
-	{
-		return;
-	}
-
 	/* Paranoia */
 	if (!m_ptr->r_idx) return;
 
@@ -121,13 +115,6 @@ void teleport_player(int dis)
 	int d, i, min, y, x;
 
 	bool look = TRUE;
-
-	/* no teleporting on certain levels */
-	if ((p_ptr->depth == 0) || (p_ptr->depth == MORGOTH_DEPTH))
-	{
-		msg_print("Nothing happens.");
-		return;
-	}
 	
 	/* Minimum distance */
 	min = dis / 2;
@@ -168,7 +155,7 @@ void teleport_player(int dis)
 			if (!cave_naked_bold(y, x)) continue;
 
 			/* No teleporting into vaults and such */
-			if (cave_info[y][x] & (CAVE_ICKY)) continue;
+			//if (cave_info[y][x] & (CAVE_ICKY)) continue;
 
 			/*don't go over size of array*/
 			if (spot_counter < 20)
@@ -235,13 +222,6 @@ void teleport_player_to(int ny, int nx)
 
 	int dis = 0, ctr = 0;
 
-	/* no teleporting on certain levels */
-	if ((p_ptr->depth == 0) || (p_ptr->depth == MORGOTH_DEPTH))
-	{
-		msg_print("Nothing happens.");
-		return;
-	}
-
 	/* Initialize */
 	y = py;
 	x = px;
@@ -298,12 +278,6 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 	int dist;
 	int ctr = 0;
 	int min = 2, max = 4;
-
-	/* no teleporting on certain levels */
-	if ((p_ptr->depth == 0) || (p_ptr->depth == MORGOTH_DEPTH))
-	{
-		return;
-	}
 
 	/* Find a usable location */
 	while (TRUE)
@@ -397,17 +371,22 @@ void teleport_player_level()
 	{
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
+		// make a note if the player loses a greater vault
+		note_lost_greater_vault();
+
 		/* New depth */
 		p_ptr->depth--;
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
-
 	}
 
 	else
 	{
 		message(MSG_TPLEVEL, 0, "You sink through the floor.");
+
+		// make a note if the player loses a greater vault
+		note_lost_greater_vault();
 
 		/* New depth */
 		p_ptr->depth++;
@@ -593,7 +572,7 @@ void take_hit(int dam, cptr kb_str)
 		/* Write a note */
 
 		/* Get time */
-		(void)strftime(long_day, 40, "%d %B %Y at %I:%M %p", localtime(&ct));
+		(void)strftime(long_day, 40, "%d %B %Y", localtime(&ct));
 
 		/* Add note */
 		if (notes_file)
@@ -4646,6 +4625,7 @@ void sing(void)
 				int base_difficulty, difficulty;
 				int result;
 				int new_feat;
+				object_type *o_ptr;
 
 				if ((p_ptr->song_duration % 3) == type - 1) cost += 1;
 				
@@ -4666,10 +4646,31 @@ void sing(void)
 					{
 						if (!in_bounds_fully(y, x)) continue;
 						
-						/* Invisible trap */
-						if (cave_trap_bold(y, x) && (cave_info[y][x] & (CAVE_HIDDEN)))
+						// get the object present (if any)
+						o_ptr = &o_list[cave_o_idx[y][x]];
+						
+						/* Locked/trapped chest */
+						if (o_ptr->tval == TV_CHEST)
 						{
-							difficulty = base_difficulty + 10 + get_noise_dist(FLOW_REAL_NOISE, y, x);
+							/* Disarm/Unlock traps */
+							if (o_ptr->pval > 0)
+							{
+								difficulty = base_difficulty + 5 + get_noise_dist(FLOW_REAL_NOISE, y, x);
+								if (skill_check(PLAYER, score, difficulty, NULL) > 0)
+								{
+									/* Disarm or Unlock */
+									o_ptr->pval = (0 - o_ptr->pval);
+									
+									/* Identify */
+									object_known(o_ptr);
+								}
+							}
+						}
+							
+						/* Invisible trap */
+						else if (cave_trap_bold(y, x) && (cave_info[y][x] & (CAVE_HIDDEN)))
+						{
+							difficulty = base_difficulty + 5 + get_noise_dist(FLOW_REAL_NOISE, y, x);
 							if (skill_check(PLAYER, score, difficulty, NULL) > 0)
 							{
 								/* Remove the trap */
@@ -4680,7 +4681,7 @@ void sing(void)
 						/* Visible trap */
 						else if (cave_trap_bold(y,x))
 						{
-							difficulty = base_difficulty + 10 + get_noise_dist(FLOW_REAL_NOISE, y, x);
+							difficulty = base_difficulty + 5 + get_noise_dist(FLOW_REAL_NOISE, y, x);
 							if (skill_check(PLAYER, score, difficulty, NULL) > 0)
 							{
 								/* Remove the trap */
@@ -4696,7 +4697,7 @@ void sing(void)
 						/* Secret door */
 						else if (cave_feat[y][x] == FEAT_SECRET)
 						{
-							difficulty = base_difficulty + 5 + get_noise_dist(FLOW_REAL_NOISE, y, x);
+							difficulty = base_difficulty + 0 + get_noise_dist(FLOW_REAL_NOISE, y, x);
 							if (skill_check(PLAYER, score, difficulty, NULL) > 0)
 							{
 								/* Pick a door */
@@ -4716,13 +4717,13 @@ void sing(void)
 						/* Stuck door */
 						else if ((cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x08) && (cave_feat[y][x] <= FEAT_DOOR_TAIL))
 						{
-							difficulty = base_difficulty + 5 + get_noise_dist(FLOW_REAL_NOISE, y, x);
+							difficulty = base_difficulty + 0 + get_noise_dist(FLOW_REAL_NOISE, y, x);
 							result = skill_check(PLAYER, score, difficulty, NULL);
 							if (result > 0)
 							{
 								new_feat = cave_feat[y][x] - result;
 								
-								if (new_feat < FEAT_DOOR_HEAD + 0x08) new_feat = FEAT_DOOR_HEAD;
+								if (new_feat <= FEAT_DOOR_HEAD + 0x08) new_feat = FEAT_DOOR_HEAD;
 								
 								cave_feat[y][x] = new_feat;
 							}
@@ -4731,7 +4732,7 @@ void sing(void)
 						/* Locked door */
 						else if ((cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01) && (cave_feat[y][x] <= FEAT_DOOR_HEAD + 0x07))
 						{
-							difficulty = base_difficulty + 5 + get_noise_dist(FLOW_REAL_NOISE, y, x);
+							difficulty = base_difficulty + 0 + get_noise_dist(FLOW_REAL_NOISE, y, x);
 							result = skill_check(PLAYER, score, difficulty, NULL);
 							if (result > 0)
 							{
@@ -4754,7 +4755,7 @@ void sing(void)
 			}
 			case SNG_AULE:
 			{
-				cost += 1;
+				if ((p_ptr->song_duration % 3) == type - 1) cost += 1;
 				break;
 			}
 			case SNG_STAYING:

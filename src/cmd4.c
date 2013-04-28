@@ -1647,7 +1647,7 @@ static const smithing_flag_desc smithing_flag_types[] =
 	{ CAT_SUST,		TR2_SUST_GRA,		2,	"Sustain Gra"			},
 	{ CAT_RES,		TR2_RES_COLD,		2,	"Resist Cold"			},
 	{ CAT_RES,		TR2_RES_FIRE,		2,	"Resist Fire"			},
-	{ CAT_RES,		TR2_RES_POIS,		2,	"Resist Pois"			},
+	{ CAT_RES,		TR2_RES_POIS,		2,	"Resist Poison"			},
 	{ CAT_RES,		TR2_RES_FEAR,		2,	"Resist Fear"			},
 	{ CAT_RES,		TR2_RES_BLIND,		2,	"Resist Blindness"		},
 	{ CAT_RES,		TR2_RES_CONFU,		2,	"Resist Confusion"		},
@@ -3015,6 +3015,12 @@ void pay_costs()
 	if (smithing_cost.mithril > 0) use_mithril(smithing_cost.mithril);	
 	if (smithing_cost.uses > 0) cave_feat[p_ptr->py][p_ptr->px] -= smithing_cost.uses;
 	if (smithing_cost.drain > 0) p_ptr->skill_base[S_SMT] -= smithing_cost.drain;
+
+	/* Calculate the bonuses */
+	p_ptr->update |= (PU_BONUS);
+	
+	/* Set the redraw flag for everything */
+	p_ptr->redraw |= (PR_EXP | PR_BASIC);	
 }
 
 
@@ -8708,6 +8714,14 @@ static bool prepare_fake_artefact(object_type *o_ptr, byte name1)
 	o_ptr->pd = a_ptr->pd;
 	o_ptr->ps = a_ptr->ps;
 	o_ptr->weight = a_ptr->weight;
+
+	// add the abilities
+	for (i = 0; i < a_ptr->abilities; i++)
+	{
+		o_ptr->skilltype[i + o_ptr->abilities] = a_ptr->skilltype[i];
+		o_ptr->abilitynum[i + o_ptr->abilities] = a_ptr->abilitynum[i];
+	}
+	o_ptr->abilities += a_ptr->abilities;	
 
 	/*identify it*/
 	object_known(o_ptr);

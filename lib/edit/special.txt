@@ -48,7 +48,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 
 
@@ -221,13 +221,13 @@ B:3/1
 
 
 # Daggers only
-# Ability 0/9 is 'two weapon fighting'
+# Ability 0/10 is 'two weapon fighting'
 
 N:29:of Accompaniment
 W:0:1:0:2000
 C:0:0:0:0:0:0:0
 T:23:4:4
-B:0/9
+B:0/10
 
 
 # Edged weapons, glaives and halberds
@@ -241,7 +241,7 @@ F:IGNORE_ALL
 
 
 # All weapons except light blades
-# Ability 0/5 is Continuation
+# Ability 0/5 is Follow-Through
 
 N:31:of Hador's House
 W:8:3:0:3000
@@ -273,13 +273,13 @@ F:GRA | LIGHT
 
 
 # Edged weapons
-# Ability 0/11 is Whirlwind Attack
+# Ability 0/12 is Whirlwind Attack
 
 N:34:of Fury
 W:10:2:0:2000
 C:0:0:0:0:0:0:0
 T:23:0:99
-B:0/11
+B:0/12
 F:AGGRAVATE
 
 
@@ -387,12 +387,13 @@ T:33:0:99
 F:RES_CONFU | RES_STUN | RES_HALLU
 
 
-# crowns only
+# crowns (and lesser jewels) only
 
 N:75:of Grace
 W:10:2:0:3000
 C:0:0:0:0:0:0:1
 T:33:0:99
+T:39:2:2
 F:GRA
 
 
@@ -579,7 +580,7 @@ T:31:0:99
 F:DEX | LIGHT_CURSE
 
 
-##### Lanterns #####
+##### Light sources (but not torches) #####
 
 
 N:130:of Brightness
@@ -596,7 +597,12 @@ T:39:1:8
 F:SEE_INVIS | RES_BLIND | RES_HALLU
 
 
-N:132:of Shadows
+# lesser jewels also have "of Grace" in crown section
+
+
+# Lanterns only
+
+N:135:of Shadows
 W:0:1:11:0
 C:0:0:0:0:0:0:0
 T:39:1:1

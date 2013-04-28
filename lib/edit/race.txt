@@ -39,7 +39,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 # - Noldor:
 #   - The deep elves
@@ -68,15 +68,14 @@ D: hair is mostly dark and their eyes grey.
 #   - Stat modifers  -1 +1 +2 +1
 #   - Blade proficiency = a bonus of 1 to melee when wielding '|' weapons
 #   - Arc affinity = a bonus of 1 to archery and a free ability
-#   - Sng affinity = a bonus of 1 to song and a free ability
 
 N:1:Sindar
 S:-1:1:2:1
 I:4:20:4865
 H:77:4:68:2
 W:159:10:153:10
-C:4
-F:BLADE_PROFICIENCY | ARC_AFFINITY | SNG_AFFINITY
+C:4|10
+F:BLADE_PROFICIENCY | ARC_AFFINITY
 E:39:0:3:4     # ~ Wooden Torches (3-4)
 E:80:37:3:3    # , Fragment of Lembas (3)
 D:The Sindar are the 'Grey-elves' who never saw the blessed light of
@@ -90,7 +89,6 @@ D: Noldor, but have fair voices and are gifted in song.
 #   - Axe proficiency = a bonus of 1 to melee when wielding an axe
 #   - Arc penalty = a penalty of -1 to archery and abilities cost 500 more
 #   - Smt affinity = a bonus of 1 to smithing and a free ability
-#   - Wil affinity = a bonus of 1 to will and a free ability
 
 N:2:Naugrim
 S:0:-1:3:1
@@ -98,7 +96,7 @@ I:16:35:180
 H:51:3:49:2
 W:160:10:150:10
 C:5|6
-F:AXE_PROFICIENCY | ARC_PENALTY | SMT_AFFINITY | WIL_AFFINITY
+F:AXE_PROFICIENCY | ARC_PENALTY | SMT_AFFINITY
 E:39:0:3:4     # ~ Wooden Torches (3-4)
 E:80:35:5:5    # , Pieces of Dark Bread (5)
 D:The dwarves are stone-hard and stubborn, fast in friendship

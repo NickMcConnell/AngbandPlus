@@ -887,6 +887,7 @@ struct player_type
 	s16b food;			/* Current nutrition */
 
 	u16b stairs_taken;	/* The number of times stairs have been used */
+	u16b staircasiness;	/* Gets higher when stairs are taken and slowly decays */
 
 	byte stealth_mode;	/* Stealth mode */
 
@@ -1075,7 +1076,7 @@ struct high_score
 {
 	char what[8];		/* Version info (string) */
 
-	char pts[5];		/* Total Score (number) */
+	char pts[5];		/* obsolete */
 
 	char turns[10];		/* Turns Taken (number) */
 

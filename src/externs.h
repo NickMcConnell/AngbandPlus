@@ -355,6 +355,7 @@ extern void run_step(int dir);
 
 /* cmd2.c */
 extern int min_depth(void);
+extern void note_lost_greater_vault(void);
 extern void do_cmd_go_up(void);
 extern void do_cmd_go_down(void);
 extern void do_cmd_search(void);
@@ -476,6 +477,7 @@ extern void do_cmd_suicide(void);
 extern void do_cmd_save_game(void);
 extern void show_scores(void);
 extern void comma_number(char *output, int number);
+extern void atomonth(int number, char *output);
 extern void display_single_score(byte attr, int row, int col, int place, int fake, high_score *the_score);
 extern void display_scores(int from, int to);
 extern void close_game(void);
@@ -972,6 +974,7 @@ extern bool allow_player_stun(monster_type *m_ptr);
 extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
+extern void falling_damage(bool stun);
 extern void check_experience(void);
 extern s32b adjusted_mon_exp(const monster_race *r_ptr, bool kill);
 extern void gain_exp(s32b amount);

@@ -1,0 +1,119 @@
+- Sil 1.0.2 ----------------------------------------------------------------------------------------------
+
+- linux version
+
+
+- races/houses
+	- adjusted the dwarven race/houses slightly
+	- added a new Sindar house
+	- now all houses add a similar level of bonus to the race
+		- 1 stat point, and 1 affinity
+
+- items
+	- made Mattocks a bit less damaging (5d2 from 6d2)
+		- but left the artefact mattock as is!
+	- changed Shovels from 3d1 to 2d2
+	- daggers of accompaniment
+		- no longer go into your off-hand before being identified
+		- can no longer be switched out leaving two weapons without the ability
+
+- fear
+	- trying to attack while afraid no longer costs you a turn
+	- throwing items now also fails when afraid
+
+- monsters
+	- made uniques who were famous only in later ages less common
+
+- smithing
+	- fixed bug where display of experience wasn't changed when it was used up
+	- changed light source radius to not depend on the special value (pval)
+		- now can make Feanorian Lamp of Grace <+1> without reducing its radius
+	- the bonus from Song of Aule is reduced from Song/3 to Song/5
+
+- interface
+	- changed key for options in creation menu from (=) to (O) to match normal play
+
+- notes
+	- stopped saying you have 'found' the further versions of the iron crown
+	- 'subdued' deathblades instead of 'destroyed'
+
+- endgame
+	- fixed bug where you used to get the curse message even when failing to get the silmaril
+
+- dungeon
+	- fixed a bug where an up-shaft was incorrectly created for you when stairs crumbled
+
+- abilities
+	- Lore-master now correctly displays monster Will and Perception in the monster memory
+
+
+- Sil 1.0.1 ----------------------------------------------------------------------------------------------
+
+- interface
+	- corrected the keypad in the (?) screen
+	- made Angband-like keyset use (+) instead of (/)
+	- brought back the (M) map command due to popular request
+	- using torches and lanterns now refuels your current one by default (if you are already wielding one)
+		- if you want to swap torches/lanterns, just remove the existing one first
+		- it now warns you about overfueling
+
+- display
+	- added a 'Score' line to the character dumps to help with the Angband ladder
+	- made the combat rolls window more compact and more flexible
+	- removed monster health, alertness and morale info for the target if out of sight
+	- fixed display of "Mindless"
+	- fixed display of hits doing 10 damage
+	- stopped printing an empty description for one handed weapons
+	- added weights of weapons to character dumps
+	- fixed display of dates
+	- now shows artefacts' abilities in the Artefact info screen
+	- now tags the finding of an artefact with the level you identify it on
+		- but *also* shows the level it was found on if that was different
+	- no longer tells you that you didn't enter a greater vault if you didn't discover the vault
+		- but you still can never find that vault again
+	- now displays the correct depth for the note about missing a greater vault
+		- instead of the new depth you went to from that level
+	- adds a small screenshot to character dumps for dead characters
+
+- potion of true sight now gives (temporary) resistance to blindness
+
+- reduced the Will of cat-type creatures
+	- making them more vulnerable to being put to sleep/terrified
+
+- abilities
+	- fixed the second prerequisite for Strength (to Knock Back)
+	- made the Song of Aule cost only 1/3 of a point of voice per turn
+	- the Song of Freedom now disarms and unlocks chests
+	- the Song of Freedom now has all its difficulty levels in skill checks reduced by 5
+
+- items
+	- added Lesser Jewels
+	- fixed a bug where items with different prot values could be stacked together
+	- fixed a bug where weapons of Fury gave Knock Back instead of Whirlwind
+		- and daggers of accompaniment gave Rapid Attack instead of Two Weapon Fighting
+	- allows {special} items to stack before being identified if they have the same type
+		- most useful for found stacks of {special} throwing items
+	- staves of revelations now work in the Throne Room (if you get one there, good luck to you!)
+
+- artefacts
+	- some minor changes to rarity and to the artefacts themselves
+
+- monsters
+	- decreased the evasion of the Cat warrior family of creatures by a small amount
+
+- traps
+	- change "trap doors" to "false floors"
+		- trap doors are a bit too comic in flavour
+		- the effect is basically the same
+		- tweaked to avoid ever killing characters with the damage
+
+- staircases
+	- no longer take 100 turns of food and game clock
+	- the forcing downwards time limits still avoid the infinite levels problem
+	- the 'stair-scumming' problem of going up and down repeatedly is now avoided with trapped stairs
+	- trapped stairs
+		- there is a chance that the stairs give way beneath you like a trap door / false floor
+		- this chance is miniscule or even zero in normal play
+		- but it goes up the more you use the stairs in quick succession
+		- attempts to stairscum will quickly lead to being injured on a level with no escape 
+		- we think this is pretty difficult to abuse..

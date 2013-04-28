@@ -679,22 +679,21 @@ static bool play_instrument(object_type *o_ptr, bool *ident)
 			{
 				if (p_ptr->depth < (MORGOTH_DEPTH - 1))
 				{
-					int dam = damroll(4,8);
-
-					msg_print("The floor under you crumbles. You fall down into the rubble!");
-
-					update_combat_rolls1b(PLAYER, PLAYER, TRUE);
-					update_combat_rolls2(4, 8, dam, -1, -1, 0, 0, GF_HURT);
+					msg_print("The floor crumbles beneath you!");
+					message_flush();
+					msg_print("You fall through...");
+					message_flush();
+					msg_print("...and land somewhere deeper in the Iron Hells.");
+					message_flush();
 					
-					take_hit(dam, "a collapsing floor");
-					
-					if (allow_player_stun(NULL))
-					{ 
-						set_stun(p_ptr->stun + dam * 4);
-					}
+					// take some damage
+					falling_damage(TRUE);
 					
 					message_flush();
 					
+					// make a note if the player loses a greater vault
+					note_lost_greater_vault();
+
 					/* New depth */
 					p_ptr->depth++;
 					

@@ -61,7 +61,7 @@ bool allow_player_aux(monster_type *m_ptr, int player_flag, u32b ident_flag)
 /* Players with blindness resistance or who make their saving throw don't get blinded */
 bool allow_player_blind(monster_type *m_ptr)
 {
-	return (allow_player_aux(m_ptr, p_ptr->resist_blind, TR2_RES_BLIND));
+	return (allow_player_aux(m_ptr, p_ptr->resist_blind || p_ptr->tim_invis, TR2_RES_BLIND));
 }
 
 /*
@@ -1534,6 +1534,47 @@ bool set_food(int v)
 }
 
 
+/* 
+ * Falling damage 
+ */
+void falling_damage(bool stun)
+{
+	int dice = 0;
+	int dam;
+	
+	// Take character's health into account
+	// This is not totally 'above board' but it there is a balance between suspension
+	// of disbelief when you are not hurt at all, vs frustration at being killed by the fall
+	switch (health_level(p_ptr->chp, p_ptr->mhp))
+	{
+		case  HEALTH_UNHURT:				dice = 4;	break;  // 100% health
+		case  HEALTH_SOMEWHAT_WOUNDED:		dice = 3;	break;  // <= 99% health
+		case  HEALTH_WOUNDED:				dice = 2;	break;  // <= 75% health
+		case  HEALTH_BADLY_WOUNDED:			dice = 1;	break;  // <= 50% health
+		case  HEALTH_ALMOST_DEAD:			dice = 0;	break;  // <= 25% health
+	}
+	
+	// calculate the damage
+	dam = damroll(dice, 4);
+	
+	if (dice > 0)
+	{
+		// update the combat rolls window
+		update_combat_rolls1b(PLAYER, PLAYER, TRUE);
+		update_combat_rolls2(dice, 4, dam, -1, -1, 0, 0, GF_HURT);
+		
+		/* Take the damage */
+		take_hit(dam, "a collapsing floor");
+	}
+	
+	if (stun && allow_player_stun(NULL))
+	{ 
+		set_stun(p_ptr->stun + dam * 5);
+	}
+	
+	// reset staircasiness
+	p_ptr->staircasiness = 0;
+}
 
 
 
@@ -2136,8 +2177,9 @@ void monster_death(int m_idx)
 		monster_desc_race(real_name, sizeof(real_name), m_ptr->r_idx);
 			
 		/* Write note */
-		if monster_nonliving(r_ptr)	my_strcpy(note2, format("Destroyed %s", real_name), sizeof (note2));
-		else						my_strcpy(note2, format("Slew %s", real_name), sizeof (note2));
+		if (monster_nonliving(r_ptr) && (r_ptr->d_char == '|'))	my_strcpy(note2, format("Subdued %s", real_name), sizeof (note2));
+		else if (monster_nonliving(r_ptr))						my_strcpy(note2, format("Destroyed %s", real_name), sizeof (note2));
+		else													my_strcpy(note2, format("Slew %s", real_name), sizeof (note2));
 		
  		do_cmd_note(note2, p_ptr->depth);
 	}

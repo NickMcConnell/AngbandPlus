@@ -36,7 +36,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 
 # 0x00 --> <darkness>
@@ -120,9 +120,9 @@ G:1:s
 N:15:unused
 G:1:s
 
-# 0x10 --> visible trap -- trap door
+# 0x10 --> visible trap -- false floor
 
-N:16:trap door
+N:16:false floor
 G:^:U
 
 # 0x11 --> visible trap -- open pit

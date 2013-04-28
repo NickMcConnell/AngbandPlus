@@ -2548,24 +2548,21 @@ void hit_trap(int y, int x)
 	/* Analyze XXX XXX XXX */
 	switch (feat)
 	{
-		case FEAT_TRAP_TRAPDOOR:
- 		{
+		case FEAT_TRAP_FALSE_FLOOR:
+ 		{			
 			// give several messages so the player has a chance to see it happen
-			msg_print("A trap door swings open beneath your feet!");
+			msg_print("The floor crumbles beneath you!");
 			message_flush();
 			msg_print("You fall through...");
 			message_flush();
-			msg_print("...and land somewhere deeper in the Iron Pits.");
+			msg_print("...and land somewhere deeper in the Iron Hells.");
 			message_flush();
 						
-			/* Falling damage */
-			dam = damroll(3, 4);
-
-			update_combat_rolls1b(NULL, PLAYER, TRUE);
-			update_combat_rolls2(3, 4, dam, -1, -1, 0, 0, GF_HURT);
-
-			/* Take the damage */
-			take_hit(dam, name);
+			// take some damage
+			falling_damage(FALSE);
+			
+			// make a note if the player loses a greater vault
+			note_lost_greater_vault();
 
 			/* New depth */
 			p_ptr->depth++;
@@ -3069,7 +3066,7 @@ void display_hit(int y, int x, int net_dam, int dam_type)
 	print_rel(c, a, y, x);
 	move_cursor_relative(y, x);
 	
-	if (net_dam > 10)	print_rel((char) 48 + (net_dam / 10), a, y, x-1);
+	if (net_dam >= 10)	print_rel((char) 48 + (net_dam / 10), a, y, x-1);
 	move_cursor_relative(y, x-1);
 	
 	Term_fresh();
@@ -3334,6 +3331,12 @@ void py_attack_aux(int y, int x, int attack_type)
 	{
 		/* Message */
 		msg_format("You are too afraid to attack %s!", m_name);
+
+		// reset the action type
+		p_ptr->previous_action[0] = ACTION_NOTHING;
+
+		// don't take a turn
+		p_ptr->energy_use = 0;
 
 		/* Done */
 		return;
@@ -3600,7 +3603,7 @@ void py_attack_aux(int y, int x, int attack_type)
 					}
 				}
 
-				// Morgoth drops his iron crown if he is hit for 20 or more raw damage
+				// Morgoth drops his iron crown if he is hit for 25 or more raw damage
 				if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && (dam >= 25))
 				{
 					drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");

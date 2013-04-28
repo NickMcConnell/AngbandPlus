@@ -1225,6 +1225,17 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			break;
 		}
 
+		/* Rings, Amulets, Lites and Books */
+		case TV_RING:
+		case TV_AMULET:
+		case TV_LIGHT:
+		{
+			/* Require both items to be known */
+			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (FALSE);
+			
+			/* Fall through */
+		}
+
 		/* Weapons and Armor */
 		case TV_BOW:
 		case TV_DIGGING:
@@ -1243,18 +1254,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Fall Through */
 		}
 
-		/* Rings, Amulets, Lites and Books */
-		case TV_RING:
-		case TV_AMULET:
-		case TV_LIGHT:
-		{
-			/* Require both items to be known */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (FALSE);
-
-			/* Fall through */
-		}
-
-		/* Missiles */
+		/* Missiles & most things from above */
 		case TV_ARROW:
 		{
 			/* Require identical knowledge of both items */
@@ -1265,6 +1265,13 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			if (o_ptr->evn != j_ptr->evn) return (FALSE);
 			if (o_ptr->ds != j_ptr->ds) return (FALSE);
 			if (o_ptr->dd != j_ptr->dd) return (FALSE);
+			
+			// only check protection if at least one item has it
+			if ((o_ptr->pd * o_ptr->ps > 0) || (j_ptr->pd * j_ptr->ps > 0))
+			{
+				if (o_ptr->ps != j_ptr->ps) return (FALSE);
+				if (o_ptr->pd != j_ptr->pd) return (FALSE);
+			}
 
 			/* Require identical "pval" code */
 			if (o_ptr->pval != j_ptr->pval) return (FALSE);
@@ -1283,10 +1290,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 
 			/* Hack -- Never stack recharging items */
 			else if (o_ptr->timeout || j_ptr->timeout) return (FALSE);
-
-			/* Require identical "values" */
-			if (o_ptr->dd != j_ptr->dd) return (FALSE);
-			if (o_ptr->ds != j_ptr->ds) return (FALSE);
 
 			/* Probably okay */
 			break;
@@ -3963,7 +3966,7 @@ void place_trap(int y, int x)
 
 		switch (feat)
 		{
-			case FEAT_TRAP_TRAPDOOR:
+			case FEAT_TRAP_FALSE_FLOOR:
 			{
 				// 5-18
 				if (p_ptr->depth < 5) continue;

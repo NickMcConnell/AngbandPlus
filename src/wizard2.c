@@ -1170,6 +1170,9 @@ static void do_cmd_wiz_jump(void)
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", p_ptr->command_arg);
 
+	// make a note if the player loses a greater vault
+	note_lost_greater_vault();
+
 	/* New depth */
 	p_ptr->depth = p_ptr->command_arg;
 

@@ -52,9 +52,9 @@
 #     from attack. There may be up to four of these lines; effect and
 #     damage are optional.
 #
-# 'S' is for spells. The first S: line must be S:1_IN_X with X the
-#     number of monster turns, on average, before the monster will cast
-#     one of its spells. X must not be zero. If X is 1, the monster will
+# 'S' is for spells. The first S: line must be S:SPELL_PCT_X with X the
+#     percentage chance of casting each turn. X must not be zero. If X is 100,
+#     the monster will
 #     never move while the player is in sight, and will thus never attack
 #     in melee, as it will cast spells every turn: if the monster is to use
 #     a melee attack, then X must be 2 or greater.  Power determines the 
@@ -165,7 +165,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 
 ##### Non-race (contains the player picture) #####
@@ -244,7 +244,7 @@ I:1:6d4:0:0
 A:10:0:5:1
 P:[+0]
 B:CRAWL:POISON:(+2,1d5)
-F:RAND_25 | RAND_50 | MINDLESS | WEIRD_MIND | MULTIPLY
+F:RAND_25 | RAND_50 | MINDLESS | MULTIPLY
 F:FRIEND | RES_POIS | NO_FEAR | NO_CONF | RES_CRIT
 F:TERRITORIAL
 D:It is a disgusting mass of worms, twisting and writhing
@@ -286,7 +286,7 @@ I:3:3d4:0:0
 A:15:2:3:1
 P:[+3,4d4]
 B:BITE:HURT:(+4,2d4)
-F:RAND_50 | WEIRD_MIND | ATTR_MULTI | TERRITORIAL
+F:RAND_50 | ATTR_MULTI | TERRITORIAL
 D:It is a four foot long centipede, scurrying towards you.
 D: It is protected by a thick, metallic green carapace.
 
@@ -325,7 +325,7 @@ I:1:6d4:0:0
 A:10:1:5:2
 P:[+0]
 B:CRAWL:ACID:(+4,2d5)
-F:RAND_25 | RAND_50 | MINDLESS | WEIRD_MIND | MULTIPLY
+F:RAND_25 | RAND_50 | MINDLESS | MULTIPLY
 F:FRIEND | NO_FEAR | NO_CONF | RES_CRIT
 F:TERRITORIAL
 D:It is a disgusting mass of worms, twisting and writhing
@@ -371,7 +371,7 @@ I:3:12d4:0:0
 A:15:3:2:3
 P:[+6,1d4]
 B:BITE:HURT:(+7,2d9)
-F:WEIRD_MIND | SPIDER | TERRITORIAL
+F:SPIDER | TERRITORIAL
 D:A giant black spider with sword-sharp mandibles.
 D: It skitters back and forth.
 
@@ -383,7 +383,7 @@ I:4:1d4:0:0
 A:5:5:1:3
 P:[+11]
 B:STING:CONFUSE:(+10,1d7)
-F:RAND_25 | RAND_50 | WEIRD_MIND | FRIENDS | TERRITORIAL
+F:RAND_25 | RAND_50 | FRIENDS | TERRITORIAL
 D:A giant buzzing wasp, its stinger drips venom.
 
 
@@ -437,7 +437,7 @@ A:10:2:5:4
 P:[+1]
 B:CRAWL:POISON:(+6,1d5)
 F:ATTR_CLEAR | RAND_25 | RAND_50 | MINDLESS | INVISIBLE
-F:WEIRD_MIND | MULTIPLY | FRIEND | RES_POIS
+F:MULTIPLY | FRIEND | RES_POIS
 F:NO_FEAR | NO_CONF | RES_CRIT
 F:TERRITORIAL
 D:It is a disgusting mass of transparent worms, twisting and writhing
@@ -494,7 +494,7 @@ I:3:3d4:0:0
 A:10:3:3:4
 P:[7,4d4]
 B:BITE:HURT:(+8,2d6)
-F:RAND_25 | WEIRD_MIND | ATTR_MULTI | TERRITORIAL
+F:RAND_25 | ATTR_MULTI | TERRITORIAL
 D:It is a four foot long centipede, scurrying towards you.
 D: It is protected by a thick, metallic red carapace.
 
@@ -544,7 +544,7 @@ I:1:6d4:0:0
 A:10:2:5:5
 P:[+3]
 B:CRAWL:LOSE_STR:(+5,3d5)
-F:RAND_25 | RAND_50 | MINDLESS | WEIRD_MIND | MULTIPLY
+F:RAND_25 | RAND_50 | MINDLESS | MULTIPLY
 F:FRIEND | NO_FEAR | NO_CONF | RES_CRIT
 F:TERRITORIAL
 D:It is a disgusting mass of worms, twisting and writhing
@@ -639,7 +639,7 @@ I:2:18d4:0:0
 A:15:5:3:6
 P:[+6]
 B:BITE:POISON:(+6,2d11)
-F:WEIRD_MIND | BASH_DOOR | SPIDER | RES_POIS | TERRITORIAL
+F:BASH_DOOR | SPIDER | RES_POIS | TERRITORIAL
 D:It is a vast spider whose bulbous body is bloated with poison.
 
 
@@ -650,7 +650,7 @@ I:4:5d4:0:0
 A:5:6:3:6
 P:[+15]
 B:STING:HALLU:(+15,1d7)
-F:RAND_25 | RAND_50 | WEIRD_MIND | ATTR_MULTI | TERRITORIAL
+F:RAND_25 | RAND_50 | ATTR_MULTI | TERRITORIAL
 D:A vast, iridescent green dragonfly.
 
 
@@ -726,7 +726,7 @@ I:4:5d4:0:0
 A:5:6:3:6
 P:[+16]
 B:STING:LOSE_DEX:(+16,1d7)
-F:RAND_25 | RAND_50 | WEIRD_MIND | TERRITORIAL
+F:RAND_25 | RAND_50 | TERRITORIAL
 D:A vast, iridescent violet dragonfly.
 
 
@@ -781,7 +781,7 @@ I:4:5d4:0:0
 A:5:6:3:7
 P:[+17]
 B:STING:CONFUSE:(+17,1d7)
-F:RAND_25 | RAND_50 | WEIRD_MIND | ATTR_MULTI | TERRITORIAL
+F:RAND_25 | RAND_50 | ATTR_MULTI | TERRITORIAL
 D:This vast gleaming bronze dragonfly has wings
 D: which beat mesmerically fast.
 
@@ -855,7 +855,7 @@ I:1:6d4:0:0
 A:10:4:5:8
 P:[+7]
 B:CRAWL:LOSE_GRA:(+11,3d5)
-F:RAND_25 | RAND_50 | MINDLESS | WEIRD_MIND | MULTIPLY
+F:RAND_25 | RAND_50 | MINDLESS | MULTIPLY
 F:BASH_DOOR | FRIEND | KILL_WALL
 F:NO_FEAR | NO_CONF | RES_CRIT | TERRITORIAL
 D:It is a disgusting mass of dark worms, eating each other, the floor,
@@ -940,7 +940,7 @@ I:3:13d4:0:-2
 A:15:6:3:8
 P:[+13,1d4]
 B:BITE:BLIND:(+12,2d9)
-F:WEIRD_MIND | BASH_DOOR | SPIDER | RES_POIS
+F:BASH_DOOR | SPIDER | RES_POIS
 F:HURT_LITE | TERRITORIAL
 D:It is a great black spider wreathed in shadow.
 
@@ -1088,7 +1088,7 @@ I:3:10d4:0:0
 A:0:10:20:10
 P:[+18,5d4]
 B:HIT:HURT:(+25,1d9)
-F:WEIRD_MIND | DROP_CHOSEN | SHORT_SIGHTED
+F:DROP_CHOSEN | SHORT_SIGHTED
 F:NO_FEAR | RES_POIS | RES_COLD | RES_FIRE
 F:NO_CONF | NO_SLEEP | RES_CRIT
 D:A black blade, wreathed in shadow.
@@ -1100,8 +1100,8 @@ N:154:Cat warrior
 W:15:1
 G:f:U
 I:3:10d4:0:0
-A:20:10:10:10
-P:[+19,1d4]
+A:20:10:10:7
+P:[+17,1d4]
 B:CLAW:WOUND:(+20,1d9)
 F:FRIENDS | OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR | SMART
 F:DROP_33
@@ -1182,7 +1182,7 @@ I:4:10d4:0:0
 A:0:10:10:10
 P:[-5,8d4]
 B:CLAW:WOUND:(+16,3d9)
-F:HIDDEN_MOVE | WEIRD_MIND | RES_COLD | RES_FIRE | STONE
+F:HIDDEN_MOVE | RES_COLD | RES_FIRE | STONE
 F:OPEN_DOOR | BASH_DOOR | MINDLESS
 F:NO_FEAR | RES_POIS | NO_CONF | NO_SLEEP | NO_CRIT
 #D:A marble statue of a nightmare creature with claws like blades.
@@ -1198,13 +1198,13 @@ N:166:Umuiyan, the Doorkeeper
 W:16:15
 G:f:y
 I:3:13d4:0:0
-A:20:11:10:11
-P:[+22,1d4]
+A:20:11:10:9
+P:[+20,1d4]
 B:CLAW:WOUND:(+25,1d11)
-S:SPELL_PCT_50 | POW_21
-S:ARROW1
 F:ESCORT | UNIQUE | MALE | OPEN_DOOR | BASH_DOOR | SMART
 F:DROP_100 | UNLOCK_DOOR | DROP_GOOD
+S:SPELL_PCT_50 | POW_21
+S:ARROW1
 D:This cat seems older than most, and more sly.
 D: He has long guarded the entrance to the fortress of Tevildo.
 
@@ -1278,19 +1278,19 @@ N:175:Cat assassin
 W:17:3
 G:f:D
 I:3:8d4:0:0
-A:5:12:15:11
-P:[+20,1d4]
+A:5:12:15:8
+P:[+19,1d4]
 B:CLAW:WOUND:(+20,1d11)
-S:SPELL_PCT_50 | POW_21
-S:ARROW1
 F:INVISIBLE | OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR | SMART
 F:DROP_100 | FRIEND
+S:SPELL_PCT_50 | POW_21
+S:ARROW1
 D:Slinking in the shadows, this jet-black cat is hard
 D: to discern even as it fires its cruel bow.
 
 
 N:176:Scatha the Worm
-W:17:15
+W:17:30
 G:d:B
 I:2:35d4:40:0
 A:30:9:2:15
@@ -1313,8 +1313,8 @@ N:177:Oikeroi, Guard of Tevildo
 W:17:15
 G:f:o
 I:3:18d4:0:0
-A:15:11:10:12
-P:[+22,1d4]
+A:15:11:10:9
+P:[+21,1d4]
 B:CLAW:WOUND:(+28,1d11)
 F:UNIQUE | MALE | OPEN_DOOR | BASH_DOOR | SMART
 F:UNLOCK_DOOR | UNIQUE_FRIEND | DROP_1D2 | DROP_GOOD
@@ -1401,7 +1401,7 @@ I:3:10d4:0:0
 A:0:10:20:13
 P:[+22,5d4]
 B:HIT:HURT:(+33,1d9)
-F:WEIRD_MIND | UNIQUE | DROP_CHOSEN | SHORT_SIGHTED
+F:UNIQUE | DROP_CHOSEN | SHORT_SIGHTED
 F:RES_COLD | RES_FIRE
 F:NO_FEAR | RES_POIS | NO_CONF | NO_SLEEP | RES_CRIT
 D:You are filled with dread as you look upon this black blade.
@@ -1413,8 +1413,8 @@ N:186:Tevildo, Prince of Cats
 W:18:10
 G:f:u
 I:3:14d4:0:0
-A:15:12:10:13
-P:[+24,1d4]
+A:15:12:10:10
+P:[+22,1d4]
 B:CLAW:WOUND:(+28,1d13)
 F:UNIQUE | MALE | OPEN_DOOR | BASH_DOOR | SMART
 F:UNLOCK_DOOR | UNIQUE_FRIEND | DROP_1D2 | DROP_GREAT
@@ -1547,7 +1547,7 @@ G:H:s
 I:2:10d4:0:0
 A:5:0:20:13
 P:[-5,8d4]
-F:NEVER_MOVE | WEIRD_MIND | RES_COLD | RES_FIRE
+F:NEVER_MOVE | RES_COLD | RES_FIRE
 F:STONE | SHORT_SIGHTED
 F:NO_FEAR | RES_POIS | NO_CONF | NO_SLEEP | NO_CRIT
 S:SPELL_PCT_100
@@ -1709,7 +1709,7 @@ D: do they move with such active malice...
 
 
 N:224:Shelob, Spider of Darkness
-W:22:15
+W:22:30
 G:M:D1
 I:2:18d4:141:-2
 A:10:9:3:14
@@ -1724,7 +1724,7 @@ D: of its light, that she takes to weave her deadly webs.
 
 
 N:225:Smaug the Golden
-W:22:10
+W:22:30
 G:d:y1
 I:3:35d4:30:0
 A:30:10:2:18
@@ -1876,8 +1876,7 @@ F:DROP_3D2 | DROP_GREAT
 F:SMART | BASH_DOOR | TERRITORIAL
 F:DRAGON | RES_FIRE | HURT_COLD
 S:SPELL_PCT_40 | POW_28
-S:BRTH_FIRE
-S:SCARE | HOLD | CONF | FORGET
+S:BRTH_FIRE | SCARE | HOLD | CONF | FORGET
 D:Lo! the golden dragon of the God of Hell...
 D: Father and forefather to the other dragons, he is grown
 D: now to an enormous size, matched only by the size of the
@@ -1928,13 +1927,13 @@ S:SPELL_PCT_25
 S:EARTHQUAKE
 D:He is the Master of the Pits of Angband. He rages with everlasting
 D: anger, seeking forever to dominate all that is light
-D: and good in the world.  He is the origin of man's fear of darkness
-D: and created many foul creatures with his evil powers.  Orcs, Dragons,
+D: and good in the world. He is the origin of man's fear of darkness
+D: and created many foul creatures with his evil powers. Orcs, Dragons,
 D: and Trolls are his most foul corruptions, causing much pain and
-D: suffering in the world to please him.  His disgusting visage, twisted
-D: with evil, is crowned with iron, the three Silmarils forever
-D: burning him.  In his right hand he bears Grond, the mighty Hammer of
-D: the Underworld.
+D: suffering in the world to please him. In his right hand he bears
+D: Grond, the mighty Hammer of the Underworld. His disgusting visage,
+D: twisted with evil, is crowned with iron, the three Silmarils forever
+D: burning him. You need to get to that crown.
 
 
 N:252:Morgoth, Lord of Darkness
@@ -1954,9 +1953,9 @@ S:EARTHQUAKE
 D:He is the Master of the Pits of Angband. He rages with everlasting
 D: anger, seeking forever to dominate all that is light
 D: and good in the world.  He is the origin of man's fear of darkness
-D: and created many foul creatures with his evil powers.  Orcs, Dragons,
+D: and created many foul creatures with his evil powers. Orcs, Dragons,
 D: and Trolls are his most foul corruptions, causing much pain and
-D: suffering in the world to please him.  In his right hand he bears
+D: suffering in the world to please him. In his right hand he bears
 D: Grond, the mighty Hammer of the Underworld.
 
 

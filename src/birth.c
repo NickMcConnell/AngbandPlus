@@ -482,7 +482,7 @@ static void player_wipe(void)
 	int weight = 0;
 		
 	// only save the old information if there was a character loaded
-	if (op_ptr->full_name[0])
+	if (character_loaded)
 	{
 		/* Backup the player choices */
 		psex = p_ptr->psex;
@@ -502,7 +502,7 @@ static void player_wipe(void)
 	(void)WIPE(p_ptr, player_type);
 
 	// only save the old information if there was a character loaded
-	if (op_ptr->full_name[0])
+	if (character_loaded)
 	{
 		/* Restore the choices */
 		p_ptr->psex = psex;
@@ -593,6 +593,7 @@ static void player_wipe(void)
 
 	p_ptr->food = PY_FOOD_FULL - 1;
 	p_ptr->stairs_taken = 0;
+	p_ptr->staircasiness = 0;
 
 	/*re-set the thefts counter*/
 	recent_failed_thefts = 0;
@@ -869,26 +870,36 @@ static int get_player_choice(birth_menu *choices, int num, int def, int col, int
 		/* Alphabetic choice */
 		else if (isalpha(c))
 		{
-			int choice;
 
-			if (islower(c)) choice = A2I(c);
-			else choice = c - 'A' + 26;
-
-			/* Validate input */
-			if ((choice > -1) && (choice < num) && !(choices[choice].ghost))
+			/* Options */
+			if ((c == 'O') || (c == 'o'))
 			{
-				cur = choice;
+				do_cmd_options();
+			}
 
-				/* Done */
-				done = TRUE;
-			}
-			else if (choices[choice].ghost)
-			{
-				bell("Your race cannot choose that house.");
-			}
 			else
 			{
-				bell("Illegal response to question!");
+				int choice;
+
+				if (islower(c)) choice = A2I(c);
+				else choice = c - 'A' + 26;
+				
+				/* Validate input */
+				if ((choice > -1) && (choice < num) && !(choices[choice].ghost))
+				{
+					cur = choice;
+					
+					/* Done */
+					done = TRUE;
+				}
+				else if (choices[choice].ghost)
+				{
+					bell("Your race cannot choose that house.");
+				}
+				else
+				{
+					bell("Illegal response to question!");
+				}
 			}
 		}
 
@@ -937,12 +948,6 @@ static int get_player_choice(birth_menu *choices, int num, int def, int col, int
 				/* Scroll down */
 				if ((top + hgt < (num - 1)) && ((top + hgt - cur) < 4)) top++;
 			}
-		}
-
-		/* Options */
-		else if (c == '=')
-		{
-			do_cmd_options();
 		}
 
 		/* Invalid input */
@@ -1386,7 +1391,7 @@ static bool player_birth_aux_1(void)
 	Term_putstr(QUESTION_COL + 32, INSTRUCT_ROW, - 1, TERM_L_WHITE, "Enter");
 	Term_putstr(QUESTION_COL + 9, INSTRUCT_ROW + 1, - 1, TERM_L_WHITE, "*");
 	Term_putstr(QUESTION_COL + 34, INSTRUCT_ROW + 1, - 1, TERM_L_WHITE, "ESC");
-	Term_putstr(QUESTION_COL + 9, INSTRUCT_ROW + 2, - 1, TERM_L_WHITE, "=");
+	Term_putstr(QUESTION_COL + 9, INSTRUCT_ROW + 2, - 1, TERM_L_WHITE, "O");
 	Term_putstr(QUESTION_COL + 36, INSTRUCT_ROW + 2, - 1, TERM_L_WHITE, "q");
 
 	// Set blank sex info for new characters
@@ -1937,16 +1942,25 @@ void player_birth()
 	{
 		/* Make a note file */
 		/* Variables */
-		char long_day[25];
+		char raw_date[25];
+		char clean_date[25];
+		char month[4];
+		
 		time_t ct = time((time_t*)0);
 		
 		/* Get date */
-		(void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
+		(void)strftime(raw_date, sizeof(raw_date), "@%Y%m%d", localtime(&ct));
+		
+		sprintf(month,"%.2s", raw_date + 5);
+		atomonth(atoi(month), month);
+		
+		if (*(raw_date + 7) == '0')		sprintf(clean_date, "%.1s %.3s %.4s", raw_date + 8, month, raw_date + 1);
+		else							sprintf(clean_date, "%.2s %.3s %.4s", raw_date + 7, month, raw_date + 1);
 		
 		/* Add in "character start" information */
 		fprintf(notes_file, "%s of the %s\n", op_ptr->full_name,
 				p_name + rp_ptr->name);
-		fprintf(notes_file, "Entered Angband on %s\n",long_day);
+		fprintf(notes_file, "Entered Angband on %s\n", clean_date);
 		fprintf(notes_file, "\n");
 		fprintf(notes_file, "    Turn     Depth    Note\n");
 		fprintf(notes_file, "\n");

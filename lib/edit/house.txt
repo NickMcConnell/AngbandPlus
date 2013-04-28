@@ -31,7 +31,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 N:0:Houseless
 A:Houseless
@@ -74,8 +74,9 @@ D: a mark of their Vanyarin ancestry.
 N:4:Of Doriath
 A:Doriath
 B:Doriath
+F:SNG_AFFINITY
 S:0:0:0:1
-D:The Sindar dwell in the forests of Doriath. Thingol is their
+D:Most Sindar dwell in the forests of Doriath. Thingol is their
 D: king, and rules from Menegroth with Melian at his side.
 D: Her power hides Doriath from the servants of Morgoth, allowing
 D: the Sindar to hunt and feast as in the days before his shadow grew.
@@ -84,7 +85,7 @@ N:5:House of Nogrod
 A:Nogrod
 B:Nogrod
 F:SMT_AFFINITY
-S:0:0:0:0
+S:0:1:0:0
 D:Nogrod, the 'Hollowbold', is a dwarven stronghold beneath the
 D: Blue Mountains. The forges burn brightly in its deep mansions
 D: and the smiths of Nogrod are matchless in all Beleriand.
@@ -92,6 +93,7 @@ D: and the smiths of Nogrod are matchless in all Beleriand.
 N:6:House of Belegost
 A:Belegost
 B:Belegost
+F:WIL_AFFINITY
 S:1:0:0:0
 D:Belegost, the 'Great Fortress', is a dwarven citadel in the
 D: northern ranges of the Blue Mountains. Its stout warriors
@@ -127,3 +129,17 @@ D:Those of Hador's house are quick to wrath and laughter,
 D: fierce in battle, generous to friend and foe, swift in resolve,
 D: fast in loyalty and joyous in heart. For the most part they are
 D: tall, with flaxen or golden hair, blue-grey eyes and fair skin.
+
+# New Sindar House: should be moved into order when I next break savefile
+# compatibility (v 1.1?)
+
+N:10:Of the Falas
+A:the Falas
+B:Falathrim
+F:ARC_AFFINITY
+S:0:1:0:0
+D:When Thingol met with Melian under the wheeling stars, many of his folk
+D: despaired of finding him again and journeyed to the shore, the Falas,
+D: to set sail to Valinor. Some tarried there and dwelt in the havens on the
+D: edge of Middle-Earth with their lord, Cirdan, the shipbuilder.
+

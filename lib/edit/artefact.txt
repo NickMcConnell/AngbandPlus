@@ -90,7 +90,7 @@
 #   * Turgon		('glamdring' - will, slay orc/troll/rauko/dragon)
 #     * Idril		(robe - speed)	
 #       * Earendil	(elessar - con, regenerate, heal) (bow - dex, slay dragon)
-#   * Aradhel		(robe - sustain grace, free action, res dark)
+#   * Aredhel		(robe - sustain grace, free action, res dark)
 #     * Maeglin	        (galvorn armour - hunger, channelling, res poison)
 # - Finarfin
 #   * Finrod		(leather boots - good evasion, free action)
@@ -142,6 +142,7 @@
 # - Brethil
 # - Ossiriand
 # - Gorgoroth
+# - Khazad-Dum
 #
 #
 # The following are from First Age Angband and could be incorporated:
@@ -163,7 +164,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 #################################################################
 # Here is the list of 'Special' artefacts. 
@@ -177,6 +178,7 @@ V:1.0.0
 
 ## The Ring of Barahir
 ## 1st age
+## Note: ability 7/8 is Song of Este
 
 N:1:of Barahir
 I:45:32:0
@@ -184,6 +186,7 @@ W:10:20:1:5000
 P:0:0d0:0:0d0
 F:FREE_ACT | RES_POIS
 F:INSTA_ART
+B:7/8
 D:A ring shaped into twinned serpents with eyes of emerald meeting
 D: beneath a crown of flowers. It was given to Barahir of Beor's House
 D: by Finrod Felagund the Noldorin Prince. It is a symbol of loyalty and
@@ -199,13 +202,14 @@ W:12:20:3:5000
 P:0:0d0:0:0d0
 F:GRA | SUST_GRA
 F:INSTA_ART
-D:The greatest pearl from the Bay of Balar, its sheen was as starlight on the 
-D:foam of the sea.  It was given to the chieftain of the Dwarves of Belegost 
-D:by Thingol Greycloak, King of Doriath.
+D:The greatest pearl from the Bay of Balar, its sheen was as starlight on the
+D: foam of the sea.  It was given to the chieftain of the Dwarves of Belegost
+D: by Thingol Greycloak, King of Doriath.
 
 
 ## The Jewel 'Elessar' (amulet slot)
 ## 1st age
+## Note: Ability 5/7 is Strength in Adversity
 
 N:3:'Elessar'
 I:40:16:1
@@ -213,6 +217,7 @@ W:14:20:3:7000
 P:0:0d0:0:0d0
 F:CON | REGEN
 F:INSTA_ART
+B:5/7
 D:A beautiful green jewel made by Enerdhil in the Hidden City.
 D: In it is trapped the light of the Sun, and any who look through it
 D: can see the withered and old as if they were young and supple once more.
@@ -244,24 +249,28 @@ D: of Valinor. It was made by the dwarves of Ered Luin for Finrod Felagund.
 ## The Filthy Rag of Dungalef
 ## 1st age namesake
 ## Ability 3/0 is 'disguise'
+## Ability 3/5 is 'vanish'
 
 N:20:of Dungalef
-I:36:1:0
+I:36:1:1
 W:5:10:20:5000
 P:0:0d0:+1:1d0
-B:3/0
-D:.
+B:3/0:3/5
+F:STEALTH
+D:The elf-king Felagund wrought a spell over this cloth, that
+D: he might pass for an orc and evade the watchful eye of Thu.
 
-## The Robe of Aradhel
+## The Robe of Aredhel
 ## 1st age
 
-N:21:of Aradhel
+N:21:of Aredhel
 G:(:w
 I:36:2:0
-W:17:10:30:25000
-P:0:0d0:+2:1d0
+W:8:10:30:25000
+P:0:0d0:+3:1d0
 F:FREE_ACT | SUST_GRA
-D:.
+D:The White Lady of the Noldor once wore this robe, cut of the
+D: finest white cloth and hemmed with silver thread.
 
 
 ## The Robe of Idril Celebrindal
@@ -269,17 +278,19 @@ D:.
 
 N:22:of Idril Celebrindal
 I:36:2:0
-W:21:20:30:25000
+W:16:12:30:25000
 P:0:0d0:0:1d0
 F:SPEED
-D:.
+D:A robe of the only child of Turgon, and light of Gondolin.
+D: The soft folds of smooth cloth invigorate you and fill
+D: you with thoughts of the swift eagles of Manwe.
 
 
 ## The Leather Armour of Caranthir
 ## 1st age namesake
 
 N:23:of Caranthir
-I:36:4:3
+I:36:4:4
 W:8:15:60:45000
 P:0:0d0:1:1d4
 F:STEALTH | DARKNESS
@@ -289,13 +300,18 @@ D: and quick to anger.
 
 ## The Studded Leather Armour of Beor
 ## 1st age namesake
+## Note: ability 5/3 is Inner Light
 
 N:24:of Beor
 I:36:7:0
 W:8:20:120:35000
 P:0:0d0:-1:1d6
 F:RES_POIS | SUST_GRA
-D:.
+B:5/3
+D:An well-used old set of armour. At first glance, there is
+D: nothing remarkable about it, but then one realises it has
+D: been lovingly cared for, and expertly made. It gladdens
+D: the heart in the dark places of the world.
 
 
 ## The Galvorn Armour of Maeglin
@@ -323,7 +339,7 @@ N:30:of Fingon
 I:37:4:1
 W:8:15:260:105000
 P:0:0d0:-3:2d4
-F:RES_FEAR | CON
+F:RES_FEAR | CON | GRA
 D:A bright mail corslet worn by Fingon, the eldest son of Fingolfin.
 
 
@@ -333,7 +349,7 @@ D:A bright mail corslet worn by Fingon, the eldest son of Fingolfin.
 N:31:of Durin
 I:37:4:0
 W:13:20:280:105000
-P:-1:0d0:-3:2d5
+P:-1:0d0:-3:3d3
 F:RES_FIRE | RES_COLD | REGEN
 D:.
 
@@ -344,7 +360,7 @@ D:.
 N:32:of Maedhros
 I:37:6:0
 W:13:8:330:105000
-P:-2:0d0:-3:2d7
+P:-2:0d0:-3:2d6
 F:RES_FIRE | RES_POIS
 D:A suit of mail once worn by Maedhros, eldest son of Feanor.
 D: When he was taken into Angband by Morgoth's servants
@@ -362,7 +378,7 @@ N:35:of Angrod
 G:):b
 I:34:3:0
 W:10:10:50:25000
-P:0:0d0:0:1d3
+P:0:0d0:0:1d4
 F:RES_STUN | RES_CONFU | RES_FIRE
 D:.
 
@@ -373,8 +389,8 @@ D:.
 N:36:of Hador
 G:):r
 I:34:5:0
-W:8:10:90:25000
-P:-2:0d0:0:1d6
+W:8:12:90:25000
+P:-1:0d0:0:1d6
 F:RES_FIRE | RES_COLD
 D:The famed shield of Hador 'Goldenhead', great
 D: leader of the folk of Marach, and lord of Dor-lomin.
@@ -403,7 +419,7 @@ D: Fingolfin, high-king of the Noldor.
 
 N:40:of Amras
 I:23:2:2
-W:10:20:10:50000
+W:8:12:10:50000
 P:1:1d5:0:0d0
 F:BRAND_FIRE | RES_FIRE
 F:STEALTH | PERCEPTION
@@ -421,7 +437,7 @@ D: been changed by the fire.
 
 N:41:of Nargil
 I:23:4:0
-W:7:10:5:50000
+W:7:12:5:50000
 P:5:1d5:0:0d0
 F:SHARPNESS
 F:THROWING
@@ -452,7 +468,7 @@ W:14:5:8:100000
 P:0:1d5:0:0d0
 F:SHARPNESS2
 F:THROWING
-D:Forged from meteoric iron by Telchar, greatest of Dwarven smiths,
+D:Forged from meteoric iron by Telchar, greatest of Dwarven smiths, 
 D: this dagger slices through metal as easily as flesh, earning its
 D: name: 'Iron Cleaver'.
 
@@ -462,9 +478,9 @@ D: name: 'Iron Cleaver'.
 
 N:44:of Amrod
 I:23:10:2
-W:10:10:15:15000
+W:8:10:15:15000
 P:1:1d7:1:0d0
-F:STEALTH | PERCEPTION
+F:STEALTH | PERCEPTION | FREE_ACT
 D:The hunting blade of Amrod, son of Feanor.
 D: When drawn from its sheath, the wielder's movements are
 D: reduced to a whisper and his senses sharpen.
@@ -476,7 +492,7 @@ D: reduced to a whisper and his senses sharpen.
 N:45:'Dagmor'
 I:23:10:1
 W:15:10:20:15000
-P:2:1d7:1:0d0
+P:2:1d8:1:0d0
 F:RES_FEAR | GRA | LIGHT
 D:The 'dark-slayer'; a short blade borne by Beren, son of Barahir.
 
@@ -499,7 +515,7 @@ D: "Biter" by orcs who came to know its power all too well.
 N:47:'Narsil'
 I:23:17:0
 W:11:25:25:80000
-P:1:2d5:2:0d0
+P:0:2d6:2:0d0
 F:LIGHT
 F:RES_FIRE | RES_COLD
 D:The sword of the sun and the moon. It was forged by the
@@ -524,9 +540,9 @@ D: is the bane of many of Morgoth's servants.
 ## 1st age
 
 N:49:'Aranruth'
-I:23:17:4
-W:20:30:40:50000
-P:2:2d5:2:0d0
+I:23:17:3
+W:20:20:40:50000
+P:3:2d6:3:0d0
 F:WILL | RES_FEAR
 F:DANGER
 D:The beautiful sword of Thingol, justly named 'King's Ire'.  You are
@@ -539,7 +555,7 @@ D: filled with unshakeable confidence when you clasp its jeweled hilt.
 N:50:'Anglachel'
 G:|:D
 I:23:21:0
-W:15:15:50:100000
+W:15:13:50:100000
 P:3:3d3:1:0d0
 F:SHARPNESS | DANGER
 D:Forged of black meteoric iron by the Eol the Dark Elf, 
@@ -553,7 +569,7 @@ D:suffering Eol to live in Nan Elmoth.
 N:51:'Anguirel'
 G:|:D
 I:23:21:0
-W:15:15:50:100000
+W:15:13:50:100000
 P:3:3d3:1:0d0
 F:SHARPNESS | HUNGER
 D:Forged of black meteoric iron by the Eol the Dark Elf, 
@@ -578,7 +594,7 @@ D:The long deadly blade of Nan, the Giant.
 
 N:53:of Saithnar
 I:23:25:0
-W:17:20:70:100000
+W:17:15:70:100000
 P:1:3d5:1:0d0
 F:SHARPNESS | SLAY_UNDEAD | FREE_ACT | SEE_INVIS
 D:A shining greatsword, inlaid with runes of silver.
@@ -604,7 +620,7 @@ D: the hosts of Morgoth.
 
 N:55:'Celeg Aithorn'
 I:23:28:0
-W:20:50:20:50000
+W:20:15:20:50000
 P:3:2d5:1:0d0
 F:BRAND_ELEC | SHARPNESS
 D:'...the sweeping sickle of the slashing tempest,
@@ -617,9 +633,9 @@ D: even Celeg Aithorn that shall cleave the world.'
 
 N:56:'Ringil'
 I:23:28:1
-W:20:30:20:300000
+W:20:8:20:300000
 P:3:2d5:3:0d0
-F:DEX | BRAND_COLD | RES_COLD | LIGHT
+F:BRAND_COLD | RES_COLD | LIGHT
 D:The weapon of Fingolfin, High King of the Noldor; it shines like a
 D: column of ice lit by light unquenchable.  Morgoth came but
 D: unwillingly to meet it of old; his lame foot will remind him of its
@@ -636,7 +652,9 @@ W:18:1:20:500000
 P:+3:1d9:+1:0d0
 F:STEALTH | VAMPIRIC | HUNGER
 F:INSTA_ART
-D:.
+D:Though this dark blade is held to your will now, you feel it writhe
+D: with resentment. It will happily take out its anger on any before
+D: you, though.
 
 
 ##### Polearms #####
@@ -687,10 +705,10 @@ D:A long spear, with a point like a sharp thorn of steel.
 N:63:of Melkor
 G:/:D
 I:22:2:-1
-W:15:50:80:100000
-P:-1:1d13:1:0d0
+W:15:20:80:100000
+P:-1:1d14:1:0d0
 F:GRA | BRAND_POIS
-F:LIGHT_CURSE | HEAVY_CURSE 
+F:LIGHT_CURSE 
 D:A mighty black spear, once wielded by the Lord of Darkness
 D: himself as he came to Valinor in wrath. Its envenomed bite pierced
 D: the Two Trees with wounds that would not heal.
@@ -701,7 +719,7 @@ D: the Two Trees with wounds that would not heal.
 
 N:70:'Dramborleg'
 I:22:12:0
-W:12:10:50:21000
+W:12:12:50:21000
 P:-2:3d5:0:0d0
 F:SLAY_RAUKO | SLAY_ORC | SLAY_TROLL
 D:A heavy axe that would one day be wielded by Tuor in
@@ -758,10 +776,11 @@ D: did rive the rocks of Rodrim's hall.'
 
 N:74:'Celebrist'
 I:22:5:1
-W:13:8:50:22000
+W:13:15:50:22000
 P:0:2d10:3:0d0
 F:DEX | FREE_ACT | NEG_CON
-D:.
+D:A beautiful blade on a long shaft of dark wood. It feels lively
+D: in your hands, its point guiding itself to where it is needed.
 
 
 
@@ -770,13 +789,16 @@ D:.
 
 ## The Quarterstaff of Halmir
 ## 1st age namesake
+## Note: ability 7/3 is Song of Freedom
 
 N:80:of Halmir
 I:21:3:3
 W:9:30:40:250000
 P:0:2d4:3:0d0
 F:SUST_STR | SUST_CON | RES_POIS
-D:.
+B:7/3
+D:Halmir, who once bore this staff, was a chieftain among men,
+D: and resolute always against the power of Morgoth.
 
 
 ## The War Hammer of Telchar
@@ -784,7 +806,7 @@ D:.
 
 N:81:of Telchar
 I:21:8:3
-W:11:30:45:250000
+W:11:22:45:250000
 P:0:4d1:0:0d0
 F:SMITHING | SUST_STR | RES_FIRE
 D:The great hammer of Telchar, mighty smith of Nogrod.
@@ -811,12 +833,14 @@ D: and enchanted for both battle and mine.
 
 ## The Helm of Curufin
 ## 1st age namesake
+## Note: ability 4/7 is Listen
 
 N:90:of Curufin
-I:32:5:1
-W:25:12:45:45000
+I:32:5:2
+W:15:12:45:45000
 P:-1:0d0:0:1d2
-F:PERCEPTION | STEALTH | SEE_INVIS | WILL | RES_CONFU
+F:PERCEPTION | STEALTH | RES_CONFU | DANGER
+B:4/7
 D:A helm worn by Curufin, son of Feanor, whose dark schemes
 D: snared many in Beleriand.
 
@@ -838,7 +862,7 @@ D: servants of Morgoth.
 
 N:92:of Feanor
 I:33:12:3
-W:25:30:35:300000
+W:20:15:35:300000
 P:0:0d0:0:1d1
 F:SMITHING | WILL | RES_FIRE | SEE_INVIS | LIGHT
 F:AGGRAVATE
@@ -873,10 +897,11 @@ D:A cloak worn by Maglor, the mighty singer, and gentlest of Feanor's sons.
 N:96:of Thingol
 G:(:s
 I:35:1:1
-W:22:20:15:35000
+W:20:10:15:35000
 P:0:0d0:2:0d0
 F:RES_FIRE | RES_COLD | FREE_ACT
-D:.
+D:By what black treachery the fabled grey cloak of Elu Thingol has come
+D: to the hoards of Angband, you cannot say.
 
 
 
@@ -957,7 +982,7 @@ D: elven hair that faintly shimmers a pale clear gold.
 
 N:102:of Earendil
 I:19:14:0
-W:20:5:45:35000
+W:20:3:45:35000
 P:1:2d7:-1:0d0
 F:RADIANCE | SLAY_DRAGON
 D:.
@@ -972,7 +997,7 @@ D:.
 N:105:'Dailir'
 G:-:u
 I:17:1:0
-W:7:20:1:20000
+W:7:40:1:20000
 P:+11:0d0:0:0d0
 D:The unerring arrow of Beleg Cuthalion.
 
@@ -984,7 +1009,7 @@ D:The unerring arrow of Beleg Cuthalion.
 
 N:110:of Finrod
 I:30:1:0
-W:15:10:20:40000
+W:15:12:20:40000
 P:0:0d0:3:1d1
 F:FREE_ACT
 D:.
@@ -1038,7 +1063,7 @@ N:120:of Morgoth
 I:33:50:0
 W:20:1:3994:10000000
 P:0:0d0:0:0d0:0
-F:HEAVY_CURSE | INDESTRUCTIBLE
+F:INDESTRUCTIBLE
 F:INSTA_ART 
 D:Once containing much of the power of he who is the mightiest among the
 D: Ainur, this plain iron crown now bears just three empty sockets:
@@ -1053,7 +1078,7 @@ N:121:of Morgoth
 I:33:50:4
 W:20:1:3996:10000000
 P:0:0d0:0:0d0:0
-F:HEAVY_CURSE | INDESTRUCTIBLE
+F:INDESTRUCTIBLE
 F:INSTA_ART 
 D:Containing much of the power of he who is the mightiest among the
 D: Ainur, this plain iron crown has mounted upon it the sole remaining
@@ -1068,7 +1093,7 @@ N:122:of Morgoth
 I:33:50:5
 W:20:1:3998:10000000
 P:0:0d0:0:0d0:0
-F:HEAVY_CURSE | INDESTRUCTIBLE
+F:INDESTRUCTIBLE
 F:INSTA_ART 
 D:Containing much of the power of he who is the mightiest among the
 D: Ainur, this plain iron crown has mounted upon it the two remaining
@@ -1083,7 +1108,7 @@ N:123:of Morgoth
 I:33:50:6
 W:20:1:4000:10000000
 P:0:0d0:0:0d0:0
-F:HEAVY_CURSE | INDESTRUCTIBLE
+F:INDESTRUCTIBLE
 F:INSTA_ART 
 D:Containing much of the power of he who is the mightiest among the
 D: Ainur, this plain iron crown has mounted upon it the three

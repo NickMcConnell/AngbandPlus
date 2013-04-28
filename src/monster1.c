@@ -586,10 +586,6 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	{
 		text_out(format("%^s is very difficult to see.  ", wd_he[msex]));
 	}
-	//if (l_ptr->flags2 & RF2_WEIRD_MIND)
-	//{
-	//	text_out(format("%^s is rarely detected by telepathy.  ", wd_he[msex]));
-	//}
 	if (l_ptr->flags2 & RF2_MULTIPLY)
 	{
 		text_out(format("%^s breeds explosively.  ", wd_he[msex]));
@@ -1004,7 +1000,7 @@ static void describe_monster_skills(int r_idx, const monster_lore *l_ptr)
 	else if (r_ptr->flags1 & RF1_MALE) msex = 1;
 	
 	/* Describe experience if known */
-	if ((l_ptr->tsights > 1) && (10 - l_ptr->tsights < p_ptr->skill_use[S_PER]))
+	if ((l_ptr->ranged == MAX_UCHAR) || ((l_ptr->tsights > 1) && (10 - l_ptr->tsights < p_ptr->skill_use[S_PER])))
 	{
 		text_out(format("%^s has %d Will,", wd_he[msex], r_ptr->wil));
 		if (p_ptr->active_ability[S_PER][PER_LISTEN]) text_out(format(" %d Stealth,", r_ptr->stl));

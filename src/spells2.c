@@ -691,7 +691,7 @@ void self_knowledge(void)
 		}
 		if (f1 & (TR1_SHARPNESS2))
 		{
-			info[i++] = "Your weapon cuts very easily through armour.";
+			info[i++] = "Your weapon cuts exceptionally easily through armour.";
 		}
 		if (f1 & (TR1_VAMPIRIC))
 		{

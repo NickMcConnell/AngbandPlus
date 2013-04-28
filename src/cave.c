@@ -3413,8 +3413,8 @@ void update_view(void)
 		/* Examine actual light */
 		if (o_ptr->tval == TV_LIGHT)
 		{
-			/* Feanorian Lamps and Silmarils provide permanent, bright, light */
-			if ((o_ptr->sval == SV_LIGHT_FEANORIAN) || (o_ptr->sval == SV_LIGHT_SILMARIL))
+			/* Some items provide permanent, bright, light */
+			if ((o_ptr->sval == SV_LIGHT_FEANORIAN) || (o_ptr->sval == SV_LIGHT_LESSER_JEWEL) || (o_ptr->sval == SV_LIGHT_SILMARIL))
 			{
 				obj_light += o_ptr->pval;
 			}
@@ -4027,12 +4027,6 @@ void update_smell(void)
 void map_area(void)
 {
 	int i, x, y;
-
-	if (p_ptr->depth == MORGOTH_DEPTH)
-	{
-		msg_print("You feel Morgoth's will bent against your own, protecting his secrets.");
-		return;
-	}
 
 	/* Scan that area */
 	for (y = 1; y < MAX_DUNGEON_HGT; y++)

@@ -1953,211 +1953,6 @@ void display_player(int mode)
 
 
 /*
- * Hack -- Dump a character description file
- *
- * XXX XXX XXX Allow the "full" flag to dump additional info,
- * and trigger its usage from various places in the code.
- */
-errr file_character(cptr name, bool full)
-{
-	int i, x, y;
-
-	byte a;
-	char c;
-
-	int fd;
-
-	FILE *fff = NULL;
-
-	char o_name[80];
-
-	char buf[1024];
-
-	int holder;
-	
-	bool challenges = FALSE;
-
-	/* Unused parameter */
-	(void)full;
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Check for existing file */
-	fd = fd_open(buf, O_RDONLY);
-
-	/* Existing file */
-	if (fd >= 0)
-	{
-		char out_val[160];
-
-		/* Close the file */
-		fd_close(fd);
-
-		/* Build query */
-		strnfmt(out_val, sizeof(out_val), "Replace existing file %s? ", buf);
-
-		/* Ask */
-		if (get_check(out_val)) fd = -1;
-	}
-
-	/* Open the non-existing file */
-	if (fd < 0) fff = my_fopen(buf, "w");
-
-	/* Invalid file */
-	if (!fff) return (-1);
-
-	text_out_hook = text_out_to_file;
-	text_out_file = fff;
-
-	/* Begin dump */
-	fprintf(fff, "  [%s %s Character Dump]\n\n",
-	        VERSION_NAME, VERSION_STRING);
-
-	/* Display player */
-	display_player(0);
-
-	/* Dump part of the screen */
-	for (y = 2; y < 23; y++)
-	{
-		/* Dump each row */
-		for (x = 0; x < 79; x++)
-		{
-			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
-
-			/* Dump it */
-			buf[x] = c;
-		}
-
-		/* Back up over spaces */
-		while ((x > 0) && (buf[x-1] == ' ')) --x;
-
-		/* Terminate */
-		buf[x] = '\0';
-
-		/* End the row */
-		fprintf(fff, "%s\n", buf);
-	}
-
-	/* Skip some lines */
-	fprintf(fff, "\n\n");
-
-	/* If dead, dump last messages -- Prfnoff */
-	if (p_ptr->is_dead)
-	{
-		i = message_num();
-		if (i > 15) i = 15;
-		fprintf(fff, "  [Last Messages]\n\n");
-		while (i-- > 0)
-		{
-			fprintf(fff, "> %s\n", message_str((s16b)i));
-		}
-		fprintf(fff, "\n");
-	}
-
-	/* Dump the equipment */
-	if (p_ptr->equip_cnt)
-	{
-		fprintf(fff, "\n  [Character Equipment]\n\n");
-		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-		{
-			object_desc(o_name, sizeof(o_name), &inventory[i], TRUE, 3);
-			fprintf(fff, "%c) %s\n",
-			        index_to_label(i), o_name);
-
-			/* Describe random object attributes */
-			identify_random_gen(&inventory[i]);
-		}
-		fprintf(fff, "\n\n");
-	}
-
-	/* Dump the inventory */
-	fprintf(fff, "  [Character Inventory]\n\n");
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		if (!inventory[i].k_idx) break;
-
-		object_desc(o_name, sizeof(o_name), &inventory[i], TRUE, 3);
-		fprintf(fff, "%c) %s\n",
-		        index_to_label(i), o_name);
-
-		/* Describe random object attributes */
-		identify_random_gen(&inventory[i]);
-	}
-	fprintf(fff, "\n");
-
-	if (notes_file)
-	{
-		fprintf(fff, "\n  [Notes]\n\n");
-		
-		/*dump notes to character file*/
-		/*close the notes file for writing*/
-		my_fclose(notes_file);
-		
-		/*get the path for the notes file*/
-		notes_file = my_fopen(notes_fname, "r");
-		
-		do
-		{
-			
-			/*get a character from the notes file*/
-			holder = getc(notes_file);
-			
-			/*output it to the character dump, unless end of file char*/
-			if (holder != EOF) fprintf(fff, "%c", holder);
-			
-		}
-		while (holder != EOF);
-		
-		fprintf(fff, "\n");
-		
-		/*close it for reading*/
-		my_fclose(notes_file);
-		
-		/*re-open for appending*/
-		notes_file = my_fopen(notes_fname, "a");
-	}
-
-	/* Count options */
-	for (i = OPT_BIRTH; i < OPT_CHEAT; i++)
-	{
-		if (option_desc[i] && op_ptr->opt[i])
-		{
-			challenges = TRUE;
-		}
-	}
-
-	if (challenges)
-	{
-		/* Dump options */
-		fprintf(fff, "  [Challenges]\n\n");
-
-		/* Dump options */
-		for (i = OPT_BIRTH; i < OPT_CHEAT; i++)
-		{
-			if (option_desc[i] && op_ptr->opt[i])
-			{
-				fprintf(fff, "%-45s\n", option_desc[i]);
-			}
-		}
-	}
-
-	/* Skip some lines */
-	fprintf(fff, "\n\n");
-
-	/* Close it */
-	my_fclose(fff);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
  * Make a string lower case.
  */
 static void string_lower(char *buf)
@@ -2623,13 +2418,13 @@ void show_help_screen(int i)
 			
 			c_put_str(TERM_L_WHITE + TERM_SHADE, "Movement etc", row - 2, col - 1);
 			
-			c_put_str(TERM_WHITE,   "1 2 3",           row, col);
+			c_put_str(TERM_WHITE,   "7 8 9",           row, col);
 			c_put_str(TERM_SLATE,   " \\|/ ",          row + 1, col);
 			c_put_str(TERM_WHITE,   "4 5 6",           row + 2, col);
 			c_put_str(TERM_SLATE,   "-",               row + 2, col + 1);
 			c_put_str(TERM_SLATE,   "-",               row + 2, col + 3);
 			c_put_str(TERM_SLATE,   " /|\\ ",          row + 3, col);
-			c_put_str(TERM_WHITE,   "7 8 9",           row + 4, col);
+			c_put_str(TERM_WHITE,   "1 2 3",           row + 4, col);
 			
 			c_put_str(TERM_SLATE, "Use the numbers or arrow keys",  row + 0, col2);
 			c_put_str(TERM_WHITE, "numbers",                        row + 0, col2 + 8);
@@ -2653,7 +2448,8 @@ void show_help_screen(int i)
 			
 			c_put_str(TERM_SLATE, "Use control or / to interact with a square:",            row, col);
 			c_put_str(TERM_WHITE, "control",   row, col + 4);
-			c_put_str(TERM_WHITE, "/",   row, col + 15);
+			if (angband_keyset)	c_put_str(TERM_WHITE, "+",  row, col + 15);
+			else				c_put_str(TERM_WHITE, "/",  row, col + 15);
 			row++;
 			
 			c_put_str(TERM_SLATE, "- tunnels through rubble/walls",                  row, col + 2);
@@ -2715,6 +2511,9 @@ void show_help_screen(int i)
 			row++;
 			c_put_str(TERM_WHITE, " L",                      row, col);
 			c_put_str(TERM_SLATE, "look (around dungeon)",   row, col + 3);
+			row++;		
+			c_put_str(TERM_WHITE, " M",                      row, col);
+			c_put_str(TERM_SLATE, "display map of level",   row, col + 3);
 			row++;		
 			row++;		
 			c_put_str(TERM_WHITE, "Tab",                     row, col-1);
@@ -2893,7 +2692,7 @@ void show_help_screen(int i)
 			row = 3;
 			col = 3;
 			
-			c_put_str(TERM_L_DARK + TERM_SHADE, "Unnecessary", row - 2, col - 1);
+			c_put_str(TERM_L_DARK + TERM_SHADE, "Superfluous", row - 2, col - 1);
 			
 			c_put_str(TERM_L_WHITE, "i",                      row, col);
 			c_put_str(TERM_L_DARK, "display inventory",       row, col + 2);
@@ -3214,6 +3013,10 @@ bool get_name(void)
  */
 void do_cmd_escape(void)
 {
+	time_t ct = time((time_t*)0);
+	char long_day[40];
+	char buf[120];
+
 	/* set the escaped flag */
 	p_ptr->escaped = TRUE;
 
@@ -3229,6 +3032,35 @@ void do_cmd_escape(void)
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 
+	
+	/* Get time */
+	(void)strftime(long_day, 40, "%d %B %Y", localtime(&ct));
+	
+	/* Add note */
+	if (notes_file)
+	{
+		fprintf(notes_file, "\n");
+		
+		/*killed by */
+		sprintf(buf, "You escaped the Iron Hells on %s.", long_day);
+		
+		/* Write message */
+		do_cmd_note(buf,  p_ptr->depth);
+		
+		// make a note
+		switch (silmarils_possessed())
+		{
+			case 0:		do_cmd_note("You returned empty handed.", p_ptr->depth); break;
+			case 1:		do_cmd_note("You brought back a Silmaril from Morgoth's crown!", p_ptr->depth); break;
+			case 2:		do_cmd_note("You brought back two Silmarils from Morgoth's crown!", p_ptr->depth); break;
+			case 3:		do_cmd_note("You brought back all three Silmarils from Morgoth's crown!", p_ptr->depth); break;
+			default:	do_cmd_note("You brought back so many Silmarils that people should be suspicious!", p_ptr->depth); break;
+		}
+		
+		fprintf(notes_file, "\n");
+	}
+
+	
 	/* Cause of death */
 	my_strcpy(p_ptr->died_from, "ripe old age", sizeof(p_ptr->died_from));
 }
@@ -3344,15 +3176,6 @@ void do_cmd_save_game(void)
 	save_game_quietly = FALSE;
 }
 
-
-
-/*
- * Hack -- Calculates the total number of points earned
- */
-long total_points(void)
-{
-	return (50 * p_ptr->depth);
-}
 
 
 /*
@@ -3495,75 +3318,61 @@ static int highscore_write(const high_score *score)
 	return (fd_write(highscore_fd, (cptr)(score), sizeof(high_score)));
 }
 
+
 /*
- * Checks whether a score is higher than another
- *   slayers of morgoth
- *     escaped
- *     ...
- * From most important to least:
- *   killed morgoth
- *   escaped with silmarils (or having killed morgoth)
- *   many silmarils
- *   large Depth
- *   small turns
+ * An integer value representing the player's "points".
  *
- * Somewhat like strcmp, it returns 1 if score1 is greater, -1 if score1 is lesser and 0 if they are equal
+ * In reality it isn't so much a score as a number that has the same ordering
+ * as the scores.
+ *
+ * It ranges from 100,000 to 141,399,999
  */
-int scorecmp(const high_score *score1, const high_score *score2)
+int score_points(high_score *score)
 {
-	int silmaril_cmp;
-	int points_cmp;
-	int turns1;
-	int turns2;
+	int points = 0;
+	int silmarils;
 	
-	/* Reward the defeating of Morgoth */
-	if ((score1->morgoth_slain[0] == 't') && (score2->morgoth_slain[0] == 'f'))
-	{
-		return (1);
-	}
-	if ((score1->morgoth_slain[0] == 'f') && (score2->morgoth_slain[0] == 't'))
-	{
-		return (-1);
-	}
+	int maxturns = 100000;
+	int silmarils_factor = maxturns;
+	int depth_factor = silmarils_factor * 10;
+	int morgoth_factor = depth_factor * 100;
+
+	// these lines fix a few potential problems with the score record...
+	score->silmarils[1] = '\0';
+	score->cur_dun[3] = '\0';
+
+	// points from turns taken (00000 to 99999) 
+	points = maxturns - atoi(score->turns);
+	if (points < 0)			points = 0;
+	if (points >= maxturns)	points = maxturns - 1;
 	
-	/* Reward escape with Silmarils and/or having slain Morgoth */
-	if (((score1->escaped[0] == 't') && ((score1->morgoth_slain[0] == 't') || (score1->silmarils[0] > '0'))) &&
-	    (score2->escaped[0] == 'f'))
+	// points from silmarils (0 00000 to 3 00000)
+	silmarils = atoi(score->silmarils);
+	points += silmarils_factor * silmarils;
+
+	// points from depth (01 0 00000 to 40 0 00000)
+	if (silmarils == 0)
 	{
-		return (1);
-	}
-	if ((score1->escaped[0] == 'f') &&
-	    ((score2->escaped[0] == 't') && ((score2->morgoth_slain[0] == 't') || (score2->silmarils[0] > '0'))))
-	{
-		return (-1);
-	}
-	
-	/* Reward being at greater depth if descending, lesser depth if escaping */
-	points_cmp = strcmp(score1->pts, score2->pts);
-	if ((score1->silmarils[0] == '0') && (score1->morgoth_slain[0] == 'f'))
-	{
-		if (points_cmp > 0) return (1);
-		if (points_cmp < 0) return (-1);
+		points += depth_factor * atoi(score->cur_dun);
 	}
 	else
 	{
-		if (points_cmp < 0) return (1);
-		if (points_cmp > 0) return (-1);
+		points += depth_factor * (40 - atoi(score->cur_dun));
+	}
+
+	// points for escaping (changes 40 0 00000 to 41 0 00000)
+	if (score->escaped[0] == 't')
+	{
+		points += depth_factor;
 	}
 	
-	/* Reward the carrying of more Silmarils */
-	silmaril_cmp = strcmp(score1->silmarils, score2->silmarils);
-	if (silmaril_cmp > 0) return (1);
-	if (silmaril_cmp < 0) return (-1);
+	// points slaying Morgoth  (0 00 0 00000 to 1 00 0 00000)
+	if (score->morgoth_slain[0] == 't')
+	{
+		points += morgoth_factor;
+	}
 	
-	/* Reward taking fewer turns */
-	turns1 = atoi(score1->turns);
-	turns2 = atoi(score2->turns);
-	
-	if (turns1 < turns2) return (1);
-	if (turns1 > turns2) return (-1);
-	
-	return (0);
+	return (points);
 }
 
 
@@ -3571,7 +3380,7 @@ int scorecmp(const high_score *score1, const high_score *score2)
  * Just determine where a new score *would* be placed
  * Return the location (0 is best) or -1 on failure
  */
-static int highscore_where(const high_score *score)
+static int highscore_where(high_score *score)
 {
 	int i;
 
@@ -3583,11 +3392,11 @@ static int highscore_where(const high_score *score)
 	/* Go to the start of the highscore file */
 	if (highscore_seek(0)) return (-1);
 
-	/* Read until we get to a higher score */
+	/* Read until we get to a lower score (or the end of the scores) */
 	for (i = 0; i < MAX_HISCORES; i++)
 	{
 		if (highscore_read(&the_score)) return (i);
-		if (scorecmp(&the_score, score) < 0) return (i);
+		if (score_points(score) > score_points(&the_score)) return (i);
 	}
 
 	/* The "last" entry is always usable */
@@ -3599,7 +3408,7 @@ static int highscore_where(const high_score *score)
  * Actually place an entry into the high score file
  * Return the location (0 is best) or -1 on "failure"
  */
-static int highscore_add(const high_score *score)
+static int highscore_add(high_score *score)
 {
 	int i, slot;
 	bool done = FALSE;
@@ -3736,7 +3545,7 @@ extern void display_single_score(byte attr, int row, int col, int place, int fak
 	for (when = the_score->day; isspace((unsigned char)*when); when++) /* loop */;
 
 	aged = atoi(the_score->turns);
-	depth = atoi(the_score->pts);
+	depth = atoi(the_score->cur_dun) * 50;
 	
 	comma_number(aged_commas, aged);
 	comma_number(depth_commas, depth);
@@ -3749,8 +3558,9 @@ extern void display_single_score(byte attr, int row, int col, int place, int fak
 		sprintf(month,"%.2s", when + 5);
 		atomonth(atoi(month), month);
 		
-		sprintf(tmp_val, "%.2s %.3s %.4s",
-				when + 7, month, when + 1);
+		if (*(when + 7) == '0')		sprintf(tmp_val, "%.1s %.3s %.4s", when + 8, month, when + 1);
+		else						sprintf(tmp_val, "%.2s %.3s %.4s", when + 7, month, when + 1);
+				
 		when = tmp_val;
 	}
 
@@ -3881,8 +3691,7 @@ extern void display_single_score(byte attr, int row, int col, int place, int fak
 	{
 		c_put_str(TERM_L_DARK, "         V", row + 4, col);
 	}
-			
-
+		
 }
 
 /*
@@ -4071,7 +3880,7 @@ static errr create_score(high_score *the_score)
 	strnfmt(the_score->what, sizeof(the_score->what), "%s", VERSION_STRING);
 
 	/* Calculate and save the points */
-	strnfmt(the_score->pts, sizeof(the_score->pts), "%4lu", (long)total_points());
+	strnfmt(the_score->pts, sizeof(the_score->pts), "    ");
 	the_score->pts[4] = '\0';
 
 	/* Save the current player turn */
@@ -4092,13 +3901,17 @@ static errr create_score(high_score *the_score)
 
 	/* Save the level and such */
 	strnfmt(the_score->cur_dun, sizeof(the_score->cur_dun), "%3d", p_ptr->depth);
+	the_score->cur_dun[3] = '\0';
 	strnfmt(the_score->max_dun, sizeof(the_score->max_dun), "%3d", p_ptr->max_depth);
+	the_score->max_dun[3] = '\0';
 
 	/* Save the cause of death (49 chars) */
 	strnfmt(the_score->how, sizeof(the_score->how), "%-.49s", p_ptr->died_from);
 
 	/* Save the number of silmarils, whether morgoth is slain, whether the player has escaped */
 	strnfmt(the_score->silmarils, sizeof(the_score->silmarils), "%1d", silmarils_possessed());
+	the_score->silmarils[1] = '\0';
+
 	if (p_ptr->morgoth_slain)
 	{
 		strnfmt(the_score->morgoth_slain, sizeof(the_score->morgoth_slain), "t");
@@ -4272,7 +4085,6 @@ static errr predict_score(void)
 
 	high_score the_score;
 
-
 	/* No score file */
 	if (highscore_fd < 0)
 	{
@@ -4281,43 +4093,11 @@ static errr predict_score(void)
 		return (0);
 	}
 
-
-	/* Save the version */
-	strnfmt(the_score.what, sizeof(the_score.what), "%s", VERSION_STRING);
-
-	/* Calculate and save the points */
-	sprintf(the_score.pts, "%4lu", (long)total_points());
-
-	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)playerturn);
-
-	/* Hack -- no time needed */
-	my_strcpy(the_score.day, "Now", sizeof(the_score.day));
-
-	/* Save the player name (15 chars) */
-	sprintf(the_score.who, "%-.15s", op_ptr->full_name);
-
-	/* Save the player info XXX XXX XXX */
-	sprintf(the_score.uid, "%7u", player_uid);
-	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_h, "%2d", p_ptr->phouse);
-
-	/* Save the level and such */
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
-
-	/* extra information */
-	sprintf(the_score.morgoth_slain, "f");
-	sprintf(the_score.silmarils, "0");
-
-	/* Hack -- no cause of death */
-	my_strcpy(the_score.how, "nobody (yet)", sizeof(the_score.how));
-
+	// create the fake score
+	create_score(&the_score);
 
 	/* See where the entry would be placed */
 	j = highscore_where(&the_score);
-
 
 	/* Hack -- Display the top fifteen scores */
 	if (j < 10)
@@ -4331,7 +4111,6 @@ static errr predict_score(void)
 		display_scores_aux(0, 5, -1, NULL);
 		display_scores_aux(j - 2, j + 7, j, &the_score);
 	}
-
 
 	/* Success */
 	return (0);
@@ -4456,6 +4235,278 @@ static void escapee(void)
 	/* Wait for response */
 	pause_line(Term->hgt - 1);
 }
+
+
+/*
+ * Hack -- Dump a character description file
+ *
+ * XXX XXX XXX Allow the "full" flag to dump additional info,
+ * and trigger its usage from various places in the code.
+ */
+errr file_character(cptr name, bool full)
+{
+	int i, x, y;
+	
+	byte a;
+	char c;
+	
+	int fd;
+	
+	FILE *fff = NULL;
+	
+	char o_name[80];
+	
+	char buf[1024];
+	
+	int holder;
+	
+	bool challenges = FALSE;
+	
+	high_score the_score;
+	
+	/* Unused parameter */
+	(void)full;
+	
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+	
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+	
+	/* Check for existing file */
+	fd = fd_open(buf, O_RDONLY);
+	
+	/* Existing file */
+	if (fd >= 0)
+	{
+		char out_val[160];
+		
+		/* Close the file */
+		fd_close(fd);
+		
+		/* Build query */
+		strnfmt(out_val, sizeof(out_val), "Replace existing file %s? ", buf);
+		
+		/* Ask */
+		if (get_check(out_val)) fd = -1;
+	}
+	
+	/* Open the non-existing file */
+	if (fd < 0) fff = my_fopen(buf, "w");
+	
+	/* Invalid file */
+	if (!fff) return (-1);
+	
+	text_out_hook = text_out_to_file;
+	text_out_file = fff;
+	
+	/* Begin dump */
+	fprintf(fff, "  [%s %s Character Dump]\n\n",
+	        VERSION_NAME, VERSION_STRING);
+	
+	/* Display player */
+	display_player(0);
+	
+	/* Dump part of the screen */
+	for (y = 2; y < 23; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+			
+			/* Dump it */
+			buf[x] = c;
+		}
+		
+		/* Back up over spaces */
+		while ((x > 0) && (buf[x-1] == ' ')) --x;
+		
+		/* Terminate */
+		buf[x] = '\0';
+		
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+	
+	/* If dead, dump last messages and a mini screenshot */
+	if (p_ptr->is_dead)
+	{
+		int x, y;
+
+		i = message_num();
+		if (i > 15) i = 15;
+		fprintf(fff, "\n  [Last Messages]\n\n");
+		while (i-- > 0)
+		{
+			fprintf(fff, "> %s\n", message_str((s16b)i));
+		}
+		fprintf(fff, "\n");
+
+		
+		fprintf(fff, "\n  [Screenshot]\n\n");
+
+		// simple screenshot for those who died in Angband
+		if (!p_ptr->escaped)
+		{
+			for (y = 0; y <= 6; y++)
+			{
+				fprintf(fff, "  ");
+				for (x = 0; x <= 6; x++)
+				{
+					fprintf(fff, "%c", mini_screenshot_char[y][x]);
+				}
+				fprintf(fff, "\n");
+			}
+		}
+		
+		// Special Screenshot for escapees
+		else
+		{
+			// grass
+			fprintf(fff, "  .......\n");
+			fprintf(fff, "  ~...#..\n");
+			fprintf(fff, "  ~~.....\n");
+			fprintf(fff, "  .~.@...\n");
+			fprintf(fff, "  .~~...#\n");
+			fprintf(fff, "  ..~~...\n");
+			fprintf(fff, "  ...~...\n");
+		}
+		fprintf(fff, "\n");
+
+	}
+	
+	/* Dump the equipment */
+	if (p_ptr->equip_cnt)
+	{
+		fprintf(fff, "\n  [Equipment]\n\n");
+		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+		{
+			object_type *o_ptr = &inventory[i];
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+			
+			/* Display the weight if needed */
+			if (o_ptr->weight && ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) || 
+			                      (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_DIGGING) || 
+								  (o_ptr->tval == TV_BOW)))
+			{
+				int wgt = o_ptr->weight * o_ptr->number;
+				char wgt_buf[80];
+				
+				sprintf(wgt_buf, " %d.%1d lb", wgt / 10, wgt % 10);
+				my_strcat(o_name, wgt_buf, sizeof(o_name));
+			}
+			
+			fprintf(fff, "%c) %s\n",
+			        index_to_label(i), o_name);
+			
+			/* Describe random object attributes */
+			identify_random_gen(o_ptr);
+		}
+		fprintf(fff, "\n\n");
+	}
+	
+	/* Dump the inventory */
+	fprintf(fff, "  [Inventory]\n\n");
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+		if (!o_ptr->k_idx) break;
+		
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		
+		/* Display the weight if needed */
+		if (o_ptr->weight && ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) || 
+							  (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_DIGGING) || 
+							  (o_ptr->tval == TV_BOW)))
+		{
+			int wgt = o_ptr->weight * o_ptr->number;
+			char wgt_buf[80];
+			
+			sprintf(wgt_buf, " %d.%1d lb", wgt / 10, wgt % 10);
+			my_strcat(o_name, wgt_buf, sizeof(o_name));
+		}
+		
+		fprintf(fff, "%c) %s\n",
+		        index_to_label(i), o_name);
+		
+		/* Describe random object attributes */
+		identify_random_gen(o_ptr);
+	}
+	fprintf(fff, "\n");
+	
+	if (notes_file)
+	{
+		fprintf(fff, "\n  [Notes]\n\n");
+		
+		/*dump notes to character file*/
+		/*close the notes file for writing*/
+		my_fclose(notes_file);
+		
+		/*get the path for the notes file*/
+		notes_file = my_fopen(notes_fname, "r");
+		
+		do
+		{
+			
+			/*get a character from the notes file*/
+			holder = getc(notes_file);
+			
+			/*output it to the character dump, unless end of file char*/
+			if (holder != EOF) fprintf(fff, "%c", holder);
+			
+		}
+		while (holder != EOF);
+		
+		fprintf(fff, "\n");
+		
+		/*close it for reading*/
+		my_fclose(notes_file);
+		
+		/*re-open for appending*/
+		notes_file = my_fopen(notes_fname, "a");
+	}
+	
+	/* Count options */
+	for (i = OPT_BIRTH; i < OPT_CHEAT; i++)
+	{
+		if (option_desc[i] && op_ptr->opt[i])
+		{
+			challenges = TRUE;
+		}
+	}
+	
+	if (challenges)
+	{
+		/* Dump options */
+		fprintf(fff, "  [Challenges]\n\n");
+		
+		/* Dump options */
+		for (i = OPT_BIRTH; i < OPT_CHEAT; i++)
+		{
+			if (option_desc[i] && op_ptr->opt[i])
+			{
+				fprintf(fff, "%-45s\n", option_desc[i]);
+			}
+		}
+	}
+	
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+	
+	// display a "sco
+	create_score(&the_score);
+	fprintf(fff, "  ['Score' %.9d]\n\n", score_points(&the_score));
+	
+	/* Close it */
+	my_fclose(fff);
+	
+	/* Success */
+	return (0);
+}
+
+
 
 static int final_menu(int *highlight)
 {

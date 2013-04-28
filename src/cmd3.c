@@ -82,22 +82,37 @@ void do_cmd_use_item(void)
 			if (item < INVEN_WIELD)
 			{
 				object_type *l_ptr = &inventory[INVEN_LITE];
+				bool try_to_wield = TRUE;
 				
 				// possibly refuel a light
 				if ((o_ptr->tval == TV_FLASK) || 
 				    ((l_ptr->tval == o_ptr->tval) && (l_ptr->sval == o_ptr->sval) && 
 				     ((o_ptr->sval == SV_LIGHT_TORCH) || (o_ptr->sval == SV_LIGHT_LANTERN))))
 				{
-					if ((l_ptr->sval == SV_LIGHT_TORCH) && 
-					    (o_ptr->tval != TV_FLASK) && get_check("Use it to refuel your wielded torch? "))
+					if ((l_ptr->sval == SV_LIGHT_TORCH) && (o_ptr->tval != TV_FLASK))
 					{
-						do_cmd_refuel_torch(o_ptr, item);
+						if ((o_ptr->timeout + l_ptr->timeout <= FUEL_TORCH) || 
+							 get_check("Refueling from this torch will waste some fuel. Proceed? "))
+						{
+							do_cmd_refuel_torch(o_ptr, item);
+						}
+						else
+						{
+							try_to_wield = FALSE;
+						}
 						break;
 					}
-					else if ((l_ptr->sval == SV_LIGHT_LANTERN) && 
-					         ((o_ptr->tval == TV_FLASK) || get_check("Use it to refuel your wielded lantern? ")))
+					else if (l_ptr->sval == SV_LIGHT_LANTERN)
 					{
-						do_cmd_refuel_lamp(o_ptr, item);
+						if (((o_ptr->tval == TV_FLASK) && ((l_ptr->timeout + o_ptr->pval <= FUEL_LAMP) || get_check("Refueling from this flask will waste some fuel. Proceed? "))) ||
+						    ((o_ptr->tval == TV_LIGHT) && (o_ptr->sval == SV_LIGHT_LANTERN) && ((l_ptr->timeout + o_ptr->timeout <= FUEL_LAMP) || get_check("Refueling from this lantern will waste some fuel. Proceed? "))))
+						{
+							do_cmd_refuel_lamp(o_ptr, item);
+						}
+						else
+						{
+							try_to_wield = FALSE;
+						}
 						break;
 					}
 					else if (o_ptr->tval == TV_FLASK)
@@ -111,7 +126,7 @@ void do_cmd_use_item(void)
 				{
 					msg_print("It is far too large to be worn.");
 				}
-				else
+				else if (try_to_wield)
 				{
 					do_cmd_wield(o_ptr, item);
 				}
@@ -129,7 +144,7 @@ void do_cmd_use_item(void)
 		}
 		case TV_METAL:
 		{
-			msg_print("To melt down pieces of mithril, take them to a forge and type (m).");
+			msg_print("To melt down pieces of mithril, take them to a forge and type (,).");
 			break;
 		}
 		case TV_CHEST:
@@ -369,7 +384,7 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 	// Ask about two weapon fighting if necessary
 	for (i = 0; i < o_ptr->abilities; i++)
 	{
-		if ((o_ptr->skilltype[i] == S_MEL) && (o_ptr->abilitynum[i] == MEL_TWO_WEAPON))
+		if ((o_ptr->skilltype[i] == S_MEL) && (o_ptr->abilitynum[i] == MEL_TWO_WEAPON) && object_known_p(o_ptr))
 		{
 			grants_two_weapon = TRUE;
 		}
@@ -1005,7 +1020,7 @@ void prise_silmaril(void)
 	}
 
 	// check for taking of final Silmaril
-	if (pd == 30)
+	if ((pd == 30) && freed)
 	{
 		msg_print("Until you escape you must now roll twice for every skill check, taking the worse result each time.");
 		msg_print("You hear a cry of veangance echo through the iron hells.");
