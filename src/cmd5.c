@@ -117,9 +117,6 @@ static bool chromatic_burst(int dam, int dir)
 			continue;
 		}
 
-		if (typ == GF_FIRE && p_ptr->aura_fire) dam = dam * 3 /2;
-		if (typ == GF_COLD && p_ptr->aura_cold) dam = dam * 3 /2;
-
 		/* Fire the arc */
 		fire_arc(typ, dir, dam, 6, rand_range(50, 70));
 
@@ -2563,13 +2560,7 @@ cptr do_spell(int mode, int spell)
 				dam1 = 3 * spower / 2;
 				dam2 = 5 * spower / 2;
 
-				if (info)
-				{
-					if (p_ptr->aura_cold || p_ptr->aura_fire)
-						return (format("dam %d-%d or %d-%d", dam1, dam2, dam1 * 3 / 2, dam2 * 3 / 2));
-					else
-						return (format("dam %d-%d", dam1, dam2));
-				}
+				if (info) return (format("dam %d-%d", dam1, dam2));
 				if (desc) return ("Fires a burst of any of the four elements.");
 				if (cast)
 				{
@@ -5829,9 +5820,7 @@ cptr do_spell(int mode, int spell)
 	/* Shapechange after mana is deducted -JM */
 	if (do_shapechange)
 	{
-		shapechange_perm(do_shapechange);
-		p_ptr->schange_skill = mp_ptr->spell_skill;
-		p_ptr->schange_min_skill = s_ptr->slevel;
+		shapechange(do_shapechange);
 	}
 
 

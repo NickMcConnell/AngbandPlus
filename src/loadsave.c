@@ -1498,7 +1498,7 @@ static errr do_character(void)
 
 	do_s16b(&p_ptr->wraithform);
 	do_s16b(&p_ptr->form_dur);
-	do_u16b(&blank_u16b);
+	do_s16b(&blank_u16b);
 
 	do_byte((byte *)&p_ptr->suppress_bottle);
 	do_byte((byte *)&p_ptr->move_dir);
@@ -1713,8 +1713,7 @@ static errr do_character(void)
 		do_byte(&blank_u8b);
 
 		do_u32b(&p_ptr->dungeon_flags);
-		do_byte(&p_ptr->schange_skill);
-		do_byte(&p_ptr->schange_min_skill);
+		do_u16b(&blank_u16b);
 		do_u16b(&blank_u16b);
 		do_u16b(&blank_u16b);
 		do_u16b(&blank_u16b);

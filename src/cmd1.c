@@ -140,24 +140,28 @@ void search_essence(bool strong)
 	char o_name[DESC_LEN];
 	object_type *o_ptr;
 
-	int infus, alchm;
+	int skill_choice;
 
-	/* Allow users to use both infusion and alchemy */
-	infus = get_skill(S_INFUSION, 0, 130);
-	alchm = get_skill(S_ALCHEMY, 0, 130);
+	/* Allow users to use either infusion or alchemy */
+	if (get_skill(S_INFUSION, 0, 100) > get_skill(S_ALCHEMY, 0, 100))
+		skill_choice = S_INFUSION;
+	else	skill_choice = S_ALCHEMY;
 
-	skill = rsqrt((infus * infus) + (alchm + alchm)) +
+	/* Require an infusion or alchemy skill of 10 */
+	if (get_skill(skill_choice, 0, 100) < LEV_REQ_INFUSE) return;
+
+	skill = get_skill(skill_choice, 0, 150) +
 			get_skill(S_PERCEPTION, 0, 50);
 
-	/* Various conditions prevent finding essences */
+	/* Penalize various conditions */
 	if (p_ptr->confused || p_ptr->image) return;
 	if (p_ptr->berserk || p_ptr->necro_rage) return;
 
-	/* Deliberate search is better */
-	if (strong) skill += 10 + skill / 3;
-
 	/* Modify effective skill by randomized depth */
 	skill -= randint(20 + 5 * p_ptr->depth / 3);
+
+	/* Deliberate search is better */
+	if (strong) skill += get_skill(skill_choice, 10, 60);
 
 	/* Search only sometimes */
 	if (skill <= 0) return;
@@ -1475,10 +1479,6 @@ void move_player(int dir, int do_pickup)
 
 				/* Characters in wraithform move easily through trees */
 				else if (p_ptr->wraithform) can_move = TRUE;
-
-				/* Ents and Woses can move through trees easily */
-				else if (p_ptr->prace == RACE_ENT) can_move = TRUE;
-				else if (p_ptr->prace == RACE_WOSES) can_move = TRUE;
 
 				/* Require two turns to get through trees */
 				else if (p_ptr->crossing_moves)

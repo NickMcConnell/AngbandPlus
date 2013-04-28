@@ -16,6 +16,8 @@
 
 #include "angband.h"
 
+
+
 /*
  * Warriors will eventually learn to pseudo-probe monsters.  This allows
  * them to better choose between slays and brands.  They select a target,
@@ -393,8 +395,6 @@ static cptr do_talent(int talent, int mode, int talent_choice)
 		if (use) return ("");
 		else can_use = FALSE;
 	}
-
-	talent_skill = S_NOSKILL;
 
 	/* Get skill (note that there may not always be one) */
 	for (i = 0; i < t_ptr->skill_count; i++)
@@ -1261,7 +1261,7 @@ static cptr do_talent(int talent, int mode, int talent_choice)
 			}
 
 			if (info) return (format("force dam %d-%d", dam_low, dam_high));
-			if (desc) return ("Knock back monsters with a powerful attack.");
+			if (desc) return ("");
 			if (use)
 			{
 				char ch;
@@ -1393,9 +1393,7 @@ static cptr do_talent(int talent, int mode, int talent_choice)
 				if (info) return "permanent";
 				if (use)
 				{
-					p_ptr->schange_skill = -1;
-					p_ptr->schange_min_skill = 0;
-					shapechange_perm(SHAPE_BEAR);
+					shapechange(SHAPE_BEAR);
 					p_ptr->energy_use = 100;
 					return "";  /* no timeout for beornings */
 				}
@@ -1403,26 +1401,17 @@ static cptr do_talent(int talent, int mode, int talent_choice)
 			else
 			{
 				skill = get_skill(S_SHAPECHANGE, 0, 100);
-				dur = (skill + get_skill(S_NATURE, 0, 100)) * (t_ptr->timeout - 10) / (100) + 10;
+				dur = (skill - t_ptr->min_level + 10) * rsqrt(p_ptr->power);
 				if (dur > t_ptr->timeout) perm = TRUE;
 
 				if (check)
 				{
-					if (get_skill(S_SHAPECHANGE, 0, 100) == 0 && talent_choice == TALENT_SHAPE) return "N";
-					if (talent_choice == TALENT_UTILITY) return "N";
+					if (skill < 10) return "N";
 				}
-
-				if (use)
-				{
-					p_ptr->schange_skill = S_SHAPECHANGE;
-					p_ptr->schange_min_skill = t_ptr->min_level;
-
-				}
-
 				if (perm)
 				{
 					if (info) return "permanent";
-					if (use) shapechange_perm(SHAPE_BEAR);
+					if (use) shapechange(SHAPE_BEAR);
 
 					if (use && !p_ptr->depth)
 					{
@@ -1442,18 +1431,12 @@ static cptr do_talent(int talent, int mode, int talent_choice)
 		case TALENT_UNCHANGE:
 		{
 			if (info) return "";
-			if (desc) return "Return to your normal self";
+			if (desc) "Return to your normal self";
 			if (check)
 			{
 				if (!p_ptr->schange) return "N";
 			}
-			if (use)
-			{
-				p_ptr->schange_skill = -1;
-				p_ptr->schange_min_skill = 0;
-
-				shapechange_perm(SHAPE_NORMAL);
-			}
+			if (use) shapechange(SHAPE_NORMAL);
 			break;
 		}
 
@@ -1465,88 +1448,34 @@ static cptr do_talent(int talent, int mode, int talent_choice)
 		case TALENT_HOUNDFORM:
 		case TALENT_CHEETAHFORM:
 		case TALENT_MOUSEFORM:
-		case TALENT_ANGELFORM:
+		case TALENT_MAIAFORM:
 		case TALENT_TROLLFORM:
 		case TALENT_DRAGONFORM:
-		case TALENT_GOLEMFORM:
-		case TALENT_VORTEXFORM:
-		case TALENT_EAGLEFORM:
 		{
 			int skill = get_skill(S_SHAPECHANGE, 0, 100);
-			int second_skill, second_skill_type, dur;
-			bool perm = FALSE;
+			int second_skill, dur;
+			bool perm;
+
+			if (talent <= TALENT_LICHFORM && talent >= TALENT_BATFORM) second_skill = get_skill(S_DOMINION, 0, 100);
+			else if (talent <= TALENT_MOUSEFORM && talent >= TALENT_HOUNDFORM) second_skill = get_skill(S_NATURE, 0, 100);
+			else second_skill = p_ptr->power;
 
 
-			switch(talent)
-			{
-				case TALENT_BATFORM: case TALENT_LICHFORM: case TALENT_VAMPIREFORM: case TALENT_WEREWOLFFORM:
-					second_skill_type = S_DOMINION; break;
-				case TALENT_SERPENTFORM: case TALENT_HOUNDFORM: case TALENT_CHEETAHFORM: case TALENT_MOUSEFORM:
-					second_skill_type = S_NATURE; break;
-				case TALENT_ANGELFORM:
-					second_skill_type = S_PIETY; break;
-				case TALENT_GOLEMFORM: case TALENT_VORTEXFORM:
-					second_skill_type = S_WIZARDRY; break;
-				default: second_skill_type = S_SHAPECHANGE;  break;
-			}
+			dur = (skill - t_ptr->min_level + 10) * rsqrt(second_skill);
+			if (dur > t_ptr->timeout) perm = TRUE;
 
-			second_skill = get_skill(second_skill_type, 0, 100);
-
-			/*
-			 * Calculate the duration
-			 * shapechange should become permanent when the average of skill and second_skill
-			 * reaches halfway to 100 from minimum skill
-			 */
-			dur = (skill + second_skill - t_ptr->min_level * 2) * (t_ptr->timeout - 10) / (100 - t_ptr->min_level) + 10;
-			if (dur >= t_ptr->timeout) perm = TRUE;
-
-			/* Describe stat bonuses for different forms */
-			if (desc)
-			{
-				int i, stat;
-				u32b flag = 1;
-				byte old_shape = p_ptr->schange;
-				byte old_skill = p_ptr->schange_skill;
-				byte old_min_skill = p_ptr->schange_min_skill;
-
-				/* Hack -- change form */
-				p_ptr->schange = t_ptr->form;
-				p_ptr->schange_min_skill = t_ptr->min_level;
-				p_ptr->schange_skill = second_skill_type;
-
-				/* Display bonuses and maluses to stats */
-				for (i = 0; i < 32; i++)
-				{
-					stat = player_flags_pval(1L << i, TRUE) - player_flags_pval(1L << i, FALSE);
-					if (stat > 0) c_roff(TERM_L_BLUE, format("+%d %s ", stat, pval_desc_text[i]), 10, 78);
-					if (stat < 0) c_roff(TERM_L_BLUE, format("%d %s ",  stat, pval_desc_text[i]), 10, 78);
-				}
-
-				/* Todo -- add resistances and other properties */
-
-				/* Hack -- return form */
-				p_ptr->schange = old_shape;
-				p_ptr->schange_skill = old_skill;
-				p_ptr->schange_min_skill = old_min_skill;
-				return "";
-			}
+			if (desc) return "";
 
 			if (check)
 			{
-				if (dur < 10) return "N";
 				if (t_ptr->form == p_ptr->schange) return "N";
-			}
-
-			if(use)
-			{
-				p_ptr->schange_skill = second_skill_type;
-				p_ptr->schange_min_skill = t_ptr->min_level;
+				if (second_skill < t_ptr->min_level / 2) return "N";
 			}
 
 			if (perm)
 			{
 				if (info) return "permanent";
-				if (use) shapechange_perm(t_ptr->form);
+				if (use) shapechange(t_ptr->form);
 			}
 			else
 			{
@@ -1770,6 +1699,7 @@ void do_cmd_talents(int talent_choice)
 	char choice;
 	int end_row = 18;
 	int col = MAX(0, (Term->cols - 80) / 3);
+	int count = 0;
 
 	char change_string[] = ", / to change";
 

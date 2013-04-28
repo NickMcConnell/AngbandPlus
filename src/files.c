@@ -1467,8 +1467,8 @@ static void display_player_middle(void)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Combat information -- melee */
-	if (p_ptr->twoweap) prt_2num("Blows per Round ", p_ptr->num_blow, p_ptr->num_blow2, 14, 1, TERM_L_BLUE);
-	else prt_num("Blows per Round  ", p_ptr->num_blow, 14, 1, TERM_L_BLUE);
+	if (p_ptr->twoweap) prt_2num("Blows per round ", p_ptr->num_blow, p_ptr->num_blow2, 14, 1, TERM_L_BLUE);
+	else prt_num("Blows per round  ", p_ptr->num_blow, 14, 1, TERM_L_BLUE);
 
 	/* Using a weapon */
 	if (is_melee_weapon(o_ptr))
@@ -2168,7 +2168,6 @@ static void display_player_flag_info(void)
 	bool bad_flag;
 	bool resist;
 	bool temp_resist;
-	bool vuln;
 
 	int flag;
 	cptr name;
@@ -2176,15 +2175,13 @@ static void display_player_flag_info(void)
 	u32b f[4];
 	u32b f_player[4];
 	u32b f_cancel[4];
-	u32b f_vuln[4];
+
 
 	/* Get player flags */
 	player_flags(&f_player[1], &f_player[2], &f_player[3], TRUE, FALSE);
 
 	/* Get "cancelled" flags */
 	player_flags_cancel(&f_cancel[1], &f_cancel[2], &f_cancel[3], TRUE);
-
-	player_flags_vulnerable(&f_vuln[1], &f_vuln[2], &f_vuln[3], TRUE);
 
 
 	/* Four columns of non pval-dependant flags */
@@ -2206,7 +2203,6 @@ static void display_player_flag_info(void)
 			immune = FALSE;
 			resist = FALSE;
 			temp_resist = FALSE;
-			vuln = FALSE;
 
 			/* Get flag index */
 			flag = get_flag_here(4 + x, y);
@@ -2368,30 +2364,10 @@ static void display_player_flag_info(void)
 				c_put_str(TERM_GREEN, "+", row, col + n);
 			}
 
-			if (flag == RES_LITE && p_ptr->oppose_ethereal)
-			{
-				resist = TRUE;
-
-				c_put_str(TERM_GREEN, "+", row, col + n);
-			}
-
-			if (flag == RES_DARK && p_ptr->oppose_ethereal)
-			{
-				resist = TRUE;
-				c_put_str(TERM_GREEN, "+", row, col + n);
-			}
-
 			/* Hack -- Cancel immunities specially -JM */
 			if (immune && (f_cancel[flag/32] & (1L << (flag % 32 - 4))))
 			{
 				immune = FALSE;
-			}
-
-			/* Handle vulnerabilities */
-			if (f_vuln[flag / 32] & (1L << (flag % 32)))
-			{
-				vuln = TRUE;
-				c_put_str(TERM_L_RED, "-", row, col + n);
 			}
 
 
@@ -2420,16 +2396,10 @@ static void display_player_flag_info(void)
 			if (!bad_flag)
 			{
 				if (immune)   attr_title = TERM_L_PURPLE;
-				else if (temp_resist && resist && vuln)
-					attr_title = TERM_GREEN;
-				else if ((resist || temp_resist) && vuln)
-					attr_title = TERM_YELLOW;
-				else if (vuln)
-					attr_title = TERM_L_RED;
 				else if (temp_resist && resist)
-					attr_title = TERM_L_BLUE;
+							  attr_title = TERM_L_BLUE;
 				else if (temp_resist || resist)
-					attr_title = TERM_GREEN;
+							  attr_title = TERM_GREEN;
 			}
 			else
 			{

@@ -40,7 +40,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING   "1.0.2b4"
+#define VERSION_STRING   "1.0.2b1"
 
 /*
  * Current (Sangband) version numbers
@@ -717,75 +717,73 @@
 #define TALENT_CIRCLEKICK           5
 #define TALENT_IMPACTBLOW           6
 #define TALENT_EARTHQUAKES          7
-#define TALENT_LUNGE                8
 
-#define TALENT_DET_MAGIC           10
-#define TALENT_PHASE_WARP          11
-#define TAP_ENERGY                 12
-#define TALENT_XX13                13
+#define TALENT_DET_MAGIC            8
+#define TALENT_PHASE_WARP           9
+#define TAP_ENERGY                 10
+#define TALENT_XXX5                11
 
-#define TALENT_DET_EVIL            14
-#define TALENT_RESTORATION         15
-#define TALENT_XX16                16
+#define TALENT_DET_EVIL            12
+#define TALENT_RESTORATION         13
+#define TALENT_XXX6                14
+#define TALENT_XXX7                15
 
-#define TALENT_DET_ANIMAL          17
-#define TALENT_MEND_WOUNDS         18
-#define TALENT_XX19                19
+#define TALENT_DET_ANIMAL          16
+#define TALENT_MEND_WOUNDS         17
+#define TALENT_XXX8                18
+#define TALENT_XXX9                19
 
 #define TALENT_DET_UNDEAD          20
 #define TALENT_REMEMBRANCE         21
-#define TALENT_XX22                22
+#define TALENT_XX10                22
+#define TALENT_XX11                23
 
-#define TALENT_ID_CHARGES          23
-#define TALENT_XX24                24
+#define TALENT_ID_CHARGES          24
+#define TALENT_XX12                25
 
-#define TALENT_DARKNESS            25
-#define TALENT_D_OR_NAB_OBJECT     26
-#define TALENT_POISON_AMMO         27
-#define TALENT_HIT_AND_RUN         28
+#define TALENT_DARKNESS            26
+#define TALENT_D_OR_NAB_OBJECT     27
+#define TALENT_POISON_AMMO         28
+#define TALENT_HIT_AND_RUN         29
 
-#define TALENT_PRED_WEATH          29
-#define TALENT_SNEAKING            30
-#define TALENT_SENSE_AREA          31
-#define TALENT_SUPERSTEALTH        32
-#define TALENT_XX33                33
-#define TALENT_XX34                34
+#define TALENT_PRED_WEATH          30
+#define TALENT_SNEAKING            31
+#define TALENT_SENSE_AREA          32
+#define TALENT_SUPERSTEALTH        33
+#define TALENT_XX15                34
+#define TALENT_XX16                35
+#define TALENT_XX17                36
+#define TALENT_XX18                37
 
-#define TALENT_RECHARGING          35
-#define TALENT_WEAPON_SMITH        36
-#define TALENT_ARMOR_SMITH         37
-#define TALENT_MISSILE_SMITH       38
-#define TALENT_ALCHEMY             39
-#define TALENT_SAVE_BOTTLE         40
-#define TALENT_XX41                41
-#define TALENT_XX42                42
-#define TALENT_XX43                43
+#define TALENT_RECHARGING          38
+#define TALENT_WEAPON_SMITH        39
+#define TALENT_ARMOR_SMITH         40
+#define TALENT_MISSILE_SMITH       41
+#define TALENT_ALCHEMY             42
+#define TALENT_SAVE_BOTTLE         43
+#define TALENT_XX20                44
+#define TALENT_XX21                45
+#define TALENT_XX22                46
+#define TALENT_XX23                47
 
-#define TALENT_DRAGON_BREATHING    44
-#define TALENT_UNCHANGE            45
-#define TALENT_BEARFORM            46
-#define TALENT_DRAGONFORM          47
-#define TALENT_TROLLFORM           48
-#define TALENT_EAGLEFORM           49
-#define TALENT_XX60                50
+#define TALENT_DRAGON_BREATHING    48
+#define TALENT_UNCHANGE            49
+#define TALENT_BEARFORM            50
+#define TALENT_DRAGONFORM          51
+#define TALENT_TROLLFORM           52
+#define TALENT_MAIAFORM            53
+#define TALENT_HOUNDFORM           54
+#define TALENT_SERPENTFORM         55
+#define TALENT_CHEETAHFORM         56
+#define TALENT_MOUSEFORM           57
+#define TALENT_BATFORM             58
+#define TALENT_WEREWOLFFORM        59
+#define TALENT_VAMPIREFORM         60
+#define TALENT_LICHFORM            61
 
-#define TALENT_ANGELFORM           51
-#define TALENT_XX53                52
-#define TALENT_XX54                53
-
-#define TALENT_VORTEXFORM          54
-#define TALENT_GOLEMFORM           55
-#define TALENT_XX57                56
-
-#define TALENT_HOUNDFORM           57
-#define TALENT_CHEETAHFORM         58
-#define TALENT_MOUSEFORM           59
-#define TALENT_SERPENTFORM         60
-
-#define TALENT_BATFORM             61
-#define TALENT_WEREWOLFFORM        62
-#define TALENT_VAMPIREFORM         63
-#define TALENT_LICHFORM            64
+#define TALENT_LUNGE               62
+#define TALENT_XX30                63
+#define TALENT_XX31                64
 
 #define NUM_TALENTS 65
 
@@ -3116,15 +3114,20 @@
 #define SHAPE_DRAGON        7
 #define SHAPE_ENT           8
 #define SHAPE_TROLL         9
-#define SHAPE_ANGEL        10
+#define SHAPE_MAIA         10
 #define SHAPE_BAT          11
 #define SHAPE_LICH         12
 #define SHAPE_VAMPIRE      13
 #define SHAPE_WEREWOLF     14
 #define SHAPE_SERPENT      15
-#define SHAPE_VORTEX       16
-#define SHAPE_GOLEM        17
-#define SHAPE_EAGLE        18
+
+
+
+
+/* Various skill-based boosts */
+#define SHAPE__STRONGER   95  /* makes all affected skills better */
+#define SHAPE__LESS_BAD   80  /* makes drawbacks less severe */
+
 
 
 /*
@@ -3227,8 +3230,6 @@
 
 
 /*** Trap defines ***/
-
-#define PLAYER_ALLOWED_TRAPS get_skill(S_BURGLARY, 1, 6)
 
 
 /*

@@ -93,7 +93,7 @@ extern cptr character_type_desc[PCHAR_MAX];
 extern graphics_data_type graphics_data[GRAPHICS_MAX];
 extern byte term_size_min[TERM_MAX + 1][2];
 extern byte misc_graphics_info[MISC_GRAPHICS_MAX][2];
-extern cptr pval_desc_text[32];
+
 
 /* variable.c */
 extern cptr copyright;
@@ -377,7 +377,7 @@ extern bool quiver_carry(object_type *o_ptr, int o_idx);
 extern byte py_pickup(int pickup);
 extern void move_player(int dir, int do_pickup);
 extern void run_step(int dir);
-extern void cancel_running();
+
 
 /* cmd2.c */
 extern void do_cmd_go_up(void);
@@ -619,8 +619,6 @@ extern void mon_death_effect(int m_idx);
 extern bool monster_loot(int max, bool steal, monster_type *m_ptr);
 extern void monster_death(int m_idx);
 extern bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note);
-long monster_exp(monster_race *r_ptr);
-long monster_exp_frac(monster_race *r_ptr);
 
 
 /* obj_make.c */
@@ -1166,7 +1164,6 @@ extern void handle_stuff(void);
 extern s16b calc_hp_regen(void);
 extern s16b calc_mana_regen(void);
 extern void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify);
-extern void player_flags_vulnerable(u32b *f1, u32b *f2, u32b *f3, bool shape);
 extern void player_flags_cancel(u32b *f1, u32b *f2, u32b *f3, bool shape);
 extern int missile_bonus(u32b flag_pval, int skill);
 extern int player_flags_pval(u32b flag_pval, bool shape);
@@ -1228,8 +1225,7 @@ extern bool set_aura_cold(int v);
 extern bool set_mental_barrier(int v);
 extern bool set_forbid_summoning(int v);
 extern bool set_wraithform(int v);
-extern bool shapechange_pern(s16b shape);
-extern bool shapechange_temp(int v, s16b shape);
+extern bool shapechange_temp(int v, int shape);
 extern bool set_pois_power(int v, int dur);
 extern bool set_chaos_power(int v, int dur);
 extern bool set_nexus_field(int v, int dam);

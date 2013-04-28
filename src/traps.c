@@ -572,11 +572,7 @@ bool place_trap(int y, int x, int t_idx, int trap_level)
 			if (t_idx == TRAP_GLYPH) num_glyph_on_level++;
 
 			/* We created a monster trap */
-			if (t_idx == TRAP_MONSTER)
-			{
-				p_ptr->redraw |= PR_CONDITIONS;
-				num_trap_on_level++;
-			}
+			if (t_idx == TRAP_MONSTER) num_trap_on_level++;
 
 			/* Toggle on the trap marker */
 			cave_info[y][x] |= (CAVE_TRAP);

@@ -5245,7 +5245,7 @@ N:755:Copper
 G:%:u
 I:5:0:0
 W:2:0:80:100
-A:2/50:12/100:20/0
+A:2/50:9/50:20/0
 C:2:2d4:0:0:0
 D:A large piece of ordinary copper.
 
@@ -5253,7 +5253,7 @@ N:756:Bronze
 G:%:o
 I:5:1:0
 W:10:0:80:600
-A:10/50:19/80:35/0
+A:10/50:19/50:35/0
 C:4:2d7:0:0:0
 D:A large piece of bronze.
 
@@ -5277,7 +5277,7 @@ N:759:Runegold
 G:%:y
 I:5:4:0
 W:50:0:90:6000
-A:50/30:60/40
+A:50/50:65/50:75/10
 C:11:3d16:0:0:0
 D:A large piece of thaumaturgic gold, glittering with unearthly brilliancy.
 
@@ -5286,7 +5286,7 @@ N:760:Mithril
 G:%:B
 I:5:5:0
 W:70:0:50:12000
-A:70/30
+A:70/30:80/40:100/33
 C:14:4d18:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A large piece of true-silver: light, strong, and magical.
@@ -5296,7 +5296,7 @@ N:761:Adamant
 G:%:G
 I:5:6:0
 W:86:0:130:14000
-A:80/10:90/15:100/20
+A:80/10:90/40
 C:16:5d20:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A large piece of almost impenetrable adamantite; heavy, but stronger than 

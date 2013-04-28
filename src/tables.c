@@ -1373,7 +1373,7 @@ player_race race_info[MAX_RACES] =
 		"Half-Orc",
 		{ 2, -1, -1,  0,  2, -3 },
 		 -2, -1, -4,  0, -6,  2,  0,  0,
-		 13,
+		 15,
 		 16,  8,
 		 64,  3, 140,  8,
 		 60,  3, 125,  7,
@@ -3367,8 +3367,8 @@ const skill_type skill_info[NUM_SKILLS] =
 	{"Archery - Slings", "ability to use slings",                        7},
 	{"Throwing", "ability to throw weapons and objects",                 9},
 
-	{"Wrestling", "ability to grapple and slam your opponents",         12},
-	{"Karate", "ability to kick and punch your opponents",              11},
+	{"Wrestling", "ability to grapple and slam your opponents",         10},
+	{"Karate", "ability to kick and punch your opponents",              10},
 
 	{"Spellcasting", "ability to master powerful spells",               16},
 	{"Magical Power", "ability to gather and use mana",                 12},
@@ -3389,7 +3389,7 @@ const skill_type skill_info[NUM_SKILLS] =
 
 	{"Weaponsmithing", "ability to forge weapons, bows, and missiles",  11},
 	{"Armor Forging", "ability to forge armor",                         15},
-	{"Alchemy", "ability to create scrolls, potions, rings, & amulets",  6},
+	{"Alchemy", "ability to create scrolls, potions, rings, & amulets",  8},
 	{"Magical Infusion", "ability to magically enhance objects",        13},
 
 	{"Shapechange", "ability to assume other forms",                    14},
@@ -3437,8 +3437,6 @@ talent_type talent_info[NUM_TALENTS] =
 	{"Circle Kick",                 'f', 1, {S_KARATE},                      30,  20,            0, TALENT_WARRIOR},
 	{"Impact Blow",                 'g', 1, {S_HAFTED},                      30,  10,            0, TALENT_WARRIOR},
 	{"Earthquakes",                 'h', 1, {S_HAFTED},                      60, 140, OATH_OF_IRON, TALENT_WARRIOR},
-	{"Lunge",                       'l', 1, {NUM_SKILLS},                     0,   3, OATH_OF_IRON, TALENT_WARRIOR},
-	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
 	/* Specialized realm talents */
 	{"Detect magic",                'e', 1, {S_WIZARDRY},                    40,  40, 0,            TALENT_UTILITY},
@@ -3449,13 +3447,16 @@ talent_type talent_info[NUM_TALENTS] =
 	{"Sense evil",                  'h', 1, {S_PIETY},                       30,  50, 0,            TALENT_UTILITY},
 	{"Restore stats",               'i', 1, {S_PIETY},                       75, 400, 0,            TALENT_UTILITY},
 	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
 	{"Sense animals",               'j', 1, {S_NATURE},                      25,  40, 0,            TALENT_UTILITY},
 	{"Mend self",                   'k', 1, {S_NATURE},                      50,   0, 0,            TALENT_UTILITY},
 	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
 	{"Sense undead",                'l', 1, {S_DOMINION},                    25,  40, 0,            TALENT_UTILITY},
 	{"Restore experience",          'm', 1, {S_DOMINION},                    85, 400, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
 	/* Magical device */
@@ -3476,6 +3477,8 @@ talent_type talent_info[NUM_TALENTS] =
 
 	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
 	/* Object-manipulation talents */
 	{"Recharging",                  'v', 1, {S_INFUSION},                    30,   0, 0,            TALENT_UTILITY},
@@ -3487,39 +3490,34 @@ talent_type talent_info[NUM_TALENTS] =
 	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
 	/* Miscellaneous abilities */
 	{"Dragon-breathing",            'a', 1, {NUM_SKILLS},                     0,   2, 0,            TALENT_UTILITY | TALENT_SHAPE},
 
 	/* General shapechanges */
-	{"Unchange",                    'y', 1, {S_SHAPECHANGE},                  1,   0, 0,             TALENT_SHAPE},
-	{"Bear",                        'b', 1, {NUM_SKILLS},                     0,  200, 0,            TALENT_UTILITY | TALENT_SHAPE, SHAPE_BEAR},  /* Can be accessed by shapechage skill or beornings */
-	{"Dragon",                      'd', 1, {S_SHAPECHANGE},                 85,  200, 0,            TALENT_SHAPE, SHAPE_DRAGON},
-	{"Troll",                       't', 1, {S_SHAPECHANGE},                 30,  200, 0,            TALENT_SHAPE, SHAPE_TROLL},
-	{"Eagle",                       'e', 1, {S_SHAPECHANGE},                 50,  200, 0,            TALENT_SHAPE, SHAPE_EAGLE},
-	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,             TALENT_UTILITY},
-
-	/* Holy alliance shapechanges */
-	{"Angel",                       'a', 1, {S_SHAPECHANGE},                 60,  200, 0,           TALENT_SHAPE, SHAPE_ANGEL},
-	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
-	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
-
-	/* Wizardy shapechangs */
-	{"Vortex",                      'v', 1, {S_SHAPECHANGE},                 45, 200, 0,            TALENT_SHAPE, SHAPE_VORTEX},
-	{"Golem",                       'g', 1, {S_SHAPECHANGE},                 65, 200, 0,            TALENT_SHAPE, SHAPE_GOLEM},
-	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{"Unchange",                    'u', 1, {S_SHAPECHANGE},                  1,   0, 0,            TALENT_SHAPE},
+	{"Bear-form",                   'b', 1, {NUM_SKILLS},                     0,  200, 0,            TALENT_UTILITY | TALENT_SHAPE, SHAPE_BEAR},  /* Can be accessed by shapechage skill or beornings */
+	{"Dragon-form",                 'd', 1, {S_SHAPECHANGE},                 90,  200, 0,            TALENT_SHAPE, SHAPE_DRAGON},
+	{"Troll-form",                  't', 1, {S_SHAPECHANGE},                 40,  200, 0,            TALENT_SHAPE, SHAPE_TROLL},
+	{"Maia-form",                   'm', 1, {S_SHAPECHANGE},                 20,  200, 0,            TALENT_SHAPE, SHAPE_MAIA},
 
 	/* Nature lore shapechanges */
-	{"Hound",                       'h', 1, {S_SHAPECHANGE},                 45,  200, 0,            TALENT_SHAPE, SHAPE_HOUND},
-	{"Cheetah",                     'c', 1, {S_SHAPECHANGE},                 30,  200, 0,            TALENT_SHAPE, SHAPE_CHEETAH},
-	{"Mouse",                       'o', 1, {S_SHAPECHANGE},                 10,  200, 0,            TALENT_SHAPE, SHAPE_MOUSE},
-	{"Serpent",                     's', 1, {S_SHAPECHANGE},                 20,  200, 0,            TALENT_SHAPE, SHAPE_SERPENT},
+	{"Hound-form",                  'h', 1, {S_SHAPECHANGE},                 60,  200, 0,            TALENT_SHAPE, SHAPE_HOUND},
+	{"Serpent-form",                's', 1, {S_SHAPECHANGE},                 20,  200, 0,            TALENT_SHAPE, SHAPE_SERPENT},
+	{"Cheetah-form",                'c', 1, {S_SHAPECHANGE},                 40,  200, 0,            TALENT_SHAPE, SHAPE_CHEETAH},
+	{"Mouse-form",                  'o', 1, {S_SHAPECHANGE},                 10,  200, 0,            TALENT_SHAPE, SHAPE_MOUSE},
 
 	/* Blood Dominion shapechanges */
-	{"Bat",                         'f', 1, {S_SHAPECHANGE},                 8,  200, 0,            TALENT_SHAPE, SHAPE_BAT},
-	{"Werewolf",                    'w', 1, {S_SHAPECHANGE},                 25,  200, 0,            TALENT_SHAPE, SHAPE_WEREWOLF},
-	{"Vampire",                     'v', 1, {S_SHAPECHANGE},                 60,  200, 0,            TALENT_SHAPE, SHAPE_VAMPIRE},
-	{"Lich",                        'l', 1, {S_SHAPECHANGE},                 90,  200, 0,            TALENT_SHAPE, SHAPE_LICH},
+	{"Bat-form",                    'e', 1, {S_SHAPECHANGE},                 10,  200, 0,            TALENT_SHAPE, SHAPE_BAT},
+	{"Werewolf-form",               'w', 1, {S_SHAPECHANGE},                 20,  200, 0,            TALENT_SHAPE, SHAPE_WEREWOLF},
+	{"Vampire-form",                'v', 1, {S_SHAPECHANGE},                 60,  200, 0,            TALENT_SHAPE, SHAPE_VAMPIRE},
+	{"Lich-form",                   'l', 1, {S_SHAPECHANGE},                 90,  200, 0,            TALENT_SHAPE, SHAPE_LICH},
+
+	/* Extra combat skills */
+	{"Lunge",                       'l', 1, {NUM_SKILLS},                     0,   3, OATH_OF_IRON, TALENT_WARRIOR},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 };
 
 /*
@@ -3816,44 +3814,5 @@ byte misc_graphics_info[MISC_GRAPHICS_MAX][2] =
 	{ TERM_WHITE,  '*' },    /* Partly seen monster (for expansion) */
 
 	{ TERM_WHITE,  ' ' }     /* (unused) */
-};
-
-/*
- * Descriptions of pval-dependent qualities.
- */
-cptr pval_desc_text[32] =
-{
-	"strength",
-	"intelligence",
-	"wisdom",
-	"dexterity",
-	"constitution",
-	"charisma",
-	"XXX6",
-	"XXX7",
-	"stealth",
-	"awareness",
-	"infravision",
-	"tunneling",
-	"speed",
-	"invisibility",
-	"disarming",
-	"device skill",
-	"saving throw",
-	"mana",
-	"light radius",
-	"XX19",
-	"melee blows",
-	"shooting speed",
-	"missile weapon power",
-	"XX23",
-	"XX24",
-	"XX25",
-	"XX26",
-	"XX27",
-	"XX28",
-	"XX29",
-	"XX30",
-	"XX31"
 };
 

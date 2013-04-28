@@ -942,25 +942,6 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 	/* Check what kinds of spells can hit player */
 	path = projectable(m_ptr->fy, m_ptr->fx, py, px, PROJECT_CHCK);
 
-	/* Are we restricted to archery? */
-	/* Note - we have assumed for speed that no archery attacks
-	 * cost mana, all are 'bolt' like, and that the player can not
-	 * be highly resistant to them. */
-	if (archery_only)
-	{
-		/* check for a clean shot */
-		if (!(path == PROJECT_CLEAR)) return (0);
-
-		/* restrict to archery */
-		f4 &= (RF4_ARCHERY_MASK);
-		f5 &= (RF5_ARCHERY_MASK);
-		f6 &= (RF6_ARCHERY_MASK);
-		f7 &= (RF7_ARCHERY_MASK);
-
-		/* choose at random from restricted list */
-		return (choose_attack_spell_fast(m_idx, &f4, &f5, &f6, &f7, TRUE));
-	}
-
 	/* do we have the player in sight at all? */
 	if (path==PROJECT_NO)
 	{
@@ -972,13 +953,7 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 		/* Note, this interfaces poorly with monsters not knowing where the player is */
 		for (i = 0, s = rand_int(8); i < 8; i++, s++)
 		{
-			/* Require casting onto actual squares */
-			if (!cave_project_bold(py + ddy[ddc[s % 8]], px + ddx[ddc[s % 8]]))
-				continue;
-
-			/* Check path to square */
-			path = projectable(m_ptr->fy, m_ptr->fx, py + ddy[ddc[s % 8]], px + ddx[ddc[s % 8]], PROJECT_CHCK);
-
+			path = projectable(m_ptr->fy, m_ptr->fx, py + ddx[ddc[s % 8]], px + ddx[ddc[s % 8]], PROJECT_CHCK);
 			if (path != PROJECT_NO)
 			{
 				splash_ball = TRUE;
@@ -997,6 +972,24 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 	if ((p_ptr->realm == PRIEST) && (r_ptr->d_char == 'A') &&
 	    (!p_ptr->unsanctified)) return (0);
 
+	/* Are we restricted to archery? */
+	/* Note - we have assumed for speed that no archery attacks
+	 * cost mana, all are 'bolt' like, and that the player can not
+	 * be highly resistant to them. */
+	if (archery_only)
+	{
+		/* check for a clean shot */
+		if (!(path == PROJECT_CLEAR)) return (0);
+
+		/* restrict to archery */
+		f4 &= (RF4_ARCHERY_MASK);
+		f5 &= (RF5_ARCHERY_MASK);
+		f6 &= (RF6_ARCHERY_MASK);
+		f7 &= (RF7_ARCHERY_MASK);
+
+		/* choose at random from restricted list */
+		return (choose_attack_spell_fast(m_idx, &f4, &f5, &f6, &f7, TRUE));
+	}
 
 	/* Remove spells the 'no-brainers'*/
 	/* Can cast spells that would deal splash damage to player or that don't require LOS */

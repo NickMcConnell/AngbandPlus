@@ -2002,7 +2002,7 @@ void prt_oath_message()
 	(void)inkey(ALLOW_CLICK);
 }
 
-static bool can_reduce_skill(int skill, bool verbose, bool refund)
+static bool can_reduce_skill(int skill, bool verbose)
 {
 	int martial_skills = 0;
 	int level = p_ptr->pskills[skill].max;
@@ -2044,8 +2044,6 @@ static bool can_reduce_skill(int skill, bool verbose, bool refund)
 					}
 				}
 			}
-
-			break;
 
 		case S_MAGIC:
 			if (level == 1)
@@ -2096,14 +2094,6 @@ static bool can_reduce_skill(int skill, bool verbose, bool refund)
 				if (verbose) prt_oath_message();
 				return (FALSE);
 			}
-		case S_FORGE_ARMOR:
-		case S_FORGE_WEAPON:
-		case S_INFUSION:
-		case S_ALCHEMY:
-		{
-			/* Only allow while still on screen */
-			return refund;
-		}
 		default:
 			return (TRUE);
 			break;
@@ -2120,7 +2110,7 @@ static bool reduce_skill(int skill, bool refund_exp)
 {
 	int exp, level;
 
-	if (!can_reduce_skill(skill, TRUE, refund_exp)) return (FALSE);
+	if (!can_reduce_skill(skill, TRUE)) return (FALSE);
 
 	/* Reduce current skill if necessary */
 	if (p_ptr->pskills[skill].cur == p_ptr->pskills[skill].max)

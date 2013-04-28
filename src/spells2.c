@@ -1932,8 +1932,6 @@ void acid_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	if (p_ptr->immune_acid) inv = div_round(inv, 5);
 	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid)) inv /= 2;
 
-	/* Handle vulnerability */
-	if (p_ptr->vuln_acid) dam += dam / 2;
 
 	/* Total (bodily) Immunity */
 	if (p_ptr->immune_acid) dam = 0;
@@ -2004,8 +2002,6 @@ void elec_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	/* Take damage */
 	(void)take_hit(dam, msg_type, hit_str, kb_str);
 
-	/* Handle vulnerability */
-	if (p_ptr->vuln_elec) dam += dam / 2;
 
 	/* Player is still alive */
 	if (!p_ptr->is_dead)
@@ -2057,8 +2053,8 @@ void fire_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	if (p_ptr->immune_fire) inv = div_round(inv, 5);
 	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire)) inv /= 2;
 
-	/* Handle vulnerability */
-	if (p_ptr->vuln_fire) dam += dam / 2;
+	/* Ents always take more fire damage */
+	if ((p_ptr->prace == RACE_ENT) || (p_ptr->schange == SHAPE_LICH)) dam += dam / 2;
 
 	/* Total (bodily) Immunity */
 	if (p_ptr->immune_fire) dam = 0;
@@ -2123,9 +2119,6 @@ void cold_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	if (p_ptr->resist_cold) dam = div_round(dam, 3);
 	if (p_ptr->oppose_cold) dam = div_round(dam, 3);
 
-	/* Handle vulnerability */
-	if (p_ptr->vuln_cold) dam += dam / 2;
-
 	/* Take damage */
 	(void)take_hit(dam, msg_type, hit_str, kb_str);
 
@@ -2181,7 +2174,7 @@ bool apply_disenchant(int dam)
 			msg_print("You are wrenched back into your normal form!");
 
 			/* Change back to normal form */
-			shapechange_perm(SHAPE_NORMAL);
+			shapechange(SHAPE_NORMAL);
 		}
 
 		/* A shapechanged character's armor is safe from disenchantment */
@@ -2442,7 +2435,7 @@ void apply_nexus(int fy, int fx, int dam)
 	if ((p_ptr->schange != SHAPE_NORMAL) && (dam > randint(200)))
 	{
 		msg_print("You are wrenched back into your normal form!");
-		shapechange_perm(SHAPE_NORMAL);
+		shapechange(SHAPE_NORMAL);
 	}
 
 	/* Effects of nexus */

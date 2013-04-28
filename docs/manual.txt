@@ -299,10 +299,10 @@ Giant:
      Eight feet tall, nine, even ten feet tall they stand, and thick and broad in proportion.  Giants have more hitpoints than any other race and make formidable wrestlers.  Their high strength and constitution make them decent fighters, especially with clubs and thrown objects, good tunnelers, and they can readily learn magic or object-creation.  Unfortunately, all those tales about the naivete and clumsiness of giants have a large grain of truth to them.  No other race is less perceptive than a giant, and none is more easy to spot.
 
 Ent:
-     Ents are tree-like creatures, large, strong and wise.  Their bark-like exterior protects them from attacks, but they are vulnerable to fire.  They can handle weapons well, but dislike axes; they are clumsy with bows, crossbows, and magical devices.  Their harmony with nature makes them natural druids, and they are in touch with priestly magics as well.  Ents have no trouble walking through forests.
+     Ents are tree-like creatures, large, strong and wise.  Their bark-like exterior protects them from attacks, but they are vulnerable to fire.  They can handle weapons well, but dislike axes; they are clumsy with bows, crossbows, and magical devices.  Their harmony with nature makes them natural druids, and they are in touch with priestly magics as well.
 	 
-Druedain (Woses):
-     The Druedain are wild men, with squat bodies and limbs.  They are a versatile race not unsimilar to humans, though a little less educated and friendly.  They make decent fighters, as they are apt with many weapons; they also are make excellent druids.  Woses have no trouble walking through forests.
+Drúedain (Woses):
+     The Drúedain are wild men, with squat bodies and limbs.  They are a versatile race not unsimilar to humans, though a little less educated and friendly.  They make decent fighters, as they are apt with many weapons; they also are make excellent druids.  
 	 
 Beorning:
 	The beornings are descendants of Beor, and retain his ability to change into the shape of a bear.  They are excellent with all weapons and make natural warriors, but are bad at spellcasting and devices.
@@ -323,7 +323,7 @@ Racial Adjustments:
  Dark-Elf      -1    +3     0    +2    -2    -1     10        2
  Giant         +3     0    -2    -2    +2    -1     15        0
  Ent           +3    -2    +3    -4    +3    -1     15        0
- Druedain       0    -2    +1     0    +1    -2     12        0
+ Drúedain       0    -2    +1     0    +1    -2     12        0
  Beorning      +1    -1    +1    -1    +1    -1     12        0
  
      All racial stat adjustments act as modifiers to your maximum internal
@@ -346,7 +346,7 @@ Racial Abilities:
  Dark-Elf      9       8       5       7       7       4       5       5
  Giant         2       4       5       3       1       8       4       4
  Ent           1       3       5       3       5       8       5       5 
- Druedain      5       4       5       5       6       5       5       5
+ Drúedain      5       4       5       5       6       5       5       5
  Beorning      4       4       5       5       5       6       5       5
  
 
@@ -357,9 +357,9 @@ Racial Abilities:
 Racial Aptitudes:
 
                Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia  Ent  Dru  Brn
- sword          10   10   12   12   10    8    9   10   10    9   11   10   11    9
- hafted         10   12   13   12    9    9    7   10   12   13   10   10    9    8
- polearm        10   11   14   12    8    9    9   10   11   11   10   15    9    8
+ sword          10   11   12   12   10    8    9   10   10    9   11   10   11    9
+ hafted         10   13   13   12    9    9    7   10   12   13   10   10    9    8
+ polearm        10   12   14   12    8    9    9   10   11   11   10   15    9    8
  crossbow       10   11   11    9   10   10   10   10   10   11   13   11   11    9
  bow            10    8    9   10   14   10   13   10    8    9   13   12    9   10
  sling          10   10    7   10   13   10   15   10   10   10   13   12   10   10
@@ -787,12 +787,12 @@ Archery - Slings   (cost - 7):
 Throwing   (cost - 9):
      Determines hit chance with any thrown object.  Increases the damage and/or power of many kinds of thrown potions.  With special throwing weapons, determines chance of critical hits and damage multiplier.  This skill can make carrying around flasks of oil, mushrooms, or boulders quite handy, and allow you to turn potions you wouldn't want to drink and well-balanced weapons into deadly missiles.
 
-Wrestling   (cost - 12):
+Wrestling   (cost - 10):
      Affects hit chance and damage when wrestling.  Sufficient increases in this skill increase strength and also dexterity, allow you to bash doors and chests with greater force, tunnel more rapidly, and recover from stuns more quickly.  Good wrestlers get an HP bonus of up to 50.
      Wrestling requires that you not wield a weapon (You can carry a shield, however).  This combat method doesn't work on non-material beings unless you are blessed, and will hurt you if you try it on highly poisonous or acidic creatures, elementals, or vortexes, but is fully effective against monsters that resist edged and/or blunt weapons.  Wrestling does a lot of damage and sometimes allows you to rob monsters of energy by throwing them to the ground.  You need to be quite strong to be a truly effective wrestler.
      If you are a good enough wrestler, and have taken the Oath of Iron, you can turn your skin to stone (65) or go into a berserk fury (80) at will.  Very skilled wrestlers who are not wielding a weapon get special immunities:  free action at a skill of 86, resist sound and stunning at 92, and resist confusion at 98.
 
-Karate   (cost - 11):
+Karate   (cost - 10):
      Affects hit chance and damage when using karate.  Sufficient increases in this skill increase dexterity and also strength, allow you to dodge better and become slightly more stealthy, and recover from stuns more quickly.
      Karate requires that you not wield a weapon (You can carry a shield, however).  This combat method doesn't work on non-material beings unless you are blessed, and will hurt you if you try it on highly poisonous or acidic creatures, elementals, or vortexes, but is fully effective against monsters that resist edged and/or blunt weapons.  Karate does a fair amount of damage and often inflicts momentary stunning, confusing, or slowing.  You need to be quite dexterous (and also strong) to be a truly effective user of karate.
      If you are good enough at karate, and have taken the Oath of Iron, you can sometimes go into a brief trance-like state (90) in which you are highly resistant to damage.  Very skilled karate users who are not wielding a weapon get special immunities:  free action at a skill of 86, resist sound and stunning at 92, and resist confusion at 98.
@@ -859,16 +859,16 @@ Weaponsmithing   (cost - 11):
 Armor forging   (cost - 14):
      With a skill of 15, allows you to forge armor from components found in the dungeon.  Armor forging is very powerful, because there are almost no object qualities that cannot be had with enough skill, good enough components, and a dash of luck.
 
-Alchemy   (cost - 6):
+Alchemy   (cost - 8):
      Allows you to create potions, scrolls, rings and amulets.  You need a skill of 10 to create potions and scrolls, and a skill of 35 to create rings and amulets.
 
 Magical infusion   (cost - 13):
      Infusion is among the most powerful of skills, because it allows you to use magical essences to control the powers that armor, weapons, and missiles get, pack essences into potions that explode violently when thrown, and make more potions and scrolls using a given number of essences.  You need an infusion skill of 10 to infuse forged items.
-     A relatively high magical infusion or alchemy skill is essential for reliably finding essences, especially deep in the dungeon (Perception also helps a little).
+     A relatively high magical infusion or alchemy skill is essential for reliably finding essences, especially deep in the dungeon (Perception also helps a little).  You cannot search for essences at all unless you have a magical infusion or alchemy skill of 10 or higher.
      Infusion grants one talent:  Recharging with essences (30).
 
 Shapechange  (cost - 14)
-	 Shapechanging allows you to take the form of many different beasts, modifying your stats, resistances, and more.  Some forms are only available in combination with the nature lore or blood dominion skill.  Press ']' to change form.  See the shapechanging section for more details.
+	 Shapechaning allows you to take the form of many different beasts, modifying your stats, resistances, and more.  Some forms are only available in combination with the nature lore or blood dominion skill.  Press ']' to change form.  See the shapechaning section for more details.
 
 
 ====== Talents ======
@@ -964,7 +964,7 @@ Dragon-breathing:
      Of course, you have to find a way to turn into a dragon first...
 
 - Warrior Talents -
-Warrior talents can be accessed by pressing 'p'.
+Warrior talents can be accessed by pressing 'p'
 
 
 Lunge
@@ -2237,10 +2237,7 @@ Shapeshifting:
             Extra damage from light, less from dark.
   Werewolf: Strong, hale, and fearless.  Good bare-clawed fighter.
   Serpent : Strong, stealthy, and great at wrestling.
-  Angel   : Wise and strong and imbued with light.
-  Golem   : Strong against magic, but blocked from it.
-  Eagle   : Swift and silent, but weak of attack.
-  Fire Vortex: Wreathed in fire, and protected from it.
+  Maia    : All around improvement, especially at high levels.
 
 
 --- Getting Good at Magic ---

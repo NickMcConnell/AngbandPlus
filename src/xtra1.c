@@ -1436,17 +1436,8 @@ static void prt_shape(void)
 		case SHAPE_SERPENT:
 			shapedesc = "Serpent   ";
 			break;
-		case SHAPE_ANGEL:
-			shapedesc = "Angel     ";
-			break;
-		case SHAPE_VORTEX:
-			shapedesc = "Fire Vortx";
-			break;
-		case SHAPE_GOLEM:
-			shapedesc = "Golem     ";
-			break;
-		case SHAPE_EAGLE:
-			shapedesc = "Golem     ";
+		case SHAPE_MAIA:
+			shapedesc = "Maia      ";
 			break;
 
 		default:
@@ -1877,7 +1868,7 @@ static bool prt_diseased(byte r_margin)
  */
 static bool prt_invisible(byte r_margin)
 {
-	if (p_ptr->invisible > 0)
+	if (p_ptr->invisible)
 	{
 		int i = p_ptr->invisible;
 		int a;
@@ -2742,7 +2733,7 @@ static void prt_conditions(void)
 	}
 
 	/* Show invisibility */
-	if ((p_ptr->invisible > 0) && (!left_panel_display(DISPLAY_INVISIBILITY, 1)))
+	if ((p_ptr->invisible) && (!left_panel_display(DISPLAY_INVISIBILITY, 1)))
 	{
 		prt_invisible(r_margin);
 	}
@@ -2773,11 +2764,6 @@ static void prt_conditions(void)
 				if (c_roff_insert(TERM_WHITE, "Blessed", r_margin)) return;
 			}
 		}
-	}
-
-	if (num_trap_on_level >= PLAYER_ALLOWED_TRAPS)
-	{
-		c_roff_insert(TERM_YELLOW, "Traps", r_margin);
 	}
 
 	/* Show oppositions */
@@ -4406,7 +4392,6 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 	int to_a = 0;
 	int to_h = 0;
 	int to_d = 0;
-	int to_s = 0;
 	int skill;
 
 	int weapon_skill;
@@ -4569,57 +4554,22 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 		case SHAPE_VAMPIRE:
 		{
 			(*f2) |= (TR2_RES_DARK);
-			(*f3) |= (TR3_HOLD_LIFE);
+			(*f2) |= (TR3_HOLD_LIFE);
 			break;
 		}
 		case SHAPE_WEREWOLF:
 		{
 			(*f2) |= (TR2_RES_FEAR);
-			(*f3) |= (TR3_AGGRAVATE);
 			if (check_barehanded()) to_h += 10;
-			break;
 		}
 		case SHAPE_SERPENT:
 		{
-			if (get_skill(S_NATURE, 0, 100) > 70)
-				(*f2) |= (TR2_RES_POIS);
-
+			(*f2) |= (TR2_RES_POIS);
 			if (check_barehanded() && p_ptr->barehand == S_WRESTLING) to_h += 20;
-			break;
 		}
-		case SHAPE_ANGEL:
+		case SHAPE_MAIA:
 		{
 			(*f3) |= TR3_LITE;
-			(*f2) |= TR2_RES_LITE;
-			(*f3) |= TR3_FEATHER;
-			break;
-		}
-		case SHAPE_VORTEX:
-		{
-			if (get_skill(S_WIZARDRY,0,100) >= 80)
-				*(f2) |= TR2_IM_FIRE;
-			else
-				*(f2) |= TR2_RES_FIRE;
-			*(f3) |= TR3_LITE;
-			*(f1) |= TR1_BRAND_FIRE;
-
-			to_s += -10;
-			break;
-		}
-		case SHAPE_GOLEM:
-		{
-			to_a += 30;
-			*(f3) |= TR3_NOMAGIC;
-			*(f3) |= TR3_HOLD_LIFE;
-			*(f2) |= TR2_RES_CONFU;
-			break;
-		}
-		case SHAPE_EAGLE:
-		{
-			*(f3) |= TR3_FEATHER;
-			to_h -= 10;
-			to_s -= 10;
-			break;
 		}
 	}
 
@@ -4633,31 +4583,11 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 		p_ptr->skill_thn += to_h * BTH_PLUS_ADJ;
 		p_ptr->skill_thn2 += to_h * BTH_PLUS_ADJ;
 
-		/* Affect missile skill separately */
-		p_ptr->skill_thb += to_s * BTH_PLUS_ADJ;
-
 		p_ptr->to_d += to_d;
 		p_ptr->dis_to_d += to_d;
 	}
 }
 
-/*
- * Handle racial and shapechange vulnerabilities
- */
-void player_flags_vulnerable(u32b *f1, u32b *f2, u32b *f3, bool shape)
-{
-	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
-
-	/* Ents are vulnerable to fire */
-	if (p_ptr->prace == RACE_ENT) *f2 |= TR2_RES_FIRE;
-
-	if (!shape) return;
-
-	if (p_ptr->schange == SHAPE_LICH) *f2 |= TR2_RES_FIRE;
-	if (p_ptr->schange == SHAPE_VAMPIRE) *f2 |= TR2_RES_LITE;
-	if (p_ptr->schange == SHAPE_ENT) *f2 |= TR2_RES_FIRE;
-}
 
 
 /*
@@ -4690,6 +4620,7 @@ void player_flags_cancel(u32b *f1, u32b *f2, u32b *f3, bool shape)
 		case SHAPE_ENT:
 		{
 			(*f2) |= (TR2_IM_FIRE);
+			(*f2) |= (TR2_RES_FIRE);
 			(*f3) |= (TR3_FEATHER);
 			break;
 		}
@@ -4877,7 +4808,7 @@ int player_flags_pval(u32b flag_pval, bool shape)
 				if (flag_pval == TR_PVAL_INFRA)   pval += 2;
 				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 15;
 				if (flag_pval == TR_PVAL_STEALTH) pval += 10;
-				if (flag_pval == TR_PVAL_AWARE)   pval += 5;
+				if (flag_pval == TR_PVAL_AWARE)   pval += 3;
 				break;
 			}
 			case SHAPE_HOUND:
@@ -4895,7 +4826,7 @@ int player_flags_pval(u32b flag_pval, bool shape)
 			{
 				if (flag_pval == TR_PVAL_DEX)     pval += 2;
 				if (flag_pval == TR_PVAL_INFRA)   pval += 2;
-				if (flag_pval == TR_PVAL_SPEED)   pval += get_skill(S_NATURE, 1, 7);
+				if (flag_pval == TR_PVAL_SPEED)   pval += 6;
 				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
 				break;
 			}
@@ -4960,68 +4891,41 @@ int player_flags_pval(u32b flag_pval, bool shape)
 				if (flag_pval == TR_PVAL_INT)     pval += 2;
 				if (flag_pval == TR_PVAL_CHR)     pval += 2;
 				if (flag_pval == TR_PVAL_SPEED)   pval += 3;
-				break;
 			}
 			case SHAPE_WEREWOLF:
 			{
-				if (flag_pval == TR_PVAL_STR)     pval += get_skill(S_DOMINION, 1, 4);
-				if (flag_pval == TR_PVAL_CON)     pval += get_skill(S_DOMINION, 1, 4);
+				if (flag_pval == TR_PVAL_STR)     pval += get_skill(S_SHAPECHANGE, 1, 4);
+				if (flag_pval == TR_PVAL_CON)     pval += get_skill(S_SHAPECHANGE, 1, 4);
 				if (flag_pval == TR_PVAL_CHR)     pval -= 4;
 				if (flag_pval == TR_PVAL_INT)     pval -= 2;
 				if (flag_pval == TR_PVAL_WIS)     pval -= 2;
 				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 15;
 				if (flag_pval == TR_PVAL_INFRA)   pval += 3;
 				if (flag_pval == TR_PVAL_STEALTH) pval -= 3;  /* It's those constant howls */
-				break;
 			}
 			case SHAPE_SERPENT:
 			{
-				if (flag_pval == TR_PVAL_STR)     pval += get_skill(S_NATURE, 1, 4);
-				if (flag_pval == TR_PVAL_DEX)     pval += get_skill(S_NATURE, 1, 4);
+				if (flag_pval == TR_PVAL_STR)     pval += get_skill(S_SHAPECHANGE, 1, 4);
+				if (flag_pval == TR_PVAL_DEX)     pval += get_skill(S_SHAPECHANGE, 1, 4);
 				if (flag_pval == TR_PVAL_INT)     pval -= 2;
 				if (flag_pval == TR_PVAL_WIS)     pval -= 2;
-				if (flag_pval == TR_PVAL_STEALTH) pval += get_skill(S_NATURE, 1, 4);
-				break;
+				if (flag_pval == TR_PVAL_STEALTH) pval += get_skill(S_SHAPECHANGE, 1, 4);
 			}
-			case SHAPE_ANGEL:
+			case SHAPE_MAIA:
 			{
-				if (flag_pval == TR_PVAL_STR)     pval += 2;
-				if (flag_pval == TR_PVAL_WIS)     pval += 2;
-				if (flag_pval == TR_PVAL_CON)     pval += 2;
-				if (flag_pval == TR_PVAL_CHR)     pval += 3;
+				if (flag_pval == TR_PVAL_STR)     pval += (get_skill(S_SHAPECHANGE, 0, 100) < 70)? 1 : 2;
+				if (flag_pval == TR_PVAL_INT)     pval += (get_skill(S_SHAPECHANGE, 0, 100) < 70)? 1 : 2;
+				if (flag_pval == TR_PVAL_WIS)     pval += (get_skill(S_SHAPECHANGE, 0, 100) < 70)? 1 : 2;
+				if (flag_pval == TR_PVAL_DEX)     pval += (get_skill(S_SHAPECHANGE, 0, 100) < 70)? 1 : 2;
+				if (flag_pval == TR_PVAL_CON)     pval += (get_skill(S_SHAPECHANGE, 0, 100) < 70)? 1 : 2;
+				if (flag_pval == TR_PVAL_CHR)     pval += (get_skill(S_SHAPECHANGE, 0, 100) < 70)? 1 : 2;
 				if (flag_pval == TR_PVAL_INVIS)   pval -= 2;
-				break;
-			}
-			case SHAPE_VORTEX:
-			{
-				if (flag_pval == TR_PVAL_DEX)     pval += 2;
-				break;
-			}
-			case SHAPE_GOLEM:
-			{
-				if (flag_pval == TR_PVAL_STR)     pval += 2;
-				if (flag_pval == TR_PVAL_DEX)     pval -= 2;
-				if (flag_pval == TR_PVAL_SAVE)    pval += get_skill(S_WIZARDRY, 0, 5);
-				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 10;
-				break;
-			}
-			case SHAPE_EAGLE:
-			{
-				if (flag_pval == TR_PVAL_STR)      pval -= 2;
-				if (flag_pval == TR_PVAL_AWARE)    pval += 4;
-				if (flag_pval == TR_PVAL_STEALTH)  pval += get_skill(S_SHAPECHANGE, 0, 6);
-				if (flag_pval == TR_PVAL_SPEED)    pval += get_skill(S_SHAPECHANGE, 0, 6);
-				if (flag_pval == TR_PVAL_DEVICE)   pval -= p_ptr->skill_dev / 15;
-				break;
 			}
 		}
 
-		/* Decrease penalties for high-level shapechangers */
-		/* Should trigger at 3/4 of the way to 100 from where player got the skill */
-		if (get_skill(p_ptr->schange_skill, 0, 100) >= (300 + p_ptr->schange_min_skill) / 4)
-		{
-			if (pval < 0) pval++;
-		}
+		/* Add incentive for high-level shapechangers */
+		if (pval && get_skill(S_SHAPECHANGE, 0, 100) >= SHAPE__STRONGER) pval++;
+		if (pval < 0 && get_skill(S_SHAPECHANGE, 0, 100) >= SHAPE__LESS_BAD) pval++;
 
 	}
 
@@ -6461,24 +6365,6 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_DRAIN_EXP))      p_ptr->drain_exp     = FALSE;
 	if (f3 & (TR3_DRAIN_HP))       p_ptr->being_crushed = FALSE;
 
-	/* Handle vulnerabilities */
-	player_flags_vulnerable(&f1, &f2, &f3, TRUE);
-
-	/* Vunlerability flags */
-	if (f2 & (TR2_RES_ACID))       p_ptr->vuln_acid   = FALSE;
-	if (f2 & (TR2_RES_ELEC))       p_ptr->vuln_elec   = FALSE;
-	if (f2 & (TR2_RES_FIRE))       p_ptr->vuln_fire   = FALSE;
-	if (f2 & (TR2_RES_COLD))       p_ptr->vuln_cold   = FALSE;
-	if (f2 & (TR2_RES_POIS))       p_ptr->vuln_pois   = FALSE;
-	if (f2 & (TR2_RES_LITE))       p_ptr->vuln_lite   = FALSE;
-	if (f2 & (TR2_RES_DARK))       p_ptr->vuln_dark   = FALSE;
-	if (f2 & (TR2_RES_CONFU))      p_ptr->vuln_confu  = FALSE;
-	if (f2 & (TR2_RES_SOUND))      p_ptr->vuln_sound  = FALSE;
-	if (f2 & (TR2_RES_SHARD))      p_ptr->vuln_shard  = FALSE;
-	if (f2 & (TR2_RES_NEXUS))      p_ptr->vuln_nexus  = FALSE;
-	if (f2 & (TR2_RES_NETHR))      p_ptr->vuln_nethr  = FALSE;
-	if (f2 & (TR2_RES_CHAOS))      p_ptr->vuln_chaos  = FALSE;
-	if (f2 & (TR2_RES_DISEN))      p_ptr->vuln_disen  = FALSE;
 
 
 	/*** Notice changes ***/

@@ -2404,11 +2404,6 @@ static bool do_cmd_disarm_trap(int y, int x)
 		safe = TRUE;
 	}
 
-	/* Update display of when maximum number of traps are set */
-	if (t_ptr->t_idx == TRAP_MONSTER)
-	{
-		p_ptr->redraw |= PR_CONDITIONS;
-	}
 
 	/* Success */
 	if ((diff == 0) || (rand_int(100) < chance))

@@ -904,7 +904,7 @@ P:2
 1:CON
 F:VORPAL | DRAIN_HP | LIGHT_CURSE
 X:ADD_DICE_SIDES | CAN_BE_HEAVY
-D:This weapon seeks blood, whatever the source.
+D:This wicked blade hates all things and all things hate it.
 
 
 N:104:of Aggression
@@ -918,7 +918,7 @@ P:-5
 F:LIGHT_CURSE | SLAY_ORC | SLAY_DRAGON | SLAY_TROLL | SLAY_ANIMAL | SLAY_UNDEAD |
 F:SLAY_DEMON | SLAY_GIANT | HIDE_TYPE |
 F:AGGRAVATE
-D:This wicked weapon hates all things and all things hate it.
+D:This wicked blade hates all things and all things hate it.
 
 N:105:(foully corroded)
 W:0:1:0:0

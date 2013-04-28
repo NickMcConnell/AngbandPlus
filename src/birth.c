@@ -574,7 +574,6 @@ static void get_history(void)
 		case RACE_HUMAN:
 		case RACE_DUNADAN:
 		case RACE_WOSES:
-		case RACE_BEORNING:
 		{
 			chart = 1;
 			break;

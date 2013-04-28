@@ -150,7 +150,7 @@ carrying around flasks of oil, mushrooms, or boulders quite handy, and allow you
 to turn potions you wouldn't want to drink and well-balanced weapons into deadly
 missiles.
 
-Wrestling   (cost - 12):
+Wrestling   (cost - 10):
      Affects hit chance and damage when wrestling.  Sufficient increases in this
 skill increase strength and also dexterity, allow you to bash doors and chests
 with greater force, tunnel more rapidly, and recover from stuns more quickly.
@@ -168,7 +168,7 @@ skilled wrestlers who are not wielding a weapon get special immunities:  free
 action at a skill of 86, resist sound and stunning at 92, and resist confusion
 at 98.
 
-Karate   (cost - 11):
+Karate   (cost - 10):
      Affects hit chance and damage when using karate.  Sufficient increases in
 this skill increase dexterity and also strength, allow you to dodge better and
 become slightly more stealthy, and recover from stuns more quickly.
@@ -330,14 +330,14 @@ dungeon.  Armor forging is very powerful, because there are almost no object
 qualities that cannot be had with enough skill, good enough components, and a
 dash of luck.
 
-Alchemy   (cost - 6):
+Alchemy   (cost - 8):
      Allows you to create potions, scrolls, rings and amulets.  You need a skill
 of 10 to create potions and scrolls, and a skill of 35 to create rings and
 amulets.
-
      A relatively high magical infusion or alchemy skill is essential for
-reliably finding essences, especially deep in the dungeon (Perception also
-helps a little).
+reliably finding essences, especially deep in the dungeon (Perception also helps
+a little).  You cannot search for essences at all unless you have a magical
+infusion or alchemy skill of 10 or higher.
 
 Magical infusion   (cost - 13):
      Infusion is among the most powerful of skills, because it allows you to use
@@ -345,18 +345,17 @@ magical essences to control the powers that armor, weapons, and missiles get,
 pack essences into potions that explode violently when thrown, and make more
 potions and scrolls using a given number of essences.  You need an infusion
 skill of 10 to infuse forged items.
-
-    A relatively high magical infusion or alchemy skill is essential for 
-reliably finding essences, especially deep in the dungeon (Perception also
-helps a little).
-
+     A relatively high magical infusion or alchemy skill is essential for
+reliably finding essences, especially deep in the dungeon (Perception also helps
+a little).  You cannot search for essences at all unless you have a magical
+infusion or alchemy skill of 10 or higher.
      Infusion grants one talent:  Recharging with essences (30).
 
 Shapechange  (cost - 14)
-	 Shapechanging allows you to take the form of many different beasts, modifying
+	 Shapechaning allows you to take the form of many different beasts, modifying
 your stats, resistances, and more.  Some forms are only available in combination
 with the nature lore or blood dominion skill.  Press ']' to change form.  See the
-shapechanging section for more details.
+shapechaning section for more details.
 
 
 

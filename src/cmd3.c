@@ -525,9 +525,6 @@ void do_cmd_wield(void)
 				/* Get item in secondary wield slot */
 				i_ptr = &inventory[INVEN_ARM];
 
-				/* Anything but a melee weapon allows wielding in slot 1 */
-				if (!is_melee_weapon(i_ptr)) slot1_ok = TRUE;
-
 				/* Weapon in the secondary wield slot is light enough */
 				if (o_ptr->weight + i_ptr->weight <= hold)
 				{
@@ -680,7 +677,7 @@ void do_cmd_wield(void)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
-	if (slot >= INVEN_Q1 && slot <= INVEN_Q0)
+	if (slot == INVEN_Q1)
 	{
 		/* Remember that the item is quivered */
 		i_ptr->quivered = TRUE;
@@ -716,7 +713,7 @@ void do_cmd_wield(void)
 	{
 		/* Take off both existing weapons */
 		(void)inven_takeoff(INVEN_ARM, 255);
-		(void)switch_weapons(TRUE);   /* Hack -- delay removing second weapon to prevent object loss */
+		(void)inven_takeoff(INVEN_WIELD, 255);
 	}
 	/* Hack -- Replacing the primary weapon sometimes moves the secondary weapon -- move it back */
 	else if (replace_primary_weapon)
@@ -758,11 +755,6 @@ void do_cmd_wield(void)
 
 	/* Object has no location */
 	i_ptr->iy = i_ptr->ix = 0;
-
-    /* Hack -- delay removing the second weapon */
-    if (remove_two_weapons)
-        (void)inven_takeoff(INVEN_ARM, 255);
-
 
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
@@ -2780,7 +2772,7 @@ void py_steal(int y, int x)
 bool py_set_trap(int y, int x, int dir)
 {
 	/* Limit traps. */
-	if (num_trap_on_level >= PLAYER_ALLOWED_TRAPS)
+	if (num_trap_on_level >= get_skill(S_BURGLARY, 1, 6))
 	{
 		msg_print("You must disarm an existing trap to free up your equipment.");
 		return (FALSE);

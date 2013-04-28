@@ -102,15 +102,13 @@ Ent:
 exterior protects them from attacks, but they are vulnerable to fire.  They can
 handle weapons well, but dislike axes; they are clumsy with bows, crossbows, and
 magical devices.  Their harmony with nature makes them natural druids, and they
-are in touch with priestly magics as well.  Ents have no trouble walking through
-forests.
+are in touch with priestly magics as well.
 
-Druedain (Woses):
-     The Druedain are wild men, with squat bodies and limbs.  They are a
+Drúedain (Woses):
+     The Drúedain are wild men, with squat bodies and limbs.  They are a
 versatile race not unsimilar to humans, though a little less educated and
 friendly.  They make decent fighters, as they are apt with many weapons; they
-also are make excellent druids.  Woses have no trouble walking through
-forests.
+also are make excellent druids.  
 
 Beorning:
 	The beornings are descendants of Beor, and retain his ability to change 
@@ -132,7 +130,7 @@ Racial Adjustments:
  Dark-Elf      -1    +3     0    +2    -2    -1     10        2
  Giant         +3     0    -2    -2    +2    -1     15        0
  Ent           +3    -2    +3    -4    +3    -1     15        0
- Druedain       0    -2    +1     0    +1    -2     10        0
+ Drúedain       0    -2    +1     0    +1    -2     10        0
  Beorning      +1    -1    +1    -1    +1    -1     10        0
  
      All racial stat adjustments act as modifiers to your maximum internal
@@ -155,7 +153,7 @@ Racial Abilities:
  Dark-Elf      9       8       5       7       7       4       5       5
  Giant         2       4       5       3       1       8       4       4
  Ent           1       3       5       3       5       8       5       5 
- Druedain      5       4       5       5       6       5       5       5
+ Drúedain      5       4       5       5       6       5       5       5
  Beorning      4       4       5       5       5       6       5       5
 
      Abilities are ranked on a comparative scale ranging from 1 to 10.

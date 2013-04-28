@@ -22,6 +22,16 @@
 static int avail_quest;
 
 /*
+ * The Inn's quest selection
+ */
+static s16b inn_quests[GUILD_QUESTS] =
+{
+	2,	5,	8
+};
+
+
+
+/*
  * Pluralize a monster name.  From Zangband, etc.
  */
 void plural_aux(char *name)
@@ -1205,7 +1215,7 @@ void inn_purchase(int item)
 	if (item == -1) return;
 
 	/* Base depth might be based on power or depth */
-	base_depth = MAX(1, MAX(2 * p_ptr->power / 3, p_ptr->max_depth));
+	base_depth = MAX(1, MAX(2 * p_ptr->power / 3, p_ptr->depth));
 
 	/* Get added depth of monsters (no variance for very early quest) */
 	add_depth = ((p_ptr->max_depth <= 2) ? 2 : rand_range(3, 5));

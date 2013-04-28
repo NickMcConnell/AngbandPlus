@@ -3749,6 +3749,8 @@ bool scan_object_priest(bool full)
  */
 void learn_about_wearable(object_type *o_ptr, int slot, bool strong)
 {
+	bool sense_it = FALSE;
+
 	/* New sensing is usually not forced heavy */
 	bool heavy = strong;
 

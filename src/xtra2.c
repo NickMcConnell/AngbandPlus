@@ -2433,15 +2433,17 @@ bool set_wraithform(int v)
 /*
  * Set "p_ptr->form_dur and p_ptr->schange", notice observable changes
  */
-bool shapechange_temp(int v, s16b shape)
+bool shapechange_temp(int v, int shape)
 {
 	bool notice = FALSE;
 
-	/* Set form duration, no messages */
-	notice = set_condition(&p_ptr->form_dur, v, 0L, "", "");
-
 	/* Nothing to do */
 	if (shape == p_ptr->schange && v > 0) return (TRUE);
+
+	/* Set form duration, no messages */
+	notice = set_condition(&p_ptr->form_dur, v, 0L,
+	        "",
+	        "");
 
 	/* Turn into a something */
 	if (p_ptr->form_dur) shapechange(shape);
@@ -2629,13 +2631,6 @@ bool set_self_knowledge(int v, cptr msg)
 	return (TRUE);
 }
 
-void shapechange_perm(s16b shape)
-{
-	/* Clear form duration */
-	p_ptr->form_dur = 0;
-	shapechange(shape);
-}
-
 
 /*
  * Shapechange code. Most of the work is done by calc_bonuses().
@@ -2667,7 +2662,7 @@ void shapechange(s16b shape)
 		case SHAPE_VAMPIRE: shapedesc = "vampire";    break;
 		case SHAPE_WEREWOLF:shapedesc = "werewolf";   break;
 		case SHAPE_SERPENT: shapedesc = "serpent";    break;
-		case SHAPE_ANGEL:   shapedesc = "angel";      break;
+		case SHAPE_MAIA:    shapedesc = "maia";       break;
 		default:            shapedesc = "monster";    break;
 	}
 
@@ -2740,7 +2735,7 @@ void do_cmd_unchange(bool voluntary)
 	}
 
 	/* Return to normal form */
-	shapechange_perm(SHAPE_NORMAL);
+	shapechange(SHAPE_NORMAL);
 
 	/* Hack -- cancel temporary shapechanges */
 	p_ptr->form_dur = 0;

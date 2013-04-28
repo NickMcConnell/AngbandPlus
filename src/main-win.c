@@ -128,9 +128,7 @@
  * This may need to be removed for some compilers XXX XXX XXX
  */
 #ifndef _MBCS
-#ifndef STRICT
 #define STRICT
-#endif
 #endif
 
 

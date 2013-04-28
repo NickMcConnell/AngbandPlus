@@ -338,6 +338,45 @@ void object_info(char *buf, object_type *o_ptr, bool reveal_flavor)
 	}
 }
 
+/*
+ * Descriptions of pval-dependent qualities.
+ */
+static cptr pval_desc_text[32] =
+{
+	"strength",
+	"intelligence",
+	"wisdom",
+	"dexterity",
+	"constitution",
+	"charisma",
+	"XXX6",
+	"XXX7",
+	"stealth",
+	"awareness",
+	"infravision",
+	"tunneling",
+	"speed",
+	"invisibility",
+	"disarming",
+	"device skill",
+	"saving throw",
+	"mana",
+	"light radius",
+	"XX19",
+	"melee blows",
+	"shooting speed",
+	"missile weapon power",
+	"XX23",
+	"XX24",
+	"XX25",
+	"XX26",
+	"XX27",
+	"XX28",
+	"XX29",
+	"XX30",
+	"XX31"
+};
+
 
 /*
  * Display most of what is known about any object.  Rewritten to
@@ -1514,10 +1553,7 @@ void self_knowledge(bool full)
 			case SHAPE_VAMPIRE: roff(format("%sa vampire.\n", p), 0, 0); 			    break;
 			case SHAPE_WEREWOLF:roff(format("%sa werewolf.\n",p), 0, 0); 			    break;
 			case SHAPE_SERPENT: roff(format("%sa serpent.\n", p), 0, 0); 			    break;
-			case SHAPE_ANGEL:   roff(format("%san angel.\n",  p), 0, 0); 			    break;
-			case SHAPE_VORTEX:  roff(format("%sa vortex.\n",  p), 0, 0); 			    break;
-			case SHAPE_GOLEM:   roff(format("%sa golem.\n",   p), 0, 0); 			    break;
-			case SHAPE_EAGLE:   roff(format("%san eagle.\n",  p), 0, 0); 			    break;
+			case SHAPE_MAIA:    roff(format("%sa maia.\n",    p), 0, 0); 			    break;
 			default:  roff(format("%san unknown creature.\n", p), 0, 0);
 				break;
 		}
@@ -1561,7 +1597,7 @@ void self_knowledge(bool full)
 	{
 		roff("You have a firm hold on your lifeforce.", sk_get_col(), 0);
 	}
-	if (p_ptr->invisible > 0)
+	if (p_ptr->invisible)
 	{
 		roff("You are partially invisible.", sk_get_col(), 0);
 	}

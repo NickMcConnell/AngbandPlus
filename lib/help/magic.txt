@@ -129,10 +129,7 @@ be checked by using the Character screen.
             Extra damage from light, less from dark.
   Werewolf: Strong, hale, and fearless.  Good bare-clawed fighter.
   Serpent : Strong, stealthy, and great at wrestling.
-  Angel   : Wise and strong and imbued with light.
-  Golem   : Strong against magic, but blocked from it.
-  Eagle   : Swift and silent, but weak of attack.
-  Fire Vortex: Wreathed in fire, and protected from it.
+  Maia    : All around improvement, especially at high levels.
 
 
 --- Getting Good at Magic ---
