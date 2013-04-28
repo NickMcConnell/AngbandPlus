@@ -570,6 +570,30 @@ void do_cmd_destroy(void)
 		}
 	}
 
+	if (high_level_book(q_ptr) && q_ptr->tval == TV_LIFE_BOOK)
+	{
+		virtue_add(VIRTUE_UNLIFE, 1);
+		virtue_add(VIRTUE_VITALITY, -1);
+	}
+	else if ( high_level_book(q_ptr) 
+	       && (q_ptr->tval == TV_DEATH_BOOK || q_ptr->tval == TV_NECROMANCY_BOOK) )
+	{
+		virtue_add(VIRTUE_UNLIFE, -1);
+		virtue_add(VIRTUE_VITALITY, 1);
+	}	
+
+	if (q_ptr->to_a || q_ptr->to_h || q_ptr->to_d)
+		virtue_add(VIRTUE_ENCHANTMENT, -1);
+	
+	if (object_value_real(q_ptr) > 30000)
+		virtue_add(VIRTUE_SACRIFICE, 2);
+	
+	else if (object_value_real(q_ptr) > 10000)
+		virtue_add(VIRTUE_SACRIFICE, 1);
+
+	if (q_ptr->to_a != 0 || q_ptr->to_d != 0 || q_ptr->to_h != 0)
+		virtue_add(VIRTUE_HARMONY, 1);
+
 	if (equip_is_valid_slot(item)) 
 		calc_android_exp();
 }

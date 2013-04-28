@@ -1161,7 +1161,7 @@ return "ファイア・ボルト(9d8) : 8+d8 ターン毎";
 		case ART_BALLISTA:
 			return "piercing shot every 100 turns";
 		case ART_STONE_OF_NATURE:
-			return "stoneskin every 100 turns";
+			return "stone skin every 100 turns";
 		case ART_STONE_OF_LIFE:
 			return "restoring every 500 turns";
 		case ART_STONE_OF_SORCERY:
@@ -2500,7 +2500,6 @@ bool screen_object(object_type *o_ptr, u32b mode)
 	{
 		char temp2[70 * 20];
 		cptr res = do_device(o_ptr->tval, o_ptr->sval, SPELL_DESC);
-		int fail = device_calc_fail_rate(o_ptr);
 		strcpy(temp2, res);
 		res = do_device(o_ptr->tval, o_ptr->sval, SPELL_INFO);
 		if (res && strlen(res))
@@ -2508,7 +2507,11 @@ bool screen_object(object_type *o_ptr, u32b mode)
 			strcat(temp2, "\nInfo: ");
 			strcat(temp2, res);
 		}   /* But format() here is fine ... Obvious, huh? */
-		strcat(temp2, format("\nFail: %d.%d%%", fail/10, fail%10));
+		if (o_ptr->tval != TV_POTION)
+		{
+			int fail = device_calc_fail_rate(o_ptr);
+			strcat(temp2, format("\nFail: %d.%d%%", fail/10, fail%10));	
+		}
 		roff_to_buf(temp2, 77-15, temp, sizeof(temp));
 		for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
 		{ info[i] = &temp[j]; i++;}

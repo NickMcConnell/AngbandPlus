@@ -99,6 +99,7 @@ bool fear_set_p(int v)
 		}
 		notice = TRUE;
 		p_ptr->counter = FALSE;
+		virtue_add(VIRTUE_VALOUR, -1);
 	}
 	else if (new_lvl < old_lvl)
 	{

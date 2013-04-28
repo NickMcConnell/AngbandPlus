@@ -3966,31 +3966,22 @@ note = "が分裂した！";
 			(void)set_monster_csleep(c_ptr->m_idx, 0);
 			if (MON_STUNNED(m_ptr))
 			{
-#ifdef JP
-				if (seen_msg) msg_format("%^sは朦朧状態から立ち直った。", m_name);
-#else
 				if (seen_msg) msg_format("%^s is no longer stunned.", m_name);
-#endif
 				(void)set_monster_stunned(c_ptr->m_idx, 0);
 			}
 			if (MON_CONFUSED(m_ptr))
 			{
-#ifdef JP
-				if (seen_msg) msg_format("%^sは混乱から立ち直った。", m_name);
-#else
 				if (seen_msg) msg_format("%^s is no longer confused.", m_name);
-#endif
 				(void)set_monster_confused(c_ptr->m_idx, 0);
 			}
 			if (MON_MONFEAR(m_ptr))
 			{
-#ifdef JP
-				if (seen_msg) msg_format("%^sは勇気を取り戻した。", m_name);
-#else
 				if (seen_msg) msg_format("%^s recovers %s courage.", m_name, m_poss);
-#endif
 				(void)set_monster_monfear(c_ptr->m_idx, 0);
 			}
+
+			if (!who && !(r_ptr->flags3 & RF3_EVIL))
+				dam = dam * (625 + virtue_current(VIRTUE_COMPASSION))/625;
 
 			/* Heal */
 			if (m_ptr->hp < 30000) m_ptr->hp += dam;
@@ -3998,9 +3989,31 @@ note = "が分裂した！";
 			/* No overflow */
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
+			if (!who)
+			{
+				virtue_add(VIRTUE_VITALITY, 1);
+
+				if (r_ptr->flags1 & RF1_UNIQUE)
+					virtue_add(VIRTUE_INDIVIDUALISM, 1);
+
+				if (is_friendly(m_ptr))
+					virtue_add(VIRTUE_HONOUR, 1);
+				else if (!(r_ptr->flags3 & RF3_EVIL))
+				{
+					if (r_ptr->flags3 & RF3_GOOD)
+						virtue_add(VIRTUE_COMPASSION, 2);
+					else
+						virtue_add(VIRTUE_COMPASSION, 1);
+				}
+
+				if (r_ptr->flags3 & RF3_ANIMAL)
+					virtue_add(VIRTUE_NATURE, 1);
+			}
+
 			if (m_ptr->r_idx == MON_LEPER)
 			{
 				heal_leper = TRUE;
+				if (!who) virtue_add(VIRTUE_COMPASSION, 5);
 			}
 
 			/* Redraw (later) if needed */
@@ -4033,6 +4046,14 @@ note = "が分裂した！";
 #else
 				note = " starts moving faster.";
 #endif
+			}
+
+			if (!who)
+			{
+				if (r_ptr->flags1 & RF1_UNIQUE)
+					virtue_add(VIRTUE_INDIVIDUALISM, 1);
+				if (is_friendly(m_ptr))
+					virtue_add(VIRTUE_HONOUR, 1);
 			}
 
 			/* No "real" damage */
@@ -4280,6 +4301,8 @@ note = "は動けなくなった！";
 		case GF_CHARM:
 		{
 			dam += (adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1);
+			dam += virtue_current(VIRTUE_HARMONY)/10;
+			dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
 
 			if (seen) obvious = TRUE;
 
@@ -4341,6 +4364,10 @@ note = "は突然友好的になったようだ！";
 #endif
 
 				set_pet(m_ptr);
+
+				virtue_add(VIRTUE_INDIVIDUALISM, -1);
+				if (r_ptr->flags3 & RF3_ANIMAL)
+					virtue_add(VIRTUE_NATURE, 1);
 			}
 
 			/* No "real" damage */
@@ -4352,6 +4379,10 @@ note = "は突然友好的になったようだ！";
 		case GF_CONTROL_UNDEAD:
 		{
 			if (seen) obvious = TRUE;
+
+			dam += virtue_current(VIRTUE_UNLIFE)/10;
+			dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
+
 			if ((r_ptr->flagsr & RFR_RES_ALL) || p_ptr->inside_arena)
 			{
 #ifdef JP
@@ -4413,6 +4444,10 @@ note = "は既にあなたの奴隷だ！";
 		case GF_CONTROL_DEMON:
 		{
 			if (seen) obvious = TRUE;
+
+			dam += virtue_current(VIRTUE_UNLIFE)/10;
+			dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
+
 			if ((r_ptr->flagsr & RFR_RES_ALL) || p_ptr->inside_arena)
 			{
 #ifdef JP
@@ -4475,6 +4510,9 @@ note = "は既にあなたの奴隷だ！";
 		{
 			if (seen) obvious = TRUE;
 
+			dam += virtue_current(VIRTUE_NATURE)/10;
+			dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
+
 			if ((r_ptr->flagsr & RFR_RES_ALL) || p_ptr->inside_arena)
 			{
 #ifdef JP
@@ -4534,6 +4572,8 @@ note = "はなついた。";
 
 				set_pet(m_ptr);
 
+				if (r_ptr->flags3 & RF3_ANIMAL)
+					virtue_add(VIRTUE_NATURE, 1);
 			}
 
 			/* No "real" damage */
@@ -4547,6 +4587,9 @@ note = "はなついた。";
 			if (seen) obvious = TRUE;
 
 			dam += (adj_chr_chm[p_ptr->stat_ind[A_CHR]]);
+			dam -= virtue_current(VIRTUE_UNLIFE)/10;
+			dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
+
 			if (r_ptr->flags3 & (RF3_NO_CONF)) dam -= 30;
 			if (dam < 1) dam = 1;
 #ifdef JP
@@ -4605,6 +4648,9 @@ note = "を支配した。";
 #endif
 
 				set_pet(m_ptr);
+
+				if (r_ptr->flags3 & RF3_ANIMAL)
+					virtue_add(VIRTUE_NATURE, 1);
 			}
 
 			/* No "real" damage */
@@ -6236,6 +6282,7 @@ note = "には効果がなかった！";
 #else
 				if (seen_msg) msg_format("%^s disappered!", m_name);
 #endif
+				virtue_add(VIRTUE_VITALITY, -1);
 				return TRUE;
 			}
 
@@ -6426,6 +6473,12 @@ note = "には効果がなかった。";
 		if (who && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
 
+	if (!who && slept)
+	{
+		if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_COMPASSION, -1);
+		if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_HONOUR, -1);
+	}
+
 	/* Modify the damage */
 	tmp = dam;
 	if (who)
@@ -6548,6 +6601,7 @@ note = "には効果がなかった。";
 
 			/* Message */
 			note = " disappears!";
+			if (!who) virtue_add(VIRTUE_VALOUR, -1);
 
 			/* Teleport */
 			teleport_away(c_ptr->m_idx, do_dist,

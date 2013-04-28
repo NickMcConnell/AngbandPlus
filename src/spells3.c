@@ -71,6 +71,13 @@ bool teleport_away(int m_idx, int dis, u32b mode)
 	/* Minimum distance */
 	min = dis / 2;
 
+	if ((mode & TELEPORT_DEC_VALOUR) &&
+	    (((p_ptr->chp * 10) / p_ptr->mhp) > 5) &&
+		(4+randint1(5) < ((p_ptr->chp * 10) / p_ptr->mhp)))
+	{
+		virtue_add(VIRTUE_VALOUR, -1);
+	}
+
 	/* Look until done */
 	while (look)
 	{
@@ -1078,6 +1085,8 @@ bool apply_disenchant(int mode)
 			(to_a != o_ptr->to_a) || (pval != o_ptr->pval))
 		{
 			msg_format("Your %s (%c) was disenchanted!", o_name, index_to_label(t));
+			virtue_add(VIRTUE_HARMONY, 1);
+			virtue_add(VIRTUE_ENCHANTMENT, -2);
 
 			p_ptr->update |= (PU_BONUS);
 			p_ptr->window |= (PW_EQUIP | PW_PLAYER);
@@ -1235,6 +1244,9 @@ s = "強化できる武器がない。";
 		return brand_weapon_aux(item);
 	
 	inventory[item].name2 = brand_type;
+
+	virtue_add(VIRTUE_ENCHANTMENT, 2);
+
 	return TRUE;
 }
 
@@ -2052,6 +2064,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				idx -= 2*(psion_enchant_power() - 1);
 			}
 
+			idx -= virtue_current(VIRTUE_ENCHANTMENT)/50;
+
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
 			else chance = enchant_table[idx];
@@ -2078,6 +2092,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			{
 				idx -= 2*(psion_enchant_power() - 1);
 			}
+
+			idx -= virtue_current(VIRTUE_ENCHANTMENT)/50;
 
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
@@ -2106,6 +2122,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			{
 				idx -= 2*(psion_enchant_power() - 1);
 			}
+
+			idx -= virtue_current(VIRTUE_ENCHANTMENT)/50;
 
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
@@ -2223,7 +2241,10 @@ msg_print("強化に失敗した。");
 		msg_print("The enchantment failed.");
 #endif
 
+		if (one_in_(3)) virtue_add(VIRTUE_ENCHANTMENT, -1);
 	}
+	else
+		virtue_add(VIRTUE_ENCHANTMENT, 1);
 
 	calc_android_exp();
 
@@ -2386,7 +2407,10 @@ bool artifact_scroll(void)
 		msg_print("The enchantment failed.");
 #endif
 
+		if (one_in_(3)) virtue_add(VIRTUE_ENCHANTMENT, -1);
 	}
+	else
+		virtue_add(VIRTUE_ENCHANTMENT, 1);
 
 	calc_android_exp();
 
@@ -2409,6 +2433,11 @@ bool identify_item(object_type *o_ptr)
 	if (o_ptr->ident & IDENT_KNOWN)
 		old_known = TRUE;
 
+	if (!(o_ptr->ident & (IDENT_MENTAL)))
+	{
+		if (object_is_artifact(o_ptr) || one_in_(5))
+			virtue_add(VIRTUE_KNOWLEDGE, 1);
+	}
 
 	/* Identify it fully */
 	object_aware(o_ptr);
@@ -3256,6 +3285,7 @@ msg_format("%sは輝いた！", o_name);
 		enchant(o_ptr, randint0(3) + 4, ENCH_TOAC);
 
 		o_ptr->discount = 99;
+		virtue_add(VIRTUE_ENCHANTMENT, 2);
 
 		return TRUE;
 	}
@@ -3269,6 +3299,7 @@ msg_print("失敗した。");
 		msg_print("Failed.");
 #endif
 
+		virtue_add(VIRTUE_ENCHANTMENT, -2);
 	}
 	calc_android_exp();
 
@@ -3549,7 +3580,6 @@ s16b spell_chance(int spell, int use_realm)
 	int             need_mana;
 	caster_info		*caster_ptr = get_caster_info();
 
-
 	/* Paranoia -- must be literate */
 	if (!mp_ptr->spell_book) return (100);
 
@@ -3611,6 +3641,28 @@ s16b spell_chance(int spell, int use_realm)
 	if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_SORCERER)) && p_ptr->weapon_info[1].icky_wield) chance += 25;
 
 	chance = mod_spell_chance_1(chance, use_realm);
+
+	/* Goodness or evilness gives a penalty to failure rate */
+	{
+		int	penalty = 2;
+		if (caster_ptr && caster_ptr->which_stat == A_WIS)
+			penalty = 5;
+
+		switch (use_realm)
+		{
+		case REALM_NATURE:
+			if (p_ptr->align > 50 || p_ptr->align < -50) chance += penalty;
+			break;
+		case REALM_LIFE: case REALM_CRUSADE:
+			if (p_ptr->align < -20) chance += penalty;
+			if (p_ptr->align >= 50) chance -= penalty;
+			break;
+		case REALM_DEATH: case REALM_DAEMON: case REALM_HEX:
+			if (p_ptr->align > 20) chance += penalty;
+			if (p_ptr->align <= -50) chance -= penalty;
+			break;
+		}
+	}
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
@@ -4480,6 +4532,7 @@ bool curse_armor(int slot)
 	else
 	{
 		msg_format("A terrible black aura blasts your %s!", o_name);
+		virtue_add(VIRTUE_ENCHANTMENT, -5);
 		blast_object(o_ptr);
 		o_ptr->curse_flags = TRC_CURSED;
 	}
@@ -4510,6 +4563,7 @@ bool curse_weapon(bool force, int slot)
 	else
 	{
 		if (!force) msg_format("A terrible black aura blasts your %s!", o_name);
+		virtue_add(VIRTUE_ENCHANTMENT, -5);
 		blast_object(o_ptr);
 		o_ptr->curse_flags = TRC_CURSED;
 	}

@@ -510,4 +510,4 @@ Doppelganger    -20   -20   -20    +5   -10   +10    -20   -20     0'
 ***** [a] Demigods.txt
 
 
-Automatically generated for PosChengband 1.0.19.
+Automatically generated for PosChengband 1.0.21.

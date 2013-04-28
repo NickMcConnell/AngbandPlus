@@ -256,6 +256,8 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 			mult = 10;break;
 		}
 
+		if (p_ptr->align < 0 && mult < 20)
+			mult = 20;
 		if (!res_save_default(RES_ACID) && mult < 25)
 			mult = 25;
 		if (!res_save_default(RES_ELEC) && mult < 25)
@@ -1417,7 +1419,9 @@ void py_pickup_aux(int o_idx)
 	/* Delete the object */
 	delete_object_idx(o_idx);
 
-	if (p_ptr->personality == PERS_MUNCHKIN || mut_present(MUT_LOREMASTER))
+	if ( p_ptr->personality == PERS_MUNCHKIN 
+	  || mut_present(MUT_LOREMASTER) 
+	  || randint0(1000) < virtue_current(VIRTUE_KNOWLEDGE) )
 	{
 		bool old_known = identify_item(o_ptr);
 
@@ -2741,6 +2745,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	if (p_ptr->special_defense & KATA_KOUKIJIN) chance += 150;
 	if (p_ptr->sutemi) chance = MAX(chance * 3 / 2, chance + 60);
 
+	chance += virtue_current(VIRTUE_VALOUR) / 10;
+
 	num_blow = NUM_BLOWS(hand);
 	if (mode == HISSATSU_COLD) num_blow += 2;
 	if (mode == WEAPONMASTER_CUNNING_STRIKE) num_blow = (num_blow + 1)/2;
@@ -2854,6 +2860,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			if ((have_flag(flgs, TR_CHAOTIC)) && one_in_(7))
 			{
+				if (one_in_(10)) virtue_add(VIRTUE_CHANCE, 1);
 				if (randint1(5) < 4) chaos_effect = 1;
 				else if (one_in_(5)) chaos_effect = 3;
 			}
@@ -4038,6 +4045,12 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	if (weak && !(*mdeath))
 		msg_format("%^s seems weakened.", m_name);
 
+	if (drain_left != MAX_VAMPIRIC_DRAIN)
+	{
+		if (one_in_(4))
+			virtue_add(VIRTUE_UNLIFE, 1);
+	}
+
 	if (touch_ct && !(*mdeath))
 		fear_p_touch_m(m_ptr);
 
@@ -4125,11 +4138,19 @@ bool py_attack(int y, int x, int mode)
 		if (equip_find_artifact(ART_STORMBRINGER))
 		{
 			msg_format("Your black blade greedily attacks %s!", m_name);
+			virtue_add(VIRTUE_INDIVIDUALISM, 1);
+			virtue_add(VIRTUE_HONOUR, -1);
+			virtue_add(VIRTUE_JUSTICE, -1);
+			virtue_add(VIRTUE_COMPASSION, -1);
 		}
 		else if (p_ptr->pclass != CLASS_BERSERKER)
 		{
 			if (get_check("Really hit it? "))
 			{
+				virtue_add(VIRTUE_INDIVIDUALISM, 1);
+				virtue_add(VIRTUE_HONOUR, -1);
+				virtue_add(VIRTUE_JUSTICE, -1);
+				virtue_add(VIRTUE_COMPASSION, -1);
 			}
 			else
 			{
@@ -4137,6 +4158,12 @@ bool py_attack(int y, int x, int mode)
 				return FALSE;
 			}
 		}
+	}
+
+	if (MON_CSLEEP(m_ptr)) /* It is not honorable etc to attack helpless victims */
+	{
+		if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_COMPASSION, -1);
+		if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_HONOUR, -1);
 	}
 
 	/* Check for dual wielding skill ... Personally, I think skills should only increase on a hit.*/

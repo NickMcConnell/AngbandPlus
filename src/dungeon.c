@@ -215,6 +215,8 @@ static int _adj_pseudo_id(int num)
 	int result = num * adj_pseudo_id[p_ptr->stat_ind[A_WIS]] / 100;
 	int slot;
 
+	result = result * (625 - virtue_current(VIRTUE_KNOWLEDGE)) / 625;
+
 	/* TODO: p_ptr->enhanced_psuedo_id ... */
 	for (slot = equip_find_first(object_is_helmet);
 			slot;
@@ -422,6 +424,9 @@ static void sense_inventory1(void)
 			break;
 		}
 	}
+
+	if (virtue_current(VIRTUE_KNOWLEDGE) >= 100)
+		heavy = TRUE;
 
 	/*** Sense everything ***/
 
@@ -3049,6 +3054,7 @@ static void update_dungeon_feeling(void)
 	delay = MAX(10, 150 - p_ptr->skills.fos) * (150 - dun_level) * TURNS_PER_TICK / 100;
 
 	delay = delay * adj_pseudo_id[p_ptr->stat_ind[A_WIS]] / 100;
+	delay = delay * (625 - virtue_current(VIRTUE_ENLIGHTENMENT)) / 625;
 
  	/* Not yet felt anything */
 	if (turn < p_ptr->feeling_turn + delay && !cheat_xtra) return;
@@ -3422,12 +3428,15 @@ msg_print("今、アングバンドへの門が閉ざされました。");
 	/*** Process the monsters ***/
 
 	/* Check for creature generation. */
-	if (one_in_(d_info[dungeon_type].max_m_alloc_chance) &&
-	    !p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle)
+	if (!p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle)
 	{
-		/* Make a new monster */
-		if (one_in_(2)) /* Hack ... adjust d_info.txt if desired instead */
-			(void)alloc_monster(MAX_SIGHT + 5, 0);
+		int chance = d_info[dungeon_type].max_m_alloc_chance;
+
+		chance = chance * (100 + dun_level) / 100;
+		chance = chance * (375 - virtue_current(VIRTUE_PATIENCE)) / 375;
+
+		if (one_in_(chance))
+			alloc_monster(MAX_SIGHT + 5, 0);
 	}
 
 	/* Hack -- Check for creature regeneration */
@@ -3549,6 +3558,9 @@ msg_print("今、アングバンドへの門が閉ざされました。");
 			/* Slow digestion takes less food */
 			if (p_ptr->slow_digest)
 				digestion -= 5;
+
+			/* Temperance slows digestion */
+			digestion = digestion * (375 - virtue_current(VIRTUE_TEMPERANCE)) / 375;
 
 			/* Minimal digestion */
 			if (digestion < 1) digestion = 1;

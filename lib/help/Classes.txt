@@ -772,4 +772,4 @@ Devicemaster   25+7   50+20  36+10     2    20    16  48+13  35+11
 
 
 
-Automatically generated for PosChengband 1.0.19.
+Automatically generated for PosChengband 1.0.21.

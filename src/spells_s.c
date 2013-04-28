@@ -1307,7 +1307,8 @@ void turn_undead_spell(int cmd, variant *res)
 		var_set_string(res, T("Attempts to scare undead monsters in sight.", "視界内のアンデッドを恐怖させる。抵抗されると無効。"));
 		break;
 	case SPELL_CAST:
-		project_hack(GF_TURN_UNDEAD, spell_power(p_ptr->lev));
+		if (project_hack(GF_TURN_UNDEAD, spell_power(p_ptr->lev)))
+			virtue_add(VIRTUE_UNLIFE, -1);
 		var_set_bool(res, TRUE);
 		break;
 	default:

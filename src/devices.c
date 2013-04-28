@@ -134,7 +134,6 @@ static cptr _do_potion(int sval, int mode)
 	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
 	bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-	bool ident = FALSE;
 
 	switch (sval)
 	{
@@ -211,6 +210,8 @@ static cptr _do_potion(int sval, int mode)
 		if (desc) return "It confuses and hallucinates you when you quaff it. If you are a monk, you may be a drunken master.";
 		if (cast)
 		{
+			if (p_ptr->pclass != CLASS_MONK) 
+				virtue_add(VIRTUE_HARMONY, -1);
 			if (!res_save_default(RES_CONF))
 			{
 				if (p_ptr->pclass == CLASS_MONK) 
@@ -268,6 +269,7 @@ static cptr _do_potion(int sval, int mode)
 			if (!p_ptr->hold_life && (p_ptr->exp > 0))
 			{
 				msg_print("You feel your memories fade.");
+				virtue_add(VIRTUE_KNOWLEDGE, -5);
 				lose_exp(p_ptr->exp / 4);
 				device_noticed = TRUE;
 			}
@@ -347,6 +349,8 @@ static cptr _do_potion(int sval, int mode)
 		if (desc) return "You die when you quaff it.";
 		if (cast)
 		{
+			virtue_add(VIRTUE_VITALITY, -1);
+			virtue_add(VIRTUE_UNLIFE, 5);
 			msg_print("A feeling of Death flows through your body.");
 			take_hit(DAMAGE_LOSELIFE, 5000, "a potion of Death", -1);
 			device_noticed = TRUE;
@@ -542,6 +546,8 @@ static cptr _do_potion(int sval, int mode)
 		if (info) return info_heal(0, 0, _potion_power(5000)); 
 		if (cast)
 		{
+			virtue_add(VIRTUE_VITALITY, 1);
+			virtue_add(VIRTUE_UNLIFE, -5);
 			msg_print("You feel life flow through your body!");
 			restore_level();
 			set_poisoned(0, TRUE);
@@ -701,6 +707,8 @@ static cptr _do_potion(int sval, int mode)
 		if (desc) return "It maps, lights permanently and detects all items on the entire level when you quaff it.";
 		if (cast)
 		{
+			virtue_add(VIRTUE_KNOWLEDGE, 1);
+			virtue_add(VIRTUE_ENLIGHTENMENT, 1);
 			msg_print("An image of your surroundings forms in your mind...");
 			wiz_lite(p_ptr->tim_superstealth > 0);
 			device_noticed = TRUE;
@@ -711,6 +719,8 @@ static cptr _do_potion(int sval, int mode)
 		if (cast)
 		{
 			msg_print("You begin to feel more enlightened...");
+			virtue_add(VIRTUE_KNOWLEDGE, 1);
+			virtue_add(VIRTUE_ENLIGHTENMENT, 2);
 			msg_print(NULL);
 			wiz_lite(p_ptr->tim_superstealth > 0);
 			do_inc_stat(A_INT);
@@ -741,6 +751,7 @@ static cptr _do_potion(int sval, int mode)
 		if (cast)
 		{
 			if (p_ptr->prace == RACE_ANDROID) break;
+			virtue_add(VIRTUE_ENLIGHTENMENT, 1);
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
 				s32b ee = _potion_power((p_ptr->exp / 2) + 10);
@@ -856,13 +867,21 @@ static cptr _do_potion(int sval, int mode)
 				{
 					if (one_in_(2))
 					{
-						if(mut_gain_random(NULL)) device_noticed = TRUE;
+						if(mut_gain_random(NULL)) 
+						{
+							count++;
+							device_noticed = TRUE;
+						}
 					}
 					else if (count > 5 || one_in_(6 - count))
 					{
-						if (mut_lose_random(NULL)) device_noticed = TRUE;
+						if (mut_lose_random(NULL)) 
+						{
+							count--;
+							device_noticed = TRUE;
+						}
 					}
-				} while(!ident || one_in_(2));
+				} while (!device_noticed || one_in_(2));
 
 				if (p_ptr->pclass == CLASS_WILD_TALENT && one_in_(2))
 					wild_talent_scramble();
@@ -886,7 +905,6 @@ static cptr _do_scroll(int sval, int mode)
 	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
 	bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-	bool ident = FALSE;
 
 	switch (sval)
 	{
@@ -1532,7 +1550,6 @@ static cptr _do_staff(int sval, int mode)
 	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
 	bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-	bool ident = FALSE;
 
 	switch (sval)
 	{
@@ -1872,7 +1889,6 @@ static cptr _do_wand(int sval, int mode)
 	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
 	bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-	bool ident = FALSE;
 	bool old_target_pet = target_pet;
 	int  dir;
 
@@ -1891,7 +1907,21 @@ static cptr _do_wand(int sval, int mode)
 		/* XXX Hack -- Wand of wonder can do anything before it */
 		if (sval == SV_WAND_WONDER)
 		{
+			int vir = virtue_current(VIRTUE_CHANCE);
 			sval = randint0(SV_WAND_WONDER);
+
+			if (vir > 0)
+			{
+				while (randint1(300) < vir) sval++;
+				if (sval > SV_WAND_COLD_BALL) sval = randint0(4) + SV_WAND_ACID_BALL;
+			}
+			else if (vir < 0)
+			{
+				while (randint1(300) < -vir) sval--;
+				if (sval < SV_WAND_HEAL_MONSTER) sval = randint0(3) + SV_WAND_HEAL_MONSTER;
+			}
+			if (sval < SV_WAND_TELEPORT_AWAY)
+				virtue_add(VIRTUE_CHANCE, 1);
 		}
 	}
 
@@ -2177,7 +2207,6 @@ static cptr _do_rod(int sval, int mode)
 	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
 	bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-	bool ident = FALSE;
 	int dir;
 
 	if (cast)

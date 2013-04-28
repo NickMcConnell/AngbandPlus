@@ -1623,8 +1623,13 @@ s16b get_mon_num(int level)
 	}
 
 	/* Restrict uniques ... except for summoning, of course ;) */
-	if (unique_count && !summon_specific_who && !one_in_(unique_count))
+	if ( unique_count 
+	  && !summon_specific_who 
+	  && !one_in_(unique_count)
+	  && randint0(250) < virtue_current(VIRTUE_HARMONY) )
+	{
 		allow_unique = FALSE;
+	}
 
 	/* Boost the level */
 	if ((level > 0) && !p_ptr->inside_battle && !(d_info[dungeon_type].flags1 & DF1_BEGINNER))
@@ -2973,7 +2978,6 @@ void update_mon(int m_idx, bool full)
 
 			/* Disturb on appearance */
 			if (disturb_near 
-			  && (r_info[m_ptr->ap_r_idx].level || p_ptr->lev < 10) /* Town dweller don't disturb! */
 			  && projectable(m_ptr->fy, m_ptr->fx, py, px) 
 			  && projectable(py, px, m_ptr->fy, m_ptr->fx) )
 			{
@@ -3598,6 +3602,36 @@ msg_print("守りのルーンが壊れた！");
 	{
 		if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) set_friendly(m_ptr);
 	}
+	else if ( (r_ptr->flags3 && RF3_ANIMAL)
+	       && randint0(1000) < virtue_current(VIRTUE_NATURE) )
+	{
+		if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) 
+			set_friendly(m_ptr);
+	}
+	else if ( (r_ptr->flags2 && RF2_KNIGHT)
+	       && randint0(1000) < virtue_current(VIRTUE_HONOUR) )
+	{
+		if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) 
+			set_friendly(m_ptr);
+	}
+	else if ( r_ptr->d_char == 'A'
+	       && randint0(1000) < virtue_current(VIRTUE_FAITH) )
+	{
+		if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) 
+			set_friendly(m_ptr);
+	}
+	else if ( (r_ptr->flags3 && RF3_DEMON)
+	       && randint0(1000) < -virtue_current(VIRTUE_FAITH) )
+	{
+		if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) 
+			set_friendly(m_ptr);
+	}
+	else if ( (r_ptr->flags3 && RF3_UNDEAD)
+	       && randint0(1000) < virtue_current(VIRTUE_UNLIFE) )
+	{
+		if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) 
+			set_friendly(m_ptr);
+	}
 
 	/* Assume no sleeping */
 	m_ptr->mtimed[MTIMED_CSLEEP] = 0;
@@ -3903,6 +3937,8 @@ static bool place_monster_group(int who, int y, int x, int r_idx, int pack_idx, 
 
 	/* Modify the group size */
 	total += extra;
+
+	total = total * (625 - virtue_current(VIRTUE_INDIVIDUALISM)) / 625;
 
 	/* Minimum size */
 	if (total < 1) total = 1;

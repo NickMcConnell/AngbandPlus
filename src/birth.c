@@ -754,7 +754,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
 	{ "Other", "Races.txt#Tables", 
 		{RACE_ANDROID, RACE_BEASTMAN, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT, 
 		 RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
-	{ "Monster", "MonsterRaces.txt#Tables", 
+	{ "Monster", "MonsterRaces.txt", 
 		{RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_DEMON, RACE_MON_DRAGON, 
 			RACE_MON_GIANT, RACE_MON_HOUND, RACE_MON_HYDRA, RACE_MON_JELLY, 
 			RACE_MON_LEPRECHAUN, RACE_MON_LICH, RACE_MON_SPIDER, RACE_MON_TROLL, 
@@ -1333,6 +1333,12 @@ static void save_prev_data(birther *birther_ptr)
 
 	birther_ptr->chaos_patron = p_ptr->chaos_patron;
 	birther_ptr->mutation = p_ptr->birth_mutation;
+
+	/* Save the virtues */
+	for (i = 0; i < 8; i++)
+	{
+		birther_ptr->vir_types[i] = p_ptr->vir_types[i];
+	}
 }
 
 
@@ -1381,6 +1387,11 @@ static void load_prev_data(bool swap)
 
 	p_ptr->chaos_patron = previous_char.chaos_patron;
 	p_ptr->birth_mutation = previous_char.mutation;
+
+	for (i = 0; i < 8; i++)
+	{
+		p_ptr->vir_types[i] = previous_char.vir_types[i];
+	}
 
 	/*** Save the previous data ***/
 	if (swap)
@@ -1904,6 +1915,9 @@ static void player_wipe(void)
 		p_ptr->demigod_power[i] = -1;
 
 	p_ptr->duelist_target_idx = 0;
+
+	/* Reset virtues*/
+	for (i = 0; i < 8; i++) p_ptr->virtues[i]=0;
 
 	/* Set the recall dungeon accordingly */
 	if (vanilla_town)
@@ -3182,6 +3196,7 @@ auto_roller_barf:
 
 	/*** Finish up ***/
 	get_max_stats();
+	virtue_init();
 
 	/* Prompt for it */
 	prt("['Q'uit, 'S'tart over, or Enter to continue]", 23, 10);

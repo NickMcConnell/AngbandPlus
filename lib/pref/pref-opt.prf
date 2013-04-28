@@ -110,7 +110,7 @@ X:ironman_downward
 X:ironman_empty_levels
 X:ironman_rooms
 X:ironman_nightmare
-X:left_hander
+Y:enable_virtues
 Y:preserve_mode
 Y:autoroller
 Y:powerup_home

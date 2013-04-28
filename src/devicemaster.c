@@ -319,11 +319,11 @@ void _transfer_charges_spell(int cmd, variant *res)
 		{
 		case TV_WAND:
 		case TV_STAFF:
+		case TV_SCROLL:
 			power = power * 3 / 4;
 			break;
 		case TV_POTION:
-		case TV_SCROLL:
-			power = power * 3 / 4;
+			power = power / 2;
 			break;
 		}
 		dest_charges = power / MAX(dest_kind->level, 10);

@@ -44,7 +44,7 @@
 #
 
 SRCS = \
-	archaeologist.c archer.c artifact.c autopick.c bard.c \
+	archaeologist.c archer.c artifact.c autopick.c virtue.c bard.c \
 	beastmaster.c berserker.c birth.c bldg.c blood_knight.c blood_mage.c blue_mage.c \
 	cavalry.c cave.c chaos_warrior.c classes.c cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c \
 	cmd6.c combat.c demigod.c devicemaster.c devices.c do-spell.c doppelganger.c duelist.c dungeon.c \
@@ -65,7 +65,7 @@ SRCS = \
 	z-rand.c z-util.c z-virt.c main-gcu.c main-x11.c main.c
 
 OBJS = \
-	archaeologist.o archer.o artifact.o autopick.o bard.o \
+	archaeologist.o archer.o artifact.o autopick.o virtue.o bard.o \
 	beastmaster.o berserker.o birth.o bldg.o blood_knight.o blood_mage.o blue_mage.o \
 	cavalry.o cave.o chaos_warrior.o classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o \
 	cmd6.o combat.o demigod.o devicemaster.o devices.o do-spell.o doppelganger.o duelist.o dungeon.o \
@@ -302,6 +302,7 @@ archaeologist.o: archaeologist.c $(INCS)
 archer.o: archer.c $(INCS)
 artifact.o: artifact.c $(INCS)
 autopick.o: autopick.c $(INCS)
+virtue.o: virtue.c $(INCS)
 bard.o: bard.c $(INCS)
 beastmaster.o: beastmaster.c $(INCS)
 berserker.o: berserker.c $(INCS)

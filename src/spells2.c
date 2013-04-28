@@ -32,6 +32,7 @@ void self_knowledge(void)
 	int i = 0, j, k;
 
 	int v_nr = 0;
+	char v_string [8] [128];
 	char s_string [6] [128];
 	char r_string [RES_MAX] [128];
 
@@ -57,6 +58,9 @@ void self_knowledge(void)
 	strcpy(buf[0], Dummy);
 	info[i++] = buf[0];
 	info[i++] = "";
+
+	virtue_add(VIRTUE_KNOWLEDGE, 1);
+	virtue_add(VIRTUE_ENLIGHTENMENT, 1);
 
 	/* Acquire item flags from equipment */
 	for (k = EQUIP_BEGIN; k < EQUIP_BEGIN + equip_count(); k++)
@@ -88,6 +92,53 @@ void self_knowledge(void)
 	}
 	info[i++] = "";
 
+	if (enable_virtues)
+	{
+		sprintf(Dummy, "Your alighnment : %s (%d)", your_alignment(), p_ptr->align);
+		strcpy(buf[1], Dummy);
+		info[i++] = buf[1];
+		for (v_nr = 0; v_nr < 8; v_nr++)
+		{
+			char v_name [20];
+			char vir_desc[80];
+			int tester = p_ptr->virtues[v_nr];
+	
+			strcpy(v_name, virtue_name(p_ptr->vir_types[v_nr]));
+ 
+			sprintf(vir_desc, "Oops. No info about %s.", v_name);
+			if (tester < -100)
+				sprintf(vir_desc, "You are the polar opposite of %s (%d).", v_name, tester);
+			else if (tester < -80)
+				sprintf(vir_desc, "You are an arch-enemy of %s (%d).", v_name, tester);
+			else if (tester < -60)
+				sprintf(vir_desc, "You are a bitter enemy of %s (%d).", v_name, tester);
+			else if (tester < -40)
+				sprintf(vir_desc, "You are an enemy of %s (%d).", v_name, tester);
+			else if (tester < -20)
+				sprintf(vir_desc, "You have sinned against %s (%d).", v_name, tester);
+			else if (tester < 0)
+				sprintf(vir_desc, "You have strayed from the path of %s (%d).", v_name, tester);
+			else if (tester == 0)                   
+				sprintf(vir_desc,"You are neutral to %s (%d).", v_name, tester);
+			else if (tester < 20)
+				sprintf(vir_desc,"You are somewhat virtuous in %s (%d).", v_name, tester);
+			else if (tester < 40)
+				sprintf(vir_desc,"You are virtuous in %s (%d).", v_name, tester);
+			else if (tester < 60)
+				sprintf(vir_desc,"You are very virtuous in %s (%d).", v_name, tester);
+			else if (tester < 80)
+				sprintf(vir_desc,"You are a champion of %s (%d).",  v_name, tester);
+			else if (tester < 100)
+				sprintf(vir_desc,"You are a great champion of %s (%d).", v_name, tester);
+			else
+				sprintf(vir_desc,"You are the living embodiment of %s (%d).", v_name, tester);
+	
+			strcpy(v_string[v_nr], vir_desc);
+	
+			info[i++] = v_string[v_nr];
+		}
+		info[i++] = "";
+	}	
 	/* Racial powers... */
 	if (p_ptr->mimic_form != MIMIC_NONE)
 	{
@@ -3054,6 +3105,8 @@ bool banish_evil(int dist)
 bool turn_undead(void)
 {
 	bool tester = (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
+	if (tester)
+		virtue_add(VIRTUE_UNLIFE, -1);
 	return tester;
 }
 
@@ -3064,6 +3117,8 @@ bool turn_undead(void)
 bool dispel_undead(int dam)
 {
 	bool tester = (project_hack(GF_DISP_UNDEAD, dam));
+	if (tester)
+		virtue_add(VIRTUE_UNLIFE, -2);
 	return tester;
 }
 
@@ -3316,6 +3371,12 @@ bool symbol_genocide(int power, bool player_cast)
 #endif
 	}
 
+	if (result)
+	{
+		virtue_add(VIRTUE_VITALITY, -2);
+		virtue_add(VIRTUE_CHANCE, -1);
+	}
+
 	return result;
 }
 
@@ -3351,6 +3412,12 @@ bool mass_genocide(int power, bool player_cast)
 #else
 		result |= genocide_aux(i, power, player_cast, 3, "Mass Genocide");
 #endif
+	}
+
+	if (result)
+	{
+		virtue_add(VIRTUE_VITALITY, -2);
+		virtue_add(VIRTUE_CHANCE, -1);
 	}
 
 	return result;
@@ -3392,6 +3459,12 @@ bool mass_genocide_undead(int power, bool player_cast)
 #else
 		result |= genocide_aux(i, power, player_cast, 3, "Annihilate Undead");
 #endif
+	}
+
+	if (result)
+	{
+		virtue_add(VIRTUE_UNLIFE, -2);
+		virtue_add(VIRTUE_CHANCE, -1);
 	}
 
 	return result;
@@ -3553,6 +3626,7 @@ sprintf(buf, "%s ... align:%s HP:%d/%d AC:%d speed:%s%d exp:", m_name, align, m_
 	/* Done */
 	if (probe)
 	{
+		virtue_add(VIRTUE_KNOWLEDGE, 1);
 
 #ifdef JP
 msg_print("これで全部です。");
@@ -5383,6 +5457,8 @@ bool poly_monster(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
 	bool tester = (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
+	if (tester)
+		virtue_add(VIRTUE_CHANCE, 1);
 	return(tester);
 }
 

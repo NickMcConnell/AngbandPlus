@@ -2650,7 +2650,9 @@ static void process_monster(int m_idx)
 
 
 	/* Attempt to "multiply" if able and allowed */
-	if ((r_ptr->flags2 & RF2_MULTIPLY) && (num_repro < MAX_REPRO))
+	if ( (r_ptr->flags2 & RF2_MULTIPLY) 
+	  && num_repro < MAX_REPRO
+	  && randint1(375) > virtue_current(VIRTUE_HARMONY) )
 	{
 		int k, y, x;
 
@@ -3566,7 +3568,6 @@ msg_format("%^s%s", m_name, monmessage);
 
 			/* Possible disturb */
 			if (m_ptr->ml && 
-			    (ap_r_ptr->level || p_ptr->lev < 10) && /* Town dweller don't disturb! */
 			    (disturb_move || 
 				 (m_ptr->cdis <= 2 && projectable(py, px, m_ptr->fy, m_ptr->fx)) || 
 			     (disturb_near && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
@@ -3814,6 +3815,8 @@ msg_format("%^s%s", m_name, monmessage);
 			msg_format("%^s turns to fight!", m_name);
 #endif
 		}
+
+		if (m_ptr->ml) virtue_add(VIRTUE_COMPASSION, -1);
 
 		/* XXX XXX XXX Actually do something now (?) */
 	}

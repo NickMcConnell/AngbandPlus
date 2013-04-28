@@ -8177,6 +8177,39 @@ static void do_cmd_knowledge_kubi(void)
 }
 
 /*
+ * List virtues & status
+ */
+static void do_cmd_knowledge_virtues(void)
+{
+	FILE *fff;
+	
+	char file_name[1024];
+	
+	/* Open a new file */
+	fff = my_fopen_temp(file_name, 1024);
+	if (!fff) {
+	    msg_format("Failed to create temporary file %s.", file_name);
+	    msg_print(NULL);
+	    return;
+	}
+	
+	if (fff)
+	{
+		fprintf(fff, "Your alighnment : %s\n\n", your_alignment());
+		virtue_dump(fff);
+	}
+	
+	/* Close the file */
+	my_fclose(fff);
+	
+	/* Display the file contents */
+	show_file(TRUE, file_name, "Virtues", 0, 0);
+	
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+/*
 * Dungeon
 *
 */
@@ -9015,29 +9048,33 @@ void do_cmd_knowledge(void)
 		/* Give some choices */
 		if (p == 0)
 		{
-			prt("(1) Display known artifacts", 6, 5);
-			prt("(2) Display known objects", 7, 5);
-			prt("(3) Display remaining uniques", 8, 5);
-			prt("(4) Display known monster", 9, 5);
-			prt("(5) Display kill count", 10, 5);
-			if (!vanilla_town) prt("(6) Display wanted monsters", 11, 5);
-			prt("(7) Display current pets", 12, 5);
-			prt("(8) Display home inventory", 13, 5);
-			prt("(9) Display *identified* equip.", 14, 5);
-			prt("(0) Display terrain symbols.", 15, 5);
+			int row = 6;
+			prt("(1) Display known artifacts", row++, 5);
+			prt("(2) Display known objects", row++, 5);
+			prt("(3) Display remaining uniques", row++, 5);
+			prt("(4) Display known monster", row++, 5);
+			prt("(5) Display kill count", row++, 5);
+			if (!vanilla_town) prt("(6) Display wanted monsters", row++, 5);
+			prt("(7) Display current pets", row++, 5);
+			prt("(8) Display home inventory", row++, 5);
+			prt("(9) Display *identified* equip.", row++, 5);
+			prt("(0) Display terrain symbols.", row++, 5);
 		}
 		else
 		{
-			prt("(a) Display about yourself", 6, 5);
-			prt("(b) Display mutations", 7, 5);
-			prt("(c) Display weapon proficiency", 8, 5);
-			prt("(d) Display spell proficiency", 9, 5);
-			prt("(e) Display misc. proficiency", 10, 5);
-			prt("(f) Display dungeons", 11, 5);
-			prt("(g) Display current quests", 12, 5);
-			prt("(h) Display auto pick/destroy", 13, 5);
-			prt("(w) Display weapon effectiveness", 15, 5);
-			prt("(x) Display extra info", 16, 5);
+			int row = 6;
+			prt("(a) Display about yourself", row++, 5);
+			prt("(b) Display mutations", row++, 5);
+			prt("(c) Display weapon proficiency", row++, 5);
+			prt("(d) Display spell proficiency", row++, 5);
+			prt("(e) Display misc. proficiency", row++, 5);
+			prt("(f) Display dungeons", row++, 5);
+			prt("(g) Display current quests", row++, 5);
+			prt("(h) Display auto pick/destroy", row++, 5);
+			if (enable_virtues)
+				prt("(v) Display virtues", row++, 5);
+			prt("(w) Display weapon effectiveness", row++, 5);
+			prt("(x) Display extra info", row++, 5);
 		}
 
 		/* Prompt */
@@ -9115,6 +9152,12 @@ void do_cmd_knowledge(void)
 			break;
 		case 'h':
 			do_cmd_knowledge_autopick();
+			break;
+		case 'v':
+			if (enable_virtues)
+				do_cmd_knowledge_virtues();
+			else
+				bell();
 			break;
 		case 'w':
 			do_cmd_knowledge_weapon();

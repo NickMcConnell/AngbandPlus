@@ -348,6 +348,13 @@ static void do_cmd_eat_food_aux(int item)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
+	if (!(object_is_aware(o_ptr)))
+	{
+		virtue_add(VIRTUE_KNOWLEDGE, -1);
+		virtue_add(VIRTUE_PATIENCE, -1);
+		virtue_add(VIRTUE_CHANCE, 1);
+	}
+
 	/* We have tried it */
 	if (o_ptr->tval == TV_FOOD) object_tried(o_ptr);
 
@@ -715,6 +722,13 @@ static void do_cmd_quaff_potion_aux(int item)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
+	if (!(object_is_aware(q_ptr)))
+	{
+		virtue_add(VIRTUE_PATIENCE, -1);
+		virtue_add(VIRTUE_CHANCE, 1);
+		virtue_add(VIRTUE_KNOWLEDGE, -1);
+	}
+
 	object_tried(q_ptr);
 	if (device_noticed && !object_is_aware(q_ptr))
 	{
@@ -966,6 +980,13 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 		used_up = FALSE;
 	}
 
+	if (!(object_is_aware(o_ptr)))
+	{
+		virtue_add(VIRTUE_PATIENCE, -1);
+		virtue_add(VIRTUE_CHANCE, 1);
+		virtue_add(VIRTUE_KNOWLEDGE, -1);
+	}
+
 	object_tried(o_ptr);
 	if (device_noticed && !object_is_aware(o_ptr))
 	{
@@ -1167,6 +1188,13 @@ static void do_cmd_use_staff_aux(int item)
 	sound(SOUND_ZAP);
 	used = device_use(o_ptr);
 
+	if (!(object_is_aware(o_ptr)))
+	{
+		virtue_add(VIRTUE_PATIENCE, -1);
+		virtue_add(VIRTUE_CHANCE, 1);
+		virtue_add(VIRTUE_KNOWLEDGE, -1);
+	}
+
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	object_tried(o_ptr);
 	if (device_noticed && !object_is_aware(o_ptr))
@@ -1354,7 +1382,12 @@ static void do_cmd_aim_wand_aux(int item)
 	used = device_use(o_ptr);
 
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
+	if (!(object_is_aware(o_ptr)))
+	{
+		virtue_add(VIRTUE_PATIENCE, -1);
+		virtue_add(VIRTUE_CHANCE, 1);
+		virtue_add(VIRTUE_KNOWLEDGE, -1);
+	}
 	object_tried(o_ptr);
 	if (device_noticed && !object_is_aware(o_ptr))
 	{
@@ -1565,7 +1598,12 @@ static void do_cmd_zap_rod_aux(int item)
 		energy_use = 0;
 
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
+	if (!(object_is_aware(o_ptr)))
+	{
+		virtue_add(VIRTUE_PATIENCE, -1);
+		virtue_add(VIRTUE_CHANCE, 1);
+		virtue_add(VIRTUE_KNOWLEDGE, -1);
+	}
 	object_tried(o_ptr);
 
 	if (device_noticed && !object_is_aware(o_ptr))
@@ -2218,6 +2256,8 @@ static void do_cmd_activate_aux(int item)
 			case ART_JUDGE:
 			{
 				msg_print("The Jewel flashes bright red!");
+				virtue_add(VIRTUE_KNOWLEDGE, 1);
+				virtue_add(VIRTUE_ENLIGHTENMENT, 1);
 				wiz_lite(p_ptr->tim_superstealth > 0);
 				msg_print("The Jewel drains your vitality...");
 				take_hit(DAMAGE_LOSELIFE, damroll(3, 8), "the Jewel of Judgement", -1);

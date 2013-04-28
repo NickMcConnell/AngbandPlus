@@ -333,7 +333,6 @@ extern bool ironman_downward;	/* Disable recall and use of up stairs (*) */
 extern bool ironman_empty_levels;	/* Always create empty 'arena' levels (*) */
 extern bool ironman_rooms;	/* Always generate very unusual rooms (*) */
 extern bool ironman_nightmare;	/* Nightmare mode(it isn't even remotely fair!)(*) */
-extern bool left_hander;	/* Left-Hander */
 extern bool preserve_mode;	/* Preserve artifacts (*) */
 extern bool autoroller;	/* Allow use of autoroller for stats (*) */
 extern bool powerup_home;	/* Increase capacity of your home (*) */
@@ -346,7 +345,7 @@ extern bool random_artifacts;
 extern bool no_artifacts;
 extern bool no_egos;
 extern bool no_selling;
-
+extern bool enable_virtues;
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -1644,6 +1643,7 @@ extern s16b gain_energy(void);
 extern s16b bow_energy(int sval);
 extern int bow_tmul(int sval);
 extern int bow_range(int sval);
+extern cptr your_alignment(void);
 extern int weapon_exp_level(int weapon_exp);
 extern int riding_exp_level(int riding_exp);
 extern int spell_exp_level(int spell_exp);
@@ -1846,6 +1846,15 @@ extern bool change_wild_mode(void);
 extern bool spoiler_hack;
 extern void strip_name(char *buf, int k_idx);
 extern cptr race_spoiler_page(int i);
+
+/* avatar.c */
+extern cptr virtue_name(int which);
+extern int virtue_find(int which);
+extern bool virtue_present(int which);
+extern int virtue_current(int which);
+extern void virtue_add(int which, int amount);
+extern void virtue_init(void);
+extern void virtue_dump(FILE *file);
 
 #ifdef TRAVEL
 /* for travel */

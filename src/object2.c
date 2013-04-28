@@ -4497,6 +4497,9 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 		f2 -= 2;
 	}
 
+	f1 += virtue_current(VIRTUE_CHANCE) / 50;
+	f2 += virtue_current(VIRTUE_CHANCE) / 100;
+
 	/* Assume normal */
 	power = 0;
 
@@ -5315,6 +5318,8 @@ bool make_gold(object_type *j_ptr)
 		j_ptr->pval += j_ptr->pval / 2;
 		j_ptr->pval += j_ptr->pval * 2 * object_level / 100;
 	}
+
+	j_ptr->pval = j_ptr->pval * (625 - virtue_current(VIRTUE_SACRIFICE)) / 625;
 
 	/* Success */
 	return (TRUE);

@@ -35,6 +35,8 @@ void _precognition_spell(int cmd, variant *res)
 		int b = 0;
 		if (p_ptr->lev > 44)
 		{
+			virtue_add(VIRTUE_KNOWLEDGE, 1);
+			virtue_add(VIRTUE_ENLIGHTENMENT, 1);
 			wiz_lite(p_ptr->tim_superstealth > 0);
 		}
 		else if (p_ptr->lev > 19)

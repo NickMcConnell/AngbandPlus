@@ -116,79 +116,115 @@ static void _races_help(FILE* fff)
 static void _monster_races_help(FILE* fff)
 {
 	int i;
+	player_type old = *p_ptr;
 
 	fprintf(fff, "=== Monster Races ===\n\n");
 	for (i = 0; i < MAX_RACES; i++)
 	{
-		race_t *race_ptr = get_race_t_aux(i, 0);
-		if (!(race_ptr->flags & RACE_IS_MONSTER)) continue;
-		_race_help(fff, i);
-	}
-
-	fprintf(fff, "***** <Tables>\n");
-	fprintf(fff, "--- Table 1 - Race Statistic Bonus Table ---\n\n");
-	fprintf(fff, "               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n");	
-
-	for (i = 0; i < MAX_RACES; i++)
-	{
-		race_t *race_ptr = get_race_t_aux(i, 0);
-		if (!(race_ptr->flags & RACE_IS_MONSTER)) continue;
-
-		fprintf(fff, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
-			race_ptr->name,
-			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
-			race_ptr->life, race_ptr->base_hp, race_ptr->exp
-		);
-	}
-	fprintf(fff, "\n\n");
-
-	/*
-	fprintf(fff, "--- Table 2 - Race Skill Bonus Table ---\n\n");
-	fprintf(fff, "               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra\n");
-	for (i = 0; i < MAX_RACES; i++)
-	{
-		race_t *race_ptr = get_race_t_aux(i, 0);
-		if (!(race_ptr->flags & RACE_IS_MONSTER)) continue;
-
-		fprintf(fff, "%-14s %+4d  %+4d  %+4d  %+4d  %+4d  %+4d  %+5d  %+4d  %4d'\n", 
-			race_ptr->name,
-			race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
-			race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
-			race_ptr->skills.thn, race_ptr->skills.thb, race_ptr->infra*10
-		);
-	}
-	fprintf(fff, "\n\n");
-	*/
-	fprintf(fff, "--- Table 2 - Monster Skill Bonus Table ---\n\n");
-	fprintf(fff, "%-21s Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows\n", "");
-	for (i = RACE_MON_JELLY; i <= RACE_MON_LEPRECHAUN; i++)
-	{
 		int max = 1, j;
+		race_t *race_ptr = get_race_t_aux(i, 0);
+
+		if (!(race_ptr->flags & RACE_IS_MONSTER)) continue;
+
+		_race_help(fff, i);
+
 		switch (i)
 		{
+		case RACE_MON_SPIDER: max = SPIDER_MAX; break;
 		case RACE_MON_DEMON: max = DEMON_MAX; break;
 		case RACE_MON_DRAGON: max = DRAGON_MAX; break;
 		case RACE_MON_GIANT: max = GIANT_MAX; break;
+		case RACE_MON_TROLL: max = TROLL_MAX; break;
 		}
 
 		for (j = 0; j < max; j++)
 		{
-			race_t *race_ptr = get_race_t_aux(i, j);
-			fprintf(fff, "%-21s %2d+%-2d  %2d+%-2d  %2d+%-2d  %2d+%-2d %2d+%-2d %2d+%-2d %2d+%-2d  %2d+%-2d\n", 
-				(max > 1) ? race_ptr->subname : race_ptr->name,
-				race_ptr->skills.dis, race_ptr->extra_skills.dis, 
-				race_ptr->skills.dev, race_ptr->extra_skills.dev, 
-				race_ptr->skills.sav, race_ptr->extra_skills.sav,
-				race_ptr->skills.stl, race_ptr->extra_skills.stl,
-				race_ptr->skills.srh, race_ptr->extra_skills.srh,
-				race_ptr->skills.fos, race_ptr->extra_skills.fos,
-				race_ptr->skills.thn, race_ptr->extra_skills.thn, 
-				race_ptr->skills.thb, race_ptr->extra_skills.thb
-			);
+			race_t *race_ptr;
+			int     current_r_idx = 0;
+
+			p_ptr->lev = 1;
+			p_ptr->exp = 0;
+			p_ptr->prace = i;
+			p_ptr->psubrace = j;
+
+			race_ptr = get_race_t();
+
+			fprintf(fff, "  %21s STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n", "");	
+			if (race_ptr->birth)
+				race_ptr->birth();
+
+			for (;;)
+			{
+				p_ptr->lev++;
+				if (race_ptr->gain_level)
+					race_ptr->gain_level(p_ptr->lev);
+
+				if (p_ptr->current_r_idx != current_r_idx)
+				{
+					race_ptr = get_race_t();
+
+					fprintf(fff, "  %-21.21s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %+3d  %3d%%\n", 
+						race_ptr->subname,
+						race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+						race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+						race_ptr->life, race_ptr->base_hp, race_ptr->exp
+					);
+
+					current_r_idx = p_ptr->current_r_idx;
+				}
+
+				if (p_ptr->lev >= PY_MAX_LEVEL)
+					break;
+			}
+			fprintf(fff, "\n");
+
+			current_r_idx = 0;
+			p_ptr->lev = 1;
+			p_ptr->exp = 0;
+			p_ptr->prace = i;
+			p_ptr->psubrace = j;
+
+			race_ptr = get_race_t();
+
+			fprintf(fff, "  %-21s Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows\n", "");
+			if (race_ptr->birth)
+				race_ptr->birth();
+
+			for (;;)
+			{
+				p_ptr->lev++;
+				if (race_ptr->gain_level)
+					race_ptr->gain_level(p_ptr->lev);
+
+				if (p_ptr->current_r_idx != current_r_idx)
+				{
+					race_ptr = get_race_t();
+
+					fprintf(fff, "  %-21.21s %2d+%-2d  %2d+%-2d  %2d+%-2d  %2d+%-2d %2d+%-2d %2d+%-2d %2d+%-2d  %2d+%-2d\n", 
+						race_ptr->subname,
+						race_ptr->skills.dis, race_ptr->extra_skills.dis, 
+						race_ptr->skills.dev, race_ptr->extra_skills.dev, 
+						race_ptr->skills.sav, race_ptr->extra_skills.sav,
+						race_ptr->skills.stl, race_ptr->extra_skills.stl,
+						race_ptr->skills.srh, race_ptr->extra_skills.srh,
+						race_ptr->skills.fos, race_ptr->extra_skills.fos,
+						race_ptr->skills.thn, race_ptr->extra_skills.thn, 
+						race_ptr->skills.thb, race_ptr->extra_skills.thb
+					);
+
+					current_r_idx = p_ptr->current_r_idx;
+				}
+
+				if (p_ptr->lev >= PY_MAX_LEVEL)
+					break;
+			}
+			fprintf(fff, "\n");
 		}
+		fprintf(fff, "\n");
 	}
 	fprintf(fff, "\n\n");
+
+	*p_ptr = old;
 }
 
 static void _demigod_help(FILE *fff, int idx)
@@ -386,13 +422,14 @@ static void _show_help(cptr helpfile)
 void generate_spoilers(void)
 {
 	spoiler_hack = TRUE;
+
 	_text_file("Races.txt", _races_help);
 	_text_file("MonsterRaces.txt", _monster_races_help);
 	_text_file("Demigods.txt", _demigods_help);
 	_text_file("Classes.txt", _classes_help);
 	_text_file("Personalities.txt", _personalities_help);
 
-	_show_help("Personalities.txt");
+/*	_show_help("Personalities.txt"); */
 	spoiler_hack = FALSE;
 }
 

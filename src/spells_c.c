@@ -123,6 +123,9 @@ void clairvoyance_spell(int cmd, variant *res)
 		var_set_string(res, T("Maps and lights whole dungeon level and gives telepathy for a while.", "その階全体を永久に照らし、ダンジョン内すべてのアイテムを感知する。さらに、一定時間テレパシー能力を得る。"));
 		break;
 	case SPELL_CAST:
+		virtue_add(VIRTUE_KNOWLEDGE, 1);
+		virtue_add(VIRTUE_ENLIGHTENMENT, 1);
+
 		wiz_lite(p_ptr->tim_superstealth > 0);
 
 		if (!p_ptr->telepathy)
@@ -979,7 +982,8 @@ void dispel_undead_spell(int cmd, variant *res)
 		var_set_string(res, info_damage(dice, sides, 0));
 		break;
 	case SPELL_CAST:
-		project_hack(GF_DISP_UNDEAD, damroll(dice, sides));
+		if(project_hack(GF_DISP_UNDEAD, damroll(dice, sides)))
+			virtue_add(VIRTUE_UNLIFE, -2);
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -1559,7 +1563,10 @@ void enchantment_spell(int cmd, variant *res)
 		{
 			if (flush_failure) flush();
 			msg_print("The enchantment failed.");
+			if (one_in_(3)) virtue_add(VIRTUE_ENCHANTMENT, -1);
 		}
+		else
+			virtue_add(VIRTUE_ENCHANTMENT, 1);
 
 		calc_android_exp();
 		var_set_bool(res, TRUE);

@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 20
+#define VER_PATCH 21
 #define VER_EXTRA 0
 
 
@@ -4696,27 +4696,28 @@ extern int PlayerUID;
  */
 #define SOUND_MAX 66
 
-#define MAX_VIRTUE 18
+/* Virtues: Note, using V_FOO style macros collides with windows.h */
 
-#define V_COMPASSION	    1
-#define V_HONOUR	    2
-#define V_JUSTICE	    3
-#define V_SACRIFICE	    4
-#define V_KNOWLEDGE	    5
-#define V_FAITH 	    6
-#define V_ENLIGHTEN	    7
-#define V_ENCHANT	    8
-#define V_CHANCE	    9
-#define V_NATURE	   10
-#define V_HARMONY	   11
-#define V_VITALITY	   12
-#define V_UNLIFE	   13
-#define V_PATIENCE	   14
-#define V_TEMPERANCE	   15
-#define V_DILIGENCE	   16
-#define V_VALOUR	   17
-#define V_INDIVIDUALISM    18
-
+#define VIRTUE_NONE          0
+#define VIRTUE_COMPASSION    1
+#define VIRTUE_HONOUR        2
+#define VIRTUE_JUSTICE       3
+#define VIRTUE_SACRIFICE     4
+#define VIRTUE_KNOWLEDGE     5
+#define VIRTUE_FAITH         6
+#define VIRTUE_ENLIGHTENMENT 7
+#define VIRTUE_ENCHANTMENT   8
+#define VIRTUE_CHANCE        9
+#define VIRTUE_NATURE        10
+#define VIRTUE_HARMONY       11
+#define VIRTUE_VITALITY      12
+#define VIRTUE_UNLIFE        13
+#define VIRTUE_PATIENCE      14
+#define VIRTUE_TEMPERANCE    15
+#define VIRTUE_DILIGENCE     16
+#define VIRTUE_VALOUR        17
+#define VIRTUE_INDIVIDUALISM 18
+#define VIRTUE_MAX           19
 
 /*** Hack ***/
 
@@ -5480,9 +5481,6 @@ extern int PlayerUID;
 #define MAGIC_GLOVE_REDUCE_MANA 0x0001
 #define MAGIC_FAIL_5PERCENT     0x0002
 #define MAGIC_GAIN_EXP          0x0004
-
-#define VIRTUE_LARGE 1
-#define VIRTUE_SMALL 2
 
 #define SPELL_DD_S 27
 #define SPELL_DD_T 13

@@ -353,6 +353,8 @@ static void home_carry(store_type *st_ptr, object_type *o_ptr)
 	/* Insert the new item */
 	st_ptr->stock[slot] = *o_ptr;
 
+	virtue_add(VIRTUE_SACRIFICE, -1);
+
 	/* Return the location */
 	return;
 }
@@ -473,6 +475,13 @@ static void rd_options(savefile_ptr file)
 	for (n = 0; n < 8; n++) flag[n] = savefile_read_u32b(file);
 	for (n = 0; n < 8; n++) mask[n] = savefile_read_u32b(file);
 
+	/* Virtues were removed in 1.0.17 and restored in 1.0.21 */
+	if (savefile_is_older_than(file, 1, 0, 17, 0))
+	{
+		/* Hard coded ... yuk! See tables.c for enable_virtues option. */
+		flag[6] |= (1 << 13);
+	}
+
 	for (n = 0; n < 8; n++)
 	{
 		for (i = 0; i < 32; i++)
@@ -492,7 +501,6 @@ static void rd_options(savefile_ptr file)
 
 	/* Extract the options */
 	extract_option_vars();
-
 
 	/*** Window Options ***/
 	for (n = 0; n < 8; n++) flag[n] = savefile_read_u32b(file);
@@ -538,7 +546,7 @@ static void rd_quick_start(savefile_ptr file)
 	previous_char.chaos_patron = savefile_read_s16b(file);
 	previous_char.mutation = savefile_read_s32b(file);
 
-	savefile_read_skip(file, 16);
+	for (i = 0; i < 8; i++) previous_char.vir_types[i] = savefile_read_s16b(file);
 	previous_char.quick_ok = savefile_read_byte(file);
 }
 
@@ -793,11 +801,27 @@ static void rd_extra(savefile_ptr file)
 
 	for (i = 0; i < MUT_FLAG_SIZE; ++i)
 		p_ptr->muta_lock[i] = savefile_read_u32b(file);
-
+		 
 	for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
 		p_ptr->demigod_power[i] = savefile_read_s16b(file);
 
-	savefile_read_skip(file, 32);
+	/* Virtues were removed in 1.0.17 and restored in 1.0.21 */
+	if (!savefile_is_older_than(file, 1, 0, 17, 0) && savefile_is_older_than(file, 1, 0, 21, 0))
+	{
+		savefile_read_skip(file, 32);
+		for (i = 0; i < 8; i++)
+			p_ptr->virtues[i] = 0;
+		for (i = 0; i < 8; i++)
+			p_ptr->vir_types[i] = 0;
+		virtue_init();
+	}
+	else
+	{
+		for (i = 0; i < 8; i++)
+			p_ptr->virtues[i] = savefile_read_s16b(file);
+		for (i = 0; i < 8; i++)
+			p_ptr->vir_types[i] = savefile_read_s16b(file);
+	}
 
 	mutant_regenerate_mod = mut_regenerate_mod();
 

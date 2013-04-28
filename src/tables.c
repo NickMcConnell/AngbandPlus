@@ -4558,37 +4558,17 @@ option_type option_info[] =
 	"ironman_nightmare",            "Nightmare mode(it isn't even remotely fair!)(*)" },
 #endif
 
-#ifdef JP
-	{ &left_hander,                 FALSE, OPT_PAGE_BIRTH, 6, 13,
-	"left_hander",                  "左利きである" },
-#else
-	{ &left_hander,                 FALSE, OPT_PAGE_BIRTH, 6, 13,
-	"left_hander",                  "Left-Hander" },
-#endif
+	{ &enable_virtues,                  FALSE, OPT_PAGE_BIRTH, 6, 13,
+	"enable_virtues",                  "Enable the Virtue System" },
 
-#ifdef JP
-	{ &preserve_mode,               TRUE,  OPT_PAGE_BIRTH, 6, 14,
-	"preserve_mode",                "伝説のアイテムを取り逃しても再生成される(*)" },
-#else
 	{ &preserve_mode,               TRUE,  OPT_PAGE_BIRTH, 6, 14,
 	"preserve_mode",                "Preserve artifacts (*)" },
-#endif
 
-#ifdef JP
-	{ &autoroller,                  TRUE,  OPT_PAGE_BIRTH, 6, 15,
-	"autoroller",                   "能力値にオートローラー使用(*)" },
-#else
 	{ &autoroller,                  TRUE,  OPT_PAGE_BIRTH, 6, 15,
 	"autoroller",                   "Allow use of autoroller for stats (*)" },
-#endif
 
-#ifdef JP
-	{ &powerup_home,                TRUE,  OPT_PAGE_BIRTH, 4, 3,
-	"powerup_home",                 "我が家を拡張する(*)" },
-#else
 	{ &powerup_home,                TRUE,  OPT_PAGE_BIRTH, 4, 3,
 	"powerup_home",                 "Increase capacity of your home (*)" },
-#endif
 
 	{ &allow_friendly_monster,          TRUE, OPT_PAGE_BIRTH, 6, 17,
 	"allow_friendly_monster",           "Allow monsters friendly to player" },

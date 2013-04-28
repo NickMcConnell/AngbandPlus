@@ -646,6 +646,8 @@ void magic_eater_cast(void)
 		if (flush_failure) flush();
 		msg_format("You failed to get the magic off!");
 		sound(SOUND_FAIL);
+		if (randint1(100) >= chance)
+			virtue_add(VIRTUE_CHANCE,-1);
 		return;
 	}
 	else

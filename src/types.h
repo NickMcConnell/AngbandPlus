@@ -1220,6 +1220,9 @@ struct player_type
 	u32b muta_lock[MUT_FLAG_SIZE];   /* Mutations that can not be removed! */
 	s16b demigod_power[MAX_DEMIGOD_POWERS];
 
+	s16b virtues[8];
+	s16b vir_types[8];
+
 	s16b word_recall;	  /* Word of recall counter */
 	s16b alter_reality;	  /* Alter reality counter */
 	byte recall_dungeon;      /* Dungeon set to be recalled */
@@ -1490,6 +1493,8 @@ struct birther
 								  /* See calc_hitpoints() in xtra1.c for details */
 	s16b chaos_patron;
 	int  mutation;
+
+	s16b vir_types[8];
 
 	bool quick_ok;
 };

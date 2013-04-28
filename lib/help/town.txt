@@ -8,13 +8,6 @@ lurking about. In order to direct your character through his
 adventure, you will enter single character commands (see command.txt
 [b]).
 
-We recommend that you go to the Yeek cave next to your starting
-position in the town of Outpost.  Although the King of Yeeks at the
-lowest level is a fierce enemy, the rest of the cave should be fairly
-safe.  Once you complete this dungeon, you will be strong enough to
-leave Outpost in search of greater adventures. Carry lots of food and
-fuel, for the journey can be a long one.
-
 --- The Global Map ( Press the '<' at first! ) ---
   
 Since this world is very large, it is convenient to go into global map

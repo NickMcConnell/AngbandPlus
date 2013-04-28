@@ -294,6 +294,9 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		/* Comment */
 		msg_print(comment_7a[randint0(MAX_COMMENT_7A)]);
 
+		virtue_add(VIRTUE_HONOUR, -1);
+		virtue_add(VIRTUE_JUSTICE, -1);
+
 		/* Sound */
 		sound(SOUND_STORE1);
 	}
@@ -303,6 +306,10 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	{
 		/* Comment */
 		msg_print(comment_7b[randint0(MAX_COMMENT_7B)]);
+
+		virtue_add(VIRTUE_JUSTICE, -1);
+		if (one_in_(4))
+			virtue_add(VIRTUE_HONOUR, -1);
 
 		/* Sound */
 		sound(SOUND_STORE2);
@@ -314,6 +321,11 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		/* Comment */
 		msg_print(comment_7c[randint0(MAX_COMMENT_7C)]);
 
+		if (one_in_(4))
+			virtue_add(VIRTUE_HONOUR, -1);
+		else if (one_in_(4))
+			virtue_add(VIRTUE_HONOUR, 1);
+
 		/* Sound */
 		sound(SOUND_STORE3);
 	}
@@ -323,6 +335,14 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	{
 		/* Comment */
 		msg_print(comment_7d[randint0(MAX_COMMENT_7D)]);
+
+		if (one_in_(2))
+			virtue_add(VIRTUE_HONOUR, -1);
+		if (one_in_(4))
+			virtue_add(VIRTUE_HONOUR, 1);
+
+		if (10 * price < value)
+			virtue_add(VIRTUE_SACRIFICE, 1);
 
 		/* Sound */
 		sound(SOUND_STORE4);
@@ -639,6 +659,9 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (cur_store_num == STORE_BLACK && p_ptr->realm1 != REALM_BURGLARY && !mut_present(MUT_BLACK_MARKETEER))
 			price = price / 2;
 
+		if (cur_store_num == STORE_BLACK)
+			price = price * (625 - virtue_current(VIRTUE_JUSTICE)) / 625;
+
 		/* Compute the final price (with rounding) */
 		/* Hack -- prevent underflow */
 		price = (price * adjust + 50L) / 100L;
@@ -656,6 +679,9 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		/* Mega-Hack -- Black market sucks */
 		if (cur_store_num == STORE_BLACK && p_ptr->realm1 != REALM_BURGLARY && !mut_present(MUT_BLACK_MARKETEER))
 			price = price * 2;
+
+		if (cur_store_num == STORE_BLACK)
+			price = price * (625 + virtue_current(VIRTUE_JUSTICE)) / 625;
 
 		/* Compute the final price (with rounding) */
 		/* Hack -- prevent overflow */
@@ -1485,6 +1511,9 @@ static int home_carry(object_type *o_ptr)
 
 	/* Insert the new item */
 	st_ptr->stock[slot] = *o_ptr;
+
+	if (cur_store_num == STORE_MUSEUM)
+		virtue_add(VIRTUE_SACRIFICE, 1);
 
 	(void)combine_and_reorder_home(cur_store_num);
 
@@ -3624,6 +3653,11 @@ static void store_purchase(void)
 				/* Say "okay" */
 				say_comment_1();
 
+				if (cur_store_num == STORE_BLACK) /* The black market is illegal! */
+					virtue_add(VIRTUE_JUSTICE, -1);
+				if((o_ptr->tval == TV_BOTTLE) && (cur_store_num != STORE_HOME))
+					virtue_add(VIRTUE_NATURE, -1);
+
 				/* Make a sound */
 				sound(SOUND_BUY);
 
@@ -3812,6 +3846,8 @@ static void store_purchase(void)
 
 			/* Redraw everything */
 			display_inventory();
+
+			/* ??? virtue_add(VIRTUE_SACRIFICE, 1); */
 		}
 	}
 
@@ -4025,6 +4061,11 @@ static void store_sell(void)
 			sound(SOUND_SELL);
 
 			/* Be happy */
+			if (cur_store_num == STORE_BLACK) /* The black market is illegal! */
+				virtue_add(VIRTUE_JUSTICE, -1);
+
+			if((o_ptr->tval == TV_BOTTLE) && (cur_store_num != STORE_HOME))
+				virtue_add(VIRTUE_NATURE, 1);
 			decrease_insults();
 
 			/* Get some money */
@@ -5548,6 +5589,11 @@ static void _buyout(void)
 				msg_print("Your pack is full.");
 				continue;
 			}
+
+			if (cur_store_num == STORE_BLACK) /* The black market is illegal! */
+				virtue_add(VIRTUE_JUSTICE, -1);
+			if((o_ptr->tval == TV_BOTTLE) && (cur_store_num != STORE_HOME))
+				virtue_add(VIRTUE_NATURE, -1);
 
 			sound(SOUND_BUY);
 			decrease_insults();

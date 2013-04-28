@@ -34,6 +34,19 @@
   life.
 
 
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Black Ooze             +1   -5   -5   +1   +1   -2   95%  +40  150%
+  Gelatinous Cube        +2  -10  -10   +2   +2   -2  105%  +40  150%
+  Acidic Cytoplasm       +3   -7   -7   +2   +3   -1  110%  +40  150%
+  Shoggoth               +5   -5   -5   +2   +4   +0  115%  +40  150%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Black Ooze            25+12  18+7   37+11   8+0  14+0   7+0  70+30  30+7 
+  Gelatinous Cube       25+12  18+7   37+11   8+0  14+0   7+0  70+30  30+7 
+  Acidic Cytoplasm      25+12  18+7   37+11   7+0  14+0   7+0  70+30  30+7 
+  Shoggoth              25+12  18+7   37+11   2+0  14+0   7+0  70+30  30+7 
+
+
 ***** <Spider>
 --- Spider ---
 
@@ -53,6 +66,29 @@
    
   All spiders begin in the very weak form of the Cave Spider. Lacking any
   special talents, the cave spider must play carefully if it is to survive.
+
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Cave Spider            -2   -1   -1   +2   -2   -3   70%  +25  200%
+  Giant Spider           +0   -1   -1   +2   +1   -1  100%  +25  200%
+  Phase Spider           +0   +3   -1   +3   +1   -1   90%  +25  200%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Cave Spider           25+8   40+15  38+10   6+0  20+0  15+0  56+18  30+7 
+  Giant Spider          25+8   40+15  38+10   7+0  20+0  15+0  56+18  30+7 
+  Phase Spider          25+8   40+15  38+10  10+0  20+0  15+0  56+18  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Cave Spider            -2   -1   -1   +2   -2   -3   70%  +25  200%
+  Giant Spider           +0   -1   -1   +2   +1   -1  100%  +25  200%
+  Aranea                 +1   +0   -5   +0   +2   +0  100%  +25  200%
+  Elder Aranea           +2   +1   -5   +0   +3   +1  100%  +25  200%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Cave Spider           25+8   40+15  38+10   6+0  20+0  15+0  56+18  30+7 
+  Giant Spider          25+8   40+15  38+10   7+0  20+0  15+0  56+18  30+7 
+  Aranea                25+8   30+10  35+10   6+0  20+0  15+0  65+20  30+7 
+  Elder Aranea          25+8   30+10  35+10   6+0  20+0  15+0  65+20  30+7 
 
 
 ***** <Dragon>
@@ -75,6 +111,157 @@
   dragons can fly, but younger dragons are not so quick as their elders.
 
 
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Baby Red Dragon        +1   -1   -6   -2   +0   -1  100%  +40  250%
+  Young Red Dragon       +2   +0   -5   -1   +1   +0  105%  +40  250%
+  Mature Red Dragon      +3   +1   -4   +0   +2   +1  110%  +40  250%
+  Ancient Red Dragon     +4   +2   -3   +1   +3   +2  115%  +40  250%
+  Great Hell Wyrm        +5   +3   -2   +2   +4   +3  120%  +40  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Baby Red Dragon       28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Young Red Dragon      28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Mature Red Dragon     28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Ancient Red Dragon    28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Great Hell Wyrm       28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Baby White Dragon      +1   -1   -6   -2   +0   -1  100%  +40  250%
+  Young White Dragon     +2   +0   -5   -1   +1   +0  105%  +40  250%
+  Mature White Dragon    +3   +1   -4   +0   +2   +1  110%  +40  250%
+  Ancient White Dragon   +4   +2   -3   +1   +3   +2  115%  +40  250%
+  Great Ice Wyrm         +5   +3   -2   +2   +4   +3  120%  +40  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Baby White Dragon     28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Young White Dragon    28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Mature White Dragon   28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Ancient White Dragon  28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Great Ice Wyrm        28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Baby Blue Dragon       +1   -1   -6   -2   +0   -1  100%  +40  250%
+  Young Blue Dragon      +2   +0   -5   -1   +1   +0  105%  +40  250%
+  Mature Blue Dragon     +3   +1   -4   +0   +2   +1  110%  +40  250%
+  Ancient Blue Dragon    +4   +2   -3   +1   +3   +2  115%  +40  250%
+  Great Storm Wyrm       +5   +3   -2   +2   +4   +3  120%  +40  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Baby Blue Dragon      28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Young Blue Dragon     28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Mature Blue Dragon    28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Ancient Blue Dragon   28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Great Storm Wyrm      28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Baby Black Dragon      +1   -1   -6   -2   +0   -1  100%  +40  250%
+  Young Black Dragon     +2   +0   -5   -1   +1   +0  105%  +40  250%
+  Mature Black Dragon    +3   +1   -4   +0   +2   +1  110%  +40  250%
+  Ancient Black Dragon   +4   +2   -3   +1   +3   +2  115%  +40  250%
+  Great Bile Wyrm        +5   +3   -2   +2   +4   +3  120%  +40  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Baby Black Dragon     28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Young Black Dragon    28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Mature Black Dragon   28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Ancient Black Dragon  28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Great Bile Wyrm       28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Baby Green Dragon      +1   -1   -6   -2   +0   -1  100%  +40  250%
+  Young Green Dragon     +2   +0   -5   -1   +1   +0  105%  +40  250%
+  Mature Green Dragon    +3   +1   -4   +0   +2   +1  110%  +40  250%
+  Ancient Green Dragon   +4   +2   -3   +1   +3   +2  115%  +40  250%
+  Great Venom Wyrm       +5   +3   -2   +2   +4   +3  120%  +40  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Baby Green Dragon     28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Young Green Dragon    28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Mature Green Dragon   28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Ancient Green Dragon  28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+  Great Venom Wyrm      28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Shadow Drake           +0   -1   -6   -2   -1   -1   90%  +40  350%
+  Death Drake            +2   +1   -5   -1   +0   +2   95%  +40  350%
+  Spectral Wyrm          +4   +3   -4   +0   +1   +5  100%  +40  350%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Shadow Drake          28+8   35+10  38+11   4+0  25+0  26+0  50+15  30+7 
+  Death Drake           28+8   35+10  38+11   4+0  25+0  26+0  50+15  30+7 
+  Spectral Wyrm         28+8   35+10  38+11   4+0  25+0  26+0  50+15  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Law Drake              +0   -1   -6   -2   -1   -1  100%  +40  300%
+  Great Wyrm of Law      +5   +4   -4   +1   +3   +4  110%  +40  300%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Law Drake             28+8   40+11  40+11   2+0  25+0  26+0  55+15  30+7 
+  Great Wyrm of Law     28+8   40+11  40+11   2+0  25+0  26+0  55+15  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Chaos Drake            +0   -1   -6   -2   -1   -1  100%  +40  300%
+  Great Wyrm of Chaos    +5   +4   -4   +1   +3   +4  110%  +40  300%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Chaos Drake           28+8   40+11  40+11   2+0  25+0  26+0  55+15  30+7 
+  Great Wyrm of Chaos   28+8   40+11  40+11   2+0  25+0  26+0  55+15  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Balance Drake          +0   -1   -6   -2   -1   -1   95%  +40  350%
+  Great Wyrm of Balance  +4   +3   -4   +1   +2   +4  105%  +40  350%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Balance Drake         28+8   35+10  35+10   2+0  25+0  26+0  50+15  30+7 
+  Great Wyrm of Balance 28+8   35+10  35+10   2+0  25+0  26+0  50+15  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Pseudo Dragon          +0   -1   -6   -2   -1   -1   95%  +40  250%
+  Ethereal Drake         +2   +1   -5   +0   +1   +1  102%  +40  250%
+  Ethereal Dragon        +4   +3   -4   +2   +3   +3  109%  +40  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Pseudo Dragon         28+8   35+10  37+11   4+0  25+0  26+0  52+15  30+7 
+  Ethereal Drake        28+8   35+10  37+11   4+0  25+0  26+0  52+15  30+7 
+  Ethereal Dragon       28+8   35+10  37+11   4+0  25+0  26+0  52+15  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Crystal Drake          +1   -1   -6   +0   +0   +0  100%  +40  275%
+  Great Crystal Drake    +6   +4   -4   +3   +4   +3  115%  +40  275%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Crystal Drake         28+8   35+7   40+12   1+0  25+0  26+0  70+22  30+7 
+  Great Crystal Drake   28+8   35+7   40+12   1+0  25+0  26+0  70+22  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Young Bronze Dragon    +0   -1   -6   -2   -1   -1  100%  +40  250%
+  Mature Bronze Dragon   +2   +1   -5   +0   +1   +1  105%  +40  250%
+  Ancient Bronze Dragon  +4   +3   -4   +2   +3   +3  110%  +40  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Young Bronze Dragon   28+8   35+10  38+11   3+0  25+0  26+0  55+15  30+7 
+  Mature Bronze Dragon  28+8   35+10  38+11   3+0  25+0  26+0  55+15  30+7 
+  Ancient Bronze Dragon 28+8   35+10  38+11   3+0  25+0  26+0  55+15  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Young Gold Dragon      +0   -1   -6   -2   -1   -1  100%  +40  250%
+  Mature Gold Dragon     +2   +1   -5   +0   +1   +1  105%  +40  250%
+  Ancient Gold Dragon    +4   +3   -4   +2   +3   +3  110%  +40  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Young Gold Dragon     28+8   35+9   38+11   2+0  25+0  26+0  55+20  30+7 
+  Mature Gold Dragon    28+8   35+9   38+11   2+0  25+0  26+0  55+20  30+7 
+  Ancient Gold Dragon   28+8   35+9   38+11   2+0  25+0  26+0  55+20  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Stone Dragon           +5   -6   -6   +0   +4   +0  125%  +40  250%
+  Steel Dragon           +9   -6   -6   -4   +8   +4  145%  +40  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Stone Dragon          28+8   18+7   40+15   0+0  10+0   7+0  75+30  30+7 
+  Steel Dragon          28+8   18+7   40+15   0+0  10+0   7+0  75+30  30+7 
+
+
 ***** <Lich>
 --- Lich ---
 
@@ -91,6 +278,19 @@
   forgo the use of a normal weapon, they may touch their opponents for various
   powerful effects. However, melee is not the strong suit of the Lich and even
   their deadly touch is often not enough.
+
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Lich                   +0   +3   -3   +1   +0   +0  100%  +20  300%
+  Master Lich            -2   +4   -4   +2   -1   +1   98%  +20  300%
+  Demilich               -4   +5   -5   +3   -1   +2   96%  +20  300%
+  Archlich               -5   +6   -6   +4   -2   +3   94%  +20  300%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Lich                  30+7   45+15  38+12   5+0  20+0  30+0  34+6   20+7 
+  Master Lich           30+7   45+15  38+12   5+0  20+0  30+0  34+6   20+7 
+  Demilich              30+7   45+15  38+12   5+0  20+0  30+0  34+6   20+7 
+  Archlich              30+7   45+15  38+12   5+0  20+0  30+0  34+6   20+7 
 
 
 ***** <Xorn>
@@ -111,6 +311,17 @@
   strong as such.
 
 
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Umber Hulk             +2   -4   -2   -3   +1   -1  105%  +30  150%
+  Xorn                   +3   -4   -2   -2   +2   -1  110%  +30  150%
+  Xaren                  +4   -4   -2   -1   +3   -1  115%  +30  150%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Umber Hulk            25+12  20+8   31+10   1+0  14+0   5+0  56+20  30+7 
+  Xorn                  25+12  20+8   31+10   1+0  14+0   5+0  56+20  30+7 
+  Xaren                 25+12  20+8   31+10   1+0  14+0   5+0  56+20  30+7 
+
+
 ***** <Angel>
 --- Angel ---
 
@@ -128,6 +339,25 @@
    
   Angels use the same equipment slots as normal player races and have no innate
   attacks.
+
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Angel                  +1   +1   +4   +1   +1   +1   90%  +26  350%
+  Archangel              +1   +1   +4   +1   +1   +2   93%  +26  350%
+  Cherub                 +2   +2   +5   +2   +2   +3   96%  +26  350%
+  Seraph                 +2   +2   +5   +2   +2   +4   99%  +26  350%
+  Archon                 +3   +3   +6   +3   +3   +5  102%  +26  350%
+  Planetar               +3   +3   +6   +3   +3   +6  105%  +26  350%
+  Solar                  +4   +4   +7   +4   +4   +7  108%  +26  350%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Angel                 25+7   35+13  40+15   3+0  18+0  12+0  48+18  35+13
+  Archangel             25+7   35+13  40+15   3+0  18+0  12+0  48+18  35+13
+  Cherub                25+7   35+13  40+15   3+0  18+0  12+0  48+18  35+13
+  Seraph                25+7   35+13  40+15   3+0  18+0  12+0  48+18  35+13
+  Archon                25+7   35+13  40+15   3+0  18+0  12+0  48+18  35+13
+  Planetar              25+7   35+13  40+15   3+0  18+0  12+0  48+18  35+13
+  Solar                 25+7   35+13  40+15   3+0  18+0  12+0  48+18  35+13
 
 
 ***** <Hound>
@@ -152,6 +382,25 @@
   an amulet around their neck and even a cloak and a suit of body armor.
 
 
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Clear hound            +1   -3   -5   +2   +1   +0  100%  +22  150%
+  Shadow hound           +1   -3   -5   +2   +1   +0  100%  +22  150%
+  Cold hound             +2   -3   -5   +3   +2   +0  100%  +22  150%
+  Vibration hound        +2   -3   -5   +3   +2   +0  100%  +22  150%
+  Inertia hound          +3   -3   -5   +4   +3   +1  100%  +22  150%
+  Time hound             +4   -3   -5   +4   +3   +1  100%  +22  150%
+  Hound of Tindalos      +4   -3   -5   +5   +4   +1  100%  +22  150%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Clear hound           25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Light hound           25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Cold hound            25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Vibration hound       25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Inertia hound         25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Gravity hound         25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+  Aether hound          25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
+
+
 ***** <Giant>
 --- Giant ---
 
@@ -170,6 +419,51 @@
   attacks.
 
 
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Hill Giant             +3   -3   -6   -2   +3   +0  105%  +46  250%
+  Stone Giant            +5   -2   -5   -1   +5   +1  115%  +46  250%
+  Fire Giant             +7   -1   -4   +0   +7   +2  125%  +46  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Hill Giant            25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
+  Stone Giant           25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
+  Fire Giant            25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Hill Giant             +3   -3   -6   -2   +3   +0  105%  +46  250%
+  Stone Giant            +5   -2   -5   -1   +5   +1  115%  +46  250%
+  Frost Giant            +7   -1   -4   +0   +7   +2  125%  +46  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Hill Giant            25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
+  Stone Giant           25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
+  Frost Giant           25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Hill Giant             +3   -3   -6   -2   +3   +0  105%  +46  300%
+  Stone Giant            +4   -2   -5   -1   +4   +1  109%  +46  300%
+  Cloud Giant            +5   -1   -4   +0   +5   +2  113%  +46  300%
+  Storm Giant            +6   +0   -3   +1   +6   +3  117%  +46  300%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Hill Giant            25+10  18+7   30+10  -1+0  13+0   7+0  70+30  55+30
+  Stone Giant           25+10  18+7   30+10  -1+0  13+0   7+0  70+30  55+30
+  Cloud Giant           25+10  18+7   30+10  -1+0  13+0   7+0  70+30  55+30
+  Storm Giant           25+10  18+7   30+10  -1+0  13+0   7+0  70+30  55+30
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Hill Giant             +3   +0   +0   -2   +3   +3  105%  +46  350%
+  Stone Giant            +4   +1   +1   -1   +4   +4  110%  +46  350%
+  Lesser Titan           +5   +2   +2   +0   +5   +5  115%  +46  350%
+  Greater Titan          +6   +3   +3   +1   +6   +6  120%  +46  350%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Hill Giant            25+11  20+8   32+10  -1+0  15+0  10+0  75+35  50+30
+  Stone Giant           25+11  20+8   32+10  -1+0  15+0  10+0  75+35  50+30
+  Lesser Titan          25+11  20+8   32+10  -1+0  15+0  10+0  75+35  50+30
+  Greater Titan         25+11  20+8   32+10  -1+0  15+0  10+0  75+35  50+30
+
+
 ***** <Beholder>
 --- Beholder ---
 
@@ -186,6 +480,21 @@
   searching and perception are legendary and they are quite capable with
   magical devices. However, they are not very strong and won't be able to stand
   long against multiple foes.
+
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Gazer                  -3   +4   +0   +1   +0   +0  100%  +20  250%
+  Spectator              -3   +5   +0   +1   +0   +0  100%  +20  250%
+  Beholder               -3   +6   +0   +2   +0   +1  100%  +20  250%
+  Undead Beholder        -3   +7   +0   +2   +0   +1  100%  +20  250%
+  Ultimate Beholder      -3   +8   +0   +3   +0   +2  100%  +20  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Gazer                 30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
+  Spectator             30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
+  Beholder              30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
+  Undead Beholder       30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
+  Ultimate Beholder     30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
 
 
 ***** <Demon>
@@ -218,6 +527,47 @@
   their human enemies. They are unaffected by the Eldritch Horror.
 
 
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Lesser Balrog          +4   +3  -10   +2   +4   +2  110%  +45  350%
+  Greater Balrog         +7   +5  -10   +4   +6   +3  125%  +45  350%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Lesser Balrog         20+12  35+11  40+15  -2+0  10+0   7+0  75+35  30+7 
+  Greater Balrog        20+12  35+11  40+15  -2+0  10+0   7+0  75+35  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Manes                  +0   +0   -5   +0   +0   +0   95%  +30  250%
+  Quasit                 +1   +0   -5   +1   +1   +0   97%  +30  250%
+  Bodak                  +2   +1   -5   +2   +2   +1   99%  +30  250%
+  Death Quasit           +3   +1   -5   +3   +3   +1  101%  +30  250%
+  Marilith               +4   +2   -5   +4   +4   +2  103%  +30  250%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Manes                 20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
+  Quasit                20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
+  Bodak                 20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
+  Death Quasit          20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
+  Marilith              20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Bloodletter of Khorne  +3   -5   -5   +0   +2   +0  100%  +42  275%
+  Fleshhound of Khorne   +4   -5   -5   +0   +3   +0  106%  +42  275%
+  Juggernaut of Khorne   +5   -5   -5   +0   +4   +0  112%  +42  275%
+  Bloodthirster          +6   -5   -5   +1   +5   +1  118%  +42  275%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Bloodletter of Khorne 20+12  20+8   40+10  -1+0  13+0   7+0  70+32  30+7 
+  Fleshhound of Khorne  20+12  20+8   40+10  -1+0  13+0   7+0  70+32  30+7 
+  Juggernaut of Khorne  20+12  20+8   40+10  -1+0  13+0   7+0  70+32  30+7 
+  Bloodthirster         20+12  20+8   40+10  -1+0  13+0   7+0  70+32  30+7 
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Cyberdemon             +5  -10  -10   -3   +5   +0  135%  +50  300%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Cyberdemon            20+12  18+6   31+9   -1+0  13+0   7+0  75+35  30+7 
+
+
 ***** <Hydra>
 --- Hydra ---
 
@@ -235,6 +585,23 @@
   and 11-headed hydras are creatures of flame: Their attacks burn and they are
   capable of breathing fire among other flame based attacks. They resist fire
   as well.
+
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  2-headed hydra         +0   -2   -2   +0   +0   +0  100%  +45  130%
+  4-headed hydra         +1   -2   -2   +1   +1   +0  105%  +45  130%
+  5-headed hydra         +2   -2   -2   +1   +2   +0  110%  +45  130%
+  7-headed hydra         +3   -2   -2   +2   +3   +0  115%  +45  130%
+  9-headed hydra         +4   -2   -2   +2   +4   +0  120%  +45  130%
+  11-headed hydra        +5   -2   -2   +3   +5   +0  125%  +45  130%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  2-headed hydra        25+12  21+10  35+10   1+0  10+0   7+0  62+25  30+7 
+  4-headed hydra        25+12  21+10  35+10   1+0  10+0   7+0  62+25  30+7 
+  5-headed hydra        25+12  21+10  35+10   1+0  10+0   7+0  62+25  30+7 
+  7-headed hydra        25+12  21+10  35+10   1+0  10+0   7+0  62+25  30+7 
+  9-headed hydra        25+12  21+10  35+10   1+0  10+0   7+0  62+25  30+7 
+  11-headed hydra       25+12  21+10  35+10   1+0  10+0   7+0  62+25  30+7 
 
 
 ***** <Leprechaun>
@@ -265,6 +632,17 @@
   of gold on hand.
 
 
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Cheerful Leprechaun    -2   +1   +1   +3   -2   -2   90%  +15  150%
+  Malicious Leprechaun   -4   +1   +1   +5   -2   -2   90%  +15  150%
+  Death Leprechaun       -6   +1   +1   +7   -2   -2   90%  +15  150%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Cheerful Leprechaun   30+12  45+18  38+11  10+1  24+0  16+0  48+13  60+28
+  Malicious Leprechaun  30+12  45+18  38+11  10+1  24+0  16+0  48+13  60+28
+  Death Leprechaun      30+12  45+18  38+11  10+1  24+0  16+0  48+13  60+28
+
+
 ***** <Troll>
 --- Troll ---
 
@@ -273,61 +651,68 @@
   of regeneration.
 
 
-***** <Tables>
---- Table 1 - Race Statistic Bonus Table ---
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Forest troll           +3   -5   -5   -2   +3   +0  100%  +50  150%
+  Stone troll            +3   -5   -5   -2   +3   +0  104%  +50  150%
+  Ice troll              +4   -5   -5   -1   +4   +0  108%  +50  150%
+  Olog                   +5   -5   -5   -1   +5   +0  112%  +50  150%
+  Ettin                  +6   -5   -5   +0   +6   +0  116%  +50  150%
 
-               STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-Jelly           +1   -5   -5   +1   +1   -2   95%  +40  150%
-Spider          -2   -1   -1   +2   -2   -3   70%  +25  200%
-Dragon          +5   +3   -2   +2   +4   +3  120%  +40  250%
-Lich            -5   +6   -6   +4   -2   +3   94%  +20  300%
-Xorn            +4   -4   -2   -1   +3   -1  115%  +30  150%
-Angel           +4   +4   +7   +4   +4   +7  108%  +26  350%
-Hound           +5   -3   -5   +5   +4   +2  100%  +22  150%
-Giant           +7   -1   -4   +0   +7   +2  125%  +46  250%
-Beholder        -3   +8   +0   +3   +0   +2  100%  +20  250%
-Demon           +7   +5  -10   +4   +6   +3  125%  +45  350%
-Hydra           +5   -2   -2   +3   +5   +0  125%  +45  130%
-Leprechaun      -6   +1   +1   +7   -2   -2   88%  +15  150%
-Troll           +7   -5   -5   +0   +6   +0  120%  +50  150%
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Algroth               25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Aklash                25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Ettin                 25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Forest troll           +3   -5   -5   -2   +3   +0  100%  +50  150%
+  Stone troll            +3   -5   -5   -2   +3   +0  104%  +50  150%
+  Ice troll              +4   -5   -5   -1   +4   +0  108%  +50  150%
+  Olog                   +5   -5   -5   -1   +5   +0  112%  +50  150%
+  Storm troll            +6   -5   -5   +0   +6   +0  116%  +50  150%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Algroth               25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Aklash                25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Storm troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Forest troll           +3   -5   -5   -2   +3   +0  100%  +50  150%
+  Stone troll            +3   -5   -5   -2   +3   +0  104%  +50  150%
+  Fire troll             +4   -5   -5   -1   +4   +0  108%  +50  150%
+  Olog                   +5   -5   -5   -1   +5   +0  112%  +50  150%
+  Spirit troll           +6   -5   -5   +0   +6   +0  116%  +50  150%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Ice troll             25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Spirit troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+
+                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Forest troll           +3   -5   -5   -2   +3   +0  100%  +50  150%
+  Stone troll            +3   -5   -5   -2   +3   +0  104%  +50  150%
+  Fire troll             +4   -5   -5   -1   +4   +0  108%  +50  150%
+  Olog                   +5   -5   -5   -1   +5   +0  112%  +50  150%
+  Troll king             +6   -5   -5   +0   +6   +0  116%  +50  150%
+
+                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Forest troll          25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Stone troll           25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Algroth               25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Aklash                25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Olog                  25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
+  Troll king            25+7   18+7   30+10  -1+0  13+0   7+0  65+28  30+10
 
 
---- Table 2 - Monster Skill Bonus Table ---
-
-                      Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-Jelly                 25+12  18+7   37+11   8+0  14+0   7+0  70+30  30+7 
-Spider                25+8   40+15  38+10   6+0  20+0  15+0  56+18  30+7 
-Great Hell Wyrm       28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
-Great Ice Wyrm        28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
-Great Storm Wyrm      28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
-Great Bile Wyrm       28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
-Great Venom Wyrm      28+8   35+9   38+10   2+0  25+0  26+0  70+20  30+7 
-Spectral Wyrm         28+8   35+10  38+11   4+0  25+0  26+0  50+15  30+7 
-Great Wyrm of Law     28+8   40+11  40+11   2+0  25+0  26+0  55+15  30+7 
-Great Wyrm of Chaos   28+8   40+11  40+11   2+0  25+0  26+0  55+15  30+7 
-Great Wyrm of Balance 28+8   35+10  35+10   2+0  25+0  26+0  50+15  30+7 
-Ethereal Dragon       28+8   35+10  37+11   4+0  25+0  26+0  52+15  30+7 
-Great Crystal Drake   28+8   35+7   40+12   1+0  25+0  26+0  70+22  30+7 
-Ancient Bronze Dragon 28+8   35+10  38+11   3+0  25+0  26+0  55+15  30+7 
-Ancient Gold Dragon   28+8   35+9   38+11   2+0  25+0  26+0  55+20  30+7 
-Steel Dragon          28+8   18+7   40+15   0+0  10+0   7+0  75+30  30+7 
-Lich                  30+7   45+15  38+12   5+0  20+0  30+0  34+6   20+7 
-Xorn                  25+12  20+8   31+10   1+0  14+0   5+0  56+20  30+7 
-Angel                 25+7   35+13  40+15   3+0  18+0  12+0  48+18  35+13
-Hound                 25+8   20+8   31+10   4+1  20+0  15+0  56+20  30+7 
-Fire Giant            25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-Frost Giant           25+10  18+7   30+10  -1+0  13+0   7+0  75+34  55+31
-Storm Giant           25+10  18+7   30+10  -1+0  13+0   7+0  70+30  55+30
-Greater Titan         25+11  20+8   32+10  -1+0  15+0  10+0  75+35  50+30
-Beholder              30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
-Greater Balrog        20+12  35+11  40+15  -2+0  10+0   7+0  75+35  30+7 
-Marilith              20+12  35+11  36+10   1+0  16+0  10+0  56+20  35+11
-Bloodthirster         20+12  20+8   40+10  -1+0  13+0   7+0  70+32  30+7 
-Cyberdemon            20+12  18+6   31+9   -1+0  13+0   7+0  75+35  30+7 
-Hydra                 25+12  21+10  35+10   1+0  10+0   7+0  62+25  30+7 
-Leprechaun            30+12  45+18  38+11  10+1  24+0  16+0  48+13  60+28
 
 
 
 
-Automatically generated for PosChengband 1.0.19.
+Automatically generated for PosChengband 1.0.21.

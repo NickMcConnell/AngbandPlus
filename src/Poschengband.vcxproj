@@ -228,6 +228,7 @@
     <ClCompile Include="util.c" />
     <ClCompile Include="variable.c" />
     <ClCompile Include="variant.c" />
+    <ClCompile Include="virtue.c" />
     <ClCompile Include="warlock.c" />
     <ClCompile Include="warrior.c" />
     <ClCompile Include="warrior_mage.c" />

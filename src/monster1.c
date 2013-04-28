@@ -3427,6 +3427,11 @@ msg_format("%^sは怒った！", m_name);
 #endif
 
 		set_hostile(m_ptr);
+
+		virtue_add(VIRTUE_INDIVIDUALISM, 1);
+		virtue_add(VIRTUE_HONOUR, -1);
+		virtue_add(VIRTUE_JUSTICE, -1);
+		virtue_add(VIRTUE_COMPASSION, -1);
 	}
 }
 

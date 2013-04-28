@@ -1589,19 +1589,13 @@ sprintf(tmp_str, "倍率: %d", odds);
 			prt("", 18, 37);
 			if (p_ptr->au >= oldgold)
 			{
-#ifdef JP
-msg_print("「今回は儲けたな！でも次はこっちが勝ってやるからな、絶対に！」");
-#else
 				msg_print("You came out a winner! We'll win next time, I'm sure.");
-#endif
+				virtue_add(VIRTUE_CHANCE, 3);
 			}
 			else
 			{
-#ifdef JP
-msg_print("「金をスッてしまったな、わはは！うちに帰った方がいいぜ。」");
-#else
 				msg_print("You lost gold! Haha, better head home.");
-#endif
+				virtue_add(VIRTUE_CHANCE, -3);
 			}
 		}
 		msg_print(NULL);
@@ -2318,6 +2312,7 @@ static bool kankin(void)
 				inven_item_describe(i);
 				inven_item_optimize(i);
 
+				virtue_add(VIRTUE_JUSTICE, 5);
 				kubi_r_idx[j] += 10000;
 
 				/* Count number of unique corpses already handed */
@@ -4605,7 +4600,8 @@ msg_print("お金が足りません！");
 		kankin();
 		break;
 	case BACT_HEIKOUKA:
-		msg_print("You received an equalization ritual ... Funny, nothing happens.");
+		msg_print("You received an equalization ritual.");
+		virtue_init();
 		paid = TRUE;
 		break;
 	case BACT_TELE_TOWN:

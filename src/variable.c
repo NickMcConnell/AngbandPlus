@@ -304,7 +304,6 @@ bool ironman_downward;	/* Disable recall and use of up stairs (*) */
 bool ironman_empty_levels;	/* Always create empty 'arena' levels (*) */
 bool ironman_rooms;	/* Always generate very unusual rooms (*) */
 bool ironman_nightmare;	/* Nightmare mode(it isn't even remotely fair!)(*) */
-bool left_hander;	/* Left-Hander */
 bool preserve_mode;	/* Preserve artifacts (*) */
 bool autoroller;	/* Allow use of autoroller for stats (*) */
 bool powerup_home;	/* Increase capacity of your home (*) */
@@ -317,6 +316,7 @@ bool random_artifacts;
 bool no_artifacts;
 bool no_egos;
 bool no_selling;
+bool enable_virtues;
 
 /*** Easy Object Auto-Destroyer ***/
 

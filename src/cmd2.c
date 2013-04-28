@@ -1561,6 +1561,9 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 			/* Remove the feature */
 			cave_alter_feat(y, x, FF_TUNNEL);
+
+			virtue_add(VIRTUE_DILIGENCE, 1);
+			virtue_add(VIRTUE_NATURE, -1);
 		}
 
 		/* Keep trying */
@@ -2872,6 +2875,21 @@ void do_cmd_rest(void)
 	/* Take a turn XXX XXX XXX (?) */
 	energy_use = 100;
 
+	/* The sin of sloth */
+	if (command_arg > 100)
+		virtue_add(VIRTUE_DILIGENCE, -1);
+	
+	/* Why are you sleeping when there's no need?  WAKE UP!*/
+	if ((p_ptr->chp == p_ptr->mhp) &&
+	    (p_ptr->csp == p_ptr->msp) &&
+	    !p_ptr->blind && !p_ptr->confused &&
+	    !p_ptr->poisoned && !p_ptr->afraid &&
+	    !p_ptr->stun && !p_ptr->cut &&
+	    !p_ptr->slow && !p_ptr->paralyzed &&
+	    !p_ptr->image && !p_ptr->word_recall &&
+	    !p_ptr->alter_reality)
+			virtue_add(VIRTUE_DILIGENCE, -1);
+
 	/* Save the rest code */
 	resting = command_arg;
 	p_ptr->action = ACTION_REST;
@@ -3845,6 +3863,12 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
 
 				/* Note the collision */
 				hit_body = TRUE;
+
+				if (MON_CSLEEP(m_ptr))
+				{
+					if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_COMPASSION, -1);
+					if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_HONOUR, -1);
+				}
 
 				if ((r_ptr->level + 10) > p_ptr->lev)
 					skills_bow_gain(bow->sval);

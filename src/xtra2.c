@@ -537,6 +537,7 @@ void check_quest_completion(monster_type *m_ptr)
 					/* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
 					quest[i].complev = (byte)p_ptr->lev;
+					virtue_add(VIRTUE_VALOUR, 2);
 
 					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
@@ -572,6 +573,7 @@ void check_quest_completion(monster_type *m_ptr)
 					{
 						quest[i].status = QUEST_STATUS_COMPLETED;
 						quest[i].complev = (byte)p_ptr->lev;
+						virtue_add(VIRTUE_VALOUR, 2);
 						msg_print("You just completed your quest!");
 						msg_print(NULL);
 					}
@@ -592,6 +594,7 @@ void check_quest_completion(monster_type *m_ptr)
 					/* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
 					quest[i].complev = (byte)p_ptr->lev;
+					virtue_add(VIRTUE_VALOUR, 2);
 					if (!(quest[i].flags & QUEST_FLAG_PRESET))
 					{
 						create_stairs = TRUE;
@@ -626,6 +629,7 @@ void check_quest_completion(monster_type *m_ptr)
 					 /* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
 					quest[i].complev = (byte)p_ptr->lev;
+					virtue_add(VIRTUE_VALOUR, 2);
 
 					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
@@ -1821,6 +1825,7 @@ msg_print("地面に落とされた。");
 				(void)drop_near(q_ptr, -1, y, x);
 			}
 			msg_format("You have conquered %s!",d_name+d_info[dungeon_type].name);
+			virtue_add(VIRTUE_VALOUR, 5);
 		}
 	}
 
@@ -2331,6 +2336,114 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 #endif
 		}
 
+		if (!(d_info[dungeon_type].flags1 & DF1_BEGINNER))
+		{
+			if (!dun_level && !ambush_flag && !p_ptr->inside_arena)
+			{
+				virtue_add(VIRTUE_VALOUR, -1);
+			}
+			else if (r_ptr->level > dun_level)
+			{
+				if (randint1(10) <= (r_ptr->level - dun_level))
+					virtue_add(VIRTUE_VALOUR, 1);
+			}
+			if (r_ptr->level > 60)
+			{
+				virtue_add(VIRTUE_VALOUR, 1);
+			}
+			if (r_ptr->level >= 2 * (p_ptr->lev+1))
+				virtue_add(VIRTUE_VALOUR, 2);
+		}
+
+		if (r_ptr->flags1 & RF1_UNIQUE)
+		{
+			if (r_ptr->flags3 & (RF3_EVIL | RF3_GOOD)) virtue_add(VIRTUE_HARMONY, 2);
+
+			if (r_ptr->flags3 & RF3_GOOD)
+			{
+				virtue_add(VIRTUE_UNLIFE, 2);
+				virtue_add(VIRTUE_VITALITY, -2);
+			}
+
+			if (one_in_(3)) virtue_add(VIRTUE_INDIVIDUALISM, -1);
+		}
+
+		if (m_ptr->r_idx == MON_BEGGAR || m_ptr->r_idx == MON_LEPER)
+		{
+			virtue_add(VIRTUE_COMPASSION, -1);
+		}
+
+		if ((r_ptr->flags3 & RF3_GOOD) &&
+			((r_ptr->level) / 10 + (3 * dun_level) >= randint1(100)))
+			virtue_add(VIRTUE_UNLIFE, 1);
+
+		if (r_ptr->d_char == 'A')
+		{
+			if (r_ptr->flags1 & RF1_UNIQUE)
+				virtue_add(VIRTUE_FAITH, -2);
+			else if ((r_ptr->level) / 10 + (3 * dun_level) >= randint1(100))
+			{
+				if (r_ptr->flags3 & RF3_GOOD) virtue_add(VIRTUE_FAITH, -1);
+				else virtue_add(VIRTUE_FAITH, 1);
+			}
+		}
+		else if (r_ptr->flags3 & RF3_DEMON)
+		{
+			if (r_ptr->flags1 & RF1_UNIQUE)
+				virtue_add(VIRTUE_FAITH, 2);
+			else if ((r_ptr->level) / 10 + (3 * dun_level) >= randint1(100))
+				virtue_add(VIRTUE_FAITH, 1);
+		}
+
+		if ((r_ptr->flags3 & RF3_UNDEAD) && (r_ptr->flags1 & RF1_UNIQUE))
+			virtue_add(VIRTUE_VITALITY, 2);
+
+		if (r_ptr->r_deaths)
+		{
+			if (r_ptr->flags1 & RF1_UNIQUE)
+			{
+				virtue_add(VIRTUE_HONOUR, 10);
+			}
+			else if ((r_ptr->level) / 10 + (2 * dun_level) >= randint1(100))
+			{
+				virtue_add(VIRTUE_HONOUR, 1);
+			}
+		}
+		if ((r_ptr->flags2 & RF2_MULTIPLY) && (r_ptr->r_akills > 1000) && one_in_(10))
+		{
+			virtue_add(VIRTUE_VALOUR, -1);
+		}
+
+		for (i = 0; i < 4; i++)
+		{
+			if (r_ptr->blow[i].d_dice != 0) innocent = FALSE; /* Murderer! */
+
+			if ((r_ptr->blow[i].effect == RBE_EAT_ITEM)
+				|| (r_ptr->blow[i].effect == RBE_EAT_GOLD))
+
+				thief = TRUE; /* Thief! */
+		}
+
+		/* The new law says it is illegal to live in the dungeon */
+		if (r_ptr->level != 0) innocent = FALSE;
+
+		if (thief)
+		{
+			if (r_ptr->flags1 & RF1_UNIQUE)
+				virtue_add(VIRTUE_JUSTICE, 3);
+			else if (1+((r_ptr->level) / 10 + (2 * dun_level))
+				>= randint1(100))
+				virtue_add(VIRTUE_JUSTICE, 1);
+		}
+		else if (innocent)
+		{
+			virtue_add (VIRTUE_JUSTICE, -1);
+		}
+
+		if ((r_ptr->flags3 & RF3_ANIMAL) && !(r_ptr->flags3 & RF3_EVIL) && !(r_ptr->flags4 & ~(RF4_NOMAGIC_MASK))  && !(r_ptr->flags5 & ~(RF5_NOMAGIC_MASK)) && !(r_ptr->flags6 & ~(RF6_NOMAGIC_MASK)))
+		{
+			if (one_in_(4)) virtue_add(VIRTUE_NATURE, -1);
+		}
 
 		/* Make a sound */
 		sound(SOUND_KILL);
@@ -5506,6 +5619,20 @@ int bow_tmul(int sval)
 	}
 
 	return (tmul);
+}
+
+/*
+ * Return alignment title
+ */
+cptr your_alignment(void)
+{
+	if (p_ptr->align > 150) return "Lawful";
+	else if (p_ptr->align > 50) return "Good";
+	else if (p_ptr->align > 10) return "Neutral Good";
+	else if (p_ptr->align > -11) return "Neutral";
+	else if (p_ptr->align > -51) return "Neutral Evil";
+	else if (p_ptr->align > -151) return "Evil";
+	else return "Chaotic";
 }
 
 

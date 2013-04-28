@@ -528,6 +528,9 @@
     <ClCompile Include="devicemaster.c">
       <Filter>Player\Classes\PosChengband</Filter>
     </ClCompile>
+    <ClCompile Include="virtue.c">
+      <Filter>Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

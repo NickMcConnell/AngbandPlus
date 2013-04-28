@@ -4162,6 +4162,18 @@ static void dump_aux_race_history(FILE *fff)
 /*
  *
  */
+static void dump_aux_virtues(FILE *fff)
+{
+	fprintf(fff, "\n\n=================================== Virtues ===================================\n\n");
+	fprintf(fff, "Your alighnment : %s\n", your_alignment());
+	fprintf(fff, "\n");
+	virtue_dump(fff);
+}
+
+
+/*
+ *
+ */
 static void dump_aux_mutations(FILE *fff)
 {
 	if (mut_count(NULL))
@@ -4285,6 +4297,8 @@ errr make_character_dump(FILE *fff)
 	dump_aux_quest(fff);
 	dump_aux_arena(fff);
 	dump_aux_monsters(fff);
+	if (enable_virtues)
+		dump_aux_virtues(fff);
 	dump_aux_race_history(fff);
 	dump_aux_class_special(fff);
 	dump_aux_mutations(fff);

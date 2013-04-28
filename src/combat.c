@@ -20,6 +20,7 @@ int hit_chance(int hand, int to_h, int ac)
 	int odds;
 
 	chance = chance * p_ptr->weapon_info[hand].dual_wield_pct / 1000;
+	chance += virtue_current(VIRTUE_VALOUR) / 10;
 	if (chance <= 0) return 0;
 
 	odds = 95*(chance - ac*3/4)*1000/(chance*100);

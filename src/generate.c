@@ -299,6 +299,10 @@ static void alloc_object(int set, int typ, int num)
 	/* A small level has few objects. */
 	num = num * cur_hgt * cur_wid / (MAX_HGT*MAX_WID) +1;
 
+	/* Diligent players should be encouraged to explore more! */
+	if (typ == ALLOC_TYP_OBJECT || typ == ALLOC_TYP_GOLD)
+		num = num * (625 + virtue_current(VIRTUE_DILIGENCE)) / 625;
+
 	/* Place some objects */
 	for (k = 0; k < num; k++)
 	{
