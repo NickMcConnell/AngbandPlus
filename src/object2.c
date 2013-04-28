@@ -5871,13 +5871,20 @@ void steal_object(object_type *o_ptr)
 	else if ((o_ptr->weight <= get_skill(S_BURGLARY, 50, 400)) &&
 	         (inven_carry_okay(o_ptr)))
 	{
-		int slot = inven_carry(o_ptr);
+		int slot;
+
+		/* Describe the object */
+		/* Do this before you move to inventory to retain quantity.
+		 * This might do something funny with a renaming item,
+		 * like a blanket of elemental destruction, but that's
+		 * just something that I'll have to live with. -JM
+		 */
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+		slot = inven_carry(o_ptr);
 
 		/* Get the item again */
 		o_ptr = &inventory[slot];
-
-		/* Describe the object */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Message */
 		msg_format("You burgle %s (%c)%c", o_name, index_to_label(slot),
@@ -5890,11 +5897,11 @@ void steal_object(object_type *o_ptr)
 	/* Item cannot be carried */
 	else
 	{
+		/* Describe the object (again, first -JM) */
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
 		/* Drop it underneath the character */
 		drop_near(o_ptr, 0, p_ptr->py, p_ptr->px, DROP_HERE);
-
-		/* Describe the object */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Message */
 		msg_format("You snatch away %s (on the floor).", o_name);
@@ -6278,11 +6285,11 @@ int reorder_pack(int slot, int store_num, bool verbose)
 			if (o_ptr->tval > j_ptr->tval) break;
 			if (o_ptr->tval < j_ptr->tval) continue;
 
-			/* Non-aware objects go below aware ones */
-			if (object_aware_p(o_ptr) && !object_aware_p(j_ptr)) break;
-			if (!object_aware_p(o_ptr) && object_aware_p(j_ptr)) continue;
+			/* Non-aware objects go below aware ones, except in stores */
+			if (object_aware_p(o_ptr) && !object_aware_p(j_ptr) && !(st_ptr)) break;
+			if (!object_aware_p(o_ptr) && object_aware_p(j_ptr) && !(st_ptr)) continue;
 
-			/* New non-aware objects go below old */
+			/* New non-aware objects go below old, except in stores */
 			if (!object_aware_p(o_ptr) && !object_aware_p(j_ptr) && !(st_ptr)) continue;
 
 			/* If aware, objects sort by increasing sval */

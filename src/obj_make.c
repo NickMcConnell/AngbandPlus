@@ -209,6 +209,9 @@ int essence_to_magic(int *adjust, int *sval)
 	/* Get an essence (if necessary) */
 	if ((*sval < 0) || (*sval > NUM_ESSENCE)) *sval = get_essence(FALSE);
 
+	/* No essences */
+	if (*sval == -2) return (-2);
+
 	/* Note failure XXX */
 	if ((*sval < 0) || (*sval > NUM_ESSENCE)) return (-1);
 

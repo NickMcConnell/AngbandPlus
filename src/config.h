@@ -52,7 +52,7 @@
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
-/* #define ALLOW_DEBUG */
+ #define ALLOW_DEBUG 
 
 
 /*

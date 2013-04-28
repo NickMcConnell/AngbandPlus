@@ -1947,6 +1947,11 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 
 		/* Use the food */
 		(void)food_hit_effect(-2, y, x, o_ptr);
+
+		/* Destroy one sometimes */
+		if (breakage_chance(o_ptr))	o_ptr->number--;
+
+
 	}
 
 	/* Object is a magical device */

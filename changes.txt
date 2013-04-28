@@ -9,6 +9,12 @@ Bugs
 * Turns now displayed in character screen
 * Stores should now order items properly
 * Fixed error in Oath of Iron martial art damage
+* Dragon breathing now lets you know if you don't have any essences
+* Stair creation will only create down staircases for ironman characters
+* 'C'haracter screen changed slightly, now correctly displays cancelled flags, and emphasizes immunities.  Temporary resists are also included.
+* Burgling an item should now report the correct quantity of items recieved.  This may do funny things to items that change names when they are in your inventory.
+* Mushrooms should sometimes break in traps now.
+* Heroism will now always cancel fear.
 
 Additional code cleanup by Christer Nyfält
 
@@ -16,5 +22,3 @@ Known Bugs
 * Town graphics bug
 * Game crash bug
 * Jeweled mimics don't show up in recall properly until you kill them
-
-Hopefully the first two of these are local to the SDL port, and therefore releasing a Windows port without SDL will clear these up for the time being.

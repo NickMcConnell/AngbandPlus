@@ -1045,6 +1045,13 @@ static cptr do_talent(int talent, int mode)
 				/* Get an essence to use, calculate breath type and strength */
 				typ = essence_to_magic(&adjust, &sval);
 
+				/* No essences */
+				if (typ == -2)
+				{
+					msg_print("You have no essences.");
+					return "";
+				}
+
 				/* Cancelled */
 				if (typ == -1) return ("");
 

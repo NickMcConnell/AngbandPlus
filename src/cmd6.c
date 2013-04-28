@@ -4057,7 +4057,7 @@ void use_object(int tval)
 
 			/* Gain experience - unsensed (or uncertain) object */
 			if (!(o_ptr->ident & (IDENT_SENSE)) ||
-			    (o_ptr->inscrip == INSCRIP_UNCERTAIN))
+				(o_ptr->inscrip == INSCRIP_UNCERTAIN))
 			{
 				/* Message */
 				if (hack_id_notice_suppress == 0)
@@ -4539,7 +4539,7 @@ void use_device(int tval)
 
 			/* Gain experience - unsensed (or uncertain) device */
 			if (!(o_ptr->ident & (IDENT_SENSE)) ||
-			    (o_ptr->inscrip == INSCRIP_UNCERTAIN))
+				(o_ptr->inscrip == INSCRIP_UNCERTAIN))
 			{
 				/* Message */
 				msg_format("You realize that you are using %s.  Your experience rises.", o_name);

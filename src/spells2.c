@@ -6061,7 +6061,7 @@ void stair_creation(void)
 	delete_object(py, px);
 
 	/* Create a staircase */
-	if (!p_ptr->depth)
+	if (!p_ptr->depth || p_ptr->character_type == PCHAR_IRONMAN)
 	{
 		cave_set_feat(py, px, FEAT_MORE);
 	}

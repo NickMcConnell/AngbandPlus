@@ -580,12 +580,14 @@ bool set_hero(int v)
 	if ((v) && (!p_ptr->hero))
 	{
 		if (extra_hp_player(10)) notice = TRUE;
-		if (p_ptr->afraid)
-		{
-			/* No extraneous messages for removal of fear */
-			p_ptr->afraid = 0;
-			notice = TRUE;
-		}
+	}
+
+	/* Can still become afraid if hero, must do this regardless -JM */
+	if (p_ptr->afraid)
+	{
+		/* No extraneous messages for removal of fear */
+		p_ptr->afraid = 0;
+		notice = TRUE;
 	}
 
 	/* Set hero, output messages */

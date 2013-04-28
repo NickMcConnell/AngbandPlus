@@ -2151,6 +2151,8 @@ static cptr short_flag_names[128] =
 
 /*
  * Special display, part 1
+ *
+ * This function is now pretty cludgy, but it provides more information -JM
  */
 static void display_player_flag_info(void)
 {
@@ -2158,6 +2160,10 @@ static void display_player_flag_info(void)
 
 	int row, col;
 	int attr, attr_title;
+	bool immune;
+	bool bad_flag;
+	bool resist;
+	bool temp_resist;
 
 	int flag;
 	cptr name;
@@ -2189,9 +2195,16 @@ static void display_player_flag_info(void)
 		for (y = 0; y < 8; y++)
 		{
 			attr_title = TERM_WHITE;
+			bad_flag = FALSE;
+			immune = FALSE;
+			resist = FALSE;
+			temp_resist = FALSE;
 
 			/* Get flag index */
 			flag = get_flag_here(4 + x, y);
+
+			if ((flag / 32 == 3) && ((1L << (flag % 32)) >= TR3_SOULSTEAL)) bad_flag = TRUE;
+
 
 			/* If no flag belongs in this position, we leave it empty */
 			if (flag < 0)
@@ -2223,7 +2236,7 @@ static void display_player_flag_info(void)
 				/* This object has the current flag */
 				if (f[flag / 32] & (1L << (flag % 32)))
 				{
-					attr_title = TERM_GREEN;
+					resist = TRUE;
 					c_put_str(TERM_WHITE, "+", row, col + n);
 				}
 
@@ -2238,32 +2251,32 @@ static void display_player_flag_info(void)
 				{
 					if (f[2] & (TR2_IM_ACID))
 					{
-						attr_title = TERM_GREEN;
-						c_put_str(TERM_L_BLUE, "*", row, col + n);
+						immune = TRUE;
+						c_put_str(TERM_L_PURPLE, "*", row, col + n);
 					}
 				}
 				if (flag == RES_ELEC)
 				{
 					if (f[2] & (TR2_IM_ELEC))
 					{
-						attr_title = TERM_GREEN;
-						c_put_str(TERM_L_BLUE, "*", row, col + n);
+						immune = TRUE;
+						c_put_str(TERM_L_PURPLE, "*", row, col + n);
 					}
 				}
 				if (flag == RES_FIRE)
 				{
 					if (f[2] & (TR2_IM_FIRE))
 					{
-						attr_title = TERM_GREEN;
-						c_put_str(TERM_L_BLUE, "*", row, col + n);
+						immune = TRUE;
+						c_put_str(TERM_L_PURPLE, "*", row, col + n);
 					}
 				}
 				if (flag == RES_COLD)
 				{
 					if (f[2] & (TR2_IM_COLD))
 					{
-						attr_title = TERM_GREEN;
-						c_put_str(TERM_L_BLUE, "*", row, col + n);
+						immune = TRUE;
+						c_put_str(TERM_L_PURPLE, "*", row, col + n);
 					}
 				}
 
@@ -2283,7 +2296,7 @@ static void display_player_flag_info(void)
 			/* Check flags */
 			if (f_player[flag / 32] & (1L << (flag % 32)))
 			{
-				attr_title = TERM_GREEN;
+				resist = TRUE;
 				c_put_str(TERM_WHITE, "+", row, col + n);
 			}
 
@@ -2292,47 +2305,96 @@ static void display_player_flag_info(void)
 			{
 				if (f_player[2] & (TR2_IM_ACID))
 				{
-					attr_title = TERM_GREEN;
-					c_put_str(TERM_L_BLUE, "*", row, col + n);
+					immune = TRUE;
+					c_put_str(TERM_L_PURPLE, "*", row, col + n);
+				}
+				else if (p_ptr->oppose_acid)
+				{
+					temp_resist = TRUE;
+					c_put_str(TERM_GREEN, "+", row, col + n);
 				}
 			}
 			if (flag == RES_ELEC)
 			{
 				if (f_player[2] & (TR2_IM_ELEC))
 				{
-					attr_title = TERM_GREEN;
-					c_put_str(TERM_L_BLUE, "*", row, col + n);
+					immune = TRUE;
+					c_put_str(TERM_L_PURPLE, "*", row, col + n);
+				}
+				else if (p_ptr->oppose_elec)
+				{
+					temp_resist = TRUE;
+					c_put_str(TERM_GREEN, "+", row, col + n);
 				}
 			}
 			if (flag == RES_FIRE)
 			{
 				if (f_player[2] & (TR2_IM_FIRE))
 				{
-					attr_title = TERM_GREEN;
-					c_put_str(TERM_L_BLUE, "*", row, col + n);
+					immune = TRUE;
+					c_put_str(TERM_L_PURPLE, "*", row, col + n);
+				}
+				else if (p_ptr->oppose_fire)
+				{
+					temp_resist = TRUE;
+					c_put_str(TERM_GREEN, "+", row, col + n);
 				}
 			}
 			if (flag == RES_COLD)
 			{
 				if (f_player[2] & (TR2_IM_COLD))
 				{
-					attr_title = TERM_GREEN;
-					c_put_str(TERM_L_BLUE, "*", row, col + n);
+					immune = TRUE;
+					c_put_str(TERM_L_PURPLE, "*", row, col + n);
+				}
+				else if (p_ptr->oppose_cold)
+				{
+					temp_resist = TRUE;
+					c_put_str(TERM_GREEN, "+", row, col + n);
 				}
 			}
+
+			/* Hack -- Cancel immunities specially -JM */
+			if (immune && (f_cancel[flag/32] & (1L << (flag % 32 - 4))))
+			{
+				immune = FALSE;
+			}
+
 
 			/* Check to see if the character cancels this flag */
 			if (f_cancel[flag / 32] & (1L << (flag % 32)))
 			{
 				/* For "good" flags, cancellation is bad. */
 				attr = TERM_L_RED;
-
 				/* For "bad" flags, cancellation is good */
-				if ((flag / 32 == 3) && ((1L << (flag % 32)) >= TR3_SOULSTEAL))
+				if (bad_flag)
 					attr = TERM_L_BLUE;
 
+				resist = FALSE;
+
 				/* Note cancellation */
-				c_put_str(attr, "X", row, col + n);
+				if (temp_resist)
+				{
+					c_put_str(attr, "~", row, col + n);
+				}
+				else
+					c_put_str(attr, "X", row, col + n);
+				
+			}
+
+			/* Choose the correct color to display based on the level of resistance */
+			if (!bad_flag)
+			{
+				if (immune)   attr_title = TERM_L_PURPLE;
+				else if (temp_resist && resist)
+							  attr_title = TERM_L_BLUE;
+				else if (temp_resist || resist)
+							  attr_title = TERM_GREEN;
+			}
+			else
+			{
+				if (immune || temp_resist || resist)
+					attr_title = TERM_RED;
 			}
 
 
@@ -2347,6 +2409,8 @@ static void display_player_flag_info(void)
 		}
 	}
 }
+
+
 
 /*
  * Display internal stats, equipment and innate modifiers to them, and
