@@ -449,7 +449,6 @@ errr process_pref_file_command(char *buf)
 		/* Trigger template */
 		if (tok >= 4)
 		{
-			int i;
 			int num;
 
 			/* Free existing macro triggers and trigger template */
@@ -479,7 +478,7 @@ errr process_pref_file_command(char *buf)
 		/* Macro trigger */
 		else if (tok >= 2)
 		{
-			char *buf;
+			char *tmp;
 			cptr s;
 			char *t;
 
@@ -490,11 +489,11 @@ errr process_pref_file_command(char *buf)
 			}
 
 			/* Buffer for the trigger name */
-			C_MAKE(buf, strlen(zz[0]) + 1, char);
+			C_MAKE(tmp, strlen(zz[0]) + 1, char);
 
 			/* Simulate strcpy() and skip the '\' escape character */
 			s = zz[0];
-			t = buf;
+			t = tmp;
 
 			while (*s)
 			{
@@ -509,7 +508,7 @@ errr process_pref_file_command(char *buf)
 			macro_trigger_name[max_macrotrigger] = string_make(buf);
 
 			/* Free the buffer */
-			FREE(buf);
+			FREE(tmp);
 
 			/* Normal keycode */
 			macro_trigger_keycode[0][max_macrotrigger] = string_make(zz[1]);
@@ -659,7 +658,7 @@ errr process_pref_file_command(char *buf)
 		}
 	}
 
-	/* Process "T:<flag>:<num>:<vert><hori>" -- screen options */
+	/* Process "t:<flag>:<num>:<vert><hori>" -- screen options */
 	else if (buf[0] == 't')
 	{
 		int tmp, vert, hori;
@@ -2953,11 +2952,11 @@ static void display_player_combat(void)
 				/* Attribute is affected by this piece of equipment */
 				if (pval)
 				{
-					byte attr = TERM_SLATE;
 					char c;
 
 					/* Default */
 					c = '*';
+					attr = TERM_SLATE;
 
 					/* Good */
 					if (pval > 0)

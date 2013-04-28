@@ -3401,7 +3401,7 @@ void apply_random_qualities(object_type *o_ptr)
 	/* Chance of being extra heavy and powerful */
 	if (xtra & (XTRA_CAN_BE_HEAVY))
 	{
-		int dice, xtra;
+		int dice, in_depth;
 
 		/* Allow up to +2 dice on occasion */
 		for (dice = o_ptr->dd; dice < o_ptr->dd + 2;)
@@ -3410,10 +3410,10 @@ void apply_random_qualities(object_type *o_ptr)
 			if (!one_in_(1 + (dice * o_ptr->ds / 2))) break;
 
 			/* Objects have to be well in-depth to become powerful */
-			xtra = 10 * (dice - o_ptr->dd) + rand_range(5, 15);
+			in_depth = 10 * (dice - o_ptr->dd) + rand_range(5, 15);
 
 			/* Stop if object is not well in depth */
-			if (object_level < k_ptr->level + xtra)
+			if (object_level < k_ptr->level + in_depth)
 			{
 				break;
 			}

@@ -1099,7 +1099,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	bool flavor;
 
 	bool append_name;
-	bool prefix;
+	bool do_prefix;
 
 	bool show_weapon;
 	bool show_armour;
@@ -1226,7 +1226,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	append_name = FALSE;
 
 	/* Assume no prefix */
-	prefix = FALSE;
+	do_prefix = FALSE;
 
 	/* Assume no need to show "weapon" bonuses */
 	show_weapon = FALSE;
@@ -1277,7 +1277,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 				if (o_ptr->dd >= k_ptr->dd + 2) modstr = "Great ";
 				else                            modstr = "Heavy ";
 
-				prefix = TRUE;
+				do_prefix = TRUE;
 			}
 
 			break;
@@ -1607,7 +1607,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Insert any prefix */
-	if (prefix)
+	if (do_prefix)
 	{
 		object_desc_str_macro(t, modstr);
 	}

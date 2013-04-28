@@ -537,7 +537,7 @@ int scroll_read_effect(int who, int y, int x, object_type *o_ptr)
 
 			/* Does damage, has a large radius, */
 			x_list[k].power = rand_range(12, 16);
-			x_list[k].power = 7;
+			x_list[k].power2 = 7;
 
 			/* And lasts for about 10 attacks */
 			x_list[k].lifespan = rand_range(7, 13);
@@ -2363,12 +2363,13 @@ bool enchant(object_type *o_ptr, int n, int eflag)
  *
  * Note that this function can be used on "piles" of items, and the larger the
  * pile, the lower the chance of success.
+ *
+ * We save old hitdice and plusses.  This can be tad abusable.  XXX
  */
 static bool turn_into_ego_item(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 	int prob;
-
 
 	/* Save some variables (sense inscriptions are lost) */
 	byte old_iy = o_ptr->iy;
@@ -2378,6 +2379,12 @@ static bool turn_into_ego_item(object_type *o_ptr)
 	byte old_number = o_ptr->number;
 	u16b old_note = o_ptr->note;
 	u16b old_ident = o_ptr->ident & (IDENT_KNOWN | IDENT_MENTAL | IDENT_WORN);
+
+	/* Save the old hitdice and plusses XXX */
+	byte old_dd = o_ptr->dd;
+	byte old_ds = o_ptr->ds;
+	s16b old_to_h = o_ptr->to_h;
+	s16b old_to_d = o_ptr->to_d;
 
 
 	/* Some objects can't be turned into ego-items */
@@ -2434,6 +2441,12 @@ static bool turn_into_ego_item(object_type *o_ptr)
 	o_ptr->note = old_note;
 	o_ptr->marked = TRUE;
 	o_ptr->ident = old_ident;
+
+	/* Use the best hitdice and plusses  XXX */
+	if (o_ptr->dd < old_dd) o_ptr->dd = old_dd;
+	if (o_ptr->ds < old_ds) o_ptr->ds = old_ds;
+	if (o_ptr->to_h < old_to_h) o_ptr->to_h = old_to_h;
+	if (o_ptr->to_d < old_to_d) o_ptr->to_d = old_to_d;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -2788,6 +2801,10 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	/* A relatively high perception skill gets you "heavy" sensing */
 	if (chance >= rand_range(50, 55)) heavy = TRUE;
 
+	/* A very high perception skill gives you near-guaranteed sensing */
+	if (get_skill(S_PERCEPTION, 0, 100) >= 95)
+		chance += (get_skill(S_PERCEPTION, 0, 100) - 94) * 5;
+
 	/* Those who have taken the Oath of Iron are great at IDing wargear */
 	if (p_ptr->oath & (OATH_OF_IRON))
 	{
@@ -2986,11 +3003,11 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 					((old_inscrip)        ? " actually"     : ""),
 					inscrip_text[feel]);
 			}
-
-			/* Sense the object */
-			o_ptr->inscrip = feel;
 		}
 	}
+
+	/* Sense the object */
+	o_ptr->inscrip = feel;
 
 	/* The object has been "sensed" */
 	o_ptr->ident |= (IDENT_SENSE);

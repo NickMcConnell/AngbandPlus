@@ -579,6 +579,9 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			/* Never any monster that multiplies */
 			if (r_ptr->flags2 & (RF2_MULTIPLY)) continue;
 
+			/* Never any lurker-type monsters */
+			if (r_ptr->flags2 & (RF1_CHAR_CLEAR)) continue;
+
 			/* Never fixed-depth monsters */
 			if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) continue;
 

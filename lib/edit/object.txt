@@ -2171,13 +2171,14 @@ E:NEXUS 1
 D:that makes you light on your feet.
 
 # Most of this object's value comes from its pval
+# We are phasing this item out -- it is just too unbalancing
 N:305:Magical Item Mastery
 G:":d
 I:40:5:0
 W:28:0:3:100
-A:28/20:100/10
+A:28/10:100/5
 F:DEVICE | HIDE_TYPE
-E:MAGIC 3 | KNOWLEDGE 3
+E:MAGIC 7 | KNOWLEDGE 7
 D:that affects your ability to use magical objects.
 
 N:306:Sustenance
@@ -2456,22 +2457,22 @@ D:strongly enchanted items and large piles.
 N:340:*Enchant Armor*
 G:?:d
 I:70:20:0
-W:45:0:5:3500
-A:45/15
-E:SHIELD 6
-D:that greatly improves a piece of armour, and may even give it special 
-D:abilities.  It is less likely to succeed on strongly enchanted items 
-D:and large piles.
+W:35:0:5:6000
+A:35/10
+E:SHIELD 8
+D:that greatly improves a piece of armor, and may even give a normal 
+D:(non-ego) item special abilities.  It is less likely to succeed on 
+D:strongly enchanted items and large piles.
 
 N:341:*Enchant Weapon*
 G:?:d
 I:70:21:0
-W:40:0:5:3500
-A:40/15
-E:MAGIC 6
-D:that makes a weapon both more accurate and damaging, and may even give 
-D:it special abilities.  It is less likely to succeed on strongly 
-D:enchanted items and large piles.
+W:30:0:5:6000
+A:30/10
+E:MAGIC 8
+D:that greatly improves a weapon, and may even give a normal 
+D:(non-ego) item special abilities.  It is less likely to succeed on 
+D:strongly enchanted items and large piles.
 
 N:342:Recharging
 G:?:d

@@ -360,7 +360,7 @@ static errr do_item(object_type *o_ptr)
 	{
 		/* Save the inscription (if any) */
 		if (o_ptr->note) do_string((char *)quark_str(o_ptr->note), 0);
-		else             do_string("", 0);
+		else             do_string((char *)"", 0);
 	}
 	else
 	{
@@ -990,7 +990,7 @@ static void do_options(void)
 	}
 
 	/* Screen options */
-	if (sf_xtra >= 12)
+	if (sf_extra >= 13)
 	{
 		do_byte((byte *)&force_25_rows);
 		do_byte((byte *)&text_50_rows);
@@ -1427,7 +1427,7 @@ static errr do_character(void)
 	do_s16b(&p_ptr->dancing_feet);
 	do_byte((byte *)&p_ptr->dancing_feet_safe);
 	do_s16b(&p_ptr->phasing_foes);
-	if (sf_xtra >= 12)
+	if (sf_extra >= 13)
 	{
 		do_s16b(&p_ptr->blink_away);
 		do_s16b(&p_ptr->evasion);
@@ -1597,7 +1597,7 @@ static errr do_character(void)
 
 
 	/* Empty space for anything */
-	if (sf_xtra > 11)
+	if (sf_extra >= 13)
 	{
 		do_byte(&p_ptr->last_set_options_screen);
 		do_byte(&blank_u8b);
@@ -2376,7 +2376,7 @@ static errr do_dungeon(void)
 			do_u16b(&x_ptr->flags);
 
 			/* Expansion space */
-			if (sf_xtra >= 12) do_u16b(&blank_u16b);
+			if (sf_extra >= 13) do_u16b(&blank_u16b);
 			do_u16b(&blank_u16b);
 			do_u16b(&blank_u16b);
 			do_u16b(&blank_u16b);
@@ -2627,7 +2627,7 @@ static errr do_savefile(void)
 				q_info[i].started = (tmp8u) ? TRUE : FALSE;
 			}
 
-			if (sf_xtra >= 12) do_byte(&q_info[i].slack);
+			if (sf_extra >= 13) do_byte(&q_info[i].slack);
 
 			/* Loading a file -- Activate current quest */
 			if ((load_file) && (q_info[i].active_level || q_info[i].reward))

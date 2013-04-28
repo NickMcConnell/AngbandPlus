@@ -3118,7 +3118,6 @@ void update_smart_learn(int m_idx, int what)
 	/* Analyze the knowledge */
 	switch (what)
 	{
-
 		/* Slow/paralyze attacks learn about free action and saving throws */
 		case LRN_FREE_SAVE:
 		{
@@ -3513,9 +3512,6 @@ void mon_death_effect(int m_idx)
 	/* Animated torch */
 	if (m_ptr->r_idx == MON_ANIM_TORCH)
 	{
-		object_type *i_ptr;
-		object_type object_type_body;
-
 		/* Get local object */
 		i_ptr = &object_type_body;
 

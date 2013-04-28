@@ -1189,6 +1189,11 @@ those comprising the base code include:
 - corpse light        (Zangband 2.2.#)
 - Vampiric Drain      (Zangband 2.2.#)
 
+Misc changes:
+- only high-level spells have a chance to permanently damage Constitution
+if you cast them without enough mana
+
+
 
 --- cmd6.c ---
 

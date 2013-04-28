@@ -326,7 +326,7 @@ static void process_world_aux_inven(void)
 				/* Object is now aware */
 				if (object_aware_p(o_ptr))
 				{
-					object_kind *k_ptr = &k_info[o_ptr->k_idx];
+					k_ptr = &k_info[o_ptr->k_idx];
 
 					/* Gain a significant amount of exp */
 					gain_exp(k_ptr->level * k_ptr->level / 2, S_NOSKILL);
@@ -411,7 +411,7 @@ static void process_world_aux_inven(void)
 				else
 				{
 					/* Determine how many rods are actually charging */
-					int num = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+					num = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
 					if (num > o_ptr->number) num = o_ptr->number;
 
 					/* Decrease timeout by that number. */
@@ -1401,6 +1401,9 @@ static void process_world(void)
 			}
 		}
 	}
+
+	/* Update time display */
+	left_panel_display(DISPLAY_TIME, 0);
 }
 
 
@@ -2271,7 +2274,7 @@ static void refresh_monsters_after(void)
 	monster_race *r_ptr;
 
 	/* Note whether we need to update distances */
-	bool distance = (p_ptr->update & (PU_DISTANCE)) ? TRUE : FALSE;
+	bool do_dist = (p_ptr->update & (PU_DISTANCE)) ? TRUE : FALSE;
 
 
 	/* We handle monster visibility and distances here */
@@ -2284,8 +2287,6 @@ static void refresh_monsters_after(void)
 	/* Remove "mark" flags from all monsters not magically detected */
 	for (i = 1; i < m_max; i++)
 	{
-		monster_type *m_ptr;
-
 		/* Get the monster */
 		m_ptr = &m_list[i];
 
@@ -2314,7 +2315,7 @@ static void refresh_monsters_after(void)
 		if (!m_ptr->r_idx) continue;
 
 		/* Handle visibility changes due to telepathy, sensing, detection. */
-		if (update_mon(i, distance, TRUE))
+		if (update_mon(i, do_dist, TRUE))
 		{
 			continue;
 		}

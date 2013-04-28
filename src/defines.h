@@ -43,7 +43,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING   "0.9.9, beta 12"
+#define VERSION_STRING   "0.9.9, beta 13"
 
 /*
  * Current (Sangband) version numbers
@@ -55,7 +55,7 @@
 /*
  * This value is used for beta versions
  */
-#define VERSION_EXTRA   12
+#define VERSION_EXTRA   13
 
 /*
  * Number of grids in each block (vertically).
@@ -2763,6 +2763,7 @@
 #define DISPLAY_NOISE             36   /* noise */
 #define DISPLAY_TARGET            37   /* current target */
 #define DISPLAY_QUEST             38   /* quest status */
+#define DISPLAY_TIME              39   /* elapsed time */
 
 
 /*

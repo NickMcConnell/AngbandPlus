@@ -1,4 +1,31 @@
 
+Beta 13
+
+Fixes:
+- macros are now not flushed in yes/no prompts, so the suggested macro/keymap to destroy items on the floor works as advertised
+- some corrections to the documentation on macros and keymaps
+- I made a mistake in allowing stuff to be activated from the backpack.  You must again wear items to activate them.
+- you will not get any quests for lurker-type monsters.  They are just too hard to find.
+- scrolls of *enchant weapon* and *enchant armour* turn things into ego-items, and then use the best damage dice and plusses.  This can be very powerful, so these scrolls are now rarer and more expensive.
+- screen layout options are memorized automatically, and correctly save to pref files
+- various other things save and load properly
+
+Changes:
+- added a display of elapsed time  -clefs-
+- the Iron Crown of Beruthiel is now useful.
+- some artifacts give a lesser bonus to awareness.  Two now grant it that didn't before.
+- all the storm spells (chain lightning, blinding and defuddlement, prismatic armageddon, mana frenzy) are more powerful
+- chaos doesn't confuse monsters so much
+- the phase warp talent and the phase warp spell are somewhat more chancy
+- you get slightly more mana with very high spell stats
+- A very high perception skill makes pseudo-sensing more certain.  Characters with the Oath of Iron can (eventually) pseudo-sense every piece of wargear they walk on.
+- only high-level spells have a chance to permanently damage Constitution if you cast them without enough mana
+- dwarves learn about polearms faster, half-trolls and half-giants learn about swords slower and polearms faster
+- you need 55 skill in slings, not 45, to gain access to the Oath of Iron
+
+
+====================================================================
+
 Beta 12
 
 Bug fixes:
@@ -97,17 +124,6 @@ Sorcery:
 - fewer utility spells that copy magical devices
 - more ways to move around, protect yourself, and kill monsters
 - more interesting destruction spell
-
-
-
-
-
-
-
-
-
-
-
 
 
 

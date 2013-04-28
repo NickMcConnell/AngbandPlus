@@ -2985,7 +2985,7 @@ bool lose_all_info(cptr msg)
 	/* Automatically re-sense all carried items */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		object_type *o_ptr = &inventory[i];
+		o_ptr = &inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;

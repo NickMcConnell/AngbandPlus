@@ -51,7 +51,7 @@ stats, get the most bonuses to missile might and shooting speed, the most
 hitpoints, and have access to several very powerful talents.  However, they can
 learn no realm of magic, and cannot raise their magical device skill past 50.
      You gain access to the Oath of Iron by raising a combat skill to level 45
-or above.
+or above (the exception being Archery -- slings, in which you need 55).
 
 The Magic-users' Oaths:
      Each realm of magic also has an Oath.  Wizards may take the Oath of

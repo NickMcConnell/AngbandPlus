@@ -125,17 +125,22 @@ Destroy an item or a pile on the floor:
 
      Macros allow you to use a single key to activate actions normally requiring
 several keypresses.  In the first example above, we macroed "'" to "maa*t".
-Macros only activate when you issue a command.  Macros are often affected by
-keymaps; you may bypass keymaps in macros by putting a "\" before any key.
-     Most of the time you will be creating macros.
+Macros activate when you issue a command, type a choice in a menu, or issue a
+subcommand (like pressing "-" to access floor objects).  Macros are often
+affected by keymaps; you may bypass keymaps in macros by putting a "\" before
+any key.
 
-     Keymaps are different.  Like macros, they map any number of keypresses to a
-single key; unlike macros, you use underlying (base) commands, and the keymap
-fires off in almost all situations (the major exception being other keymaps and
-data-entry).  Keymaps are never affected by macros.
+     Like macros, keymaps map any number of keypresses to a single key; unlike
+macros, you use underlying (base) commands, and the keymap does not fire off
+when you issue a subcommand or choose a menu item.  Keymaps are never affected
+by macros.
      Keymaps are used by the game to map underlying commands to both the
-original and the roguelike keysets.  Unless you get pretty serious about game
-customization, you will seldom need to use them.
+original and the roguelike keysets.
+
+Usage warnings:
+     When you assign a macro to a key, that macro will activate in most cases.
+For example, if you use the "-" key for a macro, you will find it difficult to
+access objects on the ground.  In such cases, use keymaps instead.
 
 Not all keys can be entered as simple numbers or letters:
   \e     : escape  (useful for clearing the message line)

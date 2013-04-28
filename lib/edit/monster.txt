@@ -8557,15 +8557,16 @@ B:WAIL:TERRIFY
 B:TOUCH:HURT:4d14
 B:TOUCH:EXP_40:1d5
 B:TOUCH:HURT:4d14
-F:UNIQUE | PLAYER_GHOST | 
+F:UNIQUE | PLAYER_GHOST | FIXED_HPS | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | 
 F:ONLY_ITEM | DROP_90 | DROP_CHEST | 
 F:UNDEAD | EVIL | HURT_LITE | IM_COLD | IM_POIS | 
-F:NO_FEAR | NO_CONF | NO_SLEEP
+F:NO_FEAR | NO_CONF | NO_SLEEP | 
+F:SMART
 S:1_IN_5 | POW_25 | 
 S:DARKNESS | WOUND | SCARE | HOLD
-D:FIXED_HPS | SMART | This eldritch form rises from a grave shrouded in 
-D:dust.  As it reaches out towards you, your panicked soul cowers away.
+D:This eldritch form rises from a grave shrouded in dust.  As it reaches out 
+D:towards you, your panicked soul cowers away.
 
 N:780:Ghost
 G:G:B

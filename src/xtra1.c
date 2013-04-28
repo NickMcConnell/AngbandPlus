@@ -2326,6 +2326,24 @@ static void left_panel_display_aux(byte item, byte row, int tmp)
 			break;
 		}
 
+		/* Display time elapsed  -clefs- */
+		case DISPLAY_TIME:
+		{
+			s32b len = 10L * TOWN_DAWN;
+			s32b tick = turn % len;
+
+			s32b day = turn / len;
+			s32b hour = (24L * tick / len) % 24;
+
+			/*
+			 * Note the lack of a minutes indicator.  The passage of time
+			 * should be "fuzzy".
+			 */
+			c_put_str(TERM_WHITE,
+					format("%3ld day%s %2ldh", day, (day == 1) ? "" : "s", hour),
+					row, 0);
+		}
+
 		default:
 		{
 			break;

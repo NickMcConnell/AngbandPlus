@@ -3378,6 +3378,8 @@ bool askfor_aux(char *buf, size_t len)
 		/* Place cursor */
 		Term_gotoxy(x + k, y);
 
+		/* Should we ignore macros?  If not, why? */
+
 		/* Get a key */
 		ch = inkey();
 
@@ -3573,8 +3575,8 @@ bool get_check(cptr prompt)
 		if (ch == ESCAPE) break;
 		if (strchr("YyNn", ch)) break;
 
-		/* Handle errors  XXX XXX */
-		bell("Illegal response to a 'yes/no' question.");
+		/* Handle errors  XXX XXX (this breaks macros) */
+		/* bell("Illegal response to a 'yes/no' question.");*/
 	}
 
 	/* Erase the prompt */

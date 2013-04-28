@@ -1887,13 +1887,13 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 	else if (o_ptr->tval == TV_SCROLL)
 	{
 		/* Read the scroll */
-		int read = scroll_read_effect(-1, y, x, o_ptr);
+		int did_read = scroll_read_effect(-1, y, x, o_ptr);
 
 		/* The scroll was read */
-		if (read)
+		if (did_read)
 		{
 			/* An identification was made */
-			if ((read == 1) && (!object_aware_p(o_ptr)))
+			if ((did_read == 1) && (!object_aware_p(o_ptr)))
 			{
 				/* Learn about the objects, do not gain experience */
 				object_aware(o_ptr);
@@ -1929,9 +1929,9 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 		/* An identification was made */
 		if ((notice) && (!object_aware_p(o_ptr)))
 		{
-			cptr tval_desc = "Staff";
-			if (o_ptr->tval == TV_WAND) tval_desc = "Wand";
-			if (o_ptr->tval == TV_ROD) tval_desc = "Rod";
+			cptr tv_desc = "Staff";
+			if (o_ptr->tval == TV_WAND) tv_desc = "Wand";
+			if (o_ptr->tval == TV_ROD) tv_desc = "Rod";
 
 			/* Learn about the objects, do not gain experience */
 			object_aware(o_ptr);
@@ -1940,7 +1940,8 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 			strip_name(o_name, o_ptr->k_idx);
 
 			/* Message */
-			msg_format("The trap appears to be using a %s of %s.", o_name);
+			msg_format("The trap appears to be using a %s of %s.",
+				tv_desc, o_name);
 		}
 	}
 

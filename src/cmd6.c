@@ -1446,8 +1446,6 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_SCROLL_TRAP_CREATION:
 		{
-			object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
 			if (info) return ("");
 
 			/* Identify if "tried" */
@@ -6818,6 +6816,10 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
  *
  * Note that it always takes a turn to activate an artifact, even if
  * the user hits "escape" at the "direction" prompt.
+ *
+ * We do not allow items to be activated from inventory, even though
+ * that would be more convenient, because it just feels weird to be
+ * able to zap DSM like rods.
  */
 void do_cmd_activate(void)
 {
@@ -6836,7 +6838,7 @@ void do_cmd_activate(void)
 	/* Get an item */
 	q = "Activate which item?";
 	s = "You have nothing to activate.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 	item_to_object(o_ptr, item);
 
 
@@ -6844,9 +6846,19 @@ void do_cmd_activate(void)
 	p_ptr->energy_use = 100;
 
 
+	/* Most items, and all artifacts, use device skill */
+	if ((o_ptr->tval != TV_DRAG_ARMOR) || (artifact_p(o_ptr)))
+	{
+		skill = p_ptr->skill_dev;
+	}
 
-	/* Get the character's skill */
-	skill = p_ptr->skill_dev;
+	/* Non-artifact dragon scale mail uses raw character power */
+	else
+	{
+		/* This value ranges from 5 to 15 */
+		skill = 5 + p_ptr->power / 10;
+	}
+
 
 	/* Confusion and hallucination make things harder */
 	if ((p_ptr->confused) || (p_ptr->image)) skill /= 2;
@@ -6870,17 +6882,16 @@ void do_cmd_activate(void)
 		}
 	}
 
-	/* Otherwise, use the object level */
-	else
+	/* Everything but DSM uses the object level */
+	else if (o_ptr->tval != TV_DRAG_ARMOR)
 	{
 		lev = k_info[o_ptr->k_idx].level;
+	}
 
-		/* Dragon scale mail does not require magical device skill */
-		if (o_ptr->tval == TV_DRAG_ARMOR)
-		{
-			lev = 0;
-			skill = 5 + p_ptr->power / 10;
-		}
+	/* Dragon scale mail does not require special skills */
+	else
+	{
+		lev = 0;
 	}
 
 	/* Never get too difficult */

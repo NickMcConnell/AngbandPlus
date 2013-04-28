@@ -1930,6 +1930,10 @@ bool player_birth(void)
 	/* Hack -- cancel all cheating options */
 	cancel_cheat_options();
 
+	/* Get or correct the inn name index */
+	if ((p_ptr->inn_name <= 0) || (p_ptr->inn_name >= 11))
+		p_ptr->inn_name = randint(10);
+
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)
 	{

@@ -1456,8 +1456,14 @@ static bool special_skill_command(int skill, bool *must_accept)
 		case S_BOW:
 		case S_CROSSBOW:
 		{
+			/* Normal skill requirement to take this Oath */
+			int req_skill = OATH_OF_IRON_REQ;
+
+			/* Slings have a higher requirement */
+			if (skill == S_SLING) req_skill += 10;
+
 			/* Can take the Oath of Iron */
-			if ((p_ptr->pskills[skill].cur >= OATH_OF_IRON_REQ) &&
+			if ((p_ptr->pskills[skill].cur >= req_skill) &&
 			    (can_take_oath(OATH_OF_IRON)))
 			{
 				/* Warning */
@@ -1751,8 +1757,14 @@ static void prt_skill_select(int skill)
 		case S_BOW:
 		case S_CROSSBOW:
 		{
+			/* Normal skill requirement to take this Oath */
+			int req_skill = OATH_OF_IRON_REQ;
+
+			/* Slings have a higher requirement */
+			if (skill == S_SLING) req_skill += 10;
+
 			/* Can take the Oath of Iron */
-			if ((lev >= OATH_OF_IRON_REQ) && (can_take_oath(OATH_OF_IRON)))
+			if ((lev >= req_skill) && (can_take_oath(OATH_OF_IRON)))
 				cmddesc = "Oath of Iron";
 			break;
 		}

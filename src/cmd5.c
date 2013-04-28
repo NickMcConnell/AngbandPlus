@@ -18,7 +18,7 @@
 /*
  * Local variable:  mana cost of spell
  */
-static int mana_cost;
+static int mana_cost = 0;
 
 
 /*
@@ -984,7 +984,7 @@ static void create_athelas(void)
  *
  * Calculate mana expenditure based on space the spell must fill.
  */
-static int calc_mana_aux(int min, int max, int rad)
+static void calc_mana_aux(int min, int max, int rad)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1027,18 +1027,20 @@ static int calc_mana_aux(int min, int max, int rad)
 		}
 	}
 
-	/* If count is less than 2, return the minimum mana */
-	if (grids < 2) mana_cost = min;
+	/* If count is less than 2, use the minimum mana */
+	if (grids < 2)
+	{
+		mana_cost = min;
+	}
+	else
+	{
+		/* The larger the number of grids, the less rapidly mana increases */
+		factor = (u32b)(rsqrt(grids));
+		max_factor = (u32b)(rsqrt(max_grids));
 
-	/* The larger the number of grids, the less rapidly mana increases */
-	factor = (u32b)(rsqrt(grids));
-	max_factor = (u32b)(rsqrt(max_grids));
-
-	/* Calculate the amount of mana required */
-	mana_cost = min + ((max - min) * factor / max_factor);
-
-	/* Return the cost */
-	return (mana_cost);
+		/* Calculate the amount of mana required */
+		mana_cost = min + ((max - min) * factor / max_factor);
+	}
 }
 
 
@@ -1903,6 +1905,7 @@ cptr do_spell(int mode, int spell)
 	int item, chance, dir, beam;
 	int spower, xtra_spower, reliability;
 	int do_shapechange = 0;
+	int spell_cost = 0;
 
 	/* Spell-specific variables */
 	int dam, dam1, dam2;
@@ -2024,9 +2027,11 @@ cptr do_spell(int mode, int spell)
 		/* Get mana needed to cast spell */
 		(void)do_spell(SPELL_MANA, spell);
 
+		/* Save this spell cost (to avoid possible problems) */
+		spell_cost = mana_cost;
 
 		/* Verify "dangerous" spells */
-		if (mana_cost > p_ptr->csp)
+		if (spell_cost > p_ptr->csp)
 		{
 			/* Warning */
 			msg_format("You do not have enough mana to %s this %s.",
@@ -2442,7 +2447,7 @@ cptr do_spell(int mode, int spell)
 			case 22:
 			{
 				if (info) return ("");
-				if (desc) return ("Turns rod, wand, or staff energy into mana.  Rods have little usable energy.");
+				if (desc) return ("Turns rod, wand, or staff energy into mana.  The higher-level the item, the more energy it provides.  Rods have little usable energy.");
 				if (cast)
 				{
 					tap_magical_energy();
@@ -2652,7 +2657,7 @@ cptr do_spell(int mode, int spell)
 			/* Blinding and Befuddlement */
 			case 34:
 			{
-				dam = spower;
+				dam = 4 * spower / 3;
 				rad = 6 + reliability / 8;
 
 				if (info) return (format("dam %d/missile, rad %d", dam, rad));
@@ -2660,13 +2665,13 @@ cptr do_spell(int mode, int spell)
 				if (mana)
 				{
 					/* Mana cost depends on area covered. */
-					mana_cost = calc_mana_aux(15, 40, rad);
+					calc_mana_aux(15, 40, rad);
 					return ("");
 				}
 				if (cast)
 				{
 					/* Lots and lots of bolts:  use lingering graphics */
-					fire_storm(-1, -2, py, px, dam, rad, 10, 40, 0, TRUE);
+					fire_storm(-1, -2, py, px, dam, rad, 12, 50, 0, TRUE);
 				}
 				break;
 			}
@@ -2740,8 +2745,8 @@ cptr do_spell(int mode, int spell)
 			/* Phase Warp */
 			case 40:
 			{
-				pow1 = 15 + (reliability / 5);
-				pow2 = 6 - (reliability / 10);
+				pow1 = 10 + (reliability / 5);
+				pow2 = 12 - (reliability / 10);
 
 				if (info) return (format("range %d, varies %d", pow1, pow2));
 				if (desc) return ("Semi-controlled teleportation.");
@@ -2939,21 +2944,21 @@ cptr do_spell(int mode, int spell)
 			/* Prismatic Armageddon */
 			case 53:
 			{
-				dam = spower;
+				dam = 3 * spower / 2;
 				rad = 16;
 
-				if (info) return (format("dam %d, rad %d", dam, rad));
+				if (info) return (format("dam %d each hit, rad %d", dam, rad));
 				if (desc) return ("Fires a massive storm of wizard-magics.  This spell is much more effective, but also somewhat more costly, when cast out in the open.");
 				if (mana)
 				{
 					/* Mana cost depends on area covered. */
-					mana_cost = calc_mana_aux(20, 50, rad);
+					calc_mana_aux(20, 50, rad);
 					return ("");
 				}
 				if (cast)
 				{
 					/* Lots and lots of arcs of all sorts of types */
-					fire_storm(-1, -1, py, px, dam, rad, 4, 30, 2, FALSE);
+					fire_storm(-1, -1, py, px, dam, rad, 4, 40, 2, FALSE);
 				}
 				break;
 			}
@@ -3347,12 +3352,11 @@ cptr do_spell(int mode, int spell)
 			case 89:
 			{
 				if (info) return ("");
-				if (desc) return ("Recover from stuns, wounds, blindness, poison, disease, and fear.  Usually needs to be repeated several times; assign this prayer to a macro.");
+				if (desc) return ("Recover from stuns, wounds, poison, disease, and fear.  Usually needs to be repeated several times; assign this prayer to a macro.");
 				if (cast)
 				{
 					(void)set_stun(p_ptr->stun - 4);
 					(void)set_cut(p_ptr->cut - 6);
-					(void)set_blind(p_ptr->blind - 8, NULL);
 					(void)set_poisoned(p_ptr->poisoned - 6);
 					(void)set_diseased(p_ptr->diseased - 2, NULL);
 					(void)set_afraid(p_ptr->afraid - 12);
@@ -4282,12 +4286,12 @@ cptr do_spell(int mode, int spell)
 				dam = 2 * spower / 3;
 				rad = 5;
 
-				if (info) return (format("dam %d, rad %d", dam, rad));
+				if (info) return (format("dam %d each hit, rad %d", dam, rad));
 				if (desc) return ("Calls up a storm of lightning centered on you.  This spell is much more effective, but also somewhat more costly, when cast out in the open.  Affected by weather.");
 				if (mana)
 				{
 					/* Mana cost depends on area covered. */
-					mana_cost = calc_mana_aux(15, 25, rad);
+					calc_mana_aux(15, 25, rad);
 					return ("");
 				}
 				if (cast)
@@ -4295,7 +4299,7 @@ cptr do_spell(int mode, int spell)
 					dam = weather_dam(GF_ELEC, dam);
 
 					/* Lots and lots of electric beams */
-					fire_storm(-1, GF_ELEC, py, px, dam, rad, 5, 40, 1, FALSE);
+					fire_storm(-1, GF_ELEC, py, px, dam, rad, 5, 50, 1, FALSE);
 				}
 				break;
 			}
@@ -5646,21 +5650,21 @@ cptr do_spell(int mode, int spell)
 			/* Mana Frenzy */
 			case 245:
 			{
-				dam = 4 * spower / 3;
+				dam = 3 * spower / 2;
 				rad = 13;
 
-				if (info) return (format("dam %d/beam, rad %d", dam, rad));
+				if (info) return (format("dam %d each hit, rad %d", dam, rad));
 				if (desc) return ("Invokes a storm of mana beams centered on you.  This spell is much more effective, but also somewhat more costly, when cast out in the open.");
 				if (mana)
 				{
 					/* Mana cost depends on area covered. */
-					mana_cost = calc_mana_aux(20, 40, rad);
+					calc_mana_aux(20, 40, rad);
 					return ("");
 				}
 				if (cast)
 				{
 					/* Lots and lots of mana beams */
-					fire_storm(-1, GF_MANA, py, px, dam, rad, 5, 40, 1, FALSE);
+					fire_storm(-1, GF_MANA, py, px, dam, rad, 5, 50, 1, FALSE);
 				}
 				break;
 			}
@@ -5697,27 +5701,27 @@ cptr do_spell(int mode, int spell)
 		/* A spell was cast for the first time */
 		if (!(p_ptr->spell_flags[spell] & (PY_SPELL_WORKED)))
 		{
+			/* Gain experience (assign to spell level) */
+			gain_exp(MAX(1, s_ptr->sexp * s_ptr->slevel), S_MAGIC);
+
 			/* The spell worked */
 			p_ptr->spell_flags[spell] |= (PY_SPELL_WORKED);
 
-			/* Redraw object recall */
+			/* Redraw object recall (later!) */
 			p_ptr->window |= (PW_OBJECT);
-
-			/* Gain experience (assign to spell level) */
-			gain_exp(MAX(1, s_ptr->sexp * s_ptr->slevel), S_MAGIC);
 		}
 
 		/* Sufficient mana */
-		if (mana_cost <= p_ptr->csp)
+		if (spell_cost <= p_ptr->csp)
 		{
 			/* Use some mana */
-			p_ptr->csp -= mana_cost;
+			p_ptr->csp -= spell_cost;
 		}
 
 		/* Over-exert the player */
 		else
 		{
-			int oops = mana_cost - p_ptr->csp;
+			int oops = spell_cost - p_ptr->csp;
 
 			/* No mana left */
 			p_ptr->csp = 0;
@@ -5732,10 +5736,12 @@ cptr do_spell(int mode, int spell)
 			/* Hack -- Bypass free action */
 			(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
 
-			/* Damage CON (possibly permanently) */
+			/* Damage CON */
 			if (one_in_(2))
 			{
-				bool perm = (one_in_(4));
+				/* High-level spells may inflict permanent damage */
+				bool perm = FALSE;
+				if (s_ptr->slevel >= rand_range(40, 200)) perm = TRUE;
 
 				/* Message */
 				msg_print("You have damaged your health!");
@@ -5756,6 +5762,9 @@ cptr do_spell(int mode, int spell)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+		/* Refresh the windows and update stuff */
+		handle_stuff();
 	}
 
 	/* Return */

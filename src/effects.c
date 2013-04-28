@@ -276,9 +276,10 @@ static void process_effect(int x_idx)
 
 		int dam = 0;
 		int rad = x_ptr->power2;
-		int y = x_ptr->y0;
-		int x = x_ptr->x0;
 		int typ = x_ptr->type;
+
+		y = x_ptr->y0;
+		x = x_ptr->x0;
 
 		/* Actual attack */
 		if (for_real)

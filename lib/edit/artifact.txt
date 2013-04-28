@@ -544,11 +544,12 @@ D:greatest treasures of Middle-Earth.
 
 N:52:of Beruthiel
 I:33:10
-W:20:8:20:2000
+W:20:8:20:10000
 C:0:1d1:-40:-40:20:0
-P:-5
-1:STR | CON | 
-F:HIDE_TYPE | FREE_ACT | SEE_INVIS | TELEPATHY | LIGHT_CURSE
+P:10:-5
+1:AWARENESS | INFRA |
+2:STR | CON | 
+F:HIDE_TYPE | FREE_ACT | SEE_INVIS | TELEPATHY
 D:The midnight-hued steel circlet of the sorceress-queen Beruthiel, which 
 D:grants extraordinary powers of sight and awareness at a terrible physical 
 D:cost.
@@ -923,7 +924,7 @@ I:30:4
 W:40:25:60:22500
 C:4:1d1:5:5:10:63
 P:4
-1:INFRA | AWARENESS | TUNNEL
+1:INFRA | TUNNEL
 F:HIDE_TYPE 
 D:A set of iron-shod boots stamped by Gimli's combat prowess, a peerless 
 D:ally to those journeying through halls of stone under mountains.
@@ -1098,9 +1099,8 @@ N:107:'Glamdring'
 I:23:16
 W:25:15:80:40000
 C:0:2d5:10:15:0:0
-P:2:1
-1:AWARENESS
-2:LIGHT
+P:1
+1:AWARENESS | LIGHT
 F:BRAND_FIRE | SLAY_EVIL | SLAY_ORC | VORPAL | 
 F:RES_FIRE | RES_LITE | SLOW_DIGEST | HIDE_TYPE | SHOW_MODS
 D:This fiery blade, mate to Orcrist, earned its sobriquet "Beater" 
@@ -1111,11 +1111,10 @@ D:from dying orcs who dared behold hidden Gondolin.
 
 N:108:'Aeglin'
 I:23:16
-W:30:30:80:50000
+W:30:30:80:45000
 C:0:2d5:12:16:0:0
-P:3:1
-1:AWARENESS
-2:LIGHT
+P:1
+1:AWARENESS | LIGHT
 F:BRAND_ELEC | SLAY_EVIL | SLAY_ORC | VORPAL | 
 F:RES_ELEC | RES_CONFU | SLOW_DIGEST | HIDE_TYPE | SHOW_MODS
 D:Like unto Orcrist and Glamdring, and like them long lost, this deadly sword 
@@ -1868,7 +1867,7 @@ I:21:3
 W:30:16:80:60000
 C:10:3d2:16:6:0:92
 P:4
-1:INT | WIS
+1:INT | WIS | AWARENESS
 F:SLAY_EVIL | RES_LITE | SEE_INVIS | 
 F:TWO_HANDED_REQ | HIDE_TYPE | SHOW_MODS
 D:The radiant golden staff of an Istar of legend; this wizard's companion 

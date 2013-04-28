@@ -619,6 +619,13 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			/* Close and jam open doors */
 			else if (cave_feat[y][x] == FEAT_OPEN)
 			{
+				if ((cave_m_idx[y][x]) || (cave_o_idx[y][x]))
+				{
+					/* Failure */
+					msg_print("Something is in the way!");
+					break;
+				}
+
 				if (player_has_los_bold(y, x))
 				{
 					/* Message */
@@ -2430,13 +2437,6 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 			if (seen) obvious = TRUE;
 
-			/* Sometimes polymorph and confuse monsters */
-			if (dam > rand_int(100))
-			{
-				if (one_in_(2)) do_poly = TRUE;
-				else do_conf = rand_range(20, 20 + (dam > 600 ? 60 : dam / 10));
-			}
-
 			/* Allow resistance */
 			if ((r_ptr->flags4 & (RF4_BRTH_CHAOS)) ||
 			    (r_ptr->flags3 & (RF3_RES_CHAOS)))
@@ -2444,6 +2444,13 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				note = " resists.";
 				dam = div_round(dam, 6);
 				if (fully_seen) l_ptr->flags3 |= (RF3_RES_CHAOS);
+			}
+
+			/* Sometimes polymorph and confuse monsters */
+			else if (dam > rand_int(dam + 200))
+			{
+				if (one_in_(2)) do_poly = TRUE;
+				else do_conf = rand_range(15, 15 + (dam > 600 ? 60 : dam / 10));
 			}
 
 			break;
@@ -3448,7 +3455,11 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 	if (do_poly)
 	{
 		/* Default -- assume no polymorph */
-		if (!dam && !note) note = " cannot be polymorphed!";
+		if (!dam && !note)
+		{
+			note = " cannot be polymorphed!";
+			obvious = TRUE;
+		}
 
 		/* Uniques can't be polymorphed */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -5933,8 +5944,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 		/* Visible (after teleport) */
 		else if (m_ptr->ml)
 		{
-			/* Message */
-			note = " blinks away.";
+			/* No message */
 		}
 		else
 		{

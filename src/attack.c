@@ -2795,7 +2795,7 @@ void do_cmd_fire(void)
 
 			/* Roll out the damage. */
 			damage = damroll(dice, (s16b)sides);
-debug("dam1 = %d", damage);
+
 			/* Special damage bonus */
 			if (special_dam)
 			{
@@ -2803,12 +2803,10 @@ debug("dam1 = %d", damage);
 
 				/* Crossbow of Harad is deadly */
 				if (o_ptr->artifact_index == ART_HARAD) damage += 10;
-debug("dam2 = %d", damage);
 			}
 
 			/* Adjust damage for slays, brands, resists. */
 			adjust_dam(&damage, i_ptr, m_ptr, FALSE);
-debug("dam3 = %d", damage);
 
 			/* No negative damage */
 			if (damage < 0) damage = 0;

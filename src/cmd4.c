@@ -1993,7 +1993,7 @@ static errr option_dump(cptr fname)
 	if (TRUE)
 	{
 		fprintf(fff, "# Screen  (force_25_rows, text_50_rows, map rows, y-margin, x-margin)\n");
-		fprintf(fff, "T:%c:%c:%d:%d:%d\n\n",
+		fprintf(fff, "t:%c:%c:%d:%d:%d\n\n",
 			(force_25_rows ? '1' : '0'), (text_50_rows ? '1' : '0'),
 			map_rows, clear_y, clear_x);
 	}

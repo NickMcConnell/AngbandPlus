@@ -440,38 +440,38 @@ Racial Abilities:
 Racial skill cost adjustments:
 
                Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia
- sword         10   11   12   13   10    8    8   10   10    9   10
- hafted        10   13   13   12    9    9    7   10   12   13    7
- polearm       10   12   14   12    9    9   11   10   11   11   12
- x-bow         10   11   11   10   10   11   12   10   10   11   13
- bow           10    8    9   10   15   11   13   10    8    9   14
- sling         10   10    7   10   14   11   14   10   10   10   14
- throw         10   10    8   10   11   11    8   10    9   11   10
- wrestle       10   14   15   14   10   11    9   10   12   15    7
- karate        10    8   10   10   12   13   15   10    8   11   14
+ sword          10   11   12   13   10    8   10   10   10    9   12
+ hafted         10   13   13   12    9    9    7   10   12   13    7
+ polearm        10   12   14   12    8    9    9   10   11   11   10
+ crossbow       10   11   11   10   10   11   12   10   10   11   13
+ bow            10    8    9   10   15   11   13   10    8    9   14
+ sling          10   10    7   10   14   11   14   10   10   10   14
+ throwing       10   10    8   10   11   11    8   10    9   11   10
+ wrestling      10   14   15   14   10   11    9   10   12   15    7
+ karate         10    8   10   10   12   13   15   10    8   11   14
 
- spell         10    9   11    9   11   11   12   10   10    8   10
- mana          10    9   10    9   10   11   11   10    9    8    9
+ spell level    10    9   11    9   11   11   12   10   10    8   10
+ mana           10    9   10    9   10   11   11   10    9    8    9
 
- wizard        10    9   11    8   12   12   13   10    9    9   11
- piety         10   11   11   10    8   11   11   10   11   10   12
- nature        10    8   10   10   12   15   10   10    8   14    9
- dominio       10   11   11    9   10    9   10   10    9    9    9
+ wizard         10    9   11    8   12   12   13   10    9    9   11
+ piety          10   11   11   10    8   11   11   10   11   10   12
+ nature         10    8   10   10   12   15   10   10    8   14    9
+ dominion       10   11   11    9   10    9   10   10    9    9    9
 
- device        10    9   11    8   10   12   13   10    9    8   11
- burglar       10   10    7   10   12   10   12   10   10    9   14
+ device         10    9   11    8   10   12   13   10    9    8   11
+ burglary       10   10    7   10   12   10   12   10   10    9   14
 
- percept       10    9    8    9   11   11   12   10    9    8   11
- stealth       10    8    7   10   14   10   13   10    8    9   14
- disarm        10   10    7   10   10   10   12   10   10   11   13
- dodging       10    9    8   10   10   10   13   10    9   10   14
- save          10   10    8   10    8   11   12   10    9    9   11
+ perception     10    9    8    9   11   11   12   10    9    8   11
+ stealth        10    8    7   10   14   10   13   10    8    9   14
+ disarming      10   10    7   10   10   10   12   10   10   11   13
+ dodging        10    9    8   10   10   10   13   10    9   10   14
+ saving throw   10   10    8   10    8   11   12   10    9    9   11
 
- f_weap        10   12   11   11    7   10   11   10   12    8    9
- f_bow         10   10   11   11   11   11   11   10   10    8   12
- f_armor       10   12   11   11    7   10   11   10   12   11   10
- alchemy       10   11   12    8   14   13   11   10   11   10   13
- infuse        10   10   13    9   11   13   13   10   10    7   11
+ forge weapon   10   12   11   11    7   10   11   10   12    8    9
+ forge bow      10   10   11   11   11   11   11   10   10    8   12
+ forge armor    10   12   11   11    7   10   11   10   12   11   10
+ alchemy        10   11   12    8   14   13   11   10   11   10   13
+ infusion       10   10   13    9   11   13   13   10   10    7   11
                Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia
 
 
@@ -896,7 +896,7 @@ stats, get the most bonuses to missile might and shooting speed, the most
 hitpoints, and have access to several very powerful talents.  However, they can
 learn no realm of magic, and cannot raise their magical device skill past 50.
      You gain access to the Oath of Iron by raising a combat skill to level 45
-or above.
+or above (the exception being Archery -- slings, in which you need 55).
 
 The Magic-users' Oaths:
      Each realm of magic also has an Oath.  Wizards may take the Oath of
@@ -2811,8 +2811,9 @@ turn on "query_floor".
 Display things before picking them up         [query_floor]  (on) :
      The game will display more information about objects you walk on, including
 their weight.
-     If you have the "always_pickup" option on, it will prompt you to pick up
-objects.  If you don't, it will simply display a list.
+     If you have the "always_pickup" option on, the game will prompt you to pick
+up objects.  If you don't, it will display a list and you can pick up objects by
+typing 'g'et.
 
 Never haggle in stores                        [never_haggle]  (off) :
      You never haggle in stores, regardless of the markup the shopkeeper asks
@@ -3207,17 +3208,23 @@ Destroy an item or a pile on the floor:
 
      Macros allow you to use a single key to activate actions normally requiring
 several keypresses.  In the first example above, we macroed "'" to "maa*t".
-Macros only activate when you issue a command.  Macros are often affected by
-keymaps; you may bypass keymaps in macros by putting a "\" before any key.
-     Most of the time you will be creating macros.
+Macros activate when you issue a command, type a choice in a menu, or issue a
+subcommand (like pressing "-" to access floor objects).  Macros are often
+affected by keymaps; you may bypass keymaps in macros by putting a "\" before
+any key.
 
-     Keymaps are different.  Like macros, they map any number of keypresses to a
-single key; unlike macros, you use underlying (base) commands, and the keymap
-fires off in almost all situations (the major exception being other keymaps and
-data-entry).  Keymaps are never affected by macros.
+     Like macros, keymaps map any number of keypresses to a single key; unlike
+macros, you use underlying (base) commands, and the keymap does not fire off
+when you issue a subcommand or choose a menu item.  Keymaps are never affected
+by macros.
      Keymaps are used by the game to map underlying commands to both the
-original and the roguelike keysets.  Unless you get pretty serious about game
-customization, you will seldom need to use them.
+original and the roguelike keysets.
+
+Usage warnings:
+     When you assign a macro to a key, that macro will activate in most cases.
+For example, if you use the "-" key for a macro, you will find it difficult to
+access objects on the ground.  In such cases, use keymaps instead.
+
 
 Not all keys can be entered as simple numbers or letters:
   \e     : escape  (useful for clearing the message line)

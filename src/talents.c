@@ -488,7 +488,7 @@ static cptr do_talent(int talent, int mode)
 		case TALENT_PHASE_WARP:
 		{
 			pow1 = 10 + (reliability / 5);
-			pow2 = 9 - (reliability / 10);
+			pow2 = 12 - (reliability / 10);
 
 			if (info) return (format("rng %d var %d", pow1, pow2));
 			if (desc) return ("Semi-controlled teleportation.");
@@ -510,7 +510,7 @@ static cptr do_talent(int talent, int mode)
 		case TAP_ENERGY:
 		{
 			if (info) return ("");
-			if (desc) return ("Turns rod, wand, or staff energy into mana.  Rods have little usable energy.");
+			if (desc) return ("Turns rod, wand, or staff energy into mana.  The higher-level the item, the more energy it provides.  Rods have little usable energy.");
 			if (check)
 			{
 				/* Wizards have a spell */

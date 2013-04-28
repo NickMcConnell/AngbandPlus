@@ -20,7 +20,7 @@
 
 Name:                Sangband  (Skills Angband)
 Version:             1.0.0
-Date:                February, 2003
+Date:                March, 2003
 Maintainer:          Leon Marrick  (leon2m@sprintmail.com)
 Porter:              
 Web Site:            http://home.sprintmail.com/~leon2m/sang/
