@@ -2190,7 +2190,7 @@ void display_m_list(int y, int x, bool also_list_objects)
 	}
 
 	/* Free the race counters */
-	if (race_count) FREE(race_count);
+	if (race_count) C_FREE(race_count, z_info->r_max, u16b);
 }
 
 
@@ -2319,8 +2319,8 @@ void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
 	if (monster_count <= n)
 	{
 		/* Free some arrays */
-		FREE(monster_dist);
-		FREE(monster_index);
+		C_FREE(monster_dist, m_max, int);
+		C_FREE(monster_index, m_max, int);
 
 		return;
 	}
@@ -2360,8 +2360,8 @@ void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
 	*tx = m_ptr->fx;
 
 	/* Free some arrays */
-	FREE(monster_dist);
-	FREE(monster_index);
+	C_FREE(monster_dist, m_max, int);
+	C_FREE(monster_index, m_max, int);
 }
 
 
@@ -2865,7 +2865,7 @@ static void process_ghost_realm(int ghost_realm, int ghost_specialty,
 bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 {
 	int ghost_sex, ghost_race, ghost_realm, ghost_specialty = 0;
-	byte try, i, backup_file_selector;
+	byte attempt, i, backup_file_selector;
 
 	monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
@@ -2901,10 +2901,10 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	 * information in it (this allows saved ghosts to reacquire all special
 	 * features), then use the current depth, and finally pick at random.
 	 */
-	for (try = 0; try < 200; ++try)
+	for (attempt = 0; attempt < 200; ++attempt)
 	{
 		/* Prepare a path, and store the file number for future reference. */
-		if (try == 0)
+		if (attempt == 0)
 		{
 			if (bones_selector)
 			{

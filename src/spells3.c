@@ -4346,7 +4346,7 @@ bool recharge(int power, bool essence)
 				o_ptr->pval = 0;
 		}
 
-		/* Staffs of Doomspells have a mind of their own. */
+		/* Staffs of doomspells have a mind of their own */
 		else if ((o_ptr->tval == TV_STAFF) &&
 		    (o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(6)))
 		{
@@ -5069,7 +5069,7 @@ int stare_into_the_palantir(void)
 			else                                   msex = 0;
 
 			name1 = m_name;
-			name2 = (msex == 2) ? "she" : ((msex == 1) ? "he" : "it");
+			strcpy(name2, (msex == 2) ? "she" : ((msex == 1) ? "he" : "it"));
 			short_m_name(m_name);
 		}
 

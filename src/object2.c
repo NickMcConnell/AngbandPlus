@@ -21,7 +21,6 @@
 
 #include "angband.h"
 
-
 /*
  * Excise a dungeon object from any stacks
  */
@@ -563,8 +562,8 @@ void compact_objects(int size)
 			}
 
 			/* Free the "obj_value and obj_index" arrays */
-			FREE(obj_value);
-			FREE(obj_index);
+			C_FREE(obj_value, o_max, s32b);
+			C_FREE(obj_index, o_max, s16b);
 		}
 	}
 
@@ -605,11 +604,11 @@ void wipe_o_list(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Hack -- Preserve unknown artifacts */
-		if (artifact_p(o_ptr) && !object_known_p(o_ptr))
+		/* Hack -- Either preserve artifact or notice their loss */
+		if (artifact_p(o_ptr))
 		{
-			/* Mega-Hack -- Preserve the artifact */
-			a_info[o_ptr->artifact_index].cur_num = 0;
+            if (object_known_p(o_ptr))  history_lose_artifact(o_ptr->artifact_index);   /* Note the loss */
+			else	                    a_info[o_ptr->artifact_index].cur_num = 0;      /* Mega-Hack -- Preserve the artifact */
 		}
 
 		/* Monster */
@@ -798,6 +797,27 @@ void get_obj_num_prep(void)
 	}
 }
 
+/*
+ * Returns the index for the realm that is correct for the player.
+ */
+int get_equivalent_book(int index, byte realm)
+{
+    int i;
+    int tval = PLAYER_BOOK_TVAL;
+    int sval = k_info[index].sval;
+
+    /* Book is already acceptable, no work to be done */
+    if (k_info[index].tval == tval) return index;
+
+    /* Find appropriate item -- match tval and sval */
+    for (i = 0; i < 800; i++)
+    {
+        if ((k_info[i].tval == tval) && (k_info[i].sval == sval)) return i;
+
+    }
+
+    return index;  /* Failure :(*/
+}
 
 
 /*
@@ -815,6 +835,7 @@ s16b get_obj_num(int level)
 {
 	int i, j, z;
 	int lev1, lev2, chance1, chance2;
+    int new_index, fix_freq;
 
 	object_kind *k_ptr;
 
@@ -947,6 +968,18 @@ s16b get_obj_num(int level)
 		value -= chance_kind_table[i];
 	}
 
+    /* Sometimes correct magic book to equivalent book of the correct realm */
+	if (is_magic_book(&k_info[i]) && p_ptr->realm)
+	{
+        /* Ironmen get correct townbooks, everyone gets more of the correct books*/
+        if (ironman_play && k_info[i].sval <= 4) fix_freq = 1;
+        else                                     fix_freq = 3;  /* One in 3 gives a 50% overall chance of getting a book of the correct realm */
+
+        /* Change the index */
+        if (one_in_(fix_freq)) i = get_equivalent_book(i, p_ptr->realm);
+	}
+
+
 	/* Return the object index */
 	return (i);
 }
@@ -980,6 +1013,10 @@ void object_known(object_type *o_ptr)
 
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_KNOWN);
+
+    /* Add artifacts to history */
+	if (artifact_p(o_ptr))
+	  history_add_artifact(o_ptr->artifact_index, TRUE);
 }
 
 
@@ -2557,7 +2594,7 @@ static bool make_artifact(object_type *o_ptr)
 		}
 
 		/* Free the "art_chance" array */
-		FREE(art_chance);
+		C_FREE(art_chance, z_info->a_max, s16b);
 	}
 
 
@@ -4649,6 +4686,7 @@ bool make_gold(object_type *o_ptr)
 	int i;
 	int treasure = 0;
 	int gold_depth, first_gold_idx;
+	int adj;
 
 	/* Make a special treasure */
 	if (coin_type >= SV_SPECIAL_GOLD_MIN)
@@ -4699,8 +4737,8 @@ bool make_gold(object_type *o_ptr)
 	object_prep(o_ptr, treasure);
 
 	/* Treasure can be worth between 1/2 and the full maximal value. */
-	o_ptr->pval = rand_range(k_info[treasure].cost / 2,
-	                         k_info[treasure].cost);
+	o_ptr->pval = rand_range(k_info[treasure].cost / 2 * GOLD_ADJ,
+	                         k_info[treasure].cost * GOLD_ADJ);
 
 	/* Success */
 	return (TRUE);
@@ -4739,6 +4777,9 @@ bool make_special_gold(object_type *o_ptr)
 
 	/* Special treasures increase in value with depth */
 	price += m_bonus(k_info[treasure].cost * 5, object_level, MAX_DEPTH);
+
+    /* Adjust price for birth options */
+    if (birth_stores_only_sell) price *= GOLD_ADJ;
 
 	/* Neaten up values */
 	price -= price % 500;
@@ -5073,7 +5114,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, byte flags)
 			objs++;
 
 			/* Hack -- skip unseen objects in view */
-			if ((!o_ptr->marked) && (player_can_see_bold(ty, tx))) continue;
+			if ((!o_ptr->marked) && (player_can_see_or_infra_bold(ty, tx))) continue;
 
 			/* Check for possible combination */
 			if (object_similar(o_ptr, j_ptr)) comb = TRUE;
@@ -5205,7 +5246,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, byte flags)
 		else
 		{
 			/* Message XXX XXX */
-			if (player_can_see_bold(by, bx))
+			if (player_can_see_or_infra_bold(by, bx))
 			{
 				msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
 			}
@@ -5219,7 +5260,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, byte flags)
 	}
 
 	/* Sound (only if seen) */
-	if (player_can_see_bold(by, bx)) sound(MSG_DROP);
+	if (player_can_see_or_infra_bold(by, bx)) sound(MSG_DROP);
 
 	/* Update object list window */
 	p_ptr->window |= (PW_O_LIST);
@@ -6297,7 +6338,7 @@ int reorder_pack(int slot, int store_num, bool verbose)
 			if (o_ptr->tval > j_ptr->tval) break;
 			if (o_ptr->tval < j_ptr->tval) continue;
 
-			/* Non-aware objects go below aware ones */
+			/* Non-aware objects go below aware ones, even in stores */
 			if (object_aware_p(o_ptr) && !object_aware_p(j_ptr)) break;
 			if (!object_aware_p(o_ptr) && object_aware_p(j_ptr)) continue;
 
@@ -6414,6 +6455,29 @@ int reorder_pack(int slot, int store_num, bool verbose)
 	return (slot);
 }
 
+
+/*
+ * Switch primary and secondary weapons
+ */
+bool switch_weapons(bool allow_empty)
+{
+    object_type obj;
+    object_type *o_ptr = &obj;
+
+    object_type *i_ptr = &inventory[INVEN_WIELD];
+    object_type *j_ptr = &inventory[INVEN_ARM];
+
+    /* Disallow empty primary weapons if necessary */
+    if (allow_empty || (is_melee_weapon(i_ptr) && is_melee_weapon(j_ptr)))
+    {
+        object_copy(o_ptr, i_ptr);
+        object_copy(i_ptr, j_ptr);
+        object_copy(j_ptr, o_ptr);
+        object_wipe(o_ptr);
+        return (TRUE);
+    }
+	return (FALSE);
+}
 
 /*
  * Copy of "get_tag" (in object1.c) that looks only at the given

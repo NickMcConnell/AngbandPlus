@@ -7,7 +7,7 @@
 #
 
 # Version stamp (required)
-V:1.0.0
+V:1.0.1
 
 
 #
@@ -195,7 +195,7 @@ D:354,  33,  7  # Scroll of Holy Chant
 D:414, 100, 30  # Potion of Cure Light Wounds
 D:415, 100, 15  # Potion of Cure Serious
 D:416, 100, 15  # Potion of Cure Critical
-D:421,  75,  1  # Potion of Restore Skills
+D:421, 100,  2  # Potion of Restore Skills
 D:422, 100,  2  # Potion of Restore Strength
 D:423, 100,  2  # Potion of Restore Intelligence
 D:424, 100,  2  # Potion of Restore Wisdom

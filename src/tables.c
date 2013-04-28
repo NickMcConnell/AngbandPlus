@@ -1317,7 +1317,7 @@ player_race race_info[MAX_RACES] =
 
 	{
 		"Elf",
-		{-1,  2,  1,  1, -2,  1 },
+		{-1,  1,  2,  1, -2,  1 },
 		  3,  2,  4,  3,  5,  -2,  2,  0,
 		  8,
 		300, 100,
@@ -1353,7 +1353,7 @@ player_race race_info[MAX_RACES] =
 
 	{
 		"Dwarf",
-		{ 2, -2,  2, -2,  2, -2 },
+		{ 2,  2, -2, -2,  2, -2 },
 		 -2,  0,  8, -2,  0,  2,  0,  0,
 		 11,
 		 35,  50,
@@ -1366,7 +1366,7 @@ player_race race_info[MAX_RACES] =
 	{
 		"Half-Orc",
 		{ 2, -1, -1,  0,  2, -3 },
-		 -2, -1, -4, -1, -6,  2,  0,  0,
+		 -2, -1, -4,  0, -6,  2,  0,  0,
 		 11,
 		 16,  8,
 		 64,  3, 140,  8,
@@ -2355,12 +2355,12 @@ cptr option_text[OPT_MAX] =
 
 	NULL,
 	"birth_autoroll",                 /* OPT_birth_autoroll */
-	"ironman_play",                  /* OPT_ironman_play */
+	"ironman_play",                   /* OPT_ironman_play */
 	"birth_no_stores",                /* OPT_birth_no_stores */
 	"birth_no_artifacts",             /* OPT_birth_no_artifacts */
-	"birth_no_return_stair",         /* OPT_no_dungeon_stair */
+	"birth_no_return_stair",          /* OPT_no_dungeon_stair */
 	"birth_smart_cheat",              /* OPT_smart_cheat */
-	NULL,
+	"birth_stores_only_sell",         /* OPT_birth_stores_only_sell */
 	NULL,
 	NULL
 };
@@ -2492,12 +2492,12 @@ cptr option_desc[OPT_MAX] =
 	/* Birth options (appear only on the character birth screen) */
 	NULL,
 	"Allow specification of minimal stats",   /* OPT_birth_autoroll */
-	"No return until victorious",      /* OPT_ironman_play */
+	"No return until victorious",             /* OPT_ironman_play */
 	"Lock the doors of stores and the home",  /* OPT_birth_no_stores */
 	"Do not create artifacts",                /* OPT_birth_no_artifacts */
 	"No stairs back the way you came",        /* OPT_birth_no_return_stair */
 	"Monsters exploit your weaknesses",       /* OPT_birth_smart_cheat */
-	NULL,
+	"Not a game of shopping",                 /* OPT_birth_stores_only_sell */
 	NULL,
 	NULL
 };
@@ -2628,13 +2628,13 @@ const bool option_norm[OPT_MAX] =
 	/* Birth options */
 
 	FALSE,
-	FALSE,		/* OPT_birth_autoroll */
+	TRUE,		/* OPT_birth_autoroll */
 	FALSE,		/* OPT_ironman_play */
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE, 		/* OPT_birth_no_return_stair */
 	FALSE,		/* OPT_birth_smart_cheat */
-	FALSE,
+	TRUE,		/* OPT_birth_stores_only_sell */
 	FALSE,
 	FALSE
 };
@@ -2760,7 +2760,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		255,
 		255,
 		OPT_birth_autoroll,
-		255,
+		OPT_birth_stores_only_sell,
 		255,
 		255,
 		255,

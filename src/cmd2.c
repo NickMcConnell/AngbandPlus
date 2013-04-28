@@ -681,7 +681,7 @@ bool hit_chest_trap(int y, int x, object_type *o_ptr)
 				x_list[i].x0 = x_list[i].x1 = p_ptr->px;
 
 				/* Practices no skills */
-				x_list[i].practice_skill = S_NOSKILL;
+				x_list[i].practice_skill = (byte) S_NOSKILL;
 
 				/* It attacks every 10 game turns, */
 				x_list[i].time_delay = 10;
@@ -871,7 +871,7 @@ bool hit_chest_trap(int y, int x, object_type *o_ptr)
 			}
 
 			/* Message */
-			if (!player_can_see_bold(y1, x1))
+			if (!player_can_see_or_infra_bold(y1, x1))
 				msg_print("The chest vanishes!");
 			else if ((y1 != y) || (x1 != x))
 				msg_print("The chest blinks away!");
@@ -1039,7 +1039,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		skill = 5 + p_ptr->skill_dis;
 
 		/* Penalize some conditions */
-		if (p_ptr->blind    || (no_light() && !(p_ptr->oath & (BURGLARS_GUILD))))   skill /= 10;
+		if (p_ptr->blind    || (no_light() && (p_ptr->see_infra <= 0)))   skill /= 10;
 		if (p_ptr->confused || p_ptr->image) skill /= 10;
 		if (p_ptr->berserk)                  skill /= 2;
 
@@ -1142,7 +1142,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	skill = p_ptr->skill_dis;
 
 	/* Penalize some conditions */
-	if (p_ptr->blind    || (no_light() && !(p_ptr->oath & (BURGLARS_GUILD))))   skill /= 10;
+	if (p_ptr->blind    || (no_light() && (p_ptr->see_infra <= 0)))   skill /= 10;
 	if (p_ptr->confused || p_ptr->image) skill /= 10;
 	if (p_ptr->berserk)                  skill /= 2;
 
@@ -1385,7 +1385,7 @@ static bool do_cmd_open_aux(int y, int x)
 		skill = 5 + p_ptr->skill_dis;
 
 		/* Penalize some conditions */
-		if (p_ptr->blind    || (no_light() && !(p_ptr->oath & (BURGLARS_GUILD))))   skill /= 10;
+		if (p_ptr->blind    || (no_light() && (p_ptr->see_infra <= 0)))   skill /= 10;
 		if (p_ptr->confused || p_ptr->image) skill /= 10;
 
 		/* Extract the lock power  (change the coefficient as needed) XXX */
@@ -2106,7 +2106,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 				place_object(y, x, FALSE, FALSE, FALSE);
 
 				/* Observe new object */
-				if ((cave_o_idx[y][x] != 0) && (player_can_see_bold(y, x)))
+				if ((cave_o_idx[y][x] != 0) && (player_can_see_or_infra_bold(y, x)))
 				{
 					msg_print("You have found something!");
 				}
@@ -2383,7 +2383,7 @@ static bool do_cmd_disarm_trap(int y, int x)
 	skill = p_ptr->skill_dis;
 
 	/* Penalize some conditions */
-	if (p_ptr->blind    || (no_light() && !(p_ptr->oath & (BURGLARS_GUILD))))   skill /= 10;
+	if (p_ptr->blind    || (no_light() && (p_ptr->see_infra <= 0)))   skill /= 10;
 	if (p_ptr->confused || p_ptr->image) skill /= 10;
 	if (p_ptr->berserk)                  skill /=  2;
 

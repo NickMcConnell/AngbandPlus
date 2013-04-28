@@ -4,7 +4,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 #
 # === Understanding ego_item.txt (and similar files) ===
@@ -1277,7 +1277,7 @@ P:-9:3
 1:LIGHT
 2:STEALTH | INFRA
 X:XTRA_LIGHT_QUALITY
-D:It sucks the light from around you, sheathing you in protective
+D:It sucks the light from around you, sheathing you in protective 
 D:darkness.
 
 

@@ -765,7 +765,7 @@ bool remove_trap(int y, int x, int t_idx)
 	}
 
 	/* Refresh grids that the character can see */
-	if (player_can_see_bold(y, x)) lite_spot(y, x);
+	if (player_can_see_or_infra_bold(y, x)) lite_spot(y, x);
 
 	/* Verify traps (remove marker if appropriate) */
 	trap = verify_trap(y, x, 0);
@@ -1063,7 +1063,14 @@ bool magic_disarm(int y, int x, int chance)
 	return (obvious);
 }
 
-
+bool item_tester_hook_trap(const object_type *o_ptr)
+{
+    if (o_ptr->tval != TV_POUCH)  /* You can put almost anything in a trap */
+    {
+        return (TRUE);
+    }
+    return (FALSE);
+}
 
 /*
  * Interact with a monster trap.
@@ -1176,6 +1183,7 @@ int load_trap(int y, int x)
 			/* Get an item */
 			cptr q = "Load which item?";
 			cptr s = "You have nothing to load the trap with.";
+			item_tester_hook = item_tester_hook_trap;
 			if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR)))
 				continue;
 			item_to_object(o_ptr, item);
@@ -1576,7 +1584,7 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 		tmp = damroll(dice, (s16b)sides);
 
 		/* Adjust damage for slays, brands, resists. */
-		adjust_dam(&tmp, o_ptr, m_ptr, TRUE, S_BURGLARY);
+		adjust_dam(&tmp, o_ptr, m_ptr, TRUE);
 
 		/* HACK - help missile and thrown weapons  XXX XXX */
 		if ((mode == 2) || (mode == 3)) tmp += 2 + power / 15;
@@ -1951,6 +1959,15 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 		/* Destroy one sometimes */
 		if (breakage_chance(o_ptr))	o_ptr->number--;
 
+        /* Make sure to clear out stack if necessary */
+        if (!o_ptr->number)
+        {
+            /* Trap is now linked to the second object (if any) */
+            t_ptr->hold_o_idx = o_ptr->next_o_idx;
+
+            /* Wipe the object */
+            object_wipe(o_ptr);
+        }
 	}
 
 	/* Object is a magical device */

@@ -2853,6 +2853,12 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			return (INVEN_Q1);
 		}
+
+		case TV_POUCH:
+		{
+		    return (INVEN_POUCH);
+		}
+
 	}
 
 	/* No slot available */
@@ -3626,7 +3632,6 @@ void show_equip(void)
 	if (j && (j < Term->rows - 1)) put_str(format("%*s", len+1, ""), j + 1, l_margin);
 }
 
-
 /*
  * Get the indexes of objects at a given floor location. -TNB-
  *
@@ -4017,6 +4022,18 @@ static bool get_tag_aux(int *cp, char tag, int item, object_type *o_ptr)
 	return (FALSE);
 }
 
+/*
+ * Determine how many suitable items are available
+ */
+int scan_inven(int left, int right)
+{
+	int i, count = 0;
+	for(i = left; i <= right; i++)
+	{
+		if (get_item_okay(i)) count++;
+	}
+	return count;
+}
 
 /*
  * Find the "first" inventory object with the given "tag".
@@ -4153,7 +4170,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool allow_inven = FALSE;
 	bool allow_floor = FALSE;
 
-	bool blind = ((p_ptr->blind) || (no_light()));
+	bool blind = ((p_ptr->blind) || (no_light() && (p_ptr->see_infra == 0)));
 
 	bool toggle = FALSE;
 
@@ -4162,6 +4179,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	int floor_list[MAX_FLOOR_STACK];
 	int floor_num = 0;
+	int equip_num = 0;
+	int inven_num = 0;
+	int first_option;
 
 	/* Get the item index */
 	if (repeat_pull(cp))
@@ -4234,6 +4254,10 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		(void)scan_floor(floor_list, &floor_num, py, px, 0x03);
 	}
 
+	/* Count acceptable options */
+	if (mode & (USE_EQUIP)) equip_num = scan_inven(e1, e2);
+	if (mode & (USE_INVEN)) inven_num = scan_inven(i1, i2);
+
 	/* Full floor */
 	f1 = 0;
 	f2 = floor_num - 1;
@@ -4247,6 +4271,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Accept floor */
 	if (f1 <= f2) allow_floor = TRUE;
+
+	/* If requested and only one option, automatically select it */
+	if ((mode & USE_AUTO) && (equip_num + inven_num + floor_num == 1))
+	{
+		if (equip_num == 1) *cp = e1;
+		if (inven_num == 1) *cp = i1;
+		if (floor_num == 1) *cp = 0 - floor_list[0];
+		return (TRUE);
+	}
 
 	/* Require at least one legal choice */
 	if (!allow_inven && !allow_equip && !allow_floor)
@@ -5274,6 +5307,6 @@ void display_nearby_objects(int y, int x, bool also_list_monsters)
 
 
 	/* Free the object counters */
-	FREE(nearby_o_count);
+	C_FREE(nearby_o_count, o_max, nearby_object_type);
 }
 

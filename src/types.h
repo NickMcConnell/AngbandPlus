@@ -110,7 +110,7 @@ typedef struct flavor_type flavor_type;
 typedef struct move_moment_type move_moment_type;
 typedef struct proj_graphics_type proj_graphics_type;
 typedef struct graphics_data_type graphics_data_type;
-
+typedef struct history_info history_info;
 
 /**** Available structs ****/
 
@@ -1173,9 +1173,11 @@ struct player_type
 
 	trap_set_type trap_set;    /* Data about monster trap setting */
 
-	s16b karate_dam;       /* Average recent damage -- karate */
-	s16b wrestling_dam;    /* Average recent damage -- wrestling */
+	s16b avg_dam;           /* Average recent damage */
+	s16b avg_dam_offhand;   /* Average damage for the off-hand weapon */
 
+	s16b avg_hit;           /* Average recent hit rate */
+	s16b avg_hit_offhand;   /* Average hit rate for the off-hand weapon */
 
 	s16b energy;			/* Current energy */
 
@@ -1607,3 +1609,12 @@ struct move_moment_type
 	s16b moment;
 };
 
+struct history_info
+{
+	u16b type;			/* Kind of history item */
+	s16b dlev;			/* Dungeon level when this item was recorded */
+	s16b clev;			/* Character level when this item was recorded */
+	byte a_idx;			/* Artifact this item relates to */
+	s32b turn;			/* Turn this item was recorded on */
+	char event[80];	    /* The text of the item */
+};

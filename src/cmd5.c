@@ -1177,7 +1177,7 @@ static s16b spell_chance(int spell)
 	if (p_ptr->cumber_glove) skill = 2 * skill / 3;
 
 	/* Reduce failure rate by "effective" level adjustment */
-	fail -= (skill - s_ptr->slevel) / 2;
+	fail -= (skill - s_ptr->slevel);
 
 	/* Adjust failure rate according to spell stat */
 	fail += ((int)(adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]]) - 128);
@@ -1194,6 +1194,9 @@ static s16b spell_chance(int spell)
 
 	/* Fear makes spells a little harder */
 	if (p_ptr->afraid) fail += 10;
+
+	/* Darkness makes if more difficult to cast */
+	if (no_light()) fail += 10;
 
 	/* Always a 5 percent chance of working */
 	if (fail > 95) fail = 95;
@@ -1214,7 +1217,6 @@ static bool can_study_or_cast(void)
 	if (p_ptr->realm == NONE) note = "You know no magical realm.";
 	else if (p_ptr->berserk)  note = "You are too berserk!";
 	else if (p_ptr->blind)    note = "You are blind!";
-	else if (no_light())      note = "It is dark; you cannot see!";
 	else if (p_ptr->confused) note = "You are too confused!";
 	else if (p_ptr->image)    note = "You are hallucinating!";
 
@@ -1785,6 +1787,19 @@ void do_cmd_browse(void)
 	do_cmd_browse_aux(o_ptr);
 }
 
+/*
+ * Validate book selection
+ *  (note some of the restriction is handled by item_tester_tval)
+ */
+bool item_tester_hook_book(const object_type *o_ptr)
+{
+    /* Require either light or a book with glowing words */
+    if (!no_light() || (o_ptr->flags2 & TR2_GLOW_WORDS))
+    {
+        return (TRUE);
+    }
+}
+
 
 /*
  * Cast a spell, or output spell info, description, or calculate mana.
@@ -1829,7 +1844,6 @@ cptr do_spell(int mode, int spell)
 
 	cptr q = "";
 	cptr s = "";
-
 
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
@@ -1877,28 +1891,33 @@ cptr do_spell(int mode, int spell)
 
 		/* Restrict choices to spell books */
 		item_tester_tval = mp_ptr->spell_book;
+		item_tester_hook = item_tester_hook_book;
 
 
 		/* Get a realm-flavored description. */
 		if (p_ptr->realm == MAGE)
 		{
 			q = "Use which magic book?";
-			s = "You have no magic books that you can use.";
+			if (no_light()) s = "You have no magic books that you can use. (check your light?)";
+			else            s = "You have no magic books that you can use.";
 		}
 		if (p_ptr->realm == PRIEST)
 		{
 			q = "Use which holy book?";
-			s = "You have no holy books that you can use.";
+			if (no_light()) s = "You have no holy books that you can use. (check your light?)";
+			else            s = "You have no holy books that you can use.";
 		}
 		if (p_ptr->realm == DRUID)
 		{
 			q = "Use which stone of lore?";
-			s = "You have no stones that you can use.";
+			if (no_light()) s = "You have no stones that you can use. (check your light?)";
+			else            s = "You have no stones that you can use.";
 		}
 		if (p_ptr->realm == NECRO)
 		{
 			q = "Use which tome?";
-			s = "You have no tomes that you can use.";
+			if (no_light()) s = "You have no tomes that you can use. (check your light?)";
+			else            s = "You have no tomes that you can use.";
 		}
 
 		/* Get an item */
@@ -2038,6 +2057,12 @@ cptr do_spell(int mode, int spell)
 		/* Get spell power (up to 100, or 75 for non-specialists) */
 		if (!limit_power) spower = get_skill(S_MAGIC, 0, 100);
 		else              spower = get_skill(S_MAGIC, 0,  75);
+
+		/* Necromancers cast stronger spells in the darkness */
+		if (p_ptr->realm == NECRO) spower += darkness_ratio(3) / 20;
+
+		/* Priests dislike the darkness */
+		if (p_ptr->realm == PRIEST) spower -= darkness_ratio(3) / 20;
 
 		/* Get extra power (over and above spell level */
 		xtra_spower = MAX(1, spower - s_ptr->slevel);
@@ -5750,13 +5775,6 @@ cptr do_spell(int mode, int spell)
 		p_ptr->window |= (PW_OBJECT);
 	}
 
-
-	/* Shapechange *before* mana is deducted -JM */
-	if (do_shapechange)
-	{
-		shapechange(do_shapechange);
-	}
-
 	/* Sufficient mana */
 	if (spell_cost <= p_ptr->csp)
 	{
@@ -5798,6 +5816,12 @@ cptr do_spell(int mode, int spell)
 			/* Reduce constitution */
 			(void)dec_stat(A_CON, 1, perm);
 		}
+	}
+
+	/* Shapechange after mana is deducted -JM */
+	if (do_shapechange)
+	{
+		shapechange(do_shapechange);
 	}
 
 

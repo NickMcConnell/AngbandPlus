@@ -365,27 +365,28 @@ errr Term_overlap(int term1, int term2)
 /*
  * Nuke a term_win (see below)
  */
-static errr term_win_nuke(term_win *s)
+static errr term_win_nuke(term_win *s, int w, int h)
 {
 	/* Free the window access arrays */
-	KILL(s->a);
-	KILL(s->c);
+	C_KILL(s->a, h, byte*);
+	C_KILL(s->c, h, char*);
 
 	/* Free the window content arrays */
-	KILL(s->va);
-	KILL(s->vc);
+	C_KILL(s->va, h * w, byte);
+	C_KILL(s->vc, h * w, char);
 
 	/* Free the terrain access arrays */
-	KILL(s->ta);
-	KILL(s->tc);
+	C_KILL(s->ta, h, byte*);
+	C_KILL(s->tc, h, char*);
 
 	/* Free the terrain content arrays */
-	KILL(s->vta);
-	KILL(s->vtc);
+	C_KILL(s->vta, h * w, byte);
+	C_KILL(s->vtc, h * w, char);
 
 	/* Success */
 	return (0);
 }
+
 
 
 /*
@@ -2556,24 +2557,24 @@ errr Term_resize(int w, int h)
 	}
 
 	/* Free some arrays */
-	FREE(hold_x1);
-	FREE(hold_x2);
+	C_FREE(hold_x1, h, byte);
+	C_FREE(hold_x2, h, byte);
 
 	/* Nuke */
-	(void)term_win_nuke(hold_old);
+	(void)term_win_nuke(hold_old, Term->cols, Term->rows);
 
 	/* Kill */
-	FREE(hold_old);
+	FREE(hold_old, term_win);
 
 	/* Illegal cursor */
 	if (Term->old->cx >= w) Term->old->cu = 1;
 	if (Term->old->cy >= h) Term->old->cu = 1;
 
 	/* Nuke */
-	(void)term_win_nuke(hold_scr);
+	(void)term_win_nuke(hold_scr, Term->cols, Term->rows);
 
 	/* Kill */
-	FREE(hold_scr);
+	FREE(hold_scr, term_win);
 
 	/* Illegal cursor */
 	if (Term->scr->cx >= w) Term->scr->cu = 1;
@@ -2583,10 +2584,10 @@ errr Term_resize(int w, int h)
 	if (hold_mem)
 	{
 		/* Nuke */
-		(void)term_win_nuke(hold_mem);
+		(void)term_win_nuke(hold_mem, w, h);
 
 		/* Kill */
-		FREE(hold_mem);
+		FREE(hold_mem, term_win);
 
 		/* Illegal cursor */
 		if (Term->mem->cx >= w) Term->mem->cu = 1;
@@ -2597,10 +2598,10 @@ errr Term_resize(int w, int h)
 	if (hold_tmp)
 	{
 		/* Nuke */
-		(void)term_win_nuke(hold_tmp);
+		(void)term_win_nuke(hold_tmp, Term->cols, Term->rows);
 
 		/* Kill */
-		FREE(hold_tmp);
+		FREE(hold_tmp, term_win);
 
 		/* Illegal cursor */
 		if (Term->tmp->cx >= w) Term->tmp->cu = 1;
@@ -2697,43 +2698,43 @@ errr term_nuke(term *t)
 
 
 	/* Nuke "displayed" */
-	(void)term_win_nuke(t->old);
+	(void)term_win_nuke(t->old, t->cols, t->rows);
 
 	/* Kill "displayed" */
-	KILL(t->old);
+	KILL(t->old, term_win);
 
 	/* Nuke "requested" */
-	(void)term_win_nuke(t->scr);
+	(void)term_win_nuke(t->scr, t->cols, t->rows);
 
 	/* Kill "requested" */
-	KILL(t->scr);
+	KILL(t->scr, term_win);
 
 	/* If needed */
 	if (t->mem)
 	{
 		/* Nuke "memorized" */
-		(void)term_win_nuke(t->mem);
+		(void)term_win_nuke(t->mem, t->cols, t->rows);
 
 		/* Kill "memorized" */
-		KILL(t->mem);
+		KILL(t->mem, term_win);
 	}
 
 	/* If needed */
 	if (t->tmp)
 	{
 		/* Nuke "temporary" */
-		(void)term_win_nuke(t->tmp);
+		(void)term_win_nuke(t->tmp, t->cols, t->rows);
 
 		/* Kill "temporary" */
-		KILL(t->tmp);
+		KILL(t->tmp, term_win);
 	}
 
 	/* Free some arrays */
-	KILL(t->x1);
-	KILL(t->x2);
+	C_KILL(t->x1, t->rows, byte);
+	C_KILL(t->x2, t->rows, byte);
 
 	/* Free the input queue */
-	KILL(t->key_queue);
+	C_KILL(t->key_queue, t->key_size, char);
 
 	/* Success */
 	return (0);

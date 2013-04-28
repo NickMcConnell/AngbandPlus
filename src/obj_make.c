@@ -212,7 +212,7 @@ int essence_to_magic(int *adjust, int *sval)
 	/* No essences */
 	if (*sval == -2) return (-2);
 
-	/* Note failure by cancel XXX */
+	/* Note failure XXX */
 	if ((*sval < 0) || (*sval > NUM_ESSENCE)) return (-1);
 
 	/* Convert essence to projection type, calculate effectiveness */
@@ -411,7 +411,7 @@ static int alchemy_choose_item(int *tval, int *sval,
 			if (need_essence)
 			{
 				/* No essence cost, so must be illegal */
-				if ((!k_ptr->e_type[0]) && (!is_grenade)) continue;
+				if ((!k_ptr->e_num[0]) && (!is_grenade)) continue;
 
 				/* Scan the essence costs */
 				for (j = 0; j < 4; j++)
@@ -3246,7 +3246,7 @@ bool poison_ammo(int val)
 	item_tester_hook = item_tester_hook_poisonable;
 
 	/* Choose an item, return on cancel */
-	if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+	if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return (FALSE);
 	item_to_object(i_ptr, item2);
 
 
@@ -3282,6 +3282,8 @@ bool poison_ammo(int val)
 		can_poison = MIN(o_ptr->number * num, i_ptr->number);
 		num_to_poison =
 			(int)get_quantity(format("Poison how many missiles (out of %d)?", i_ptr->number), 0, can_poison);
+
+        if (!num_to_poison) return (FALSE);
 
 		poisons_used = (num_to_poison + (num-1)) / num;
 	}
@@ -3346,7 +3348,14 @@ bool poison_ammo(int val)
 	}
 
 	/* Give the poisoned missiles to the character */
-	give_object(j_ptr, FALSE);
+	if (item2 < INVEN_Q1)
+	{
+		give_object(j_ptr, FALSE);
+	}
+    else if (!quiver_carry(j_ptr, -1))  /* Try to add to quiver first */
+    {
+		give_object(j_ptr, FALSE);
+    }
 
 	return (TRUE);
 }

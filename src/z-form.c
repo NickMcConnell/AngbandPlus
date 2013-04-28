@@ -298,7 +298,7 @@ byte char_tables[256][CHAR_TABLE_SLOTS] =
 	{ 220,   252,   CHAR_LOWER | CHAR_VOWEL },  /*        uuml   ü   */
 	{ 221,   253,   CHAR_LOWER },               /*      yacute   ý   */
 	{ 222,   254,   CHAR_LOWER },               /*       thorn   þ   */
-	{ 121,   255,   CHAR_LOWER },               /*        yuml       */
+	{ 121,   255,   CHAR_LOWER },               /*        yuml   ÿ   */
 };
 
 
@@ -1217,7 +1217,7 @@ char *vformat(cptr fmt, va_list vp)
 		if (len < format_len-1) break;
 
 		/* Grow the buffer */
-		KILL(format_buf);
+		C_KILL(format_buf, format_len, char);
 		format_len = format_len * 2;
 		C_MAKE(format_buf, format_len, char);
 	}
@@ -1228,7 +1228,7 @@ char *vformat(cptr fmt, va_list vp)
 
 void vformat_kill(void)
 {
-	KILL(format_buf);
+	C_KILL(format_buf, format_len, char);
 }
 
 

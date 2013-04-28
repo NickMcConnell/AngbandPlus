@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 #
 # N: artifact index: artifact name
@@ -735,7 +735,7 @@ I:35:4
 W:55:30:5:60000
 C:4:0d0:0:0:20:45
 P:2
-1:INT | WIS | CHR
+1:INT | WIS | CHR | INVIS
 F:HIDE_TYPE | RES_COLD | RES_DARK | RES_NETHR | RES_CHAOS
 D:As the diamond-studded midnight folds of this cloak swirl around you, 
 D:you feel a hint, a fragment of the knowledge and power to restore that 
@@ -1184,7 +1184,7 @@ D:curse upon the lips of Elves and Men.
 N:113:'Gondricam'
 I:23:12
 W:10:7:45:20000
-C:0:1d11:10:12:0:0
+C:0:1d12:10:12:0:0
 P:3
 1:DEX | STEALTH
 F:BRAND_ACID | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
@@ -1327,7 +1327,7 @@ D:abilities he did not know he had.
 N:123:'Haradekket'
 I:23:18
 W:30:8:75:35000
-C:0:2d5:9:11:0:0
+C:0:1d10:9:11:0:0
 P:4:1
 1:DEX
 2:BLOWS
@@ -1439,7 +1439,7 @@ D:stand naked and revealed.
 N:134:of Pain
 I:22:15
 W:55:25:190:50000
-C:8:6d8:0:28:0:0
+C:8:3d17:0:28:0:0
 F:TWO_HANDED_REQ | SHOW_MODS
 D:The massive cleaver that crowns this glaive glows blood-red and black; 
 D:fell spells of annihilation swirl and dance as you swing death's myrmidon 
@@ -1451,7 +1451,7 @@ D:down.
 N:135:'Osondir'
 I:22:16
 W:30:8:190:22000
-C:8:3d5:9:12:0:0
+C:8:1d14:9:12:0:0
 P:3:1
 1:CHR
 2:LIGHT
@@ -1467,7 +1467,7 @@ D:clear-eyed in barrows fell, wielding a halberd glowing ruby red.
 N:136:'Til-i-arc'
 I:22:5
 W:35:15:160:32000
-C:5:1d19:10:12:10:0
+C:5:1d16:10:12:10:0
 P:2:1
 1:INT
 2:LIGHT
@@ -1546,7 +1546,7 @@ D:and dire wolves.
 N:141:of Durin
 I:22:12
 W:50:30:200:110000
-C:0:4d4:10:20:15:0
+C:0:2d11:10:20:15:0
 P:3
 1:CON
 F:SLAY_DRAGON | SLAY_DEMON | SLAY_TROLL | FREE_ACT | 
@@ -1562,7 +1562,7 @@ D:Khazad-d[^u]m to protect the wielder and slay all evils found underground.
 N:142:of E["o]nw["e]
 I:22:12
 W:70:40:200:200000
-C:0:4d6:15:18:8:81
+C:0:2d16:15:18:8:81
 P:2
 1:STR | INT | WIS | DEX | CON | CHR
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | 
@@ -1670,7 +1670,7 @@ D:of the undead, and is utterly in command of the Element of acid.
 N:149:'Avavir'
 I:22:18
 W:30:8:180:45000
-C:0:4d3:8:8:10:84
+C:0:1d16:8:8:10:84
 P:3:1
 1:DEX | CHR | SPEED
 2:LIGHT
@@ -1902,7 +1902,7 @@ D:deals.
 N:168:'Deathwreaker'
 I:21:20
 W:90:22:400:280000
-C:0:4d8:18:18:0:0
+C:0:5d8:18:18:0:0
 P:6:1
 1:STR | TUNNEL
 2:LIGHT
@@ -1921,7 +1921,7 @@ D:of the Undead!
 N:169:'Turmil'
 I:21:15
 W:35:15:180:40000
-C:0:3d4:14:12:0:94
+C:0:3d5:14:12:0:94
 P:4
 1:WIS | INFRA
 F:BRAND_COLD | SLAY_EVIL | RES_COLD | RES_LITE | LITE | REGEN | 
@@ -1936,7 +1936,7 @@ D:physically.
 N:170:'Skullcleaver'
 I:21:15
 W:45:22:400:50000
-C:0:4d5:11:23:20:95
+C:0:4d6:11:23:20:95
 P:8
 1:TUNNEL
 F:RES_ACID | IMPACT | 

@@ -2801,6 +2801,56 @@ void check_experience(void)
 	handle_stuff();
 }
 
+
+
+/*
+ * Calculate the amount of experience the character's skills are "worth",
+ * ignoring any racial or practice adjustments, and using maximum rather
+ * than current values.
+ */
+s32b calc_spent_exp_max(void)
+{
+	int i, level;
+	s32b cost;
+
+	s32b tot_exp = 0L;
+
+	/* Tally up all skills */
+	for (i = 0; i < NUM_SK_USED; i++)
+	{
+		/* Skip non-existent skills */
+		if (skill_info[i].cost_adj == 0) continue;
+
+		/* Use current skills */
+		level = p_ptr->pskills[i].max;
+
+		/* Paranoia -- level must be between 0 and 100 */
+		if (level <   0) level =   0;
+		if (level > 100) level = 100;
+
+		/* Get the cost to get to the current skill level */
+		cost = player_exp[level];
+
+		/* Apply level difficulty factor (10x inflation) */
+		cost *= skill_info[i].cost_adj;
+
+		/* Apply cost reduction for similar skills */
+		adv_cost_reduce_similar(i, &cost, 2);
+
+		/* Sum up adjusted values */
+		tot_exp += cost;
+	}
+
+	/* Deflate */
+	tot_exp /= 10L;
+
+	/* Apply experience cost divisor */
+	tot_exp /= EXP_ADJ;
+
+	/* Return the value */
+	return (tot_exp);
+}
+
 /*
  * Calculate the amount of experience the character's skills are "worth",
  * ignoring any racial or practice adjustments, and using current rather
@@ -3067,6 +3117,7 @@ bool take_hit(int dam, int msg_type, cptr hit_str, cptr kb_str)
 	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
 
 	int delay = 0;
+	char buf[80];
 
 
 #ifdef ALLOW_BORG
@@ -3128,6 +3179,10 @@ bool take_hit(int dam, int msg_type, cptr hit_str, cptr kb_str)
 
 		/* Note cause of death */
 		(void)my_strcpy(p_ptr->died_from, kb_str, sizeof(p_ptr->died_from));
+
+		/* Note death in history */
+		(void) strnfmt(buf, 80, "Killed by %s", kb_str);
+		history_add(buf, HISTORY_PLAYER_DEATH, 0);
 
 		/* No longer a winner */
 		p_ptr->total_winner = FALSE;
@@ -4713,7 +4768,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		feat = f_info[cave_feat[y][x]].mimic;
 
 		/* Require knowledge about grid, or ability to see grid */
-		if (!(cave_info[y][x] & (CAVE_MARK)) && !player_can_see_bold(y,x))
+		if (!(cave_info[y][x] & (CAVE_MARK)) && !player_can_see_or_infra_bold(y,x))
 		{
 			/* Forget feature */
 			feat = FEAT_NONE;

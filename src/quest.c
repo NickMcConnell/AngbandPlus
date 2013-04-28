@@ -802,7 +802,7 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 		msg_print("There are no eligible monsters to quest for.");
 
 		/* XXX XXX Free the "monster_idx" array */
-		FREE(monster_idx);
+		C_FREE(monster_idx, z_info->r_max, int);
 
 		return (FALSE);
 	}
@@ -829,7 +829,7 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 	else if (r_ptr->flags1 & (RF1_FRIEND))  num = 4 * num / 3;
 
 	/* Paranoia */
-	if (num <= 5) num =  5;
+	if (num <= 3) num = 3;
 	if (num > 70) num = 70;
 
 
@@ -878,7 +878,7 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 	}
 
 	/* XXX XXX Free the "monster_idx" array */
-	FREE(monster_idx);
+	C_FREE(monster_idx, z_info->r_max, int);
 
 	/* Take note of quest */
 	left_panel_display(DISPLAY_QUEST, 0);
@@ -1190,7 +1190,7 @@ void inn_purchase(int item)
 	if (item == -1) return;
 
 	/* Get added depth of monsters (no variance for very early quest) */
-	add_depth = inn_quests[item] = ((p_ptr->max_depth <= 1) ? 2 : rand_range(2, 3));
+	add_depth = ((p_ptr->max_depth <= 1) ? 2 : rand_range(2, 3));
 
 
 	/* Get level for quest */

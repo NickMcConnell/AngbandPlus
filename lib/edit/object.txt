@@ -17,7 +17,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 #
 # N: object index: name
@@ -432,9 +432,9 @@ D:to horseman and duelists alike.
 N:52:& Cutlass~
 G:|:W
 I:23:12:0
-W:7:0:45:85
-A:7/50:45/15
-C:0:1d7:0:0:0
+W:15:0:45:85
+A:15/50:45/15
+C:0:1d8:0:0:0
 F:SHOW_MODS
 D:A large, curved chopper with a basket hilt, well known to seamen.
 
@@ -474,9 +474,9 @@ D:the hilt to form a perfect cross.
 N:58:& Scimitar~
 G:|:W
 I:23:18:0
-W:15:0:75:275
-A:15/25:20/50:50/25
-C:0:2d5:0:0:0
+W:30:0:75:275
+A:30/25:40/50:50/25
+C:0:1d10:0:0:0
 F:SHOW_MODS
 D:A single-edged slashing sword with a blade like a crescent.
 
@@ -495,8 +495,8 @@ D:blade and a chisel tip.
 N:61:& Bastard Sword~
 G:|:W
 I:23:21:0
-W:30:0:100:350
-A:30/60:100/35
+W:40:0:100:350
+A:40/60:100/35
 C:0:2d7:0:0:0
 F:SHOW_MODS
 D:Also known as the hand-and-a-half blade.  A larger-than-normal straight-
@@ -511,8 +511,8 @@ D:sided sword with two cutting edges.
 N:65:& Two-Handed Sword~
 G:|:W
 I:23:25:0
-W:40:0:140:775
-A:40/75:100/45
+W:50:0:140:775
+A:50/75:100/45
 C:0:2d10:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:A great, double-edged broadsword which few can wield in one hand.
@@ -533,7 +533,7 @@ N:68:& Executioner's Sword~
 G:|:W
 I:23:28:0
 W:50:0:190:1250
-A:50/60:100/35
+A:60/60:100/35
 C:0:2d12:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:A giant, curved blade designed to cleave the head cleanly from the 
@@ -542,8 +542,8 @@ D:body.
 N:69:& Bluesteel Blade~
 G:|:B
 I:23:29:0
-W:65:0:70:4500
-A:65/20
+W:75:0:70:4500
+A:75/20
 C:0:2d11:0:0:0
 F:VORPAL | SHOW_MODS
 D:A steel-blue sword, crafted with skill and sorcery, capable of inflicting 
@@ -669,9 +669,9 @@ D:A stout wooden staff with multiple chains attached.
 N:85:& Lead-Filled Mace~
 G:\:D
 I:21:15:0
-W:25:0:180:500
-A:25/50:100/30
-C:0:3d4:0:0:0
+W:30:0:180:500
+A:30/50:100/30
+C:0:3d5:0:0:0
 F:SHOW_MODS
 X:CAN_BE_HEAVY
 D:A heavy war club topped with a mass of lead-filled steel, capable of 
@@ -686,7 +686,7 @@ G:\:y
 I:21:18:0
 W:55:0:220:600
 A:55/50:100/35
-C:0:3d6:0:0:0
+C:0:3d7:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 X:CAN_BE_HEAVY
 D:A massive oaken block with multiple gleaming chains attached to slash flesh and 
@@ -700,7 +700,7 @@ G:\:P
 I:21:20:0
 W:85:0:300:4500
 A:85/10
-C:0:4d8:0:0:0
+C:0:5d8:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 X:MAYBE_IMPACT
 D:A giant's weapon, enchanted with shattering power that breaks bones, bodies, 
@@ -768,7 +768,7 @@ G:/:u
 I:22:5:0
 W:20:0:160:300
 A:20/50:50/25
-C:5:1d13:0:0:0
+C:5:1d11:0:0:0
 F:SHOW_MODS | TWO_HANDED_DES
 D:A long, heavy spear with an iron head and reinforced shaft.
 
@@ -819,7 +819,7 @@ G:/:D
 I:22:12:0
 W:50:0:200:1000
 A:50/50
-C:0:4d4:0:0:0
+C:0:2d11:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:An enormous two-handed battle axe, carried by Dwarven champions, who 
 D:compete to see who can cleave the most orc heads.
@@ -833,7 +833,7 @@ G:/:W
 I:22:15:0
 W:35:0:190:550
 A:35/25:30/75:100/40
-C:8:3d4:0:0:0
+C:8:1d13:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS
 D:A reinforced wooden pole eight feet long, topped by a massive knife blade 
 D:that can be used to thrust or chop.
@@ -843,7 +843,7 @@ G:/:W
 I:22:16:0
 W:40:0:190:750
 A:40/75:100/50
-C:8:3d5:0:0:0
+C:8:1d14:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS
 D:The most successful of the polearms, the halberd has a long haft mounted 
 D:with a heavy axe blade and opposing spike, and topped by a thrusting spine.
@@ -855,7 +855,7 @@ G:/:W
 I:22:18:0
 W:45:0:180:1000
 A:45/50:100/30
-C:3:4d3:0:0:0
+C:3:1d16:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:The long crescent blade stands out from the handle of this polearm, and 
 D:it is swung with two hands to harvest grain or blood.
@@ -865,7 +865,7 @@ G:/:B
 I:22:19:0
 W:70:0:180:4000
 A:70/15
-C:3:7d3:0:10:0
+C:3:1d20:0:10:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:A reaper's weapon, the long blade almost hums in anticipation of the 
 D:blood it will spill.
@@ -2324,6 +2324,7 @@ W:1:0:5:0
 A:1/100:10/5
 E:DARK 1
 D:that darkens the nearby area.
+F:GLOW_WORDS
 
 N:321:Aggravate Monster
 G:?:w
@@ -2359,6 +2360,7 @@ I:70:5:0
 W:15:0:5:0
 A:15/100:50/0
 D:that calls dark forces after you.
+F:GLOW_WORDS
 
 N:326:Summon the Host of Hell
 G:?:w
@@ -2366,6 +2368,7 @@ I:70:6:0
 W:65:0:5:0
 A:65/40:75/10
 D:that conjures up powerful demonic adversaries.
+F:GLOW_WORDS
 
 N:327:Trap Creation
 G:?:w
@@ -2382,6 +2385,7 @@ A:1/50:50/25
 M:75:1d5
 E:NEXUS 1
 D:that teleports you a short distance.
+F:GLOW_WORDS
 
 N:329:Teleportation
 G:?:w
@@ -2391,6 +2395,8 @@ A:10/100
 M:30:2d2
 E:NEXUS 2
 D:that teleports you a long distance.
+F:GLOW_WORDS
+
 
 N:330:Teleport Level
 G:?:w
@@ -2399,6 +2405,8 @@ W:20:0:5:50
 A:20/50
 E:NEXUS 2
 D:that sends you up or down one level.
+F:GLOW_WORDS
+
 
 N:331:Word of Recall
 G:?:w
@@ -2408,6 +2416,7 @@ A:5/50
 E:NEXUS 1
 D:that transports you from the depths to the town and visa versa.  
 D:There is a delay before it takes effect.
+F:GLOW_WORDS
 
 N:332:Learn Magic
 G:?:w
@@ -2529,6 +2538,7 @@ A:0/100:20/0
 M:75:2d6
 E:LIGHT 1
 D:that lights up the area.
+F:GLOW_WORDS
 
 N:345:Magic Mapping
 G:?:w
@@ -2538,6 +2548,7 @@ A:7/50:50/10
 M:50:1d6
 E:LIGHT 1
 D:that reveals the nearby dungeon, and finds doors and stairs.
+F:GLOW_WORDS
 
 N:346:Treasure Detection
 G:?:w
@@ -2547,6 +2558,7 @@ A:1/100:20/0
 M:75:2d3
 E:KNOWLEDGE 1
 D:that reaveals nearby precious metals and gems.
+F:GLOW_WORDS
 
 N:347:Object Detection
 G:?:w
@@ -2556,6 +2568,7 @@ A:3/100:20/0
 M:75:2d3
 E:KNOWLEDGE 1
 D:that reveals nearby objects.
+F:GLOW_WORDS
 
 N:348:Trap Location
 G:?:w
@@ -2565,6 +2578,7 @@ A:2/100:20/0
 M:75:2d3
 E:KNOWLEDGE 1
 D:that reveal nearby traps.
+F:GLOW_WORDS
 
 N:349:Door/Stair Location
 G:?:w
@@ -2574,6 +2588,7 @@ A:2/100:20/0
 M:75:2d3
 E:KNOWLEDGE 1
 D:that reveals nearby doors and stairs.
+F:GLOW_WORDS
 
 N:350:Detect Invisible
 G:?:w
@@ -2583,6 +2598,7 @@ A:1/150:20/0
 M:75:2d4
 E:KNOWLEDGE 1
 D:that reveals nearby invisible monsters.
+F:GLOW_WORDS
 
 N:351:Elemental Attacks
 G:?:w
@@ -2673,6 +2689,7 @@ I:70:40:0
 W:30:0:5:25000
 A:30/6:55/6:80/0
 D:that opens a magical portal to lands of wonder and fantasy.
+F:GLOW_WORDS
 
 N:361:*Destruction*
 G:?:w
@@ -2709,6 +2726,7 @@ A:45/40
 E:DEATH 2
 D:that banishes all monsters of a given type from the level.  Unique 
 D:foes are immune, as are those in protected areas.
+F:GLOW_WORDS
 
 N:365:Mass Genocide
 G:?:w
@@ -2718,6 +2736,7 @@ A:60/40
 E:DEATH 3
 D:that banishes all nearby monsters from the level.  Unique foes are 
 D:immune, as are those in protected areas.
+F:GLOW_WORDS
 
 N:366:Acquirement
 G:?:w
@@ -2742,6 +2761,7 @@ W:55:0:5:1000
 A:55/25
 E:CHAOS 1
 D:that instantly changes the current dungeon level.
+F:GLOW_WORDS
 
 N:369:Madness
 G:?:w
@@ -2760,6 +2780,7 @@ E:DARK 2
 D:that blots out light and memory, snuffs all the lights that do not shine 
 D:eternally, and strikes at every creature on the level that does not 
 D:resist Darkness.
+F:GLOW_WORDS
 
 N:371:Forests
 G:?:w
@@ -4637,6 +4658,7 @@ I:91:0:0
 W:5:0:30:35
 A:5/60:30/0
 C:0:1d3:0:0:0
+F:GLOW_WORDS
 
 N:661:[Words of Wisdom]
 G:?:B
@@ -4644,6 +4666,7 @@ I:91:1:0
 W:10:0:30:225
 A:10/60:40/0
 C:0:1d3:0:0:0
+F:GLOW_WORDS
 
 N:662:[Holy of Holies]
 G:?:B
@@ -4651,6 +4674,7 @@ I:91:2:0
 W:25:0:30:1000
 A:25/60:60/5
 C:0:1d3:0:0:0
+F:GLOW_WORDS
 
 N:663:[Shining Spirit]
 G:?:b
@@ -4658,7 +4682,8 @@ I:91:3:0
 W:40:0:30:4000
 A:40/40:55/40:75/10
 C:0:1d3:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
+F:GLOW_WORDS
 
 N:664:[Canon of Judgment]
 G:?:b
@@ -4666,7 +4691,9 @@ I:91:4:0
 W:60:0:30:15000
 A:60/35:100/25
 C:0:1d3:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
+F:GLOW_WORDS
+
 
 N:665:[Insight and Purifications]
 G:?:b
@@ -4674,7 +4701,8 @@ I:91:5:0
 W:75:0:30:40000
 A:75/30
 C:0:1d3:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
+F:GLOW_WORDS
 
 N:666:[Testament of the Almighty]
 G:?:b
@@ -4684,6 +4712,8 @@ A:95/25
 C:0:1d3:0:0:0
 F:ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:GLOW_WORDS
+
 
 ## XXX 667 XXX ##
 
@@ -4763,6 +4793,7 @@ I:93:0:0
 W:5:0:30:35
 A:5/60:30/0
 C:0:2d6:-5:0:0
+F:GLOW_WORDS
 
 N:681:[Darker Elements]
 G:?:D
@@ -4770,6 +4801,7 @@ I:93:1:0
 W:10:0:30:225
 A:10/60:40/0
 C:0:4d8:-5:0:0
+F:GLOW_WORDS
 
 N:682:[Frightful Realms]
 G:?:D
@@ -4777,6 +4809,7 @@ I:93:2:0
 W:25:0:30:1000
 A:25/60:60/5
 C:0:5d17:-5:0:0
+F:GLOW_WORDS
 
 N:683:[Mysteries of Angmar]
 G:?:v
@@ -4784,7 +4817,8 @@ I:93:3:0
 W:40:0:30:4000
 A:40/40:55/40:75/10
 C:0:5d29:-5:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
+F:GLOW_WORDS
 
 N:684:[Doomspells]
 G:?:v
@@ -4792,7 +4826,9 @@ I:93:4:0
 W:60:0:30:15000
 A:60/35:100/25
 C:0:5d43:-5:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
+F:GLOW_WORDS
+
 
 N:685:[Triumph of the Will]
 G:?:v
@@ -4800,7 +4836,9 @@ I:93:5:0
 W:75:0:30:40000
 A:75/30
 C:0:5d59:-5:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
+F:GLOW_WORDS
+
 
 N:686:[Necronomicon]
 G:?:v
@@ -4809,7 +4847,9 @@ W:95:0:30:100000
 A:95/25
 C:0:6d65:-5:0:0
 F:ATTR_MULTI | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
+F:GLOW_WORDS
+
 
 ## XXX 687 XXX ##
 

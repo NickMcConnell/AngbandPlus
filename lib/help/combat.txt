@@ -83,17 +83,18 @@ adjustments, except monster resistances.
 
 Unarmed Combat:
      The unarmed combat methods, Karate and Wrestling, are known as martial
-arts.  When using a martial art, you always get two blows.
+arts.  When using a martial art, you gain additional blows as you increase
+your skill in the martial art.
      They are effective against almost all sorts of monsters, are relatively
 inexpensive to learn, and really come into their own against monsters that seem
 to resist everything.  But be warned!  You need to be blessed (Scrolls of
 Blessing work) to do damage to non-material beings, and touching certain kinds
 of monsters can be quite painful...
-     You can get (temporary) slays and brands with martial arts.  You can also
-get critical hits on occasion, especially if you have skill in Piety, Blood
-Dominion, or Nature Lore, or get vorpal blows or sneak attacks.  Bonuses (and
-penalties) to Skill from non-weapon equipment count when using martial arts, but
-bonuses to Deadliness do not.
+     You can get (temporary) slays and brands with martial arts, and brands
+on gloves will function on martial arts.  You can also get critical hits
+on occasion, especially if you have skill in Piety, Blood Dominion, or Nature
+Lore, or get vorpal blows or sneak attacks.  Bonuses (and penalties) to Skill
+and Deadliness from non-weapon equipment count when using martial arts.
 
 Damage Display:
      The melee section of your character screen changes when you use a martial

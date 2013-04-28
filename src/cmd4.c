@@ -5116,10 +5116,12 @@ void do_cmd_colors(void)
 
 /*
  * Note something in the message recall.  -CK-
+ *                       and the history -JM-
  */
 void do_cmd_note(void)
 {
 	char tmp[1024];
+	char buf[1024];
 
 	/* Default */
 	strcpy(tmp, "");
@@ -5130,8 +5132,14 @@ void do_cmd_note(void)
 	/* Ignore empty notes */
 	if (!tmp[0] || (tmp[0] == ' ')) return;
 
+	/* Make message */
+	strnfmt(buf, sizeof(tmp), "Note: %s", tmp);
+
 	/* Add the note to the message recall */
-	msg_format("Note: %s", tmp);
+	message(0, 0, buf);
+
+	/* Add the note to history */
+	history_add(buf, HISTORY_USER_INPUT, 0);
 }
 
 
@@ -6294,7 +6302,7 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 	object_idx[object_cnt] = 0;
 
 	/* Free the "okay" array */
-	FREE(okay);
+	C_FREE(okay, z_info->a_max, bool);
 
 	/* Return the number of artifacts */
 	return (object_cnt);
@@ -6676,7 +6684,7 @@ static void do_cmd_knowledge_artifacts(void)
 	}
 
 	/* XXX XXX Free the "object_idx" array */
-	FREE(object_idx);
+	C_FREE(object_idx, z_info->a_max, int);
 }
 
 
@@ -6915,7 +6923,7 @@ static void do_cmd_knowledge_monsters(void)
 	}
 
 	/* XXX XXX Free the "mon_idx" array */
-	FREE(mon_idx);
+	C_FREE(mon_idx, z_info->r_max, int);
 }
 
 
@@ -6985,7 +6993,7 @@ static void do_cmd_knowledge_kill_count(void)
 		message_flush();
 
 		/* XXX XXX Free the "who" array */
-		FREE(who);
+		C_FREE(who, z_info->r_max, u16b);
 
 		return;
 	}
@@ -7191,7 +7199,7 @@ static void do_cmd_knowledge_kill_count(void)
 	}
 
 	/* Free the "who" array */
-	FREE(who);
+	C_FREE(who, z_info->r_max, u16b);
 
 	/* Close the file */
 	(void)my_fclose(fp);
@@ -7454,7 +7462,7 @@ static void do_cmd_knowledge_objects(void)
 	}
 
 	/* XXX XXX Free the "object_idx" array */
-	FREE(object_idx);
+	C_FREE(object_idx, z_info->k_max, int);
 }
 
 

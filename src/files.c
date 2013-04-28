@@ -751,7 +751,7 @@ errr process_pref_file_command(char *buf)
 			macro_trigger_name[max_macrotrigger] = string_make(tmp);
 
 			/* Free the buffer */
-			FREE(tmp);
+			C_FREE(tmp, strlen(zz[0]) + 1, char);
 
 			/* Normal keycode */
 			macro_trigger_keycode[0][max_macrotrigger] = string_make(zz[1]);
@@ -1431,6 +1431,19 @@ static void prt_num(cptr header, int num, int row, int col, byte color)
 	c_put_str(color, out_val, row, col + len);
 }
 
+/*
+ * Print two number separated by slash with header at given row, column
+ */
+static void prt_2num(cptr header, int num, int num2, int row, int col, byte color)
+{
+	int len = strlen(header);
+	char out_val[32];
+	(void)strnfmt(out_val, sizeof(out_val), "%d/%d", num, num2);
+    (void)strnfmt(out_val, sizeof(out_val), "%7s", out_val);
+	c_put_str(color, out_val, row, col + len);
+
+	put_str(header, row, col);
+}
 
 
 /*
@@ -1455,7 +1468,8 @@ static void display_player_middle(void)
 
 	/* Combat information -- melee */
 	put_str("       (Melee)       ", 12, 1);
-	prt_num("Blows per round  ", p_ptr->num_blow, 13, 1, TERM_L_BLUE);
+	if (p_ptr->twoweap) prt_2num("Blows per round ", p_ptr->num_blow, p_ptr->num_blow2, 13, 1, TERM_L_BLUE);
+	else prt_num("Blows per round  ", p_ptr->num_blow, 13, 1, TERM_L_BLUE);
 
 	/* Using a weapon */
 	if (is_melee_weapon(o_ptr))
@@ -1463,32 +1477,16 @@ static void display_player_middle(void)
 		/* Hack -- add in weapon info if known */
 		if (object_known_p(o_ptr)) show_m_tohit += o_ptr->to_h;
 		if (object_known_p(o_ptr)) show_m_todam += o_ptr->to_d;
-
-		/* Show Skill and Deadliness */
-		prt_num("+ to Skill       ", show_m_tohit, 14, 1, TERM_L_BLUE);
-
-		if (show_m_todam > 0)
-			prt_num("Deadliness (%)   ", deadliness_conversion[show_m_todam], 15, 1, TERM_L_BLUE);
-		else
-			prt_num("Deadliness (%)   ", -deadliness_conversion[-show_m_todam], 15, 1, TERM_L_BLUE);
 	}
 
-	/* Using martial arts */
-	else
-	{
-		/* Point to the right variable */
-		s16b *temp = &p_ptr->karate_dam;
-		if (p_ptr->barehand != S_KARATE) temp = &p_ptr->wrestling_dam;
+    /* Display hit rate */
 
-		/* Display average damage */
-		prt_num("Average Damage   ", (*temp + 5) / 10, 14, 1, TERM_L_BLUE);
+    if (p_ptr->twoweap) prt_2num("Hit Rate        ", p_ptr->avg_hit, p_ptr->avg_hit_offhand, 14, 1, TERM_L_BLUE);
+    else prt_num("Hit Rate         ", p_ptr->avg_hit, 14, 1, TERM_L_BLUE);
 
-		/* Note which martial art we're using */
-		if (p_ptr->barehand == S_KARATE)
-			put_str("    (using Karate)   ", 15, 1);
-		else
-			put_str("     (Wrestling)     ", 15, 1);
-	}
+    /* Display average damage */
+    if (p_ptr->twoweap) prt_2num("Average Damage  ", (p_ptr->avg_dam + 5) / 10, (p_ptr->avg_dam_offhand + 5) / 10, 15, 1, TERM_L_BLUE);
+    else prt_num("Average Damage   ", (p_ptr->avg_dam + 5) / 10, 15, 1, TERM_L_BLUE);
 
 
 
@@ -2379,7 +2377,7 @@ static void display_player_flag_info(void)
 				}
 				else
 					c_put_str(attr, "X", row, col + n);
-				
+
 			}
 
 			/* Choose the correct color to display based on the level of resistance */
@@ -2409,8 +2407,6 @@ static void display_player_flag_info(void)
 		}
 	}
 }
-
-
 
 
 
@@ -3994,6 +3990,9 @@ errr file_character(cptr name, bool full)
 
 	/* Skip a line */
 	fprintf(fff, "\n");
+
+    /* Display history information */
+    history_dump(fff);
 
 	/* Close the file */
 	(void)my_fclose(fff);

@@ -407,8 +407,7 @@ void do_cmd_wield(void)
 
 	bool remove_two_weapons = FALSE;
 	bool hidden_curse = FALSE;
-
-
+	bool replace_primary_weapon = FALSE;
 
 
 	/* Restrict the choices */
@@ -553,6 +552,7 @@ void do_cmd_wield(void)
 				{
 					/* Automatically use primary wield slot */
 					slot = INVEN_WIELD;
+					replace_primary_weapon = TRUE;
 				}
 
 				/* Both wield slots are available */
@@ -565,6 +565,7 @@ void do_cmd_wield(void)
 					q = "Use which slot (a or i)?";
 					s = "Oops.";
 					if (!get_item(&slot, q, s, USE_EQUIP)) return;
+					if (slot == INVEN_WIELD) replace_primary_weapon = TRUE;
 				}
 			}
 
@@ -699,9 +700,15 @@ void do_cmd_wield(void)
 	/* Hack -- Removing two weapons at a time requires special-case code */
 	if (remove_two_weapons)
 	{
-		/* Take off both existing weapons; must remove arm slot first */
+		/* Take off both existing weapons */
 		(void)inven_takeoff(INVEN_ARM, 255);
 		(void)inven_takeoff(INVEN_WIELD, 255);
+	}
+	/* Hack -- Replacing the primary weapon sometimes moves the secondary weapon -- move it back */
+	else if (replace_primary_weapon)
+	{
+	    (void)inven_takeoff(slot, 255);
+	    if (is_melee_weapon(&inventory[INVEN_WIELD])) (void)switch_weapons(TRUE);
 	}
 
 	/* Removal of one item */
@@ -1759,7 +1766,7 @@ void do_cmd_light_and_douse(void)
 	/* Get an item (not in the backpack) */
 	q = "Light or douse which light source?";
 	s = "You have no light sources.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_FLOOR | USE_AUTO))) return;
 	item_to_object(o_ptr, item);
 
 	/* Get an object description */
@@ -2311,7 +2318,7 @@ void do_cmd_query_symbol(void)
 	if (!n)
 	{
 		/* XXX XXX Free the "who" array */
-		FREE(who);
+		C_FREE(who, z_info->r_max, u16b);
 
 		return;
 	}
@@ -2353,7 +2360,7 @@ void do_cmd_query_symbol(void)
 	else if (!strchr("yYrR", query))
 	{
 		/* XXX XXX Free the "who" array */
-		FREE(who);
+		C_FREE(who, z_info->r_max, u16b);
 
 		return;
 	}
@@ -2483,7 +2490,7 @@ void do_cmd_query_symbol(void)
 
 
 	/* Free the "who" array */
-	FREE(who);
+	C_FREE(who, z_info->r_max, u16b);
 }
 
 

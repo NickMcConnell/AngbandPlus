@@ -399,8 +399,8 @@ void compact_monsters(int size)
 		}
 
 		/* Free the "mon_lev and mon_index" arrays */
-		FREE(mon_lev);
-		FREE(mon_index);
+		C_FREE(mon_lev, m_max, s16b);
+		C_FREE(mon_index, m_max, s16b);
 	}
 
 	/* Excise dead monsters (backwards!) */
@@ -4585,6 +4585,16 @@ bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note)
 
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0x40);
+
+		/* Add history item when killing uniques */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+            char message[80];
+            if (monster_nonliving(r_ptr)) (void) sprintf(message, "Destroyed %s.", m_name);
+            else (void) sprintf(message, "Killed %s.", m_name);
+
+            history_add(message, HISTORY_SLAY_UNIQUE, 0);
+		}
 
 		/* Increase the noise level slightly (depends on Burglary skill). */
 		if (add_wakeup_chance <= 8000)

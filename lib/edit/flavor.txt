@@ -4,7 +4,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 #
 # N:<index>:<tval>:<sval -- only if flavor is fixed>:<minimum level -- optional>

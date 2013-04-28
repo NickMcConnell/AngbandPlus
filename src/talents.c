@@ -796,7 +796,7 @@ static cptr do_talent(int talent, int mode)
 			}
 			if (use)
 			{
-				poison_ammo(pow2);
+				if (!poison_ammo(pow2)) return (NULL);
 			}
 			break;
 		}

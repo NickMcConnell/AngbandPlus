@@ -941,8 +941,6 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 	/* Check what kinds of spells can hit player */
 	path=projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px, PROJECT_CHCK);
 
-	//message(1,0,"Test1");
-
 	/* do we have the player in sight at all? */
 	if (path==PROJECT_NO)
 	{
@@ -951,7 +949,6 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 		if (!one_in_(4)) return (0);
 
 		require_los=FALSE;
-		
 	}
 
 	/* Special case -- Angels avoid users of holy lore */
@@ -3809,7 +3806,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 					else cave_set_feat(ny, nx, FEAT_OPEN);
 
 					/* Handle doors in sight */
-					if (player_can_see_bold(ny, nx))
+					if (player_can_see_or_infra_bold(ny, nx))
 					{
 						/* Always disturb */
 						disturb(0, 0);
@@ -4365,7 +4362,7 @@ static void process_monster(monster_type *m_ptr)
 
 	/* Monster is in active mode. */
 	if (m_ptr->mflag & (MFLAG_ACTV))
-	{	
+	{
 		/*
 		 * Character is outside of scanning range and well outside
 		 * of sighting range.  Monster does not have a target.
@@ -4385,7 +4382,7 @@ static void process_monster(monster_type *m_ptr)
 
 	/* Monster is in passive mode. */
 	else
-	{	
+	{
 		/* Character is inside scanning range */
 		if (m_ptr->cdis <= r_ptr->aaf) m_ptr->mflag |= (MFLAG_ACTV);
 

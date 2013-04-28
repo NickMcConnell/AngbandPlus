@@ -3388,7 +3388,7 @@ static void remove_contradictory(int a_idx)
  */
 static char *my_strdup(const char *s)
 {
-	char *t = malloc (strlen(s) + 1);
+	char *t = (char*) malloc (strlen(s) + 1);
 	if (t) strcpy(t, s);
 	return (t);
 }
@@ -3749,7 +3749,7 @@ static int convert_names(void)
 
 
 	/* Free the old names */
-	FREE(a_name);
+	FREE(a_name, char);
 
 	for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
 	{

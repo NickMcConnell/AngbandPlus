@@ -277,21 +277,6 @@ static int terrain_ac_adjust(monster_race *r_ptr, int feat)
 
 
 /*
- * Describe a bare-handed attack.
- *
- * ToDo:  Replace this wimpy stuff.  XXX XXX
- */
-static cptr critical_desc[4][3] =
-{
-	{ "punch", "kick", "hit" },
-	{ "Flying-kick", "Belt", "Strike" },
-	{ "grab", "squeeze", "slam" },
-	{ "Grip", "Crush", "Body-slam" }
-};
-
-
-
-/*
  * Calculation of critical hits by the player in hand-to-hand combat.
  * -LM-
  *
@@ -522,17 +507,16 @@ static int critical_melee(int chance, bool visible, char m_name[],
 			mon_adjust_energy(m_ptr, -e_loss);
 		}
 
-
 		/* Critical hits with blunt weapon occasionally stun monsters */
 		if ((o_ptr->tval == TV_HAFTED) && (!m_ptr->stunned) &&
 		    (one_in_(3 * blows)))
 		{
 			/* Skill is important */
-			int dam = get_skill(TV_HAFTED, 10, 110);
+			int skill = get_skill(TV_HAFTED, 10, 110);
 
 			/* Attempt to stun the monster; handle resistances properly */
 			project_bolt(0, 1, p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx,
-				dam, GF_DO_STUN, PROJECT_HIDE);
+				skill, GF_DO_STUN, PROJECT_HIDE);
 		}
 
 		/* Karate frequently stuns, confuses, and slows monsters */
@@ -791,7 +775,7 @@ static void dec_special_atk(void)
  * called with a wiped object "o_ptr".  Be careful.   XXX XXX
  */
 void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
-	bool is_trap, int skill_type)
+	bool is_trap)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
@@ -859,9 +843,9 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					l_ptr->flags3 |= (RF3_ANIMAL);
 				}
 
-				if ((o_ptr->ego_item_index == EGO_KILL_ANIMAL))
-					 add = MAX(add, get_skill(skill_type, 5, 22));
-				else add = MAX(add, get_skill(skill_type, 3, 15));
+				if ((o_ptr->ego_item_index == EGO_KILL_ANIMAL) &&
+				        (add < 15)) add = 15;
+				else if (add < 10)  add = 10;
 			}
 
 			/* Slay Evil */
@@ -873,7 +857,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					l_ptr->flags3 |= (RF3_EVIL);
 				}
 
-				add = MAX(add, get_skill(skill_type, 3, 15));
+				if (add < 10)  add = 10;
 			}
 
 			/* Slay Undead */
@@ -885,9 +869,9 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
 
-				if (o_ptr->ego_item_index == EGO_KILL_UNDEAD)
-					 add = MAX(add, get_skill(skill_type, 9, 40));
-				else add = MAX(add, get_skill(skill_type, 5, 27));
+				if ((o_ptr->ego_item_index == EGO_KILL_UNDEAD) &&
+				        (add < 27)) add = 27;
+				else if (add < 18)  add = 18;
 			}
 
 
@@ -901,9 +885,9 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					l_ptr->flags3 |= (RF3_DEMON);
 				}
 
-				if ((o_ptr->ego_item_index == EGO_KILL_DEMON))
-					 add = MAX(add, get_skill(skill_type, 9, 40));
-				else add = MAX(add, get_skill(skill_type, 5, 27));
+				if ((o_ptr->ego_item_index == EGO_KILL_DEMON) &&
+				        (add < 27)) add = 27;
+				else if (add < 18)  add = 18;
 			}
 
 			/* Slay Orc */
@@ -915,7 +899,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					l_ptr->flags3 |= (RF3_ORC);
 				}
 
-				add = MAX(add, get_skill(skill_type, 3, 15));
+				if (add < 10)  add = 10;
 			}
 
 			/* Slay Troll */
@@ -927,8 +911,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					l_ptr->flags3 |= (RF3_TROLL);
 				}
 
-				add = MAX(add, get_skill(skill_type, 5, 27));
-
+				if (add < 18)  add = 18;
 			}
 
 			/* Slay Giant */
@@ -940,7 +923,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					l_ptr->flags3 |= (RF3_GIANT);
 				}
 
-				add = MAX(add, get_skill(skill_type, 5, 27));
+				if (add < 18)  add = 18;
 			}
 
 			/* Slay Dragon */
@@ -952,9 +935,8 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					l_ptr->flags3 |= (RF3_DRAGON);
 				}
 
-				if (f1 & (TR1_KILL_DRAGON))
-					 add = MAX(add, get_skill(skill_type, 9, 40));
-				else add = MAX(add, get_skill(skill_type, 5, 27));
+				if ((f1 & (TR1_KILL_DRAGON)) && (add < 27)) add = 27;
+				else if (add < 18) add = 18;
 			}
 
 			/* Brand (Acid) */
@@ -970,7 +952,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 				}
 
 				/* Otherwise, take extra damage */
-				add = MAX(add, get_skill(skill_type, 3, 15));
+				else if (add < 10) add = 10;
 			}
 
 			/* Brand (Elec) */
@@ -986,7 +968,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 				}
 
 				/* Otherwise, take extra damage */
-				add = MAX(add, get_skill(skill_type, 4, 21));
+				else if (add < 14) add = 14;
 			}
 
 			/* Brand (Fire) */
@@ -1004,15 +986,14 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 				/* Otherwise, take extra damage */
 				else
 				{
-					if (f1 & (TR1_BRAND_FLAME)) add = MAX(add, get_skill(skill_type, 7, 33));
-					else add = MAX(add, get_skill(skill_type, 4, 21));
+					if ((f1 & (TR1_BRAND_FLAME)) && (add < 22)) add = 22;
+					else if (add < 14) add = 14;
 
 					/* Notice susceptibility */
 					if (r_ptr->flags3 & (RF3_HURT_FIRE))
 					{
-						if ((f1 & (TR1_BRAND_FLAME)) && (add < 33))
-							 add = MAX(add, get_skill(skill_type, 11, 50));
-						else add = MAX(add, get_skill(skill_type, 7, 30));
+						if ((f1 & (TR1_BRAND_FLAME)) && (add < 33)) add = 33;
+						else if (add < 21) add = 21;
 
 						if (visible)
 						{
@@ -1037,12 +1018,12 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 				/* Otherwise, take extra damage */
 				else
 				{
-					add = MAX(add, get_skill(skill_type, 4, 21));
+					if (add < 14) add = 14;
 
 					/* Notice susceptibility */
 					if (r_ptr->flags3 & (RF3_HURT_COLD))
 					{
-						add = MAX(add, get_skill(skill_type, 7, 30));
+						if (add < 21) add = 21;
 
 						if (visible)
 						{
@@ -1065,8 +1046,8 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 				}
 
 				/* Otherwise, take extra damage */
-				else if (f1 & (TR1_BRAND_VENOM)) add = MAX(add, get_skill(skill_type, 7, 33));
-				else add = MAX(add, get_skill(skill_type, 4, 21));
+				else if ((f1 & (TR1_BRAND_VENOM)) && (add < 22)) add = 22;
+				else if (add < 14) add = 14;
 			}
 
 			/* Special attack (Impact and Tunneling) */
@@ -1082,7 +1063,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					}
 
 					/* Take extra damage */
-					add = MAX(add, get_skill(skill_type, 4, 21));
+					if (add < 14) add = 14;
 				}
 			}
 
@@ -1098,7 +1079,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					}
 
 					/* Take extra damage */
-					add = MAX(add, get_skill(skill_type, 4, 21));
+					if (add < 14) add = 14;
 				}
 			}
 
@@ -1123,9 +1104,6 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 
 	/* Apply divisor, if positive */
 	if (divide > 1) *damage = div_round(*damage, divide);
-
-	message_format(TERM_WHITE, 0, "total: %d", *damage);
-
 }
 
 
@@ -1244,9 +1222,6 @@ static int calc_combat_dam(int mode, object_type *o_ptr, monster_type *m_ptr,
 	/* Roll out the damage. */
 	damage = damroll(dice, (s16b)sides);
 
-	//message_format(0, 0, "Dealing %dd%d or %d damage", dice, sides, damage); -JM
-
-	
 	/* Special damage bonuses */
 	if (combat_mods & (DAM_ADJUST_DAM))    damage += 10;
 	if (combat_mods & (DAM_ADJUST_DEADLY)) damage += 20;
@@ -1255,18 +1230,7 @@ static int calc_combat_dam(int mode, object_type *o_ptr, monster_type *m_ptr,
 	dam_int = (int)damage;
 
 	/* Adjust damage for slays, brands, resists. */
-	if (mode == COMBAT_THROW) adjust_dam(&dam_int, o_ptr, m_ptr, FALSE, S_THROWING);
-	else if (o_ptr->tval == TV_SWORD) adjust_dam(&dam_int, o_ptr, m_ptr, FALSE, S_SWORD);
-	else if (o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_DIGGING)
-		adjust_dam(&dam_int, o_ptr, m_ptr, FALSE, S_POLEARM);
-	else if (o_ptr->tval == TV_HAFTED) adjust_dam(&dam_int, o_ptr, m_ptr, FALSE, S_HAFTED);
-	else if (o_ptr->tval == TV_BOLT || o_ptr->tval == TV_CROSSBOW)
-		adjust_dam(&dam_int, o_ptr, m_ptr, FALSE, S_CROSSBOW);
-	else if (o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOW)
-		adjust_dam(&dam_int, o_ptr, m_ptr, FALSE, S_BOW);
-	else if (o_ptr->tval == TV_SHOT || o_ptr->tval == TV_SLING)
-		adjust_dam(&dam_int, o_ptr, m_ptr, FALSE, S_BOW);
-	else adjust_dam(&dam_int, o_ptr, m_ptr, FALSE, S_NOSKILL);
+	adjust_dam(&dam_int, o_ptr, m_ptr, FALSE);
 
 	/* No negative damage */
 	if (dam_int < 0) dam_int = 0;
@@ -1544,14 +1508,13 @@ static bool contact_danger_check(monster_race *r_ptr)
 	return (FALSE);
 }
 
-
 /*
  * Return the dice and sides for a martial arts attack -JM
  */
 
 static int barehand_dam_to_dice(int dam, int *dice, int *sides)
 {
-	int die_average, temp;
+	long die_average, temp;
 
 	if (p_ptr->barehand == S_KARATE)
 	{
@@ -1583,6 +1546,27 @@ static int barehand_dam_to_dice(int dam, int *dice, int *sides)
 	return 0;
 }
 
+/*
+ * Learn about the recent hit rate for your attacks
+ *
+ * The hit rate displayed is an approximate running average, with recent
+ * attacks very slowly overriding old ones.
+ */
+
+void learn_about_hits(int hit, bool offhand)
+{
+    s16b *temp;
+
+    /* Select the correct hand */
+    if (offhand)    temp = &p_ptr->avg_hit_offhand;
+    else            temp = &p_ptr->avg_hit;
+
+    /* Revise (or create) estimate of hit rate */
+    if (*temp <= 0) *temp = hit * 100;
+    else            *temp = div_round(*temp * 99, 100) + hit;
+
+}
+
 
 /*
  * Learn about the damage done in martial arts.
@@ -1590,7 +1574,7 @@ static int barehand_dam_to_dice(int dam, int *dice, int *sides)
  * The damage displayed is an approximate running average, with recent
  * attacks slowly overriding old ones.
  */
-static void learn_about_ma_damage(int damage, bool karate)
+void learn_about_damage(int damage, bool offhand)
 {
 	s16b *temp;
 
@@ -1598,9 +1582,8 @@ static void learn_about_ma_damage(int damage, bool karate)
 	damage = rand_spread(damage, div_round(damage, 2));
 	if (damage <= 0) damage = 1;
 
-	/* Point to the right variable */
-	if (karate) temp = &p_ptr->karate_dam;
-	else        temp = &p_ptr->wrestling_dam;
+	if (offhand) temp = &p_ptr->avg_dam_offhand;
+	else         temp = &p_ptr->avg_dam;
 
 	/* If we have no memory, we use a sample size of 1 */
 	if (!*temp)
@@ -1649,8 +1632,8 @@ static int py_attack_barehand(int chance, monster_type *m_ptr, char m_name[])
 
 
 	/* Calculate raw damage -JM
-	 * 
-	 * Note that Karate does significantly less raw damage than wrestling, 
+	 *
+	 * Note that Karate does significantly less raw damage than wrestling,
 	 * even taking into account the extra blows it recieves.  Because karate
 	 * should be getting better criticals than wrestling due to the smaller dice.
 	 *
@@ -1698,14 +1681,8 @@ static int py_attack_barehand(int chance, monster_type *m_ptr, char m_name[])
 	/* Roll out the damage. */
 	damage = damroll(dice, (s16b)sides);
 
-	//message_format(0, 0, "Dealing %dd%d or %d damage", dice, sides, damage);
-
-	/* Learn about martial art damage (before slay/brand) */
-	learn_about_ma_damage(damage, p_ptr->barehand == S_KARATE);
-
-
 	/* Apply slay and brand bonuses (if any) */
-	adjust_dam(&damage, o_ptr, m_ptr, FALSE, p_ptr->barehand);
+	adjust_dam(&damage, o_ptr, m_ptr, FALSE);
 
 	return (damage);
 }
@@ -1825,6 +1802,7 @@ bool py_attack(int y, int x)
 	bool impact = FALSE;
 	bool dead = FALSE;
 	bool stop = FALSE;
+	bool offhand = FALSE;
 	int do_force_back = 0;
 	u16b combat_mods = 0;
 
@@ -2078,6 +2056,8 @@ bool py_attack(int y, int x)
 
 				/* Check first arm -- primary weapon must be in this slot */
 				o_ptr = &inventory[INVEN_WIELD];
+
+				offhand = FALSE;
 			}
 			else if (i == 2)
 			{
@@ -2087,6 +2067,8 @@ bool py_attack(int y, int x)
 				/* Check second arm -- require a weapon */
 				o_ptr = &inventory[INVEN_ARM];
 				if (!is_melee_weapon(o_ptr)) continue;
+
+				offhand = TRUE;
 			}
 
 			/* Characters cannot wield more than two weapons. */
@@ -2110,8 +2092,10 @@ bool py_attack(int y, int x)
 			if (!test_hit_combat(chance + sleeping_bonus,
 			         r_ptr->ac + terrain_adjust, m_ptr->ml))
 			{
+                learn_about_hits(0, offhand);
 				continue;
 			}
+			else learn_about_hits(1, offhand);
 
 			/* Monster evaded or resisted */
 			if (monster_evade_or_resist(o_ptr, m_ptr, BLOW_MELEE))
@@ -2177,12 +2161,14 @@ bool py_attack(int y, int x)
 				hurt = contact_danger_check(r_ptr);
 			}
 
-
 			/* Paranoia -- No negative damage */
 			if (damage < 0) damage = 0;
 
 			/* Practice the melee skill */
 			skill_being_used = sweapon(o_ptr->tval);
+
+			/* Learn about damage */
+			learn_about_damage(damage, offhand);
 
 			/* Damage, check for fear and death. */
 			if (mon_take_hit(cave_m_idx[y][x], -1, damage, &fear, NULL))
@@ -3027,7 +3013,7 @@ void do_cmd_fire(void)
 		y = ny;
 
 		/* Only do visuals if the player can "see" the missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x) &&
+		if (panel_contains(y, x) && player_can_see_or_infra_bold(y, x) &&
 		    (path_gx[i] != PATH_G_NONE))
 		{
 			/* Full delay if monster in way */
@@ -3524,7 +3510,7 @@ void do_cmd_throw(void)
 		y = ny;
 
 		/* Only do visuals if the player can "see" the missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x) &&
+		if (panel_contains(y, x) && player_can_see_or_infra_bold(y, x) &&
 		    (path_gx[i] != PATH_G_NONE))
 		{
 			/* Full delay if monster in way */

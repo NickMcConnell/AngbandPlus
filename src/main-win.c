@@ -331,7 +331,7 @@ static byte win_pal[256] =
 
 
 #ifdef SUPPORT_GAMMA
-static int gamma_correction;
+int gamma_correction;
 #endif /* SUPPORT_GAMMA */
 
 
@@ -592,7 +592,7 @@ static errr change_font_win(window_type *win_ptr, char *path)
 		hdc = GetDC(AppWin);
 
 		/* Replace old font with our new font, save old */
-		hfOld = SelectObject(hdc, win_ptr->font_id);
+		hfOld = (HFONT) SelectObject(hdc, win_ptr->font_id);
 
 		/* Get data on our font */
 		GetTextMetrics(hdc, &tm);
@@ -1686,7 +1686,7 @@ static errr Term_text_win(int col, int row, int n, byte a, cptr s)
 		error = ExtTextOut(hdc, x0, y0, fuOptions, &rc, s, n, lpDx);
 
 		/* Kill the spacing array */
-		KILL(lpDx);
+		C_KILL(lpDx, n, INT);
 	}
 
 
@@ -3666,7 +3666,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 		wc.hCursor       = AppCursor = LoadCursor(NULL, IDC_ARROW);
 
 		/* Black background */
-		wc.hbrBackground = GetStockObject(BLACK_BRUSH);
+		wc.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
 
 		/* No default menu */
 		wc.lpszMenuName  = NULL;

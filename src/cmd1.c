@@ -56,7 +56,7 @@ void search(void)
 			if (!los(py, px, y, x)) continue;
 
 			/* If grid is not lit, chance is greatly reduced */
-			if (!player_can_see_bold(y, x)) chance2 /= 3;
+			if (!player_can_see_or_infra_bold(y, x)) chance2 /= 3;
 
 			/* Invisible trap that is not directly under the character */
 			if ((cave_invisible_trap(y, x)) && ((y != py) || (x != px)))
@@ -382,7 +382,7 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 	int ammo_num, added_ammo_num;
 	int attempted_quiver_slots;
 
-	bool blind = ((p_ptr->blind) || (no_light()));
+	bool blind = ((p_ptr->blind) || (no_light() && (p_ptr->see_infra == 0)));
 	bool autop;
 	int old_num;
 
@@ -403,6 +403,9 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 
 	/* Check for autopickup (has to have a "=g" inscription) */
 	autop = auto_pickup_okay(o_ptr, FALSE, FALSE);
+
+	/* Hack - Also allow autopickup when poisoning missiles already in the quiver */
+	if (o_idx == -1) autop = (TRUE);
 
 	/* No missiles to combine with and no autopickup. */
 	if (!ammo_num & !autop) return (FALSE);
@@ -475,7 +478,7 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 			msg_format("You have %s (%c).", o_name, index_to_label(i));
 
 			/* Delete the object */
-			delete_object_idx(o_idx);
+			if (o_idx != -1) delete_object_idx(o_idx);
 
 			/* Recalculate quiver size */
 			find_quiver_size();
@@ -666,6 +669,9 @@ static void py_pickup_aux(int o_idx, bool msg)
 	/* Attempt to sense the object, if it has not already been sensed */
 	sense_object(o_ptr, slot, FALSE, FALSE);
 
+	/* Note if an artifact */
+	if (artifact_p(o_ptr)) history_add_artifact(o_ptr->artifact_index, (o_ptr->ident & IDENT_KNOWN));
+
 	/* Delete the original object */
 	delete_object_idx(o_idx);
 }
@@ -732,7 +738,7 @@ byte py_pickup(int pickup)
 	int can_pickup = 0;
 	bool call_function_again = FALSE;
 
-	bool blind = ((p_ptr->blind) || (no_light()));
+	bool blind = ((p_ptr->blind) || (no_light() && (p_ptr->see_infra == 0)));
 
 	bool force_display_list = FALSE;
 	bool msg = TRUE;
@@ -843,7 +849,7 @@ byte py_pickup(int pickup)
 	}
 
 	/* Free the gold array */
-	FREE(treasure);
+	C_FREE(treasure,FIRST_SPECIAL_TREASURE,byte);
 
 
 	/* Scan the remaining objects */

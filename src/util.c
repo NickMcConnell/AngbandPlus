@@ -708,8 +708,8 @@ errr macro_free(void)
 		(void)string_free(macro__act[i]);
 	}
 
-	FREE((void*)macro__pat);
-	FREE((void*)macro__act);
+	C_FREE(macro__pat, MACRO_MAX, cptr);
+	C_FREE(macro__act, MACRO_MAX, cptr);
 
 	/* Free the keymaps */
 	for (i = 0; i < KEYMAP_MODES; ++i)
@@ -1549,7 +1549,7 @@ errr quarks_free(void)
 	}
 
 	/* Free the list of "quarks" */
-	FREE((void*)quark__str);
+	C_FREE(quark__str, QUARK_MAX, cptr);
 
 	/* Success */
 	return (0);
@@ -1995,7 +1995,7 @@ errr messages_init(void)
 	C_MAKE(message__count, MESSAGE_MAX, u16b);
 
 	/* Init the message colors to white */
-	(void)C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
+	C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
 
 	/* Hack -- No messages yet */
 	message__tail = MESSAGE_BUF;
@@ -2011,10 +2011,10 @@ errr messages_init(void)
 void messages_free(void)
 {
 	/* Free the messages */
-	FREE(message__ptr);
-	FREE(message__buf);
-	FREE(message__type);
-	FREE(message__count);
+	C_FREE(message__ptr, MESSAGE_MAX, u16b);
+	C_FREE(message__buf, MESSAGE_BUF, char);
+	C_FREE(message__type, MESSAGE_MAX, u16b);
+	C_FREE(message__count, MESSAGE_MAX, u16b);
 }
 
 

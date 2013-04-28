@@ -180,6 +180,14 @@ typedef unsigned long u32b;
 #define UN_KTRL(X)	((X) + 64)
 #define ESCAPE	'\033'
 
+/*
+ * System-independent definitions for the arrow keys.
+ */
+#define ARROW_DOWN	'\x8A'
+#define ARROW_LEFT	'\x8B'
+#define ARROW_RIGHT	'\x8C'
+#define ARROW_UP	'\x8D'
+
 
 
 #endif /* INCLUDED_H_BASIC_H */

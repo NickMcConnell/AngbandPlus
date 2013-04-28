@@ -299,6 +299,29 @@ static void note(cptr msg)
 	(void)Term_fresh();
 }
 
+
+void do_history(void)
+{
+	size_t i;
+	u32b tmp32u;
+
+	/* Handle count of history items */
+	if (!load_file) tmp32u = history_get_num();
+	do_u32b(&tmp32u);
+	if (load_file) history_init(tmp32u);
+
+	for (i = 0; i < tmp32u; i++)
+	{
+		do_u16b(&history_list[i].type);
+		do_s32b(&history_list[i].turn);
+		do_s16b(&history_list[i].dlev);
+		do_s16b(&history_list[i].clev);
+		do_byte(&history_list[i].a_idx);
+		do_string(history_list[i].event, 200);
+	}
+}
+
+
 /*
  * Handle an object
  */
@@ -976,7 +999,6 @@ static void do_options(void)
 		}
 	}
 
-
 	/*** Window Options ***/
 
 	/* Saving a file -- convert window settings into bitflags */
@@ -1100,7 +1122,7 @@ static void do_options(void)
 /* String-handling function from Greg Wooledge's random artifact generator. */
 static char *my_strdup(const char *s)
 {
-	char *t = malloc(strlen(s) + 1);
+	char *t = (char*) malloc(strlen(s) + 1);
 	if (t) strcpy(t, s);
 	return (t);
 }
@@ -1161,7 +1183,7 @@ static int convert_saved_names(void)
 
 
 	/* Free the old names */
-	FREE(a_name);
+	FREE(a_name, char);
 
 	for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
 	{
@@ -1415,11 +1437,12 @@ static errr do_character(void)
 	/* Social class */
 	do_s16b(&p_ptr->sc);
 
+    /* Damage and hit-rate running totals */
+	do_s16b(&p_ptr->avg_dam);
+	do_s16b(&p_ptr->avg_dam_offhand);
 
-	/* Space for expansion */
-	do_s16b(&p_ptr->karate_dam);
-	do_s16b(&p_ptr->wrestling_dam);
-
+	do_s16b(&p_ptr->avg_hit);
+	do_s16b(&p_ptr->avg_hit_offhand);
 
 	/* Only save monster targets -- grid targets can cause real trouble */
 	if (!load_file)
@@ -2877,6 +2900,9 @@ static errr do_savefile(void)
 		}
 	}
 
+	/* Handle history */
+	do_history();
+
 
 	/* Saving a file -- write checksums (always) */
 	if (!load_file)
@@ -3799,4 +3825,3 @@ void savefile_load(bool force_menu)
 		}
 	}
 }
-

@@ -73,19 +73,19 @@ void* ralloc(size_t len)
 /*
  * Optional auxiliary "rnfree" function
  */
-void* (*rnfree_aux)(void*) = NULL;
+void* (*rnfree_aux)(void*, size_t) = NULL;
 
 
 /*
  * Free some memory (allocated by ralloc), return NULL
  */
-void* rnfree(void *p)
+void* rnfree(void *p, size_t len)
 {
 	/* Easy to free nothing */
 	if (!p) return (NULL);
 
 	/* Use the "aux" function */
-	if (rnfree_aux) return ((*rnfree_aux)(p));
+	if (rnfree_aux) return ((*rnfree_aux)(p, len));
 
 	/* Use "free" */
 	free(p);
@@ -106,7 +106,7 @@ cptr string_make(cptr str)
 	if (!str) return (str);
 
 	/* Allocate space for the string including terminator */
-	res = ralloc(strlen(str) + 1);
+	res = (char*) ralloc(strlen(str) + 1);
 
 	/* Copy the string (with terminator) */
 	strcpy(res, str);
@@ -125,7 +125,7 @@ errr string_free(cptr str)
 	if (!str) return (0);
 
 	/* Kill the buffer of chars we must have allocated above */
-	(void)rnfree((void*)str);
+	(void)rnfree((void*)str, sizeof(char));
 
 	/* Success */
 	return (0);

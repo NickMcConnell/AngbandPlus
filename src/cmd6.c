@@ -498,7 +498,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			if (set_blind(0, "The veil of darkness lifts")) obj_ident = TRUE;
+			if (set_blind(0, "The veil of darkness lifts.")) obj_ident = TRUE;
 			break;
 		}
 
@@ -2465,7 +2465,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_STAFF_CURE_MEDIUM:
 		{
-			pow = 20;
+			pow = 10;
 
 			if (info) return (format("(heal about %d%%, reduce cuts)", pow));
 			if (use)
@@ -2478,7 +2478,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_STAFF_HEALING:
 		{
-			pow = 40;
+			pow = 30;
 
 			if (info) return (format("(heal about %d%%, reduce cuts)", pow));
 			if (use)
@@ -3869,17 +3869,27 @@ static bool can_read_scroll(void)
 		msg_print("You can't see anything.");
 		return (FALSE);
 	}
-	if (no_light())
-	{
-		msg_print("You have no light to read by.");
-		return (FALSE);
-	}
 	if (p_ptr->confused)
 	{
 		msg_print("You are too confused!");
 		return (FALSE);
 	}
 	return (TRUE);
+}
+
+/*
+ * Hook to determine if an object is readable
+ */
+static bool item_tester_hook_scroll(const object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_SCROLL)
+	{
+		if (!no_light() || (k_info[o_ptr->k_idx].flags2 & TR2_GLOW_WORDS) )
+        {
+		      return (TRUE);
+        }
+     }
+     return (FALSE);
 }
 
 
@@ -3943,7 +3953,7 @@ void use_object(int tval)
 		if (!can_read_scroll()) return;
 
 		/* Restrict choices to scrolls */
-		item_tester_tval = TV_SCROLL;
+		item_tester_hook = item_tester_hook_scroll;
 
 		/* Get an item */
 		q = "Read which scroll?";
@@ -4226,30 +4236,26 @@ int device_chance(const object_type *o_ptr)
 		}
 	}
 
-	/* Wands, Staves, and Rods */
-	else if (o_ptr->tval == TV_WAND || o_ptr->tval == TV_STAFF || o_ptr->tval == TV_ROD)
+	/* Everything else except DSM uses the object level */
+	else if (o_ptr->tval != TV_DRAG_ARMOR)
 	{
 		lev = k_info[o_ptr->k_idx].level;
 
+		/* Wargear and light sources want to be activated */
+		if ((is_wargear(o_ptr) || (o_ptr->tval == TV_LITE)) && (lev > 15))
+		{
+			lev -= ((lev - 10) / 2);
+		}
 	}
-	
 
 	/* Non-artifact dragon scale mail does not require special skills */
-	else if (o_ptr->tval == TV_DRAG_ARMOR)
+	else
 	{
 		/* All characters eventually get perfect usage of DSM */
 		skill = div_round(p_ptr->power, 4);
 
 		lev = 0;
 	}
-
-	/* Worn devices should activate easily  -JM */
-	else
-	{
-		lev = k_info[o_ptr->k_idx].level;
-		lev -= ((lev - 10) / 2);
-	}
-
 
 	/*
 	 * Determine percentage chance of success.
@@ -4271,7 +4277,7 @@ int device_chance(const object_type *o_ptr)
 	if (p_ptr->afraid) chance -= chance / 5;
 
 	/* Blindness or lack of light makes things a little harder */
-	if ((p_ptr->blind) || (no_light() && !(p_ptr->oath & (BURGLARS_GUILD)))) chance -= chance / 4;
+	if ((p_ptr->blind) || (no_light() && (p_ptr->see_infra <= 0))) chance -= chance / 4;
 
 
 	/* Set bounds */
@@ -6774,7 +6780,6 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			}
 			break;
 		}
-
 
 		case ACTIV_EGO_HERO:
 		{

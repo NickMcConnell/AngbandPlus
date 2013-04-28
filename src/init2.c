@@ -373,7 +373,7 @@ static errr init_info_raw(int fd, header *head)
 	C_MAKE(head->info_ptr, head->info_size, char);
 
 	/* Read the "*_info" array */
-	(void)fd_read(fd, head->info_ptr, head->info_size);
+	(void)fd_read(fd, (char*) head->info_ptr, head->info_size);
 
 	if (head->name_size)
 	{
@@ -582,7 +582,7 @@ static errr init_info(cptr filename, header *head)
 			(void)fd_write(fd, (cptr)head, head->head_size);
 
 			/* Dump the "*_info" array */
-			(void)fd_write(fd, head->info_ptr, head->info_size);
+			(void)fd_write(fd, (char*) head->info_ptr, head->info_size);
 
 			/* Dump the "*_name" array */
 			(void)fd_write(fd, head->name_ptr, head->name_size);
@@ -598,13 +598,13 @@ static errr init_info(cptr filename, header *head)
 		/*** Kill the fake arrays ***/
 
 		/* Free the "*_info" array */
-		KILL(head->info_ptr);
+		KILL(head->info_ptr, char);
 
 		/* MegaHack -- Free the "fake" arrays */
 		if (z_info)
 		{
-			KILL(head->name_ptr);
-			KILL(head->text_ptr);
+			KILL(head->name_ptr, char);
+			KILL(head->text_ptr, char);
 		}
 
 #endif /* ALLOW_TEMPLATES */
@@ -645,13 +645,13 @@ static errr init_info(cptr filename, header *head)
 static errr free_info(header *head)
 {
 	if (head->info_size)
-		FREE(head->info_ptr);
+		C_FREE(head->info_ptr, head->info_size, char);
 
 	if (head->name_size)
-		FREE(head->name_ptr);
+		C_FREE(head->name_ptr, head->name_size, char);
 
 	if (head->text_size)
-		FREE(head->text_ptr);
+		C_FREE(head->text_ptr, head->text_size, char);
 
 	/* Success */
 	return (0);
@@ -678,7 +678,7 @@ static errr init_z_info(void)
 	err = init_info("limits", &z_head);
 
 	/* Set the global variables */
-	z_info = z_head.info_ptr;
+	z_info = (maxima*) z_head.info_ptr;
 
 	return (err);
 }
@@ -704,7 +704,7 @@ static errr init_f_info(void)
 	err = init_info("terrain", &f_head);
 
 	/* Set the global variables */
-	f_info = f_head.info_ptr;
+	f_info = (feature_type*) f_head.info_ptr;
 	f_name = f_head.name_ptr;
 	f_text = f_head.text_ptr;
 
@@ -733,7 +733,7 @@ static errr init_k_info(void)
 	err = init_info("object", &k_head);
 
 	/* Set the global variables */
-	k_info = k_head.info_ptr;
+	k_info = (object_kind*) k_head.info_ptr;
 	k_name = k_head.name_ptr;
 	k_text = k_head.text_ptr;
 
@@ -765,7 +765,7 @@ static errr init_a_info(void)
 	err = init_info("artifact", &a_head);
 
 	/* Set the global variables */
-	a_info = a_head.info_ptr;
+	a_info = (artifact_type*) a_head.info_ptr;
 	a_name = a_head.name_ptr;
 	a_text = a_head.text_ptr;
 
@@ -794,7 +794,7 @@ static errr init_e_info(void)
 	err = init_info("ego_item", &e_head);
 
 	/* Set the global variables */
-	e_info = e_head.info_ptr;
+	e_info = (ego_item_type*) e_head.info_ptr;
 	e_name = e_head.name_ptr;
 	e_text = e_head.text_ptr;
 
@@ -823,7 +823,7 @@ static errr init_r_info(void)
 	err = init_info("monster", &r_head);
 
 	/* Set the global variables */
-	r_info = r_head.info_ptr;
+	r_info = (monster_race*) r_head.info_ptr;
 	r_name = r_head.name_ptr;
 	r_text = r_head.text_ptr;
 
@@ -852,7 +852,7 @@ static errr init_v_info(void)
 	err = init_info("vault", &v_head);
 
 	/* Set the global variables */
-	v_info = v_head.info_ptr;
+	v_info = (vault_type*) v_head.info_ptr;
 	v_name = v_head.name_ptr;
 	v_text = v_head.text_ptr;
 
@@ -881,7 +881,7 @@ static errr init_q_info(void)
 	err = init_info("quest", &q_head);
 
 	/* Set the global variables */
-	q_info = q_head.info_ptr;
+	q_info = (quest_type*) q_head.info_ptr;
 	q_name = q_head.name_ptr;
 	q_text = q_head.text_ptr;
 
@@ -909,7 +909,7 @@ static errr init_flavor_info(void)
 	err = init_info("flavor", &flavor_head);
 
 	/* Set the global variables */
-	flavor_info = flavor_head.info_ptr;
+	flavor_info = (flavor_type*) flavor_head.info_ptr;
 	flavor_name = flavor_head.name_ptr;
 	flavor_text = flavor_head.text_ptr;
 
@@ -1573,10 +1573,10 @@ void cleanup_angband(void)
 	(void)macro_free();
 
 	/* Free the allocation tables */
-	FREE(alloc_ego_table);
-	FREE(alloc_race_table);
-	FREE(permit_kind_table);
-	FREE(chance_kind_table);
+	FREE(alloc_ego_table, alloc_entry);
+	FREE(alloc_race_table, alloc_entry);
+	FREE(permit_kind_table, bool);
+	FREE(chance_kind_table, byte);
 
 	if (store)
 	{
@@ -1587,52 +1587,52 @@ void cleanup_angband(void)
 			store_type *st_ptr = &store[i];
 
 			/* Free the store inventory */
-			FREE(st_ptr->stock);
+			C_FREE(st_ptr->stock, st_ptr->stock_size , object_type);
 		}
 	}
 
 	/* Free the stores */
-	FREE(store);
+	C_FREE(store, MAX_STORES, store_type);
 
 	/* Free the player inventory */
-	FREE(inventory);
-
+	C_FREE(inventory, INVEN_TOTAL, object_type);
+	
 	/* Free the left panel custom display array */
-	FREE(custom_display);
+	C_FREE(custom_display, CUSTOM_DISPLAY_ROWS, byte);
 
 	/* Free the lore, monster, and object lists */
-	FREE(l_list);
-	FREE(m_list);
-	FREE(o_list);
+	C_FREE(l_list, z_info->r_max, monster_lore);
+	C_FREE(m_list, z_info->m_max, monster_type);
+	C_FREE(o_list, z_info->o_max, object_type);
 
 	/* Free the effects and the traps */
-	FREE(x_list);
-	FREE(t_list);
+	C_FREE(x_list, z_info->x_max, effect_type);
+	C_FREE(t_list, z_info->t_max, trap_type);
 
 	/* Free the movement moments */
-	FREE(move_moment);
+	C_FREE(move_moment, z_info->m_max, move_moment_type);
 
 	/* Free the projection graphics */
-	FREE(proj_graphics);
+	C_FREE(proj_graphics, 256, proj_graphics_type);
 
 	/* Flow arrays */
-	FREE(cave_when);
-	FREE(cave_cost);
+	C_FREE(cave_when, DUNGEON_HGT_MAX, byte_wid);
+	C_FREE(cave_cost, DUNGEON_HGT_MAX, byte_wid);
 
 	/* Free the cave */
-	FREE(cave_o_idx);
-	FREE(cave_m_idx);
-	FREE(cave_feat);
-	FREE(cave_info);
+	C_FREE(cave_o_idx, DUNGEON_HGT_MAX, s16b_wid);
+	C_FREE(cave_m_idx, DUNGEON_HGT_MAX, s16b_wid);
+	C_FREE(cave_feat, DUNGEON_HGT_MAX, byte_wid);
+	C_FREE(cave_info, DUNGEON_HGT_MAX, u16b_256);
 
 	/* Free the "update_view()" array */
-	FREE(view_g);
+	C_FREE(view_g, VIEW_MAX, u16b);
 
 	/* Free the temp array */
-	FREE(temp_g);
+	C_FREE(temp_g, TEMP_MAX, u16b);
 
 	/* Free the effect grids array */
-	FREE(effect_grid);
+	C_FREE(effect_grid, EFFECT_GRID_MAX, effect_grid_type);
 
 	/* Free the messages */
 	messages_free();

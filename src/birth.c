@@ -836,12 +836,15 @@ void player_wipe(bool full)
 	/* No stealing */
 	num_recent_thefts = 0;
 
-	/* Character type is always normal to begin with */
-	p_ptr->character_type = PCHAR_NORMAL;
+	/* Character type is always normal to begin with -- except for ironman players */
+    if (ironman_play) p_ptr->character_type = PCHAR_IRONMAN;
+    else              p_ptr->character_type = PCHAR_NORMAL;
 
 	/* And does not use multiple lives  XXX */
 	op_ptr->opt[OPT_beginner_play] = FALSE;
 
+	/* Clear the history */
+	history_clear();
 
 	/* The below is only done when needed */
 	if (!full) return;
@@ -2104,6 +2107,9 @@ bool player_birth(void)
 	}
 
 	p_ptr->specialty = SPECIALTY_NONE;
+
+	/* Record a prosperous beginning */
+	history_add("Started the adventure of a lifetime", HISTORY_PLAYER_BIRTH, 0);
 
 	/* Restore previous display */
 	display_change(DSP_RESTORE, 0, 0);

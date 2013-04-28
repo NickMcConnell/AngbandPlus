@@ -824,7 +824,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 					if (typ != GF_DISINTEGRATE)
 					{
 						/* Found something */
-						if (player_can_see_bold(y, x))
+						if (player_can_see_or_infra_bold(y, x))
 						{
 							msg_print("There was something buried in the rubble!");
 							obvious = TRUE;
@@ -984,7 +984,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 				place_trap(y, x, TRAP_GLYPH, 0);
 
 				/* Cool */
-				if (player_can_see_bold(y, x))
+				if (player_can_see_or_infra_bold(y, x))
 					message(TERM_L_BLUE, 50, "A glyph of sanctuary materializes!");
 			}
 
@@ -6343,7 +6343,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 			/* Attempt to create a chaos tile */
 			if (summon_specific(y, x, FALSE, 100, SUMMON_INDEX, 1))
 			{
-				if (player_can_see_bold(y, x))
+				if (player_can_see_or_infra_bold(y, x))
 					msg_print("The floor is corrupted by chaos!");
 			}
 			break;
@@ -6361,7 +6361,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, u32b flg)
 			/* Attempt to create a mana fly or mana vortex */
 			if (summon_specific(y, x, FALSE, 100, SUMMON_INDEX, 1))
 			{
-				if (player_can_see_bold(y, x))
+				if (player_can_see_or_infra_bold(y, x))
 					msg_print("The raw magic coalesces!");
 			}
 			break;

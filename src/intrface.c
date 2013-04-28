@@ -1414,7 +1414,7 @@ void special_view_gui(int cols, int rows, bool activate)
 		COPY(win_ptr, window_temp, window_type);
 
 		/* Delete the temporary saved window settings */
-		KILL(window_temp);
+		KILL(window_temp, window_type);
 
 		/* Invalidate the display index */
 		temp_window_idx = -1;

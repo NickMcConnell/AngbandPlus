@@ -129,7 +129,6 @@
 /* # define USE_PRIVATE_PATHS */
 #endif /* PRIVATE_USER_PATH */
 
-
 /*
  * Address of current maintainer.
  */

@@ -4747,7 +4747,7 @@ int player_flags_pval(u32b flag_pval, bool shape)
 		if(skill >= LEV_REQ_PERCEPTION_INFRA4) pval++;
 
 	}
-	
+
 
 
 	/* Giants are great at tunneling */
@@ -5166,25 +5166,27 @@ static void analyze_weapons(void)
 	else
 	{
 		int skill;
+		p_ptr->num_blow = 2;
 
 		/* Martial arts gains blows at fixed skill levels -JM */
-		p_ptr->num_blow = 2;
 
 		if (p_ptr->barehand == S_KARATE)
 		{
 			skill = get_skill(S_KARATE, 0, 100);
-			if (skill > LEV_REQ_KARATE_BLOW1) p_ptr->num_blow++;
-			if (skill > LEV_REQ_KARATE_BLOW2) p_ptr->num_blow++;
-			if (skill > LEV_REQ_KARATE_BLOW3) p_ptr->num_blow++;
-			if (skill > LEV_REQ_KARATE_BLOW4) p_ptr->num_blow++;
+			if (skill >= LEV_REQ_KARATE_BLOW1) p_ptr->num_blow++;
+			if (skill >= LEV_REQ_KARATE_BLOW2) p_ptr->num_blow++;
+			if (skill >= LEV_REQ_KARATE_BLOW3) p_ptr->num_blow++;
+			if (skill >= LEV_REQ_KARATE_BLOW4) p_ptr->num_blow++;
 		}
 		else if (p_ptr->barehand == S_WRESTLING)
 		{
 			skill = get_skill(S_WRESTLING, 0, 100);
-			if (skill > LEV_REQ_WREST_BLOW1) p_ptr->num_blow++;
-			if (skill > LEV_REQ_WREST_BLOW2) p_ptr->num_blow++;
+			if (skill >= LEV_REQ_WREST_BLOW1) p_ptr->num_blow++;
+			if (skill >= LEV_REQ_WREST_BLOW2) p_ptr->num_blow++;
 		}
-		
+
+
+
 		/* Note that we are bare-handed */
 		p_ptr->barehanded = TRUE;
 	}
@@ -5339,8 +5341,6 @@ static void calc_bonuses(void)
 	old_telepathy = p_ptr->telepathy;
 	old_see_inv = p_ptr->see_inv;
 	old_invisibility = p_ptr->invisible;
-
-	/* Save the old maximum hit points and mana points */
 
 	/* Save the old armor class */
 	old_dis_ac = p_ptr->dis_ac;
@@ -5545,9 +5545,6 @@ static void calc_bonuses(void)
 			p_ptr->skill_thn += ma_bonus * (15 + ma_bonus) / 10;
 		}
 	}
-
-	/* Hack -- 
-
 
 	/* Ranged Combat (ranges from ~11 (with skill of 1) to ~140) */
 	p_ptr->skill_thb = 10 + rp_ptr->r_thb;
@@ -5760,7 +5757,7 @@ static void calc_bonuses(void)
 	hit_bonus       += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 
 	/* Deadliness for Karate is based on dexterity */
-	if (p_ptr->barehand == S_KARATE)
+	if (p_ptr->barehand == S_KARATE && p_ptr->barehanded)
 	{
 		p_ptr->to_d     += ((int)(adj_str_td[p_ptr->stat_ind[A_DEX]]) - 128);
 		p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_DEX]]) - 128);
@@ -5770,7 +5767,7 @@ static void calc_bonuses(void)
 		p_ptr->to_d     += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 		p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	}
-		
+
 	p_ptr->to_a     += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 
@@ -6116,6 +6113,8 @@ static void calc_bonuses(void)
 	{
 		p_ptr->see_infra += 5;
 	}
+
+	if (p_ptr->see_infra < 0) p_ptr->see_infra = 0;
 
 	/* Temporary invisibility */
 	if (p_ptr->tim_invis)

@@ -40,14 +40,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING   "1.0.0"
+#define VERSION_STRING   "1.0.1"
 
 /*
  * Current (Sangband) version numbers
  */
 #define VERSION_MAJOR   1
 #define VERSION_MINOR   0
-#define VERSION_PATCH   0
+#define VERSION_PATCH   1
 
 /*
  * This value is used for beta versions (now deprecated)
@@ -364,6 +364,12 @@
  */
 #define ESSENCE_PROB    125
 
+/*
+ * The multiplier of additional gold when disallowing stores to buy items (OPT_birth_stores_only_sell)
+ * Scales with level to reflect monetary expenditures more accurately
+ */
+#define GOLD_ADJ  ((birth_stores_only_sell)?((200 + (p_ptr->depth * 3 + (100 / 2))) / 100) : 1)
+
 
 /*
  * Refueling constants
@@ -586,8 +592,8 @@
 #define NECRO     4
 #define NONE      0
 
-
-
+/* Book for player realm */
+#define PLAYER_BOOK_TVAL  ((p_ptr->realm == 0) ? 0 : (p_ptr->realm == 1)? TV_MAGIC_BOOK : (p_ptr->realm == 2) ? TV_PRAYER_BOOK : (p_ptr->realm == 3) ? TV_NATURE_BOOK : TV_DARK_BOOK)
 
 /* Skill Indexes (see the table "skill_type") */
 #define S_NOSKILL       -1       /* no skill */
@@ -688,6 +694,7 @@
 
 #define LEV_REQ_WREST_BLOW1          60
 #define LEV_REQ_WREST_BLOW2          80
+
 
 #define LEV_REQ_KARATE_BLOW1         50
 #define LEV_REQ_KARATE_BLOW2         60
@@ -2750,6 +2757,7 @@
 #define USE_EQUIP      0x01		/* Allow equip items */
 #define USE_INVEN      0x02		/* Allow inven items */
 #define USE_FLOOR      0x04		/* Allow floor items */
+#define USE_AUTO       0x08     /* Automatically use item if only one choice */
 
 /*
  * Bit flags for the "drop_near" function
@@ -3175,7 +3183,7 @@
 #define CAVE_EFFT         0x0200  /* Is being hit by an effect */
 #define CAVE_LITE         0x0400  /* Temporary light (light source) */
 #define CAVE_TRAP         0x0800  /* Has at least one trap */
-#define CAVE_XX12         0x1000  /*  */
+#define CAVE_INFR         0x1000  /* Actually seeable by character by infravision */
 #define CAVE_XX13         0x2000  /*  */
 #define CAVE_XX14         0x4000  /*  */
 #define CAVE_XX15         0x8000  /*  */
@@ -3435,7 +3443,7 @@
 #define TR2_XX24               0x01000000L   /*  */
 #define TR2_XX25               0x02000000L   /*  */
 #define TR2_XX26               0x04000000L   /*  */
-#define TR2_XX27               0x08000000L   /*  */
+#define TR2_GLOW_WORDS         0x08000000L   /* Item can be read in darkness */
 #define TR2_IGNORE_ACID        0x10000000L   /* Item ignores Acid Damage */
 #define TR2_IGNORE_ELEC        0x20000000L   /* Item ignores Elec Damage */
 #define TR2_IGNORE_FIRE        0x40000000L   /* Item ignores Fire Damage */
@@ -4310,7 +4318,7 @@
 #define OPT_birth_no_artifacts             104
 #define OPT_birth_no_return_stair          105
 #define OPT_birth_smart_cheat              106
-
+#define OPT_birth_stores_only_sell         107
 
 
 /*
@@ -4398,7 +4406,7 @@
 #define birth_no_artifacts          op_ptr->opt[OPT_birth_no_artifacts]
 #define birth_no_return_stair       op_ptr->opt[OPT_birth_no_return_stair]
 #define birth_smart_cheat           op_ptr->opt[OPT_birth_smart_cheat]
-
+#define birth_stores_only_sell      op_ptr->opt[OPT_birth_stores_only_sell]
 
 
 /*
@@ -4957,6 +4965,14 @@
 	((cave_info[Y][X] & (CAVE_SEEN)) != 0)
 
 /*
+ * Determine if a "legal" grid can be seen with regular vision or infravision directly by the character
+ *
+ * Note the use of comparison to zero to force a "boolean" result
+ */
+#define player_can_see_or_infra_bold(Y,X) \
+	(((cave_info[Y][X] & (CAVE_SEEN)) != 0) || ((cave_info[Y][X] & (CAVE_INFR)) != 0))
+
+/*
  * Determine if a "legal" grid is within line of fire of the character
  *
  * Note the use of comparison to zero to force a "boolean" result
@@ -5331,3 +5347,15 @@
 #define DSP_UNLOCK      0x00002000  /* Unlock the main view */
 #define DSP_POPUP       0x00004000  /* Apply pop-up window rules */
 #define DSP_POPDOWN     0x00008000  /* Cancel pop-up window rules */
+
+/* History message types */
+#define HISTORY_PLAYER_BIRTH     0x0001	/* Player was born */
+#define HISTORY_ARTIFACT_UNKNOWN 0x0002	/* Player found but not IDd an artifact */
+#define HISTORY_ARTIFACT_KNOWN   0x0004	/* Player has IDed an artifact */
+#define HISTORY_ARTIFACT_LOST    0x0008	/* Player had an artifact and lost it */
+#define HISTORY_PLAYER_DEATH     0x0010	/* Player has been slain */
+#define HISTORY_SLAY_UNIQUE      0x0020	/* Player has slain a unique monster */
+#define HISTORY_USER_INPUT       0x0040	/* User-added note */
+#define HISTORY_SAVEFILE_IMPORT  0x0080	/* Added when an older version savefile is imported */
+#define HISTORY_GAIN_POWER       0x0100	/* Player gained in power */
+#define HISTORY_GENERIC          0x0200	/* Anything else not covered here (unused) */

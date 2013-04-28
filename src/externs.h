@@ -310,7 +310,7 @@ extern bool test_hit_combat(int chance, int ac, int visible);
 extern bool monster_evade_or_resist(object_type *o_ptr,
 	monster_type *m_ptr, byte blow_type);
 extern void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
-	bool is_trap, int skill_type);
+	bool is_trap);
 extern int get_combat_noise(int min, int max);
 extern void apply_deadliness(long *die_average, int deadliness);
 extern bool py_attack(int y, int x);
@@ -319,7 +319,6 @@ extern void transfer_attributes_to_missile(object_type *i_ptr,
 extern void do_cmd_fire(void);
 extern void do_cmd_throw(void);
 extern void do_cmd_barehanded(void);
-
 
 /* birth.c */
 extern void player_wipe(bool full);
@@ -519,6 +518,17 @@ extern void obj_essence(int y, int x, const object_type *o_ptr);
 extern void destroy_level(bool new_level);
 extern void generate_cave(void);
 
+/* history.c */
+extern history_info *history_list;
+void history_clear(void);
+size_t history_get_num(void);
+bool history_add_full(u16b type, byte a_idx, s16b dlev, s16b clev, s32b turn, const char *text);
+bool history_add(const char *event, u16b type, byte a_idx);
+bool history_add_artifact(byte a_idx, bool known);
+void history_unmask_unknown(void);
+bool history_lose_artifact(byte a_idx);
+void history_display(void);
+void history_init(size_t entries);
 
 /* info.c */
 extern cptr obj_class_info[101];
@@ -1215,6 +1225,7 @@ extern void do_cmd_unchange(bool voluntary);
 extern void practice_skill(s32b amount, s16b skill);
 extern void check_experience(void);
 extern s32b calc_spent_exp(void);
+extern s32b calc_spent_exp_max(void);
 extern void gain_exp(s32b amount, s16b skill);
 extern void lose_exp(s32b amount, bool perm);
 extern bool restore_level(void);

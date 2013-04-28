@@ -563,7 +563,7 @@ static cptr k_info_flags2[] =
 	"XXX5",
 	"XXX6",
 	"XXX7",
-	"XXX8",
+	"GLOW_WORDS",
 	"IGNORE_ACID",
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
@@ -817,7 +817,7 @@ static u32b add_name(header *head, char *buf)
  */
 errr parse_z_info(char *buf, header *head)
 {
-	z_info = head->info_ptr;
+	z_info = (maxima*) head->info_ptr;
 
 	/* Hack - Verify 'M:x:' format */
 	if (buf[0] != 'M') return (PARSE_ERROR_UNDEFINED_DIRECTIVE);

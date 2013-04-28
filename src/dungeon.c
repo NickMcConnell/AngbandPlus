@@ -1502,7 +1502,7 @@ static void process_world(void)
 		teleport_player(40, FALSE, FALSE);
 
 		/* Disturbing */
-		msg_format("Your equipment whisks you about!");
+		message_format(0, 1000, "Your equipment whisks you about!");
 		disturb(0, 0);
 	}
 
