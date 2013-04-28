@@ -1,66 +1,79 @@
 # File: font-win.prf
 
 #
-# This file is used by Angband (when it was compiled using "main-win.c")
-# to specify simple attr/char remappings using a standard font, allowing
-# the use of special pseudo-graphic pictures for walls and such.
+# This file is used by the game (when it was compiled using "main-win.c")
+# to specify simple attr/char remappings using a standard font.
 #
-# Note that this file is extremely similar to the "font-ibm.prf" file,
-# but it uses different codes, since it uses the special pseudo-graphic
-# symbols defined in the "lib/xtra/font/*.FON" files, and there is only
-# one special wall type, so we have to use special "colors".
+# This file uses the special pseudo-graphic symbols defined in the 
+# "lib/xtra/font/*.fon" files.
 #
 
 
 ### Terrain features ###
 
+#
+# The pseudo-graphical option
+#
 
-# Floors (white / centered dot)
+# Ordinary floor
+F:1:w/7:Y/7:s/7
 
-F:1:w/31
+# Up shaft
+F:4:U/<:U/<:U/<
 
+# Down shaft
+F:5:U/>:U/>:U/>
 
-# Invis traps (white / centered dot)
+# Open door
+F:6:U/14:U/14:U/14
 
-F:2:w/31
+# Broken door
+F:7:u/15:u/15:u/15
 
+# Up stairs
+F:8:w/<:w/<:W/<
 
-# Water (blue / centered dot)
+# Down stairs
+F:9:w/>:w/>:W/>
 
-F:11:b/31
-f:11:31
+# Lava
+F:10:r/19:R/19:r/19
 
+# Water
+F:11:b/17:Z/17:b/17
 
-# Magma (slate / solid block)
+# Tree
+F:12:g/18:G/18:g/18
 
-F:50:s/127
-F:52:s/127
+# Closed, locked, or jammed door
+F:32:U/13:U/13:U/13
 
+# Rubble
+F:49:w/11:Y/11:W/11
 
-# Quartz (light slate / solid block)
+# Magma
+F:50:s/3:s/3:D/3
 
-F:51:W/127
-F:53:W/127
+# Quartz
+F:51:W/3:W/3:s/3
 
+# Magma with treasure
+F:54:o/12:o/12:o/12
 
-# Secret door (white / solid block)
+# Quartz with treasure
+F:55:o/12:o/12:o/12
 
-F:48:w/127
+# Granite walls
+F:56:w/127:w/127:W/127
 
-# Granite walls & permanent rock (white / solid block)
+# Permanent wall -- town buildings
+F:60:w/127:w/127:W/127
 
-F:56:w/127
-F:57:w/127
-F:58:w/127
-F:59:w/127
-F:60:w/127
-F:61:w/127
-F:62:w/127
-F:63:w/127
-
+# Permanent wall -- all others
+F:61:w/3:w/3:W/3
 
 #
-# Boulders (slate, small circle or large dot)
+# Boulders (slate, large dot)
 #
-#K:638:s:9
+K:638:s:10
 

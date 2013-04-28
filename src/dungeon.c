@@ -2374,10 +2374,21 @@ static void process_command(void)
 			break;
 		}
 
-		/* Quit (suicide or retire) */
+		/* Save and quit, or retire */
 		case 'Q':
 		{
-			do_cmd_quit();
+			if (!p_ptr->total_winner)
+			{
+				/* Stop playing */
+				p_ptr->playing = FALSE;
+
+				/* Leaving */
+				p_ptr->leaving = TRUE;
+			}
+			else
+			{
+				do_cmd_quit();
+			}
 			break;
 		}
 

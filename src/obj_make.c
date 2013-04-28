@@ -2317,6 +2317,13 @@ static bool do_forging_essence(int a_idx, int *potential)
 	/* Determine pval maxima and disallow/restrict flags */
 	for (i = 0; i < 128; i++)
 	{
+		/* Ignore flags that we can't afford */
+		if (get_cost_of_flag(i, (i < 32) ? 1 : 0) > *potential)
+		{
+			ffi[i].max = 0;
+			continue;
+		}
+
 		/* Assume that this object may have this flag */
 		forbid = FALSE;
 		val = 1;

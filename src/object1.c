@@ -4786,6 +4786,18 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					if (p_ptr->command_wrk == (USE_INVEN))
 					{
 						k = label_to_inven(which);
+
+						/* No index found */
+						if (k < 0)
+						{
+							/* A number has been entered; check equip if allowed */
+							if ((isdigit(which)) && (allow_equip))
+							{
+								k = label_to_equip(which);
+							}
+						}
+
+						/* We (still) don't have a legal index */
 						if (k < 0)
 						{
 							bell("Illegal object choice (inven)!");

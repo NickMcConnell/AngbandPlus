@@ -1989,7 +1989,7 @@ void self_knowledge(bool full)
 	{
 		roff("You are poisoned.", sk_get_col(), 0);
 	}
-	if (p_ptr->poisoned)
+	if (p_ptr->diseased)
 	{
 		roff("You suffer from a wasting disease.", sk_get_col(), 0);
 	}
@@ -3331,8 +3331,8 @@ void dump_obj_attrib(FILE *fff, object_type *o_ptr, int know_all)
 	{
 		int radius = get_object_pval(o_ptr, TR_PVAL_LIGHT);
 
-		/* Ignore ordinary torches and lanterns */
-		if ((o_ptr->tval != TV_LITE) || (radius != k_ptr->pval) ||
+		/* Ignore ordinary torches and lanterns  XXX */
+		if ((o_ptr->tval != TV_LITE) || (radius != o_ptr->pval2) ||
 		    (f3 & (TR3_NOFUEL)))
 		{
 			if ((o_ptr->tval != TV_LITE) || (f3 & (TR3_NOFUEL)))

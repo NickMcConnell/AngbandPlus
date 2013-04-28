@@ -1,5 +1,5 @@
 
-Beta 20a, b, c.
+Beta 20a, b, c, d.
 ======================================
 
 Bugfixes - Applicable to other variants:
@@ -30,12 +30,19 @@ Bugfixes - Sangband-specific:
 - Another prevented many kinds of special attacks from automatically displaying when activated.
 - Two weaknesses fixed in the object compaction code:  it was possible for treasure to combine and get negative value, and player-inscribed objects were not considered important enough.  (comments by Eddie Grove)
 - When blind and looking around, you can't notice objects that you can't see or at least feel.
-
+- You can no longer use essences to request object attributes that cost more than you have the skill to make.
+- ... and various other fixes not mentioned individually.
 
 
 Minor Changes:
 - More colorful acid, electricity, fire, and frost spells.
 - Some ball-shooting wands and rods moved down one to three levels deeper in the dungeon.
+- The 'Q'uit command no longer commits suicide, but rather saves and exits instead.  It seemed strange that an obscure keypress would be the usual end game command.
+- The Character screen no longer takes into account temporary changes to disarming skill.  This was confusing people.
+- As in Oangband, typing a number when choosing an object checks both inventory and equipment.  (suggested by Mikolaj Konarski)
+- Quest rewards are no longer IDed.  Don't want to spoil the surprise.  (suggested by Mikolaj Konarski)
+- Mimics can no longer be quest monsters (it's rough on them when the character knows they're around).  (suggested by Mikolaj Konarski)
+
 
 
 

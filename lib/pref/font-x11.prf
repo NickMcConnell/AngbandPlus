@@ -1,2 +1,72 @@
 # File: font-x11.prf
 
+
+### Terrain features ###
+
+#
+# The pseudo-graphical option
+#
+
+# Ordinary floor
+F:1:w/7:Y/7:s/7
+
+# Up shaft
+F:4:U/<:U/<:U/<
+
+# Down shaft
+F:5:U/>:U/>:U/>
+
+# Open door
+F:6:U/14:U/14:U/14
+
+# Broken door
+F:7:u/15:u/15:u/15
+
+# Up stairs
+F:8:w/<:w/<:W/<
+
+# Down stairs
+F:9:w/>:w/>:W/>
+
+# Lava
+F:10:r/19:R/19:r/19
+
+# Water
+F:11:b/17:Z/17:b/17
+
+# Tree
+F:12:g/18:G/18:g/18
+
+# Closed, locked, or jammed door
+F:32:U/13:U/13:U/13
+
+# Rubble
+F:49:w/11:Y/11:W/11
+
+# Magma
+F:50:s/3:s/3:D/3
+
+# Quartz
+F:51:W/3:W/3:s/3
+
+# Magma with treasure
+F:54:o/12:o/12:o/12
+
+# Quartz with treasure
+F:55:o/12:o/12:o/12
+
+# Granite walls
+F:56:w/127:w/127:W/127
+
+# Permanent wall -- town buildings
+F:60:w/127:w/127:W/127
+
+# Permanent wall -- all others
+F:61:w/3:w/3:W/3
+
+
+#
+# Boulders (slate, large dot)
+#
+K:638:s:10
+

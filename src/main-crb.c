@@ -508,7 +508,6 @@
 # define HAS_SCORE_MENU
 # define NEW_ZVIRT_HOOKS
 /* I can't ditch these, yet, because there are many variants */
-# define USE_TRANSPARENCY
 # define huge size_t
 #endif /* ANGBAND30X */
 
@@ -516,7 +515,6 @@
 #define AUTO_SAVE_ARG_REQUIRED  1
 #define ANG281_RESET_VISUALS    1
 #define huge size_t
-#define USE_TRANSPARENCY
 #define ANGBAND_CREATOR 'A271'
 
 
@@ -614,9 +612,9 @@
 
 
 /*
- * Information about each of the 256 available colors
+ * Information about each of the MAX_COLORS available colors
  */
-static RGBColor color_info[256];
+static RGBColor color_info[MAX_COLORS];
 
 
 #if defined(MACH_O_CARBON) || defined(MAC_MPW)
@@ -2280,7 +2278,7 @@ static errr Term_xtra_mac_react(void)
 	td->last = -1;
 
 	/* Update colors */
-	for (i = 0; i < 256; i++)
+	for (i = 0; i < MAX_COLORS; i++)
 	{
 		u16b rv, gv, bv;
 
@@ -2803,12 +2801,8 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  *
  * Erase "n" characters starting at (x,y)
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
 			  const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	int i;
 	Rect dst_r;
@@ -2846,10 +2840,8 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		byte a = *ap++;
 		char c = *cp++;
 
-#ifdef USE_TRANSPARENCY
 		byte ta = *tap++;
 		char tc = *tcp++;
-#endif
 
 
 #ifdef USE_DOUBLE_TILES
@@ -2874,10 +2866,8 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		{
 			int col, row;
 			Rect src_r;
-#ifdef USE_TRANSPARENCY
 			int t_col, t_row;
 			Rect terrain_r;
-#endif /* USE_TRANSPARENCY */
 
 			/* Row and Col */
 			row = ((byte)a & 0x7F) % pict_rows;
@@ -2889,7 +2879,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			src_r.right = src_r.left + graf_width;
 			src_r.bottom = src_r.top + graf_height;
 
-#ifdef USE_TRANSPARENCY
 			/* Row and Col */
 			t_row = ((byte)ta & 0x7F) % pict_rows;
 			t_col = ((byte)tc & 0x7F) % pict_cols;
@@ -2899,7 +2888,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			terrain_r.top = t_row * graf_height;
 			terrain_r.right = terrain_r.left + graf_width;
 			terrain_r.bottom = terrain_r.top + graf_height;
-#endif /* USE_TRANSPARENCY */
 
 			/* Hardwire CopyBits */
 			RGBBackColor(&white);
@@ -2927,8 +2915,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 
 			/* Get Pixmap handle */
 			pixmap_h = GetPortPixMap(port);
-
-#ifdef USE_TRANSPARENCY
 
 			/* Transparency effect */
 			switch (transparency_mode)
@@ -2965,15 +2951,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 					break;
 				}
 			}
-
-#else /* USE_TRANSPARENCY */
-
-			/* Draw the picture */
-			CopyBits((BitMap*)frameP->framePix,
-				(BitMap*)*pixmap_h,
-				&src_r, &dst_r, srcCopy, NULL);
-
-#endif /* USE_TRANSPARENCY */
 
 			/* Release the lock and dispose the PixMap handle */
 			UnlockPortBits(port);
@@ -6173,7 +6150,7 @@ int main(void)
 
 
 	/* Initialize colors */
-	for (i = 0; i < 256; i++)
+	for (i = 0; i < MAX_COLORS; i++)
 	{
 		u16b rv, gv, bv;
 

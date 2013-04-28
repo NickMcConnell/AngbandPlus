@@ -45,7 +45,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING   "0.9.9, beta 20"
+#define VERSION_STRING   "0.9.9, beta 20d"
 
 /*
  * Current (Sangband) version numbers
@@ -4998,6 +4998,16 @@
  * Should be the same as MSG_MAX for compatibility reasons.
  */
 #define SOUND_MAX MSG_MAX
+
+
+/*
+ * Available graphics modes
+ */
+#define GRAPHICS_NONE           0  /* Text, no fanciness */
+#define GRAPHICS_ORIGINAL       1  /* Old graphics (not used) */
+#define GRAPHICS_ADAM_BOLT      2  /* 16x16 Adam Bolt graphics */
+#define GRAPHICS_DAVID_GERVAIS  3  /* 32x32 David Gervais graphics */
+#define GRAPHICS_PSEUDO         4  /* Text with pseudo-graphical chars */
 
 
 /*

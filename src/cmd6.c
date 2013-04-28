@@ -1904,6 +1904,12 @@ cptr do_object(int mode, object_type *o_ptr)
 				msg_print("Your hands begin to glow.");
 				p_ptr->special_attack |= (ATTACK_CONFUSE);
 				obj_ident = TRUE;
+
+				/* Print "special attacks" */
+				left_panel_display(DISPLAY_SPECIAL_ATTACK, 0);
+
+				/* Redraw conditions status */
+				p_ptr->redraw |= (PR_CONDITIONS);
 			}
 			break;
 		}
@@ -6711,6 +6717,12 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 					msg_format("The %s you have ready to hand becomes terribly cold.", missile_name);
 				else
 					msg_print("This activation is undefined.");
+
+				/* Print "special attacks" */
+				left_panel_display(DISPLAY_SPECIAL_ATTACK, 0);
+
+				/* Redraw conditions status */
+				p_ptr->redraw |= (PR_CONDITIONS);
 			}
 			break;
 		}

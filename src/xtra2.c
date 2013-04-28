@@ -3852,10 +3852,13 @@ static bool target_set_interactive_accept(int y, int x)
 	}
 
 	/* Scan all objects in the grid */
-	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+	if ((!p_ptr->blind) || ((y == p_ptr->py) && (x == p_ptr->px)))
 	{
-		/* Memorized object */
-		if (o_ptr->marked) return (TRUE);
+		for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+		{
+			/* Memorized object */
+			if (o_ptr->marked) return (TRUE);
+		}
 	}
 
 	/* Interesting memorized features */

@@ -4605,15 +4605,15 @@ void do_cmd_feeling(bool first_time)
 		return;
 	}
 
-	/* No useful feelings until enough time has passed */
+	/* Display the precognition messages  XXX XXX */
+	if (!first_time) precog_msg(PRECOG_DISPLAY);
+
+	/* No useful general feelings until enough time has passed */
 	if (no_feeling_yet)
 	{
 		msg_print("You are still uncertain about this place...");
 		return;
 	}
-
-	/* Display the precognition messages  XXX XXX */
-	if (!first_time) precog_msg(PRECOG_DISPLAY);
 
 	/* Display the feeling */
 	if (TRUE)

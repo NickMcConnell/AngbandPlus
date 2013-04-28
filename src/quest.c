@@ -638,11 +638,6 @@ static void grant_reward(byte reward_level, byte type, int diff)
 			return;
 		}
 
-		/* Identify it fully */
-		object_aware(i_ptr);
-		object_known(i_ptr);
-		object_mental(i_ptr);
-
 		/* Drop the object */
 		drop_near(i_ptr, 0, p_ptr->py, p_ptr->px, 0x00);
 	}

@@ -2336,42 +2336,44 @@ static void left_panel_display_aux(byte item, byte row, int tmp)
 		}
 		case DISPLAY_SPECIAL_ATTACK:
 		{
+			int col = 0;
+
 			if (p_ptr->acid_attack)
-				(void)Term_putch(0, row, TERM_SLATE, 'A');
+				(void)Term_putch(col++, row, TERM_SLATE, 'A');
 			if (p_ptr->elec_attack)
-				(void)Term_putch(0, row, TERM_BLUE, 'E');
+				(void)Term_putch(col++, row, TERM_BLUE, 'E');
 			if (p_ptr->fire_attack)
-				(void)Term_putch(0, row, TERM_RED, 'F');
+				(void)Term_putch(col++, row, TERM_RED, 'F');
 			if (p_ptr->cold_attack)
-				(void)Term_putch(0, row, TERM_WHITE, 'C');
+				(void)Term_putch(col++, row, TERM_WHITE, 'C');
 			if (p_ptr->pois_attack)
-				(void)Term_putch(0, row, TERM_GREEN, 'P');
+				(void)Term_putch(col++, row, TERM_GREEN, 'P');
 
 			if (p_ptr->special_attack & (ATTACK_CONFUSE))
-					(void)Term_putch(0, row, TERM_L_UMBER, '?');
+					(void)Term_putch(col++, row, TERM_L_UMBER, '?');
 			if (p_ptr->special_attack & (ATTACK_BLKBRTH))
-					(void)Term_putch(0, row, TERM_PURPLE, '!');
+					(void)Term_putch(col++, row, TERM_PURPLE, '!');
 			if (p_ptr->special_attack & (ATTACK_FLEE))
-					(void)Term_putch(0, row, TERM_WHITE, '*');
+					(void)Term_putch(col++, row, TERM_WHITE, '*');
 			if (p_ptr->special_attack & (ATTACK_HOLY))
-					(void)Term_putch(0, row, TERM_YELLOW, 'H');
+					(void)Term_putch(col++, row, TERM_YELLOW, 'H');
 			if (p_ptr->special_attack & (ATTACK_VORPAL))
-					(void)Term_putch(0, row, TERM_L_UMBER, 'V');
+					(void)Term_putch(col++, row, TERM_L_UMBER, 'V');
 
 			if (p_ptr->special_attack & (ATTACK_PIERCING))
-					(void)Term_putch(0, row, TERM_PURPLE, '^');
+					(void)Term_putch(col++, row, TERM_PURPLE, '^');
 			if (p_ptr->special_attack & (ATTACK_DEADLY))
-					(void)Term_putch(0, row, TERM_ORANGE, '^');
+					(void)Term_putch(col++, row, TERM_ORANGE, '^');
 			if (p_ptr->special_attack & (ATTACK_IMPACT))
-					(void)Term_putch(0, row, TERM_L_UMBER, '^');
+					(void)Term_putch(col++, row, TERM_L_UMBER, '^');
 			if (p_ptr->special_attack & (ATTACK_ACCURATE))
-					(void)Term_putch(0, row, TERM_L_BLUE, '^');
+					(void)Term_putch(col++, row, TERM_L_BLUE, '^');
 			if (p_ptr->special_attack & (ATTACK_SHOT_FIRE))
-					(void)Term_putch(0, row, TERM_RED, '^');
+					(void)Term_putch(col++, row, TERM_RED, '^');
 			if (p_ptr->special_attack & (ATTACK_SHOT_COLD))
-					(void)Term_putch(0, row, TERM_WHITE, '^');
+					(void)Term_putch(col++, row, TERM_WHITE, '^');
 			if (p_ptr->special_attack & (ATTACK_BARD))
-					(void)Term_putch(0, row, TERM_L_BLUE, 'B');
+					(void)Term_putch(col++, row, TERM_L_BLUE, 'B');
 
 			break;
 		}

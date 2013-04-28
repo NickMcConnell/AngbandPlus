@@ -724,6 +724,9 @@ void do_cmd_wield(void)
 	/* Increase the weight */
 	p_ptr->total_weight += i_ptr->weight * i_ptr->number;
 
+	/* Object has no location */
+	i_ptr->iy = i_ptr->ix = 0;
+
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
 

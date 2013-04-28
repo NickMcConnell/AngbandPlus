@@ -24,17 +24,314 @@
 
 #include "angband.h"
 
-#if defined(USE_X11) || defined(USE_XAW)
+#if defined(USE_X11) || defined(USE_GTK)
 
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <X11/keysymdef.h>
+#include <X11/Xproto.h>
 #endif /* __MAKEDEPEND__ */
 
 /* Include our headers */
 #include "maid-x11.h"
+
+
+/*
+ * Fast string concatenation.
+ *
+ * Append the "src" string to "dest" given the address of the trailing null
+ * character of "dest" in "end". "end" can be NULL, in which the trailing null
+ * character is fetched from the beginning of "dest".
+ *
+ * "n" is the maximum size of "dest" (including the trailing null character).
+ *
+ * It returns the -new- address of the trailing null character of "dest".
+ */
+static char *my_fast_strcat(char dest[], char *end, cptr src, size_t n)
+{
+	/* No end, go the beginning of "dest" */
+	if (end == NULL) end = dest;
+
+	/* Find the trailing null character, if necessary */
+	while (*end) ++end;
+
+	/* Append "str" to "dest", if possible */
+	while (((int)(end - dest) < (n - 1)) && *src)
+	{
+		*end++ = *src++;
+	}
+
+	/* Terminate the string */
+	*end = '\0';
+
+	/* Return the new end of "dest" */
+	return end;
+}
+
+
+/*
+ * Removes all redundant dots and path separators form a given path.
+ * "path" has to be an absolute UNIX path (it has to start with PATH_SEP).
+ */
+static void simplify_unix_path(char path[], size_t max)
+{
+	char buf[1024];
+	char *pbuf = buf, *psep;
+	int size_sep = strlen(PATH_SEP);
+	/* This table holds pointers to the parts of the path */
+	char *parts[100];
+	int i, j, n = 0;
+
+	/* Make a copy of the path */
+	my_strcpy(buf, path, sizeof(buf));
+
+	/* Separate the parts of the path */
+	while ((psep = strstr(pbuf, PATH_SEP)) != NULL)
+	{
+		/* Terminate the part */
+		*psep = '\0';
+
+		/* Put the part in the table */
+		if (*pbuf && (n < N_ELEMENTS(parts))) parts[n++] = pbuf;
+
+		/* Skip the separator and jump to the next part */
+		pbuf = psep + size_sep;
+	}
+
+	/* Append the last part to the table */
+	if (*pbuf && (n < N_ELEMENTS(parts))) parts[n++] = pbuf;
+
+	/*
+	 * Traverse the parts table, processing "." and ".."
+	 * We use two indexes, "i" to traverse the table and "j" to save
+	 * its final size.
+	 */
+	for (i = j = 0; i < n; i++)
+	{
+		/* Get the part */
+		char *part = parts[i];
+
+		/*
+		 * "." does nothing. "j" isn't modified, so "." is removed
+		 * from the table
+		 */
+		if (streq(part, ".")) continue;
+
+		/* ".." removes the previous part, if possible */
+		if (streq(part, ".."))
+		{
+			if (j > 0) --j;
+
+			continue;
+		}
+
+		/* Normal case. Copy the part to its final position */
+		parts[j++] = part;
+	}
+
+	/* Update the number of parts */
+	n = j;
+
+	/* Start with an empty string */
+	path[0] = '\0';
+
+	/* Construct the simplified path, it contains at least the root dir */
+	pbuf = my_fast_strcat(path, NULL, PATH_SEP, max);
+
+	/* Concat the parts */
+	for (i = 0; i < n; i++)
+	{
+		/* Append the part */
+		pbuf = my_fast_strcat(path, pbuf, parts[i], max);
+
+		/* Append the separator, except for the last part */
+		if (i < (n - 1))
+		{
+			pbuf = my_fast_strcat(path, pbuf, PATH_SEP, max);
+		}
+	}
+}
+
+
+#ifdef SET_UID
+
+/*
+ * Construct the full pathname of the given file.
+ * TODO -- Move this to util.c
+ */
+static errr build_full_path(char buf[], size_t max, cptr file)
+{
+        char tmp_buf[1024], *pbuf;
+
+        /* Parse special directories, etc. */
+        if (path_parse(tmp_buf, sizeof(tmp_buf), file)) return (1);
+
+        /* We already have an absolute path? */
+        if (prefix(tmp_buf, PATH_SEP))
+        {
+                /* Just copy the path */
+                my_strcpy(buf, tmp_buf, max);
+
+                /* Done */
+                return (0);
+        }
+
+        /* We got a relative path, get the current working directory */
+        if (!getcwd(buf, max))
+        {
+                /* Failed */
+                return (1);
+        }
+
+        /* Append the path to the current working directory */
+	pbuf = NULL;
+
+        pbuf = my_fast_strcat(buf, pbuf, PATH_SEP, max);
+        pbuf = my_fast_strcat(buf, pbuf, tmp_buf, max);
+
+	/* Remove all redundant dots and path separators */
+	simplify_unix_path(buf, max);
+
+        /* Success */
+        return (0);
+}
+
+#else /* SET_UID */
+
+static errr build_full_path(char buf[], size_t max, cptr file)
+{
+        /* Parse special directories, etc. */
+         return (path_parse(buf, max, file));
+}
+
+#endif /* SET_UID */
+
+
+/* Hack -- Remember if XSetFontPath failed */
+static bool set_font_path_failed;
+
+/* Custom error handler for XWindows. It doesn't quit the application */
+static int my_error_handler(Display *display, XErrorEvent *event)
+{
+        /* XSetFontPath errors require special handling */
+        if ((event->request_code == X_SetFontPath) &&
+                (event->error_code == BadValue))
+        {
+                /* Remember the error */
+                set_font_path_failed = TRUE;
+        }
+
+        /* Dummy value */
+        return (0);
+}
+
+
+/*
+ * Tell to the X server where to find the fonts provided with Angband.
+ * Returns TRUE on success.
+ */
+bool register_angband_fonts(void)
+{
+        char *display_name = "";
+        Display *display;
+        char **dir_list;
+        int i, ndirs;
+        char fdir_path[1024], full_fdir_path[1024];
+
+        /* Get the path to lib/xtra/font */
+        if (path_build(fdir_path, sizeof(fdir_path), ANGBAND_DIR_XTRA, "font"))
+        {
+                /* Failed */
+                return (FALSE);
+        }
+
+        /* Get the FULL path to lib/xtra/font */
+        if (build_full_path(full_fdir_path, sizeof(full_fdir_path), fdir_path))
+        {
+                /* Failed */
+                return (FALSE);
+        }
+
+        /* Paranoia */
+        if (!prefix(full_fdir_path, PATH_SEP)) return (FALSE);
+
+        /* Open a connection to the X server */
+        display = XOpenDisplay(display_name);
+
+        /* Check status of the connection */
+        if (!display) return (FALSE);
+
+        /* Hack -- Assume success */
+        set_font_path_failed = FALSE;
+
+        /* Get the current font path of the X server */
+        dir_list = XGetFontPath(display, &ndirs);
+
+        /* Check if lib/xtra/font is already there */
+        for (i = 0; i < ndirs; i++)
+        {
+                /* Found it */
+                if (streq(dir_list[i], full_fdir_path)) break;
+        }
+
+        /* Modify the font path only once */
+        if (i >= ndirs)
+        {
+                char **new_dir_list;
+                int (*old_error_handler)(Display *, XErrorEvent *);
+
+                /* Allocate the new font path */
+                C_MAKE(new_dir_list, ndirs + 1, cptr);
+
+                /* Copy the entries of the old font path into the new one */
+                for (i = 0; i < ndirs; i++)
+                {
+                        new_dir_list[i] = dir_list[i];
+                }
+
+                /* Append the full path to lib/xtra/font */
+                new_dir_list[i] = full_fdir_path;
+
+                /* Set a custom error handler to avoid program termination */
+                old_error_handler = XSetErrorHandler(my_error_handler);
+
+                /* Set the new font path */
+                XSetFontPath(display, new_dir_list, ndirs + 1);
+
+                /* Release resources */
+                FREE(new_dir_list);
+
+                /* Synchronize with the X server to cach errors ASAP */
+                XSync(display, FALSE);
+
+                /* Reset the error handler */
+                XSetErrorHandler(old_error_handler);
+        }
+
+        /* Cleanup */
+        XFreeFontPath(dir_list);
+
+        /* Close the connection to the X server */
+        XCloseDisplay(display);
+
+	/* Failed */
+	if (set_font_path_failed)
+	{
+		plog_fmt("Bad font directory. (%s)", full_fdir_path);
+		plog("Possible causes:");
+		plog("\t1. Directory doesn't exist.");
+		plog("\t2. You have the wrong permissions.");
+		plog("\t3. Directory lacks a fonts.dir file.");
+
+		return (FALSE);
+	}
+
+        /* Success */
+        return (TRUE);
+}
+
 
 
 #ifdef SUPPORT_GAMMA
@@ -1001,5 +1298,5 @@ XImage *ResizeImage(Display *dpy, XImage *Im,
 
 #endif /* USE_GRAPHICS */
 
-#endif /* USE_X11 || USE_XAW */
+#endif /* USE_X11 || USE_GTK */
 

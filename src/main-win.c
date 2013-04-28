@@ -40,7 +40,7 @@
  * If "USE_GRAPHICS" is defined, then "readdib.h" and "readdib.c" must
  * be placed into "src/", and the "8x8.bmp" bitmap file must be placed
  * into "lib/xtra/graf".  In any case, some "*.fon" files (including
- * "8X13.FON" if nothing else) must be placed into "lib/xtra/font/".
+ * "8x12x.fon" if nothing else) must be placed into "lib/xtra/font/".
  * If "USE_SOUND" is defined, then some special library (for example,
  * "winmm.lib") may need to be linked in, and desired "*.WAV" sound
  * files must be placed into "lib/xtra/sound/".  All of these extra
@@ -64,7 +64,7 @@
  * Additional code by Ross E Becker (beckerr@cis.ohio-state.edu),
  * and Chris R. Martin (crm7479@tam2000.tamu.edu).
  *
- * Additional code by Robert Ruehlmann <rr9@angband.org>.
+ * Additional code by Robert Ruehlmann <rr9@thangorodrim.net>.
  */
 
 #include "angband.h"
@@ -680,11 +680,11 @@ unsigned _cdecl _dos_getfileattr(const char *, unsigned *);
 /*
  * Standard fonts.
  */
-#define DEFAULT_LARGE_FONT   "8x13.FON"
-#define DEFAULT_SMALL_FONT   "8x8b.FON"
+#define DEFAULT_LARGE_FONT   "8x12x.fon"
+#define DEFAULT_SMALL_FONT   "8x8x.fon"
 
 #define DEFAULT_LARGE_FONT_WID   8
-#define DEFAULT_LARGE_FONT_HGT  13
+#define DEFAULT_LARGE_FONT_HGT  12
 
 #define DEFAULT_SMALL_FONT_WID   8
 #define DEFAULT_SMALL_FONT_HGT   8
@@ -704,9 +704,9 @@ typedef struct _term_data term_data;
  * Note the use of "font_want" for the names of the font file requested by
  * the user, and the use of "font_file" for the currently active font file.
  *
- * The "font_file" is uppercased, and takes the form "8X13.FON", while
- * "font_want" can be in almost any form as long as it could be construed
- * as attempting to represent the name of a font.
+ * The "font_file" takes the form "8x12x.fon", while "font_want" can be in
+ * almost any form as long as it could be construed as attempting to
+ * represent the name of a font.
  */
 struct _term_data
 {
@@ -883,14 +883,6 @@ static DIBINIT infMask;
 
 
 #endif /* USE_GRAPHICS */
-
-
-/*
- * Available graphic modes
- */
-#define GRAPHICS_NONE       0
-#define GRAPHICS_ORIGINAL   1
-#define GRAPHICS_ADAM_BOLT  2
 
 
 
@@ -1936,6 +1928,60 @@ static void term_window_resize(const term_data *td)
 }
 
 
+#if 0  /* Debugging code */
+/*
+ * This function is used for debugging.  It should be called immediately
+ * after the Windows API call you wish to test, and with a string indicating
+ * the location of the error.
+ */
+static void ErrorExit(LPTSTR lpszFunction)
+{
+	DWORD dw = GetLastError();
+
+	/* We have an non-zero error */
+	if (dw)
+	{
+		TCHAR szBuf[80];
+		LPVOID lpMsgBuf;
+
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM,
+			NULL,
+			dw,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR) &lpMsgBuf,
+			0, NULL );
+
+		wsprintf(szBuf,
+			"%s failed with error %d: %s",
+			lpszFunction, dw, lpMsgBuf);
+
+		MessageBox(NULL, szBuf, "Error", MB_OK);
+
+		LocalFree(lpMsgBuf);
+
+		/* ExitProcess(dw); */
+	}
+}
+#endif  /* Debugging code */
+
+
+/*
+ * Build a correct font path for a font resource and release it.
+ */
+static int my_RemoveFontResource(const char *font)
+{
+	char buf[1024];
+
+	my_strcpy(buf, ANGBAND_DIR_XTRA_FONT, 1024);
+	my_strcat(buf, "\\", 1024);
+	my_strcat(buf, font, 1024);
+
+	return (RemoveFontResource(buf));
+}
+
+
 /*
  * Force the use of a new "font file" for a term_data
  *
@@ -1958,7 +2004,7 @@ static errr term_force_font(term_data *td, cptr path)
 	if ((td->font_file_25) && ((screen_rows != 50) || (!td->variable_rows)))
 	{
 		/* Remove old 25-line font from the system, free system resources */
-		RemoveFontResource(td->font_file_25);
+		(void)my_RemoveFontResource(td->font_file_25);
 		DeleteObject(td->font_id_25);
 
 		/* Free the old name */
@@ -1972,8 +2018,8 @@ static errr term_force_font(term_data *td, cptr path)
 	if ((td->font_file_50) && ((screen_rows == 50) && (td->variable_rows)))
 	{
 		/* Remove old 50-line font from the system, free system resources */
+		(void)my_RemoveFontResource(td->font_file_50);
 		DeleteObject(td->font_id_50);
-		RemoveFontResource(td->font_file_50);
 
 		/* Free the old name */
 		string_free(td->font_file_50);
@@ -2002,7 +2048,7 @@ static errr term_force_font(term_data *td, cptr path)
 	/* Load the new font */
 	if (!AddFontResource(buf)) return (1);
 
-	/* Notify other applications that a new font is available  XXX XXX XXX */
+	/* Notify other applications that a new font is available  XXX */
 	SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 
 	/* Save new font name */
@@ -2243,7 +2289,7 @@ static errr Term_xtra_win_react(void)
 	if (colors16)
 	{
 		/* Save the default colors */
-		for (i = 0; i < 256; i++)
+		for (i = 0; i < MAX_COLORS; i++)
 		{
 			/* Simply accept the desired colors */
 			win_pal[i] = color_table[i].kv;
@@ -2260,7 +2306,7 @@ static errr Term_xtra_win_react(void)
 		bool change = FALSE;
 
 		/* Save the default colors */
-		for (i = 0; i < 256; i++)
+		for (i = 0; i < MAX_COLORS; i++)
 		{
 			/* Extract desired values */
 			rv = color_table[i].rv;
@@ -2573,7 +2619,11 @@ static int Term_xtra_win_delay(int v)
 #ifdef WIN32
 
 	/* Sleep */
-	if (v > 0) Sleep(v);
+	if (v > 0)
+	{
+		Term_xtra_win_event(0);
+		Sleep(v);
+	}
 
 #else /* WIN32 */
 
@@ -2654,7 +2704,6 @@ static errr Term_xtra_win(int n, int v)
 		/* Delay for some milliseconds */
 		case TERM_XTRA_DELAY:
 		{
-			if (v <= 0) return (0);
 			return (Term_xtra_win_delay(v));
 		}
 	}
@@ -2698,12 +2747,23 @@ static errr Term_curs_win(int x, int y)
 		}
 	}
 
-	/* Frame the grid */
-	rc.left = x * tile_wid + td->size_ow1;
-	rc.right = rc.left + tile_wid;
-	rc.top = y * tile_hgt + td->size_oh1;
-	rc.bottom = rc.top + tile_hgt;
-	rc.top = rc.bottom - 1;
+	/* Paint either a box or a thick underline */
+	if (highlight_player)
+	{
+		/* Frame the grid */
+		rc.left = x * tile_wid + td->size_ow1;
+		rc.right = rc.left + tile_wid;
+		rc.top = y * tile_hgt + td->size_oh1;
+		rc.bottom = rc.top + tile_hgt;
+	}
+	else
+	{
+		/* Thick underline */
+		rc.left = x * tile_wid + td->size_ow1;
+		rc.right = rc.left + tile_wid;
+		rc.bottom = y * tile_hgt + td->size_oh1 + tile_hgt;
+		rc.top = rc.bottom - 2;
+	}
 
 
 	/* Cursor is done as a yellow "box" */
@@ -2804,6 +2864,7 @@ static errr Term_text_win(int x, int y, int n, byte a, cptr s)
 		rc.bottom = rc.top + td->tile_hgt_50;
 	}
 
+
 	/* Background color */
 	SetBkColor(hdc, RGB(0, 0, 0));
 
@@ -2814,49 +2875,42 @@ static errr Term_text_win(int x, int y, int n, byte a, cptr s)
 	}
 	else if (paletted)
 	{
-		SetTextColor(hdc, win_clr[a&0x0F]);
+		SetTextColor(hdc, win_clr[a & 0x0F]);
 	}
 	else
 	{
 		SetTextColor(hdc, win_clr[a]);
 	}
 
-	/* Bizarre size */
-	if (td->bizarre ||
-	    (td->tile_hgt_25 != td->font_hgt_25) ||
+
+	/* Non-standard height or width */
+	if ((td->tile_hgt_25 != td->font_hgt_25) ||
 	    (td->tile_wid_25 != td->font_wid_25) ||
 	    (td->tile_hgt_50 != td->font_hgt_50) ||
 	    (td->tile_wid_50 != td->font_wid_50))
 	{
 		int i;
 
-		/* Erase complete rectangle */
-		ExtTextOut(hdc, 0, 0, ETO_OPAQUE, &rc, NULL, 0, NULL);
-
 		/* New rectangle */
 		if ((screen_rows != 50) || (!td->variable_rows))
 		{
-			rc.left += ((td->tile_wid_25 - td->font_wid_25) / 2);
-			rc.right = rc.left + td->font_wid_25;
-			rc.top += ((td->tile_hgt_25 - td->font_hgt_25) / 2);
-			rc.bottom = rc.top + td->font_hgt_25;
+			rc.right = rc.left + td->tile_wid_25;
+			rc.bottom = rc.top + td->tile_hgt_25;
 		}
 		else
 		{
-			rc.left += ((td->tile_wid_50 - td->font_wid_50) / 2);
-			rc.right = rc.left + td->font_wid_50;
-			rc.top += ((td->tile_hgt_50 - td->font_hgt_50) / 2);
-			rc.bottom = rc.top + td->font_hgt_50;
+			rc.right = rc.left + td->tile_wid_50;
+			rc.bottom = rc.top + td->tile_hgt_50;
 		}
 
 		/* Dump each character */
 		for (i = 0; i < n; i++)
 		{
-			/* Dump the text */
-			ExtTextOut(hdc, rc.left, rc.top, 0, &rc,
-			           s+i, 1, NULL);
+			/* Dump this character (within the rectangle) */
+			ExtTextOut(hdc, rc.left, rc.top, ETO_CLIPPED, &rc,
+			           s + i, 1, NULL);
 
-			/* Advance */
+			/* Advance the upper-left corner to next character */
 			if ((screen_rows != 50) || (!td->variable_rows))
 			{
 				rc.left += td->tile_wid_25;
@@ -2874,8 +2928,7 @@ static errr Term_text_win(int x, int y, int n, byte a, cptr s)
 	else
 	{
 		/* Dump the text */
-		ExtTextOut(hdc, rc.left, rc.top, ETO_OPAQUE | ETO_CLIPPED, &rc,
-		           s, n, NULL);
+		ExtTextOut(hdc, rc.left, rc.top, 0, &rc, s, n, NULL);
 	}
 
 	/* Release DC */
@@ -2899,11 +2952,8 @@ static errr Term_text_win(int x, int y, int n, byte a, cptr s)
  *
  * If "graphics" is not available, we simply "wipe" the given grids.
  */
-# ifdef USE_TRANSPARENCY
-static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
+static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp,
+	const byte *tap, const char *tcp)
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -2913,13 +2963,9 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2;
 
-# ifdef USE_TRANSPARENCY
-
 	int x3, y3;
 
 	HDC hdcMask;
-
-# endif /* USE_TRANSPARENCY */
 
 	HDC hdc;
 	HDC hdcSrc;
@@ -2967,15 +3013,12 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
 
-# ifdef USE_TRANSPARENCY
 
 	if (arg_graphics == GRAPHICS_ADAM_BOLT)
 	{
 		hdcMask = CreateCompatibleDC(hdc);
 		SelectObject(hdcMask, infMask.hBitmap);
 	}
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Draw attr/char pairs */
 	for (i = 0; i < n; i++, x2 += w2)
@@ -2991,8 +3034,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		x1 = col * w1;
 		y1 = row * h1;
 
-# ifdef USE_TRANSPARENCY
-
+		/* We are using Adam Bolt graphics */
 		if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
 			x3 = (tcp[i] & 0x7F) * w1;
@@ -3032,9 +3074,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 			}
 		}
 		else
-
-# endif /* USE_TRANSPARENCY */
-
 		{
 			/* Perfect size */
 			if ((w1 == w2) && (h1 == h2))
@@ -3059,16 +3098,12 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-# ifdef USE_TRANSPARENCY
-
 	if (arg_graphics == GRAPHICS_ADAM_BOLT)
 	{
 		/* Release */
 		SelectObject(hdcMask, hbmSrcOld);
 		DeleteDC(hdcMask);
 	}
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Release */
 	ReleaseDC(td->w, hdc);
@@ -3129,10 +3164,8 @@ static void windows_map_aux(void)
 	int x, min_x, max_x;
 	int y, min_y, max_y;
 
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
-#endif /* USE_TRANSPARENCY */
 
 
 	if ((screen_rows != 50) || (!td->variable_rows))
@@ -3157,20 +3190,12 @@ static void windows_map_aux(void)
 	{
 		for (y = min_y; y < max_y; y++)
 		{
-#ifdef USE_TRANSPARENCY
 			map_info(y, x, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-			map_info(y, x, &a, &c);
-#endif /* USE_TRANSPARENCY */
 
 			/* Ignore non-graphics */
 			if ((a & 0x80) && (c & 0x80))
 			{
-#ifdef USE_TRANSPARENCY
 				Term_pict_win(x - min_x, y - min_y, 1, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-				Term_pict_win(x - min_x, y - min_y, 1, &a, &c);
-#endif /* USE_TRANSPARENCY */
 			}
 		}
 	}
@@ -3898,17 +3923,17 @@ static void start_screensaver(void)
 	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Leave disturbance options */
 
 	/*
-	 * Make sure the "cheat_live" option is set, so that the Borg can
+	 * Make sure the "beginner_play" option is set, so that the Borg can
 	 * automatically restart.
 	 */
 
 	screensaver_inkey_hack_buffer[j++] = '7'; /* Cheat options */
 
-	/* Cursor down to "cheat live" */
-	for (i = 0; i < OPT_cheat_live - OPT_CHEAT; i++)
+	/* Cursor down to "beginner_play" (fix this) */
+	for (i = 0; i < OPT_beginner_play - OPT_CHEAT; i++)
 		screensaver_inkey_hack_buffer[j++] = '2';
 
-	screensaver_inkey_hack_buffer[j++] = 'y'; /* Switch on "cheat_live" */
+	screensaver_inkey_hack_buffer[j++] = 'y'; /* Switch on "beginner_play" */
 	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Leave cheat options */
 	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Leave options */
 
@@ -5454,8 +5479,8 @@ static void hook_quit(cptr str)
 	for (i = MAX_TERM_DATA - 1; i >= 0; --i)
 	{
 		/* Remove all fonts from the system, free resources */
-		if (data[i].font_file_25) RemoveFontResource(data[i].font_file_25);
-		if (data[i].font_file_50) RemoveFontResource(data[i].font_file_50);
+		if (data[i].font_file_25) my_RemoveFontResource(data[i].font_file_25);
+		if (data[i].font_file_50) my_RemoveFontResource(data[i].font_file_50);
 		if (data[i].font_id_25) DeleteObject(data[i].font_id_25);
 		if (data[i].font_id_50) DeleteObject(data[i].font_id_50);
 		if (data[i].font_want_25) string_free(data[i].font_want_25);
@@ -5467,6 +5492,9 @@ static void hook_quit(cptr str)
 
 		term_nuke(&data[i].t);
 	}
+
+	/* Notify other applications that some fonts are not available  XXX */
+	SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 
 #ifdef USE_GRAPHICS
 	/* Free the bitmap stuff */
@@ -5617,7 +5645,7 @@ screen_rows = 50;
 	validate_dir(ANGBAND_DIR_XTRA_FONT);
 
 	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
+	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, DEFAULT_LARGE_FONT);
 
 	/* Hack -- Validate the basic font */
 	validate_file(path);
@@ -5774,10 +5802,10 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 
 	/* Save the maximum system colors */
 	if (colors16) max_system_colors = 16;
-	else          max_system_colors = 256;
+	else          max_system_colors = MAX_COLORS;
 
 	/* Initialize the colors */
-	for (i = 0; i < 256; i++)
+	for (i = 0; i < MAX_COLORS; i++)
 	{
 		byte rv, gv, bv;
 

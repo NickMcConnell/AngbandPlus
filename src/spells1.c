@@ -1181,7 +1181,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 				}
 
 				/* Force also moves objects */
-				if (typ != GF_FORCE) break;
+				if ((typ != GF_FORCE) || (do_kill)) break;
 			}
 
 			/* Wind blows things around */
@@ -1201,17 +1201,21 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 			/* Chaos destroys and changes objects */
 			case GF_CHAOS:
 			{
-				if (dam > rand_range(20, 150))
+				/* Object is not resistant to chaos */
+				if (!(f2 & (TR2_RES_CHAOS)))
 				{
-					if (one_in_(2))
+					if (dam > rand_range(20, 150))
 					{
-						do_change = TRUE;
-						note_change = (plural ? " change!" : " changes!");
-					}
-					else
-					{
-						do_kill = TRUE;
-						note_kill = (plural ? " are destroyed!" : " is destroyed!");
+						if (one_in_(2))
+						{
+							do_change = TRUE;
+							note_change = (plural ? " change!" : " changes!");
+						}
+						else
+						{
+							do_kill = TRUE;
+							note_kill = (plural ? " are destroyed!" : " is destroyed!");
+						}
 					}
 				}
 				break;

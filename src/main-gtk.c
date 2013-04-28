@@ -14,6 +14,7 @@
 #ifdef USE_GTK
 
 #include "main.h"
+#include "maid-x11.h"
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -23,160 +24,10 @@
 
 #define MAX_TERM_DATA 8
 
-/*** Code from maid-x11.c ***/
 /*
- * Broken out because the rest of the code in maid-x11 doesn't
- * apply to gtk. (Graphics stuff)
+ * Path to the GTK settings file
  */
-
-
-/*
- * Get the name of the default font to use for the term.
- */
-static cptr get_default_font(int term_num)
-{
-	cptr font;
-
-	char buf[80];
-
-	/* Window specific font name */
-	sprintf(buf, "ANGBAND_X11_FONT_%d", term_num);
-
-	/* Check environment for that font */
-	font = getenv(buf);
-
-	/* Check environment for "base" font */
-	if (!font) font = getenv("ANGBAND_X11_FONT");
-
-	/* No environment variables, use default font */
-	if (!font)
-	{
-		switch (term_num)
-		{
-			case 0:
-			{
-				font = DEFAULT_X11_FONT_0;
-			}
-			break;
-			case 1:
-			{
-				font = DEFAULT_X11_FONT_1;
-			}
-			break;
-			case 2:
-			{
-				font = DEFAULT_X11_FONT_2;
-			}
-			break;
-			case 3:
-			{
-				font = DEFAULT_X11_FONT_3;
-			}
-			break;
-			case 4:
-			{
-				font = DEFAULT_X11_FONT_4;
-			}
-			break;
-			case 5:
-			{
-				font = DEFAULT_X11_FONT_5;
-			}
-			break;
-			case 6:
-			{
-				font = DEFAULT_X11_FONT_6;
-			}
-			break;
-			case 7:
-			{
-				font = DEFAULT_X11_FONT_7;
-			}
-			break;
-			default:
-			{
-				font = DEFAULT_X11_FONT;
-			}
-		}
-	}
-
-	return (font);
-}
-
-
-/*
- * Get the name of the default font to use for the term.
- */
-static cptr get_default_small_font(int term_num)
-{
-	cptr font;
-
-	char buf[80];
-
-	/* Window specific font name */
-	sprintf(buf, "ANGBAND_X11_SFONT_%d", term_num);
-
-	/* Check environment for that font */
-	font = getenv(buf);
-
-	/* Check environment for "base" font */
-	if (!font) font = getenv("ANGBAND_X11_SFONT");
-
-	/* No environment variables, use default font */
-	if (!font)
-	{
-		switch (term_num)
-		{
-			case 0:
-			{
-				font = DEFAULT_X11_SFONT_0;
-			}
-			break;
-			case 1:
-			{
-				font = DEFAULT_X11_FONT_1;
-			}
-			break;
-			case 2:
-			{
-				font = DEFAULT_X11_FONT_2;
-			}
-			break;
-			case 3:
-			{
-				font = DEFAULT_X11_FONT_3;
-			}
-			break;
-			case 4:
-			{
-				font = DEFAULT_X11_FONT_4;
-			}
-			break;
-			case 5:
-			{
-				font = DEFAULT_X11_FONT_5;
-			}
-			break;
-			case 6:
-			{
-				font = DEFAULT_X11_FONT_6;
-			}
-			break;
-			case 7:
-			{
-				font = DEFAULT_X11_FONT_7;
-			}
-			break;
-			default:
-			{
-				font = DEFAULT_X11_FONT;
-			}
-		}
-	}
-
-	return (font);
-}
-
+char settings[1024];
 
 
 /*** Main gtk code ***/
@@ -203,6 +54,9 @@ struct term_data
 
 	int font_wid;
 	int font_hgt;
+
+	int x_save;
+	int y_save;
 
 	int rows;
 	int cols;
@@ -313,7 +167,7 @@ static errr Term_text_gtk(int x, int y, int n, byte a, cptr s)
 {
 	int i;
 	term_data *td = (term_data*)(Term->data);
-	
+
 	set_foreground_color(td, a);
 
 	/* Clear the line */
@@ -410,7 +264,7 @@ static errr Term_curs_gtk(int x, int y)
 	term_data *td = (term_data*)(Term->data);
 
 	set_foreground_color(td, TERM_YELLOW);
-	
+
 	gdk_draw_rectangle(td->pixmap, td->gc, FALSE,
 	                   x * td->font_wid, y * td->font_hgt, td->font_wid - 1, td->font_hgt - 1);
 
@@ -440,12 +294,6 @@ static void save_game_gtk(void)
 		/* Save the game */
 		do_cmd_save_game(FALSE);
 	}
-}
-
-
-static void hook_quit(cptr str)
-{
-	gtk_exit(0);
 }
 
 
@@ -728,15 +576,218 @@ static gboolean expose_event_handler(GtkWidget *widget, GdkEventExpose *event, g
 }
 
 
+static void save_prefs(void)
+{
+	FILE *fff;
+	int i;
+
+	/* Open the settings file */
+	fff = my_fopen(settings, "w");
+
+	/* Oops */
+	if (!fff) return;
+
+	/* Header */
+	fprintf(fff, "# %s GTK settings\n\n", VERSION_NAME);
+
+	/* Number of term windows to open */
+	fprintf(fff, "TERM_WINS=%d\n\n", num_term);
+
+	/* Save window prefs */
+	for (i = 0; i < MAX_TERM_DATA; i++)
+	{
+		term_data *td = &data[i];
+
+		if (!td->t.mapped_flag) continue;
+
+		/* Header */
+		fprintf(fff, "# Term %d\n", i);
+
+		/* Window specific location (x) */
+		fprintf(fff, "AT_X_%d=%d\n", i, td->x_save);
+
+		/* Window specific location (y) */
+		fprintf(fff, "AT_Y_%d=%d\n", i, td->y_save);
+
+		/* Window specific cols */
+		fprintf(fff, "COLS_%d=%d\n", i, td->cols);
+
+		/* Window specific rows */
+		fprintf(fff, "ROWS_%d=%d\n", i, td->rows);
+
+		/* Window specific font name */
+		fprintf(fff, "FONT_%d=%s\n", i, td->lfont);
+
+		if (i == 0)
+		{
+			/* Window specific small font name */
+			fprintf(fff, "SFONT_%d=%s\n", i, td->sfont);
+		}
+
+		/* Footer */
+		fprintf(fff, "\n");
+	}
+}
+
+
+/*
+ * Given a postion in the ISO Latin-1 character set, return
+ * the correct character on this system.
+ */
+static char Term_xchar_gtk(char c)
+{
+	/* The GTK port uses the Latin-1 old standard */
+	return (c);
+}
+
+
 static errr term_data_init(term_data *td, int i)
 {
 	term *t = &td->t;
 
-	td->cols = 80;
-	td->rows = 25;
+	cptr font;
+	cptr sfont;
+
+	int x = 0;
+	int y = 0;
+
+	int cols;
+	int rows;
+
+	cptr str;
+
+	int val;
+
+	FILE *fff;
+
+	char buf[1024];
+	char cmd[40];
+	char font_name[256];
+	char sfont_name[256];
+
+	int line = 0;
+
+
+	cols = 80;
+	rows = 25;
+
+	/* Get default font for this term */
+	font = get_default_font(i);
+	sfont = get_default_small_font(i);
+
+	/* Build the settings filename */
+	path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "gtk-settings.prf");
+
+	/* Open the file */
+	fff = my_fopen(settings, "r");
+
+	/* File exists */
+	if (fff)
+	{
+		/* Process the file */
+		while (0 == my_fgets(fff, buf, sizeof(buf)))
+		{
+			/* Count lines */
+			line++;
+
+			/* Skip "empty" lines */
+			if (!buf[0]) continue;
+
+			/* Skip "blank" lines */
+			if (isspace((unsigned char)buf[0])) continue;
+
+			/* Skip comments */
+			if (buf[0] == '#') continue;
+
+			/* Window specific location (x) */
+			sprintf(cmd, "AT_X_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				x = (str != NULL) ? atoi(str + 1) : -1;
+				continue;
+			}
+
+			/* Window specific location (y) */
+			sprintf(cmd, "AT_Y_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				y = (str != NULL) ? atoi(str + 1) : -1;
+				continue;
+			}
+
+			/* Window specific cols */
+			sprintf(cmd, "COLS_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				val = (str != NULL) ? atoi(str + 1) : -1;
+				if (val > 0) cols = val;
+				continue;
+			}
+
+			/* Window specific rows */
+			sprintf(cmd, "ROWS_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				val = (str != NULL) ? atoi(str + 1) : -1;
+				if (val > 0) rows = val;
+				continue;
+			}
+
+			/* Window specific font name */
+			sprintf(cmd, "FONT_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				if (str != NULL)
+				{
+					my_strcpy(font_name, str + 1, sizeof(font_name));
+					font = font_name;
+				}
+				continue;
+			}
+
+			/* Window specific small font name */
+			sprintf(cmd, "SFONT_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				if (str != NULL)
+				{
+					my_strcpy(sfont_name, str + 1, sizeof(sfont_name));
+					sfont = sfont_name;
+				}
+				continue;
+			}
+		}
+
+		/* Close */
+		my_fclose(fff);
+	}
+
+	/* Font names must be stored in persistant strings */
+	td->lfont = string_make(font);
+	td->sfont = string_make(sfont);
+
+	td->x_save = x;
+	td->y_save = y;
+
+ 	td->cols = cols;
+ 	td->rows = rows;
+
 	if (!i)
 	{
-		td->rows = 50;
+		td->cols = MAX(cols, 80);
+		td->rows = MAX(rows, 50);
 	}
 
 	/* Initialize the term */
@@ -777,14 +828,11 @@ static void init_gtk_window(term_data *td, int i)
 	GtkWidget *seperator_item, *file_exit_item, *file_new_item, *file_open_item;
 
 	GdkGeometry hints;
-	GdkWindowHints hmask = (GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
+	/* I can't get the size hints to work, so only set the resize hints */
+	/* GdkWindowHints hmask = (GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE); */
+	GdkWindowHints hmask = 0;
 
 	int wwid, whgt;
-
-	/* Get default font for this term */
-	td->lfont = get_default_font(i);
-	td->sfont = get_default_small_font(i);
-
 
 	if (main_window)
 	{
@@ -812,7 +860,7 @@ static void init_gtk_window(term_data *td, int i)
 		/* Get font size */
 		load_font(td, td->lfont);
 		wwid = td->cols * td->font_wid;
-		whgt = 25 * td->font_hgt;
+		whgt = td->rows * td->font_hgt;
 
 		/* Set Hints */
 		hints.min_width = td->font_wid;
@@ -833,8 +881,11 @@ static void init_gtk_window(term_data *td, int i)
 	gtk_window_set_title(GTK_WINDOW(td->window), td->name);
 	gtk_widget_set_size_request(td->drawing_area, wwid, whgt);
 
-	/* I haven't been able to get the hints to work correctly ... */
-/*	gtk_window_set_geometry_hints(GTK_WINDOW(td->window), td->window, &hints, hmask); */
+	/* Position window */
+	gtk_window_move(GTK_WINDOW(td->window), td->x_save, td->y_save);
+
+	/* I haven't been able to get the size hints to work correctly ... */
+	gtk_window_set_geometry_hints(GTK_WINDOW(td->window), td->window, &hints, hmask);
 
 	g_signal_connect(GTK_OBJECT(td->window), "delete_event", GTK_SIGNAL_FUNC(delete_event_handler), NULL);
 	g_signal_connect(GTK_OBJECT(td->window), "key_press_event", GTK_SIGNAL_FUNC(keypress_event_handler), NULL);
@@ -903,6 +954,15 @@ const char help_gtk[] =
 	"GTK for X11, subopts -n<windows> and standard GTK options";
 
 
+
+static void hook_quit(cptr str)
+{
+	save_prefs();
+
+	gtk_exit(0);
+}
+
+
 /*
  * Initialization function
  */
@@ -911,8 +971,61 @@ errr init_gtk(int argc, char **argv)
 	int i;
 	GdkVisual *vis_sys;
 
+	FILE *fff;
+
+	char buf[1024];
+	cptr str;
+	int val;
+	int line = 0;
+
+	/*
+	 * Check gtk-settings for the number of windows before handling
+	 * command line options to allow for easy override
+	 */
+
+	/* Build the filename */
+	path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "gtk-settings.prf");
+
+	/* Open the file */
+	fff = my_fopen(settings, "r");
+
+	/* File exists */
+	if (fff)
+	{
+		/* Process the file */
+		while (0 == my_fgets(fff, buf, sizeof(buf)))
+		{
+			/* Count lines */
+			line++;
+
+			/* Skip "empty" lines */
+			if (!buf[0]) continue;
+
+			/* Skip "blank" lines */
+			if (isspace((unsigned char)buf[0])) continue;
+
+			/* Skip comments */
+			if (buf[0] == '#') continue;
+
+			/* Number of terminal windows */
+			if (prefix(buf, "TERM_WINS"))
+			{
+				str = strstr(buf, "=");
+				val = (str != NULL) ? atoi(str + 1) : -1;
+				if (val > 0) num_term = val;
+				continue;
+			}
+		}
+
+		/* Close */
+		my_fclose(fff);
+	}
+
 	/* Initialize the environment */
 	gtk_init(&argc, &argv);
+
+	/* Make the new angband fonts available */
+	(void)register_angband_fonts();
 
 	/* Parse args */
 	for (i = 1; i < argc; i++)
@@ -935,10 +1048,10 @@ errr init_gtk(int argc, char **argv)
 	if (vis_sys->depth >= 8)
 	{
 		/*
-		 * Go no higher than 256, since the number of system colors
+		 * Go no higher than 128, since the number of system colors
 		 * could be too large compared to variable size.
 		 */
-		max_system_colors = 256;
+		max_system_colors = 128;
 	}
 	/* Unusual color depths, check for completeness */
 	else if (vis_sys->depth == 7)

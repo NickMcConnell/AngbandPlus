@@ -7,76 +7,35 @@
 #
 
 
+# Ordinary floor
+F:1:w/250:y/250:s/250
 
-### Terrain Features ###
+# Water
+F:11:b/247:B/247:b/247
 
+# Magma
+F:50:s/176:s/176:D/176
 
-#
-# Floors (white / centered dot)
-#
+# Quartz
+F:51:W/176:W/176:s/176
 
-F:1:w/249
-f:1:250
+# Magma with treasure
+F:54:o/*:o/*:o/*
 
+# Quartz with treasure
+F:55:o/*:o/*:o/*
 
-#
-# Invis traps (white / centered dot)
-#
+# Granite walls
+F:56:w/177:w/177:W/177
 
-F:2:w/249
+# Permanent wall -- town buildings
+F:60:w/177:w/177:W/177
 
-
-#
-# Water (blue / centered dot)
-#
-
-F:11:b/249
-f:11:250
-
-
-#
-# Magma (slate / special solid block)
-#
-
-F:50:s/-80
-F:52:s/-80
-
-
-#
-# Quartz (light slate / special solid block)
-#
-
-F:51:W/-80
-F:53:W/-80
-
-
-#
-# Secret door (white / solid block)
-#
-
-F:48:w/-79
-
-#
-# Granite walls (white / solid block)
-#
-
-F:56:w/-79
-F:57:w/-79
-F:58:w/-79
-F:59:w/-79
-
-#
-# Permanent rock (white / bright solid block)
-#
-
-F:60:w/-79
-F:61:w/-78
-F:62:w/-79
-F:63:w/-79
+# Permanent wall -- all others
+F:61:w/178:w/178:W/178
 
 
 #
 # Boulders (slate, small circle or large dot)
 #
 K:638:s:9
-

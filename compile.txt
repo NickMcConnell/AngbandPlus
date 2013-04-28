@@ -2,6 +2,15 @@ Compiling Angband
 =================
 
 Last updated on 13th March 2005 by Robert Ruehlmann
+(edited by Diego Gonzalez 12-1-05)
+
+----------------------------------------------------------------------
+New Information
+----------------------------------------------------------------------
+
+     X11 users:  The game now comes with custom fonts.  Consult the section 
+"GNU/Linux or Unix + XWindows (ports: X11, XAW, GTK) - Installing fonts" 
+to learn how to install them.
 
 
 ----------------------------------------------------------------------
@@ -249,6 +258,33 @@ GNU/Linux or Unix + GCC
 	--bindir=/usr/games
 	Then build the game with 'make' and install it as root with
 	'make install'.  Angband can then be started with 'angband'.
+
+
+----------------------------------------------------------------------
+GNU/Linux or Unix + XWindows (ports: X11, XAW, GTK) - Installing fonts 
+----------------------------------------------------------------------
+(written by Diego Gonzalez < dieiggon@yahoo.com.ar >)
+
+Angband now includes a set of custom fonts for XWindows (BDF files).
+The use of these fonts is strongly recommended because they supply special
+characters for dungeon features and spell effects.
+
+The fonts have to be compiled following these instructions:
+
+-If you've compiled the game using Makefile.std:
+	Go to the "lib/xtra/font" folder and execute "sh compile_bdf_fonts.sh".
+	This small script compiles and compress the fonts and creates
+	a file named "fonts.dir" (a font index for that directory).
+	Run the game.
+
+-If you are using the Configure script:
+	There aren't special instructions. Configure does the work for you.
+
+* NOTE (for variant maintainers only): This patch modifies Makefile.am in the
+ lib/xtra/font folder. If your variant provides a Configure script don't
+ forget to execute "aclocal && autoheader && autoconf && automake" to update
+ Makefile.in
+
 
 
 ----------------------------------------------------------------------

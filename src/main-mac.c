@@ -180,7 +180,6 @@
 # define HAS_SCORE_MENU
 # define NEW_ZVIRT_HOOKS
 /* I can't ditch these, yet, because there are many variants */
-# define USE_TRANSPARENCY
 # define huge size_t
 #endif /* ANGBAND30X */
 
@@ -188,7 +187,6 @@
 #define AUTO_SAVE_ARG_REQUIRED  1
 #define ANG281_RESET_VISUALS    1
 #define huge size_t
-#define USE_TRANSPARENCY
 #define ANGBAND_CREATOR 'A271'
 #define ANGBAND_PREFERENCES "Sangband Preferences"
 
@@ -327,9 +325,9 @@
 #else /* ANGBAND_LITE_MAC */
 
 /*
- * Information about each of the 256 available colors
+ * Information about each of the MAX_COLORS available colors
  */
-static RGBColor color_info[256];
+static RGBColor color_info[MAX_COLORS];
 
 #endif /* ANGBAND_LITE_MAC */
 
@@ -496,15 +494,6 @@ static term_data data[MAX_TERM_DATA];
 static bool initialized = FALSE;
 
 
-
-#ifdef ALLOW_NO_SAVE_QUITS
-
-/*
- * CodeWarrior uses Universal Procedure Pointers
- */
-static ModalFilterUPP ynfilterUPP;
-
-#endif /* ALLOW_NO_SAVE_QUITS */
 
 
 
@@ -1708,7 +1697,7 @@ static errr Term_xtra_mac_react(void)
 	td->last = -1;
 
 	/* Update colors */
-	for (i = 0; i < 256; i++)
+	for (i = 0; i < MAX_COLORS; i++)
 	{
 		u16b rv, gv, bv;
 
@@ -2121,12 +2110,8 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  *
  * Erase "n" characters starting at (x,y)
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
 			  const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	int i;
 	Rect dst_r;
@@ -2148,10 +2133,8 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		byte a = *ap++;
 		char c = *cp++;
 
-#ifdef USE_TRANSPARENCY
 		byte ta = *tap++;
 		char tc = *tcp++;
-#endif /* USE_TRANSPARENCY */
 
 #ifdef USE_DOUBLE_TILES
 
@@ -2179,10 +2162,8 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		/* Graphics -- if Available and Needed */
 		if (use_graphics && ((byte)a & 0x80) && ((byte)c & 0x80))
 		{
-#ifdef USE_TRANSPARENCY
 			int t_col, t_row;
 			Rect terrain_r;
-#endif /* USE_TRANSPARENCY */
 
 			int col, row;
 			Rect src_r;
@@ -2197,8 +2178,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			src_r.right = src_r.left + grafWidth;
 			src_r.bottom = src_r.top + grafHeight;
 
-#ifdef USE_TRANSPARENCY
-
 			/* Terrain Row and Col */
 			t_row = ((byte)ta & 0x7F) % pictRows;
 			t_col = ((byte)tc & 0x7F) % pictCols;
@@ -2208,8 +2187,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			terrain_r.top = t_row * grafHeight;
 			terrain_r.right = terrain_r.left + grafWidth;
 			terrain_r.bottom = terrain_r.top + grafHeight;
-
-#endif /* USE_TRANSPARENCY */
 
 			/* Hardwire CopyBits */
 			RGBBackColor(&white);
@@ -2221,8 +2198,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			if (use_bigtile) dst_r.right += td->tile_wid;
 
 #endif /* USE_DOUBLE_TILES */
-
-#ifdef USE_TRANSPARENCY
 
 			/* Transparency effect */
 			switch (transparency_mode)
@@ -2259,15 +2234,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 					break;
 				}
 			}
-
-#else /* USE_TRANSPARENCY */
-
-			/* Draw the picture */
-			CopyBits((BitMap*)frameP->framePix,
-					 &(td->w->portBits),
-					 &src_r, &dst_r, srcCopy, NULL);
-
-#endif /* USE_TRANSPARENCY */
 
 			/* Restore colors */
 			RGBBackColor(&black);
@@ -2933,57 +2899,6 @@ static void save_pref_file(void)
 
 
 
-#ifdef ALLOW_NO_SAVE_QUITS
-
-/*
- * A simple "Yes/No" filter to parse "key press" events in dialog windows
- */
-static pascal Boolean ynfilter(DialogPtr dialog, EventRecord *event, short *ip)
-{
-	/* Parse key press events */
-	if (event->what == keyDown)
-	{
-		int i = 0;
-		char c;
-
-		/* Extract the pressed key */
-		c = (event->message & charCodeMask);
-
-		/* Accept "no" and <return> and <enter> */
-		if ((c=='n') || (c=='N') || (c==13) || (c==3)) i = 1;
-
-		/* Accept "yes" */
-		else if ((c=='y') || (c=='Y')) i = 2;
-
-		/* Handle "yes" or "no" */
-		if (i)
-		{
-			short type;
-			ControlHandle control;
-			Rect r;
-
-			/* Get the button */
-			GetDialogItem(dialog, i, &type, (Handle*)&control, &r);
-
-			/* Blink button for 1/10 second */
-			HiliteControl(control, 1);
-			Term_xtra_mac(TERM_XTRA_DELAY, 100);
-			HiliteControl(control, 0);
-
-			/* Result */
-			*ip = i;
-			return (1);
-		}
-	}
-
-	/* Ignore */
-	return (0);
-}
-
-#endif /* ALLOW_NO_SAVE_QUITS */
-
-
-
 #ifdef USE_NAVIGATION_SERVICE
 
 /*
@@ -3620,15 +3535,6 @@ static void setup_menus(void)
 
 #endif /* HAS_SCORE_MENU */
 
-#ifdef ALLOW_NO_SAVE_QUITS
-
-	/* Enable "exit" */
-	if (TRUE)
-	{
-		EnableItem(m, ITEM_EXIT);
-	}
-
-#endif /* ALLOW_NO_SAVE_QUITS */
 
 	/* Enable "quit" */
 	if (!initialized || !character_generated || inkey_flag)
@@ -4115,38 +4021,6 @@ static void menu(long mc)
 				}
 
 #endif /* HAS_SCORE_MENU */
-
-#ifdef ALLOW_NO_SAVE_QUITS
-
-				/* Exit (without save) */
-				case ITEM_EXIT:
-				{
-					/* Allow user to cancel "dangerous" exit */
-					if (game_in_progress && character_generated)
-					{
-						AlertTHndl alert;
-						short item_hit;
-
-						/* Get the "alert" info */
-						alert = (AlertTHndl)GetResource('ALRT', 130);
-
-						/* Center the "alert" rectangle */
-						center_rect(&(*alert)->boundsRect,
-							    &qd.screenBits.bounds);
-
-						/* Display the Alert, get "No" or "Yes" */
-						item_hit = Alert(130, ynfilterUPP);
-
-						/* Require "yes" button */
-						if (item_hit != 2) break;
-					}
-
-					/* Quit */
-					quit(NULL);
-					break;
-				}
-
-#endif /* ALLOW_NO_SAVE_QUITS */
 
 				/* Quit (with save) */
 				case ITEM_QUIT:
@@ -5659,14 +5533,6 @@ int main(void)
 	_ftype = 'TEXT';
 
 
-#if defined(ALLOW_NO_SAVE_QUITS) && defined(__MWERKS__)
-
-	/* Obtian a "Universal Procedure Pointer" */
-	ynfilterUPP = NewModalFilterProc(ynfilter);
-
-#endif /* ALLOW_NO_SAVE_QUITS && __MWERKS__ */
-
-
 	/* Hook in some "z-virt.c" hooks */
 	rnfree_aux = hook_rnfree;
 	ralloc_aux = hook_ralloc;
@@ -5678,7 +5544,7 @@ int main(void)
 
 
 	/* Initialize colors */
-	for (i = 0; i < 256; i++)
+	for (i = 0; i < MAX_COLORS; i++)
 	{
 		u16b rv, gv, bv;
 

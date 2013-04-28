@@ -446,7 +446,8 @@ void compact_objects(int size)
 					  o_ptr = get_next_object(o_ptr))
 				{
 					/* Check gold */
-					if ((i_ptr->tval == TV_GOLD) && (o_ptr->tval == TV_GOLD))
+					if ((i_ptr->tval == TV_GOLD) && (o_ptr->tval == TV_GOLD) &&
+					    (o_ptr->pval + i_ptr->pval < 10000))
 					{
 						/* Automatically combine gold */
 						o_ptr->pval += i_ptr->pval;
@@ -510,6 +511,10 @@ void compact_objects(int size)
 
 				/* Hack -- Get the real object value */
 				else obj_value[i] = object_value_real(o_ptr) * o_ptr->number;
+
+				/* Objects with notes are considered to be very valuable */
+				if ((o_ptr->note) && (obj_value[i] < 10000))
+					obj_value[i] = 10000;
 
 				/* Save this object index */
 				obj_index[i] = i;
@@ -579,6 +584,7 @@ void compact_objects(int size)
 		o_max--;
 	}
 }
+
 
 
 
@@ -2244,6 +2250,13 @@ bool make_cursed_ego_item(object_type *o_ptr)
 
 	/* Ensure correct (possibly different) weight */
 	i_ptr->weight *= i_ptr->number;
+
+	/* Restore old damage dice  XXX */
+	if ((is_melee_weapon(i_ptr)) || (is_missile(i_ptr)))
+	{
+		i_ptr->dd = o_ptr->dd;
+		i_ptr->ds = o_ptr->ds;
+	}
 
 	/* Save the altered object */
 	object_copy(o_ptr, i_ptr);

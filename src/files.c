@@ -1843,12 +1843,6 @@ static void display_player_various(void)
 	xsrh = p_ptr->skill_srh;
 
 
-	/* Modify disarming skill if necessary */
-	if (p_ptr->blind    || no_light())   xdis /= 10;
-	if (p_ptr->confused || p_ptr->image) xdis /= 10;
-	if (p_ptr->berserk)                  xdis /=  2;
-
-
 	put_str("Melee       :", 18, 1);
 	desc = likert(xthn, 8 + p_ptr->max_depth / 20);
 	c_put_str(likert_color, desc, 18, 15);

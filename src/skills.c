@@ -1036,6 +1036,17 @@ static int can_raise_skill(int skill, bool verbose, int auto_raise)
 				return (-1);
 			}
 
+			/* Notice possibility of taking the Oath of Iron */
+			if (can_take_oath(OATH_OF_IRON))
+			{
+				if (auto_raise) return (auto_raise > 0);
+				else
+				{
+					if (!can_raise_skill_confirm(WARRIOR_SPELLS))
+						return (-1);
+				}
+			}
+
 			/* Must not be too focused on melee weapons */
 			if ((p_ptr->pskills[S_SWORD].max > NON_WARRIOR_LIMIT) ||
 			    (p_ptr->pskills[S_POLEARM].max > NON_WARRIOR_LIMIT) ||
@@ -1073,26 +1084,6 @@ static int can_raise_skill(int skill, bool verbose, int auto_raise)
 				if (verbose) prt("You are too much the fighter to learn prayers, but you can learn spells.",
 					1, 2);
 				return (TRUE);
-			}
-
-			/* Notice possibility of taking the Oath of Iron */
-			if ((!p_ptr->oath) &&
-			    (p_ptr->pskills[S_DEVICE].max <= WARRIOR_DEVICE_LIMIT) &&
-			   ((p_ptr->pskills[S_SWORD].max >= OATH_OF_IRON_REQ) ||
-			    (p_ptr->pskills[S_HAFTED].max >= OATH_OF_IRON_REQ) ||
-			    (p_ptr->pskills[S_POLEARM].max >= OATH_OF_IRON_REQ) ||
-			    (p_ptr->pskills[S_CROSSBOW].max >= OATH_OF_IRON_REQ) ||
-			    (p_ptr->pskills[S_BOW].max >= OATH_OF_IRON_REQ) ||
-			    (p_ptr->pskills[S_SLING].max >= OATH_OF_IRON_REQ + 10) ||
-			    (p_ptr->pskills[S_THROWING].max >= OATH_OF_IRON_REQ) ||
-			    (p_ptr->pskills[S_WRESTLING].max >= OATH_OF_IRON_REQ) ||
-			    (p_ptr->pskills[S_KARATE].max >= OATH_OF_IRON_REQ)))
-			{
-				if (auto_raise) return (auto_raise > 0);
-				else
-				{
-					return (can_raise_skill_confirm(WARRIOR_SPELLS));
-				}
 			}
 
 			break;
@@ -2022,8 +2013,11 @@ static void prt_skill_select(int skill)
 		case S_BOW:
 		case S_CROSSBOW:
 		{
+			int req_skill = OATH_OF_IRON_REQ;
+			if (skill == S_SLING) req_skill += 10;
+
 			/* Can take the Oath of Iron */
-			if (can_take_oath(OATH_OF_IRON))
+			if ((lev >= req_skill) && (can_take_oath(OATH_OF_IRON)))
 			{
 				cmddesc = "Oath of Iron";
 				attr = TERM_L_UMBER;
