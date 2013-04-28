@@ -1256,7 +1256,6 @@ static void prt_ac(void)
 
 }
 
-
 /*
  * Prints Cur/Max hit points
  */

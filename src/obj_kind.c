@@ -264,7 +264,7 @@ bool object_is_device(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
-	case TV_ROD: case TV_WAND: case TV_STAFF: case TV_SCROLL:
+	case TV_ROD: case TV_WAND: case TV_STAFF: case TV_SCROLL: case TV_POTION:
 		return TRUE;
 	}
 	return FALSE;

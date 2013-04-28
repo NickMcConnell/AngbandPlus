@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 19
+#define VER_PATCH 20
 #define VER_EXTRA 0
 
 
@@ -852,11 +852,9 @@
 #define DEVICEMASTER_WANDS   0
 #define DEVICEMASTER_STAVES  1
 #define DEVICEMASTER_RODS    2
-/* Later:
 #define DEVICEMASTER_POTIONS 3
 #define DEVICEMASTER_SCROLLS 4
-*/
-#define DEVICEMASTER_MAX     3
+#define DEVICEMASTER_MAX     5
 
 
 #define PERS_ORDINARY	 0
@@ -2892,7 +2890,7 @@
 #define PR_STUN         0x00002000L     /* Display Extra (Stun) */
 #define PR_HUNGER       0x00004000L     /* Display Extra (Hunger) */
 #define PR_STATUS       0x00008000L     /* Display Status Bar */
-#define PR_XXX0         0x00010000L     /* (unused) */
+#define PR_XXX0         0x00010000L     
 #define PR_UHEALTH      0x00020000L     /* Display Uma Health Bar */
 #define PR_XXX1         0x00040000L     /* (unused) */
 #define PR_XXX2         0x00080000L     /* (unused) */
@@ -2905,6 +2903,7 @@
 #define PR_MAP          0x04000000L     /* Display Map */
 #define PR_WIPE         0x08000000L     /* Hack -- Total Redraw */
 #define PR_FEAR         0x10000000L
+
 /* xxx */
 /* xxx */
 /* xxx */

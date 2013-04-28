@@ -2665,7 +2665,7 @@ void do_cmd_walk(bool pickup)
 		if (!p_ptr->wild_mode && p_ptr->tim_shrike) 
 			energy_use /= 3;
 		else if (p_ptr->quick_walk)
-			energy_use -= energy_use * (30 + randint1(20)) / 100;
+			energy_use = energy_use * 60 / 100;
 			
 
 		/* Actually move the character */

@@ -822,7 +822,7 @@ static bool build_type3(void)
 	dy = rand_range(3, 4);
 
 	/* Pick max horizontal size (at most 15) */
-	dx = rand_range(3, 4);
+	dx = rand_range(3, 11);
 
 
 	/* Determine extents of the north/south room */
@@ -3736,8 +3736,8 @@ static bool build_type9(void)
 	bool done, light, room;
 
 	/* get size: note 'Evenness'*/
-	xsize = randint1(10) * 2 + 8;
-	ysize = randint1(6) * 2 + 6;
+	xsize = randint1(22) * 2 + 8;
+	ysize = randint1(15) * 2 + 6;
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&y0, &x0, ysize + 1, xsize + 1))
@@ -5437,7 +5437,7 @@ static bool build_type11(void)
 	/* Occasional light */
 	if ((randint1(dun_level) <= 15) && !(d_info[dungeon_type].flags1 & DF1_DARKNESS)) light = TRUE;
 
-	rad = randint0(5);
+	rad = randint0(9);
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&y0, &x0, rad * 2 + 1, rad * 2 + 1)) return FALSE;
@@ -5890,9 +5890,9 @@ static bool build_type14(void)
 
 	/* Pick a room size */
 	y1 = randint1(4);
-	x1 = randint1(5);
+	x1 = randint1(11);
 	y2 = randint1(3);
-	x2 = randint1(5);
+	x2 = randint1(11);
 
 	xsize = x1 + x2 + 1;
 	ysize = y1 + y2 + 1;

@@ -109,6 +109,778 @@ static int _wand_power(int val)
 	return _device_power_hack(val);
 }
 
+static int _scroll_power(int val)
+{
+	if (devicemaster_is_(DEVICEMASTER_SCROLLS))
+	{
+		val += val * device_extra_power / 100;
+		return device_power_aux(val, /*p_ptr->device_power + */p_ptr->lev/10);
+	}
+	return val;
+}
+
+static int _potion_power(int val)
+{
+	if (devicemaster_is_(DEVICEMASTER_POTIONS))
+	{
+		val += val * device_extra_power / 100;
+		return device_power_aux(val, /*p_ptr->device_power + */p_ptr->lev/10);
+	}
+	return val;
+}
+
+static cptr _do_potion(int sval, int mode)
+{
+	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
+	bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
+	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
+	bool ident = FALSE;
+
+	switch (sval)
+	{
+	case SV_POTION_WATER:
+		if (desc) return "It is just water.";
+		if (cast)
+		{
+			msg_print("You feel less thirsty.");
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_APPLE_JUICE:
+		if (desc) return "It tastes sweet.";
+		if (cast)
+		{
+			msg_print("You feel less thirsty.");
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_SLIME_MOLD:
+		if (desc) return "It tastes weird.";
+		if (cast)
+		{
+			msg_print("You feel less thirsty.");
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_SLOWNESS:
+		if (desc) return "It slows you down temporarily when you quaff it.";
+		if (cast)
+		{
+			if (set_slow(randint1(25) + 15, FALSE)) 
+				device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_SALT_WATER:
+		if (desc) return "It makes you nearly faint from hunger and paralyzes you, but it cures poison when you quaff it.";
+		if (cast)
+		{
+			if ( !(get_race_t()->flags & RACE_IS_NONLIVING)
+			  && !prace_is_(RACE_MON_JELLY) )
+			{
+				msg_print("The potion makes you vomit!");
+				set_food(PY_FOOD_STARVE - 1);
+				set_poisoned(0, TRUE);
+				set_paralyzed(p_ptr->paralyzed + 4, FALSE);
+				device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_POISON:
+		if (desc) return "It poisons you when you quaff it.";
+		if (cast)
+		{
+			if (!res_save_default(RES_POIS))
+			{
+				if (set_poisoned(p_ptr->poisoned + randint0(15) + 10, FALSE))
+					device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_BLINDNESS:
+		if (desc) return "It blinds you when you quaff it.";
+		if (cast)
+		{
+			if (!res_save_default(RES_BLIND))
+			{
+				if (set_blind(p_ptr->blind + randint0(100) + 100, FALSE))
+					device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_CONFUSION: /* Booze */
+		if (desc) return "It confuses and hallucinates you when you quaff it. If you are a monk, you may be a drunken master.";
+		if (cast)
+		{
+			if (!res_save_default(RES_CONF))
+			{
+				if (p_ptr->pclass == CLASS_MONK) 
+					p_ptr->special_attack |= ATTACK_SUIKEN;
+				if (set_confused(randint0(20) + 15, FALSE))
+					device_noticed = TRUE;
+			}
+
+			if (!res_save_default(RES_CHAOS))
+			{
+				if (one_in_(2))
+				{
+					if (set_image(p_ptr->image + randint0(25) + 25, FALSE))
+						device_noticed = TRUE;
+				}
+				if (one_in_(13) && (p_ptr->pclass != CLASS_MONK))
+				{
+					device_noticed = TRUE;
+					if (one_in_(3)) lose_all_info();
+					else wiz_dark();
+					teleport_player_aux(100, TELEPORT_NONMAGICAL | TELEPORT_PASSIVE);
+					wiz_dark();
+					msg_print("You wake up somewhere with a sore head...");
+					msg_print("You can't remember a thing, or how you got here!");
+				}
+			}
+		}
+		break;
+	case SV_POTION_SLEEP:
+		if (desc) return "It paralyzes you when you quaff it.";
+		if (cast)
+		{
+			if (!p_ptr->free_act)
+			{
+				msg_print("You fall asleep.");
+
+				if (ironman_nightmare)
+				{
+					msg_print("A horrible vision enters your mind.");
+					get_mon_num_prep(get_nightmare, NULL);
+					have_nightmare(get_mon_num(MAX_DEPTH));
+					get_mon_num_prep(NULL, NULL);
+				}
+				if (set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE))
+				{
+					device_noticed = TRUE;
+				}
+			}
+		}
+		break;
+	case SV_POTION_LOSE_MEMORIES:
+		if (desc) return "You lose experience when you quaff it.";
+		if (cast)
+		{
+			if (!p_ptr->hold_life && (p_ptr->exp > 0))
+			{
+				msg_print("You feel your memories fade.");
+				lose_exp(p_ptr->exp / 4);
+				device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_RUINATION:
+		if (desc) return "You take damage and it decreases all your stats permanently when you quaff it.";
+		if (cast)
+		{
+			msg_print("Your nerves and muscles feel weak and lifeless!");
+			take_hit(DAMAGE_LOSELIFE, damroll(10, 10), "a potion of Ruination", -1);
+
+			dec_stat(A_DEX, 25, TRUE);
+			dec_stat(A_WIS, 25, TRUE);
+			dec_stat(A_CON, 25, TRUE);
+			dec_stat(A_STR, 25, TRUE);
+			dec_stat(A_CHR, 25, TRUE);
+			dec_stat(A_INT, 25, TRUE);
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_DEC_STR:
+		if (desc) return "It decreases your strength when you quaff it.";
+		if (cast)
+		{
+			if (do_dec_stat(A_STR)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_DEC_INT:
+		if (desc) return "It decreases your intelligence when you quaff it.";
+		if (cast)
+		{
+			if (do_dec_stat(A_INT)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_DEC_WIS:
+		if (desc) return "It decreases your wisdom when you quaff it.";
+		if (cast)
+		{
+			if (do_dec_stat(A_WIS)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_DEC_DEX:
+		if (desc) return "It decreases your dexterity when you quaff it.";
+		if (cast)
+		{
+			if (do_dec_stat(A_DEX)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_DEC_CON:
+		if (desc) return "It decreases your constitution when you quaff it.";
+		if (cast)
+		{
+			if (do_dec_stat(A_CON)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_DEC_CHR:
+		if (desc) return "It decreases your charisma when you quaff it.";
+		if (cast)
+		{
+			if (do_dec_stat(A_CHR)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_DETONATIONS:
+		if (desc) return "It explodes in your mouth when you quaff it.";
+		if (cast)
+		{
+			msg_print("Massive explosions rupture your body!");
+			take_hit(DAMAGE_NOESCAPE, damroll(50, 20), "a potion of Detonation", -1);
+
+			set_stun(p_ptr->stun + 75, FALSE);
+			set_cut(p_ptr->cut + 5000, FALSE);
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_DEATH:
+		if (desc) return "You die when you quaff it.";
+		if (cast)
+		{
+			msg_print("A feeling of Death flows through your body.");
+			take_hit(DAMAGE_LOSELIFE, 5000, "a potion of Death", -1);
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_INFRAVISION:
+		if (desc) return "It gives temporary infravision when you quaff it.";
+		if (info) return info_duration(_potion_power(100), _potion_power(100));
+		if (cast)
+		{
+			int dur = _potion_power(100 + randint1(100));
+			if (set_tim_infra(p_ptr->tim_infra + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_DETECT_INVIS:
+		if (desc) return "It gives temporary see invisible when you quaff it.";
+		if (info) return info_duration(_potion_power(12), _potion_power(12));
+		if (cast)
+		{
+			int dur = _potion_power(12 + randint1(12));
+			if (set_tim_invis(p_ptr->tim_invis + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_SLOW_POISON:
+		if (desc) return "It reduces poison when you quaff it.";
+		if (cast)
+		{
+			if (set_poisoned(p_ptr->poisoned / 2, TRUE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_CURE_POISON:
+		if (desc) return "It cures poison when you quaff it.";
+		if (cast)
+		{
+			if (set_poisoned(0, TRUE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_BOLDNESS:
+		if (desc) return "It removes fear when you quaff it.";
+		if (cast)
+		{
+			if (p_ptr->afraid)
+			{
+				fear_clear_p();
+				device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_SPEED:
+		if (desc) return "It hastes you temporarily when you quaff it.";
+		if (info) return format("Dur d%d + %d", _potion_power(25), _potion_power(15));
+		if (cast)
+		{
+			if (!p_ptr->fast)
+			{
+				int dur = _potion_power(randint1(25) + 15);
+				if (set_fast(dur, FALSE)) device_noticed = TRUE;
+			}
+			else if (p_ptr->pclass == CLASS_MAULER)
+				set_fast(p_ptr->fast + 10, FALSE);
+			else
+				set_fast(p_ptr->fast + 5, FALSE);
+		}
+		break;
+	case SV_POTION_RESIST_HEAT:
+		if (desc) return "You get temporary resistance to fire when you quaff it. This resistance is cumulative with equipment.";
+		if (info) return format("Dur d%d + %d", _potion_power(10), _potion_power(10));
+		if (cast)
+		{
+			int dur = _potion_power(10 + randint1(10));
+			if (set_oppose_fire(p_ptr->oppose_fire + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_RESIST_COLD:
+		if (desc) return "You get temporary resistance to cold when you quaff it. This resistance is cumulative with equipment.";
+		if (info) return format("Dur d%d + %d", _potion_power(10), _potion_power(10));
+		if (cast)
+		{
+			int dur = _potion_power(10 + randint1(10));
+			if (set_oppose_cold(p_ptr->oppose_cold + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_HEROISM:
+		if (desc) return "It removes fear and causes you temporary heroism when you quaff it.";
+		if (info) return format("Dur d%d + %d", _potion_power(25), _potion_power(25));
+		if (cast)
+		{
+			int dur = _potion_power(25 + randint1(25));
+			if (set_hero(p_ptr->hero + dur, FALSE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_BERSERK_STRENGTH:
+		if (desc) return "It removes fear and causes you to go berserk when you quaff it.";
+		if (info) return format("Dur d%d + %d", _potion_power(25), _potion_power(25));
+		if (cast)
+		{
+			int dur = _potion_power(25 + randint1(25));
+			if (set_shero(p_ptr->shero + dur, FALSE)) device_noticed = TRUE;
+			if (hp_player(30)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_CURE_LIGHT:
+		if (desc) return "It heals you trivially, cures blindness and berserk and reduces cuts when you quaff it.";
+		if (info) return info_heal(2, _potion_power(8), 0);
+		if (cast)
+		{
+			if (hp_player(_potion_power(damroll(2, 8)))) device_noticed = TRUE;
+			if (set_blind(0, TRUE)) device_noticed = TRUE;
+			if (set_cut(p_ptr->cut - 10, TRUE)) device_noticed = TRUE;
+			if (set_shero(0,TRUE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_CURE_SERIOUS:
+		if (desc) return "It heals you a bit, cures blindness, confusion and berserk and reduces cuts when you quaff it.";
+		if (info) return info_heal(4, _potion_power(8), 0);
+		if (cast)
+		{
+			if (hp_player(_potion_power(damroll(4, 8)))) device_noticed = TRUE;
+			if (set_blind(0, TRUE)) device_noticed = TRUE;
+			if (set_confused(0, TRUE)) device_noticed = TRUE;
+			if (set_cut((p_ptr->cut / 2) - 50, TRUE)) device_noticed = TRUE;
+			if (set_shero(0,TRUE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_CURE_CRITICAL:
+		if (desc) return "It heals you a bit and cures blindness, confusion, poison, stunned, cuts and berserk when you quaff it.";
+		if (info) return info_heal(6, _potion_power(8), 0);
+		if (cast)
+		{
+			if (hp_player(_potion_power(damroll(6, 8)))) device_noticed = TRUE;
+			if (set_blind(0, TRUE)) device_noticed = TRUE;
+			if (set_confused(0, TRUE)) device_noticed = TRUE;
+			if (set_poisoned(0, TRUE)) device_noticed = TRUE;
+			if (set_stun(0, TRUE)) device_noticed = TRUE;
+			if (set_cut(0, TRUE)) device_noticed = TRUE;
+			if (set_shero(0,TRUE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_BLOOD:
+		if (desc) return "A much needed infusion! It heals you a bit and cures blindness, confusion, poison, and stunned when you quaff it.";
+		if (info) return info_heal(0, 0, _potion_power(100)); /* Bloodknights heal 50% ... */
+		if (cast)
+		{
+			if (hp_player(_potion_power(200))) device_noticed = TRUE;
+			if (set_blind(0, TRUE)) device_noticed = TRUE;
+			if (set_confused(0, TRUE)) device_noticed = TRUE;
+			if (set_poisoned(0, TRUE)) device_noticed = TRUE;
+			if (set_stun(0, TRUE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_HEALING:
+		if (desc) return "It heals you and cures blindness, confusion, poison, stunned, cuts and berserk when you quaff it.";
+		if (info) return info_heal(0, 0, _potion_power(300)); 
+		if (cast)
+		{
+			if (hp_player(_potion_power(300))) device_noticed = TRUE;
+			if (set_blind(0, TRUE)) device_noticed = TRUE;
+			if (set_confused(0, TRUE)) device_noticed = TRUE;
+			if (set_poisoned(0, TRUE)) device_noticed = TRUE;
+			if (set_stun(0, TRUE)) device_noticed = TRUE;
+			if (set_cut(0, TRUE)) device_noticed = TRUE;
+			if (set_shero(0,TRUE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_STAR_HEALING:
+		if (desc) return "It heals you and cures blindness, confusion, poison, stunned, cuts and berserk when you quaff it.";
+		if (info) return info_heal(0, 0, _potion_power(1200)); 
+		if (cast)
+		{
+			if (hp_player(_potion_power(1200))) device_noticed = TRUE;
+			if (set_blind(0, TRUE)) device_noticed = TRUE;
+			if (set_confused(0, TRUE)) device_noticed = TRUE;
+			if (set_poisoned(0, TRUE)) device_noticed = TRUE;
+			if (set_stun(0, TRUE)) device_noticed = TRUE;
+			if (set_cut(0, TRUE)) device_noticed = TRUE;
+			if (set_shero(0,TRUE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_LIFE:
+		if (desc) return "It heals you completely, restores experience and all your stats and cures blindness, confusion, poison, hallucination, stunned, cuts and berserk when you quaff it.";
+		if (info) return info_heal(0, 0, _potion_power(5000)); 
+		if (cast)
+		{
+			msg_print("You feel life flow through your body!");
+			restore_level();
+			set_poisoned(0, TRUE);
+			set_blind(0, TRUE);
+			set_confused(0, TRUE);
+			set_image(0, TRUE);
+			set_stun(0, TRUE);
+			set_cut(0, TRUE);
+			do_res_stat(A_STR);
+			do_res_stat(A_CON);
+			do_res_stat(A_DEX);
+			do_res_stat(A_WIS);
+			do_res_stat(A_INT);
+			do_res_stat(A_CHR);
+			set_shero(0,TRUE);
+			update_stuff();
+			hp_player(_potion_power(5000));
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_CLARITY:
+		if (desc) return "It clears your mind a bit when you quaff it.";
+		if (info) return format("5d%d + %d", _potion_power(6), _potion_power(5));
+		if (cast)
+		{
+			if (sp_player(_potion_power(damroll(5, 6) + 5)))
+			{
+				msg_print("You feel your mind clear.");
+				device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_GREAT_CLARITY:
+		if (desc) return "It greatly clears your mind when you quaff it.";
+		if (info) return format("10d%d + %d", _potion_power(10), _potion_power(15));
+		if (cast)
+		{
+			if (sp_player(_potion_power(damroll(10, 10) + 15)))
+			{
+				msg_print("You feel your mind clear.");
+				device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_RESTORE_MANA:
+		if (desc) return "It restores mana to full and cures berserk when you quaff it.";
+		if (cast)
+		{
+			if (restore_mana()) device_noticed = TRUE;
+			if (set_shero(0,TRUE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_RESTORE_EXP:
+		if (desc) return "It restores your experience when you quaff it.";
+		if (cast)
+		{
+			if (restore_level()) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_RES_STR:
+		if (desc) return "It restores your strength when you quaff it.";
+		if (cast)
+		{
+			if (do_res_stat(A_STR)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_RES_INT:
+		if (desc) return "It restores your intelligence when you quaff it.";
+		if (cast)
+		{
+			if (do_res_stat(A_INT)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_RES_WIS:
+		if (desc) return "It restores your wisdom when you quaff it.";
+		if (cast)
+		{
+			if (do_res_stat(A_WIS)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_RES_DEX:
+		if (desc) return "It restores your dexterity when you quaff it.";
+		if (cast)
+		{
+			if (do_res_stat(A_DEX)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_RES_CON:
+		if (desc) return "It restores your constitution when you quaff it.";
+		if (cast)
+		{
+			if (do_res_stat(A_CON)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_RES_CHR:
+		if (desc) return "It restores your charisma when you quaff it.";
+		if (cast)
+		{
+			if (do_res_stat(A_CHR)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_INC_STR:
+		if (desc) return "It increases your strength when you quaff it.";
+		if (cast)
+		{
+			if (do_inc_stat(A_STR)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_INC_INT:
+		if (desc) return "It increases your intelligence when you quaff it.";
+		if (cast)
+		{
+			if (do_inc_stat(A_INT)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_INC_WIS:
+		if (desc) return "It increases your wisdom when you quaff it.";
+		if (cast)
+		{
+			if (do_inc_stat(A_WIS)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_INC_DEX:
+		if (desc) return "It increases your dexterity when you quaff it.";
+		if (cast)
+		{
+			if (do_inc_stat(A_DEX)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_INC_CON:
+		if (desc) return "It increases your constitution when you quaff it.";
+		if (cast)
+		{
+			if (do_inc_stat(A_CON)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_INC_CHR:
+		if (desc) return "It increases your charisma when you quaff it.";
+		if (cast)
+		{
+			if (do_inc_stat(A_CHR)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_AUGMENTATION:
+		if (desc) return "It increases all your stats when you quaff it.";
+		if (cast)
+		{
+			if (do_inc_stat(A_STR)) device_noticed = TRUE;
+			if (do_inc_stat(A_INT)) device_noticed = TRUE;
+			if (do_inc_stat(A_WIS)) device_noticed = TRUE;
+			if (do_inc_stat(A_DEX)) device_noticed = TRUE;
+			if (do_inc_stat(A_CON)) device_noticed = TRUE;
+			if (do_inc_stat(A_CHR)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_ENLIGHTENMENT:
+		if (desc) return "It maps, lights permanently and detects all items on the entire level when you quaff it.";
+		if (cast)
+		{
+			msg_print("An image of your surroundings forms in your mind...");
+			wiz_lite(p_ptr->tim_superstealth > 0);
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_STAR_ENLIGHTENMENT:
+		if (desc) return "It maps, lights permanently and detects all items on the entire level, increases your intelligence and wisdom, detects all traps, doors, stairs, treasures in your vicinity, identifies all items in pack and gives information about yourself when you quaff it.";
+		if (cast)
+		{
+			msg_print("You begin to feel more enlightened...");
+			msg_print(NULL);
+			wiz_lite(p_ptr->tim_superstealth > 0);
+			do_inc_stat(A_INT);
+			do_inc_stat(A_WIS);
+			detect_traps(DETECT_RAD_DEFAULT, TRUE);
+			detect_doors(DETECT_RAD_DEFAULT);
+			detect_stairs(DETECT_RAD_DEFAULT);
+			detect_treasure(DETECT_RAD_DEFAULT);
+			detect_objects_gold(DETECT_RAD_DEFAULT);
+			detect_objects_normal(DETECT_RAD_DEFAULT);
+			identify_pack();
+			self_knowledge();
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_SELF_KNOWLEDGE:
+		if (desc) return "It gives information about yourself when you quaff it.";
+		if (cast)
+		{
+			msg_print("You begin to know yourself a little better...");
+			msg_print(NULL);
+			self_knowledge();
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_EXPERIENCE:
+		if (desc) return "You become more experienced when you quaff it.";
+		if (cast)
+		{
+			if (p_ptr->prace == RACE_ANDROID) break;
+			if (p_ptr->exp < PY_MAX_EXP)
+			{
+				s32b ee = _potion_power((p_ptr->exp / 2) + 10);
+				s32b max = _potion_power(100000);
+				if (mut_present(MUT_FAST_LEARNER))
+				{
+					ee = ee * 5/3;
+					max = max * 5/3;
+				}
+				if (ee > max) ee = max;
+				msg_print("You feel more experienced.");
+				gain_exp(ee);
+				device_noticed = TRUE;
+			}
+		}
+		break;
+	case SV_POTION_RESISTANCE:
+		if (desc) return "You get temporary resistance to the elements and poison when you quaff it. ";
+		if (info) return format("Dur d%d + %d", _potion_power(20), _potion_power(20));
+		if (cast)
+		{
+			int dur = _potion_power(20 + randint1(20));
+			set_oppose_acid(p_ptr->oppose_acid + dur, FALSE);
+			set_oppose_elec(p_ptr->oppose_elec + dur, FALSE);
+			set_oppose_fire(p_ptr->oppose_fire + dur, FALSE);
+			set_oppose_cold(p_ptr->oppose_cold + dur, FALSE);
+			set_oppose_pois(p_ptr->oppose_pois + dur, FALSE);
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_CURING:
+		if (desc) return "It heals you a bit and cures blindness, poison, confusion, stunning, cuts and hallucination when you quaff it.";
+		if (info) return info_heal(0, 0, _potion_power(50));
+		if (cast)
+		{
+			if (hp_player(_potion_power(50))) device_noticed = TRUE;
+			if (set_blind(0, TRUE)) device_noticed = TRUE;
+			if (set_poisoned(0, TRUE)) device_noticed = TRUE;
+			if (set_confused(0, TRUE)) device_noticed = TRUE;
+			if (set_stun(0, TRUE)) device_noticed = TRUE;
+			if (set_cut(0, TRUE)) device_noticed = TRUE;
+			if (set_image(0, TRUE)) device_noticed = TRUE;
+			if (set_shero(0,TRUE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_INVULNERABILITY:
+		if (desc) return "You become invulnerable temporarily when you quaff it.";
+		if (info) return format("Dur d%d + %d", _potion_power(4), _potion_power(4));
+		if (cast)
+		{
+			int dur = _potion_power(4 + randint1(4));
+			set_invuln(p_ptr->invuln + dur, FALSE);
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_NEW_LIFE:
+		if (desc) return "It changes your life rating and max of all your stats and cures all mutations when you quaff it.";
+		if (cast)
+		{
+			do_cmd_rerate(FALSE);
+			get_max_stats();
+			p_ptr->update |= PU_BONUS;
+			mut_lose_all();
+			device_noticed = TRUE;
+			if (p_ptr->pclass == CLASS_WILD_TALENT)
+				wild_talent_new_life();
+		}
+		break;
+	case SV_POTION_NEO_TSUYOSHI:
+		if (desc) return "It cures hallucination and increases your strength and constitution temporarily when you quaff it but your strength and constitution decrease permanently than before when the effect expires.";
+		if (cast)
+		{
+			set_image(0, TRUE);
+			set_tsuyoshi(p_ptr->tsuyoshi + randint1(100) + 100, FALSE);
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_TSUYOSHI:
+		if (desc) return "It decreases your strength and constitution permanently and makes you hallucinate when you quaff it.";
+		if (cast)
+		{
+			msg_print("Brother OKURE!");
+			msg_print(NULL);
+			p_ptr->tsuyoshi = 1;
+			set_tsuyoshi(0, TRUE);
+			if (!res_save_default(RES_CHAOS))
+				set_image(50 + randint1(50), FALSE);
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_GIANT_STRENGTH:
+		if (desc) return "It greatly increases your stature temporarily when you quaff it.";
+		if (info) return format("Dur d%d + %d", _potion_power(20), _potion_power(20));
+		if (cast)
+		{
+			if (set_tim_building_up(_potion_power(20 + randint1(20)), FALSE)) device_noticed = TRUE;
+		}
+		break;
+	case SV_POTION_POLYMORPH:
+		if (desc) return "It mutates you when you quaff it. Rarely it cures all mutations.";
+		if (cast)
+		{
+			int count = mut_count(mut_unlocked_pred);
+			if (count > 1 && one_in_(23))
+			{
+				mut_lose_all();
+				if (p_ptr->pclass == CLASS_WILD_TALENT)
+					wild_talent_new_life();
+			}
+			else
+			{
+				do
+				{
+					if (one_in_(2))
+					{
+						if(mut_gain_random(NULL)) device_noticed = TRUE;
+					}
+					else if (count > 5 || one_in_(6 - count))
+					{
+						if (mut_lose_random(NULL)) device_noticed = TRUE;
+					}
+				} while(!ident || one_in_(2));
+
+				if (p_ptr->pclass == CLASS_WILD_TALENT && one_in_(2))
+					wild_talent_scramble();
+			}
+		}
+		break;
+	case SV_POTION_STONE_SKIN:
+		if (desc) return "It temporarily turns your skin to stone, granting enhanced armor class, when you quaff it.";
+		if (info) return format("Dur d%d + %d", _potion_power(20), _potion_power(20));
+		if (cast)
+		{
+			if (set_shield(_potion_power(20 + randint1(20)), FALSE)) device_noticed = TRUE;
+		}
+		break;
+	}
+	return "";
+}
+
 static cptr _do_scroll(int sval, int mode)
 {
 	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
@@ -182,7 +954,7 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It summons a monster as your pet when you read it.";
 		if (cast)
 		{
-			if (summon_specific(-1, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+			if (summon_specific(-1, py, px, _scroll_power(dun_level), 0, (PM_ALLOW_GROUP | PM_FORCE_PET)))
 				device_noticed = TRUE;
 		}
 		break;
@@ -190,7 +962,7 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It summons a monster corresponds to your race as your pet when you read it.";
 		if (cast)
 		{
-			if (summon_kin_player(p_ptr->lev, py, px, (PM_FORCE_PET | PM_ALLOW_GROUP)))
+			if (summon_kin_player(_scroll_power(p_ptr->lev), py, px, (PM_FORCE_PET | PM_ALLOW_GROUP)))
 				device_noticed = TRUE;
 		}
 		break;
@@ -227,7 +999,7 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It teleports you one dungeon level up or down immediately when you read it.";
 		if (cast)
 		{
-			(void)teleport_level(0);
+			teleport_level(0);
 			device_noticed = TRUE;
 		}
 		break;
@@ -319,7 +1091,7 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It recharges wands, staffs or rods when you read it.";
 		if (cast)
 		{
-			if (!recharge(75)) return NULL;
+			if (!recharge(_scroll_power(75))) return NULL;
 			device_noticed = TRUE;
 		}
 		break;
@@ -342,7 +1114,7 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It maps your vicinity when you read it.";
 		if (cast)
 		{
-			map_area(DETECT_RAD_MAP);
+			map_area(_scroll_power(DETECT_RAD_MAP));
 			device_noticed = TRUE;
 		}
 		break;
@@ -350,44 +1122,44 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It detects all treasures in your vicinity when you read it.";
 		if (cast)
 		{
-			if (detect_treasure(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
-			if (detect_objects_gold(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_treasure(_scroll_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
+			if (detect_objects_gold(_scroll_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_DETECT_ITEM:
 		if (desc) return "It detects all items in your vicinity when you read it.";
 		if (cast)
 		{
-			if (detect_objects_normal(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_objects_normal(_scroll_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_DETECT_TRAP:
 		if (desc) return "It detects all traps in your vicinity when you read it.";
 		if (cast)
 		{
-			if (detect_traps(DETECT_RAD_DEFAULT, device_known)) device_noticed = TRUE;
+			if (detect_traps(_scroll_power(DETECT_RAD_DEFAULT), device_known)) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_DETECT_DOOR:
 		if (desc) return "It detects all doors and stairs in your vicinity when you read it.";
 		if (cast)
 		{
-			if (detect_doors(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
-			if (detect_stairs(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_doors(_scroll_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
+			if (detect_stairs(_scroll_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_DETECT_INVIS:
 		if (desc) return "It detects all invisible monsters in your vicinity when you read it.";
 		if (cast)
 		{
-			if (detect_monsters_invis(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_monsters_invis(_scroll_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_DETECT_MONSTERS:
 		if (desc) return "It detects all monsters in your vicinity when you read it.";
 		if (cast)
 		{
-			if (detect_monsters_normal(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_monsters_normal(_scroll_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_SATISFY_HUNGER:
@@ -401,21 +1173,21 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It blesses you temporarily when you read it.";
 		if (cast)
 		{
-			if (set_blessed(p_ptr->blessed + randint1(12) + 6, FALSE)) device_noticed = TRUE;
+			if (set_blessed(p_ptr->blessed + _scroll_power(randint1(12) + 6), FALSE)) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_HOLY_CHANT:
 		if (desc) return "It blesses you temporarily when you read it.";
 		if (cast)
 		{
-			if (set_blessed(p_ptr->blessed + randint1(24) + 12, FALSE)) device_noticed = TRUE;
+			if (set_blessed(p_ptr->blessed + _scroll_power(randint1(24) + 12), FALSE)) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_HOLY_PRAYER:
 		if (desc) return "It blesses you temporarily when you read it.";
 		if (cast)
 		{
-			if (set_blessed(p_ptr->blessed + randint1(48) + 24, FALSE)) device_noticed = TRUE;
+			if (set_blessed(p_ptr->blessed + _scroll_power(randint1(48) + 24), FALSE)) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_MONSTER_CONFUSION:
@@ -435,7 +1207,7 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It gives temporary protection from lesser evil creatures when you read it.";
 		if (cast)
 		{
-			if (set_protevil(p_ptr->protevil + randint1(25) + 3 * p_ptr->lev, FALSE)) 
+			if (set_protevil(p_ptr->protevil + _scroll_power(randint1(25) + 3 * p_ptr->lev), FALSE)) 
 				device_noticed = TRUE;
 		}
 		break;
@@ -458,7 +1230,7 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It destroys everything nearby you when you read it.";
 		if (cast)
 		{
-			if (destroy_area(py, px, 13 + randint0(5), 2000))
+			if (destroy_area(py, px, 13 + randint0(5), _scroll_power(2000)))
 				device_noticed = TRUE;
 			else
 				msg_print("The dungeon trembles...");
@@ -466,10 +1238,10 @@ static cptr _do_scroll(int sval, int mode)
 		break;
 	case SV_SCROLL_DISPEL_UNDEAD:
 		if (desc) return "It damages all undead monsters in sight when you read it.";
-		if (info) return info_damage(0, 0, 80);
+		if (info) return info_damage(0, 0, _scroll_power(80));
 		if (cast)
 		{
-			if (dispel_undead(80)) device_noticed = TRUE;
+			if (dispel_undead(_scroll_power(80))) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_SPELL:
@@ -517,7 +1289,7 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It eliminates an entire class of monster, exhausting you. Powerful or unique monsters may resist.";
 		if (cast)
 		{
-			(void)symbol_genocide(300, TRUE);
+			symbol_genocide(_scroll_power(300), TRUE);
 			device_noticed = TRUE;
 		}
 		break;
@@ -525,7 +1297,7 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It eliminates all nearby monsters, exhausting you. Powerful or unique monsters may be able to resist.";
 		if (cast)
 		{
-			(void)mass_genocide(300, TRUE);
+			mass_genocide(_scroll_power(300), TRUE);
 			device_noticed = TRUE;
 		}
 		break;
@@ -541,29 +1313,29 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It creates some great items when you read it.";
 		if (cast)
 		{
-			acquirement(py, px, randint1(2) + 1, TRUE, FALSE);
+			acquirement(py, px, _scroll_power(randint1(2) + 1), TRUE, FALSE);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_FOREST_CREATION:
-		if (desc) return "";
+		if (desc) return "It surrounds you with verdure.";
 		if (cast)
 		{
 			if (tree_creation()) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_WALL_CREATION:
-		if (desc) return "";
+		if (desc) return "It surrounds you with rock.";
 		if (cast)
 		{
 			if (wall_stone()) device_noticed = TRUE;
 		}
 		break;
 	case SV_SCROLL_VENGEANCE:
-		if (desc) return "";
+		if (desc) return "For a short time, monsters that attack you receive an equal amount of damage in retaliation.";
 		if (cast)
 		{
-			set_tim_eyeeye(randint1(25) + 25, FALSE);
+			set_tim_eyeeye(_scroll_power(randint1(25) + 25), FALSE);
 			device_noticed = TRUE;
 		}
 		break;
@@ -621,7 +1393,7 @@ static cptr _do_scroll(int sval, int mode)
 		{
 			int item;
 			object_type *o_ptr;
-			int n = randint0(100);
+			int n = randint0(_scroll_power(100));
 
 			item_tester_hook = item_tester_hook_nameless_weapon_armour;
 			if (!get_item(&item, "Use which item? ", "You have nothing to use.", (USE_EQUIP | USE_INVEN | USE_FLOOR))) return NULL;
@@ -700,12 +1472,12 @@ static cptr _do_scroll(int sval, int mode)
 		break;
 	case SV_SCROLL_FIRE:
 		if (desc) return "It creates a huge fire ball centered on you.";
-		if (info) return info_damage(0, 0, 333);
+		if (info) return info_damage(0, 0, _scroll_power(333));
 		if (cast)
 		{
 			device_noticed = TRUE;
-			fire_ball(GF_FIRE, 0, 666, 4);
-			if (!res_save_default(RES_FIRE))
+			fire_ball(GF_FIRE, 0, _scroll_power(666), 4);
+			if (!devicemaster_is_(DEVICEMASTER_SCROLLS) && !res_save_default(RES_FIRE))
 			{
 				int dam = res_calc_dam(RES_FIRE, 25 + randint1(25));
 				take_hit(DAMAGE_NOESCAPE, dam, "a Scroll of Fire", -1);
@@ -714,12 +1486,12 @@ static cptr _do_scroll(int sval, int mode)
 		break;
 	case SV_SCROLL_ICE:
 		if (desc) return "It creates a huge ice ball centered on you.";
-		if (info) return info_damage(0, 0, 400);
+		if (info) return info_damage(0, 0, _scroll_power(400));
 		if (cast)
 		{
 			device_noticed = TRUE;
-			fire_ball(GF_ICE, 0, 800, 4);
-			if (!res_save_default(RES_COLD))
+			fire_ball(GF_ICE, 0, _scroll_power(800), 4);
+			if (!devicemaster_is_(DEVICEMASTER_SCROLLS) && !res_save_default(RES_COLD))
 			{
 				int dam = res_calc_dam(RES_COLD, 30 + randint1(30));
 				take_hit(DAMAGE_NOESCAPE, dam, "a Scroll of Ice", -1);
@@ -728,12 +1500,12 @@ static cptr _do_scroll(int sval, int mode)
 		break;
 	case SV_SCROLL_CHAOS:
 		if (desc) return "It creates a huge ball of logrus centered on you.";
-		if (info) return info_damage(0, 0, 500);
+		if (info) return info_damage(0, 0, _scroll_power(500));
 		if (cast)
 		{
 			device_noticed = TRUE;
-			fire_ball(GF_CHAOS, 0, 1000, 4);
-			if (!res_save_default(RES_CHAOS))
+			fire_ball(GF_CHAOS, 0, _scroll_power(1000), 4);
+			if (!devicemaster_is_(DEVICEMASTER_SCROLLS) && !res_save_default(RES_CHAOS))
 			{
 				int dam = res_calc_dam(RES_CHAOS, 50 + randint1(50));
 				take_hit(DAMAGE_NOESCAPE, dam, "a Scroll of Logrus", -1);
@@ -742,12 +1514,13 @@ static cptr _do_scroll(int sval, int mode)
 		break;
 	case SV_SCROLL_MANA:
 		if (desc) return "It creates a huge ball of pure mana centered on you.";
-		if (info) return info_damage(0, 0, 550);
+		if (info) return info_damage(0, 0, _scroll_power(550));
 		if (cast)
 		{
 			device_noticed = TRUE;
-			fire_ball(GF_MANA, 0, 1100, 4);
-			take_hit(DAMAGE_NOESCAPE, 50 + randint1(50), "a Scroll of Mana", -1);
+			fire_ball(GF_MANA, 0, _scroll_power(1100), 4);
+			if (!devicemaster_is_(DEVICEMASTER_SCROLLS))
+				take_hit(DAMAGE_NOESCAPE, 50 + randint1(50), "a Scroll of Mana", -1);
 		}
 		break;
 	}
@@ -867,7 +1640,7 @@ static cptr _do_staff(int sval, int mode)
 		if (desc) return "It maps your vicinity when you use it.";
 		if (cast)
 		{
-			map_area(DETECT_RAD_MAP);
+			map_area(_staff_power(DETECT_RAD_MAP));
 			device_noticed = TRUE;
 		}
 		break;
@@ -875,44 +1648,44 @@ static cptr _do_staff(int sval, int mode)
 		if (desc) return "It detects all treasures in your vicinity when you use it.";
 		if (cast)
 		{
-			if (detect_treasure(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
-			if (detect_objects_gold(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_treasure(_staff_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
+			if (detect_objects_gold(_staff_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_DETECT_ITEM:
 		if (desc) return "It detects all items in your vicinity when you use it.";
 		if (cast)
 		{
-			if (detect_objects_normal(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_objects_normal(_staff_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_DETECT_TRAP:
 		if (desc) return "It detects all traps in your vicinity when you use it.";
 		if (cast)
 		{
-			if (detect_traps(DETECT_RAD_DEFAULT, device_known)) device_noticed = TRUE;
+			if (detect_traps(_staff_power(DETECT_RAD_DEFAULT), device_known)) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_DETECT_DOOR:
 		if (desc) return "It detects all doors and stairs in your vicinity when you use it.";
 		if (cast)
 		{
-			if (detect_doors(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
-			if (detect_stairs(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_doors(_staff_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
+			if (detect_stairs(_staff_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_DETECT_INVIS:
 		if (desc) return "It detects all invisible monsters in your vicinity when you use it.";
 		if (cast)
 		{
-			if (detect_monsters_invis(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_monsters_invis(_staff_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_DETECT_EVIL:
 		if (desc) return "It detects all evil monsters in your vicinity when you use it.";
 		if (cast)
 		{
-			if (detect_monsters_evil(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_monsters_evil(_staff_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_CURE_LIGHT:
@@ -1024,7 +1797,7 @@ static cptr _do_staff(int sval, int mode)
 		if (desc) return "It eliminates an entire class of monster, exhausting you. Powerful or unique monsters may resist.";
 		if (cast)
 		{
-			(void)symbol_genocide((magic_eater_hack ? p_ptr->lev + 50 : _staff_power(200)), TRUE);
+			symbol_genocide((magic_eater_hack ? p_ptr->lev + 50 : _staff_power(200)), TRUE);
 			device_noticed = TRUE;
 		}
 		break;
@@ -1071,7 +1844,7 @@ static cptr _do_staff(int sval, int mode)
 			  && p_ptr->pclass != CLASS_BLUE_MAGE 
 			  && p_ptr->pclass != CLASS_BLOOD_MAGE )
 			{
-				(void)take_hit(DAMAGE_NOESCAPE, 50, "unleashing magics too mighty to control", -1);
+				take_hit(DAMAGE_NOESCAPE, 50, "unleashing magics too mighty to control", -1);
 			}
 			device_noticed = TRUE;
 		}
@@ -1179,7 +1952,7 @@ static cptr _do_wand(int sval, int mode)
 		if (cast)
 		{
 			msg_print("A line of blue shimmering light appears.");
-			(void)lite_line(dir);
+			lite_line(dir);
 			device_noticed = TRUE;
 		}
 		break;
@@ -1428,22 +2201,22 @@ static cptr _do_rod(int sval, int mode)
 		if (desc) return "It detects all monsters in your vicinity when you zap it.";
 		if (cast)
 		{
-			if (detect_monsters_normal(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_monsters_normal(_rod_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_DETECT_TRAP:
 		if (desc) return "It detects all traps in your vicinity when you zap it.";
 		if (cast)
 		{
-			if (detect_traps(DETECT_RAD_DEFAULT, device_known)) device_noticed = TRUE;
+			if (detect_traps(_rod_power(DETECT_RAD_DEFAULT), device_known)) device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_DETECT_DOOR:
 		if (desc) return "It detects all doors and stairs in your vicinity when you zap it.";
 		if (cast)
 		{
-			if (detect_doors(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
-			if (detect_stairs(DETECT_RAD_DEFAULT)) device_noticed = TRUE;
+			if (detect_doors(_rod_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
+			if (detect_stairs(_rod_power(DETECT_RAD_DEFAULT))) device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_IDENTIFY:
@@ -1473,7 +2246,7 @@ static cptr _do_rod(int sval, int mode)
 		if (desc) return "It maps your vicinity when you zap it.";
 		if (cast)
 		{
-			map_area(DETECT_RAD_MAP);
+			map_area(_rod_power(DETECT_RAD_MAP));
 			device_noticed = TRUE;
 		}
 		break;
@@ -1481,7 +2254,7 @@ static cptr _do_rod(int sval, int mode)
 		if (desc) return "It detects all traps, doors, stairs, treasures, items and monsters in the neighborhood when you zap it.";
 		if (cast)
 		{
-			detect_all(DETECT_RAD_DEFAULT);
+			detect_all(_rod_power(DETECT_RAD_DEFAULT));
 			device_noticed = TRUE;
 		}
 		break;
@@ -1569,7 +2342,7 @@ static cptr _do_rod(int sval, int mode)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
 			msg_print("A line of blue shimmering light appears.");
-			(void)lite_line(dir);
+			lite_line(dir);
 			device_noticed = TRUE;
 		}
 		break;
@@ -1751,6 +2524,7 @@ cptr do_device(int tval, int sval, int mode)
 	case TV_WAND: result = _do_wand(sval, mode); break;
 	case TV_ROD: result = _do_rod(sval, mode); break;
 	case TV_SCROLL: result = _do_scroll(sval, mode); break;
+	case TV_POTION: result = _do_potion(sval, mode); break;
 	}
 	device_known = FALSE;
 	device_extra_power = 0;

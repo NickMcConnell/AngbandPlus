@@ -2045,16 +2045,16 @@ N:190:Rune of Protection:sef unag famur
 E:Rune of Protection:sef unag famur
 G:?:w
 I:70:38:0
-W:50:0:0:5:500
-A:50/4:90/2
+W:35:0:0:5:500
+A:35/6:90/2
 F:STACK
 
 N:191:*Remove Curse*:bluju wex blu
 E:*Remove Curse*:bluju wex blu
 G:?:w
 I:70:15:0
-W:50:0:0:5:4000
-A:50/2:75/2
+W:35:0:0:5:4000
+A:35/4:75/2
 F:STACK
 
 N:192:Treasure Detection:ner fidtri
@@ -2120,8 +2120,8 @@ N:198:Acquirement:klinej ere
 E:Acquirement:klinej ere
 G:?:w
 I:70:46:0
-W:20:0:0:5:100000
-A:20/8
+W:40:0:0:5:100000
+A:40/6
 
 N:199:*Acquirement*:snetrol uni
 E:*Acquirement*:snetrol uni
@@ -2173,15 +2173,15 @@ N:205:Artifact Creation:engsno argsan
 E:Artifact Creation:engsno argsan
 G:?:w
 I:70:52:0
-W:90:0:0:5:200000
-A:90/16
+W:91:0:0:5:200000
+A:91/16
 
 N:206:Recharging:klis glenash
 E:Recharging:klis glenash
 G:?:w
 I:70:22:0
-W:40:0:0:5:200
-A:40/1
+W:35:0:0:5:200
+A:35/1
 F:STACK
 
 N:207:Genocide:ashval paylech
@@ -2217,8 +2217,8 @@ N:211:Dispel Undead:wah snofoo
 E:Dispel Undead:wah snofoo
 G:?:w
 I:70:42:0
-W:40:0:70:5:200
-A:40/1
+W:35:0:70:5:200
+A:35/1
 F:STACK
 
 N:212:*Enchant Weapon*:vlytox
@@ -2300,7 +2300,7 @@ A:40/1
 
 ##### Potions #####
 
-N:222:スライムモルドジュース:よどんだ緑の
+N:222:Slime Mold Juice:Icky Green
 E:Slime Mold Juice:Icky Green
 G:!:g
 I:75:2:400
@@ -2309,10 +2309,8 @@ A:0/1
 P:0:1d1:0:0:0
 F:FIXED_FLAVOR
 F:STACK
-D:$It tastes weird.
-D:それは不気味な味のするジュースである。
 
-N:223:リンゴジュース:薄茶色の
+N:223:Apple Juice:Light Brown
 E:Apple Juice:Light Brown
 G:!:U
 I:75:1:250
@@ -2321,10 +2319,8 @@ A:0/1
 P:0:1d1:0:0:0
 F:FIXED_FLAVOR
 F:STACK
-D:$It tastes sweet.
-D:それは甘くてサッパリしているジュースである。
 
-N:224:水:透明な
+N:224:Water:Clear
 E:Water:Clear
 G:!:w
 I:75:0:200
@@ -2333,20 +2329,16 @@ A:0/1
 P:0:1d1:0:0:0
 F:FIXED_FLAVOR
 F:STACK
-D:$It is just water.
-D:それはただの水である。
 
-N:225:腕力:紺碧の
+N:225:Strength:Azure
 E:Strength:Azure
 G:!:B
 I:75:48:0
-W:20:0:0:4:30000
+W:30:0:0:4:30000
 A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
-D:$It increases your strength when you quaff it.
-D:それは飲むと腕力の最大値が上がる。
 
-N:226:脆弱:青い
+N:226:Weakness:Blue
 E:Weakness:Blue
 G:!:b
 I:75:16:0
@@ -2354,10 +2346,8 @@ W:3:0:30:4:0
 A:3/1
 P:0:3d12:0:0:0
 F:STACK
-D:$It decreases your strength when you quaff it.
-D:それは飲むと腕力の現在値が下がる。
 
-N:227:腕力復活:青斑の
+N:227:Restore Strength:Blue Speckled
 E:Restore Strength:Blue Speckled
 G:!:b
 I:75:42:0
@@ -2365,20 +2355,16 @@ W:25:0:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It restores your strength when you quaff it.
-D:それは飲むと腕力が回復する。
 
-N:228:知能:黒い
+N:228:Intelligence:Black
 E:Intelligence:Black
 G:!:D
 I:75:49:0
-W:20:0:0:4:30000
+W:30:0:0:4:30000
 A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
-D:$It increases your intellingence when you quaff it.
-D:それは飲むと知能の最大値が上がる。
 
-N:229:無知:茶色の
+N:229:Stupidity:Brown
 E:Stupidity:Brown
 G:!:u
 I:75:17:0
@@ -2386,10 +2372,8 @@ W:20:0:30:4:0
 A:20/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It decreases your intelligence when you quaff it.
-D:それは飲むと知能の現在値が下がる。
 
-N:230:知能復活:茶斑の
+N:230:Restore Intelligence:Brown Speckled
 E:Restore Intelligence:Brown Speckled
 G:!:u
 I:75:43:0
@@ -2397,20 +2381,16 @@ W:25:0:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It restores your intelligence when you quaff it.
-D:それは飲むと知能が回復する。
 
-N:231:賢さ:泡だった
+N:231:Wisdom:Bubbling
 E:Wisdom:Bubbling
 G:!:W
 I:75:50:0
-W:20:0:0:4:30000
+W:30:0:0:4:30000
 A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
-D:$It increases your wisdom when you quaff it.
-D:それは飲むと賢さの最大値が上がる。
 
-N:232:愚鈍:薄黄緑色の
+N:232:Naivety:Chartreuse
 E:Naivety:Chartreuse
 G:!:G
 I:75:18:0
@@ -2418,10 +2398,8 @@ W:20:0:30:4:0
 A:20/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It decreases your wisdom when you quaff it.
-D:それは飲むと賢さの現在値が下がる。
 
-N:233:賢さ復活:濁った
+N:233:Restore Wisdom:Cloudy
 E:Restore Wisdom:Cloudy
 G:!:w
 I:75:44:0
@@ -2429,20 +2407,16 @@ W:25:0:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It restores your wisdom when you quaff it.
-D:それは飲むと賢さが回復する。
 
-N:234:魅力:銅斑の
+N:234:Charisma:Copper Speckled
 E:Charisma:Copper Speckled
 G:!:U
 I:75:53:0
-W:20:0:0:4:30000
+W:30:0:0:4:30000
 A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
-D:$It increases your charisma when you quaff it.
-D:それは飲むと魅力の最大値が上がる。
 
-N:235:醜悪:紅色の
+N:235:Ugliness:Crimson
 E:Ugliness:Crimson
 G:!:r
 I:75:21:0
@@ -2450,10 +2424,8 @@ W:20:0:30:4:0
 A:20/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It decreases your charisma when you quaff it.
-D:それは飲むと魅力の現在値が下がる。
 
-N:236:魅力復活:シアン色の
+N:236:Restore Charisma:Cyan
 E:Restore Charisma:Cyan
 G:!:B
 I:75:47:0
@@ -2461,103 +2433,75 @@ W:20:0:0:4:300
 A:20/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It restores your charisma when you quaff it.
-D:それは飲むと魅力が回復する。
 
-N:237:癒し:群青色の
+N:237:Curing:Dark Blue
 E:Curing:Dark Blue
 G:!:b
 I:75:61:100
-W:18:0:0:4:250
-A:18/1:40/1
+W:26:0:0:4:250
+A:26/1:40/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It heals you 50 and cures blindness, poison, confusion, stunning, cuts 
-D:$and hallucination when you quaff it.
-D:それは飲むと体力が50回復し、盲目・毒・混乱・朦朧・切り傷・幻覚を癒す。
 
-# Note! Invulnerability decreases your food...
-
-#JZ#
-N:238:無敵:深い緑の
+N:238:Invulnerability:Dark Green
 E:Invulnerability:Dark Green
 G:!:g
 I:75:62:-2500
-W:90:0:0:4:100000
+W:110:0:0:4:100000
 A:90/9
 P:0:1d1:0:0:0
-D:$You get invulnerable temporarily when you quaff it.
-D:それは飲むと一時的に無敵化する。
 
-#JZ#
-N:239:新生:深い赤色の
+N:239:New Life:Dark Red
 E:New Life:Dark Red
 G:!:r
 I:75:63:100
 W:50:0:0:4:25000
 A:30/4
 P:0:1d1:0:0:0
-D:$It changes your life rating and max of all your stats and cures all 
-D:$mutations when you quaff it.
-D:それは飲むと自分の生命力ランクや全ステータスの限界が作り直され、
-D:全ての突然変異が消える。
 
-N:240:重傷の治癒:金斑の
+N:240:Cure Serious Wounds:Gold Speckled
 E:Cure Serious Wounds:Gold Speckled
 G:!:y
 I:75:35:100
-W:3:0:50:4:40
-A:3/1
+W:10:0:50:4:40
+A:10/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It heals you 4d8, cures blindness, confusion and berserk and reduces cuts 
-D:$when you quaff it.
-D:それは飲むと体力が4d8回復し、盲目・混乱・狂戦士化を癒し、切り傷を和らげる。
 
-N:241:致命傷の治癒:灰色の
+N:241:Cure Critical Wounds:Gray
 E:Cure Critical Wounds:Gray
 G:!:s
 I:75:36:100
-W:5:0:0:4:100
-A:5/1
+W:20:0:0:4:100
+A:20/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It heals you 6d8 and cures blindness, confusion, poison, stunned, cuts and 
-D:$berserk when you quaff it.
-D:それは飲むと体力が6d8回復し、盲目・混乱・毒・朦朧・切り傷・狂戦士化を癒す。
 
-N:242:体力回復:灰斑の
+N:242:Healing:Gray Speckled
 E:Healing:Gray Speckled
 G:!:s
 I:75:37:200
-W:15:0:0:4:300
-A:15/1:30/1:60/1:80/1
+W:31:0:0:4:300
+A:31/1:60/1:80/1
 P:0:1d1:0:0:0
-D:$It heals you 300 and cures blindness, confusion, poison, stunned, cuts and 
-D:$berserk when you quaff it.
-D:それは飲むと体力が300回復し、盲目・混乱・毒・朦朧・切り傷・狂戦士化を癒す。
 
-N:243:耐久力:緑色の
+N:243:Constitution:Green
 E:Constitution:Green
 G:!:g
 I:75:52:0
-W:20:0:0:4:30000
+W:30:0:0:4:30000
 A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
-D:$It increases your constitution when you quaff it.
-D:それは飲むと耐久力の最大値が上がる。
 
-N:244:経験:緑斑の
+N:244:Experience:Green Speckled
 E:Experience:Green Speckled
 G:!:g
 I:75:59:0
 W:65:0:0:4:25000
 A:65/1
 P:0:1d1:0:0:0
-D:$You gain experience half of your experience (max: 100000) when you quaff it.
-D:それは飲むと現在の経験値の半分(100000を超えない)の経験を得る。
 
-N:245:眠り:ぼやけた色の
+N:245:Sleep:Hazy
 E:Sleep:Hazy
 G:!:W
 I:75:11:100
@@ -2565,10 +2509,8 @@ W:0:0:20:4:0
 A:0/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It paralyzes you when you quaff it.
-D:それは飲むと麻痺する。
 
-N:246:盲目:藍色の
+N:246:Blindness:Indigo
 E:Blindness:Indigo
 G:!:v
 I:75:7:0
@@ -2576,11 +2518,8 @@ W:0:0:20:4:0
 A:0/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It blinds you when you quaff it.
-D:それは飲むと盲目になる。
 
-#JZ#
-N:247:酔っ払い:薄い青色の
+N:247:Booze:Light Blue
 E:Booze:Light Blue
 G:!:B
 I:75:9:50
@@ -2588,11 +2527,8 @@ W:0:0:20:4:0
 A:0/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It confuses and hallucinates you when you quaff it. If you are a monk, 
-D:$you may be a drunken master.
-D:それは飲むと混乱し、幻覚に侵される。修行僧が飲むと酔拳を使えるらしい。
 
-N:248:毒:薄い緑色の
+N:248:Poison:Light Green
 E:Poison:Light Green
 G:!:G
 I:75:6:0
@@ -2600,10 +2536,8 @@ W:3:0:30:4:0
 A:3/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It poisons you when you quaff it.
-D:それは飲むと毒に冒される。
 
-N:249:スピード:マゼンタ色の
+N:249:Speed:Magenta
 E:Speed:Magenta
 G:!:r
 I:75:29:0
@@ -2611,10 +2545,8 @@ W:1:0:0:4:75
 A:1/1:40/1:60/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It hastes you temporarily when you quaff it.
-D:それは飲むと一時的に加速する。
 
-N:250:のろま:青く輝く
+N:250:Slowness:Metallic Blue
 E:Slowness:Metallic Blue
 G:!:b
 I:75:4:50
@@ -2622,20 +2554,16 @@ W:1:0:20:4:0
 A:1/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It slows you down temporarily when you quaff it.
-D:それは飲むと一時的に減速する。
 
-N:251:器用さ:赤く輝く
+N:251:Dexterity:Metallic Red
 E:Dexterity:Metallic Red
 G:!:r
 I:75:51:0
-W:20:0:0:4:30000
+W:30:0:0:4:30000
 A:20/6:30/3:60/3:80/2
 P:0:1d1:0:0:0
-D:$It increases your dexterity when you quaff it.
-D:それは飲むと器用さの最大値が上がる。
 
-N:252:器用さ復活:緑に輝く
+N:252:Restore Dexterity:Metallic Green
 E:Restore Dexterity:Metallic Green
 G:!:g
 I:75:45:0
@@ -2643,10 +2571,8 @@ W:25:0:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It restores your dexterity when you quaff it.
-D:それは飲むと器用さが回復する。
 
-N:253:耐久力復活:紫に輝く
+N:253:Restore Constitution:Metallic Purple
 E:Restore Constitution:Metallic Purple
 G:!:v
 I:75:46:0
@@ -2654,10 +2580,8 @@ W:25:0:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It restores your constitution when you quaff it.
-D:それは飲むと耐久力が回復する。
 
-N:254:記憶喪失:オレンジ色の
+N:254:Lose Memories:Orange
 E:Lose Memories:Orange
 G:!:o
 I:75:13:0
@@ -2665,10 +2589,8 @@ W:10:0:30:4:0
 A:10/1
 P:0:1d1:0:0:0
 F:STACK
-D:$You lose experience when you quaff it.
-D:それは飲むと現在の経験値を失う。
 
-N:255:塩水:オレンジ斑の
+N:255:Salt Water:Orange Speckled
 E:Salt Water:Orange Speckled
 G:!:o
 I:75:5:0
@@ -2676,23 +2598,16 @@ W:0:0:20:4:0
 A:0/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It makes you nearly faint from hunger and paralyzes you, 
-D:$but it cures poison when you quaff it.
-D:それは飲むと餓死寸前になり麻痺するが、毒を癒す。
 
-N:256:啓蒙:ピンク色の
+N:256:Enlightenment:Pink
 E:Enlightenment:Pink
 G:!:R
 I:75:56:0
 W:25:0:0:4:800
 A:25/1:50/1:100/1
 P:0:1d1:0:0:0
-D:$It maps, lights permanently and detects all items on the entire level when 
-D:$you quaff it.
-D:それは飲むとその階の地形を完全に知ることができ、その階全体が永久に
-D:照らされ、その階の全てのアイテムを感知する。
 
-N:257:ヒーロー:ピンク斑の
+N:257:Heroism:Pink Speckled
 E:Heroism:Pink Speckled
 G:!:R
 I:75:32:0
@@ -2700,11 +2615,8 @@ W:1:0:0:4:35
 A:1/1:40/1:80/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It removes fear, causes you temporary heroism and heals you 10 when you 
-D:$quaff it.
-D:それは飲むと恐怖を取り除き、一時的にヒーロー気分になり、体力が10回復する。
 
-N:258:狂戦士化:黒褐色の
+N:258:Berserk Strength:Puce
 E:Berserk Strength:Puce
 G:!:v
 I:75:33:0
@@ -2712,11 +2624,8 @@ W:20:0:0:4:100
 A:20/3
 P:0:1d1:0:0:0
 F:STACK
-D:$It removes fear, causes you to go berserk and heals you 30 when you 
-D:$quaff it.
-D:それは飲むと恐怖を取り除き、一時的に狂戦士化し、体力が30回復する。
 
-N:259:恐いもの知らず:紫色の
+N:259:Boldness:Purple
 E:Boldness:Purple
 G:!:v
 I:75:28:0
@@ -2724,21 +2633,17 @@ W:1:0:0:4:200
 A:1/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It removes fear when you quaff it.
-D:それは飲むと恐怖を取り除く。
 
-N:260:経験値復活:赤い
+N:260:Restore Life Levels:Red
 E:Restore Life Levels:Red
 G:!:r
 I:75:41:0
-W:40:0:0:4:400
-A:40/1
+W:20:0:0:4:400
+A:20/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It restores your experience when you quaff it.
-D:それは飲むと経験値が回復する。
 
-N:261:耐火:赤斑の
+N:261:Resist Heat:Red Speckled
 E:Resist Heat:Red Speckled
 G:!:r
 I:75:30:0
@@ -2746,11 +2651,8 @@ W:1:0:0:4:150
 A:1/1
 P:0:1d1:0:0:0
 F:STACK
-D:$You get temporary resistance to fire when you quaff it. This resistance 
-D:$is cumulative with equipment.
-D:それは飲むと一時的に火炎の耐性を得る。装備による耐性に累積する。
 
-N:262:耐冷:銀斑の
+N:262:Resist Cold:Silver Speckled
 E:Resist Cold:Silver Speckled
 G:!:W
 I:75:31:0
@@ -2758,11 +2660,8 @@ W:1:0:0:4:150
 A:1/1
 P:0:1d1:0:0:0
 F:STACK
-D:$You get temporary resistance to cold when you quaff it. This resistance 
-D:$is cumulative with equipment.
-D:それは飲むと一時的に冷気の耐性を得る。装備による耐性に累積する。
 
-N:263:透明物体感知:煙った
+N:263:Detect Invisible:Smoky
 E:Detect Invisible:Smoky
 G:!:D
 I:75:25:0
@@ -2770,10 +2669,8 @@ W:3:0:30:4:50
 A:3/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It gives temporary see invisible when you quaff it.
-D:それは飲むと一時的に透明なものが見える能力を得る。
 
-N:264:減毒:橙色の
+N:264:Slow Poison:Tangerine
 E:Slow Poison:Tangerine
 G:!:o
 I:75:26:0
@@ -2781,10 +2678,8 @@ W:1:0:20:4:25
 A:1/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It reduces poison when you quaff it.
-D:それは飲むと毒を和らげる。
 
-N:265:解毒:スミレ色の
+N:265:Neutralize Poison:Violet
 E:Neutralize Poison:Violet
 G:!:v
 I:75:27:0
@@ -2792,20 +2687,16 @@ W:5:0:30:4:75
 A:5/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It cures poison when you quaff it.
-D:それは飲むと毒を癒す。
 
-N:266:魔力復活:朱色の
+N:266:Restore Mana:Vermilion
 E:Restore Mana:Vermilion
 G:!:r
 I:75:40:0
 W:15:0:0:4:1000
 A:25/2:40/2:60/2:90/2
 P:0:1d1:0:0:0
-D:$It restores mana to full and cures berserk when you quaff it.
-D:それは飲むと魔力が最大まで回復し、狂戦士化を癒す。
 
-N:267:赤外線視力:白い
+N:267:Infra-vision:White
 E:Infra-vision:White
 G:!:w
 I:75:24:0
@@ -2813,11 +2704,8 @@ W:3:0:30:4:20
 A:3/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It gives temporary infravision when you quaff it.
-D:それは飲むと一時的に赤外線視力を強める。
 
-#JZ#
-N:268:耐性:黄色い
+N:268:Resistance:Yellow
 E:Resistance:Yellow
 G:!:y
 I:75:60:100
@@ -2825,11 +2713,6 @@ W:20:0:0:4:250
 A:20/1:45/1:80/1:100/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:$You get temporary resistances to elements and poison when you quaff it. 
-D:$These resistances is cumulative with equipment.
-D:それは飲むと一時的に酸・電撃・火炎・冷気・毒の耐性を得る。
-D:装備による耐性に累積する。
-
 
 ##### Wands #####
 N:269:Light:Aluminum
@@ -4172,96 +4055,69 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
 ##### Extra potions #####
 
-N:415:死:紫斑の
+N:415:Death:Violet Speckled
 E:Death:Violet Speckled
 G:!:v
 I:75:23:0
 W:55:0:0:4:0
 A:55/4
 P:0:20d20:0:0:0
-D:$You take 5000 damage when you quaff it.
-D:それは飲むと5000のダメージを受ける。
 
-N:416:破滅:刺激臭のする
+N:416:Ruination:Pungent
 E:Ruination:Pungent
 G:!:R
 I:75:15:0
 W:40:0:80:4:0
 A:40/8
 P:0:20d20:0:0:0
-D:$You take 10d10 damage and it decreases all your stats permanently when you 
-D:$quaff it.
-D:それは飲むと10d10のダメージを受け、全ステータスの最大値が下がる。
 
-N:417:爆発:よどんだ赤の
+N:417:Detonations:Clotted Red
 E:Detonations:Clotted Red
 G:!:r
 I:75:22:0
 W:60:0:80:4:10000
 A:60/8
 P:0:25d25:0:0:0
-D:$You take 50d20 damage and stuns and cuts you when you quaff it.
-D:それは飲むと50d20のダメージを受け、朦朧と切り傷を受ける。
 
-N:418:増強:ドロドロの
+N:418:Augmentation:Viscous Pink
 E:Augmentation:Viscous Pink
 G:!:R
 I:75:55:0
-W:40:0:0:4:150000
+W:60:0:0:4:150000
 A:40/16
 P:0:1d1:0:0:0
-D:$It increases all your stats when you quaff it.
-D:それは飲むと全ステータスの最大値が上がる。
 
-N:419:*体力回復*:ねばった黄色の
+N:419:*Healing*:Oily Yellow
 E:*Healing*:Oily Yellow
 G:!:y
 I:75:38:0
-W:40:0:0:4:1500
+W:80:0:0:4:1500
 A:40/4:60/2:80/1
 P:0:1d1:0:0:0
-D:$It heals you 1200 and cures blindness, confusion, poison, stunned, cuts and 
-D:$berserk when you quaff it.
-D:それは飲むと体力が1200回復し、盲目・混乱・毒・朦朧・切り傷・狂戦士化を癒す。
 
-N:420:生命:暗緑色の
+N:420:Life:Gloopy Green
 E:Life:Gloopy Green
 G:!:g
 I:75:39:0
-W:60:0:0:4:5000
+W:100:0:0:4:5000
 A:60/4:100/2
 P:0:1d1:0:0:0
-D:$It heals you 5000, restores experience and all your stats and cures 
-D:$blindness, confusion, poison, hallucination, stunned, cuts and berserk 
-D:$when you quaff it.
-D:それは飲むと体力が5000回復し、経験値と全ステータスを回復し、盲目・混乱・毒・
-D:幻覚・朦朧・切り傷・狂戦士化を癒す。
 
-N:421:自己分析:輝く
+N:421:Self Knowledge:Shimmering
 E:Self Knowledge:Shimmering
 G:!:v
 I:75:58:0
 W:40:0:0:4:2000
 A:40/1
 P:0:1d1:0:0:0
-D:$It gives information about yourself when you quaff it.
-D:それは飲むと自分についての情報を得る。
 
-N:422:*啓蒙*:黄斑の
+N:422:*Enlightenment*:Yellow Speckled
 E:*Enlightenment*:Yellow Speckled
 G:!:y
 I:75:57:0
 W:70:0:0:4:120000
 A:70/4
 P:0:1d1:0:0:0
-D:$It maps, lights permanently and detects all items on the entire level, 
-D:$increases your intelligence and wisdom, detects all traps, doors, stairs, 
-D:$treasures in your vicinity, identifies all items in pack and gives 
-D:$information about yourself when you quaff it.
-D:それは飲むとその階の地形を完全に知ることができ、その階全体が永久に照らされ、
-D:その階全体のアイテムを感知し、知能・賢さの最大値を上げ、自分の周辺の
-D:トラップ・ドア・階段・財宝を感知し、持ち物全てを鑑定し、自分についての情報を
-D:得る。
 
 #JZ#
 N:423:[暗黒魔導]
@@ -4390,7 +4246,7 @@ I:45:49:0
 W:70:0:0:2:100000
 F:BLOWS
 
-N:437:軽傷の治癒:金色の
+N:437:Cure Light Wounds:Gold
 E:Cure Light Wounds:Gold
 G:!:y
 I:75:34:50
@@ -4398,11 +4254,8 @@ W:0:0:20:4:15
 A:0/1:1/1:3/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It heals you 2d8, cures blindness and berserk and reduces cuts when you 
-D:$quaff it.
-D:それは飲むと体力が2d8回復し、盲目・狂戦士化を癒し、切り傷を和らげる。
 
-N:438:不器用:悪臭のする
+N:438:Clumsiness:Stinking
 E:Clumsiness:Stinking
 G:!:u
 I:75:19:0
@@ -4410,10 +4263,8 @@ W:5:0:20:4:0
 A:5/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It decreases your dexterity when you quaff it.
-D:それは飲むと器用さの現在値が下がる。
 
-N:439:病気:象牙色の
+N:439:Sickliness:Ivory White
 E:Sickliness:Ivory White
 G:!:w
 I:75:20:0
@@ -4421,8 +4272,6 @@ W:10:0:20:4:0
 A:10/1
 P:0:1d1:0:0:0
 F:STACK
-D:$It decreases your constitution when you quaff it.
-D:それは飲むと耐久力の現在値が下がる。
 
 ##### Items 440 to 444 reserved (old "fake" objects) #####
 
@@ -5485,18 +5334,13 @@ F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC |
 F:BRAND_FIRE | BRAND_ELEC | BRAND_COLD | BRAND_ACID | BRAND_POIS |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RIDING
 
-N:595:ネオ・つよしスペシャル:空色の
+N:595:Neo-Tsuyoshi Special:Sky Blue
 E:Neo-Tsuyoshi Special:Sky Blue
 G:!:B
 I:75:64:0
 W:15:0:50:4:2000
 A:15/6
 P:0:1d1:0:0:0
-D:$It cures hallucination and increases your strength and constitution 
-D:$temporarily when you quaff it but your strength and constitution decrease 
-D:$permanently than before when the effect expires.
-D:それは飲むと幻覚を癒し、一時的に腕力と耐久力が上がるが、効果が切れると
-D:腕力と耐久力の最大値が飲む前よりも下がる。
 
 N:596:追加射撃:スカラベの
 E:Extra Shots:Scarab
@@ -5550,16 +5394,13 @@ I:40:18:0
 W:30:0:0:3:25000
 F:INSTA_ART
 
-N:603:つよしスペシャル:銀色の
+N:603:Tsuyoshi Special:Silver
 E:Tsuyoshi Special:Silver
 G:!:w
 I:75:65:0
 W:10:0:40:4:0
 A:10/2
 P:0:1d1:0:0:0
-D:$It decreases your strength and constitution permanently and makes you hallucinate 
-D:$when you quaff it.
-D:それは飲むと腕力と耐久力の最大値が下がり、幻覚に侵される。
 
 N:604:[新弟子用教本]
 E:[Handbook for Pupils]
@@ -5672,15 +5513,13 @@ I:40:20:0
 W:50:0:0:3:100000
 F:INSTA_ART
 
-N:617:突然変異:赤銅色の
+N:617:Polymorph:Bronze
 E:Polymorph:Bronze
 G:!:r
 I:75:66:0
 W:50:0:0:4:5000
 A:50/16
 P:0:1d1:0:0:0
-D:$It mutates you when you quaff it. Rarely it cures all mutations.
-D:それは飲むと突然変異を起こす。稀に全ての突然変異が消える。
 
 N:618:警告:タンザナイトの
 E:Warning:Tanzanite
@@ -6127,11 +5966,9 @@ N:671:TRANSLATE
 E:Blood:Blood Red
 G:!:r
 I:75:67:0
-W:0:0:0:4:0
+W:75:0:0:4:0
 P:0:1d1:0:0:0
 F:FIXED_FLAVOR
-D:$A much needed infusion!  It heals you 100 and cures blindness, confusion
-D:$, poison, and stunned when you quaff it.
 
 N:672:TRANSLATE
 E:& Harp~
@@ -6325,7 +6162,7 @@ N:695:TRANSLATE
 E:Giant Strength:Noxious
 G:!:U
 I:75:68:250
-W:0:0:0:4:10000
+W:50:0:0:4:10000
 A:50/8
 P:0:1d1:0:0:0
 
@@ -6333,7 +6170,7 @@ N:696:TRANSLATE
 E:Stone Skin:Fuming
 G:!:U
 I:75:69:250
-W:0:0:0:4:10000
+W:50:0:0:4:10000
 A:50/4
 P:0:1d1:0:0:0
 F:STACK
@@ -6672,31 +6509,31 @@ E:Fire:itus whamko
 G:?:w
 I:70:58:0
 W:50:0:0:5:1000
-A:50/4
+A:50/2
 F:STACK | IGNORE_FIRE
 
 N:738:Ice:facwon mailor
 E:Ice:facwon mailor
 G:?:w
 I:70:59:0
-W:75:0:0:5:1000
-A:75/6
+W:70:0:0:5:1000
+A:70/3
 F:STACK | IGNORE_COLD
 
 N:739:Logrus:fentwon gerbil
 E:Logrus:fentwon gerbil
 G:?:w
 I:70:60:0
-W:90:0:0:5:5000
-A:90/8
+W:80:0:0:5:5000
+A:80/4
 F:STACK | IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
 
 N:740:Mana:deedil dorko
 E:Mana:deedil dorko
 G:?:w
 I:70:61:0
-W:100:0:0:5:10000
-A:100/12
+W:90:0:0:5:10000
+A:90/6
 F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
 
 N:741:Anti-Summoning:Obsidian

@@ -1294,14 +1294,14 @@ static tval_desc tvals[] =
  */
 static int wiz_create_itemtype(void)
 {
-	int i, num, max_num;
+	int i, num, max_num, lvl;
 	int col, row;
 	int tval;
 
 	cptr tval_desc;
 	char ch;
 
-	int choice[80];
+	int choice[120];
 
 	char buf[160];
 
@@ -1312,8 +1312,8 @@ static int wiz_create_itemtype(void)
 	/* Print all tval's and their descriptions */
 	for (num = 0; (num < 80) && tvals[num].tval; num++)
 	{
-		row = 2 + (num % 20);
-		col = 20 * (num / 20);
+		row = 2 + (num % 30);
+		col = 30 * (num / 30);
 		ch = listsym[num];
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
@@ -1344,27 +1344,31 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 80) && (i < max_k_idx); i++)
+	num = 0;
+	for (lvl = 0; lvl <= 120 && num < 120; lvl++) /* Who cares if this is slow. But order the choices please!! */
 	{
-		object_kind *k_ptr = &k_info[i];
-
-		/* Analyze matching items */
-		if (k_ptr->tval == tval)
+		for (i = 1; i < max_k_idx && num < 120; i++)
 		{
-			/* Prepare it */
-			row = 2 + (num % 20);
-			col = 20 * (num / 20);
-			ch = listsym[num];
-			strcpy(buf,"                    ");
+			object_kind *k_ptr = &k_info[i];
 
-			/* Acquire the "name" of object "i" */
-			strip_name(buf, i);
+			/* Analyze matching items */
+			if (k_ptr->tval == tval && k_ptr->level == lvl)
+			{
+				/* Prepare it */
+				row = 2 + (num % 30);
+				col = 30 * (num / 30);
+				ch = listsym[num];
+				strcpy(buf,"                    ");
 
-			/* Print it */
-			prt(format("[%c] %s", ch, buf), row, col);
+				/* Acquire the "name" of object "i" */
+				strip_name(buf, i);
 
-			/* Remember the object index */
-			choice[num++] = i;
+				/* Print it */
+				prt(format("[%c] %s (L%d)", ch, buf, lvl), row, col);
+
+				/* Remember the object index */
+				choice[num++] = i;
+			}
 		}
 	}
 

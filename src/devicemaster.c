@@ -9,6 +9,8 @@ static int _speciality_tval(int psubclass)
 	case DEVICEMASTER_RODS: return TV_ROD;
 	case DEVICEMASTER_STAVES: return TV_STAFF;
 	case DEVICEMASTER_WANDS: return TV_WAND;
+	case DEVICEMASTER_POTIONS: return TV_POTION;
+	case DEVICEMASTER_SCROLLS: return TV_SCROLL;
 	}
 	return TV_WAND;
 }
@@ -30,6 +32,8 @@ void _desperation_spell(int cmd, variant *res)
 		case DEVICEMASTER_RODS: do_cmd_zap_rod(); break;
 		case DEVICEMASTER_WANDS: do_cmd_aim_wand(); break;
 		case DEVICEMASTER_STAVES: do_cmd_use_staff(); break;
+		case DEVICEMASTER_POTIONS: do_cmd_quaff_potion(); break;
+		case DEVICEMASTER_SCROLLS: do_cmd_read_scroll(); break;
 		}
 		devicemaster_desperation = FALSE;
 		var_set_bool(res, energy_use);
@@ -64,13 +68,14 @@ bool _detect_devices(int range)
 
 		switch (o_ptr->tval)
 		{
-		case TV_ROD: 
-		case TV_WAND: 
+		case TV_ROD:
+		case TV_WAND:
 		case TV_STAFF:
+		case TV_SCROLL:
+		case TV_POTION:
 			o_ptr->marked |= OM_FOUND;
 			lite_spot(y, x);
 			result = TRUE;
-			break;
 		}
 	}
 
@@ -104,9 +109,11 @@ static bool _is_device(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
-	case TV_ROD: 
-	case TV_WAND: 
+	case TV_ROD:
+	case TV_WAND:
 	case TV_STAFF:
+	case TV_SCROLL:
+	case TV_POTION:
 		return TRUE;
 	}
 	return FALSE;
@@ -159,20 +166,37 @@ static bool _transfer_obj_p(object_type *o_ptr)
 	if ( o_ptr->tval == _speciality_tval(p_ptr->psubclass)
 	  && o_ptr != _transfer_src_obj )
 	{
+		if (p_ptr->psubclass == DEVICEMASTER_POTIONS || p_ptr->psubclass == DEVICEMASTER_SCROLLS)
+		{
+			/* One may not use worthless high level items as source objects (e.g. Curse Armor could make Genocide!!) */
+			if (!_transfer_src_obj && k_info[o_ptr->k_idx].cost <= 0)
+				return FALSE;
+			/* Potions and scrolls must transfer to weaker destination objects */
+			if (_transfer_src_obj && k_info[_transfer_src_obj->k_idx].level < k_info[o_ptr->k_idx].level)
+				return FALSE;
+		}
 		return TRUE;
 	}
 	return FALSE;
 }
 
-void _transfer_spell(int cmd, variant *res)
+void _transfer_charges_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Transfer Charges");
+		if (p_ptr->psubclass != DEVICEMASTER_POTIONS && p_ptr->psubclass != DEVICEMASTER_SCROLLS)
+			var_set_string(res, "Transfer Charges");
+		else
+			var_set_string(res, "Transfer Essence");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Transfer charges from one device to another.");
+		if (p_ptr->psubclass == DEVICEMASTER_POTIONS)
+			var_set_string(res, "Transfer essence from one potion to another.");
+		else if (p_ptr->psubclass == DEVICEMASTER_SCROLLS)
+			var_set_string(res, "Transfer essence from one scroll to another.");
+		else
+			var_set_string(res, "Transfer charges from one device to another.");
 		break;
 	case SPELL_CAST:
 	{
@@ -203,6 +227,45 @@ void _transfer_spell(int cmd, variant *res)
 			return;
 		}
 
+		if (tval == TV_SCROLL || tval == TV_POTION)
+		{
+			if (dest_kind->level > src_kind->level) /* Double Check ... should already be excluded! */
+			{
+				msg_print("Failed! You may only transfer to objects of greater or equal power.");
+				return;
+			}
+		}
+
+		/*if (dest_obj->tval == TV_SCROLL)
+		{
+			switch (dest_obj->sval)
+			{
+			case SV_SCROLL_ARTIFACT:
+			case SV_SCROLL_ACQUIREMENT:
+			case SV_SCROLL_STAR_ACQUIREMENT:
+				msg_print("Failed! You may not transfer to *that* type of scroll!");
+				return;
+			}
+		}
+		if (dest_obj->tval == TV_POTION)
+		{
+			switch (dest_obj->sval)
+			{
+			case SV_POTION_AUGMENTATION:
+			case SV_POTION_INC_STR:
+			case SV_POTION_INC_INT:
+			case SV_POTION_INC_WIS:
+			case SV_POTION_INC_DEX:
+			case SV_POTION_INC_CON:
+			case SV_POTION_INC_CHR:
+			case SV_POTION_EXPERIENCE:
+			case SV_POTION_STAR_ENLIGHTENMENT:
+			case SV_POTION_INVULNERABILITY:
+				msg_print("Failed! You may not transfer to *that* type of potion!");
+				return;
+			}
+		}*/
+
 		var_set_bool(res, TRUE);
 
 		/* Calculate the number of charges */
@@ -216,6 +279,10 @@ void _transfer_spell(int cmd, variant *res)
 			break;
 		case TV_WAND:
 			src_charges = src_obj->pval;
+			break;
+		case TV_POTION:
+		case TV_SCROLL:
+			src_charges = src_obj->number;
 			break;
 		}
 		if (src_charges <= 0) 
@@ -235,6 +302,10 @@ void _transfer_spell(int cmd, variant *res)
 		case TV_WAND:
 			max_charges = dest_kind->pval * dest_obj->number - dest_obj->pval;
 			break;
+		case TV_POTION:
+		case TV_SCROLL:
+			max_charges = 99 - dest_obj->number;
+			break;
 		}
 
 		if (max_charges <= 0)
@@ -244,9 +315,18 @@ void _transfer_spell(int cmd, variant *res)
 		}
 
 		power = src_charges * src_kind->level;
-		if (tval != TV_ROD)
+		switch (tval)
+		{
+		case TV_WAND:
+		case TV_STAFF:
 			power = power * 3 / 4;
-		dest_charges = power / dest_kind->level;
+			break;
+		case TV_POTION:
+		case TV_SCROLL:
+			power = power * 3 / 4;
+			break;
+		}
+		dest_charges = power / MAX(dest_kind->level, 10);
 
 		if (dest_charges > max_charges)
 			dest_charges = max_charges;
@@ -277,6 +357,16 @@ void _transfer_spell(int cmd, variant *res)
 			src_obj->pval -= src_charges;
 			dest_obj->pval += dest_charges;
 			break;
+		case TV_POTION:
+		case TV_SCROLL: /* Must add to dest first!! */
+			inven_item_increase(dest_idx, dest_charges);
+			inven_item_describe(dest_idx);
+			inven_item_optimize(dest_idx);
+
+			inven_item_increase(src_idx, -src_charges);
+			inven_item_describe(src_idx);
+			inven_item_optimize(src_idx);
+			break;
 		}
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
@@ -295,7 +385,7 @@ static spell_info _spells[] =
     {  1,  1, 30, _detect_devices_spell},
     {  5,  5, 30, _identify_device_spell},
 	{ 10, 15, 60, _recharging_spell},
-	{ 15, 25, 60, _transfer_spell},
+	{ 15, 25, 60, _transfer_charges_spell},
 	{ 25,  0,  0, _desperation_spell},
 	{ -1, -1, -1, NULL}
 };
@@ -312,6 +402,8 @@ cptr devicemaster_speciality_name(int psubclass)
 	case DEVICEMASTER_RODS: return "Rods";
 	case DEVICEMASTER_STAVES: return "Staves";
 	case DEVICEMASTER_WANDS: return "Wands";
+	case DEVICEMASTER_POTIONS: return "Potions";
+	case DEVICEMASTER_SCROLLS: return "Scrolls";
 	}
 	return "";
 }
@@ -323,6 +415,8 @@ cptr devicemaster_speciality_desc(int psubclass)
 	case DEVICEMASTER_RODS: return "You specialize in the use of rods.";
 	case DEVICEMASTER_STAVES: return "You specialize in the use of staves.";
 	case DEVICEMASTER_WANDS: return "You specialize in the use of wands.";
+	case DEVICEMASTER_POTIONS: return "You specialize in the use of potions.";
+	case DEVICEMASTER_SCROLLS: return "You specialize in the use of scrolls.";
 	}
 	return "";
 }
@@ -347,6 +441,16 @@ static void _birth(void)
 		forge.pval = k_info[forge.k_idx].pval;
 		add_outfit(&forge);
 		break;
+	case DEVICEMASTER_POTIONS:
+		object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_SPEED));
+		forge.number = 6;
+		add_outfit(&forge);
+		break;
+	case DEVICEMASTER_SCROLLS:
+		object_prep(&forge, lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT));
+		forge.number = 6;
+		add_outfit(&forge);
+		break;
 	}
 }
 
@@ -363,8 +467,12 @@ static void _character_dump(FILE* file)
 			fprintf(file, " * You gain +%d%% power when using %s.\n", device_power_aux(100, pow) - 100, desc);
 	}
 	fprintf(file, " * You use %s more quickly.\n", desc);	
-	fprintf(file, " * You have a %d%% chance of not consuming a charge when using %s.\n", p_ptr->lev, desc);
-	fprintf(file, " * You may use %s even when frightened.\n", desc);
+	if (p_ptr->psubclass != DEVICEMASTER_POTIONS && p_ptr->psubclass != DEVICEMASTER_SCROLLS)
+		fprintf(file, " * You have a chance of not consuming a charge when using %s.\n", desc);
+	else
+		fprintf(file, " * You have a chance of not consuming an item when using %s.\n", desc);
+	if (p_ptr->psubclass != DEVICEMASTER_POTIONS && p_ptr->psubclass != DEVICEMASTER_SCROLLS)
+		fprintf(file, " * You may use %s even when frightened.\n", desc);
 	fprintf(file, " * You are resistant to charge draining (Power=%d).\n\n", p_ptr->lev);	
 
 	{

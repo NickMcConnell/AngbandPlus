@@ -105,6 +105,12 @@ static _blow_info_t _get_blow_info(int hand)
 	case CLASS_MINDCRAFTER:
 		result.num = 5; result.wgt = 100; result.mul = 3; break;
 
+	case CLASS_DEVICEMASTER:
+		result.num = 4; result.wgt = 100; result.mul = 3;
+		if (p_ptr->psubclass == DEVICEMASTER_POTIONS || p_ptr->psubclass == DEVICEMASTER_SCROLLS)
+			result.num = 5;
+		break;
+
 	case CLASS_ROGUE:
 		result.num = 5; result.wgt = 40; result.mul = 3;
 		if (o_ptr->weight < 50) result.num++;
@@ -143,7 +149,6 @@ static _blow_info_t _get_blow_info(int hand)
 
 	case CLASS_TOURIST:
 	case CLASS_TIME_LORD:
-	case CLASS_DEVICEMASTER:
 		result.num = 4; result.wgt = 100; result.mul = 3; break;
 
 	case CLASS_ARCHAEOLOGIST:
