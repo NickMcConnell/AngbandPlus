@@ -2601,7 +2601,7 @@ cptr option_text[OPT_MAX] =
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
-	NULL,						/* xxx */
+	"auto_more",				/* OPT_auto_more */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	"testing_stack",			/* OPT_testing_stack */
@@ -2614,8 +2614,8 @@ cptr option_text[OPT_MAX] =
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	"flow_by_sound",			/* OPT_flow_by_sound */
 	"flow_by_smell",			/* OPT_flow_by_smell */
-	NULL,						/* xxx track_follow */
-	NULL,						/* xxx track_target */
+	"smart_monsters",			/* OPT_smart_monsters */
+	"smart_packs",				/* OPT_smart_packs */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
@@ -2633,7 +2633,23 @@ cptr option_text[OPT_MAX] =
 	"view_yellow_lite",			/* OPT_view_yellow_lite */
 	"view_bright_lite",			/* OPT_view_bright_lite */
 	"view_granite_lite",		/* OPT_view_granite_lite */
-	"view_special_lite"			/* OPT_view_special_lite */
+	"view_special_lite",		/* OPT_view_special_lite */
+	"center_player",			/* OPT_center_player */
+	"run_avoid_center",			/* OPT_run_avoid_center */
+	"scroll_target",			/* OPT_scroll_target */
+	"show_stacks",				/* OPT_show_stacks */
+	"easy_open",			    /* OPT_easy_open */
+	NULL,						/* xxx */
+	"easy_floor",			    /* OPT_easy_floor */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL						/* xxx */
 };
 
 
@@ -2673,7 +2689,7 @@ cptr option_desc[OPT_MAX] =
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
-	NULL,										/* xxx */
+	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	"Allow objects to stack on floor",			/* OPT_testing_stack */
@@ -2686,8 +2702,8 @@ cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Monsters behave more intelligently",		/* OPT_smart_monsters */
+	"Group monsters attempt tactics (v.slow)",	/* OPT_smart_packs */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
@@ -2705,7 +2721,23 @@ cptr option_desc[OPT_MAX] =
 	"Use special colors for torch lite",		/* OPT_view_yellow_lite */
 	"Use special colors for field of view",		/* OPT_view_bright_lite */
 	"Use special colors for wall grids",		/* OPT_view_granite_lite */
-	"Use special colors for floor grids"		/* OPT_view_special_lite */
+	"Use special colors for floor grids",		/* OPT_view_special_lite */
+	"Center map continuously (very slow)",		/* OPT_center_player */
+	"Avoid centering while running",			/* OPT_run_avoid_center */
+	"Scroll map while targetting",				/* OPT_scroll_target */
+	"Show stacks using special attr/char",		/* OPT_show_stacks */
+	"Open and close automatically",   			/* OPT_easy_open */
+	NULL,										/* xxx */
+	"Display floor stacks in a list",   		/* OPT_easy_floor */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL										/* xxx */
 };
 
 
@@ -2745,7 +2777,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_auto_more */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
 	FALSE,		/* OPT_testing_stack */
@@ -2758,8 +2790,8 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_smart_monsters */
+	FALSE,		/* OPT_smart_packs */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
@@ -2777,14 +2809,30 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_view_yellow_lite */
 	FALSE,		/* OPT_view_bright_lite */
 	FALSE,		/* OPT_view_granite_lite */
-	FALSE		/* OPT_view_special_lite */
+	FALSE,		/* OPT_view_special_lite */
+	FALSE,		/* OPT_center_player */
+	TRUE,		/* OPT_run_avoid_center */
+	FALSE,		/* OPT_scroll_target */
+	FALSE,		/* OPT_show_stacks */
+	FALSE,		/* OPT_easy_open */
+	FALSE,		/* xxx */
+	FALSE,		/* OPT_easy_floor */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE		/* xxx */
 };
 
 
 /*
  * Option screen interface
  */
-byte option_page[4][16] =
+byte option_page[OPT_PAGE_MAX][OPT_PER_PAGE] =
 {
 	/*** User-Interface ***/
 
@@ -2804,7 +2852,11 @@ byte option_page[4][16] =
 		OPT_show_choices,
 		OPT_show_details,
 		OPT_show_flavors,
-		OPT_ring_bell
+		OPT_ring_bell,
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Disturbance ***/
@@ -2825,6 +2877,10 @@ byte option_page[4][16] =
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
+		OPT_auto_more,
+		255,
+		255,
+		255,
 		255
 	},
 
@@ -2844,7 +2900,11 @@ byte option_page[4][16] =
 		OPT_flow_by_sound,
 		OPT_flow_by_smell,
 		OPT_smart_learn,
+		OPT_smart_monsters,
+		OPT_smart_packs,
 		OPT_smart_cheat,
+		OPT_scroll_target,
+		255,
 		255,
 		255
 	},
@@ -2866,9 +2926,26 @@ byte option_page[4][16] =
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
-		255,
-		255
+ 		OPT_center_player,
+ 		OPT_run_avoid_center,
+		OPT_easy_open,
+		OPT_easy_floor,
+		OPT_show_stacks
 	}
 };
 
+
+cptr inscrip_text[MAX_INSCRIP] = {
+	"null",
+	"terrible",
+	"worthless",
+	"cursed",
+	"broken",
+	"average",
+	"good",
+	"excellent",
+	"special",
+	"uncursed",
+	"on sale"
+};
 

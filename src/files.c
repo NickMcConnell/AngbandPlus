@@ -501,6 +501,40 @@ errr process_pref_file_aux(char *buf)
 		}
 	}
 
+	/* Process "W:<win>:<flag>:<on>" -- window flags */
+	else if (buf[0] == 'W')
+	{
+		int win, flag, on;
+
+		if (tokenize(buf + 2, 3, zz) == 3)
+		{
+			win = strtol(zz[0], NULL, 0);
+			flag = strtol(zz[1], NULL, 0);
+			on = strtol(zz[2], NULL, 0);
+
+			/* XXX Hack -- Ignore the main window */
+			if ((win <= 0) || (win >= 8)) return (1);
+			if ((flag < 0) || (flag >= 32)) return (1);
+
+			/* Require a real flag */
+			if (window_flag_desc[flag])
+			{
+				if (on)
+				{
+					/* Turn flag on */
+					op_ptr->window_flag[win] |= (1L << flag);
+				}
+				else
+				{
+					/* Turn flag off */
+					op_ptr->window_flag[win] &= ~(1L << flag);
+				}
+			}
+
+			/* Success */
+			return (0);
+		}
+	}
 
 	/* Failure */
 	return (1);
@@ -1620,11 +1654,23 @@ static void display_player_flag_info(void)
 				/* Non-existant objects */
 				if (!o_ptr->k_idx) attr = TERM_L_DARK;
 
-				/* Default */
-				c_put_str(attr, ".", row, col+n);
+				/* Hack -- check immunities */
+				if (x == 0 && y < 4 &&
+					f[set] & ((TR2_IM_ACID) << y))
+					  c_put_str(TERM_WHITE, "*", row, col+n);
+
+				/* Hack -- resist chaos implies resist confusion */
+				else if (x == 1 && y == 1 &&
+						 f[set] & (TR2_RES_CHAOS))
+				  c_put_str(TERM_WHITE, "+", row, col+n);
 
 				/* Check flags */
-				if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+				else if (f[set] & flag)
+				  c_put_str(TERM_WHITE, "+", row, col+n);
+
+				/* Default */
+				else
+				  c_put_str(attr, ".", row, col+n);
 			}
 
 			/* Player flags */
@@ -1878,9 +1924,12 @@ static void display_player_sust_info(void)
 			/* Sustain */
 			if (f2 & 1<<stat)
 			{
-				/* Dark green "s" */
+				/* Dark green */
 				a = TERM_GREEN;
-				c = 's';
+
+				/* Put an 's' only if there is not stat mod already. */
+				if (c == '.')
+					c = 's';
 			}
 
 			/* Dump proper character */
@@ -1990,7 +2039,7 @@ errr file_character(cptr name, bool full)
 
 	FILE *fff = NULL;
 
-	store_type *st_ptr = &store[7];
+	store_type *st_ptr = &store[STORE_HOME];
 
 	char o_name[80];
 
@@ -2076,6 +2125,25 @@ errr file_character(cptr name, bool full)
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
+
+
+	/* Dump misc. information */
+
+	if (no_stores || no_artifacts || ironman || random_artifacts)
+	{
+		fprintf(fff,"  [Difficulty Settings]\n\n");
+
+		/* Advanced play options */
+		if (no_stores) fprintf(fff, "The stores are closed.\n");
+		if (no_artifacts) fprintf(fff, "There are no artifacts.\n");
+		if (ironman) fprintf(fff, "There is no retreat.\n");
+		if (random_artifacts)
+		  fprintf(fff, "Random artifacts are in effect.\n(Version %s, seed: %lu)\n",
+				  RANDART_VERSION, (unsigned long) seed_randart);
+
+		/* Skip some lines */
+		fprintf(fff, "\n\n");
+	}
 
 
 	/* Dump the equipment */
@@ -2754,7 +2822,7 @@ static void center_string(char *buf, cptr str)
 }
 
 
-	
+
 #if 0
 
 /*
@@ -2923,7 +2991,7 @@ static void show_info(void)
 
 	object_type *o_ptr;
 
-	store_type *st_ptr = &store[7];
+	store_type *st_ptr = &store[STORE_HOME];
 
 
 	/* Hack -- Know everything in the inven/equip */

@@ -41,19 +41,21 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.8.3"
+#define VERSION_STRING	"2.8.5"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	8
-#define VERSION_PATCH	3
+#define VERSION_PATCH	5
+#define VERSION_EXTRA	0
+
 
 /*
- * This value is not currently used
+ * Version of random artifact code.
  */
-#define VERSION_EXTRA	0
+#define RANDART_VERSION "0.6.2"
 
 
 /*
@@ -119,6 +121,18 @@
  * Total number of owners per store (see "store.c", etc)
  */
 #define MAX_OWNERS	4
+
+/*
+ * Store index definitions (see "store.c", etc)
+ */
+#define STORE_GENERAL	0
+#define STORE_ARMOR		1
+#define STORE_WEAPON	2
+#define STORE_TEMPLE	3
+#define STORE_ALCHEMY	4
+#define STORE_MAGIC		5
+#define STORE_B_MARKET	6
+#define STORE_HOME		7
 
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
@@ -521,8 +535,10 @@
 #define SUMMON_DEMON		16
 #define SUMMON_UNDEAD		17
 #define SUMMON_DRAGON		18
+#define SUMMON_KIN			19
 #define SUMMON_HI_UNDEAD	21
 #define SUMMON_HI_DRAGON	22
+#define SUMMON_HI_DEMON		23
 #define SUMMON_WRAITH		31
 #define SUMMON_UNIQUE		32
 
@@ -1778,6 +1794,23 @@
 
 
 /*
+ * Constants for object_type.inscrip field.
+ */
+#define INSCRIP_NULL		0
+#define INSCRIP_TERRIBLE	1
+#define INSCRIP_WORTHLESS	2
+#define INSCRIP_CURSED		3
+#define INSCRIP_BROKEN		4
+#define INSCRIP_AVERAGE		5
+#define INSCRIP_GOOD		6
+#define INSCRIP_EXCELLENT	7
+#define INSCRIP_SPECIAL		8
+#define INSCRIP_UNCURSED	9
+#define INSCRIP_SALE		10
+#define MAX_INSCRIP			11
+
+
+/*
  * Some bit-flags for the "smart" field
  *
  * Most of these map to the "TR2_xxx" flags
@@ -2188,8 +2221,8 @@
 #define RF6_TRAPS			0x00002000	/* Create Traps */
 #define RF6_FORGET			0x00004000	/* Cause amnesia */
 #define RF6_XXX6			0x00008000	/* ??? */
-#define RF6_XXX7			0x00010000	/* Summon (?) */
-#define RF6_XXX8			0x00020000	/* Summon (?) */
+#define RF6_S_KIN			0x00010000	/* Summon Similar */
+#define RF6_S_HI_DEMON		0x00020000	/* Summon Greater Demons */
 #define RF6_S_MONSTER		0x00040000	/* Summon Monster */
 #define RF6_S_MONSTERS		0x00080000	/* Summon Monsters */
 #define RF6_S_ANT			0x00100000	/* Summon Ants */
@@ -2208,11 +2241,15 @@
 
 
 /*
- * Hack -- choose "intelligent" spells when desperate
+ * Hack -- Bit masks to control what spells are considered
+ */
+
+/*
+ * Choose "intelligent" spells when desperate
  */
 
 #define RF4_INT_MASK \
-   0L
+   (0L)
 
 #define RF5_INT_MASK \
   (RF5_HOLD | RF5_SLOW | RF5_CONF | RF5_BLIND | RF5_SCARE)
@@ -2220,10 +2257,146 @@
 #define RF6_INT_MASK \
    (RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
     RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
-    RF6_S_MONSTER | RF6_S_MONSTERS | \
+    RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | \
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
-    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
+    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DEMON | \
+	RF6_S_WRAITH | RF6_S_UNIQUE)
+
+
+/*
+ * "Bolt" spells that may hurt fellow monsters
+ */
+#define RF4_BOLT_MASK \
+   (RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+
+#define RF5_BOLT_MASK \
+   (RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
+    RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+    RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_BOLT_MASK \
+   (0L)
+
+/*
+ * Spells that allow the caster to escape
+ */
+#define RF4_ESCAPE_MASK \
+	(0L)
+
+#define RF5_ESCAPE_MASK \
+	(0L)
+
+#define RF6_ESCAPE_MASK \
+	(RF6_BLINK | RF6_TPORT | RF6_TELE_AWAY | RF6_TELE_LEVEL)
+
+
+/*
+ * Spells that hurt the player directly
+ */
+#define RF4_ATTACK_MASK \
+	(RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | \
+	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
+	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
+	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA)
+
+#define RF5_ATTACK_MASK \
+	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | RF5_BA_POIS | \
+	 RF5_BA_NETH | RF5_BA_WATE | RF5_BA_MANA | RF5_BA_DARK | \
+	 RF5_MIND_BLAST | RF5_BRAIN_SMASH | RF5_CAUSE_1 | RF5_CAUSE_2 | \
+	 RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | \
+	 RF5_BO_COLD | RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+	 RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_ATTACK_MASK \
+	(0L)
+
+
+/*
+ * Summoning spells
+ */
+#define RF4_SUMMON_MASK \
+	(0L)
+
+#define RF5_SUMMON_MASK \
+	(0L)
+
+#define RF6_SUMMON_MASK \
+	(RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
+	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
+	 RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
+	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE)
+
+
+/*
+ * Spells that improve the caster's tactical position
+ */
+#define RF4_TACTIC_MASK \
+	(0L)
+
+#define RF5_TACTIC_MASK \
+	(0L)
+
+#define RF6_TACTIC_MASK \
+	(RF6_BLINK)
+
+
+/*
+ * Annoying spells
+ */
+#define RF4_ANNOY_MASK \
+	(RF4_SHRIEK)
+
+#define RF5_ANNOY_MASK \
+	(RF5_DRAIN_MANA | RF5_MIND_BLAST | RF5_BRAIN_SMASH | RF5_SCARE | \
+	 RF5_BLIND | RF5_CONF | RF5_SLOW | RF5_HOLD)
+
+#define RF6_ANNOY_MASK \
+	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_FORGET)
+
+
+/*
+ * Spells that increase the caster's relative speed
+ */
+#define RF4_HASTE_MASK \
+	(0L)
+
+#define RF5_HASTE_MASK \
+	(RF5_SLOW | RF5_HOLD)
+
+#define RF6_HASTE_MASK \
+	(RF6_HASTE)
+
+
+/*
+ * Healing spells
+ */
+#define RF4_HEAL_MASK \
+	(0L)
+
+#define RF5_HEAL_MASK \
+	(0L)
+
+#define RF6_HEAL_MASK \
+	(RF6_HEAL)
+
+
+/*
+ * Innate spell-like effects
+ */
+#define RF4_INNATE_MASK \
+	(RF4_SHRIEK | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | \
+	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
+	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
+	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA)
+
+#define RF5_INNATE_MASK \
+	(0L)
+
+#define RF6_INNATE_MASK \
+	(0L)
 
 
 
@@ -2245,12 +2418,32 @@
  * Hack -- Option symbols
  */
 #define cheat_peek				p_ptr->cheat[CHEAT_cheat_peek]
-#define cheat_hear				p_ptr->cheat[CHEAT_cheat_hear]		
-#define cheat_room				p_ptr->cheat[CHEAT_cheat_room]	
-#define cheat_xtra				p_ptr->cheat[CHEAT_cheat_xtra]	
-#define cheat_know				p_ptr->cheat[CHEAT_cheat_know]	
-#define cheat_live				p_ptr->cheat[CHEAT_cheat_live]	
+#define cheat_hear				p_ptr->cheat[CHEAT_cheat_hear]
+#define cheat_room				p_ptr->cheat[CHEAT_cheat_room]
+#define cheat_xtra				p_ptr->cheat[CHEAT_cheat_xtra]
+#define cheat_know				p_ptr->cheat[CHEAT_cheat_know]
+#define cheat_live				p_ptr->cheat[CHEAT_cheat_live]
 
+
+
+/*** Advanced play option Definitions ***/
+
+/*
+ * Indexes
+ */
+#define HANDICAP_no_artifacts	0
+#define HANDICAP_no_stores		1
+#define HANDICAP_ironman		2
+#define HANDICAP_rand_artifacts	3
+#define HANDICAP_MAX			4
+
+/*
+ * Hack -- Option symbols
+ */
+#define no_artifacts			p_ptr->handicap[HANDICAP_no_artifacts]
+#define no_stores				p_ptr->handicap[HANDICAP_no_stores]
+#define ironman					p_ptr->handicap[HANDICAP_ironman]
+#define random_artifacts		p_ptr->handicap[HANDICAP_rand_artifacts]
 
 
 /*** Option Definitions ***/
@@ -2289,7 +2482,7 @@
 #define OPT_verify_destroy			28
 #define OPT_verify_special			29
 #define OPT_allow_quantity			30
-/* xxx */
+#define OPT_auto_more				31
 #define OPT_auto_haggle				32
 #define OPT_auto_scum				33
 #define OPT_testing_stack			34
@@ -2302,8 +2495,8 @@
 #define OPT_dungeon_stair			41
 #define OPT_flow_by_sound			42
 #define OPT_flow_by_smell			43
-/* xxx */
-/* xxx */
+#define OPT_smart_monsters			44
+#define OPT_smart_packs				45
 #define OPT_smart_learn				46
 #define OPT_smart_cheat				47
 #define OPT_view_reduce_lite		48
@@ -2322,8 +2515,26 @@
 #define OPT_view_bright_lite		61
 #define OPT_view_granite_lite		62
 #define OPT_view_special_lite		63
-#define OPT_MAX						64
+#define OPT_center_player			64
+#define OPT_run_avoid_center		65
+#define OPT_scroll_target			66
+#define OPT_show_stacks				67
+#define OPT_easy_open 				68
+/* xxx */
+#define OPT_easy_floor 				70
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+#define OPT_MAX						80
 
+#define OPT_PAGE_MAX 4 /* Number of pages of options -- TNB */
+#define OPT_PER_PAGE 20 /* Max. number of options in a page -- TNB */
 
 /*
  * Hack -- Option symbols
@@ -2359,7 +2570,7 @@
 #define verify_destroy			op_ptr->opt[OPT_verify_destroy]
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define allow_quantity			op_ptr->opt[OPT_allow_quantity]
-/* xxx */
+#define auto_more				op_ptr->opt[OPT_auto_more]
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
 #define testing_stack			op_ptr->opt[OPT_testing_stack]
@@ -2372,8 +2583,8 @@
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 #define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
 #define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
-/* xxx */
-/* xxx */
+#define smart_monsters			op_ptr->opt[OPT_smart_monsters]
+#define smart_packs				op_ptr->opt[OPT_smart_packs]
 #define smart_learn				op_ptr->opt[OPT_smart_learn]
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
@@ -2392,6 +2603,22 @@
 #define view_bright_lite		op_ptr->opt[OPT_view_bright_lite]
 #define view_granite_lite		op_ptr->opt[OPT_view_granite_lite]
 #define view_special_lite		op_ptr->opt[OPT_view_special_lite]
+#define center_player			op_ptr->opt[OPT_center_player]
+#define run_avoid_center		op_ptr->opt[OPT_run_avoid_center]
+#define scroll_target			op_ptr->opt[OPT_scroll_target]
+#define show_stacks				op_ptr->opt[OPT_show_stacks]
+#define easy_open				op_ptr->opt[OPT_easy_open]
+/* xxx */
+#define easy_floor				op_ptr->opt[OPT_easy_floor]
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
 
 
 

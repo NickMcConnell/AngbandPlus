@@ -66,7 +66,8 @@ extern cptr window_flag_desc[32];
 extern cptr option_text[OPT_MAX];
 extern cptr option_desc[OPT_MAX];
 extern bool option_norm[OPT_MAX];
-extern byte option_page[4][16];
+extern byte option_page[OPT_PAGE_MAX][OPT_PER_PAGE];
+extern cptr inscrip_text[MAX_INSCRIP];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -88,6 +89,7 @@ extern bool arg_sound;
 extern bool arg_graphics;
 extern bool arg_force_original;
 extern bool arg_force_roguelike;
+extern u32b seed_randart;
 extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
@@ -121,6 +123,7 @@ extern s16b o_max;
 extern s16b o_cnt;
 extern s16b m_max;
 extern s16b m_cnt;
+extern char summon_kin_type;
 extern s16b feeling;
 extern s16b rating;
 extern bool good_item_flag;
@@ -374,6 +377,7 @@ extern void signals_init(void);
 
 /* generate.c */
 extern void generate_cave(void);
+extern void place_closed_door(int y, int x);
 
 /* init1.c */
 extern errr init_v_info_txt(FILE *fp, char *buf);
@@ -535,6 +539,7 @@ extern bool remove_all_curse(void);
 extern bool restore_level(void);
 extern void self_knowledge(void);
 extern bool lose_all_info(void);
+extern void set_recall(void);
 extern bool detect_traps(void);
 extern bool detect_doors(void);
 extern bool detect_stairs(void);
@@ -710,7 +715,6 @@ extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
 
-
 /*
  * Hack -- conditional (or "bizarre") externs
  */
@@ -746,4 +750,37 @@ extern void user_name(char *buf, int id);
 /* main.c */
 /* extern int main(int argc, char *argv[]); */
 
+#ifdef ALLOW_REPEAT
+
+/* util.c */
+extern void repeat_push(int what);
+extern bool repeat_pull(int *what);
+extern void repeat_check(void);
+
+#endif /* ALLOW_REPEAT */
+
+#ifdef ALLOW_EASY_OPEN
+
+/* cmd2.c */
+extern bool easy_open_door(int y, int x);
+extern bool do_cmd_disarm_aux(int y, int x);
+
+#endif /* ALLOW_EASY_OPEN */
+
+#ifdef ALLOW_EASY_FLOOR
+
+/* object1.c */
+extern bool scan_floor(int *items, int *item_num, int y, int x, int mode);
+extern void show_floor(int y, int x);
+extern bool get_item_floor(int *cp, cptr pmt, cptr str, int mode);
+extern void py_pickup_floor(int pickup);
+
+#endif /* ALLOW_EASY_FLOOR */
+
+#ifdef GJW_RANDART
+
+/* randart.c */
+extern int do_randart(u32b randart_seed);
+
+#endif /* GJW_RANDART */
 

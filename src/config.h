@@ -233,6 +233,22 @@
 
 
 /*
+ * OPTION: Allow repeating of last command.
+ */
+#define ALLOW_REPEAT
+
+/*
+ * OPTION: Make opening/closing/disarming things easy.
+ */
+#define ALLOW_EASY_OPEN
+
+/*
+ * OPTION: Make floor stacks easy.
+ */
+#define ALLOW_EASY_FLOOR
+
+
+/*
  * OPTION: Delay the loading of the "f_text" array until it is actually
  * needed, saving ~1K, since "feature" descriptions are unused.
  */
@@ -306,6 +322,16 @@
 
 
 /*
+ * OPTION: Allow use of the "smart_monsters" and "smart_packs"
+ * software options, which attempt to make monsters smarter.
+ *
+ * AI code by Keldon Jones (keldon@umr.edu), modified by Julian
+ * Lighton (jl8e@fragment.com).
+ */
+#define MONSTER_AI
+
+
+/*
  * OPTION: Support multiple "player" grids in "map_info()"
  */
 /* #define MAP_INFO_MULTIPLE_PLAYERS */
@@ -336,6 +362,11 @@
  */
 #define DRS_SMART_OPTIONS
 
+
+/*
+ * OPTION: Allow the use of random artifacts.
+ */
+#define GJW_RANDART
 
 
 /*
@@ -399,8 +430,8 @@
  * See "main.c" for usage, and note that this value is only used on
  * certain machines, primarily Unix machines.  If this value is used,
  * it will be over-ridden by the "ANGBAND_PATH" environment variable,
- * if that variable is defined and accessable.  The final slash is
- * optional, but it may eventually be required.
+ * if that variable is defined and accessable.  The final "slash" is
+ * required if the value supplied is in fact a directory.
  *
  * Using the value "./lib/" below tells Angband that, by default,
  * the user will run "angband" from the same directory that contains
@@ -488,13 +519,16 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
+# undef ALLOW_TERROR
 # undef WDT_TRACK_OPTIONS
 # undef DRS_SMART_OPTIONS
+# undef GJW_RANDART
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
+# undef MONSTER_AI
 # undef DELAY_LOAD_R_TEXT
 # define DELAY_LOAD_R_TEXT
 #endif

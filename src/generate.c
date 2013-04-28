@@ -105,7 +105,7 @@
  */
 #define DUN_ROOMS	50	/* Number of rooms to attempt */
 #define DUN_UNUSUAL	200	/* Level/chance of unusual room */
-#define DUN_DEST	15	/* 1/chance of having a destroyed level */
+#define DUN_DEST	30	/* 1/chance of having a destroyed level */
 
 /*
  * Dungeon tunnel generation values
@@ -401,9 +401,10 @@ static void place_random_stairs(int y, int x)
 	}
 	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
-		place_up_stairs(y, x);
+		if (!ironman) place_up_stairs(y, x);
+		/* If playing ironman, there is no way off quest levels */
 	}
-	else if (rand_int(100) < 50)
+	else if (ironman || rand_int(100) < 50)
 	{
 		place_down_stairs(y, x);
 	}
@@ -455,29 +456,41 @@ static void place_random_door(int y, int x)
 		cave_set_feat(y, x, FEAT_SECRET);
 	}
 
-	/* Closed doors (300/1000) */
-	else if (tmp < 900)
+	/* Closed, locked, or stuck doors (400/1000) */
+	else place_closed_door(y, x);
+}
+
+/*
+ * Place a random type of normal door at the given location.
+ */
+void place_closed_door(int y, int x)
+{
+	int tmp;
+
+	/* Choose an object */
+	tmp = rand_int(400);
+
+	/* Closed doors (300/400) */
+	if (tmp < 300)
 	{
 		/* Create closed door */
 		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
 	}
 
-	/* Locked doors (99/1000) */
-	else if (tmp < 999)
+	/* Locked doors (99/400) */
+	else if (tmp < 399)
 	{
 		/* Create locked door */
 		cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
 	}
 
-	/* Stuck doors (1/1000) */
+	/* Stuck doors (1/400) */
 	else
 	{
 		/* Create jammed door */
 		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + rand_int(8));
 	}
 }
-
-
 
 /*
  * Places some staircases near walls
@@ -516,8 +529,11 @@ static void alloc_stairs(int feat, int num, int walls)
 				/* Quest -- must go up */
 				else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 				{
-					/* Clear previous contents, add up stairs */
-					cave_set_feat(y, x, FEAT_LESS);
+					if (!ironman)
+					{
+						/* Clear previous contents, add up stairs */
+						cave_set_feat(y, x, FEAT_LESS);
+					}
 				}
 
 				/* Requested type */
@@ -3093,7 +3109,7 @@ static void cave_gen(void)
 	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
 
 	/* Place 1 or 2 up stairs near some walls */
-	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
+	if (!ironman) alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
 
 
 	/* Determine the character location */
@@ -3113,6 +3129,37 @@ static void cave_gen(void)
 	for (i = i + k; i > 0; i--)
 	{
 		(void)alloc_monster(0, TRUE);
+	}
+
+	/* Hack -- ensure that Ironman players get a quest monster */
+	if (ironman && is_quest(p_ptr->depth))
+	{
+		monster_race *r_ptr;
+		int y, x;
+
+		/* Find the quest monster for this depth */
+		for (i = 0; i < MAX_R_IDX; i++)
+		{
+			r_ptr = &r_info[i];
+
+			if (r_ptr->flags1 & (RF1_QUESTOR) &&
+				r_ptr->level == p_ptr->depth)
+			{
+				/* Already generated */
+				if (r_ptr->cur_num > 0) break;
+
+				/* Pick a location */
+				do {
+				  y = rand_int(DUNGEON_HGT);
+				  x = rand_int(DUNGEON_WID);
+				} while (!cave_naked_bold(y, x));
+
+				/* Place the questor */
+				place_monster_aux(y, x, i, TRUE, TRUE);
+
+				break;
+			}
+		}
 	}
 
 

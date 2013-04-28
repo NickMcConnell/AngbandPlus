@@ -286,16 +286,23 @@ void teleport_player_level(void)
 
 	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
-		msg_print("You rise up through the ceiling.");
+		if (!ironman)
+		{
+			msg_print("You rise up through the ceiling.");
 
-		/* New depth */
-		p_ptr->depth--;
+			/* New depth */
+			p_ptr->depth--;
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+		}
+		else
+		{
+			msg_print("Nothing happens.");
+		}
 	}
 
-	else if (rand_int(100) < 50)
+	else if (!ironman && rand_int(100) < 50)
 	{
 		msg_print("You rise up through the ceiling.");
 
@@ -1366,6 +1373,18 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* Destroy Traps (and Locks) */
 		case GF_KILL_TRAP:
 		{
+			/* Reveal secret doors */
+			if (cave_feat[y][x] == FEAT_SECRET)
+			{
+				place_closed_door(y, x);
+
+				/* Check line of sight */
+				if (player_has_los_bold(y, x))
+				{
+					obvious = TRUE;
+				}
+			}
+
 			/* Destroy traps */
 			if ((cave_feat[y][x] == FEAT_INVIS) ||
 			    ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
@@ -1385,10 +1404,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_set_feat(y, x, FEAT_FLOOR);
 			}
 
-			/* Secret / Locked doors are found and unlocked */
-			else if ((cave_feat[y][x] == FEAT_SECRET) ||
-			         ((cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01) &&
-			          (cave_feat[y][x] <= FEAT_DOOR_HEAD + 0x07)))
+			/* Locked doors are unlocked */
+			else if ((cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01) &&
+			          (cave_feat[y][x] <= FEAT_DOOR_HEAD + 0x07))
 			{
 				/* Unlock the door */
 				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);

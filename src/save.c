@@ -737,6 +737,8 @@ static void wr_item(object_type *o_ptr)
 	{
 		wr_string("");
 	}
+
+	wr_byte(o_ptr->inscrip);
 }
 
 
@@ -756,6 +758,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+	wr_s16b(m_ptr->hold_o_idx);
 	wr_byte(0);
 }
 
@@ -924,6 +927,19 @@ static void wr_options(void)
 	for (i = 0; i < CHEAT_MAX; i++)
 	{
 		if (p_ptr->cheat[i]) c |= (0x0100 << i);
+	}
+
+	wr_u16b(c);
+
+
+	/*** Advanced play options ***/
+
+	c = 0;
+
+	/* Save the handicap flags */
+	for (i = 0; i < HANDICAP_MAX; i++)
+	{
+		if (p_ptr->handicap[i]) c |= (0x01 << i);
 	}
 
 	wr_u16b(c);
@@ -1115,7 +1131,12 @@ static void wr_extra(void)
 	wr_byte(0);
 
 	/* Future use */
-	for (i = 0; i < 12; i++) wr_u32b(0L);
+	for (i = 0; i < 11; i++) wr_u32b(0L);
+
+	/* Random artifacts */
+	wr_u32b(seed_randart);
+
+	wr_string(RANDART_VERSION);
 
 	/* Ignore some flags */
 	wr_u32b(0L);	/* oops */

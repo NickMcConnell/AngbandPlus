@@ -1947,6 +1947,13 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+		case SUMMON_KIN:
+		{
+			okay = ((r_ptr->d_char == summon_kin_type) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
 		case SUMMON_HI_UNDEAD:
 		{
 			okay = ((r_ptr->d_char == 'L') ||
@@ -1958,6 +1965,12 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_HI_DRAGON:
 		{
 			okay = (r_ptr->d_char == 'D');
+			break;
+		}
+
+		case SUMMON_HI_DEMON:
+		{
+			okay = (r_ptr->d_char == 'U');
 			break;
 		}
 
@@ -1986,9 +1999,9 @@ static bool summon_specific_okay(int r_idx)
  *
  * We will attempt to place the monster up to 10 times before giving up.
  *
- * Note: SUMMON_UNIQUE and SUMMON_WRAITH (XXX) will summon Unique's
- * Note: SUMMON_HI_UNDEAD and SUMMON_HI_DRAGON may summon Unique's
- * Note: None of the other summon codes will ever summon Unique's.
+ * Note: SUMMON_UNIQUE and SUMMON_WRAITH (XXX) will summon Uniques
+ * Note: SUMMON_HI_UNDEAD and SUMMON_HI_DRAGON may summon Uniques
+ * Note: None of the other summon codes will ever summon Uniques.
  *
  * This function has been changed.  We now take the "monster level"
  * of the summoning monster as a parameter, and use that, along with

@@ -158,6 +158,10 @@ C:1:^T
 A:k
 C:1:^D
 
+# Allow use of the "repeat" command
+A:n
+C:1:'
+
 # Locate player on map
 A:L
 C:1:W

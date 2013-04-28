@@ -1093,6 +1093,7 @@ static bool player_birth_aux()
 		sprintf(buf, "%c%c %s", I2A(n), p2, str);
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 	}
+	put_str("*) Random", 21 + (n/5), 2 + 15 * (n%5));
 
 	/* Choose */
 	while (1)
@@ -1104,6 +1105,7 @@ static bool player_birth_aux()
 		if (c == 'S') return (FALSE);
 		if (c == ESCAPE) c = 'a';
 		k = (islower(c) ? A2I(c) : -1);
+		if (c == '*') k = rand_int(MAX_SEXES);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
 		else bell("Illegal sex!");
@@ -1135,6 +1137,7 @@ static bool player_birth_aux()
 		sprintf(buf, "%c%c %s", I2A(n), p2, str);
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 	}
+	put_str("*) Random", 21 + (n/5), 2 + 15 * (n%5));
 
 	/* Choose */
 	while (1)
@@ -1146,6 +1149,7 @@ static bool player_birth_aux()
 		if (c == 'S') return (FALSE);
 		if (c == ESCAPE) c = 'a';
 		k = (islower(c) ? A2I(c) : -1);
+		if (c == '*') k = rand_int(MAX_RACES);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
 		else bell("Illegal race!");
@@ -1185,6 +1189,7 @@ static bool player_birth_aux()
 		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
 		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
 	}
+	put_str("*) Random", 21 + (n/3), 2 + 20 * (n%3));
 
 	/* Get a class */
 	while (1)
@@ -1196,6 +1201,7 @@ static bool player_birth_aux()
 		if (c == 'S') return (FALSE);
 		if (c == ESCAPE) c = 'a';
 		k = (islower(c) ? A2I(c) : -1);
+		if (c == '*') k = rand_int(MAX_CLASS);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
 		else bell("Illegal class!");
@@ -1263,7 +1269,144 @@ static bool player_birth_aux()
 	p_ptr->preserve = (c == 'y');
 
 	/* Clear */
-	clear_from(20);
+	clear_from(15);
+
+
+	/*** Advanced play options ***/
+
+	/* Extra info */
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"Experienced Angband players may wish to make the game");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"more difficult in various ways.");
+
+	/* Ask about advanced play */
+	while (1)
+	{
+		put_str("See the advanced play options? (y/n) ", 20, 2);
+		c = inkey();
+		if (c == 'Q') quit(NULL);
+		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) break;
+		if ((c == 'y') || (c == 'n')) break;
+		if (c == '?') do_cmd_help();
+		else bell("Illegal advanced options flag!");
+	}
+
+	/* Clear */
+	clear_from(15);
+
+
+	if (c == 'y')
+	{
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"'Iron Man' mode causes only down staircases to be created,");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"and makes it impossible to return to town.");
+
+		/* Ask about */
+		while (1)
+		{
+			put_str("Use 'Iron Man' mode? (y/n) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal 'ironman' flag!");
+		}
+
+		/* Set "Iron Man" mode */
+		ironman = (c == 'y');
+
+		/* Clear */
+		clear_from(15);
+
+
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"Without access to the stores or the home, your character will");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"only be able to use what he can find and carry.");
+
+		/* Ask about */
+		while (1)
+		{
+			put_str("Forbid use of the stores and home? (y/n) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal 'no_stores' flag!");
+		}
+
+		/* Set "no stores" mode */
+		no_stores = (c == 'y');
+
+		/* Clear */
+		clear_from(15);
+
+
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"Without artifacts, resistances are harder to come by,");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"and good weapons are few and far between.");
+
+		/* Ask about */
+		while (1)
+		{
+			put_str("Forbid artifact creation? (y/n) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal 'no_artifacts' flag!");
+		}
+
+		/* Set "no_artifacts" mode */
+		no_artifacts = (c == 'y');
+
+		/* Clear */
+		clear_from(15);
+
+
+#ifdef GJW_RANDART
+
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"Using random artifacts means that your character will enter a");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"world with a uniquely generated set of special items.");
+
+		/* Ask about */
+		while (!no_artifacts)
+		{
+			put_str("Use random artifacts? (y/n) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal 'random_artifacts' flag!");
+		}
+
+		/* Set "random_artifacts" mode */
+		random_artifacts = (c == 'y');
+
+		/* Clear */
+		clear_from(15);
+
+#endif /* GJW_RANDART */
+
+	}
 
 
 #ifdef ALLOW_AUTOROLLER
@@ -1662,7 +1805,7 @@ void player_birth(void)
 		store_init(n);
 
 		/* Ignore home */
-		if (n == MAX_STORES - 1) continue;
+		if (n == STORE_HOME) continue;
 
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);

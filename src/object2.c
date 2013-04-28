@@ -729,26 +729,8 @@ s16b get_obj_num(int level)
  */
 void object_known(object_type *o_ptr)
 {
-	/* Remove "default inscriptions" */
-	if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
-	{
-		/* Access the inscription */
-		cptr q = quark_str(o_ptr->note);
-
-		/* Hack -- Remove auto-inscriptions */
-		if ((streq(q, "cursed")) ||
-		    (streq(q, "broken")) ||
-		    (streq(q, "good")) ||
-		    (streq(q, "average")) ||
-		    (streq(q, "excellent")) ||
-		    (streq(q, "worthless")) ||
-		    (streq(q, "special")) ||
-		    (streq(q, "terrible")))
-		{
-			/* Forget the inscription */
-			o_ptr->note = 0;
-		}
-	}
+	/* Remove automatic inscriptions */
+	o_ptr->inscrip = 0;
 
 	/* Clear the "Felt" info */
 	o_ptr->ident &= ~(IDENT_SENSE);
@@ -793,9 +775,28 @@ void object_tried(object_type *o_ptr)
 static s32b object_value_base(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	s32b value;
 
-	/* Aware item -- use template cost */
-	if (object_aware_p(o_ptr)) return (k_ptr->cost);
+	/* Aware item -- use template cost, adjusted for "known" bonuses */
+	if (object_aware_p(o_ptr))
+	{
+		value = k_ptr->cost;
+
+		/* Body armor may have a penalty to hit */
+		if (o_ptr->tval == TV_HARD_ARMOR ||
+		    o_ptr->tval == TV_SOFT_ARMOR)
+		{
+			value += k_ptr->to_h * 100L;
+		}
+
+		/* Diggers have a bonus to tunneling */
+		if (o_ptr->tval == TV_DIGGING)
+		{
+			value += (k_ptr->pval * 50L);
+		}
+
+		return (value);
+	}
 
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -1268,6 +1269,12 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- normally require matching "inscriptions" */
 	if (!stack_force_notes && (o_ptr->note != j_ptr->note)) return (0);
 
+	/* Hack -- require semi-matching "inscriptions" */
+	if (o_ptr->inscrip && j_ptr->inscrip && (o_ptr->inscrip != j_ptr->inscrip)) return (0);
+
+	/* Hack -- normally require matching "inscriptions" */
+	if (!stack_force_notes && (o_ptr->inscrip != j_ptr->inscrip)) return (0);
+
 	/* Hack -- normally require matching "discounts" */
 	if (!stack_force_costs && (o_ptr->discount != j_ptr->discount)) return (0);
 
@@ -1302,6 +1309,9 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	/* Hack -- blend "inscriptions" */
 	if (j_ptr->note) o_ptr->note = j_ptr->note;
+
+	/* Hack -- blend "inscriptions" */
+	if (j_ptr->inscrip) o_ptr->inscrip = j_ptr->inscrip;
 
 	/* Hack -- could average discounts XXX XXX XXX */
 	/* Hack -- save largest discount XXX XXX XXX */
@@ -1527,18 +1537,27 @@ static void object_mention(object_type *o_ptr)
  */
 static bool make_artifact_special(object_type *o_ptr)
 {
-	int i;
+	int i, a_idx;
 
 	int k_idx = 0;
 
 
+	/* No artifacts */
+	if (no_artifacts) return (FALSE);
+
 	/* No artifacts in the town */
 	if (!p_ptr->depth) return (FALSE);
 
+	/* Start at a random artifact */
+	a_idx = rand_int(ART_MIN_NORMAL);
+
 	/* Check the artifact list (just the "specials") */
-	for (i = 0; i < ART_MIN_NORMAL; i++)
+	for (i = 0 ; i < ART_MIN_NORMAL; i++, a_idx++)
 	{
-		artifact_type *a_ptr = &a_info[i];
+		artifact_type *a_ptr = &a_info[a_idx];
+
+		/* When a_idx leaves the specials, wrap around to 0 */
+		if (a_idx == ART_MIN_NORMAL) a_idx = 0;
 
 		/* Skip "empty" artifacts */
 		if (!a_ptr->name) continue;
@@ -1576,7 +1595,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		object_prep(o_ptr, k_idx);
 
 		/* Mega-Hack -- mark the item as an artifact */
-		o_ptr->name1 = i;
+		o_ptr->name1 = a_idx;
 
 		/* Success */
 		return (TRUE);
@@ -3093,7 +3112,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	if (great) rolls = 4;
 
 	/* Hack -- Get no rolls if not allowed */
-	if (!okay || o_ptr->name1) rolls = 0;
+	if (!okay || o_ptr->name1 || no_artifacts) rolls = 0;
 
 	/* Roll for artifacts if allowed */
 	for (i = 0; i < rolls; i++)
@@ -4319,6 +4338,13 @@ s16b inven_carry(object_type *o_ptr)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
+			/* Rods sort by increasing recharge time */
+			if (o_ptr->tval == TV_ROD)
+			{
+				if (o_ptr->pval < j_ptr->pval) break;
+				if (o_ptr->pval > j_ptr->pval) continue;
+			}
+
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
 
@@ -4668,6 +4694,14 @@ void reorder_pack(void)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
+			/* Hack: otherwise identical rods sort by increasing
+			 * recharge time --dsb */
+			if (o_ptr->tval == TV_ROD)
+			{
+				if (o_ptr->pval < j_ptr->pval) break;
+				if (o_ptr->pval > j_ptr->pval) continue;
+			}
+
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
 
@@ -4903,6 +4937,8 @@ void spell_info(char *p, int spell)
 
 /*
  * Print a list of spells (for browsing or casting or viewing)
+ *
+ * Color-coding originally added by Dennis van Es.
  */
 void print_spells(byte *spells, int num, int y, int x)
 {
@@ -4916,6 +4952,7 @@ void print_spells(byte *spells, int num, int y, int x)
 
 	char out_val[160];
 
+	byte line_attr;
 
 	/* Title the list */
 	prt("", y, x);
@@ -4935,11 +4972,9 @@ void print_spells(byte *spells, int num, int y, int x)
 		if (s_ptr->slevel >= 99)
 		{
 			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
-			prt(out_val, y + i + 1, x);
+			c_prt(TERM_L_DARK, out_val, y + i + 1, x);
 			continue;
 		}
-
-		/* XXX XXX Could label spells above the players level */
 
 		/* Get extra info */
 		spell_info(info, spell);
@@ -4947,31 +4982,45 @@ void print_spells(byte *spells, int num, int y, int x)
 		/* Use that info */
 		comment = info;
 
+		/* Assume spell is known and tried */
+		line_attr = TERM_WHITE;
+
 		/* Analyze the spell */
 		if ((spell < 32) ?
 		    ((p_ptr->spell_forgotten1 & (1L << spell))) :
 		    ((p_ptr->spell_forgotten2 & (1L << (spell - 32)))))
 		{
 			comment = " forgotten";
+			line_attr = TERM_YELLOW;
 		}
 		else if (!((spell < 32) ?
 		           (p_ptr->spell_learned1 & (1L << spell)) :
 		           (p_ptr->spell_learned2 & (1L << (spell - 32)))))
 		{
-			comment = " unknown";
+		  if (s_ptr->slevel <= p_ptr->lev)
+			{
+			  comment = " unknown";
+			  line_attr = TERM_L_BLUE;
+			}
+		  else
+			{
+			  comment = " difficult";
+			  line_attr = TERM_RED;
+			}
 		}
 		else if (!((spell < 32) ?
 		           (p_ptr->spell_worked1 & (1L << spell)) :
 		           (p_ptr->spell_worked2 & (1L << (spell - 32)))))
 		{
 			comment = " untried";
+			line_attr = TERM_L_GREEN;
 		}
 
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
 		        I2A(i), spell_names[mp_ptr->spell_type][spell],
 		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
-		prt(out_val, y + i + 1, x);
+		c_prt(line_attr, out_val, y + i + 1, x);
 	}
 
 	/* Clear the bottom line */

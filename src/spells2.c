@@ -313,7 +313,7 @@ static int remove_curse_aux(int all)
 		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Take note */
-		o_ptr->note = quark_add("uncursed");
+		o_ptr->inscrip = INSCRIP_UNCURSED;
 
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -869,26 +869,8 @@ bool lose_all_info(void)
 		/* Allow "protection" by the MENTAL flag */
 		if (o_ptr->ident & (IDENT_MENTAL)) continue;
 
-		/* Remove "default inscriptions" */
-		if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
-		{
-			/* Access the inscription */
-			cptr q = quark_str(o_ptr->note);
-
-			/* Hack -- Remove auto-inscriptions */
-			if ((streq(q, "cursed")) ||
-			    (streq(q, "broken")) ||
-			    (streq(q, "good")) ||
-			    (streq(q, "average")) ||
-			    (streq(q, "excellent")) ||
-			    (streq(q, "worthless")) ||
-			    (streq(q, "special")) ||
-			    (streq(q, "terrible")))
-			{
-				/* Forget the inscription */
-				o_ptr->note = 0;
-			}
-		}
+		/* Remove automatic inscriptions */
+		o_ptr->inscrip = 0;
 
 		/* Hack -- Clear the "empty" flag */
 		o_ptr->ident &= ~(IDENT_EMPTY);
@@ -916,6 +898,33 @@ bool lose_all_info(void)
 	return (TRUE);
 }
 
+
+
+/*
+ *  Set word of recall as appropriate
+ */
+void set_recall(void)
+{
+	/* Ironman players must kill Morgoth before they leave */
+	if (ironman && !p_ptr->total_winner)
+	{
+		msg_print("Nothing happens.");
+	}
+
+	/* Activate recall */
+	else if (!p_ptr->word_recall)
+	{
+		p_ptr->word_recall = rand_int(20) + 15;
+		msg_print("The air about you becomes charged...");
+	}
+
+	/* Deactivate recall */
+	else
+	{
+		p_ptr->word_recall = 0;
+		msg_print("A tension leaves the air around you...");
+	}
+}
 
 
 
@@ -987,13 +996,13 @@ bool detect_doors(void)
 			/* Detect secret doors */
 			if (cave_feat[y][x] == FEAT_SECRET)
 			{
-				/* Pick a door XXX XXX XXX */
-				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+				/* Pick a door */
+				place_closed_door(y, x);
 			}
 
 			/* Detect doors */
 			if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_DOOR_HEAD)) ||
+			     (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
 			    ((cave_feat[y][x] == FEAT_OPEN) ||
 			     (cave_feat[y][x] == FEAT_BROKEN)))
 			{
@@ -1521,9 +1530,9 @@ void stair_creation(void)
 	}
 	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
-		cave_set_feat(py, px, FEAT_LESS);
+		if (!ironman) cave_set_feat(py, px, FEAT_LESS);
 	}
-	else if (rand_int(100) < 50)
+	else if (ironman || rand_int(100) < 50)
 	{
 		cave_set_feat(py, px, FEAT_MORE);
 	}
@@ -1652,7 +1661,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 					msg_print("The curse is broken!");
 					o_ptr->ident &= ~(IDENT_CURSED);
 					o_ptr->ident |= (IDENT_SENSE);
-					o_ptr->note = quark_add("uncursed");
+					o_ptr->inscrip = INSCRIP_UNCURSED;
 				}
 			}
 		}
@@ -1677,7 +1686,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 					msg_print("The curse is broken!");
 					o_ptr->ident &= ~(IDENT_CURSED);
 					o_ptr->ident |= (IDENT_SENSE);
-					o_ptr->note = quark_add("uncursed");
+					o_ptr->inscrip = INSCRIP_UNCURSED;
 				}
 			}
 		}
@@ -1702,7 +1711,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 					msg_print("The curse is broken!");
 					o_ptr->ident &= ~(IDENT_CURSED);
 					o_ptr->ident |= (IDENT_SENSE);
-					o_ptr->note = quark_add("uncursed");
+					o_ptr->inscrip = INSCRIP_UNCURSED;
 				}
 			}
 		}
@@ -2638,8 +2647,8 @@ void earthquake(int cy, int cx, int r)
 		for (i = 0; i < 8; i++)
 		{
 			/* Access the location */
-			y = py + ddy[i];
-			x = px + ddx[i];
+			y = py + ddy_ddd[i];
+			x = px + ddx_ddd[i];
 
 			/* Skip non-empty grids */
 			if (!cave_empty_bold(y, x)) continue;
@@ -2754,8 +2763,8 @@ void earthquake(int cy, int cx, int r)
 						for (i = 0; i < 8; i++)
 						{
 							/* Access the grid */
-							y = yy + ddy[i];
-							x = xx + ddx[i];
+							y = yy + ddy_ddd[i];
+							x = xx + ddx_ddd[i];
 
 							/* Skip non-empty grids */
 							if (!cave_empty_bold(y, x)) continue;
@@ -3428,5 +3437,3 @@ bool sleep_monsters_touch(void)
 	int flg = PROJECT_KILL | PROJECT_HIDE;
 	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
 }
-
-

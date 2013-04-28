@@ -426,8 +426,8 @@ void search(void)
 					/* Message */
 					msg_print("You have found a secret door.");
 
-					/* Pick a door XXX XXX XXX */
-					cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+					/* Pick a door */
+					place_closed_door(y, x);
 
 					/* Disturb */
 					disturb(0, 0);
@@ -485,6 +485,15 @@ void py_pickup(int pickup)
 
 	char o_name[80];
 
+#ifdef ALLOW_EASY_FLOOR
+
+	if (easy_floor)
+	{
+		py_pickup_floor(pickup);
+		return;
+	}
+
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -1076,6 +1085,18 @@ void move_player(int dir, int do_pickup)
 		py_attack(y, x);
 	}
 
+#ifdef ALLOW_EASY_OPEN
+
+	/* Disarm a visible trap */
+	else if ((do_pickup != easy_open) &&
+		(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		(cave_feat[y][x] <= FEAT_TRAP_TAIL))
+	{
+		(void) do_cmd_disarm_aux(y, x);
+	}
+
+#endif /* ALLOW_EASY_OPEN */
+
 	/* Player can not walk through "walls" */
 	else if (!cave_floor_bold(y, x))
 	{
@@ -1122,6 +1143,12 @@ void move_player(int dir, int do_pickup)
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
+#ifdef ALLOW_EASY_OPEN
+
+				if (easy_open && easy_open_door(y, x)) return;
+
+#endif /* ALLOW_EASY_OPEN */
+
 				msg_print("There is a door blocking your way.");
 			}
 
@@ -1163,8 +1190,17 @@ void move_player(int dir, int do_pickup)
 			search();
 		}
 
+#ifdef ALLOW_EASY_OPEN
+
+		/* Handle "objects" */
+		py_pickup(do_pickup != always_pickup);
+
+#else  /* ALLOW_EASY_OPEN */
+
 		/* Handle "objects" */
 		py_pickup(do_pickup);
+
+#endif /* ALLOW_EASY_OPEN */
 
 		/* Handle "store doors" */
 		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
@@ -1175,6 +1211,9 @@ void move_player(int dir, int do_pickup)
 
 			/* Hack -- Enter store */
 			p_ptr->command_new = '_';
+
+			/* Free turn XXX XXX XXX */
+			p_ptr->energy_use = 0;
 		}
 
 		/* Discover invisible traps */
@@ -1934,7 +1973,17 @@ void run_step(int dir)
 	/* Take time */
 	p_ptr->energy_use = 100;
 
+#ifdef ALLOW_EASY_OPEN
+
+	/* Move the player, using the "pickup" flag */
+	move_player(p_ptr->run_cur_dir, FALSE);
+
+#else /* ALLOW_EASY_OPEN */
+
 	/* Move the player, using the "pickup" flag */
 	move_player(p_ptr->run_cur_dir, always_pickup);
+
+#endif /* ALLOW_EASY_OPEN */
+
 }
 

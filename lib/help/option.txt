@@ -194,6 +194,12 @@ Expand the power of the list commands    [expand_wrap]
     to "cycle" through all appropriate grids forever, and the "identify
     symbol" to browse through all of the monsters of a given type.
 
+Scroll map while targetting    [scroll_target]
+    Expand the "look" and "target" commands to scroll the map panel
+    when the player attemps to move the cursor off the edge of the
+    screen.  This allows examination of off-screen items, and permits
+    precise targetting of off-screen creatures.
+
 Map remembers all perma-lit grids    [view_perma_grids]
     Memorize all perma-lit floor grids which are seen by the player.
     This option allows you to keep track of which explored floor grids
@@ -241,6 +247,24 @@ Monsters learn from their mistakes    [smart_learn]
 Monsters exploit players weaknesses    [smart_cheat]
     Allow monsters to know what spell attacks you are resistant to,
     and to use this information to choose the best attacks.
+
+Open and close automatically    [easy_floor]
+    Causes your character to attempt to open doors if you walk into
+    them.  In addition, if there is only one appropriate object adjacent 
+    to you, the 'o'pen and 'c'lose commands will pick it automatically.
+
+Disarm traps automatically    [easy_disarm]
+    Causes your character to attempt to disarm known traps when you
+    attempt to walk onto them.  Should you wish to set off a trap
+    deliberately, you can use the '-' command to temporarily override
+    this option.
+
+Display floor stacks in a list    [easy_floor]
+    Causes stacks of items to be displayed as a light green '*'.
+    When you pick up an item from a stack, you will be asked to
+    choose which item you want from a menu much like the inventory
+    list.  Finally, when you select a stack with the 'l'ook command,
+    the option 'l' will be available to list the contents of the stack.
 
 
 === Option Set 4 -- Efficiency ===
@@ -304,6 +328,16 @@ Flush output after certain things    [fresh_after]
     objects, and after every message, which will maximize your information,
     but may slow down the game a lot, especially on slower machines, and on
     faster machines you cannot see the results anyway.
+
+Center map continuously (very slow)    [center_player]
+    Whenever the player's location changes, adjust the screen so the
+    viewable area is centered on the player if possible.  This can be
+    very slow, especially when running.
+
+Avoid centering while running    [run_avoid_center]
+    Disables the "center_player" option while the player is running.
+    When the run finishes, the screen is re-centered.  This option
+    has no effect if "center_player" is disabled.
 
 Compress messages in savefiles    [compress_savefile]
     Compress the savefile, by only saving the most recent "messages" that

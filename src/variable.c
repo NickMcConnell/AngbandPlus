@@ -72,6 +72,7 @@ s16b character_xtra;		/* Depth of the game in startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
+u32b seed_randart;		/* Hack -- consistent random artifacts */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
@@ -111,6 +112,7 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
+char summon_kin_type;	/* Hack -- see summon_specific() */
 
 /*
  * Dungeon variables

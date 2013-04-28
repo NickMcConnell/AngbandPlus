@@ -208,7 +208,7 @@ static void say_comment_5(void)
  */
 static void say_comment_6(void)
 {
-	msg_print(comment_6[rand_int(5)]);
+	msg_print(comment_6[rand_int(MAX_COMMENT_6)]);
 }
 
 
@@ -428,7 +428,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust > 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (store_num == 6) price = price / 2;
+		if (store_num == STORE_B_MARKET) price = price / 2;
 	}
 
 	/* Shop is selling */
@@ -441,7 +441,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust < 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (store_num == 6) price = price * 2;
+		if (store_num == STORE_B_MARKET) price = price * 2;
 	}
 
 	/* Compute the final price (with rounding) */
@@ -685,7 +685,7 @@ static bool store_check_num(object_type *o_ptr)
 	if (st_ptr->stock_num < st_ptr->stock_size) return TRUE;
 
 	/* The "home" acts like the player */
-	if (store_num == 7)
+	if (store_num == STORE_HOME)
 	{
 		/* Check all the objects */
 		for (i = 0; i < st_ptr->stock_num; i++)
@@ -727,7 +727,7 @@ static bool store_check_num(object_type *o_ptr)
 static bool store_will_buy(object_type *o_ptr)
 {
 	/* Hack -- The Home is simple */
-	if (store_num == 7) return (TRUE);
+	if (store_num == STORE_HOME) return (TRUE);
 
 	/* Switch on the store */
 	switch (store_num)
@@ -982,6 +982,9 @@ static int store_carry(object_type *o_ptr)
 	/* Erase the inscription */
 	o_ptr->note = 0;
 
+	/* Erase the automatic inscription */
+	o_ptr->inscrip = 0;
+
 	/* Check each existing object (try to combine) */
 	for (slot = 0; slot < st_ptr->stock_num; slot++)
 	{
@@ -1114,9 +1117,13 @@ static bool black_market_crap(object_type *o_ptr)
 	if (o_ptr->to_h > 0) return (FALSE);
 	if (o_ptr->to_d > 0) return (FALSE);
 
-	/* Check the other "normal" stores */
-	for (i = 0; i < 6; i++)
+	/* Check the other stores */
+	for (i = 0; i < MAX_STORES; i++)
 	{
+		/* Skip home and black market */
+		if (i == STORE_B_MARKET || i == STORE_HOME)
+		  continue;
+
 		/* Check every object in the store */
 		for (j = 0; j < store[i].stock_num; j++)
 		{
@@ -1188,7 +1195,7 @@ static void store_create(void)
 	for (tries = 0; tries < 4; tries++)
 	{
 		/* Black Market */
-		if (store_num == 6)
+		if (store_num == STORE_B_MARKET)
 		{
 			/* Pick a level for object/magic */
 			level = 25 + rand_int(25);
@@ -1235,7 +1242,7 @@ static void store_create(void)
 		if (i_ptr->tval == TV_CHEST) continue;
 
 		/* Prune the black market */
-		if (store_num == 6)
+		if (store_num == STORE_B_MARKET)
 		{
 			/* Hack -- No "crappy" items */
 			if (black_market_crap(i_ptr)) continue;
@@ -1354,7 +1361,7 @@ static void display_entry(int item)
 	prt(out_val, y, 0);
 
 	/* Describe an object in the home */
-	if (store_num == 7)
+	if (store_num == STORE_HOME)
 	{
 		byte attr;
 
@@ -1515,7 +1522,7 @@ static void display_store(void)
 	Term_clear();
 
 	/* The "Home" is special */
-	if (store_num == 7)
+	if (store_num == STORE_HOME)
 	{
 		/* Put the owner name */
 		put_str("Your Home", 3, 30);
@@ -1586,6 +1593,20 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	object_type *o_ptr;
 
+#ifdef ALLOW_REPEAT
+
+	/* Get the item index */
+	if (repeat_pull(com_val))
+	{
+		/* Verify the item */
+		if ((*com_val >= 0) && (*com_val <= (st_ptr->stock_num - 1)))
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Assume failure */
 	*com_val = (-1);
@@ -1626,12 +1647,12 @@ static bool get_stock(int *com_val, cptr pmt)
 		o_ptr = &st_ptr->stock[item];
 
 		/* Home */
-		if (store_num == 7)
+		if (store_num == STORE_HOME)
 		{
 			/* Describe */
 			object_desc(o_name, o_ptr, TRUE, 3);
 		}
-	
+
 		/* Shop */
 		else
 		{
@@ -1651,6 +1672,12 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	/* Save item */
 	(*com_val) = item;
+
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*com_val);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -2312,7 +2339,7 @@ static void store_purchase(void)
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
-		if (store_num == 7)
+		if (store_num == STORE_HOME)
 		{
 			msg_print("Your home is empty.");
 		}
@@ -2325,7 +2352,7 @@ static void store_purchase(void)
 
 
 	/* Prompt */
-	if (store_num == 7)
+	if (store_num == STORE_HOME)
 	{
 		sprintf(out_val, "Which item do you want to take? ");
 	}
@@ -2363,7 +2390,7 @@ static void store_purchase(void)
 	}
 
 	/* Attempt to buy it */
-	if (store_num != 7)
+	if (store_num != STORE_HOME)
 	{
 		/* Describe the object (fully) */
 		object_desc_store(o_name, i_ptr, TRUE, 3);
@@ -2423,6 +2450,9 @@ static void store_purchase(void)
 
 				/* Erase the inscription */
 				i_ptr->note = 0;
+
+				/* Erase the automatic inscription */
+				o_ptr->inscrip = 0;
 
 				/* Give it to the player */
 				item_new = inven_carry(i_ptr);
@@ -2595,7 +2625,7 @@ static void store_sell(void)
 	q = "Drop which item? ";
 
 	/* Real store */
-	if (store_num != 7)
+	if (store_num != STORE_HOME)
 	{
 		/* New prompt */
 		q = "Sell which item? ";
@@ -2650,12 +2680,16 @@ static void store_sell(void)
 	object_desc(o_name, i_ptr, TRUE, 3);
 
 	/* Remove any inscription for stores */
-	if (store_num != 7) i_ptr->note = 0;
+	if (store_num != STORE_HOME)
+	{
+		i_ptr->note = 0;
+		i_ptr->inscrip = 0;
+	}
 
 	/* Is there room in the store (or the home?) */
 	if (!store_check_num(i_ptr))
 	{
-		if (store_num == 7)
+		if (store_num == STORE_HOME)
 		{
 			msg_print("Your home is full.");
 		}
@@ -2668,7 +2702,7 @@ static void store_sell(void)
 
 
 	/* Real store */
-	if (store_num != 7)
+	if (store_num != STORE_HOME)
 	{
 		/* Describe the transaction */
 		msg_format("Selling %s (%c).", o_name, index_to_label(item));
@@ -2808,6 +2842,13 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -3143,7 +3184,7 @@ void do_cmd_store(void)
 	which = (cave_feat[py][px] - FEAT_SHOP_HEAD);
 
 	/* Hack -- Check the "locked doors" */
-	if (store[which].store_open >= turn)
+	if (no_stores || store[which].store_open >= turn)
 	{
 		msg_print("The doors are locked.");
 		return;
@@ -3233,7 +3274,7 @@ void do_cmd_store(void)
 			object_type *o_ptr = &inventory[item];
 
 			/* Hack -- Flee from the store */
-			if (store_num != 7)
+			if (store_num != STORE_HOME)
 			{
 				/* Message */
 				msg_print("Your pack is so full that you flee the store...");
@@ -3314,8 +3355,8 @@ void do_cmd_store(void)
 	}
 
 
-	/* Free turn XXX XXX XXX */
-	p_ptr->energy_use = 0;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 
 	/* Hack -- Cancel automatic command */
@@ -3361,7 +3402,7 @@ void store_shuffle(int which)
 
 
 	/* Ignore home */
-	if (which == 7) return;
+	if (which == STORE_HOME) return;
 
 
 	/* Save the store index */
@@ -3402,7 +3443,7 @@ void store_shuffle(int which)
 		o_ptr->ident &= ~(IDENT_FIXED);
 
 		/* Inscribe the object as "on sale" */
-		o_ptr->note = quark_add("on sale");
+		o_ptr->inscrip = INSCRIP_SALE;
 	}
 }
 
@@ -3418,7 +3459,7 @@ void store_maint(int which)
 
 
 	/* Ignore home */
-	if (which == 7) return;
+	if (which == STORE_HOME) return;
 
 
 	/* Save the store index */
@@ -3436,7 +3477,7 @@ void store_maint(int which)
 
 
 	/* Mega-Hack -- prune the black market */
-	if (store_num == 6)
+	if (store_num == STORE_B_MARKET)
 	{
 		/* Destroy crappy black market items */
 		for (j = st_ptr->stock_num - 1; j >= 0; j--)

@@ -554,7 +554,7 @@ static void rd_item(object_type *o_ptr)
 		/* Old special powers */
 		strip_bytes(2);
 	}
-	
+
 	else
 	{
 		/* Special powers */
@@ -565,9 +565,52 @@ static void rd_item(object_type *o_ptr)
 	/* Inscription */
 	rd_string(buf, 128);
 
-	/* Save the inscription */
-	if (buf[0]) o_ptr->note = quark_add(buf);
+	if (older_than(2, 8, 4))
+	{
+		/* An inscription was saved */
+		if (buf[0])
+		{
+			int i;
 
+			/* Check each automatic inscription */
+			for (i = 1; i < MAX_INSCRIP; i++)
+			{
+				/* The inscription was added by the game */
+				if (streq(buf, inscrip_text[i]))
+				{
+					/* Set the automatic inscription */
+					o_ptr->inscrip = i;
+
+					/* Done */
+					break;
+				}
+			}
+
+			/* The inscription wasn't added by the game */
+			if (!o_ptr->inscrip)
+			{
+				/* Save the inscription */
+				o_ptr->note = quark_add(buf);
+			}
+		}
+	}
+
+	/* Newer than 2.8.4 */
+	else
+	{
+		/* Save the inscription */
+		if (buf[0]) o_ptr->note = quark_add(buf);
+
+		/* Read the automatic inscription index */
+		rd_byte(&o_ptr->inscrip);
+
+		/* Sanity */
+		if (o_ptr->inscrip >= MAX_INSCRIP)
+		{
+			note(format("Ignoring illegal o_ptr->inscrip (%u)", o_ptr->inscrip));
+			o_ptr->inscrip = 0;
+		}
+	}
 
 	/* Mega-Hack -- handle "dungeon objects" later */
 	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
@@ -870,6 +913,8 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
+	if (!older_than(2, 8, 4))
+	  rd_s16b(&m_ptr->hold_o_idx);
 	rd_byte(&tmp8u);
 }
 
@@ -1135,6 +1180,20 @@ static void rd_options(void)
 	if (older_than(2, 8, 0)) return;
 
 
+	/*** Advanced play options ***/
+
+	if (!older_than(2, 8, 4))
+	{
+		rd_u16b(&c);
+
+		/* Extract the handicap flags */
+		for (i = 0; i < HANDICAP_MAX; ++i)
+		{
+			p_ptr->handicap[i] = (c & (0x01 << i)) ? TRUE : FALSE;
+		}
+	}
+
+
 	/*** Normal Options ***/
 
 	/* Read the option flags */
@@ -1249,6 +1308,8 @@ static errr rd_extra(void)
 	byte tmp8u;
 	u16b tmp16u;
 
+	char buf[16];
+
 	rd_string(op_ptr->full_name, 32);
 
 	rd_string(p_ptr->died_from, 80);
@@ -1359,7 +1420,38 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);
 
 	/* Future use */
-	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 44; i++) rd_byte(&tmp8u);
+
+	/* Random artifacts seed */
+	rd_u32b(&seed_randart);
+
+	if (!older_than(2, 8, 4))
+	{
+		/* Read the randart version string */
+		rd_string(buf, 16);
+
+		/* Avoid problems with random artifact characters */
+		if (random_artifacts)
+		{
+
+#ifdef GJW_RANDART
+
+			/* Check for incompatible randart version */
+			if (strcmp(RANDART_VERSION, buf))
+			{
+				note(format("Incompatible random artifacts version (%s)!", buf));
+				return (25);
+			}
+
+#else /* GJW_RANDART */
+
+			note("Random artifacts are disabled in this binary.");
+			return (25);
+
+#endif /* GJW_RANDART */
+
+		}
+	}
 
 	/* Skip the flags */
 	strip_bytes(12);
@@ -1379,6 +1471,12 @@ static errr rd_extra(void)
 	/* Read "death" */
 	rd_byte(&tmp8u);
 	p_ptr->is_dead = tmp8u;
+
+#ifdef GJW_RANDART
+	/* Random artifacts */
+	if (!(p_ptr->is_dead))
+		if (random_artifacts) do_randart(seed_randart);
+#endif
 
 	/* Read "feeling" */
 	rd_byte(&tmp8u);
@@ -2161,7 +2259,6 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 			return (162);
 		}
 	}
-
 
 
 	/* The dungeon is ready */

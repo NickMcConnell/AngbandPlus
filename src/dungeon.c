@@ -11,77 +11,74 @@
 #include "angband.h"
 
 
-
-
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
-static cptr value_check_aux1(object_type *o_ptr)
+static int value_check_aux1(object_type *o_ptr)
 {
 	/* Artifacts */
 	if (artifact_p(o_ptr))
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return "terrible";
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return INSCRIP_TERRIBLE;
 
 		/* Normal */
-		return "special";
+		return INSCRIP_SPECIAL;
 	}
 
 	/* Ego-Items */
 	if (ego_item_p(o_ptr))
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return "worthless";
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return INSCRIP_WORTHLESS;
 
 		/* Normal */
-		return "excellent";
+		return INSCRIP_EXCELLENT;
 	}
 
 	/* Cursed items */
-	if (cursed_p(o_ptr)) return "cursed";
+	if (cursed_p(o_ptr)) return INSCRIP_CURSED;
 
 	/* Broken items */
-	if (broken_p(o_ptr)) return "broken";
+	if (broken_p(o_ptr)) return INSCRIP_BROKEN;
 
 	/* Good "armor" bonus */
-	if (o_ptr->to_a > 0) return "good";
+	if (o_ptr->to_a > 0) return INSCRIP_GOOD;
 
 	/* Good "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return "good";
+	if (o_ptr->to_h + o_ptr->to_d > 0) return INSCRIP_GOOD;
 
 	/* Default to "average" */
-	return "average";
+	return INSCRIP_AVERAGE;
 }
 
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
  */
-static cptr value_check_aux2(object_type *o_ptr)
+static int value_check_aux2(object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
-	if (cursed_p(o_ptr)) return "cursed";
+	if (cursed_p(o_ptr)) return INSCRIP_CURSED;
 
 	/* Broken items (all of them) */
-	if (broken_p(o_ptr)) return "broken";
+	if (broken_p(o_ptr)) return INSCRIP_BROKEN;
 
 	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr)) return "good";
+	if (artifact_p(o_ptr)) return INSCRIP_GOOD;
 
 	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return "good";
+	if (ego_item_p(o_ptr)) return INSCRIP_GOOD;
 
 	/* Good armor bonus */
-	if (o_ptr->to_a > 0) return "good";
+	if (o_ptr->to_a > 0) return INSCRIP_GOOD;
 
 	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return "good";
+	if (o_ptr->to_h + o_ptr->to_d > 0) return INSCRIP_GOOD;
 
 	/* No feeling */
-	return (NULL);
+	return INSCRIP_NULL;
 }
-
 
 
 
@@ -103,7 +100,7 @@ static void sense_inventory(void)
 
 	bool heavy = FALSE;
 
-	cptr feel;
+	int feel;
 
 	object_type *o_ptr;
 
@@ -250,7 +247,8 @@ static void sense_inventory(void)
 		{
 			msg_format("You feel the %s (%c) you are %s %s %s...",
 			           o_name, index_to_label(i), describe_use(i),
-			           ((o_ptr->number == 1) ? "is" : "are"), feel);
+			           ((o_ptr->number == 1) ? "is" : "are"),
+			           inscrip_text[feel]);
 		}
 
 		/* Message (inventory) */
@@ -258,14 +256,17 @@ static void sense_inventory(void)
 		{
 			msg_format("You feel the %s (%c) in your pack %s %s...",
 			           o_name, index_to_label(i),
-			           ((o_ptr->number == 1) ? "is" : "are"), feel);
+			           ((o_ptr->number == 1) ? "is" : "are"),
+			           inscrip_text[feel]);
 		}
 
 		/* We have "felt" it */
 		o_ptr->ident |= (IDENT_SENSE);
 
-		/* Inscribe it textually */
-		if (!o_ptr->note) o_ptr->note = quark_add(feel);
+
+		/* Inscribe it */
+		o_ptr->inscrip = feel;
+
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -520,8 +521,11 @@ static void process_world(void)
 			if (cheat_xtra) msg_print("Updating Shops...");
 
 			/* Maintain each shop (except home) */
-			for (n = 0; n < MAX_STORES - 1; n++)
+			for (n = 0; n < MAX_STORES; n++)
 			{
+				/* Skip the home */
+				if (n == STORE_HOME) continue;
+
 				/* Maintain */
 				store_maint(n);
 			}
@@ -532,8 +536,13 @@ static void process_world(void)
 				/* Message */
 				if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
 
-				/* Shuffle a random shop (except home) */
-				store_shuffle(rand_int(MAX_STORES - 1));
+				/* Pick a random shop (except home) */
+				do {
+				  n = rand_int(MAX_STORES);
+				} while (n != STORE_HOME);
+
+				/* Shuffle it */
+				store_shuffle(n);
 			}
 
 			/* Message */
@@ -1051,7 +1060,7 @@ static void process_world(void)
 static bool enter_wizard_mode(void)
 {
 	/* Ask first time */
-	if (!(p_ptr->noscore & 0x0002))
+	if (verify_special || !(p_ptr->noscore & 0x0002))
 	{
 		/* Mention effects */
 		msg_print("You are about to enter 'wizard' mode for the very first time!");
@@ -1081,10 +1090,8 @@ static bool enter_wizard_mode(void)
  */
 static bool verify_debug_mode(void)
 {
-	static int verify = 1;
-
 	/* Ask first time */
-	if (verify && verify_special)
+	if (verify_special && !(p_ptr->noscore & 0x0008))
 	{
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, debug commands!");
@@ -1097,9 +1104,6 @@ static bool verify_debug_mode(void)
 			return (FALSE);
 		}
 	}
-
-	/* Verified */
-	verify = 0;
 
 	/* Mark savefile */
 	p_ptr->noscore |= 0x0008;
@@ -1125,10 +1129,8 @@ extern void do_cmd_debug(void);
  */
 static bool verify_borg_mode(void)
 {
-	static int verify = 1;
-
 	/* Ask first time */
-	if (verify && verify_special)
+	if (verify_special && !(p_ptr->noscore & 0x0010))
 	{
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, borg commands!");
@@ -1141,9 +1143,6 @@ static bool verify_borg_mode(void)
 			return (FALSE);
 		}
 	}
-
-	/* Verified */
-	verify = 0;
 
 	/* Mark savefile */
 	p_ptr->noscore |= 0x0010;
@@ -1168,6 +1167,13 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -1851,9 +1857,8 @@ static void process_player_aux(void)
  *
  * Note that the code to check for user abort during repeated commands
  * and running and resting can be disabled entirely with an option, and
- * even if not disabled, it will never check during "special" resting
- * (codes -1 and -2), and it will only check during every 16th player
- * turn of "normal" resting.
+ * even if not disabled, it will only check during every 160th game
+ * turn of resting.
  */
 static void process_player(void)
 {
@@ -1908,7 +1913,7 @@ static void process_player(void)
 		/* Check for "player abort" */
 		if (p_ptr->running ||
 		    p_ptr->command_rep ||
-		    (p_ptr->resting && !(p_ptr->resting & 0x0F)))
+			(p_ptr->resting && !((turn * 10) % 0x0F)))
 		{
 			/* Do not wait */
 			inkey_scan = TRUE;
@@ -2292,6 +2297,12 @@ static void dungeon(void)
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
 
+	/* Ironman players can never go up */
+	if (ironman)
+	{
+		p_ptr->create_up_stair = FALSE;
+	}
+
 	/* Make a staircase */
 	if (p_ptr->create_down_stair || p_ptr->create_up_stair)
 	{
@@ -2517,7 +2528,13 @@ static void dungeon(void)
  */
 static void process_some_user_pref_files(void)
 {
+#ifdef SET_UID
+	char buf[1024];
+
+	char *homedir;
+#else
 	char buf[128];
+#endif
 
 	/* Process the "user.prf" file */
 	(void)process_pref_file("user.prf");
@@ -2527,6 +2544,21 @@ static void process_some_user_pref_files(void)
 
 	/* Process the "PLAYER.prf" file */
 	(void)process_pref_file(buf);
+
+#ifdef SET_UID
+
+	/*
+	 * Hack -- Allow players on UNIX systems to keep a pref file in
+	 * their home directory.
+	 */
+	if ((homedir = getenv("HOME")))
+	{
+		path_build(buf, 1024, homedir, ".angband.prf");
+		(void)process_pref_file(buf);
+	}
+
+#endif /* SET_UID */
+
 }
 
 
@@ -2630,11 +2662,25 @@ void play_game(bool new_game)
 		/* Hack -- seed for town layout */
 		seed_town = rand_int(0x10000000);
 
+#ifdef GJW_RANDART
+		/* Hack -- seed for random artifacts */
+		seed_randart = rand_int (0x10000000);
+#endif
+
 		/* Roll up a new character */
 		player_birth();
 
+#ifdef GJW_RANDART
+		/* Randomize the artifacts. */
+		if (random_artifacts)
+			do_randart(seed_randart);
+#endif
+
 		/* Hack -- enter the world */
 		turn = 1;
+
+		/* Read the default options */
+		process_pref_file("default.prf");
 	}
 
 	/* Normal machine (process player name) */

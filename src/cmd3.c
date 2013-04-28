@@ -23,6 +23,12 @@ void do_cmd_inven(void)
 	/* Note that we are in "inventory" mode */
 	p_ptr->command_wrk = FALSE;
 
+#ifdef ALLOW_EASY_FLOOR
+
+	/* Note that we are in "inventory" mode */
+	if (easy_floor) p_ptr->command_wrk = (USE_INVEN);
+
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Save screen */
 	screen_save();
@@ -70,6 +76,12 @@ void do_cmd_equip(void)
 	/* Note that we are in "equipment" mode */
 	p_ptr->command_wrk = TRUE;
 
+#ifdef ALLOW_EASY_FLOOR
+
+	/* Note that we are in "equipment" mode */
+	if (easy_floor) p_ptr->command_wrk = (USE_EQUIP);
+
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Save screen */
 	screen_save();
@@ -436,16 +448,16 @@ void do_cmd_destroy(void)
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{
-		cptr feel = "special";
+		int feel = INSCRIP_SPECIAL;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
 		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_TERRIBLE;
 
 		/* Hack -- inscribe the artifact */
-		o_ptr->note = quark_add(feel);
+		o_ptr->inscrip = feel;
 
 		/* We have "felt" it (again) */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -658,7 +670,7 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
 
-	/* Torches are okay */
+	/* Lanterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
 	    (o_ptr->sval == SV_LITE_LANTERN)) return (TRUE);
 
@@ -945,8 +957,9 @@ void do_cmd_locate(void)
 
 		/* Prepare to ask which way to look */
 		sprintf(out_val,
-		        "Map sector [%d,%d], which is%s your sector.  Direction?",
-		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
+				"Map sector [%d(%02d), %d(%02d)], which is%s your sector.  Direction?",
+				(y2 / PANEL_HGT), (y2 % PANEL_HGT),
+				(x2 / PANEL_WID), (x2 % PANEL_WID), tmp_val);
 
 		/* Assume no direction */
 		dir = 0;

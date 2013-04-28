@@ -538,13 +538,13 @@ static void do_cmd_options_aux(int page, cptr info)
 
 	int i, k = 0, n = 0;
 
-	int opt[16];
+	int opt[OPT_PER_PAGE];
 
 	char buf[80];
 
 
 	/* Scan the options */
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < OPT_PER_PAGE; i++)
 	{
 		/* Collect options on this "page" */
 		if (option_page[page][i] != 255)
@@ -800,6 +800,91 @@ static void do_cmd_options_win(void)
 }
 
 
+/*
+ * Write all current options to the given preference file in the
+ * lib/user directory. Modified from KAmband 1.8.
+ */
+static errr option_dump(cptr fname)
+{
+	int i, j;
+
+	FILE *fff;
+
+	char buf[1024];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Append to the file */
+	fff = my_fopen(buf, "w");
+
+	/* Failure */
+	if (!fff) return (-1);
+
+	/* Skip space */
+	fprintf(fff, "\n\n");
+
+	/* Start dumping */
+	fprintf(fff, "# Automatic option dump\n\n");
+
+	/* Dump regular options */
+	for (i = 0; i < OPT_MAX; i++)
+	{
+		/* Require a real option */
+		if (!option_text[i]) continue;
+
+		/* Comment */
+		fprintf(fff, "# Option '%s'\n", option_desc[i]);
+
+		/* Dump the option */
+		if (op_ptr->opt[i])
+		{
+			fprintf(fff, "Y:%s\n\n", option_text[i]);
+		}
+		else
+		{
+			fprintf(fff, "X:%s\n\n", option_text[i]);
+		}
+	}
+
+	/* Dump window flags */
+	for (i = 1; i < 8; i++)
+	{
+		/* Require a real window */
+		if (!angband_term[i]) continue;
+
+		/* Check each flag */
+		for (j = 0; j < 32; j++)
+		{
+			/* Require a real flag */
+			if (!window_flag_desc[j]) continue;
+
+			/* Comment */
+			fprintf(fff, "# Window '%s', Flag '%s'\n",
+				angband_term_name[i], window_flag_desc[j]);
+
+			/* Dump the flag */
+			if (op_ptr->window_flag[i] & (1L << j))
+			{
+				fprintf(fff, "W:%d:%d:1\n\n", i, j);
+			}
+			else
+			{
+				fprintf(fff, "W:%d:%d:0\n\n", i, j);
+			}
+		}
+	}
+
+	/* Close */
+	my_fclose(fff);
+
+	/* Success */
+	return (0);
+}
+
 
 
 /*
@@ -842,8 +927,11 @@ void do_cmd_options(void)
 		prt("(D) Base Delay Factor", 13, 5);
 		prt("(H) Hitpoint Warning", 14, 5);
 
+		prt("(S) Save As Default", 16, 5);
+		prt("(R) Read Default Options", 17, 5);
+
 		/* Prompt */
-		prt("Command: ", 18, 0);
+		prt("Command: ", 20, 0);
 
 		/* Get command */
 		k = inkey();
@@ -908,15 +996,16 @@ void do_cmd_options(void)
 			case 'd':
 			{
 				/* Prompt */
-				prt("Command: Base Delay Factor", 18, 0);
+				prt("Command: Base Delay Factor", 20, 0);
 
 				/* Get a new value */
 				while (1)
 				{
 					int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 					prt(format("Current base delay factor: %d (%d msec)",
-					           op_ptr->delay_factor, msec), 22, 0);
-					prt("Delay Factor (0-9 or ESC to accept): ", 20, 0);
+					           op_ptr->delay_factor, msec), 23, 0);
+					prt("Delay Factor (0-9 or ESC to accept): ", 22, 0);
+
 					k = inkey();
 					if (k == ESCAPE) break;
 					if (isdigit(k)) op_ptr->delay_factor = D2I(k);
@@ -931,18 +1020,86 @@ void do_cmd_options(void)
 			case 'h':
 			{
 				/* Prompt */
-				prt("Command: Hitpoint Warning", 18, 0);
+				prt("Command: Hitpoint Warning", 20, 0);
 
 				/* Get a new value */
 				while (1)
 				{
 					prt(format("Current hitpoint warning: %2d%%",
-					           op_ptr->hitpoint_warn * 10), 22, 0);
-					prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
+					           op_ptr->hitpoint_warn * 10), 23, 0);
+					prt("Hitpoint Warning (0-9 or ESC to accept): ", 22, 0);
+
 					k = inkey();
 					if (k == ESCAPE) break;
 					if (isdigit(k)) op_ptr->hitpoint_warn = D2I(k);
 					else bell("Illegal hitpoint warning!");
+				}
+
+				break;
+			}
+
+			case 'S':
+			case 's':
+			{
+				/* Confirm */
+				if (!get_check("Really make these the default options? ")) break;
+
+				/* Drop priv's */
+				safe_setuid_drop();
+
+				/* Dump the options. */
+				if (option_dump("default.prf"))
+				{
+					/* Failure */
+					msg_print("Failed!");
+				}
+				else
+				{
+					/* Success */
+					msg_print("Done.");
+				}
+
+				/* Grab priv's */
+				safe_setuid_grab();
+
+				break;
+			}
+
+			case 'R':
+			case 'r':
+			{
+				char buf[1024];
+				FILE *fp;
+
+				/* Build the filename */
+				path_build(buf, 1024, ANGBAND_DIR_USER, "default.prf");
+
+				/* Open the file */
+				fp = my_fopen(buf, "r");
+
+				/* No such file */
+				if (!fp)
+				{
+					msg_print("There are no default options to read.");
+					break;
+				}
+
+				/* Close the file */
+				my_fclose(fp);
+
+				/* Confirm */
+				if (!get_check("Really read the default options? ")) break;
+
+				/* Read the options. */
+				if (process_pref_file("default.prf"))
+				{
+					/* Failure */
+					msg_print("Failed!");
+				}
+				else
+				{
+					/* Success */
+					msg_print("Done.");
 				}
 
 				break;
@@ -1208,8 +1365,8 @@ static errr keymap_dump(cptr fname)
 		/* Encode the action */
 		ascii_to_text(buf, act);
 
-		/* Dump the macro */
-		fprintf(fff, "M:%d  %2s  %s\n", mode, key, buf);
+		/* Dump the keymap */
+		fprintf(fff, "A:%s\nC:%d:%s\n", buf, mode, key);
 	}
 
 	/* Start dumping */

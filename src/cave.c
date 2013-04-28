@@ -590,6 +590,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	bool image = p_ptr->image;
 
+#ifdef ALLOW_EASY_FLOOR
+
+	int floor_num = 0;
+
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
@@ -794,8 +799,27 @@ void map_info(int y, int x, byte *ap, char *cp)
 				a = object_attr(o_ptr);
 			}
 
+#ifdef ALLOW_EASY_FLOOR
+
+			/* Use the topmost marked item */
+			if (!easy_floor) break;
+
+			/* Use a special symbol for a stack or 2 or more items */
+			if (++floor_num > 1)
+			{
+				c = '*';
+				a = TERM_L_GREEN;
+
+				/* Done */
+				break;
+			}
+
+#else /* ALLOW_EASY_FLOOR */
+
 			/* Done */
 			break;
+
+#endif /* ALLOW_EASY_FLOOR */
 		}
 	}
 
@@ -1518,7 +1542,7 @@ void do_cmd_view_map(void)
  * which grids have been "memorized" by the player.  This flag is used by
  * the "map_info()" function to determine if a grid should be displayed.
  * This flag is used in a few other places to determine if the player can
- * "know" about a given grid.  This flag must be very fast. 
+ * "know" about a given grid.  This flag must be very fast.
  *
  * The "CAVE_GLOW" flag is saved in the savefile and is used to determine
  * which grids are "permanently illuminated".  This flag is used by the
@@ -1670,7 +1694,7 @@ void do_cmd_view_map(void)
  * two wall grids which form the "entrance" to the room would not be marked
  * as "CAVE_SEEN", since of the three "touching" grids nearer to the player
  * than each wall grid, only the farthest of these grids is itself marked
- * "CAVE_GLOW". 
+ * "CAVE_GLOW".
  *
  *
  * Here are some pictures of the legal "light source" radius values, in
@@ -1681,7 +1705,7 @@ void do_cmd_view_map(void)
  *
  *       Rad=0     Rad=1      Rad=2        Rad=3
  *      No-Lite  Torch,etc   Lantern     Artifacts
- *    
+ *
  *                                          333
  *                             333         43334
  *                  212       32123       3321233
@@ -2910,7 +2934,7 @@ void update_flow(void)
 		tx = flow_x[flow_head];
 
 		/* Forget that entry (with wrap) */
-		if (++flow_head == TEMP_MAX) flow_head = 0;
+		if (++flow_head == FLOW_MAX) flow_head = 0;
 
 		/* Child cost */
 		n = cave_cost[ty][tx] + 1;
@@ -3112,7 +3136,7 @@ void wiz_dark(void)
 {
 	int i, y, x;
 
-	
+
 	/* Forget every grid */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
@@ -3218,7 +3242,7 @@ void town_illuminate(bool daytime)
 
 					/* Illuminate the grid */
 					cave_info[yy][xx] |= (CAVE_GLOW);
-	
+
 					/* Hack -- Memorize grids */
 					if (view_perma_grids)
 					{
@@ -3708,6 +3732,9 @@ void disturb(int stop_search, int unused_flag)
 	{
 		/* Cancel */
 		p_ptr->running = 0;
+
+ 		/* Check for new panel if appropriate */
+ 		if (center_player && run_avoid_center) verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);

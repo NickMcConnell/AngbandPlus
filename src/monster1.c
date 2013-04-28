@@ -158,7 +158,7 @@ static void roff_aux(int r_idx)
 		/* XXX XXX XXX */
 
 		/* Hack -- save memory */
-		COPY(&save_mem, r_ptr, monster_type);
+		COPY(&save_mem, r_ptr, monster_race);
 
 		/* Hack -- Maximal kills */
 		r_ptr->r_tkills = MAX_SHORT;
@@ -741,8 +741,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
 	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX7))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX8))		vp[vn++] = "do something";
+	if (flags6 & (RF6_S_KIN))		vp[vn++] = "summon similar monsters";
 	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))	vp[vn++] = "summon monsters";
 	if (flags6 & (RF6_S_ANT))		vp[vn++] = "summon ants";
@@ -755,6 +754,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_S_DRAGON))		vp[vn++] = "summon a dragon";
 	if (flags6 & (RF6_S_HI_UNDEAD))	vp[vn++] = "summon Greater Undead";
 	if (flags6 & (RF6_S_HI_DRAGON))	vp[vn++] = "summon Ancient Dragons";
+	if (flags6 & (RF6_S_HI_DEMON))		vp[vn++] = "summon Greater Demons";
 	if (flags6 & (RF6_S_WRAITH))		vp[vn++] = "summon Ring Wraiths";
 	if (flags6 & (RF6_S_UNIQUE))		vp[vn++] = "summon Unique Monsters";
 
@@ -1350,7 +1350,7 @@ static void roff_aux(int r_idx)
 	if (cheat_know)
 	{
 		/* Hack -- restore memory */
-		COPY(r_ptr, &save_mem, monster_type);
+		COPY(r_ptr, &save_mem, monster_race);
 	}
 }
 

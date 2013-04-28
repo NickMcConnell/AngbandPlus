@@ -498,6 +498,8 @@ struct object_type
 
 	u16b note;			/* Inscription index */
 
+	byte inscrip;		/* INSCRIP_XXX constant */
+
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
@@ -917,6 +919,8 @@ struct player_type
 	bool wizard;			/* Player is in wizard mode */
 
 	bool cheat[CHEAT_MAX];	/* Cheating options */
+
+	bool handicap[HANDICAP_MAX];	/* Advanced play options */
 
 	/*** Temporary fields ***/
 

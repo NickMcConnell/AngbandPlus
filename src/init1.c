@@ -349,8 +349,8 @@ static cptr r_info_flags6[] =
 	"TRAPS",
 	"FORGET",
 	"XXX6X6",
-	"XXX7X6",
-	"XXX8X6",
+	"S_KIN",
+	"S_HI_DEMON",
 	"S_MONSTER",
 	"S_MONSTERS",
 	"S_ANT",
@@ -371,7 +371,7 @@ static cptr r_info_flags6[] =
 /*
  * Object flags
  */
-static cptr k_info_flags1[] =
+cptr k_info_flags1[] =
 {
 	"STR",
 	"INT",
@@ -410,7 +410,7 @@ static cptr k_info_flags1[] =
 /*
  * Object flags
  */
-static cptr k_info_flags2[] =
+cptr k_info_flags2[] =
 {
 	"SUST_STR",
 	"SUST_INT",
@@ -449,7 +449,7 @@ static cptr k_info_flags2[] =
 /*
  * Object flags
  */
-static cptr k_info_flags3[] =
+cptr k_info_flags3[] =
 {
 	"SLOW_DIGEST",
 	"FEATHER",
