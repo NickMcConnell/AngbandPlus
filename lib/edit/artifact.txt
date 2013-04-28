@@ -175,23 +175,21 @@ P:4:6
 F:HIDE_TYPE | INSTA_ART
 D:The treasure of Tulkas, most fleet and wrathful of the Valar.
 
-
-# The Ring of Power 'Narya'
-
 N:14:of Power 'Narya'
 I:45:44
 W:70:45:2:350000
 C:0:1d1:0:0:0:11
-P:1:10
-1:STR | INT | WIS | DEX | CON | CHR | INVIS
+P:2:10
+1:STR | CON | CHR
 2:SPEED
-F:HIDE_TYPE | FREE_ACT | SEE_INVIS | 
-F:SLOW_DIGEST | REGEN | 
-F:SUST_STR | SUST_DEX | IM_FIRE | 
+F:HIDE_TYPE | FREE_ACT |
+F:SLOW_DIGEST | REGEN |
+F:SUST_CON | IM_FIRE |
 F:INSTA_ART
-D:The Ring of Fire, set with a ruby that glows like flame.  Narya is one 
-D:of the three Rings of Power created by the Elves and hidden by them from 
-D:Sauron.
+D:The Ring of Ruby -- "Take this ring, Master, for your labours will be
+D:heavy; but it will support you in the weariness that you have taken upon
+D:yourself. For this is the Ring of Fire, and with it you may rekindle
+D:hearts in a world that grows chill."
 
 
 # The Ring of Power 'Nenya'
@@ -200,15 +198,14 @@ N:15:of Power 'Nenya'
 I:45:45
 W:80:55:2:425000
 C:0:1d1:0:0:0:12
-P:2:10
-1:STR | INT | WIS | DEX | CON | CHR | INVIS
+P:4:10
+1:INT | WIS | DEX | AWARENESS
 2:SPEED
-F:HIDE_TYPE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | REGEN | 
-F:SUST_INT | SUST_WIS | IM_COLD | 
+F:HIDE_TYPE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
+F:SUST_INT | SUST_WIS | IM_COLD 
 F:INSTA_ART
-D:The Ring of Adamant, with a pure white stone as centerpiece.  Nenya is one 
-D:of the three Rings of Power created by the Elves and hidden by them from 
+D:The Ring of Adamant, with a pure white stone as centerpiece. Nenya is chief
+D:among the three Rings of Power created by the Elves and hidden by them from
 D:Sauron.
 
 
@@ -219,11 +216,10 @@ I:45:46
 W:90:65:2:500000
 C:0:1d1:0:0:0:13
 P:3:10
-1:STR | INT | WIS | DEX | CON | CHR | INVIS
+1:STR | INT | WIS | DEX | CON | CHR | AWARENESS
 2:SPEED
 F:HIDE_TYPE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | SLOW_DIGEST | REGEN | 
-F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC | 
+F:REGEN | SUST_STR | SUST_DEX | SUST_CHR | IM_ELEC | 
 F:INSTA_ART
 D:The Ring of Sapphire, with clear blue gems that shine like stars, 
 D:glittering untouchable despite all that Morgoth ever wrought.  Vilya is 
@@ -752,8 +748,8 @@ N:72:of Tuor
 I:35:4
 W:40:30:5:45000
 C:4:0d0:0:0:15:0
-P:4
-1:STEALTH
+P:3
+1:STEALTH | INVIS
 F:FREE_ACT | IM_ACID | SEE_INVIS
 D:From the ruin of Gondolin did Tuor escape, through secret ways and 
 D:travail, mantled by sea-commanding Ulmo's kingly gift from a multitude 
@@ -801,7 +797,7 @@ N:79:'Paurlhach'
 I:31:2
 W:10:11:25:13000
 C:2:1d1:0:0:12:53
-F:RES_FIRE
+F:RES_FIRE | BRAND_FIRE
 D:A set of bright metal gauntlets, known as the Fist of Leaping Flame.  It 
 D:guards you from your enemies; it can throw fire at the same.
 
@@ -812,7 +808,7 @@ N:80:'Paurnimmen'
 I:31:2
 W:10:11:25:13000
 C:2:1d1:0:0:12:54
-F:RES_COLD
+F:RES_COLD | BRAND_COLD
 D:A set of bluish steel guantlets glittering with intense cold.  It hurls 
 D:frost bolts at a word; rightly is it called Icefist.
 
@@ -823,7 +819,7 @@ N:81:'Pauraegen'
 I:31:2
 W:10:11:25:12000
 C:2:1d1:0:0:12:55
-F:RES_ELEC
+F:RES_ELEC | BRAND_ELEC
 D:A set of handgear, known as 'Lighting Blow', with sparks that dance 
 D:upon its knuckleguards and leap upon your foe.
 
@@ -834,7 +830,7 @@ N:82:'Paurnen'
 I:31:2
 W:10:11:25:12000
 C:2:1d1:0:0:12:56
-F:RES_ACID
+F:RES_ACID | BRAND_ACID
 D:Named the Fist of Water, this black set of steaming gauntlets launches 
 D:noxious bolts of acid.
 

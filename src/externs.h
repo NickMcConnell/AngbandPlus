@@ -310,7 +310,7 @@ extern bool test_hit_combat(int chance, int ac, int visible);
 extern bool monster_evade_or_resist(object_type *o_ptr,
 	monster_type *m_ptr, byte blow_type);
 extern void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
-	bool is_trap);
+	bool is_trap, int skill_type);
 extern int get_combat_noise(int min, int max);
 extern void apply_deadliness(long *die_average, int deadliness);
 extern bool py_attack(int y, int x);

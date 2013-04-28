@@ -2412,6 +2412,8 @@ static void display_player_flag_info(void)
 
 
 
+
+
 /*
  * Display internal stats, equipment and innate modifiers to them, and
  * the resulting adjusted and current stats.

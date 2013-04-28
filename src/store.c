@@ -1923,6 +1923,15 @@ static void store_prt_gold(void)
 	prt(out_val, Term->rows - 5, 68);
 }
 
+static void store_prt_invest(void)
+{
+	char out_val[64];
+
+	prt("Total Investment: ", Term->rows - 1, 50);
+
+	sprintf(out_val, "%9ld", (long)st_ptr->total_buy);
+	prt(out_val, Term->rows - 1, 68);
+}
 
 
 /*
@@ -3690,6 +3699,9 @@ static void store_process_command(bool inn_cmd)
 			{
 				char ch;
 
+				/* Display investment */
+				store_prt_invest();
+
 				/* Prompt */
 				prt("Command (I to invest money, ESC to return)?", 0, 0);
 
@@ -4130,7 +4142,7 @@ void do_cmd_store(void)
 			{
 				prt(" g) Purchase an item", Term->rows - 3, 31);
 				prt(" d) Sell an item", Term->rows - 2, 31);
-				prt(" *) Use special commands", Term->rows - 1, 31);
+				prt(" *) Use special commands", Term->rows - 1, 0);
 			}
 			else
 			{
@@ -4143,6 +4155,7 @@ void do_cmd_store(void)
 		else
 		{
 			/* We have an unresearched quest, and have the gold to get information */
+			/* Magic Number - JM */
 			if ((p_ptr->cur_quest) &&  !(q_info[p_ptr->cur_quest].flags & (0x01)) &&
 				(p_ptr->au >= (1L + p_ptr->power + p_ptr->max_depth) * 20L))
 			{

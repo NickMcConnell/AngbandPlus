@@ -3884,8 +3884,14 @@ void calc_mana(void)
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
 	{
+		int old_msp = p_ptr->msp;
+
 		/* Save new limit */
 		p_ptr->msp = msp;
+
+		/* Scale old mana correctly  - JM */
+		if (!old_msp) p_ptr->csp = p_ptr->msp;
+		else p_ptr->csp = div_round(p_ptr->csp * p_ptr->msp, old_msp);
 
 		/* Enforce new limit */
 		if (p_ptr->csp >= msp)
@@ -3983,12 +3989,18 @@ void calc_hitpoints(void)
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
 	{
+		int old_mhp = p_ptr->mhp;
+
 		/* Add in extra hit points from heroism and such  XXX */
 		if (p_ptr->extrahp)
 		{
 			p_ptr->chp += p_ptr->extrahp;
 			p_ptr->extrahp = 0;
 		}
+
+		/* Scale hitpoints correctly */
+		if (!old_mhp) p_ptr->chp = p_ptr->mhp;
+		else p_ptr->chp = div_round(p_ptr->chp * mhp, old_mhp);
 
 		/* Save new limit */
 		p_ptr->mhp = mhp;
@@ -4314,7 +4326,7 @@ static int add_special_melee_skill(void)
 		 * with light ones.
 		 */
 		if (get_skill(S_BURGLARY, 0, 100) >= LEV_REQ_BURGLE)
-		{
+			{
 			/* Skilled and powerful burglars can handle heavier weapons */
 			int level = MIN(p_ptr->power, get_skill(S_BURGLARY, 50, 150));
 
@@ -4325,7 +4337,7 @@ static int add_special_melee_skill(void)
 
 				/* Only skilled burglars get big bonuses */
 				if (add_skill > get_skill(S_BURGLARY, 5, 35))
-				    add_skill = get_skill(S_BURGLARY, 5, 35);
+					add_skill = get_skill(S_BURGLARY, 5, 35);
 			}
 
 			/* Otherwise, increase any penalty */
@@ -4365,6 +4377,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 	int to_a = 0;
 	int to_h = 0;
 	int to_d = 0;
+	int skill;
 
 	int weapon_skill;
 
@@ -4386,15 +4399,21 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 	/* Get non-magical combat skill */
 	weapon_skill = sweapon(inventory[INVEN_WIELD].tval);
 
-	/* Special immunities for high-level martial arts experts */
-	if ((weapon_skill == S_KARATE) || (weapon_skill == S_WRESTLING))
-	{
-		int skill = get_skill(weapon_skill, 0, 100);
+	/*
+	 * Special immunities for high-level martial arts experts
+	 * No longer requires character to be fighting with karate or wrestling -JM-
+	 */
 
-		if (skill >= 86) *f3 |= (TR3_FREE_ACT);
-		if (skill >= 92) *f2 |= (TR2_RES_SOUND);
-		if (skill >= 98) *f2 |= (TR2_RES_CONFU);
-	}
+	/* Karate bonuses */
+	skill = get_skill(S_KARATE, 0, 100);
+	if (skill >= LEV_REQ_MARTIAL_FA) *f3 |= (TR3_FREE_ACT);
+	if (skill >= LEV_REQ_MARTIAL_RESIST) *f2 |= (TR2_RES_CONFU);
+
+	/* Wrestling bonuses */
+	skill = get_skill(S_WRESTLING, 0, 100);
+	if (skill >= LEV_REQ_MARTIAL_FA) *f3 |= (TR3_FREE_ACT);
+	if (skill >= LEV_REQ_MARTIAL_RESIST) *f2 |= (TR2_RES_SOUND);
+
 
 	/* Wizardly protection */
 	if (p_ptr->wiz_prot)
@@ -4717,6 +4736,20 @@ int player_flags_pval(u32b flag_pval, bool shape)
 	/* Handle racial modifiers to infravision */
 	if (flag_pval == TR_PVAL_INFRA) pval += rp_ptr->infra;
 
+	/* Increases in perception increase infravision */
+	if (flag_pval == TR_PVAL_INFRA)
+	{
+		int skill = get_skill(S_PERCEPTION, 0, 100);
+
+		if(skill >= LEV_REQ_PERCEPTION_INFRA1) pval++;
+		if(skill >= LEV_REQ_PERCEPTION_INFRA2) pval++;
+		if(skill >= LEV_REQ_PERCEPTION_INFRA3) pval++;
+		if(skill >= LEV_REQ_PERCEPTION_INFRA4) pval++;
+
+	}
+	
+
+
 	/* Giants are great at tunneling */
 	if (flag_pval == TR_PVAL_TUNNEL)
 	{
@@ -4778,20 +4811,25 @@ int player_flags_pval(u32b flag_pval, bool shape)
 	if (flag_pval == TR_PVAL_STR)
 	{
 		int skill = get_skill(S_WRESTLING, 0, 100);
-		if (skill >= LEV_REQ_WRESTLE_STR_BONUS1) pval++;
-		if (skill >= LEV_REQ_WRESTLE_STR_BONUS2) pval++;
-
-		skill = get_skill(S_KARATE, 0, 100);
-		if (skill >= LEV_REQ_KARATE_STR_BONUS1) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT1) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT2) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT3) pval++;
 	}
+
 	if (flag_pval == TR_PVAL_DEX)
 	{
 		int skill = get_skill(S_KARATE, 0, 100);
-		if (skill >= LEV_REQ_KARATE_DEX_BONUS1) pval++;
-		if (skill >= LEV_REQ_KARATE_DEX_BONUS2) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT1) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT2) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT3) pval++;
+	}
 
-		skill = get_skill(S_WRESTLING, 0, 100);
-		if (skill >= LEV_REQ_WRESTLE_DEX_BONUS1) pval++;
+	/* Karate gives some speed */
+	if (flag_pval == TR_PVAL_SPEED)
+	{
+		int skill = get_skill(S_KARATE, 0, 100);
+		if(skill >= LEV_REQ_KARATE_SPEED1) pval++;
+		if(skill >= LEV_REQ_KARATE_SPEED2) pval++;
 	}
 
 	/* Handle wrestling bonus to digging */
@@ -5127,9 +5165,26 @@ static void analyze_weapons(void)
 	/* Using bare-handed combat */
 	else
 	{
-		/* Two blows in all circumstances */
+		int skill;
+
+		/* Martial arts gains blows at fixed skill levels -JM */
 		p_ptr->num_blow = 2;
 
+		if (p_ptr->barehand == S_KARATE)
+		{
+			skill = get_skill(S_KARATE, 0, 100);
+			if (skill > LEV_REQ_KARATE_BLOW1) p_ptr->num_blow++;
+			if (skill > LEV_REQ_KARATE_BLOW2) p_ptr->num_blow++;
+			if (skill > LEV_REQ_KARATE_BLOW3) p_ptr->num_blow++;
+			if (skill > LEV_REQ_KARATE_BLOW4) p_ptr->num_blow++;
+		}
+		else if (p_ptr->barehand == S_WRESTLING)
+		{
+			skill = get_skill(S_WRESTLING, 0, 100);
+			if (skill > LEV_REQ_WREST_BLOW1) p_ptr->num_blow++;
+			if (skill > LEV_REQ_WREST_BLOW2) p_ptr->num_blow++;
+		}
+		
 		/* Note that we are bare-handed */
 		p_ptr->barehanded = TRUE;
 	}
@@ -5284,6 +5339,8 @@ static void calc_bonuses(void)
 	old_telepathy = p_ptr->telepathy;
 	old_see_inv = p_ptr->see_inv;
 	old_invisibility = p_ptr->invisible;
+
+	/* Save the old maximum hit points and mana points */
 
 	/* Save the old armor class */
 	old_dis_ac = p_ptr->dis_ac;
@@ -5471,7 +5528,7 @@ static void calc_bonuses(void)
 	bow_skill = sbow(inventory[INVEN_BOW].tval);
 
 
-	/* Melee Combat (ranges from ~12 to ~140 (~200 with martial arts)) */
+	/* Melee Combat (ranges from ~12 to ~140 (~185 with martial arts)) */
 	p_ptr->skill_thn  = 10 + rp_ptr->r_thn;
 	p_ptr->skill_thn += add_special_melee_skill();
 
@@ -5481,13 +5538,15 @@ static void calc_bonuses(void)
 	/* Hack -- special bonus for high-level martial arts experts */
 	if ((weapon_skill == S_KARATE) || (weapon_skill == S_WRESTLING))
 	{
-		int ma_bonus = get_skill(weapon_skill, -60, 20);
+		int ma_bonus = get_skill(weapon_skill, -45, 15);
 		if (ma_bonus > 0)
 		{
-			/* Bonus is quadratic -- goes up to 60 */
-			p_ptr->skill_thn += ma_bonus * (10 + ma_bonus) / 10;
+			/* Bonus is quadratic -- goes up to 45 */
+			p_ptr->skill_thn += ma_bonus * (15 + ma_bonus) / 10;
 		}
 	}
+
+	/* Hack -- 
 
 
 	/* Ranged Combat (ranges from ~11 (with skill of 1) to ~140) */
@@ -5699,8 +5758,19 @@ static void calc_bonuses(void)
 
 	/* Apply stat modifiers to Skill, Deadliness, and armor class */
 	hit_bonus       += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->to_d     += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+
+	/* Deadliness for Karate is based on dexterity */
+	if (p_ptr->barehand == S_KARATE)
+	{
+		p_ptr->to_d     += ((int)(adj_str_td[p_ptr->stat_ind[A_DEX]]) - 128);
+		p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_DEX]]) - 128);
+	}
+	else
+	{
+		p_ptr->to_d     += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+		p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+	}
+		
 	p_ptr->to_a     += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 
@@ -5839,7 +5909,7 @@ static void calc_bonuses(void)
 		/* Skill bonuses apply to both weapons and martial arts */
 		hit_bonus += o_ptr->to_h;
 
-		/* Deadliness bonuses apply to weapons only */
+		/* Deadliness bonuses apply to weapons and martial arts */
 		p_ptr->to_d += o_ptr->to_d;
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}

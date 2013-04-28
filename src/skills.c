@@ -28,13 +28,14 @@
  */
 #define WARRIOR_SPELLCASTING_LIMIT    0  /* Warriors can't cast spells */
 
-#define NON_WARRIOR_LIMIT            80  /* Only Warriors are great in melee */
-#define SPELLCASTER_WEAPON_LIMIT     50  /* Spellcasters aren't good in melee */
-#define PIOUS_EDGED_WEAPON_LIMIT     30  /* Pious chars don't like swords */
-#define PRIEST_BLUNT_WEAPON_LIMIT    75  /* Priests are OK with blunt weapons */
+#define NON_WARRIOR_LIMIT            100  /* Only Warriors are great in melee */
+#define SPELLCASTER_WEAPON_LIMIT     100  /* Spellcasters aren't good in melee */
+#define PIOUS_EDGED_WEAPON_LIMIT     100  /* Pious chars don't like swords */
+#define PRIEST_BLUNT_WEAPON_LIMIT    100  /* Priests are OK with blunt weapons */
 
-#define OATH_OF_IRON_REQ             45  /* Skill required to take the Oath of Iron */
+#define OATH_OF_IRON_REQ             25  /* Skill required to take the Oath of Iron */
 #define NON_GUILD_LIMIT              20  /* Non-Guild Burglars struggle above this */
+#define MAGIC_OATH_REQ               20  /* Skill required to take various magic oathes */
 
 
 static bool cannot_learn_magic;
@@ -81,7 +82,7 @@ s16b get_skill(int skill, int min, int max)
 	/* Oath of Iron weakens magical device skill greatly */
 	if ((p_ptr->oath & (OATH_OF_IRON)) && (skill == S_DEVICE))
 	{
-		tmp = (tmp+1) / 2;
+		tmp = (tmp+1) * 2 / 3;
 	}
 
 	/* Not joining the Burglar's Guild weakens Burglary skill */
@@ -159,6 +160,40 @@ s16b get_skill_race(int skill, int min, int max)
 
 		/* The greater the cost to learn, the less effective the skill */
 		range = ((range * cost_ave) + (cost / 2)) / (cost);
+
+		/* Spellcasters are bad at melee */
+		if (p_ptr->realm && (skill == S_SWORD || skill == S_POLEARM
+			|| skill == S_HAFTED || skill == S_WRESTLING || skill == S_KARATE))
+		{
+			/* Mages, Necromancers, and Druids */
+			if (p_ptr->oath & (OATH_OF_SORCERY | YAVANNAS_FELLOWSHIP
+				| BLACK_MYSTERY)) 
+			{
+				range = (range + 1) * 2 / 3;
+			}
+
+			/* Priests */
+			else if (p_ptr->oath & COVENANT_OF_FAITH) 
+			{
+				if (skill == S_SWORD || skill == S_POLEARM)
+					range = (range + 1) / 2;
+				else
+					range = (range + 3) * 5 / 6;
+			}
+			
+			/* Paladins */
+			else if (p_ptr->realm == PRIEST) 
+			{
+				if (skill == S_SWORD || skill == S_POLEARM)
+					range = (range + 1) * 2 / 3;
+			}
+
+			/* Rogues, Assassins, and Rangers */
+			else
+				range = (range + 3) * 5 /6;
+		}
+
+
 
 		/* Adjust maximum */
 		max = min + range;
@@ -747,7 +782,7 @@ s32b adv_cost(int skill, bool add_practice_cost)
 		/* Apply minimum cost rules */
 		if (p_ptr->power >= 10)
 		{
-			int tmp_pow = MAX(2, (p_ptr->power - 8) * 8 / 10);
+			int tmp_pow = MAX(1, p_ptr->power - 10);
 
 			/* Minimum cost depends on character power */
 			s32b min_cost = player_exp[tmp_pow] - player_exp[tmp_pow - 1];
@@ -802,7 +837,7 @@ static bool can_take_oath(byte oath)
 			    (p_ptr->pskills[S_POLEARM].max < OATH_OF_IRON_REQ) &&
 			    (p_ptr->pskills[S_CROSSBOW].max < OATH_OF_IRON_REQ) &&
 			    (p_ptr->pskills[S_BOW].max < OATH_OF_IRON_REQ) &&
-			    (p_ptr->pskills[S_SLING].max < OATH_OF_IRON_REQ + 10) &&
+			    (p_ptr->pskills[S_SLING].max < OATH_OF_IRON_REQ) &&
 			    (p_ptr->pskills[S_THROWING].max < OATH_OF_IRON_REQ) &&
 			    (p_ptr->pskills[S_WRESTLING].max < OATH_OF_IRON_REQ) &&
 			    (p_ptr->pskills[S_KARATE].max < OATH_OF_IRON_REQ))
@@ -825,13 +860,16 @@ static bool can_take_oath(byte oath)
 				return (FALSE);
 
 			/* Must already know the realm of magic */
-			if ((oath == OATH_OF_SORCERY) && (p_ptr->realm != MAGE))
+			/* And meet the minimum required realm skill -JM */
+			if ((oath == OATH_OF_SORCERY) && 
+				((p_ptr->realm != MAGE) || (get_skill(S_WIZARDRY,0,100) < MAGIC_OATH_REQ)))
 				return (FALSE);
-			if ((oath == YAVANNAS_FELLOWSHIP) && (p_ptr->realm != DRUID))
+			if ((oath == YAVANNAS_FELLOWSHIP) &&
+				((p_ptr->realm != DRUID) || (get_skill(S_NATURE,0,100) < MAGIC_OATH_REQ)))
 				return (FALSE);
-			if ((oath == BLACK_MYSTERY) && (p_ptr->realm != NECRO))
+			if ((oath == BLACK_MYSTERY) &&
+				((p_ptr->realm != NECRO)|| (get_skill(S_DOMINION,0,100) < MAGIC_OATH_REQ)))
 				return (FALSE);
-
 			break;
 		}
 
@@ -839,6 +877,9 @@ static bool can_take_oath(byte oath)
 		{
 			/* Must already be pious */
 			if (p_ptr->realm != PRIEST) return (FALSE);
+
+			/* And meet the minimum required Piety -JM */
+			if (get_skill(S_PIETY,0,100) < MAGIC_OATH_REQ) return (FALSE);
 
 			/* Must not be too focused on melee weapons */
 			if (p_ptr->pskills[S_SWORD].max > PIOUS_EDGED_WEAPON_LIMIT)
@@ -1679,23 +1720,37 @@ static int adv_skill(int skill, bool pay_exp)
 		/* Wrestling */
 		if (skill == S_WRESTLING)
 		{
-			if (p_ptr->pskills[skill].max == LEV_REQ_WRESTLE_STR_BONUS1)
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT1)
 				skill_comment(TERM_L_BLUE, "Your strength increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_WRESTLE_STR_BONUS2)
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT2)
 				skill_comment(TERM_L_BLUE, "Your strength increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_WRESTLE_DEX_BONUS1)
-				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT3)
+				skill_comment(TERM_L_BLUE, "Your strength increases.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_FA)
+				skill_comment(TERM_L_BLUE, "You feel protected from slowing and paralysis.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_RESIST)
+				skill_comment(TERM_L_BLUE, "Your are no longer troubled by sound attacks.");
+			
 		}
 
 		/* Karate */
 		if (skill == S_KARATE)
-		{
-			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_STR_BONUS1)
-				skill_comment(TERM_L_BLUE, "Your strength increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_DEX_BONUS1)
+		{ 
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT1)
 				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_DEX_BONUS2)
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT2)
 				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT3)
+				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_FA)
+				skill_comment(TERM_L_BLUE, "You feel protected from slowing and paralysis.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_RESIST)
+				skill_comment(TERM_L_BLUE, "Your are no longer troubled by confusion attacks.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_SPEED1)
+				skill_comment(TERM_L_BLUE, "You accelerate.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_SPEED2)
+				skill_comment(TERM_L_BLUE, "You accelerate.");
+		
 		}
 
 		/* Piety */
@@ -1836,9 +1891,6 @@ static bool special_skill_command(int skill, bool *must_accept)
 		{
 			/* Normal skill requirement to take this Oath */
 			int req_skill = OATH_OF_IRON_REQ;
-
-			/* Slings have a higher requirement */
-			if (skill == S_SLING) req_skill += 10;
 
 			/* Can take the Oath of Iron */
 			if ((p_ptr->pskills[skill].cur >= req_skill) &&
@@ -2203,7 +2255,6 @@ static void prt_skill_select(int skill)
 		case S_THROWING:
 		{
 			int req_skill = OATH_OF_IRON_REQ;
-			if (skill == S_SLING) req_skill += 10;
 
 			/* Can take the Oath of Iron */
 			if ((lev >= req_skill) && (can_take_oath(OATH_OF_IRON)))

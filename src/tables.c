@@ -3417,10 +3417,10 @@ talent_type talent_info[NUM_TALENTS] =
 	{NULL,                          '?', NUM_SKILLS,      0,   0},
 
 	/* Burglary */
+	{"Darkness",                    '-', S_BURGLARY,     20,  10},
 	{"Detect & nab objects",        'o', S_BURGLARY,     40,   0},
 	{"Poison ammo",                 'p', S_BURGLARY,     55,   0},
 	{"Hit and run",                 'q', S_BURGLARY,     70,  10},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
 
 	/* Utility skills */
 	{"Predict weather",             'r', S_PERCEPTION,    0, WEATHER_LENGTH},

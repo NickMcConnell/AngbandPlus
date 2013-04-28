@@ -4346,7 +4346,7 @@ bool recharge(int power, bool essence)
 				o_ptr->pval = 0;
 		}
 
-		/* Staffs of doomspells have a mind of their own */
+		/* Staffs of Doomspells have a mind of their own. */
 		else if ((o_ptr->tval == TV_STAFF) &&
 		    (o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(6)))
 		{

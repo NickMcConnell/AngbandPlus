@@ -502,7 +502,7 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				{
 					/* Get martial arts and melee weapons skills */
 					int unarmed_skill =
-						get_skill(p_ptr->barehanded, 0, 100);
+						MAX(get_skill(S_WRESTLING, 0, 100), get_skill(S_KARATE, 0, 100));
 					int weapon_skill =
 						get_skill(sweapon(i_ptr->tval), 0, 100);
 
@@ -720,7 +720,8 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 			r_ptr = &r_info[i];
 
 			/* Check for appropriate level */
-			if (r_ptr->level < (m_level - lev_diff) ||
+			/* Never check below the attempted level */
+			if (r_ptr->level < (m_level) ||
 			    r_ptr->level > (m_level + lev_diff)) continue;
 
 			/* No monsters that multiply */
@@ -751,7 +752,8 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 				}
 			}
 
-			if(!okay) continue;
+			if (!okay) continue;
+
 
 			/* Monster can't move - check ranged attacks */
 			if (r_ptr->flags1 & (RF1_NEVER_MOVE))
@@ -819,12 +821,15 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 	/* How many monsters? */
 	num = rand_range(power, power * 2) + div_round(p_ptr->fame, 25);
 
+	/* If you get extra-deep monsters, make fewer of them -JM */
+	num -= lev_diff * 3 / 2;
+
 	/* You must quest for more monsters if they come in groups */
 	if      (r_ptr->flags1 & (RF1_FRIENDS)) num = 2 * num;
 	else if (r_ptr->flags1 & (RF1_FRIEND))  num = 4 * num / 3;
 
 	/* Paranoia */
-	if (num <= 0) num =  1;
+	if (num <= 5) num =  5;
 	if (num > 70) num = 70;
 
 
@@ -1195,7 +1200,8 @@ void inn_purchase(int item)
 	m_level = MAX(2 * p_ptr->power / 3, qlev);
 
 	/* Adjust approximate level of monster according to depth */
-	m_level = 1 + m_level + qlev / 30;
+	/* Add a depth of two for each additional level of difficulty -JM */
+	m_level = 1 + m_level + qlev / 30 + item * 2;
 
 
 	/* We've run out of OOD monsters.  XXX */

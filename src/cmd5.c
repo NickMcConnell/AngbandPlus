@@ -5740,14 +5740,21 @@ cptr do_spell(int mode, int spell)
 	/* A spell was cast for the first time */
 	if ((okay) && !(p_ptr->spell_flags[spell] & (PY_SPELL_WORKED)))
 	{
-		/* Gain experience (assign to spell level) */
-		gain_exp(MAX(1, s_ptr->sexp * s_ptr->slevel), S_MAGIC);
+		/* No longer gain experience (assign to spell level) - JM */
+		/* gain_exp(MAX(1, s_ptr->sexp * s_ptr->slevel), S_MAGIC); */
 
 		/* The spell worked */
 		p_ptr->spell_flags[spell] |= (PY_SPELL_WORKED);
 
 		/* Redraw object recall (later!) */
 		p_ptr->window |= (PW_OBJECT);
+	}
+
+
+	/* Shapechange *before* mana is deducted -JM */
+	if (do_shapechange)
+	{
+		shapechange(do_shapechange);
 	}
 
 	/* Sufficient mana */
@@ -5793,11 +5800,6 @@ cptr do_spell(int mode, int spell)
 		}
 	}
 
-	/* Shapechange after mana is deducted */
-	if (do_shapechange)
-	{
-		shapechange(do_shapechange);
-	}
 
 	/* Update spells */
 	p_ptr->update |= (PU_SPELLS);

@@ -3732,7 +3732,12 @@ void apply_random_qualities(object_type *o_ptr)
 	/* Make ego-item light sources more interesting */
 	if ((xtra & (XTRA_LIGHT_QUALITY)) && (one_in_(2)))
 	{
-		int choice = randint(7);
+		int choice;
+		if((o_ptr->ego_item_index == EGO_BRIGHTNESS) ||
+		   (o_ptr->ego_item_index == EGO_SHADOWS))
+		   choice = randint(6) + 1;
+		else
+			choice = randint(7);
 
 		/* Larger light radius */
 		if ((choice == 1) && (o_ptr->ego_item_index != EGO_BRIGHTNESS))
@@ -3745,25 +3750,32 @@ void apply_random_qualities(object_type *o_ptr)
 		}
 
 		/* Requires no fuel */
-		if (choice == 2) f3 |= (TR3_NOFUEL);
+		else if (choice == 2) f3 |= (TR3_NOFUEL);
 
 		/* Grants see invisible */
-		if (choice == 3) f3 |= (TR3_SEE_INVIS);
+		else if (choice == 3) f3 |= (TR3_SEE_INVIS);
 
 		/* Grants resist blindness */
-		if (choice == 4) f2 |= (TR2_RES_BLIND);
+		else if (choice == 4) f2 |= (TR2_RES_BLIND);
 
 		/* Grants resist light */
-		if (choice == 5) f2 |= (TR2_RES_LITE);
+		else if (choice == 5) f2 |= (TR2_RES_LITE);
 
 		/* Grants resist dark */
-		if (choice == 6) f2 |= (TR2_RES_DARK);
+		else if (choice == 6) f2 |= (TR2_RES_DARK);
 
 		/* Activates to light up a room */
-		if ((choice == 7) && (!o_ptr->activate))
+		else if ((choice == 7) && (!o_ptr->activate))
 		{
 			o_ptr->activate = ACTIV_RANDOM_LIGHT_AREA;
 			o_ptr->b_cost += 1500;
+
+			/* Lights of Shadows activate for darkness */
+			if (o_ptr->ego_item_index == EGO_SHADOWS)
+			{
+				o_ptr->activate = ACTIV_RANDOM_DARK_AREA;
+			}
+
 		}
 	}
 
@@ -5874,7 +5886,7 @@ void steal_object(object_type *o_ptr)
 		int slot;
 
 		/* Describe the object */
-		/* Do this before you move to inventory to retain quantity.
+		/* Do this before you move to slot to retain quantity.
 		 * This might do something funny with a renaming item,
 		 * like a blanket of elemental destruction, but that's
 		 * just something that I'll have to live with. -JM
@@ -6285,9 +6297,9 @@ int reorder_pack(int slot, int store_num, bool verbose)
 			if (o_ptr->tval > j_ptr->tval) break;
 			if (o_ptr->tval < j_ptr->tval) continue;
 
-			/* Non-aware objects go below aware ones, except in stores */
-			if (object_aware_p(o_ptr) && !object_aware_p(j_ptr) && !(st_ptr)) break;
-			if (!object_aware_p(o_ptr) && object_aware_p(j_ptr) && !(st_ptr)) continue;
+			/* Non-aware objects go below aware ones */
+			if (object_aware_p(o_ptr) && !object_aware_p(j_ptr)) break;
+			if (!object_aware_p(o_ptr) && object_aware_p(j_ptr)) continue;
 
 			/* New non-aware objects go below old, except in stores */
 			if (!object_aware_p(o_ptr) && !object_aware_p(j_ptr) && !(st_ptr)) continue;

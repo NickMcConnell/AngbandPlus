@@ -1039,7 +1039,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		skill = 5 + p_ptr->skill_dis;
 
 		/* Penalize some conditions */
-		if (p_ptr->blind    || no_light())   skill /= 10;
+		if (p_ptr->blind    || (no_light() && !(p_ptr->oath & (BURGLARS_GUILD))))   skill /= 10;
 		if (p_ptr->confused || p_ptr->image) skill /= 10;
 		if (p_ptr->berserk)                  skill /= 2;
 
@@ -1142,7 +1142,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	skill = p_ptr->skill_dis;
 
 	/* Penalize some conditions */
-	if (p_ptr->blind    || no_light())   skill /= 10;
+	if (p_ptr->blind    || (no_light() && !(p_ptr->oath & (BURGLARS_GUILD))))   skill /= 10;
 	if (p_ptr->confused || p_ptr->image) skill /= 10;
 	if (p_ptr->berserk)                  skill /= 2;
 
@@ -1385,7 +1385,7 @@ static bool do_cmd_open_aux(int y, int x)
 		skill = 5 + p_ptr->skill_dis;
 
 		/* Penalize some conditions */
-		if (p_ptr->blind    || no_light())   skill /= 10;
+		if (p_ptr->blind    || (no_light() && !(p_ptr->oath & (BURGLARS_GUILD))))   skill /= 10;
 		if (p_ptr->confused || p_ptr->image) skill /= 10;
 
 		/* Extract the lock power  (change the coefficient as needed) XXX */
@@ -2383,7 +2383,7 @@ static bool do_cmd_disarm_trap(int y, int x)
 	skill = p_ptr->skill_dis;
 
 	/* Penalize some conditions */
-	if (p_ptr->blind    || no_light())   skill /= 10;
+	if (p_ptr->blind    || (no_light() && !(p_ptr->oath & (BURGLARS_GUILD))))   skill /= 10;
 	if (p_ptr->confused || p_ptr->image) skill /= 10;
 	if (p_ptr->berserk)                  skill /=  2;
 

@@ -502,6 +502,8 @@ static cptr do_talent(int talent, int mode)
 			break;
 		}
 
+
+
 		case TALENT_DET_MAGIC:
 		{
 			if (info) return ("");
@@ -710,6 +712,28 @@ static cptr do_talent(int talent, int mode)
 			}
 			break;
 		}
+
+
+		case TALENT_DARKNESS:
+		{
+			if (info) return ("");
+			if (desc) return ("Extinguish nearby lights.");
+			if (check)
+			{
+				/* Require the Burglar's Oath */
+				if (!(p_ptr->oath & (BURGLARS_GUILD))) return ("N");
+
+				/* Must not be confused */
+				else if ((p_ptr->confused) || (p_ptr->image)) return ("B");
+			}
+			if (use)
+			{
+				unlite_area(0, 3);
+			}
+
+			break;
+		}
+
 
 		case TALENT_D_OR_NAB_OBJECT:
 		{

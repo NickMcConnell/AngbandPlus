@@ -409,6 +409,8 @@ void do_cmd_wield(void)
 	bool hidden_curse = FALSE;
 
 
+
+
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
 
@@ -697,7 +699,7 @@ void do_cmd_wield(void)
 	/* Hack -- Removing two weapons at a time requires special-case code */
 	if (remove_two_weapons)
 	{
-		/* Take off both existing weapons, removing arm slot first - JM */
+		/* Take off both existing weapons; must remove arm slot first */
 		(void)inven_takeoff(INVEN_ARM, 255);
 		(void)inven_takeoff(INVEN_WIELD, 255);
 	}

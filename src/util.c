@@ -2664,8 +2664,8 @@ static errr switch_display(bool display, bool clear_screen)
  * We can handle nested remember-restore cycles up to a depth of 8.
  */
 static u16b old_display_flags[8];
-static int display_old_cx[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-static int display_old_cy[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static int display_old_cx[32] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static int display_old_cy[32] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 static int display_memory_level = 0;
 
 

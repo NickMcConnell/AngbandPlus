@@ -2655,7 +2655,8 @@ bool set_self_knowledge(int v, cptr msg)
 
 /*
  * Shapechange code. Most of the work is done by calc_bonuses().
- * We just handle the messages and adjust current mana.
+ *
+ * Mana now exclusively dealt with in calc_mana - JM
  */
 void shapechange(s16b shape)
 {
@@ -2687,10 +2688,6 @@ void shapechange(s16b shape)
 		/* Messages */
 		msg_format("You assume the form of a %s.", shapedesc);
 		msg_print("Your equipment merges into your body.");
-
-		/* Hack -- apply mana penalty to current spellpoints too */
-		p_ptr->csp *= 2;
-		p_ptr->csp /= 3;
 	}
 
 	/* Return to normal form */
@@ -2698,13 +2695,6 @@ void shapechange(s16b shape)
 	{
 		/* Message */
 		msg_print("You return to your normal form.");
-
-		/* Hack - Restore current mana as well */
-		if (p_ptr->csp > 0)
-		{
-			p_ptr->csp *= 3;
-			p_ptr->csp /= 2;
-		}
 	}
 
 	/* Update stuff */
@@ -3065,6 +3055,8 @@ static int danger_color(int base, int hurt)
  * Hack -- this function allows the user to save (or quit) the game
  * when he dies, since the "You die." message is shown before setting
  * the player to "dead".
+ *
+ * Note: this function can heal the player with a negative argument -JM
  *
  * Return TRUE if the character dies or is leaving.
  */

@@ -1576,7 +1576,7 @@ static void trap_combat(int mode, int y, int x, object_type *o_ptr,
 		tmp = damroll(dice, (s16b)sides);
 
 		/* Adjust damage for slays, brands, resists. */
-		adjust_dam(&tmp, o_ptr, m_ptr, TRUE);
+		adjust_dam(&tmp, o_ptr, m_ptr, TRUE, S_BURGLARY);
 
 		/* HACK - help missile and thrown weapons  XXX XXX */
 		if ((mode == 2) || (mode == 3)) tmp += 2 + power / 15;
@@ -1950,7 +1950,6 @@ static void hit_monster_trap(int who, int y, int x, int t_idx)
 
 		/* Destroy one sometimes */
 		if (breakage_chance(o_ptr))	o_ptr->number--;
-
 
 	}
 

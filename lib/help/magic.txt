@@ -87,7 +87,7 @@ inherently hard to cast), the minimum skill required to cast the spell, your
 spell stat, and your special magic-user skill.  Your special magic-user skill
 also has an important effect on the reliability of many spells.
      Those using wizardry or necromancy suffer if they wear gloves that do not
-provide free action, increase dexterity, or enhance your magic device skill.
+provide free action, increase dexterity, or enhance magic mastery skill.
 Priests suffer likewise if they wield an unblessed edged weapon.  Stunning
 (especially if heavy), fear, and lack of mana all make magic harder to use.
 

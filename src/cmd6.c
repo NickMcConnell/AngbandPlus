@@ -218,14 +218,14 @@ cptr do_object(int mode, object_type *o_ptr)
 				/* Resist poison helps a lot */
 				if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 				{
-					dam = MIN(p_ptr->chp - 20, rand_range(80, 120));
+					dam = MIN(MAX(0, p_ptr->chp - 20), rand_range(80, 120));
 
 					(void)set_poisoned(p_ptr->poisoned + rand_range(150, 200));
 					if (take_hit(dam, 0, NULL, "a Mushroom of Envenomation")) break;
 
 					msg_print("You vomit and pass out!");
-					(void)set_food(p_ptr->food_starving - 1);
-					(void)set_paralyzed(p_ptr->paralyzed + rand_range(4, 8));
+					(void)set_food(p_ptr->food_fainting - 1);
+					(void)set_paralyzed(p_ptr->paralyzed + rand_range(4, 6));
 
 					(void)do_dec_stat(A_STR, rand_range(3, 6), FALSE,
 						"The disease attacks your vitality!",
@@ -235,7 +235,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				}
 				else if (!(p_ptr->resist_pois && p_ptr->oppose_pois))
 				{
-					dam = MIN(p_ptr->chp - 5, rand_range(20, 30));
+					dam = MIN(MAX(0, p_ptr->chp - 5), rand_range(20, 30));
 
 					(void)set_poisoned(p_ptr->poisoned + rand_range(30, 45));
 					if (take_hit(dam, 0, NULL,
@@ -267,7 +267,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				disease(&dam);
 
 				/* Do not kill the character */
-				dam = MIN(dam, p_ptr->chp - 40);
+				dam = MIN(dam, MAX(0, p_ptr->chp - 40));
 				if (dam < 0) dam = 0;
 
 				/* Apply adjusted damage */
@@ -298,7 +298,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				disease(&dam);
 
 				/* Do not kill the character */
-				dam = MIN(dam, p_ptr->chp - 40);
+				dam = MIN(dam, MAX(0, p_ptr->chp - 40));
 				if (dam < 0) dam = 0;
 
 				/* Apply a bit of pure damage */
@@ -327,7 +327,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			else
 			{
 				/* Do not kill the character */
-				dam = MIN(p_ptr->chp - 1, rand_range(50, 100));
+				dam = MIN(MAX(0, p_ptr->chp - 1), rand_range(50, 100));
 				if (dam < 0) dam = 0;
 				(void)take_hit(dam, 0,
 					"Your nerves and muscles feel weak and lifeless!",
@@ -353,8 +353,8 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_FOOD_METAMORPHOSIS:
 		{
-			/* Seldom change race at first, always change it afterwards */
-			int race_odds = (!aware ? 15 : 1);
+			/* Seldom change race at first, frequently change it afterwards */
+			int race_odds = (!aware ? 15 : 3);
 
 			if (info) return ("");
 
@@ -384,6 +384,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				if ((!p_ptr->resist_nexus) && (one_in_(race_odds)))
 				{
 					int new_race;
+					int chp, mhp;
 
 					/* Choose a second, different race */
 					for (new_race = p_ptr->prace;
@@ -394,8 +395,16 @@ cptr do_object(int mode, object_type *o_ptr)
 					p_ptr->prace = new_race;
 					rp_ptr = &race_info[p_ptr->prace];
 
+					/* Store current and maximum hit points -JM */
+					chp = p_ptr->chp;
+					mhp = p_ptr->mhp;
+
 					/* Reroll hp for new race */
 					get_extra();
+
+					/* Hack -- Reset chp to appropriate value -JM */
+					calc_hitpoints();
+					p_ptr->chp = div_round(p_ptr->mhp * chp, mhp);
 
 					/* Message */
 					msg_format("You polymorph into a %s!",
@@ -973,7 +982,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return (format("(damage %dd%d)", o_ptr->dd, o_ptr->ds));
 
 			/* Hurt, but do not (immediately) kill, the character */
-			(void)take_hit(p_ptr->chp - 10, 0,
+			(void)take_hit(MAX(0, p_ptr->chp - 10), 0,
 				"Massive explosions rupture your body!",
 				"a potion of Detonations");
 
@@ -4057,7 +4066,7 @@ void use_object(int tval)
 
 			/* Gain experience - unsensed (or uncertain) object */
 			if (!(o_ptr->ident & (IDENT_SENSE)) ||
-				(o_ptr->inscrip == INSCRIP_UNCERTAIN))
+			    (o_ptr->inscrip == INSCRIP_UNCERTAIN))
 			{
 				/* Message */
 				if (hack_id_notice_suppress == 0)
@@ -4206,7 +4215,7 @@ int device_chance(const object_type *o_ptr)
 	int skill = p_ptr->skill_dev;
 
 	/* Object is an artifact - use artifact level */
-	if (artifact_p(o_ptr))
+	if(artifact_p(o_ptr))
 	{
 		lev = a_info[o_ptr->artifact_index].level;
 
@@ -4217,26 +4226,30 @@ int device_chance(const object_type *o_ptr)
 		}
 	}
 
-	/* Everything else except DSM uses the object level */
-	else if (o_ptr->tval != TV_DRAG_ARMOR)
+	/* Wands, Staves, and Rods */
+	else if (o_ptr->tval == TV_WAND || o_ptr->tval == TV_STAFF || o_ptr->tval == TV_ROD)
 	{
 		lev = k_info[o_ptr->k_idx].level;
 
-		/* Wargear and light sources want to be activated */
-		if ((is_wargear(o_ptr) || (o_ptr->tval == TV_LITE)) && (lev > 15))
-		{
-			lev -= ((lev - 10) / 2);
-		}
 	}
+	
 
 	/* Non-artifact dragon scale mail does not require special skills */
-	else
+	else if (o_ptr->tval == TV_DRAG_ARMOR)
 	{
 		/* All characters eventually get perfect usage of DSM */
 		skill = div_round(p_ptr->power, 4);
 
 		lev = 0;
 	}
+
+	/* Worn devices should activate easily  -JM */
+	else
+	{
+		lev = k_info[o_ptr->k_idx].level;
+		lev -= ((lev - 10) / 2);
+	}
+
 
 	/*
 	 * Determine percentage chance of success.
@@ -4258,7 +4271,8 @@ int device_chance(const object_type *o_ptr)
 	if (p_ptr->afraid) chance -= chance / 5;
 
 	/* Blindness or lack of light makes things a little harder */
-	if ((p_ptr->blind) || (no_light())) chance -= chance / 4;
+	if ((p_ptr->blind) || (no_light() && !(p_ptr->oath & (BURGLARS_GUILD)))) chance -= chance / 4;
+
 
 	/* Set bounds */
 	if (chance < 0) chance = 0;
@@ -4462,8 +4476,8 @@ void use_device(int tval)
 			if (flush_failure) flush();
 
 			/* Staffs of Doomspells have a mind of their own. */
-		if ((o_ptr->tval == TV_STAFF) &&
-		    (o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(10)))
+			if ((o_ptr->tval == TV_STAFF) &&
+				(o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(10)))
 			{
 				doomspells(one_in_(2), MAX(50, p_ptr->depth));
 				used_via_failure = TRUE;
@@ -4539,7 +4553,7 @@ void use_device(int tval)
 
 			/* Gain experience - unsensed (or uncertain) device */
 			if (!(o_ptr->ident & (IDENT_SENSE)) ||
-				(o_ptr->inscrip == INSCRIP_UNCERTAIN))
+			    (o_ptr->inscrip == INSCRIP_UNCERTAIN))
 			{
 				/* Message */
 				msg_format("You realize that you are using %s.  Your experience rises.", o_name);
@@ -6749,6 +6763,18 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			}
 			break;
 		}
+		case ACTIV_RANDOM_DARK_AREA:
+		{
+			timeout1 = 15;     timeout2 = 30;
+
+			if (info) return (format("Darken a room or the local area every %d-%d turns", timeout1, timeout2));
+			if (act)
+			{
+				unlite_area(0, 3);
+			}
+			break;
+		}
+
 
 		case ACTIV_EGO_HERO:
 		{

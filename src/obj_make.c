@@ -212,7 +212,7 @@ int essence_to_magic(int *adjust, int *sval)
 	/* No essences */
 	if (*sval == -2) return (-2);
 
-	/* Note failure XXX */
+	/* Note failure by cancel XXX */
 	if ((*sval < 0) || (*sval > NUM_ESSENCE)) return (-1);
 
 	/* Convert essence to projection type, calculate effectiveness */

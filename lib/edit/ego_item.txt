@@ -1258,14 +1258,27 @@ F:RES_BLIND | SEE_INVIS
 D:Brightly shine the Lamps of Eldamar; they who bear them have sight 
 D:beyond sight and can never be blinded.
 
-N:145:of Shadows
-W:0:1:0:0
+# Increasing the rarity on these to 10 should make them less common in the dungeon
+# and only increase the chance of not activating a hidden curse to 0.5% -JM
+N:145:of Peril
+W:0:10:0:0
 T:39:0:99
 P:-9
 1:LIGHT
 F:AGGRAVATE | LIGHT_CURSE
 D:Foully cursed, it sucks away all lamplight and rallies your foes 
 D:in the sudden darkness.
+
+
+N:146:of Shadows
+W:10:1:0:0
+T:39:0:99
+P:-9:3
+1:LIGHT
+2:STEALTH | INFRA
+X:XTRA_LIGHT_QUALITY
+D:It sucks the light from around you, sheathing you in protective
+D:darkness.
 
 
 ### Space for additions ###

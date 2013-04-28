@@ -2005,7 +2005,7 @@ G:=:d
 I:45:18:0
 W:45:219:2:6000
 A:45/15:100/6
-F:RES_ACID | IGNORE_ACID
+F:RES_ACID | IGNORE_ACID | EASY_KNOW
 E:ACID 8 | SHIELD 2
 D:with an aura of acidic protection and damage.
 
@@ -2015,7 +2015,7 @@ G:=:d
 I:45:19:0
 W:50:220:2:8000
 A:50/12:100/6
-F:RES_ELEC | IGNORE_ELEC
+F:RES_ELEC | IGNORE_ELEC | EASY_KNOW
 E:ELEC 9 | SHIELD 2
 D:with an aura of electric protection and damage.
 
@@ -2024,7 +2024,7 @@ G:=:d
 I:45:20:0
 W:40:221:2:4000
 A:40/20:60/10
-F:RES_FIRE | IGNORE_FIRE
+F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
 E:FIRE 7 | SHIELD 2
 D:with an aura of fiery protection and damage.
 
@@ -2033,7 +2033,7 @@ G:=:d
 I:45:21:0
 W:40:222:2:4000
 A:40/20:60/10
-F:RES_COLD | IGNORE_COLD
+F:RES_COLD | IGNORE_COLD | EASY_KNOW
 E:COLD 7 | SHIELD 2
 D:with an aura of frosty protection and damage.
 
@@ -2042,7 +2042,7 @@ G:=:d
 I:45:22:0
 W:55:223:2:12000
 A:55/12
-F:RES_POIS
+F:RES_POIS | EASY_KNOW
 E:POISON 9 | SHIELD 2
 D:with an aura of poison protection and damage.
 
