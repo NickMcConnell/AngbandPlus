@@ -418,7 +418,7 @@ void chaos_warrior_reward(void)
 			msg_format("The voice of %s booms out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Death and destruction! This pleaseth me!'");
-			call_chaos();
+			call_chaos(100);
 			break;
 		case REW_GAIN_ABL:
 			msg_format("The voice of %s rings out:",

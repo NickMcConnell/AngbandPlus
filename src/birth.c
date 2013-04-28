@@ -490,7 +490,7 @@ static int _prompt_realm1(void)
 }
 
 #define _MAX_CLASSES_PER_GROUP 20
-#define _MAX_CLASS_GROUPS      10
+#define _MAX_CLASS_GROUPS      11
 typedef struct _class_group_s {
 	cptr name;
 	int ids[_MAX_CLASSES_PER_GROUP];
@@ -503,6 +503,7 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
 	{ "Martial Arts", {CLASS_FORCETRAINER, CLASS_MONK, CLASS_MYSTIC, -1} },
 	{ "Magic", {CLASS_BLOOD_MAGE, CLASS_BLUE_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE, 
 					CLASS_NECROMANCER, CLASS_SORCERER, -1} },
+	{ "Devices", {CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
 	{ "Prayer", {CLASS_PRIEST, -1} },
 	{ "Stealth", {CLASS_NINJA, CLASS_ROGUE, CLASS_SCOUT, -1} },
 	{ "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_PALADIN, CLASS_RANGER, CLASS_RED_MAGE, 
@@ -510,7 +511,7 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
 	{ "Riding", {CLASS_BEASTMASTER, CLASS_CAVALRY, -1} },
 	{ "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION, CLASS_RAGE_MAGE, 
 					CLASS_TIME_LORD, CLASS_WARLOCK, -1} },
-	{ "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_IMITATOR, CLASS_MAGIC_EATER, 
+	{ "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_IMITATOR, 
 					CLASS_TOURIST, CLASS_WILD_TALENT, -1} },
 };
 
@@ -565,6 +566,16 @@ static void _weaponmaster_menu_fn(int cmd, int which, vptr cookie, variant *res)
 	{
 	case MENU_TEXT:
 		var_set_string(res, weaponmaster_speciality_name(which));
+		break;
+	}
+}
+
+static void _devicemaster_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+	switch (cmd)
+	{
+	case MENU_TEXT:
+		var_set_string(res, devicemaster_speciality_name(which));
 		break;
 	}
 }
@@ -665,7 +676,7 @@ static int _prompt_class(void)
 				{
 					for (;;)
 					{
-					menu_t menu3 = { "Speciality", "Weaponmasters.txt", "Its time to specialize.",
+					menu_t menu3 = { "Speciality", "Weaponmasters.txt", "It is time to specialize.",
 										_weaponmaster_menu_fn, 
 										NULL, WEAPONMASTER_MAX};
 						c_put_str(TERM_WHITE, "              ", 7, 14);
@@ -675,6 +686,25 @@ static int _prompt_class(void)
 						p_ptr->psubclass = idx;
 						c_put_str(TERM_L_BLUE, format("%-14s", weaponmaster_speciality_name(p_ptr->psubclass)), 7, 14);
 						if (!_confirm_choice(weaponmaster_speciality_desc(p_ptr->psubclass), menu3.count)) continue;
+						idx = _prompt_personality();
+						if (idx == _BIRTH_ESCAPE) continue;
+						return idx;
+					}
+				}
+				else if (p_ptr->pclass == CLASS_DEVICEMASTER)
+				{
+					for (;;)
+					{
+					menu_t menu3 = { "Speciality", "Devicemasters.txt", "It is time to specialize.",
+										_devicemaster_menu_fn, 
+										NULL, DEVICEMASTER_MAX};
+						c_put_str(TERM_WHITE, "              ", 7, 14);
+						idx = _menu_choose(&menu3, p_ptr->psubclass);
+						if (idx == _BIRTH_ESCAPE) break;
+						if (idx < 0) return idx;
+						p_ptr->psubclass = idx;
+						c_put_str(TERM_L_BLUE, format("%-14s", devicemaster_speciality_name(p_ptr->psubclass)), 7, 14);
+						if (!_confirm_choice(devicemaster_speciality_desc(p_ptr->psubclass), menu3.count)) continue;
 						idx = _prompt_personality();
 						if (idx == _BIRTH_ESCAPE) continue;
 						return idx;
@@ -2389,6 +2419,20 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ 0, 0 },
 		{ 0, 0 },
 		{ 0, 0 }
+	},
+
+	{
+		/* Mystic TODO */
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+
+	{
+		/* Devicemaster */
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR},
 	},
 };
 

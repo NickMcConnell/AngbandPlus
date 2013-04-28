@@ -116,7 +116,7 @@ R:0:0xAA/0
 R:0:0xA5/0
 ?:[EQU $CLASS Archer]
 R:0:0xA8/0
-?:[EQU $CLASS Magic-Eater]
+?:[EQU $CLASS Magic-Eater Devicemaster]
 R:0:0xAD/0
 ?:[EQU $CLASS Bard]
 R:0:0xA8/0

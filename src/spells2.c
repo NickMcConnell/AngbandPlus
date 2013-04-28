@@ -5482,7 +5482,7 @@ bool animate_dead(int who, int y, int x)
 }
 
 
-void call_chaos(void)
+void call_chaos(int pct)
 {
 	int chaos_type, dummy, dir;
 	int plev = p_ptr->lev;
@@ -5510,23 +5510,23 @@ void call_chaos(void)
 			if (dummy - 5)
 			{
 				if (line_chaos)
-					fire_beam(chaos_type, dummy, 150);
+					fire_beam(chaos_type, dummy, 150*pct/100);
 				else
-					fire_ball(chaos_type, dummy, 150, 2);
+					fire_ball(chaos_type, dummy, 150*pct/100, 2);
 			}
 		}
 	}
 	else if (one_in_(3))
 	{
-		fire_ball(chaos_type, 0, 500, 8);
+		fire_ball(chaos_type, 0, 500*pct/100, 8);
 	}
 	else
 	{
 		if (!get_aim_dir(&dir)) return;
 		if (line_chaos)
-			fire_beam(chaos_type, dir, 250);
+			fire_beam(chaos_type, dir, 250*pct/100);
 		else
-			fire_ball(chaos_type, dir, 250, 3 + (plev / 35));
+			fire_ball(chaos_type, dir, 250*pct/100, 3 + (plev / 35));
 	}
 }
 

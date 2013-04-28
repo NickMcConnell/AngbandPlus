@@ -53,6 +53,9 @@ class_t *result = NULL;
 	case CLASS_CHAOS_WARRIOR:
 		result = chaos_warrior_get_class_t();
 		break;
+	case CLASS_DEVICEMASTER:
+		result = devicemaster_get_class_t();
+		break;
 	case CLASS_DUELIST:
 		result = duelist_get_class_t();
 		break;

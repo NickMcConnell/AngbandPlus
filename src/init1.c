@@ -4489,6 +4489,8 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			{
 				if (p_ptr->pclass == CLASS_WEAPONMASTER)
 					sprintf(tmp, weaponmaster_speciality_name(p_ptr->psubclass));
+				else if (p_ptr->pclass == CLASS_DEVICEMASTER)
+					sprintf(tmp, devicemaster_speciality_name(p_ptr->psubclass));
 				else
 					sprintf(tmp, "None");
 				v = tmp;

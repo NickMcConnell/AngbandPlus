@@ -112,7 +112,7 @@ static race_t *_fire_get_race_t(void)
 	me.stats[A_DEX] = -2 + rank;
 	me.stats[A_CON] =  3 + 2*rank;
 	me.stats[A_CHR] =  0 + rank;
-	me.life = 115 + 10*rank;
+	me.life = 105 + 10*rank;
 	me.boss_r_idx = MON_SURTUR;
 
 	return &me;
@@ -206,7 +206,7 @@ static race_t *_frost_get_race_t(void)
 	me.stats[A_DEX] = -2 + rank;
 	me.stats[A_CON] =  3 + 2*rank;
 	me.stats[A_CHR] =  0 + rank;
-	me.life = 115 + 10*rank;
+	me.life = 105 + 10*rank;
 	me.boss_r_idx = MON_YMIR;
 
 	return &me;
@@ -308,7 +308,7 @@ static race_t *_storm_get_race_t(void)
 	me.stats[A_DEX] = -2 + rank;
 	me.stats[A_CON] =  3 + rank;
 	me.stats[A_CHR] =  0 + rank;
-	me.life = 110 + 5*rank;
+	me.life = 105 + 4*rank;
 	me.boss_r_idx = MON_ATLAS; /* TODO */
 
 	return &me;
@@ -401,7 +401,7 @@ static race_t *_titan_get_race_t(void)
 	me.stats[A_DEX] = -2 + rank;
 	me.stats[A_CON] =  3 + rank;
 	me.stats[A_CHR] =  3 + rank;
-	me.life = 110 + 5*rank;
+	me.life = 105 + 5*rank;
 	me.boss_r_idx = MON_KRONOS;
 
 	return &me;

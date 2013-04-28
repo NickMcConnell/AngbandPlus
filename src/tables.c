@@ -2774,6 +2774,7 @@ s32b realm_choices1[MAX_CLASS] =
 	CH_NONE,				/* Mauler */
 	CH_NONE,				/* Monster */
 	CH_NONE,				/* Mystic */
+	CH_NONE,                /* Devicemaster */
 };
 
 
@@ -2836,6 +2837,7 @@ s32b realm_choices2[MAX_CLASS] =
 	CH_NONE,				/* Mauler */
 	CH_NONE,				/* Monster */
 	CH_NONE,				/* Mystic */
+	CH_NONE,                /* Devicemaster */
 };
 
 
@@ -3581,6 +3583,20 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Flower Master",
 		"Dragon Master",
 		"Grand Master",
+	},
+
+	/* Devicemaster */
+	{
+		"Apprentice",
+		"Beginner",
+		"Zapper",
+		"Zapper",
+		"Blaster",
+		"Blaster",
+		"Master",
+		"Master",
+		"Rocketeer",
+		"Rocketeer",
 	},
 };
 

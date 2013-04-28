@@ -4007,7 +4007,7 @@ static cptr do_chaos_spell(int spell, int mode)
 
 			if (cast)
 			{
-				call_chaos();
+				call_chaos(100);
 			}
 		}
 		break;
@@ -11484,15 +11484,9 @@ static cptr do_necromancy_spell(int spell, int mode)
 	case 9:
 		if (name) return "Black Cloak";
 		if (desc) return "You become shrouded in darkness.";
-		if (spoil) return "Player gains superstealth, nocturnal vision, and decreased light radius for L+dL turns.";
 		if (cast) 
 		{
-			if (p_ptr->tim_superstealth)
-			{
-				msg_print("You are already moving in the shadows.");
-				return NULL;
-			}
-			set_tim_superstealth(spell_power(randint1(p_ptr->lev) + p_ptr->lev), FALSE);
+			set_tim_dark_stalker(spell_power(randint1(p_ptr->lev) + p_ptr->lev), FALSE);
 		}
 		break;
 

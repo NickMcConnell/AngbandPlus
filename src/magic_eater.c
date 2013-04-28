@@ -23,27 +23,27 @@ typedef struct {
 	int tval;
 	int sval;
 	int k_idx;   /* memoized */
-} _kind_t;
+} _kind_t, *_kind_ptr;
 
-static int _lookup_kind(_kind_t kind)
+static int _lookup_kind(_kind_ptr kind)
 {
-	if (!kind.k_idx)
-		kind.k_idx = lookup_kind(kind.tval, kind.sval);
-	return kind.k_idx;
+	if (!kind->k_idx)
+		kind->k_idx = lookup_kind(kind->tval, kind->sval);
+	return kind->k_idx;
 }
 
-static cptr _kind_name(_kind_t kind)
+static cptr _kind_name(_kind_ptr kind)
 {
 	int k_idx = _lookup_kind(kind);
 	return k_name + k_info[k_idx].name;
 }
 
-static cptr _kind_desc(_kind_t kind)
+static cptr _kind_desc(_kind_ptr kind)
 {
 	static char buf[1024];
-	cptr res = _do_device(kind.tval, kind.sval, SPELL_DESC);
+	cptr res = _do_device(kind->tval, kind->sval, SPELL_DESC);
 	strcpy(buf, res);
-	res =  _do_device(kind.tval, kind.sval, SPELL_INFO);
+	res =  _do_device(kind->tval, kind->sval, SPELL_INFO);
 	if (res && strlen(res))
 	{
 		strcat(buf, " (");
@@ -64,7 +64,7 @@ typedef void (*_spell_fn)(_spell_ptr spell);
 static int _calc_fail_rate(_spell_ptr spell)
 {
 	int result = 0;
-	int k_idx = _lookup_kind(spell->kind);
+	int k_idx = _lookup_kind(&spell->kind);
 	int lvl = k_info[k_idx].level;
 
 	if (spell->kind.tval == TV_ROD)
@@ -101,7 +101,7 @@ static int _calc_charges(_spell_ptr spell)
 		result = p_ptr->magic_num2[spell->idx];
 		if (magic)
 		{
-			int k_idx = _lookup_kind(spell->kind);
+			int k_idx = _lookup_kind(&spell->kind);
 			result -= (magic - 1) / (_EATER_ROD_CHARGE * k_info[k_idx].pval) + 1;
 		}
 	}
@@ -115,7 +115,7 @@ static void _use_charge(_spell_ptr spell)
 {
 	if (spell->kind.tval == TV_ROD)
 	{
-		int k_idx = _lookup_kind(spell->kind);
+		int k_idx = _lookup_kind(&spell->kind);
 		p_ptr->magic_num1[spell->idx] += k_info[k_idx].pval * _EATER_ROD_CHARGE;
 	}
 	else 
@@ -254,6 +254,7 @@ static _group_t _rods[] = {
 		{ 72+24, {TV_ROD, SV_ROD_ACID_BALL, 0}, 0},
 		{ 72+26, {TV_ROD, SV_ROD_FIRE_BALL, 0}, 0},
 		{ 72+18, {TV_ROD, SV_ROD_DRAIN_LIFE, 0}, 0},
+		{ 72+33, {TV_ROD, SV_ROD_MANA_BALL, 0}, 0}, 
 		{ 72+28, {TV_ROD, SV_ROD_HAVOC, 0}, 0},
 		{ -1, {-1, -1, -1}, -1} }},
 	{ "Utility", 
@@ -440,7 +441,7 @@ static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
 			_kind_t k = s->spell->kind;
 			cptr    info = _do_device(s->spell->kind.tval, s->spell->kind.sval, SPELL_INFO);
 
-			sprintf(buf, "%-22.22s %3d %3d %3d%% ", _kind_name(k), s->charges, s->total_charges, s->fail);
+			sprintf(buf, "%-22.22s %3d %3d %3d%% ", _kind_name(&k), s->charges, s->total_charges, s->fail);
 			if (info)
 				strcat(buf, info);
 			var_set_string(res, buf);
@@ -449,7 +450,7 @@ static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
 			var_clear(res);
 		break;			
 	case MENU_HELP:
-		var_set_string(res, _kind_desc(s->spell->kind));
+		var_set_string(res, _kind_desc(&s->spell->kind));
 		break;
 	case MENU_COLOR:
 		if (!s->total_charges)
@@ -557,7 +558,7 @@ static void _browse(void)
 				for (i = 0; i < 7; i++)
 					Term_erase(13, ct + i + 2, 255);
 
-				roff_to_buf(_kind_desc(spell->kind), 62, tmp, sizeof(tmp));
+				roff_to_buf(_kind_desc(&spell->kind), 62, tmp, sizeof(tmp));
 
 				for(i = 0, line = ct + 3; tmp[i]; i += 1+strlen(&tmp[i]))
 				{
@@ -782,7 +783,7 @@ static void _do_regen(_spell_ptr s)
 	amt = ((long)p_ptr->magic_num2[s->idx]+adj_mag_mana[p_ptr->stat_ind[A_INT]]+13) * _regen_pct / 8;
 
 	/* Hack: Low level devices recharge more quickly */
-	k_idx = _lookup_kind(s->kind);
+	k_idx = _lookup_kind(&s->kind);
 	lvl = k_info[k_idx].level;
 	if (lvl < 50)
 		amt = amt * (100 - lvl) / 50;
@@ -791,7 +792,7 @@ static void _do_regen(_spell_ptr s)
 	if (p_ptr->magic_num1[s->idx] >= ((long)p_ptr->magic_num2[s->idx] *_EATER_CHARGE))
 	{
 		if (disturb_minor)
-			msg_format("Regenerated %s (%d rnds/chg)", _kind_name(s->kind), _EATER_CHARGE/amt);
+			msg_format("Regenerated %s (%d rnds/chg)", _kind_name(&s->kind), _EATER_CHARGE/amt);
 		p_ptr->magic_num1[s->idx] = ((long)p_ptr->magic_num2[s->idx] *_EATER_CHARGE);
 	}
 }
@@ -807,9 +808,9 @@ static void _do_regen_rod(_spell_ptr s)
 	{
 		if (disturb_minor)
 		{
-			int k_idx = _lookup_kind(s->kind);
+			int k_idx = _lookup_kind(&s->kind);
 			int tot = k_info[k_idx].pval * _EATER_ROD_CHARGE;
-			msg_format("Regenerated %s (%d rnds/chg)", _kind_name(s->kind), tot/amt);
+			msg_format("Regenerated %s (%d rnds/chg)", _kind_name(&s->kind), tot/amt);
 		}
 		p_ptr->magic_num1[s->idx] = 0;
 	}
@@ -837,7 +838,7 @@ static void _do_restore_rod(_spell_ptr s)
 {
 	if (p_ptr->magic_num2[s->idx])
 	{
-		int k_idx = _lookup_kind(s->kind);
+		int k_idx = _lookup_kind(&s->kind);
 		int amt;
 
 		if (p_ptr->magic_num2[s->idx] < 10)
@@ -927,7 +928,7 @@ static void _dump(FILE* fff, int tval, cptr title)
 					fprintf(fff, "---------------------- --- --- ---- ----------------\n");
 				}
 				fprintf(fff, "%-22.22s %3d %3d %3d%% %s\n", 
-					_kind_name(s->kind), 
+					_kind_name(&s->kind), 
 					_calc_charges(s), 
 					_calc_charges_total(s), 
 					_calc_fail_rate(s),

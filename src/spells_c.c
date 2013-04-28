@@ -1107,6 +1107,7 @@ void draconian_breath_spell(int cmd, variant *res)
 				case CLASS_RED_MAGE:
 				case CLASS_BLUE_MAGE:
 				case CLASS_MIRROR_MASTER:
+				case CLASS_DEVICEMASTER:
 					if (one_in_(3))
 					{
 						Type = GF_MANA;

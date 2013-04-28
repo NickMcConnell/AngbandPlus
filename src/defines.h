@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 17
+#define VER_PATCH 18
 #define VER_EXTRA 0
 
 
@@ -768,6 +768,7 @@
 #define prace_is_(A) (p_ptr->mimic_form == (A) || (p_ptr->mimic_form == MIMIC_NONE && p_ptr->prace == (A)))
 #define psubclass_is_(A, B) (p_ptr->pclass == (A) && p_ptr->psubclass == (B))
 #define weaponmaster_is_(B) (p_ptr->pclass == CLASS_WEAPONMASTER && p_ptr->psubclass == (B))
+#define devicemaster_is_(B) (p_ptr->pclass == CLASS_DEVICEMASTER && p_ptr->psubclass == (B))
 #define demigod_is_(B) (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == (B))
 #define dragon_is_(B) (prace_is_(RACE_MON_DRAGON) && p_ptr->psubrace == (B))
 #define giant_is_(B) (prace_is_(RACE_MON_GIANT) && p_ptr->psubrace == (B))
@@ -821,8 +822,9 @@
 #define CLASS_MAULER            41
 #define CLASS_MONSTER           42
 #define CLASS_MYSTIC            43
+#define CLASS_DEVICEMASTER      44
 
-#define MAX_CLASS               44
+#define MAX_CLASS               45
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
@@ -846,6 +848,15 @@
 #define WEAPONMASTER_SWORDS     9
 #define WEAPONMASTER_DIGGERS   10
 #define WEAPONMASTER_MAX       11
+
+#define DEVICEMASTER_WANDS   0
+#define DEVICEMASTER_STAVES  1
+#define DEVICEMASTER_RODS    2
+/* Later:
+#define DEVICEMASTER_POTIONS 3
+#define DEVICEMASTER_SCROLLS 4
+*/
+#define DEVICEMASTER_MAX     3
 
 
 #define PERS_ORDINARY	 0
@@ -2452,6 +2463,7 @@
 #define SV_ROD_AGGRAVATE                30
 #define SV_ROD_DETECT_MONSTERS          31
 #define SV_ROD_ESCAPING                 32
+#define SV_ROD_MANA_BALL                33
 
 
 /* The "sval" codes for TV_SCROLL */

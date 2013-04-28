@@ -3534,7 +3534,7 @@ F:STACK
 N:350:Havoc:Aluminum
 E:Havoc:Aluminum
 G:-:B
-I:66:28:100
+I:66:28:35
 W:100:0:0:15:150000
 A:50/32:100/8
 P:0:1d1:0:0:0
@@ -6723,6 +6723,14 @@ I:45:65:0
 W:70:0:0:2:50000
 A:70/6
 F:XTRA_MIGHT
+
+N:744:Mana Balls:Jade
+E:Mana Balls:Jade
+G:-:B
+I:66:33:35
+W:90:0:0:15:50000
+A:50/16:90/4
+P:0:1d1:0:0:0
 
 # N: serial number : & object name~
 # G: symbol : color

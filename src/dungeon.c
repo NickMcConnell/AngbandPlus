@@ -285,6 +285,7 @@ static void sense_inventory1(void)
 		case CLASS_HIGH_MAGE:
 		case CLASS_SORCERER:
 		case CLASS_MAGIC_EATER:
+		case CLASS_DEVICEMASTER:
 		{
 			/* Very bad (light) sensing */
 			if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5))) return;
@@ -562,6 +563,7 @@ static void sense_inventory2(void)
 		case CLASS_MIRROR_MASTER:
 		case CLASS_BLUE_MAGE:
 		case CLASS_ARCHAEOLOGIST:
+		case CLASS_DEVICEMASTER:
 		{
 			/* Good sensing */
 			if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
@@ -2597,14 +2599,11 @@ static void _recharge_aux(object_type *o_ptr)
 {
 	if (o_ptr->timeout > 0)
 	{
-		if (o_ptr->timeout > 0)
+		o_ptr->timeout--;
+		if (!o_ptr->timeout)
 		{
-			o_ptr->timeout--;
-			if (!o_ptr->timeout)
-			{
-				recharged_notice(o_ptr);
-				_recharge_changed = TRUE;
-			}
+			recharged_notice(o_ptr);
+			_recharge_changed = TRUE;
 		}
 	}
 }
@@ -2639,6 +2638,8 @@ static void process_world_aux_recharge(void)
 
 			/* Decrease timeout by that number. */
 			o_ptr->timeout -= temp;
+			if (o_ptr->tval == TV_ROD && devicemaster_is_(DEVICEMASTER_RODS))
+				o_ptr->timeout -= temp;
 
 			/* Boundary control. */
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
@@ -4149,6 +4150,7 @@ msg_print("ウィザードモード突入。");
 					 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
 					 p_ptr->pclass == CLASS_WILD_TALENT ||
 					 p_ptr->pclass == CLASS_WEAPONMASTER ||
+					 p_ptr->pclass == CLASS_DEVICEMASTER ||
 					 p_ptr->pclass == CLASS_SCOUT ||
 					 p_ptr->pclass == CLASS_MAULER ||
 					 p_ptr->pclass == CLASS_MYSTIC ||
@@ -4248,6 +4250,7 @@ msg_print("ウィザードモード突入。");
 							p_ptr->pclass == CLASS_RUNE_KNIGHT ||
 							p_ptr->pclass == CLASS_WILD_TALENT ||
 							p_ptr->pclass == CLASS_WEAPONMASTER ||
+							p_ptr->pclass == CLASS_DEVICEMASTER ||
 							p_ptr->pclass == CLASS_RAGE_MAGE ||
 							p_ptr->pclass == CLASS_SCOUT ||
 							p_ptr->pclass == CLASS_MAULER ||
@@ -5288,7 +5291,7 @@ msg_print("中断しました。");
 			{
 				int amt = (s16b)((s32b)energy_use * ENERGY_NEED() / 100L);
 				#if 0
-				msg_format("Used %d energy.", amt);
+				msg_format("Used %d energy (%d).", amt, energy_use);
 				#endif
 				p_ptr->energy_need += amt;
 			}

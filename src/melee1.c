@@ -660,7 +660,25 @@ bool make_attack_normal(int m_idx)
 							if (p_ptr->no_charge_drain)
 								break;
 
-							msg_print(T("Energy drains from your pack!", "ザックからエネルギーが吸い取られた！"));
+							if (p_ptr->pclass == CLASS_DEVICEMASTER)
+							{
+								int pl = p_ptr->lev;
+								int dl = k_info[o_ptr->k_idx].level;
+
+								if (o_ptr->tval == TV_STAFF && devicemaster_is_(DEVICEMASTER_STAVES))
+									pl *= 2;
+								if (o_ptr->tval == TV_WAND && devicemaster_is_(DEVICEMASTER_WANDS))
+									pl *= 2;
+
+								if (pl >= randint1(dl))
+								{
+									msg_print("Energy begins to drain from your pack ... But you pull it back!");
+									drained = TRUE; /* No food drain! */
+									break;
+								}
+							}
+
+							msg_print("Energy drains from your pack!");
 							drained = TRUE;
 
 							/* Heal the monster */

@@ -215,7 +215,7 @@ static race_t *_solar_get_race_t(void)
 	me.stats[A_DEX] =  1 + rank/2;
 	me.stats[A_CON] =  1 + rank/2;
 	me.stats[A_CHR] =  1 + rank;
-	me.life = 100 + 3*rank;
+	me.life = 90 + 3*rank;
 
 	return &me;
 }

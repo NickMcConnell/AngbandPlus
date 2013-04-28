@@ -143,6 +143,7 @@ static _blow_info_t _get_blow_info(int hand)
 
 	case CLASS_TOURIST:
 	case CLASS_TIME_LORD:
+	case CLASS_DEVICEMASTER:
 		result.num = 4; result.wgt = 100; result.mul = 3; break;
 
 	case CLASS_ARCHAEOLOGIST:
@@ -300,7 +301,7 @@ static int _calc_innate_blows_aux(innate_attack_ptr a, int max, int str_idx, int
 {
 	int result = 0;
 	int blow_str_index, blow_dex_index;
-	int mul = 5, div = a->weight;
+	int mul = 5, div = MAX(70, a->weight);
 
 	blow_str_index = (adj_str_blow[str_idx] * mul / div);
 	if (blow_str_index > 11) blow_str_index = 11;

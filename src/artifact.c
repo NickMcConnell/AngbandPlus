@@ -1965,6 +1965,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			case CLASS_WARLOCK:
 			case CLASS_BLOOD_MAGE:
 			case CLASS_NECROMANCER:
+			case CLASS_DEVICEMASTER:
 				artifact_bias = BIAS_MAGE;
 				warrior_artifact_bias = 20;
 				break;
@@ -3054,7 +3055,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It glows in scintillating colours...");
 #endif
 
-			call_chaos();
+			call_chaos(100);
 			o_ptr->timeout = 350;
 			break;
 		}

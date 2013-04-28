@@ -54,6 +54,11 @@ bool device_known = FALSE;
    If so, identify the device. */
 bool device_noticed = FALSE;
 
+/* Hack for Device Master's desperation. This power uses all the charges
+   in a device at once (with diminishing returns) and potentially destroys
+   the device as well. */
+int  device_extra_power = 0;
+
 /* Using Devices 
       if (!device_try(o_ptr)) ... "You failed to use the device" ...
 	  if (device_use(o_ptr)) ... Decrement Charges/Unstack/Etc. ...
@@ -74,10 +79,34 @@ bool device_use(object_type *o_ptr)
 	return FALSE;
 }
 
-static int _device_power_hack(int pow)
+static int _device_power_hack(int val)
 {
-	if (magic_eater_hack) return spell_power(pow);
-	return device_power(pow);
+	if (magic_eater_hack) return spell_power(val);
+	return device_power(val);
+}
+
+static int _rod_power(int val)
+{
+	val += val * device_extra_power / 100;
+	if (devicemaster_is_(DEVICEMASTER_RODS))
+		return device_power_aux(val, p_ptr->device_power + p_ptr->lev/10);
+	return _device_power_hack(val);
+}
+
+static int _staff_power(int val)
+{
+	val += val * device_extra_power / 100;
+	if (devicemaster_is_(DEVICEMASTER_STAVES))
+		return device_power_aux(val, p_ptr->device_power + p_ptr->lev/10);
+	return _device_power_hack(val);
+}
+
+static int _wand_power(int val)
+{
+	val += val * device_extra_power / 100;
+	if (devicemaster_is_(DEVICEMASTER_WANDS))
+		return device_power_aux(val, p_ptr->device_power + p_ptr->lev/10);
+	return _device_power_hack(val);
 }
 
 static cptr _do_scroll(int sval, int mode)
@@ -454,6 +483,7 @@ static cptr _do_scroll(int sval, int mode)
 				(p_ptr->pclass == CLASS_SORCERER) || 
 				(p_ptr->pclass == CLASS_ARCHER) || 
 				(p_ptr->pclass == CLASS_MAGIC_EATER) || 
+				p_ptr->pclass == CLASS_DEVICEMASTER || 
 				(p_ptr->pclass == CLASS_RED_MAGE) || 
 				(p_ptr->pclass == CLASS_SAMURAI) || 
 				(p_ptr->pclass == CLASS_BLUE_MAGE) || 
@@ -623,7 +653,7 @@ static cptr _do_scroll(int sval, int mode)
 			else if (n < 25)
 			{
 				msg_print("The scroll explodes violently!");
-				call_chaos();
+				call_chaos(100);
 			}
 			else if (n < 65)
 			{				
@@ -820,7 +850,7 @@ static cptr _do_staff(int sval, int mode)
 					if (!cave_have_flag_bold(y, x, FF_PROJECT)) continue;
 					if (!player_bold(y, x)) break;
 				}
-				project(0, 0, y, x, _device_power_hack(damroll(6 + p_ptr->lev / 8, 10)), GF_LITE_WEAK,
+				project(0, 0, y, x, _staff_power(damroll(6 + p_ptr->lev / 8, 10)), GF_LITE_WEAK,
 						  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_KILL), -1);
 			}
 			device_noticed = TRUE;
@@ -887,10 +917,10 @@ static cptr _do_staff(int sval, int mode)
 		break;
 	case SV_STAFF_CURE_LIGHT:
 		if (desc) return "It heals you a bit when you use it.";
-		if (info) return info_heal(6, _device_power_hack(8), 0);
+		if (info) return info_heal(6, _staff_power(8), 0);
 		if (cast)
 		{
-			if (hp_player(damroll(6, 8))) device_noticed = TRUE;
+			if (hp_player(_staff_power(damroll(6, 8)))) device_noticed = TRUE;
 			if (set_blind(0, TRUE)) device_noticed = TRUE;
 			if (set_confused(0, TRUE)) device_noticed = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 50, TRUE)) device_noticed = TRUE;
@@ -912,10 +942,10 @@ static cptr _do_staff(int sval, int mode)
 		break;
 	case SV_STAFF_HEALING:
 		if (desc) return "It heals you and cures stunned, cuts and berserk when you use it.";
-		if (info) return info_heal(0, 0, _device_power_hack(300));
+		if (info) return info_heal(0, 0, _staff_power(300));
 		if (cast)
 		{
-			if (hp_player(_device_power_hack(300))) device_noticed = TRUE;
+			if (hp_player(_staff_power(300))) device_noticed = TRUE;
 			if (set_stun(0, TRUE)) device_noticed = TRUE;
 			if (set_cut(0, TRUE)) device_noticed = TRUE;
 			if (set_shero(0,TRUE)) device_noticed = TRUE;
@@ -934,22 +964,22 @@ static cptr _do_staff(int sval, int mode)
 		if (desc) return "It puts all monsters in sight to sleep when you use it.";
 		if (cast)
 		{
-			if (sleep_monsters(p_ptr->lev*3)) device_noticed = TRUE;
+			if (sleep_monsters(_staff_power(p_ptr->lev*3))) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_SLOW_MONSTERS:
 		if (desc) return "It slows all monsters in sight down when you use it.";
 		if (cast)
 		{
-			if (slow_monsters(p_ptr->lev*3)) device_noticed = TRUE;
+			if (slow_monsters(_staff_power(p_ptr->lev*3))) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_SPEED:
 		if (desc) return "It hastes you temporarily when you use it.";
-		if (info) return info_duration(_device_power_hack(15), _device_power_hack(30));
+		if (info) return info_duration(_staff_power(15), _staff_power(30));
 		if (cast)
 		{
-			if (set_fast(_device_power_hack(randint1(30) + 15), FALSE)) device_noticed = TRUE;
+			if (set_fast(_staff_power(randint1(30) + 15), FALSE)) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_PROBING:
@@ -962,30 +992,30 @@ static cptr _do_staff(int sval, int mode)
 		break;
 	case SV_STAFF_DISPEL_EVIL:
 		if (desc) return "It damages all evil monsters in sight when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(100));
+		if (info) return info_damage(0, 0, _staff_power(100));
 		if (cast)
 		{
-			if (dispel_evil(_device_power_hack(100))) device_noticed = TRUE;
+			if (dispel_evil(_staff_power(100))) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_POWER:
 		if (desc) return "It does damage to all monsters in sight when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(150));
+		if (info) return info_damage(0, 0, _staff_power(150));
 		if (cast)
 		{
-			if (dispel_monsters(_device_power_hack(150))) device_noticed = TRUE;
+			if (dispel_monsters(_staff_power(150))) device_noticed = TRUE;
 		}
 		break;
 	case SV_STAFF_HOLINESS:
 		if (desc) return "It does damage to all evil monsters in sight, gives temporary protection from lesser evil creature, cures poison, stuuned, cuts, removes fear and heals you a bit when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(150));
+		if (info) return info_damage(0, 0, _staff_power(150));
 		if (cast)
 		{
 			int k = 3 * p_ptr->lev;
-			if (dispel_evil(_device_power_hack(150))) device_noticed = TRUE;
+			if (dispel_evil(_staff_power(150))) device_noticed = TRUE;
 			if (set_protevil(p_ptr->protevil + randint1(25) + k, FALSE)) device_noticed = TRUE;
 			if (set_poisoned(0, TRUE)) device_noticed = TRUE;
-			if (hp_player(_device_power_hack(50))) device_noticed = TRUE;
+			if (hp_player(_staff_power(50))) device_noticed = TRUE;
 			if (set_stun(0, TRUE)) device_noticed = TRUE;
 			if (set_cut(0, TRUE)) device_noticed = TRUE;
 		}
@@ -994,7 +1024,7 @@ static cptr _do_staff(int sval, int mode)
 		if (desc) return "It eliminates an entire class of monster, exhausting you. Powerful or unique monsters may resist.";
 		if (cast)
 		{
-			(void)symbol_genocide((magic_eater_hack ? p_ptr->lev + 50 : device_power(200)), TRUE);
+			(void)symbol_genocide((magic_eater_hack ? p_ptr->lev + 50 : _staff_power(200)), TRUE);
 			device_noticed = TRUE;
 		}
 		break;
@@ -1009,9 +1039,10 @@ static cptr _do_staff(int sval, int mode)
 		break;
 	case SV_STAFF_DESTRUCTION:
 		if (desc) return "It destroys everything nearby you when you use it.";
+		if (info) return format("Power %d", _staff_power(4 * p_ptr->lev));
 		if (cast)
 		{
-			if (destroy_area(py, px, 13 + randint0(5), _device_power_hack(4 * p_ptr->lev)))
+			if (destroy_area(py, px, 13 + randint0(5), _staff_power(4 * p_ptr->lev)))
 				device_noticed = TRUE;
 		}
 		break;
@@ -1025,16 +1056,17 @@ static cptr _do_staff(int sval, int mode)
 		break;
 	case SV_STAFF_MSTORM:
 		if (desc) return "It produces a huge mana ball centered on you when you use it. If you are not magically inclined, you take damage as well.";
-		if (info) return info_damage(1, _device_power_hack(200), _device_power_hack(300));
+		if (info) return info_damage(1, _staff_power(200), _staff_power(300));
 		if (cast)
 		{
 			msg_print("Mighty magics rend your enemies!");
 			project(0, 5, py, px,
-				_device_power_hack((randint1(200) + 300) * 2), 
+				_staff_power((randint1(200) + 300) * 2), 
 				GF_MANA, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID, -1);
 			if ( p_ptr->pclass != CLASS_MAGE
 			  && p_ptr->pclass != CLASS_HIGH_MAGE 
 			  && p_ptr->pclass != CLASS_SORCERER 
+			  && p_ptr->pclass != CLASS_DEVICEMASTER
 			  && p_ptr->pclass != CLASS_MAGIC_EATER 
 			  && p_ptr->pclass != CLASS_BLUE_MAGE 
 			  && p_ptr->pclass != CLASS_BLOOD_MAGE )
@@ -1097,7 +1129,7 @@ static cptr _do_wand(int sval, int mode)
 		if (desc) return "It heals a monster when you use it.";
 		if (cast)
 		{
-			if (heal_monster(dir, _device_power_hack(damroll(10, 10)))) device_noticed = TRUE;
+			if (heal_monster(dir, _wand_power(damroll(10, 10)))) device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_HASTE_MONSTER:
@@ -1169,22 +1201,22 @@ static cptr _do_wand(int sval, int mode)
 		if (desc) return "It confuses a monster when you use it.";
 		if (cast)
 		{
-			if (confuse_monster(dir, _device_power_hack(p_ptr->lev))) device_noticed = TRUE;
+			if (confuse_monster(dir, _wand_power(p_ptr->lev))) device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_FEAR_MONSTER:
 		if (desc) return "It scares a monster when you use it.";
 		if (cast)
 		{
-			if (fear_monster(dir, _device_power_hack(p_ptr->lev))) device_noticed = TRUE;
+			if (fear_monster(dir, _wand_power(p_ptr->lev))) device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_DRAIN_LIFE:
 		if (desc) return "It fires a bolt that steals life from a foe when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(50 + p_ptr->lev/2));
+		if (info) return info_damage(0, 0, _wand_power(50 + p_ptr->lev/2));
 		if (cast)
 		{
-			int dam = _device_power_hack(50 + p_ptr->lev/2);
+			int dam = _wand_power(50 + p_ptr->lev/2);
 			if (drain_life(dir, dam)) 
 			{
 				hp_player(dam);
@@ -1201,28 +1233,28 @@ static cptr _do_wand(int sval, int mode)
 		break;
 	case SV_WAND_STINKING_CLOUD:
 		if (desc) return "It fires a ball of poison when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(12 + p_ptr->lev/4));
+		if (info) return info_damage(0, 0, _wand_power(12 + p_ptr->lev/4));
 		if (cast)
 		{
-			fire_ball(GF_POIS, dir, _device_power_hack(12 + p_ptr->lev/4), 2);
+			fire_ball(GF_POIS, dir, _wand_power(12 + p_ptr->lev/4), 2);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_MAGIC_MISSILE:
 		if (desc) return "It fires a bolt or beam of magic when you use it.";
-		if (info) return info_damage(_device_power_hack(2 + p_ptr->lev/10), 6, 0);
+		if (info) return info_damage(_wand_power(2 + p_ptr->lev/10), 6, 0);
 		if (cast)
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, _device_power_hack(damroll(2 + p_ptr->lev/10, 6)));
+			fire_bolt_or_beam(20, GF_MISSILE, dir, _wand_power(damroll(2 + p_ptr->lev/10, 6)));
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_ACID_BOLT:
 		if (desc) return "It fires a bolt or beam of acid when you use it.";
-		if (info) return info_damage(_device_power_hack(6 + p_ptr->lev/7), 8, 0);
+		if (info) return info_damage(_wand_power(6 + p_ptr->lev/7), 8, 0);
 		if (cast)
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, _device_power_hack(damroll(6 + p_ptr->lev/7, 8)));
+			fire_bolt_or_beam(20, GF_ACID, dir, _wand_power(damroll(6 + p_ptr->lev/7, 8)));
 			device_noticed = TRUE;
 		}
 		break;
@@ -1230,61 +1262,61 @@ static cptr _do_wand(int sval, int mode)
 		if (desc) return "It charms a monster into your pet when you use it.";
 		if (cast)
 		{
-			if (charm_monster(dir, MAX(20, _device_power_hack(p_ptr->lev))))
+			if (charm_monster(dir, MAX(20, _wand_power(p_ptr->lev))))
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_FIRE_BOLT:
 		if (desc) return "It fires a bolt or beam of fire when you use it.";
-		if (info) return info_damage(_device_power_hack(7 + p_ptr->lev/6), 8, 0);
+		if (info) return info_damage(_wand_power(7 + p_ptr->lev/6), 8, 0);
 		if (cast)
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, _device_power_hack(damroll(7 + p_ptr->lev/6, 8)));
+			fire_bolt_or_beam(20, GF_FIRE, dir, _wand_power(damroll(7 + p_ptr->lev/6, 8)));
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_COLD_BOLT:
 		if (desc) return "It fires a bolt or beam of cold when you use it.";
-		if (info) return info_damage(_device_power_hack(5 + p_ptr->lev/8), 8, 0);
+		if (info) return info_damage(_wand_power(5 + p_ptr->lev/8), 8, 0);
 		if (cast)
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, _device_power_hack(damroll(5 + p_ptr->lev/8, 8)));
+			fire_bolt_or_beam(20, GF_COLD, dir, _wand_power(damroll(5 + p_ptr->lev/8, 8)));
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_ACID_BALL:
 		if (desc) return "It fires a ball of acid when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(60 + 3*p_ptr->lev/4));
+		if (info) return info_damage(0, 0, _wand_power(60 + 3*p_ptr->lev/4));
 		if (cast)
 		{
-			fire_ball(GF_ACID, dir, _device_power_hack(60 + 3*p_ptr->lev/4), 2);
+			fire_ball(GF_ACID, dir, _wand_power(60 + 3*p_ptr->lev/4), 2);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_ELEC_BALL:
 		if (desc) return "It fires a ball of lightning when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(40 + 3*p_ptr->lev/4));
+		if (info) return info_damage(0, 0, _wand_power(40 + 3*p_ptr->lev/4));
 		if (cast)
 		{
-			fire_ball(GF_ELEC, dir, _device_power_hack(40 + 3*p_ptr->lev/4), 2);
+			fire_ball(GF_ELEC, dir, _wand_power(40 + 3*p_ptr->lev/4), 2);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_FIRE_BALL:
 		if (desc) return "It fires a ball of fire when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(70 + 3*p_ptr->lev/4));
+		if (info) return info_damage(0, 0, _wand_power(70 + 3*p_ptr->lev/4));
 		if (cast)
 		{
-			fire_ball(GF_FIRE, dir, _device_power_hack(70 + 3*p_ptr->lev/4), 2);
+			fire_ball(GF_FIRE, dir, _wand_power(70 + 3*p_ptr->lev/4), 2);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_COLD_BALL:
 		if (desc) return "It fires a ball of cold when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(50 + 3*p_ptr->lev/4));
+		if (info) return info_damage(0, 0, _wand_power(50 + 3*p_ptr->lev/4));
 		if (cast)
 		{
-			fire_ball(GF_COLD, dir, _device_power_hack(50 + 3*p_ptr->lev/4), 2);
+			fire_ball(GF_COLD, dir, _wand_power(50 + 3*p_ptr->lev/4), 2);
 			device_noticed = TRUE;
 		}
 		break;
@@ -1294,63 +1326,63 @@ static cptr _do_wand(int sval, int mode)
 		break;
 	case SV_WAND_DRAGON_FIRE:
 		if (desc) return "It breathes fire when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(200));
+		if (info) return info_damage(0, 0, _wand_power(200));
 		if (cast)
 		{
-			fire_ball(GF_FIRE, dir, _device_power_hack(200), -3);
+			fire_ball(GF_FIRE, dir, _wand_power(200), -3);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_DRAGON_COLD:
 		if (desc) return "It breathes cold when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(180));
+		if (info) return info_damage(0, 0, _wand_power(180));
 		if (cast)
 		{
-			fire_ball(GF_COLD, dir, _device_power_hack(180), -3);
+			fire_ball(GF_COLD, dir, _wand_power(180), -3);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_DRAGON_BREATH:
 		if (desc) return "It breathes acid, lightning, fire, cold or poison when you use it.";
-		if (info) return format("dam %d-%d", _device_power_hack(180), _device_power_hack(240));
+		if (info) return format("dam %d-%d", _wand_power(180), _wand_power(240));
 		if (cast)
 		{
 			switch (randint1(5))
 			{
-			case 1: fire_ball(GF_ACID, dir, _device_power_hack(240), -3); break;
-			case 2: fire_ball(GF_ELEC, dir, _device_power_hack(210), -3); break;
-			case 3: fire_ball(GF_FIRE, dir, _device_power_hack(240), -3); break;
-			case 4: fire_ball(GF_COLD, dir, _device_power_hack(210), -3); break;
-			case 5: fire_ball(GF_POIS, dir, _device_power_hack(180), -3); break;
+			case 1: fire_ball(GF_ACID, dir, _wand_power(240), -3); break;
+			case 2: fire_ball(GF_ELEC, dir, _wand_power(210), -3); break;
+			case 3: fire_ball(GF_FIRE, dir, _wand_power(240), -3); break;
+			case 4: fire_ball(GF_COLD, dir, _wand_power(210), -3); break;
+			case 5: fire_ball(GF_POIS, dir, _wand_power(180), -3); break;
 			}
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_DISINTEGRATE:
 		if (desc) return "It fires a ball of disintegration when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(200 + p_ptr->lev*2));
+		if (info) return info_damage(0, 0, _wand_power(200 + p_ptr->lev*2));
 		if (cast)
 		{
-			fire_ball(GF_DISINTEGRATE, dir, _device_power_hack(200 + randint1(p_ptr->lev * 2)), 2);
+			fire_ball(GF_DISINTEGRATE, dir, _wand_power(200 + randint1(p_ptr->lev * 2)), 2);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_ROCKETS:
 		if (desc) return "It fires a rocket when you use it.";
-		if (info) return info_damage(0, 0, _device_power_hack(250 + p_ptr->lev*3));
+		if (info) return info_damage(0, 0, _wand_power(250 + p_ptr->lev*3));
 		if (cast)
 		{
 			msg_print("You launch a rocket!");
-			fire_rocket(GF_ROCKET, dir, _device_power_hack(250 + p_ptr->lev*3), 2);
+			fire_rocket(GF_ROCKET, dir, _wand_power(250 + p_ptr->lev*3), 2);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_WAND_STRIKING:
 		if (desc) return "It fires a bolt of meteor when you use it.";
-		if (info) return info_damage(_device_power_hack(15 + p_ptr->lev/3), 13, 0);
+		if (info) return info_damage(_wand_power(15 + p_ptr->lev/3), 13, 0);
 		if (cast)
 		{
-			fire_bolt(GF_METEOR, dir, _device_power_hack(damroll(15 + p_ptr->lev/3, 13)));
+			fire_bolt(GF_METEOR, dir, _wand_power(damroll(15 + p_ptr->lev/3, 13)));
 			device_noticed = TRUE;
 		}
 		break;
@@ -1358,7 +1390,7 @@ static cptr _do_wand(int sval, int mode)
 		if (desc) return "It removes a monster from current dungeon level unless resisted when you use it.";
 		if (cast)
 		{
-			fire_ball_hide(GF_GENOCIDE, dir, magic_eater_hack ? p_ptr->lev + 50 : device_power(250), 0);
+			fire_ball_hide(GF_GENOCIDE, dir, magic_eater_hack ? p_ptr->lev + 50 : _wand_power(250), 0);
 			device_noticed = TRUE;
 		}
 		break;
@@ -1433,7 +1465,7 @@ static cptr _do_rod(int sval, int mode)
 		if (desc) return "It lights up nearby area or current room permanently when you zap it.";
 		if (cast)
 		{
-			if (lite_area(_device_power_hack(damroll(2, 8)), 2)) device_noticed = TRUE;
+			if (lite_area(_rod_power(damroll(2, 8)), 2)) device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_MAPPING:
@@ -1462,10 +1494,10 @@ static cptr _do_rod(int sval, int mode)
 		break;
 	case SV_ROD_CURING:
 		if (desc) return "It cures blindness, poison, confusion, stunned, cuts, hallucination and berserk when you zap it.";
-		if (info) return info_heal(0, 0, _device_power_hack(50));
+		if (info) return info_heal(0, 0, _rod_power(50));
 		if (cast)
 		{
-			if (hp_player(_device_power_hack(50))) device_noticed = TRUE;
+			if (hp_player(_rod_power(50))) device_noticed = TRUE;
 			if (set_blind(0, TRUE)) device_noticed = TRUE;
 			if (set_poisoned(0, TRUE)) device_noticed = TRUE;
 			if (set_confused(0, TRUE)) device_noticed = TRUE;
@@ -1477,10 +1509,10 @@ static cptr _do_rod(int sval, int mode)
 		break;
 	case SV_ROD_HEALING:
 		if (desc) return "It heals you and cures stunned, cuts and berserk when you zap it.";
-		if (info) return info_heal(0, 0, _device_power_hack(500));
+		if (info) return info_heal(0, 0, _rod_power(500));
 		if (cast)
 		{
-			if (hp_player(_device_power_hack(500))) device_noticed = TRUE;
+			if (hp_player(_rod_power(500))) device_noticed = TRUE;
 			if (set_stun(0, TRUE)) device_noticed = TRUE;
 			if (set_cut(0, TRUE)) device_noticed = TRUE;
 			if (set_shero(0,TRUE)) device_noticed = TRUE;
@@ -1501,17 +1533,17 @@ static cptr _do_rod(int sval, int mode)
 		break;
 	case SV_ROD_SPEED:
 		if (desc) return "It hastes you temporarily when you zap it.";
-		if (info) return info_duration(_device_power_hack(15), _device_power_hack(30));
+		if (info) return info_duration(_rod_power(15), _rod_power(30));
 		if (cast)
 		{
-			if (set_fast(_device_power_hack(randint1(30) + 15), FALSE)) device_noticed = TRUE;
+			if (set_fast(_rod_power(randint1(30) + 15), FALSE)) device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_PESTICIDE:
 		if (desc) return "It does slight damage to all monsters in sight when you zap it.";
 		if (cast)
 		{
-			if (dispel_monsters(_device_power_hack(4))) device_noticed = TRUE;
+			if (dispel_monsters(_rod_power(4))) device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_TELEPORT_AWAY:
@@ -1558,10 +1590,10 @@ static cptr _do_rod(int sval, int mode)
 		break;
 	case SV_ROD_DRAIN_LIFE:
 		if (desc) return "It fires a bolt that steals life from a foe when you zap it.";
-		if (info) return info_damage(0, 0, _device_power_hack(60 + p_ptr->lev/2));
+		if (info) return info_damage(0, 0, _rod_power(60 + p_ptr->lev/2));
 		if (cast)
 		{
-			int dam = _device_power_hack(60 + p_ptr->lev/2);
+			int dam = _rod_power(60 + p_ptr->lev/2);
 			if (device_known && !get_aim_dir(&dir)) return NULL;
 			if (drain_life(dir, dam)) 
 			{
@@ -1580,81 +1612,91 @@ static cptr _do_rod(int sval, int mode)
 		break;
 	case SV_ROD_ACID_BOLT:
 		if (desc) return "It fires a bolt or beam of acid when you zap it.";
-		if (info) return info_damage(_device_power_hack(6 + p_ptr->lev/7), 8, 0);
+		if (info) return info_damage(_rod_power(6 + p_ptr->lev/7), 8, 0);
 		if (cast)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
-			fire_bolt_or_beam(10, GF_ACID, dir, _device_power_hack(damroll(6 + p_ptr->lev/7, 8)));
+			fire_bolt_or_beam(10, GF_ACID, dir, _rod_power(damroll(6 + p_ptr->lev/7, 8)));
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_ELEC_BOLT:
 		if (desc) return "It fires a bolt or beam of lightning when you zap it.";
-		if (info) return info_damage(_device_power_hack(4 + p_ptr->lev/9), 8, 0);
+		if (info) return info_damage(_rod_power(4 + p_ptr->lev/9), 8, 0);
 		if (cast)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
-			fire_bolt_or_beam(10, GF_ELEC, dir, _device_power_hack(damroll(4 + p_ptr->lev/9, 8)));
+			fire_bolt_or_beam(10, GF_ELEC, dir, _rod_power(damroll(4 + p_ptr->lev/9, 8)));
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_FIRE_BOLT:
 		if (desc) return "It fires a bolt or beam of fire when you zap it.";
-		if (info) return info_damage(_device_power_hack(7 + p_ptr->lev/6), 8, 0);
+		if (info) return info_damage(_rod_power(7 + p_ptr->lev/6), 8, 0);
 		if (cast)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
-			fire_bolt_or_beam(10, GF_FIRE, dir, _device_power_hack(damroll(7 + p_ptr->lev/6, 8)));
+			fire_bolt_or_beam(10, GF_FIRE, dir, _rod_power(damroll(7 + p_ptr->lev/6, 8)));
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_COLD_BOLT:
 		if (desc) return "It fires a bolt or beam of cold when you zap it.";
-		if (info) return info_damage(_device_power_hack(5 + p_ptr->lev/8), 8, 0);
+		if (info) return info_damage(_rod_power(5 + p_ptr->lev/8), 8, 0);
 		if (cast)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
-			fire_bolt_or_beam(10, GF_COLD, dir, _device_power_hack(damroll(5 + p_ptr->lev/8, 8)));
+			fire_bolt_or_beam(10, GF_COLD, dir, _rod_power(damroll(5 + p_ptr->lev/8, 8)));
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_ACID_BALL:
 		if (desc) return "It fires a ball of acid when you zap it.";
-		if (info) return info_damage(0, 0, _device_power_hack(60 + p_ptr->lev));
+		if (info) return info_damage(0, 0, _rod_power(60 + p_ptr->lev));
 		if (cast)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
-			fire_ball(GF_ACID, dir, _device_power_hack(60 + p_ptr->lev), 2);
+			fire_ball(GF_ACID, dir, _rod_power(60 + p_ptr->lev), 2);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_ELEC_BALL:
 		if (desc) return "It fires a ball of lightning when you zap it.";
-		if (info) return info_damage(0, 0, _device_power_hack(40 + p_ptr->lev));
+		if (info) return info_damage(0, 0, _rod_power(40 + p_ptr->lev));
 		if (cast)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
-			fire_ball(GF_ELEC, dir, _device_power_hack(40 + p_ptr->lev), 2);
+			fire_ball(GF_ELEC, dir, _rod_power(40 + p_ptr->lev), 2);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_FIRE_BALL:
 		if (desc) return "It fires a ball of fire when you zap it.";
-		if (info) return info_damage(0, 0, _device_power_hack(70 + p_ptr->lev));
+		if (info) return info_damage(0, 0, _rod_power(70 + p_ptr->lev));
 		if (cast)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
-			fire_ball(GF_FIRE, dir, _device_power_hack(70 + p_ptr->lev), 2);
+			fire_ball(GF_FIRE, dir, _rod_power(70 + p_ptr->lev), 2);
 			device_noticed = TRUE;
 		}
 		break;
 	case SV_ROD_COLD_BALL:
 		if (desc) return "It fires a ball of cold when you zap it.";
-		if (info) return info_damage(0, 0, _device_power_hack(50 + p_ptr->lev));
+		if (info) return info_damage(0, 0, _rod_power(50 + p_ptr->lev));
 		if (cast)
 		{
 			if (device_known && !get_aim_dir(&dir)) return NULL;
-			fire_ball(GF_COLD, dir, _device_power_hack(50 + p_ptr->lev), 2);
+			fire_ball(GF_COLD, dir, _rod_power(50 + p_ptr->lev), 2);
+			device_noticed = TRUE;
+		}
+		break;
+	case SV_ROD_MANA_BALL:
+		if (desc) return "It fires a ball of mana when you zap it.";
+		if (info) return info_damage(0, 0, _rod_power(200 + p_ptr->lev));
+		if (cast)
+		{
+			if (device_known && !get_aim_dir(&dir)) return NULL;
+			fire_ball(GF_MANA, dir, _rod_power(200 + p_ptr->lev), 2);
 			device_noticed = TRUE;
 		}
 		break;
@@ -1662,7 +1704,7 @@ static cptr _do_rod(int sval, int mode)
 		if (desc) return "It is capable of firing almost anything, at random.";
 		if (cast)
 		{
-			call_chaos();
+			call_chaos(_rod_power(150));
 			device_noticed = TRUE;
 		}
 		break;
@@ -1688,15 +1730,18 @@ static cptr _do_rod(int sval, int mode)
 
 cptr do_device(int tval, int sval, int mode)
 {
+	cptr result = NULL;
+
 	device_noticed = FALSE;
 	switch (tval)
 	{
-	case TV_STAFF: return _do_staff(sval, mode);
-	case TV_WAND: return _do_wand(sval, mode);
-	case TV_ROD: return _do_rod(sval, mode);
-	case TV_SCROLL: return _do_scroll(sval, mode);
+	case TV_STAFF: result = _do_staff(sval, mode); break;
+	case TV_WAND: result = _do_wand(sval, mode); break;
+	case TV_ROD: result = _do_rod(sval, mode); break;
+	case TV_SCROLL: result = _do_scroll(sval, mode); break;
 	}
 	device_known = FALSE;
-	return NULL;
+	device_extra_power = 0;
+	return result;
 }
 

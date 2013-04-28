@@ -841,6 +841,7 @@ extern bool device_try(object_type *o_ptr);
 extern bool device_use(object_type *o_ptr);
 extern bool device_known;
 extern bool device_noticed;
+extern int  device_extra_power;
 extern cptr do_device(int tval, int sval, int mode);
 
 
@@ -1226,7 +1227,7 @@ extern bool fire_ball_hide(int typ, int dir, int dam, int rad);
 extern bool fire_meteor(int who, int typ, int x, int y, int dam, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
 extern bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev);
-extern void call_chaos(void);
+extern void call_chaos(int pct);
 extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
 extern bool lite_line(int dir);
@@ -2039,6 +2040,10 @@ extern class_t *blue_mage_get_class_t(void);
 extern class_t *cavalry_get_class_t(void);
 extern class_t *chaos_warrior_get_class_t(void);
 extern void     chaos_warrior_reward(void);
+extern class_t *devicemaster_get_class_t(void);
+extern bool     devicemaster_desperation;
+extern cptr     devicemaster_speciality_name(int psubclass);
+extern cptr     devicemaster_speciality_desc(int psubclass);
 extern class_t *force_trainer_get_class_t(void);
 extern class_t *high_mage_get_class_t(void);
 extern bool     imitator_cast(bool revenge);

@@ -98,8 +98,8 @@ static void _mana_storm_spell(int cmd, variant *res)
  * Archlich (Lich -> Master Lich -> Demilich -> Archlich)
  **********************************************************************/
 static spell_info _spells[] = {
-	{  1,  1, 30, magic_missile_spell},
-	{  3,  2, 30, phase_door_spell},
+	{  1,  1, 20, magic_missile_spell},
+	{  3,  2, 25, phase_door_spell},
 	{  5,  3, 30, scare_spell},
 	{  7,  4, 30, detect_life_spell},
 	{  9,  4, 40, nether_bolt_spell},

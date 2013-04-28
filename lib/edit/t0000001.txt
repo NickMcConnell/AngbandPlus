@@ -606,6 +606,21 @@ F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:80
 
 ##########################################################################
+# Devicemaster
+
+# Wand of Rockets
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Wands] ]
+F:@:FLOOR:3:0:299
+
+# Staff of Mana Storm
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Staves] ]
+F:@:FLOOR:3:0:629
+
+# Rod of Havoc
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Rods] ]
+F:@:FLOOR:3:0:350
+
+##########################################################################
 # Weaponmaster
 
 # Hurin

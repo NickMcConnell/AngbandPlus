@@ -4815,7 +4815,13 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 				if ((o_ptr->name2 == EGO_HA) && (have_flag(o_ptr->art_flags, TR_BLOWS)))
 				{
 					if (o_ptr->dd*o_ptr->ds > 30)
+					{
 						remove_flag(o_ptr->art_flags, TR_BLOWS);
+						/* As far as I can tell, pval is first assigned for Holy Avengers
+						   as the terminal else clause of this (outer) if, which is missed
+						   by having picked up extra blows ... */
+						o_ptr->pval = randint1(e_ptr->max_pval);
+					}
 					else
 					{
 						o_ptr->pval = 1;

@@ -1605,6 +1605,7 @@ static void do_cmd_use_staff_aux(int item)
 {
 	object_type *o_ptr;
 	bool         used = FALSE;
+	int          charges = 1;
 
 	if (item >= 0)
 		o_ptr = &inventory[item];
@@ -1619,12 +1620,20 @@ static void do_cmd_use_staff_aux(int item)
 	}
 
 	energy_use = 100;
+
+	if (devicemaster_is_(DEVICEMASTER_STAVES) && !devicemaster_desperation)
+	{
+		int delta = MIN(50, 2*p_ptr->lev - k_info[o_ptr->k_idx].level);
+		if (delta > 0)
+			energy_use -= delta;
+	}
+
 	if (p_ptr->tim_no_device)
 	{
 		msg_print("An evil power blocks your magic!");
 		return;
 	}
-	if (!fear_allow_device())
+	if (!(devicemaster_is_(DEVICEMASTER_STAVES) || fear_allow_device()))
 	{
 		msg_print("You are too scared!");
 		return;
@@ -1655,6 +1664,17 @@ static void do_cmd_use_staff_aux(int item)
 		return;
 	}
 
+	if (devicemaster_desperation)
+	{
+		int i, amt = 50;
+		charges = o_ptr->pval;
+		for (i = 1; i < charges && amt; i++)
+		{
+			device_extra_power += amt;
+			amt /= 2;
+		}
+	}
+
 	sound(SOUND_ZAP);
 	used = device_use(o_ptr);
 
@@ -1667,28 +1687,61 @@ static void do_cmd_use_staff_aux(int item)
 	}
 
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-	if (!used) return;
-
-	o_ptr->pval--;
-	if ((item >= 0) && (o_ptr->number > 1))
+	if (!used) 
 	{
-		object_type forge;
-		object_type *q_ptr;
-
-		q_ptr = &forge;
-		object_copy(q_ptr, o_ptr);
-		q_ptr->number = 1;
-		o_ptr->pval++;
-		o_ptr->number--;
-		p_ptr->total_weight -= q_ptr->weight;
-		item = inven_carry(q_ptr);
-		msg_print("You unstack your staff.");
+		energy_use = 0;
+		return;
 	}
 
-	if (item >= 0)
-		inven_item_charges(item);
+	if (devicemaster_is_(DEVICEMASTER_STAVES) && !devicemaster_desperation && randint1(100) <= p_ptr->lev)
+	{
+		msg_print("Your mental focus powers the staff!");
+	}
 	else
-		floor_item_charges(0 - item);
+	{
+		if (devicemaster_desperation && randint0(p_ptr->lev*7) < k_info[o_ptr->k_idx].level)
+		{
+			char o_name[MAX_NLEN];
+			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+			if (o_ptr->number > 1)
+				msg_format("Desperation magic consumes one of your %s!", o_name);
+			else
+				msg_format("Desperation magic consumes your %s!", o_name);
+			if (item >= 0)
+			{
+				inven_item_increase(item, -1);
+				inven_item_describe(item);
+				inven_item_optimize(item);
+			}
+			else
+			{
+				floor_item_increase(0 - item, -1);
+				floor_item_describe(0 - item);
+				floor_item_optimize(0 - item);
+			}
+		}
+		else if ((item >= 0) && (o_ptr->number > 1))
+		{
+			object_type forge;
+			object_type *q_ptr;
+
+			q_ptr = &forge;
+			object_copy(q_ptr, o_ptr);
+			q_ptr->number = 1;
+			q_ptr->pval = o_ptr->pval - charges;
+			o_ptr->number--;
+			p_ptr->total_weight -= q_ptr->weight;
+			item = inven_carry(q_ptr);
+			msg_print("You unstack your staff.");
+		}
+		else
+			o_ptr->pval -= charges;
+
+		if (item >= 0)
+			inven_item_charges(item);
+		else
+			floor_item_charges(0 - item);
+	}
 }
 
 
@@ -1738,6 +1791,7 @@ static void do_cmd_aim_wand_aux(int item)
 {
 	object_type *o_ptr;
 	bool         used = FALSE;
+	int          charges = 1;
 
 	if (item >= 0)
 		o_ptr = &inventory[item];
@@ -1752,12 +1806,20 @@ static void do_cmd_aim_wand_aux(int item)
 	}
 
 	energy_use = 100;
+
+	if (devicemaster_is_(DEVICEMASTER_WANDS) && !devicemaster_desperation)
+	{
+		int delta = MIN(50, 2*p_ptr->lev - k_info[o_ptr->k_idx].level);
+		if (delta > 0)
+			energy_use -= delta;
+	}
+
 	if (p_ptr->tim_no_device)
 	{
 		msg_print("An evil power blocks your magic!");
 		return;
 	}
-	if (!fear_allow_device())
+	if (!(devicemaster_is_(DEVICEMASTER_WANDS) || fear_allow_device()))
 	{
 		msg_print("You are too scared!");
 		return;
@@ -1788,6 +1850,17 @@ static void do_cmd_aim_wand_aux(int item)
 		return;
 	}
 
+	if (devicemaster_desperation)
+	{
+		int i, amt = 50, num = o_ptr->number;
+		charges = (o_ptr->pval + num - 1)/num;
+		for (i = 1; i < charges && amt; i++)
+		{
+			device_extra_power += amt;
+			amt /= 2;
+		}
+	}
+
 	sound(SOUND_ZAP);
 	used = device_use(o_ptr);
 
@@ -1803,12 +1876,42 @@ static void do_cmd_aim_wand_aux(int item)
 
 	if (used)
 	{
-		o_ptr->pval--;
-		if (item >= 0)
-			inven_item_charges(item);
+		if (devicemaster_is_(DEVICEMASTER_WANDS) && !devicemaster_desperation && randint1(100) <= p_ptr->lev)
+		{
+			msg_print("Your mental focus powers the wand!");
+		}
 		else
-			floor_item_charges(0 - item);
+		{
+			if (devicemaster_desperation && randint0(p_ptr->lev*7) < k_info[o_ptr->k_idx].level)
+			{
+				char o_name[MAX_NLEN];
+				object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+				if (o_ptr->number > 1)
+					msg_format("Desperation magic consumes one of your %s!", o_name);
+				else
+					msg_format("Desperation magic consumes your %s!", o_name);
+				if (item >= 0)
+				{
+					inven_item_increase(item, -1);
+					inven_item_describe(item);
+					inven_item_optimize(item);
+				}
+				else
+				{
+					floor_item_increase(0 - item, -1);
+					floor_item_describe(0 - item);
+					floor_item_optimize(0 - item);
+				}
+			}
+			o_ptr->pval -= charges;
+			if (item >= 0)
+				inven_item_charges(item);
+			else
+				floor_item_charges(0 - item);
+		}
 	}
+	else
+		energy_use = 0;
 }
 
 
@@ -1855,6 +1958,7 @@ static void do_cmd_zap_rod_aux(int item)
 	object_type *o_ptr;
 	bool         used = FALSE;
 	object_kind *k_ptr;
+	int          charges = 1;
 
 	if (item >= 0)
 		o_ptr = &inventory[item];
@@ -1869,12 +1973,20 @@ static void do_cmd_zap_rod_aux(int item)
 	}
 
 	energy_use = 100;
+
+	if (devicemaster_is_(DEVICEMASTER_RODS) && !devicemaster_desperation)
+	{
+		int delta = MIN(50, 2*p_ptr->lev - k_info[o_ptr->k_idx].level);
+		if (delta > 0)
+			energy_use -= delta;
+	}
+
 	if (p_ptr->tim_no_device)
 	{
 		msg_print("An evil power blocks your magic!");
 		return;
 	}
-	if (!fear_allow_device())
+	if (!(devicemaster_is_(DEVICEMASTER_RODS) || fear_allow_device()))
 	{
 		msg_print("You are too scared!");
 		return;
@@ -1912,11 +2024,56 @@ static void do_cmd_zap_rod_aux(int item)
 		return;
 	}
 
+	if (devicemaster_desperation)
+	{
+		int i, amt = 50;
+		charges = o_ptr->number - (o_ptr->timeout + k_ptr->pval - 1)  / k_ptr->pval;
+		if (charges > 3) charges = 3;
+		for (i = 1; i < charges && amt; i++)
+		{
+			device_extra_power += amt;
+			amt /= 2;
+		}
+	}
+
 	sound(SOUND_ZAP);
 	used = device_use(o_ptr);
 
 	/* Increase the timeout by the rod kind's pval. -LM- */
-	if (used) o_ptr->timeout += k_ptr->pval;
+	if (used) 
+	{
+		if (devicemaster_is_(DEVICEMASTER_RODS) && !devicemaster_desperation && randint1(100) <= p_ptr->lev)
+		{
+			msg_print("Your mental focus powers the rod!");
+		}
+		else
+		{
+			o_ptr->timeout += k_ptr->pval * charges;
+			if (devicemaster_desperation && randint0(p_ptr->lev*11) < k_info[o_ptr->k_idx].level)
+			{
+				char o_name[MAX_NLEN];
+				object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+				if (o_ptr->number > 1)
+					msg_format("Desperation magic consumes one of your %s!", o_name);
+				else
+					msg_format("Desperation magic consumes your %s!", o_name);
+				if (item >= 0)
+				{
+					inven_item_increase(item, -1);
+					inven_item_describe(item);
+					inven_item_optimize(item);
+				}
+				else
+				{
+					floor_item_increase(0 - item, -1);
+					floor_item_describe(0 - item);
+					floor_item_optimize(0 - item);
+				}
+			}
+		}
+	}
+	else
+		energy_use = 0;
 
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 

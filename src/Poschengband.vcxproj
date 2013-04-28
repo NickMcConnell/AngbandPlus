@@ -115,6 +115,7 @@
     <ClCompile Include="cmd6.c" />
     <ClCompile Include="combat.c" />
     <ClCompile Include="demigod.c" />
+    <ClCompile Include="devicemaster.c" />
     <ClCompile Include="devices.c" />
     <ClCompile Include="do-spell.c" />
     <ClCompile Include="doppelganger.c" />

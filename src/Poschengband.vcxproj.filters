@@ -525,6 +525,9 @@
     <ClCompile Include="race_troll.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
+    <ClCompile Include="devicemaster.c">
+      <Filter>Player\Classes\PosChengband</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

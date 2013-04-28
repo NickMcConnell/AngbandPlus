@@ -894,6 +894,7 @@ static bool anti_magic_check(void)
 
 	case CLASS_MAGIC_EATER:
 	case CLASS_RED_MAGE:
+	case CLASS_DEVICEMASTER:
 		return one_in_(2);
 	}
 
