@@ -6,11 +6,10 @@
 
 Wizardry:
      Wizardry is the magic of power:  the power of the elements, of chaos and
-confusion, of nexus and planar travel, and of pure mana.  Wizards can befuddle
+confusion, of nexus and planar travel, and of pure mana.  Wizards can bufuddle
 their enemies, vanish into thin air, and wield all sorts of esoteric powers.
 Wizardry can be tricky to use, however; miscast spells can unleash all sorts of
 wild magic.
-     Special realm skill:  Wizardry
 
 Piety:
      Piety is the channeling of divine force; those allied to Heaven have
@@ -22,7 +21,6 @@ enemies to the untrammeled might of God.
 effectively.  If they chose to wield any other kind of weapon, they get a
 penalty to melee skill, a reduced light radius, and their prayers are more
 likely to fail.
-     Special realm skill:  Holy Alliance
 
 Druidic Lore:
      Druids and druids alone understand the lore of nature; the earth, the sea,
@@ -30,7 +28,6 @@ and the sky are at their beck and call.  They wield the elements like no other
 magic-user can, and alter the weather itself to enhance their powers.  Druids
 may shapeshift into many marvelous forms, wither their foes, and have powers to
 heal and recover second only to the pious.
-     Special realm skill:  Nature Lore
      See the sections on weather and shapeshifting below.
 
 Necromancy:
@@ -40,21 +37,20 @@ mana, poison, and mental powers to crush all who stand against them, and can
 ritually enhance their powers to achieve horrific strength.  Great in power
 although necromancy is, it can be very dangerous when cast incautiously.  A
 necromancer is well advised to pay attention to his saving throw.
-     Special realm skill:  Blood Dominion
      See the section on shapeshifting below.
 
 
 --- Spellcasting ---
 
-     The magics of the major realms are found in books, seven for each realm.
-Three are readily available in stores, the other four are harder to find.
-
 Getting spell information:
+     The magics of the major realms of magic are found in books, seven for each
+realm.  Three are readily available in stores, the other four are harder to
+find.
       You may browse books of your realm.  When browsing, you may get more
 information about individual spells that are not too high-level by pressing
-their letter.  Spells that you have cast successfully will display any power or
-damage information.  This information usually updates to reflect temporary
-conditions (weather being the major exception), so you get up-to-date
+their letter.  Also, spells that you have cast at least once will always display
+any power or damage information.  This information usually updates to reflect
+temporary conditions (weather being the major exception), so you get up-to-date
 information on the approximate current power of your spells.
      Be aware that the true usefulness of some spells only becomes apparent with
 much experimentation.
@@ -75,32 +71,37 @@ then try to cast it.  Failing means that priests and druids just lose their turn
 (and their mana), but wizards may unleash wild magic and necromancers get
 attacked by the dark forces they failed to bind.
 
+Getting good at magic:
+     Again, only those who take a spellcaster's Oath can tap the full power of a
+realm.  You take an Oath by selecting the special realm skill (Wizardry, Holy
+Alliance, Nature Lore, or Blood Dominion) in the skills screen, and typing '*'.
+
 Mana:
      Your mana depends on your magic power skill and your spell stat.  All
 spellcasters lose a percentage (not a fixed amount) of mana for wearing heavy
 armor; specialist spellcasters are most affected.  You can reduce this penalty
-by increasing your dodging skill.
+by increasing your dodging skill.  In addition, those using wizardry or
+necromancy lose a chunk of mana if they wear gloves that do not provide free
+action or increase magic mastery skill.  Messages will warn you whenever this
+happens.
 
 Spell failure chance:
      Your spell failure chance depends on the spell itself (some spells are
-inherently hard to cast), the minimum skill required to cast the spell, your
-spell stat, and your special magic-user skill.  Your special magic-user skill
-also has an important effect on the reliability of many spells.
-     Those using wizardry or necromancy suffer if they wear gloves that do not
-provide free action, increase dexterity, or enhance magic mastery skill.
-Priests suffer likewise if they wield an unblessed edged weapon.  Stunning
-(especially if heavy), fear, and lack of mana all make magic harder to use.
+inherently hard to cast), the minimum skill required to cast the spell, and your
+specialist magic-user skill.  Your specialist magic-user skill also has an
+important effect on the reliability of many spells.
+
 
 Weather:
      The knowledge of weather is an art, not a science.  However, it is believed
 that values for wind, temperature, and humidity are generally near average with
 only occasional extremes.  It is also rumoured that each of these three
 components of weather affect two kinds of druidic magic; one benefits from low
-values, another benefits from high ones.  In contrast, attempting to use
-techniques in unfavorable weather works poorly, if at all.
-     Druids have a talent that allows them to forecast the weather.  Weather
-forecasting becomes more accurate with Nature Lore skill, and less accurate as
-you travel further below the surface.
+values, another benefits from high ones.
+     Druids have a talent that allows them to forcast the weather.  Weather
+forecasting becomes more accurate with Perception skill, and less accurate as
+you travel further below the surface.  At a depth of 5000' for example, you need
+a perception skill of 60% to get perfectly accurate weather reports.
 
 Shapeshifting:
      There are two kinds of shapechanges.  Druids (and necromancers) can take on
@@ -113,7 +114,7 @@ skill usually drops, but you often gain some infravision.  Various effects can
 be checked by using the Character screen.
   Goat    : Slow digestion, can eat almost anything safely.
   Bear    : Hard hitter, tough and strong.
-  Mouse   : Weak, but incredibly stealthy.  Never aggravates.  Perceptive.
+  Mouse   : Weak, but incredibly stealthy.  Cannot aggravate.  Perceptive.
   Hound   : Telepathy.
   Cheetah : Fast and dexterous but not very strong.
   Lion    : No fear, excellent bare-clawed fighter.
@@ -125,39 +126,14 @@ be checked by using the Character screen.
   Bat     : Fast but weak.  Infravision, feather fall, and resist blindness.
 
 
---- Getting Good at Magic ---
-
-1)   Take a spellcaster's Oath to tap the full power of a realm.  You take an
-Oath by selecting the special realm skill in the skills screen, and typing '*'.
-
-2)   Use the right magic for the monster.  Most combat spells are resisted by
-some monster races; some actually do extra damage against certain foes.
-
-3)   Use spells in the right tactical settings.  Many magics only reveal their
-true usefulness in particular environments; these often differ greatly from
-those that may be familiar to you from other games of this type.
-
-4)  Be aware of special conditions.  Druidic magic relies heavily on the
-weather; if conditions are sufficiently adverse, natural magic just fizzles out.
-Wizards, Priests, and Necromancers all also have magic that works best when cast
-repeatedly, or when other spells are cast previously, or when a lot of light
-exists nearby.  The spell comments will mention such matters.
-
-5)  Test unfamiliar spells.  All attack and hindrance magics are known to be
-effective, but the best way to use them may not be easy to discover.  In
-general, the more random or resist-able the spell, the more powerful it can be
-when used appropriately.
-
-
---- Spell Projection Types ---
+--- Spell projection types ---
 
      The names of spells and magical devices sometimes give you information
-about what areas they affect and what shapes they take.
+about what areas they affect, and what shapes they take.
 
-"Bolt", "Missile"
+"Bolt", "Missile":
      Fires a magical bolt in a direction or at your chosen target.  Are stopped
-by the first monster or wall in their way; monsters in walls take full damage.
-Some also "Beam" upon occasion.
+by the first monster or wall in their way.  Some also "Beam" upon occasion.
 
 "Beam", "Spear", "Lance", "Line", "Spark"
      Fires a beam of magic in the direction you choose, or towards your target.
@@ -166,17 +142,17 @@ line.  Wands and Rods of Light work this way.  A few beam spells ("spark") have
 short ranges.
 
 "Arc", "Cone", "Breath"
-     Fires an arc, centered in the direction of the target.  These are
-relatively short-range spells, because arcs lose energy as they expand.
-Monsters in walls take no damage.  All monster breaths are arcs.
+     Fires an arc, centered on the direction you choose or on a line towards
+your target, and always originating at your location.  These are relatively
+short-range spells, because arcs lose energy as they expand.  All monster
+breaths are arcs.
 
 "Ball", "Storm"  (storms have a larger radius)
      If you target a specific monster, such spells explode centered at that
 location.  Otherwise, they travel in the direction you choose, and explode as
-soon they hit a monster or wall, or reach their maximum range.  Monsters in
-walls take no damage.  These spells only do full damage to the single grid at
-the center of the explosion, but can affect monsters that can't see you.  Many
-monster spells are balls.
+soon they hit a monster or wall, or reach their maximum range.  These spells
+only do full damage to the single grid at the center of the explosion, but can
+affect monsters that can't see you.
 
 "Orb", "Sphere"
      Orbs are ball spells that do full damage to every grid they affect, and
@@ -186,18 +162,13 @@ usually have small explosions.
      A fair number of spells affect all monsters in line of sight (no walls,
 rubble, or trees between you and them, up to a range of 20).
 
-{various}
+<<various>>
      Ball spells that center on you do full damage to all adjacent grids.  Ball
 spells can take the form of starburst explosions; they do full damage to all
 grids they affect, but are less likely to hit grids further away from the
 center.
      There are also many different kinds of special projections, such as walls
-of fire, beam storms, seeking vortexes, lingering clouds, and so on.
-
-Special notes:
-     Monsters that you cannot see take half damage from magic, for the same
-reasons that make non-magical combat less effective against them.  Monsters that
-are only partially visible take two-thirds damage from magic.
+of fire, beam storms, vortexes, lingering clouds, and so on.
 
 
 --- Hindering your foes ---
@@ -223,7 +194,7 @@ it.
      away (if they have such a spell) or run.  Monsters slower than you will
      charge and go down fighting if nearby.
  Mana:
-     Wait for the monster to run out of mana; most monsters have a limited
+     Wait for the monster to run out of mana:  Most monsters have a limited
      amount of mana.  It may take a long time for them to run out, but once
      they do, they'll need a while to recover.  Be aware that some monsters
      can magically recover mana.
@@ -233,8 +204,8 @@ it.
 
      Wands, staffs, and rods are an important part of many adventurers'
 arsenals, and some specialize in their use.  In addition to these items, certain
-rare rings and amulets can be 'A'ctivated and there are rumours of weapons and
-armor with extraordinary powers.
+rare rings can be 'A'ctivated and there are rumours of armors and artifacts that
+can unleash enormous destruction.
      If you depend on magical devices much, it is important to have a high
 enough magical device skill.  This applies especially to magical devices that
 hinder monsters.
@@ -243,13 +214,15 @@ Getting exact damage information:
      If you use magical devices often enough, you will eventually get the
 message "you feel you know more about...".  'I'nspect the object, and you may
 very well see extra numerical information about damage, etc.  This takes a lot
-of the guesswork out of using staffs, wands, and rods to fight your battles.
+of the guesswork out of using staffs, wands, and rods to kill your foes.
 
 Recharging:
      Wands and staffs have to be recharged every so often.  The failure rate of
 recharging depends on item type (wands are more fragile than staffs), item
 level, your magical device skill, and the power of the recharging spell you are
 using.  A high magical device skill makes magical recharging much safer.
+
+
 
 
 

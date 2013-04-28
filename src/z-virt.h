@@ -1,12 +1,11 @@
 /* File: z-virt.h */
 
 /*
- * Copyright (c) 2007 Ben Harrison
+ * Copyright (c) 1997 Ben Harrison
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
  */
 
 #ifndef INCLUDED_Z_VIRT_H
@@ -149,7 +148,7 @@ extern void* rnfree(void *p);
 /* Panic, attempt to allocate 'len' bytes */
 extern void* rpanic(size_t len);
 
-/* Allocate (and return) 'len', or quit */
+/* Allocate (and return) 'len', or dump core */
 extern void* ralloc(size_t len);
 
 /* Create a "dynamic string" */

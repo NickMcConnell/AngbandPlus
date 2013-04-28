@@ -3,16 +3,11 @@
 /*
  * "main()" function, argument-handling.
  *
- * This file is intended for use by ports that are command line-driven; ports
- * that are not, such as those for Macintosh, Windows, and cross-platform SDL
- * use their own code.
+ * Copyright (c) 1997 Ben Harrison, and others
  *
- * Copyright (c) 2007 Ben Harrison, and others
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
  */
 
 #include "angband.h"
@@ -24,7 +19,7 @@
  */
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(USE_SDL)
+#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
 
 
 #include "main.h"
@@ -39,13 +34,25 @@ static const struct module modules[] =
 	{ "gtk", help_gtk, init_gtk },
 #endif /* USE_GTK */
 
+#ifdef USE_XAW
+	{ "xaw", help_xaw, init_xaw },
+#endif /* USE_XAW */
+
 #ifdef USE_X11
 	{ "x11", help_x11, init_x11 },
 #endif /* USE_X11 */
 
+#ifdef USE_XPJ
+	{ "xpj", help_xpj, init_xpj },
+#endif /* USE_XPJ */
+
 #ifdef USE_GCU
 	{ "gcu", help_gcu, init_gcu },
 #endif /* USE_GCU */
+
+#ifdef USE_CAP
+	{ "cap", help_cap, init_cap },
+#endif /* USE_CAP */
 
 #ifdef USE_DOS
 	{ "dos", help_dos, init_dos },
@@ -54,6 +61,30 @@ static const struct module modules[] =
 #ifdef USE_IBM
 	{ "ibm", help_ibm, init_ibm },
 #endif /* USE_IBM */
+
+#ifdef USE_EMX
+	{ "emx", help_emx, init_emx },
+#endif /* USE_EMX */
+
+#ifdef USE_SLA
+	{ "sla", help_sla, init_sla },
+#endif /* USE_SLA */
+
+#ifdef USE_LSL
+	{ "lsl", help_lsl, init_lsl },
+#endif /* USE_LSL */
+
+#ifdef USE_AMI
+	{ "ami", help_ami, init_ami },
+#endif /* USE_AMI */
+
+#ifdef USE_VME
+	{ "vme", help_vme, init_vme },
+#endif /* USE_VME */
+
+#ifdef USE_VCS
+	{ "vcs", help_vcs, init_vcs }
+#endif /* USE_VCS */
 };
 
 
@@ -70,10 +101,10 @@ static void quit_hook(cptr s)
 	(void)s;
 
 	/* Scan windows */
-	for (j = TERM_MAX - 1; j >= 0; j--)
+	for (j = ANGBAND_TERM_MAX - 1; j >= 0; j--)
 	{
-		/* No window, or window is unavailable */
-		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
+		/* Unused */
+		if (!angband_term[j]) continue;
 
 		/* Nuke it */
 		term_nuke(angband_term[j]);
@@ -81,50 +112,73 @@ static void quit_hook(cptr s)
 }
 
 
+
 /*
- * Hack -- Display the scores in a given range and quit.
+ * Set the stack size (for the Amiga)
  */
-static void display_scores(int from, int to)
+#ifdef AMIGA
+# include <dos.h>
+__near long __stack = 32768L;
+#endif /* AMIGA */
+
+
+/*
+ * Set the stack size and overlay buffer (see main-286.c")
+ */
+#ifdef USE_286
+# include <dos.h>
+extern unsigned _stklen = 32768U;
+extern unsigned _ovrbuffer = 0x1500;
+#endif /* USE_286 */
+
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the user's home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+static void create_user_dir(void)
 {
-	char buf[1024];
+	char dirpath[1024];
+	char subdirpath[1024];
 
-	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
-	/* Open the binary high score file, for reading */
-	highscore_fd = fd_open(buf, O_RDONLY);
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
 
-	/* Display the scores */
-	display_scores_aux(from, to, -1, NULL);
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
 
-	/* Shut the high score file */
-	(void)fd_close(highscore_fd);
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
 
-	/* Forget the high score fd */
-	highscore_fd = -1;
-
-	/* Wait for response */
-	prt("[Press any key to exit.]", Term->rows - 1, 17);
-	(void)inkey(FALSE);
-	prt("", Term->rows - 1, 0);
-
-	/* Quit */
-	quit(NULL);
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
 }
+
+#endif /* PRIVATE_USER_PATH */
+
 
 /*
  * Initialize and verify the file paths, and the score file.
  *
- * First, we'll look for the <<VERSION_NAME>>_PATH environment variable,
- * and then look for the files in there.  If that doesn't work, we'll
- * try the DEFAULT_PATH constant.  So be sure that one of  these two
- * things works...
+ * Use the ANGBAND_PATH environment var if possible, else use
+ * DEFAULT_PATH, and in either case, branch off appropriately.
+ *
+ * First, we'll look for the ANGBAND_PATH environment variable,
+ * and then look for the files in there.  If that doesn't work,
+ * we'll try the DEFAULT_PATH constant.  So be sure that one of
+ * these two things works...
  *
  * We must ensure that the path ends with "PATH_SEP" if needed,
  * since the "init_file_paths()" function will simply append the
  * relevant "sub-directory names" to the given path.
  *
- * Note that the "path" must be "Sangband:" for the Amiga.  XXX XXX
+ * Note that the "path" must be "Angband:" for the Amiga, and it
+ * is ignored for "VM/ESA", so I just combined the two.
  *
  * Make sure that the path doesn't overflow the buffer.  We have
  * to leave enough space for the path separator, directory, and
@@ -134,23 +188,32 @@ static void init_stuff(void)
 {
 	char path[1024];
 
+#if defined(AMIGA) || defined(VM)
+
+	/* Hack -- prepare "path" */
+	strcpy(path, "Angband:");
+
+#else /* AMIGA / VM */
+
 	cptr tail = NULL;
 
 #ifndef FIXED_PATHS
 
 	/* Get the environment variable */
-	tail = getenv(format("%s_PATH", VERSION_NAME));
+	tail = getenv("ANGBAND_PATH");
 
 #endif /* FIXED_PATHS */
 
-	/* Use the sangband_path, or a default */
-	(void)my_strcpy(path, tail ? tail : DEFAULT_PATH, sizeof(path));
+	/* Use the angband_path, or a default */
+	my_strcpy(path, tail ? tail : DEFAULT_PATH, sizeof(path));
 
-	/* HACK! -- Make sure it's terminated */
-	path[768] = '\0';
+	/* Make sure it's terminated */
+	path[511] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
-	if (!suffix(path, PATH_SEP)) (void)my_strcat(path, PATH_SEP, sizeof(path));
+	if (!suffix(path, PATH_SEP)) my_strcat(path, PATH_SEP, sizeof(path));
+
+#endif /* AMIGA / VM */
 
 	/* Initialize */
 	init_file_paths(path);
@@ -178,40 +241,40 @@ static void change_path(cptr info)
 	if (!s) quit_fmt("Try '-d<what>=<path>' not '-d%s'", info);
 
 	/* Analyze */
-	switch (my_tolower((unsigned char)info[0]))
+	switch (tolower((unsigned char)info[0]))
 	{
 #ifndef FIXED_PATHS
 		case 'a':
 		{
-			(void)string_free(ANGBAND_DIR_APEX);
+			string_free(ANGBAND_DIR_APEX);
 			ANGBAND_DIR_APEX = string_make(s+1);
 			break;
 		}
 
 		case 'f':
 		{
-			(void)string_free(ANGBAND_DIR_FILE);
+			string_free(ANGBAND_DIR_FILE);
 			ANGBAND_DIR_FILE = string_make(s+1);
 			break;
 		}
 
 		case 'h':
 		{
-			(void)string_free(ANGBAND_DIR_HELP);
+			string_free(ANGBAND_DIR_HELP);
 			ANGBAND_DIR_HELP = string_make(s+1);
 			break;
 		}
 
 		case 'i':
 		{
-			(void)string_free(ANGBAND_DIR_INFO);
+			string_free(ANGBAND_DIR_INFO);
 			ANGBAND_DIR_INFO = string_make(s+1);
 			break;
 		}
 
 		case 'x':
 		{
-			(void)string_free(ANGBAND_DIR_XTRA);
+			string_free(ANGBAND_DIR_XTRA);
 			ANGBAND_DIR_XTRA = string_make(s+1);
 			break;
 		}
@@ -230,28 +293,28 @@ static void change_path(cptr info)
 
 		case 'b':
 		{
-			(void)string_free(ANGBAND_DIR_BONE);
+			string_free(ANGBAND_DIR_BONE);
 			ANGBAND_DIR_BONE = string_make(s+1);
 			break;
 		}
 
 		case 'd':
 		{
-			(void)string_free(ANGBAND_DIR_DATA);
+			string_free(ANGBAND_DIR_DATA);
 			ANGBAND_DIR_DATA = string_make(s+1);
 			break;
 		}
 
 		case 'e':
 		{
-			(void)string_free(ANGBAND_DIR_EDIT);
+			string_free(ANGBAND_DIR_EDIT);
 			ANGBAND_DIR_EDIT = string_make(s+1);
 			break;
 		}
 
 		case 's':
 		{
-			(void)string_free(ANGBAND_DIR_SAVE);
+			string_free(ANGBAND_DIR_SAVE);
 			ANGBAND_DIR_SAVE = string_make(s+1);
 			break;
 		}
@@ -262,7 +325,7 @@ static void change_path(cptr info)
 
 		case 'u':
 		{
-			(void)string_free(ANGBAND_DIR_USER);
+			string_free(ANGBAND_DIR_USER);
 			ANGBAND_DIR_USER = string_make(s+1);
 			break;
 		}
@@ -301,6 +364,15 @@ int main(int argc, char *argv[])
 	argv0 = argv[0];
 
 
+#ifdef USE_286
+	/* Attempt to use XMS (or EMS) memory for swap space */
+	if (_OvrInitExt(0L, 0L))
+	{
+		_OvrInitEms(0, 0, 64);
+	}
+#endif /* USE_286 */
+
+
 #ifdef SET_UID
 
 	/* Default permissions on files */
@@ -317,6 +389,11 @@ int main(int argc, char *argv[])
 
 	/* Get the user id (?) */
 	player_uid = getuid();
+
+#ifdef VMS
+	/* Mega-Hack -- Factor group id */
+	player_uid += (getgid() * 1000);
+#endif /* VMS */
 
 # ifdef SAFE_SETUID
 
@@ -356,13 +433,25 @@ int main(int argc, char *argv[])
 
 #ifdef SET_UID
 
+	/* Initialize the "time" checker */
+	if (check_time_init() || check_time())
+	{
+		quit("The gates to Angband are closed (bad time).");
+	}
+
+	/* Initialize the "load" checker */
+	if (check_load_init() || check_load())
+	{
+		quit("The gates to Angband are closed (bad load).");
+	}
+
 	/* Get the "user name" as a default player name */
 	user_name(op_ptr->full_name, sizeof(op_ptr->full_name), player_uid);
 
 #ifdef PRIVATE_USER_PATH
 
-	/* Create directories for the user's files */
-	create_user_dirs();
+	/* Create a directory for the user's files. */
+	create_user_dir();
 
 #endif /* PRIVATE_USER_PATH */
 
@@ -411,7 +500,7 @@ int main(int argc, char *argv[])
 			case 'G':
 			case 'g':
 			{
-				arg_graphics = GRAPHICS_CHAR;
+				arg_graphics = TRUE;
 				break;
 			}
 
@@ -443,7 +532,7 @@ int main(int argc, char *argv[])
 				if (!*arg) goto usage;
 
 				/* Get the savefile name */
-				(void)my_strcpy(op_ptr->full_name, arg, sizeof(op_ptr->full_name));
+				my_strcpy(op_ptr->full_name, arg, sizeof(op_ptr->full_name));
 				continue;
 			}
 
@@ -509,12 +598,11 @@ int main(int argc, char *argv[])
 		argv[1] = NULL;
 	}
 
-	/* Process the player name (but only if one is specified) */
-	if (strlen(op_ptr->full_name)) process_player_name(TRUE);
+	/* Process the player name (if any) */
+	if (strlen(op_ptr->full_name) >= 1) process_player_name(TRUE);
 
 	/* Install "quit" hook */
 	quit_aux = quit_hook;
-
 
 	/* Try the modules in the order specified by modules[] */
 	for (i = 0; i < N_ELEMENTS(modules); i++)
@@ -544,13 +632,19 @@ int main(int argc, char *argv[])
 	if (show_score > 0) display_scores(0, show_score);
 
 	/* Wait for response */
-	pause_line(Term->rows - 1);
+	pause_line(screen_rows != 50 ? screen_rows - 2 : screen_rows - 1);
 
 	/* Play the game */
 	play_game(new_game);
 
 	/* Free resources */
 	cleanup_angband();
+
+
+/* Clean up port-specific data structures */
+#ifdef USE_IBM
+	cleanup_ibm();
+#endif  /* USE_IBM */
 
 
 	/* Quit */
@@ -560,5 +654,5 @@ int main(int argc, char *argv[])
 	return (0);
 }
 
-#endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(USE_SDL) */
+#endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN) */
 

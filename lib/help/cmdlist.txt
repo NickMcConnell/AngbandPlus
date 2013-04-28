@@ -1,27 +1,23 @@
 
 ====== List of commands ======
 
-     This game supports two different command sets:  Original and Roguelike.
-The original keyset takes advantage of the number pad and frees up more space
-for macros on a regular keyboard.  If you lack a numberpad, however, the
-roguelike keyset is likely to be the better choice.
+ Original Keyset Directions - walk       Original Keyset Directions - run
 
+          7  8  9                        shift +  7  8  9
+          4     6                                 4     6
+          1  2  3                                 1  2  3
 
---- Original keyset ---
-
-   Walk    7  8  9         Run     7  8  9         Alter    7  8  9
-           4     6         Shift + 4     6         Ctrl  +  4     6
-           1  2  3                 1  2  3                  1  2  3
+Command Summary -- Original keyset
 
  a  Aim a wand                           A  Activate an artifact
- b  Browse a book                        B  Bash a door or Yell
+ b  Browse a book                        B  Bash a door
  c  Close a door                         C  Character description
  d  Drop an item                         D  Disarm a trap/Desanctify a glyph
  e  Equipment list                       E  Eat some food
  f  Fire an item                         F  Fuel your lantern/torch
  g  Get objects on floor                 G  Gain new spells/prayers
  h  (unused)                             H  (unused)
- i  Inventory list                       I  Inspect an item
+ i  Inventory list                       I  Observe an item
  j  Jam a door                           J  (unused)
  k  Destroy an item                      K  (unused)
  l  Look around                          L  Locate player on map
@@ -29,14 +25,14 @@ roguelike keyset is likely to be the better choice.
  n  Repeat last command                  N  (unused)
  o  Open a door or chest                 O  (unused)
  p  Pray a prayer or cast a spell        P  (unused)
- q  Quaff a potion                       Q  Save and quit (or retire)
+ q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Start/stop sneaking
  t  Take off equipment                   T  Dig a tunnel
  u  Use a staff                          U  (unused)
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  (unused)
- x  (unused)                             X  (unused - switch weapon macro)
+ x  (unused - easy rest macro)           X  (unused - switch weapon macro)
  y  (unused)                             Y  (unused)
  z  Zap a rod                            Z  (unused)
  !  Interact with system                ^A  (special - debug command)
@@ -47,69 +43,70 @@ roguelike keyset is likely to be the better choice.
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  (unused)
  *  Target monster or location          ^H  (unused)
- (  Light or douse a light source       ^I  (special - tab)
- )  Take a screen shot                  ^J  (special - linefeed)
- {  Inscribe an item                    ^K  (unused)
- }  Uninscribe an item                  ^L  (unused)
+ (  Load screen dump                    ^I  (special - tab)
+ )  Dump screen dump                    ^J  (special - linefeed)
+ {  Inscribe an object                  ^K  (unused)
+ }  Uninscribe an object                ^L  (unused)
  [  Use talents                         ^M  (special - return)
  ]  end shapechange                     ^N  (unused)
  -  Walk (flip pickup)                  ^O  (unused)
- _  (unused)                            ^P  Show previous messages
- +  Alter grid                          ^Q  Show quests
+ _  Enter store                         ^P  Show previous messages
+ +  Alter grid*                         ^Q  Show quests
  =  Set options                         ^R  Redraw the screen
  ;  Walk (normal pickup)                ^S  Save and don't quit
  :  Take notes                          ^T  (unused)
  '  (unused)                            ^U  (unused)
- "  (unused)                            ^V  Repeat last command
+ "  (unused)                            ^V  (unused)
  ,  Stay still for one turn             ^W  (special - wizard mode)
  <  Go up staircase                     ^X  Save and quit
  .  Run                                 ^Y  (unused)
  >  Go down staircase                   ^Z  (special - borg command)
  \  (special - bypass keymap)            |  Change barehanded combat method
- `  (unused)                             ~  Check knowledge
+ `  (special - escape)                   ~  Check knowledge
  /  Identify symbol                      ?  Help
 
-              TAB   Rest in place macro
-         F1 - F12   Unused (available for macros)
-     Print Screen   Take a screenshot (in some ports)
-
-Mouse commands (not available in all ports)
- - left double-click:  Look around
- - right click:        Display interface preferences (where available)
+* NOTE:  For Burglars, this command also locks doors, sets traps, and steals.
 
 
---- Roguelike keyset ---
+------
 
-   Walk    y  k  u         Run     y  k  u         Alter    y  k  u
-           h     l         Shift + h     l         Ctrl  +  h     l
-           b  j  n                 b  j  n                  b  j  n
+ Roguelike Keyset Directions - walk      Roguelike Keyset Directions - run
 
- a  Aim a rod                            A  Activate an artifact
+          y  k  u                                 Y  K  U
+          h     l                                 H     L
+          b  j  n                                 B  J  N
+
+The Roguelike keyset also allows you to alter grids using control-direction.
+
+
+Command Summary -- Roguelike keyset
+
+ a  Zap a rod (Activate)                 A  Activate an artifact
  b  (walk - south west)                  B  (run - south west)
  c  Close a door                         C  Character description
  d  Drop an item                         D  Disarm a trap/Desanctify a glyph
  e  Equipment list                       E  Eat some food
- f  Force (bash) a door or Yell          F  Fuel your lantern/torch
+ f  Bash a door (force)                  F  Fuel your lantern/torch
  g  Get object on floor                  G  Gain new spells/prayers
  h  (walk - west)                        H  (run - west)
- i  Inventory list                       I  Inspect an item
+ i  Inventory list                       I  Observe an item
  j  (walk - south)                       J  (run - south)
  k  (walk - north)                       K  (run - north)
  l  (walk - east)                        L  (run - east)
- m  Cast a spell or pray a prayer        M  Full dungeon map
+ m  Cast a spell                         M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
  o  Open a door or chest                 O  (unused)
- p  Pray a prayer or cast a spell        P  Browse a book
- q  Quaff a potion                       Q  Save and quit (or retire)
+ p  Pray a prayer                        P  Browse a book
+ q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Jam a door (Spike)
  t  Fire an item                         T  Take off equipment
  u  (walk - north east)                  U  (run - north east)
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  Locate player on map (Where)
- x  Examine area                         X  (unused - switch weapon macro)
+ x  Look around                          X  (unused - switch weapon macro)
  y  (walk - north west)                  Y  (run - north west)
- z  Zap a wand                           Z  Zap (use) a staff
+ z  Aim a wand (Zap)                     Z  Use a staff (Zap)
  !  Interact with system                ^A  (special - debug command)
  @  Interact with macros                ^B  (alter - south west)
  #  Start/stop sneaking                 ^C  (special - break)
@@ -118,20 +115,20 @@ Mouse commands (not available in all ports)
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  (unused)
  *  Target monster or location          ^H  (alter - west)
- (  Light or douse a light source       ^I  (special - tab)
- )  Take a screen shot                  ^J  (alter - south)
- {  Inscribe an item                    ^K  (alter - north)
- }  Uninscribe an item                  ^L  (alter - east)
+ (  Load screen dump                    ^I  (special - tab)
+ )  Dump screen dump                    ^J  (alter - south)
+ {  Inscribe an object                  ^K  (alter - north)
+ }  Uninscribe an object                ^L  (alter - east)
  [  Use talents                         ^M  (special - return)
  ]  end shapechange                     ^N  (alter - south east)
  -  Walk (flip pickup)                  ^O  (unused)
- _  (unused)                            ^P  Show previous messages
- +  Alter grid                          ^Q  Show quests
+ _  Enter store                         ^P  Show previous messages
+ +  Alter grid*                         ^Q  Show quests
  =  Set options                         ^R  Redraw the screen
  ;  Walk (normal pickup)                ^S  Save and don't quit
  :  Take notes                          ^T  Dig a Tunnel
  '  Repeat last command                 ^U  (alter - north east)
- "  (unused)                            ^V  Repeat last command
+ "  (unused)                            ^V  Examine current target
  ,  Run                                 ^W  (special - wizard mode)
  <  Go up staircase                     ^X  Save and quit
  .  Stay still for one turn             ^Y  (alter - north west)
@@ -140,13 +137,9 @@ Mouse commands (not available in all ports)
  `  (special - escape)                   ~  Check knowledge
  /  Identify symbol                      ?  Help
 
-              TAB   Rest in place macro
-         F1 - F12   Unused (available for macros)
-     Print Screen   Take a screenshot (in some ports)
+* NOTE:  For Burglars, this command also locks doors, sets traps, and steals.
 
-Mouse commands (not available in all ports)
- - left double-click:  Look around
- - right click:        Display interface preferences (where available)
+
 
 
 

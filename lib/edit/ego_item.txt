@@ -1,17 +1,16 @@
-#
+# File: ego_item.txt
+
+
 # This file contains information about ego-items.
-#
 
-# Version stamp (required)
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
 
-V:1.0.0
+# === Understanding e_info.txt ===
 
-#
-# === Understanding ego_item.txt (and similar files) ===
-#
 # N: serial number : ego-item name
 # W: minimum generation depth : rarity : rating bonus : bonus to value
-# C: Skill modifier : Deadliness modifier : Armor Class modifier : 
+# C: Skill modifier : Deadliness modifier : Armour Class modifier : 
 #    optional activation index
 # T: tval : min_sval : max_sval
 # P: pval values
@@ -19,67 +18,67 @@ V:1.0.0
 # F: flag | flag | etc
 # X: special random attributes
 # D: description
-#
+
 # 'N' indicates the beginning of an entry. The serial number must increase 
 # for each new item.  It is followed by the ego-item's name.
-#
+
 # 'W' is for extra information. depth is the depth the object generally 
 # starts appearing at, rarity determines how common the object is, rating 
-# adds to the rating of the level, and cost adds to the base ego-item's 
-# value (note that pval bonuses are valued seperately).
-#
+# adds to the rating of the level, and cost adds to the ego-item's value.
+
 # 'C' is for ego-item bonuses or penalties to Skill, Deadliness, and AC.
-#
+
 # 'T' is for possible 'tval' and 'sval' values of the base-item.  
 # Up to three 'T' entries are possible for a single object. The 
 # ego-item can only be generated from items of this tval, with sval 
 # in the specified range.
-#
+
 # 'P' indicates maximal pval values.
-#
+
 # '1', and '2' lines list all the flags affected by the first and second  
 # pval values respectively.  Do not list values for a value without first 
 # declaring it to be non-zero.
-#
+
 # 'F' is for non pval-dependant flags. These are fairly self-explanatory. 
 # As many F: lines may be used as are needed to specify all the flags.  
 # Flags are separated by the '|' symbol.
-#
-# 'X' is for extra quality flags.
-#
-# For more information, consult the file /lib/info/modify.txt.
-#
 
+# 'X' is for extra quality flags.
+
+
+# Version stamp (required)
+
+V:0.9.9
 
 
 ### Body Armor ###
 
 N:4:of Resist Acid
-W:0:2:4:1800
+W:0:2:4:1000
 T:36:0:99
 T:37:0:99
 F:RES_ACID | IGNORE_ACID
 D:It grants resistance to acid, and will not be harmed by that element.
 
 N:5:of Resist Lightning
-W:0:3:4:1200
+W:0:3:4:800
 T:36:0:99
 T:37:0:99
-F:RES_ELEC | IGNORE_ELEC | EASY_KNOW
+F:RES_ELEC | IGNORE_ELEC
 D:It grants resistance to electricity.
 
 N:6:of Resist Fire
-W:0:2:4:1600
+W:0:2:4:900
 T:36:0:99
 T:37:0:99
-F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
+F:RES_FIRE | IGNORE_FIRE
 D:It grants resistance to fire, and will not be harmed by that element.
 
 N:7:of Resist Cold
-W:0:2:4:1400
+W:0:2:4:800
 T:36:0:99
 T:37:0:99
-F:RES_COLD | IGNORE_COLD | EASY_KNOW
+F:RES_COLD | IGNORE_COLD
 D:It grants resistance to cold.
 
 N:8:of Resistance
@@ -102,7 +101,7 @@ P:3
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 X:ADD_A_HIGH_RESIST
-D:Made in the smithies of Beleriand, this armor resists the elements and 
+D:Made in the smithies of Beleriand, this armour resists the elements and 
 D:one other attack, cannot be harmed by the elements, and conceals the 
 D:wearer from hostile eyes.
 
@@ -124,17 +123,11 @@ D:Fortunate indeed are you to discover one.
 
 # 12 (unused)
 
-N:13:of Plague
-W:45:2:0:0
-T:36:0:99
-T:37:0:99
-T:38:0:99
-F:LIGHT_CURSE
-D:Black pus stains this armor; it bears the plague.  You either get this 
-D:foul thing off or die.
+# 13 (unused)
 
 N:14:of Crushing
-W:35:2:0:0
+W:50:2:0:0
+C:0:0:0
 T:36:0:99
 T:37:0:99
 T:38:0:99
@@ -143,15 +136,7 @@ D:It slips on easily enough, but grips you so tightly that you cannot remove
 D:it.  As the pressure continually builds, you realize that death could be 
 D:very near.
 
-N:15:of Nakedness
-W:0:1:0:0
-T:36:0:99
-T:37:0:99
-T:38:0:99
-C:0:0:-30
-F:LIGHT_CURSE
-D:Useless is this armor revealed to be, for it will absorb no blows.  You 
-D:feel a dreadful lack of protection.
+# 15 (unused)
 
 
 ### Shields ###
@@ -159,25 +144,25 @@ D:feel a dreadful lack of protection.
 N:16:of Resist Acid
 W:0:2:5:1200
 T:34:0:99
-F:RES_ACID | IGNORE_ACID | EASY_KNOW
+F:RES_ACID | IGNORE_ACID
 D:It grants resistance to acid, and will not be harmed by that element.
 
 N:17:of Resist Lightning
 W:0:3:5:1000
 T:34:0:99
-F:RES_ELEC | IGNORE_ELEC | EASY_KNOW
+F:RES_ELEC | IGNORE_ELEC
 D:It grants resistance to electricity.
 
 N:18:of Resist Fire
 W:0:2:5:1100
 T:34:0:99
-F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
+F:RES_FIRE | IGNORE_FIRE
 D:It grants resistance to fire, and will not be harmed by that element.
 
 N:19:of Resist Cold
 W:0:2:5:1000
 T:34:0:99
-F:RES_COLD | IGNORE_COLD | EASY_KNOW
+F:RES_COLD | IGNORE_COLD
 D:It grants resistance to cold.
 
 N:20:of Resistance
@@ -191,23 +176,9 @@ D:by elemental attacks.
 
 # 21 (unused)
 
-N:22:(Hexed)
-W:30:1:0:0
-T:34:0:99
-C:0:0:-10
-F:TELEPORT | DRAIN_EXP | LIGHT_CURSE
-D:A shield that hates all life, especially you who bear it.  It hurls you 
-D:hither and yon, seeking a quiet place to consume your soul. 
+# 22 (unused)
 
-N:23:of Treachery
-W:0:1:0:0
-T:34:0:99
-C:0:0:-40
-P:-3
-1:INT | WIS | CHR
-F:LIGHT_CURSE
-D:It is alive, evilly so.  All foolish enough to rely upon it are all too 
-D:soon undeceived.
+# 23 (unused)
 
 
 ### Crowns and Helms ###
@@ -217,7 +188,7 @@ W:0:2:5:500
 T:32:0:99
 P:2
 1:INT
-F:SUST_INT | EASY_KNOW
+F:SUST_INT
 D:It increases and sustains your intelligence.
 
 N:25:of Wisdom
@@ -225,7 +196,7 @@ W:0:2:5:500
 T:32:0:99
 P:2
 1:WIS
-F:SUST_WIS | EASY_KNOW
+F:SUST_WIS
 D:It increases and sustains your wisdom.
 
 N:26:of Beauty
@@ -233,7 +204,7 @@ W:0:2:5:1000
 T:32:0:99
 P:4
 1:CHR
-F:SUST_CHR | EASY_KNOW
+F:SUST_CHR
 D:It increases and sustains your charisma.
 
 N:27:of the Magi
@@ -247,7 +218,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 X:ADD_A_POWER
 D:It increases and sustains your intelligence, resists the four basic 
 D:elements, and cannot be harmed by elemental attacks.  You may benefit 
-D:greatly from the power it contains.
+D:greatly from the one hidden power it contains.
 
 N:28:of Might
 W:20:4:10:4000
@@ -270,7 +241,7 @@ N:30:of Seeing
 W:10:4:7:3000
 T:33:0:99
 T:32:0:99
-P:3
+P:4
 1:AWARENESS
 F:RES_BLIND | SEE_INVIS
 D:This helm grants sight beyond sight that can never be blinded, and its 
@@ -292,7 +263,7 @@ D:resistance to light.
 N:33:of Telepathy
 W:30:4:20:50000
 T:33:0:99
-F:TELEPATHY | EASY_KNOW
+F:TELEPATHY
 D:Suddenly, the minds of your enemies stand revealed, and you perceive 
 D:those who attempt to waylay you in the dark.
 
@@ -300,16 +271,16 @@ N:34:of Regeneration
 W:0:4:7:1500
 T:32:0:99
 T:33:0:99
-F:REGEN | EASY_KNOW
+F:REGEN
 D:It grants hastened recovery of both hit points and mana.
 
-N:35:of Mind Melting
-W:60:4:0:0
+N:35:of Teleportation
+W:0:2:0:0
 T:32:0:99
 T:33:0:99
-F:LIGHT_CURSE | EASY_KNOW
-D:As you put it on, you hear a soft drone, a whine, a rising shriek ... and 
-D:you find yourself locked in mental battle with an unforgiving foe.  
+F:TELEPORT | LIGHT_CURSE
+D:It randomly teleports you around the dungeon, and you'll find it 
+D:hard to take off.
 
 N:36:of Stupidity
 W:0:1:0:0
@@ -317,7 +288,7 @@ T:32:0:99
 T:33:0:99
 P:-5
 1:INT
-F:LIGHT_CURSE | EASY_KNOW
+F:LIGHT_CURSE
 D:It saps the powers of the mind.
 
 N:37:of Naivety
@@ -326,7 +297,7 @@ T:32:0:99
 T:33:0:99
 P:-5
 1:WIS
-F:LIGHT_CURSE | EASY_KNOW
+F:LIGHT_CURSE
 D:It drains away wisdom.
 
 N:38:of Ugliness
@@ -335,16 +306,16 @@ T:32:0:99
 T:33:0:99
 P:-5
 1:CHR
-F:LIGHT_CURSE | EASY_KNOW
+F:LIGHT_CURSE
 D:This hideous headgear makes you appear foul and ugly to others.
 
-N:39:of Withering
+N:39:of Sickliness
 W:0:2:0:0
 T:32:0:99
 T:33:0:99
 P:-5
 1:STR | DEX | CON
-F:LIGHT_CURSE | EASY_KNOW
+F:LIGHT_CURSE
 D:It withers the body away, and is reluctant to release its grip.
 
 
@@ -354,16 +325,15 @@ N:40:of Protection
 W:0:1:5:700
 C:0:0:8
 T:35:0:99
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:It offers enhanced ordinary protection, and cannot be harmed by elemental 
 D:attacks.
 
 N:41:of Stealth
-W:0:1:5:10
+W:0:1:5:500
 T:35:0:99
 P:3
 1:STEALTH
-F:EASY_KNOW | HIDE_TYPE
 D:It improves your ability to hide from your enemies.
 
 # OnePower
@@ -382,18 +352,17 @@ D:special resistance and a special ability, and cannot be harmed by the
 D:elements.
 
 N:43:of Invisibility
-W:30:3:5:10
+W:30:3:5:500
 T:35:0:99
 P:5
 1:INVIS
-F:EASY_KNOW | HIDE_TYPE
 D:As this cloak draps down around you, you vanish from view...
 
 N:44:of Enveloping
 W:0:1:0:0
 C:-10:-10:0
 T:35:0:99
-F:SHOW_MODS | LIGHT_CURSE | EASY_KNOW
+F:SHOW_MODS | LIGHT_CURSE
 D:The swirling folds of this cloak seem always to be in the way when you 
 D:most want to strike your opponents.
 
@@ -403,7 +372,7 @@ C:0:0:-35
 T:35:0:99
 F:AGGRAVATE | LIGHT_CURSE
 D:You feel horribly naked and defenceless, and wonder how you'll get 
-D:this acursed cloak off your back.
+D:this acursed clock off your back.
 
 # 46 (unused)
 
@@ -417,7 +386,7 @@ D:this acursed cloak off your back.
 N:48:of Free Action
 W:0:3:8:2000
 T:31:0:99
-F:FREE_ACT | EASY_KNOW
+F:FREE_ACT
 D:They protect from paralyzation and certain slowing attacks.  Users of 
 D:sorcery and necromancy can wear them comfortably.
 
@@ -429,11 +398,11 @@ F:SHOW_MODS
 D:You strike with force and accuracy when wearing these.
 
 N:50:of Agility
-W:0:6:10:100
+W:0:6:10:500
 T:31:0:99
 P:4
 1:DEX
-F:HIDE_TYPE | EASY_KNOW
+F:HIDE_TYPE
 D:While wearing these, your fingers seem divinely nimble, and your whole body 
 D:lithe and limber.
 
@@ -443,7 +412,7 @@ C:8:8:0
 T:31:0:99
 P:4
 1:STR
-F:SHOW_MODS | HIDE_TYPE | EASY_KNOW
+F:SHOW_MODS | HIDE_TYPE
 D:He who wears these gains considerable combat power, and feels his 
 D:muscles bulge as he hammers his foes.
 
@@ -451,30 +420,29 @@ N:52:of Magic Mastery
 W:0:12:13:1000
 P:4
 1:DEVICE
-F:HIDE_TYPE | EASY_KNOW
+F:HIDE_TYPE
 D:They enhance magical device skill.  Mages and Necromancers can wear 
 D:these comfortably.
 
 # 53 (unused)
 
-N:54:of Fumbling and Blumbling
+N:54:of Weakness
 W:0:1:0:0
 T:31:0:99
-C:-20:-20:0
 P:-10
-1:DEX | STR | DISARM
-F:LIGHT_CURSE | EASY_KNOW
-D:Your fingers seem thick and clumsy, and your arms exhausted and nerveless.  
-D:You fumble weakly instead of slaying your foes.
+1:STR
+F:LIGHT_CURSE
+D:They suck the strength out of your nerveless arms.
 
-N:55:of Unmagic
-W:40:1:0:0
+N:55:of Fumbling
+W:0:1:0:0
 T:31:0:99
-P:-25
-1:SAVE | DEVICE | MANA
-F:NOMAGIC | LIGHT_CURSE | EASY_KNOW
-D:Unmagic gathers in these handgear, Unmagic and Unluck.  A dying moan you feel, 
-D:more in the soul than in the body, as your skills of miracle vanish.
+C:-20:0:0
+P:-10
+1:DEX
+F:LIGHT_CURSE
+D:Your fingers seem thick and clumsy, and you fumble around instead of 
+D:slaying your foes.
 
 
 ### Boots ###
@@ -482,54 +450,51 @@ D:more in the soul than in the body, as your skills of miracle vanish.
 N:56:of Slow Descent
 W:0:2:5:500
 T:30:0:99
-F:FEATHER | EASY_KNOW
+F:FEATHER
 D:They make you light-footed, able to escape pits and dance over lava.
 
 N:57:of Stealth
-W:0:3:8:100
+W:0:3:8:200
 T:30:0:99
 P:3
 1:STEALTH
-F:EASY_KNOW | HIDE_TYPE
 D:Your footfalls make little noise wearing these.
 
 N:58:of Free Action
 W:0:6:10:2000
 T:30:0:99
-F:FREE_ACT | EASY_KNOW
+F:FREE_ACT
 D:These protect against paralyzation and some slowing attacks.
 
 N:59:of Speed
-W:20:20:25:100
+W:20:20:25:1000
 T:30:0:99
 P:10
 1:SPEED
-F:HIDE_TYPE | EASY_KNOW
+F:HIDE_TYPE
 D:All around you seem to move with dreamlike sloth; time itself waits 
 D:patiently for you.
 
 N:60:of Earthquakes
-W:15:10:5:1250
+W:15:10:5:2500
 T:30:0:99
 C:0:0:0:159
-P:5
-1:TUNNEL
-F:HIDE_TYPE | EASY_KNOW
 D:You stamp your foot, and walls and ceilings crumble.
 
 N:61:of Noise
 W:0:1:1:0
 T:30:0:99
-F:AGGRAVATE | LIGHT_CURSE | EASY_KNOW
+F:AGGRAVATE | LIGHT_CURSE
 D:Every step you take echoes through the dungeon, and all around 
 D:you annoyed creatures advance to kill.
 
-N:62:of Great Mass
+N:62:of Slowness
 W:0:1:0:0
 T:30:0:99
-F:LIGHT_CURSE | EASY_KNOW
-D:As you put them on, they suddenly become many times as heavy; every footstep 
-D:becomes a torture as you struggle to shed the load.
+P:-10
+1:SPEED 
+F:LIGHT_CURSE
+D:These slow the wearer down.
 
 N:63:of Pitiless Torment
 W:45:1:0:0
@@ -547,7 +512,7 @@ D:foes.
 ### Weapons ###
 
 N:64:(Holy Avenger)
-W:25:18:20:16000
+W:25:18:22:16000
 C:5:5:4
 T:21:0:99
 T:22:2:99
@@ -560,10 +525,10 @@ X:ADD_A_SUSTAIN
 D:The sactified weapon of the pious, it slays evil, demons, and the 
 D:undead, increases wisdom and sustains a random stat, can be wielded 
 D:by pious characters comfortably, grants sight beyond sight, and boosts 
-D:armor class.
+D:armour class.
 
 N:65:(Defender)
-W:20:15:15:10000
+W:20:15:16:10000
 C:2:2:15
 T:21:0:99
 T:22:2:99
@@ -574,7 +539,7 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 X:ADD_A_SUSTAIN
 D:Strong friend in peril, this weapon enhances stealth, resists all four 
-D:basic elements and cannot be damaged by them, and increases armor 
+D:basic elements and cannot be damaged by them, and increases armour 
 D:class.
 
 N:66:(Blessed)
@@ -589,7 +554,7 @@ X:ADD_A_POWER
 D:A priestly weapon that increases wisdom and bears a hidden power.
 
 N:67:(Serpentine)
-W:45:25:15:18000
+W:45:25:20:18000
 C:6:0:0
 T:21:0:99
 T:22:2:99
@@ -602,7 +567,7 @@ D:your stealth and infravision, grants resistance to poison and
 D:feather falling, and slays natural creatures.
 
 N:68:of Westernesse
-W:15:14:15:18000
+W:15:14:16:18000
 C:4:4:0
 T:21:0:99
 T:22:2:99
@@ -616,21 +581,8 @@ D:offers see invisible and protects against paralyzation.
 
 # 69 (unused)
 
-N:70:(Mystic)
-W:30:22:12:6500
-C:-4:-4:0
-T:21:0:99
-T:22:2:99
-T:23:0:99
-P:2
-1:INT | WIS
-F:SUST_INT | SUST_WIS | FEATHER | RES_CONFU
-D:Marvelously light this weapon is, and marvelous too the wisdom and 
-D:intelligence it grants and sustains.  The wielder is given feather falling 
-D:and resistance to confusion.
-
 N:71:of Chance
-W:20:22:12:500
+W:20:22:15:500
 T:21:0:99
 T:22:2:99
 T:23:0:99
@@ -642,7 +594,7 @@ D:high one, a sustain, and a special attribute.  Weapons of this type may
 D:have enhanced damage dice, and sometimes be vorpal.
 
 N:72:of Death
-W:50:26:15:7500
+W:50:26:20:7500
 C:6:6:0
 T:21:0:99
 T:22:2:99
@@ -652,7 +604,7 @@ F:RES_NETHR | RES_DARK | SLAY_ANIMAL
 X:ADD_DICE_SIDES | MAYBE_VORPAL
 D:A weapon fell and perilous.  It protects you from darkness and nether, 
 D:and grants sight beyond sight, but must be fed either with the blood 
-D:of your enemies, or with your own.  Weapons of this type may have 
+D:of your enemies - or with your own.  Weapons of this type may have 
 D:enhanced damage dice, and sometimes be vorpal.
 
 N:73:of Battle
@@ -688,52 +640,48 @@ D:strength, resistance to fear, and activates for heroism.
 
 # The "Elemental" brands (4)
 
-N:78:of Acid
+N:78:of Melting
 W:0:8:10:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_ACID | RES_ACID | IGNORE_ACID | EASY_KNOW
+F:BRAND_ACID | RES_ACID | IGNORE_ACID
 D:This weapon smokes and sizzles with noxious black corrosions.  It 
 D:grants resistance to acid and cannot be harmed by that element.
 
-N:79:of Lightning
+N:79:of Shocking
 W:0:10:10:5000
 T:21:0:99
 T:22:0:99
 T:23:0:99
-P:1
-1:LIGHT
-F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC | EASY_KNOW
+F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
 D:Sparks form tiny coronas upon its surface from top to bottom, and it 
 D:grants resistance to electricity.
 
-N:80:of Flame
+N:80:of Burning
 W:0:5:10:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-P:1
-1:LIGHT
-F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | EASY_KNOW
+F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE
 D:Flames dance merrily up and down it.  It grants resistance to fire, and 
 D:cannot be harmed by that element.
 
-N:81:of Frost
+N:81:of Freezing
 W:0:5:10:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_COLD | RES_COLD | IGNORE_COLD | EASY_KNOW
+F:BRAND_COLD | RES_COLD | IGNORE_COLD
 D:Crystals of coldly gleaming ice form upon its surface, and it grants 
 D:resistance to frost.
 
-N:82:of Venom
+N:82:of Poisoning
 W:0:8:10:3000
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_POIS | EASY_KNOW
+F:BRAND_POIS
 D:It gleams a sickly green, and you dare not hold it above the handle.
 
 # 83 (unused)
@@ -748,7 +696,7 @@ W:0:4:8:2800
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_ANIMAL | EASY_KNOW
+F:SLAY_ANIMAL
 D:This weapon is especially deadly against natural creatures.
 
 N:86:of Slay Evil
@@ -756,7 +704,7 @@ W:0:4:8:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_EVIL | EASY_KNOW
+F:SLAY_EVIL
 D:This weapon fights against evil with holy fury.
 
 N:87:of Slay Undead
@@ -764,7 +712,7 @@ W:30:4:8:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_UNDEAD | EASY_KNOW
+F:SLAY_UNDEAD
 D:This weapon strikes at undead with holy wrath.
 
 N:88:of Slay Demon
@@ -772,7 +720,7 @@ W:40:4:8:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_DEMON | EASY_KNOW
+F:SLAY_DEMON
 D:This weapon smites demonic foes with holy wrath.
 
 N:89:of Slay Orc
@@ -780,7 +728,7 @@ W:0:4:8:2000
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_ORC | EASY_KNOW
+F:SLAY_ORC
 D:This weapon is especially deadly against orcs.
 
 N:90:of Slay Troll
@@ -788,7 +736,7 @@ W:0:4:8:2700
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_TROLL | EASY_KNOW
+F:SLAY_TROLL
 D:This weapon is especially deadly against trolls.
 
 N:91:of Slay Giant
@@ -796,15 +744,15 @@ W:20:4:8:2700
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_GIANT | EASY_KNOW
+F:SLAY_GIANT
 D:This weapon is especially deadly against giants.
 
-N:92:of Dragon Slaying
+N:92:of Slay Dragon
 W:30:4:8:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_DRAGON | EASY_KNOW
+F:SLAY_DRAGON
 D:This weapon is especially deadly against dragons.
 
 # 94 (unused)
@@ -865,9 +813,9 @@ D:This weapon is a mighty dragonbane and increases constitution.
 # to fire, but reduces stealth.  Can also lash out at a distance of two.
 
 N:100:of the Balrog
-W:60:3:14:12000
+W:30:3:14:12000
 T:21:2:2
-C:0:8:0:206
+C:0:8:0:160
 P:-5
 1:STEALTH
 F:BRAND_FLAME | RES_FIRE | LITE
@@ -877,17 +825,7 @@ D:doing terrible damage to all monsters not resistant to fire, and
 D:blazing so brightly as to light your path and disturb nearby foes.
 
 
-# Throwing weapons.
-# Note the hardcoding of tval/sval
-
-N:101:of Returning
-W:0:5:10:500
-T:21:4:4
-#T:22:1:1
-T:22:8:8
-T:23:3:3
-F:RETURNING | EASY_KNOW
-D:If wielded, this weapon returns to you when thrown.
+# 101 (unused)
 
 # 102 (unused)
 
@@ -895,17 +833,7 @@ D:If wielded, this weapon returns to you when thrown.
 
 # 104 (unused)
 
-N:105:(foully corroded)
-W:0:1:0:0
-C:-10:-10:0
-T:21:0:99
-T:22:2:99
-T:23:0:99
-P:-5
-1:SAVE
-F:LIGHT_CURSE
-D:Seemingly a weapon of great worth, but in fact blasted by noxious hexes.  
-D:The metal is rotted through and through; curses lay upon the wielder.
+# 105 (unused)
 
 N:106:of Digging
 W:0:1:5:1500
@@ -933,7 +861,7 @@ D:blows, and cannot be harmed by the elements.  Rare items of this type
 D:may be vorpal.
 
 N:108:of Morgul
-W:60:2:0:0
+W:40:1:0:0
 C:-20:-20:-10
 T:21:0:99
 T:22:2:99
@@ -943,18 +871,7 @@ D:A weapon of dispair, bearing perilous hexes that protect and awake your
 D:foes.  You can see even invisible creatures, but will rue every combat 
 D:you engage in.
 
-N:109:of Savagery
-W:25:3:0:0
-C:10:10:-20
-T:21:0:99
-T:22:2:99
-T:23:0:99
-P:3:-10
-1:STR | DEX
-2:WIS | CHR | SAVE | MANA | DEVICE | DISARM | AWARENESS
-F:RES_FEAR | NOMAGIC | AGGRAVATE | LIGHT_CURSE
-D:A weapon so fierce that its bloodlust infects you who wield it.  A berserk 
-D:madness rapes your mind; all wisdom vanishes as you rage, a brute beast.
+# 109 (unused)
 
 
 
@@ -963,9 +880,7 @@ D:madness rapes your mind; all wisdom vanishes as you rage, a brute beast.
 N:110:of Accuracy
 W:0:1:7:1000
 C:12:4:0
-T:25:0:99
-T:26:0:99
-T:27:0:99
+T:19:0:99
 P:2
 1:DEX
 X:XTRA_MISSILE_POWER
@@ -975,9 +890,7 @@ D:increases dexterity.
 N:111:of Velocity
 W:0:1:7:1000
 C:4:12:0
-T:25:0:99
-T:26:0:99
-T:27:0:99
+T:19:0:99
 P:2
 1:STR
 X:XTRA_MISSILE_POWER
@@ -985,11 +898,9 @@ D:This missile launcher has an unnaturally high Deadliness bonus.  It
 D:increases strength.
 
 N:112:of Stalking
-W:55:9:20:20000
+W:45:8:20:20000
 C:5:5:0
-T:25:0:99
-T:26:0:99
-T:27:0:99
+T:19:0:99
 P:2
 1:INT | STEALTH
 F:SLAY_ANIMAL
@@ -997,11 +908,9 @@ D:A missile launcher of deadly, silent force, capable of slaying any
 D:natural creature.
 
 N:113:of Holy Might
-W:65:9:24:25000
+W:60:8:24:25000
 C:5:5:0
-T:25:0:99
-T:26:0:99
-T:27:0:99
+T:19:0:99
 P:2
 1:WIS
 F:BLESSED | RES_DARK | SLAY_EVIL
@@ -1010,11 +919,9 @@ D:weapon grants resistance to darkness.
 
 # Note:  Triple crossbows cannot become ego-items of extra might
 N:114:of Extra Might
-W:20:3:15:2500
+W:20:4:15:2500
 C:5:10:0
-T:25:0:99
-T:26:0:99
-T:27:0:28
+T:19:0:28
 P:2
 1:MIGHT
 X:XTRA_MISSILE_POWER
@@ -1022,11 +929,9 @@ D:A missile weapon powerful beyond the measure of its kind, firing shots
 D:with great force.
 
 N:115:of Extra Shots
-W:25:3:15:2500
+W:25:4:15:2500
 C:10:5:0
-T:25:0:99
-T:26:0:99
-T:27:0:99
+T:19:0:99
 P:3
 1:SHOTS
 X:XTRA_MISSILE_POWER
@@ -1036,9 +941,7 @@ D:between one shot and the next.
 N:116:of Despair
 W:65:1:0:0
 C:-20:-20:0
-T:25:0:99
-T:26:0:99
-T:27:0:99
+T:19:0:99
 P:-2
 1:SHOTS | MIGHT
 F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE
@@ -1051,75 +954,67 @@ D:unwielded.
 ### Ammo ###
 
 N:118:of Hurt Animal
-W:0:5:10:90
-C:0:0:5
+W:0:5:10:45
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_ANIMAL | EASY_KNOW
+F:SLAY_ANIMAL
 D:They slay natural creatures.
 
 N:119:of Hurt Evil
-W:20:5:10:90
-C:0:0:5
+W:20:5:10:45
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_EVIL | EASY_KNOW
+F:SLAY_EVIL
 D:They do extra damage to evil creatures.
 
 N:120:of Hurt Undead
-W:40:8:10:90
-C:0:0:5
+W:40:8:10:45
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_UNDEAD | EASY_KNOW
+F:SLAY_UNDEAD
 D:They do extra damage to the undead.
 
 N:121:of Hurt Demon
-W:40:8:10:90
-C:0:0:5
+W:40:8:10:45
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_DEMON | EASY_KNOW
+F:SLAY_DEMON
 D:They smite demonic foes.
 
 N:122:of Hurt Orc
-W:0:8:10:50
-C:0:0:5
+W:0:8:10:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_ORC | EASY_KNOW
+F:SLAY_ORC
 D:They pierce deeply into orcs.
 
 N:123:of Hurt Troll
-W:20:8:10:75
-C:0:0:5
+W:20:8:10:38
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_TROLL | EASY_KNOW
+F:SLAY_TROLL
 D:They penetrate the tough hide of trolls with ease.
 
 N:124:of Hurt Giant
-W:30:8:10:75
-C:0:0:5
+W:30:8:10:38
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_GIANT | EASY_KNOW
+F:SLAY_GIANT
 D:They are unsually dangerous against giants and ogres.
 
 N:125:of Hurt Dragon
-W:40:8:10:90
-C:0:0:5
+W:40:8:10:45
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_DRAGON | EASY_KNOW
+F:SLAY_DRAGON
 D:They do extra damage to dragons.
 
 # 126 (unused)
@@ -1127,75 +1022,62 @@ D:They do extra damage to dragons.
 # 127 (unused)
 
 N:128:of Acid
-W:0:5:10:100
-C:0:0:5
+W:0:5:10:50
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_ACID | IGNORE_ACID | EASY_KNOW
+F:BRAND_ACID | IGNORE_ACID
 D:They smoke and sizzle with noxious black corrosions, and they cannot be 
 D:harmed by acid.
 
-N:129:of Lightning
-W:0:8:12:120
-C:0:0:5
+N:129:of Electricity
+W:0:8:12:60
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_ELEC | IGNORE_ELEC | EASY_KNOW
+F:BRAND_ELEC | IGNORE_ELEC
 D:Sparks form tiny coronas upon their surfaces from top to bottom.
 
 N:130:of Flame
-W:0:3:10:100
-C:0:0:5
+W:0:3:10:50
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_FIRE | IGNORE_FIRE | EASY_KNOW
+F:BRAND_FIRE | IGNORE_FIRE
 D:Flames dance merrily up and down them, and they cannot be harmed by fire.
 
 N:131:of Frost
-W:0:3:10:100
-C:0:0:5
+W:0:3:10:50
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_COLD | IGNORE_COLD | EASY_KNOW
+F:BRAND_COLD | IGNORE_COLD
 D:Crystals of coldly gleaming ice form upon their surfaces.
 
-N:132:(Poisoned)
-W:0:3:10:100
-C:0:0:5
+N:132:of Poison
+W:0:3:10:50
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_POIS | EASY_KNOW
+F:BRAND_POIS
 D:They gleam a sickly green.
 
 # 133 (unused)
 
-N:134:of Brilliance
-W:0:2:6:50
-C:0:0:5
-T:16:0:99
-T:17:0:99
-T:18:0:99
-F:LITE
-D:They shine so brightly that you can see them from afar, and do extra damage 
-D:to creatures that are hurt by light.
+# 134 (unused)
 
 N:135:of Wounding
-W:0:2:8:50
-C:5:0:5
+W:0:2:8:30
+C:5:0:0
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:VORPAL
-D:They are easy to aim and deal dreadful wounds.
+D:They are easy to aim and pierce deeply into your foes.
 
 N:136:(Impact)
-W:0:3:5:50
-C:0:0:5
+W:0:3:5:30
+C:0:0:0
 T:16:0:99
 T:17:0:99
 T:18:0:99
@@ -1216,24 +1098,24 @@ D:They seem only interested in hurting you.
 ### Light sources ###
 
 N:140:of Acuity
-W:0:1:3:150
+W:0:1:3:50
 T:39:0:99
 P:3
 1:AWARENESS
 X:XTRA_LIGHT_QUALITY
 D:This light source seems to shine into nooks and crannies remarkably well, and 
-D:you become aware of traps and secret doors more quickly than you did before.  
+D:you become aware of traps and secret doors more quickly than you did before.
 D:It also improves your chance to 'hear' unseen monsters and sense objects.
 
 N:141:of Vision
-W:0:2:4:2250
+W:0:2:4:2750
 T:39:0:99
 F:SEE_INVIS
 X:XTRA_LIGHT_QUALITY
 D:The light that shines from this object reveals even invisible monsters.
 
 N:142:of Brightness
-W:0:2:4:2000
+W:0:2:4:2500
 T:39:0:99
 P:1
 1:LIGHT
@@ -1242,7 +1124,7 @@ D:The clear, brilliant light that shines from this object extends an unusual
 D:distance outwards.
 
 N:143:of Phlogiston
-W:0:2:4:2500
+W:0:2:4:3000
 T:39:0:99
 F:NO_FUEL
 X:XTRA_LIGHT_QUALITY
@@ -1255,65 +1137,45 @@ T:39:1:99
 P:1
 1:LIGHT
 F:RES_BLIND | SEE_INVIS
-D:Brightly shine the Lamps of Eldamar; they who bear them have sight 
+D:Brightly shine the Lamps of Eldamar, and they who bear them have sight 
 D:beyond sight and can never be blinded.
-
-N:145:of Shadows
-W:0:1:0:0
-T:39:0:99
-P:-9
-1:LIGHT
-F:AGGRAVATE | LIGHT_CURSE
-D:Foully cursed, it sucks away all lamplight and rallies your foes 
-D:in the sudden darkness.
 
 
 ### Space for additions ###
 
-# Boots of Teleportation
-N:154:of Teleportation
-W:0:1:0:0
-T:30:0:99
-F:TELEPORT | LIGHT_CURSE | EASY_KNOW
-D:They randomly teleport you around the dungeon, and you'll find them 
-D:hard to take off.
-
-
-### Forged Armor ###
-
 N:155:(copper)
-W:0:0:0:1
+W:0:0:0:10
 D:This object was forged of copper.
 
 N:156:(bronze)
-W:0:0:0:1
+W:0:0:0:10
 D:This object was forged of bronze.
 
 N:157:(iron)
-W:0:0:0:1
+W:0:0:0:10
 D:This object was forged of iron.
 
 N:158:(steel)
-W:0:0:0:1
+W:0:0:0:10
 D:This object was forged of steel.
 
 N:159:(runegold)
-W:0:0:0:1
+W:0:0:0:10
 D:This object was forged of runegold.
 
 N:160:(mithril)
-W:0:0:0:1
+W:0:0:0:10
 D:This object was forged of mithril.
 
 N:161:(adamant)
-W:0:0:0:1
+W:0:0:0:10
 D:This object was forged of adamant.
 
 
 
 ### Special Broken Items ###
 
-# These won't be generated by the make_ego_item code as long as
+# these won't be generated by the make_ego_item code as long as
 # they keep their rarity of 0.
 
 # Destroyed Weapon
@@ -1326,6 +1188,6 @@ D:This weapon has been ruined beyond redemption by fell sorceries.
 N:164:(Blasted)
 W:0:0:0:0
 C:0:0:-10
-D:The twisted, charred surface of this hopelessly smashed armor crumbles 
+D:The twisted, charred surface of this hopelessly smashed armour crumbles 
 D:apart as you gingerly touch it.
 

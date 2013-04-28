@@ -18,7 +18,6 @@ Help Commands:
        space : advance one page
        -     : back up one half page
        /     : search (not case-sensitive)
-      <dir>  : move forward and backwards
 
 ***** [1] race.txt
 ***** [2] attribut.txt

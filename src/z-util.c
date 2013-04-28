@@ -1,12 +1,11 @@
 /* File: z-util.c */
 
 /*
- * Copyright (c) 2007 Ben Harrison
+ * Copyright (c) 1997 Ben Harrison
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
  */
 
 /* Purpose: Low level utilities -BEN- */
@@ -14,65 +13,11 @@
 #include "z-util.h"
 
 
-#ifdef SET_UID
-
-# ifndef HAVE_USLEEP
-
-/*
- * struct timeval in usleep requires sys/time.h
- *
- * System test removed since Unix systems that neither have usleep nor
- * sys/time.h are screwed anyway, since they have no way of delaying.
- */
-#  include <sys/time.h>
-
-# endif /* HAVE_USLEEP */
-
-#endif /* SET_UID */
-
-
-
 
 /*
  * Convenient storage of the program name
  */
 cptr argv0 = NULL;
-
-
-
-/*
- * Case insensitive comparison between two strings
- */
-int my_stricmp(const char *s1, const char *s2)
-{
-	char ch1 = 0;
-	char ch2 = 0;
-
-	/* Just loop */
-	while (TRUE)
-	{
-		/* We've reached the end of both strings simultaneously */
-		if ((*s1 == 0) && (*s2 == 0))
-		{
-			/* We're still here, so s1 and s2 are equal */
-			return (0);
-		}
-
-		ch1 = toupper(*s1);
-		ch2 = toupper(*s2);
-
-		/* If the characters don't match */
-		if (ch1 != ch2)
-		{
-			/* return the difference between them */
-			return ((int)(ch1 - ch2));
-		}
-
-		/* Step on through both strings */
-		s1++;
-		s2++;
-	}
-}
 
 
 /*
@@ -86,8 +31,8 @@ int my_strnicmp(cptr a, cptr b, int n)
 	/* Scan the strings */
 	for (s1 = a, s2 = b; n > 0; s1++, s2++, n--)
 	{
-		z1 = toupper(*s1);
-		z2 = toupper(*s2);
+		z1 = FORCEUPPER(*s1);
+		z2 = FORCEUPPER(*s2);
 		if (z1 < z2) return (-1);
 		if (z1 > z2) return (1);
 		if (!z1) return (0);
@@ -224,7 +169,8 @@ void plog(cptr str)
 void (*quit_aux)(cptr) = NULL;
 
 /*
- * Exit (ala "exit()").  If 'str' is NULL, do "exit(EXIT_SUCCESS)".
+ * Exit (ala "exit()").  If 'str' is NULL, do "exit(0)".
+ * If 'str' begins with "+" or "-", do "exit(atoi(str))".
  * Otherwise, plog() 'str' and exit with an error code of -1.
  * But always use 'quit_aux', if set, before anything else.
  */
@@ -234,7 +180,10 @@ void quit(cptr str)
 	if (quit_aux) (*quit_aux)(str);
 
 	/* Success */
-	if (!str) (void)(exit(EXIT_SUCCESS));
+	if (!str) (void)(exit(0));
+
+	/* Extract a "special error code" */
+	if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
 
 	/* Send the string to plog() */
 	plog(str);
@@ -245,70 +194,32 @@ void quit(cptr str)
 
 
 
-#ifdef SET_UID
-
-#ifndef HAVE_USLEEP
+/*
+ * Redefinable "core" action
+ */
+void (*core_aux)(cptr) = NULL;
 
 /*
- * For those systems that don't have "usleep()" but need it.
- *
- * Fake "usleep()" function grabbed from the inl netrek server -cba
+ * Dump a core file, after printing a warning message
+ * As with "quit()", try to use the "core_aux()" hook first.
  */
-int usleep(huge usecs)
+void core(cptr str)
 {
-	struct timeval Timer;
+	char *crash = NULL;
 
-	/* Paranoia -- No excessive sleeping */
-	if (usecs > 4000000L) quit("Illegal usleep() call");
+	/* Use the aux function */
+	if (core_aux) (*core_aux)(str);
 
+	/* Dump the warning string */
+	if (str) plog(str);
 
-	/* Wait for it */
-	Timer.tv_sec = (usecs / 1000000L);
-	Timer.tv_usec = (usecs % 1000000L);
+	/* Attempt to Crash */
+	(*crash) = (*crash);
 
-	/* Wait for it */
-	if (select(0, NULL, NULL, NULL, &Timer) < 0)
-	{
-		/* Hack -- ignore interrupts */
-		if (errno != EINTR) return (-1);
-	}
-
-	/* Success */
-	return (0);
+	/* Be sure we exited */
+	quit("core() failed");
 }
 
-#endif /* HAVE_USLEEP */
 
 
-/*
- * Hack -- External functions
- */
-extern struct passwd *getpwuid();
-extern struct passwd *getpwnam();
-
-/*
- * Find a default user name from the system.
- */
-void user_name(char *buf, size_t len, int id)
-{
-	struct passwd *pw;
-
-	/* Look up the user name */
-	if ((pw = getpwuid(id)))
-	{
-		/* Get the first 15 characters of the user name */
-		(void)my_strcpy(buf, pw->pw_name, len);
-
-		/* Hack -- capitalize the user name */
-		if (islower((unsigned char)buf[0]))
-			buf[0] = toupper((unsigned char)buf[0]);
-
-		return;
-	}
-
-	/* Oops.  Hack -- default to "PLAYER" */
-	(void)my_strcpy(buf, "PLAYER", len);
-}
-
-#endif /* SET_UID */
 

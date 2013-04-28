@@ -11,14 +11,14 @@ notification when it is again available for use) by typing '!'.
 --- List of Talents ---
 
 Turn skin to stone:
-     Increases your armor class substantially.  Requires a wrestling skill of 65
-and the Oath of Iron.
+     Increases your armour class substantially.  Requires a wrestling skill of
+65 and the Oath of Iron.
 
 Berserk fury:
      Drives you into a berserk fury, which greatly increases your strength,
-melee skill, and hitpoints, but hinders archery and throwing, reduces your armor
-class, and leaves you exhausted.  Requires a wrestling skill of 80 and the Oath
-of Iron.
+melee skill, and hitpoints, but hinders archery and throwing, reduces your
+armour class, and leaves you exhausted.  Requires a wrestling skill of 80 and
+the Oath of Iron.
 
 Resist damage:
      Lets you go into a brief trance-like state in which you take only 2/3rds
@@ -38,7 +38,7 @@ Requires a wizardry skill of 40.  Wizards use a spell instead.
 Phase warp:
      Semi-controlled teleport.  At levels not much above the minimum, is only
 slightly better than a phase door, but at high levels, gives good control of
-movement.  Requires a wizardry skill of 70.  Wizards use a spell instead.
+movement.  Requires a wizardry skill of 50.  Wizards use a spell instead.
 
 Tap magical energy:
      Allows you to regain mana by tapping magical devices (especially staffs and
@@ -76,16 +76,16 @@ Sense charges:
 wands and staffs.  If this automatic sensing fails, this talent guarantees
 success.  Requires a magical device skill of 70.
 
-Detect and Nab objects:
-     Does either of two things:  1) Detects objects and gold in the current room
-and/or in line of sight, 2) Fetches an object in line of sight to you, even if a
-monster is on top of it.  The maximum weight of the object goes up with skill.
-     Requires a burglary skill of 40.
+Nab object:
+     Fetches an object in line of sight to you, even if a monster is on top of
+it.  The maximum weight of the object goes up with skill.  Requires a burglary
+skill of 40.
 
 Poison ammo:
      Allows you to use certain mushrooms and potions to poison ammunition; such
-missiles do extra damage to all monsters not resistant to poison.  Requires a
-burglary skill of 55.
+missiles do extra damage to all monsters not resistant to poison.  Note:  this
+skill is not an easy money-maker, because all objects you create yourself are
+discounted by 80%.  Requires a burglary skill of 55.
 
 Hit and run:
      Casts a spell around you; when you next hit a monster in melee, or steal
@@ -112,36 +112,27 @@ especially deadly sneak attacks (much more effective than the ordinary sleeping
 monster bonus) on sleeping monsters.  Requires a stealth skill of 10.
 
 Superstealth:
-     Temporarily makes you partially invisible.  Power depends on stealth and is
-in addition to any equipment bonuses to invisibility.  Requires a stealth skill
-of 75.
+     Greatly increases your stealth temporarily.  Requires a stealth skill of
+60.  At a stealth of 90 or greater, cancels aggravation temporarily.
 
 Recharging:
      Allows you to use essences to recharge wands, staffs, and even rods.  This
 method is riskier to you than normal recharging, but is much less likely to blow
 up the item you are working on.  Of course, you have to find the right kind of
-essences first.  Requires a magical infusion skill of 30, and a magical device
-skill of 30.
+essences first.  Requires a magical infusion skill of 30.
 
 Weapon forging:
-     Allows you to create weapons using components.  Requires a weapon forging
-skill of 15.  Increases in skill greatly improve your ability to make powerful
-weapons.
+     Allows you to create weapons using components.
 
-Armor forging:
-     Allows you to create armor using components.  Requires an armor forging
-skill of 15.  Increases in skill greatly improve your ability to make powerful
-armor.
+Armour forging:
+     Allows you to create armour using components.
 
-Bowmaking and Fletchery:
-     Allows you to create bows and ammunition using components.  Requires a
-bowmaking skill of 15.  Increases in skill greatly improve your ability to make
-powerful bows and missiles.
+Bowmaking & fletching:
+     Allows you to create bows and ammunition using components.
 
 Alchemy:
      Allows you to create potions, scrolls, rings, and amulets using bottles,
-parchments, and essences.  Requires an alchemy skill of 10.  Increases in skill
-greatly improve your ability to make powerful weapons.
+parchments, and essences.
 
 Dragon-breathing:
      If you are in dragonform, you can use this talent to consume essences and
@@ -151,41 +142,14 @@ breath is to be resisted, the more damage it does).
      Of course, you have to find a way to turn into a dragon first...
 
 
---- Other skills-based abilities ---
-
-Dodging Ability:
-     Dodging skill is the most important factor in overall dodging ability, as
-shown on your character screen.  However, several other things can make a big
-difference.
-
-Conditions:  When paralyzed, blinded, confused, hallucinating, or stunned, your
-dodging ability is greatly reduced.  An extremely high dodging skill (above 95)
-allows you to ignore most of these conditions.
-
-Dexterity:  You need a Dexterity above 7 to dodge much at all.  Each point above
-this increases your potential dodging (assuming you have the skill).
-
-Weight:  Carrying too much relative to your strength reduces your dodging
-ability, and wielded shields are by far the worst offenders.  However, increases
-in dodging skill boost the percentage you can carry without penalty.
-
-Special:  Some spells increase dodging ability temporarily.  Burglars moving in
-the dark get a bonus.  It is hard to dodge in the water.
-
-
-
-====== Object Forging ======
-
-
---- Supplies ---
+--- Object-forging ---
 
      When using an object-forging talent, you usually need some kind of input.
-You can only create weapons, armor, and missiles in the town (except in ironman
-mode).
+You can only create weapons, armour, and missiles in the town.
 
 Components:
      Components of metal come in several different types; the higher level the
-component, the more powerful the weapon, armor, or missiles that can be forged
+component, the more powerful the weapon, armour, or missiles that can be forged
 from it.  Certain components add special qualities to the items they create;
 mithril is unusually light, adamantium unusually heavy, and both ignore acid and
 fire.
@@ -212,83 +176,43 @@ monsters generated while you are exploring the level cannot have attracted
 essences, because they haven't stayed in one place long enough.
      Essences cannot be detected with magic; you have to find them the old-
 fashioned way, by thoroughly investigating places where you think they might be.
-The higher your Magical Infusion (and also Perception) skills, the more essences
-you will find.  Essences are more numerous but harder to spot deep in the
-dungeon.  Once you find an essence, you pick it up by moving onto it.  It
-automatically goes into a special pouch slot in your equipment; you may
-'I'nspect or e'x'amine this pouch to see what essences you have.
+The higher your wizardry and perception skills, the more essences you will find.
+Essences are more numerous but harder to spot deep in the dungeon.  Once you
+find an essence, you pick it up by moving onto it.  It automatically goes into a
+special pouch slot in your equipment; you may 'I'nspect or e'x'amine this pouch
+to see what essences you have.
 
 
---- Forging Wargear ---
-
-What you need:
-     Weapon, armor, and missile forging all compete for the same kind of input:
+Forging Wargear:
+     Weapon, armour, and missile forging all compete for the same kind of input:
 components.  The more skilled you are, and the better the component you choose,
-the greater the maximum power of the object you create.
-     You also need some moderate skill in using any weapon you forge, or it will
-be less powerful.  For example, if you don't have any throwing or clubbing
-skill, then you cannot make such powerful throwing or blunt weapons.
-
-Object types:
-     The actual power of the forged item greatly depends on your choice of base
-object.  Melee weapons and body armor can have a lot of attributes; other kinds
-of armor and missile weapons have somewhat less, and ammunition has only a few.
-Also, the higher level and more powerful the base object, the fewer extra
-attributes it gets.
-
-Reducing failure chance:
+the greater the maximum power of the object you create.  You also need some
+skill in using the object you forge, or it will be less powerful.
+     When forging, you choose an object type that you are aware of.  The actual
+power of the forged item greatly depends on this choice.  Melee weapons and body
+armour can have a lot of attributes; other kinds of armour and missile weapons
+have somewhat less, and ammunition has only a few.  Also, the higher level and
+more powerful the base object, the fewer extra attributes it gets.
      Forging may fail, and when it does, things go boom.  You reduce your
-failure chance by increasing your skill, using higher quality components, and
-choosing low-level base object types (daggers versus executioner's swords).
-
+failure chance by choosing low-level base object types (daggers versus
+executioner's swords) and high-level components.
      You can give your forged items names by inscribing them.
 
-
---- Infusion of Wargear ---
-
-     When you forge wargear with essences in your pouch, you will be asked if
-you want to use essences to directly alter your forged item.  If you say yes,
-you see the "Add essences" screens.  There are four screens:  Sustain/Slay,
-Resist, Qualities, and Bonuses.  You navigate among them by typing '<' and '>'.
-Pressing RETURN starts the forging.  Pressing ESC cancels everything.
-
-Investing essences:
-     On all screens, you see a list of object attributes (such as Resist Cold or
-Sustain Strength), each followed by an indication of the essence type and the
-minimum amount needed to get it.  If you have at least the required amount of
-essences of that type, the essence type is displayed in grey.  Otherwise, it is
-shown in dark grey.  You navigate to the attribute you want by typing '8' and
-'2', then invest essences by typing '+' and '-'.  As you invest essences, the
-number invested appears, colored grey, white, light blue, blue, and violet as
-your likelihood of success increases.  Investing the minimum gives you a 30%
-chance of success.  Investing until the indicator is violet (quite expensive)
-gives you a 90% chance of getting that attribute; this is the highest possible.
-
-Applying bonuses:
-     On the bonuses screen, you also need to specify which bonus you plan to
-apply, as objects may have up to three.  Usually, however, you just need to
-adjust the first one (by typing '+' and '-').  Navigate to the attribute you
-want, and type '4' and '6' to change to the bonus you want (usually the first).
-Once you have assigned that attribute a non-zero bonus, you can then invest
-essences (by typing '+' and '-').  Note that the cost of bonuses depends greatly
-on the size of bonus you ask for.  Asking for a bonus of 3 is more expensive
-then asking for 3 different bonuses of 1.
-
-Be careful:
-     Object infusion can be extremely powerful, but you have to be careful.  The
-greater the percentage of total power you try to specify using essences, the
-more likely it is that the forging will fail, and that you will lose everything.
-Infusion skill helps a lot with this.  The infusion screens display a
-"Potential" indicator; it changes colors from green to light green, white,
-yellow, orange, red, and dark grey as things get increasingly dangerous.
+Infusion of forged items:
+     If you have essences, you can add specific attributes to forged items.
+This can be extremely powerful, but you have to be very careful:  The greater
+the percentage of total power you try to specify using essences, the more likely
+it is that the forging will fail, and that you will lose everything.  Infusion
+skill helps a lot with this.  The essence add screen has a handy indicator of
+how dangerous things are getting.  Secondly, you can never guarantee an
+attribute, no matter how many essences you devote.  You will usually end up
+offering between the minimum and three times that amount, and accepting about a
+33-66% chance.
      Again:  forging is very, very chancy.  Magic-using smiths and alchemists
 are notorious for rearranging the landscape.  If you fail, just remember that
 there are lots more essences and components waiting to be found.
 
-
---- Alchemy ---
-
-Making potions (requires a skill of 10):
+Alchemy - potion-making:
      Potion-creation requires essences and bottles.  You can only make potions
 that you are aware of and whose essence cost you can meet.  The higher your
 alchemy skill, the higher the maximum level of potions you can make.
@@ -300,33 +224,29 @@ the amount depends on the value of the potion and your infusion skill.  Making
 more than one potion at a time is especially risky, but increases in infusion
 skill help.
 
-Alchemy - making scrolls (requires a skill of 10):
+Alchemy - making potions of essences:
+     Potions of essences ("magical grenades") can do a lot of damage, whether
+you throw them, quaff them, or use them in traps.  Damage depends on the number
+of essences you pack in, on your infusion (not alchemy) skill, and on the type
+of essences you use (the basic elements do the most damage, the esoteric stuff
+does the least).  If you pack too many essences in, and fail to use a sturdy
+enough bottle, your magical grenade might explode...
+
+     Approximate damage:
+     skill * 1.3 (up to 130) for one essence
+     skill * 1.9 (up to 190) for two essences
+     skill * 2.4 (up to 240) for three essences
+
+Alchemy - scroll-creation:
      Scroll-creation is very similar to potion-creation except that you use
 parchments instead of bottles.
 
-Alchemy - making rings and amulets (requires a skill of 35):
+Alchemy - The creation of rings and amulets  (requires a skill of 35):
      Making rings and amulets needs both components and essences.  The level of
 object you can make depends on alchemy skill and component quality.  Failure
 chance depends on the level of the item you are trying to create and on your
 skill.
 
-Infusion - making potions of essences:
-     Requires an Infusion skill of 15.  Uses the same talent as ordinary potion-
-making (so you also need enough Alchemy skill to make potions).
-     Potions of essences ("magical grenades") can do a lot of damage, whether
-you throw them, quaff them, or use them in traps.  Damage depends on the number
-of essences you pack in and on your Infusion skill.  The type of essences you
-use also has an effect:  the basic elements do the most damage, the esoteric
-magics do the least.  If you pack too many essences in, and fail to use a sturdy
-enough bottle, your potion might explode...
-
-     Average damage:
-     skill * 1.4 (up to 140) for one essence
-     skill * 2.2 (up to 220) for two essences
-     skill * 2.8 (up to 280) for three essences
-
-     Note:  You can make multiple potions of essences at one time.  Unlike the
-case when making ordinary potions, there is no extra risk to doing this.
 
 
 

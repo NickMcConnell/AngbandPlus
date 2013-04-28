@@ -3,13 +3,12 @@
 /*
  * Code for the "mindless borg", an aid to debugging and profiling the game.
  *
- * Copyright (c) 2007
+ * Copyright (c) 2003
  * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
  */
 
 
@@ -139,7 +138,7 @@ void do_cmd_borg(void)
 	inkey_scan = TRUE;
 
 	/* Check for a key, and stop the borg if one is pressed */
-	if (inkey(FALSE))
+	if (inkey())
 	{
 		/* Flush input */
 		flush();
@@ -148,8 +147,8 @@ void do_cmd_borg(void)
 		disturb(0, 0);
 
 		/* Stop the borg */
-		count_stop = 0;
 		msg_print("Stopping...");
+		count_stop = 0;
 
 		/* Redraw everything */
 		do_cmd_redraw();
@@ -162,10 +161,10 @@ void do_cmd_borg(void)
 	p_ptr->energy_use = 100 - (p_ptr->depth / 2);
 
 	/* Refresh the screen */
-	(void)Term_fresh();
+	Term_fresh();
 
 	/* Delay the borg */
-	if (op_ptr->delay_factor) pause_for(op_ptr->delay_factor * op_ptr->delay_factor);
+	Term_xtra(TERM_XTRA_DELAY, op_ptr->delay_factor * op_ptr->delay_factor);
 
 
 	/* Change level when needed. */
@@ -186,28 +185,31 @@ void do_cmd_borg(void)
 	if (count_teleport > 0) count_teleport--;
 	else
 	{
-		teleport_player(rand_range(20, 200), TRUE, FALSE);
+		teleport_player(rand_range(20, 200), TRUE);
 		count_teleport = rand_range(100, 150);
 		return;
 	}
 
-	/* Look up to a distance of three for monsters to attack. */
-	for (i = 1; i < 37; i++)
+	/* Look up to a distance of four for monsters to attack. */
+	for (i = 1; i <= 4; i++)
 	{
-		y = p_ptr->py + nearby_grids_y[i];
-		x = p_ptr->px + nearby_grids_x[i];
-
-		if ((in_bounds(y, x)) && (cave_m_idx[y][x] > 0))
+		for (y = p_ptr->py - i; y <= p_ptr->py + i; y++)
 		{
-			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
-
-			if (m_ptr->ml)
+			for (x = p_ptr->px - i; x <= p_ptr->px + i; x++)
 			{
-				bool dummy;
+				if ((in_bounds(y, x)) && (cave_m_idx[y][x] > 0))
+				{
+					monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 
-				/* Wizard zap the monster. */
-				mon_take_hit(cave_m_idx[y][x], -1, p_ptr->depth * 2, &dummy, NULL);
-				return;
+					if (m_ptr->ml)
+					{
+						bool dummy;
+
+						/* Wizard zap the monster. */
+						mon_take_hit(cave_m_idx[y][x], -1, p_ptr->depth * 2, &dummy, NULL);
+						return;
+					}
+				}
 			}
 		}
 	}
@@ -287,6 +289,12 @@ void do_cmd_borg(void)
 
 	/* Remove rubble. */
 	else if (feat == FEAT_RUBBLE) cave_set_feat(y, x, FEAT_FLOOR);
+
+	/* Move into shops */
+	else if ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL))
+	{
+		monster_swap(p_ptr->py, p_ptr->px, y, x);
+	}
 
 	/* If the terrain is anything else, do nothing. */
 }

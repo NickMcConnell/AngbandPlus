@@ -1,1 +1,0 @@
-Various Windows-specific files have been moved to this directory to avoid clutter.  You can move stuff back for easier compilation, but note that the official makefiles assume the use of this directory.

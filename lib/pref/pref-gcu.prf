@@ -5,7 +5,7 @@
 #
 # It contains macro definitions to allow the VT100 cursor keys to be
 # recognized by Angband.  This will also make the "escape" key take a
-# few seconds to recognize, so the "`" key is mapped to escape.
+# few seconds to recognize, so you may want to use the "`" key instead.
 #
 
 

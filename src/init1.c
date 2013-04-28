@@ -3,12 +3,11 @@
 /*
  * Read the files in "/lib/edit", use them to fill in various arrays.
  *
- * Copyright (c) 2007 Ben Harrison
+ * Copyright (c) 1997 Ben Harrison
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -52,45 +51,6 @@
 /*** Helper arrays for parsing ascii template files ***/
 
 /*
- * Feature flags
- */
-static cptr f_info_flags[] =
-{
-	"TF_LOS",
-	"TF_PROJECT",
-	"TF_PASSABLE",
-	"TF_INTERESTING",
-	"TF_PERMANENT",
-	"TF_NO_SCENT",
-	"TF_OBJECT",
-	"TF_TRAP",
-	"XXX9",
-	"XX10",
-	"XX11",
-	"XX12",
-	"XX13",
-	"XX14",
-	"XX15",
-	"XX16",
-	"TF_FLOOR",
-	"TF_WALL",
-	"TF_ROCK",
-	"TF_GRANITE",
-	"TF_DOOR_ANY",
-	"TF_DOOR_CLOSED",
-	"TF_SHOP",
-	"XX24",
-	"XX25",
-	"XX26",
-	"XX27",
-	"XX28",
-	"XX29",
-	"XX30",
-	"XX31",
-	"XX32"
-};
-
-/*
  * Monster Blow Methods
  */
 static cptr r_info_blow_method[] =
@@ -119,7 +79,6 @@ static cptr r_info_blow_method[] =
 	"BEG",
 	"INSULT",
 	"SNEER",
-	"TALK",
 	"XXX5",
 	NULL
 };
@@ -523,7 +482,7 @@ static cptr k_info_flags1[] =
 	"BRAND_POIS",
 	"BRAND_FLAME",
 	"BRAND_VENOM",
-	"RETURNING",
+	"XXX8",
 	"VORPAL",
 	"THROWING",
 	"PERFECT_BALANCE",
@@ -592,7 +551,7 @@ static cptr k_info_flags3[] =
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"ATTR_MULTI",
+	"XXX4",
 	"XXX5",
 	"NO_FUEL",
 	"SOULSTEAL",
@@ -754,7 +713,7 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
  * Returns FALSE when there isn't enough space available to store
  * the text.
  */
-static bool add_text(u32b *offset, header *head, char *buf)
+static bool add_text(u32b *offset, header *head, cptr buf)
 {
 	/* Hack -- Verify space */
 	if (head->text_size + strlen(buf) + 8 > z_info->fake_text_size)
@@ -766,9 +725,6 @@ static bool add_text(u32b *offset, header *head, char *buf)
 		/* Advance and save the text index */
 		*offset = ++head->text_size;
 	}
-
-	/* Translate 7-bit encoded text into 8-bit Latin-1 text */
-	xstr_trans(buf, LATIN1);
 
 	/* Append chars to the text */
 	strcpy(head->text_ptr + head->text_size, buf);
@@ -787,7 +743,7 @@ static bool add_text(u32b *offset, header *head, char *buf)
  * Returns 0 when there isn't enough space available to store
  * the name.
  */
-static u32b add_name(header *head, char *buf)
+static u32b add_name(header *head, cptr buf)
 {
 	u32b name_index;
 
@@ -797,9 +753,6 @@ static u32b add_name(header *head, char *buf)
 
 	/* Advance and save the name index */
 	name_index = ++head->name_size;
-
-	/* Translate the 7-bit encoded name into an 8-bit (Latin-1) name */
-	xstr_trans(buf, LATIN1);
 
 	/* Append chars to the names */
 	strcpy(head->name_ptr + head->name_size, buf);
@@ -931,18 +884,6 @@ errr parse_z_info(char *buf, header *head)
 
 		/* Save the value */
 		z_info->t_max = max;
-	}
-
-	/* Process 'L' for "Maximum flavor_info[] subindex" */
-	else if (buf[2] == 'L')
-	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->flavor_max = max;
 	}
 
 	/* Process 'O' for "Maximum o_list[] index" */
@@ -1105,69 +1046,13 @@ errr parse_v_info(char *buf, header *head)
 
 
 /*
- * Grab one flag from a textual string
- */
-static errr grab_one_u16b_flag(u16b *flags, cptr names[], cptr what)
-{
-	int i;
-
-	/* Check flags */
-	for (i = 0; i < 16; i++)
-	{
-		if (streq(what, names[i]))
-		{
-			*flags |= (1L << i);
-			return (0);
-		}
-	}
-
-	return (-1);
-}
-
-/*
- * Grab one flag from a textual string
- */
-static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
-{
-	int i;
-
-	/* Check flags */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, names[i]))
-		{
-			*flags |= (1L << i);
-			return (0);
-		}
-	}
-
-	return (-1);
-}
-
-
-/*
- * Grab one flag in a feature_type from a textual string
- */
-static bool grab_one_feat_flag(feature_type *f_ptr, cptr what)
-{
-	if (grab_one_flag(&f_ptr->flags, f_info_flags, what) == 0)
-		return (0);
-
-	/* Oops */
-	msg_format("Unknown feature_type flag '%s'.", what);
-
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
-}
-
-/*
  * Initialize the "f_info" array, by parsing an ascii "template" file
  */
 errr parse_f_info(char *buf, header *head)
 {
 	int i;
 
-	char *s, *t;
+	char *s;
 
 	/* Current entry */
 	static feature_type *f_ptr = NULL;
@@ -1227,35 +1112,6 @@ errr parse_f_info(char *buf, header *head)
 		f_ptr->mimic = mimic;
 	}
 
-	/* Hack -- Process 'F' for flags */
-	else if (buf[0] == 'F')
-	{
-		/* There better be a current f_ptr */
-		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Parse every entry textually */
-		for (s = buf + 2; *s; )
-		{
-			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
-
-			/* Nuke and skip any dividers */
-			if (*t)
-			{
-				*t++ = '\0';
-				while (*t == ' ' || *t == '|') t++;
-			}
-
-			/* Parse this entry */
-			if (0 != grab_one_feat_flag(f_ptr, s))
-				return (PARSE_ERROR_INVALID_FLAG);
-
-			/* Start the next entry */
-			s = t;
-		}
-	}
-
-
 	/* Process 'G' for "Graphics" (one line only) */
 	else if (buf[0] == 'G')
 	{
@@ -1272,34 +1128,12 @@ errr parse_f_info(char *buf, header *head)
 		/* Extract the attr */
 		tmp = color_char_to_attr(buf[4]);
 
-		/* Verify color */
-		if ((tmp == TERM_WHITE) && (buf[4] != 'w')) return (PARSE_ERROR_UNKNOWN_COLOR);
+		/* Paranoia */
+		if (tmp < 0) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		f_ptr->d_attr = tmp;
 		f_ptr->d_char = buf[2];
-	}
-
-
-	/* Process 'C' for "Special values" (one line only) */
-	else if (buf[0] == 'C')
-	{
-		int tmp;
-
-		/* There better be a current f_ptr */
-		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Paranoia */
-		if (!buf[2]) return (PARSE_ERROR_GENERIC);
-
-		/* Scan for the values */
-		if (1 != sscanf(buf+2, "%d", &tmp))
-		{
-			return (PARSE_ERROR_GENERIC);
-		}
-
-		/* Save the values */
-		f_ptr->priority = (byte)tmp;
 	}
 
 	/* Process 'D' for "Description" */
@@ -1315,30 +1149,6 @@ errr parse_f_info(char *buf, header *head)
 		if (!add_text(&(f_ptr->text), head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
-
-	/* Process "!:Verify Terrain" for double-check on terrain. */
-	else if ((buf[0] == '!') && (strstr(buf, "!:Verify Terrain")))
-	{
-		/* Scan the whole feature list (except for darkness) */
-		for (i = 1; i < z_info->f_max; i++)
-		{
-			feature_type *f2_ptr = NULL;
-
-			f_ptr = (feature_type*)head->info_ptr + i;
-
-			/* This feature is not a mimic -- ignore */
-			if ((f_ptr->mimic == 0) || (f_ptr->mimic == i))
-			{
-				continue;
-			}
-
-			f2_ptr = (feature_type*)head->info_ptr + f_ptr->mimic;
-
-			/* Add the flags of the mimiced feature */
-			f_ptr->flags |= (f2_ptr->flags);
-		}
-	}
-
 	else
 	{
 		/* Oops */
@@ -1347,6 +1157,47 @@ errr parse_f_info(char *buf, header *head)
 
 	/* Success */
 	return (0);
+}
+
+
+/*
+ * Grab one flag from a textual string
+ */
+static errr grab_one_u16b_flag(u16b *flags, cptr names[], cptr what)
+{
+	int i;
+
+	/* Check flags */
+	for (i = 0; i < 16; i++)
+	{
+		if (streq(what, names[i]))
+		{
+			*flags |= (1L << i);
+			return (0);
+		}
+	}
+
+	return (-1);
+}
+
+/*
+ * Grab one flag from a textual string
+ */
+static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
+{
+	int i;
+
+	/* Check flags */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, names[i]))
+		{
+			*flags |= (1L << i);
+			return (0);
+		}
+	}
+
+	return (-1);
 }
 
 
@@ -1481,8 +1332,8 @@ errr parse_k_info(char *buf, header *head)
 		/* Extract the attr */
 		tmp = color_char_to_attr(buf[4]);
 
-		/* Verify color */
-		if ((tmp == TERM_WHITE) && (buf[4] != 'w')) return (PARSE_ERROR_UNKNOWN_COLOR);
+		/* Paranoia */
+		if (tmp < 0) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		k_ptr->d_attr = tmp;
@@ -1543,6 +1394,9 @@ errr parse_k_info(char *buf, header *head)
 			/* Sanity check */
 			if (i > 3) return (PARSE_ERROR_TOO_MANY_ALLOCATIONS);
 
+			/* Default chance */
+			k_ptr->chance[i] = 1;
+
 			/* Store the attack damage index */
 			k_ptr->locale[i] = atoi(s+1);
 
@@ -1555,7 +1409,8 @@ errr parse_k_info(char *buf, header *head)
 			/* If the slash is "nearby", use it */
 			if (t && (!s || t < s))
 			{
-				k_ptr->chance[i] = MAX(0, atoi(t+1));
+				int chance = atoi(t+1);
+				if (chance > 0) k_ptr->chance[i] = chance;
 			}
 		}
 	}
@@ -1609,7 +1464,7 @@ errr parse_k_info(char *buf, header *head)
 		for (s = buf + 2; *s; )
 		{
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Nuke and skip any dividers */
 			if (*t)
@@ -1637,7 +1492,7 @@ errr parse_k_info(char *buf, header *head)
 		for (s = buf + 2; *s; )
 		{
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Nuke and skip any dividers */
 			if (*t)
@@ -1667,7 +1522,7 @@ errr parse_k_info(char *buf, header *head)
 			int num, essence_type;
 
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Skip the space after the essence name */
 			if (*t)
@@ -1878,30 +1733,17 @@ errr parse_a_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, rarity, wgt, num;
+		int level, rarity, wgt;
 		long cost;
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-		/* Scan for the values -- including max_num */
-		if (5 != sscanf(buf+2, "%d:%d:%d:%ld:%d",
-			&level, &rarity, &wgt, &cost, &num))
+		/* Scan for the values */
+		if (4 != sscanf(buf+2, "%d:%d:%d:%ld", &level, &rarity, &wgt, &cost))
 		{
-			/* Assume one artifact */
-			a_ptr->max_num = 1;
-
-			/* Scan for the values -- no max num */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%ld", &level, &rarity, &wgt, &cost))
-			{
-				return (PARSE_ERROR_GENERIC);
-			}
+			return (PARSE_ERROR_GENERIC);
 		}
-		else
-		{
-			a_ptr->max_num = (byte)num;
-		}
-
 
 		/* Save the values */
 		a_ptr->level =  level;
@@ -2001,7 +1843,7 @@ errr parse_a_info(char *buf, header *head)
 		for (s = buf + 2; *s; )
 		{
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Nuke and skip any dividers */
 			if (*t)
@@ -2030,7 +1872,7 @@ errr parse_a_info(char *buf, header *head)
 		for (s = buf + 2; *s; )
 		{
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Nuke and skip any dividers */
 			if (*t)
@@ -2058,7 +1900,7 @@ errr parse_a_info(char *buf, header *head)
 		for (s = buf + 2; *s; )
 		{
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Nuke and skip any dividers */
 			if (*t)
@@ -2337,7 +2179,7 @@ errr parse_e_info(char *buf, header *head)
 		for (s = buf + 2; *s; )
 		{
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Nuke and skip any dividers */
 			if (*t)
@@ -2367,7 +2209,7 @@ errr parse_e_info(char *buf, header *head)
 		for (s = buf + 2; *s; )
 		{
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Nuke and skip any dividers */
 			if (*t)
@@ -2395,7 +2237,7 @@ errr parse_e_info(char *buf, header *head)
 		for (s = buf + 2; *s; )
 		{
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Nuke and skip any dividers */
 			if (*t)
@@ -2570,8 +2412,8 @@ errr parse_r_info(char *buf, header *head)
 		/* Extract the attr */
 		tmp = color_char_to_attr(buf[4]);
 
-		/* Verify color */
-		if ((tmp == TERM_WHITE) && (buf[4] != 'w')) return (PARSE_ERROR_UNKNOWN_COLOR);
+		/* Paranoia */
+		if (tmp < 0) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->d_attr = tmp;
@@ -2581,31 +2423,16 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int spd, hp, aaf, ac, slp, rng, nos;
+		int spd, hp, aaf, ac, slp;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-
 		/* Scan for the other values */
-		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
-			&spd, &hp, &aaf, &ac, &slp, &rng, &nos))
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			&spd, &hp, &aaf, &ac, &slp))
 		{
-			/* Scan for the other values */
-			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
-				&spd, &hp, &aaf, &ac, &slp, &rng))
-			{
-				/* Scan for the other values (no value for range) */
-				if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
-					&spd, &hp, &aaf, &ac, &slp))
-				{
-					return (PARSE_ERROR_GENERIC);
-				}
-				rng = 0;
-			}
-
-			/* Assume a noise of 20, unless specified */
-			nos = 20;
+			return (PARSE_ERROR_GENERIC);
 		}
 
 		/* Save the values */
@@ -2614,8 +2441,6 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->aaf = aaf;
 		r_ptr->ac = ac;
 		r_ptr->sleep = slp;
-		r_ptr->combat_range = rng;
-		r_ptr->noise = nos;
 	}
 
 	/* Process 'W' for "More Info" (one line only) */
@@ -2658,7 +2483,7 @@ errr parse_r_info(char *buf, header *head)
 		if (i == MONSTER_BLOW_MAX) return (PARSE_ERROR_GENERIC);
 
 		/* Analyze the first field */
-		for (s = t = buf+2; *t && (*t != ':'); t++); /* loop */
+		for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
 
 		/* Terminate the field (if necessary) */
 		if (*t == ':') *t++ = '\0';
@@ -2673,7 +2498,7 @@ errr parse_r_info(char *buf, header *head)
 		if (!r_info_blow_method[n1]) return (PARSE_ERROR_GENERIC);
 
 		/* Analyze the second field */
-		for (s = t; *t && (*t != ':'); t++); /* loop */
+		for (s = t; *t && (*t != ':'); t++) /* loop */;
 
 		/* Terminate the field (if necessary) */
 		if (*t == ':') *t++ = '\0';
@@ -2688,7 +2513,7 @@ errr parse_r_info(char *buf, header *head)
 		if (!r_info_blow_effect[n2]) return (PARSE_ERROR_GENERIC);
 
 		/* Analyze the third field */
-		for (s = t; *t && (*t != 'd'); t++); /* loop */
+		for (s = t; *t && (*t != 'd'); t++) /* loop */;
 
 		/* Terminate the field (if necessary) */
 		if (*t == 'd') *t++ = '\0';
@@ -2714,7 +2539,7 @@ errr parse_r_info(char *buf, header *head)
 		for (s = buf + 2; *s; )
 		{
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Nuke and skip any dividers */
 			if (*t)
@@ -2742,7 +2567,7 @@ errr parse_r_info(char *buf, header *head)
 		for (s = buf + 2; *s; )
 		{
 			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			/* Nuke and skip any dividers */
 			if (*t)
@@ -2890,112 +2715,6 @@ errr parse_q_info(char *buf, header *head)
 }
 
 
-/*
- * Initialize the "flavor_info" array, by parsing an ascii "template" file
- */
-errr parse_flavor_info(char *buf, header *head)
-{
-	/* Current entry */
-	static flavor_type *flavor_ptr;
-
-
-	/* Process 'N' for "Number" */
-	if (buf[0] == 'N')
-	{
-		int index, tval, sval, level;
-
-		/* Scan the value -- sval and level are optional */
-		if (4 != sscanf(buf, "N:%d:%d:%d:%d", &index, &tval, &sval, &level))
-		{
-			level = 0;
-
-			if (3 != sscanf(buf, "N:%d:%d:%d", &index, &tval, &sval))
-			{
-				sval = SV_ANY;
-
-				if (2 != sscanf(buf, "N:%d:%d", &index, &tval))
-					return (PARSE_ERROR_GENERIC);
-			}
-		}
-
-		/* Verify information */
-		if (index <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (index >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Save the index */
-		error_idx = index;
-
-		/* Point at the "info", using the given index */
-		flavor_ptr = (flavor_type*)head->info_ptr + index;
-
-		/* Hack -- Allow use of "-1" to mean "any sval" */
-		if (sval < 0) sval = SV_ANY;
-
-		/* Save the tval */
-		flavor_ptr->tval = (byte)tval;
-
-		/* Save the sval */
-		flavor_ptr->sval = (byte)sval;
-
-		/* Save the minimum level */
-		flavor_ptr->level = (byte)level;
-	}
-
-	/* Process 'G' for "Graphics" */
-	else if (buf[0] == 'G')
-	{
-		char d_char;
-		int d_attr;
-
-		/* There better be a current flavor_ptr */
-		if (!flavor_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Paranoia */
-		if (!buf[2]) return (PARSE_ERROR_GENERIC);
-		if (!buf[3]) return (PARSE_ERROR_GENERIC);
-		if (!buf[4]) return (PARSE_ERROR_GENERIC);
-
-		/* Extract the char */
-		d_char = buf[2];
-
-		/* Extract the attr */
-		d_attr = color_char_to_attr(buf[4]);
-
-		/* Verify color */
-		if ((d_attr == TERM_WHITE) && (buf[4] != 'w')) return (PARSE_ERROR_UNKNOWN_COLOR);
-
-		/* Save the values */
-		flavor_ptr->d_attr = (byte)d_attr;
-		flavor_ptr->d_char = d_char;
-	}
-
-	/* Process 'D' for "Description" */
-	else if (buf[0] == 'D')
-	{
-		/* There better be a current flavor_ptr */
-		if (!flavor_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Paranoia */
-		if (!buf[1]) return (PARSE_ERROR_GENERIC);
-		if (!buf[2]) return (PARSE_ERROR_GENERIC);
-
-		/* Store the text */
-		if (!add_text(&flavor_ptr->text, head, buf + 2))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-	}
-
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
-}
-
 
 /*
  * Tval initializer
@@ -3079,13 +2798,15 @@ static byte grab_one_owner_race(cptr what)
 
 
 /*
- * Initialize various store arrays by parsing an ascii "template" file.  -LM-
+ * Initialize various store arrays by parsing an ascii "template" file
+ *
+ * Note:  This code is still in beta.  -LM-
  */
 errr parse_store(void)
 {
 	int i;
 	byte b;
-	char str[DESC_LEN];
+	char str[81];
 	int num = -1;
 	s32b val;
 	bool okay = FALSE;
@@ -3108,7 +2829,7 @@ errr parse_store(void)
 	FILE *fp;
 
 	/* Get a location */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, "store.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "store.txt");
 
 	/* Start at the front of the file */
 	fp = my_fopen(buf, "r");
@@ -3339,7 +3060,7 @@ errr parse_store(void)
 				else if (stock)
 				{
 					/* Stay within bounds of table */
-					if (array_idx >= STORE_STOCK_SIZE)
+					if (array_idx >= store_stock_size)
 					{
 						return (PARSE_ERROR_OUT_OF_BOUNDS);
 					}
@@ -3413,7 +3134,7 @@ errr parse_store(void)
 	}
 
 	/* Close */
-	(void)my_fclose(fp);
+	my_fclose(fp);
 
 	/* Success */
 	return (0);

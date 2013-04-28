@@ -1,27 +1,17 @@
 /* File: z-term.h */
 
 /*
- * Copyright (c) 2007 Ben Harrison and others
+ * Copyright (c) 1997 Ben Harrison
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
  */
 
 #ifndef INCLUDED_Z_TERM_H
 #define INCLUDED_Z_TERM_H
 
 #include "h-basic.h"
-
-
-/*
- * Maximum number of Terms (display areas or "screens").
- *
- * If you change this value, also change the save/load code.
- */
-
-#define TERM_MAX     10
 
 
 
@@ -54,11 +44,14 @@ struct term_win
 	byte *va;
 	char *vc;
 
+#ifdef USE_TRANSPARENCY
 	byte **ta;
 	char **tc;
 
 	byte *vta;
 	char *vtc;
+#endif /* USE_TRANSPARENCY */
+
 };
 
 
@@ -74,20 +67,16 @@ struct term_win
  *	- Flag "user_flag"
  *	  An extra "user" flag (used by application)
  *
+ *
  *	- Flag "data_flag"
  *	  An extra "data" flag (used by implementation)
+ *
  *
  *	- Flag "active_flag"
  *	  This "term" is "active"
  *
  *	- Flag "mapped_flag"
  *	  This "term" is "mapped"
- *
- *    Used here to indicate that the window can be safely written to.
- *
- *  - Flag "popup_hack_flag"
- *    This term is displaying a pop-up region over part of another term it is
- *    normally overlain by.  HACK -- special display rules apply.  XXX XXX XXX
  *
  *	- Flag "total_erase"
  *	  This "term" should be fully erased
@@ -126,15 +115,16 @@ struct term_win
  *	- Value "char_blank"
  *	  Use this "char" value for "blank" grids
  *
+ *
+ *	- Ignore this pointer
+ *
  *	- Keypress Queue -- various data
  *
  *	- Keypress Queue -- pending keys
  *
  *
- *	- Character/cell columns (max 255)
- *	- Character/cell rows (max 255)
- *
- *  - Size of memory array and temporary array (the latter unused)
+ *	- Window Width (max 255)
+ *	- Window Height (max 255)
  *
  *	- Minimum modified row
  *	- Maximum modified row
@@ -142,7 +132,6 @@ struct term_win
  *	- Minimum modified column (per row)
  *	- Maximum modified column (per row)
  *
- *  - X, Y Offsets to character position
  *
  *	- Displayed screen image
  *	- Requested screen image
@@ -166,9 +155,7 @@ struct term_win
  *
  *	- Hook for drawing a sequence of special attr/char pairs
  *
- *  - Hook for redrawing any overlapping windows
- *
- *  - Hook for translating Latin-1 (8-bit) characters
+ *	- Hook for changing the number of rows shown on screen
  */
 
 typedef struct term term;
@@ -185,7 +172,6 @@ struct term
 
 	bool active_flag;
 	bool mapped_flag;
-	bool popup_hack_flag;
 	bool total_erase;
 	bool fixed_shape;
 	bool icky_corner;
@@ -197,8 +183,6 @@ struct term
 	bool never_bored;
 	bool never_frosh;
 
-	bool screen_saved;
-
 	byte attr_blank;
 	char char_blank;
 
@@ -209,23 +193,14 @@ struct term
 	u16b key_xtra;
 	u16b key_size;
 
-	byte cols;
-	byte rows;
-
-	byte mem_cols;
-	byte mem_rows;
-
-	byte tmp_cols;
-	byte tmp_rows;
+	byte wid;
+	byte hgt;
 
 	byte y1;
 	byte y2;
 
 	byte *x1;
 	byte *x2;
-
-	byte offset_x;
-	byte offset_y;
 
 	term_win *old;
 	term_win *scr;
@@ -246,45 +221,22 @@ struct term
 
 	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
 
+#ifdef USE_TRANSPARENCY
 	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+#else /* USE_TRANSPARENCY */
+	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp);
+#endif /* USE_TRANSPARENCY */
 
-	errr (*fresh_hook)(bool total_erase);
-
-	byte (*xchar_hook)(byte c);
+	errr (*rows_hook)(bool fifty_rows);
 };
 
 
-/*
- * A structure to hold the information gathered from a single mouse action.
- */
-typedef struct mouseaction_type mouseaction_type;
 
-struct mouseaction_type
-{
-	byte button;   /* hover, L-click, R-click, Wheel, R-dbl-click, etc. */
-
-	byte x;  /* Grid positions within the input or active Term */
-	byte y;
-
-	byte term;   /* Term in which the mouse was pressed */
-};
 
 
 
 
 /**** Available Constants ****/
-
-
-/*
- * Mouse action indices
- */
-#define MOUSE_MOVEONLY     1
-#define MOUSE_L_CLICK      2
-#define MOUSE_R_CLICK      3
-#define MOUSE_L_DBLCLICK   4
-#define MOUSE_R_DBLCLICK   5
-#define MOUSE_WHEEL        6
-
 
 
 /*
@@ -301,7 +253,6 @@ struct mouseaction_type
  * The "TERM_XTRA_ALIVE" action uses "v" to "activate" (or "close")
  * The "TERM_XTRA_LEVEL" action uses "v" to "resume" (or "suspend")
  * The "TERM_XTRA_DELAY" action uses "v" as a "millisecond" value
- * The "TERM_XTRA_OVLAP" action uses "v" as the index of the overlapping term.
  *
  * The other actions do not need a "v" code, so "zero" is used.
  */
@@ -318,45 +269,28 @@ struct mouseaction_type
 #define TERM_XTRA_ALIVE 11	/* Change the "hard" level (optional) */
 #define TERM_XTRA_LEVEL 12	/* Change the "soft" level (optional) */
 #define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
-#define TERM_XTRA_OVLAP 14	/* Remove an area from the region to be refreshed (optional) */
-#define TERM_XTRA_MUSIC 15	/* Play (or stop playing) background music */
-
-
-
-
-/*
- * The special mouse action key (#255)
- */
-#define MOUSEKEY   '\xff'
-
 
 
 /**** Available Variables ****/
 
 extern term *Term;
-extern mouseaction_type prev_mouse_action;
-extern mouseaction_type cur_mouse_action;
-
-
-/**** Available Arrays ****/
-
-extern byte term_z_order[TERM_MAX];
 
 
 /**** Available Functions ****/
 
-extern errr Term_overlap(int term1, int term2);
-extern void swap_term_z_order(int term1, int term2);
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
+extern errr Term_rows(bool fifty_rows);
 
-extern const char seven_bit_translation[128];
-extern char xchar_trans(byte c);
-
+#ifdef USE_TRANSPARENCY
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
+#else /* USE_TRANSPARENCY */
+extern void Term_queue_char(int x, int y, byte a, char c);
+#endif /* USE_TRANSPARENCY */
+
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
+
 extern errr Term_fresh(void);
-extern errr Term_fresh_cursor(void);
 extern errr Term_set_cursor(int v);
 extern errr Term_gotoxy(int x, int y);
 extern errr Term_draw(int x, int y, byte a, char c);
@@ -368,16 +302,17 @@ extern errr Term_erase(int x, int y, int n);
 extern errr Term_clear(void);
 extern errr Term_redraw(void);
 extern errr Term_redraw_section(int x1, int y1, int x2, int y2);
-extern errr Term_redraw_section_nofresh(int x1, int y1, int x2, int y2);
 
 extern errr Term_get_cursor(bool *v);
 extern errr Term_get_size(int *w, int *h);
 extern errr Term_locate(int *x, int *y);
 extern errr Term_what(int x, int y, byte *a, char *c);
+
 extern errr Term_flush(void);
 extern errr Term_keypress(int k);
 extern errr Term_key_push(int k);
 extern errr Term_inkey(char *ch, bool wait, bool take);
+
 extern errr Term_save(void);
 extern errr Term_load(void);
 
@@ -391,6 +326,6 @@ extern errr term_nuke(term *t);
 extern errr term_init(term *t, int w, int h, int k);
 
 
-#endif  /* INCLUDED_Z_TERM_H */
+#endif
 
 

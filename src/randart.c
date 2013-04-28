@@ -1,23 +1,24 @@
 /* File: randart.c */
 
 /*
- * Random artifacts (also forged items).
+ * Random artifacts.
  *
- * Selling and providing qualities.  Choosing an object type and kind,
+ * Selling and providing qualities.  Choosing a object type and kind,
  * determining the potential, depth and rarity of the artifact.  Artifact
- * themes.  Adding semi-random qualities.  Cursing an artifact, removing
- * contradictory flags, naming, initializing.  Adding new names to the
- * a_name array.  Initializing all random artifacts.
+ * themes.  Adding semi-random qualities.  Cursing an artifact.  Removing
+ * contradictory flags.  Naming an artifact, using either of two methods.
+ * Initializing one random artifact.  Adding new names to the a_name array.
+ * Initializing all random artifacts.
  *
- * Copyright (c) 2007 Leon Marrick
+ * Copyright (c) 2002
+ * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * I owe thanks to Greg Wooledge for his support and string-handling code
  * and to W. Sheldon Simms for his Tolkienesque random name generator.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -72,7 +73,7 @@ long lprobs[S_WORD+1][S_WORD+1][S_WORD+1];	/* global, hence init to 0 */
 long ltotal[S_WORD+1][S_WORD+1];		/* global, hence init to 0 */
 
 /* Temporary space for names, while reading and randomizing them. */
-static char *names[ART_LIST_SIZE];
+static char *names[300];
 
 
 /*
@@ -101,8 +102,8 @@ byte pval_range[32][2] =
 	{ 1,  3 },   /* TR_PVAL_LIGHT */
 	{ 0,  0 },   /*  */
 	{ 1,  3 },   /* TR_PVAL_BLOWS */
-	{ 1,  4 },   /* TR_PVAL_SHOTS (assumes relatively low bow potentials) */
-	{ 1,  3 },   /* TR_PVAL_MIGHT (assumes relatively low bow potentials) */
+	{ 1,  3 },   /* TR_PVAL_SHOTS */
+	{ 1,  2 },   /* TR_PVAL_MIGHT */
 	{ 0,  0 },   /*  */
 	{ 0,  0 },   /*  */
 	{ 0,  0 },   /*  */
@@ -153,28 +154,28 @@ s16b get_cost_of_flag(int flag, int pval)
 	switch (flag)
 	{
 		/* Flags_pval */
-		case PVAL_STR:      cost = pval_value(TR_PVAL_STR, pval) / 7; break;
-		case PVAL_INT:      cost = pval_value(TR_PVAL_INT, pval) / 7; break;
-		case PVAL_WIS:      cost = pval_value(TR_PVAL_WIS, pval) / 7; break;
-		case PVAL_DEX:      cost = pval_value(TR_PVAL_DEX, pval) / 7; break;
-		case PVAL_CON:      cost = pval_value(TR_PVAL_CON, pval) / 7; break;
-		case PVAL_CHR:      cost = pval_value(TR_PVAL_CHR, pval) / 7; break;
+		case PVAL_STR:      cost = pval_value(TR_PVAL_STR, pval) / 7;
+		case PVAL_INT:      cost = pval_value(TR_PVAL_INT, pval) / 7;
+		case PVAL_WIS:      cost = pval_value(TR_PVAL_WIS, pval) / 7;
+		case PVAL_DEX:      cost = pval_value(TR_PVAL_DEX, pval) / 7;
+		case PVAL_CON:      cost = pval_value(TR_PVAL_CON, pval) / 7;
+		case PVAL_CHR:      cost = pval_value(TR_PVAL_CHR, pval) / 7;
 
-		case PVAL_STEALTH:  cost = pval_value(TR_PVAL_STEALTH, pval) / 7; break;
-		case PVAL_AWARE:    cost = pval_value(TR_PVAL_AWARE, pval) / 7; break;
-		case PVAL_INFRA:    cost = pval_value(TR_PVAL_INFRA, pval)  / 7; break;
-		case PVAL_TUNNEL:   cost = pval_value(TR_PVAL_TUNNEL, pval) / 7; break;
-		case PVAL_SPEED:    cost = pval_value(TR_PVAL_SPEED, pval)  / 40; break;
-		case PVAL_INVIS:    cost = pval_value(TR_PVAL_INVIS, pval)  / 7; break;
-		case PVAL_DISARM:   cost = pval_value(TR_PVAL_DISARM, pval) / 7; break;
-		case PVAL_DEVICE:   cost = pval_value(TR_PVAL_DEVICE, pval) / 7; break;
-		case PVAL_SAVE:     cost = pval_value(TR_PVAL_SAVE, pval)   / 7; break;
-		case PVAL_MANA:     cost = pval_value(TR_PVAL_MANA, pval)   / 7; break;
-		case PVAL_LIGHT:    cost = pval_value(TR_PVAL_LIGHT, pval)  / 7; break;
+		case PVAL_STEALTH:  cost = pval_value(TR_PVAL_STEALTH, pval) / 7;
+		case PVAL_AWARE:    cost = pval_value(TR_PVAL_AWARE, pval) / 7;
+		case PVAL_INFRA:    cost = pval_value(TR_PVAL_INFRA, pval)  / 7;
+		case PVAL_TUNNEL:   cost = pval_value(TR_PVAL_TUNNEL, pval) / 7;
+		case PVAL_SPEED:    cost = pval_value(TR_PVAL_SPEED, pval)  / 40;
+		case PVAL_INVIS:    cost = pval_value(TR_PVAL_INVIS, pval)  / 7;
+		case PVAL_DISARM:   cost = pval_value(TR_PVAL_DISARM, pval) / 7;
+		case PVAL_DEVICE:   cost = pval_value(TR_PVAL_DEVICE, pval) / 7;
+		case PVAL_SAVE:     cost = pval_value(TR_PVAL_SAVE, pval)   / 7;
+		case PVAL_MANA:     cost = pval_value(TR_PVAL_MANA, pval)   / 7;
+		case PVAL_LIGHT:    cost = pval_value(TR_PVAL_LIGHT, pval)  / 7;
 
-		case PVAL_BLOWS:    cost = pval_value(TR_PVAL_BLOWS, pval) / 7; break;
-		case PVAL_SHOTS:    cost = pval_value(TR_PVAL_SHOTS, pval) / 10; break;
-		case PVAL_MIGHT:    cost = pval_value(TR_PVAL_MIGHT, pval) / 10; break;
+		case PVAL_BLOWS:    cost = pval_value(TR_PVAL_BLOWS, pval) / 7;
+		case PVAL_SHOTS:    cost = pval_value(TR_PVAL_SHOTS, pval) / 7;
+		case PVAL_MIGHT:    cost = pval_value(TR_PVAL_MIGHT, pval) / 7;
 
 		/* Flags1 */
 		case SUST_STR:        return (250);
@@ -202,7 +203,6 @@ s16b get_cost_of_flag(int flag, int pval)
 		case BRAND_FLAME:     return (1200);
 		case BRAND_VENOM:     return (1200);
 
-		case RETURNING:       return (0);  /* Special case */
 		case VORPAL:          return (400);
 		case THROWING:        return (350);
 		case PERFECT_BALANCE: return (600);
@@ -273,7 +273,7 @@ s16b get_cost_of_flag(int flag, int pval)
 	}
 
 	/* Convert value and return it */
-	if (cost > 30000L) return (30000);
+	if (cost > 20000L) return (20000);
 	else               return ((s16b)cost);
 }
 
@@ -300,54 +300,6 @@ static void get_quality(bool credit, int purchase, int val, int a_idx)
 
 	/* Illegal purchase */
 	if (purchase < 0) return;
-
-	/*
-	 * Missiles and throwing weapons aren't meant to be wielded.  Many
-	 * attributes would be strange for them to have.
-	 */
-	if ((is_missile(a_ptr)) || (a_ptr->flags1 & (TR1_THROWING)))
-	{
-		/* Pval-dependant qualities require that the object be wielded */
-		if (purchase < 32) return;
-
-		/* Many flags require that the object be wielded */
-		if ((purchase >= SUST_STR) && (purchase <= SUST_CHR)) return;
-		if ((purchase >= IM_ACID) && (purchase <= RES_DISEN)) return;
-		if (purchase == SLOW_DIGEST) return;
-		if (purchase == FEATHER) return;
-		if (purchase == REGEN) return;
-		if (purchase == TELEPATHY) return;
-		if (purchase == SEE_INVIS) return;
-		if (purchase == FREE_ACT) return;
-		if (purchase == HOLD_LIFE) return;
-		if (purchase == SOULSTEAL) return;
-		if (purchase == NOMAGIC) return;
-		if (purchase == HOLD_LIFE) return;
-		if (purchase == TELEPORT) return;
-		if (purchase == AGGRAVATE) return;
-		if (purchase == DRAIN_EXP) return;
-		if (purchase == DRAIN_HP) return;
-		if (purchase == THROWING) return;
-
-	}
-
-	/* Bows should not have certain attributes */
-	if (is_missile_weapon(a_ptr))
-	{
-		/* Cancel some pval-dependant qualities */
-		if (purchase == PVAL_TUNNEL) return;
-		if (purchase == PVAL_DISARM) return;
-		if (purchase == PVAL_DEVICE) return;
-		if (purchase == PVAL_MANA) return;
-
-		/* Triple Xbows with extra might are bad */
-		if ((purchase == PVAL_MIGHT) && (a_ptr->sval == SV_TRIPLE_XBOW))
-			return;
-
-		if (purchase == THROWING) return;
-	}
-
-
 
 
 	/* Adding pval-dependant qualities can be a little tricky */
@@ -529,22 +481,22 @@ static void get_quality(bool credit, int purchase, int val, int a_idx)
 			switch (purchase)
 			{
 				case PVAL_STR:
-					if (one_in_(3)) a_ptr->flags1 |= (TR1_SUST_STR);
+					if (one_in_(4)) a_ptr->flags1 |= (TR1_SUST_STR);
 					break;
 				case PVAL_INT:
-					if (one_in_(3)) a_ptr->flags1 |= (TR1_SUST_INT);
+					if (one_in_(4)) a_ptr->flags1 |= (TR1_SUST_INT);
 					break;
 				case PVAL_WIS:
-					if (one_in_(3)) a_ptr->flags1 |= (TR1_SUST_WIS);
+					if (one_in_(4)) a_ptr->flags1 |= (TR1_SUST_WIS);
 					break;
 				case PVAL_DEX:
-					if (one_in_(3)) a_ptr->flags1 |= (TR1_SUST_DEX);
+					if (one_in_(4)) a_ptr->flags1 |= (TR1_SUST_DEX);
 					break;
 				case PVAL_CON:
-					if (one_in_(3)) a_ptr->flags1 |= (TR1_SUST_CON);
+					if (one_in_(4)) a_ptr->flags1 |= (TR1_SUST_CON);
 					break;
 				case PVAL_CHR:
-					if (one_in_(3)) a_ptr->flags1 |= (TR1_SUST_CHR);
+					if (one_in_(4)) a_ptr->flags1 |= (TR1_SUST_CHR);
 					break;
 
 				default:
@@ -635,12 +587,23 @@ static void get_quality(bool credit, int purchase, int val, int a_idx)
 				if (temp > 2500) temp = 2500;
 
 				/* If credit is extended, guarantee something to work with. */
-				if ((credit) && (temp < 500)) temp = 500;
+				if (credit)
+				{
+					if (temp < 500) temp = 500;
 
-				/* Subtract whatever portion is allotted from the budget. */
-				if (potential > temp) potential -= temp;
-				else potential = 0;
+					if (potential > temp) potential -= temp;
+					else potential = 0;
+				}
 
+				/*
+				 * Otherwise, subtract whatever portion is allotted from the
+				 * main budget.
+				 */
+				else
+				{
+					if (potential > temp) potential -= temp;
+					else potential = 0;
+				}
 
 				/* Enhance the damage dice, depending on potential. */
 				for (i = 0; i < 5; i++)
@@ -705,12 +668,8 @@ static void get_quality(bool credit, int purchase, int val, int a_idx)
 /*
  * Get maximal potential of an artifact (this varies according to type).
  */
-int get_max_potential(int a_idx)
+int get_max_potential(int tval)
 {
-	artifact_type *a_ptr = &a_info[a_idx];
-	int tval = a_ptr->tval;
-
-
 	/* Some equipment types include no truly powerful artifacts. */
 	if (tval == TV_CLOAK)
 	{
@@ -720,9 +679,9 @@ int get_max_potential(int a_idx)
 	{
 		max_potential = 5000;
 	}
-	else if (is_missile_weapon(a_ptr))
+	else if (tval == TV_BOW)
 	{
-		max_potential = 3500;
+		max_potential = 4000;
 	}
 	else if (tval == TV_DIGGING)
 	{
@@ -735,15 +694,11 @@ int get_max_potential(int a_idx)
 	}
 	else if ((tval == TV_SHOT) || (tval == TV_ARROW) || (tval == TV_BOLT))
 	{
-		max_potential = 2000;
+		max_potential = 2500;
 	}
 	else if (tval == TV_SHIELD)
 	{
 		max_potential = 6000;
-	}
-	else if ((is_any_weapon(a_ptr)) && (a_ptr->flags1 & (TR1_THROWING)))
-	{
-		max_potential = 3 * POTENTIAL_MAX / 5;
 	}
 	else
 	{
@@ -756,8 +711,7 @@ int get_max_potential(int a_idx)
 
 
 /*
- * Assign a tval and sval.  Currently, we make weapons, missiles, and
- * armor.
+ * Assign a tval and sval.
  *
  * Return maximum artifact potential.
  */
@@ -787,8 +741,11 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 			/* Skip "empty" objects */
 			if (!k_ptr->name) continue;
 
-			/* Skip objects that are not weapons, missiles, or armor */
-			if (!is_wargear(k_ptr)) continue;
+			/* Skip objects that are not weapons or armour. */
+			if (!(is_any_weapon(k_ptr)) && !(is_any_armour(k_ptr)))
+			{
+				continue;
+			}
 
 			/* Scan all three allocation chance values */
 			for (freq = 0, i = 0; i < 3; i++)
@@ -797,9 +754,8 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 				if (freq < k_ptr->chance[i]) freq = k_ptr->chance[i];
 			}
 
-			/* Hack -- we don't want many diggers or missiles */
-			if ((k_ptr->tval == TV_DIGGING) || (is_missile(k_ptr)))
-				freq /= 2;
+			/* Hack -- we don't want many diggers */
+			if (k_ptr->tval == TV_DIGGING) freq /= 2;
 
 			/* Accept object if it passes the rarity roll. */
 			if ((freq >= 250) || (rand_int(250) < freq)) break;
@@ -831,15 +787,16 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 	/* Determine "power" and get activation of base object. */
 	switch (k_ptr->tval)
 	{
-		case TV_SLING:
 		case TV_BOW:
-		case TV_CROSSBOW:
 		{
+			if (k_ptr->sval == SV_HEAVY_XBOW) power_of_base_object = 500;
 			break;
 		}
 
 		case TV_HAFTED:
 		{
+			if (k_ptr->sval == SV_THROWING_HAMMER)
+				power_of_base_object = 1000;
 			if (k_ptr->sval == SV_MACE_OF_DISRUPTION)
 				power_of_base_object = 500;
 			break;
@@ -847,7 +804,8 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 
 		case TV_POLEARM:
 		{
-
+			if (k_ptr->sval == SV_THROWING_AXE)
+				power_of_base_object = 1000;
 			if (k_ptr->sval == SV_SCYTHE_OF_SLICING)
 				power_of_base_object = 500;
 			break;
@@ -855,9 +813,7 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 
 		case TV_SWORD:
 		{
-			if (k_ptr->sval == SV_FELLBLADE)
-				power_of_base_object = 500;
-			if (k_ptr->sval == SV_BLUESTEEL_BLADE)
+			if (k_ptr->sval == SV_EXECUTIONERS_SWORD)
 				power_of_base_object = 500;
 			if (k_ptr->sval == SV_BLADE_OF_CHAOS)
 				power_of_base_object = 1000;
@@ -946,7 +902,7 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 			/* Seeker ammo needs to be controlled */
 			if (k_ptr->sval == SV_AMMO_HEAVY)
 			{
-				power_of_base_object = 500;
+				power_of_base_object = 750;
 			}
 			break;
 		}
@@ -955,7 +911,7 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 
 	/*
 	 * Store the base values of a bunch of data.  To avoid unbalancing the
-	 * game, bonuses to Skill, Deadliness, and Armor Class are cut in half.
+	 * game, bonuses to Skill, Deadliness, and Armour Class are cut in half.
 	 * Dragon scale mail activations are preserved.  Base object cost is
 	 * preserved if sufficiently high.
 	 */
@@ -970,7 +926,6 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 	a_ptr->ds = k_ptr->ds;
 
 	a_ptr->weight = k_ptr->weight;
-	a_ptr->max_num = 1;
 
 	a_ptr->pval1 = k_ptr->pval;
 	a_ptr->flags_pval1 = k_ptr->flags_pval;
@@ -989,8 +944,8 @@ static void initialize_artifact(int a_idx, int tval0, int sval0)
 		                  TR2_IGNORE_FIRE | TR2_IGNORE_COLD);
 	}
 
-	/* Maximum potential depends on type of artifact */
-	(void)get_max_potential(a_idx);
+	/* Maximum potential depends on tval of artifact */
+	(void)get_max_potential(a_ptr->tval);
 
 	/* Powerful base objects don't get as many extra powers */
 	max_potential -= power_of_base_object;
@@ -1010,41 +965,34 @@ static void get_potential(int a_idx)
 
 	object_kind *k_ptr = &k_info[lookup_kind(a_ptr->tval, a_ptr->sval)];
 
-	long tmp, ratio;
 	int artifact_depth;
 	long artifact_rarity;
 	int i;
 	int freq;
 
 
-	/* The total potential of an artifact ranges from 1500 to max_potential */
-	initial_potential = potential = rand_range(1500, max_potential);
+	/* Adjust the drop off rate */
+	i = 6 - ((POTENTIAL_MAX - max_potential) / 2000);
 
 	/*
-	 * The cost of the artifact depends on its potential (allowing
+	 * The total potential of an artifact ranges from 1500 to max_potential,
+	 * biased towards the lesser figure.
+	 */
+	for (potential = 1500; potential < max_potential;)
+	{
+		if (!one_in_(i)) potential += 500;
+		else break;
+	}
+
+	/* Remember how much potential was allowed. */
+	initial_potential = potential;
+
+	/*
+	 * The cost of the artifact depends solely on its potential (allowing
 	 * for valuable base object kinds).
 	 */
 	a_ptr->cost = (long)potential * 10L;
 	if (k_ptr->cost >= 5000) a_ptr->cost += k_ptr->cost;
-
-	/* Handle the special case of missile and thrown weapons */
-	if ((is_missile_weapon(a_ptr)) ||
-		((is_any_weapon(a_ptr)) && (a_ptr->flags1 & (TR1_THROWING))))
-	{
-		a_ptr->cost += a_ptr->cost / 2;
-	}
-
-
-	/* Potential has more effect on depth for low-potential object kinds */
-	ratio = 10L + (10L * POTENTIAL_MAX / max_potential);
-
-	/* Calculate artifact depth */
-	tmp = ((long)k_ptr->level / 4) + ((long)potential * ratio / 2000L);
-	artifact_depth = (int)tmp;
-
-	/* Boundary control. */
-	if (artifact_depth <  5) artifact_depth =  5;
-	if (artifact_depth > 99) artifact_depth = 99;
 
 
 	/* Scan all three allocation chance values */
@@ -1057,17 +1005,23 @@ static void get_potential(int a_idx)
 		if (freq < k_ptr->chance[i]) freq = k_ptr->chance[i];
 	}
 
-	/* Calc artifact rarity (rarer base object - more common artifact) */
+
+	/* Calculate artifact depth.  This is fairly simple. */
+	artifact_depth = (k_ptr->level / 2)+ (potential / 110);
+
+	if (artifact_depth < 5) artifact_depth = 5;
+	if (artifact_depth > 100) artifact_depth = 100;
+
+
+	/* Calculate artifact rarity */
 	artifact_rarity = ((potential + power_of_base_object) * freq / 12500L);
 
 	/* Modify artifact rarity to handle some special cases. */
 	if (a_ptr->tval == TV_CLOAK) artifact_rarity *= 2;
 	if (a_ptr->tval == TV_BOOTS) artifact_rarity += 5;
-	if (is_missile_weapon(a_ptr)) artifact_rarity += 5;
 
 	/* Boundary control. */
-	if (artifact_rarity <  4) artifact_rarity =  4;
-	if (artifact_rarity > 65) artifact_rarity = 65;
+	if (artifact_rarity < 4) artifact_rarity = 4;
 
 	/* Assign the values just calculated to the artifact. */
 	a_ptr->level = artifact_depth;
@@ -1078,7 +1032,7 @@ static void get_potential(int a_idx)
 
 /*
  * Pick an initial set of qualities, based on a theme.  Also add a bonus to
- * armor class, Skill, and Deadliness.
+ * armour class, Skill, and Deadliness.
  */
 static void choose_basic_theme(int a_idx)
 {
@@ -1103,29 +1057,12 @@ static void choose_basic_theme(int a_idx)
 		case TV_SWORD: case TV_POLEARM: case TV_HAFTED:
 		{
 			/* ...with bonuses to Deadliness and Skill, and... */
-			a_ptr->to_d += (rand_range(4, 10) + potential / 600);
-			a_ptr->to_h += (rand_range(4, 10) + potential / 600);
+			a_ptr->to_d += (rand_range(4, 10) + potential / 650);
+			a_ptr->to_h += (rand_range(4, 10) + potential / 650);
 
-
-			/* ... that is meant to be thrown */
-			if (a_ptr->flags1 & (TR1_THROWING))
-			{
-				/* Must either be returning or multiple */
-				if (one_in_(3))
-				{
-					get_quality(TRUE, RETURNING, 0, a_idx);
-				}
-				else
-				{
-					a_ptr->max_num = rand_range(4, 6);
-				}
-
-				/* Usually try to enhance the damage dice. */
-				if (!one_in_(3)) get_quality(FALSE, ENHANCE_DICE, 3, a_idx);
-			}
 
 			/* ...of fire. */
-			else if (selection < 7)
+			if (selection < 7)
 			{
 				/* Possibly assign an activation for free. */
 				if (!one_in_(3))
@@ -1660,7 +1597,7 @@ static void choose_basic_theme(int a_idx)
 						a_ptr->activate = ACTIV_RANDOM_BLESS;
 				}
 
-				/* Grant a bonus to armor class. */
+				/* Grant a bonus to armour class. */
 				get_quality(TRUE, ADD_AC,
 					randint(6) + potential / 800, a_idx);
 
@@ -1698,28 +1635,51 @@ static void choose_basic_theme(int a_idx)
 		}
 
 		/* I'm a missile weapon... */
-		case TV_SLING:
 		case TV_BOW:
-		case TV_CROSSBOW:
 		{
 			/* ...with bonuses to Deadliness and Skill, and... */
-			a_ptr->to_d += (rand_range(4, 10) + potential / 350);
-			a_ptr->to_h += (rand_range(4, 10) + potential / 350);
+			a_ptr->to_d += (rand_range(4, 12) + potential / 650);
+			a_ptr->to_h += (rand_range(4, 12) + potential / 650);
 
-			/* Half of bows try for extra might or shots immediately */
-			if      (selection <= 25)
-				get_quality(FALSE, PVAL_MIGHT, -1, a_idx);
 
-			else if (selection <= 50)
-				get_quality(FALSE, PVAL_SHOTS, -1, a_idx);
+			/* ...of extra shots. */
+			if (selection < 50)
+			{
+				get_quality(FALSE, PVAL_SHOTS, 0, a_idx);
+
+				/* Sometimes also grant extra might. */
+				if ((potential >= 2500) && (one_in_(3)))
+					get_quality(FALSE, PVAL_MIGHT, 0, a_idx);
+			}
+			/* ...of extra might. */
+			else
+			{
+				get_quality(FALSE, PVAL_MIGHT, 0, a_idx);
+
+				/* Sometimes also grant extra shots. */
+				if ((potential >= 2500) && (one_in_(3)))
+					get_quality(FALSE, PVAL_SHOTS, 0, a_idx);
+			}
+
+			/* Sometimes, assign an activation. */
+			if (potential > rand_int(5000))
+			{
+				if (one_in_(2))
+					a_ptr->activate = ACTIV_RANDOM_SUPER_SHOOTING;
+				else
+					a_ptr->activate = ACTIV_RANDOM_BRAND_MISSILE;
+			}
+
+			/* Hack - avoid boring bows. */
+			if (potential < 500) potential = 500;
 
 			break;
 		}
 
-		/* I'm a piece of body armor... */
+		/* I'm a piece of body armour... */
 		case TV_SOFT_ARMOR: case TV_HARD_ARMOR: case TV_DRAG_ARMOR:
 		{
-			/* ...with a bonus to armor class, and... */
+			/* ...with a bonus to armour class, and... */
 			a_ptr->to_a += (rand_range(5, 12) + potential / 500);
 
 
@@ -1798,7 +1758,7 @@ static void choose_basic_theme(int a_idx)
 				if (one_in_(3))
 					get_quality(TRUE, RES_COLD, 0, a_idx);
 			}
-			/* ...with an amazing armor class. */
+			/* ...with an amazing armour class. */
 			else if (selection < 62)
 			{
 				/* Possibly assign an activation for free. */
@@ -1838,7 +1798,7 @@ static void choose_basic_theme(int a_idx)
 				/* Resist dark. */
 				get_quality(FALSE, RES_DARK, 0, a_idx);
 
-				/* Mark the armor for a later bonus to stealth. */
+				/* Mark the armour for a later bonus to stealth. */
 				add_pval_later |= (TR_PVAL_STEALTH);
 
 				/* Grant see invisible. */
@@ -1985,7 +1945,7 @@ static void choose_basic_theme(int a_idx)
 		/* I'm a shield... */
 		case TV_SHIELD:
 		{
-			/* ...with a bonus to armor class, and... */
+			/* ...with a bonus to armour class, and... */
 			a_ptr->to_a += (rand_range(5, 12) + potential / 500);
 
 			/* ...that resists most or all of the elements. */
@@ -2070,7 +2030,7 @@ static void choose_basic_theme(int a_idx)
 		/* I'm a pair of boots... */
 		case TV_BOOTS:
 		{
-			/* ...with a bonus to armor class, and... */
+			/* ...with a bonus to armour class, and... */
 			a_ptr->to_a += (rand_range(5, 10) + potential / 700);
 
 			/* ...that makes he who wears me run like the wind. */
@@ -2177,7 +2137,7 @@ static void choose_basic_theme(int a_idx)
 		/* I'm a cloak... */
 		case TV_CLOAK:
 		{
-			/* ...with a bonus to armor class, and... */
+			/* ...with a bonus to armour class, and... */
 			a_ptr->to_a += (rand_range(5, 10) + potential / 600);
 
 
@@ -2267,7 +2227,7 @@ static void choose_basic_theme(int a_idx)
 		/* I'm a helm or crown... */
 		case TV_HELM: case TV_CROWN:
 		{
-			/* ...with a bonus to armor class, and... */
+			/* ...with a bonus to armour class, and... */
 			a_ptr->to_a += (rand_range(5, 10) + potential / 800);
 
 
@@ -2352,8 +2312,7 @@ static void choose_basic_theme(int a_idx)
 				if (potential < 2500) break;
 
 				/* Assign an activation for free. */
-				if (potential < 4000) a_ptr->activate = ACTIV_RANDOM_IDENTIFY;
-				else a_ptr->activate = ACTIV_RANDOM_SELF_KNOWLEDGE;
+				a_ptr->activate = ACTIV_RANDOM_IDENTIFY;
 			}
 			/* ...which can focus healing magics. */
 			else if (selection < 90)
@@ -2379,7 +2338,7 @@ static void choose_basic_theme(int a_idx)
 		/* I'm a pair of gloves... */
 		case TV_GLOVES:
 		{
-			/* ...with a bonus to armor class, and... */
+			/* ...with a bonus to armour class, and... */
 			a_ptr->to_a += (rand_range(5, 10) + potential / 800);
 
 
@@ -2481,8 +2440,8 @@ static void choose_basic_theme(int a_idx)
 				if (potential < 3500) break;
 
 				/* Always grant an activation, but not for free. */
-				a_ptr->activate = ACTIV_RANDOM_DEADLY_SHOOTING;
-				potential -= 900;
+				a_ptr->activate = ACTIV_RANDOM_SUPER_SHOOTING;
+				potential -= 750;
 
 				/* Add equal bonuses to Skill and to Deadliness. */
 				temp = 4 + (randint(3) * 2);
@@ -2501,16 +2460,7 @@ static void choose_basic_theme(int a_idx)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			/* Ammunition always comes in (small) groups */
-			a_ptr->max_num = rand_range(8, 12);
-
-			/* Usually try to enhance the damage dice. */
-			if (!one_in_(4)) get_quality(FALSE, ENHANCE_DICE, 3, a_idx);
-
-			/* Bonuses to Deadliness and Skill */
-			a_ptr->to_d += (rand_range(4, 10) + potential / 600);
-			a_ptr->to_h += (rand_range(4, 10) + potential / 600);
-
+			/* Do nothing */
 			break;
 		}
 
@@ -2521,8 +2471,8 @@ static void choose_basic_theme(int a_idx)
 		}
 	}
 
-	/* It is possible for melee weapons to be unusually heavy or light. */
-	if ((is_melee_weapon(a_ptr)) && (a_ptr->weight >= 40) && (one_in_(6)))
+	/* It is possible for artifacts to be unusually heavy or light. */
+	if ((a_ptr->weight >= 40) && (one_in_(6)))
 	{
 		old_weight = a_ptr->weight;
 
@@ -2557,29 +2507,25 @@ static void grant_activation(int a_idx)
 
 
 	/* We're a missile launcher with a reasonable potential */
-	if ((is_missile_weapon(a_ptr)) && (potential >= rand_range(750, 1250)))
+	if ((a_ptr->tval == TV_BOW) && (potential >= rand_range(750, 1000)))
 	{
 		/* Choose an activation */
-		if (potential > rand_range(2000, 2500)) choice = randint(12);
-		else                                    choice = randint(6);
+		choice = randint(6);
 
-		if      (choice == 1) a_ptr->activate = ACTIV_SHOT_PIERCING;
-		else if (choice == 2) a_ptr->activate = ACTIV_SHOT_DAMAGE;
-		else if (choice == 3) a_ptr->activate = ACTIV_SHOT_IMPACT;
-		else if (choice == 4) a_ptr->activate = ACTIV_SHOT_ACCURATE;
-		else if (choice == 5) a_ptr->activate = ACTIV_SHOT_FIRE;
-		else if (choice == 6) a_ptr->activate = ACTIV_SHOT_COLD;
-		else if (choice <= 9) a_ptr->activate = ACTIV_RANDOM_DEADLY_SHOOTING;
-		else                  a_ptr->activate = ACTIV_RANDOM_BRAND_MISSILE;
+		if (choice == 1) a_ptr->activate = ACTIV_SHOT_PIERCING;
+		if (choice == 2) a_ptr->activate = ACTIV_SHOT_DEADLY;
+		if (choice == 3) a_ptr->activate = ACTIV_SHOT_IMPACT;
+		if (choice == 4) a_ptr->activate = ACTIV_SHOT_ACCURATE;
+		if (choice == 5) a_ptr->activate = ACTIV_SHOT_FIRE;
+		if (choice == 6) a_ptr->activate = ACTIV_SHOT_COLD;
 
 		/* Reduce potential */
-		if (choice > 6) potential -= 750;
-		else            potential -= 500;
+		potential -= 500;
 
 		/* Try for some themed qualities */
-		if (!one_in_(4))
+		if (one_in_(2))
 		{
-			if (a_ptr->activate == ACTIV_RANDOM_DEADLY_SHOOTING)
+			if (a_ptr->activate == ACTIV_SHOT_DEADLY)
 			{
 				get_quality(FALSE, PVAL_MIGHT, -1, a_idx);
 			}
@@ -2608,7 +2554,7 @@ static void grant_pval(int a_idx)
 	int quality = -1;
 
 	/* Missile weapons concentrate on power-enhancement */
-	if ((is_missile_weapon(a_ptr)) && (one_in_(3)))
+	if ((a_ptr->tval == TV_BOW) && (one_in_(5)))
 	{
 		if (one_in_(2)) quality = PVAL_MIGHT;
 		else            quality = PVAL_SHOTS;
@@ -2648,16 +2594,17 @@ static void grant_pval(int a_idx)
 		{
 			if (mindgear)       quality = PVAL_DISARM;
 		}
-		else if (choice <= 27)
+		else if (choice <= 26)
 		{
 			if (mindgear)       quality = PVAL_DEVICE;
 		}
-		else if (choice <= 28) quality = PVAL_SPEED;
+		else if (choice <= 27) quality = PVAL_SPEED;
 		else if (choice <= 29) quality = PVAL_SAVE;
 		else if (choice <= 30) quality = PVAL_LIGHT;
 		else if (choice <= 31)
 		{
-			if ((mindgear) || (one_in_(2))) quality = PVAL_MANA;
+			if (mindgear)        quality = PVAL_MANA;
+			else if (one_in_(2)) quality = PVAL_MANA;
 		}
 		else if (choice <= 33) quality = PVAL_TUNNEL;
 		else if (choice <= 36) quality = PVAL_BLOWS;
@@ -2819,12 +2766,10 @@ static void haggle_till_done(int a_idx)
 	if ((a_ptr->tval == TV_SWORD) || (a_ptr->tval == TV_POLEARM) ||
 	    (a_ptr->tval == TV_HAFTED))
 	{
-		/* Handle throwing weapons. */
-		if (a_ptr->flags1 & (TR1_THROWING))
+		/* Some throwing weapons can be thrown hard and fast. */
+		if ((a_ptr->flags1 & (TR1_THROWING)) && (one_in_(2)))
 		{
-			/* Perfect balance and permanent light are favoured */
-			if (one_in_(2)) get_quality(FALSE, PERFECT_BALANCE, 0, a_idx);
-			if (one_in_(3)) get_quality(FALSE, LITE, 0, a_idx);
+			get_quality(FALSE, PERFECT_BALANCE, 0, a_idx);
 		}
 
 		/* Sometimes weapons specialize in pure combat power. */
@@ -2883,7 +2828,6 @@ static void haggle_till_done(int a_idx)
 		}
 	}
 
-
 	/* On rare occasion, add all the stats */
 	if ((potential >= 4500) && (!is_missile(a_ptr)) && (one_in_(15)))
 	{
@@ -2921,7 +2865,7 @@ static void haggle_till_done(int a_idx)
 	/*** Now, we enter Filene's Basement, and shop 'til we drop! ***/
 	while (potential >= 300)
 	{
-		/* I'm any melee (or throwing) weapon */
+		/* I'm any melee weapon */
 		if (is_melee_weapon(a_ptr))
 		{
 			/* Load up on the slays and brands */
@@ -3018,7 +2962,7 @@ static void haggle_till_done(int a_idx)
 		}
 
 		/* I'm a bow */
-		else if (is_missile_weapon(a_ptr))
+		else if (a_ptr->tval == TV_BOW)
 		{
 			/* Sometimes, collect a miscellaneous quality, if it is affordable. */
 			if (one_in_(3))
@@ -3030,7 +2974,7 @@ static void haggle_till_done(int a_idx)
 			grant_pval(a_idx);
 
 			/* Often, collect a special missile launcher activation */
-			if (one_in_(2))
+			if (!one_in_(3))
 			{
 				grant_activation(a_idx);
 			}
@@ -3055,7 +2999,7 @@ static void haggle_till_done(int a_idx)
 		else if (is_missile(a_ptr))
 		{
 			/* Collect a slay or brand, if it is affordable. */
-			choice = randint(30);
+			choice = randint(27);
 
 			if      (choice <=  2) get_quality(FALSE, SLAY_ANIMAL, 0, a_idx);
 			else if (choice <=  4) get_quality(FALSE, SLAY_EVIL,   0, a_idx);
@@ -3072,7 +3016,6 @@ static void haggle_till_done(int a_idx)
 			else if (choice <= 21) get_quality(FALSE, BRAND_POIS,  0, a_idx);
 			else if (choice <= 23) get_quality(FALSE, IMPACT,      0, a_idx);
 			else if (choice <= 27) get_quality(FALSE, VORPAL,      0, a_idx);
-			else if (choice <= 30) get_quality(FALSE, LITE,        0, a_idx);
 
 			/* Clean out the wallet. */
 			if (potential < randint(500))
@@ -3083,8 +3026,8 @@ static void haggle_till_done(int a_idx)
 			}
 		}
 
-		/* I'm any piece of armor */
-		else if (is_any_armor(a_ptr))
+		/* I'm any piece of armour */
+		else if (is_any_armour(a_ptr))
 		{
 			/* Collect a resistance */
 			grant_resist(a_idx);
@@ -3117,7 +3060,7 @@ static void haggle_till_done(int a_idx)
 		}
 	}
 
-	/* Frequently neaten bonuses to Armor Class, Skill, and Deadliness. */
+	/* Frequently neaten bonuses to Armour Class, Skill, and Deadliness. */
 	if (TRUE)
 	{
 		if      ((a_ptr->to_a % 5 == 4) && (one_in_(2)))  a_ptr->to_a++;
@@ -3169,10 +3112,9 @@ static void make_terrible(int a_idx)
 	for (i = 0; i < gauntlet_runs; i++)
 	{
 		/* Choose a curse, biased towards penalties to_a, to_d, and to_h */
-		if ((is_any_weapon(a_ptr)) && (a_ptr->to_h > 0) && (one_in_(3)))
-		     wheel_of_doom = 1;
-		if ((is_any_armor(a_ptr)) && (a_ptr->to_a > 0) && (one_in_(3)))
-			wheel_of_doom = 2;
+		if ((is_any_weapon(a_ptr)) && (a_ptr->to_h > 0) &&
+			(one_in_(2))) wheel_of_doom = 1;
+		else if ((a_ptr->to_a > 0) && (one_in_(2))) wheel_of_doom = 2;
 		else wheel_of_doom = randint(4);
 
 		penalty = 0;
@@ -3183,12 +3125,12 @@ static void make_terrible(int a_idx)
 			/* Weapons. */
 			if (is_any_weapon(a_ptr))
 			{
-				/* Blast Skill and (usually) Deadliness */
+				/* Blast items with bonuses, Deadliness more rarely. */
 				a_ptr->to_h = -(rand_range(6, 12) * 2);
 				if (!one_in_(3)) a_ptr->to_d = -(rand_range(6, 12) * 2);
 			}
 
-			/* All armors. */
+			/* All armours. */
 			else
 			{
 				/* Reverse any magics. */
@@ -3209,37 +3151,40 @@ static void make_terrible(int a_idx)
 			/* Artifact might well have some remaining value. */
 			if ((a_ptr->to_d < 0) && (a_ptr->to_h < 0))
 			{
-				a_ptr->cost -= 5000L;
+				a_ptr->cost -= 10000L;
 			}
 			else if ((a_ptr->to_d < 0) || (a_ptr->to_h < 0))
 			{
-				a_ptr->cost -= 2500L;
+				a_ptr->cost -= 5000L;
 			}
 		}
 
-		/* Blast base armor class or inflict a penalty to armor class. */
+		/* Blast base armour class or inflict a penalty to armour class. */
 		if (wheel_of_doom == 2)
 		{
-			/* Blast armor and twist magics. */
+			/* Blast armour and twist magics. */
 			if ((a_ptr->ac > 0) && (one_in_(6)))
 			{
 				a_ptr->cost -= a_ptr->ac * 500L;
 				a_ptr->ac = 0;
 			}
-			if ((is_any_armor(a_ptr)) && (a_ptr->to_a >= 0))
+			if ((is_any_armour(a_ptr)) && (a_ptr->to_a >= 0))
 			{
 				a_ptr->to_a = -(rand_range(6, 12) * 2);
 			}
 
 			/* Chance of a truly nasty effect for weapons. */
-			else if ((one_in_(3)) && (is_any_weapon(a_ptr)))
+			else if ((one_in_(4)) && (is_any_weapon(a_ptr)))
 			{
-				penalty = 5 * rand_range(3, 5);
+				penalty = rand_range(3, 5);
+				penalty *= 5;
 				a_ptr->to_a = -penalty;
+
+				a_ptr->cost -= penalty * 200L;
 			}
 
 			/* Artifact might very well still have some value. */
-			if (a_ptr->to_a < 0) a_ptr->cost -= ABS(a_ptr->to_a) * 200L;
+			if (a_ptr->to_a < 0) a_ptr->cost -= ABS(a_ptr->to_a) * 400L;
 		}
 
 		/* Blast pvals. */
@@ -3298,34 +3243,31 @@ static void make_terrible(int a_idx)
 				}
 
 				/* Artifact is highly unlikely to have any value. */
-				a_ptr->cost -= 10000L;
+				a_ptr->cost -= 20000L;
 			}
 		}
 	}
 
+	/* Reduce cost one more time */
+	a_ptr->cost -= 10000L;
 
 	/* Boundary control. */
 	if (a_ptr->cost < 0) a_ptr->cost = 0;
 
 	/* Apply curses, aggravation, and various nasty stuff. */
 	a_ptr->flags3 |= (TR3_LIGHT_CURSE);
+
 	if (heavy_curse)       a_ptr->flags3 |= (TR3_HEAVY_CURSE);
+	if (aggravation)       a_ptr->flags3 |= (TR3_AGGRAVATE);
+	if (one_in_(6))  a_ptr->flags3 |= (TR3_TELEPORT);
 
-
-	/* Handle equipment item curses */
-	if (is_wearable(a_ptr) && !is_missile(a_ptr))
+	if (is_melee_weapon(a_ptr))
 	{
-		if (aggravation)       a_ptr->flags3 |= (TR3_AGGRAVATE);
-		if (one_in_(6))        a_ptr->flags3 |= (TR3_TELEPORT);
-
-		if (is_melee_weapon(a_ptr))
-		{
-			if (one_in_(8))  a_ptr->flags3 |= (TR3_SOULSTEAL);
-		}
-		if (one_in_(12)) a_ptr->flags3 |= (TR3_NOMAGIC);
-		if (one_in_(12)) a_ptr->flags3 |= (TR3_DRAIN_EXP);
-		if (one_in_(30)) a_ptr->flags3 |= (TR3_DRAIN_HP);
+		if (one_in_(8))  a_ptr->flags3 |= (TR3_SOULSTEAL);
 	}
+	if (one_in_(12)) a_ptr->flags3 |= (TR3_NOMAGIC);
+	if (one_in_(12)) a_ptr->flags3 |= (TR3_DRAIN_EXP);
+	if (one_in_(30)) a_ptr->flags3 |= (TR3_DRAIN_HP);
 }
 
 
@@ -3405,11 +3347,10 @@ static void build_prob(void)
 	FILE *f;
 	char buf [BUFLEN];
 
-	/*
-	 * Open the file containing our lexicon, and read from it.  Warn the
+	/* Open the file containing our lexicon, and read from it.  Warn the
 	 * rest of the code that random names are unavailable on failure.
 	 */
-	(void)path_build(buf, BUFLEN, ANGBAND_DIR_FILE, NAMES_FILE);
+	path_build (buf, BUFLEN, ANGBAND_DIR_FILE, NAMES_FILE);
 	if ((f = my_fopen(buf, "r")) == NULL)
 	{
 		find_all_names = TRUE;
@@ -3423,19 +3364,19 @@ static void build_prob(void)
 
 		do
 		{
-			c_next = fgetc(f);
-		} while (!isalpha(c_next) && (c_next != EOF));
+			c_next = fgetc (f);
+		} while (!isalpha (c_next) && (c_next != EOF));
 		if (c_next == EOF) break;
 
 		do
 		{
-			c_next = tolower(c_next) - 'a';	/* ASCII */
+			c_next = tolower (c_next) - 'a';	/* ASCII */
 			lprobs[c_prev][c_cur][c_next]++;
 			ltotal[c_prev][c_cur]++;
 			c_prev = c_cur;
 			c_cur = c_next;
-			c_next = fgetc(f);
-		} while (isalpha(c_next));
+			c_next = fgetc (f);
+		} while (isalpha (c_next));
 
 		lprobs [c_prev][c_cur][E_WORD]++;
 		ltotal [c_prev][c_cur]++;
@@ -3507,7 +3448,7 @@ static char *make_word(void)
 		c_cur = c_next;
 	}
 
-	word_buf[0] = my_toupper(word_buf[0]);
+	word_buf[0] = toupper(word_buf[0]);
 	return (word_buf);
 }
 
@@ -3517,35 +3458,37 @@ static char *make_word(void)
  */
 static char *find_word(int a_idx)
 {
-	static char art_name[DESC_LEN];
+	static char art_name[81];
 	artifact_type *a_ptr = &a_info[a_idx];
 	art_name[0] = '\0';
 
 	/*
 	 * Select a file, depending on whether the artifact is a weapon or
-	 * armor, and whether or not it is cursed.  Get a random line from
+	 * armour, and whether or not it is cursed.  Get a random line from
 	 * that file.
 	 */
 	if (a_ptr->flags3 & (TR3_LIGHT_CURSE))
 	{
-		if (is_any_weapon(a_ptr))
+		if ((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) ||
+			(a_ptr->tval == TV_HAFTED) || (a_ptr->tval == TV_POLEARM))
 		{
-			(void)get_rnd_line("w_cursed.txt", art_name);
+			get_rnd_line("w_cursed.txt", art_name);
 		}
 		else
 		{
-			(void)get_rnd_line("a_cursed.txt", art_name);
+			get_rnd_line("a_cursed.txt", art_name);
 		}
 	}
 	else
 	{
-		if (is_any_weapon(a_ptr))
+		if ((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) ||
+			(a_ptr->tval == TV_HAFTED) || (a_ptr->tval == TV_POLEARM))
 		{
-			(void)get_rnd_line("w_normal.txt", art_name);
+			get_rnd_line("w_normal.txt", art_name);
 		}
 		else
 		{
-			(void)get_rnd_line("a_normal.txt", art_name);
+			get_rnd_line("a_normal.txt", art_name);
 		}
 	}
 
@@ -3581,7 +3524,7 @@ static char *find_word(int a_idx)
 static void name_artifact(int a_idx)
 {
 	char *word;
-	char buf[BUFLEN];
+	char buf [BUFLEN];
 
 
 	/*
@@ -3595,15 +3538,15 @@ static void name_artifact(int a_idx)
 		word = make_word();
 
 		if (one_in_(3))
-			(void)strnfmt(buf, sizeof(buf), "'%s'", word);
+			sprintf(buf, "'%s'", word);
 		else
-			(void)strnfmt(buf, sizeof(buf), "of %s", word);
+			sprintf(buf, "of %s", word);
 	}
 	else
 	{
 		word = find_word(a_idx);
 
-		(void)strnfmt(buf, sizeof(buf), "%s", word);
+		sprintf(buf, "%s", word);
 	}
 
 
@@ -3681,7 +3624,7 @@ void design_temporary_artifact(int a_idx, int v, bool corrupted)
 	else
 	{
 		/* Add some plusses */
-		if (is_any_armor(a_ptr))
+		if (is_any_armour(a_ptr))
 		{
 			a_ptr->to_a = 2 + rand_range(potential / 300, potential / 150);
 		}
@@ -3712,6 +3655,8 @@ void design_temporary_artifact(int a_idx, int v, bool corrupted)
 /*
  * Fill in the temporary array of artifact names, and then convert it into
  * an a_name structure.  From Greg Wooledge's random artifacts.
+ *
+ * This code is very, very ugly.  XXX XXX XXX
  */
 static int convert_names(void)
 {
@@ -3753,7 +3698,7 @@ static int convert_names(void)
 
 	for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
 	{
-		(void)string_free(names[i]);
+		string_free(names[i]);
 	}
 
 	a_name = a_base;

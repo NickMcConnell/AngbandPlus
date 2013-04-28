@@ -1,23 +1,26 @@
 
---- Basic Attributes ---
+====== Character Attributes ======
+
 
 Score:
      Sangband uses a scoring system.  You get points by defeating unique (named)
-opponents.  The lower your total skills, the higher the score you get for a
-given victory.  Your score never goes down:  Investing in skills after defeating
-an opponent only has an effect on the points you get for future victories.
+opponents, and lose them for buying more skills.  However, once you earn a
+score, it can never go down; you will never be penalized for buying skills after
+you defeat an opponent.
      Because there are relatively few limits on skill advancement, you can
 become very strong indeed before you fight opponents.  However, those who buy
 fewer and less expensive skills to build their character get better scores.
 
 Approximate equation:
-     (250 * monster_depth * monster_depth), divided by
+     (250 * monster_depth * monster_depth),
+     divided by
      (level of each skill, times the base cost of that skill, all summed
-     together)
+      together)
++50% for defeating Sauron or
++100% for defeating Morgoth
 
-     - Plus:  +100% for defeating Morgoth, or +50% for defeating Sauron
-     - Plus:  square_root(gold / 1000).
-     - Choosing some difficulty options and races affects your score.
+                "The best score yet reported is 4614."
+
 
 Experience:
      As you kill monsters, learn about objects by using or eating them, cast
@@ -35,30 +38,31 @@ Gold:
 enough of the stuff.  Characters start out with an amount of gold determined by
 stats (lower is better, except charisma, where higher is better).  Social class
 greatly influences starting gold (higher is better).
-      Within the Pits of Angband lies more gold than you will ever find, more
-seams of treasure than you will ever dig, and more monsters carrying loot than
-you will ever kill.
+     Inside the dungeon lies more gold than you will ever find, more seams of
+treasure than you will ever dig, and more monsters carrying loot than you will
+ever kill.
 
 Hitpoints:
      Your hitpoints are your life wrapped up in a number; if they ever drop
 below zero, you die.  Resting will restore hitpoints, but you should always have
 some quicker way to heal yourself on hand.  Your maximum hitpoints depends on
-your overall power and race, plus a constitution bonus (which can be
-considerable).  It also varies according to skill:  Those who have taken the
-Oath of Iron have the most hitpoints, Oath-bound magic-users have the fewest,
-and all other characters fall somewhere in between.
+your overall power, race, and constitution.  It also varies according to skill:
+Those who have taken the Oath of Iron have the highest number of hitpoints,
+Oath-bound magic-users have the lowest, and all other characters fall somewhere
+in between.
 
 Spellpoints:
      If you use magic, you will also have spellpoints, or mana.  Your maximum
 mana depends on your magic power skill and your intelligence (if you are using
 sorcery and necromancy) or wisdom (if you are using natural or holy magics).
 Ways to recover mana faster than by resting are rare and greatly desired.
-     Mana goes down if you wear heavy armor, or are in any shape other than your
-normal one.
+     Mana goes down if you wear heavy armour, or are in any shape other than
+your normal one.  Sorcerers and Necromancers also lose a chunk of mana if they
+wear most (but not all) kinds of gloves.
 
 Armor Class:
-     Armor class (AC) makes you harder to hit in melee, and reduces the damage
-you take from almost all monster blows.  You can raise it by equipping more and
+     Armor class makes you harder to hit in melee, and reduces the damage you
+take from almost all monster blows.  You may raise it by equipping more and
 better armor, by increasing your Dexterity, and by activating various temporary
 effects.  As time passes, you will find this value rising past 100, even to 150
 and above at very high levels.
@@ -83,25 +87,26 @@ screen layout -> left panel, and activate the "luck" display.
 effects, and how you juggle equipment to boost some stats at the expense of
 others can greatly help or hinder your adventuring.  Deep in the dungeon,
 potions exist that can permanently raise your stats.
-
-Values for stats:
-     Stats range from 3 to 18/220.  The progression of stats goes from 3 -> 17,
-18, 18/10, 18/20 -> 18/220.  A value of 18/19 is the same as 18/10.
      The lowest any stat can go is 3, a level that greatly reduces any abilities
 that stat influences.  The lowest "safe" figure for most stats is 7, but you
 can't expect any significant bonuses until the stat reaches 18 or higher.  Once
 you get a stat that high, further increases will greatly enhance your abilities,
-eventually making it possible to slay some truly formidable monsters.  Stats top
+eventually making it possible to slay some truly formidable monsters.  Stats max
 out at 18/220.
-     Stats depend on your internal stats, the equipment you are wearing, your
-shapechange, and various temporary conditions.
+     Stats depend on your internal stats (which range from 3 to 18/100), the
+equipment you are wearing, your shapechange, and various temporary conditions.
+Learning any magic realm increases its spell stat by 2.  If you also take the
+Oath associated with that realm, this bonus increases to 4.  Taking the Oath of
+Iron increases the combat stats, and good wrestlers and users of Karate get
+bonuses to strength and dexterity.
+
 
 Strength:
      Strength is critical to fighting effectively in melee and with missile
 weapons.  Increases in Strength increase damage, allow you to get more blows
 with heavier weapons, and boost the effectiveness of shield bashes.  Strength
 also improves your tunneling ability, allows you to bear more weight without
-being slowed down, and to wield heavier weapons effectively.
+being slowed down, and wield heavier melee and missile weapons effectively.
 
 Intelligence:
      Intelligent characters use magic devices, pick locks, and disarm traps more
@@ -125,7 +130,7 @@ rate of recovery from stuns.
 
 Constitution:
      Constitution determines your ability to resist physical damage and disease,
-and your rate of recovery from poison, disease, and cuts.  It makes a great
+and your rate of recovery from from poison, disease, and cuts.  It makes a great
 difference to the amount of hitpoints you have and the speed at which you
 recover them, and so is a vital stat for any character.
 
@@ -135,27 +140,18 @@ with a high charisma will receive better prices from store owners, whereas a
 character with a very low charisma will be robbed blind.
 
 
-Intrinsic Modifiers:
-     Learning any magic realm increases its spell stat by 2.  If you also take
-the Oath associated with that realm, this bonus increases to 4.  Taking the Oath
-of Iron increases the combat stats, and good wrestlers and users of Karate get
-bonuses to strength and dexterity.
-
-
 --- Abilities ---
 
      In addition to your stats, certain basic abilities define your character.
-They depend on race, stats, and skill level, and may be powerfully influenced by
-wielded equipment and temporary conditions.  You can most effectively keep track
-of your abilities by using the Character screen.
+They depend on race, stats, and skill level.  You can most effectively keep
+track of your abilities by using the Character screen.
 
 Melee Ability:
      The higher your melee ability, the more frequently you will hit in hand-to-
 hand combat and the more critical hits you will get.  Your race, dexterity,
-melee weapon or barehanded skill, plusses to Skill on equipped items (except for
-other weapons), and temporary effects are all factored into the skill value
-displayed on your character screen.  This also holds true for missile and
-throwing ability.
+melee weapon or barehanded skill, plusses to Skill on equipped items, and
+temporary effects are all factored into the skill value displayed on your
+character screen.  This also holds true for missile and throwing ability.
 
 Shooting Ability:
      The higher your shooting ability, the more frequently you will hit with
@@ -176,26 +172,24 @@ skill.
 Stealth:
      The ability to move silently about is very useful.  If your stealth is good
 enough, you can avoid fights, get in the first blow, and fight monsters one at a
-time.  Stealth depends on race, your stealth skill, and equipped objects.
+time.  Stealth depends on race and your stealth skill.
 
 Disarming:
      The higher your disarming ability, the more quickly and safely you can pick
-locks and disarm chests and traps.  Race, your disarming skill, dexterity,
-intelligence, and equipped objects all affect this ability.
+locks and disarm chests and traps.  Dexterity and Intelligence both affect this
+ability, as does the disarming skill.
 
 Magical Devices:
-     Determines how likely you are to successfully use magical devices and most
-activatable items - dragon scale mail being the exception.  Race, magical device
-skill, intelligence, and equipped objects all affect this ability.  You need a
-lot of skill to handle high-level wands, staffs, rods, rings, and amulets, and
-also a fair amount for most other activatable items.  Confusion, hallucination,
-blindness, stunning, fear, berserk rage, and necro rage all reduce your ability
-to use magical devices.
+     Determines how likely you are to succeed in using staffs, wands, rods, or
+any activatable item.  Race and intelligence both affect this ability, as does
+your magical device skill.  You need a lot of skill to handle high-level wands,
+staffs, and rods, and also a fair amount for certain rings, amulets, and special
+wearable items.
 
 Perception:
-     The better your perception, the more likely it is that you will see traps
+     The higher your perception, the more likely it is that you will see traps
 and secret doors automatically or by searching for them.  Perception depends on
-race, perception skill, and equipped objects.
+race and your perception skill.
      Note that this ability has no direct relationship to your ability to sense
 objects or hear monsters.
 
@@ -203,71 +197,6 @@ Infra-vision:
      The higher your infravision, the further away you can see warm-blooded
 creatures, even when invisible or not lit.
 
-
---- Conditions ---
-
-     Your character may benefit or suffer from many different conditions.  The
-most important ones are displayed on the bottom row of the main screen.  We
-describe them as they are displayed, from left to right.
-
-Hunger:
-     You need to eat every so often.  If you eat too much, you become bloated
-and slow down.  If you eat too little, you become hungry (no special effects),
-weak (slower recovery), feel faint (pass out every so often), and finally starve
-(take damage every turn).
-
-Temporary conditions:
-  Paralyzed : You cannot do ANYTHING until the effects wear off.
-  Wounds    : Instead of recovering battle damage, you take additional damage
-              every turn.
-  Stunning  : Your combat and spellcasting abilities decrease - slightly when
-              stunned, considerably when heavily stunned.  If you are too
-              heavily stunned, you can be knocked out!
-  Blindness : You cannot see most monsters, it is harder to learn about objects
-              or what's around you, and get only vague information when many
-              things happen.  You often miss monsters, and cannot cast spells
-              or read scrolls.
-  Confusion : You move and attack in random directions, cannot cast spells or
-              read scrolls, and have difficulty using magical devices.
-  Hallucination : You see weird stuff everywhere, cannot target anything, cannot
-              cast spells or read scrolls, and have difficulty using magical
-              devices.
-  Poison    : Instead of recovering battle damage, you take additional damage
-              every turn.
-  Disease   : Similar, but is harder to recover from.
-  Fear      : You cannot attack monsters in melee, and find it slightly more
-              difficult to use missile weapons, throw things, cast spells, or
-              use magical devices.
-  Recall    : You are about to teleport to the surface, or to the deepest level
-              of the dungeon that you have ever visited.
-
-     There are many other temporary conditions, most of which are explained by
-the objects or spells that cause them.
-
-State:
-     You can sometimes be in one of several different states.
-
-  Rest      : You are resting (doubles the rate at which you recover HPs and
-              mana).
-  Repeat    : You are repeating an action (like tunneling).
-  Sneaking  : You are sneaking around (greatly improves your stealth, but slows
-              you down)
-  Crossing  : You are traversing rough or difficult terrain
-
-Speed:
-     The faster you are, the less time you take to perform all kinds of actions.
-It is vital not to become too slow.  As you descend into the dungeon, you need
-to find ways to hasten yourself temporarily and permanently.
-     A speed of +10 is double speed ("fast"), and one of +20 is triple speed
-("very fast").  A speed of -10 is half speed ("slow"), and one of -20 is one
-third speed ("very slow").
-     Permanent speed bonuses add to your base speed.  Temporary effects may
-increase or reduce speed by 10.
-
-Depth:
-     How deep in the dungeon you are.  This display may be colored:  Greys
-indicate relative safety, whites normal conditions, yellow-orange-red indicate
-increasing danger or rewards, and violet means that you are on a special level.
 
 
 

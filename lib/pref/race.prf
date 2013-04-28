@@ -1,10 +1,10 @@
+
+#
+# This preference file is only loaded during character birth.  It adjusts 
+# various options depending on race.
+#
+
 ##### Race Specific Subfiles #####
-
-#
-# This is not actually used at present because all race-specific stuff is 
-# normally now handled by the game itself.
-#
-
 
 ?:[EQU $RACE Human]
 %:Human.prf
@@ -12,7 +12,7 @@
 ?:[EQU $RACE Elf]
 %:Elf.prf
 
-?:[EQU $RACE Hobbit]
+?:[EQU $CLASS Hobbit]
 %:Hobbit.prf
 
 ?:[EQU $RACE Gnome]
@@ -41,3 +41,6 @@
 
 ?:[EQU $RACE Giant]
 %:Giant.prf
+
+
+?:1

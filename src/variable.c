@@ -1,28 +1,28 @@
+
 /* File: variable.c */
 
 /*
- * Brief version of copyright.  Global variables and arrays.
+ * The copyright.  Global variables and arrays.
  *
- * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
+
 
 /*
  * Hack -- Link a copyright message into the executable
  */
 cptr copyright =
-	"Copyright (c) 2007 Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke\n"
+	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke\n"
 	"\n"
-	"This program is free software; you can redistribute it and/or modify it\n"
-	"under the terms of the GNU General Public License.  Some parts may\n"
-	"also be available under the terms of the Moria license.  Other copyrights\n"
-	"may apply.\n";
+	"This software may be copied and distributed for educational, research,\n"
+	"and not for profit purposes provided that this copyright and statement\n"
+	"are included in all such copies.  Other copyrights may also apply.\n";
 
 
 /*
@@ -54,21 +54,10 @@ u16b sf_saves;					/* Number of "saves" during this life */
 
 bool arg_fiddle;				/* Command arg -- Request fiddle mode */
 bool arg_wizard;				/* Command arg -- Request wizard mode */
-int arg_sound;					/* Command arg -- Request special sounds */
-int arg_graphics = GRAPHICS_FONT;	/* Command arg -- Request graphics */
+bool arg_sound;					/* Command arg -- Request special sounds */
+bool arg_graphics;				/* Command arg -- Request graphics mode */
 bool arg_force_original;		/* Command arg -- Request original keyset */
 bool arg_force_roguelike;		/* Command arg -- Request roguelike keyset */
-
-
-
-	/* Game interface variables */
-
-int use_sound = 0;				/* Does the game play sounds?  What kind? */
-bool use_mouse = FALSE;			/* Is Mouse input recognized? */
-int use_graphics;				/* What graphics display are we showing? */
-int cursor_shape;				/* Cursor shape */
-
-bool use_special_map = FALSE;  /* Use a dedicated map display term */
 
 
 	/* Various things */
@@ -79,11 +68,11 @@ bool character_loaded;			/* The character was loaded from a savefile */
 bool character_saved;			/* The character was just saved to a savefile */
 bool character_existed;			/* A character once existed on this savefile */
 
+s16b character_icky;			/* Depth of the game in special mode */
 s16b character_silent;			/* No messages when updating certain things */
 
 u32b seed_flavor;				/* Hack -- consistent object colors */
 u32b seed_town;					/* Hack -- consistent town layout */
-u16b seed_detection = 0;      /* Hack -- efficient randomized detection */
 
 s16b object_level;				/* Current object creation level */
 s16b old_object_level;				/* Old object creation level */
@@ -95,6 +84,11 @@ s16b project_immune = 0;		/* Hack -- special immunity to projections */
 s32b turn;						/* Current game turn */
 s32b old_turn;					/* Turn when level began (feelings) */
 
+bool use_sound;					/* The "sound" mode is enabled */
+bool use_graphics;				/* The "graphics" mode is enabled */
+
+bool use_transparency = FALSE; /* Use transparent tiles */
+
 
 /*
  * Autosave-related global variables.
@@ -103,72 +97,34 @@ s16b autosave_freq = 0;			/* Autosave frequency */
 
 
 /*
- * We assume that the game is running in VGA 16-color text mode.  If a
- * port enables a graphics mode capable of displaying more text colors,
- * then it needs to change this value.
- *
- * Should never be greater than 128, because graphics are defined as
- * PICTs with attrs (and chars) >= 128.
- */
-s16b max_system_colors = 16;
-
-
-/*
  * Hack -- Array of customized left panel slots.
  */
 byte *custom_display;
 
 
-
 /*
- * Whether we are showing a full-screen view.
+ * Number of rows shown on screen.  Set by "Term_rows()".
  */
-bool use_fullscreen_view = FALSE;
-
-/*
- * Whether we are using the tall display term.  Set by "switch_display()".
- */
-bool use_tall_display;
-
-/*
- * The current screen depth
- */
-int screen_depth = 0;
-
-/*
- * Whether it is safe to perform any updates to the main view (map, left panel,
- * status bar, etc.).  Values other than 0 forbid updates.  If the screen is
- * locked, it is always -1.  Otherwise, the screen saving and loading code
- * toggle this value between 0 and 1.
- *
- * (was "character_icky")
- */
-int main_screen_inactive = 0;
+s16b screen_rows;
 
 /*
  * Number of rows used to display the dungeon.
- * Must be at least 22, and should be a multiple of BLOCK_HGT (currently 11).
+ * Should always be a multiple of BLOCK_HGT (currently 11).  Should be
+ * between 22 and 44.
  */
 s16b map_rows = 22;
 
 /*
- * Number of columns used to display the dungeon.
- * Must be at least 22, and should be a multiple of BLOCK_WID (currently 11).
+ * Require most displays, the map screen in particular, to be shown using
+ * 25 rows.
  */
-s16b map_cols = 22;
+bool force_25_rows = TRUE;
 
 /*
- * Option:  Allow more interfaces to use the tall display (more useable
- * rows), the show file system in particular.
+ * Allow more displays to show 50 lines, the help system in particular.
  */
-bool more_tall_display = FALSE;
+bool text_50_rows = FALSE;
 
-
-/*
- * Option:  Precisely fit the map display to screen.  Has both advantages and
- * disadvantages.
- */
-bool map_display_precise_fit = FALSE;
 
 /*
  * Allow player to precisely control how close to the edge of the map
@@ -178,8 +134,9 @@ s16b clear_y = 2;
 s16b clear_x = 4;
 
 
-s16b image_count = 0;          /* Grids until next random image    */
-                               /* Optimizes the hallucination code */
+
+s16b image_count;  		/* Grids until next random image    */
+                  		/* Optimizes the hallucination code */
 
 s16b signal_count;		/* Hack -- Count interrupts */
 
@@ -189,9 +146,6 @@ bool inkey_base;				/* See the "inkey()" function */
 bool inkey_xtra;				/* See the "inkey()" function */
 bool inkey_scan;				/* See the "inkey()" function */
 bool inkey_flag;				/* See the "inkey()" function */
-
-/* A brute-force solution to the problem of cursor visibility */
-bool inkey_cursor_hack[TERM_MAX];		/* See the "inkey()" function */
 
 s16b coin_type;					/* Hack -- force coin type */
 
@@ -210,15 +164,6 @@ s16b t_max = 0;					/* Number of allocated traps */
 char summon_kin_type;			/* Hack -- see summon_specific() */
 int summon_index_type;			/* Hack -- see summon_specific() */
 
-int detect_y = -1;                 /* Center of detection */
-int detect_x = -1;                 /* Center of detection */
-
-
-
-
-/* Messages can automatically move to a sub-window */
-bool message_to_window_active = FALSE;
-
 
 /*
  * Prevent potion smashing causing potion smashing causing ...
@@ -236,7 +181,7 @@ s16b level_rating;			/* Level's current rating */
 byte dungeon_hgt = DUNGEON_HGT_MAX;   /* Current height and width of dungeon */
 byte dungeon_wid = DUNGEON_WID_MAX;
 
-bool good_item_flag;			/* True if ghost or quest level */
+bool good_item_flag;			/* True if "Artifact" on this level */
 
 bool closing_flag;				/* Dungeon is closing */
 
@@ -272,33 +217,28 @@ cptr *macro__act;
 
 
 /*
- * The array of pointers to display terminals
+ * The array of window pointers
  */
-term *angband_term[TERM_MAX];
+term *angband_term[ANGBAND_TERM_MAX];
 
 
 
 /*
- * The array[TERM_MAX] of window names (modifiable?)
+ * The array[ANGBAND_TERM_MAX] of window names (modifiable?)
  *
- * ToDo: Make the names independent of TERM_MAX.
+ * ToDo: Make the names independent of ANGBAND_TERM_MAX.
  */
-char angband_term_name[TERM_MAX+1][40] =
+char angband_term_name[ANGBAND_TERM_MAX][16] =
 {
-	"Main screen",
-	"Map",
-	"Win-1",
-	"Win-2",
-	"Win-3",
-	"Win-4",
-	"Win-5",
-	"Win-6",
-	"Win-7",
-	"Win-8",
-	"Display"
+	VERSION_NAME,
+	"Term-1",
+	"Term-2",
+	"Term-3",
+	"Term-4",
+	"Term-5",
+	"Term-6",
+	"Term-7"
 };
-
-
 
 /*
  * Variables for the macro trigger patch
@@ -311,243 +251,69 @@ cptr macro_trigger_name[MAX_MACRO_TRIGGER];
 cptr macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
 
 
+/*
+ * Global table of color definitions (mostly zeros)
+ */
+byte angband_color_table[256][4] =
+{
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
+	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
+	{0x00, 0x90, 0x90, 0x90},	/* TERM_SLATE */
+	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
+	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
+	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
+	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE */
+	{0x00, 0x90, 0x40, 0x00},	/* TERM_UMBER */
+	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
+	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
+	{0x00, 0xC0, 0x00, 0xC0},	/* TERM_VIOLET */
+	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
+	{0x00, 0xFF, 0x30, 0x30},	/* TERM_L_RED */
+	{0x00, 0x00, 0xF0, 0x00},	/* TERM_L_GREEN */
+	{0x00, 0x00, 0xF0, 0xF0},	/* TERM_L_BLUE */
+	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+};
 
 /*
  * Standard sound (and message) names
  */
-cptr angband_sound_name[MSG_MAX] =
+cptr angband_sound_name[SOUND_MAX] =
 {
-	"",                    /* MSG_GENERIC */
-	"hit",                 /* MSG_HIT */
-	"miss",                /* MSG_MISS */
-	"flee",                /* MSG_FLEE */
-	"drop",                /* MSG_DROP */
-	"kill",                /* MSG_KILL */
-	"level",               /* MSG_LEVEL */
-	"death",               /* MSG_DEATH */
-	"study",               /* MSG_STUDY */
-	"teleport",            /* MSG_TELEPORT */
-	"shoot",               /* MSG_SHOOT */
-	"quaff",               /* MSG_QUAFF */
 	"",
-	"walk",                /* MSG_WALK */
-	"tpother",             /* MSG_TPOTHER */
-	"hitwall",             /* MSG_HITWALL */
-	"eat",                 /* MSG_EAT */
-	"store1",              /* MSG_STORE1 */
-	"store2",              /* MSG_STORE2 */
-	"store3",              /* MSG_STORE3 */
-	"store4",              /* MSG_STORE4 */
-	"dig",                 /* MSG_DIG */
-	"opendoor",            /* MSG_OPENDOOR */
-	"shutdoor",            /* MSG_SHUTDOOR */
-	"tplevel",             /* MSG_TPLEVEL */
-	"bell",                /* MSG_BELL */
-	"nothing_to_open",     /* MSG_NOTHING_TO_OPEN */
-	"lockpick_fail",       /* MSG_LOCKPICK_FAIL */
-	"stairs_down",         /* MSG_STAIRS_DOWN */
-	"hitpoint_warn",       /* MSG_HITPOINT_WARN */
-	"act_artifact",        /* MSG_ACT_ARTIFACT */
+	"hit",
+	"miss",
+	"flee",
+	"drop",
+	"kill",
+	"level",
+	"death",
+	"study",
+	"teleport",
+	"shoot",
+	"quaff",
+	"zap",
+	"walk",
+	"tpother",
+	"hitwall",
+	"eat",
+	"store1",
+	"store2",
+	"store3",
+	"store4",
+	"dig",
+	"opendoor",
+	"shutdoor",
+	"tplevel",
+	"bell",
+	"nothing_to_open",
+	"lockpick_fail",
+	"stairs",
+	"hitpoint_warn",
 	"",
-	"destroy",             /* MSG_DESTROY */
-	"mon_hit",             /* MSG_MON_HIT */
-	"mon_touch",           /* MSG_MON_TOUCH */
-	"mon_punch",           /* MSG_MON_PUNCH */
-	"mon_kick",            /* MSG_MON_KICK */
-	"mon_claw",            /* MSG_MON_CLAW */
-	"mon_bite",            /* MSG_MON_BITE */
-	"mon_sting",           /* MSG_MON_STING */
-	"mon_butt",            /* MSG_MON_BUTT */
-	"mon_crush",           /* MSG_MON_CRUSH */
-	"mon_engulf",          /* MSG_MON_ENGULF */
-	"mon_crawl",           /* MSG_MON_CRAWL */
-	"mon_drool",           /* MSG_MON_DROOL */
-	"mon_spit",            /* MSG_MON_SPIT */
-	"mon_gaze",            /* MSG_MON_GAZE */
-	"mon_wail",            /* MSG_MON_WAIL */
-	"mon_spore",           /* MSG_MON_SPORE */
-	"mon_beg",             /* MSG_MON_BEG */
-	"mon_insult",          /* MSG_MON_INSULT */
-	"mon_moan",            /* MSG_MON_MOAN */
-	"recover",             /* MSG_RECOVER */
-	"blind",               /* MSG_BLIND */
-	"confused",            /* MSG_CONFUSED */
-	"poisoned",            /* MSG_POISONED */
-	"afraid",              /* MSG_AFRAID */
-	"paralyzed",           /* MSG_PARALYZED */
-	"drugged",             /* MSG_DRUGGED */
-	"speed",               /* MSG_SPEED */
-	"slow",                /* MSG_SLOW */
-	"shield",              /* MSG_SHIELD */
-	"blessed",             /* MSG_BLESSED */
-	"hero",                /* MSG_HERO */
-	"berserk",             /* MSG_BERSERK */
-	"prot_evil",           /* MSG_PROT_EVIL */
-	"invuln",              /* MSG_INVULN */
-	"see_invis",           /* MSG_SEE_INVIS */
-	"infrared",            /* MSG_INFRARED */
-	"res_acid",            /* MSG_RES_ACID */
-	"res_elec",            /* MSG_RES_ELEC */
-	"res_fire",            /* MSG_RES_FIRE */
-	"res_cold",            /* MSG_RES_COLD */
-	"res_pois",            /* MSG_RES_POIS */
-	"stun",                /* MSG_STUN */
-	"cut",                 /* MSG_CUT */
-	"stairs_up",           /* MSG_STAIRS_UP */
-	"store_enter",         /* MSG_STORE_ENTER */
-	"store_leave",         /* MSG_STORE_LEAVE */
-	"store_home",          /* MSG_STORE_HOME */
-	"money1",              /* MSG_MONEY1 */
-	"money2",              /* MSG_MONEY2 */
-	"money3",              /* MSG_MONEY3 */
-	"shoot_hit",           /* MSG_SHOOT_HIT */
-	"store5",              /* MSG_STORE5 */
-	"lockpick",            /* MSG_LOCKPICK */
-	"disarm",              /* MSG_DISARM */
-	"identify_bad",        /* MSG_IDENT_BAD */
-	"identify_ego",        /* MSG_IDENT_EGO */
-	"identify_art",        /* MSG_IDENT_ART */
-	"breathe_elements",    /* MSG_BR_ELEMENTS */
-	"breathe_frost",       /* MSG_BR_FROST */
-	"breathe_elec",        /* MSG_BR_ELEC */
-	"breathe_acid",        /* MSG_BR_ACID */
-	"breathe_gas",         /* MSG_BR_GAS */
-	"breathe_fire",        /* MSG_BR_FIRE */
-	"breathe_confusion",   /* MSG_BR_CONF */
-	"breathe_disenchant",  /* MSG_BR_DISENCHANT */
-	"breathe_chaos",       /* MSG_BR_CHAOS */
-	"breathe_shards",      /* MSG_BR_SHARDS */
-	"breathe_sound",       /* MSG_BR_SOUND */
-	"breathe_light",       /* MSG_BR_LIGHT */
-	"breathe_dark",        /* MSG_BR_DARK */
-	"breathe_nether",      /* MSG_BR_NETHER */
-	"breathe_nexus",       /* MSG_BR_NEXUS */
-	"breathe_time",        /* MSG_BR_TIME */
-	"breathe_inertia",     /* MSG_BR_INERTIA */
-	"breathe_gravity",     /* MSG_BR_GRAVITY */
-	"breathe_plasma",      /* MSG_BR_PLASMA */
-	"breathe_force",       /* MSG_BR_FORCE */
-	"summon_monster",      /* MSG_SUM_MONSTER */
-	"summon_angel",        /* MSG_SUM_ANGEL */
-	"summon_undead",       /* MSG_SUM_UNDEAD */
-	"summon_animal",       /* MSG_SUM_ANIMAL */
-	"summon_spider",       /* MSG_SUM_SPIDER */
-	"summon_hound",        /* MSG_SUM_HOUND */
-	"summon_hydra",        /* MSG_SUM_HYDRA */
-	"summon_demon",        /* MSG_SUM_DEMON */
-	"summon_dragon",       /* MSG_SUM_DRAGON */
-	"summon_gr_undead",    /* MSG_SUM_HI_UNDEAD */
-	"summon_gr_dragon",    /* MSG_SUM_HI_DRAGON */
-	"summon_gr_demon",     /* MSG_SUM_HI_DEMON */
-	"summon_ringwraith",   /* MSG_SUM_WRAITH */
-	"summon_unique",       /* MSG_SUM_UNIQUE */
-	"wield",               /* MSG_WIELD */
-	"cursed",              /* MSG_CURSED */
-	"pseudo_id",           /* MSG_PSEUDOID */
-	"hungry",              /* MSG_HUNGRY */
-	"notice",              /* MSG_NOTICE */
-	"ambient_day",         /* MSG_AMBIENT_DAY */
-	"ambient_nite",        /* MSG_AMBIENT_NITE */
-	"ambient_dng1",        /* MSG_AMBIENT_DNG1 */
-	"ambient_dng2",        /* MSG_AMBIENT_DNG2 */
-	"ambient_dng3",        /* MSG_AMBIENT_DNG3 */
-	"ambient_dng4",        /* MSG_AMBIENT_DNG4 */
-	"ambient_dng5",        /* MSG_AMBIENT_DNG5 */
-	"mon_create_trap",     /* MSG_CREATE_TRAP */
-	"mon_shriek",          /* MSG_SHRIEK */
-	"mon_cast_fear",       /* MSG_CAST_FEAR */
-	"hit_good",            /* MSG_HIT_GOOD */
-	"hit_great",           /* MSG_HIT_GREAT */
-	"hit_superb",          /* MSG_HIT_SUPERB */
-	"hit_hi_great",        /* MSG_HIT_HI_GREAT */
-	"hit_hi_superb",       /* MSG_HIT_HI_SUPERB */
-	"cast_spell",          /* MSG_SPELL */
-	"pray_prayer",         /* MSG_PRAYER */
-	"kill_unique",         /* MSG_KILL_UNIQUE */
-	"kill_king",           /* MSG_KILL_KING */
-	"drain_stat",          /* MSG_DRAIN_STAT */
-	"multiply",            /* MSG_MULTIPLY */
-	"mon_blow_soft",       /* MSG_HIT_SOFT */
-	"mon_blow_medium",     /* MSG_HIT_MEDIUM */
-	"mon_blow_hard",       /* MSG_HIT_HARD */
-	"mon_blow_deadly",     /* MSG_HIT_DEADLY */
-	"",                    /* MSG_ */
-	"use_staff",           /* MSG_USE_STAFF */
-	"aim_wand",            /* MSG_AIM_WAND */
-	"zap_rod",             /* MSG_ZAP_ROD */
-	"yell_for_help",       /* MSG_YELL_FOR_HELP */
-	"spit",                /* MSG_SPIT */
-	"whip",                /* MSG_WHIP */
-	"boulder",             /* MSG_BOULDER */
-	"shot",                /* MSG_SHOT */
-	"arrow",               /* MSG_ARROW */
-	"bolt",                /* MSG_BOLT */
-	"missl",               /* MSG_MISSL */
-	"pmissl",              /* MSG_PMISSL */
-	"br_wind",             /* MSG_BR_WIND */
-	"br_mana",             /* MSG_BR_MANA */
-	"diseased",            /* MSG_DISEASED */
-	"steelskin",           /* MSG_STEELSKIN */
-	"holy",                /* MSG_HOLY */
-	"necro_rage",          /* MSG_NECRO_RAGE */
-	"wiz_prot",            /* MSG_WIZ_PROT */
-	"invis",               /* MSG_INVIS */
-	"mania",               /* MSG_MANIA */
-	"res_dam",             /* MSG_RES_DAM */
-	"res_ethereal",        /* MSG_RES_ETHEREAL */
-	"",                    /*  */
-	"",                    /*  */
-	"",                    /*  */
-	"",                    /*  */
-	"",   "",   "",   "",   "",
-	"",   "",   "",   "",   "",
-	"",   "",   "",   "",   "",
-	"",   "",
-	"",                    /* MSG_DARK */
-	"",                    /* MSG_WHITE */
-	"",                    /* MSG_SLATE */
-	"",                    /* MSG_ORANGE */
-	"",                    /* MSG_RED */
-	"",                    /* MSG_GREEN */
-	"",                    /* MSG_BLUE */
-	"",                    /* MSG_UMBER */
-	"",                    /* MSG_L_DARK */
-	"",                    /* MSG_L_WHITE */
-	"",                    /* MSG_L_PURPLE */
-	"",                    /* MSG_YELLOW */
-	"",                    /* MSG_L_RED */
-	"",                    /* MSG_L_GREEN */
-	"",                    /* MSG_L_BLUE */
-	"",                    /* MSG_L_UMBER */
+	"",
+	"",
 	""
 };
-
-
-/*
- * Musical theme names
- */
-cptr angband_music_name[MUSIC_MAX] =
-{
-	"town",                /* MUSIC_TOWN */
-	"peaceful",            /* MUSIC_PEACEFUL */
-	"light",               /* MUSIC_LIGHT */
-	"medium",              /* MUSIC_MEDIUM */
-	"heavy",               /* MUSIC_HEAVY */
-	"deadly",              /* MUSIC_DEADLY */
-	"death",               /* MUSIC_DEATH */
-	"",                    /* MUSIC_XXX1 */
-	"",                    /* MUSIC_XXX2 */
-	"",                    /* MUSIC_XXX3 */
-	"",                    /* MUSIC_XXX4 */
-	"",                    /* MUSIC_XXX5 */
-	"",                    /* MUSIC_XXX6 */
-	"",                    /* MUSIC_XXX7 */
-	"",                    /* MUSIC_XXX8 */
-	""
-};
-
-
-
 
 
 /*
@@ -560,21 +326,9 @@ u16b *view_g;
  * Arrays[TEMP_MAX] used for various things
  */
 int temp_n = 0;
-u16b *temp_g;  /* Note:  this duplicates temp_y and temp_x */
+u16b *temp_g;
 byte *temp_y;
 byte *temp_x;
-
-/*
- * Array[LITE_MAX] used by "process_player()"
- */
-int lite_n = 0;
-u16b *lite_g;
-
-/*
- * Arrays[EFFECT_GRID_MAX] used for effects
- */
-int effect_grid_n = 0;
-effect_grid_type *effect_grid;
 
 
 /*
@@ -618,6 +372,8 @@ s16b(*cave_m_idx)[DUNGEON_WID_MAX];
 
 
 
+#ifdef MONSTER_FLOW
+
 /*
  * Array[DUNGEON_HGT_MAX][DUNGEON_WID_MAX] of cave grid flow "cost" values
  * Used to simulate character noise.
@@ -649,13 +405,9 @@ int update_center_x;
  */
 int cost_at_center = 0;
 
+#endif	/* MONSTER_FLOW */
 
-/*
- * Projection path and information
- */
-u16b path_g[128];  /* Grids in the projection path */
-byte path_gx[128];  /* Special information about each grid */
-int path_n = 0;   /* Number of grids in the path */
+
 
 
 /*
@@ -718,26 +470,23 @@ alloc_entry *alloc_ego_table;
 s16b alloc_race_size;
 
 /*
+ * The size of "store_stock"
+ */
+s16b store_stock_size;
+
+
+/*
  * The array[alloc_race_size] of entries in the "race allocator table"
  */
 alloc_entry *alloc_race_table;
 
 
 /*
- * Number of entries in the movement moment table
+ * Specify attr/char pairs for visual special effects
+ * Be sure to use "index & 0xFF" to avoid illegal access
  */
-s16b move_moment_num = 0;
-
-
-/*
- * The movement moment table
- */
-move_moment_type *move_moment;
-
-/*
- * The projection graphics table
- */
-proj_graphics_type *proj_graphics;
+byte misc_to_attr[256];
+char misc_to_char[256];
 
 
 /*
@@ -745,6 +494,15 @@ proj_graphics_type *proj_graphics;
  * to use "index % ((N_ELEMENTS(tval_to_attr))" to avoid illegal access
  */
 byte tval_to_attr[128];
+
+/*
+ * Specify alternate terrain chars.  As we change from 25 to 50-line modes,
+ * the optimum representation of certain terrain changes.  We therefore
+ * save two sets.  See "Term_rows()", in "z_term.c", and the pref file
+ * saving and loading code.
+ */
+char *feat_x_char_25;
+char *feat_x_char_50;
 
 
 /*
@@ -794,19 +552,6 @@ player_type *p_ptr = &player_type_body;
  * Structure (not array) of size limits
  */
 maxima *z_info;
-
-
-/*
- * The character generates both directed (extra) noise (by doing noisy things)
- * and overall noise (the combination of directed and innate noise).
- *
- * Noise builds up as the character does certain things and diminishes over
- * time.
- */
-s32b add_wakeup_chance = 0;
-s32b total_wakeup_chance = 0;
-
-
 
 /*
  * The vault generation arrays
@@ -873,11 +618,15 @@ char *q_text;
 
 
 /*
- * The object flavor arrays
+ * The character generates both directed (extra) noise (by doing noisy
+ * things) and ambient noise (the combination of directed and innate
+ * noise).
+ *
+ * Noise builds up as the character does certain things, and diminishes
+ * over time.
  */
-flavor_type *flavor_info;
-char *flavor_name;
-char *flavor_text;
+s16b add_wakeup_chance = 0;
+s16b total_wakeup_chance = 0;
 
 
 
@@ -888,22 +637,85 @@ char *flavor_text;
 cptr ANGBAND_SYS = "xxx";
 
 
+/*
+ * Hack -- The special Angband "Graphics Suffix"
+ * This variable is used to choose an appropriate "graf-xxx" file
+ */
+cptr ANGBAND_GRAF = "old";
+
 
 /*
- * Fat binary support.
- *
- * Something should set this before the code gets to init_file_paths,
- * or it won't have any effect.  This gets appended to the end of
- * ANGBAND_DIR_DATA, and lets us support fat binaries, which may require
- * multiple sets of data files.
- *
- * Hack -- allow a default to be set via a macro.
+ * Path name: The main "lib" directory
+ * This variable is not actually used anywhere in the code
  */
-#ifdef FAT_SUFFIX_DEFAULT
-char *fat_data_suffix = FAT_SUFFIX_DEFAULT;
-#else
-char *fat_data_suffix = 0;
-#endif
+cptr ANGBAND_DIR;
+
+/*
+ * High score files (binary)
+ * These files may be portable between platforms
+ */
+cptr ANGBAND_DIR_APEX;
+
+/*
+ * Bone files for player ghosts (ascii)
+ * These files are portable between platforms
+ */
+cptr ANGBAND_DIR_BONE;
+
+/*
+ * Binary image files for the "*_info" arrays (binary)
+ * These files are not portable between platforms
+ */
+cptr ANGBAND_DIR_DATA;
+
+/*
+ * Textual template files for the "*_info" arrays (ascii)
+ * These files are portable between platforms
+ */
+cptr ANGBAND_DIR_EDIT;
+
+/*
+ * Various extra files (ascii)
+ * These files may be portable between platforms
+ */
+cptr ANGBAND_DIR_FILE;
+
+/*
+ * Help files (normal) for the online help (ascii)
+ * These files are portable between platforms
+ */
+cptr ANGBAND_DIR_HELP;
+
+/*
+ * Miscellaneous text files, also contains any spoilers (ascii)
+ * These files are portable between platforms
+ */
+cptr ANGBAND_DIR_INFO;
+
+/*
+ * Savefiles for current characters (binary)
+ * These files are portable between platforms
+ */
+cptr ANGBAND_DIR_SAVE;
+
+/*
+ * Default user "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
+
+/*
+ * User Defined "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_USER;
+
+/*
+ * Various extra files (binary)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_XTRA;
+
 
 /*
  * Total Hack -- allow all items to be listed (even empty ones)
@@ -969,23 +781,16 @@ bool(*old_get_obj_num_hook)(int k_idx);
 
 
 /*
- * The type of object the item generator should make, if specified.
+ * The type of object the item generator should make, if specified.  -LM-
  */
 byte required_tval = 0;
 byte old_required_tval = 0;
 
-
 /*
- * Set of bitflags adjusting various things about object generation.
- * See "defines.h" for flags.
+ * Quality-control variable to make object-generation in stores more
+ * efficient and predictable.
  */
-u32b obj_gen_flags = 0L;
-
-/*
- * Modifiers for the "object_desc()" function.
- */
-s16b object_desc_flavour = 0;
-s16b object_desc_plural = 0;
+bool in_store_quality = FALSE;
 
 
 /*
@@ -995,16 +800,6 @@ u32b alloc_race_total;
 u32b alloc_kind_total;
 
 
-/*
- * The default quantity passed to the "get_quantity()" function.
- */
-s32b get_quantity_default = 1;
-
-
-/*
- * Hack -- function hook to switch between the main and the map display.
- */
-errr (*switch_display_hook)(int display) = NULL;
 
 /*
  * Hack - the destination file for text_out_to_file.
@@ -1018,34 +813,22 @@ FILE *text_out_file = NULL;
 void (*text_out_hook)(byte a, cptr str);
 
 /*
- * Values for use with "text_out()".  Line wrapping (0 wraps to term area),
- * indenting, and left margin (note that this function always retains a 1
- * space right margin).
+ * Hack -- Where to wrap the text when using text_out().  Use the default
+ * value (for example the screen width) when 'text_out_wrap' is 0.
+ *
  */
 int text_out_wrap = 0;
-int text_out_indent = 0;
-int text_border_left = 0;
-
 
 /*
- * An interface-configurable hook to reset the display to show a given size, if possible.
+ * Hack -- Indentation for the text when using text_out().
  *
- * This hook must always be optional.
  */
-void (*special_view_hook)(int cols, int rows, bool activate) = NULL;
-
-
+int text_out_indent = 0;
 
 /*
- * The highscore file descriptor, if available.
+ * The "highscore" file descriptor, if available.
  */
 int highscore_fd = -1;
-
-/*
- * A file descriptor (for saving screen info), if available.
- */
-int dump_file_fd = -1;
-
 
 /*
  * Game can be saved
@@ -1065,20 +848,27 @@ s16b skill_being_used;
 /*
  * The bones file a restored player ghost should use to collect extra
  * flags, a sex, and a unique name.  This also indicates that there is
- * a ghost active.
+ * a ghost active.  -LM-
  */
 byte bones_selector;
 
 /*
- * The player ghost template index.
+ * The player ghost template index. -LM-
  */
 int r_ghost;
 
 /*
  * The player ghost name is stored here for quick reference by the
- * description function.
+ * description function.  -LM-
  */
-char ghost_name[DESC_LEN];
+char ghost_name[80];
+
+/*
+ * Is the player partly through trees, rubble, or water and, if so, in which
+ * direction is he headed?  Monsters are handled more simply:  They have
+ * a 33% or 50% chance of walking through.  -LM-
+ */
+byte player_is_crossing;
 
 
 /*
@@ -1094,10 +884,5 @@ byte num_trap_on_level;
 /*
  * Limit thefts
  */
-byte num_recent_thefts;
-
-
-
-byte player_graphics[MAX_RACES][MAX_SPECIALTIES][2];   /* Array of player graphics */
-
+byte num_theft_on_level;
 

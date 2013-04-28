@@ -11,15 +11,12 @@
  * A lot of these definitions take effect in "h-system.h"
  *
  * Note that most of these "options" are defined by the compiler,
- * the "Makefile", the "project file", system libraries or something
- * similar, and should not be defined by the user.
+ * the "Makefile", the "project file", or something similar, and
+ * should not be defined by the user.
  */
 
 #ifndef INCLUDED_H_CONFIG_H
 #define INCLUDED_H_CONFIG_H
-
-#include <limits.h>
-
 
 
 /*
@@ -30,25 +27,113 @@
 #endif
 
 /*
- * OPTION: Compile on a Windows machine (if the compiler doesn't detect; see below)
+ * OPTION: Compile on a Windows machine
  */
 #ifndef WINDOWS
 /* #define WINDOWS */
 #endif
 
 /*
- * OPTION: Compile on an MSDOS machine (if the compiler doesn't detect; see below)
+ * OPTION: Compile on an MSDOS machine
  */
 #ifndef MSDOS
 /* #define MSDOS */
 #endif
 
 /*
- * Extract the "RISCOS" flag from the compiler
+ * OPTION: Compile on a SYS III version of UNIX
+ */
+#ifndef SYS_III
+/* #define SYS_III */
+#endif
+
+/*
+ * OPTION: Compile on a SYS V version of UNIX
+ */
+#ifndef SYS_V
+/* #define SYS_V */
+#endif
+
+/*
+ * OPTION: Compile on a HPUX version of UNIX
+ */
+#ifndef HPUX
+/* #define HPUX */
+#endif
+
+/*
+ * OPTION: Compile on an SGI running IRIX
+ */
+#ifndef SGI
+/* #define SGI */
+#endif
+
+/*
+ * OPTION: Compile on a SunOS machine
+ */
+#ifndef SUNOS
+/* #define SUNOS */
+#endif
+
+/*
+ * OPTION: Compile on a Solaris machine
+ */
+#ifndef SOLARIS
+/* #define SOLARIS */
+#endif
+
+/*
+ * OPTION: Compile on an ultrix/4.2BSD/Dynix/etc. version of UNIX,
+ * Do not define this if you are on any kind of SunOS.
+ */
+#ifndef ULTRIX
+/* #define ULTRIX */
+#endif
+
+
+
+/*
+ * Extract the "SUNOS" flag from the compiler
+ */
+#if defined(sun)
+# ifndef SUNOS
+#   define SUNOS
+# endif
+#endif
+
+/*
+ * Extract the "ULTRIX" flag from the compiler
+ */
+#if defined(ultrix) || defined(Pyramid)
+# ifndef ULTRIX
+#  define ULTRIX
+# endif
+#endif
+
+/*
+ * Extract the "ATARI" flag from the compiler [cjh]
+ */
+#if defined(__atarist) || defined(__atarist__)
+# ifndef ATARI
+#  define ATARI
+# endif
+#endif
+
+/*
+ * Extract the "ACORN" flag from the compiler
  */
 #ifdef __riscos
-# ifndef RISCOS
-#  define RISCOS
+# ifndef ACORN
+#  define ACORN
+# endif
+#endif
+
+/*
+ * Extract the "SGI" flag from the compiler
+ */
+#ifdef sgi
+# ifndef SGI
+#  define SGI
 # endif
 #endif
 
@@ -96,18 +181,8 @@
  * OPTION: Define "L64" if a "long" is 64-bits.  See "h-types.h".
  * The only such platform that angband is ported to is currently
  * DEC Alpha AXP running OSF/1 (OpenVMS uses 32-bit longs).
- *
- * Try to use __WORDSIZE to test for 64-bit platforms.
- * I don't know how portable this is.
- * -CJN-
  */
-#ifdef __WORDSIZE
-# if __WORDSIZE == 64
-#  define L64
-# endif
-#endif
-
-#if defined(__alpha) && defined(__osf__) && !defined(L64)
+#if defined(__alpha) && defined(__osf__)
 # define L64
 #endif
 
@@ -122,11 +197,29 @@
  * functions to extract user names and expand "tildes" in filenames.
  * It is also used for "locking" and "unlocking" the score file.
  * Basically, SET_UID should *only* be set for "UNIX" machines,
- * or for the "Atari" platform which is Unix-like, apparently.
+ * or for the "Atari" platform which is Unix-like, apparently
  */
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
-    !defined(MSDOS) && !defined(RISCOS)
+    !defined(MSDOS) && !defined(USE_EMX) && \
+    !defined(AMIGA) && !defined(ACORN) && !defined(VM)
 # define SET_UID
+#endif
+
+
+/*
+ * OPTION: Set "USG" for "System V" versions of UNIX
+ * This is used to choose a "lock()" function, and to choose
+ * which header files ("string.h" vs "strings.h") to include.
+ * It is also used to allow certain other options, such as options
+ * involving userid's, or multiple users on a single machine, etc.
+ */
+#ifdef SET_UID
+# if defined(SYS_III) || defined(SYS_V) || defined(SOLARIS) || \
+     defined(HPUX) || defined(SGI) || defined(ATARI)
+#  ifndef USG
+#   define USG
+#  endif
+# endif
 #endif
 
 
@@ -134,8 +227,10 @@
  * Every system seems to use its own symbol as a path separator.
  * Default to the standard UNIX slash, but attempt to change this
  * for various other systems.  Note that any system that uses the
- * "period" as a separator (i.e. RISCOS) will have to pretend that
+ * "period" as a separator (i.e. ACORN) will have to pretend that
  * it uses the slash, and do its own mapping of period <-> slash.
+ * Note that the VM system uses a "flat" directory, and thus uses
+ * the empty string for "PATH_SEP".
  */
 #undef PATH_SEP
 #define PATH_SEP "/"
@@ -143,21 +238,32 @@
 # undef PATH_SEP
 # define PATH_SEP ":"
 #endif
-#if defined(WINDOWS) || defined(WINNT) || defined(WIN32) || defined(MSDOS)
+#if defined(WINDOWS) || defined(WINNT)
 # undef PATH_SEP
 # define PATH_SEP "\\"
+#endif
+#if defined(MSDOS) || defined(OS2) || defined(USE_EMX)
+# undef PATH_SEP
+# define PATH_SEP "\\"
+#endif
+#ifdef AMIGA
+# undef PATH_SEP
+# define PATH_SEP "/"
 #endif
 #ifdef __GO32__
 # undef PATH_SEP
 # define PATH_SEP "/"
 #endif
-
+#ifdef VM
+# undef PATH_SEP
+# define PATH_SEP ""
+#endif
 
 
 /*
  * The Macintosh allows the use of a "file type" when creating a file
  */
-#if defined(MACINTOSH) || defined(MACH_O_CARBON)
+#if defined(MACINTOSH) && !defined(applec)
 # define FILE_TYPE_TEXT 'TEXT'
 # define FILE_TYPE_DATA 'DATA'
 # define FILE_TYPE_SAVE 'SAVE'
@@ -170,12 +276,54 @@
 /*
  * OPTION: See the Makefile(s), where several options may be declared.
  *
- * Options for unix machines include:
- * "USE_GCU" (allow use with UNIX "curses"),
- * "USE_X11" (allow basic use with UNIX X11),
- * "USE_GTK" (allow use with the GTK widget set library)
- * "USE_SDL" (allow use with the SDL library)
+ * Some popular options include "USE_GCU" (allow use with UNIX "curses"),
+ * "USE_X11" (allow basic use with UNIX X11), "USE_XAW" (allow use with
+ * UNIX X11 plus the Athena Widget set), and "USE_CAP" (allow use with
+ * the "termcap" library, or with hard-coded vt100 terminals).
+ *
+ * The old "USE_NCU" option has been replaced with "USE_GCU".
+ *
+ * Several other such options are available for non-unix machines,
+ * such as "MACINTOSH", "WINDOWS", "USE_IBM", "USE_EMX".
+ *
+ * You may also need to specify the "system", using defines such as
+ * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
  */
+
+/*
+ * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
+ */
+/* #define USE_TPOSIX */
+
+/*
+ * OPTION: Use the "termio" methods in "main-gcu.c"
+ */
+/* #define USE_TERMIO */
+
+/*
+ * OPTION: Use the icky BSD "tchars" methods in "main-gcu.c"
+ */
+/* #define USE_TCHARS */
+
+
+/*
+ * OPTION: Use "blocking getch() calls" in "main-gcu.c".
+ * Hack -- Note that this option will NOT work on many BSD machines
+ * Currently used whenever available, if you get a warning about
+ * "nodelay()" undefined, then make sure to undefine this.
+ */
+#if defined(SYS_V) || defined(AMIGA)
+# define USE_GETCH
+#endif
+
+
+/*
+ * OPTION: Use the "curs_set()" call in "main-gcu.c".
+ * Hack -- This option will not work on most BSD machines
+ */
+#ifdef SYS_V
+# define USE_CURS_SET
+#endif
 
 
 /*
@@ -205,11 +353,20 @@
 
 
 /*
+ * Prevent problems on (non-Solaris) Suns using "SAFE_SETUID".
+ * The SAFE_SETUID code is weird, use it at your own risk...
+ */
+#if defined(SUNOS) && !defined(SOLARIS)
+# undef SAFE_SETUID_POSIX
+#endif
+
+
+/*
  * OPTION: Create and use a hidden directory in the user's home directory
  * for storing pref-files and character-dumps.
  */
 #ifdef SET_UID
-#define PRIVATE_USER_PATH "~/.sangband"
+#define PRIVATE_USER_PATH "~/.angband"
 #endif /* SET_UID */
 
 
@@ -222,19 +379,7 @@
 
 
 /*
- * Hack -- Mach-O (native binary format of OS X) is basically a Un*x
- * but has Mac OS/Windows-like user interface
- */
-#ifdef MACH_O_CARBON
-# ifdef SAVEFILE_USE_UID
-#  undef SAVEFILE_USE_UID
-# endif
-#endif
-
-
-
-/*
- * OPTION: Prevent usage of the "SANGBAND_PATH" environment variable and
+ * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
  * the '-d<what>=<path>' command line option (except for '-du=<path>').
  *
  * This prevents cheating in multi-user installs as well as possible
@@ -243,6 +388,14 @@
 #ifdef SET_UID
 #define FIXED_PATHS
 #endif /* SET_UID */
+
+
+/*
+ * OPTION: Capitalize the "user_name" (for "default" player name)
+ * This option is only relevant on SET_UID machines.
+ */
+#define CAPITALIZE_USER_NAME
+
 
 
 
@@ -262,6 +415,7 @@
 
 #endif
 
+
 /*
  * Hack -- Windows stuff
  */
@@ -273,11 +427,55 @@
 #endif
 
 
+/*
+ * Hack -- EMX stuff
+ */
+#ifdef USE_EMX
+
+/* Do not handle signals */
+# undef HANDLE_SIGNALS
+
+#endif
+
+
+
 
 /*
- * OPTION: Check the modification time of *.raw files
+ * OPTION: Default font (when using X11).
  */
-#define CHECK_MODIFICATION_TIME
+#define DEFAULT_X11_FONT		"9x15"
+
+/*
+ * OPTION: Default fonts (when using X11)
+ */
+#define DEFAULT_X11_FONT_0		"10x20"
+#define DEFAULT_X11_FONT_1		"9x15"
+#define DEFAULT_X11_FONT_2		"9x15"
+#define DEFAULT_X11_FONT_3		"5x8"
+#define DEFAULT_X11_FONT_4		"5x8"
+#define DEFAULT_X11_FONT_5		"5x8"
+#define DEFAULT_X11_FONT_6		"5x8"
+#define DEFAULT_X11_FONT_7		"5x8"
+
+
+/*
+ * OPTION: Default small font (when using X11) (only for main window).
+ */
+#define DEFAULT_X11_SFONT_0		"-*-fixed-*-r-normal--10-*-*-*-*-100-iso8859-1"
+
+/*
+ * OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
+ */
+/* #define HAS_STRICMP */
+
+/*
+ * Linux has "stricmp()" with a different name
+ */
+#if defined(linux)
+# define HAS_STRICMP
+# define stricmp(S,T) strcasecmp((S),(T))
+#endif
+
 
 
 /*
@@ -287,55 +485,13 @@
  * Note that new "SOLARIS" and "SGI" machines have "usleep()".
  */
 #ifdef SET_UID
+# if !defined(ULTRIX) && !defined(ISC)
 #  define HAVE_USLEEP
-#endif
-
-
-/*
- * On ports that use the "curses" library, hitting the escape key causes
- * up to a one second delay.  On such machines, it is very helpful to
- * provide an alternative.
- */
-#ifdef USE_GCU
-# define USE_BACKQUOTE_AS_ESCAPE
-#endif /* USE_GCU */
-
-
-
-/* Ensure that NeXT can use fat binaries by default */
-#ifdef NeXT
-
-# if defined(m68k)
-#  define FAT_SUFFIX_DEFAULT   "m68k"
 # endif
-
-# if defined(i386)
-#  define FAT_SUFFIX_DEFAULT   "i386"
-# endif
-
-# if defined(sparc)
-#  define FAT_SUFFIX_DEFAULT   "sparc"
-# endif
-
-# if defined(hppa)
-#  define FAT_SUFFIX_DEFAULT   "hppa"
-# endif
-
 #endif
 
 
 
-/*
- * Compiler-specific stuff below...
- */
-
-/* Hack -- Warning suppression for Visual C++ */
-#ifdef _MBCS
-  #pragma warning(disable : 4244  4761)
-  /* 4244:  conversion from 'type1' to 'type2', possible loss of data */
-  /* 4761:  integral size mismatch in argument; conversion supplied */
 #endif
 
 
-
-#endif  /* INCLUDED_H_CONFIG_H */

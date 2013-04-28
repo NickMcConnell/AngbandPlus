@@ -1,19 +1,19 @@
+
 /* File: cmd4.c */
 
 /*
  * Redraw the screen, change character name, display previous messages.
  * Interact with options.  Code to generate preference files.  Interact
  * with macros, visuals, colors.  Take notes, display level feeling and
- * quests, save and load screen shots.  Interact with the character
+ * quests, save and load screen dumps.  Interact with the character
  * knowledge menu (Display score, known objects, monsters, and artifacts,
  * contents of the home, kill count, and quests).
  *
- * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -24,8 +24,8 @@
  * Hack -- redraw the screen
  *
  * This command performs various low level updates, clears all the "extra"
- * windows, does a total redraw of the main window, and requests all possible
- * updates and redraws.
+ * windows, does a total redraw of the main window, and requests all of the
+ * interesting updates and redraws that I can think of.
  *
  * This command is also used to "instantiate" the results of the user
  * selecting various things, such as graphics mode, so it must call
@@ -39,54 +39,64 @@ void do_cmd_redraw(void)
 
 
 	/* Low level flush */
-	(void)Term_flush();
+	Term_flush();
 
 	/* Reset "inkey()" */
 	flush();
 
 
 	/* Hack -- React to changes */
-	(void)Term_xtra(TERM_XTRA_REACT, 0);
+	Term_xtra(TERM_XTRA_REACT, 0);
 
-
-	/* Update everything */
-	p_ptr->update = 0xFFFFFFFF;
-
-	/* Redraw everything */
-	p_ptr->redraw = 0xFFFFFFFF;
-
-	/* Refresh everything */
-	p_ptr->window = 0xFFFFFFFF;
 
 	/* Combine and Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 
+	/* Update torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Update stuff */
+	p_ptr->update |= (PU_BONUS | PU_SCORE | PU_HP | PU_MANA | PU_SPELLS);
+
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Redraw everything */
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 |
+		PW_M_LIST);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
+
 	/* Clear screen */
-	(void)Term_clear();
+	Term_clear();
 
 	/* Hack -- update */
 	handle_stuff();
 
 
-	/* Redraw every window (bottommost first) */
-	for (j = 0; j < TERM_MAX; j++)
+	/* Redraw every window */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
-		/* Get the z order of this window */
-		int term_idx = term_z_order[j];
-
-		/* No term, or term is unavailable */
-		if ((!angband_term[term_idx]) || (!angband_term[term_idx]->mapped_flag)) continue;
+		/* Dead window */
+		if (!angband_term[j]) continue;
 
 		/* Activate */
-		(void)Term_activate(angband_term[term_idx]);
+		Term_activate(angband_term[j]);
 
 		/* Redraw */
-		(void)Term_redraw();
-	}
+		Term_redraw();
 
-	/* Restore */
-	(void)Term_activate(old);
+		/* Refresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
 }
 
 
@@ -96,37 +106,39 @@ void do_cmd_redraw(void)
 void do_cmd_change_name(void)
 {
 	char ch;
-	char buf[1024];
 
 	int mode = 0;
 
+	int old_rows = screen_rows;
+
+	cptr p;
+
+	/* Prompt */
+	p = "['c': change name, 'h': change mode, 'f': save a char dump, '?': help, or ESC]";
+
+
+	/* Save screen */
+	screen_save();
+
+	/* Set to 25 screen rows */
+	Term_rows(FALSE);
 
 	/* Make sure everything is properly updated */
 	p_ptr->update |= (PU_BONUS);
 	update_stuff();
 
-	/* Save screen */
-	display_change(DSP_REMEMBER | DSP_SAVE | DSP_NORM | DSP_CX, 80, 0);
 
-	/* Display a prompt */
-	center_string(buf, sizeof(buf),
-		"['c': change name, 'h': change mode, 'f': save a char dump, '?': help, or ESC]", display_width());
-
-
-	/* Interact until satisfied */
+	/* Forever */
 	while (TRUE)
 	{
 		/* Display the player */
 		display_player(mode);
 
 		/* Prompt */
-		prt(buf, 23, 0);
+		Term_putstr(0, 23, -1, TERM_WHITE, p);
 
 		/* Query */
-		ch = inkey(FALSE);
-
-		/* Move cursor to top row */
-		move_cursor(0, 0);
+		ch = inkey();
 
 		/* Exit */
 		if (ch == ESCAPE) break;
@@ -145,9 +157,9 @@ void do_cmd_change_name(void)
 		/* File dump */
 		else if (ch == 'f')
 		{
-			char ftmp[DESC_LEN];
+			char ftmp[80];
 
-			(void)strnfmt(ftmp, sizeof(ftmp), "%s.txt", op_ptr->base_name);
+			sprintf(ftmp, "%s.txt", op_ptr->base_name);
 
 			if (get_string("File name:", ftmp, 80))
 			{
@@ -206,8 +218,15 @@ void do_cmd_change_name(void)
 		message_flush();
 	}
 
-	/* Restore previous display */
-	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
+	/* Set to 50 screen rows, if we were showing 50 before */
+	if (old_rows == 50)
+	{
+		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+		Term_rows(TRUE);
+	}
+
+	/* Load screen */
+	screen_load();
 }
 
 
@@ -228,18 +247,25 @@ void do_cmd_message_one(void)
  * skips the lines adjacent to them, and uses the rest to display messages.
  *
  * This command shows you which commands you are viewing, and allows
- * you to search for strings in the recall.
+ * you to "search" for strings in the recall.
+ *
+ * Note that messages may be longer than 80 characters, but they are
+ * displayed using "infinite" length, with a special sub-command to
+ * "slide" the virtual display to the left or right.
+ *
+ * Attempt to only highlight the matching portions of the string.
  */
 void do_cmd_messages(void)
 {
 	char ch;
-	bool shift_key = FALSE;
 
-	int i, j, n, add;
-	int wid, hgt, num;
+	int old_rows = screen_rows;
 
-	char shower[256];
-	char finder[256];
+	int i, j, n, q;
+	int wid, hgt;
+
+	char shower[80];
+	char finder[80];
 
 
 	/* Wipe finder */
@@ -255,211 +281,114 @@ void do_cmd_messages(void)
 	/* Start on first message */
 	i = 0;
 
+	/* Start at leftmost edge */
+	q = 0;
+
 	/* Get size */
-	(void)Term_get_size(&wid, &hgt);
+	Term_get_size(&wid, &hgt);
+
+	/* Save screen */
+	screen_save();
 
 
-	/* Save the screen and center it */
-	if (more_tall_display)
-		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_CX, 80, 0);
-	else
-		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_TALL | DSP_CX, 80, 0);
+	/* We want 50 rows */
+	if (text_50_rows) Term_rows(TRUE);
 
+	/* We don't */
+	else Term_rows(FALSE);
 
 	/* Note height of screen */
-	hgt = Term->rows;
+	hgt = screen_rows;
 
 
 	/* Process requests until done */
 	while (TRUE)
 	{
 		/* Clear screen */
-		(void)Term_clear();
+		Term_clear();
 
 		/* Dump messages */
-		for (j = 0, add = 0, num = 0; (i + j < n); j++, num++)
+		for (j = 0; (j < hgt - 4) && (i + j < n); j++)
 		{
-			cptr msg = message_str((s16b)(i+num));
-			byte attr = message_color((s16b)(i+num));
+			cptr msg = message_str((s16b)(i+j));
+			byte attr = message_color((s16b)(i+j));
 
-			/* Handle multi-line messages (approximately) */
-			if ((int)strlen(msg) >= wid) add += (strlen(msg) / (wid-5));
-
-			/* Stop at the top */
-			if (j + add >= hgt - 4) break;
+			/* Apply horizontal scroll */
+			msg = ((int)strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-			(void)Term_gotoxy(0, hgt - 3 - j - add);
-			text_out_wrap = wid;
-			text_out_indent = 2;
-			text_out_to_screen(attr, msg);
-		}
+			Term_putstr(0, hgt - 3 - j, -1, attr, msg);
 
-
-		/* Highlight "shower" */
-		if (shower[0])
-		{
-			char buf[256];
-			int y, x;
-			byte a;
-			char c;
-			cptr str;
-
-			/* Read all the lines on the screen */
-			for (y = 0; y < hgt; y++)
+			/* Highlight "shower" */
+			if (shower[0])
 			{
-				/* Assume no text on this line */
-				strcpy(buf, "");
+				cptr str = msg;
 
-				/* Read all the characters in this line */
-				for (x = 0; x < wid; x++)
-				{
-					/* Get the character (ignore the color) */
-					(void)Term_what(x, y, &a, &c);
-
-					/* Add it to "buf" */
-					strcat(buf, format("%c", c));
-				}
-
-				/* Make the text lowercase */
-				strlower(buf);
-
-				/* Start at beginning of line */
-				str = buf;
-
-				/* Display matches in remaining text */
+				/* Display matches */
 				while ((str = strstr(str, shower)) != NULL)
 				{
-					/* Get the length of the match */
 					int len = strlen(shower);
 
-					/* Initial x-position */
-					x = str - buf;
+					/* Display the match */
+					Term_putstr(str-msg, hgt - 3 - j, len, TERM_YELLOW, shower);
 
-					/* Move the cursor */
-					(void)Term_gotoxy(x, y);
-
-					/* Overwrite the text in yellow */
-					for (j = 0; j < len; j++)
-					{
-						/* Get the character */
-						(void)Term_what(x++, y, &a, &c);
-
-						/* Reprint in yellow */
-						(void)Term_addch(TERM_YELLOW, c);
-					}
-
-					/* Advance past the matching text */
+					/* Advance */
 					str += len;
 				}
 			}
 		}
 
+		/* Display header XXX XXX XXX */
+		prt(format("Message Recall (%d-%d of %d), Offset %d",
+			i, i + j - 1, n, q), 0, 0);
 
-		/* Display header XXX XXX */
-		prt(format("Message Recall (%d-%d of %d)",
-			i, i + num - 1, n), 0, 0);
+		/* Display prompt (not very informative) */
+		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", hgt - 1, 0);
 
-		/* Display prompt */
-		prt("Press direction keys to move, '/' search, '&' show, or ESCAPE]", hgt - 1, 0);
-
-		/* Wait for legal input */
-		while (TRUE)
-		{
-			/* Get key */
-			ch = inkey(ALLOW_CLICK);
-
-			/* Allow orthogonal direction keys */
-			get_ui_direction(&ch, UI_NODIAG, &shift_key);
-
-			/* Accept anything except untranslated mouse actions */
-			if (ch != MOUSEKEY) break;
-		}
-
-
-		/* Hack -- Save the old index */
-		j = i;
-
+		/* Get a command */
+		ch = inkey();
 
 		/* Exit on Escape */
 		if (ch == ESCAPE) break;
 
+		/* Hack -- Save the old index */
+		j = i;
 
-		/* Recall the oldest message */
-		else if ((ch == 'g') || (ch == '7'))
+		/* Horizontal scroll */
+		if ((ch == '4') || (ch == 'h'))
 		{
-			i = n - 1;
+			/* Scroll left */
+			q = (q >= wid / 2) ? (q - wid / 2) : 0;
+
+			/* Success */
+			continue;
 		}
 
-		/* Recall a full page of older messages */
-		else if ((ch == ' ') || (ch == '9'))
+		/* Horizontal scroll */
+		if ((ch == '6') || (ch == 'l'))
 		{
-			/* Go older if legal */
-			if (i + (hgt - 4) < n) i += (hgt - 4);
-		}
+			/* Scroll right */
+			q = q + wid / 2;
 
-		/* Recall a half page of older messages */
-		else if ((ch == '-') || (ch == '_') || (ch == '4'))
-		{
-			/* Go older if legal */
-			if (i + (hgt - 4)/2 < n) i += (hgt - 4)/2;
+			/* Success */
+			continue;
 		}
-
-		/* Recall 1 older message */
-		else if ((ch == '8') || (ch == '\n') || (ch == '\r'))
-		{
-			/* Go older (if able) */
-			i += (shift_key ? 5 : 1);
-			if (i >= n) i = n - 1;
-		}
-
-		/* Recall 1 newer messages */
-		else if (ch == '2')
-		{
-			/* Go newer (if able) */
-			i -= (shift_key ? 5 : 1);
-			if (i < 0) i = 0;
-		}
-
-		/* Recall a half page of newer messages */
-		else if ((ch == '+') || (ch == '=') || (ch == '6'))
-		{
-			/* Go newer (if able) */
-			i = (i >= (hgt - 4)/2) ? (i - (hgt - 4)/2) : 0;
-		}
-
-		/* Recall a full page of newer messages */
-		else if (ch == '3')
-		{
-			/* Go newer (if able) */
-			i = (i >= (hgt - 4)) ? (i - (hgt - 4)) : 0;
-		}
-
-		/* Recall the newest message */
-		else if ((ch == 'G') || (ch == '1'))
-		{
-			i = 0;
-		}
-
 
 		/* Hack -- handle show */
-		else if (ch == '&')
+		if (ch == '=')
 		{
 			/* Prompt */
 			prt("Show: ", hgt - 1, 0);
 
 			/* Get a "shower" string, or continue */
-			if (!askfor_aux(shower, 80, FALSE)) continue;
-
-			/* Make "shower" lowercase */
-			strlower(shower);
+			if (!askfor_aux(shower, 80)) continue;
 
 			/* Okay */
 			continue;
 		}
 
 		/* Hack -- handle find */
-		else if (ch == '/')
+		if (ch == '/')
 		{
 			s16b z;
 
@@ -467,22 +396,15 @@ void do_cmd_messages(void)
 			prt("Find: ", hgt - 1, 0);
 
 			/* Get a "finder" string, or continue */
-			if (!askfor_aux(finder, wid, FALSE)) continue;
+			if (!askfor_aux(finder, 80)) continue;
 
-			/* Show it (search in lowercase) */
+			/* Show it */
 			strcpy(shower, finder);
-			strlower(shower);
 
 			/* Scan messages */
 			for (z = i + 1; z < n; z++)
 			{
-				/* Get the message */
-				char msg[1024];
-
-				strcpy(msg, message_str(z));
-
-				/* Make it lowercase */
-				strlower(msg);
+				cptr msg = message_str(z);
 
 				/* Search for it */
 				if (strstr(msg, finder))
@@ -496,23 +418,96 @@ void do_cmd_messages(void)
 			}
 		}
 
-		/* Go to a specific line */
-		else if (ch == '#')
+		/* Recall 20 older messages */
+		if ((ch == 'p') || (ch == KTRL('P')) || (ch == ' ') || (ch == '3'))
 		{
-			char tmp[DESC_LEN];
+			/* Go older if legal */
+			if (i + 20 < n) i += 20;
+		}
+
+		/* Recall 10 older messages */
+		if ((ch == '+') || (ch == '='))
+		{
+			/* Go older if legal */
+			if (i + 10 < n) i += 10;
+		}
+
+		/* Recall 1 older message */
+		if ((ch == '8') || (ch == '\n') || (ch == '\r') || (ch == 'k'))
+		{
+			/* Go newer if legal */
+			if (i + 1 < n) i += 1;
+		}
+
+		/* Recall 20 newer messages */
+		if ((ch == 'n') || (ch == KTRL('N')) || (ch == '9'))
+		{
+			/* Go newer (if able) */
+			i = (i >= 20) ? (i - 20) : 0;
+		}
+
+		/* Recall 10 newer messages */
+		if (ch == '-')
+		{
+			/* Go newer (if able) */
+			i = (i >= 10) ? (i - 10) : 0;
+		}
+
+		/* Recall 1 newer messages */
+		if ((ch == '2') || (ch == 'j'))
+		{
+			/* Go newer (if able) */
+			i = (i >= 1) ? (i - 1) : 0;
+		}
+
+		/* Go to a specific line */
+		if (ch == '#')
+		{
+			char tmp[80];
 			prt("Goto Line: ", hgt - 1, 0);
 			strcpy(tmp, "0");
-			if (askfor_aux(tmp, 80, FALSE))
+			if (askfor_aux(tmp, 80))
 			{
 				i = atoi(tmp);
 				if (i > n - hgt + 4) i = n - hgt + 4;
 				if (i < 0) i = 0;
 			}
 		}
+
+		/* Go to the top */
+		if (ch == 'G')
+		{
+			i = 0;
+		}
+
+		/* Go to the bottom */
+		if (ch == 'g')
+		{
+			i = n - hgt + 4;
+		}
+
+		/* Hack -- Error of some kind */
+		if (i == j) bell(NULL);
 	}
 
-	/* Restore previous display */
-	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
+
+	/* Set to 50 screen rows, if we were showing 50 before */
+	if (old_rows == 50)
+	{
+		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+		Term_rows(TRUE);
+	}
+
+	/* Set to 25 rows, if we were showing 25 before */
+	else
+	{
+		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+		Term_rows(FALSE);
+	}
+
+
+	/* Load screen */
+	screen_load();
 }
 
 
@@ -535,7 +530,7 @@ static void prt_options_screen_navigation(int row, int set)
 }
 
 /*
- * Modify the "sub-window" options
+ * Modify the "window" options
  *
  * Return 0 if we want to leave, 1 if we want to advance to the next
  * option set, and -1 if we want to retreat to the previous option set.
@@ -544,28 +539,24 @@ static s16b do_cmd_options_win(bool *modified)
 {
 	int i, j, d;
 	int action = 0;
-	int window_displays = TOTAL_WINDOW_DISPLAYS;
 
 	int y = 0;
-	int x = TERM_SUBWINDOW;
-
-	term *old = Term;
+	int x = 0;
 
 	char ch;
 
-	u32b old_flag[TERM_MAX];
+	u32b old_flag[ANGBAND_TERM_MAX];
 
 
 	/* Memorize old flags */
-	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		old_flag[j] = op_ptr->window_flag[j];
 	}
 
-	/* Use the standard display and center an 80 column view */
-	display_change(DSP_REMEMBER | DSP_CLEAR | DSP_NORM | DSP_CX,
-		80, 0);
 
+	/* Clear screen */
+	Term_clear();
 
 	/* Interact */
 	while (TRUE)
@@ -574,10 +565,10 @@ static s16b do_cmd_options_win(bool *modified)
 		prt("Window flags (<dir> to move, 't' to toggle, or ESC)", 0, 0);
 
 		/* Print the navigation bar -- highlight set #0 */
-		prt_options_screen_navigation(Term->rows - 1, 0);
+		prt_options_screen_navigation(screen_rows - 1, 0);
 
-		/* Display the sub-windows */
-		for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+		/* Display the windows */
+		for (j = 0; j < ANGBAND_TERM_MAX; j++)
 		{
 			byte a = TERM_WHITE;
 
@@ -587,11 +578,11 @@ static s16b do_cmd_options_win(bool *modified)
 			if (j == x) a = TERM_L_BLUE;
 
 			/* Window name, staggered, centered */
-			(void)Term_putstr(35 + (j-TERM_SUBWINDOW) * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
+			Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
 		}
 
 		/* Display the options */
-		for (i = 0; i < TOTAL_WINDOW_DISPLAYS; i++)
+		for (i = 0; i < 16; i++)
 		{
 			byte a = TERM_WHITE;
 
@@ -601,24 +592,13 @@ static s16b do_cmd_options_win(bool *modified)
 			if (i == y) a = TERM_L_BLUE;
 
 			/* Unused option */
-			if (!str)
-			{
-				if (i >= BASIC_WINDOW_DISPLAYS) break;
-				str = "(Unused option)";
-			}
-
-			/* Remember the last option with a name */
-			else
-			{
-				window_displays = i;
-			}
-
+			if (!str) str = "(Unused option)";
 
 			/* Flag name */
-			(void)Term_putstr(0, i + 5, -1, a, str);
+			Term_putstr(0, i + 5, -1, a, str);
 
-			/* Display the sub-windows */
-			for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+			/* Display the windows */
+			for (j = 0; j < ANGBAND_TERM_MAX; j++)
 			{
 				char c = '.';
 
@@ -630,15 +610,15 @@ static s16b do_cmd_options_win(bool *modified)
 				if (op_ptr->window_flag[j] & (1L << i)) c = 'X';
 
 				/* Flag value */
-				(void)Term_putch(35 + (j-TERM_SUBWINDOW) * 5, i + 5, a, c);
+				Term_putch(35 + j * 5, i + 5, a, c);
 			}
 		}
 
 		/* Place Cursor */
-		(void)Term_gotoxy(35 + (x-TERM_SUBWINDOW) * 5, y + 5);
+		Term_gotoxy(35 + x * 5, y + 5);
 
 		/* Get key */
-		ch = inkey(FALSE);
+		ch = inkey();
 
 		/* Allow escape */
 		if (ch == ESCAPE)
@@ -665,7 +645,7 @@ static s16b do_cmd_options_win(bool *modified)
 		if (ch == '?')
 		{
 			show_file("options.txt#window flags:", NULL, 0, 1);
-			(void)Term_clear();
+			Term_clear();
 
 			/* Continue */
 			continue;
@@ -677,70 +657,84 @@ static s16b do_cmd_options_win(bool *modified)
 		/* Move, if able */
 		if (d != 0)
 		{
-			x = (x + ddx[d] +  TERM_MAX) %  TERM_MAX;
-			if (x < TERM_SUBWINDOW) x = TERM_SUBWINDOW;
-			y = (y + ddy[d] + (window_displays + 1)) % (window_displays + 1);
+			x = (x + ddx[d] +  8) %  8;
+			y = (y + ddy[d] + 16) % 16;
 		}
 
 		/* Not a direction -- Toggle */
 		else
 		{
-			u32b new_value;
-
-			new_value = 1L << y;
-
 			/* Hack -- ignore the main window */
-			if (x < TERM_SUBWINDOW)
+			if (x == 0)
 			{
 				bell("Cannot set main window flags!");
 			}
 
 			/* Toggle flag (off) */
-			else if (op_ptr->window_flag[x] == new_value)
+			else if (op_ptr->window_flag[x] & (1L << y))
 			{
-				op_ptr->window_flag[x] = 0;
+				op_ptr->window_flag[x] &= ~(1L << y);
 			}
 
 			/* Toggle flag (on) */
 			else
 			{
-				op_ptr->window_flag[x] = new_value;
+				op_ptr->window_flag[x] |= (1L << y);
 			}
 		}
 	}
 
-	/* Notice changes (sub-windows only) */
-	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
+	/* Notice changes */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
-		/* No term, or term is unavailable */
-		if ((!angband_term[j]) || (!angband_term[j]->mapped_flag)) continue;
+		term *old = Term;
+
+		/* Dead window */
+		if (!angband_term[j]) continue;
 
 		/* Ignore non-changes */
 		if (op_ptr->window_flag[j] == old_flag[j]) continue;
 
 		/* Activate */
-		(void)Term_activate(angband_term[j]);
+		Term_activate(angband_term[j]);
 
 		/* Erase */
-		(void)Term_clear();
+		Term_clear();
 
 		/* Refresh */
-		(void)Term_fresh();
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
 
 		/* Note change */
 		*modified = TRUE;
 	}
 
-	/* Restore old term */
-	(void)Term_activate(old);
-
-	/* Restore previous display */
-	display_change(DSP_RESTORE, 0, 0);
-
 	/* Return */
 	return (action);
 }
 
+
+
+/*
+ * Toggle amount of space used to display the map
+ */
+static void toggle_map_rows(bool increment)
+{
+	int block = BLOCK_HGT;
+
+	/* Change map rows */
+	if (increment) map_rows += BLOCK_HGT;
+	else           map_rows -= BLOCK_HGT;
+
+	/* Require that map rows be divisible by BLOCK_HGT (currently 11) */
+	if (map_rows % (block)) map_rows = map_rows * BLOCK_HGT / BLOCK_HGT;
+
+	/* Enforce limits */
+	if (map_rows > 4 * BLOCK_HGT) map_rows = 4 * BLOCK_HGT;
+	if (map_rows < 2 * BLOCK_HGT) map_rows = 2 * BLOCK_HGT;
+}
 
 /*
  * Modify the main screen layout
@@ -753,36 +747,31 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 	int action = 0;
 	char ch;
 
-	int i, k = 0, n = 4;
+	int i, k = 0, n = 5;
 
-	char buf[DESC_LEN];
+	char buf[80];
 
 
-	/* Clear screen */
-	(void)Term_clear();
 
 	/* Interact with the player */
 	while (TRUE)
 	{
-		/* Get the map term */
-		term *t = use_special_map ? term_map : term_main;
-
 		/* Get best minimum view distance */
-		int max_view_y = (t->rows - get_panel_hgt()) / 2;
-		int max_view_x = (t->cols - get_panel_wid()) / 2;
+		int max_view_y = (map_rows   - PANEL_HGT) / 2;
+		int max_view_x = (SCREEN_WID - PANEL_WID) / 2;
 
 		/* Automatically correct minimum view distance */
 		if (clear_y > max_view_y) clear_y = max_view_y;
 		if (clear_x > max_view_x) clear_x = max_view_x;
 
-		/* Clear any description text */
-		for (i = n + 5; i < n + 15; i++) clear_row(i);
+		/* Clear screen */
+		Term_clear();
 
-		/* Prompt */
+		/* Prompt XXX XXX XXX */
 		prt("Screen Layout (RET to advance, y/n to set, '+/-' to adjust number, or ESC) ", 0, 0);
 
 		/* Print the navigation bar -- highlight set #1 */
-		prt_options_screen_navigation(Term->rows - 1, 1);
+		prt_options_screen_navigation(screen_rows - 1, 1);
 
 		/* Display the options */
 		for (i = 0; i < n; i++)
@@ -797,35 +786,44 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 			if (i == 0)
 			{
-				/* Display the option text -- more_tall_display */
-				(void)strnfmt(buf, sizeof(buf), "%-46s: %s   (%s)",
-					"Show more things (like text) in tall display",
-					more_tall_display ? "yes" : "no ", "more_tall_display");
+				/* Display the option text - force_25_rows */
+				sprintf(buf, "%-46s: %s     (%s)",
+					"Display the main window in 25 rows",
+					force_25_rows ? "yes" : "no ", "force_25_rows");
 				c_prt(a, buf, i + 2, 0);
 			}
 
 			if (i == 1)
 			{
-				/* Display the option text -- map_display_precise_fit */
-				(void)strnfmt(buf, sizeof(buf), "%-46s: %s   (%s)",
-					"Show the largest map the screen will allow",
-					map_display_precise_fit ? "yes" : "no ", "map_display_precise_fit");
+				/* Display the option text - text_in_50_rows */
+				sprintf(buf, "%-46s: %s     (%s)",
+					"Display more things (like text) in 50 rows",
+					text_50_rows ? "yes" : "no ", "text_50_rows");
 				c_prt(a, buf, i + 2, 0);
 			}
 
 			if (i == 2)
 			{
-				/* Display the option text -- vertical view */
-				(void)strnfmt(buf, sizeof(buf), "%-46s: %2d    (%s)",
-					"Minimum vertical view distance",
-					clear_y, "clear_y");
+				/* Display the option text - dungeon rows */
+				sprintf(buf, "%-46s: %2d      (%s)",
+					"Number of rows used to display the dungeon",
+					map_rows, "map_rows");
 				c_prt(a, buf, i + 2, 0);
 			}
 
 			if (i == 3)
 			{
-				/* Display the option text -- horizontal view */
-				(void)strnfmt(buf, sizeof(buf), "%-46s: %2d    (%s)",
+				/* Display the option text - vertical view */
+				sprintf(buf, "%-46s: %2d      (%s)",
+					"Minimum vertical view distance",
+					clear_y, "clear_y");
+				c_prt(a, buf, i + 2, 0);
+			}
+
+			if (i == 4)
+			{
+				/* Display the option text - horizontal view */
+				sprintf(buf, "%-46s: %2d      (%s)",
 					"Minimum horizontal view distance",
 					clear_x, "clear_x");
 				c_prt(a, buf, i + 2, 0);
@@ -834,26 +832,24 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 			/* Special explanatory text */
 			if (i == k)
 			{
-				(void)Term_gotoxy(n + 5, 10);
-
-				if (k == 0)
-				{
-					c_roff(a, "Various interfaces, such as stores, lists, and help, appear in the tall (46+ row) display.  This option is most helpful to those with large screens.", 5, display_width() - 5);
-				}
+				Term_gotoxy(10, 10);
 
 				if (k == 1)
 				{
-					c_roff(a, format("The dungeon is laid out in %dx%d blocks; detection and panel shifting work the same way.  If you choose to make the map fit precisely, you may (depending on your screen size) see more of the dungeon, but you may also notice a slightly less clean appearance and find it less easy to keep track of detected areas.", BLOCK_HGT, BLOCK_WID), 5, display_width() - 5);
 				}
 
 				if (k == 2)
 				{
-					c_roff(a, format("The maximum vertical view for the way you have currently set up the screen is %d.\n\n     The traditional vertical view is 2.  If you can display at least %d map rows, about three or four below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_y, 3 * BLOCK_HGT), 5, display_width() - 5);
 				}
 
 				if (k == 3)
 				{
-					c_roff(a, format("The maximum horizontal view for the way you have currently set up the screen is %d.\n\n     The traditional horizontal view is 4.  If you can display at least %d map columns, about three or four below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_x, 4 * BLOCK_HGT), 5, display_width() - 5);
+					c_roff(a, format("The maximum vertical view for the way you have currently set up the screen is %d.\n\n     The traditional vertical view is 2, and with bigscreen about two or three below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_y), 5, 75);
+				}
+
+				if (k == 4)
+				{
+					c_roff(a, format("The maximum vertical view for the way you have currently set up the screen is %d.\n\n     The traditional horizontal view is 4, and with bigscreen about two or three below the maximum works well.  If you set the view to the maximum, the map will center around the player every move.", max_view_x), 5, 75);
 				}
 			}
 		}
@@ -863,7 +859,7 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 
 		/* Get key */
-		ch = inkey(FALSE);
+		ch = inkey();
 
 		/* Allow escape */
 		if (ch == ESCAPE)
@@ -890,7 +886,7 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 		else if (ch == '?')
 		{
 			show_file("options.txt#screen layout:", NULL, 0, 1);
-			(void)Term_clear();
+			Term_clear();
 		}
 
 		/* Previous option */
@@ -898,7 +894,7 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 		/* Next option */
 		else if ((ch == '2') || (ch == ' ') || (ch == '\n') ||
-		         (ch == '\r') || (ch == '\t') || (ch == 'j'))
+		         (ch == '\r') ||(ch == 'j'))
 		{
 			k = (n + k + 1) % n;
 		}
@@ -908,21 +904,30 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 		{
 			if (k == 0)
 			{
-				more_tall_display = TRUE;
+				/* Force 25_row mode, reset map_rows, advance */
+				force_25_rows = TRUE;
+
+				map_rows = 2 * BLOCK_HGT;
+
 				*modified = TRUE;
+
+				/* Reset clear_x and clear_y */
+				if (clear_y > 5) clear_y = 2;
+				if (clear_y > 8) clear_y = 4;
 
 				k = (k + 1) % n;
 			}
 
 			else if (k == 1)
 			{
-				map_display_precise_fit = TRUE;
-				*modified = TRUE;
+				/* Toggle option, reset map_rows, advance */
+				text_50_rows = TRUE;
 
 				k = (k + 1) % n;
 			}
-
 			else continue;
+
+			*modified = TRUE;
 		}
 
 		/* Turn off this option */
@@ -930,7 +935,9 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 		{
 			if (k == 0)
 			{
-				more_tall_display = FALSE;
+				/* Turn off 25_row mode, advance */
+				force_25_rows = FALSE;
+
 				*modified = TRUE;
 
 				k = (k + 1) % n;
@@ -938,29 +945,31 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 			else if (k == 1)
 			{
-				map_display_precise_fit = FALSE;
-				*modified = TRUE;
+				/* Toggle option, advance */
+				text_50_rows = FALSE;
 
 				k = (k + 1) % n;
 			}
-
 			else continue;
+
+			*modified = TRUE;
 		}
 
 		/* Decrease this quantity */
 		else if ((ch == '-') || (ch == '_'))
 		{
 			if (k == 0) continue;
-			else if (k == 1) continue;
-			else if (k == 2)
+			if (k == 1) continue;
+			if (k == 2) toggle_map_rows(FALSE);
+			if (k == 3)
 			{
 				clear_y--;
 				if (clear_y < 2) clear_y = 2;
 			}
-			else if (k == 3)
+			if (k == 4)
 			{
 				clear_x--;
-				if (clear_x < 2) clear_x = 2;
+				if (clear_x < 4) clear_x = 4;
 			}
 			*modified = TRUE;
 		}
@@ -969,13 +978,17 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 		else if ((ch == '=') || (ch == '+'))
 		{
 			if (k == 0) continue;
-			else if (k == 1) continue;
-			else if (k == 2)
+			if (k == 1) continue;
+			if (k == 2)
+			{
+				if (!force_25_rows) toggle_map_rows(TRUE);
+			}
+			if (k == 3)
 			{
 				clear_y++;
 				if (clear_y > max_view_y) clear_y = max_view_y;
 			}
-			else if (k == 3)
+			if (k == 4)
 			{
 				clear_x++;
 				if (clear_x > max_view_x) clear_x = max_view_x;
@@ -999,6 +1012,8 @@ static s16b do_cmd_options_layout(bool *modified, bool *screen_change)
 
 
 
+
+
 /*
  * Modify the side panel
  *
@@ -1014,10 +1029,10 @@ static s16b do_cmd_options_panel(bool *modified)
 	int i, j, k, num;
 
 	/* Indexes of available options, and whether they are displayed */
-	int option_avail[DESC_LEN][2];
+	int option_avail[80][2];
 
 	/* Get the maximum number of left panel slots available */
-	int slots_avail = MIN(80, term_main->rows - ROW_CUSTOM - 2);
+	int slots_avail = map_rows - ROW_CUSTOM;
 
 	/* Start out selecting the first option in the left column */
 	bool left_column = TRUE;
@@ -1057,105 +1072,91 @@ static s16b do_cmd_options_panel(bool *modified)
 		}
 	}
 
-	/* Center an 80 column view, using the tall display only if necessary and allowed */
-	if ((more_tall_display) && (num >= Term->rows - 3))
-	{
-		display_change(DSP_REMEMBER | DSP_CLEAR | DSP_TALL | DSP_CX, 80, 0);
-	}
-	else
-	{
-		display_change(DSP_REMEMBER | DSP_CLEAR | DSP_NORM | DSP_CX, 80, 0);
-	}
+	/* Clear screen */
+	Term_clear();
 
-	/* Prompt */
-	prt("Left Panel (<dir> to move, Return to set/unset, +/- to swap, !, or ESC)", 0, 0);
+	/* Set to 50 rows if necessary */
+	if (num >= 22) Term_rows(TRUE);
 
 
-	/* Print the headers */
-	c_prt(TERM_WHITE, "Available Displays", 2, 1);
-	c_prt(TERM_WHITE, "Displays Shown on Left Panel", 2, 41);
+	/* Prompt XXX XXX XXX */
+	prt("Left Panel (<num> or <letter> to move, RET to set/unset, +/- to swap, !, or ESC)", 0, 0);
 
 	/* Separator line */
-	c_prt(TERM_L_WHITE, "==============================================================================", 3, 1);
+	c_prt(TERM_SLATE, "==============================================================================", 1, 1);
 
+	/* Print the headers */
+	c_prt(TERM_L_BLUE, "Available Displays", 2, 11);
+	c_prt(TERM_L_BLUE, "Displays Shown on Left Panel", 2, 46);
 
 
 	/* Repeat until satisfied */
 	while (TRUE)
 	{
-		bool flg_avail = FALSE;
-
 		/* Clear most everything */
-		clear_from(4);
+		clear_from(3);
 
 		/* Display the list of available options */
-		for (i = 0; i < num; i++)
+		for (i = 0; i <= num; i++)
 		{
-			if (option_avail[i][1])
+			if (i == num)
+			{
+				c_prt(TERM_SLATE, "======================================",
+					3 + i, 1);
+			}
+			else if (option_avail[i][1])
 			{
 				c_prt(TERM_SLATE, custom_display_text[option_avail[i][0]],
-					4 + i, 1);
+					3 + i, 1);
 			}
 			else if ((left_column) && (selected == i))
 			{
-				c_prt(TERM_L_BLUE, custom_display_text[option_avail[i][0]],
-					4 + i, 1);
+				c_prt(TERM_YELLOW, custom_display_text[option_avail[i][0]],
+					3 + i, 1);
 			}
 			else
 			{
-				prt(custom_display_text[option_avail[i][0]], 4 + i, 1);
+				prt(custom_display_text[option_avail[i][0]], 3 + i, 1);
 			}
 		}
 
 		/* Print a separator line */
-		for (i = 4; i < Term->rows - 1; i++)
+		for (i = 2; i < screen_rows - 1; i++)
 		{
-			(void)Term_putstr(39, i, 2, TERM_L_WHITE, "|");
+			Term_putstr(39, i, 2, TERM_SLATE, "||");
 		}
 
 		/* Display the left panel layout */
 		for (i = 0; i <= slots_avail; i++)
 		{
-			/* Make it clear that we have only limited space */
 			if (i == slots_avail)
 			{
-				c_prt(TERM_L_WHITE, " - - - - - - - - - - - - -",
-					4 + i, 41);
+				c_prt(TERM_SLATE, "======================================",
+					3 + i, 41);
 			}
-
-			/* We are in the right column, and this slot is selected */
 			else if ((!left_column) && (selected == i))
 			{
 				if (custom_display[i] == 0)
 				{
-					c_prt(TERM_L_BLUE, " -----", 4 + i, 41);
+					c_prt(TERM_YELLOW, "----", 3 + i, 41);
 				}
 				else
 				{
-					c_prt(TERM_L_BLUE, custom_display_text[custom_display[i]],
-						4 + i, 41);
+					c_prt(TERM_YELLOW, custom_display_text[custom_display[i]],
+						3 + i, 41);
 				}
 			}
-
-			/* Notice where the next option will fit */
-			else if ((left_column) && (custom_display[i] == 0) && (!flg_avail))
-			{
-				c_prt(TERM_L_BLUE, "  (+)", 4 + i, 41);
-				flg_avail = TRUE;
-			}
-
-			/* Usual case -- display the current option, if any */
 			else
 			{
-				prt(custom_display_text[custom_display[i]], 4 + i, 41);
+				prt(custom_display_text[custom_display[i]], 3 + i, 41);
 			}
 		}
 
 		/* Print the navigation bar -- highlight set #2 */
-		prt_options_screen_navigation(Term->rows - 1, 2);
+		prt_options_screen_navigation(screen_rows - 1, 2);
 
 		/* Get key */
-		ch = inkey(FALSE);
+		ch = inkey();
 
 		/* Allow escape */
 		if (ch == ESCAPE)
@@ -1181,8 +1182,10 @@ static s16b do_cmd_options_panel(bool *modified)
 		/* Help me. */
 		else if (ch == '?')
 		{
-			show_file("options.txt#Customized left panel rows :", NULL, 0, 1);
-			(void)Term_clear();
+			Term_rows(FALSE);
+			show_file("options.txt#customized left panel rows:", NULL, 0, 1);
+			Term_clear();
+			Term_rows(TRUE);
 		}
 
 		/* Go to the left column */
@@ -1406,7 +1409,7 @@ static s16b do_cmd_options_panel(bool *modified)
 		else if ((isalpha(ch)) && (left_column))
 		{
 			/* Convert to uppercase */
-			ch = toupper(ch);
+			ch = FORCEUPPER(ch);
 
 			/* Wrap around the list of available options */
 			for (j = -1, i = selected; i < num + selected; i++)
@@ -1436,8 +1439,8 @@ static s16b do_cmd_options_panel(bool *modified)
 		else bell("Illegal command for Panel options!");
 	}
 
-	/* Restore previous display */
-	display_change(DSP_RESTORE, 0, 0);
+	/* Set to 25 rows if we were showing 50 */
+	Term_rows(FALSE);
 
 	/* Return */
 	return (action);
@@ -1469,7 +1472,6 @@ static void do_cmd_options_screen(bool *modified, bool *screen_change)
 		/* Main screen layout */
 		else if (option_set == 1)
 		{
-			/* Interact with layout options */
 			tmp = do_cmd_options_layout(modified, screen_change);
 		}
 
@@ -1524,24 +1526,15 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 	char ch;
 
 	int i, k = 0, n = 0;
-	bool dummy;
 
 	int opt[OPT_PAGE_PER];
 
-	char buf[DESC_LEN];
+	char buf[80];
 
 
 	/* Scan the options */
 	for (i = 0; i < OPT_PAGE_PER; i++)
 	{
-		/* Skip some options when the character is not being born */
-		if (character_generated)
-		{
-			/* Skip options in the "birth" group */
-			if ((option_page[page][i] >= OPT_BIRTH) &&
-			    (option_page[page][i] < OPT_MAX)) continue;
-		}
-
 		/* Collect options on this "page" */
 		if (option_page[page][i] < OPT_MAX)
 		{
@@ -1549,14 +1542,15 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 		}
 	}
 
+
 	/* Clear screen */
-	(void)Term_clear();
+	Term_clear();
 
 	/* Interact with the player */
 	while (TRUE)
 	{
-		/* Prompt */
-		(void)strnfmt(buf, sizeof(buf), "%s (RET to advance, y/n to set, ESC to accept) ", info);
+		/* Prompt XXX XXX XXX */
+		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
 		prt(buf, 0, 0);
 
 		/* Display the options */
@@ -1570,7 +1564,7 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 			/* Special case - print a blank line or a header  XXX XXX */
 			if (option_desc[opt[i]][0] == ' ')
 			{
-				(void)strnfmt(buf, sizeof(buf), "%-60s", option_desc[opt[i]]);
+				sprintf(buf, "%-60s", option_desc[opt[i]]);
 
 				prt(buf, i + 2, 0);
 
@@ -1582,7 +1576,7 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 			else
 			{
 				/* Build the option text */
-				(void)strnfmt(buf, sizeof(buf), "%-46s: %s     (%s)",
+				sprintf(buf, "%-46s: %s     (%s)",
 					option_desc[opt[i]],
 					op_ptr->opt[opt[i]] ? "yes" : "no ",
 					option_text[opt[i]]);
@@ -1595,11 +1589,7 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 		move_cursor(k + 2, 48);
 
 		/* Get a key */
-		ch = inkey(FALSE);
-
-		/* Allow direction and roguelike keys */
-		get_ui_direction(&ch, UI_NODIAG, &dummy);
-
+		ch = inkey();
 
 		/* Analyze */
 		switch (ch)
@@ -1609,7 +1599,9 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 				return;
 			}
 
+			case '-':
 			case '8':
+			case 'k':
 			{
 				k = (n + k - 1) % n;
 
@@ -1620,8 +1612,8 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 			case ' ':
 			case '\n':
 			case '\r':
-			case '\t':
 			case '2':
+			case 'j':
 			{
 				k = (k + 1) % n;
 				break;
@@ -1637,10 +1629,9 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 				break;
 			}
 
-			case '=':
-			case '+':
 			case 'y':
 			case '6':
+			case 'l':
 			{
 				op_ptr->opt[opt[k]] = TRUE;
 
@@ -1650,10 +1641,9 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 				break;
 			}
 
-			case '-':
-			case '_':
 			case 'n':
 			case '4':
+			case 'h':
 			{
 				op_ptr->opt[opt[k]] = FALSE;
 
@@ -1665,9 +1655,9 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 
 			case '?':
 			{
-				(void)strnfmt(buf, sizeof(buf), "options.txt#[%s]", option_text[opt[k]]);
+				sprintf(buf, "options.txt#%s", option_text[opt[k]]);
 				show_file(buf, NULL, 0, 1);
-				(void)Term_clear();
+				Term_clear();
 				break;
 			}
 
@@ -1677,14 +1667,6 @@ void do_cmd_options_aux(int page, cptr info, bool *modified)
 				break;
 			}
 		}
-
-		/* Some options cannot be combined */
-		if (ironman_play) op_ptr->opt[OPT_beginner_play] = FALSE;
-
-		/* Adjust character type as requested */
-		if (beginner_play)      p_ptr->character_type = PCHAR_BEGINNER;
-		else if (ironman_play)  p_ptr->character_type = PCHAR_IRONMAN;
-		else                    p_ptr->character_type = PCHAR_NORMAL;
 	}
 }
 
@@ -1698,8 +1680,6 @@ static cptr dump_seperator = "### (Automatic deletion marker) ###";
 /*
  * Remove old lines from pref files
  * -Mogami-
- *
- * THIS FUNCTION IS AVAILABLE ONLY UNDER THE MORIA LICENSE.
  */
 static void remove_old_dump(cptr orig_file, cptr mark)
 {
@@ -1727,7 +1707,7 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 	    return;
 	}
 
-	(void)strnfmt(expected_line, sizeof(expected_line),
+	strnfmt(expected_line, sizeof(expected_line),
 	        "%s begin %s", dump_seperator, mark);
 
 	/* Loop for every line */
@@ -1751,7 +1731,7 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 				if (!between_marks)
 				{
 					/* Expect the footer next */
-					(void)strnfmt(expected_line, sizeof(expected_line),
+					strnfmt(expected_line, sizeof(expected_line),
 					        "%s end %s", dump_seperator, mark);
 
 					between_marks = TRUE;
@@ -1762,7 +1742,7 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 				else
 				{
 					/* Expect a header next - XXX shouldn't happen */
-					(void)strnfmt(expected_line, sizeof(expected_line),
+					strnfmt(expected_line, sizeof(expected_line),
 					        "%s begin %s", dump_seperator, mark);
 
 					between_marks = FALSE;
@@ -1786,14 +1766,14 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 
 		if (!between_marks)
 		{
-			/* Copy original line */
+			/* Copy orginal line */
 			fprintf(tmp_fff, "%s\n", buf);
 		}
 	}
 
 	/* Close files */
-	(void)my_fclose(orig_fff);
-	(void)my_fclose(tmp_fff);
+	my_fclose(orig_fff);
+	my_fclose(tmp_fff);
 
 	/* If there are changes, overwrite the original file with the new one */
 	if (changed)
@@ -1807,12 +1787,12 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 			fprintf(orig_fff, "%s\n", buf);
 		}
 
-		(void)my_fclose(orig_fff);
-		(void)my_fclose(tmp_fff);
+		my_fclose(orig_fff);
+		my_fclose(tmp_fff);
 	}
 
 	/* Kill the temporary file */
-	(void)fd_kill(tmp_file);
+	fd_kill(tmp_file);
 }
 
 
@@ -1846,7 +1826,7 @@ static void pref_footer(FILE *fff, cptr mark)
  */
 void do_cmd_pref(void)
 {
-	char tmp[DESC_LEN];
+	char tmp[80];
 
 	/* Default */
 	strcpy(tmp, "");
@@ -1864,10 +1844,12 @@ void do_cmd_pref(void)
  *
  * This function should only be used by standard interaction commands,
  * in which a standard "Command:" prompt is present on the given row.
+ *
+ * Allow absolute file names?  XXX XXX XXX
  */
-static void do_cmd_pref_file_hack(int row, cptr file_name)
+static void do_cmd_pref_file_hack(int row)
 {
-	char ftmp[DESC_LEN];
+	char ftmp[80];
 
 	/* Prompt */
 	prt("Command: Load a user pref file", row, 0);
@@ -1876,13 +1858,10 @@ static void do_cmd_pref_file_hack(int row, cptr file_name)
 	prt("File: ", row + 2, 0);
 
 	/* Default filename */
-	if (!file_name) (void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
-
-	/* Specific filename */
-	else (void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", file_name);
+	sprintf(ftmp, "%s.prf", op_ptr->base_name);
 
 	/* Ask for a file (or cancel) */
-	if (!askfor_aux(ftmp, 80, TRUE)) return;
+	if (!askfor_aux(ftmp, 80)) return;
 
 	/* Process the given filename */
 	if (process_pref_file(ftmp))
@@ -1913,7 +1892,7 @@ static errr option_dump(cptr fname)
 
 
 	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1957,12 +1936,10 @@ static errr option_dump(cptr fname)
 
 	}
 
-	/* Dump sub-window flags */
-	for (i = TERM_SUBWINDOW; i < TERM_MAX; i++)
+	/* Dump window flags */
+	for (i = 1; i < ANGBAND_TERM_MAX; i++)
 	{
-		bool window_flag = FALSE;
-
-		/* No term data */
+		/* Require a real window */
 		if (!angband_term[i]) continue;
 
 		/* Check each flag */
@@ -1971,30 +1948,22 @@ static errr option_dump(cptr fname)
 			/* Require a real flag */
 			if (!window_flag_desc[j]) continue;
 
-			/* Dump the flag -- only one flag affects a window */
+			/* Comment */
+			fprintf(fff, "# Window '%s', Flag '%s'\n",
+				angband_term_name[i], window_flag_desc[j]);
+
+			/* Dump the flag */
 			if (op_ptr->window_flag[i] & (1L << j))
 			{
-				/* Comment */
-				fprintf(fff, "# Window '%s', Flag '%s'\n",
-					angband_term_name[i], window_flag_desc[j]);
-
-				/* Values */
-				fprintf(fff, "W:%d:%d:1\n\n", i, j);
-
-				/* Notice active display */
-				window_flag = TRUE;
-				break;
+				fprintf(fff, "W:%d:%d:1\n", i, j);
 			}
-		}
+			else
+			{
+				fprintf(fff, "W:%d:%d:0\n", i, j);
+			}
 
-		/* This sub-window has no displays */
-		if (!window_flag)
-		{
-			/* Comment */
-			fprintf(fff, "# Window '%s', No display flags\n", angband_term_name[i]);
-
-			/* Cancel ALL displays */
-			fprintf(fff, "W:%d:-1:0\n\n", i);
+			/* Skip a line */
+			fprintf(fff, "\n");
 		}
 	}
 
@@ -2023,10 +1992,10 @@ static errr option_dump(cptr fname)
 	/* Dump screen options */
 	if (TRUE)
 	{
-		fprintf(fff, "# Screen  (zero, more_tall_display, map_display_precise_fit, y-margin, x-margin)\n");
-		fprintf(fff, "t:%c:%c:%c:%d:%d\n\n",
-			'0', (more_tall_display ? '1' : '0'),
-			(map_display_precise_fit ? '1' : '0'), clear_y, clear_x);
+		fprintf(fff, "# Screen  (force_25_rows, text_50_rows, map rows, y-margin, x-margin)\n");
+		fprintf(fff, "T:%c:%c:%d:%d:%d\n\n",
+			(force_25_rows ? '1' : '0'), (text_50_rows ? '1' : '0'),
+			map_rows, clear_y, clear_x);
 	}
 
 	/* Skip a line */
@@ -2036,7 +2005,7 @@ static errr option_dump(cptr fname)
 	pref_footer(fff, mark);
 
 	/* Close */
-	(void)my_fclose(fff);
+	my_fclose(fff);
 
 	/* Success */
 	return (0);
@@ -2058,18 +2027,21 @@ void do_cmd_options(void)
 	bool modified = FALSE;
 
 	/* No screen change */
-	bool change = FALSE;
+	bool screen_change = FALSE;
 
+	int old_rows = screen_rows;
 
-	/* Save the screen, center it, and use the standard display */
-	display_change(DSP_REMEMBER | DSP_SAVE | DSP_NORM | DSP_CX, 80, 0);
+	/* Save screen */
+	screen_save();
 
+	/* Set to 25 screen rows */
+	Term_rows(FALSE);
 
 	/* Interact */
 	while (TRUE)
 	{
 		/* Clear screen */
-		(void)Term_clear();
+		Term_clear();
 
 		/* Why are we here */
 		prt(format("%s options:", VERSION_NAME), 2, 0);
@@ -2079,17 +2051,18 @@ void do_cmd_options(void)
 		prt("(2) Disturbance and Warning", 5, 5);
 		prt("(3) Visual Interface", 6, 5);
 		prt("(4) Screen Display", 7, 5);
-		prt("(5) Difficulty", 8, 5);
+		prt("(5) Difficulty and Cheating", 8, 5);
+
+		/* Blank space */
 
 		/* Special choices */
-		if (Term->user_hook) prt("(!) User Interface", 10, 5);
 		prt("(D) Base Delay Factor", 11, 5);
 		prt("(H) Hitpoint Warning", 12, 5);
 		prt("(A) Autosave Options", 13, 5);
 
-		/* Save and load */
-		prt("(S) Save as default options", 15, 5);
-		prt("(L) Load an options file", 16, 5);
+		/* Load and Append */
+		prt("(L) Load a user preference file", 15, 5);
+		prt("(S) Save options to a file", 16, 5);
 
 		/* Get help */
 		prt("(?) Get help", 18, 5);
@@ -2098,7 +2071,7 @@ void do_cmd_options(void)
 		prt("Command: ", 20, 0);
 
 		/* Get command */
-		ch = inkey(FALSE);
+		ch = inkey();
 
 		/* Exit */
 		if (ch == ESCAPE)
@@ -2127,39 +2100,29 @@ void do_cmd_options(void)
 		/* Screen Display Options */
 		else if (ch == '4')
 		{
-			do_cmd_options_screen(&modified, &change);
+			do_cmd_options_screen(&modified, &screen_change);
 		}
 
-		/* Difficulty Options */
-		else if (ch == '5')
+		/* Difficulty and Cheating Options */
+		else if ((ch == '5') || (ch == 'C') || (ch == 'c'))
 		{
-			do_cmd_options_aux(4, "Difficulty Options", &modified);
-		}
-
-		/* User Interface Options */
-		else if (ch == '!')
-		{
-			(void)Term_user(0);
-
-			/* Re-calculate display centering */
-			screen_center_x(80);
+			do_cmd_options_aux(4, "Difficulty and Cheating Options", &modified);
 		}
 
 		/* Load a user pref file */
 		else if ((ch == 'L') || (ch == 'l'))
 		{
 			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(20, "user");
+			do_cmd_pref_file_hack(20);
 
 			/* XXX XXX -- Assume no modifications remain */
 			modified = FALSE;
 		}
 
-		/* Save options to file */
+		/* Append options to a file */
 		else if ((ch == 'S') || (ch == 's'))
 		{
-			char ftmp[DESC_LEN];
-
+			char ftmp[80];
 
 			/* Prompt */
 			prt("Command: Save options to a file", 20, 0);
@@ -2167,18 +2130,11 @@ void do_cmd_options(void)
 			/* Prompt */
 			prt("File: ", 22, 0);
 
-			/* Display some helpful text on recent changes */
-			(void)Term_gotoxy(45, 15);
-
-			c_roff(TERM_L_WHITE, "The current options are automatically stored in your savefile when you next save the game.  You only need to save options explicitly if you want to create a default set for new characters.  For more details, consult the online help.", 40, display_width());
-
-			(void)Term_gotoxy(6, 22);
-
 			/* Default filename */
-			(void)strnfmt(ftmp, sizeof(ftmp), "user.prf");
+			sprintf(ftmp, "user.prf");
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80, FALSE)) continue;
+			if (!askfor_aux(ftmp, 80)) continue;
 
 			/* Dump the options */
 			if (option_dump(ftmp))
@@ -2234,7 +2190,7 @@ void do_cmd_options(void)
 				}
 				prt("New autosave frequency (-/2 to lower, +/8 to raise, or ESC): ", 22, 0);
 
-				cx = inkey(FALSE);
+				cx = inkey();
 				if (cx == ESCAPE) break;
 
 				/* Go backwards */
@@ -2275,35 +2231,16 @@ void do_cmd_options(void)
 			/* Get a new value */
 			while (TRUE)
 			{
-				int amt;
+				char cx;
 				int msec = op_ptr->delay_factor * op_ptr->delay_factor;
-				char buf[DESC_LEN];
-
-				/* Prompt */
 				prt(format("Current base delay factor: %d (%d msec)",
 					op_ptr->delay_factor, msec), 23, 0);
-				prt("New base delay factor (0-30 or Return to accept): ", 22, 0);
+				prt("New base delay factor (0-9 or ESC to accept): ", 22, 0);
 
-				/* Build the default */
-				(void)strnfmt(buf, sizeof(buf), "%d", op_ptr->delay_factor);
-
-				/* Ask the user for a string, allow cancel */
-				if (!askfor_aux(buf, 3, FALSE)) break;
-
-				/* Extract a number */
-				amt = atoi(buf);
-
-				/* Enforce the maximum */
-				if (amt > 30) amt = 30;
-
-				/* Enforce the minimum */
-				if (amt < 0) amt = 0;
-
-				/* Note no change */
-				if (amt == op_ptr->delay_factor) break;
-
-				/* Set delay factor */
-				op_ptr->delay_factor = amt;
+				cx = inkey();
+				if (cx == ESCAPE) break;
+				if (isdigit(cx)) op_ptr->delay_factor = D2I(cx);
+				else bell("Illegal delay factor!");
 			}
 
 			/* Note that a change was made */
@@ -2327,7 +2264,7 @@ void do_cmd_options(void)
 					op_ptr->hitpoint_warn * 10), 23, 0);
 				prt("New hitpoint warning (0-9 or ESC to accept): ", 22, 0);
 
-				cx = inkey(FALSE);
+				cx = inkey();
 				if (cx == ESCAPE) break;
 				if (isdigit(cx)) op_ptr->hitpoint_warn = D2I(cx);
 				else bell("Illegal hitpoint warning!");
@@ -2341,7 +2278,7 @@ void do_cmd_options(void)
 		else if (ch == '?')
 		{
 			show_file("options.txt", NULL, 0, 1);
-			(void)Term_clear();
+			Term_clear();
 		}
 
 		/* Unknown option */
@@ -2355,22 +2292,32 @@ void do_cmd_options(void)
 		message_flush();
 	}
 
-
 	/* Apply screen changes */
-	if (change)
+	if (screen_change)
 	{
+		/* Apply force_25_rows */
+		if (force_25_rows) Term_rows(FALSE);
+
+		/* Cancel force_25_rows */
+		else Term_rows(TRUE);
+
 		/* Adjust the panels if necessary */
 		verify_panel(5, FALSE);
 	}
 
-	/* Restore previous display */
-	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
+	/* Otherwise, set to 50 screen rows if we were showing 50 before */
+	else if (old_rows == 50) Term_rows(TRUE);
+
+	/* Load screen */
+	screen_load();
 
 	/* Do a complete screen refresh  XXX XXX */
 	if (modified) do_cmd_redraw();
 }
 
 
+
+#ifdef ALLOW_MACROS
 
 /*
  * Hack -- append all current macros to the given file
@@ -2386,7 +2333,7 @@ static errr macro_dump(cptr fname)
 
 
 	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2432,7 +2379,7 @@ static errr macro_dump(cptr fname)
 	pref_footer(fff, mark);
 
 	/* Close */
-	(void)my_fclose(fff);
+	my_fclose(fff);
 
 	/* Success */
 	return (0);
@@ -2463,7 +2410,7 @@ static void do_cmd_macro_aux(char *buf)
 	inkey_base = TRUE;
 
 	/* First key */
-	ch = inkey(FALSE);
+	ch = inkey();
 
 	/* Read the pattern */
 	while (ch != '\0')
@@ -2478,7 +2425,7 @@ static void do_cmd_macro_aux(char *buf)
 		inkey_scan = TRUE;
 
 		/* Attempt to read a key */
-		ch = inkey(FALSE);
+		ch = inkey();
 	}
 
 	/* Terminate */
@@ -2492,7 +2439,7 @@ static void do_cmd_macro_aux(char *buf)
 	ascii_to_text(tmp, sizeof(tmp), buf);
 
 	/* Hack -- display the trigger */
-	(void)Term_addstr(-1, TERM_WHITE, tmp);
+	Term_addstr(-1, TERM_WHITE, tmp);
 }
 
 
@@ -2512,7 +2459,7 @@ static void do_cmd_macro_aux_keymap(char *buf)
 
 
 	/* Get a key */
-	buf[0] = inkey(FALSE);
+	buf[0] = inkey();
 	buf[1] = '\0';
 
 
@@ -2520,7 +2467,7 @@ static void do_cmd_macro_aux_keymap(char *buf)
 	ascii_to_text(tmp, sizeof(tmp), buf);
 
 	/* Hack -- display the trigger */
-	(void)Term_addstr(-1, TERM_WHITE, tmp);
+	Term_addstr(-1, TERM_WHITE, tmp);
 
 
 	/* Flush */
@@ -2559,7 +2506,7 @@ static errr keymap_dump(cptr fname)
 
 
 	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2618,11 +2565,14 @@ static errr keymap_dump(cptr fname)
 	pref_footer(fff, mark);
 
 	/* Close */
-	(void)my_fclose(fff);
+	my_fclose(fff);
 
 	/* Success */
 	return (0);
 }
+
+
+#endif
 
 
 /*
@@ -2638,6 +2588,8 @@ void do_cmd_macros(void)
 
 	int mode;
 	int attr;
+
+	int old_rows = screen_rows;
 
 	bool changed_macro = FALSE;
 	bool changed_keymap = FALSE;
@@ -2659,15 +2611,19 @@ void do_cmd_macros(void)
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Save the screen, center it, and use the standard display */
-	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX, 80, 0);
+
+	/* Save screen */
+	screen_save();
+
+	/* Set to 25 screen rows */
+	Term_rows(FALSE);
 
 
 	/* Process requests until done */
 	while (TRUE)
 	{
 		/* Clear screen */
-		(void)Term_clear();
+		Term_clear();
 
 		/* Describe */
 		prt("Interact with Macros", 1, 0);
@@ -2685,28 +2641,28 @@ void do_cmd_macros(void)
 
 		/* Selections */
 		prt("(1) Load a user preference file", 3, 5);
+#ifdef ALLOW_MACROS
 
 		attr = (changed_macro ? TERM_YELLOW : TERM_WHITE);
 		c_prt(attr, "(2) Append macros to a file", 4, 5);
-
 		prt("(3) Query a macro", 5, 5);
 		prt("(4) Create a macro", 6, 5);
 		prt("(5) Remove a macro", 7, 5);
 
 		attr = (changed_keymap ? TERM_YELLOW : TERM_WHITE);
 		c_prt(attr, "(6) Append keymaps to a file", 8, 5);
-
 		prt("(7) Query a keymap", 9, 5);
 		prt("(8) Create a keymap", 10, 5);
 		prt("(9) Remove a keymap", 11, 5);
 		prt("(0) Enter a new action", 12, 5);
 		prt("(?) Get help", 13, 5);
+#endif /* ALLOW_MACROS */
 
 		/* Prompt */
 		prt("Command: ", 16, 0);
 
 		/* Get a command */
-		ch = inkey(FALSE);
+		ch = inkey();
 
 		/* Leave */
 		if (ch == ESCAPE) break;
@@ -2715,13 +2671,15 @@ void do_cmd_macros(void)
 		if (ch == '1')
 		{
 			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(16, "user");
+			do_cmd_pref_file_hack(16);
 		}
+
+#ifdef ALLOW_MACROS
 
 		/* Save macros */
 		else if (ch == '2')
 		{
-			char ftmp[DESC_LEN];
+			char ftmp[80];
 
 			/* Prompt */
 			prt("Command: Append macros to a file", 16, 0);
@@ -2730,10 +2688,10 @@ void do_cmd_macros(void)
 			prt("File: ", 18, 0);
 
 			/* Default filename */
-			(void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+			sprintf(ftmp, "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80, FALSE)) continue;
+			if (!askfor_aux(ftmp, 80)) continue;
 
 			/* Dump the macros */
 			(void)macro_dump(ftmp);
@@ -2809,13 +2767,13 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80, FALSE))
+			if (askfor_aux(tmp, 80))
 			{
 				/* Convert to ascii */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
 
 				/* Link the macro */
-				(void)macro_add(pat, macro_buffer);
+				macro_add(pat, macro_buffer);
 
 				/* Prompt */
 				msg_print("Added a macro.");
@@ -2838,7 +2796,7 @@ void do_cmd_macros(void)
 			do_cmd_macro_aux(pat);
 
 			/* Link the macro */
-			(void)macro_add(pat, pat);
+			macro_add(pat, pat);
 
 			/* Prompt */
 			msg_print("Removed a macro.");
@@ -2850,7 +2808,7 @@ void do_cmd_macros(void)
 		/* Save keymaps */
 		else if (ch == '6')
 		{
-			char ftmp[DESC_LEN];
+			char ftmp[80];
 
 			/* Prompt */
 			prt("Command: Append keymaps to a file", 16, 0);
@@ -2859,10 +2817,10 @@ void do_cmd_macros(void)
 			prt("File: ", 18, 0);
 
 			/* Default filename */
-			(void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+			sprintf(ftmp, "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80, FALSE)) continue;
+			if (!askfor_aux(ftmp, 80)) continue;
 
 			/* Dump the macros */
 			(void)keymap_dump(ftmp);
@@ -2938,13 +2896,13 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80, FALSE))
+			if (askfor_aux(tmp, 80))
 			{
 				/* Convert to ascii */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
 
 				/* Free old keymap */
-				(void)string_free(keymap_act[mode][(byte)(pat[0])]);
+				string_free(keymap_act[mode][(byte)(pat[0])]);
 
 				/* Make new keymap */
 				keymap_act[mode][(byte)(pat[0])] = string_make(macro_buffer);
@@ -2970,7 +2928,7 @@ void do_cmd_macros(void)
 			do_cmd_macro_aux_keymap(pat);
 
 			/* Free old keymap */
-			(void)string_free(keymap_act[mode][(byte)(pat[0])]);
+			string_free(keymap_act[mode][(byte)(pat[0])]);
 
 			/* Make new keymap */
 			keymap_act[mode][(byte)(pat[0])] = NULL;
@@ -2989,13 +2947,13 @@ void do_cmd_macros(void)
 			prt("Command: Enter a new action", 16, 0);
 
 			/* Go to the correct location */
-			(void)Term_gotoxy(0, 22);
+			Term_gotoxy(0, 22);
 
 			/* Analyze the current action */
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80, FALSE))
+			if (askfor_aux(tmp, 80))
 			{
 				/* Extract an action */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
@@ -3009,6 +2967,8 @@ void do_cmd_macros(void)
 			do_cmd_help();
 		}
 
+#endif /* ALLOW_MACROS */
+
 		/* Oops */
 		else
 		{
@@ -3020,1052 +2980,133 @@ void do_cmd_macros(void)
 		message_flush();
 	}
 
-	/* Restore previous display */
-	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
+	/* Set to 50 screen rows, if we were showing 50 before */
+	if (old_rows == 50)
+	{
+		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+		Term_rows(TRUE);
+	}
+
+	/* Load screen */
+	screen_load();
 }
 
-/*
- * Display helpful information about characters and colors.
- */
-static void do_cmd_visual_info(cptr command)
-{
-	int i;
-
-	(void)Term_clear();
-
-
-	/* Handle requests for special displays */
-	if (command)
-	{
-		/* Help me edit features */
-		if (strstr(command, "help-features"))
-		{
-			/* Set cursor to line 1 */
-			move_cursor(1, 0);
-
-			/* Print help */
-			roff("     Each terrain has three lighting values:  Normal, bright, and dim.  If lighting effects are turned off (in game options), only normal is used.  Otherwise:\n- Bright is used when torch light is turned on, you can see the grid directly, and it is lit.   If \"lights up under torch light only\" is set, only torch light counts.  Otherwise, any light does.\n- Dim is used when you cannot see the grid directly.\n- Normal is used in all other cases.\n\n     Typing '!' toggles \"lights up under torch light only\".\n\n     Press any key to continue editing.", 0, display_width());
-		}
-
-		/* Done */
-		return;
-	}
-
-
-	/* List all the available characters in the current font */
-	for (i = 0; i < 256; i++)
-	{
-		if (i % 32 == 0) (void)Term_putstr(1, 2 + i / 32, 3, TERM_SLATE, format("%3d", i));
-
-		(void)Term_putch(9 + (2 * (i % 32)), 2 + i / 32, TERM_WHITE, (char)i);
-
-		if (i % 32 == 31) (void)Term_putstr(76, 2 + i / 32, 3, TERM_SLATE, format("%3d", i));
-	}
-
-
-	/* List some colors */
-	for (i = 0; i < max_system_colors; i++)
-	{
-		/* Stop on first color without an index character */
-		if (!color_table[i].index_char) break;
-
-		if (i % 32 == 0) (void)Term_putstr(1, 11 + i / 32, 3, TERM_SLATE, format("%3d", i));
-
-		(void)Term_putch(9 + (2 * (i % 32)), 11 + i / 32, i, '#');
-
-		if (i % 32 == 31) (void)Term_putstr(76, 11 + i / 32, 3, TERM_SLATE, format("%3d", i));
-	}
-}
-
-
-/*
- * Change visuals.
- */
-static int do_cmd_visual_change(cptr str, int max_idx, int *cur_idx, int *move,
-	byte *da, byte *dc, byte *xa, byte *xc)
-{
-	char ch;
-
-
-	/* Save starting values */
-	byte xa0 = *xa;
-	byte xc0 = *xc;
-
-	/* Limit to attr values (allow high bits only if using graphics) */
-	byte max_attr = (use_graphics) ? 255 : max_system_colors - 1;
-
-	/* Assume no movement */
-	*move = 0;
-
-
-	/* Label the default values */
-	(void)Term_putstr(10, 20, -1, TERM_WHITE,
-		format("Default attr/char = %3u / %3u", *da, *dc));
-	(void)Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-	(void)Term_putch(43, 20, *da, *dc);
-
-	/* Label the current values */
-	(void)Term_putstr(10, 22, -1, TERM_WHITE,
-		format("Current attr/char = %3u / %3u", *xa, *xc));
-	(void)Term_putstr(40, 22, -1, TERM_WHITE, "<< ? >>");
-	(void)Term_putch(43, 22, *xa, *xc);
-
-
-	/* Prompt */
-	(void)Term_putstr(0, 16, -1, TERM_WHITE,
-		format("Edit: %s (index: n/N/^n, attr: a/A/^a, char: c/C/^c): ", str));
-
-	/* Get a command */
-	ch = inkey(FALSE);
-
-
-	/* Accept changes */
-	if ((ch == ESCAPE) || (ch == '\n') || (ch == '\r')) return (-1);
-
-	/* Move to another item */
-	if (ch == 'n')
-	{
-		if (*cur_idx == max_idx) *cur_idx = 0;
-		else (*cur_idx)++;
-		*move = 1;
-	}
-	else if (ch == 'N')
-	{
-		if (*cur_idx == 0) *cur_idx = max_idx;
-		else (*cur_idx)--;
-		*move = -1;
-	}
-	else if (ch == KTRL('N'))
-	{
-		/* Move cursor to row 16, column 0, and suggest the current value */
-		move_cursor(16, 0);
-		get_quantity_default = *cur_idx;
-
-		/* Get a quantity */
-		*cur_idx = get_quantity(format("Jump to which index (0 - %d)?",
-			max_idx), 0, max_idx);
-
-		/* Jump to this index exactly -- no movement */
-	}
-
-	/* Change attribute */
-	else if (ch == 'a')
-	{
-		if (*xa == max_attr) *xa = 0;
-		else (*xa)++;
-	}
-	else if (ch == 'A')
-	{
-		if (*xa == 0) *xa = max_attr;
-		else (*xa)--;
-	}
-	else if (ch == KTRL('A'))
-	{
-		/* Move cursor to row 16, column 0, and suggest the current value */
-		move_cursor(16, 0);
-		get_quantity_default = *xa;
-
-		/* Get a quantity */
-		*xa = get_quantity(format("Assign which attribute (0 - %d)?",
-			max_attr), 0, max_attr);
-	}
-
-	/* Change character */
-	else if (ch == 'c')
-	{
-		if (*xc == 255) *xc = 0;
-		else (*xc)++;
-	}
-	else if (ch == 'C')
-	{
-		if (*xc == 0) *xc = 255;
-		else (*xc)--;
-	}
-	else if (ch == KTRL('C'))
-	{
-		/* Move cursor to row 16, column 0, and suggest the current value */
-		move_cursor(16, 0);
-		get_quantity_default = *xc;
-
-		/* Get a quantity */
-		*xc = get_quantity(format("Assign which character (0 - %d)?",
-			255), 0, 255);
-	}
-
-	/* Notice changes */
-	if ((*xa != xa0) || (*xc != xc0)) return (1);
-
-	/* No changes */
-	return (0);
-}
-
-static FILE *fff_visuals = NULL;
-
-
-/*
- * Open a file, remove old preferences, and print a header.
- */
-static bool do_cmd_visuals_file(cptr str, bool automatic, char *mark)
-{
-	char ftmp[DESC_LEN];
-	char buf[1024];
-
-	/* Handle automatic usage */
-	if (automatic)
-	{
-		/* Get a filename */
-		strcpy(ftmp, "scrn_tmp.prf");
-	}
-
-	/* Handle manual usage */
-	else
-	{
-		/* Prompt */
-		prt(format("Command: Dump %s attr/chars", str), 16, 0);
-
-		/* Prompt */
-		prt("File: ", 18, 0);
-
-		/* Default filename */
-		(void)strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
-
-		/* Get a filename, allow cancel */
-		if (!askfor_aux(ftmp, 80, FALSE)) return (FALSE);
-	}
-
-	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-
-	/* Build a marker */
-	strcpy(mark, format("%^s attr/char definitions", str));
-
-	/* Remove old attr/chars */
-	remove_old_dump(buf, mark);
-
-	/* Append to the file */
-	fff_visuals = my_fopen(buf, "a");
-
-	/* Failure */
-	if (!fff_visuals) return (FALSE);
-
-	/* Output header */
-	pref_header(fff_visuals, mark);
-
-	/* Skip some lines */
-	fprintf(fff_visuals, "\n\n");
-
-	/* Success */
-	return (TRUE);
-}
-
-
-/*
- * Macro -- Get a spell attribute.
- */
-#define get_ga \
-(g_ptr->attr_rdiag) ? g_ptr->attr_rdiag : spell_color(index)
 
 
 /*
  * Interact with "visuals"
- *
- * Visuals currently include monster, object, feature, flavor, and effect
- * attributes and characters.  -BEN-, -LM-
- *
- * We will want to use the map term (if present) for this...
  */
-void do_cmd_visuals(char cmd)
+void do_cmd_visuals(void)
 {
 	int ch;
-	byte attr;
-	int index, result, move = 0;
+	int cx;
+	int attr;
 
 	int i;
 
-	/* Allow automatic usage */
-	bool automatic = isdigit(cmd);
+	FILE *fff;
+	char buf[1024];
 
-	char mark[DESC_LEN];
+	int old_rows = screen_rows;
 
-	/* Keep track of changes */
+	static cptr mark;
+	char ftmp[80];
+
 	bool changed_monster = FALSE;
 	bool changed_object = FALSE;
 	bool changed_feature = FALSE;
-	bool changed_flavor = FALSE;
-	bool changed_spell = FALSE;
 
 
-	/* Save the screen and center it */
-	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_CX, 80, 0);
+	/* Save screen */
+	screen_save();
+
+	/* Set to 25 screen rows */
+	Term_rows(FALSE);
 
 
 	/* Interact until done */
 	while (TRUE)
 	{
 		/* Clear screen */
-		(void)Term_clear();
+		Term_clear();
 
 		/* Ask for a choice */
 		prt("Interact with Visuals", 1, 0);
 
-		/*
-		 * Note:  If you change the numbers used for commands, be
-		 * sure also to change the code in "do_cmd_save_screen()".
-		 */
-
 		/* Give some choices */
-		prt("(%) Load a user pref file", 3, 5);
-
-		prt("(1) Change monster attr/chars", 5, 5);
-		prt("(2) Change object attr/chars", 6, 5);
-		prt("(3) Change feature attr/chars", 7, 5);
-		prt("(4) Change flavor attr/chars", 8, 5);
-		prt("(5) Change spell attr/chars", 9, 5);
-
+		prt("(1) Load a user pref file", 3, 5);
+#ifdef ALLOW_VISUALS
 		attr = (changed_monster ? TERM_YELLOW : TERM_WHITE);
-		c_prt(attr, "(6) Dump monster attr/chars", 5, 45);
+		c_prt(attr, "(2) Dump monster attr/chars", 4, 5);
 		attr = (changed_object ? TERM_YELLOW : TERM_WHITE);
-		c_prt(attr, "(7) Dump object attr/chars", 6, 45);
+		c_prt(attr, "(3) Dump object attr/chars", 5, 5);
 		attr = (changed_feature ? TERM_YELLOW : TERM_WHITE);
-		c_prt(attr, "(8) Dump feature attr/chars", 7, 45);
-		attr = (changed_flavor ? TERM_YELLOW : TERM_WHITE);
-		c_prt(attr, "(9) Dump flavor attr/chars", 8, 45);
-		attr = (changed_spell ? TERM_YELLOW : TERM_WHITE);
-		c_prt(attr, "(0) Dump spell attr/chars", 9, 45);
+		c_prt(attr, "(4) Dump feature attr/chars", 6, 5);
+		prt("", 7, 5);
+		prt("(6) Change monster attr/chars", 8, 5);
+		prt("(7) Change object attr/chars", 9, 5);
+		prt("(8) Change feature attr/chars", 10, 5);
+		prt("", 11, 5);
+#endif
+		prt("(0) Reset visuals", 12, 5);
+		prt("(?) Get help", 13, 5);
 
-		prt("(!) Reset visuals", 11, 5);
-		prt("(?) Get help", 11, 45);
+		/* Prompt */
+		prt("Command: ", 15, 0);
 
-		/* Handle automatic usage */
-		if (automatic)
-		{
-			/* Accept commands only if legal, otherwise do nothing */
-			if (isdigit(cmd)) ch = cmd;
-			else
-			{
-				break;
-			}
-
-			/* Issue automatic command only once */
-			cmd = '\0';
-		}
-
-		/* Handle manual usage */
-		else
-		{
-			/* Prompt */
-			prt("Command: ", 16, 0);
-
-			/* Prompt */
-			ch = inkey(FALSE);
-		}
+		/* Prompt */
+		ch = inkey();
 
 		/* Leave */
 		if (ch == ESCAPE) break;
 
 
 		/* Load a user pref file */
-		if (ch == '%')
+		if (ch == '1')
 		{
 			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(16, "user");
+			do_cmd_pref_file_hack(15);
 		}
 
-
-		/* Modify monster attr/chars */
-		else if (ch == '1')
-		{
-			index = 0;
-
-			/* Display various information */
-			do_cmd_visual_info(NULL);
-
-			/* Query until done */
-			while (TRUE)
-			{
-				monster_race *r_ptr = &r_info[index];
-
-				/* Label the entry */
-				(void)Term_putstr(5, 18, -1, TERM_WHITE,
-					format("Monster = %d, Name = %-40.40s",
-					index, (r_name + r_ptr->name)));
-
-				/* Edit the entry */
-				result = do_cmd_visual_change("Monster attr/chars",
-					z_info->r_max - 1, &index, &move,
-					(byte *)&r_ptr->d_attr, (byte *)&r_ptr->d_char,
-					(byte *)&r_ptr->x_attr, (byte *)&r_ptr->x_char);
-
-				/* Allow accept */
-				if (result < 0) break;
-
-				/* Notice changes */
-				if (result > 0) changed_monster = TRUE;
-
-
-				/* Scan to the next legal monster */
-				if (move > 0)
-				{
-					while (!r_info[index].name)
-					{
-						if (++index >= z_info->r_max) index = 0;
-					}
-				}
-
-				/* Scan to the previous legal monster */
-				else if (move < 0)
-				{
-					while (!r_info[index].name)
-					{
-						if (--index < 0) index = z_info->r_max - 1;
-					}
-				}
-			}
-		}
-
-
-		/* Modify object attr/chars */
-		else if (ch == '2')
-		{
-			index = 0;
-
-			/* Display various information */
-			do_cmd_visual_info(NULL);
-
-			/* Query until done */
-			while (TRUE)
-			{
-				object_kind *k_ptr = &k_info[index];
-
-				/* Label the entry */
-				(void)Term_putstr(5, 18, -1, TERM_WHITE,
-					format("Object = %d, Name = %-40.40s",
-					index, (k_name + k_ptr->name)));
-
-				/* Edit the entry */
-				result = do_cmd_visual_change("Object attr/chars",
-					z_info->k_max - 1, &index, &move,
-					(byte *)&k_ptr->d_attr, (byte *)&k_ptr->d_char,
-					(byte *)&k_ptr->x_attr, (byte *)&k_ptr->x_char);
-
-				/* Allow accept */
-				if (result < 0) break;
-
-				/* Notice changes */
-				if (result > 0) changed_object = TRUE;
-
-
-				/* Scan to the next legal, unflavored object */
-				if (move > 0)
-				{
-					while ((!k_info[index].name) || (k_info[index].flavor))
-					{
-						if (++index >= z_info->k_max) index = 0;
-					}
-				}
-
-				/* Scan to the previous legal, unflavored object */
-				else if (move < 0)
-				{
-					while ((!k_info[index].name) || (k_info[index].flavor))
-					{
-						if (--index < 0) index = z_info->k_max - 1;
-					}
-				}
-			}
-		}
-
-
-		/* Modify feature attr/chars */
-		else if (ch == '3')
-		{
-			byte max_attr = (use_graphics) ? 255 : max_system_colors - 1;
-
-			int max_pair = 2;
-			int old_pair;
-
-			int move;
-
-			int pair = 0;
-			char ch;
-			byte fa = 0, fc = 0;
-
-			bool dummy;
-
-			/* Start at the first legal feature */
-			index = 1;
-
-			/* Display various information */
-			do_cmd_visual_info(NULL);
-
-
-			/* Query until done */
-			while (TRUE)
-			{
-				feature_type *f_ptr = &f_info[index];
-
-				/* No movement */
-				move = 0;
-				old_pair = pair;
-
-				/* Label the entry */
-				(void)Term_putstr(5, 18, -1, TERM_WHITE,
-					format("Terrain = %d, Name = %-40.40s",
-					index, (f_name + f_ptr->name)));
-
-				/* Label the current values */
-				(void)Term_putstr(10, 20, -1, TERM_WHITE,
-					format("normal = %3u / %3u,  bright = %3u / %3u,  dim  = %3u / %3u",
-					f_ptr->x_attr, (byte)f_ptr->x_char, f_ptr->x_attr_lit,
-					(byte)f_ptr->x_char_lit, f_ptr->x_attr_dim,
-					(byte)f_ptr->x_char_dim));
-
-				/* Label the selected pair */
-				if (pair == 0) (void)Term_putstr(10, 20, -1, TERM_L_BLUE, "normal");
-				if (pair == 1) (void)Term_putstr(31, 20, -1, TERM_L_BLUE, "bright");
-				if (pair == 2) (void)Term_putstr(52, 20, -1, TERM_L_BLUE, "dim");
-
-				/* Display the current values */
-				(void)Term_putstr(20, 22, -1, TERM_WHITE, "<< ? >>");
-				(void)Term_putstr(41, 22, -1, TERM_WHITE, "<< ? >>");
-				(void)Term_putstr(60, 22, -1, TERM_WHITE, "<< ? >>");
-				(void)Term_putch(23, 22, f_ptr->x_attr, f_ptr->x_char);
-				(void)Term_putch(44, 22, f_ptr->x_attr_lit, f_ptr->x_char_lit);
-				(void)Term_putch(63, 22, f_ptr->x_attr_dim, f_ptr->x_char_dim);
-
-				/* Note torch-only bright lighting */
-				if (f_ptr->flags & (TF_TORCH_ONLY))
-					(void)Term_putstr(27, 23, -1, TERM_L_WHITE,
-					"(bright under torch light only)");
-				else
-					(void)Term_putstr(27, 23, -1, TERM_L_WHITE,
-					"                               ");
-
-				/* Prompt */
-				(void)Term_putstr(0, 16, -1, TERM_WHITE,
-					"Edit feature: (index: n/N/^n, attr: a/A/^a, char: c/C/^c, <dir>, '!', or '?'): ");
-
-				/* Store current values */
-				if (pair == 0)
-				{
-					fa = f_ptr->x_attr;
-					fc = (byte)f_ptr->x_char;
-				}
-				else if (pair == 1)
-				{
-					fa = f_ptr->x_attr_lit;
-					fc = (byte)f_ptr->x_char_lit;
-				}
-				else if (pair == 2)
-				{
-					fa = f_ptr->x_attr_dim;
-					fc = (byte)f_ptr->x_char_dim;
-				}
-
-				/* Wait for legal input */
-				while (TRUE)
-				{
-					/* Get key */
-					ch = inkey(FALSE);
-
-					/* Allow orthogonal direction keys */
-					get_ui_direction(&ch, UI_NODIAG | UI_NOMOUSE, &dummy);
-
-					/* Accept anything except untranslated mouse actions */
-					if (ch != MOUSEKEY) break;
-				}
-
-				/* Accept changes */
-				if ((ch == ESCAPE) || (ch == '\n') || (ch == '\r')) break;
-
-
-				/* Move to another item */
-				if (ch == 'n')
-				{
-					if (index >= z_info->f_max - 1) index = 0;
-					else index++;
-
-					while ((f_info[index].mimic != index) || (!f_info[index].name))
-					{
-						if (++index > z_info->f_max - 1) index = 0;
-					}
-				}
-				else if (ch == 'N')
-				{
-					if (index <= 0) index = z_info->f_max - 1;
-					else index--;
-
-					while ((f_info[index].mimic != index) || (!f_info[index].name))
-					{
-						if (--index < 0) index = z_info->f_max - 1;
-					}
-				}
-				else if (ch == KTRL('N'))
-				{
-					/* Move cursor, suggest the current value */
-					move_cursor(16, 0);
-					get_quantity_default = index;
-
-					/* Get a quantity */
-					index = get_quantity(format("Jump to which index (0 - %d)?",
-						z_info->f_max - 1), 0, z_info->f_max - 1);
-
-					/* Use this exact value */
-				}
-
-				/* Change pair */
-				else if (ch == '4')
-				{
-					pair--;
-					if (pair < 0) pair = max_pair;
-				}
-				else if (ch == '6')
-				{
-					pair++;
-					if (pair > max_pair) pair = 0;
-				}
-
-				/* Change attribute */
-				else if (ch == 'a')
-				{
-					if (fa == max_attr) fa = 0;
-					else fa++;
-				}
-				else if (ch == 'A')
-				{
-					if (fa == 0) fa = max_attr;
-					else fa--;
-				}
-				else if (ch == KTRL('A'))
-				{
-					/* Move cursor, suggest the current value */
-					move_cursor(16, 0);
-					get_quantity_default = fa;
-
-					/* Get a quantity */
-					fa = get_quantity(format("Assign which attribute (0 - %d)?",
-						max_attr), 0, max_attr);
-				}
-
-				/* Change character */
-				else if (ch == 'c')
-				{
-					if (fc == 255) fc = 0;
-					else fc++;
-				}
-				else if (ch == 'C')
-				{
-					if (fc == 0) fc = 255;
-					else fc--;
-				}
-				else if (ch == KTRL('C'))
-				{
-					/* Move cursor, suggest the current value */
-					move_cursor(16, 0);
-					get_quantity_default = fc;
-
-					/* Get a quantity */
-					fc = get_quantity(format("Assign which character (0 - %d)?",
-						255), 0, 255);
-				}
-
-				/* Change special lighting settings */
-				else if (ch == '!')
-				{
-					/* Toggle the "torch only" setting */
-					if (f_ptr->flags & (TF_TORCH_ONLY))
-						f_ptr->flags &= ~(TF_TORCH_ONLY);
-					else
-						f_ptr->flags |= (TF_TORCH_ONLY);
-				}
-
-				else if (ch == '?')
-				{
-					/* Display help on features */
-					do_cmd_visual_info("help-features");
-
-					/* Wait for it */
-					(void)inkey(ALLOW_CLICK);
-
-					/* Display standard information */
-					do_cmd_visual_info(NULL);
-				}
-
-				/* Save modified values */
-				if (pair == old_pair)
-				{
-					if (pair == 0)
-					{
-						if ((f_ptr->x_attr != fa) ||
-						    (f_ptr->x_char != (char)fc)) changed_feature = TRUE;
-						f_ptr->x_attr = fa;
-						f_ptr->x_char = (char)fc;
-					}
-					else if (pair == 1)
-					{
-						if ((f_ptr->x_attr_lit != fa) ||
-						    (f_ptr->x_char_lit != (char)fc)) changed_feature = TRUE;
-						f_ptr->x_attr_lit = fa;
-						f_ptr->x_char_lit = (char)fc;
-					}
-					else if (pair == 2)
-					{
-						if ((f_ptr->x_attr_dim != fa) ||
-						    (f_ptr->x_char_dim != (char)fc)) changed_feature = TRUE;
-						f_ptr->x_attr_dim = fa;
-						f_ptr->x_char_dim = (char)fc;
-					}
-				}
-			}
-		}
-
-
-		/* Modify flavor attr/chars */
-		else if (ch == '4')
-		{
-			index = 0;
-
-			/* Display various information */
-			do_cmd_visual_info(NULL);
-
-			/* Query until done */
-			while (TRUE)
-			{
-				flavor_type *flavor_ptr = &flavor_info[index];
-
-				/* Label the entry */
-				(void)Term_putstr(5, 18, -1, TERM_WHITE,
-					format("Flavor = %d, Name = %-40.40s",
-					index, (flavor_text + flavor_ptr->text)));
-
-				/* Edit the entry */
-				result = do_cmd_visual_change("Flavor attr/chars",
-					z_info->flavor_max - 1, &index, &move,
-					(byte *)&flavor_ptr->d_attr, (byte *)&flavor_ptr->d_char,
-					(byte *)&flavor_ptr->x_attr, (byte *)&flavor_ptr->x_char);
-
-				/* Allow accept */
-				if (result < 0) break;
-
-				/* Notice changes */
-				if (result > 0) changed_flavor = TRUE;
-
-
-				/* Scan to the next legal flavor */
-				if (move > 0)
-				{
-					while (!flavor_info[index].text)
-					{
-						if (++index >= z_info->flavor_max) index = 0;
-					}
-				}
-
-				/* Scan to the previous legal flavor */
-				else if (move < 0)
-				{
-					while (!flavor_info[index].text)
-					{
-						if (--index < 0) index = z_info->flavor_max - 1;
-					}
-				}
-			}
-		}
-
-		/* Modify spell attr/chars */
-		else if (ch == '5')
-		{
-			byte max_attr = (use_graphics) ? 255 : max_system_colors - 1;
-
-			int max_pair = 4;
-			int old_pair;
-
-			int max_editable;
-
-			int move;
-
-			int pair = 0;
-			char ch;
-			byte ga = 0, gc;
-
-			bool dummy;
-
-			/* Start at the first legal spell */
-			index = 1;
-
-			/* Display various information */
-			do_cmd_visual_info(NULL);
-
-			/*
-			 * For ease of use, only the more common projections can be
-			 * edited in-game.  All of them can be edited in the pref
-			 * files themselves.
-			 */
-			for (max_editable = 1; max_editable < 256; max_editable++)
-			{
-				if (projection_names[max_editable] == NULL) break;
-			}
-			max_editable--;
-
-			/* Query until done */
-			while (TRUE)
-			{
-				proj_graphics_type *g_ptr = &proj_graphics[index];
-
-				/* No movement */
-				move = 0;
-				old_pair = pair;
-
-				/* Label the entry */
-				(void)Term_putstr(5, 18, -1, TERM_WHITE,
-					format("Spell index = %d, Name = %-40.40s",
-					index, projection_names[index]));
-
-				/* Display one of four possible trails */
-				gc = (pair == 0) ? g_ptr->char_vert : ' ';
-				(void)Term_putch(74, 16, get_ga, gc);
-				(void)Term_putch(74, 17, get_ga, gc);
-				(void)Term_putch(74, 18, get_ga, gc);
-				(void)Term_putch(74, 19, get_ga, gc);
-
-				gc = (pair == 1) ? g_ptr->char_horiz : ' ';
-				(void)Term_putch(68, 22, get_ga, gc);
-				(void)Term_putch(69, 22, get_ga, gc);
-				(void)Term_putch(70, 22, get_ga, gc);
-				(void)Term_putch(71, 22, get_ga, gc);
-
-				gc = (pair == 2) ? g_ptr->char_rdiag : ' ';
-				(void)Term_putch(79, 17, get_ga, gc);
-				(void)Term_putch(78, 18, get_ga, gc);
-				(void)Term_putch(77, 19, get_ga, gc);
-				(void)Term_putch(76, 20, get_ga, gc);
-
-				gc = (pair == 3) ? g_ptr->char_ldiag : ' ';
-				(void)Term_putch(69, 17, get_ga, gc);
-				(void)Term_putch(70, 18, get_ga, gc);
-				(void)Term_putch(71, 19, get_ga, gc);
-				(void)Term_putch(72, 20, get_ga, gc);
-
-				/* Display an explosion */
-				gc = g_ptr->char_ball;
-				for (i = 0; i < grids_in_radius[2]; i++)
-				{
-					int y = 22 + nearby_grids_y[i];
-					int x = 74 + nearby_grids_x[i];
-					(void)Term_putch(x, y, get_ga, gc);
-				}
-
-				/* Label the current values */
-				(void)Term_putstr(10, 20, -1, TERM_WHITE,
-					format("vert  = %3u / %3u,  horiz = %3u / %3u,  rdiag = %3u / %3u",
-					g_ptr->attr_vert, (byte)g_ptr->char_vert, g_ptr->attr_horiz,
-					(byte)g_ptr->char_horiz, g_ptr->attr_rdiag, (byte)g_ptr->char_rdiag));
-				(void)Term_putstr(10, 21, -1, TERM_WHITE,
-					format("ldiag = %3u / %3u,  ball  = %3u / %3u",
-					g_ptr->attr_ldiag, (byte)g_ptr->char_ldiag,
-					g_ptr->attr_ball, (byte)g_ptr->char_ball));
-
-				/* Label the selected pair */
-				if (pair == 0) (void)Term_putstr(10, 20, -1, TERM_L_BLUE, "vert");
-				if (pair == 1) (void)Term_putstr(30, 20, -1, TERM_L_BLUE, "horiz");
-				if (pair == 2) (void)Term_putstr(50, 20, -1, TERM_L_BLUE, "rdiag");
-				if (pair == 3) (void)Term_putstr(10, 21, -1, TERM_L_BLUE, "ldiag");
-				if (pair == 4) (void)Term_putstr(30, 21, -1, TERM_L_BLUE, "ball");
-
-				/* Prompt */
-				(void)Term_putstr(0, 16, -1, TERM_WHITE,
-					"Edit spell: (index: n/N/^n, pair: <dir>, attr: a/A/^a, char: c/C/^c): ");
-
-				/* Store current values */
-				if (pair == 0)
-				{
-					ga = g_ptr->attr_vert;
-					gc = (byte)g_ptr->char_vert;
-				}
-				else if (pair == 1)
-				{
-					ga = g_ptr->attr_horiz;
-					gc = (byte)g_ptr->char_horiz;
-				}
-				else if (pair == 2)
-				{
-					ga = g_ptr->attr_rdiag;
-					gc = (byte)g_ptr->char_rdiag;
-				}
-				else if (pair == 3)
-				{
-					ga = g_ptr->attr_ldiag;
-					gc = (byte)g_ptr->char_ldiag;
-				}
-				else if (pair == 4)
-				{
-					ga = g_ptr->attr_ball;
-					gc = (byte)g_ptr->char_ball;
-				}
-
-
-				/* Wait for legal input */
-				while (TRUE)
-				{
-					/* Get key */
-					ch = inkey(FALSE);
-
-					/* Allow orthogonal direction keys */
-					get_ui_direction(&ch, UI_NODIAG | UI_NOMOUSE, &dummy);
-
-					/* Accept anything except untranslated mouse actions */
-					if (ch != MOUSEKEY) break;
-				}
-
-
-				/* Accept changes */
-				if ((ch == ESCAPE) || (ch == '\n') || (ch == '\r')) break;
-
-				/* Move to another item */
-				if (ch == 'n')
-				{
-					if (index >= max_editable) index = 1;
-					else index++;
-
-					while (!strlen(projection_names[index]))
-					{
-						if (++index > max_editable) index = 1;
-					}
-				}
-				else if (ch == 'N')
-				{
-					if (index <= 1) index = max_editable;
-					else index--;
-
-					while (!strlen(projection_names[index]))
-					{
-						if (--index < 1) index = max_editable;
-					}
-				}
-				else if (ch == KTRL('N'))
-				{
-					/* Move cursor, suggest the current value */
-					move_cursor(16, 0);
-					get_quantity_default = index;
-
-					/* Get a quantity */
-					index = get_quantity(format("Jump to which index (0 - %d)?",
-						max_editable), 0, max_editable);
-
-					/* Use this exact value */
-				}
-
-				/* Change pair */
-				else if (ch == '4')
-				{
-					pair--;
-					if (pair < 0) pair = max_pair;
-				}
-				else if (ch == '6')
-				{
-					pair++;
-					if (pair > max_pair) pair = 0;
-				}
-
-				/* Change attribute */
-				else if (ch == 'a')
-				{
-					if (ga == max_attr) ga = 0;
-					else ga++;
-				}
-				else if (ch == 'A')
-				{
-					if (ga == 0) ga = max_attr;
-					else ga--;
-				}
-				else if (ch == KTRL('A'))
-				{
-					/* Move cursor, suggest the current value */
-					move_cursor(16, 0);
-					get_quantity_default = ga;
-
-					/* Get a quantity */
-					ga = get_quantity(format("Assign which attribute (0 - %d)?",
-						max_attr), 0, max_attr);
-				}
-
-				/* Change character */
-				else if (ch == 'c')
-				{
-					if (gc == 255) gc = 0;
-					else gc++;
-				}
-				else if (ch == 'C')
-				{
-					if (gc == 0) gc = 255;
-					else gc--;
-				}
-				else if (ch == KTRL('C'))
-				{
-					/* Move cursor, suggest the current value */
-					move_cursor(16, 0);
-					get_quantity_default = gc;
-
-					/* Get a quantity */
-					gc = get_quantity(format("Assign which character (0 - %d)?",
-						255), 0, 255);
-				}
-
-				/* Save modified values */
-				if (pair == old_pair)
-				{
-					if (pair == 0)
-					{
-						if ((g_ptr->attr_vert != ga) ||
-						    (g_ptr->char_vert != (char)gc)) changed_spell = TRUE;
-						g_ptr->attr_vert = ga;
-						g_ptr->char_vert = (char)gc;
-					}
-					else if (pair == 1)
-					{
-						if ((g_ptr->attr_horiz != ga) ||
-						    (g_ptr->char_horiz != (char)gc)) changed_spell = TRUE;
-						g_ptr->attr_horiz = ga;
-						g_ptr->char_horiz = (char)gc;
-					}
-					else if (pair == 2)
-					{
-						if ((g_ptr->attr_rdiag != ga) ||
-						    (g_ptr->char_rdiag != (char)gc)) changed_spell = TRUE;
-						g_ptr->attr_rdiag = ga;
-						g_ptr->char_rdiag = (char)gc;
-					}
-					else if (pair == 3)
-					{
-						if ((g_ptr->attr_ldiag != ga) ||
-						    (g_ptr->char_ldiag != (char)gc)) changed_spell = TRUE;
-						g_ptr->attr_ldiag = ga;
-						g_ptr->char_ldiag = (char)gc;
-					}
-					else if (pair == 4)
-					{
-						if ((g_ptr->attr_ball != ga) ||
-						    (g_ptr->char_ball != (char)gc)) changed_spell = TRUE;
-						g_ptr->attr_ball = ga;
-						g_ptr->char_ball = (char)gc;
-					}
-				}
-			}
-		}
-
+#ifdef ALLOW_VISUALS
 
 		/* Dump monster attr/chars */
-		else if (ch == '6')
+		else if (ch == '2')
 		{
-			/* Attempt to open, clean up, and print a header to a file. */
-			if (!do_cmd_visuals_file("monster", automatic, mark))
-			{
-				/* Notice failure or cancel */
-				continue;
-			}
+			mark = "Monster attr/char definitions";
+
+			/* Prompt */
+			prt("Command: Dump monster attr/chars", 15, 0);
+
+			/* Prompt */
+			prt("File: ", 17, 0);
+
+			/* Default filename */
+			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+			/* Get a filename */
+			if (!askfor_aux(ftmp, 80)) continue;
+
+			/* Build the filename */
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
+
+			/* File type is "TEXT" */
+			FILE_TYPE(FILE_TYPE_TEXT);
+
+			/* Remove old attr/chars */
+			remove_old_dump(buf, mark);
+
+			/* Append to the file */
+			fff = my_fopen(buf, "a");
+
+			/* Failure */
+			if (!fff) continue;
+
+			/* Output header */
+			pref_header(fff, mark);
+
+			/* Skip some lines */
+			fprintf(fff, "\n\n");
 
 			/* Dump monsters */
 			for (i = 0; i < z_info->r_max; i++)
@@ -4076,43 +3117,71 @@ void do_cmd_visuals(char cmd)
 				if (!r_ptr->name) continue;
 
 				/* Dump a comment */
-				fprintf(fff_visuals, "# %s\n", (r_name + r_ptr->name));
+				fprintf(fff, "# %s\n", (r_name + r_ptr->name));
 
 				/* Dump the monster attr/char info */
-				fprintf(fff_visuals, "R:%d:%c:%d\n\n", i,
-					color_table[r_ptr->x_attr].index_char, (byte)(r_ptr->x_char));
+				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
+					(byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
 			}
 
 			/* Skip a line */
-			fprintf(fff_visuals, "\n");
+			fprintf(fff, "\n");
 
 			/* Output footer */
-			pref_footer(fff_visuals, mark);
+			pref_footer(fff, mark);
 
 			/* Close */
-			(void)my_fclose(fff_visuals);
+			my_fclose(fff);
 
 			/* Changes saved */
 			changed_monster = FALSE;
 
 			/* Message */
-			if (!automatic) msg_print("Dumped monster attr/chars.");
+			msg_print("Dumped monster attr/chars.");
 		}
 
 		/* Dump object attr/chars */
-		else if (ch == '7')
+		else if (ch == '3')
 		{
-			/* Attempt to open, clean up, and print a header to a file. */
-			if (!do_cmd_visuals_file("object", automatic, mark))
-			{
-				/* Notice failure or cancel */
-				continue;
-			}
+			mark = "Object attr/char definitions";
+
+			/* Prompt */
+			prt("Command: Dump object attr/chars", 15, 0);
+
+			/* Prompt */
+			prt("File: ", 17, 0);
+
+			/* Default filename */
+			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+			/* Get a filename */
+			if (!askfor_aux(ftmp, 80)) continue;
+
+			/* Build the filename */
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
+
+			/* File type is "TEXT" */
+			FILE_TYPE(FILE_TYPE_TEXT);
+
+			/* Remove old attr/chars */
+			remove_old_dump(buf, mark);
+
+			/* Append to the file */
+			fff = my_fopen(buf, "a");
+
+			/* Failure */
+			if (!fff) continue;
+
+			/* Output header */
+			pref_header(fff, mark);
+
+			/* Skip some lines */
+			fprintf(fff, "\n\n");
 
 			/* Dump objects */
 			for (i = 0; i < z_info->k_max; i++)
 			{
-				char o_name[DESC_LEN];
+				char o_name[80];
 				object_kind *k_ptr = &k_info[i];
 
 				/* Skip non-entries */
@@ -4122,42 +3191,72 @@ void do_cmd_visuals(char cmd)
 				strip_name(o_name, i);
 
 				/* Dump a comment */
-				fprintf(fff_visuals, "# %s\n", o_name);
+				fprintf(fff, "# %s\n", o_name);
 
 				/* Dump the object attr/char info */
-				fprintf(fff_visuals, "K:%d:%c:%d\n\n", i,
-					color_table[k_ptr->x_attr].index_char, (byte)(k_ptr->x_char));
+				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
+					(byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
 			}
 
 			/* Skip a line */
-			fprintf(fff_visuals, "\n");
+			fprintf(fff, "\n");
 
 			/* Output footer */
-			pref_footer(fff_visuals, mark);
+			pref_footer(fff, mark);
 
 			/* Close */
-			(void)my_fclose(fff_visuals);
+			my_fclose(fff);
 
 			/* Changes saved */
 			changed_object = FALSE;
 
 			/* Message */
-			if (!automatic) msg_print("Dumped object attr/chars.");
+			msg_print("Dumped object attr/chars.");
 		}
 
 		/* Dump feature attr/chars */
-		else if (ch == '8')
+		else if (ch == '4')
 		{
-			/* Attempt to open, clean up, and print a header to a file. */
-			if (!do_cmd_visuals_file("feature", automatic, mark))
-			{
-				/* Notice failure or cancel */
-				continue;
-			}
+			mark = "Feature attr/char definitions";
+
+			/* Prompt */
+			prt("Command: Dump feature attr/chars", 15, 0);
+
+			/* Prompt */
+			prt("File: ", 17, 0);
+
+			/* Default filename */
+			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+			/* Get a filename */
+			if (!askfor_aux(ftmp, 80)) continue;
+
+			/* Build the filename */
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
+
+			/* File type is "TEXT" */
+			FILE_TYPE(FILE_TYPE_TEXT);
+
+			/* Remove old attr/chars */
+			remove_old_dump(buf, mark);
+
+			/* Append to the file */
+			fff = my_fopen(buf, "a");
+
+			/* Failure */
+			if (!fff) continue;
+
+			/* Output header */
+			pref_header(fff, mark);
+
+			/* Skip some lines */
+			fprintf(fff, "\n\n");
 
 			/* Dump features */
 			for (i = 0; i < z_info->f_max; i++)
 			{
+				char c;
+
 				feature_type *f_ptr = &f_info[i];
 
 				/* Skip non-entries */
@@ -4167,152 +3266,342 @@ void do_cmd_visuals(char cmd)
 				if (f_ptr->mimic != i) continue;
 
 				/* Dump a comment */
-				fprintf(fff_visuals, "# %s\n", (f_name + f_ptr->name));
+				fprintf(fff, "# %s\n", (f_name + f_ptr->name));
 
-				/* Dump the feature attr/char info */
-				fprintf(fff_visuals, "F:%d:%c:%d:%c:%d:%c:%d%s\n\n", i,
-					color_table[f_ptr->x_attr].index_char, f_ptr->x_char,
-					color_table[f_ptr->x_attr_lit].index_char, f_ptr->x_char_lit,
-					color_table[f_ptr->x_attr_dim].index_char, f_ptr->x_char_dim,
-					f_ptr->flags & (TF_TORCH_ONLY) ? ":torch_only" : "");
+				/* We always dump the 25-row feature info */
+				c = feat_x_char_25[i];
+
+				/* Dump the standard (25-line) feature attr/char info */
+				fprintf(fff, "F:%d:0x%02X:0x%02X\n", i,
+					(byte)(f_ptr->x_attr), (byte)(c));
+
+				/*
+				 * If there is a good reason to, we also save the
+				 * alternative char in 50-line mode.
+				 */
+				if (feat_x_char_50[i] != feat_x_char_25[i])
+				{
+					c = feat_x_char_50[i];
+					fprintf(fff, "f:%d:0x%02X\n", i, (byte)(c));
+				}
+
+				/* Spacer line */
+				fprintf(fff, "\n");
 			}
 
 			/* Skip a line */
-			fprintf(fff_visuals, "\n");
+			fprintf(fff, "\n");
 
 			/* Output footer */
-			pref_footer(fff_visuals, mark);
+			pref_footer(fff, mark);
 
 			/* Close */
-			(void)my_fclose(fff_visuals);
+			my_fclose(fff);
 
 			/* Changes saved */
 			changed_feature = FALSE;
 
 			/* Message */
-			if (!automatic) msg_print("Dumped feature attr/chars.");
+			msg_print("Dumped feature attr/chars.");
 		}
 
-		/* Dump flavor attr/chars */
-		else if (ch == '9')
+		/* Modify monster attr/chars */
+		else if (ch == '6')
 		{
-			/* Attempt to open, clean up, and print a header to a file. */
-			if (!do_cmd_visuals_file("flavor", automatic, mark))
+			static int r = 0;
+
+			/* Prompt */
+			prt("Command: Change monster attr/chars", 15, 0);
+
+			/* Hack -- query until done */
+			while (TRUE)
 			{
-				/* Notice failure or cancel */
-				continue;
-			}
+				monster_race *r_ptr = &r_info[r];
 
-			/* Dump flavors */
-			for (i = 0; i < z_info->flavor_max; i++)
-			{
-				/* Get this flavor */
-				flavor_type *flavor_ptr = &flavor_info[i];
+				byte da = (byte)(r_ptr->d_attr);
+				byte dc = (byte)(r_ptr->d_char);
+				byte ca = (byte)(r_ptr->x_attr);
+				byte cc = (byte)(r_ptr->x_char);
 
-				/* Ignore unused */
-				if (!flavor_ptr->text) continue;
+				/* Label the object */
+				Term_putstr(5, 17, -1, TERM_WHITE,
+					format("Monster = %d, Name = %-40.40s",
+					r, (r_name + r_ptr->name)));
 
-				/* Dump a comment */
-				fprintf(fff_visuals, "# %s\n", (flavor_text + flavor_ptr->text));
+				/* Label the Default values */
+				Term_putstr(10, 19, -1, TERM_WHITE,
+					format("Default attr/char = %3d / %3d", da, dc));
+				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 19, da, dc);
 
-				/* Dump the flavor attr/char info */
-				fprintf(fff_visuals, "L:%d:%d:%d\n\n", i,
-				        (byte)(flavor_ptr->x_attr), (byte)(flavor_ptr->x_char));
-			}
+				/* Label the Current values */
+				Term_putstr(10, 20, -1, TERM_WHITE,
+					format("Current attr/char = %3d / %3d", ca, cc));
+				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 20, ca, cc);
 
-			/* Skip a line */
-			fprintf(fff_visuals, "\n");
+				/* Prompt */
+				Term_putstr(0, 22, -1, TERM_WHITE,
+					"Command (n/N/a/A/c/C): ");
 
-			/* Output footer */
-			pref_footer(fff_visuals, mark);
+				/* Get a command */
+				cx = inkey();
 
-			/* Close */
-			(void)my_fclose(fff_visuals);
+				/* All done */
+				if (cx == ESCAPE) break;
 
-			/* Changes saved */
-			changed_flavor = FALSE;
+				/* Assume a change was made */
+				if (strchr("aAcC", cx)) changed_monster = TRUE;
 
-			/* Message */
-			if (!automatic) msg_print("Dumped flavor attr/chars.");
-		}
-
-		/* Dump projection attr/chars */
-		else if (ch == '0')
-		{
-			bool print_name = TRUE;
-
-			/* Attempt to open, clean up, and print a header to a file. */
-			if (!do_cmd_visuals_file("projection", automatic, mark))
-			{
-				/* Notice failure or cancel */
-				continue;
-			}
-
-			/* Dump projections */
-			for (i = 0; i < 256; i++)
-			{
-				proj_graphics_type *pg_ptr = &proj_graphics[i];
-
-				/* Only dump changed projections */
-				if ((i > 0) &&
-				    (pg_ptr->attr_vert  == proj_graphics[0].attr_vert) &&
-				    (pg_ptr->char_vert  == proj_graphics[0].char_vert) &&
-				    (pg_ptr->attr_horiz == proj_graphics[0].attr_horiz) &&
-				    (pg_ptr->char_horiz == proj_graphics[0].char_horiz) &&
-				    (pg_ptr->attr_rdiag == proj_graphics[0].attr_rdiag) &&
-				    (pg_ptr->char_rdiag == proj_graphics[0].char_rdiag) &&
-				    (pg_ptr->attr_ldiag == proj_graphics[0].attr_ldiag) &&
-				    (pg_ptr->char_ldiag == proj_graphics[0].char_ldiag) &&
-				    (pg_ptr->attr_ball  == proj_graphics[0].attr_ball) &&
-				    (pg_ptr->char_ball  == proj_graphics[0].char_ball) &&
-				    (pg_ptr->flags      == proj_graphics[0].flags))
+				/* Analyze */
+				if (cx == 'n')
 				{
-					continue;
+					/* Scan to the next legal monster */
+					do
+					{
+						r = (r + z_info->r_max + 1) % z_info->r_max;
+					}
+					while (!r_info[r].name);
+				}
+				if (cx == 'N')
+				{
+					/* Scan to the previous legal monster */
+					do
+					{
+						r = (r + z_info->r_max - 1) % z_info->r_max;
+					}
+					while (!r_info[r].name);
+				}
+				if (cx == 'a')
+				{
+					ca = (ca + 1) % 16;
+					r_ptr->x_attr = (byte)ca;
+				}
+				if (cx == 'A')
+				{
+					if (ca <= 0) ca = 16;
+					ca = (ca - 1) % 16;
+					r_ptr->x_attr = (byte)ca;
+				}
+				if (cx == 'c')
+				{
+					cc = (cc + 1) % 256;
+					r_ptr->x_char = (char)cc;
+				}
+				if (cx == 'C')
+				{
+					if (cc == 0) cc = 255;
+					else cc = (cc - 1) % 256;
+					r_ptr->x_char = (char)cc;
+				}
+			}
+		}
+
+		/* Modify object attr/chars */
+		else if (ch == '7')
+		{
+			static int k = 0;
+
+			/* Prompt */
+			prt("Command: Change object attr/chars", 15, 0);
+
+			/* Hack -- query until done */
+			while (TRUE)
+			{
+				object_kind *k_ptr = &k_info[k];
+
+				byte da = (byte)(k_ptr->d_attr);
+				byte dc = (byte)(k_ptr->d_char);
+				byte ca = (byte)(k_ptr->x_attr);
+				byte cc = (byte)(k_ptr->x_char);
+
+				/* Label the object */
+				Term_putstr(5, 17, -1, TERM_WHITE,
+					format("Object = %d, Name = %-40.40s",
+					k, (k_name + k_ptr->name)));
+
+				/* Label the Default values */
+				Term_putstr(10, 19, -1, TERM_WHITE,
+					format("Default attr/char = %3d / %3d", da, dc));
+				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 19, da, dc);
+
+				/* Label the Current values */
+				Term_putstr(10, 20, -1, TERM_WHITE,
+					format("Current attr/char = %3d / %3d", ca, cc));
+				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 20, ca, cc);
+
+				/* Prompt */
+				Term_putstr(0, 22, -1, TERM_WHITE,
+					"Command (n/N/a/A/c/C): ");
+
+				/* Get a command */
+				cx = inkey();
+
+				/* All done */
+				if (cx == ESCAPE) break;
+
+				/* Assume a change was made */
+				if (strchr("aAcC", cx)) changed_object = TRUE;
+
+				/* Analyze */
+				if (cx == 'n')
+				{
+					/* Scan to the next legal object */
+					do
+					{
+						k = (k + z_info->k_max + 1) % z_info->k_max;
+					}
+					while (!k_info[k].name);
+				}
+				if (cx == 'N')
+				{
+					/* Scan to the previous legal object */
+					do
+					{
+						k = (k + z_info->k_max - 1) % z_info->k_max;
+					}
+					while (!k_info[k].name);
+				}
+				if (cx == 'a')
+				{
+					ca = (ca + 1) % 16;
+					k_info[k].x_attr = (byte)ca;
+				}
+				if (cx == 'A')
+				{
+					if (ca <= 0) ca = 16;
+					ca = (ca - 1) % 16;
+					k_info[k].x_attr = (byte)ca;
+				}
+				if (cx == 'c')
+				{
+					cc = (cc + 1) % 256;
+					k_info[k].x_char = (char)cc;
+				}
+				if (cx == 'C')
+				{
+					if (cc == 0) cc = 255;
+					else cc = (cc - 1) % 256;
+					k_info[k].x_char = (char)cc;
+				}
+			}
+		}
+
+		/* Modify feature attr/chars */
+		else if (ch == '8')
+		{
+			static int f = 0;
+
+			/* Prompt */
+			prt(format("Command: Change feature attr/chars   -- for %d-line mode",
+				(force_25_rows ? 25 : 50)), 15, 0);
+
+			/* Hack -- query until done */
+			while (TRUE)
+			{
+				feature_type *f_ptr = &f_info[f];
+
+				byte da = (byte)(f_ptr->d_attr);
+				byte dc = (byte)(f_ptr->d_char);
+				byte ca = (byte)(f_ptr->x_attr);
+				byte cc = (byte)(f_ptr->x_char);
+
+				/* Hack -- show alternate chars if necessary */
+				if (!force_25_rows)
+				{
+					cc = (byte)(feat_x_char_50[f]);
 				}
 
-				/* Print name, but only if one is available */
-				if ((print_name) && ((i == 0) || (strlen(projection_names[i]))))
+				/* Label the object */
+				Term_putstr(5, 17, -1, TERM_WHITE,
+					format("Terrain = %d, Name = %-40.40s",
+					f, (f_name + f_ptr->name)));
+
+				/* Label the Default values */
+				Term_putstr(10, 19, -1, TERM_WHITE,
+					format("Default attr/char = %3u / %3u", da, dc));
+				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 19, da, dc);
+
+				/* Label the Current values */
+				Term_putstr(10, 20, -1, TERM_WHITE,
+					format("Current attr/char = %3u / %3u", ca, cc));
+				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 20, ca, cc);
+
+				/* Prompt */
+				Term_putstr(0, 22, -1, TERM_WHITE,
+					"Command (n/N/a/A/c/C): ");
+
+				/* Get a command */
+				cx = inkey();
+
+				/* All done */
+				if (cx == ESCAPE) break;
+
+				/* Assume a change was made */
+				if (strchr("aAcC", cx)) changed_feature = TRUE;
+
+				/* Analyze */
+				if (cx == 'n')
 				{
-					/* Label the default set of projection graphics */
-					if (i == 0)
-						fprintf(fff_visuals, "# Default set of projection graphics, used in all cases not specified below\n");
-
-					/* End of names array -- stop print names */
-					else if (projection_names[i] == NULL) print_name = FALSE;
-
-					/* Dump a comment */
-					else if (strlen(projection_names[i]))
-						fprintf(fff_visuals, "# %s\n", projection_names[i]);
-
+					/* Scan to the next legal, non-mimic feature */
+					do
+					{
+						f = (f + z_info->f_max + 1) % z_info->f_max;
+					}
+					while ((f_info[f].mimic != f) || (!f_info[f].name));
 				}
+				if (cx == 'N')
+				{
+					/* Scan to the previous legal, non-mimic feature */
+					do
+					{
+						f = (f + z_info->f_max - 1) % z_info->f_max;
+					}
+					while ((f_info[f].mimic != f) || (!f_info[f].name));
+				}
+				if (cx == 'a')
+				{
+					ca = (ca + 1) % 16;
+					f_info[f].x_attr = (byte)ca;
+				}
+				if (cx == 'A')
+				{
+					if (ca <= 0) ca = 16;
+					ca = (ca - 1) % 16;
+					f_info[f].x_attr = (byte)ca;
+				}
+				if (cx == 'c')
+				{
+					cc = (cc + 1) % 256;
 
-				/* Dump the projection attr/char info */
-				fprintf(fff_visuals, "S:%d:%d/%d:%d/%d:%d/%d:%d/%d:%d/%d\n\n", i,
-				       pg_ptr->attr_vert,  (byte)pg_ptr->char_vert,
-				       pg_ptr->attr_horiz, (byte)pg_ptr->char_horiz,
-				       pg_ptr->attr_rdiag, (byte)pg_ptr->char_rdiag,
-				       pg_ptr->attr_ldiag, (byte)pg_ptr->char_ldiag,
-				       pg_ptr->attr_ball,  (byte)pg_ptr->char_ball);
+					/* Save and immediately update the visuals */
+					if (force_25_rows)
+						f_info[f].x_char = feat_x_char_25[f] = (char)cc;
+					else
+						f_info[f].x_char = feat_x_char_50[f] = (char)cc;
+				}
+				if (cx == 'C')
+				{
+					if (cc == 0) cc = 255;
+					else cc = (cc - 1) % 256;
+
+					/* Save and immediately update the visuals */
+					if (force_25_rows)
+						f_info[f].x_char = feat_x_char_25[f] = (char)cc;
+					else
+						f_info[f].x_char = feat_x_char_50[f] = (char)cc;
+				}
 			}
-
-			/* Skip a line */
-			fprintf(fff_visuals, "\n");
-
-			/* Output footer */
-			pref_footer(fff_visuals, mark);
-
-			/* Close */
-			(void)my_fclose(fff_visuals);
-
-			/* Changes saved */
-			changed_spell = FALSE;
-
-			/* Message */
-			if (!automatic) msg_print("Dumped projection attr/chars.");
 		}
+
+#endif
 
 		/* Reset visuals */
-		else if (ch == '!')
+		else if (ch == '0')
 		{
 			/* Reset */
 			reset_visuals();
@@ -4338,659 +3627,61 @@ void do_cmd_visuals(char cmd)
 		message_flush();
 	}
 
+	/* Set to 50 screen rows, if we were showing 50 before */
+	if (old_rows == 50) Term_rows(TRUE);
 
-	/* Restore previous screen */
-	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
+	/* Load screen */
+	screen_load();
 
 	/* Do a complete screen refresh  XXX XXX */
 	do_cmd_redraw();
 }
 
 
-
 /*
- * Asks the user for specific color values.
- * Returns TRUE if the color was modified.
- */
-static bool askfor_color_values(int idx)
-{
-	char str[10];
-
-	int k, r, g, b;
-
-	/* Get the default value */
-	(void)strnfmt(str, sizeof(str), "%d", color_table[idx].rv);
-
-	/* Query, check for ESCAPE */
-	if (!get_string("Red (0-255) ", str, sizeof(str))) return (FALSE);
-
-	/* Convert to number */
-	r = atoi(str);
-
-	/* Check bounds */
-	if (r < 0) r = 0;
-	if (r > 255) r = 255;
-
-	/* Get the default value */
-	(void)strnfmt(str, sizeof(str), "%d", color_table[idx].gv);
-
-	/* Query, check for ESCAPE */
-	if (!get_string("Green (0-255) ", str, sizeof(str))) return (FALSE);
-
-	/* Convert to number */
-	g = atoi(str);
-
-	/* Check bounds */
-	if (g < 0) g = 0;
-	if (g > 255) g = 255;
-
-	/* Get the default value */
-	(void)strnfmt(str, sizeof(str), "%d", color_table[idx].bv);
-
-	/* Query, check for ESCAPE */
-	if (!get_string("Blue (0-255) ", str, sizeof(str))) return (FALSE);
-
-	/* Convert to number */
-	b = atoi(str);
-
-	/* Check bounds */
-	if (b < 0) b = 0;
-	if (b > 255) b = 255;
-
-	/* Get the default value */
-	(void)strnfmt(str, sizeof(str), "%d", color_table[idx].kv);
-
-	/* Query, check for ESCAPE */
-	if (!get_string("Extra (0-255) ", str, sizeof(str))) return (FALSE);
-
-	/* Convert to number */
-	k = atoi(str);
-
-	/* Check bounds */
-	if (k < 0) k = 0;
-	if (k > 255) k = 255;
-
-	/* Do nothing if the color is not modified */
-	if ((k == color_table[idx].kv) &&
-	    (r == color_table[idx].rv) &&
-	    (g == color_table[idx].gv) &&
-	    (b == color_table[idx].bv)) return (FALSE);
-
-	/* Modify the color table */
-	color_table[idx].kv = k;
-	color_table[idx].rv = r;
-	color_table[idx].gv = g;
-	color_table[idx].bv = b;
-
-	/* Success */
-	return (TRUE);
-}
-
-
-/* String used to show a color sample */
-#define COLOR_SAMPLE "###"
-
-/* These two are used to place elements in the grid */
-#define COLOR_X(idx) (((idx) / 16) * 5 + 1)
-#define COLOR_Y(idx) ((idx) % 16 + 6)
-
-/* We only can edit a portion of the color table */
-#define MAX_COLORS_EDIT 128
-
-/* Hack - Note the cast to "int" to prevent overflow */
-#define IS_BLACK(idx) \
-((int)color_table[idx].rv + (int)color_table[idx].gv + \
- (int)color_table[idx].bv == 0)
-
-/* We show black as dots to see the shape of the grid */
-#define BLACK_SAMPLE "..."
-
-/*
- * The screen used to modify the color table. Only 128 colors can be modified.
- * The remaining entries of the color table are reserved for graphic mode.
- *
- * -DG-
- */
-static void modify_colors(void)
-{
-	int x, y, idx, old_idx;
-	char ch;
-	char msg[DESC_LEN];
-
-	/* Flags */
-	bool do_move, do_update;
-	bool do_redraw = TRUE;
-
-	int max_legal_edit = MIN(MAX_COLORS_EDIT, max_system_colors);
-
-
-	/* Hack - We want to show the fake cursor */
-	do_move = TRUE;
-	do_update = TRUE;
-
-	/* Start with the first color */
-	idx = 0;
-
-	/* Used to erase the old position of the fake cursor */
-	old_idx = -1;
-
-	/* Interact until satisfied */
-	while (TRUE)
-	{
-		/* Redraw request */
-		if (do_redraw)
-		{
-			int tmp_idx = idx;
-
-			/* Clear the screen */
-			(void)Term_clear();
-
-			/* Draw the color table */
-			for (idx = 0; idx < max_legal_edit; idx++)
-			{
-				/* Get coordinates, the x value is adjusted to show a fake cursor */
-				x = COLOR_X(idx) + 1;
-				y = COLOR_Y(idx);
-
-				/* Show a sample of the color */
-				if (IS_BLACK(idx)) c_put_str(TERM_WHITE, BLACK_SAMPLE, y, x);
-				else
-				{
-					byte attr = color_char_to_attr(color_table[idx].index_char);
-					c_put_str(attr, COLOR_SAMPLE, y, x);
-				}
-			}
-
-			/* Restore current color index */
-			idx = tmp_idx;
-
-			/* Show screen commands and help */
-			y = 2;
-			x = 42;
-			put_str("Commands:", y, x);
-			put_str("ESC: Return    ?: Help", y + 2, x);
-			put_str("Arrows: Move to color", y + 3, x);
-			put_str("n: Rename color", y + 4, x);
-			put_str("i: Assign color an index character", y + 5, x);
-			put_str("k,K: Incr,Decr extra value", y + 6, x);
-			put_str("r,R: Incr,Decr red value", y + 7, x);
-			put_str("g,G: Incr,Decr green value", y + 8, x);
-			put_str("b,B: Incr,Decr blue value", y + 9, x);
-			put_str("c: Copy from color", y + 10, x);
-			put_str("v: Set specific values", y + 11, x);
-			put_str("First column: base colors", y + 13, x);
-			put_str("Other columns: extra colors.", y + 14, x);
-
-			put_str("Please note: Colors may not display", y + 16, x);
-			put_str("correctly until you assign them a ", y + 17, x);
-			put_str("unique index character.", y + 18, x);
-
-			/* Note that system colors are limited */
-			if (max_system_colors < 128)
-			{
-				put_str(format("Colors after #%d are \"extended colors\";",
-					max_system_colors - 1), y + 20, x);
-				put_str("Your system will display them", y + 21, x);
-				put_str("using the basic colors.", y + 22, x);
-			}
-
-			/* Done with the redraw; now perform an update */
-			do_redraw = FALSE;
-			do_move = do_update = TRUE;
-		}
-
-		/* Movement request */
-		if (do_move)
-		{
-			/* Erase the old fake cursor */
-			if (old_idx >= 0)
-			{
-				/* Get coordinates */
-				x = COLOR_X(old_idx);
-				y = COLOR_Y(old_idx);
-
-				/* Draw spaces */
-				c_put_str(TERM_WHITE, " ", y, x);
-				c_put_str(TERM_WHITE, " ", y, x + 4);
-			}
-
-			/* Show the current fake cursor */
-			/* Get coordinates */
-			x = COLOR_X(idx);
-			y = COLOR_Y(idx);
-
-			/* Draw the cursor */
-			c_put_str(TERM_WHITE, ">", y, x);
-			c_put_str(TERM_WHITE, "<", y, x + 4);
-
-			/* Format the name of the color */
-			(void)my_strcpy(msg, format("Color = %d:  %c : %s",
-				idx, color_table[idx].index_char,
-				color_table[idx].name), sizeof(msg));
-
-			/* Show the name and some whitespace */
-			c_put_str(TERM_WHITE, format("%-40s", msg), 2, 0);
-		}
-
-		/* Color update request */
-		if (do_update)
-		{
-			/* Get coordinates, adjust x */
-			x = COLOR_X(idx) + 1;
-			y = COLOR_Y(idx);
-
-			/* Hack - Redraw the sample if needed */
-			if (IS_BLACK(idx))
-			{
-				c_put_str(TERM_WHITE, BLACK_SAMPLE, y, x);
-			}
-			else
-			{
-				byte attr = color_char_to_attr(color_table[idx].index_char);
-				c_put_str(attr, COLOR_SAMPLE, y, x);
-			}
-
-			/* Notify the changes in the color table to the terminal */
-			(void)Term_xtra(TERM_XTRA_REACT, 0);
-
-			/* The user is playing with white, redraw all */
-			if (idx == TERM_WHITE) (void)Term_redraw();
-
-			/* Or reduce flickering by redrawing the changes only */
-			else (void)Term_redraw_section(x, y, x + 2, y);
-		}
-
-		/* Common code, show the values in the color table */
-		if (do_move || do_update)
-		{
-			/* Format the view of the color values */
-			(void)my_strcpy(msg, format("K = %d / R,G,B = %d, %d, %d",
-					color_table[idx].kv,
-					color_table[idx].rv,
-					color_table[idx].gv,
-					color_table[idx].bv), sizeof(msg));
-
-			/* Show color values and some whitespace */
-			c_put_str(TERM_WHITE, format("%-40s", msg), 4, 0);
-		}
-
-		/* Reset flags */
-		do_move = FALSE;
-		do_update = FALSE;
-		old_idx = -1;
-
-		/* Get a command */
-		if (!get_com("Command: Modify colors ", &ch)) break;
-
-		switch (ch)
-		{
-			/* Down */
-			case '2':
-			{
-				/* Check bounds */
-				if (idx + 1 >= max_legal_edit) break;
-
-				/* Erase the old cursor */
-				old_idx = idx;
-
-				/* Get the new position */
-				++idx;
-
-				/* Request movement */
-				do_move = TRUE;
-				break;
-			}
-
-			/* Up */
-			case '8':
-			{
-
-				/* Check bounds */
-				if (idx - 1 < 0) break;
-
-				/* Erase the old cursor */
-				old_idx = idx;
-
-				/* Get the new position */
-				--idx;
-
-				/* Request movement */
-				do_move = TRUE;
-				break;
-			}
-
-			/* Left */
-			case '4':
-			{
-				/* Check bounds */
-				if (idx - 16 < 0) break;
-
-				/* Erase the old cursor */
-				old_idx = idx;
-
-				/* Get the new position */
-				idx -= 16;
-
-				/* Request movement */
-				do_move = TRUE;
-				break;
-			}
-
-			/* Right */
-			case '6':
-			{
-				/* Check bounds */
-				if (idx + 16 >= max_legal_edit) break;
-
-				/* Erase the old cursor */
-				old_idx = idx;
-
-				/* Get the new position */
-				idx += 16;
-
-				/* Request movement */
-				do_move = TRUE;
-				break;
-			}
-
-			/* Assign color an index character */
-			case 'i':
-			case 'I':
-			{
-				char ch2;
-				int i;
-
-				/* Continue until satisfied */
-				while (TRUE)
-				{
-					/* Prompt */
-					put_str("Use which letter as an index character (must not already be used)?", 0, 5);
-
-					/* Get a character */
-					ch2 = inkey(FALSE);
-
-					/* Note escape */
-					if (ch2 == ESCAPE) break;
-
-					/* Clear second line */
-					put_str("", 1, 10);
-
-					/* Must be unique */
-					for (i = 0; i < MAX_COLORS; i++)
-					{
-						if (color_table[i].index_char == ch2) break;
-					}
-					if (i != MAX_COLORS)
-					{
-						put_str("The character you use must be unique.", 1, 5);
-						continue;
-					}
-
-					/* Save this character */
-					color_table[idx].index_char = ch2;
-
-					/* Request update and refresh color */
-					do_update = TRUE;
-					do_move = TRUE;
-
-					break;
-				}
-				break;
-			}
-
-			/* Assign color a name */
-			case 'n':
-			case 'N':
-			{
-				char str[DESC_LEN];
-				u16b max_length = sizeof(color_table[idx].name);
-
-				/* Continue until satisfied */
-				while (TRUE)
-				{
-					/* Clear string */
-					strcpy(str, "");
-
-					/* Get name, allow cancel */
-					if (!get_string("Name of color: ", str, sizeof(str))) break;
-
-					/* Clear second line */
-					put_str("", 1, 5);
-
-					/* We must be able to hold the name */
-					if (strlen(str) >= max_length)
-					{
-						put_str(format("The name you use must be %d characters or less.", max_length), 1, 5);
-						continue;
-					}
-
-					/* Save the name */
-					(void)my_strcpy(color_table[idx].name, str, max_length);
-
-					/* Refresh the color information */
-					do_move = TRUE;
-
-					break;
-				}
-				break;
-			}
-
-			/* Copy from color */
-			case 'c':
-			{
-				char str[10];
-				int src;
-
-				/* Get the default value, the base color */
-				strcpy(str, "1");
-
-				/* Query, check for ESCAPE */
-				if (!get_string(format("Copy from color (0-%d) ",
-					max_legal_edit - 1), str, sizeof(str))) break;
-
-				/* Convert to number */
-				src = atoi(str);
-
-				/* Check bounds */
-				if (src < 0) src = 0;
-				if (src >= max_legal_edit) src = max_legal_edit - 1;
-
-				/* Do nothing if the colors are the same */
-				if (src == idx) break;
-
-				/* Modify the color table */
-				color_table[idx].kv = color_table[src].kv;
-				color_table[idx].rv = color_table[src].rv;
-				color_table[idx].gv = color_table[src].gv;
-				color_table[idx].bv = color_table[src].bv;
-
-				/* Request update */
-				do_update = TRUE;
-				break;
-			}
-
-			/* Increase the extra value */
-			case 'k':
-			{
-				/* Get a pointer to the proper value */
-				byte *k_ptr = &color_table[idx].kv;
-
-				/* Modify the value */
-				*k_ptr = (byte)(*k_ptr + 1);
-
-				/* Request update */
-				do_update = TRUE;
-				break;
-			}
-
-			/* Decrease the extra value */
-			case 'K':
-			{
-
-				/* Get a pointer to the proper value */
-				byte *k_ptr = &color_table[idx].kv;
-
-				/* Modify the value */
-				*k_ptr = (byte)(*k_ptr - 1);
-
-				/* Request update */
-				do_update = TRUE;
-				break;
-			}
-
-			/* Increase the red value */
-			case 'r':
-			{
-				/* Get a pointer to the proper value */
-				byte *r_ptr = &color_table[idx].rv;
-
-				/* Modify the value */
-				*r_ptr = (byte)(*r_ptr + 1);
-
-				/* Request update */
-				do_update = TRUE;
-				break;
-			}
-
-			/* Decrease the red value */
-			case 'R':
-			{
-
-				/* Get a pointer to the proper value */
-				byte *r_ptr = &color_table[idx].rv;
-
-				/* Modify the value */
-				*r_ptr = (byte)(*r_ptr - 1);
-
-				/* Request update */
-				do_update = TRUE;
-				break;
-			}
-
-			/* Increase the green value */
-			case 'g':
-			{
-				/* Get a pointer to the proper value */
-				byte *g_ptr = &color_table[idx].gv;
-
-				/* Modify the value */
-				*g_ptr = (byte)(*g_ptr + 1);
-
-				/* Request update */
-				do_update = TRUE;
-				break;
-			}
-
-			/* Decrease the green value */
-			case 'G':
-			{
-				/* Get a pointer to the proper value */
-				byte *g_ptr = &color_table[idx].gv;
-
-				/* Modify the value */
-				*g_ptr = (byte)(*g_ptr - 1);
-
-				/* Request update */
-				do_update = TRUE;
-				break;
-			}
-
-			/* Increase the blue value */
-			case 'b':
-			{
-				/* Get a pointer to the proper value */
-				byte *b_ptr = &color_table[idx].bv;
-
-				/* Modify the value */
-				*b_ptr = (byte)(*b_ptr + 1);
-
-				/* Request update */
-				do_update = TRUE;
-				break;
-			}
-
-			/* Decrease the blue value */
-			case 'B':
-			{
-				/* Get a pointer to the proper value */
-				byte *b_ptr = &color_table[idx].bv;
-
-				/* Modify the value */
-				*b_ptr = (byte)(*b_ptr - 1);
-
-				/* Request update */
-				do_update = TRUE;
-				break;
-			}
-
-			/* Ask for specific values */
-			case 'v':
-			{
-				do_update = askfor_color_values(idx);
-				break;
-			}
-
-			/* Help me. */
-			case '?':
-			{
-				p_ptr->get_help_index = HELP_CMD_COLORS;
-				do_cmd_help();
-
-				/* Request redraw */
-				do_redraw = TRUE;
-
-				break;
-			}
-
-			default:
-			{
-				break;
-			}
-		}
-	}
-}
-
-
-/*
- * Interact with "colors".  -DG-
+ * Interact with "colors"
  */
 void do_cmd_colors(void)
 {
 	int ch;
+	int cx;
 
 	int i;
 
 	FILE *fff;
 	char buf[1024];
 
+	int old_rows = screen_rows;
 
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
+	/* Save screen */
+	screen_save();
 
-	/* Save the screen and center it */
-	display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_CX, 80, 0);
+	/* Set to 25 screen rows */
+	Term_rows(FALSE);
 
 
 	/* Interact until done */
 	while (TRUE)
 	{
 		/* Clear screen */
-		(void)Term_clear();
+		Term_clear();
 
 		/* Ask for a choice */
-		prt("Interact with Colors", 2, 0);
+		prt("Interact with Colors", 1, 0);
 
 		/* Give some choices */
-		prt("(1) Load colors from file", 4, 5);
-		prt("(2) Save colors to file", 5, 5);
-		prt("(3) Modify colors", 6, 5);
-		prt("(?) Get help", 7, 5);
+		prt("(1) Load a user pref file", 3, 5);
+#ifdef ALLOW_COLORS
+		prt("(2) Dump colors", 4, 5);
+		prt("(3) Modify colors", 5, 5);
+		prt("(?) Get help", 6, 5);
+#endif /* ALLOW_COLORS */
 
 		/* Prompt */
-		prt("Command: ", 9, 0);
+		prt("Command: ", 8, 0);
 
 		/* Prompt */
-		ch = inkey(FALSE);
+		ch = inkey();
 
 		/* Done */
 		if (ch == ESCAPE) break;
@@ -4999,28 +3690,39 @@ void do_cmd_colors(void)
 		if (ch == '1')
 		{
 			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(8, "color");
+			do_cmd_pref_file_hack(8);
 
 			/* Could skip the following if loading cancelled XXX XXX XXX */
 
 			/* Mega-Hack -- React to color changes */
-			(void)Term_xtra(TERM_XTRA_REACT, 0);
+			Term_xtra(TERM_XTRA_REACT, 0);
 
 			/* Mega-Hack -- Redraw physical windows */
-			(void)Term_redraw();
+			Term_redraw();
 		}
+
+#ifdef ALLOW_COLORS
 
 		/* Dump colors */
 		else if (ch == '2')
 		{
 			static cptr mark = "Color redefinitions";
-			char ftmp[DESC_LEN];
+			char ftmp[80];
 
-			/* Required filename  XXX XXX */
-			(void)strnfmt(ftmp, sizeof(ftmp), "color.prf");
+			/* Prompt */
+			prt("Command: Dump colors", 8, 0);
+
+			/* Prompt */
+			prt("File: ", 11, 0);
+
+			/* Default filename */
+			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+			/* Get a filename */
+			if (!askfor_aux(ftmp, 80)) continue;
 
 			/* Build the filename */
-			(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
 
 			/* File type is "TEXT" */
 			FILE_TYPE(FILE_TYPE_TEXT);
@@ -5040,32 +3742,28 @@ void do_cmd_colors(void)
 			/* Skip some lines */
 			fprintf(fff, "\n\n");
 
-			/* Print some comments so user knows what this new file is for */
-			fprintf(fff, "# In order for colors to be stored in the user directory, and for them to \n");
-			fprintf(fff, "# be nevertheless read before anything that needs to use them (edit files,\n");
-			fprintf(fff, "# most other pref files), we must save them to a special file: colors.prf.\n\n");
-
 			/* Dump colors */
-			for (i = 0; i < MAX_COLORS_EDIT; i++)
+			for (i = 0; i < 256; i++)
 			{
-				char index_char = color_table[i].index_char;
-				char name[DESC_LEN];
+				int kv = angband_color_table[i][0];
+				int rv = angband_color_table[i][1];
+				int gv = angband_color_table[i][2];
+				int bv = angband_color_table[i][3];
 
-				int kv = color_table[i].kv;
-				int rv = color_table[i].rv;
-				int gv = color_table[i].gv;
-				int bv = color_table[i].bv;
+				cptr name = "unknown";
 
 				/* Skip non-entries */
-				if ((!index_char) || (!kv && !rv && !gv && !bv)) continue;
+				if (!kv && !rv && !gv && !bv) continue;
 
-				/* Get name, add a colon */
-				(void)my_strcpy(name, format("%s:", color_table[i].name), sizeof(name));
+				/* Extract the color name */
+				if (i < 16) name = color_names[i];
 
+				/* Dump a comment */
+				fprintf(fff, "# Color '%s'\n", name);
 
-				/* Dump the color info */
-				fprintf(fff, "V:%3d:%c:%-19s%3d:%3d:%3d:%3d:%d\n",
-					i, index_char, name, kv, rv, gv, bv, translate_into_16_colors(i));
+				/* Dump the monster attr/char info */
+				fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n",
+					i, kv, rv, gv, bv);
 			}
 
 			/* Skip a line */
@@ -5075,16 +3773,89 @@ void do_cmd_colors(void)
 			pref_footer(fff, mark);
 
 			/* Close */
-			(void)my_fclose(fff);
+			my_fclose(fff);
 
 			/* Message */
-			msg_print("Dumped color redefinitions in \"lib/user/color.prf\".");
+			msg_print("Dumped color redefinitions.");
 		}
 
 		/* Edit colors */
 		else if (ch == '3')
 		{
-			modify_colors();
+			static byte a = 0;
+
+			/* Prompt */
+			prt("Command: Modify colors", 8, 0);
+
+			/* Hack -- query until done */
+			while (TRUE)
+			{
+				cptr name;
+
+				/* Clear */
+				clear_from(10);
+
+				/* Exhibit the normal colors */
+				for (i = 0; i < 16; i++)
+				{
+					/* Exhibit this color */
+					Term_putstr(i*4, 20, -1, a, "###");
+
+					/* Exhibit all colors */
+					Term_putstr(i*4, 22, -1, (byte)i, format("%3d", i));
+				}
+
+				/* Describe the color */
+				name = ((a < 16) ? color_names[a] : "undefined");
+
+				/* Describe the color */
+				Term_putstr(5, 10, -1, TERM_WHITE,
+					format("Color = %d, Name = %s", a, name));
+
+				/* Label the Current values */
+				Term_putstr(5, 12, -1, TERM_WHITE,
+					format("K = 0x%02x / R,G,B = 0x%02x,0x%02x,0x%02x",
+					angband_color_table[a][0],
+					angband_color_table[a][1],
+					angband_color_table[a][2],
+					angband_color_table[a][3]));
+
+				/* Prompt */
+				Term_putstr(0, 14, -1, TERM_WHITE,
+					"Command (n/N/k/K/r/R/g/G/b/B): ");
+
+				/* Get a command */
+				cx = inkey();
+
+				/* All done */
+				if (cx == ESCAPE) break;
+
+				/* Analyze */
+				if (cx == 'n') a = (byte)(a + 1);
+				if (cx == 'N') a = (byte)(a - 1);
+				if (cx == 'k') angband_color_table[a][0] =
+				                  (byte)(angband_color_table[a][0] + 1);
+				if (cx == 'K') angband_color_table[a][0] =
+				                  (byte)(angband_color_table[a][0] - 1);
+				if (cx == 'r') angband_color_table[a][1] =
+				                  (byte)(angband_color_table[a][1] + 1);
+				if (cx == 'R') angband_color_table[a][1] =
+				                  (byte)(angband_color_table[a][1] - 1);
+				if (cx == 'g') angband_color_table[a][2] =
+				                  (byte)(angband_color_table[a][2] + 1);
+				if (cx == 'G') angband_color_table[a][2] =
+				                  (byte)(angband_color_table[a][2] - 1);
+				if (cx == 'b') angband_color_table[a][3] =
+				                  (byte)(angband_color_table[a][3] + 1);
+				if (cx == 'B') angband_color_table[a][3] =
+				                  (byte)(angband_color_table[a][3] - 1);
+
+				/* Hack -- react to changes */
+				Term_xtra(TERM_XTRA_REACT, 0);
+
+				/* Hack -- redraw */
+				Term_redraw();
+			}
 		}
 
 		/* Help me. */
@@ -5093,6 +3864,8 @@ void do_cmd_colors(void)
 			p_ptr->get_help_index = HELP_CMD_COLORS;
 			do_cmd_help();
 		}
+
+#endif /* ALLOW_COLORS */
 
 		/* Unknown option */
 		else
@@ -5105,27 +3878,29 @@ void do_cmd_colors(void)
 	}
 
 
-	/* Restore previous display */
-	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
+	/* Set to 50 screen rows, if we were showing 50 before */
+	if (old_rows == 50) Term_rows(TRUE);
+
+	/* Load screen */
+	screen_load();
 
 	/* Do a complete screen refresh  XXX XXX */
 	do_cmd_redraw();
 }
 
 
-
 /*
- * Note something in the message recall.  -CK-
+ * Note something in the message recall
  */
 void do_cmd_note(void)
 {
-	char tmp[1024];
+	char tmp[80];
 
 	/* Default */
 	strcpy(tmp, "");
 
 	/* Input */
-	if (!get_string("Note:", tmp, 1024)) return;
+	if (!get_string("Note:", tmp, 80)) return;
 
 	/* Ignore empty notes */
 	if (!tmp[0] || (tmp[0] == ' ')) return;
@@ -5140,7 +3915,7 @@ void do_cmd_note(void)
  */
 void do_cmd_version(void)
 {
-	/* Version message */
+	/* Silly message */
 	msg_format("You are playing %s %s.  Type '?' for more info.",
 		VERSION_NAME, VERSION_STRING);
 }
@@ -5148,31 +3923,28 @@ void do_cmd_version(void)
 
 /*
  * Array of feeling strings
- *
- * The "negative" feelings idea is from Zangband.
  */
 static cptr do_cmd_feeling_text[11] =
 {
-	"You are still uncertain about this place...",
-	"You feel there is something special here...",
-	"Premonitions of death appall you!  This place is murderous!",
-	"This place feels terribly dangerous!",
-	"You have a nasty feeling about this place.",
-	"You have a bad feeling about this place.",
-	"You feel nervous.",
-	"You have an uneasy feeling.",
-	"You have a faint uneasy feeling.",
-	"This place seems reasonably safe.",
-	"This seems a quiet, peaceful place."
+	"You are still uncertain about this level...",
+	"You feel there is something special about this level.",
+	"You have a superb feeling about this level.",
+	"You have an excellent feeling...",
+	"You have a very good feeling...",
+	"You have a good feeling...",
+	"You feel strangely lucky...",
+	"You feel your luck is turning...",
+	"You like the look of this place...",
+	"This level can't be all bad...",
+	"This seems a very quiet place..."
 };
-
 
 
 /*
  * Note that "feeling" is set to zero unless some time has passed.
  * Note that this is done when the level is GENERATED, not entered.
  */
-void do_cmd_feeling(bool first_time)
+void do_cmd_feeling(void)
 {
 	cptr quest_feel;
 
@@ -5182,36 +3954,22 @@ void do_cmd_feeling(bool first_time)
 	/* No useful feeling in town */
 	if (!p_ptr->depth)
 	{
-		msg_print("The town seems safe enough.");
+		msg_print("Looks like a typical town.");
+		return;
+	}
+
+	/* No useful feelings until enough time has passed */
+	if (no_feeling_yet)
+	{
+		msg_print("You are still uncertain about this level...");
 		return;
 	}
 
 	/* Display the precognition messages  XXX XXX */
-	if (!first_time) precog_msg(PRECOG_DISPLAY);
-
-	/* No useful general feelings until enough time has passed */
-	if (no_feeling_yet)
-	{
-		msg_print("You are still uncertain about this place...");
-		return;
-	}
+	precog_msg(NULL);
 
 	/* Display the feeling */
-	if (TRUE)
-	{
-		int msg_attr = MSG_WHITE;
-
-		/* Special colors for special feelings */
-		if      (feeling == 0) msg_attr = MSG_SLATE;
-		else if (feeling == 1) msg_attr = MSG_L_PURPLE;
-		else if (feeling == 2) msg_attr = MSG_RED;
-		else if (feeling <= 4) msg_attr = MSG_ORANGE;
-		else if (feeling <= 6) msg_attr = MSG_YELLOW;
-
-		/* Message */
-		message(msg_attr, (first_time ? 250 : 0),
-			do_cmd_feeling_text[feeling]);
-	}
+	msg_print(do_cmd_feeling_text[feeling]);
 
 	/* Display the quest description for the current level */
 	quest_feel = describe_quest(p_ptr->depth, QMODE_SHORT);
@@ -5242,7 +4000,7 @@ void do_cmd_quest(void)
 			q_out = describe_quest(p_ptr->cur_quest, QMODE_FULL);
 
 			/* Break into two lines if necessary */
-			if ((int)strlen(q_out) < Term->cols - 5) msg_print(q_out);
+			if (strlen(q_out) < 70) msg_print(q_out);
 			else
 			{
 				q_out = describe_quest(p_ptr->cur_quest, QMODE_HALF_1);
@@ -5252,446 +4010,150 @@ void do_cmd_quest(void)
 			}
 		}
 	}
-
 	/* No quest at all */
 	else msg_print("You are not currently undertaking a quest.");
 }
 
 
-
 /*
- * Write HTML escape characters.
+ * Encode the screen colors
  */
-static void write_html_escape_char(FILE *htm, char c)
-{
-	switch (c)
-	{
-		case '<':
-			fprintf(htm, "&lt;");
-			break;
-		case '>':
-			fprintf(htm, "&gt;");
-			break;
-		case '&':
-			fprintf(htm, "&amp;");
-			break;
-		default:
-			fprintf(htm, "%c", c);
-			break;
-	}
-}
+static const char hack[17] = "dwsorgbuDWvyRGBU";
+
 
 /*
- * Take an html or vBulletin screenshot of both the main and the map term.
- * Used when "use_special_map" is ON.
+ * Hack -- load a screen dump from a file
  *
- * HACK -- Hard-coded handling of the status line below the map.  XXX XXX
+ * ToDo: Add support for loading/saving screen-dumps with graphics
+ * and pseudo-graphics.  Allow the player to specify the filename
+ * of the dump.
  */
-static void html_screenshot_aux_map(FILE *htm, int mode)
+void do_cmd_load_screen(void)
 {
-	int y, x, y1, x1;
-	int wid, hgt, wid_main, hgt_main, wid_map, hgt_map;
-	int status_line_y;
+	int i, y, x;
 
-	byte a;
-	byte oa = TERM_WHITE;
+	byte a = 0;
 	char c = ' ';
 
+	bool okay = TRUE;
 
-	/* Retrieve current term size */
-	(void)Term_get_size(&wid_main, &hgt_main);
-
-	/* Activate the map term */
-	(void)Term_activate(term_map);
-
-	/* Retrieve current map term size */
-	(void)Term_get_size(&wid_map, &hgt_map);
-
-	/* Activate the main term again */
-	(void)Term_activate(term_main);
-
-
-	/* The total size must accomodate the map plus all main term displays */
-	if (wid_main >= wid_map + COL_MAP)     wid = wid_main;
-	else                                   wid = wid_map + COL_MAP;
-	if (hgt_main >= hgt_map + ROW_MAP + 1) hgt = hgt_main;
-	else                                   hgt = hgt_map + ROW_MAP + 1;
-
-	/* Hack -- the status line always goes at the bottom */
-	status_line_y = hgt - 1;
-
-
-	/* Dump both main and map terms */
-	for (y = 0; y < hgt; y++)
-	{
-		for (x = 0; x < wid; x++)
-		{
-			/* Which term should we get data from? */
-			if ((y >= ROW_MAP) && (y != status_line_y) && (x >= COL_MAP))
-			{
-				/* The map term is offset within the main term */
-				(void)Term_activate(term_map);
-				y1 = y - ROW_MAP;
-				x1 = x - COL_MAP;
-			}
-			else
-			{
-				/* The main term is not offset */
-				(void)Term_activate(term_main);
-				y1 = y;
-				x1 = x;
-
-				/* ... except for the status line, which must come last  XXX XXX */
-				if (y == status_line_y) y1 = ROW_STATUS;
-			}
-
-			/* Handle illegal space by making it blank */
-			if ((y1 >= Term->rows) || (x1 >= Term->cols))
-			{
-				/* Use current color, if legal */
-				a = ((oa != 255) ? oa : TERM_WHITE);
-
-				/* Print spaces */
-				c = ' ';
-			}
-
-			/* If legal, get the ASCII tile */
-			else
-			{
-				a = Term->scr->a[y1][x1];
-				c = Term->scr->c[y1][x1];
-			}
-
-			/* Color change -- only for non-space */
-			if ((a != oa) && (c != ' '))
-			{
-				/* From the default white to another color */
-				if (oa == TERM_WHITE)
-				{
-					if (mode == 1)
-					{
-						fprintf(htm, "[color=\"#%02X%02X%02X\"]",
-							color_table[a].rv,
-							color_table[a].gv,
-							color_table[a].bv);
-					}
-					else
-					{
-						fprintf(htm, "<font color=\"#%02X%02X%02X\">",
-							color_table[a].rv,
-							color_table[a].gv,
-							color_table[a].bv);
-					}
-				}
-
-				/* From another color to the default white */
-				else if (a == TERM_WHITE)
-				{
-					/* Close the <font> or [color] tag */
-					if (mode == 1) fprintf(htm, "[/color]");
-					else           fprintf(htm, "</font>");
-				}
-
-				/* Change colors */
-				else
-				{
-					if (mode == 1)
-					{
-						fprintf(htm, "[/color][color=\"#%02X%02X%02X\"]",
-							color_table[a].rv,
-							color_table[a].gv,
-							color_table[a].bv);
-					}
-					else
-					{
-						fprintf(htm, "</font><font color=\"#%02X%02X%02X\">",
-							color_table[a].rv,
-							color_table[a].gv,
-							color_table[a].bv);
-					}
-				}
-
-				/* Remember the last color */
-				oa = a;
-			}
-
-			/* Write the character and escape special HTML characters */
-			if (mode == 1) fprintf(htm, "%c", c);
-			else           write_html_escape_char(htm, c);
-		}
-
-		/* End the row */
-		fprintf(htm, "\n");
-	}
-
-	/* Close the last <font> or [color] tag */
-	if (mode == 1) fprintf(htm, "[/color]");
-	else           fprintf(htm, "</font>");
-
-	/* Close out the "white" tag if necessary */
-	if (oa != TERM_WHITE)
-	{
-		if (mode == 1) fprintf(htm, "[/color]");
-		else           fprintf(htm, "</font>");
-	}
-}
-
-
-
-/*
- * Take an html or vBulletin screenshot of the current term (only).
- * Used when "use_special_map" is OFF.
- */
-void html_screenshot_aux_main(FILE *htm, int mode)
-{
-	int y, x;
-	int wid, hgt;
-
-	byte a;
-	byte oa = TERM_WHITE;
-	char c = ' ';
-
-	/* Retrieve current screen size */
-	(void)Term_get_size(&wid, &hgt);
-
-
-	/* Dump the screen */
-	for (y = 0; y < hgt; y++)
-	{
-		for (x = 0; x < wid; x++)
-		{
-			/* Get the ASCII tile */
-			a = Term->scr->a[y][x];
-			c = Term->scr->c[y][x];
-
-			/* Color change -- only for non-space */
-			if ((a != oa) && (c != ' '))
-			{
-				/* From the default white to another color */
-				if (oa == TERM_WHITE)
-				{
-					if (mode == 1)
-					{
-						fprintf(htm, "[color=\"#%02X%02X%02X\"]",
-							color_table[a].rv,
-							color_table[a].gv,
-							color_table[a].bv);
-					}
-					else
-					{
-						fprintf(htm, "<font color=\"#%02X%02X%02X\">",
-							color_table[a].rv,
-							color_table[a].gv,
-							color_table[a].bv);
-					}
-				}
-
-				/* From another color to the default white */
-				else if (a == TERM_WHITE)
-				{
-					/* Close the <font> or [color] tag */
-					if (mode == 1) fprintf(htm, "[/color]");
-					else           fprintf(htm, "</font>");
-				}
-
-				/* Change colors */
-				else
-				{
-					if (mode == 1)
-					{
-						fprintf(htm, "[/color][color=\"#%02X%02X%02X\"]",
-							color_table[a].rv,
-							color_table[a].gv,
-							color_table[a].bv);
-					}
-					else
-					{
-						fprintf(htm, "</font><font color=\"#%02X%02X%02X\">",
-							color_table[a].rv,
-							color_table[a].gv,
-							color_table[a].bv);
-					}
-				}
-
-				/* Remember the last color */
-				oa = a;
-			}
-
-			/* Write the character and escape special HTML characters */
-			if (mode == 1) fprintf(htm, "%c", c);
-			else           write_html_escape_char(htm, c);
-		}
-
-		/* End the row */
-		fprintf(htm, "\n");
-	}
-
-	/* Close the last <font> or [color] tag */
-	if (mode == 1) fprintf(htm, "[/color]");
-	else           fprintf(htm, "</font>");
-
-	/* Close out the "white" tag if necessary */
-	if (oa != TERM_WHITE)
-	{
-		if (mode == 1) fprintf(htm, "[/color]");
-		else           fprintf(htm, "</font>");
-	}
-}
-
-
-/*
- * Take an html or vBulletin screenshot.
- *
- * Idea from ToME, code from Angband.
- */
-static void html_screenshot(cptr name, int mode)
-{
-	FILE *htm;
+	FILE *fp;
 
 	char buf[1024];
 
+
 	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump.txt");
+
+	/* Append to the file */
+	fp = my_fopen(buf, "r");
+
+	/* Oops */
+	if (!fp) return;
+
+
+	/* Save screen */
+	screen_save();
+
+
+	/* Clear the screen */
+	Term_clear();
+
+
+	/* Load the screen */
+	for (y = 0; okay && (y < Term->hgt); y++)
+	{
+		/* Get a line of data */
+		if (my_fgets(fp, buf, sizeof(buf))) okay = FALSE;
+
+		/* Show each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Put the attr/char */
+			Term_draw(x, y, TERM_WHITE, buf[x]);
+		}
+	}
+
+	/* Get the blank line */
+	if (my_fgets(fp, buf, sizeof(buf))) okay = FALSE;
+
+
+	/* Dump the screen */
+	for (y = 0; okay && (y < Term->hgt); y++)
+	{
+		/* Get a line of data */
+		if (my_fgets(fp, buf, sizeof(buf))) okay = FALSE;
+
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Look up the attr */
+			for (i = 0; i < 16; i++)
+			{
+				/* Use attr matches */
+				if (hack[i] == buf[x]) a = i;
+			}
+
+			/* Put the attr/char */
+			Term_draw(x, y, a, c);
+		}
+	}
+
+	/* Close it */
+	my_fclose(fp);
+
+
+	/* Message */
+	msg_print("Screen dump loaded.");
+	message_flush();
+
+	/* Load screen */
+	screen_load();
+}
+
+/*
+ * Hack -- save a screen dump to a file
+ */
+void do_cmd_save_screen(void)
+{
+	int y, x;
+
+	byte a = 0;
+	char c = ' ';
+
+	FILE *fp;
+
+	char buf[1024];
+
+
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump.txt");
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Append to the file */
-	htm = my_fopen(buf, "w");
+	fp = my_fopen(buf, "w");
 
 	/* Oops */
-	if (!htm)
-	{
-		plog_fmt("Cannot write the '%s' file!", buf);
-		return;
-	}
-
-	/* Write headers */
-	if (mode == 1)
-	{
-		/* Write vBulletin headers */
-		fprintf(htm, "[code][tt][bc=black][color=white]\n");
-	}
-	else
-	{
-		/* Write HTML headers */
-		fprintf(htm, "<html>\n");
-		fprintf(htm, "<head>\n");
-		fprintf(htm, "<meta name=\"generator\" Content=\"%s %d.%d.%d\">\n",
-			VERSION_NAME, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-		fprintf(htm, "<title>%s</title>\n", name);
-		fprintf(htm, "</head>\n\n");
-		fprintf(htm, "<body bgcolor=\"#000000\"><font color=\"#FFFFFF\">\n");
-		fprintf(htm, "<pre><tt>\n");
-	}
-
-	/* Save screen information to file */
-	if (use_special_map)
-	{
-		html_screenshot_aux_map(htm, mode);
-	}
-	else
-	{
-		html_screenshot_aux_main(htm, mode);
-	}
-
-	/* Close out the codes */
-	if (mode == 1)
-	{
-		/* Close out the vBulletin codes */
-		fprintf(htm, "[/bc][/tt][/code]\n");
-	}
-	else
-	{
-		/* Close out the HTML codes */
-		fprintf(htm, "</tt></pre>\n");
-		fprintf(htm, "</body>\n");
-		fprintf(htm, "</html>\n");
-	}
-
-	/* Close the file */
-	(void)my_fclose(htm);
-}
+	if (!fp) return;
 
 
-/*
- * Take a textual screenshot of both the main and the map term.  Used when
- * "use_special_map" is ON.
- *
- * HACK -- Hard-coded handling of the status line below the map.  XXX XXX
- */
-static void text_screenshot_aux_map(FILE *fp)
-{
-	int y, x, y1, x1;
-	int wid, hgt, wid_main, hgt_main, wid_map, hgt_map;
-	int status_line_y;
-
-	byte a = 0;
-	char c = ' ';
-	char buf[1024];
-
-
-	/* Retrieve current term size */
-	(void)Term_get_size(&wid_main, &hgt_main);
-
-	/* Activate the map term */
-	(void)Term_activate(term_map);
-
-	/* Retrieve current map term size */
-	(void)Term_get_size(&wid_map, &hgt_map);
-
-	/* Activate the main term again */
-	(void)Term_activate(term_main);
-
-
-	/* The total size must accomodate the map plus all main term displays */
-	if (wid_main >= wid_map + COL_MAP)     wid = wid_main;
-	else                                   wid = wid_map + COL_MAP;
-	if (hgt_main >= hgt_map + ROW_MAP + 1) hgt = hgt_main;
-	else                                   hgt = hgt_map + ROW_MAP + 1;
-
-	/* Hack -- the status line always goes at the bottom */
-	status_line_y = hgt - 1;
+	/* Save screen */
+	screen_save();
 
 
 	/* Dump the screen */
-	for (y = 0; y < hgt; y++)
+	for (y = 0; y < Term->hgt; y++)
 	{
 		/* Dump each row */
-		for (x = 0; x < wid; x++)
+		for (x = 0; x < 79; x++)
 		{
-			/* Which term should we get data from? */
-			if ((y >= ROW_MAP) && (y != status_line_y) && (x >= COL_MAP))
-			{
-				/* The map term is offset within the main term */
-				(void)Term_activate(term_map);
-				y1 = y - ROW_MAP;
-				x1 = x - COL_MAP;
-			}
-			else
-			{
-				/* The main term is not offset */
-				(void)Term_activate(term_main);
-				y1 = y;
-				x1 = x;
-
-				/* ... except for the status line, which must come last */
-				if (y == status_line_y) y1 = ROW_STATUS;
-			}
-
-			/* Handle illegal space by making it blank */
-			if ((y1 >= Term->rows) || (x1 >= Term->cols))
-			{
-				a = TERM_WHITE;
-				c = ' ';
-			}
-
-			/* If legal, get the ASCII tile */
-			else
-			{
-				/* Get the attr/char */
-				(void)(Term_what(x1, y1, &a, &c));
-			}
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
 
 			/* Dump it */
 			buf[x] = c;
@@ -5703,214 +4165,46 @@ static void text_screenshot_aux_map(FILE *fp)
 		/* End the row */
 		fprintf(fp, "%s\n", buf);
 	}
-}
 
-
-
-/*
- * Save character (but not color) information to file.
- */
-static void text_screenshot(cptr name)
-{
-	int y, x;
-	int wid, hgt;
-
-	byte a = 0;
-	char c = ' ';
-
-	FILE *fp;
-
-	char buf[1024];
-
-
-	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Append to the file */
-	fp = my_fopen(buf, "w");
-
-	/* Oops */
-	if (!fp)
-	{
-		plog_fmt("Cannot write the '%s' file!", buf);
-		return;
-	}
-
-	/* Different handling if a special map term exists */
-	if (use_special_map)
-	{
-		text_screenshot_aux_map(fp);
-	}
-
-	/* Standard case */
-	else
-	{
-		/* Retrieve current screen size */
-		(void)Term_get_size(&wid, &hgt);
-
-		/* Dump the screen */
-		for (y = 0; y < hgt; y++)
-		{
-			/* Dump each row */
-			for (x = 0; x < wid; x++)
-			{
-				/* Get the attr/char */
-				(void)(Term_what(x, y, &a, &c));
-
-				/* Dump it */
-				buf[x] = c;
-			}
-
-			/* Terminate */
-			buf[x] = '\0';
-
-			/* End the row */
-			fprintf(fp, "%s\n", buf);
-		}
-	}
-
-	/* End the file */
+	/* Skip a line */
 	fprintf(fp, "\n");
 
-	/* Close it */
-	(void)my_fclose(fp);
-}
 
-
-/*
- * Save a screen shot to file.
- */
-void do_cmd_save_screen(void)
-{
-	char filename[80] = "";
-	char c = ESCAPE;
-	int i;
-	int mode = 0;
-
-
-	/* Choose */
-	while (TRUE)
+	/* Dump the screen */
+	for (y = 0; y < Term->hgt; y++)
 	{
-		if (!get_com("Choose a screenshot:  ('t' for text, 'f' for forum, 'h' for html, '?' for help):", &c)) return;
-
-		/* Pick a screenshot type */
-		if (strchr("TtFfHh", c)) break;
-
-		/* Get help */
-		if (c == '?')
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
 		{
-			/* Save the screen */
-			screen_save(TRUE);
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
 
-			/* Show contextual help */
-			p_ptr->get_help_index = HELP_SCREENSHOT;
-			do_cmd_help();
-
-			/* Load the screen */
-			screen_load();
+			/* Dump it */
+			buf[x] = hack[a & 0x0F];
 		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fp, "%s\n", buf);
 	}
 
-	/* Choose text or html */
-	if ((c == 't') || (c == 'T'))
-	{
-		strcpy(filename, "dump.txt");
-		mode = 0;
-	}
-	else if ((c == 'f') || (c == 'F'))
-	{
-		strcpy(filename, "dump-vB.txt");
-		mode = 1;
-	}
-	else
-	{
-		strcpy(filename, "dump.html");
-		mode = 2;
-	}
-
-	/* Ask for a file, allow cancel */
-	if (!get_string("Save screenshot as: ", filename, sizeof(filename))) return;
-
-	/* Save custom graphic preferences */
-	do_cmd_visuals('6');
-	do_cmd_visuals('7');
-	do_cmd_visuals('8');
-	do_cmd_visuals('9');
-	do_cmd_visuals('0');
+	/* Skip a line */
+	fprintf(fp, "\n");
 
 
-	/* Extract default attr/char code for features */
-	for (i = 0; i < z_info->f_max; i++)
-	{
-		feature_type *f_ptr = &f_info[i];
-
-		/* Assume we will use the underlying values */
-		f_ptr->x_attr_lit = f_ptr->x_attr_dim = f_ptr->x_attr = f_ptr->d_attr;
-		f_ptr->x_char_lit = f_ptr->x_char_dim = f_ptr->x_char = f_ptr->d_char;
-	}
-
-	/* Extract default attr/char code for objects */
-	for (i = 0; i < z_info->k_max; i++)
-	{
-		object_kind *k_ptr = &k_info[i];
-
-		/* Default attr/char */
-		k_ptr->x_attr = k_ptr->d_attr;
-		k_ptr->x_char = k_ptr->d_char;
-	}
-
-	/* Extract default attr/char code for monsters */
-	for (i = 0; i < z_info->r_max; i++)
-	{
-		monster_race *r_ptr = &r_info[i];
-
-		/* Default attr/char */
-		r_ptr->x_attr = r_ptr->d_attr;
-		r_ptr->x_char = r_ptr->d_char;
-	}
-
-	/* Extract default attr/char code for flavors */
-	for (i = 0; i < z_info->flavor_max; i++)
-	{
-		flavor_type *flavor_ptr = &flavor_info[i];
-
-		/* Default attr/char */
-		flavor_ptr->x_attr = flavor_ptr->d_attr;
-		flavor_ptr->x_char = flavor_ptr->d_char;
-	}
-
-	/* Process the basic text-mode preferences (no extended characters) */
-	(void)process_pref_file("font-xxx.prf");
-
-	/* Do a complete screen refresh */
-	do_cmd_redraw();
-
-	/* Save screen */
-	screen_save(FALSE);
+	/* Close it */
+	my_fclose(fp);
 
 
-	/* Take a screenshot */
-	if      (mode == 0) text_screenshot(filename);
-	else                html_screenshot(filename, mode);
+	/* Message */
+	msg_print("Screen dump saved.");
+	message_flush();
 
-
-	/* Reset the visuals, reload preferences */
-	reset_visuals();
-
-	/* Re-load custom graphic preferences */
-	(void)process_pref_file("scrn_tmp.txt");
 
 	/* Load screen */
 	screen_load();
-
-	/* Do a complete screen refresh */
-	do_cmd_redraw();
-
-	/* Message */
-	msg_format("Screenshot saved in the \"lib/user\" directory as \"%s\".", filename);
 }
 
 
@@ -5923,7 +4217,7 @@ static void do_cmd_knowledge_score(void)
 	char buf[1024];
 
 	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Grab permissions */
 	safe_setuid_grab();
@@ -5935,17 +4229,17 @@ static void do_cmd_knowledge_score(void)
 	safe_setuid_drop();
 
 	/* Display the score */
-	(void)predict_score();
+	predict_score();
 
 	/* Shut the high score file */
-	(void)fd_close(highscore_fd);
+	fd_close(highscore_fd);
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
 }
 
 
-#define BROWSER_ROWS	 (Term->rows - 9)
+#define BROWSER_ROWS	16
 
 
 
@@ -5966,7 +4260,7 @@ struct mon_struct
 static mon_struct monster_group[] =
 {
 	{ (char *) -1L, "uniques" },
-	{ (char *) -2L, "ghosts of adventurers past" },
+	{ (char *) -2L, "the player ghost" },
 	{ "A",  "angels" },
 	{ "a",  "ants" },
 	{ "b",  "bats" },
@@ -5991,7 +4285,7 @@ static mon_struct monster_group[] =
 	{ "k",  "kobolds" },
 	{ "l",  "lice" },
 	{ "L",  "liches" },
-	{ "$!?=\"\'.`~^+<>()[]{}\\|/:", "mimics" },
+	{ "$!?=\".`~^+<>()[]{}\\|/:", "mimics" },
 	{ "m",  "molds" },
 	{ "M",  "mummies" },
 	{ ",",  "mushroom patches" },
@@ -6118,22 +4412,19 @@ static obj_struct object_group[] =
 	{ TV_HAFTED,      "Hafted Weapons" },
 	{ TV_POLEARM,     "Polearms" },
 	{ TV_DIGGING,     "Diggers" },
-	{ TV_SLING,       "Slings" },
 	{ TV_BOW,         "Bows" },
-	{ TV_CROSSBOW,    "Crossbows" },
-	{ TV_SHOT,        "Missiles" },
 	{ TV_BOOTS,       "Boots" },
 	{ TV_GLOVES,      "Gloves" },
 	{ TV_HELM,        "Helms" },
 	{ TV_CROWN,       "Crowns" },
 	{ TV_SHIELD,      "Shields" },
 	{ TV_CLOAK,       "Cloaks" },
-	{ TV_SOFT_ARMOR,  "Soft Body Armor" },
-	{ TV_HARD_ARMOR,  "Hard Body Armor" },
+	{ TV_SOFT_ARMOR,  "Soft Body Armour" },
+	{ TV_HARD_ARMOR,  "Hard Body Armour" },
 	{ TV_DRAG_ARMOR,  "Dragon Scale Mail" },
 	{ TV_MAGIC_BOOK,  "Books of Sorcery" },
 	{ TV_PRAYER_BOOK, "Books of Piety" },
-	{ TV_NATURE_BOOK, "Stones of Nature" },
+	{ TV_NATURE_BOOK, "Books of Nature" },
 	{ TV_DARK_BOOK,   "Tomes of Necromancy" },
 	{ TV_COMPONENT,   "Components" },
 	{ TV_PARCHMENT,   "Parchments" },
@@ -6141,7 +4432,6 @@ static obj_struct object_group[] =
 	{ TV_ESSENCE,     "Essences" },
 	{ 0,              "" }
 };
-
 
 /*
  * Build a list of object indexes in the given group. Return the number
@@ -6189,85 +4479,18 @@ static int collect_objects(int grp_cur, int object_idx[])
 	return (object_cnt);
 }
 
-
 /*
  * Build a list of artifact indexes in the given group.  Return the number
- * of artifacts in the group.
+ * of artifacts in the group.  -EZ-
  */
 static int collect_artifacts(int grp_cur, int object_idx[])
 {
-	int i, y, x;
-	int object_cnt = 0;
-
-	bool *okay;
+	int i, object_cnt = 0;
 
 	/* Get a list of x_char in this group */
 	byte group_tval = object_group[grp_cur].tval;
 
-
-	/* Allocate the "okay" array */
-	C_MAKE(okay, z_info->a_max, bool);
-
-	/* Scan the artifacts */
-	for (i = 0; i < z_info->a_max; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
-
-		/* Default */
-		okay[i] = FALSE;
-
-		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
-
-		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
-
-		/* Assume okay */
-		okay[i] = TRUE;
-	}
-
-	/* Check the dungeon */
-	for (y = 0; y < dungeon_hgt; y++)
-	{
-		for (x = 0; x < dungeon_wid; x++)
-		{
-			object_type *o_ptr;
-
-			/* Scan all objects in the grid */
-			for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
-			{
-				/* Ignore non-artifacts */
-				if (!artifact_p(o_ptr)) continue;
-
-				/* Ignore known items */
-				if (object_known_p(o_ptr)) continue;
-
-				/* Note the artifact */
-				okay[o_ptr->artifact_index] = FALSE;
-			}
-		}
-	}
-
-	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Note the artifact */
-		okay[o_ptr->artifact_index] = FALSE;
-	}
-
-
-	/* Check every artifact */
+	/* Check every object */
 	for (i = 1; i < z_info->a_max; i++)
 	{
 		/* Get the artifact */
@@ -6276,30 +4499,23 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 		/* Skip empty artifacts */
 		if (!a_ptr->name) continue;
 
-		/* List only the dead or known ones */
-		if (!okay[i]) continue;
+		/* Skip artifacts that may appear again */
+		if (a_ptr->cur_num == 0) continue;
 
-		/* Skip artifacts not of the correct kind */
-		if (group_tval == TV_SHOT)
+		/* Artifact is of the correct kind */
+		if (a_ptr->tval == group_tval)
 		{
-			if (!is_missile(a_ptr)) continue;
+			/* Add the artifact */
+			object_idx[object_cnt++] = i;
 		}
-		else if (a_ptr->tval != group_tval) continue;
-
-		/* Add the artifact */
-		object_idx[object_cnt++] = i;
 	}
 
 	/* Terminate the list */
 	object_idx[object_cnt] = 0;
 
-	/* Free the "okay" array */
-	FREE(okay);
-
 	/* Return the number of artifacts */
 	return (object_cnt);
 }
-
 
 /*
  * Display the object groups.  -EZ-
@@ -6319,14 +4535,13 @@ static void display_group_list(int col, int row, int wid, int per_page,
 		byte attr = (grp_top + i == grp_cur) ? TERM_L_BLUE : TERM_WHITE;
 
 		/* Erase the entire line */
-		(void)Term_erase(col, row + i, wid);
+		Term_erase(col, row + i, wid);
 
 		/* Display the group label */
 		c_put_str(attr, (object ? object_group[grp].text :
 			format("%^s", monster_group[grp].text)), row + i, col);
 	}
 }
-
 
 /*
  * Create and observe a fake object or artifact.
@@ -6350,116 +4565,118 @@ static void observe_object_fake(int k_idx, int a_idx)
 	{
 		/* Create the object */
 		object_prep(o_ptr, k_idx);
-
-		/* We must be aware of the object kind */
-		if (!object_aware_p(o_ptr)) return;
 	}
 
-	/* We know basic information about this specific object */
-	o_ptr->ident |= (IDENT_KNOWN);
+	/* Identify the object normally XXX */
+	object_known(o_ptr);
 
 	/* Observe the object or artifact */
 	do_cmd_observe(o_ptr, FALSE);
 }
 
-
 /*
- * Move the cursor in a browser window.
- *
- * ch                 :  the command entered
- * Column             :  group or individual item lists
- * grp_cur, grp_cnt   :  position in group list, size of that list
- * list_cur, list_cnt :  position in individual item list, size of that list
+ * Move the cursor in a browser window.  -EZ-
  */
 static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 						   int *list_cur, int list_cnt)
 {
-	bool shift_key = FALSE;
+	int d, dy, dx;
+	int col = *column;
+	int grp = *grp_cur;
+	int list = *list_cur;
 
-	/* Allow all direction keys and shift-movement */
-	get_ui_direction(&ch, 0x00, &shift_key);
+	/* Extract direction */
+	d = target_dir(ch);
 
+	/* Extract coordinates */
+	dy = ddy[d];
+	dx = ddx[d];
 
-	/* Move up one page */
-	if ((ch == '7') || (ch == '9'))
+	/* Diagonals - hack */
+	if ((dx > 0) && dy)
 	{
-		/* Browsing group list */
-		if (!*column) *grp_cur -= BROWSER_ROWS;
+		/* Browse group list */
+		if (!col)
+		{
+			int old_grp = grp;
 
-		/* Browsing individual item list */
-		else *list_cur -= BROWSER_ROWS;
+			/* Move up or down */
+			grp += dy * BROWSER_ROWS;
+
+			/* Verify */
+			if (grp >= grp_cnt)	grp = grp_cnt - 1;
+			if (grp < 0) grp = 0;
+			if (grp != old_grp)	list = 0;
+		}
+
+		/* Browse sub-list list */
+		else
+		{
+			/* Move up or down */
+			list += dy * BROWSER_ROWS;
+
+			/* Verify */
+			if (list >= list_cnt) list = list_cnt - 1;
+			if (list < 0) list = 0;
+		}
+
+		(*grp_cur) = grp;
+		(*list_cur) = list;
+
+		return;
 	}
 
-	/* Move up one half page */
-	else if ((ch == '-') || (ch == '_'))
+	if (dx)
 	{
-		/* Browsing group list */
-		if (!*column) *grp_cur -= BROWSER_ROWS / 2;
+		col += dx;
+		if (col < 0) col = 0;
+		if (col > 1) col = 1;
 
-		/* Browsing individual item list */
-		else *list_cur -= BROWSER_ROWS / 2;
+		(*column) = col;
+
+		return;
 	}
 
-	/* Move up one */
-	else if (ch == '8')
+	/* Advance one full page */
+	if (ch == ' ')
 	{
-		/* Browsing group list */
-		if (!*column) *grp_cur -= (shift_key ? 5 : 1);
-
-		/* Browsing individual item list */
-		else *list_cur -= (shift_key ? 5 : 1);
+		dy = BROWSER_ROWS;
 	}
 
-
-	/* Move down one */
-	else if ((ch == '2') || (ch == '\r') || (ch == '\n'))
+	/* Back up one full page */
+	if (ch == '-')
 	{
-		/* Browsing group list */
-		if (!*column) *grp_cur += (shift_key ? 5 : 1);
-
-		/* Browsing individual item list */
-		else *list_cur += (shift_key ? 5 : 1);
+		dy = 0 - BROWSER_ROWS;
 	}
 
-	/* Move down one half page */
-	else if ((ch == '+') || (ch == '='))
+	/* Browse group list */
+	if (!col)
 	{
-		/* Browsing group list */
-		if (!*column) *grp_cur += BROWSER_ROWS / 2;
+		int old_grp = grp;
 
-		/* Browsing individual item list */
-		else *list_cur += BROWSER_ROWS / 2;
+		/* Move up or down */
+		grp += dy;
+
+		/* Verify */
+		if (grp < 0) grp = 0;
+		if (grp >= grp_cnt)	grp = grp_cnt - 1;
+		if (grp != old_grp)	list = 0;
 	}
 
-	/* Move down one page */
-	else if ((ch == '1') || (ch == '3') || (ch == ' '))
+	/* Browse sub-list list */
+	else
 	{
-		/* Browsing group list */
-		if (!*column) *grp_cur += BROWSER_ROWS;
+		/* Move up or down */
+		list += dy;
 
-		/* Browsing individual item list */
-		else *list_cur += BROWSER_ROWS;
+		/* Verify */
+		if (list >= list_cnt) list = list_cnt - 1;
+		if (list < 0) list = 0;
 	}
 
-
-	/* Shift columns */
-	else if ((ch == '6') && (*column == 0))
-	{
-		*column = 1;
-	}
-	else if ((ch == '4') && (*column == 1))
-	{
-		*column = 0;
-	}
-
-
-	/* Check bounds */
-	if (*list_cur >= list_cnt) *list_cur = list_cnt - 1;
-	if (*list_cur < 0) *list_cur = 0;
-	if (*grp_cur >= grp_cnt) *grp_cur = grp_cnt - 1;
-	if (*grp_cur < 0) *grp_cur = 0;
+	(*grp_cur) = grp;
+	(*list_cur) = list;
 }
-
 
 /*
  * Display the artifacts in a group.  -EZ-
@@ -6468,7 +4685,7 @@ static void display_artifact_list(int col, int row, int per_page,
 	int object_idx[], int object_cur, int object_top)
 {
 	int i;
-	char o_name[DESC_LEN];
+	char o_name[80];
 	object_type *o_ptr;
 	object_type forge;
 
@@ -6492,22 +4709,23 @@ static void display_artifact_list(int col, int row, int per_page,
 		make_fake_artifact(o_ptr, a_idx);
 
 		/* Get its name */
-		object_desc_store(o_name, sizeof(o_name), o_ptr, TRUE, 0);
+		object_desc_store(o_name, o_ptr, TRUE, 0);
 
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);
 
 		/* More information for wizards */
-		if (p_ptr->wizard)
+		if (p_ptr->noscore & (0x0002))
 			c_prt(attr, format("%d", a_idx), row + i, 70);
 	}
 
 	/* Clear remaining lines */
 	for (; i < per_page; i++)
 	{
-		(void)Term_erase(col, row + i, 255);
+		Term_erase(col, row + i, 255);
 	}
 }
+
 
 
 /*
@@ -6564,29 +4782,36 @@ static void do_cmd_knowledge_artifacts(void)
 		/* Handle a redraw request */
 		if (redraw)
 		{
-			(void)Term_clear();
+			clear_from(0);
 
 			/* Redraw */
 			prt("Knowledge - artifacts", 2, 0);
 			prt("Group", 4, 0);
 			prt("Name", 4, max + 3);
-			if (p_ptr->wizard) prt("Idx", 4, 70);
+			if (p_ptr->noscore & (0x0002)) prt("Idx", 4, 70);
 
 			for (i = 0; i < 78; i++)
 			{
-				(void)Term_putch(i, 5, TERM_WHITE, '=');
+				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
 			for (i = 0; i < BROWSER_ROWS; i++)
 			{
-				(void)Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
 
 			redraw = FALSE;
 		}
 
 		/* Scroll group list */
-		grp_top = MAX(0, grp_cur - BROWSER_ROWS + 1);
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + BROWSER_ROWS)
+			grp_top = grp_cur - BROWSER_ROWS + 1;
+
+		/* Scroll object list (artifact) */
+		if (object_cur < object_top) object_top = object_cur;
+		if (object_cur >= object_top + BROWSER_ROWS)
+			object_top = object_cur - BROWSER_ROWS + 1;
 
 		/* Display a list of object groups (artifact) */
 		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, TRUE,
@@ -6595,20 +4820,12 @@ static void do_cmd_knowledge_artifacts(void)
 		/* Get a list of artifacts in the current group */
 		object_cnt = collect_artifacts(grp_idx[grp_cur], object_idx);
 
-		/* Never leave the list */
-		if (object_cur >= object_cnt) object_cur = MAX(0, object_cnt - 1);
-
-		/* Scroll object list (artifact) */
-		object_top = MAX(0, object_cur - BROWSER_ROWS + 1);
-
 		/* Display a list of artifacts in the current group */
 		display_artifact_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur,
 			object_top);
 
-
 		/* Prompt */
-		if (column) prt("<dir>, return to inspect, ESC", BROWSER_ROWS + 7, 0);
-		else        prt("<dir>, ESC", BROWSER_ROWS + 7, 0);
+		prt("<dir>, 'I' to inspect, ESC", 23, 0);
 
 		/* The "current" object changed */
 		if (object_old != object_idx[object_cur])
@@ -6622,14 +4839,14 @@ static void do_cmd_knowledge_artifacts(void)
 
 		if (!column)
 		{
-			(void)Term_gotoxy(0, 6 + (grp_cur - grp_top));
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
 		}
 		else
 		{
-			(void)Term_gotoxy(max + 3, 6 + (object_cur - object_top));
+			Term_gotoxy(max + 3, 6 + (object_cur - object_top));
 		}
 
-		ch = inkey(FALSE);
+		ch = inkey();
 
 		/* Handle commands */
 		switch (ch)
@@ -6640,20 +4857,6 @@ static void do_cmd_knowledge_artifacts(void)
 				break;
 			}
 
-			case '\n':
-			case '\r':
-			{
-				if (!column)
-				{
-					column = 1;
-					break;
-				}
-
-				/* Fall through */
-			}
-
-			case 'R':
-			case 'r':
 			case 'I':
 			case 'i':
 			{
@@ -6678,7 +4881,6 @@ static void do_cmd_knowledge_artifacts(void)
 	/* XXX XXX Free the "object_idx" array */
 	FREE(object_idx);
 }
-
 
 /*
  * Display the monsters in a group.  -EZ-
@@ -6706,8 +4908,8 @@ static void display_monster_list(int col, int row, int per_page,
 		/* Display the monster name */
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
-			char name[DESC_LEN];
-			(void)strnfmt(name, sizeof(name), "%s, the %s", ghost_name, r_name + r_ptr->name);
+			char name[80];
+			sprintf(name, "%s, the %s", ghost_name, r_name + r_ptr->name);
 			c_prt(attr, name, row + i, col);
 		}
 		else
@@ -6715,13 +4917,13 @@ static void display_monster_list(int col, int row, int per_page,
 			c_prt(attr, r_name + r_ptr->name, row + i, col);
 		}
 
-		if (p_ptr->wizard)
+		if (p_ptr->noscore & (0x0002))
 		{
 			c_prt(attr, format ("%d", r_idx), row + i, 60);
 		}
 
 		/* Display symbol */
-		(void)Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
+		Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
 
 		/* Display kills - unique */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -6738,7 +4940,7 @@ static void display_monster_list(int col, int row, int per_page,
 	/* Clear remaining lines */
 	for (; i < per_page; i++)
 	{
-		(void)Term_erase(col, row + i, 255);
+		Term_erase(col, row + i, 255);
 	}
 }
 
@@ -6797,29 +4999,34 @@ static void do_cmd_knowledge_monsters(void)
 
 		if (redraw)
 		{
-			(void)Term_clear();
+			clear_from(0);
 
 			prt("Knowledge - Monsters", 2, 0);
 			prt("Group", 4, 0);
 			prt("Name", 4, max + 3);
-			if (p_ptr->wizard) prt("Idx", 4, 60);
+			if (p_ptr->noscore & (0x0002)) prt("Idx", 4, 60);
 			prt("Sym   Kills", 4, 67);
 
 			for (i = 0; i < 78; i++)
 			{
-				(void)Term_putch(i, 5, TERM_WHITE, '=');
+				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
 			for (i = 0; i < BROWSER_ROWS; i++)
 			{
-				(void)Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
 
 			redraw = FALSE;
 		}
 
 		/* Scroll group list */
-		grp_top = MAX(0, grp_cur - BROWSER_ROWS + 1);
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
+
+		/* Scroll monster list */
+		if (mon_cur < mon_top) mon_top = mon_cur;
+		if (mon_cur >= mon_top + BROWSER_ROWS) mon_top = mon_cur - BROWSER_ROWS + 1;
 
 		/* Display a list of monster groups */
 		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, FALSE,
@@ -6828,22 +5035,11 @@ static void do_cmd_knowledge_monsters(void)
 		/* Get a list of monsters in the current group */
 		mon_cnt = collect_monsters(grp_idx[grp_cur], mon_idx, 0x00);
 
-		/* Never leave the list */
-		if (mon_cur >= mon_cnt) mon_cur = MAX(0, mon_cnt - 1);
-
-		/* Scroll monster list */
-		mon_top = MAX(0, mon_cur - BROWSER_ROWS + 1);
-
 		/* Display a list of monsters in the current group */
 		display_monster_list(max + 3, 6, BROWSER_ROWS, mon_idx, mon_cur, mon_top);
 
-		/* Track selected monster, to enable recall in sub-win */
-		p_ptr->monster_race_idx = mon_idx[mon_cur];
-
-
 		/* Prompt */
-		if (column) prt("<dir>, return to recall, ESC", BROWSER_ROWS + 7, 0);
-		else        prt("<dir>, ESC", BROWSER_ROWS + 7, 0);
+		prt("<dir>, 'r' to recall, ESC", 23, 0);
 
 		/* Mega Hack -- track this monster race */
 		if (mon_cnt) monster_race_track(mon_idx[mon_cur]);
@@ -6853,14 +5049,14 @@ static void do_cmd_knowledge_monsters(void)
 
 		if (!column)
 		{
-			(void)Term_gotoxy(0, 6 + (grp_cur - grp_top));
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
 		}
 		else
 		{
-			(void)Term_gotoxy(max + 3, 6 + (mon_cur - mon_top));
+			Term_gotoxy(max + 3, 6 + (mon_cur - mon_top));
 		}
 
-		ch = inkey(ALLOW_CLICK);
+		ch = inkey();
 
 		switch (ch)
 		{
@@ -6870,22 +5066,8 @@ static void do_cmd_knowledge_monsters(void)
 				break;
 			}
 
-			case '\n':
-			case '\r':
-			{
-				if (!column)
-				{
-					column = 1;
-					break;
-				}
-
-				/* Fall through */
-			}
-
 			case 'R':
 			case 'r':
-			case 'I':
-			case 'i':
 			{
 				/* Recall on screen */
 				if (mon_idx[mon_cur])
@@ -6894,7 +5076,7 @@ static void do_cmd_knowledge_monsters(void)
 					screen_roff(mon_idx[mon_cur]);
 
 					/* Wait for a keypress */
-					(void)inkey(ALLOW_CLICK);
+					(void)inkey();
 
 					redraw = TRUE;
 				}
@@ -6905,9 +5087,6 @@ static void do_cmd_knowledge_monsters(void)
 			{
 				/* Move the cursor */
 				browser_cursor(ch, &column, &grp_cur, grp_cnt, &mon_cur, mon_cnt);
-
-				/* Display selected monster, if any */
-				p_ptr->window |= (PW_MONSTER);
 
 				break;
 			}
@@ -6929,7 +5108,9 @@ static void do_cmd_knowledge_kill_count(void)
 	FILE *fp;
 
 	char file_name[1024];
-	char buf[DESC_LEN];
+	char buf[120];
+
+	int old_rows = screen_rows;
 
 	u32b kills = 0;
 	u32b k;
@@ -6980,8 +5161,8 @@ static void do_cmd_knowledge_kill_count(void)
 	/* Nothing to recall */
 	if (!n)
 	{
-		/* No monsters killed */
-		msg_print("You have defeated no foes.");
+		/* No monsters to recall */
+		msg_print("No known monsters!");
 		message_flush();
 
 		/* XXX XXX Free the "who" array */
@@ -7112,7 +5293,7 @@ static void do_cmd_knowledge_kill_count(void)
 
 			/* Format group header with uppercase first letter */
 			strcpy(buf, format("%c%s",
-				my_toupper(monster_group[grp].text[0]),
+				toupper(monster_group[grp].text[0]),
 				monster_group[grp].text + 1));
 
 			/* Display group header */
@@ -7194,31 +5375,34 @@ static void do_cmd_knowledge_kill_count(void)
 	FREE(who);
 
 	/* Close the file */
-	(void)my_fclose(fp);
+	my_fclose(fp);
 
 
-	/* Use the standard or tall display and center an 80 column view */
-	if (more_tall_display)
-	{
-		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_TALL | DSP_CX,
-			80, 0);
-	}
-	else
-	{
-		display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX,
-			80, 0);
-	}
+	/* We want 50 rows */
+	if (text_50_rows) Term_rows(TRUE);
+
+	/* We don't */
+	else Term_rows(FALSE);
+
 
 	/* Display the file contents */
 	(void)show_file(file_name, "Kill Count", 0, 2);
 
-	/* Restore previous display */
-	display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
 
+	/* Set to 50 screen rows, if we were showing 50 before */
+	if (old_rows == 50)
+	{
+		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+		Term_rows(TRUE);
+	}
 
-	/* Reset "text_out()" vars */
-	text_out_wrap   = 0;
-	text_out_indent = 0;
+	/* Set to 25 rows, if we were showing 25 before */
+	else
+	{
+		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+		Term_rows(FALSE);
+	}
+
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
@@ -7233,25 +5417,21 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 	int object_cur, int object_top)
 {
 	int i;
-	object_kind *k_ptr;
-	byte attr, cursor;
-
 
 	/* Display lines until done */
-	for (i = 0; i < per_page; i++)
+	for (i = 0; i < per_page && object_idx[i]; i++)
 	{
 		/* Get the object index */
 		int k_idx = object_idx[object_top + i];
 
-		/* Stop at end of list */
-		if (k_idx <= 0) break;
-
 		/* Access the object */
-		k_ptr = &k_info[k_idx];
+		object_kind *k_ptr = &k_info[k_idx];
 
 		/* Choose a color */
-		attr =   ((k_ptr->special & (SPECIAL_AWARE)) ? TERM_WHITE : TERM_SLATE);
-		cursor = ((k_ptr->special & (SPECIAL_AWARE)) ? TERM_L_BLUE : TERM_BLUE);
+		byte attr =   ((k_ptr->special & (SPECIAL_AWARE)) ?
+			TERM_WHITE : TERM_SLATE);
+		byte cursor = ((k_ptr->special & (SPECIAL_AWARE)) ?
+			TERM_L_BLUE : TERM_BLUE);
 
 		/* Highlight selected object */
 		attr = ((i + object_top == object_cur) ? cursor : attr);
@@ -7259,27 +5439,23 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		/* Display the name */
 		c_prt(attr, k_name + k_ptr->name, row + i, col);
 
-		/* Display object index if a wizard */
-		if (p_ptr->wizard)
+		if (p_ptr->noscore & (0x0002))
 			c_prt(attr, format ("%d", k_idx), row + i, 70);
 
-		/* If object is aware, show what it looks like */
 		if (k_ptr->special & (SPECIAL_AWARE))
 		{
-			byte a = (k_ptr->flavor) ? (flavor_info[k_ptr->flavor].x_attr) :
-				(k_ptr->x_attr);
-			char c = (k_ptr->flavor) ? (flavor_info[k_ptr->flavor].x_char) :
-				(k_ptr->x_char);
+			byte a = misc_to_attr[k_ptr->flavor];
+			byte c = misc_to_char[k_ptr->flavor];
 
 			/* Display symbol */
-			(void)Term_putch(76, row + i, a, c);
+			Term_putch(76, row + i, a, c);
 		}
 	}
 
 	/* Clear remaining lines */
 	for (; i < per_page; i++)
 	{
-		(void)Term_erase(col, row + i, 255);
+		Term_erase(col, row + i, 255);
 	}
 }
 
@@ -7339,29 +5515,35 @@ static void do_cmd_knowledge_objects(void)
 
 		if (redraw)
 		{
-			(void)Term_clear();
+			clear_from(0);
 
 			prt("Knowledge - objects", 2, 0);
 			prt("Group", 4, 0);
 			prt("Name", 4, max + 3);
-			if (p_ptr->wizard) prt("Idx", 4, 70);
+			if (p_ptr->noscore & (0x0002)) prt("Idx", 4, 70);
 			prt("Sym", 4, 75);
 
 			for (i = 0; i < 78; i++)
 			{
-				(void)Term_putch(i, 5, TERM_WHITE, '=');
+				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
 			for (i = 0; i < BROWSER_ROWS; i++)
 			{
-				(void)Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
 
 			redraw = FALSE;
 		}
 
 		/* Scroll group list */
-		grp_top = MAX(0, grp_cur - BROWSER_ROWS + 1);
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
+
+		/* Scroll object list */
+		if (object_cur < object_top) object_top = object_cur;
+		if (object_cur >= object_top + BROWSER_ROWS)
+			object_top = object_cur - BROWSER_ROWS + 1;
 
 		/* Display a list of object groups */
 		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, TRUE,
@@ -7370,20 +5552,12 @@ static void do_cmd_knowledge_objects(void)
 		/* Get a list of objects in the current group */
 		object_cnt = collect_objects(grp_idx[grp_cur], object_idx);
 
-		/* Never leave the list */
-		if (object_cur >= object_cnt) object_cur = MAX(0, object_cnt - 1);
-
-		/* Scroll object list */
-		object_top = MAX(0, object_cur - BROWSER_ROWS + 1);
-
 		/* Display a list of objects in the current group */
 		display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur,
 			object_top);
 
-
 		/* Prompt */
-		if (column) prt("<dir>, return to inspect, ESC", BROWSER_ROWS + 7, 0);
-		else        prt("<dir>, ESC", BROWSER_ROWS + 7, 0);
+		prt("<dir>, 'I' to inspect, ESC", 23, 0);
 
 		/* Mega Hack -- track this object kind */
 		if (object_cnt) object_kind_track(object_idx[object_cur]);
@@ -7400,14 +5574,14 @@ static void do_cmd_knowledge_objects(void)
 
 		if (!column)
 		{
-			(void)Term_gotoxy(0, 6 + (grp_cur - grp_top));
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
 		}
 		else
 		{
-			(void)Term_gotoxy(max + 3, 6 + (object_cur - object_top));
+			Term_gotoxy(max + 3, 6 + (object_cur - object_top));
 		}
 
-		ch = inkey(ALLOW_CLICK);
+		ch = inkey();
 
 		switch (ch)
 		{
@@ -7417,20 +5591,6 @@ static void do_cmd_knowledge_objects(void)
 				break;
 			}
 
-			case '\n':
-			case '\r':
-			{
-				if (!column)
-				{
-					column = 1;
-					break;
-				}
-
-				/* Fall through */
-			}
-
-			case 'R':
-			case 'r':
 			case 'I':
 			case 'i':
 			{
@@ -7471,7 +5631,7 @@ static void do_cmd_knowledge_home(void)
 	FILE *fp;
 
 	object_type *o_ptr;
-	char o_name[DESC_LEN];
+	char o_name[120];
 
 	char file_name[1024];
 
@@ -7495,8 +5655,8 @@ static void do_cmd_knowledge_home(void)
 			/* Acquire item */
 			o_ptr = &st_ptr->stock[k];
 
-			/* Get object description */
-			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+			/* Acquire object description */
+			object_desc(o_name, o_ptr, TRUE, 3);
 
 			/* Print a message */
 			fprintf(fp, "     %s\n", o_name);
@@ -7504,57 +5664,48 @@ static void do_cmd_knowledge_home(void)
 	}
 
 	/* Close the file */
-	(void)my_fclose(fp);
+	my_fclose(fp);
 
 	/* Display the file contents */
 	show_file(file_name, "Contents of Your Home", 0, 2);
 
 	/* Remove the file */
-	(void)fd_kill(file_name);
+	fd_kill(file_name);
 }
-
 
 /*
  * Display the current quest and, underneath it, all previous quests.
  */
-void do_cmd_knowledge_quests(FILE *fp)
+static void do_cmd_knowledge_quests(void)
 {
+	char buf[100];
 	int wid;
 	int i, level;
 	bool quests = FALSE;
-	bool temp_file = FALSE;
 	int attr;
 
-	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+	char name[80];
+	char intro[80];
+	char targets[80];
+	char where[80];
 
-	char buf[DESC_LEN];
-	char name[DESC_LEN];
-	char intro[DESC_LEN];
-	char targets[DESC_LEN];
-	char where[DESC_LEN];
-
+	FILE *fp;
 	char file_name[1024];
 
 
-	/* We have not been given a file to write into */
+	/* Temporary file */
+	fp = my_fopen_temp(file_name, sizeof(file_name));
+
+	/* Failure */
 	if (!fp)
 	{
-		/* Temporary file */
-		fp = my_fopen_temp(file_name, sizeof(file_name));
-
-		/* Notice failure */
-		if (!fp)
-		{
-			msg_print("Could not open a temporary file to show your quests.");
-			return;
-		}
-
-		temp_file = TRUE;
+		msg_print("Could not open a temporary file to show your quests.");
+		return;
 	}
 
 
 	/* Set margins */
-	text_out_wrap   = temp_file ? 77 : 70;
+	text_out_wrap   = 77;
 	text_out_indent = 3;
 
 	/* Dump to the file */
@@ -7567,19 +5718,19 @@ void do_cmd_knowledge_quests(FILE *fp)
 	/* Winner */
 	if (p_ptr->total_winner)
 	{
-		center_string(buf, sizeof(buf), "You have slain Morgoth, Lord of Darkness!", wid);
+		center_string(buf, "You have slain Morgoth, Lord of Darkness!", wid);
 		text_out_c(TERM_L_BLUE, format("%s\n\n", buf));
 	}
 
 	/* Killed Sauron */
 	else if (!r_info[MON_SAURON].max_num)
 	{
-		center_string(buf, sizeof(buf), "You have slain Sauron, the Sorcerer; only Morgoth now remains!", wid);
+		center_string(buf, "You have slain Sauron, the Sorcerer; only Morgoth now remains!", wid);
 		text_out_c(TERM_L_BLUE, format("%s\n\n", buf));
 	}
 
 	/* Print the current quest, if any */
-	if ((p_ptr->cur_quest) && (q_ptr->active_level))
+	if (p_ptr->cur_quest)
 	{
 		text_out_c(TERM_L_BLUE,
 			format("%s\n\n", describe_quest(p_ptr->cur_quest, QMODE_FULL)));
@@ -7587,12 +5738,9 @@ void do_cmd_knowledge_quests(FILE *fp)
 
 
 	/* Print fame */
-	if (temp_file)
-	{
-		get_fame_desc(&attr, name);
-		center_string(buf, sizeof(buf), format("Fame:  %s", name), wid);
-		text_out_c(attr, format("%s\n\n", buf));
-	}
+	get_fame_desc(&attr, name);
+	center_string(buf, format("Fame:  %s", name), wid);
+	text_out_c(attr, format("%s\n\n", buf));
 
 
 	/* Print previous quests */
@@ -7607,7 +5755,7 @@ void do_cmd_knowledge_quests(FILE *fp)
 			strcpy(name, r_name + r_ptr->name);
 
 			/* Start the list */
-			if (!quests && temp_file) text_out("Previous Quests:\n");
+			if (!quests) text_out("Previous Quests:\n");
 
 			/* We've displayed at least one quest */
 			quests = TRUE;
@@ -7616,10 +5764,7 @@ void do_cmd_knowledge_quests(FILE *fp)
 			if (p_ptr->quest_memory[i].succeeded)
 			{
 				strcpy(intro, "Defeated");
-				if (p_ptr->cur_quest == p_ptr->quest_memory[i].level)
-					attr = TERM_L_GREEN;
-				else
-					attr = TERM_WHITE;
+				attr = TERM_WHITE;
 			}
 			else
 			{
@@ -7631,7 +5776,7 @@ void do_cmd_knowledge_quests(FILE *fp)
 			if (p_ptr->quest_memory[i].max_num > 1)
 			{
 				plural_aux(name);
-				(void)my_strcpy(targets, format("%d %s",
+				my_strcpy(targets, format("%d %s",
 					p_ptr->quest_memory[i].max_num, name), sizeof(targets));
 			}
 
@@ -7640,13 +5785,12 @@ void do_cmd_knowledge_quests(FILE *fp)
 			{
 				if (r_ptr->flags1 & (RF1_UNIQUE))
 				{
-					(void)my_strcpy(targets, format("%s", name), sizeof(targets));
+					my_strcpy(targets, format("%s", name), sizeof(targets));
 				}
 
-				else if (my_is_vowel(name[0]))
-					(void)my_strcpy(targets, format("an %s", name), sizeof(targets));
-				else
-					(void)my_strcpy(targets, format("a %s",  name), sizeof(targets));
+				else if (is_a_vowel(name[0]))
+				     my_strcpy(targets, format("an %s", name), sizeof(targets));
+				else my_strcpy(targets, format("a %s",  name), sizeof(targets));
 			}
 
 			/* The location of the quest */
@@ -7655,10 +5799,9 @@ void do_cmd_knowledge_quests(FILE *fp)
 			if (!depth_in_feet) strcpy(where, format("on level %d", level));
 			else
 			{
-				if (!use_metric)
-					(void)strcpy(where, format("at %d feet", level * 50));
-				else
-					(void)strcpy(where, format("at %d meters", level * 15));
+				if (!use_metric) strcpy(where, format("at %d feet",
+					level * 50));
+				else strcpy(where, format("at %d meters", level * 15));
 			}
 
 			/* Print this quest */
@@ -7676,63 +5819,72 @@ void do_cmd_knowledge_quests(FILE *fp)
 	text_out_wrap   = 0;
 	text_out_indent = 0;
 
+	/* Close the file */
+	my_fclose(fp);
 
-	/* Using a temporary file */
-	if (temp_file)
-	{
-		/* Close the file */
-		(void)my_fclose(fp);
+	/* Display the file contents */
+	show_file(file_name, "Current and Completed Quests", 0, 2);
 
-		/* Display the file contents */
-		show_file(file_name, "Current and Completed Quests", 0, 2);
-
-		/* Remove the file */
-		(void)fd_kill(file_name);
-	}
+	/* Remove the file */
+	fd_kill(file_name);
 }
 
 /*
  * Interact with "knowledge"
  *
- * The code for artifacts, objects, and monsters is taken from EyAngband.
- * That for the monster killed count is taken from Zangband.
+ * The code for artifacts, objects, and monsters is taken from Eytan Zweig's
+ * EyAngband.  That for the monster killed count is taken from Zangband.
  */
 void do_cmd_knowledge(void)
 {
 	char ch;
 
+	int old_rows = screen_rows;
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Save and center screen */
-	display_change(DSP_REMEMBER | DSP_LOCK | DSP_CX, 80, 0);
 
+	/* Save screen */
+	screen_save();
+
+	/* Set to 25 rows */
+	Term_rows(FALSE);
 
 	/* Interact until done */
 	while (TRUE)
 	{
-		/* Clear screen and switch to standard view */
-		display_change(DSP_CLEAR | DSP_NORM, 0, 0);
+		/* Clear screen */
+		Term_clear();
 
 		/* Ask for a choice */
 		prt("Display current knowledge", 2, 0);
 
 		/* Give some choices */
-		prt("(1) High scores",                        4, 5);
-		prt("(2) Display known (or lost) artifacts",  5, 5);
-		prt("(3) Known monsters",                     6, 5);
-		prt("(4) Kill count",                         7, 5);
-		prt("(5) Known objects",                      8, 5);
-		prt("(6) Contents of your home",              9, 5);
-		prt("(7) Current and completed quests",      10, 5);
-		if (p_ptr->self_knowledge) prt("(8) Self Knowledge",      11, 5);
+		prt("(1) Display score",                         4, 5);
+		prt("(3) Display known monsters",                6, 5);
+		prt("(4) Display kill count",                    7, 5);
+		prt("(5) Display known objects",                 8, 5);
+		prt("(6) Display contents of your home",         9, 5);
+		prt("(7) Display current and completed quests", 10, 5);
+
+		/* When in town, we can also check artifacts  XXX XXX */
+		if (!p_ptr->depth)
+		{
+			prt("(2) Display known (or lost) artifacts",  5, 5);
+		}
+		else
+		{
+			c_prt(TERM_SLATE,
+				"(2) Cannot check known artifacts while in the dungeon",
+				5, 5);
+		}
 
 		/* Prompt */
-		prt("Choice: ", (p_ptr->self_knowledge ? 13 : 12), 0);
+		prt("Command: ", 11, 0);
 
 		/* Prompt */
-		ch = inkey(FALSE);
+		ch = inkey();
 
 		/* Done */
 		if (ch == ESCAPE) break;
@@ -7740,86 +5892,70 @@ void do_cmd_knowledge(void)
 		/* Game Score */
 		if (ch == '1')
 		{
-			if (more_tall_display)
-			{
-				/* Clear screen and switch to large view */
-				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
-			}
 			do_cmd_knowledge_score();
 		}
 
 		/* Artifacts */
 		else if (ch == '2')
 		{
-			if (more_tall_display)
+			if (!p_ptr->depth)
 			{
-				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
+				do_cmd_knowledge_artifacts();
 			}
-			do_cmd_knowledge_artifacts();
+			else
+			{
+				msg_print("You may only check artifacts when in town.");
+			}
 		}
 
 		/* Uniques */
 		else if (ch == '3')
 		{
-			if (more_tall_display)
-			{
-				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
-			}
 			do_cmd_knowledge_monsters();
 		}
 
 		/* Monster killed count */
 		else if (ch == '4')
 		{
-			if (more_tall_display)
-			{
-				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
-			}
 			do_cmd_knowledge_kill_count();
 		}
 
 		/* Objects */
 		else if (ch == '5')
 		{
-			if (more_tall_display)
-			{
-				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
-			}
 			do_cmd_knowledge_objects();
 		}
 
 		/* The home */
 		else if (ch == '6')
 		{
-			if (more_tall_display)
-			{
-				display_change(DSP_CLEAR | DSP_TALL, 0, 0);
-			}
 			do_cmd_knowledge_home();
 		}
 
 		/* Quests */
 		else if (ch == '7')
 		{
-			do_cmd_knowledge_quests(NULL);
+			do_cmd_knowledge_quests();
 		}
 
-		/* Self knowledge  -LM- */
-		else if ((ch == '8') && (p_ptr->self_knowledge))
+		/* Unknown option */
+		else
 		{
-			/*
-			 * We should allow self-inspection even when not magically
-			 * self-aware, but haven't yet decided exactly what information
-			 * should be given, and what not.
-			 */
-			self_knowledge(p_ptr->self_knowledge ? TRUE : FALSE);
+			bell("Illegal command for knowledge!");
 		}
 
 		/* Flush messages */
 		message_flush();
 	}
 
-	/* Restore previous screen */
-	display_change(DSP_RESTORE | DSP_UNLOCK, 0, 0);
+	/* Set to 50 rows, if we were showing 50 before */
+	if (old_rows == 50)
+	{
+		p_ptr->redraw |= (PR_MAP | PR_BASIC | PR_EXTRA);
+		Term_rows(TRUE);
+	}
+
+	/* Load screen */
+	screen_load();
 }
 

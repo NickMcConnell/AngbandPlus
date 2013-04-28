@@ -6,12 +6,12 @@
 #
 # - Default values of some options (we may move all the default values here)
 # - Keymaps (original and roguelike command sets, special mappings)
-# - Default inventory colors for various tvals
-# - Links to the message colors preferences, and system-specific preferences
+# - the default inventory colors for various tvals
+# - links to the message colors preferences, and system-specific preferences
 #
 # Order in which preferences and other rules are read in Sangband:
-# - "lib/pref/pref.prf"   (this file and files called from it)
-# - "lib/pref/tiles.prf"  (character remapping for fonts or graphics)
+# - "lib/pref/pref.prf"   (this file)
+# - "lib/pref/font.prf" or "lib/pref/graf.prf"
 # - "lib/pref/user.prf"
 # - "lib/user/user.prf"
 # - the savefile
@@ -19,13 +19,11 @@
 #
 # Files read later override anything in previous files.
 #
-# Color definitions are an exception to the above rules - They MUST go in
-# "lib/pref/color.prf"
-#
 # Note that these comments are not correct for most variants!
 #
 # See "lib/help/pref.txt" and "src/files.c" for more information.
 #
+
 
 ## # Option -- Default to original commands
 ## X:rogue_like_commands
@@ -36,19 +34,18 @@
 
 
 ## Hack -- default values for certain things
-
 # Delay
-D:5
+D:4
 
 # Hitpoint warning (x10%)
-H:3
+H:4
 
 # Autosave  (autosave, frequency)
 a:1:1000
 
-# Screen  (more_standard_display, more_special_display, map_display_precise_fit, 
+# Screen  (force_25_rows, text_50_rows, rows used to show dungeon, 
 # distance from top/bottom and side edges at which to shift the view)
-t:1:0:1:2:4
+t:1:0:22:2:4
 
 
 
@@ -78,8 +75,8 @@ A:;9
 C:0:9
 
 # Hack -- Commit suicide
-# A:Q
-# C:0:^C
+A:Q
+C:0:^C
 
 # Hack -- Swap equipment
 A:w0
@@ -89,9 +86,9 @@ C:0:X
 A:^V
 C:0:n
 
-# Hack -- Sangband convenience
+# Hack -- Oangband convenience
 A:R*\r
-C:0:\t
+C:0:x
 
 
 ##### Roguelike Keyset Mappings #####
@@ -245,9 +242,9 @@ C:1:X
 A:^V
 C:1:'
 
-# Hack -- Sangband convenience
-A:R*\r
-C:1:\t
+
+###########################
+
 
 
 
@@ -255,155 +252,152 @@ C:1:\t
 
 
 # SKELETON
-E:1:w
+E:1:0x01
 
 # JUNK
-E:2:w
+E:2:0x01
 
 # SPIKE
-E:3:s
+E:3:0x02
+
 
 # COMPONENT
-E:5:u
+E:5:0x07
 
 # PARCHEMENT
-E:6:y
+E:6:0x0B
 
 # BOTTLE
-E:7:w
+E:7:0x01
 
 # CHEST
-E:10:P
+E:10:0x02
 
 # SHOT
-E:16:U
+E:16:0x0F
 
 # ARROW
-E:17:U
+E:17:0x0F
 
 # BOLT
-E:18:U
+E:18:0x0F
+
+# BOW
+E:19:0x07
 
 # DIGGING
-E:20:s
+E:20:0x02
 
 # HAFTED
-E:21:w
+E:21:0x01
 
 # POLEARM
-E:22:w
+E:22:0x01
 
 # SWORD
-E:23:w
-
-# SLINGS
-E:25:u
-
-# BOWS
-E:26:u
-
-# CROSSBOWS
-E:27:u 
+E:23:0x01
 
 # BOOTS
-E:30:U
+E:30:0x0F
 
 # GLOVES
-E:31:U
+E:31:0x0F
 
 # HELM
-E:32:U
+E:32:0x0F
 
 # CROWN
-E:33:U
+E:33:0x0F
 
 # SHIELD
-E:34:U
+E:34:0x0F
 
 # CLOAK
-E:35:U
+E:35:0x0F
 
 # SOFT_ARMOR
-E:36:s
+E:36:0x02
 
 # HARD_ARMOR
-E:37:s
+E:37:0x02
 
 # DRAG_ARMOR
-E:38:s
+E:38:0x02
 
-# LIGHT
-E:39:y
+# LITE
+E:39:0x0B
 
 # AMULET
-E:40:o
+E:40:0x03
 
 # RING
-E:45:r
+E:45:0x04
 
 # STAFF
-E:55:U
+E:55:0x0F
 
 # WAND
-E:65:g
+E:65:0x05
 
 # ROD
-E:66:P
+E:66:0x0A
 
 # SCROLL
-E:70:w
+E:70:0x01
 
 # POTION
-E:75:B
+E:75:0x0E
 
 # FLASK
-E:77:y
+E:77:0x0B
 
 # FOOD
-E:80:U
+E:80:0x0F
 
 # MAGIC_BOOK
-E:90:R
+E:90:0x0C
 
 # PRAYER_BOOK
-E:91:B
+E:91:0x0E
 
 # NATURE_BOOK
-E:92:G
+E:92:0x0D
 
 # DARK_BOOK
-E:93:P
-
-
+E:93:0x0A
 
 
 ###########################
 
-# Message preferences
+# Message colors
 %:message.prf
 
 
 ##### System Specific Subfiles #####
 
-# Use pref-x11.prf for x11, since it seems to work.
-# We can make a customized one later if needed.
-#?:[EQU $SYS gtk]
-#%:pref-gtk.prf
-
-?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS gtk]]
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11]]
 %:pref-x11.prf
 
-?:[EQU $SYS gcu]
+?:[IOR [EQU $SYS gcu] [EQU $SYS lsl]]
 %:pref-gcu.prf
+
+?:[EQU $SYS gtk]
+%:pref-gtk.prf
+
+?:[EQU $SYS ami]
+%:pref-ami.prf
 
 ?:[EQU $SYS mac]
 %:pref-mac.prf
 
-?:[EQU $SYS sdl]
-%:pref-sdl.prf
-
 ?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
 %:pref-win.prf
+
+?:[EQU $SYS emx]
+%:pref-emx.prf
+
+?:[EQU $SYS acn]
+%:pref-acn.prf
 
 ?:1
 

@@ -11,12 +11,11 @@
  * knowledge of the character.  Hurt and kill monsters, handle monster
  * death and drops.
  *
- * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -91,9 +90,9 @@ s16b poly_r_idx(int base_idx)
 		/* Hack -- No uniques */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
-		/* Forced-depth monsters only appear at their level or below. */
+		/* Forced-depth monsters only appear at their level. */
 		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) &&
-		    (r_ptr->level > p_ptr->depth)) continue;
+		    (r_ptr->level != p_ptr->depth)) continue;
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -101,6 +100,9 @@ s16b poly_r_idx(int base_idx)
 		/* Bias against monsters far from initial monster's depth */
 		if (table[i].level < (min_lev + r_lev) / 2) table[i].prob3 /= 4;
 		if (table[i].level > (max_lev + r_lev) / 2) table[i].prob3 /= 4;
+		if (table[i].level < min_lev)               table[i].prob3 /= 4;
+		if (table[i].level > max_lev)               table[i].prob3 /= 4;
+
 
 		/* Bias against monsters not of the same symbol */
 		if (r_ptr->d_char != d_char) table[i].prob3 /= 4;
@@ -282,7 +284,7 @@ static void compact_monsters_aux(int i1, int i2)
 
 
 /*
- * Compact and Reorder the monster list.
+ * Compact and Reorder the monster list
  *
  * This function can be very dangerous, use with caution!
  *
@@ -290,6 +292,9 @@ static void compact_monsters_aux(int i1, int i2)
  * objects, starting with those of lowest level.  Then nearby monsters and
  * monsters with objects get compacted, then unique monsters, and only then
  * are quest monsters affected.  -LM-
+ *
+ * After "compacting" (if needed), we "reorder" the monsters into a more
+ * compact order, and we reset the allocation info, and the "live" array.
  */
 void compact_monsters(int size)
 {
@@ -383,8 +388,11 @@ void compact_monsters(int size)
 		}
 
 		/* Delete monsters until we've reached our quota */
-		for (cnt = 0, i = 0; (i < m_max) && (cnt < size); i++)
+		for (cnt = 0, i = 0; i < m_max; i++)
 		{
+			/* We've deleted enough monsters */
+			if (cnt >= size) break;
+
 			/* Get this monster, using our saved index */
 			m_ptr = &m_list[mon_index[i]];
 
@@ -523,7 +531,7 @@ s16b m_pop(void)
 	}
 
 
-	/* Warn the player (except during dungeon generation) */
+	/* Warn the player (except during dungeon creation) */
 	if (character_dungeon) msg_print("Too many monsters!");
 
 	/* Try not to crash */
@@ -532,10 +540,11 @@ s16b m_pop(void)
 
 
 
+
 /*
  * Apply a "monster restriction function" to the "monster allocation table"
  */
-void get_mon_num_prep(void)
+errr get_mon_num_prep(void)
 {
 	int i;
 
@@ -559,7 +568,14 @@ void get_mon_num_prep(void)
 			entry->prob2 = 0;
 		}
 	}
+
+	/* Hack -- rebuild the final monster generation probability table */
+	(void)get_mon_num(0);
+
+	/* Success */
+	return (0);
 }
+
 
 
 /*
@@ -608,28 +624,28 @@ s16b get_mon_num(int level)
 	int depth_none = level / 3;
 
 
-	/* Calculate a luck factor (this can get fairly nasty) */
+	/* Calculate a luck factor (this can get very nasty!) */
 	int nasty_mon_chance = NASTY_MON -
-		(p_ptr->luck >= 100 ? 0 :
-		(100 - p_ptr->luck) * NASTY_MON / 110); /* Max of 9x-10x the chance of nasties */
+		(p_ptr->luck >= 100 ? 0 : (100 - p_ptr->luck) / 4);
+
+	/* Never get too absurd */
+	if (nasty_mon_chance < 3) nasty_mon_chance = 3;
 
 
 	/* Sometimes, monsters in the dungeon can be out of depth */
 	if (p_ptr->depth != 0)
 	{
-		int d = div_round(level, 10);
-
 		/* Occasional boost to maximum level */
 		if (one_in_(nasty_mon_chance))
 		{
 			/* Boost the level  (from 1 to 5) */
-			temp_level += MIN(5, d + 1);
+			temp_level += MIN(5, div_round(level, 10) + 1);
 
 			/* Occasional second boost */
 			if (one_in_(nasty_mon_chance))
 			{
 				/* Boost the level  (from 1 to 5) */
-				temp_level += MIN(5, d + 1);
+				temp_level += MIN(5, div_round(level, 10) + 1);
 			}
 		}
 	}
@@ -637,8 +653,8 @@ s16b get_mon_num(int level)
 	/* We are using the same generation level as last time */
 	if ((temp_level == old_monster_level) && (p_ptr->depth))
 	{
-		/* We aren't using any monster restrictions, and also wasn't before */
-		if ((get_mon_num_hook == NULL) && (old_get_mon_num_hook == NULL))
+		/* We are using the same generation restrictions as last time */
+		if (get_mon_num_hook == old_get_mon_num_hook)
 		{
 			/* There is no need to rebuild the generation table */
 			if (alloc_race_total) quick = TRUE;
@@ -690,9 +706,9 @@ s16b get_mon_num(int level)
 				if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
 					 (r_ptr->cur_num >= r_ptr->max_num)) continue;
 
-				/* Forced-depth monsters only appear at their level or below. */
+				/* Forced-depth monsters only appear at their level. */
 				if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) &&
-					 (r_ptr->level > p_ptr->depth)) continue;
+					 (r_ptr->level != p_ptr->depth)) continue;
 
 				/* We know how much space is available */
 				if (monster_space)
@@ -786,7 +802,7 @@ s16b get_mon_num(int level)
  * Reflexives are acquired by requesting Objective plus Possessive.
  *
  * I am assuming that no monster name is more than 65 characters long,
- * so that "char desc[DESC_LEN];" is sufficiently large for any result, even
+ * so that "char desc[80];" is sufficiently large for any result, even
  * when the "offscreen" notation is added.
  *
  * Note that the "possessive" for certain unique monsters will look
@@ -805,7 +821,7 @@ s16b get_mon_num(int level)
  *   0x08 --> Use indefinites for visible monsters ("a kobold")
  *   0x10 --> Pronominalize hidden monsters
  *   0x20 --> Pronominalize visible monsters
- *   0x40 --> Allow hallucinatory names
+ *   0x40 --> Assume the monster is hidden
  *   0x80 --> Assume the monster is visible
  *
  * Useful Modes:
@@ -814,6 +830,7 @@ s16b get_mon_num(int level)
  *   0x80 --> Genocide resistance name ("the kobold")
  *   0x88 --> Killing name ("a kobold")
  *   0x22 --> Possessive, genderized if visible ("his", "her", "its")
+ *            We do not currently use "hers" anywhere.
  *   0x23 --> Reflexive, genderized if visible ("himself") or "itself"
  *   0x31 --> "him", "her", "it" for any monster
  */
@@ -829,7 +846,8 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 	bool seen, pron;
 
 	/* Can we "see" it (forced, or not hidden + visible) */
-	seen = ((mode & (0x80)) || (mon_fully_visible(m_ptr)));
+	seen = ((mode & (0x80)) || (!(mode & (0x40)) &&
+	        (m_ptr->ml) && (!(m_ptr->mflag & (MFLAG_DLIM)))));
 
 	/* Sexed Pronouns (seen and forced, or unseen and allowed) */
 	pron = ((seen && (mode & (0x20))) || (!seen && (mode & (0x10))));
@@ -842,13 +860,12 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 		int kind = 0x00;
 
 		/* Extract the gender (if applicable) */
-		if (m_ptr && pron)
-		{
-			if ((p_ptr->image) && (mode & (0x40))) kind = 0x00;
+		if (r_ptr->flags1 & (RF1_FEMALE)) kind = 0x20;
+		else if (r_ptr->flags1 & (RF1_MALE)) kind = 0x10;
 
-			else if (r_ptr->flags1 & (RF1_FEMALE)) kind = 0x20;
-			else if (r_ptr->flags1 & (RF1_MALE))   kind = 0x10;
-		}
+		/* Ignore the gender (if desired) */
+		if (!m_ptr || !pron) kind = 0x00;
+
 
 		/* Assume simple result */
 		res = "it";
@@ -896,23 +913,17 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 	else if ((mode & 0x02) && (mode & 0x01))
 	{
 		/* The monster is visible, so use its gender */
-		if (r_ptr->flags1 & (RF1_FEMALE))    strcpy(desc, "herself");
+		if (r_ptr->flags1 & (RF1_FEMALE)) strcpy(desc, "herself");
 		else if (r_ptr->flags1 & (RF1_MALE)) strcpy(desc, "himself");
-		else                                 strcpy(desc, "itself");
+		else strcpy(desc, "itself");
 	}
 
 
 	/* Handle all other visible monster requests */
 	else
 	{
-		/* It could be a hallucination */
-		if ((p_ptr->image) && (mode & (0x40)))
-		{
-			strcpy(desc, "something weird");
-		}
-
 		/* It could be a player ghost. */
-		else if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
 			/* Get the ghost name. */
 			strcpy(desc, ghost_name);
@@ -938,7 +949,7 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 			/* XXX Check plurality for "some" */
 
 			/* Indefinite monsters need an indefinite article */
-			strcpy(desc, my_is_vowel(name[0]) ? "an " : "a ");
+			strcpy(desc, is_a_vowel(name[0]) ? "an " : "a ");
 			strcat(desc, name);
 		}
 
@@ -960,7 +971,9 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 		}
 
 		/* Mention "offscreen" monsters XXX XXX */
-		if (!(mode & (0x80)) && (!panel_contains(m_ptr->fy, m_ptr->fx)))
+		if (!(mode & (0x80)) &&
+		    ((ABS(m_ptr->fy - p_ptr->wy) >= map_rows) ||
+		     (ABS(m_ptr->fx - p_ptr->wx) >= SCREEN_WID)))
 		{
 			/* Append special notation */
 			strcat(desc, " (offscreen)");
@@ -1014,9 +1027,13 @@ int lore_do_probe(int m_idx)
 
 
 
+
+
+
+
 /*
  * This function updates the visibility and (optionally) the distance to
- * the character of the given monster.  (-BEN-, -LM-)
+ * the character of the given monster.
  *
  * It can use a lot of CPU time; efficiency is important.
  *
@@ -1024,52 +1041,34 @@ int lore_do_probe(int m_idx)
  * - a monster or the character moves,
  * - certain character conditions (like blindness) activate or wear off
  * - certain character bonuses (like infravision) change
- * - the character's field of sight (FOS) or field of vision (FOV) change
+ * - the character's field of sight (FOS) of field of vision (FOV) change
  * - the dungeon is altered (as with wall to mud or earthquake)
  * - grids gain or lose permanent light
  *
+ * Certain ways of seeing a monster -- telepathy, infravision, normal
+ * sight -- allow one to see the monster now, but not necessarily see it
+ * if it moves.  Other ways, especially those enabled by skills, allow you
+ * not only to see the monster but to detect it as it moves about between
+ * turns, similar to detection spells.  -LM-
  *
- * There are four kinds of detection:
- *
- * 1) Normal, direct vision (including infravision and the like)
- *        Cannot be randomized. Monsters are checked for this in all
- *    cases listed above.  Vision never "lingers" in any way.
- *
- * 2) Hearing, sensing (semi-lingering "vision")
- *        Can be randomized.  Monsters are always checked for this at the end
- * of each character turn that uses energy.  Partial lingering effect:  Is
- * more likely to succeed if the monster was previously visible.
- *
- * 3) Telepathy, hunting skills  (lingering detection)
- *        Can be randomized.  Should seldom or never operate beyond a
- *   range of MAX_SIGHT.  Monsters are always checked for this at the end
- *   of each character turn that uses energy.  This detection "lingers"
- *   until the end of the next energy-using character turn, unless the
- *   monster is processed when out of MAX_SIGHT range.  See usage of the
- *   "MFLAG_MARK" and "MFLAG_FULL" bits.
- *
- * 4) Magical detection  (forced detection)
- *        Can be randomized.  Can operate at any specified range.
- *   Monsters are forced to be fully visible, regardless of movement,
- *   from the moment of detection to the end of the next character turn
- *   that uses energy.  See usage of the "MFLAG_SHOW" bit.
- *
- *
- * Notes:
- * To speed some random checks, we use a "detection_seed".
+ * Some detection methods are random or pseudo-random.  It is important
+ * that these only be checked in specific circumstances:  specifically,
+ * that they not be checked when the player presses "control-R" and,
+ * ideally, only when the character moves or expends energy.  -LM-
  *
  * Distance is checked (using inline math, not the "distance()" function)
  * whenever this monster moves, or whenever the character moves.
  *
+ * Notes:
  * Monsters which are not on the current panel may be visible to
  * the player, and their descriptions will include an "offscreen"
  * reference.
  *
- * The player will always be disturbed if a monster enters or leaves direct
- * sight, and can choose to be disturbed if a monster enters, leaves, or
- * moves about when visible through any means.
+ * The player can choose to be disturbed by several things, including
+ * "disturb_move" (monster enters, leaves, or moves about when visible),
+ * and "disturb_near" (monster enters or leaves vision)
  */
-bool update_mon(int m_idx, bool full)
+bool update_mon(int m_idx, bool full, bool complete)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1077,12 +1076,10 @@ bool update_mon(int m_idx, bool full)
 
 	int d;
 
-	/* Randomize detection */
-	long randomizer = seed_detection + m_idx;
-
 	/* Current location */
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
+
 
 	/* Quality of old visibility and of new visibility */
 	int vision;
@@ -1094,7 +1091,6 @@ bool update_mon(int m_idx, bool full)
 	/* Assume not directly seen with vision */
 	bool easy = FALSE;
 
-	/* Assume no need to redraw the monster */
 	bool redraw = FALSE;
 
 
@@ -1125,28 +1121,80 @@ bool update_mon(int m_idx, bool full)
 		d = m_ptr->cdis;
 	}
 
-	/* Remember previous visibility */
-	old_vision = m_ptr->ml;
 
-	/* Assume no new visibility */
-	vision = 0;
-
-
-	/* Monster is nearby */
-	if (d <= MAX_SIGHT)
+	/* Determine previous visibility */
+	if (m_ptr->ml)
 	{
-		/* Allow lingering sensing */
-		if (m_ptr->mflag & (MFLAG_MARK)) vision = detection = 1;
-		if (m_ptr->mflag & (MFLAG_FULL)) vision = detection = 2;
+		if (m_ptr->mflag & (MFLAG_DLIM)) old_vision = 1;
+		else                             old_vision = 2;
+	}
+	else
+	{
+		old_vision = 0;
 	}
 
-	/* Monster is magically detected */
-	if (m_ptr->mflag & (MFLAG_SHOW)) detection = vision = 2;
+	/* Determine new visibility */
+	vision = 0;
 
+	/* Detected or sensed for this turn */
+	if (m_ptr->mflag & (MFLAG_MARK)) vision = detection = 1;
+	if (m_ptr->mflag & (MFLAG_FULL)) vision = detection = 2;
 
-	/* Standard vision -- always checked if appropriate */
-	if ((d <= MAX_SIGHT) && (vision < 2))
+	/* Clear display limitations */
+	m_ptr->mflag &= ~(MFLAG_DLIM);
+
+	/* Nearby */
+	if (d <= MAX_SIGHT)
 	{
+		/* Basic telepathy */
+		if (p_ptr->telepathy)
+		{
+			/* Empty mind, no telepathy */
+			if (r_ptr->flags2 & (RF2_EMPTY_MIND))
+			{
+				/* Memorize flags */
+				l_ptr->flags2 |= (RF2_EMPTY_MIND);
+			}
+
+			/* Weird mind, occasional telepathy */
+			else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
+			{
+				/* Monster is rarely detectable (only check sometimes) */
+				if ((complete) && ((turn / 10) % 10) == (m_idx % 10))
+				{
+					/* Detectable */
+					vision = MAX(vision, 2);
+
+					/* Memorize flags */
+					l_ptr->flags2 |= (RF2_WEIRD_MIND);
+
+					/* Hack -- Memorize mental flags */
+					if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
+					if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
+				}
+			}
+
+			/* Normal mind, allow telepathy */
+			else
+			{
+				/* Detectable */
+				vision = MAX(vision, 2);
+
+				/* Hack -- Memorize mental flags */
+				if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
+				if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
+			}
+		}
+
+		/* Priestly awareness of evil */
+		if (p_ptr->esp_evil)
+		{
+			if (r_ptr->flags3 & (RF3_EVIL))
+			{
+				vision = MAX(vision, 2);
+			}
+		}
+
 		/* Normal line of sight, and not blind */
 		if (player_has_los_bold(fy, fx) && !p_ptr->blind)
 		{
@@ -1166,9 +1214,8 @@ bool update_mon(int m_idx, bool full)
 				/* Handle "warm blooded" monsters */
 				else
 				{
-					/* Easy to see if close, only vague if further */
-					if (d <= (p_ptr->see_infra + 1) / 2) vision = 2;
-					else                                 vision = 1;
+					/* Easy to see */
+					vision = MAX(vision, 2);
 					easy = TRUE;
 				}
 			}
@@ -1186,7 +1233,7 @@ bool update_mon(int m_idx, bool full)
 					if ((p_ptr->see_inv) || (p_ptr->detect_inv))
 					{
 						/* Easy to see */
-						vision = 2;
+						vision = MAX(vision, 2);
 						easy = TRUE;
 					}
 				}
@@ -1195,21 +1242,35 @@ bool update_mon(int m_idx, bool full)
 				else
 				{
 					/* Easy to see */
-					vision = 2;
+					vision = MAX(vision, 2);
 					easy = TRUE;
 				}
-			}
 
-			/* Use edge of torchlight */
-			if ((!vision) && (p_ptr->cur_lite >= 0) &&
-			    (d == p_ptr->cur_lite + 1))
-			{
-				/* Monsters is not invisible, or char has see invis */
-				if ((!(r_ptr->flags2 & (RF2_INVISIBLE))) ||
-				    ((p_ptr->see_inv) || (p_ptr->detect_inv)))
+
+				/* Visible mimics (but not lurkers) can sometimes be noticed */
+				if ((easy) && (complete) && (m_ptr->mflag & (MFLAG_MIME)) &&
+				    (r_ptr->d_char != '.'))
 				{
-					/* Can barely be seen */
-					vision = 1;
+					/* Allow awareness (rarely) */
+					if ((d < 8) && (one_in_(5)) &&
+					    (d < randint(get_skill(S_PERCEPTION, 2, 8))))
+					{
+						char m_name[80];
+
+						/* Get the monster name ("a kobold") */
+						monster_desc(m_name, m_ptr, 0x88);
+
+						/* Notice */
+						msg_format("You see %s.", m_name);
+						m_ptr->mflag &= ~(MFLAG_MIME);
+
+						/* Update health bar (if not in use) */
+						if (!p_ptr->health_who)
+						{
+							p_ptr->health_who = m_idx;
+							p_ptr->redraw |= (PR_HEALTH);
+						}
+					}
 				}
 			}
 
@@ -1224,33 +1285,7 @@ bool update_mon(int m_idx, bool full)
 					l_ptr->flags2 |= (RF2_IS_LIT);
 
 					/* Shining monsters are harder to see from afar */
-					vision = MAX(vision, (d < 8) ? 2 : 1);
-				}
-			}
-
-			/* Visible mimics (but not lurkers) can sometimes be noticed */
-			if ((m_ptr->mflag & (MFLAG_MIME)) && (easy) &&
-			    (d < 8) && (r_ptr->d_char != '.'))
-			{
-				/* Allow awareness (rarely) */
-				if ((one_in_(5)) &&
-					 (d < randint(get_skill(S_PERCEPTION, 2, 8))))
-				{
-					char m_name[DESC_LEN];
-
-					/* Get the monster name ("a kobold") */
-					monster_desc(m_name, m_ptr, 0xC8);
-
-					/* Notice */
-					msg_format("You see %s.", m_name);
-					m_ptr->mflag &= ~(MFLAG_MIME);
-
-					/* Update health bar (if not in use) */
-					if (!p_ptr->health_who)
-					{
-						p_ptr->health_who = m_idx;
-						p_ptr->redraw |= (PR_HEALTH);
-					}
+					vision = MAX(vision, (d < 10) ? 2 : 1);
 				}
 			}
 
@@ -1262,79 +1297,12 @@ bool update_mon(int m_idx, bool full)
 				if (do_cold_blood) l_ptr->flags2 |= (RF2_COLD_BLOOD);
 			}
 		}
-	}
 
-
-	/* Sensing of nearby monsters */
-	while (d <= MAX_SIGHT)
-	{
-		/* Basic telepathy */
-		if (p_ptr->telepathy)
-		{
-			/* Get detect quality -- confusion hurts */
-			int v = (p_ptr->confused ? 1 : 2);
-
-			/* Empty mind, no telepathy */
-			if (r_ptr->flags2 & (RF2_EMPTY_MIND))
-			{
-				/* Memorize flags */
-				l_ptr->flags2 |= (RF2_EMPTY_MIND);
-			}
-
-			/* Weird mind, occasional telepathy */
-			else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
-			{
-				/* Monster is rarely detectable */
-				if ((!(randomizer % 10)) ||
-				    ((old_vision >= 2) && (player_has_los_bold(fy, fx))))
-				{
-					/* Seen */
-					vision = MAX(vision, v);
-
-					/* Memorize flags */
-					l_ptr->flags2 |= (RF2_WEIRD_MIND);
-
-					/* Hack -- Memorize mental flags */
-					if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
-					if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
-				}
-			}
-
-			/* Normal mind, allow telepathy */
-			else
-			{
-				/* Seen */
-				vision = MAX(vision, v);
-
-				/* Hack -- Memorize mental flags */
-				if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
-				if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
-			}
-		}
-
-		/* Priestly awareness of evil */
-		if (p_ptr->esp_evil)
-		{
-			/* Detectable if evil */
-			if (r_ptr->flags3 & (RF3_EVIL))
-			{
-				vision = MAX(vision, 2);
-			}
-		}
-
-		/* Stop if successful */
-		if (vision >= 2) break;
-
-
-		/* Handle skill-based monster detection */
-		if ((!p_ptr->confused) && (!p_ptr->image) && (!p_ptr->berserk))
+		/* Handle talent-based monster detection effects */
+		if (complete)
 		{
 			int temp = 0;
 			int skill = 0;
-			int aware = 0;
-
-
-			/*** Hunting skills ***/
 
 			/* Monster is an animal -- use nature skill */
 			if (r_ptr->flags3 & (RF3_ANIMAL))
@@ -1357,141 +1325,75 @@ bool update_mon(int m_idx, bool full)
 				if (temp > skill) skill = temp;
 			}
 
-			/* Awareness depends on skill, distance, and level */
-			aware = skill * skill - (d * 100) - (r_ptr->level * 10);
-
-			/* Try for limited visibility (always, with skill >= 70) */
-			if ((aware > 2000) &&
-			    ((skill >= 70) || (randomizer % (72 - skill) < 2) || (old_vision >= 1)))
+			/* Display the monster according to skill */
+			if (skill >= 40)
 			{
-				vision = MAX(vision, 1);
+				/* Use the quick RNG */
+				Rand_quick = TRUE;
 
-				/* Try for full visibility (always, with skill = 100) */
-				if ((aware > 7000) &&
-				    ((skill == 100) || (randomizer % (102 - skill) < 2) || (old_vision >= 2)))
-				{
-					vision = MAX(vision, 2);
-					break;
-				}
+				/* Seed it with the current turn and monster index  XXX */
+				Rand_value = turn + m_idx;
 
-				/* Stop if successful */
-				if (vision >= 2) break;
-			}
-
-
-			/*** Sensing and Hearing ***/
-
-			/* Check for noise */
-			if ((r_ptr->noise) && (vision < 2))
-			{
-				/* Base awareness */
-				aware = r_ptr->noise;
-
-				/* Monster is evil -- apply Piety skill */
-				if (r_ptr->flags3 & (RF3_EVIL))
-				{
-					temp = get_skill(S_PIETY, 0, 90);
-					if (temp > skill) skill = temp;
-				}
-
-				/* Monster has mana -- apply Wizardry skill */
-				if (m_ptr->mana)
-				{
-					temp = get_skill(S_WIZARDRY, 0, 90);
-					if (temp > skill) skill = temp;
-				}
-
-				/* Handle perception */
-				if (TRUE)
-				{
-					/* Minimum perception ranges from 30 (d is always >= 1) to zero */
-					int v = MAX(0, 45 - (d * 15));
-
-					/* When monster is nearby, small amounts of perception work better */
-					temp = get_skill(S_PERCEPTION, v, 130);
-
-					/* Awareness helps */
-					temp += p_ptr->skill_awr / 2;
-
-					/* High-level monsters resist */
-					temp -= r_ptr->level / 2;
-
-					/* Cap it */
-					if (temp > 100) temp = 100;
-
-					/* Apply perception bonus */
-					if (temp > skill) skill = temp;
-				}
-
-				/* Calculate skill bonus */
-				temp = (skill * skill / 80) - (25 + p_ptr->depth / 2);
-
-				/* It can never be greater than 30 */
-				aware += MIN(30, temp);
-
-				/* Stealthy chars in the dark get a bonus */
-				if (no_light())
-				{
-					/* Bonus ranges from 0 to 12 */
-					temp = get_skill(S_STEALTH, 0, 60) - (r_ptr->level / 2);
-					if (temp > 0) aware += MIN(12, temp);
-				}
-
-				/* Familiar with this sort of monster */
-				if (know_armor(m_ptr->r_idx, l_ptr)) aware += 6;
-
-				/* Guild-thieves listen carefully */
-				if (p_ptr->oath & (BURGLARS_GUILD))
-					aware += get_skill(S_BURGLARY, 0, 6);
-
-				/* Non-adjacent monsters are harder to hear or sense */
-				if (d > 1)
-				{
-					/* Sleeping/inactive monsters are more quiet */
-					if ((m_ptr->csleep) || (!(m_ptr->mflag & (MFLAG_ACTV))))
-						aware = 2 * aware / 3;
-
-					/* It helps if the monster is in line of sight */
-					if (!player_has_los_bold(fy, fx)) aware = 2 * aware / 3;
-
-					/* Penalize for distance */
-					aware -= (d-1) * 4;
-				}
-
-				/* Roll for basic awareness (require 25, guarantee at 45 or if already seen) */
-				if ((aware >= 25) &&
-				    ((aware >= 45) || (25 + (randomizer % 21) <= aware) || (old_vision >= 1)))
+				/* Try for limited visibility (always, with skill >= 70) */
+				if ((skill >= 70) || (rand_int(72 - skill) < 2))
 				{
 					vision = MAX(vision, 1);
+					detection = MAX(detection, 1);
 
-					/* Roll for "it's obvious" ( range 45 - 60, must be very close) */
-					if ((d <= 5) && (aware >= 45) &&
-					    ((aware >= 60) || (50 + (randomizer % 16) <= aware) || (old_vision >= 2)))
+					/* Try for full visibility (always, with skill == 100) */
+					if ((skill == 100) || (rand_int(102 - skill) < 2))
 					{
 						vision = MAX(vision, 2);
+						detection = MAX(detection, 2);
 					}
 				}
+
+				/* Do not use the quick RNG */
+				Rand_quick = FALSE;
 			}
 		}
 
-		/* Stop (important!) */
-		break;
+		/* Chance to "hear" unseen monsters near to you  -EZ- */
+		if ((complete) && (!vision) && (d <= 1))
+		{
+			/* Note how much awareness we have  (max of about 40-45) */
+			int awareness = rsqrt(get_skill(S_PERCEPTION, 0, 900)) +
+				p_ptr->skill_awr;
+
+			/* Use the quick RNG */
+			Rand_quick = TRUE;
+
+			/* Seed it with the current turn and monster index  XXX */
+			Rand_value = turn + m_idx;
+
+			/* Attempt to hear the monster */
+			if (awareness > 5 + r_ptr->level / 5 +
+			    rand_int(45 + r_ptr->level / 2))
+			{
+				/* Limited "sight" */
+				vision = MAX(vision, 1);
+				detection = MAX(detection, 1);
+			}
+
+			/* Do not use the quick RNG */
+			Rand_quick = FALSE;
+		}
 	}
 
 
-	/* Remember lingering detection */
+	/* Detect this monster */
 	if (detection >= 1) m_ptr->mflag |= (MFLAG_MARK);
 	if (detection >= 2) m_ptr->mflag |= (MFLAG_FULL);
 
-	/* Apply detection to vision */
-	vision = MAX(vision, detection);
+	/* Remember limited visibility */
+	if (vision == 1) m_ptr->mflag |= (MFLAG_DLIM);
 
 
 	/* Visibility change */
 	if (vision != old_vision)
 	{
 		/* Reset visibility */
-		m_ptr->ml = (byte)vision;
+		m_ptr->ml = (vision > 0);
 
 		/* Draw or erase the monster */
 		lite_spot(fy, fx);
@@ -1514,11 +1416,10 @@ bool update_mon(int m_idx, bool full)
 		/* Disturb on visibility change */
 		if (disturb_move)
 		{
-			/* Disturb if monster is not a townsman, or char is fairly weak */
+			/* Disturb if monster is not a townsman, or if fairly weak */
 			if (!(m_ptr->mflag & (MFLAG_TOWN)) || (p_ptr->power < 10))
 			{
-				if ((m_ptr->mflag & (MFLAG_ACTV)) && (m_ptr->ml)) disturb(1, 0);
-				else  disturb(0, 0);
+				disturb(1, 0);
 			}
 		}
 	}
@@ -1531,7 +1432,7 @@ bool update_mon(int m_idx, bool full)
 		m_ptr->mflag |= (MFLAG_MIME);
 	}
 
-	/* Monster enters or leaves field of sight (eyes, infravision) */
+	/* Monster enters or leaves field of sight (eyes, infavision) */
 	if ((( easy) && (!(m_ptr->mflag & (MFLAG_VIEW)))) ||
 	    ((!easy) &&   (m_ptr->mflag & (MFLAG_VIEW))))
 	{
@@ -1541,11 +1442,14 @@ bool update_mon(int m_idx, bool full)
 		/* No longer easily viewable */
 		else      m_ptr->mflag &= ~(MFLAG_VIEW);
 
-		/* Disturb (always) if monster is not a townsman, or char is fairly weak */
-		if (!(m_ptr->mflag & (MFLAG_TOWN)) || (p_ptr->power < 10))
+		/* Disturb on appearance */
+		if (disturb_near)
 		{
-			if ((m_ptr->mflag & (MFLAG_ACTV)) && (m_ptr->ml)) disturb(1, 0);
-			else  disturb(0, 0);
+			/* Disturb if monster is not a townsman, or if fairly weak */
+			if (!(m_ptr->mflag & (MFLAG_TOWN)) || (p_ptr->power < 10))
+			{
+				disturb(1, 0);
+			}
 		}
 	}
 
@@ -1569,8 +1473,8 @@ void update_monsters(bool full)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Update the monster */
-		(void)update_mon(i, full);
+		/* Update the monster -- do not handle some kinds of detection */
+		(void)update_mon(i, full, FALSE);
 	}
 }
 
@@ -1642,91 +1546,10 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 	return (o_idx);
 }
 
-/*
- * Adjust monster energy.  Be careful not to "wrap around".
- */
-void mon_adjust_energy(monster_type *m_ptr, int adjust)
-{
-	/* Adjust energy */
-	int energy = adjust + m_ptr->energy;
-
-	/* Set bounds */
-	if (energy > 250) energy = 250;
-	if (energy <   0) energy =   0;
-
-	/* Apply to monster */
-	m_ptr->energy = (byte)energy;
-}
 
 
 /*
- * Hit traps.
- */
-static void monster_swap_aux_trap(int idx)
-{
-	int y, x;
-
-
-	/* Creature is a monster */
-	if (idx > 0)
-	{
-		monster_type *m_ptr = &m_list[idx];
-
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* Monster hits a trap that affects monsters */
-		if (cave_monster_trap(y, x))
-		{
-			hit_trap(idx, y, x);
-		}
-	}
-
-	/* Creature is a character */
-	else if (idx < 0)
-	{
-		y = p_ptr->py;
-		x = p_ptr->px;
-
-		/* There is a character trap here */
-		if (cave_trap(y, x))
-		{
-			/* Penalize low skill */
-			int skill = get_skill(S_DISARM, 0, 150) - 50;
-
-			/* Difficulty varies greatly, but is never greater than 100 */
-			int diff = 10 + m_bonus(90, p_ptr->depth, 100);
-
-			/* Always disturb (this might be changed at some point) */
-			disturb(0, 0);
-
-			/* Disarm skill gives you a saving throw against hidden traps */
-			if ((skill >= diff) && (reveal_trap(y, x, 100, FALSE, FALSE)))
-			{
-				/* Pits cannot be avoided */
-				if (cave_pit_trap(y, x))
-				{
-					if (p_ptr->ffall) msg_print("You float into a pit.");
-					else              msg_print("You slide into a pit!");
-				}
-
-				/* All other traps can */
-				else msg_print("You find and carefully avoid a hidden trap.");
-			}
-			else
-			{
-				/* Hit the trap(s) */
-				(void)hit_trap(-1, y, x);
-			}
-		}
-	}
-}
-
-
-/*
- * Swap the players/monsters (if any) at two locations.
- *
- * This is potentially a very dangerous function.
+ * Swap the players/monsters (if any) at two locations XXX XXX XXX
  */
 void monster_swap(int y1, int x1, int y2, int x2)
 {
@@ -1735,17 +1558,11 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 	monster_type *m_ptr;
 
-	int vis1[2] = {0, 0}, vis2[2] = {0, 0};
-
-	bool no_redraw = FALSE;
-
-
-	/* Ignore non-movement (important) */
-	if ((y1 == y2) && (x1 == x2)) return;
 
 	/* Monsters */
 	m1 = cave_m_idx[y1][x1];
 	m2 = cave_m_idx[y2][x2];
+
 
 	/* Update grids */
 	cave_m_idx[y1][x1] = m2;
@@ -1761,20 +1578,13 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		m_ptr->fy = y2;
 		m_ptr->fx = x2;
 
-		/* Update monster, saving visibility before and after */
-		vis1[0] = m_ptr->ml;
-		(void)update_mon(m1, TRUE);
-		vis1[1] = m_ptr->ml;
-
+		/* Update monster */
+		(void)update_mon(m1, TRUE, FALSE);
 	}
 
 	/* Player 1 */
 	else if (m1 < 0)
 	{
-		/* No longer traversing */
-		p_ptr->crossing_dir = 0;
-		p_ptr->crossing_moves = 0;
-
 		/* Clear direction of movement */
 		p_ptr->move_dir = 0;
 
@@ -1790,22 +1600,9 @@ void monster_swap(int y1, int x1, int y2, int x2)
 			}
 		}
 
-		/*
-		 * If new player grid is out of view, or distance is greater than 5,
-		 * update sound flow completely.
-		 */
-		else if ((!player_has_los_bold(y2, x2)) ||
-		         (distance(p_ptr->py, p_ptr->px, y2, x2) > 5))
-		{
-			p_ptr->update |= (PU_FLOW);
-		}
-
 		/* Move player */
 		p_ptr->py = y2;
 		p_ptr->px = x2;
-
-		/* Redraw the state */
-		p_ptr->redraw |= (PR_STATE);
 
 		/* Update the panel */
 		p_ptr->update |= (PU_PANEL);
@@ -1814,7 +1611,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD | PW_M_LIST);
+		p_ptr->window |= (PW_OVERHEAD);
 	}
 
 	/* Monster 2 */
@@ -1826,19 +1623,13 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		m_ptr->fy = y1;
 		m_ptr->fx = x1;
 
-		/* Update monster, saving visibility before and after */
-		vis2[0] = m_ptr->ml;
-		(void)update_mon(m2, TRUE);
-		vis2[1] = m_ptr->ml;
+		/* Update monster */
+		(void)update_mon(m2, TRUE, FALSE);
 	}
 
 	/* Player 2 */
 	else if (m2 < 0)
 	{
-		/* No longer traversing */
-		p_ptr->crossing_dir = 0;
-		p_ptr->crossing_moves = 0;
-
 		/* Clear direction of movement */
 		p_ptr->move_dir = 0;
 
@@ -1858,9 +1649,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->py = y1;
 		p_ptr->px = x1;
 
-		/* Redraw the state */
-		p_ptr->redraw |= (PR_STATE);
-
 		/* Update the panel */
 		p_ptr->update |= (PU_PANEL);
 
@@ -1868,47 +1656,13 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD | PW_M_LIST);
-	}
-
-	/* Creature has moved from outside an effect to inside one */
-	if ((!(cave_info[y1][x1] & (CAVE_EFFT))) &&
-	      (cave_info[y2][x2] & (CAVE_EFFT)))
-	{
-		/* Get the effect lingering in the new grid */
-		int x_idx = effect_grid_idx(y2, x2);
-
-		/* There is a lingering effect here; zap the grid */
-		if (x_idx >= 1) do_effect_linger(x_idx, y2, x2);
-	}
-
-	/* Efficiency -- ignore invisible movement  -TNB- */
-	if (m1 >= 0 && m2 >= 0 &&
-		(!vis1[0] && !vis1[1]) &&
-		(!vis2[0] && !vis2[1]))
-	{
-		no_redraw = TRUE;
+		p_ptr->window |= (PW_OVERHEAD);
 	}
 
 	/* Redraw */
-	if (!no_redraw)
-	{
-		lite_spot(y1, x1);
-		lite_spot(y2, x2);
-	}
-
-	/* Handle traps */
-	if (m2 && cave_trap(y1, x1))
-	{
-		monster_swap_aux_trap(m2);
-	}
-	if (m1 && cave_trap(y2, x2))
-	{
-		monster_swap_aux_trap(m1);
-	}
+	lite_spot(y1, x1);
+	lite_spot(y2, x2);
 }
-
-
 
 
 /*
@@ -1950,7 +1704,7 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 	/* Get a new record */
 	m_idx = m_pop();
 
-	/* Place monster */
+	/* Oops */
 	if (m_idx)
 	{
 		/* Make a new monster */
@@ -1967,7 +1721,7 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 		m_ptr->fx = x;
 
 		/* Update the monster */
-		(void)update_mon(m_idx, TRUE);
+		(void)update_mon(m_idx, TRUE, FALSE);
 
 		/* Get new race */
 		r_ptr = &r_info[m_ptr->r_idx];
@@ -2042,7 +1796,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	monster_type *n_ptr;
 	monster_type monster_type_body;
 
-	int lev_diff;
+	int precog = get_skill(S_PERCEPTION, 0, 100);
+
 	cptr name;
 
 	/* Handle failure of the "get_mon_num()" function */
@@ -2095,6 +1850,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr->r_idx = r_idx;
 
 
+
 	/*
 	 * If the monster is a player ghost, perform various manipulations
 	 * on it, and forbid ghost creation if something goes wrong.
@@ -2121,7 +1877,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		else if (!calc_spent_exp()) return (FALSE);
 	}
 
-
 	/* Enforce sleeping if needed */
 	if (slp && r_ptr->sleep)
 	{
@@ -2131,11 +1886,11 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Assign maximal hitpoints */
 	if ((r_ptr->flags1 & (RF1_FIXED_HPS)) || (r_ptr->flags1 & (RF1_UNIQUE)))
 	{
-		n_ptr->maxhp = MAX(1, r_ptr->hitpoints);
+		n_ptr->maxhp = r_ptr->hitpoints;
 	}
 	else
 	{
-		/* Hitpoints usually vary from 75% to 125% of normal  -EZ- */
+		/* Hitpoints usually vary from 75% to 125% of normal */
 		s16b spread = div_round(r_ptr->hitpoints, 8);
 		s16b tmp = Rand_normal(r_ptr->hitpoints, spread);
 
@@ -2195,112 +1950,92 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		n_ptr->mflag |= (MFLAG_MIME);
 	}
 
-	/* If the dungeon is in an uproar, start out awake and wary */
-	if (num_recent_thefts > get_skill(S_STEALTH, 2, 4))
-	{
-		n_ptr->csleep = 0;
-		mon_make_wary(n_ptr);
-	}
-
-
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
-
-	/* Get level versus depth */
-	lev_diff = r_ptr->level - p_ptr->depth;
 
 
 	/* Unique monster */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Unique is out of depth */
-		if (lev_diff > 0)
+		if (r_ptr->level > p_ptr->depth)
 		{
 			/* Message - precognition */
-			if (can_precog(70 + 5 * (lev_diff), LEV_REQ_PRECOG))
+			if (can_precog(50, LEV_REQ_PRECOG))
 			{
-				if ((lev_diff >= 6) &&
-				    (can_precog(85 + lev_diff, LEV_REQ_PRECOG + 30)))
+				if ((r_ptr->level > p_ptr->depth + 5) &&
+				    (can_precog(80, LEV_REQ_PRECOG + 30)))
 				{
-					precog_msg(PRECOG_MON_UNIQUE_HEAVY);
+					precog_msg("You feel the presence of something very dangerous.");
 				}
-				else if (can_precog(100, LEV_REQ_PRECOG + 15))
-				{
-					precog_msg(PRECOG_MON_UNIQUE_MEDIUM);
-				}
+				else if (can_precog(100, LEV_REQ_PRECOG + 10))
+					precog_msg("A chill runs through your body.");
 				else
-				{
-					if (one_in_(2)) precog_msg(PRECOG_MON_DEPTH_LIGHT);
-					else            precog_msg(PRECOG_MON_UNIQUE_LIGHT);
-				}
+					precog_msg("You feel somewhat uneasy.");
 			}
 
 			/* Message - cheat */
 			if (cheat_hear) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
-			level_rating += lev_diff * 2;
+			level_rating += (r_ptr->level - p_ptr->depth) * 2;
 		}
 
 		/* Unique is not out of depth */
 		else
 		{
+			if (can_precog(67, LEV_REQ_PRECOG + 5))
+			{
+				if (can_precog(100, LEV_REQ_PRECOG + 20))
+					precog_msg("You feel a momentary chill.");
+				else
+					precog_msg("You feel somewhat uneasy.");
+			}
+
 			/* Message - cheat */
 			if (cheat_hear) msg_format("Unique (%s).", name);
-
-			else if (can_precog(75, LEV_REQ_PRECOG + 10))
-				precog_msg(PRECOG_MON_UNIQUE_LIGHT);
 		}
 	}
 
 	/* Deep normal monsters */
-	else if (lev_diff > 0)
+	else if (r_ptr->level > p_ptr->depth)
 	{
 		/* Message - cheat */
 		if (cheat_hear) msg_format("Deep Monster (%s).", name);
 
 		/* Boost rating by half delta-depth */
-		level_rating += lev_diff / 2;
+		level_rating += (r_ptr->level - p_ptr->depth) / 2;
 
 		/* Message - precognition */
-		if ((lev_diff >= 10) &&
-		    (can_precog(75 + lev_diff, LEV_REQ_PRECOG + 30)))
+		if (((r_ptr->level - p_ptr->depth) >= 10) &&
+		    (can_precog(60, LEV_REQ_PRECOG + 30)))
 		{
-			precog_msg(PRECOG_MON_DEPTH_HEAVY);
+			precog_msg("You feel extremely uneasy.");
 		}
-		else if ((lev_diff >= 5) &&
-		         (can_precog(75 + 2*lev_diff, LEV_REQ_PRECOG + 20)))
+
+		else if (((r_ptr->level - p_ptr->depth) >= 5) &&
+		         (can_precog(60, LEV_REQ_PRECOG + 20)))
 		{
-			precog_msg(PRECOG_MON_DEPTH_MEDIUM);
+			precog_msg("You feel rather uneasy.");
 		}
-		else if ((lev_diff >= 2) &&
-		         (can_precog(40 + 5*lev_diff, LEV_REQ_PRECOG + 10)))
+
+		else if (((r_ptr->level - p_ptr->depth) >= 2) &&
+		         (can_precog(50, LEV_REQ_PRECOG + 10)))
 		{
-			precog_msg(PRECOG_MON_DEPTH_LIGHT);
+			precog_msg("You feel somewhat uneasy.");
 		}
 	}
 
 
 	/* Sometimes generate spurious precognition messages */
-	if (TRUE)
+	if ((precog >= LEV_REQ_PRECOG + 10) && (precog < 93) &&
+	    (one_in_(precog - LEV_REQ_PRECOG)))
 	{
-		int precog = get_skill(S_PERCEPTION, 0, 100);
-
-		/* Spurious message */
-		if ((precog >= LEV_REQ_PRECOG) && (precog < 93) &&
-		    (one_in_(10 + precog - LEV_REQ_PRECOG)))
+		/* Frequency depends on depth */
+		if (p_ptr->depth > rand_int(500))
 		{
-			/* Frequency depends on depth */
-			if (p_ptr->depth > rand_int(500))
-			{
-				/* Generic message */
-				precog_msg(PRECOG_MON_DEPTH_LIGHT);
-			}
-			if (p_ptr->depth > rand_int(2500))
-			{
-				/* Generic message */
-				precog_msg(PRECOG_MON_UNIQUE_LIGHT);
-			}
+			/* Generic message */
+			precog_msg("You feel somewhat uneasy.");
 		}
 	}
 
@@ -2343,7 +2078,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp,
 	}
 
 	/* Minimum size */
-	if (group_size < 2) group_size = 2;
+	if (group_size < 1) group_size = 1;
 
 	/* Maximum size */
 	if (group_size > GROUP_MAX) group_size = GROUP_MAX;
@@ -2443,6 +2178,10 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 	byte hack_y[GROUP_MAX];
 	byte hack_x[GROUP_MAX];
 
+	/* Save previous monster restriction value. */
+	bool (*get_mon_num_hook_temp)(int r_idx) = get_mon_num_hook;
+
+
 	/* Calculate the number of escorts we want. */
 	if (r_ptr->flags1 & (RF1_ESCORTS)) escort_size = rand_range(12, 18);
 	else escort_size = rand_range(4, 6);
@@ -2450,11 +2189,6 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 	/* Can never have more escorts than maximum group size */
 	if (escort_size > GROUP_MAX) escort_size = GROUP_MAX;
 
-	/* Robustness -- limit escorts if monster list is getting full  -LM- */
-	if (m_cnt > z_info->m_max - 100)
-	{
-		escort_size /= (2 + (m_cnt - z_info->m_max + 100) / 10);
-	}
 
 	/* Use the leader's monster type to restrict the escorts. */
 	place_monster_idx = leader_idx;
@@ -2462,10 +2196,10 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 	/* Set the escort hook */
 	get_mon_num_hook = place_monster_okay;
 
-	/* Apply monster restrictions */
+	/* Prepare allocation table */
 	get_mon_num_prep();
 
-	/* Get index of first escort */
+	/* Build monster table, get index of first escort */
 	escort_idx = get_mon_num(monster_level);
 
 	/* Start on the monster */
@@ -2520,11 +2254,14 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 		}
 	}
 
-	/* No monster restrictions */
-	get_mon_num_hook = NULL;
+	/* Return to previous monster restrictions (usually none) */
+	get_mon_num_hook = get_mon_num_hook_temp;
 
-	/* Un-apply monster restrictions */
+	/* Prepare allocation table */
 	get_mon_num_prep();
+
+	/* XXX - rebuild monster table */
+	(void)get_mon_num(monster_level);
 }
 
 /*
@@ -2738,6 +2475,11 @@ bool alloc_monster(int dis, bool slp)
  */
 static int summon_specific_type = 0;
 
+/*
+ * Hack -- the maximum summon level
+ */
+static int summon_level;
+
 
 /*
  * Hack -- help decide if a monster race is "okay" to summon
@@ -2936,95 +2678,101 @@ static bool summon_specific_okay(int r_idx)
  * Place a monster (of the specified "type") near the given
  * location.  Return TRUE if a monster was actually summoned.
  *
+ * We will attempt to place the monster up to 10 times before giving up.
+ *
+ * We usually do not summon monsters greater than the given depth.  -LM-
+ *
  * Note that we use the new "monster allocation table" creation code
  * to restrict the "get_mon_num()" function to the set of "legal"
  * monsters, making this function much faster and more reliable.
  *
  * Note that this function may not succeed, though this is very rare.
  */
-int summon_specific(int y1, int x1, bool scattered, int lev, int type, int num)
+bool summon_specific(int y1, int x1, bool scattered, int lev, int type)
 {
-	int m, i, x, y, d, r_idx;
+	int i, x, y, d, r_idx;
 
 	/* Allow groups in most cases */
 	bool grp = ((type == SUMMON_ORC && rand_int(5)) ? FALSE : TRUE);
 
-	int count = 0;
+	bool spot_found = FALSE;
 
 
-	/* Paranoia -- require a legal grid */
-	if (!in_bounds_fully(y1, x1)) return (0);
+	/* Paranoia -- requre a legal grid */
+	if (!in_bounds_fully(y1, x1)) return (FALSE);
 
-	/* Attempt to summon the requested number of monsters */
-	for (m = 0; m < num; m++)
+	/* Look for a location */
+	for (i = 0; i < (scattered ? 40 : 20); ++i)
 	{
-		bool spot_found = FALSE;
+		/* Pick a distance */
+		if (type == SUMMON_ORC) d = 10;
+		else if (scattered) d = rand_range(2, 6);
+		else d = (i / 10) + 1;
 
-		/* Look for a location */
-		for (i = 0; i < 80; ++i)
-		{
-			/* Pick a distance */
-			if (scattered) d = rand_range(2, 6);
-			else d = 2 + (i / 20);
+		/* Pick a location */
+		scatter(&y, &x, y1, x1, d, 0);
 
-			/* Pick a location (in line of sight) */
-			scatter(&y, &x, y1, x1, d, 0);
+		/* Require passable terrain, with no other creature or player. */
+		if (!cave_passable_bold(y, x)) continue;
+		if (cave_m_idx[y][x] != 0) continue;
 
-			/* Require passable terrain, with no other creature or player */
-			if (!cave_passable_bold(y, x)) continue;
-			if (cave_m_idx[y][x] != 0) continue;
+		/* Hack -- no summon on glyph of warding */
+		if (cave_glyph(y, x)) continue;
 
-			/* Hack -- no summon on glyph of warding */
-			if (cave_glyph(y, x)) continue;
+		/* Success */
+		spot_found = TRUE;
 
-			/* Success */
-			spot_found = TRUE;
-
-			/* Okay */
-			break;
-		}
-
-		/* Failure */
-		if (!spot_found) continue;
-
-
-		/* Save the "summon" type */
-		summon_specific_type = type;
-
-		/* Require "okay" monsters */
-		get_mon_num_hook = summon_specific_okay;
-
-		/* Apply monster restrictions */
-		get_mon_num_prep();
-
-		/* Pick a monster.  Usually do not exceed maximum level. */
-		r_idx = get_mon_num(lev);
-
-		/* Attempt to place the monster (awake, usually allow groups) */
-		if (r_idx)
-		{
-			if (place_monster_aux(y, x, r_idx, FALSE, grp)) count++;
-		}
+		/* Okay */
+		break;
 	}
 
+	/* Failure */
+	if (!spot_found) return (FALSE);
 
-	/* No monster restrictions */
+
+	/* Save the "summon" type */
+	summon_specific_type = type;
+
+	/* Require "okay" monsters */
+	get_mon_num_hook = summon_specific_okay;
+
+	/* Limit summon level */
+	summon_level = lev;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Pick a monster.  Usually do not exceed maximum level. */
+	r_idx = get_mon_num(summon_level);
+
+
+	/* Clear monster restrictions */
 	get_mon_num_hook = NULL;
-	summon_specific_type = 0;
 
-	/* Un-apply monster restrictions */
+	/* Prepare allocation table */
 	get_mon_num_prep();
 
 	/* Hack -- illegal monster generation level (forces rebuild) */
 	old_monster_level = -1;
 
-	/* Return number of monsters summoned */
-	return (count);
+
+	/* Handle failure */
+	if (!r_idx) return (FALSE);
+
+	/* Attempt to place the monster (awake, usually allow groups) */
+	if (!place_monster_aux(y, x, r_idx, FALSE, grp)) return (FALSE);
+
+	/* Success */
+	return (TRUE);
 }
 
 
 /*
  * Change monster fear.
+ *
+ * Monsters can be frightened or panicking.  In both cases, they try to
+ * retreat, but when actually panicking, they cannot cast spells that don't
+ * either heal or move them.
  */
 void set_mon_fear(monster_type *m_ptr, int v, bool panic)
 {
@@ -3032,18 +2780,10 @@ void set_mon_fear(monster_type *m_ptr, int v, bool panic)
 	m_ptr->monfear = v;
 
 	/* Monster is panicking */
-	if ((m_ptr->monfear) && (panic))
-	{
-		m_ptr->min_range = FLEE_RANGE;
-	}
+	if ((m_ptr->monfear) && (panic)) m_ptr->min_range = PANIC_RANGE;
 
 	/* Otherwise, reset monster combat ranges (later) */
 	else m_ptr->min_range = 0;
-
-
-	/* Reset target */
-	m_ptr->ty = 0;
-	m_ptr->tx = 0;
 }
 
 
@@ -3129,306 +2869,225 @@ bool multiply_monster(int m_idx)
 
 
 /*
- * Dump a message describing a monster's reaction to damage.
+ * Dump a message describing a monster's reaction to damage
  *
- * Extra detail by  -EB-
- *
- * Now also includes monster fear messages.
+ * Extra detail by -EB-
  *
  * We should have different messages for non-visible monsters.  XXX XXX
  */
-void message_pain(int m_idx, int dam, int fear, char *hit_msg)
+void message_pain(int m_idx, int dam)
 {
 	int percentage;
 
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	char m_name[DESC_LEN];
-	char buf[DESC_LEN];
+	char m_name[80];
 
 
-	/* Monster is not fully visible -- no fear messages */
-	if (!mon_fully_visible(m_ptr)) fear = FALSE;
+	/* Get the monster name */
+	monster_desc(m_name, m_ptr, 0);
 
-
-	/* Monster my be described by a full name or just a pronoun */
-	if (hit_msg && strlen(hit_msg))
+	/* Notice non-damage */
+	if (dam == 0)
 	{
-		/* Get the monster pronoun */
-		monster_desc(m_name, m_ptr, 0x20);
-	}
-	else
-	{
-		/* Get the monster name */
-		monster_desc(m_name, m_ptr, 0);
+		msg_format("%^s is unharmed.", m_name);
+		return;
 	}
 
-	/* Hack -- handle hallucinations */
-	if (p_ptr->image) strcpy(m_name, "it");
+	/* Calculate damage percentage (perfect rounding) */
+	percentage = div_round(100 * m_ptr->hp, m_ptr->hp + dam);
 
-
-	/* Notice lack of damage */
-	if (dam <= 0)
+	/* Floating Eyes, Jellies, Molds, Vortexes, Quylthulgs */
+	if (strchr("ejmvQ", r_ptr->d_char))
 	{
-		percentage = 100;
-
-		/* Paranoia -- handle fear */
-		if (fear)
-		{
-			/* Sound */
-			sound(MSG_FLEE);
-
-			/* Message */
-			strcpy(buf, format("%s flees in terror!", m_name));
-		}
+		if (percentage > 95)
+			msg_format("%^s barely notices.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s flinches.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s squelches.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s quivers in pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s writhes about.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s writhes in agony.", m_name);
 		else
-		{
-			strcpy(buf, format("%s is unharmed", m_name));
-		}
+			msg_format("%^s jerks limply.", m_name);
 	}
 
-	/* Handle real damage */
-	else
+	/* Dogs and Hounds */
+	else if (strchr("CZ", r_ptr->d_char))
 	{
-		/* Calculate damage percentage (rounded) */
-		percentage = div_round(100 * m_ptr->hp, m_ptr->hp + dam);
-
-		/* Floating Eyes, Jellies, Molds, Vortexes, Worms, Quylthulgs */
-		if (strchr("ejmvwQ", r_ptr->d_char))
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s barely notices", m_name));
-			else if (percentage > 75)
-				strcpy(buf, format("%s flinches", m_name));
-			else if (percentage > 50)
-				strcpy(buf, format("%s squelches", m_name));
-			else if (percentage > 35)
-				strcpy(buf, format("%s quivers in pain", m_name));
-			else if (percentage > 20)
-				strcpy(buf, format("%s writhes about", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s writhes in agony", m_name));
-			else
-				strcpy(buf, format("%s jerks limply", m_name));
-		}
-
-		/* Dogs and Hounds */
-		else if (strchr("CZ", r_ptr->d_char))
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s shrugs off the attack", m_name));
-			else if (percentage > 75)
-				strcpy(buf, format("%s snarls with pain", m_name));
-			else if (percentage > 50)
-				strcpy(buf, format("%s yelps in pain", m_name));
-			else if (percentage > 35)
-				strcpy(buf, format("%s howls in pain", m_name));
-			else if (percentage > 20)
-				strcpy(buf, format("%s howls in agony", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s writhes in agony", m_name));
-			else
-				strcpy(buf, format("%s whimpers feebly", m_name));
-		}
-
-		/* Snakes, Reptiles, Centipedes, Mimics */
-		else if (strchr("cJR", r_ptr->d_char) || (r_ptr->flags1 & (RF1_CHAR_MIMIC)))
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s barely notices", m_name));
-			else if (percentage > 75)
-				strcpy(buf, format("%s hisses", m_name));
-			else if (percentage > 50)
-				strcpy(buf, format("%s rears up in anger", m_name));
-			else if (percentage > 35)
-				strcpy(buf, format("%s hisses furiously", m_name));
-			else if (percentage > 20)
-				strcpy(buf, format("%s writhes about", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s writhes in agony", m_name));
-			else
-				strcpy(buf, format("%s jerks limply", m_name));
-		}
-
-		/* Felines */
-		else if (strchr("f", r_ptr->d_char))
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s shrugs off the attack", m_name));
-			else if (percentage > 75)
-				strcpy(buf, format("%s snarls", m_name));
-			else if (percentage > 50)
-				strcpy(buf, format("%s growls angrily", m_name));
-			else if (percentage > 35)
-				strcpy(buf, format("%s hisses with pain", m_name));
-			else if (percentage > 20)
-				strcpy(buf, format("%s mewls in pain", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s hisses in agony", m_name));
-			else
-				strcpy(buf, format("%s mewls pitifully", m_name));
-		}
-
-		/* Ants, Lice, Flies, Beetles, Spiders */
-		else if (strchr("alFKS", r_ptr->d_char))
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s ignores the attack", m_name));
-			else if (percentage > 75)
-				strcpy(buf, format("%s drones angrily", m_name));
-			else if (percentage > 50)
-				strcpy(buf, format("%s scuttles about", m_name));
-			else if (percentage > 35)
-				strcpy(buf, format("%s twitches in pain", m_name));
-			else if (percentage > 20)
-				strcpy(buf, format("%s jerks in pain", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s jerks in agony", m_name));
-			else
-				strcpy(buf, format("%s jerks feebly", m_name));
-		}
-
-		/* Birds */
-		else if (strchr("B", r_ptr->d_char))
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s shrugs off the attack", m_name));
-			else if (percentage > 75)
-				strcpy(buf, format("%s flaps angrily", m_name));
-			else if (percentage > 50)
-				strcpy(buf, format("%s jeers in pain", m_name));
-			else if (percentage > 35)
-				strcpy(buf, format("%s squawks with pain", m_name));
-			else if (percentage > 20)
-				strcpy(buf, format("%s twitters in agony", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s flutters about", m_name));
-			else
-				strcpy(buf, format("%s chirps feebly", m_name));
-		}
-
-		/* Skeletons (ignore, rattle, stagger) */
-		else if (strchr("s", r_ptr->d_char))
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s ignores the attack", m_name));
-			else if (percentage > 75)
-				strcpy(buf, format("%s jerks", m_name));
-			else if (percentage > 50)
-				strcpy(buf, format("%s rattles", m_name));
-			else if (percentage > 35)
-				strcpy(buf, format("%s clatters", m_name));
-			else if (percentage > 20)
-				strcpy(buf, format("%s shakes", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s staggers", m_name));
-			else
-				strcpy(buf, format("%s crumples", m_name));
-		}
-
-		/* Zombies and Mummies (ignore, groan, stagger) */
-		else if (strchr("zMg", r_ptr->d_char))
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s ignores the attack", m_name));
-			else if (percentage > 75)
-				strcpy(buf, format("%s grunts", m_name));
-			else if (percentage > 50)
-				strcpy(buf, format("%s jerks", m_name));
-			else if (percentage > 35)
-				strcpy(buf, format("%s moans", m_name));
-			else if (percentage > 20)
-				strcpy(buf, format("%s groans", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s hesitates", m_name));
-			else
-				strcpy(buf, format("%s staggers", m_name));
-		}
-
-		/* Animated objects (ignore, groan, stagger) */
-		else if (strchr("|\\/][{}()=+-_*", r_ptr->d_char))
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s ignores the attack", m_name));
-			else if (percentage > 60)
-				strcpy(buf, format("%s vibrates", m_name));
-			else if (percentage > 40)
-				strcpy(buf, format("%s twitches", m_name));
-			else if (percentage > 25)
-				strcpy(buf, format("%s shakes", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s hesitates", m_name));
-			else
-				strcpy(buf, format("%s keens feebly", m_name));
-		}
-
-		/* One type of monsters (ignore,squeal,shriek) */
-		else if ((strchr("X", r_ptr->d_char)) ||
-				 (r_ptr->flags3 & (RF3_ANIMAL)))
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s ignores the attack", m_name));
-			else if (percentage > 75)
-				strcpy(buf, format("%s grunts with pain", m_name));
-			else if (percentage > 50)
-				strcpy(buf, format("%s squeals in pain", m_name));
-			else if (percentage > 35)
-				strcpy(buf, format("%s shrieks in pain", m_name));
-			else if (percentage > 20)
-				strcpy(buf, format("%s shrieks in agony", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s writhes in agony", m_name));
-			else
-				strcpy(buf, format("%s cries out feebly", m_name));
-		}
-
-		/* Another type of monsters (shrug,cry,scream) */
+		if (percentage > 95)
+			msg_format("%^s shrugs off the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s snarls with pain.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s yelps in pain.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s howls in pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s howls in agony.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s writhes in agony.", m_name);
 		else
-		{
-			if (percentage > 95)
-				strcpy(buf, format("%s shrugs off the attack", m_name));
-			else if (percentage > 75)
-				strcpy(buf, format("%s grunts with pain", m_name));
-			else if (percentage > 50)
-				strcpy(buf, format("%s cries out in pain", m_name));
-			else if (percentage > 35)
-				strcpy(buf, format("%s screams in pain", m_name));
-			else if (percentage > 20)
-				strcpy(buf, format("%s screams in agony", m_name));
-			else if (percentage > 10)
-				strcpy(buf, format("%s writhes in agony", m_name));
-			else
-				strcpy(buf, format("%s cries out feebly", m_name));
-		}
+			msg_format("%^s whimpers feebly.", m_name);
 	}
 
-
-	/* Append fear messages */
-	if (fear)
+	/* Snakes, Reptiles, Centipedes, Mimics */
+	else if (strchr("cJR", r_ptr->d_char) ||
+	         r_ptr->flags1 & (RF1_CHAR_MIMIC))
 	{
-		/* Sound */
-		sound(MSG_FLEE);
-
-		/* Paranoia -- handle odd fear */
-		if (percentage > 95) strcat(buf, " - but flees, panic-stricken!");
-
-		/* Look for an "in" in the pain message */
-		else if (strstr(buf, " in ")) strcat(buf, " - and flees!");
-
-		/* No "in */
-		else strcat(buf, " - and flees in terror!");
+		if (percentage > 95)
+			msg_format("%^s barely notices.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s hisses.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s rears up in anger.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s hisses furiously.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s writhes about.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s writhes in agony.", m_name);
+		else
+			msg_format("%^s jerks limply.", m_name);
 	}
 
-	/* End sentence */
+	/* Felines */
+	else if (strchr("f", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s shrugs off the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s snarls.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s growls angrily.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s hisses with pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s mewls in pain.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s hisses in agony.", m_name);
+		else
+			msg_format("%^s mewls pitifully.", m_name);
+	}
+
+	/* Ants, Lice, Flies, Insects, Beetles, Spiders */
+	else if (strchr("alFIKS", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s drones angrily.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s scuttles about.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s twitches in pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s jerks in pain.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s jerks in agony.", m_name);
+		else
+			msg_format("%^s jerks feebly.", m_name);
+	}
+
+	/* Birds */
+	else if (strchr("B", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s shrugs off the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s flaps angrily.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s jeers in pain.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s squawks with pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s twitters in agony.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s flutters about.", m_name);
+		else
+			msg_format("%^s chirps feebly.", m_name);
+	}
+
+	/* Skeletons (ignore, rattle, stagger) */
+	else if (strchr("s", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s jerks.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s rattles.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s clatters.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s shakes.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s staggers.", m_name);
+		else
+			msg_format("%^s crumples.", m_name);
+	}
+
+	/* Zombies and Mummies (ignore, groan, stagger) */
+	else if (strchr("zM", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s grunts.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s jerks.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s moans.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s groans.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s hesitates.", m_name);
+		else
+			msg_format("%^s staggers.", m_name);
+	}
+
+	/* One type of monsters (ignore,squeal,shriek) */
+	else if (strchr("Xbqr", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s grunts with pain.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s squeals in pain.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s shrieks in pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s shrieks in agony.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s writhes in agony.", m_name);
+		else
+			msg_format("%^s cries out feebly.", m_name);
+	}
+
+	/* Another type of monsters (shrug,cry,scream) */
 	else
 	{
-		strcat(buf, ".");
+		if (percentage > 95)
+			msg_format("%^s shrugs off the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s grunts with pain.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s cries out in pain.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s screams in pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s screams in agony.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s writhes in agony.", m_name);
+		else
+			msg_format("%^s cries out feebly.", m_name);
 	}
-
-	/* Output message, including any delayed hit notices */
-	if (strlen(hit_msg)) msg_format("%s; %s", hit_msg, buf);
-	else                 msg_format("%^s", buf);
 }
 
 
@@ -3459,6 +3118,7 @@ void update_smart_learn(int m_idx, int what)
 	/* Analyze the knowledge */
 	switch (what)
 	{
+
 		/* Slow/paralyze attacks learn about free action and saving throws */
 		case LRN_FREE_SAVE:
 		{
@@ -3830,7 +3490,10 @@ void mon_death_effect(int m_idx)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+	s16b unique_quark = 0;
+
 	int i;
+
 
 	/* Get the monster's location */
 	int fy = m_ptr->fy;
@@ -3840,9 +3503,19 @@ void mon_death_effect(int m_idx)
 	/* Monsters of the same race are immune */
 	project_immune = m_ptr->r_idx;
 
+	/* Hack -- inscribe items that a unique drops  -clefs- */
+	if (r_ptr->flags1 & (RF1_UNIQUE))
+	{
+		unique_quark = quark_add(r_name + r_ptr->name);
+	}
+
+
 	/* Animated torch */
 	if (m_ptr->r_idx == MON_ANIM_TORCH)
 	{
+		object_type *i_ptr;
+		object_type object_type_body;
+
 		/* Get local object */
 		i_ptr = &object_type_body;
 
@@ -3852,11 +3525,8 @@ void mon_death_effect(int m_idx)
 		/* Apply magic */
 		apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 
-		/* Light the torch */
-		i_ptr->flags3 |= (TR3_IS_LIT);
-
 		/* Drop the torch */
-		drop_near(i_ptr, 0, fy, fx, DROP_HERE);
+		drop_near(i_ptr, -1, fy, fx);
 	}
 
 	/* Mana Fly */
@@ -3884,7 +3554,7 @@ void mon_death_effect(int m_idx)
 		{
 			/* Summon a new monster */
 			summon_index_type = MON_UNDEAD_MYSTIC;
-			if (summon_specific(fy, fx, FALSE, MAX_DEPTH, SUMMON_INDEX, 1))
+			if (summon_specific(fy, fx, FALSE, MAX_DEPTH, SUMMON_INDEX))
 			{
 				/* Message  XXX XXX */
 				if (player_can_see_bold(fy, fx))
@@ -3904,13 +3574,23 @@ void mon_death_effect(int m_idx)
 	/* Living tornado */
 	else if (m_ptr->r_idx == MON_TORNADO)
 	{
-		int num = randint(7);
+		/* Require junk */
+		required_tval = TV_JUNK;
 
-		/* Drop lots of boulders */
-		for (i = 0; i < num; i++)
+		/* Drop lots of junk */
+		for (i = 0; i < randint(7); i++)
 		{
-			make_boulder(fy, fx, rand_range(r_ptr->level / 2, r_ptr->level));
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Make an object and drop it */
+			if (make_object(i_ptr, FALSE, FALSE, FALSE))
+			{
+				drop_near(i_ptr, -1, fy, fx);
+			}
 		}
+
+		required_tval = 0;
 	}
 
 	/* Morgoth, Lord of Darkness */
@@ -3928,8 +3608,11 @@ void mon_death_effect(int m_idx)
 		/* Mega-Hack -- Actually create "Grond" */
 		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
 
+		/* Add note */
+		if (unique_quark) i_ptr->note = unique_quark;
+
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, 0, fy, fx, 0x00);
+		drop_near(i_ptr, -1, fy, fx);
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -3943,14 +3626,17 @@ void mon_death_effect(int m_idx)
 		/* Mega-Hack -- Actually create "Morgoth" */
 		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
 
+		/* Add note */
+		if (unique_quark) i_ptr->note = unique_quark;
+
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, 0, fy, fx, 0x00);
+		drop_near(i_ptr, -1, fy, fx);
 	}
 
 	/* Error */
 	else
 	{
-		char m_name[DESC_LEN];
+		char m_name[80];
 
 		/* Get the monster name */
 		monster_desc(m_name, m_ptr, 0);
@@ -4025,10 +3711,10 @@ static int get_coin_type(const monster_race *r_ptr)
 		if (strstr(name, "Adamantite "))    return (SV_ADAMANTITE);
 
 		/* Look for textual clues */
-		if (strstr(name, "Giant sapphire")) return (SV_SAPPHIRE);
-		if (strstr(name, "Giant emerald"))  return (SV_EMERALD);
-		if (strstr(name, "Giant ruby"))     return (SV_RUBY);
-		if (strstr(name, "Giant diamond"))  return (SV_DIAMOND);
+		if (strstr(name, "Giant Sapphire")) return (SV_SAPPHIRE);
+		if (strstr(name, "Giant Emerald"))  return (SV_EMERALD);
+		if (strstr(name, "Giant Ruby"))     return (SV_RUBY);
+		if (strstr(name, "Giant Diamond"))  return (SV_DIAMOND);
 
 		if (strstr(name, "Aetheroi"))       return (SV_AETHEROI);
 	}
@@ -4068,19 +3754,18 @@ static void drop_quest_stairs(int y0, int x0)
 			/* Must be in LOS from the monster's position */
 			if (!los(y0, x0, y, x)) continue;
 
-			/* First try -- Accept floor grids with no objects */
-			if ((i == 0) && (cave_clean_bold(y, x)))
+			/* First try -- Accept non-wall grids with no objects */
+			if ((i == 0) && (cave_floor_bold(y, x)) &&
+			    (cave_o_idx[y][x] == 0))
 			{
 				grid[grids++] = GRID(y, x);
 			}
-
 			/* Second try -- Accept any passable grid with no objects */
 			if ((i == 1) && (cave_passable_bold(y, x)) &&
 			    (cave_o_idx[y][x] == 0))
 			{
 				grid[grids++] = GRID(y, x);
 			}
-
 			/* Third try -- Accept any grid that can be "destroyed" */
 			if ((i == 2) && (cave_valid_bold(y, x)))
 			{
@@ -4095,7 +3780,6 @@ static void drop_quest_stairs(int y0, int x0)
 	/* If there are still no grids available, we get desperate */
 	if (!grids)
 	{
-		/* Pick any passable grid in the dungeon */
 		while (TRUE)
 		{
 			y = rand_int(dungeon_hgt);
@@ -4132,20 +3816,40 @@ static void drop_quest_stairs(int y0, int x0)
 
 
 /*
- * Monster drops or surrenders some or all of its loot.
+ * Handle the "death" of a monster.
  *
- * Option to steal objects directly.  Return TRUE if something was
- * dropped or surrendered.
+ * Disperse treasures centered at the monster location based on the
+ * various flags contained in the monster flags fields.
+ *
+ * Check for "Quest" completion when a quest monster is killed.  We
+ * handle Morgoth and Sauron manually, to avoid slip-ups.
+ *
+ * Note that only the player can induce "monster_death()" on Uniques.
+ *
+ * Note that monsters can now carry objects; when a monster dies,
+ * it drops whatever it is carrying.
  */
-bool monster_loot(int max, bool steal, monster_type *m_ptr)
+void monster_death(int m_idx)
 {
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	int i, j, y, x;
 
-	int i;
-	int number = 0;
 	int dump_item = 0;
 	int dump_gold = 0;
 	int gold_chance = 0;
+
+	int number = 0;
+
+	bool questlevel = FALSE;
+	bool completed  = FALSE;
+	bool fixedquest = FALSE;
+
+	s16b unique_quark = 0;
+	s16b this_o_idx, next_o_idx = 0;
+
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	bool visible = m_ptr->ml;
 
 	bool good =  (r_ptr->flags1 & (RF1_DROP_GOOD))  ? TRUE : FALSE;
 	bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
@@ -4153,13 +3857,47 @@ bool monster_loot(int max, bool steal, monster_type *m_ptr)
 	bool do_gold = (r_ptr->flags1 & (RF1_ONLY_ITEM)) ? FALSE : TRUE;
 	bool do_item = (r_ptr->flags1 & (RF1_ONLY_GOLD)) ? FALSE : TRUE;
 
-	s16b unique_quark = 0;
-
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	int y = m_ptr->fy;
-	int x = m_ptr->fx;
+
+	/* Get the location */
+	y = m_ptr->fy;
+	x = m_ptr->fx;
+
+	/* Hack -- The death of a unique is always known */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) visible = TRUE;
+
+
+	/* Drop objects being carried */
+	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Get object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Paranoia */
+		o_ptr->held_m_idx = 0;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Copy the object */
+		object_copy(i_ptr, o_ptr);
+
+		/* Delete the object */
+		delete_object_idx(this_o_idx);
+
+		/* Drop it */
+		drop_near(i_ptr, -1, y, x);
+	}
+
+	/* Forget objects */
+	m_ptr->hold_o_idx = 0;
 
 
 	/* Determine how much we can drop */
@@ -4176,11 +3914,6 @@ bool monster_loot(int max, bool steal, monster_type *m_ptr)
 	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
 
-
-	/* Nothing to drop */
-	if (!number) return (FALSE);
-
-
 	/* Hack -- handle creatures made of precious metals and gems */
 	coin_type = get_coin_type(r_ptr);
 
@@ -4191,22 +3924,9 @@ bool monster_loot(int max, bool steal, monster_type *m_ptr)
 	/* Hack -- inscribe items that a unique drops  -clefs- */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
-		char m_name[DESC_LEN];
-
-		/* Get the monster's short name */
-		(void)my_strcpy(m_name, format("%s", r_name + r_ptr->name), sizeof(m_name));
-		short_m_name(m_name);
-
-		/* Inscribe the object with that name */
-		unique_quark = quark_add(m_name);
+		unique_quark = quark_add(r_name + r_ptr->name);
 	}
 
-
-	/* Uniques drop more "great" quality objects */
-	if (r_ptr->flags1 & (RF1_UNIQUE))
-	{
-		obj_gen_flags |= (OBJ_GEN_UNIQUE);
-	}
 
 	/* We are allowed to drop gold, but only sometimes */
 	if ((do_gold) && (do_item))
@@ -4215,18 +3935,13 @@ bool monster_loot(int max, bool steal, monster_type *m_ptr)
 		gold_chance = 30;
 
 		/* Low-level monsters drop gold much more often */
-		if (MIN(85, p_ptr->depth) > r_ptr->level + 5)
-			gold_chance += 3 * (MIN(85, p_ptr->depth) - r_ptr->level - 5);
+		if (MIN(85, p_ptr->depth) > r_ptr->level)
+			gold_chance += 3 * (MIN(85, p_ptr->depth) - r_ptr->level);
 		if (gold_chance > 90) gold_chance = 90;
 	}
 
-
-	/* Option to limit maximum quantity */
-	if ((max > 0) && (number > max)) number = max;
-
-
-	/* Drop or surrender some objects */
-	for (i = 0; i < number; i++)
+	/* Drop some objects */
+	for (j = 0; j < number; j++)
 	{
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -4252,14 +3967,11 @@ bool monster_loot(int max, bool steal, monster_type *m_ptr)
 				/* Add note */
 				if (unique_quark) i_ptr->note = unique_quark;
 
-				/* Increment gold count */
+				/* Assume seen XXX XXX */
 				dump_gold++;
 
-				/* Option -- Grab the gold */
-				if (steal) steal_object(i_ptr);
-
 				/* Drop it in the dungeon */
-				else drop_near(i_ptr, 0, y, x, 0x00);
+				drop_near(i_ptr, -1, y, x);
 			}
 		}
 
@@ -4267,21 +3979,16 @@ bool monster_loot(int max, bool steal, monster_type *m_ptr)
 		else if (r_ptr->flags1 & (RF1_DROP_CHEST))
 		{
 			required_tval = TV_CHEST;
-
-			/* Make a chest */
 			if (make_object(i_ptr, FALSE, FALSE, TRUE))
 			{
 				/* Add note */
 				if (unique_quark) i_ptr->note = unique_quark;
 
-				/* Increment object count */
+				/* Assume seen XXX XXX XXX */
 				dump_item++;
 
-				/* Option -- Grab the chest */
-				if (steal) steal_object(i_ptr);
-
 				/* Drop it in the dungeon */
-				else drop_near(i_ptr, 0, y, x, 0x00);
+				drop_near(i_ptr, -1, y, x);
 			}
 			required_tval = 0;
 		}
@@ -4295,14 +4002,11 @@ bool monster_loot(int max, bool steal, monster_type *m_ptr)
 				/* Add note */
 				if (unique_quark) i_ptr->note = unique_quark;
 
-				/* Increment object count */
+				/* Assume seen XXX XXX XXX */
 				dump_item++;
 
-				/* Option -- Grab the object */
-				if (steal) steal_object(i_ptr);
-
 				/* Drop it in the dungeon */
-				else drop_near(i_ptr, 0, y, x, 0x00);
+				drop_near(i_ptr, -1, y, x);
 			}
 		}
 	}
@@ -4313,98 +4017,13 @@ bool monster_loot(int max, bool steal, monster_type *m_ptr)
 	/* Reset "coin" type */
 	coin_type = 0;
 
-	/* Reset object generation flags */
-	obj_gen_flags = 0L;
-
 
 	/* Take note of any dropped treasure */
-	if (mon_fully_visible(m_ptr) && (!p_ptr->image) && (dump_item || dump_gold))
+	if (visible && (dump_item || dump_gold))
 	{
 		/* Take notes on treasure */
-		lore_treasure(cave_m_idx[y][x], dump_item, dump_gold);
+		lore_treasure(m_idx, dump_item, dump_gold);
 	}
-
-	/* Return TRUE if new items or gold, FALSE otherwise */
-	if (dump_item || dump_gold)
-	{
-		return (TRUE);
-	}
-	return (FALSE);
-}
-
-
-
-
-/*
- * Handle the "death" of a monster.
- *
- * Disperse treasures centered at the monster location based on the
- * various flags contained in the monster flags fields.
- *
- * Check for "Quest" completion when a quest monster is killed.  We
- * handle Morgoth and Sauron manually, to avoid slip-ups.
- *
- * Note that only the player can induce "monster_death()" on Uniques.
- *
- * Note that monsters can now carry objects; when a monster dies,
- * it drops whatever it is carrying.
- */
-void monster_death(int m_idx)
-{
-	int i, j, y, x;
-
-	bool questlevel = FALSE;
-	bool completed  = FALSE;
-	bool fixedquest = FALSE;
-
-	s16b this_o_idx, next_o_idx = 0;
-
-	monster_type *m_ptr = &m_list[m_idx];
-
-	object_type *i_ptr;
-	object_type object_type_body;
-
-
-
-	/* Get the location */
-	y = m_ptr->fy;
-	x = m_ptr->fx;
-
-
-	/* Drop objects being carried */
-	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-		object_type *o_ptr;
-
-		/* Get object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Paranoia */
-		o_ptr->held_m_idx = 0;
-		o_ptr->next_o_idx = 0;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Copy the object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Delete the object */
-		delete_object_idx(this_o_idx);
-
-		/* Drop it */
-		drop_near(i_ptr, 0, y, x, 0x00);
-	}
-
-	/* Forget objects */
-	m_ptr->hold_o_idx = 0;
-
-
-	/* Monster may drop loot */
-	(void)monster_loot(0, FALSE, m_ptr);
 
 
 	/* Sauron is slain */
@@ -4470,21 +4089,6 @@ void monster_death(int m_idx)
 				/* Completed quest? */
 				if (q_ptr->cur_num == q_ptr->max_num)
 				{
-					/* Remember this quest */
-					for (j = 0; j < MAX_QM_IDX; j++)
-					{
-						/* Found an empty record */
-						if (p_ptr->quest_memory[j].type == 0)
-						{
-							p_ptr->quest_memory[j].type = q_info[i].type;
-							p_ptr->quest_memory[j].level = q_info[i].active_level;
-							p_ptr->quest_memory[j].r_idx = q_info[i].r_idx;
-							p_ptr->quest_memory[j].max_num = q_info[i].max_num;
-							p_ptr->quest_memory[j].succeeded = 1;
-							break;
-						}
-					}
-
 					/* Mark complete */
 					q_ptr->active_level = 0;
 
@@ -4527,7 +4131,7 @@ void monster_death(int m_idx)
  * We return TRUE if the monster has been killed (and deleted).
  *
  * We announce monster death (using an optional "death message"
- * if given, and otherwise a generic killed/destroyed message).
+ * if given, and a otherwise a generic killed/destroyed message).
  *
  * Hack -- we delay fear messages by passing around a "fear" flag.
  */
@@ -4538,8 +4142,6 @@ bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note)
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	s32b new_exp, new_exp_frac;
-
-	bool slay_holy = FALSE;
 
 	char path[1024];
 
@@ -4558,15 +4160,14 @@ bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note)
 	}
 
 	/* Practice a skill (if any is specified) */
-	if ((skill_being_used > S_NOSKILL) &&
-	    (skill_being_used < NUM_SKILLS) && (m_ptr->hp > 0))
+	if ((skill_being_used) && (m_ptr->hp > 0))
 	{
 		/* Calculate base monster experience */
 		new_exp = (long)r_ptr->mexp * r_ptr->level / power;
 
 		/* Adjust for damage percentage (never over 100%) */
 		new_exp *= MIN(dam, m_ptr->hp);
-		new_exp /= m_ptr->maxhp;
+		new_exp /= m_ptr->hp;
 
 		/* Practice */
 		practice_skill(new_exp, skill_being_used);
@@ -4581,20 +4182,13 @@ bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note)
 	/* It is dead now */
 	if (m_ptr->hp < 0)
 	{
-		char m_name[DESC_LEN];
+		char m_name[80];
 
 		/* Extract monster name */
-		monster_desc(m_name, m_ptr, 0x40);
+		monster_desc(m_name, m_ptr, 0);
 
-		/* Increase the noise level slightly (depends on Burglary skill). */
-		if (add_wakeup_chance <= 8000)
-			add_wakeup_chance += get_combat_noise(0, 500);
-
-		/* No exp when priests kill angels */
-		if ((p_ptr->realm == PRIEST) && (r_ptr->d_char == 'A'))
-		{
-			slay_holy = TRUE;
-		}
+		/* Increase the noise level slightly. */
+		if (add_wakeup_chance <= 8000) add_wakeup_chance += 300;
 
 		/* Death by Missile/Spell attack */
 		if (note)
@@ -4619,31 +4213,27 @@ bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note)
 		/* Physical kill by player */
 		else
 		{
-			cptr kill_str = "killed";
+			cptr kill_str;
 
-			/* Invisible or uncertain monsters are "killed" */
-			if ((!mon_fully_visible(m_ptr)) || (p_ptr->image))
+			/* Invisible monsters are "killed" */
+			if (!m_ptr->ml) kill_str = "killed";
+
+			/* Non-living monsters are "destroyed" */
+			else if (monster_nonliving(r_ptr))
 			{
-				/* "killed" */
+				kill_str = "destroyed";
 			}
 
-			/* Visible monsters are "slain", "destroyed", or "killed" */
-			else
-			{
-				if (r_ptr->flags1 & (RF1_UNIQUE))
-					kill_str = "slain";
-				else if (monster_nonliving(r_ptr))
-					kill_str = "destroyed";
-			}
+			/* Other monsters are "slain" */
+			else kill_str = "slain";
 
-			/* Kill message ('!' for uniques, '.' for all others) */
-			message_format(MSG_KILL, 0, "You have %s %s%c",
-				kill_str, m_name,
-				r_ptr->flags1 & (RF1_UNIQUE) ? '!' : '.');
+			/* Kill message */
+			message_format(MSG_KILL, 0, "You have %s %s.",
+				kill_str, m_name);
 		}
 
 		/* Handle a player kill - experience */
-		if ((who < 0) && (!slay_holy))
+		if (who < 0)
 		{
 			/* Give some experience for the kill */
 			new_exp = ((long)r_ptr->mexp * r_ptr->level) / power;
@@ -4715,34 +4305,20 @@ bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note)
 				/* Fame may go up */
 				if (p_ptr->fame < r_ptr->level / 2)
 				    p_ptr->fame = r_ptr->level / 2;
-
-				/* Take note of fame */
-				left_panel_display(DISPLAY_FAME, 0);
 			}
 
-			/* A player ghost is dead */
+			/*
+			 * When the player kills a player ghost, the bones file that
+			 * it used is (often) deleted.
+			 */
 			if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 			{
-				/* Another point of player fame */
-				p_ptr->fame++;
-
-				/* Take note of fame */
-				left_panel_display(DISPLAY_FAME, 0);
-
-				/* Delete the bones file */
 				if (one_in_(3))
 				{
-					(void)strnfmt(path, sizeof(path), "%s/bone.%03d", ANGBAND_DIR_BONE,
+					sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE,
 						bones_selector);
 					remove(path);
 				}
-			}
-
-			/* A holy creature is slain by a priest */
-			if (slay_holy)
-			{
-				/* This is a bad thing */
-				set_unsanctified(p_ptr->unsanctified + rand_range(150, 250));
 			}
 
 			/* Recall even invisible uniques or winners */
@@ -4779,8 +4355,8 @@ bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note)
 		return (TRUE);
 	}
 
-	/* Mega-Hack -- Pain cancels fear (only if nearby) */
-	if (m_ptr->monfear && (dam > 0) && (m_ptr->cdis < 3))
+	/* Mega-Hack -- Pain cancels fear */
+	if (m_ptr->monfear && (dam > 0))
 	{
 		int tmp = randint(dam);
 
@@ -4833,18 +4409,18 @@ bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note)
 
 	/* Monster is maddened -- may recover sanity */
 	if ((m_ptr->mflag & (MFLAG_MADD)) &&
-	    ((who < 0) || ((who == 0) && (one_in_(4)))))
+	    ((who < 0) || ((who == 0) && (one_in_(2)))))
 	{
 		/* Monster is no longer maddened */
 		m_ptr->mflag &= ~(MFLAG_MADD);
 
 		/* Take note if visible */
-		if ((m_ptr->ml) && (!p_ptr->image))
+		if (m_ptr->ml)
 		{
-			char m_name[DESC_LEN];
-			char m_poss[DESC_LEN];
+			char m_name[80];
+			char m_poss[80];
 
-			/* Get monster name and gendered pronoun */
+			/* Extract monster name/poss */
 			monster_desc(m_name, m_ptr, 0);
 			monster_desc(m_poss, m_ptr, 0x22);
 
@@ -4859,19 +4435,9 @@ bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note)
 	/* Visible monsters lose their mimic status */
 	if (m_ptr->ml) m_ptr->mflag &= ~(MFLAG_MIME);
 
-	/* Townsmen get either mad or frightened */
-	if (m_ptr->mflag & (MFLAG_TOWN))
-	{
-		/* No longer using the "townsman" AI */
-		m_ptr->mflag &= ~(MFLAG_TOWN);
-
-		/* People run away */
-		if (r_ptr->d_char == 't')
-			m_ptr->min_range = m_ptr->best_range = FLEE_RANGE;
-	}
 
 	/* Recalculate desired minimum range */
-	else if (dam > 0) m_ptr->min_range = 0;
+	if (dam > 0) m_ptr->min_range = 0;
 
 	/* Not dead yet */
 	return (FALSE);

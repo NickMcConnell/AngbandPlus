@@ -1,12 +1,21 @@
 # File: font.prf
 
 #
-# This file defines special attr/char mappings for use in "extended text" mode
+# This file defines special attr/char mappings for use in "text" mode
 #
 # This file includes, if appropriate, various "sub-files"
 #
 # See "lib/help/pref.txt" and "src/files.c" for more information.
 #
+
+
+## #
+## # OPTION: Display "veins" (white "%") as "normal walls" (white "#").
+## #
+## F:50:0x01/0x23
+## F:51:0x01/0x23
+## F:52:0x01/0x23
+## F:53:0x01/0x23
 
 
 ##### Standard font file #####
@@ -22,11 +31,11 @@
 ?:[EQU $SYS gcu]
 %:font-gcu.prf
 
+?:[EQU $SYS ami]
+%:font-ami.prf
+
 ?:[EQU $SYS mac]
 %:font-mac.prf
-
-?:[EQU $SYS sdl]
-%:font-sdl.prf
 
 ?:[EQU $SYS win]
 %:font-win.prf
@@ -36,6 +45,12 @@
 
 ?:[EQU $SYS ibm]
 %:font-ibm.prf
+
+?:[EQU $SYS emx]
+%:font-emx.prf
+
+?:[EQU $SYS acn]
+%:font-acn.prf
 
 ?:1
 

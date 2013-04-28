@@ -1,404 +1,311 @@
-#
+# File: terrain.txt
+
+
 # This file contains information about terrain features.
-#
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# Note that terrain feature zero contains the "darkness" picture.
+
 
 # Version stamp (required)
 
-V:1.0.0
-
-#
-# N: index: name
-# G: ASCII char used to represent the feature: color symbol
-# M: index of the feature whose display this feature uses.
-# C: priority (used by the small dungeon map)
-# F: feature flags
-#
-# Note:  Mimic features must have all of the flags of the feature they
-# pretend to be (in addition to flags peculiar to themselves).  The code 
-# automatically makes this happen.
-#
-# For more information, see /lib/info/modify.txt.
-#
+V:0.9.9
 
 
-# darkness (unknown)
+#N: index: name
+#G: ASCII char used to represent the feature: color symbol
+#M: index of the feature whose display this feature uses.
+
+# 0x00 --> nothing
+
 N:0:nothing
 G: :w
-C:2
+
+
+# 0x01 --> open floor
 
 N:1:open floor
 G:.:w
-C:5
-F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_FLOOR | TF_OBJECT | TF_TRAP
+
+
+# 0x04 --> up shaft (perm)
 
 N:4:up shaft
 G:<:U
-C:30
-F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
+
+# 0x05 --> down shaft (perm)
 
 N:5:down shaft
 G:>:U
-C:30
-F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
+
+# 0x06 --> open door
 
 N:6:open door
 G:':U
-C:20
-F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_DOOR_ANY | TF_INTERESTING
+
+# 0x07 --> broken door
 
 N:7:broken door
 G:':u
-C:20
-F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_DOOR_ANY | TF_INTERESTING
+
+# 0x08 --> up stairs (perm)
 
 N:8:up staircase
 G:<:w
-C:30
-F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
+
+# 0x09 --> down stairs (perm)
 
 N:9:down staircase
 G:>:w
-C:30
-F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
+
+# 0x0A --> special dungeon feature -- lava
 
 N:10:lava
 G:#:r
-C:14
-F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_NO_SCENT
-D:Can be passed by any character, but inflicts substantial fire damage (less for 
-D:players with feather fall - they're light on their feet).  All monsters other than 
-D:fiery or strong flying creatures will not cross.  Water and cold-based spells suffer 
-D:and fire-based spells become more powerful against a target in lava.  Lava may freeze 
-D:to rubble or normal floor.
+
+# 0x0B --> special dungeon feature -- water
 
 N:11:water
 G:.:b
-C:6
-F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_NO_SCENT | TF_OBJECT | TF_TRAP
-D:Cannot be passed by fiery, earthbound monsters, slows down most other monsters.  
-D:Slows you down, and cannot be crossed if you are carrying too much.  You and your 
-D:enemies are easier to hit when in water, and most spells (especially water-based ones) 
-D:gain in strength.  It is hard to dodge in water.  However, fire-based spells become 
-D:much less powerful, so find a lake if you battle Smaug.  Water may evaporate.
+
+# 0x0C --> special dungeon feature -- tree
 
 N:12:trees
 G:+:g
-C:14
-F:TF_PASSABLE | TF_OBJECT | TF_TRAP
-D:Slows down characters not familiar with druidic techniques, and all non-natural 
-D:monsters that neither fly nor pass through rock.  Ends LOS, stops missiles, bolts, 
-D:and beams, and reduces the radius of ball spells.  Grants the character and monsters 
-D:within it some protection from melee, ranged, or magical attacks.  Trees can burn.
 
-#
-#
-# space for more terrain here
-#
-#
+
+### features 13, 14, and 15 are unused ###
+
+# 0x20 --> locked door (power 0)
 
 N:32:door
 G:+:U
 M:32
-C:17
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
-D:Doors may be locked or stuck; getting through them may not be easy.  Your disarming 
-D:skill makes all the difference to your ability to handle locks, but you can also 
-D:bash doors down, take a pickaxe to them, or blast them open with magic.  Monsters 
-D:are also slowed down by doors; you can earn yourself valuable time by jamming or 
-D:locking them.
 
-# locked door, power 1
+# 0x21 --> locked door (power 1)
+
 N:33:locked door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# locked door, power 2
+# 0x22 --> locked door (power 2)
+
 N:34:locked door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# locked door, power 3
+# 0x23 --> locked door (power 3)
+
 N:35:locked door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# locked door, power 4
+# 0x24 --> locked door (power 4)
+
 N:36:locked door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# locked door, power 5
+# 0x25 --> locked door (power 5)
+
 N:37:locked door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# locked door, power 6
+# 0x26 --> locked door (power 6)
+
 N:38:locked door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# locked door, power 7
+# 0x27 --> locked door (power 7)
+
 N:39:locked door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# jammed door, power 0
+# 0x28 --> jammed door (power 0)
+
 N:40:jammed door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# jammed door, power 1
+# 0x29 --> jammed door (power 1)
+
 N:41:jammed door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# jammed door, power 2
+# 0x2A --> jammed door (power 2)
+
 N:42:jammed door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# jammed door, power 3
+# 0x2B --> jammed door (power 3)
+
 N:43:jammed door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# jammed door, power 4
+# 0x2C --> jammed door (power 4)
+
 N:44:jammed door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# jammed door, power 5
+# 0x2D --> jammed door (power 5)
+
 N:45:jammed door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# jammed door, power 6
+# 0x2E --> jammed door (power 6)
+
 N:46:jammed door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
 
-# jammed door, power 7
+# 0x2F --> jammed door (power 7)
+
 N:47:jammed door
 G:+:U
-C:17
 M:32
-F:TF_DOOR_ANY | TF_DOOR_CLOSED | TF_INTERESTING
+
+# 0x30 --> secret door
 
 N:48:secret door
 G:#:w
 M:56
-C:10
-F:TF_WALL | TF_ROCK | TF_DOOR_ANY | TF_DOOR_CLOSED | TF_GRANITE
+
+# 0x31 --> pile of rubble
 
 N:49:pile of rubble
 G:::w
-C:13
-F:TF_ROCK | TF_PASSABLE | TF_OBJECT | TF_TRAP
-D:Greatly slows down any creature that cannot bore or pass through rock.  Ends 
-D:LOS, stops missiles, bolts, and beams, and reduces the radius of ball spells.  
-D:Grants the character and monsters within it some protection from melee, ranged, 
-D:or magical attacks.  Rubble may dissolve to normal floor.
+
+# 0x32 --> magma vein
 
 N:50:magma vein
 G:#:s
-C:12
-F:TF_WALL | TF_ROCK | TF_NO_SCENT
+
+# 0x33 --> quartz vein
 
 N:51:quartz vein
 G:#:W
-C:11
-F:TF_WALL | TF_ROCK | TF_NO_SCENT
 
-# magma vein + hidden treasure  (this feature is actually never used)
+# 0x34 --> magma vein + hidden treasure  (this feature is actually never used)
+
 N:52:magma vein
 G:#:s
 M:50
-C:11
-F:TF_WALL | TF_ROCK | TF_NO_SCENT
 
-# quartz vein + hidden treasure  (this feature is actually never used)
+# 0x35 --> quartz vein + hidden treasure  (this feature is actually never used)
+
 N:53:quartz vein
 G:#:W
 M:51
-C:11
-F:TF_WALL | TF_ROCK | TF_NO_SCENT
+
+# 0x36 --> magma vein + known treasure
 
 N:54:magma vein with treasure
 G:*:o
-C:19
-F:TF_WALL | TF_ROCK | TF_INTERESTING | TF_NO_SCENT
+
+# 0x37 --> quartz vein + known treasure
 
 N:55:quartz vein with treasure
 G:*:o
-C:19
-F:TF_WALL | TF_ROCK | TF_INTERESTING | TF_NO_SCENT
 
-# basic granite wall
+# 0x38 --> granite wall -- basic
+
 N:56:granite wall
 G:#:w
-C:10
-F:TF_WALL | TF_ROCK | TF_GRANITE | TF_NO_SCENT
 
-# inner granite wall
+# 0x39 --> granite wall -- inner
+
 N:57:granite wall
 G:#:w
 M:56
-C:10
-F:TF_WALL | TF_ROCK | TF_GRANITE | TF_NO_SCENT
 
-# outer granite wall
+# 0x3A --> granite wall -- outer
+
 N:58:granite wall
 G:#:w
 M:56
-C:10
-F:TF_WALL | TF_ROCK | TF_GRANITE | TF_NO_SCENT
 
-# solid granite wall (used to space out doorways)
+# 0x3B --> granite wall -- solid
+
 N:59:granite wall
 G:#:w
 M:56
-C:10
-F:TF_WALL | TF_ROCK | TF_GRANITE | TF_NO_SCENT
 
-# basic permanent wall
+# 0x3C --> permanent wall -- basic (perm)
+
 N:60:permanent wall
 G:#:w
-C:11
-F:TF_WALL | TF_ROCK | TF_PERMANENT | TF_NO_SCENT
-D:You can dig through most walls but some are impenetrable.  The dungeon is surrounded 
-D:by these kinds of walls and some special rooms are made of them.
 
-# inner permanent wall
+# 0x3D --> permanent wall -- inner (perm)
+
 N:61:permanent wall
 G:#:w
-M:61
-C:11
-F:TF_WALL | TF_ROCK | TF_PERMANENT | TF_NO_SCENT
-D:You can dig through most walls but some are impenetrable.  The dungeon is surrounded 
-D:by these kinds of walls and some special rooms are made of them.
 
-# outer permanent wall
+# 0x3E --> permanent wall -- outer (perm)
+
 N:62:permanent wall
 G:#:w
-M:61
-C:11
-F:TF_WALL | TF_ROCK | TF_PERMANENT | TF_NO_SCENT
+M:60
 
-# dungeon-surrounding permanent wall
+# 0x3F --> permanent wall -- solid (perm)   (surrounds the dungeon)
+
 N:63:permanent wall
 G:#:w
-M:61
-C:11
-F:TF_WALL | TF_ROCK | TF_PERMANENT | TF_NO_SCENT
+M:60
 
-N:64:pillar
-G:#:w
-C:10
-F:TF_WALL | TF_ROCK | TF_NO_SCENT
+# 0x40 --> shop -- general store (perm)
 
-N:65:pillar of gold
-G:#:o
-C:10
-F:TF_WALL | TF_ROCK | TF_INTERESTING | TF_NO_SCENT
-
-#
-#
-# space for more terrain here
-#
-#
-
-N:84:the General Store
+N:64:General Store
 G:1:U
-C:30
-F:TF_SHOP | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
 
-N:85:the Armory
+# 0x41 --> shop -- armoury (perm)
+
+N:65:Armoury
 G:2:s
-C:30
-F:TF_SHOP | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
 
-N:86:the Weapon Smiths
+# 0x42 --> shop -- weapon shop (perm)
+
+N:66:Weapon Smiths
 G:3:w
-C:30
-F:TF_SHOP | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
 
-N:87:the Temple
+# 0x43 --> shop -- temple (perm)
+
+N:67:Temple
 G:4:B
-C:30
-F:TF_SHOP | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
 
-N:88:the Alchemy Shop
+# 0x44 --> shop -- alchemist (perm)
+
+N:68:Alchemy Shop
 G:5:b
-C:30
-F:TF_SHOP | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
 
-N:89:the Magic Shop
+# 0x45 --> shop -- magic shop (perm)
+
+N:69:Magic Shop
 G:6:r
-C:30
-F:TF_SHOP | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
 
-N:90:the Bookstore
+# 0x46 --> shop -- bookstore (perm)
+
+N:70:Bookstore
 G:7:o
-C:30
-F:TF_SHOP | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
 
-N:91:your home
+# 0x47 --> shop -- home (perm)
+
+N:71:Home
 G:8:y
-C:30
-F:TF_SHOP | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
 
-N:92:the Inn
+# 0x48 --> shop -- inn (perm)
+
+N:72:Inn
 G:+:u
-C:30
-F:TF_SHOP | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING
 
-#
-# New shops should go here.
-#
-
-
-#
-# Space for new terrain.
-#
-
-
-
-
-
-
-
-#
-# Apply the flags of a terrain type to all terrain types which mimic it.
-# (we may want to reconsider this at some point)
-#
-!:Verify Terrain
 
 

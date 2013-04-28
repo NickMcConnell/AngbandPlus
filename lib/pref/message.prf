@@ -1,12 +1,27 @@
 #
 # This file controls the colors used for various message types.
 #
-# Sounds are controlled in "/lib/xtra/sound/sound.cfg"
+# Pethaps it should also control sounds?
 #
 
 
 # MSG_GENERIC
 M:0:w
+
+# MSG_HIT
+M:1:w
+
+# MSG_MISS
+M:2:w
+
+# MSG_FLEE
+M:3:w
+
+# MSG_DROP
+M:4:w
+
+# MSG_KILL
+M:5:w
 
 # MSG_LEVEL
 M:6:B
@@ -14,73 +29,84 @@ M:6:B
 # MSG_DEATH
 M:7:v
 
-# Used for most error messages.  For some *bands, this is orange.
-# MSG_BELL
-M:25:y
+# MSG_STUDY
+M:8:w
 
+# MSG_TELEPORT
+M:9:w
+
+# MSG_SHOOT
+M:10:w
+
+# MSG_QUAFF
+M:11:w
+
+# MSG_ZAP
+M:12:w
+
+# MSG_WALK
+M:13:w
+
+# MSG_TPOTHER
+M:14:w
+
+# MSG_HITWALL
+M:15:w
+
+# MSG_EAT
+M:16:w
+
+# MSG_STORE1
+M:17:w
+
+# MSG_STORE2
+M:18:w
+
+# MSG_STORE3
+M:19:w
+
+# MSG_STORE4
+M:20:w
+
+# MSG_DIG
+M:21:w
+
+# MSG_OPENDOOR
+M:22:w
+
+# MSG_SHUTDOOR
+M:23:w
+
+# MSG_TPLEVEL
+M:24:w
+
+# Used for most error messages.  For some Angbands, this is yellow.
+# MSG_BELL
+M:25:w
+
+# MSG_NOTHING_TO_OPEN
+M:26:w
+
+# MSG_LOCKPICK_FAIL
+M:27:w
+
+# MSG_STAIRS
+M:28:w
+
+# In white, because we also offer colorized damage messages
+# MSG_HITPOINT_WARN
+M:29:w
+
+# For the colorized damage messages
 # MSG_HIT_SOFT
-M:150:w
+M:30:w
 
 # MSG_HIT_MEDIUM
-M:151:y
+M:31:y
 
 # MSG_HIT_HARD
-M:152:o
+M:32:o
 
 # MSG_HIT_DEADLY
-M:153:R
-
-
-#
-# Colorized messages
-#
-
-# MSG_DARK
-M:200:d
-
-# MSG_WHITE
-M:201:w
-
-# MSG_SLATE
-M:202:s
-
-# MSG_ORANGE
-M:203:o
-
-# MSG_RED
-M:204:r
-
-# MSG_GREEN
-M:205:g
-
-# MSG_BLUE
-M:206:b
-
-# MSG_UMBER
-M:207:u
-
-# MSG_L_DARK
-M:208:D
-
-# MSG_L_WHITE
-M:209:W
-
-# MSG_L_PURPLE
-M:210:P
-
-# MSG_YELLOW
-M:211:y
-
-# MSG_L_RED
-M:212:R
-
-# MSG_L_GREEN
-M:213:G
-
-# MSG_L_BLUE
-M:214:B
-
-# MSG_L_UMBER
-M:215:U
-
+M:33:R
 

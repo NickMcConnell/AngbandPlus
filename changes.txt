@@ -1,0 +1,172 @@
+
+Beta 12
+
+Bug fixes:
+- there were some problems with the new pickup code.  The most important ones were that 1) monster visibility was not being updated before you issued pickup commands and 2) the game would let you issue a command for a second turn without letting you cancel if something went really wrong after the first.  The first problem is fixed.  The second is greatly reduced by canceling all automatic actions if you get hurt.
+- some bugs and ommissions in missile weapon special attacks fixed
+- prices in stores should no longer be random
+- Arvedui is again chain mail
+- various Angband CVS fixes and additions
+- various minor fixes and improvements
+
+
+Changes:
+- you cannot continue to raise your skills after defeating Morgoth.  This change is intended to improve replayability, but also to keep the player in control (he can delay killing Morgoth as long as he likes).
+- changes to the scoring system.  Low skill levels reduce score more; dabbling in all the skills will damage your score severely!  The probable scores of powerful characters have not changed much, so new scores are comparable to old ones.  See the docs for the new equation.
+- quiver indicator in inventory also shows amount of ammo  -clefs
+- rods and activatible items recharge in both the equipment and the backpack.  Both recharge more slowly on the dungeon floor.  This means that you can tote around dragon scale mail and Rings of Flames just for the activation, and still wear your Nifty Forged Thing or Ring of Speed.  You can activate items in the backpack.
+- blue and black dragon scale mail have slightly weaker breaths, elemental rings are found slightly deeper in the dungeon
+- you should no longer see nearly as many dangerous interesting rooms on levels 1 and 2.
+- souleating weapons are nastier
+- fairly minor tweaks to quest rewards.  The difference in rewards between easy and hard quests is slightly greater now.
+- cave-like rooms and starbursts now look somewhat better
+- wrestling and karate give stat bonuses later, but you get notification of them on the skills screen
+- bearform is not so powerful, lionform is more powerful.  Shapechanges never give bonuses to weapon-using combat, but can make a real difference when using the martial arts.
+- lemming's colorized headers for character screen listings
+
+The to-do list:
+- the monster trap system needs another round of rebalancing.  Comments invited.  Further burglary enhancements are a priority for the next release.  Burglary should have an Oath associated with it.
+- the talents could stand to be made more interesting.  In particular, we can easily get rid of the "detect evil", "detect animals, "detect undead", and "sense charges" talents.  Suggestions for new and replacement talents appreciated.
+- should improve the interface of adding pval-dependent qualities to forged items
+- need to make savefile-management work better on multi-user machines, and get all the command-line options to work
+- think about chancy trap detection for traps not in LOS.  And, of course, lots more traps (but not /too/ nasty...).
+
+What else needs improvement?
+
+
+================================================================
+
+
+Beta 11d
+
+- preference files are no longer appended to, but overwritten (you can change this behavior easily if you want to, though).  This means that your user preference files will always stay a manageable size.  -Mogami-
+- revised preference file system:  a character's individual options and preferences, especially those saved in the savefile, have higher priority.  The whole setup is somewhat easier to understand now.  Better documentation in both the major preference files themselves and the manual.  Slight improvements to the option-saving interface.
+- improvements in the screen options interface  -clefs-
+- improvements to the object pickup interface.  Changes to how the options work (be sure to experiment; you can get pure auto-pickup, pure just looking around, or choose one of two alternatives in between).
+- I decided that I had made a mistake in changing the name of the melee skills, and have restored the traditional names
+- some bug fixes and changes
+
+
+
+
+
+Beta 11b, c
+
+
+Fixes:
+- corrections to the abundance of various kinds of essences
+- quests were not giving interesting enough "good" objects
+- wall to mud spells were not eating walls
+- various talents don't use time when cancelled
+- identified scrolls of trap creation make traps that don't grant exp
+- the Windows port releases font files correctly.  It also lets you know 
+that you can use the menu commands to handle savefiles, should you so desire.
+- making magical grenades did not work quite right
+- etc.
+- damage of Snuff Small Life substantially increased
+- improvements to the screen options interface
+- stairs will not appear under a player when he recalls down into the dungeon
+
+New stuff:
+- different messages when you dodge (as opposed to deflect) a monster's melee blow.
+- continuing code tidying (math made more simple or correct, repeated code combined, prompts regularized)
+- a few new monsters.  The deep dungeon is a little better populated.
+- forget forgets (most) items on the floor too
+- [y/n] prompts changed.  You will get more "cancelled" messages (so that you're /sure/ the game didn't try to do something), and will be able to review questions and answers in the message recall
+- It was pointed out to me by clefs that swords were still the best weapon class for most characters.  So polearms now grant up to five times base armour class with high skill, and powerful swords get lesser enhancements to damage dice.  More types of blunt weapons can be unusually heavy and powerful.  Polearms rob monsters of energy and blunt weapons occasionally stun if you get criticals with them.
+- all detections that work some of the time now work correctly.  Visibility code revised extensively.
+- skills screen is slightly easier to use.  Thanks to Takashi Mogami, you can cancel skills purchases (but never oaths).
+- thanks to clefs, those who desire can use 50-line mode for more displays, help in particular.
+- thanks to clefs, objects marked "!d" or "!*" will not fall out of your backpack, even if the backpack overflows
+
+Objects:
+- you can learn details about the power and duration of many mushrooms, potions, and scrolls
+- scrolls of Curse weapon and Curse armour leave artifacts strictly alone.  However, they are better at finding any non-artifact weapons and armours in your possession.
+- neither potions of Detonations nor (unaware) potions of Death can kill you instantly.  They are, however, quite nasty to drink.  They pseudo-ID as "cursed".
+- potions of reduce stat reduce stats by a larger amount, and can even drain them permanently, but are now found at the same depth that potions of increase stat are found at.
+- many potions and scrolls work better if you quaff them unaware and unsensed (the effects of surprise).  If you quaff every potion unaware, your total stat-gain (gains minus permanent losses) will improve by about 3.  Assuming you have no sustains.  Plus you get loads of exp.
+- potions of healing don't cure as well as they did
+- potions of *healing* cure just fine and are more common really deep in the dungeon.
+
+Picking up objects:
+- when you have "auto_pickup" and "always_query" ON, you get asked when you step on any object.  The annoying thing was that you have to answer yes, no, or ESC.  Now, if you type anything but 'y'/'Y', not only does the prompt go away, but if you type a movement key, it is used as your next command.  So you can walk over items comfortably, regardless of the options you have set.
+- When you type 'g' to pick up objects, you don't get asked again for every object.
+- Important change:  The options you have set no longer make a difference to the amount of energy you use when picking up objects.  Unless you use the stay still command, you are always charged 1/10th of a turn, over and above any movement cost, for every object you pick up.  So be careful about turning on "always_pickup" without also turning on "always_query".
+
+Sorcery:
+- fewer utility spells that copy magical devices
+- more ways to move around, protect yourself, and kill monsters
+- more interesting destruction spell
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Beta 11
+
+
+Lots of bugs fixed, including those which:
+- made special artifacts way too common.
+- allowed you to sometimes hit monsters not in line of fire,
+- set the level of your previous quests to zero, 
+- made your arrows break and your equipment get damaged by acid too often, 
+- made store-bought rods behave strangely, 
+- caused problems when you changed your character name, 
+- could make set items excessively powerful, 
+- made the Black Breath too wimpy,
+- made stealth and noise work somewhat oddly,
+- gave you a increased light radius with any piety at all,
+- made drain-exp attacks too annoying (and sometimes too powerful),
+- made special artifacts appear way, way too often,
+- made Scrolls of Nightfall and Staffs of Chaos less useful than they should be,
+- and made dragon scale mail breaths too hard to activate.  Dragon scale mail is now really easy to use, not really hard.
+
+
+- Nature Lore, not perception skill, now determines accuracy of weather reports.  It now costs 7.  The reason for these changes is that Nature magic cost more to be effective than any other realm, and Nature Lore was a better buy than the other specialized realm skills, which didn't seem very fair.
+- boulders break less often, and have gained a second increase in damage.  While heavy and bulky, they are quite deadly...
+- throwing weapons damage relies on skill more, and can be higher.  New throwing weapon artifact, adopted from Hengband.  Throwing weapons are more common.
+- extra display of visible monsters, taken from ToME.  Note that the color-coding is somewhat different.
+- slight decreases in the strength, but also the cost, of some attack spells.
+- Nrulings cast spells half as often and some level 1 and 2 monsters are easier to hit with weapons and missiles.
+- many healing objects and spells are more effective, because they heal a percentage of your total hitpoints, not your wounds.
+- some stores are now more likely to stock special items (the general store), others are less likely (the alchemist and the temple).
+- amulets of Magic Mastery are a lot less common, somewhat less powerful, and cost more (especially with high pvals).  Plusses to Magic Mastery are rarer on forged items and random artifacts, and harder to get.
+- staffs of Doomspells are less dangerous to you when used correctly.  They do even more damage to your enemies.  Staffs of Starburst and of Chaos display more information.
+- Changes in skill names:  Swordsmanship => Blademastery, Clubbing => Blunt-Mastery, Jousting => Polearm-Mastery.  Comments invited.
+- the kill count display looks prettier
+- character dumps display birth, difficulty, and cheat options, and also some other special advantages and disadvantages, in a more interesting fashion.
+- the malediction spell no longer does damage when resisted, but it will be resisted slightly less often.  It can also suck away haste and superheal spells from monsters.
+- More interesting stuff happens when you defeat Sauron and Morgoth.
+- Invisibility can be gotten earlier (through potions), and is noticeably more effective, but only if you stay quiet.
+- perception skill now does not give you intrinsic see invisible, but it does (as in EyAngband) allow you to sometimes 'hear' unseen creatures adjacent to you.  This should make ghosts a lot more manageable early on.
+- when blessed, you do full damage to immaterial monsters with martial arts
+- however, karate stuns, slows, and confusion attacks are not cumulative, and don't work as often against monsters early on
+- however, karate stuns, slows, and confusion attacks work better and more often against high-level monsters (given enough skill)
+- again as in EyAngband, wearable items that used to increase searching now increase "awareness".  In addition to making traps and doors easier to find, awareness improves your chance to hear unseen creatures adjacent to you, and of sensing objects.
+- the true Black Breath (as opposed to mere exp-draining objects) is nastier now.
+- monster damage reduction through AC is smoother; every point counts with every monster.  Small amounts of AC are more useful.
+- new custom display rows for total noise and current target (helps you learn how to stay quiet and check if your target grid can actually be hit)
+- some new vaults
+- you should see fewer monsters deep in the dungeon, on average
+- more up stairs, always one non-shaft on each level
+- most objects and spells display lower values for the duration of temporary conditions when you already have it active.  This was confusing players, so I have improved the wording.
+- some wizard and holy spells upgraded slightly
+
+
+Object Forging:
+- You do not have to have ever seen a ring or amulet to create it, but (in order to keep things sane) you now have to invest components, and component level helps determine maximum object level.
+- chance for failure when making rings, amulets, potions and scrolls tweaked.  Sometimes it is higher now, sometimes lower.  The same general rules apply, though.
+- You can make three potions of essences ("magical grenades") for the price of one.  This should make them more competitive.
+- the object-selection screen has a better interface
+- Your forged missile launchers will likely be better weapons, but grant fewer resistances.
+- You need reasonable skill in using swords, hafted weapons, polearms, or the archery skills in order to forge powerful objects of these types.
+- The weapon-forging skill is slightly less expensive.  The armour-forging skill is slightly more expensive.  You cannot forge diggers any more.

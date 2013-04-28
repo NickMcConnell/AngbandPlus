@@ -1,16 +1,16 @@
+
 /* File: init2.c */
 
+
 /*
- * Read files in "lib/data" and fill in various arrays.  Initialize and close
- * down the game.  Allocate and deallocate memory for variable-size global
- * arrays.
+ * Read files in "lib/data" and fill in various arrays.  Initialize most
+ * global arrays used in the game, deallocate most arrays on exit.
  *
- * Copyright (c) 2007 Ben Harrison
+ * Copyright (c) 1997 Ben Harrison
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -66,11 +66,9 @@
  * by the user) will NOT end in the "PATH_SEP" string, see the special
  * "path_build()" function in "util.c" for more information.
  *
- * We support "fat binaries" by using a string variable as an
- * architecture-dependent suffix for the ANGBAND_DIR_DATA directory.
- * The user (or the main-xxx code, either will do) will have to create
- * this directory themselves.  Note that this variable, fat_data_suffix,
- * is in variables.c.
+ * Mega-Hack -- support fat raw files under NEXTSTEP, using special
+ * "suffixed" directories for the "ANGBAND_DIR_DATA" directory, but
+ * requiring the directories to be created by hand by the user.
  *
  * Hack -- first we free all the strings, since this is known
  * to succeed even if the strings have not been allocated yet,
@@ -82,27 +80,27 @@ void init_file_paths(char *path)
 {
 	char *tail;
 
-#ifdef PRIVATE_USER_PATH
+#ifdef SET_UID
 	char buf[1024];
-#endif /* PRIVATE_USER_PATH */
+#endif /* SET_UID */
 
 	/*** Free everything ***/
 
 	/* Free the main path */
-	(void)string_free(ANGBAND_DIR);
+	string_free(ANGBAND_DIR);
 
 	/* Free the sub-paths */
-	(void)string_free(ANGBAND_DIR_APEX);
-	(void)string_free(ANGBAND_DIR_BONE);
-	(void)string_free(ANGBAND_DIR_DATA);
-	(void)string_free(ANGBAND_DIR_EDIT);
-	(void)string_free(ANGBAND_DIR_FILE);
-	(void)string_free(ANGBAND_DIR_HELP);
-	(void)string_free(ANGBAND_DIR_INFO);
-	(void)string_free(ANGBAND_DIR_SAVE);
-	(void)string_free(ANGBAND_DIR_PREF);
-	(void)string_free(ANGBAND_DIR_USER);
-	(void)string_free(ANGBAND_DIR_XTRA);
+	string_free(ANGBAND_DIR_APEX);
+	string_free(ANGBAND_DIR_BONE);
+	string_free(ANGBAND_DIR_DATA);
+	string_free(ANGBAND_DIR_EDIT);
+	string_free(ANGBAND_DIR_FILE);
+	string_free(ANGBAND_DIR_HELP);
+	string_free(ANGBAND_DIR_INFO);
+	string_free(ANGBAND_DIR_SAVE);
+	string_free(ANGBAND_DIR_PREF);
+	string_free(ANGBAND_DIR_USER);
+	string_free(ANGBAND_DIR_XTRA);
 
 
 	/*** Prepare the "path" ***/
@@ -114,7 +112,41 @@ void init_file_paths(char *path)
 	tail = path + strlen(path);
 
 
+#ifdef VM
+
+
+	/*** Use "flat" paths with VM/ESA ***/
+
+	/* Use "blank" path names */
+	ANGBAND_DIR_APEX = string_make("");
+	ANGBAND_DIR_BONE = string_make("");
+	ANGBAND_DIR_DATA = string_make("");
+	ANGBAND_DIR_EDIT = string_make("");
+	ANGBAND_DIR_FILE = string_make("");
+	ANGBAND_DIR_HELP = string_make("");
+	ANGBAND_DIR_INFO = string_make("");
+	ANGBAND_DIR_SAVE = string_make("");
+	ANGBAND_DIR_PREF = string_make("");
+	ANGBAND_DIR_USER = string_make("");
+	ANGBAND_DIR_XTRA = string_make("");
+
+
+#else /* VM */
+
+
 	/*** Build the sub-directory names ***/
+
+	/* Build a path name */
+	strcpy(tail, "apex");
+	ANGBAND_DIR_APEX = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "bone");
+	ANGBAND_DIR_BONE = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "data");
+	ANGBAND_DIR_DATA = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "edit");
@@ -133,13 +165,17 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_INFO = string_make(path);
 
 	/* Build a path name */
+	strcpy(tail, "save");
+	ANGBAND_DIR_SAVE = string_make(path);
+
+	/* Build a path name */
 	strcpy(tail, "pref");
 	ANGBAND_DIR_PREF = string_make(path);
 
 #ifdef PRIVATE_USER_PATH
 
 	/* Build the path to the user specific directory */
-	(void)path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
+	path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
 
 	/* Build a relative path name */
 	ANGBAND_DIR_USER = string_make(buf);
@@ -152,124 +188,51 @@ void init_file_paths(char *path)
 
 #endif /* PRIVATE_USER_PATH */
 
-#ifdef USE_PRIVATE_PATHS
-
-	/* Build the path to the user specific sub-directory */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
-
-	/* Build a relative path name */
-	ANGBAND_DIR_APEX = string_make(buf);
-
-	/* Build the path to the user specific sub-directory */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "bone");
-
-	/* Build a relative path name */
-	ANGBAND_DIR_BONE = string_make(buf);
-
-	/* Build the path to the user specific sub-directory */
-	if (fat_data_suffix)
-	{
-		/* Support fat binaries */
-		(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER,
-		           format("data-%s", fat_data_suffix));
-	}
-	else
-	{
-		/* Just build a "simple" path otherwise */
-		(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "data");
-	}
-
-	/* Build a relative path name */
-	ANGBAND_DIR_DATA = string_make(buf);
-
-	/* Build the path to the user specific sub-directory */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "save");
-
-	/* Build a relative path name */
-	ANGBAND_DIR_SAVE = string_make(buf);
-
-#else /* USE_PRIVATE_PATHS */
-
-	/* Build a path name */
-	strcpy(tail, "apex");
-	ANGBAND_DIR_APEX = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "bone");
-	ANGBAND_DIR_BONE = string_make(path);
-
-	/* Build a path name - support fat binaries */
-	if (fat_data_suffix)
-		(void)strnfmt(tail, sizeof(tail), "data-%s", fat_data_suffix);
-	else
-		strcpy(tail, "data");
-	ANGBAND_DIR_DATA = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "save");
-	ANGBAND_DIR_SAVE = string_make(path);
-
-#endif /* USE_PRIVATE_PATHS */
-
 	/* Build a path name */
 	strcpy(tail, "xtra");
 	ANGBAND_DIR_XTRA = string_make(path);
+
+#endif /* VM */
+
+
+#ifdef NeXT
+
+	/* Allow "fat binary" usage with NeXT */
+	if (TRUE)
+	{
+		cptr next = NULL;
+
+# if defined(m68k)
+		next = "m68k";
+# endif
+
+# if defined(i386)
+		next = "i386";
+# endif
+
+# if defined(sparc)
+		next = "sparc";
+# endif
+
+# if defined(hppa)
+		next = "hppa";
+# endif
+
+		/* Use special directory */
+		if (next)
+		{
+			/* Forget the old path name */
+			string_free(ANGBAND_DIR_DATA);
+
+			/* Build a new path name */
+			sprintf(tail, "data-%s", next);
+			ANGBAND_DIR_DATA = string_make(path);
+		}
+	}
+
+#endif /* NeXT */
+
 }
-
-#ifdef PRIVATE_USER_PATH
-
-/*
- * Create an ".angband/" directory in the users home directory.
- *
- * ToDo: Add error handling.
- * ToDo: Only create the directories when actually writing files.
- */
-void create_user_dirs(void)
-{
-	char dirpath[1024];
-	char subdirpath[1024];
-
-
-	/* Get an absolute path from the filename */
-	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
-
-	/* Create the ~/.angband/ directory */
-	mkdir(dirpath, 0700);
-
-	/* Build the path to the variant-specific sub-directory */
-	(void)path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
-
-	/* Create the directory */
-	mkdir(subdirpath, 0700);
-
-#ifdef USE_PRIVATE_PATHS
-	/* Build the path to the scores sub-directory */
-	(void)path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
-
-	/* Create the directory */
-	mkdir(dirpath, 0700);
-
-	/* Build the path to the savefile sub-directory */
-	(void)path_build(dirpath, sizeof(dirpath), subdirpath, "bone");
-
-	/* Create the directory */
-	mkdir(dirpath, 0700);
-
-	/* Build the path to the savefile sub-directory */
-	(void)path_build(dirpath, sizeof(dirpath), subdirpath, "data");
-
-	/* Create the directory */
-	mkdir(dirpath, 0700);
-
-	/* Build the path to the savefile sub-directory */
-	(void)path_build(dirpath, sizeof(dirpath), subdirpath, "save");
-
-	/* Create the directory */
-	mkdir(dirpath, 0700);
-#endif /* USE_PRIVATE_PATHS */
-}
-
-#endif /* PRIVATE_USER_PATH */
 
 
 
@@ -314,9 +277,7 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"more than four different kinds of essences for the same object",
 	"unknown array",
 	"no array specified",
-	"invalid store (out of bounds)",
-	"Color index is not recognized by the game",
-	"feature verification failed"
+	"invalid store (out of bounds)"
 };
 
 
@@ -335,7 +296,6 @@ header e_head;
 header r_head;
 header b_head;
 header q_head;
-header flavor_head;
 
 
 /*** Initialize from binary image files ***/
@@ -373,7 +333,7 @@ static errr init_info_raw(int fd, header *head)
 	C_MAKE(head->info_ptr, head->info_size, char);
 
 	/* Read the "*_info" array */
-	(void)fd_read(fd, head->info_ptr, head->info_size);
+	fd_read(fd, head->info_ptr, head->info_size);
 
 	if (head->name_size)
 	{
@@ -381,7 +341,7 @@ static errr init_info_raw(int fd, header *head)
 		C_MAKE(head->name_ptr, head->name_size, char);
 
 		/* Read the "*_name" array */
-		(void)fd_read(fd, head->name_ptr, head->name_size);
+		fd_read(fd, head->name_ptr, head->name_size);
 	}
 
 	if (head->text_size)
@@ -390,7 +350,7 @@ static errr init_info_raw(int fd, header *head)
 		C_MAKE(head->text_ptr, head->text_size, char);
 
 		/* Read the "*_text" array */
-		(void)fd_read(fd, head->text_ptr, head->text_size);
+		fd_read(fd, head->text_ptr, head->text_size);
 	}
 
 	/* Success */
@@ -465,7 +425,7 @@ static errr init_info(cptr filename, header *head)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -484,7 +444,7 @@ static errr init_info(cptr filename, header *head)
 			err = init_info_raw(fd, head);
 
 		/* Close it */
-		(void)fd_close(fd);
+		fd_close(fd);
 	}
 
 	/* Do we have to parse the *.txt file? */
@@ -506,7 +466,7 @@ static errr init_info(cptr filename, header *head)
 		/*** Load the ascii template file ***/
 
 		/* Build the filename */
-		(void)path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, format("%s.txt", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, format("%s.txt", filename));
 
 		/* Open the file */
 		fp = my_fopen(buf, "r");
@@ -518,7 +478,7 @@ static errr init_info(cptr filename, header *head)
 		err = init_info_txt(fp, buf, head, head->parse_info_txt);
 
 		/* Close it */
-		(void)my_fclose(fp);
+		my_fclose(fp);
 
 		/* Errors */
 		if (err) display_parse_error(filename, err, buf);
@@ -530,7 +490,7 @@ static errr init_info(cptr filename, header *head)
 		FILE_TYPE(FILE_TYPE_DATA);
 
 		/* Build the filename */
-		(void)path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 
 
 		/* Attempt to open the file */
@@ -556,7 +516,7 @@ static errr init_info(cptr filename, header *head)
 				char why[1024];
 
 				/* Message */
-				(void)strnfmt(why, sizeof(why), "Cannot create the '%s' file!", buf);
+				strnfmt(why, sizeof(why), "Cannot create the '%s' file!", buf);
 
 				/* Crash and burn */
 				quit(why);
@@ -564,7 +524,7 @@ static errr init_info(cptr filename, header *head)
 		}
 
 		/* Close it */
-		(void)fd_close(fd);
+		fd_close(fd);
 
 		/* Grab permissions */
 		safe_setuid_grab();
@@ -579,19 +539,19 @@ static errr init_info(cptr filename, header *head)
 		if (fd >= 0)
 		{
 			/* Dump it */
-			(void)fd_write(fd, (cptr)head, head->head_size);
+			fd_write(fd, (cptr)head, head->head_size);
 
 			/* Dump the "*_info" array */
-			(void)fd_write(fd, head->info_ptr, head->info_size);
+			fd_write(fd, head->info_ptr, head->info_size);
 
 			/* Dump the "*_name" array */
-			(void)fd_write(fd, head->name_ptr, head->name_size);
+			fd_write(fd, head->name_ptr, head->name_size);
 
 			/* Dump the "*_text" array */
-			(void)fd_write(fd, head->text_ptr, head->text_size);
+			fd_write(fd, head->text_ptr, head->text_size);
 
 			/* Close */
-			(void)fd_close(fd);
+			fd_close(fd);
 		}
 
 
@@ -613,7 +573,7 @@ static errr init_info(cptr filename, header *head)
 		/*** Load the binary image file ***/
 
 		/* Build the filename */
-		(void)path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 
 		/* Attempt to open the "raw" file */
 		fd = fd_open(buf, O_RDONLY);
@@ -625,7 +585,7 @@ static errr init_info(cptr filename, header *head)
 		err = init_info_raw(fd, head);
 
 		/* Close it */
-		(void)fd_close(fd);
+		fd_close(fd);
 
 		/* Error */
 		if (err) quit(format("Cannot parse '%s.raw' file.", filename));
@@ -736,9 +696,6 @@ static errr init_k_info(void)
 	k_info = k_head.info_ptr;
 	k_name = k_head.name_ptr;
 	k_text = k_head.text_ptr;
-
-	/* Hack -- assign "easy know" flags XXX XXX */
-	if (!err) easy_know_init();
 
 	return (err);
 }
@@ -889,33 +846,6 @@ static errr init_q_info(void)
 }
 
 
-/*
- * Initialize the "flavor_info" array
- */
-static errr init_flavor_info(void)
-{
-	errr err;
-
-	/* Init the header */
-	init_header(&flavor_head, z_info->flavor_max, sizeof(flavor_type));
-
-#ifdef ALLOW_TEMPLATES
-
-	/* Save a pointer to the parsing function */
-	flavor_head.parse_info_txt = parse_flavor_info;
-
-#endif /* ALLOW_TEMPLATES */
-
-	err = init_info("flavor", &flavor_head);
-
-	/* Set the global variables */
-	flavor_info = flavor_head.info_ptr;
-	flavor_name = flavor_head.name_ptr;
-	flavor_text = flavor_head.text_ptr;
-
-	return (err);
-}
-
 
 /*
  * Initialize some other arrays
@@ -938,21 +868,15 @@ static errr init_other(void)
 
 	/*** Prepare grid arrays ***/
 
-	/* Array of grids (view) */
+	/* Array of grids */
 	C_MAKE(view_g, VIEW_MAX, u16b);
 
-	/* Array of grids (many temporary purposes) */
+	/* Array of grids */
 	C_MAKE(temp_g, TEMP_MAX, u16b);
-
-	/* Array of grids (glowing light sources) */
-	C_MAKE(lite_g, LITE_MAX, u16b);
 
 	/* Hack -- use some memory twice */
 	temp_y = ((byte*)(temp_g)) + 0;
 	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
-
-	/* Array of effect grids */
-	C_MAKE(effect_grid, EFFECT_GRID_MAX, effect_grid_type);
 
 
 	/*** Prepare dungeon arrays ***/
@@ -967,9 +891,13 @@ static errr init_other(void)
 	C_MAKE(cave_o_idx, DUNGEON_HGT_MAX, s16b_wid);
 	C_MAKE(cave_m_idx, DUNGEON_HGT_MAX, s16b_wid);
 
+#ifdef MONSTER_FLOW
+
 	/* Flow arrays */
 	C_MAKE(cave_cost, DUNGEON_HGT_MAX, byte_wid);
 	C_MAKE(cave_when, DUNGEON_HGT_MAX, byte_wid);
+
+#endif /* MONSTER_FLOW */
 
 	/*** Prepare "vinfo" array ***/
 
@@ -1017,9 +945,26 @@ static errr init_other(void)
 	/* Allocate the stores */
 	C_MAKE(store, MAX_STORES, store_type);
 
+
+	/* Hack -- figure out how large the store_stock array is */
+	for (store_stock_size = 0;;)
+	{
+		if ((store_stock[store_stock_size].k_idx == -1) &&
+		    (store_stock[store_stock_size].prob == 255))
+		{
+			store_stock_size++;
+			break;
+		}
+		else store_stock_size++;
+	}
+
+#ifdef ALLOW_TEMPLATES /* ALLOW_TEMPLATES */
+
 	/* Read the "store.txt" file (if present), note errors */
 	i = parse_store();
 	if (i) display_parse_error("store", i, NULL);
+
+#endif /* ALLOW_TEMPLATES */
 
 
 	/* Fill in each store */
@@ -1039,7 +984,7 @@ static errr init_other(void)
 		st_ptr->stock_end   = -1;
 
 		/* Scan the stock array */
-		for (k = 0; k < STORE_STOCK_SIZE; k++)
+		for (k = 0; k < store_stock_size; k++)
 		{
 			/* Note an array marker */
 			if (store_stock[k].k_idx == -1)
@@ -1083,7 +1028,7 @@ static errr init_other(void)
 
 
 	/* Initialize the window flags */
-	for (n = 0; n < TERM_MAX; n++)
+	for (n = 0; n < ANGBAND_TERM_MAX; n++)
 	{
 		/* Assume no flags */
 		op_ptr->window_flag[n] = 0L;
@@ -1115,9 +1060,6 @@ static errr init_other(void)
 			}
 		}
 	}
-
-	/* Cancel any special cursor visibility */
-	for (i = 0; i < TERM_MAX; i++) inkey_cursor_hack[i] = 0;
 
 
 	/* Success */
@@ -1317,12 +1259,6 @@ static errr init_alloc(void)
 		}
 	}
 
-	/*** Initialize the array of movement moments ***/
-	C_MAKE(move_moment, z_info->m_max, move_moment_type);
-
-	/*** Initialize the array of spell graphics ***/
-	C_MAKE(proj_graphics, 256, proj_graphics_type);
-
 
 	/*** Initialize quest monsters ***/
 
@@ -1340,6 +1276,17 @@ static errr init_alloc(void)
 		}
 	}
 
+	/* Allocate the feature char arrays */
+	C_MAKE(feat_x_char_25, z_info->f_max, char);
+	C_MAKE(feat_x_char_50, z_info->f_max, char);
+
+	/* Initialize the feature char arrays */
+	for (i = 0; i < z_info->f_max; i++)
+	{
+		feat_x_char_25[i] = f_info[i].d_char;
+		feat_x_char_50[i] = f_info[i].d_char;
+	}
+
 	/* Success */
 	return (0);
 }
@@ -1350,8 +1297,9 @@ static errr init_alloc(void)
  */
 static void init_note(cptr str)
 {
-	put_str(format("%-60s", str), Term->rows - 1, (Term->cols - 40) / 2);
-	(void)Term_fresh();
+	clear_row(Term->hgt - 1);
+	Term_putstr(25, Term->hgt - 1, -1, TERM_WHITE, str);
+	Term_fresh();
 }
 
 
@@ -1412,10 +1360,15 @@ static void init_angband_aux(cptr why)
  *
  * We load the default "user pref files" here in case any "color"
  * changes are needed before character creation.
+ *
+ * Note that the "graf-xxx.prf" file must be loaded separately,
+ * if needed, in the first (?) pass through "TERM_XTRA_REACT".
  */
 void init_angband(void)
 {
 	int fd;
+
+	FILE *fp;
 
 	int mode = 0644;
 
@@ -1425,48 +1378,46 @@ void init_angband(void)
 	/*** Verify the "news" file ***/
 
 	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
 
 	/* Attempt to open the file */
 	fd = fd_open(buf, O_RDONLY);
 
-	/* Failure (use as a quick test of file system integrity */
+	/* Failure */
 	if (fd < 0)
 	{
 		char why[1024];
 
 		/* Message */
-		(void)strnfmt(why, sizeof(why), "Cannot access the '%s' file!", buf);
+		strnfmt(why, sizeof(why), "Cannot access the '%s' file!", buf);
 
 		/* Crash and burn */
 		init_angband_aux(why);
 	}
 
 	/* Close it */
-	(void)fd_close(fd);
-
-
-	/* Process color definitions */
-	(void)process_pref_file("color.prf");
-
-	/* Hack -- React to color changes */
-	(void)Term_xtra(TERM_XTRA_REACT, 0);
+	fd_close(fd);
 
 
 	/*** Display the "news" file ***/
 
+	/* Clear screen */
+	Term_clear();
+
 	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
 
 	/* Display the file */
-	(void)display_file(buf);
-
+	(void)display_file(fp);
 
 
 	/*** Verify (or create) the "high score" file ***/
 
 	/* Build the filename */
-	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Attempt to open the high score file */
 	fd = fd_open(buf, O_RDONLY);
@@ -1492,7 +1443,7 @@ void init_angband(void)
 			char why[1024];
 
 			/* Message */
-			(void)strnfmt(why, sizeof(why), "Cannot create the '%s' file!", buf);
+			strnfmt(why, sizeof(why), "Cannot create the '%s' file!", buf);
 
 			/* Crash and burn */
 			init_angband_aux(why);
@@ -1500,7 +1451,7 @@ void init_angband(void)
 	}
 
 	/* Close it */
-	(void)fd_close(fd);
+	fd_close(fd);
 
 
 	/*** Initialize some arrays ***/
@@ -1537,10 +1488,6 @@ void init_angband(void)
 	init_note("[Initializing arrays... (quests)]");
 	if (init_q_info()) quit("Cannot initialize quests");
 
-	/* Initialize flavor info */
-	init_note("[Initializing arrays... (flavors)]");
-	if (init_flavor_info()) quit("Cannot initialize flavors");
-
 	/* Initialize some other arrays */
 	init_note("[Initializing arrays... (other)]");
 	if (init_other()) quit("Cannot initialize other stuff");
@@ -1548,7 +1495,6 @@ void init_angband(void)
 	/* Initialize some other arrays */
 	init_note("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
-
 
 
 	/*** Load default user pref files ***/
@@ -1562,15 +1508,12 @@ void init_angband(void)
 }
 
 
-/*
- * Free various arrays and structures.
- */
 void cleanup_angband(void)
 {
 	int i;
 
 	/* Free the macros and keymaps */
-	(void)macro_free();
+	macro_free();
 
 	/* Free the allocation tables */
 	FREE(alloc_ego_table);
@@ -1600,6 +1543,7 @@ void cleanup_angband(void)
 	/* Free the left panel custom display array */
 	FREE(custom_display);
 
+
 	/* Free the lore, monster, and object lists */
 	FREE(l_list);
 	FREE(m_list);
@@ -1609,15 +1553,13 @@ void cleanup_angband(void)
 	FREE(x_list);
 	FREE(t_list);
 
-	/* Free the movement moments */
-	FREE(move_moment);
-
-	/* Free the projection graphics */
-	FREE(proj_graphics);
+#ifdef MONSTER_FLOW
 
 	/* Flow arrays */
 	FREE(cave_when);
 	FREE(cave_cost);
+
+#endif /* MONSTER_FLOW */
 
 	/* Free the cave */
 	FREE(cave_o_idx);
@@ -1631,41 +1573,38 @@ void cleanup_angband(void)
 	/* Free the temp array */
 	FREE(temp_g);
 
-	/* Free the effect grids array */
-	FREE(effect_grid);
-
 	/* Free the messages */
 	messages_free();
 
 	/* Free the "quarks" */
-	(void)quarks_free();
+	quarks_free();
 
 	/* Free the info, name, and text arrays */
-	(void)free_info(&q_head);
-	(void)free_info(&b_head);
-	(void)free_info(&v_head);
-	(void)free_info(&r_head);
-	(void)free_info(&e_head);
-	(void)free_info(&a_head);
-	(void)free_info(&k_head);
-	(void)free_info(&f_head);
-	(void)free_info(&z_head);
+	free_info(&q_head);
+	free_info(&b_head);
+	free_info(&v_head);
+	free_info(&r_head);
+	free_info(&e_head);
+	free_info(&a_head);
+	free_info(&k_head);
+	free_info(&f_head);
+	free_info(&z_head);
 
 	/* Free the format() buffer */
 	vformat_kill();
 
 	/* Free the directories */
-	(void)string_free(ANGBAND_DIR);
-	(void)string_free(ANGBAND_DIR_APEX);
-	(void)string_free(ANGBAND_DIR_BONE);
-	(void)string_free(ANGBAND_DIR_DATA);
-	(void)string_free(ANGBAND_DIR_EDIT);
-	(void)string_free(ANGBAND_DIR_FILE);
-	(void)string_free(ANGBAND_DIR_HELP);
-	(void)string_free(ANGBAND_DIR_INFO);
-	(void)string_free(ANGBAND_DIR_SAVE);
-	(void)string_free(ANGBAND_DIR_PREF);
-	(void)string_free(ANGBAND_DIR_USER);
-	(void)string_free(ANGBAND_DIR_XTRA);
+	string_free(ANGBAND_DIR);
+	string_free(ANGBAND_DIR_APEX);
+	string_free(ANGBAND_DIR_BONE);
+	string_free(ANGBAND_DIR_DATA);
+	string_free(ANGBAND_DIR_EDIT);
+	string_free(ANGBAND_DIR_FILE);
+	string_free(ANGBAND_DIR_HELP);
+	string_free(ANGBAND_DIR_INFO);
+	string_free(ANGBAND_DIR_SAVE);
+	string_free(ANGBAND_DIR_PREF);
+	string_free(ANGBAND_DIR_USER);
+	string_free(ANGBAND_DIR_XTRA);
 }
 

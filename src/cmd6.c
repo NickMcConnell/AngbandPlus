@@ -4,15 +4,15 @@
  * Effects and extra information on individual food and mushrooms,
  * potions, scrolls, staffs, wands, and rods.  Chance to get extra object
  * information.  Use objects, use magical devices.  Activation effects
- * and extra information, activate an item.
+ * and extra information, activate an item, chance to get extra artifact
+ * information.
  *
- * Copyright (c) 2007
+ * Copyright (c) 2002
  * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -28,11 +28,11 @@
  *
  * Learning by using:
  * The game tries to encourage players to learn by using.
- * It is therefore mandatory that no unaware food, potion, or scroll
- * instantly kill the character.  Reducing exp permanently, adding any
- * more items that drain stats permanently, paralyzing the character
- * for extended periods of time, or trashing non-replaceable items like
- * artifacts (unless they can be repaired), would also be Bad Ideas.
+ * It is therefore mandatory that no food, potion, or scroll instantly
+ * kill the character.  Reducing exp permanently, adding any more items
+ * that drain stats permanently, paralyzing the character for extended
+ * periods of time, or trashing non-replaceable items like artifacts
+ * (unless they can be repaired), would also be Bad Ideas.
  *
  * Problem -- Object effects destroying objects in inventory:
  * New code will need to be added if objects are ever able to destroy
@@ -46,11 +46,6 @@
  */
 static int obj_ident;
 static int obj_used_up;
-
-/*
- * Hack -- allow ID messages and exp cancelling.
- */
-static int hack_id_notice_suppress = 0;
 
 
 /*
@@ -80,22 +75,17 @@ cptr do_object(int mode, object_type *o_ptr)
 	int goat, dam, choice, i;
 
 	cptr extra = "";
-	char buf[DESC_LEN];
-	char o_name[DESC_LEN];
+	char buf[80];
 
+	/* Unused parameter */
+	(void)use;
 
-	/* Describe the (singular) object */
-	object_desc_plural = -1;
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 	/* In order to get the unaware bonus, an object must be unsensed too */
 	if ((!object_aware_p(o_ptr)) && (!(o_ptr->ident & (IDENT_SENSE))))
 	{
 		aware = FALSE;
 	}
-
-	/* Assume no special ID suppression */
-	hack_id_notice_suppress = 0;
 
 
 	/* Jump to the right category of item */
@@ -110,9 +100,6 @@ cptr do_object(int mode, object_type *o_ptr)
 
 	/* Goats can eat almost anything */
 	goat = (p_ptr->schange == SHAPE_GOAT);
-
-	/* Note action in saved messages */
-	if (use) msg_add(format("You eat %s.", o_name));
 
 	/* Analyze the food */
 	switch (o_ptr->sval)
@@ -166,7 +153,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (!(p_ptr->resist_chaos || goat))
 			{
-				if (set_image(p_ptr->image + rand_range(75, 100)))
+				if (set_image(p_ptr->image + rand_range(50, 100)))
 				{
 					obj_ident = TRUE;
 				}
@@ -212,16 +199,15 @@ cptr do_object(int mode, object_type *o_ptr)
 				if (msg)
 				{
 					msg_print("Arghh!  It was a Mushroom of Envenomation!");
-					hack_id_notice_suppress = 1;
 				}
 
 				/* Resist poison helps a lot */
 				if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 				{
-					dam = MIN(p_ptr->chp - 20, rand_range(80, 120));
+					dam = MIN(p_ptr->chp - 5, rand_range(80, 120));
 
 					(void)set_poisoned(p_ptr->poisoned + rand_range(150, 200));
-					if (take_hit(dam, 0, NULL, "a Mushroom of Envenomation")) break;
+					take_hit(dam, 0, NULL, "a Mushroom of Envenomation");
 
 					msg_print("You vomit and pass out!");
 					(void)set_food(p_ptr->food_starving - 1);
@@ -238,8 +224,8 @@ cptr do_object(int mode, object_type *o_ptr)
 					dam = MIN(p_ptr->chp - 5, rand_range(20, 30));
 
 					(void)set_poisoned(p_ptr->poisoned + rand_range(30, 45));
-					if (take_hit(dam, 0, NULL,
-						"a Mushroom of Envenomation")) break;
+					take_hit(dam, 0, NULL,
+						"a Mushroom of Envenomation");
 
 					obj_ident = TRUE;
 				}
@@ -254,24 +240,22 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (!goat)
 			{
 				/* Some damage */
-				dam = rand_range(25, 35);
+				dam = rand_range(40, 60);
 
 				/* Message */
 				if (msg)
 				{
 					msg_print("Arghh!  It was a Mushroom of Sickness!");
-					hack_id_notice_suppress = 1;
 				}
 
 				/* Infect with disease */
 				disease(&dam);
 
 				/* Do not kill the character */
-				dam = MIN(dam, p_ptr->chp - 40);
-				if (dam < 0) dam = 0;
+				if (dam > p_ptr->chp - 5) dam = p_ptr->chp - 5;
 
 				/* Apply adjusted damage */
-				(void)take_hit(dam, 0, NULL, "a Mushroom of Sickness");
+				take_hit(dam, 0, NULL, "a Mushroom of Sickness");
 
 				obj_ident = TRUE;
 			}
@@ -284,25 +268,26 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (!goat)
 			{
-				/* A lot of damage */
-				dam = rand_range(120, 140);
+				dam = 250;
 
 				/* Message */
 				if (msg)
 				{
 					msg_print("Arghh!  It was a Mushroom of Disease!");
-					hack_id_notice_suppress = 1;
 				}
 
-				/* Infect with disease */
-				disease(&dam);
+				/* Infect with disease (thrice) */
+				for (i = 0; i < 3; i++)
+				{
+					dam = rand_range(250, 300);
+					disease(&dam);
+				}
 
 				/* Do not kill the character */
-				dam = MIN(dam, p_ptr->chp - 40);
-				if (dam < 0) dam = 0;
+				if (dam > p_ptr->chp - 5) dam = p_ptr->chp - 5;
 
 				/* Apply a bit of pure damage */
-				(void)take_hit(dam, 0, NULL, "a Mushroom of Disease");
+				take_hit(dam, 0, NULL, "a Mushroom of Disease");
 
 				obj_ident = TRUE;
 			}
@@ -321,15 +306,13 @@ cptr do_object(int mode, object_type *o_ptr)
 				if (msg)
 				{
 					msg_print("Mushrooms of Ruination are extremely tasty!");
-					hack_id_notice_suppress = 1;
 				}
 			}
 			else
 			{
 				/* Do not kill the character */
 				dam = MIN(p_ptr->chp - 1, rand_range(50, 100));
-				if (dam < 0) dam = 0;
-				(void)take_hit(dam, 0,
+				take_hit(dam, 0,
 					"Your nerves and muscles feel weak and lifeless!",
 					"a Mushroom of Ruination");
 
@@ -353,9 +336,6 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_FOOD_METAMORPHOSIS:
 		{
-			/* Seldom change race at first, always change it afterwards */
-			int race_odds = (!aware ? 15 : 1);
-
 			if (info) return ("");
 
 			/* Goats aren't innately nexus-resistant */
@@ -367,7 +347,6 @@ cptr do_object(int mode, object_type *o_ptr)
 				if (msg)
 				{
 					msg_print("Arghh!  It was a Mushroom of Metamorphosis!");
-					hack_id_notice_suppress = 1;
 				}
 
 				/* Force the character back into his normal shape */
@@ -381,7 +360,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				shuffle_stats(p_ptr->resist_nexus ? 1 : 4);
 
 				/* If no resist nexus, sometimes change race */
-				if ((!p_ptr->resist_nexus) && (one_in_(race_odds)))
+				if ((!p_ptr->resist_nexus) && (one_in_(15)))
 				{
 					int new_race;
 
@@ -390,19 +369,12 @@ cptr do_object(int mode, object_type *o_ptr)
 					     new_race == p_ptr->prace;
 					     new_race = rand_int(MAX_RACES));
 
-					/* Change race, update racial information */
+					/* Change race */
 					p_ptr->prace = new_race;
-					rp_ptr = &race_info[p_ptr->prace];
-
-					/* Reroll hp for new race */
-					get_extra();
 
 					/* Message */
 					msg_format("You polymorph into a %s!",
 						race_info[p_ptr->prace].title);
-
-					/* Update preferences for chosen race */
-					(void)process_pref_file("race.prf");
 
 					/* Update a lot of stuff */
 					p_ptr->update |= (PU_BONUS | PU_SCORE | PU_HP | PU_MANA | PU_SPELLS);
@@ -414,7 +386,7 @@ cptr do_object(int mode, object_type *o_ptr)
 					p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 					/* Window stuff */
-					p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1 | PW_M_LIST | PW_O_LIST);
+					p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1 | PW_M_LIST);
 
 					/* Window stuff */
 					p_ptr->window |= (PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
@@ -444,10 +416,9 @@ cptr do_object(int mode, object_type *o_ptr)
 				if (msg)
 				{
 					msg_print("Arghh!  It was a Mushroom of Mania!");
-					hack_id_notice_suppress = 1;
 				}
 
-				(void)set_mania(p_ptr->mania + rand_range(5000, 7500));
+				(void)set_mania(p_ptr->mania + rand_range(5000, 10000));
 				obj_ident = TRUE;
 			}
 			break;
@@ -455,9 +426,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_FOOD_REGEN_MANA:
 		{
-			dur = (p_ptr->regen_mana ?  50 + p_ptr->power / 2 :
-			                           100 + p_ptr->power);
-			if (p_ptr->regen_mana) extra = " longer";
+			dur = 20 + p_ptr->power / 5;
 
 			if (info) return (format("(duration: %d)", dur));
 
@@ -513,7 +482,6 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (set_stun(0)) obj_ident = TRUE;
 			if (set_cut(0)) obj_ident = TRUE;
 			if (hp_player(damroll(5, 19))) obj_ident = TRUE;
-			if (p_ptr->food < p_ptr->food_weak) set_food(p_ptr->food + 500);
 			break;
 		}
 
@@ -530,7 +498,6 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (set_image(0)) obj_ident = TRUE;
 			if (set_stun(p_ptr->stun - 10)) obj_ident = TRUE;
 			if (set_cut(p_ptr->cut - 25)) obj_ident = TRUE;
-			if (p_ptr->food < p_ptr->food_weak) set_food(p_ptr->food + 500);
 			break;
 		}
 
@@ -539,7 +506,6 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return ("");
 
 			if (restore_stats()) obj_ident = TRUE;
-			if (p_ptr->food < p_ptr->food_weak) set_food(p_ptr->food + 250);
 			break;
 		}
 
@@ -584,18 +550,17 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_FOOD_VITALITY:
 		{
-			dur1 = (p_ptr->vitality ?  50 : 200);
-			dur2 = (p_ptr->vitality ? 100 : 300);
+			dur1 = (p_ptr->vitality ?   1 : 100);
+			dur2 = (p_ptr->vitality ? 100 : 200);
 			if (p_ptr->vitality) extra = " longer";
 
 			if (info) return (format("(duration %d-%d%s)", dur1, dur2, extra));
 
 			if (set_vitality(rand_range(dur1, dur2))) obj_ident = TRUE;
-			if (p_ptr->food < p_ptr->food_weak) set_food(p_ptr->food + 2500);
 			break;
 		}
 
-		case SV_FOOD_ARMORING:
+		case SV_FOOD_ARMOURING:
 		{
 			dur1 = (p_ptr->steelskin ?  1 : 20);
 			dur2 = (p_ptr->steelskin ? 20 : 40);
@@ -620,16 +585,8 @@ cptr do_object(int mode, object_type *o_ptr)
 			break;
 		}
 
-		case SV_FOOD_BISCUIT:
-		{
-			if (info) return (format("(food value: %d)", k_ptr->pval));
-
-			msg_print("The biscuit is hard and tasteless.");
-			obj_ident = TRUE;
-			break;
-		}
-
 		case SV_FOOD_RATION:
+		case SV_FOOD_BISCUIT:
 		case SV_FOOD_JERKY:
 		{
 			if (info) return (format("(food value: %d)", k_ptr->pval));
@@ -654,95 +611,13 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			if ((p_ptr->prace != RACE_HALF_ORC) &&
-			    (p_ptr->prace != RACE_HALF_TROLL))
-			{
-				msg_print("You happily eat the lembas.");
-				(void)set_food(p_ptr->food_bloated - 50);  /* Avoid bloating */
-				(void)hp_player(damroll(5, 10));
-			}
-			else
-			{
-				msg_print("You choke down the nasty elvish food.");
-				(void)set_food((p_ptr->food + p_ptr->food_bloated) / 2 - 1);
-				(void)hp_player(damroll(2, 5));
-			}
+			msg_print("That tastes good.");
+			(void)set_food(p_ptr->food_bloated - 1);
+			(void)set_poisoned(p_ptr->poisoned / 2);
+			(void)hp_player(damroll(5, 10));
 			obj_ident = TRUE;
 			break;
 		}
-
-		/* Orcish spirits is heady stuff. */
-		case SV_FOOD_ORCISH_FIREWATER:
-		{
-			bool vomit = FALSE;
-			if (info)
-			{
-				/* Tell about the basic effects */
-				if ((p_ptr->prace != RACE_HALF_ORC) &&
-					 (p_ptr->prace != RACE_HALF_TROLL))
-					return ("(food, reduce pois/cut)");
-				else
-					return ("(food, reduce pois/stun/cut, heal)");
-			}
-
-			/* Orcs and Trolls handle Orcish spirits better */
-			if ((p_ptr->prace != RACE_HALF_ORC) &&
-			    (p_ptr->prace != RACE_HALF_TROLL))
-			{
-				msg_print("You force down the Orcish firewater...");
-				if (one_in_(3))
-				{
-					msg_print("You vomit it up!");
-
-					/* Less "effective" vomit */
-					(void)set_food(MIN(p_ptr->food, p_ptr->food_weak - 1));
-					(void)set_poisoned(p_ptr->cut - (5 + p_ptr->cut / 3));
-					vomit = TRUE;
-				}
-				else
-				{
-					msg_print("and manage to keep it down.");
-					(void)set_food((p_ptr->food + p_ptr->food_bloated) / 2 - 1);
-
-					/* Reduce poison and cuts by 1/3rd, plus 5 */
-					(void)set_poisoned(p_ptr->cut - (5 + p_ptr->cut / 3));
-					(void)set_cut(p_ptr->cut - (5 + p_ptr->cut / 3));
-					(void)hp_player(damroll(2, 5));
-				}
-			}
-			else
-			{
-				msg_print("You knock back a slug of the firewater.");
-
-				/* Reduce poison, stuns, and cuts by 1/3rd, plus 5 */
-				(void)set_poisoned(p_ptr->cut - (5 + p_ptr->cut / 3));
-				(void)set_stun(p_ptr->cut - (5 + p_ptr->cut / 3));
-				(void)set_cut(p_ptr->cut - (5 + p_ptr->cut / 3));
-				(void)hp_player(damroll(4, 5));
-				obj_ident = TRUE;
-			}
-
-			/* Powerful stuff those orcs brew */
-			if (!vomit)
-			{
-				if (one_in_(4))
-				{
-					(void)set_hero(p_ptr->hero + rand_range(8, 12));
-				}
-				else if (one_in_(3))
-				{
-					(void)set_fast(p_ptr->fast + rand_range(6, 9));
-				}
-				else if (one_in_(2))
-				{
-					(void)set_image(p_ptr->image + rand_range(6, 12));
-				}
-			}
-
-			obj_ident = TRUE;
-			break;
-		}
-
 
 		case SV_FOOD_PINT_OF_ALE:
 		case SV_FOOD_PINT_OF_WINE:
@@ -760,13 +635,12 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			msg_print("A fresh, clean essence rises, driving away wounds and poison.");
 			(void)set_poisoned(0);
-			(void)set_diseased(0, "You recover from disease.");
+			(void)set_diseased(0, NULL);
 			(void)set_stun(0);
 			(void)set_cut(0);
 			if (p_ptr->black_breath)
 			{
 				msg_print("The hold of the Black Breath on you is broken!");
-				p_ptr->redraw |= (PR_CONDITIONS);
 			}
 			p_ptr->black_breath = FALSE;
 			obj_ident = TRUE;
@@ -781,12 +655,6 @@ cptr do_object(int mode, object_type *o_ptr)
 
 	/*** Handle Potions ***/
 	do_potion:
-
-	/* Sound */
-	sound(MSG_QUAFF);
-
-	/* Note action in saved messages */
-	if (use) msg_add(format("You quaff %s.", o_name));
 
 	/* Analyze the potion */
 	switch (o_ptr->sval)
@@ -901,13 +769,12 @@ cptr do_object(int mode, object_type *o_ptr)
 				if (msg)
 				{
 					msg_print("Arghh!  It was a Potion of Lose Memories!");
-					hack_id_notice_suppress = 2;
 				}
 				else
 				{
 					msg_print("You feel your memories fade.");
 				}
-				lose_exp(calc_spent_exp() / 4, FALSE);
+				lose_exp(calc_spent_exp() / 5, FALSE);
 				obj_ident = TRUE;
 			}
 			break;
@@ -938,9 +805,9 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return ("");
 
 			/* Chance for permanent stat-loss if taken by surprise */
-			if ((!aware) && (one_in_(2)))
+			if ((!aware) && (one_in_(3)))
 			{
-				char buf2[DESC_LEN];
+				char buf2[80];
 
 				/* Get a (lowercase) description of this stat */
 				strcpy(buf2, flag_creation_data[stat].desc);
@@ -950,7 +817,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				msg_print("You feel a ruination spell acting on you...");
 
 				/* Build a sustain string */
-				(void)strnfmt(buf, sizeof(buf), "But your %s is sustained!", buf2);
+				sprintf(buf, "But your %s is sustained!", buf2);
 
 				/* Attempt to lower the stat */
 				if (do_dec_stat(stat, 1, TRUE, NULL, buf)) obj_ident = TRUE;
@@ -973,7 +840,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return (format("(damage %dd%d)", o_ptr->dd, o_ptr->ds));
 
 			/* Hurt, but do not (immediately) kill, the character */
-			(void)take_hit(p_ptr->chp - 10, 0,
+			take_hit(p_ptr->chp - 10, 0,
 				"Massive explosions rupture your body!",
 				"a potion of Detonations");
 
@@ -996,53 +863,46 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (!object_known_p(o_ptr)) pow =    0;
 			else                        pow = 5000;
 
+			/* Drain 25% exp (but not permanently) */
+			lose_exp(calc_spent_exp() / 4, FALSE);
+
 			/* Trash the stats (but not permanently) */
 			for (i = 0; i < A_MAX; i++) dec_stat(i, 1000, FALSE);
 
-			/* Total forget */
+			/* Total forget and darkness */
 			lose_all_info("Your memories are wiped out!");
-			wiz_dark(FALSE);
+			wiz_dark(TRUE);
 
 			/* Hurt, possibly even kill, the character */
-			(void)take_hit(p_ptr->chp + pow, 0,
+			take_hit(p_ptr->chp + pow, 0,
 				"A feeling of Death flows through your body.",
 				"committing suicide.  That's right:  SUICIDE");
 
 			/* Character is still alive */
 			if (!p_ptr->is_dead)
 			{
-				/* Use the standard display and center an 80 column view */
-				display_change(DSP_REMEMBER | DSP_SAVE | DSP_CLEAR | DSP_NORM | DSP_CX,
-					80, 0);
+				/* Save screen */
+				screen_save();
 
 				/* Hack -- Pretend to be dead */
 				p_ptr->is_dead = TRUE;
 				strcpy(p_ptr->died_from, "a potion of Death");
 
-				/* Request appropriate music */
-				music(MUSIC_DEATH + 100);
-
-				/* Fake prompt */
-				center_string(buf, sizeof(buf),
-					"[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]",
-					display_width());
-
 				/* Display the tombstone */
 				print_tomb();
 
-				/* Hide the cursor */
-				inkey_cursor_hack[TERM_MAIN] = -1;
-
 				/* Wait patiently */
-				(void)inkey(ALLOW_CLICK);
+				(void)inkey();
 
 				/* Hack -- Stop pretending to be dead */
 				p_ptr->is_dead = FALSE;
 				strcpy(p_ptr->died_from, "(alive and well)");
 
+				/* Restore screen */
+				screen_load();
 
-				/* Restore previous display */
-				display_change(DSP_RESTORE | DSP_LOAD, 0, 0);
+				/* Get really lost */
+				teleport_player(100, TRUE);
 
 				/* Redraw everything */
 				do_cmd_redraw();
@@ -1050,12 +910,8 @@ cptr do_object(int mode, object_type *o_ptr)
 				/* Saved! */
 				if (msg)
 				{
-					/* Request appropriate music */
-					danger_music_level(TRUE);
-
-					/* Message */
 					message_flush();
-					message(MSG_L_BLUE, 500, "You are, apparently, reserved for a different fate.");
+					message(MSG_L_BLUE, 1000, "You are, apparently, reserved for a different fate.");
 				}
 			}
 
@@ -1068,8 +924,8 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_POTION_INFRAVISION:
 		{
-			dur1 = (aware ? 150 : 350);
-			dur2 = (aware ? 200 : 500);
+			dur1 = (aware ?  80 : 200);
+			dur2 = (aware ? 160 : 400);
 
 			if (info) return (format("(duration %d-%d)", dur1, dur2));
 
@@ -1092,28 +948,27 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_POTION_MENTAL_AWARENESS:
 		{
-			dur1 = (aware ?  80 : 300);
-			dur2 = (aware ? 120 : 400);
+			dur1 = (aware ? 40 : 160);
+			dur2 = (aware ? 80 : 320);
 
 			if (info) return (format("(duration %d-%d)", dur1, dur2));
 
 			set_tim_esp(p_ptr->tim_esp + rand_range(dur1, dur2));
-
 			obj_ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_INVIS:
 		{
-			dur1 = (aware ?  40 : 200);
-			dur2 = (aware ?  60 : 300);
+			dur1 = (aware ? 40 : 160);
+			dur2 = (aware ? 80 : 320);
 
 			if (info) return (format("(duration %d-%d)", dur1, dur2));
 
 			dur = rand_range(dur1, dur2);
 
 			(void)set_invis(p_ptr->tim_invis + dur,
-			                get_skill(S_STEALTH, 20, 40));
+			                get_skill(S_STEALTH, 15, 60));
 			(void)set_detect_inv(p_ptr->detect_inv + dur);
 
 			obj_ident = TRUE;
@@ -1141,8 +996,8 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_POTION_RESIST_HEAT:
 		{
-			dur1 = (aware ? 60 : 300);
-			dur2 = (aware ? 80 : 400);
+			dur1 = (aware ? 30 : 200);
+			dur2 = (aware ? 60 : 400);
 
 			if (info) return (format("(duration %d-%d)", dur1, dur2));
 
@@ -1155,8 +1010,8 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_POTION_RESIST_COLD:
 		{
-			dur1 = (aware ? 60 : 300);
-			dur2 = (aware ? 80 : 400);
+			dur1 = (aware ? 30 : 200);
+			dur2 = (aware ? 60 : 400);
 
 			if (info) return (format("(duration %d-%d)", dur1, dur2));
 
@@ -1169,8 +1024,8 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_POTION_RESIST_POIS:
 		{
-			dur1 = (aware ? 60 : 300);
-			dur2 = (aware ? 80 : 400);
+			dur1 = (aware ? 30 : 200);
+			dur2 = (aware ? 60 : 400);
 
 			if (info) return (format("(duration %d-%d)", dur1, dur2));
 
@@ -1188,8 +1043,8 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return (format("(heal %dd%d)", pow1, pow2));
 
 			if (hp_player(damroll(pow1, pow2))) obj_ident = TRUE;
-			if (set_blind(2 * p_ptr->blind / 3, NULL)) obj_ident = TRUE;
-			if (set_confused(2 * p_ptr->confused / 3)) obj_ident = TRUE;
+			if (set_blind(p_ptr->blind - 5, NULL)) obj_ident = TRUE;
+			if (set_confused(p_ptr->confused - 3)) obj_ident = TRUE;
 			if (set_poisoned(p_ptr->poisoned - 3)) obj_ident = TRUE;
 			if (set_diseased(p_ptr->diseased - 2, NULL)) obj_ident = TRUE;
 			if (set_cut(p_ptr->cut - 10)) obj_ident = TRUE;
@@ -1198,13 +1053,13 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			pow1 = (aware ? 4 : 10);   pow2 = 15;
+			pow1 = (aware ? 4 : 10);   pow2 = 12;
 
 			if (info) return (format("(heal %dd%d)", pow1, pow2));
 
 			if (hp_player(damroll(pow1, pow2))) obj_ident = TRUE;
-			if (set_blind(2 * p_ptr->blind / 3, NULL)) obj_ident = TRUE;
-			if (set_confused(2 * p_ptr->confused / 3)) obj_ident = TRUE;
+			if (set_blind(p_ptr->blind / 2 - 5, NULL)) obj_ident = TRUE;
+			if (set_confused(2 * p_ptr->confused / 3 - 5)) obj_ident = TRUE;
 			if (set_poisoned((3 * p_ptr->poisoned / 4) - 10)) obj_ident = TRUE;
 			if (set_diseased(p_ptr->diseased - 5, NULL)) obj_ident = TRUE;
 			if (set_cut((2 * p_ptr->cut / 3) - 25)) obj_ident = TRUE;
@@ -1213,7 +1068,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			pow1 = (aware ? 6 : 15);   pow2 = 25;
+			pow1 = (aware ? 6 : 15);   pow2 = 16;
 
 			if (info) return (format("(heal %dd%d)", pow1, pow2));
 
@@ -1275,7 +1130,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			restore_level();
 			(void)restore_stats();
-			hp_player(p_ptr->mhp);
+			hp_player(5000);
 			(void)set_poisoned(0);
 			(void)set_diseased(0, NULL);
 			(void)set_blind(0, NULL);
@@ -1299,12 +1154,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (p_ptr->csp < p_ptr->msp)
 			{
-				(void)sp_player(p_ptr->msp,
-					"Your magical powers are completely restored!");
-				obj_ident = TRUE;
-			}
-			else if (one_in_(3))
-			{
+				(void)sp_player(5000, "Your magical powers are completely restored!");
 				obj_ident = TRUE;
 			}
 			break;
@@ -1358,8 +1208,8 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_POTION_RESIST_ALL:
 		{
-			dur1 = (aware ? 30 :  80);
-			dur2 = (aware ? 60 : 160);
+			dur1 = (aware ? 20 :  80);
+			dur2 = (aware ? 40 : 160);
 
 			if (info) return (format("(duration %d-%d)", dur1, dur2));
 
@@ -1377,11 +1227,10 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			/* Restore and increase all stats by (at least) one */
+			/* Restore and increase all stats by one */
 			for (i = 0; i < A_MAX; i++)
 			{
-				if (res_stat(i)) obj_ident = TRUE;
-				if (inc_stat(i, (aware ? 1 : randint(2)))) obj_ident = TRUE;
+				if ((res_stat(i)) || (inc_stat(i, 1))) obj_ident = TRUE;
 			}
 
 			/* Message -- if we gained anything */
@@ -1394,7 +1243,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return ("");
 
 			msg_print("An image of your surroundings forms in your mind...");
-			wiz_lite(FALSE, TRUE);
+			wiz_lite(FALSE);
 			obj_ident = TRUE;
 			break;
 		}
@@ -1402,18 +1251,15 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			set_self_knowledge(p_ptr->self_knowledge + 10,
-				"You begin to feel more enlightened...");
-
-			wiz_lite(TRUE, TRUE);
+			msg_print("You begin to feel more enlightened...");
+			message_flush();
+			wiz_lite(TRUE);
 			msg_print("You suddenly see a vision of the entire dungeon!");
-
 			(void)do_inc_stat(A_INT, (aware ? 1 : 2), NULL);
 			(void)do_inc_stat(A_WIS, (aware ? 1 : 2), NULL);
-
-			(void)detect_all(TRUE, aware);
+			(void)detect_all(TRUE);
 			identify_pack();
-
+			self_knowledge(TRUE);
 			obj_ident = TRUE;
 			break;
 		}
@@ -1422,10 +1268,9 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			set_self_knowledge(p_ptr->self_knowledge + (aware ? 4 : 8),
-				"You begin to know yourself a little better...");
+			msg_print("You begin to know yourself a little better...");
+			message_flush();
 			self_knowledge(TRUE);
-			if (!msg) msg_print("While the effects last, you may type '~', option 8 to examine your attributes.");
 			obj_ident = TRUE;
 			break;
 		}
@@ -1438,9 +1283,11 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (info) return ("");
 
-			/* Restore and raise skills, see if character noticed */
-			if (restore_level()) obj_ident = TRUE;
-			if (raise_skills(gain)) obj_ident = TRUE;
+			/* Raise skills, see if character noticed */
+			if (raise_skills(gain))
+			{
+				obj_ident = TRUE;
+			}
 			break;
 		}
 
@@ -1452,9 +1299,11 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (info) return ("");
 
-			/* Restore and raise skills, see if character noticed */
-			if (restore_level()) obj_ident = TRUE;
-			if (raise_skills(gain)) obj_ident = TRUE;
+			/* Raise skills, see if character noticed */
+			if (raise_skills(gain))
+			{
+				obj_ident = TRUE;
+			}
 			break;
 		}
 
@@ -1492,9 +1341,6 @@ cptr do_object(int mode, object_type *o_ptr)
 	/*** Handle Scrolls ***/
 	do_scroll:
 
-	/* Note action in saved messages */
-	if (use) msg_add(format("You read %s.", o_name));
-
 	/* Analyze the scroll */
 	switch (o_ptr->sval)
 	{
@@ -1502,7 +1348,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			if ((!p_ptr->resist_blind) && (!p_ptr->resist_dark))
+			if (!p_ptr->resist_blind)
 			{
 				if (set_blind(p_ptr->blind + rand_range(4, 8),
 					"A veil of darkness surrounds you.")) obj_ident = TRUE;
@@ -1541,11 +1387,12 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			sound(MSG_SUM_MONSTER);
-			if (summon_specific(py, px, FALSE, p_ptr->depth + 2, 0,
-				rand_range(3, 5)))
+			for (i = 0; i < rand_range(3, 5); i++)
 			{
-				obj_ident = TRUE;
+				if (summon_specific(py, px, FALSE, p_ptr->depth + 2, 0))
+				{
+					obj_ident = TRUE;
+				}
 			}
 			break;
 		}
@@ -1554,11 +1401,13 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			sound(MSG_SUM_UNDEAD);
-			if (summon_specific(py, px, FALSE, p_ptr->depth + 3,
-				SUMMON_UNDEAD, rand_range(2, 3)))
+			for (i = 0; i < rand_range(2, 3); i++)
 			{
-				obj_ident = TRUE;
+				if (summon_specific(py, px, FALSE, p_ptr->depth + 3,
+					SUMMON_UNDEAD))
+				{
+					obj_ident = TRUE;
+				}
 			}
 			break;
 		}
@@ -1573,15 +1422,17 @@ cptr do_object(int mode, object_type *o_ptr)
 				obj_ident = TRUE;
 			}
 
-			message(MSG_SUM_DEMON, 0, "Fiery, twisted forms emerge from the darkness!");
-
-			if (summon_specific(py, px, FALSE,
-				MAX(p_ptr->depth, p_ptr->max_depth) + 3, SUMMON_HI_DEMON, 6))
+			msg_print("Fiery, twisted forms emerge from the darkness!");
+			for (i = 0; i < 6; i++)
 			{
-				obj_ident = TRUE;
+				if (summon_specific(py, px, FALSE,
+					MAX(p_ptr->depth, p_ptr->max_depth) + 3, SUMMON_HI_DEMON))
+				{
+					obj_ident = TRUE;
+				}
 			}
 
-			if ((p_ptr->resist_fear) || (check_save(100)))
+			if ((p_ptr->resist_fear) || (rand_int(100) < p_ptr->skill_sav))
 			{
 				msg_print("You refuse to be frightened.");
 			}
@@ -1595,6 +1446,8 @@ cptr do_object(int mode, object_type *o_ptr)
 
 		case SV_SCROLL_TRAP_CREATION:
 		{
+			object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
 			if (info) return ("");
 
 			/* Identify if "tried" */
@@ -1610,7 +1463,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("(range 10)");
 
-			teleport_player(10, TRUE, FALSE);
+			teleport_player(10, TRUE);
 			obj_ident = TRUE;
 			break;
 		}
@@ -1619,7 +1472,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("(range 100)");
 
-			teleport_player(100, TRUE, FALSE);
+			teleport_player(100, TRUE);
 			obj_ident = TRUE;
 			break;
 		}
@@ -1717,9 +1570,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			pow = (aware ? rand_range(4, 6) : 8);
-
-			if (!enchant_spell(0, 0, pow, TRUE))
+			if (!enchant_spell(0, 0, rand_range(4, 6), TRUE))
 				obj_used_up = FALSE;
 			obj_ident = TRUE;
 			break;
@@ -1729,10 +1580,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			pow1 = (aware ? rand_range(2, 4) : 5);
-			pow2 = (aware ? rand_range(4, 6) : 5);
-
-			if (!enchant_spell(pow1, pow2, 0, TRUE))
+			if (!enchant_spell(rand_range(2, 4), rand_range(2, 4), 0, TRUE))
 				obj_used_up = FALSE;
 			obj_ident = TRUE;
 			break;
@@ -1742,9 +1590,6 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			pow = (aware ? 130 : 200);
-
-			if (msg) msg_print("Magic power gathers around you...");
 			if (!recharge(130, FALSE)) obj_used_up = FALSE;
 			obj_ident = TRUE;
 			break;
@@ -1754,9 +1599,6 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			pow = (aware ? 200 : 300);
-
-			if (msg) msg_print("Powerful magics gather around you...");
 			if (!recharge(200, FALSE)) obj_used_up = FALSE;
 			obj_ident = TRUE;
 			break;
@@ -1796,14 +1638,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			/* Easter Egg */
-			if (msg)
-			{
-				message_flush();
-				message(MSG_L_BLUE, 4, "Out of darkness, light!        ");
-			}
-			(void)lite_area(damroll(2, 8), 2);
-			obj_ident = TRUE;
+			if (lite_area(damroll(2, 8), 2)) obj_ident = TRUE;
 			break;
 		}
 
@@ -1841,7 +1676,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			if (detect_traps(FALSE, aware)) obj_ident = TRUE;
+			if (detect_traps(FALSE)) obj_ident = TRUE;
 			break;
 		}
 		case SV_SCROLL_DETECT_DOOR:
@@ -1857,7 +1692,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			if (detect_monsters_invis(FALSE, aware)) obj_ident = TRUE;
+			if (detect_monsters_invis(FALSE)) obj_ident = TRUE;
 			break;
 		}
 
@@ -1874,7 +1709,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			if (set_food(p_ptr->food_bloated - 50)) obj_ident = TRUE;
+			if (set_food(p_ptr->food_bloated - 1)) obj_ident = TRUE;
 			break;
 		}
 
@@ -1924,12 +1759,6 @@ cptr do_object(int mode, object_type *o_ptr)
 				msg_print("Your hands begin to glow.");
 				p_ptr->special_attack |= (ATTACK_CONFUSE);
 				obj_ident = TRUE;
-
-				/* Print "special attacks" */
-				left_panel_display(DISPLAY_SPECIAL_ATTACK, 0);
-
-				/* Redraw conditions status */
-				p_ptr->redraw |= (PR_CONDITIONS);
 			}
 			break;
 		}
@@ -1978,7 +1807,7 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			msg_print("A shimmering gate appears.");
 
-			if (get_check("Walk through the gate of Questing?"))
+			if (get_check("Walk through the gate of questing?"))
 			{
 				/* On a special quest */
 				p_ptr->special_quest = TRUE;
@@ -1999,7 +1828,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return ("");
 
 			if (msg) msg_print("KABOOM!");
-			destroy_area(py, px, 15, TRUE, FALSE);
+			destroy_area(py, px, 15, TRUE);
 			obj_ident = TRUE;
 			break;
 		}
@@ -2027,9 +1856,6 @@ cptr do_object(int mode, object_type *o_ptr)
 			x_list[i].y0 = x_list[i].y1 = py;
 			x_list[i].x0 = x_list[i].x1 = px;
 
-			/* Practices the magic device skill */
-			x_list[i].practice_skill = S_DEVICE;
-
 			/* It attacks every 10 -> 5 game turns, */
 			x_list[i].time_delay = 10 - p_ptr->power / 20;
 
@@ -2053,7 +1879,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				msg_print("This was a Scroll of Invoke Nexus!");
 
 			/* Fire a storm of nexus beams */
-			fire_storm(-1, GF_NEXUS, py, px, 75, 13, 5, 1, FALSE);
+			fire_storm(-1, GF_NEXUS, py, px, 75, 13, 5, 30, 1, FALSE);
 
 			/* Character does not resist nexus */
 			if (!p_ptr->resist_nexus)
@@ -2071,11 +1897,7 @@ cptr do_object(int mode, object_type *o_ptr)
 			if (info) return ("");
 
 			if (!aware) msg_print("This is a genocide scroll.");
-			if (!genocide(0))
-			{
-				/* Only use object up if genocide goes off */
-				obj_used_up = FALSE;
-			}
+			(void)genocide(0);
 			obj_ident = TRUE;
 			break;
 		}
@@ -2103,7 +1925,7 @@ cptr do_object(int mode, object_type *o_ptr)
 		{
 			if (info) return ("");
 
-			acquirement(py, px, (aware ? 3 : 5), TRUE);
+			acquirement(py, px, (aware ? 3 : 4), TRUE);
 			obj_ident = TRUE;
 			break;
 		}
@@ -2169,6 +1991,7 @@ cptr do_object(int mode, object_type *o_ptr)
 }
 
 
+
 /*
  * Process the effects of individual magical devices.  Return any
  * information string (info mode only).  If the device got used, which does
@@ -2189,10 +2012,8 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 	bool use  = (mode == OBJECT_USE);
 	bool info = (mode == OBJECT_INFO);
 
-	bool aware = object_aware_p(o_ptr);
-
 	/* Output special message only once */
-	bool msg = !(k_ptr->special & (SPECIAL_MESSAGE));
+	u16b msg = !(k_ptr->special & (SPECIAL_MESSAGE));
 
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -2215,21 +2036,20 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 	/* Determine device skill (0 to 100) */
 	int power = get_skill(S_DEVICE, 0, 100);
 
-	char buf[DESC_LEN];
-	char o_name[DESC_LEN];
+	char buf[80];
 
-
-	/* Describe the (singular) object */
-	object_desc_plural = -1;
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 	/* Unknown wands and rods always need to be "used in a direction" */
-	if ((use) && (!uncontrolled) && (!aware) &&
+	if ((use) && (need_dir) && (!object_aware_p(o_ptr)) &&
 	    ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)))
 	{
 		if (!get_aim_dir(&dir)) return ("");
 		need_dir = FALSE;
 	}
+
+	/* Sound */
+	if (use) sound(MSG_ZAP);
+
 
 	/* Jump to the right category of item */
 	if      (o_ptr->tval == TV_STAFF) goto do_staff;
@@ -2241,12 +2061,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 	/*** Handle Staffs ***/
 	do_staff:
 
-	/* Sound */
-	if (use) sound(MSG_USE_STAFF);
-
-	/* Note action in saved messages */
-	if (use) msg_add(format("You use %s.", o_name));
-
 	/* Analyze the staff */
 	switch (o_ptr->sval)
 	{
@@ -2255,12 +2069,14 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("");
 			if (use)
 			{
-				if ((!p_ptr->resist_blind) && (!p_ptr->resist_dark))
+				/* Darkness */
+				if (unlite_area(10, 3)) *ident = TRUE;
+
+				if (!p_ptr->resist_blind)
 				{
 					if (set_blind(p_ptr->blind + rand_range(6, 12),
 						"A veil of darkness surrounds you.")) *ident = TRUE;
 				}
-				if (unlite_area(10, 3)) *ident = TRUE;
 			}
 			break;
 		}
@@ -2280,7 +2096,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("");
 			if (use)
 			{
-				if (speed_monsters()) *ident = TRUE;
+				if (speed_monsters(0)) *ident = TRUE;
 			}
 			break;
 		}
@@ -2290,10 +2106,12 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("");
 			if (use)
 			{
-				sound(MSG_SUM_MONSTER);
-				if (summon_specific(py, px, FALSE, p_ptr->depth + 3, 0, randint(4)))
+				for (k = 0; k < randint(4); k++)
 				{
-					*ident = TRUE;
+					if (summon_specific(py, px, FALSE, p_ptr->depth + 3, 0))
+					{
+						*ident = TRUE;
+					}
 				}
 			}
 			break;
@@ -2304,7 +2122,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("(range: 100)");
 			if (use)
 			{
-				teleport_player(100, TRUE, FALSE);
+				teleport_player(100, TRUE);
 				*ident = TRUE;
 			}
 			break;
@@ -2418,7 +2236,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("");
 			if (use)
 			{
-				if (detect_traps(TRUE, aware)) *ident = TRUE;
+				if (detect_traps(TRUE)) *ident = TRUE;
 			}
 			break;
 		}
@@ -2439,7 +2257,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("");
 			if (use)
 			{
-				if (detect_monsters_invis(TRUE, aware)) *ident = TRUE;
+				if (detect_monsters_invis(TRUE)) *ident = TRUE;
 			}
 			break;
 		}
@@ -2449,7 +2267,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("");
 			if (use)
 			{
-				if (detect_evil(TRUE, aware)) *ident = TRUE;
+				if (detect_evil(TRUE)) *ident = TRUE;
 			}
 			break;
 		}
@@ -2499,7 +2317,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("");
 			if (use)
 			{
-				if (sleep_monsters(get_skill(S_DEVICE, 25, 95))) *ident = TRUE;
+				if (sleep_monsters(get_skill(S_DEVICE, 10, 65))) *ident = TRUE;
 			}
 			break;
 		}
@@ -2509,7 +2327,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("");
 			if (use)
 			{
-				if (slow_monsters(get_skill(S_DEVICE, 25, 95))) *ident = TRUE;
+				if (slow_monsters(get_skill(S_DEVICE, 10, 65))) *ident = TRUE;
 			}
 			break;
 		}
@@ -2579,6 +2397,18 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			break;
 		}
 
+		case SV_STAFF_GENOCIDE:
+		{
+			if (info) return ("");
+			if ((use) && (!uncontrolled))
+			{
+				if (msg) msg_print("This is a staff of genocide.");
+				(void)genocide(0);
+				*ident = TRUE;
+			}
+			break;
+		}
+
 		case SV_STAFF_EARTHQUAKES:
 		{
 			if (info) return ("");
@@ -2599,7 +2429,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			{
 				if (msg) msg_print("KABOOM!");
 
-				destroy_area(py, px, 15, TRUE, FALSE);
+				destroy_area(py, px, 15, TRUE);
 				*ident = TRUE;
 			}
 			break;
@@ -2610,7 +2440,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return ("");
 			if (use)
 			{
-				(void)detect_all(FALSE, aware);
+				(void)detect_all(FALSE);
 				*ident = TRUE;
 			}
 			break;
@@ -2618,14 +2448,11 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_STAFF_DOOMSPELLS:
 		{
-			dam1 =   0 + get_skill(S_DEVICE, 0, 200);
-			dam2 = 100 + get_skill(S_DEVICE, 0, 200);
-
-			if (info) return (format("(damage: %d-%d)", dam1, dam2));
+			if (info) return ("(damage: 175-275)");
 			if (use)
 			{
 				/* Cast explosions of mana. */
-				doomspells(FALSE, get_skill(S_DEVICE, 0, 100));
+				doomspells(FALSE);
 
 				/* Hard to mistake... */
 				*ident = TRUE;
@@ -2635,10 +2462,10 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_STAFF_CHAOS:
 		{
-			dam1 = get_skill(S_DEVICE, 0, 80) + (p_ptr->chaos_power * 8);
+			dam1 = get_skill(S_DEVICE, 40, 80) + (p_ptr->chaos_power * 8);
 			dam2 = dam1 * 2;
 
-			if (info) return (format("(damage: %d-%d)", dam1, dam2));
+			if (info) return (format("(damage: %d * %d)", dam1, dam2));
 			if (use)
 			{
 				if (msg) msg_print("You unleash the powers of chaos!");
@@ -2664,20 +2491,10 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 	/*** Handle Wands ***/
 	do_wand:
 
-	/* Note action in saved messages */
-	if (use) msg_add(format("You aim %s.", o_name));
 
 	/* XXX Hack -- Wand of wonder can do anything before it */
 	if ((use) && (sval == SV_WAND_WONDER))
-	{
-		/* Special message when using for the first time */
-		if (msg)
-		{
-			msg_print("Wand of Wonder, do your thing, whatever it is that you might bring!");
-			*ident = TRUE;
-		}
 		sval = rand_int(SV_WAND_WONDER);
-	}
 
 	/* Analyze the wand */
 	switch (sval)
@@ -2688,8 +2505,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				if (heal_monster(dir, damroll(p_ptr->depth, 5))) *ident = TRUE;
+				if (heal_monster(dir, damroll(4, 6))) *ident = TRUE;
 			}
 			break;
 		}
@@ -2700,7 +2516,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (speed_monster(dir)) *ident = TRUE;
 			}
 			break;
@@ -2712,7 +2527,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (clone_monster(dir)) *ident = TRUE;
 			}
 			break;
@@ -2724,7 +2538,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (teleport_monster(dir)) *ident = TRUE;
 			}
 			break;
@@ -2736,7 +2549,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (disarm_trap(dir)) *ident = TRUE;
 			}
 			break;
@@ -2748,7 +2560,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (force_door(dir)) *ident = TRUE;
 			}
 			break;
@@ -2763,7 +2574,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (wall_to_mud(dir, rand_range(dam1, dam2))) *ident = TRUE;
 			}
 			break;
@@ -2775,7 +2585,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				msg_print("A line of golden light appears.");
 				lite_line(dir);
 				*ident = TRUE;
@@ -2789,8 +2598,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				if (sleep_monster(dir, get_skill(S_DEVICE, 25, 80)))
+				if (sleep_monster(dir, get_skill(S_DEVICE, 15, 70)))
 					*ident = TRUE;
 			}
 			break;
@@ -2802,8 +2610,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				if (slow_monster(dir, get_skill(S_DEVICE, 25, 80)))
+				if (slow_monster(dir, get_skill(S_DEVICE, 15, 70)))
 					*ident = TRUE;
 			}
 			break;
@@ -2815,8 +2622,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				if (confuse_monster(dir, get_skill(S_DEVICE, 25, 80)))
+				if (confuse_monster(dir, get_skill(S_DEVICE, 15, 70)))
 					*ident = TRUE;
 			}
 			break;
@@ -2828,8 +2634,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				if (fear_monster(dir, get_skill(S_DEVICE, 30, 80)))
+				if (fear_monster(dir, get_skill(S_DEVICE, 25, 70)))
 					*ident = TRUE;
 			}
 			break;
@@ -2841,8 +2646,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				if (poly_monster(dir, get_skill(S_DEVICE, 35, 100)))
+				if (poly_monster(dir, get_skill(S_DEVICE, 0, 100)))
 					*ident = TRUE;
 			}
 			break;
@@ -2856,8 +2660,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_ball(GF_POIS, dir, dam, 2);
+				fire_ball(GF_POIS, dir, dam, 2);
 				*ident = TRUE;
 			}
 			break;
@@ -2871,8 +2674,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_bolt_or_beam(10, GF_MANA, dir, damroll(dice, sides));
+				fire_bolt_or_beam(10, GF_MANA, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
 			break;
@@ -2886,8 +2688,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_bolt_or_beam(power / 2, GF_ACID, dir,
+				fire_bolt_or_beam(power / 2, GF_ACID, dir,
 					damroll(dice, sides));
 				*ident = TRUE;
 			}
@@ -2896,14 +2697,13 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			dice = get_skill(S_DEVICE, 2, 7);     sides = 8;
+			dice = get_skill(S_DEVICE, 3, 6);     sides = 8;
 
 			if (info) return (format("(damage: %dd%d)", dice, sides));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_bolt_or_beam(power / 2, GF_ELEC, dir,
+				fire_bolt_or_beam(power / 2, GF_ELEC, dir,
 					damroll(dice, sides));
 				*ident = TRUE;
 			}
@@ -2918,10 +2718,8 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_bolt_or_beam(power / 2, GF_FIRE, dir,
+				fire_bolt_or_beam(power / 2, GF_FIRE, dir,
 					damroll(dice, sides));
-
 				*ident = TRUE;
 			}
 			break;
@@ -2935,8 +2733,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_bolt_or_beam(power / 2, GF_COLD, dir,
+				fire_bolt_or_beam(power / 2, GF_COLD, dir,
 					damroll(dice, sides));
 				*ident = TRUE;
 			}
@@ -2945,14 +2742,13 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_ACID_BALL:
 		{
-			dam = get_skill(S_DEVICE, 50, 140);
+			dam = get_skill(S_DEVICE, 60, 90);
 
 			if (info) return (format("(damage: %d)", dam));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_ball(GF_ACID, dir, dam, 3);
+				fire_ball(GF_ACID, dir, dam, 3);
 				*ident = TRUE;
 			}
 			break;
@@ -2960,14 +2756,13 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_ELEC_BALL:
 		{
-			dam = get_skill(S_DEVICE, 30, 120);
+			dam = get_skill(S_DEVICE, 40, 70);
 
 			if (info) return (format("(damage: %d)", dam));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_ball(GF_ELEC, dir, dam, 3);
+				fire_ball(GF_ELEC, dir, dam, 3);
 				*ident = TRUE;
 			}
 			break;
@@ -2975,14 +2770,13 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_FIRE_BALL:
 		{
-			dam = get_skill(S_DEVICE, 60, 150);
+			dam = get_skill(S_DEVICE, 70, 100);
 
 			if (info) return (format("(damage: %d)", dam));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_ball(GF_FIRE, dir, dam, 3);
+				fire_ball(GF_FIRE, dir, dam, 3);
 				*ident = TRUE;
 			}
 			break;
@@ -2990,14 +2784,13 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_COLD_BALL:
 		{
-			dam = get_skill(S_DEVICE, 40, 130);
+			dam = get_skill(S_DEVICE, 50, 80);
 
 			if (info) return (format("(damage: %d)", dam));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_ball(GF_COLD, dir, dam, 3);
+				fire_ball(GF_COLD, dir, dam, 3);
 				*ident = TRUE;
 			}
 			break;
@@ -3015,13 +2808,12 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			dam = get_skill(S_DEVICE, 40, 150);
+			dam = get_skill(S_DEVICE, 50, 120);
 
 			if (info) return (format("(damage: %d)", dam));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (drain_life(dir, dam)) *ident = TRUE;
 			}
 			break;
@@ -3029,13 +2821,12 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_ANNIHILATION:
 		{
-			dam = get_skill(S_DEVICE, 120, 220);
+			dam = get_skill(S_DEVICE, 120, 180);
 
 			if (info) return (format("(damage: %d)", dam));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (msg) msg_print("A black orb shoots out from your wand!");
 				if (drain_life(dir, dam)) *ident = TRUE;
 			}
@@ -3044,15 +2835,14 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			dam = get_skill(S_DEVICE, 70, 220);
+			dam = get_skill(S_DEVICE, 120, 180);
 
 			if (info) return (format("(damage: %d)", dam));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (msg) msg_print("Dragonfire!");
-				(void)fire_arc(GF_FIRE, dir, dam, 7, 70);
+				fire_arc(GF_FIRE, dir, dam, 7, 90);
 				*ident = TRUE;
 			}
 			break;
@@ -3060,15 +2850,14 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			dam = get_skill(S_DEVICE, 70, 220);
+			dam = get_skill(S_DEVICE, 120, 180);
 
 			if (info) return (format("(damage: %d)", dam));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (msg) msg_print("Dragonfrost!");
-				(void)fire_arc(GF_COLD, dir, dam, 7, 20);
+				fire_arc(GF_COLD, dir, dam, 7, 90);
 				*ident = TRUE;
 			}
 			break;
@@ -3076,7 +2865,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_DRAGON_BREATH:
 		{
-			dam = get_skill(S_DEVICE, 80, 240);
+			dam = get_skill(S_DEVICE, 120, 200);
 
 			if (info) return (format("(damage: %d-%d)", dam, dam + 30));
 			if (use)
@@ -3084,14 +2873,14 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 				int tmp = randint(5);
 
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
+
 				if (msg) msg_print("Dragon's breath!");
 
-				if (tmp == 1) (void)fire_arc(GF_ACID, dir, dam + 20, 9, 70);
-				if (tmp == 2) (void)fire_arc(GF_ELEC, dir, dam     , 9, 70);
-				if (tmp == 3) (void)fire_arc(GF_COLD, dir, dam + 10, 9, 70);
-				if (tmp == 4) (void)fire_arc(GF_FIRE, dir, dam + 30, 9, 70);
-				if (tmp == 5) (void)fire_arc(GF_POIS, dir, dam + 20, 7, 100);
+				if (tmp == 1) fire_arc(GF_ACID, dir, dam + 20, 9,  90);
+				if (tmp == 2) fire_arc(GF_ELEC, dir, dam     , 9,  90);
+				if (tmp == 3) fire_arc(GF_COLD, dir, dam + 10, 9,  90);
+				if (tmp == 4) fire_arc(GF_FIRE, dir, dam + 30, 9,  90);
+				if (tmp == 5) fire_arc(GF_POIS, dir, dam + 20, 7, 120);
 
 				*ident = TRUE;
 			}
@@ -3100,17 +2889,14 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_WAND_DOOM_BOLT:
 		{
-			dam = get_skill(S_DEVICE, 80, 180);
-			dam_to_dice(dam, &dice, &sides, FALSE);
+			dam = get_skill(S_DEVICE, 100, 150);
 
-			if (info) return (format("(damage: %dd%d)", dice, sides));
+			if (info) return (format("(damage: %d)", dam));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 				if (msg) msg_print("Pure mana streams out from your wand!");
-				(void)fire_beam(GF_MANA, dir, damroll(dice, sides));
-				*ident = TRUE;
+				if (fire_beam(GF_MANA, dir, dam)) *ident = TRUE;
 			}
 			break;
 		}
@@ -3131,7 +2917,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 				/* Get direction */
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
 
 				/* Clone monster a few times */
 				if (choice == 1)
@@ -3144,7 +2929,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 				/* Heal monster a lot */
 				else if (choice < 4)
 				{
-					if (heal_monster(dir, damroll(p_ptr->depth, 10)))
+					if (heal_monster(dir, rand_range(300, 600)))
 						*ident = TRUE;
 				}
 				/* Haste monster */
@@ -3155,31 +2940,31 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 				/* Polymorph monster */
 				else if (choice < 8)
 				{
-					if (poly_monster(dir, get_skill(S_DEVICE, 50, 120)))
+					if (poly_monster(dir, 100))
 						*ident = TRUE;
 				}
 				/* Sleep monster */
 				else if (choice < 11)
 				{
-					if (sleep_monster(dir, get_skill(S_DEVICE, 30, 100)))
+					if (sleep_monster(dir, get_skill(S_DEVICE, 30, 80)))
 						*ident = TRUE;
 				}
 				/* Slow monster */
 				else if (choice < 15)
 				{
-					if (slow_monster(dir, get_skill(S_DEVICE, 30, 100)))
+					if (slow_monster(dir, get_skill(S_DEVICE, 30, 80)))
 						*ident = TRUE;
 				}
 				/* Confuse monster */
 				else if (choice < 18)
 				{
-					if (confuse_monster(dir, get_skill(S_DEVICE, 30, 100)))
+					if (confuse_monster(dir, get_skill(S_DEVICE, 30, 80)))
 						*ident = TRUE;
 				}
 				/* Frighten monster */
 				else if (choice < 21)
 				{
-					if (fear_monster(dir, get_skill(S_DEVICE, 30, 100)))
+					if (fear_monster(dir, get_skill(S_DEVICE, 30, 70)))
 						*ident = TRUE;
 				}
 
@@ -3262,43 +3047,28 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 					if (choice <= 1)
 					{
 						msg_format("The wand fires a %s bolt.", typ_desc);
-						(void)fire_bolt(typ, dir, dam);
+						fire_bolt(typ, dir, dam);
 					}
 					else if (choice == 2)
 					{
 						msg_format("The wand fires a beam of %s.", typ_desc);
-						(void)fire_beam(typ, dir, dam);
+						fire_beam(typ, dir, dam);
 					}
 					else if (choice == 3)
 					{
 						msg_format("The wand fires a ball of %s.", typ_desc);
-						(void)fire_ball(typ, dir, dam, 1 + dam / 100);
+						fire_ball(typ, dir, dam, 1 + dam / 100);
 					}
 					else
 					{
 						msg_format("The wand breathes %s.", typ_desc);
 						fire_arc(typ, dir, dam, 3 + dam / 30,
-							rand_range(40, 80));
+							rand_range(30, 90));
 					}
 
 					/* Notice */
 					*ident = TRUE;
 				}
-			}
-			break;
-		}
-
-		case SV_WAND_SPARK:
-		{
-			dice = 1;    sides = get_skill(S_DEVICE, 6, 24);
-
-			if (info) return (format("(damage: %dd%d)", dice, sides));
-			if (use)
-			{
-				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_AIM_WAND);
-				(void)fire_arc(GF_ELEC, dir, damroll(dice, sides), 3, 0);
-				*ident = TRUE;
 			}
 			break;
 		}
@@ -3315,11 +3085,8 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 	/*** Handle Rods ***/
 	do_rod:
 
-	/* Note action in saved messages */
-	if (use) msg_add(format("You zap %s.", o_name));
-
 	/* Display time to recharge */
-	(void)strnfmt(buf, sizeof(buf), "every %d turns", k_ptr->pval);
+	sprintf(buf, "every %d turns", k_ptr->pval);
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
@@ -3329,8 +3096,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
-				if (detect_traps(FALSE, aware)) *ident = TRUE;
+				if (detect_traps(FALSE)) *ident = TRUE;
 			}
 			break;
 		}
@@ -3340,7 +3106,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
 				if (detect_doors(FALSE)) *ident = TRUE;
 				if (detect_stairs(FALSE)) *ident = TRUE;
 			}
@@ -3352,7 +3117,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
 				*ident = TRUE;
 				if ((uncontrolled) || (!ident_spell())) return ("");
 			}
@@ -3364,7 +3128,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
 				recall_player();
 				*ident = TRUE;
 			}
@@ -3376,7 +3139,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
 				if (lite_area(damroll(2, 8), 2)) *ident = TRUE;
 			}
 			break;
@@ -3387,7 +3149,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
 				map_area(0, 0, FALSE);
 				*ident = TRUE;
 			}
@@ -3399,7 +3160,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
 				if (probing()) *ident = TRUE;
 			}
 			break;
@@ -3410,7 +3170,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
 				if (set_blind(0, NULL)) *ident = TRUE;
 				if (set_poisoned(0)) *ident = TRUE;
 				if (set_diseased(p_ptr->diseased / 2 - 5, NULL)) *ident = TRUE;
@@ -3429,7 +3188,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("(heal about %d%%, cure cuts and stunning) %s", pow, buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
 				if (heal_player(pow, pow * 5)) *ident = TRUE;
 				if (set_stun(0)) *ident = TRUE;
 				if (set_cut(0)) *ident = TRUE;
@@ -3442,7 +3200,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
 				if (restore_level()) *ident = TRUE;
 				if (restore_stats()) *ident = TRUE;
 			}
@@ -3459,7 +3216,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("(duration: %d-%d%s) %s", dur1, dur2, extra, buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
 				if (set_fast(p_ptr->fast + rand_range(dur1, dur2)))
 					*ident = TRUE;
 			}
@@ -3472,7 +3228,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
 				if (teleport_monster(dir)) *ident = TRUE;
 			}
 			break;
@@ -3484,7 +3239,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
 				if (disarm_trap(dir)) *ident = TRUE;
 			}
 			break;
@@ -3496,7 +3250,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
 				msg_print("A line of golden light appears.");
 				lite_line(dir);
 				*ident = TRUE;
@@ -3509,8 +3262,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("%s", buf));
 			if (use)
 			{
-				sound(MSG_ZAP_ROD);
-				teleport_player(10, TRUE, FALSE);
+				teleport_player(10, TRUE);
 				*ident = TRUE;
 			}
 			break;
@@ -3522,7 +3274,6 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
 
 				/* Assume that spell does not succeed */
 				p_ptr->came_hither = 0;
@@ -3533,13 +3284,13 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 				/* The spell succeeded and the character isn't blind */
 				if ((p_ptr->came_hither) && (!p_ptr->blind))
 				{
-					char name[DESC_LEN];
+					char name[80];
 
 					/* Get the monster */
 					monster_type *m_ptr = &m_list[p_ptr->came_hither];
 
 					/* Get the monster name ("the kobold" or "something") */
-					monster_desc(name, m_ptr, 0x44);
+					monster_desc(name, m_ptr, 0x04);
 
 					/* Message -- even when invisible (you sense it) */
 					msg_format("You have summoned %s.", name);
@@ -3556,13 +3307,12 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			dam = get_skill(S_DEVICE, 60, 130);
+			dam = get_skill(S_DEVICE, 50, 120);
 
 			if (info) return (format("(damage: %d) %s", dam, buf));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
 				if (drain_life(dir, dam)) *ident = TRUE;
 			}
 			break;
@@ -3574,8 +3324,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
-				if (poly_monster(dir, get_skill(S_DEVICE, 35, 100)))
+				if (poly_monster(dir, get_skill(S_DEVICE, 50, 100)))
 					*ident = TRUE;
 			}
 			break;
@@ -3589,8 +3338,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
-				(void)fire_bolt_or_beam(10, GF_ACID, dir, damroll(dice, sides));
+				fire_bolt_or_beam(10, GF_ACID, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
 			break;
@@ -3604,8 +3352,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
-				(void)fire_bolt_or_beam(10, GF_ELEC, dir, damroll(dice, sides));
+				fire_bolt_or_beam(10, GF_ELEC, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
 			break;
@@ -3619,8 +3366,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
-				(void)fire_bolt_or_beam(10, GF_FIRE, dir, damroll(dice, sides));
+				fire_bolt_or_beam(10, GF_FIRE, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
 			break;
@@ -3634,8 +3380,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
-				(void)fire_bolt_or_beam(10, GF_COLD, dir, damroll(dice, sides));
+				fire_bolt_or_beam(10, GF_COLD, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
 			break;
@@ -3643,14 +3388,13 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_ROD_ACID_BALL:
 		{
-			dam = get_skill(S_DEVICE, 50, 150);
+			dam = get_skill(S_DEVICE, 60, 100);
 
 			if (info) return (format("(damage: %d) %s", dam, buf));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
-				(void)fire_ball(GF_ACID, dir, dam, 1);
+				fire_ball(GF_ACID, dir, dam, 1);
 				*ident = TRUE;
 			}
 			break;
@@ -3658,14 +3402,13 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_ROD_ELEC_BALL:
 		{
-			dam = get_skill(S_DEVICE, 30, 130);
+			dam = get_skill(S_DEVICE, 40, 80);
 
 			if (info) return (format("(damage: %d) %s", dam, buf));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
-				(void)fire_ball(GF_ELEC, dir, dam, 1);
+				fire_ball(GF_ELEC, dir, dam, 1);
 				*ident = TRUE;
 			}
 			break;
@@ -3673,14 +3416,13 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_ROD_FIRE_BALL:
 		{
-			dam = get_skill(S_DEVICE, 60, 160);
+			dam = get_skill(S_DEVICE, 70, 110);
 
 			if (info) return (format("(damage: %d) %s", dam, buf));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
-				(void)fire_ball(GF_FIRE, dir, dam, 1);
+				fire_ball(GF_FIRE, dir, dam, 1);
 				*ident = TRUE;
 			}
 			break;
@@ -3688,31 +3430,29 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_ROD_COLD_BALL:
 		{
-			dam = get_skill(S_DEVICE, 40, 140);
+			dam = get_skill(S_DEVICE, 50, 90);
 
 			if (info) return (format("(damage: %d) %s", dam, buf));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
-				(void)fire_ball(GF_COLD, dir, dam, 1);
+				fire_ball(GF_COLD, dir, dam, 1);
 				*ident = TRUE;
 			}
 			break;
 		}
 
-		case SV_ROD_LIGHTNINGSTRIKE:
+		case SV_ROD_LIGHTINGSTRIKE:
 		{
-			dice = get_skill(S_DEVICE, 6, 54);     sides = 8;
+			dice = get_skill(S_DEVICE, 18, 34);     sides = 8;
 
 			if (info) return (format("(damage: %dd%d) %s", dice, sides, buf));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
 				if (msg) msg_print("A great spark shoots out from your rod!");
 
-				(void)fire_bolt(GF_ELEC, dir, damroll(dice, sides));
+				fire_bolt(GF_ELEC, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
 			break;
@@ -3720,16 +3460,15 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_ROD_NORTHWINDS:
 		{
-			dice = get_skill(S_DEVICE, 14, 56);     sides = 8;
+			dice = get_skill(S_DEVICE, 21, 37);     sides = 8;
 
 			if (info) return (format("(damage: %dd%d) %s", dice, sides, buf));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
 				if (msg) msg_print("A massive bolt of frost shoots out from your rod!");
 
-				(void)fire_bolt(GF_COLD, dir, damroll(dice, sides));
+				fire_bolt(GF_COLD, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
 			break;
@@ -3737,16 +3476,15 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_ROD_DRAGONFIRE:
 		{
-			dice = get_skill(S_DEVICE, 22, 58);     sides = 8;
+			dice = get_skill(S_DEVICE, 24, 40);     sides = 8;
 
 			if (info) return (format("(damage: %dd%d) %s", dice, sides, buf));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
 				if (msg) msg_print("A blazing bolt shoots out from your rod!");
 
-				(void)fire_bolt(GF_FIRE, dir, damroll(dice, sides));
+				fire_bolt(GF_FIRE, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
 			break;
@@ -3754,16 +3492,15 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_ROD_GLAURUNGS:
 		{
-			dice = get_skill(S_DEVICE, 30, 60);     sides = 8;
+			dice = get_skill(S_DEVICE, 27, 43);     sides = 8;
 
 			if (info) return (format("(damage: %dd%d) %s", dice, sides, buf));
 			if (use)
 			{
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
-				sound(MSG_ZAP_ROD);
 				if (msg) msg_print("Black, deadly acid shoots out from your rod!");
 
-				(void)fire_bolt(GF_ACID, dir, damroll(dice, sides));
+				fire_bolt(GF_ACID, dir, damroll(dice, sides));
 				*ident = TRUE;
 			}
 			break;
@@ -3778,18 +3515,25 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 }
 
 
+
+
+
 /*
  * Learn details about an object
  */
-void learn_details(object_type *o_ptr)
+static void learn_details(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	int more_info = FALSE;
 	int skill;
-	int odds = 0;
+	int chance = 0;
 
-	char o_name[DESC_LEN];
+	bool dummy;
+	bool old_flavors = show_flavors;
+
+	char o_name[120];
+
 
 	/* Require known object */
 	if (!object_known_p(o_ptr)) return;
@@ -3800,18 +3544,20 @@ void learn_details(object_type *o_ptr)
 	/* The character must have his wits about him */
 	if (p_ptr->confused || p_ptr->image || p_ptr->berserk) return;
 
+
 	/* Get chance to learn about the object */
 	if (is_magical_device(o_ptr))
 	{
 		skill = get_skill(S_DEVICE, 0, 15) + get_skill(S_PERCEPTION, 0, 15);
 
-		/* Get odds against learning magical device effects */
-		if      (o_ptr->tval == TV_STAFF) odds = 35 - skill;
-		else if (o_ptr->tval == TV_WAND)  odds = 40 - skill;
-		else if (o_ptr->tval == TV_ROD)   odds = 45 - skill;
+		/* Get chance to know magical device effects */
+		if      (o_ptr->tval == TV_STAFF) chance = 40 - skill;
+		else if (o_ptr->tval == TV_WAND)  chance = 50 - skill;
+		else if (o_ptr->tval == TV_ROD)   chance = 55 - skill;
 
-		/* There is always something new to learn about devices */
-		more_info = TRUE;
+		/* Check to see if we are actually going to learn anything */
+		more_info =
+			strlen(do_device(OBJECT_INFO, o_ptr, &dummy, &dummy, FALSE));
 	}
 
 	/* Food, potions, or scrolls */
@@ -3819,14 +3565,13 @@ void learn_details(object_type *o_ptr)
 	         (o_ptr->tval == TV_POTION) ||
 	         (o_ptr->tval == TV_SCROLL))
 	{
-		odds = 30 - get_skill(S_PERCEPTION, 0, 15);
+		chance = 30 - get_skill(S_PERCEPTION, 0, 15);
 
 		more_info = strlen(do_object(OBJECT_INFO, o_ptr));
 	}
-	else return;
 
-	/* Roll for learning */
-	if ((odds <= 0) || (one_in_(odds)))
+	/* Roll for chance */
+	if ((chance) && (one_in_(chance)))
 	{
 		/* We now know about the object's effects (in theory) */
 		k_ptr->special |= (SPECIAL_KNOWN_EFFECT);
@@ -3834,12 +3579,20 @@ void learn_details(object_type *o_ptr)
 		/* If we actually give more information now, let the player know. */
 		if (more_info)
 		{
-			/* No flavors, force plural */
-			object_desc_flavour = -1;
-			object_desc_plural = 1;
+			/* Hack -- make plural (unless artifact) */
+			if (!artifact_p(o_ptr)) o_ptr->number++;
+
+			/* Hack -- no flavors */
+			show_flavors = FALSE;
 
 			/* Describe the object */
-			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+			object_desc(o_name, o_ptr, FALSE, 3);
+
+			/* Hack -- restore previous number */
+			if (!artifact_p(o_ptr)) o_ptr->number--;
+
+			/* Hack -- restore flavors */
+			show_flavors = old_flavors;
 
 			/* Message */
 			msg_format("You feel you know more about %s.", o_name);
@@ -3871,28 +3624,6 @@ static bool can_read_scroll(void)
 		return (FALSE);
 	}
 	return (TRUE);
-}
-
-
-/*
- * Hook to determine if an object is quaffable.
- */
-static bool item_tester_hook_quaff(const object_type *o_ptr)
-{
-	/* Is potion */
-	if (o_ptr->tval == TV_POTION) return (TRUE);
-
-	/* Is food */
-	if (o_ptr->tval == TV_FOOD)
-	{
-		/* Ale, Wine, and Orcish Sprits can be quaffed */
-		if (o_ptr->sval == SV_FOOD_PINT_OF_ALE) return (TRUE);
-		if (o_ptr->sval == SV_FOOD_PINT_OF_WINE) return (TRUE);
-		if (o_ptr->sval == SV_FOOD_ORCISH_FIREWATER) return (TRUE);
-	}
-
-	/* Nope. */
-	return (FALSE);
 }
 
 
@@ -3942,8 +3673,8 @@ void use_object(int tval)
 	}
 	else if (tval == TV_POTION)
 	{
-		/* Restrict choices to quaffables */
-		item_tester_hook = item_tester_hook_quaff;
+		/* Restrict choices to potions */
+		item_tester_tval = TV_POTION;
 
 		/* Get an item */
 		q = "Quaff which potion?";
@@ -4005,15 +3736,10 @@ void use_object(int tval)
 		if (o_ptr->tval == TV_FOOD)
 		{
 			/* Chance increases with nature lore, and decreases with level */
-			chance = 25 - (k_ptr->level / 5) + get_skill(S_NATURE, 0, 100);
+			chance = 25 - (k_ptr->level / 4) + get_skill(S_NATURE, 0, 100);
 
 			/* Goats are pretty good at identifying food */
 			if (p_ptr->schange == SHAPE_GOAT) chance += 25;
-		}
-		else if (o_ptr->tval == TV_POTION)
-		{
-			/* Alchemists know their potions */
-			chance = get_skill(S_ALCHEMY, 10, 100);
 		}
 		else
 		{
@@ -4027,66 +3753,14 @@ void use_object(int tval)
 	/* An identification was made */
 	if (obj_ident)
 	{
-		/* Become aware of the object kind */
-		object_aware(o_ptr);
-
-		/* Becoming aware of a flavoured object is worth experience */
-		if (!aware && k_ptr->flavor)
+		/* Newly learnt object */
+		if (!aware)
 		{
-			int skill;
-			char o_name[DESC_LEN];
+			/* Become aware of the object kind */
+			object_aware(o_ptr);
 
-			/* Describe the usage */
-			cptr p = "are using";
-			if (o_ptr->tval == TV_POTION) p = "have quaffed";
-			if (o_ptr->tval == TV_SCROLL) p = "have read";
-			if (o_ptr->tval == TV_FOOD)   p = "have eaten";
-
-
-			/* Describe only one, unflavoured, object */
-			object_desc_plural = -1;
-			object_desc_flavour = -1;
-
-			/* Describe the object (briefly) */
-			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
-
-
-			/* Choose a skill to practice */
-			if (is_magical_device(o_ptr)) skill = S_DEVICE;
-			else                          skill = S_NOSKILL;
-
-			/* Gain experience - unsensed (or uncertain) object */
-			if (!(o_ptr->ident & (IDENT_SENSE)) ||
-			    (o_ptr->inscrip == INSCRIP_UNCERTAIN))
-			{
-				/* Message */
-				if (hack_id_notice_suppress == 0)
-				{
-					msg_format("You realize that you %s %s.  Your experience rises.", p, o_name);
-				}
-
-				/* Experience */
-				if (hack_id_notice_suppress < 2)
-				{
-					gain_exp(MAX(1, k_ptr->level * k_ptr->level / 2), skill);
-				}
-			}
-
-			/* Gain experience - sensed object */
-			else
-			{
-				/* Message */
-				if (hack_id_notice_suppress == 0)
-				{
-					msg_format("You realize that you %s %s.", p, o_name);
-				}
-
-				/* Experience */
-				if (hack_id_notice_suppress < 2)
-				{
-					gain_exp(MAX(1, k_ptr->level / 2), skill);
-				}
-			}
+			/* Gain a significant amount of exp */
+			gain_exp(k_ptr->level * k_ptr->level / 2, S_NOSKILL);
 
 			/* Learning something always takes time */
 			p_ptr->energy_use = 100;
@@ -4119,7 +3793,7 @@ void use_object(int tval)
 		(void)set_food(p_ptr->food + o_ptr->pval);
 	}
 
-	/* Potions can usually feed the player */
+	/* Potions can feed the player */
 	else if (tval == TV_POTION)
 	{
 		if (o_ptr->sval != SV_POTION_GRENADE)
@@ -4152,11 +3826,11 @@ void use_object(int tval)
 	}
 
 
-	/* We quaffed a potion, and want to save bottles */
-	if ((tval == TV_POTION) && (!p_ptr->suppress_bottle))
+	/* We quaffed a potion */
+	if (tval == TV_POTION)
 	{
 		/* Character has some alchemy skill or potion is very high-level */
-		if ((get_skill(S_ALCHEMY, 0, 100) >= LEV_REQ_ALCHEMY) ||
+		if ((get_skill(S_ALCHEMY, 0, 100) >= 10) ||
 		    (k_ptr->level > p_ptr->power / 2 + 30))
 		{
 			/* Create a bottle, give it to the character or the floor */
@@ -4164,11 +3838,11 @@ void use_object(int tval)
 		}
 	}
 
-	/* We read a scroll, and want to save parchments */
-	else if ((tval == TV_SCROLL) && (!p_ptr->suppress_bottle))
+	/* We read a scroll */
+	else if (tval == TV_SCROLL)
 	{
 		/* Character has some alchemy skill or scroll is very high-level */
-		if ((get_skill(S_ALCHEMY, 0, 100) >= LEV_REQ_ALCHEMY) ||
+		if ((get_skill(S_ALCHEMY, 0, 100) >= 10) ||
 			 (k_ptr->level > p_ptr->power / 2 + 30))
 		{
 			/* Create a parchment, give it to the character or the floor */
@@ -4197,78 +3871,6 @@ static bool item_tester_hook_device(const object_type *o_ptr)
 
 
 /*
- * Calculate success chance with magical devices and activatable items.
- */
-int device_chance(const object_type *o_ptr)
-{
-	int lev, chance;
-
-	int skill = p_ptr->skill_dev;
-
-	/* Object is an artifact - use artifact level */
-	if (artifact_p(o_ptr))
-	{
-		lev = a_info[o_ptr->artifact_index].level;
-
-		/* Wargear and light sources want to be activated */
-		if ((is_wargear(o_ptr) || (o_ptr->tval == TV_LITE)) && (lev > 10))
-		{
-			lev -= ((lev - 10) / 2);
-		}
-	}
-
-	/* Everything else except DSM uses the object level */
-	else if (o_ptr->tval != TV_DRAG_ARMOR)
-	{
-		lev = k_info[o_ptr->k_idx].level;
-
-		/* Wargear and light sources want to be activated */
-		if ((is_wargear(o_ptr) || (o_ptr->tval == TV_LITE)) && (lev > 15))
-		{
-			lev -= ((lev - 10) / 2);
-		}
-	}
-
-	/* Non-artifact dragon scale mail does not require special skills */
-	else
-	{
-		/* All characters eventually get perfect usage of DSM */
-		skill = div_round(p_ptr->power, 4);
-
-		lev = 0;
-	}
-
-	/*
-	 * Determine percentage chance of success.
-	 * Is perfect if skill is >= 25 above object level.
-	 */
-	if (skill < lev) chance = MAX(0, 20 + skill - lev);
-	else             chance = 20 + rsqrt((skill - lev) * 256);
-
-	/* Confusion or hallucination makes things harder */
-	if ((p_ptr->confused) || (p_ptr->image)) chance /= 2;
-
-	/* Berserk or necromantic rage makes things harder */
-	if ((p_ptr->berserk) || (p_ptr->necro_rage)) chance /= 2;
-
-	/* Stunning makes things a little harder */
-	if (p_ptr->stun) chance = (100 * chance) / (105 + p_ptr->stun);
-
-	/* Fear makes things a little harder */
-	if (p_ptr->afraid) chance -= chance / 5;
-
-	/* Blindness or lack of light makes things a little harder */
-	if ((p_ptr->blind) || (no_light())) chance -= chance / 4;
-
-	/* Set bounds */
-	if (chance < 0) chance = 0;
-	if (chance > 100) chance = 100;
-
-	return (chance);
-}
-
-
-/*
  * Use a staff, wand, or rod.
  */
 void use_device(int tval)
@@ -4277,11 +3879,8 @@ void use_device(int tval)
 	bool ident = FALSE;
 	bool used  = FALSE;
 
-	/* For ident purposes, necessary to keep track of all uses  -EFG- */
-	bool used_via_failure = FALSE;
-
 	int item;
-	int chance;
+	int skill, lev, chance;
 
 	object_type *o_ptr;
 	object_kind *k_ptr;
@@ -4309,29 +3908,13 @@ void use_device(int tval)
 	}
 	else if (tval == TV_WAND)
 	{
-		if (rogue_like_commands)
-		{
-			q = "Zap which wand?";
-			s = "You have no wand to zap.";
-		}
-		else
-		{
-			q = "Aim which wand?";
-			s = "You have no wand to aim.";
-		}
+		q = "Aim which wand?";
+		s = "You have no wand to aim.";
 	}
 	else if (tval == TV_ROD)
 	{
-		if (rogue_like_commands)
-		{
-			q = "Aim which rod?";
-			s = "You have no rod to aim.";
-		}
-		else
-		{
-			q = "Zap which rod?";
-			s = "You have no rod to zap.";
-		}
+		q = "Zap which rod?";
+		s = "You have no rod to zap.";
 	}
 	else
 	{
@@ -4340,11 +3923,10 @@ void use_device(int tval)
 	}
 
 
-	/* Get an item index */
+	/* Get an item */
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the actual object */
 	item_to_object(o_ptr, item);
+
 
 	/* Get the object kind */
 	k_ptr = &k_info[o_ptr->k_idx];
@@ -4359,12 +3941,10 @@ void use_device(int tval)
 	/* Notice that staffs or wands are empty - require knowledge */
 	if ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND))
 	{
-		if ((o_ptr->ident & (IDENT_EMPTY)) ||
-		    (object_known_p(o_ptr) && (!o_ptr->pval)))
+		if (o_ptr->ident & (IDENT_EMPTY))
 		{
 			if (flush_failure) flush();
-			msg_format("Your %s has no charges left.", p);
-			if (delay_failure) pause_for(250);
+			msg_format("Your %s is empty.", p);
 			return;
 		}
 	}
@@ -4377,7 +3957,6 @@ void use_device(int tval)
 		{
 			if (flush_failure) flush();
 			msg_print("The rod is still charging.");
-			if (delay_failure) pause_for(250);
 			return;
 		}
 
@@ -4387,100 +3966,88 @@ void use_device(int tval)
 		{
 			if (flush_failure) flush();
 			msg_print("The rods are all still charging.");
-			if (delay_failure) pause_for(250);
 			return;
 		}
 	}
 
+
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Calculate success chance */
-	chance = device_chance(o_ptr);
+
+	/* Get the character's skill */
+	skill = p_ptr->skill_dev;
+
+	/* Confusion and hallucination make things harder */
+	if ((p_ptr->confused) || (p_ptr->image)) skill /= 2;
+
+	/* Stunning makes things a little harder */
+	if (p_ptr->stun) skill -= p_ptr->stun / 2;
+
+	/* Blindness makes things a little harder */
+	if (p_ptr->blind) skill -= skill / 3;
+
+	/* Get the object level (no maximum) */
+	lev = k_info[o_ptr->k_idx].level;
+
+	/*
+	 * Determine percentage chance of success.
+	 * Is zero if skill is 10 below level, is perfect if it is 20 above.
+	 */
+	if (skill < lev) chance = 10 + skill - lev;
+	else             chance = 10 + rsqrt((skill - lev) * 405);
 
 	/* Roll for failure */
 	if (chance <= rand_int(100))
 	{
-		/* Optional flush on failure */
-		if (flush_failure) flush();
-
 		/* Staffs of Doomspells have a mind of their own. */
 		if ((o_ptr->tval == TV_STAFF) &&
 		    (o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(10)))
 		{
-			doomspells(one_in_(2), MAX(50, p_ptr->depth));
-			used_via_failure = TRUE;
-			ident = TRUE;
+			doomspells(one_in_(2));
 		}
 
 		/* Rods of Summon Hither summon regardless */
 		else if ((o_ptr->tval == TV_ROD) &&
 		         (o_ptr->sval == SV_ROD_SUMMON_HITHER))
 		{
-			used_via_failure = TRUE;
-
 			if (summon_specific(p_ptr->py, p_ptr->px, FALSE,
-				p_ptr->depth + 3, 0, 1))
+				p_ptr->depth + 3, 0))
 			{
 				if (!p_ptr->blind)
 				{
 					msg_print("A new opponent appears!");
-					ident = TRUE;
 				}
 			}
 		}
-
-		/* Other kinds of magical devices just sit there */
 		else
 		{
+			if (flush_failure) flush();
 			msg_format("You failed to use the %s properly.", p);
 		}
 
-		/* Optional delay */
-		if (delay_failure) pause_for(250);
-
-		/* Return -- unless device activates */
-		if (!used_via_failure)
-		{
-			/* Note total lack of chance.  -EFG- */
-			if (chance <= 0)
-			{
-				msg_format("You have no idea how to get the %s to work.", p);
-			}
-			return;
-		}
+		return;
 	}
 
 
 	/* Notice empty staffs or wands */
-	if ((!used_via_failure) &&
-	    ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)))
+	if ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND))
 	{
 		if (o_ptr->pval <= 0)
 		{
-			/* Optional flush on failure */
-			if (flush_failure) flush();
-
 			/* Staffs of Doomspells have a mind of their own. */
 			if ((o_ptr->sval == SV_STAFF_DOOMSPELLS) && (one_in_(10)))
 			{
-				doomspells(one_in_(2), MAX(50, p_ptr->depth));
-				used_via_failure = TRUE;
-				ident = TRUE;
+				doomspells(one_in_(2));
 			}
-
-			/* Other devices note that they are empty */
 			else
 			{
+				if (flush_failure) flush();
 				msg_format("The %s has no charges left.", p);
 				o_ptr->ident |= (IDENT_EMPTY);
 			}
 
-			/* Optional delay */
-			if (delay_failure) pause_for(250);
-
-			/* Return -- unless device activates */
-			if (!used_via_failure) return;
+			return;
 		}
 		else
 		{
@@ -4492,25 +4059,18 @@ void use_device(int tval)
 		p_ptr->window |= (PW_INVEN);
 	}
 
-	/* If item was not used through failure */
-	if (!used_via_failure)
+	/* Practice the device skill */
+	skill_being_used = S_DEVICE;
+
+	/* Use device */
+	(void)do_device(OBJECT_USE, o_ptr, &ident, &used, FALSE);
+
+	/* Note cancel */
+	if (!used)
 	{
-		/* Practice the device skill */
-		skill_being_used = S_DEVICE;
-
-		/* Use device */
-		(void)do_device(OBJECT_USE, o_ptr, &ident, &used, FALSE);
-
-		/* Note cancel */
-		if (!used)
-		{
-			/* Do not take a turn  XXX XXX */
-			p_ptr->energy_use = 0;
-			return;
-		}
-
-		/* Special message only prints once */
-		k_info[o_ptr->k_idx].special |= (SPECIAL_MESSAGE);
+		/* Do not take a turn  XXX XXX */
+		p_ptr->energy_use = 0;
+		return;
 	}
 
 
@@ -4523,37 +4083,8 @@ void use_device(int tval)
 		/* Newly learnt object */
 		if (!object_aware_p(o_ptr))
 		{
-			char o_name[DESC_LEN];
-
-			/* Become aware of the object's effects */
 			object_aware(o_ptr);
-
-			/* Describe only one, unflavoured, object */
-			object_desc_plural = -1;
-			object_desc_flavour = -1;
-
-			/* Describe the object (briefly) */
-			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
-
-
-			/* Gain experience - unsensed (or uncertain) device */
-			if (!(o_ptr->ident & (IDENT_SENSE)) ||
-			    (o_ptr->inscrip == INSCRIP_UNCERTAIN))
-			{
-				/* Message */
-				msg_format("You realize that you are using %s.  Your experience rises.", o_name);
-
-				gain_exp(MAX(1, k_ptr->level * k_ptr->level / 4), S_NOSKILL);
-			}
-
-			/* Gain experience - sensed device */
-			else
-			{
-				gain_exp(MAX(1, k_ptr->level / 4), S_NOSKILL);
-
-				/* Message */
-				msg_format("You realize that you are using %s.", o_name);
-			}
+			gain_exp(lev * lev / 2, S_NOSKILL);
 		}
 
 		/* Chance to learn more about (known) devices of this type */
@@ -4562,6 +4093,9 @@ void use_device(int tval)
 			learn_details(o_ptr);
 		}
 	}
+
+	/* Special message only prints once */
+	k_info[o_ptr->k_idx].special |= (SPECIAL_MESSAGE);
 
 
 	/* Combine / Reorder the pack (later) */
@@ -4575,8 +4109,8 @@ void use_device(int tval)
 	/* Use a staff or wand */
 	if ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND))
 	{
-		/* Use charge (if available) */
-		if (o_ptr->pval > 0) o_ptr->pval--;
+		/* Use charge */
+		o_ptr->pval--;
 
 		/* Describe charges in the pack */
 		if (item >= 0)
@@ -4632,10 +4166,10 @@ static void ring_of_power(int dir)
 		case 1:
 		{
 			/* Message */
-			msg_print("You are surrounded by a powerful aura!");
+			msg_print("You are surrounded by a powerful aura.");
 
 			/* Dispel monsters */
-			dispel_monsters(500);
+			dispel_monsters(800);
 
 			break;
 		}
@@ -4703,7 +4237,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 	{
 		case ACTIV_GALADRIEL:
 		{
-			dice = 4;     sides = p_ptr->power / 4;
+			dice = 4;     sides = 20;
 			timeout1 = 10;     timeout2 = 20;
 
 			if (info) return (format("illumination, burst of light (%dd%d damage), and some curing every %d-%d turns",
@@ -4718,15 +4252,12 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				/* Burst of light */
 				fire_star(GF_LITE_EXTRA, 0, damroll(dice, sides), 4);
 
-				/* Cure moderate fear, give a little boldness */
-				if (p_ptr->afraid <= 30)
-				{
-					set_afraid(0);
-					set_bold(15);
-				}
+				/* Cure moderate fear */
+				if (p_ptr->afraid < 30) set_afraid(0);
 
 				/* Cure minor blindness */
-				if (p_ptr->blind <= 15) set_blind(0, "The veil of darkness lifts.");
+				if (p_ptr->blind < 10)
+					set_blind(0, "The veil of darkness lifts.");
 			}
 			break;
 		}
@@ -4754,8 +4285,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("The stone glows a deep green...");
 
-				wiz_lite(FALSE, TRUE);
-				(void)detect_traps(TRUE, TRUE);
+				wiz_lite(FALSE);
+				(void)detect_traps(TRUE);
 				(void)detect_doors(TRUE);
 				(void)detect_stairs(TRUE);
 			}
@@ -4792,8 +4323,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		case ACTIV_INGWE:
 		{
-			timeout1 = 200;     timeout2 = 300;
-			dam = MAX(20, p_ptr->power * 2);
+			timeout1 = 200;     timeout2 = 400;
+			dam = p_ptr->power * 2;
 
 			if (info) return (format("dispel evil (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
@@ -4824,8 +4355,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		case ACTIV_NARYA:
 		{
-			timeout1 = 125;     timeout2 = 150;
-			dam = 225;
+			timeout1 = 125;     timeout2 = 250;
+			dam = 200;
 
 			if (info) return (format("large fire ball (%d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
@@ -4840,8 +4371,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		case ACTIV_NENYA:
 		{
-			timeout1 = 125;     timeout2 = 150;
-			dam = 250;
+			timeout1 = 125;     timeout2 = 250;
+			dam = 225;
 
 			if (info) return (format("large frost ball (%d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
@@ -4857,8 +4388,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		case ACTIV_VILYA:
 		{
-			timeout1 = 125;     timeout2 = 150;
-			dam = 275;
+			timeout1 = 125;     timeout2 = 250;
+			dam = 250;
 
 			if (info) return (format("large electricity ball (%d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
@@ -4888,7 +4419,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		case ACTIV_RAZORBACK:
 		{
-			timeout = 150;
+			timeout = 300;
 			dam = 120;
 
 			if (info) return (format("star ball (%d) every %d turns", dam, timeout));
@@ -4951,7 +4482,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("Your armor twists space around you...");
 
-				teleport_player(10, TRUE, FALSE);
+				teleport_player(10, TRUE);
 			}
 			break;
 		}
@@ -4965,11 +4496,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("Your armor glows deep blue...");
 
-				if (!genocide(0))
-				{
-					/* Only use object up if genocide goes off */
-					obj_used_up = FALSE;
-				}
+				(void)genocide(0);
 			}
 			break;
 		}
@@ -4988,13 +4515,13 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		case ACTIV_HIMRING:
 		{
-			dur1  = 35;      dur2  = 55;
+			dur1  = 25;      dur2  = 50;
 			timeout1 = 200;     timeout2 = 400;
 
 			if (info) return (format("protection from evil (duration %d-%d) every %d-%d turns", dur1, dur2, timeout1, timeout2));
 			if (act)
 			{
-				msg_print("The spirit of Himring surrounds you...");
+				msg_print("A shrill wailing sound surrounds you.");
 				(void)set_protevil(p_ptr->protevil + rand_range(dur1, dur2));
 			}
 			break;
@@ -5048,7 +4575,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				msg_print("Your shield gleams with blinding light...");
 
 				fire_ball_special(GF_LITE, 0, dam, 6, 0L, 20);
-				confu_monsters(80);
+				confu_monsters(70);
 			}
 			break;
 		}
@@ -5062,7 +4589,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("An image forms in your mind...");
 
-				(void)detect_all(TRUE, TRUE);
+				(void)detect_all(TRUE);
 			}
 			break;
 		}
@@ -5113,7 +4640,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("Your cloak glows deep blue...");
 
-				sleep_monsters_touch(50 + p_ptr->power);
+				sleep_monsters_touch(p_ptr->power);
 			}
 			break;
 		}
@@ -5127,7 +4654,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("Your cloak glows bright yellow...");
 
-				if (!recharge(170, FALSE)) timeout = 0;
+				recharge(170, FALSE);
 			}
 			break;
 		}
@@ -5141,7 +4668,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("Your cloak twists space around you...");
 
-				teleport_player(100, TRUE, FALSE);
+				teleport_player(100, TRUE);
 			}
 			break;
 		}
@@ -5150,7 +4677,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		{
 			timeout = 450;
 
-			if (info) return (format("restore skills every %d turns", timeout));
+			if (info) return (format("restore life levels every %d turns", timeout));
 			if (act)
 			{
 				msg_print("Your cloak glows a deep red...");
@@ -5174,12 +4701,11 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		case ACTIV_CAMMITHRIM:
 		{
-			timeout = 4;
-			dice = 5;     sides = (2 * p_ptr->power / 5);
+			dice = 5;     sides = 5 + p_ptr->power / 10;
 			if (p_ptr->cur_lite == 4) dice = 8;
-			if (p_ptr->cur_lite >= 5) dice = 10;
+			if (p_ptr->cur_lite >= 5) dice = 12;
 
-			if (info) return (format("bolt of light (%dd%d) every %d turns", dice, sides, timeout));
+			if (info) return (format("bolt of light (%dd%d) every turn", dice, sides));
 			if (act)
 			{
 				msg_print("Your gloves glow extremely brightly...");
@@ -5194,7 +4720,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->artifact_index];
 
-			dice  = a_ptr->set_bonus ? 10 : 5;     sides = 20;
+			dice  = a_ptr->set_bonus ? 10 : 5;     sides = 10;
 			timeout1 =  5;     timeout2 = 10;
 
 			if (info) return (format("lance of fire (damage %dd%d) every %d-%d turns.", dice, sides, timeout1, timeout2));
@@ -5212,7 +4738,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->artifact_index];
 
-			dice  = a_ptr->set_bonus ? 10 : 5;     sides = 20;
+			dice  = a_ptr->set_bonus ? 10 : 5;     sides = 10;
 			timeout1 =  5;     timeout2 = 10;
 
 			if (info) return (format("lance of cold (damage %dd%d) every %d-%d turns.", dice, sides, timeout1, timeout2));
@@ -5230,7 +4756,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->artifact_index];
 
-			dice  = a_ptr->set_bonus ? 10 : 5;     sides = 20;
+			dice  = a_ptr->set_bonus ? 10 : 5;     sides = 10;
 			timeout1 =  5;     timeout2 = 10;
 
 			if (info) return (format("spark of electricity (damage %dd%d) every %d-%d turns.", dice, sides, timeout1, timeout2));
@@ -5248,7 +4774,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->artifact_index];
 
-			dice  = a_ptr->set_bonus ? 10 : 5;     sides = 20;
+			dice  = a_ptr->set_bonus ? 10 : 5;     sides = 10;
 			timeout1 =  5;     timeout2 = 10;
 
 			if (info) return (format("lance of acid (damage %dd%d) every %d-%d turns.", dice, sides, timeout1, timeout2));
@@ -5328,13 +4854,12 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			dur = 30;
 			timeout1 = 100;     timeout2 = 150;
 
-			if (info) return (format("invisibility (duration %d) every %d-%d turns", dur, timeout1, timeout2));
+			if (info) return (format("enhanced stealth (duration %d) every %d-%d turns", dur, timeout1, timeout2));
 			if (act)
 			{
-				msg_print("Your dagger pulses...");
+				msg_print("Your dagger drones soothingly...");
 
-				(void)set_invis(p_ptr->tim_invis + dur,
-				                get_skill(S_STEALTH, 30, 40));
+				(void)set_tim_stealth(p_ptr->tim_stealth + dur);
 			}
 			break;
 		}
@@ -5371,7 +4896,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		case ACTIV_RINGIL:
 		{
-			timeout = 30;
+			timeout = 50;
 
 			if (info) return (format("explosion of light every %d turns", timeout));
 			if (act)
@@ -5420,9 +4945,9 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_AR_PHARAZON:
 		{
 			timeout = 17;
-			dam = 77;
+			dam = 50;
 
-			if (info) return (format("dispel animals (damage %d) every %d turns", dam, timeout));
+			if (info) return (format("dispel animals in line of fire (damage %d) every %d turns", dam, timeout));
 			if (act)
 			{
 				msg_print("Your blade gleams...");
@@ -5450,8 +4975,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		case ACTIV_AEGLOS:
 		{
-			timeout = 40;
-			dam = 125;
+			timeout = 50;
+			dam = 100;
 
 			if (info) return (format("dispel evil (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -5462,7 +4987,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 				if (p_ptr->realm == NECRO)
 				{
-					(void)take_hit(randint(100), 0, "Your black soul is hit!",
+					take_hit(randint(100), 0, "Your black soul is hit!",
 						"a self-inflicted dispel evil spell");
 				}
 			}
@@ -5583,7 +5108,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				/* (Copied) axe goes a-hunting */
 				slaughterfield((int)Rand_normal(damage, damage / 6), i_ptr);
 
-				/* Because the axe will be removed, we must stop here XXX XXX */
+				/* Because the axe will be removed, we must stop here */
 				return ("");
 			}
 			break;
@@ -5599,7 +5124,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				msg_print("Your flail glows in scintillating colours...");
 
 				if (!get_aim_dir(&dir)) return ("");
-				confuse_monster(dir, 40 + p_ptr->power / 2);
+				confuse_monster(dir, 70);
 			}
 			break;
 		}
@@ -5690,8 +5215,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("You strike your mace against the ground...");
 
-				destroy_area(py, px, 15, TRUE, FALSE);
-				(void)take_hit(damroll(5, 10), 0, "It hurts!", "activating Skullcleaver");
+				destroy_area(py, px, 15, TRUE);
+				take_hit(damroll(5, 10), 0, "It hurts!", "activating Skullcleaver");
 			}
 			break;
 		}
@@ -5740,7 +5265,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		case ACTIV_EREBOR:
 		{
-			timeout = 25;
+			timeout = 15;
 
 			if (info) return (format("travel instantly from one side of a wall to the other every %d turns", timeout));
 			if (act)
@@ -5758,7 +5283,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_FIRE1:
 		{
 			timeout1 = 7;     timeout2 = 14;
-			dice = 4 + p_ptr->power / 4;     sides = 8;
+			dice = 3 + p_ptr->power / 12;     sides = 8;
 
 			if (info) return (format("fire bolt (damage %dd%d) every %d-%d turns", dice, sides, timeout1, timeout2));
 			if (act)
@@ -5772,8 +5297,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_FIRE2:
 		{
-			timeout = 110;
-			dam = 40 + p_ptr->power;
+			timeout = 250;
+			dam = 80;
 
 			if (info) return (format("orb of fire (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -5787,8 +5312,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_FIRE3:
 		{
-			timeout = 150;
-			dam = 2 * p_ptr->power + 30;
+			timeout = 250;
+			dam = 150;
 
 			if (info) return (format("fire storm (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -5802,7 +5327,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_COLD1:
 		{
 			timeout1 = 7;     timeout2 = 14;
-			dice = 4 + p_ptr->power / 4;     sides = 8;
+			dice = 3 + p_ptr->power / 12;     sides = 8;
 
 			if (info) return (format("cold bolt (damage %dd%d) every %d-%d turns", dice, sides, timeout1, timeout2));
 			if (act)
@@ -5816,8 +5341,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_COLD2:
 		{
-			timeout = 110;
-			dam = 40 + p_ptr->power;
+			timeout = 250;
+			dam = 80;
 
 			if (info) return (format("orb of frost (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -5831,8 +5356,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_COLD3:
 		{
-			timeout = 150;
-			dam = 2 * p_ptr->power + 30;
+			timeout = 250;
+			dam = 150;
 
 			if (info) return (format("frost storm (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -5846,7 +5371,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_ACID1:
 		{
 			timeout1 = 7;     timeout2 = 14;
-			dice = 3 + p_ptr->power / 4;     sides = 8;
+			dice = 3 + p_ptr->power / 12;     sides = 8;
 
 			if (info) return (format("acid bolt (damage %dd%d) every %d-%d turns", dice, sides, timeout1, timeout2));
 			if (act)
@@ -5860,8 +5385,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_ACID2:
 		{
-			timeout = 110;
-			dam = 30 + p_ptr->power;
+			timeout = 250;
+			dam = 80;
 
 			if (info) return (format("orb of acid (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -5875,13 +5400,13 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_ACID3:
 		{
-			timeout = 150;
-			dam = 2 * p_ptr->power;
+			timeout = 250;
+			dam = 160;
 
 			if (info) return (format("acid storm (damage %d) every %d turns", dam, timeout));
 			if (act)
 			{
-				msg_print("A tornado of acid melts armor and flesh!");
+				msg_print("A tornado of acid melts armour and flesh!");
 
 				fire_ball_special(GF_ACID, 0, dam, 3, 0L, 20);
 			}
@@ -5890,7 +5415,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_ELEC1:
 		{
 			timeout1 = 7;     timeout2 = 14;
-			dice = 3 + p_ptr->power / 4;     sides = 8;
+			dice = 3 + p_ptr->power / 12;     sides = 8;
 
 			if (info) return (format("lightning bolt (damage %dd%d) every %d-%d turns", dice, sides, timeout1, timeout2));
 			if (act)
@@ -5904,8 +5429,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_ELEC2:
 		{
-			timeout = 110;
-			dam = 30 + p_ptr->power;
+			timeout = 250;
+			dam = 80;
 
 			if (info) return (format("orb of lightning (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -5919,9 +5444,9 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_ELEC3:
 		{
-			timeout = 150;
-			dam1 = 3 * p_ptr->power / 2;
-			dam2 = p_ptr->power / 2;
+			timeout = 250;
+			dam1 = 130;
+			dam2 = 25;
 
 			if (info) return (format("lightning strike (damage %d + %d) every %d turns", dam1, dam2, timeout));
 			if (act)
@@ -5936,7 +5461,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_POIS1:
 		{
 			timeout1 = 8;     timeout2 = 16;
-			dice = 4 + p_ptr->power / 4;     sides = 8;
+			dice = 4 + p_ptr->power / 10;     sides = 8;
 
 			if (info) return (format("poison dart (damage %dd%d) every %d-%d turns", dice, sides, timeout1, timeout2));
 			if (act)
@@ -5950,8 +5475,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_POIS2:
 		{
-			timeout = 120;
-			dam = 80 + 4 * p_ptr->power / 5;
+			timeout = 200;
+			dam = 110;
 
 			if (info) return (format("poison cloud (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -5965,7 +5490,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_LIGHT1:
 		{
 			timeout = 150;
-			dam1 = 40 + p_ptr->power / 2;     dam2 = 10 + p_ptr->power / 10;
+			dam1 = 50;     dam2 = 10;
 
 			if (info) return (format("blinding ball of light (damage %d + %d) every %d turns", dam1, dam2, timeout));
 			if (act)
@@ -5981,8 +5506,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_LIGHT2:
 		{
-			timeout = 150;
-			dam = 110 + p_ptr->power;
+			timeout = 300;
+			dam = 175;
 
 			if (info) return (format("dispel light-hating (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -5994,8 +5519,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_DISPEL_UNDEAD:
 		{
-			timeout = 80;
-			dam = 60 + 4 * p_ptr->power / 5;
+			timeout = 225;
+			dam = 120;
 
 			if (info) return (format("dispel undead (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -6007,8 +5532,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_DISPEL_EVIL:
 		{
-			timeout = 80;
-			dam = 60 + 3 * p_ptr->power / 5;
+			timeout = 300;
+			dam = 100;
 
 			if (info) return (format("dispel evil (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -6018,7 +5543,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 				if (p_ptr->realm == NECRO)
 				{
-					(void)take_hit(25, 0, "Your black soul is hit!", "struck down by Good");
+					take_hit(25, 0, "Your black soul is hit!", "struck down by Good");
 				}
 			}
 			break;
@@ -6026,7 +5551,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_SMITE_UNDEAD:
 		{
 			timeout = 50;
-			dice = MAX(1, p_ptr->power / 7);     sides = 33;
+			dice = p_ptr->power / 8;     sides = 33;
 
 			if (info) return (format("dispel an undead (damage %dd%d) every %d turns", dice, sides, timeout));
 			if (act)
@@ -6040,7 +5565,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_SMITE_DEMON:
 		{
 			timeout = 50;
-			dice = MAX(1, p_ptr->power / 7);     sides = 33;
+			dice = p_ptr->power / 8;     sides = 33;
 
 			if (info) return (format("dispel a demon (damage %dd%d) every %d turns", dice, sides, timeout));
 			if (act)
@@ -6054,7 +5579,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_SMITE_DRAGON:
 		{
 			timeout = 50;
-			dice = MAX(1, p_ptr->power / 7);     sides = 33;
+			dice = p_ptr->power / 8;     sides = 33;
 
 			if (info) return (format("dispel a dragon (damage %dd%d) every %d turns", dice, sides, timeout));
 			if (act)
@@ -6068,7 +5593,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_HOLY_ORB:
 		{
 			timeout = 50;
-			dam = 40 + 3 * p_ptr->power / 5;
+			dam = 60;
 
 			if (info) return (format("holy orb (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -6103,7 +5628,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("You reveal yourself in wrath...");
 
-				if (fear_monsters(10 + 4 * p_ptr->power / 5))
+				if (fear_monsters(3 * p_ptr->power / 4))
 				{
 					msg_print("Your enemies tremble!");
 				}
@@ -6194,9 +5719,9 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_CHAOS:
 		{
-			timeout = 100;
-			pow = 15 + p_ptr->power / 10;
-			dam = 20 + p_ptr->power / 5;
+			timeout = 150;
+			pow = 20;
+			dam = 40;
 
 			if (info) return (format("explosion of chaos (%d x %d damage) every %d turns", pow, dam, timeout));
 			if (act)
@@ -6208,8 +5733,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_SHARD_SOUND:
 		{
-			timeout = 75;
-			dam = 90 + p_ptr->power;
+			timeout = 125;
+			dam = 150;
 
 			if (info) return (format("shard or sound ball (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -6231,7 +5756,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_RANDOM_NETHR:
 		{
 			timeout = 65;
-			dam = 80 + p_ptr->power;
+			dam = 100;
 
 			if (info) return (format("nether orb (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -6257,8 +5782,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_STARBURST:
 		{
-			timeout = 65;
-			dam = 60 + p_ptr->power;
+			timeout = 100;
+			dam = 120;
 
 			if (info) return (format("starburst (damage %d) every %d turns", dam, timeout));
 			if (act)
@@ -6352,7 +5877,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 				if (one_in_(2))
 				{
-					(void)take_hit(damroll(1, 12), 0,
+					take_hit(damroll(1, 12), 0,
 						"Your wild movements exhaust you!", "danced to death");
 				}
 			}
@@ -6360,7 +5885,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_RESIST_ELEMENTS:
 		{
-			timeout1 = 150;     timeout2 = 400;
+			timeout1 = 200;     timeout2 = 400;
 			dur1 = 20;     dur2 = 40;
 
 			if (info) return (format("resistance to the elements (duration %d-%d) every %d-%d turns", dur1, dur2, timeout1, timeout2));
@@ -6368,7 +5893,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				dur = rand_range(dur1, dur2);
 
-				msg_print("Quadricoloured magics swirl around you protectingly.");
+				msg_print("Quadricolored magics swirl around you protectingly.");
 				(void)set_oppose_acid(p_ptr->oppose_acid + dur);
 				(void)set_oppose_elec(p_ptr->oppose_elec + dur);
 				(void)set_oppose_fire(p_ptr->oppose_fire + dur);
@@ -6378,7 +5903,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_RESIST_ALL:
 		{
-			timeout1 = 150;     timeout2 = 300;
+			timeout1 = 200;     timeout2 = 400;
 			dur1 = 20;     dur2 = 40;
 
 			if (info) return (format("resistance (%d-%d turns) every %d-%d turns", dur1, dur2, timeout1, timeout2));
@@ -6386,7 +5911,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				dur = rand_range(dur1, dur2);
 
-				msg_print("Penticoloured magics swirl around you protectingly.");
+				msg_print("Penticolored magics swirl around you protectingly.");
 				(void)set_oppose_acid(p_ptr->oppose_acid + dur);
 				(void)set_oppose_elec(p_ptr->oppose_elec + dur);
 				(void)set_oppose_fire(p_ptr->oppose_fire + dur);
@@ -6404,7 +5929,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (act)
 			{
 				msg_print("You pass through a transparent gateway...");
-				teleport_player(pow, TRUE, FALSE);
+				teleport_player(pow, TRUE);
 			}
 			break;
 		}
@@ -6416,8 +5941,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (info) return (format("teleport (%d) every %d-%d turns", pow, timeout1, timeout2));
 			if (act)
 			{
-				msg_print("Time and space twist about you...");
-				teleport_player(pow, TRUE, FALSE);
+				msg_print("timeout and space twist about you...");
+				teleport_player(pow, TRUE);
 			}
 			break;
 		}
@@ -6492,7 +6017,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			}
 			break;
 		}
-		case ACTIV_RANDOM_DEADLY_SHOOTING:
+		case ACTIV_RANDOM_SUPER_SHOOTING:
 		{
 			timeout1 = 20;     timeout2 = 40;
 
@@ -6501,9 +6026,13 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				/* Get the correct name for the missile, if possible. */
 				cptr missile_name = "missile";
-				if (o_ptr->tval == TV_CROSSBOW) missile_name = "bolt";
-				if (o_ptr->tval == TV_BOW)      missile_name = "arrow";
-				if (o_ptr->tval == TV_SLING)    missile_name = "shot";
+				if ((o_ptr->sval == SV_LIGHT_XBOW) ||
+					(o_ptr->sval == SV_HEAVY_XBOW))
+					missile_name = "bolt";
+				if ((o_ptr->sval == SV_LONG_BOW) ||
+					(o_ptr->sval == SV_LONG_BOW))
+					missile_name = "arrow";
+				if (o_ptr->sval == SV_SLING) missile_name = "shot";
 
 				msg_format("The %s you have ready to hand gleams with deadly power.", missile_name);
 				p_ptr->special_attack |= (ATTACK_DEADLY);
@@ -6519,7 +6048,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("You search for monsters.");
 
-				(void)detect_monsters_normal(FALSE, TRUE);
+				(void)detect_monsters_normal(FALSE);
 			}
 			break;
 		}
@@ -6532,7 +6061,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("You hunt for evil creatures...");
 
-				(void)detect_evil(FALSE, TRUE);
+				(void)detect_evil(FALSE);
 			}
 			break;
 		}
@@ -6545,7 +6074,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("You sense the dungeon around you.");
 
-				(void)detect_all(FALSE, TRUE);
+				(void)detect_all(FALSE);
 			}
 			break;
 		}
@@ -6564,12 +6093,12 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		}
 		case ACTIV_RANDOM_DETECT_D_S_T:
 		{
-			timeout1 = 30;     timeout2 = 45;
+			timeout1 = 15;     timeout2 = 30;
 
 			if (info) return (format("detect traps, doors, and stairs every %d-%d turns", timeout1, timeout2));
 			if (act)
 			{
-				(void)detect_traps(FALSE, TRUE);
+				(void)detect_traps(FALSE);
 				(void)detect_doors(FALSE);
 				(void)detect_stairs(FALSE);
 			}
@@ -6585,7 +6114,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				msg_print("You chant runes of confusing...");
 
 				if (!get_aim_dir(&dir)) return ("");
-				(void)confuse_monster(dir, 30 + 2 * p_ptr->power / 3);
+				(void)confuse_monster(dir, 4 * p_ptr->power / 5);
 			}
 			break;
 		}
@@ -6599,7 +6128,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				msg_print("A fine dust appears in your hand, and you throw it...");
 
 				if (!get_aim_dir(&dir)) return ("");
-				(void)sleep_monster(dir, 30 + 2 * p_ptr->power / 3);
+				(void)sleep_monster(dir, 4 * p_ptr->power / 5);
 			}
 			break;
 		}
@@ -6613,7 +6142,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				msg_print("You lock eyes with an enemy...");
 
 				if (!get_aim_dir(&dir)) return ("");
-				(void)fear_monster(dir, 30 + 2 * p_ptr->power / 3);
+				(void)fear_monster(dir, 4 * p_ptr->power / 5);
 			}
 			break;
 		}
@@ -6627,7 +6156,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				msg_print("You focus on the mind of an opponent...");
 
 				if (!get_aim_dir(&dir)) return ("");
-				(void)slow_monster(dir, 30 + 2 * p_ptr->power / 3);
+				(void)slow_monster(dir, 4 * p_ptr->power / 5);
 			}
 			break;
 		}
@@ -6667,7 +6196,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("You intone a bewildering hex...");
 
-				(void)confu_monsters(15 + 4 * p_ptr->power / 5);
+				(void)confu_monsters(7 * p_ptr->power / 10);
 			}
 			break;
 		}
@@ -6680,7 +6209,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("Soft, soothing music washes over you...");
 
-				(void)sleep_monsters(15 + 4 * p_ptr->power / 5);
+				(void)sleep_monsters(3 * p_ptr->power / 4);
 			}
 			break;
 		}
@@ -6693,7 +6222,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("You reveal yourself in wrath!");
 
-				(void)fear_monsters(15 + 4 * p_ptr->power / 5);
+				(void)fear_monsters(3 * p_ptr->power / 4);
 			}
 			break;
 		}
@@ -6706,7 +6235,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				msg_print("A opaque cloud blankets the area...");
 
-				(void)slow_monsters(15 + 4 * p_ptr->power / 5);
+				(void)slow_monsters(3 * p_ptr->power / 4);
 			}
 			break;
 		}
@@ -6719,7 +6248,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (info) return (format("go berserk (duration %d-%d) every %d turns", dur1, dur2, timeout));
 			if (act)
 			{
-				msg_print("A song of wrath sounds!");
+				msg_print("A song of wrath sounds...");
 
 				set_berserk(BERSERK_WEAKNESS_LENGTH + rand_range(dur1, dur2));
 			}
@@ -6734,17 +6263,6 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (act)
 			{
 				lite_area(0, 3);
-			}
-			break;
-		}
-		case ACTIV_RANDOM_SELF_KNOWLEDGE:
-		{
-			if (info) return ("Grants perfect self knowledge for a brief time.");
-			if (act)
-			{
-				set_self_knowledge(p_ptr->self_knowledge + 3,
-					"You begin to know yourself a little better...");
-				self_knowledge(TRUE);
 			}
 			break;
 		}
@@ -6777,7 +6295,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 
 		/* Activations for missile launchers. */
 		case ACTIV_SHOT_PIERCING:
-		case ACTIV_SHOT_DAMAGE:
+		case ACTIV_SHOT_DEADLY:
 		case ACTIV_SHOT_IMPACT:
 		case ACTIV_SHOT_ACCURATE:
 		case ACTIV_SHOT_FIRE:
@@ -6791,13 +6309,13 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				timeout1 = 10;    timeout2 = 20;
 			}
 			else if ((o_ptr->activate == ACTIV_SHOT_IMPACT) ||
-			         (o_ptr->activate == ACTIV_SHOT_DAMAGE))
+			         (o_ptr->activate == ACTIV_SHOT_DEADLY))
 			{
 				timeout1 = 20;    timeout2 = 40;
 			}
 			else
 			{
-				timeout1 = 25;    timeout2 = 50;
+				timeout1 = 30;    timeout2 = 60;
 			}
 
 			if (info)
@@ -6807,8 +6325,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				/* Get the information text */
 				if (o_ptr->activate == ACTIV_SHOT_PIERCING)
 					str = "a shot that can pierce more than one foe";
-				else if (o_ptr->activate == ACTIV_SHOT_DAMAGE)
-					str = "an especially damaging shot";
+				else if (o_ptr->activate == ACTIV_SHOT_DEADLY)
+					str = "an especially deadly shot";
 				else if (o_ptr->activate == ACTIV_SHOT_IMPACT)
 					str = "an shot that can hurl opponents back";
 				else if (o_ptr->activate == ACTIV_SHOT_ACCURATE)
@@ -6827,15 +6345,20 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			{
 				/* Get the correct name for the missile, if possible. */
 				cptr missile_name = "missile";
-				if (o_ptr->tval == TV_CROSSBOW) missile_name = "bolt";
-				if (o_ptr->tval == TV_BOW)      missile_name = "arrow";
-				if (o_ptr->tval == TV_SLING)    missile_name = "shot";
+				if ((o_ptr->sval == SV_LIGHT_XBOW) ||
+					(o_ptr->sval == SV_HEAVY_XBOW))
+					missile_name = "bolt";
+				if ((o_ptr->sval == SV_LONG_BOW) ||
+					(o_ptr->sval == SV_LONG_BOW))
+					missile_name = "arrow";
+				if (o_ptr->sval == SV_SLING) missile_name = "shot";
+
 
 				/* Apply special attack */
 				if (o_ptr->activate == ACTIV_SHOT_PIERCING)
 					p_ptr->special_attack |= (ATTACK_PIERCING);
-				else if (o_ptr->activate == ACTIV_SHOT_DAMAGE)
-					p_ptr->special_attack |= (ATTACK_DAMAGE);
+				else if (o_ptr->activate == ACTIV_SHOT_DEADLY)
+					p_ptr->special_attack |= (ATTACK_DEADLY);
 				else if (o_ptr->activate == ACTIV_SHOT_IMPACT)
 					p_ptr->special_attack |= (ATTACK_IMPACT);
 				else if (o_ptr->activate == ACTIV_SHOT_ACCURATE)
@@ -6848,8 +6371,8 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				/* Print message */
 				if (o_ptr->activate == ACTIV_SHOT_PIERCING)
 					msg_format("The %s you have ready to hand gleams dangerously.", missile_name);
-				else if (o_ptr->activate == ACTIV_SHOT_DAMAGE)
-					msg_format("The %s you have ready to hand glitters darkly.", missile_name);
+				else if (o_ptr->activate == ACTIV_SHOT_DEADLY)
+					msg_format("The %s you have ready to hand gleams with deadly power.", missile_name);
 				else if (o_ptr->activate == ACTIV_SHOT_IMPACT)
 					msg_format("The %s you have ready to hand glows with pure force.", missile_name);
 				else if (o_ptr->activate == ACTIV_SHOT_ACCURATE)
@@ -6860,12 +6383,6 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 					msg_format("The %s you have ready to hand becomes terribly cold.", missile_name);
 				else
 					msg_print("This activation is undefined.");
-
-				/* Print "special attacks" */
-				left_panel_display(DISPLAY_SPECIAL_ATTACK, 0);
-
-				/* Redraw conditions status */
-				p_ptr->redraw |= (PR_CONDITIONS);
 			}
 			break;
 		}
@@ -6966,7 +6483,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (act)
 			{
 				msg_print("Tasty food fills your belly.");
-				(void)set_food(p_ptr->food_bloated - 50);
+				(void)set_food(p_ptr->food_bloated - 1);
 			}
 			break;
 		}
@@ -6980,7 +6497,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				pow, timeout1, timeout2));
 			if (act)
 			{
-				teleport_player(pow, TRUE, FALSE);
+				teleport_player(pow, TRUE);
 			}
 			break;
 		}
@@ -7016,11 +6533,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (info) return (format("recharge magical device every %d-%d turns", timeout1, timeout2));
 			if (act)
 			{
-				if (!recharge(get_skill(S_DEVICE, 90, 140), FALSE))
-				{
-					timeout1 = 0;
-					timeout2 = 0;
-				}
+				recharge(get_skill(S_DEVICE, 90, 140), FALSE);
 			}
 			break;
 		}
@@ -7030,15 +6543,15 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_BLACK:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 20 + 2*p_ptr->power;
+			dam = 130;
 
 			if (info) return (format("breathe acid (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				message(MSG_BR_ACID, 0, "You breathe acid.");
-				fire_arc(GF_ACID, dir, dam, 10, 50);
+				msg_print("You breathe acid.");
+				fire_arc(GF_ACID, dir, dam, 10, 40);
 			}
 			break;
 		}
@@ -7046,15 +6559,15 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_BLUE:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 20 + 2*p_ptr->power;
+			dam = 130;
 
 			if (info) return (format("breathe lightning (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				message(MSG_BR_ELEC, 0, "You breathe lightning.");
-				fire_arc(GF_ELEC, dir, dam, 10, 50);
+				msg_print("You breathe lightning.");
+				fire_arc(GF_ELEC, dir, dam, 10, 40);
 			}
 			break;
 		}
@@ -7062,15 +6575,15 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_WHITE:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 20 + 2*p_ptr->power;
+			dam = 140;
 
 			if (info) return (format("breathe frost (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				message(MSG_BR_FROST, 0, "You breathe frost.");
-				fire_arc(GF_COLD, dir, dam, 10, 50);
+				msg_print("You breathe frost.");
+				fire_arc(GF_COLD, dir, dam, 10, 40);
 			}
 			break;
 		}
@@ -7078,15 +6591,15 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_RED:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 30 + 2*p_ptr->power;
+			dam = 160;
 
 			if (info) return (format("breathe fire (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				message(MSG_BR_FIRE, 0, "You breathe fire.");
-				fire_arc(GF_FIRE, dir, dam, 10, 50);
+				msg_print("You breathe fire.");
+				fire_arc(GF_FIRE, dir, dam, 10, 40);
 			}
 			break;
 		}
@@ -7094,15 +6607,15 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_GREEN:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 20 + 2*p_ptr->power;
+			dam = 130;
 
 			if (info) return (format("breathe poison gas (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				message(MSG_BR_GAS, 0, "You breathe poison.");
-				fire_arc(GF_POIS, dir, dam, 10, 80);
+				msg_print("You breathe poison.");
+				fire_arc(GF_POIS, dir, dam, 10, 60);
 			}
 			break;
 		}
@@ -7110,27 +6623,23 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_MULTIHUED:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 40 + 2*p_ptr->power;
+			dam = 175;
 
 			if (info) return (format("breathe an element or poison (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 				chance = rand_int(5);
-				sound(   ((chance == 1) ? MSG_BR_ELEC :
-				          ((chance == 2) ? MSG_BR_FROST :
-				           ((chance == 3) ? MSG_BR_ACID :
-				            ((chance == 4) ? MSG_BR_GAS : MSG_BR_FIRE)))));
 				msg_format("You breathe %s.",
-						 ((chance == 1) ? "lightning" :
-						  ((chance == 2) ? "frost" :
-						  ((chance == 3) ? "acid" :
-						   ((chance == 4) ? "poison gas" : "fire")))));
+						((chance == 1) ? "lightning" :
+						((chance == 2) ? "frost" :
+						((chance == 3) ? "acid" :
+						((chance == 4) ? "poison gas" : "fire")))));
 				fire_arc(((chance == 1) ? GF_ELEC :
-						  ((chance == 2) ? GF_COLD :
-						   ((chance == 3) ? GF_ACID :
-						    ((chance == 4) ? GF_POIS : GF_FIRE)))),
-						dir, dam, 10, 50);
+						((chance == 2) ? GF_COLD :
+						((chance == 3) ? GF_ACID :
+						((chance == 4) ? GF_POIS : GF_FIRE)))),
+						dir, dam, 10, 40);
 			}
 			break;
 		}
@@ -7138,7 +6647,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_SHINING:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 2*p_ptr->power;
+			dam = 150;
 
 			if (info) return (format("breathe light or darkness (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
@@ -7146,11 +6655,10 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				if (!get_aim_dir(&dir)) return ("");
 
 				chance = rand_int(2);
-				sound(chance == 0 ? MSG_BR_LIGHT : MSG_BR_DARK);
 				msg_format("You breathe %s.",
 						  ((chance == 0 ? "light" : "darkness")));
 				fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir,
-						dam, 10, 50);
+						dam, 10, 40);
 			}
 			break;
 		}
@@ -7173,15 +6681,15 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_BRONZE:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 30 + 3 * p_ptr->power / 2;
+			dam = 100;
 
 			if (info) return (format("breathe confusion (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				message(MSG_BR_CONF, 0, "You breathe confusion.");
-				fire_arc(GF_CONFUSION, dir, dam, 10, 50);
+				msg_print("You breathe confusion.");
+				fire_arc(GF_CONFUSION, dir, dam, 10, 40);
 			}
 			break;
 		}
@@ -7189,15 +6697,15 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_GOLD:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 2*p_ptr->power;
+			dam = 150;
 
 			if (info) return (format("breathe sound (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				message(MSG_BR_SOUND, 0, "You breathe sound.");
-				fire_arc(GF_SOUND, dir, dam, 10, 65);
+				msg_print("You breathe sound.");
+				fire_arc(GF_SOUND, dir, dam, 10, 40);
 			}
 			break;
 		}
@@ -7205,7 +6713,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_CHAOS:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 50 + 2*p_ptr->power;
+			dam = 180;
 
 			if (info) return (format("breathe chaos or disenchant (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
@@ -7213,11 +6721,10 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				if (!get_aim_dir(&dir)) return ("");
 
 				chance = rand_int(3);
-				sound(chance != 0 ? MSG_BR_CHAOS : MSG_BR_DISENCHANT);
 				msg_format("You breathe %s.",
 					((chance != 0 ? "chaos" : "disenchantment")));
-				fire_arc((chance != 0 ? GF_CHAOS : GF_DISENCHANT),
-						dir, dam, 10, 50);
+				fire_arc((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
+						dir, dam, 10, 40);
 			}
 			break;
 		}
@@ -7225,7 +6732,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_LAW:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 50 + 2*p_ptr->power;
+			dam = 190;
 
 			if (info) return (format("breathe sound or shards (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
@@ -7233,11 +6740,10 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				if (!get_aim_dir(&dir)) return ("");
 
 				chance = rand_int(2);
-				sound(chance == 1 ? MSG_BR_SOUND : MSG_BR_SHARDS);
 				msg_format("You breathe %s.",
 					((chance == 1 ? "sound" : "shards")));
 				fire_arc((chance == 1 ? GF_SOUND : GF_SHARD),
-						dir, dam, 10, 50);
+						dir, dam, 10, 40);
 			}
 			break;
 		}
@@ -7245,7 +6751,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_BALANCE:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 70 + 2*p_ptr->power;
+			dam = 210;
 
 			if (info) return (format("breathe sound, shards, chaos, or disenchantment (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
@@ -7253,17 +6759,14 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 				if (!get_aim_dir(&dir)) return ("");
 
 				chance = rand_int(4);
-				sound(   ((chance == 1) ? MSG_BR_CHAOS :
-				          ((chance == 2) ? MSG_BR_DISENCHANT :
-				           ((chance == 3) ? MSG_BR_SOUND : MSG_BR_SHARDS))));
 				msg_format("You breathe %s.",
-				         ((chance == 1) ? "chaos" :
-				          ((chance == 2) ? "disenchantment" :
-				           ((chance == 3) ? "sound" : "shards"))));
+					((chance == 1) ? "chaos" :
+						((chance == 2) ? "disenchantment" :
+						((chance == 3) ? "sound" : "shards"))));
 				fire_arc(((chance == 1) ? GF_CHAOS :
-				          ((chance == 2) ? GF_DISENCHANT :
-				           ((chance == 3) ? GF_SOUND : GF_SHARD))),
-						dir, 210, 10, 50);
+						((chance == 2) ? GF_DISENCHANT :
+						((chance == 3) ? GF_SOUND : GF_SHARD))),
+						dir, 210, 10, 40);
 			}
 			break;
 		}
@@ -7271,15 +6774,15 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 		case ACTIV_DSM_POWER:
 		{
 			timeout1 = 120;     timeout2 = 160;
-			dam = 70 + 2*p_ptr->power;
+			dam = 250;
 
 			if (info) return (format("breathe the elements (damage %d) every %d-%d turns", dam, timeout1, timeout2));
 			if (act)
 			{
 				if (!get_aim_dir(&dir)) return ("");
 
-				message(MSG_BR_ELEMENTS, 0, "You breathe the elements.");
-				fire_arc(GF_MANA, dir, dam, 10, 50);
+				msg_print("You breathe the elements.");
+				fire_arc(GF_MANA, dir, dam, 10, 40);
 			}
 			break;
 		}
@@ -7309,21 +6812,17 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 /*
  * Activate a wielded object.
  *
- * The player has a (4%) chance to learn more about any dragon armor
+ * The player has a (4%) chance to learn more about any dragon armour
  * activation.  If he does, detailed information about it will appear
  * when the item is 'I'nspected.  -LM-
  *
  * Note that it always takes a turn to activate an artifact, even if
- * the user hits "escape" when asked for a direction.
- *
- * We do not allow items to be activated from inventory, even though
- * that would be more convenient, because it just feels weird to be
- * able to zap DSM like rods.
+ * the user hits "escape" at the "direction" prompt.
  */
 void do_cmd_activate(void)
 {
 	int item;
-	int chance;
+	int skill, lev, chance;
 
 	object_type *o_ptr;
 	object_kind *k_ptr;
@@ -7337,36 +6836,70 @@ void do_cmd_activate(void)
 	/* Get an item */
 	q = "Activate which item?";
 	s = "You have nothing to activate.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 	item_to_object(o_ptr, item);
 
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Calculate success chance */
-	chance = device_chance(o_ptr);
 
-	/* Note total lack of chance */
-	if (chance <= 0)
+
+	/* Get the character's skill */
+	skill = p_ptr->skill_dev;
+
+	/* Confusion and hallucination make things harder */
+	if ((p_ptr->confused) || (p_ptr->image)) skill /= 2;
+
+	/* Stunning makes things a little harder */
+	if (p_ptr->stun) skill -= p_ptr->stun / 2;
+
+	/* Blindness makes things a little harder */
+	if (p_ptr->blind) skill -= skill / 3;
+
+
+	/* Object is an artifact - use artifact level */
+	if (artifact_p(o_ptr))
 	{
-		char o_name[DESC_LEN];
+		lev = a_info[o_ptr->artifact_index].level;
 
-		/* Describe the object briefly (without the flavour) */
-		object_desc_flavour = -1;
-		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
-
-		/* Message */
-		msg_format("You have no idea how to get the %s to work.", o_name);
-		return;
+		/* Artifact weapons, armour, and light sources want to be activated */
+		if (is_wargear(o_ptr) || (o_ptr->tval == TV_LITE))
+		{
+			lev /= 3;
+		}
 	}
+
+	/* Otherwise, use the object level */
+	else
+	{
+		lev = k_info[o_ptr->k_idx].level;
+
+		/* Dragon scale mail does not require magical device skill */
+		if (o_ptr->tval == TV_DRAG_ARMOR)
+		{
+			lev = 0;
+			skill = 5 + p_ptr->power / 10;
+		}
+	}
+
+	/* Never get too difficult */
+	if (lev > 80) lev = 80;
+
+
+	/*
+	 * Determine percentage chance of success.
+	 * Is zero if skill is 10 below level, is perfect if it is 15 above.
+	 */
+	if (skill < lev) chance = 10 + skill - lev;
+	else             chance = 10 + rsqrt((skill - lev) * 540);
 
 	/* Roll for failure */
 	if (chance <= rand_int(100))
 	{
 		if (flush_failure) flush();
 
-		/* The One Ring does not like incompetence */
+		/* The One Ring does not like incompetance */
 		if (o_ptr->activate == ACTIV_POWER)
 		{
 			/* Oh no. */
@@ -7387,15 +6920,10 @@ void do_cmd_activate(void)
 			check_experience();
 		}
 
-		/* Other activatables do nothing special */
 		else
 		{
 			msg_print("You failed to activate it properly.");
 		}
-
-		/* Optional delay */
-		if (delay_failure) pause_for(250);
-
 		return;
 	}
 
@@ -7424,22 +6952,14 @@ void do_cmd_activate(void)
 			check_experience();
 		}
 
-		/* Other items just fail (but you don't lose your turn) */
-		else
-		{
-			msg_print("It whines, glows and fades...");
-			p_ptr->energy_use = 0;
-		}
-
-		/* Optional delay */
-		if (delay_failure) pause_for(250);
-
+		/* Other items just fail */
+		msg_print("It whines, glows and fades...");
 		return;
 	}
 
 
 	/* Wonder Twin Powers... Activate! */
-	message(MSG_ACT_ARTIFACT, 0, "You activate it...");
+	message(MSG_ZAP, 0, "You activate it...");
 
 	/* Practice the device skill */
 	skill_being_used = S_DEVICE;
@@ -7479,7 +6999,7 @@ void do_cmd_activate(void)
 	if ((object_known_p(o_ptr)) &&
 	    (!(k_ptr->special & (SPECIAL_KNOWN_EFFECT))))
 	{
-		/* Any weapon or armor is easy to learn */
+		/* Any weapon or armour is easy to learn */
 		if (is_wargear(o_ptr))
 		{
 			chance = get_skill(S_PERCEPTION, 20, 70);
@@ -7522,10 +7042,10 @@ void do_cmd_activate(void)
 			/* An artifact */
 			else
 			{
-				char o_name[DESC_LEN];
+				char o_name[120];
 
 				/* Get a description */
-				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
+				object_desc(o_name, o_ptr, FALSE, 3);
 
 				msg_format("You feel you know more about the %s.", o_name);
 			}

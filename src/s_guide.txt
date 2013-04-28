@@ -1,36 +1,18 @@
 
-Valid for Sangband 1.0.0  (April, 2007)
+Valid for Sangband 1.0.0
 
 
+See the /src/system folder for system-specific files.
 
-
-#
-# Useful headers
-#
-
-config.h
-/* Compilation options.
-
-defines.h
-/* Most everything that's in UPPERCASE is defined here.
-
-externs.h
-/* Global variable and function definitions.  A ready map of the code.
-
-
-
-
-#
-# Basic game module
-#
 
 attack.c
 /*
  * The non-magical attack code.
  *
- * Hit chance.  Monster resist/evade, effects of terrain.  Critical hits
- * in melee and when shooting/throwing, the effects of weapon attributes.
- * Martial arts, shield bashing, melee attacks.  Archery.  Throwing.
+ * Hit chance, critical hits in melee and when shooting/throwing, calculate
+ * slays,/brands/resists.  Martial arts.   Deadliness adjustment, shield
+ * bashes, melee attacks.  Chance of object breakage, the shooting code, the
+ * throwing code.
 
 birth.c
 /*
@@ -38,46 +20,44 @@ birth.c
  *
  * Character histories, roll for stats and base hitpoints, determine
  * age/height/weight and starting gold.  Reset all character information.
- * Display birth options, quick-start, ask birth questions.  Roll and
- * auto-roll for stats.  Initialize and create a new character.
+ * Display birtht options, quick-start, ask birth questions.  Roll and
+ * auto-roll for stats.  Create a new character.
 
 cave.c
 /*
  * Cave grid display and manipulation.
  *
- * Distance, darkness checks.  Multi-hued monsters and objects, hallucination.
- * Display a dungeon grid.  Move cursor to a map location, mark and redraw
- * grids, change a dungeon feature.  Update grid, Print the main map and the
- * reduced map. Line of sight, field of view, line of fire, projection paths.
- * Monster flow (sound and scent). Magic mapping, wizard light and forgetting,
- * the temp array code.   Find a random location, track a monster/object,
- * disturbance.
+ * Distance, etc.  Multi-hued monsters, hallucination.  Display a dungeon
+ * grid.  Move cursor to a map location, mark and redraw grids.  Print the
+ * main map and the reduced map.  Line of sight, line of fire, projection
+ * paths.  Monster flow (sound and scent).  Magic mapping, wizard light and
+ * forgetting.  Change a dungeon feature, find a random location, track a
+ * monster, handle disturb.
 
 cmd1.c
 /*
  * Searching for traps, doors, and essences.  Pickup.  Move player
- * (terrain effects), the running code.
+ * (terrain effects), the running code. 
 
 cmd2.c
 /*
  * Go up and down stairs, toggle sneaking.  Handle chests.  Handle doors,
- * tunnel, disarm, bash, alter a grid, and spike.  Movement and resting
- * commands.
+ * tunnel, disarm, bash, alter a grid, and spike.  Walk, run, stay still,
+ * pickup, and rest.
 
 cmd3.c
 /*
  * Display inventory and equipment.  Wear and remove equipment.  Drop and
- * destroy.  Inspecting, inscribing, refueling and lighting objects.  Learn
- * about a symbol.  Stealing and trap setting.
+ * destroy.  Inspecting, inscribing, refueling objects.  Learn about a
+ * symbol.  Stealing and trap setting.
 
 cmd4.c
 /*
  * Redraw the screen, change character name, display previous messages.
- * Interact with options.  Code to generate preference files.  Interact
- * with macros, visuals, colors.  Take notes, display level feeling and
- * quests, save and load screen dumps.  Interact with the character
- * knowledge menu (Display score, known objects, monsters, and artifacts,
- * contents of the home, kill count, and quests).
+ * Interact with options, macros, visuals, colors.  Take notes, display
+ * level feeling and quests, save and load screen dumps.  Interact with
+ * the character knowledge menu (Display score, known objects, monsters,
+ * and artifacts, contents of the home, kill count, and quests).
 
 cmd5.c
 /*
@@ -85,17 +65,14 @@ cmd5.c
 
 cmd6.c
 /*
- * Effects and extra information on individual food and mushrooms,
- * potions, scrolls, staffs, wands, and rods.  Chance to get extra object
- * information.  Use objects, use magical devices.  Activation effects
- * and extra information, activate an item.
+ * What happens when you eat food, quaff potions, read scrolls, use magical
+ * devices, or activate things.
 
 dungeon.c
 /*
- * Regenerate hitpoints and mana.  Handle the passage of time.  Special events.
- * Enter wizard, debug, and borg modes.  Process commands.  Visual refreshes.
- * Handle a character's turn.  Interact with the current dungeon level.  Play
- * a game.
+ * Regenerate hitpoints and mana.  Handle the passage of time.  Enter
+ * wizard, debug, and borg modes.  Process commands.  Handle a character's
+ * turn.  Interact with the current dungeon level.  Play a game.
 
 effects.c
 /*
@@ -103,25 +80,27 @@ effects.c
 
 files.c
 /*
- * Read preference files.  Get best kill, display the character screen.
- * Character dumps, read random line from a file.  Show a file (inc. the
- * online help), context-specific help. Display a file (colorized).  Process
- * a character name, commit suicide, save the game.  Calculate and display
- * score.  The character death interface.  Controlled exit, panic saves, and
- * signal-handling.
+ * Drop and set permissions.  Read preference files.  Check time and load.
+ * Get best kill.  Display the character screen.  Character dumps, read
+ * random line from a file.  Show a file (inc. the online help), context-
+ * specific help.  Display a file (alternate method).  Process a character
+ * name, commit suicide, save the game.  Get and display score, turn
+ * character into a winner.  The character death interface.  Controlled
+ * exit and panic saves.
 
 generate.c
 /*
  * Dungeon generation
  *
  * Code for making, stocking, and populating levels when generated.  Includes
- * rooms of every kind, pits, vaults (inc. interpretation of vault.txt), seams
- * tunneling, etc.  Level feelings, essence generation.  Creation of the town.
+ * rooms of every kind, pits, vaults (inc. interpretation of vault.txt),
+ * streamers, tunneling, etc.  Level feelings, essence generation.  Creation
+ * of the town.
 
 info.c
 /*
- * Object kind descriptions.  Extended object descriptions and information.
- * Self knowledge.  Object info for character dumps.
+ * Tables containing object kind descriptions.  Extended object descriptions
+ * and information.  Self Knowledge.
 
 init1.c
 /*
@@ -129,14 +108,14 @@ init1.c
 
 init2.c
 /*
- * Read files in "lib/data" and fill in various arrays.  Initialize and close
- * down the game.  Allocate and deallocate memory for variable-size global
- * arrays.
+ * Read files in "lib/data" and fill in various arrays.  Initialize most
+ * global arrays used in the game, deallocate most arrays on exit.
 
 loadsave.c
 /*
- * Savefile management.  Save, load, convert, extract information from, and 
- * print error messages about savefiles.  In-game tools to manage savefiles.
+ * Savefile management.  Save, load, convert, extract information from, and
+ * print error messages about savefiles.  Provide in-game tools to manage
+ * savefiles.
 
 main.c
 /*
@@ -144,17 +123,15 @@ main.c
 
 monattk.c
 /*
- * Monster critical blows, hit chance, affect of armor, monster melee
- * attacks.  Monster projection types, resistance checking, ranged attacks.
- * Monster special effects.
+ * Monster melee and ranged attacks.  Monster special effects.
 
 monmove.c
 /*
- * Monster movement and ranged attack AI.
- *
- * Ranges, learning, tests for terrain suitability and character resists.
- * The spellcasting AI.  The movement AI.  Move a monster, process effects.
- * Regenerate and recover.  Move all monsters.
+ * Monster learning, monster distance attacks and spells, fear, flow/
+ * movement, monster AI affecting movement and spells, process a monster
+ * (with spells and actions of all kinds, reproduction, effects of any
+ * terrain on monster movement, picking up and destroying objects),
+ * process all monsters.
 
 monster1.c
 /*
@@ -176,27 +153,25 @@ monster2.c
 obj_make.c
 /*
  * Creation and manipulation of objects by the character.
- *
- * Choose an essence, add magic using essences, forge objects, poison ammo.
 
 object1.c
 /*
- * Object flavours, learning.  Reset visual preferences, Get object pvals and
- * attributes.  Object names.  Object indexes and labels, what slot an object
- * likes.  Display the inventory, equipment, and floor.  Object display
- * subwindows.  Inscription tags.  Select objects.
+ * Apply flavors to objects.  Reset visuals.  Handle object pvals and other
+ * flags.  Object names.  Get object indexes and labels, determine what slot
+ * an object likes.  Display the inventory and equipment in both main and
+ * secondary windows.  Display objects on the floor.  Select objects.
 
 object2.c
 /*
  * Manage object stacks and monster inventories.  Delete and compact
- * objects.  Get a new random or themed random object.  Make an object
- * known, aware, or tried.  Determine the value of an object.  Handle
- * wand and staff charges.  Determine if two objects can combine, combine
- * them.  Initialize an object.  Make ego-items, special and normal
- * artifacts.  Add magic to objects, apply random qualities.  Determine
- * if an object is "good".  Make objects and gold.  Breakage chance.
+ * objects.  Build the object allocation table, draw a new object from it.
+ * Make an object known, aware, or tried.  Determine the value of an
+ * object.  Handle wand and staff charges.  Determine if two objects can
+ * combine, combine two objects.  Initialize an object.  Make ego-items,
+ * special and normal artifacts.  Add magic to objects, apply random
+ * qualities.  Determine if an object is "good".  Make objects and gold.
  * Drop and place objects, give them to the floor.  Manage inventory.
- * Carry, take off, and drop objects.  Reorder the pack and the quiver.
+ * Carry, take off, and drop objects.  Reorder the pack, manage the quiver.
 
 quest.c
 /*
@@ -204,19 +179,20 @@ quest.c
 
 randart.c
 /*
- * Random artifacts (also forged items).
+ * Random artifacts.
  *
- * Selling and providing qualities.  Choosing an object type and kind,
+ * Selling and providing qualities.  Choosing a object type and kind,
  * determining the potential, depth and rarity of the artifact.  Artifact
- * themes.  Adding semi-random qualities.  Cursing an artifact, removing
- * contradictory flags, naming, initializing.  Adding new names to the
- * a_name array.  Initializing all random artifacts.
+ * themes.  Adding semi-random qualities.  Cursing an artifact.  Removing
+ * contradictory flags.  Naming an artifact, using either of two methods.
+ * Initializing one random artifact.  Adding new names to the a_name array.
+ * Initializing all random artifacts.
 
 skills.c
 /*
- * Sangband skills.  Cost of skills, increase, restore, and reduce skills.
- * Realms, Oaths, and specializations, effect of skills on each other, the
- * skills improvement screen.
+ * Sangband skills.  Determination of internal skills-based values, alter
+ * and restore skills, print out and interact with the skills improvement
+ * screen.
 
 spells1.c
 /*
@@ -229,9 +205,9 @@ spells2.c
  * Projection types (specialized, simple).  Handle the "temp" array.
  * Teleport monsters and the character.  Character-effect magics:  Burn,
  * freeze, melt, and electrocute you and your inventory, apply disenchant-
- * ment and nexus.  Healing.  Increase, decrease, restore, shuffle stats.
- * Inflict disease, forget, cursing.  Monster-effect magics:  hurt, heal,
- * hinder, aggravate, genocide, probing.  Detection spells.  Dungeon-effect
+ * ment and nexus.  Healing.  Increase, decrease, and restore stats.
+ * Inflict disease and forget. Monster-effect magics:  hurt, heal, hinder,
+ * aggravate, genocide, probing.  Detection spells.  Dungeon-effect
  * magics:  destruction, light and unlight rooms, other spells.  Weather.
 
 spells3.c
@@ -240,7 +216,7 @@ spells3.c
  *
  * Smash potions, activate scrolls, fire off devices.  Curse and uncurse
  * equipment.  Enchanting and branding objects.  Pseudo-ID, learning,
- * identification.  Recharge and tap magical devices.  The effects of
+ * identification.  Recharge and tap magical devices.  The effects of 
  * specific objects.
 
 store.c
@@ -255,37 +231,36 @@ store.c
 
 tables.c
 /*
- * Change directions to offsets.  Nearby grids and LOS to them.
- * Effects of stats, Deadliness, melee blows, speed to energy, experience,
- * racial costs for skills, racial stat and ability adjustments.  Spell
- * data and titles.  Chest traps, set items, color and stat names.
- * Window names, option names, descriptions, and default values.  Custom
- * display text, inscription text.  Monster spells.  Skills, talents,
- * object flags, precognition messages.  Graphics modes, special attr/char
- * pairs.
+ * Change directions to offsets.  Effects of stats, Deadliness, melee
+ * blows, speed to energy, experience, racial costs for skills, racial
+ * stat and ability adjustments.  Spell data and titles.  Chest traps,
+ * set items, color and stat names.  Window names, Option names,
+ * descriptions, and default values.  Custom display text, inscription
+ * text.  Monster spells.  Skills, talents, object flags.
 
 talents.c
 /*
- * Sangband talents.  Pseudo-probe, dodging, can forge, talent descriptions
+ * Sangband talents.  Pseudo-probe, dodging, can forge, talent descriptions 
  * and effects.
 
 traps.c
 /*
- * YATS (Yet another trap system).  Table of trap kinds, tests for kinds
- * of traps, display traps and graphics, pick a trap and place it.
- * Disarm and load traps.  Monster trap effects.  Character trap effects.
+ * Trap-handling.  Table of trap kinds, tests for kinds of traps, display 
+ * traps and graphics, pick a trap and place it.  Disarm and load traps.  
+ * Monster trap effects.  Character trap effects.
 
 util.c
 /*
- * Simple text processing, macros, keypresses, and object inscriptions.  User
- * input.  Messages.  Save, load, and clear the screen.  Print text out to
- * screen and files.  Ask for commands, strings, and numbers.  Handle repeated
- * commands.  Gamma correction and colors.  Math functions (dice, angular math,
- * etc.).  Special utility functions.
+ * File-handling functions.  Macros.  Process keypresses.  Store object
+ * inscriptions.  Messages.  Save, load, and clear the screen.  Print text
+ * out to screen in various ways.  Ask for commands, strings, and numbers.
+ * Handle repeated commands.  Gamma correction and colors.  Turn dice into
+ * damage and back again, math functions.  Angular math.  Special utility
+ * functions.
 
 variable.c
 /*
- * Brief version of copyright.  Global variables and arrays.
+ * The copyright.  Global variables and arrays.
 
 wizard1.c
 /*
@@ -297,61 +272,19 @@ wizard2.c
 
 xtra1.c
 /*
- * Character titles and fame text.  Left and bottom panel displays.  Show
- * some things in sub-windows.  Calculate spells, mana, hitpoints, torch
- * radius, and regeneration rate.  Apply bonuses and attributes to the
- * character from stats, shapechanges, equipment, and temporary conditions.
- * Calculate blows, shots, armor, and so on.  The game updating code.
+ * Character titles and fame text.  Display of stats to the user from 
+ * internal figures. Left and bottom panel displays.  Show some things in 
+ * sub-windows.  Calculate spells, mana, hitpoints, torch radius, and 
+ * regeneration rate.  Apply bonuses and attributes to the character from 
+ * stats, shapechanges, equipment, and temporary conditions.  Calculate 
+ * blows, shots, armour, and so on.
 
 xtra2.c
 /*
- * Set temporary conditions, print messages and update various displays as
- * needed.  Change shape, practice skills, gain and lose experience, drain and
- * recover skills.  Hurt the character.  Calculate map size and handle map
- * panels.  The looking and targeting code.  Get and confuse a direction,
- * precognition messages, music selection.
-
-
-
-
-
-#
-# Other header files
-#
-
-
-angband.h
-/* The game module include file.
-
-h-basic.h
-* Include file for all utility modules (string formatting, term code, file-handling, etc.)
-
-h-config.h
- * Choose the hardware, operating system, and compiler.
- * Also, choose various "system level" compilation options.
-
-h-define.h
- * Define some simple constants
-
-h-system.h
- * Include the basic "system" files.
-
-h-type.h
- * Basic "types".
-
-types.h
-/* Global structures used in the game.  Monster, object, artifact,
- * character, etc.
-
-
-
-
-#
-# External modules used by the game
-#
-
-z-files.c
-/* File-handling functions
+ * Set temporarary conditions, print messages and update various displays
+ * as needed.  Change shape, practice skills, gain and lose experience,
+ * drain and recover skills.  Hurt the character.  Handle map panels.  The 
+ * targeting code.  Get and confuse a direction.  Precognition messages.
 
 z-form.c
 /* Purpose: Low level text formatting
@@ -368,11 +301,36 @@ z-util.c
 z-virt.c
 /* Purpose: Memory management routines
 
+angband.h
+/* The basic include file.
 
+config.h
+/* Compilation options.
 
+defines.h
+/* Most everything that's in UPPERCASE is defined here.
 
+externs.h
+/* Global variable and function definitions.  A superb map of the code.
 
-#
-# system-specific files except for "main.c" are not listed
-#
+h-basic.h
+* The most basic "include" file.
+
+h-config.h
+ * Choose the hardware, operating system, and compiler.
+ * Also, choose various "system level" compilation options.
+
+h-define.h
+ * Define some simple constants
+
+h-system.h
+ * Include the basic "system" files.
+
+h-type.h
+ * Basic "types".
+
+types.h
+/* Definitions for a large number of types and arrays.  This file controls
+ * what sort of data can go where.
+
 

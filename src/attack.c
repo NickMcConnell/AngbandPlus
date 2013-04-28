@@ -3,39 +3,34 @@
 /*
  * The non-magical attack code.
  *
- * Hit chance.  Monster resist/evade, effects of terrain.  Critical hits
- * in melee and when shooting/throwing, the effects of weapon attributes.
- * Martial arts, shield bashing, melee attacks.  Archery.  Throwing.
+ * Hit chance, critical hits in melee and when shooting/throwing, calculate
+ * slays,/brands/resists.  Martial arts.   Deadliness adjustment, shield
+ * bashes, melee attacks.  Chance of object breakage, the shooting code, the
+ * throwing code.
  *
- * Copyright (c) 2007
+ * Copyright (c) 2002
  * Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 
 
-
 /*
- * Determine if character or monster blows hit.
+ * Determine if player or monster blows hit.
  *
  * The chance to hit increases with attack accuracy and decreases with
- * armor.  It never rises above 95% and never falls below 5%.
+ * armour.  It never rises above 95% and never falls below 5%.
  */
 bool test_hit_combat(int chance, int ac, int visible)
 {
-	/* Power competes against armor */
-	int percent = div_round(100 * (chance - ac), MAX(1, chance));
+	int percent = 0;
 
-	/* Invisible entities are harder to hit */
-	if (!visible) percent /= 2;
-
-	/* Entities with limited visibility are harder to hit */
-	else if (visible < ML_FULL) percent = 2 * percent / 3;
+	/* Power competes against armour */
+	if (chance) percent = div_round(100 * (chance - ac), chance);
 
 	/* Minimum of 5% chance to hit */
 	if (percent < 5) percent = 5;
@@ -43,237 +38,28 @@ bool test_hit_combat(int chance, int ac, int visible)
 	/* Maximum of 95% chance to hit */
 	if (percent > 95) percent = 95;
 
+	/* Invisible monsters are harder to hit */
+	if (!visible) percent /= 2;
+
 	/* Return hit or miss */
 	return (rand_int(100) < percent);
 }
 
-
-
 /*
- * Determine if monster evades or resists a blow.  -LM-
- *
- * Return TRUE if blow was avoided.
+ * Silly combat messages, used when the character gets a critical hit
+ * against a sleeping, visible monster.  Do not display them too often.
  */
-bool monster_evade_or_resist(object_type *o_ptr,
-	monster_type *m_ptr, byte blow_type)
+static cptr silly_hit_msg[8] =
 {
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
-	u32b f1, f2, f3;
-	int resist = 0;
-	bool learn = FALSE;
-
-	cptr p, note = "";
-
-	char m_name[DESC_LEN];
-
-	/* Get "the monster" or "it" */
-	monster_desc(m_name, m_ptr, 0x40);
-
-	/* Get object attributes */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Get base name of object kind (or "trap") */
-	if      (blow_type == BLOW_TRAP)  p = "trap";
-	else if (o_ptr->tval == TV_SHOT)  p = "shot";
-	else if (o_ptr->tval == TV_ARROW) p = "arrow";
-	else if (o_ptr->tval == TV_BOLT)  p = "bolt";
-	else if (is_melee_weapon(o_ptr))  p = "weapon";
-	else                              p = "missile";
-
-
-
-	/* Some monsters are great at dodging  -EZ- */
-	if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!m_ptr->csleep) &&
-	    (!m_ptr->confused) && (!one_in_(m_ptr->stunned ? 2 : 3)))
-	{
-		/* Monster is at least partially visible */
-		if (m_ptr->ml)
-		{
-			/* Take note */
-			if (blow_type == BLOW_MELEE)
-				message_format(MSG_MISS, 0, "%^s evades your blow!", m_name);
-			else if (blow_type == BLOW_TRAP)
-				message_format(MSG_MISS, 0, "%^s dodges your %s!", m_name, p);
-			else
-				message_format(MSG_MISS, 0, "%^s dodges!", m_name);
-
-			/* Learn that monster can dodge */
-			l_ptr->flags2 |= (RF2_EVASIVE);
-		}
-
-		/* Can't hurt me! */
-		return (TRUE);
-	}
-
-
-	/*
-	 * Handle monsters that resist blunt and/or edged weapons.  Vorpal
-	 * (edged) and Concussion (blunt) weapons are less resistible.
-	 */
-	switch (o_ptr->tval)
-	{
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		{
-			/* Resist */
-			if (r_ptr->flags3 & (RF3_IM_EDGED))
-			{
-				/* Resist */
-				if (f1 & (TR1_VORPAL)) resist = 70;
-				else resist = 85;
-
-				/* Learn */
-				if ((!(l_ptr->flags3 & (RF3_IM_EDGED))) &&
-					(mon_fully_visible(m_ptr)))
-				{
-					l_ptr->flags3 |= (RF3_IM_EDGED);
-					learn = TRUE;
-				}
-
-				/* Take note */
-				note = "glances off of";
-			}
-			else if (r_ptr->flags3 & (RF3_RES_EDGED))
-			{
-				if (f1 & (TR1_VORPAL)) resist = 33;
-				else resist = 60;
-
-				if ((!(l_ptr->flags3 & (RF3_RES_EDGED))) &&
-					(mon_fully_visible(m_ptr)))
-				{
-					l_ptr->flags3 |= (RF3_RES_EDGED);
-					learn = TRUE;
-				}
-
-				note = "glances off of";
-			}
-
-			break;
-		}
-
-		case TV_SHOT:
-		case TV_HAFTED:
-		{
-			if (r_ptr->flags3 & (RF3_IM_BLUNT))
-			{
-				if (f1 & (TR1_VORPAL)) resist = 70;
-				else resist = 85;
-
-				if ((!(l_ptr->flags3 & (RF3_IM_BLUNT))) &&
-					(mon_fully_visible(m_ptr)))
-				{
-					l_ptr->flags3 |= (RF3_IM_BLUNT);
-					learn = TRUE;
-				}
-
-				if (strchr("G*A", r_ptr->d_char))
-					note = "passes harmlessly through";
-				else
-					note = "bounces off of";
-			}
-			else if (r_ptr->flags3 & (RF3_RES_BLUNT))
-			{
-				if (f1 & (TR1_VORPAL)) resist = 33;
-				else resist = 60;
-
-				if ((!(l_ptr->flags3 & (RF3_RES_BLUNT))) &&
-					(mon_fully_visible(m_ptr)))
-				{
-					l_ptr->flags3 |= (RF3_RES_BLUNT);
-					learn = TRUE;
-				}
-
-				if (strchr("G*A", r_ptr->d_char))
-					note = "passes harmlessly through";
-				else
-					note = "bounces off of";
-			}
-
-			break;
-		}
-
-		default:
-		{
-			break;
-		}
-	}
-
-	/* Try for a miss */
-	if (resist > rand_int(100))
-	{
-		/* Monster is fully visible */
-		if (mon_fully_visible(m_ptr))
-		{
-			/* Take note of new resist */
-			if (learn)
-			{
-				if (resist >= 85)
-					msg_format("Your %s does almost no damage to %s!",
-						p, m_name);
-				else if (resist >= 70)
-					msg_format("Your %s does very little damage to %s!",
-						p, m_name);
-				else if (resist >= 50)
-					msg_format("Your %s does little damage to %s!",
-						p, m_name);
-				else
-					msg_format("Your %s is partially resisted by %s.",
-						p, m_name);
-			}
-
-			/* Note already known resistance */
-			else
-			{
-				msg_format("Your %s %s %s.", p, note, m_name);
-			}
-		}
-
-		/* Can't hurt me! */
-		return (TRUE);
-	}
-
-	/* Can hurt me */
-	return (FALSE);
-}
-
-/*
- * Calculate the effects of terrain on monster AC.
- */
-static int terrain_ac_adjust(monster_race *r_ptr, int feat)
-{
-	/* Assume no terrain effects */
-	int terrain_adjust = 0;
-
-
-	/* Monsters in rubble can take advantage of cover. */
-	if (feat == FEAT_RUBBLE)
-	{
-		terrain_adjust = r_ptr->ac / 5 + 5;
-	}
-
-	/*
-	 * Monsters in trees can take advantage of cover, but those skilled
-	 * in nature lore can hit them more easily.
-	 */
-	if (feat == FEAT_TREE)
-	{
-		terrain_adjust = r_ptr->ac / 7 + 5;
-		terrain_adjust -= get_skill(S_NATURE, 0, 20);
-	}
-
-	/* Monsters in water are vulnerable. */
-	if (feat == FEAT_WATER)
-	{
-		terrain_adjust -= (r_ptr->ac / 5 + 3);
-	}
-
-	return (terrain_adjust);
-}
+	"Wakey, wakey!",
+	"Good morning!",
+	"Gotcha!",
+	"Take that!",
+	"Eat some!",
+	"Having fun yet?",
+	"Yeah!",
+	"What a way to start up a fight!"
+};
 
 
 /*
@@ -301,7 +87,6 @@ static int critical_melee(int chance, bool visible, char m_name[],
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	u32b f1, f2, f3;
-	int max;
 
 	bool vorpal = FALSE;
 	bool sneak_attack = FALSE;
@@ -327,55 +112,44 @@ static int critical_melee(int chance, bool visible, char m_name[],
 		vorpal = TRUE;
 	}
 
-	/* Guild-Burglars get more critical hits when in the dark */
-	if ((p_ptr->oath & (BURGLARS_GUILD)) &&
-	    (no_light()) && (m_ptr->ml))
-	{
-		/* 50% more critical hits if darkness both here and nearby */
-		power += chance * darkness_ratio(1) / 200;
-	}
-
-
 	/* Special ability (sneak attacks) */
 	if (p_ptr->special_attack & (ATTACK_SNEAK)) sneak_attack = TRUE;
 
 
-	/*** Calculate slay bonus (can be as great as 60 points) ***/
-	max = 10;
-
-	/* Those without a realm get a larger bonus */
-	if (!p_ptr->realm) max = 40;
-
-	/* Pure warriors get the maximum bonus */
-	if (p_ptr->oath & (OATH_OF_IRON)) max = 60;
-
-	/* Note that bonuses are not cumulative */
-	if (r_ptr->flags3 & (RF3_DEMON))
+	/* Calculate slay bonus (can - rarely - be as great as 60 points). */
+	if (TRUE)
 	{
-		add_power = MAX(get_skill(S_PIETY,    0, max), add_power);
-	}
-	if (r_ptr->flags3 & (RF3_ANIMAL))
-	{
-		add_power = MAX(get_skill(S_NATURE,   0, max), add_power);
-	}
-	if (r_ptr->flags3 & (RF3_UNDEAD))
-	{
-		add_power = MAX(get_skill(S_DOMINION, 0, max), add_power);
-	}
+		int max = 10;
 
-	/* Add slay bonus */
-	power += add_power;
+		/* Those without a realm get a larger bonus */
+		if (!p_ptr->realm) max = 40;
 
+		/* Pure warriors get the maximum bonus */
+		if (p_ptr->oath & (OATH_OF_IRON)) max = 60;
+
+		/* Note that bonuses are not cumulative */
+		if (r_ptr->flags3 & (RF3_DEMON))
+		{
+			add_power = MAX(get_skill(S_PIETY,    0, max), add_power);
+		}
+		if (r_ptr->flags3 & (RF3_ANIMAL))
+		{
+			add_power = MAX(get_skill(S_NATURE,   0, max), add_power);
+		}
+		if (r_ptr->flags3 & (RF3_UNDEAD))
+		{
+			add_power = MAX(get_skill(S_DOMINION, 0, max), add_power);
+		}
+
+		/* Add slay bonus */
+		power += add_power;
+	}
 
 	/* Penalize some conditions */
-	if (p_ptr->confused || p_ptr->image || !visible)
+	if (p_ptr->blind || p_ptr->confused || p_ptr->image || !visible)
 	{
 		sneak_attack = FALSE;
 		power /= 3;
-	}
-	else if (visible < ML_FULL)
-	{
-		power /= 2;
 	}
 
 
@@ -394,16 +168,26 @@ static int critical_melee(int chance, bool visible, char m_name[],
 		/* Encourage the player to beat on sleeping monsters. */
 		if ((m_ptr->csleep) && (visible))
 		{
-			/* More "interesting" messages if we get a seriously good hit */
+			/* More "interesting" messages if we get a seriously good hit. */
 			if (add_dice >= 4)
 			{
-				message(MSG_HIT, 0, "You ruthlessly sneak attack!");
+				/* Upon rare occasion, display a cute message. */
+				if (one_in_(15))
+				{
+					cptr msg = silly_hit_msg[rand_int(8)];
+
+					message(MSG_HIT, 0, format("%s", msg));
+				}
+				else
+				{
+					message(MSG_HIT, 0, "You ruthlessly sneak attack!");
+				}
 			}
 
-			/* Standard "wakeup call" */
+			/* Standard "wakeup call". */
 			else
 			{
-				message(MSG_HIT, 0, "You rudely awaken the monster!");
+				message(MSG_HIT, 0, "You rudely awaken the monster.");
 			}
 		}
 
@@ -417,18 +201,18 @@ static int critical_melee(int chance, bool visible, char m_name[],
 			 */
 			if (add_dice <= 2)
 			{
-				message_format(MSG_HIT_GOOD, 0, "You strike %s.", m_name);
+				message_format(MSG_HIT, 0, "You strike %s.", m_name);
 			}
 
 			else if (add_dice == 3)
 			{
 				if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
 				{
-					message_format(MSG_HIT_GREAT, 0, "You hack at %s!", m_name);
+					message_format(MSG_HIT, 0, "You hack at %s.", m_name);
 				}
 				else
 				{
-					message_format(MSG_HIT_GREAT, 0, "You pound %s!", m_name);
+					message_format(MSG_HIT, 0, "You pound %s.", m_name);
 				}
 			}
 
@@ -438,17 +222,17 @@ static int critical_melee(int chance, bool visible, char m_name[],
 				{
 					if (vorpal)
 					{
-						message_format(MSG_HIT_SUPERB, 0,
-							"Your vorpal blade goes snicker-snack!");
+						message_format(MSG_HIT, 0,
+							"Your vorpal blade goes snicker-snack!", m_name);
 					}
 					else
 					{
-						message_format(MSG_HIT_SUPERB, 0, "You slice into %s!", m_name);
+						message_format(MSG_HIT, 0, "You slice into %s.", m_name);
 					}
 				}
 				else
 				{
-					message_format(MSG_HIT_SUPERB, 0, "You bludgeon %s!", m_name);
+					message_format(MSG_HIT, 0, "You bludgeon %s.", m_name);
 				}
 			}
 
@@ -457,12 +241,12 @@ static int critical_melee(int chance, bool visible, char m_name[],
 				if ((vorpal) && ((o_ptr->tval == TV_SWORD) ||
 					(o_ptr->tval == TV_POLEARM)))
 				{
-					message_format(MSG_HIT_HI_GREAT, 0,
+					message_format(MSG_HIT, 0,
 						"Your vorpal blade goes snicker-snack!", m_name);
 				}
 				else
 				{
-					message_format(MSG_HIT_HI_GREAT, 0, "You *smite* %s!", m_name);
+					message_format(MSG_HIT, 0, "You *smite* %s!", m_name);
 				}
 			}
 		}
@@ -473,11 +257,11 @@ static int critical_melee(int chance, bool visible, char m_name[],
 			/* Discount multiple blows */
 			int e_loss = 60 / blows;
 
-			/* Take away energy  */
-			mon_adjust_energy(m_ptr, -e_loss);
+			/* Take away energy (but not too much) */
+			m_ptr->energy -= e_loss;
 		}
 
-		/* Critical hits with blunt weapon occasionally stun monsters */
+		/* Critical hits with blunt weapon occasionaly stun monsters */
 		if ((o_ptr->tval == TV_HAFTED) && (!m_ptr->stunned) &&
 		    (one_in_(3 * blows)))
 		{
@@ -510,10 +294,6 @@ static int critical_melee(int chance, bool visible, char m_name[],
 		msg_print("Your weapon is no longer gleaming.");
 	}
 
-	/* Sneak-attacks practice the burglary skill a little */
-	if (sneak_attack) practice_skill(3 + r_ptr->level * r_ptr->level / 3, S_BURGLARY);
-
-
 	/* Return the number of damage dice to add. */
 	return (add_dice);
 }
@@ -527,21 +307,21 @@ static int critical_melee(int chance, bool visible, char m_name[],
  * Critical shots represent the ability of a skilled fighter to make his
  * missiles go where he wants them to.  This increased control is
  * represented by adding damage dice; this makes the attack both more
- * powerful and more reliable.
+ * powerful and more reliable.  Because ammo normally rolls one die,
+ * critical hits are very powerful in archery.
  *
  * This function is responsible for the basic archery and throwing combat
  * messages, which vary according to the quality of the hit.  A distinction
  * is made between visible and invisible monsters.
  */
 static int critical_shot(int chance, bool thrown_weapon, bool visible,
-	char m_name[], const object_type *o_ptr, monster_type *m_ptr, char *hit_msg)
+	char m_name[], const object_type *o_ptr, monster_type *m_ptr)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	char o_name[DESC_LEN];
+	char o_name[80];
 
 	u32b f1, f2, f3;
-	int max;
 
 	bool vorpal = FALSE;
 
@@ -558,11 +338,11 @@ static int critical_shot(int chance, bool thrown_weapon, bool visible,
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Obtain a terse object description */
-	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, FALSE, 0);
 
 
-	/* Throwing weapons get more critical hits. */
-	if (thrown_weapon) power += chance / 3;
+	/* Throwing weapons get lots of critical hits. */
+	if (thrown_weapon) power += chance / 2;
 
 	/* Special quality (vorpal arrows/shots of concussion) */
 	if (f1 & (TR1_VORPAL))
@@ -571,61 +351,57 @@ static int critical_shot(int chance, bool thrown_weapon, bool visible,
 		vorpal = TRUE;
 	}
 
-	/* Guild-Burglars get more critical hits when in the dark */
-	if ((p_ptr->oath & (BURGLARS_GUILD)) &&
-	    (no_light()) && (m_ptr->ml))
+	/* Calculate slay bonus (can - rarely - be as great as 60 points). */
+	if (TRUE)
 	{
-		/* 50% more critical hits if darkness both here and nearby */
-		power += chance * darkness_ratio(1) / 200;
+		int max = 10;
+
+		/* Those without a realm get a larger bonus */
+		if (!p_ptr->realm) max = 40;
+
+		/* Pure warriors get the maximum bonus */
+		if (p_ptr->oath & (OATH_OF_IRON)) max = 60;
+
+		/* Note that bonuses are not cumulative */
+		if (r_ptr->flags3 & (RF3_DEMON))
+		{
+			add_power = MAX(get_skill(S_PIETY,    0, max), add_power);
+		}
+		if (r_ptr->flags3 & (RF3_ANIMAL))
+		{
+			add_power = MAX(get_skill(S_NATURE,   0, max), add_power);
+		}
+		if (r_ptr->flags3 & (RF3_UNDEAD))
+		{
+			add_power = MAX(get_skill(S_DOMINION, 0, max), add_power);
+		}
+
+		/* Add slay bonus */
+		power += add_power;
 	}
-
-
-	/*** Calculate slay bonus (can be as great as 60 points) ***/
-	max = 10;
-
-	/* Those without a realm get a larger bonus */
-	if (!p_ptr->realm) max = 40;
-
-	/* Pure warriors get the maximum bonus */
-	if (p_ptr->oath & (OATH_OF_IRON)) max = 60;
-
-	/* Note that bonuses are not cumulative */
-	if (r_ptr->flags3 & (RF3_DEMON))
-	{
-		add_power = MAX(get_skill(S_PIETY,    0, max), add_power);
-	}
-	if (r_ptr->flags3 & (RF3_ANIMAL))
-	{
-		add_power = MAX(get_skill(S_NATURE,   0, max), add_power);
-	}
-	if (r_ptr->flags3 & (RF3_UNDEAD))
-	{
-		add_power = MAX(get_skill(S_DOMINION, 0, max), add_power);
-	}
-
-	/* Add slay bonus */
-	power += add_power;
-
 
 	/* Penalize some conditions */
 	if (p_ptr->blind || p_ptr->confused || p_ptr->image || !visible) power /= 3;
-	else if (!mon_fully_visible(m_ptr)) power = 2 * power / 3;
 
 
 	/* Test for critical hit (weak attacks are penalized). */
 	if (randint(power + 200) <= (power - 30))
 	{
 		/* Determine level of critical hit. */
-		if      ((power > 120) && (one_in_(32))) add_dice = 5;
-		else if ((power >  80) && (one_in_(16))) add_dice = 4;
-		else if ((power >  40) && (one_in_(8)))  add_dice = 3;
-		else                                     add_dice = 2;
+		if      ((power > 120) && (one_in_(50))) add_dice = 3;
+		else if ((power >  40) && (one_in_(10))) add_dice = 2;
+		else                                     add_dice = 1;
 
 		/* Encourage the player to throw and shoot things at sleeping monsters. */
 		if ((m_ptr->csleep) && (mon_fully_visible(m_ptr)))
 		{
 			/* More "interesting" messages if we get an especially good hit. */
-			if ((thrown_weapon) && (add_dice >= 3))
+			if ((add_dice >= 2) && (one_in_(10)))
+			{
+				message(MSG_HIT, 0, format("%s", silly_hit_msg[rand_int(8)]));
+			}
+
+			else if ((thrown_weapon) && (add_dice >= 2))
 			{
 				message(MSG_HIT, 0, "Assassin strike!");
 			}
@@ -633,7 +409,7 @@ static int critical_shot(int chance, bool thrown_weapon, bool visible,
 			/* Standard "wakeup call". */
 			else
 			{
-				message(MSG_HIT, 0, "You rudely awaken the monster!");
+				message(MSG_HIT, 0, "You rudely awaken the monster.");
 			}
 		}
 
@@ -641,22 +417,21 @@ static int critical_shot(int chance, bool thrown_weapon, bool visible,
 		if (mon_fully_visible(m_ptr))
 		{
 			/* Messages depend on quality of critical hit. */
-			if (add_dice <= 2)
+			if (add_dice == 1)
 			{
-				/* Combine with hurt or kill message later */
-				strcpy(hit_msg,
-					format("The %s penetrates %s", o_name, m_name));
-			}
-
-			else if (add_dice == 3)
-			{
-				message_format(MSG_HIT, 0, "The %s drives into %s!",
+				message_format(MSG_HIT, 0, "The %s penetrates %s.",
 					o_name, m_name);
 			}
 
-			else if (add_dice >= 4)
+			else if (add_dice == 2)
 			{
-				message_format(MSG_HIT_HI_SUPERB, 0, "The %s transpierces %s!",
+				message_format(MSG_HIT, 0, "The %s drives into %s.",
+					o_name, m_name);
+			}
+
+			else if (add_dice >= 3)
+			{
+				message_format(MSG_HIT, 0, "The %s transpierces %s!",
 					o_name, m_name);
 			}
 		}
@@ -665,14 +440,14 @@ static int critical_shot(int chance, bool thrown_weapon, bool visible,
 	/* If the shot is not a critical hit, then the default message is shown. */
 	else if (mon_fully_visible(m_ptr))
 	{
-		/* Combine with hurt or kill message later */
-		strcpy(hit_msg, format("The %s hits %s", o_name, m_name));
+		message_format(MSG_HIT, 0, "The %s hits %s.",
+			o_name, m_name);
 	}
 
 	/* Hits on non-visible monsters always generate the same message. */
 	if (!mon_fully_visible(m_ptr))
 	{
-		strcpy(hit_msg, format("The %s finds a mark", o_name));
+		message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 	}
 
 	/* Return the number of damage dice to add. */
@@ -690,14 +465,6 @@ static void dec_special_atk(void)
 	(void)set_fire_attack(p_ptr->fire_attack - 1);
 	(void)set_cold_attack(p_ptr->cold_attack - 1);
 	(void)set_pois_attack(p_ptr->pois_attack - 1);
-
-
-	/* Use up holy attack  */
-	if ((p_ptr->special_attack & (ATTACK_HOLY)) && (one_in_(20)))
-	{
-		msg_print("You no longer strike with holy force.");
-		p_ptr->special_attack &= ~(ATTACK_HOLY);
-	}
 }
 
 /*
@@ -711,8 +478,8 @@ static void dec_special_atk(void)
  * Orc, which all add 10.  Weapons of *slaying* now get a larger bonus.
  * Brands are usually +14, except for acid, which is +10.
  *
- * Monsters can be susceptible to impact (rock remover) and shining
- * weapons.
+ * Monsters can resist or be almost immune to edged and/or blunt weapons.
+ * Monsters can be susceptible to impact (rock remover) weapons.
  *
  * Note:  When the character is using martial arts, this function is
  * called with a wiped object "o_ptr".  Be careful.   XXX XXX
@@ -723,36 +490,36 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	u32b f1 = 0L, f2 = 0L, f3 = 0L;
+	u32b f1, f2, f3;
+	u32b fc1, fc2, fc3;
 
 	bool visible = (mon_fully_visible(m_ptr) != FALSE);
 
+	cptr p;
+
 	/* Assume no special adjustments to damage */
 	int mul = 10;
-	int divide = 10;
+	int div = 10;
 	int add = 0;
 	int sub = 0;
 
+	int tmp;
+
+
 	/* Get object attributes */
-	if (o_ptr->tval) object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3);
 
-	/* Handle actual melee combat */
-	if (!is_trap)
-	{
-		u32b fc1, fc2, fc3;
+	/* Get character flags */
+	player_flags(&fc1, &fc2, &fc3, TRUE, FALSE);
 
-		/* Get character flags */
-		player_flags(&fc1, &fc2, &fc3, TRUE, FALSE);
+	/* Apply character flags */
+	f1 |= fc1;    f2 |= fc2;    f3 |= fc3;
 
-		/* Apply character flags */
-		f1 |= fc1;    f2 |= fc2;    f3 |= fc3;
+	/* Get "cancelled" flags */
+	player_flags_cancel(&fc1, &fc2, &fc3, TRUE);
 
-		/* Get "cancelled" flags */
-		player_flags_cancel(&fc1, &fc2, &fc3, TRUE);
-
-		/* Apply character cancellation flags (cancels everything) */
-		f1 &= ~fc1;    f2 &= ~fc2;    f3 &= ~fc3;
-	}
+	/* Apply character cancellation flags (cancels everything) */
+	f1 &= ~fc1;    f2 &= ~fc2;    f3 &= ~fc3;
 
 
 	/* Wielded weapons and diggers and fired missiles may do extra damage. */
@@ -796,6 +563,14 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 				}
 
 				if (add < 10)  add = 10;
+
+				/* Use up holy attack  XXX */
+				if ((p_ptr->special_attack & (ATTACK_HOLY)) &&
+				    (one_in_(20)))
+				{
+					msg_print("You no longer strike with holy force.");
+					p_ptr->special_attack &= ~(ATTACK_HOLY);
+				}
 			}
 
 			/* Slay Undead */
@@ -849,7 +624,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					l_ptr->flags3 |= (RF3_TROLL);
 				}
 
-				if (add < 18)  add = 18;
+				else if (add < 18)  add = 18;
 			}
 
 			/* Slay Giant */
@@ -930,7 +705,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 					/* Notice susceptibility */
 					if (r_ptr->flags3 & (RF3_HURT_FIRE))
 					{
-						if ((f1 & (TR1_BRAND_FLAME)) && (add < 33)) add = 33;
+						if ((f1 & (TR1_BRAND_FLAME)) && (add < 30)) add = 33;
 						else if (add < 21) add = 21;
 
 						if (visible)
@@ -988,9 +763,8 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 				else if (add < 14) add = 14;
 			}
 
-			/* Special attack (Impact and Tunneling) */
-			if ((f3 & (TR3_IMPACT)) ||
-			    (get_object_pval(o_ptr, TR_PVAL_TUNNEL) > 0))
+			/* Special attack (Impact) */
+			if (f3 & (TR3_IMPACT))
 			{
 				/* Notice susceptibility */
 				if (r_ptr->flags3 & (RF3_HURT_ROCK))
@@ -1005,19 +779,114 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 				}
 			}
 
-			/* Special attack (Light) */
-			if (f3 & (TR3_LITE))
-			{
-				/* Creature is hurt by light */
-				if (r_ptr->flags3 & (RF3_HURT_LITE))
-				{
-					if (visible)
-					{
-						l_ptr->flags3 |= (RF3_HURT_LITE);
-					}
+			break;
+		}
+	}
 
-					/* Take extra damage */
-					if (add < 14) add = 14;
+	/* Hack -- Triple crossbows get 1/3rd the bonus */
+	if ((o_ptr->tval == TV_BOW) && (o_ptr->sval == SV_TRIPLE_XBOW))
+		add = div_round(add, 3);
+
+
+	/* Use up special attack powers */
+	dec_special_atk();
+
+
+	/* Get base name of object kind */
+	if      (o_ptr->tval == TV_SHOT)  p = "shot";
+	else if (o_ptr->tval == TV_ARROW) p = "arrow";
+	else if (o_ptr->tval == TV_BOLT)  p = "bolt";
+	else if (is_melee_weapon(o_ptr))  p = "weapon";
+	else                              p = "missile";
+
+	/*
+	 * Handle monsters that resist blunt and/or edged weapons.  Vorpal
+	 * (edged) and Concussion (blunt) weapons are less resistible.
+	 */
+	switch (o_ptr->tval)
+	{
+		case TV_ARROW:
+		case TV_BOLT:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
+		{
+			if (r_ptr->flags3 & (RF3_IM_EDGED))
+			{
+				if (f1 & (TR1_VORPAL)) div = 40;
+				else div = 60;
+
+				if ((visible) && (!is_trap))
+				{
+					/* Message */
+					if (!(l_ptr->flags3 & (RF3_IM_EDGED)))
+					{
+						msg_format("Your %s doesn't seem to be doing any damage!", p);
+						l_ptr->flags3 |= (RF3_IM_EDGED);
+					}
+				}
+				else if (!is_trap)
+				{
+					/* An ugly but necessary message  XXX */
+					msg_format("It seems unharmed.", p);
+				}
+			}
+			else if (r_ptr->flags3 & (RF3_RES_EDGED))
+			{
+				if (f1 & (TR1_VORPAL)) div = 15;
+				else div = 20;
+
+				if ((visible) && (!is_trap))
+				{
+					/* Message */
+					if (!(l_ptr->flags3 & (RF3_RES_EDGED)))
+					{
+						msg_format("Your %s seems to be doing little damage!", p);
+						l_ptr->flags3 |= (RF3_RES_EDGED);
+					}
+				}
+			}
+
+			break;
+		}
+
+		case TV_SHOT:
+		case TV_HAFTED:
+		default:
+		{
+			if (r_ptr->flags3 & (RF3_IM_BLUNT))
+			{
+				if (f1 & (TR1_VORPAL)) div = 40;
+				else div = 60;
+
+				if ((visible) && (!is_trap))
+				{
+					/* Message */
+					if (!(l_ptr->flags3 & (RF3_IM_BLUNT)))
+					{
+						msg_format("Your %s doesn't seem to be doing any damage!", p);
+						l_ptr->flags3 |= (RF3_IM_BLUNT);
+					}
+				}
+				else if (!is_trap)
+				{
+					/* An ugly but necessary message  XXX */
+					msg_print("It seems unharmed.");
+				}
+			}
+			else if (r_ptr->flags3 & (RF3_RES_BLUNT))
+			{
+				if (f1 & (TR1_VORPAL)) div = 15;
+				else div = 20;
+
+				if ((visible) && (!is_trap))
+				{
+					/* Message */
+					if (!(l_ptr->flags3 & (RF3_RES_BLUNT)))
+					{
+						msg_format("Your %s seems to be doing little damage!", p);
+						l_ptr->flags3 |= (RF3_RES_BLUNT);
+					}
 				}
 			}
 
@@ -1025,192 +894,33 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 		}
 	}
 
-	/* Hack -- Triple crossbows get 1/3rd the bonus */
-	if ((o_ptr->tval == TV_CROSSBOW) && (o_ptr->sval == SV_TRIPLE_XBOW))
-		add = div_round(add, 3);
-
-
-	/* Use up special attack powers, unless a trap */
-	if (!is_trap) dec_special_atk();
-
-
 	/* Apply addition and subtraction */
 	*damage += (add - sub);
 
-	/* Apply multiplier, if positive */
-	if (mul > 1) *damage *= mul;
+	/* Apply multiplier */
+	*damage *= mul;
 
-	/* Apply divisor, if positive */
-	if (divide > 1) *damage = div_round(*damage, divide);
+	/* Remember damage */
+	tmp = *damage;
+
+	/* Paranoia -- Require a positive divisor */
+	if (div > 0)
+	{
+		/* Apply divisor */
+		*damage = div_round(*damage, div);
+	}
 }
 
 
 /*
- * Modes of combat
- */
-#define COMBAT_MELEE    1
-#define COMBAT_FIRE     2
-#define COMBAT_THROW    3
-
-/*
- * Various special combat damage adjustments
- */
-#define DAM_ADJUST_DAM        0x0001
-#define DAM_ADJUST_DEADLY     0x0002
-
-
-/*
- * Calculate damage done by weapons, missiles, and thrown objects.  -LM-
- *
- * Damage depends on damage dice plus brands/slays.  Critical hits and
- * Deadliness can greatly enhance dice, and therefore overall damage.
- *
- * Return the damage.  Store combat hit messages, if needed.
- */
-static int calc_combat_dam(int mode, object_type *o_ptr, monster_type *m_ptr,
-	char *m_name, int total_deadliness, int chance, char *msg_hit, u16b combat_mods)
-{
-	int dice;
-	long die_average, temp, sides, damage;
-	int dam_int;
-	u32b f1, f2, f3;
-
-	bool throwing_weapon = FALSE;
-
-	/* Clear the hit message */
-	msg_hit[0] = '\0';
-
-
-	/* Get object flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Notice thrown weapon */
-	if (f1 & (TR1_THROWING)) throwing_weapon = TRUE;
-
-
-	/* Base damage dice */
-	dice = o_ptr->dd;
-
-	/* Critical hits may add damage dice. */
-	if (mode == COMBAT_MELEE)
-	{
-		dice += critical_melee(chance, m_ptr->ml, m_name, o_ptr, m_ptr);
-	}
-	else if (mode == COMBAT_FIRE)
-	{
-		dice += critical_shot(chance, FALSE, m_ptr->ml,
-		                      m_name, o_ptr, m_ptr, msg_hit);
-	}
-	else if ((mode == COMBAT_THROW) && (throwing_weapon))
-	{
-		dice += critical_shot(chance, TRUE, m_ptr->ml,
-		                      m_name, o_ptr, m_ptr, msg_hit);
-	}
-
-
-	/* Get the average value of a single damage die. (x10) */
-	die_average = (10 * (o_ptr->ds + 1)) / 2;
-
-	/* Apply deadliness to average. (100x inflation) */
-	apply_deadliness(&die_average, total_deadliness);
-
-
-	/* When shooting,  apply the launcher multiplier to average. */
-	if (mode == COMBAT_FIRE) die_average *= p_ptr->ammo_mult;
-
-
-	/* Special case:  Throwing a throwing weapon. */
-	if ((mode == COMBAT_THROW) && (throwing_weapon))
-	{
-		/* Bonuses depend on specialization */
-		int max = 85;
-		if (p_ptr->oath & (OATH_OF_IRON)) max = 100;
-		else if (p_ptr->oath & (BURGLARS_GUILD)) max = 90;
-		else if (p_ptr->oath) max = 70;
-
-		/*
-		 * Multiply the die average by the throwing
-		 * weapon multiplier, if applicable.  This is not the
-		 * prettiest equation, but it does at least try to keep
-		 * throwing weapons competitive.
-		 */
-		die_average *= get_skill(S_THROWING, 20, max);
-
-		/* Perfectly balanced weapons do 50% extra damage. */
-		if (f1 & (TR1_PERFECT_BALANCE))
-		{
-			die_average += die_average / 2;
-		}
-
-		/* Only the real throwing weapons get the full bonus */
-		if (!is_any_weapon(o_ptr)) die_average /= 2;
-
-		/* Deflate */
-		die_average = div_round(die_average, 10);
-	}
-
-
-	/* Reconvert to die sides. */
-	temp = (2L * die_average) - 1000;
-
-	/* Calculate the actual number of sides to each die. */
-	sides = div_round(temp, 1000);
-
-
-	/* Roll out the damage. */
-	damage = damroll(dice, (s16b)sides);
-
-	/* Special damage bonuses */
-	if (combat_mods & (DAM_ADJUST_DAM))    damage += 10;
-	if (combat_mods & (DAM_ADJUST_DEADLY)) damage += 20;
-
-	/* Convert damage to integer */
-	dam_int = (int)damage;
-
-	/* Adjust damage for slays, brands, resists. */
-	adjust_dam(&dam_int, o_ptr, m_ptr, FALSE);
-
-	/* No negative damage */
-	if (dam_int < 0) dam_int = 0;
-
-	/* Return the damage */
-	return (dam_int);
-}
-
-
-/*
- * Burglary skill makes you far less noisy in combat.  Even small
- * investments have a significant effect.
- */
-int get_combat_noise(int min, int max)
-{
-	int skill = get_skill(S_BURGLARY, 0, 400);
-
-	/* Get range */
-	long silence = max - min;
-
-	/* Get silencing factor (from 0 to 20) */
-	silence *= rsqrt(skill);
-
-	/* Divide by maximum possible silencing factor (20) */
-	silence = div_round(silence, 20);
-
-	/* Return adjusted value for noise */
-	return (max - silence);
-}
-
-
-
-/*
- * Shield bash monsters.  -LM-
+ * Shield bash monsters.
  *
  * We assume that certain checks (wearing a shield, not confused, etc.) have
  * been done.
  *
  * Return TRUE if the monster got killed.
  */
-static bool shield_bash(int y, int x, monster_race *r_ptr,
-	monster_type *m_ptr, int *blows, bool *fear)
+static bool shield_bash(int y, int x, monster_race *r_ptr, monster_type *m_ptr, int *blows, bool *fear)
 {
 	object_type *weapon_ptr = &inventory[INVEN_WIELD];
 	object_type *shield_ptr = &inventory[INVEN_ARM];
@@ -1218,39 +928,24 @@ static bool shield_bash(int y, int x, monster_race *r_ptr,
 	/* Variables for the bashing code */
 	int bash_chance, bash_quality, bash_dam;
 
-	char m_name[DESC_LEN];
+	char m_name[80];
 
-	int wskill = get_skill(sweapon(weapon_ptr->tval), 0, 100);
-
-
-	/* No shield bashing monsters in non-passable terrain */
-	if (!cave_passable_bold(y, x)) return (FALSE);
-
-	/* No bashing immaterial monsters */
-	if (monster_immaterial(r_ptr)) return (FALSE);
-
+	int wskill = get_skill(sweapon(), 0, 100);
 
 	/* Get monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0x40);
+	monster_desc(m_name, m_ptr, 0);
 
 	/* Bashing chance depends on dexterity and a Skill bonus */
-	bash_chance = ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128) / 2;
+	bash_chance = (adj_dex_th[p_ptr->stat_ind[A_DEX]] - 128) / 2;
 
 	/* Apply melee skill bonus, depending on realm */
 	if (p_ptr->realm)
 	{
-		if (!p_ptr->oath) bash_chance +=
-			get_skill(sweapon(weapon_ptr->tval), 0, 50);
+		if (!p_ptr->oath) bash_chance += get_skill(sweapon(), 0, 50);
 	}
 	else
 	{
-		bash_chance += wskill;
-	}
-
-	/* Evasive monsters are very hard to bash */
-	if (r_ptr->flags2 & (RF2_EVASIVE))
-	{
-		bash_chance /= 8;
+		bash_chance += get_skill(sweapon(), 0, 100);
 	}
 
 
@@ -1262,7 +957,7 @@ static bool shield_bash(int y, int x, monster_race *r_ptr,
 		{
 			if (wskill < p_ptr->power / 2)
 			{
-				bash_chance *= MIN(8, p_ptr->power / MAX(1, wskill));
+				bash_chance *= MIN(6, p_ptr->power / MAX(1, wskill));
 				bash_chance /= 2;
 			}
 		}
@@ -1291,7 +986,7 @@ static bool shield_bash(int y, int x, monster_race *r_ptr,
 		bash_dam *= (bash_quality / 20 + p_ptr->power / 12);
 
 		/* Strength bonus */
-		bash_dam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+		bash_dam += (adj_str_td[p_ptr->stat_ind[A_STR]] - 128);
 
 		/* No huge damages. */
 		if (bash_dam > 125) bash_dam = 125;
@@ -1325,10 +1020,9 @@ static bool shield_bash(int y, int x, monster_race *r_ptr,
 		}
 
 		/* The player will sometimes stumble. */
-		if ((20 + (int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128) < randint(80))
+		if ((20 + adj_dex_th[p_ptr->stat_ind[A_DEX]] - 128) < randint(80))
 		{
 			*blows += randint(MAX(p_ptr->num_blow, p_ptr->num_blow2));
-			/* msg_print("You stumble!"); */
 		}
 	}
 
@@ -1340,39 +1034,40 @@ static bool shield_bash(int y, int x, monster_race *r_ptr,
  * Striking certain kinds of monsters with your bare hands is risky,
  * especially if you aren't wearing gloves.
  *
- * We really should use a bitflag, but there are few available.
- *
  * Return TRUE if we get hurt.
  */
 static bool contact_danger_check(monster_race *r_ptr)
 {
 	int i;
-
-	int blow_type[MONSTER_BLOW_MAX] = { 0, 0, 0, 0 };
+	int blow_type[MONSTER_BLOW_MAX] = {0, 0, 0, 0};
 	int ele_blow_cnt = 0;
 
 	cptr name = (r_name + r_ptr->name);
 
-	int damage, sides, danger_type, protection;
+	/* Assume not dangerous */
+	int damage = 0;
+	int danger_type = 0;
 
+	int protection;
+	object_type *o_ptr;
 
 	/* Get the protective value of worn gloves */
-	object_type *o_ptr = &inventory[INVEN_HANDS];
+	o_ptr = &inventory[INVEN_HANDS];
 	protection = o_ptr->ac + o_ptr->to_a;
 
 
 	/* If the monster is a Death Mold, you're in trouble. */
 	if (strstr(name, "Death mold"))
 	{
-		(void)take_hit(damroll(25, 25) - (protection * 10),
-			0, "Oh no!  You've touched a Death mold!",
+		take_hit(damroll(30, 30) - (protection * 10),
+		   0, "Oh no!  You've touched a Death mold!",
 			"touching a Death mold");
 		return (TRUE);
 	}
 
 
 	/* Some monsters are almost always dangerous to touch. */
-	else if (strchr("Ev*mj,i", r_ptr->d_char))
+	else if (strchr("Ev*", r_ptr->d_char))
 	{
 		for (i = 0; i < MONSTER_BLOW_MAX; i++)
 		{
@@ -1392,17 +1087,36 @@ static bool contact_danger_check(monster_race *r_ptr)
 		}
 	}
 
+	/*
+	 * If every one of the monster's melee attacks does acid or poison
+	 * damage, it is dangerous to touch.
+	 */
+	else
+	{
+		for (i = 0; i < MONSTER_BLOW_MAX; i++)
+		{
+			if (r_ptr->blow[i].method)
+			{
+				if (r_ptr->blow[i].effect == RBE_ACID)
+					blow_type[ele_blow_cnt++] = GF_ACID;
+				else if (r_ptr->blow[i].effect == RBE_POISON)
+					blow_type[ele_blow_cnt++] = GF_POIS;
+
+				/* Non-poison or acid attack - assume not very dangerous */
+				else return (FALSE);
+			}
+		}
+	}
 
 	/* Monster was not dangerous */
-	if (ele_blow_cnt == 0) return (FALSE);
+	if (danger_type == 0) return (FALSE);
 
 
 	/* Pick a type of nastiness at random */
 	danger_type = blow_type[rand_int(ele_blow_cnt)];
 
 	/* Calculate damage */
-	sides = 1 + div_round(r_ptr->level, 8);
-	damage = damroll(2, sides) - protection / 2;
+	damage = damroll(2, 2 + r_ptr->level / 8) - protection / 2;
 
 	/* Inflict nastiness */
 	if (damage > 0)
@@ -1436,7 +1150,7 @@ static bool contact_danger_check(monster_race *r_ptr)
 			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
 			{
 				(void)set_poisoned(p_ptr->poisoned + damage);
-				(void)take_hit(damage / 2, 0, NULL, "touching a poisonous creature");
+				take_hit(damage / 2, 0, NULL, "touching a poisonous creature");
 				return (TRUE);
 			}
 		}
@@ -1464,15 +1178,15 @@ static cptr barehand_attack_desc[4][3] =
 /*
  * Learn about the damage done in martial arts.
  *
- * The damage displayed is an approximate running average, with recent
+ * The damage displayed is a approximate running average, with recent
  * attacks slowly overriding old ones.
  */
 static void learn_about_ma_damage(int damage, bool karate)
 {
 	s16b *temp;
 
-	/* Randomize damage (inaccuracy) */
-	damage = rand_spread(damage, div_round(damage, 2));
+	/* Randomize damage slightly (inaccuracy) */
+	damage = rand_spread(damage, div_round(damage, 6));
 	if (damage <= 0) damage = 1;
 
 	/* Point to the right variable */
@@ -1509,13 +1223,13 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 	bool *do_stun, bool *do_conf, bool *do_throw)
 {
 	int bonus, max;
-	int dice, sides;
+	byte dice, sides;
 	int damage;
 	int add_power = 0;
 	int set;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	char m_name[DESC_LEN];
+	char m_name[80];
 
 	object_type *o_ptr;
 	object_type object_type_body;
@@ -1525,7 +1239,8 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 	bool critical = FALSE;
 
 
-	/* Using karate - about 115 * 2 max average damage */
+
+	/* Using karate - about 105 * 2 max average damage */
 	if (p_ptr->barehand == S_KARATE)
 	{
 		/* Dexterity and strength are helpful */
@@ -1533,16 +1248,16 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 					adj_ma[p_ptr->stat_ind[A_DEX]];
 
 		/* Effective skill max depends on specialization */
-		max = get_skill(S_KARATE, 35, 75);
-		if (p_ptr->oath & (OATH_OF_IRON))   max = get_skill(S_KARATE, 40, 85);
-		if (p_ptr->oath & (BURGLARS_GUILD)) max = get_skill(S_KARATE, 35, 75);
-		else if (p_ptr->oath)               max = get_skill(S_KARATE, 25, 60);
+		max = 60;
+		if (p_ptr->oath & (OATH_OF_IRON)) max = 70;
+		else if (p_ptr->oath)             max = 50;
 
 		/* Damage depends on skill (and also stats) */
 		damage = get_skill(S_KARATE, 1, max + bonus);
 
 		/* Chance of various special attacks */
-		if ((one_in_(3)) && (randint(damage) >= 3 * r_ptr->level / 4))
+		if ((one_in_(3)) &&
+			 (randint(damage) >= 5 + r_ptr->level / 2))
 		{
 			if      (one_in_(3)) *do_conf = TRUE;
 			else if (one_in_(2)) *do_slow = TRUE;
@@ -1550,23 +1265,23 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 		}
 	}
 
-	/* Wrestling - about 130 * 2 max average damage */
+	/* Wrestling - about 125 * 2 max average damage */
 	else
 	{
 		/* Strength is very important */
 		bonus = adj_ma[p_ptr->stat_ind[A_STR]] * 2;
 
 		/* Effective skill max depends on specialization */
-		max = get_skill(S_WRESTLING, 40, 80);
-		if (p_ptr->oath & (OATH_OF_IRON))   max = get_skill(S_WRESTLING, 45, 90);
-		if (p_ptr->oath & (BURGLARS_GUILD)) max = get_skill(S_WRESTLING, 40, 80);
-		else if (p_ptr->oath)               max = get_skill(S_WRESTLING, 30, 65);
+		max = 70;
+		if (p_ptr->oath & (OATH_OF_IRON)) max = 80;
+		else if (p_ptr->oath)             max = 60;
 
 		/* Damage depends on skill (and also stats) */
 		damage = get_skill(S_WRESTLING, 1, max + bonus);
 
 		/* Give the player a chance to throw the opponent */
-		if ((one_in_(4)) && (randint(damage) >= 3 * r_ptr->level / 4))
+		if ((one_in_(5)) &&
+			 (randint(damage) >= 2 * r_ptr->level / 3 + 10))
 		{
 			*do_throw = TRUE;
 		}
@@ -1592,16 +1307,16 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 		}
 	}
 
-	/* Calculate slay bonus (can be as great as 30% extra damage). */
+	/* Calculate slay bonus (can be as great as 20% extra damage). */
 	max = 10;
 
 	/* Those without a realm get a larger bonus */
-	if (!p_ptr->realm) max = 40;
+	if (!p_ptr->realm) max = 30;
 
 	/* Pure warriors get the maximum bonus */
-	if (p_ptr->oath & (OATH_OF_IRON)) max = 60;
+	if (p_ptr->oath & (OATH_OF_IRON)) max = 40;
 
-	/* Get the best available slay bonus from skills */
+	/* Note that bonuses are not cumulative */
 	if (r_ptr->flags3 & (RF3_DEMON))
 	{
 		add_power = MAX(get_skill(S_PIETY,    0, max), add_power);
@@ -1621,13 +1336,6 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 	if (p_ptr->special_attack & (ATTACK_VORPAL))
 		critical_hit_chance += 20;
 
-	/* Guild-Burglars get more critical hits when in the dark */
-	if ((p_ptr->oath & (BURGLARS_GUILD)) &&
-	    (no_light()) && (m_ptr->ml >= ML_FULL))
-	{
-		/* 20% more citical hits if darkness both here and nearby */
-		critical_hit_chance += 20 * darkness_ratio(1) / 100;
-	}
 
 	/* Penalize some conditions (note that blindness is not a problem) */
 	if (p_ptr->confused || p_ptr->image || !m_ptr->ml)
@@ -1655,7 +1363,7 @@ static int py_attack_barehand(monster_type *m_ptr, bool *do_slow,
 
 
 	/* Get monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0x40);
+	monster_desc(m_name, m_ptr, 0);
 
 	/* Message */
 	message_format(MSG_HIT, 0, "You %s %s%c",
@@ -1772,17 +1480,17 @@ bool py_attack(int y, int x)
 	/* hit count */
 	int hits = 0;
 
-	/* Bonus to attack if monster is sleeping */
+	/* Bonus to attack if monster is sleeping. */
 	int sleeping_bonus = 0;
 
-	/* Terrain adjustments to effective monster AC */
+	/* Terrain adjustments to effective monster ac. */
 	int terrain_adjust = 0;
 
-	/* Skill */
-	int bonus, chance;
+	/* Skill and Deadliness */
+	int bonus, chance, total_deadliness;
 
 	/* Weapon skill */
-	int skill = get_skill(sweapon(inventory[INVEN_WIELD].tval), 0, 100);
+	int skill = get_skill(sweapon(), 0, 100);
 
 	/* Assume no special attack effects */
 	bool bare_handed = FALSE;
@@ -1792,9 +1500,7 @@ bool py_attack(int y, int x)
 	bool do_stun = FALSE;
 	bool impact = FALSE;
 	bool dead = FALSE;
-	bool stop = FALSE;
 	int do_force_back = 0;
-	u16b combat_mods = 0;
 
 	u32b f1, f2, f3;
 
@@ -1804,7 +1510,7 @@ bool py_attack(int y, int x)
 
 	object_type *o_ptr;
 
-	char m_name[DESC_LEN];
+	char m_name[80];
 
 	bool fear = FALSE;
 
@@ -1815,34 +1521,14 @@ bool py_attack(int y, int x)
 	l_ptr = &l_list[m_ptr->r_idx];
 
 
-	/* Just push past town monsters */
-	if (m_ptr->mflag & (MFLAG_TOWN))
-	{
-		/* Get monster name (or "something") */
-		monster_desc(m_name, m_ptr, 0x44);
-
-		/* Message */
-		if (r_ptr->flags3 & (RF3_ANIMAL))
-		{
-			msg_format("%^s scampers out of your way.", m_name);
-		}
-		else
-		{
-			msg_format("You push past %s.", m_name);
-		}
-
-		return (FALSE);
-	}
-
-
-	/* Reveal mimics (note: mimics cannot be sneak-attacked) */
+	/* Reveal minics (note: mimics cannot be sneak-attacked) */
 	if ((m_ptr->mflag & (MFLAG_MIME)) && (m_ptr->ml))
 	{
 		/* Reveal the monster */
 		m_ptr->mflag &= ~(MFLAG_MIME);
 
 		/* Get monster name ("a kobold") */
-		monster_desc(m_name, m_ptr, 0xC8);
+		monster_desc(m_name, m_ptr, 0x88);
 
 		/* Message */
 		if (!p_ptr->afraid)
@@ -1851,7 +1537,7 @@ bool py_attack(int y, int x)
 		}
 		else
 		{
-			char m_pronoun[DESC_LEN];
+			char m_pronoun[80];
 
 			/* Get monster pronoun ("him", "her", "it") */
 			monster_desc(m_pronoun, m_ptr, 0x31);
@@ -1865,8 +1551,8 @@ bool py_attack(int y, int x)
 	/* Character is not blind, confused, or hallucinating */
 	else if ((!p_ptr->blind) && (!p_ptr->confused) && (!p_ptr->image))
 	{
-		/* Monster is fully visible */
-		if (mon_fully_visible(m_ptr))
+		/* Monster is visible */
+		if (m_ptr->ml)
 		{
 			/* If the monster is sleeping, it can be hit more easily. */
 			if (m_ptr->csleep)
@@ -1890,14 +1576,14 @@ bool py_attack(int y, int x)
 	}
 
 	/* Auto-Recall if possible and visible */
-	if (m_ptr->ml >= ML_FULL) monster_race_track(m_ptr->r_idx);
+	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 
 
 	/* Get monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0x40);
+	monster_desc(m_name, m_ptr, 0);
 
 	/* Handle player fear */
 	if (p_ptr->afraid)
@@ -1906,9 +1592,6 @@ bool py_attack(int y, int x)
 		{
 			/* Message */
 			msg_format("You are too afraid to attack %s!", m_name);
-
-			/* You already knew this */
-			p_ptr->energy_use = 0;
 		}
 		else
 		{
@@ -1920,9 +1603,27 @@ bool py_attack(int y, int x)
 		return (TRUE);
 	}
 
+	/* Monsters in rubble can take advantage of cover. */
+	if (cave_feat[y][x] == FEAT_RUBBLE)
+	{
+		terrain_adjust = r_ptr->ac / 7 + 5;
+	}
 
-	/* Apply terrain effects */
-	terrain_adjust = terrain_ac_adjust(r_ptr, cave_feat[y][x]);
+	/*
+	 * Monsters in trees can take advantage of cover, but those skilled
+	 * in nature lore can hit them more easily.
+	 */
+	if (cave_feat[y][x] == FEAT_TREE)
+	{
+		terrain_adjust = r_ptr->ac / 7 + 5;
+		terrain_adjust -= get_skill(S_NATURE, 0, 20);
+	}
+
+	/* Monsters in water are vulnerable. */
+	if (cave_feat[y][x] == FEAT_WATER)
+	{
+		terrain_adjust -= r_ptr->ac / 5;
+	}
 
 
 	/* No shield on arm, no bash.  */
@@ -1947,7 +1648,7 @@ bool py_attack(int y, int x)
 	if (p_ptr->barehanded)
 	{
 		/* Immaterial beings cannot be hurt with unblessed bare hands */
-		if ((monster_immaterial(r_ptr)) &&
+		if ((r_ptr->flags2 & (RF2_PASS_WALL)) &&
 		    (!p_ptr->blessed) && (!p_ptr->holy))
 		{
 			/* Monster cannot be seen -- allow movement (sometimes) */
@@ -1961,11 +1662,7 @@ bool py_attack(int y, int x)
 			/* Monster can be seen -- explain why nothing happened */
 			else
 			{
-				/* Message */
 				msg_format("You cannot harm %s with martial arts unless blessed.", m_name);
-
-				/* If you already knew this, don't take a turn */
-				if (l_ptr->flags2 & (RF2_PASS_WALL)) p_ptr->energy_use = 0;
 
 				/* Learn about the monster */
 				l_ptr->flags2 |= (RF2_PASS_WALL);
@@ -2012,8 +1709,8 @@ bool py_attack(int y, int x)
 	if (p_ptr->soulsteal) p_ptr->feed_weapon = TRUE;
 
 
-	/* Attack until the monster is dead or we have to stop. */
-	while (!dead && !stop)
+	/* Attack until we run out of blows. */
+	while (!dead)
 	{
 		/* Assume a miss */
 		bool hit = FALSE;
@@ -2029,11 +1726,6 @@ bool py_attack(int y, int x)
 			break;
 		}
 
-		/* Shorten unique name for blows after the first */
-		if ((blows == 2) && (r_ptr->flags1 & (RF1_UNIQUE)))
-		{
-			short_m_name(m_name);
-		}
 
 		/* Try each of the weapons being wielded in turn. */
 		for (i = 1; i <= num_weapons; i++)
@@ -2044,7 +1736,7 @@ bool py_attack(int y, int x)
 				/* No more blows allowed with this weapon */
 				if (blows > p_ptr->num_blow) continue;
 
-				/* Check first arm -- primary weapon must be in this slot */
+				/* Check first arm -- note that primary weapon must be in this slot */
 				o_ptr = &inventory[INVEN_WIELD];
 			}
 			else if (i == 2)
@@ -2066,235 +1758,239 @@ bool py_attack(int y, int x)
 
 			/*** Attack with this weapon (or bare hands) ***/
 
-			/* Calculate the weapon bonus (if any) */
-			if (bare_handed) bonus = 0;
-			else             bonus = o_ptr->to_h;
 
 			/* Calculate the attack quality. */
-			chance = p_ptr->skill_thn + BTH_PLUS_ADJ * bonus;
-
-
-			/* This blow missed */
-			if (!test_hit_combat(chance + sleeping_bonus,
-			         r_ptr->ac + terrain_adjust, m_ptr->ml))
+			if (bare_handed)
 			{
-				continue;
-			}
-
-			/* Monster evaded or resisted */
-			if (monster_evade_or_resist(o_ptr, m_ptr, BLOW_MELEE))
-			{
-				continue;
-			}
-
-			/* Character is wielding a weapon */
-			if (is_melee_weapon(o_ptr))
-			{
-				char dummy[DESC_LEN];
-
-				/* Get object flags */
-				object_flags(o_ptr, &f1, &f2, &f3);
-
-				/* Note impact weapon */
-				if (f3 & (TR3_IMPACT)) impact = TRUE;
-
-				/* Calculate the damage */
-				damage = calc_combat_dam(COMBAT_MELEE, o_ptr, m_ptr,
-					m_name, p_ptr->to_d + o_ptr->to_d,
-					chance + sleeping_bonus, dummy, combat_mods);
-			}
-
-			/* Character is fighting bare-handed (first weapon only) */
-			else if (i == 1)
-			{
-				damage = py_attack_barehand(m_ptr, &do_slow, &do_stun,
-				                            &do_conf, &do_throw);
+				/* Note that "p_ptr->skill_thn" is often higher */
+				bonus = 0;
 			}
 			else
 			{
-				/* No attack */
+				bonus = p_ptr->to_h + o_ptr->to_h;
+			}
+			chance = (p_ptr->skill_thn + BTH_PLUS_ADJ * bonus);
+
+			/* Some monsters are great at dodging  -EZ- */
+			if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!m_ptr->csleep) &&
+			    (one_in_(2)))
+			{
+				message_format(MSG_MISS, 0, "%^s evades your blow!",
+					m_name);
+
+				/* Learn that monster can dodge */
+				l_ptr->flags2 |= (RF2_EVASIVE);
+
 				continue;
 			}
 
-			/* Count hits */
-			hits++;
-			hit = TRUE;
-
-			/* Sound */
-			sound(MSG_HIT);
-
-			/* If this is the first hit, make some noise. */
-			if (hits == 1)
+			/* Test for hit */
+			else if (test_hit_combat(chance + sleeping_bonus,
+			         r_ptr->ac + terrain_adjust, m_ptr->ml))
 			{
-				/* Noise partly depends on stealth */
-				int noise = p_ptr->base_wakeup_chance / 2;
-
-				/* Noise greatly depends on burglary skill */
-				noise += get_combat_noise(0, 800);
-
-				/* Characters fighting barehanded make less noise */
-				if (bare_handed) noise /= 2;
-
-				/* Increase the noise level */
-				add_wakeup_chance += noise;
-			}
-
-			/* If fighting with bare hands, check for contact danger */
-			if (bare_handed)
-			{
-				/* Note if the character got hurt */
-				hurt = contact_danger_check(r_ptr);
-			}
-
-
-			/* Paranoia -- No negative damage */
-			if (damage < 0) damage = 0;
-
-			/* Practice the melee skill */
-			skill_being_used = sweapon(o_ptr->tval);
-
-			/* Damage, check for fear and death. */
-			if (mon_take_hit(cave_m_idx[y][x], -1, damage, &fear, NULL))
-			{
-				/*
-				 * Hack -- High-level warriors and burglars can spread their
-				 * attacks out among weaker foes.
-				 */
-				if ((p_ptr->oath & (OATH_OF_IRON | BURGLARS_GUILD)) &&
-					 (skill >= rand_range(60, 80)) &&
-					 (blows < MAX(p_ptr->num_blow, p_ptr->num_blow2)) &&
-					 (p_ptr->energy_use))
+				/* Character is wielding a weapon */
+				if (is_melee_weapon(o_ptr))
 				{
-					/* Use energy only for blows expended */
-					p_ptr->energy_use = p_ptr->energy_use * blows /
-						MAX(p_ptr->num_blow, p_ptr->num_blow2);
+					int dice;
+					long die_average, temp, sides;
+
+					/* Calculate deadliness */
+					total_deadliness = p_ptr->to_d + o_ptr->to_d;
+
+					/* Get object flags */
+					object_flags(o_ptr, &f1, &f2, &f3);
+
+					/* Note impact weapon */
+					if (f3 & (TR3_IMPACT)) impact = TRUE;
+
+
+					/* Base damage dice */
+					dice = o_ptr->dd;
+
+					/* Critical hits may add damage dice. */
+					dice += critical_melee(chance + sleeping_bonus, m_ptr->ml,
+					                       m_name, o_ptr, m_ptr);
+
+
+					/* Get the average value of a single damage die. (x10) */
+					die_average = (10 * (o_ptr->ds + 1)) / 2;
+
+					/* Apply deadliness to average. (100x inflation) */
+					apply_deadliness(&die_average, total_deadliness);
+
+					/* Reconvert to die sides. */
+					temp = (2L * die_average) - 1000;
+
+					/* Calculate the actual number of sides to each die. */
+					sides = div_round(temp, 1000);
+
+
+					/* Roll out the damage. */
+					damage = damroll(dice, (s16b)sides);
+
+					/* Adjust damage for slays, brands, resists. */
+					adjust_dam(&damage, o_ptr, m_ptr, FALSE);
 				}
 
-				/* Fight's over. */
-				dead = TRUE;
-				break;
-			}
-
-
-			/* Confusion attack */
-			if ((p_ptr->special_attack & (ATTACK_CONFUSE)) &&
-				 (!m_ptr->confused))
-			{
-				/* Notice resistance */
-				if (r_ptr->flags3 & (RF3_NO_CONF))
+				/* Character is fighting bare-handed (first weapon only) */
+				else if (i == 1)
 				{
-					if (m_ptr->ml >= ML_FULL)
+					damage = py_attack_barehand(m_ptr, &do_slow, &do_stun,
+					                            &do_conf, &do_throw);
+				}
+
+				/* count hits */
+				hits++;
+				hit = TRUE;
+
+				/* Sound */
+				sound(SOUND_HIT);
+
+				/* If this is the first hit, make some noise. */
+				if (hits == 1)
+				{
+					int noise = p_ptr->base_wakeup_chance / 2;
+
+					/* Burglary skill greatly reduces noise */
+					noise += 1000 - get_skill(S_BURGLARY, 0, 800);
+
+					/* Characters fighting barehanded make less noise */
+					if (bare_handed) noise /= 2;
+
+					/* Increase the noise level */
+					add_wakeup_chance += noise;
+				}
+
+				/* If fighting with bare hands, check for contact danger */
+				if (bare_handed)
+				{
+					/* Note if the character got hurt */
+					hurt = contact_danger_check(r_ptr);
+				}
+
+
+				/* Paranoia -- No negative damage */
+				if (damage < 0) damage = 0;
+
+				/* Practice the melee skill */
+				skill_being_used = sweapon();
+
+				/* Damage, check for fear and death. */
+				if (mon_take_hit(cave_m_idx[y][x], -1, damage, &fear, NULL))
+				{
+					/*
+					 * Hack -- High-level warriors can spread their attacks out
+					 * among weaker foes.
+					 */
+					if ((p_ptr->oath & (OATH_OF_IRON)) &&
+					    (skill >= rand_range(60, 80)) &&
+					    (blows < MAX(p_ptr->num_blow, p_ptr->num_blow2)) &&
+					    (p_ptr->energy_use))
 					{
-						l_ptr->flags3 |= (RF3_NO_CONF);
+						/* Use energy only for blows expended */
+						p_ptr->energy_use = p_ptr->energy_use * blows /
+							MAX(p_ptr->num_blow, p_ptr->num_blow2);
+					}
+
+					/* Fight's over. */
+					dead = TRUE;
+					break;
+				}
+
+
+				/* Confusion attack */
+				if ((p_ptr->special_attack & (ATTACK_CONFUSE)) &&
+				    (!m_ptr->confused))
+				{
+					/* Confuse the monster */
+					if (r_ptr->flags3 & (RF3_NO_CONF))
+					{
+						if (m_ptr->ml)
+						{
+							l_ptr->flags3 |= (RF3_NO_CONF);
+						}
+
 						msg_format("%^s is unaffected.", m_name);
 					}
-				}
-
-				/* Allow saving throw */
-				else if (rand_int(p_ptr->power + 25) <
-							r_ptr->level + randint(10))
-				{
-					if (m_ptr->ml >= ML_FULL)
+					else if (rand_int(p_ptr->power + 25) <
+					         r_ptr->level + randint(10))
 					{
-						msg_format("%^s shakes off the confusion.", m_name);
+						msg_format("%^s is unaffected.", m_name);
 					}
-				}
-
-				/* Confuse the monster (never cumulative) */
-				else
-				{
-					if (m_ptr->ml >= ML_FULL)
+					else
 					{
 						message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
+						m_ptr->confused = 10;
 					}
 
-					m_ptr->confused = 10;
-				}
-
-				/* Sometimes cancel attack */
-				if (one_in_(3))
-				{
-					/* Message */
-					message(MSG_HIT, 0, "Your hands stop glowing.");
-
-					/* Cancel special confusion attack */
-					p_ptr->special_attack &= ~(ATTACK_CONFUSE);
-
-					/* Redraw the state */
-					p_ptr->redraw |= (PR_STATE);
-				}
-			}
-
-			/* Black Breath attack */
-			if (p_ptr->special_attack & (ATTACK_BLKBRTH))
-			{
-				/* The undead are immune */
-				if (r_ptr->flags3 & (RF3_UNDEAD))
-				{
-					/* Learn about visible monster */
-					if (m_ptr->ml >= ML_FULL)
+					/* Sometimes cancel attack */
+					if (one_in_(3))
 					{
-						l_ptr->flags3 |= (RF3_UNDEAD);
-					}
+						/* Message */
+						message(MSG_HIT, 0, "Your hands stop glowing.");
 
-					msg_format("%^s is immune!", m_name);
+						/* Cancel special confusion attack */
+						p_ptr->special_attack &= ~(ATTACK_CONFUSE);
+					}
 				}
 
-				/* All other monsters get a saving throw. */
-				else if ((rand_int(160)) < (r_ptr->level + rand_int(60)))
+				/* Black Breath attack */
+				if (p_ptr->special_attack & (ATTACK_BLKBRTH))
 				{
-					if (m_ptr->ml >= ML_FULL)
+					/* Cancel black breath */
+					p_ptr->special_attack &= ~(ATTACK_BLKBRTH);
+
+					/* Message */
+					msg_print("Your hands stop radiating Night.");
+
+					/* The undead are immune */
+					if (r_ptr->flags3 & (RF3_UNDEAD))
+					{
+						/* Learn about visible monster */
+						if (m_ptr->ml)
+						{
+							l_ptr->flags3 |= (RF3_UNDEAD);
+						}
+
+						msg_format("%^s is immune!", m_name);
+					}
+					/* All other monsters get a saving throw. */
+					else if ((rand_int(160)) < (r_ptr->level + rand_int(60)))
 					{
 						msg_format("%^s wards off your deadly blow.", m_name);
 					}
-				}
-
-				/* Tasting some of their own medicine... */
-				else if (!(m_ptr->mflag & (MFLAG_BLBR)))
-				{
-					m_ptr->mflag |= (MFLAG_BLBR);
-
-					if (m_ptr->ml >= ML_FULL)
+					/* Tasting some of their own medicine... */
+					else
 					{
+						m_ptr->black_breath = TRUE;
 						message_format(MSG_HIT, 0, "%^s is stricken with the Black Breath!", m_name);
 					}
 				}
 
-				/* Cancel black breath */
-				p_ptr->special_attack &= ~(ATTACK_BLKBRTH);
-
-				/* Redraw the state */
-				p_ptr->redraw |= (PR_STATE);
-
-				/* Message */
-				msg_print("Your hands stop radiating Night.");
-			}
-
-			/* Burglar's "Hit and Run" attack */
-			if (p_ptr->special_attack & (ATTACK_FLEE))
-			{
-				/* Flee after a random number of blows */
-				if (blows >= rand_int(MAX(p_ptr->num_blow, p_ptr->num_blow2)))
+				/* Burglar's "Hit and Run" attack */
+				if (p_ptr->special_attack & (ATTACK_FLEE))
 				{
-					/* Message */
-					msg_print("You escape into the shadows!");
+					/* Flee after a random number of blows */
+					if (blows >= rand_int(MAX(p_ptr->num_blow,
+					                          p_ptr->num_blow2)))
+					{
+						/* Message */
+						msg_print("You escape into the shadows!");
 
-					/* Teleport. */
-					teleport_player(get_skill(S_BURGLARY, 6, 12), TRUE, FALSE);
+						/* Teleport. */
+						teleport_player(get_skill(S_BURGLARY, 6, 12), TRUE);
 
-					/* Cancel the fleeing spell */
-					p_ptr->special_attack &= ~(ATTACK_FLEE);
+						/* Cancel the fleeing spell */
+						p_ptr->special_attack &= ~(ATTACK_FLEE);
 
-					/* Redraw the state */
-					p_ptr->redraw |= (PR_STATE);
-
-					/* Stop attacking */
-					stop = TRUE;
+						/* Stop attacking */
+						blows = 100;
+					}
 				}
-			}
 
-			/* We successfully landed a blow.  No need to try other weapons. */
-			break;
+				/* We successfully landed a blow.  No need to try other weapons. */
+				break;
+			}
 		}
 
 		/* End of weapon sequence for this blow */
@@ -2307,7 +2003,7 @@ bool py_attack(int y, int x)
 		if (hit == FALSE)
 		{
 			/* Sound */
-			sound(MSG_MISS);
+			sound(SOUND_MISS);
 
 			/* Message */
 			message_format(MSG_MISS, 0, "You miss %s.", m_name);
@@ -2370,21 +2066,21 @@ bool py_attack(int y, int x)
 		 * or immobile monsters.
 		 */
 		if ((do_throw) && !((r_ptr->flags1 & (RF1_NEVER_MOVE)) ||
-		                    (monster_immaterial(r_ptr))))
+		                    (r_ptr->flags2 & (RF2_PASS_WALL))))
 		{
 			int e_loss;
 
-			/* Message  XXX */
-			msg_format("You throw %s to the ground!", m_name);
+			/* Message */
+			msg_format("You threw %s to the ground!", m_name);
 
 			/* The monster loses some energy while getting up */
-			e_loss = rand_range(skill / 3, skill * 2 / 3);
+			e_loss = rand_range(skill / 3, 2 * skill / 3);
 
 			/* Lose energy */
-			mon_adjust_energy(m_ptr, -e_loss);
+			m_ptr->energy -= MIN(m_ptr->energy, e_loss);
 		}
 
-		/* Karate -- Attempt a confusion attack */
+		/* Attempt a confusion attack */
 		if ((do_conf) && (!m_ptr->confused))
 		{
 			/* Note resistance */
@@ -2404,7 +2100,7 @@ bool py_attack(int y, int x)
 			}
 		}
 
-		/* Karate -- Attempt a slowing attack (not cumulative) */
+		/* Attempt a slowing attack (not cumulative) */
 		if ((do_slow) && (m_ptr->mspeed >= r_ptr->speed - 8))
 		{
 			/* Note resistance */
@@ -2419,15 +2115,12 @@ bool py_attack(int y, int x)
 			/* Slow the monster */
 			else if (rand_int(skill + 30) >= r_ptr->level / 2 + 20)
 			{
-				if (!m_ptr->slowed)
-				{
-					m_ptr->slowed = 5;
-					message_format(MSG_HIT, 0, "%^s is hindered.", m_name);
-				}
+				message_format(MSG_HIT, 0, "%^s is hindered.", m_name);
+				m_ptr->mspeed -= 3;
 			}
 		}
 
-		/* Karate -- Attempt a stunning attack (not cumulative) */
+		/* Attempt a stunning attack (not cumulative) */
 		if ((do_stun) && (!m_ptr->stunned))
 		{
 			/* Note resistance */
@@ -2457,8 +2150,8 @@ bool py_attack(int y, int x)
 			if (!(r_ptr->flags4 & (RF4_BRTH_FORCE)))
 			{
 				/* Big, heavy monsters */
-				if (strchr("DGP#X", r_ptr->d_char)) k /= 3;
-				else if (strchr("OTdgv&", r_ptr->d_char)) k /= 2;
+				if (strchr("DGP#", r_ptr->d_char)) k /= 3;
+				else if (strchr("OTdgv", r_ptr->d_char)) k /= 2;
 
 				/* Thrust away */
 				thrust_away(-1, m_ptr->fy, m_ptr->fx, MIN(3, 1 + k / 15));
@@ -2470,7 +2163,7 @@ bool py_attack(int y, int x)
 		if (fear && m_ptr->ml)
 		{
 			/* Sound */
-			sound(MSG_FLEE);
+			sound(SOUND_FLEE);
 
 			/* Message */
 			message_format(MSG_FLEE, 0, "%^s flees in terror!", m_name);
@@ -2487,8 +2180,20 @@ bool py_attack(int y, int x)
 		/* Wielding a weapon */
 		if ((o_ptr->k_idx) && (is_melee_weapon(o_ptr)))
 		{
+			/* Throwing weapons sometimes break when used in melee */
+			if ((k_info[o_ptr->k_idx].flags1 & (TR1_THROWING)) &&
+			    (!artifact_p(o_ptr)) && (one_in_(20)))
+			{
+				msg_print("Your weapon breaks!");
+
+				/* Reduce and describe inventory */
+				inven_item_increase(INVEN_WIELD, -1);
+				inven_item_describe(INVEN_WIELD);
+				inven_item_optimize(INVEN_WIELD);
+			}
+
 			/* Sometimes learn more about un-IDed wielded objects */
-			if (one_in_(10))
+			else if (one_in_(12))
 			{
 				learn_about_wearable(o_ptr, INVEN_WIELD, FALSE);
 			}
@@ -2500,150 +2205,116 @@ bool py_attack(int y, int x)
 		/* Wielding a weapon */
 		if ((o_ptr->k_idx) && (is_melee_weapon(o_ptr)))
 		{
-			/* Sometimes learn more about un-IDed wielded objects */
-			if (one_in_(10))
+			/* Throwing weapons sometimes break when used in melee */
+			if ((k_info[o_ptr->k_idx].flags1 & (TR1_THROWING)) &&
+			    (one_in_(20)))
+			{
+				msg_print("Your weapon breaks!");
+
+				/* Reduce and describe inventory */
+				inven_item_increase(INVEN_ARM, -1);
+				inven_item_describe(INVEN_ARM);
+				inven_item_optimize(INVEN_ARM);
+			}
+			else if (one_in_(12))
 			{
 				learn_about_wearable(o_ptr, INVEN_ARM, FALSE);
 			}
 		}
 	}
 
-	/* Print "special attacks" */
-	left_panel_display(DISPLAY_SPECIAL_ATTACK, 0);
-
 	/* Return */
 	return (TRUE);
 }
 
 
-
 /*
  * Transfer launcher attributes to missile.
  */
-void transfer_attributes_to_missile(object_type *i_ptr,
-	const object_type *o_ptr)
+void transfer_attributes_to_missile(const object_type *o_ptr,
+	object_type *i_ptr)
 {
-	u32b f1, f2, f3;
-
-	/* Get launcher attributes */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
 	/* Transfer all the flags */
-	i_ptr->flags1 |= (f1);
-	i_ptr->flags2 |= (f2);
-	i_ptr->flags3 |= (f3);
+	i_ptr->flags1 |= o_ptr->flags1;
+	i_ptr->flags2 |= o_ptr->flags2;
+	i_ptr->flags3 |= o_ptr->flags3;
 
 	/* We could also have launchers that took away attributes... */
 }
 
 
 /*
- * Calculate the projection path for fired or thrown objects.  -LM-
+ * Determine the odds of an object breaking when thrown at a monster.
  *
- * Apply variable inaccuracy, using angular comparison.
- *
- * If inaccuracy is non-zero, we reduce corridor problems by reducing
- * range instead of immediately running the projectile into the wall.
- * This favour is not extended to projection sources out in the open,
- * which makes it much better to be aiming from a firing slit than into
- * one.
+ * Note that artifacts never break; see the "drop_near()" function.
  */
-static void calc_ranged_path(int range, int y0, int x0, int *ty, int *tx,
-	int dir, int inaccuracy)
+static int breakage_chance(object_type *o_ptr)
 {
-	int reduce, expected_distance;
-	int dy, dx, delta, angle;
-	int mult = 1;
-
-
-	/* Check for "target request" */
-	if ((dir == 5) && target_okay())
+	/* Examine the item type */
+	switch (o_ptr->tval)
 	{
-		*ty = p_ptr->target_row;
-		*tx = p_ptr->target_col;
-	}
-
-	/* We have a legal compass direction */
-	else if ((dir > 0) && (dir < 10) && (dir != 5))
-	{
-		/* Target ten grids away in this direction */
-		*ty = y0 + 10 * ddy[dir];
-		*tx = x0 + 10 * ddx[dir];
-	}
-
-
-	/* No inaccuracy or no distance -- calculate path and return */
-	if ((inaccuracy <= 0) || ((*ty == y0) && (*tx == x0)))
-	{
-		(void)project_path(range, y0, x0, ty, tx, PROJECT_THRU);
-		return;
-	}
-
-	/* Inaccuracy penalizes range */
-	reduce = rand_int(1 + inaccuracy / 2);
-	if (reduce > range / 3) reduce = range / 3;
-	range -= reduce;
-
-
-	/* Get distance to target */
-	dy = *ty - y0;
-	dx = *tx - x0;
-	delta = MAX(ABS(dy), ABS(dx));
-
-
-	/* Extend target away from source, if necessary */
-	if ((delta > 0) && (delta <= 7))
-	{
-		if      (delta == 1) mult = 10;
-		else if (delta == 2) mult = 5;
-		else if (delta == 3) mult = 4;
-		else if (delta == 4) mult = 3;
-		else                 mult = 2;
-
-		*ty = y0 + (dy * mult);
-		*tx = x0 + (dx * mult);
-	}
-
-	/* Note whether we expect the projectile to travel anywhere */
-	expected_distance = project_path(range, y0, x0, ty, tx, PROJECT_THRU);
-
-	/* Path enters no grids except the origin -- return */
-	if (expected_distance < 2) return;
-
-
-	/* Continue until satisfied */
-	while (TRUE)
-	{
-		int ty2 = *ty;
-		int tx2 = *tx;
-
-		/* Get angle to this target */
-		angle = get_angle_to_target(y0, x0, ty2, tx2, 0);
-
-		/* Inaccuracy changes the angle of projection */
-		angle = Rand_normal(angle, inaccuracy);
-
-		/* Handle the 0-240 angle discontinuity */
-		if (angle < 0) angle = 240 + angle;
-
-		/* Get a grid using the adjusted angle, target it */
-		get_grid_using_angle(angle, y0, x0, &ty2, &tx2);
-
-		/* Calculate the path, accept if it enters at least two grids */
-		if (project_path(range, y0, x0, &ty2, &tx2, PROJECT_THRU) > 1)
+		/* Always break */
+		case TV_FLASK:
+		case TV_POTION:
+		case TV_BOTTLE:
+		case TV_FOOD:
 		{
-			break;
+			return (100);
 		}
 
-		/* Otherwise, reduce range and expected distance */
-		else
+		/* Often break */
+		case TV_LITE:
+		case TV_SCROLL:
+		case TV_SKELETON:
 		{
-			range -= rand_int(div_round(range, 4));
-			if (expected_distance > range) expected_distance = range;
+			return (40);
+		}
+
+		/* Frequently break */
+		case TV_ARROW:
+		{
+			return (30 - (3 * o_ptr->ac / 2));
+		}
+
+		/* Sometimes break */
+		case TV_SHOT:
+		case TV_BOLT:
+		{
+			return (20 - o_ptr->ac);
+		}
+
+		case TV_JUNK:
+		{
+			if (o_ptr->sval == SV_BOULDER) return (10);
+			else return (40);
+		}
+
+		/* Seldom break */
+		case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_SWORD:
+		case TV_WAND:
+		{
+			return (10 - o_ptr->ac);
+		}
+
+		/* Never break */
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		case TV_RING:
+		case TV_ROD:
+		{
+			return (0);
 		}
 	}
+
+	/* Rarely break */
+	return (5 - (o_ptr->ac / 2));
 }
-
 
 /*
  * Fire an object from the pack or floor.
@@ -2667,13 +2338,14 @@ void do_cmd_fire(void)
 
 	int dir, item;
 	int i, y, x, ty, tx;
-	int chance, tdis;
+	int tdis;
 
 	int break_chance;
 
-	int armor, bonus = 0, total_deadliness;
+	int armour, bonus, chance, total_deadliness;
 
 	int sleeping_bonus = 0;
+	int terrain_adjust = 0;
 	int inaccuracy;
 
 	int damage;
@@ -2683,13 +2355,11 @@ void do_cmd_fire(void)
 	int special_dam = 0;
 	int special_impact = 0;
 	int special_hit = 0;
-	int special_deadly = 0;
-	u16b combat_mods = 0;
 
 	object_type *o_ptr;
 	object_type *i_ptr;
 	object_type *j_ptr;
-	object_type *backup_i_ptr;
+	object_type *q_ptr;
 	object_type object_type_body;
 	object_type object_type_body2;
 
@@ -2702,11 +2372,11 @@ void do_cmd_fire(void)
 	byte missile_attr;
 	char missile_char;
 
-	char o_name[DESC_LEN];
-	char m_name[DESC_LEN];
-	char msg_hit[DESC_LEN];
+	char o_name[120];
+	char m_name[80];
 
-	bool no_pile = FALSE;
+	int path_n = 0;
+	u16b path_g[256];
 
 	cptr q, s;
 
@@ -2736,21 +2406,11 @@ void do_cmd_fire(void)
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
-	/* Use some energy ("p_ptr->num_fire" has a standard value of 2) */
-	p_ptr->energy_use = div_round(200, p_ptr->num_fire);
-
-	/* Sound */
-	sound(MSG_SHOOT);
-
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
 	/* Copy the missile */
 	object_copy(i_ptr, j_ptr);
-
-	/* Note a single object */
-	if (j_ptr->number == 1) no_pile = TRUE;
 
 	/* Single object */
 	i_ptr->number = 1;
@@ -2759,7 +2419,7 @@ void do_cmd_fire(void)
 	if (item >= 0)
 	{
 		inven_item_increase(item, -1);
-		use_item_describe(item, USE_ITEM_DESC_FIRE);
+		inven_item_describe(item);
 		inven_item_optimize(item);
 	}
 
@@ -2767,98 +2427,68 @@ void do_cmd_fire(void)
 	else
 	{
 		floor_item_increase(0 - item, -1);
-		use_item_describe(item, USE_ITEM_DESC_FIRE);
 		floor_item_optimize(0 - item);
 	}
 
 	/* Get local object */
-	backup_i_ptr = &object_type_body2;
+	q_ptr = &object_type_body2;
 
 	/* Save a backup copy of the fired missile */
-	object_copy(backup_i_ptr, i_ptr);
+	object_copy(q_ptr, i_ptr);
 
-	/* Hack -- transfer launcher attributes to the missile */
-	transfer_attributes_to_missile(i_ptr, o_ptr);
+
+	/* Use some energy ("p_ptr->num_fire" has a standard value of 2) */
+	p_ptr->energy_use = div_round(200, p_ptr->num_fire);
+
+	/* Sound */
+	sound(SOUND_SHOOT);
 
 
 	/* Fire ammo of backbiting, and it will turn on you.  -LM- */
 	if (i_ptr->ego_item_index == EGO_BACKBITING)
 	{
 		/* Calculate damage. */
-		damage = damroll(p_ptr->ammo_mult * i_ptr->dd * randint(2),
-		                 i_ptr->ds * 4);
+		damage = damroll(p_ptr->ammo_mult * i_ptr->dd * randint(2), i_ptr->ds * 4);
 		damage += special_dam;
 
 		/* Inflict both normal and wound damage. */
-		if (!take_hit(damage, 0, "Your missile turns in midair and strikes you!",
-		   "ammo of backbiting"))
-		{
-			set_cut(randint(damage * 3));
-		}
+		take_hit(damage, 0, "Your missile turns in midair and strikes you!",
+		   "ammo of backbiting");
+
+		set_cut(randint(damage * 3));
 
 		/* That ends that shot! */
 		return;
 	}
 
 	/* Describe the object */
-	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
+	object_desc(o_name, i_ptr, FALSE, 3);
 
-	/* Strength increases distance, weight reduces it */
-	tdis = adj_str_blow[p_ptr->stat_ind[A_STR]] * 8 /
-		((i_ptr->weight > 3) ? i_ptr->weight : 3);
+	/* Get the color and symbol for the fired object */
+	missile_attr = object_attr(i_ptr);
+	missile_char = object_char(i_ptr);
 
-	/* Max distance depends on skill */
-	if (tdis > 12 + get_skill(sbow(o_ptr->tval), 0, 8))
-	    tdis = 12 + get_skill(sbow(o_ptr->tval), 0, 8);
 
-	/* Shots are usually not perfectly accurate */
-	inaccuracy = 5 - get_skill(sbow(o_ptr->tval), 0, 5);
+	/* Base range  (XXX - this formula is a little weird) */
+	tdis = 5 + 5 * p_ptr->ammo_mult;
 
-	/* Cursed ammo can escape from your control  -clefs- */
-	if (cursed_p(i_ptr))
-	{
-		/* Warn the player */
-		msg_print("Your finger slips!");
+	/* Calculate the quality of the shot */
+	bonus = (p_ptr->to_h + o_ptr->to_h + i_ptr->to_h);
+	chance = p_ptr->skill_thb + (BTH_PLUS_ADJ * bonus);
 
-		/* Note the curse */
-		i_ptr->ident |= (IDENT_SENSE);
-		if ((i_ptr->inscrip != INSCRIP_VERY_CURSED) &&
-		    (i_ptr->inscrip != INSCRIP_WORTHLESS) &&
-		    (i_ptr->inscrip != INSCRIP_TERRIBLE))
-		{
-			i_ptr->inscrip = INSCRIP_CURSED;
-		}
+	/* Sum all the applicable additions to Deadliness. */
+	total_deadliness = p_ptr->to_d + o_ptr->to_d + i_ptr->to_d;
 
-		/* Randomize target */
-		inaccuracy += 20;
-	}
+	/* Accuracy at range depends on shooting skill */
+	inaccuracy = 6 - get_skill(sbow(o_ptr->sval), 0, 5);
 
-	/* Cursed launchers are tricky to use */
-	else if (cursed_p(o_ptr))
-	{
-		char weapon_name[DESC_LEN];
 
-		/* Get the short name of the missile weapon */
-		strip_name(weapon_name, o_ptr->k_idx);
+	/* Hack -- transfer launcher attributes to the missile */
+	transfer_attributes_to_missile(o_ptr, i_ptr);
 
-		/* Warn the player */
-		msg_format("Your %s jerks suddenly!", weapon_name);
-
-		/* Note the curse */
-		o_ptr->ident |= (IDENT_SENSE);
-		if ((o_ptr->inscrip != INSCRIP_VERY_CURSED) &&
-		    (o_ptr->inscrip != INSCRIP_WORTHLESS) &&
-		    (o_ptr->inscrip != INSCRIP_TERRIBLE))
-		{
-			o_ptr->inscrip = INSCRIP_CURSED;
-		}
-
-		/* Randomize target */
-		inaccuracy += 10;
-	}
 
 	/* Handle various special attacks  -LM- */
-	else if (p_ptr->special_attack)
+	if (p_ptr->special_attack)
 	{
 		/* Piercing shot */
 		if (p_ptr->special_attack & (ATTACK_PIERCING))
@@ -2870,15 +2500,8 @@ void do_cmd_fire(void)
 		/* Deadly shot */
 		if (p_ptr->special_attack & (ATTACK_DEADLY))
 		{
-			special_deadly = TRUE;
-			p_ptr->special_attack &= ~(ATTACK_DEADLY);
-		}
-
-		/* Damaging shot */
-		if (p_ptr->special_attack & (ATTACK_DAMAGE))
-		{
 			special_dam = TRUE;
-			p_ptr->special_attack &= ~(ATTACK_DAMAGE);
+			p_ptr->special_attack &= ~(ATTACK_DEADLY);
 		}
 
 		/* Impact shot */
@@ -2892,7 +2515,6 @@ void do_cmd_fire(void)
 		if (p_ptr->special_attack & (ATTACK_ACCURATE))
 		{
 			special_hit = TRUE;
-			inaccuracy /= 2;
 			p_ptr->special_attack &= ~(ATTACK_ACCURATE);
 		}
 
@@ -2931,48 +2553,40 @@ void do_cmd_fire(void)
 
 			/* Hits very often */
 			inaccuracy = 0;
-			bonus += 20;
+			chance *= 2;
 
 			/* Cancel the special attack */
 			p_ptr->special_attack &= ~(ATTACK_BARD);
 		}
-
-		/* Redraw the state */
-		p_ptr->redraw |= (PR_STATE);
 	}
+
 
 	/* Get (adjusted) missile attributes */
 	object_flags(i_ptr, &f1, &f2, &f3);
 
-	/* Get the color and symbol for the fired object */
-	missile_attr = object_attr(i_ptr);
-	missile_char = object_char(i_ptr);
-
 	/* Learn some flags */
 	if (f3 & (TR3_IMPACT)) impact = TRUE;
-
-
-	/* Calculate the quality of the shot */
-	bonus = (o_ptr->to_h + i_ptr->to_h);
-	chance = p_ptr->skill_thb + (BTH_PLUS_ADJ * bonus);
-
-	/* Sum all the applicable additions to Deadliness. */
-	total_deadliness = p_ptr->to_d + o_ptr->to_d + i_ptr->to_d;
-
 
 	/* Start at the player */
 	y = py;
 	x = px;
 
-	/* Clear hit message */
-	strcpy(msg_hit, "");
+	/* Predict the "target" location */
+	ty = py + 99 * ddy[dir];
+	tx = px + 99 * ddx[dir];
+
+	/* Check for "target request" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = p_ptr->target_col;
+		ty = p_ptr->target_row;
+	}
+
+	/* Calculate the path -- missiles fly right past missed targets */
+	path_n = project_path(path_g, tdis, py, px, &ty, &tx, PROJECT_THRU);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
-
-
-	/* Calculate path of projection */
-	calc_ranged_path(tdis, py, px, &ty, &tx, dir, inaccuracy);
 
 	/* Project along the path */
 	for (i = 0; i < path_n; ++i)
@@ -2980,12 +2594,9 @@ void do_cmd_fire(void)
 		int ny = GRID_Y(path_g[i]);
 		int nx = GRID_X(path_g[i]);
 
-		/* Delay depends on length of path */
-		int m = (path_n <= 4 ? msec : (path_n <= 8 ? msec*2/3 : msec/2));
 
-
-		/* Collide with anything non-projectable */
-		if (!cave_project_bold(ny, nx))
+		/* Collide with walls */
+		if (!cave_floor_bold(ny, nx))
 		{
 			hit_wall = TRUE;
 			break;
@@ -2996,36 +2607,22 @@ void do_cmd_fire(void)
 		y = ny;
 
 		/* Only do visuals if the player can "see" the missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x) &&
-		    (path_gx[i] != PATH_G_NONE))
+		if (panel_contains(y, x) && player_can_see_bold(y, x))
 		{
-			/* Full delay if monster in way */
-			if (cave_m_idx[y][x] != 0) m = msec;
-
 			/* Visual effects */
 			print_rel(missile_char, missile_attr, y, x);
 			move_cursor_relative(y, x);
-			(void)Term_fresh();
-			pause_for(m);
+			Term_fresh();
+			Term_xtra(TERM_XTRA_DELAY, msec);
 			lite_spot(y, x);
-			(void)Term_fresh();
+			Term_fresh();
 		}
 
 		/* Delay anyway for consistency */
 		else
 		{
 			/* Pause anyway, for consistency */
-			pause_for(m);
-		}
-
-		/* This grid is ignored by the projection */
-		if (path_gx[i] >= PATH_G_NONE)
-		{
-			/* If no monster, we just fly by */
-			if (!cave_m_idx[y][x]) continue;
-
-			/* Otherwise, we are blocked  XXX XXX */
-			else break;
+			Term_xtra(TERM_XTRA_DELAY, msec);
 		}
 
 		/* Handle monster */
@@ -3033,11 +2630,29 @@ void do_cmd_fire(void)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+			int chance2 =
+				chance * (100 - (distance(py, px, y, x) * inaccuracy)) / 100;
 
 			bool fear = FALSE;
 
+			int dice;
+			long die_average, temp, sides;
+
+			/* Assume a default death */
+			cptr note_dies = " dies.";
+
+			/* Some monsters get "destroyed" */
+			if (monster_nonliving(r_ptr))
+			{
+				/* Special note at death */
+				note_dies = " is destroyed.";
+			}
+
 			/* Get "the monster" or "it" */
-			monster_desc(m_name, m_ptr, 0x40);
+			monster_desc(m_name, m_ptr, 0);
+
 
 			/* Character is not blind, confused, or hallucinating */
 			if ((!p_ptr->blind) && (!p_ptr->confused) && (!p_ptr->image))
@@ -3055,83 +2670,151 @@ void do_cmd_fire(void)
 				}
 			}
 
-			/* Apply effects of terrain to AC of monster. */
-			armor = r_ptr->ac + terrain_ac_adjust(r_ptr, cave_feat[y][x]);
 
-			/* Weapons of velocity sometimes almost negate monster armor. */
-			if (special_hit) armor /= 3;
+			/* Monsters in rubble can take advantage of cover. */
+			if (cave_feat[y][x] == FEAT_RUBBLE)
+			{
+				terrain_adjust = r_ptr->ac / 5 + 5;
+			}
 
-			/* Deadly shots hit more often */
-			if (special_deadly) armor = armor * 2 / 3;
+			/*
+			 * Monsters in trees can take advantage of cover, but those skilled
+			 * in nature lore can hit them more easily.
+			 */
+			if (cave_feat[y][x] == FEAT_TREE)
+			{
+				terrain_adjust = r_ptr->ac / 7 + 5;
+				terrain_adjust -= get_skill(S_NATURE, 0, 20);
+			}
 
-			/* Did we hit it? */
-			if (!test_hit_combat(chance + sleeping_bonus, armor, m_ptr->ml))
+			/* Monsters in water are vulnerable. */
+			if (cave_feat[y][x] == FEAT_WATER)
+			{
+				terrain_adjust -= r_ptr->ac / 5;
+			}
+
+			/* Get effective armour class of monster. */
+			armour = r_ptr->ac + terrain_adjust;
+
+			/* Weapons of velocity sometimes almost negate monster armour. */
+			if (special_hit) armour /= 3;
+
+
+			/* Some monsters are great at dodging  -EZ- */
+			else if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!m_ptr->csleep) &&
+			         (rand_int(5 + m_ptr->cdis) >= 3))
+			{
+				if (mon_fully_visible(m_ptr))
+				{
+					message_format(MSG_MISS, 0, "%^s dodges!", m_name);
+
+					/* Learn that monster can dodge */
+					l_ptr->flags2 |= (RF2_EVASIVE);
+				}
+
+				continue;
+			}
+
+			/* Did we hit it (penalize distance travelled) */
+			if (!test_hit_combat(chance2 + sleeping_bonus, armour, m_ptr->ml))
 			{
 				/* Object whizzes right past the monster */
 				continue;
 			}
 
-			/* Monster evaded or resisted */
-			if (monster_evade_or_resist(o_ptr, m_ptr, BLOW_MISSILE))
-			{
-				continue;
-			}
-
-			/* Note the collision */
-			hit_body++;
-
 			/* Make some noise. */
 			if (TRUE)
 			{
-				/* Noise partly depends on stealth */
 				int noise = p_ptr->base_wakeup_chance / 2;
 
-				/* Noise greatly depends on burglary skill */
-				noise += get_combat_noise(0, 800);
+				/* Burglary skill greatly reduces noise */
+				noise += 1000 - get_skill(S_BURGLARY, 0, 800);
 
 				/* Increase the noise level */
 				add_wakeup_chance += noise;
 			}
 
+			/* Note the collision */
+			hit_body++;
+
 			/* Reveal fully visible mimics */
-			if ((m_ptr->mflag & (MFLAG_MIME)) && (m_ptr->ml >= ML_FULL))
+			if ((m_ptr->mflag & (MFLAG_MIME)) && (m_ptr->ml) &&
+			    (!(m_ptr->mflag & (MFLAG_DLIM))))
 			{
 				/* Reveal the monster */
 				m_ptr->mflag &= ~(MFLAG_MIME);
 
 				/* Get monster name again */
-				monster_desc(m_name, m_ptr, 0xC8);
+				monster_desc(m_name, m_ptr, 0x88);
 
 				/* Message  XXX */
 				msg_print("It was a mimic!");
 			}
 
 			/* Hack -- Track this monster race, if monster is visible */
-			if (m_ptr->ml >= ML_FULL) monster_race_track(m_ptr->r_idx);
+			if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
 			/* Hack -- Track this monster, if visible */
 			if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 
 			/* Practice the shooting skill */
-			skill_being_used = sbow(o_ptr->tval);
+			skill_being_used = sbow(o_ptr->sval);
 
 
-			/* Special damage bonuses */
-			if (special_dam)    combat_mods |= (DAM_ADJUST_DAM);
-			if (special_deadly) combat_mods |= (DAM_ADJUST_DEADLY);
+			/* Other items hit the monster */
 
-			/* Calculate the damage */
-			damage = calc_combat_dam(COMBAT_FIRE, i_ptr, m_ptr,
-				m_name, total_deadliness, chance + sleeping_bonus,
-				msg_hit, combat_mods);
+			/*
+			 * The basic damage-determination formula is the same in
+			 * archery as it is in melee (apart from the launcher mul-
+			 * tiplier).
+			 */
+
+			/* Base damage dice */
+			dice = i_ptr->dd;
+
+			/* Critical hits may add damage dice. */
+			dice += critical_shot(chance2 + sleeping_bonus, FALSE, m_ptr->ml,
+										  m_name, i_ptr, m_ptr);
+
+			/* Get the average value of a single damage die. (10x inflation) */
+			die_average = (10 * (i_ptr->ds + 1)) / 2;
 
 
-			/* Hack! -- display hit messages before monster dies  XXX */
-			if ((damage > m_ptr->hp) && (strlen(msg_hit)))
-				message(MSG_HIT, 0, format("%s.", msg_hit));
+			/* Apply the launcher multiplier to average. */
+			die_average *= p_ptr->ammo_mult;
+
+			/* Apply deadliness to average. (100x inflation) */
+			apply_deadliness(&die_average, total_deadliness);
+
+			/* Reconvert to die sides. */
+			temp = (2L * die_average) - 1000;
+
+			/* Calculate the actual number of sides to each die. */
+			sides = div_round(temp, 1000);
+
+
+			/* Roll out the damage. */
+			damage = damroll(dice, (s16b)sides);
+debug("dam1 = %d", damage);
+			/* Special damage bonus */
+			if (special_dam)
+			{
+				damage += 10;
+
+				/* Crossbow of Harad is deadly */
+				if (o_ptr->artifact_index == ART_HARAD) damage += 10;
+debug("dam2 = %d", damage);
+			}
+
+			/* Adjust damage for slays, brands, resists. */
+			adjust_dam(&damage, i_ptr, m_ptr, FALSE);
+debug("dam3 = %d", damage);
+
+			/* No negative damage */
+			if (damage < 0) damage = 0;
 
 			/* Hit the monster, check for death. */
-			if (mon_take_hit(cave_m_idx[y][x], -1, damage, &fear, death_string(r_ptr)))
+			if (mon_take_hit(cave_m_idx[y][x], -1, damage, &fear, note_dies))
 			{
 				/* Dead monster */
 			}
@@ -3140,22 +2823,22 @@ void do_cmd_fire(void)
 			else
 			{
 				/* Message */
-				message_pain(cave_m_idx[y][x], damage, fear, msg_hit);
+				message_pain(cave_m_idx[y][x], damage);
 
 				/* Monsters can be thrust back by an impact missile. */
 				if (impact)
 				{
-					/* Minimum chance is 40%, and it rises for powerful hits */
-					int tmp = 40 + (200 * damage / m_ptr->maxhp);
+					/* Minimum chance is 35%, and it rises for powerful hits */
+					int tmp = 35 + (125 * damage / m_ptr->maxhp);
 
-					/* Special impact hits are guaranteed */
-					if (special_impact) tmp = 100;
+					/* Chance triples for special impact hits */
+					if (special_impact) tmp *= 3;
 
 					/* Force the monster back */
 					if (tmp > rand_int(100))
 					{
 						int k = damage;
-						if (special_impact) k *= 4;
+						if (special_impact) k *= 3;
 
 						if (!(r_ptr->flags4 & (RF4_BRTH_FORCE)))
 						{
@@ -3163,10 +2846,20 @@ void do_cmd_fire(void)
 							if (strchr("DGP#", r_ptr->d_char)) k /= 3;
 							else if (strchr("OTdgv", r_ptr->d_char)) k /= 2;
 
-							/* Thrust away (minimum of 2 spaces) */
-							thrust_away(-1, m_ptr->fy, m_ptr->fx, MIN(6, 2 + k / 10));
+							/* Thrust away */
+							thrust_away(-1, m_ptr->fy, m_ptr->fx, MIN(6, 1 + k / 10));
 						}
 					}
+				}
+
+				/* Take note */
+				if (fear && m_ptr->ml)
+				{
+					/* Sound */
+					sound(SOUND_FLEE);
+
+					/* Message */
+					message_format(MSG_FLEE, 0, "%^s flees in terror!", m_name);
 				}
 			}
 
@@ -3176,7 +2869,7 @@ void do_cmd_fire(void)
 				continue;
 			}
 
-			/* Object has hit a monster */
+			/* Object has hit a monster -- it falls to the floor */
 			break;
 		}
 	}
@@ -3185,9 +2878,9 @@ void do_cmd_fire(void)
 	/* Chance of breakage (during attacks) */
 	break_chance = (hit_body ? breakage_chance(i_ptr) : 0);
 
-	/* Roll for breakage now */
-	if ((break_chance) && (rand_int(100) < break_chance)) break_chance = 100;
-	else                                                  break_chance =   0;
+	/* Hack -- roll for breakage now */
+	if (rand_int(100) < break_chance) break_chance = 100;
+	else                              break_chance =   0;
 
 
 	/* Chance to learn about the launcher and ammo */
@@ -3200,16 +2893,15 @@ void do_cmd_fire(void)
 		}
 
 		/* Learn about the stack of ammo, if any remains */
-		if (!no_pile)
+		if (j_ptr->k_idx)
 		{
 			if (one_in_(6))
 			{
-				/* Learn about the pile */
 				learn_about_wearable(j_ptr, -1, FALSE);
 
 				/* Copy updated information to the backup missile */
-				object_copy(backup_i_ptr, j_ptr);
-				backup_i_ptr->number = 1;
+				object_copy(q_ptr, j_ptr);
+				q_ptr->number = 1;
 			}
 		}
 
@@ -3218,25 +2910,20 @@ void do_cmd_fire(void)
 		{
 			if (one_in_(6))
 			{
-				learn_about_wearable(backup_i_ptr, -1, FALSE);
+				learn_about_wearable(q_ptr, -1, FALSE);
 			}
 		}
 	}
 
 
 	/* Restore old flags and grant new knowledge to the fired missile */
-	object_copy(i_ptr, backup_i_ptr);
+	object_copy(i_ptr, q_ptr);
 
-
-	/* The whole pile of missiles has been "worn" (will now stack better) */
-	i_ptr->ident |= (IDENT_WORN);
-	if (!no_pile) j_ptr->ident |= (IDENT_WORN);
+	/* Object falls to the floor (as opposed to being dropped) */
+	if (break_chance == 0) break_chance = -1;
 
 	/* Drop (or break/shatter) near that location */
-	drop_near(i_ptr, break_chance, y, x, DROP_HERE);
-
-	/* Print "special attacks" */
-	left_panel_display(DISPLAY_SPECIAL_ATTACK, 0);
+	drop_near(i_ptr, break_chance, y, x);
 }
 
 
@@ -3258,6 +2945,7 @@ void do_cmd_throw(void)
 	int dir, item;
 	int i, y, x, ty, tx;
 	int chance, tdis;
+	int mul, div;
 
 	int break_chance;
 
@@ -3265,7 +2953,6 @@ void do_cmd_throw(void)
 	int sleeping_bonus = 0;
 	int terrain_adjust = 0;
 	int inaccuracy;
-	u16b combat_mods = 0;
 
 	int damage;
 
@@ -3278,21 +2965,19 @@ void do_cmd_throw(void)
 	bool hit_body = FALSE;
 	bool hit_wall = FALSE;
 	bool impact = FALSE;
-	bool throwing_weapon = FALSE;
 
 	byte missile_attr;
 	char missile_char;
 
-	char o_name[DESC_LEN];
-	char m_name[DESC_LEN];
+	char o_name[120];
+	char m_name[80];
+
+	int path_n = 0;
+	u16b path_g[256];
 
 	cptr q, s;
-	char msg_hit[DESC_LEN];
-
-	bool no_pile = FALSE;
 
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
-	int returning = 0;
 
 
 	/* Get an item */
@@ -3317,12 +3002,21 @@ void do_cmd_throw(void)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* You cannot unwield cursed objects by throwing them */
-	if ((cursed_cling(o_ptr)) && (item >= INVEN_WIELD))
+	if ((cursed_p(o_ptr)) && (item >= INVEN_WIELD))
 	{
-		/* Get an object kind name */
-		strip_name(o_name, o_ptr->k_idx);
+		/* Get local object */
+		i_ptr = &object_type_body;
 
-		if ((artifact_p(o_ptr)) && (object_known_p(o_ptr)))
+		/* Obtain a local object */
+		object_copy(i_ptr, o_ptr);
+
+		/* Single object */
+		i_ptr->number = 1;
+
+		/* Get a short object description */
+		object_desc(o_name, i_ptr, FALSE, 0);
+
+		if ((artifact_p(i_ptr)) && (object_known_p(i_ptr)))
 			msg_format("The %s clings to your hand, and cannot be thrown!",
 			o_name);
 		else
@@ -3332,15 +3026,9 @@ void do_cmd_throw(void)
 		return;
 	}
 
-	/* Check for throwing weapon */
-	if (f1 & (TR1_THROWING)) throwing_weapon = TRUE;
-
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 
 	/* Get local object */
@@ -3352,28 +3040,14 @@ void do_cmd_throw(void)
 	/* Distribute the charges of rods/wands between the stacks */
 	distribute_charges(o_ptr, i_ptr, 1);
 
-	/* Note last of pile */
-	if (o_ptr->number == 1) no_pile = TRUE;
-
 	/* Single object */
 	i_ptr->number = 1;
 
-
-	/* Get object attributes */
-	object_flags(i_ptr, &f1, &f2, &f3);
-
-
-	/* Hack -- Returning weapons are handled later  XXX XXX */
-	if (f1 & (TR1_RETURNING))
-	{
-		returning = 1;
-	}
-
-	/* Reduce and describe floor item */
-	else if (item >= 0)
+	/* Reduce and describe inventory */
+	if (item >= 0)
 	{
 		inven_item_increase(item, -1);
-		use_item_describe(item, USE_ITEM_DESC_THROW);
+		inven_item_describe(item);
 		inven_item_optimize(item);
 	}
 
@@ -3381,27 +3055,31 @@ void do_cmd_throw(void)
 	else
 	{
 		floor_item_increase(0 - item, -1);
-		use_item_describe(item, USE_ITEM_DESC_THROW);
 		floor_item_optimize(0 - item);
 	}
 
 
-	/* Describe the object */
-	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 2);
+	/* Description */
+	object_desc(o_name, i_ptr, FALSE, 2);
 
+	/* Get the color and symbol of the thrown object */
+	missile_attr = object_attr(i_ptr);
+	missile_char = object_char(i_ptr);
 
-	/* Strength increases distance, weight reduces it */
-	tdis = adj_str_blow[p_ptr->stat_ind[A_STR]] * 6 /
-		((i_ptr->weight > 5) ? i_ptr->weight : 5);
+	/* Extract a "distance multiplier" */
+	mul = 6;
 
-	/* Max distance depends on skill */
-	if (tdis > 10 + get_skill(S_THROWING, 0, 10))
-	    tdis = 10 + get_skill(S_THROWING, 0, 10);
+	/* Enforce a minimum weight of half a pound */
+	div = ((i_ptr->weight > 5) ? i_ptr->weight : 5);
 
+	/* Hack -- Distance -- Reward strength, penalize weight */
+	tdis = adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div;
 
-	/* Thrown objects always deviate slightly from their course */
-	inaccuracy = 5 - get_skill(S_THROWING, 0, 5);
+	/* Max distance of 15 */
+	if (tdis > 15) tdis = 15;
 
+	/* Get object attributes */
+	object_flags(i_ptr, &f1, &f2, &f3);
 
 	/* Note impact object -- impact ammo doesn't work, sorry */
 	if (f3 & (TR3_IMPACT))
@@ -3409,37 +3087,16 @@ void do_cmd_throw(void)
 		if (!is_missile(i_ptr)) impact = TRUE;
 	}
 
-	/* Cursed thrown items can escape from your control */
-	if (cursed_p(i_ptr) && one_in_(2))
-	{
-		/* Warn the player */
-		msg_print("Your throwing hand jerks suddenly!");
-
-		/* Note the curse */
-		i_ptr->ident |= (IDENT_SENSE);
-		if ((i_ptr->inscrip != INSCRIP_VERY_CURSED) &&
-		    (i_ptr->inscrip != INSCRIP_WORTHLESS) &&
-		    (i_ptr->inscrip != INSCRIP_TERRIBLE))
-		{
-			i_ptr->inscrip = INSCRIP_CURSED;
-		}
-
-		/* Randomize target */
-		inaccuracy += 20;
-	}
 
 	/*
-	 * Throwing weapons are harder to use, but often have plusses to Skill.
-	 * They can also take advantage of plusses to Deadliness from equipment.
+	 * Other thrown objects are easier to use, but only throwing weapons
+	 * take advantage of bonuses to Skill and Deadliness from other
+	 * equipped items.
 	 */
-	if (throwing_weapon)
+	if (f1 & (TR1_THROWING))
 	{
-		chance = p_ptr->skill_tht + (BTH_PLUS_ADJ * i_ptr->to_h);
+		chance = p_ptr->skill_tht + BTH_PLUS_ADJ * (p_ptr->to_h + i_ptr->to_h);
 		total_deadliness = p_ptr->to_d + i_ptr->to_d;
-
-		/* Special case -- Half-Trolls are clumsy with throwing weapons */
-		if (p_ptr->prace == RACE_HALF_TROLL)
-			chance -= get_skill(S_THROWING, 5, 25);
 	}
 	else
 	{
@@ -3447,30 +3104,42 @@ void do_cmd_throw(void)
 		total_deadliness = i_ptr->to_d;
 	}
 
+	/* Special case -- Half-Trolls are pretty good at throwing boulders */
+	if ((p_ptr->prace == RACE_HALF_TROLL) &&
+	    (i_ptr->tval == TV_JUNK) && (i_ptr->sval == SV_BOULDER))
+	{
+		chance += get_skill(S_THROWING, 5, 30);
+	}
 
-	/* Get the color and symbol of the thrown object */
-	missile_attr = object_attr(i_ptr);
-	missile_char = object_char(i_ptr);
+
+	/* Long-range accuracy greatly depends on throwing skill */
+	inaccuracy = 8 - get_skill(S_THROWING, 0, 7);
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 
 	/* Start at the player */
 	y = py;
 	x = px;
 
-	/* Clear hit message */
-	strcpy(msg_hit, "");
+	/* Predict the "target" location */
+	ty = py + 99 * ddy[dir];
+	tx = px + 99 * ddx[dir];
+
+	/* Check for "target request" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = p_ptr->target_col;
+		ty = p_ptr->target_row;
+	}
+
+	/* Calculate the path - travel through a missed target */
+	path_n = project_path(path_g, tdis, py, px, &ty, &tx, PROJECT_THRU);
 
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
-
-
-	/* Allow returning weapons to travel out and back */
-	start_travel:
-
-
-	/* Calculate path of projection */
-	calc_ranged_path(tdis, py, px, &ty, &tx, dir, inaccuracy);
 
 	/* Project along the path */
 	for (i = 0; i < path_n; ++i)
@@ -3478,11 +3147,8 @@ void do_cmd_throw(void)
 		int ny = GRID_Y(path_g[i]);
 		int nx = GRID_X(path_g[i]);
 
-		/* Delay depends on length of path */
-		int m = (path_n <= 4 ? msec : (path_n <= 8 ? 2*msec/3 : msec/2));
-
-		/* Collide with anything non-projectable */
-		if (!cave_project_bold(ny, nx))
+		/* Collide with walls */
+		if (!cave_floor_bold(ny, nx))
 		{
 			hit_wall = TRUE;
 			break;
@@ -3492,37 +3158,29 @@ void do_cmd_throw(void)
 		x = nx;
 		y = ny;
 
-		/* Only do visuals if the player can "see" the missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x) &&
-		    (path_gx[i] != PATH_G_NONE))
+		/* We've reached the original target -- reduce remaining moves */
+		if ((y == ty) && (x == tx))
 		{
-			/* Full delay if monster in way */
-			if (cave_m_idx[y][x] != 0) m = msec;
+			path_n -= rand_int(path_n - i);
+		}
 
+		/* Only do visuals if the player can "see" the missile */
+		if (panel_contains(y, x) && player_can_see_bold(y, x))
+		{
 			/* Visual effects */
 			print_rel(missile_char, missile_attr, y, x);
 			move_cursor_relative(y, x);
-			(void)Term_fresh();
-			pause_for(m);
+			Term_fresh();
+			Term_xtra(TERM_XTRA_DELAY, msec);
 			lite_spot(y, x);
-			(void)Term_fresh();
+			Term_fresh();
 		}
 
 		/* Delay anyway for consistency */
 		else
 		{
 			/* Pause anyway, for consistency */
-			pause_for(m);
-		}
-
-		/* This grid is ignored by the projection */
-		if (path_gx[i] >= PATH_G_NONE)
-		{
-			/* If no monster, we just fly by */
-			if (!cave_m_idx[y][x]) continue;
-
-			/* Otherwise, we are blocked  XXX XXX */
-			else break;
+			Term_xtra(TERM_XTRA_DELAY, msec);
 		}
 
 		/* Handle monster */
@@ -3530,17 +3188,32 @@ void do_cmd_throw(void)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+			/* Calculate the projectile accuracy, modified by distance. */
+			int chance2 =
+				chance * (100 - (distance(py, px, y, x) * inaccuracy)) / 100;
 
 			bool fear = FALSE;
 
-			/* Get "the monster" or "it" */
-			monster_desc(m_name, m_ptr, 0x40);
+			int dice;
+			long die_average, temp, sides;
+
+			/* Assume a default death */
+			cptr note_dies = " dies.";
+
+			/* Some monsters get "destroyed" */
+			if (monster_nonliving(r_ptr))
+			{
+				/* Special note at death */
+				note_dies = " is destroyed.";
+			}
 
 			/* Character is not blind, confused, or hallucinating */
 			if ((!p_ptr->blind) && (!p_ptr->confused) && (!p_ptr->image))
 			{
 				/* Monster is visible.  Character is using throwing weapons */
-				if ((m_ptr->ml >= ML_FULL) && (throwing_weapon))
+				if ((m_ptr->ml) && (f1 & (TR1_THROWING)))
 				{
 					/* If the monster is sleeping, it can be hit more easily. */
 					if (m_ptr->csleep)
@@ -3552,54 +3225,85 @@ void do_cmd_throw(void)
 				}
 			}
 
-			/* Apply terrain effects */
-			terrain_adjust = terrain_ac_adjust(r_ptr, cave_feat[y][x]);
+			/* Monsters in rubble can take advantage of cover. */
+			if (cave_feat[y][x] == FEAT_RUBBLE)
+			{
+				terrain_adjust = r_ptr->ac / 5 + 5;
+			}
 
-			/* Did we hit it? */
-			if (!test_hit_combat(chance + sleeping_bonus,
-				r_ptr->ac + terrain_adjust, m_ptr->ml))
+			/*
+			 * Monsters in trees can take advantage of cover, but those
+			 * skilled in nature lore can hit them more easily.
+			 */
+			if (cave_feat[y][x] == FEAT_TREE)
+			{
+				terrain_adjust = r_ptr->ac / 7 + 5;
+				terrain_adjust -= get_skill(S_NATURE, 0, 20);
+			}
+
+			/* Monsters in water are vulnerable. */
+			if (cave_feat[y][x] == FEAT_WATER)
+			{
+				terrain_adjust -= r_ptr->ac / 5;
+			}
+
+
+			/* Get "the monster" or "it" */
+			monster_desc(m_name, m_ptr, 0);
+
+			/* Some monsters are great at dodging  -EZ- */
+			if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!m_ptr->csleep) &&
+			    (rand_int(5 + m_ptr->cdis) >= 3))
+			{
+				if (mon_fully_visible(m_ptr))
+				{
+					message_format(MSG_MISS, 0, "%^s dodges!", m_name);
+
+					/* Learn that monster can dodge */
+					l_ptr->flags2 |= (RF2_EVASIVE);
+				}
+
+				continue;
+			}
+
+			/* Did we hit it (penalize distance travelled) */
+			if (!test_hit_combat(chance2 + sleeping_bonus, r_ptr->ac, m_ptr->ml))
 			{
 				/* Object whizzes right past the monster */
 				continue;
 			}
 
-			/* Monster evaded or resisted */
-			if (monster_evade_or_resist(i_ptr, m_ptr, BLOW_THROWN))
-			{
-				continue;
-			}
-
-			/* Note the collision */
-			hit_body = TRUE;
-
 			/* Make some noise. */
 			if (TRUE)
 			{
-				/* Noise partly depends on stealth */
 				int noise = p_ptr->base_wakeup_chance / 2;
 
-				/* Noise greatly depends on burglary skill */
-				noise += get_combat_noise(0, 800);
+				/* Burglary skill greatly reduces noise */
+				noise += 1000 - get_skill(S_BURGLARY, 0, 800);
 
 				/* Increase the noise level */
 				add_wakeup_chance += noise;
 			}
 
+			/* Note the collision */
+			hit_body = TRUE;
+
 			/* Reveal fully visible mimics */
-			if ((m_ptr->mflag & (MFLAG_MIME)) && (m_ptr->ml >= ML_FULL))
+			if ((m_ptr->mflag & (MFLAG_MIME)) && (m_ptr->ml) &&
+			    (!(m_ptr->mflag & (MFLAG_DLIM))))
 			{
 				/* Reveal the monster */
 				m_ptr->mflag &= ~(MFLAG_MIME);
 
 				/* Get monster name again */
-				monster_desc(m_name, m_ptr, 0xC8);
+				monster_desc(m_name, m_ptr, 0x88);
 
 				/* Message  XXX */
 				msg_print("It was a mimic!");
 			}
 
 			/* Hack -- Track this monster race, if monster is visible */
-			if (m_ptr->ml >= ML_FULL) monster_race_track(m_ptr->r_idx);
+			if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
 			/* Hack -- Track this monster, if visible */
 			if (m_ptr->ml) health_track(cave_m_idx[y][x]);
@@ -3607,55 +3311,103 @@ void do_cmd_throw(void)
 			/* Practice the throwing skill */
 			skill_being_used = S_THROWING;
 
-
 			/* Potions smash */
 			if (i_ptr->tval == TV_POTION)
 			{
 				break;
 			}
 
-			/* Ordinary thrown object */
-			if (!throwing_weapon)
+			/* Other items hit the monster */
+
+			/*
+			 * The basic damage-determination formula is the same in
+			 * throwing as it is in melee (with some ommisions for objects
+			 * that are not throwing weapons).
+			 */
+
+			/* Base damage dice */
+			dice = i_ptr->dd;
+
+			/* Object is a throwing weapon. */
+			if (f1 & (TR1_THROWING))
 			{
-				/* Store a default hit message. */
+				/* Critical hits may add damage dice. */
+				dice += critical_shot(chance2 + sleeping_bonus, TRUE,
+											 m_ptr->ml, m_name, i_ptr, m_ptr);
+			}
+
+			/* Ordinary thrown object */
+			else
+			{
+				/* Display a default hit message. */
 				if (m_ptr->ml)
 				{
-					strcpy(msg_hit, format("The %s hits %s", o_name, m_name));
+					message_format(MSG_HIT, 0, "The %s hits %s.", o_name, m_name);
 				}
 				else
 				{
-					strcpy(msg_hit, format("The %s finds a mark", o_name));
+					message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 				}
 			}
 
-			/* Food and mushrooms do special things on impact */
-			if (i_ptr->tval == TV_FOOD)
+			/* Get the average value of a single damage die. (10x inflation) */
+			die_average = (10 * (i_ptr->ds + 1)) / 2;
+
+			/* Apply deadliness to average. (100x inflation) */
+			apply_deadliness(&die_average, total_deadliness);
+
+			/* Object is a throwing weapon. */
+			if (f1 & (TR1_THROWING))
 			{
-				food_hit_effect(-1, y, x, i_ptr);
-				break;
+				/* Bonuses depend on specialization */
+				int max = 85;
+				if (p_ptr->oath & (OATH_OF_IRON)) max = 100;
+				else if (p_ptr->oath) max = 70;
+
+				/*
+				 * Multiply the die average by the throwing
+				 * weapon multiplier, if applicable.  This is not the
+				 * prettiest equation, but it does at least try to keep
+				 * throwing weapons competitive.
+				 */
+				die_average *= get_skill(S_THROWING, 25, max);
+
+				/* Perfectly balanced weapons do 50% extra damage. */
+				if (f1 & (TR1_PERFECT_BALANCE))
+				{
+					die_average += die_average / 2;
+				}
+
+				/* Deflate */
+				die_average /= 10;
 			}
 
+			/* Convert die average to die sides. */
+			temp = (2L * die_average) - 1000;
 
-			/* Calculate the damage */
-			damage = calc_combat_dam(COMBAT_THROW, i_ptr, m_ptr,
-				m_name, total_deadliness, chance + sleeping_bonus,
-				msg_hit, combat_mods);
+			/* Calculate the actual number of sides to each die. */
+			sides = div_round(temp, 1000);
 
 
-			/* Hack! -- display hit messages before monster dies  XXX */
-			if ((damage > m_ptr->hp) && (strlen(msg_hit)))
-				message(MSG_HIT, 0, format("%s.", msg_hit));
+			/* Roll out the damage. */
+			damage = damroll(dice, (s16b)sides);
 
-			/* Special case -- The Lightning Lance */
+			/* Adjust damage for slays, brands, resists. */
+			adjust_dam(&damage, i_ptr, m_ptr, FALSE);
+
+			/* No negative damage */
+			if (damage < 0) damage = 0;
+
+			/* Hack -- The Lightning Lance */
 			if (i_ptr->artifact_index == ART_LIGHTNING_LANCE)
 			{
-				project_beam(-1, tdis, p_ptr->py, p_ptr->px,
+				project_beam(-1, MAX_SIGHT, p_ptr->py, p_ptr->px,
 				             y, x, damage, GF_ELEC, 0L);
 			}
 
 			/* Hit the monster, check for death */
 			else if (mon_take_hit(cave_m_idx[y][x], -1, damage,
-				&fear, death_string(r_ptr)))
+				 &fear, note_dies))
 			{
 				/* Dead monster */
 			}
@@ -3664,13 +3416,13 @@ void do_cmd_throw(void)
 			else
 			{
 				/* Message */
-				message_pain(cave_m_idx[y][x], damage, fear, msg_hit);
+				message_pain(cave_m_idx[y][x], damage);
 
 				/* Monsters can be thrust back by an impact thrown object. */
 				if (impact)
 				{
-					/* Minimum chance is 35%, and it rises for powerful hits */
-					int perc = 35 + (125 * damage / m_ptr->maxhp);
+					/* Minimum chance is 25%, and it rises for powerful hits */
+					int perc = 25 + (100 * damage / m_ptr->maxhp);
 
 					/* Force the monster back */
 					if (perc > rand_int(100))
@@ -3688,140 +3440,56 @@ void do_cmd_throw(void)
 						}
 					}
 				}
+
+				/* Take note */
+				if (fear && m_ptr->ml)
+				{
+					/* Sound */
+					sound(SOUND_FLEE);
+
+					/* Message */
+					msg_format("%^s flees in terror!", m_name);
+				}
 			}
 
 			/* Object has hit a monster -- it falls to the floor */
 			break;
 		}
-
-		/* Hack -- Returning weapon has returned */
-		else if ((cave_m_idx[y][x] < 0) && (returning == 2))
-		{
-			int chance2 = get_skill(S_THROWING, 50, 95);
-
-			if ((p_ptr->blind) || (no_light())) chance2 = 0;
-			if (p_ptr->confused) chance2 -= 20;
-			if (p_ptr->image)    chance2 -= 20;
-			if (p_ptr->stun)     chance2 -= 20;
-
-			if (randint(100) < chance2)
-			{
-				msg_format("You skillfully catch the %s.", o_name);
-				returning = 3;
-				break;
-			}
-			else
-			{
-				msg_format("You failed to catch the %s!", o_name);
-
-				/* TODO: sometimes the weapon hits the player! */
-
-				/* Go on travelling */
-			}
-		}
 	}
 
-	/* Handle 'returning' weapons  - clefs - */
-	if (returning == 1)
+	/* Chance of breakage.   Throwing weapons are designed not to break. */
+	if (f1 & (TR1_PERFECT_BALANCE))
 	{
-		returning = 2;
-
-		/* Project in the opposite direction */
-		ty = p_ptr->py;
-		tx = p_ptr->px;
-		py = y;
-		px = x;
-		inaccuracy = 0;
-		dir = 0;
-
-		goto start_travel;
+		break_chance = 0;
 	}
-
-	/* Failed to catch it */
-	else if (returning == 2)
+	else if (f1 & (TR1_THROWING))
 	{
-		/* Reduce and describe inventory */
-		if (item >= 0)
-		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-
-		/* Reduce and describe floor item */
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_optimize(0 - item);
-		}
+		break_chance = ((hit_body || hit_wall) ? rand_int(2) : 0);
 	}
-
-	/* Successfully caught it */
-	else if (returning == 3)
+	else
 	{
-		return;
+		break_chance = ((hit_body || hit_wall) ? breakage_chance(i_ptr) : 0);
 	}
 
 
-	/* Object can break if it hits a wall or monster */
-	break_chance = ((hit_body || hit_wall) ? breakage_chance(i_ptr) : 0);
-
-	/* Roll for breakage now */
-	if ((break_chance) && (rand_int(100) < break_chance)) break_chance = 100;
-	else                                                  break_chance =   0;
-
-	/* Chance to learn about any sort of melee or throwing weapon */
-	if ((i_ptr->k_idx) && (hit_body) && (!break_chance) && (one_in_(6)))
+	/* Potions always break when they hit a wall or a monster */
+	if (i_ptr->tval == TV_POTION)
 	{
-		/* Item is a melee or throwing weapon */
-		if ((is_melee_weapon(i_ptr)) || (throwing_weapon))
-		{
-			/* Only one weapon */
-			if (no_pile)
-			{
-				/* Learn about the thrown weapon */
-				learn_about_wearable(i_ptr, -2, FALSE);
-			}
-
-			/* A pile of thrown weapons */
-			else
-			{
-				/* Learn about the pile */
-				learn_about_wearable(o_ptr, -2, FALSE);
-
-				/* Re-copy the object (so the thrown weapon stacks) */
-				object_copy(i_ptr, o_ptr);
-				distribute_charges(o_ptr, i_ptr, 1);
-				i_ptr->number = 1;
-			}
-		}
-
-		/* Item is an unknown boulder (1 in 18 chance) */
-		else if ((i_ptr->tval == TV_JUNK) && (i_ptr->sval == SV_BOULDER) &&
-		         (!(k_info[i_ptr->k_idx].special & (SPECIAL_KNOWN_EFFECT))) &&
-		         (one_in_(3)))
-		{
-			/* Get object kind */
-			object_kind *k_ptr = &k_info[i_ptr->k_idx];
-
-			/* We now know about boulders */
-			k_ptr->special |= (SPECIAL_KNOWN_EFFECT);
-
-			/* Happy message */
-			msg_print("You feel you know more about boulders.");
-		}
+		if (hit_body || hit_wall) break_chance = 100;
 	}
 
-
-	/* The whole pile of objects has been "worn" (will now stack better) */
-	i_ptr->ident |= (IDENT_WORN);
-	if (!no_pile) o_ptr->ident |= (IDENT_WORN);
+	/* Object falls to the floor (as opposed to being dropped) */
+	if (break_chance == 0) break_chance = -1;
 
 	/* Drop (or break/smash) near that location */
-	drop_near(i_ptr, break_chance, y, x, DROP_HERE);
+	drop_near(i_ptr, break_chance, y, x);
 
-	/* Print "special attacks" */
-	left_panel_display(DISPLAY_SPECIAL_ATTACK, 0);
+	/* Chance to learn about throwing weapon (only if it survives) */
+	if ((i_ptr->k_idx) && (f1 & (TR1_THROWING)) && (hit_body) &&
+		 (i_ptr->iy != 0) && (i_ptr->ix != 0))
+	{
+		if (one_in_(8)) learn_about_wearable(i_ptr, -2, FALSE);
+	}
 }
 
 

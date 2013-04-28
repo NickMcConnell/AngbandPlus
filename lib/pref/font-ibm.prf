@@ -8,48 +8,75 @@
 
 
 
-### Terrain features ###
-
-#
-# The pseudo-graphical option
-#
-
-# Ordinary floor  (regular, lit, darkened)
-F:1:w/250:y/250:s/250
-
-# Water
-F:11:b/247:B/247:b/247
-
-# Magma
-F:50:s/176:s/176:D/176
-
-# Quartz
-F:51:W/176:W/176:s/176
-
-# Magma with treasure
-F:54:o/*:o/*:o/*
-
-# Quartz with treasure
-F:55:o/*:o/*:o/*
-
-# Granite walls
-F:56:w/177:w/177:W/177
-
-# Permanent wall -- town buildings
-F:60:w/177:w/177:W/177
-
-# Permanent wall -- all others
-F:61:w/178:w/178:W/178
-
-# Pillar
-F:64:w/4:w/4:W/4
-
-# Pillar of gold
-F:65:o/4:y/4:o/4
+### Terrain Features ###
 
 
 #
-# Boulders (slate, small circle or large dot)
+# Floors (white / centered dot)
 #
-K:638:s:9
+
+F:1:1/249
+f:1:250
+
+
+
+#
+# Water (blue / centered dot)
+#
+
+F:11:6/249
+f:11:250
+
+
+#
+# Invis traps (white / centered dot)
+#
+
+F:2:1/249
+
+#
+# Magma (slate / special solid block)
+#
+
+F:50:2/-80
+F:52:2/-80
+
+
+#
+# Quartz (light slate / special solid block)
+#
+
+F:51:9/-80
+F:53:9/-80
+
+
+#
+# Secret door (white / solid block)
+#
+
+F:48:1/-79
+
+#
+# Granite walls (white / solid block)
+#
+
+F:56:1/-79
+F:57:1/-79
+F:58:1/-79
+F:59:1/-79
+
+#
+# Permanent rock (white / bright solid block)
+#
+
+F:60:1/-79
+F:61:1/-78
+F:62:1/-79
+F:63:1/-79
+
+
+#
+# Boulders -- a circle symbol
+#
+K:638:0x02:0x09
 

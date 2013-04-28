@@ -4,8 +4,8 @@
     (1) Symbols on your Map                               (symbols.txt)
     (2) The Town                                          (town.txt)
     (3) The Dungeon                                       (dungeon.txt)
-    (4) Objects                                           (objects.txt)
-    (5) Monsters                                          (monsters.txt)
+    (4) Objects and Monsters                              (objs-mon.txt)
+
 
 
 
@@ -18,10 +18,8 @@ Help Commands:
        space : advance one page
        -     : back up one half page
        /     : search (not case-sensitive)
-      <dir>  : move forward and backwards
 
 ***** [1] symbols.txt
 ***** [2] town.txt
 ***** [3] dungeon.txt
-***** [4] objects.txt
-***** [5] monsters.txt
+***** [4] objs-mon.txt

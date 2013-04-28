@@ -1,5 +1,5 @@
 #charattr - this file uses the char/attr parsing system
-#fulldisplay - use the full display (46+ lines) to show this file
+#rows50 - use 50-line mode to show this file
   ******  *         High adventure in a   *  world of magic and cold steel   *
  ***   ****                             ***                                ***
 ***      **                              **                                 ** 
@@ -8,10 +8,10 @@
    *******       ***   **   **  **   ** $,* $, **  ,   ***   **   **  **    **
 *      ****   *** **   **   **  **   ** "ss.$ss.*.s' ** **   **   **  **    **
 **      ***  **   **   **   **  ,**** .ss$$$$$$$$$$s,   **   **   **  **    **
-****   ***   *** ***   **   **  $.*s$$$$$$$$$$$$$$`$$ss***   **   **  ***  ***
+****   ***   *** ***   **   **  $.*s$$$$$$$$$$$$$$`$$Ss***   **   **  ***  ***
 *  ******     ***  ** **** **** "$$$$$$$$$$$$$$$$$$o$$$  ** **,* ****  ****  **
                                s$$$$$$$$$$$$$$$$$$$$$$$$s,  ,s
-   Version 1.0.0 Final        s$$$$$$$$$"$$$$$$""""$$$$$$"$$$$$,
+   Version 0.9.9, beta 12      s$$$$$$$$$"$$$$$$""""$$$$$$"$$$$$,
                               s$$$$$$$$$$s""$$$$ssssss"$$$$$$$$"
                              s$$$$$$$$$$'         `"""ss"$"$s""
                              s$$$$$$$$$$,              `"""""$  .s$$s
@@ -25,17 +25,19 @@
     \       Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke       /
     |           and Umoria:   Copyright (c) 1989 James E. Wilson           |
      \                                                                    /
-      |                            Angband by:                           |
+      |                 Angband 2.0 - 2.4 - 2.6.2 by:                    |
        \            Alex Cutler, Andy Astrand, Sean Marsh,              /
-       |          Geoff Hill, Charles Teague, Charles Swiger,           |
-       |            Ben Harrison, and Robert R["u]hlmann                   |
-      /                                                                  \
+       |          Geoff Hill, Charles Teague, Charles Swiger            |
+       |                                                                |
+       |            Angband 2.7.0 - 2.8.5 by Ben Harrison               |
+       /          Angband 2.9.0 - 3.0.x by Robert Ruehlmann             \
+      |                                                                  |
      /                             Sangband by:                           \ 
     /        Chris Petit, Michael Gorse, Julian Lighton, Leon Marrick      \
    /                                                                        \
-  /                                                                          \
- |               Visit the website "http://runegold.org/sangband/"            |
- |              Browse the Forum at "http://angband.oook.cz/forum/"           |
+  /      Sangband Home Page at "http://home.sprintmail.com/~leon2m/sang/"    \
+ |     Send comments, bug reports, and patches to "leon2m@sprintmail.com"     |
+ |     Browse the Angband newsgroup at "news:rec.games.roguelike.angband"     |
  \           _________________                   __________________           /
  {\     ____/$"   $$$$$$$$$$$$\_____        ____/         .###$$$$$\____     /
  ) \___/\.         "$$$$$$$$$$$$$###\__  __/      -TX ..####$$$$$$$$$$$"\___/
@@ -64,30 +66,32 @@ y  yyyyyy     yyy  yy yyyy yyyy rrrrrrrrrrrrrrrrrrRwRrr  yy yyuy yyyy  yyyy  yy
                              rrrrRrrrRrrr         rrrrrrrrrrrrR
                              rrrRrrrrRrrr              rrrrrrr  rrrrr
                              rrrRrrrrRRrrrrrrrr               srrrr  s
-                         rrrrrrrrRrrrrr  Rrrrrrrrrrrrrrr     rrrrrs   r rs
-                           rrrrrrrrrrr ww RRrrrrrrrrrrrrrrrrrrrr     rrrr
-   www                           r wwww  wwww RRrrrrrrrrrrrrrr     rrrrr  www
-  w   wwwwwwwww              wwwwww          wwwwww rrrrrrrrrr   wwwwwwwww   w
-  w            wwwwwwwwwwwwww                      wwwwwwwwwwwwww            w
-   w                                                                        w
-    w                                                                      w
-    w                                                                      w
-     w                                                                    w
-      w                                                                  w
-       w                                                                w
-       w                                                                w
-       w                                                                w
-      w                                                                  w
-     w                                                                    w
-    w                                                                      w
-   w                                                                        w
-  w                                                                          w
- w                                 DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD            w
- w                                  DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD           w
- w           wwwwwwwwwwwwwwwww                   wwwwwwwwwwwwwwwwww           w
- Rw     wwwwwrr   rrrrRRRRrrrrwwwwww        wwwww         rrrrrrRrrwwwww     w
- R wwwwwRR         rrrrrRRRRRrrrrrrrwww  www      rrr rrrrrrrrRrRrrrrrrrwwwww
-R   Rr R  R        rrrrrrrrRRRRRrrrrrrrwwrrrrrrrrrrrrrrrrrrrrRRrrrrrrr
+                         rrrrrrrrRrrrrr  Rrrrrrrrrrrrrrr     rrrrrs   s rs
+                           rrrrrrrrrrr /\ RRrrrrrrrrrrrrrrrrrrrr     rrrr
+   ___                           r ___/  \___ RRrrrrrrrrrrrrrr     rrrrr  ___
+  |   \________              _____/          \_____ rrrrrrrrrr   ________/   |
+  \            \____________/                      \____________/            /
+   \                                                                        /
+    \                                                                      /
+    |                                                                      |
+     \                                                                    /
+      |                                                                  |
+       \                                                                /
+       |                                                                |
+       |                                                                |
+       |                                                                |
+       /                                                                \
+      |                                                                  |
+     /                                                                    \
+    /                                                                      \
+   /                                                                        \
+  /                            DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD    \
+ |                                                DBBBBBBBBBBBBBBBBBBBBBD     |
+ |                                     DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD     |
+ \           _________________                   __________________           /
+ R\     ____/rr   rrrrRRRRrrrr\_____        ____/         rrrrrrRrr\____     /
+ R \___/RR         rrrrrRRRRRrrrrrrr\__  __/      rrr rrrrrrrrRrRrrrrrrr\___/
+R   Rr R  R        rrrrrrrrRRRRRrrrrrrr\/rrrrrrrrrrrrrrrrrrrrRRrrrrrrr
 R   Rrr  R R     rrrr  rrrrrrrrRRRRRRRrrRrrrrrRrrrrRrrrRRrRRrrrrrrrrrr
  R  Rrrrr R R  r      r   rrrrrrrrrrrrrRrRrRrRrRrRrrRrRrrrrrrrrrrr  rrr
   R   rrrrrr  rrr    rrrrrrrrrrruurrrrrrrrrrrrrrrrrrrrrrrrrrrr        s

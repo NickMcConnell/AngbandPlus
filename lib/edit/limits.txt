@@ -7,25 +7,26 @@
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 
+
 # Version stamp (required)
 
-V:1.0.0
+V:0.9.9
 
 
-# Maximum number of feature types  (max of 255)
-M:F:93
+# Maximum number of feature types
+M:F:73
 
 # changing this number will normally break savefile compatability
 # Maximum number of object kinds
 M:K:803
 
 # changing this number will normally break savefile compatability
-# Maximum number of artifacts  (max of 255)
+# Maximum number of artifacts
 M:A:251
 
 # changing this number will normally break savefile compatability
-# Maximum number of ego-item types  (max of 255)
-M:E:185
+# Maximum number of ego-item types
+M:E:165
 
 # changing this number will normally break savefile compatability
 # Maximum number of monster races
@@ -44,10 +45,7 @@ M:X:50
 # Maximum number of traps
 M:x:150
 
-# Maximum number of flavors
-M:L:400
 
-#
 # These figures should probably not go higher.  The game design makes for 
 # a lot of annoyance and tedium if too many objects or monsters are 
 # allowed in the dungeon.  The AI also makes large numbers of monsters

@@ -1,12 +1,11 @@
 /* File: z-virt.c */
 
 /*
- * Copyright (c) 2007 Ben Harrison
+ * Copyright (c) 1997 Ben Harrison
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
  */
 
 /* Purpose: Memory management routines -BEN- */
@@ -25,15 +24,15 @@ void* (*rpanic_aux)(size_t) = NULL;
  * The system is out of memory, so panic.  If "rpanic_aux" is set,
  * it can be used to free up some memory and do a new "ralloc()",
  * or if not, it can be used to save things, clean up, and exit.
- * By default, this function simply quits the program.
+ * By default, this function simply crashes the computer.
  */
 void* rpanic(size_t len)
 {
 	/* Hopefully, we have a real "panic" function */
 	if (rpanic_aux) return ((*rpanic_aux)(len));
 
-	/* Attempt to quit before icky things happen */
-	quit("Out of Memory!");
+	/* Attempt to crash before icky things happen */
+	core("Out of Memory!");
 
 	/* Paranoia */
 	return (NULL);

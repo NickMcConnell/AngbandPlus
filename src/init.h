@@ -1,12 +1,12 @@
+
 /* File: init.h */
 
 /*
- * Copyright (c) 2007 Robert Ruehlmann
+ * Copyright (c) 2000 Robert Ruehlmann
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation, version 2.  Parts may also be available under the
- * terms of the Moria license.  For more details, see "/docs/copying.txt".
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
  */
 
 #ifndef INCLUDED_INIT_H
@@ -44,10 +44,8 @@
 #define PARSE_ERROR_UNKNOWN_ARRAY           24
 #define PARSE_ERROR_NO_ARRAY_SPECIFIED      25
 #define PARSE_ERROR_INVALID_STORE           26
-#define PARSE_ERROR_UNKNOWN_COLOR           27
-#define PARSE_ERROR_MIMIC_FAILURE           28
 
-#define PARSE_ERROR_MAX                     29
+#define PARSE_ERROR_MAX                     27
 
 
 typedef struct header header;
@@ -121,7 +119,6 @@ extern errr parse_a_info(char *buf, header *head);
 extern errr parse_e_info(char *buf, header *head);
 extern errr parse_r_info(char *buf, header *head);
 extern errr parse_q_info(char *buf, header *head);
-extern errr parse_flavor_info(char *buf, header *head);
 extern errr parse_store(void);
 
 
@@ -146,6 +143,5 @@ extern header e_head;
 extern header r_head;
 extern header b_head;
 extern header q_head;
-extern header flavor_head;
 
 #endif /* INCLUDED_INIT_H */

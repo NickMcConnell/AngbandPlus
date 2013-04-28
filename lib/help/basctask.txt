@@ -1,7 +1,7 @@
 
      Saving and loading your character should be easy.  So, sadly, is getting
-him killed.  Winning is a little harder, but the novice player can get special
-assistance to improve his chances down in the dungeon.
+him killed.  Winning is a little harder, but the novice player can take
+advantage of various cheats to improve his chances down in the dungeon.
 
 
 --- Saving your Game ---
@@ -9,7 +9,7 @@ assistance to improve his chances down in the dungeon.
      Saving your game is usually easy.  You can use the save game command, or
 (on some systems) a menu option.  If you cannot save your game, you probably
 have one of two problems:
-1) The folder "{game}/lib/save" does not exist.  Create this directory and
+1) The folder "<<game>>/lib/save" does not exist.  Create this directory and
    any others that are missing (see the list of files elsewhere in the docs).
 2) You are using a multi-user machine and do not have write permission to
    that file or directory.
@@ -17,43 +17,66 @@ have one of two problems:
 
 --- Loading your Game ---
 
-   The game can load savefiles using several methods.  In order, it:
-1) Loads any file that you specify with the "-u" command line option.  This
-   only applies to some ports.
-2) Loads the first file specified in "save/global.svg", but only if that
-   character is alive.
-3) Loads any file named "PLAYER" (capitalization may or may not be ignored).
-4) Shows you a savefile management screen, allowing you to choose files
-   listed in "global.svg", type in another filename, or start a new character.
+DOS, UNIX:
+     The game will automatically look for savefiles in the "lib/save" directory.
+1) It will try to load any file that you specify with the "-u" command line
+   option.
+2) It will try to load the first file specified in "lib/save/global.svg", but
+   only if that character is alive.
+3) It will try to load any file named "PLAYER" (capitalization may or may not be
+   ignored).
 
-Location of the savefile directory:
-- On single-user systems, it is {game directory}/lib/save/.
-- On multi-user systems, it is within a game-created folder in your user
+     If none of these things work, the game will display a savefile management
+menu, allowing you to choose files listed in "global.svg", type in another
+filename, or start a new character.
+     On these systems, savefiles do not change names if you change the character
+name.
+
+Macintosh, Windows:
+     In addition to using the methods above, you can also choose the menu option
+"load savefile", which allows you to load savefiles from almost any directory.
+With suitable use of option files, the Macintosh can also save to almost any
 directory.
+     On these system, savefiles may change names if you change the character
+name.
 
-Dead characters:
+Loading dead characters:
      If you load a dead character, the game will flash a message telling you
 that it is using the slain adventurer's monster memory.  You then create a new
 character.
 
 Savefile compatibility report:
-     Sangband loads files from Sangband 0.9.9 and later.
+     Sangband loads files from Sangband 1.0.0+.
 
 
 --- Winning The Game ---
 
-     Victory is slaying Morgoth, Lord of Darkness, before he or any of his
-minions slay you.  He rules his empire far deep in the Pits, at 5000 feet, one
-hundred levels below the sunlit surface.  Barring your way to him at 4950' is
-Sauron, creator of the One Ring, whose power bears comparison with Morgoth
-himself.
+     Once your character has killed Sauron, who lives on level 99 (4950') in the
+dungeon, a magical staircase will appear that will allow you to finally reach
+level 100.  Morgoth lurks on this level of the dungeon, and you will not be able
+to go below his level until you have killed him.  Try to avoid wandering around
+on level 100 unless you are ready for him, since he has a habit of coming at you
+across the dungeon, the Mighty Hammer 'Grond' in hand, to slay you for your
+impudence.
 
-     Vanishingly few adventurers ever return to the surface with the Iron Crown
-of Morgoth, wrath-blackened cage of the Silmarils.  Few ever wield the Hammer of
-the Underworld, that dreadful maul which pulps an Ancient Dragon in a blow.
-People have played this game for a decade and more without a single victory.  If
-you win -- are victorious without cheat, assistance, or subterfuge -- tell the
-tale on the forum to those who have yet to taste that triumph!
+     Morgoth cannot be killed by some of the easier methods used on normal
+creatures.  Morgoth, like all other "Unique" monsters, will simply teleport away
+to another region of the level if you attempt to use a spell such as destruction
+upon him.  Morgoth, like some other monsters, cannot be polymorphed, slept,
+charmed, or genocided.  Magical spells like Mana Storm and Annihilation are
+effective against him, as are some of the more powerful weapons, but he is
+difficult to kill and if allowed to escape for a time will heal himself rapidly.
+
+     If you should actually survive the attempt of killing Morgoth, you will
+receive the status of WINNER.  You may continue to explore, and may even save
+the game and play more later, but since you have defeated the toughest creature
+alive, there is really not much point.  Unless you wish to listen to the rumors
+of a powerful ring buried somewhere in the dungeon...
+
+     When you are ready to retire, simply "commit suicide" (using the "Q" key)
+to have your character entered into the high score list as a winner.  Note that
+until you retire, you can still be killed, so you may want to retire before
+wandering into a room with 95 Power Dragons crammed inside...
 
 
 --- Upon Death and Dying ---
@@ -76,12 +99,16 @@ one of the secrets to this game's fascination; anyone who cheats death is really
 not getting the full experience, and any Morgoth-slayers yanked from the jaws of
 death are not full winners.  But what if your characters seem to die all the
 time (like mine!), and you really want to keep playing with the same guy?  Well,
-the game has a few answers for that too.
+the game has a few answers for that too.  You may cheat death by:
 
-     You may cheat death by toggling on the "cheat death" option.  This keeps
-your character ticking, and you get a running tally of your deaths on the
-character screen.  Trying to keep this number low is a great way to learn the
-game.
+- Toggling on the "cheat death" option (see the help file "optdesc.txt").  This
+keeps your character ticking, and is even kind enough to give you a running
+tally of your deaths by setting the character's age to zero when first used, and
+increasing it by one each time thereafter.  Trying to keep this number low is a
+great way to learn the game.
+- Making backup savefiles.
+- Aborting the game just as the tombstone appears or before.
+
 
 
 
