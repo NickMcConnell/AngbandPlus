@@ -83,7 +83,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OnePower
 
-N:9:of Elvenkind
+N:9:of Dwarvenkind
 X:30:25
 W:0:0:0:15000
 C:0:0:10:3
@@ -377,7 +377,7 @@ F:SPEED | HIDE_TYPE
 
 # 60 (unused)
 
-N:61:of Noise
+N:61:of Tap Dancing
 X:35:0
 W:0:0:0:0
 F:AGGRAVATE
@@ -429,7 +429,7 @@ F:BLESSED
 
 # 67 (unused)
 
-N:68:of Westernesse
+N:68:of Wanton Heroics
 X:24:20
 W:0:0:0:20000
 C:5:5:0:2
@@ -614,7 +614,13 @@ C:0:0:0:5
 F:TUNNEL | BRAND_ACID | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 101 (unused)
+# 101:of Sourcery
+X:24:26
+W:0:0:0:25000
+C:6:6:0:2
+F:INT| RES_BLIND | SEE_INVIS |  RES_LITE | FREE_ACT | 
+F:SUST_INT | SPEED | RES_DARK  | RES_CONF 
+
 
 N:102:of Morgul
 X:24:0

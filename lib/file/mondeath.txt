@@ -27,14 +27,75 @@
 #
 # Entries by Eric Bock, Matt Graham, Andrew Hill, Chris Kern, and Topi Ylinen
 
+N:8:C.M.O.T. Dibbler
+1
+Sossage? Inna-AARGH!
+
+N:53:Gaspode the Wonder Dog
+1
+'It's a dog's life.'
+
 N:53:Grip, Farmer Maggot's dog
 N:54:Wolf, Farmer Maggot's dog
 N:55:Fang, Farmer Maggot's dog
 0
 
+N:63:C.M.O.T. Dibbler
+1
+'Sossage? Inna-AARGH!
+
+N:138:Hwandaland Smith
+1
+You didn't say anything about snakes!'
+
+N:260:Lord Hong
+1
+'This isn't supposed to happen to ME!'
+
+N:356:Lord Rust
+1
+'How very droll.'
+
+N:419:Cassanunda
+1
+'So dies the greatest lover the disc has ever seen!'
+
+N:441:Barney the Dinosaur
+1
+'Oh fiddlesticks!'
+
+N:598:Alberto Malich
+1
+'Heh, the jokes on you!'
+
+N:606:War
+2
+'Can't we all just get along?'
+'Imagine theres no...'
+
+N:628:Deacon Vorbis
+1
+'I'll be waiting.'
+
+N:685:Yob Soddoff
+1
+'Sesyusesyusesyu...'
+
+N:733:The Hogfather
+1
+'But who's going to deliver all those pork byproducts now?'
+
+N:755:Jimi, the god of beggars
+1
+'Got a spare bandaide?'
+
+N:818:The Mouth of Sauron
+1
+'Well, that shut ME up!'
+
 N:*:Default
 332
-'Live and let live, right..?'
+'But I've got my potato!'
 'AAAAAAAAARRRRRRRRRRRRRRRRGGGGGGGGGGGGGGGGHHHHHHHHHHHHHHHH!!!!!!!!!!!'
 'AAAARRRGGGHHH!!!'
 'Somehow, I have a bad feeling about this...'

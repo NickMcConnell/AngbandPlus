@@ -5,41 +5,41 @@ N:55:Fang, Farmer Maggot's dog
 
 N:*:Default
 38
-murder.
-arson.
-rape.
-assault and battery.
-theft.
-extortion.
-rape, assault and battery.
-embezzlement.
-embezzlement and theft.
-theft and murder.
-kidnapping.
-stealing.
-fraud.
+an anti-crime.
+being a mime.
+an anti-crime against humanity.
+breaking and decorating.
+stealing fire from the gods.
+loitering with intent to loiter some more.
+Whitemailing.
+Autocondimenting.
+having too large a stick up his arse.
+talking with his mouth full.
+burser-napping.
+maskquerading cats meat for dogs meat.
+Stealing without a licence.
 fraud and embezzlement.
-counterfeiting.
+counterfeiting Barbarian Invaders tokens.
 smuggling.
-horse theft.
-shoplifting.
-treason.
+sheep stealing.
+putting his penut butter in someone elses chocolate.
+putting his chocolate in someone elses penut butter.
 pillaging.
 rape and pillage.
-cruelty to animals.
+cruelty to humans.
 dealing drugs.
 murder for hire.
 luring souls to destruction.
 smashing holy relics.
 glorying in chaos.
-convenanting with Morgoth.
+summoning dragons.
 desecration of holy places.
-conspiring to topple bastions.
+anoying the patrician.
 abuse of self-appointed privilege.
-leaguing with the underworld.
+leaguing with the underworld for fun and profit.
 spawning minions of darkness.
 the desolation of kingdoms.
-lese-majesty.
+lese-majesty. Whatever that is.
 obstructing justice.
 conspiring to obstruct justice.
 assault with a deadly weapon.

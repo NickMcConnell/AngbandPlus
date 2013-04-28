@@ -29,10 +29,9 @@
 #
 # Entries by Eric Bock, Matt Graham, Andrew Hill, and Topi Ylinen
 
-N:8:Farmer Maggot
-2
-screams, 'Don't hurt a poor helpless hobbit!'
-yells, 'Where are my vicious dogs when I need them?'
+N:8:C.M.O.T. Dibbler
+1
+Sossage? Inna bun?
 
 N:19:Martti Ihrasaari
 2
@@ -49,24 +48,22 @@ limps away, howling.
 howls.
 looks at you sadly.
 
-N:63:Smeagol
-3
-says, 'Don't hurt us, mastersisis.'
-says, 'Poor Smeagol, poor Smeagol.'
-says, 'No AH! Don't hurtsis us.'
+N:8:C.M.O.T. Dibbler
+1
+Sossage? Inna bun?
 
 N:135:Mughash the Kobold Lord
 2
 screams, 'Cowards! Why did you abandon me?'
 begs for mercy.
 
-N:137:Wormtongue, Agent of Saruman
+N:137:Mr. Clete
 3
 begs you to spare his miserable life.
 whines, 'This is not my fault!'
 screams, 'Help! Help!'
 
-N:138:Robin Hood, the Outlaw
+N:138:Hwandaland Smith
 3
 begs you to spare his life.
 says, 'But I'm a GOOD guy, really!'
@@ -76,26 +73,37 @@ says, 'Money? Sure, take it all back!'
 #N:291:Ulfast, Son of Ulfang
 
 N:180:Orfax, Son of Boldor
-N:237:Boldor, King of the Yeeks
+N:237:Boldor, King of the Pictsies
 2
-sobs, 'I didn't MEAN it...'
-whimpers and moans.
+yells, 'Oh, you bastard!'
+gnashes his little teeth.
 
 N:200:Hobbes the Tiger
 1
 yells, 'Ow! Get me back to the comics!'
 
+N:186:Gowron
+N:285:Klingon captain
+1
+yells, 'to arms brothers!'
+
+N:260:Lord Hong
+1
+says, 'Discresion is the better part of valor.'
+
+N:350:Baron von Uberwald
+2
+yelps
+whines
+
+N:356:Lord Rust
+1
+says, 'this is most disagreable.'
+
 N:140:Lagduf, the Snaga
-N:186:Grishnakh, the Hill Orc
 N:215:Golfimbul, the Hill Orc Chief
-N:260:Ufthak of Cirith Ungol
-N:285:Orc captain
 N:314:Shagrat, the Orc Captain
 N:315:Gorbag, the Orc Captain
-N:330:Bolg, Son of Azog
-N:350:Ugluk, the Uruk
-N:356:Lugdush, the Uruk
-N:373:Azog, King of the Uruk-Hai
 6
 screams, 'Hey, orcs have rights too!'
 says, 'You're just prejudiced against orc-kind, aren't you?'
@@ -138,21 +146,16 @@ moans, 'Do you mock me?'
 #N:392:Sangahyando of Umbar
 #N:380:Angamaite of Umbar
 
-#This next may be unnecessarily evil... :-]
-
 N:393:It
-3
+2
 howls, 'I'll be back!'
 whimpers, 'They said this invisibility thing was better than it is!'
-teleports away.
 
 N:409:Kharis the Powerslave
 3
 howls, 'Nnnnooo!'
 says, 'I don't want to die, I'm a god, why can't I live on?'
 curses you.
-
-#N:413:Ulwarth, Son of Ulfang
 
 #Grendel's fear line makes sense if you've read "Beowulf"...
 
@@ -190,30 +193,34 @@ whines: 'Why do you threaten me?'
 
 #N:517:Jurt the Living Trump
 #N:573:Lord Borel of Hendrake
-#N:598:Mandor, Master of the Logrus
+
+N:598:Alberto Malich
+1
+says, 'Just you wait till the master hears of this!'
 
 N:595:Father Dagon
-N:596:Mother Hydra
 1
 sobs, 'No! I'm an endangered aquatic species!'
 
-N:606:Loge, Spirit of Fire
+N:596:Hyderopia
 1
-pants and gasps.
+says, 'These boots were made for walkin!'
 
-N:615:Moire, Queen of Rebma
+N:606:War
 1
-wails, 'Help! Murder! Murder!'
+yells, 'Stratiegic retreit! Stratiegic retreit!'
+
+N:615:Granny Weatherwax
+1
+says, 'This calls for 'edology.'
 
 N:616:Kavlax the Many-Headed
 2
 says, 'This is YOUR fault!' and bites itself.
 blames its problems on the head you've managed to kill.
 
-N:628:Malekith the Accursed
-2
-says, 'C'mon! I'm sure we can work this out...'
-pleads for his miserable life.
+N:628:Deacon Vorbis
+says, 'Ooh you are really sinning now!'
 
 N:642:Jasra, Brand's Mistress
 1
@@ -271,7 +278,7 @@ N:733:Santa Claus
 3
 sobs, 'Think of the children you'll disappoint!'
 sobs, 'No, Virginia, there isn't... not any more...'
-attempts to buy you off with offers of goodies.
+attempts to buy you off with offers of pork by-products.
 
 #N:738:Khamul the Easterling
 
@@ -308,10 +315,9 @@ N:771:Saruman of Many Colours
 says, 'Wait! Look behind you!'
 howls, 'Wormtongue! Where are you, you bastard?'
 
-N:772:Gandalf the Grey
-2
-screams, 'How have things come to this... again?!'
-yells, 'Ouch!'
+N:772:Archchancelor Ridcully
+1
+says, 'Show some school spirit, man!'
 
 N:777:Bast, Goddess of Cats
 2
@@ -378,8 +384,7 @@ N:848:Shub-Niggurath, Black Goat of the Woods
 N:849:Nodens, Lord of the Great Abyss
 N:851:Nyarlathotep, the Crawling Chaos
 N:857:Great Cthulhu
-5
-sobs, 'I'm not bad, I was just born like this!'
+4
 gibbers weakly.
 mumbles, 'kill -9 adventurer, kill -9 adventurer'
 oozes greenish blood from many wounds.
@@ -418,7 +423,7 @@ screams, 'This CAN'T be happening!'
 
 N:*:Default lines
 61
-says: 'I am too young to die.'
+says: 'Tag! Your it!'
 says: 'Ok, ok! I get: no more pals.'
 screams: 'Help, ho!'
 screams: 'What ho! Help!'

@@ -1,7 +1,7 @@
 # CVS: Last edit by $Author: rr9 $ on $Date: 2000/01/03 22:43:24 $
 # File: t0000002.txt
 
-# Telmora
+# Anhk-Morpork
 
 ############### Additional default terrain settings ###############
 
@@ -250,7 +250,7 @@ F:b:129:3
 
 #################### Buildings ####################
 
-B:0:N:Library:Astinus:Human?
+B:0:N:Library:The Librarian:Orangutan
 B:0:A:0:Research item:2000:2000:a:1:0
 # After clearing the tower the research gets cheaper
 ?:[EQU $QUEST5 4]
@@ -258,17 +258,17 @@ B:0:A:0:Research item:1000:1000:a:1:0
 ?:1
 B:0:A:1:Town history:0:0:h:2:0
 
-B:1:N:Castle:Denegor:Human
+B:1:N:Palace:The Patrician:Human
 B:1:A:0:Request quest:0:0:q:6:0
 
-B:3:N:Casino:Materim:Human
+B:3:N:Casino:Mr. Criosote:Troll
 B:3:A:0:In-Between:0:0:b:12:0
 B:3:A:1:Game rules:0:0:r:13:0
 B:3:A:2:Play craps:0:0:c:14:0
 B:3:A:3:Spin the wheel:0:0:s:15:0
 B:3:A:4:Play dice slots:0:0:d:16:0
 
-B:4:N:Inn:Owen:Human
+B:4:N:The Mended Drum: Hibiscus Dunlem:Human
 B:4:A:0:Rest for the night:20:20:r:17:0
 B:4:A:1:Buy food and drink:1:1:f:18:1
 B:4:A:2:Listen for rumors:10:10:u:19:0
@@ -285,7 +285,7 @@ B:7:A:0:Enchant weapon:200:400:w:23:0
 B:7:A:1:Enchant armor:150:300:a:24:0
 B:7:C:2:0:0:0:0:0:0:0:0:0:0
 
-B:9:N:Temple of Life:Crysania:Human
+B:9:N:Temple of Offler:Crysania:Human
 B:9:A:0:Healing prayer:0:1000:h:28:0
 B:9:A:1:Restoration:200:1000:r:29:0
 B:9:M:2:0:0:0:0:0:0

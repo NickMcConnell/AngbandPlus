@@ -121,7 +121,7 @@ I:80:14:500
 W:10:0:1:25
 A:10/1
 
-N:8:Cure Confusion
+N:8:Dried Frog Pills
 G:,:d
 I:80:15:500
 W:10:0:1:50
@@ -212,7 +212,7 @@ I:80:35:5000
 W:0:0:10:3
 A:0/1:5/1:10/1
 
-N:22:& Hard Biscuit~
+N:22:& Bag~ of Banged Grains
 G:,:U
 I:80:32:500
 W:0:0:2:1
@@ -222,24 +222,24 @@ G:,:u
 I:80:33:1500
 W:0:0:2:2
 
-N:24:& Slime Mold~
+N:24:& Jar~ of Beefy Mite
 G:,:g
 I:80:36:3000
 W:1:0:5:2
 A:1/1
 
-N:25:& Piece~ of Elvish Waybread
+N:25:& Packet~ of Travalers Digestives
 G:,:B
 I:80:37:7500
 W:5:0:3:10
 A:5/1:10/1:20/1
 
-N:26:& Pint~ of Fine Ale
+N:26:& Pint~ of Tubot's Odd
 G:,:y
 I:80:38:500
 W:0:0:5:1
 
-N:27:& Pint~ of Fine Wine
+N:27:& Pint~ of Turbot's Really Odd
 G:,:r
 I:80:39:1000
 W:0:0:10:2
@@ -264,7 +264,7 @@ A:35/3
 P:0:5d4:0:0:0
 F:SHOW_MODS
 
-N:30:& Broken Dagger~
+N:30:& REALY Pointy stick~
 G:|:D
 I:23:1:0
 W:0:0:5:1
@@ -312,7 +312,7 @@ A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
 
-N:36:& Blade~ of Chaos
+N:36:& Octiron Blade~
 G:|:v
 I:23:30:0
 W:70:0:180:4000
@@ -400,7 +400,7 @@ A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
 
-N:47:& Broken Sword~
+N:47:& Really Sharp Pencil~
 G:|:D
 I:23:2:0
 W:0:0:30:2
@@ -426,7 +426,7 @@ A:3/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
 
-N:50:& Flail~
+N:50:& Dwarven Battle Bread~
 G:\:D
 I:21:13:0
 W:10:0:150:353
@@ -434,7 +434,7 @@ A:10/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
 
-N:51:& Two-Handed Flail~
+N:51:& Great Dwarven Battle Bread~
 G:\:y
 I:21:18:0
 W:45:0:280:590
@@ -482,7 +482,7 @@ A:15/1
 P:0:3d4:0:0:0
 F:SHOW_MODS
 
-N:57:& Mace~ of Disruption
+N:57:& Octiron Mace~
 G:\:v
 I:21:20:0
 W:80:0:400:4300
@@ -604,7 +604,7 @@ A:45/1
 P:0:5d3:0:0:0
 F:SHOW_MODS
 
-N:72:& Scythe~ of Slicing
+N:72:& Octiron Scythe~
 G:/:r
 I:22:30:0
 W:60:0:250:3500
@@ -636,7 +636,7 @@ W:15:0:60:140
 A:15/1
 F:SHOW_MODS
 
-N:76:& Heavy Crossbow~
+N:76:& Arquebus~
 G:}:s
 I:19:24:0
 W:30:0:100:300
@@ -661,7 +661,7 @@ A:10/1:25/1
 P:0:3d4:0:0:0
 F:SHOW_MODS
 
-N:79:& Seeker Arrow~
+N:79:& Octiron Arrow~
 G:{:G
 I:17:2:0
 W:55:0:2:20
@@ -677,7 +677,7 @@ A:3/1:25/1:45/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
 
-N:81:& Seeker Bolt~
+N:81:& Octiron Bolt~
 G:{:B
 I:18:2:0
 W:65:0:3:25
@@ -735,7 +735,7 @@ A:10/16
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:88:& Orcish Pick~
+N:88:& Trollish Pick~
 G:\:g
 I:20:5:2
 W:30:0:150:300
@@ -753,7 +753,7 @@ F:SHOW_MODS | TUNNEL
 
 
 ##### Armor #####
-N:90:& Elven Cloak~
+N:90:& Assasin's Cloak~
 G:(:G
 I:35:2:0
 W:30:0:5:1500
@@ -776,7 +776,7 @@ W:5:0:40:12
 A:5/1
 P:3:1d1:0:0:0
 
-N:93:& Pair~ of Metal Shod Boots
+N:93:& Pair~ of Obsidian Boots
 G:]:s
 I:30:6:0
 W:20:0:80:50
@@ -841,7 +841,7 @@ W:1:0:20:4
 A:1/1:50/1
 P:2:0d0:0:0:0
 
-N:102:& Filthy Rag~
+N:102:& Potatoe Sack~
 G:(:D
 I:36:1:0
 W:0:0:20:1
@@ -869,7 +869,7 @@ W:5:0:100:150
 A:5/1
 P:6:1d1:-1:0:0
 
-N:106:Hard Studded Leather~
+N:106:Trollskin Leather~
 G:(:U
 I:36:7:0
 W:10:0:110:200
@@ -953,7 +953,7 @@ W:50:0:380:1500
 A:50/1
 P:28:2d4:-3:0:0
 
-N:118:Adamantite Plate Mail~
+N:118:Octiron Plate Mail~
 G:[:G
 I:37:30:0
 W:75:0:420:20000
@@ -987,7 +987,7 @@ P:16:1d4:-2:0:0
 
 # This shield does not belong here
 
-N:122:& Shield~ of Deflection
+N:122:& Octiron Shield~
 G:[:B
 I:34:10:0
 W:70:0:100:10000
@@ -1005,13 +1005,13 @@ W:1:0:10:3
 A:1/1:20/1
 P:1:0d0:0:0:0
 
-N:124:& Shadow Cloak~
+N:124:& Cloak~ Of the Deep Dwarves
 G:(:D
 I:35:6:0
 W:60:0:5:7500
 A:75/5
 P:6:0d0:0:0:4
-F:RES_DARK | RES_LITE
+F:RES_LITE | RES_POIS |IGNORE_FIRE 
 
 
 ### The Gloves ###
@@ -1200,7 +1200,7 @@ W:50:0:2:0
 A:50/1
 F:CURSED | TELEPORT | WIS | CHR | HIDE_TYPE
 
-N:150:Stupidity
+N:150:The Wizard's Gift
 G:=:d
 I:45:3:-5
 W:5:0:2:0
@@ -1407,7 +1407,7 @@ I:70:51:0
 W:1:0:5:10
 A:1/1
 
-N:179:Logrus
+N:179:Light Fantastic
 G:?:d
 I:70:50:0
 W:100:0:5:10000
@@ -1440,7 +1440,7 @@ W:75:0:5:5000
 A:75/6
 F:IGNORE_COLD
 
-N:184:Summon Monster
+N:184:"Here Boy!"
 G:?:d
 I:70:4:0
 W:1:0:5:0
@@ -1464,7 +1464,7 @@ I:70:10:0
 W:20:0:5:50
 A:20/1
 
-N:188:Monster Confusion
+N:188:UU Disertation
 G:?:d
 I:70:36:0
 W:5:0:5:30
@@ -1488,7 +1488,7 @@ I:70:15:0
 W:50:0:5:8000
 A:50/2:75/2:85/2:95/1
 
-N:192:Treasure Detection
+N:192:Drinker's Friende
 G:?:d
 I:70:26:0
 W:0:0:5:15
@@ -1516,7 +1516,7 @@ A:10/8:20/4:30/2:50/1
 P:0:5d4:0:0:0
 F:SHOW_MODS
 
-N:196:& Mithril Shot~
+N:196:& Octiron Shot~
 G:{:B
 I:16:2:0
 W:25:0:8:15
@@ -1532,13 +1532,13 @@ I:70:29:0
 W:5:0:5:35
 A:5/1:10/1:15/1
 
-N:198:Acquirement
+N:198:Booty Call
 G:?:d
 I:70:46:0
 W:20:0:5:100000
 A:20/8
 
-N:199:*Acquirement*
+N:199:*Booty Call*
 G:?:d
 I:70:47:0
 W:60:0:5:200000
@@ -1556,13 +1556,13 @@ I:70:30:0
 W:1:0:5:15
 A:1/1
 
-N:202:Aggravate Monster
+N:202:Debating 101
 G:?:d
 I:70:1:0
 W:5:0:5:0
 A:5/1
 
-N:203:Trap Creation
+N:203:Assasin's Freind
 G:?:d
 I:70:7:0
 W:10:0:5:0
@@ -1622,7 +1622,7 @@ I:70:21:0
 W:50:0:5:500
 A:50/1
 
-N:213:Curse Weapon
+N:213:Fighter's Friend
 G:?:d
 I:70:3:0
 W:50:0:5:0
@@ -1640,7 +1640,7 @@ I:70:2:0
 W:50:0:5:0
 A:50/1
 
-N:216:Summon Undead
+N:216:Spirituality 101
 G:?:d
 I:70:5:0
 W:15:0:5:0
@@ -1664,7 +1664,7 @@ I:70:35:0
 W:25:0:5:80
 A:25/1
 
-N:220:Word of Recall
+N:220:Grindle's Effortless Elevator
 G:?:d
 I:70:11:0
 W:5:0:5:150
@@ -1678,7 +1678,7 @@ A:40/1
 
 ##### Potions #####
 
-N:222:Slime Mold Juice
+N:222:Mountain Dew
 G:!:d
 I:75:2:400
 W:0:0:4:2
@@ -1727,7 +1727,7 @@ W:20:0:4:8000
 A:20/6:25/3:30/1
 P:0:1d1:0:0:0
 
-N:229:Stupidity
+N:229:Beerhugger's Very Fine Whiskey
 G:!:d
 I:75:17:0
 W:20:0:4:0
@@ -1748,7 +1748,7 @@ W:20:0:4:8000
 A:20/6:25/3:30/1
 P:0:1d1:0:0:0
 
-N:232:Naivety
+N:232:Beerhugger's Homeopathic Sipping Whiskey
 G:!:d
 I:75:18:0
 W:20:0:4:0
@@ -1792,7 +1792,7 @@ P:0:1d1:0:0:0
 
 # Note! Invulnerability decreases your food...
 
-N:238:Invulnerability
+N:238:Silverfish's Ultimate Antioxident
 G:!:d
 I:75:62:-2500
 W:90:0:4:100000
@@ -1820,7 +1820,7 @@ W:5:0:4:100
 A:5/1
 P:0:1d1:0:0:0
 
-N:242:Healing
+N:242:Abrakaseltzer
 G:!:d
 I:75:37:200
 W:15:0:4:300
@@ -1848,14 +1848,14 @@ W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:246:Blindness
+N:246:Scumble
 G:!:d
 I:75:7:0
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:247:Booze
+N:247:Glen Livid
 G:!:d
 I:75:9:50
 W:0:0:4:0
@@ -1876,7 +1876,7 @@ W:1:0:4:75
 A:1/1:40/1:60/1
 P:0:1d1:0:0:0
 
-N:250:Slowness
+N:250:Winkles olde Peculiar
 G:!:d
 I:75:4:50
 W:1:0:4:0
@@ -1904,35 +1904,35 @@ W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 
-N:254:Lose Memories
+N:254:Turbot's Really Odd
 G:!:d
 I:75:13:0
 W:10:0:4:0
 A:10/1
 P:0:1d1:0:0:0
 
-N:255:Salt Water
+N:255:Ankh Water
 G:!:d
 I:75:5:0
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:256:Enlightenment
+N:256:Reanual Wine
 G:!:d
 I:75:56:0
 W:25:0:4:800
 A:25/1:50/1:100/1
 P:0:1d1:0:0:0
 
-N:257:Heroism
+N:257:Husband's Helper
 G:!:d
 I:75:32:0
 W:1:0:4:35
 A:1/1
 P:0:1d1:0:0:0
 
-N:258:Berserk Strength
+N:258:Klatchian Coffe
 G:!:d
 I:75:33:0
 W:3:0:4:100
@@ -1981,14 +1981,14 @@ W:1:0:4:25
 A:1/1
 P:0:1d1:0:0:0
 
-N:265:Neutralize Poison
+N:265:Windlpoon's Perfict Pergative
 G:!:d
 I:75:27:0
 W:5:0:4:75
 A:5/1
 P:0:1d1:0:0:0
 
-N:266:Restore Mana
+N:266:Octarine Juice
 G:!:d
 I:75:40:0
 W:25:0:4:350
@@ -2002,7 +2002,7 @@ W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0
 
-N:268:Resistance
+N:268:Silverfish's Patented Preventative
 G:!:d
 I:75:60:100
 W:20:0:4:250
@@ -2051,14 +2051,14 @@ W:10:0:10:300
 A:10/1:40/1:80/1
 P:0:1d1:0:0:0
 
-N:274:Polymorph
+N:274:Morphic Adjustment
 G:-:d
 I:65:13:15
 W:20:0:10:400
 A:20/1
 P:0:1d1:0:0:0
 
-N:275:Heal Monster
+N:275:Johnson's Monster Slayer
 G:-:d
 I:65:0:29
 W:2:0:10:0
@@ -2107,7 +2107,7 @@ W:10:0:10:100
 A:10/1
 P:0:1d1:0:0:0
 
-N:282:Magic Missile
+N:282:Octorine
 G:-:d
 I:65:15:17
 W:2:0:10:200
@@ -2128,7 +2128,7 @@ W:10:0:10:500
 A:10/4
 P:0:1d1:0:0:0
 
-N:285:Teleport Other
+N:285:Teletuby bye bye
 G:-:d
 I:65:3:12
 W:20:0:10:350
@@ -2142,7 +2142,7 @@ W:20:0:10:700
 A:20/1
 P:0:1d1:0:0:0
 
-N:287:Lightning Balls
+N:287:Static Blast
 G:-:d
 I:65:21:13
 W:35:0:10:1200
@@ -2150,7 +2150,7 @@ A:35/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
-N:288:Cold Balls
+N:288:Arctic Blast
 G:-:d
 I:65:23:9
 W:40:0:10:1500
@@ -2158,7 +2158,7 @@ A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_COLD
 
-N:289:Fire Balls
+N:289:Flaming Blast
 G:-:d
 I:65:22:7
 W:50:0:10:1800
@@ -2166,14 +2166,14 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_FIRE
 
-N:290:Stinking Cloud
+N:290:Octogen Blast
 G:-:d
 I:65:14:15
 W:5:0:10:400
 A:5/1
 P:0:1d1:0:0:0
 
-N:291:Acid Balls
+N:291:Acidic Blast
 G:-:d
 I:65:20:8
 W:50:0:10:1650
@@ -2181,7 +2181,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 
-N:292:Wonder
+N:292:Johnson's Absolute Definite
 G:-:d
 I:65:24:24
 W:3:0:10:250
@@ -2232,7 +2232,7 @@ A:60/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:298:Annihilation
+N:298:Utter Negativity
 G:-:d
 I:65:25:4
 W:60:0:10:3000
@@ -2420,14 +2420,14 @@ W:70:0:50:3500
 A:70/4
 P:0:1d2:0:0:0
 
-N:324:Power
+N:324:Light Fantastik
 G:_:d
 I:55:25:5
 W:70:0:50:4000
 A:70/2
 P:0:1d2:0:0:0
 
-N:325:the Magi
+N:325:Octarine
 G:_:d
 I:55:19:5
 W:70:0:50:4500
@@ -2465,21 +2465,21 @@ P:0:1d2:0:0:0
 
 ##### Basic Books #####
 
-N:330:[Book of Common Prayer]
+N:330:[Woddeley's Basic Gods]
 G:?:W
 I:90:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
-N:331:[High Mass]
+N:331:[Book of Ossery]
 G:?:W
 I:90:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:332:[Book of the Unicorn]
+N:332:[130 Days of Pseudopolis]
 G:?:w
 I:90:2:0
 W:40:0:30:25000
@@ -2487,7 +2487,7 @@ A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:333:[Blessings of the Grail]
+N:333:[Abraxas on Religion]
 G:?:w
 I:90:3:0
 W:90:0:30:100000
@@ -2495,21 +2495,21 @@ A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:334:[Beginner's Handbook]
+N:334:[The Octorine Fairy Book]
 G:?:B
 I:91:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
-N:335:[Master Sorcerer's Handbook]
+N:335:[Dictionary of Eyewatering Words]
 G:?:B
 I:91:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:336:[Pattern Sorcery]
+N:336:[The Book of Alberto Malich]
 G:?:b
 I:91:2:0
 W:40:0:30:25000
@@ -2517,7 +2517,7 @@ A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:337:[Grimoire of Power]
+N:337:[The Octavo]
 G:?:b
 I:91:3:0
 W:90:0:30:100000
@@ -2648,14 +2648,14 @@ W:20:0:15:4000
 A:20/8:40/4
 P:0:1d1:0:0:0
 
-N:354:Recall
+N:354:Grindle's Effortless Elevator
 G:-:d
 I:66:3:60
 W:15:0:15:4000
 A:15/8:30/4
 P:0:1d1:0:0:0
 
-N:355:Illumination
+N:355:Light Fantastic
 G:-:d
 I:66:4:16
 W:10:0:15:1000
@@ -2690,7 +2690,7 @@ W:15:0:15:3000
 A:15/2:30/1
 P:0:1d1:0:0:0
 
-N:360:Polymorph
+N:360:Morphic Adjustment
 G:-:d
 I:66:19:25
 W:18:0:15:1200
@@ -2825,21 +2825,21 @@ P:0:1d1:0:0:0
 
 ##### Special Books (note resistances) #####
 
-N:379:[Call of the Wild]
+N:379:[Fadology]
 G:?:G
 I:92:0:0
 W:10:0:30:100 
 A:10/1
 P:0:1d1:0:0:0
 
-N:380:[Nature Mastery]
+N:380:[Joye of Snacks]
 G:?:G
 I:92:1:0
 W:20:0:30:1000 
 A:20/1
 P:0:1d1:0:0:0
 
-N:381:[Nature's Gifts]
+N:381:[Little Folks Book of Flower Fairies]
 G:?:g
 I:92:2:0
 W:50:0:30:25000
@@ -2847,7 +2847,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:382:[Nature's Wrath]
+N:382:[Happy Tales]
 G:?:g
 I:92:3:0
 W:80:0:30:100000
@@ -2855,21 +2855,21 @@ A:80/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:383:[Sign of Chaos]
+N:383:[Bumper Fun Grimoir]
 G:?:R
 I:93:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
-N:384:[Chaos Mastery]
+N:384:[Monster Fun Grimoir]
 G:?:R
 I:93:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:385:[Chaos Channels]
+N:385:[What I Did On My Holidays]
 G:?:r
 I:93:2:0
 W:50:0:30:25000
@@ -2885,14 +2885,14 @@ A:100/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:387:[Black Prayers]
+N:387:[Malifacorum Ocularis]
 G:?:D
 I:94:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
-N:388:[Black Mass]
+N:388:[De Chelonion Mobile]
 G:?:D
 I:94:1:0
 W:20:0:30:1000
@@ -2961,7 +2961,7 @@ W:5:0:50:0
 A:5/1
 P:0:1d2:0:0:0
 
-N:397:& Elf Skeleton~
+N:397:& Troll Skeleton~
 G:~:w
 I:1:6:0
 W:5:0:40:0
@@ -3095,7 +3095,7 @@ P:30:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:412:Power Dragon Scale Mail~
+N:412:Octorine Dragon Scale Mail~
 G:[:v
 I:38:30:0
 W:110:0:250:350000
@@ -3126,7 +3126,7 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
 ##### Extra potions #####
 
-N:415:Death
+N:415:Death's Honey
 G:!:d
 I:75:23:0
 W:55:0:4:0
@@ -3140,14 +3140,14 @@ W:40:0:4:0
 A:40/8
 P:0:20d20:0:0:0
 
-N:417:Detonations
+N:417:Bloat
 G:!:d
 I:75:22:0
 W:60:0:4:10000
 A:60/8
 P:0:25d25:0:0:0
 
-N:418:Augmentation
+N:418:Death's Honey
 G:!:d
 I:75:55:0
 W:40:0:4:60000
@@ -3182,7 +3182,7 @@ W:70:0:4:80000
 A:70/4
 P:0:1d1:0:0:0
 
-N:423:[Black Channels]
+N:423:[Lacemaking Through the Ages]
 G:?:v
 I:94:2:0
 W:50:0:30:25000
@@ -3190,7 +3190,7 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:424:[Necronomicon]
+N:424:[Necrotelecomnicon]
 G:?:v
 I:94:3:0
 W:90:0:30:100000
@@ -3322,7 +3322,7 @@ P:0:1d1:0:0:0
 
 ##### And here starts the gold/gems #####
 
-N:480:copper
+N:480:Barbarian invaders tokens
 G:$:u
 I:100:1:0
 W:1:0:0:3
@@ -3377,7 +3377,7 @@ G:$:y
 I:100:11:0
 W:1:0:0:16
 
-N:491:opals
+N:491:ankhstones
 G:$:W
 I:100:12:0
 W:1:0:0:18
@@ -3397,7 +3397,7 @@ G:$:w
 I:100:15:0
 W:1:0:0:28
 
-N:495:emeralds
+N:495:octarines
 G:$:g
 I:100:16:0
 W:1:0:0:32
@@ -3462,16 +3462,16 @@ F:INSTA_ART
 
 # The Phial of Galadriel -- see artifact list
 
-N:500:& Phial~
+N:500:& Siverfish's Ever Glowing
 G:!:y
 I:39:4:0
 W:1:0:10:10000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-# The Star of Elendil -- see artifact list
+# Star of The Light Fantastic -- see artifact list
 
-N:501:& Star~
+N:501:& star ~
 G:*:y
 I:39:5:0
 W:30:0:5:25000
@@ -3488,7 +3488,7 @@ P:0:1d1:0:0:0
 F:INSTA_ART
 
 
-# The Amulet of Carlammas -- see artifact list
+# The Amulet of Hat -- see artifact list
 
 N:503:& Amulet~
 G:":d
@@ -3496,7 +3496,7 @@ I:40:10:0
 W:50:0:3:60000
 F:INSTA_ART
 
-# The Amulet of Ingwe -- see artifact list
+# The Amulet of Gigalith -- see artifact list
 
 N:504:& Amulet~
 G:":d
@@ -3513,7 +3513,7 @@ W:70:0:3:75000
 F:INSTA_ART
 
 
-# The Ring of Barahir -- see artifact list
+# The Ring of The Great Plumber -- see artifact list
 
 N:506:& Ring~
 G:=:d
@@ -3521,7 +3521,7 @@ I:45:32:0
 W:50:0:2:65000
 F:INSTA_ART
 
-# The Ring of Tulkas -- see artifact list
+# The Ring of Herne the Hunted -- see artifact list
 
 N:507:& Ring~
 G:=:d
@@ -3529,7 +3529,7 @@ I:45:33:0
 W:90:0:2:150000
 F:INSTA_ART
 
-# The Ring of Power (Narya) -- see artifact list
+# The Ring of Cubal(Narya) -- see artifact list
 
 N:508:& Ring~
 G:=:d
@@ -3537,7 +3537,7 @@ I:45:34:0
 W:80:0:2:100000
 F:INSTA_ART
 
-# The Ring of Power (Nenya) -- see artifact list
+# The Ring of Om(Nenya) -- see artifact list
 
 N:509:& Ring~
 G:=:d
@@ -3545,7 +3545,7 @@ I:45:35:0
 W:90:0:2:200000
 F:INSTA_ART
 
-# The Ring of Power (Vilya) -- see artifact list
+# The Ring of Blind Io (Vilya) -- see artifact list
 
 N:510:& Ring~
 G:=:d
@@ -3553,7 +3553,7 @@ I:45:36:0
 W:100:0:2:300000
 F:INSTA_ART
 
-# The Ring of Power (The One Ring) -- see artifact list
+# The Ring of Azrael (The One Ring) -- see artifact list
 
 N:511:& Ring~
 G:=:y
@@ -3566,21 +3566,21 @@ F:INSTA_ART
 
 # Trump Spellbooks
 
-N:512:[Conjurings & Tricks]
+N:512:[Stripfettle's Belive-It-Or-Not Grimoire]
 G:?:U
 I:95:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
-N:513:[Deck of Many Things]
+N:513:[Capslock's Compleet Lexicon of Majic]
 G:?:U
 I:95:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:514:[Trumps of Doom]
+N:514:[Theory of Thaumatic Imponderability]
 G:?:o
 I:95:2:0
 W:40:0:30:25000
@@ -3598,28 +3598,28 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Arcane Spellbooks
 
-N:516:[Cantrips for Beginners]
+N:516:[Little Pieces for Tiny Fingers]
 G:?:s
 I:96:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
-N:517:[Minor Arcana]
+N:517:[Ye True Arte of Levitatione]
 G:?:s
 I:96:1:0
 W:20:0:30:250
 A:20/1
 P:0:1d1:0:0:0
 
-N:518:[Major Arcana]
+N:518:[Names of The Ants]
 G:?:s
 I:96:2:0
 W:10:0:30:1000
 A:10/1
 P:0:1d1:0:0:0
 
-N:519:[Manual of Mastery]
+N:519:[The Octavo, Reader's Digest Edition]
 G:?:s
 I:96:3:0
 W:20:0:30:2500
@@ -3644,7 +3644,7 @@ A:40/4
 F:NO_MAGIC
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:522:Anti-Teleportation
+N:522:Johnson's Perfect Teleportation
 G:":d
 I:40:14:0
 W:30:0:3:15000
@@ -4001,7 +4001,7 @@ W:32:0:200:75
 A:5/3
 P:0:1d2:0:0:0
 
-N:569:& Clay Statue~ of #
+N:569:& Action Figure~ of #
 G:`:U
 I:9:1:0
 W:32:0:500:50
@@ -4078,7 +4078,7 @@ W:32:0:1000:0
 A:1/2
 P:0:1d1:0:0:0
 
-N:580:& T-shirt~
+N:580:& T-shirt~ of #
 G:~:w
 I:36:0:0
 W:1:0:10:0

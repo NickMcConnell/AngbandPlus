@@ -27,25 +27,42 @@
 #
 # Entries by Eric Bock, Matt Graham, Andrew Hill, Chris Kern, and Topi Ylinen
 
-N:8:Farmer Maggot
+N:8:C.M.O.T. Dibbler
 3
-seems sad about something.
-asks if you have seen his dogs.
-mumbles something about mushrooms.
+Sossage? Inna bun?
+Meat? Onna Stick?
+Psst! Wanna buy Lancre Bridge?
 
 #N:19:Martti Ihrasaari
 
-N:53:Grip, Farmer Maggot's dog
+N:53:Gaspode the Wonder Dog
+4
+Scratches himself
+says, 'Bark, Bark, Bark!'
+says, 'Growl.'
+says, 'It's a dog's life.'
+
 N:54:Wolf, Farmer Maggot's dog
 N:55:Fang, Farmer Maggot's dog
 0
 
-#N:63:Smeagol
+N:63:C.M.O.T. Dibbler
+3
+Sossage? Inna bun?
+Meat? Onna Stick?
+Psst! Wanna buy Lancre Bridge?
+
 #N:135:Mughash the Kobold Lord
 #N:137:Wormtongue, Agent of Saruman
 #N:138:Robin Hood, the Outlaw
 #N:169:Brodda, the Easterling
-#N:291:Ulfast, Son of Ulfang
+
+N:291:Mad Hamish
+3
+says, 'Eh wot?'
+says, 'You wot?'
+says, 'I'll hack yer knees off! You see if i don't!'
+
 #N:180:Orfax, Son of Boldor
 #N:237:Boldor, King of the Yeeks
 #N:200:Hobbes the Tiger
@@ -55,18 +72,42 @@ N:55:Fang, Farmer Maggot's dog
 #N:260:Ufthak of Cirith Ungol
 #N:314:Shagrat, the Orc Captain
 #N:315:Gorbag, the Orc Captain
-#N:330:Bolg, Son of Azog
+
+N:330:Boy Willie
+2
+says, 'You don't get bloodthirsty ravening monsters like you used to.' 
+says, 'I'll kill ever dang one eh yers!'
+
 #N:350:Ugluk, the Uruk
 #N:356:Lugdush, the Uruk
-#N:373:Azog, King of the Uruk-Hai
+
+N:373:Cohen the Barbarian
+3
+says, 'Inne Juste 7 Dayes I Will Make You A Barbarian Hero!'
+says, 'How d'yer like mah new teeth?'
+says, 'Wheres ma dang horde got ter?'
+
 #N:382:Mime, the Nibelung
 #N:383:Hagen, son of Alberich
-#N:419:Alberich the Nibelung King
+
+N:419:Cassanunda
+4
+says, 'It is I, the great Cassanunda!'
+says, 'I am the greatest  lover on the disk!'!'
+adjusts his step ladder.
+says, 'Give us a kiss then!'
+
 #N:392:Sangahyando of Umbar
 #N:380:Angamaite of Umbar
 #N:393:It
 #N:409:Kharis the Powerslave
-#N:413:Ulwarth, Son of Ulfang
+
+N:413:Seargent Detritus
+3
+redies his crossbow
+says, 'what's all dis den?'
+says, 'No loiterin in der dungeon.'
+
 #N:431:Grendel
 #N:441:Barney the Dinosaur
 #N:489:Bokrug
@@ -123,7 +164,18 @@ wails, 'Tekeli-li!  Tekeli-li!'
 #N:767:Daoloth, the Render of the Veils
 #N:770:Artsi the Champion of Chaos
 #N:771:Saruman of Many Colours
-#N:772:Gandalf the Grey
+
+N:772:Archchancelor Ridcully
+8
+says, 'Have you seen my hat?'
+says, 'A wizard's staffs got a knob on the end.'
+says, 'Have you seen my staff?'
+smokes his pipe.
+polishes the knob on his staff.
+says, 'I hear the fish are biting today.'
+says, 'Show some school spirit, man!'
+says, 'You really must try my Wow-wow sauce.'
+
 #N:773:Brand, Mad Visionary of Amber
 #N:777:Bast, Goddess of Cats
 #N:780:Vlad Dracula, Prince of Darkness
