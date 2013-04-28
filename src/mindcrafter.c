@@ -35,8 +35,6 @@ void _precognition_spell(int cmd, variant *res)
 		int b = 0;
 		if (p_ptr->lev > 44)
 		{
-			chg_virtue(V_KNOWLEDGE, 1);
-			chg_virtue(V_ENLIGHTEN, 1);
 			wiz_lite(p_ptr->tim_superstealth > 0);
 		}
 		else if (p_ptr->lev > 19)
@@ -68,20 +66,18 @@ void _precognition_spell(int cmd, variant *res)
 	{
 		int n = 0;
 
-		/* Base is 1.  Lets give reasonable costs based on powers.  Note
-		   some powers become obsolete, like Telepathy, Magic Mapping and Detect Items */
 		if (p_ptr->lev >= 45)
-			n += 19;
-		else if (p_ptr->lev >= 30)
 			n += 9;
-		else if (p_ptr->lev >= 25)
-			n += 7;
-		else if (p_ptr->lev >= 20)
+		else if (p_ptr->lev >= 30)
 			n += 4;
-		else if (p_ptr->lev >= 15)
-			n += 2;
-		else if (p_ptr->lev >= 5)
+		else if (p_ptr->lev >= 25)
+			n += 3;
+		else if (p_ptr->lev >= 20)
 			n += 1;
+		else if (p_ptr->lev >= 15)
+			n += 0;
+		else if (p_ptr->lev >= 5)
+			n += 0;
 
 		var_set_int(res, n);
 		break;
@@ -522,7 +518,7 @@ void _psycho_storm_spell(int cmd, variant *res)
 		var_set_string(res, T("Psycho-Storm", ""));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Fires a large ball of pure energy.", ""));
+		var_set_string(res, T("Fires a large ball of pure mental energy.", ""));
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 7)));

@@ -602,6 +602,7 @@ static caster_info * _caster_info(void)
 		me.magic_desc = "ninjutsu";
 		me.options = CASTER_USE_HP;
 		me.which_stat = A_DEX;
+		me.weight = 350;
 		init = TRUE;
 	}
 	return &me;

@@ -635,6 +635,7 @@ static caster_info * _caster_info(void)
 		me.magic_desc = "technique";
 		me.options = CASTER_USE_HP;
 		me.which_stat = A_STR;
+		me.weight = 1000;
 		init = TRUE;
 	}
 	return &me;

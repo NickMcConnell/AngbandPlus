@@ -249,17 +249,22 @@ static void _ares_calc_bonuses(void)
 {
 	int dam = 1 + p_ptr->lev/7;
 	int ac = 1 + p_ptr->lev/5;
+	int hand;
 
 	p_ptr->sustain_str = TRUE;
 
 	p_ptr->to_a += ac;
 	p_ptr->dis_to_a += ac;
-	
-	p_ptr->weapon_info[0].to_d += dam;
-	p_ptr->weapon_info[1].to_d += dam;
+
 	p_ptr->to_d_m  += dam;
-	p_ptr->weapon_info[0].dis_to_d += dam;
-	p_ptr->weapon_info[1].dis_to_d += dam;	
+	for (hand = 0; hand < MAX_HANDS; hand++)
+	{
+		if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+		{
+			p_ptr->weapon_info[hand].to_d += dam / p_ptr->weapon_ct;
+			p_ptr->weapon_info[hand].dis_to_d += dam / p_ptr->weapon_ct;
+		}
+	}
 }
 static int _ares_get_powers(spell_info* spells, int max)
 {

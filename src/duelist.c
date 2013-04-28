@@ -580,6 +580,7 @@ static caster_info * _caster_info(void)
 	{
 		me.magic_desc = "challenge";
 		me.options = CASTER_USE_HP;
+		me.weight = 500;
 		init = TRUE;
 	}
 	return &me;

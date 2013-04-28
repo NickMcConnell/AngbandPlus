@@ -2138,7 +2138,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 		/* Mega-Hack -- Extract the "base power" */
 		power = bow_tmul(o_ptr->sval);
-		power += p_ptr->shooter_info.to_mult;
+
+		/* Are we describing a wielded bow? */
+		if (equip_is_worn(o_ptr))
+			power += p_ptr->shooter_info.to_mult;
+		else if (have_flag(flgs, TR_XTRA_MIGHT))
+			power += 1;
 
 		/* Append a special "damage" string */
 		t = object_desc_chr(t, ' ');

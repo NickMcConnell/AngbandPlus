@@ -824,11 +824,9 @@ void _psionic_crafting_spell(int power, int cmd, variant *res)
 		{
 			if (flush_failure) flush();
 			msg_print("The enchantment failed.");
-			if (one_in_(3)) chg_virtue(V_ENCHANT, -1);
 		}
 		else
 		{
-			chg_virtue(V_ENCHANT, 1);
 			calc_android_exp();
 		}
 		_enchant_power = 0;

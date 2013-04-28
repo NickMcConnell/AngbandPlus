@@ -607,7 +607,6 @@ void equip_wield_aux(object_type *src, int slot)
 	if (object_is_cursed(dest))
 	{
 		msg_print("Oops! It feels deathly cold!");
-		chg_virtue(V_HARMONY, -1);
 		dest->ident |= IDENT_SENSE;
 	}
 	if (dest->name1 == ART_HAND_OF_VECNA)

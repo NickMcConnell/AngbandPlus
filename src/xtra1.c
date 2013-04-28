@@ -3210,7 +3210,7 @@ u32b weight_limit(void)
  */
 void calc_bonuses(void)
 {
-	int             i, j, hold, neutral[2], arm, slot;
+	int             i, j, hold, arm, slot;
 	s16b            old_speed = p_ptr->pspeed;
 	s16b            old_life = p_ptr->life;
 	object_type     *o_ptr;
@@ -4732,44 +4732,6 @@ void calc_bonuses(void)
 	if (equip_find_ego(EGO_AMU_NAIVETY)) 
 		p_ptr->skills.sav /= 2;
 
-	/* Determine player alignment */
-	for (i = 0, j = 0; i < 8; i++)
-	{
-		switch (p_ptr->vir_types[i])
-		{
-		case V_JUSTICE:
-			p_ptr->align += p_ptr->virtues[i] * 2;
-			break;
-		case V_CHANCE:
-			/* Do nothing */
-			break;
-		case V_NATURE:
-		case V_HARMONY:
-			neutral[j++] = i;
-			break;
-		case V_UNLIFE:
-			p_ptr->align -= p_ptr->virtues[i];
-			break;
-		default:
-			p_ptr->align += p_ptr->virtues[i];
-			break;
-		}
-	}
-
-	for (i = 0; i < j; i++)
-	{
-		if (p_ptr->align > 0)
-		{
-			p_ptr->align -= p_ptr->virtues[neutral[i]] / 2;
-			if (p_ptr->align < 0) p_ptr->align = 0;
-		}
-		else if (p_ptr->align < 0)
-		{
-			p_ptr->align += p_ptr->virtues[neutral[i]] / 2;
-			if (p_ptr->align > 0) p_ptr->align = 0;
-		}
-	}
-
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
@@ -4817,8 +4779,6 @@ void calc_bonuses(void)
 			if (p_ptr->weapon_info[i].icky_wield)
 			{
 				msg_print("You do not feel comfortable with your weapon.");
-				if (hack_mind)
-					chg_virtue(V_FAITH, -1);
 			}
 			else if (p_ptr->weapon_info[i].wield_how != WIELD_NONE)
 				msg_print("You feel comfortable with your weapon.");
@@ -4848,8 +4808,6 @@ void calc_bonuses(void)
 		if (heavy_armor())
 		{
 			msg_print("The weight of your armor disrupts your balance.");
-			if (hack_mind)
-				chg_virtue(V_HARMONY, -1);
 		}
 		else
 			msg_print("You regain your balance.");

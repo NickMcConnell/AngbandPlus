@@ -103,6 +103,8 @@ static void _khorne_birth(void)
 	forge.pval = 1;
 	forge.to_h = 0;
 	forge.to_d = 0;
+	forge.ds = 6;
+	forge.weight = 220;
 	add_outfit(&forge);
 }
 
@@ -371,9 +373,6 @@ static race_t *_khorne_get_race_t(void)
 
 	switch (p_ptr->current_r_idx)
 	{
-	case MON_BLOODLETTER_KHORNE:
-		me.equip_template = NULL;
-		break;
 	case MON_FLESHHOUND_KHORNE:
 	case MON_JUGGERNAUT_KHORNE:
 		me.equip_template = &_fleshhound_template;
@@ -381,6 +380,8 @@ static race_t *_khorne_get_race_t(void)
 	case MON_BLOODTHIRSTER:
 		me.equip_template = &_bloodthirster_template;
 		break;
+	default:
+		me.equip_template = NULL;
 	}
 
 	me.boss_r_idx = MON_MEPHISTOPHELES;

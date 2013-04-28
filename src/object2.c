@@ -2587,9 +2587,11 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power, int mode)
 					if (o_ptr->tval == TV_HAFTED && one_in_(7))
 						add_flag(o_ptr->art_flags, TR_IMPACT);
 
-					/* Slaying Weapons are proportinately heavier! */
+					/* Slaying Weapons are proportinately heavier! 
+					   TODO: Think on this a bit. Its nice for Mauler's, but not so nice for Ninjas/Rogues/etc.
+					   Plus, it offers some wierdness like two handed wielding of a dagger!
 					new_dam = o_ptr->dd * (o_ptr->ds+1) / 2;
-					o_ptr->weight += o_ptr->weight*(new_dam - old_dam)/(3*old_dam);
+					o_ptr->weight += o_ptr->weight*(new_dam - old_dam)/(3*old_dam); */
 					break;
 				}
 				case EGO_TRUMP:

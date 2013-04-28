@@ -74,8 +74,7 @@ static void _calc_innate_attacks(void)
 
 		a.effect[1] = GF_STEAL;
 		
-		calc_innate_blows(&a, 6);
-		a.blows = (a.blows + 1) / 2;
+		calc_innate_blows(&a, 3);
 
 		a.msg = "You pilfer %s.";
 		a.name = "Greedy Hands";
@@ -362,8 +361,8 @@ race_t *mon_leprechaun_get_race_t(void)
 
 	if (!init)
 	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-	skills_t bs = { 30,  45,  38,  12,  24,  16,  48,  60 };
-	skills_t xs = { 12,  18,  11,   2,   0,   0,  13,  28 };
+	skills_t bs = { 30,  45,  38,  10,  24,  16,  48,  60 };
+	skills_t xs = { 12,  18,  11,   1,   0,   0,  13,  28 };
 
 		me.skills = bs;
 		me.extra_skills = xs;

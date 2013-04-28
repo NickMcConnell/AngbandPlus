@@ -1643,7 +1643,6 @@ extern s16b gain_energy(void);
 extern s16b bow_energy(int sval);
 extern int bow_tmul(int sval);
 extern int bow_range(int sval);
-extern cptr your_alignment(void);
 extern int weapon_exp_level(int weapon_exp);
 extern int riding_exp_level(int riding_exp);
 extern int spell_exp_level(int spell_exp);
@@ -1846,15 +1845,6 @@ extern bool change_wild_mode(void);
 extern bool spoiler_hack;
 extern void strip_name(char *buf, int k_idx);
 extern cptr race_spoiler_page(int i);
-
-/* avatar.c */
-extern bool compare_virtue(int type, int num, int tekitou);
-extern int virtue_number(int type);
-extern cptr virtue[MAX_VIRTUE];
-extern void get_virtues(void);
-extern void chg_virtue(int virtue, int amount);
-extern void set_virtue(int virtue, int amount);
-extern void dump_virtues(FILE * OutFile);
 
 #ifdef TRAVEL
 /* for travel */

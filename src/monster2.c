@@ -1835,7 +1835,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	bool            named = FALSE;
 
 	/* Hack: See Issue 116 */
-	if (m_ptr->nickname)
+	if (m_ptr->nickname && !(mode & MD_NO_PET_ABBREV))
 	{
 		sprintf(desc, "%s", quark_str(m_ptr->nickname));
 		return;
@@ -2099,41 +2099,19 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 
 		if (m_ptr->nickname)
 		{
-#ifdef JP
-			sprintf(buf,"「%s」",quark_str(m_ptr->nickname));
-#else
 			sprintf(buf," called %s",quark_str(m_ptr->nickname));
-#endif
 			strcat(desc,buf);
 		}
 
 		if (p_ptr->riding && (&m_list[p_ptr->riding] == m_ptr))
-		{
-#ifdef JP
-			strcat(desc,"(乗馬中)");
-#else
-			strcat(desc,"(riding)");
-#endif
-		}
+			strcat(desc," (riding)");
 
 		if ((mode & MD_IGNORE_HALLU) && (m_ptr->mflag2 & MFLAG2_CHAMELEON))
 		{
 			if (r_ptr->flags1 & RF1_UNIQUE)
-			{
-#ifdef JP
-				strcat(desc,"(カメレオンの王)");
-#else
-				strcat(desc,"(Chameleon Lord)");
-#endif
-			}
+				strcat(desc," (Chameleon Lord)");
 			else
-			{
-#ifdef JP
-				strcat(desc,"(カメレオン)");
-#else
-				strcat(desc,"(Chameleon)");
-#endif
-			}
+				strcat(desc," (Chameleon)");
 		}
 
 		if ((mode & MD_IGNORE_HALLU) && !is_original_ap(m_ptr))

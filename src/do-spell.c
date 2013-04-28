@@ -290,25 +290,9 @@ void cast_wonder(int dir)
 {
 	int plev = p_ptr->lev;
 	int die = randint1(100) + plev / 5;
-	int vir = virtue_number(V_CHANCE);
-
-	if (vir)
-	{
-		if (p_ptr->virtues[vir - 1] > 0)
-		{
-			while (randint1(400) < p_ptr->virtues[vir - 1]) die++;
-		}
-		else
-		{
-			while (randint1(400) < (0-p_ptr->virtues[vir - 1])) die--;
-		}
-	}
 
 	if (p_ptr->pclass == CLASS_WILD_TALENT)
 		die += randint1(25 + p_ptr->lev/2);
-
-	if (die < 26)
-		chg_virtue(V_CHANCE, 1);
 
 	if (die > 100)
 	{
@@ -374,27 +358,12 @@ static void cast_invoke_spirits(int dir)
 {
 	int plev = p_ptr->lev;
 	int die = spell_power(randint1(100) + plev / 5);
-	int vir = virtue_number(V_CHANCE);
-
-	if (vir)
-	{
-		if (p_ptr->virtues[vir - 1] > 0)
-		{
-			while (randint1(400) < p_ptr->virtues[vir - 1]) die++;
-		}
-		else
-		{
-			while (randint1(400) < (0-p_ptr->virtues[vir - 1])) die--;
-		}
-	}
 
 #ifdef JP
 	msg_print("あなたは死者たちの力を招集した...");
 #else
 	msg_print("You call on the power of the dead...");
 #endif
-	if (die < 26)
-		chg_virtue(V_CHANCE, 1);
 
 	if (die > 100)
 	{
@@ -415,7 +384,6 @@ static void cast_invoke_spirits(int dir)
 #endif
 
 		(void)summon_specific(0, py, px, dun_level, SUMMON_UNDEAD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
-		chg_virtue(V_UNLIFE, 1);
 	}
 	else if (die < 14)
 	{
@@ -641,7 +609,6 @@ static void cast_shuffle(void)
 	int plev = p_ptr->lev;
 	int dir;
 	int die;
-	int vir = virtue_number(V_CHANCE);
 	int i;
 
 	/* Card sharks and high mages get a level bonus */
@@ -652,27 +619,11 @@ static void cast_shuffle(void)
 	else
 		die = randint1(120);
 
-
-	if (vir)
-	{
-		if (p_ptr->virtues[vir - 1] > 0)
-		{
-			while (randint1(400) < p_ptr->virtues[vir - 1]) die++;
-		}
-		else
-		{
-			while (randint1(400) < (0-p_ptr->virtues[vir - 1])) die--;
-		}
-	}
-
 #ifdef JP
 	msg_print("あなたはカードを切って一枚引いた...");
 #else
 	msg_print("You shuffle the deck and draw a card...");
 #endif
-
-	if (die < 30)
-		chg_virtue(V_CHANCE, 1);
 
 	if (die < 7)
 	{
@@ -919,8 +870,6 @@ static void cast_shuffle(void)
 		msg_print("It's the Sun.");
 #endif
 
-		chg_virtue(V_KNOWLEDGE, 1);
-		chg_virtue(V_ENLIGHTEN, 1);
 		wiz_lite(p_ptr->tim_superstealth > 0);
 	}
 	else
@@ -2482,9 +2431,6 @@ static cptr do_sorcery_spell(int spell, int mode)
 
 			if (cast)
 			{
-				chg_virtue(V_KNOWLEDGE, 1);
-				chg_virtue(V_ENLIGHTEN, 1);
-
 				wiz_lite(p_ptr->tim_superstealth > 0);
 
 				if (!p_ptr->telepathy)
@@ -3144,8 +3090,6 @@ static cptr do_nature_spell(int spell, int mode)
 			if (cast)
 			{
 				fire_ball(GF_LITE, 0, dam, rad);
-				chg_virtue(V_KNOWLEDGE, 1);
-				chg_virtue(V_ENLIGHTEN, 1);
 				wiz_lite(FALSE);
 
 				if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !res_save_default(RES_LITE))
@@ -4534,9 +4478,6 @@ static cptr do_death_spell(int spell, int mode)
 
 				if (drain_life(dir, dam))
 				{
-					chg_virtue(V_SACRIFICE, -1);
-					chg_virtue(V_VITALITY, -1);
-
 					hp_player(dam);
 
 					/*
@@ -4727,9 +4668,6 @@ static cptr do_death_spell(int spell, int mode)
 
 				if (!get_aim_dir(&dir)) return NULL;
 
-				chg_virtue(V_SACRIFICE, -1);
-				chg_virtue(V_VITALITY, -1);
-
 				for (i = 0; i < 3; i++)
 				{
 					if (drain_life(dir, dam))
@@ -4852,8 +4790,6 @@ static cptr do_death_spell(int spell, int mode)
 						msg_print("'The dead arise... to punish you for disturbing them!'");
 #endif
 					}
-
-					chg_virtue(V_UNLIFE, 1);
 				}
 			}
 		}
@@ -6629,9 +6565,6 @@ static cptr do_arcane_spell(int spell, int mode)
 
 			if (cast)
 			{
-				chg_virtue(V_KNOWLEDGE, 1);
-				chg_virtue(V_ENLIGHTEN, 1);
-
 				wiz_lite(p_ptr->tim_superstealth > 0);
 
 				if (!p_ptr->telepathy)
@@ -6707,12 +6640,10 @@ static cptr do_craft_spell(int spell, int mode)
 			{
 				if (flush_failure) flush();
 				msg_print("The enchantment failed.");
-				if (one_in_(3)) chg_virtue(V_ENCHANT, -1);
 			}
 			else
 			{
 				o_ptr->discount = 99;
-				chg_virtue(V_ENCHANT, 1);
 			}
 
 			calc_android_exp();

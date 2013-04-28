@@ -348,13 +348,6 @@ static void do_cmd_eat_food_aux(int item)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_is_aware(o_ptr)))
-	{
-		chg_virtue(V_KNOWLEDGE, -1);
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-	}
-
 	/* We have tried it */
 	if (o_ptr->tval == TV_FOOD) object_tried(o_ptr);
 
@@ -738,8 +731,6 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_CONFUSION: /* Booze */
-			if (p_ptr->pclass != CLASS_MONK) 
-				chg_virtue(V_HARMONY, -1);
 			if (!res_save_default(RES_CONF))
 			{
 				if (p_ptr->pclass == CLASS_MONK) 
@@ -791,7 +782,6 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (!p_ptr->hold_life && (p_ptr->exp > 0))
 			{
 				msg_print("You feel your memories fade.");
-				chg_virtue(V_KNOWLEDGE, -5);
 				lose_exp(p_ptr->exp / 4);
 				ident = TRUE;
 			}
@@ -844,8 +834,6 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_DEATH:
-			chg_virtue(V_VITALITY, -1);
-			chg_virtue(V_UNLIFE, 5);
 			msg_print("A feeling of Death flows through your body.");
 			take_hit(DAMAGE_LOSELIFE, 5000, "a potion of Death", -1);
 			ident = TRUE;
@@ -983,8 +971,6 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_LIFE:
-			chg_virtue(V_VITALITY, 1);
-			chg_virtue(V_UNLIFE, -5);
 			msg_print("You feel life flow through your body!");
 			restore_level();
 			(void)set_poisoned(0, TRUE);
@@ -1089,8 +1075,6 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_ENLIGHTENMENT:
 			msg_print("An image of your surroundings forms in your mind...");
-			chg_virtue(V_KNOWLEDGE, 1);
-			chg_virtue(V_ENLIGHTEN, 1);
 			wiz_lite(p_ptr->tim_superstealth > 0);
 			ident = TRUE;
 			break;
@@ -1102,8 +1086,6 @@ static void do_cmd_quaff_potion_aux(int item)
 			msg_print("You begin to feel more enlightened...");
 #endif
 
-			chg_virtue(V_KNOWLEDGE, 1);
-			chg_virtue(V_ENLIGHTEN, 2);
 			msg_print(NULL);
 			wiz_lite(p_ptr->tim_superstealth > 0);
 			(void)do_inc_stat(A_INT);
@@ -1133,7 +1115,6 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_EXPERIENCE:
 			if (p_ptr->prace == RACE_ANDROID) break;
-			chg_virtue(V_ENLIGHTEN, 1);
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
 				s32b ee = (p_ptr->exp / 2) + 10;
@@ -1262,13 +1243,6 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	if (!(object_is_aware(q_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-		chg_virtue(V_KNOWLEDGE, -1);
-	}
 
 	/* The item has been tried */
 	object_tried(q_ptr);
@@ -1510,13 +1484,6 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 		used_up = FALSE;
 	}
 
-	if (!(object_is_aware(o_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-		chg_virtue(V_KNOWLEDGE, -1);
-	}
-
 	object_tried(o_ptr);
 	if (device_noticed && !object_is_aware(o_ptr))
 	{
@@ -1691,13 +1658,6 @@ static void do_cmd_use_staff_aux(int item)
 	sound(SOUND_ZAP);
 	used = device_use(o_ptr);
 
-	if (!(object_is_aware(o_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-		chg_virtue(V_KNOWLEDGE, -1);
-	}
-
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	object_tried(o_ptr);
 	if (device_noticed && !object_is_aware(o_ptr))
@@ -1832,12 +1792,7 @@ static void do_cmd_aim_wand_aux(int item)
 	used = device_use(o_ptr);
 
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-	if (!(object_is_aware(o_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-		chg_virtue(V_KNOWLEDGE, -1);
-	}
+
 	object_tried(o_ptr);
 	if (device_noticed && !object_is_aware(o_ptr))
 	{
@@ -1964,12 +1919,7 @@ static void do_cmd_zap_rod_aux(int item)
 	if (used) o_ptr->timeout += k_ptr->pval;
 
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-	if (!(object_is_aware(o_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-		chg_virtue(V_KNOWLEDGE, -1);
-	}
+
 	object_tried(o_ptr);
 
 	if (device_noticed && !object_is_aware(o_ptr))
@@ -2622,8 +2572,6 @@ static void do_cmd_activate_aux(int item)
 			case ART_JUDGE:
 			{
 				msg_print("The Jewel flashes bright red!");
-				chg_virtue(V_KNOWLEDGE, 1);
-				chg_virtue(V_ENLIGHTEN, 1);
 				wiz_lite(p_ptr->tim_superstealth > 0);
 				msg_print("The Jewel drains your vitality...");
 				take_hit(DAMAGE_LOSELIFE, damroll(3, 8), "the Jewel of Judgement", -1);

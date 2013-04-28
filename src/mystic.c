@@ -539,6 +539,7 @@ static caster_info * _caster_info(void)
 	{
 		me.magic_desc = "mystic technique";
 		me.which_stat = A_CHR;
+		me.weight = 350;
 		init = TRUE;
 	}
 	return &me;

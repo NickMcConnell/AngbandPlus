@@ -1594,7 +1594,6 @@ msg_print("「今回は儲けたな！でも次はこっちが勝ってやるからな、絶対に！」");
 #else
 				msg_print("You came out a winner! We'll win next time, I'm sure.");
 #endif
-				chg_virtue(V_CHANCE, 3);
 			}
 			else
 			{
@@ -1603,7 +1602,6 @@ msg_print("「金をスッてしまったな、わはは！うちに帰った方がいいぜ。」");
 #else
 				msg_print("You lost gold! Haha, better head home.");
 #endif
-				chg_virtue(V_CHANCE, -3);
 			}
 		}
 		msg_print(NULL);
@@ -2320,7 +2318,6 @@ static bool kankin(void)
 				inven_item_describe(i);
 				inven_item_optimize(i);
 
-				chg_virtue(V_JUSTICE, 5);
 				kubi_r_idx[j] += 10000;
 
 				/* Count number of unique corpses already handed */
@@ -4605,30 +4602,7 @@ msg_print("お金が足りません！");
 		kankin();
 		break;
 	case BACT_HEIKOUKA:
-#ifdef JP
-		msg_print("平衡化の儀式を行なった。");
-#else
-		msg_print("You received an equalization ritual.");
-#endif
-		set_virtue(V_COMPASSION, 0);
-		set_virtue(V_HONOUR, 0);
-		set_virtue(V_JUSTICE, 0);
-		set_virtue(V_SACRIFICE, 0);
-		set_virtue(V_KNOWLEDGE, 0);
-		set_virtue(V_FAITH, 0);
-		set_virtue(V_ENLIGHTEN, 0);
-		set_virtue(V_ENCHANT, 0);
-		set_virtue(V_CHANCE, 0);
-		set_virtue(V_NATURE, 0);
-		set_virtue(V_HARMONY, 0);
-		set_virtue(V_VITALITY, 0);
-		set_virtue(V_UNLIFE, 0);
-		set_virtue(V_PATIENCE, 0);
-		set_virtue(V_TEMPERANCE, 0);
-		set_virtue(V_DILIGENCE, 0);
-		set_virtue(V_VALOUR, 0);
-		set_virtue(V_INDIVIDUALISM, 0);
-		get_virtues();
+		msg_print("You received an equalization ritual ... Funny, nothing happens.");
 		paid = TRUE;
 		break;
 	case BACT_TELE_TOWN:

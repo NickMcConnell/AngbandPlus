@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 16
+#define VER_PATCH 17
 #define VER_EXTRA 0
 
 
@@ -2945,6 +2945,7 @@
 #define MD_ASSUME_VISIBLE 0x00000080 /* Assume the monster is visible */
 #define MD_TRUE_NAME      0x00000100 /* Chameleon's true name */
 #define MD_IGNORE_HALLU   0x00000200 /* Ignore hallucination, and penetrate shape change */
+#define MD_NO_PET_ABBREV  0x00000400
 
 /*
  * Bit flags for object_desc()

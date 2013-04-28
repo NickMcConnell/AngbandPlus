@@ -570,29 +570,6 @@ void do_cmd_destroy(void)
 		}
 	}
 
-	if (high_level_book(q_ptr) && q_ptr->tval == TV_LIFE_BOOK)
-	{
-		chg_virtue(V_UNLIFE, 1);
-		chg_virtue(V_VITALITY, -1);
-	}
-	else if (high_level_book(q_ptr) && q_ptr->tval == TV_DEATH_BOOK)
-	{
-		chg_virtue(V_UNLIFE, -1);
-		chg_virtue(V_VITALITY, 1);
-	}	
-
-	if (q_ptr->to_a || q_ptr->to_h || q_ptr->to_d)
-		chg_virtue(V_ENCHANT, -1);
-	
-	if (object_value_real(q_ptr) > 30000)
-		chg_virtue(V_SACRIFICE, 2);
-	
-	else if (object_value_real(q_ptr) > 10000)
-		chg_virtue(V_SACRIFICE, 1);
-
-	if (q_ptr->to_a != 0 || q_ptr->to_d != 0 || q_ptr->to_h != 0)
-		chg_virtue(V_HARMONY, 1);
-
 	if (equip_is_valid_slot(item)) 
 		calc_android_exp();
 }

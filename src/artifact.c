@@ -2723,9 +2723,6 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		}
 		else
 			sprintf(new_name, "'%s'", dummy_name);
-
-		chg_virtue(V_INDIVIDUALISM, 2);
-		chg_virtue(V_ENCHANT, 5);
 	}
 	else
 	{
@@ -3582,8 +3579,6 @@ bool activate_random_artifact(object_type * o_ptr)
 		/* Activate for general purpose effect (detection etc.) */
 		case ACT_WIZ_LITE:
 			msg_print("It flashes bright red ...");
-			chg_virtue(V_KNOWLEDGE, 1);
-			chg_virtue(V_ENLIGHTEN, 1);
 			wiz_lite(p_ptr->tim_superstealth > 0);
 			detect_traps(DETECT_RAD_DEFAULT, TRUE);
 			detect_doors(DETECT_RAD_DEFAULT);

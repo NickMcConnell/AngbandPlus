@@ -99,7 +99,6 @@ bool fear_set_p(int v)
 		}
 		notice = TRUE;
 		p_ptr->counter = FALSE;
-		chg_virtue(V_VALOUR, -1);
 	}
 	else if (new_lvl < old_lvl)
 	{

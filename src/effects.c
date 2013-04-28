@@ -765,7 +765,6 @@ msg_print("目が見えなくなってしまった！");
 			}
 
 			notice = TRUE;
-			chg_virtue(V_ENLIGHTEN, -1);
 		}
 	}
 
@@ -896,7 +895,6 @@ msg_print("あなたは混乱した！");
 
 			notice = TRUE;
 			p_ptr->counter = FALSE;
-			chg_virtue(V_HARMONY, -1);
 		}
 	}
 
@@ -2258,8 +2256,6 @@ msg_print("素早く動けるようになった！");
 #endif
 
 			notice = TRUE;
-			chg_virtue(V_PATIENCE, -1);
-			chg_virtue(V_DILIGENCE, 1);
 		}
 	}
 
@@ -2328,8 +2324,6 @@ msg_print("非常に素早く動けるようになった！");
 #endif
 
 			notice = TRUE;
-			chg_virtue(V_PATIENCE, -1);
-			chg_virtue(V_DILIGENCE, 1);
 		}
 	}
 
@@ -2954,11 +2948,6 @@ msg_print("物質界を離れて幽鬼のような存在になった！");
 
 			notice = TRUE;
 
-			chg_virtue(V_UNLIFE, 3);
-			chg_virtue(V_HONOUR, -2);
-			chg_virtue(V_SACRIFICE, -2);
-			chg_virtue(V_VALOUR, -5);
-
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
 
@@ -3046,11 +3035,6 @@ msg_print("無敵だ！");
 #endif
 
 			notice = TRUE;
-
-			chg_virtue(V_UNLIFE, -2);
-			chg_virtue(V_HONOUR, -2);
-			chg_virtue(V_SACRIFICE, -3);
-			chg_virtue(V_VALOUR, -5);
 
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
@@ -4343,7 +4327,6 @@ msg_print("「オクレ兄さん！」");
 #endif
 
 			notice = TRUE;
-			chg_virtue(V_VITALITY, 2);
 		}
 	}
 
@@ -4362,7 +4345,6 @@ msg_print("肉体が急速にしぼんでいった。");
 			(void)dec_stat(A_STR, 20, TRUE);
 
 			notice = TRUE;
-			chg_virtue(V_VITALITY, -3);
 		}
 	}
 
@@ -5470,15 +5452,6 @@ bool set_food(int v)
 		new_aux = 5;
 	}
 
-	if (old_aux < 1 && new_aux > 0)
-		chg_virtue(V_PATIENCE, 2);
-	else if (old_aux < 3 && (old_aux != new_aux))
-		chg_virtue(V_PATIENCE, 1);
-	if (old_aux == 2)
-		chg_virtue(V_TEMPERANCE, 1);
-	if (old_aux == 0)
-		chg_virtue(V_TEMPERANCE, -1);
-
 	/* Food increase */
 	if (new_aux > old_aux)
 	{
@@ -5532,10 +5505,6 @@ msg_print("食べ過ぎだ！");
 #else
 			msg_print("You have gorged yourself!");
 #endif
-			chg_virtue(V_HARMONY, -1);
-			chg_virtue(V_PATIENCE, -1);
-			chg_virtue(V_TEMPERANCE, -2);
-
 			break;
 		}
 
@@ -5768,10 +5737,6 @@ bool dec_stat(int stat, int amount, int permanent)
 	/* Damage "max" value */
 	if (permanent && (max > 3))
 	{
-		chg_virtue(V_SACRIFICE, 1);
-		if (stat == A_WIS || stat == A_INT)
-			chg_virtue(V_ENLIGHTEN, -2);
-
 		/* Handle "low" values */
 		if (max <= 18)
 		{
@@ -5866,13 +5831,7 @@ bool hp_player(int num)
 
 bool hp_player_aux(int num)
 {
-	int vir = virtue_number(V_VITALITY);
 	int old_hp = p_ptr->chp;
-
-	if (vir)
-	{
-		num = num * (p_ptr->virtues[vir - 1] + 1250) / 1250;
-	}
 
 	if (mut_present(MUT_SACRED_VITALITY))
 	{
@@ -5882,8 +5841,6 @@ bool hp_player_aux(int num)
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
-		if ((num > 0) && (p_ptr->chp < (p_ptr->mhp/3)))
-			chg_virtue(V_TEMPERANCE, 1);
 		/* Gain hitpoints */
 		p_ptr->chp += num;
 
@@ -6144,19 +6101,6 @@ bool do_inc_stat(int stat)
 	/* Attempt to increase */
 	if (inc_stat(stat))
 	{
-		if (stat == A_WIS)
-		{
-			chg_virtue(V_ENLIGHTEN, 1);
-			chg_virtue(V_FAITH, 1);
-		}
-		else if (stat == A_INT)
-		{
-			chg_virtue(V_KNOWLEDGE, 1);
-			chg_virtue(V_ENLIGHTEN, 1);
-		}
-		else if (stat == A_CON)
-			chg_virtue(V_VITALITY, 1);
-
 		/* Message */
 #ifdef JP
 msg_format("ワーオ！とても%sなった！", desc_stat_pos[stat]);
@@ -6226,9 +6170,6 @@ msg_print("生命力が戻ってきた気がする。");
 bool lose_all_info(void)
 {
 	int i;
-
-	chg_virtue(V_KNOWLEDGE, -5);
-	chg_virtue(V_ENLIGHTEN, -5);
 
 	/* Forget info about objects */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -6343,8 +6284,6 @@ void change_race(int new_race, cptr effect_msg)
 	msg_format("You turn into %s %s%s!", (!effect_msg[0] && is_a_vowel(title[0]) ? "an" : "a"), effect_msg, title);
 #endif
 
-	chg_virtue(V_CHANCE, 2);
-
 	if (p_ptr->prace < 32)
 	{
 		p_ptr->old_race1 |= 1L << p_ptr->prace;
@@ -6394,8 +6333,6 @@ msg_print("あなたは変化の訪れを感じた...");
 #else
 	msg_print("You feel a change coming over you...");
 #endif
-
-	chg_virtue(V_CHANCE, 1);
 
 	if ((power > randint0(20)) && one_in_(3) && (p_ptr->prace != RACE_ANDROID))
 	{
@@ -6742,12 +6679,6 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 
 	handle_stuff();
 
-	if (damage_type != DAMAGE_GENO && p_ptr->chp == 0)
-	{
-		chg_virtue(V_SACRIFICE, 1);
-		chg_virtue(V_CHANCE, 2);
-	}
-
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
@@ -6760,8 +6691,6 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 
 		/* Sound */
 		sound(SOUND_DEATH);
-
-		chg_virtue(V_SACRIFICE, 10);
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;

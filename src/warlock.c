@@ -955,6 +955,7 @@ static caster_info * _caster_info(void)
 		me.magic_desc = "blast";
 		me.which_stat = A_CHR;
 		me.options = CASTER_NO_SPELL_COST;
+		me.weight = 500;
 		init = TRUE;
 	}
 	return &me;

@@ -3534,56 +3534,23 @@ static void dump_aux_pet(FILE *fff)
 		if (!m_ptr->nickname && (p_ptr->riding != i)) continue;
 		if (!pet)
 		{
-#ifdef JP
-			fprintf(fff, "\n\n  [主なペット]\n\n");
-#else
-			fprintf(fff, "\n\n  [Leading Pets]\n\n");
-#endif
+			fprintf(fff, "\n\n==================================== Pets =====================================\n\n");
+			fprintf(fff, " Leading Pets\n");
 			pet = TRUE;
 		}
-		monster_desc(pet_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
-		fprintf(fff, "%s\n", pet_name);
+		monster_desc(pet_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE | MD_NO_PET_ABBREV);
+		fprintf(fff, "  %s\n", pet_name);
 	}
 
 	if (pet_settings)
 	{
-		fprintf(fff, "\n\n=============================== Command for Pets ==============================\n");
-
-#ifdef JP
-		fprintf(fff, "\n ドアを開ける:                       %s", (p_ptr->pet_extra_flags & PF_OPEN_DOORS) ? "ON" : "OFF");
-#else
-		fprintf(fff, "\n Pets open doors:                    %s", (p_ptr->pet_extra_flags & PF_OPEN_DOORS) ? "ON" : "OFF");
-#endif
-
-#ifdef JP
-		fprintf(fff, "\n アイテムを拾う:                     %s", (p_ptr->pet_extra_flags & PF_PICKUP_ITEMS) ? "ON" : "OFF");
-#else
-		fprintf(fff, "\n Pets pick up items:                 %s", (p_ptr->pet_extra_flags & PF_PICKUP_ITEMS) ? "ON" : "OFF");
-#endif
-
-#ifdef JP
-		fprintf(fff, "\n テレポート系魔法を使う:             %s", (p_ptr->pet_extra_flags & PF_TELEPORT) ? "ON" : "OFF");
-#else
-		fprintf(fff, "\n Allow teleport:                     %s", (p_ptr->pet_extra_flags & PF_TELEPORT) ? "ON" : "OFF");
-#endif
-
-#ifdef JP
-		fprintf(fff, "\n 攻撃魔法を使う:                     %s", (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
-#else
-		fprintf(fff, "\n Allow cast attack spell:            %s", (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
-#endif
-
-#ifdef JP
-		fprintf(fff, "\n 召喚魔法を使う:                     %s", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
-#else
-		fprintf(fff, "\n Allow cast summon spell:            %s", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
-#endif
-
-#ifdef JP
-		fprintf(fff, "\n プレイヤーを巻き込む範囲魔法を使う: %s", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
-#else
-		fprintf(fff, "\n Allow involve player in area spell: %s", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
-#endif
+		fprintf(fff, "\n Options");
+		fprintf(fff, "\n  Pets open doors:                    %s", (p_ptr->pet_extra_flags & PF_OPEN_DOORS) ? "ON" : "OFF");
+		fprintf(fff, "\n  Pets pick up items:                 %s", (p_ptr->pet_extra_flags & PF_PICKUP_ITEMS) ? "ON" : "OFF");
+		fprintf(fff, "\n  Allow teleport:                     %s", (p_ptr->pet_extra_flags & PF_TELEPORT) ? "ON" : "OFF");
+		fprintf(fff, "\n  Allow cast attack spell:            %s", (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
+		fprintf(fff, "\n  Allow cast summon spell:            %s", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
+		fprintf(fff, "\n  Allow involve player in area spell: %s", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
 
 		fputc('\n', fff);
 	}
@@ -4195,18 +4162,6 @@ static void dump_aux_race_history(FILE *fff)
 /*
  *
  */
-static void dump_aux_virtues(FILE *fff)
-{
-	fprintf(fff, "\n\n=================================== Virtues ===================================\n\n");
-	fprintf(fff, "Your alighnment : %s\n", your_alignment());
-	fprintf(fff, "\n");
-	dump_virtues(fff);
-}
-
-
-/*
- *
- */
 static void dump_aux_mutations(FILE *fff)
 {
 	if (mut_count(NULL))
@@ -4330,7 +4285,6 @@ errr make_character_dump(FILE *fff)
 	dump_aux_quest(fff);
 	dump_aux_arena(fff);
 	dump_aux_monsters(fff);
-	dump_aux_virtues(fff);
 	dump_aux_race_history(fff);
 	dump_aux_class_special(fff);
 	dump_aux_mutations(fff);

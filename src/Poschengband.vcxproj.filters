@@ -312,9 +312,6 @@
     <ClCompile Include="cmd6.c">
       <Filter>Player\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="avatar.c">
-      <Filter>Player</Filter>
-    </ClCompile>
     <ClCompile Include="birth.c">
       <Filter>Player</Filter>
     </ClCompile>

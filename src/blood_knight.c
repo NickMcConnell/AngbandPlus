@@ -519,6 +519,7 @@ static caster_info * _caster_info(void)
 		me.options = CASTER_USE_HP;
 		me.which_stat = A_CON;
 		me.on_cast = _on_cast;
+		me.weight = 1000;
 		init = TRUE;
 	}
 	return &me;

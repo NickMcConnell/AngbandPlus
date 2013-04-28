@@ -3815,8 +3815,6 @@ msg_format("%^s%s", m_name, monmessage);
 #endif
 		}
 
-		if (m_ptr->ml) chg_virtue(V_COMPASSION, -1);
-
 		/* XXX XXX XXX Actually do something now (?) */
 	}
 }

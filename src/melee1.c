@@ -754,7 +754,6 @@ bool make_attack_normal(int m_idx)
 						{
 							msg_print("Your purse feels lighter.");
 							msg_format("%d coins were stolen!", gold);
-							chg_virtue(V_SACRIFICE, 1);
 						}
 						else
 						{
@@ -765,8 +764,6 @@ bool make_attack_normal(int m_idx)
 							msg_print("Your purse feels lighter.");
 							msg_print("All of your coins were stolen!");
 #endif
-
-							chg_virtue(V_SACRIFICE, 2);
 						}
 
 						/* Redraw gold */
@@ -851,8 +848,6 @@ bool make_attack_normal(int m_idx)
 							   ((o_ptr->number > 1) ? "One of y" : "Y"),
 							   o_name, index_to_label(i));
 #endif
-
-						chg_virtue(V_SACRIFICE, 1);
 
 
 						/* Make an object */

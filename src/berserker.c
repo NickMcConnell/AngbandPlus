@@ -186,6 +186,7 @@ static caster_info * _caster_info(void)
 		me.magic_desc = "brutal power";
 		me.which_stat = A_STR;
 		me.options = CASTER_USE_HP;
+		me.weight = 1000;
 		init = TRUE;
 	}
 	return &me;

@@ -893,6 +893,15 @@ race_t *gnome_get_race_t(void)
 /****************************************************************
  * Golem
  ****************************************************************/
+static power_info _golem_powers[] =
+{
+	{ A_CON, {20, 20, 50, stone_skin_spell}},
+	{ -1, {-1, -1, -1, NULL} }
+};
+static int _golem_get_powers(spell_info* spells, int max)
+{
+	return get_powers_aux(spells, max, _golem_powers);
+}
 static void _golem_calc_bonuses(void)
 {
 	int ac = 10 + (p_ptr->lev * 2 / 5);
@@ -906,7 +915,7 @@ static void _golem_calc_bonuses(void)
 	res_add(RES_POIS);
 	if (p_ptr->lev >= 35) p_ptr->hold_life = TRUE;
 
-	p_ptr->pspeed -= 3*p_ptr->lev/50;
+	p_ptr->pspeed -= p_ptr->lev/16;
 }
 static void _golem_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
@@ -956,6 +965,7 @@ race_t *golem_get_race_t(void)
 		me.infra = 4;
 		me.flags = RACE_IS_NONLIVING;
 
+		me.get_powers = _golem_get_powers;
 		me.calc_bonuses = _golem_calc_bonuses;
 		me.get_flags = _golem_get_flags;
 		init = TRUE;

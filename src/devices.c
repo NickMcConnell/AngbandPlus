@@ -1086,24 +1086,7 @@ static cptr _do_wand(int sval, int mode)
 		/* XXX Hack -- Wand of wonder can do anything before it */
 		if (sval == SV_WAND_WONDER)
 		{
-			int vir = virtue_number(V_CHANCE);
 			sval = randint0(SV_WAND_WONDER);
-
-			if (vir)
-			{
-				if (p_ptr->virtues[vir - 1] > 0)
-				{
-					while (randint1(300) < p_ptr->virtues[vir - 1]) sval++;
-					if (sval > SV_WAND_COLD_BALL) sval = randint0(4) + SV_WAND_ACID_BALL;
-				}
-				else
-				{
-					while (randint1(300) < (0-p_ptr->virtues[vir - 1])) sval--;
-					if (sval < SV_WAND_HEAL_MONSTER) sval = randint0(3) + SV_WAND_HEAL_MONSTER;
-				}
-			}
-			if (sval < SV_WAND_TELEPORT_AWAY)
-				chg_virtue(V_CHANCE, 1);
 		}
 	}
 

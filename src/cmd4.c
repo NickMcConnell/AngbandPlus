@@ -8177,53 +8177,6 @@ static void do_cmd_knowledge_kubi(void)
 }
 
 /*
- * List virtues & status
- */
-static void do_cmd_knowledge_virtues(void)
-{
-	FILE *fff;
-	
-	char file_name[1024];
-	
-	
-	/* Open a new file */
-	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
-#ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
-	    msg_format("Failed to create temporary file %s.", file_name);
-#endif
-	    msg_print(NULL);
-	    return;
-	}
-	
-	if (fff)
-	{
-#ifdef JP
-		fprintf(fff, "現在の属性 : %s\n\n", your_alignment());
-#else
-		fprintf(fff, "Your alighnment : %s\n\n", your_alignment());
-#endif
-		dump_virtues(fff);
-	}
-	
-	/* Close the file */
-	my_fclose(fff);
-	
-	/* Display the file contents */
-#ifdef JP
-	show_file(TRUE, file_name, "八つの徳", 0, 0);
-#else
-	show_file(TRUE, file_name, "Virtues", 0, 0);
-#endif
-
-	
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
-/*
 * Dungeon
 *
 */
@@ -9080,10 +9033,9 @@ void do_cmd_knowledge(void)
 			prt("(c) Display weapon proficiency", 8, 5);
 			prt("(d) Display spell proficiency", 9, 5);
 			prt("(e) Display misc. proficiency", 10, 5);
-			prt("(f) Display virtues", 11, 5);
-			prt("(g) Display dungeons", 12, 5);
-			prt("(h) Display current quests", 13, 5);
-			prt("(i) Display auto pick/destroy", 14, 5);
+			prt("(f) Display dungeons", 11, 5);
+			prt("(g) Display current quests", 12, 5);
+			prt("(h) Display auto pick/destroy", 13, 5);
 			prt("(w) Display weapon effectiveness", 15, 5);
 			prt("(x) Display extra info", 16, 5);
 		}
@@ -9156,15 +9108,12 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_skill_exp();
 			break;
 		case 'f':
-			do_cmd_knowledge_virtues();
-			break;
-		case 'g':
 			do_cmd_knowledge_dungeon();
 			break;
-		case 'h':
+		case 'g':
 			do_cmd_knowledge_quests();
 			break;
-		case 'i':
+		case 'h':
 			do_cmd_knowledge_autopick();
 			break;
 		case 'w':

@@ -95,7 +95,6 @@
     <ClCompile Include="archer.c" />
     <ClCompile Include="artifact.c" />
     <ClCompile Include="autopick.c" />
-    <ClCompile Include="avatar.c" />
     <ClCompile Include="bard.c" />
     <ClCompile Include="beastmaster.c" />
     <ClCompile Include="berserker.c" />

@@ -353,8 +353,6 @@ static void home_carry(store_type *st_ptr, object_type *o_ptr)
 	/* Insert the new item */
 	st_ptr->stock[slot] = *o_ptr;
 
-	chg_virtue(V_SACRIFICE, -1);
-
 	/* Return the location */
 	return;
 }
@@ -540,7 +538,7 @@ static void rd_quick_start(savefile_ptr file)
 	previous_char.chaos_patron = savefile_read_s16b(file);
 	previous_char.mutation = savefile_read_s32b(file);
 
-	for (i = 0; i < 8; i++) previous_char.vir_types[i] = savefile_read_s16b(file);
+	savefile_read_skip(file, 16);
 	previous_char.quick_ok = savefile_read_byte(file);
 }
 
@@ -799,10 +797,7 @@ static void rd_extra(savefile_ptr file)
 	for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
 		p_ptr->demigod_power[i] = savefile_read_s16b(file);
 
-	for (i = 0; i < 8; i++)
-		p_ptr->virtues[i] = savefile_read_s16b(file);
-	for (i = 0; i < 8; i++)
-		p_ptr->vir_types[i] = savefile_read_s16b(file);
+	savefile_read_skip(file, 32);
 
 	mutant_regenerate_mod = mut_regenerate_mod();
 

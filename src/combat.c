@@ -309,6 +309,10 @@ static int _calc_innate_blows_aux(innate_attack_ptr a, int max, int str_idx, int
 	if (blow_dex_index > 11) blow_dex_index = 11;
 
 	result = blows_table[blow_str_index][blow_dex_index];
+
+	if (prace_is_(RACE_MON_LEPRECHAUN))
+		result = (result + 1) / 2;
+
 	if (result < 1)
 		result = 1;
 	if (result > max)

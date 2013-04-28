@@ -1037,6 +1037,7 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "rage";
+		me.weight = 1000;
 		init = TRUE;
 	}
 	return &me;

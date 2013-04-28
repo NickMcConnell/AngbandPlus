@@ -3998,31 +3998,9 @@ note = "が分裂した！";
 			/* No overflow */
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
-			if (!who)
-			{
-				chg_virtue(V_VITALITY, 1);
-
-				if (r_ptr->flags1 & RF1_UNIQUE)
-					chg_virtue(V_INDIVIDUALISM, 1);
-
-				if (is_friendly(m_ptr))
-					chg_virtue(V_HONOUR, 1);
-				else if (!(r_ptr->flags3 & RF3_EVIL))
-				{
-					if (r_ptr->flags3 & RF3_GOOD)
-						chg_virtue(V_COMPASSION, 2);
-					else
-						chg_virtue(V_COMPASSION, 1);
-				}
-
-				if (r_ptr->flags3 & RF3_ANIMAL)
-					chg_virtue(V_NATURE, 1);
-			}
-
 			if (m_ptr->r_idx == MON_LEPER)
 			{
 				heal_leper = TRUE;
-				if (!who) chg_virtue(V_COMPASSION, 5);
 			}
 
 			/* Redraw (later) if needed */
@@ -4055,14 +4033,6 @@ note = "が分裂した！";
 #else
 				note = " starts moving faster.";
 #endif
-			}
-
-			if (!who)
-			{
-				if (r_ptr->flags1 & RF1_UNIQUE)
-					chg_virtue(V_INDIVIDUALISM, 1);
-				if (is_friendly(m_ptr))
-					chg_virtue(V_HONOUR, 1);
 			}
 
 			/* No "real" damage */
@@ -4309,19 +4279,7 @@ note = "は動けなくなった！";
 		/* Charm monster */
 		case GF_CHARM:
 		{
-			int vir;
 			dam += (adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1);
-			vir = virtue_number(V_HARMONY);
-			if (vir)
-			{
-				dam += p_ptr->virtues[vir-1]/10;
-			}
-
-			vir = virtue_number(V_INDIVIDUALISM);
-			if (vir)
-			{
-				dam -= p_ptr->virtues[vir-1]/20;
-			}
 
 			if (seen) obvious = TRUE;
 
@@ -4383,10 +4341,6 @@ note = "は突然友好的になったようだ！";
 #endif
 
 				set_pet(m_ptr);
-
-				chg_virtue(V_INDIVIDUALISM, -1);
-				if (r_ptr->flags3 & RF3_ANIMAL)
-					chg_virtue(V_NATURE, 1);
 			}
 
 			/* No "real" damage */
@@ -4397,21 +4351,7 @@ note = "は突然友好的になったようだ！";
 		/* Control undead */
 		case GF_CONTROL_UNDEAD:
 		{
-			int vir;
 			if (seen) obvious = TRUE;
-
-			vir = virtue_number(V_UNLIFE);
-			if (vir)
-			{
-				dam += p_ptr->virtues[vir-1]/10;
-			}
-
-			vir = virtue_number(V_INDIVIDUALISM);
-			if (vir)
-			{
-				dam -= p_ptr->virtues[vir-1]/20;
-			}
-
 			if ((r_ptr->flagsr & RFR_RES_ALL) || p_ptr->inside_arena)
 			{
 #ifdef JP
@@ -4472,21 +4412,7 @@ note = "は既にあなたの奴隷だ！";
 		/* Control demon */
 		case GF_CONTROL_DEMON:
 		{
-			int vir;
 			if (seen) obvious = TRUE;
-
-			vir = virtue_number(V_UNLIFE);
-			if (vir)
-			{
-				dam += p_ptr->virtues[vir-1]/10;
-			}
-
-			vir = virtue_number(V_INDIVIDUALISM);
-			if (vir)
-			{
-				dam -= p_ptr->virtues[vir-1]/20;
-			}
-
 			if ((r_ptr->flagsr & RFR_RES_ALL) || p_ptr->inside_arena)
 			{
 #ifdef JP
@@ -4547,21 +4473,7 @@ note = "は既にあなたの奴隷だ！";
 		/* Tame animal */
 		case GF_CONTROL_ANIMAL:
 		{
-			int vir;
-
 			if (seen) obvious = TRUE;
-
-			vir = virtue_number(V_NATURE);
-			if (vir)
-			{
-				dam += p_ptr->virtues[vir-1]/10;
-			}
-
-			vir = virtue_number(V_INDIVIDUALISM);
-			if (vir)
-			{
-				dam -= p_ptr->virtues[vir-1]/20;
-			}
 
 			if ((r_ptr->flagsr & RFR_RES_ALL) || p_ptr->inside_arena)
 			{
@@ -4622,8 +4534,6 @@ note = "はなついた。";
 
 				set_pet(m_ptr);
 
-				if (r_ptr->flags3 & RF3_ANIMAL)
-					chg_virtue(V_NATURE, 1);
 			}
 
 			/* No "real" damage */
@@ -4634,24 +4544,9 @@ note = "はなついた。";
 		/* Tame animal */
 		case GF_CONTROL_LIVING:
 		{
-			int vir;
-
-			vir = virtue_number(V_UNLIFE);
 			if (seen) obvious = TRUE;
 
 			dam += (adj_chr_chm[p_ptr->stat_ind[A_CHR]]);
-			vir = virtue_number(V_UNLIFE);
-			if (vir)
-			{
-				dam -= p_ptr->virtues[vir-1]/10;
-			}
-
-			vir = virtue_number(V_INDIVIDUALISM);
-			if (vir)
-			{
-				dam -= p_ptr->virtues[vir-1]/20;
-			}
-
 			if (r_ptr->flags3 & (RF3_NO_CONF)) dam -= 30;
 			if (dam < 1) dam = 1;
 #ifdef JP
@@ -4710,9 +4605,6 @@ note = "を支配した。";
 #endif
 
 				set_pet(m_ptr);
-
-				if (r_ptr->flags3 & RF3_ANIMAL)
-					chg_virtue(V_NATURE, 1);
 			}
 
 			/* No "real" damage */
@@ -6344,7 +6236,6 @@ note = "には効果がなかった！";
 #else
 				if (seen_msg) msg_format("%^s disappered!", m_name);
 #endif
-				chg_virtue(V_VITALITY, -1);
 				return TRUE;
 			}
 
@@ -6535,12 +6426,6 @@ note = "には効果がなかった。";
 		if (who && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
 
-	if (!who && slept)
-	{
-		if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) chg_virtue(V_COMPASSION, -1);
-		if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) chg_virtue(V_HONOUR, -1);
-	}
-
 	/* Modify the damage */
 	tmp = dam;
 	if (who)
@@ -6663,7 +6548,6 @@ note = "には効果がなかった。";
 
 			/* Message */
 			note = " disappears!";
-			if (!who) chg_virtue(V_VALOUR, -1);
 
 			/* Teleport */
 			teleport_away(c_ptr->m_idx, do_dist,

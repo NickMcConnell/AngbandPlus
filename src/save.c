@@ -320,11 +320,12 @@ static void wr_quick_start(savefile_ptr file)
 	savefile_write_s16b(file, previous_char.chaos_patron);
 	savefile_write_s32b(file, previous_char.mutation);
 
-	for (i = 0; i < 8; i++) savefile_write_s16b(file, previous_char.vir_types[i]);
+	for (i = 0; i < 8; i++) savefile_write_s16b(file, 0);
 
+#ifndef _DEBUG
 	/* No quick start after using debug mode or cheat options */
 	if (p_ptr->noscore) previous_char.quick_ok = FALSE;
-
+#endif
 	savefile_write_byte(file, previous_char.quick_ok);
 }
 
@@ -573,9 +574,9 @@ static void wr_extra(savefile_ptr file)
 		savefile_write_s16b(file, p_ptr->demigod_power[i]);
 
 	for (i = 0; i<8; i++)
-		savefile_write_s16b(file, p_ptr->virtues[i]);
+		savefile_write_s16b(file, 0);
 	for (i = 0; i<8; i++)
-		savefile_write_s16b(file, p_ptr->vir_types[i]);
+		savefile_write_s16b(file, 0);
 
 	savefile_write_s16b(file, p_ptr->ele_attack);
 	savefile_write_u32b(file, p_ptr->special_attack);

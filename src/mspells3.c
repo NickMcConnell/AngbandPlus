@@ -2021,8 +2021,6 @@ msg_print("精神を集中しすぎて気を失ってしまった！");
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1), FALSE);
 
-		chg_virtue(V_KNOWLEDGE, -10);
-
 		/* Damage CON (possibly permanently) */
 		if (randint0(100) < 50)
 		{

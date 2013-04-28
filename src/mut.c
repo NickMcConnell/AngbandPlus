@@ -423,7 +423,6 @@ bool mut_gain_random(mut_pred pred)
 	int which = mut_gain_random_aux(pred);
 	if (which >= 0 && !mut_present(which))
 	{
-		chg_virtue(V_CHANCE, 1);
 		return mut_gain(which);
 	}
 	msg_print("You feel normal.");
@@ -570,7 +569,6 @@ void mut_lose_all(void)
 	if (mut_count(mut_unlocked_pred))
 	{
 		int i;
-		chg_virtue(V_CHANCE, -5);
 		msg_print(T("You are cured of all mutations.", "全ての突然変異が治った。"));
 
 		for (i = 0; i < MUT_FLAG_SIZE; ++i)
