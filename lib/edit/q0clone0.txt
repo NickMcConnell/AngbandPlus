@@ -27,7 +27,7 @@ Q:33:T:Impressive!! Your reward is waiting for you outside.
 
 # Description for quest failed
 ?:[EQU $QUEST33 5]
-Q:33:T:It seems like this task was too difficult for you.
+Q:33:T:I'll just get Granny Weatherwax to do something about it.
 ?:1
 
 # The Monsters

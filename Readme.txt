@@ -1,0 +1,14 @@
+Discband libs
+
+These are the files that i modified to create Discband out of Zangband and are all that you need if you already have zangband 2.4.0 . they should work with other versions of zangband and any platform. 
+you should have Edit and File folders in this download. To use whats in them go into your zangband/libs directory and replace files in zangband/libs/edit with my edit files  and then replace the files in zangband/libs/file with those files in my file folder. then go into zangband/libs/data drawer and delete all the .raw files. that last bit is the most important.
+
+It is basically a collection of "in" jokes for both fans of the Discworld series of books and players of ascii adventures. If you don't know about Discworld then I suggest you go to a bookstore, any bookstore, anywhere in the world, and buy as many of these books as you can.  Terry Pratchett has been called the dickens of the 20th century (the mail on sunday) and his work has been compared (quite favorably) to Oz, The Hitchhiker's Guide to the Galaxy and Alice in Wonderland. My favorites are Moving Pictures, Small Gods, Feet of Clay, Interesting Times, Hogfather, The Last Continent and The Fifth Elephant. I do recomend that you have read at least several of the books cause a fair amount of the humor in this game will be missed otherwise.
+	Types of changes:
+	1)Players can now cast spells from the Bumper Fun Grimoir and the Dictionary of Eyewatering Words, drink Winkles olde peculiar, munch on banged grains and  wield dwarven battle bread.	2)Players can adventure alongside Archchancellor Ridcully and Cohen the Barbarian against, Octorine dragons, Old man trouble, and their ilk.  Death doesn't apear (as he would either be an enemy or an ally and he doesnt usualy take sides) but he has misplaced both his scythe and his sword...
+	3)Almost all the uniques speak apropriate lines.
+	4)new ego items such as weapons of Sourcery
+	As in the books a fair amount of humor is in the "footnotes" so when playing remember to press * to highlight a monster to see its description.
+	
+	I'd like to thank Terry Pratchett and Stephen Briggs who wrote the Discworld Companion which proved to be an invaluable recource for this project. I should also like to thank Greg Woolage for telling me where to post my work. There might have been someone else who attempted to  assist me but I accedentaly deleted the email. So thank you to that unknown soldier. I'd like to thank  Igenlode for suggesting some dialogue for C.M.O.T. Dibbler
+comments can be sent to kleitman@aol.com                                                                                                                                                            

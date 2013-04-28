@@ -28,8 +28,14 @@
 # Entries by Eric Bock, Matt Graham, Andrew Hill, Chris Kern, and Topi Ylinen
 
 N:8:C.M.O.T. Dibbler
-1
+3
 Sossage? Inna-AARGH!
+says to someone unseen, 'shine yer scythe?'
+says to someone unseen, 'sossage?  Inna bun?
+
+N:19:Rincewind
+1
+says,'It's about time for the 8th spell!'
 
 N:53:Gaspode the Wonder Dog
 1
@@ -41,8 +47,10 @@ N:55:Fang, Farmer Maggot's dog
 0
 
 N:63:C.M.O.T. Dibbler
-1
+3
 'Sossage? Inna-AARGH!
+says to someone unseen, 'shine yer scythe?'
+says to someone unseen, 'sossage?  Inna bun?
 
 N:138:Hwandaland Smith
 1
@@ -55,6 +63,10 @@ N:260:Lord Hong
 N:356:Lord Rust
 1
 'How very droll.'
+
+N:399:The TICK!!!
+1
+says, 'Can this be the end for the TICK? Tune in next week! Same Tick time! Same Tick channel!'
 
 N:419:Cassanunda
 1
@@ -81,6 +93,11 @@ N:685:Yob Soddoff
 1
 'Sesyusesyusesyu...'
 
+N:720:Mallrog
+N:839:Lungorthin, the Mallrog of America
+1
+says, 'This does not validate your parking.'
+
 N:733:The Hogfather
 1
 'But who's going to deliver all those pork byproducts now?'
@@ -88,6 +105,11 @@ N:733:The Hogfather
 N:755:Jimi, the god of beggars
 1
 'Got a spare bandaide?'
+
+N:816:Cyberdemon
+N:843:Oremorj the Cyberdemon Lord
+1
+types, 'I'll call ya!'
 
 N:818:The Mouth of Sauron
 1

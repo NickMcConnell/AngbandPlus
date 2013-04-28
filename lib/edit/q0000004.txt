@@ -27,7 +27,7 @@ Q:4:T:Please keep the sword, it will aid you in your future quests.
 ?:[EQU $QUEST4 5]
 Q:4:T:You didn't find the sword?  Well, the monsters have probably
 Q:4:T:carried it away.  Too bad, Sting would have been quiet helpful
-Q:4:T:in driving the evil out of our town.
+Q:4:T:in driving the evil out of our city.
 ?:1
 
 # Floor with "Sting"

@@ -24,8 +24,8 @@ Q:1:T:awaits you outside.
 
 # Description for quest failed
 ?:[EQU $QUEST1 5]
-Q:1:T:It seems like this task was too difficult for you.  Good that I
-Q:1:T:hired another adventurer to clean up the remaining thieves.
+Q:1:T:It seems like this task was too difficult for you.  I guess
+Q:1:T:I'll just get Jason Ogg to take care of it.
 ?:1
 
 # Floor with Novice rogue

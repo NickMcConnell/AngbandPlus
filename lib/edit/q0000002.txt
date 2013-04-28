@@ -22,7 +22,7 @@ Q:2:T:A reward for your good work awaits you outside.
 
 # Description for quest failed
 ?:[EQU $QUEST2 5]
-Q:1:T:I had to call help from a local druid, since you failed to
+Q:1:T:I had to call the watch, since you failed to
 Q:1:T:clean out the sewer.
 ?:1
 

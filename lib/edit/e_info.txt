@@ -59,7 +59,7 @@ X:30:16
 W:0:0:0:1000
 F:RES_ACID | IGNORE_ACID
 
-N:5:of Resist Lightning
+N:5:of  Philosophy
 X:30:10
 W:0:0:0:400
 F:RES_ELEC | IGNORE_ELEC
@@ -69,7 +69,7 @@ X:30:14
 W:0:0:0:800
 F:RES_FIRE | IGNORE_FIRE
 
-N:7:of Resist Cold
+N:7:of Uberwald
 X:30:12
 W:0:0:0:600
 F:RES_COLD | IGNORE_COLD
@@ -95,7 +95,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OnePower
 
-N:11:of Permanence
+N:11:of the Alchemists
 X:30:30
 W:0:0:0:30000
 C:0:0:10:0
@@ -119,7 +119,7 @@ X:32:16
 W:0:0:0:1000
 F:RES_ACID | IGNORE_ACID
 
-N:17:of Resist Lightning
+N:17:of Philosophy
 X:32:10
 W:0:0:0:400
 F:RES_ELEC | IGNORE_ELEC
@@ -129,7 +129,7 @@ X:32:14
 W:0:0:0:800
 F:RES_FIRE | IGNORE_FIRE
 
-N:19:of Resist Cold
+N:19:of Uberwald
 X:32:12
 W:0:0:0:600
 F:RES_COLD | IGNORE_COLD
@@ -155,13 +155,13 @@ F:IGNORE_ELEC | IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE
 
 ### Crowns and Helms ###
 
-N:24:of Intelligence
+N:24:of Inteligense
 X:33:13
 C:0:0:0:2
 W:0:0:0:500
 F:INT | SUST_INT
 
-N:25:of Wisdom
+N:25:of Wisdome
 X:33:13
 W:0:0:0:500
 C:0:0:0:2
@@ -175,7 +175,7 @@ F:CHR | SUST_CHR
 
 # OneAbility
 
-N:27:of the Magi
+N:27:of the Wizzard
 X:33:15
 W:0:0:0:7500
 C:0:0:0:3
@@ -189,7 +189,7 @@ W:0:0:0:2000
 C:0:0:0:3
 F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
 
-N:29:of Lordliness
+N:29:of Holiness
 X:33:17
 W:0:0:0:2000
 C:0:0:0:3
@@ -201,7 +201,7 @@ W:0:0:0:1000
 C:0:0:0:5
 F:SEARCH | RES_BLIND | SEE_INVIS
 
-N:31:of Infravision
+N:31:of Infravisione
 X:33:11
 W:0:0:0:500
 C:0:0:0:5
@@ -217,29 +217,29 @@ X:33:20
 W:0:0:0:50000
 F:TELEPATHY
 
-N:34:of Regeneration
+N:34:of Regeneratione
 X:33:10
 W:0:0:0:1500
 F:REGEN
 
-N:35:of Teleportation
+N:35:of Teleportatione
 X:33:0
 W:0:0:0:0
 F:TELEPORT
 
-N:36:of Stupidity
+N:36:of Stupiddity
 X:33:0
 C:0:0:0:5
 W:0:0:0:0
 F:INT
 
-N:37:of Naivety
+N:37:of Naiyeetay
 X:33:0
 C:0:0:0:5
 W:0:0:0:0
 F:WIS
 
-N:38:of Ugliness
+N:38:of Vanity
 X:33:0
 C:0:0:0:5
 W:0:0:0:0
@@ -254,13 +254,13 @@ F:STR | DEX | CON
 
 ### Cloaks ###
 
-N:40:of Protection
+N:40:of Protectione
 X:31:10
 W:0:0:0:500
 C:0:0:10:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:41:of Stealth
+N:41:of the Thieves
 X:31:10
 W:0:0:0:500
 C:0:0:0:3
@@ -276,7 +276,7 @@ F:STEALTH |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Aura, Fire
-N:43:of Immolation
+N:43:of Immolatione
 X:31:16
 W:0:0:0:4000
 C:0:0:4:0
@@ -316,7 +316,7 @@ X:34:11
 F:FREE_ACT
 W:0:0:0:1000
 
-N:49:of Slaying
+N:49:of Combat
 X:34:17
 W:0:0:0:1500
 C:6:6:0:0
@@ -328,7 +328,7 @@ W:0:0:0:1000
 C:0:0:0:5
 F:DEX | HIDE_TYPE
 
-N:51:of Power
+N:51:of Strengthe
 X:34:22
 W:0:0:0:2500
 C:5:5:0:5
@@ -353,12 +353,12 @@ F:DEX
 
 ### Boots ###
 
-N:56:of Levitation
+N:56:of Levitatione
 X:35:7
 W:0:0:0:250
 F:FEATHER
 
-N:57:of Stealth
+N:57:of Stealthe
 X:35:16
 W:0:0:0:500
 C:0:0:0:3
@@ -435,7 +435,7 @@ W:0:0:0:20000
 C:5:5:0:2
 F:STR | DEX | CON | 
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
-F:FREE_ACT | SEE_INVIS
+F:FREE_ACT | SEE_INVIS | RES_FEAR
 
 N:69:of Extra Attacks
 X:24:20
@@ -477,7 +477,7 @@ X:24:20
 W:0:0:0:4500
 F:BRAND_POIS | RES_POIS
 
-N:77:(Chaotic)
+N:77:(Octorine)
 X:24:28
 W:0:0:0:10000
 F:CHAOTIC | RES_CHAOS | IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE
@@ -487,7 +487,7 @@ X:24:20
 W:0:0:0:5000
 F:VORPAL | TUNNEL
 
-N:79:of Earthquakes
+N:79:of Seismic Reorganization
 X:24:20
 W:0:0:0:4000
 C:0:0:0:3
@@ -515,7 +515,7 @@ X:24:14
 W:0:0:0:2500
 F:SLAY_DEMON
 
-N:84:of Slay Orc
+N:84:of Slay Goblin
 X:24:10
 W:0:0:0:2500
 F:SLAY_ORC
@@ -561,7 +561,7 @@ W:0:0:0:4000
 C:0:0:0:2
 F:INT | SLAY_DEMON
 
-N:92:of *Slay* Orc
+N:92:of *Slay* Goblin
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
@@ -622,7 +622,7 @@ F:INT| RES_BLIND | SEE_INVIS |  RES_LITE | FREE_ACT |
 F:SUST_INT | SPEED | RES_DARK  | RES_CONF 
 
 
-N:102:of Morgul
+N:102:of The Dungeon Dimension
 X:24:0
 W:0:0:0:0
 C:20:20:10:0

@@ -28,19 +28,42 @@
 # Entries by Eric Bock, Matt Graham, Andrew Hill, Chris Kern, and Topi Ylinen
 
 N:8:C.M.O.T. Dibbler
-3
+7
 Sossage? Inna bun?
 Meat? Onna Stick?
 Psst! Wanna buy Lancre Bridge?
+Commerce is the life blood of the city!
+brandishes a bottle of patent ointment in your face.
+whines, 'That's cutting me own throat.'
+says, 'To you, ninety pence, and that's cutting me own throat.'
 
-#N:19:Martti Ihrasaari
+N:10:William De Word
+4
+says, 'Can I quote you on that?'
+says. 'So what's new in the dungeon?'
+says, 'Heard any good rumors lately?'
+scribbles on his pad.
+
+N:19:Rincewind
+10
+says, 'Have you seen my luggage?'
+says, 'Good grief! Not another heroic adventurer!'
+says, 'Now what?'
+says, 'I smell trouble.'
+says, 'This CAN'T be good.'
+says, 'It's right on the tip of my tounge..."
+says, 'Could you tell me the way to the university?'
+says, 'The Arch-Chancelor is missing!'
+says, 'You can't scare me, I'm a coward- I'm always scared!'
+says, 'Where am I going to find bannanas?'
 
 N:53:Gaspode the Wonder Dog
-4
+5
 Scratches himself
 says, 'Bark, Bark, Bark!'
 says, 'Growl.'
 says, 'It's a dog's life.'
+says, 'Growl, in tones of low menace.'
 
 N:54:Wolf, Farmer Maggot's dog
 N:55:Fang, Farmer Maggot's dog
@@ -55,6 +78,15 @@ Psst! Wanna buy Lancre Bridge?
 #N:135:Mughash the Kobold Lord
 #N:137:Wormtongue, Agent of Saruman
 #N:138:Robin Hood, the Outlaw
+
+N:159:The Librarian
+5
+says, 'OOK.'
+says, 'OOK OOK.'
+says, 'ook ook OOK!'
+eats a bannana
+scratches himself
+
 #N:169:Brodda, the Easterling
 
 N:291:Mad Hamish
@@ -64,8 +96,17 @@ says, 'You wot?'
 says, 'I'll hack yer knees off! You see if i don't!'
 
 #N:180:Orfax, Son of Boldor
+
+N:200:Commander Samuel Vimes
+6
+Says,'Do ya feel lucky punk? Well DO YA?'
+says, 'This is still better then paperwork.'
+says, 'Stop in the name of the watch!'
+says, 'Yer all under arrest!'
+says, 'Go ahead, make my day.'
+says, 'We can do this the hard way or- what the hell, let's just do it the hard way.'
+
 #N:237:Boldor, King of the Yeeks
-#N:200:Hobbes the Tiger
 #N:140:Lagduf, the Snaga
 #N:186:Grishnakh, the Hill Orc
 #N:215:Golfimbul, the Hill Orc Chief
@@ -89,6 +130,15 @@ says, 'Wheres ma dang horde got ter?'
 
 #N:382:Mime, the Nibelung
 #N:383:Hagen, son of Alberich
+
+N:399:The TICK!!!
+6
+yells, 'SPOON!!!'
+yells, 'I'm NIGH INVULNERABLE!!!'
+says, 'Mind if I call you Albert?'
+says, 'EVIL IS AFOOT!!!'
+yells, 'QUICK!!! TO THE TICKMOBILE!!!! NA NA NANANANANA!!!'
+yells, ' NA NA NANANANANA!!!'
 
 N:419:Cassanunda
 4
@@ -220,7 +270,6 @@ says, 'You really must try my Wow-wow sauce.'
 #N:851:Nyarlathotep, the Crawling Chaos
 #N:857:Great Cthulhu
 #N:850:Carcharoth, the Jaws of Thirst
-#N:846:Fenris Wolf
 #N:840:Draugluin, Sire of All Werewolves
 #N:830:Cantoras, the Skeletal Lord
 #N:831:Mephistopheles, Lord of Hell

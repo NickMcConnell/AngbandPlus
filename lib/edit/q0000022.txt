@@ -10,7 +10,7 @@ Q:22:Q:6:0:0:0:15:0:0:6
 
 # Description for quest
 ?:[LEQ $QUEST22 2]
-Q:22:T:The marauding orcs approach ever closer to our quiet town, as
+Q:22:T:The marauding gnolls approach ever closer to our quiet town, as
 Q:22:T:is happening all over in these troubled times.  To the south
 Q:22:T:lies a valley where our scouts have found an orc raiding party,
 Q:22:T:preparing to overrun Angwil once and for all.  Our forces are

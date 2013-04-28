@@ -11,9 +11,9 @@ Q:31:Q:6:0:0:0:24:0:0:6
 
 # Description for quest
 ?:[LEQ $QUEST31 2]
-Q:31:T:Old Man Willow has gone too far!  He has turned a small section
-Q:31:T:of the forest against all men.  Kill everything you find in Old 
-Q:31:T:Man Willow's section of the forest.  You will be well rewarded 
+Q:31:T:Mad King Ludwig has returned from the grave!  He has turned a small section
+Q:31:T:of the forest against all men.  Kill everything you find in
+Q:31:T:that section of the forest.  You will be well rewarded 
 Q:31:T:for completing this quest.  The quest is in a clearing east of
 Q:31:T:the town.
 ?:1

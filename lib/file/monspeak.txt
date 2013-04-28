@@ -28,16 +28,22 @@
 # Entries by Eric Bock, Matt Graham, Andrew Hill, Chris Kern, and Topi Ylinen
 
 N:8:C.M.O.T. Dibbler
-3
+7
 Sossage? Inna bun?
 Meat? Onna Stick?
 Psst! Wanna buy Lancre Bridge?
+Commerce is the life blood of the city!
+brandishes a bottle of patent ointment in your face.
+whines, 'That's cutting me own throat.'
+says, 'To you, ninety pence, and that's cutting me own throat.'
 
-N:19:Martti Ihrasaari
-3
-says, 'For a Finnish President, I sure am stupid...'
-says, 'I routinely carry nifty things...'
-says, 'I need a sauna, eh?'
+N:19:Rincewind
+5
+says, 'Have you seen my luggage?'
+says, 'Good grief! Not another heroic adventurer!'
+says, 'Now what?'
+says, 'I smell trouble.'
+says, 'This CAN'T be good.'
 
 N:53:Gaspode the Wonder Dog
 4
@@ -57,10 +63,15 @@ rolls over.
 growls.
 
 N:63:C.M.O.T. Dibbler
-3
+8
 Sossage? Inna bun?
 Meat? Onna Stick?
-Psst! Wanna buy Lancre Bridge?
+hisses, 'Psst! Wanna buy Lancre Bridge?'
+says, 'To you, ninety pence, and that's cutting me own throat.'
+says, 'commerce is the lifeblood of the dungeon!'
+brandishes a bottle of patent ointment in your face.
+whines, 'That's cutting me own throat.'
+says, 'To you, ninety pence, and that's cutting me own throat.'
 
 N:135:Mughash the Kobold Lord
 4
@@ -100,13 +111,6 @@ wonders aloud about your sexual orientation.
 spouts torrents of obscenities.
 shouts, 'Eye its moonlit nact tanit!'
 says, 'I'll teach you to respect pictsies!'
-
-N:200:Hobbes the Tiger
-4
-says, 'Why were people put here? TIGER FOOD!'
-says, 'Yum! Adventurer sandwiches!'
-says, 'I killed Calvin, now I'll kill YOU!'
-says, 'I'll make your short life nasty and brutish!'
 
 N:186:Gowron
 N:285:Klingon Captain
@@ -186,6 +190,15 @@ grins, 'You will die soon, handsome hero!'
 states, 'I am but avenging perjury.'
 shouts, 'Give the Ring here!'
 shouts, 'Hoiho! Hoiho-hoho!'
+
+N:399:The TICK!!!
+6
+yells, 'SPOON!!!'
+yells, 'I'm NIGH INVULNERABLE!!!'
+says, 'Mind if I call you Albert?'
+says, 'EVIL IS AFOOT!!!'
+yells, 'QUICK!!! TO THE TICKMOBILE!!!! NA NA NANANANANA!!!'
+yells, ' NA NA NANANANANA!!!'
 
 N:419:Cassanunda
 4
@@ -324,6 +337,15 @@ growls: 'Come here, young braggart.'
 
 #N:713:Fangorn the Treebeard
 #N:715:Glaurung, Father of the Dragons
+
+N:720:Mallrog
+N:839:Lungorthin, the Mallrog of America
+4
+says, 'Have a pretzel OF TORMENT!!!'
+says, 'Enjoy our foodcourt OF DESPAIR!!!'
+says, 'Have some frozen yogurt OF ANGUISH!!!'
+says, 'I'm going to validate your parking PERMINANTLY!!!'
+
 #N:729:Ulik the Troll
 #N:730:Baphomet the Minotaur Lord
 
@@ -459,8 +481,19 @@ opens your mind to a vista of nameless cosmic horror!
 opens your mind to a vista of endless 'Three's Company' reruns!
 snorts and slobbers with glee.
 
+N:816:Cyberdemon
+N:843:Oremorj the Cyberdemon Lord
+8
+types, 'M/666/Hell here.'
+types, 'Hows about some cyber?'
+types, ';)'
+types, 'I'm 6'5, Blond, with blue eyes...'
+types, 'I like walking on the beach at sunset...'
+types, 'So what are you wearing?'
+types, 'OF COURSE I'll still respect you!' clickaclickaclicka...
+types, 'Any pretty ladies out there?'
+
 N:850:Carcharoth, the Jaws of Thirst
-N:846:Fenris Wolf
 N:840:Draugluin, Sire of All Werewolves
 8
 barks and bellows frighteningly!

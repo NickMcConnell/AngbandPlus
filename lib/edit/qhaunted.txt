@@ -26,10 +26,10 @@ Q:25:T:help you banish the forces of evil even more efficiently!
 ?:[EQU $QUEST25 5]
 Q:25:T:Bah, what a loser!
 Q:25:T:Fortunately, a bunch of pilgrims who were passing by turned
-Q:25:T:out to be ultra-elite paladins on their pilgrimage to the
-Q:25:T:holy city, and -- as a spiritual exercise -- the cleaned up
+Q:25:T:out to be ultra-elite exquisitors on their pilgrimage to 
+Q:25:T:Omnia, and -- as a spiritual exercise -- they cleaned up
 Q:25:T:the house without even asking for a reward. Maybe you should
-Q:25:T:try to find them, you could learn a thing or two from them.
+Q:25:T:try to find them, you could learn a thing or two.
 ?:1
 
 # Trap or OOD item

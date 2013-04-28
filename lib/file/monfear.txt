@@ -30,13 +30,16 @@
 # Entries by Eric Bock, Matt Graham, Andrew Hill, and Topi Ylinen
 
 N:8:C.M.O.T. Dibbler
-1
+3
 Sossage? Inna bun?
+looks at you indignantly.
+drops his tray and tries to take to his heels.
 
-N:19:Martti Ihrasaari
-2
-yells, 'I'm a head of state!  You can't *do* this!'
-yells, 'Help! Psycho on the loose!'
+N:19:Rincewind
+3
+yells, 'You can't scare me! I'm a cowerd!'
+yells, 'Feet don't fail me now!'
+yells, 'You can't see me! You can't see me!'
 
 N:53:Grip, Farmer Maggot's dog
 N:54:Wolf, Farmer Maggot's dog
@@ -49,8 +52,10 @@ howls.
 looks at you sadly.
 
 N:8:C.M.O.T. Dibbler
-1
+3
 Sossage? Inna bun?
+looks at you indignantly.
+drops his tray and tries to take to his heels.
 
 N:135:Mughash the Kobold Lord
 2
@@ -77,10 +82,6 @@ N:237:Boldor, King of the Pictsies
 2
 yells, 'Oh, you bastard!'
 gnashes his little teeth.
-
-N:200:Hobbes the Tiger
-1
-yells, 'Ow! Get me back to the comics!'
 
 N:186:Gowron
 N:285:Klingon captain
@@ -390,8 +391,12 @@ mumbles, 'kill -9 adventurer, kill -9 adventurer'
 oozes greenish blood from many wounds.
 burbles with terror.
 
+N:816:Cyberdemon
+N:843:Oremorj the Cyberdemon Lord
+1
+types, 'OF COURSE I'll still respect you!'
+
 N:850:Carcharoth, the Jaws of Thirst
-N:846:Fenris Wolf
 N:840:Draugluin, Sire of All Werewolves
 3
 cringes and whimpers.
