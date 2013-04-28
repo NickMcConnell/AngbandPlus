@@ -1,0 +1,22 @@
+include $(JAM_RULES_DIR)/Jambase ;
+IncludeRules Tcl ;
+
+LOCATE_TARGET = [ FDirName $(BUILD_NAME) ] ;
+
+# PLATFORM_WIN or PLATFORM_X11
+CCFLAGS += -D$(PLATFORM) ;
+
+Library libmisc$(SUFLIB) : shlib.c stubs.c ;
+
+# Shared-library version
+if $(SHLIB_CCFLAGS)
+{
+	SUFOBJ = .sh$(SUFOBJ) ;
+	CCFLAGS += $(SHLIB_CCFLAGS) ;
+	Library libmisc.sh$(SUFLIB) : shlib.c stubs.c ;
+}
+else
+{
+	File libmisc.sh$(SUFLIB) : libmisc$(SUFLIB) ;
+	LOCATE on libmisc.sh$(SUFLIB) = $(LOCATE_TARGET) ;
+}

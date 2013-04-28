@@ -1,0 +1,61 @@
+# q0000050.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:50:N:Keep Defense 1
+
+# Definition
+Q:50:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST50 2]
+Q:50:T:Odds are that the two buildings in front of what was once the Keep were
+Q:50:T:for extra defenders.  We have no idea what the inside looks like. Clean
+Q:50:T:them out if you can.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST50 3]
+Q:50:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST50 5]
+Q:50:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Phantom Warrior
+F:a:1:8:561
+
+# Floor with Ghost
+F:b:1:8:326
+
+# Floor with Spectre
+F:c:1:8:347
+
+# Floor with Dread
+F:d:1:8:369
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.............X.....X.........X......X
+D:X.............X.....X.....aa..X..aa..X
+D:X......c......D.....D.....bb..D..bb..X
+D:X.............X.....X.........X......X
+D:X.............X.....X.........X......X
+D:X...XXXXXXXXXXX.....X.........X......X
+D:X.......d.....X.....X.........X......X
+D:X.............XXXXXXXXXXXDXXXXXXXXDXXX
+D:X.............X.....X................X
+D:X.............X.....X...............<X
+D:XXXXXXXXXXX...X.....X................X
+D:X.............X.....X................X
+D:X***..........X.....X..............;;X
+D:X***..........X..........;;;;;;;;;;;;X
+D:X***..........X.......;;;;;;;;;;;;;;;X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:10:36
+

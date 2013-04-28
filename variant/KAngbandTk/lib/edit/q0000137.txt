@@ -1,0 +1,15 @@
+Q:137:N:The Assult
+
+Q:137:Q:1:0:0:1:0:297:0:0
+
+?:[LEQ $QUEST137 2]
+Q:137:T:Morgoth is getting desperate and launching an assult against
+Q:137:T:the castle! Lokkak the Ogre has been sent to attack us. Help us
+Q:137:T:defeat him!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST137 3]
+Q:137:T:A reward for your good work awaits you outside.
+?:1
+

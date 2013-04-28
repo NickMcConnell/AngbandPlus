@@ -1,0 +1,345 @@
+# File: q_info.txt
+
+# Includes all the quest files
+
+# Quest feature preferences
+%:q_pref.txt
+
+#####  Plot 1 -> Troubles at Home  #####
+
+# Random Monster
+?:[EQU $QUEST_NUMBER 1]
+%:q0000001.txt
+
+# Thieves Hideout
+?:[EQU $QUEST_NUMBER 2]
+%:q0000002.txt
+
+# Random Monster
+?:[EQU $QUEST_NUMBER 3]
+%:q0000003.txt
+
+# The Sewer
+?:[EQU $QUEST_NUMBER 4]
+%:q0000004.txt
+
+# Random Monster
+?:[EQU $QUEST_NUMBER 5]
+%:q0000005.txt
+
+# The Volcano
+?:[EQU $QUEST_NUMBER 6]
+%:q0000006.txt
+
+# Random Monster
+?:[EQU $QUEST_NUMBER 7]
+%:q0000007.txt
+
+# Master Thief
+?:[EQU $QUEST_NUMBER 8]
+%:q0000008.txt
+
+# Random Monster
+?:[EQU $QUEST_NUMBER 9]
+%:q0000009.txt
+
+# Druid Shop
+?:[EQU $QUEST_NUMBER 10]
+%:q0000010.txt
+
+# Random Monster
+?:[EQU $QUEST_NUMBER 11]
+%:q0000011.txt
+
+# Poisoning of Water
+?:[EQU $QUEST_NUMBER 12]
+%:q0000012.txt
+
+# Red Dragon Nest
+?:[EQU $QUEST_NUMBER 13]
+%:q0000013.txt
+
+# The Gauntlet
+?:[EQU $QUEST_NUMBER 14]
+%:q0000014.txt
+
+# The Vault
+?:[EQU $QUEST_NUMBER 15]
+%:q0000015.txt
+
+# Volcano II
+?:[EQU $QUEST_NUMBER 16]
+%:q0000016.txt
+
+# Graveyard
+?:[EQU $QUEST_NUMBER 17]
+%:q0000017.txt
+
+# Khamul
+?:[EQU $QUEST_NUMBER 18]
+%:q0000018.txt
+
+
+#####  Plot 2 -> Kidnapped!  #####
+
+
+# Kobold Problems
+?:[EQU $QUEST_NUMBER 21]
+%:q0000021.txt
+
+# More Kobolds
+?:[EQU $QUEST_NUMBER 22]
+%:q0000022.txt
+
+# Orcs Spotted!
+?:[EQU $QUEST_NUMBER 23]
+%:q0000023.txt
+
+# Stealth Mission
+?:[EQU $QUEST_NUMBER 24]
+%:q0000024.txt
+
+# Rescue Strike
+?:[EQU $QUEST_NUMBER 25]
+%:q0000025.txt
+
+# Sting Quest
+?:[EQU $QUEST_NUMBER 26]
+%:q0000026.txt
+
+# Ulfast
+?:[EQU $QUEST_NUMBER 27]
+%:q0000027.txt
+
+# The Sewer
+?:[EQU $QUEST_NUMBER 28]
+%:q0000028.txt
+
+# Another Clue
+?:[EQU $QUEST_NUMBER 29]
+%:q0000029.txt
+
+# Rescue Strike #2
+?:[EQU $QUEST_NUMBER 30]
+%:q0000030.txt
+
+# King's Health
+?:[EQU $QUEST_NUMBER 31]
+%:q0000031.txt
+
+# Attack on Cirith Formen
+?:[EQU $QUEST_NUMBER 32]
+%:q0000032.txt
+
+# Attack on Cirith Hyarmen
+?:[EQU $QUEST_NUMBER 33]
+%:q0000033.txt
+
+# Artifact Quest
+?:[EQU $QUEST_NUMBER 34]
+%:q0000034.txt
+
+# Spies (Part 1)
+?:[EQU $QUEST_NUMBER 35]
+%:q0000035.txt
+
+# Spies (Part 2)
+?:[EQU $QUEST_NUMBER 36]
+%:q0000036.txt
+
+# Castle Siege
+?:[EQU $QUEST_NUMBER 37]
+%:q0000037.txt
+
+# Castle Siege II
+?:[EQU $QUEST_NUMBER 38]
+%:q0000038.txt
+
+
+#####  Plot 3 -> Haunting of Telamoor  #####
+
+
+# North Tower
+?:[EQU $QUEST_NUMBER 41]
+%:q0000041.txt
+
+# South Tower
+?:[EQU $QUEST_NUMBER 42]
+%:q0000042.txt
+
+# Food Storage
+?:[EQU $QUEST_NUMBER 43]
+%:q0000043.txt
+
+# The Armory
+?:[EQU $QUEST_NUMBER 44]
+%:q0000044.txt
+
+# Weapons Storage
+?:[EQU $QUEST_NUMBER 45]
+%:q0000045.txt
+
+# Unknown Building
+?:[EQU $QUEST_NUMBER 46]
+%:q0000046.txt
+
+# Barracks
+?:[EQU $QUEST_NUMBER 47]
+%:q0000047.txt
+
+# Strange Tower
+?:[EQU $QUEST_NUMBER 48]
+%:q0000048.txt
+
+# Fountain Creature
+?:[EQU $QUEST_NUMBER 49]
+%:q0000049.txt
+
+# Keep Defense 1
+?:[EQU $QUEST_NUMBER 50]
+%:q0000050.txt
+
+# Keep Defense 2
+?:[EQU $QUEST_NUMBER 51]
+%:q0000051.txt
+
+# Mysterious Lake
+?:[EQU $QUEST_NUMBER 52]
+%:q0000052.txt
+
+# Strange Outpost
+?:[EQU $QUEST_NUMBER 53]
+%:q0000053.txt
+
+# Strange Tower 2
+?:[EQU $QUEST_NUMBER 54]
+%:q0000054.txt
+
+# The Graveyard
+?:[EQU $QUEST_NUMBER 55]
+%:q0000055.txt
+
+# Mysterious Lake Again
+?:[EQU $QUEST_NUMBER 56]
+%:q0000056.txt
+
+# The Keep
+?:[EQU $QUEST_NUMBER 57]
+%:q0000057.txt
+
+# Final Mysterious Lake
+?:[EQU $QUEST_NUMBER 58]
+%:q0000058.txt
+
+
+#####  Plot 4 -> Rival Towns  #####
+
+
+# Roving Thieves
+?:[EQU $QUEST_NUMBER 61]
+%:q0000061.txt
+
+# Attacking Kobolds
+?:[EQU $QUEST_NUMBER 62]
+%:q0000062.txt
+
+# Invading Monsters
+?:[EQU $QUEST_NUMBER 63]
+%:q0000063.txt
+
+# Seal the Tunnel
+?:[EQU $QUEST_NUMBER 64]
+%:q0000064.txt
+
+# Counterstrike
+?:[EQU $QUEST_NUMBER 65]
+%:q0000065.txt
+
+# Counterstrike II
+?:[EQU $QUEST_NUMBER 66]
+%:q0000066.txt
+
+# Ulfast
+?:[EQU $QUEST_NUMBER 67]
+%:q0000067.txt
+
+# Infiltration
+?:[EQU $QUEST_NUMBER 68]
+%:q0000068.txt
+
+# Reconaissance Mission
+?:[EQU $QUEST_NUMBER 69]
+%:q0000069.txt
+
+# Advance Patrol
+?:[EQU $QUEST_NUMBER 70]
+%:q0000070.txt
+
+# Assassination
+?:[EQU $QUEST_NUMBER 71]
+%:q0000071.txt
+
+# Attack on Minas Sereg
+?:[EQU $QUEST_NUMBER 72]
+%:q0000072.txt
+
+# Attack on Minas Delos
+?:[EQU $QUEST_NUMBER 73]
+%:q0000073.txt
+
+# End the War
+?:[EQU $QUEST_NUMBER 74]
+%:q0000074.txt
+
+# Blockade!
+?:[EQU $QUEST_NUMBER 75]
+%:q0000075.txt
+
+# Spy!
+?:[EQU $QUEST_NUMBER 76]
+%:q0000076.txt
+
+# Castle Siege
+?:[EQU $QUEST_NUMBER 77]
+%:q0000077.txt
+
+# Castle Siege II
+?:[EQU $QUEST_NUMBER 78]
+%:q0000078.txt
+
+
+#####  Plot 5  #####
+
+?:1
+%:q_info5.txt
+?:1
+
+#####  Plot 6  #####
+
+?:1
+%:q_info6.txt
+?:1
+
+#####  Plot 7  #####
+
+?:1
+%:q_info7.txt
+?:1
+
+#####  Plot 8  #####
+
+?:1
+%:q_info8.txt
+?:1
+
+#####  Common Quests  #####
+
+
+# Sauron
+?:[EQU $QUEST_NUMBER 98]
+%:q0000098.txt
+
+# Morgoth
+?:[EQU $QUEST_NUMBER 99]
+%:q0000099.txt
+

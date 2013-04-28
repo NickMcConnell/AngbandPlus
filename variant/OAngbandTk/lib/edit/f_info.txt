@@ -1,0 +1,415 @@
+# File: f_info.txt
+
+
+# This file is used to initialize the "lib/raw/f_info.raw" file, which is
+# used to initialize the "terrain feature" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# Note that the terrain feature are grouped into very regular groups,
+# such that each of the bits in the feature type conveys information.
+
+# Note that terrain feature zero contains the "darkness" picture.
+
+
+# Version stamp (required)
+
+V:0.5.1
+
+#N: index: name
+#G: ASCII char used to represent the feature: color symbol
+#M: index of the feature whose display this feature uses.
+
+# 0x00 --> nothing
+
+N:0:nothing
+G: :w
+
+
+# 0x01 --> open floor
+
+N:1:open floor
+G:.:w
+
+# 0x02 --> invisible trap (drawn as open floor)
+
+N:2:invisible trap
+G:.:w
+M:1
+
+# 0x03 --> glyph of warding
+
+N:3:glyph of warding
+G:;:y
+
+# 0x04 --> open door
+
+N:4:open door
+G:':U
+
+# 0x05 --> broken door
+
+N:5:broken door
+G:':U
+
+# 0x06 --> up stairs (perm)
+
+N:6:up staircase
+G:<:w
+
+# 0x07 --> down stairs (perm)
+
+N:7:down staircase
+G:>:w
+
+# 0x08 --> special dungeon feature -- lava
+
+N:8:lava
+G:#:r
+
+# 0x09 --> special dungeon feature -- water
+
+N:9:water
+G:.:b
+
+# 0x0A --> special dungeon feature -- tree
+
+N:10:trees
+G:+:g
+
+# 0x0B --> shop -- temple (old)
+
+N:11:Temple
+G:4:g
+
+# 0x0C --> shop -- alchemist (old)
+
+N:12:Alchemy Shop
+G:5:b
+
+# 0x0D --> shop -- magic shop (old)
+
+N:13:Magic Shop
+G:6:r
+
+# 0x0E --> shop -- black market (old)
+
+N:14:Black Market
+G:7:D
+
+# 0x0F --> shop -- home (old)
+
+N:15:Home
+G:8:y
+
+# 0x10 --> visible trap -- trap door.  Level 2 and below.
+# This location is hard-coded, to prevent trap doors on quest levels.
+
+N:16:trap door
+G:^:w
+
+# 0x11 --> visible trap -- pit.  Level 2 and below.
+
+N:17:pit
+G:^:u
+
+# 0x12 --> visible trap -- stat-reducing dart.  Level 8 and below.
+
+N:18:dart trap
+G:^:r
+
+# 0x13 --> visible trap -- discolored spot.  Level 5 and below.
+
+N:19:discolored spot
+G:^:s
+
+# 0x14 --> visible trap -- gas, with various possible effects.  Any level.
+
+N:20:gas trap
+G:^:g
+
+# 0x15 --> visible trap -- rune -- summoning.  Level 3 and below.
+
+N:21:strange rune
+G:^:o
+
+# 0x16 --> visible trap -- dungeon alteration.  Level 20 and below.
+
+N:22:strange rune
+G:^:U
+
+# 0x17 --> visible trap -- various (mostly rather nasty) traps.  Level 40 and below.
+
+N:23:hex
+G:^:v
+
+# 0x18 --> visible trap -- move player.  Any level.
+
+N:24:shimmering portal
+G:^:b
+
+# 0x19 --> visible trap -- arrow, bolt, or shot trap.  Level 4 and below.
+
+N:25:murder hole
+G:^:W
+
+# 0x1A --> visible trap -- unused
+
+N:26:????
+G:^:r
+
+# 0x1B --> visible trap -- unused
+
+N:27:????
+G:^:r
+
+# 0x1C --> visible trap -- unused
+
+N:28:????
+G:^:g
+
+# 0x1D --> visible trap -- unused
+
+N:29:????
+G:^:g
+
+# 0x1E --> visible trap -- unused
+
+N:30:????
+G:^:g
+
+# 0x1F --> visible trap -- Created only by Rogues.  Only one may exist at a time.
+
+N:31:monster trap
+G:^:y
+
+# 0x20 --> locked door (power 0)
+
+N:32:door
+G:+:U
+M:32
+
+# 0x21 --> locked door (power 1)
+
+N:33:locked door
+G:+:U
+M:32
+
+# 0x22 --> locked door (power 2)
+
+N:34:locked door
+G:+:U
+M:32
+
+# 0x23 --> locked door (power 3)
+
+N:35:locked door
+G:+:U
+M:32
+
+# 0x24 --> locked door (power 4)
+
+N:36:locked door
+G:+:U
+M:32
+
+# 0x25 --> locked door (power 5)
+
+N:37:locked door
+G:+:U
+M:32
+
+# 0x26 --> locked door (power 6)
+
+N:38:locked door
+G:+:U
+M:32
+
+# 0x27 --> locked door (power 7)
+
+N:39:locked door
+G:+:U
+M:32
+
+# 0x28 --> jammed door (power 0)
+
+N:40:jammed door
+G:+:U
+M:32
+
+# 0x29 --> jammed door (power 1)
+
+N:41:jammed door
+G:+:U
+M:32
+
+# 0x2A --> jammed door (power 2)
+
+N:42:jammed door
+G:+:U
+M:32
+
+# 0x2B --> jammed door (power 3)
+
+N:43:jammed door
+G:+:U
+M:32
+
+# 0x2C --> jammed door (power 4)
+
+N:44:jammed door
+G:+:U
+M:32
+
+# 0x2D --> jammed door (power 5)
+
+N:45:jammed door
+G:+:U
+M:32
+
+# 0x2E --> jammed door (power 6)
+
+N:46:jammed door
+G:+:U
+M:32
+
+# 0x2F --> jammed door (power 7)
+
+N:47:jammed door
+G:+:U
+M:32
+
+# 0x30 --> secret door
+
+N:48:secret door
+G:#:w
+M:56
+
+# 0x31 --> pile of rubble
+
+N:49:pile of rubble
+G:::w
+
+# 0x32 --> magma vein
+
+N:50:magma vein
+G:%:s
+
+# 0x33 --> quartz vein
+
+N:51:quartz vein
+G:%:w
+
+# 0x34 --> magma vein + treasure
+
+N:52:magma vein
+G:%:s
+M:50
+
+# 0x35 --> quartz vein + treasure
+
+N:53:quartz vein
+G:%:w
+M:51
+
+# 0x36 --> magma vein + known treasure
+
+N:54:magma vein with treasure
+G:*:o
+
+# 0x37 --> quartz vein + known treasure
+
+N:55:quartz vein with treasure
+G:*:o
+
+# 0x38 --> granite wall -- basic
+
+N:56:granite wall
+G:#:w
+
+# 0x39 --> granite wall -- inner
+
+N:57:granite wall
+G:#:w
+M:56
+
+# 0x3A --> granite wall -- outer
+
+N:58:granite wall
+G:#:w
+M:56
+
+# 0x3B --> granite wall -- solid
+
+N:59:granite wall
+G:#:w
+M:56
+
+# 0x3C --> permanent wall -- basic (perm)
+
+N:60:permanent wall
+G:#:w
+
+# 0x3D --> permanent wall -- inner (perm)
+
+N:61:permanent wall
+G:#:w
+M:60
+
+# 0x3E --> permanent wall -- outer (perm)
+
+N:62:permanent wall
+G:#:w
+M:60
+
+# 0x3F --> permanent wall -- solid (perm)
+
+N:63:permanent wall
+G:#:w
+M:60
+
+# 0x40 --> shop -- general store (perm)
+
+N:64:General Store
+G:1:U
+
+# 0x41 --> shop -- armoury (perm)
+
+N:65:Armoury
+G:2:s
+
+# 0x42 --> shop -- weapon shop (perm)
+
+N:66:Weapon Smiths
+G:3:w
+
+# 0x43 --> shop -- temple (perm)
+
+N:67:Temple
+G:4:g
+
+# 0x44 --> shop -- alchemist (perm)
+
+N:68:Alchemy Shop
+G:5:b
+
+# 0x45 --> shop -- magic shop (perm)
+
+N:69:Magic Shop
+G:6:r
+
+# 0x46 --> shop -- black market (perm)
+
+N:70:Black Market
+G:7:D
+
+# 0x47 --> shop -- home (perm)
+
+N:71:Home
+G:8:y
+
+# 0x48 --> shop -- bookstore (perm)
+
+N:72:Bookstore
+G:9:o

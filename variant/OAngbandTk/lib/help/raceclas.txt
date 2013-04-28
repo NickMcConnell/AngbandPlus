@@ -1,0 +1,375 @@
+
+=============================== Character Birth ===============================
+
+     This file describes your character and his creation.  It discusses the 
+races and classes available in Oangband; racial and class tables are provided 
+at the bottom.
+
+
+=== Creating a Character ===
+
+Oangband is a role-playing game, in which you, the player, control a character
+in a world of magic and cold steel.  Perhaps the most important thing you 
+control is the birth of your character, in which you choose or allow to be 
+chosen various attributes that will affect his future adventures.
+
+You choose a race, a class, and may set various birth options.  You may start 
+over at any time by pressing 'S'.
+
+Once you have accepted a character you will asked for a name.  The actual 
+choice of a name may have some effect on the game itself.  It is used to 
+specify character-specific preference files, is shown in the high score 
+list, and, in some operating systems like Macintosh and Windows, is used to 
+save the character to disk.
+
+
+=== Races ===
+
+There are thirteen different races that you can choose from in Oangband, 
+representing most of the speaking peoples found in Tolkien's books, plus Gnomes.  
+Some races cannot realistically choose all professions, and each race has its 
+own adjustments to a character's stats and abilities. Most races also have 
+intrinsic abilities.
+     Maiar are especially designed for new and inexperienced players, and are 
+not recommended for veterans.  Dunedain and High-Elves are good choices for 
+players whose spellcasters of other races die too quickly.
+ 
+     Human:
+         Humans are the base characters.  All other races are compared to them.
+         Humans can choose any class and are average at everything.  Humans tend
+         to go up levels faster than any other race (except Half-Orcs) because 
+         of their shorter life spans.  They have a slight bonus to fighting 
+         skill when using swords and crossbows, and have more hit points than 
+         many other races, but otherwise they have no racial adjustments or 
+         intrinsics.
+ 
+     Half-Elf:
+         Half-elves tend to be smarter and more agile than humans, but are not 
+         as strong.  Half-elves are slightly better at searching, disarming, 
+         saving throws, stealth, shooting (especially with bows), and magic, but 
+         they are not as good at hand weapons, and have slightly fewer hit 
+         points.  Half-elves may choose any class and do not receive any intrin-
+         sic abilities.
+ 
+     Elf:
+         Elves are better magicians then humans, but not as good at fighting.  
+         They tend to be smarter, wiser, and more dexterous than either humans 
+         or half-elves, but lack the strength or the hit points of either.  
+         Elves are better at searching, disarming, perception, shooting 
+         (especially with bows), and magic, but they are not as good at hand 
+         weapons.  They are very stealthy.  Elves may choose any class except 
+         Paladin.  They resist light effects intrinsically.
+ 
+     Hobbits:
+         Hobbits are very good at bows (especially slings), throwing, and have 
+         good saving throws.  They are even better at searching, disarming, 
+         perception, and stealth; so they make excellent rogues, but prefer to 
+         be called burglars.  They will be much weaker than humans, and no good 
+         at melee fighting.  They have few hit points, but can sometimes endure 
+         ailments that would lay other races low.  Hobbits have fair infra-
+         vision, so they can detect warm creatures at a distance.  Hobbits can 
+         choose between being a warrior, mage, rogue, druid, or assassin.  They 
+         have no special abilities.
+ 
+     Gnome:
+         Gnomes are the pudgy pranksters of the dungeon; if they can kill some-
+         thing in a humorous way, so much the better... They, like hobbits, live 
+         in the earth in burrow-like homes.  Gnomes make excellent mages, are 
+         the best magical device users of any race, and are good at searching, 
+         disarming, and perception.  They are reasonably stealthy. They have 
+         lower strength and fewer hitpoints than humans so they are not very 
+         good at fighting with hand weapons.  Gnomes have good infra-vision, so 
+         they can detect warm-blooded creatures at a distance.  A gnome may 
+         choose between being a warrior, mage, priest, rogue, necromancer, or 
+         assassin.  Gnomes are intrinsically protected against paralysis and 
+         some slowing effects.
+ 
+     Dwarf:
+         Dwarves are the headstrong miners and fighters of legend.  They are 
+         strong, wise, and tough, but not very quick-witted or agile.  Since 
+         dungeons are their natural home, dwarves have very good infravision, 
+         can never be blinded, and make good warriors, priests, and necromancers.  
+         They gain a small bonus to combat skill when using polearms, but don't 
+         know the first thing about bows.  Because they are so headstrong and 
+         wise, they resist spells which are cast on them.  They do have one 
+         big drawback, though:  Dwarves are loudmouthed and proud, singing in 
+         loud voices, arguing with themselves for no good reason, screaming out 
+         challenges at imagined foes.  In other words, dwarves have a miserable 
+         stealth.
+ 
+     Half-Orc:
+         Half-Orcs can become warriors, priests, rogues, necromancers, or 
+         assassins, doing their best to make great constitutions and loads of 
+         hit points make up for poor magical and dungeon survival skills.  Both 
+         their intelligence and wisdom are suspect, but they do know hand-to-
+         hand combat, are tough and strong, and advance as quickly as humans do.  
+         Half-Orcs are, let's face it, ugly.  They tend to pay more for goods 
+         in town.  Because of their preference to living underground to on the 
+         surface, half-orcs resist darkness attacks.
+ 
+     Half-Troll:
+         Half-Trolls are incredibly strong, and have more hit points than any 
+         other character race.  They are also very stupid and clumsy.  They 
+         will make great warriors, iffy priests, and rather interesting 
+         necromancers.  They are bad at searching, disarming, perception, and 
+         stealth.  They need to eat a lot.  They are so ugly that a Half-Orc 
+         grimaces in their presence.  They also happen to be fun to run...  
+         Half-trolls always have their strength sustained.
+ 
+     Dunadan:
+         Dunedain are a race of hardy men from the West.  This elder race sur-
+         passes the abilities of other humans in every field, are superb melee 
+         fighters, and have amazing wisdom and constitution.  However, being 
+         men of the world, very little is new to them, and levels are very 
+         hard to gain...  They may play any 
+         class.  Their constitution cannot be reduced.
+ 
+     High-Elf:
+         High-elves are a race of undying beings dating from the beginning of 
+         the world.  They attain experience levels just as slowly as Dunedain.  
+         They are masters of all skills, and are agile and intelligent, al-
+         though their wisdom is sometimes suspect.  They can play all classes 
+         except Paladin, and very well at that.  High-elves begin their lives 
+         able to see the unseen, and resist light effects just like other elves.
+ 
+     Maia:  (Special race for players new to Oangband.  Score is reduced by 50%)
+         The Maiar, lesser deities of the created world, often take tangible 
+         form and mingle among earthly beings.  They can be found among the 
+         ranks of wise counselors, peerless warriors, mighty wizards and deadly 
+         necromancers; indeed they can play any class with credit.  Their vital 
+         statistics put all other races to shame, their standard abilities are 
+         always good and sometimes superlative, and they recover divinely 
+         quickly from all sorts of wounds and ailments. Despite all these 
+         qualities, Maiar advance fairly quickly, making them the perfect race 
+         for those desiring a character able to survive the perils of an un-
+         familiar game.
+
+     Shadow Fairy:
+         Also known as Fays, these beings were created neither by the powers of 
+         good nor of evil but, for all anyone knows, appeared when the world 
+         was formed out of primeval darkness and void.  They are weak and 
+         perilously frail, and know little of physical combat.  However, their  
+         intelligence and wisdom far surpasses the human norm, and their stealth 
+         is extraordinary.  Not merely are Shadow Fairies the stealthiest of all 
+         races, but they never aggravate monsters.  (If they normally would, 
+         they suffer a penalty of three to stealth).  Shadow Fairies must beware 
+         of bright light.
+
+     Ent:
+         Clad in bark-like skin, and with bodies like the trunks of trees, Ents 
+         can nevertheless move about perfectly well.  They have poor dungeon 
+         survival skills, and are bad at archery and with polearms, but handle 
+         other weapons well.  As long as they stay away from fire, Ents will 
+         find themselves well capable of surviving many a bitter fight.  As 
+         they age, Ents slowly lose the relative suppleness of their sapling 
+         youth, trading dexterity for increased strength and constitution.  
+         Members of this wise race can never gain feather fall by any means, but 
+         will slowly acquire the ability needed to tear rock apart with their 
+         weaponless hands.
+
+ 
+=== Classes ===
+ 
+Nine different classes are available in Oangband.  Some classes are not re-
+commended for certain races; for instance, a Half-Troll would be a very confused 
+Paladin.  More information about magics available to each class con be found in 
+the help file "magic.txt".  For the first few adventures it is suggested that 
+you run a warrior, rogue, or paladin.  The pure spellcasters generally require a 
+more experienced player that is familiar with survival techniques.
+ 
+     Warrior:
+         The great melee fighter, capable of doing more damage and surviving 
+         longer at close quarters than any other class.  So skilled in combat 
+         can a warrior become that he gains permanent protection from fear at 
+         level 30, learns to probe for weaknesses (see the help doc "magic.txt")
+         at level 35, can spread attacks out among weaker monsters at level 40, 
+         and regenerates intrinsically at level 45.  He is unchallengable with 
+         melee weapons, and is also good with all missile launchers, getting an 
+         extra shot with bows (level 35) and crossbows (level 40).  His biggest 
+         drawback is his ignorance of spells and many magical items.  Most of 
+         his dungeon survival skills are average or worse.  A Warrior learns 
+         no magical spells, and has poor magical defences.  He has very fast, 
+         strong pseudo-ID.  His prime stat is Strength, and a good Dexterity and 
+         Constitution can really help at times.
+
+     Mage:
+         Master of sorcery.  A mage is not really happy without an assortment 
+         of magical devices to use in addition to his spells.  He can master 
+         the higher level magical devices far more easily than anyone else.  
+         A mage fights very poorly, except with the lightest of weapons, and is 
+         almost as bad at archery.  He is stealthy at low levels, but his magic 
+         betrays his presence later on.  Most of his other skills are mediocre.
+         He has excellent magical defences, but dangerously poor physical ones.
+         He has very slow, weak pseudo-ID.  Intelligence is his primary stat, 
+         and a high Constitution is very useful.
+
+     Priest:
+         Covenanted with a mighty and generous god. He explores the dungeon only 
+         to clease the evil that lurks within, and if treasure just happens to 
+         fall into his pack, well, so much more to the glory of his church!  A 
+         priest is spoilt for choice with protection and healing prayers, and 
+         can wield the power of holy light like no other character can.  In 
+         addition, pious characters can fight fairly well, as long as they stay 
+         away from archery and edged weapons.  They have average dungeon survival 
+         skills, but know quite a bit about magical items, and resist magic very 
+         well.  Priests gain +1 to light radius at level 35 and above and 
+         permanent protection against evil at level 50.  They have very fast but 
+         weak pseudo-ID.  Wisdom is a Priest's primary stat.
+
+     Rogue:
+         The flexible dungeon sneaker, first in line when dungeon survival 
+         skills were handed out.  Rogues can fight very well with light weapons 
+         and are dangerous with slings (extra shots at 20th and 40th level), but 
+         have trouble with heavier gear.  They can fight hand-to-hand more 
+         quietly than can any other class, and gets the most effective sneak 
+         attacks against sleeping monsters.  Rogues have the unique capacity of 
+         filching purses and setting traps (use the '+' command.  See the help 
+         file "combat.txt for more details).   They have fairly fast, strong 
+         pseudo-ID.  They will also get a fairly good collection of spells to 
+         improve their natural skills, aid in battle, and gain information.  
+         Unfortunately, no shopkeeper trusts a rogue, and so members of this 
+         class will pay dearly for goods in town.  A rogue's primary stats are 
+         Intelligence and Dexterity.
+
+     Ranger:
+         An archer skilled in nature lore.  Rangers are better than any other 
+         class with any missile weapon except slings, getting one extra shot 
+         with slings and crosbows (25th level for slings, 45th for xbows), and 
+         two with bows (20th and 40th level).  They learn about monster abil-
+         ities very quickly.  Rangers are better than average in melee, and 
+         find their spells to be mighty handy.   They have pretty good dungeon 
+         survival skills and stealth, but are a little uncertain about magical 
+         devices, and have fairly slow pseudo-ID.  A ranger's primary stats are 
+         Wisdom and Constitution.
+
+     Paladin:
+         A champion of the Faith.  A paladin is the second best melee fighter 
+         available.  As long as he sticks to priestly weapons, his mastery of 
+         the elements and of battle prayers will render him formidable to his 
+         foes.  Missile weapons and magical devices confuse him.  He has little 
+         stealth, and poor dungeon survival skills, but can survive as well or 
+         better than any other class in battle or against magic.  He has a sub-
+         set of the priestly prayers.  Plus one to light radius at level 45 and 
+         above.  He has moderately-paced, strong pseudo-ID.  His primary stats 
+         are Wisdom and Strength.
+
+     Druid:
+         At one with nature.  He possesses a wide and varied range of healing, 
+         dungeon alteration, and knowledge spells, plus a large number of spells 
+         to hinder and reduce foes.  Can fight well bare-handed and acceptably 
+         with slings, but not with other missile weapons or any melee weapon.  
+         Although a druid can do a lot of damage, his spells are more random 
+         than are those of other realms.  He has decent magical skill, fairly 
+         high stealth, and good magical defences.  A Druid will have decent 
+         dungeon survival skills.  He has extremely slow, weak pseudo-ID.  His 
+         primary stat is Wisdom.
+
+     Necromancer:
+         Dealer in death.  He has an unsurpassed collection of highly deadly 
+         combat spells, and can dish out damage like nobody's business.  His 
+         magical item ability is acceptable, but virtually all of his other 
+         skills are poor, and he has a hard time protecting himself.  Fortu-
+         ately, at higher levels his magic can help with some of these prob-
+         lems.  He has slow, weak pseudo-ID.  His primary stat is Intelligence, 
+         and he needs to watch his Constitution.
+
+     Assassin:
+         The death-dealing stalker.  He is better than a Rogue at melee, but is 
+         still limited to reasonably light weapons.  An Assassin is deadly with 
+         lighter missile launchers, and can eventually poison missiles, but gets 
+         no innate extra shots.  He is a master at using thrown weapons against 
+         sleeping monsters.  He has rather good stealth, but lacks protection 
+         if caught.  His other dungeon survival skills are good, and he has 
+         access to a sub-set of the necromantic spells.  He can shoot missiles 
+         and throw objects more quietly than any other class, and makes little 
+         noise in melee as well.  An Assassin will have mediocre magic skill, 
+         and poor magical defences.  He has fairly fast, strong pseudo-ID.  
+         His primary stats are Intelligence and Strength.
+
+
+=== Combinations of Race and Class (recommendations only) ===
+ 
+                 Warrior      Priest      Ranger      Druid     Assassin
+                         Mage       Rogue      Paladin      Necro
+
+     Human         Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
+     Half-Elf      Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
+     Elf           Yes   Yes   Yes   Yes   Yes   No    Yes   Yes   Yes
+     Hobbit        Yes   Yes   No    Yes   No    No    Yes   No    Yes
+     Gnome         Yes   Yes   Yes   Yes   No    No    No    Yes   Yes
+     Dwarf         Yes   No    Yes   No    No    No    No    Yes   No
+     Half-Orc      Yes   No    Yes   Yes   No    No    No    Yes   Yes
+     Half-Troll    Yes   No    Yes   No    No    No    No    Yes   No
+     Dunadan       Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
+     High-Elf      Yes   Yes   Yes   Yes   Yes   No    Yes   Yes   Yes
+     Maia          Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
+     Shadow Fairy  Yes   Yes   Yes   Yes   Yes   No    Yes   Yes   Yes
+     Ent           Yes   No    Yes   No    Yes   No    Yes   No    Yes
+
+
+=== Stat Bonus and Hit Point Tables ===
+
+                    STR  INT   WIS   DEX   CON   CHR  Hit Dice  Rqd Exp/level
+     Human          0     0     0     0     0     0      10          +0%
+     Half-Elf      -1    +1     0    +1    -1    +1       9         +10%
+     Elf           -1    +2    +1    +1    -2    +1       8         +25%
+     Hobbit        -2    +2    +1    +3    +2    +1       7         +15%
+     Gnome         -1    +2     0    +2    +0    -2       8         +20%
+     Dwarf         +2    -2    +2    -2    +2    -3      11         +25%
+     Half-Orc      +2    -1    -1     0    +2    -3      11          +0%
+     Half-Troll    +4    -3    -1    -3    +3    -4      12         +10%
+     Dunadan       +1    +1    +3    +2    +3    +2      10        +100%
+     High-Elf      +1    +3    -1    +3    +1    +5      10        +100%
+     Maia          +4    +3    +3    +3    +4    +5      12         +25%*
+     Shadow Fairy  -2    +2    +2    +1    -1     0       7         +20%
+     Ent           +2     0    +2    -3    +2     0      12         +30%
+
+* : Also halves your score.
+
+                   STR   INT   WIS   DEX   CON   CHR  Hit Dice  Rqd Exp/level
+     Warrior       +5    -2    -2    +2    +2    -1      +9         +00%
+     Mage          -4    +3     0    +1    -2    +1      +0         +25%
+     Priest        -1    -3    +3    -1     0    +2      +2         +20%
+     Rogue         +2    +1    -2    +3    +1    -5      +5         +30%
+     Ranger        +1     0    +1    +1    +1    +0      +5         +30%
+     Paladin       +2    -3    +1     0    +1    +2      +7         +35%
+     Druid         -2    -2    +3    +2     0    +1      +0         +20%
+     Necromancer   -2    +3    -2    +1     0    -2      +0         +25%
+     Assassin      +2    +1    -3    +2    +0    -2      +4         +30%
+ 
+ 
+=== Ability Tables ===
+
+     See the help file "abilattr" for complete explanations of what each 
+ability does for your character.
+
+Abilities are ranked on a comparative scale ranging from 1 to 10.
+
+                 disarm device save stealth search percep melee shooting
+     Human         5      5     5      5      5      5      5      5
+     Half-Elf      6      6     6      6      7      6      4      6
+     Elf           7      8     7      8      8      7      3      7
+     Hobbit       10      8     9      8     10     10      1      7
+     Gnome         9     10     6      6      7      7      2      5
+     Dwarf         4      5     9      3      6      6      8      4
+     Half-Orc      4      4     4      4      4      4      6      4
+     Half-Troll    3      3     3      4      3      3      9      3
+     Dunadan       7      6     6      6      6      8      7      7
+     High-Elf      8      9     9      7      7      9      5      9
+     Maia          9      9    10      6      7     10     10     10
+     Shadow Fairy  8      6     5     10+    10     10      2      4
+     Ent           3      5     7      6      3      5      7      3
+  
+                 disarm device save stealth search percep melee missile
+     Warrior       5      3     5      3      4      4      10     8
+     Mage          3     10     6     5->2    5      6      3      3
+     Priest        3      6     8      4      5      5      5*     5
+     Rogue         9      6     6      8     10     10      6      8
+     Ranger        5      4     6      6      6      7      6     10
+     Paladin       3      2     6      3      3      3      9*     4
+     Druid         4      5     7      6      6      7      4      6
+     Necromancer   3      6     4      4      4      4      3      3
+     Assassin      7      5     3      7      8      8      7      9
+
+* : With blunt weapons; otherwise much worse (use the 'I'nspect 
+    command to find out which weapons are blunt)

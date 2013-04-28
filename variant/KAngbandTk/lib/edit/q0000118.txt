@@ -1,0 +1,14 @@
+Q:118:N:Morgoth Attacks!
+
+Q:118:Q:1:0:0:1:0:343:0:0
+
+?:[LEQ $QUEST118 2]
+Q:118:T:King: Morgoth has sent more creatures to attack us.  But, we
+Q:118:T:will never surrender!  Defeat the invaders!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST118 3]
+Q:118:T:A reward for your good work awaits you outside.
+?:1
+

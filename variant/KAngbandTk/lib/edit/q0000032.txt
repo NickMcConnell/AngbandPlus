@@ -1,0 +1,71 @@
+# q0000032.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:32:N:Attack on Cirith Formen
+
+# Definition
+Q:32:Q:6:0:0:0:35:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST32 2]
+Q:32:T:King->You have done well. Not only have you saved my daughter but you have
+Q:32:T:saved me as well. I am forever in your debt. You will want for nothing as
+Q:32:T:long as this kingdom stands.
+Q:32:T:Now, I believe it is time for us to take the offensive. Time to take the
+Q:32:T:battle to Morgoth! We strike first at the north tower, Cirith Formen!
+Q:32:T:Slay them all to bring that tower under our control. Our scouts report
+Q:32:T:that Morgoth's minions have not had a chance to establish a real foothold.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST32 3]
+Q:32:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST32 5]
+Q:32:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX.........<.........XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX.................................XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX...........................................XXXXXXXXXXXXXXXX
+D:XXXXXXXXX.......................................................XXXXXXXXXX
+D:XXXX..................................................................XXXX
+D:XXXX........................................................9.........XXXX
+D:XXXX...........................XXXXXDXXXXX............................XXXX
+D:XXXX..................XXXXXXXXXX.........XXXXXXXXXXX..................XXXX
+D:XXXX................XXX............................XXX................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX................X......9....................9....X................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX................X......9....................9....X................XXXX
+D:XXXX................XXX..............................X................XXXX
+D:XXXX..................XXXXXXXXXX..........XXXXXXXXXXXX................XXXX
+D:XXXX...........................XXXXXDXXXXXX...........................XXXX
+D:XXXX..................................................................XXXX
+D:XXXX..................................................................XXXX
+D:XXXX..................................................................XXXX
+D:XXXX...........................XXXXXDXXXXXX...........................XXXX
+D:XXXX.............9.............X..........X...........................XXXX
+D:XXXX...........................X*..8..8..*X...........................XXXX
+D:XXXX...........................XXXXXXXXXXXX...........................XXXX
+D:XXXXXXXXX.......................................................XXXXXXXXXX
+D:XXXXXXXXXXXXXXX...........................................XXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX.................................XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX...................XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:2:37
+

@@ -1,0 +1,16 @@
+Q:136:N:Morgoth's Spies
+
+Q:136:Q:1:0:0:1:0:274:0:0
+
+?:[LEQ $QUEST136 2]
+Q:136:T:King: Morgoth has spies trying to discover all our plans.
+Q:136:T:Angamaite has been spotted around town and I need you to take him
+Q:136:T:out before he unlocks any of our secrets! Those umbarites are a
+Q:136:T:venomous people.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST136 3]
+Q:136:T:A reward for your good work awaits you outside.
+?:1
+

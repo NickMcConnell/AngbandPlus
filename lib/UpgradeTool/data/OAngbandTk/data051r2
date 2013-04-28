@@ -1,0 +1,36 @@
+# data051r2 --
+#	Contains version-specific variables and commands
+
+source data051r1
+
+set vCommonVersion 1.4
+
+ldelete vDirName \
+	{tk image}
+
+lappend vFile_user \
+	pref-tk-x11.prf
+
+lappend vConfig \
+	dg32+iso
+
+lappend vSetting \
+	pickup_similar
+
+ldelete vValue \
+	sound,directory
+
+lappend vValue \
+	main,statusbar,color \
+	message,float \
+	micromap,float \
+	misc,float \
+	misc,layout \
+	recall,show
+
+lappend vRInfoCompat \
+	051r1
+
+lappend vScoreCompat \
+	051r1
+

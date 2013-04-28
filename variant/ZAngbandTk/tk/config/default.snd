@@ -1,0 +1,40 @@
+# Automatically generated. Do not edit.
+
+Title {Default Sounds}
+
+Dir {CPath lib sound}
+
+Group event
+One action_fail 0 "doheth.wav"
+One action_fail 0 "duh.wav"
+One action_fail 0 "doh.wav"
+One store_sell_bad 0 "dontlike.wav"
+One state_confused 0 "brain.wav"
+One state_paralyzed 0 "what.wav"
+One state_afraid 0 "flee.wav"
+One state_gorged 0 "fat.wav"
+One state_berserk 0 "loveangr.wav"
+One state_invulnerable 0 "woohoo.wav"
+One state_recover 0 "joy.wav"
+One attack_hit 0 "hit1.wav"
+One attack_miss 0 "miss.wav"
+One missile_miss 0 "miss1.wav"
+One stat_drain 0 "dontlike.wav"
+One stat_restore 0 "joy.wav"
+One experience_drain 0 "dontlike.wav"
+One experience_restore 0 "joy.wav"
+One experience_level_up 0 "level.wav"
+One experience_level_down 0 "dontlike.wav"
+One trap_miss 0 "miss1.wav"
+One money 0 "drop.wav"
+One money200 0 "drop.wav"
+One money600 0 "drop.wav"
+One monster_teleport 0 "miss1.wav"
+One disturb_unique 0 "r-s0003.wav"
+One ident_artifact 0 "woohoo.wav"
+One ident_ego 0 "woohoo.wav"
+One character_death 0 "death.wav"
+One quest_done 0 "woohoo.wav"
+One mutate 0 "breath.wav"
+One lose_mutation 0 "breath.wav"
+

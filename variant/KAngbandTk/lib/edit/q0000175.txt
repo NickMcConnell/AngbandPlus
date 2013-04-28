@@ -1,0 +1,15 @@
+Q:175:N:Spies part 1
+
+Q:175:Q:1:0:0:1:0:273:0:0
+
+?:[LEQ $QUEST175 2]
+Q:175:T:Morgoth has sent spies to discover our plans. Sangahyando has 
+Q:175:T:been spotted around town. I need you to take him out before he
+Q:175:T:unlocks any of our secrets!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST175 3]
+Q:175:T:A reward for your good work awaits you outside.
+?:1
+

@@ -1,0 +1,36 @@
+Group event
+One action_fail "doheth.wav"
+One action_fail "duh.wav"
+One action_fail "doh.wav"
+One store_sell_bad "dontlike.wav"
+One state_confused "brain.wav"
+One state_paralyzed "what.wav"
+One state_afraid "flee.wav"
+One state_gorged "fat.wav"
+One state_berserk "loveangr.wav"
+One state_recover "joy.wav"
+One attack_hit "hit1.wav"
+One attack_miss "miss.wav"
+One missile_miss "miss1.wav"
+One stat_drain "dontlike.wav"
+One stat_restore "joy.wav"
+One experience_drain "dontlike.wav"
+One experience_restore "joy.wav"
+One experience_level_up "level.wav"
+One experience_level_down "dontlike.wav"
+One trap_miss "miss1.wav"
+One money "drop.wav"
+One money200 "drop.wav"
+One money600 "drop.wav"
+One monster_teleport "miss1.wav"
+One disturb_unique "r-s0003.wav"
+One ident_artifact "woohoo.wav"
+One ident_ego "woohoo.wav"
+One character_death "death.wav"
+
+Group monster
+
+Group monster_spell
+
+Group monster_attack
+

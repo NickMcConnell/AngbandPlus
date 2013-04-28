@@ -1,0 +1,51 @@
+# q0000049.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:49:N:Fountain Creature
+
+# Definition
+Q:49:Q:6:0:0:0:10:0:0:2
+
+# Description for quest
+?:[LEQ $QUEST49 2]
+Q:49:T:Other adventurers besides yourself have attempted to enter some of the
+Q:49:T:ruins and have never returned. Rumor is that the fountain has grown so foul,
+Q:49:T:it destroys all who are near. I don't know what this means - check out the
+Q:49:T:fountain and try to discover what's going on.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST49 3]
+Q:49:T:As a reward for your good, I have had a fine town house
+Q:49:T:constructed for you.
+?:1
+
+# Floor with Sea Serpent
+F:a:104:8:571
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X...........,,,,,,,,,,,,,...........X
+D:X.........,,,VVVVVVVVVVV,,,.........X
+D:X.......,,,VVVVVVVVVVVVVVV,,,.......X
+D:X.....,,,VVVVVVVVXDXVVVVVVVV,,,.....X
+D:X...,,,VVVVVVVXXXXWXXXXVVVVVVV,,,...X
+D:X.,,,VVVVVVVXXXXWWWWWXXXXVVVVVVV,,,.X
+D:X.,VVVVVVVVXXXWWWa.WWWWXXXVVVVVVVV,.X
+D:X.,VVVVVVVXXWWWWWXXXWWWWWXXVVVVVVV,.X
+D:X.,VVVVVVVDWWWWWWXXXWWWWWWDVVVVVVV,.X
+D:X.,VVVVVVVXXWWWWWW.WWWWWWXXVVVVVVV,.X
+D:X.,VVVVVVVVXXXWWWWWWWWWXXXVVVVVVVV,.X
+D:X.,,,VVVVVVVXXXXWWWWWXXXXVVVVVVV,,,.X
+D:X...,,,VVVVVVVXXXXWXXXXVVVVVVV,,,...X
+D:X.....,,,VVVVVVVVXDXVVVVVVVV,,,.....X
+D:X.......,,,VVVVVVVVVVVVVVV,,,.......X
+D:X.........,,,VVVVVVVVVVV,,,.........X
+D:X...........,,,,,,,,,,,,,.........<.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:17:34
+

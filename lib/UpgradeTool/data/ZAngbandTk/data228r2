@@ -1,0 +1,87 @@
+# data228r2 --
+#	Contains version-specific variables and commands
+
+source data228r1
+
+variable vGeometryUpdate 1
+
+lappend vDirName \
+	{tk msgs choice} \
+	{tk msgs common} \
+	{tk msgs message} \
+	{tk msgs recall} \
+	{tk msgs startup} \
+	{tk msgs status} \
+	{tk msgs tips} \
+	{tk msgs building} \
+	{tk msgs mindcraft} \
+	{tk msgs pet} \
+	{tk msgs power}
+
+ldelete vSetting \
+	show_choices \
+	use_color \
+	stack_allow_wands \
+	avoid_other \
+	fresh_after \
+	fresh_message \
+	hilite_player \
+	view_yellow_lite \
+	view_bright_lite \
+	view_granite_lite \
+	view_special_lite \
+	player_symbols \
+	equippy_chars \
+	skip_mutations \
+	avoid_center \
+	center_player
+
+ldelete vValue \
+	warning,artifacts \
+	warning,inventory,window \
+	warning,store,window
+
+lappend vValue \
+	font,statusBar \
+	inventory,alwaysOnTop
+
+lappend vRInfoCompat \
+	228r1
+
+lappend vScoreCompat \
+	228r1
+
+
+rename ModifyGeometry ModifyGeometry228r1
+proc ModifyGeometry {info} {
+	array set data $info
+	switch -- $data(window) {
+		book -
+		mindcraft -
+		power {
+			# These windows default geometry changed
+			return ""
+		}
+	}
+	return [ModifyGeometry228r1 $info]
+}
+
+rename ModifyValue ModifyValue228r1
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		savefile {
+			if {[llength $value]} {
+				set value [UpdatePath [eval file join $value]]
+				set value [file split $value]
+			}
+		}
+		default {
+			return [ModifyValue228r1 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+

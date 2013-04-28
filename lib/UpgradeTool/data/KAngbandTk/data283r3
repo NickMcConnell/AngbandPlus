@@ -1,0 +1,54 @@
+# data283r3 --
+#	Contains version-specific variables and commands
+
+source data283r2
+
+set vValueUpdate 1
+
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		sound,directory {
+			set value [UpdatePath [eval file join $value]]
+			set value [file split $value]
+		}
+	}
+	return [list name $name value $value]
+}
+
+lappend vConfig \
+	classic16+feat \
+	classic32+feat \
+	dg32
+
+lappend vSetting \
+	allow_animation \
+	easy_floor \
+	easy_sense
+
+lappend vValue \
+	allow_animation \
+	font,inventory \
+	font,knowledge \
+	font,macros \
+	font,magic \
+	font,message \
+	font,messages \
+	font,misc \
+	font,monster \
+	font,options \
+	font,recall \
+	font,status \
+	font,store \
+	mapPET \
+	show_icons
+
+lappend vRInfoCompat \
+	283r2
+
+lappend vScoreCompat \
+	283r2
+
+

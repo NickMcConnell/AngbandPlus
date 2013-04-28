@@ -1,0 +1,63 @@
+Q:125:N:Elven Embasey
+
+Q:125:Q:6:0:0:0:15:0:0:6
+
+?:[LEQ $QUEST125 2]
+Q:125:T:Good work! You serve me well. While my men take care of sealing
+Q:125:T:the underground city, you might be interested in exploring the
+Q:125:T:the old Elven Embassy amoung the ruins. The Elves are known to
+Q:125:T:have stored many excellent items within those walls, perchance
+Q:125:T:there are still some left hidden among the embassy ruins.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST125 3]
+Q:125:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST125 5]
+Q:125:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Cave spider
+F:a:1:8:50
+
+# open floor (room), Hard Leather Cap of Might
+F:k:1:8:0:94:28
+
+# open floor (room), Set of Leather Gloves of Power
+F:l:1:8:0:125:51
+
+# open floor (room), Ring of Speed
+F:m:1:8:0:136
+
+# open floor (room), Potion of Wisdom
+F:n:1:8:0:231
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X*..............X....aa....kX....<..Xn...aa.....X..................*X
+D:X...............D....aa....lX.......Xm...aa.....D...................X
+D:X......&........XXXXXXXXXXXXX.......XXXXXXXXXXXXX.........&.........X
+D:X......9........X...............................X.........@.........X
+D:X......&........X...............................X.........&.........X
+D:X...............D.............XXXXX.............X...................X
+D:X*..............X.............X.@.X.............X..................*X
+D:XXXXXXXXXXXXXXXXX...............................XXXXXXXXXXDXXXXXXXXXX
+D:X*..............X............-------............X...................X
+D:X...............X..........----XXX----..........X...................X
+D:X...............X..........-%-XWWWX-%-..........X...................X
+D:X...............X..........-%-XWWWX-%-..........D..........@........X
+D:X.....@.........X..........----XXX----..........X...................X
+D:X...............X............-------............X...................X
+D:X..............*X...............................X...................X
+D:X..........XXXXXXXXXXXXXXXXX.........XXXXXXXXXXXXXXXXX..............X
+D:X..........X..............*X.........X*..............X..............X
+D:X..........X...............X.........X...............X..............X
+D:X..........X...............XXXXXDXXXXX...............X..............X
+D:X.....&....D.........9........................9......X.....&........X
+D:X..........X.........................................X..............X
+D:X..........X.........................................X.............*X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:1:31

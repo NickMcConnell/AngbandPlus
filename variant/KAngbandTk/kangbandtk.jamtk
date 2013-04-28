@@ -1,0 +1,65 @@
+include $(JAM_RULES_DIR)/Jambase ;
+IncludeRules Tcl Tk Dbwin ;
+
+LOCATE_TARGET = [ FDirName $(BUILD_NAME) ] ;
+
+CCFLAGS += $(TCL_DEFS) $(TK_XINCLUDES)
+	-D$(PLATFORM) -DKANGBANDTK -DTNB_BACKUP -DTNB_SQUELCH ;
+
+# CCFLAGS += -DSOUND3D ;
+
+if $(TOOLSET) = LCC { CCFLAGS += -DHAS_STRICMP ; }
+
+COMMONTK = [ FDirName $(ROOT) OmnibandTk ] ;
+
+HDRS += $(MISC_LIB_HDRS) $(COMMON_LIB_HDRS) $(TCL_HDRS) $(TK_HDRS) ;
+
+HDRS += [ FDirName $(ROOT) tktreectrl generic ] ;
+
+SEARCH_SOURCE = src [ FDirName $(COMMONTK) src common ] ;
+
+if $(PLATFORM) = PLATFORM_WIN
+{
+	ANGBAND = [ FAppendSuffix angband : $(SHLIB_SUF) ] ;
+
+	ShLib $(ANGBAND) : main-tnb.c libangband$(SUFLIB) libangtk$(SUFLIB)
+		$(COMMON_LIB_NAME) $(MISC_LIB_SH_NAME) $(TCL_LIB_NAME) $(TK_LIB_NAME)
+		$(DBWIN_LIB_SH) ;
+
+	FLAGS = ;
+	LIBS = ;
+}
+else
+{
+	ANGBAND = [ FAppendSuffix angband : $(SHLIB_SUF) ] ;
+
+	ShLib $(ANGBAND) : main-tnb.c libangband$(SUFLIB) libangtk$(SUFLIB)
+		libangband$(SUFLIB) $(MISC_LIB_SH_NAME) $(DBWIN_LIB_SH) ;
+
+	FLAGS = $(TCL_LD_FLAGS) ;
+	LIBS = -L$(COMMON_LIB_DIR) -lcommon $(TCL_LIB_SPEC)
+		$(TK_LIB_SPEC) $(TK_XLIBSW) $(SHLIB_LINKLIBS) -lm ;
+}
+
+SetSubsystem $(ANGBAND) : windows ;
+
+LinkSearchPath $(ANGBAND) : $(COMMONTK)/lib:$(TCL_PREFIX)/lib ;
+
+LINKFLAGS on $(ANGBAND) += $(FLAGS) ;
+
+LINKLIBS on $(ANGBAND) += $(LIBS) ;
+
+Library libangtk : bind.c birth-tnb.c canv-widget.c const.c debug.c 
+	describe.c file_character.c icon1.c icon2.c interp1.c 
+	interp2.c map.c mon_memory.c plat.c r_info.c savefile.c setting.c sound.c struct.c
+	town.c util-tnb.c widget.c widget-iso.c wor.c treectrl.c ;
+
+Library libangband : birth.c bldg.c cave.c cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c 
+	cmd6.c dungeon.c files.c generate.c init1.c init2.c init3.c load2.c
+	melee1.c melee2.c melee3.c monster1.c monster2.c object1.c object2.c
+	randart.c save.c spells1.c spells2.c spells3.c store.c tables.c util.c
+	variable.c wizard1.c wizard2.c xtra1.c xtra2.c z-form.c z-rand.c z-term.c
+	z-util.c z-virt.c ;
+
+InstallBin $(DOT) : $(ANGBAND) ;
+

@@ -1,0 +1,34 @@
+# data222r1 --
+#	Contains version-specific variables and commands
+
+source data221r1
+
+rename ModifyValue ModifyValue221r1
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		sound,directory {
+			set value [UpdatePath [eval file join $value]]
+			set value [file split $value]
+		}
+		default {
+			return [ModifyValue221r1 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+
+lappend vSetting \
+	allow_animation \
+	easy_sense
+
+lappend vValue \
+	allow_animation
+
+lappend vRInfoCompat \
+	221r1
+
+lappend vScoreCompat \
+	221r1

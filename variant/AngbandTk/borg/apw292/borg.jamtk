@@ -1,0 +1,34 @@
+include $(JAM_RULES_DIR)/Jambase ;
+IncludeRules Tcl Tk Dbwin ;
+
+LOCATE_TARGET = [ FDirName $(BUILD_NAME) ] ;
+
+CCFLAGS += $(TCL_CFLAGS_DEBUG) $(TK_XINCLUDES)
+	-D$(PLATFORM) -DANGBANDTK -DBORG_BUILD -DBORG_TK -DALLOW_BORG ;
+
+if $(TOOLSET) = LCC { CCFLAGS += -DHAS_STRICMP ; }
+
+COMMONTK = [ FDirName $(ROOT) OmnibandTk ] ;
+ANGBANDTK = [ FDirName $(COMMONTK) variant AngbandTk ] ;
+
+HDRS += [ FDirName $(ANGBANDTK) src ] [ FDirName $(COMMONTK) src common ]
+	$(COMMON_LIB_HDRS) $(TCL_HDRS) $(TK_HDRS) ;
+
+SEARCH_SOURCE += src ;
+
+makeSuffixed SHLIB $(SHLIB_SUF) : borg ;
+
+if $(OS) = CYGWIN || $(TOOLSET) = MINGW {
+	ANGBAND_LIB_SH_NAME = angband.dll ;
+}
+else if $(OS) = NT {
+	ANGBAND_LIB_SH_NAME = angband.dll$(SUFLIB) ;
+}
+LOCATE on $(ANGBAND_LIB_SH_NAME) = [ FDirName $(ANGBANDTK) $(BUILD_NAME) ] ;
+
+ShLib $(SHLIB) : borg1.c borg2.c borg3.c borg4.c borg5.c borg6.c borg7.c 
+	borg8.c borg9.c $(ANGBAND_LIB_SH_NAME) ;
+
+SetSubsystem $(SHLIB) : windows ;
+
+InstallBin $(DOT) : $(SHLIB) ;

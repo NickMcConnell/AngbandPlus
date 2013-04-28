@@ -1,0 +1,47 @@
+# q0000061.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:61:N:Roving Thieves
+
+# Definition
+Q:61:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST61 2]
+Q:61:T:For many years, the armies of my town have waged war against
+Q:61:T:the town of Dulnshead, to the northwest. However, as the battles 
+Q:61:T:have become more numerous, I find that I am having trouble 
+Q:61:T:controlling the thieves who are beginning to move into my city.
+Q:61:T:If you wish to show your allegience to the crown, you must search 
+Q:61:T:the country around the city and destroy the lair that these thieves
+Q:61:T:call home. My troops report finding evidence of the thieves in the
+Q:61:T:forest to the west.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST61 3]
+Q:61:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST61 5]
+Q:61:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Novice Rogue
+F:a:1:8:36
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXX
+D:XXXXX..*X..*X..*X..*X
+D:XXXXX.a.X.a.X.a.X.a.X
+D:XXXXX...X...X...X...X
+D:X<..XXDXXXDXXXDXXXDXX
+D:X...X..............*X
+D:X...D...a......a...*X
+D:XXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:4:1
+

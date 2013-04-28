@@ -1,0 +1,50 @@
+Quest 18
+status 1: taken
+status 2: complete
+status 3: reward
+status 4: finished
+status 5: failed
+status 6: failed, done
+
+q0000018.txt
+N: name
+Q: type:num_mon:cur_num:max_num:level:r_idx:k_idx:flags
+T: text
+D: dungeon
+
+
+
+list of plots (pl_info.txt):
+	1, 2, 3, 4
+list of quests:
+	plot 1 (t0000001.txt): quests 1-18 (q0000001.txt)
+	plot 2 (t0000002.txt): quests 21-38 (q0000021.txt)
+	plot 3 (t0000003.txt): quests 41-58 (q0000041.txt)
+	plot 4 (t0000004.txt): quests 61-78 (q0000061.txt)
+building definitions
+town layout
+	F: feature assignments
+starting positions
+
+
+status 1: F:b F:z
+status 2: F:b
+
+
+=====================
+
+for each town:
+layout
+first quest
+quest list
+	next quest
+	starting position when leaving quest
+	entrance char -> feat
+	reward
+start position when leaving dungeon
+building list
+	name
+	owner
+	actions
+	class restrictions
+

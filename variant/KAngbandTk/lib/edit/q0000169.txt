@@ -1,0 +1,56 @@
+Q:169:N:Desert Caravan
+
+Q:169:Q:6:0:0:0:20:0:0:6
+
+?:[LEQ $QUEST169 2]
+Q:169:T:We are expecting some very important supplies from a caravan in the
+Q:169:T:eastern desert. I need you to go and make sure that the caravan does
+Q:169:T:not encounter any problems. Be careful, you never know what dangers
+Q:169:T:might be lurking near the desert.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST169 3]
+Q:169:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST169 5]
+Q:169:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Canine Skeleton
+F:k:1:8:0:393
+
+# open floor (room), Rodent Skeleton
+F:l:1:8:0:394
+
+# open floor (room), Human Skeleton
+F:m:1:8:0:395
+
+# open floor (room), Dwarf Skeleton
+F:n:1:8:0:396
+
+# open floor (room), Elf Skeleton
+F:o:1:8:0:397
+
+# open floor (room), Gnome Skeleton
+F:p:1:8:0:398
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXn,,XXXXXXXXXXXXXXXXXXXo,,,,,,,,,,,,,,,.,,,,,,,,,,,,X
+D:XXXXXXXXXXXXXXXk,,,,m,,,,,,,XXXXXXX,,,,,,,,,,,,;,,,,,,,,,,,,,,,,o,,,,X
+D:XXXXXXXXXXXXXXXXXXXXXXX,,,,,.,;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;;,,,,,,X
+D:XXXXXXXXXXXXXXXXX,,,,;;,,,,,,,,,,,,,,l,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,X
+D:XXXXXXX,,,,,,,,,,;,,,,,,,,,,,,,,,;,,,,,;,,,,,,,,,.,,,,,,,,,,o,,,,,,,,X
+D:XXX,,l,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;,,,;,X
+D:X,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:X,,,,,,,,m,,,,,,k,,,,,,,,,,,,.,,,,,,,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,n,,X
+D:X,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,n,,,,,,,,,,,,,9X
+D:X,;,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,;,,,,,8,,,,9,X
+D:X,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,;,,,,,,l,,,,,,,,,,,,,,,,,,,,,9,9X
+D:X,<.,,,;,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,;,,9,,,9,9,X
+D:X,,,,,,,,,m,,;,,,,,,;,,,,,,,,,,k,,,,,,,,;,,,,,,,,m,,,,,,,,,,,,,,9,9,9X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:12:3

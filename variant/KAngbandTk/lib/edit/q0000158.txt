@@ -1,0 +1,14 @@
+Q:158:N:Morgoth Attacks!
+
+Q:158:Q:1:0:0:1:0:343:0:0
+
+?:[LEQ $QUEST158 2]
+Q:158:T:King: Morgoth has sent more creatures to attack us.  But, we
+Q:158:T:will never surrender!  Defeat the invaders!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST158 3]
+Q:158:T:A reward for your good work awaits you outside.
+?:1
+

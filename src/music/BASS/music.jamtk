@@ -1,0 +1,24 @@
+include $(JAM_RULES_DIR)/Jambase ;
+IncludeRules Tcl ;
+
+LOCATE_TARGET = [ FDirName $(BUILD_NAME) ] ;
+
+CCFLAGS += -DUSE_TCL_STUBS ;
+
+HDRS += $(TCL_HDRS) [ FDirName $(ROOT) bass24 C ] ;
+
+BASS_LIB_NAME = bass24$(SUFLIB) ;
+LOCATE on $(BASS_LIB_NAME) = $(EXTRA_DIR) ;
+
+NAME = music-bass ;
+
+makeSuffixed SHLIB $(SHLIB_SUF) : $(NAME) ;
+
+ShLib $(SHLIB) : music.c $(TCL_STUB_LIB_NAME) $(BASS_LIB_NAME) ;
+
+SetSubsystem $(SHLIB) : windows ;
+
+if $(OS) = CYGWIN || $(TOOLSET) = MINGW { LINKLIBS on $(SHLIB) += -lwinmm  ; }
+
+InstallLib [ FDirName $(ROOT) OmnibandTk lib ] : $(SHLIB) ;
+

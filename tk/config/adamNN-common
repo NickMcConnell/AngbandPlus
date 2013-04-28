@@ -1,0 +1,189 @@
+# File: adamNN-common
+
+# Purpose: common icon configuration settings
+
+#
+# Copyright (c) 1997-2009 Tim Baker
+#
+# This software may be copied and distributed for educational, research, and
+# not for profit purposes provided that this copyright and statement are
+# included in all such copies.
+#
+
+proc IconCfg::LoadCommon {} {
+
+	# Set up the special town layout.
+	if {[variant ANGBANDTK OANGBANDTK ZANGBANDTK]} {
+
+		# The "town" icon type
+		NSConfig::CreateIconType town -file town[icon width].gif -imagesize [icon width]
+
+		# Create darkened copies of town icons
+		for {set i 0} {$i < [icon count town]} {incr i} {
+			icon dark town $i 0.86 0.59
+		}
+
+		# The "town" layout file
+		NSConfig::ShareConfigFile town town
+	}
+
+	# Assign ascii-type icons to everything because not everything has an icon.
+	if {[variant OANGBANDTK ZANGBANDTK]} {
+
+		NSConfig::SourceOne ascii-common 1
+		LoadCommon
+
+	# OANGBANDTK, ZANGBANDTK
+	}
+
+	# Hack
+	NSConfig::NoMoreIcons
+
+	# Apply gamma correction to "adam" icon type
+	if {[Platform windows]} {
+		icon gamma adam 1.2
+	}
+
+	# Assign an icon to each flavored object
+	NSConfig::SourceOne config-flavor 1
+
+	# Hack -- Some monsters are never seen
+	# These "none 0" assignments are never overridden
+	foreach r_idx [angband r_info find -flag CHAR_CLEAR -flag ATTR_CLEAR] {
+		assign set monster $r_idx "icon none 0"
+	}
+
+	# Assign pile icon to "object 0". ZAngbandTk has a unique adam16.gif file.
+	# HARDCODED
+	if {[variant ZANGBANDTK]} {
+		assign set object 0 "icon adam 112"
+	} else {
+		assign set object 0 "icon adam 48"
+	}
+
+	# Assign an icon to the character
+	AutoAssignCharacterIcon
+
+	return
+}
+
+proc IconCfg::AutoAssignCharacterIcon {} {
+
+	# List of character classes in order of graphics
+	set classList [list Warrior Mage Priest Rogue Ranger Paladin]
+	if {[variant ZANGBANDTK]} {
+		lappend classList Warrior-Mage Chaos-Warrior Monk Mindcrafter High-Mage
+	}
+
+	foreach class [angband info class_name] {
+		set mapClass($class) $class
+	}
+
+	# Map KAngband classes which don't have graphics
+	if {[variant KANGBANDTK]} {
+		set mapClass(Illusionist) Mage
+		set mapClass(Druid) Priest
+	}
+
+	# Map OAngband classes which don't have graphics
+	if {[variant OANGBANDTK]} {
+		set mapClass(Assassin) Rogue
+		set mapClass(Necromancer) Mage
+		set mapClass(Druid) Priest
+	}
+
+	if {$::DEBUG} {
+		foreach class [angband info class_name] {
+			if {![lsearch -exact $classList $mapClass($class)] == -1} {
+				error "can't find class \"$class\""
+			}
+		}
+	}
+
+	set playerClass $mapClass([angband player class])
+
+	set head [lsearch -exact $classList $playerClass]
+	if {$head == -1} {error "can't find player class"}
+	if {[variant ANGBANDTK KANGBANDTK OANGBANDTK]} {
+		set head [expr {14 * 32 + $head * 10}]
+	}
+	if {[variant ZANGBANDTK]} {
+		set head [expr ($head + 18) * 32]
+	}
+
+	# List of character races in order of graphics 
+	set raceList [list Human Half-Elf Elf Hobbit Gnome Dwarf Half-Orc \
+		Half-Troll Dunadan High-Elf]
+
+	# Add KAngband-specific races
+	if {[variant KANGBANDTK]} {
+		lappend raceList Kobold Maia Wraith Ent
+	}
+
+	# Add OAngband-specific races
+	if {[variant OANGBANDTK]} {
+		lappend raceList Maia Shadow_Fairy Ent
+	}
+
+	# Add ZAngband-specific races
+	if {[variant ZANGBANDTK]} {
+		lappend raceList Amberite Barbarian Half-Ogre Half-Giant Half-Titan \
+			Cyclops Yeek Klackon Kobold Nibelung Dark-Elf Draconian Mindflayer \
+			Imp Golem Skeleton Zombie Vampire Spectre Sprite Beastman
+	}
+
+	foreach race [angband info race_name] {
+		set mapRace($race) $race
+	}
+
+	# Map KAngband races which don't have graphics
+	if {[variant KANGBANDTK]} {
+		set mapRace(Maia) High-Elf
+		set mapRace(Wraith) Elf
+		set mapRace(Ent) Half-Troll
+	}
+
+	# Map OAngband races which don't have graphics
+	if {[variant OANGBANDTK]} {
+		set mapRace(Maia) High-Elf
+		set mapRace(Shadow_Fairy) Elf
+		set mapRace(Ent) Half-Troll
+	}
+	
+	if {$::DEBUG} {
+		foreach race [angband info race_name] {
+			regsub -all " " $race _ race
+			if {[lsearch -exact $raceList $race] == -1} {
+				error "can't find race \"$race\""
+			}
+		}
+	}
+
+	regsub -all " " [angband player race] _ playerRace
+	set playerRace $mapRace($playerRace)
+	
+	set tail [lsearch -exact $raceList $playerRace]
+	if {$tail == -1} {
+		error "can't find player race"
+	}
+	set index [expr {$head + $tail}]
+	assign set character 0 "icon adam $index"
+
+if {[variant OANGBANDTK]} {
+
+	# OAngbandTk allows an icon for each shape. I assign the "normal"
+	# icon to every shape here. This assignment may be overridden.
+	set assign [assign set character 0]
+	for {set i 1} {$i < [assign count character]} {incr i} {
+		assign set character $i $assign
+	}
+
+# OANGBANDTK
+}
+
+	# Set the flag to indicate the icon was auto-assigned
+	Global autoAssign 1
+
+	return
+}
+

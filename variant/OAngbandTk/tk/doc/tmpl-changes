@@ -1,0 +1,24 @@
+<HTML>
+<HEAD>
+<TITLE>List of Changes</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Change Log for OAngbandTk</H1>
+
+<P>
+It is intended that this file document all the changes from one version
+of OAngbandTk to the next, in reverse-chronological order (most recent
+versions first).
+<P>
+
+$(oangtk,changes)
+
+<H1>
+<a name="032r1"></a>
+OAngbandTk 0.3.2r1 (March 7, 1999)
+</H1>
+<UL>
+<LI>The first version!</LI>
+</UL>
+

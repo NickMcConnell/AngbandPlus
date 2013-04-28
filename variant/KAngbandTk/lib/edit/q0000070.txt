@@ -1,0 +1,77 @@
+# q0000070.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:70:N:Advance Patrol
+
+# Definition
+Q:70:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST70 2]
+Q:70:T:Your actions have served me well. Thanks to your investigations, I
+Q:70:T:now know that Morgoth was the one who started this pointless war.
+Q:70:T:The secret exit you found out of the outpost would leave a person
+Q:70:T:in the middle of the Castle Courtyard in Dulnshead. Seeing as this
+Q:70:T:war started because Dulnshead believed we assinated several of their
+Q:70:T:nobles in the courtyard, I see little reason to doubt Morgoth's hand
+Q:70:T:in this. I need to send a message to Morgoth, so I'm sending a garrison
+Q:70:T:to the entrance of his dungeon. I want you to go there now and make
+Q:70:T:sure the way is clear for them. No surprises this time!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST70 3]
+Q:70:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST70 5]
+Q:70:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Hill Orc
+F:a:1:8:120
+
+# Floor with Forrest Troll
+F:b:1:8:214
+
+# Floor with Half-Troll
+F:c:1:8:335
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.........................................X.........................X........9.X
+D:X.........................................X.........................X.........9X
+D:X........................................XX.........................X..........X
+D:X.........................@.......@......X...............9.....................X
+D:X........................................X..............................X......X
+D:X.......................................X........................bb.....X......X
+D:X.................X.....................X........................bb............X
+D:X.................X...........@..........X..................................X..X
+D:X.................X......................X..................................X..X
+D:X.................XXX....................X...............X.....................X
+D:X...................X....................................X.....................X
+D:X...................XXX..................................XX....................X
+D:X.....................X...................................X....................X
+D:X.....................X.....................aaa..........X.....................X
+D:X.....................X.....................aaa..........X.....................X
+D:X...................XXX..................................X.....................X
+D:X...................X......................................X...................X
+D:X...................X......................................X...................X
+D:X..................XX......................................X..........9........X
+D:X......9...........X..................@........................................X
+D:X..................X...........@...............................................X
+D:XX...............XXX...............................................X...........X
+D:XX...............X.................................................X......aaa..X
+D:XXX.........9...XX.................@......................bb.......X.....a..b..X
+D:XXXX............X.........................................bb.......X.....a.b...X
+D:XXXXX...........X........................................................ab..ccX
+D:XXXXXXX<........X............................................................c.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:27:7
+

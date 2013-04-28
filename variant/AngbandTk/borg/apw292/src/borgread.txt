@@ -1,0 +1,44 @@
+
+Greetings my friends and welcome to the world of mindless dribble.
+This source code will enable you to spend countless hours staring
+at your computer when you should be doing something more productive,
+anything more productive.
+
+To install this borg, you will need to do the following:
+1.  Modify the config.h to uncomment:
+        a. the allow_borg line
+        b. the score_borg line
+        c. the allow_borg_graphics line
+2.  Modify the makefile to include the borg1.o (or borg1.obj if windows)
+    though borg9.o
+3.  Make sure the file borg.txt is located in the \lib\user\ directory.
+4.  Modify your borg.txt file if you want to run the borg in a particular
+    fashion, including continuous play borgs.
+5.  Compile
+6.  Start the game, load up a character or make new one.
+7.  Hit control z, read and ignore the messages, hit z again.
+8.  Grab some popcorn and a soda, and watch your mind go numb.
+
+The borg may get stuck in certain situations.  He may have a Clock Overflow.
+He may loop buying and selling the same stuff over and over.  Believe me
+when I say that these have been addressed.  His loops are greatly reduced.
+
+
+Continuous Play Mode: (option)
+Upon the death of a borg, he will automatically reroll a random character,
+with a random name and start fresh from clevel 1.  To enable the Continuous
+Play Mode, turn the game option cheat_live on.  To do that enter the
+options by pressing the equal sign (=) then Cheat Options (6).
+
+If you want, you can tell the borg to select a certain race and or class for
+the next one rolled up.  You can make these selections from the borg.txt file.
+
+The Continual Play Mode is NOT turned on by default, you will need to
+select it.
+
+This borg is updated just about everyday.  You can get the lastest source
+as well as executables at http://itctel.com/~apwhite/andrew.html
+
+Have Fun,
+Dr. Andrew White
+

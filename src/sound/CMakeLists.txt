@@ -1,0 +1,3 @@
+ADD_SUBDIRECTORY (BASS-stream)
+ADD_SUBDIRECTORY (NoSoundCard)
+

@@ -1,0 +1,39 @@
+Determining if the function dlopen exists in the c failed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec3188200081/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec3188200081.dir/build.make CMakeFiles/cmTryCompileExec3188200081.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3188200081.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=dlopen   -o CMakeFiles/cmTryCompileExec3188200081.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec3188200081
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3188200081.dir/link.txt --verbose=1
+/usr/bin/gcc     -DCHECK_FUNCTION_EXISTS=dlopen    CMakeFiles/cmTryCompileExec3188200081.dir/CheckFunctionExists.c.o  -o cmTryCompileExec3188200081 -rdynamic -lc 
+CMakeFiles/cmTryCompileExec3188200081.dir/CheckFunctionExists.c.o: In function `main':
+CheckFunctionExists.c:(.text+0x15): undefined reference to `dlopen'
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [cmTryCompileExec3188200081] Error 1
+gmake: *** [cmTryCompileExec3188200081/fast] Error 2
+
+
+Determining if the function dlopen exists in the c_r failed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec4138233496/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec4138233496.dir/build.make CMakeFiles/cmTryCompileExec4138233496.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec4138233496.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=dlopen   -o CMakeFiles/cmTryCompileExec4138233496.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec4138233496
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec4138233496.dir/link.txt --verbose=1
+/usr/bin/gcc     -DCHECK_FUNCTION_EXISTS=dlopen    CMakeFiles/cmTryCompileExec4138233496.dir/CheckFunctionExists.c.o  -o cmTryCompileExec4138233496 -rdynamic -lc_r 
+/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/bin/ld: cannot find -lc_r
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [cmTryCompileExec4138233496] Error 1
+gmake: *** [cmTryCompileExec4138233496/fast] Error 2
+
+

@@ -1,0 +1,24 @@
+include $(JAM_RULES_DIR)/Jambase ;
+IncludeRules Tcl Dbwin ;
+
+makeDirName LOCATE_TARGET : $(BUILD_NAME) ;
+
+CCFLAGS += -DUSE_TCL_STUBS -D$(PLATFORM) -DSHLIB_SUF=\\\"$(SHLIB_SUF)\\\" ;
+
+COMMONTK = [ FDirName $(ROOT) OmnibandTk ] ;
+
+# LOCATE on angband.rc = .. ;
+
+# The icon is elsewhere so it can be used by the "wm iconbitmap" command
+RCDIRS on angband.rc$(SUFRES) = [ FDirName $(COMMONTK) tk image ] ;
+
+HDRS += $(TCL_HDRS) $(MISC_LIB_HDRS) ;
+
+makeSuffixed APP $(SUFEXE) : angband ;
+Main $(APP) : main-boot.c angband.rc $(MISC_LIB_NAME) $(TCL_STUB_LIB_NAME) $(DBWIN_LIB) ;
+SetSubsystem $(APP) : windows ;
+
+LINKLIBS on $(APP) += $(TCL_STUB_LIB_SPEC) $(SHLIB_LINKLIBS) $(TCL_DL_LIBS) ;
+
+InstallBin $(COMMONTK) : $(APP) ;
+

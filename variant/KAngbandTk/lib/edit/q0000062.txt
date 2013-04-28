@@ -1,0 +1,57 @@
+# q0000062.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:62:N:Attacking Kobolds
+
+# Definition
+Q:62:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST62 2]
+Q:62:T:It would seem that the thieves aren't the only ones to take
+Q:62:T:advantage of the war. In the absence of regular army patrols,
+Q:62:T:a large group of kobolds has moved into the forest to the
+Q:62:T:southwest, near the place where the thieves had made their
+Q:62:T:lair. My armies don't have time to take care of this threat,
+Q:62:T:so it falls to you to complete the task. Kill all the kobolds.
+Q:62:T:Scouts report that the band is led by a large kobold.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST62 3]
+Q:62:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST62 5]
+Q:62:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Small Kobold
+F:a:1:8:24
+
+# Floor with Kobold
+F:b:1:8:25
+
+# Floor with Large Kobold
+F:c:1:8:82
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXX
+D:X......a........%..<X
+D:X..........a....%...X
+D:X...............%...X
+D:X......b........D%%%X
+D:X...................X
+D:X........b...a......X
+D:X....c..............X
+D:X...........b....a..X
+D:X...................X
+D:X..................aX
+D:XXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:19
+

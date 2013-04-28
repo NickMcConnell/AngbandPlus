@@ -1,0 +1,195 @@
+# Automatically generated. Do not edit.
+
+Manage TERM_BLUE #0033FF
+Manage TERM_DARK #000000
+Manage TERM_GREEN #00BB00
+Manage TERM_L_BLUE #00FFFF
+Manage TERM_L_DARK #666666
+Manage TERM_L_GREEN #00FF00
+Manage TERM_L_RED #FF0000
+Manage TERM_L_UMBER #CC9933
+Manage TERM_L_WHITE #BBBBBB
+Manage TERM_ORANGE #FF9900
+Manage TERM_RED #BB0000
+Manage TERM_SLATE #777777
+Manage TERM_UMBER #993300
+Manage TERM_VIOLET #FF00FF
+Manage TERM_WHITE #FFFFFF
+Manage TERM_YELLOW #FFFF00
+Manage TV_AMULET #FF9900
+Manage TV_ARCANE_BOOK #BBBBBB
+Manage TV_ARROW #CC9933
+Manage TV_BOLT #CC9933
+Manage TV_BOOTS #CC9933
+Manage TV_BOTTLE #FFFFFF
+Manage TV_BOW #993300
+Manage TV_CHAOS_BOOK #FF0000
+Manage TV_CHEST #777777
+Manage TV_CLOAK #CC9933
+Manage TV_CORPSE #BBBBBB
+Manage TV_CROWN #CC9933
+Manage TV_DEATH_BOOK #666666
+Manage TV_DIGGING #777777
+Manage TV_DRAG_ARMOR #777777
+Manage TV_FIGURINE #BBBBBB
+Manage TV_FLASK #FFFF00
+Manage TV_FOOD #CC9933
+Manage TV_GLOVES #CC9933
+Manage TV_GOLD #FF9900
+Manage TV_HAFTED #FFFFFF
+Manage TV_HARD_ARMOR #777777
+Manage TV_HELM #CC9933
+Manage TV_JUNK #FFFFFF
+Manage TV_LIFE_BOOK #FFFFFF
+Manage TV_LITE #FFFF00
+Manage TV_NATURE_BOOK #00FF00
+Manage TV_NONE #FFFFFF
+Manage TV_POLEARM #FFFFFF
+Manage TV_POTION #00FFFF
+Manage TV_RING #BB0000
+Manage TV_ROD #FF00FF
+Manage TV_SCROLL #FFFFFF
+Manage TV_SHIELD #CC9933
+Manage TV_SHOT #CC9933
+Manage TV_SKELETON #FFFFFF
+Manage TV_SOFT_ARMOR #777777
+Manage TV_SORCERY_BOOK #00FFFF
+Manage TV_SPIKE #777777
+Manage TV_STAFF #CC9933
+Manage TV_STATUE #BBBBBB
+Manage TV_SWORD #FFFFFF
+Manage TV_TRUMP_BOOK #FF9900
+Manage TV_WAND #00BB00
+Manage allow_animation 1
+Manage ambient_delay 120
+Manage bigmap,scale 4
+Manage choicewindow,autoexpand 1
+Manage choicewindow,show 1
+Manage choicewindow,showicon 0
+Manage config,prefix classic24
+Manage font,autobar {{MS Sans Serif} 8}
+Manage font,choice {{MS Sans Serif} 8}
+Manage font,inventory {{MS Sans Serif} 8}
+Manage font,knowledge {{MS Sans Serif} 8}
+Manage font,macros {Courier 10}
+Manage font,magic {{MS Sans Serif} 8}
+Manage font,message {{MS Sans Serif} 8}
+Manage font,messages {{MS Sans Serif} 8}
+Manage font,misc {{MS Sans Serif} 8}
+Manage font,miscPopup {{MS Sans Serif} 8}
+Manage font,monster {{MS Sans Serif} 8}
+Manage font,options {{MS Sans Serif} 8}
+Manage font,recall {{MS Sans Serif} 10}
+Manage font,status {{MS Sans Serif} 8}
+Manage font,statusBar {{MS Sans Serif} 8}
+Manage font,store {{MS Sans Serif} 8}
+Manage friendBarBD #000099
+Manage friendBarBD2 145
+Manage friendBarBL #0099FF
+Manage friendBarBL2 145
+Manage friendBarDone #0066FF
+Manage friendBarDone2 160
+Manage friendBarToDo #666666
+Manage friendBarToDo2 145
+Manage healthBarBD #770000
+Manage healthBarBD2 145
+Manage healthBarBL #FF0000
+Manage healthBarBL2 170
+Manage healthBarDone #CC0000
+Manage healthBarDone2 145
+Manage healthBarToDo #666666
+Manage healthBarToDo2 145
+Manage healthNameBD #444444
+Manage healthNameBD2 145
+Manage healthNameBG #444444
+Manage healthNameBG2 145
+Manage healthNameBL #444444
+Manage healthNameBL2 145
+Manage healthNameText #FFFFFF
+Manage healthNameText2 180
+Manage inventory,alwaysOnTop 1
+Manage inventory,style new
+Manage know_unseen_artifacts 0
+Manage listBG #222222
+Manage listHilite #339999
+Manage listInactive #888888
+Manage main,statusbar,color White
+Manage map,detail high
+Manage message,float 0
+Manage message2window,show 1
+Manage messages,max 256
+Manage micromap,float 1
+Manage micromap,scale 4
+Manage misc,float 0
+Manage misc,layout tall
+Manage misc,mode,armor_class 0
+Manage misc,mode,exp 0
+Manage misc,textLabels 1
+Manage monster_delay 100
+Manage music,directory {{{C:/ {Documents and Settings} Tim {My Documents} {My Music}}}}
+Manage music,dll bass
+Manage music,play 0
+Manage music,position 0
+Manage music,random 1
+Manage music,song {}
+Manage music,wants 1
+Manage progress,showBars 1
+Manage progress,showNumbers 1
+Manage recall,show 1
+Manage recall,showicon 1
+Manage record,dump 1
+Manage record,message 0
+Manage record,photo 1
+Manage savefile {Path lib save Creep}
+Manage scroll_follow 1
+Manage settings,showUnused 0
+Manage show_icons 1
+Manage sound,dll bass
+Manage sound,wants 1
+Manage statusBadBD #770000
+Manage statusBadBD2 145
+Manage statusBadBG #990000
+Manage statusBadBG2 145
+Manage statusBadBL #CC0000
+Manage statusBadBL2 170
+Manage statusBadText #FFFFFF
+Manage statusBadText2 180
+Manage statusGoodBD #007700
+Manage statusGoodBD2 145
+Manage statusGoodBG #009900
+Manage statusGoodBG2 145
+Manage statusGoodBL #00CC00
+Manage statusGoodBL2 145
+Manage statusGoodText #FFFFFF
+Manage statusGoodText2 180
+Manage statusInfoBD #000077
+Manage statusInfoBD2 145
+Manage statusInfoBG #000099
+Manage statusInfoBG2 145
+Manage statusInfoBL #0000FF
+Manage statusInfoBL2 170
+Manage statusInfoText #FFFFFF
+Manage statusInfoText2 180
+Manage store,style new
+Manage target2BD #222222
+Manage target2BD2 145
+Manage target2BG #666666
+Manage target2BG2 145
+Manage target2BL #FFFFFF
+Manage target2BL2 145
+Manage target2Text #FFFFFF
+Manage target2Text2 180
+Manage targetBD #770000
+Manage targetBD2 145
+Manage targetBG #CC0000
+Manage targetBG2 145
+Manage targetBL #FF0000
+Manage targetBL2 170
+Manage targetText #FFFFFF
+Manage targetText2 180
+Manage tip,current 20
+Manage tip,show 0
+Manage use_sound 1
+Manage warning,music 0
+Manage warning,setup 1
+Manage window,autosave 1

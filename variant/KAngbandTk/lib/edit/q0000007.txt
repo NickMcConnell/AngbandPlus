@@ -1,0 +1,18 @@
+# q0000007.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:7:N:Random Monster
+
+# Definition
+Q:7:Q:7:0:0:*:13:*:0:0
+
+# Description for quest
+?:[LEQ $QUEST7 2]
+Q:7:T:Kill <num> <mnosters>
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST7 3]
+Q:7:T:A reward for your good work awaits you outside.
+?:1

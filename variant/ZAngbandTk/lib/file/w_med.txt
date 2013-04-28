@@ -1,0 +1,108 @@
+N:*:Default
+106
+'Skull Smasher'
+'Mauler'
+of Gideon
+of Joshua
+'Fang's Avenger'
+'Inquisitor'
+'Hacker'
+of Bathory
+'Executioner'
+'Undertaker'
+of the Beast
+'Monster Masher'
+'Beheader'
+'Blood'
+'Kraken'
+'Impaler'
+'Peacemaker'
+'Liberator'
+'Snickersnee'
+'Werebane'
+'Magicbane'
+'Dragon Claw'
+'Blue Steele'
+'Tempest'
+'Fury'
+'Disruptor'
+'Grimtooth'
+'Serpent's Tongue'
+'Cleaver'
+'Bonebreaker'
+'Skullbuster'
+'Lawgiver'
+'Mirrorbright'
+'Hildeleoma'
+'Anvil'
+'Hammer'
+of Battery
+'Howler'
+'Roarer'
+'Thunderer'
+'Marauder'
+'Possessor'
+'Insta-Death'
+'Harvester'
+'Harvester of Sorrow'
+'Breaker'
+'Gravedigger'
+'Justice-for-All'
+'Fade-to-Black'
+'Flamebain'
+of Lyf
+'Side Splitter'
+of Ra
+'Trooper'
+'Killer'
+'Chaser'
+'Predator'
+'Rampage'
+'Photon Storm'
+of Damocles
+'Vendetta'
+'Retaliator'
+'Deathtrack'
+of the Shogun
+of Peenemuende
+'Red October'
+of Lebensraum
+'Seek-and-Destroy'
+of the Purgatory
+'Witchfire'
+'Super Patriot'
+'Pestilence'
+of Midnight
+'Lord of Midnight'
+'Lord of Flies'
+'Assassin'
+'Duellist'
+'Pandemonium'
+'Damage, Inc.'
+'Bloodrain'
+'Satan's Fist'
+'Weapon-X'
+'Weapon Alpha'
+of the Borg
+of Hatred
+of Pak
+of Sinanju
+of Megalomania
+'Slammer'
+of Brute Force
+of Brutality
+of Fatality
+'Delta'
+of Diamond
+of Osric
+of Dara
+of Finndo
+of the Valkyrie
+'Aglarang'
+'Arunruth'
+'Haradekket'
+'Mundwine'
+'Cubragol'
+'Punisher'
+'Wolverine'
+'Hunter-killer'

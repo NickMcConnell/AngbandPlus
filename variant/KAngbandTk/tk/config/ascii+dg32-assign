@@ -1,0 +1,376 @@
+# Automatically generated. Do not edit.
+
+Assign alternate
+Assign flavor
+Assign icon
+Assign sprite
+
+Type none
+Type blank
+Type default
+Type armor
+Type effects
+Type food
+Type classm
+Type humans
+Type jewls
+Type magic
+Type misc
+Type potions
+Type wands
+Type weapons
+Type people
+Type dragon
+Type monster1
+Type monster2
+Type monster3
+Type monster4
+Type monster5
+Type monster6
+Type monster7
+Type undead
+Type uniques
+Type edging3
+Type dungeon
+Type grounds
+Type extra1
+Type town0
+Type town1
+Type town2
+Type town3
+Type town4
+Type town5
+Type town6
+Type town7
+Type town8
+Type town9
+Type edging1
+Type edging2
+Type ascii
+
+Group feature
+One 1 2 27 0
+Feat icon 1
+One 2 2 27 0
+Feat icon 2
+One 3 2 10 41
+Feat none 1
+One 4 2 37 32
+Feat tint 4
+One 5 2 37 33
+Feat tint 5
+One 6 2 37 28
+Feat tint 6
+One 7 2 37 29
+Feat tint 7
+One 8 2 37 3
+Feat none 8
+One 9 2 37 4
+Feat none 9
+One 10 2 37 5
+Feat none 10
+One 11 2 37 6
+Feat none 11
+One 12 2 37 7
+Feat none 12
+One 13 2 37 8
+Feat none 13
+One 14 2 37 27
+Feat none 14
+One 15 2 37 23
+Feat none 15
+One 16 2 37 9
+Feat none 16
+One 17 2 10 38
+Feat none 1
+One 18 2 10 36
+Feat none 1
+One 19 2 10 37
+Feat none 1
+One 20 2 10 67
+Feat none 1
+One 21 2 10 39
+Feat none 1
+One 22 2 10 40
+Feat none 1
+One 23 2 10 35
+Feat none 1
+One 24 2 10 35
+Feat none 1
+One 25 2 10 33
+Feat none 1
+One 26 2 10 57
+Feat none 1
+One 27 2 10 58
+Feat none 1
+One 28 2 10 60
+Feat none 1
+One 29 2 10 61
+Feat none 1
+One 30 2 10 59
+Feat none 1
+One 31 2 10 56
+Feat none 1
+One 32 2 10 61
+Feat none 1
+One 33 2 37 31
+Feat tint 33
+One 34 2 26 12
+Feat tint 34
+One 35 2 26 12
+Feat tint 35
+One 36 2 26 12
+Feat tint 36
+One 37 2 26 12
+Feat tint 37
+One 38 2 26 12
+Feat tint 38
+One 39 2 26 12
+Feat tint 39
+One 40 2 26 12
+Feat tint 40
+One 41 2 26 12
+Feat tint 41
+One 42 2 26 12
+Feat tint 42
+One 43 2 26 12
+Feat tint 43
+One 44 2 26 12
+Feat tint 44
+One 45 2 26 12
+Feat tint 45
+One 46 2 26 12
+Feat tint 46
+One 47 2 26 12
+Feat tint 47
+One 48 2 26 66
+Feat icon 48
+One 49 2 10 55
+Feat tint 1
+One 50 2 26 51
+Feat icon 50
+One 51 2 26 57
+Feat icon 51
+One 52 2 26 51
+Feat icon 52
+One 53 2 26 57
+Feat icon 53
+One 54 2 26 54
+Feat icon 54
+One 55 2 26 60
+Feat icon 55
+One 56 0 0
+Feat icon 56
+One 57 0 0
+Feat icon 57
+One 58 2 26 66
+Feat icon 58
+One 59 2 26 66
+Feat icon 59
+One 60 2 37 0
+Feat icon 60
+One 61 2 26 66
+Feat icon 61
+One 62 2 26 66
+Feat icon 62
+One 63 2 26 66
+Feat icon 63
+One 64 2 30 24
+Feat none 64
+One 65 2 30 26
+Feat none 65
+One 66 2 30 15
+Feat none 66
+One 67 2 30 21
+Feat none 67
+One 68 2 30 12
+Feat none 68
+One 69 2 30 11
+Feat none 69
+One 70 2 30 10
+Feat none 70
+One 71 2 30 0
+Feat none 71
+One 72 2 30 0
+Feat none 72
+One 73 2 30 0
+Feat none 73
+One 74 2 30 14
+Feat none 74
+One 75 2 30 17
+Feat none 75
+One 76 2 30 18
+Feat none 76
+One 77 2 30 16
+Feat none 77
+One 78 2 30 13
+Feat none 78
+One 79 2 30 20
+Feat none 79
+One 80 2 30 19
+Feat none 80
+One 81 2 30 22
+Feat none 81
+One 82 2 2 0
+Feat none 82
+One 83 2 2 0
+Feat none 83
+One 84 2 2 0
+Feat none 84
+One 85 2 2 0
+Feat none 85
+One 86 2 2 0
+Feat none 86
+One 87 2 2 0
+Feat none 87
+One 88 2 2 0
+Feat none 88
+One 89 2 2 0
+Feat none 89
+One 90 2 2 0
+Feat none 90
+One 91 2 2 0
+Feat none 91
+One 92 2 2 0
+Feat none 92
+One 93 2 2 0
+Feat none 93
+One 94 2 2 0
+Feat none 94
+One 95 2 2 0
+Feat none 95
+One 96 2 27 54
+Feat icon 103
+One 97 2 27 48
+Feat icon 97
+One 98 2 2 0
+Feat none 98
+One 99 2 2 0
+Feat none 99
+One 100 2 27 81
+Feat icon 100
+One 101 2 2 0
+Feat none 101
+One 102 2 2 0
+Feat none 102
+One 103 2 27 9
+Feat icon 103
+One 104 3 1
+Feat none 104
+One 105 3 0
+Feat none 105
+One 106 2 27 36
+Feat icon 106
+One 107 2 27 33
+Feat icon 107
+One 108 2 27 52
+Feat none 108
+One 109 2 27 27
+Feat icon 109
+One 110 2 2 0
+Feat none 110
+One 111 2 2 0
+Feat none 111
+One 112 2 37 29
+Feat tint 112
+One 113 2 37 28
+Feat tint 113
+One 114 2 37 29
+Feat tint 114
+One 115 2 37 28
+Feat tint 115
+One 116 2 26 21
+Feat tint 116
+One 117 2 2 0
+Feat none 117
+One 118 2 2 0
+Feat none 118
+One 119 2 2 0
+Feat none 119
+One 120 2 2 0
+Feat none 120
+One 121 2 2 0
+Feat none 121
+One 122 2 2 0
+Feat none 122
+One 123 2 2 0
+Feat none 123
+One 124 2 2 0
+Feat none 124
+One 125 2 2 0
+Feat none 125
+One 126 2 2 0
+Feat none 126
+One 127 2 2 0
+Feat none 127
+
+Group monster
+One 188 2 0 0
+One 388 2 0 0
+
+Group object
+
+Group ball
+Effect arrow 4 70
+Effect missile 4 70
+Effect mana 4 67
+Effect holy_orb 4 70
+Effect light_weak 4 66
+Effect dark_weak 4 71
+Effect water 4 62
+Effect plasma 4 68
+Effect meteor 4 70
+Effect ice 4 69
+Effect gravity 4 86
+Effect inertia 4 86
+Effect force 4 86
+Effect time 4 86
+Effect acid 4 61
+Effect electricity 4 66
+Effect fire 4 60
+Effect cold 4 63
+Effect poison 4 61
+Effect light 4 66
+Effect dark 4 71
+Effect confusion 4 86
+Effect sound 4 70
+Effect shard 4 64
+Effect nexus 4 86
+Effect nether 4 71
+Effect chaos 4 67
+Effect disenchant 4 86
+
+Group bolt
+Effect arrow 4 0
+Effect missile 4 0
+Effect mana 4 32
+Effect holy_orb 4 0
+Effect light_weak 4 28
+Effect dark_weak 4 8
+Effect water 4 20
+Effect plasma 4 40
+Effect meteor 4 4
+Effect ice 4 24
+Effect gravity 4 44
+Effect inertia 4 44
+Effect force 4 44
+Effect time 4 44
+Effect acid 4 16
+Effect electricity 4 36
+Effect fire 4 12
+Effect cold 4 24
+Effect poison 4 16
+Effect light 4 28
+Effect dark 4 8
+Effect confusion 4 44
+Effect sound 4 4
+Effect shard 4 40
+Effect nexus 4 44
+Effect nether 4 8
+Effect chaos 4 32
+Effect disenchant 4 44
+
+Group ammo
+Effect arrow 2 0
+Effect bolt 2 0
+

@@ -1,0 +1,78 @@
+# q0000044.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:44:N:The Armoury
+
+# Definition
+Q:44:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST44 2]
+Q:44:T:There is a row of buildings on the south side that contained
+Q:44:T:various supplies for the castle. We know that the rightmost one
+Q:44:T:was the Armory. According to our records, there should be some
+Q:44:T:magical items left behind but then again, these are old records.
+Q:44:T:Clear the building of any inhabitants, living or nonliving.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST44 3]
+Q:44:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST44 5]
+Q:44:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Phantom Warrior
+F:a:1:8:561
+
+# Floor with Skeleton Human
+F:b:1:8:164
+
+# Floor with Hard Leather Boots
+F:k:1:8:0:92
+
+# Floor with Iron Helm
+F:l:1:8:0:96
+
+# Floor with Metal Scale Mail
+F:m:1:8:0:108
+
+# Floor with Chain Mail
+F:n:1:8:0:109
+
+# Floor with Small Metal Shield
+F:o:1:8:0:130
+
+# Floor with Small Metal Shield of Resist Acid
+F:p:1:8:0:130:16
+
+# Floor with Bar Chain Mail of Elvenkind
+F:q:1:8:0:112:9
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X....................<..............:X
+D:X....................................X
+D:X....................................X
+D:X....................................X
+D:X;..........;...............X........X
+D:X..........XXX.............;X;....b..X
+D:X....b......X...............;.....b..X
+D:X...bb............................b..X
+D:X....................................X
+D:X;...................................X
+D:X..........a.........................X
+D:X.........................a..........X
+D:X.....oo...mnm.........lll...k.k..;;;X
+D:XXXXXXXXXXXXXXXXXX+XXXXXXXXXXXXXXXXXXX
+D:X.......p........^^^......q..........X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:21
+

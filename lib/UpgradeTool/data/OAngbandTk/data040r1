@@ -1,0 +1,20 @@
+# data040r1 --
+#	Contains version-specific variables and commands
+
+source data032r1
+
+ldelete vSetting \
+	testing_stack \
+	testing_carry
+
+lappend vSetting \
+	auto_destroy \
+	use_metric
+
+lappend vRInfoCompat \
+	032r1
+
+lappend vScoreCompat \
+	032r1
+
+

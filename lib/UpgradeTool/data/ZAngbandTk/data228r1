@@ -1,0 +1,219 @@
+# data228r1 --
+#	Contains version-specific variables and commands
+
+source data227r1
+
+set vConfigVersion 1.1
+set vSettingVersion 2
+set vSettingUpdate 1
+set vSoundVersion 2
+
+lappend vDirName \
+	{tk msgs} \
+	{tk msgs assign} \
+	{tk msgs birth} \
+	{tk msgs book} \
+	{tk msgs charflags} \
+	{tk msgs color} \
+	{tk msgs font} \
+	{tk msgs inven} \
+	{tk msgs keymap} \
+	{tk msgs know} \
+	{tk msgs macro} \
+	{tk msgs main} \
+	{tk msgs misc-win} \
+	{tk msgs music} \
+	{tk msgs option} \
+	{tk msgs player} \
+	{tk msgs record} \
+	{tk msgs score} \
+	{tk msgs sound} \
+	{tk msgs store} \
+	{tk msgs tomb} \
+	{tk image dg misc-win}
+
+lappend vConfig \
+	adam24 \
+	classic24
+
+ldelete vSetting \
+	easy_disarm
+
+lappend vSetting \
+	easy_alter
+
+ldelete vValue \
+	mapBRIGHT_FLOOR \
+	mapBRIGHT_WALL \
+	mapCHARACTER \
+	mapDOOR \
+	mapDOWNSTAIR \
+	mapFLOOR \
+	mapMIDDLE \
+	mapMONSTER \
+	mapOBJECT \
+	mapUNKNOWN \
+	mapUPSTAIR \
+	mapWALL \
+	mapYELLOW_FLOOR \
+	mapYELLOW_WALL \
+	mapPET
+
+lappend vValue \
+	TV_CORPSE \
+	TV_FIGURINE \
+	TV_STATUE \
+	config,prefix \
+	inventory,style \
+	know_unseen_artifacts \
+	misc,textLabels \
+	music,position \
+	music,random \
+	music,song \
+	music,wants \
+	savefile \
+	sound,dll \
+	sound,wants \
+	store,style \
+	target2BD \
+	target2BD2 \
+	target2BG \
+	target2BG2 \
+	target2BL \
+	target2BL2 \
+	target2Text \
+	target2Text2 \
+	targetBD \
+	targetBD2 \
+	targetBG \
+	targetBG2 \
+	targetBL \
+	targetBL2 \
+	targetText \
+	targetText2 \
+	warning,artifacts \
+	warning,inventory,window \
+	warning,music \
+	warning,setup \
+	warning,store,window
+
+lappend vRInfoCompat \
+	227r1
+
+lappend vScoreCompat \
+	227r1
+
+proc ParseSetting {string} {
+	if {[regexp "One (.*) \"(.*)\"" $string ignore name value]} {
+		return [list name $name value $value]
+	}
+	return ""
+}
+
+rename ModifySetting ModifySetting227r1
+proc ModifySetting {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		easy_disarm {
+			set name easy_alter
+		}
+		default {
+			return [ModifySetting227r1 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+
+proc StringifySetting {info} {
+	array set data $info
+	return "One $data(name) \"$data(value)\""
+}
+
+proc ParseSound {string} {
+	if {[regexp "One (.*) \"(.*)\"" $string ignore keyword sound]} {
+		return [list action one keyword $keyword sound $sound]
+	}
+	if {[regexp "Group (.*)" $string ignore group]} {
+		return [list action grp group $group]
+	}
+	return ""
+}
+
+proc StringifySound {info} {
+	array set data $info
+	if {[string equal $data(action) grp]} {
+		return "Group $data(group)"
+	}
+	if {[string equal $data(action) one]} {
+		return "One $data(keyword) \"$data(sound)\""
+	}
+	return "can't StringifySound(\"$info\")"
+}
+
+if {[CmpVer Src 228r1] < 0} {
+
+# Handle old format, where groups appeared in a list at the
+# top of the file.
+proc StringifySound {info} {
+	array set data $info
+	if {[string equal $data(action) grp]} {
+		return ""
+	}
+	if {[string equal $data(action) one]} {
+		variable SoundHack
+		if {![info exists SoundHack($data(group))]} {
+			set SoundHack($data(group)) 1
+			append result "Group $data(group)\n"
+			append result "One $data(keyword) \"$data(sound)\""
+			return $result
+		}
+		return "One $data(keyword) \"$data(sound)\""
+	}
+	return "can't StringifySound(\"$info\")"
+}
+
+# older than 228r1
+}
+
+proc ParseCharIcon {string} {
+	if {[regexp {Add "(.*)" (.*) ([0-9]+) "(.*)"} $string ignore name prefix index assign]} {
+		return [list name $name prefix $prefix index $index assign $assign]
+	}
+	return ""
+}
+
+proc StringifyCharIcon {info} {
+	array set data $info
+	return "Add \"$data(name)\" $data(prefix) $data(index) \"$data(assign)\""
+}
+
+rename Synch Synch227r1
+proc Synch {name} {
+
+	variable vConfig
+
+	set result [Synch227r1 $name]
+	switch -- $name {
+		value {
+			# See if an old tk\config\config was read in. If so, move
+			# the config,prefix into the tk\config\value file.
+			set prefix [UpgradeObj Info global,config,prefix]
+			if {[string length $prefix]} {
+				if {[lsearch -exact $vConfig $prefix] != -1} {
+					append result "Manage config,prefix \"$prefix\"\n"
+				}
+			}
+
+			# See if an old tk\config\recent was read in. If so, move
+			# the MRU into the tk\config\value file.
+			set MRU [UpgradeObj Info global,recent,MRU]
+			if {[string length $MRU] && ($::DRY_RUN || [file exists $MRU])} {
+				set value [file split $MRU]
+				append result "Manage savefile \"$value\"\n"
+			}
+		}
+	}
+	return $result
+}

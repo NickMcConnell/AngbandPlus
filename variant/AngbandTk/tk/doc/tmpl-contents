@@ -1,0 +1,55 @@
+.book "ReadMe Files"
+.glob ANGBAND_DIR ReadMe,COMMON_DIR ReadMe
+.stop
+
+.book "AngbandTk Documentation"
+.book "About AngbandTk" about.html
+.page "Why AngbandTk?" about.html#why-angbandtk?
+.page "Why Tcl/Tk?" about.html#why-tcl/tk?
+.page "Contact" about.html#contact
+.stop
+.book "The Interface" interface.html
+.page "Using The Interface" interface.html#using-the-interface
+.page "Game Windows" interface.html#game-windows
+.page "The Mouse" interface.html#the-mouse
+.stop
+.book "File Descriptions" files.html
+.page "The tk\config Directory" files.html#tk_config
+.stop
+.book "List of Changes" changes.html
+$(angtk,contents)
+.page "AngbandTk 2.8.3r14" changes.html#283r14
+.page "AngbandTk 2.8.3r13" changes.html#283r13
+.page "AngbandTk 2.8.3r12" changes.html#283r12
+.page "AngbandTk 2.8.3r11" changes.html#283r11
+.page "AngbandTk 2.8.3r10" changes.html#283r10
+.page "AngbandTk 2.8.3r9" changes.html#283r9
+.page "AngbandTk 2.8.3r8" changes.html#283r8
+.page "AngbandTk 2.8.3r7" changes.html#283r7
+.page "AngbandTk 2.8.3r6" changes.html#283r6
+.page "AngbandTk 2.8.3r5" changes.html#283r5
+.page "AngbandTk 2.8.3r4" changes.html#283r4
+.page "AngbandTk 2.8.3r3" changes.html#283r3
+.page "AngbandTk 2.8.3r2" changes.html#283r2
+.page "AngbandTk 2.8.3r1" changes.html#283r1
+.page "AngbandTk 2.8.2a4" changes.html#282a4
+.page "AngbandTk 2.8.2a3" changes.html#282a3
+.page "AngbandTk 2.8.2a2" changes.html#282a2
+.page "AngbandTk 2.8.2a1" changes.html#282a1
+.stop
+.page "Known Bugs and Limitations" bugs.html
+.page "Performance Issues" performance.html
+.stop
+
+.book "Angband Documentation"
+.page "News" news.txt
+.page "General Information" general.txt
+.page "Creating a Character" birth.txt
+.page "Exploring the Dungeon" dungeon.txt
+.page "Attacking Monsters" attack.txt
+.page "Playing the Game" playing.txt
+.page "Commands" command.txt
+.page "Options" option.txt
+.page "Version Information" version.txt
+.stop
+

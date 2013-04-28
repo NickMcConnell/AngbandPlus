@@ -1,0 +1,14 @@
+Q:178:N:City Siege II
+
+Q:178:Q:1:0:0:1:0:343:0:0
+
+?:[LEQ $QUEST178 2]
+Q:178:T:King: Morgoth has sent more creatures to attack us.  But, we
+Q:178:T:will never surrender!  Defeat the invaders!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST178 3]
+Q:178:T:A reward for your good work awaits you outside.
+?:1
+

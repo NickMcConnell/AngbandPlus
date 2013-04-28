@@ -1,0 +1,95 @@
+.root "ANGBAND_DIR ZKB"
+.book "ZAngband Knowledge Base" ROOT/contents/sitemap.html
+.book "About ZKB" ROOT/about/toc.html
+.page "Welcome Page" ROOT/about/welcome.html
+.page "Acknowledgements Page" ROOT/about/acknowl.html
+.page "Disclaim" ROOT/about/disclaim.html
+.page "Changes in this Version" ROOT/about/changes.html
+.page "Downloads" ROOT/about/download.html
+.stop
+.book "Introduction" ROOT/intro/toc.html
+.page "An Overview of ZAngband" ROOT/intro/overview.html
+.stop
+.book "Character Generation" ROOT/chargen/toc.html
+.page "Starting a Character" ROOT/chargen/chargen.html
+.page "Primary Statistics" ROOT/chargen/stats.html
+.page "Primary Skills" ROOT/chargen/skills.html
+.page "(Non-) Maximize Mode" ROOT/chargen/maximize.html
+.page "(Non-) Preserve Mode" ROOT/chargen/preserve.html
+.page "The Auto-roller" ROOT/chargen/autoroll.html
+.page "Life Rating" ROOT/chargen/liferate.html
+.stop
+.book "The Races" ROOT/races/toc.html
+.page "The Races" ROOT/races/races.html
+.page "Race Stat/Skill Tables" ROOT/races/racetab.html
+.page "Race/Class Stat Tables" ROOT/races/raceclas.html
+.page "Racial Powers" ROOT/races/racepow.html
+.stop
+.book "The Classes" ROOT/classes/toc.html
+.page "The Classes" ROOT/classes/classes.html
+.page "Class Stat/Skill Tables" ROOT/classes/classtab.html
+.page "Class/Race Stat Tables" ROOT/classes/clasrace.html
+.stop
+.book "ZAngband Magic" ROOT/magic/toc.html
+.page "The Magic Realms" ROOT/magic/magicgen.html
+.page "On Casting Spells ..." ROOT/magic/casting.html
+.page "Life Magic" ROOT/magic/life.html
+.page "Arcane Magic" ROOT/magic/arcane.html
+.page "Sorcery" ROOT/magic/sorcery.html
+.page "Nature Magic" ROOT/magic/nature.html
+.page "Trump Magic" ROOT/magic/trump.html
+.page "Chaos Magic" ROOT/magic/chaos.html
+.page "Death Magic" ROOT/magic/death.html
+.page "Mindcrafter Powers" ROOT/magic/mind.html
+.stop
+.book "Town and Dungeon" ROOT/towndun/toc.html
+.page "The Town" ROOT/towndun/town.html
+.page "The Townspeople" ROOT/towndun/tpeople.html
+.page "The Town Buildings" ROOT/towndun/tshops.html
+.page "The Dungeon" ROOT/towndun/dungeon.html
+.page "Random Quests" ROOT/towndun/qrandom.html
+.stop
+.book "ZAngband Commands" ROOT/commands/toc.html
+.page "Some General Concepts" ROOT/commands/general.html
+.page "Detailed Command Descriptions" ROOT/commands/descrip.html
+.page "Standard Keyset" ROOT/commands/okeyset.html
+.page "Roguelike Keyset" ROOT/commands/rkeyset.html
+.stop
+.book "Combat" ROOT/combat/toc.html
+.page "Combat Concepts" ROOT/combat/combagen.html
+.page "Your Weapon" ROOT/combat/weapon.html
+.page "Multiple Attacks" ROOT/combat/multiple.html
+.page "Armor and Armor Class" ROOT/combat/armor.html
+.page "Monster Attacks/Resisances" ROOT/combat/resist.html
+.page "Basic Tactics" ROOT/combat/tactics.html
+.page "Monk Attacks" ROOT/combat/monk.html
+.stop
+.book "ZAngband Objects" ROOT/objects/toc.html
+.page "Artifacts" ROOT/objects/artifact.html
+.page "Ego Weapons" ROOT/objects/egoweap.html
+.page "Ego Armor" ROOT/objects/egoarm.html
+.page "Random Abilities" ROOT/objects/random.html
+.stop
+.book "ZAngband Monsters" ROOT/monsters/toc.html
+.page "The Monster Memory" ROOT/monsters/memory.html
+.page "A Word on Pets" ROOT/monsters/pets.html
+.stop
+.book "Customizing ZAngband" ROOT/custom/toc.html
+.page "ZAngband Options" ROOT/custom/options.html
+.page "ZAngband Preferences" ROOT/custom/pref.html
+.book "The *_info.txt Files" ROOT/custom/infogen.html
+.page "a_info.txt" ROOT/custom/ainfo.html
+.page "e_info.txt" ROOT/custom/einfo.html
+.page "f_info.txt" ROOT/custom/finfo.html
+.page "k_info.txt" ROOT/custom/kinfo.html
+.page "r_info.txt" ROOT/custom/rinfo.html
+.page "v_info.txt" ROOT/custom/vinfo.html
+.stop
+.stop
+.book "Miscellaneous" ROOT/miscell/toc.html
+.page "Chaos Patrons" ROOT/miscell/chaospat.html
+.page "Mutations" ROOT/miscell/mutation.html
+.page "The Curse of Topi Ylinen ..." ROOT/miscell/tycurse.html
+.stop
+.stop
+

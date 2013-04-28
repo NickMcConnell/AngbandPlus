@@ -1,0 +1,74 @@
+#####  Plot 7  #####
+
+# Dwarven Alergies
+?:[EQU $QUEST_NUMBER 141]
+%:q0000141.txt
+
+# The Cave-in
+?:[EQU $QUEST_NUMBER 142]
+%:q0000142.txt
+
+# The Barfly Inn
+?:[EQU $QUEST_NUMBER 143]
+%:q0000143.txt
+
+# Southbank Woods
+?:[EQU $QUEST_NUMBER 144]
+%:q0000144.txt
+
+# The Teaching Academy
+?:[EQU $QUEST_NUMBER 145]
+%:q0000145.txt
+
+# The Dwarven Vaults
+?:[EQU $QUEST_NUMBER 146]
+%:q0000146.txt
+
+# The Dragon's Nest
+?:[EQU $QUEST_NUMBER 147]
+%:q0000147.txt
+
+# The Bounty
+?:[EQU $QUEST_NUMBER 148]
+%:q0000148.txt
+
+# Pinewood Forest
+?:[EQU $QUEST_NUMBER 149]
+%:q0000149.txt
+
+# The Dwarven Pillers
+?:[EQU $QUEST_NUMBER 150]
+%:q0000150.txt
+
+# Whitewall Castle
+?:[EQU $QUEST_NUMBER 151]
+%:q0000151.txt
+
+# Abandoned Mine
+?:[EQU $QUEST_NUMBER 152]
+%:q0000152.txt
+
+# The Elven Way Pass
+?:[EQU $QUEST_NUMBER 153]
+%:q0000153.txt
+
+# To Kill a Dwarf!
+?:[EQU $QUEST_NUMBER 154]
+%:q0000154.txt
+
+# Protect the King!
+?:[EQU $QUEST_NUMBER 155]
+%:q0000155.txt
+
+# Morgoth's Spies
+?:[EQU $QUEST_NUMBER 156]
+%:q0000156.txt
+
+# The Assult
+?:[EQU $QUEST_NUMBER 157]
+%:q0000157.txt
+
+# Morgoth Attacks!
+?:[EQU $QUEST_NUMBER 158]
+%:q0000158.txt
+

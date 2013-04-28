@@ -1,0 +1,34 @@
+# File: config
+
+# Purpose: list of icon configurations
+
+#
+# Copyright (c) 1997-2005 Tim Baker
+#
+# This software may be copied and distributed for educational, research, and
+# not for profit purposes provided that this copyright and statement are
+# included in all such copies.
+#
+
+Config adam16 adamNN.cfg -size 16
+Config adam24 adamNN.cfg -size 24
+Config adam32 adamNN.cfg -size 32
+Config adam16-shape adamNN.cfg -size 16 -shape yes
+Config adam24-shape adamNN.cfg -size 24 -shape yes
+Config adam32-shape adamNN.cfg -size 32 -shape yes
+Config adam16+orig adamNN+orig.cfg -size 16
+Config adam32+orig adamNN+orig.cfg -size 32
+Config ascii asciiNN.cfg
+Config ascii16+adam asciiNN+adam.cfg -size 16
+Config ascii24+adam asciiNN+adam.cfg -size 24
+Config ascii32+adam asciiNN+adam.cfg -size 32
+Config ascii16+adam-shape asciiNN+adam.cfg -size 16 -shape yes
+Config ascii24+adam-shape asciiNN+adam.cfg -size 24 -shape yes
+Config ascii32+adam-shape asciiNN+adam.cfg -size 32 -shape yes
+Config ascii+dg32 ascii+dg32.cfg
+# Config ascii+dg32+iso ascii+dg32+iso.cfg
+Config ascii16+orig asciiNN+orig.cfg -size 16
+Config ascii32+orig asciiNN+orig.cfg -size 32
+Config dg32 dg32.cfg
+Config dg32+iso dg32+iso.cfg
+

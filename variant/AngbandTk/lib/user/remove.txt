@@ -1,0 +1,2 @@
+This file is here so the folder containing it is retained when adding
+the folder to an archive. This file can be deleted.

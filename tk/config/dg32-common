@@ -1,0 +1,122 @@
+# File: dg32-common
+
+# Purpose: common icon configuration settings
+
+#
+# Copyright (c) 1997-2009 Tim Baker
+#
+# This software may be copied and distributed for educational, research, and
+# not for profit purposes provided that this copyright and statement are
+# included in all such copies.
+#
+
+# Load Adam Bolt config file but ONLY for AutoAssignCharacterIcon
+NSConfig::SourceOne adamNN-common 1
+rename IconCfg::AutoAssignCharacterIcon IconCfg::AutoAssignCharacterIcon_ab
+
+proc IconCfg::AutoAssignCharacterIcon {} {
+
+	global Angband
+
+	if {[variant ZANGBANDTK]} {
+		# First, assign the character icon using Adam Bolt's complete set
+		# of character icons. Then assign using David E. Gervais' incomplete
+		# set of character icons if an appropriate image exists.
+		AutoAssignCharacterIcon_ab
+	}
+
+	set iconIndex -1
+
+	# The dg-classes.txt file contains a list of icons by race and class
+	set fileId [open [CPathTk image dg dg-classes.txt]]
+
+	set playerRace [angband player race]
+	set playerClass [angband player class]
+
+	# Map KAngband races which don't have graphics
+	if {[variant KANGBANDTK]} {
+		switch -- $playerRace {
+			Maia {set playerRace High-Elf}
+			Ent {set playerRace Half-Troll}
+			Wraith {set playerRace Elf}
+		}
+	}
+
+	# Map OAngband races which don't have graphics
+	if {[variant OANGBANDTK]} {
+		switch -- $playerRace {
+			Maia {set playerRace High-Elf}
+			"Shadow Fairy" {set playerRace Elf}
+			Ent {set playerRace Half-Troll}
+		}
+	}
+
+	# Map OAngband classes which don't have graphics
+	if {[variant OANGBANDTK]} {
+		if {$playerClass eq "Assassin"} {
+			set playerClass Rogue
+		}
+	}
+
+	if {[catch {
+
+		# Check each line of the file
+		foreach lineBuf [split [read $fileId] \n] {
+
+			# Skip empty lines
+			if {![string length $lineBuf]} continue
+
+			# Skip comments
+			if {[string index $lineBuf 0] == "#"} continue
+
+			# Look for "race class"
+			if {[scan $lineBuf "%s %s" race class] != 2} continue
+
+			if {[variant OANGBANDTK]} {
+				if {$class eq "Illusionist"} {
+					set class Necromancer
+				}
+			}
+
+			# Next icon
+			incr iconIndex
+
+			# Match the character's race and class
+			if {$race ne $playerRace} continue
+			if {$class ne $playerClass} continue
+
+			# Assign the character icon
+			assign set character 0 "icon classm $iconIndex"
+
+			# Set the flag to indicate the icon was auto-assigned
+			Global autoAssign 1
+			
+			# Done
+			break
+		}
+
+	# catch
+	} error]} {
+		set message "An error occured during startup:\n    $error\nQuit now?"
+		set answer [tk_messageBox -title "$Angband(name) Error" -message $message \
+			-type yesno -icon question]
+		if {$answer == "yes"} [angband game abort]
+	}
+
+	close $fileId
+
+if {[variant OANGBANDTK]} {
+
+	# OAngbandTk allows an icon for each shape. I assign the "normal"
+	# icon to every shape here. This assignment may be overridden.
+	set assign [assign set character 0]
+	for {set i 1} {$i < [assign count character]} {incr i} {
+		assign set character $i $assign
+	}
+
+# OANGBANDTK
+}
+
+	return
+}
+

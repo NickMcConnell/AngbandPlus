@@ -1,0 +1,56 @@
+<h1>The AngbandTk Vault Editor</h1>
+
+<h3>Two modes of editing</h3>
+You can edit features and icons.
+
+<h3>Four layers of icons</h3>
+Layer 1 is the bottom layer and can contain opaque icons only. Layers 2, 3 and 4
+can contain transparent icons only. If you try to draw a
+transparent icon into layer 1, it is put in layer 2. If you try to draw an
+opaque icon in layer 2, 3 or 4 it is drawn in layer 1.
+The four buttons are used to change the current layer (or you can type 1-4 on
+the keyboard).
+
+<h3>Drawing tools</h3>
+<b>Pencil</b>: Draws an icon into the current layer. Control-click to put a
+transparent icon in the topmost unused layer.
+<p>
+<b>Rectangle</b>:
+<p>
+<b>Rectangle (filled)</b>:
+<p>
+<b>Eyedrop</b>: Sets the tool icon from the icon in the current layer.
+Control-click to pick up the topmost icon.
+<p>
+<b>Selection</b>: Click and drag to move the selected area. Control-click to
+copy and drag the selected area. <b>NOTE</b>: dragging the selection affects
+all four icon layers AND the features.
+<p>
+<b>Flood fill</b>: Replaces every adjacent icon that matches the clicked icon
+with the tool icon. Acts on the current layer.
+<p>
+<b>Erase</b>: Erases the icon on the current layer. Control-click to erase the
+topmost icon.
+
+<h3>Plugins</h3>
+<b>Bridge</b>: Click, then release the mouse at least 1 grid away.
+<p>
+<b>Edge Pencil</b>: Draws the selected edge, handling corners and light changes.
+Control-click to toggle the initial lighting.
+<p>
+<b>Edge Rect</b>: Draws an edged rectangle.
+Control-click to toggle the initial lighting.
+<p>
+<b>Edge Rect Fill</b>: Draws a rectangle filled as appropriate for the type of
+edge being drawn. Control-click to toggle the initial lighting.
+Control-click to toggle the initial lighting.
+<p>
+<b>Path Pencil</b>: Draws a connected trail.
+<p>
+<b>Shadow Add</b>: Adds shadow icons to the topmost unused layer, to the right
+and bottom of the current selection.
+<p>
+<b>Shadow Remove</b>: Removes all shadow icons in all layers, in the
+current selection.
+<p>
+

@@ -1,0 +1,53 @@
+# data240r3 --
+#	Contains version-specific variables and commands
+
+source data240r2
+
+set vCommonVersion 1.2
+
+ldelete vValue \
+	statusBD \
+	statusBD2 \
+	statusBG \
+	statusBG2 \
+	statusBL \
+	statusBL2 \
+	statusText \
+	statusText2
+
+lappend vValue \
+	font,autobar \
+	font,choice \
+	font,miscPopup \
+	map,detail \
+	statusBadBD \
+	statusBadBD2 \
+	statusBadBG \
+	statusBadBG2 \
+	statusBadBL \
+	statusBadBL2 \
+	statusBadText \
+	statusBadText2 \
+	statusGoodBD \
+	statusGoodBD2 \
+	statusGoodBG \
+	statusGoodBG2 \
+	statusGoodBL \
+	statusGoodBL2 \
+	statusGoodText \
+	statusGoodText2 \
+	statusInfoBD \
+	statusInfoBD2 \
+	statusInfoBG \
+	statusInfoBG2 \
+	statusInfoBL \
+	statusInfoBL2 \
+	statusInfoText \
+	statusInfoText2
+
+lappend vRInfoCompat \
+	240r2
+
+lappend vScoreCompat \
+	240r2
+

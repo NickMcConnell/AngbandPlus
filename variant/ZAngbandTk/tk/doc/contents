@@ -1,0 +1,226 @@
+.book "ReadMe Files"
+.glob ANGBAND_DIR ReadMe,COMMON_DIR ReadMe
+.stop
+
+.book "AngbandTk Documentation"
+.book "About AngbandTk" about.html
+.page "Why AngbandTk?" about.html#why-angbandtk?
+.page "Why Tcl/Tk?" about.html#why-tcl/tk?
+.page "Contact" about.html#contact
+.stop
+.book "The Interface" interface.html
+.page "Using The Interface" interface.html#using-the-interface
+.page "Game Windows" interface.html#game-windows
+.page "The Mouse" interface.html#the-mouse
+.stop
+.book "File Descriptions" files.html
+.page "The tk\config Directory" files.html#tk_config
+.stop
+.book "List of Changes" changes.html
+.page "ZAngbandTk 2.4.0r5" changes.html#240r5
+.page "ZAngbandTk 2.4.0r4" changes.html#240r4
+.page "ZAngbandTk 2.4.0r3" changes.html#240r3
+.page "ZAngbandTk 2.4.0r2" changes.html#240r2
+.page "ZAngbandTk 2.4.0r1" changes.html#240r1
+.page "ZAngbandTk 2.2.8r2" changes.html#228r2
+.page "ZAngbandTk 2.2.8r1" changes.html#228r1
+.page "ZAngbandTk 2.2.7r1" changes.html#227r1
+.page "ZAngbandTk 2.2.5r3" changes.html#225r3
+.page "ZAngbandTk 2.2.5r2" changes.html#225r2
+.page "ZAngbandTk 2.2.5r1" changes.html#225r1
+.page "ZAngbandTk 2.2.3r3" changes.html#223r3
+.page "ZAngbandTk 2.2.3r2" changes.html#223r2
+.page "ZAngbandTk 2.2.3r1" changes.html#223r1
+.page "ZAngbandTk 2.2.2r2" changes.html#222r2
+.page "ZAngbandTk 2.2.2r1" changes.html#222r1
+.page "ZAngbandTk 2.2.1r1" changes.html#221r1
+.page "ZAngbandTk 2.1.1r3" changes.html#211r3
+.page "ZAngbandTk 2.1.1r2" changes.html#211r2
+.page "ZAngbandTk 2.1.1r1" changes.html#211r1
+.page "ZAngbandTk 2.1.0r2" changes.html#210r2
+.page "ZAngbandTk 2.1.0r1" changes.html#210r1
+.page "ZAngbandTk BETA" changes.html#beta
+.stop
+.page "Known Bugs and Limitations" bugs.html
+.page "Performance Issues" performance.html
+.stop
+
+.book "ZAngband Documentation" original.html
+.page "News" news.txt
+
+.book "General Information" @z,general.hlp
+.page "General Information" @z,general.txt
+.page "An Overview" @z,general.txt#Overview
+.page "Winning the Game" @z,general.txt#Winning
+.page "Upon Death and Dying" @z,general.txt#UponDeath
+.page "The Zangband DevTeam" @z,general.txt#DevTeam
+.page "Zangband on the Web" @z,general.txt#Web
+.page "Version Numbering" @z,general.txt#VersionNumber
+.page "Version History" @z,version.txt
+.stop
+
+.book "Creating a Character" @z,birth.hlp
+.page "Creating a Character" @z,birth.txt
+.page "Start-Up Options" @z,birth.txt#StartUp
+.page "Character Attributes" @z,birth.txt#CharAttributes
+.page "Race Class Combinations" @z,birth.txt#RaceClassComb
+.page "Choosing Your Magic Realm" @z,birth.txt#ChoosingMagic
+.page "Class/Realm Restrictions" @z,birth.txt#Restrictions
+.page "Random Quests" @z,birth.txt#RandomQuests
+.page "The Auto-Roller" @z,birth.txt#AutoRoller
+.page "Life Ratings" @z,birth.txt#LifeRating
+.page "Naming Your Character" @z,birth.txt#CharName
+.page "Starting Inventory" @z,birth.txt#StartInventory
+.stop
+
+.book "Character Attributes" @z,charattr.hlp
+.page "Creating a Character" @z,charattr.txt
+.page "The Races" @z,charattr.txt#TheRaces
+.page "The Classes" @z,charattr.txt#TheClasses
+.page "Primary Statistics" @z,charattr.txt#PrimaryStats
+.page "Primary Skills" @z,charattr.txt#PrimarySkills
+.page "Stat Bonus Tables" @z,charattr.txt#StatBonusTable
+.page "Ability Tables" @z,charattr.txt#SkillBonusTable
+.stop
+
+.book "The Town and Wilderness" @z,town.hlp
+.page "The Town and Wilderness" @z,town.txt
+.page "Town and Wilderness Symbols" @z,town.txt#MapSymbols
+.page "The Town Level" @z,town.txt#TownLevel
+.page "The Standard Town" @z,town.txt#StandardTown
+.page "The 'Lite' Town" @z,town.txt#LiteTown
+.page "The 'Vanilla' Town" @z,town.txt#VanillaTown
+.page "Townspeople" @z,town.txt#Townspeople
+.page "Shopping in Town" @z,town.txt#Shopping
+.page "Bartering" @z,town.txt#Bartering
+.page "Object Pricing" @z,town.txt#ObjectPricing
+.page "List of Shops" @z,town.txt#TheShops
+.page "Special Buildings" @z,town.txt#Buildings
+.page "Fixed Quests" @z,town.txt#FixedQuests
+.stop
+
+.book "The Dungeon" @z,dungeon.hlp
+.page "Town and Dungeon" @z,dungeon.txt
+.page "Symbols on Your Map" @z,dungeon.txt#MapSymbols
+.page "Within the Dungeon" @z,dungeon.txt#WithinDungeon
+.page "Objects in the Dungeon" @z,dungeon.txt#Objects
+.page "Mining" @z,dungeon.txt#Mining
+.page "Staircases, Doors, Passages & Rooms" @z,dungeon.txt#StairsDoorsEtc
+.page "Random Quests" @z,dungeon.txt#RandomQuests
+.stop
+
+.book "Zangband Objects" @z,objects.hlp
+.page "Zangband Objects" @z,objects.txt
+.page "Object Symbols" @z,objects.txt#ObjectSymbols
+.page "Equipment and Inventory" @z,objects.txt#EquipInvent
+.page "Object Stacking" @z,objects.txt#Stacking
+.page "Objects Generation" @z,objects.txt#Generation
+.page "Object Compaction" @z,objects.txt#Compaction
+.page "Cursed Objects" @z,objects.txt#CursedObjects
+.page "The Ancient and Foul Curse" @z,objects.txt#AncientCurse
+.page "Object Flavors" @z,objects.txt#ObjectFlavors
+.page "Pseudo-ID" @z,objects.txt#PseudoID
+.page "Identifying Objects" @z,objects.txt#Identifying
+.page "Ego Objects" @z,objects.txt#EgoObjects
+.page "Artifacts" @z,objects.txt#Artifacts
+.page "Random Abilities of Objects" @z,objects.txt#RandomAbilities
+.page "Object Inscriptions" @z,objects.txt#Inscriptions
+.page "Object Types" @z,objects.txt#ObjectTypes
+.stop
+
+.book "Attacking Monsters" @z,attack.hlp
+.page "Attacking Monsters" @z,attack.txt
+.page "Attacking from a Distance" @z,attack.txt#DistanceAttack
+.page "Attacking Monsters in Walls" @z,attack.txt#AttackWalls
+.page "Body and Shield Bashes" @z,attack.txt#Bashing
+.page "Melee Weapons" @z,attack.txt#MeleeWeapons
+.page "Missile Launchers" @z,attack.txt#MissileLaunch
+.page "Ego Weapons and Artifacts" @z,attack.txt#EgoArtifact
+.page "Magical Aids to Physical Combat" @z,attack.txt#MagicalAids
+.page "Calculating Damage" @z,attack.txt#DamageCalc
+.page "Monk Attacks" @z,attack.txt#MonkAttacks
+.page "Basic Tactics" @z,attack.txt#MeleeTactics
+.stop
+
+.book "Defending Yourself" @z,defend.hlp
+.page "Defending Yourself" @z,defend.txt
+.page "Armor Class" @z,defend.txt#Armor
+.page "Resisting Magical Attacks" @z,defend.txt#ResistingMagic
+.page "Ego Armor and Artifacts" @z,defend.txt#EgoArtifact
+.page "The Resistances" @z,defend.txt#Resistances
+.page "Unresistable Attacks" @z,defend.txt#Unresistable
+.page "Immunities" @z,defend.txt#Immunities
+.page "Miscellaneous Resists" @z,defend.txt#Miscellaneous
+.page "Recovering from Attacks" @z,defend.txt#Recovering
+.stop
+
+.book "Zangband Magic System" @z,magic.hlp
+.page "Zangband Magic System" @z,magic.txt
+.page "Class Spell Ability" @z,magic.txt#ClassSpellAbil
+.page "The Magic Realms" @z,magic.txt#MagicRealms
+.page "On Casting Spells ..." @z,magic.txt#CastingSpells
+.page "Spell Types" @z,magic.txt#SpellTypes
+.page "Summoned/Charmed Creatures" @z,magic.txt#Pets
+.page "Hints and Tips" @z,magic.txt#Hints
+.page "Spell Lists" @z,magic.txt#SpellLists
+.stop
+
+.book "Zangband Commands" @z,command.hlp
+.page "Zangband Commands" @z,command.txt
+.page "Original Keyset" @z,command.txt#OriginalKeyset
+.page "Roguelike Keyset" @z,command.txt#RogueKeyset
+.page "Special Keys" @z,command.txt#SpecialKeys
+.page "Command Counts" @z,command.txt#CommandCounts
+.page "Selection of Objects" @z,command.txt#ObjectSelection
+
+.book "Command Descriptions" @z,commdesc.hlp
+.page "Command Descriptions" @z,commdesc.txt
+.page "Inventory Commands" @z,commdesc.txt#Inventory
+.page "Movement Commands" @z,commdesc.txt#Movement
+.page "Resting Commands" @z,commdesc.txt#Resting
+.page "Searching Commands" @z,commdesc.txt#Searching
+.page "Alter Commands" @z,commdesc.txt#Alter
+.page "Spell and Prayer Commands" @z,commdesc.txt#SpellPrayer
+.page "Object Manipulation Commands" @z,commdesc.txt#ObjectManip
+.page "Magical Item Commands" @z,commdesc.txt#MagicalObject
+.page "Throwing and Missile Weapons" @z,commdesc.txt#ThrowFire
+.page "Looking Commands" @z,commdesc.txt#Looking
+.page "Message Commands" @z,commdesc.txt#Message
+.page "Game Status Commands" @z,commdesc.txt#GameStatus
+.page "Saving and Exiting Commands" @z,commdesc.txt#SaveExit
+.page "User Preference Commands" @z,commdesc.txt#UserPref
+.page "Help Commands" @z,commdesc.txt#Help
+.page "Extra Commands" @z,commdesc.txt#Extra
+.stop
+.stop
+
+.book "Zangband Options" @z,option.hlp
+.page "Zangband Options" @z,option.txt
+.page "Option Set 1 - User Interface" @z,option.txt#UserInterface
+.page "Option Set 2 - Disturbance" @z,option.txt#Disturbance
+.page "Option Set 3 - Game Play" @z,option.txt#GamePlay
+.page "Option Set 4 - Efficiency" @z,option.txt#Efficiency
+.page "Zangband Options" @z,option.txt#Zangband
+.page "Stacking Options" @z,option.txt#Stacking
+.page "Base Delay Factor" @z,option.txt#BaseDelay
+.page "Hitpoint Warning" @z,option.txt#Hitpoint
+.page "Autosave Options" @z,option.txt#Autosave
+.page "Window Flags" @z,option.txt#Window
+.page "Cheating Options" @z,option.txt#Cheating
+.page "Start-Up Options" @z,option.txt#StartUp
+.stop
+
+.book "User Preference Files" @z,pref.hlp
+.page "User Preferences" @z,pref.txt
+.page "User Preference File Commands" @z,pref.txt#Commands
+.page "Macros" @z,pref.txt#Macros
+.page "Key Maps" @z,pref.txt#Keymaps
+.page "Visuals" @z,pref.txt#Visuals
+.page "Colors" @z,pref.txt#Colors
+.page "Options" @z,pref.txt#Options
+.stop
+.page "The Zangband Newbie Guide" @z,tang.txt
+
+.page "Help System Commands" @z,helpinfo.txt
+
+.stop

@@ -1,0 +1,42 @@
+# data292r1 --
+#	Contains version-specific variables and commands
+
+source data291r2
+
+set vCommonVersion 1.3
+
+lappend vDirName \
+	{lib pref}
+
+ldelete vFile_user \
+	graf.prf \
+	pref.prf \
+	user.prf \
+	message.prf \
+	pref-tk-win.prf
+
+lappend vFile_user \
+	remove.txt
+
+ldelete vSetting \
+	flow_by_sound \
+	flow_by_smell \
+	smart_learn \
+	smart_cheat \
+	smart_monsters \
+	smart_packs
+
+lappend vSetting \
+	fast_flow \
+	verify_mana
+
+lappend vValue \
+	music,dll \
+	window,autosave
+
+lappend vRInfoCompat \
+	291r2
+
+lappend vScoreCompat \
+	291r2
+

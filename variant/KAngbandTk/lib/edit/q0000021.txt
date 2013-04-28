@@ -1,0 +1,46 @@
+# q0000021.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:21:N:Kobold Problems
+
+# Definition
+Q:21:Q:6:0:0:0:2:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST21 2]
+Q:21:T:Kobolds have been appearing outside the city for some reason.
+Q:21:T:Since this particular clan takes delight in attacking villagers,
+Q:21:T:I need someone to eliminate them.  Prove your loyalty to my
+Q:21:T:throne and take care of this annoyance.  Scouts have reported
+Q:21:T:that their lair is north of the city.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST21 3]
+Q:21:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST21 5]
+Q:21:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Small Kobold
+F:a:1:8:24
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXX
+D:X.............X
+D:X........a....X
+D:X....a........X
+D:X.............X
+D:X..........a..X
+D:X.............X
+D:X...........a.X
+D:X<............X
+D:XXXXXXXXXXXXXXX
+
+# Starting position
+P:8:1
+

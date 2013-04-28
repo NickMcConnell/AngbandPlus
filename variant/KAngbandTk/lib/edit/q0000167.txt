@@ -1,0 +1,16 @@
+Q:167:N:Ulfast
+
+Q:167:Q:1:0:0:1:0:211:0:0
+
+?:[LEQ $QUEST167 2]
+Q:167:T:While you were gone, Ulfast has been spotted terrorizing
+Q:167:T:our people. Find him and eliminate him! He could be in
+Q:167:T:the town or camped out in the wastelands. Go quickly and
+Q:167:T:put an end to his vile ways.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST167 3]
+Q:167:T:The house is yours!
+?:1
+

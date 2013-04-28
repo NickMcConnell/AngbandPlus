@@ -1,0 +1,64 @@
+# q0000068.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:68:N:Infiltration
+
+# Definition
+Q:68:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST68 2]
+Q:68:T:I don't believe it! Once again, my forces have been routed by a suprise
+Q:68:T:attack! This time, Trolls caught my forces from behind as they attacked
+Q:68:T:the mercenaries heading towards Dulnshead. I am beginning to believe that
+Q:68:T:Morgoth is attempting to keep me from winning this war! What I need is more
+Q:68:T:information - I want to send my spies unnoticed into the enemy city, so they
+Q:68:T:can attempt to find out if Morgoth is in contact with the people of Dulnshead.
+Q:68:T:My scouts have found a hidden entrance to the city in the south wall. You
+Q:68:T:must slay the guards of this entrance so that my spies may pass into the city
+Q:68:T:unnoticed.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST68 3]
+Q:68:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST68 5]
+Q:68:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Hardened Warrior
+F:a:1:8:261
+
+# Floor with Black Orc
+F:b:1:8:178
+
+# Floor with Uruk
+F:c:1:8:226
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXX
+D:X*.bbbbbbb.*XXX^**X
+D:X....ccc....D.D^**X
+D:X...........XXX^**X
+D:XXXXXXDXXXXXXXXXXXX
+D:XXXXXX.XXXXXXXXXXXX
+D:XXXXXX.XXXXXXXXXXXX
+D:XXXXXX.XXXXXXXXXXXX
+D:XXXXXX.XXXXXXXXXXXX
+D:XXXXXX.XXXXXXXXXXXX
+D:XXXXXX.XXXXXXXXXXXX
+D:XXXXXXDXXXXXXXXXXXX
+D:XXXX.....XXXXX.aa*X
+D:XXXX.ccc.D...D.aa.X
+D:X<.D.....XXXXX.aa*X
+D:XXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:14:1
+

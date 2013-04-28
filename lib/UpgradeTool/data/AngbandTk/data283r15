@@ -1,0 +1,14 @@
+# data283r15 --
+#	Contains version-specific variables and commands
+
+source data283r14
+
+lappend vSetting \
+	auto_destroy
+
+lappend vRInfoCompat \
+	283r14
+
+lappend vScoreCompat \
+	283r14
+

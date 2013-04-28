@@ -1,0 +1,60 @@
+# q0000028.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:28:N:The Sewer
+
+# Definition
+Q:28:Q:4:0:0:0:20:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST28 2]
+Q:28:T:Regent->We have finally discovered how these vile creatures are
+Q:28:T:getting so close to the town before begin spotted!  They are
+Q:28:T:using the sewers underneath our fair city!  I need you to enter
+Q:28:T:the sewers and find the exit, which in turn will seal off all the
+Q:28:T:outside openings.  The water level will simply rise a little.
+Q:28:T:We are still looking for clues on the princess' wherabouts and the
+Q:28:T:King's health is in jeopardy.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST28 3]
+Q:28:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST28 5]
+Q:28:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.................%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
+D:XVVVVVVVVVVVVVVVV.........%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
+D:X...............VVVVVVVVV.....................%%%%%%%%%%%%%%%%%%%%%%X
+D:X%%%%%%%%%%%%%%.........VVVVVVVVVVVVVVVVVVVVV...........WWWWW%%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%..V.%................VVVVVVVV...WWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.V.%%%%%%%%%%%%%%%%........VVVVWWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.V...........%%%%%%%%%%%%%9....WWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVV.%%%%%%%%%%%%%%%%%%WWWWW%%%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.......WWWWV.%%%%%%WWWWW%%%%%%%%%%%%%%%%W%%%X
+D:X%%%%%.V9%%%%%%%%%%%%%.........WWWWV9%%%%%%WWWWW%%%%%%%%%%%%..WWW.%%X
+D:X%%%%%.V.%%%%%%%%%%%%%.VVVVVVVVVVVVV.%%%%%%%WWWW%%%%%%%%%%%%9..WW.%%X
+D:X%%%%%.V.%%%%%%%%%%%%..V.............%%%%%%%.WW9%%%%%%%%%%%.......%%X
+D:X%%%%%%V%%%%%%%%%%%%%.VV.%%%%%%%%%%%%%%%%%%%%...%%%%%%%%%%%%.%%.%%%%X
+D:X%%%%%%V%%%%%%%%%%%...V..%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%%V%%%%%%%%%%%.VVV.%%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%%VVVVVVVVVVVVVV...............%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVVVVV.................9%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%%%%%%%%%..V............VVVVVVVVVVVVVVVVVV.%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%<.%%%%%%%%V%%%%%%%%%%%..................V............%%%%X
+D:X%%%%%%%%%%..%%%%%%%%V%%%%%%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVV.....X
+D:X%%%%%%%%%%VVVVVVVVVVV%%%%%%%%%%%%%%%%%%%%%%%%%%%%............VVVVV.X
+D:X%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:1
+

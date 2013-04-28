@@ -1,0 +1,42 @@
+# Automatically generated. Do not edit.
+
+Type none
+Type blank
+Type default
+Type feature
+Type unmasked
+Type dragon
+Type masked
+Type potion
+Type jelly
+Type vortex
+Type mushroom
+Type town
+Type effect
+Type feature2
+Type ascii
+
+New number
+Ins 6 11
+Ins 6 12
+
+New number
+Ins 6 13
+Ins 6 14
+
+New feature
+Ins 3 20
+Ins 3 28
+
+New feature
+Ins 3 24
+Ins 3 32
+
+New feature
+Ins 3 8
+Ins 3 40
+
+New feature
+Ins 3 4
+Ins 3 36
+

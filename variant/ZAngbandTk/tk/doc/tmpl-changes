@@ -1,0 +1,390 @@
+<HTML>
+<HEAD>
+<TITLE>List of Changes</TITLE>
+</HEAD>
+<BODY>
+
+<h1>Change Log for ZAngbandTk</h1>
+
+It is intended that this file document all the changes from one version
+of ZAngbandTk to the next, in reverse-chronological order (most recent
+versions first).
+
+$(zangtk,changes)
+
+<h1>
+<a name="223r2">
+ZAngbandTk 2.2.3r2 (April 16, 1999)
+</a>
+</h1>
+<ul>
+<li>Clicking the Message Window will toggle the inventory/spell/mindcraft/power
+display. This is in addition to the previous behaviour of displaying the
+previous message or bypassing the -more- prompt.</li>
+<li>Added menu help strings to the most of the windows.</li>
+<li>Fixed a bug where any trailing 'r' was stripped from the trigger of a
+macro when displayed in the "Trigger" label. This was already fixed for
+triggers displayed in the list of macros.</li>
+<li>Fixed the transparency color in "save.gif".</li>
+<li>Fixed problem with get_stats() in tcl-birth.c. It must have been using
+the code from Angband, not ZAngband!</li>
+<li>The auto-roller screen in the Birth Window now displays the total
+roll needed to create a character with the stats entered by the user. This
+figure can be used to decide whether the auto-roller can possibly roll the
+given combination of stats.</li>
+<li>Added the Find command to the Help Window (which was removed when the
+TkHTML widget was added). I had to add "search" and "see" commands to TkHTML
+in order for this to work.</li>
+<li>Made various cosmetic changes to make building under MS VC++ smoother.</li>
+<li>Merged together all the tk, tk/src and tk/library sources for all the
+*AngbandTk games.</li>
+<li>Added a groovy About Window with a scrolling list of credits.</li>
+<li>The icon .icd and .msk files are now compressed using zlib.dll.</li>
+<li>Added "ascii isascii" command to see if an icon type has a font.</li>
+<li>Various other changes I forgot to write down.</li>
+</ul>
+
+<h1>
+<a name="223r1">
+ZAngbandTk 2.2.3r1 (February 5, 1999)
+</a>
+</h1>
+<ul>
+<li>Prevent SND_ACTION_FAILED with always_pickup and a full pack</li>
+<li>Fixed problem with easy_sense and taking off cursed equipment</li>
+<li>Added IDENT_SENSE when trying to drop cursed equipment</li>
+<li>Made sure error is reported when parsing *_info.txt files</li>
+<li>sound_exit() checks if sound_init() was ever called</li>
+<li>Inventory Window "Threshold" is weight limit without speed penalty</li>
+<LI>Improvements and fixes to py_pickup_floor()</LI>
+<LI>Only items which can be carried are listed with get_item() & easy_floor</LI>
+<li>Fixed bug with easy_disarm and harmless traps (couldn't move onto them)</li>
+<li>Fixed "power" displays to allow choice a-z0-9 (was missing 0-9)</li>
+<li>Made "friendly" monster use the "pet" monster health bar colors</li>
+<LI>Changed the Load Window to be more interesting</LI>
+<LI>Added Html-based help system using the TkHtml widget</LI>
+<li>Double-clicking a radiobutton in Birth Window goes to next screen</li>
+<li>Added a message when "fetching" an item and there isn't one</li>
+<li>Added a visual effect when "fetching" an item</li>
+<li>Prevent "fetching" when the character isn't on a floor grid</li>
+<li>The character icon was not updated when the character race changed. I
+had this working before, but somehow removed the lines from the script.</li>
+<li>Added "debug flags" command for getting list of flag names</li>
+<li>Added FLD_INDEX16 field type to debug.c stuff which means a field value
+is actually an index into a table of strings instead of a number.</li>
+<li>Changed quest_type.type and quest_type.status to FLD_INDEX16 so that
+"debug dumptype" returns textual names, not numbers</li>
+<li>The Pets Window allows point-and-click interaction with pets</li>
+<li>NSModule now supports auto-reloading of modules when the file modification
+time changes.</li>
+<li>debug.c stuff now uses hash tables to look up field names and array types.</li>
+<li>Added player_class, monster_race types to debug.c stuff.</li>
+<li>Fixed a bug where pets were able to shoot through the character.</li>
+<li>Added a new map color for friends and pets.</li>
+<li>Changed the default monster health bar colors for pets to blue from green,
+to match the Micro Map color.</li>
+<li>The previous roll in character creation is now available, just like
+the original game.</li>
+<li>The Birth Options Window allows the user to set all the options which
+can only be changed at character creation. The options are saved to the
+tk/config/birth file.</li>
+<li>Fixed problem with Power Window and Book Window not setting the correct
+row height.</li>
+<li>Corrected some graphics glitches, and added Adam Bolt's better feature
+graphics (grass, dirt, water, lava).</li>
+<li>Each character image in an ascii icon type is centered horizontally. This
+allows variable-width fonts to be used.</li>
+</ul>
+
+<h1>
+<a name="222r2">
+ZAngbandTk 2.2.2r2 (January 1, 1999)
+</a>
+</h1>
+<ul>
+<li>Implemented the research_mon() routine</li>
+<li>Added Recall Monster Window for showing monster recall (see above)</li>
+<li>Target/Look now displays Recall Monster Window on 'r'</li>
+<li>"k_info find -known" matches known flavored objects (see below)</li>
+<li>Added Objects page to Knowledge Window for known flavored objects</li>
+<li>Changed search command in Knowledge Window to start from selection</li>
+<li>Changed search command in Assign Window to start from selection</li>
+<li>Changed search command in Choose Monster Window to start from selection</li>
+<li>Fixed bug with "Remove" entry in inventory window popup (it used 'T', not 't')</li>
+<li>Added Tcl_SetServiceMode() calls around MessageBox() when aborting game</li>
+<li>Added Font Window for font management</li>
+<li>Many windows changed to support own font, and variable-width fonts</li>
+<li>Added check to prevent Recall Window being "stuck" in expanded state</li>
+<li>Added "k_info object_desc" option to get object_desc_store() of kind</li>
+<li>Prevent "Monster wakes up." when the monster isn't in LOS and disturb_move=0</li>
+<li>Changed "*Destroy*" entry in inventory window popup to respect number of items</li>
+<li>Changed *Destroy* entry in inventory window popup to respect auto_destroy</li>
+<li>Added -boring and -town options to "feature configure" command</li>
+<li>"Memorize" and "Town Light" entries added to the Feature menu in Assign Window</li>
+<li>Fixed lighting problems in the town/wild</li>
+<li>More efficent handling of status messages when the text is unchanged</li>
+<li>Added "system mouse" command to get mouse button state</li>
+<li>Tried to fix "mouse command overflow" when key and mouse button held down</li>
+<li>Added "Lose mutation" sound</li>
+<li>Massive code cleanup and commenting (still much to do)</li>
+<li>Implemented object/monster hallucination at long last</li>
+<li>Added Find command to Options Window (search by keyword)</li>
+<li>Changed character dump to give name of town instead of "Town n"</li>
+<li>Changed tabs to respect system colors</li>
+<li>Added graphical preview of icon configuration in Choose Config Window</li>
+<li>Fixed problem with Inventory Window popup when INKEY_ITEM was set</li>
+<li>Removed *Destroy* entry from Inventory Window when in equipment</li>
+<li>Prevent Inventory Window popup with empty slots in equipment</li>
+<li>Added keyboard navigation to the Help Window</li>
+<li>Clicking and dragging in a micro-map scrolls it</li>
+<li>Removed "Quest Status", added "Feeling" to Other Menu</li>
+<li>Added "Maximize Windows" entry to Other Menu</li>
+<li>Fixed problem with trailing 'r' being stripped in Macro Window</li>
+<li>Added "-k_idx" switch to "inventory find" command</li>
+<li>Added "new_spells" option to "player" command</li>
+<li>Fixed the context menu & double-click action in the Book Window</li>
+<li>Pointing to a stack displays the contents in the Recall Window when the</li>
+  easy_floor option is on
+<li>Holding down the Shift key prevents describing what the pointer is over</li>
+</ul>
+
+<h1>
+<a name="222r1">
+ZAngbandTk 2.2.2r1 (November 27, 1998)
+</a>
+</h1>
+<ul>
+<li>Fixed bug with Dark-Elf creation; added error checking to catch it later</li>
+<li>Added racial quasi-flags to the Character Flags Window</li>
+<li>Recall character history in Character Flags Window</li>
+<li>Fixed bug with pets in Knowledge Window</li>
+<li>Fixed bug with "debug find" command and m_max/o_max</li>
+<li>Added prompt to Choose Game Window</li>
+<li>Fixed "inventory count" bug being too high by 1</li>
+<li>Fixed easy_floor bug with "nothing" items</li>
+<li>Misc bug fixes from ZAngband bugs page</li>
+<li>Added message when GF_PSI in project_m() puts a monster to sleep</li>
+<li>Added missing SND_QUEST_DONE to carry()</li>
+<li>Rewrote detect_hook_monsters_nonliving() to use detection_aux()</li>
+<li>Prevent big status messages appearing more than once</li>
+<li>Rewrote idle-timer code to use Tcl_CreateTimerHandler() which reduces</li>
+  idle processor usage from 100% to about 10%, and permits animation
+  during inner event loops!
+<li>Added "allow_animation" option to enable/disable animation</li>
+<li>Added missing "Explode" monster attack sound assignment</li>
+<li>Attempt to split long "died from" message in Tomb Window</li>
+<li><Target-visibility> quasi-event changes opacity of target display</li>
+<li>Changed smart-pack-monster behaviour to any open area, not just CAVE_ROOM</li>
+<li>Added "r_info plural" command for pluralizing monster name</li>
+<li>Pluralize monster names in Quest page of Knowledge Window</li>
+<li>Replaced "store inventory" with "store count" and "store info" commands</li>
+<li>Fixed problem with player_can_enter() and lava/water not being allowed</li>
+<li>Fixed infinite loop in alloc_monster() (ex mountain wilderness)</li>
+<li>Added code to prevent Misc Window popup appearing too far to the left</li>
+<li>The "easy_sense" option was added to the Game-Play Page.</li>
+</ul>
+
+<h1>
+<a name="221r1">
+ZAngbandTk 2.2.1r1 (November 9, 1998)
+</a>
+</h1>
+<ul>
+<li>More window manager stuff (Undisplay, "focus -lastfor", etc)</li>
+<li>Added qeconfigure for deactivating bindings</li>
+<li>Fixed bug with store re-display when taking stacked item</li>
+<li>Character Info Window displays "Chaos Rank" and "Amber" ratings</li>
+<li>Stat bonuses greater than 220 are displayed as "18/***"</li>
+<li>Equipment bonus > 99 is displayed as "+++" in Character Info Window</li>
+<li>Bug fix with Mindcrafter spell failure changing "csp"</li>
+<li>Descriptions for "ambient" sounds changed in Sound Window</li>
+<li>New sound "quest_done" when quest is completed (not rewarded)</li>
+<li>Added "Quests" page to Knowledge Window</li>
+<li>Knowledge Window remembers selected group/member</li>
+<li>Added "easy_floor" option for floor stacks to User Interface page</li>
+<li>Added "-font" and "-charset" to the "icon createtype" command</li>
+<li>New "Ascii" icon configuration uses ascii character for icons</li>
+<li>Fixed bug with get_item() and ALLOW_REPEAT floor code</li>
+<li>Moved "feature gamma" to "icon gamma"</li>
+<li>Changed "debug info" command; added "text" to "debug info quest_type"</li>
+<li>Added expression evaluator to "debug find -field OP VALUE" option</li>
+<li>Visual indication of artifacts in the dungeon in Knowledge Window</li>
+<li>Sound directory can be changed in Sound Preferences Window</li>
+<li>Fixed bug with Find command in Message History Window</li>
+<li>Fixed bug with double-click in store (INKEY_ITEM_STORE was INKEY_STORE)</li>
+<li>Added "-flag FLAG" option to "r_info find" command</li>
+<li>Added "mutate" sound event</li>
+<li>Allow digits in character name</li>
+</ul>
+
+<h1>
+<a name="211r3">
+ZAngbandTk 2.1.1r3 (September 23, 1998)
+</a>
+</h1>
+<ul>
+<li>Added Choose Monster window for choosing a race to genocide</li>
+<li>Further changes to the window-management code</li>
+<li>Progress bar in Sound Window</li>
+<li>Fixed bug with "keymap action" command</li>
+<li>Added "Kingly" window to handle winner death/retirement</li>
+<li>Fixed bug with earthquake() (monsters inside walls)</li>
+<li>Added "highscore" command for score-file reading/searching</li>
+<li>Choose Game window bindings for KeyPress-b/o select buttons</li>
+<li>Added message when monster kills other monster, if one is viewable</li>
+<li>Finally hooked in "monster_kill_other" sound</li>
+<li>Added big status message to Main Window; goes away after 1 second</li>
+<li>Added "listInactive" highlight color when focus isn't in lists</li>
+<li>Inventory Window now responds properly to PageUp, PageDown etc</li>
+<li>Main Window menus display keyboard equivalents where appropriate</li>
+<li>Revamped Keymap Window; can edit Control keymaps</li>
+<li>Experience To Advance is displayed as ***** at level 50</li>
+<li>Added "player cheat" command; Prompt before setting Cheat options</li>
+<li>Shake 'n bake during destroy_area()</li>
+<li>Added "Combine Messages" to combine identical messages; ex "You hit it. (x3)"</li>
+<li>Redisplay messages when "Max Messages" or "Combine Messages" changes</li>
+<li>Added <Keymap> quasi-event to notify of changes to the keymap</li>
+<li>Added action_fail sound when attempting to spike without spikes</li>
+<li>The -more- prompt is displayed in turquoise</li>
+<li>New user-friendly interface to probing() spell (ala 'l'ook)</li>
+<li>Birth Window "Back" button disabled when on first screen</li>
+<li>Birth Window bindings for KeyPress-b/n/q/Escape select buttons</li>
+<li>Startup Window bindings for KeyPress-n/o/q/s/Escape select buttons</li>
+<li>Tips Window bindings for KeyPress-b/n select buttons</li>
+<li>Added Ctrl-/Left/Right/Up/Down/ bindings to Big Map for keyboard scrolling</li>
+</ul>
+
+<h1>
+<a name="211r2">
+ZAngbandTk 2.1.1r2 (August 20, 1998)
+</a>
+</h1>
+<ul>
+<li>Fixed bug where prompt not displayed in do_cmd_suicide()</li>
+<li>Added "player is_dead", "player turn", "player max_level" commands</li>
+<li>Predict the score of living character in the High Scores window</li>
+<li>Fixed bug where character name wasn't redisplayed if it changed</li>
+<li>Added high score entry for living character</li>
+<li>Added dumping of high scores to a text file</li>
+<li>Added searching for string in high scores</li>
+<li>Added highlighting of current character's high score (living or dead)</li>
+<li>Fixed "bug" where RNG not randomized when dead-character savefile loaded</li>
+<li>Added progress box when scanning saved games to open</li>
+<li>Double-click in Birth Window listbox moves to the next screen</li>
+<li>Added progress bar to Assign/Sprite Windows when listing icons</li>
+<li>Fixed bug with map(s) not showing correct features (store door, etc)</li>
+<li>New option "scroll_follow" to keep character centered in the display</li>
+<li>Default settings loaded when new character is created</li>
+<li>Added search function and Section Menu to Help Window</li>
+<li>Fixed bug with cursed status being described even if item wasn't identified</li>
+<li>Made all the "misc" windows sound-playing windows</li>
+<li>Fixed bug with throwing potion while standing on targetted location</li>
+<li>Changed Mutations display in Knowledge Window (no icons in the list)</li>
+<li>Visually flicker the character's light source when it is drained by monster</li>
+<li>Fixed nasty bug with g_grid[] becoming out-of-synch with cave_o/m_idx[]</li>
+<li>Attempted to optimize drawing of the micro-map widgets</li>
+<li>Other->Photo menu entry added; "widget photo" command</li>
+<li>FIXED "vertical row of unreal monsters" bug (my build_type5 cave_set_feat bug)</li>
+<li>Major reworking of window-management code.</li>
+<li>Faster startup due to delayed loading of some modules</li>
+<li>Added "maximum number of displayed messages" to Message History</li>
+<li>Added "show unused options" to Options Window</li>
+<li>Fixed bug with ambient_delay and monster_delay values not being saved</li>
+<li>Fixed bug where monster health bar was not updated after detect invisible</li>
+<li>Updated source to 2.1.1c</li>
+<li>Added "recenter" button to Main Window for when "scroll_follow" is off</li>
+</ul>
+
+<h1>
+<a name="211r1">
+ZAngbandTk 2.1.1r1 (August 1, 1998)
+</a>
+</h1>
+<ul>
+<li>The first release based on the updated code!</li>
+<li>Fixed bug where "Type '?' for help" prompt wasn't displayed</li>
+<li>Added current/max tip number to Tips Window</li>
+<li>Command "Quit without saving (Control-E)" added (was KTRL-Q before)</li>
+<li>Generate some quests when reading 2.1.0 savefile.</li>
+<li>Fixed bug with print_quest_message()</li>
+<li>Made sure Bookstore is stocked when reading 2.1.0 savefile.</li>
+<li>Added "Messages" button to Tomb Window for dumping messages</li>
+<li>Added "Quest Status" entry to "Other" Menu in Main Window</li>
+<li>Assigned Roguelike keymap for "Repeat last command (])"</li>
+<li>Gold/Object may be revealed when monster kills wall/rubble</li>
+</ul>
+
+<h1>
+<a name="210r2">
+ZAngbandTk 2.1.0r2 (Not Released)
+</h1>
+<ul>
+<li>Fixed bug with bash/throw sounds reversed</li>
+<li>Fixed bug with earthquake grids not being updated</li>
+<li>Cleaned up code for assigning character icon automatically</li>
+<li>"-setgrid" option added to Widget's to help window resizing</li>
+<li>Main Window, Micro Map Window are dynamically resizeable</li>
+<li>Character icon auto-assigned when character race changes</li>
+<li>Improvements to Read/WriteGeometryFile() to handle window resizes</li>
+<li>Revamped "Other" options page; read & write tk/config/settings file</li>
+<li>Added <Setting> quasi-event for when settings change</li>
+<li>Fixed bug in store choosing wrong items to buy (store_top)</li>
+<li>Scroll bar in Character Flags window only shown when needed</li>
+<li>Fixed bug where inverting a grid didn't work in 16x16 mode</li>
+</ul>
+
+<h1>
+<a name="210r1">
+ZAngbandTk 2.1.0r1 (July 16, 1998)
+</a>
+</h1>
+<ul>
+<li>Sound groups "monster", "monster_spell" and "monster_attack" added</li>
+<li>Assign sounds to monsters in the Assign Window</li>
+<li>Fixed sound bugs (rod/scroll swapped, store/home swapped)</li>
+<li>Added Tips Window, tk/doc/tips.txt file</li>
+<li>Revamped Progress Window to show numbers and/or bars</li>
+<li>Configure appearance of Progress Window through popup</li>
+<li>Change the scale of Micro Map, Big Map through popups, save settings</li>
+<li>Added "Cancel" item to end of inventory popup, plain_descriptions</li>
+<li>Added Control-ButtonPress-3 popup for using items in inventory</li>
+<li>Added status bar to Options Window for displaying option keyword</li>
+<li>Sound system let's user assign multiple sounds per event</li>
+<li>Ambient sounds added; added ambient_delay to options screen</li>
+<li>Message History is displayed faster now - NSTexist::SetList()</li>
+<li>Added Find function, Dump command to Message History</li>
+<li>"Cur AC" changed to "AC" in Misc Window</li>
+<li>Click EXP, AC in Misc Window to toggle what is displayed</li>
+<li>Added "activate", "known" fields "inventory info" command</li>
+<li>Added "-activate" criteria to "equipment find" command</li>
+<li>Changed "map" button to "activate" button in Misc Window</li>
+<li>"equipment flags", "player flags" commands added</li>
+<li>Character Flags Window added (type 'h' to see flags in Character Info)</li>
+<li>Item recall much more strict ; considers "fully known" status</li>
+<li>"a_info" command looks for existing artifact to describe</li>
+<li>Added "a_info location" command to find out where an artifact is</li>
+<li>Knowledge Window displays location of selected artifact.</li>
+<li>Added cursor item to the detail widget when examining dungeon map</li>
+<li>Added "Activate" submenu to <Control-ButtonPress-3> popup</li>
+<li>Fixed bug with magic realms being chosen incorrectly</li>
+<li>Fixed bug where "cursed" property of item wasn't displayed in Flags Window</li>
+<li>Changed Choose Game Window to display filename of selected game</li>
+<li>Added item recall of object pointed to in Flags Window</li>
+<li>Fixed bug with assigning sounds to monsters</li>
+<li>Added "monster_delay" sound setting for monster sound frequency</li>
+<li>Slider in Options Preferences for setting "monster_delay"</li>
+<li>Fixed bug with Choose Game Window when there are no savefiles</li>
+<li>Fixed bug with Choose Game Window when the "recent" savefile is gone</li>
+<li>Control-click icon in Misc Window to see Character Flags Window</li>
+<li>Fixed "permanent paralysis" bug ala Angband 2.8.3</li>
+</ul>
+
+<h1>
+<a name="beta">
+ZAngbandTk BETA (June 18, 1998)
+</a>
+</h1>
+
+The first public test release!
+</BODY>
+</HTML>

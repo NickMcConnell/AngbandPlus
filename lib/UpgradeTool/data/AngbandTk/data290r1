@@ -1,0 +1,103 @@
+# data290r1 --
+#	Contains version-specific variables and commands
+
+source data283r20
+
+set vGeometryUpdate 1
+set vSettingUpdate 2
+set vValueUpdate 3
+
+lappend vDirName \
+	{tk msgs choice} \
+	{tk msgs common} \
+	{tk msgs message} \
+	{tk msgs recall} \
+	{tk msgs startup} \
+	{tk msgs status} \
+	{tk msgs tips}
+
+ldelete vSetting \
+	show_choices \
+	testing_stack \
+	testing_carry \
+	avoid_other \
+	fresh_after \
+	hilite_player \
+	view_yellow_lite \
+	view_bright_lite \
+	view_granite_lite \
+	view_special_lite \
+	hidden_player \
+	auto_destroy
+
+lappend vSetting \
+	auto_more \
+	easy_ring \
+	smart_monsters \
+	smart_packs \
+	verify_destroy_junk
+
+ldelete vValue \
+	warning,artifacts \
+	warning,inventory,window \
+	warning,store,window
+
+lappend vValue \
+	borg,prefix \
+	font,statusBar \
+	inventory,alwaysOnTop
+
+lappend vRInfoCompat \
+	283r20
+
+lappend vScoreCompat \
+	283r20
+
+rename ModifySetting ModifySetting283r20
+proc ModifySetting {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		auto_destroy {
+			set name verify_destroy_junk
+			set value [expr {!$value}]
+		}
+		default {
+			return [ModifySetting283r20 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+
+rename ModifyGeometry ModifyGeometry283r20
+proc ModifyGeometry {info} {
+	array set data $info
+	switch -- $data(window) {
+		book {
+			# These windows default geometry changed
+			return ""
+		}
+	}
+	return [ModifyGeometry283r20 $info]
+}
+
+rename ModifyValue ModifyValue283r20
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		savefile {
+			if {[llength $value]} {
+				set value [UpdatePath [eval file join $value]]
+				set value [file split $value]
+			}
+		}
+		default {
+			return [ModifyValue283r20 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+

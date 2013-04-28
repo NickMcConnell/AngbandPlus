@@ -1,0 +1,46 @@
+Q:102:N:I Hate Snakes!
+
+Q:102:Q:6:0:0:0:10:0:0:6
+
+?:[LEQ $QUEST102 2]
+Q:102:T:Now that you have cleared out the area around the ruins we can
+Q:102:T:begin a more thorough examination of the buildings.
+Q:102:T:...What's that you say,.. one of the buildings seems to be over
+Q:102:T:run with snakes! You might be interested to know that not long
+Q:102:T:ago, a local adventurer 'dropped',... ( the kings advisor gives
+Q:102:T:his lord a stern look),... I mean "Lost" his prized leather
+Q:102:T:Whip among the ruins when he came face to face with a thousand
+Q:102:T:snakes. Advisor:"He hates Snakes!" Perhaps you could perform
+Q:102:T:a little house cleaning in the ruins.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST102 3]
+Q:102:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST102 5]
+Q:102:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Large brown snake
+F:a:1:8:22
+
+# open floor (room), Whip of Westernesse
+F:k:1:8:0:49:68
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXX-,,,,------,,,,---------**XX
+D:XX-,,,,a----XXXX;;;XX;;;;XX-;-XX
+D:X---;;------XaaaaaaaaaaaaaX--a-X
+D:X------;;;--;aaaaaakaaaaaa;--;-X
+D:X-,,----&---XaaaaaaaaaaaaaX--;-X
+D:X---;;;;----;XX;;;XDX;;XX;X-;;-X
+D:X--a,,------,,,,,--a--,,,---a--X
+D:X-------;;;;;-;;;---;-----;;---X
+D:X----------,,,--------;;a-----XX
+D:X<.----;;;;-------------;;;;-XXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:10:2

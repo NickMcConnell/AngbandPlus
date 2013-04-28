@@ -1,0 +1,29 @@
+# data221r1 --
+#	Contains version-specific variables and commands
+
+source data211r3
+
+ldelete vSetting \
+	shuffle_songs \
+	mute_songs \
+	mute_sounds
+
+lappend vSetting \
+	easy_floor \
+	always_small_levels
+
+lappend vValue \
+	sound,directory
+
+lappend vConfig \
+	classic16+feat \
+	classic32+feat
+
+lappend vFile_user \
+	graf.prf
+
+set vRInfoCompat {}
+
+lappend vScoreCompat \
+	211r3
+

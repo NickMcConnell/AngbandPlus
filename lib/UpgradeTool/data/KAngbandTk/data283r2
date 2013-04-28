@@ -1,0 +1,23 @@
+# data283r2 --
+#	Contains version-specific variables and commands
+
+# Source the base data file
+source data283r1
+
+# Remove 1 value
+ldelete vValue \
+	show_icons
+
+# Add 1 value
+lappend vValue \
+	sound,directory
+
+variable vFile_user {
+	graf.prf
+	pref.prf
+	pref-win.prf
+	user.prf
+}
+
+lappend vRInfoCompat \
+	283r1

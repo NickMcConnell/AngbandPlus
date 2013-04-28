@@ -1,0 +1,22 @@
+include $(JAM_RULES_DIR)/Jambase ;
+include $(JAM_RULES_DIR)/Tcl ;
+include $(JAM_RULES_DIR)/ShLib ;
+
+LOCATE_TARGET = [ FDirName $(BUILD_NAME) ] ;
+
+CCFLAGS += -DBUILD_icon_dll -DBUILD_sound_dll -D$(PLATFORM) ;
+
+HDRS += [ FDirName $(ROOT) OmnibandTk src common-dll ] ;
+
+NAME = sound-nocard ;
+
+# if $(OS) = CYGWIN { DEF = $(NAME).def ; }
+
+makeSuffixed SHLIB $(SHLIB_SUF) : $(NAME) ;
+
+ShLib $(SHLIB) : nosoundcard.c $(DEF) ;
+
+SetSubsystem $(SHLIB) : windows ;
+
+InstallBin [ FDirName $(ROOT) OmnibandTk lib ] : $(SHLIB) ;
+

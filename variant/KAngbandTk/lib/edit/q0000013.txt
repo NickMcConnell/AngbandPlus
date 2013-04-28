@@ -1,0 +1,55 @@
+# q0000013.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:13:N:Red Dragon Nest
+
+# Definition
+Q:13:Q:6:0:0:0:25:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST13 2]
+Q:13:T:A family of red dragons has set up their home in the northeast
+Q:13:T:mountains. They have been swooping down on farms and feeding
+Q:13:T:on our livestock.
+Q:13:T:Please eliminate this threat and kill all the dragons.
+Q:13:T:Scouts have reported that the dragons are of ALL ages.
+?:1
+
+# Description for quest rewarding
+?:[EQU $QUEST13 3]
+Q:13:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST13 5]
+Q:13:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Baby Red Dragon
+F:a:1:8:131
+
+# Floor with Young Red Dragon
+F:b:1:8:387
+
+# Floor with Mature Red Dragon
+F:c:1:8:402
+
+# Floor with Ancient Red Dragon
+F:d:1:8:444
+
+# Dungeon
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.......................cca...X
+D:X...bb..................caaa..X
+D:X....b.........bbb.....ddcaa..X
+D:X.............XXXXXXXXXXXXXXXXX
+D:X.............XXXXXXXXXXXXXXXXX
+D:X.............XXXXXXXXXXXXXXXXX
+D:X.............XXXXXXXXXXXXXXXXX
+D:X<............XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:7:2
+

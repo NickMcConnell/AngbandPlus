@@ -1,0 +1,147 @@
+=== Kangband 2.9.2 ===
+
+This file contains basic information about Kangband.  Unfortunately,
+earlier versions of Kangband did not include similar documents so this
+is somewhat sketchy in places. Anyone who is able to contribute further
+information or insight is not only welcome but actively encouraged to
+do so.
+
+
+=== Standard Angband 2.9.2 vs. Kangband 2.9.2r2 ===
+
+The main differences between Angband 2.9.2 and Kangband 2.9.2 are
+as follows:
+
+- Kangband introduces an extended town level which includes additional
+  terrain features (such as grass, trees, mountains, lakes and rivers)
+  and additional buildings which provide services rather than sell
+  goods. Each building and its services are themed and the prices the
+  player will pay for those services will vary based upon how their
+  character's race and class fits into this theme.
+
+- Kangband also introduces the idea of a "plot". Each character must
+  choose a "plot" which will determine which quests he will undertake.
+  Quests may take several forms including requiring the player to
+  enter special, non-random dungeon levels.  There are various quest
+  objectives including killing all monsters or a certain number of a
+  specific type of monster, retrieving an object (or objects) and
+  locating an exit. The player will generally receive a reward for
+  completing a quest.
+
+- Kangband introduces new terrains into the dungeon. You may come
+  across rivers of water and lava (of varying depths) and, at shallow
+  levels, plantations of trees. Crossing these terrains poses certain
+  problems for both players and monsters. Fog mists may also be found
+  on certain levels.
+
+- Kangband introduces several new monsters and items.  These are taken
+  from a variety of sources including other variants (primarily 
+  Zangband, Oangband and Angband/64) and Jonathan Ellis' patch for
+  Angband 2.9.2.  There are also many monsters and items that are
+  unique to Kangband.
+
+- Kangband includes four new player races - Kobolds, Maia, Ents and
+  Wraiths.  Kobolds make reasonable fighters and resist poison
+  intrinsically. Maia are intended to be a training race for
+  inexperienced players. They are highly skilled, have excellent stats,
+  gain levels quickly and recover quickly when their hitpoints and
+  spell points are depleted. Ents are physically strong but are poor
+  at resisting fire-based attacks.  Wraiths make excellent spellcasters
+  and come with an impressive set of intrinsic abilities but aggravate
+  monsters around them.
+
+- Kangband introduces the Illusionist and Druid classes.  Illusionists
+  specialise in illusion and misdirection (and are similar to mages in
+  most other respects).  Druids are close to nature, are skilled in
+  controlling animals and are able to change the surrounding terrain
+  at their will.  Druids are similar to priests. Both these classes get
+  new and interesting attack and utility spells.
+
+- Traditional mages and priests in Kangband have had a reworking to
+  reduce dependancy on melee and to make them play more in character.
+  Rogues use the Illusion books rather than the mage's books.
+
+- Kangband introduces temporary resistance to most of the "high"
+  resistances (light, dark, sound, shards, confusion, chaos, nexus and
+  nether). These work in much the same way as the temporary "low"
+  resistances do.
+
+- Kangband also introduces timed levitation, timed invisibility and
+  timed "ghostliness" which allow the player to levitate, become
+  invisible and walk through non-permanent walls respectively while in
+  effect.
+
+
+
+=== Imported Ideas ===
+
+While much of what makes Kangband different from Angband was pioneered
+by Kangband's author and maintainers, it has also adopted numerous
+features from other variants. Of particular note are the following:
+
+From GWAngband (by Greg Wooledge)
+---------------------------------
+The Kobold race and numerous minor changes to the combat code, the
+magic code and the mage and priest spell lists.
+
+From Zangband (by Topi Ylinen and Robert Ruehlmann)
+---------------------------------------------------
+Various spells and vaults. The extended town and quest code developed
+originally by Ken Wigle for Kangband was imported into Zangband and
+then extended and refined. This refined code was imported back into
+Kangband in version 2.9.2.  
+
+From Kamband (by Ivan Tkatchev)
+-------------------------------
+Much of the code for special buildings (later replaced by that from
+Zangband) and code for better handling of pet summoning.
+
+From Psiband (by ??)
+--------------------
+Pet targetting code.
+
+
+=== Version History (by John I'anson-Holton) ===
+
+The original Kangband was produced by Ken Wigle who went on to release
+several follow-up versions through to Kangband 2.8.3i. At that point
+real life concerns forced Ken to step down and Mark Howson took over
+as Kangband's maintainer.  Mark released version 2.8.3j which was
+primarily a bigfix (and later a patch to that version) and then
+anounced the 2.8.3 branch to be dead.
+
+With the help of Ken Wigle and others, Mark then embarked on an
+ambitious project for Kangband 3.0.0 which was to use Python to extend
+the C core and introduce major new features.  Unfortunately version
+3.0.0 never went beyond alpha testing and when Real Life claimed Mark
+Howson too Kangband was left dormant for eight months.
+
+At that point I volunteered to take over and in the absence of more
+qualified candidates, Mark Howson agreed.  I have had to reluctantly
+admit that I am not up to the task of continuing with 3.0.0 and so the
+future of Kangband for the time being lies in the old 2.8.3 branch.
+Version 3.0.0 is not dead but it will remain dormant for the time
+being.
+
+My first step as maintainer was to release Kangband 2.9.1. This
+release contained no new features and instead was simply a code base
+update which reflected changes made in the Angband code since 2.8.3jp1
+was released. Version 2.9.1r1 was released a week or so later and was
+essentially a bugfix although certain game mechanics did undergo some
+minor modification.
+
+Version 2.9.2 is the first version I have released which introduces
+major change to Kangband although this will be largely transparent to
+the player.  2.9.2 includes several more bugfixes and minor game
+mechanics changes (see changes.txt for details) but contains a major
+reworking of the town, building and quest handling resulting in a far
+more powerful (if somewhat esoteric) system.
+
+My vision of the future of Kangband is to keep the code base as close
+to Standard Angband as possible while continuing to develop Kangband
+along its current lines. What this means for the immediate future is
+a reworking of the magic realms according to my own tastes and a move
+in the monster lists closer to Tolkien. I will also be making an
+ongoing effort to increase ease of customization and will be adding 
+features of my own design and from other variants that are in keeping
+with Kangband's spirit.

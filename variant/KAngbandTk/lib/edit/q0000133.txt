@@ -1,0 +1,66 @@
+Q:133:N:The Tower of Magi
+
+Q:133:Q:6:0:0:0:40:0:0:6
+
+?:[LEQ $QUEST133 2]
+Q:133:T:Our Wizzards have reported strange magical activity comming from the
+Q:133:T:old Tower of Magi within the ruins. We suspect Morgoth is behind it.
+Q:133:T:I need you to investigate the tower ruins. We cannot afford to let
+Q:133:T:Morgoth gain control of the tower. He must be stopped at all costs.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST133 3]
+Q:133:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST133 5]
+Q:133:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Novice mage
+F:a:1:8:38
+
+# open floor (room), Dark elven mage
+F:b:1:8:136
+
+# open floor (room), Gnome mage
+F:c:1:8:154
+
+# open floor (room), Ogre mage
+F:d:1:8:296
+
+# open floor (room), Mage
+F:e:1:8:305
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXX......<......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXX.......................XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXX...........................XXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXX.............................XXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXX............XXXX...........XXXXXXXXX...........XXXXX.....c.....*XXXXXX
+D:XXXX...XXXXXX...XXXX....&.....XX%%%%%%%XX....&.....XXXXX...XXXXXX...XXXXXX
+D:XXXX............XXX..........XX%%%%%%%%%XX..........XXXX...XXXXXX...XXXXXX
+D:XXXX............XXX..........X%%%%%%%%%%%X..........XXXX............XXXXXX
+D:XXXX.d.XXXXXX...D.D..........X%%%%%%%%%%%X..........D..D............XXXXXX
+D:XXXX............XXX..........X%%%%%%%%%%%X..........XXXXXXXXXDXXXXXXXXXXXX
+D:XXXX............XXX..........XX%%%%%%%%%XX..........XXXXXXXXX.XXXXXXXXXXXX
+D:XXXX...XXXXXX...XXXX..........XX%%%%%%%XX..........XXXXXXXXXX.XXXXXXXXXXXX
+D:XXXX............XXXX....&......XXXXXXXXX.....&.....XXXXXXXXXX.XXXXXXXXXXXX
+D:XXXXXXXXXXXXXDXXXXXXX.............................XXXXXXXXXXX.XXXXXXXXXXXX
+D:XXXXXXXXXXXXX.XXXXXXXX...........................XXXXXXXXXXXX.XX.a.*XXXXXX
+D:XXXXXXXXXXXXX.XXXXXXXXXX.......................XXXXXXXXXXXXXX.D..a.*XXXXXX
+D:XXXXXXXXXXXXX.XXXXXXXXXXXXXXX.............XXXXXXXXXXXXXXXXXXX.XX.a.*XXXXXX
+D:XXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXX+XXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXX
+D:XXXX...........XXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXX***XX.XXXXXXXXXXXX
+D:XXXX...........XXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXX...XX.XXXXXXXXXXXX
+D:XXXX...........XXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXDXXXDXXXXXXXXXXXX
+D:XXXX...........X......*XXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXX............XXXXXXX
+D:XXXX...XXXXX...D......*XXXXXXXXXXXX...................D.....b.b....XXXXXXX
+D:XXXX.....<.....X......*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX............XXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:2:36

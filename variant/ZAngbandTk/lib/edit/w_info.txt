@@ -1,0 +1,89 @@
+# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:51 $
+# File: w_info.txt
+
+# Defines the layout of the wilderness
+
+# W:F:letter:wilderness_type:level:town_number:road:name
+
+# Road Flags: Sum of NORTH 1, SOUTH 2, EAST 4, WEST 8
+
+?:[EQU $WILDERNESS NORMAL]
+
+# Edge of the world
+W:F:#:0
+
+# Grass
+W:F:G:6:5
+
+# Dirt
+W:F:D:5:15
+
+# Forest
+W:F:F:7:20
+
+# Shallow Water
+W:F:S:3:30
+
+# Deep Water
+W:F:W:2:40
+
+# Mountain
+W:F:M:11:50
+
+# Volcano
+W:F:V:10:60
+
+# Town 1
+W:F:1:1:0:1:0:Outpost
+
+# Town 2
+W:F:2:1:0:2:0:Telmora
+
+# Town 3
+W:F:3:1:0:3:0:Morivant
+
+# Town 4
+W:F:4:7:4:4:0:Angwil
+
+# Town 5
+W:F:5:2:90:5:0:Wilderness
+
+# Grassland with road east-west-south
+W:F:-:6:3:0:14
+
+# Grassland with road north-south
+W:F:|:6:3:0:3
+
+# Wilderness layout
+W:D:##########
+W:D:#GGGGMVMM#
+W:D:#GGG3GGMM#
+W:D:#GGG|GGGG#
+W:D:#GGG1-2GG#
+W:D:#GGDD|DGG#
+W:D:#WSFF4FFS#
+W:D:#WWSSSSSS#
+W:D:#WWWW5WWW#
+W:D:##########
+
+# Starting position
+W:P:4:4
+
+?:[IOR [EQU $WILDERNESS NONE] [EQU $WILDERNESS LITE] ]
+
+# Edge of the world
+W:F:#:0
+
+# Town 1
+W:F:1:1:0:1:0:Town
+
+# Wilderness layout
+W:D:###
+W:D:#1#
+W:D:###
+
+# Starting position
+W:P:1:1
+
+?:1
+

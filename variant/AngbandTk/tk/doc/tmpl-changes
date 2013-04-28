@@ -1,0 +1,482 @@
+<HTML>
+<HEAD>
+<TITLE>List of Changes</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Change Log for AngbandTk</H1>
+
+<P>
+It is intended that this file document all the changes from one version
+of AngbandTk to the next, in reverse-chronological order (most recent
+versions first).
+
+$(angtk,changes)
+
+<h1>
+<a name="283r14">
+AngbandTk 2.8.3r14 (April 11, 1999)
+</a>
+</h1>
+
+<UL>
+<LI>Somebody forgot to write down the changes!</LI>
+</UL>
+
+<h1>
+<a name="283r13">
+AngbandTk 2.8.3r13 (January 23, 1999)
+</a>
+</h1>
+<UL>
+<LI>Added -boring and -town options to "feature configure" command</LI>
+<LI>"Memorize" and "Town Light" entries added to the Feature menu in Assign Window</LI>
+<LI>More efficent handling of status messages when the text is unchanged</LI>
+<LI>Added "system mouse" command to get mouse button state</LI>
+<LI>Tried to fix "mouse command overflow" when key and mouse button held down</LI>
+<LI>Massive code cleanup and commenting (still much to do)</LI>
+<LI>Implemented object/monster hallucination at long last</LI>
+<LI>Added Find command to Options Window (search by keyword)</LI>
+<LI>Changed tabs to respect system colors</LI>
+<LI>Added graphical preview of icon configuration in Choose Config Window</LI>
+<LI>Clicking and dragging in a micro-map scrolls it</LI>
+<LI>Added "Feeling" to Other Menu</LI>
+<LI>Added "Maximize Windows" entry to Other Menu</LI>
+<LI>Fixed problem with trailing 'r' being stripped in Macro Window</LI>
+<LI>Added "-k_idx" switch to "inventory find" command</LI>
+<LI>Added "new_spells" option to "player" command</LI>
+<LI>Fixed the context menu & double-click in the Book/Inventory Windows</LI>
+<LI>Pointing to a stack displays the contents in the Recall Window when the
+  easy_floor option is on</LI>
+<LI>Holding down the Shift key prevents describing what the pointer is over</LI>
+<LI>Prevent SND_ACTION_FAILED with always_pickup and a full pack</LI>
+<LI>Fixed problem with easy_sense and taking off cursed equipment</LI>
+<LI>Added IDENT_SENSE when trying to drop cursed equipment</LI>
+<LI>Made sure error is reported when parsing *_info.txt files</LI>
+<LI>sound_exit() checks if sound_init() was ever called</LI>
+<LI>Inventory Window "Threshold" is weight limit without speed penalty</LI>
+<LI>Fixed an old fatal bug in objcmd_sound() that didn't bomb till now</LI>
+<LI>Improvements and fixes to py_pickup_floor()</LI>
+<LI>Only items which can be carried are listed with get_item() & easy_floor</LI>
+<LI>Changed the Load Window to be more interesting</LI>
+<LI>Added Html-based help system using the TkHtml widget</LI>
+<LI>Double-clicking a radiobutton in Birth Window goes to next screen</LI>
+</UL>
+
+<h1>
+<a name="283r12">
+AngbandTk 2.8.3r12 (December 9, 1998)
+</a>
+</h1>
+<UL>
+<LI>More window manager stuff (Undisplay, "focus -lastfor", etc)</LI>
+<LI>Added qeconfigure for deactivating bindings</LI>
+<LI>Added "Pick Up (g)" item to Inven-&gt;Use menu</LI>
+<LI>Stat bonuses greater than 220 are displayed as "18/***"</LI>
+<LI>Equipment bonus to stat &gt; 99 is displayed as "+++"</LI>
+<LI>Descriptions for "ambient" sounds changed in Sound Window</LI>
+<LI>Knowledge Window remembers selected group/member</LI>
+<LI>Added "easy_floor" option for floor stacks to User Interface page</LI>
+<LI>Added "-font" and "-charset" to the "icon createtype" command</LI>
+<LI>New "Ascii" icon configuration uses ascii character for icons</LI>
+<LI>Fixed bug with get_item() and ALLOW_REPEAT floor code</LI>
+<LI>Moved "feature gamma" to "icon gamma"</LI>
+<LI>Changed "debug info" command</LI>
+<LI>Added expression evaluator to "debug find -field OP VALUE" option</LI>
+<LI>Fixed bug with Find command in Message History Window</LI>
+<LI>Visual indication of artifacts in the dungeon in Knowledge Window</LI>
+<LI>Sound directory can be changed in Sound Preferences Window</LI>
+<LI>Added 'f' to file character in Character Info Window</LI>
+<LI>Added "-flag FLAG" option to "r_info find" command</LI>
+<LI>Allow digits in character name</LI>
+<LI>Recall character history in Character Flags Window</LI>
+<LI>Added prompt to Choose Game Window</LI>
+<LI>Fixed "inventory count" bug being too high by 1</LI>
+<LI>Fixed easy_floor bug with "nothing" items</LI>
+<LI>Prevent big status messages appearing more than once</LI>
+<LI>Rewrote idle-timer code to use Tcl_CreateTimerHandler() which reduces
+  idle processor usage from 100% to about 10%, and permits animation
+  during inner event loops!</LI>
+<LI>Added "allow_animation" option to enable/disable animation</LI>
+<LI>Attempt to split long "died from" message in Tomb Window</LI>
+<LI>&lt;Target-visibility&gt; quasi-event changes opacity of target display</LI>
+<LI>Replaced "store inventory" with "store count" and "store info" commands</LI>
+<LI>Added code to prevent Misc Window popup appearing too far to the left</LI>
+<LI>The "easy_sense" option was added to the Game-Play Page.</LI>
+<LI>"k_info find -known" matches known flavored objects (see below)</LI>
+<LI>Added Objects page to Knowledge Window for known flavored objects</LI>
+<LI>Changed search command in Knowledge Window to start from selection</LI>
+<LI>Changed search command in Assign Window to start from selection</LI>
+<LI>Changed search command in Choose Monster Window to start from selection</LI>
+<LI>Fixed bug with "Remove" entry in inventory window popup (it used 'T', not 't')</LI>
+<LI>Added Tcl_SetServiceMode() calls around MessageBox() when aborting game</LI>
+<LI>Added Recall Monster Window for showing monster recall (see below)</LI>
+<LI>Target/Look now displays Recall Monster Window on 'r'</LI>
+<LI>Added Font Window for font management</LI>
+<LI>Many windows changed to support own font, and variable-width fonts</LI>
+<LI>Added check to prevent Recall Window being "stuck" in expanded state</LI>
+<LI>Added "k_info object_desc" option to get object_desc_store() of kind</LI>
+<LI>Fixed bug with easy_floor and Recall Window (floor_y/x weren't set)</LI>
+<LI>Prevent "Monster wakes up." when the monster isn't in LOS and disturb_move=0</LI>
+<LI>Changed "*Destroy*" entry in inventory window popup to respect number of items</LI>
+</UL>
+
+<h1>
+<a name="283r11">
+AngbandTk 2.8.3r11 (September 23, 1998)
+</a>
+</h1>
+<UL>
+<LI>Added "Choose Monster" window for choosing a race to genocide</LI>
+<LI>Further changes to the window-management code</LI>
+<LI>Progress bar in Sound Window</LI>
+<LI>Fixed bug with "keymap action" command</LI>
+<LI>Added "Kingly" window to handle winner death/retirement</LI>
+<LI>Fixed bug with earthquake() (monsters inside walls)</LI>
+<LI>Added "highscore" command for score-file reading/searching</LI>
+<LI>Choose Game window bindings for KeyPress-b/o select buttons</LI>
+<LI>Added message when monster kills other monster, if one is viewable</LI>
+<LI>Finally hooked in "monster_kill_other" sound</LI>
+<LI>Added big status message to Main Window; goes away after 1 second</LI>
+<LI>Added "listInactive" highlight color when focus isn't in lists</LI>
+<LI>Inventory Window now responds properly to PageUp, PageDown etc</LI>
+<LI>Main Window menus display keyboard equivalents where appropriate</LI>
+<LI>Revamped Keymap Window; can edit Control keymaps</LI>
+<LI>Experience To Advance is displayed as ***** at level 50</LI>
+<LI>Added "player cheat" command; Prompt before setting Cheat options</LI>
+<LI>Fixed lighting bug with destroy_area() -&gt; forget_view() & g_grid[]</LI>
+<LI>Shake 'n bake during destroy_area()</LI>
+<LI>Added "Combine Messages" to combine identical messages; ex "You hit it. (x3)"</LI>
+<LI>Redisplay messages when "Max Messages" or "Combine Messages" changes</LI>
+<LI>Added &lt;Keymap&gt; quasi-event to notify of changes to the keymap</LI>
+<LI>Added action_fail sound when attempting to spike without spikes</LI>
+<LI>The -more- prompt is displayed in turquoise</LI>
+<LI>New user-friendly interface to probing() spell (ala 'l'ook)</LI>
+<LI>Birth Window "Back" button disabled when on first screen</LI>
+<LI>Birth Window bindings for KeyPress-b/n/q/Escape select buttons</LI>
+<LI>Startup Window bindings for KeyPress-n/o/q/s/Escape select buttons</LI>
+<LI>Tips Window bindings for KeyPress-b/n select buttons</LI>
+<LI>Added Ctrl-/Left/Right/Up/Down/ bindings to Big Map for keyboard scrolling</LI>
+<LI>"character_win" sound finally hooked in</LI>
+</UL>
+
+<h1>
+<a name="283r10">
+AngbandTk 2.8.3r10 (August 20, 1998)
+</a>
+</h1>
+<UL>
+<LI>Added "player is_dead", "player turn", "player max_level" commands</LI>
+<LI>Predict the score of living character in the High Scores window</LI>
+<LI>Fixed bug where character name wasn't redisplayed if it changed</LI>
+<LI>Added high score entry for living character</LI>
+<LI>Added dumping of high scores to a text file</LI>
+<LI>Added searching for string in high scores</LI>
+<LI>Added highlighting of current character's high score (living or dead)</LI>
+<LI>Fixed "bug" where RNG not randomized when dead-character savefile loaded</LI>
+<LI>Added progress box when scanning saved games to open</LI>
+<LI>Double-click in Birth Window listbox moves to the next screen</LI>
+<LI>Added progress bar to Assign/Sprite Windows when listing icons</LI>
+<LI>Fixed geometry bug with dungeon map endlessly resizing</LI>
+<LI>Added "player disturb" command</LI>
+<LI>New option "scroll_follow" for keeping character centered in display</LI>
+<LI>Fixed bug with hook-menu title in Assign & Knowledge Windows</LI>
+<LI>Fixed bug with cursed status being described even if item wasn't identified</LI>
+<LI>Made all the "misc" windows sound-playing windows</LI>
+<LI>Visually flicker the character's light source when it is drained by monster</LI>
+<LI>Fixed nasty bug with g_grid[] becoming out-of-synch with cave_o/m_idx[]</LI>
+<LI>Attempted to optimize drawing of the micro-map widgets</LI>
+<LI>Other-&gt;Photo menu entry added; "widget photo" command; tk/photo.tcl</LI>
+<LI>Added help text display to the Options Window</LI>
+<LI>Major reworking of window-management code.</LI>
+<LI>Faster startup due to delayed loading of some modules</LI>
+<LI>Added "maximum number of displayed messages" to Message History</LI>
+<LI>Added "show unused options" to Options Window</LI>
+<LI>Fixed bug with ambient_delay and monster_delay values not being saved</LI>
+<LI>Added "recenter" button to Main Window for when "scroll_follow" is off</LI>
+</UL>
+
+<h1>
+<a name="283r9">
+AngbandTk 2.8.3r9 (August 3, 1998)
+</a>
+</h1>
+<UL>
+<LI>Fixed bug with bash/throw sounds reversed</LI>
+<LI>Cleaned up code for assigning character icon automatically</LI>
+<LI>"-setgrid" option added to Widget's to help window resizing</LI>
+<LI>Main Window, Micro Map Window are dynamically resizeable</LI>
+<LI>Improvements to Read/WriteGeometryFile() to handle window resizes</LI>
+<LI>Revamped "Other" options page</LI>
+<LI>Added &lt;Setting&gt; quasi-event for when settings change</LI>
+<LI>Scroll bar in Character Flags window only shown when needed</LI>
+<LI>Fixed bug where inverting a grid didn't work in 16x16 mode</LI>
+<LI>Fixed bug where "Type '?' for help" prompt wasn't displayed</LI>
+<LI>Added current/max tip number to Tips Window</LI>
+<LI>Added "Messages" button to Tomb Window for dumping messages</LI>
+<LI>Assigned Roguelike keymap for "Repeat last command (])"</LI>
+<LI>Command "Quit without saving (Control-E)" added (was KTRL-Q before)</LI>
+<LI>Gold/Object may be revealed when monster kills wall/rubble</LI>
+</UL>
+
+<h1>
+<a name="283r8">
+AngbandTk 2.8.3r8 (July 13, 1998)
+</a>
+</h1>
+<UL>
+<LI>Fixed bug where monster attack/monster spell sounds didn't play</LI>
+<LI>Fixed bug where "cursed" property of item wasn't displayed in Flags Window</LI>
+<LI>Changed Choose Game Window to display filename of selected game</LI>
+<LI>Added item recall of object pointed to in Flags Window</LI>
+<LI>Fixed bug with assigning sounds to monsters</LI>
+<LI>Added "monster_delay" sound setting for monster sound frequency</LI>
+<LI>Slider in Options Preferences for setting "monster_delay"</LI>
+<LI>Fixed bug with Choose Game Window when there are no savefiles</LI>
+<LI>Fixed bug with Choose Game Window when the "recent" savefile is gone</LI>
+</UL>
+
+<h1>
+<a name="283r7">
+AngbandTk 2.8.3r7 (July 10, 1998)
+</a>
+</h1>
+<UL>
+<LI>Sound system let's user assign multiple sounds per event</LI>
+<LI>Ambient sounds added; added ambient_delay to options screen</LI>
+<LI>Message History is displayed faster now - NSTexist::SetList()</LI>
+<LI>"Cur AC" changed to "AC" in Misc Window</LI>
+<LI>Click EXP, AC in Misc Window to toggle what is displayed</LI>
+<LI>Added "activate", "known" fields "inventory info" command</LI>
+<LI>Added "-activate" criteria to "equipment find" command</LI>
+<LI>Changed "map" button to "activate" button in Misc Window</LI>
+<LI>Added "Activate" submenu to &lt;Control-ButtonPress-3&gt; popup</LI>
+<LI>Fixed bug with character icon not being chosen properly</LI>
+<LI>Fixed bug where monsters lose their objects when a savefile is loaded</LI>
+<LI>Fixed same bug mentioned above in Recall Patch</LI>
+<LI>Fixed bug with town rebuild placing objects carried by monsters</LI>
+<LI>"equipment flags", "player flags" commands added</LI>
+<LI>Character Flags Window added (type 'h' to see flags in Character Info)</LI>
+<LI>Item recall much more strict ; considers "fully known" status</LI>
+<LI>"a_info" command looks for existing artifact to describe</LI>
+<LI>Added "a_info location" command to find out where an artifact is</LI>
+<LI>Knowledge Window displays location of selected artifact.</LI>
+<LI>Added cursor item to the detail widget when examining dungeon map</LI>
+<LI>"game savefile_info", "game version" commands added</LI>
+<LI>New "Choose Game" Window shows details of savefiles</LI>
+<LI>Added Find function, Dump command to Message History</LI>
+<LI>Fixed bug with lighting and "blindness" (doh!)</LI>
+</UL>
+
+<h1>
+<a name="283r6">
+AngbandTk 2.8.3r6 (June 29, 1998)
+</a>
+</h1>
+<UL>
+<LI>Tabs, tabs, everywhere</LI>
+<LI>Widget item colors are shared for speed</LI>
+<LI>Fixed bug with get_com() clearing inkey_flags</LI>
+<LI>Fixed bug in Recall Patch and preserve mode making duplicate artifacts</LI>
+<LI>Inventory shows displayed, total, threshold, and limit weights</LI>
+<LI>The light radius visually flickers when fuel is running low</LI>
+<LI>Monsters carry stolen money if monster_carry option is set</LI>
+<LI>Fixed sound bugs (rod/scroll swapped, store/home swapped)</LI>
+<LI>Sound groups "monster", "monster_spell" and "monster_attack" added</LI>
+<LI>Moved sound stuff to sound.dll ; use DirectSound or WaveMix</LI>
+<LI>Tips Window added, tk/doc/tips.txt file</LI>
+<LI>Revamped Progress Window to show numbers and/or bars</LI>
+<LI>Configure appearance of Progress Window through popup</LI>
+<LI>Change the scale of Micro Map + Big Map through popups; save settings</LI>
+<LI>Added "Cancel" item to end of inventory popup, !show_flavors</LI>
+<LI>Added Control-ButtonPress-3 popup for using items in inventory</LI>
+<LI>Added status bar to Options Window for displaying option keyword</LI>
+<LI>Added visual effect for fired/thrown objects</LI>
+<LI>Character dumps are now in 2.8.3 format</LI>
+</UL>
+
+<h1>
+<a name="283r5">
+AngbandTk 2.8.3r5 (June 5, 1998)
+</a>
+</h1>
+<UL>
+<LI>Self Knowledge & identify_fully_aux() displays finally added</LI>
+<LI>User can choose from predefined icon configurations at startup</LI>
+<LI>Code, scripts, etc fully support 16x16 or 32x32 icons</LI>
+<LI>Original icons are included again in "original" configuration</LI>
+<LI>Big Map can be rescaled with ButtonPress-3, and Shift-ButtonPress-3</LI>
+<LI>Assign Window updated: Find command, feature menu, status messages</LI>
+<LI>Mouse tracking code does better at sliding around blocked grids</LI>
+<LI>Fixed "makeicon.exe" to truncate existing icon data files on write</LI>
+<LI>Fixed bug with Macro Window not maintaining the selection properly</LI>
+<LI>New sound sytem, over 130 sound "events", Sound Window</LI>
+<LI>Added warning about installing into path with spaces in it</LI>
+<LI>Detection feedback always shows, and only blinks once per spell</LI>
+<LI>Added "-anchor" option to Widget canvas item (default "nw")</LI>
+<LI>Removed "-gwidth" & "-gheight" options from Widget canvas item</LI>
+</UL>
+
+<h1>
+<a name="283r4">
+AngbandTk 2.8.3r4 (May 15, 1998)
+</a>
+</h1>
+<UL>
+<LI>Applied the "Recall Patch" for remembering the recall level</LI>
+<LI>Big Map now changes scale along with Micro Map</LI>
+<LI>Added extra level of resolution to maps (7x7)</LI>
+<LI>Icon code now supports either 16x16 or 32x32 icons</LI>
+<LI>Added Keymap editor for assigning actions to keys</LI>
+<LI>*** Use Adam Bolt's graphics exclusively ***</LI>
+<LI>"effect" command for using icons as spell effects</LI>
+<LI>Macro/keymap/character dumps now use "player base_name" for default file</LI>
+<LI>Added message about long filenames if init-startup.tcl not found</LI>
+<LI>Stopped Misc Window items flashing if text hasn't changed</LI>
+</UL>
+
+<h1>
+<a name="283r3">
+AngbandTk 2.8.3r3 (May 6, 1998)
+</a>
+</h1>
+<UL>
+<LI>Rewrote tk/bin/makeicon.exe to convert colors by hand (no pixmaps!)</LI>
+<LI>Changed tk/config/icon to automatically create ".icd" and ".msk" files</LI>
+<LI>tk/config/value file added for holding user's color settings etc</LI>
+<LI>Fixed display problem when character's light source changes</LI>
+<LI>Fixed problem with user attempting to close game windows</LI>
+<LI>New command "Quit Without Save (^Q)" added (see previous item)</LI>
+<LI>Added icon display, title coloring to Recall Window</LI>
+<LI>Rewrote "equipment", "inventory" commands</LI>
+<LI>Added tk/config/town file for custom town layout and icons</LI>
+<LI>Added "Assign" type quasi-event for when icons are assigned</LI>
+<LI>Fixed bug with labels not showing in equipment</LI>
+<LI>Fixed bug with cursor, and improved cursor viewing code</LI>
+<LI>Fiddled with Misc Window layout; click character icon to see info</LI>
+<LI>Fixed bug with do_cmd_change_name() C routine</LI>
+<LI>Fixed masked-icon bug with canvas items on 256 color monitors</LI>
+<LI>Added "show_icons" option for hiding icons in inventory and store lists</LI>
+<LI>Preferences menu: Alternate, Assign, Color, Sprite GUI's added</LI>
+<LI>Added "alternate" command, "alternate" icon type, and Alternate Editor</LI>
+<LI>Added "default" icon type, used in Sprite Editor, Alternate Editor</LI>
+<LI>Updated mouse-tracking code in lists</LI>
+<LI>Recall Window now displays inventory/equipment choices, lets user choose one</LI>
+<LI>Recall Window "pops up" to let the user see all the inventory choices</LI>
+<LI>Added "Term" quasi-event for delayed update of display (esp. during macros)</LI>
+<LI>Fixed bug in ParseEventDescription() for duplicate event-detail names</LI>
+</UL>
+
+<h1>
+<a name="283r2">
+AngbandTk 2.8.3r2 (April 1, 1998)
+</a>
+</h1>
+<UL>
+<LI>Completely rewritten graphics engine:</LI>
+<UL>
+	<LI>32x32 256-color icons</LI>
+	<LI>icon types are defined by "icon createtype" command and assigned with
+   the "icon assign" command</LI>
+	<LI>Sprites managed via the "sprite" command</LI>
+	<LI>Nifty transparent widget "items" similar to canvas items</LI>
+</UL>
+<LI>Added tk/config folder for various settings files</LI>
+<LI>Added tk/bin folder for utilities</LI>
+</UL>
+
+<h1>
+<a name="283r1">
+AngbandTk 2.8.3r1 (February 27, 1998)
+</a>
+</h1>
+<UL>
+<LI>Much improved mouse tracking code. Run Ranger Run!</LI>
+<LI>Pathnames are accesible through "angband game directory" command</LI>
+<LI>Use absolute pathnames instead of relative "tk/file.tcl" pathnames</LI>
+<LI>The "angbandrc.tcl" file is no longer used (it was useless anyway)</LI>
+<LI>Upgraded to 2.8.3 source base!</LI>
+<LI>Stopped calling it an "alpha" product. That scared people.</LI>
+<LI>Removed "(offscreen)" notation in monster descriptions.</LI>
+<LI>Massively improved interface to the macro facility.</LI>
+<LI>Wizard-like interface to character creation.</LI>
+<LI>Uses 283 character-info display.</LI>
+<LI>Easy Patch 1.1 incorporated (easy_open, easy_disarm options)</LI>
+</UL>
+
+<h1>
+<a name="282a4">
+AngbandTk 2.8.2a4 (February 4, 1998)
+</a>
+</h1>
+<UL>
+<LI>List header in Book Window added</LI>
+<LI>"Repeat last command (n)" command added</LI>
+<LI>Removed unused folders and files: lib/xtra/font, lib/xtra/graf</LI>
+<LI>Inven Menu added to inventory-related commands</LI>
+<LI>Fixed problem with inventory descriptions; added labels in equipment</LI>
+<LI>Revamped inven/store lists to respect size of the window</LI>
+<LI>Made "use_sound" option accessible through "setting" command</LI>
+<LI>Change the character name by typing 'c' in Character Info Window</LI>
+<LI>Added "Sound" checkbutton entry to Other Menu to enable/disable sound</LI>
+<LI>Visual feedback of target being set/unset</LI>
+<LI>Nifty "quasi-event" binding code partially employed</LI>
+</UL>
+
+<h1>
+<a name="282a3">
+AngbandTk 2.8.2a3 (January 4, 1998)
+</a>
+</h1>
+<UL>
+<LI>Light effects for visible grids</LI>
+<LI>Bug fix with status message geometry</LI>
+<LI>Added "Wizard/Winner" status message</LI>
+<LI>Detection spells now detect up to MAX_RANGE distance</LI>
+<LI>Visual feedback of radius of detection added</LI>
+<LI>"Cursor" changed from white to yellow</LI>
+<LI>Added cave_attr[] and cave_char[] arrays for speed</LI>
+<LI>Continued chopping out unused code (Term_fresh() etc)</LI>
+<LI>Stopped Big Map scrolling too far (not quite right yet)</LI>
+<LI>Allowed interupting repeated commands with a mouse click</LI>
+<LI>Replaced text widget with listbox widget in Message Window</LI>
+<LI>Fixed bug with "errorInfo"/dialog after creating a character</LI>
+<LI>Changed Knowledge Window to show most recent artifact/monster image in group</LI>
+<LI>Added "Find" command to Knowledge Window (for monsters)</LI>
+<LI>Added keyboard navigation of lists</LI>
+<LI>Fixed bug with Book Menu when playing with non-spellcasting character</LI>
+</UL>
+
+<h1>
+<a name="282a2">
+AngbandTk 2.8.2a2 (December 22, 1997)
+</a>
+</h1>
+<UL>
+<LI>Created "changes.txt" file (this file)</LI>
+<LI>Reorganized some directories; added tk/doc directory</LI>
+<LI>Added prompts during character creation</LI>
+<LI>Code changes to init Tcl/Tk *before* init_angband().</LI>
+<LI>Startup screen shows progress of game initialization</LI>
+<LI>Replaced "startup.tcl" with "init-startup.tcl"</LI>
+<LI>"angband game file_character FILENAME" command implemented</LI>
+<LI>Highscore list, highscore display implemented</LI>
+<LI>Fixed geometry in Options Window</LI>
+<LI>Updated Book Window title to show book name</LI>
+<LI>Added window showing startup/loading progress</LI>
+<LI>Use system open/save dialogs for choosing pref files</LI>
+<LI>Replaced Big Map Window with tom-foolery in Main Window</LI>
+<LI>Use GIF files instead of Windows(TM) BMP files</LI>
+<LI>Much fiddling with windows to ensure an active frontmost window exists</LI>
+</UL>
+
+<h1>
+<a name="282a1">
+AngbandTk 2.8.2a1 (December 13, 1997)
+</a>
+</h1>
+<UL>
+<LI>The first version!</LI>
+</UL>
+</BODY>
+</HTML>

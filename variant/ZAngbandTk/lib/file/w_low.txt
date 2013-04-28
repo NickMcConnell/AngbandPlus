@@ -1,0 +1,100 @@
+N:*:Default
+98
+'Idspispopd'
+'Purple Rain'
+'Uhl Khakhaas'
+'Telecaster'
+'Stratocaster'
+of Severe Pain
+'Arkanna'
+'Uhl Dover'
+'Mallana'
+'Pummeler'
+'Morphain's Friend'
+'Regulator'
+'Mangler'
+'Laik Kenegul'
+'Mae Govannon'
+of the Uncaring
+'Executioner's Friend'
+'Knight Chopper'
+of Eddie
+'Cannae'
+'Revenge of Orculs'
+'Whirlwind'
+'Ogresmasher'
+'Pod'
+'Elfrist'
+'Quick Kill'
+'Quick Kick'
+'Quick Maim'
+'Luckbane'
+'Wormbiter'
+'Mumakbane'
+'Cat's Claw'
+'Shrieker'
+'Baton'
+'Rotten Egg'
+of Horror
+'Necrophiliac'
+'Metal-up-Your-Ass'
+'Sands of Time'
+'Vibrator'
+of Agony
+'Satan's Claw'
+'Flame Dart'
+'Trigger-Happy'
+'Phaser'
+'Flamitt'
+'Black Hawk'
+'Invader'
+'Tailgunner'
+'Prowler'
+'Photon Torpedo'
+'Heavy Metal'
+'Bad Company'
+'Bad Blood'
+'Crackdown'
+'Budokan'
+'Kick-Off'
+'Kryptonite'
+'Breakout'
+of Morgue
+of Low Blow
+'Stunner'
+'Waffen-SS'
+of Misery
+'Virus'
+'Whiplash'
+'Wrath of Khan'
+of the Mad Butcher
+'Fossilizer'
+'Bananoid'
+'Sopwith Camel'
+'Patriot'
+of the Paranoid
+of the Paranoid Patriot
+of S&M
+of the Sadist
+of the Dominatrix
+'Wrangler'
+'Weekend Warrior'
+of Holy Smoke
+'Firefighter'
+of Close Combat
+'Bungee'
+of Worst Fear
+'Pig's Eye'
+'Pop'
+'Peashooter'
+of Fender
+of Fal
+'Bugslayer'
+'Raid'
+of Vandalism
+of Lesser Might
+of the Mind
+'Gilettar'
+'Anguirel'
+'Angrist'
+'Belangil'

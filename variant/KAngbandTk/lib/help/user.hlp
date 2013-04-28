@@ -1,0 +1,21 @@
+This file provides a simple "hot-link" method for the online help.
+
+Jump to what topic:
+
+    (1) Spoiler -- Objects
+    (1) Spoiler -- Monsters
+    (3) Spoiler -- Magic Books
+    (4) Spoiler -- Magic Effects
+    (5) Spoiler -- Initial Stats
+    (6) Spoiler -- Effects of Stats
+    (7) Spoiler -- Attacks
+    (8) Spoiler -- Store owners
+
+***** [1] obj-desc.spo
+***** [2] mon-desc.spo
+***** [3] books.spo
+***** [4] magic.spo
+***** [5] initstat.spo
+***** [6] stats.spo
+***** [7] attack.spo
+***** [8] store.spo

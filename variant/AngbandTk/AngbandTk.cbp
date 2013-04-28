@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="AngbandTk" />
+		<Option pch_mode="0" />
+		<Option compiler="cygwin" />
+		<Build>
+			<Target title="default">
+				<Option output="build.cb\angband.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="build.cb" />
+				<Option deps_output="build.cb\deps" />
+				<Option external_deps="..\..\src\misc\Build.cb\libmisc.a;..\..\..\dbwin\lib\Build.cb\libdbwin.a;" />
+				<Option type="3" />
+				<Option compiler="cygwin" />
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="default;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-g" />
+			<Add option="-DPLATFORM_WIN" />
+			<Add option="-DANGBANDTK" />
+			<Add option="-DALLOW_BORG" />
+			<Add option="-DBORG_TK" />
+			<Add directory="src" />
+			<Add directory="..\..\src\common" />
+			<Add directory="..\..\..\dbwin\lib" />
+			<Add directory="..\..\src\misc" />
+			<Add directory="..\..\src\common-dll" />
+			<Add directory="$(#TCL_SRC_DIR.generic)" />
+			<Add directory="$(#TCL_SRC_DIR.win)" />
+			<Add directory="$(#TK_SRC_DIR.generic)" />
+			<Add directory="$(#TK_SRC_DIR.win)" />
+			<Add directory="$(#TK_SRC_DIR.xlib)" />
+			<Add directory="..\..\..\tktreectrl\generic" />
+		</Compiler>
+		<Linker>
+			<Add option="--no-export-all-symbols --add-stdcall-alias" />
+			<Add option="--def angband.def" />
+			<Add option="..\..\src\common-dll\Build.cb\common.dll" />
+			<Add library="..\..\src\misc\Build.cb\libmisc.a" />
+			<Add library="..\..\..\dbwin\lib\Build.cb\libdbwin.a" />
+			<Add library="$(#TCL_INST_DIR.lib)\libtcl85g.a" />
+			<Add library="$(#TCL_INST_DIR.lib)\libtk85g.a" />
+			<Add library="libgdi32.a" />
+			<Add library="libcomdlg32.a" />
+		</Linker>
+		<Unit filename="..\..\src\common\bind.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\birth-tnb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\canv-widget.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\const.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\debug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\describe.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\file_character.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\icon1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\icon2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\interp1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\interp2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\main-tnb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\map.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\plat.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\r_info.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\savefile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\setting.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\sound.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\struct.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\town.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\treectrl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\util-tnb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\widget-iso.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\widget.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\src\common\wor.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\angband.h" />
+		<Unit filename="src\birth.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\cave.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\cmd1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\cmd2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\cmd3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\cmd4.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\cmd5.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\cmd6.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\config.h" />
+		<Unit filename="src\defines.h" />
+		<Unit filename="src\dungeon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\externs.h" />
+		<Unit filename="src\files.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\generate.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\h-basic.h" />
+		<Unit filename="src\h-config.h" />
+		<Unit filename="src\h-define.h" />
+		<Unit filename="src\h-system.h" />
+		<Unit filename="src\h-type.h" />
+		<Unit filename="src\init.h" />
+		<Unit filename="src\init1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\init2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\load1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\load2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\melee1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\melee2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\monster1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\monster2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\object1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\object2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\randart.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\save.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\spells1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\spells2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\store.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\tables.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\types.h" />
+		<Unit filename="src\util.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\variable.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\wizard1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\wizard2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\xtra1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\xtra2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\z-form.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\z-form.h" />
+		<Unit filename="src\z-rand.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\z-rand.h" />
+		<Unit filename="src\z-term.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\z-term.h" />
+		<Unit filename="src\z-util.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\z-util.h" />
+		<Unit filename="src\z-virt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\z-virt.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

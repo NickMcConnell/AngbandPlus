@@ -1,0 +1,604 @@
+# File: config-map
+
+# Purpose: map symbols 
+
+#
+# Copyright (c) 1997-2009 Tim Baker
+#
+# This software may be copied and distributed for educational, research, and
+# not for profit purposes provided that this copyright and statement are
+# included in all such copies.
+#
+
+namespace eval ConfigMap {
+
+	variable Bits
+	variable Detail
+	variable ImageData
+	variable ImageName
+	variable MapSizes
+	variable MimicLow
+	variable MimicMedium
+
+# namespace eval ConfigMap
+}
+
+# ConfigMap::DungeonEnter --
+#
+#	Description.
+#
+# Arguments:
+#	arg1					about arg1
+#
+# Results:
+#	What happened.
+
+qebind ConfigMapDungeonEnter <Dungeon-enter> {
+	ConfigMap::DungeonEnter %c
+}
+
+proc ConfigMap::DungeonEnter {depth} {
+
+	variable Detail
+
+	switch -- $Detail {
+		medium -
+		high {
+			if {$depth} {
+				symbol configure sym.downstair -mimic sym.downstair
+				symbol configure sym.permanent -mimic sym.wall0
+			} else {
+				symbol configure sym.downstair -mimic sym.stair
+				symbol configure sym.permanent -mimic sym.permanent
+			}
+		}
+	}
+
+	return
+}
+
+# ConfigMap::Bits --
+#
+#	Description.
+#
+# Arguments:
+#	arg1					about arg1
+#
+# Results:
+#	What happened.
+
+proc ConfigMap::Bits {size inner outer} {
+
+	set inner [palette set $inner]
+	set outer [palette set $outer]
+
+	for {set i 0} {$i < $size} {incr i} {
+		lappend rowOuter $outer
+	}
+
+	set n [expr {$size > 6 ? 2 : 1}]
+	for {set i 0} {$i < $n} {incr i} {
+		lappend rowInner $outer
+	}
+	for {set i $n} {$i < $size - $n} {incr i} {
+		lappend rowInner $inner
+	}
+	for {set i 0} {$i < $n} {incr i} {
+		lappend rowInner $outer
+	}
+
+	for {set i 0} {$i < $n} {incr i} {
+		lappend data $rowOuter
+	}
+	for {set i $n} {$i < $size - $n} {incr i} {
+		lappend data $rowInner
+	}	
+	for {set i 0} {$i < $n} {incr i} {
+		lappend data $rowOuter
+	}
+
+	return $data
+}
+
+# ConfigMap::InitBits --
+#
+#	Description.
+#
+# Arguments:
+#	arg1					about arg1
+#
+# Results:
+#	What happened.
+
+proc ConfigMap::InitBits {size} {
+
+	variable Bits
+
+	set Bits(sym.blank,$size) [Bits $size 255 255]
+	set Bits(sym.floor0,$size) [Bits $size 250 248]
+	set Bits(sym.floor1,$size) [Bits $size 250 249]
+	set Bits(sym.floor2,$size) [Bits $size 250 252]
+	set Bits(sym.wall0,$size) [Bits $size 255 250]
+	set Bits(sym.wall1,$size) [Bits $size 255 251]
+	set Bits(sym.wall2,$size) [Bits $size 255 252]
+	set Bits(sym.object,$size) [Bits $size 250 191]
+	set Bits(sym.monster,$size) [Bits $size 250 35]
+	set Bits(sym.character,$size) [Bits $size 250 5]
+	set Bits(sym.downstair,$size) [Bits $size 250 66]
+	set Bits(sym.upstair,$size) [Bits $size 250 186]
+	set Bits(sym.door,$size) [Bits $size 250 137]
+	set Bits(sym.trap,$size) [Bits $size 250 15]
+	if {[variant KANGBANDTK ZANGBANDTK]} {
+		set Bits(sym.pet,$size) [Bits $size 250 210]
+	}
+
+	return
+}
+
+# ConfigMap::InitImage --
+#
+#	Description.
+#
+# Arguments:
+#	arg1					about arg1
+#
+# Results:
+#	What happened.
+
+proc ConfigMap::InitImage {size} {
+
+	variable ImageData
+	variable ImageName
+
+	set path [CPathTk image dg micromap${size}x${size}.gif]
+
+	# List of symbol names in gif-order
+	set ImageName [list \
+		sym.floor0 sym.floor1 sym.floor2 sym.grass sym.tree \
+		sym.water.shallow sym.water.deep sym.lava.deep sym.lava.shallow \
+		sym.dirt sym.fog sym.mountain sym.rubble sym.chasm sym.wall0 \
+		sym.permanent sym.quartz sym.quartz.treasure sym.magma \
+		sym.magma.treasure sym.door sym.character sym.monster sym.object \
+		sym.money sym.downstair sym.upstair sym.stair sym.pet sym.trap \
+	]
+
+	symbol image2bits $path $size $ImageName
+
+	foreach symbol [symbol names] {
+		if {[lsearch -exact $ImageName $symbol] == -1} continue
+		set ImageData($symbol,$size) [symbol data $symbol $size]
+	}
+
+	return
+}
+
+proc ConfigMap::CheckMapData {detail} {
+
+	variable Bits
+	variable Exists
+	variable ImageData
+	variable ImageName
+	variable MapSizes
+
+	set depth [icon depth]
+
+	switch -- $detail {
+		low {
+			set path [Path lib data micromap-low.$depth.dat]
+		}
+		medium -
+		high {
+			set path [Path lib data micromap-high.$depth.dat]
+		}
+	}
+
+	if {[file exists $path]} {
+		return $path
+	}
+
+	if {[winfo exists $::AngbandPriv(load,win)]} {
+		# Tell the user why she's waiting
+		angband_load prompt "Writing symbol file \"[file tail $path]...\""
+	}
+
+	# Always init the "low" (for unknown grid?)
+	foreach size $MapSizes {
+		InitBits $size
+		foreach name [array names Bits *,$size] {
+			scan $name {%[^,],%d} symbol ignore
+			symbol configure $symbol -data $Bits($name) -mimic $symbol
+		}
+	}
+
+	if {$detail ne "low"} {
+		foreach size $MapSizes {
+			InitImage $size
+			foreach name $ImageName {
+				if {[info exists Exists($name)]} {
+					symbol configure $name -data $ImageData($name,$size)
+				}
+			}
+		}
+	}
+
+	symbol write $path
+
+	return $path
+}
+
+# ConfigMap::Configure --
+#
+#	Description.
+#
+# Arguments:
+#	arg1					about arg1
+#
+# Results:
+#	What happened.
+
+proc ConfigMap::Configure {detail} {
+
+	variable Detail
+	variable MimicLow
+	variable MimicMedium
+
+	set Detail $detail
+	set depth [icon depth]
+
+	# Try to read the icon data file twice.  If [symbol read] fails it may
+	# be because the screen pixel-format is different (at the same bit-depth).
+	for {set attempt 0} {$attempt < 2} {incr attempt} {
+		set path [CheckMapData $detail]
+		if {[catch {
+			symbol read $path
+			set attempt 1
+		} result]} {
+			set error $::errorInfo
+			file delete $path
+			if {$attempt} {
+				# Propagate the error
+				error $error
+			}
+		}
+	}
+
+	switch -- $detail {
+		low {
+			# Each symbol mimics itself
+			foreach name [symbol names] {
+				symbol configure $name -mimic $name
+			}
+
+			# Some symbols mimic another
+			foreach name [array names MimicLow] {
+				symbol configure $name -mimic $MimicLow($name)
+			}
+
+			# Wall uses lighting
+			symbol configure sym.wall0 -light yes
+		}
+		medium {
+			# Each symbol mimics itself
+			foreach name [symbol names] {
+				symbol configure $name -mimic $name
+			}
+
+			# Some symbols mimic another
+			foreach name [array names MimicMedium] {
+				symbol configure $name -mimic $MimicMedium($name)
+			}
+
+			# Granite wall doesn't use lighting
+			symbol configure sym.wall0 -light no
+		}
+		high {
+			# Each symbol mimics itself
+			foreach name [symbol names] {
+				symbol configure $name -mimic $name
+			}
+
+			# Granite wall doesn't use lighting
+			symbol configure sym.wall0 -light no
+		}
+	}
+
+	Value map,detail $detail
+
+	DungeonEnter [angband player depth]
+
+	return
+}
+
+# ConfigMap::Init --
+#
+#	Description.
+#
+# Arguments:
+#	arg1					about arg1
+#
+# Results:
+#	What happened.
+
+proc ConfigMap::Init {} {
+
+	global Angband
+	variable Bits
+	variable Exists
+	variable ImageData
+	variable ImageName
+	variable MapSizes
+	variable MimicLow
+	variable MimicMedium
+
+	# Create the symbols.
+	symbol new sym.blank
+	symbol special blank sym.blank
+	symbol new sym.floor0 -light yes
+	symbol new sym.floor1
+	symbol new sym.floor2
+	symbol new sym.wall0 -light yes
+	symbol new sym.wall1
+	symbol new sym.wall2
+	symbol new sym.object
+	symbol new sym.monster
+	symbol new sym.character
+	symbol new sym.downstair
+	symbol new sym.upstair
+	symbol new sym.door
+	symbol new sym.trap
+	symbol new sym.rubble
+	symbol new sym.permanent
+	symbol new sym.quartz
+	symbol new sym.quartz.treasure
+	symbol new sym.magma
+	symbol new sym.magma.treasure
+	symbol new sym.money
+	symbol new sym.stair
+	if {[variant KANGBANDTK ZANGBANDTK]} {
+		symbol new sym.pet
+		symbol special pet sym.pet
+		symbol new sym.grass
+		symbol new sym.tree
+		symbol new sym.water.shallow
+		symbol new sym.water.deep
+		symbol new sym.lava.shallow
+		symbol new sym.lava.deep
+		symbol new sym.dirt
+		symbol new sym.fog
+		symbol new sym.mountain
+		symbol new sym.chasm
+	}
+	if {[variant OANGBANDTK]} {
+		symbol new sym.grass
+		symbol new sym.tree
+		symbol new sym.water.deep
+		symbol new sym.lava.deep
+	}
+
+	# In "low" detail mode, some symbols are mapped to other symbols
+	set MimicLow(sym.stair) sym.downstair
+	set MimicLow(sym.rubble) sym.wall0
+	set MimicLow(sym.magma) sym.wall0
+	set MimicLow(sym.magma.treasure) sym.object
+	set MimicLow(sym.quartz) sym.wall0
+	set MimicLow(sym.quartz.treasure) sym.object
+	set MimicLow(sym.permanent) sym.wall0
+	set MimicLow(sym.money) sym.object
+	set MimicLow(sym.grass) sym.floor0
+	set MimicLow(sym.tree) sym.wall0
+	set MimicLow(sym.water.shallow) sym.floor0
+	set MimicLow(sym.water.deep) sym.floor0
+	set MimicLow(sym.lava.shallow) sym.floor0
+	set MimicLow(sym.lava.deep) sym.floor0
+	set MimicLow(sym.dirt) sym.floor0
+	set MimicLow(sym.fog) sym.wall0
+	set MimicLow(sym.mountain) sym.wall0
+	set MimicLow(sym.chasm) sym.blank
+
+	# In "medium" detail mode, some symbols are mapped to other symbols
+	set MimicMedium(sym.stair) sym.downstair
+	set MimicMedium(sym.magma) sym.quartz
+	set MimicMedium(sym.magma.treasure) sym.quartz.treasure
+	set MimicMedium(sym.permanent) sym.wall0
+	set MimicMedium(sym.grass) sym.floor0
+	set MimicMedium(sym.water.shallow) sym.floor0
+	set MimicMedium(sym.water.deep) sym.floor0
+	set MimicMedium(sym.lava.shallow) sym.floor0
+	set MimicMedium(sym.lava.deep) sym.floor0
+	set MimicMedium(sym.dirt) sym.floor0
+	set MimicMedium(sym.chasm) sym.blank
+
+	foreach name [symbol names] {
+		set Exists($name) 1
+	}
+	foreach name [array name MimicLow] {
+		if {![info exists Exists($name)]} {
+			unset MimicLow($name)
+		}
+	}
+	foreach name [array name MimicMedium] {
+		if {![info exists Exists($name)]} {
+			unset MimicMedium($name)
+		}
+	}
+
+	# Character
+	symbol assign character 0 sym.character
+	
+	# Monsters
+	foreach r_idx [angband r_info find] {
+		symbol assign monster $r_idx sym.monster
+	}
+	
+	# Hack -- Some monsters are never seen
+	foreach r_idx [angband r_info find -flag CHAR_CLEAR -flag ATTR_CLEAR] {
+		symbol assign monster $r_idx sym.floor0
+	}
+	
+	# Hack -- Some monsters should look like objects
+	foreach r_idx [angband r_info find -d_char "!?=|,(+"] {
+		symbol assign monster $r_idx sym.object
+	}
+
+	# Hack -- Some monsters should look like money
+	foreach r_idx [angband r_info find -d_char "$"] {
+		symbol assign monster $r_idx sym.money
+	}
+
+	# Objects
+	foreach k_idx [angband k_info find] {
+		symbol assign object $k_idx sym.object
+	}
+
+	# Hack -- Coins and gems
+	foreach k_idx [angband k_info find -tval TV_GOLD] {
+		symbol assign object $k_idx sym.money
+	}
+
+	# Default assignments for features
+	foreach f_idx [angband f_info find] {
+		switch -glob -- [angband f_info info $f_idx name] {
+			"invisible wall" -
+			"invisible trap" -
+			"open floor" {
+				symbol assign feature $f_idx sym.floor0
+			}
+			"open door" -
+			"broken door" -
+			"door" -
+			"jammed door" -
+			"locked door" {
+				symbol assign feature $f_idx sym.door
+			}
+			"*up level" -
+			"*exit" -
+			"up staircase" {
+				symbol assign feature $f_idx sym.upstair
+			}
+			"*down level" -
+			"*entrance" -
+			"down staircase" {
+				symbol assign feature $f_idx sym.downstair
+			}
+			"magma vein with treasure" {
+				symbol assign feature $f_idx sym.magma.treasure
+			}
+			"quartz vein with treasure" {
+				symbol assign feature $f_idx sym.quartz.treasure
+			}
+			"chasm" -
+			"dark pit" {
+				symbol assign feature $f_idx sym.chasm
+			}
+			"*dirt" {
+				symbol assign feature $f_idx sym.dirt
+			}
+			"*grass" {
+				symbol assign feature $f_idx sym.grass
+			}
+			"*Pattern*" {
+				symbol assign feature $f_idx sym.floor0
+			}
+			"lava" -
+			"*deep lava" {
+				symbol assign feature $f_idx sym.lava.deep
+			}
+			"*shallow lava" {
+				symbol assign feature $f_idx sym.lava.shallow
+			}
+			"*deep water" -
+			"water" {
+				symbol assign feature $f_idx sym.water.deep
+			}
+			"*shallow water" {
+				symbol assign feature $f_idx sym.water.shallow
+			}
+			"*fog" {
+				symbol assign feature $f_idx sym.fog
+			}
+			"mountain*" {
+				symbol assign feature $f_idx sym.mountain
+			}
+			"*rubble" {
+				symbol assign feature $f_idx sym.rubble
+			}
+			"magma vein" {
+				symbol assign feature $f_idx sym.magma
+			}
+			"quartz vein" {
+				symbol assign feature $f_idx sym.quartz
+			}
+			"permanent wall" {
+				symbol assign feature $f_idx sym.permanent
+			}
+			"secret door" -
+			"granite wall"  {
+				symbol assign feature $f_idx sym.wall0
+			}
+			"tree*" {
+				symbol assign feature $f_idx sym.tree
+			}
+			"explosive rune" -
+			"glyph of warding" {
+				symbol assign feature $f_idx sym.trap
+			}
+			default {
+				switch -- [angband f_info set $f_idx d_char] {
+					^ {
+						symbol assign feature $f_idx sym.trap
+					}
+					1 - 2 - 3 - 4 - 5 -
+					6 - 7 - 8 - 9 -
+					+ {
+						symbol assign feature $f_idx sym.door
+					}
+				}
+			}
+		}
+	}
+
+	# List of valid map tile sizes
+	set MapSizes [list 4 6 8]
+
+if 0 {
+	set depth [icon depth]
+
+	set pathLow [Path lib data micromap-low.$depth.dat]
+	set hasLow [file exists $pathLow]
+
+	set pathHigh [Path lib data micromap-high.$depth.dat]
+	set hasHigh [file exists $pathHigh]
+# set hasLow [set hasHigh 0]
+
+	if {!$hasLow || !$hasHigh} {
+		foreach size $MapSizes {
+			InitBits $size
+			foreach name [array names Bits *,$size] {
+				scan $name {%[^,],%d} symbol ignore
+				symbol configure $symbol -data $Bits($name) -mimic $symbol
+			}
+		}
+		if {!$hasLow} {
+			symbol write $pathLow
+		}
+	}
+
+	if {!$hasHigh} {
+		foreach size $MapSizes {
+			InitImage $size
+			foreach name $ImageName {
+				if {[info exists Exists($name)]} {
+					symbol configure $name -data $ImageData($name,$size)
+				}
+			}
+		}
+		symbol write $pathHigh
+	}
+}
+	Configure [Value map,detail]
+
+	return
+}
+
+ConfigMap::Init
+

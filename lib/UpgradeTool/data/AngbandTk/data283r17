@@ -1,0 +1,26 @@
+# data283r17 --
+#	Contains version-specific variables and commands
+
+source data283r16
+
+ldelete vDirName \
+	{tk library cxrlwin}
+
+lappend vDirName \
+	{ReadMe} \
+	{tk image dg} \
+	{tk library TclZip} \
+	{tk library tkhtml}
+
+lappend vValue \
+	record,dump \
+	record,message \
+	record,photo
+
+lappend vRInfoCompat \
+	283r16
+
+lappend vScoreCompat \
+	283r16
+
+

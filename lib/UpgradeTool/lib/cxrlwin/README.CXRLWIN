@@ -1,0 +1,16 @@
+Cxrlwin is loadable Tk package that provides a few useful tools. Currently
+I've stripped out everything but the following:
+
+  cxrl_getFolder: Open a dialog to browse for a folder. The only option is 
+      ?-title titleString?, and titleString defaults to "Select a Folder".
+  cxrl_getLongPathName: Gets the "long" pathname for possibly mangled name.
+
+To load and run:
+  
+  % load cxrlwin
+  % set f [cxrl_getFolder]
+  % set f [cxrl_getLongPathName c:\\progra~1]
+
+Enjoy
+Mumit -- khan@xraylith.wisc.edu
+http://www.xraylith.wisc.edu/~khan/

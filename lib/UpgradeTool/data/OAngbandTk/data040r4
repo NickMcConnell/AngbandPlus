@@ -1,0 +1,11 @@
+# data040r4 --
+#	Contains version-specific variables and commands
+
+source data040r3
+
+lappend vRInfoCompat \
+	040r3
+
+lappend vScoreCompat \
+	040r3
+

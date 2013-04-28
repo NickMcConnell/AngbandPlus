@@ -1,0 +1,736 @@
+# File: t0000001.txt
+
+# Plot: Troubles at home
+
+
+############### Additional default terrain settings ###############
+
+# Default for castle reward
+F:!:1:3
+
+# Default for Quest 2 = entrance is tree
+F:z:96:3
+
+# Default for Quest 4 = entrance is floor
+F:y:1:3
+
+# Default for Quest 6 = entrance is floor
+F:x:1:3
+
+# Default for Quest 10 = entrance is wall
+F:w:61:3
+
+# Default for Quest 12 = entrance is water
+F:v:104:3
+
+# Default for Quest 13 = entrance is tree
+F:u:96:3
+
+# Default for Quest 14 = entrance is tree
+F:t:96:3
+
+# Default for Quest 15 = entrance is wall
+F:s:61:3
+
+# Default for Quest 16 = entrance is floor
+# Note that this is the same as quest 6
+F:x:1:3
+
+# Default for Quest 17 = entrance is tree
+F:r:96:3
+
+# Default for home (only available as a quest reward)
+F:8:61:3
+?:[EQU $QUEST9 4]
+F:8:15:3
+
+
+############### Quest 1 - Random Monsters ###############
+
+# Quest 1 untaken
+?:[EQU $QUEST1 0]
+F:b:65:3:0:0:0:0:0:1
+
+# Quest 1 taken
+?:[EQU $QUEST1 1]
+F:b:65:3:0:0:0:0:0:1
+
+# Quest 1 completed
+?:[EQU $QUEST1 2]
+F:b:65:3:0:0:0:0:0:1
+
+# Quest 1 rewarding, reward is a Katana, continue with quest 2
+?:[EQU $QUEST1 3]
+F:b:65:3:0:0:0:0:0:2
+F:!:1:3:0:41
+
+# Quest 2 finished, continue with quest 2
+?:[EQU $QUEST1 4]
+F:b:65:3:0:0:0:0:0:2
+
+?:1
+
+
+############### Quest 2 - Thieves Hideout ###############
+
+# Quest 2 taken, entrance is quest entrance
+?:[EQU $QUEST2 1]
+F:z:112:3:0:0:0:0:0:2
+F:b:65:3:0:0:0:0:0:2
+
+# Quest 2 completed
+?:[EQU $QUEST2 2]
+F:b:65:3:0:0:0:0:0:2
+
+# Quest 2 rewarding, reward is a Metal Cap, continue with quest 3
+?:[EQU $QUEST2 3]
+F:b:65:3:0:0:0:0:0:3
+F:!:1:3:0:95
+
+# Quest 2 finished, continue with quest 3
+?:[EQU $QUEST2 4]
+F:b:65:3:0:0:0:0:0:3
+
+# Quest 2 failed, wait for the player to enter the castle
+?:[EQU $QUEST2 5]
+F:b:65:3:0:0:0:0:0:2
+
+# Quest 2 failed but done, continue with quest 3
+?:[EQU $QUEST2 6]
+F:b:65:3:0:0:0:0:0:3
+
+?:1
+
+
+############### Quest 3 - Random Monsters ###############
+
+# Quest 3 completed
+?:[EQU $QUEST3 2]
+F:b:65:3:0:0:0:0:0:3
+
+# Quest 3 rewarding, reward is a Small Metal Shield, continue with quest 4
+?:[EQU $QUEST3 3]
+F:b:65:3:0:0:0:0:0:4
+F:!:1:3:0:130
+
+# Quest 3 finished, continue with quest 4
+?:[EQU $QUEST3 4]
+F:b:65:3:0:0:0:0:0:4
+
+?:1
+
+
+############### Quest 4 - The Sewer ###############
+
+# Quest 4 taken, entrance is quest entrance
+?:[EQU $QUEST4 1]
+F:y:112:3:0:0:0:0:0:4
+F:b:65:3:0:0:0:0:0:4
+
+# Quest 4 completed
+?:[EQU $QUEST4 2]
+F:b:65:3:0:0:0:0:0:4
+
+# Quest 4 rewarding, reward is a Rod of Trap Location, continue with quest 5
+?:[EQU $QUEST4 3]
+F:b:65:3:0:0:0:0:0:5
+F:!:1:3:0:352
+
+# Quest 4 finished, continue with quest 5
+?:[EQU $QUEST4 4]
+F:b:65:3:0:0:0:0:0:5
+
+# Quest 4 failed, wait for the player to enter the castle
+?:[EQU $QUEST4 5]
+F:b:65:3:0:0:0:0:0:4
+
+# Quest 4 failed but done, continue with quest 5
+?:[EQU $QUEST4 6]
+F:b:65:3:0:0:0:0:0:5
+
+?:1
+
+
+############### Quest 5 - Random Monsters ###############
+
+# Quest 5 completed
+?:[EQU $QUEST5 2]
+F:b:65:3:0:0:0:0:0:5
+
+# Quest 5 rewarding, reward is a Scroll of *Enchant Weapon*, continue with quest 6
+?:[EQU $QUEST5 3]
+F:b:65:3:0:0:0:0:0:6
+F:!:1:3:0:212
+
+# Quest 5 finished, continue with quest 6
+?:[EQU $QUEST5 4]
+F:b:65:3:0:0:0:0:0:6
+
+?:1
+
+
+############### Quest 6 - The Volcano ###############
+
+# Quest 6 taken, entrance is quest entrance
+?:[EQU $QUEST6 1]
+F:x:112:3:0:0:0:0:0:6
+F:b:65:3:0:0:0:0:0:6
+
+# Quest 6 completed
+?:[EQU $QUEST6 2]
+F:b:65:3:0:0:0:0:0:6
+
+# Quest 6 rewarding, reward is a Light Crossbow, continue with quest 7
+?:[EQU $QUEST6 3]
+F:b:65:3:0:0:0:0:0:7
+F:!:1:3:0:75
+
+# Quest 6 finished, continue with quest 7
+?:[EQU $QUEST6 4]
+F:b:65:3:0:0:0:0:0:7
+
+# Quest 6 failed, wait for the player to enter the castle
+?:[EQU $QUEST6 5]
+F:b:65:3:0:0:0:0:0:6
+
+# Quest 6 failed but done, continue with quest 7
+?:[EQU $QUEST6 6]
+F:b:65:3:0:0:0:0:0:7
+
+?:1
+
+
+############### Quest 7 - Random Monsters ###############
+
+# Quest 7 completed
+?:[EQU $QUEST7 2]
+F:b:65:3:0:0:0:0:0:7
+
+# Quest 7 rewarding, reward is a Potion of Healing, continue with quest 8
+?:[EQU $QUEST7 3]
+F:b:65:3:0:0:0:0:0:8
+F:!:1:3:0:242
+
+# Quest 7 finished, continue with quest 8
+?:[EQU $QUEST7 4]
+F:b:65:3:0:0:0:0:0:8
+
+?:1
+
+
+############### Quest 8 - Master Thief ###############
+
+# Quest 8 taken, entrance is quest entrance
+?:[EQU $QUEST8 1]
+F:b:65:3:0:0:0:0:0:8
+
+# Quest 8 completed
+?:[EQU $QUEST8 2]
+F:b:65:3:0:0:0:0:0:8
+
+# Quest 8 rewarding, reward is a Wand of Teleport Other, continue with quest 9
+?:[EQU $QUEST8 3]
+F:b:65:3:0:0:0:0:0:9
+F:!:1:3:0:285
+
+# Quest 8 finished, continue with quest 9
+?:[EQU $QUEST8 4]
+F:b:65:3:0:0:0:0:0:9
+
+?:1
+
+
+############### Quest 9 - Random Monsters ###############
+
+# Quest 9 completed
+?:[EQU $QUEST9 2]
+F:b:65:3:0:0:0:0:0:9
+
+# Quest 9 rewarding, reward is a home
+?:[EQU $QUEST9 3]
+F:b:65:3:0:0:0:0:0:10
+F:8:15:3
+
+# Quest 9 finished, continue with quest 10
+?:[EQU $QUEST9 4]
+F:b:65:3:0:0:0:0:0:10
+
+?:1
+
+
+############### Quest 10 - The Druid Shop ###############
+
+# Quest 10 taken, entrance is quest entrance
+?:[EQU $QUEST10 1]
+F:w:112:3:0:0:0:0:0:10
+F:b:65:3:0:0:0:0:0:10
+
+# Quest 10 completed
+?:[EQU $QUEST10 2]
+F:b:65:3:0:0:0:0:0:10
+
+# Quest 10 rewarding, reward is a Staff of Teleportation, continue with quest 10
+?:[EQU $QUEST10 3]
+F:b:65:3:0:0:0:0:0:11
+F:!:1:3:0:303
+
+# Quest 10 finished, continue with quest 11
+?:[EQU $QUEST10 4]
+F:b:65:3:0:0:0:0:0:11
+
+# Quest 10 failed, wait for the player to enter the castle
+?:[EQU $QUEST10 5]
+F:b:65:3:0:0:0:0:0:10
+
+# Quest 10 failed but done, continue with quest 11
+?:[EQU $QUEST10 6]
+F:b:65:3:0:0:0:0:0:11
+
+?:1
+
+
+############### Quest 11 - Random Monsters ###############
+
+# Quest 11 completed
+?:[EQU $QUEST11 2]
+F:b:65:3:0:0:0:0:0:11
+
+# Quest 11 rewarding, reward is a Ring of Free Action, continue with quest 12
+?:[EQU $QUEST11 3]
+F:b:65:3:0:0:0:0:0:12
+F:!:1:3:0:144
+
+# Quest 11 finished, continue with quest 12
+?:[EQU $QUEST11 4]
+F:b:65:3:0:0:0:0:0:12
+
+?:1
+
+
+############### Quest 12 - Poisoning of Water ###############
+
+# Quest 12 taken, entrance is quest entrance
+?:[EQU $QUEST12 1]
+F:v:112:3:0:0:0:0:0:12
+F:b:65:3:0:0:0:0:0:12
+
+# Quest 12 completed
+?:[EQU $QUEST12 2]
+F:b:65:3:0:0:0:0:0:12
+
+# Quest 12 rewarding, reward is a Scroll of Aquirement, continue with quest 13
+?:[EQU $QUEST12 3]
+F:b:65:3:0:0:0:0:0:13
+F:!:1:3:0:198
+
+# Quest 12 finished, continue with quest 12
+?:[EQU $QUEST12 4]
+F:b:65:3:0:0:0:0:0:13
+
+# Quest 12 failed, wait for the player to enter the castle
+?:[EQU $QUEST12 5]
+F:b:65:3:0:0:0:0:0:12
+
+# Quest 12 failed but done, continue with quest 13
+?:[EQU $QUEST12 6]
+F:b:65:3:0:0:0:0:0:13
+
+?:1
+
+
+############### Quest 13 - Red Dragon Nest ###############
+
+# Quest 13 taken, entrance is quest entrance
+?:[EQU $QUEST13 1]
+F:u:112:3:0:0:0:0:0:13
+F:b:65:3:0:0:0:0:0:13
+
+# Quest 13 completed
+?:[EQU $QUEST13 2]
+F:b:65:3:0:0:0:0:0:13
+
+# Quest 13 rewarding, reward is a Ring of Slaying, continue with quest 14
+?:[EQU $QUEST13 3]
+F:b:65:3:0:0:0:0:0:14
+F:!:1:3:0:162
+
+# Quest 13 finished, continue with quest 14
+?:[EQU $QUEST13 4]
+F:b:65:3:0:0:0:0:0:14
+
+# Quest 13 failed, wait for the player to enter the castle
+?:[EQU $QUEST13 5]
+F:b:65:3:0:0:0:0:0:13
+
+# Quest 13 failed but done, continue with quest 14
+?:[EQU $QUEST13 6]
+F:b:65:3:0:0:0:0:0:14
+
+?:1
+
+
+############### Quest 14 - The Gauntlet ###############
+
+# Quest 14 taken, entrance is quest entrance
+?:[EQU $QUEST14 1]
+F:t:112:3:0:0:0:0:0:14
+F:b:65:3:0:0:0:0:0:14
+
+# Quest 14 completed
+?:[EQU $QUEST14 2]
+F:b:65:3:0:0:0:0:0:14
+
+# Quest 14 rewarding, reward is a Staff of Speed, continue with quest 15
+?:[EQU $QUEST14 3]
+F:b:65:3:0:0:0:0:0:15
+F:!:1:3:0:314
+
+# Quest 14 finished, continue with quest 15
+?:[EQU $QUEST14 4]
+F:b:65:3:0:0:0:0:0:15
+
+# Quest 14 failed, wait for the player to enter the castle
+?:[EQU $QUEST14 5]
+F:b:65:3:0:0:0:0:0:14
+
+# Quest 14 failed but done, continue with quest 15
+?:[EQU $QUEST14 6]
+F:b:65:3:0:0:0:0:0:15
+
+?:1
+
+
+############### Quest 15 - The Vault ###############
+
+# Quest 15 assigned, entrance is quest entrance
+?:[EQU $QUEST15 1]
+F:s:112:3:0:0:0:0:0:15
+F:b:65:3:0:0:0:0:0:15
+
+# Quest 15 completed
+?:[EQU $QUEST15 2]
+F:b:65:3:0:0:0:0:0:15
+
+# Quest 15 rewarding, no extra reward
+?:[EQU $QUEST15 3]
+F:b:65:3:0:0:0:0:0:16
+
+# Quest 15 finished
+?:[EQU $QUEST15 4]
+F:b:65:3:0:0:0:0:0:16
+
+# Quest 15 failed, wait for the player to enter the castle
+?:[EQU $QUEST15 5]
+F:b:65:3:0:0:0:0:0:15
+
+# Quest 15 failed but done, continue with quest 16
+?:[EQU $QUEST15 6]
+F:b:65:3:0:0:0:0:0:16
+
+?:1
+
+
+############### Quest 16 - Volcano II ###############
+
+# Quest 16 assigned, entrance is quest entrance
+?:[EQU $QUEST16 1]
+F:x:112:3:0:0:0:0:0:16
+F:b:65:3:0:0:0:0:0:16
+
+# Quest 16 completed
+?:[EQU $QUEST16 2]
+F:b:65:3:0:0:0:0:0:16
+
+# Quest 16 rewarding, reward is a Rod of Detection, continue with quest 17
+?:[EQU $QUEST16 3]
+F:b:65:3:0:0:0:0:0:17
+F:!:1:3:0:375
+
+# Quest 16 finished
+?:[EQU $QUEST16 4]
+F:b:65:3:0:0:0:0:0:17
+
+# Quest 16 failed, wait for the player to enter the castle
+?:[EQU $QUEST16 5]
+F:b:65:3:0:0:0:0:0:16
+
+# Quest 16 failed but done, continue with quest 17
+?:[EQU $QUEST16 6]
+F:b:65:3:0:0:0:0:0:17
+
+?:1
+
+
+############### Quest 17 - Graveyard ###############
+
+# Quest 17 assigned, entrance is quest entrance
+?:[EQU $QUEST17 1]
+F:r:112:3:0:0:0:0:0:17
+F:b:65:3:0:0:0:0:0:17
+
+# Quest 17 completed
+?:[EQU $QUEST17 2]
+F:b:65:3:0:0:0:0:0:17
+
+# Quest 17 rewarding, reward is a Potion of Augmentation, continue with quest 18
+?:[EQU $QUEST17 3]
+F:b:65:3:0:0:0:0:0:18
+F:!:1:3:0:418
+
+# Quest 17 finished
+?:[EQU $QUEST17 4]
+F:b:65:3:0:0:0:0:0:18
+
+# Quest 17 failed, wait for the player to enter the castle
+?:[EQU $QUEST17 5]
+F:b:65:3:0:0:0:0:0:17
+
+# Quest 17 failed but done, continue with quest 18
+?:[EQU $QUEST17 6]
+F:b:65:3:0:0:0:0:0:18
+
+?:1
+
+
+############### Quest 18 - Khamul ###############
+
+# Quest 18 completed
+?:[EQU $QUEST18 1]
+F:b:65:3:0:0:0:0:0:18
+
+# Quest 18 completed
+?:[EQU $QUEST18 2]
+F:b:65:3:0:0:0:0:0:18
+
+# Quest 18 rewarding, reward is a Scroll of *Acquirement*
+?:[EQU $QUEST18 3]
+F:b:65:3
+F:!:1:3:0:199
+
+# Quest 18 finished, no new quest available
+?:[EQU $QUEST18 4]
+F:b:65:3
+
+?:1
+
+
+############### Buildings ###############
+
+#a
+B:0:N:Library:Astinus Loremaster:Human?
+B:0:A:0:Research Item:2000:2000:r:1:0
+B:0:A:1:Town history:0:0:h:2:0
+B:0:A:2:Race legends:0:0:l:3:0
+
+#b
+B:1:N:Castle:King Denegor II:Human
+B:1:A:0:Look at busts of kings:0:0:l:5:0
+B:1:A:1:Request quest:0:0:q:6:0
+
+#c
+B:2:N:Arena:Arack Beastmaster:Dwarf
+B:2:A:0:Read poster:0:0:r:8:0
+B:2:A:1:Arena rules:0:0:a:9:0
+B:2:A:2:Enter arena:0:0:e:10:0
+B:2:A:3:Look at plaque:0:0:l:11:0
+
+#d
+B:3:N:Gambling Den:Materim the Sly:Human
+B:3:A:0:Game rules:0:0:r:13:0
+B:3:A:1:In-between:0:0:b:12:0
+B:3:A:2:Play craps:0:0:c:14:0
+B:3:A:3:Spin the wheel:0:0:s:15:0
+B:3:A:4:Play dice slots:0:0:d:16:0
+
+#e
+B:4:N:White Horse Inn:Goodman Otick:Human
+B:4:A:0:Rest for the night:20:20:r:17:0
+B:4:A:1:Buy food and drink:1:1:f:18:0
+
+#f
+B:5:N:Beastmaster:Lorien Goldenhair:Elf
+B:5:A:0:Research monster:2000:2000:r:20:0
+
+#g
+B:6:N:Weaponmaster:Suiyan the Swift:Human
+B:6:A:0:Compare weapons:1000:1000:c:21:0
+
+#h
+B:7:N:Fighters Hall:Barak the Brave:Human
+B:7:A:0:Look at plaque:0:0:l:22:0
+B:7:A:1:Enchant weapon:200:1000:w:23:0
+B:7:A:2:Enchant armor:200:1000:a:24:0
+B:7:C:2:0:0:0:0:0:0:0
+
+#i
+B:8:N:Tower of Sorcery:Irrident the Wise:Human
+B:8:A:0:Look at spires:0:0:l:22:0
+B:8:A:1:Recharge item:200:1000:r:25:0
+B:8:A:2:Identify posessions:200:1000:i:26:0
+B:8:C:0:2:0:0:1:0:0:0
+
+#j
+B:9:N:Inner Temple:Holy Crysania:Human
+B:9:A:0:Look at busts:0:0:l:22:0
+B:9:A:1:Healing prayer:200:1000:r:28:0
+B:9:A:2:Restoration:200:1000:i:29:0
+B:9:C:0:0:2:0:0:1:0:0
+
+#k
+B:10:N:Thieves Guild:Lardbottom the Vain:Hobbit
+B:10:A:0:Look at wall:0:0:l:22:0
+B:10:A:1:Get share of stolen goods:0:0:g:7:2
+B:10:A:2:Rest for the night:0:100:r:17:0
+B:10:A:3:Identify posessions:100:2000:i:26:0
+B:10:C:0:0:0:2:0:0:0:0
+
+#l
+B:11:N:Rangers Tavern:Trallin Fleetfoot:Half-Elf
+B:11:A:0:Look at plaque:0:0:l:22:0
+B:11:A:1:Enchant arrows:200:1000:a:30:0
+B:11:A:2:Enchant bows:200:1000:b:31:0
+B:11:C:0:0:0:0:2:0:0:0
+
+#m
+B:12:N:Paladins Order:Sir Langor:Half-Elf
+B:12:A:0:Look at shrine:0:0:l:22:0
+B:12:A:1:Enchant armor:200:1000:a:24:0
+B:12:A:2:See healers:200:1000:b:28:0
+B:12:C:0:0:0:0:0:2:0:0
+
+#n
+B:13:N:Tower of Illusion:Lord Itsukama:Human
+B:13:A:0:Look at spires:0:0:l:22:0
+B:13:A:1:Recharge item:200:1000:r:25:0
+B:13:A:2:Identify posessions:200:1000:i:26:0
+B:13:C:0:0:0:1:0:0:2:0
+
+#o
+B:14:N:Druids Grove:Dorrio Greenleaf:Elf
+B:14:A:0:Look at trees:0:0:l:22:0
+B:14:A:1:Healing prayer:200:1000:r:28:0
+B:14:A:2:Restoration:200:1000:i:29:0
+B:14:C:0:0:0:0:0:0:0:2
+
+
+
+############### Town Layout ###############
+
+D:######################################################################################################################################################################################################
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###############TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT###############TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.^^^^^^^^^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#######s#######TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTT^^^^^^^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT,,.,,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTuTTTTTTTTTTTTTTTTTT..TTTTT^^^^^^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.............................................................................TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT..TTTTTTTTTTTT^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTT....TTTTTTTTTTTTTTTTTTT^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.TTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,W#######################################################################W,.TTTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,W#######################################################################W,.TTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,W###TTTT.........................................................TTTT###W,.TTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^#
+D:#TTTTWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,W###TTTT..........................####............####...........TTTT##WW,.TTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^#
+D:#WWWWTTTTTWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##TTTT..........................####################...........TTTT##WW,.TTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^#
+D:#TTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##TTTo..........................####################...........TTTT##WW,.TTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^#
+D:#TTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##........................####...##################...####.........##WW,.TTTTTTTTTTTTTTTT....TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##.........##l##..........###....g################f....###.........##WW,.TTTTTTTTTTT.....TTTTTTTTTTTTTTTTTTTTT.................>^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##.........#####..........##m....##################....h##.........##WW,.TTTTTT.....TTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTT^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWWTTTTTTTTTTTTTTTTTTTTTTTT.,WW##.........####9..........###....##################....###.........##WW,.TTT...TTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTT^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTTT.,WW##.........#####..........###...####################...###.........##WW,....TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTT.,WW##.........##a##..........###...########bbbb########...###.........##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTT.,WW##..............................####......!.....####...............##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTT.,WW##..............................................y..................##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTT^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTT.,WW##.................................................................##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTT^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTT.,WW##.................................................................##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTT^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTT.,WW##.................................................................##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTT^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTT.,WW##.................................................................##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTT^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTT.,WW##.......#w##j####.....#########.....#########.....####e####.......##WW,.zTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTT^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTT.,WW##.......#########.....#########.....#########.....#########.......##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTT^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTWW.WWW##.......#########.....#########.....#########.....#########.......##WW,.,,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTT^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTVWVTWWTT.,WW##.......#########.....#########.....#########.....#########.......##WW,.,,,,TTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTT^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTVWWWTTTT.,WW##.......####4####.....####3####.....####2####.....####1####.......##WW,.,,,,,TTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTT^^^^^^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWTTTTTTT.,WW##.......................................................................................................TTTTTTTTT^^^^^^^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTT.,WW##.................................................................##WW,.,,,,,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTT.,WW##.................................................................##WW,.,,,,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTT.,WW##.................................................................##WW,.,,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTT.,WW##.......####8####.....####5####.....####6####.....####7####.......##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTT.,WW##.......#########.....#########.....#########.....#########.......##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTT.,WW##.......#########.....#########.....#########.....#########.......##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWTTTTTTTTTTTTTTTTTTTTTTT.,WW##.......#########.....#########.....#########.....#########.......##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##.......#########.....#########.....#########.....#########.......##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##.................................................................##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##.................................................................##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##.................................................................##WW,.TTTTTTTTTTTTTTTTTTTTTT..................TTTTTTTTTTTTTTTTTT^^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##............i................##ccc##.............................##WW,.TTTTTTTTT.............TTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTT^#
+D:#TTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##...........###.............###########.............####d###......##WW,..........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##.........#######........#################..........########......##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTT^#
+D:#TTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##........#########.....#####################........########......##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTT..TTT#
+D:#TTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##.........#######......#####################........########......##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTrT...TTtTT#
+D:#TTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##...........###..........#################..........####k###......##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTT...TTTTTTT^#
+D:#TTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##............n.............#############..........................##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTT^^#
+D:#TTTTTTTTTTVVWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,WW##.................................................................##WW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTT^#
+D:#TTTTTTTTTVWWVTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,W###.................................................................###W,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTT#
+D:#TTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTTTTTTTT...............TTTTTT.,W#######################################################################W,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTT#
+D:#TTTTTTTTvWWWWWTTTTTTTT................TTTTTTTTTTTTTTT..TTTT.,W#######################################################################W,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTT^^^#
+D:#TTTTTTTVWWWWWWWW......TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT..TT.,W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTT^^^^^^#
+D:#TTTTTTVWWWWWWWWWWVTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...,WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.^^^^^^^^#
+D:#TTTTTTWWWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^.^^^^^^^#
+D:#TTTTWWWWWWWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.............................................................................TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^.^^^^^^#
+D:#TTTTTTWWWWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^.^^^KK#
+D:#TTTTTTVWWWWWWWWWWVTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^x^KLL#
+D:#TTTTTTTTVWWWWWWWVTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^LLL#
+D:#TTTTTTTTTTTVVVWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^KLLL#
+D:#TTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^KLLLL#
+D:######################################################################################################################################################################################################
+
+
+############### Starting positions ###############
+
+# Starting position when coming from the dungeon
+?:[EQU $LEAVING_DUNGEON 1]
+P:17:191
+
+# Standard starting position
+?:[EQU $LEAVING_QUEST 0]
+P:33:131
+
+# Starting position when leaving quest 2
+?:[EQU $LEAVING_QUEST 2]
+P:28:137
+
+# Starting position when leaving quest 4
+?:[EQU $LEAVING_QUEST 4]
+P:23:112
+
+# Starting position when leaving quest 6
+?:[EQU $LEAVING_QUEST 6]
+P:61:192
+
+# Starting position when leaving quest 10
+?:[EQU $LEAVING_QUEST 10]
+P:27:74
+
+# Starting position when leaving quest 12
+?:[EQU $LEAVING_QUEST 12]
+P:54:9
+
+# Starting position when leaving quest 13
+?:[EQU $LEAVING_QUEST 13]
+P:5:150
+
+# Starting position when leaving quest 14
+?:[EQU $LEAVING_QUEST 14]
+P:49:194
+
+# Starting position when leaving quest 15
+?:[EQU $LEAVING_QUEST 15]
+P:4:107
+
+# Starting position when leaving quest 16
+?:[EQU $LEAVING_QUEST 16]
+P:61:192
+
+# Starting position when leaving quest 17
+?:[EQU $LEAVING_QUEST 17]
+P:41:194
+

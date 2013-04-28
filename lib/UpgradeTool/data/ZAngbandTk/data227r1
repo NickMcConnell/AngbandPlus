@@ -1,0 +1,50 @@
+# data227r1 --
+#	Contains version-specific variables and commands
+
+source data225r3
+
+ldelete vDirName \
+	{tk library tkhtml}
+
+lappend vDirName \
+	{tk library TclMusic} \
+	{tk library TkHtml}
+
+lappend vSetting \
+	avoid_center \
+	center_player
+
+lappend vValue \
+	choicewindow,autoexpand \
+	choicewindow,show \
+	choicewindow,showicon \
+	message2window,show \
+	music,directory \
+	music,play \
+	recall,showicon
+
+lappend vRInfoCompat \
+	225r3
+
+lappend vScoreCompat \
+	225r3
+
+rename ModifyValue ModifyValue225r3
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		music,directory {
+			if {[llength $value]} {
+				set value [UpdatePath [eval file join $value]]
+				set value [file split $value]
+			}
+		}
+		default {
+			return [ModifyValue225r3 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+

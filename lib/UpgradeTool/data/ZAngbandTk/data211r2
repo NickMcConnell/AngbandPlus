@@ -1,0 +1,23 @@
+# data211r2 --
+#	Contains version-specific variables and commands
+
+source data211r1
+
+lappend vSetting \
+	scroll_follow
+
+ldelete vValue \
+	TV_MAGIC_BOOK \
+	TV_PRAYER_BOOK
+
+lappend vValue \
+	messages,max \
+	scroll_follow \
+	settings,showUnused
+
+lappend vRInfoCompat \
+	211r1
+
+lappend vScoreCompat \
+	211r1
+

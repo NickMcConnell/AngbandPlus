@@ -1,0 +1,69 @@
+include $(JAM_RULES_DIR)/Jambase ;
+IncludeRules Tcl Tk Dbwin ;
+
+LOCATE_TARGET = [ FDirName $(BUILD_NAME) ] ;
+
+CCFLAGS += $(TCL_DEFS) $(TK_XINCLUDES)
+	-D$(PLATFORM) -DZANGBANDTK -DTNB_BACKUP -DTNB_SQUELCH ;
+
+if $(TOOLSET) = LCC { CCFLAGS += -DHAS_STRICMP ; }
+
+COMMONTK = [ FDirName $(ROOT) OmnibandTk ] ;
+
+HDRS += $(MISC_LIB_HDRS) $(COMMON_LIB_HDRS) $(TCL_HDRS) $(TK_HDRS) ;
+
+HDRS += [ FDirName $(ROOT) tktreectrl generic ] ;
+
+SEARCH_SOURCE = src [ FDirName $(COMMONTK) src common ] ;
+
+if $(PLATFORM) = PLATFORM_WIN
+{
+	ANGBAND = [ FAppendSuffix angband : $(SHLIB_SUF) ] ;
+
+	ShLib $(ANGBAND) : main-tnb.c libangband$(SUFLIB) libangband2$(SUFLIB)
+		libangtk$(SUFLIB) $(COMMON_LIB_NAME) $(MISC_LIB_SH_NAME) $(TCL_LIB_NAME)
+		$(TK_LIB_NAME) $(DBWIN_LIB_SH) ;
+
+	FLAGS = ;
+	LIBS = ;
+}
+else
+{
+	ANGBAND = [ FAppendSuffix angband : $(SHLIB_SUF) ] ;
+
+	ShLib $(ANGBAND) : main-tnb.c libangband$(SUFLIB) libangband2$(SUFLIB)
+		libangtk$(SUFLIB) libangband$(SUFLIB) libangband2$(SUFLIB)
+		$(MISC_LIB_SH_NAME) $(DBWIN_LIB_SH) ;
+
+	FLAGS = $(TCL_LD_FLAGS) ;
+	LIBS = -L$(COMMON_LIB_DIR) -lcommon $(TCL_LIB_SPEC)
+		$(TK_LIB_SPEC) $(TK_XLIBSW) $(SHLIB_LINKLIBS) -lm ;
+}
+
+SetSubsystem $(ANGBAND) : windows ;
+
+LinkSearchPath $(ANGBAND) : $(COMMONTK)/lib:$(TCL_PREFIX)/lib ;
+
+LINKFLAGS on $(ANGBAND) += $(FLAGS) ;
+
+LINKLIBS on $(ANGBAND) += $(LIBS) ;
+
+Library libangtk : bind.c birth-tnb.c canv-widget.c const.c debug.c 
+	describe.c file_character.c icon1.c icon2.c interp1.c 
+	interp2.c map.c mon_memory.c plat.c r_info.c savefile-z.c setting.c sound.c struct.c
+	town.c util-tnb.c widget.c widget-iso.c wor-z.c treectrl.c ;
+
+# Crap! lcclib can't append objects to an archive, so we can't have
+# too many object files in one library.
+Library libangband : artifact.c avatar.c birth.c bldg.c cave.c cmd1.c 
+	cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c dungeon.c effects.c files.c 
+	flavor.c generate.c grid.c init1.c init2.c load.c melee1.c melee2.c 
+	mind.c monster1.c monster2.c mspells1.c mspells2.c mutation.c notes.c 
+	obj_kind.c object1.c object2.c racial.c rooms.c save.c scores.c 
+	script.c spells1.c spells2.c spells3.c store.c streams.c tables.c ;
+Library libangband2 :
+	util.c variable.c wild.c wizard1.c wizard2.c xtra1.c xtra2.c z-form.c 
+	z-rand.c z-term.c z-util.c z-virt.c ;
+
+InstallBin $(DOT) : $(ANGBAND) ;
+

@@ -1,0 +1,22 @@
+# data283r14 --
+#	Contains version-specific variables and commands
+
+source data283r13
+
+lappend vConfig \
+	classic16 \
+	classic32 \
+	dg32
+
+lappend vSetting \
+	hidden_player
+
+lappend vValue \
+	font,magic
+
+lappend vRInfoCompat \
+	283r13
+
+lappend vScoreCompat \
+	283r13
+

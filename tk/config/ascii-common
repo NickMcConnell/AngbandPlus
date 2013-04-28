@@ -1,0 +1,240 @@
+# File: ascii-common
+
+# Purpose: common icon configuration settings
+
+#
+# Copyright (c) 1997-2009 Tim Baker
+#
+# This software may be copied and distributed for educational, research, and
+# not for profit purposes provided that this copyright and statement are
+# included in all such copies.
+#
+
+proc IconCfg::LoadCommon {{font ""}} {
+
+	variable Priv
+
+	# We choose the largest font for which "font metrics $font -linespace"
+	# is <= the icon height.
+	if {$font eq ""} {
+		set font [Value font,ascii]
+	}
+	array set attrib [font actual $font]
+	while {[font metrics $font -linespace] > [icon height]} {
+		incr attrib(-size) -1
+		set font [array get attrib]
+	}
+
+	icon createtype ascii -font $font
+
+	# Standard 16 colors
+	set color {255 0 250 17 217 196 199 101 129 247 30 5 35 185 180 52}
+	set Priv(color) $color
+
+	set bgC [Value ascii,character,bg]
+	set bgM [Value ascii,monster,bg]
+	set bgU [Value ascii,uniques,bg]
+	set bgF [Value ascii,friend,bg]
+	set bgO [Value ascii,object,bg]
+
+	###
+	### NOTE: Order of attribute creation is assumed in other places
+	###
+
+	# Create 16 ascii attributes (for friendly monsters)
+	set attr(monster,friend) [icon ascii count]
+	foreach paletteIndex $color {
+		icon ascii create -foreground [palette set $paletteIndex] \
+			-background [palette set $bgF]
+	}
+
+	# Create 16 ascii attributes (for monsters)
+	set index 0
+	set attr(monster) [icon ascii count]
+	foreach paletteIndex $color {
+		icon ascii create -foreground [palette set $paletteIndex] \
+			-background [palette set $bgM]
+		icon ascii configure [expr {$attr(monster) + $index}] \
+			-alternate_friend [expr {$attr(monster,friend) + $index}]
+		incr index
+	}
+
+	# Create 16 ascii attributes (for unique monsters)
+	set index 0
+	set attr(monster,unique) [icon ascii count]
+	foreach paletteIndex $color {
+		icon ascii create -foreground [palette set $paletteIndex] \
+			-background [palette set $bgU]
+		icon ascii configure [expr {$attr(monster,unique) + $index}] \
+			-alternate_friend [expr {$attr(monster,friend) + $index}]
+		incr index
+	}
+
+	# Create 16 ascii attributes (for objects)
+	set attr(object) [icon ascii count]
+	foreach paletteIndex $color {
+		icon ascii create -foreground [palette set $paletteIndex] \
+			-background [palette set $bgO]
+	}
+
+	# Create 1 ascii attribute (for character)
+	set attr(character) [icon ascii create -foreground [palette set 5] \
+		-background [palette set $bgC]]
+	Global attr,character $attr(character)
+
+	# Create 1 ascii attribute (for floor stack)
+	set attr(stack) [icon ascii create -foreground [palette set 225] \
+		-background [palette set $bgO]]
+
+	# Create 1 ascii attribute (for multi-hued friend monster)
+	set attr(multi,friend) [icon ascii create -foreground [palette set 0] \
+		-background [palette set $bgF] -mode attr_multi]
+
+	# Create 1 ascii attribute (for multi-hued monster)
+	set attr(multi) [icon ascii create -foreground [palette set 0] \
+		-background [palette set $bgM] -mode attr_multi \
+		-alternate_friend $attr(multi,friend)]
+
+	# Create 1 ascii attribute (for multi-hued unique monster)
+	set attr(multi,unique) [icon ascii create -foreground [palette set 0] \
+		-background [palette set $bgU] -mode attr_multi \
+		-alternate_friend $attr(multi,friend)]
+
+	if {[variant ZANGBANDTK]} {
+		# Create 1 ascii attribute (for shape-changing monster)
+		set attr(shape,friend) [icon ascii create -foreground [palette set 0] \
+			-background [palette set $bgF] -mode shapechanger]
+
+		# Create 1 ascii attribute (for shape-changing monster)
+		set attr(shape) [icon ascii create -foreground [palette set 0] \
+			-background [palette set $bgM] -mode shapechanger \
+			-alternate_friend $attr(shape,friend)]
+
+		# Create 1 ascii attribute (for shape-changing unique monster)
+		set attr(shape,unique) [icon ascii create -foreground [palette set 0] \
+			-background [palette set $bgU] -mode shapechanger \
+			-alternate_friend $attr(shape,friend)]
+	}
+
+	# Attribute characters used by monsters and objects
+	# set attrStr "dwsorgbuDWvyRGBU"
+
+	# Objects
+	set max_k_idx [angband k_info max]
+	for {set k_idx 1} {$k_idx < $max_k_idx} {incr k_idx} {
+		set d_char [angband k_info set $k_idx d_char]
+		set d_attr [angband k_info set $k_idx d_attr]
+		set index [icon ascii index ascii $d_char]
+		set ascii [expr {$d_attr + $attr(object)}]
+		assign set object $k_idx "icon ascii $index $ascii"
+	}
+
+	if 0 {
+	# Hack -- Staffs use different icon type
+	foreach k_idx [angband k_info find -tval TV_STAFF] {
+		set d_char [angband k_info set $k_idx d_char]
+		set d_attr [angband k_info set $k_idx d_attr]
+		set index [icon ascii index staff $d_char]
+		set ascii [expr {$d_attr + $attr(object)}]
+		assign set object $k_idx "icon staff $index $ascii"
+	}
+	}
+
+	# Monsters
+	set max_r_idx [angband r_info max]
+	for {set r_idx 1} {$r_idx < $max_r_idx} {incr r_idx} {
+		set d_char [angband r_info set $r_idx d_char]
+		set d_attr [angband r_info set $r_idx d_attr]
+		set index [icon ascii index ascii $d_char]
+		set ascii [expr {$d_attr + $attr(monster)}]
+		if {[angband r_info info $r_idx unique]} {
+			set ascii [expr {$d_attr + $attr(monster,unique)}]
+		}
+		assign set monster $r_idx "icon ascii $index $ascii"
+	}
+
+	# Hack -- Some monsters are never seen
+	# These "none 0" assignments are never overridden
+	foreach r_idx [angband r_info find -flag CHAR_CLEAR -flag ATTR_CLEAR] {
+		assign set monster $r_idx "icon none 0"
+	}
+
+	# Hack -- Some monsters should look like objects
+	foreach r_idx [angband r_info find -d_char "!?=|$,("] {
+		set d_char [angband r_info set $r_idx d_char]
+		set d_attr [angband r_info set $r_idx d_attr]
+		set index [icon ascii index ascii $d_char]
+		set ascii [expr {$d_attr + $attr(object)}]
+		assign set monster $r_idx "icon ascii $index $ascii"
+	}
+
+	# Hack -- Some monsters are multi-hued
+	foreach r_idx [angband r_info find -flag ATTR_MULTI] {
+		set d_char [angband r_info set $r_idx d_char]
+		set index [icon ascii index ascii $d_char]
+		assign set monster $r_idx "icon ascii $index $attr(multi)"
+		if {[angband r_info info $r_idx unique]} {
+			assign set monster $r_idx "icon ascii $index $attr(multi,unique)"
+		}
+	}
+
+	if {[variant ZANGBANDTK]} {
+		# Hack -- Some monsters are shapechangers
+		foreach r_idx [angband r_info find -flag SHAPECHANGER] {
+			set d_char [angband r_info set $r_idx d_char]
+			set index [icon ascii index ascii $d_char]
+			assign set monster $r_idx "icon ascii $index $attr(shape)"
+			if {[angband r_info info $r_idx unique]} {
+				assign set monster $r_idx "icon ascii $index $attr(shape,unique)"
+			}
+		}
+	}
+
+	# Object 0 icon used for floor stack, when "easy_floor" option is on
+	set index [icon ascii index ascii *]
+	assign set object 0 "icon ascii $index $attr(stack)"
+
+	if {[variant ZANGBANDTK]} {
+		# "Space monster" is all black
+		set r_idx [angband r_info find -name "Space monster"]
+		assign set monster $r_idx "icon blank 0"
+	}
+
+	if {[string match ascii* [Global config,prefix]]} {
+		AutoAssignCharacterIcon
+	}
+
+	if {[variant OANGBANDTK]} {
+		# OAngbandTk allows an icon for each shape. I assign the "normal"
+		# icon to every shape here. The xxx-assign file may override this.
+		set assign [assign set character 0]
+		for {set i 1} {$i < [assign count character]} {incr i} {
+			assign set character $i $assign
+		}
+	}
+
+	return
+}
+
+# Since this is often sourced by other icon configurations that are
+# missing object/monster icons, I don't want to provide this command
+# unless it is actually a "asciiNN" configuration.
+### This should probably go into config-char.
+if {[string match ascii* [Global config,prefix]]} {
+
+proc IconCfg::AutoAssignCharacterIcon {} {
+
+	set attrIndex [Global attr,character]
+	
+	set index [icon ascii index ascii @]
+	assign set character 0 "icon ascii $index $attrIndex"
+
+	# Set the flag to indicate the icon was auto-assigned
+	Global autoAssign 1
+
+	return
+}
+
+# ascii*
+}
+

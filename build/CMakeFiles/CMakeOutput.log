@@ -1,0 +1,350 @@
+The system is: Linux - 3.4.6-2.10-desktop - x86_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /usr/bin/gcc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/home/nick/OmnibandTk-1.5/build/CMakeFiles/CompilerIdC/a.out"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /usr/bin/c++ 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is GNU, found in "/home/nick/OmnibandTk-1.5/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec4236328824/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec4236328824.dir/build.make CMakeFiles/cmTryCompileExec4236328824.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec4236328824.dir/testCCompiler.c.o
+/usr/bin/gcc    -o CMakeFiles/cmTryCompileExec4236328824.dir/testCCompiler.c.o   -c /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTryCompileExec4236328824
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec4236328824.dir/link.txt --verbose=1
+/usr/bin/gcc         CMakeFiles/cmTryCompileExec4236328824.dir/testCCompiler.c.o  -o cmTryCompileExec4236328824 -rdynamic 
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec956664984/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec956664984.dir/build.make CMakeFiles/cmTryCompileExec956664984.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec956664984.dir/CMakeCCompilerABI.c.o
+/usr/bin/gcc    -o CMakeFiles/cmTryCompileExec956664984.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake/Modules/CMakeCCompilerABI.c
+Linking C executable cmTryCompileExec956664984
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec956664984.dir/link.txt --verbose=1
+/usr/bin/gcc       -v CMakeFiles/cmTryCompileExec956664984.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec956664984 -rdynamic  
+Using built-in specs.
+COLLECT_GCC=/usr/bin/gcc
+COLLECT_LTO_WRAPPER=/usr/lib64/gcc/x86_64-suse-linux/4.7/lto-wrapper
+Target: x86_64-suse-linux
+Configured with: ../configure --prefix=/usr --infodir=/usr/share/info --mandir=/usr/share/man --libdir=/usr/lib64 --libexecdir=/usr/lib64 --enable-languages=c,c++,objc,fortran,obj-c++,java,ada --enable-checking=release --with-gxx-include-dir=/usr/include/c++/4.7 --enable-ssp --disable-libssp --disable-libitm --disable-plugin --with-bugurl=http://bugs.opensuse.org/ --with-pkgversion='SUSE Linux' --disable-libgcj --disable-libmudflap --with-slibdir=/lib64 --with-system-zlib --enable-__cxa_atexit --enable-libstdcxx-allocator=new --disable-libstdcxx-pch --enable-version-specific-runtime-libs --enable-linker-build-id --program-suffix=-4.7 --enable-linux-futex --without-system-libunwind --with-arch-32=i586 --with-tune=generic --build=x86_64-suse-linux
+Thread model: posix
+gcc version 4.7.1 20120723 [gcc-4_7-branch revision 189773] (SUSE Linux) 
+COMPILER_PATH=/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/:/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/bin/
+LIBRARY_PATH=/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec956664984' '-rdynamic' '-mtune=generic' '-march=x86-64'
+ /usr/lib64/gcc/x86_64-suse-linux/4.7/collect2 --build-id --eh-frame-hdr -m elf_x86_64 -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec956664984 /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crt1.o /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crti.o /usr/lib64/gcc/x86_64-suse-linux/4.7/crtbegin.o -L/usr/lib64/gcc/x86_64-suse-linux/4.7 -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../.. CMakeFiles/cmTryCompileExec956664984.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib64/gcc/x86_64-suse-linux/4.7/crtend.o /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crtn.o
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:/usr/bin/gmake "cmTryCompileExec956664984/fast"]
+  ignore line: [/usr/bin/gmake -f CMakeFiles/cmTryCompileExec956664984.dir/build.make CMakeFiles/cmTryCompileExec956664984.dir/build]
+  ignore line: [gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp']
+  ignore line: [/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1]
+  ignore line: [Building C object CMakeFiles/cmTryCompileExec956664984.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/usr/bin/gcc    -o CMakeFiles/cmTryCompileExec956664984.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake/Modules/CMakeCCompilerABI.c]
+  ignore line: [Linking C executable cmTryCompileExec956664984]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec956664984.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/gcc       -v CMakeFiles/cmTryCompileExec956664984.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec956664984 -rdynamic  ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/gcc]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/lib64/gcc/x86_64-suse-linux/4.7/lto-wrapper]
+  ignore line: [Target: x86_64-suse-linux]
+  ignore line: [Configured with: ../configure --prefix=/usr --infodir=/usr/share/info --mandir=/usr/share/man --libdir=/usr/lib64 --libexecdir=/usr/lib64 --enable-languages=c,c++,objc,fortran,obj-c++,java,ada --enable-checking=release --with-gxx-include-dir=/usr/include/c++/4.7 --enable-ssp --disable-libssp --disable-libitm --disable-plugin --with-bugurl=http://bugs.opensuse.org/ --with-pkgversion='SUSE Linux' --disable-libgcj --disable-libmudflap --with-slibdir=/lib64 --with-system-zlib --enable-__cxa_atexit --enable-libstdcxx-allocator=new --disable-libstdcxx-pch --enable-version-specific-runtime-libs --enable-linker-build-id --program-suffix=-4.7 --enable-linux-futex --without-system-libunwind --with-arch-32=i586 --with-tune=generic --build=x86_64-suse-linux]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 4.7.1 20120723 [gcc-4_7-branch revision 189773] (SUSE Linux) ]
+  ignore line: [COMPILER_PATH=/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/:/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/bin/]
+  ignore line: [LIBRARY_PATH=/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec956664984' '-rdynamic' '-mtune=generic' '-march=x86-64']
+  link line: [ /usr/lib64/gcc/x86_64-suse-linux/4.7/collect2 --build-id --eh-frame-hdr -m elf_x86_64 -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec956664984 /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crt1.o /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crti.o /usr/lib64/gcc/x86_64-suse-linux/4.7/crtbegin.o -L/usr/lib64/gcc/x86_64-suse-linux/4.7 -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../.. CMakeFiles/cmTryCompileExec956664984.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib64/gcc/x86_64-suse-linux/4.7/crtend.o /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crtn.o]
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/collect2] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [-export-dynamic] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTryCompileExec956664984] ==> ignore
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crt1.o] ==> ignore
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crti.o] ==> ignore
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/crtbegin.o] ==> ignore
+    arg [-L/usr/lib64/gcc/x86_64-suse-linux/4.7] ==> dir [/usr/lib64/gcc/x86_64-suse-linux/4.7]
+    arg [-L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64] ==> dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64]
+    arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+    arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+    arg [-L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib] ==> dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib]
+    arg [-L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../..] ==> dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../..]
+    arg [CMakeFiles/cmTryCompileExec956664984.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [-lc] ==> lib [c]
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/crtend.o] ==> ignore
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crtn.o] ==> ignore
+  remove lib [gcc]
+  remove lib [gcc_s]
+  remove lib [gcc]
+  remove lib [gcc_s]
+  collapse dir [/usr/lib64/gcc/x86_64-suse-linux/4.7] ==> [/usr/lib64/gcc/x86_64-suse-linux/4.7]
+  collapse dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64] ==> [/usr/lib64]
+  collapse dir [/lib/../lib64] ==> [/lib64]
+  collapse dir [/usr/lib/../lib64] ==> [/usr/lib64]
+  collapse dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib] ==> [/usr/x86_64-suse-linux/lib]
+  collapse dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../..] ==> [/usr/lib64]
+  implicit libs: [c]
+  implicit dirs: [/usr/lib64/gcc/x86_64-suse-linux/4.7;/usr/lib64;/lib64;/usr/x86_64-suse-linux/lib]
+
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec1442649201/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec1442649201.dir/build.make CMakeFiles/cmTryCompileExec1442649201.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec1442649201.dir/testCXXCompiler.cxx.o
+/usr/bin/c++     -o CMakeFiles/cmTryCompileExec1442649201.dir/testCXXCompiler.cxx.o -c /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTryCompileExec1442649201
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1442649201.dir/link.txt --verbose=1
+/usr/bin/c++          CMakeFiles/cmTryCompileExec1442649201.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec1442649201 -rdynamic 
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec1744085369/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec1744085369.dir/build.make CMakeFiles/cmTryCompileExec1744085369.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec1744085369.dir/CMakeCXXCompilerABI.cpp.o
+/usr/bin/c++     -o CMakeFiles/cmTryCompileExec1744085369.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec1744085369
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1744085369.dir/link.txt --verbose=1
+/usr/bin/c++        -v CMakeFiles/cmTryCompileExec1744085369.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec1744085369 -rdynamic  
+Using built-in specs.
+COLLECT_GCC=/usr/bin/c++
+COLLECT_LTO_WRAPPER=/usr/lib64/gcc/x86_64-suse-linux/4.7/lto-wrapper
+Target: x86_64-suse-linux
+Configured with: ../configure --prefix=/usr --infodir=/usr/share/info --mandir=/usr/share/man --libdir=/usr/lib64 --libexecdir=/usr/lib64 --enable-languages=c,c++,objc,fortran,obj-c++,java,ada --enable-checking=release --with-gxx-include-dir=/usr/include/c++/4.7 --enable-ssp --disable-libssp --disable-libitm --disable-plugin --with-bugurl=http://bugs.opensuse.org/ --with-pkgversion='SUSE Linux' --disable-libgcj --disable-libmudflap --with-slibdir=/lib64 --with-system-zlib --enable-__cxa_atexit --enable-libstdcxx-allocator=new --disable-libstdcxx-pch --enable-version-specific-runtime-libs --enable-linker-build-id --program-suffix=-4.7 --enable-linux-futex --without-system-libunwind --with-arch-32=i586 --with-tune=generic --build=x86_64-suse-linux
+Thread model: posix
+gcc version 4.7.1 20120723 [gcc-4_7-branch revision 189773] (SUSE Linux) 
+COMPILER_PATH=/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/:/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/bin/
+LIBRARY_PATH=/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1744085369' '-rdynamic' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
+ /usr/lib64/gcc/x86_64-suse-linux/4.7/collect2 --build-id --eh-frame-hdr -m elf_x86_64 -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec1744085369 /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crt1.o /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crti.o /usr/lib64/gcc/x86_64-suse-linux/4.7/crtbegin.o -L/usr/lib64/gcc/x86_64-suse-linux/4.7 -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../.. CMakeFiles/cmTryCompileExec1744085369.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib64/gcc/x86_64-suse-linux/4.7/crtend.o /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crtn.o
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:/usr/bin/gmake "cmTryCompileExec1744085369/fast"]
+  ignore line: [/usr/bin/gmake -f CMakeFiles/cmTryCompileExec1744085369.dir/build.make CMakeFiles/cmTryCompileExec1744085369.dir/build]
+  ignore line: [gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp']
+  ignore line: [/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1]
+  ignore line: [Building CXX object CMakeFiles/cmTryCompileExec1744085369.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/usr/bin/c++     -o CMakeFiles/cmTryCompileExec1744085369.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Linking CXX executable cmTryCompileExec1744085369]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1744085369.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/c++        -v CMakeFiles/cmTryCompileExec1744085369.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec1744085369 -rdynamic  ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/c++]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/lib64/gcc/x86_64-suse-linux/4.7/lto-wrapper]
+  ignore line: [Target: x86_64-suse-linux]
+  ignore line: [Configured with: ../configure --prefix=/usr --infodir=/usr/share/info --mandir=/usr/share/man --libdir=/usr/lib64 --libexecdir=/usr/lib64 --enable-languages=c,c++,objc,fortran,obj-c++,java,ada --enable-checking=release --with-gxx-include-dir=/usr/include/c++/4.7 --enable-ssp --disable-libssp --disable-libitm --disable-plugin --with-bugurl=http://bugs.opensuse.org/ --with-pkgversion='SUSE Linux' --disable-libgcj --disable-libmudflap --with-slibdir=/lib64 --with-system-zlib --enable-__cxa_atexit --enable-libstdcxx-allocator=new --disable-libstdcxx-pch --enable-version-specific-runtime-libs --enable-linker-build-id --program-suffix=-4.7 --enable-linux-futex --without-system-libunwind --with-arch-32=i586 --with-tune=generic --build=x86_64-suse-linux]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 4.7.1 20120723 [gcc-4_7-branch revision 189773] (SUSE Linux) ]
+  ignore line: [COMPILER_PATH=/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/:/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/bin/]
+  ignore line: [LIBRARY_PATH=/usr/lib64/gcc/x86_64-suse-linux/4.7/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib/:/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1744085369' '-rdynamic' '-shared-libgcc' '-mtune=generic' '-march=x86-64']
+  link line: [ /usr/lib64/gcc/x86_64-suse-linux/4.7/collect2 --build-id --eh-frame-hdr -m elf_x86_64 -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec1744085369 /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crt1.o /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crti.o /usr/lib64/gcc/x86_64-suse-linux/4.7/crtbegin.o -L/usr/lib64/gcc/x86_64-suse-linux/4.7 -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib -L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../.. CMakeFiles/cmTryCompileExec1744085369.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib64/gcc/x86_64-suse-linux/4.7/crtend.o /usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crtn.o]
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/collect2] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [-export-dynamic] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTryCompileExec1744085369] ==> ignore
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crt1.o] ==> ignore
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crti.o] ==> ignore
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/crtbegin.o] ==> ignore
+    arg [-L/usr/lib64/gcc/x86_64-suse-linux/4.7] ==> dir [/usr/lib64/gcc/x86_64-suse-linux/4.7]
+    arg [-L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64] ==> dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64]
+    arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+    arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+    arg [-L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib] ==> dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib]
+    arg [-L/usr/lib64/gcc/x86_64-suse-linux/4.7/../../..] ==> dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../..]
+    arg [CMakeFiles/cmTryCompileExec1744085369.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [-lstdc++] ==> lib [stdc++]
+    arg [-lm] ==> lib [m]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lc] ==> lib [c]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/crtend.o] ==> ignore
+    arg [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crtn.o] ==> ignore
+  remove lib [gcc_s]
+  remove lib [gcc]
+  remove lib [gcc_s]
+  remove lib [gcc]
+  collapse dir [/usr/lib64/gcc/x86_64-suse-linux/4.7] ==> [/usr/lib64/gcc/x86_64-suse-linux/4.7]
+  collapse dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64] ==> [/usr/lib64]
+  collapse dir [/lib/../lib64] ==> [/lib64]
+  collapse dir [/usr/lib/../lib64] ==> [/usr/lib64]
+  collapse dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../x86_64-suse-linux/lib] ==> [/usr/x86_64-suse-linux/lib]
+  collapse dir [/usr/lib64/gcc/x86_64-suse-linux/4.7/../../..] ==> [/usr/lib64]
+  implicit libs: [stdc++;m;c]
+  implicit dirs: [/usr/lib64/gcc/x86_64-suse-linux/4.7;/usr/lib64;/lib64;/usr/x86_64-suse-linux/lib]
+
+
+Determining if the function dlopen exists in the dl passed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec2488900318/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec2488900318.dir/build.make CMakeFiles/cmTryCompileExec2488900318.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec2488900318.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=dlopen   -o CMakeFiles/cmTryCompileExec2488900318.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec2488900318
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2488900318.dir/link.txt --verbose=1
+/usr/bin/gcc     -DCHECK_FUNCTION_EXISTS=dlopen    CMakeFiles/cmTryCompileExec2488900318.dir/CheckFunctionExists.c.o  -o cmTryCompileExec2488900318 -rdynamic -ldl 
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the function XOpenDisplay exists in the /usr/lib64/libX11.so;/usr/lib64/libXext.so passed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec2229915374/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec2229915374.dir/build.make CMakeFiles/cmTryCompileExec2229915374.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec2229915374.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=XOpenDisplay   -o CMakeFiles/cmTryCompileExec2229915374.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec2229915374
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2229915374.dir/link.txt --verbose=1
+/usr/bin/gcc     -DCHECK_FUNCTION_EXISTS=XOpenDisplay    CMakeFiles/cmTryCompileExec2229915374.dir/CheckFunctionExists.c.o  -o cmTryCompileExec2229915374 -rdynamic -lX11 -lXext 
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the function gethostbyname exists passed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec2482681602/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec2482681602.dir/build.make CMakeFiles/cmTryCompileExec2482681602.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec2482681602.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=gethostbyname   -o CMakeFiles/cmTryCompileExec2482681602.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec2482681602
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2482681602.dir/link.txt --verbose=1
+/usr/bin/gcc     -DCHECK_FUNCTION_EXISTS=gethostbyname    CMakeFiles/cmTryCompileExec2482681602.dir/CheckFunctionExists.c.o  -o cmTryCompileExec2482681602 -rdynamic 
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the function connect exists passed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec4094628130/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec4094628130.dir/build.make CMakeFiles/cmTryCompileExec4094628130.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec4094628130.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=connect   -o CMakeFiles/cmTryCompileExec4094628130.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec4094628130
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec4094628130.dir/link.txt --verbose=1
+/usr/bin/gcc     -DCHECK_FUNCTION_EXISTS=connect    CMakeFiles/cmTryCompileExec4094628130.dir/CheckFunctionExists.c.o  -o cmTryCompileExec4094628130 -rdynamic 
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the function remove exists passed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec3930492044/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec3930492044.dir/build.make CMakeFiles/cmTryCompileExec3930492044.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3930492044.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=remove   -o CMakeFiles/cmTryCompileExec3930492044.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec3930492044
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3930492044.dir/link.txt --verbose=1
+/usr/bin/gcc     -DCHECK_FUNCTION_EXISTS=remove    CMakeFiles/cmTryCompileExec3930492044.dir/CheckFunctionExists.c.o  -o cmTryCompileExec3930492044 -rdynamic 
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the function shmat exists passed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec3419137707/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec3419137707.dir/build.make CMakeFiles/cmTryCompileExec3419137707.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3419137707.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=shmat   -o CMakeFiles/cmTryCompileExec3419137707.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec3419137707
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3419137707.dir/link.txt --verbose=1
+/usr/bin/gcc     -DCHECK_FUNCTION_EXISTS=shmat    CMakeFiles/cmTryCompileExec3419137707.dir/CheckFunctionExists.c.o  -o cmTryCompileExec3419137707 -rdynamic 
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the function IceConnectionNumber exists in the ICE passed with the following output:
+Change Dir: /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec3863749955/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec3863749955.dir/build.make CMakeFiles/cmTryCompileExec3863749955.dir/build
+gmake[1]: Entering directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3863749955.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=IceConnectionNumber   -o CMakeFiles/cmTryCompileExec3863749955.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec3863749955
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3863749955.dir/link.txt --verbose=1
+/usr/bin/gcc     -DCHECK_FUNCTION_EXISTS=IceConnectionNumber    CMakeFiles/cmTryCompileExec3863749955.dir/CheckFunctionExists.c.o  -o cmTryCompileExec3863749955 -rdynamic -lICE 
+gmake[1]: Leaving directory `/home/nick/OmnibandTk-1.5/build/CMakeFiles/CMakeTmp'
+
+

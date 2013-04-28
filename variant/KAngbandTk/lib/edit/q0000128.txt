@@ -1,0 +1,70 @@
+Q:128:N:Dwarven Mines
+
+Q:128:Q:4:0:0:0:20:0:0:6
+
+?:[LEQ $QUEST128 2]
+Q:128:T:We need you to find a passage through the Dwarven Mines. Should
+Q:128:T:you succeed we will be able to send a leagon behind Morgoth's
+Q:128:T:army and attack from both sides. Can anybody say Custard?
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST128 3]
+Q:128:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST128 5]
+Q:128:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Dwarven Shovel
+F:k:1:8:0:86
+
+# open floor (room), Dwarven Pick
+F:l:1:8:0:89
+
+# open floor (room), Adamantite Plate Mail of Elvenkind
+F:m:1:8:0:118:9
+
+# open floor (room), rubies
+F:n:1:8:0:493
+
+# open floor (room), diamonds
+F:o:1:8:0:494
+
+# open floor (room), emeralds
+F:p:1:8:0:495
+
+# open floor (room), mithril
+F:q:1:8:0:496
+
+# open floor (room), adamantite
+F:r:1:8:0:497
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.................%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
+D:XXXXXXXXXXXXXXXXX.........%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%nn...k%%%X
+D:X...............XXXXXXXXX.....................%%%%%%%%%;;D...9..n%%%X
+D:X%%%%%%%%%%%%%%.........XXXXXXXXXXXXXXXXXXXXX...........%%%....nn%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%..X..................XXXXXXXX.....%%%%%%%%%%%X
+D:X%%r.q%%%%%%%%%%%%%%%%%%.X.%%%%%%%%%%%%%%%%........XXXXX..%%%%%%%%%%X
+D:X%%.<..D...........%%%%%.X.%%%%%%%%%%%%%%%%%%%%%%%9......%%%%oo..l%%X
+D:X%%r.q%%%%%%...9...r%%%%.X...........%%%%%%%%%%%%%%%%%%%%%%%%o9...%%X
+D:X%%%%%%%%%%%.......r%%%%.XXXXXXXXXXX.%%%%%%....%%%%%%%%%%%%%%%%D%%%%X
+D:X%%%%%...%%%%.....%%%%.............X.%%%%%......%%%......%%%......%%X
+D:X%r....V.%%%%%.%%%%%%%.XXXXXX.XXXXXX.%%%%%...9..%%%...9...D.9.....%%X
+D:X%%%%%.V.%%%%%D%%%%%%..X.............%%%%%......%%%......%%%......%%X
+D:X%%%%%.V.......%%%%%%.XX.%%%%%%%%%%%%%%%%%%.....%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%.V%%%%%%%%%%%...X..%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%r....V%%%%%%%%%%%.XXX.%%%%%%%%%%%%%%%%%%%%%%D%%%%%%%%%q...%%%.%%%%X
+D:X%%%%%.VVVVVVVVVVVVVV...............%%%%%%%%%%.%%%%%%%%%q.9..D..%%%%X
+D:X%%%%%..............XXXXXXXXXXXXXXX..................%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%%%.%%%%%...............XXXXXXXXXXXXXXXXXX.%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%%%.%%%%%%%%%%%.%%%%%%%..................X............%%%%X
+D:X%%m......%%%.%%%%%%%%%%...%%%%%%%%%%%%%%%%%%%%%%%.XXXXXXXXXXXX.....X
+D:X%%r..9....D..%%%%%%%*...9...r%%%%%%%%%%%%%%%%%%%%............XXXXX.X
+D:X%%%%%%%%%%%%%%%%%%%%%.......r%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:1:2

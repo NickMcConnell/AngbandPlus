@@ -1,0 +1,65 @@
+Q:110:N:Bounty Hunter
+
+Q:110:Q:6:0:0:0:25:0:0:6
+
+?:[LEQ $QUEST110 2]
+Q:110:T:Well done, Now we know the shopkeepers secret.
+Q:110:T:While you were gone a couple of Prisoners escaped. We were keeping
+Q:110:T:them in the only undammaged building in the ruins, the old Cellblock.
+Q:110:T:I need you to go investigate the cellblock and see if you can find
+Q:110:T:out how they escaped. Should you find their trail, track them down
+Q:110:T:and eliminate them. We can't afford to have those spies return to
+Q:110:T:Morgoth. Move swiftly but with caution, Shagrat and his friend are 
+Q:110:T:dangerous quarry.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST110 3]
+Q:110:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST110 5]
+Q:110:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Shagrat, the Orc Captain
+F:a:1:8:227
+
+# open floor (room), Hardened warrior
+F:b:1:8:261
+
+# open floor (room), Human Skeleton
+F:k:1:8:0:395
+
+# open floor (room), Dwarf Skeleton
+F:l:1:8:0:396
+
+# open floor (room), Elf Skeleton
+F:m:1:8:0:397
+
+# open floor (room), Gnome Skeleton
+F:n:1:8:0:398
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X--------C------------;;---------------------,,,-----------;;;;--X
+D:X---a----C-----------;------------9-------,---------------,---;;-X
+D:X--------C---;;;-----;---------------,,---------------&--------;-X
+D:X--------C-------------,----,,,--,------WWWWWWWWWW-------,-;---;-X
+D:X--------C---;---------------------WWWWWWWWWWWWWWWWW-,---------;-X
+D:X---b---CC---;-----------;;--------;;WWWWWWWWWWWWWWW-,---T--T----X
+D:X------CC----;-;;-,-------;-------------WWWWWWWWWWW-,-------T----X
+D:X-----CC-----------------------------;WWWWWWWWWWWW-----------;---X
+D:X----CC----,---------------;-----;;;;;-T--WWWWW---,----T---T---;-X
+D:X--------------------------;----;;--;;T----------,-------TT------X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-T-T----------------;;---------X
+D:X<...............................X------T----,&,----------T---;--X
+D:XXXXDXXXXXXXDXXXXXXXDXXXXXXXDXXXXX-----,---------T-TT---;-----;--X
+D:Xm......X.......Xk.....mXm......XX-----,-T---------------T-------X
+D:X.......X.......X.......X.......XX----,---T--T--T----T-T---T--;;-X
+D:X...k...Xk.....lX.......X......nXX-------------T--;--T--T-----;--X
+D:XXXX+XXXXXXXXXXXXXXXXXXXXXXXXXXXXX--,------T------;-------T------X
+D:XXXX.............................;----------T-T---T-T----T-------X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:12:2

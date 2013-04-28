@@ -1,0 +1,73 @@
+# data291r2 --
+#	Contains version-specific variables and commands
+
+source data291r1
+
+set vCommonVersion 1.2
+
+ldelete vValue \
+	statusBD \
+	statusBD2 \
+	statusBG \
+	statusBG2 \
+	statusBL \
+	statusBL2 \
+	statusText \
+	statusText2
+
+lappend vValue \
+	font,autobar \
+	font,choice \
+	font,miscPopup \
+	map,detail \
+	statusBadBD \
+	statusBadBD2 \
+	statusBadBG \
+	statusBadBG2 \
+	statusBadBL \
+	statusBadBL2 \
+	statusBadText \
+	statusBadText2 \
+	statusGoodBD \
+	statusGoodBD2 \
+	statusGoodBG \
+	statusGoodBG2 \
+	statusGoodBL \
+	statusGoodBL2 \
+	statusGoodText \
+	statusGoodText2 \
+	statusInfoBD \
+	statusInfoBD2 \
+	statusInfoBG \
+	statusInfoBG2 \
+	statusInfoBL \
+	statusInfoBL2 \
+	statusInfoText \
+	statusInfoText2
+
+lappend vRInfoCompat \
+	291r1
+
+lappend vScoreCompat \
+	291r1
+
+rename ModifyValue ModifyValue291r1
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -glob -- $name {
+		sound,directory {
+			# CommonTk/sound ==> CommonTk/sound
+			if {[llength $value]} {
+				set value [UpdateCPath [eval file join $value]]
+				set value [file split $value]
+			}
+		}
+		default {
+			return [ModifyValue291r1 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+

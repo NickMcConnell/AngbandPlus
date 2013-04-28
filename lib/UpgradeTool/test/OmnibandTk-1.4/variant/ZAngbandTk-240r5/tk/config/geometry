@@ -1,0 +1,24 @@
+# Automatically generated. Do not edit.
+
+assign 503x352+107+68
+character 668x430+106+68
+choice 371x132+379+573
+color 331x336+108+71
+font 273x309+107+73
+help 592x352+0+70
+highscore 785x352+108+70
+keymap 374x227+0+70
+knowledge 553x352+107+70
+macros 469x352+0+70
+main 750x520+0+0
+message 482x15+0+0
+message2 256x421+758+278
+messages 592x352+105+69
+micromap 258x251+758+0
+misc 100x253+758+279
+music 423x352+109+70
+options 442x352+108+70
+progress 100x47+758+475
+recall 371x131+0+573
+record 663x352+0+70
+sound 470x352+105+71

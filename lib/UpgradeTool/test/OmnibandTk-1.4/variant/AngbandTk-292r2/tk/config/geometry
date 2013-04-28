@@ -1,0 +1,12 @@
+# Automatically generated. Do not edit.
+
+choice 400x136+408+567
+inventory2 469x343+0+70
+main 808x514+0+0
+message 1016x15+0+0
+micromap 200x264+816+0
+misc 101x304+816+292
+options 442x352+0+70
+progress 101x47+816+622
+recall 392x136+0+568
+tip 336x263+344+168

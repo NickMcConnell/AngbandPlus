@@ -1,0 +1,28 @@
+# data225r2 --
+#	Contains version-specific variables and commands
+
+source data225r1
+
+ldelete vDirName \
+	{tk library cxrlwin}
+
+lappend vDirName \
+	{ReadMe} \
+	{lib pref} \
+	{lib script} \
+	{tk image dg} \
+	{tk library TclZip} \
+	{tk library tkhtml}
+
+lappend vValue \
+	record,dump \
+	record,message \
+	record,photo
+
+lappend vRInfoCompat \
+	225r1
+
+lappend vScoreCompat \
+	225r1
+
+

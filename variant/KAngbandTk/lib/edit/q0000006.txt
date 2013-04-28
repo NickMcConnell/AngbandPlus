@@ -1,0 +1,51 @@
+# q0000006.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:6:N:The Volcano
+
+# Definition
+Q:6:Q:4:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST6 2]
+Q:6:T:A volcano has been rumbling in the southeast part of our
+Q:6:T:territory. I need you to enter the volcano and find the
+Q:6:T:exit, which will in turn plug it up. Watch for creatures
+Q:6:T:trying to make a home for themselves. Just get to the exit!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST6 3]
+Q:6:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST6 5]
+Q:6:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX..XX..XXXXX..XX....XXXXXXXXXXX..........KKKKKKKLLX
+D:XX...........X.............XXXXX9.......KKLLLLLKKKKLLLX
+D:XX..........................X........KKKKKKKKLLLKKKLLLX
+D:XXX.................................KKKKKKKKKKLLLKLLLLX
+D:XX................................KKKKKKKKKKK<LLLLLLLLX
+D:XX...................................KKKKLLLLLLLLLLLLLX
+D:XX..................................KKKKKKKKKKLLLLLLLLX
+D:X...................................KKKKKKKKKLLLKKKLLLX
+D:X.....................................KKKKKKLLLKKKKLLLX
+D:XX....................................KKKKKLKKKKKKKKKKX
+D:XX......................................KKKKKKKKKKKKKKX
+D:XX.........................................KKKKKKKKKKKX
+D:XXX............................................KKKKKK.X
+D:XX.................X..................................X
+D:X...............XXXXX9...XXX..........................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9..XXXX...XXXXX....XXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:15:2
+

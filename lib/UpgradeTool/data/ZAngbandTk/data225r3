@@ -1,0 +1,12 @@
+# data225r3 --
+#	Contains version-specific variables and commands
+
+source data225r2
+
+lappend vRInfoCompat \
+	225r2
+
+lappend vScoreCompat \
+	225r2
+
+

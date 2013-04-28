@@ -1,0 +1,55 @@
+Q:170:N:The Oasis
+
+Q:170:Q:6:0:0:0:35:0:0:6
+
+?:[LEQ $QUEST170 2]
+Q:170:T:Mrogoth has herd of your great deeds and has sent Uldor the Accursed
+Q:170:T:to deal with you. Uldor sent a messenger to the captain of the guard
+Q:170:T:and issued a challenge to you. He has made camp at the Oasis. You
+Q:170:T:should accept his challenge and send his head back to Morgoth.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST170 3]
+Q:170:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST170 5]
+Q:170:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Uldor the Accursed
+F:a:1:8:304
+
+# open floor (room), Canine Skeleton
+F:k:1:8:0:393
+
+# open floor (room), Rodent Skeleton
+F:l:1:8:0:394
+
+# open floor (room), Human Skeleton
+F:m:1:8:0:395
+
+# open floor (room), Elf Skeleton
+F:n:1:8:0:397
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X;,,,;,,,,,,,,,,,,;,,,,,,,,,,,,,,;,,,X
+D:X,,,,------,,,,,,,,,,,;,;,,,,m,,,,,,,X
+D:X,;,,-XXX----T,,,a,,,,,,,,,,;,,,,,,;,X
+D:X,,,,-X,X-------------,,,,,,,,,,,,,,,X
+D:X,,,T--l-----VVVVVT-T,,,,,,,,,,,,,,,,X
+D:X,,,,,-,---VVVWWWVT-,,,,,,,,,,,,;,,,,X
+D:X,;,,,,,,---VWWVVT-,,,,,,,,;,,,,,,,,,X
+D:X,,,,,,.,,,--VV---,,,,,,,,,,,,,,,,,,,X
+D:X,,,,,,.,,,,-----,,,,,,,,,,,,,,,,,,,,X
+D:X,;,,,,.,,,,,,,,,,,,,,,,,,,,,,,,,,;,,X
+D:X,,,,k,.,,,,,,;,,,,,,,,,,,,,,,n,,,,,,X
+D:X,,,,..,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,X
+D:X,;,.,,,,,,,,,,,,,,,,l,,,,,,,,;,,,,,,X
+D:X,<.,,,,,;,,,,,,,,,,,,,,,,,,,,,n,,,,,X
+D:X,,,,;,,,,,,,k,,,,,,;,,,,,,,;;,,,,,,,X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:14:3

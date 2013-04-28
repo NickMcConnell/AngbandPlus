@@ -1,0 +1,15 @@
+# data211r3 --
+#	Contains version-specific variables and commands
+
+source data211r2
+
+lappend vValue \
+	listInactive \
+	messages,combine
+
+lappend vRInfoCompat \
+	211r2
+
+lappend vScoreCompat \
+	211r1
+

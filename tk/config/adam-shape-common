@@ -1,0 +1,89 @@
+# File: adamNN.cfg
+
+# Playing around with shaped walls introduced with isometric view
+
+#
+# Copyright (c) 1997-2009 Tim Baker
+#
+# This software may be copied and distributed for educational, research, and
+# not for profit purposes provided that this copyright and statement are
+# included in all such copies.
+#
+
+proc IconCfg::ShapeLoad {} {
+
+	# The "shape" icon type
+	NSConfig::CreateIconType shape -file adam16_shape.gif -imagesize 16
+	NSConfig::Maskify shape
+	for {set i 0} {$i < [icon count shape]} {incr i} {
+		icon dark shape $i 0.86 0.59
+	}
+
+	# A dynamic icon type for shape + floor
+	icon createtype dynamic -dynamic yes
+	icon rle dynamic White
+	icon dynamic count dynamic [icon count shape]
+	for {set i 0} {$i < [icon count shape]} {incr i} {
+
+		# Copy floor
+		icon dynamic copy dynamic $i -type feature -index 0
+
+		# Copy wall shape over top of floor
+		icon dynamic copy dynamic $i -type shape -index $i
+	}
+	# Note: gamma values ignored for dynamic icons (the values for
+	# "feature" and "shape" are used instead)
+	for {set i 0} {$i < [icon count dynamic]} {incr i} {
+		icon dark dynamic $i 0.5 0.5
+	}
+
+	qebind IconCfg <Dungeon-enter> {+
+		IconCfg::ShapeAssign %c
+	}
+
+	return
+}
+
+proc IconCfg::ShapeAssign {depth} {
+
+	if {[variant KANGBANDTK ZANGBANDTK]} {
+		# Set tree background to "grass" in town, "floor" in dungeon.
+		set grass [const FEAT_GRASS]
+		set tree [const FEAT_TREES]
+		if {$depth} {
+			assign set feature $tree "icon feature 39"
+			feature configure $tree -background 1
+		} else {
+			assign set feature $tree "icon feature 42"
+			feature configure $tree -background $grass
+		}
+	}
+
+	set d(we) 0
+	set d(ns) 1
+	set d(tri_s) 2
+	set d(tri_n) 3
+	set d(tri_e) 4
+	set d(tri_w) 5
+	set d(corner_se) 6
+	set d(corner_sw) 7
+	set d(corner_ne) 8
+	set d(corner_nw) 9
+	set d(quad) 10
+
+	foreach name {wall secret quartz magma} index {0 0 11 33} {
+		foreach f_idx [angband f_info find -name $name] {
+			foreach shape [array names d] {
+				feature assignshape $f_idx $shape "icon dynamic [expr {$index + $d($shape)}]"
+			}
+		}
+	}
+
+	foreach f_idx [angband f_info find -name "with treasure"] index {44 22} {
+		foreach shape [array names d] {
+			feature assignshape $f_idx $shape "icon dynamic [expr {$index + $d($shape)}]"
+		}
+	}
+
+	return
+}

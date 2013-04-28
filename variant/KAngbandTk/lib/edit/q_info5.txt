@@ -1,0 +1,74 @@
+#####  Plot 5  #####
+
+# Scout the Ruins
+?:[EQU $QUEST_NUMBER 101]
+%:q0000101.txt
+
+# I Hate Snakes!
+?:[EQU $QUEST_NUMBER 102]
+%:q0000102.txt
+
+# The old Barraks
+?:[EQU $QUEST_NUMBER 103]
+%:q0000103.txt
+
+# The Underground City
+?:[EQU $QUEST_NUMBER 104]
+%:q0000104.txt
+
+# Elven Embasey
+?:[EQU $QUEST_NUMBER 105]
+%:q0000105.txt
+
+# The Dark Market
+?:[EQU $QUEST_NUMBER 106]
+%:q0000106.txt
+
+# Ulfast
+?:[EQU $QUEST_NUMBER 107]
+%:q0000107.txt
+
+# Dwarven Mines
+?:[EQU $QUEST_NUMBER 108]
+%:q0000108.txt
+
+# Shopkeepers Secret
+?:[EQU $QUEST_NUMBER 109]
+%:q0000109.txt
+
+# Bounty Hunter
+?:[EQU $QUEST_NUMBER 110]
+%:q0000110.txt
+
+# Healer's Request.
+?:[EQU $QUEST_NUMBER 111]
+%:q0000111.txt
+
+# The Assassin
+?:[EQU $QUEST_NUMBER 112]
+%:q0000112.txt
+
+# The Tower of Magi
+?:[EQU $QUEST_NUMBER 113]
+%:q0000113.txt
+
+# Dragonspine Pass
+?:[EQU $QUEST_NUMBER 114]
+%:q0000114.txt
+
+# The Lookout Tower
+?:[EQU $QUEST_NUMBER 115]
+%:q0000115.txt
+
+# Morgoth's Spies
+?:[EQU $QUEST_NUMBER 116]
+%:q0000116.txt
+
+# The Assult
+?:[EQU $QUEST_NUMBER 117]
+%:q0000117.txt
+
+# Morgoth Attacks!
+?:[EQU $QUEST_NUMBER 118]
+%:q0000118.txt
+

@@ -1,0 +1,78 @@
+# data041r1 --
+#	Contains version-specific variables and commands
+
+source data040r6
+
+set vGeometryUpdate 1
+set vValueUpdate 3
+
+lappend vDirName \
+	{tk msgs choice} \
+	{tk msgs common} \
+	{tk msgs message} \
+	{tk msgs recall} \
+	{tk msgs startup} \
+	{tk msgs status} \
+	{tk msgs tips}
+
+ldelete vSetting \
+	show_choices \
+	avoid_other \
+	fresh_after \
+	hilite_player \
+	view_yellow_lite \
+	view_bright_lite \
+	view_granite_lite \
+	view_special_lite \
+	hidden_player \
+	auto_destroy
+
+lappend vSetting \
+	verify_destroy_junk
+
+ldelete vValue \
+	warning,artifacts \
+	warning,inventory,window \
+	warning,store,window
+
+lappend vValue \
+	font,statusBar \
+	inventory,alwaysOnTop
+
+lappend vRInfoCompat \
+	040r6
+
+lappend vScoreCompat \
+	040r6
+
+rename ModifyGeometry ModifyGeometry040r6
+proc ModifyGeometry {info} {
+	array set data $info
+	switch -- $data(window) {
+		book {
+			# These windows default geometry changed
+			return ""
+		}
+	}
+	return [ModifyGeometry040r6 $info]
+}
+
+rename ModifyValue ModifyValue040r6
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		savefile {
+			if {[llength $value]} {
+				set value [UpdatePath [eval file join $value]]
+				set value [file split $value]
+			}
+		}
+		default {
+			return [ModifyValue040r6 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+

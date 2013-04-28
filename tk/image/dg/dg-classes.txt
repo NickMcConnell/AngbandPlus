@@ -1,0 +1,99 @@
+Dunadan Druid
+Dunadan Illusionist
+Dunadan Mage
+Dunadan Paladin
+Dunadan Priest
+Dunadan Ranger
+Dunadan Rogue
+Dunadan Warrior
+
+Human Druid
+Human Illusionist
+Human Mage
+Human Paladin
+Human Priest
+Human Ranger
+Human Rogue
+Human Warrior
+
+Elf Druid
+Elf Illusionist
+Elf Mage
+Elf Paladin
+Elf Priest
+Elf Ranger
+Elf Rogue
+Elf Warrior
+
+Gnome Druid
+Gnome Illusionist
+Gnome Mage
+Gnome Paladin
+Gnome Priest
+Gnome Ranger
+Gnome Rogue
+Gnome Warrior
+
+Half-Elf Druid
+Half-Elf Illusionist
+Half-Elf Mage
+Half-Elf Paladin
+Half-Elf Priest
+Half-Elf Ranger
+Half-Elf Rogue
+Half-Elf Warrior
+
+Dwarf Druid
+Dwarf Illusionist
+Dwarf Mage
+Dwarf Paladin
+Dwarf Priest
+Dwarf Ranger
+Dwarf Rogue
+Dwarf Warrior
+
+Half-Troll Druid
+Half-Troll Illusionist
+Half-Troll Mage
+Half-Troll Paladin
+Half-Troll Priest
+Half-Troll Ranger
+Half-Troll Rogue
+Half-Troll Warrior
+
+Half-Orc Druid
+Half-Orc Illusionist
+Half-Orc Mage
+Half-Orc Paladin
+Half-Orc Priest
+Half-Orc Ranger
+Half-Orc Rogue
+Half-Orc Warrior
+
+Hobbit Druid
+Hobbit Illusionist
+Hobbit Mage
+Hobbit Paladin
+Hobbit Priest
+Hobbit Ranger
+Hobbit Rogue
+Hobbit Warrior
+
+High-Elf Druid
+High-Elf Illusionist
+High-Elf Mage
+High-Elf Paladin
+High-Elf Priest
+High-Elf Ranger
+High-Elf Rogue
+High-Elf Warrior
+
+Kobold Druid
+Kobold Illusionist
+Kobold Mage
+Kobold Paladin
+Kobold Priest
+Kobold Ranger
+Kobold Rogue
+Kobold Warrior
+

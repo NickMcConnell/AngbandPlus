@@ -1,0 +1,1008 @@
+# Automatically generated. Do not edit.
+
+Assign alternate
+Assign flavor
+Assign icon
+Assign sprite
+
+Type none
+Type blank
+Type default
+Type feature
+Type feature2
+Type adam
+Type town
+Type ascii
+
+Group feature
+One 1 2 3 0
+Feat icon 1
+One 2 2 3 0
+Feat icon 1
+One 3 2 5 31
+Feat none 1
+One 4 0 1
+Feat icon 1
+One 5 0 1
+Feat icon 1
+One 6 3 1
+Feat none 6
+One 7 3 0
+Feat none 7
+One 8 2 4 62
+Feat icon 8
+One 9 2 4 51
+Feat icon 9
+One 10 2 4 39
+Feat icon 10
+One 11 2 3 47
+Feat none 11
+One 12 2 3 48
+Feat none 12
+One 13 2 3 49
+Feat none 13
+One 14 2 3 50
+Feat none 14
+One 15 2 3 51
+Feat none 15
+One 16 2 5 28
+Feat none 1
+One 17 2 5 27
+Feat none 1
+One 18 2 5 24
+Feat none 1
+One 19 2 5 26
+Feat none 1
+One 20 2 5 25
+Feat none 1
+One 21 2 5 29
+Feat none 1
+One 22 2 5 30
+Feat none 1
+One 23 2 5 31
+Feat none 1
+One 24 2 5 31
+Feat none 1
+One 25 2 5 24
+Feat none 1
+One 26 2 5 24
+Feat none 1
+One 27 2 5 24
+Feat none 1
+One 28 2 5 25
+Feat none 1
+One 29 2 5 25
+Feat none 1
+One 30 2 5 25
+Feat none 1
+One 31 2 5 30
+Feat none 1
+One 32 0 0
+Feat icon 1
+One 33 0 0
+Feat icon 1
+One 34 0 0
+Feat icon 1
+One 35 0 0
+Feat icon 1
+One 36 0 0
+Feat icon 1
+One 37 0 0
+Feat icon 1
+One 38 0 0
+Feat icon 1
+One 39 0 0
+Feat icon 1
+One 40 0 0
+Feat icon 1
+One 41 0 0
+Feat icon 1
+One 42 0 0
+Feat icon 1
+One 43 0 0
+Feat icon 1
+One 44 0 0
+Feat icon 1
+One 45 0 0
+Feat icon 1
+One 46 0 0
+Feat icon 1
+One 47 0 0
+Feat icon 1
+One 48 2 3 4
+Feat icon 48
+One 49 2 3 16
+Feat icon 49
+One 50 0 2
+Feat icon 50
+One 51 0 2
+Feat icon 51
+One 52 0 2
+Feat icon 52
+One 53 0 2
+Feat icon 53
+One 54 3 2
+Feat tint 54
+One 55 3 2
+Feat tint 55
+One 56 2 3 4
+Feat icon 56
+One 57 0 3
+Feat icon 57
+One 58 2 3 4
+Feat icon 58
+One 59 2 3 4
+Feat icon 59
+One 60 2 3 4
+Feat icon 60
+One 61 2 3 4
+Feat icon 61
+One 62 2 3 4
+Feat icon 62
+One 63 2 3 4
+Feat icon 63
+One 64 2 4 24
+Feat none 64
+One 65 2 4 25
+Feat none 65
+One 66 2 4 26
+Feat none 66
+One 67 2 4 27
+Feat none 67
+One 68 2 4 28
+Feat none 68
+One 69 2 4 29
+Feat none 69
+One 70 2 4 30
+Feat none 70
+One 71 2 4 31
+Feat none 71
+One 72 2 4 32
+Feat none 72
+
+Group monster
+One 1 2 5 928
+One 2 2 5 930
+One 3 2 5 931
+One 4 2 5 932
+One 5 2 5 933
+One 6 2 5 934
+One 7 2 5 935
+One 8 2 5 936
+One 9 2 5 937
+One 10 2 5 938
+One 11 2 5 939
+One 12 2 5 834
+One 13 2 5 538
+One 14 2 5 929
+One 20 2 5 889
+One 21 2 5 775
+One 22 2 5 783
+One 23 2 5 788
+One 24 2 5 789
+One 25 2 5 678
+One 26 2 5 677
+One 27 2 5 539
+One 28 2 5 997
+One 29 2 5 1021
+One 30 2 5 895
+One 31 2 5 517
+One 32 2 5 867
+One 33 2 5 868
+One 34 2 5 827
+One 37 2 5 940
+One 38 2 5 941
+One 39 2 5 943
+One 40 2 5 890
+One 41 2 5 1031
+One 42 2 5 835
+One 43 2 5 776
+One 44 2 5 777
+One 45 2 5 790
+One 46 2 5 679
+One 47 2 5 680
+One 48 2 5 682
+One 49 2 5 701
+One 51 2 5 1022
+One 52 2 5 518
+One 53 2 5 519
+One 54 2 5 869
+One 55 2 5 874
+One 56 2 5 616
+One 59 2 5 851
+One 60 2 5 942
+One 61 2 5 791
+One 62 2 5 683
+One 63 2 5 893
+One 64 2 5 1023
+One 65 2 5 896
+One 66 2 5 520
+One 67 2 5 875
+One 68 2 5 876
+One 69 2 5 877
+One 70 2 5 828
+One 71 2 5 904
+One 72 2 5 601
+One 75 2 5 946
+One 76 2 5 945
+One 77 2 5 792
+One 79 2 5 998
+One 80 2 5 1024
+One 81 2 5 878
+One 82 2 5 512
+One 85 2 5 891
+One 86 2 5 684
+One 87 2 5 870
+One 88 2 5 879
+One 89 2 5 880
+One 90 2 5 617
+One 91 2 5 830
+One 92 2 5 905
+One 93 2 5 1001
+One 94 2 5 602
+One 97 2 5 949
+One 98 2 5 950
+One 99 2 5 947
+One 101 2 5 784
+One 103 2 5 685
+One 104 2 5 1025
+One 105 2 5 897
+One 106 2 5 521
+One 107 2 5 910
+One 108 2 5 513
+One 111 2 5 853
+One 112 2 5 948
+One 113 2 5 778
+One 114 2 5 687
+One 115 2 5 686
+One 116 2 5 702
+One 117 2 5 871
+One 118 2 5 881
+One 119 2 5 829
+One 120 2 5 906
+One 121 2 5 911
+One 122 2 5 1002
+One 123 2 5 603
+One 124 2 5 625
+One 127 2 5 954
+One 128 2 5 953
+One 129 2 5 1032
+One 130 2 5 688
+One 131 2 5 1026
+One 132 2 5 898
+One 133 2 5 913
+One 134 2 5 626
+One 139 2 5 951
+One 140 2 5 689
+One 141 2 5 999
+One 142 2 5 872
+One 143 2 5 753
+One 144 2 5 914
+One 145 2 5 1036
+One 146 2 5 797
+One 147 2 5 798
+One 148 2 5 800
+One 149 2 5 799
+One 153 2 5 854
+One 154 2 5 855
+One 155 2 5 836
+One 156 2 5 703
+One 157 2 5 1010
+One 158 2 5 542
+One 159 2 5 593
+One 160 2 5 899
+One 161 2 5 900
+One 162 2 5 522
+One 163 2 5 1003
+One 164 2 5 802
+One 165 2 5 627
+One 166 2 5 514
+One 169 2 5 856
+One 172 2 5 618
+One 173 2 5 841
+One 174 2 5 604
+One 175 2 5 801
+One 178 2 5 959
+One 179 2 5 1034
+One 180 2 5 793
+One 181 2 5 635
+One 182 2 5 543
+One 183 2 5 882
+One 184 2 5 883
+One 185 2 5 575
+One 189 2 5 690
+One 190 2 5 705
+One 191 2 5 884
+One 192 2 5 917
+One 193 2 5 803
+One 196 2 5 544
+One 197 2 5 595
+One 198 2 5 894
+One 199 2 5 873
+One 200 2 5 576
+One 201 2 5 651
+One 202 2 5 657
+One 203 2 5 1004
+One 204 2 0 0
+One 207 2 5 958
+One 208 2 5 961
+One 209 2 5 837
+One 210 2 5 794
+One 211 2 5 704
+One 212 2 5 709
+One 213 2 5 1000
+One 214 2 5 523
+One 215 2 5 1038
+One 218 2 5 858
+One 220 2 5 706
+One 221 2 5 755
+One 222 2 5 756
+One 223 2 5 757
+One 225 2 5 619
+One 226 2 5 907
+One 227 2 5 577
+One 228 2 5 919
+One 229 2 5 658
+One 232 2 5 707
+One 233 2 5 596
+One 234 2 5 1027
+One 235 2 5 885
+One 236 2 5 842
+One 237 2 5 920
+One 241 2 5 597
+One 242 2 5 524
+One 243 2 5 652
+One 244 2 5 659
+One 246 2 5 594
+One 248 2 5 734
+One 249 2 5 629
+One 250 2 5 515
+One 253 2 5 780
+One 254 2 5 1011
+One 255 2 5 598
+One 257 2 5 578
+One 258 2 5 713
+One 262 2 5 630
+One 265 2 5 785
+One 266 2 5 545
+One 267 2 5 546
+One 268 2 5 758
+One 269 2 5 759
+One 270 2 5 760
+One 272 2 5 921
+One 273 2 5 804
+One 274 2 5 805
+One 275 2 5 813
+One 276 2 5 628
+One 277 2 5 526
+One 282 2 5 599
+One 283 2 5 660
+One 284 2 5 806
+One 288 2 5 857
+One 291 2 5 901
+One 292 2 5 843
+One 293 2 5 735
+One 296 2 5 860
+One 297 2 5 838
+One 298 2 5 786
+One 300 2 5 708
+One 301 2 5 761
+One 302 2 5 762
+One 303 2 5 763
+One 304 2 5 620
+One 305 2 5 754
+One 306 2 5 666
+One 307 2 5 653
+One 308 2 5 807
+One 311 2 5 639
+One 312 2 5 888
+One 313 2 5 729
+One 314 2 5 808
+One 315 2 5 816
+One 316 2 5 820
+One 319 2 5 960
+One 320 2 5 779
+One 323 2 5 1012
+One 324 2 5 1013
+One 325 2 5 1014
+One 326 2 5 655
+One 327 2 5 714
+One 328 2 5 662
+One 330 2 5 605
+One 332 2 5 525
+One 335 2 5 957
+One 336 2 5 1057
+One 337 2 5 640
+One 340 2 5 844
+One 341 2 5 715
+One 342 2 5 648
+One 346 2 5 963
+One 347 2 5 600
+One 349 2 5 736
+One 353 2 5 787
+One 354 2 5 845
+One 355 2 5 649
+One 358 2 5 863
+One 359 2 5 795
+One 360 2 5 716
+One 361 2 5 730
+One 364 2 5 1015
+One 366 2 5 637
+One 367 2 5 621
+One 368 2 5 815
+One 372 2 5 764
+One 373 2 5 765
+One 375 2 5 516
+One 379 2 5 1029
+One 380 2 5 846
+One 381 2 5 717
+One 382 2 5 737
+One 383 2 5 812
+One 386 2 5 968
+One 387 2 5 970
+One 388 2 5 641
+One 390 2 5 908
+One 393 2 5 971
+One 395 2 5 695
+One 398 2 5 606
+One 401 2 5 781
+One 402 2 5 993
+One 403 2 5 581
+One 405 2 5 718
+One 406 2 5 1054
+One 409 2 5 979
+One 410 2 5 1028
+One 411 2 5 622
+One 412 2 5 751
+One 413 2 5 654
+One 414 2 5 650
+One 417 2 5 642
+One 418 2 5 738
+One 421 2 5 972
+One 422 2 5 964
+One 425 2 5 667
+One 426 2 5 817
+One 427 2 5 814
+One 428 2 5 824
+One 431 2 5 902
+One 432 2 5 847
+One 433 2 5 719
+One 434 2 5 579
+One 435 2 5 607
+One 436 2 5 608
+One 437 2 5 818
+One 441 2 5 973
+One 442 2 5 638
+One 443 2 5 819
+One 446 2 5 580
+One 447 2 5 723
+One 448 2 5 822
+One 452 2 5 796
+One 454 2 5 582
+One 455 2 5 821
+One 458 2 5 643
+One 459 2 5 731
+One 460 2 5 632
+One 465 2 5 976
+One 466 2 5 547
+One 467 2 5 766
+One 468 2 5 767
+One 469 2 5 768
+One 470 2 5 887
+One 471 2 5 848
+One 472 2 5 583
+One 473 2 5 724
+One 474 2 5 823
+One 475 2 5 825
+One 478 2 5 994
+One 479 2 5 831
+One 481 2 5 726
+One 482 2 5 609
+One 486 2 5 983
+One 487 2 5 849
+One 488 2 5 586
+One 489 2 5 611
+One 490 2 5 810
+One 491 2 5 1039
+One 492 2 0 0
+One 496 2 5 739
+One 497 2 5 1056
+One 498 2 5 1016
+One 499 2 5 587
+One 502 2 5 980
+One 503 2 5 1017
+One 504 2 5 1018
+One 505 2 5 740
+One 506 2 5 811
+One 509 2 5 995
+One 510 2 5 588
+One 511 2 5 1040
+One 515 2 5 982
+One 516 2 5 535
+One 517 2 5 1030
+One 518 2 5 623
+One 519 2 5 752
+One 520 2 5 668
+One 521 2 5 669
+One 522 2 5 670
+One 523 2 5 727
+One 524 2 5 728
+One 525 2 5 633
+One 528 2 5 865
+One 529 2 5 974
+One 530 2 5 610
+One 531 2 5 552
+One 532 2 5 554
+One 533 2 5 556
+One 535 2 5 769
+One 536 2 5 612
+One 537 2 5 555
+One 541 2 5 996
+One 543 2 5 1041
+One 546 2 5 613
+One 547 2 5 741
+One 548 2 5 1042
+One 552 2 5 553
+One 553 2 5 558
+One 555 2 5 557
+One 556 2 5 1043
+One 559 2 5 903
+One 560 2 5 559
+One 562 2 5 977
+One 563 2 5 832
+One 564 2 5 732
+One 567 2 5 644
+One 568 2 5 1044
+One 570 2 5 987
+One 571 2 5 560
+One 572 2 5 561
+One 574 2 5 770
+One 575 2 5 771
+One 576 2 5 1006
+One 578 2 5 986
+One 588 2 5 1019
+One 589 2 5 663
+One 590 2 5 1053
+One 591 2 5 565
+One 592 2 5 564
+One 593 2 5 567
+One 594 2 5 568
+One 596 2 5 748
+One 600 2 5 773
+One 601 2 5 569
+One 602 2 5 1045
+One 605 2 5 850
+One 608 2 5 1020
+One 609 2 5 1007
+One 611 2 5 614
+One 614 2 5 664
+One 615 2 5 571
+One 616 2 5 572
+One 618 2 5 984
+One 620 2 5 573
+One 622 2 5 671
+One 626 2 5 672
+One 627 2 5 645
+One 630 2 5 774
+One 632 2 5 1008
+One 634 2 5 989
+One 636 2 5 94
+One 639 2 5 749
+One 665 2 5 944
+One 667 2 5 852
+One 668 2 5 892
+One 669 2 5 952
+One 670 2 5 912
+One 671 2 5 956
+One 672 2 5 1033
+One 673 2 5 915
+One 676 2 5 916
+One 677 2 5 1035
+One 678 2 5 918
+One 679 2 5 962
+One 680 2 5 859
+One 683 2 5 922
+One 684 2 5 923
+One 685 2 5 924
+One 686 2 5 926
+One 687 2 5 925
+One 688 2 5 861
+One 689 2 5 862
+One 690 2 5 927
+One 691 2 5 965
+One 692 2 5 966
+One 695 2 5 967
+One 696 2 5 969
+One 697 2 5 631
+One 698 2 5 864
+One 701 2 5 720
+One 702 2 5 721
+One 703 2 5 722
+One 704 2 5 975
+One 705 2 5 782
+One 706 2 5 656
+One 707 2 5 725
+One 708 2 5 981
+One 710 2 5 710
+One 711 2 5 589
+One 712 2 5 590
+One 713 2 5 826
+One 718 2 5 978
+One 719 2 5 985
+One 720 2 5 591
+One 721 2 5 592
+One 722 2 5 566
+One 725 2 5 742
+One 726 2 5 624
+One 727 2 5 988
+One 728 2 5 743
+One 730 2 5 733
+One 731 2 5 744
+One 732 2 5 1050
+One 733 2 5 866
+One 734 2 5 1052
+One 735 2 5 536
+One 736 2 5 570
+One 737 2 5 1052
+One 738 2 5 563
+One 739 2 5 1046
+One 740 2 5 534
+One 743 2 5 549
+One 745 2 5 745
+One 746 2 5 647
+One 747 2 5 746
+One 748 2 5 1049
+One 749 2 5 990
+One 750 2 5 840
+One 751 2 5 533
+One 752 2 5 1047
+One 753 2 5 550
+One 754 2 5 747
+One 757 2 5 712
+One 758 2 5 833
+One 759 2 5 674
+One 760 2 5 615
+One 761 2 5 574
+One 762 2 5 991
+One 763 2 5 537
+One 764 2 5 750
+One 765 2 5 700
+One 766 2 5 646
+One 769 2 5 1009
+One 770 2 5 675
+One 771 2 5 1048
+One 775 2 5 992
+One 776 2 5 665
+
+Group object
+One 29 2 5 318
+One 30 2 5 316
+One 31 2 5 317
+One 32 2 5 319
+One 33 2 5 320
+One 34 2 5 314
+One 35 2 5 315
+One 36 2 5 319
+One 37 2 5 320
+One 42 2 5 239
+One 44 2 5 240
+One 45 2 5 241
+One 47 2 5 242
+One 48 2 5 243
+One 50 2 5 245
+One 51 2 5 244
+One 52 2 5 247
+One 55 2 5 246
+One 56 2 5 249
+One 57 2 5 250
+One 58 2 5 248
+One 60 2 5 251
+One 61 2 5 251
+One 65 2 5 252
+One 68 2 5 253
+One 70 2 5 254
+One 72 2 5 255
+One 73 2 5 258
+One 74 2 5 256
+One 75 2 5 257
+One 76 2 5 262
+One 78 2 5 256
+One 80 2 5 257
+One 82 2 5 260
+One 83 2 5 259
+One 85 2 5 261
+One 88 2 5 263
+One 90 2 5 264
+One 97 2 5 265
+One 98 2 5 267
+One 100 2 5 266
+One 103 2 5 271
+One 105 2 5 272
+One 106 2 5 273
+One 108 2 5 274
+One 109 2 5 272
+One 110 2 5 275
+One 112 2 5 278
+One 115 2 5 268
+One 117 2 5 270
+One 120 2 5 277
+One 123 2 5 1063
+One 125 2 5 279
+One 127 2 5 284
+One 130 2 5 280
+One 131 2 5 281
+One 134 2 5 282
+One 135 2 5 283
+One 138 2 5 293
+One 139 2 5 293
+One 142 2 5 288
+One 143 2 5 289
+One 146 2 5 290
+One 147 2 5 291
+One 150 2 5 329
+One 151 2 5 330
+One 152 2 5 331
+One 153 2 5 326
+One 154 2 5 327
+One 155 2 5 328
+One 158 2 5 192
+One 159 2 5 192
+One 160 2 5 193
+One 161 2 5 194
+One 162 2 5 194
+One 167 2 5 185
+One 168 2 5 186
+One 169 2 5 187
+One 170 2 5 187
+One 171 2 5 188
+One 175 2 5 189
+One 176 2 5 190
+One 177 2 5 191
+One 180 2 5 203
+One 181 2 5 204
+One 182 2 5 205
+One 183 2 5 206
+One 184 2 5 207
+One 185 2 5 208
+One 188 2 5 209
+One 190 2 5 211
+One 192 2 5 210
+One 193 2 5 212
+One 195 2 5 214
+One 196 2 5 213
+One 197 2 5 215
+One 198 2 5 216
+One 200 2 5 217
+One 201 2 5 218
+One 203 2 5 219
+One 205 2 5 220
+One 207 2 5 222
+One 209 2 5 221
+One 211 2 5 223
+One 213 2 5 226
+One 214 2 5 224
+One 215 2 5 225
+One 216 2 5 227
+One 217 2 5 228
+One 218 2 5 235
+One 220 2 5 231
+One 222 2 5 233
+One 224 2 5 229
+One 225 2 5 230
+One 227 2 5 232
+One 228 2 5 234
+One 229 2 5 236
+One 230 2 5 183
+One 231 2 5 183
+One 233 2 5 184
+One 235 2 5 184
+One 237 2 5 195
+One 238 2 5 196
+One 239 2 5 196
+One 240 2 5 197
+One 244 2 5 198
+One 245 2 5 198
+One 246 2 5 200
+One 247 2 5 199
+One 248 2 5 201
+One 249 2 5 201
+One 250 2 5 202
+One 253 2 5 202
+One 320 2 5 114
+One 321 2 5 114
+One 322 2 5 114
+One 323 2 5 114
+One 324 2 5 114
+One 325 2 5 114
+One 327 2 5 114
+One 328 2 5 114
+One 329 2 5 114
+One 330 2 5 114
+One 331 2 5 114
+One 332 2 5 114
+One 333 2 5 114
+One 334 2 5 114
+One 335 2 5 114
+One 336 2 5 114
+One 337 2 5 114
+One 338 2 5 114
+One 339 2 5 114
+One 340 2 5 114
+One 341 2 5 114
+One 342 2 5 114
+One 343 2 5 114
+One 344 2 5 114
+One 345 2 5 114
+One 346 2 5 114
+One 347 2 5 114
+One 348 2 5 114
+One 349 2 5 114
+One 350 2 5 114
+One 352 2 5 114
+One 353 2 5 114
+One 354 2 5 114
+One 355 2 5 114
+One 356 2 5 114
+One 357 2 5 114
+One 358 2 5 114
+One 359 2 5 114
+One 360 2 5 114
+One 361 2 5 114
+One 362 2 5 114
+One 364 2 5 114
+One 365 2 5 114
+One 366 2 5 114
+One 367 2 5 114
+One 368 2 5 114
+One 616 2 5 89
+One 617 2 5 90
+One 618 2 5 91
+One 619 2 5 92
+One 620 2 5 93
+One 621 2 5 94
+One 622 2 5 93
+One 623 2 5 94
+One 626 2 5 323
+One 627 2 5 325
+One 628 2 5 324
+One 629 2 5 322
+One 630 2 5 321
+One 638 2 5 332
+One 639 2 5 333
+One 641 2 5 334
+One 642 2 5 335
+One 643 2 5 341
+One 644 2 5 340
+One 645 2 5 339
+One 646 2 5 337
+One 647 2 5 339
+One 648 2 5 336
+One 650 2 5 295
+One 651 2 5 296
+One 652 2 5 297
+One 653 2 5 298
+One 654 2 5 299
+One 655 2 5 301
+One 656 2 5 302
+One 657 2 5 302
+One 658 2 5 303
+One 660 2 5 304
+One 661 2 5 305
+One 662 2 5 306
+One 663 2 5 307
+One 664 2 5 308
+One 665 2 5 309
+One 666 2 5 310
+One 667 2 5 311
+One 668 2 5 312
+One 670 2 5 295
+One 671 2 5 296
+One 672 2 5 297
+One 673 2 5 298
+One 674 2 5 299
+One 675 2 5 300
+One 676 2 5 301
+One 677 2 5 302
+One 678 2 5 303
+One 680 2 5 295
+One 681 2 5 296
+One 682 2 5 297
+One 683 2 5 298
+One 684 2 5 299
+One 685 2 5 300
+One 686 2 5 301
+One 687 2 5 302
+One 688 2 5 303
+One 700 2 5 117
+One 701 2 5 118
+One 702 2 5 122
+One 703 2 5 119
+One 704 2 5 123
+One 705 2 5 124
+One 706 2 5 125
+One 707 2 5 126
+One 708 2 5 127
+One 709 2 5 120
+One 710 2 5 121
+One 731 2 5 286
+One 732 2 5 287
+One 733 2 5 343
+One 734 2 5 344
+One 735 2 5 345
+One 736 2 5 179
+One 737 2 5 180
+One 738 2 5 181
+One 739 2 5 172
+One 740 2 5 176
+One 741 2 5 80
+One 742 2 5 81
+One 743 2 5 82
+One 744 2 5 83
+One 745 2 5 84
+One 746 2 5 85
+One 747 2 5 345
+
+Group ball
+Effect arrow 0 0
+Effect missile 5 431
+Effect mana 5 430
+Effect holy_orb 5 431
+Effect light_weak 5 422
+Effect dark_weak 5 423
+Effect water 5 420
+Effect plasma 5 427
+Effect meteor 5 416
+Effect ice 5 417
+Effect gravity 5 425
+Effect inertia 5 425
+Effect force 5 425
+Effect time 5 425
+Effect acid 5 420
+Effect electricity 5 418
+Effect fire 5 416
+Effect cold 5 417
+Effect poison 5 419
+Effect light 5 422
+Effect dark 5 423
+Effect confusion 5 429
+Effect sound 5 425
+Effect shard 5 424
+Effect nexus 5 428
+Effect nether 5 423
+Effect chaos 5 426
+Effect disenchant 5 421
+
+Group bolt
+Effect arrow 5 412
+Effect missile 5 412
+Effect mana 5 408
+Effect holy_orb 5 412
+Effect light_weak 5 376
+Effect dark_weak 5 380
+Effect water 5 368
+Effect plasma 5 396
+Effect meteor 5 352
+Effect ice 5 356
+Effect gravity 5 388
+Effect inertia 5 388
+Effect force 5 388
+Effect time 5 388
+Effect acid 5 368
+Effect electricity 5 360
+Effect fire 5 352
+Effect cold 5 356
+Effect poison 5 364
+Effect light 5 376
+Effect dark 5 380
+Effect confusion 5 404
+Effect sound 5 388
+Effect shard 5 384
+Effect nexus 5 400
+Effect nether 5 380
+Effect chaos 5 392
+Effect disenchant 5 372
+
+Group ammo
+Effect arrow 5 1059
+Effect bolt 5 1067
+

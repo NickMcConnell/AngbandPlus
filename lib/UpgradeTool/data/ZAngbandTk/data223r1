@@ -1,0 +1,16 @@
+# data223r1 --
+#	Contains version-specific variables and commands
+
+source data222r2
+
+lappend vValue \
+	mapPET
+
+lappend vRInfoCompat \
+	222r2
+
+# The scorefile conversion method requires that cvtscore.exe be
+# updated for each version (non-Tk release) of ZAngband.
+lappend vScoreCompat \
+	222r2
+

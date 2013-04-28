@@ -1,0 +1,23 @@
+
+
+              **************************************************
+              **  Kangband 2.9.2r2  ***  The Pits of Angband  **
+              **************************************************
+
+           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
+               and Umoria:   Copyright (c) 1989 James E. Wilson
+
+                       Angband 2.0 - 2.4 - 2.6.2 by:
+                   Alex Cutler, Andy Astrand, Sean Marsh,
+                 Geoff Hill, Charles Teague, Charles Swiger
+
+                   Angband 2.7.0 - 2.8.5 by Ben Harrison
+                 Angband 2.9.0 - 2.9.2 by Robert Ruehlmann
+            Old Kangband code (upto Kangband 2.8.3i) : Ken Wigle
+                        Kangband 2.8.3j : Mark Howson
+              Kangband 2.9.1 - 2.9.2r2 by John I'anson-Holton
+
+      Send comments, bug reports, and patches, to "jianson@milbank.com"
+      Visit the Kangband Home Page at "http://kangband.sourceforge.net"
+      Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
+

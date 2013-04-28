@@ -1,0 +1,14 @@
+# data283r11 --
+#	Contains version-specific variables and commands
+
+# Source the base data file
+source data283r10
+
+# Add 2 new values
+lappend vValue \
+	listInactive \
+	messages,combine
+
+lappend vRInfoCompat \
+	283r10
+

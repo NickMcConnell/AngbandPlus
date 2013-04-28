@@ -1,0 +1,244 @@
+# Automatically generated. Do not edit.
+
+Type none
+Type blank
+Type default
+Type feature
+Type unmasked
+Type dragon
+Type masked
+Type potion
+Type jelly
+Type vortex
+Type mushroom
+Type town
+Type effect
+Type feature2
+Type ascii
+
+New 250  0
+Ins 3 48
+Ins 3 49
+Ins 3 50
+Ins 3 51
+Ins 3 52
+Ins 3 53
+
+New 50  0
+Ins 9 0
+Ins 9 1
+Ins 9 2
+Ins 9 3
+Ins 9 4
+Ins 9 5
+Ins 9 6
+
+New 50  0
+Ins 9 7
+Ins 9 8
+Ins 9 9
+Ins 9 10
+Ins 9 11
+Ins 9 12
+Ins 9 13
+
+New 50  0
+Ins 9 14
+Ins 9 15
+Ins 9 16
+Ins 9 17
+Ins 9 18
+Ins 9 19
+Ins 9 20
+
+New 50  0
+Ins 9 21
+Ins 9 22
+Ins 9 23
+Ins 9 24
+Ins 9 25
+Ins 9 26
+Ins 9 27
+
+New 50  0
+Ins 9 28
+Ins 9 29
+Ins 9 30
+Ins 9 31
+Ins 9 32
+Ins 9 33
+Ins 9 34
+
+New 50  0
+Ins 9 35
+Ins 9 36
+Ins 9 37
+Ins 9 38
+Ins 9 39
+Ins 9 40
+Ins 9 41
+
+New 50  0
+Ins 9 42
+Ins 9 43
+Ins 9 44
+Ins 9 45
+Ins 9 46
+Ins 9 47
+Ins 9 48
+
+New 50  0
+Ins 9 49
+Ins 9 50
+Ins 9 51
+Ins 9 52
+Ins 9 53
+Ins 9 54
+Ins 9 55
+
+New 50  0
+Ins 9 56
+Ins 9 57
+Ins 9 58
+Ins 9 59
+Ins 9 60
+Ins 9 61
+Ins 9 62
+
+New 50  0
+Ins 9 63
+Ins 9 64
+Ins 9 65
+Ins 9 66
+Ins 9 67
+Ins 9 68
+Ins 9 69
+
+New 200  1
+Ins 8 0
+Ins 8 1
+Ins 8 2
+
+New 200  1
+Ins 8 3
+Ins 8 4
+Ins 8 5
+
+New 200  1
+Ins 8 6
+Ins 8 7
+Ins 8 8
+
+New 200  1
+Ins 8 9
+Ins 8 10
+Ins 8 11
+
+New 200  1
+Ins 8 12
+Ins 8 13
+Ins 8 14
+
+New 200  1
+Ins 8 15
+Ins 8 16
+Ins 8 17
+
+New 200  1
+Ins 8 18
+Ins 8 19
+Ins 8 20
+
+New 200  1
+Ins 8 21
+Ins 8 22
+Ins 8 23
+
+New 200  1
+Ins 8 24
+Ins 8 25
+Ins 8 26
+
+New 200  1
+Ins 8 27
+Ins 8 28
+Ins 8 29
+
+New 300  0
+Ins 3 44
+Ins 3 46
+
+New 300  0
+Ins 3 45
+Ins 3 47
+
+New 100  0
+Ins 5 6
+Ins 5 7
+Ins 5 8
+Ins 5 9
+Ins 5 10
+Ins 5 11
+Ins 5 12
+Ins 5 13
+Ins 5 14
+Ins 5 15
+Ins 5 16
+Ins 5 17
+Ins 5 18
+Ins 5 19
+Ins 5 20
+
+New 100  0
+Ins 5 27
+Ins 5 28
+Ins 5 29
+Ins 5 30
+Ins 5 31
+Ins 5 32
+Ins 5 33
+Ins 5 34
+Ins 5 35
+Ins 5 36
+Ins 5 37
+Ins 5 38
+Ins 5 39
+Ins 5 40
+Ins 5 41
+
+New 100  0
+Ins 5 48
+Ins 5 49
+Ins 5 50
+Ins 5 51
+Ins 5 52
+Ins 5 53
+Ins 5 54
+Ins 5 55
+Ins 5 56
+Ins 5 57
+Ins 5 58
+Ins 5 59
+Ins 5 60
+Ins 5 61
+Ins 5 62
+
+New 125  0
+Ins 6 85
+Ins 6 86
+Ins 6 87
+Ins 6 88
+
+New 200  0
+Ins 6 91
+Ins 6 92
+
+New 200  0
+Ins 6 93
+Ins 6 94
+
+New 200  1
+Ins 6 95
+Ins 6 96
+Ins 6 97
+

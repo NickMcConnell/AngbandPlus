@@ -1,0 +1,52 @@
+# q0000041.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:41:N:North Gatehouse
+
+# Definition
+Q:41:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST41 2]
+Q:41:T:I need you to reclaim the lost city of Telamoor for me. It has been
+Q:41:T:abandoned for some time and we believe an evil presence has established
+Q:41:T:itself.  We only know fragments of what exists in the city and will
+Q:41:T:let you know what little we know.  You first task is to clear out
+Q:41:T:the north gatehouse. We will reclaim this city building by building,
+Q:41:T:your life permitting of course.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST41 3]
+Q:41:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST41 5]
+Q:41:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Phantom Warrior
+F:a:1:8:561
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX......;;;;;;;X
+D:XXXXXXXXXXXXXXXXX...........a.....;;;;;X
+D:XXXXXXXX;;...........................;;X
+D:XXXXX;;..............XX................X
+D:XX;;;;;.............XXXX...............X
+D:X....................XX................X
+D:X;;;;..................................X
+D:XXXX;;...........................XX....X
+D:XXXX;;;.........................XXXX...X
+D:XXXXXX;;;;;......................XX....X
+D:XXXXXXXXXX;;;..........................X
+D:XXXXXXXXXXXX;;;;;;.....................X
+D:XXXXXXXXXXXXXXXXXXXX;;;;;;...........<.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:13:37
+

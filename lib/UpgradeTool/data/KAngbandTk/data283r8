@@ -1,0 +1,48 @@
+# data283r8 --
+#	Contains version-specific variables and commands
+
+source data283r7
+
+set vValueUpdate 2
+
+ldelete vDirName \
+	{tk library tkhtml}
+
+lappend vDirName \
+	{tk library TclMusic} \
+	{tk library TkHtml}
+
+lappend vValue \
+	choicewindow,autoexpand \
+	choicewindow,show \
+	choicewindow,showicon \
+	message2window,show \
+	music,directory \
+	music,play \
+	recall,showicon
+
+lappend vRInfoCompat \
+	283r7
+
+lappend vScoreCompat \
+	283r7
+
+rename ModifyValue ModifyValue283r7
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		music,directory {
+			if {[string length $value]} {
+				set value [UpdatePath [eval file join $value]]
+				set value [file split $value]
+			}
+		}
+		default {
+			return [ModifyValue283r7 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+

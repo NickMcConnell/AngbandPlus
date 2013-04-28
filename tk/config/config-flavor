@@ -1,0 +1,530 @@
+# File: config-flavor
+
+# Purpose: assign an icon to each flavored object
+
+#
+# Copyright (c) 1997-2009 Tim Baker
+#
+# This software may be copied and distributed for educational, research, and
+# not for profit purposes provided that this copyright and statement are
+# included in all such copies.
+#
+
+proc config-flavor-init {} {
+
+# Standard 16 color names
+set term_color [list \
+	DARK WHITE SLATE ORANGE RED GREEN \
+	BLUE UMBER L_DARK L_WHITE VIOLET \
+	YELLOW L_RED L_GREEN L_BLUE L_UMBER \
+]
+
+# List of flavor group names
+set flavor_name [list amulet mushroom potion ring rod staff wand]
+
+# By default, each color_$flavor maps to the same gif_$flavor
+foreach flavor $flavor_name {
+	foreach color $term_color {
+		array set convert_$flavor [list $color $color]
+	}
+}
+
+# Originally, this file contained a list of TERM_XXX colors for each
+# flavor, minus the "TERM_" part of the string. Now I get the list of
+# colors from the binary via the "angband info flavor_color" command.
+foreach flavor $flavor_name {
+	set color_$flavor {}
+	foreach color [angband info flavor_color $flavor] {
+		lappend color_$flavor [string range $color 5 end]
+	}
+}
+
+#
+# Adam Bolt
+#
+if {[string match adam* [Global config,prefix]]} {
+
+	# List of colors in order of the gif images.
+	# Array to map missing colors to gif images.
+	
+	# Note: DARK images sometimes replaced by D_SLATE
+	
+	### Eventually replace A/K/O adamNN.gif with those from Z
+	if {[variant ANGBANDTK KANGBANDTK OANGBANDTK]} {
+	
+		set gif_amulet [list \
+			WHITE SLATE D_SLATE DARK YELLOW \
+			L_UMBER UMBER L_BLUE VIOLET \
+		]
+		
+		array set convert_amulet [list \
+			L_WHITE WHITE \
+			L_DARK DARK \
+			GREEN L_BLUE \
+			ORANGE YELLOW \
+			RED VIOLET \
+		]
+
+		if {[variant OANGBANDTK]} {
+			array set convert_amulet [list \
+				L_GREEN L_BLUE \
+				BLUE L_BLUE \
+			]
+		}
+		
+		set gif_mushroom [list \
+			WHITE SLATE D_SLATE DARK L_UMBER \
+			UMBER RED GREEN BLUE L_BLUE \
+			L_GREEN VIOLET \
+		]
+		
+		array set convert_mushroom [list \
+			L_WHITE WHITE \
+			L_DARK D_SLATE \
+			YELLOW L_UMBER \
+			L_RED RED \
+		]
+		
+		set gif_potion [list \
+			WHITE D_SLATE ORANGE RED GREEN \
+			BLUE UMBER DARK SLATE VIOLET \
+			YELLOW L_RED L_GREEN L_BLUE L_UMBER \
+		]
+		
+		array set convert_potion [list \
+			L_WHITE WHITE \
+			L_DARK DARK \
+			MULTI VIOLET \
+		]
+		
+		set gif_ring [list \
+			WHITE D_SLATE ORANGE RED GREEN \
+			BLUE UMBER DARK SLATE VIOLET \
+			YELLOW L_RED L_GREEN L_BLUE L_UMBER \
+		]
+		
+		array set convert_ring [list \
+			L_WHITE WHITE \
+			L_DARK DARK \
+		]
+		
+		set gif_rod [list \
+			WHITE SLATE D_SLATE DARK L_UMBER \
+			UMBER RED L_BLUE YELLOW \
+		]
+		
+		array set convert_rod [list \
+			L_WHITE WHITE \
+			L_DARK D_SLATE \
+		]
+
+		if {[variant OANGBANDTK]} {
+			array set convert_rod [list \
+				L_GREEN L_BLUE \
+				BLUE L_BLUE \
+				ORANGE RED \
+				GREEN L_BLUE \
+				VIOLET RED \
+				L_RED RED \
+			]
+		}
+		
+		set gif_staff [list \
+			L_UMBER UMBER RED GREEN YELLOW \
+			SLATE D_SLATE \
+		]
+		
+		array set convert_staff [list \
+			L_WHITE SLATE \
+		]
+
+		if {[variant OANGBANDTK]} {
+			array set convert_staff [list \
+				L_GREEN GREEN \
+				WHITE SLATE \
+				L_RED RED \
+				L_DARK D_SLATE \
+			]
+		}
+		
+		set gif_wand [list \
+			WHITE SLATE D_SLATE DARK L_UMBER \
+			UMBER RED L_BLUE YELLOW \
+		]
+		
+		array set convert_wand [list \
+			L_WHITE WHITE \
+			L_DARK D_SLATE \
+		]
+		
+		if {[variant OANGBANDTK]} {
+			array set convert_wand [list \
+				L_GREEN L_BLUE \
+				BLUE L_BLUE \
+				ORANGE RED \
+				GREEN L_BLUE \
+				VIOLET RED \
+				L_RED RED \
+			]
+		}
+		
+		# First gif image for each flavor
+		set gif_start(amulet) [expr {5 * 32 + 8}]
+		set gif_start(mushroom) [expr {4 * 32}]
+		set gif_start(potion) [expr {3 * 32}]
+		set gif_start(ring) [expr {2 * 32}]
+		set gif_start(rod) [expr {4 * 32 + 13}]
+		set gif_start(staff) [expr {5 * 32}]
+		set gif_start(wand) [expr {4 * 32 + 23}]
+	
+	# ANGBANDTK, KANGBANDTK, OANGBANDTK
+	}
+	
+	if {[variant ZANGBANDTK]} {
+	
+		set gif_amulet [list \
+			WHITE D_SLATE ORANGE RED GREEN \
+			BLUE UMBER DARK SLATE VIOLET \
+			YELLOW L_RED L_GREEN L_BLUE L_UMBER \
+		]
+		
+		array set convert_amulet [list \
+			L_WHITE WHITE \
+			L_DARK D_SLATE \
+		]
+		
+		set gif_mushroom [list \
+			WHITE D_SLATE ORANGE RED GREEN \
+			BLUE UMBER DARK SLATE VIOLET \
+			YELLOW L_RED L_GREEN L_BLUE L_UMBER \
+		]
+		
+		array set convert_mushroom [list \
+			L_WHITE WHITE \
+			L_DARK D_SLATE \
+		]
+		
+		set gif_potion [list \
+			WHITE D_SLATE ORANGE RED GREEN \
+			BLUE UMBER DARK SLATE VIOLET \
+			YELLOW L_RED L_GREEN L_BLUE L_UMBER \
+		]
+		
+		array set convert_potion [list \
+			L_WHITE WHITE \
+			MULTI VIOLET \
+			L_DARK D_SLATE \
+		]
+		
+		set gif_ring [list \
+			WHITE D_SLATE ORANGE RED GREEN \
+			BLUE UMBER DARK SLATE VIOLET \
+			YELLOW L_RED L_GREEN L_BLUE L_UMBER \
+		]
+		
+		array set convert_ring [list \
+			L_WHITE WHITE \
+			L_DARK D_SLATE \
+		]
+		
+		set gif_rod [list \
+			WHITE D_SLATE ORANGE RED GREEN \
+			BLUE UMBER DARK SLATE VIOLET \
+			YELLOW L_RED L_GREEN L_BLUE L_UMBER \
+		]
+		
+		array set convert_rod [list \
+			L_WHITE WHITE \
+			L_DARK D_SLATE \
+		]
+		
+		set gif_staff [list \
+			L_UMBER UMBER RED GREEN YELLOW \
+			SLATE D_SLATE \
+		]
+		
+		array set convert_staff [list \
+			L_WHITE SLATE \
+		]
+		
+		set gif_wand [list \
+			WHITE D_SLATE ORANGE RED GREEN \
+			BLUE UMBER DARK SLATE VIOLET \
+			YELLOW L_RED L_GREEN L_BLUE L_UMBER \
+		]
+		
+		array set convert_wand [list \
+			L_WHITE WHITE \
+			L_DARK D_SLATE \
+		]
+		
+		
+		# First gif image for each flavor
+		set gif_start(amulet) [expr {7 * 32}]
+		set gif_start(mushroom) [expr {5 * 32 + 16}]
+		set gif_start(potion) [expr {5 * 32}]
+		set gif_start(ring) [expr {4 * 32}]
+		set gif_start(rod) [expr {6 * 32}]
+		set gif_start(staff) [expr {7 * 32 + 16}]
+		set gif_start(wand) [expr {6 * 32 + 16}]
+	
+	# ZANGBANDTK
+	}
+	
+	
+	# Icon type for each flavor
+	set gif_type(amulet) adam
+	set gif_type(mushroom) adam
+	set gif_type(potion) adam
+	set gif_type(ring) adam
+	set gif_type(rod) adam
+	set gif_type(staff) adam
+	set gif_type(wand) adam
+
+# Adam Bolt
+}
+
+
+#
+# David E. Gervais
+#
+if {[string match dg32* [Global config,prefix]]} {
+
+	# XXX Handle potions separately
+	set flavor_name [list amulet mushroom ring rod staff wand]
+
+	set gif_amulet [list \
+		L_UMBER SLATE UMBER L_DARK YELLOW \
+		ORANGE UMBER L_RED BLUE VIOLET RED \
+		GREEN WHITE L_BLUE L_GREEN YELLOW \
+	]
+	
+	array set convert_amulet [list \
+		L_WHITE WHITE \
+	]
+	
+	set gif_mushroom [list \
+		DARK WHITE SLATE ORANGE RED \
+		GREEN BLUE UMBER L_DARK L_WHITE \
+		VIOLET YELLOW chicken L_RED L_GREEN \
+		L_BLUE L_UMBER \
+	]
+	
+	set gif_potion [list \
+		DARK WHITE SLATE ORANGE RED \
+		GREEN BLUE UMBER L_DARK L_WHITE \
+		VIOLET YELLOW L_RED L_GREEN L_BLUE \
+		L_UMBER \
+	]
+	
+	array set convert_potion [list \
+		MULTI VIOLET \
+	]
+	
+	set gif_ring [list \
+		WHITE D_SLATE ORANGE RED GREEN \
+		BLUE UMBER DARK SLATE VIOLET \
+		YELLOW L_RED L_GREEN L_BLUE L_UMBER \
+	]
+	
+	array set convert_ring [list \
+		L_WHITE WHITE \
+		L_DARK DARK \
+	]
+	
+	set gif_rod [list \
+		WHITE SLATE D_SLATE DARK L_UMBER \
+		UMBER RED L_BLUE YELLOW \
+	]
+	
+	array set convert_rod [list \
+		L_DARK D_SLATE \
+		L_WHITE WHITE \
+		VIOLET L_BLUE \
+		BLUE L_BLUE \
+		L_RED RED \
+	]
+
+	if {[variant OANGBANDTK]} {
+		array set convert_rod [list \
+			L_GREEN L_BLUE \
+			GREEN L_BLUE \
+			ORANGE RED \
+		]
+	}
+	
+	set gif_staff [list \
+		L_UMBER UMBER RED GREEN YELLOW \
+		SLATE D_SLATE \
+	]
+	
+	array set convert_staff [list \
+		L_WHITE SLATE \
+	]
+
+	if {[variant OANGBANDTK]} {
+		array set convert_staff [list \
+			L_GREEN GREEN \
+			WHITE SLATE \
+			L_RED RED \
+			L_DARK D_SLATE \
+		]
+	}
+	
+	set gif_wand [list \
+		WHITE SLATE D_SLATE DARK L_UMBER \
+		UMBER RED L_BLUE YELLOW \
+	]
+	
+	array set convert_wand [list \
+		L_DARK D_SLATE \
+		L_WHITE WHITE \
+		VIOLET L_BLUE \
+		BLUE L_BLUE \
+		L_RED RED \
+	]
+	
+	if {[variant OANGBANDTK]} {
+		array set convert_wand [list \
+			L_GREEN L_BLUE \
+			GREEN L_BLUE \
+			ORANGE RED \
+		]
+	}
+
+	# First gif image for each flavor
+	set gif_start(amulet) 24
+	set gif_start(mushroom) 7
+	set gif_start(potion) 0
+	set gif_start(ring) 0
+	set gif_start(rod) 0
+	set gif_start(staff) 18
+	set gif_start(wand) 9
+	
+	# Icon type for each flavor
+	set gif_type(amulet) jewls
+	set gif_type(mushroom) food
+	set gif_type(potion) potions
+	set gif_type(ring) jewls
+	set gif_type(rod) wands
+	set gif_type(staff) wands
+	set gif_type(wand) wands
+
+	# XXX Handle potions separately
+	set max [flavor count potion]
+	for {set i 0} {$i < $max} {incr i} {
+		set flavor2gif($i) $i
+	}
+
+	# OAngband does its own thing
+	if {[variant OANGBANDTK]} {
+		set i 0
+
+		# These are the exact matches by potion color-name
+		foreach index [list 0 1 2 3 -1 -1 -1 4 7 5 6 8 9 10 -1 11 -1 -1 52 12 \
+			-1 13 14 15 16 17 18 -1 -1 55 59 19 -1 20 -1 22 23 24 25 -1 \
+			-1 26 27 -1 -1 28 -1 29 30 32 33 -1 -1 -1 54 34 35 -1 36 -1 \
+			38 51 39 40 41 42 -1 -1 -1 56 -1 -1 43 44 45 -1 -1 -1 46 47 \
+			53 48 49 -1] {
+			if {$index == -1} {
+			} else {
+				set flavor2gif($i) $index
+			}
+			incr i
+		}
+
+		# These are approximations
+		set flavor2gif(4) 58 ; # Amber -> Yellow Speckled
+		set flavor2gif(5) 22 ; # Ashen -> Grey
+		set flavor2gif(6) 30 ; # Auburn -> Metallic Red (reddish-brown)
+		set flavor2gif(14) 53 ; # Carnation -> Pink
+		set flavor2gif(16) 8 ; # Chocolate Brown -> Brown
+		set flavor2gif(17) 26 ; # Clear Blue -> Light Blue
+		set flavor2gif(20) 29 ; # Cobalt -> Metallic Blue
+		set flavor2gif(27) 9 ; # Dirty -> Brown Speckled
+		set flavor2gif(28) 10 ; # Frothing -> Bubbling
+		set flavor2gif(32) 19 ; # Golden Brown -> Gold Speckled
+		set flavor2gif(34) 55 ; # Greenish -> Gloopy Green
+		set flavor2gif(39) 48 ; # Ivory White -> White
+		set flavor2gif(40) 46 ; # Lavender -> Violet
+		set flavor2gif(43) 48 ; # Limpid -> White
+		set flavor2gif(44) 17 ; # Lincoln Green -> Dark Green
+		set flavor2gif(46) 18 ; # Maroon -> Dark Red
+		set flavor2gif(51) 55 ; # Moldy -> Gloopy Green
+		set flavor2gif(52) 8 ; # Muddy -> Brown
+		set flavor2gif(53) 17 ; # Myrtle Green -> Dark Green
+		set flavor2gif(57) 34 ; # Peach -> Orange
+		set flavor2gif(59) 44 ; # Pearl Grey -> Smoky
+		set flavor2gif(66) 39 ; # Tyrian Purple -> Purple
+		set flavor2gif(67) 14 ; # Rosy -> Crimson
+		set flavor2gif(68) 16 ; # Sea Blue -> Dark Blue
+		set flavor2gif(70) 56 ; # Shining -> Shimmering
+		set flavor2gif(71) 27 ; # Sickly Green -> Light Green
+		set flavor2gif(75) 13 ; # Tawny -> Copper Speckled
+		set flavor2gif(76) 51 ; # Turgid -> Pungent
+		set flavor2gif(77) 8 ; # Umber -> Brown
+		set flavor2gif(83) 58 ; # Yellow Dappled -> Yellow Speckled
+	}
+
+	# ZAngband has 6 new potions at the end
+	if {[variant ZANGBANDTK]} {
+		set flavor2gif(60) 9 ; # Manly -> Brown Speckled
+		set flavor2gif(61) 8 ; # Stinking -> Brown
+		set flavor2gif(62) 7 ; # Oily Black -> Black
+		set flavor2gif(63) 41 ; # Ichor -> Red
+		set flavor2gif(64) 48 ; # Ivory White -> White
+		set flavor2gif(65) 26 ; # Sky Blue -> Light Blue
+	}
+
+	# Assign an icon to each flavor
+	for {set i 0} {$i < $max} {incr i} {
+		flavor assign potion $i -type potions -index $flavor2gif($i)
+	}
+
+	# Assign a flavor to each object
+	foreach k_idx [angband k_info find -tval TV_POTION] {
+		set sval [angband k_info set $k_idx sval]
+		assign set object $k_idx "flavor potion $sval"
+	}
+
+# David E. Gervais
+}
+
+
+# Object type for each flavor
+set gif_tval(amulet) TV_AMULET
+set gif_tval(mushroom) TV_FOOD
+set gif_tval(potion) TV_POTION
+set gif_tval(ring) TV_RING
+set gif_tval(rod) TV_ROD
+set gif_tval(staff) TV_STAFF
+set gif_tval(wand) TV_WAND
+
+foreach flavor $flavor_name {
+	# Assign icon to each flavor.
+	set i 0
+	foreach color [set color_$flavor] {
+		set color [lindex [array get convert_$flavor $color] 1]
+		set index [lsearch -exact [set gif_$flavor] $color]
+		if {$index != -1} {
+			incr index $gif_start($flavor)
+			flavor assign $flavor $i -type $gif_type($flavor) -index $index
+		} else {
+			dbwin "$flavor '$color' NOT FOUND\n"
+		}
+		incr i
+	}
+	# Assign flavor to each object.
+	foreach k_idx [angband k_info find -tval $gif_tval($flavor)] {
+		set sval [angband k_info set $k_idx sval]
+#		if {$attrib(insta_art)} continue
+		if {$flavor eq "mushroom" && ($sval >= 32)} continue
+		assign set object $k_idx "flavor $flavor $sval"
+	}
+}
+
+# config-flavor-init
+}
+
+config-flavor-init
+rename config-flavor-init {}

@@ -1,0 +1,56 @@
+# q0000022.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:22:N:More Kobolds
+
+# Definition
+Q:22:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST22 2]
+Q:22:T:Even though you wiped out the kobold clan, more are appearing!
+Q:22:T:I do not like the idea of kobolds surrounding my city! This
+Q:22:T:band is led by a large kobold and intends on making a permanent
+Q:22:T:settlement.  Go and eliminate these threats once and for all.
+Q:22:T:Scouts report that the largest concentration of kobolds is south
+Q:22:T:of the city.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST22 3]
+Q:22:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST22 5]
+Q:22:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Small Kobold
+F:a:1:8:24
+
+# Floor with Kobold
+F:b:1:8:25
+
+# Floor with Large Kobold
+F:c:1:8:82
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXX
+D:XXXX.a........**XX
+D:XX........b.....XX
+D:X.....aa.....c...X
+D:X................X
+D:X.........b......X
+D:X................X
+D:X...........aa...X
+D:X................X
+D:X...............XX
+D:X<.............XXX
+D:XXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:10:1
+

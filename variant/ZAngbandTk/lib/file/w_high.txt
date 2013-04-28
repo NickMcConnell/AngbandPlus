@@ -1,0 +1,89 @@
+N:*:Default
+87
+of Ultimate Might
+'Slayer'
+'World Ender'
+'Destructor'
+of Destruction
+'Impulse 255'
+'Disintegrator'
+'Vanquisher'
+'BGF-9000'
+'Mjollner'
+'Hand of God'
+'Deathstorm'
+'Devil's Instrument'
+'Word of God'
+'Idkfa'
+'Quietus'
+'Wraithverge'
+'Arc of Death'
+of Death
+'Devastator'
+'Excsymyr'
+'Vorax'
+'Excalibur'
+of Muramasa
+'Heartseeker'
+'Bloodscourge'
+'Hand of Vecna'
+'Unmaker'
+'Apocalypse-Now'
+'Armageddon'
+'Devourer'
+'Soul Searer'
+'Abyss'
+'Cosmic Horror'
+'Dragon Fang'
+'Nemesis'
+'Doom!'
+'Death Wish'
+'Die Hard'
+'Exodus'
+'Terminator'
+'Exterminator'
+'Thunderstrike'
+'Bloodwych'
+'Inferno'
+'Warhead'
+'Red Storm'
+'Dominator'
+'Conqueror'
+'Secret Weapon'
+'Angel of Death'
+'Destroying Angel'
+'Black Star'
+'Turma'
+'Surma'
+'Kalma'
+'Right Hand of Justice'
+'Fat Boy'
+'Megadeath'
+of the Fourth Horseman
+'Apocalyptica'
+'Doomsday'
+'Judgement of Heaven'
+'Creeping Death'
+'Eternity's End'
+'Word of Death'
+'Weapon Omega'
+'Finalizer'
+of Fargoal
+of Bleys
+of Gerard
+of Benedict
+of Elric
+of Eric
+of Erlik
+'Aeglin'
+'Aeglos'
+of Beowulf
+of Orome
+'Fatal Destiny'
+'Jehovah's Wrath'
+'Undying Samurai'
+'Eternal Verities'
+'Durindana'
+'Joyeuse'
+of the Eagle Lord
+'Azriel's Own'

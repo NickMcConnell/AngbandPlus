@@ -1,0 +1,55 @@
+# q0000026.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:26:N:Sting Quest
+
+# Definition
+Q:26:Q:3:0:0:0:15:0:88:6
+
+# Description for quest
+?:[LEQ $QUEST26 2]
+Q:26:T:Regent: You did your part but they must have moved her.  We can
+Q:26:T:only hope they believe her useful and keep her alive. The King has
+Q:26:T:not left his room since and we are worried over his health.
+Q:26:T:It is rumored that the dagger Sting can be found in the far north
+Q:26:T:mountains. You may need that in the trials to come.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST26 3]
+Q:26:T:As a reward for your good work, you may keep Sting.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST26 5]
+Q:26:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with "Sting"
+F:1:1:8:0:0:0:88
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX..XX..XXXXX..XX....XXXXXXXXXXX..........VVWWWWWWWX
+D:XX...........X.............XXXXX@.......VVVVVVWWWWWWWWX
+D:XX..........................X........VVVVVVVVWWWWWWWWWX
+D:XXX.................................VVVVVVVVWWXXXXXWWWX
+D:XX.........9.....9................VVVVVVVVVWWWX.1.XWWWX
+D:XX...................................VVVVWWWWWX9.9XWWWX
+D:XX..................................VVVVVVVWWWX...XWWWX
+D:X...................................VVVVVVVWWWXXDXXWWWX
+D:X.....................................VVVVVVWWWWWWWWWWX
+D:XX....................................VVVVVVVVVWWWWVVVX
+D:XX......................................VVVVVVVVVVVVVVX
+D:XX.........................................VVVVVVVVVVVX
+D:XXX............................................VVVVVV.X
+D:XX.................X..................................X
+D:X<..............XXXXX....XXX..........................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@..XXXX...XXXXX....XXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:15:1
+

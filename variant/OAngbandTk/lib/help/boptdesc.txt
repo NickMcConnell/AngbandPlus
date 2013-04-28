@@ -1,0 +1,45 @@
+
+=========================== Character Birth Options ===========================
+
+Certain options must be set during or before character creation.  If
+they are changed for an existing character, there is no effect except
+to change the default for that character's descendants.
+
+Other option sets are described in their own documentation file.
+
+=== Option Set 5 -- Birth Options ===
+
+     Point Based (Default -  OFF):
+
+         Point based character creation allows you to skip 'rolling
+         for stats' altogether.  Instead you have a limited number of
+         points with which you can 'buy' points in various stats.
+         Higher stats cost much more than lower ones.  Leftover points
+         are converted into extra starting money.
+
+     Auto Roller (Default -  ON):
+
+         If you do not use point based character creation, this option
+         will allow you to specify minimum stats.  Characters are
+         generated until one is found to meet your requirements.
+
+         Stats are linked in the rolling process, so that each high
+         stat makes the next one less likely to be very high.  It may
+         be impossible to generate a character with multiple high
+         stats specified.
+
+     Maximize (Default -  ON):
+
+         Deciding to play a game in maximize mode turns all racial and class 
+         bonuses and penalties to stats into permanent modifiers.  Thus, a
+         Half-Troll Warrior in Maximize mode would have a maximum possible
+         Strength of 18/190 before equipment bonuses, but only 18/40 maximum
+         innate Intelligence.  In Oangband, maximize mode is strongly recom-
+         mended for all race and class combinations for the sake of realism.
+
+     Preserve (Default -  OFF):
+
+         Selecting Preserve mode makes it possible for artifacts to reappear
+         if generated but not discovered, but eliminates all the handy 
+         "special"  feelings (see the help file "dungeon.txt").  In Oangband, 
+         non-preserve mode can actually be useful.

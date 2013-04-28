@@ -1,0 +1,30 @@
+# data292r2 --
+#	Contains version-specific variables and commands
+
+source data292r1
+
+set vCommonVersion 1.4
+
+lappend vConfig \
+	dg32+iso
+
+lappend vSetting \
+	pickup_similar
+
+ldelete vValue \
+	sound,directory
+
+lappend vValue \
+	main,statusbar,color \
+	message,float \
+	micromap,float \
+	misc,float \
+	misc,layout \
+	recall,show
+
+lappend vRInfoCompat \
+	292r1
+
+lappend vScoreCompat \
+	292r1
+

@@ -1,0 +1,92 @@
+# q0000047.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:47:N:Barracks
+
+# Definition
+Q:47:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST47 2]
+Q:47:T:The next building will be the barracks. As you have noticed, there are
+Q:47:T:a lot of lost souls wandering the ruined buildings. Therefore, this could
+Q:47:T:be very dangerous as a lot of soldiers were quartered here.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST47 3]
+Q:47:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST47 5]
+Q:47:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Phantom Warrior
+F:a:1:8:561
+
+# Floor with Skeleton Human
+F:b:1:8:164
+
+# Floor with Moaning Spirit
+F:c:1:8:167
+
+# Floor with Moaning Spirit
+F:d:1:8:275
+
+# Floor with Ghost
+F:e:1:8:326
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.<..................X...........X
+D:X....................X...........X
+D:X....................D.........a.X
+D:X....................X...........X
+D:X....................XXXXXXXXXXXXX
+D:X................................X
+D:X...............XX...............X
+D:X...............XX...............X
+D:XXXXXXXXXXXXX...XX...XXXXXXXXXXXXX
+D:Xe....X.........XX.........X...eeX
+D:Xa....X.........XX.........X....aX
+D:X.....X.........XX.........X.....X
+D:X.....X.........XX.........X.....X
+D:X...............XX...............X
+D:XXXXXXXXXXXXX...XX...XXXXXXXXXXXXX
+D:X.....X.........XX.........X.....X
+D:X.a...X.........XX.........X...a.X
+D:X.....X.........XX.........X.....X
+D:X.....X.........XX.........X.....X
+D:X...............XX...............X
+D:XXXXXXXXXXXXX...XX...XXXXXXXXXXXXX
+D:X.....X.........XX.........X.....X
+D:X.a...X.........XX.........X...a.X
+D:X.....X.........XX.........X.....X
+D:X.....X.........XX.........X.....X
+D:X...............XX...............X
+D:XXXXXXXXXXXXX...XX...XXXXXXXXXXXXX
+D:X.....X.........XX.........X.....X
+D:X..ac.X.........XX.........X..ac.X
+D:X.....X.........XX.........X.....X
+D:X.....X.........XX.........X.....X
+D:X...............XX...............X
+D:Xb..............XX...............X
+D:X...............XX...............X
+D:X...............XX...............X
+D:X...b..........................c.X
+D:X..............................c.X
+D:X................................X
+D:XXXXXXXXXXX............XXXXXXXXXXX
+D:Xc........D............D.........X
+D:X....a....XXXXXXXDXXXXXX.....a...X
+D:X....e....X............X.....d.cdX
+D:Xc........X....eddde...X......cdeX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:2
+

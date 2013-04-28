@@ -1,0 +1,4 @@
+This folder was created when you ran UpgradeTool. If there
+were no problems, you can delete this folder and everything
+in it.
+

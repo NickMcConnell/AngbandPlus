@@ -1,0 +1,74 @@
+# q0000073.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:73:N:Attack on Minas Delos
+
+# Definition
+Q:73:Q:6:0:0:0:30:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST73 2]
+Q:73:T:Though you were able to take Minas Sereg, it will be a pointless victory
+Q:73:T:if we do not soon deal with the southern tower. There is a problem, though.
+Q:73:T:My guards have been keeping the southern tower under constant watch from
+Q:73:T:Minas Sereg, and have finally determined what inhabits it: A Dragon! No
+Q:73:T:minor dragon, to be sure, but an ancient one, with deep red scales. Such a
+Q:73:T:creature hasn't been seen on the surface for many years. You are tasked to
+Q:73:T:slay this beast, if you possibly can. I would not advise entering the tower
+Q:73:T:without a great deal of protection from fire, and the capability to heal
+Q:73:T:yourself. Dragons are powerful opponents, not to be taken lightly.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST73 3]
+Q:73:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST73 5]
+Q:73:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Ancient Red Dragon
+F:a:1:8:444
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX...................XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX.................................XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX...........XXXXXXXXXXXXXXXXX...............XXXXXXXXXXXXXXXX
+D:XXXXXXXXX.......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..........XXXXXXXXXX
+D:XXXX.......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...........XXXX
+D:XXXX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....XXXX
+D:XXXX.....XXX...........................................XXXXXXXXXXX....XXXX
+D:XXXX.....XXX....................*......................XXXXXXXXXXX....XXXX
+D:XXXX.....X.D...................***.....................D....XXXXXXX...XXXX
+D:XXXX.....X.X..................*****....................XXXX..XXXXXX...XXXX
+D:XXXX....XX.X.................*******...................XXXXX.XXXXXX...XXXX
+D:XXXX....X..X................****a****..................XXXXX..XXXXX...XXXX
+D:XXXX....X.XX.................*******...................XXXXXX.XXXX....XXXX
+D:XXXX....X.XX..................*****....................XXXXXX.XXXX....XXXX
+D:XXXX...XX.XX...................***.....................XXXXXX..XXX....XXXX
+D:XXXX...X..XX....................*......................XXXXXXX.XXXX...XXXX
+D:XXXX...X.XXX...........................................XXXXXXX.XXXX...XXXX
+D:XXXX...X.XXX...........................................XXXXXX..XXXX...XXXX
+D:XXXX...X.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXX...XXXX
+D:XXXX...X..XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXX..XXXX
+D:XXXX...XX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX....XXXXXXX..XXXX
+D:XXXX....XXXXX.....XXXXXXXXXXXXXXXX...........XXXXXX.......XXXXXXXXXX..XXXX
+D:XXXX........XXXXX................D...........D......XXXXXXXXXXXXXXX...XXXX
+D:XXXX............XXXXXXXXXXXXXXXXXX...........XXXXXXXXXXXXXXXXXX......XXXXX
+D:XXXXXXXXX.............XXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXX.......XXXXXXXXXX
+D:XXXXXXXXXXXXXXX..................XXXXXXDXXXXXXXXXXXX......XXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX.............D....X.XXXXX........XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX......X.<..X.......XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:29:35
+

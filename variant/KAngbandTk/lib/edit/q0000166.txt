@@ -1,0 +1,50 @@
+Q:166:N:Lost in Waste
+
+Q:166:Q:3:0:0:0:15:0:72:6
+
+?:[LEQ $QUEST166 2]
+Q:166:T:You tell the king that a group of vile beasts were using the alter
+Q:166:T:within the Standing Stones to make human sacrifices. The King is
+Q:166:T:relieved that you have put an end to the foul deeds.
+Q:166:T:There is much talk in the streets about the sword of Arunruth. It
+Q:166:T:is roumored that it lies hidden deep within the Thunder Mountains
+Q:166:T:that boarder the waste to the northeast. If you could find this
+Q:166:T:powerful artifact, It would surely increase your fame amoung the
+Q:166:T:good people of the realm.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST166 3]
+Q:166:T:Well done. You may keep the artifact.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST166 5]
+Q:166:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Broad Sword 'Arunruth'
+F:1:1:8:0:0:0:72
+
+# open floor (room), Small Metal Shield of Thorin
+F:2:1:8:0:0:0:30
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX;;;,,,,,,,&,,,,,,,,,,XXXXX....2XX
+D:XX1,9;;;;,,,,,,,,,,,,,&,,,,XXXX..9..XX
+D:XX;;;;;;;,,,,,,,,,,,,,,,,,&XXXXXXDXXXX
+D:XX;;;;;,,,,,&,,,,,,,,,,,,,XXXX....XXXX
+D:XX,,,,,,,,,,,,,,,,,,,,,XXXXXXX.XXXXXXX
+D:XX,,,,&,,,,,,,&,,,,,,,XXXXXXXX;XXXXXXX
+D:XXX,,,,,,,,,,,,,,,,XXX;XXXXXXX+XXXXXXX
+D:XXXXX,,,,&,,,,,,,XXXXXX;.XXXX.;;XXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX.XX.XXX;XXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXX;.X.XXXXX.XXXX
+D:XXXXXXXXX&............;;XX.XXXXXX.XXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXX.XXXX
+D:X.....XXXXXXXXXXXXXXXXX...XXXXX...XXXX
+D:X.<....................XXXXXXXX..&..XX
+D:X.....XXXXXXXXXXXXXXXXXXXXXXXXX*****XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:14:3

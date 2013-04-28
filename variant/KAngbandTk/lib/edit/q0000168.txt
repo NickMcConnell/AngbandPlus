@@ -1,0 +1,41 @@
+Q:168:N:Waste not want not.
+
+Q:168:Q:4:0:0:0:20:0:0:6
+
+?:[LEQ $QUEST168 2]
+Q:168:T:Our spies report that Morgoth plans to poison the water hole
+Q:168:T:in the southern reagon of the wastelands. This natural water
+Q:168:T:source is vital to our trade route. You must get to it first
+Q:168:T:and defend the water at all costs. We can't allow Morgoth's
+Q:168:T:men to succeed in their plans.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST168 3]
+Q:168:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST168 5]
+Q:168:T:You have failed me, beware you do not do so again!
+?:1
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X,,,,,,;,,,,,,,;,,,,,,,,,,,,,,,,,,&;*X
+D:X,;&,,,,,,,,,,,,,,,,;,,,,,,,,,,;;,,,,X
+D:X,*,,,,,,,,;,,*,,,,,,,,,,,,,,,*,,,,,,X
+D:X;,,&,,,,,,,,,,,,,,,,,,,,,,,,,,,;,,,,X
+D:X,,,,,,,,,,,,,,,,,,,;,,,,,,*,,,&,,,,,X
+D:X,,,;,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,X
+D:X,,,,,,,,,,,,;,,,,,,,,,;,,,,,,,,,,,,,X
+D:X,,,,,,,,&,,,,,,&,,,,,,,,,,,,,,,,,,;<X
+D:X*,,,,,;,,*,V*,,,;,,,,,,,,,,,,,,,,,,,X
+D:X,,,,,,,,,,VWVV,,,,,,,,,,,,,,,,,,,,,,X
+D:X;;;,,,&;,,,VV*,,,,,,,,,,,,;,,,,,,,,,X
+D:X,;;;,,,,,,,,,,&,,,,,;,,,,,,,,&;,,,,,X
+D:X,,,;;;;;,,;,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:X,..,,,,,,;,,,,,,,,,,,,,,,,,,,*,,;,,,X
+D:X;;;;;;;;;,,,,,,*,;;;,,,,,,,,,,,,,*,,X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:14:3

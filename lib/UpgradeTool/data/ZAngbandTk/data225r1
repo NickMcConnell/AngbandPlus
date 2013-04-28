@@ -1,0 +1,32 @@
+# data225r1 --
+#	Contains version-specific variables and commands
+
+source data223r3
+
+lappend vSetting \
+	use_command
+
+lappend vValue \
+	TERM_BLUE \
+	TERM_DARK \
+	TERM_GREEN \
+	TERM_L_BLUE \
+	TERM_L_DARK \
+	TERM_L_GREEN \
+	TERM_L_RED \
+	TERM_L_UMBER \
+	TERM_L_WHITE \
+	TERM_ORANGE \
+	TERM_RED \
+	TERM_SLATE \
+	TERM_UMBER \
+	TERM_VIOLET \
+	TERM_WHITE \
+	TERM_YELLOW
+
+lappend vRInfoCompat \
+	223r3
+
+lappend vScoreCompat \
+	223r3
+

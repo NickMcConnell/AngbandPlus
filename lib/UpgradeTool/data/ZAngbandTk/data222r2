@@ -1,0 +1,24 @@
+# data222r2 --
+#	Contains version-specific variables and commands
+
+source data222r1
+
+lappend vValue \
+	font,inventory \
+	font,knowledge \
+	font,macros \
+	font,magic \
+	font,message \
+	font,messages \
+	font,misc \
+	font,monster \
+	font,recall \
+	font,options \
+	font,status \
+	font,store
+	
+lappend vRInfoCompat \
+	222r1
+
+lappend vScoreCompat \
+	222r1

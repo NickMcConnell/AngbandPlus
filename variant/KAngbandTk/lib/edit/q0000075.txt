@@ -1,0 +1,77 @@
+# q0000075.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:75:N:Blockade!
+
+# Definition
+Q:75:Q:6:0:0:0:40:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST75 2]
+Q:75:T:Your strike against the guard captain at Dulnshead was successful,
+Q:75:T:and just minutes ago I signed a treaty with the King of Dulnshead.
+Q:75:T:However, Morgoth has shown himself to be more cunning than I had
+Q:75:T:ever imagined. Recently, hidden patrols of orcs, trolls and ogres
+Q:75:T:emerged from the forests around these cities and blockaded the gates
+Q:75:T:to both my city and Dulnshead. They are under the leadership of none
+Q:75:T:other than Azog himself, the King of the Uruk-Hai, come out of the
+Q:75:T:dark pits of Moria to due Morgoth's bidding. They are at the gates
+Q:75:T:of my city now - go there, and destroy them!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST75 3]
+Q:75:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST75 5]
+Q:75:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Uruk
+F:a:1:8:226
+
+# Floor with Azog, King of the Uruk-Hai
+F:b:1:8:262
+
+# Floor with Cave Ogre
+F:c:1:8:287
+
+# Floor with Ogre Mage
+F:d:1:8:296
+
+# Floor with Algroth
+F:e:1:8:293
+
+# Floor with Half-Troll
+F:f:1:8:335
+
+# Floor with War Troll
+F:g:1:8:565
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X<..X..................................X
+D:X...X.............................d....X
+D:X.g.X...............cc............dd...X
+D:XXDXX...............ccc................X
+D:XX.X...................................X
+D:XX.X...................................X
+D:XX.X...................................X
+D:XX.X......................fff..........X
+D:XX.X.....................ffbff.........X
+D:XX.X..........aa..........fff..........X
+D:XX.X........aaaa.......................X
+D:XX.D..........aaa......................X
+D:XXXX..............................e....X
+D:X................................ee....X
+D:X......................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:1
+

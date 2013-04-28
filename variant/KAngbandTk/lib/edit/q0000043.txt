@@ -1,0 +1,69 @@
+# q0000043.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:43:N:Food Storage
+
+# Definition
+Q:43:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST43 2]
+Q:43:T:Great - both guardhouses are now cleared. The next building on
+Q:43:T:my list is the food storage house. There shouldn't be anything
+Q:43:T:of value there after all this time but we might as well clear out
+Q:43:T:any growth.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST43 3]
+Q:43:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST43 5]
+Q:43:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Grey Mold
+F:a:1:8:15
+
+# Floor with Yellow Mold
+F:b:1:8:63
+
+# Floor with Brown Mold
+F:c:1:8:92
+
+# Floor with Phantom Warrior
+F:d:1:8:561
+
+# Floor with Potion of Water
+F:k:1:8:0:224
+
+# Floor with Potion of Poison
+F:l:1:8:0:248
+
+# Floor with Rodent Skeleton
+F:m:1:8:0:394
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X..............<............;;;;;;;;;X
+D:X.............................;;;;;;;X
+D:X...............................;;;;;X
+D:Xa................................;;;X
+D:Xb............................X.....;X
+D:Xcc...........................X......X
+D:Xbca..........................X......X
+D:Xab..................................X
+D:Xa...................................X
+D:Xla.................XXX..............X
+D:Xll.................................aX
+D:Xklmm..................d............mX
+D:Xkllc.............................cmmX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:15
+

@@ -1,0 +1,102 @@
+
+================================= The Dungeon =================================
+
+     All levels other than 0 (or zero feet) lie within the dungeon.  Each level 
+of the dungeon is fifty feet high, and is divided into large rectangular regions 
+(several times larger than the screen) by impenetrable walls.  Once you leave 
+a level, you will never again find your way back to that region of that level, 
+but there are an infinite number of other regions at that same depth that you 
+can explore later.  Monsters move about just as you do, and you may see them 
+again.
+
+--- Dungeon Features, Light, Level Feelings, and Mining ---
+
+Terrain:
+     In Oangband, the following terrain types affect movement, combat, or both.  
+Because they less frequently take advantage of terrain, monsters benefit more 
+from favorable and suffer less from unfavorable terrain than the player does.
+
+     Rubble:
+          Slows down the player and all monsters that cannot bore or pass 
+     through rock.  Ends LOS, stops missiles, bolts, and beams, and reduces the 
+     radius of ball spells.  Grants the player and monsters within it some 
+     protection from melee, ranged, or magical attacks.  Rubble may dissolve to 
+     normal floor.
+
+     Water:
+          Cannot be passed by players with heavy burdens, or fiery, earthbound
+     monsters.  All melee or ranged attacks and most spells benefit when the 
+     target is in water, especially water-based spells.  Fire-based spells 
+     become much less powerful, so find a lake if you battle Smaug.  Water may 
+     evaporate.
+
+     Lava:
+          Can be passed by any character, but inflicts substantial fire damage 
+     (less for players with feather fall - they're light on their feet).  All 
+     monsters other than fiery or strong flying creatures will not cross.  Water 
+     and cold-based spells suffer and fire-based spells become more powerful 
+     against a target in lava.  Lava may freeze to rubble or normal floor.
+
+     Trees:
+          Slows down players not familiar with druidic techniques, and all 
+     non-natural monsters that neither fly nor pass through rock.  Ends LOS, 
+     stops missiles, bolts, and beams, and reduces the radius of ball spells.  
+     Grants the player and monsters within it some protection from melee, 
+     ranged, or magical attacks.  Trees can burn.
+
+
+Staircases, Secret Doors, and Traps:
+          Staircases allow your character to ascend or descend from one level to 
+     another, and are represented by "<" (up) and ">" (down).  Each level has at
+     least one up staircase, and two down staircases, unless it is the home of
+     Sauron (level 99/4950') or Morgoth (level 100/5000'), whom you must kill 
+     before staircases will appear.  Otherwise, the staircases are guaranteed, 
+     but they may be difficult to find.  Staircases may sometimes allow you to 
+     ascend or descend more than one level at a time.  Once you leave a level, 
+     you can never return to it.  Artifacts will be lost, even unidentified ones 
+     if you are not using the "preserve" startup option.
+          Many secret doors exist in the dungeon, and may lead to anything from 
+     a new section of the dungeon level to an empty closet.  As your familiarity 
+     with the dungeon grows, you will know where many secret doors are likely to 
+     be.  Secret doors always look like granite until found and, for historical 
+     reasons, are never locked.  
+          Traps also await you in the dungeon.  They look like normal floor 
+     squares until found, too often by your getting caught by one.  Both secret 
+     doors and traps may be found using the 's'earch once command, or by going 
+     into 'S'earching mode ('#', using the roguelike keyset).  Many classes can 
+     also use magic, and everyone can use the appropriate rod or staff.  Be 
+     warned: although magical disarming is convenient, it is never a sure thing.
+
+Light:
+          Your character must have some source of light in order to see, unless 
+     the area around him is magically lit.  Depending on the items he has equip-
+     ped, he may have a light radius of one (torches), two (a lantern), or more, 
+     up to a rarely-attained maximum of five.
+          A torch or lantern burns fuel, and may be refilled (use the 'F'uel 
+     command) with other torches or flasks of oil respectively.  It is rumoured 
+     that other light sources exist which never need replenishing.
+
+Level Feelings:
+          If you have spent enough time on the previous level, you will get a 
+     message describing the level as you enter it.  The more interesting the 
+     choice of adjectives, the more dangerous and lucrative the level is likely 
+     to be.  If you have chosen Preserve mode when creating your character, you 
+     will occasionally get the message "you have a special feeling about this 
+     level", indicating the presence of a monster pit or nest (sometimes, only 
+     at shallow depths), a vault (more often), a player ghost, or an artifact.
+
+Themed Levels:
+          If you are deep enough, and have spent a bit of time on the previous 
+     level, you may very rarely find a themed level, filled with monsters of a 
+     given type.  Such levels only appear once in a lifetime, so don't leave 
+     them unless you really want to.  Vision range is reduced on themed levels.
+
+Mining:
+          There is much treasure in the walls of the dungeon, just waiting for 
+     an industrious adventurer to come and dig it out.  Once you can afford it, 
+     and if you can handle the weight, bring a shovel or pick along.
+          As you get richer, the treasures in the wall won't seem so appealing 
+     anymore, but keep a item or spell of tunneling handy.  Not only do all 
+     sorts of special vaults lie deep below the surface, some completely en-
+     closed by solid rock, but smart adventurers deliberately alter the dungeon 
+     to make the most dangerous breathers and summoners manageable.

@@ -1,0 +1,70 @@
+SET_PROPERTY (
+    DIRECTORY
+    PROPERTY COMPILE_DEFINITIONS
+     USE_TCL_STUBS
+     ${PLATFORM}
+     SHLIB_SUF="${CMAKE_SHARED_LIBRARY_SUFFIX}"
+     ${SDL_CFLAGS}
+)
+
+INCLUDE_DIRECTORIES (
+    ${DBWIN_HDRS}
+    ${COMMONTK}/src/misc
+)
+
+IF( MINGW )
+    # resource compilation for MinGW
+    SET (RCOBJ ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/boot.dir/angband.rc${CMAKE_C_OUTPUT_EXTENSION})
+    ADD_CUSTOM_COMMAND( OUTPUT ${RCOBJ}
+                        COMMAND C:/MinGW/bin/windres.exe
+			    -I${CMAKE_CURRENT_SOURCE_DIR}
+			    -I${COMMONTK}/tk/image
+			    -i${CMAKE_CURRENT_SOURCE_DIR}/angband.rc
+                            -o ${RCOBJ} )
+ELSE( MINGW )
+    SET (RCOBJ angband.rc)
+ENDIF( MINGW )
+
+IF(CYGWIN)
+#    SET(CMAKE_RC_COMPILER_INIT windres.exe)
+#    INCLUDE(CMakeDetermineRCCompiler)
+#    ENABLE_LANGUAGE(RC)
+    # This is hard-coded in CMakeRCCompiler.cmake.in!!!
+#    SET(CMAKE_RC_OUTPUT_EXTENSION .o)
+#    SET(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> <DEFINES> -i <SOURCE> -o <OBJECT>")
+
+    SET (RCOBJ ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/boot.dir/angband.rc${CMAKE_C_OUTPUT_EXTENSION})
+    ADD_CUSTOM_COMMAND( OUTPUT ${RCOBJ}
+                        COMMAND /usr/bin/windres.exe
+			    -I${CMAKE_CURRENT_SOURCE_DIR}
+			    -I${COMMONTK}/tk/image
+			    -i${CMAKE_CURRENT_SOURCE_DIR}/angband.rc
+                            -o ${RCOBJ} )
+ENDIF(CYGWIN)
+
+# FOO
+SET (SUBSYSTEM WIN32)
+IF (PLATFORM_SDL)
+    SET (SUBSYSTEM "")
+ENDIF (PLATFORM_SDL)
+
+ADD_EXECUTABLE (boot
+    ${SUBSYSTEM}
+    main-boot.c
+    ${RCOBJ}
+)
+SET_TARGET_PROPERTIES (boot PROPERTIES OUTPUT_NAME angband)
+
+TARGET_LINK_LIBRARIES (boot
+    misc
+    ${TCL_STUB_LIBRARY}
+    ${DBWIN_LIB}
+)
+IF (CMAKE_HOST_UNIX AND NOT CYGWIN)
+    TARGET_LINK_LIBRARIES (boot
+	${DLOPEN_LIBRARIES}
+    )
+ENDIF (CMAKE_HOST_UNIX AND NOT CYGWIN)
+
+INSTALL (TARGETS boot RUNTIME DESTINATION ${CMAKE_SOURCE_DIR})
+

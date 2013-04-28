@@ -1,0 +1,67 @@
+.book "ReadMe Files"
+.glob ANGBAND_DIR ReadMe,COMMON_DIR ReadMe
+.stop
+
+.book "AngbandTk Documentation"
+.book "About AngbandTk" about.html
+.page "Why AngbandTk?" about.html#why-angbandtk?
+.page "Why Tcl/Tk?" about.html#why-tcl/tk?
+.page "Contact" about.html#contact
+.stop
+.book "The Interface" interface.html
+.page "Using The Interface" interface.html#using-the-interface
+.page "Game Windows" interface.html#game-windows
+.page "The Mouse" interface.html#the-mouse
+.stop
+.book "File Descriptions" files.html
+.page "The tk\config Directory" files.html#tk_config
+.stop
+.book "List of Changes" changes.html
+$(oangtk,contents)
+.page "OAngbandTk 0.3.2r1" changes.html#032r1
+.stop
+.page "Known Bugs and Limitations" bugs.html
+.page "Performance Issues" performance.html
+.stop
+
+.book "OAngband Documentation"
+.page "News" news.txt
+.book "The Fundamentals"
+.page "Description of Angband" angdesc.txt
+.page "Description of OAngband" oangdesc.txt
+.page "How to get Information from the Game" getinfo.txt
+.page "The Newbie's Guide" newbie.txt
+.page "Saving, Loading, Winning, Cheating, and Dying" basctask.txt
+.page "Using a Larger Display (Bigscreen)" bigscreen.txt
+.stop
+.book "Creating a Character"
+.page "Character Abilities and Attributes" abilattr.txt
+.page "Races and Classes" raceclas.txt
+.page "Birth Options" boptdesc.txt
+.stop
+.book "Commands and Options"
+.page "Listing of Commands" cmdlist.txt
+.page "Command Descriptions" cmddesc.txt
+.page "Option Descriptions" optdesc.txt
+.page "Macros and Keymaps" macro.txt
+.stop
+.book "Magic And Combat"
+.page "Magical Realms and Devices" magic.txt
+.page "Non-Magical Combat" combat.txt
+.page "Defending Yourself" defence.txt
+.page "Equipment Combat Attributes" equip.txt
+.stop
+.book "Exploring the Dungeon"
+.page "Symbols On Your Map" symbols.txt
+.page "The Town" town.txt
+.page "Exploring the Dungeon" dungeon.txt
+.page "Objects and Monsters" objs-mon.txt
+.stop
+.book "Diffs Files"
+.glob ANGBAND_DIR lib info "diffs files"
+.stop
+.book "Spoil"
+.glob ANGBAND_DIR lib info Spoil
+.stop
+.stop
+

@@ -1,0 +1,68 @@
+include $(JAM_RULES_DIR)/Jambase ;
+IncludeRules Tcl Tk Dbwin Zlib ;
+
+LOCATE_TARGET = [ FDirName $(BUILD_NAME) ] ;
+
+CCFLAGS += $(TCL_DEFS) $(TK_XINCLUDES) -D$(PLATFORM) -DBUILD_icon_dll  ;
+
+# see init_compress() in icon-dll.c
+CCFLAGS += -DZLIB_LIB_SH_NAME=\\\"$(ZLIB_LIB_SH_NAME)\\\" ;
+
+# CCFLAGS += -DSOUND3D ;
+
+HDRS += $(MISC_LIB_HDRS) $(TCL_HDRS) $(TK_HDRS) ;
+
+if $(PLATFORM) = PLATFORM_WIN
+{
+	SHLIB = [ FAppendSuffix common : $(SHLIB_SUF) ] ;
+
+	if $(TOOLSET) = CYGWIN
+	{
+		XLIBS = ;
+	}
+
+	if $(TOOLSET) = BORLANDC
+	{
+		ImportLib $(SHLIB)$(SUFLIB) : $(SHLIB) ;
+	}
+
+	# LCC generates .exp and .lib for us
+	if $(TOOLSET) = LCC
+	{
+if 1 {
+		LIB = $(SHLIB)$(SUFLIB) ;
+		LINKFLAGS on $(SHLIB) += -outlib [ FDirName $(LOCATE_TARGET) $(LIB) ] ;
+		DEPENDS $(LIB) : $(SHLIB) ;
+} else {
+		# Linker put it here with .dll
+		LOCATE on $(SHLIB:S=$(SUFLIB)) = $(LOCATE_TARGET) ;
+
+		DEPENDS $(SHLIB)$(SUFLIB) : $(SHLIB) ;
+		LOCATE on $(SHLIB)$(SUFLIB) = $(LOCATE_TARGET) ;
+
+		File $(SHLIB)$(SUFLIB) : $(SHLIB:S=$(SUFLIB)) ;
+}
+	}
+#	LINKFLAGS on $(SHLIB) += -lGn ;
+	XLIBS = ;
+}
+else
+{
+	SHLIB = [ FAppendSuffix libcommon : $(SHLIB_SUF) ] ;
+	XLIBS = -lXext ;
+}
+
+ShLib $(SHLIB) : cmdinfo-dll.c icon-dll.c qebind-dll.c map-dll.c
+	memory-dll.c plat-dll.c struct-dll.c TclTk-dll.c util-dll.c widget1-dll.c
+	widget2-dll.c
+	$(MISC_LIB_SH_NAME) $(TCL_LIB_NAME) $(TK_LIB_NAME)
+	$(DBWIN_LIB_SH) ;
+
+SetSubsystem $(SHLIB) : windows ;
+
+ShLib_LinkSearchPath $(SHLIB) : $(TCL_PREFIX)/lib ;
+
+LINKLIBS on $(SHLIB) += $(TCL_LIB_SPEC) $(TK_LIB_SPEC) $(TK_XLIBSW) $(XLIBS) ;
+
+InstallBin [ FDirName $(ROOT) OmnibandTk lib ] : $(SHLIB) ;
+

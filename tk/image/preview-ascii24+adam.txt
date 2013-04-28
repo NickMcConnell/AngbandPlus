@@ -1,0 +1,4 @@
+gwidth: 24 gheight: 24
+xmin: 40 xmax: 57 ymin: 45 ymax: 56
+47 52 object 178 "You see a Scroll titled "banmur dan evs""
+50 50 monster 46 "You see a Novice mage (sleeping)"

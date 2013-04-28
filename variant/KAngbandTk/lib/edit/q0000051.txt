@@ -1,0 +1,52 @@
+# q0000051.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:51:N:Keep Defense 2
+
+# Definition
+Q:51:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST51 2]
+Q:51:T:Odds are that the two buildings in front of what was once the Keep were
+Q:51:T:for extra defenders.  We have no idea what the inside looks like. Clean
+Q:51:T:them out if you can.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST51 3]
+Q:51:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST51 5]
+Q:51:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Dread
+F:a:1:8:369
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X......X.........X.....X.............X
+D:X......X....a....X.....X.......a.....X
+D:X......D.........D.....D.............X
+D:X......X.........X.....X.............X
+D:X......X.........X.....X.............X
+D:X......X.........X.....XXXXXXXXXXX...X
+D:X......X.........X.....X.............X
+D:XXXDXXXXXXXXDXXXXXXXXXXX.......a...**X
+D:X................X.....X..........***X
+D:X................X.....X.........****X
+D:X.<..............X.....X...XXXXXXXXXXX
+D:X................X.....X.............X
+D:X................D.....X.............X
+D:X................X.....D.............X
+D:X................X.....;.............X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:11:2
+

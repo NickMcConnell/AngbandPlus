@@ -1,0 +1,63 @@
+Q:142:N:The Cave-in
+
+Q:142:Q:4:0:0:0:5:0:0:6
+
+?:[LEQ $QUEST142 2]
+Q:142:T:King: The Dwarves tell me their allergies are clearing up
+Q:142:T:thanks to you, But they now have another problem,.. Their
+Q:142:T:main tunnel leading through the Dwarven Pillers to the west
+Q:142:T:slopes has colapsed. I'm sending you back to help them find
+Q:142:T:and/or build a new passage to the western slopes.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST142 3]
+Q:142:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST142 5]
+Q:142:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Rock lizard
+F:a:1:8:28
+
+# open floor (room), Shadow Cloak of Protection
+F:k:1:8:0:124:40
+
+# open floor (room), Ring of Protection
+F:l:1:8:0:153
+
+# open floor (room), Small Leather Shield of Resistance
+F:m:1:8:0:128:20
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXX;;;...XXXXXXXXXXXX-------<-------XXXXXXXX.;...X.;;;;...X
+D:XX.;XXXXXX...;;;XXXXXXXXX---------XXXXX;;.a..XXXXX.XXXXX.*.X
+D:XXXX.XXXXXXXXXXX;;....;;;XXXX;XXXXXXXXXXXXXXXXXXX.XXXXXXXXXX
+D:XXXXX.XXXXXXXXXXXXXXXXXXXXX.X.XXX.....;;;;;;;.......XXX.XXXX
+D:XXXX.XXXXXXXXXXXXXX....;;X;XX.X.XXXXXXXXXXXXXXXXXXXX.XX.;XXX
+D:XXXX.X.X;;;...&*XXXXXXXXX;XXX.X.XX;;;.....XXXXX..;;.XXXXX.XX
+D:XXXX.X.;XXXX...*XXXXXXXX..XXX.XX..XXXXX.&..XXXX.XXXXXXXXXX.X
+D:XXXX;X.XXXXXXXXXXXXXX;..XXXXX.XXXXXXXXX..XXXXXX.XXXX.a..XX;X
+D:X..X;X;XXX........a.;XXXXX.XX.XXXXXXX.XXXXX.a..XXXX.XXX.XX;X
+D:X&.D;X;X;;XXXXXXXXXXXXXXXX.XX.XXXXX;.XXXX.XXXXXXXX.XXXX;XX.X
+D:X*.X;XX.XXXXXXXXXXXXXXXX...XX.XX..;XXXX.XXXXXX....XXX...XX.X
+D:XXXX;XXX....X.;...a.XXX;XX;XX.XXXXXXX;XXXXX...XXXXXX.XXXX;XX
+D:XXXX.XXXXXXX.XXXXXXXXX.XXX.XX.XXXXX;XXXXX;;XXXXXX;..XXXX.XXX
+D:XXXX.XX.XXXX;XXXXXXX;;XXXX.XX.X.XX;XXXXXXX;XX...;XXXXXXX.XXX
+D:XXXX.XX.XXXXX;XXX...XXXX..XXX.X.XXX;....XX.XX;XXXXXX;....XXX
+D:XXXX.XXaXXXXXX...XXXXXa.XXXXX.X.XXXXXXXX.X.XX.XXXXX;XX.&.XXX
+D:XXXX.XX.XXXXXX.XXXXX..XXXX.XX.XaXXXXXX.XX..XX......XXX...XXX
+D:XX..XXXX.;;;.X.XXX;;XXXXXX.XX.XX.XXXXX..XXXXX.XXXX.XXXXXXXXX
+D:X.XXXXXXXXXXX..XX;XXXXXXXX.XX.XXX;XXXXXX.XXX.XXXXX;XXXXXX.XX
+D:X.XXXX;..XXXXXXXXX.XXXXX;aXXX.XXXX;..XXX.XXX.XXXXX;XXXXXXXaX
+D:XX..;.XXX..;XXXXXXX;...;XXXXX.XXXXXXX.XXX;;;XXXX;.......XX.X
+D:XXXXXXXXXXXX.....X;XXXXXXXXXXCXXXXXXX;XXXXXXXXX.XXXXXXXX;X.X
+D:Xk.....XXXXXXXXXX;XXXXXXX............X..........XXXXXXXX...X
+D:Xl..&..D.;;;XXXXX.XXXXXX;XXX...XXXXXXXXXX.XXXXXXXXXXXXXXXXXX
+D:Xm.....XXXXX.....a...;;.XXXX...XXXXXXXXXXX;;;...........a..X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:24:29

@@ -1,0 +1,114 @@
+# data291r1 --
+#	Contains version-specific variables and commands
+
+source data283r10
+
+set vCommonVersion 1.1
+
+# Many deleted directories, now in CommonTk
+ldelete vDirName \
+	{lib xtra sound} \
+	{tk bin} \
+	{tk library} \
+	{tk image dg} \
+	{tk library TclZip} \
+	{tk library TclMusic} \
+	{tk library TkHtml} \
+	{tk msgs} \
+	{tk msgs assign} \
+	{tk msgs birth} \
+	{tk msgs book} \
+	{tk msgs charflags} \
+	{tk msgs color} \
+	{tk msgs font} \
+	{tk msgs inven} \
+	{tk msgs keymap} \
+	{tk msgs know} \
+	{tk msgs macro} \
+	{tk msgs main} \
+	{tk msgs misc-win} \
+	{tk msgs music} \
+	{tk msgs option} \
+	{tk msgs player} \
+	{tk msgs record} \
+	{tk msgs score} \
+	{tk msgs sound} \
+	{tk msgs store} \
+	{tk msgs tomb} \
+	{tk image dg misc-win} \
+	{tk msgs choice} \
+	{tk msgs common} \
+	{tk msgs message} \
+	{tk msgs recall} \
+	{tk msgs startup} \
+	{tk msgs status} \
+	{tk msgs tips} \
+	{tk msgs building}
+
+ldelete vFile_user \
+	pref-win.prf
+
+lappend vFile_user \
+	message.prf \
+	pref-tk-win.prf
+
+ldelete vSetting \
+	testing_stack \
+	testing_carry
+
+lappend vSetting \
+	auto_more \
+	smart_monsters \
+	smart_packs
+
+ldelete vValue \
+	healthBarBD22
+
+lappend vRInfoCompat \
+	283r10
+
+lappend vScoreCompat \
+	283r10
+
+rename ModifyValue ModifyValue283r10
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+
+	# Old versions used palette indexes instead of #RGB values
+	if {[CmpVer Src 291r1] < 0} {
+		switch -glob -- $name {
+			friend*2 -
+			health*2 -
+			status*2 -
+			target*2 {
+				# Opacity is unchanged
+			}
+			friend* -
+			health* -
+			list* -
+			status* -
+			target* -
+			TERM_* -
+			TV_* {
+				set value [UpgradeObj PaletteIndexToRGB $value]
+				return [list name $name value $value]
+			}
+		}
+	}
+	switch -glob -- $name {
+		sound,directory {
+			# lib/xtra/sound ==> CommonTk/sound
+			if {[llength $value]} {
+				set value [UpdatePathHack [eval file join $value] sound]
+				set value [file split $value]
+			}
+		}
+		default {
+			return [ModifyValue283r10 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+

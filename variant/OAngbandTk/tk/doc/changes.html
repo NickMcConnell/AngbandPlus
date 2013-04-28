@@ -1,0 +1,1756 @@
+<HTML>
+<HEAD>
+<TITLE>List of Changes</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Change Log for OAngbandTk</H1>
+
+<P>
+It is intended that this file document all the changes from one version
+of OAngbandTk to the next, in reverse-chronological order (most recent
+versions first).
+<P>
+
+<h1>
+<a name="051r3">
+OAngbandTk 0.5.1r3 (May 8, 2009)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+Two options were added to control the speed of walking with the mouse.
+The 'mouse_repeat_delay' specifies the delay after taking the first step.
+The 'mouse_repeat_interval' specifies the delay between each other step.
+These options can be changed in the Options Window in the Other category.
+</li>
+<li>
+The Autobar now displays choices for any items the player is standing on.
+</li>
+<li>
+The old Other-&gt;Preferences submenu is now the Options menu.
+</li>
+<li>
+Some new icon sets were added. The new &quot;Adam Bolt (Shape)&quot; icon set and the
+new &quot;Ascii + Adam Bolt Features (Shape)&quot; icon set use different
+shapes for some features such as corners, north-south walls,
+and west-east walls.  The new &quot;Ascii + David E. Gervais 32x32&quot; icon set uses
+ascii icons for character/monsters/objects and David's graphics for features.
+The new &quot;Ascii&quot; icon set uses ascii icons for everything.
+The font family/size/style for ascii icons can be changed in the Font Window.
+The current icon set can be changed while the game is running.
+See the new Icons Window under the Options Menu.
+</li>
+<li>
+The old Keymap Window and Macros Window were combined into the new Prf Window.
+The Prf Window displays all the user/*.prf files and allows keymaps and macros
+to be edited in each file.
+</li>
+<li>
+The new Controls Window allows the user to easily assign a key to each of the
+game commands.  A keymap or macro is automatically created as needed, and a 
+warning is issued if the key is already used by another command.
+</li>
+<li>
+The Music Window supports music playlists. Each playlist has a list of music
+files to play and specifies which levels or areas (town, wild, dungeon, quest,
+arena, etc) to play in.
+</li>
+<li>
+The size of the Autobar buttons can be changed. See the Options Window in the
+Other category.
+</li>
+<li>
+The High Scores Window displays the scores in a multi-column list which allows
+sorting the scores by column (depth, class, points, etc).
+</li>
+<li>
+The Assign Window and Sound Window were redesigned to make it easier to assign
+sounds.
+</li>
+<li>
+The sound volume can be changed in the Sound Window.
+</li>
+<li>
+The Recall Window right-click menu has a new History submenu that allows the
+20 most-recently-recalled things to be redisplayed.  Individual objects in the
+inventory or dungeon aren't remembered however.
+</li>
+<li>
+A toolbar slides down from the top of the Main Window when the user is being
+asked to choose an item, enter a quantity, select accept/cancel when haggling
+in a store, or select yes/no.
+</li>
+<li>
+Added a new set of default sounds.  The sound configuration is called &quot;Egg&quot; but
+I can't remember why.  Years ago someone sent me the sounds or a link to them
+and I think they are great.  As far as I can remember they are copyright free.
+Thanks to whomever pointed them out to me and apologies for not remembering
+quite who you are. :-)
+</li>
+<li>
+The &quot;bell&quot; terminal noise is now the action_fail sound rather than the
+OS system beep.  This makes the ring_bell option less obnoxious (assuming a
+less obnoxious sound is assigned to action_fail).
+</li>
+<li>
+Increased the number of simultaneous sounds that may play from 8 to 16.
+</li>
+<li>
+Friendly monsters have a different (blue) background color from hostile monsters
+when using ascii icons.
+</li>
+<li>
+The graphical inventory and store windows show the item-name balloon for items the
+mouse pointer is over even when an item is selected.  Previously the balloon
+would not be displayed when an item was selected; some people thought this was
+a bug because the balloon disappeared.
+</li>
+<li>
+Pointing at stuff in the Main Window displays a balloon describing what is
+seen at the given cave location.  If the show_cave_balloon option is turned off
+then the balloon is only displayed when holding down the Shift key.  Locations
+that aren't completely onscreen don't show a balloon.
+</li>
+<li>
+The Autobar pops up when the mouse pointer enters the bottom 32 pixels of the
+Main Window cave display.  Previously the Autobar would pop up when the
+mouse entered the statusbar which made it a bit more awkward to use.
+</li>
+<li>
+Added a tiny health bar drawn at the top of the player icon in the Main Window.
+The health bar is displayed at 80% of max health or less.
+</li>
+<li>
+Added a visual indicator around the player and any staircases in the
+big dungeon map.
+</li>
+<li>
+Reduced the number of prompts when buying and selling items in the stores
+when auto-haggling is enabled. The game asks &quot;Buy X for Y gold? [y/n]&quot; or
+&quot;Sell X for Y gold [y/n]&quot; and 'Enter' is the same as 'y' for these prompts.
+</li>
+<li>
+The failure rate of magic devices is shown in the object recall.
+</li>
+<li>
+Added the Squelch Window (from OAngbandTk) to all variants. Squelched items
+are automatically destroyed when walking over them as if they were junk.
+Changing settings in the Squelch Window affects all existing items.
+Specifying &quot;all&quot; will squelch even unidentified items, which is useful for
+Amulets of Charisma or digging tools that you never need. Artifacts are
+never squelched.
+</li>
+<li>
+Added the &quot;Object auto-destroyed&quot; sound played when junk/squelched items are
+automatically destroyed. 
+</li>
+<li>
+Junk items are auto-destroyed when walking over them if verify_destroy_junk
+is false. Items inscribed with SQUELCH are treated as junk.
+</li>
+<li>
+The easy_sense option is on by default and now gives &quot;heavy&quot; sensing 100% of
+the time to all classes.
+</li>
+<li>
+A backup savefile is created just before using a staircase or when Word of Recall
+is cast/invoked.  The backup savefile has the .bkp extension.
+</li>
+<li>
+The Choose Game dialog now has 3 different tabs dividing savefiles into
+living characters, dead characters and backup savefiles.  When opening a
+backup savefile the user has the option of renaming the savefile before using
+it.
+</li>
+<li>
+The weight of objects is displayed as part of object memory in the Recall Window.
+</li>
+<li>
+Added visual indicators beneath each equippy char for cursed and recharging
+equipment items. Also added a new font option just for equippy chars.
+</li>
+<li>
+Looking at a monster displays its speed and the number of objects it is carrying.
+</li>
+</ul>
+
+<h3>Bug Fixes</h3>
+<ul>
+<li>
+The &quot;disarm&quot; sound is played when a chest is disarmed.
+</li>
+<li>
+Forgotten spells are no longer displayed as choices in the Autobar.
+</li>
+<li>
+Play the &quot;object destroyed&quot; sound when squelching items.
+</li>
+<li>
+Fixed the town not being built at the top-left of the dungeon screwing up
+the minimap scrolling.  This was only an issue when the custom town vault
+wasn't being used (such as when using the isometric icon configuration).
+</li>
+<li>
+Play the &quot;ball spell&quot; sound effect for other ball-like spells.
+</li>
+<li>
+Doubled the size of the buffer used to save the Word of Recall dungeon level.
+Also made the &quot;Buffer overflow&quot; message clearer in case overflow happens again.
+</li>
+<li>
+Visible monsters in walls can be attacked with the mouse without having to
+'+' alter in that direction.
+</li>
+<li>
+Changed the character-name processing code to support Unicode characters.
+Not 100% sure if this is working correctly...
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+Updated Tcl to version 8.5.7.  Used themed widgets where appropriate.
+</li>
+<li>
+Use the TreeCtrl widget for lists rather than the Tk Canvas widget.
+</li>
+</ul>
+
+
+<h1>
+<a name="051r2">
+OAngbandTk 0.5.1r2 (August 4, 2001)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+Icon lighting no longer requires 3 copies of each icon in a GIF file.
+Instead, 2 darkened copies of an icon are created only when needed. The Tcl
+command &quot;icon dark $type $index $gamma1 $gamma2&quot; is used.
+</li>
+<li>
+An isometric view was added using David E. Gervais' isometric tiles
+and the existing 32x32 icons. So awesome.
+</li>
+<li>
+The Assign Window shows fewer cave features now. This is because some
+cave features mimic another. For example, all closed/locked/jammed doors
+share the same icon, so only one needs to be assigned.
+</li>
+<li>
+The various sub-windows can now be closed. When the Message Window is closed,
+it is integrated into the top of the Main Window. When the Misc Window is
+closed, it is integrated into the left of the Main Window; in this case
+the Progress Window is closed automatically.
+</li>
+<li>
+The Misc Window can be configured as &quot;tall&quot; or &quot;wide&quot; using a context menu.
+When the Misc Window is tall, the Progress Window is automatically hidden
+and HP/SP/FD is displayed in the tall Misc Window.
+</li>
+<li>
+A row of equipment letters (&quot;equippy chars&quot;) is displayed when the Misc
+Window is &quot;tall&quot;. Pointing to a letter shows the item memory in the Recall
+Window. When the game is waiting for a command, the user can click one of
+the equippy chars to activate an artifact (if it is not charging).
+</li>
+<li>
+Cave features now support different &quot;shapes&quot;, such as corners, north-south walls,
+and west-east walls. See the isometric view for examples (note that this will
+work in the non-isometric view as well).
+</li>
+<li>
+The vault editor and the game now support up to 4 layers of icons for cave
+features. The was done to support David E. Gervais' awesome edged tileset.
+The vault editor also has a menu of plugins to make drawing edged tiles
+a breeze.
+</li>
+<li>
+The ambient_delay sound option was used to specify the number of game turns between
+ambient sounds being played. Now ambient_delay specifies the number of
+seconds between ambient sounds. So ambient sounds might play even when
+no game turns are passing.
+</li>
+<li>
+The monster_delay sound option now specifies seconds, not game turns.
+</li>
+<li>
+Transparent icons now use a new storage method that eliminates the .msk data
+files. Previously, a mask was created for each transparent icon, consuming
+twice as much memory and disk space.
+</li>
+<li>
+The graphics performance should be improved over previous versions. The
+transparent status messages are no longer transparent. This speeds things
+up and also creates consistency across platforms (transparency only worked
+on MS-Windows and 8-bit Unix displays).
+</li>
+<li>
+The cave-displaying windows (icon and map) now fill the area instead of
+clipping to whole grids only. This means that partial grids may be displayed.
+</li>
+<li>
+The Message Window and the Main-Window statusbar have context menus
+for configuring their appearance (setting the font etc).
+</li>
+<li>
+Multiple sound directories are supported.
+</li>
+<li>
+Multiple sound configurations are supported. A sound configuration consists of
+a descriptive title, a list of directories, and a set of sound assignments.
+Individual sound configurations may be turned on or off to enable/disable
+whole sets of sound assignments.
+</li>
+<li>
+The main program accepts command-line arguments. The -variant option is used to
+specify which variant to play (AngbandTk, KAngbandTk etc). The -savefile option
+is used to specify the savefile to use (full pathname). Other options are
+-icon-prefix, -music, -music-lib, -setup, -sound, and -sound-lib.
+</li>
+<li>
+On MS Windows, a BAT file is created which will run angband.exe with the most
+recent variant and savefile. On Unix a shell script is created for the same
+purpose.
+</li>
+<li>
+A history of recently-played sound events is available in the Sound Window. So
+if the user wonders why a sound was played, he can look it up in the history.
+</li>
+<li>
+Implemented the 'L'ocate command.
+</li>
+<li>
+When an inventory item is inscribed with '=g', any similar item on the floor
+will be picked up regardless of the always_pickup option. Previously, the
+item being walked on required the '=g' inscription for autopickup.
+</li>
+<li>
+The new &quot;pickup_similar&quot; option causes any item walked on to be picked up,
+if it can stack with an inventory item. This works without any special
+inscription.
+</li>
+</ul>
+
+<h3>Bug Fixes</h3>
+<ul>
+<li>
+Fixed the &quot;can't read &quot;left&quot;: no such variable&quot; error in the graphical
+Inventory Window. It usually happened when using the context menu.
+</li>
+<li>
+&quot;Repeat Last Command&quot; now requires the same object kind when repeating an
+object choice. So if the character throws a flask of oil, then repeats,
+but there are no more flasks of oil, then the user is again asked for an
+item to throw, instead of automatically selecting the next available item.
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+Moved the really low-level nasty platform-specific code into plat-dll.c and
+plat.c where possible.
+</li>
+<li>
+Fixed a very old bug with &lt;Setting&gt; events. Changing many game options
+would not generate a &lt;Setting&gt; event.
+</li>
+</ul>
+
+
+<h1>
+<a name="051r1">
+OAngbandTk 0.5.1r1 (May 4, 2001)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+UpgradeTool is now integrated with AngbandTk. If the game is started, and
+tk\config\value does not exist, the user is asked if she wants to run
+UpgradeTool.
+</li>
+<li>
+Added an option to the Window Menu in the Main Window to automatically
+save the window positions when the game exits.
+</li>
+<li>
+Can click the character's name to change it in the Misc Window.
+</li>
+<li>
+Clicking the icon in the Recall Window selects the monster or object
+in the Knowledge Window. Control-click displays the Assign Window.
+</li>
+<li>
+Control-click the character icon in the Misc Window to display the
+Assign Window
+</li>
+<li>
+Created a GUI installer which downloads and unzips all the required files.
+</li>
+</ul>
+
+<h3>Bug Fixes</h3>
+<ul>
+<li>
+Fixed another bug with the graphical Store Window. The
+&quot;character isn't shopping&quot; error could occur when leaving a store/home.
+</li>
+<li>
+Non-random artifact lights did not display the &quot;Permanent Light&quot; flag in
+the Flags page of the Character Info Window.
+</li>
+<li>
+Fixed problem where resting could not be interrupted.
+</li>
+<li>
+Fixed a bug in the Assign Window when any sound file had spaces in the name.
+</li>
+<li>
+Fixed bug with the X11 version when the screen depth was not the same as
+the framebuffer depth. Usually this meant 24-bit color with a 32-bit video
+buffer.
+</li>
+<li>
+Fixed bug with placement of the Choice Window when using the &quot;Arrange Windows&quot;
+menu command. The window was placed offscreen.
+</li>
+<li>
+Fixed bug with size of the Main Window when using the &quot;Maximize Windows&quot; menu
+command.
+</li>
+<li>
+The &quot;Arrange Windows&quot; command now considers the Choice Window when setting
+the size of the Recall Window.
+</li>
+<li>
+Modified the Misc Window, Progress Window and Character(Info) Window
+to handle internationalization issues (language, font) better.
+</li>
+<li>
+Fixed bugs with how certain skills were displayed.
+</li>
+<li>
+Added the &quot;angband system osversion&quot; command to determine the Windows version.
+This command should detect 95/98/ME/NT/2000. Tcl only detects 95/NT.
+</li>
+<li>
+Stopped the animation timer going off during startup before icons/widgets
+are even initialized.
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+Renamed all &quot;jp.msg&quot; files to &quot;ja.msg&quot; because &quot;ja&quot; is the correct name.
+The locale in each file was changed from &quot;jp&quot; to &quot;ja&quot;.
+</li>
+<li>
+Added msgcat support to UpgradeTool.
+</li>
+<li>
+Replaced all C++-style comments with C-style.
+</li>
+</ul>
+
+
+<h1>
+<a name="050r2">
+OAngbandTk 0.5.0r2 (January 6, 2001)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+Items which can be sold are displayed with a different border color in the
+(graphical) Store Window.
+</li>
+<li>
+The Misc Window buttons now automatically pop up a list of item choices
+when the mouse is over one of the buttons. Previously the user had to
+click one of the buttons to pop up a menu.
+</li>
+<li>
+Added the &quot;autobar&quot; to the Main Window. When the user points the cursor
+at the Main Window statusbar, a toolbar pops up with a number of buttons.
+The buttons are mostly the same as the Misc Window, with the addition
+of a button for each spell book.
+</li>
+<li>
+A &quot;Level N&quot; message appears in the Main Window when the character's
+experience level changes.
+</li>
+<li>
+Added the &quot;Home&quot; page to the Knowledge Window so the contents of the Home(s)
+can be browsed at any time.
+</li>
+<li>
+The status messages at the top of the Main Window are now assigned one of
+three flavors: Good (ie Blessed, Faster), Info (ie Full, Resting), or
+Bad (Confused, Stunned). Each flavor is displayed in a different color
+scheme. The colors can be changed in the Color Window.
+</li>
+</ul>
+
+<h3>Bug Fixes</h3>
+<ul>
+<li>
+Update the Choice Window when the show_flavors option changes.
+</li>
+<li>
+The micro-map &quot;detail&quot; is saved and restored.
+</li>
+<li>
+Fixed bug with the cheat-like knowledge of player ghosts corrupting the
+r_info[] entry for the ghost race.
+</li>
+<li>
+Fixed bug with the Book Window when there are no books to browse.
+</li>
+<li>
+Fixed the way styles are added to fonts, to fix a problem when the system font
+had a complex style such as &quot;bold italic&quot;. Errors would occur when trying to
+pop up a context menu, since the first item often had &quot;bold&quot; style added.
+</li>
+<li>
+Fixed the &quot;bad store item&quot; and &quot;bad inventory item&quot; errors in the
+graphical Store Window, which stopped the balloons showing.
+</li>
+<li>
+Fixed the 'bad option &quot;drag&quot;' error in the graphical Store Window.
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+In the graphical inventory and store windows: made the colors of the
+drag-box match those of the dragged item.
+</li>
+<li>
+Changed tnb.h so it doesn't include tk.h or windows.h. This decreases the time
+it takes to build the game, and decreases the amount of debugging info the
+compiler generates.
+</li>
+<li>
+Used canvas items to display the item description in the graphical Inventory
+and Store windows. Some people reported that the balloon window would randomly
+stop displaying in the Store Window. The upside is that there is less messy
+drawing because a separate window isn't used. The downside is that the balloon
+isn't allowed to extend past the window boundaries.
+</li>
+<li>
+Added a HandleError() C function to dump an error message to errors.txt,
+just like the Tcl command HandleError does.
+</li>
+</ul>
+
+
+<h1>
+<a name="050r1">
+OAngbandTk 0.5.0r1 (November 10, 2001)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+Various features, code changes and bug fixes somebody forgot to write down.
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+All of the common files are now in a separate directory, and are shared
+by each variant. The directory is CommonTk-x.y, where x.y is the version
+number which is incremented for each release.
+</li>
+<li>
+The main program is now inside angband.dll. The angband.exe application
+is just a stub which sets the PATH to the CommonTk/lib directory, loads
+some DLLs, and then calls Main() inside angband.dll.
+</li>
+<li>
+Ported AngbandTk etc to run on Unix. It has been tried on Linux and Solaris.
+</li>
+<li>
+Begin using TclTk-8.3.2 directory to avoid installer and AUTOEXEC.BAT
+issues.
+</li>
+</ul>
+
+
+<h1>
+<a name="041r1">
+OAngbandTk 0.4.1r1 (April 26, 2000)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+The &lt; and &gt; keys can be used to navigate the Birth Window.
+</li>
+<li>
+The new Book Window displays all the available books in a single window. The
+&quot;Browse (b)&quot; command no longer asks for which book to browse.
+</li>
+<li>
+Arrows and bolts use a different set of icons when being fired from a missile
+weapon. The Assign Window is used to choose the icons.
+</li>
+<li>
+The Font Window allows the user to change the font used in the Main Window,
+Store Window, and Inventory Window status bars.
+</li>
+<li>
+The Inventory Window can be kept on top of the Main Window by choosing the
+&quot;Always On Top&quot; option from the options popup in the toolbar.
+</li>
+<li>
+The Inventory Window supports drag-and-drop. Drag an item from the inventory
+to equipment to wield it (if possible). Drag an item from equipment to inventory
+to remove it (if possible). Drag an item to the bottom of the window to drop
+it onto the floor.
+</li>
+<li>
+The Main Window view can be scrolled when the game is asking the user to target
+a monster or location by clicking and dragging.
+</li>
+<li>
+When the game is asking the user to target a monster or location, left-clicking
+selects the monster or location under the cursor. Left-clicking in the Micro
+Map window also does this.
+</li>
+<li>
+When the game is asking the user to enter a direction, right-clicking on a 
+location will target the monster or location under the cursor.
+</li>
+<li>
+Double-clicking the Messages Window displays the message history (Ctrl-P).
+</li>
+<li>
+The Options Window has a list of option groups instead of the familiar tabs.
+Related options are now grouped more logically.
+</li>
+<li>
+The Store Window supports drag-and-drop. Drag an item from the inventory to
+the store to sell it (if possible). Drag an item from the store to the inventory
+to buy it (if possible).
+</li>
+<li>
+Missile weapon hits give the save visual feedback as melee attacks.
+</li>
+</ul>
+
+<h3>Bug Fixes</h3>
+<ul>
+<li>
+The about box displays the operating system as &quot;Windows 95/98&quot; (unless it is NT)
+because the actual OS version cannot be determined.
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+Updated msgcat (internationalization) support in various modules. The
+tk\msgs\common directory contains translations shared by multiple modules.
+A module can include more than one message file, and automatically includes
+the tk\msgs\common translations.
+</li>
+<li>
+The game was updated to use Tcl & Tk 8.3.1.
+</li>
+<li>
+The transparent status messages are handled by the the msgcat package.
+</li>
+<li>
+The missile/melee &quot;hit feedback&quot; was tweaked to invert the unmasked area outside
+the hit monster, unless that area is very small.
+</li>
+</ul>
+
+
+<h1>
+<a name="040r6">
+OAngbandTk 0.4.0r6 (December 21, 2000)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+Used Ben Harrison's changes to the &quot;easy&quot; options. The easy_disarm option was
+renamed easy_alter and now controls whether moving into a closed door or
+a floor trap should attempt to open/disarm it. The easy_open option now
+only chooses a direction when closing/disarming/opening. Previously the
+easy_open option controlled whether a door was opened/unlocked when moving
+into it.
+</li>
+<li>
+New graphical combined Inventory/Equipment window. The Inventory Window
+can be now left open all the time.
+</li>
+<li>
+New graphical combined Store/Inventory window.
+</li>
+<li>
+The Micro Map Window now uses graphical tiles. Water, lava, trees, grass and
+dirt etc are all easily distinguished. The 5x5 and 7x7 resolutions were
+removed, leaving 4x4, 6x6 and 8x8.
+</li>
+<li>
+The new Setup Window is a tabbed window that allows the user to choose the
+icon set; whether music is on or off; whether sound is on or off; which
+sound.dll to use. This means renaming the various sound.dll files by the user
+is no longer required each time the game is installed. The Setup Window is
+displayed by clicking the Setup button when the game starts.
+</li>
+<li>
+The Rogue-like keyset can be selected from within the Keymap Window.
+</li>
+<li>
+Them mouse-tracker automatically shuts off if the characters hit points
+suddenly drop by 15 percent or greater. This is to stop annoying insta-death
+just when you thought everything was going fine.
+</li>
+<li>
+The music player can now randomly select songs to play from all the songs
+in the music directory. Each song is played only once until all the songs
+have played.
+</li>
+<li>
+The target-set image in the lower-right corner of the Main Window now displays
+the ascii character of the targetted monster, or no character if a location
+is targetted. Also, the target-set image fades out when the targetted location
+is not in line-of-sight (it already did this for the targetted monster). The
+colors/transparency of the target-set image can be edited in the Color Window.
+</li>
+<li>
+If the sound or music is not available or was disabled by the user at
+startup, then various menu commands relating to sound and music are not
+displayed (ex. the Sound Window).
+</li>
+<li>
+AngbandTk now supports 24x24 icons. Two 24x24 icon sets are provided, one using
+Adam Bolt's graphics, and one using ascii graphics.
+</li>
+<li>
+The game windows now display the application icon in the titlebar/Taskbar
+instead of the Tk icon.
+</li>
+<li>
+The Misc Window now displays graphical labels in addition to text labels.
+The user can configure the appearance with a popup menu (right-click to
+access the menu).
+</li>
+<li>
+The Music Window now displays a progress bar displaying the position of the
+current song.
+</li>
+<li>
+Savefile names are no longer truncated to 8 characters.
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+Created macros for some of the z-term.c routines so they have no effect.
+Some output routines in utils.c were also converted to macros. This seems
+to have improved the speed.
+</li>
+<li>
+Put braces around single arguments to the &quot;proc&quot; command. New &quot;Window&quot;
+command replaces direct access to the &quot;Windows&quot; global variable. Lots of
+string comparisons replaced with the &quot;string equal&quot; command.
+</li>
+<li>
+The msgcat package is used to make internationalization much easier. Much of
+the user interface can be customized for different languages simply by
+editing message files in the tk\msgs directory.
+</li>
+<li>
+The &quot;icon assign&quot; command was replaced with the &quot;assign set&quot; command. There
+is no more overloading of icon types, ie, &quot;alternate&quot;, &quot;flavor&quot; and &quot;sprite&quot;
+are no longer icon types.
+</li>
+<li>
+The &quot;angband a_info/f_info/k_info/r_info&quot; commands were all reimplemented
+using the Struct_foo API. This means that searching and querying the
+various game arrays (to which the commands refer) is done in a uniform
+manner without duplicating lots of code. As a result the &quot;a_info info&quot;
+subcommand no longer returns an array, it returns a list of field/value
+pairs (or a single value if a field name is given).
+</li>
+<li>
+The new &quot;symbol&quot; command replaces the old &quot;angband mapcolor&quot; command. Map
+symbols can now be assigned any arbitrary image, instead of the boring
+2-color squares.
+</li>
+<li>
+The format of various tk\config files was changed. Each file now has its own
+namespace (ex. Config::Sound) which cuts down on file size.
+</li>
+</ul>
+
+
+<h1>
+<a name="040r5">
+OAngbandTk 0.4.0r5 (October 11, 1999)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+The book menus now display book/spell information in the Recall Window
+when a menu entry is highlighted.
+</li>
+<li>
+The Choose Game Window now caches information about each savefile so
+savefiles do not need to be scanned each time the window is displayed.
+This improves the display time significantly.
+</li>
+<li>
+The Help Window was redesigned to resemble the Windows 98 html-based
+help system, with iconic buttons and a separate contents list. The &quot;Angband
+Variant FAQ&quot; and &quot;Angband Newbie Guide&quot; are included. The ReadMe files are
+viewable within the Help Window now.
+</li>
+<li>
+AngbandTk now supports music! The MIDAS Digital Audio System is used to play
+various &quot;mod&quot; formats (Protracker, FastTracker 2, Scream Tracker 3, and
+Impulse Tracker). See the ReadMe_Music.txt file for more information about
+this. The user chooses a directory containing music modules using the
+&quot;Set Directory...&quot; command in the new Music Window. When a song has finished
+playing, the next song begins; when the last song in the directory is finished,
+the first song begins playing. No music modules are included with AngbandTk,
+but there are plenty available on the Internet.
+</li>
+<li>
+The Character Info Window and Character Flags Window were merged into a
+single tabbed Character Window. Various character-related commands are now
+available via menu commands, including changing the character's name,
+creating a character dump, and changing the character's icon. The old
+behaviour of clicking the character image in the Misc Window to display
+the Character Window was restored (recent versions used a popup menu to
+access various commands such as changing the character's icon).
+</li>
+<li>
+The new Choice Window displays all the choices which used to be displayed
+in the Recall Window. When the game is not asking the user to make a choice,
+the character's inventory or equipment is displayed (type / to toggle).
+See the Interface -&gt; &quot;Game Windows&quot; section in the Help Window for tips on
+getting the most out of this new window.
+</li>
+<li>
+The new Messages Window now displays the most recent messages. Resizing the
+window changes the number of messages which are displayed. See the Interface
+section in the help for more info on this.
+</li>
+<li>
+When a new character is created and saved, that savefile becomes the new
+default savefile when the Choose Game Window is displayed.
+</li>
+<li>
+The &quot;options&quot; toolbar button in the Inventory Window now has a menu
+to directly change those options which affect the display of the inventory
+or equipment, such as show_icons, show_weights, etc. The Store Window has
+a similar menu of options.
+</li>
+<li>
+The Main Window has a new Window Menu containing the various window-related
+commands. &quot;Arrange Windows&quot; and &quot;Maximize Windows&quot; now ask before changing
+the window positions.
+</li>
+<li>
+The &quot;Repeat (n)&quot; command was added to the Actions Menu.
+</li>
+<li>
+The icon in the Recall Window can be hiddent/shown via a popup menu.
+</li>
+<li>
+The file displayed in the Character Record Window can be saved to a file.
+Note: the Character Record Window can be displayed via the High Scores
+Window.
+</li>
+</ul>
+
+<h3>Bug Fixes</h3>
+<ul>
+<li>
+A Windows NT user suggested I set the default savefile name to *.*
+when browsing for savefiles. Apparently the file list is empty otherwise.
+</li>
+<li>
+If the user saved the window positions, restarted the game, and then saved
+the window positions again, the desired geometry for any windows which had
+not yet been displayed would be lost.
+</li>
+<li>
+If the Micro Map Window was moved to the left of the Main Window, some
+windows would not be displayed properly (an &quot;invalid geometry specifier&quot;
+error would occur). These windows are now aligned to the top edge of the
+Main Window and left edge of the monitor, regardless of the position of
+the Micro Map Window.
+</li>
+<li>
+The Message Window (the message line/prompt) had some unnecessary padding
+inside it which was removed (this will screw up people's custom window
+positions).
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+AngbandTk now uses Tcl 8.2.1.
+</li>
+<li>
+The &quot;about&quot; dialog now tries to detect Windows 98 by looking for the
+Windows\System32 or Windows\Tasks directories. Tcl only reports whether
+Win95 or WinNT is running.
+</li>
+<li>
+Added the &quot;statusbar.tcl&quot; library script. This is an example of a Tk
+&quot;mega-widget&quot; I suppose. These statusbars support the Windows behaviour
+when displaying menu tips.
+</li>
+<li>
+The NSMenu code was cleaned up to accept a variable number of arguments
+when creating menus and menu entries, instead of a big list.
+</li>
+<li>
+The NSBookWindow and NSInventory scripts now use NSModule support for
+delayed loading (they aren't loaded at startup, only when they are needed).
+</li>
+<li>
+The Options Window and Birth Options Window now display the help text for
+selected options much faster. The code uses &quot;seek&quot; instead of reading lines
+until the desired text is reached.
+</li>
+<li>
+Added the win98ToolbarButton.tcl and win98Toolbar.tcl library files to
+support nifty Windows98-like toolbars.
+</li>
+<li>
+A bunch of code was moved into a separate DLL, icon.dll, which resulted in
+a cleaner interface between different modules. The DLL holds the dynamic
+array code (Array_foo), doubly-linked list code (DoubleLink_foo), the &quot;icon&quot;
+command, the quasi-event code (QE_foo), the 8-bit bitmap code (Bitmap_foo),
+a nice new palette API (Palette_foo), a new &quot;struct&quot; command and API
+(Struct_foo), the &quot;widget&quot; command, and a couple Tcl/Tk related routines.
+</li>
+<li>
+The &quot;qeinstall&quot; command was added to allow scripts to define new details
+for already-defined quasi-events. This allows us to bind to the &lt;Setting&gt; 
+quasi-event for various Tcl-only game settings.
+</li>
+</ul>
+
+
+<h1>
+<a name="040r4">
+OAngbandTk 0.4.0r4 (August 15, 1999)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+UpgradeTool can now be run even if the new version was played. Any existing
+files will be backed up with a 4-digit suffix. For example &quot;config&quot; will
+be renamed &quot;config0000&quot; before the old version is copied to the new game.
+</li>
+<li>
+The character's life rating is displayed in the Character Info Window
+when creating a new character.
+</li>
+<li>
+Special .vlt data files are included which allow customization of the
+appearance of town levels in AngbandTk. Each vault file specifies foreground
+and background icons to be used in preference to the default icons chosen
+by the game. For AngbandTk and OAngbandTk, the town.vlt file is used instead
+of the town.txt file. In KAngbandTk and ZAngbandTk a separate .vlt file
+is included for each town. David E. Gervais put a lot of work into the .vlt
+files for KAngbandTk so they look very good. The .vlt files for ZAngbandTk
+allow the custom building door icons to be used.
+</li>
+<li>
+Clicking the monster or object icon in the Recall Window will display the
+Assign Window with the monster or object already highlighted.
+</li>
+<li>
+Smaller dungeon levels, including the town and quest levels, are now centered
+on the Micro Map and Big Map, without the extra empty area.
+</li>
+</ul>
+
+<h3>Bug Fixes</h3>
+<ul>
+<li>
+The Choose Game Window &quot;Name&quot; column was too wide. I had made it 120 pixels
+wide if there were no savefiles, but forgot to shrink it down when there
+were savefiles.
+</li>
+<li>
+When deleting Widget items/extensions, memory was accessed after it was
+already released.
+</li>
+<li>
+Locked and jammed doors are detected as they should be.
+</li>
+<li>
+Put a big bold warning message into UpgradeTool if it is running in testing
+mode. The previous release had DRY_RUN set so nothing would happen when it
+was run. One person reported this only. One!
+</li>
+<li>
+The &quot;Stealth&quot; status message was not being removed when attacking/stealing.
+</li>
+<li>
+The awful &quot;gzclose() failed&quot; bug was worked around. It seems that for some
+people there was an error when expanding adam32.msk at startup; just that
+file, and only on some systems. Even though the entire file is read in,
+gzclose() reports an error, so I just ignore that error.
+</li>
+<li>
+Changed the &quot;You're character will be not saved!&quot; message to &quot;not be saved&quot;,
+and the title of the accompanying MessageBox() to &quot;Quit Without Saving&quot; from
+&quot;Warning&quot;.
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+Text-class Widget items now have &quot;-expandx&quot; and &quot;-expandy&quot; options
+which allow the bitmap to grow as needed. This means I no longer need
+to calculate the maximum size for the text item in the Monster Health Bar.
+</li>
+<li>
+Added some sanity-checking wrappers around Tcl_Alloc() and Tcl_Free() to
+help catching illegal memory references easier to detect. 
+</li>
+<li>
+Created an API for using doubly-linked lists. These lists are used by
+canvas Widget items, Widgets, and vaults. A list of all mapped Widgets
+is kept in addition to the list of all created Widgets, which should
+speed things a bit.
+</li>
+<li>
+A cave-sized array of background icons was added to speed things a bit, in
+particular, when a town vault is used.
+</li>
+<li>
+A number of changes where made to support compilation with Tcl 8.1.1, the
+most significant being the use of the Tk_OptionSpec interface and Tcl_Obj
+interface by Widgets and Widget items. Other than that, upgrading to 8.1.1
+was pretty smooth. All the games will probably be upgraded to use Tcl 8.2
+after it comes out this month.
+</li>
+<li>
+Added &quot;find&quot; option to the &quot;angband f_info&quot; command to search for features
+by name. This reduced the number of hard-coded feature indexes used in a
+few places.
+</li>
+<li>
+Mass optimization of the micro-map side of Widgets. A global g_map_symbol[]
+array is used to prevent recalculation of what to draw (except for lighting).
+A Widget.centerProc() procedure is used to draw the whole map in a single
+routine, avoiding alot of overhead. Overall the performance improvement is
+quite noticeable.
+</li>
+<li>
+The player_hp[] array is saved during character creation for the previous
+roll. All the other randomly generated values were already kept in the
+&quot;struct birther&quot; structure. This was needed so the life rating could be
+displayed properly.
+</li>
+<li>
+Vaults and the &quot;vault&quot; command were much improved. Vaults now support
+foreground and background layers of icons, reading/writing from special
+to assign map symbols to each cave feature.
+</li>
+<li>
+Split widget.c into widget1.c and widget2.c. Most of the Widget item code is
+now in widget2.c.
+</li>
+</ul>
+
+
+<h1>
+<a name="040r3">
+OAngbandTk 0.4.0r3 (July 15, 1999)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+The Assign Window gives a visual indication of which monsters have sounds
+assigned to them. Selecting a monster plays any sound assigned to that
+monster, even if the sound list is not displayed. Clicking an already-selected
+monster, sound, or sound assignment will play the sound again.
+</li>
+<li>
+In the Sound Window, clicking an already-selected event, sound or sound
+assignment will play the sound again. Previously, the user had to deselect
+and then select a sound to hear it again.
+</li>
+<li>
+Clicking the right label in the Sound Window status bar will scroll all the
+lists such that the selected row in each list is in view. This is to
+compensate for the sound list not scrolling by itself when a new event is
+selected.
+</li>
+<li>
+Many new status messages were added for temporary conditions such as
+resistance to acid, electricty, fire, cold and poison; bless, hero and
+berserk; infravision and see invisible.
+</li>
+<li>
+Events can now have the &quot;None&quot; sound as an assignment. This allows an
+event with multiple sounds assigned to sometimes play no sound at all
+(since one of the sounds will be picked randomly).
+</li>
+<li>
+The scroll position and selection are preserved in the Store Window
+when the list changes (because of buying or selling).
+</li>
+<li>
+Items in the Home can be destroyed with the &quot;Destroy (K)&quot; command. This
+command is available from the Home Menu and popup menu as well.
+</li>
+<li>
+Introducing character records. When the character is killed, the user
+has the option of creating a character record, containing any or all of the
+following: a character dump; a message log; a photo. The character
+records can be viewed in the High Scores Window.
+</li>
+<li>
+Message-history dumps now combine similar messages into a single line.
+For example, &quot;You hit it. (x3)&quot;.
+</li>
+<li>
+Spells which can be learned are displayed in green in the Book Window.
+</li>
+<li>
+The High Scores Window was revamped with a status bar, menu help strings,
+and the typical selection look-and-feel. The entry for the current
+character is displayed in a different color. Double-clicking a score
+brings up the Character Record Window, if a record exists for that score.
+</li>
+<li>
+The Other -&gt; Photo menu command is now a cascading menu with &quot;New&quot; and &quot;Open&quot;
+commands. Choosing &quot;New&quot; creates a photo of the Main Window as always.
+Choosing &quot;Open&quot; will open an existing photo and display it.
+</li>
+<li>
+Photos are now more informative. When the user points to a monster or object
+in a photo, a message is displayed in the status bar. The message is the same
+as would be given by looking at the monster or object at the time the photo
+was created. If you save a photo as &quot;photo1.gif&quot;, a second file called
+&quot;photo1.txt&quot; is saved in the same directory; this file contains the extra
+information about what is seen.
+</li>
+<li>
+Object and monster memory is displayed in the Recall Window when looking or
+targetting. Pointing with the mouse already did this.
+</li>
+<li>
+Object memory is displayed in the Recall Window when walking onto a grid
+containing an object (or pile of objects).
+</li>
+<li>
+When an inventory item in the Misc Window popup menu is highlighted, the
+object memory is displayed in the Recall Window.
+</li>
+<li>
+Spell memory is displayed in the Recall Window when a spell is highlighted
+in the Book Menu in the Main Window. In addition, spell memory now displays
+the spell level, cost, failure percent, and any other comment.
+</li>
+<li>
+The Message History Window now has a status bar and menu help strings.
+</li>
+<li>
+The Choose Game Window now has column titles for Name, Version and
+Description. Clicking one of the titles will sort the displayed list of
+savefiles.
+</li>
+<li>
+The High Scores Window has a Sort Menu will allows the scores to be sorted
+by name, race, class, points and winner status.
+</li>
+<li>
+Control-Shift-dragging in the Main Window will scroll the cave view.
+</li>
+<li>
+Novice mages have new experimental behaviour. They won't approach closer
+than 5 spaces to the character, unless the character is blind or confused or
+not in line-of-sight. When closer than 5 spaces, a Novice mage will attempt
+to blink away. The idea here is that mainly-spellcasting monsters should
+not attempt to melee with the character. Only Novice mages are affected.
+</li>
+<li>
+Object memory is displayed in the Recall Window when a menu entry is
+highlighted in the Drop/Sell Menu in the Store Window.
+</li>
+<li>
+In the Choose Game Window, typing a partial name will select the character
+whose name begins with the typed characters. For this reason, the 'b' and
+'o' keys no longer select the Browse and Open buttons.
+</li>
+<li>
+The context menus in the Book, Inventory, and Store Windows display the
+default command in bold. That is, whatever would happen by double-clicking
+a list row is displayed in bold in the context menu, similar to the Windows
+Explorer.
+</li>
+<li>
+When the easy_sense option is on, all classes get &quot;heavy&quot; sensing at
+experience level 40.
+</li>
+</ul>
+
+<h3>Bug Fixes</h3>
+<ul>
+<li>
+Restored the desired behaviour of lists changing the appearance of the
+selection when it gains or loses the input focus.
+</li>
+<li>
+If the character was carrying any books of the correct type which had
+no learnable spells, there was an error trying to post the Book Menu.
+</li>
+<li>
+The base objects for artifact rods, staffs and wands could be allocated
+without turning them into artifacts.
+</li>
+<li>
+Lava is no longer displayed as a wall grid in the Micro Map. Instead it
+is displayed as a floor grid, as are most non-sight-blocking features.
+</li>
+<li>
+Fixed two problems with double-clicking a spell to study in the Book Window.
+Prayers can't be chosen, and only ZAngband says &quot;You can learn N new spells.&quot;.
+</li>
+<li>
+More hacks to prevent the Main Window growing wider if the statusbar 
+message is very wide. Hopefully that is the last of it!
+</li>
+<li>
+Fixed a bug where the -cursor option for a Widget could not be specified.
+The Tk_ConfigSpec array didn't specify the proper specFlags field for the
+cursor.
+</li>
+<li>
+Removed trailing whitespace from monster memory. This sometimes caused a
+blank line to appear at the end of the Recall Window.
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+Added the &quot;clickCmd&quot; property to NSCanvist. When a previously-selected
+row is clicked again, the clickCmd is called. This allows us to play
+a sound again when the sound is already selected.
+</li>
+<li>
+Added the &quot;icon photo&quot; command which will set a photo image with the
+pixels of any icon. This was added so a transparent icon could be
+displayed in a window. (Note: A canvas Widget item also displays a
+masked icon, but the background is restricted to one of the 256
+palette colors).
+</li>
+<li>
+Eliminated the Cxrlwin package in favor of the builtin Tcl command
+&quot;file attributes $path -longname&quot;.
+</li>
+<li>
+Added the &quot;grid&quot; event detail to the &lt;Track&gt; quasi-event. When a cave
+location is highlighted in some way (for example during target/look)
+the event is generated with the %y and %x giving the coordinates.
+</li>
+<li>
+Changed message.tcl to use the NSModule facility. Moved NSMessage::Dump()
+into MessageDump() in tomb.tcl.
+</li>
+<li>
+Feature? Buttons now have the usual MS Windows behaviour. When a button is
+clicked, it gains the input focus and becomes the active button. When no
+button has the focus the default button for the toplevel becomes active.
+</li>
+<li>
+Changed the order in which Buttons are created in every toplevel so that
+keyboard navigation selects them from left to right.
+</li>
+<li>
+The Birth Window no longer recreates all the widgets every time a different
+screen is displayed. Instead they are created once before displaying the
+Birth Window.
+</li>
+<li>
+Give a better error message when running makeicon.exe fails. If it is the
+famous &quot;can't duplicate input handle&quot; error then the user is prompted to
+read ReadMe_Install.txt for a possible solution.
+</li>
+<li>
+Added the &quot;-noask&quot; switch to the &quot;angband game abort&quot; command, to avoid
+prompting the user that the game will not be saved.
+</li>
+<li>
+Split icon.c into icon1.c and icon2.c. Added &quot;icon makeicon&quot; command to
+replace the (troublesome) external makeicon.exe program. Renamed interp.c
+interp1.c.
+</li>
+</ul>
+
+
+<h1>
+<a name="040r2">
+OAngbandTk 0.4.0r2 (June 16, 1999)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+Added the &quot;Inspect (I)&quot; command to the Inventory Menu in the Main Window,
+to the context menu in the Inventory Window, and (in OAngbandTk) to the
+Store/Home Menu and the context menu in the Store Window.
+</li>
+<li>
+A small arrow in the Recall Window appears when there is more
+information in the window than can be seen. This is useful when pointing
+to a stack of objects and not knowing if there are more objects listed
+below.
+</li>
+<li>
+When choosing a book to cast or study from, only those books with any
+valid spells are offered as choices.
+</li>
+<li>
+Added the Action Menu to the Main Window. The Action Menu contains most of
+the game commands which weren't already present in the other menus. Now
+ZAngbandTk players needn't ask &quot;How do I activate my Draconian's breath
+weapon?&quot;.
+</li>
+<li>
+The &quot;Alter (+)&quot; command will close an open door. The help file says the
+command does, and it makes sense anyways.
+</li>
+<li>
+When selecting a sound from the list of assigned sounds, the scroll position
+of the list of sound files does not change, although the sound file is
+still highlighted.
+</li>
+<li>
+The Character Flags Window now displays all the possible flags. Any
+attributes which don't affect the character are grayed out.
+</li>
+<li>
+All of the items in the Misc Window now display a help string in the Main
+Window status bar (some already did). If a stat is damaged, pointing at the
+stat will display the undamaged maximum; the same is true for experience
+points and experience level.
+</li>
+<li>
+Any item inscribed with &quot;=g&quot; (g as in 'g'et) will always be picked up
+regardless of the pickup options if the item can be carried. It is useful
+to inscribe bolts and arrows this way.
+</li>
+<li>
+Typing '+' or '-' changes the scale of the Big Map. This could already
+be done with a popup menu.
+</li>
+<li>
+Added some &quot;You are unaffected.&quot; messages when certain traps have no effect.
+</li>
+<li>
+When attempting to wield a ring and both hands have rings, the user is
+asked which ring to replace. Previously, the left ring was automatically
+chosen.
+</li>
+<li>
+When pointing to a pile of objects, the Recall Window now displays a
+title such as &quot;A pile of 2 objects:&quot;. The icon is set to the normal
+pile image; the icon used to be blank.
+</li>
+<li>
+A different icon can be assigned to each character. Previously the user
+could choose any icon for the current character, but that icon would then
+be used for every other character as well.
+</li>
+<li>
+Clicking the character image in the Misc Window pops up a menu of actions.
+The actions include displaying the Assign Window (to change the icon),
+displaying the Character Info and Character Flags Windows, and creating
+a character dump.
+</li>
+<li>
+The Assign Window now remembers with group and member are selected for each
+page, just as the Knowledge Window does.
+</li>
+<li>
+There is more feedback while initializing the icons during startup.
+</li>
+</ul>
+
+<h3>Bug Fixes</h3>
+<ul>
+<li>
+When a monster is killed, any sound assigned to that monster is
+stopped. It always did this, but didn't properly handle the case
+when multiple sounds were assigned to a monster.
+</li>
+<li>
+Too much information was given for unknown objects in the Home.
+</li>
+<li>
+The &quot;Inspect (I)&quot; command was implemented. This fix also applies to
+knowledge gained when *Identify*-ing an object.
+</li>
+<li>
+The warrior_probe_desc() function was implemented. When a Warrior
+enters the &quot;Browse (b)&quot; command a window pops up describing the
+pseudo-probe ability of Warriors.
+</li>
+<li>
+The game would bomb when attempting to pick up an item from a stack.
+This was (indirectly) a problem with the easy_sense option. Actually,
+the list of items wasn't being collected properly.
+</li>
+<li>
+A list of items is displayed in the Recall Window when pointing at a pile
+of objects. It already did this, but there was an empty line displayed at
+the end.
+</li>
+<li>
+Fixed some glitches with comments and tips for a few spells.
+</li>
+<li>
+Fixed a long-standing bug where an illegal message could be accessed while
+haggling in a store.
+</li>
+<li>
+Walking into a door or trap with easy_open or easy_disarm repeats
+if the always_repeat option is set. It already did this, but the command
+would repeat indefinitely with a repeat count of 98.
+</li>
+<li>
+Fixed lots of problems with the context menu in the Book Window when
+studying spells or prayers. It was not considering that prayers cannot
+be explicitly chosen, and was incorrectly looking at the type of book
+instead of the character's magic type.
+</li>
+<li>
+The Store Window is now correctly updated after changing certain options
+while in the store.
+</li>
+<li>
+When a Glyph of Warding was broken by a monster, the glyph count was not
+decreased, making it impossible to set more glyphs on that level.
+</li>
+<li>
+The artifact Wand of Unmaking didn't do anything.
+</li>
+<li>
+Some rods would always ask for a direction when it wasn't necessary.
+</li>
+<li>
+The artifact Rod of Delving had no effect when not targetting the
+character's location. It was using fire_beam() which does not effect
+cave features.
+</li>
+<li>
+If a spell (or wand etc) fired a ball/bolt followed by another ball/bolt,
+and the first attack killed the targetted monster, the second attack would
+arrive at the character's position, due to the fact that the target was
+cleared. The fix involves setting the targetted location to the position
+the monster was at before the first attack killed it.
+</li>
+<li>
+If a stat or the current experience points was displayed as &quot;***&quot; in the
+Misc Window, it would not be correctly redrawn (or flashed) when being
+drained or restored.
+</li>
+<li>
+The monster group &quot;Hydras&quot; was renamed &quot;Mummies&quot;, since the Hydras appear
+to be gonzo.
+</li>
+<li>
+When inserting or deleting a sound assignment, and multiple events are
+selected, the sound is inserted/deleted from each selected event. It used
+to only insert/delete form the initially-selected event.
+</li>
+<li>
+Added a visual effect when the character scores an automatic shield bash
+against an opponent. The effect is the same as hitting a monster. The
+&quot;bash&quot; sound is played as well.
+</li>
+<li>
+Prevent the &quot;dungeon has not been generated yet&quot; error if a -more-
+prompt appears during level generation.
+</li>
+<li>
+Fixed a bug with the remember_recall option which was incorrectly
+recharging rods.
+</li>
+<li>
+Fixed a display glitch with list in the Choose Game Window. The list item
+background had &quot;-outline {}&quot; initially.
+</li>
+<li>
+Using a lantern to refuel another lantern no longer destroys the
+fuel-source lantern. An empty lantern cannot be used to fuel another
+lantern. The prompt is now &quot;Refill with which source of oil?&quot; instead
+of &quot;Refill with which flask?&quot;.
+</li>
+<li>
+Added a parenthesis after the char in the Recall Window for various lists,
+to match the regular Inventory Window, Book Window, etc. The char is no
+long the same color as the rest of the list item (it is white). Also made
+sure that a colon is displayed after any title displayed in the
+Recall Window.
+</li>
+<li>
+Spaces are stripped from the end of lines in the character dump.
+</li>
+<li>
+The Destroy entry in the Inventory Window popup now correctly handles
+the auto_destroy and verify_destroy options, so that the user should
+never need to give confirmation when destroying a known worthless item.
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+Renamed NSRecallMonster module to NSDisplayInfo. The file was renamed
+display-info.tcl. This is used to display monster memory and object
+memory.
+</li>
+<li>
+Added the &quot;prayer_or_spell&quot; option to the &quot;angband player&quot; command which
+returns either &quot;prayer&quot; or &quot;spell&quot; depending on whether the character
+learns spells or prayers.
+</li>
+<li>
+Added setupMode and setupCmd attributes to NSMenu which control the default
+normal/disabled state of menu entries. This is to speed up the SetupMenus()
+command of NSMainWindow.
+</li>
+<li>
+Rewrote the &quot;setting&quot; command. It used to return a list of two values,
+the current value of an option and the human-readable description of
+the option. The new version of the command has &quot;default&quot;, &quot;desc&quot;, and
+&quot;set&quot; suboptions, and is much more efficient and readable.
+</li>
+<li>
+The quasi-event binding package now reports errors which occur during
+BindEvent() by calling the Tcl_BackgroundError() routine. BindEvent()
+also preserves the initial interpreter result and restores it after all
+the bindings have been invoked.
+</li>
+<li>
+Changed the Setting() command to return only the current value of an
+option. SettingDesc() returns the human-readable description instead.
+BirthSetting() was changed in the same way; BirthSettingDesc() returns
+the human-readable description.
+</li>
+<li>
+Added &quot;exists&quot; option to the &quot;cave&quot; command which returns TRUE if the
+dungeon has been created.
+</li>
+<li>
+The &quot;Repeat NNN&quot; and &quot;Rest NNN&quot; will display values in increments of
+100, 10, 5, and 1 for ranges of 1000+, 100+, 10+, and 0+. This tends
+to speed things up a bit.
+</li>
+<li>
+Added the NSCanvist::InsertMany() command to insert many rows at once.
+This might have a (small) impact on improving the performance of
+canvas-lists.
+</li>
+<li>
+Put braces around every expression in each call to &quot;expr&quot;. This apparently
+produces the best possible byte code for greater efficiency. Also used
+the double() builtin instead of adding &quot;.0&quot;.
+</li>
+<li>
+Added &quot;stat_name&quot; option to the &quot;angband info&quot; command to get the lowercase
+name of stats (strength, intelligence, etc).
+</li>
+<li>
+Moved all the scattered Recall Window stuff into the NSRecall module, under
+the command names RecallMonster(), RecallObject(), RecallQuest() etc.
+</li>
+<li>
+Added the &quot;worthless&quot; option to the &quot;inventory&quot; command. Returns TRUE if
+the given inventory item is worthless. This is needed for destroying the
+object in the Inventory Window.
+</li>
+</ul>
+
+
+<h1>
+<a name="040r1">
+OAngbandTk 0.4.0r1 (May 14, 1999)
+</a>
+</h1>
+
+<h3>New Features</h3>
+<ul>
+<li>
+The Store Window now displays menu help strings. Various menu
+entries are displayed differently in the Home.
+</li>
+<li>
+The Store Window now has a &quot;Sell&quot; menu containing a list of
+inventory items which can be sold (or dropped in the Home).
+</li>
+<li>
+The Assign Window now supports assigning multiple sounds to
+monsters.
+</li>
+<li>
+When 'l'ooking at a pile of objects, the ' ', '*' and '?' will
+also display the list of objects in the pile. The 'x' key will also display
+the list under the roguelike keyset. Originally, only the 'l' key worked, but
+that is a direction key under the roguelike keyset.
+</li>
+<li>
+Spell names are colorized depending on &quot;unknown&quot;, &quot;untried&quot;, or
+tried status in the Book Window. Idea from OAngband.
+</li>
+<li>
+Unused options are displayed in a different color in the Options
+Window, in addition to the &quot;(unused)&quot; notation already in place.
+</li>
+<li>
+The Inventory Window toolbar now has an Entry which allows the
+user to edit the inscription of the selected item. Just edit the inscription
+and hit Enter. Entering an empty string removes the inscription.
+</li>
+<li>
+Added the &quot;auto_destroy&quot; option from ZAngband. If &quot;verify_destroy&quot; is
+set and the object is worthless, then the user isn't asked to confirm
+the destruction of the object.
+</li>
+<li>
+Pointing to an object on the ground now displays the memory for that
+object in the Recall Window. Piles were already displayed in this way.
+</li>
+</ul>
+
+<h3>Bug Fixes</h3>
+<ul>
+<li>
+Fixed long-standing problem where the list of sounds displayed in the
+Sound Window was not taken from the current sound directory. The list of
+sounds was always taken from lib/xtra/sound.
+</li>
+<li>
+Clicking the right-most statusbar label in the Assign Window displays
+the icon. It already did this, but we make sure the icon browser is actually
+displayed (as opposed to the list of alternates, sounds, or sprites).
+</li>
+<li>
+Unidentified activateable items no longer appear in the Misc Window
+popup menu, or in the &lt;Control-ButtonPress-3&gt; popup menu.
+</li>
+<li>
+The &quot;Purse:&quot; label is no longer displayed in the Home.
+</li>
+<li>
+Someone reported that a &quot;sharing violation&quot; occurred sometimes when
+examining a monster (with the mouse). So I call Tcl_ResetResult()
+to make sure the interpreter result is unshared before setting it.
+</li>
+</ul>
+
+<h3>Code Changes</h3>
+<ul>
+<li>
+Added the &quot;-store_will_buy&quot; switch to the &quot;inventory&quot; command for
+returning a list of inventory items which the current store will
+buy.
+</li>
+<li>
+Comments are properly ignored when reading the palette_256 file.
+</li>
+<li>
+Better error messages are given if there is a problem reading the
+palette_256 file. Either (a) the file could not be opened, or (b) there
+aren't 256 colors in the file.
+</li>
+<li>
+Added &quot;d_attr&quot; and &quot;d_char&quot; fields to &quot;angband f_info info&quot; command.
+</li>
+<li>
+Added &quot;return&quot; commands to every proc, in accordance with the Tcl
+style guide. Apparently this makes things more efficient as well.
+</li>
+<li>
+Added an &quot;inscription&quot; field to the array returned by the &quot;angband
+inventory info&quot; command.
+</li>
+<li>
+Added &quot;inscription&quot; option to the &quot;angband equipment/floor/inventory&quot;
+commands. This is a big hack which allows us to directory modify an
+item's inscription.
+</li>
+<li>
+Removed last traces of the global Notice variable an variable traces on
+it. Added &lt;Track-inventory&gt; and &lt;Track-object&gt; quasi-events in place of
+the Notice/trace combo. It seems NSInventory::InventoryChanged() was
+never used, so all these changes are unused anyways.
+</li>
+<li>
+The angband_notice() command was removed, in part due to the Notice()
+variable being removed. A new command angband_close_game() is called
+just before the game shuts down. The guts of this command come from
+the old angband_notice() command.
+</li>
+<li>
+Changed the relief in all the divider lines in windows from &quot;sunken&quot; to
+&quot;groove&quot;.
+</li>
+<li>
+Added &quot;command_rep&quot; option to &quot;angband player&quot; command.
+NSMainWindow::TrackOnce() does nothing if p_ptr-&gt;command_rep is &gt; 0. This
+is to overcome the rubble/tree movement in OAngband. Also, walking into
+a door/trap with auto_repeat on.
+</li>
+<li>
+Added &quot;in_bounds&quot; and &quot;in_bounds_fully&quot; options to the &quot;angband cave&quot;
+command.
+</li>
+</ul>
+
+
+
+
+<H1>
+<a name="032r1"></a>
+OAngbandTk 0.3.2r1 (March 7, 1999)
+</H1>
+<UL>
+<LI>The first version!</LI>
+</UL>

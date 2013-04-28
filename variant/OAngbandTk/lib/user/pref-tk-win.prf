@@ -1,0 +1,86 @@
+# File: pref-win.prf
+
+#
+# This file is used by Angband (when it was compiled using "main-ibm.c"
+# or "main-dos.c" or "main-win.c") to specify various "user preferences",
+# including "macros".
+#
+# This file defines some basic macros, which allow the use of the "keypad",
+# alone, and with the shift and/or control modifier keys.  All "special"
+# keys are translated by "main-ibm.c" (or "main-win.c") into special "macro
+# triggers" of the encoded form "^_MMMxSS\r", where the "modifier" flags are
+# stored in "MMM", and the two digit hexidecimal scan code of the keypress is
+# stored in "SS".
+#
+# The "main-ibm.prf" and "main-dos.prf" files may not be able to recognize
+# the "/" and "*" keys on the keypad, because it mistakenly classifies the
+# "0x35" and "0x37" codes as the keycodes of "normal" keys.
+#
+# The "main-win.prf" file should not be using the final "control + keypad"
+# section in this file, it was created for "main-ibm.c" and "main-dos.c".
+#
+# The "main-win.prf" file may actually send the "ascii" equivalent of some
+# keypad keys after the keypad key itself, especially if "numlock" is down,
+# which may cause problems.  Or it may not, it is hard to tell.  This is bad.
+#
+# See "main-ibm.c" and "main-dos.c" and "main-win.c" for more info.
+#
+
+
+#
+# Control + Keypad
+#
+
+A:\m\\+1
+P:^_Control-1\r
+
+A:\m\\+2
+P:^_Control-2\r
+
+A:\m\\+3
+P:^_Control-3\r
+
+A:\m\\+4
+P:^_Control-4\r
+
+A:\m\\+6
+P:^_Control-6\r
+
+A:\m\\+7
+P:^_Control-7\r
+
+A:\m\\+8
+P:^_Control-8\r
+
+A:\m\\+9
+P:^_Control-9\r
+
+
+#
+# Shift + Keypad
+#
+
+A:\m\\.1
+P:^_End\r
+
+A:\m\\.2
+P:^_Down\r
+
+A:\m\\.3
+P:^_Next\r
+
+A:\m\\.4
+P:^_Left\r
+
+A:\m\\.6
+P:^_Right\r
+
+A:\m\\.7
+P:^_Home\r
+
+A:\m\\.8
+P:^_Up\r
+
+A:\m\\.9
+P:^_Prior\r
+

@@ -1,0 +1,11 @@
+# data283r13 --
+#	Contains version-specific variables and commands
+
+source data283r12
+	
+lappend vRInfoCompat \
+	283r12
+
+lappend vScoreCompat \
+	283r12
+

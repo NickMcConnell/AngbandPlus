@@ -1,0 +1,57 @@
+# data283r12 --
+#	Contains version-specific variables and commands
+
+# Source the base data file
+source data283r11
+
+set vValueUpdate 1
+
+# Add new settings
+lappend vSetting \
+	allow_animation \
+	easy_floor \
+	easy_sense
+	
+# Add new values
+lappend vValue \
+	allow_animation \
+	font,inventory \
+	font,knowledge \
+	font,macros \
+	font,message \
+	font,messages \
+	font,misc \
+	font,monster \
+	font,options \
+	font,recall \
+	font,status \
+	font,store \
+	sound,directory
+
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		sound,directory {
+			set value [UpdatePath [eval file join $value]]
+			set value [file split $value]
+		}
+	}
+	return [list name $name value $value]
+}
+
+# r_info.txt compatibility
+lappend vRInfoCompat \
+	283r11
+
+# Add icon configurations
+lappend vConfig \
+	classic16+feat \
+	classic32+feat
+
+# Remove outdated lib/user files
+ldelete vFile_user \
+	graf-win.prf \
+	graf-xxx.prf
+

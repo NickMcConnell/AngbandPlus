@@ -1,0 +1,345 @@
+# data032r1 --
+#	Contains version-specific variables and commands
+
+variable vCommonVersion 0
+variable vConfigVersion 1.0
+variable vGeometryVersion 1
+variable vGeometryUpdate 0
+variable vSettingVersion 1
+variable vSettingUpdate 0
+variable vSoundVersion 1
+variable vValueVersion 1
+variable vValueUpdate 1
+
+variable vDirName {
+	{lib}
+	{lib apex}
+	{lib bone}
+	{lib data}
+	{lib edit}
+	{lib file}
+	{lib help}
+	{lib info}
+	{lib info "diffs files"}
+	{lib info Spoil}
+	{lib save}
+	{lib user}
+	{lib xtra}
+	{lib xtra sound}
+	{tk}
+	{tk bin}
+	{tk config}
+	{tk doc}
+	{tk image}
+	{tk image dg}
+	{tk library}
+	{tk library cxrlwin}
+	{tk library tkhtml}
+}
+
+proc ParseSetting {string} {
+	if {[regexp "setg::one (.*) \"(.*)\"" $string ignore name value]} {
+		return [list name $name value $value]
+	}
+	return ""
+}
+
+proc ModifySetting {info} {
+	return $info
+}
+
+proc StringifySetting {info} {
+	array set data $info
+	return "setg::one $data(name) \"$data(value)\""
+}
+
+variable vSetting {
+	rogue_like_commands
+	quick_messages
+	floor_query_flag
+	carry_query_flag
+	use_old_target
+	always_pickup
+	always_repeat
+	depth_in_feet
+	stack_force_notes
+	stack_force_costs
+	show_labels
+	show_weights
+	show_choices
+	show_details
+	show_flavors
+	ring_bell
+	show_icons
+	run_ignore_stairs
+	run_ignore_doors
+	run_cut_corners
+	run_use_corners
+	disturb_move
+	disturb_near
+	disturb_panel
+	disturb_state
+	disturb_minor
+	disturb_other
+	alert_hitpoint
+	alert_failure
+	verify_destroy
+	verify_special
+	auto_haggle
+	auto_scum
+	testing_stack
+	testing_carry
+	expand_look
+	expand_list
+	view_perma_grids
+	view_torch_grids
+	dungeon_align
+	dungeon_stair
+	flow_by_sound
+	flow_by_smell
+	smart_learn
+	smart_cheat
+	remember_recall
+	view_reduce_lite
+	avoid_abort
+	avoid_other
+	flush_failure
+	flush_disturb
+	fresh_before
+	fresh_after
+	compress_savefile
+	hilite_player
+	view_yellow_lite
+	view_bright_lite
+	view_granite_lite
+	view_special_lite
+	easy_open
+	easy_disarm
+	scroll_follow
+	delay_factor
+	hitpoint_warn
+	ambient_delay
+	monster_delay
+	allow_animation
+	autosave
+	autosave_freq
+	easy_sense
+	empty_levels
+	hidden_player
+}
+
+proc ParseSound {string} {
+	if {[regexp "snd::one (\[0-9\]*) (.*) \"(.*)\"" $string ignore group keyword sound]} {
+		return [list action one group $group keyword $keyword sound $sound]
+	}
+	if {[regexp "snd::grp (.*)" $string ignore group]} {
+		return [list action grp group $group]
+	}
+	return ""
+}
+
+proc StringifySound {info} {
+	array set data $info
+	if {[string equal $data(action) one]} {
+		return "snd::one $data(group) $data(keyword) \"$data(sound)\""
+	}
+	if {[string equal $data(action) grp]} {
+		return "snd::grp $data(group)"
+	}
+	return "can't StringifySound(\"$info\")"
+}
+
+variable vValue {
+	TV_AMULET
+	TV_ARROW
+	TV_BOLT
+	TV_BOOTS
+	TV_BOTTLE
+	TV_BOW
+	TV_CHEST
+	TV_CLOAK
+	TV_CROWN
+	TV_DIGGING
+	TV_DRAG_ARMOR
+	TV_DRUID_BOOK
+	TV_FLASK
+	TV_FOOD
+	TV_GLOVES
+	TV_GOLD
+	TV_HAFTED
+	TV_HARD_ARMOR
+	TV_HELM
+	TV_JUNK
+	TV_LITE
+	TV_MAGIC_BOOK
+	TV_NECRO_BOOK
+	TV_NONE
+	TV_POLEARM
+	TV_POTION
+	TV_PRAYER_BOOK
+	TV_RING
+	TV_ROD
+	TV_SCROLL
+	TV_SHIELD
+	TV_SHOT
+	TV_SKELETON
+	TV_SOFT_ARMOR
+	TV_SPIKE
+	TV_STAFF
+	TV_SWORD
+	TV_WAND
+	allow_animation
+	ambient_delay
+	bigmap,scale
+	font,inventory
+	font,knowledge
+	font,macros
+	font,magic
+	font,message
+	font,messages
+	font,misc
+	font,monster
+	font,options
+	font,recall
+	font,status
+	font,store
+	healthBarBD
+	healthBarBD2
+	healthBarBD22
+	healthBarBL
+	healthBarBL2
+	healthBarDone
+	healthBarDone2
+	healthBarToDo
+	healthBarToDo2
+	healthNameBD
+	healthNameBD2
+	healthNameBG
+	healthNameBG2
+	healthNameBL
+	healthNameBL2
+	healthNameText
+	healthNameText2
+	listBG
+	listHilite
+	listInactive
+	mapBRIGHT_FLOOR
+	mapBRIGHT_WALL
+	mapCHARACTER
+	mapDOOR
+	mapDOWNSTAIR
+	mapFLOOR
+	mapMIDDLE
+	mapMONSTER
+	mapOBJECT
+	mapUNKNOWN
+	mapUPSTAIR
+	mapWALL
+	mapYELLOW_FLOOR
+	mapYELLOW_WALL
+	messages,combine
+	messages,max
+	micromap,scale
+	misc,mode,armor_class
+	misc,mode,exp
+	monster_delay
+	progress,showBars
+	progress,showNumbers
+	scroll_follow
+	settings,showUnused
+	show_icons
+	sound,directory
+	statusBD
+	statusBD2
+	statusBG
+	statusBG2
+	statusBL
+	statusBL2
+	statusText
+	statusText2
+	tip,current
+	tip,show
+	use_sound
+}
+
+proc ParseValue {string} {
+	if {[regexp "Manage (.*) \"(.*)\"" $string ignore name value]} {
+		return [list name $name value $value]
+	}
+	return ""
+}
+
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -- $name {
+		sound,directory {
+			set value [UpdatePath [eval file join $value]]
+			set value [file split $value]
+		}
+	}
+	return [list name $name value $value]
+}
+
+proc StringifyValue {info} {
+	array set data $info
+	return "Manage $data(name) \"$data(value)\""
+}
+
+proc ParseGeometry {string} {
+	if {[scan $string "%s %s" window geometry] == 2} {
+		return [list window $window geometry $geometry]
+	}
+	return ""
+}
+
+proc ModifyGeometry {info} {
+	return $info
+}
+
+proc StringifyGeometry {info} {
+	array set data $info
+	return "$data(window) $data(geometry)"
+}
+
+variable vConfig {
+	adam16
+	adam32
+	adam16+feat
+	adam32+feat
+	classic16
+	classic32
+	classic16+feat
+	classic32+feat
+	dg32
+}
+
+variable vFile_apex {
+	delete.me
+}
+
+variable vFile_user {
+	graf.prf
+	pref.prf
+	pref-win.prf
+	user.prf
+}
+
+variable vFile_save {
+	delete.me
+}
+
+variable vRInfoCompat {}
+
+proc ParseCharIcon {string} {
+	return ""
+}
+
+proc StringifyCharIcon {info} {
+	return "can't stringify \"$info\""
+}
+
+proc Synch {name} {
+	return ""
+}

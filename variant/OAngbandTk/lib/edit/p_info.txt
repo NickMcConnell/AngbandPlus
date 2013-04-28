@@ -1,0 +1,175 @@
+# File: p_info.txt
+
+
+# This file is used to initialize the "lib/data/p_info.raw" file, which is
+# used to initialize the "player race" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# Format:
+# N:race number:race name
+# S:str:int:wis:dex:con:chr
+# R:dis:dev:sav:stl:srh:fos:thn:thb
+# M:xdis:xdev:xsav:xstl:xsrh:xfos:xthn:xthb
+# X:hitdie:expbase:infra
+# I:history:agebase:agemod
+# H:hgtmale:hgtfemale
+# W:wgtmale:wgtfemale
+# F:racial flags
+# U:racial specials
+# C:classes (numeric)
+
+# Version stamp (required)
+
+V:0.5.1
+
+
+N:0:Human
+S:0:0:0:0:0:0
+R:0:0:0:0:0:10:0:0
+M:0:0:0:0:0:0:0:0
+X:10:100:0
+I:1:14:6
+H:72:6:66:4
+W:180:25:150:20
+U:SWORD_SKILL | XBOW_SKILL
+C:0|1|2|3|4|5|6|7|8
+
+N:1:Half-Elf
+S:-1:1:0:1:-1:1
+R:2:3:3:1:4:11:-1:1
+M:0:0:0:0:0:0:-4:6
+X:9:110:0
+I:4:50:20
+H:66:6:62:6
+W:130:15:100:10
+U:BOW_SKILL
+C:0|1|2|3|4|5|6|7|8
+
+N:2:Elf
+S:-1:2:1:1:-2:1
+R:5:8:5:3:7:12:-2:2
+M:0:0:0:0:0:0:-8:10
+X:8:125:0
+I:7:300:100
+H:60:4:54:4
+W:100:6:80:6
+F:RES_LITE
+U:BOW_SKILL
+C:0|1|2|3|4|6|7|8
+
+N:3:Hobbit
+S:-2:2:1:3:2:1
+R:15:8:10:3:10:15:-3:2
+M:0:0:0:0:0:0:-17:8
+X:7:115:4
+I:10:21:12
+H:36:3:33:3
+W:60:3:50:3
+F:SUST_DEX
+U:SLING_SKILL | HARDY
+C:0|1|3|6|8
+
+N:4:Gnome
+S:-1:2:0:2:0:-2
+R:10:18:3:1:6:12:-3:0
+M:0:0:0:0:0:0:-12:0
+X:8:120:4
+I:13:50:40
+H:42:3:39:3
+W:90:6:75:3
+F:FREE_ACT
+C:0|1|2|3|7|8
+
+N:5:Dwarf
+S:2:-2:2:-2:2:-3
+R:-3:0:10:-2:2:11:2:0
+M:0:0:0:0:0:0:11:0
+X:11:125:5
+I:16:35:15
+H:48:3:46:3
+W:150:10:120:10
+F:RES_BLIND
+U:POLEARM_SKILL | BOW_UNSKILL
+C:0|2|7
+
+N:6:Half-Orc
+S:2:-1:-1:0:2:-3
+R:-3:-5:-4:-1:-2:7:2:-1
+M:0:0:0:0:0:0:5:-6
+X:11:100:3
+I:19:11:4
+H:66:1:62:1
+W:150:5:120:5
+F:RES_DARK
+C:0|2|3|7|8
+
+N:7:Half-Troll
+S:4:-3:-1:-3:3:-4
+R:-5:-8:-5:-1:-6:5:3:-2
+M:0:0:0:0:0:0:17:-8
+X:12:110:3
+I:22:20:10
+H:96:10:84:8
+W:250:50:225:40
+F:SUST_STR
+U:HUNGRY
+C:0|2|7
+
+N:8:Dunadan
+S:1:1:3:1:3:1
+R:5:5:0:1:3:13:2:0
+M:0:0:0:0:0:0:8:0
+X:10:200:0
+I:1:50:20
+H:82:5:78:6
+W:190:20:180:15
+F:SUST_CON
+C:0|1|2|3|4|5|6|7|8
+
+N:9:High-Elf
+S:1:3:-1:3:1:5
+R:6:13:9:2:4:13:0:3
+M:0:0:0:0:0:0:0:12
+X:10:200:0
+I:7:400:200
+H:90:10:82:10
+W:190:20:180:15
+F:RES_LITE | SEE_INVIS
+C:0|1|2|3|4|6|7|8
+# Note that this race does not get U:BOW_SKILL, despite being Elven.
+# This is because they have such high missle weapon skill in general.
+
+N:10:Maia
+S:2:3:3:2:4:4
+R:10:15:16:1:5:15:4:4
+M:0:0:0:0:0:0:20:20
+X:12:125:0
+I:25:10000:5000
+H:130:40:130:50
+W:300:40:280:40
+U:DIVINE
+C:0|1|2|3|4|5|6|7|8
+
+N:11:Shadow Fairy
+S:-2:2:2:1:-1:0
+R:7:5:0:6:10:15:-3:-1
+M:0:0:0:0:0:0:-12:-4
+X:7:120:4
+I:28:200:100
+H:80:8:73:8
+W:90:20:80:15
+U:SHADOW
+C:0|1|2|3|4|6|7|8
+
+N:12:Ent
+S:2:0:2:-3:2:0
+R:-5:-2:5:1:-5:10:2:-2
+M:0:0:0:0:0:0:8:-8
+X:12:130:0
+I:31:120:60
+H:80:27:75:25
+W:240:50:220:40
+U:WOODEN
+C:0|2|4|6

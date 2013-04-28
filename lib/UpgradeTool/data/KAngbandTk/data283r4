@@ -1,0 +1,20 @@
+# data283r4 --
+#	Contains version-specific variables and commands
+
+source data283r3
+
+lappend vConfig \
+	classic16 \
+	classic32
+
+lappend vSetting \
+	auto_destroy \
+	hidden_player
+
+lappend vRInfoCompat \
+	283r3
+
+lappend vScoreCompat \
+	283r3
+
+

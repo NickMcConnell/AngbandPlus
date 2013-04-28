@@ -1,0 +1,113 @@
+# data240r1 --
+#	Contains version-specific variables and commands
+
+source data228r2
+
+set vCommonVersion 1.0
+
+# Many deleted directories, now in CommonTk
+ldelete vDirName \
+	{lib xtra sound} \
+	{tk bin} \
+	{tk library} \
+	{tk image dg} \
+	{tk library TclZip} \
+	{tk library TclMusic} \
+	{tk library TkHtml} \
+	{tk msgs} \
+	{tk msgs assign} \
+	{tk msgs birth} \
+	{tk msgs book} \
+	{tk msgs charflags} \
+	{tk msgs color} \
+	{tk msgs font} \
+	{tk msgs inven} \
+	{tk msgs keymap} \
+	{tk msgs know} \
+	{tk msgs macro} \
+	{tk msgs main} \
+	{tk msgs misc-win} \
+	{tk msgs music} \
+	{tk msgs option} \
+	{tk msgs player} \
+	{tk msgs record} \
+	{tk msgs score} \
+	{tk msgs sound} \
+	{tk msgs store} \
+	{tk msgs tomb} \
+	{tk image dg misc-win} \
+	{tk msgs choice} \
+	{tk msgs common} \
+	{tk msgs message} \
+	{tk msgs recall} \
+	{tk msgs startup} \
+	{tk msgs status} \
+	{tk msgs tips} \
+	{tk msgs building} \
+	{tk msgs mindcraft} \
+	{tk msgs pet} \
+	{tk msgs power}
+
+ldelete vFile_user \
+	pref-win.prf
+
+lappend vFile_user \
+	pref-tk-win.prf
+
+lappend vSetting \
+	auto_notes \
+	destroy_worthless \
+	pillar_tunnels \
+	take_notes
+
+ldelete vValue \
+	healthBarBD22
+
+lappend vRInfoCompat \
+	228r2
+
+lappend vScoreCompat \
+	228r2
+
+rename ModifyValue ModifyValue228r2
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+
+	# Old versions used palette indexes instead of #RGB values
+	if {[UpgradeObj CmpVer Src 240r1] < 0} {
+		switch -glob -- $name {
+			friend*2 -
+			health*2 -
+			status*2 -
+			target*2 {
+				# Opacity is unchanged
+			}
+			friend* -
+			health* -
+			list* -
+			status* -
+			target* -
+			TERM_* -
+			TV_* {
+				set value [UpgradeObj PaletteIndexToRGB $value]
+				return [list name $name value $value]
+			}
+		}
+	}
+	switch -glob -- $name {
+		sound,directory {
+			# lib/xtra/sound ==> CommonTk/sound
+			if {[llength $value]} {
+				set value [UpdatePathHack [eval file join $value] sound]
+				set value [file split $value]
+			}
+		}
+		default {
+			return [ModifyValue228r2 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+

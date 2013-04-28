@@ -1,0 +1,74 @@
+#####  Plot 8  #####
+
+# The Dig!
+?:[EQU $QUEST_NUMBER 161]
+%:q0000161.txt
+
+# Abandoned Mine
+?:[EQU $QUEST_NUMBER 162]
+%:q0000162.txt
+
+# Waste Water!
+?:[EQU $QUEST_NUMBER 163]
+%:q0000163.txt
+
+# Waste Watchers
+?:[EQU $QUEST_NUMBER 164]
+%:q0000164.txt
+
+# The Standing Stones
+?:[EQU $QUEST_NUMBER 165]
+%:q0000165.txt
+
+# Lost in Waste
+?:[EQU $QUEST_NUMBER 166]
+%:q0000166.txt
+
+# Ulfast
+?:[EQU $QUEST_NUMBER 167]
+%:q0000167.txt
+
+# Waste not want not.
+?:[EQU $QUEST_NUMBER 168]
+%:q0000168.txt
+
+# Desert Caravan
+?:[EQU $QUEST_NUMBER 169]
+%:q0000169.txt
+
+# The Oasis
+?:[EQU $QUEST_NUMBER 170]
+%:q0000170.txt
+
+# Siege Camp
+?:[EQU $QUEST_NUMBER 171]
+%:q0000171.txt
+
+# The Ancient City
+?:[EQU $QUEST_NUMBER 172]
+%:q0000172.txt
+
+# The Phantom Palace
+?:[EQU $QUEST_NUMBER 173]
+%:q0000173.txt
+
+# All That Rhymes
+?:[EQU $QUEST_NUMBER 174]
+%:q0000174.txt
+
+# Spies part 1
+?:[EQU $QUEST_NUMBER 175]
+%:q0000175.txt
+
+# Spies part 2
+?:[EQU $QUEST_NUMBER 176]
+%:q0000176.txt
+
+# City Siege
+?:[EQU $QUEST_NUMBER 177]
+%:q0000177.txt
+
+# City Siege II
+?:[EQU $QUEST_NUMBER 178]
+%:q0000178.txt
+

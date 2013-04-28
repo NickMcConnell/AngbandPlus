@@ -1,0 +1,46 @@
+# data240r2 --
+#	Contains version-specific variables and commands
+
+source data240r1
+
+set vCommonVersion 1.1
+
+ldelete vFile_user \
+	colors.prf \
+	pref-win.prf
+
+lappend vFile_user \
+	font-xxx.prf \
+	font.prf \
+	pref-key.prf \
+	user.prf
+
+ldelete vValue \
+	messages,combine
+
+lappend vRInfoCompat \
+	240r1
+
+lappend vScoreCompat \
+	240r1
+
+rename ModifyValue ModifyValue240r1
+proc ModifyValue {info} {
+	array set data $info
+	set name $data(name)
+	set value $data(value)
+	switch -glob -- $name {
+		sound,directory {
+			# CommonTk/sound ==> CommonTk/sound
+			if {[llength $value]} {
+				set value [UpdateCPath [eval file join $value]]
+				set value [file split $value]
+			}
+		}
+		default {
+			return [ModifyValue240r1 $info]
+		}
+	}
+	return [list name $name value $value]
+}
+

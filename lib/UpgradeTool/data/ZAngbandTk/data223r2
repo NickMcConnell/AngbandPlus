@@ -1,0 +1,17 @@
+# data223r2 --
+#	Contains version-specific variables and commands
+
+source data223r1
+
+lappend vConfig \
+	classic16 \
+	classic32 \
+	dg32
+
+lappend vRInfoCompat \
+	223r1
+
+lappend vScoreCompat \
+	223r1
+
+

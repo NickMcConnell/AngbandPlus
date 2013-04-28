@@ -1,0 +1,51 @@
+# q0000002.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:2:N:Thieves Hideout
+
+# Definition
+Q:2:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST2 2]
+Q:2:T:There are thieves robbing my people! They live in a small
+Q:2:T:burrow outside the city walls robbing people as they pass
+Q:2:T:on the roads. They even sneak inside the town to mug and
+Q:2:T:pillage! Your task is to go to the burrow and kill these
+Q:2:T:ruffians.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST2 3]
+Q:2:T:Thank you for killing the band of thieves! A small reward
+Q:2:T:awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST2 5]
+Q:2:T:It seems like this task was too difficult for you.  Good that I
+Q:2:T:hired another adventurer to clean up the remaining thieves.
+?:1
+
+# Floor with Novice rogue
+F:a:1:8:36
+
+# Floor with Bandit
+F:b:1:8:121
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXX
+D:X*...a....X..*X
+D:X*........D..*X
+D:X.........Xb..X
+D:XXXXX.....XXXXX
+D:X*..D........aX
+D:X*b.X.........X
+D:XXXXX.........X
+D:X<..D.........X
+D:XXXXXXXXXXXXXXX
+
+# Starting position
+P:8:1
+

@@ -1,0 +1,67 @@
+IF (CMAKE_HOST_UNIX AND NOT CYGWIN)
+	INCLUDE (FindX11)
+	IF (X11_Xext_FOUND)
+	ELSE (X11_Xext_FOUND)
+		MESSAGE (ERROR_EXIT "Couldn't find Xext")
+	ENDIF (X11_Xext_FOUND)
+	SET (ZLIB_LIB_SH_NAME libz.so)
+ENDIF (CMAKE_HOST_UNIX AND NOT CYGWIN)
+
+IF (CMAKE_HOST_WIN32)
+	SET (ZLIB_LIB_SH_NAME zlib1.dll)
+ENDIF (CMAKE_HOST_WIN32)
+
+SET_PROPERTY (
+    DIRECTORY
+    PROPERTY COMPILE_DEFINITIONS
+     ${PLATFORM}
+     BUILD_icon_dll
+     ZLIB_LIB_SH_NAME="${ZLIB_LIB_SH_NAME}"
+     ${SDL_CFLAGS}
+)
+
+IF (CMAKE_HOST_UNIX AND NOT CYGWIN)
+	ADD_DEFINITIONS (${TCL_DEFS})
+ENDIF (CMAKE_HOST_UNIX AND NOT CYGWIN)
+
+INCLUDE_DIRECTORIES(
+    ${COMMONTK}/src/misc
+    ${ZLIB_HDRS}
+    ${DBWIN_HDRS}
+)
+
+ADD_LIBRARY (common
+    SHARED
+    cmdinfo-dll.c
+    icon-dll.c
+    qebind-dll.c
+    map-dll.c
+    memory-dll.c
+    plat-dll.c
+    struct-dll.c
+    TclTk-dll.c
+    util-dll.c
+    widget1-dll.c
+    widget2-dll.c
+)
+
+SET_TARGET_PROPERTIES (common PROPERTIES PREFIX "")
+
+TARGET_LINK_LIBRARIES (common
+    misc
+    ${TCL_LIBRARY}
+    ${TK_LIBRARY}
+    ${DBWIN_LIB}
+    gdi32
+)
+IF (CMAKE_HOST_UNIX AND NOT CYGWIN)
+	TARGET_LINK_LIBRARIES (common
+		${X11_Xext_LIB}
+	)
+ENDIF (CMAKE_HOST_UNIX AND NOT CYGWIN)
+
+INSTALL (
+	TARGETS common
+	RUNTIME DESTINATION lib
+)
+

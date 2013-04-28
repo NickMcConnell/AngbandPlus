@@ -1,0 +1,209 @@
+# Automatically generated. Do not edit.
+
+Assign alternate
+Assign flavor
+Assign icon
+Assign sprite
+
+Type none
+Type blank
+Type default
+Type ascii
+Type ascii1
+Type ascii2
+Type ascii3
+Type ascii4
+Type ascii5
+Type ascii6
+Type ascii7
+Type ascii8
+Type ascii9
+Type ascii10
+Type ascii11
+Type ascii15
+Type ascii1.1
+Type ascii2.1
+Type ascii3.1
+Type ascii4.1
+Type ascii5.1
+Type ascii6.1
+Type ascii7.1
+Type ascii8.1
+Type ascii9.1
+Type ascii10.1
+Type ascii11.1
+Type ascii15.1
+Type ascii1.2
+Type ascii2.2
+Type ascii3.2
+Type ascii4.2
+Type ascii5.2
+Type ascii6.2
+Type ascii7.2
+Type ascii8.2
+Type ascii9.2
+Type ascii10.2
+Type ascii11.2
+Type ascii15.2
+Type bolt
+
+Group feature
+One 1 2 4 3
+Feat none 1
+One 2 2 4 3
+Feat none 2
+One 3 2 14 1
+Feat none 3
+One 4 2 15 0
+Feat none 4
+One 5 2 15 0
+Feat none 5
+One 6 2 4 6
+Feat none 6
+One 7 2 4 7
+Feat none 7
+One 8 2 7 0
+Feat none 8
+One 9 2 9 0
+Feat none 9
+One 10 2 8 0
+Feat none 10
+One 11 2 8 1
+Feat none 11
+One 12 2 9 1
+Feat none 12
+One 13 2 7 1
+Feat none 13
+One 14 2 11 0
+Feat none 14
+One 15 2 14 0
+Feat none 15
+One 16 2 4 8
+Feat none 16
+One 17 2 10 0
+Feat none 17
+One 18 2 7 2
+Feat none 18
+One 19 2 5 9
+Feat none 19
+One 20 2 8 2
+Feat none 20
+One 21 2 6 2
+Feat none 21
+One 22 2 15 3
+Feat none 22
+One 23 2 13 0
+Feat none 23
+One 24 2 9 2
+Feat none 24
+One 25 2 12 8
+Feat none 25
+One 26 2 7 2
+Feat none 26
+One 27 2 7 2
+Feat none 27
+One 28 2 8 2
+Feat none 28
+One 29 2 8 2
+Feat none 29
+One 30 2 8 2
+Feat none 30
+One 31 2 14 2
+Feat none 31
+One 32 2 15 1
+Feat none 32
+One 33 2 15 1
+Feat none 33
+One 34 2 15 1
+Feat none 34
+One 35 2 15 1
+Feat none 35
+One 36 2 15 1
+Feat none 36
+One 37 2 15 1
+Feat none 37
+One 38 2 15 1
+Feat none 38
+One 39 2 15 1
+Feat none 39
+One 40 2 15 1
+Feat none 40
+One 41 2 15 1
+Feat none 41
+One 42 2 15 1
+Feat none 42
+One 43 2 15 1
+Feat none 43
+One 44 2 15 1
+Feat none 44
+One 45 2 15 1
+Feat none 45
+One 46 2 15 1
+Feat none 46
+One 47 2 15 1
+Feat none 47
+One 48 2 4 1
+Feat none 48
+One 49 2 4 5
+Feat none 49
+One 50 2 5 2
+Feat none 50
+One 51 2 4 2
+Feat none 51
+One 52 2 5 2
+Feat none 52
+One 53 2 4 2
+Feat none 53
+One 54 2 6 0
+Feat none 54
+One 55 2 6 0
+Feat none 55
+One 56 2 4 1
+Feat none 56
+One 57 2 4 1
+Feat none 57
+One 58 2 4 1
+Feat none 58
+One 59 2 4 1
+Feat none 59
+One 60 2 4 1
+Feat none 60
+One 61 2 4 1
+Feat none 61
+One 62 2 4 1
+Feat none 62
+One 63 2 4 1
+Feat none 63
+One 64 2 15 2
+Feat none 64
+One 65 2 5 4
+Feat none 65
+One 66 2 4 4
+Feat none 66
+One 67 2 8 1
+Feat none 67
+One 68 2 9 1
+Feat none 68
+One 69 2 7 1
+Feat none 69
+One 70 2 11 0
+Feat none 70
+One 71 2 14 0
+Feat none 71
+One 72 2 6 1
+Feat none 72
+
+Group monster
+One 204 2 0 0
+One 492 2 0 0
+
+Group object
+
+Group ball
+
+Group bolt
+
+Group ammo
+Effect arrow 2 0
+Effect bolt 2 0
+

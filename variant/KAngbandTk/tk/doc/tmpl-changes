@@ -1,0 +1,190 @@
+<HTML>
+<HEAD>
+<TITLE>List of Changes</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Change Log for KAngbandTk</H1>
+
+<P>
+It is intended that this file document all the changes from one version
+of KAngbandTk to the next, in reverse-chronological order (most recent
+versions first).
+<P>
+
+$(kangtk,changes)
+
+<h1>
+<a name="283r3">
+KAngbandTk 2.8.3r3 (February 22, 1999)
+</a>
+</h1>
+<UL>
+
+<LI>Changed "debug info" command</LI>
+<LI>Added expression evaluator to "debug find -field OP VALUE" option</LI>
+<LI>Fixed bug with Find command in Message History Window</LI>
+<LI>Visual indication of artifacts in the dungeon in Knowledge Window</LI>
+<LI>Sound directory can be changed in Sound Preferences Window</LI>
+<LI>Added 'f' to file character in Character Info Window</LI>
+<LI>Added "-flag FLAG" option to "r_info find" command</LI>
+<LI>Allow digits in character name</LI>
+<LI>Recall character history in Character Flags Window</LI>
+<LI>Added prompt to Choose Game Window</LI>
+<LI>Fixed "inventory count" bug being too high by 1</LI>
+<LI>Fixed easy_floor bug with "nothing" items</LI>
+<LI>Prevent big status messages appearing more than once</LI>
+<LI>Rewrote idle-timer code to use Tcl_CreateTimerHandler() which reduces
+  idle processor usage from 100% to about 10%, and permits animation
+  during inner event loops!</LI>
+<LI>Added "allow_animation" option to enable/disable animation</LI>
+<LI>Attempt to split long "died from" message in Tomb Window</LI>
+<LI>&lt;Target-visibility&gt; quasi-event changes opacity of target display</LI>
+<LI>Replaced "store inventory" with "store count" and "store info" commands</LI>
+<LI>Added code to prevent Misc Window popup appearing too far to the left</LI>
+<LI>The "easy_sense" option was added to the Game-Play Page.</LI>
+<LI>"k_info find -known" matches known flavored objects (see below)</LI>
+<LI>Added Objects page to Knowledge Window for known flavored objects</LI>
+<LI>Changed search command in Knowledge Window to start from selection</LI>
+<LI>Changed search command in Assign Window to start from selection</LI>
+<LI>Changed search command in Choose Monster Window to start from selection</LI>
+<LI>Fixed bug with "Remove" entry in inventory window popup (it used 'T', not 't')</LI>
+<LI>Added Tcl_SetServiceMode() calls around MessageBox() when aborting game</LI>
+<LI>Added Recall Monster Window for showing monster recall (see below)</LI>
+<LI>Target/Look now displays Recall Monster Window on 'r'</LI>
+<LI>Added Font Window for font management</LI>
+<LI>Many windows changed to support own font, and variable-width fonts</LI>
+<LI>Added check to prevent Recall Window being "stuck" in expanded state</LI>
+<LI>Added "k_info object_desc" option to get object_desc_store() of kind</LI>
+<LI>Fixed bug with easy_floor and Recall Window (floor_y/x weren't set)</LI>
+<LI>Prevent "Monster wakes up." when the monster isn't in LOS and disturb_move=0</LI>
+<LI>Changed "*Destroy*" entry in inventory window popup to respect number of items</LI>
+
+<LI>Added -boring and -town options to "feature configure" command</LI>
+<LI>"Memorize" and "Town Light" entries added to the Feature menu in Assign Window</LI>
+<LI>More efficent handling of status messages when the text is unchanged</LI>
+<LI>Added "system mouse" command to get mouse button state</LI>
+<LI>Tried to fix "mouse command overflow" when key and mouse button held down</LI>
+<LI>Massive code cleanup and commenting (still much to do)</LI>
+<LI>Implemented object/monster hallucination at long last</LI>
+<LI>Added Find command to Options Window (search by keyword)</LI>
+<LI>Changed tabs to respect system colors</LI>
+<LI>Added graphical preview of icon configuration in Choose Config Window</LI>
+<LI>Clicking and dragging in a micro-map scrolls it</LI>
+<LI>Added "Feeling" to Other Menu</LI>
+<LI>Added "Maximize Windows" entry to Other Menu</LI>
+<LI>Fixed problem with trailing 'r' being stripped in Macro Window</LI>
+<LI>Added "-k_idx" switch to "inventory find" command</LI>
+<LI>Added "new_spells" option to "player" command</LI>
+<LI>Fixed the context menu & double-click in the Book/Inventory Windows</LI>
+<LI>Pointing to a stack displays the contents in the Recall Window when the
+  easy_floor option is on</LI>
+<LI>Holding down the Shift key prevents describing what the pointer is over</LI>
+<LI>Prevent SND_ACTION_FAILED with always_pickup and a full pack</LI>
+<LI>Added IDENT_SENSE when trying to drop cursed equipment</LI>
+<LI>Made sure error is reported when parsing *_info.txt files</LI>
+<LI>sound_exit() checks if sound_init() was ever called</LI>
+<LI>Inventory Window "Threshold" is weight limit without speed penalty</LI>
+<LI>Fixed an old fatal bug in objcmd_sound() that didn't bomb till now</LI>
+<LI>Only items which can be carried are listed with get_item() & easy_floor</LI>
+<LI>Changed the Load Window to be more interesting</LI>
+<LI>Added Html-based help system using the TkHtml widget</LI>
+<LI>Double-clicking a radiobutton in Birth Window goes to next screen</LI>
+
+<LI>Deep Water, Deep Lava, and Shallow Lava and Trees are passable at all
+  times, but the character may burn/drown as in ZAngband.</LI>
+<LI>The "Research Monster" building command is implemented.</LI>
+<LI>The "mapcolor" command now has "assign" and "names" suboptions.</LI>
+<LI>The file "progress.tcl" was renamed "progress1.tcl". Apparently some
+  Window systems are set up to in such a way that the DOS name of both
+  progress.tcl and progress2.tcl is PROGRESS.TCL, resulting in one of
+  the files being overwritten (or something).</LI>
+<LI>Added a context menu to the Store Window, allowing the user to buy and
+  sell items, and to exit the store. The normal inventory context menu
+  is also available in the Store Window when choosing an item.</LI>
+<LI>Added "ishome" option to the "store" command to see if the current store
+  is the Home.</LI>
+
+<li>Clicking the Message Window will toggle the inventory/spell
+display. This is in addition to the previous behaviour of displaying the
+previous message or bypassing the -more- prompt.</li>
+<li>Added menu help strings to the most of the windows.</li>
+<li>Fixed a bug where any trailing 'r' was stripped from the trigger of a
+macro when displayed in the "Trigger" label. This was already fixed for
+triggers displayed in the list of macros.</li>
+<li>The auto-roller screen in the Birth Window now displays the total
+roll needed to create a character with the stats entered by the user. This
+figure can be used to decide whether the auto-roller can possibly roll the
+given combination of stats.</li>
+<li>Added the Find command to the Help Window (which was removed when the
+TkHTML widget was added). I had to add "search" and "see" commands to TkHTML
+in order for this to work.</li>
+<li>Made various cosmetic changes to make building under MS VC++ smoother.</li>
+<li>Merged together all the tk, tk/src and tk/library sources for all the
+*AngbandTk games.</li>
+<li>Added a groovy About Window with a scrolling list of credits.</li>
+<li>The icon .icd and .msk files are now compressed using zlib.dll.</li>
+<li>Added "ascii isascii" command to see if an icon type has a font.</li>
+<li>Assigning icons to features now updates the icon map, so changes will
+take effect when the screen is redrawn.</li>
+<li>Added divine 32x32 graphics by David E. Gervais!</li>
+<li>Added three new quests by David E. Gervais!</li>
+<li>Fixed a bug where wielding a quest item would result in the quest
+being marked completed, even if the quest was completed or rewarded
+already.</li>
+<li>Fixed a bug with easy_disarm not ignoring already-disarmed chests.</li>
+<li>Use a "safe save" procedure when writing out the tk/config/assign file.</li>
+<li>Fixed an old Angband bug with the description of disarmed chests
+(pval < 0).</li>
+<li>As in ZAngband, any unique quest monsters that were already killed are
+revived. This should probably only apply to uniques that are required to
+complete the quest, but the quest description might mention the unique.</li>
+<li>Artifacts on quest levels are always created, even if they were already.
+It would be better if the object allocation functions would ignore items
+needed by any quests. Ditto for uniques.</li>
+<li>Fixed a bug where a Weapon of Force kills a monster but the character
+has more attacks on the monster.</li>
+<li>The Assign Window now displays in the statusbar which feature, monster
+or object the icon the pointer is over is assigned to. When the pointer is
+over an icon type the icon type is displayed.</li>
+</UL>
+
+<h1>
+<a name="283r2">
+KAngbandTk 2.8.3r2 (October 23, 1998)
+</a>
+</h1>
+<UL>
+<LI>Calc bonuses, combine pack, redisplay AC etc when items enchanted in building</LI>
+<LI>Fixed bug with character dump not showing the Home</LI>
+<LI>More window manager stuff (Undisplay, "focus -lastfor", etc)</LI>
+<LI>Added qeconfigure for deactivating bindings</LI>
+<LI>Added "Pick Up (g)" item to Inven-&gt;Use menu</LI>
+<LI>Stat bonuses greater than 220 are displayed as "18/***"</LI>
+<LI>Equipment bonus to stat &gt; 99 is displayed as "+++"</LI>
+<LI>Descriptions for "ambient" sounds changed in Sound Window</LI>
+<LI>Knowledge Window remembers selected group/member</LI>
+<LI>Added "easy_floor" option for floor stacks to User Interface page</LI>
+<LI>Added "-font" and "-charset" to the "icon createtype" command</LI>
+<LI>New "Ascii" icon configuration uses ascii character for icons</LI>
+<LI>Fixed bug with get_item() and ALLOW_REPEAT floor code</LI>
+<LI>Moved "feature gamma" to "icon gamma"</LI>
+<LI>Updated to KAngband 2.8.3j</LI>
+<LI>Visual indication of artifacts in the dungeon in Knowledge Window</LI>
+<LI>Sound directory can be changed in Sound Preferences Window</LI>
+<LI>Added "Quest completed" sound</LI>
+<LI>Moved all ReadMe files to new ReadMe directory</LI>
+<LI>Made DirectSound DLL the default sound.dll (uh-oh!)</LI>
+<LI>Fixed bug with Book Menu when a book is empty of any valid spells (ex Rogue)</LI>
+</UL>
+
+<h1>
+<a name="283r1">
+KAngbandTk 2.8.3r1 (September 17, 1998)
+</a>
+</h1>
+<UL>
+<LI>The first version!</LI>
+</UL>
+</BODY>
+</HTML>

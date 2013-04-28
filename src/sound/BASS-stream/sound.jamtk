@@ -1,0 +1,31 @@
+include $(JAM_RULES_DIR)/Jambase ;
+IncludeRules Tcl Dbwin ;
+
+LOCATE_TARGET = [ FDirName $(BUILD_NAME) ] ;
+
+CCFLAGS += -DBUILD_icon_dll -DBUILD_sound_dll -D$(PLATFORM) ;
+
+# CCFLAGS += -DSOUND3D ;
+
+HDRS += [ FDirName $(ROOT) OmnibandTk src common-dll ] 
+	[ FDirName $(ROOT) bass24 C ] ;
+
+BASS_LIB_NAME = bass24$(SUFLIB) ;
+LOCATE on $(BASS_LIB_NAME) = $(EXTRA_DIR) ;
+
+if $(OS) = CYGWIN || $(TOOLSET) = MINGW
+{
+	# FIXME: get DirectX from somewhere
+#	HDRS += /Programming/DirectSound/dx5/include ;
+}
+
+NAME = sound-bass-stream ;
+
+makeSuffixed SHLIB $(SHLIB_SUF) : $(NAME) ;
+
+ShLib $(SHLIB) : bass.c $(BASS_LIB_NAME) $(DBWIN_LIB) ;
+
+SetSubsystem $(SHLIB) : windows ;
+
+InstallLib [ FDirName $(ROOT) OmnibandTk lib ] : $(SHLIB) ;
+

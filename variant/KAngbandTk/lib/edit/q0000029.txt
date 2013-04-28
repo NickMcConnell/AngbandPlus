@@ -1,0 +1,49 @@
+# q0000029.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:29:N:Another Clue
+
+# Definition
+Q:29:Q:6:0:0:0:20:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST29 2]
+Q:29:T:Regent->A hermit to the south of the mountain chain claims to know
+Q:29:T:where the princess is being held! But, he will scratch our back when we
+Q:29:T:can remove the fleas from his. I need you to enter the south cave near
+Q:29:T:his home and kill all monsters that reside there.  Then, and only then,
+Q:29:T:will he tell us what he knows. We must take any chance we can get.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST29 3]
+Q:29:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST29 5]
+Q:29:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX......XXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXX.......................XX...............................XXXXXXX
+D:XXX............................X................................XXXXXX
+D:X....9........................XXX...........................XXXXXXXXXX
+D:XX...........................XXXXX.......................XXXXXXXXXXXXX
+D:XXX........................XXXXX......................XXXXXXXXXXXX...X
+D:XXXXXXXXXXXXDXXXXXXXXXXXXXXXXX....9...............9.....XXXXXXXX.....X
+D:X.<........................XX...........................XXXXXX....***X
+D:X.........................XXXXXXXXXXXXXXXXXXDXXXXXXXXXXXX%...........X
+D:X........................................................XXXXXXXXXXXXX
+D:X.........................................................XXXXXXXXXXXX
+D:XXXXXXXXXXX.........XXXXXXXXXXXXXXXXXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXX.9............XXXXXXXXXXXXX..9.....XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:9:3
+

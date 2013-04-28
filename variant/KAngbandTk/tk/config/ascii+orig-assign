@@ -1,0 +1,338 @@
+# Automatically generated. Do not edit.
+
+Assign alternate
+Assign flavor
+Assign icon
+Assign sprite
+
+Type none
+Type blank
+Type default
+Type feature
+Type feature2
+Type adam
+Type ascii
+Type staff
+
+Group feature
+One 1 2 3 0
+Feat icon 1
+One 2 2 3 0
+Feat icon 1
+One 3 2 5 31
+Feat none 1
+One 4 0 1
+Feat icon 1
+One 5 0 1
+Feat icon 1
+One 6 3 1
+Feat none 6
+One 7 3 0
+Feat none 7
+One 8 2 4 24
+Feat none 8
+One 9 2 4 25
+Feat none 9
+One 10 2 4 26
+Feat none 10
+One 11 2 4 27
+Feat none 11
+One 12 2 4 28
+Feat none 12
+One 13 2 4 29
+Feat none 13
+One 14 2 4 32
+Feat none 14
+One 15 2 4 30
+Feat none 15
+One 16 2 4 31
+Feat none 1
+One 17 2 5 28
+Feat none 1
+One 18 2 5 27
+Feat none 1
+One 19 2 5 27
+Feat none 1
+One 20 2 5 27
+Feat none 1
+One 21 2 5 29
+Feat none 1
+One 22 2 5 30
+Feat none 1
+One 23 2 5 26
+Feat none 1
+One 24 2 5 26
+Feat none 1
+One 25 2 5 24
+Feat none 1
+One 26 2 5 24
+Feat none 1
+One 27 2 5 24
+Feat none 1
+One 28 2 5 24
+Feat none 1
+One 29 2 5 25
+Feat none 1
+One 30 2 5 25
+Feat none 1
+One 31 2 5 25
+Feat none 1
+One 32 2 5 25
+Feat icon 1
+One 33 0 0
+Feat icon 1
+One 34 0 0
+Feat icon 1
+One 35 0 0
+Feat icon 1
+One 36 0 0
+Feat icon 1
+One 37 0 0
+Feat icon 1
+One 38 0 0
+Feat icon 1
+One 39 0 0
+Feat icon 1
+One 40 0 0
+Feat icon 1
+One 41 0 0
+Feat icon 1
+One 42 0 0
+Feat icon 1
+One 43 0 0
+Feat icon 1
+One 44 0 0
+Feat icon 1
+One 45 0 0
+Feat icon 1
+One 46 0 0
+Feat icon 1
+One 47 0 0
+Feat icon 1
+One 48 2 3 4
+Feat icon 48
+One 49 2 3 16
+Feat icon 49
+One 50 0 2
+Feat icon 50
+One 51 0 2
+Feat icon 51
+One 52 0 2
+Feat icon 52
+One 53 0 2
+Feat icon 53
+One 54 3 2
+Feat tint 54
+One 55 3 2
+Feat tint 55
+One 56 2 3 4
+Feat icon 56
+One 57 0 3
+Feat icon 57
+One 58 2 3 4
+Feat icon 58
+One 59 2 3 4
+Feat icon 59
+One 60 2 3 4
+Feat icon 60
+One 61 2 3 4
+Feat icon 61
+One 62 2 3 4
+Feat icon 62
+One 63 2 3 4
+Feat icon 63
+One 64 2 4 31
+Feat none 64
+One 65 2 4 31
+Feat none 65
+One 66 2 4 31
+Feat none 66
+One 67 2 4 31
+Feat none 67
+One 68 2 4 31
+Feat none 68
+One 69 2 4 31
+Feat none 69
+One 70 2 4 31
+Feat none 70
+One 71 2 2 0
+Feat none 71
+One 72 2 2 0
+Feat none 72
+One 73 2 2 0
+Feat none 73
+One 74 2 4 31
+Feat none 74
+One 75 2 4 31
+Feat none 75
+One 76 2 4 31
+Feat none 76
+One 77 2 4 31
+Feat none 77
+One 78 2 4 31
+Feat none 78
+One 79 2 4 31
+Feat none 79
+One 80 2 4 31
+Feat none 80
+One 81 2 4 31
+Feat none 81
+One 82 2 2 0
+Feat none 82
+One 83 2 2 0
+Feat none 83
+One 84 2 2 0
+Feat none 84
+One 85 2 2 0
+Feat none 85
+One 86 2 2 0
+Feat none 86
+One 87 2 2 0
+Feat none 87
+One 88 2 2 0
+Feat none 88
+One 89 2 2 0
+Feat none 89
+One 90 2 2 0
+Feat none 90
+One 91 2 2 0
+Feat none 91
+One 92 2 2 0
+Feat none 92
+One 93 2 2 0
+Feat none 93
+One 94 2 2 0
+Feat none 94
+One 95 2 2 0
+Feat none 95
+One 96 2 4 39
+Feat icon 96
+One 97 2 4 66
+Feat icon 97
+One 98 2 2 0
+Feat none 98
+One 99 2 2 0
+Feat none 99
+One 100 2 4 55
+Feat none 100
+One 101 2 2 0
+Feat none 101
+One 102 2 2 0
+Feat none 102
+One 103 2 4 56
+Feat icon 103
+One 104 2 4 51
+Feat icon 104
+One 105 2 4 48
+Feat icon 105
+One 106 2 4 62
+Feat icon 106
+One 107 2 4 59
+Feat icon 107
+One 108 2 4 65
+Feat none 108
+One 109 2 4 33
+Feat icon 109
+One 110 2 2 0
+Feat none 110
+One 111 2 2 0
+Feat none 111
+One 112 3 0
+Feat none 112
+One 113 3 1
+Feat none 113
+One 114 3 0
+Feat none 114
+One 115 3 0
+Feat none 115
+One 116 3 1
+Feat none 116
+One 117 2 2 0
+Feat none 117
+One 118 2 2 0
+Feat none 118
+One 119 2 2 0
+Feat none 119
+One 120 2 2 0
+Feat none 120
+One 121 2 2 0
+Feat none 121
+One 122 2 2 0
+Feat none 122
+One 123 2 2 0
+Feat none 123
+One 124 2 2 0
+Feat none 124
+One 125 2 2 0
+Feat none 125
+One 126 2 2 0
+Feat none 126
+One 127 2 2 0
+Feat none 127
+
+Group monster
+One 188 2 0 0
+One 388 2 0 0
+
+Group object
+
+Group ball
+Effect arrow 0 0
+Effect missile 5 431
+Effect mana 5 430
+Effect holy_orb 5 431
+Effect light_weak 5 422
+Effect dark_weak 5 423
+Effect water 5 420
+Effect plasma 5 427
+Effect meteor 5 416
+Effect ice 5 417
+Effect gravity 5 425
+Effect inertia 5 425
+Effect force 5 425
+Effect time 5 425
+Effect acid 5 420
+Effect electricity 5 418
+Effect fire 5 416
+Effect cold 5 417
+Effect poison 5 419
+Effect light 5 422
+Effect dark 5 423
+Effect confusion 5 429
+Effect sound 5 425
+Effect shard 5 424
+Effect nexus 5 428
+Effect nether 5 423
+Effect chaos 5 426
+Effect disenchant 5 421
+
+Group bolt
+Effect arrow 5 412
+Effect missile 5 412
+Effect mana 5 408
+Effect holy_orb 5 412
+Effect light_weak 5 376
+Effect dark_weak 5 380
+Effect water 5 368
+Effect plasma 5 396
+Effect meteor 5 352
+Effect ice 5 356
+Effect gravity 5 388
+Effect inertia 5 388
+Effect force 5 388
+Effect time 5 388
+Effect acid 5 368
+Effect electricity 5 360
+Effect fire 5 352
+Effect cold 5 356
+Effect poison 5 364
+Effect light 5 376
+Effect dark 5 380
+Effect confusion 5 404
+Effect sound 5 388
+Effect shard 5 384
+Effect nexus 5 400
+Effect nether 5 380
+Effect chaos 5 392
+Effect disenchant 5 372
+

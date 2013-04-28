@@ -1,0 +1,268 @@
+============================== Non-magical Combat =============================
+
+     Without using magic, you may attack monsters hand-to-hand (melee), with 
+missile weapons, or by throwing objects at them.  Rogues may steal from monsters 
+and druids use various barehanded attacks.
+
+
+-- Theory of Non-magical Combat --
+
+     Oangband non-magical combat takes some getting used to.  However you attack 
+a monster, whether in melee or by shooting or throwing missiles, the weapon or 
+object's base number of damage dice are _cumulatively multiplied_ by any and all 
+applicable modifiers.  Actual damage is determined by rolling the final number 
+of dice.
+
+Example:
+-you hit a critter with a dagger (1d4):  roll one die.
+-it's a weapon of slay Troll, and critter is a Troll:  roll two dice.
+-you get a critical hit for 2x damage:  roll four dice.
+-you have a total bonus to Deadliness of 100%:  roll eight dice.
+
+roll eight dice, each of four sides, and you'll end up doing something close 
+to 20 points of damage.
+
+
+-- Melee Combat --
+
+     Melee can do more damage per turn than any other form of attack, and the 
+basic equipment (a weapon) is easy to find.  On the other hand, melee only works 
+against adjacent monsters and takes a great deal of training and equipment to 
+come into its own deeper in the dungeon.  As you will shortly discover, up-
+grading to weapons with higher base damages is vital but heavy weapons are very 
+hard to master.  You will have to find a compromise, depending on class, exper-
+ience level, and available equipment (use the 'C'haracter screen to see how 
+various weapons affect your melee skill).  Magical aids to combat (Bless, 
+Heroism, and Berserk) can make all the difference when fighting tough monsters.
+
+
+     Managing Weapons and Shields:
+          Most melee weapons fit comfortably in one hand, keeping your shield 
+          arm free.  If you have a shield on your arm, you can automatically 
+          take advantage of opportunities to bash, gain a significant amount 
+          of standard protection (shield have a high base armour class), and 
+          sometimes even deflect non-magical missiles or partially protect 
+          against shards.  
+          Other weapons require two hands (but many of these can be wielded in 
+          one hand by very strong players).  Any shield worn is transferred to 
+          your back.  This reduces armour protection, removes the special shield 
+          abilities above, but has no effect on magical resistances or other 
+          attributes.
+
+     Attacking:
+         If you move your character into a square containing a monster, you will 
+         attack that monster.  If you are wielding no weapon, and are not a
+         Druid (who actually much prefer to fight barehanded), you will do very 
+         little damage.  If you are wielding a weapon, things are a little diff-
+         erent.
+
+     Number of Blows:
+         On your character screen ('C') is displayed the number of blows you can 
+         get per turn.  If you are wielding no weapon, you get two blows.  If 
+         your weapon is too heavy for you to wield properly, you get one blow.
+         Otherwise, you get between two and four blows, depending solely on 
+         weapon weight, Dexterity, and Strength.
+
+     Your Weapon:
+         All weapons have damage dice, displayed after their name.  When you hit
+         a monster with a Dagger (1d4), you start off rolling one die with four 
+         sides.  In addition to damage dice, weapons may also have magical 
+         bonuses to Skill and to Deadliness (e.g. a Dagger (1d4) (+6, +5)), and 
+         various brands and slays (e.g. a Dagger of Fire (1d4) (+10, +10)).  For 
+         full information on possible weapon qualities, see the help file 
+         "equip.txt".
+
+     What Happens When You Hit a Monster:
+         If you hit a monster with a dagger, you start off rolling one die.  One 
+         after the other, critical hits, brands/slays, and the Deadliness bonus 
+         multiply the number of dice you roll.  Get a good hit in with a Dagger 
+         of Fire while wearing a Ring of Deadliness, and you can easily end up 
+         rolling 6 dice or more (6d4).  Let's look at the damage dice multi-
+         pliers in turn:
+
+     Combat Skill:
+         Your total combat skill not only allows you even to hit a monster, but 
+         also determines how often you get critical hits.  The more skilled you 
+         are, the better those critical hits.  Although critical hits are vital 
+         for any serious fighter using any weapon in Oangband, weapons with low 
+         base damages (less than 2d5) benefit even more (up to twice as much).  
+         It is quite easy for a Rogue to stick a dagger in his foe for four or 
+         six times normal damage.  You know you just got a critical hit when you 
+         get any combat message other than "you hit" (or punch) "the <<monster 
+         name>>".
+
+     Brands and Slays:
+         Some remarkable weapons do extra damage to various kinds of monsters; 
+         a Dagger of Fire, for instance, would do extra damage to creatures not 
+         immune to fire.  Same story for all the other special brands you may 
+         find.  Slays, in contrast, do extra damage to particular monster races,
+         so wield that Mace of Orc Slaying if you come upon any orcs.  Only the 
+         best applicable ego-quality is used; they do not combine.
+
+     Deadliness:    (formerly called the plus to damage)
+         As you descend deeper into the dungeon, a character relying on melee
+         will need to play careful attention to Deadliness.  It acts as a 
+         percentage bonus (you may inspect your current bonus on the character 
+         screen).  High-level characters may have bonuses of 200% displayed on 
+         their character screens, and therefore triple the number of dice they 
+         roll on every blow with the Deadliness multiplier alone.
+
+     Shield Bashes:
+         When fighting hand-to-hand, you will occasionally get in a shield bash, 
+         if you are wearing a shield on your arm.  The frequency of shield 
+         bashes depends on Dexterity, melee combat skill, and the level of 
+         monster you are fighting.  Warriors and Paladins get in more shield 
+         bashes.  The effectiveness of shield bashes depends mostly on strength 
+         and shield size and weight.  When you bash a monster, you will inflict 
+         damage, and possibly stunning or even confusion.  You may also stumble, 
+         and lose normal melee blows.
+
+     Special Notes:
+         In order to attack a creature that you can't see in a wall or door, you 
+         must issue the Tunnel or alter adjacent grid command.
+
+
+-- Shooting Missiles --
+
+Shooting missiles:
+     Ranged fire with missile launchers is a non-magical method of doing damage
+at a safe distance.  As in melee, lighter weapons are much easier to effectively 
+use, but heavier weapons can do enormous damage in skilled hands.  Skill and 
+Deadliness bonuses are used from all equipped items other than your melee 
+weapon.  As in melee, magical aids to combat (Bless and Heroism) can make all 
+the difference, but note that Berserkers make lousy archers and throwers.
+
+     Setting up to Shoot:
+         Slings shoot shots and seeker shots, bows shoot arrows and seeker 
+         arrows, and crossbows shoot bolts and seeker bolts.  Simply equip the
+         weapon and keep plenty of the ammo on hand and you're ready.
+
+     The Quiver Slots:
+         Ammo is best kept in special quiver slots.  You may "wield" up to 
+         ten different groups of ammo, then fire them just as you would those 
+         in the backpack.  Ammo in the quiver will use space in your backpack.
+
+     Attacking:
+         You shoot at a monster by typing 'f' (or 't' in the roguelike command 
+         set), then selecting a missile you would like to fire.  This activates 
+         the targeting interface described in the help file "cmddesc.txt".  
+
+     Number of Shots:
+         On your character screen ('C') is displayed the number of shots you can 
+         get per turn.  The number of shots depends on class and level, plus any
+         bonus shots that the weapon provides.  Unlike in melee, extra shots are
+         not fired all at once (to avoid wasted ammo).  Instead, each shot takes
+         less time, making monsters appear to move in slow motion.
+
+     Your Launcher and Ammo:
+         All launchers have a multiplier to damage, for example a Longbow (x3) 
+         would multiply the damage dice of the ammo it fires by three.  Like
+         melee weapons, launchers can have plusses to Skill and to Deadliness.
+         Unlike such weapons, they can have bonuses to shots, bonuses to their 
+         damage multiplier, and cannot impart slays and brands.  Ammo also can 
+         have bonuses to Skill and to Deadliness, and occasionally possess the 
+         same kinds of slays and brands you can find on melee weapons.  For 
+         full information on possible missile weapon and ammo qualities, see the 
+         help file "equip.txt".
+
+     What Happens When You Hit a Monster:
+         Here, archery and melee are virtually identical, with the biggest 
+         difference being that missile weapons have a damage multiplier.  After 
+         that is figured in, everything works the same.  Like in melee, Skill
+         is essential to fighting effectively, having the right slays for tough 
+         targets is very handy, and Deadliness can make all the difference in 
+         the long run.
+
+
+--- Throwing Objects ---
+
+     Throwing objects requires less skill than using missile weapons, and can 
+be an important combat method in Oangband.  On the other hand, most thrown 
+objects do not benefit from Skill and Deadliness bonuses from other equipped 
+items.  For novice adventurers, throwing flasks of oil can be a life-saver, 
+and there are rumours of objects deep in the dungeon that can do large amounts 
+of damage when thrown.  Perhaps the most effective use of a high throwing skill 
+is whipping daggers, darts, spears, throwing axes, and throwing hammers at your 
+foes.  Such items do benefit from other Skill and Deadliness bonuses.
+
+     Attacking:
+         To throw an object, you use the 'v' command and select any item in 
+         your backpack, on your person, or on the floor.  This activates the 
+         targeting interface described in the help file "cmddesc.txt".
+  
+     Number of Throws:
+         You may never throw more than one item per turn.
+
+     Your Thrown Object:
+         All objects have damage dice, but most do not display them.  If you 
+         think an object should do nasty things to your foes, it's certainly 
+         worth trying to throw it at them, just to see if anything happens.  
+         Whether or not they display them, all thrown objects may benefit from 
+         bonuses to Skill and Deadliness, should they possess any.  In addition, 
+         throwing weapons may have the same kind of elemental brands and monster 
+         slaying abilities as other weapons do.  If they possess such special 
+         qualities, they may also be perfectly balanced and do even more damage.
+
+     What Happens When You Hit a Monster:
+         Here, throwing and melee are broadly similar, with four differences:  
+         Firstly, throwing weapons have a damage multiplier, which increases as 
+         you gain experience levels (it ranges from 2 to 6, or 4 to 12 with 
+         perfectly balanced weapons).  Secondly, no thrown object other than 
+         the special throwing weapons may take advantage of bonuses to Skill or 
+         Deadliness granted by your equipment.  Thirdly, only throwing weapons 
+         can get critical hits when thrown.  Finally, thrown objects may break, 
+         but throwing weapons only do so rarely.
+
+
+
+=== How to Steal and Set Traps ===
+
+     Only Rogues may steal and set traps.  If you type the alter command ('+' in 
+either keyset), enter a direction and target a visible monster, you will attempt 
+to steal.  If you target a totally bare floor square, you will set a monster 
+trap.
+     Stealing is lucrative but risky.  All monsters that drop anything will have 
+at least some treasure on them.  Humans, humanoids, and dragons are the juiciest 
+targets, and most other smart bipedal creatures, nagas, or wraiths are fairly 
+well-off too; the higher the monster level, the larger the purse.  Uniques are 
+especially rich.  High-level monsters and other thieves are harder to steal 
+from, but sleeping monsters are easier.  But burglary is not all fun and games.
+Every time you steal on a level, the monsters get warier.  Steal too often, 
+and you may very quickly get hunted down.
+     Monster traps are trivial to set and disarm.  They do a reasonable amount 
+of damage, increasing with player level and monster HPs, but seldom kill a 
+monster of any power outright.  Traps may be disarmed or flown over.  Only one 
+monster trap may exist on a level at any one time, so disarm an old trap to use 
+your trap gear elsewhere.  If your trap is buried in rubble, you will not be 
+able to make any more on that level.
+
+
+=== Listing of Druid Blows and their Damage Potential ===
+
+Name        number of dice, sides to each die
+
+"punch",                 1, 5
+"kick",                  2, 4
+"knee",                  1,12
+"chop",                  2, 7
+"uppercut",              3, 6
+"boot",                  3, 9
+"bang on",               6, 4
+"slam",                  4, 9
+"grapple with",         13, 3
+"hammer",                9, 6
+"head butt",             3,24
+"strangle",              8,10
+"roundhouse kick",       5,19
+"assault",              10,11
+"crush",                11,11
+"double-kick",          21, 6
+"thunderclap belt",      8,19
+"blizzard gouge",       14,11
+"tsunami whirl",         7,26
+"stormwind chop",       10,22
+
+There are twenty possible druid attacks.  The highest level attack a druid is 
+capable of depends on his experience level:  for example, a 25th level druid 
+can use the first 10 attack types.  In combat, druids will automatically pick 
+one at random, biased towards those with the largest damage.

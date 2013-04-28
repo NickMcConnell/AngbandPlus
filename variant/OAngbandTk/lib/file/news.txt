@@ -1,0 +1,23 @@
+
+             ****************************************************
+             **   Oangband 0.5.1b  ***   The Pits of Angband   **
+             ****************************************************
+
+           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
+               and Umoria:   Copyright (c) 1989 James E. Wilson
+
+                       Angband 2.0 - 2.4 - 2.6.2 by:
+                   Alex Cutler, Andy Astrand, Sean Marsh,
+                 Geoff Hill, Charles Teague, Charles Swiger
+
+                   Angband 2.7.0 - 2.8.5 by Ben Harrison
+                     Angband 2.9.1 by Robert Ruehlmann
+
+         Oangband 0.1.0-0.4.0: Copyright (c) 1998-1999 Leon Marrick
+
+         Oangband 0.5.0-0.5.1: Copyright (c) 2000-2001 Bahman Rabii
+
+    Send comments, bug reports, and patches to "bahman@topped-with-meat.com".
+      Browse the Angband newsgroup at "news:rec.games.roguelike.angband".
+         The Oangband home page is "http://www.consume.org/Oangband".
+                           '?' for online help.

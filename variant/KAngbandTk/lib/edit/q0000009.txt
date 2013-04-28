@@ -1,0 +1,19 @@
+# q0000009.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:9:N:Random Monster
+
+# Definition
+Q:9:Q:7:0:0:*:17:*:0:0
+
+# Description for quest
+?:[LEQ $QUEST9 2]
+Q:9:T:Kill <num> <mnosters>
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST9 3]
+Q:9:T:As a reward for your good work, I will construct a fine town
+Q:9:T:house for you.
+?:1

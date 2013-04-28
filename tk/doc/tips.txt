@@ -1,0 +1,32 @@
+You can view these tips at any time through the Help Menu.
+You can choose which graphic setup to play with before opening a game through the "Setup" button.
+You can change the scale of the Micro Map with a popup menu.
+You can scroll the Micro Map by clicking and dragging it.
+You can center the Main Window by Shift-clicking the Micro Map.
+You can bring up the dungeon map by clicking in the Micro Map Window.
+You can change the scale of the dungeon map with a popup menu.
+You can scroll the dungeon map by clicking and dragging it.
+You can hide the dungeon map by clicking in it.
+You can assign sounds to over 130 events in the Sound Preferences.
+You can assign multiple sounds to each event in the Sound Preferences.
+You can assign a sound to any monster in the Assign Preferences.
+You can customize game colors in the Color Preferences.
+You can change the appearance of the Progress Window with a popup menu.
+You can bring up the Character Window by clicking the character image in the Misc Window.
+You can change the character's name in the Character Window.
+You can toggle the depth display in the Main Window by clicking in it.
+You can select an item to use by right-clicking in the Main Window when prompted.
+You can select an item to use by double-clicking in the Inventory Window when prompted.
+You can select an item to use by clicking in the Recall Window when prompted.
+When an item is highlighted in the Inventory Window, its properties are displayed in the Recall Window.
+Moving the cursor into the Recall Window causes the window to grow to show all of its content.
+Double-clicking an item in the Store Window initiates a purchase.
+You can bring up a popup menu of items to use by Control-right-clicking in the Main Window.
+You can make the character run by Shift-clicking in the Main Window.
+You can make the character run by right-clicking in the Main Window.
+You can make the character tunnel by Control-clicking in the Main Window.
+You can see the previous message by clicking in the Message Window.
+You can bring up the Message History Window by double-clicking the Message Window.
+You can repeat the last command by typing 'n'.
+Most windows can be closed by typing ESCAPE.
+Inscribing your ammo with =g causes it to automatically be picked up, regardless of any pickup options.

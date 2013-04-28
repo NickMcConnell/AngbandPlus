@@ -1,0 +1,244 @@
+<HTML>
+<HEAD>
+<TITLE>File Descriptions</TITLE>
+</HEAD>
+<BODY>
+<H1>Descriptions of Files</H1>
+This document gives a brief description of the purpose of various files used by
+the game.
+
+<H1><a name="tk_config">Directory tk\config</a></H1>
+
+<h2>Files:</h2>
+<br>adamNN+feat.cfg
+<br>adamNN.cfg
+<p>
+<b>Description:</b><br>
+Icon initialization code. One of these files may be used to initialize the icons
+depending on which icon configuration was chosen at startup. The letters
+NN replace the size of the icons. The +feat indicates that the
+original feature icons are used. Adam Bolt's icons.
+<p>
+
+<h2>File:</h2>
+<br>birth
+<p>
+<b>Description:</b><br>
+Options entered in the Birth Options Window during character creation.
+<p>
+
+<h2>Files:</h2>
+<br>adam-alternate
+<br>adam-assign
+<br>adam-sprite
+<p>
+<b>Description:</b><br>
+Alternate, icon assignment, and sprite settings respectively. Written to disk
+when the program exits. Only used with adamNN.cfg.
+<p>
+
+<h2>Files:</h2>
+<br>adam+feat-alternate
+<br>adam+feat-assign
+<br>adam+feat-sprite
+<p>
+<b>Description:</b><br>
+Alternate, icon assignment, and sprite settings respectively. Written to disk
+when the program exits. Only used with adamNN+feat.cfg.
+<p>
+
+<h2>File:</h2>
+<br>adamNN-common.cfg
+<p>
+<b>Description:</b><br>
+Common icon initialization code. Included by adamNN.cfg and adamNN+feat.cfg.
+<p>
+
+<h2>File:</h2>
+<br>char-icon
+<p>
+<b>Description:</b><br>
+Custom character icon assignments. Written to disk when
+the program exits.
+<p>
+
+<h2>Files:</h2>
+<br>classic-alternate
+<br>classic-assign
+<br>classic-sprite
+<p>
+<b>Description:</b><br>
+Alternate, icon assignment, and sprite settings respectively. Written to disk
+when the program exits. Only used with classicNN.cfg.
+<p>
+
+<h2>Files:</h2>
+<br>classic+feat-alternate
+<br>classic+feat-assign
+<br>classic+feat-sprite
+<p>
+<b>Description:</b><br>
+Alternate, icon assignment, and sprite settings respectively. Written to disk
+when the program exits. Only used with classicNN+feat.cfg.
+<p>
+
+<h2>File:</h2>
+<br>classic-common
+<p>
+<b>Description:</b><br>
+Icon initialization code for ascii graphics. Is included by most other
+.cfg files to assign ascii graphics to everything before assigning Adam Bolt's
+or David E. Gervais' graphics.
+<p>
+
+<h2>Files:</h2>
+<br>classicNN+feat.cfg
+<br>classicNN.cfg
+<p>
+<b>Description:</b><br>
+Icon initialization code. One of these files may be used to initialize the icons
+depending on which icon configuration was chosen at startup. The letters NN
+replace the size of the icons. The +feat indicates that the
+original feature icons are used. Ascii graphics.
+<p>
+
+<h2>File:</h2>
+<br>config
+<p>
+<b>Description:</b><br>
+List of icon configurations the user can choose at startup.
+<p>
+
+<h2>File:</h2>
+<br>config-char
+<p>
+<b>Description:</b><br>
+Icon initialization code to assign an icon to the character. Is
+included by all adam.cfg files and dg32.cfg.
+<p>
+
+<h2>File:</h2>
+<br>config-flavor
+<p>
+<b>Description:</b><br>
+Icon initialization code to assign an icon to each flavored object.
+Is included by all adam.cfg files and dg32.cfg.
+<p>
+
+<h2>File:</h2>
+<br>dark
+<p>
+<b>Description:</b><br>
+Contains 3 tables of palette indexes which are used to create lighting
+effects for each light radius. 
+<p>
+
+<h2>Files:</h2>
+<br>dg32-alternate
+<br>dg32-assign
+<br>dg32-sprite
+<p>
+<b>Description:</b><br>
+Alternate, icon assignment, and sprite settings respectively. Written to disk
+when the program exits. Only used with dg32.cfg.
+<p>
+
+<h2>File:</h2>
+<br>dg32-postop
+<p>
+<b>Description:</b><br>
+Called after all other icon initialization is completed.
+Only used with dg32.cfg.
+<p>
+
+<h2>File:</h2>
+<br>dg32.cfg
+<p>
+<b>Description:</b><br>
+Icon initialization code. This file may be used to initialize the icons
+depending on which icon configuration was chosen at startup. The number
+32 specifies the size of the icons. David E. Gervais' icons.
+<p>
+
+<h2>File:</h2>
+<br>feature
+<p>
+<b>Description:</b><br>
+Specifies the "boring" and "town" flags for each feature. The "boring" flag
+is set when a feature should not normally be memorized on the map. The "town"
+flag is set when a feature should always be permanently lit in the town. These
+flags can be changed in the Assign Window.
+<p>
+
+<h2>File:</h2>
+<br>geometry
+<p>
+<b>Description:</b><br>
+Window positions. Written to disk by the "Save Window Positions" menu command.
+<p>
+
+<h2>File:</h2>
+<br>original32.cfg
+<p>
+<b>Description:</b><br>
+Icon initialization code. This file may be used to initialize the icons
+depending on which icon configuration was chosen at startup. This is a
+set of graphics from the Macintosh predecessor to AngbandTk. This file
+is only used by AngbandTk.
+<p>
+
+<h2>File:</h2>
+<br>palette_256
+<p>
+<b>Description:</b><br>
+The 256 RGB colors used by the game.
+<p>
+
+<h2>File:</h2>
+<br>recent
+<p>
+<b>Description:</b><br>
+The most-recently-used savefile selected in the Choose Game Window.
+<p>
+
+<h2>File:</h2>
+<br>savefile
+<p>
+<b>Description:</b><br>
+Details about each savefile in the lib\save directory. Used to avoid scanning
+savefiles every time the Choose Game Window is displayed.
+<p>
+
+<h2>File:</h2>
+<br>setting
+<p>
+<b>Description:</b><br>
+Saved options, created when the "Save As Default" menu command is chosen in
+the Options Window.
+<p>
+
+<h2>File:</h2>
+<br>sound
+<p>
+<b>Description:</b><br>
+Sound assignments. Written to disk when the program exits.
+<p>
+
+<h2>File:</h2>
+<br>town.vlt
+<p>
+<b>Description:</b><br>
+A binary file containing the custom town layout.
+<p>
+
+<h2>File:</h2>
+<br>value
+<p>
+<b>Description:</b><br>
+Miscellaneous settings such as fonts, colors, sound on/off. Written to disk when
+the program exits.
+<p>
+
+
+</BODY>
+</HTML>

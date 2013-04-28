@@ -1,0 +1,52 @@
+Q:146:N:The Dwarven Vaults
+
+Q:146:Q:3:0:0:0:15:0:117:6
+
+?:[LEQ $QUEST146 2]
+Q:146:T:King: the Queen is pleased with your success, and that in turn
+Q:146:T:makes me happy. The Dwarves have informed me that their vaults
+Q:146:T:have been invaded by Mughash. The Dwarven chief is worried that
+Q:146:T:Mughash might find the War Hammer of Aule, a powerful artifact.
+Q:146:T:We cannot afford to let this weapon fall into Morgoth's hands.
+Q:146:T:Go quickly to the Dwarves and help them defeat Mughash.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST146 3]
+Q:146:T:Well done. You may keep the artifact.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST146 5]
+Q:146:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Mughash the Kobold Lord
+F:a:1:8:110
+
+# open floor (room), War Hammer of Aule
+F:1:1:8:0:0:0:117
+
+# open floor (room), Large steel chest
+F:k:1:8:0:343
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXX..................................................XX
+D:XXX..................................................XX
+D:XXX...XXX...XXX..........................XXX...XXX...XX
+D:XXX...X1D...D*X............a.............X*D...D*X...XX
+D:XXX...XXX...XXX..........................XXX...XXX...XX
+D:XXX..................................................XX
+D:XXX..................................................XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X........XXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXX........X
+D:X........XXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXX........X
+D:X...k.....D......D......D.....D......D......D.....k...X
+D:X........XXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXX........X
+D:X........XXXXXXXXXXXXXXXX..<..XXXXXXXXXXXXXXXX........X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:15:27

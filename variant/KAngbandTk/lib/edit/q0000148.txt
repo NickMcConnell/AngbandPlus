@@ -1,0 +1,16 @@
+Q:148:N:The Bounty
+
+Q:148:Q:1:0:0:1:0:211:0:0
+
+?:[LEQ $QUEST148 2]
+Q:148:T:King: Morgoth has put a 25,000AU bounty on your head.
+Q:148:T:Ulfast has been spotted in the vacinity and has been
+Q:148:T:boasting about just how he aims to collect. You 
+Q:148:T:should watch your back.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST148 3]
+Q:148:T:The house is yours!
+?:1
+

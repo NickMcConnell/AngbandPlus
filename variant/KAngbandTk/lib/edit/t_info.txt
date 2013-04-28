@@ -1,0 +1,39 @@
+# File: t_info.txt
+
+# Includes the town definitions
+
+# Preferences for the town features
+%:t_pref.txt
+
+# Town 1
+?:[EQU $TOWN 1]
+%:t0000001.txt
+
+# Town 2
+?:[EQU $TOWN 2]
+%:t0000002.txt
+
+# Town 3
+?:[EQU $TOWN 3]
+%:t0000003.txt
+
+# Town 4
+?:[EQU $TOWN 4]
+%:t0000004.txt
+
+# Town 5
+?:[EQU $TOWN 5]
+%:t0000005.txt
+
+# Town 6
+?:[EQU $TOWN 6]
+%:t0000006.txt
+
+# Town 7
+?:[EQU $TOWN 7]
+%:t0000007.txt
+
+# Town 8
+?:[EQU $TOWN 8]
+%:t0000008.txt
+

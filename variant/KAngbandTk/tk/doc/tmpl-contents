@@ -1,0 +1,40 @@
+.book "ReadMe Files"
+.glob ANGBAND_DIR ReadMe,COMMON_DIR ReadMe
+.stop
+
+.book "AngbandTk Documentation"
+.book "About AngbandTk" about.html
+.page "Why AngbandTk?" about.html#why-angbandtk?
+.page "Why Tcl/Tk?" about.html#why-tcl/tk?
+.page "Contact" about.html#contact
+.stop
+.book "The Interface" interface.html
+.page "Using The Interface" interface.html#using-the-interface
+.page "Game Windows" interface.html#game-windows
+.page "The Mouse" interface.html#the-mouse
+.stop
+.book "File Descriptions" files.html
+.page "The tk\config Directory" files.html#tk_config
+.stop
+.book "List of Changes" changes.html
+$(kangtk,contents)
+.page "KAngbandTk 2.8.3r3" changes.html#283r3
+.page "KAngbandTk 2.8.3r2" changes.html#283r2
+.page "KAngbandTk 2.8.3r1" changes.html#283r1
+.stop
+.page "Known Bugs and Limitations" bugs.html
+.page "Performance Issues" performance.html
+.stop
+
+.book "KAngband Documentation"
+.page "News" news.txt
+.page "General Information" general.txt
+.page "Creating a Character" birth.txt
+.page "Exploring the Dungeon" dungeon.txt
+.page "Attacking Monsters" attack.txt
+.page "Playing the Game" playing.txt
+.page "Commands" command.txt
+.page "Options" option.txt
+.page "Version Information" version.txt
+.stop
+

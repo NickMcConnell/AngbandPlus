@@ -1,0 +1,266 @@
+=== dg_armor32.gif ===
+Cloak
+Shadow Cloak
+*Cloak
+*Cloak
+*Cloak
+*Cloak
+*Cloak
+*Cloak
+*Cloak
+Hard Leather Cap
+
+*Hard Leather Cap
+Metal Cap
+Iron Helm
+Steel Helm
+Dragon Helm
+Iron Crown
+Golden Crown
+Jewel Encrusted Crown
+Massive Iron Crown
+Elven Boots (?)
+
+Pair of Soft Leather Boots
+Pair of Hard Leather Boots
+Pair of Metal Shod Boots
+Set of Leather Gloves
+*Set of Leather Gloves
+Elven Gloves (?)
+Set of Gauntlets
+Set of Cesti
+Small Leather Shield
+Large Leather Shield
+
+Small Metal Shield
+Large Metal Shield
+Shield of Deflection
+Filthy Rag
+Robe
+*Robe
+*Robe
+*Robe
+Soft Leather Armour
+Soft Studded Leather
+
+Hard Leather Armour
+Hard Studded Leather
+Leather Scale Mail
+Metal Scale Mail
+Rusty Chain Mail
+Chain Mail
+Double Chain Mail
+Augmented Chain Mail
+Bar Chain Mail
+Metal Brigandine Armour
+
+Partial Plate Armour
+Metal Lamellar Armour
+Full Plate Armour
+Ribbed Plate Armour
+Mithril Plate Mail
+Mithril Chain Mail
+Adamantite Plate Mail
+Blue Dragon Scale Mail
+White Dragon Scale Mail
+Black Dragon Scale Mail
+
+Red Dragon Scale Mail
+Green Dragon Scale Mail
+Bronze Dragon Scale Mail
+Gold Dragon Scale Mail
+Shining Dragon Scale Mail
+Chaos Dragon Scale Mail
+Law Dragon Scale Mail
+Balance Dragon Scale Mail
+Multi-Hued Dragon Scale Mail
+Power Dragon Scale Mail
+
+
+=== dg_food32.gif ===
+Pint of Fine Ale
+Pint of Fine Wine
+Hard Biscuit
+Strip of Beef Jerky
+Ration of Food
+
+Slime Mold
+Piece of Elvish Waybread
+
+
+=== dg_magic32.gif ===
+Book of Magic Spells [Magic for Beginners]
+Book of Magic Spells [Conjurings and Tricks]
+Book of Magic Spells [Incantations and Illusions]
+Book of Magic Spells [Sorcery and Evocations]
+Book of Magic Spells [Resistance of Scarabtarices]
+Book of Magic Spells [Mordenkainen's Escapes]
+Book of Magic Spells [Kelek's Grimoire of Power]
+Book of Magic Spells [Tenser's Transformations]
+Book of Magic Spells [Raal's Tome of Destruction]
+
+Holy Book of Prayers [Beginners Handbook]
+Holy Book of Prayers [Words of Wisdom]
+Holy Book of Prayers [Chants and Blessings]
+Holy Book of Prayers [Exorcism and Dispelling]
+Holy Book of Prayers [Ethereal Openings]
+Holy Book of Prayers [Godly Insights]
+Holy Book of Prayers [Purifications and Healing]
+Holy Book of Prayers [Holy Infusions]
+Holy Book of Prayers [Wrath of God]
+
+Book of Illusions [Illusions for Beginners]
+Book of Illusions [Tricks and Visions]
+Book of Illusions [Phantasms and Illusions]
+Book of Illusions [Shadows and Prisms]
+Book of Illusions [Serten's Immunities]
+Book of Illusions [Knowledge of Kenault]
+Book of Illusions [Otiluke's Spheres]
+Book of Illusions [Boccob's Book of Shadows]
+Book of Illusions [Bigby's Handbook]
+
+Book of Nature [Natures Handbook]
+Book of Nature [Natural States]
+Book of Nature [Wilderness Guide]
+Book of Nature [Call of the Wild]
+Book of Nature [Druidic Insights]
+Book of Nature [Growth & Destruction]
+Book of Nature [Nature's Wrath]
+Book of Nature [Druidic Alterations]
+Book of Nature [Commune with Nature]
+
+Extra Book X9
+
+
+=== dg_misc32.gif ===
+Small wooden chest
+Large wooden chest
+Small iron chest
+Large iron chest
+Small steel chest
+Large steel chest
+Ruined chest
+
+copper
+silver
+gold
+mithril
+adamantite
+garnets
+opals
+
+sapphires
+rubies
+diamonds
+emeralds
+Scroll
+Scroll
+Scroll
+
+Scroll
+Empty Bottle
+Flask of oil
+Iron Spike
+Brass Lantern
+Wooden Torch
+Pick
+
+Orcish Pick
+Dwarven Pick
+Shovel
+Gnomish Shovel
+Dwarven Shovel
+gas trap
+dart trap
+
+open pit
+poisoned pit
+spiked pit
+trap door
+strange rune (summon)
+strange rune (teleport)
+glyph of warding
+
+Broken Stick
+Broken Skull
+Broken Bone
+Human Skeleton
+Elf Skeleton
+Dwarf Skeleton
+Gnome Skeleton
+
+Canine Skeleton
+Rodent Skeleton
+Phial
+Star
+Arkenstone
+pile
+pile of rubble
+
+
+=== dg_weapons32.gif ===
+*Broken Dagger
+Broken Dagger
+Broken Sword
+Dagger
+Main Gauche
+Rapier
+Small Sword
+Sabre
+Short Sword
+Tulwar
+
+Cutlass
+Scimitar
+Broad Sword
+Long Sword
+Bastard Sword
+Two-Handed Sword
+???
+Blade of Chaos
+Whip
+War Hammer
+
+Mace
+Quarterstaff
+Flail
+Morning Star
+Lead-Filled Mace
+Ball-and-Chain
+Two-Handed Flail
+Mace of Disruption
+Spear
+Trident
+
+Awl-Pike
+Lance
+Lucerne Hammer
+Battle Axe
+Pike
+Beaked Axe
+Broad Axe
+Glaive
+Halberd
+Lochaber Axe
+
+Great Axe
+Scythe
+Scythe of Slicing
+Short Bow
+Long Bow
+Light Crossbow
+Heavy Crossbow
+Sling
+Mighty Hammer
+Arrow
+
+Seeker Arrow
+Bolt
+Seeker Bolt
+Rounded Pebble
+Iron Shot
+Quarterstaff (?)
+Trident (?)
+Lead-Filled Mace (?)
+blade (?)
+blade (?)

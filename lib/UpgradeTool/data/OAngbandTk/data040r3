@@ -1,0 +1,24 @@
+# data040r3 --
+#	Contains version-specific variables and commands
+
+source data040r2
+
+ldelete vDirName \
+	{tk library cxrlwin}
+
+lappend vDirName \
+	{ReadMe} \
+	{lib info {diffs files}} \
+	{tk library TclZip} \
+
+lappend vValue \
+	record,dump \
+	record,message \
+	record,photo
+
+lappend vRInfoCompat \
+	040r2
+
+lappend vScoreCompat \
+	040r2
+

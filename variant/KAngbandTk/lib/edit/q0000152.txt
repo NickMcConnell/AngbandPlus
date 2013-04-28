@@ -1,0 +1,51 @@
+Q:152:N:Abandoned Mine
+
+Q:152:Q:3:0:0:0:20:0:23:6
+
+?:[LEQ $QUEST152 2]
+Q:152:T:King: We have put an end to the siege. Morgoth's troops suffered
+Q:152:T:great losses during the battle at Whitewall Castle.
+Q:152:T:The lord of Whitewall Castle gave me some interesting information.
+Q:152:T:It seems that there is an abandoned mine to the north that is
+Q:152:T:rumored to be the resting place of 'Celeborn'. This Artifact will
+Q:152:T:be of great use to you in the commong trials. 
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST152 3]
+Q:152:T:Well done. You may keep the artifact.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST152 5]
+Q:152:T:You have failed me, beware you do not do so again!
+?:1
+
+# open floor (room), Mithril Plate Mail of Celeborn
+F:1:1:8:0:0:0:23
+
+# open floor (room), Scimitar 'Haradekket'
+F:2:1:8:0:0:0:89
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...XX
+D:XXXXXXXXXXXX.............XXXXXXXXXX....XXXXXXX.............D..82XX
+D:XXXXXXXXX..........XXXXXX.XXXXXXX....9.........XXXXXXXXXXXXXX...XX
+D:XXXXX...............XXXXXX.XXXX..XX....XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXX...................XXXX.XX..XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XX.......8.8.8.8.......XXX.X.XXXXXXXXXXXXXXXX.........XXXXXXXXXXXX
+D:XX....................*XXX.,XXXXXXXXXXXXXXX.....9......XXXXXXXXXXX
+D:XX....................*XXX.XXXXXXXXX............9.....*XXXXXXXXXXX
+D:XXX....8......XXXXXXXXXXXX.XXXXXXXX.XXXXXXX..........XXXXXXXXXXXXX
+D:XXXXX.....XXXXXXX.....XXXX.XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXX.......D..8.1XXXX.XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX.....XXXX....XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX.XXX...XXXXXXXXXXXXXXXXX...........XXXXX
+D:X---------,-,-...........X.XXXXXX.........XXXXX........9.......XXX
+D:X-----,--XXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXX.......................X
+D:X--------XXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXX........9...9....XX
+D:X--,-----------XXXXXXXXXXXX......XXXXXXXXXXXXXX................*XX
+D:X<.-----------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.............XXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+P:18:2
