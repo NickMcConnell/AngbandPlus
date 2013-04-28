@@ -1,0 +1,369 @@
+
+#
+# This file contains information about stores.  
+#
+# Unlike with the other files, several different arrays are filled in here.  
+# For more information, see /lib/info/modify.txt
+#
+
+# Version stamp (required)
+V:1.0.0
+
+
+#
+# The higher this number is, the easier it is to bargain.  Values much 
+# below 100 will usually make it impossible to bargain successfully.
+#
+G:bargain_difficulty = 108
+
+
+#
+# Store owners
+#  name, purse, max greed, min greed, haggle_per, tolerance, race 
+#
+# Purse - limited purses are vital in a game without time limits.
+# Max greed - should never be greater than 195, or the initial offer code
+#      gets confused, and it's harder to haggle successfully.  Should not
+#     be much lower than 160, or initial offers must be closer to final
+#     item price than what players are used to.
+# Min greed - normally 110, less for downmarket shopkeepers, more for
+#      upscale ones.
+# Haggle_per controls the way the shopkeeper haggles.  Lower numbers make
+#      for shopkeepers that expect the player to concede as little as
+#      possible in negotiations.  They have high patience for skinflint
+#      offers, but it takes long haggling to knock them down to their final
+#      price.  Values of about 12 are average.
+# Tolerance determines how many insults a shopkeeper will take before
+#      throwing the character out of the store, and also affects haggling
+#      text.
+#
+!:STORE_OWNERS
+N:0 (General store)
+D:Bilbo the Friendly,         6000,  160, 108, 14, 25, RACE_HOBBIT
+D:Rincewind the Chicken,      4000,  165, 107, 12, 20, RACE_HUMAN
+D:Snafu the Midget,          10000,  160, 107, 10, 20, RACE_GNOME
+D:Lyar-el the Comely,         8000,  155, 107, 14, 25, RACE_ELF
+D:Owitu the Owlish,           6000,  170, 105, 12, 15, RACE_GNOME
+D:Gorgrund the Haggler,      12000,  190, 107,  8, 13, RACE_HALF_ORC
+
+N:1 (Armory)
+D:Kon-Dar the Ugly,           5000,  185, 105, 10, 15, RACE_HALF_ORC
+D:Darg-Low the Grim,         10000,  180, 110, 10, 12, RACE_HUMAN
+D:Decado the Handsome,       25000,  175, 112, 12, 20, RACE_DUNADAN
+D:Mauglin the Grumpy,        30000,  190, 115, 12,  8, RACE_DWARF
+D:Jurmanjand Thunderbrows,   20000,  160, 112, 16,  8, RACE_GIANT
+D:Vivirion True-Forger,      15000,  175, 112, 10, 20, RACE_DARK_ELF
+
+N:2 (Weapon Smith)
+D:Ithyl-Mak the Beastly,      5000,  180, 108, 12, 10, RACE_HALF_TROLL
+D:Arndal Beast-Slayer,       15000,  170, 110, 12, 15, RACE_ELF
+D:Tarl Stronginthearm,       25000,  175, 115, 12, 18, RACE_HOBBIT
+D:Oglign Dragon-Slayer,      30000,  175, 115, 12, 18, RACE_DWARF
+D:Jarl the Generous,         20000,  150, 105, 10, 25, RACE_HUMAN
+D:William Wrathful,           7500,  180, 108, 14,  6, RACE_HUMAN
+
+N:3 (Temple)
+D:Ludwig the Humble,          5000,  165, 108, 14, 30, RACE_HUMAN
+D:Gunnar the Paladin,        15000,  175, 110, 12, 18, RACE_HUMAN
+D:Delilah the Pure,          25000,  170, 112, 14, 22, RACE_ELF
+D:Bosk the Wise,             30000,  175, 115, 12, 20, RACE_DWARF
+D:Sevestor the Silent,       20000,  180, 110, 14, 18, RACE_DARK_ELF
+D:Fuduk the Hammer,          10000,  170, 110, 14, 15, RACE_HALF_TROLL
+
+N:4 (Alchemist)
+D:Elroia the Chemist,        10000,  180, 111, 12, 20, RACE_ELF
+D:Grugdash the Chaotic,       7500,  180, 106, 12, 10, RACE_HALF_ORC
+D:Ga-nat the Greedy,         15000,  195, 115,  8,  9, RACE_GNOME
+D:Vella the Slender,         10000,  170, 111, 12, 20, RACE_HUMAN
+D:Drumondorio the Apothecary,12500,  170, 110, 14, 15, RACE_GIANT
+D:Oroglad the Thaumaturge,   15000,  180, 112, 12, 15, RACE_DUNADAN
+
+N:5 (Magic Shop)
+D:Ariel the Sorceress,       20000,  170, 110, 16, 15, RACE_ELF
+D:Buggerby the Great!,       20000,  190, 113, 10, 15, RACE_GNOME
+D:Inglorian the Mage,        30000,  170, 115, 14, 15, RACE_HUMAN
+D:L['u]thien Starshine,      30000,  165, 115, 16, 25, RACE_HIGH_ELF
+D:Balthazar of Earverian,    25000,  180, 109, 12, 15, RACE_GNOME
+D:Murid the Skinflint,       10000,  180, 110,  9,  9, RACE_HUMAN
+
+N:6 (Bookseller)
+D:Naestra the Dusty,         10000,  155, 105, 12, 13, RACE_HUMAN
+D:Gabberam the Sage,         20000,  180, 118, 10, 18, RACE_GNOME
+D:Feadro the Tome-master,    20000,  165, 113, 12, 18, RACE_HOBBIT
+D:Hastiel the Encyclopedist, 30000,  160, 115, 14, 18, RACE_DUNADAN
+D:Dreol of Drugladdan,       15000,  180, 107, 10, 13, RACE_DARK_ELF
+D:Silmarien the Joyous,      25000,  170, 110, 14, 30, RACE_HIGH_ELF
+
+
+#
+# Objects sold in the stores
+#
+# k_idx, chance, usual quantity
+#
+# It is helpful to include comments, as it's not immediately obvious that an 
+# object index of 153 means "Pick".  Everything after a '#' will be ignored.
+#
+# There are some items that are rare by deliberate policy, including 
+# lanterns, longbows, and light crossbows.
+#
+# You may insert new items.  Be careful, though:  The code that generates 
+# stock in stores tries hard to make the items you request.  This may leave 
+# few empty slots for items purchased from you.
+#
+!:STORE_STOCK
+D: -1,   0,  0  # Start of Store marker (General Store)
+D: 33, 100, 20  # Ration of Food
+D: 31, 100, 50  # Biscuit
+D: 32, 100, 50  # Beef Jerky
+D: 37,  60,  5  # Wine
+D: 36,  60,  5  # Ale
+D:627, 100, 50  # Torch
+D:628,  25,  1  # Lantern
+D:629, 100, 50  # Flask of Oil
+D:626, 100, 75  # Spike
+D:138, 100, 75  # Shot
+D:142, 100, 75  # Arrow
+D:146, 100, 75  # Bolt
+D:150,  75,  3  # Shovel
+D:153,  75,  3  # Pick
+D:230, 100,  5  # Cloak
+D:181, 100,  4  # Robe
+
+D: -1,   1,  0  # Start of Store marker (Armory)
+D:158, 100, 10  # Sandals
+D:159,  67, 10  # Soft Leather Boots
+D:160,  67, 10  # Hard Leather Boots
+D:237, 100, 10  # Gloves
+D:238,  75, 10  # Mail Gauntlets
+D:167, 100, 10  # Leather Cap
+D:168,  50, 10  # Metal Cap
+D:169,  40,  6  # Barbut
+D:170,  30,  3  # Iron Helm
+D:245, 100, 10  # Small Leather Shield
+D:247,  67,  8  # Large Leather Shield
+D:246,  67,  8  # Small Metal Shield
+D:182, 100,  6  # Soft Leather Armor
+D:183,  50,  6  # Soft Studded Leather
+D:184,  50,  6  # Hard Leather Armor
+D:185,  50,  5  # Hard Studded Leather
+D:188,  40,  4  # Leather Scale Mail
+D:191,  40,  3  # Brigandine Armor
+D:193,  40,  3  # Chain Mail
+D:194,  40,  3  # Metal Scale Mail
+D:196,  20,  2  # Augmented Chain Mail
+
+D: -1,   2,  0  # Start of Store marker (Weapon Smith)
+D: 43,  50,  7  # Throwing knife
+D: 44, 100, 10  # Dagger
+D: 45,  33,  6  # Main Gauche
+D: 47,  33,  6  # Rapier
+D: 48,  33,  6  # Small Sword
+D: 50,  33,  6  # Short Sword
+D: 51,  33,  6  # Sabre
+D: 52,  33,  6  # Cutlass
+D: 56,  50,  6  # Broad Sword
+D: 57,  50,  6  # Long Sword
+D: 61,  33,  4  # Bastard Sword
+D: 96,  75,  7  # Javelin
+D: 97, 100, 15  # Spear
+D: 99,  33,  3  # Trident
+D:100,  50,  6  # Pike
+D:104,  50,  4  # Beaked Axe
+D:105,  50,  4  # Broad Axe
+D:106,  33,  3  # Battle Axe
+D:127, 100,  5  # Sling
+D:130, 100,  5  # Short Bow
+D:131,  15,  2  # Long Bow
+D:133, 100,  2  # Hand Crossbow
+D:134,  15,  2  # Light Crossbow
+D:138, 100, 75  # Shot
+D:142, 100, 75  # Arrow
+D:146, 100, 75  # Bolt
+
+D: -1,   3,  0  # Start of Store marker (Temple)
+D: 72,  60, 15  # Whip
+D: 73,  80,  5  # Quarterstaff
+D: 75,  80,  5  # Mace
+D: 76,  60,  5  # Ball and Chain
+D: 78,  60,  5  # War Hammer
+D: 82,  50,  5  # Morning Star
+D: 83,  50,  5  # Flail
+D:335, 100, 15  # Scroll of Remove Curse
+D:336,  10,  1  # Scroll of *Remove Curse*
+D:353, 100, 20  # Scroll of Blessing
+D:354,  33,  7  # Scroll of Holy Chant
+D:414, 100, 30  # Potion of Cure Light Wounds
+D:415, 100, 15  # Potion of Cure Serious
+D:416, 100, 15  # Potion of Cure Critical
+D:421,  75,  1  # Potion of Restore Skills
+D:422, 100,  2  # Potion of Restore Strength
+D:423, 100,  2  # Potion of Restore Intelligence
+D:424, 100,  2  # Potion of Restore Wisdom
+D:425, 100,  2  # Potion of Restore Dexterity
+D:426, 100,  2  # Potion of Restore Constitution
+D:427, 100,  2  # Potion of Restore Charisma
+
+D: -1,   4,  0  # Start of Store marker (Alchemist)
+D:328, 100, 25  # Scroll of Phase Door
+D:329, 100, 14  # Scroll of Teleport
+D:331, 100,  6  # Scroll of Word of Recall
+D:332, 100, 40  # Scroll of Learn Magic
+D:333, 100, 20  # Scroll of Identify
+D:334,  25,  3  # Scroll of *Identify*
+D:337,  75,  4  # Scroll of Enchant Armor
+D:338,  60,  4  # Scroll of Enchant Weapon (Skill)
+D:339,  60,  4  # Scroll of Enchant Weapon (Deadliness)
+D:342,  80,  7  # Scroll of Recharging
+D:344, 100, 40  # Scroll of Light
+D:345,  50, 20  # Scroll of Mapping
+D:346,  75, 12  # Scroll of Treasure Detection
+D:347,  75, 12  # Scroll of Object Detection
+D:348,  75, 12  # Scroll of Trap Location
+D:349,  75, 12  # Scroll of Door/Stair Location
+D:350,  75, 12  # Scroll of Detect Invisible
+D:352, 100, 12  # Scroll of Satisfy Hunger
+D:410,  50, 12  # Potion of Resist Fire
+D:411,  50, 12  # Potion of Resist Cold
+D:406,  50, 12  # Potion of Slow Poison
+
+D: -1,   5,  0  # Start of Store marker (Magic-User)
+D:267,  33,  1  # Ring of Resist Acid
+D:268,  33,  1  # Ring of Resist Fire
+D:269,  33,  1  # Ring of Resist Cold
+D:285,  33,  1  # Ring of Awareness
+D:303,  33,  1  # Amulet of Slow Digestion
+D:304,  33,  1  # Amulet of Feather Falling
+D:460,  50,  3  # Wand of Door Destruction
+D:463,  50,  3  # Wand of Sleep Monster
+D:464,  50,  3  # Wand of Slow Monster
+D:465,  50,  3  # Wand of Confuse Monster
+D:468,  50,  3  # Wand of Stinking Cloud
+D:469,  50,  3  # Wand of Magic Missile
+D:478,  50,  3  # Wand of Wonder
+D:486,  75,  2  # Wand of Spark
+D:508,  50,  2  # Staff of Light
+D:509,  33,  2  # Staff of Dungeon Mapping
+D:512,  40,  2  # Staff of Trap Location
+D:513,  40,  2  # Staff of Door/Stair Location
+D:510,  40,  2  # Staff of Treasure Location
+D:511,  40,  2  # Staff of Object Location
+D:514,  30,  2  # Staff of Detect Invisible
+D:515,  30,  2  # Staff of Detect Evil
+D:504,  40,  2  # Staff of Teleportation
+D:505,  70,  2  # Staff of Perception
+
+D: -1,   6,  0  # Start of Store marker (Bookstore)
+D:650, 100,  8  # [Apprentice Magic]
+D:651, 100,  4  # [Conjurings and Tricks]
+D:652, 100,  2  # [Elemental Sorcery]
+D:660, 100,  8  # [Novitiate]
+D:661, 100,  4  # [Words of Wisdom]
+D:662, 100,  2  # [Holy of Holies]
+D:670, 100,  8  # [Call of the Wild]
+D:671, 100,  4  # [Communion with Nature]
+D:672, 100,  2  # [Book of Combat]
+D:680, 100,  8  # [Beginner's Curses]
+D:681, 100,  4  # [Darker Elements]
+D:682, 100,  2  # [Frightful Realms]
+
+D: -1, 255,  0  # End of array marker
+
+
+
+
+#
+# General item kinds that stores sell
+#
+# (Entries equal to the number of stores, each with ten tvals)
+#
+# Tvals include:
+# 
+# SKELETON, JUNK, SPIKE, CHEST, SHOT, ARROW, BOLT, BOW, DIGGING, HAFTED, 
+# POLEARM, SWORD, BOOTS, GLOVES, HELM, CROWN, SHIELD, CLOAK, SOFT_ARMOR, 
+# HARD_ARMOR, DRAG_ARMOR, LITE, AMULET, RING, STAFF, WAND, ROD, SCROLL, 
+# POTION, FLASK, FOOD, COMPONENT, PARCHEMENT, BOTTLE, MAGIC_BOOK, PRAYER_BOOK, 
+# NATURE_BOOK, DARK_BOOK, ESSENCE
+#
+!:TVAL_SELL
+
+# General Store
+D:FOOD, LITE, DIGGING, CLOAK, COMPONENT, JUNK, 0, 0, 0, 0
+
+# Armory
+D:BOOTS, GLOVES, HELM, CROWN, SHIELD, SOFT_ARMOR, HARD_ARMOR, DRAG_ARMOR, 0, 0
+
+# Weapon Smith
+D:SWORD, POLEARM, BOW, SHOT, ARROW, BOLT, 0, 0, 0, 0
+
+# Temple
+D:HAFTED, SCROLL, POTION, 0, 0, 0, 0, 0, 0, 0
+
+# Alchemist
+D:SCROLL, POTION, 0, 0, 0, 0, 0, 0, 0, 0
+
+# Magic Shop
+D:AMULET, RING, WAND, STAFF, ROD, 0, 0, 0, 0, 0
+
+# Bookseller
+D:MAGIC_BOOK, PRAYER_BOOK, NATURE_BOOK, DARK_BOOK, 0, 0, 0, 0, 0, 0
+
+# Your Home
+D:0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+# The Inn (quests)
+D:0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+
+
+#
+# Buying and selling adjustments for race combinations.
+# Entry[owner][player] gives the basic cost inflation.
+#
+# Humans will trade with anyone, and nobody really hates them.
+# Dwarves and orcs are at war; dwarves and elves don't much get along.
+# Elves also have problems with giants and sometimes with dark elves.
+#
+# The more a race is disliked, the better it will treat itself.
+#
+# In general, shopkeepers treat other races as they are treated.
+# Half-orcish and half-trollish shopkeepers are the main exceptions:
+# they sell for less than one might expect.
+# High-Elven shopkeepers tend to be a tad pricey.
+#
+!:RGOLD_ADJ
+
+# Hum, Elf, Hob, Gno, Dwa, HfO, HfT, Dun, HiE, DkE, Gia   purchaser
+
+# Human shopkeeper
+D:100, 110, 105, 113, 110, 115, 115, 100, 105, 110, 110
+
+# Elf
+D:110, 100, 110, 110, 130, 125, 130, 110, 100, 115, 125
+
+# Hobbit
+D:105, 110, 100, 105, 110, 115, 125, 105, 110, 115, 110
+
+# Gnome
+D:113, 115, 105, 100, 105, 115, 120, 113, 110, 115, 110
+
+# Dwarf
+D:110, 130, 110, 105,  95, 140, 125, 110, 130, 125, 105
+
+# Half-Orc
+D:110, 115, 110, 110, 140,  90, 100, 110, 115, 110, 110
+
+# Half-Troll
+D:115, 120, 115, 110, 115, 100,  85, 115, 120, 120, 105
+
+# Dunedain 
+D:100, 110, 105, 115, 110, 120, 125, 100, 105, 110, 105
+
+# High-Elf
+D:115, 105, 115, 115, 135, 125, 130, 110, 100, 125, 125
+
+# Dark-Elf
+D:110, 115, 115, 110, 125, 120, 125, 110, 120, 100, 125
+
+# Giant
+D:110, 125, 115, 110, 110, 115, 110, 110, 125, 125,  95
+

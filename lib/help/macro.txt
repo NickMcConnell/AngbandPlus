@@ -1,0 +1,205 @@
+
+====== Inscriptions ======
+
+     You use the '{' and '}' keys to inscribe and uninscribe objects.  The
+inscription on an object can have all sorts of effects.
+
+To designate a main and backup weapon:
+     Inscribe both with "@w0".  The 'X' command will replace whatever melee
+weapon you are wielding with another so inscribed.  You may also inscribe these
+or other weapons with "@w1", etc., and wield weapons 0, 1, 2 and so on as
+desired.
+
+To have a given command always use the same spellbook:
+     Inscribe it with "@m#", or "@p#", replacing the '#' with whatever character
+you desire.  This allows you to set up macros to cast a spell knowing that it
+will never choose the wrong book.  Similar inscriptions make archery very
+convenient, and allow you to always use a given magical device with the same
+keystrokes.
+
+     In general, if you inscribe anything with @{any command}{any character},
+you can issue the command, and type the character, to use the first legal
+inscribed object.
+
+To automatically use a given object with a given command:
+     Inscribe the object with "@X*", where 'X' is the letter of that command in
+the underlying keyset.
+
+To prevent accidental use of an object with any command:
+     Inscribe it with "!x", where 'x' is the letter you type to issue that
+command.  If you are very paranoid, inscribe it with "!*"
+
+To learn when an object that recharges automatically is ready for use:
+     Inscribe it with "!!".  This is handy for everything from your Rod of Trap
+Detection to dragon scale mail.
+
+To automatically pick up an object:
+     Inscribe it with "=g".  Especially useful for anything you throw or fire.
+
+To give a object a special name:
+     A shovel inscribed "#named 'Deepdelver'" will be called "a Shovel named
+'Deepdelver'".  One inscribed "@w0#'Deepdelver'" will be called "a Shovel
+'Deepdelver' {@w0}".  This part of the inscription should always go last.
+
+Inscriptions for fun and profit:
+     Try inscribing the first monster killed by a weapon, hidden object
+abilities, and where you found the item or who dropped it.
+
+Automatic inscriptions:
+     The game also inscribes objects automatically.  Some of these inscriptions
+will disappear when the item is identified, and you may overwrite others.
+
+  "broken"         :  Object is broken in some way.
+  "cursed"         :  Object is cursed.
+  "empty"          :  Object has no more charges (and you know this).
+  "indestructible" :  Object cannot be destroyed.
+  "tried"          :  Used an object, didn't learn anything about it.
+  "50% off"        :  Object is worth 50% less than normal.
+
+
+
+====== Macros and keymaps ======
+
+--- Quick Tutorial ---
+
+     Necromancers are forever casting spell "a", Magic Bolt, in spellbook "a",
+Beginner's Curses.  In both keysets, that's "maa", plus "." to target the
+nearest monster.  Wouldn't it be nice if you could do all this with a single
+keypress?  You can.
+     Choose an unused command (we shall pick "'" by way of example).  Bring up
+the macro/keymap screen by typing "@".  Press "8" to create a keymap, and the
+game will ask you for a trigger.  Type "'".  You then shift to the action field,
+where you input all the commands you want "'" to perform when pressed.  In this
+case, you would enter:  "maa.", and press return.
+     Now save your new keymap by typing "6", and either allow the game to choose
+your character's name for the preference file, or (if you want all of your
+characters to use the same keymap) save to "user.prf".
+
+     This is only the beginning.  What you can do with a spell, you can do with
+arrows, Rods of Trap Location, resting, activating stuff, talents, searching;
+all sorts of command combinations can profitably be macroed.  Macros and keymaps
+are even more flexible when used in combination with object inscriptions.
+     In all cases, you remember the exact series of keypresses you need to
+issue, pick an unused trigger key, and fill in the action field.
+
+
+--- Basic information ---
+
+Macros:
+     Macros allow you to use a single keypress to activate a series of
+keypresses.  They fire off in almost all cases:  when the game is waiting for a
+command, is showing a menu, is asking you to enter text, etc.  The only time
+they don't activate is when you already have a macro active.
+     You may use any key as a macro trigger, but it is recommended that you not
+use ordinary letters.  You fill out the action field with the same commands you
+normally use.
+
+Keymaps  (sometimes known as "command macros"):
+     Keymaps only fire off when the game is waiting for a command.  You may not
+use special keys (like F1-F12) as keymap triggers, and must use underlying
+commands in the action field (a list of such commands is supplied below).
+
+Effects of one on the other:
+     Macros are often affected by keymaps; you may bypass keymaps in macros by
+putting a "\" before any action key.  Keymaps are never affected by macros.
+
+
+--- Examples ---
+
+     Macros are so handy that players (Jim Lyon in particular) have compiled
+lists of helpful tricks.
+
+To clear any pending messages:
+     Insert some "\e"s (escapes) before and/or after your keymaps and macros.
+Be careful about skipping past important info!  If you want to be a little more
+careful, use "\s"s (spaces) instead.
+
+To learn how to represent any key:
+     Some keys cannot be entered simply as numbers or letters.  To figure out
+how to include the escape key in an action, for example, you bring up the
+macro/keymap screen, type 3: Query a macro, and press escape (ESC) when asked
+for a trigger.  This will tell you that an escape is represented by "\e".
+
+Rest as needed:
+     Keymap a trigger key to "R*\r".  This is also helpful when waiting for a
+monster to approach, because you recover mana and HPs twice as quickly than when
+staying in place.  Sangband already has a macro of this type, mapped to TAB.
+
+Fire ammunition from quiver slot 0 (zero) at the closest monster:
+     Macro a trigger key to "f0." ('f', '0', period).  If you get too many
+messages afterwards, you can also add some '\s's.
+
+Activate the Phial:
+     Macro a trigger key to "Af\s\s".
+
+Destroy an item or a pile on the floor:
+     Macro a trigger key to "099\rk-.y".  This expands to
+  '0'  - enter a command count.
+  '99' - enter the maximum possible quantity.
+  '\r' - press return.
+  'k'  - issue the kill command (in the roguelike keymap, this would be ^D).
+  '-'  - choose the floor.
+  ','  - choose the top floor item (never chooses anything in inventory).
+  'y'  - confirm the kill.
+  '\e' - stop destroying things.
+
+
+--- In Depth ---
+
+Not all keys can be entered as simple numbers or letters:
+  \e     : escape  (useful for clearing the message line)
+  \r     : return
+  \n     : newline (is normally treated the same as return)
+  \s     : space (' ')
+  \\     : backslash  ('\')
+  \^     : caret ('^')
+  ^X     : control-X  (other control keys use the same system)
+  \x80   : character in position 0x80 (in hex:  decimal equivalent would be 128)
+
+Listing of underlying commands:
+     Underlying commands are usually the same as those in the original keyset,
+but there are important exceptions:
+
+  Underlying command     Original keyset     Roguelike
+  5                      ,                   .
+  .                      .                   ,
+  ;1  (move = ';')       1                   b
+  ;2                     2                   j
+  ;3                     3                   n
+  ;4                     4                   h
+  ;6                     6                   l
+  ;7                     7                   y
+  ;8                     8                   k
+  ;9                     9                   u
+  Q                      ^C                  ^C
+  w0                     X                   X
+  ^V                     n                   '
+
+
+--- Adding accents ---
+
+     On some systems, you may include accents and special characters in your
+character's name and in various other places by using encodes.  Encodes start
+with an open bracket ( [ ) and end with a close bracket ( ] ).  Between the
+brackets is either a two-character set or a name.  Two character sets always
+specify the accent, then the letter itself.
+
+  `  grave accent      '  acute accent       ^  circumflex       ~  tilde
+  "  umlaut            *  ring (circle)      /  slash (as in o-slash)
+
+     Therefore, typing ['a] will get you a-acute.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

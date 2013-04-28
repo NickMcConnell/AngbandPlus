@@ -1,0 +1,185 @@
+
+====== The character screen (in detail) ======
+
+     The character information display allows you to review attributes, change
+names, and save character dumps to file.  The save character to file command
+saves the character screen, character background, inventory and equipment, skill
+levels, and the contents of the home.
+
+     This interface has four modes, which you may cycle through by typing 'h'.
+
+
+--- Main character screen ---
+
+First Row:
+- Name, title, gender, and race
+
+- Age : in years
+- Height : in feet and inches or centimeters
+- Weight : in pounds or kilograms
+- Either social class (affects starting gold) or your greatest victory.
+
+- Your base (undrained) vital statistics (stats) and sometimes their drained
+values
+
+Second row:
+- Maximum hitpoints
+- Current hitpoints
+- Blows/Round : the number of blows you get per turn in hand-to-hand combat
+- + to Skill : bonus to melee Skill
+- Deadliness (%) : the melee damage you do is adjusted by this percentage.
+     If you are using martial arts, you instead see a guess at the average
+damage you've done recently.
+
+- Power : affects hitpoints and some other things
+- Score : how well you are doing in the game.  Always starts at zero.
+- Unspent experience : the experience you've earned that you haven't yet spent
+  on advancing skills
+- Gold : money on hand (in gold pieces)
+- Max Depth : the furthest you've ventured down in the dungeon, and your recall
+  depth
+
+- Maximum mana (spellpoints)
+- Current mana
+- Shots/Round : the number of shots you get per turn
+- + to Skill : bonus to missile Skill
+- Deadliness (%) : the missile damage you do is adjusted by this percentage.
+
+- Melee : your hand-to-hand combat skill (inherent skill, plus bonuses)
+- Shooting : your missile combat skill (inherent skill, plus bonuses)
+- Throwing : your throwing skill (inherent skill, plus bonuses)
+- Digging : your ability to dig through rock
+- Saving Throw : your resistance to magic
+- Stealth : how naturally quiet you are
+- Perception : your ability to find traps and hidden doors
+- Disarming : your ability to disarm traps and unlock doors
+- Magic Device : your ability to use staffs, wands, rods, and activations
+- Dodging : how good you are at automatically dodging melee blows and missiles
+- Fame : how famous you are
+- Infravision : how far you can see warm-blooded creatures, even when invisible
+  or in darkness
+
+     Descriptions of abilities go from awful -> very bad -> bad -> poor -> iffy
+-> fair -> good -> very good -> excellent -> superb -> heroic -> legendary.
+They improve as the abilities themselves do, but may decrease as you rise in
+power or descend into the dungeon.  A given disarming skill is much more
+impressive at 500' than at 3000'.
+
+
+--- History display ---
+
+     This is like the main display, except that the list of abilities is
+replaced with a character history.
+
+
+--- Attributes screen ---
+
+     Lists most of the non-combat attributes that equipment may posses.  Shows
+only known or obvious properties.
+
+Vital Statistics:
+     In the top-center of this display are listed the internal values (the
+permanent ones you have before any modifications) for your stats, any
+adjustments through equipment items, any through character race, skills, and
+conditions, the adjusted stats, and their drained values (if different).
+     Modifiers to stats are light green if the object does not also sustain that
+stat and green if it does.  If the object sustains a stat without affecting it,
+a green 's' is displayed.
+
+Numeric Modifiers:
+     The top-right and top-left of this screen shows other numeric modifiers.
+- Stlth : Stealth
+- Invis : Invisibility
+- Aware : Awareness
+- Disar : Disarming
+- Devic : Magical Device
+- Speed : Speed
+- Infra : Infravision
+- Tunnl : Tunneling
+- Save  : Saving throw
+- Mana  : Mana (spellpoints)
+- Light : Light radius
+
+Attributes:
+     The bottom of the screen displays most other non-combat attributes.  White
+'+' and colored '*'s indicate the presence of the attribute; colored 'X's
+indicate that this attribute is canceled (you cannot have it).
+- Fire  : plus = resist fire, star = immunity to fire
+- Cold  : plus = resist cold, star = immunity to cold
+- Elec  : plus = resist electricity, star = immunity to electricity
+- Acid  : plus = resist acid, star = immunity to acid
+- Pois  : plus = resist poison
+- Fear  : plus = resist fear
+- Blind : plus = resist blindness
+- Confu : plus = resist confusion
+- Light : plus = resist bright light
+- Dark  : plus = resist darkness
+- Sound : plus = resist sound
+- Shard : plus = resist shards
+- Nexus : plus = resist nexus (teleportation and alteration magic)
+- Nethr : plus = resist nether (necromantic power)
+- Chaos : plus = resist chaos (alteration, disorder, and unmaking)
+- Disen : plus = resist disenchantment
+- Food  : plus = slow digestion
+- Feath : plus = feather fall, no falling damage
+- Shine : plus = shining object.  +1 to total light radius
+- Regen : plus = faster regeneration of hitpoints and mana
+- ESP   : plus = telepathy (see all nearby monsters with minds)
+- SeeIn : plus = see invisible
+- FrAct : plus = free action (no paralyzation, protection against slowing)
+- HLife : plus = hold life (you lose less to drain-exp attacks)
+- NFuel : plus = object requires no fuel
+- Steal : plus = requires feeding
+- NoMag : plus = forbids the use of magic
+- Telep : plus = random teleportation
+- Aggra : plus = aggravation (monsters immediately wake up)
+- Drain : plus = slow but continual exp-draining
+- Curse : plus = curse, yellow star = heavy curse, red star = perma-curse
+
+
+--- Combat screen ---
+
+     Lists most of the attributes that affect combat.  The left row displays
+attributes that affect melee, the right, those that affect shooting.
+
+- Blows       : adjustments to melee blows
+- Might       : adjustments to missile weapon multiplier
+- Shots       : adjustments to shooting speed
+- Add Skill   : adjustments to hit chance
+- Deadliness  : adjustments to the damage percentage bonus
+- Slay Animal : bonus when attacking animals
+- Slay Evil   : bonus when attacking evil creatures
+- Slay Undead : bonus when attacking the undead
+- Slay Demon  : bonus when attacking demons
+- Slay Orc    : bonus when attacking orcs
+- Slay Troll  : bonus when attacking trolls
+- Slay Giant  : bonus when attacking giants
+- Slay Dragon : bonus when attacking dragons
+- Acid Brand  : bonus against creatures not resistant to acid
+- Elec Brand  : bonus against creatures not resistant to electricity
+- Cold Brand  : bonus against creatures not resistant to cold
+- Fire Brand  : bonus against creatures not resistant to fire
+- Pois Brand  : bonus against creatures not resistant to poison
+- Blessed     : melee weapon may be used by pious characters
+- Vorpal      : gets more critical hits
+- Impact      : throws monsters back, bonus against rocky creatures
+- Tunneling   : tunneling weapons get a bonus against rocky creatures
+- Light       : bonus when attacking creatures susceptible to light
+- Throwing    : plus = good for throwing, star = perfect balance
+- Two-handed  : plus = usually needs two hands, star = always does
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

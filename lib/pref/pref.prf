@@ -1,0 +1,409 @@
+# File: pref.prf
+
+#
+# This is the main default preference file for everything except attr/char 
+# mappings.  It contains:
+#
+# - Default values of some options (we may move all the default values here)
+# - Keymaps (original and roguelike command sets, special mappings)
+# - Default inventory colors for various tvals
+# - Links to the message colors preferences, and system-specific preferences
+#
+# Order in which preferences and other rules are read in Sangband:
+# - "lib/pref/pref.prf"   (this file and files called from it)
+# - "lib/pref/tiles.prf"  (character remapping for fonts or graphics)
+# - "lib/pref/user.prf"
+# - "lib/user/user.prf"
+# - the savefile
+# - "lib/user/<<basename of character>>.prf"
+#
+# Files read later override anything in previous files.
+#
+# Color definitions are an exception to the above rules - They MUST go in
+# "lib/pref/color.prf"
+#
+# Note that these comments are not correct for most variants!
+#
+# See "lib/help/pref.txt" and "src/files.c" for more information.
+#
+
+## # Option -- Default to original commands
+## X:rogue_like_commands
+
+## # Option -- Default to roguelike commands
+## Y:rogue_like_commands
+
+
+
+## Hack -- default values for certain things
+
+# Delay
+D:5
+
+# Hitpoint warning (x10%)
+H:3
+
+# Autosave  (autosave, frequency)
+a:1:1000
+
+# Screen  (more_standard_display, more_special_display, map_display_precise_fit, 
+# distance from top/bottom and side edges at which to shift the view)
+t:1:0:1:2:4
+
+
+
+
+##### Original Keyset Mappings #####
+
+# Stay still (numerical)
+A:,
+C:0:5
+
+# Movement (numerical)
+A:;1
+C:0:1
+A:;2
+C:0:2
+A:;3
+C:0:3
+A:;4
+C:0:4
+A:;6
+C:0:6
+A:;7
+C:0:7
+A:;8
+C:0:8
+A:;9
+C:0:9
+
+# Hack -- Commit suicide
+# A:Q
+# C:0:^C
+
+# Hack -- Swap equipment
+A:w0
+C:0:X
+
+# Original keymap: Repeat last command
+A:^V
+C:0:n
+
+# Hack -- Sangband convenience
+A:R*\r
+C:0:\t
+
+
+##### Roguelike Keyset Mappings #####
+
+# Stay still (numerical)
+A:,
+C:1:5
+
+# Movement (numerical)
+A:;1
+C:1:1
+A:;2
+C:1:2
+A:;3
+C:1:3
+A:;4
+C:1:4
+A:;6
+C:1:6
+A:;7
+C:1:7
+A:;8
+C:1:8
+A:;9
+C:1:9
+
+# Run
+A:.
+C:1:,
+
+# Stay still
+A:,
+C:1:.
+
+# Movement (rogue keys)
+A:;1
+C:1:b
+A:;2
+C:1:j
+A:;3
+C:1:n
+A:;4
+C:1:h
+A:;6
+C:1:l
+A:;7
+C:1:y
+A:;8
+C:1:k
+A:;9
+C:1:u
+
+# Running (shift + rogue keys)
+A:.1
+C:1:B
+A:.2
+C:1:J
+A:.3
+C:1:N
+A:.4
+C:1:H
+A:.6
+C:1:L
+A:.7
+C:1:Y
+A:.8
+C:1:K
+A:.9
+C:1:U
+
+# Altering (control + rogue keys)
+A:+1
+C:1:^B
+A:+2
+C:1:^J
+A:+3
+C:1:^N
+A:+4
+C:1:^H
+A:+6
+C:1:^L
+A:+7
+C:1:^Y
+A:+8
+C:1:^K
+A:+9
+C:1:^U
+
+
+# Allow use of the "tunnel" command
+A:T
+C:1:^T
+
+# Allow use of the "destroy" command
+A:k
+C:1:^D
+
+# Locate player on map
+A:L
+C:1:W
+
+# Browse a book (Peruse)
+A:b
+C:1:P
+
+# Jam a door (Spike)
+A:j
+C:1:S
+
+# Toggle search mode
+A:S
+C:1:#
+
+# Use a staff (Zap)
+A:u
+C:1:Z
+
+# Take off equipment
+A:t
+C:1:T
+
+# Fire an item
+A:f
+C:1:t
+
+# Bash a door (Force)
+A:B
+C:1:f
+
+# Look around (examine)
+A:l
+C:1:x
+
+# Aim a wand (Zap)
+A:a
+C:1:z
+
+# Zap a rod (Activate)
+A:z
+C:1:a
+
+# Hack -- Commit suicide
+A:Q
+C:1:^C
+
+# Hack -- Swap equipment
+A:w0
+C:1:X
+
+# Roguelike keymap: Repeat last command
+A:^V
+C:1:'
+
+# Hack -- Sangband convenience
+A:R*\r
+C:1:\t
+
+
+
+##### Default inventory object colors #####
+
+
+# SKELETON
+E:1:w
+
+# JUNK
+E:2:w
+
+# SPIKE
+E:3:s
+
+# COMPONENT
+E:5:u
+
+# PARCHEMENT
+E:6:y
+
+# BOTTLE
+E:7:w
+
+# CHEST
+E:10:P
+
+# SHOT
+E:16:U
+
+# ARROW
+E:17:U
+
+# BOLT
+E:18:U
+
+# DIGGING
+E:20:s
+
+# HAFTED
+E:21:w
+
+# POLEARM
+E:22:w
+
+# SWORD
+E:23:w
+
+# SLINGS
+E:25:u
+
+# BOWS
+E:26:u
+
+# CROSSBOWS
+E:27:u 
+
+# BOOTS
+E:30:U
+
+# GLOVES
+E:31:U
+
+# HELM
+E:32:U
+
+# CROWN
+E:33:U
+
+# SHIELD
+E:34:U
+
+# CLOAK
+E:35:U
+
+# SOFT_ARMOR
+E:36:s
+
+# HARD_ARMOR
+E:37:s
+
+# DRAG_ARMOR
+E:38:s
+
+# LIGHT
+E:39:y
+
+# AMULET
+E:40:o
+
+# RING
+E:45:r
+
+# STAFF
+E:55:U
+
+# WAND
+E:65:g
+
+# ROD
+E:66:P
+
+# SCROLL
+E:70:w
+
+# POTION
+E:75:B
+
+# FLASK
+E:77:y
+
+# FOOD
+E:80:U
+
+# MAGIC_BOOK
+E:90:R
+
+# PRAYER_BOOK
+E:91:B
+
+# NATURE_BOOK
+E:92:G
+
+# DARK_BOOK
+E:93:P
+
+
+
+
+###########################
+
+# Message preferences
+%:message.prf
+
+
+##### System Specific Subfiles #####
+
+# Use pref-x11.prf for x11, since it seems to work.
+# We can make a customized one later if needed.
+#?:[EQU $SYS gtk]
+#%:pref-gtk.prf
+
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS gtk]]
+%:pref-x11.prf
+
+?:[EQU $SYS gcu]
+%:pref-gcu.prf
+
+?:[EQU $SYS mac]
+%:pref-mac.prf
+
+?:[EQU $SYS sdl]
+%:pref-sdl.prf
+
+?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
+%:pref-win.prf
+
+?:1
+

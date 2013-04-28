@@ -1,2395 +1,1516 @@
-
-
 /* File: talents.c */
 
 /*
- * Copyright (c) 1998 Julian Lighton, Michael Gorse, Chris Petit
+ * Sangband talents.  Pseudo-probe, dodging, can forge, talent descriptions
+ * and effects.
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * Copyright (c) 2007 Leon Marrick
+ *
+ * Based on originals by Julian Lighton, Michael Gorse, and Chris Petit
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
 
+
+
 /*
- * Some math functions for use in fenneling.
+ * Warriors will eventually learn to pseudo-probe monsters.  This allows
+ * them to better choose between slays and brands.  They select a target,
+ * and receive (slightly incomplete) information about racial type,
+ * basic resistances, and HPs.  -LM-
  */
-
-#define sqr(x)	((x)*(x))
-
-static int
-isqrt(int x)
+void pseudo_probe(void)
 {
-	int root = 0;
+	char m_name[DESC_LEN];
 
-	do
+	/* Acquire the target monster */
+	int m_idx = p_ptr->target_who;
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+	int approx_hp;
+
+
+	/* Must not be hallucinating */
+	if (p_ptr->image) return;
+
+	/* If no target monster, fail. */
+	if (p_ptr->target_who < 1)
 	{
-		root++;
-		if (root > 250)
-			break;
+		msg_print("You must actually target a monster.");
+		return;
 	}
-	while (root * root <= x);
-	root--;
-	return (root);
+
+	else
+	{
+		/* Get "the monster" or "something" */
+		monster_desc(m_name, m_ptr, 0x04);
+
+		/* Approximate monster HPs */
+		approx_hp = rand_spread(m_ptr->hp, m_ptr->hp / 4);
+
+		/* Round the result */
+		approx_hp = round_it(approx_hp, 8);
+
+		/* Describe the monster */
+		msg_format("%^s has about %d hit points.", m_name, approx_hp);
+
+		/* Learn some flags.  Chance of omissions. */
+		if ((r_ptr->flags3 & (RF3_ANIMAL)) && (!one_in_(20)))
+			l_ptr->flags3 |= (RF3_ANIMAL);
+		if ((r_ptr->flags3 & (RF3_EVIL)) && (!one_in_(10)))
+			l_ptr->flags3 |= (RF3_EVIL);
+		if ((r_ptr->flags3 & (RF3_UNDEAD)) && (!one_in_(20)))
+			l_ptr->flags3 |= (RF3_UNDEAD);
+		if ((r_ptr->flags3 & (RF3_DEMON)) && (!one_in_(20)))
+			l_ptr->flags3 |= (RF3_DEMON);
+		if ((r_ptr->flags3 & (RF3_ORC)) && (!one_in_(20)))
+			l_ptr->flags3 |= (RF3_ORC);
+		if ((r_ptr->flags3 & (RF3_TROLL)) && (!one_in_(20)))
+			l_ptr->flags3 |= (RF3_TROLL);
+		if ((r_ptr->flags3 & (RF3_GIANT)) && (!one_in_(10)))
+			l_ptr->flags3 |= (RF3_GIANT);
+		if ((r_ptr->flags3 & (RF3_DRAGON)) && (!one_in_(20)))
+			l_ptr->flags3 |= (RF3_DRAGON);
+
+		if ((r_ptr->flags3 & (RF3_HURT_FIRE)) && (!one_in_(5)))
+			l_ptr->flags3 |= (RF3_HURT_FIRE);
+		if ((r_ptr->flags3 & (RF3_HURT_COLD)) && (!one_in_(5)))
+			l_ptr->flags3 |= (RF3_HURT_COLD);
+
+		if ((r_ptr->flags3 & (RF3_IM_ACID)) && (!one_in_(5)))
+			l_ptr->flags3 |= (RF3_IM_ACID);
+		if ((r_ptr->flags3 & (RF3_IM_ELEC)) && (!one_in_(5)))
+			l_ptr->flags3 |= (RF3_IM_ELEC);
+		if ((r_ptr->flags3 & (RF3_IM_FIRE)) && (!one_in_(5)))
+			l_ptr->flags3 |= (RF3_IM_FIRE);
+		if ((r_ptr->flags3 & (RF3_IM_COLD)) && (!one_in_(5)))
+			l_ptr->flags3 |= (RF3_IM_COLD);
+		if ((r_ptr->flags3 & (RF3_IM_POIS)) && (!one_in_(5)))
+			l_ptr->flags3 |= (RF3_IM_POIS);
+
+		if ((r_ptr->flags3 & (RF3_RES_EDGED)) && (!one_in_(5)))
+			l_ptr->flags3 |= (RF3_RES_EDGED);
+		if ((r_ptr->flags3 & (RF3_IM_EDGED)) && (!one_in_(10)))
+			l_ptr->flags3 |= (RF3_IM_EDGED);
+		if ((r_ptr->flags3 & (RF3_RES_BLUNT)) && (!one_in_(5)))
+			l_ptr->flags3 |= (RF3_RES_BLUNT);
+		if ((r_ptr->flags3 & (RF3_IM_BLUNT)) && (!one_in_(10)))
+			l_ptr->flags3 |= (RF3_IM_BLUNT);
+
+		/* Get base name of monster */
+		strcpy(m_name, (r_name + r_ptr->name));
+
+		/* Pluralize it (unless unique) */
+		if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+		{
+			plural_aux(m_name);
+		}
+
+		/* Note that we learnt some new flags */
+		msg_format("You feel you know more about %s.", m_name);
+
+		/* Update monster recall window */
+		if (p_ptr->monster_race_idx == m_ptr->r_idx)
+		{
+			/* Window stuff */
+			p_ptr->window |= (PW_MONSTER);
+		}
+	}
 }
 
 /*
- * Estimate the "power" of an object, for use in fenneling.
+ * Maximal base dodging.
+ */
+#define DODGE_MAX    150
+
+/*
+ * Calculate the character's ability to dodge blows, missiles, and traps.
+ * -LM-
  *
- * Should really be in object[12].c.
+ * Accept maximum value for dodging.
+ *
+ * Dodging ability mostly depends on dodging skill, but the weight of worn
+ * armor and of the backpack, and character DEX is also very important.
+ * Characters will need to work on all of these factors in order to dodge
+ * effectively.
+ *
+ * It's hard to dodge with a big, heavy shield.  The weight of a wielded
+ * shield is multiplied by at least 3 for these calculations.
+ *
+ * Special bonuses can make this function return a value higher than "max".
  */
-s16b
-eval_object(object_type * o_ptr)
+int dodging_ability(int max)
 {
-	s16b total = 0, tmp = 0;
-	s16b pval, basedam, bonusdam;
-	int i;
-	u32b flags;
+	int dexterity_factor, encumbrance;
+	int burden = 0, limit;
+	int raw_dodging;
 
-	/* save some stuff to save time later */
-	pval = o_ptr->pval;
-	basedam = (o_ptr->dd * (o_ptr->ds + 1)) / 2;
-	bonusdam = o_ptr->to_d;
-	switch (o_ptr->tval)
+	/* Get the dodging skill (between 0 and 100) */
+	int skill = get_skill(S_DODGING, 0, 100);
+
+	/* Base dodging */
+	int dodging_skill = skill;
+
+
+	/* Sometimes we cannot dodge at all */
+	if ((p_ptr->blind) || (p_ptr->confused) || (p_ptr->paralyzed))
 	{
-	case TV_SHOT:
-	case TV_ARROW:
-	case TV_BOLT:
-		total += (basedam + bonusdam) * 3 / 2 + o_ptr->to_h;
-		break;
-	case TV_BOW:
-		i = o_ptr->sval % 10;	/* damage mult. */
-		if (o_ptr->flags1 & TR1_MIGHT)
-			i += cap_pval(o_ptr->pval, MAX_TR1_MIGHT);
-		basedam = (((o_ptr->sval / 10) + 4) * i) / 2;	/* hack */
-		total += (basedam + bonusdam) * 3 / 2 + o_ptr->to_h + o_ptr->to_a / 2;
-		break;
-	case TV_DIGGING:
-	case TV_HAFTED:
-	case TV_POLEARM:
-	case TV_SWORD:
-		total += (basedam + bonusdam) * 3 / 2 + o_ptr->to_h + o_ptr->to_a / 2;
-		break;
-	case TV_BOOTS:
-	case TV_GLOVES:
-	case TV_HELM:
-	case TV_CROWN:
-	case TV_SHIELD:
-	case TV_CLOAK:
-	case TV_SOFT_ARMOR:
-	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
-		total += (o_ptr->ac + o_ptr->to_a) / 2;
-		total += o_ptr->to_h + bonusdam * 3 / 2;
-		break;
-	default:
-		total += bonusdam * 3 / 2 + o_ptr->to_h + o_ptr->to_a / 2;
+		/* No dodging, unless skill is maximal, and not paralyzed */
+		if ((skill < 100) || (p_ptr->paralyzed)) return (0);
 	}
 
-	/* Evaluate flags1 */
-	flags = o_ptr->flags1;
-	if (flags & TR1_STR)
-		total += cap_pval(pval, MAX_TR1_STAT) * 3;
-	if (flags & TR1_INT)
+	/* Hallucinating characters are not as good at dodging */
+	if (p_ptr->image)
 	{
-		if (p_ptr->realm == MAGE)
-			total += cap_pval(pval, MAX_TR1_STAT) * 2;
-		total += cap_pval(pval, MAX_TR1_STAT) * 2;
+		if (skill < 95) dodging_skill /= 2;
 	}
-	if (flags & TR1_WIS)
-	{
-		if (p_ptr->realm == PRIEST || p_ptr->realm == DRUID)
-			total += cap_pval(pval, MAX_TR1_STAT) * 2;
-		total += cap_pval(pval, MAX_TR1_STAT) * 2;
-	}
-	if (flags & TR1_DEX)
-		total += cap_pval(pval, MAX_TR1_STAT) * 3;
-	if (flags & TR1_CON)
-		total += cap_pval(pval, MAX_TR1_STAT) * 3;
-	if (flags & TR1_CHR)
-	{
-		if (p_ptr->realm == NECRO)
-			total += cap_pval(pval, MAX_TR1_STAT) * 2;
-		total += cap_pval(pval, MAX_TR1_STAT) / 2;
-	}
-	if (flags & TR1_LUC)
-		total += cap_pval(pval, MAX_TR1_STAT) * 2;
-	if (flags & TR1_STEALTH)
-		total += cap_pval(pval, MAX_TR1_STEALTH) * 2;
-	if (flags & TR1_SEARCH)
-		total += cap_pval(pval, MAX_TR1_SEARCH) / 2;
-	if (flags & TR1_INFRA)
-		total += cap_pval(pval, MAX_TR1_INFRA) / 2;
-	if (flags & TR1_TUNNEL)
-		total += cap_pval(pval, MAX_TR1_TUNNEL) / 2;
-	if (flags & TR1_SPEED)
-	{
-		if (pval > 0)
-			total += cap_pval(pval, MAX_TR1_SPEED) *
-				cap_pval(pval, MAX_TR1_SPEED);
-		else
-			total -= pval * pval;
-	}
-	if (flags & TR1_BLOWS)
-		total += cap_pval(pval, MAX_TR1_BLOWS) * (basedam + bonusdam) * 3 / 2;
-	if (flags & TR1_INVIS)
-		total += cap_pval(pval, MAX_TR1_INVIS) * 8;
-	if (flags & TR1_SHOTS)
-		total += (basedam + bonusdam) *
-			(2 + cap_pval(o_ptr->pval, MAX_TR1_SHOTS)) / 2;
-	/* TR1_MIGHT handled elsewhere */
-	if (flags & TR1_SLAY_ANIMAL)
-		tmp += basedam / 2;
-	if (flags & TR1_SLAY_EVIL)
-		tmp += basedam;
-	else
-	{
-		if (flags & TR1_SLAY_UNDEAD)
-			tmp += basedam;
-		if (flags & TR1_SLAY_DEMON)
-			tmp += basedam / 3;
-		if (flags & TR1_SLAY_ORC)
-			tmp += basedam / 4;
-		if (flags & TR1_SLAY_TROLL)
-			tmp += basedam / 4;
-		if (flags & TR1_SLAY_GIANT)
-			tmp += basedam / 4;
-	}
-	if (flags & TR1_KILL_DRAGON)
-		tmp += basedam * 2 / 3;
-	else if (flags & TR1_SLAY_DRAGON)
-		tmp += basedam / 3;
-	if (flags & TR1_VORPAL)
-		total += (basedam + bonusdam) / 6;
-	if (flags & TR1_BRAND_POIS)
-		tmp += basedam / 3;
-	if (flags & TR1_BRAND_ACID)
-		tmp += basedam * 4 / 5;
-	if (flags & TR1_BRAND_ELEC)
-		tmp += basedam;
-	if (flags & TR1_BRAND_FIRE)
-		tmp += basedam / 2;
-	if (flags & TR1_BRAND_COLD)
-		tmp += basedam / 2;
-	if (tmp > basedam * 5)
-		total += basedam * 5;
-	else
-		total += tmp;
 
-	/* Eval flags2 */
-	flags = o_ptr->flags2;
-	if (flags & TR2_SUST_STR)
-		total += 2;
-	if (flags & TR2_SUST_INT)
-		total += 2;
-	if (flags & TR2_SUST_WIS)
-		total += 2;
-	if (flags & TR2_SUST_DEX)
-		total += 2;
-	if (flags & TR2_SUST_CON)
-		total += 2;
-	if (flags & TR2_SUST_CHR)
-		total += (p_ptr->realm == NECRO ? 2 : 1);
-	if (flags & TR2_SUST_LUC)
-		total += 2;
-	if (flags & TR2_IM_ACID)
-		total += 100;
-	else if (flags & TR2_RES_ACID)
-		total += 10;
-	if (flags & TR2_IM_ELEC)
-		total += 100;
-	else if (flags & TR2_RES_ELEC)
-		total += 10;
-	if (flags & TR2_IM_FIRE)
-		total += 100;
-	else if (flags & TR2_RES_FIRE)
-		total += 15;
-	if (flags & TR2_IM_COLD)
-		total += 100;
-	else if (flags & TR2_RES_COLD)
-		total += 15;
-	if (flags & TR2_RES_POIS)
-		total += 40;
-	if (flags & TR2_RES_FEAR)
-		total += 9;
-	if (flags & TR2_RES_LITE)
-		total += 8;
-	if (flags & TR2_RES_DARK)
-		total += 10;
-	if (flags & TR2_RES_BLIND)
-		total += 9;
-	if (flags & TR2_RES_SOUND)
-		total += 8;
-	if (flags & TR2_RES_SHARD)
-		total += 6;
-	if (flags & TR2_RES_NEXUS)
-		total += 6;
-	if (flags & TR2_RES_NETHR)
-		total += 20;
-	if (flags & TR2_RES_CHAOS)
-		total += 40;
-	else if (flags & TR2_RES_CONFU)
-		total += 9;
-	if (flags & TR2_RES_DISEN)
-		total += 20;
-
-	/* Eval flags3 */
-	flags = o_ptr->flags3;
-	if (flags & TR3_SLOW_DIGEST)
-		total += 3;
-	if (flags & TR3_FEATHER)
-		total += 2;
-	if (flags & TR3_LITE)
-		total += 1;
-	if (flags & TR3_REGEN)
-		total += 8;
-	if (flags & TR3_TELEPATHY)
-		total += 40;
-	if (flags & TR3_SEE_INVIS)
-		total += 5;
-	if (flags & TR3_FREE_ACT)
-		total += 15;
-	if (flags & TR3_HOLD_LIFE)
-		total += 30;
-	if (flags & TR3_SOULSTEAL)
-		total -= 15;
-	if (flags & TR3_NOMAGIC)
-		total -= 50;
-	if (flags & TR3_IMPACT)
-		total += 10;
-	if (flags & TR3_TELEPORT)
-		total -= 20;
-	if (flags & TR3_AGGRAVATE)
-		total -= 20;
-	if (flags & TR3_DRAIN_EXP)
-		total -= 15;
-	if (flags & TR3_BLESSED)
-		if (p_ptr->realm == PRIEST &&
-			(o_ptr->tval == TV_SWORD || o_ptr->tval == TV_HAFTED))
-			total += 5;
-	if (flags & TR3_PERMA_CURSE)
-		total -= 50;
-	else if (flags & TR3_HEAVY_CURSE)
-		total -= 10;
-	else if (flags & TR3_LIGHT_CURSE)
-		total -= 5;
-
-	/* Boost the rating of rings because you can wear two. */
-	if (o_ptr->tval == TV_RING)
-		return (total * 3) / 2;
-	return total;
-}
-
-/* add a curse to an object. returns the object's new power rating. */
-static s16b
-hose_obj(object_type * o_ptr)
-{
-	s16b pow;
-	int i;
-
-	pow = eval_object(o_ptr);
-	i = rand_int((pow > 200 ? 200 : pow));
-	if (i < 100)
+	/* Stunned characters are not as good at dodging */
+	if (p_ptr->stun)
 	{
-		if (rand_int(100) < 85)
+		if (skill < 98)
 		{
-			o_ptr->flags3 |= TR3_LIGHT_CURSE;
-			o_ptr->ident |= IDENT_CURSED;
-		}
-		else
-			o_ptr->flags3 |= TR3_TELEPORT;
-	}
-	else if (i < 125)
-	{
-		if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_POLEARM)
-		{
-			o_ptr->flags3 |= TR3_SOULSTEAL;
-		}
-	}
-	else if (i < 150)
-	{
-		o_ptr->flags3 |= TR3_LIGHT_CURSE;
-		o_ptr->flags3 |= TR3_HEAVY_CURSE;
-		o_ptr->ident |= IDENT_CURSED;
-	}
-	else if (i < 165)
-	{
-		o_ptr->flags3 |= TR3_AGGRAVATE;
-	}
-	else if (i < 180)
-	{
-		o_ptr->flags3 |= TR3_DRAIN_EXP;
-	}
-	else
-	{
-		if (rand_int(2))
-		{
-			o_ptr->flags3 |= TR3_LIGHT_CURSE;
-			o_ptr->flags3 |= TR3_HEAVY_CURSE;
-			o_ptr->flags3 |= TR3_PERMA_CURSE;
-			o_ptr->ident |= IDENT_CURSED;
-		}
-		else
-			o_ptr->flags3 |= TR3_NOMAGIC;
-	}
-	return eval_object(o_ptr);
-}
-
-/* a function that decides whether two objects like being fenneled. */
-
-static bool
-fennel_ok(object_type * src, object_type * dest)
-{
-	s16b srcpow, destpow;
-	char buf[80];
-
-	srcpow = eval_object(src);
-	destpow = eval_object(dest);
-	if (srcpow > 200)
-	{
-		object_desc(buf, src, FALSE, 2);
-		msg_format("Your %s will not be fenneled!", buf);
-		return FALSE;
-	}
-	if (destpow > 200)
-	{
-		object_desc(buf, dest, FALSE, 2);
-		msg_format("Your %s will not be fenneled!", buf);
-		return FALSE;
-	}
-	return TRUE;
-}
-
-/* A function to make certain that fenneled objects don't get too
- * absurd. */
-static void
-cap_vals(object_type * o_ptr)
-{
-	if (o_ptr->to_h > 30)
-		o_ptr->to_h = 30;
-	if (o_ptr->to_d > 30)
-		o_ptr->to_d = 30;
-	if (o_ptr->to_a > 40)
-		o_ptr->to_a = 40;
-	if (o_ptr->dd > 9)
-		o_ptr->dd = 9;
-	/* pval doesn't need to be capped. It varies dependant on what it raises, 
-	 * and is handled elsewhere. */
-}
-
-/* Helper function for fenneling. Adds some of the flags belonging to
- * src to dest, then sets the special flags correctly. */
-static void
-merge_flags(object_type * dest, object_type * src)
-{
-	u32b nflags[3], tmp;
-	s16b pow, i, count = 0;
-	int add;
-
-	nflags[0] = src->flags1 & ~(src->flags1 & dest->flags1);
-	nflags[1] = src->flags2 & ~(src->flags2 & dest->flags2);
-	nflags[2] = src->flags3 & ~(src->flags3 & dest->flags3);
-	nflags[2] &= ~(TR3_ACTIVATE);	/* activations cannot wander */
-
-	pow = eval_object(dest);
-	for (i = 0; i < 3; i++)
-	{
-		for (tmp = 1; tmp > 0; tmp <<= 1)
-		{
-			if (nflags[i] & tmp)
-			{
-				nflags[i] &= ~(tmp);
-				if (pow < 10)
-					add = 100;
-				else if (pow < 90)
-					add = 75;
-				else if (pow < 140)
-					add = 50;
-				else if (pow < 190)
-					add = 25;
-				else
-					add = 10;
-				if (randint(100 - luck()) <= add)
-					switch (i)
-					{
-					case 0:
-						dest->flags1 |= tmp;
-						break;
-					case 1:
-						dest->flags2 |= tmp;
-						break;
-					case 2:
-						dest->flags3 |= tmp;
-						break;
-					}
-			}
+			dodging_skill -= p_ptr->stun * dodging_skill / 100;
+			if (dodging_skill < 0) dodging_skill = 0;
 		}
 	}
 
-	/* Set the special flags correctly. */
-	dest->flags3 &= ~(TR3_EASY_KNOW);
-	if (src->flags3 & TR3_SHOW_MODS)
-		dest->flags3 |= TR3_SHOW_MODS;
-	if (!(dest->flags3 & TR3_HIDE_TYPE && src->flags3 & TR3_HIDE_TYPE))
+	/* Get dexterity factor (usually between 0 and 45) */
+	dexterity_factor = MAX(0, 3 * (p_ptr->stat_ind[A_DEX] - 3) / 2);
+
+	/* It is hard to dodge with a shield, especially a heavy one. */
+	if (TRUE)
 	{
-		count = 0;
-		tmp = dest->flags1;
-		if (tmp & TR1_STR)
-			count++;
-		if (tmp & TR1_INT)
-			count++;
-		if (tmp & TR1_WIS)
-			count++;
-		if (tmp & TR1_DEX)
-			count++;
-		if (tmp & TR1_CON)
-			count++;
-		if (tmp & TR1_CHR)
-			count++;
-		if (tmp & TR1_LUC)
-			count++;
-		if (tmp & TR1_STEALTH)
-			count++;
-		if (tmp & TR1_INVIS)
-			count++;
-		if (tmp & TR1_SEARCH)
-			count++;
-		if (tmp & TR1_INFRA)
-			count++;
-		if (tmp & TR1_TUNNEL)
-			count++;
-		if (tmp & TR1_SPEED)
-			count++;
-		if (tmp & TR1_BLOWS)
-			count++;
-		if (count > 1)
-			dest->flags3 |= TR3_HIDE_TYPE;
-		else
-			dest->flags3 &= ~(TR3_HIDE_TYPE);
+		object_type *o_ptr = &inventory[INVEN_ARM];
+
+		/* Wearing a shield */
+		if (o_ptr->tval == TV_SHIELD)
+		{
+			/* (shield weight is also counted in total weight) */
+			burden = o_ptr->weight * (7 - (skill / 20));
+		}
 	}
+
+	/* Add carried weight to shield weight */
+	burden += p_ptr->total_weight;
+
+	/* Calculate encumbrance (usu. between 20 and 75) */
+	encumbrance = burden / adj_str_wgt[p_ptr->stat_ind[A_STR]];
+
+	/* Increases in skill raise the amount you can carry without penalty */
+	limit = 33 + skill / 4;
+
+	/* No penalty at "limit" or below.  Triple "limit" means no dodging. */
+	burden = (50 * encumbrance / limit) - limit;
+
+	/* Set bounds */
+	if (burden > 100) burden = 100;
+	if (burden <   0) burden =   0;
+
+
+	/* Dodging depends mostly on skill and dex (ranges from 0 to ~145) */
+	raw_dodging = dodging_skill + dexterity_factor;
+
+	/* Penalize inattention to dexterity or weight */
+	raw_dodging = MIN(dexterity_factor * 4, raw_dodging);
+	raw_dodging = ((raw_dodging * (100 - burden)) + 50) / 100;
+
+	/* Set limit on basic dodging ability */
+	if (raw_dodging > DODGE_MAX) raw_dodging = DODGE_MAX;
+
+
+	/* Allow magical enhancements */
+	if (p_ptr->evasion)
+	{
+		raw_dodging += get_skill(S_WIZARDRY, 30, 60);
+	}
+
+	/* It is much easier for Burglars to dodge in the dark */
+	if ((no_light()) && (get_skill(S_BURGLARY, 0, 100)))
+	{
+		/* Calculate maximum possible bonus */
+		int dark_factor = get_skill(S_BURGLARY, 5, 55) + (raw_dodging / 4);
+
+		/* Need darkness both here and adjacent to get full benefit */
+		raw_dodging += dark_factor * darkness_ratio(1) / 100;
+	}
+
+	/* It is hard to dodge in water */
+	if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_WATER)
+	{
+		raw_dodging /= 3;
+	}
+
+	/* Translate raw dodging into a proportion of the (base) maximum */
+	return ((s16b)(raw_dodging * max / DODGE_MAX));
 }
+
 
 /*
- * Hook to allow iding of wands and staves with known type
+ * Determine if a precognition message will be displayed.
  */
-static bool
-item_tester_hook_charges(object_type * o_ptr)
+bool can_precog(int max_chance, int cutoff)
 {
-	if ((o_ptr->tval == TV_WAND || o_ptr->tval == TV_STAFF) &&
-		k_info[o_ptr->k_idx].aware)
-		return TRUE;
-	return FALSE;
-}
+	int skill = get_skill(S_PERCEPTION, 0, 100);
+	int chance;
 
-/*
- * Hook to specify what can be tested with alchemy
- */
-static bool
-item_tester_hook_alchemy(object_type * o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-	case TV_SCROLL:
-	case TV_POTION:
-		return TRUE;
-	default:
-		return FALSE;
-	}
-}
+	/* No chance if below the cutoff, or if cutoff is 100 */
+	if (skill < cutoff) return (FALSE);
+	if (cutoff == 100) return (FALSE);
 
-/*
- * Hook to specify what is fennelable.
- */
-static bool
-item_tester_hook_fennel(object_type * o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-	case TV_SWORD:
-	case TV_HAFTED:
-	case TV_POLEARM:
-	case TV_WAND:
-	case TV_STAFF:
-	case TV_RING:
-	case TV_AMULET:
-	case TV_HELM:
-	case TV_CROWN:
-	case TV_BOOTS:
-	case TV_SHIELD:
-	case TV_CLOAK:
-	case TV_GLOVES:
-	case TV_HARD_ARMOR:
-	case TV_SOFT_ARMOR:
-		{
-			return (TRUE);
-		}
-	}
+	/* Otherwise, chance is always at least 20% */
+	chance = 20;
+
+	/*
+	 * The remaining chance between 20 and max_chance depends on the
+	 * skill level above the cutoff.  At a skill of 100, chance is
+	 * max_chance.
+	 */
+	chance += div_round((s32b)((skill - cutoff) * (max_chance - 20)),
+	                    (100L - cutoff));
+
+	/* Can get a message */
+	if (randint(100) <= chance) return (TRUE);
+
+	/* No message */
 	return (FALSE);
 }
 
+
+
 /*
- * Fenneling talent.
- *
- * Fenneling merges two similar objects into one more powerful one.
- *
- * this part originally Copyright Frits Daalmans, 1995
- * Heavily modified Julian Lighton, 1997-98
+ * Check to see if conditions are right to create objects.
  */
-
-static bool
-talent_fennel(int level)
+static bool good_work_cond(bool msg, bool must_be_in_town)
 {
-	int x, src_item, dest_item, difficulty;
-	char buf[80], tval;
-
-	object_type *src_ptr, *dest_ptr;
-	object_type tmp_obj;
-
-	bool trashsrc = FALSE, trashdest = FALSE;
-	bool kaboom = FALSE, extradest = FALSE;
-
-	s16b diff, oldpow = 0, newpow = 0;
-
-	cptr q, s;
-
-	item_tester_hook = item_tester_hook_fennel;
-
-	/* Get an item */
-	q = "Fennel which item? ";
-	s = "You have nothing to fennel.";
-	if (!get_item(&src_item, q, s, (USE_INVEN)))
-		return FALSE;
-
-	src_ptr = &inventory[src_item];
-	tval = src_ptr->tval;
-	switch (tval)
+	if ((must_be_in_town) && (p_ptr->depth != 0) && (p_ptr->character_type != PCHAR_IRONMAN))
 	{
-	case TV_WAND:
-		if (get_skill(S_INFUSION) < 10)
-		{
-			msg_print("You do not know enough about wands yet!");
-			return FALSE;
-		}
-		difficulty = 25;
-		break;
-	case TV_STAFF:
-		if (level <= 10)
-		{
-			msg_print("You are not skilled enough!");
-			return FALSE;
-		}
-		if (get_skill(S_INFUSION) < 20)
-		{
-			msg_print("You do not know enough about staves yet!");
-			return FALSE;
-		}
-		difficulty = 35;
-		break;
-	case TV_RING:
-		if (level <= 30)
-		{
-			msg_print("You are not skilled enough!");
-			return FALSE;
-		}
-		if (get_skill(S_INFUSION) < 30)
-		{
-			msg_print("You need to know more about magical infusion of rings!");
-			return FALSE;
-		}
-		difficulty = 45;
-		break;
-	case TV_AMULET:
-		if (level <= 35)
-		{
-			msg_print("You are not skilled enough!");
-			return FALSE;
-		}
-		if (get_skill(S_INFUSION) < 35)
-		{
-			msg_print("You need to know more about magical infusion of amulets!");
-			return FALSE;
-		}
-		difficulty = 45;
-		break;
-	case TV_HELM:
-	case TV_CROWN:
-	case TV_BOOTS:
-	case TV_SHIELD:
-	case TV_CLOAK:
-	case TV_GLOVES:
-	case TV_HARD_ARMOR:
-	case TV_SOFT_ARMOR:
-		if (level <= 40)
-		{
-			msg_print("You are not skilled enough!");
-			return FALSE;
-		}
-		if (get_skill(S_INFUSION) < 40)
-		{
-			msg_print("You are not skilled enough at infusion.");
-			return FALSE;
-		}
-		if (get_skill(S_ARMOR) <= 15)
-		{
-			msg_print("You need to be better at forging armor first.");
-			return FALSE;
-		}
-		difficulty = 45;
-		break;
-	case TV_SWORD:
-	case TV_HAFTED:
-	case TV_POLEARM:
-		if (level <= 50)
-		{
-			msg_print("You are not skilled enough!");
-			return FALSE;
-		}
-		if (get_skill(S_INFUSION) <= 40)
-		{
-			msg_print("You are not skilled enough at infusion.");
-			return FALSE;
-		}
-		if (get_skill(S_WEAPON) <= 15)
-		{
-			msg_print("You need to be better at smithing first.");
-			return FALSE;
-		}
-		difficulty = 45;
-		break;
-	default:
-		msg_print("You don't know how to fennel those.");
-		return FALSE;
+		if (msg) msg_print("You may only create items in the town.");
+		return (FALSE);
+	}
+	if (p_ptr->confused > 0)
+	{
+		if (msg) msg_print("You are too confused.");
+		return (FALSE);
+	}
+	if (p_ptr->image > 0)
+	{
+		if (msg) msg_print("You are hallucinating!");
+		return (FALSE);
+	}
+	if (p_ptr->berserk > 0)
+	{
+		if (msg) msg_print("You are in a berserk rage.");
+		return (FALSE);
+	}
+	if (p_ptr->berserk > 0)
+	{
+		if (msg) msg_print("You are in a black rage.");
+		return (FALSE);
+	}
+	if (!player_can_see_bold(p_ptr->py, p_ptr->px))
+	{
+		if (msg) msg_print("You have no light to work by.");
+		return (FALSE);
+	}
+	if (p_ptr->blind)
+	{
+		if (msg) msg_print("You can't see.");
+		return (FALSE);
 	}
 
-	item_tester_tval = tval;
+	return (TRUE);
+}
 
-	/* Get an item */
-	q = "Into which other item? ";
-	s = "You have nothing to fennel.";
-	if (!get_item(&dest_item, q, s, (USE_INVEN)))
-		return FALSE;
+/*
+ * Hook for "get_item()".  Determine if something has charges.
+ */
+static bool item_tester_unknown_charges(const object_type *o_ptr)
+{
+	/* Object must be unknown */
+	if (object_known_p(o_ptr)) return (FALSE);
 
-	if (src_item == dest_item)
+	/* Recharge staffs */
+	if (o_ptr->tval == TV_STAFF) return (TRUE);
+
+	/* Recharge wands */
+	if (o_ptr->tval == TV_WAND) return (TRUE);
+
+	/* Nope */
+	return (FALSE);
+}
+
+
+/*
+ * Use, get information about, provide a description of, or determine
+ * whether the character can use a talent.
+ *
+ * Return "B" if a talent can be browsed, and "Y" if it can also be used.
+ */
+static cptr do_talent(int talent, int mode)
+{
+	bool can_use = TRUE;
+
+	/* Function modes */
+	bool use   = (mode == TALENT_USE);
+	bool info  = (mode == TALENT_INFO);
+	bool desc  = (mode == TALENT_DESC);
+	bool check = (mode == TALENT_CHECK);
+
+	/* Usage variables */
+	int skill;
+	int reliability = 0;
+
+	/* Talent-specific variables */
+	int dam1, dam2;
+	int dur1, dur2;
+	int pow, pow1, pow2;
+	int dir;
+
+	talent_type *t_ptr;
+
+
+	/* Paranoia -- require a talent */
+	if (talent < 0) return ("N");
+
+	/* Point to this talent */
+	t_ptr = &talent_info[talent];
+
+	/* Error-checking -- require a name */
+	if (!t_ptr->name) return ("N");
+
+
+	/* Talent is still timed out */
+	if (((use) || (check)) && (p_ptr->ptalents[talent].count))
 	{
-		msg_print("You cannot fennel an object into itself.");
-		return FALSE;
+		if (use) return ("");
+		else can_use = FALSE;
 	}
-	if (inventory[dest_item].number > 1)
+
+	/* Get skill (note that there may not always be one) */
+	skill = get_skill(t_ptr->skill, 0, 100);
+
+
+	/* Most talents depend on one skill */
+	if (t_ptr->skill < NUM_SKILLS)
 	{
-		extradest = TRUE;
+		reliability = skill - t_ptr->min_level;
 
-		object_copy(&tmp_obj, &inventory[dest_item]);
-
-		tmp_obj.number = 1;
-
-		dest_ptr = &tmp_obj;
-	}
-	else
-		dest_ptr = &inventory[dest_item];
-
-	if (artifact_p(src_ptr) || artifact_p(dest_ptr))
-	{
-		msg_print("You cannot fennel artifacts.");
-		return FALSE;
-	}
-	if (broken_p(src_ptr) || broken_p(dest_ptr))
-	{
-		msg_print("There must be more material left to work with.");
-		return FALSE;
+		/* Note that skill is not great enough to use this talent */
+		if (((use) || (check)) && (reliability < 0)) return ("N");
 	}
 
-	/* Paranoia. This should never be needed. If it is, the weight
-	 * gets screwed up. */
-	dest_ptr->number = 1;
 
-
-	switch (tval)
+	/* Handle talents */
+	switch (talent)
 	{
-	case TV_WAND:
-	case TV_STAFF:
+		case TALENT_STONESKIN:
 		{
-			dest_ptr->pval += (src_ptr->pval * level) / 50;
+			dur1 = 5 + reliability / 2;     dur2 = 15 + reliability / 2;
 
-			/* Hack -- we no longer "know" the item */
-			dest_ptr->ident &= ~(IDENT_KNOWN);
-
-			/* Hack -- we no longer think the item is empty */
-			dest_ptr->ident &= ~(IDENT_EMPTY);
-			trashsrc = TRUE;
-
-			/* Prevent absurd numbers of charges. */
-			x = (level + 100 - (k_info[dest_ptr->k_idx].level) -
-				 (10 * dest_ptr->pval)) / 15;
-			/* Paranoia -- prevent crashes */
-			if (x < 1)
-				x = 1;
-			if (randint(difficulty) > level || rand_int(x) == 0)
+			if (info) return (format("dur %d-%d", dur1, dur2));
+			if (desc) return ("Turn your skin to stone.");
+			if (check)
 			{
-				msg_print("There is a bright flash of light.");
-				trashdest = TRUE;
+				/* Require the Oath of Iron */
+				if (!(p_ptr->oath & (OATH_OF_IRON))) return ("N");
+
+				/* Must not be confused */
+				else if ((p_ptr->confused) || (p_ptr->image)) return ("B");
+			}
+			if (use)
+			{
+				(void)set_steelskin(p_ptr->steelskin + rand_range(dur1, dur2),
+					"Your skin turns to stone!");
 			}
 			break;
 		}
-	case TV_RING:
-	case TV_AMULET:
-	case TV_HELM:
-	case TV_CROWN:
-	case TV_BOOTS:
-	case TV_SHIELD:
-	case TV_CLOAK:
-	case TV_GLOVES:
-	case TV_HARD_ARMOR:
-	case TV_SOFT_ARMOR:
-	case TV_SWORD:
-	case TV_HAFTED:
-	case TV_POLEARM:
+		case TALENT_BERSERK:
 		{
-			if (!fennel_ok(src_ptr, dest_ptr))
-				break;
-			oldpow = eval_object(dest_ptr);
+			dur1 = 10 + BERSERK_WEAKNESS_LENGTH + reliability;
+			dur2 = 20 + BERSERK_WEAKNESS_LENGTH + reliability;
 
-			if (dest_ptr->pval < 1 || src_ptr->pval < 1)
-				dest_ptr->pval += src_ptr->pval;
-			else
-				dest_ptr->pval = isqrt(sqr(dest_ptr->pval) +
-									   sqr(src_ptr->pval));
-
-			if (dest_ptr->to_a < 1 || src_ptr->to_a < 1)
-				dest_ptr->to_a += src_ptr->to_a;
-			else
-				dest_ptr->to_a = isqrt(sqr(src_ptr->to_a) +
-									   sqr(dest_ptr->to_a));
-
-			/* A little hackery to avoid body armor - to hit plummeting */
-			if (dest_ptr->to_h < 1 && src_ptr->to_h < 1 &&
-				(tval == TV_SOFT_ARMOR || tval == TV_HARD_ARMOR))
-				dest_ptr->to_h = -1 * isqrt(sqr(src_ptr->to_h)
-											+ sqr(dest_ptr->to_h));
-			else if (dest_ptr->to_h < 1 || src_ptr->to_h < 1)
-				dest_ptr->to_h += src_ptr->to_h;
-			else
-				dest_ptr->to_h = isqrt(sqr(src_ptr->to_h) +
-									   sqr(dest_ptr->to_h));
-
-			if (dest_ptr->to_d < 1 || src_ptr->to_d < 1)
-				dest_ptr->to_d += src_ptr->to_d;
-			else
-				dest_ptr->to_d = isqrt(sqr(src_ptr->to_d) +
-									   sqr(dest_ptr->to_d));
-
-			if (dest_ptr->dd < 1 || src_ptr->dd < 1)
-				dest_ptr->dd += src_ptr->dd;
-			else
-				dest_ptr->dd = isqrt(sqr(src_ptr->dd) + sqr(dest_ptr->dd));
-
-			dest_ptr->b_cost = isqrt(sqr(dest_ptr->b_cost) +
-									 sqr(src_ptr->b_cost));
-
-			merge_flags(dest_ptr, src_ptr);
-			cap_vals(dest_ptr);
-
-			trashsrc = TRUE;
-
-			if (randint(difficulty) > level)
+			if (info) return (format("dur %d-%d", dur1, dur2));
+			if (desc) return ("Drive yourself into a berserk rage.");
+			if (check)
 			{
-				msg_print("There is a bright flash of light.");
-				trashdest = TRUE;
-				break;
+				/* Require the Oath of Iron */
+				if (!(p_ptr->oath & (OATH_OF_IRON))) return ("N");
+
+				/* Must not be confused */
+				else if ((p_ptr->confused) || (p_ptr->image)) return ("B");
 			}
-			newpow = eval_object(dest_ptr);
-			if (newpow > 0 && rand_int(newpow) > (level * 3) / 2)
+			if (use)
 			{
-				if (newpow < 150)
+				(void)set_berserk(p_ptr->berserk + rand_range(dur1, dur2));
+			}
+			break;
+		}
+		case TALENT_RESIST_DAM:
+		{
+			dur1 = 5 + reliability;     dur2 = 10 + reliability;
+
+			if (info) return (format("dur %d-%d", dur1, dur2));
+			if (desc) return ("Resist raw damage.");
+			if (check)
+			{
+				/* Require the Oath of Iron */
+				if (!(p_ptr->oath & (OATH_OF_IRON))) return ("N");
+
+				/* Must not be confused */
+				else if ((p_ptr->confused) || (p_ptr->image)) return ("B");
+			}
+			if (use)
+			{
+				(void)set_res_dam(p_ptr->res_dam + rand_range(dur1, dur2));
+			}
+			break;
+		}
+		case TALENT_PROBING:
+		{
+			if (info) return ("");
+			if (desc) return ("Reveal a targeted monster's race, approximate HPs, and basic resistances.  Be warned:  the information given is not always complete...");
+			if (check)
+			{
+				/* Require the Oath of Iron */
+				if (!(p_ptr->oath & (OATH_OF_IRON))) return ("N");
+
+				/* Must not be confused */
+				else if ((p_ptr->confused) || (p_ptr->image)) return ("B");
+			}
+			if (use)
+			{
+				/* Get a target */
+				msg_print("Target a monster to probe.");
+				if (!get_aim_dir(&dir)) return ("");
+
+				/* Low-level probe spell, or cancel */
+				if (dir == 5) pseudo_probe();
+				else
 				{
-					if (rand_int(4))
-						newpow = hose_obj(dest_ptr);
-					else
-						kaboom = TRUE;
+					msg_print("You must actually target a monster.");
+					use = FALSE;
 				}
-				else if (newpow < 200)
+			}
+			break;
+		}
+
+		case TALENT_DET_MAGIC:
+		{
+			if (info) return ("");
+			if (desc) return ("Detect nearby magical items.");
+			if (check)
+			{
+				/* Wizards have a spell */
+				if (p_ptr->realm == MAGE) return ("N");
+
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				(void)detect_objects_magic(FALSE);
+			}
+			break;
+		}
+		case TALENT_PHASE_WARP:
+		{
+			pow1 = 9 + (reliability / 5);
+			pow2 = 9 - (reliability / 5);
+
+			if (info) return (format("rng %d var %d", pow1, pow2));
+			if (desc) return ("Semi-controlled teleportation.");
+			if (check)
+			{
+				/* Wizards have a spell */
+				if (p_ptr->realm == MAGE) return ("N");
+
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				if (!phase_warp(pow1, pow2, FALSE)) use = FALSE;
+			}
+			break;
+		}
+		case TAP_ENERGY:
+		{
+			if (info) return ("");
+			if (desc) return ("Turn rod, wand, or staff energy into mana.  The higher-level the item, and the more charges it has, the more magical energy it provides.  Rods have little usable energy, and staffs quite a bit.");
+			if (check)
+			{
+				/* Wizards have a spell */
+				if (p_ptr->realm == MAGE) return ("N");
+
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				if (!tap_magical_energy()) use = FALSE;
+			}
+			break;
+		}
+
+		case TALENT_DET_EVIL:
+		{
+			if (info) return ("");
+			if (desc) return ("Detect all nearby evil monsters, even invisible ones.");
+			if (check)
+			{
+				/* Priests have a prayer */
+				if (p_ptr->realm == PRIEST) return ("N");
+
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				/* Never get extended range */
+				(void)detect_evil(FALSE, TRUE);
+			}
+			break;
+		}
+		case TALENT_RESTORATION:
+		{
+			if (info) return ("");
+			if (desc) return ("Restore all stats.");
+			if (check)
+			{
+				/* Priests have a prayer */
+				if (p_ptr->realm == PRIEST) return ("N");
+
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				(void)restore_stats();
+			}
+			break;
+		}
+		case TALENT_DET_ANIMAL:
+		{
+			if (info) return ("");
+			if (desc) return ("Detect all nearby natural creatures.  With high enough skill, the range increases.");
+			if (check)
+			{
+				/* Druids have a technique */
+				if (p_ptr->realm == DRUID) return ("N");
+
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				/* Extended range with reliability >= 45 */
+				(void)detect_animals(reliability >= 45, TRUE);
+			}
+			break;
+		}
+		case TALENT_MEND_WOUNDS:
+		{
+			pow = (skill > 85) ? (3 * (skill - 85) / 2) : 0;
+			pow1 = skill / 8;
+			pow2 = skill / 4;
+
+			if (info)
+			{
+				if (pow) return (format("heal %d, cure", pow));
+				else     return ("");
+			}
+			if (desc) return ("Mend wounds, cure stunning, heal blindness, reduce poison and disease.  Serious ailments will require more than one use of this talent.  If you are very skilled, you can also heal yourself rapidly.");
+			if (check)
+			{
+				/* Druids have a technique */
+				if (p_ptr->realm == DRUID) return ("N");
+
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				hp_player(pow);
+
+				(void)set_cut(p_ptr->cut - pow2);
+				(void)set_stun(p_ptr->stun - pow1);
+				(void)set_blind(p_ptr->blind - pow1, NULL);
+				(void)set_poisoned(p_ptr->poisoned - pow2);
+				(void)set_diseased(p_ptr->diseased - 5, NULL);
+			}
+			break;
+		}
+
+		case TALENT_DET_UNDEAD:
+		{
+			if (info) return ("");
+			if (desc) return ("Detect all nearby undead monsters, visible or invisible.  With high enough skill, the range increases.");
+			if (check)
+			{
+				/* Necromancers have a ritual */
+				if (p_ptr->realm == NECRO) return ("N");
+
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				/* Extended range with reliability >= 45 */
+				(void)detect_undead(reliability >= 45, TRUE);
+			}
+			break;
+		}
+		case TALENT_REMEMBRANCE:
+		{
+			if (info) return ("");
+			if (desc) return ("Restore experience level.");
+			if (check)
+			{
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				(void)restore_level();
+			}
+			break;
+		}
+
+		case TALENT_ID_CHARGES:
+		{
+			if (info) return ("");
+			if (desc) return ("Determine the charges on a wand or staff.");
+			if (check)
+			{
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				item_tester_hook = item_tester_unknown_charges;
+				if (!ident_spell()) return (NULL);
+			}
+			break;
+		}
+
+		case TALENT_D_OR_NAB_OBJECT:
+		{
+			pow = get_skill(t_ptr->skill, 0, 300);
+
+			if (info) return ("");   /* Deliberate -- no weight data */
+			if (desc) return ("Detect objects and gold (either in the current room or in line of sight), or Nab an object (must be in line of sight and not too heavy).");
+			if (check)
+			{
+				/* Must not be confused, blind, or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->blind) ||
+				    (p_ptr->berserk))
 				{
-					if (rand_int(2))
-						newpow = hose_obj(dest_ptr);
-					else
-						kaboom = TRUE;
+					return ("B");
+				}
+			}
+			if (use)
+			{
+				char c;
+
+				/* Repeat until something happens, or user cancels */
+				while (TRUE)
+				{
+					/* Get a character, or abort */
+					if (!get_com("Detect objects in current room, or Nab an object? (d, n):", &c)) return (NULL);
+
+					/* Detect */
+					if ((c == 'D') || (c == 'd'))
+					{
+						(void)detect_objects_in_room(p_ptr->py, p_ptr->px);
+						break;
+					}
+
+					/* Nab */
+					else if ((c == 'N') || (c == 'n'))
+					{
+						if (!get_aim_dir(&dir)) return (NULL);
+						(void)fetch_obj(dir, pow);
+						break;
+					}
+				}
+			}
+			break;
+		}
+		case TALENT_POISON_AMMO:
+		{
+			pow1 = get_skill(t_ptr->skill, 0, 4);
+			pow2 = get_skill(t_ptr->skill, 0, 12);
+
+			if (info) return (format("poison %d-%d", pow1, pow2));
+			if (desc) return ("Poison some ammo.  Mushroom of Poison or (especially) of Envenomation are the best poisoners, but some other kinds of mushrooms and Potions of Poison also work.  Missiles must be ordinary -- no slays or brands.");
+			if (check)
+			{
+				/* Must not be confused, blind, or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->blind) ||
+				    (p_ptr->berserk))
+				{
+					return ("B");
+				}
+			}
+			if (use)
+			{
+				poison_ammo(pow2);
+			}
+			break;
+		}
+		case TALENT_HIT_AND_RUN:
+		{
+			if (info) return ("");
+			if (desc) return ("The next time you hit or steal from a monster, you will execute a phase door.");
+			if (check)
+			{
+				/* Must not be confused, blind, or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->blind) ||
+				    (p_ptr->berserk))
+				{
+					return ("B");
+				}
+			}
+			if (use)
+			{
+				msg_print("You prepare to hit and run.");
+				p_ptr->special_attack |= (ATTACK_FLEE);
+			}
+			break;
+		}
+		case TALENT_PRED_WEATH:
+		{
+			/* Accuracy depends on skill and depth */
+			int accur = get_skill(S_NATURE, 40, 200) - MIN(100, p_ptr->depth);
+			if (accur > 100) accur = 100;
+
+			if (info) return (format("accuracy: %d%%", accur));
+			if (desc) return ("Predict the weather.  Becomes more reliable as Nature Lore skill improves, and less reliable the deeper you descend.");
+			if (check)
+			{
+				/* Druids are the only ones interested in weather */
+				if (p_ptr->realm != DRUID) return ("N");
+
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				predict_weather(accur);
+			}
+			break;
+		}
+		case TALENT_SNEAKING:
+		{
+			if (info) return ("");
+			if (desc) return (format("Sneak up on monsters (or stop sneaking).  Sneaking slows you down, but makes you a lot more stealthy and allows you to get in deadly sneak attacks.  You may also use the '%c' command to activate this talent.", rogue_like_commands ? '#' : 'S'));
+			if (check)
+			{
+				/* Must not be confused, aggravating, or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->aggravate) ||
+				    (p_ptr->berserk) || (p_ptr->necro_rage))
+				{
+					return ("B");
+				}
+			}
+			if (use)
+			{
+				do_cmd_sneaking();
+			}
+			break;
+		}
+		case TALENT_SENSE_AREA:
+		{
+			if (info) return ("");
+			if (desc) return ("Map the local area.  Extended range with a skill of 75.");
+			if (check)
+			{
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk) ||
+				    (p_ptr->necro_rage))
+				{
+					return ("B");
+				}
+			}
+			if (use)
+			{
+				(void)map_area(0, 0, (reliability >= 20));
+			}
+			break;
+		}
+		case TALENT_SUPERSTEALTH:
+		{
+			dur1 = (p_ptr->tim_invis ?  1 : 30);
+			dur2 = (p_ptr->tim_invis ? 25 : 50);
+
+			if (info) return (format("dur %d-%d", dur1, dur2));
+			if (desc) return ("Become partially invisible.");
+			if (check)
+			{
+				/* Must not be confused, aggravating, or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->aggravate) ||
+				    (p_ptr->berserk))
+				{
+					return ("B");
+				}
+			}
+			if (use)
+			{
+				(void)set_invis(p_ptr->tim_invis + rand_range(dur1, dur2),
+				                get_skill(S_STEALTH, 20, 40));
+			}
+			break;
+		}
+		case TALENT_RECHARGING:
+		{
+			if (info) return ("");     /* Deliberate lack of information */
+			if (desc) return ("Recharge magical devices using essences.  Becomes much safer and more powerful with further increases in Infusion.");
+			if (check)
+			{
+				/* Recharging talent requires decent device skill */
+				if ((talent == TALENT_RECHARGING) &&
+					(get_skill(S_DEVICE, 0, 100) < LEV_REQ_RECHARGE))
+				{
+					return ("N");
+				}
+
+				/* Must not be confused or berserk */
+				if ((p_ptr->confused) || (p_ptr->image) || (p_ptr->berserk))
+					return ("B");
+			}
+			if (use)
+			{
+				/* Essence-based recharging */
+				use = recharge(get_skill(S_INFUSION, 80, 230), TRUE);
+			}
+
+			break;
+		}
+		case TALENT_WEAPON_SMITH:
+		{
+			if (info) return ("");
+			if (desc) return (format("Create hand weapons.  %sYou need components (hunks of metal) and knowledge of the kind of weapon being created.  Essences are very handy if you want to add specific magical powers.  Increasing the weaponsmithing skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.", (p_ptr->character_type == PCHAR_IRONMAN) ? "" : "Only works in town.  "));
+			if (check)
+			{
+				/* Must satisfy a number of conditions */
+				if (!good_work_cond(FALSE, TRUE)) return ("B");
+			}
+			if (use)
+			{
+				/* Make a melee weapon */
+				if (good_work_cond(TRUE, TRUE))
+				{
+					p_ptr->get_help_index = HELP_FORGING;
+
+					use = make_melee_weapon();
+				}
+			}
+			break;
+		}
+		case TALENT_ARMOR_SMITH:
+		{
+			if (info) return ("");
+			if (desc) return (format("Create armor.  %sYou need components (hunks of metal) and knowledge of the kind of armor being created.  Essences are very handy if you want to add specific magical powers.  Increasing the armor forging skill allows you to forge better items, and increasing the infusion skill allows you to add more powers using essences.", (p_ptr->character_type == PCHAR_IRONMAN) ? "" : "Only works in town.  "));
+			if (check)
+			{
+				/* Must satisfy a number of conditions */
+				if (!good_work_cond(FALSE, TRUE)) return ("B");
+			}
+			if (use)
+			{
+				/* Make armor */
+				if (good_work_cond(TRUE, TRUE))
+				{
+					p_ptr->get_help_index = HELP_FORGING;
+
+					use = make_armor();
+				}
+			}
+			break;
+		}
+		case TALENT_MISSILE_SMITH:
+		{
+			if (info) return ("");
+			if (desc) return (format("Create missile weapons and ammunition.  %sYou need components (hunks of metal) and knowledge of the kind of item being created.  Essences are very handy if you want to add specific magical powers.  Increasing the bowmaking skill allows you to forge better items in greater quantity.  Increasing the infusion skill lets you add more powers using essences, to larger numbers of objects.", (p_ptr->character_type == PCHAR_IRONMAN) ? "" : "Only works in town.  "));
+			if (check)
+			{
+				/* Must satisfy a number of conditions */
+				if (!good_work_cond(FALSE, TRUE)) return ("B");
+			}
+			if (use)
+			{
+				/* Make a missile launcher or some ammunition */
+				if (good_work_cond(TRUE, TRUE))
+				{
+					p_ptr->get_help_index = HELP_FORGING;
+
+					use = make_launcher_or_ammo();
+				}
+			}
+			break;
+		}
+		case TALENT_ALCHEMY:
+		{
+			if (info) return ("");
+			if (desc) return ("Create potions, scrolls, and (with higher skill) rings and amulets.  Works in town or in the dungeon.  You need empty bottles or parchments, knowledge of the item being created (for scrolls and potions), and essences.");
+			if (check)
+			{
+				/* Must satisfy a number of conditions */
+				if (!good_work_cond(FALSE, FALSE)) return ("B");
+			}
+			if (use)
+			{
+				/* Perform alchemy */
+				if (good_work_cond(TRUE, FALSE))
+				{
+					p_ptr->get_help_index = HELP_FORGING;
+
+					use = do_alchemy();
+				}
+			}
+			break;
+		}
+		case TALENT_SAVE_BOTTLE:
+		{
+			if (info) return ("");
+			if (desc) return ("Save or stop saving empty bottles and blank parchments.  Useful when your inventory space runs low, or you need to start accumulating more supplies.");
+			if (use)
+			{
+				if (p_ptr->suppress_bottle)
+				{
+					msg_print("You are now saving parchments and bottles.");
+					p_ptr->suppress_bottle = FALSE;
 				}
 				else
 				{
-					if (rand_int(5))
-						newpow = hose_obj(dest_ptr);
-					else
-						kaboom = TRUE;
+					msg_print("You are no longer saving parchments and bottles.");
+					p_ptr->suppress_bottle = TRUE;
 				}
-			}
 
-			/* if you shoved too much power into the object, it could
-			 * explode. */
-			if (newpow > 10 && oldpow > 10)
-			{
-				diff = newpow - oldpow;
-				if (diff > oldpow * 3)
-					kaboom = TRUE;
-				else if (diff > oldpow && rand_int(10) == 0)
-					kaboom = TRUE;
-				else if (diff > 50 && rand_int(20) == 0)
-					kaboom = TRUE;
-			}
-
-			if (kaboom)
-			{
-				trashdest = TRUE;
-				object_desc(buf, dest_ptr, FALSE, 2);
-				msg_format("Your %s explodes violently!", buf);
-				take_hit(randint(2) * randint(newpow), "an exploding object.");
+				/* Use no time */
+				use = FALSE;
 			}
 			break;
 		}
-	default:
+
+		case TALENT_DRAGON_BREATHING:
 		{
-			msg_print("Bug in fenneling code.");
-			break;
-		}
-	}
+			dam1 = (3 * (p_ptr->power - 10)) - 25;
+			dam2 = (3 * (p_ptr->power - 10)) + 25;
 
-	p_ptr->tt = newpow;
-	if (p_ptr->tt < 100)
-		p_ptr->tt = 100;
-
-	/* Search backwards through the pack, destroying those items
-	 * that need destroying */
-	for (x = INVEN_PACK; x >= 0; x--)
-	{
-		if ((x == dest_item && (trashdest && !extradest)) ||
-			(x == src_item && trashsrc))
-			inven_item_decrease(x);
-	}
-
-	/* Handle the case of there having been more than one copy
-	 * of the destination object. */
-	if (extradest)
-	{
-		inven_item_decrease(dest_item);
-		dest_item = inven_carry(dest_ptr);
-		if (trashdest)
-			inven_item_decrease(dest_item);
-	}
-
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-	p_ptr->window |= (PW_INVEN);
-	return TRUE;
-}
-
-static bool
-talent_create_obj(int level, char tval)
-{
-	int j, oblevel, item;
-	s16b objnum;
-	object_type *o_ptr, *j_ptr, forge;
-	cptr q, s;
-
-	item_tester_tval = TV_COMPONENT;
-
-	/* Get an item */
-	q = "Use which component? ";
-	s = "You have no components.";
-	if (!get_item(&item, q, s, (USE_INVEN)))
-		return FALSE;
-
-	o_ptr = &inventory[item];
-	j = (o_ptr->pval * 5) + 1;
-	oblevel = (j + level) / 2;
-	inven_item_decrease(item);
-
-	item_tester_tval = tval;
-	get_obj_num_hook = kind_fits_tval;
-	get_obj_num_prep();
-	j_ptr = &forge;
-	objnum = get_obj_num(oblevel);
-	if (objnum == 0)			/* oops */
-	{
-		msg_print("Something went wrong!");
-		return TRUE;
-	}
-	object_prep(j_ptr, oblevel);
-	item = inven_carry(j_ptr);
-	inven_item_describe(item);
-
-	item_tester_tval = 0;
-	get_obj_num_hook = NULL;
-	get_obj_num_prep();
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-	p_ptr->window |= (PW_INVEN);
-	return TRUE;
-}
-
-/*
- * Returns a string describing how nifty an item is, either in the
- * format "a/an adjective" or just "adjective" dependin on the value
- * of plural. Totally frivolous, but who cares?
- */
-static cptr
-superb_word(bool plural)
-{
-	switch (randint(7))
-	{
-	case 1:
-		return (plural ? "excellent" : "an excellent");
-	case 2:
-		return (plural ? "special" : "a special");
-	case 3:
-		return (plural ? "superb" : "a superb");
-	case 4:
-		return (plural ? "good" : "a good");
-	case 5:
-		return (plural ? "superior" : "a superior");
-	case 6:
-		return (plural ? "amazing" : "an amazing");
-	case 7:
-		return (plural ? "very good" : "a very good");
-	default:
-		return (plural ? "buggy" : "a buggy");
-	}
-}
-
-static bool
-forge_add_special(int level, int type, int num, int pow, object_type * o_ptr)
-{
-	bool special = FALSE;
-	int i, which;
-	u32b all_resists = (TR2_RES_COLD | TR2_RES_ACID |
-						TR2_RES_FIRE | TR2_RES_ELEC);
-
-	for (i = 0; i < num; i++)
-	{
-		if (randint(level / 20) >= randint(6))
-		{
-			which = 0;
-			while (randint(90 + (which * 10)) < 60 + (pow * 2))
-				which++;
-			if (which > 10)
-				which = 10;
-			special = TRUE;
-			switch (type)
+			if (info) return (format("dam %d-%d", dam1, dam2));
+			if (desc) return ("When in dragonform, you can use essences to fuel powerful breaths.  You get bonuses to damage for the basic elements and poison, and penalties for less resistible breaths.");
+			if (check)
 			{
-			case TAL_F_SWORD:
-				{
-					switch (which)
-					{
-					case 0:
-						o_ptr->to_h += randint(3);
-						o_ptr->to_d += randint(3);
-						break;
-					case 1:
-						add_one_flag(o_ptr, (TR1_VORPAL | TR1_SLAY_ORC |
-										   TR1_SLAY_TROLL | TR1_SLAY_GIANT |
-										  TR1_SLAY_DEMON | TR1_SLAY_UNDEAD |
-										  TR1_SLAY_ANIMAL | TR1_BRAND_FIRE |
-											 TR1_BRAND_COLD), (TR2_SUST_STR |
-											   TR2_SUST_DEX | TR2_SUST_CON |
-												   TR2_SUST_CHR), (NOFLAG));
-						break;
-					case 2:
-					case 3:
-						add_one_flag(o_ptr, (TR1_BRAND_ELEC | TR1_BRAND_POIS |
-											 TR1_BRAND_ACID | TR1_STR |
-											 TR1_DEX | TR1_CON | TR1_CHR |
-											 TR1_STEALTH | TR1_INFRA),
-									 (TR2_RES_ACID | TR2_RES_COLD |
-									  TR2_RES_FIRE | TR2_RES_ELEC),
-								  (TR3_FREE_ACT | TR3_LITE | TR3_SEE_INVIS |
-								   TR3_SLOW_DIGEST | TR3_BLESSED));
-						break;
-					case 4:
-					case 5:
-					case 6:
-						add_one_flag(o_ptr, (TR1_BLOWS |
-										   TR1_SLAY_EVIL | TR1_KILL_DRAGON),
-									 (TR2_RES_POIS | TR2_RES_CONFU),
-									 (TR3_REGEN));
-						break;
-					case 7:
-					case 8:
-						o_ptr->ds += rand_int(3);
-						break;
-					case 9:
-					case 10:
-						add_one_flag(o_ptr, (TR1_SPEED), (TR2_RES_LITE |
-														  TR2_RES_SOUND |
-														  TR2_RES_SHARD |
-											 TR2_RES_NEXUS | TR2_RES_CHAOS),
-									 (TR3_TELEPATHY));
-						break;
-					}
-					break;
-				}
-			case TAL_F_MACE:
-				{
-					switch (which)
-					{
-					case 0:
-						o_ptr->to_h += randint(3);
-						o_ptr->to_d += randint(3);
-						break;
-					case 1:
-						add_one_flag(o_ptr, (TR1_SLAY_ORC |
-										   TR1_SLAY_TROLL | TR1_SLAY_GIANT |
-										  TR1_SLAY_DEMON | TR1_SLAY_UNDEAD |
-										   TR1_BRAND_FIRE | TR1_BRAND_COLD),
-							   (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
-								TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR |
-								TR2_SUST_LUC), (NOFLAG));
-						break;
-					case 2:
-					case 3:
-						add_one_flag(o_ptr, (TR1_BRAND_ELEC |
-											 TR1_BRAND_ACID | TR1_STR |
-											 TR1_WIS | TR1_CON | TR1_LUC |
-											 TR1_SEARCH | TR1_INFRA),
-									 (TR2_RES_ACID | TR2_RES_COLD |
-									  TR2_RES_FIRE | TR2_RES_ELEC),
-									 (TR3_FREE_ACT | TR3_SEE_INVIS |
-									  TR3_SLOW_DIGEST));
-						break;
-					case 4:
-					case 5:
-					case 6:
-						add_one_flag(o_ptr, (TR1_BLOWS |
-											 TR1_SLAY_EVIL),
-									 (TR2_RES_CONFU | TR2_RES_BLIND),
-									 (TR3_REGEN));
-						break;
-					case 7:
-					case 8:
-						o_ptr->dd += rand_int(3);
-						break;
-					case 9:
-					case 10:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_RES_DARK |
-											 TR2_RES_SHARD | TR2_RES_NETHR |
-											 TR2_RES_NEXUS | TR2_RES_CHAOS),
-									 (TR3_HOLD_LIFE));
-						break;
-					}
-					break;
-				}
-			case TAL_F_POLEARM:
-				{
-					switch (which)
-					{
-					case 0:
-						o_ptr->to_h += randint(3);
-						o_ptr->to_d += randint(3);
-						break;
-					case 1:
-						add_one_flag(o_ptr, (TR1_SLAY_ORC |
-										   TR1_SLAY_TROLL | TR1_SLAY_GIANT |
-										  TR1_SLAY_DEMON | TR1_SLAY_UNDEAD |
-										  TR1_SLAY_ANIMAL | TR1_BRAND_FIRE |
-											 TR1_BRAND_COLD), (TR2_SUST_STR |
-											   TR2_SUST_INT | TR2_SUST_WIS |
-								TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR |
-												   TR2_SUST_LUC), (NOFLAG));
-						break;
-					case 2:
-					case 3:
-						add_one_flag(o_ptr, (TR1_BRAND_POIS |
-											 TR1_BRAND_ACID | TR1_INT |
-											 TR1_WIS | TR1_DEX | TR1_LUC |
-											 TR1_STEALTH | TR1_SEARCH),
-									 (TR2_RES_ACID | TR2_RES_COLD |
-									  TR2_RES_FIRE | TR2_RES_ELEC),
-								   (TR3_FEATHER | TR3_LITE | TR3_SEE_INVIS |
-									TR3_FREE_ACT | TR3_BLESSED));
-						break;
-					case 4:
-					case 5:
-					case 6:
-						add_one_flag(o_ptr, (TR1_BLOWS |
-										   TR1_SLAY_EVIL | TR1_KILL_DRAGON),
-									 (TR2_RES_CONFU | TR2_RES_BLIND),
-									 (NOFLAG));
-						break;
-					case 7:
-					case 8:
-						o_ptr->ds += rand_int(2);
-						o_ptr->dd += rand_int(2);
-						break;
-					case 9:
-					case 10:
-						add_one_flag(o_ptr, (TR1_SPEED),
-							  (TR2_RES_LITE | TR2_RES_DARK | TR2_RES_SOUND |
-							   TR2_RES_NETHR |
-							   TR2_RES_CHAOS | TR2_RES_DISEN),
-									 (TR3_TELEPATHY));
-						break;
-					}
-					break;
-				}
-			case TAL_F_ARMOR:
-				{
-					switch (which)
-					{
-					case 0:
-						o_ptr->to_a += randint(5);
-						break;
-					case 1:
-					case 2:
-						add_one_flag(o_ptr, (NOFLAG),
-							   (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
-								TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR |
-								TR2_SUST_LUC | TR2_RES_ACID |
-								TR2_RES_COLD | TR2_RES_FIRE | TR2_RES_ELEC),
-								 (TR3_FREE_ACT | TR3_LITE | TR3_SEE_INVIS));
-						break;
-					case 3:
-					case 4:
-						if (all_resists == (o_ptr->flags2 & all_resists))
-							i--;	/* try again */
-						else
-							o_ptr->flags2 |= (TR2_RES_COLD | TR2_RES_ACID |
-											  TR2_RES_FIRE | TR2_RES_ELEC);
-						break;
-					case 5:
-					case 6:
-						add_one_flag(o_ptr, (TR1_STR | TR1_INT |
-									 TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR |
-								  TR1_LUC), (TR2_RES_CONFU | TR2_RES_BLIND),
-									 (TR3_REGEN));
-						break;
-					case 7:
-					case 8:
-					case 9:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_RES_LITE |
-											  TR2_RES_DARK | TR2_RES_SOUND |
-											 TR2_RES_SHARD | TR2_RES_NETHR |
-											 TR2_RES_NEXUS | TR2_RES_CHAOS |
-											   TR2_RES_DISEN | TR2_IM_ACID |
-											TR2_RES_POIS), (TR3_HOLD_LIFE));
-						break;
-					case 10:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_IM_FIRE | TR2_IM_COLD |
-													TR2_IM_ELEC), (NOFLAG));
-						break;
-					}
-					break;
-				}
-			case TAL_F_HELM:
-				{
-					switch (which)
-					{
-					case 0:
-						o_ptr->to_a += randint(3);
-						break;
-					case 1:
-					case 2:
-					case 3:
-						add_one_flag(o_ptr, (TR1_SEARCH | TR1_INFRA),
-									 (TR2_SUST_INT | TR2_SUST_WIS |
-									  TR2_SUST_CHR | TR2_SUST_LUC |
-									  TR2_RES_ACID | TR2_RES_COLD |
-									  TR2_RES_FIRE | TR2_RES_ELEC),
-								 (TR3_FREE_ACT | TR3_LITE | TR3_SEE_INVIS));
-						break;
-					case 5:
-					case 6:
-					case 7:
-						add_one_flag(o_ptr, (TR1_INT |
-											 TR1_WIS | TR1_CHR |
-											 TR1_LUC | TR1_INVIS),
-									 (TR2_RES_CONFU | TR2_RES_BLIND),
-									 (NOFLAG));
-						break;
-					case 8:
-					case 9:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_RES_LITE | TR2_RES_DARK |
-											 TR2_RES_SOUND | TR2_RES_NEXUS),
-									 (TR3_TELEPATHY));
-						break;
-					case 10:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_RES_CHAOS |
-									TR2_RES_DISEN | TR2_IM_ACID), (NOFLAG));
-						break;
-					}
-					break;
-				}
-			case TAL_F_BOOTS:
-				{
-					switch (which)
-					{
-					case 0:
-						o_ptr->to_a += randint(4);
-						break;
-					case 1:
-					case 2:
-					case 3:
-						add_one_flag(o_ptr, (TR1_STEALTH),
-									 (TR2_SUST_DEX | TR2_SUST_CON |
-									  TR2_RES_ACID |
-								TR2_RES_COLD | TR2_RES_FIRE | TR2_RES_ELEC),
-									 (TR3_FREE_ACT | TR3_FEATHER));
-						break;
-					case 4:
-					case 5:
-					case 6:
-						add_one_flag(o_ptr, (TR1_DEX | TR1_CON | TR1_INVIS),
-									 (TR2_RES_POIS | TR2_RES_CONFU),
-									 (TR3_REGEN));
-						break;
-					case 7:
-					case 8:
-					case 9:
-						add_one_flag(o_ptr, (TR1_SPEED), (TR2_RES_NETHR |
-												  TR2_RES_NEXUS), (NOFLAG));
-						break;
-					case 10:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_RES_CHAOS |
-									TR2_RES_DISEN | TR2_IM_COLD), (NOFLAG));
-						break;
-					}
-					break;
-				}
-			case TAL_F_SHIELD:
-				{
-					switch (which)
-					{
-					case 0:
-						o_ptr->to_a += randint(4);
-						break;
-					case 1:
-					case 2:
-						add_one_flag(o_ptr, (NOFLAG),
-									 (TR2_SUST_STR | TR2_SUST_DEX |
-									  TR2_SUST_CON | TR2_RES_ACID |
-								TR2_RES_COLD | TR2_RES_FIRE | TR2_RES_ELEC),
-									 (TR3_FREE_ACT));
-						break;
-					case 3:
-					case 4:
-						if (all_resists == (o_ptr->flags2 & all_resists))
-							i--;	/* try again */
-						else
-							o_ptr->flags2 |= (TR2_RES_COLD | TR2_RES_ACID |
-											  TR2_RES_FIRE | TR2_RES_ELEC);
-						break;
-					case 5:
-					case 6:
-					case 7:
-						add_one_flag(o_ptr, (TR1_STR | TR1_DEX | TR1_CON),
-									 (TR2_RES_POIS | TR2_RES_CONFU),
-									 (TR3_REGEN));
-						break;
-					case 8:
-					case 9:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_RES_LITE |
-											  TR2_RES_DARK | TR2_RES_SOUND |
-											 TR2_RES_SHARD | TR2_RES_NETHR |
-											 TR2_RES_NEXUS | TR2_RES_CHAOS |
-										   TR2_RES_DISEN), (TR3_HOLD_LIFE));
-						break;
-					case 10:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_IM_ACID |
-													TR2_IM_FIRE), (NOFLAG));
-						break;
-					}
-					break;
-				}
-			case TAL_F_GAUNTLETS:
-				{
-					switch (which)
-					{
-					case 0:
-						o_ptr->to_a += randint(3);
-						break;
-					case 1:
-					case 2:
-						add_one_flag(o_ptr, (TR1_SEARCH),
-									 (TR2_SUST_STR | TR2_SUST_DEX |
-									  TR2_SUST_LUC | TR2_RES_ACID |
-								TR2_RES_COLD | TR2_RES_FIRE | TR2_RES_ELEC),
-									 (TR3_FREE_ACT | TR3_LITE));
-						break;
-					case 3:
-					case 4:
-						o_ptr->to_h += randint(2);
-						o_ptr->to_d += randint(2);
-						break;
-					case 5:
-					case 6:
-						add_one_flag(o_ptr, (TR1_STR | TR1_DEX |
-											 TR1_LUC),
-									 (TR2_RES_POIS | TR2_RES_CONFU),
-									 (TR3_REGEN));
-						break;
-					case 7:
-					case 8:
-					case 9:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_RES_LITE |
-											  TR2_RES_DARK | TR2_RES_DISEN),
-									 (TR3_HOLD_LIFE));
-						break;
-					case 10:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_IM_ACID |
-													TR2_IM_ELEC), (NOFLAG));
-						break;
-					}
-					break;
-				}
-			case TAL_F_BOW:
-				{
-					switch (which)
-					{
-					case 0:
-					case 1:
-						o_ptr->to_h += randint(2);
-						o_ptr->to_d += randint(2);
-						break;
-					case 2:
-					case 3:
-					case 4:
-					case 5:
-						add_one_flag(o_ptr, (TR1_DEX | TR1_CON |
-										 TR1_STR | TR1_LUC), (TR2_RES_COLD |
-											   TR2_RES_FIRE | TR2_RES_ACID |
-											 TR2_RES_ELEC), (TR3_FREE_ACT));
-						break;
-					case 6:
-					case 7:
-						if (o_ptr->flags1 & TR1_SHOTS)
-							i--;	/* try again */
-						else
-							o_ptr->flags1 |= TR1_SHOTS;
-						break;
-					case 8:
-						if (o_ptr->flags1 & TR1_MIGHT)
-							i--;	/* try again */
-						else
-							o_ptr->flags1 |= TR1_MIGHT;
-						break;
-					case 9:
-					case 10:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_RES_BLIND |
-											 TR2_RES_DISEN | TR2_RES_CONFU |
-								  TR2_RES_SHARD | TR2_RES_NETHR), (NOFLAG));
-						break;
-					}
-					break;
-				}
-			case TAL_F_XBOW:
-				{
-					switch (which)
-					{
-					case 0:
-					case 1:
-						o_ptr->to_h += 1;
-						o_ptr->to_d += randint(3);
-						break;
-					case 2:
-					case 3:
-					case 4:
-					case 5:
-						add_one_flag(o_ptr, (TR1_CON | TR1_STR),
-									 (TR2_RES_COLD | TR2_RES_FIRE |
-									  TR2_RES_ACID | TR2_RES_ELEC),
-									 (TR3_SEE_INVIS | TR3_REGEN | TR3_LITE));
-						break;
-					case 6:
-					case 7:
-						if (o_ptr->flags1 & TR1_MIGHT)
-							i--;	/* try again */
-						else
-							o_ptr->flags1 |= TR1_MIGHT;
-						break;
-					case 8:
-						if (o_ptr->flags1 & TR1_SHOTS)
-							i--;	/* try again */
-						else
-							o_ptr->flags1 |= TR1_SHOTS;
-						break;
-					case 9:
-					case 10:
-						add_one_flag(o_ptr, (NOFLAG), (TR2_RES_POIS |
-											 TR2_RES_SHARD | TR2_RES_CHAOS |
-											TR2_RES_LITE), (TR3_HOLD_LIFE));
-						break;
-					}
-					break;
-				}
-			case TAL_F_ARROW:
-			case TAL_F_BOLT:
-			case TAL_F_SHOT:
-				{
-					switch (which)
-					{
-					case 0:
-					case 1:
-					case 2:
-						o_ptr->to_h += randint(5);
-						o_ptr->to_d += randint(5);
-						break;
-					case 3:
-					case 4:
-					case 5:
-					case 6:
-						add_one_flag(o_ptr, (TR1_SLAY_ANIMAL | TR1_SLAY_EVIL |
-										  TR1_SLAY_UNDEAD | TR1_SLAY_DEMON |
-										 TR1_SLAY_DRAGON | TR1_KILL_DRAGON),
-									 (NOFLAG), (NOFLAG));
-						break;
-					case 7:
-					case 8:
-					case 9:
-					case 10:
-						o_ptr->dd += randint(3);
-						break;
-					}
-					break;
-				}
-			default:
-				msg_print("Bug in power assignment.");
-				return FALSE;
+				/* Must have enough innate power */
+				if (p_ptr->power < 30) return ("N");
+
+				/* Must be in dragonform */
+				if (p_ptr->schange != SHAPE_DRAGON) return ("N");
+
+				/* Must not be berserk or raging */
+				if ((p_ptr->berserk) || (p_ptr->necro_rage)) return ("B");
 			}
-		}
-	}
-	/* if the object needs a pval, give it one */
-	if (o_ptr->flags1 & TR1_PVAL_MASK)
-	{
-		o_ptr->pval = m_bonus(pow / 5 + 1, level);
-		if (o_ptr->pval < 1)
-			o_ptr->pval = 1;
-	}
-
-	/* If an object resists an element, it also ignores it */
-	if ((o_ptr->flags2 & TR2_RES_ACID) || (o_ptr->flags2 & TR2_IM_ACID))
-		o_ptr->flags3 |= TR3_IGNORE_ACID;
-	if ((o_ptr->flags2 & TR2_RES_FIRE) || (o_ptr->flags2 & TR2_IM_FIRE))
-		o_ptr->flags3 |= TR3_IGNORE_FIRE;
-	if ((o_ptr->flags2 & TR2_RES_COLD) || (o_ptr->flags2 & TR2_IM_COLD))
-		o_ptr->flags3 |= TR3_IGNORE_COLD;
-	if ((o_ptr->flags2 & TR2_RES_ELEC) || (o_ptr->flags2 & TR2_IM_ELEC))
-		o_ptr->flags3 |= TR3_IGNORE_ELEC;
-
-	return special;
-}
-
-static bool
-talent_forge_obj(int level, int type)
-{
-	int i, item;
-	int forge_type, material, quality;
-	object_type *o_ptr, forge;
-	char tmp = 0;
-	cptr q, s;
-
-	switch (type)
-	{
-	case TAL_MAKE_WEAP:
-		{
-			do
+			if (use)
 			{
-				if (!get_com("Forge a (S)word, (M)ace, or (P)olearm?", &tmp))
-					return FALSE;
-				switch (tmp)
-				{
-				case 's':
-				case 'S':
-					forge_type = TAL_F_SWORD;
-					break;
-				case 'm':
-				case 'M':
-					forge_type = TAL_F_MACE;
-					break;
-				case 'p':
-				case 'P':
-					forge_type = TAL_F_POLEARM;
-					break;
-				default:
-					tmp = 0;
-					bell("Illegal weapon type.");
-					break;
-				}
+				int typ, spread;
+				int adjust;
+				int sval = -1;
+				long tmp, dam;
+
+				int k_idx;
+				object_kind *k_ptr;
+				cptr str;
+
+
+				/* Get an essence to use, calculate breath type and strength */
+				typ = essence_to_magic(&adjust, &sval);
+
+				/* Cancelled */
+				if (typ == -1) return ("");
+
+				if (!get_aim_dir(&dir)) return ("");
+
+				/* Look up the index number of this essence */
+				k_idx = lookup_kind(TV_ESSENCE, sval);
+
+				/* Point to the essence kind */
+				k_ptr = &k_info[k_idx];
+
+				/* Refuse to breathe a nameless essence */
+				if (!k_name) return ("");
+
+				/* Get base name */
+				str = (k_name + k_ptr->name);
+
+				/* Eat the essence */
+				p_ptr->essence[sval]--;
+
+				/* Message */
+				msg_format("You breathe %s.", str);
+
+  				/* Determine how quickly the breath spreads out */
+				if      (typ == GF_POIS)  spread = 90;
+				else if (typ == GF_SOUND) spread = 75;
+				else if (typ == GF_FORCE) spread = 60;
+				else                      spread = 45;
+
+				/* Determine damage */
+				dam = rand_range(dam1, dam2);
+
+				/* Apply adjustment to damage */
+				tmp = dam * adjust / 100;
+				dam = (s16b)tmp;
+
+				/* Breathe. */
+				fire_arc(typ, dir, dam, 3 + p_ptr->power / 10, spread);
 			}
-			while (tmp == 0);
 			break;
 		}
-	case TAL_MAKE_ARMOR:
-		{
-			do
-			{
-				if (!get_com("Forge a (H)elmet, (B)oots, (S)hield, (G)auntlets, or (A)rmor?", &tmp))
-					return FALSE;
-				switch (tmp)
-				{
-				case 'h':
-				case 'H':
-					forge_type = TAL_F_HELM;
-					break;
-				case 'a':
-				case 'A':
-					forge_type = TAL_F_ARMOR;
-					break;
-				case 'b':
-				case 'B':
-					forge_type = TAL_F_BOOTS;
-					break;
-				case 's':
-				case 'S':
-					forge_type = TAL_F_SHIELD;
-					break;
-				case 'g':
-				case 'G':
-					forge_type = TAL_F_GAUNTLETS;
-					break;
-				default:
-					tmp = 0;
-					bell("Illegal armor type.");
-					break;
-				}
-			}
-			while (tmp == 0);
-			break;
-		}
-	case TAL_MAKE_BOW:
-		{
-			do
-			{
-				if (!get_com("Make (B)ow, or (C)rossbow?", &tmp))
-					return FALSE;
-				switch (tmp)
-				{
-				case 'b':
-				case 'B':
-					forge_type = TAL_F_BOW;
-					break;
-				case 'c':
-				case 'C':
-					forge_type = TAL_F_XBOW;
-					break;
-				default:
-					tmp = 0;
-					bell("Illegal bow type.");
-					break;
-				}
-			}
-			while (tmp == 0);
-			break;
-		}
-	case TAL_MAKE_AMMO:
-		{
-			do
-			{
-				if (!get_com("Make (C)rossbow bolts, (A)rrows, or (S)ling shot?", &tmp))
-					return FALSE;
-				switch (tmp)
-				{
-				case 'A':
-				case 'a':
-					forge_type = TAL_F_ARROW;
-					break;
-				case 'C':
-				case 'c':
-					forge_type = TAL_F_BOLT;
-					break;
-				case 'S':
-				case 's':
-					forge_type = TAL_F_SHOT;
-					break;
-				default:
-					tmp = 0;
-					bell("Illegal ammo type.");
-					break;
-				}
-			}
-			while (tmp == 0);
-			break;
-		}
-	default:
-		msg_print("Bug in forging code.");
-		return FALSE;
-	}
-	item_tester_tval = TV_COMPONENT;
 
-	/* Get an item */
-	q = "Use which component? ";
-	s = "You have no components.";
-	if (!get_item(&item, q, s, (USE_INVEN)))
-		return FALSE;
-
-	o_ptr = &inventory[item];
-
-	quality = o_ptr->pval;
-
-	material = o_ptr->k_idx - K_MIN_COMPONENT;
-
-	inven_item_decrease(item);
-
-	/* introduce some variance in the quality of components, based on both
-	 * luck and skill. Really high-end items are very hard to make. */
-	i = randint(100 + luck());
-	i += level - 25;
-	if (i > 98)
-		quality += randint(2);	/* + 1 or 2 */
-	if (i > 90)
-		quality += 1;
-	if (i > 80)
-		quality += 1;
-	if (i > 65)
-		quality += rand_int(2);	/* + 0 or 1 */
-	if (i < 35)
-		quality -= rand_int(2);	/* - 0 or 1 */
-	if (i < 20)
-		quality -= 1;
-	if (i < 10)
-		quality -= 1;
-	if (i < 2)
-		quality -= randint(2);	/* - 1 or 2 */
-	if (quality < 0)
-	{
-		msg_print("The component was ruined during the forging!");
-		return TRUE;
-	}
-
-	/* Scale the level to the dungeon depth, for better use with m_bonus */
-	level *= 2;
-
-	/* Set up the item */
-	o_ptr = &forge;
-	if (forge_type < TAL_F_SPECIAL)
-	{
-		object_prep(o_ptr, K_MIN_FORGED + material * 8 + forge_type);
-	}
-	else
-	{
-		switch (forge_type)
-		{
-		case TAL_F_ARROW:
-			object_prep(o_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
-			break;
-		case TAL_F_SHOT:
-			object_prep(o_ptr, lookup_kind(TV_SHOT, SV_AMMO_NORMAL));
-			break;
-		case TAL_F_BOLT:
-			object_prep(o_ptr, lookup_kind(TV_BOLT, SV_AMMO_NORMAL));
-			break;
-		case TAL_F_BOW:
-			if (randint(quality) > 2)
-				object_prep(o_ptr, lookup_kind(TV_BOW, SV_LONG_BOW));
-			else
-				object_prep(o_ptr, lookup_kind(TV_BOW, SV_SHORT_BOW));
-			break;
-		case TAL_F_XBOW:
-			if (randint(quality) > 4)
-				object_prep(o_ptr, lookup_kind(TV_BOW, SV_HEAVY_XBOW));
-			else
-				object_prep(o_ptr, lookup_kind(TV_BOW, SV_LIGHT_XBOW));
-			break;
 		default:
-			msg_print("Bug in forging");
-			return TRUE;
-		}
-	}
-	/* Now forge the item */
-	switch (forge_type)
-	{
-	case TAL_F_ARROW:
 		{
-			o_ptr->to_h = 2 + rand_int(9) + m_bonus(quality, level);
-			o_ptr->to_d = 2 + rand_int(7) + m_bonus(quality, level);
-			o_ptr->dd = 1 + m_bonus(quality / 4 + 1, level / 2);
-			o_ptr->number = 5 + damroll(5, 5);
-			if (forge_add_special(level, forge_type, 1, quality, o_ptr))
-				msg_format("These are %s arrows!", superb_word(TRUE));
-			break;
-		}
-	case TAL_F_BOLT:
-		{
-			o_ptr->to_h = 2 + rand_int(7) + m_bonus(quality, level);
-			o_ptr->to_d = 2 + rand_int(9) + m_bonus(quality, level);
-			o_ptr->dd = 1 + m_bonus(quality / 4 + 1, level / 2);
-			o_ptr->number = 5 + damroll(5, 5);
-			if (forge_add_special(level, forge_type, 1, quality, o_ptr))
-				msg_format("These are %s bolts!", superb_word(TRUE));
-			break;
-		}
-	case TAL_F_SHOT:
-		{
-			o_ptr->to_h = 2 + rand_int(8) + m_bonus(quality, level);
-			o_ptr->to_d = 2 + rand_int(8) + m_bonus(quality, level);
-			o_ptr->dd = 1 + m_bonus(quality / 4 + 1, level / 2);
-			o_ptr->number = 5 + damroll(5, 5);
-			if (forge_add_special(level, forge_type, 1, quality, o_ptr))
-				msg_format("These are %s shots!", superb_word(TRUE));
-			break;
-		}
-	case TAL_F_BOW:
-		{
-			o_ptr->to_h = m_bonus(quality, level) + damroll(2, 5);
-			o_ptr->to_d = m_bonus(quality, level) + damroll(2, 5);
-			if (rand_int(10) <= quality / 2)
-				o_ptr->to_h += randint(10);
-			if (forge_add_special(level, forge_type, quality / 2 +
-							   rand_int((quality * 3) / 2), quality, o_ptr))
-				msg_format("This is %s bow!", superb_word(FALSE));
-			break;
-		}
-	case TAL_F_XBOW:
-		{
-			o_ptr->to_h = m_bonus(quality, level) + damroll(2, 5);
-			o_ptr->to_d = m_bonus(quality, level) + damroll(2, 5);
-			if (rand_int(10) <= quality / 2)
-				o_ptr->to_d += randint(10);
-			if (forge_add_special(level, forge_type, quality / 2 +
-							   rand_int((quality * 3) / 2), quality, o_ptr))
-				msg_format("This is %s crossbow!", superb_word(FALSE));
-			break;
-		}
-
-
-	case TAL_F_SWORD:
-		{
-			o_ptr->to_h = rand_int(6) + m_bonus(quality, level);
-			o_ptr->to_d = rand_int(6) + m_bonus(quality, level);
-			o_ptr->weight += (randint(7) - 4) * 5;
-			if (rand_int(10) <= quality / 2)
-				o_ptr->to_h += randint(10);
-			o_ptr->dd += m_bonus((quality / 5), level / 2);
-			o_ptr->ds += m_bonus((quality / 4), level / 2);
-			if (forge_add_special(level, forge_type, quality / 2 +
-							   rand_int((quality * 3) / 2), quality, o_ptr))
-				msg_format("This is %s sword!", superb_word(FALSE));
-			break;
-		}
-	case TAL_F_POLEARM:
-		{
-			o_ptr->to_h = rand_int(6) + m_bonus(quality, level);
-			o_ptr->to_d = rand_int(6) + m_bonus(quality, level);
-			o_ptr->weight += (randint(7) - 4) * 8;
-			if (rand_int(10) <= quality / 2)
+			if (info) return ("???");
+			if (desc) return ("This talent has not yet been defined.");
+			if (check) return ("N");
+			if (use)
 			{
-				o_ptr->to_h += randint(5);
-				o_ptr->to_d += randint(5);
+				msg_print("This talent has not yet been defined.");
 			}
-			o_ptr->dd += m_bonus((quality / 5), level / 2);
-			o_ptr->ds += m_bonus((quality / 4), level / 2);
-			if (forge_add_special(level, forge_type, quality / 2 +
-							   rand_int((quality * 3) / 2), quality, o_ptr))
-				msg_format("This is %s axe!", superb_word(FALSE));
 			break;
 		}
-	case TAL_F_MACE:
-		{
-			o_ptr->to_h = rand_int(6) + m_bonus(quality, level);
-			o_ptr->to_d = rand_int(6) + m_bonus(quality, level);
-			o_ptr->weight += (randint(7) - 4) * 7;
-			if (rand_int(10) <= quality / 2)
-				o_ptr->to_d += randint(10);
-			o_ptr->dd += m_bonus((quality / 5), level / 2);
-			o_ptr->ds += m_bonus((quality / 4), level / 2);
-			if (forge_add_special(level, forge_type, quality / 2 +
-							   rand_int((quality * 3) / 2), quality, o_ptr))
-				msg_format("This is %s mace!", superb_word(FALSE));
-			break;
-		}
-	case TAL_F_HELM:
-		{
-			o_ptr->ac += m_bonus(quality / 4, level);
-			o_ptr->to_a = rand_int(5) + m_bonus(quality / 2, level);
-			o_ptr->weight += (randint(7) - 4) * 3;
-			if (forge_add_special(level, forge_type, quality / 2 +
-							   rand_int((quality * 3) / 2), quality, o_ptr))
-				msg_format("This is %s helm!", superb_word(FALSE));
-			break;
-		}
-	case TAL_F_ARMOR:
-		{
-			o_ptr->ac += m_bonus(quality / 2, level);
-			o_ptr->to_a = damroll(3, 4) + m_bonus((quality * 2) / 3, level);
-			o_ptr->to_h = -(o_ptr->ac / 6);
-			o_ptr->to_h += m_bonus(quality / 5, level);
-			if (o_ptr->to_h > 0)
-				o_ptr->to_h = 0;
-			o_ptr->weight += (randint(7) - 4) * 11;
-			if (forge_add_special(level, forge_type, quality / 2 +
-							   rand_int((quality * 3) / 2), quality, o_ptr))
-				msg_format("This is %s suit of armor!", superb_word(FALSE));
-			break;
-		}
-	case TAL_F_BOOTS:
-		{
-			o_ptr->ac += m_bonus(quality / 5, level);
-			o_ptr->to_a = rand_int(5) + m_bonus(quality / 2, level);
-			o_ptr->weight += (randint(7) - 4) * 2;
-			if (forge_add_special(level, forge_type, quality / 2 +
-							   rand_int((quality * 3) / 2), quality, o_ptr))
-				msg_format("These are %s boots!", superb_word(TRUE));
-			break;
-		}
-	case TAL_F_GAUNTLETS:
-		{
-			o_ptr->ac += m_bonus(quality / 7, level);
-			o_ptr->to_a = rand_int(7) + m_bonus(quality / 2, level);
-			o_ptr->weight += (randint(7) - 4) * 2;
-			if (forge_add_special(level, forge_type, quality / 2 +
-							   rand_int((quality * 3) / 2), quality, o_ptr))
-				msg_format("These are %s gauntlets!", superb_word(TRUE));
-			break;
-		}
-	case TAL_F_SHIELD:
-		{
-			o_ptr->ac += m_bonus(quality / 4, level);
-			o_ptr->to_a = damroll(4, 2) + m_bonus(quality / 2, level);
-			o_ptr->weight += (randint(7) - 4) * 4;
-			if (forge_add_special(level, forge_type, quality / 2 +
-							   rand_int((quality * 3) / 2), quality, o_ptr))
-				msg_format("This is %s shield!", superb_word(FALSE));
-			break;
-		}
-	default:
-		break;
 	}
-	item = inven_carry(o_ptr);
-	inven_item_describe(item);
 
-	o_ptr = &inventory[item];
-	o_ptr->ident |= (IDENT_KNOWN);
 
-	/* give the player a chance of an *Identify*. */
-	if (randint(150) < get_skill(S_PRECOG))
+
+	/* Used a talent */
+	if (use)
 	{
-		object_aware(o_ptr);
-		object_known(o_ptr);
+		/* Time out the talent */
+		p_ptr->ptalents[talent].count = t_ptr->timeout;
 
-		/* Mark the item as fully known */
-		o_ptr->ident |= (IDENT_MENTAL);
-
-		/* Only bother with this if there's something to *id* */
-		if (o_ptr->flags1 || o_ptr->flags2 || o_ptr->flags3)
-			identify_fully_aux(o_ptr);
+		/* Use a turn */
+		p_ptr->energy_use = 100;
 	}
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN);
-
-	/* Combine and reorder the pack */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-#if 0
-	/* Evaluate cost of the item */
-	j = 0;						/* Current cost */
-	switch (i)
-	{
-	case TV_ARROW:
-	case TV_BOLT:
-		j = 1;
-		break;
-	case TV_BOW:
-		j = 300;
-		break;
-	case TV_SWORD:
-		j = 100;
-		break;
-	case TV_HAFTED:
-		j = 150;
-		break;
-	case TV_POLEARM:
-		j = 100;
-		break;
-	case TV_HELM:
-		j = 50;
-		break;
-	case TV_HARD_ARMOR:
-		j = 100;
-		break;
-	case TV_BOOTS:
-		j = 50;
-		break;
-	case TV_SHIELD:
-		j = 100;
-		break;
-	case TV_GLOVES:
-		j = 50;
-		break;
-	}
-
-	j += 200 * o_ptr->to_h;
-	j += 200 * o_ptr->to_d;
-	j += 100 * o_ptr->ac;
-	j += 150 * o_ptr->to_a;
-	j += 300 * o_ptr->pval;
-	mask = 1;
-	/* This adds value for each special added */
-	for (k = 0; k < 32; k++)
-	{
-		if (o_ptr->flags1 & mask)
-			j += flag_levels[k] * 100;
-		if (o_ptr->flags2 & mask)
-			j += flag_levels[k + 32] * 120;
-		if (o_ptr->flags3 & mask)
-			j += flag_levels[k + 64] * 120;
-		mask <<= 1;
-	}
-	o_ptr->b_cost = j;
-#endif
-
-	return TRUE;
+	/* When checking, report if talent is timed out or not */
+	return (can_use ? "Y" : "B");
 }
+
 
 /*
- * Determine if a non-skill-based talent may be used.
+ * Return whether we can use or browse a talent now.
  */
-static bool
-spec_tal_valid(talent_type * tal)
+int can_use_talent(int talent)
 {
-	if (p_ptr->schange == SHAPE_DRAGON && streq(tal->name, "Breathe Fire"))
-		return TRUE;
-	return FALSE;
+	cptr okay = do_talent(talent, TALENT_CHECK);
+
+	if (strstr(okay, "B")) return (0);
+	if (strstr(okay, "Y")) return (1);
+
+	return (-1);
 }
+
 
 /*
  * Print a list of talents.
  */
-void
-print_talents(byte * talents, int num, int y, int x)
+static void print_talents(const s16b *talents, int *end_row)
 {
-	int i, talent;
+	int i, cnt, breakpoint, space;
+	int attr;
 
-	talent_type *t_ptr;
+	const talent_type *t_ptr;
 
-	char out_val[160];
+	char out_val[DESC_LEN];
 
-	/* Dump the talents */
-	for (i = 0; i < num; i++)
+	/* Start at row 2, one-third of the way across the screen */
+	int row = 2;
+	int col = MAX(0, (Term->cols - 80) / 3);
+
+
+	/* Tally up available talents */
+	for (cnt = 0, i = 0; i < NUM_TALENTS; i++)
 	{
-		/* Access the talent */
-		talent = talents[i];
-		t_ptr = &talent_info[talent];
-
-		/* Dump the talent */
-		sprintf(out_val, "  %c) %-30s", I2A(talents[i]), t_ptr->name);
-		prt(out_val, y + i, x);
+		if (talents[i] >= 0) cnt++;
 	}
 
-	/* Clear the bottom line */
-	prt("", y + i, x);
+	/* Divide evenly between two columns */
+	*end_row = breakpoint = 1 + (cnt + 1) / 2;
+
+	/* Determine space needed for all information */
+	space = 2 + breakpoint;
+
+	/* Clear space */
+	for (i = row; i < space; i++) clear_space(i, col, 80);
+
+
+	/* Dump the talents */
+	for (cnt = 0, i = 0; i < NUM_TALENTS; i++)
+	{
+		/* Get the talent */
+		t_ptr = &talent_info[i];
+
+		/* Talent is not available */
+		if (talents[i] < 0) continue;
+
+		/* New talent */
+		cnt++;
+
+		/* Shift to next column */
+		if (cnt == breakpoint)
+		{
+			row = 2;
+			col = 40 + MAX(0, (Term->cols - 80) / 3);
+		}
+
+		/* Print the talent index */
+		c_put_str((p_ptr->ptalents[i].marked ? TERM_YELLOW : TERM_WHITE),
+			format("%c) ", t_ptr->index), row, col + 1);
+
+		/* Build the talent index, name, and information */
+		(void)strnfmt(out_val, sizeof(out_val), "%-22s %-12s", t_ptr->name,
+			do_talent(i, TALENT_INFO));
+
+		/* Talents that cannot be used are printed in gray */
+		if (talents[i] > 0) attr = TERM_WHITE;
+		else                attr = TERM_SLATE;
+
+		/* Print the talent */
+		c_put_str(attr, out_val, row, col + 4);
+
+		/* Go to next row */
+		row++;
+	}
 }
 
 
 /*
- * Allow the user to choose a talent.
- *
- * If a valid talent is chosen, returns the talent's number.
- * If the user hits escape, returns -1.
- * If there are no legal choices, returns -2.
- *
- * If there are ever more than 23 talents, this function will need
- * to break them up in some manner.
+ * Given an index, get the first legal talent that uses it.
  */
-static int
-get_talent()
+static int get_talent_from_index(char ch)
 {
-	int i, j = -1, k;
-	int ver;
-	byte talent[NUM_TALENTS], num = 0;
-	bool flag, redraw, okay = FALSE;
-	char choice;
+	int i;
+
+	for (i = 0; i < NUM_TALENTS; i++)
+	{
+		if (can_use_talent(i) < 0) continue;
+
+		if (talent_info[i].index == ch) return (i);
+	}
+
+	/* No legal talent */
+	return (-1);
+}
+
+
+
+/*
+ * Use or browse talents.
+ *
+ * Allow instant selection of talents, selection from a menu, and browsing.
+ * Interface is a mix of the skills and the spellcasting interfaces.
+ *
+ * We must be careful to control access to talents:  some can be used,
+ * others browsed but not used, and others neither browsed nor used.
+ *
+ * This is ugly code -- replace if as and when list interfaces are unified.
+ */
+void do_cmd_talents(void)
+{
+	int i;
+	int talent = -2;
+
+	int selected_talent = -1;
+
+	bool show_list = always_show_list;
+
+	/* In use mode, no redraw */
+	byte mode = 0;
+	bool redraw = FALSE;
+
+	/* Not using a talent yet */
+	bool use_talent = FALSE;
+
+	/* List of available talents */
+	s16b talent_avail[NUM_TALENTS];
+
 	talent_type *t_ptr;
-	char out_val[160];
 
-	/* Extract usable talents */
-	for (i = 0; talent_info[i].name != NULL; i++)
+	char first_index = '\0';
+	char last_index  = '\0';
+
+	char out_val[DESC_LEN];
+	char p1[DESC_LEN];
+
+	int num_browse = 0;
+	int num_use = 0;
+	char choice;
+	int end_row = 18;
+	int col = MAX(0, (Term->cols - 80) / 3);
+
+
+	/* Determine whether talents can be browsed and/or used  */
+	for (i = 0; i < NUM_TALENTS; i++)
 	{
-		if (talent_info[i].skill == S_NOSKILL)
+		/* Get this talent */
+		t_ptr = &talent_info[i];
+
+		/* Note unused talents */
+		if (!t_ptr->name) talent_avail[i] = -1;
+
+		/* Check whether we can browse or use this talent */
+		talent_avail[i] = can_use_talent(i);
+
+		/* Note a talent that can be at least browsed */
+		if (talent_avail[i] >= 0)
 		{
-			/* Non-skill-based talent. */
-			if (spec_tal_valid(&talent_info[i]))
-			{
-				talent[num++] = i;
-				okay = TRUE;
-			}
+			if (selected_talent < 0) selected_talent = i;
+			num_browse++;
 		}
-		else if (get_raw_skill(talent_info[i].skill) >= talent_info[i].level)
+
+		/* Note a talent that can be used */
+		if (talent_avail[i] >= 1)
 		{
-			talent[num++] = i;
-			okay = TRUE;
+			/* Get indexes */
+			if (first_index == '\0') first_index = t_ptr->index;
+			last_index = t_ptr->index;
+
+			num_use++;
 		}
 	}
-	if (!okay)
-		return -2;
 
-	/* Nothing chosen yet */
-	flag = FALSE;
-	/* No redraw yet */
-	redraw = FALSE;
-
-#if 0
-	/* Show the list */
-	if (redraw)
+	/* No talents at all */
+	if (!num_browse)
 	{
-		/* Save screen */
-		screen_save();
-
-		/* Display a list of talents */
-		print_talents(talent, num, 1, 50);
+		msg_print("You have no talents yet.");
+		return;
 	}
 
-#endif
+	/* Cannot use any talents now -- go into browse mode */
+	if (!num_use)
+	{
+		mode = 1;
+	}
 
-	/* Build a prompt (accept all talents) */
-	strnfmt(out_val, 78,
-			"(Talents %c-%c, *=List, ESC=exit) Use which talent? ",
-			I2A(talent[0]), I2A(talent[num - 1]));
+	/* Fill in basic prompt */
+	strcpy(p1, "'?' for help, ESC to exit)?");
+
 
 	/* Get a talent from the user */
-	while (!flag && get_com(out_val, &choice))
+	while (TRUE)
 	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		/* In "use" mode */
+		if (mode == 0)
 		{
-			/* Hide the list */
-			if (redraw)
-			{
-				/* Load screen */
-				screen_load();
+			/* Build a prompt */
+			(void)strnfmt(out_val, sizeof(out_val), "Use (Talents %c-%c, ! to mark, * to browse, %s",
+				first_index, last_index, p1);
+		}
 
-				/* Hide list */
-				redraw = FALSE;
-			}
+		/* In "browse" mode */
+		else if (mode == 1)
+		{
+			/* Build a prompt */
+			(void)strnfmt(out_val, sizeof(out_val), "Browse (Talents %c-%c, ! to mark, * to use, %s",
+				first_index, last_index, p1);
+		}
 
-			/* Show the list */
-			else
+		/* In "mark" mode */
+		else
+		{
+			/* Build a prompt */
+			(void)strnfmt(out_val, sizeof(out_val), "Mark (Talents %c-%c, * to browse, %s",
+				first_index, last_index, p1);
+		}
+
+		/* Hack -- force the display of a list */
+		if (show_list)
+		{
+			choice = ' ';
+			show_list = FALSE;
+		}
+
+		/* Get a command, allow cancel */
+		else
+		{
+			if (!get_com(out_val, &choice)) break;
+		}
+
+		/* Clear the "message" line (only when a list is being shown) */
+		if (redraw) clear_space(1, col, col + 80);
+
+		/* Leave */
+		if (choice == ESCAPE) break;
+
+		/* Show a menu */
+		else if (choice == ' ')
+		{
+			/* Only show the menu, don't hide it  XXX XXX */
+			if (!redraw)
 			{
 				/* Show list */
 				redraw = TRUE;
 
-				/* Save screen */
-				screen_save();
+				/* Pop-up window */
+				display_change(DSP_POPUP, 0, 0);
 
-				/* Display a list of talents */
-				print_talents(talent, num, 1, 50);
+				/* List the talents */
+				print_talents(talent_avail, &end_row);
+
+				/* Clear the "message" line */
+				clear_space(1, col, col + 80);
+			}
+		}
+
+		/* Help me. */
+		else if (choice == '?')
+		{
+			p_ptr->get_help_index = HELP_TALENTS;
+
+			/* Hack -- Hide the list temporarily */
+			if (redraw) screen_load();
+
+			/* Show contextual help */
+			do_cmd_help();
+
+			/* Hack -- Show the list again */
+			if (redraw)
+			{
+				screen_save(FALSE);
+				show_list = TRUE;
+			}
+		}
+
+
+		/* Go into mark mode */
+		else if (choice == '!')
+		{
+			if (redraw) put_str("A marked talent will let you know when you can use it again.", 1, 10);
+
+			/* Hack -- require a list */
+			else show_list = TRUE;
+			mode = 2;
+
+			/* No talent selected */
+			selected_talent = -1;
+			continue;
+		}
+
+		/* Toggle browse and use modes */
+		else if (choice == '*')
+		{
+			if (mode == 1) mode = 0;
+			else           mode = 1;
+
+			/* Hack -- browse mode requires a list */
+			show_list = TRUE;
+		}
+
+		/* (Try to) Get talent using index */
+		else talent = get_talent_from_index(choice);
+
+		/* Talent is legal */
+		if ((talent >= 0) && (talent_avail[talent] >= 0))
+		{
+			/* In mark mode -- mark or unmark the talent */
+			if (mode == 2)
+			{
+				if (p_ptr->ptalents[talent].marked)
+				{
+					p_ptr->ptalents[talent].marked = FALSE;
+
+					center_string(out_val, sizeof(out_val), format("You have unmarked \"%s\".",
+						talent_info[talent].name), 79);
+
+					put_str(out_val, 1, col + 1);
+
+					print_talents(talent_avail, &end_row);
+				}
+				else
+				{
+					p_ptr->ptalents[talent].marked = TRUE;
+
+					center_string(out_val, sizeof(out_val), format("You have marked \"%s\".",
+						talent_info[talent].name), 79);
+
+					put_str(out_val, 1, col + 1);
+
+					print_talents(talent_avail, &end_row);
+				}
 			}
 
-			/* Ask again */
-			continue;
-		}
-
-
-		/* Note verify */
-		ver = (isupper(choice));
-
-		/* Lowercase */
-		choice = tolower(choice);
-
-		/* Extract request */
-		i = (islower(choice) ? A2I(choice) : -1);
-
-		/* Totally Illegal */
-		if (i < 0)
-		{
-			bell("Illegal talent choice.");
-			continue;
-		}
-
-		/* Find and save the talent index */
-		for (k = 0; k < num; k++)
-		{
-			if (talent[k] == i)
+			/* In browse mode, or talent is only available for browsing */
+			else if ((mode == 1) || (talent_avail[talent] == 0))
 			{
-				j = talent[k];
+				/* We are looking at the list */
+				if (redraw)
+				{
+					/* Clear some space */
+					for (i = end_row + 1; i < end_row + 6; i++) clear_space(i, col, 80);
+
+					/* Move cursor */
+					move_cursor(end_row + 1, col + 5);
+
+					/* Print talent description */
+					c_roff(TERM_L_BLUE, format("%s",
+						do_talent(talent, TALENT_DESC)), col + 2, col + 78);
+				}
+
+				/* We are at the basic prompt */
+				else
+				{
+					bell("This talent is still timed out.");
+				}
+			}
+
+			/* Not in browse mode -- Use the talent */
+			else
+			{
+				use_talent = TRUE;
 				break;
 			}
 		}
-		/* Invalid choice */
-		if (k == num)
+
+		/* Error message */
+		else if (talent != -2)
 		{
-			bell("Illegal talent choice.");
-			continue;
+			if (redraw) c_put_str(TERM_YELLOW, "Illegal talent choice.", 1, 30);
+
+			else bell("Illegal talent choice.");
 		}
-
-		/* Verify it */
-		if (ver)
-		{
-			char tmp_val[160];
-
-			/* Access the talent */
-			t_ptr = &talent_info[j];
-
-			/* Prompt */
-			strnfmt(tmp_val, 78, "Attempt %s? ", t_ptr->name);
-
-			/* Belay that order */
-			if (!get_check(tmp_val))
-				continue;
-		}
-
-		/* Stop the loop */
-		flag = TRUE;
 	}
 
 	/* Restore the screen */
 	if (redraw)
 	{
-		/* Load screen */
-		screen_load();
-
-		/* Hack -- forget redraw */
-		/* redraw = FALSE; */
+		/* Clear pop-up window */
+		display_change(DSP_POPDOWN, 0, 0);
 	}
 
-	/* Abort if needed */
-	if (!flag)
-		return -1;
-
-	/* Success */
-	return j;
+	/* Use a talent */
+	if (use_talent)
+	{
+		(void)do_talent(talent, TALENT_USE);
+	}
 }
 
-/*
- * Check to see if conditions are right to do some work.
- */
-static bool
-good_work_cond()
-{
-	if (p_ptr->depth != 0)
-	{
-		msg_print("It's not safe to work here!");
-		return FALSE;
-	}
-	if (p_ptr->confused > 0)
-	{
-		msg_print("You are too confused.");
-		return FALSE;
-	}
-	if (no_lite())
-	{
-		msg_print("You have no light to work by!");
-		return FALSE;
-	}
-	if (p_ptr->blind)
-	{
-		msg_print("You can't see!");
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-void
-do_cmd_talents()
-{
-	int level = 0, tal, dir;
-	char tval;
-	char tmp;
-	talent_type *t_ptr;
-
-	if (p_ptr->tt && !p_ptr->wizard)
-	{
-		msg_print("You can't use any talents right now.");
-		return;
-	}
-
-	tal = get_talent();
-
-	if (tal < 0)
-	{
-		if (tal == -2)			/* No talents available */
-			msg_print("You have no talents yet.");
-		return;
-	}
-
-	t_ptr = &talent_info[tal];
-
-	if (t_ptr->skill != S_NOSKILL)
-	{
-		level = get_skill(t_ptr->skill);
-	}
-
-	switch (tal)
-	{
-	case TALENT_DET_TRAPS:
-		{
-			detect_traps();
-			break;
-		}
-	case TALENT_PRED_WEATH:
-		{
-			predict_weather(level * 3);
-			break;
-		}
-	case TALENT_DET_EVIL:
-		{
-			detect_evil();
-			break;
-		}
-	case TALENT_DET_ANIMAL:
-		{
-			detect_animals();
-			break;
-		}
-	case TALENT_DETECTION:
-		{
-			if (level > 150)
-			  detect_all();
-			else
-			  {
-				if (get_raw_skill(S_DISARM) > 50)
-				  detect_traps();
-				if (get_raw_skill(S_DISARM) > 75)
-				  {
-					detect_doors();
-					detect_stairs();
-				  }
-				detect_monsters_normal();
-			  }
-			break;
-		}
-	case TALENT_ID_ALCHEMY:
-		{
-			item_tester_hook = item_tester_hook_alchemy;
-			if (!ident_spell())
-				return;
-			break;
-		}
-	case TALENT_ID_CHARGES:
-		{
-			item_tester_hook = item_tester_hook_charges;
-			if (!ident_spell())
-				return;
-			break;
-		}
-	case TALENT_WEAPON_SMITH:
-		{
-			if (!good_work_cond())
-				return;
-			if (!talent_forge_obj(level, TAL_MAKE_WEAP))
-				return;
-			break;
-		}
-	case TALENT_ARMOR_SMITH:
-		{
-			if (!good_work_cond())
-				return;
-			if (!talent_forge_obj(level, TAL_MAKE_ARMOR))
-				return;
-			break;
-		}
-	case TALENT_AMMO_SMITH:
-		{
-			if (!good_work_cond())
-				return;
-			if (!talent_forge_obj(level, TAL_MAKE_AMMO))
-				return;
-			break;
-		}
-	case TALENT_BOW_SMITH:
-		{
-			if (!good_work_cond())
-				return;
-			if (!talent_forge_obj(level, TAL_MAKE_BOW))
-				return;
-			break;
-		}
-	case TALENT_MUNCHKINISM:					/* Fenneling. */
-		{
-			if (!good_work_cond())
-				return;
-			if (!talent_fennel(level))
-				return;
-			break;
-		}
-	case TALENT_ALCHEMY:
-		{
-			tmp = 0;
-			if (!good_work_cond())
-				return;
-			do
-			{
-				if (!get_com("Make a (S)croll or (P)otion?", &tmp))
-					return;
-				switch (tmp)
-				{
-				case 'p':
-				case 'P':
-					tval = TV_POTION;
-					break;
-				case 's':
-				case 'S':
-					tval = TV_SCROLL;
-					break;
-				default:
-					tmp = 0;
-					bell("Illegal alchemy choice.");
-					break;
-				}
-			}
-			while (tmp == 0);
-			if (!talent_create_obj(level, tval))
-				return;
-			break;
-		}
-	case TALENT_INFUSION:
-		{
-			tmp = 0;
-			if (!good_work_cond())
-				return;
-
-			do
-			{
-				if (!get_com("Make a (W)and or (S)taff?", &tmp))
-					return;
-				switch (tmp)
-				{
-				case 'w':
-				case 'W':
-					tval = TV_WAND;
-					break;
-				case 's':
-				case 'S':
-					tval = TV_STAFF;
-					break;
-				default:
-					tmp = 0;
-					bell("Illegal infusion choice.");
-					break;
-				}
-			}
-			while (tmp == 0);
-
-			if (!talent_create_obj(level, tval))
-				return;
-			break;
-		}
-	case TALENT_MEDITATION:
-		{
-			(void)set_afraid(0);
-			(void)set_confused(0);
-			(void)set_blind(0);
-			break;
-		}
-	case TALENT_RESTORE_XP:
-		{
-			if (!restore_level())
-				msg_print("Nothing happened.");
-			break;
-		}
-	case TALENT_RECHARGE:
-		{
-			if (!recharge(get_raw_skill(S_INFUSION) / 5))
-				return;
-			break;
-		}
-	case TALENT_BREATHE_FIRE:
-		{
-			if (!get_aim_dir(&dir))
-				return;
-			(void)fire_ball(GF_FIRE, dir, p_ptr->chp / 2, 2);
-			break;
-		}
-	default:
-		{
-			msg_print("Unknown talent");
-			return;
-		}
-	}
-	p_ptr->tt = t_ptr->timeout;
-	p_ptr->energy_use = 100;
-}

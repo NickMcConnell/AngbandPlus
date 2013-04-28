@@ -1,5 +1,3 @@
-
-
 /* File: z-rand.c */
 
 /*
@@ -17,16 +15,12 @@
  *
  * This code provides both a "quick" random number generator (4 bytes of
  * state), and a "decent" random number generator (256 bytes of state),
- * both available in two flavors, first, the simple "mod" flavor, which
- * is fast, but slightly biased at high values, and second, the simple
- * "div" flavor, which is less fast (and potentially non-terminating)
- * but which is not biased and is much less subject to non-randomness
- * problems in the low bits.  Note the "rand_int()" macro in "z-rand.h",
- * which must specify a "default" flavor.
+ * both using "division", which is less fast than "modulus" (and
+ * potentially non-terminating) but which is not biased and is much less
+ * subject to non-randomness problems in the low bits.
  *
- * Note the use of the "simple" RNG, first you activate it via
- * "Rand_quick = TRUE" and "Rand_value = seed" and then it is used
- * automatically used instead of the "complex" RNG, and when you are
+ * Note the use of the "simple" RNG.  First you activate it via
+ * "Rand_quick = TRUE" and "Rand_value = seed".  When you are
  * done, you de-activate it via "Rand_quick = FALSE" or choose a new
  * seed via "Rand_value = seed".
  *
@@ -79,8 +73,7 @@ u32b Rand_state[RAND_DEG];
 /*
  * Initialize the "complex" RNG using a new seed
  */
-void
-Rand_state_init(u32b seed)
+void Rand_state_init(u32b seed)
 {
 	int i, j;
 
@@ -88,16 +81,14 @@ Rand_state_init(u32b seed)
 	Rand_state[0] = seed;
 
 	/* Propagate the seed */
-	for (i = 1; i < RAND_DEG; i++)
-		Rand_state[i] = LCRNG(Rand_state[i - 1]);
+	for (i = 1; i < RAND_DEG; i++) Rand_state[i] = LCRNG(Rand_state[i-1]);
 
 	/* Cycle the table ten times per degree */
 	for (i = 0; i < RAND_DEG * 10; i++)
 	{
-		/* Acquire the next index */
+		/* Get the next index */
 		j = Rand_place + 1;
-		if (j == RAND_DEG)
-			j = 0;
+		if (j == RAND_DEG) j = 0;
 
 		/* Update the table, extract an entry */
 		Rand_state[j] += Rand_state[Rand_place];
@@ -105,55 +96,6 @@ Rand_state_init(u32b seed)
 		/* Advance the index */
 		Rand_place = j;
 	}
-}
-
-
-/*
- * Extract a "random" number from 0 to m-1, via "modulus"
- *
- * Note that "m" should probably be less than 500000, or the
- * results may be rather biased towards low values.
- */
-u32b
-Rand_mod(u32b m)
-{
-	int j;
-	u32b r;
-
-	/* Hack -- simple case */
-	if (m <= 1)
-		return (0);
-
-	/* Use the "simple" RNG */
-	if (Rand_quick)
-	{
-		/* Cycle the generator */
-		r = (Rand_value = LCRNG(Rand_value));
-
-		/* Mutate a 28-bit "random" number */
-		r = ((r >> 4) % m);
-	}
-
-	/* Use the "complex" RNG */
-	else
-	{
-		/* Acquire the next index */
-		j = Rand_place + 1;
-		if (j == RAND_DEG)
-			j = 0;
-
-		/* Update the table, extract an entry */
-		r = (Rand_state[j] += Rand_state[Rand_place]);
-
-		/* Advance the index */
-		Rand_place = j;
-
-		/* Extract a "random" number */
-		r = ((r >> 4) % m);
-	}
-
-	/* Use the value */
-	return (r);
 }
 
 
@@ -168,36 +110,38 @@ Rand_mod(u32b m)
  * This method has no bias, and is much less affected by patterns
  * in the "low" bits of the underlying RNG's.
  *
- * Note that "m" must not be greater than 0x1000000, or division
- * by zero will result.
+ * It does, however, become predictable given a sufficiently large
+ * number of uninterrupted, unambiguous observations.
  */
-u32b
-Rand_div(u32b m)
+s32b Rand_div(s32b m)
 {
-	u32b r, n;
+	s32b r, n;
+
 
 	/* Hack -- simple case */
-	if (m <= 1)
-		return (0);
+	if (m <= 1L) return (0);
 
 	/* Partition size */
 	n = (0x10000000 / m);
+
+	/* Input was too large */
+	if (!n) return (m);
+
 
 	/* Use a simple RNG */
 	if (Rand_quick)
 	{
 		/* Wait for it */
-		while (1)
+		while (TRUE)
 		{
 			/* Cycle the generator */
 			r = (Rand_value = LCRNG(Rand_value));
 
 			/* Mutate a 28-bit "random" number */
-			r = (r >> 4) / n;
+			r = ((r >> 4) & 0x0FFFFFFF) / n;
 
 			/* Done */
-			if (r < m)
-				break;
+			if (r < m) break;
 		}
 	}
 
@@ -205,27 +149,25 @@ Rand_div(u32b m)
 	else
 	{
 		/* Wait for it */
-		while (1)
+		while (TRUE)
 		{
 			int j;
 
 			/* Acquire the next index */
 			j = Rand_place + 1;
-			if (j == RAND_DEG)
-				j = 0;
+			if (j == RAND_DEG) j = 0;
 
 			/* Update the table, extract an entry */
 			r = (Rand_state[j] += Rand_state[Rand_place]);
 
 			/* Hack -- extract a 28-bit "random" number */
-			r = (r >> 4) / n;
+			r = ((r >> 4) & 0x0FFFFFFF) / n;
 
 			/* Advance the index */
 			Rand_place = j;
 
 			/* Done */
-			if (r < m)
-				break;
+			if (r < m) break;
 		}
 	}
 
@@ -251,41 +193,41 @@ Rand_div(u32b m)
  */
 static s16b Rand_normal_table[RANDNOR_NUM] =
 {
-	206, 613, 1022, 1430, 1838, 2245, 2652, 3058,
-	3463, 3867, 4271, 4673, 5075, 5475, 5874, 6271,
-	6667, 7061, 7454, 7845, 8234, 8621, 9006, 9389,
-	9770, 10148, 10524, 10898, 11269, 11638, 12004, 12367,
-	12727, 13085, 13440, 13792, 14140, 14486, 14828, 15168,
-	15504, 15836, 16166, 16492, 16814, 17133, 17449, 17761,
-	18069, 18374, 18675, 18972, 19266, 19556, 19842, 20124,
-	20403, 20678, 20949, 21216, 21479, 21738, 21994, 22245,
+	  206,     613,    1022,    1430,    1838,    2245,    2652,    3058,
+	 3463,    3867,    4271,    4673,    5075,    5475,    5874,    6271,
+	 6667,    7061,    7454,    7845,    8234,    8621,    9006,    9389,
+	 9770,   10148,   10524,   10898,   11269,   11638,   12004,   12367,
+	12727,   13085,   13440,   13792,   14140,   14486,   14828,   15168,
+	15504,   15836,   16166,   16492,   16814,   17133,   17449,   17761,
+	18069,   18374,   18675,   18972,   19266,   19556,   19842,   20124,
+	20403,   20678,   20949,   21216,   21479,   21738,   21994,   22245,
 
-	22493, 22737, 22977, 23213, 23446, 23674, 23899, 24120,
-	24336, 24550, 24759, 24965, 25166, 25365, 25559, 25750,
-	25937, 26120, 26300, 26476, 26649, 26818, 26983, 27146,
-	27304, 27460, 27612, 27760, 27906, 28048, 28187, 28323,
-	28455, 28585, 28711, 28835, 28955, 29073, 29188, 29299,
-	29409, 29515, 29619, 29720, 29818, 29914, 30007, 30098,
-	30186, 30272, 30356, 30437, 30516, 30593, 30668, 30740,
-	30810, 30879, 30945, 31010, 31072, 31133, 31192, 31249,
+	22493,   22737,   22977,   23213,   23446,   23674,   23899,   24120,
+	24336,   24550,   24759,   24965,   25166,   25365,   25559,   25750,
+	25937,   26120,   26300,   26476,   26649,   26818,   26983,   27146,
+	27304,   27460,   27612,   27760,   27906,   28048,   28187,   28323,
+	28455,   28585,   28711,   28835,   28955,   29073,   29188,   29299,
+	29409,   29515,   29619,   29720,   29818,   29914,   30007,   30098,
+	30186,   30272,   30356,   30437,   30516,   30593,   30668,   30740,
+	30810,   30879,   30945,   31010,   31072,   31133,   31192,   31249,
 
-	31304, 31358, 31410, 31460, 31509, 31556, 31601, 31646,
-	31688, 31730, 31770, 31808, 31846, 31882, 31917, 31950,
-	31983, 32014, 32044, 32074, 32102, 32129, 32155, 32180,
-	32205, 32228, 32251, 32273, 32294, 32314, 32333, 32352,
-	32370, 32387, 32404, 32420, 32435, 32450, 32464, 32477,
-	32490, 32503, 32515, 32526, 32537, 32548, 32558, 32568,
-	32577, 32586, 32595, 32603, 32611, 32618, 32625, 32632,
-	32639, 32645, 32651, 32657, 32662, 32667, 32672, 32677,
+	31304,   31358,   31410,   31460,   31509,   31556,   31601,   31646,
+	31688,   31730,   31770,   31808,   31846,   31882,   31917,   31950,
+	31983,   32014,   32044,   32074,   32102,   32129,   32155,   32180,
+	32205,   32228,   32251,   32273,   32294,   32314,   32333,   32352,
+	32370,   32387,   32404,   32420,   32435,   32450,   32464,   32477,
+	32490,   32503,   32515,   32526,   32537,   32548,   32558,   32568,
+	32577,   32586,   32595,   32603,   32611,   32618,   32625,   32632,
+	32639,   32645,   32651,   32657,   32662,   32667,   32672,   32677,
 
-	32682, 32686, 32690, 32694, 32698, 32702, 32705, 32708,
-	32711, 32714, 32717, 32720, 32722, 32725, 32727, 32729,
-	32731, 32733, 32735, 32737, 32739, 32740, 32742, 32743,
-	32745, 32746, 32747, 32748, 32749, 32750, 32751, 32752,
-	32753, 32754, 32755, 32756, 32757, 32757, 32758, 32758,
-	32759, 32760, 32760, 32761, 32761, 32761, 32762, 32762,
-	32763, 32763, 32763, 32764, 32764, 32764, 32764, 32765,
-	32765, 32765, 32765, 32766, 32766, 32766, 32766, 32767,
+	32682,   32686,   32690,   32694,   32698,   32702,   32705,   32708,
+	32711,   32714,   32717,   32720,   32722,   32725,   32727,   32729,
+	32731,   32733,   32735,   32737,   32739,   32740,   32742,   32743,
+	32745,   32746,   32747,   32748,   32749,   32750,   32751,   32752,
+	32753,   32754,   32755,   32756,   32757,   32757,   32758,   32758,
+	32759,   32760,   32760,   32761,   32761,   32761,   32762,   32762,
+	32763,   32763,   32763,   32764,   32764,   32764,   32764,   32765,
+	32765,   32765,   32765,   32766,   32766,   32766,   32766,   32767,
 };
 
 
@@ -293,7 +235,13 @@ static s16b Rand_normal_table[RANDNOR_NUM] =
 /*
  * Generate a random integer number of NORMAL distribution
  *
- * The table above is used to generate a psuedo-normal distribution,
+ * mean = The average value.
+ * stand = Amount by which one standard deviation differs from the
+ * mean.  Results will never differ from the mean by more than 4 *
+ * stand, and have only about a 5% chance of differing by more than
+ * 2 * stand.
+ *
+ * The table above is used to generate a pseudo-normal distribution,
  * in a manner which is much faster than calling a transcendental
  * function to calculate a true normal distribution.
  *
@@ -308,22 +256,29 @@ static s16b Rand_normal_table[RANDNOR_NUM] =
  * "conservative" distribution of approximately 1/32768 values.
  *
  * Note that the binary search takes up to 16 quick iterations.
+ *
+ * For high inputs and sufficiently large deviations, the values this
+ * function returns will be somewhat less than the mean because of the
+ * need to truncate high numbers to fit a signed short.  XXX XXX
  */
-s16b
-Rand_normal(int mean, int stand)
+s16b Rand_normal(s32b mean, s16b stand)
 {
 	s16b tmp;
 	s16b offset;
+	s32b longint;
 
 	s16b low = 0;
 	s16b high = RANDNOR_NUM;
 
-	/* Paranoia */
-	if (stand < 1)
-		return (mean);
+
+	/* Do not randomize inputs greater than MAX_SHORT (32767) */
+	if (mean > 32767L) return (32767);
+
+	/* No variance */
+	if (stand < 1) return ((s16b)mean);
 
 	/* Roll for probability */
-	tmp = rand_int(32768);
+	tmp = (s16b)rand_int(32768);
 
 	/* Binary Search */
 	while (low < high)
@@ -344,12 +299,96 @@ Rand_normal(int mean, int stand)
 	}
 
 	/* Convert the index into an offset */
-	offset = (long)stand *(long)low / RANDNOR_STD;
+	offset = (long)stand * (long)low / RANDNOR_STD;
+
 
 	/* One half should be negative */
-	if (rand_int(100) < 50)
-		return (mean - offset);
+	if (one_in_(2)) return (mean - offset);
 
-	/* One half should be positive */
-	return (mean + offset);
+	/* Store the randomized value */
+	longint = mean + offset;
+
+	/* Do not return a number greater than MAX_SHORT (32767) */
+	if (longint > 32767) return (32767);
+	else                 return ((s16b)longint);
 }
+
+
+/*
+ * Extract a "random" number from 0 to m-1, using the "simple" RNG.
+ *
+ * This function should be used when generating random numbers in
+ * "external" program parts like the main-*.c files.  It preserves
+ * the current RNG state to prevent influences on game-play.
+ *
+ * Could also use rand() from <stdlib.h> directly. XXX XXX XXX
+ */
+s32b Rand_simple(s32b m)
+{
+	static bool initialized = FALSE;
+	static u32b simple_rand_value;
+
+	bool old_rand_quick;
+	u32b old_rand_value;
+	u32b result;
+
+
+	/* Save RNG state */
+	old_rand_quick = Rand_quick;
+	old_rand_value = Rand_value;
+
+	/* Use "simple" RNG */
+	Rand_quick = TRUE;
+
+	if (initialized)
+	{
+		/* Use stored seed */
+		Rand_value = simple_rand_value;
+	}
+	else
+	{
+		/* Initialize with new seed */
+		Rand_value = time(NULL);
+		initialized = TRUE;
+	}
+
+	/* Get a random number */
+	result = rand_int(m);
+
+	/* Store the new seed */
+	simple_rand_value = Rand_value;
+
+	/* Restore RNG state */
+	Rand_quick = old_rand_quick;
+	Rand_value = old_rand_value;
+
+	/* Use the value */
+	return (result);
+}
+
+/*
+ * Given a numerator and a denominator, supply a properly rounded result,
+ * using the RNG to smooth out remainders.  -LM-
+ */
+s32b div_round(s32b n, s32b d)
+{
+	s32b tmp;
+
+	/* Refuse to divide by zero */
+	if (!d) return (n);
+
+	/* Division */
+	tmp = n / d;
+
+	/* Rounding */
+	if ((ABS(n) % ABS(d)) > rand_int(ABS(d)))
+	{
+		/* Increase the absolute value */
+		if (n * d > 0L) tmp += 1L;
+		else            tmp -= 1L;
+	}
+
+	/* Return */
+	return (tmp);
+}
+

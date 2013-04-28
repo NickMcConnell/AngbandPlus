@@ -1,0 +1,132 @@
+
+#
+# Alpha code to test out a possible new spell shape.  This algorithm isn't 
+# currently used for projections, but did prove a winner in the looking/targetting 
+# code, where it controls cursor movement.
+#
+
+
+
+/*
+ * Given a direction, choose a location (see below)
+ */
+static void my_target_pick()
+{
+	int i, v;
+
+static int preference_array[2000][3];
+int rotate;
+int dy, dx;
+int spread;
+
+	int x, y, x3, y3, x4, y4;
+
+	int b_i = -1, b_v = 9999;
+
+int y0 = 15, x0 = 15;
+
+int query;
+
+	/* Extract direction */
+	int d;
+
+
+screen_save(TRUE);
+
+while(TRUE)
+{
+	int array_n = 0;
+
+
+rotate = 120 - get_quantity("What central angle?", 0, 99999);
+if (rotate < -240) break;
+
+
+spread = get_quantity("What spread?", 0, 50);
+
+
+
+for (y = 1; y <= 31; y++)
+{
+for (x = 1; x <= 31; x++)
+{
+int angle = get_angle_to_grid[y + 20 - y0][x + 20 - x0];
+int tmp = ABS(angle + rotate) % 240;
+
+int diff = ABS(120 - tmp);
+
+
+	/* Directed distance */
+	x3 = (x - x0);
+	y3 = (y - y0);
+
+	/* Verify quadrant */
+	//if (dx && (x3 * dx <= 0)) continue;
+	//if (dy && (y3 * dy <= 0)) continue;
+
+	/* Absolute distance */
+	x4 = ABS(x3);
+	y4 = ABS(y3);
+
+	/* Verify quadrant */
+	//if (dy && !dx && (x4 > y4)) continue;
+	//if (dx && !dy && (y4 > x4)) continue;
+
+
+	//if (diff > 13) diff += (diff - 13) * 2;
+
+
+	/* Approximate Double Distance */
+	v = ((x4 > y4) ? (x4 + x4 + y4) : (y4 + y4 + x4));
+
+	/* Add angular difference if great */
+	if (diff > spread) v += (diff - spread);
+
+	preference_array[array_n][0] = x;
+	preference_array[array_n][1] = y;
+	preference_array[array_n][2] = v;
+
+
+if (++array_n >= 1990) break;
+}
+}
+
+
+Term_queue_char(x0, y0, TERM_WHITE, '@', 0, 0);
+
+	for (i = 0; i < array_n; i++)
+	{
+		byte a = TERM_WHITE;
+		char c = '0' + (preference_array[i][2] % 10);
+
+		x = preference_array[i][0];
+		y = preference_array[i][1];
+
+
+		if (preference_array[i][2] >= 140) a = TERM_L_DARK;
+		else if (preference_array[i][2] >= 130) a = TERM_SLATE;
+		else if (preference_array[i][2] >= 120) a = TERM_UMBER;
+		else if (preference_array[i][2] >= 110) a = TERM_L_UMBER;
+		else if (preference_array[i][2] >= 100) a = TERM_GREEN;
+		else if (preference_array[i][2] >= 90) a = TERM_L_GREEN;
+		else if (preference_array[i][2] >= 80) a = TERM_BLUE;
+		else if (preference_array[i][2] >= 70) a = TERM_L_BLUE;
+		else if (preference_array[i][2] >= 60) a = TERM_L_PURPLE;
+		else if (preference_array[i][2] >= 50) a = TERM_RED;
+		else if (preference_array[i][2] >= 40) a = TERM_L_RED;
+		else if (preference_array[i][2] >= 30) a = TERM_ORANGE;
+		else if (preference_array[i][2] >= 20) a = TERM_YELLOW;
+		else if (preference_array[i][2] >= 10) a = TERM_L_WHITE;
+
+		/* Hack -- Queue it */
+		Term_queue_char(x+3, y, a, c, 0, 0);
+
+	}
+
+Term_queue_char(x0+3, y0, TERM_WHITE, '@', 0, 0);
+pause_line(Term->rows - 1);
+}
+
+screen_load(TRUE);
+
+}

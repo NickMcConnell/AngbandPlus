@@ -1,0 +1,3108 @@
+
+(This file is not up to date:  Most changes since about 0.9.9, Beta 16 are not included.)
+
+
+============== Changes made in Sangband 1.0.0 ==============
+
+
+     Sangband is a variant of Angband.  Its base codeset is Angband 2.9.3, with many of the changes made through Angband 3.0.6 (the major exception being scripting).  It is updated with most of the basic Oangband 0.7.0 code.  Other variants, in particular Umoria, early Angband, EyAngband, NPPAngband, PsiAngband, Rangband, ToME, and Zangband, are also major influences.
+
+     This file lists most of the significant (or at least interesting) changes made in Sangband 1.0.0 from Angband 3.0.6 (sometimes 2.9.3).  It does not include many of the one-line changes or various Sangband-specific stuff.  A lot of the changes are also to be found in Oangband, released by Bahman Rabii.
+
+
+Leon Marrick April, 2007
+
+
+
+====== Sources ======
+
+Moria:
+- Umoria 5.5
+
+Angband:
+- Angband 1.4
+- Angband 2.5
+- Angband 2.6.2
+- Angband 2.8.3
+- Angband 2.9.3
+- Angband 3.0.6
+
+Variants:
+- Angband--
+- Angband/64
+- Antiband
+- Cthangband, sCthangband
+- Eric Bock's Angband, Rangband, Zceband, etc.
+- EyAngband
+- FAngband
+- Hengband
+- Kangband
+- Kamband
+- NPPAngband
+- Oangband
+- PsiAngband
+- Sangband 0.8.5, 0.9.5
+- ToME, PernAngband
+- UnAngband
+- Zangband 2.1.0, 2.3.5, and 2.7.1
+
+Textual works:
+- The Lord of the Rings, J.R.R.Tolkien
+- The Silmarillion, J.R.R.Tolkien
+- miscellaneous Tolkien-related materials
+- Bulfinch's Mythology and other works.
+- The Umoria documentation
+- The Angband 2.5.4 documentation
+- The Angband 2.8.3 documentation
+- The Oangband 0.5.2 documentation, source code guide, customization notes, 
+  and object, ego-item, and artifact text.
+- The old Angband spoilers
+- Jim Lyon's Macro FAQ
+- Code documentation from various places
+- Edit files from everywhere
+
+
+
+
+
+
+====== General Comments ======
+
+
+--- The Ideal ---
+
+     If the code of Sangband is the physical child of modern Angband and Oangband, it is the spiritual child of Moria and FAngband.  We have forgotten too many of the lessons taught in the roguelikes of old.
+
+
+--- Game Text ---
+
+     Angband is a text-oriented game; the quality of the text is, in large measure, the quality of the game.  I was therefore extremely disturbed when I discovered that a fair number of the more interesting game messages had been rationalized away sometime after version 2.6.2.  Examples include stat-loss, blindness, Green Glutton Ghosts, haggling, and various special object and action strings (especially artifact activations).
+     Sangband includes a number of messages and strings from Umoria and Angband 2.6.2, FAngband and early Zangband, and generally tries to recover the vigor of the old text wherever it can.
+
+
+--- Code documentation, code layout ---
+
+- Several hundred corrections and updates to the code documentation.  Spelling errors fixed, comments made more informative.
+
+
+--- The treatment of power versus depth (applies to Angband 2.9.6; some problems fixed in later versions) ---
+
+     In my opinion, virtually every equation that deals with power over depth in Angband is flawed.  This problem got worse after 2.6.2 as various "hacks" that treated, say, paralyzation differently than confusing were removed.
+     Usually the problem is that power doesn't increase fast enough with depth: Traps do the same damage, and are as easy to find and disarm early and late. Locked and jammed doors are the same average strength everywhere.  Monster hindrance attacks, both melee and ranged, vary little if at all.  Character hindrance attacks, ditto.  Various monster damage attacks and spells, ditto. Monsters repopulate the dungeon at the same rate early as late, despite the fact that the character moves at double or even triple speed late in the game. Attacks that test saving throw are deadly early, and wimpy late.
+     There are some cases of power increasing too quickly:  Deep monsters recover excessively quickly from hindrance attacks.  The onset of stat-gain is far too abrupt.  Identification is too rare early and too common late. Interesting dungeons are too rare early, and objects and monsters are too abundant late.  Strong artifacts, ego-items, and monsters are found too early in the game (The JLE patch has, however, done a good job of adding interest to the last 2000').
+
+     In Oangband, and more so in Sangband, all of this has changed, although many more (unmentioned) problems still need fixing.  We have still not quite come to grips with the decade-old change from 50 levels to 100, and from 40 character levels to 50.
+
+
+
+
+================================ Text files ================================
+
+--- The in-game documentation ---
+
+     The text of the basic manual is the text of the in-game docs.  Updates to the documentation are simply a matter of revising the manual, breaking lines at column 80, then cut-and-pasting the new text over the old help file (we might even automate this when the manual becomes more stable).
+
+     The in-game docs (apart from the menus) are not marked up in any way; they are pure plain text.  New code makes it possible to get context-specific help and display headers in light blue with no need for markups.
+
+
+--- artifact.txt ---
+
+     Major changes to artifacts.  Almost none remain unaltered.  The most important addition is artifact legend text; this third revision benefits from the comments of Charlie Ball, one of the original designers.
+
+Also:
+- artifacts may have up to three pvals.  Because having more than one pval makes an object more complex, I have only used the new ones when the artifact could make good use of them.
+- high-level artifacts tend to appear deeper in the dungeon.  If we create Ringil at 1500', several dozen artifacts become so much junk.  And artifacts must not be junk.
+- artifacts have activation indexes
+- artifact activations are generally more powerful (especially since monster HPs have dropped), and can be used more frequently
+- artifacts may have random flags, but none currently use them
+- a lot of artifact rarities have changed, partly because the rarities of their base objects did, partly because I thought they were either too rare or too common.  Among the former are the major Rings of Power, many of the hafted weapons, and some of the polearms; among the latter are the Phial of Galadriel, Isildur, Thengel, Celegorm, and a few swords.
+- artifact weights have changed (because base object weights did)
+- many of the artifacts now have slightly different sets of flags; some have been totally reworked.  The major driving force was my desire to give artifacts strong, unmistakable themes, and memorable legends and lore.
+- lots of prices got changed, for various reasons
+     Some flags, such as res_fear, slay_evil, and resists like sound, shards, and nexus are a little more common.  Others, like permanent light, extra blows, slay_orc, and kill_dragon are less common.  In fact, the /only/ weapon with kill_dragon is Gurthang.  Various weapons are deadly when thrown; Nimloth in particular will get more interest.
+
+Specific changes include:
+- the major rings of power increase speed by ten
+- as in Zangband, Dor-Lomin is now a dragon helm
+- Cammithrim has gotten an upgrade
+- Cambeleg is now weaker (and more common)
+- various artifacts are now a litte less powerful
+- some weapons have better damage dice.  Some weapons have improved dice sides, not extra dice
+- two of the -thancs are renamed (apparently, Aethanc was misread as "Dethanc", and Paurlhach as "Paurhach").  The -thancs are more important and powerful.
+- Rilia is much sexier
+- Balli Stonehand I thought was not a fitting name for a powerful axe, so I changed the name, gave it an upgrade, and made a new, weaker axe for Balli.
+- I finally came up with words worthy of Barukkheled, one of my favorite weapons.  It is more powerful now.
+- Nar-i-vagil is terribly bright and firey
+- Cubragol has no speed bonus, but fire brands every shot it fires.
+- the Longbow of Bard does nasty to dragons
+
+
+--- ego_item.txt ---
+
+- ego-items can have up to two pvals
+- a lot of the more powerful ego-items appear deeper in the dungeon
+- defender weapons are considerably less powerful
+- about half the *slay* weapons are gone, and the rest do extra damage
+- rare ego launchers of slay animal (+10 damage) and slay evil (+10 damage)
+- because of changes in the code handling them, high bonuses to Skill, Deadliness, and AC are now slightly lower
+
+
+--- limits.txt ---
+
+- the maximum number of monsters and objects is 400, because any *band gets tedious if there are too many of either.  This is very important to remember!
+
+
+--- monster.txt ---
+
+     Major changes to monsters.  Probably the biggest changes are that monsters have limited mana and spell powers (which control the damage done by many spells).  They are now sorted into town non-uniques, town uniques, dungeon non- uniques, dungeon uniques, and player ghosts.
+
+- as in EyAngband, monster hitdice are converted to lifepoints, which are a lot easier to edit.  Lifepoints lowered, especially for high-level monsters (Morgoth is down to 10,000 LPs).  Few monsters have fixed lifepoints except for uniques and dragons (dragons because they breathe).
+- a fair number of resists and immunities taken away
+- susceptibilities to fire and cold added to a few monsters
+- it is harder to summon monsters, and they usually come in smaller groups
+- monsters, especially those that use elemental magic, tend to do more damage with spells.  They also tend to have better spell selections (Morgoth is a good example).  There is a much expanded monster spellist to play with now, and the monsters have not been slow to take advantage!  Movement spells are provided more generously, but healing is very rare.
+- the new monster AI makes individual monsters extremely dangerous.  They don't cheat, they're just smart.
+- Lots of monster descriptions reworded to sharpen up the language, remove wordiness, or to provide a better mental image.
+- most of the monsters from Grecian mythology are gone
+- there are a number of player ghost templates
+- there are monsters that continuously cast spores, darkness, or fire
+- lots of new monsters from various places, especially Oangband
+- ogres are sufficiently orc-like to be hurt by orc-slaying weapons
+- monsters that appear in groups are almost always rarer, sometimes thrice as rare
+- fewer multiplying monsters in the early game
+- monsters can resist or be almost immune to blunt or edged weapons
+- several monster indexes are used in game code; they are marked.
+- the number of blows monsters get has been reduced; this makes a big difference in cutting down on message overload
+- general spreading out of the monster list.  The great difficulty inflection point is now about level 45-50.
+- lots of shifting monsters about.  Some are found earlier (yeeks, skeletons, etc,), others are found later.
+- relisting of monsters.  There is now lots of empty space available.
+- almost every monster is now honestly dangerous (or at least interesting) at its level.
+- uniques almost always have attr_multi.  This usually means that the monster flickers between two colors (like umber and light brown in the case of most of the orc uniques).
+
+     And lots of other changes.  Some of the monsters that got attention are: trolls, angels, elementals, high-level humans and humaniods, mimics and animated objects, hybrids, snakes, various major animals, the low-level undead, dragons, kobolds, yeeks, and vortexes and their kin.
+
+
+--- object.txt ---
+
+     As with artifacts and monsters, objects are very much changed.  They have been spread out over depth some, use a more precise method of determining abundance over depth, have descriptions (which for unfamiliar and complicated items can be very useful indeed), and now form a list with plenty of space to add new objects in logical places.
+
+General changes:
+- many objects have essence costs.  For potions, scrolls, rings, and amulets, 
+they are the cost to make one or more; for magical devices, they are the cost to recharge them; for other objects, they indicate what essences can form 
+around the object when it is placed in the dungeon.
+
+Food and mushrooms:
+- mushrooms cannot be identified normally, nor can you sell unidentified
+'shrooms; you have to eat them if you want to learn about them.  But the rewards can be great; nothing cures or restores as well as a mushroom, and they can make you heroic, berserk, steel-skinned, or regenerate very quickly.
+- better spread of food over depth.  First you see biscuits and beef jerky, then rations of food, then the occasional Cake of the Beornings, than Elvish Waybread
+(which is more powerful now).
+
+Weapons:
+- weapons in general are about a third lighter.  This encourages a serious fighter to keep more than one on hand.
+ - the damage dice of the most powerful weapons is now lower (because the combat system we now use makes dice so important)
+- some new weapons like bluesteel blades, spiked clubs, and five different kinds of throwing weapons.
+
+Edged Weapons:
+- they are considerably less common, not much more so now than hafted weapons or polearms
+- a few (like the tulwar) are gone
+- some can be thrown effectively
+- rapiers can be vorpal
+- fine-tuning of price, weight, depth, abundance of all weapons.  I think things are improved; certainly I find myself considering more weapons in stores.
+- swords tend to roll two dice  (2d5, 2d7, 2d14 ...)
+
+Hafted weapons
+- many of the hafted weapons can be unusually heavy and powerful
+- several types of hafted weapons are gone (with the code above, there was really no need for a "lead-filled mace")
+- maces of disruption do not slay undead, but they are concussive
+
+Polearm:
+- spears are very common (they, not swords, are the basic war-fighting weapon)
+- New low-level polearms:  the throwable javelin and the vorpal warspike
+- many of the polearms can be unusually heavy and powerful
+- lucerne hammers, awl-pikes, and lochaber axes are gone
+- many polearms add to base armour class (because they keep enemies at a distance)
+
+Ammunition:
+- ammo is much lighter (half a pound for each lead shot was ridiculous). Pebbles replaced with seeker shot.  Sling ammo is more common, and sling combat is much more competive in general.
+- base damage dice of seeker missiles differs only in dice sides
+
+Diggers:
+- all kinds of diggers are rare, including the high-level ones
+- many picks are lighter
+
+Armour:
+     Most kinds of armour, save body armour, are much more common.  Each of the other kinds of armour (boots, shields, headgear, cloaks, and gloves) appear about 
+as often as each other throughout most of the dungeon (in Angband, the abundances vary wildly).  Body armour is now about 50% more common (in total) than any other kind of armour, which is much less than it was.
+
+Boots:
+- boots appear perhaps three times as often.  There are two new kinds of footgear.
+
+Headgear:
+- there are two new kinds of headgear (one from Zangband)
+- crowns are less common
+
+Body armour:
+- soft leather and soft studded armour are somewhat lighter
+- leather scale mail has an AC of 10, not 11
+- brigandine armour is now much less powerful.  See description for why.
+- rusty chain mail is found early enough that it can actually be useful
+- chain mail is more useful (it was the standard body armour for well-protected troops for good reason).  Augmented chain mail is also better.
+- metal scale mail is inferior to chain mail, but less expensive to make
+- bar chain mail and double chain mail have become segmented chain mail, a rather useful kind of body armour
+- full plate is less heavy
+- ribbed plate has become imperial plate and has gotten an upgrade
+- the heavy body armours have greater penalties to Skill (note that changes in the internal game math means that real penalties have probably dropped)
+- mithril chain mail and mithril plate are much lighter.  They are also a lot rarer.  Mithril is in danger of becoming over-common in Angband; remember that the price of the mithril suit Frodo wore was said to be that of the Shire.
+- adamant plate is lighter and less expensive
+
+Dragon Scale Mail
+- dragon scale is generally less common and more powerful, except for Power dragon scale mail (which is now merely extremely rare, not almost unheard-of, and no longer resists blindness or confusion).
+- they can be found earlier in the dungeon (sometimes much earlier, considering how monster and object depths have generally risen)
+- they are usually less expensive
+- they generally have more powerful activations, are much easier to use, and recharge more quickly
+- red dragon scale mail remains more powerful than the other varieties; Angband made a mistake in changing this
+- new dragon armour:  Morphic dragon scale mail
+
+Cloaks
+- three new kinds of cloaks
+- the total abundance of cloaks is less variable over depth
+
+Handgear
+- gauntlets split into mail and steel gauntlets
+- as with boots, the best headgear has a lower base AC
+
+Shields
+- three new kinds of shields
+- shields have a higher base AC, and are more important in general
+
+Rings:
+- various new high-level rings
+- some of the amulets (like resist acid) have become rings; some rings (like intelligence and slow digestion) are now amulets.  In general, rings provide resistances and physical bonuses and amulets provide special attributes and mental bonuses
+- the six old rings of sustaining are combined into two; sustain body, and sustain mind
+- rings of protection are somewhat more powerful
+- a lot of base values are much lower, because the code adds value for all kinds of pvals
+- the greater elemental rings are more powerful.  There is a new Ring of Lightning, but it is twice as rare as any of the others.  There is a Ring of Venom; it too is rare.  Some of these rings are found earlier in the game.
+
+Amulets:
+- lots of new amulets; the high-level ones tend to be rare
+
+Scrolls:
+- scrolls of Identify are more expensive, because I want players to more often learn about objects by actually using them, especially early on.
+- a new scroll of Learn Magic makes it inexpensive to learn the charges of wands and staffs, identify the pvals on aware rings and amulets, and get yet a third 
+try (after the walk-on and wear checks) at pseudo-IDing wargear.
+- some of the low-level scrolls are gone, some have gotten an upgrade or a new purpose, some appear in piles:  I have tried to make almost everything useful in at least some cases.
+- scrolls of Satisfy Hunger appear in piles, but are less often found.  In Sangband, characters pay more attention to real food.
+- some new high-level scrolls.  The Scroll of Nightfall is exactly the sort of scroll there needs to be more of.
+
+Potions:
+- a lot of the same comments also apply here:  there are very few potions that are completely useless
+- stat-drain potions are found at the same depth as stat-gain potions
+- potions of restore mana are much rarer
+- potions of gain stat start appearing earlier, and only get common late.
+"Stat-gain depth" is much wider, and stat-gain itself much smoother.
+- a few new potions
+
+
+Magical devices:
+     Magical devices are much upgraded; you can win the game with them.  Wands, staffs, and rods are much more differentiated now.  Between the object descriptions, the extra damage information, and the spell-like display of failure chance (which, like spells, can drop to 0%), players will be able to use these items with far greater confidence.
+
+Wands:
+     Wands are always aimed at something else.  They affect relatively large areas, beam relatively often, have considerably more charges, recharge somewhat more safely and - more importantly - stack.  Wands, especially high-level ones, are a lot more common now.
+
+Staffs:
+     Staffs are never directional, and can affect you as well as monsters and the dungeon.  Staffs have large numbers of charges, recharge safely and well, are hard to destroy, detect large areas, and are the only way of getting your hands on some of the more powerful magics.  However, staffs never stack.  Staffs are found somewhat more often than they were.
+     Formerly weak staffs like Starlight are now more interesting, and there are some formidable staffs deep in the dungeon.
+
+Rods:
+     Rods have new strengths and new weaknesses.  They always stack; this alone means a quantum leap in power.  They do slightly more damage than equivalent wands, and recharge more quickly than they used to.  The high-level utility rods are no longer extremely rare, just uncommon.  There are some new attack rods powerful enough to fight Morgoth with.
+     However:  most rods are less common, and rods generally do not have the most powerful detection spells, detect relatively small areas, cast smaller balls, beam much less often (if at all), and - most importantly - cannot be recharged with magic.
+     There is a new rod of Summon Hither that serves as an important way for melee-dependant characters to successfully fight spellcasting monsters that keep blinking away.
+
+
+Chests:
+     Chests are much more interesting.
+
+Misc:
+     Spikes and torches are more useful; lanterns are found deeper in the dungeon.
+     Boulders can be thrown.
+     Each of the four realms has seven books.
+
+Treasure:
+     Rubies, sapphires, emeralds, and diamonds are no longer found in piles, but instead in the form of valuable giant gemstones.
+
+Special Artifacts:
+     The depth of the special artifact objects is ignored.
+
+Object-forging materials:
+     Sangband has four different kinds of materials that are used in creating objects:  Components, empty bottles, blank parchments, and essences.  Essences can also be used to recharge magical devices (even rods) and to fuel dragon breaths.
+
+
+--- terrain.txt ---
+
+- As in UnAngband, terrain uses bitflags to control effects.  This isn't as complete or developed as in UnAngband, however.
+- the traps are gone
+- up and down shafts, water, trees, and lava, and some stores are new
+- the temple is now blue (because blue is the color of holy magic)
+
+
+--- vault.txt ---
+
+- most of the vaults are new, but others come from Angband and Oangband, and a few from master vault designers like fearoffours and Chris Weisiger.
+- different encoding system (consult the source or the manual on editing Sangband text files)
+- vaults may have minimum and maximum depths.  The most important use for them is to have themed vaults appear where the monsters in them would be most interesting, but they also serve as a control on rarity, and make the hardest vaults only appear really deep down.
+
+
+
+
+
+================================ Source files ================================
+
+--- attack.c ---
+
+     New source file with all of the basic non-magical combat code (taken from 
+cmd1.c and cmd2.c).  There is a certain amount of "featuritis" here...
+
+
+"test_hit_combat()"
+- simplified code.
+
+
+
+
+"critical_melee()"
+- critical hits depend on skill.  They do /not/ depend on weapon weight.
+- critical hits add damage dice.  This improves reliability (the more dice, the closer damage will be to average) in addition to increasing damage.  It also makes critical hits more powerful for low-dice weapons (which in turn makes rogues' critical hits more useful).
+- more varied combat messages.  "You hit the kobold.  It was a *great* hit!" becomes "You slice into the kobold!" or "You bludgeon the kobold!".
+- sleeping monster bonus
+- vorpal weapon bonus
+
+"critical_shot()"
+- similar changes.
+
+"dec_special_atk()", etc.
+- the game now allows for temporary and innate slays and brands.
+
+"adjust_dam()"
+     Slays and brands now add a straight bonus to damage.  This means that they are always useful and never overpowering.
+- new brand_venom and brand_flame for certain very powerful weapons
+- impact weapons do extra damage against creatures of rock
+- the *slay* ego-items get a considerably larger bonus.
+- monsters can resist edged and/or blunt weapons
+
+"shield_bash()"
+     I always missed the old system of bashing monsters.  It added a lot of warrior flavor.  So I created a new way to bash - hopefully more balanced than the old way was.  "You get in a shield bash!"
+- you need a shield to shield bash
+- the chance of shield bashes depends on skill and dex
+- the power of shield bashes depends on shield size and weight (very important), and character strength
+
+"apply_deadliness()"
+     The plus to dam has been replaced by a percentage bonus to Deadliness. This means that:
+- the base damage dice (what that weapon is like to wield in combat) is not overpowered by plusses.  This greatly improves weapon variety.
+- the graph of damage done by weapons and (especially) missiles is a lot smoother.  It is also much easier for special combat modifiers to change. Again, this deepens gameplay.
+
+"py_attack()"
+- bonuses to hit chance against sleeping and fleeing monsters, but no automatic multipliers to damage.  You get much better attacks when deliberately sneaking, but note that you cannot sneak-attack, put a monster to sleep, and immediately sneak-attack it again.
+- terrain can help or hinder you
+- you can wield two weapons.  You do /not/ cycle through all the blows for each weapon!  Instead, you get a chance to hit with your primary and, if you miss, you get another chance to hit with your secondary weapon, for each blow.
+- weapons no longer cause earthquakes:  instead, impact weapons force monsters back (this can be extremely useful, but not always...).
+- As in EyAngband, some monsters can evade blows.  Now Displacer beasts are REAL displacer beasts!
+- you make extra noise in melee.  Certain skills reduce this.
+- the basic combat algorithm has changed.  Now, base damage dice are improved by critical hits and Deadliness, are rolled, and the resulting damage modified by slays/brands/resists.
+- High-level warriors can spread their attacks out among weaker foes
+- the various special attack effects have been combined into a set of bitflags
+- you can hit and run
+- you can learn about weapons by using them
+
+"transfer_attributes_to_missile()"
+- it is possible for missile weapons to impart slays and brands to every missile they fire.  This is rare and needs to be kept that way.  Because of the fixed bonus that slays and brands give, it is not unbalancingly powerful deep in the dungeon (where items with these attributes are found).
+
+"breakage_chance()"
+- see "object2.c"
+
+"do_cmd_fire()"
+- The basic combat algorithm is the same in archery as it is in melee.  Learn melee, and you also know archery.  This kills all of the truly wierd math found in the old archery calculations.
+- lots of new modifiers to archery.  Missile weapons can activate for extra damage, incredible accuracy, impact hits, dragon-slaying, and elemental attacks.
+- ammo of backbiting really is ammo of backbiting
+- it is harder to shoot accurately over long distances
+- missiles fly right past missed targets, sometimes hitting creatures behind them.  This is a lot of fun to see in action.
+- rogues get sleeping bonuses
+- terrain affects combat
+- you make extra noise in archery
+- impact missiles force monsters back
+- you learn about launchers and missiles (if they survive) by using them
+
+"do_cmd_throw()"
+- throwing is much more useful throughout the game
+- melee weapons can also be good for throwing.  Unlike other thrown objects, they get critical hits and a special multiplier to damage (similar to the missile weapon multiplier).
+- half-trolls are better at throwing boulders than their low missile skill would indicate
+- long-range throwing is much more inaccurate
+- thrown objects wizz past missed targets
+- sleeping monsters are easier to hit
+- terrain affects hit chance
+- you make extra noise when throwing
+- you can force monsters back by throwing a (non-missile) object with the IMPACT flag
+- you learn about throwing weapons by using them
+
+
+--- birth.c
+
+"hist_type bg[]"
+- I have not transferred this to a text file.  When I see it done right, or figure out how to do it right myself, then I'll consider it.
+
+"get_stats()"
+- usage of defines rather than hard-coded min and max
+- all racial modifiers to stats are permanent ("maximize" mode is always on).
+
+"get_extra()"
+     No more silly "life rating".  All characters end up with the same amount of base hitpoints at maximum level, and never have much more or much less than normal in between.  However, the Sangband rendition of this code is excessively complex; consult Oangband's version instead.
+
+"get_ahw()"
+- weight now depends greatly on variance of height from the average.
+
+"get_money()"
+- simple math to handle increases and decreases in gold based on stats.
+
+"desc_birth_options()"
+- birth options display on screen
+
+"player_birth_quick()"
+- As in EyAngband, can roll up characters using an existing character
+
+"player_birth_aux_1()"
+- various interface changes
+- you can start over, get help, or even load a new savefile
+
+
+"calc_rarity()", "player_birth_aux_2()"
+- when autorolling, you now learn approximately how long it will take for a character matching your specifications to be rolled.  This is a much more user- friendly way of keeping autoroller abuses to a minimum.  The equations need some work, though.
+- cannot specify impossible stats
+- cannot specify stats high enough that fewer than 1 roll in 200,000 will match them.
+- auto-roller delay quartered.  We don't need a delay so much now.
+
+"init_stomach()"
+- half-trolls have big stomachs
+
+
+--- cave.c ---
+
+"breath_to_attr", "multi_hued_attr()"
+- monsters with an attr other than 'v' choose colors according to attr.  For example, a monster colored 'r' or 'R' would flicker between TERM_RED and TERM_L_RED.  This is especially useful for highlighting uniques.
+- if a monster has the attr 'v', it flickers according to breaths.  For example, a multihued dragon flickers white, black, red, blue, and green.  If the monster has no breaths, or has a lot of them, it can be any color.
+
+"map_info()"
+- random hallucination is much, much more efficient, enough so that it is no longer necessary to set it off with #defines.  The method used - counting down from a random value - is also used in other places.
+- new code to handle traps
+- Steven Fuerst's improvements to mimics, fix to high bits
+- clearer names for certain lighting options
+- monsters can be seen in a limited fashion "m_ptr->mflag & (MFLAG_DLIM)".
+- various adjustments to how monsters display
+- it is possible to see lurkers
+- character image can be colored depending on hitpoint level.  Will need changes to work with graphics (we really need graphics tiles with transparent areas that can change colors on demand).
+- lingering spell displays
+- when blind, the world appears in black and white
+
+"note_spot()"
+- essences are not automatically marked
+
+"priority_table"
+- various new features added  (really should move this to terrain.txt)
+
+"display_map()"
+- various changes to take advantage of bigscreen
+
+"vinfo_init()", "update_view()"
+     Addition of the cave grid flag "CAVE_FIRE", which marks all grids that are able to fire into the character's grid, and be fired upon by that grid.  This change is revolutionary:  the LOF abuses are gone.  Characters and monsters can no longer fire directly upon each other without risk of retaliation.
+
+     This change is among the most important in this entire codebase.
+
+"project_path()", "projectable()"
+     These functions uses the new line of fire code.  They are also mathematically correct: you can no longer use "banked shots" or similar tricks. They are also better capable of handling obstructions.
+- the effect of various projection flags has changed: see the code documentation
+- these functions can be used to check for a clear bolt shot.  "PROJECT_CHCK"
+- the "PROJECT_ORTH" flag forbids diagonal movement.
+
+"update_noise()", "update_smell()"
+     The monster flow code has been rewritten.
+- It is now many times faster and covers perhaps twice the area.  The big efficiency breakthough is that grids are upated only when both necesary and realistic.
+- It has been divided into two parts:  noise and scent, each with appropriate limitations.  Sounds do not linger, and scents do not spread all over the dungeon.
+- this code is no longer automatically called whenever terrain changes.  It only gets called when noise and scent are produced.  In future, we may use this to make stealth even more useful...
+
+"map_area()"
+- can map around any grid or have an extended radius
+- like all other detection spells, it centers on the 11x11 dungeon block that the character is in.
+
+"wiz_lite()"
+- normally does not fully reveal lesser and greater vaults
+
+"wiz_dark()"
+- has an option to darken all the grids in the dungeon
+
+"cave_set_feat()"
+- really need to transfer the wall attribute of a terrain feature to terrain.txt.
+
+"cave_object_allowed()"
+- same with this function
+
+"scatter()"
+- this function is very stupid, can easily lock up the game, and Sangband seldom uses it
+
+"disturb()"
+- stops sneaking, not searching
+
+
+--- cmd1.c ---
+
+"search()"
+- the base chance to find traps and secret doors is twice as high, but both get more difficult to find as you descend.  This makes life easier on low/mid-level characters (the ones that don't have such easy access to magical detection anymore), and make searching ability more useful.
+- it is easier to find traps on low-level chests, and harder to find them on high-level ones.
+- given a high enough searching ability, you can see traps and secret doors out to a distance of three
+- the code is more efficient
+
+"search_essence()"
+- unlike everything else, essences cannot be detected with magic.  This makes old-fashioned searching very helpful throughout the game.
+
+"notice_unseen_objects()"
+- we do not allow unmarked objects to be picked up or manipulated.  We 
+therefore make it easy for the character to become aware of objects he steps 
+over.
+
+
+"quiver_carry()"
+- fired missiles are automatically picked up and carried.
+
+"auto_pickup_okay()"
+ - objects inscribed with "=g" are automatically picked up and carried.
+
+"pickup_special()"
+- special text for large gems
+- code to handle essences and the pouch
+- you "feel", not "see" when blind.  various similar changes elsewhere in the code.
+
+"py_pickup()"
+     Rewrite of this function.  The old (pre easy-floor) pickup allowed one to pick up any number of objects in a single command, but had a nasty interface.  Easy pickup improved the interface when objects stack on the floor, but made for more work for one object or when trying to pick up multiple objects.  This function combines the best of both systems, and is highly popular.
+     For more details, see the code documentation.
+
+"escape_pit()"
+- you really fall into pits.  Having fallen in, you have to try and escape.
+
+"move_player()"
+- easy_trap is always on, but a check is made.  You can disarm a trap, deliberately walk on to it (as in Zangband), or cancel the move.
+- you do not have to take your finger off the SHIFT key in order to activate auto_repeat on doors.  This trifling change makes all the difference to many people's gameplay satisfaction.
+- as in Zangband, it is possible to walk though walls (but it hurts)
+- rubble is passable.  It takes two turns to move into.  The game is very careful not to use 200 energy (which invites instakills), but rather automates the second movement unless you are disturbed.
+- same story for trees and water.
+- lava is dangerous
+
+"run_test()"
+- added the new terrain
+- removed the option "run_use_corners" (always TRUE)
+- someone really needs to update the documentation.  It is annoying to read five paragraphs, and then be told "I do not think this documentation is correct.".
+
+
+"run_step()"
+- you never try to pick up objects when taking a step among a run path.  This means that players who normally try to pick up everything don't have to keep pressing "-" if they want to ignore objects for a while.
+
+
+--- cmd2.c ---
+
+"do_cmd_go_up()", "do_cmd_go_down()"
+- up and down shafts allow you to go up or down 100'.  This makes it easier for a player to pick up the pace of a game that's getting tedious (too easy). We are careful not to randomize stairs and shafts; I've made that mistake 
+before...
+
+"do_cmd_sneaking()"
+     The 'S' key no longer puts one into searching mode (which did nothing that the 's' command did not do better), but, as in Cthangband, allows you to start sneaking.  This greatly increases your stealth, slows you down (note that slowing down no longer effectively decreases stealth) and allows you to get better sneak attacks.
+
+"get_choice()", "chest_death()"
+- the famous Oangband chests
+
+"chest_trap()"
+- lots of new traps, none of which are like floor traps.  The "scatter objects all over the place" trap is from Angband/64, the famous home of Amazing Traps.
+
+"do_cmd_open_chest()", "do_cmd_disarm_trap()"
+- changes to the disarming code.  A high enough skill guarantees safe disarming.
+- you get more exp from high-level traps
+- you can disarm glyphs
+- see "trap.c" for more details
+- Tim Baker's initials added to various bits of code.  I suggest Angband do the same.
+
+"do_cmd_close()"
+- I am experimenting without easy_close
+
+"do_cmd_tunnel_aux()"
+- the hardness of magma and quartz, and the calculation of digging ability (see
+"calc_bonuses()"), are so arranged that characters cannot dig though rock with ordinary weapons before stat-gain, and can dig through either magma or quartz with a shovel (unless very weak).  Starting strength no longer has an important effect on one's ability to earn money by mining.  Ordinary weapons rarely make good mining tools.
+- if you have no chance to dig through the rock, you are told this, and digging stops.
+- This code needs a clean-up.  This will happen when I get around to moving stuff to "terrain.txt".)
+
+
+"do_cmd_bash_aux()"
+- you can bash chests, as in early Angband.  Bashing a chest steadily damages it and any locks, and will eventually smash it open.
+- bashing makes a lot of noise
+
+"do_cmd_alter()"
+- allows rogues to set traps, interact with traps, steal, or lock doors
+- you can sometimes notice when a door is fully barred
+
+"do_cmd_walk_or_jump()", "do_cmd_hold_or_stay()"
+- it is now clearer whether objects will be picked up or not.  Some rule changes.
+- searching ability now controls frequency of searching, as "p_ptr->skill_fos" no longer exists.  You search more often when staying still than when moving.
+
+"do_cmd_pickup()"
+- the 'g'et key now always picks up objects instead of reversing the auto_pickup option.
+- you spend 10 energy per object picked up.  The realism of this is somewhat dodgy, but at least the game doesn't unfairly penalize those who do not use auto_pickup.
+
+
+--- cmd3.c ---
+
+"do_cmd_inven()", "do_cmd_equip()"
+- total and percentage burden is now displayed.
+
+"do_cmd_wield()", "do_cmd_takeoff()"
+- additions to handle shapechanges, two-handed wield, wielding two weapons, the quiver, and artifact sets.
+- if you have rings on both ring fingers, and wear a new one, you are asked which ring you wish to replace.  I do not know which variant I took this from.
+
+"do_cmd_destroy()"
+- already sensed objects get more exact inscriptions.  Various other bits of code handling inscriptions have also changed.  Game-generated inscriptions are stored in "o_ptr->inscrip", not "o_ptr->discount".
+
+"do_cmd_observe()"
+     Displays almost all known attributes, background information, general knowledge, and legends about any object.  This is used to give the player special information about classes of objects and specific object kinds, display activation and magical item damages and effects, and to add all sorts of "flavor text".  It is as important an information resource as the monster memory.
+
+"do_cmd_refill_lamp()"
+- lanterns that are used to refill other lanterns get emptied, not destroyed. As with ring swapping, I don't think this was my original idea.
+
+"do_cmd_locate()"
+- as in older Angbands, using this command immediately moves the panel to give you more visibility.  Unlike them, the game uses your current direction of movement (if any) to determine how it should optimize the view.
+
+"ident_info()"
+- various changes
+
+"do_cmd_query_symbol()"
+- Ross Morgan-Linial's code to query killed monsters
+- help text appears when you type return (so you actually know what this function can do)
+- changes to the interface include a revised prompt and display of number of monsters and current position in the list.
+- if sorting by level (usual case), the display is initially set to the non- unique monster closest to your current depth.
+
+"py_steal()"
+- rogues can steal gold from monsters
+
+"py_set_trap()"
+- rogues may set traps.  See "traps.c" for more details.
+
+
+--- cmd4.c ---
+
+"do_cmd_change_name()"
+- the message that appears after you have filed a character dump includes the location of the file.  This change is also to be found in various other places in the code.
+
+"do_cmd_messages()"
+- If you can type 2, 4, 6, or 8 to navigate, you can now also use the roguelike direction keys.  This causes some difficulties when one can also use alphabetic keys to jump to specific items; in such cases, we require that roguelike keys actually be ON.  An alternative method of accomplishing the same thing is to pass a flag to "inkey()", but this is likely to be harder for new coders to understand.
+
+"do_cmd_options_win()"
+- Any key that is not used for navigation can be used to toggle window flags.  I always thought that 't' was a silly choice.
+
+"do_cmd_options_layout()"
+     Sangband has what is known as "hot" bigscreen; the game is capable of switching between 25-line and 50-line modes on command.  See "main-ibm.c" for more details.  You may set the game to use 25 or 50 lines to show the main screen, display the dungeon in 22, 33, or 44 rows, and precisely adjust how close to the edge you need to get before the game shifts panels.  If you display the main window in 50 lines, and use 44 rows to display the dungeon, you are guaranteed MAX_SIGHT viewing in your direction of travel every time you use the 'L' key.  This is one of the three most important things Sangband has done to reduce off-screen instadeaths.
+
+"do_cmd_options_panel()"
+     Of the rows on the left panel, only 20 are needed for fixed displays; the rest you may customize.  The actual number of customizable rows varies depending on the number of rows you use to display the dungeon - it can be as little as 5
+or as many as 27.  See "xtra1.c" for more details.
+     Among the more interesting things that can be displayed in custom panel rows are extra health bars for the closest monsters.  This is one of of the three most important things Sangband has done to reduce off-screen instadeaths.
+
+"do_cmd_options_aux()"
+- slight interface tweaks (in particular, the short name of an option is no longer so close to its value)
+
+"remove_auto_dump()"
+"open_auto_dump()"
+"close_auto_dump()"
+     Takeshi Mogami's code (as found in Hengband) to overwrite, rather than append to, options and preference files.  Makes an extraordinary difference to the usefulness of these files over time; probably the single most important advance in this area for a good long time.  Is relatively easy to port and highly recommended for all variants.
+
+"option_dump()"
+- various options are now dumped (delay factor, hitpoint warning, autosave, screen display)
+
+"do_cmd_options()"
+- a great reduction in the number of options.  See the section on "tables.c" below for more details.
+- when you exit the options interface having changed any options, the game offers to save them to file.
+- as in Zangband, you can set the game to save your character every so often. This is very helpful indeed when either the game or the computer is flaky.
+
+"do_cmd_macros()"
+- it has always been a real "gotcha" that macros and keymaps are lost upon a save and reload unless explicitly saved.  It is hard to save them in savefiles in a truly system-independant way, but we can at least warn the player when he is about to leave without saving.
+
+"do_cmd_visuals()"
+- various numbers now wrap around and display correctly.
+
+"do_cmd_feeling_text()"
+- The message "What a boring place..." has been changed to "This seems a very quiet place...".  The player should never be told that anything about the game is boring.
+
+"do_cmd_feeling()"
+- display any unprinted precognition messages
+- display quest information
+
+"do_cmd_quest()"
+- Changes as in EyAngband
+
+"do_cmd_knowledge_monsters()"
+     Eytan Zweig's improved version of the monster knowledge display features grouping by race, color-coding, instant access to monster recall, and a beautiful interface.  The best currently available.  Recommended for all variants and Standard Angband.
+
+"collect_monsters()", etc.
+- player ghosts are fully known, but only appear when actually on the level.
+
+"do_cmd_knowledge_artifacts()"
+     Quick and detailed recall of all known artifacts.
+
+"do_cmd_knowledge_objects()"
+     Displays objects that you have seen at least once.  See usage of the "k_ptr->special & (SPECIAL_AWARE)" and "k_ptr->special & (SPECIAL_EVER_SEEN)" flags in various places.
+
+"do_cmd_knowledge_kill_count()"
+     Probably by Topi Ylinen, the monster kill count lists the monsters you've killed.  Various minor interface changes in Sangband.
+
+"do_cmd_knowledge_home()"
+     A little function to display items in the Home.
+
+"do_cmd_knowledge_quests()"
+     Information on current quest, fame, and completed quests.
+
+
+--- cmd5.c ---
+
+     Sangband has always had impressive spells.  I trust the current rendition will not disappoint.
+
+"realm_color()"
+- each realm has its own special colors, and they are used enthusiastically.
+
+"chromatic_burst()"
+     Fires elemental arcs.  The greater your control, the more they focus their power on the direction you choose.
+
+"invoke_spirits()"
+     The spirits that necromancers call up can be really helpful - or really unhelpful.  Idea and some text from Zangband.
+
+"wild_magic_sorcery()"
+     Wizard-magic is not the tame stuff found in Angband.  If miscast, who knows what will happen?
+
+"perilous_effect_necro()"
+     Dark forces don't like having their name taken in vain.  A necro who really screws up a ritual will PAY.  Much of this is from Zangband.
+
+"weather_dam()"
+     One of old-time Sangband players' favorite things:  the damage of druidic techniques depends on weather, and you can learn to manipulate that weather...
+
+"calc_mana_aux()"
+     There are some spells that can do an outrageous amount of total damage when cast in large open spaces.  This function adjusts mana cost to balance this out.
+- A mathematically correct calculation from radius to total grids in a circle.
+
+"print_spells()"
+     Print a spellbook full of spells in pretty colors.
+
+"spell_chance()"
+- the base (not final) prayer failure rate goes up for wielding an unblessed edged weapon
+- minimum failure chance removed.  For some spells (like heal, escape), even a 1% failure rate is playing Russian Rolette, so in Sangband you can get 0% with sufficiently well-known spells and reasonably good stats.  Adjustments made to base spell failure chance (in tables.c).
+- bonus given to level and to stats reduced considerably
+- simplified code
+
+"do_cmd_browse()"
+     Peruse the spells/prayers in a book, showing "spell tips" as requested. This allows you to have easy-access documentation for your fancier spells.
+
+"do_spell()"
+     This function combines the spell effect code, spell descriptions, spell extra information, and mana calculations into one package; all of these things are ordered spell by spell.  It is now much easier to update stuff.  This same sort of approach is used in several other places in the code, and is inspired by a look at ToME.
+     Among the more interesting spells in Sangband are those that gain power with repeated casting, create special lingering effects (see "effects.c"), cast the many new types of spell projections, use elemental auras, weather, or mind- strengthening to enhance damage, gain in power when used out in the open, or which shapechange the character or enhance his abilities in entirely new ways.
+     Some spells start off very weak but get very powerful, others start off strong but never improve much.  The inherent reliability of spells varies greatly.  No damage-dealing spell costs less than two mana.
+     Invulnerability is gone, as are the "money-making" spells.  Genocide is rare, as is dungeon destruction.  Mana-recovery is rare.  Spells to enhance combat abilities are uncommon.  Healing is uncommon, but curing is not.  Ways to learn about objects are much more commmon.  Detection spells are not handed out over-generously.  Hindrance spells are much more powerful.  There are lots of damage-dealing spells (Priests in particular now have a good selection).
+     Spells and/or spell names that originally came from variants other than those comprising the base code include:
+- bar door            (FAngband)
+- phase warp          (PsiAngband)
+- rift                (GWAngband)
+- spiritual hammer    (FAngband)
+- exorcism            (Zangband 2.2.#)
+- judgement           (PsiAngband)
+- holy aura           (ToME)
+- concentrate light   (ToME)
+- black blessing      (Zangband 2.2.#)
+- death bolt          (Zangband 2.2.#)
+- doom bolt           (Zangband 2.2.#)
+- corpse light        (Zangband 2.2.#)
+- Vampiric Drain      (Zangband 2.2.#)
+
+Misc changes:
+- only high-level spells have a chance to permanently damage Constitution if you cast them without enough mana
+
+
+
+--- cmd6.c ---
+
+
+"do_object()", "use_object()"
+     Handles the effects of and extra information about food and mushrooms, potions, and scrolls.
+
+General comments:
+- many objects have more powerful effects when used unaware and unsensed. If you were to quaff every potion unaware, your total stat-gain (gains minus permanent losses) would increase by three.  Assuming no sustains.
+- you get a lot of experience for learning about objects by using them
+- With the exception of Potions of Essences, no object can kill you instantly if drunk unaware.  Only Potions of Death can kill you instantly if drunk aware.
+- you can learn more about objects (damage, duration, special effects, sometimes failure rate) by using enough of them.
+- objects often display special messages when you use them for the first time. This allows game color to be added without getting annoying.
+
+Food and mushrooms:
+     Plenty of new mushrooms.  A lot of the messages come from Moria.  Nothing cures so well as a mushroom.
+- envenomation
+- metamorphosis (adding a little Zceband chaos to the mix)
+- mania
+- manaboost
+- mending
+- berserkergang
+- vitality
+- armouring
+- cakes of the beornings
+- elvish waybread is more powerful
+- athelas (cures black breath)
+     As elsewhere, a lot of the code that reads "rand_int(6) + 5" has been changed to "rand_range(5, 10)".  This is partly for pretty, partly to make things easier to understand (and write spoilers about).
+
+Potions:
+- potions of essences explode when drunk.  This can have any number of effects (mostly bad).
+- potions of invisibility
+- potions of temporary ESP
+- potions of cure light wounds are much more useful.  They, potions of cure serious wounds, and potions of cure critical wounds all fix a number of conditions to some degree.  These three kinds of potions also restore more hitpoints.  For serious curing, you must turn to mushrooms or potions of healing (or better).
+- rewrite of Potions of Death.  "How nasty can we get without actually killing the char?"
+- potions of increase stats use the traditional Moria/Angband text.  They can increase the stat twice if drunk unaware.
+- potions of restore stat can increase stats if drunk unaware
+- potions of lose stats can really trash stats now.  If drunk unaware, they can even lower stats permanently.
+- potions of resist everything
+- potions of *enlightenment* reveal the entire dungeon, including vaults. Whenever a full wizard light is performed, the traditional Moria/Angband text is displayed.
+- potions of trollform.
+- potions of dragonform (allows breathing!)
+- create empty bottles when appropriate
+
+Scrolls:
+- a heavy-duty summon scroll that turns off the lights, summons demons, and tries to panic you.
+- various changes to messages, scrolls of enchant stuff, etc.
+- scrolls of elemental attacks
+- scrolls of rune of protection only get used up if a rune is actually created
+- the legendary Sangband Scrolls of Questing
+- scrolls of alter reality
+- scrolls of make monsters go insane
+- some heavy attack scrolls that can be very usful -- or very dangerous
+- scrolls of Nightfall (every grid on the level goes black, character gets hit with darkness and loses his memories, every light source that requires fuel on the level gets blasted, every monster that breathes darkness becomes more powerful, and every monster that doesn't resist darkness gets zapped hard.)
+- scrolls that create special terrain (whch opens up new tactical opportunities)
+- create blank parchments when appropriate
+
+
+"do_device()", "use_device()"
+     As with objects and spells, the descriptions and effects of magical devices are in one function.
+- staffs of starbursts fire beams of light in all directions; they are quite powerful
+- staff detection spells are the best available because they have extended ranges.  There is now a fairer competition between similar staffs and rods.
+- staffs of cure light wounds have become staffs of cure medium wounds, and can be pretty useful.
+- devices that hinder monsters are weaker early on, but can get quite powerful.
+- Staffs of Doomspells come from early Sangband.  When used correctly, they cast huge black orbs of pure damage.  If not, they attack the character!
+- Staffs of Chaos cast starbursts of chaos, followed up with beambursts of time, nexus, or kill wall, secondary explosions, plus the occasional dungeon destruction and chaos hound summoning.  If you use it repeatedly, it becomes more powerful; a well-developed chaos frenzy is an awesome sight!
+- improvements to the power of all magical devices that use elemental attacks.
+- attack wands cast larger balls than rods, and their bolt spells beam more often.  Rods do more damage.
+- the three dragon wands fire arcs, not balls.
+- Wands of Wizardry are basically wands of wonder on steroids.  They are risky to use, but can potentially do more damage in a given period of time than almost anything else.
+- several of the low-level hindrance rods are gone (they didn't offer anything that wands didn't)
+- rods of blinking (teleport self about 10 grids)
+- rods of summon hither.  If used correctly, they force a targeted monster to jump to you.  If not, they summon a new monster!
+- rods of lightningstrike, northwinds, dragonfire, and Glaurung's blood are good enough to fight Morgoth with.
+
+"use_device()"
+- there is no limit on how hard magical devices may be to use, so really high-level objects require great skill.
+- the math that determines how often you fail with magical devices is different. It is now possible to get a failure rate of zero (which is crucial for those who depend on Rods of Healing).  I also find the new math easier to understand.
+- the timeouts of rods are determined in object.txt
+- you may learn the true damage done by magical devices by repeated uses.  This takes a lot of the guesswork out of using them (which was a major nuisance).
+
+"stare_into_the_palantir()"
+     Totally off-the-wall function to activate the Palantir from the JLE patch. Full wizard light, but various nasty effects.  Using the Palantir where Sauron or Morgoth are is extremely dangerous.
+
+"ring_of_power()"
+     The One Ring does not zap you if you use it correctly.
+
+"do_activation_aux()"
+     Information about activations and the activations themselves both live in this function.  Virtually every activation has been changed:  Most have become more powerful, or recharge more quickly, or both.  A few really high-level activations have been toned down.  Perhaps a hundred activations are new.
+     I have deliberately chosen to retain text specific to a particular artifact, rather than making it generic enough to fit any object.  I have deliberately chosen to retain the artifact names in the defines.
+
+- The Phial has a more powerful activation.
+- The Arkenstone does not reveal the interior of vaults.
+- Carlamas also casts banishment.
+- Cambeleg casts door destruction.
+- The damage Cammithrim can do has been greatly increased; this artifact has gotten a power boost in general.
+- The paur-s cast short-range beams.  The damage they do depends on whether they are paired with their -thancs.
+- the -thancs no longer have activations.
+- the Cesti of Fingolfin now infuses weapons with temporary vorpal blows.
+- Rilia laughs at stinking clouds, and casts enhanced stealth instead.
+- Aranruth panics demons.  Powerfully.
+- Ringil unleashes beambursts of light.
+- Anduril casts heroism.
+- Doomcaller casts - what else? - berserk.
+- Aeglos casts dispel evil.
+- Lotharang's healing activation is substantially enhanced.
+- Turmil's activation is substantially enhanced.
+- a throwing weapon that slaughters everything in sight.  And not with a boring old dispel monsters spell either...
+- lots of activations for random artifacts.
+- two ego-item activations: heroism and flame-lashing.
+- the elemental rings now cast opposition and weapon infusion.
+- activations for amulets of sustenance, escaping, mana, and recharging.
+- dragon scale mails can be used quite a bit more often.  The damage they do has been adjusted considerably.
+ - Morphic dragon scale mail temporarily turns you into a dragon.
+
+"do_cmd_activate()"
+- major rebalance to the difficulty of activating things.  Dragon scale mail ignores magical device skill, high-level rings and amulets require greater skill, and all other activatable items are considerably easier to use.
+- new math for determining success rate
+- The One Ring zaps you if you fail to use it correctly
+- The One Ring really turns on you if you get greedy with it
+
+
+--- dungeon.c ---
+
+"regenhp()", "regenmana()"
+     These functions used to contain some of the cruftiest code left over from Moria.  No longer.  They are now also properly documented.
+
+"recharged_notice()"
+     Items inscribed with "!!" now give a notice and disturb when recharged.
+
+"process_world()"
+- noise diminishes over time
+- Zangband's timed autosave
+- EyAngband's quest checking code
+- changed messages for dawn and dusk
+- more monsters appear deep in the dungeon in a given time period (note that characters tend to move faster, and so are able to take more turns in that time)
+- fewer monsters appear if the character is stealthy (the "word doesn't get around").
+- newly generated monsters can be placed asleep if the character is sufficiently stealthy
+- natural vitality allows quicker recovery
+- heavy poisoning does more damage each turn
+- disease (taken from early Sangband) causes damage, similar to poison.  The major difference are that disease can cause stat loss when originally contracted, and is much less easy to heal and cure.  It does /not/ cause random stat loss over time.
+- berserk characters feel no wounds
+- manic and depressive fits
+- slow digestion is now a lot more useful
+- various new timeouts
+- hitpoint and mana regeneration calculations moved to external functions (see xtra1.c)
+- hobbits recover slightly faster from various things
+- dexterity now governs the rate of recovery from stuns
+- light sources determine whether they burn fuel by using a flag, not artifact status
+- torches fade when low on fuel (see "calc_torch()")
+- exp draining is more severe.  Hobbits are very resistant.
+- handle soul-eating weapons and wearables that drain hitpoints
+- you can learn about rings and amulets by wearing them for a longish period of time
+- rods recharge anywhere in the dungeon
+- random teleportation is no longer safe (in other words, the code feels no compunctions about slamming the character into things)
+- as in FAngband, level feelings take a while on the current level (not the last) to learn.  Perception greatly affects this time.
+- some weather-related stuff
+
+"enter_wizard_mode()", "verify_debug_mode()"
+- the game always asks for confirmation before it goes into wizard or debug mode.  It is all too easy to type the keys by accident, especially control-a.
+
+"process_command()"
+- various new and changed commands
+- both 'm' and 'p' use magic; players can use whichever one is more comfortable
+
+"refresh_visuals_before()"
+     We explicitly update certain displays right before the character takes a turn, such as lit objects, quest monsters, and offscreen monster threat displays.
+
+"refresh_visuals_after()"
+     This function is important.  Before, it was not practicable to code methods of detect monsters that worked semi-randomly, correctly, and cleanly. There was also some code duplication, inefficiencies, and unecessary complexity.  The new code is slower in the best case, but faster in the worst (which is what matters).
+     We've removed the "repair_mflag_show" and "shimmer_monsters" code.  At the end of every action taking energy, the character attempts to sense monsters.  Monsters thus sensed will stay sensed until the end of the next action.
+     This function also shimmers monsters one time per character action.  It also handles any "update distances" requests.
+
+"pack_overflow()"
+- avoids dropping items inscribed with "!d" or "!*", if possible
+- changes to handle a pack of variable size
+
+"process_player()"
+- hack inserted to refresh extra monster health bars and the target
+- the levels of stunning that cuases you to be heavily stunned or knocked out are controlled by defines
+- a number of spell modifers time out whenever the character actually uses energy.  This prevents fast characters from boosting these values better than slow characters.
+- noise builds up as the character does various things
+- generate noise (the directional portion of the flow code)
+- generate scent (the time-stamped portion of the flow code)
+- reset vulnerability to swarming unless packs are locked into "kill mode".  This helps prevents packs from foolishly charging and retreating while the character picks them off.  Note that the pack code still needs work.
+
+"dungeon()"
+- simplifications to the startup code to refresh and update stuff
+- mark quests as started
+- some relatively minor changes to how monster and character energies interact.
+- other things that happen during a game turn (like lingering effects) are handled by a loop
+
+"play_game()"
+- interactive loading of savefiles (in beta)
+- comforting message appears when using an ancestor's monster memory
+- "PLAYER" is the default savefile name on all machines, but the game can load a savefile of any (short) name using a savefile record (as in ToME).  See "loadsave.c"
+- we print a status message asking the player to wait, rather than flushing a message, because it reduces screen "jumpiness" when starting up the game.
+- set number of screen rows according to the current options
+- different handling of options files.  Information stored in the savefile now takes precedence over anything in the "pref" directory, and anything in 
+"/lib/user/user.prf".  This maximizes player control.
+
+
+--- effects.c ---
+
+     It has been a long time coming, but there are now proper wall of fire spells.  They move and hold their shape correctly when moving in any direction and display lingering graphics.  Other special effects include vortexes of magic that seek out foes and persistant clouds that do damage every turn.  The expansion possibilities are endless; this is a decisive advance.
+
+"effect_prep()"
+- finds and wipes an effect structure (which use much the same sort of processing rules as do monsters, objects, etc.)  As with monsters and objects, effacts are "entities", and treated as such.
+
+"do_effect_grid()"
+- zap a grid or just refresh the graphics
+
+"adjust_effect()"
+- make various tweaks to effects to handle special conditions.  For example, walls of fire need to move at the correct speed when cast diagonally.
+
+"process_effect()"
+     The main effect function.  For each type of effect, code is included to make it maintain its shape, handle obstructions, calculate damage, perform special actions (like seeking monsters out), and respond to character actions
+(like dissipating when they move too much).
+- effects age and die.
+
+"process_effects()"
+- process all active effects, display lingering graphics (the graphics are a bit of a hack).
+
+
+--- files.c ---
+
+"process_pref_file_command()"
+- various new preference file commands added.
+
+"slain_opponent()"
+     Skills-Angband is fundamentally about intense character development.  To help deepen the involvement the player has with his character, the toughest monster killed is displayed on the character screen.  The inspiration comes from the saga of Beowulf, hero in an age where the valorious slain were remembered in song.
+
+"likert()"
+- a few more skill rating descriptions, some different word choices
+- a really funky set of descriptions for use when the character is hallucinating.
+
+"display_player_middle()", "display_player_various()", "display_player()"
+     The main Sangband character screen derives from the Angband 2.8.3 version. The most important differences between it and that currently used by Angband are:
+- it is balanced left and right
+- it is less crowded-looking
+- it is careful to clearly distinguish melee and missile plusses, and to give each proper billing.
+- it shows a few more abilities (throwing, digging, dodging)
+- height is displayed in feet and inches or centimeters, weight is displayed in pounds or kilograms.  There is never any doubt about the units used.
+
+"display_player_flag_info()", etc.
+- the object pval and attribute displays are updated for Sangband.  They display almost every object flag, and the exact value of all pval modifiers.
+- detailed display of combat modifiers and bonuses for both melee and archery
+
+"file_character_options()"
+- textual descriptions of the birth, difficulty, and cheat options, and the number of times the character was rolled up.
+
+"file_character()" 
+- looks better in most posts, because the code is careful never to print lines more than 72 columns wide
+- displays a crown and pays more attention to difficulty options in winner posts
+
+"get_rnd_line()"
+     A function from Zangband that opens up a given file and reads a random line from it.  Useful both for naming things and for monster speach.  Widely adopted.
+
+"show_file()"
+- has a few lines of code to allow mode 1 to open up a new file and search for a given string.  We can now set up links without having to insert special link markers.
+- displays strings of certain types in light blue.  This should make it much easier to scan a help file for a particular bit of information.
+
+"do_cmd_help()"
+     Sangband has the beginnings of context-specific help.  If the variable "p_ptr->get_help_index" is non-zero, the on-line help will immediately show a specific file and section.
+
+"display_file()"
+     Displays static information in pretty colors.  Used to show the new "news.txt", "dead.txt", and "victory.txt" files.
+     Files that wish to display colors are divided into two parts:  text goes in the first, and color encoding goes in the second.
+
+"do_cmd_suicide()"
+- The confirmation text reads "Please verify SUICIDE", not "Please verify QUITTING".
+
+"total_points()"
+     Score is much more important to Sangband than to Angband, because it offers a direct way to judge the quality of a victory.
+    The higher-level the foes you have defeated, the higher your score.  The more skills you have raised, the lower it is.  In Angband, you get high scores by playing forever; in Sangband, you get high scores by winning great victories with few innate resources.  This is probably the most important way Sangband balances out the power of skills.
+     Difficulty options may increase score.  Choosing to play a dunadan or high elf lowers it.
+
+"make_bones()"
+     Player ghosts are active, and so is this function.  Unlike in Oangband, player ghosts don't get to have personalized strings or descriptions.
+
+"print_tomb()"
+     A few changes to the death interface, the most important of which are a greater use of color, more prominent score display, and better handling of long killed_by strings.  Someone really needs to have another bash at killed_by strings, though; they're just too generic.
+
+"display_scores_aux()"
+- better killed_by string for living characters
+
+"kingly()"
+- no more boring white crown
+
+
+--- generate.c ---
+
+     Major changes to this file in Oangband.
+
+Defines:
+- fewer rooms attempted (because each attempt is more likely to succeed)
+- changed tunnel defines (see below)
+- changed streamer defines (see below)
+- corrections to DOOR_MAX, etc.  "dun_data" uses a lot less memory.
+
+"room_data room[()"
+     Exact probabilities that every kind of room will be generated on various levels.  Before, nobody could guarantee any sort of special room on a level, and all sorts of brute-force methods (of which auto-scum was the first) were devised to beat the code into submission.  This is no longer necessary; just change the table. Changes to room frequencies:
+- greater vaults are more common
+- lesser vaults are a bit more common
+- monster pits are a lot less common (makes the monsters too easy prey)
+- all other kinds of non-ordinary rooms are more common early, and much less common late.
+
+
+"mon_symbol_at_depth()"
+     Specifies the kinds of monster pits that will appear at various levels. You do not have to put up with jelly pits at 4500' anymore.
+
+"mon_select()"
+     Select monsters using symbol, color, race, or breaths.
+
+"mon_restrict()"
+     Given a required monster symbol (or none), come up with any of a variety of monster themes, then calculate monster restrictions.  When used with monster pits, this function also determines whether the monsters should be neatly ordered or mixed up, and supplies a pit name.
+
+"new_player_spot()", "alloc_stairs()"
+- Up and down-shafts will sometimes be generated
+- As the tunneling code operates, it marks every grid where it made a 180-degree turn.  When it is time to place stairs, these alcoves are used first.  This replaces the almost futile random search formerly used to find a grid with three orthogonally adjacent walls.
+- a character that has used a staircase to reach this level is placed on stairs
+(if requested).  This means that he normally starts off in a tunnel alcove.
+
+"build_streamer()"
+     The streamer code is now many times more efficient.  The secret is the same as that used in the hallucination code:  count down from a random number instead of testing a new random number each time.  Streamers now twist and turn, may have varying widths, and use better start points.
+
+"destroy_level()"
+- also places rubble
+
+"spread_objects()", "spread_traps()", "spread_monsters()"
+- functions to scatter objects, traps, and monsters over rectangular areas. Accept various inputs:  for example, you can have a room full of demons.
+
+"find_space()"
+     This is an important function.  Given a room's dimensions, it calculates the minimum number of dungeon blocks required to hold it.  There are no fixed limits on the size of rooms; Chris Weisiger's *greater* vaults will appear quite happily.
+     It then attempts to find space.  It is extremely flexible about where this space may be, but is also careful to keep the dungeon neat.  Rooms are always aligned to 11x11 dungeon blocks (there is no longer any reason for them not to be), and - where practicable - they are also aligned to 11x33 rectangles.
+     This is why Sangband always displays the dungeon in windows 11 x # high and
+33 x # wide, (usually) shifts panels in 11x33 increments, and detects in 11x11
+blocks.
+
+"generate_starburst_room()"
+     Makes irregular shapes that look realistic as lakes, lava or rubble fields, or as cavern rooms.  A starburst consists of many individual arcs.  When the edges of these arcs are allowed to vary, you see a "starburst" effect.  This code, while much less costly, is not as powerful as that which generates fractal rooms in Zangband, which I invite you also to look at.
+
+"draw_maze()"
+     Eric Bock's acyclic maze code.
+
+"build_type1_starburst()"
+     Builds a great variety of irregular caverns, which are sometimes populated by orcs.
+
+"build_type1_pillars()"
+     A heavily modified version of Eric Bock's pillar room code.  Produces a great variety of pillared and ragged-edged rooms.  Rooms are always symetrical (unlike in Angband, in which they can be quite ugly).
+
+"build_type1()", "build_type2()"
+- Various additions to take advantage of the new terrain features and monster allocation code.
+
+"build_type3()", "build_type4()"
+- The treasure is a little nicer, and the monsters a little tougher.
+- some new type4 rooms
+- some special themed rooms (for example, undead are often found in mazes)
+
+
+"build_type5()"
+     Monster pits and monster nests have been combined.  When ordered, monsters are placed a bit differently (in particular, the lowest-level monster is no longer so common).  See above for more details.
+
+"build_type6()"
+     Builds rooms consisting of many little chambers, all connected by doors. They have partially replaced monster pits, and make for much more interesting tactical challenges.  Hunting down 40 vortexes in close quarters gets really hairy!
+
+"build_vault()"
+     The first important change that Oangband made to dungeon generation was the addition of "interesting room", minor vaults that are treated as ordinary rooms: They allow for an unlimited variety of rooms at any level, and present formerly uninteresting monsters in novel ways (kobold dens, yeek warrens, centiped caves, ...).  You want circular rooms?  No need to write code, just include them in the vault list.
+     The second big change was the addition of new vault symbols, especially ones that allowed vault designers to specify particular kinds of monster and objects (armories guarded by trolls, people guarding wizard's stashes, etc.).
+
+Other changes include:
+- Eric Bock's run-length encoding (saves a lot of memory)
+- vaults never get random monsters placed in them.  I got tired of seeing lost kobolds in demon pits.
+- As in Angband/64, vaults may be flipped or mirrored (quadruples the possible variety)
+
+"build_type7()", etc.
+     Bahman Rabii's code to first tally up the available vaults, then choose among them.  Increases efficiency (especially when there are lots of kinds of vaults), and prevents game freezes.
+
+"build_type10()"
+     Builds huge, mostly empty caverns.  They replace empty levels.
+
+"num_rooms_allowed()"
+     Determines how many rooms of a given kind may be built.  See earlier comments.
+     In order to tone down the number of monsters in the deep dungeon, and keep stuff that should be special rare, we restrict the total number of special rooms. In general, Sangband (like Oangband) attempts to make all levels interesting and none overpowering.  That at least is the goal.
+
+"room_build()"
+- keeps an eye on the monster and object lists, and refuses certain rooms if things get too crowded.  Greatly reduces the number of times you see the "too many monsters" message.
+
+"find_entrance()", "build_tunnel()"
+     Smarter, faster, but more complex tunneling code.  Among the tricks it knows are:
+- robust handing of staggered and double outer walls (which is essential if you want non-rectangular rooms to be connected reliably)
+- can almost always find and head for vault entrances
+- is very good at finding a way past impenetrable obstacles (which makes the old "vault cuts off half the dungeon" problem go away)
+- better treatment of varied terrain types.  (Although it will take work to port)
+- tunnels less often turn the dungeon into Swiss cheese
+- they less often turn rooms into sieves
+- attempts to prevent isolated rooms (this part is still in beta)
+- locates good places to place stairs
+- some miscellanious problems squashed.  Like the infamous "double door" bug I've reported three times in four years to two Angband maintainers, to no avail!.
+
+"quest_cave_gen()"
+     The Sangband special quest levels.
+
+"place_ghost()"
+     I finally got around to making destroyed levels cool again.
+
+"cave_gen()"
+- the big and crowded rooms get built first, the easy rooms get filled in around them.
+- destroyed levels have more different kinds of rooms
+- big rooms increase the rooms built count more than do small ones
+- simpler code for monster allocation numbers, fewer randomly allocated monsters
+- various changes to other allocation numbers.
+
+"build_store()"
+- the Inn is hacked to go beside the General store
+
+"gen_essences()", etc.
+- essences represent concentrated magic.  They may appear under monsters and objects having particular attributes, and always start out hidden.
+
+"generate_cave()"
+- levels can be as small as 44x132, but only on rare occasions.
+- the option to autoscum is gone.  It is longer necessary.
+- level feelings depend on depth; the deeper you go, the more special stuff is required for a given feeling
+
+
+
+--- info.c ---
+
+"obj_class_info()"
+     Many object classes have non-obvious qualities (What weapons are blunt? Why should I use a staff?  What do shields do?), and it is very handy to be able to get information about them at need.
+
+"identify_fully_aux()"
+     The Oangband extended object information code.  Revised to handle multiple pvals and new flags.
+
+"self_knowledge()"
+     The self-knowledge code.  Rewritten to use color, show much more information, display on a single (50-line) screen, and hande the new object and character attributes.
+
+"dump_obj_attrib()"
+     Code to print out brief descriptions of pvals, flags, and miscellaneous object attributes to file.  Used in both char dumps and artifact wizard spoilers.
+
+
+--- init1.c ---
+
+     Various updates to handle new flags and qualities for all of the text files (activations, min/max depths, monster mana and spellpower, multiple pvals, etc.)
+     Some text files in Angband are not used in Sangband.
+
+"init_q_info()"
+     As in EyAngband, the quest arrays are editable with a text file.
+
+"parse_store()"
+     This code fills in a number of arrays (not one, as is the case in all other text files) from a text file carefully formatted to be easily editable.  Also, it (at least for now) overwrites a collection of internal tables; it's essentially a "store preferences" file.
+
+
+--- init2.c ---
+
+"init_other()"
+- initialization of the effect and trap arrays
+- initialization of the inventory also includes reseting the inventory colors
+- pharsing of "store.txt", initialization of the store arrays
+- initialization of the left panel custom display options
+- marking of artifacts that belong to sets
+
+"init_alloc()"
+- new system of object allocation (see object2.c) requires the arrays
+"permit_kind_table" and "chance_kind_table"
+
+
+--- loadsave.c ---
+
+     In ToME, the savefile-handing code in "save.c" and "load.c" is combined. The same functions are used to read and write all data; a global variable controls their behavior.  I was /impressed/, eagerly adopted it for Sangband, and hope that you will consider it too.  It is so much easier to maintain savefile compatability when you don't have to juggle two sets of code.
+
+"load_savefile_names()", etc.
+     As in ToME, the game can automatically load a savefile with any name by recording certain things about it in a (portable?) savefile record.  The game will always recognize savefiles with the name "player".
+
+"savefile_menu()"
+     As in ToME, if the game sees no savefile it can load, or the savefile it tries to load contains a dead character, it will display a savefile management screen.  This allows you to start a new character or manually load a savefile by typing its name.  Usage of this screen is optional; menu commands (in ports with windows) are still available.
+
+- a lot of things are now saved that weren't before; in particular, note the inclusion of various monster AI variables, cave_info flags, and some options (like autosave).
+
+"savefile_load()"
+     Includes interactive savefile management; you can load a savefile, see the character screen that pops up, load another savefile if you so desire, and repeat until satisfied.  Without breaking any menu commands.  Note that this is still in beta!
+
+
+--- main.c ---
+
+--- main.* ---
+
+     Various changes to allow "hot" bigscreen.
+
+
+--- main-win.c ---
+
+     Major changes here, amounting to a rewrite of more than half the code.  Briefly:  Instead of optimizing control, we now optimize visual elegance and ease of use.  A number of things that used to be done with hacks are now done "natively".  However, there are some new hacks for new features.  Code tends to progress like this. :-/
+
+     It is a good general rule of thumb not to let code do things that it does badly - such as trying to squeeze a bitmapped font into a tile too small for it.  So great was the emphasis on control in the old Windows port that, not only did it let a user shoot himself in the foot like this, it provided a graphical user interface for the pistol.
+
+- All of the term displays are combined into a single application window, similar to the DOS port.  I also had the interface of Master of Orion II in mind.  The player can choose to maximize the window (like the IBM port and indeed MOO2) or play in windowed mode (like the DOS port).  This change has both advantages and disadvantages:
+     The key advantage is that, for the first time, this port can be said to be truly "immersive", taking complete control of the screen to maximize the player's game experience like professional games do.  Other advantages include larger display space (and therefore better font and graphics options, especially on smaller monitors), reduced code bulk and special cases, and easier support for special displays (which we'll get to in a moment).
+     The key disadvantage is that users have less control over the position of term displays.  There is no longer an in-game interface for moving windows around.  Instead, it's all handled by a selection of defaults (up to four possibilities on large monitors) that allow a choice between maximizing main screen space or showing more sub-windows.  Of course, people who really want to tweak can still do so by editing the .ini file and they have just as much control this way as they ever did (actually more).
+
+- The game recognizes the user's screen size, finds the most appropriate set of window defaults (there are defaults for a variety of resolutions from 640x480 to 1600x1200), overwrites them with user preferences from the .ini file (if present), and (if needed) adjusts the display to cover an oddly-sized screen (such as the 1900x1200 behemoth my computer lab just got).  No longer will you be confronted with a game that requires tweaking before it stops trying to be a dumb terminal!
+
+- The visually distracting and space-consuming menu has been replaced with a (semi) Angband-standard interface for tweaking multimedia options, available by pressing '!'.  What you can do within the game has changed.  You can now switch between full-screen and windowed mode, turn on the mouse, and toggle the special map display.  You can no longer adjust tile width and height, move and resize displays, or 
+
+- The code relating to the borg and the screensaver is gone (I had to rewrite the stuff it was within and lack a borg to make it workwhile to add back in).
+
+- The code relating to "bizarre displays" is gone (a hack no longer needed).
+
+- Graphics now work in 256-color mode.  However, I wasn't able to get masking debugged so graphics will always be opaque.
+
+- The text-output code is slightly more efficient.  It is also more powerful and better able to handle differences between tile and font size.
+
+- "Term_pict_win()" is /three times/ as fast as in Angband 3.06 (if the StretchBlit method is not enhanced, which the player has the option to do).  It also know how to handle text.
+
+- Text can be centered and display without background, so you can mix and match graphics and text by feeding both to "Term_pict_win()".  This will be a *real blessing* for maintainers who have monsters and/or objects without graphics!
+
+- Various miscellaneous changes incident on my adding graphics to Sangband, such as graphical cursors.
+
+
+
+
+--- makefile.ibm ---
+
+- removal of "-fno_strength_reduce".  It does not seem to be necessary with Sangband code and recent versions of GCC.
+- addition of "-W".  With this, the DJGPP-GCC compiler is not nearly so blaise about coding errors.
+- various new checks added as options
+
+
+--- monattk.c ---
+
+     Monster melee and ranged attacks.  Taken from parts of the old "melee1.c" and "melee2.c" files.
+
+"monster_critical()"
+- wounding and battering attacks get more criticals
+- critical hits are randomized and attain truly dangerous levels much more rarely.  Smoother increase in the power of cuts and stuns.
+
+"check_hit()"
+- stunned monsters hit less often
+- characters can dodge blows; some blows can only be dodged
+- terrain can affect armour class
+
+"ac_dam()"
+- as AC rises, each point becomes less useful
+- there is no artificial cap on the effectiveness of AC
+- most importantly, we round correctly.  This makes quite a difference:  every AC point is useful against every monster.
+
+"make_attack_normal()"
+- terrain can affect armour class
+- you can be partially invisible
+- more varied monster melee attack messages that depend on actual base damage
+- WOUND attacks cause much more cutting, BATTER attacks cause a lot of stunning.
+- a number of attacks cannot be deflected with armour; wearing something big and heavy does not protect you from theft.
+- the elemental attacks have a much better hit chance
+- Green Glutton Ghosts are back to their original glory
+- gaze attacks cannot be blocked by armour, but are usually ineffective against a blind character
+- some monsters never miss
+- protection from evil is more effective against higher-level monsters, but less effective against lower-level ones
+- you can be Black Breathed
+- armour protects against the raw damage of all attacks.  This omission was a real "gotcha" in designing monsters.
+- earthquake blows no longer never cause earthquakes at a damage of 23 and always cause them at 24.  Instead, the closer the damage gets to 60, the more likely an earthquake is.
+- new-style wands and rods are drained properly
+- various rebalances to many of the attacks.
+- low-level thieves are much less effective than high-level ones.  The new numbers forbid you to get perfect protection from theft by high-enough level thieves.  Math that controls amount of money stolen yields better results.
+- new attack type that directly reduces sustinance.
+- poisoning attacks reworked; they are now more similar to elemental than to hindrance attacks.  Poisoning now depends on damage and is not fully cumulative. This means that poisonous snakes are more dangerous and packs of spiders less so.  Resistances reduce the pure damage done.  Single resistances do not confer immunity.
+- elemental attacks now do 1/3rd pure damage, and 2/3rds elemental damage
+- elemental attacks now correctly display a hit message
+- traditional melee blinding message restored.
+- Blindness, confusion, fear, and (most especially) paralyzation are all no longer fully cumulative.  Various changes to duration and power; paralyzation in particular has been toned down, attacks now depend on monster level.
+- the combination of changes to gaze attacks and paralyzation have changed floating eyes fom being insta-death to characters with low AC and easy meat for everyone else to being a moderately dangerous monster for any low-level character.
+- various saving throws now depend on monster level.  I have always thought that the various hinder-player spells and attacks were greatly overpowered early in the game.
+- hit to cause hallucinations
+- hit to cause disease
+- drain mana increases monster mana
+- traditional stat loss messages restored.
+- stat loss attacks combined
+- hit to drain luck
+- exp-draining attacks combined
+- stunning from monster melee blows toned down considerably.  Both heavy stunning and deadly wounds are less common.
+- as in Zangband, you can zap monsters who attack you
+- you can learn more about the armour you are wearing as it is used
+
+"mad_mon_melee()"
+     Somewhat primitive code to allow monsters to attack each other.
+
+"get_dam()"
+     The general damage-randomization function, used for all projected monster spells (but not monster breaths).  Controls the way damage varies from the average (different attack types have varying degrees of predictability; storms and chaos are very chancy), and makes sure that damage is never too much or too much less than the average (avoids instadeaths).
+
+"mad_mon_retarget()"
+     Somewhat primitive code to allow monsters to target each other with ranged attacks.
+
+"mon_bolt()", etc.
+     Various changes and additions to take advantage of the changes in the projection code.
+
+"mon_beam()", "mon_arc()"
+     Monsters can cast beams (may be of limited range) and use arc spells.
+
+"mon_concentrate_light()"
+     Monsters can concentrate light.
+
+"make_attack_ranged()"
+     Almost total rework of monster ranged attacks.  The most fundamental changes are Bahman Rabii's monster mana limits and monster spell powers.  The first keeps a smart monster from being an unkillable one, the second controls spell damage.  Since hitpoints determine the strength of breaths, and monster level usually determines the nastiness of hindrance spells, we now have three different values controlling monster ranged attacks, and extraordinary power to develop more interesting monsters.  These changes are revolutionary.
+
+(general)
+- monsters need mana to cast spells (but not innate attacks)
+- mimics that attack are revealed if visible
+- characters can suppress most summons
+
+(innate attacks)
+- smart monsters shout for help (I don't think this was my or Bahman Rabii's idea, but I don't remember whose it was)
+- monsters can lash the character (or spit on him).  Makes snakes, Rogrog, and the balrogs much more interesting.
+- a great variety of missile attacks.  Monsters can throw boulders, fire sling shots, arrows, and bolts, cast ordinary and poisoned missiles, and hurl Black Darts.  The silly "arrow_1", arrow_2", etc. attacks are gone; spellpower controls average damage.
+- monsters breathe much more powerfully for their hitpoints.  Since they also have a lot fewer hitpoints, they (usually) end up breathing slightly less powerfully.
+- breaths are arcs.  Arcs lose damage with range; at ranges more than 10 grids, this reduction is very marked.  This is the third of the three most important ways this game reduces offscreen instadeaths.
+- Powerful monsters have wider arcs (but this widening doesn't cause their breaths to lose damage faster with range).
+- breaths do not affect monsters with the same racial index.  The rationale for this is a little fuzzy, but it really cuts down on the message overload.
+- plasma is now considered to be a mix of fire and electricity, and so the damage cap on this breath is 1600.
+- darkness breaths have a slightly higher cap at 500.  Darkness is a more important danger than light.
+- sound can do various nasty things to the character, and so the cap on this breath has been lowered to 250
+- shards have a lower cap at 400.
+- breath winds and mana (used only by a few monsters)
+- nexus cap lowered to 300.  Nexus can do all sorts of weird things, but pure damage surely isn't one of them.
+- disenchantment cap lowered to 350.  Again, I don't associate disenchantment with raw damage.
+
+(projection spells)
+- all ball, bolt, beam, and arc spells use spellpower.  With low spellpowers, these spells cast stinking clouds, magic missiles, etc.  With high spellpowers, the very same spells cast venom storms and Morgoth's patented manabolts.  A vast collection of descriptions keep them in-theme throughout the game.  All these spells also use a new method of randomizing damage.
+- the damage done by all spells has been rebalanced.  Now, the most resistible spells do the highest damage.  This code and Bahman Rabii's spellcasting AI have been carefully fitted together; a monster will usually test those spells that do the greatest damage (the fire ball, say), work its way to semi-resistible spells (the ball of nether, say), and - if you keep resisting - will wind up using that mana ball spell it was holding in reserve.
+- bolt spells are designed to be poor replacements for ball spells.  They are handed out to monsters when a monster has a certain attack, but isn't really very good at it.  For example, a elementalist is great with fire, cold, etc., but also has a mana bolt spell for use in emergencies.
+- starting with Breath Night, you will see a lot of code to handle Udun and Morgul-magic.  The first turns fire into Hellfire, the second adds nastiness to nether, cold, and darkness.  See spells1.c for details.
+- the ball of light spell can be cast as a concentrate light spell instead (idea from ToME)
+- the ball of darkness spell can (optionally) be cast as a gather darkness spell instead
+- various new esoteric magics
+- various new druidic magics
+- limited-range beams of light, electricity, and nether, arcs and columns of hellfire
+
+(miscellaneous spells)
+- add mana spell allows monsters to replenish exhausted mana more quickly than by normal resting
+- healing spell is fairly expensive
+- curing spell allows monster to recover quickly from various ailments
+- a tele_self_to spell allows monsters to jump towards you.  Because monsters can cast this spell out of line of fire (although they have to be pretty close), they can suddenly appear when you thought you were safe.  Pack monsters are really fun to see in action.  This spell is also used as a less powerful, but also less limited, substitute for tele_to (which affects the character, and therefore requires LOF to cast).
+- drain mana spells restore monster mana
+- monsters can curse the character (original idea from Zangband).  This can drain away luck, reduce any stat, cancel various beneficial magics, cause disease, drain exp, or curse an equipment item.
+- mind-blast and brain smash combined.  Damage now controlled by spellpower.  As in PsiAngband, casts a mental attack.
+- all the cause wounds spells combined into one.  Various new messages added.
+- the Sangband spell that out-Topied Topi; helldark.  Now a little bit saner.
+- holy smite spell
+- cause hunger spell.  Can (eventually) lead to death by starvation.
+- a few new messages for the character-hindrance spells
+
+(summons)
+- all existing summon spells summon fewer monsters: some half or even a third as many (especially if the monster race summoned often appears in groups).  Most monsters ('Q's excepted) cannot summon monsters of their own level or higher. This is part of a bigger change; monsters are tougher individually, but less numerous.
+- various new summons
+
+"cloud_surround()"
+     Some monsters constantly project things, as in UnAngband.  Molds release spores, the Nazgul darken everything nearby, and the greatest of dragons are surrounded by deadly vapors and fire.
+
+
+--- monmove.c ---
+
+     This file replaces "melee2.c", and is the core of the new monster spellcasting and movement system known as 4GAI, or the 4th Generation AI.  It's a bold name, but well-earned.
+     For more information, consult the 4GAI documentation.
+
+"find_range()"
+     Monsters have a minimum range (that range at which they will advance no nearer, and try to cast spells that take them further away) and a desired range
+(that range at which they stop automatically advancing, and stop casting spells to take them nearer).  These ranges depend on health, mana, perception of character dangerousness, and selection of ranged attacks.  This range is memorized for each monster, and is saved and loaded.
+     The first effect of this is to essentially eliminate the (not inconsiderable) CPU cost of the monster terror code.  The second is to give different kinds of monsters differing methods of maneuver; some charge, some get fairly close, some snipe from a distance, and some just run away.
+
+"side_dirs()"
+     It was formerly the case that monsters would always try directions in a given order.  This weakened quite a lot of code, including "find_hiding" and obstruction-handling, and made monster movement unnecessarily determanistic.
+
+"get_scent()", "monster_can_smell()"
+     Many monsters can smell the character.  Zephyr hounds that get a wiff will track the character from halfway across the dungeon, the entire pack advancing along the line of scent.
+
+"summon_possible()"
+     A function that prevents monsters from wasting time and mana summoning into filled areas.
+
+"find_resist()"
+- much more detailed anaysis of the character
+- much, much faster code
+
+"remove_expensive_spells()"
+     Removes spells that cost too much mana.
+
+"remove_non_panic_spells()"
+     Panicking monsters can only cast escape or healing spells.
+
+"remove_useless_spells()"
+     Don't cast stupid spells, or spells that would have little or no further effect.
+
+"choose_attack_spell_fast()"
+     Add speed to the monster AI by quickly choosing an obvious spell.
+
+"choose_ranged_attack()"
+     The major function of the Bahman Rabii spellcasting AI.
+
+- all sorts of variables are taken into account:  range, need for healing, curing, escaping, mana, and desire to summon, kill, and hinder.  Some of these are found in the Keldon Jones AI.
+- as in the Keldon Jones AI, check for a clean bolt shot.  Unlike before, pass a flag to "projectable()".
+- a limited number of spells - the ones that only affect the monster itself - can be cast when out of LOS of the character
+- ranged attacks are sometimes restricted to physical missiles (shots, arrows, etc.)
+- The code removes the obviously useless spells, those not allowed in the current situation, the expensive ones, and then tries to quickly choose an obvious choice.
+- If this fails, then we get smart.  Unlike the case before, the code proceeds by adding "desireability" to each remaining spell based on the situation.  This uses a table containing the relative value of all spells based on various factors.  For example, manabolt spells gain desireability as spellpower increases and teleport spells gain desireability when the monster wants to escape.
+- harrasment spells get a bonus early in the battle
+- spell desireabilities are randomized, and the best is chosen
+
+"cave_exist_mon()"
+     Determines if a monster can exist in a grid.  This makes it /much/ easier to handle terrain.
+
+"cave_passable_mon()"
+     Determines what chance a monster has to move into a grid.  This is very helpful when you have varied terrain, and means that the true time-cost of a movement path can now be calculated.
+
+"melee_another_monster()"
+     Primitive code to allow monsters to melee other monsters.
+
+"get_move_advance()"
+     Advancing monsters use sound, scent, and visual information to track the character.
+
+"find_safety()"
+     This function has been rewritten.  It is much better at finding the best hiding space, and makes monsters behave foolishly a lot less often.  In particular, they no longer rush for a distant hiding place when a closer one is available.  It is also better in varied terrain.
+
+"get_move_retreat()"
+     Calculates movement for retreating monsters.  Because of the use of monster ranges, and the saving of target grids, it is far faster than the Angband version.  For the first time, monsters can run around corners properly (try this on a non-4GAI variant, and note that you often get a free blow when the monster turns a corner).
+- monsters "flow" away from the character
+- they stay out of LOF better.  You will not see packs of hounds milling in and out of fire; they hide, and they /stay/ hidden.
+
+"get_move()"
+    This function calculates a good initial grid to enter.
+
+- Character vulnerability is not calculated for each pack monster every turn. Instead, it is calculated once (by the first monster that needs it), is used by all pack monsters, and is usually reset at the end of every character move that uses energy.  This code considers all passable terrains (not just floors), and makes packs charge if you are standing in a doorway.  Packs will go berserk if you are seriously weakened; whatever you do, they will keep attacking.
+- various changes to the code that makes monster groups surround the character. In particular, monsters never get free moves.
+
+"get_route_to_target()"
+     Primitive code to prevent monsters getting stuck between them and their target.  At some point it needs to be replaced.
+
+"make_confused_move()"
+     Confused monsters wander into all sorts of nasty things.  This can be amusing to see...
+
+"make_move()"
+     This is not simple code, but it does a number of new things:
+- monsters choose a directional bias "semi-randomly", instead of always looking one way
+- monsters do not "poke" in various directions until they find a grid they like. That's cheating.  Instead, they analyze one or more of the adjacent grids, and make a single choice.
+- fleeing monsters are much better at getting and staying out of fire.  Try to catch a frightened orc in a pillared room!
+- monsters can only attack one glyph in a turn
+- less buggy "turn and fight" code (although this is still a troublesome area)
+
+"push_aside()"
+     Before, a Ghost trying to move onto a floor grid was totally blocked by any orc in its way, because the orc couldn't enter the wall.  Now, the ghost will attempt to push aside the orc.  This rule change is especially helpful in variants that combine wall-walking and pets.
+
+"process_move()"
+- visible mimics appear when they move
+- monsters that kill walls make noise (messages), but not too many.  Instead of turning walls into floor, they turn walls into rubble, which means that they no longer immediately open up deadly new lines of fire.
+- all mobile monsters can push past other monsters.  They can push past monsters of equal, not just lesser, strength.  This means that a line of black orcs no longer waits patiently until the lead orc has finished napping.  However, pushing past other monsters slows down movement, so all those black orcs will be slowed down some.
+- hounds that hit scent trails alert each other.
+- characters will /always/ be disturbed if a monster moves adjacent.  This solves a rather unfair game problem in which setting the wrong options made you ignore monsters until hit.
+
+"player_invis()"
+     Characters can be partially invisible.
+
+"process_monster()"
+- monsters can be doomed (used to kill off mana flies)
+- recalculate monster range when necessary
+
+     Monsters can be in "active" or "passive" mode, which is distinct from being asleep or awake.  They start off passive, go active when the character enters their scanning range or can really smell him, and go passive again when they cannot hear or smell the character and he is far away.  This fixes a number of monster awareness problems that were tripping players and developers up, and adds a fair amount of speed.
+
+- monsters can multiply until the total monster count gets within 50 of the maximum.  The old limit of 100 breeders was unecessarily limiting in some cases, and too generous in others.  Frightened, confused, or doomed monsters cannot breed.
+- as in Zangband, Smeagol speaks.  He is somewhat less mouthy.
+- the rules for using ranged attacks are changed.
+- monsters with the ARCHERY flag can shoot physical missiles most turns
+- monsters that move semi-randomly strike accurately, and hit effectively
+(they're not confused).  This is an important change, and makes these monsters much less crippled.  This requires a few changes to monsters:  low-level ghosts and clear centipeds need to be found deeper in the dungeon.
+- maddened monsters attack other monsters
+- townsmen move from place to place.  They rarely attack the character.
+- characters with enough strength ignore townsmen unless adjacent.  This makes it more convenient to shop.
+
+"recover_monster()"
+     Major change:  monsters do /not/ recover from temporary conditions every time they move; like the character, they recover every 10 game turns.  Major change:  monsters always get a chance to recover; they no longer stay confused forever if you stay away from them.
+- Low-level monsters are better at recovering, high-level ones no longer recover instantly from just about everything.  Most of the equations have been rebalanced.
+- monster regeneration increases more smoothly with increases in HPs (the code uses exact rounding).  Creatures suffering from the Black Breath do not regenerate.
+- the code that translates from character stealth to character noise is much more simple (but produces about the same results)
+- monsters often wake up if you make noise in line of sight
+- stunned monsters are no longer paralyzed.  Like the character does (except when knocked out), they get penalties to spellcasting rate and melee ability.
+- hasted or slowed monsters eventually return to normal speed
+- monsters can blink around uncontrollably
+
+"process_monsters()"
+- /major/ efficiency improvements in this function and how it is called.
+- calls the monster regeneration code every 100 game turns
+- marks monsters as "moved" to avoid the old problem of lumped movement while avoiding the tremendous CPU cost of the Angband solution
+
+
+
+--- monster1.c ---
+
+"wd_rarity()"
+     Monster rarity is displayed in monster memory.  Not an important change, just a nice bit of trivia.
+
+"know_armour()", "know_mana()", "know_damage()", 
+     Simplified math, with code docs that tell interested non-coders what characters have to do to know details about a monster.  It is easier to learn about low-level monsters now.  New function that determines whether you know the monster's current mana.  No more unreasonable learning requirements.
+
+"describe_monster_spells()"
+     Lots of new text to adequately describe spells that may be of any strength. The poison ball spell alone has six possible descriptions.  Various new spells and attributes described here and elsewhere.
+
+"describe_monster_abilities()"
+- more descriptions of awareness
+
+"describe_monster_movement()"
+- Rewording of monster racial type.
+- monsters that are not mobile do not "move", they "strike" or "act"
+
+"get_closest_los_monster()"
+     Get the 'n'th closest monster in LOS.  This function powers the special monster health bars, allows effects and maddened creatures to target monsters, and adds functionality to the targeting code.  It could be made more efficient.
+
+"process_ghost_race()", "process_ghost_realm()", "prepare_ghost()"
+     Oangband (and Sangband) has a souped-up version of the old Angband player ghost code, which - despite enormous popularity with players - was removed by Ben Harrison, and has never returned.
+     The new code attempts to remove most of the hacks to which Ben objected and add a lot of new ghost spells and other attributes, without sacrificing the traditional feel.
+
+
+--- monster2.c ---
+
+     Major changes to this file.
+
+"poly_r_idx()"
+     The Angband "poly_r_idx()" function is among the nastiest bits of cruft I know.  It is perfectly capable of calling "rand_int()" a thousand times with no useful result.  The new code performs a modified version of "get_mon_num()".
+
+"delete_monster_idx()"
+- player ghost information is wiped when one is deleted.  It is possible, however, for ghosts to return.
+
+"compact_monsters()"
+     Monster compacting is different.  First, far-away, ordinary monsters are deleted, in ascending order of level (note the sorting code).  Only then do any uniques, nearby, or object-carrying monsters get touched.  Empty monster slots are counted; if enough exist, there is no need to delete any monsters at all.
+
+"wipe_m_list()"
+- player ghost information is wiped when one is deleted.  It is possible, however, for ghosts to return.
+
+"get_mon_num()"
+- monsters rarely appear if their native depth is less than 2/3rds of the current depth.  They very rarely appear if their native depth is less than
+1/3rds of the current depth.  This not only cuts down on boring monsters, it cuts down on the boring stuff they drop.  This is another reason why Oangband
+(and Sangband) is careful to keep total monster numbers under control.
+- Characters in Sangband can be unlucky.
+- slight adjustments to the monster out-of-depth code.  Causes less trouble early in the dungeon.
+- groups of monsters usually only appear where there is space for them.  I got tired of seeing lost hounds, abandoned chieftains, and trapped quylthulgs in greater checkerboard vaults.
+
+"monster_desc()"
+- player ghosts described correctly
+
+"update_mon()"
+- can be called to handle only non-random or full visibility updates.  See
+"dungeon.c", "refresh_monsters_after()".
+- telepathy again shows monsters with "wierd" minds one turn in 10, not 1
+monster in 10.  This is accomplished without using the RNG.
+- esp of evil
+- mimics can be revealed
+- monsters can be shining
+- monsters may be only partially visible.  They appear as '*'s on screen, and display much less information.
+- specialized partial and occasional, full and occasional, constant and partial, and constant and full telepathy
+- as in EyAngband, unseen monsters can be "heard" by characters with good enough awareness.
+- mimics can hide again (be "forgotten")
+- town monsters disturb the character very little
+
+"monster_swap()"
+- when the character moves one grid, save the direction of travel.  This is used to shift panels.
+
+"no_threat()"
+     Town dwellers with no or weak attacks are not threatening.  They go from place to place and usually ignore the character.
+
+"place_monster_one()"
+- more flexible terrain-handling
+- only one player ghost is allowed at any one time.  The base monster template is adjusted according to information in bones files
+- monsters sleep much less deeply.  On the other hand, they also wake up more slowly.
+- as in EyAngband, monsters have a single lifepoint value instead of using hitdice.  This produces better hitpoint spreads, makes "monster.txt" easier to understand, and uses a lot less CPU time.  Note that monsters can still have fixed hitpoints; all heavy breathers retain them.
+- monsters are biased towards using harassment spells at first
+- the "born" and "nice" flags are gone.  Monsters start out with less energy.
+- level ratings are increased less for out-of-depth non-uniques.
+
+"place_monster_group()"
+- the maximum size of a group is half what it was
+- easy monsters no longer come in larger groups (a boring monster is seldom less boring if boring friends accompany him)
+- monster groups spread in random directions.  The old way made monster clusters too similar in shape.
+- monster groups can spread in any terrain capable of holding the monster being placed (note that tunneling monsters do not appear in walls)
+
+"place_monster_escort()"
+- the ESCORTS flag produces about 12 to 18 escorts; the ESCORT flag produces about 4 to 6.  As is the case elsewhere, monster numbers have dropped.
+- similar comments as in the previous function
+- more efficient use of "get_mon_num()"
+
+"place_monster_aux()"
+- the FRIENDS flag produces groups of 6 to 10 monsters; the FRIEND flag produces groups of 2 to 3
+
+"check_monster_space()"
+     Prevents monsters that form groups or want escorts from appearing in limited space.
+
+"alloc_monster()"
+- more flexible use of terrain
+- monsters are not randomly placed in marked rooms
+
+"summon_specific_okay()"
+- some new summons.
+- Player ghosts cannot be summoned.
+
+"summon_specific()"
+- allow scattered summons
+- important change:  most monsters (Q's excepted) cannot summon anything of their level or higher.  This helps keep summoners sane.
+
+(various functions)
+- tests against cave_floor replaced with tests against cave_passable.  This makes handling varied terrain easier.
+
+"message_pain()"
+- lots of extra detail by Eric Bock
+
+"update_smart_learn()"
+     Written by David Reeves Sward, and greatly extended by Bahman Rabii.
+
+"mon_death_effect()"
+     As in Zangband, several monsters have special death effects.  This is very suitable for special drops (really should move Morgoth's drop here).
+
+"get_coin_type()"
+- addition of the special gems
+
+"drop_quest_stairs()"
+- much more intelligent treatment of terrain, more robust (this was a nasty bit of code before)
+
+"monster_death()"
+- treasure is guaranteed in some cases (it was just too annoying when that chest didn't appear)
+- base chance of gold is lower (you get more objects from worthy foes), but it increases if the monster is lower-level then current depth (you wade through less junk).  See other changes elsewhere that help accomplish the same effect.
+- unique drops are automatically inscribed
+
+"mon_take_hit()"
+- this function moved from "xtra1.c".  I never could remember where it was...
+- debugging message moved to this function.  The damage done by spells, etc. is now easier to test.
+- noise level increases whenever a monster dies
+- there is a standard test, used everywhere, to determine if a monster "dies" or is "destroyed".  Demons, the undead, angels, elementals, vortexes, golems, and mimics use the latter message.
+- weapons may be fed by kills
+- when a player ghost dies, the file it used is sometimes deleted.  This prevents endless re-appearances of the same ghost.
+- maddened monsters may come to their senses.
+
+
+--- obj_make.c ---
+
+     The Sangband object-forging code.
+
+
+--- object1.c ---
+
+- all sorts of new metals, stones, colors, etc.  Many come from Moria, Oangband, Zangband, and other variants.
+
+"reset_visuals"
+- decided that the code to reset the inventory colors did not belong in this function.
+
+"get_object_pval()"
+     Sangband's objects have up to three different pvals, each controlling a set of bitflags.  This function contains the rules for pval expression.
+
+"object_flags_aux()"
+- some new easily-known flags
+
+"should_display_pval()"
+     Most pvals are displayed in object descriptions, but not all.
+
+"object_desc()"
+- Some really wierd object descriptions appear when the character is hallucinating.  I couldn't quite bring myself to have silly attacks, but I let it all hang out here.
+- various new objects and attributes handled
+- a little hack for the essence pouch
+- Tom Morton's code (as modified in ToME) to allow you to name objects by inscribing them.
+- text for new chest traps (should be in a separate structure)
+- missile launchers display their base multiplier until identified.  They display their true multiplier afterwards.  They do /not/ use a separate pval description for extra might.
+- light sources display their (usual) light radius in brackets.  As in EyAngband, they have a more compact display of fuel.
+- stacking wands and rods handled correctly
+- stacked staffs display a special "3x 13 charges" indicator.  Note that staffs only stack in stores.
+- we use an object flag "NOFUEL", not artifact status, to control whether an item needs fuel
+
+"index_to_label()", etc.
+- quiver slots have numeric indexes
+
+"describe_use()"
+- new negative inventory values to allow descriptions of objects fired or thrown in certain code.  This is a hack, I know.
+
+"display_inven()", etc.
+- optional metric values.  This is quite popular among players.
+- display of quiver slots and backpack space taken up by the quiver
+
+"get_item_okay()"
+- you cannot manipulate unmarked objects (this is important for essences)
+
+"scan_floor()"
+- Tim Baker's name added to this and other functions
+
+"get_item()"
+- various (relatively minor) easy_floor-related changes
+- as in UnAngband, you can use tags of the form "@<<command>>*" to automatically use a given object when using that command.
+- as in Hengband, various lists pop open automaticall when using the "easy_list" option
+- '.' key now gets top item on floor
+- '?' brings up context-specific help in some cases
+- as in Hengband, you can use inscriptions of the form "@m<<letter>", and cast spells from book "<<letter>>"
+- optional auto-selection of a single floor item
+- quiver slots handled correctly
+
+"check_set()", "remove_set()"
+     The artifact set code.  Those who originally designed the Angband artifacts intended some of them to become more powerful when used in combination.  Bahman Rabii introduced this in Oangband 0.5.2 (only 11 years late!), and Sangband has followed suit.  Recommended for all variants.
+
+
+--- object2.c ---
+
+"excise_object_idx()", etc.
+     Objects are also removed from traps.
+
+"compact_objects()"
+     Much smarter code in this function.  First, objects get combined into piles.  If that doesn't clear up enough space, we sort all the objects by /real/ object value, and delete the least valuable stuff first.  The whole point here is to make a limited object list as painless as possible for the player.
+
+"o_pop()"
+- now calls "compact_objects()" when necessary.  This fixes a serious problem where killing too many monsters at one time in a crowded dungeon would give you a whole bunch of "Too many objects!" messages, and lose a lot of stuff.
+
+"get_obj_num_prep()", "get_obj_num()"
+     Object generation works differently now.  We specify up to three level/abundance pairs for each object; each describe how common that object is at a particular depth.  Above the least deep pair, the object is out-of depth, and therefore uncommon.  Below the deepest pair, we use the abundance of that pair.  Otherwise, we average the one or two abundance pairs straddling the current level.
+     This change is revolutionary.  We can make objects start appearing slowly or suddenly introduce them.  We can have one object "fade away" as a more powerful one starts to appear.  Most importantly, the allocations for shallow objects do not clutter up the list throughout the dungeon; we can make them simply stop appearing.  These powers have been thoroughly exploited in
+"object.txt".
+
+- objects appear more often out of depth.  The out-of-depth factor is considerably less generous, especially early on.  There is a smoother introduction of new objects.
+- unfortunately, this code is very slow.  This is true despite the fact that we use quick generation whenever possible.
+
+
+"pval_value()"
+     The object-valuation code has gotten a lot more sophisticated, mostly because of the need to balance randarts and object-creation.  This function values pvals.  Note the semi-exponential price value increases as pval goes up. Most objects that rely on pval to accomplish anything (like boots of speed) have rather low base costs.
+
+"object_value_base()"
+     Better base damage dice greatly increase price.
+
+"object_value_real()"
+     This function has been rewritten.  We start off with an object-specific base value, which is the sum of the base object and ego-item value (forced to zero if the ego-item is worthless) and which also takes into account hidden attributes, forged item properties, activations, etc.  If the item is not inherantly worthless, we then add (or subtract) value for pvals and plusses.
+- Negatives do not force an item to be worthless.
+- worthless base items no longer force value to be zero.  A filthy rag of 
+Resistance can be worth real money.
+- bonus to wand value depends on base number of charges
+- improved damage dice greatly increase price
+- weapon/launcher bonuses to Skill and Deadliness depend on current value
+(including any bonuses)
+- all plusses and pvals are priced in relation to normal value.
+- most pvals are now valued for all wearable items.
+
+"object_value()"
+- the object discount field has been replaced with an object price adjustment field.  Prices can range from 250% of normal to 0% of normal (100% discount).
+
+"breakage_chance()"
+- some missiles are tougher than normal
+- a lot of breakage chances have been lowered
+
+"distribute_charges()"
+     The neatened-up version of my wand and rod stacking code.  Open-source is a beautiful thing.
+
+"object_similar()"
+     Various rules changes here:  Staffs don't stack.  Wands with known charges stack.  Rods always stack.  "Average" and known unenchanted ammo stacks.  Lots of new tests applied to handle past and future expansion (more needs to be done here).
+
+"object_absorb()"
+- slight correction made to inscriptions
+- cleanup of and corrections to the blending of ident flags
+- new-style wands and rods handled correctly
+
+"object_wipe()"
+- removed some unnecessary calls to this function
+
+"m_bonus()"
+- now accepts a input for "maximum level"
+- simplified code
+
+"make_ego_item()"
+- same change to object out-of-depth code as before
+
+"make_artifact_special()"
+- starts looking at a random special artifact.  This means that the abundance of a special artifact no longer depends on its position in the list, or on whether other special artifacts have been generated.
+- object base depths are ignored.  It got too annoying to keep them up to date.
+- the artifact out of depth factor is enforced more strictly
+
+"make_artifact()"
+     We tally up the base abundance of all the legal artifacts for the given object, adjust these abundances based on various factors, and roll for a choice
+(with at least a 50% chance to fail).
+- artifacts don't appear where they would be wimpy (no "collecting" the -thancs)
+
+"add_magic_to_weapon()"
+- plusses are adjusted in the same direction as in the ego-item template, without reference to cursed status.
+- any non-artifact melee weapon can have enhanced damage dice (more sides to each die).  They may also have extra dice on rare occasion.  Daggers not infrequently have boosted dice, Maces of Disruption almost never have them.
+- throwing weapons may be perfectly balanced
+- missiles may have enhanced damage dice
+
+"add_magic_to_armour()", "add_magic_to_weapon()"
+- boots and gloves have lower magical ac (because shields have more)
+- good ego-items with negative bonuses to AC, Skill, and Deadliness are not changed here; same with bad ego-items with positive bonuses to AC, Skill, and Deadliness.  This means that the ego-item template has maximal control; if we want unusual values, we can get them.
+- bonuses to armour class are slightly lower, especially for boots and gloves
+
+"add_magic_to_ring()"
+- the pvals on many rings are now at least 2.
+- only good rings of speed improve the level feeling.  They do not increase the feeling quite as much.
+- rings of protection can sometimes be supercharged.  It is rare, but not impossible, to see +30 rings of protection.
+- some new items boost level feeling a little.
+
+"add_magic_to_others()"
+- torches have a (normal) light radius of 2
+- wands or staffs get between 1/2 and the full base charges (base charges are stored in object.txt)
+- new chest magic code.  They can be a lot more interesting than before.
+- rods use pval to determine maximum timeout
+- potions of essences (magical grenades) come in a great variety
+- boulders may be of various weights (the variety of which is deliberately limited).  Damage depends on weight.
+- there are many different kinds of protective blankets
+
+"ego_item_bonus()"
+- half of an ego-item's bonuses to AC, Skill, and Deadliness is guaranteed, the other half is random.  Among the effects of this are that missile launchers of velocity are almost certain to have better plusses to Deadliness than to Skill.
+
+"apply_random_qualities()"
+     Much more powerful object random attribute code.  Applies to any object: cursed, normal, ego, artifact, etc.
+- ordinary objects can be unusually heavy/powerful (many of the hafted weapons), or vorpal (rapiers, etc.).
+- ego-item light sources have a wide variety of possible special attributes.
+- ego-item missile launchers ditto
+- object value increases for new attributes (that Blessed weapon with ESP is valuable!)
+
+"apply_magic()"
+- the code can require items to be mundane (used in stores)
+- more good items appear early, but just as many late
+- Sangband has bad luck (but not good luck)
+- light sources can be ego-items.  They are much more likely to be "great" (note that the Phial is much deeper and rarer).
+- artifacts can contribute more to the feeling of a level
+- there are fewer cursed rings and amulets
+- various changes to how ego-item modifiers are treated.  Pval adjustments tend to be greater, plusses and minuses to AC, Skill, and Deadliness depend on the values given in "ego_item.txt", etc.
+- we do not use the "broken" flag any more.  Because objects can vary in value over the course of the game, there is no reason to mark things as permanently worthless.
+
+"kind_fits_tval()"
+     Objects can be restricted by tval.  This allows "themed" drops and generation.
+
+"kind_is_good()"
+     Considerable expansion of this idea in Oangband.  Many more types of objects can be "good", depending on price and depth.
+
+"make_object()"
+- there is a lesser chance of creating special artifacts when forced good.  The reason for this is to balance various changes elsewhere.
+- the number of items generated at one time can be controlled in "object.txt".
+
+     Missiles have a 100% chance of coming in groups of 6d7, and many mushrooms, scrolls, potions, and even weapons can appear in quantity.  The rarity of such items has been increased to compensate, so instead of wandering past ten single scrolls of light, you might see only one or two - with five or ten in a pile.
+     Sangband now has a smoothly ascending collection of items to light rooms. First you see single scrolls of light, then piles, then staffs of light (with lots of charges), then rods of illumination, then the Phial.  Many other objects have also undergone this sort of rebalancing.
+
+"make_specific_tval()"
+     Makes an object of the given tval.
+
+"make_gold()", "make_special_gold()"
+- the value of gold now ranges between 1/2 and the full value given in
+"object.txt".
+- out-of-depth gold is not uncommon
+- there are several special gemstones that are worth serious money.  If a drop contains only "excellent" items, and it is allowed to contain gold (or contains nothing but gold), special gemstones appear.
+
+"drop_near()"
+- as in Zangband, potions smash when broken
+- if the character is dropping stuff, it normally piles with up to 20 other objects
+- dropped items will not try to avoid hidden objects on the floor.  This prevents the player learning about hidden stuff when items drop strangely.
+- objects try to avoid traps
+- if an artifact cannot be placed easily, we bounce around in steadily increasing areas (instead of immediately using the entire dungeon)
+- more detailed test for whether the grid can hold an object
+
+"pick_locked_door()", "place_closed_door()"
+     Now that strongly locked and jammed doors are more effective, their maximum strength depends on dungeon level.
+
+"give_object()"
+     Handy little function that tries to place a created object in the character's backpack and, if that fails, on the floor.
+
+"inven_takeoff()"
+- new code to handle two-weapon wield, the quiver, and set items
+
+"find_quiver_size()", "process_quiver()"
+     The Oangband quiver consists of ten equipment slots, each of which can hold a pile of ammunition.  For every 99 (or fraction thereoff) missiles in the quiver slots, one backpack slot is used up.  The effect is to make it practicable to carry a variety of ammunition (especially a single artifact missile or those last few Arrows of Acid), without artificially subsidising missile combat.
+     Missiles can be "locked" into place with easy-fire inscriptions of the form"@1" or "@f1".  Whether these inscriptions are used or not, the command
+"fire + '1'" uses any ammunition in slot 1.
+
+
+--- quest.c ---
+
+     Eytan Zweig's quest code.  In EyAngband, the Adventurer's Guild offers quests for dangerous monsters, and offers increasing rewards for success.  Among the neatest things about this code is that you also gain fame by fulfilling quests, and that this fame helps determine the rewards you gain.  Lots of fun; the first really good reason to have a non-shop building I've seen yet.
+
+"plural_aux()"
+     A monster pluralization function.  Mostly from Zangband with some EyAngband and Hengband (?) additions.
+
+"display_inn()"
+     Relatively minor interface and balance changes in Sangband.
+
+
+--- randart.c ---
+
+     The Oangband random artifact code, as modified in Sangband.
+
+     This system is currently the only one that offers random artifacts in addition to normal artifacts in a robust, non-hackish fashion.  Among its strengths are careful attention to balance, enormous variety of attributes, and
+(because of themes and neatening code) the "clean" feel of the artifacts it produces.  The creation of Calris is not beyond this code.
+
+
+--- skills.c ---
+
+     Sangband's system of skills.
+
+
+--- spells1.c ---
+
+"teleport_away()"
+- monsters can (involuntarily) teleport into vaults
+
+"thrust_away()"
+     Thrusts a target away from the source of a projection.  Used to allow impact hounds to throw you back, and certain spells and impact blows to push your enemies away.
+
+"teleport_player()"
+- option to have unsafe teleporting
+- teleport distances depend on dungeon size.  This fixes some real "gotchas".
+
+"teleport_towards()"
+     Code to allow monsters both to teleport near (but usually not adjacent) to you, and to "dance" around you.
+
+"teleport_player_to()"
+- allow variable inaccuracy
+- option to teleport into vaults
+
+"phase_warp()"
+     PsiAngband's, then Zangband's, than Oangband's dimen_door() function, modified to allow variable inaccuracy.
+
+"potion_smash_effect()"
+      Zangband-derived function that determines what happens when a potion smashes open.
+- the damage or power of many potions depends on throwing skill (when thrown) or burglary skill (when used in a trap).  Damage is greatly reduced if the potion just breaks open accidentally.
+
+"scroll_read_effect()"
+     A similar function, this time inspired by PsiAngband's trap code, that handles scrolls.
+
+"device_use_effect()"
+     A similar function, also inspired by PsiAngband's trap code, that handles magical devices.
+
+"hates_elec()"
+- rods are not invulunerable
+
+"inven_damage()"
+- potions and scrolls are 50% more vulnerable to destruction
+- some potions, scrolls, and staffs are harder to destroy (the code uses the AC value, as you might expect).  Staffs in particular are resiliant.
+- potions smash open when destroyed (but only one potion per pile)
+
+"minus_ac_msg"
+- The equipment damage message appears after the hurt message.
+
+"minus_ac()"
+- neither acid nor disenchantment affects armour worn by a shapechanged character.
+
+"acid_dam()", etc.
+- weak and moderate attacks are much less destructive of your possessions. Resistances and oppositions reduce destruction somewhat, immunities reduce it by quite a lot (but not entirely).
+- As in Zangband, you can lose unsustained stats to unresisted elemental attacks.  However, this effect is rare and requires a reasonable base damage (no
+"grid bugs zap dex" silliness).
+- strong electrical attacks can stun.  Note the care taken to avoid instant knockouts.
+- acid that hits your armour loses 33%, not 50%, of its damage.  However, this reduction also reduces inventory damage.  Acid hits your armour only half the time, so the actual damage reduction is not 33%, but 17%.  This makes acid- breathers less annoying, but also more dangerous.
+- as elsewhere in the code, we suppress various effects and messages if the character is dead
+
+"apply_disenchant()"
+- disenchantment can wrench a character back into his normal form
+
+"apply_nexus()"
+- light nexus attacks just blink you around
+- really heavy nexus attacks can have several effects, and linger...
+
+"mh_attr()"
+     As in Zangband (and as extended in Eric Bock's variants), draw some kinds of projections in several colors.
+
+
+(the projection code)
+
+"project_f()"
+     Many terrain types are not actually changed in this function, just marked for later change.  This means that damage is adjusted by the existing terrain, not the new one.  Note that terrain-changing, summoning, etc. requires very strong magic; the game is careful not to go crazy.
+
+- acid can eat walls
+- cold can solidify lava
+- fire can make lava
+- water can make pools and solidify lava
+- fix to darkness:  CAVE_MARK flags removed only when appropriate.
+- magic disarming sets off the trap 1 time in 20.
+- kill door does not also kill traps
+- new projection to force doors open or jam them
+- Zangband's code to magically jam doors
+- Zangband's (?) disintegration spell
+- rubble is much less likely to have an object under it (because it is more common now)
+- chaos can create chaos tiles
+- mana can create mana flies
+- enlightenment and glyph-creation projections
+
+"project_o()"
+- many attack types destroy objects less often if weak.
+- chaos can polypile objects  (idea from Nethack)
+- mana can activate scrolls and magical devices
+- wind blows objects around
+- you can fetch objects
+- you can learn about objects
+
+"project_m()"
+- Sangband's long-standing code to only affect monsters of a given type.  Cleans up and simplifies all the dispel-xxx, turn-xxx, etc. magics.
+- some monsters are great at dodging (from EyAngband)
+- terrain can affect damage, or even negate it
+- new physical projection types.  All physical attacks can be dodged.
+- a pure hurt projection type
+- electricity can now stun monsters.  This helps balance the fact that it has the lowest damage of all the basic elements.
+- monsters can be susceptible to fire and/or cold.  Susceptibility is not a death sentence; it only adds 25% to total damage.
+- plasma is a mix of fire and electricity
+- the light from the Phial does nasty things to spiders
+- various adjustments to resistance strengths, and to the monster attributes that confer resistance.  This code and the monster description code harmonized.
+- sound can stun monsters
+- holy orbs do +50% to evil, not +100%.  They have no effect on Angels.
+- lots of new projection types.  Among the more interesting ones are the mental attacks adopted from PsiAngband (and through some study of Zangband).
+- the basic hindrance spells made a lot more useful, especially deep in the dungeon and against uniques.  Each of the magic realms has one or more special strengths here:  wizards are good at confusing, priests good at frightening, etc.
+- various adjustments to monster resistances against the cause-movement projections (gravity, teleport, nexus, wind, etc.)
+- spells make noise
+- polymorphing monsters is more useful, as the new monster is often confused and/or stunned (even it would normally be resistant), and has roughly the same percentage of health as the old monster did
+
+"project_p()"
+     This whole function is very "Rangbandesque"; there is a /lot/ of added detail.
+
+- damage may be affected by terrain and various character attributes other than resistances
+- shots glance off heavy armour, or off a shield.  Armour class protects against them (partially).  They can stun or (mildly) wound.
+- arrows can glance off armour or be deflected by shields.  Armour class protects against them (partially).  They can wound.
+- physical missiles be be dodged or deflected off your shield.  If poisonous, and the monster uses Morgul-Magic, they become Black Darts, which can drain life, stats, and even inflict the Black Breath.  Such missiles can do a lot of damage.
+- cold can become Morgul-cold, which can sometimes do all sort of nasty things.
+- same story with poison
+- plasma combines fire and electricity.  If you at least single-resist both, it's not so deadly (which is why it has such a high base damage).
+- monsters with Udun-magic cast Hellfire spells, which combine fire, poison, and all sorts of possible nastiness
+- the side-effects of ice toned down
+- a creature that casts Morgul-spells doesn't wield plain darkness, but Morgul- dark.  Blinding, paralyzing with fear, poisoning, and the list goes on.
+- powerful blasts of sound can stun you, confuse you, and even paralyze you momentarily
+- shields offer some protection against shards
+- you are /not/ teleported in this function.  Instead, the grid you are on is marked, and you are only teleported once.  No "double-jeopardy gravity" sillyness.
+- some old and new projections added to this code
+- in general, most magics blind, confuse, stun, frighten, and paralyze you for shorter periods of time.  The objective here is to make collecting all the survival resists less mandatory, at least for a while.
+- resistances are more effective against darkness, light, nexus, nether, and most other things; they cut damage in (about) half now
+
+"project_t()"
+     This function is only called for marked grids, and is called after all other grid-procession has been done.  It is responsible for changing all terrains that might have an effect on combat, any summons, and any teleportation.
+- more detailed code controlling whether and how far monsters get moved
+
+"calc_starburst()"
+     Among the new projection types in Sangband are starbursts, irregularly- shaped balls that use the same algorithm used to create caverns and lakes.  They make great clouds and explosions.  They do full damage to every grid they affect, and form different shapes with every casting.
+
+"project()"
+     This function has been greatly revised.  Several new projection flags allow clearer specification of whether a projection will explode, whether it will affect the character, and how it handles walls.  Several new projection types
+(arcs, starbursts, balls that lose little or no strength out towards the edge, limited-range beams).  Rework of the grid-storage rules.  Considerable efficiency gains, especially with large-area projections.  Spell graphics are always displayed if the delay factor is non-zero, and never otherwise.  Changes to the order of events (see comments above).
+     Major new projection type:  arcs.  Unlike as was the case with other code, Oangband arcs are properly shaped when fired in all directions, lose strength with distance neither too rapidly nor too slowly, and are a lot more customizable.  They are also considerably more efficient.
+
+- revisions to the code documentation
+- "radius" also determines the length of beams
+- "degrees" controls the width of arcs
+- "source_diameter" makes it possible for ball and arc spells to lose strength away from the center more or less quickly than normal.  This value is especially useful for character-centered projections (because it allows "what you ask for is what you get" damage to adjacent grids), and with arcs (because an arc with a normal source diameter of 10 is really wimpy - see Cthangband dragons).
+- note the use of the table "get_angle_to_grid".  See comments in "util.c".
+- Moria-style death messages used when non-visible monsters die.  "You hear several screams of agony!"
+
+
+--- spells2.c ---
+
+"hp_player()"
+- more logical breakpoints between the various heal messages
+- redraw character if color of symbol changes with health
+
+"extra_hp_player()"
+- gives extra hitpoints (over and above the base amount) for temporary effects such as Heroism or Berserkergang
+
+"heal_player()", "get_heal_amount()"
+- EyAngband's healing by percentages.  The major effect of this code is to improve the strength of healing as the character's hitpoints increase.
+
+"sp_player()"
+- centralized mana-recovery function that does for spell points what 
+"hp_player()" does for hitpoints.
+
+"warding_glyph()"
+- the number of warding glyphs is limited
+
+"inc_stat()"
+     Revisions to the math in this function.  The major change is that boosts to your stats when they are close to maximum have a greater effect.  The purpose of this is to make stat-gain a little less tedious.
+
+"dec_stat()", etc.
+     Revised and more simple math here too.  No more "wierdness" in the algorithm.
+- we again allow a variety of messages
+
+
+"curse_armor()", "curse_weapon()"
+- we no longer curse artifacts.  Most players who lose one will never willingly read an un-IDed scroll again; since we want them to read quite a few such scrolls, we can't trash their artifacts.
+- we can curse any equipment or backpack slot where armour or weapons might be hiding.
+
+"curse_equipment()"
+     Adopted from Zangband.  Places curses on equipment.  We are careful not to do this too often.
+
+"uncurse_object()"
+ - the above can get rather annoying when "uncursed" markers conflict with player-inscribed information.  So they are only placed if no such inscription exists.
+
+"remove_curse_aux()"
+- J. Kalkman's code to reverse plusses on cursed non-artifacts on (very) rare occasion.  Yes, I am quite aware that this is slightly abusable...
+
+"disease()"
+     Inflicts damage, disease, and stat-loss on the character.  From Sangband
+0.8.5.
+
+"get_detection_area()"
+     Detection spells affect square-shaped areas, aligned to 11x11 blocks.  They may have normal (5 block) or extended (7 block) width; staffs and well-practiced spells use extended detection.  This all means that - unlike the old system - detection is centered on the character and does not require panel tweaking for best results, and - unlike the circular detection system - works well with the way rooms and the dungeon are actually laid out.
+
+"detect_monsters()"
+     Uses inputs to detect only certain monsters or detect all but certain monsters.  Instead of ten different functions, you now have just one.
+
+"nightfall()"
+     Code for the scroll of Nightfall.
+
+"enchant()"
+     Enchantment is determined in relation to normal value, not zero.
+
+"turn_into_ego_item()"
+     Powerful enchantment spells can turn ordinary weapons and armour into ego- items.
+
+"enchant_spell()"
+- items being standard enchanted glow faintly, items being strongly enchanted glow brightly, items being turned into ego-items glow brilliantly
+
+"brand_missile()"
+  - more powerful code
+
+"sense_object()"
+     Picking out the good stuff from the mass of mostly-useless weapons and armour is a major issue in all *bands.  Sangband has attacked this problem with vigor.
+
+Changes in this function:
+- the chance of learning something varies with object attributes.  It's hard to miss a burning blade.
+- it is possible to automatically sense charges.  This makes recharging a little less annoying.
+- some of the rules governing whether an object is "good" have changed.
+
+"scan_object_priest()"
+     Priests have always had a problem with ID compared to other spellcasters, which is among the reasons why they haven't been as popular, but there are some object qualities which they ought to be the best at discovering.  Describes objects as "very cursed", "cursed", "blessed", or "very blessed".
+
+"learn_about_wearable()"
+     Inspired by UnAngband concepts, we repeatedly pseudo-ID objects as they are used.  The fun thing here is that feelings can be upgraded.
+
+"sense_magic()"
+     New, very inexpensive scroll to reveal charges and pvals, and give players yet another way to pseudo-ID.
+
+"identify_fully()"
+- "*identify* which item?", not "identify which item?"
+
+"item_tester_hook_recharge1()"
+     Having discovered that nothing can compete with stacking rods, not even stacking wands, I have forbade rods to be recharged with magic.  Note, however, that rods recharge more quickly now.
+
+"recharge()"
+     Rewrite to this function to handle new-style magical devices.  Among the secondary changes are that recharging is more effective, that items blow up less often, and that one gets clearer messages when they do.  Also, it is possible to automatically sense charges (I never thought it appropriate that an investment in recharging should also always require an investment in identify).  Note, however, some balance changes made elsewhere:  In Sangband, no magic realm has a recharging spell (this is important!), and scrolls of recharging are a lot more common.
+
+"tap_magical_energy()"
+     Mages can get mana from magical objects at need.
+
+"fire_off_devices()"
+     Fires off magical devices in random directions.
+
+"beam_burst()"
+     Fires beams in truly random directions (not just the boring old staff of starlight stuff!).
+
+"doomspells()"
+     One of Chris Petit's most inspired creations, the most deadly magical device anywhere:  Staffs of Doomspells.  Doing this right requires some special hacks in various places but, hey, this is a game, not a coding exercise.
+
+"call_chaos()"
+     A worthy companion to Staffs of Doomspells.
+
+"concentrate_light()"
+     DarkGod's function to concentrate light.  "Suck in light, and fire the Death Star's main cannon!".  Various changes made in Sangband, including more varied messages, prettier graphical effects, and damage rebalancing.
+    "'damage rebalancing', eh?  I say you nerfed it!  I /like/ 3000-point hits!"
+
+"project_los()"
+- hits all monsters in line of fire, not line of sight
+- Julian Lighton's code to process in two steps, which prevents trouble from secondary explosions.
+
+"aggravate_monsters()"
+- option to rouse the entire level
+- option to print special messages
+
+"probing()"
+- also learns about mana
+- tells you when you learn something new about the monster race
+
+"collapse_ceiling()"
+     Collapses the ceiling.  Original idea by Heino Vander Sanden.
+
+"earthquake()", etc.
+- Monsters are not stuck in rock (Tim Baker).
+- Destruction spells delete artifacts (but unknown ones are preserved), as in Hengband.  The rationale for this is a bit fuzzy, but it removes a nasty game abuse.
+
+"mark_floors()"
+     Allows starbursts to retain their shape when portions are out of LOF.
+
+"cave_temp_room_lite()"
+     Instead of directly waking monsters up, this function (always) disturbs them.  The more lightly they are sleeping at that moment, the more likely they will wake up immediately.  Alertness does not depend on intelligence.
+
+"project_bolt()", etc.
+     All the shaped-projection functions have been rewritten, as has the documentation.
+- we use a projection flag, not the index of the caster, to determine whether a spell affects the character.  The major reason for this is that spells may affect the character if he gets in their way yet also grant him experience for kills, and others just the opposite.
+
+"project_beam()"
+- beams may be of limited range
+
+"project_ball()"
+- balls may have varying source diameters.  A ball with a source diameter of 10 feet exhibits the usual behavior:  damage is strength / radius for any given radius.  Balls with source diameters of 20 do full damage to all adjacent grids and are universally used for caster-centered projections.  Poison "clouds" often have at least half strength at the edge, and holy "orbs" do full damage to everything (they have a source diameter equal to (radius+1) * 10).
+
+"project_arc()"
+     Arc spells are wedge-shaped segments of a caster-centered ball.  Their width is finely adjustable, and it affects how quickly the arc loses strength away from the source.  Arcs are correctly shaped when cast in any direction (we use a mathematically correct table of angles instead of the "distance()" function).
+     This makes for all sorts of spell design fun...
+
+"project_star()"
+     Cast a starburst projection (see comments above).
+
+"adjust_target()"
+     Centralized use-target code.
+
+"fire_bolt()", etc.
+     The simple versions of the full "project_bolt()", etc. functions.
+
+"fire_storm()"
+     Cast a storm of missiles that start in random places and head in any direction.  Most effective when cast in large, open spaces.  Makes for some of the most impressive spell effects in any roguelike.
+
+(various new spells)
+
+"predict_weather()", "change_weather()"
+     Weather-related functions.
+
+"passwall_finish()", "passwall()"
+     Julian Lighton's Pick of Erebor, which allows you to pass instantly from one side of a wall to another.
+
+
+--- store.c ---
+
+"owners"
+- New documentation makes it much clearer how to use the haggling-related variables.
+- purses of General Store owners raised (because this store buys and sells more interesting stuff now)
+- six, not four, possible owners per store
+- some minor name changes (Mauser is not any sort of elvish name, restoration of old "Buggerby the Great!").  I remain dissatisfied with the gnomish names: my idea of a proper gnomish name is "Balthazar of Earvernan".
+- reworked the maximum and minimum greed of many of the shopkeepers.  In general, the higher the purse, the more pricey the store.
+- owners are usually more patient.  You have to work at it to get thrown out of the Temple.
+- new bookseller store
+- the Black Market is gone
+
+"store_stock"
+     Describes what stores will stock, approximately how much of it they will stock, and how likely they are to stock it.  The code works hard to obey the instructions given in this table.
+
+"tval_sell()"
+     Tvals of special items.
+
+"rgold_adj()"
+     Adjustments made here to make humans, dunedain, and gnomes get slightly better deals, make elves and dwarves more in-theme, and make half-orcish and half-trollish shopkeepers less nasty.
+
+"comment_welcome()"
+     Shopkeepers let you know how familiar you are to them.  See below.
+
+"comment_1b()", etc.
+     The old Moria haggling messages are back with reinforcments.  Clearer distinction made between good and bad deals, final selling and final buying prices, and more easily-understood insult warnings.
+
+"comment_7a()"
+     Somewhat more colorful shopkeeper reactions.
+
+"purchase_analyze()"
+     Shopkeepers don't get really emotional unless there's a fairly good reason.
+
+"price_item()"
+     Prices when selling always stay reasonable.  A greedy shopkeeper will not think that a suit of Dragon Scale Mail is worth 1 gold.
+
+"store_object_absorb()"
+- as do other functions, contains code to handle new-style wands and rods.
+
+"store_will_buy()"
+- general store will buy robes (because it sells them)
+- as in Zangband (I think), the Temple will buy blessed edged weapons
+- the magic shop does not buy books.  The booksellers have that monopoly.  This means that there is more space for magical items.
+
+"store_delete()"
+- changes to accomodate code below.  In particular, the code is highly reluctant to delete standard stock items.
+- you will seldom see wimpy piles of ammo.
+
+"adjust_store_object()"
+- shopkeepers with low purses are not only slightly less greedy on average, they also offer a lot more sales.
+- we use the old set of discounts, not the cheesy new Angband one
+- special items (those that the store doesn't usually stock) are more expensive; up to 120% more for really expensive stuff
+
+"store_item_create()"
+     Stores stock two kinds of objects: standard stock items, and special stuff. Standard stock items never have any magic whatsoever.  Special items have rather good magic (on average, they are better than stuff in the old Black Market).
+
+"price_markup()"
+     The initial asking price (and the final price, if the auto_haggle option is on) is increased by up to 33%.  For anything less than about 400 gold, it is always zero; above that figure, the markup increases with value and poor haggles, and decreases with good ones.  Whenever the markup is zero, you do not have to haggle.
+     Because the effect of good haggles is exponential, it is quite practicable in Sangband to get a shopkeeper to immediately offer the final price on just about everything.  Whenever you beat the shopkeeper down to his final offer, and close the deal, all the prices in the store improve.
+     Those who use the auto_haggle option, however, are stuck with the current markup, which replaces the old "sales tax".
+
+"store_adjust()"
+     This function replaces the old stock-creation and deletion code.  It does two things:  refresh standard stock items, and create special items.
+- special items are created more and more often as you continue to spend money at that store; they also get better and better.  By the end of the game, a well- patronized store can put the old Black Market to shame.
+
+"display_entry()", "display_inventory()"
+- prices that are marked up (the ones you should haggle for) are displayed in grey.
+- other, more minor interface tweaks
+
+"prt_welcome()"
+     The greeting the shopkeeper gives you as you enter the store says a lot about how much credit you've built up with him.
+
+"increase_insults()"
+- stores don't stay closed so long.  Two to four days is plenty.
+
+"get_haggle()", "receive_offer()"
+- entering a price of zero doesn't confuse the code
+- new messages when the player tries to renegotiate a done deal
+- minor changes
+
+"haggle()"
+     The haggling code has been rewritten.  I am probably the first person in many years to really understand how haggling works, and what I learned was that it was not a pretty sight.  The code had problems from the beginning, and things have gotten worse over time.  The Black Market never did cooperate, and some fiddly but important math got damaged sometime after 2.6.2.
+
+- how hard it is to bargain the shopkeeper down to his final offer no longer depends on starting and final "greed values, other price modifiers, and the base value of the item, but solely on a user-modifiable difficulty factor.
+- shopkeepers will make much more reasonable starting offers when buying items from you
+- haggle sessions tend to be shorter
+- the interface makes it clearer when you've reached the true final price, automates a few things, and fixes some minor bugs
+- the code is a lot easier to figure out
+- bad deals can be forgotten whenever you close a good deal.  This means that you can (eventually) recover from any mistakes you make.
+
+"buy_and_sell()"
+- buying and selling have been condensed into one function
+- various textual changes
+- the "You quickly agree upon the price" message is now a status indicator (cuts down on keypresses, retains info).
+- if you empty out a store, you can often convince the shopkeeper to retire
+
+"store_inspect()"
+- Julian Lighton's code (from Zangband) to inspect store items
+- Can browse spellbooks of your realm in stores
+
+"store_process_command()"
+- warning about the roguelike command set in the code documentation (this is a real gotcha)
+- the Inn processes commands somewhat differently
+
+"store_shuffle()"
+- a new store owner will have some idea of what kind of haggler you are.  This is a small but important change; now you don't have to completely re-establish credit every time the owner changes.
+- a new store owner benefits from all the money you spent at that store over time, and so will offer just as many special items as the old owner did
+
+"store_maint()"
+     Store maintainance no longer consists of deleting a bunch of stuff and then adding a bunch of stuff.  Instead, one or two items get deleted (if the store is getting full), a standard stock item is refreshed, and sometimes a special item is created.  The effect of this is that stores are almost certain to have items that are supposed to be always available.
+     Store maintainance is considerably more efficient now.
+
+
+--- tables.c ---
+
+"grids_in_radius()", "nearby_grids_y()"
+     A quick way to get the grids in a given radius and to scan nearby grids.
+
+"adj_mag_study()"
+     Is now the number of spells available at highest level, which makes for a smoother progression with increases in the spell stat.
+
+"adj_mag_mana()"
+     A much more important application of the same principle.
+
+"adj_mag_fail()"
+     Stats of 6 or less are generally dangerous in Sangband (in Angband, sometimes 7 or less are, sometimes 6 or less).  Changes to this table to incorporate the effects of the old "adj_mag_stat" table.  See "fail_chance()", cmd5.c for usage.
+
+"adj_mag_stat()"
+     Removed.
+
+"adj_chr_gold()"
+     Effect of charisma adjusted because of the way the pricing code now works. Effect of high charisma reduced because it was (and still is) too easy for high-level characters to get endless gobs of gold, which in turn breaks various other things...
+
+"adj_dis()"
+     Intelligence and dexterity have the same effect on disarming (the effect of intelligence has been halved)
+
+"adj_str_td()"
+     Strength has a larger effect on Deadliness.
+
+"adj_dex_th()"
+     Strength has no effect on non-magical combat Skill, dexterity has a larger effect.
+
+"adj_str_wgt()"
+     It takes more strength to reach the maximum carrying capacity.  Low-strength characters can carry slightly more.
+
+"adj_str_hold()"
+     Substantial drop in the weight of weapons that can be wielded with less than godly strength.  Reasons for this include lower weapon weights and greater power of heavy weapons.
+
+"adj_str_dig()"
+     Substantial drop in the bonus to digging given by strength (makes the plus to digging more useful throughout the game).
+
+"blows_table()"
+- the minimum number of blows you get with a weapon you can wield effectively is two.  This eliminates the all-important breakpoint between one and two blows.
+- the character cannot get more than four blows with really heavy weapons, or more than five with moderately heavy ones.
+- improvements to the documentation
+
+"player_exp()"
+     Exp reworked to yield smoother progression through the power levels, then flattened to allow high-level monster exp to be lowered.
+
+"race_info()"
+     I started writing this with the Angband 3.0.1 table to compare with, but so many silly changes have been made (hobbits with *hold life*?!), and the edit file is so ugly, that I'll use the Angband 2.8.3 table instead.
+
+- fixes to the height and weight of all races, humans in particular.  You will not see such absurd values any more.  Clearer documentation of what really goes on.
+- deletion of the searching frequency value.
+     In roguelikes, character races modify starting abilities.  This is powerful at the start of the game, but all the races start to behave more and more like each other as the game progresses.  In Oangband, and then in Sangband, I have worked to fix this problem; among the changes made are that races now also modify abilities as level goes up.
+- many races do not have intrinsic infravision, and that of those that do is usually weaker.
+- humans are now somewhat older
+- half-elves are gone
+- high-elves and dunadain have no exp penalty; they are deliberately intended to be easy to win with.
+- new races:  Dark-elves and Giants
+- elves are more stealthy, but worse at ranged combat (except with bows!).  They are not naive.  They are taller and heavier.  They do not sustain dexterity.  They are considerably older.
+- hobbits are not the uber-skilled pixies of Angband, but are tough and resiliant.  They do /not/ hold life!  <<not putting up with this crap - switching tables>>  They are not so intelligent, are worse at ranged combat, and are slightly taller and heavier.
+- gnomes are great with devices, have only a small bonus to saving throw and to disarming, are not as stealthy, and only average at ranged combat.  They have no CON bonus.
+- dwarves are neither so stupid nor so uncharismatic.  They are poor at disarming, average with devices, even noisier than before, and get no perception bonus.  They are older, larger, and heavier.
+- half-orcs are naive but tougher than before.  Their perception is lousy. They are considerably older.
+- half-trolls are not quite so naive, clumsy, or uncharismatic.  They have a lesser penalty to saving throw and to stealth.  They are not nearly so tall.
+- dunadain are wiser but less intelligent than before (they are intended to be super-priests and druids).  They get no bonus to ranged combat, but have more hitpoints.  They are no longer giants.
+- high elves have more reasonable bonuses to charisma and saving throw.  They are better at disarming, but only average at melee combat.  They are much older. You will no longer see high-elves that are ten feet high.
+
+"magic_info()", "spell_desc()"
+     Although I prefer this method to that of Angband, I do appreciate that the latter has its advantages.
+
+"chest_traps()"
+     Lots of new chest traps.  Chests have power levels from 1 to 100.
+
+"s_info()"
+     Artifacts can gain power when matched with others.  This was an idea that never quite happened in early Angband development; well, now it has.
+
+"window_flag_desc()"
+     Clearer titles for a few windows, borg windows correctly set apart by defines.
+
+"option_text()", other options tables.
+     Angband has gone a little overboard with options; Sangband has removed a lot of them.  Some default values have changed, and some new options have been added.  The options are organized very differently now; I believe the new method to be a lot clearer.
+
+Removed options:
+- "floor_query_flag" is gone.
+- "always_repeat" is gone.  it's always TRUE.
+- "show_choices" is gone.  it's always TRUE.
+- "show_details" is gone.  it's always TRUE.  Sangband doesn't run on machines so slow as to have trouble with displaying monster descriptions.  Note, however, that a compiler option exists to suppress descriptions.
+- "auto_scum" is gone.  it's always FALSE.
+- "expand_look" is gone.  it's always TRUE.
+- "expand_list" is gone.  it's always TRUE.
+- "view_reduce_lite" and "hidden_player" are gone, as they don't save enough time on semi-modern machines to matter.  always FALSE.
+- "avoid_abort" is gone.  it's always FALSE.  again, not enough time saved.
+- "avoid_other" is gone.  it's always FALSE.
+- "fresh_before" is gone.  it's always TRUE.  most of the calls are replaced by tests against the delay factor, and the rest any machine that runs Sangband can handle.
+- both flow options are gone (always TRUE).  Flow may, however, be turned off with a compiler option.
+- "smart_learn" is gone.  it's always TRUE.
+- "smart_monsters" and "smart_packs" are gone.  both are always TRUE.
+- "auto_more" is gone.  it's always FALSE.
+- "run_use_corners" is gone.  it's always TRUE.
+- "scroll_target" is gone.  it's always TRUE.
+- "maximize" mode is always ON
+- "preserve" mode is always ON
+- there is no point-based generation in Sangband
+- there are always random artifacts in Sangband
+- "center_player" and "run_avoid_center" are gone (but see below)
+- "verify_special" is always TRUE.
+- "dungeon_align" is always TRUE.  No reason for rooms ever to be misaligned.
+- all the "easy_xxx" options were never added (Tim Baker's patch is fully 
+integrated)
+- "show_piles" was never added
+
+Changed names:
+- the lighting options have all been renamed
+
+New options:
+- ToME's option to change the character color when badly hurt.
+- new option to color hit messages based on seriousness of damage
+- GSNband's metric option
+- Hengband's option to automatically pop up lists.  This is heartily recommended for all variants.
+- option to choose whether traps or objects display on top
+
+"custom_display_text()"
+     Sangband allows you to customize the lower portion of the left panel.  More comments elsewhere.
+
+"inscrip_text()"
+- some new inscriptions
+
+"mana_cost_RF4()", etc.
+     Most non-innate monster spells now have a mana cost.
+
+"spell_desire_RF4()", etc.
+     This is an important set of tables.  For each spell, give a base desireability, and increase it when wanting to summon, heal, regain mana, escape, shift position, reduce it according to resistances and (sometimes) 
+range.
+
+"spell_range_RF4()"
+     For every grid of distance beyond this range (if non-zero), reduce desirability by the range perecentage in spell_desire_RF4, etc.
+
+"skill_info()", "talent_info()"
+     Sangband skills and talents.  Stuff to note includes the varying cost of skills and the constant indexes for talents.
+
+"flag_creation_data()"
+     This table lists (almost) all object flags.  For each flag, it gives the relative likelihood that it will generate an essence and the essence it can create.  When you add powers to forged items using essences, this table gives the base essence cost.  Finally, it is used to list object flags in various places.
+
+
+--- talents.c ---
+
+     Sangband's talents.
+
+
+--- traps.c ---
+
+     This file contains Sangband's new system of traps.  Several variants have responded to the need for more flexible traps; this is YATS (Yet Another Trap System).  The reason why I didn't just use, say, EyAngband's system (which I also direct your attention to) is a desire for both maximally simple code and minimal memory usage.
+
+"t_kind_info()"
+     Lists the various kinds of traps.  The new information includes minimal depth and special trap flags.  In addition to the normal character-zapping traps, there are also glyphs of warding, a kind of trap that affects monsters, and Moria's beloved loose rocks.  I have not yet decided whether stairs should use this code.
+
+"cave_trap_specific()", etc.
+     YATS uses an array of traps, rather like the object, monster, etc. arrays. Unlike the other arrays, it is unsorted (which means that there is no need for sorting, compacting, etc.).  The size of this array is controlled in
+"limits.txt".  There is also an array of trap kinds (see "t_kind_info()").
+     Traps are placed by marking the dungeon with a cave_info flag, finding the first empty trap slot, and filling in the information.
+     Traps are accessed by checking the cave_info flag, and scanning the trap list until we find the trap (or traps; traps are stackable, although they don't stack normally) with the right coordinates.  This may seem slow, but testing reveals no problems with speed (probably because testing a cave_info flag is so fast).
+
+"reveal_trap()"
+     Trap detection.  Accepts a percentage chance to reveal more than one trap in the same grid (at present, this is always 100).  Usually this function does not reveal loose rocks.
+
+"pick_trap()"
+     Picks an appropriate trap for this level.
+
+"place_trap()"
+     The one function that makes traps.  Fills in trap information, increments the monster trap and glyph count.
+
+"remove_trap_aux()"
+     The one function that deletes traps.  Wipes trap information, decrements the trap and glyph count.
+
+"display_traps()"
+     If you're going to have multiple traps in a grid, you need to be able to display them.
+
+"get_trap()"
+     If multiple traps are in a grid, we must be able to pick one to disarm (at present, this code is not expected ever to be activated and is not polished or complete; it is included only for completeness).
+
+"magic_disarm()"
+     Accept a grid, and a percentage chance of success.  At present, magical disarming succeeds 19 times out of 20.
+
+"load_trap()"
+     Traps can hold objects, just like monsters can hold objects.  This function allows the player to interact with a trap, loading and unloading objects as desired.  There are various limitations on what a trap may hold.
+
+"trap_combat()"
+     The Sangband trap code is a mix of Oangband's and PsiAngband's; you can set traps without special equipment but, in order for them to actually do anything, you need to load them.  Among the objects you can load them with are melee weapons, missile launchers and ammunition, magical devices, potions, scrolls, and stuff to throw.
+     This function uses a simplified (and somewhat bastardized) version of the non-magical combat code to handle physical attacks.  The damage done depends both on object power and on your trapping skill.
+
+"hit_monster_trap()"
+     Handles the effects of a monster hitting a Burglar's monster trap. Monsters can float over traps, evade them, disarm them, smash them to little bits, or get caught by them.
+     If a monster gets caught, what happens next depends (as in PsiAngband) on what the trap has loaded.  Potions will smash, scrolls will read, melee weapons will attack, missile launchers will shoot ammo, magical devices will cause explosions of magic, and everything else will be thrown.
+
+"hit_trap_aux()"
+     In Oangband, there is a far greater variety of traps (although not as many as in Angband/64), with effects controlled by dungeon level.  We use the quick RNG, seeded with the trap's location, so that a given trap will always produce the same effects.
+- as in Moria, loose rocks hide objects
+- as in Zangband, feather fall gives you complete control over trap doors
+
+
+--- util.c ---
+
+"get_loc_of_flag()"
+     Given a flag, return its index (within a set of 32 flags)
+
+"msg_flush()"
+     Quick_messages turns off if your hitpoints are below the hitpoint warning level.  The reason why I added this was because I have gotten killed several times by holding down the 's' key to search, only to have a nasty critter come through the secret door and stomp on me.
+
+"message()"
+     Ethen Sicotte once proposed that some messages should flush pending output and delay the game.  This idea has been implemented; it is currently used whenever the character gets hit hard.
+
+"c_roff()", "roff()"
+     Old functions, retained because they are useful wrappers around "text_out".
+
+"c_roff_centered()"
+     Print centered text between the given margins.  Is capable of printing several rows.  Used for headers, the death text in the tombstone, and various other things.
+
+"get_check()"
+- you do not have to remember to put a space at the end of strings you pass to this function.  This is also true with all other functions except "get_string()".
+- we remember the question and the answer in the message recall
+- we display "Cancelled." on the message line if the player cancels.  This is sometimes unnecessary, but also sometimes quite helpful.
+
+"pause_line()"
+- accepts a row to print text on.  Centers the string correctly.
+
+"dam_to_dice()"
+     Turns damage into dice.  Used whenever we wish to reverse "damroll()".
+
+"make_metric()"
+     Turns a standard weight into a metric one.
+
+"get_angle_to_grid()"
+     From a technical standpoint, the most important advance in the Oangband projection code is the correct treatment of angles.  At present, this table is used to delineate arcs, determine what direction an impact blow should knock you back in, build starburst rooms, and fire beams and magical devices in totally random directions.  New uses are certain to be found.
+     This table takes up almost 1700 bytes of memory, but it's well worth it.
+
+"rsqrt()"
+     A simple, fast, square root function in integer math, with standard rounding (as opposed to truncation).  Uses Newton's method.
+     There is an alternative function, currently ifdefed out, that is four times as fast but considerably more complex.  The square root function being used is fast enough for almost any purpose.
+
+"get_angle_to_target()", "get_grid_using_angle()"
+     Translates target grids to angles and back again.
+
+
+--- variable.c ---
+
+"character_silent"
+     Was "character_xtra".
+
+"screen_rows"
+     Number of rows used to show the screen.  Either 25 or 50.
+
+"map_rows"
+     Number of rows used to show the map.  22, 33, or 44.
+
+"force_25_rows"
+     Is the game forced to display the main screen in 25 lines?  Default is TRUE.
+
+"clear_y", "clear_x"
+     Number of grids away from the edge at which the panel will automatically shift.  Set either figure to the max, and the panel will center around the character constantly.
+
+"angband_color_table"
+- we compromise between the old Angband light red and the new Angband pink.
+- we use some of J.Dixon ("gumby")'s color preferences, in particular his richer browns and more distinct greys.  Various other colors tweaked slightly.
+
+
+--- wizard1.c ---
+
+     Various updates for Sangband, including the new object flags, multiple pvals, etc.
+
+"print_header()"
+- All spoiler files have the same header.
+
+(various artifact spoiler-related code)
+- removed, and replaced with code in "info.c".
+
+"kind_info()"
+- correction of a bug that gave incorrect values to objects with basic plusses or minuses to AC, to_h, and to_d.
+
+"spoil_obj_gen()"
+     Prints out the objects that appear on the current depth.
+
+"spoil_mon_gen()"
+     Same, for monsters.
+
+"do_cmd_spoilers()"
+- tells you where the spoiler files will appear
+
+
+--- wizard2.c ---
+
+"do_cmd_wiz_flow()"
+     This function has been rewritten for the new sounds and scent code.
+
+"wiz_display_item()"
+     Rewritten.  Now displays a lot more information in what I hope will be an easier display to understand.
+
+"wiz_create_itemtype()"
+- you use this interface to create artifacts too
+- tvals spaced out, with blank lines between major categories.  I find this makes it easier to find the tval I want.
+
+"wiz_reroll_item()"
+- as in Zangband, you can roll for artifacts.
+- various object information saved and restored:  quantity, identification, links to piles and monster, inscriptions, etc.  Among the effects of this is that "nothings" don't appear when you tweak objects on the floor.
+
+"wiz_create_item()"
+- you are always asked for a quantity to create.
+
+"do_cmd_wiz_learn()"
+- you can forget about objects (learning isn't irreversable)
+
+"do_cmd_wiz_named)"
+- tries harder to place the monster
+- tells you what monster you summoned
+
+"wiz_detect_all()"
+     Detects everything within a given distance from the character.
+
+"do_cmd_wiz_query()"
+- handles the new cave_info flags
+- displays a more detailed prompt and more information
+- allows debugging of the projection code
+
+"do_cmd_debug()"
+- most wizard commands will ask you for a quantity if you do not specify it, and ask you for a target if you do not give it.
+- the wizard-bamf command is much more convenient to use
+- you can specify a detection distance for the detect all spell
+- a kill all knowledge command.  Useful for undoing the effects of the various learning commands.
+- a forget spells/realm/etc. command.  Again, useful for resetting a character.
+- probe monsters
+- a complete list of wizard commands appears on-screen whenever you mistype
+
+
+--- xtra1.c ---
+
+"fighter_general()", etc.
+     A large number of character titles.  Feel free to use any that are useful. Note that the one prefixed by '#'s are sometimes placed in quotes, and others are gender-specific.
+
+"get_title()"
+     Sangband has no classes, which makes it all the more important that players get a feel for their character.  This function puts some considerable effort into figuring out a character's strong points and selecting a title.
+
+"cnv_stat()"
+- stats of 18/220 or higher are expressed 18/***.  I realize why the change was made to always display actual values, but 1) it's too mechanistic for my taste, and 2) it confuses the player.  Where's the true maximum?
+
+"prt_short_name()"
+     Prints the first 12 characters of a character's name.  If the name includes spaces, we'll stop at any space at position 8 or greater.
+
+"prt_title()"
+     Same rules for character titles.
+
+"prt_equippy()"
+- when not using a weapon, the current barehanded combat method is indicated.
+
+"prt_shape()"
+     Displays shapechange in pretty colors.
+
+"prt_hp()", "prt_sp()"
+- More compact display, as in Zangband.  More colors.
+
+"health_redraw()", etc.
+- The brackets that border the monster health bar are green if you have unrestricted line of fire, white if monsters bar the way, and slate if you have no line of fire at all
+- hallucination is a little weirder
+
+"prt_hunger()"
+- prints out on whatever line is just below the bottom of the map
+- change to display when fainting
+
+"c_roff_insert()", "prt_conditions()"
+     Instead of dividing up the left half of the status bar into set blocks, Sangband uses a prioritized list of statuses.  They appear one after another, reading from left to right in order of priority.  This makes it possible to use the status bar to display a much greater variety of information.
+     I also direct your attention to Hengband's method of compressing all status indicators to fit the space available.
+
+"prt_speed()"
+- we can add plusses before non-negative numbers by using the "%+d" format (on all semi-modern machines). There is no need for "+%d".
+
+"prt_study()"
+- EyAngband-style numerical display of spells one can learn
+
+"prt_stun()"
+- the cut-off values for heavy stun and being knocked out are in defines
+
+"prt_poisoned()"
+- the poison display varies depending on how poisoned you are
+
+"prt_oppose()"
+     Prints opposition to the elements, poison, and ethereal resistance
+
+"left_panel_display_aux()", "left_panel_display()"
+     The status bar can display more information now, but it's still not enough. Sangband therefore allows the player to customize the lower portion of the left panel; how many slots are actually available depends greatly on screen height.
+     Among the things that you can display are:
+- extra monster health bars
+- total kills
+- score
+- fame
+- temporary magical auras and enhancements
+- special attacks (confuse monster, hit and run, etc.)
+- berserk, blessed, stunned, cut, poisoned, diseased, confused, hallucinating, or cuts
+- regeneration speed (hitpoints, then mana)
+- oppositions
+- the various new temporary conditions
+- current target
+- quest status
+- amount of noise you are making
+
+"armor_weight()"
+     When wielding two weapons, the one in the shield slot is not included in the weight of your armour.
+
+"fix_m_list()"
+     As in ToME, visible monsters can be shown in a sub-window.
+
+"calc_mana()"
+- you lose a percentage of mana, not a fixed amount, for wearing over-heavy armour.  This makes it harder to lose all your mana, and easier to lose a fair portion of it.  A major effect of this is to stop high-level spellcasters from wearing quite heavy armour and losing only an insignificant chunk of their total mana.
+- mana increases more smoothly as spell stat does.  This effect is perhaps most noticeable in the beginning of the game:  10/40 on your spell stat is almost as good as 10/50.
+- you can have a mana bonus from equipment
+- gloves that grant a bonus to device skill do not hurt mana
+- any shapechange penalizes mana
+
+"calc_hitpoints()"
+     Sangband has no classes, but does have varying bonuses to hitpoints, quite similar to those in Angband.  The major differences are that spellcasters are not hit so hard, so early, and that pure warriors have a slightly lesser bonus.
+- heroism and the berserkergang increase maximum hitpoints
+
+"calc_torch()"
+- a shining character (p_ptr->lite) increases any light radius.  This changes this attribute from being almost useless to being very powerful indeed.  In Sangband, considerably fewer objects have it.  In particular, flaming objects do not get it (they act as weak alternative light sources instead).
+- some conditions can give an extra bonus (therefore, the maximum light radius is now 5)
+- you can have a reduced light radius
+- a well-fueled torch now has a light radius of two.  Torches are still markedly inferior to lanterns, but they are not near-useless; certain ego-item torches 
+can be quite nice.
+- any equipped item may be used as a light source.  Only the best light radius is used.
+
+"calc_regen_aux()", "calc_hp_regen()", "calc_mana_regen()"
+     The code that calculates character regeneration has been split off into its own functions.  In general, the rules for calculating mana and HP regenerations differ more.
+- trolls regenerate hitpoints quickly
+- the berserk regenerate hitpoints quickly
+- various timed states increase hitpoint regeneration
+- various new things interfere with HP regeneration
+- the basic object regen flag increases mana regeneration by 50%, not 100%
+- you can temporarily regenerate mana at double speed
+- the berserk and the raging regenerate little mana
+
+"player_flags()"
+     This function is responsible for all permanent intrinsics that cannot be expressed in pval form.
+- shapechanges added
+
+"player_flags_cancel()"
+     Flags can be cancelled intrinsically.
+
+"player_flags_pval()"
+     Handles intrinsic attributes that are best expressed in pval form, and that we wish to show up on the character screen.  This function combines a lot of code; intrinsic extra blows and shots, racial stat and infravision modifiers, the stat effects of various specializations, and shapechanges.
+     Other things could be included in this function, but aren't, including racial bonuses to the various basic abilities.
+
+"add_special_melee_skill()", "add_special_missile_skill()",
+"add_special_throwing_skill()"
+     Sometimes we want to adjust the combat modifiers of races and character specializations more finely then the standard arrays make convenient.  These two functions 1) inflict varying penalties for wielding heavy weapons, 2) give burglars bonuses with light ones, and 3) make such races as Elves and Dwarves good and bad at logical things.
+     The end effect is to give classes and ways of adventuring more depth and character.
+
+"calc_bonuses()"
+- modifiers to the various basic abilities are better grouped
+- races have both immediate and power-dependant modifiers to the basic skills. In general, the choice of race is more important.
+- clearer code documentation
+- all equipment items other than weapons and launchers modify both Skill and Deadliness
+- blows, shots, and extra might are things only weapons can affect.
+
+     Rings of extra blows are always a bad idea, because they add more relative power to heavy weapons (which get few blows) than to light ones.  They are /especially/ a bad idea with the traditional combat system, because it already makes weapons with big damage dice the universal choice deep in the dungeon.  Other objections include excessive messages and a general inflation of damage, but it is overpowered heavy weapons that are the big problem.
+
+- boldness is a timed condition that grants temporary resistance to fear
+- major changes to berserk.  For a pretty good description of what the Berserkergang was truly like, head to: http://www.florilegium.org/files/NORSE/Berserkergang-art.html
+- searching replaced with sneaking.  Sneaking slows one down by 5.
+- maximize mode is always on
+- stealth is now corrected for speed.  Becoming faster no longer makes you effectively more stealthy.
+- much simpler math for translating stealth to noise.  You always make some innate noise.  The base effectiveness of stealth is controlled by a define. Note that various actions can temporarily increase the noise level.
+
+- the time taken by a shot is now 200 / shots, and the normal number of shots is 2.  These means that it takes two extra shots, not one, to double shooting speed.  The allowable range of extra shots has been increased (although not doubled).  As in melee, it was the tremendous difference between one blow/shot and two that mandated a change.
+- the most logical value to determine a missile launcher's base multiplier are the number of damage dice it rolls.  And this is how Sangband stores this value.
+- the number of blows you get depends solely on strength and dexterity.  The real question is not how fast you can hit, but how hard and accurately.
+- important change:  you get a minimum of two blows with a weapon you can wield effectively.
+- adjustments to melee, firing, and throwing skill are separated; many things that used to affect all of these now affect only one or two.  This part of the code could stand some cleaning up.
+- the priestly penalty for wielding edged weapons is a considerable penalty to melee Skill (no effect on firing or throwing), a reduced light radius, and a lesser, but still substantial, increase in prayer failure rate.  New
+"icky_wield" messages.
+- when wielding a two-handed weapon, you automatically transfer your shield to your back.  This means that the shield cannot be used to bash with or deflect missiles, and has a base AC of zero.
+
+"update_stuff()", etc.
+- minor changes
+
+
+--- xtra2.c ---
+
+"set_condition()"
+     The code to set character conditions is now more compact.  The various
+"set_xxx{}" functions pass a pointer and messages to this function, which does the real work.  We have not yet rationalized display updates.
+
+"set_blind()", etc.
+- many condition-changing functions allow special messages
+- many also include code to update the custom left panel rows
+
+"set_berserk()"
+- the berserkergang now consists of two parts; the "berserk" and the "weakness"
+
+"set_wiz_prot()", etc.
+- lots of new temporary conditions
+
+"set_oppose_acid()"
+- better messages when all oppositions time out at once
+
+"set_food()"
+- going from full to normal is no longer disturbing
+
+"shapechange()", etc.
+     The code to change into and out of different shapes.  Note the code that restores your mana when you return to your normal form; mana lost when shapeshifting is recovered immediately.
+
+"gain_exp()"
+     There are two ways of designing a skills advancement system:  give skills automatically or by purchase, or increase them with practice.  Sangband generally does the former.  However, in order to encourage players to not buy up skills from nothing to high levels instantly, and to reward the actual use of skills, Sangband stores practice exp for various skills.  The rules are fairly liberal; a little practice goes a long way.
+
+"lose_exp()"
+     Life draining normally attacks unspent exp, but (especially if severe in relation to unspent exp) can also drain skills.
+
+"danger_color()"
+     Hit messages can be colored depending on the amount of damage you sustain.
+
+"take_hit()"
+- allows hit messages to be of a variety of types
+- allows special hit messages in place of the generic ones
+- damage resistance cuts all damage by a third.  This is Sangband's closest equivalent to invulnerability.
+- heavy hits pause the game (so you can take your finger off that move key!)
+- character symbol can change color with damage taken
+
+"adjust_panel()"
+- panels always shift in 11x33 blocks (unless you have Sangband's equivalent 
+to "center_player" on).
+
+"verify_panel()"
+     The math in this function is a little ugly, but the net effect is to provide as much visibility as practicable, over a variety of screen layouts, while working well with how the dungeon is laid out.
+
+- finer control of how close to the edge the character must be before the panel shifts.  If set to the maximum, the map centers on the character every turn.
+- we display more space in the direction of travel when looking
+- we center the panel more precisely when appropriate
+
+"look_mon_desc()"
+- all the old wounded/damaged text gone:  the monster health bar works just fine
+- insane and town monsters are marked
+- approximate mana may be displayed
+
+"mimic_desc()"
+     Sangband uses the Zangband mimic code.  Mimics start out hidden and often reveal themselves only by attacking.  This involves a fair amount of code in various places, but it definately adds to gameplay.
+
+"target_able()"
+     Sangband uses explicit line of fire, which is always less expansive than line of sight.  Among the biggest problems was allowing players to target monsters in line of sight sometimes (need to be able to set the monster health bar), but usually only be able to target monsters that they can actually hit. This function applies one of these two rules depending on situation.
+
+"target_pick()"
+- the targetting code had a nasty habit of shifting the cursor off to the side when the direction keys '4', '6', '8', or '2' were pressed.  It is now more likely to head in the direction you request.
+
+"target_set_interactive_accept()"
+- some new things are considered "interesting"
+
+"target_set_interactive_aux()"
+- some textual changes, especially in prompts
+- floor stacks display in a list
+- some monsters can be mimics or only partially visible
+- monster health bar displayed with the monster description.  Makes various information easier to see, especially whether the monster is in LOF.
+- new-style traps handled correctly (although the display of items they contain is a little ugly)
+
+"target_set_interactive()"
+- option to force looking at all grids
+- option to only target monsters in line of fire (used when targetting)
+- if requiring line of fire, we only cycle between monsters in LOF
+- '=' acts like '+' (this is also true in various other places in the code)
+- as in Hengband, ' ' sometimes acts like '*'
+- 'p' does not make you start looking at all grids
+- as in Hengband, you can type uppercase movement keys when using roguelike commands to move the cursor faster
+
+"get_aim_dir()"
+- pressing '.' when targeting immediately sets the target to the closest monster in LOF
+
+
+--- z-term.c ---
+
+     Includes a hook to toggle the screen rows between 25 and 50.
+
+
+--- z-rand.c
+
+"Rand_div()"
+- takes and returns signed longs, as these cause less trouble
+
+"Rand_normal()"
+- more code documentation
+- When used with large numbers, this function produced undefined results.  "him fall down, go boom".  It is now safe.
+
+"Rand_simple()"
+- takes and returns signed longs
+
+"div_round()"
+- rounding by truncation is often a real source of trouble in integer math division.  Even standard rounding can cause strange behavior.  When we want a smooth graph of possible results - also known as "mathematically correct" or "perfect" rounding - we use this function.
+
+
+--- config.h ---
+
+A number of compile options have been removed in Sangband, usually for one of three reasons:
+1) The code in question has been fully incorporated into the game,
+  like monster fear, the DRS monster memory code, and Tim Baker's easy
+  patch.
+2) The feature no longer imposes any significant costs (monster terror).
+3) The game no longer supports x286-based machines (because of the use
+  of large arrays to hold monster descriptions, and because the code now
+  runs very slowly on them).
+
+- the various "DELAY_LOAD_*_TEXT" options are now commented out because the game has object, ego-item, and artifact text.
+
+     Also examine the "system" configuration file "h-config.h".  A lot of options have been moved there.
+
+
+--- defines.h ---
+
+MAX_RANGE is now 20 again.  I believe that it is no longer necessary to keep it at 18, but I may be wrong...
+
+TARGET_DECLARE, etc.
+- a convenient way to save and restore targets when using multi-part spells. By Bahman Rabii - who wrote it to handle my fancy but buggy spells! :-).
+
+     The monster and object flags, monster spells, and projections have been reorganized.  They all use the same sequence of attack types/resists, which is also the same as that shown on the character screen.
+
+"monster_nonliving()"
+- standard test for whether a monster is non-living
+
+"is_melee_weapon()", etc.
+- classes of objects
+
+"cave_passable_bold()"
+- more detailed tests for varied terrain, allows smarter objects and monster placement, movement, etc.
+
+
+--- types.h ---
+
+"object_kind"
+- flags_pval:  a new set of flags for pval-dependant qualities
+- xtra:  any object may have random flags
+- special:  more detailed information about object lore, etc.
+
+"object_type"
+     Object structures are a lot bigger now, which pains me.  But if you're going to have three different pvals, and no limits on object manipulation, it's the cleanest way.
+- discount has become cost adjustment (100 is normal)
+- any object can have an activation (dragon scale mail, certain amulets, etc.)
+- game-generated inscriptions do not jostle for space in the discount field
+
+"artifact_type"
+- artifacts have up to three different pvals, have the same sort of random flags as other objects do, and may belong to sets.
+
+"ego_item_type"
+- similar notes
+
+"set_element"
+- information about artifact sets
+
+"monster_race"
+- monsters have "lifepoints", not "hit dice".
+- we still multiply experience by monster level; Angband's changed this, but it wasn't worth it (and it's annoying to have to type in seven-digit values).
+- monsters have a single ranged attack frequency, limited mana, and spellpower
+
+
+
+
+
+And that's all!
+

@@ -1,16 +1,22 @@
-
 /* File: birth.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Character birth.
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * Character histories, roll for stats and base hitpoints, determine
+ * age/height/weight and starting gold.  Reset all character information.
+ * Display birth options, quick-start, ask birth questions.  Roll and
+ * auto-roll for stats.  Initialize and create a new character.
+ *
+ * Copyright (c) 2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #include "angband.h"
-
 
 /*
  * Forward declare
@@ -29,18 +35,26 @@ struct birther
 
 	s32b au;
 
-	s16b stat[7];
+	s16b stat[A_MAX];
 
-	char history[4][60];
+	char history[250];
 };
 
 
+/*
+ * Requested base stats
+ */
+static int stat_ask[A_MAX];
 
 /*
- * The last character displayed
+ * Current stats (when rolling a character).
  */
-static birther prev;
+static s16b stat_use[A_MAX];
 
+/*
+ * Order in which stats are assigned, from best to worst.
+ */
+static int stat_order[A_MAX];
 
 
 /*
@@ -67,8 +81,7 @@ struct hist_type
  *
  * Chart progression by race:
  *   Human/Dunadan -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
- *   Half-Elf      -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
- *   Elf/High-Elf/Dark-Elf  -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
+ *   Elves         -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
  *   Hobbit        --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
  *   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
  *   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
@@ -95,7 +108,7 @@ static hist_type bg[] =
 
 	{"You are the black sheep of the family.  ", 20, 3, 50, 20},
 	{"You are a credit to the family.  ", 80, 3, 50, 55},
-	{"You are a well liked child.  ", 100, 3, 50, 60},
+	{"You were a well liked child.  ", 100, 3, 50, 60},
 
 	{"Your mother was of the Teleri.  ", 40, 4, 1, 50},
 	{"Your father was of the Teleri.  ", 75, 4, 1, 55},
@@ -107,9 +120,9 @@ static hist_type bg[] =
 	{"You are one of several children ", 60, 7, 8, 50},
 	{"You are the only child ", 100, 7, 8, 55},
 
-	{"of a Teleri ", 75, 8, 9, 50},
-	{"of a Noldor ", 95, 8, 9, 55},
-	{"of a Vanyar ", 100, 8, 9, 60},
+	{"of a Telerin ", 75, 8, 9, 50},
+	{"of a Noldo ", 95, 8, 9, 55},
+	{"of a Vanya ", 100, 8, 9, 60},
 
 	{"Ranger.  ", 40, 9, 54, 80},
 	{"Archer.  ", 70, 9, 54, 90},
@@ -151,7 +164,7 @@ static hist_type bg[] =
 
 	{"You are the black sheep of the family.  ", 15, 18, 57, 10},
 	{"You are a credit to the family.  ", 85, 18, 57, 50},
-	{"You are a well liked child.  ", 100, 18, 57, 55},
+	{"You were a well liked child.  ", 100, 18, 57, 55},
 
 	{"Your mother was an Orc, but it is unacknowledged.  ", 25, 19, 20, 25},
 	{"Your father was an Orc, but it is unacknowledged.  ", 100, 19, 20, 25},
@@ -277,395 +290,239 @@ static hist_type bg[] =
 
 
 /*
- * Current stats
+ * Set up a stat priority table, or clear it
  */
-static s16b stat_use[7];
-
-/*
- * Autoroll limit
- */
-static s16b stat_limit[7];
-
-/*
- * Autoroll matches
- */
-static s32b stat_match[7];
-
-/*
- * Autoroll round
- */
-static s32b auto_round;
-
-/*
- * Last round
- */
-static s32b last_round;
-
-
-/*
- * Save the current data for later
- */
-static void
-save_prev_data(void)
+static void prioritize_stats(bool prioritize)
 {
 	int i;
 
+	/* DEBUG -- Turn off this code until we have more time to test it */
+	prioritize = FALSE;
 
-/*** Save the current data ***/
+	/*
+	 * When you turn on this code, also uncomment "p_ptr->birth_roll_requirement = "
+	 * below.  Because it makes the autoroller (even) more effective, it would also
+	 * be a good idea to re-balance manual and auto-rolling.  Perhaps a small maximum
+	 * stat penalty for auto-rolled characters?  But then you need to tweak the
+	 * rarity calcs...
+	 */
 
-	/* Save the data */
-	prev.age = p_ptr->age;
-	prev.wt = p_ptr->wt;
-	prev.ht = p_ptr->ht;
-	prev.sc = p_ptr->sc;
-	prev.au = p_ptr->au;
 
-	/* Save the stats */
-	for (i = 0; i < 7; i++)
+	/* We want to set up the stat priority table */
+	if (prioritize)
 	{
-		prev.stat[i] = p_ptr->stat_max[i];
-	}
+		int j, stat, count;
 
-	/* Save the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(prev.history[i], p_ptr->history[i]);
-	}
-}
+		/* Randomize start and end points for the scan loop */
+		int start = rand_int(A_MAX);
+		int end = start + A_MAX;
 
-
-/*
- * Load the previous data
- */
-static void
-load_prev_data(void)
-{
-	int i;
-
-	birther temp;
-
-/*** Save the current data ***/
-
-	/* Save the data */
-	temp.age = p_ptr->age;
-	temp.wt = p_ptr->wt;
-	temp.ht = p_ptr->ht;
-	temp.sc = p_ptr->sc;
-	temp.au = p_ptr->au;
-
-	/* Save the stats */
-	for (i = 0; i < 7; i++)
-	{
-		temp.stat[i] = p_ptr->stat_max[i];
-	}
-
-	/* Save the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(temp.history[i], p_ptr->history[i]);
-	}
-
-
-/*** Load the previous data ***/
-
-	/* Load the data */
-	p_ptr->age = prev.age;
-	p_ptr->wt = prev.wt;
-	p_ptr->ht = prev.ht;
-	p_ptr->sc = prev.sc;
-	p_ptr->au = prev.au;
-
-	/* Load the stats */
-	for (i = 0; i < 7; i++)
-	{
-		p_ptr->stat_max[i] = prev.stat[i];
-		p_ptr->stat_cur[i] = prev.stat[i];
-	}
-
-	/* Load the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(p_ptr->history[i], prev.history[i]);
-	}
-
-
-/*** Save the current data ***/
-
-	/* Save the data */
-	prev.age = temp.age;
-	prev.wt = temp.wt;
-	prev.ht = temp.ht;
-	prev.sc = temp.sc;
-	prev.au = temp.au;
-
-	/* Save the stats */
-	for (i = 0; i < 7; i++)
-	{
-		prev.stat[i] = temp.stat[i];
-	}
-
-	/* Save the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(prev.history[i], temp.history[i]);
-	}
-}
-
-/*
- * Choose stat mods
- */
-static void
-choose_mods(void)
-{
-	char c;
-	int i, tot_plus, tot_minus;
-	char inp[6];
-
-	/* Clear */
-	clear_from(15);
-
-	Term_putstr(5, 15, -1, TERM_WHITE,
-				"You may choose to modify your stats, adding small bonuses");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-				"to some, at the cost of penalties to others.");
-
-	put_str("Apply modifications to your stats? (y/n)", 20, 2);
-	do
-	{
-		c = inkey();
-		if (c == 'n' || c == 'N' || c == ESCAPE)
+		/* Scan all possible stat requests until the priority table is filled */
+		for (i = 0, count = 0; count < A_MAX; i++)
 		{
-			clear_from(15);
-			return;
-		}
-		if (c == 'Q')
-			quit(NULL);
-		if (c == '?')
-			do_cmd_help();
-	}
-	while (c != 'y' && c != 'Y');
-
-	/* Get the mods */
-	clear_from(15);
-	Term_putstr(5, 15, -1, TERM_WHITE,
-				"Please enter a modifier for each stat.");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		  "Each modification must be between -4 and +4, and you must have");
-	Term_putstr(5, 17, -1, TERM_WHITE,
-				"at least as much in penalties as in bonuses.");
-	do
-	{
-		clear_from(18);
-		tot_plus = 0;
-		tot_minus = 0;
-		for (i = 0; i < 6; i++)
-		{
-			put_str(stat_names[i], i + 18, 5);
-			do
+			/* Loop through the stats (random start to resolve ties) */
+			for (j = start; j < end; j++)
 			{
-				strcpy(inp, "");
+				/* Get stat */
+				stat = j % A_MAX;
 
-				/* Move the cursor */
-				put_str("", 18 + i, 10);
-				if (!askfor_aux(inp, 5))
-					inp[0] = '\0';
-				c = atoi(inp);
+				/* Sort stats by increasing priority */
+				if (stat_ask[stat] == i)
+				{
+					/* Save this stat, increment count */
+					stat_order[A_MAX - 1 - (count++)] = stat;
+				}
 			}
-			while (c < -4 || c > 4);
-			if (c > 0)
-				tot_plus += c;
-			else
-				tot_minus += c;
-			p_ptr->stat_mod[i] = c;
 		}
 	}
-	while (tot_plus + tot_minus > 0);
+
+	/* We want to clear it */
+	else
+	{
+		for (i = 0; i < A_MAX; i++) stat_order[i] = -1;
+	}
 }
 
+
 /*
- * Adjust a stat by an amount
+ * Roll up character stats
+ * Added ability to create an ordered list of stats. -CJN-
  *
- * The "auto_roll" flag selects "maximal" changes for use with the
- * auto-roller initialization code.  Otherwise, if "maximize" mode
- * is being used, the changes are fixed.  Otherwise, semi-random
- * changes will occur, with larger changes at lower values.
+ * The "priority" struct must contain a list of stat priorities (lower
+ * is better).  If the struct contains ties, or values above A_MAX - 1,
+ * these problems will be resolved by "calc_stat_rank"
  */
-static int
-adjust_stat(int value, s16b amount, int auto_roll)
+static void get_stats(void)
 {
-	int i;
+	int i, j, total;
 
-	/* Negative amounts */
-	if (amount < 0)
-	{
-		/* Apply penalty */
-		for (i = 0; i < (0 - amount); i++)
-		{
-			if (value >= 18 + 10)
-			{
-				value -= 10;
-			}
-			else if (value > 18)
-			{
-				value = 18;
-			}
-			else if (value > 3)
-			{
-				value--;
-			}
-		}
-	}
+	int stat, bonus;
 
-	/* Positive amounts */
-	else if (amount > 0)
-	{
-		/* Apply reward */
-		for (i = 0; i < amount; i++)
-		{
-			if (value < 18)
-			{
-				value++;
-			}
-			else if (p_ptr->maximize)
-			{
-				value += 10;
-			}
-			else if (value < 18 + 70)
-			{
-				value += ((auto_roll ? 15 : randint(15)) + 5);
-			}
-			else if (value < 18 + 90)
-			{
-				value += ((auto_roll ? 6 : randint(6)) + 2);
-			}
-			else if (value < 18 + 100)
-			{
-				value++;
-			}
-		}
-	}
+	int dice[3 * A_MAX];
+	int stats[A_MAX];
 
-	/* Return the result */
-	return (value);
-}
-
-
-
-
-/*
- * Roll for a characters stats
- *
- * For efficiency, we include a chunk of "calc_bonuses()".
- */
-static void
-get_stats(void)
-{
-	int i, j;
-
-	int bonus;
-
-	int dice[21];
+	int min = 7 * A_MAX;
+	int max = 9 * A_MAX;
 
 
 	/* Roll and verify some stats */
 	while (TRUE)
 	{
 		/* Roll some dice */
-		for (j = i = 0; i < 21; i++)
+		for (total = i = 0; i < 3 * A_MAX; i++)
 		{
 			/* Roll the dice */
 			dice[i] = randint(3 + i % 3);
 
-			/* Collect the maximum */
-			j += dice[i];
+			/* Sum up totals */
+			total += dice[i];
 		}
 
-		/* Verify totals */
-		if ((j > 42) && (j < 72))
+		/* Require that totals fall within a set range */
+		if ((total > min) && (total < max))
+		{
+			/* Each base stat ... */
+			for (i = 0; i < A_MAX; i++)
+			{
+				/* ... is the sum of 5 + 1d3 + 1d4 + 1d5 */
+				stats[i] = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
+			}
+
+			/* Accept */
 			break;
+		}
 	}
 
-	/* Acquire the stats */
-	for (i = 0; i < 7; i++)
+	/* We are using a stat priority array */
+	if (stat_order[0] >= 0)
 	{
-		/* Extract 5 + 1d3 + 1d4 + 1d5 */
-		j = 5 + dice[3 * i] + dice[3 * i + 1] + dice[3 * i + 2];
-
-		/* Save that value */
-		p_ptr->stat_max[i] = j;
-
-		/* Obtain a "bonus" for "race" and "mods" */
-		bonus = rp_ptr->r_adj[i] + p_ptr->stat_mod[i];
-
-		/* Variable stat maxes */
-		if (p_ptr->maximize)
+		/* Sort the stats, highest to lowest */
+		for (i = 0; i < A_MAX - 1; i++)
 		{
-			/* Start fully healed */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
+			for (j = 0; j < A_MAX - 1; j++)
+			{
+				/* Bubble sort - descending values */
+				if (stats[j] < stats[j + 1])
+				{
+					int tmp = stats[j];
 
-			/* Efficiency -- Apply the racial/mod bonuses */
-			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], bonus);
+					stats[j] = stats[j + 1];
+
+					stats[j + 1] = tmp;
+				}
+			}
 		}
+	}
 
-		/* Fixed stat maxes */
-		else
-		{
-			/* Apply the bonus to the stat (somewhat randomly) */
-			stat_use[i] = adjust_stat(p_ptr->stat_max[i], bonus, FALSE);
+	/* Save and adjust stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		/* Stats may or may not be prioritized */
+		if (stat_order[0] >= 0) stat = stat_order[i];
+		else                    stat = i;
 
-			/* Save the resulting stat maximum */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
-		}
+		/* Save the base stat value */
+		p_ptr->stat_max[stat] = stats[i];
+
+		/* Get racial bonus to stat */
+		bonus = rp_ptr->r_adj[stat];
+
+		/* Start fully healed */
+		p_ptr->stat_birth[stat] = p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
+
+		/* Apply the racial adjustment directly to maximum */
+		stat_use[stat] = modify_stat(p_ptr->stat_max[stat], bonus);
 	}
 }
 
-
 /*
- * Roll for some info that the auto-roller ignores
+ * Roll for some info that the auto-roller ignores.  -LM-
+ *
+ * No characters will have HPs at power level 100 that differ from the
+ * average.
+ * HPs will never differ from the average by more than 2 * character
+ * hitdice on any level.
  */
-static void
-get_extra(void)
+void get_extra(void)
 {
-	int i, j, min_value, max_value;
+	int i;
+	int min = 1, max = 1;
 
-
-	/* Hitdice */
+	/* Get hitdie */
 	p_ptr->hitdie = rp_ptr->r_mhp;
 
-	/* Initial hitpoints */
-	p_ptr->chp = p_ptr->mhp = p_ptr->hitdie;
+	/* Initial hitpoints is the same as hitdie */
+	p_ptr->player_hp[0] = p_ptr->mhp = p_ptr->hitdie;
 
-	/* Minimum hitpoints at highest level */
-	min_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 3) / 8;
-	min_value += PY_MAX_LEVEL;
+	/* Final hitpoints = hitdie + (99 * hitdie / 4) */
+	p_ptr->player_hp[PY_MAX_POWER - 1] =
+		p_ptr->hitdie + ((PY_MAX_POWER-1) * p_ptr->hitdie / 4);
 
-	/* Maximum hitpoints at highest level */
-	max_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 5) / 8;
-	max_value += PY_MAX_LEVEL;
 
-	/* Pre-calculate level 1 hitdice */
-	p_ptr->player_hp[0] = p_ptr->hitdie;
-
-	/* Roll out the hitpoints */
-	while (TRUE)
+	/* Roll out the intervening hitpoints */
+	for (i = 1; i < PY_MAX_POWER - 1; i++)
 	{
-		/* Roll the hitpoint values */
-		for (i = 1; i < PY_MAX_LEVEL; i++)
+		/* Expected previous level's HPs */
+		int average = p_ptr->hitdie + ((i-1) * p_ptr->hitdie / 4);
+
+		/* Difference between previous level's HPs and the average */
+		int diff = p_ptr->player_hp[i-1] - average;
+
+		/* Near the end, we allow less difference */
+		if (i >= PY_MAX_POWER - 8) diff *= 100;
+
+		/* Make adjustments near the end or where necessary */
+		if ((diff) &&
+		    ((i >= (PY_MAX_POWER - 8)) ||
+		     (rand_int(p_ptr->hitdie * 2) < ABS(diff))))
 		{
-			j = randint(p_ptr->hitdie);
-			p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + j;
+			/* Need to catch up (a lot) */
+			if (diff <= -(p_ptr->hitdie))
+			{
+				min = div_round(p_ptr->hitdie, 2) - 1;
+				max = div_round(p_ptr->hitdie, 2) - 1;
+			}
+
+			/* Need to catch up (a little) */
+			else if (diff < 0)
+			{
+				min = 1 + div_round(ABS(diff), 3);
+				max = div_round(p_ptr->hitdie, 2) - 1;
+			}
+
+			/* Need to slow down (a lot) */
+			else if (diff >= p_ptr->hitdie)
+			{
+				min = 1;
+				max = 1;
+			}
+
+			/* Need to slow down (a little) */
+			else
+			{
+				min = 1;
+				max = div_round(p_ptr->hitdie, 2) - 1 -
+				      div_round(ABS(diff), 3);
+			}
 		}
 
-		/* XXX Could also require acceptable "mid-level" hitpoints */
+		/* Allow less variance near the end */
+		else if (i >= PY_MAX_POWER - 4)
+		{
+			min = 2;
+			max = div_round(p_ptr->hitdie, 2) - 2;
+			if (max < min) max = min = div_round(p_ptr->hitdie, 4);
+		}
 
-		/* Require "valid" hitpoints at highest level */
-		if (p_ptr->player_hp[PY_MAX_LEVEL - 1] < min_value)
-			continue;
-		if (p_ptr->player_hp[PY_MAX_LEVEL - 1] > max_value)
-			continue;
+		/* Usual per-level gain */
+		else
+		{
+			min = 1;
+			max = div_round(p_ptr->hitdie, 2) - 1;
+		}
 
-		/* Acceptable */
-		break;
+		/* Add this level's HP gain to the previous level's HPs. */
+		p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + rand_range(min, max);
 	}
 }
 
@@ -673,21 +530,17 @@ get_extra(void)
 /*
  * Get the racial history, and social class, using the "history charts".
  */
-static void
-get_history(void)
+static void get_history(void)
 {
 	int i, n, chart, roll, social_class;
 
-	char *s, *t;
+	char *s;
 
 	char buf[240];
 
 
-
-	/* Clear the previous history strings */
-	for (i = 0; i < 4; i++)
-		p_ptr->history[i][0] = '\0';
-
+	/* Clear the previous history string */
+	p_ptr->history[0] = '\0';
 
 	/* Clear the history text */
 	buf[0] = '\0';
@@ -698,62 +551,58 @@ get_history(void)
 	/* Starting place */
 	switch (p_ptr->prace)
 	{
-	case RACE_HUMAN:
-	case RACE_DUNADAN:
+		case RACE_HUMAN:
+		case RACE_DUNADAN:
 		{
 			chart = 1;
 			break;
 		}
-	case RACE_HALF_ELF:
-		{
-			chart = 4;
-			break;
-		}
-	case RACE_ELF:
-	case RACE_HIGH_ELF:
-	case RACE_DARK_ELF:
+
+		case RACE_ELF:
+		case RACE_HIGH_ELF:
+		case RACE_DARK_ELF:
 		{
 			chart = 7;
 			break;
 		}
 
-	case RACE_HOBBIT:
+		case RACE_HOBBIT:
 		{
 			chart = 10;
 			break;
 		}
 
-	case RACE_GNOME:
+		case RACE_GNOME:
 		{
 			chart = 13;
 			break;
 		}
 
-	case RACE_DWARF:
+		case RACE_DWARF:
 		{
 			chart = 16;
 			break;
 		}
 
-	case RACE_HALF_ORC:
+		case RACE_HALF_ORC:
 		{
 			chart = 19;
 			break;
 		}
 
-	case RACE_HALF_TROLL:
+		case RACE_HALF_TROLL:
 		{
 			chart = 22;
 			break;
 		}
 
-	case RACE_GIANT:
+		case RACE_GIANT:
 		{
 			chart = 24;
 			break;
 		}
 
-	default:
+		default:
 		{
 			chart = 0;
 			break;
@@ -765,12 +614,12 @@ get_history(void)
 	{
 		/* Start over */
 		i = 0;
+
 		/* Roll for nobility */
 		roll = randint(100);
 
 		/* Access the proper entry in the table */
-		while ((chart != bg[i].chart) || (roll > bg[i].roll))
-			i++;
+		while ((chart != bg[i].chart) || (roll > bg[i].roll)) i++;
 
 		/* Acquire the textual history */
 		(void)strcat(buf, bg[i].info);
@@ -785,10 +634,8 @@ get_history(void)
 
 
 	/* Verify social class */
-	if (social_class > 100)
-		social_class = 100;
-	else if (social_class < 1)
-		social_class = 1;
+	if      (social_class > 100) social_class = 100;
+	else if (social_class < 1)   social_class = 1;
 
 	/* Save the social class */
 	p_ptr->sc = social_class;
@@ -801,218 +648,110 @@ get_history(void)
 	n = strlen(s);
 
 	/* Kill trailing spaces */
-	while ((n > 0) && (s[n - 1] == ' '))
-		s[--n] = '\0';
+	while ((n > 0) && (s[n - 1] == ' ')) s[--n] = '\0';
 
 
-	/* Start at first line */
-	i = 0;
-	/* Collect the history */
-	while (TRUE)
-	{
-		/* Extract remaining length */
-		n = strlen(s);
-		/* All done */
-		if (n < 60)
-		{
-			/* Save one line of history */
-			strcpy(p_ptr->history[i++], s);
-
-			/* All done */
-			break;
-		}
-
-		/* Find a reasonable break-point */
-		for (n = 60; ((n > 0) && (s[n - 1] != ' ')); n--) /* loop */ ;
-
-		/* Save next location */
-		t = s + n;
-
-		/* Wipe trailing spaces */
-		while ((n > 0) && (s[n - 1] == ' '))
-			s[--n] = '\0';
-
-		/* Save one line of history */
-		strcpy(p_ptr->history[i++], s);
-
-		/* Start next line */
-		for (s = t; *s == ' '; s++) /* loop */ ;
-	}
+	/* Copy the history */
+	(void)my_strcpy(p_ptr->history, buf, sizeof(p_ptr->history));
 }
 
 
 /*
- * Computes character's age, height, and weight
+ * Computes character's age, height, and weight.
+ *
+ * Weight is dependant on:
+ *    Race/Gender-based "stockiness",
+ *    height, and
+ *    a random modifier ("chubbiness")
  */
-static void
-get_ahw(void)
+static void get_ahw(void)
 {
+	int base_height = 0, base_weight = 0, mod_height = 0, mod_weight = 0;
+	long tmp;
+
 	/* Calculate the age */
-	p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
+	p_ptr->age = rand_range(rp_ptr->b_age, rp_ptr->b_age + rp_ptr->m_age);
 
-	while (1) /* Hack to make Giants always large */
-	  {
-		/* Calculate the height/weight for males */
-		if (p_ptr->psex == SEX_MALE)
-		  {
-			p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-			p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
-			if (p_ptr->prace == RACE_GIANT &&
-				(p_ptr->ht < rp_ptr->m_b_ht || p_ptr->wt < rp_ptr->m_b_wt))
-			  continue;
-		  }
 
-		/* Calculate the height/weight for females */
-		else if (p_ptr->psex == SEX_FEMALE)
-		  {
-			p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-			p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
-			if (p_ptr->prace == RACE_GIANT &&
-				(p_ptr->ht < rp_ptr->f_b_ht || p_ptr->wt < rp_ptr->f_b_wt))
-			  continue;
-		  }
-		break;
-	  }
+	/* Calculate various height and weight values for males */
+	if (p_ptr->psex == SEX_MALE)
+	{
+		base_height = rp_ptr->m_b_ht;
+		base_weight = rp_ptr->m_b_wt;
+
+		mod_height = rp_ptr->m_m_ht;
+		mod_weight = rp_ptr->m_m_wt;
+	}
+
+	/* Calculate various height and weight values for females */
+	else if (p_ptr->psex == SEX_FEMALE)
+	{
+		base_height = rp_ptr->f_b_ht;
+		base_weight = rp_ptr->f_b_wt;
+
+		mod_height = rp_ptr->f_m_ht;
+		mod_weight = rp_ptr->f_m_wt;
+	}
+
+	/* Calculate the actual height */
+	p_ptr->ht = Rand_normal(base_height, mod_height);
+
+	/* Calculate standard weight for the character's height. -LM- */
+	tmp = (long)p_ptr->ht * p_ptr->ht * base_weight /
+	      (long)(base_height * base_height);
+	p_ptr->wt = (s16b)tmp;
+
+	/* Apply random modifier. */
+	p_ptr->wt = Rand_normal(p_ptr->wt, mod_weight);
 }
-
-
 
 
 /*
  * Get the player's starting money
  */
-static void
-get_money(void)
+static void get_money(void)
 {
 	int i, gold;
 
-	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint(100) + 300;
+	/* Social class determines starting gold */
+	gold = (p_ptr->sc * 5) + rand_range(100, 150);
 
 	/* Process the stats */
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
-		/* Mega-Hack -- reduce gold for high stats other than CHR and LUC */
-		if (stat_use[i] >= 18 + 50)
-			gold -= 300;
-		else if (stat_use[i] >= 18 + 20)
-			gold -= 200;
-		else if (stat_use[i] > 18)
-			gold -= 150;
+		/* High charisma increases starting gold */
+		if (i == A_CHR)
+		{
+			if (stat_use[A_CHR] > 18) gold += 20 * (stat_use[A_CHR] - 18);
+		}
+
+		/* High values for other stats decrease starting gold */
 		else
-			gold -= (stat_use[i] - 8) * 10;
+		{
+			if (stat_use[i] > 18) gold -= 20 * (stat_use[i] - 18);
+		}
 	}
 
-	/* High starting Charisma gives you some extra gold */
-	if (stat_use[5] > 18 + 20)
-		gold += 100;
-	else if (stat_use[5] > 17)
-		gold += 50;
-
-	/* Minimum 125 gold */
-	if (gold < 125)
-		gold = 125;
-
-	/* Since the player starts with no equipment, they need more gold */
-	gold *= 2;
+	/* Minimum 75 gold */
+	if (gold < 75) gold = 75;
 
 	/* Save the gold */
-	p_ptr->au = gold;
+	p_ptr->au_birth = p_ptr->au = gold;
 }
-
-/* Roll the skills */
-static void
-get_skills(void)
-{
-	int j;
-	u16b k;
-
-	for (j = 0; j < NUM_SKILLS; j++)
-	{
-		k = rp_ptr->start[j];
-		if (k > 9)
-			set_skill(j, damroll(7, k / 5), 0);
-		else
-			set_skill(j, (k / 2) + randint(k), 0);
-
-		p_ptr->pskills[j].max = p_ptr->pskills[j].cur;
-		p_ptr->pskills[j].min = p_ptr->pskills[j].cur;
-	}
-}
-
-/* Get exp */
-static void
-get_exp(void)
-{
-	/* Get lifexp */
-	p_ptr->exp = rp_ptr->lifexp * rp_ptr->lifexp;
-	p_ptr->exp += damroll(6, rp_ptr->lifexp);
-
-	p_ptr->max_exp = p_ptr->exp;
-}
-
-/* Set up miscellaneous game state */
-static void
-get_misc(void)
-{
-	/* No magic yet */
-	mp_ptr = &magic_info[NONE];
-
-	p_ptr->barehand = S_KARATE;
-	p_ptr->tim_weath = 100 + randint(100);
-}
-
-/*
- * Display stat values, subset of "put_stats()"
- *
- * See 'display_player()' for screen layout constraints.
- */
-static void
-birth_put_stats(void)
-{
-	int col;
-	int i, p;
-	byte attr;
-
-	char buf[80];
-
-
-	col = 42;
-
-
-	/* Put the stats (and percents) */
-	for (i = 0; i < 6; i++)
-	{
-		/* Put the stat */
-		cnv_stat(stat_use[i], buf);
-		c_put_str(TERM_L_GREEN, buf, 3 + i, col + 24);
-
-		/* Put the percent */
-		if (stat_match[i])
-		{
-			p = 1000L * stat_match[i] / auto_round;
-			attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
-			sprintf(buf, "%3d.%d%%", p / 10, p % 10);
-			c_put_str(attr, buf, 3 + i, col + 13);
-		}
-
-		/* Never happened */
-		else
-		{
-			c_put_str(TERM_RED, "(NONE)", 3 + i, col + 13);
-		}
-	}
-}
-
 
 /*
  * Clear all the global "character" data
+ *
+ * This function must be updated with everything, and is troublesome to
+ * maintain. XXX XXX XXX
  */
-static void
-player_wipe(void)
+void player_wipe(bool full)
 {
 	int i;
+	int y, x;
 
+	/* Hack -- no player in dungeon */
+	if (full) cave_m_idx[p_ptr->py][p_ptr->px] = 0;
 
 	/* Wipe the player */
 	WIPE(p_ptr, player_type);
@@ -1025,43 +764,51 @@ player_wipe(void)
 
 
 	/* Start with no artifacts made yet */
-	for (i = 0; i < MAX_A_IDX; i++)
+	for (i = 0; i < z_info->a_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
 		a_ptr->cur_num = 0;
 	}
 
-
-	/* Start with no quests */
-	for (i = 0; i < MAX_Q_IDX; i++)
+	/* Reset the quests */
+	for (i = 0; i < z_info->q_max; i++)
 	{
-		q_list[i].level = 0;
+		quest_type *q_ptr = &q_info[i];
+
+		/* Reset level */
+		if (q_ptr->type == QUEST_FIXED)
+		{
+			q_ptr->active_level = q_ptr->base_level;
+			q_ptr->cur_num = 0;
+		}
+		else
+		{
+			q_ptr->type = 0;
+			q_ptr->r_idx = 0;
+			q_ptr->base_level = 0;
+			q_ptr->active_level = 0;
+			q_ptr->cur_num = 0;
+			q_ptr->max_num = 0;
+			q_ptr->reward = 0;
+		}
 	}
 
-	/* Add a special quest */
-	q_list[0].level = 99;
-	/* Add a second quest */
-	q_list[1].level = 100;
-
-
 	/* Reset the "objects" */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
-		/* Reset "tried" */
-		k_ptr->tried = FALSE;
-
-		/* Reset "aware" */
-		k_ptr->aware = FALSE;
+		/* Reset object kind lore flags */
+		k_ptr->special = 0;
 	}
 
 
 	/* Reset the "monsters" */
-	for (i = 1; i < MAX_R_IDX; i++)
+	for (i = 1; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
 
 		/* Hack -- Reset the counter */
 		r_ptr->cur_num = 0;
@@ -1070,616 +817,1129 @@ player_wipe(void)
 		r_ptr->max_num = 100;
 
 		/* Hack -- Reset the max counter */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
-			r_ptr->max_num = 1;
+		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
-		/* Clear player kills */
-		r_ptr->r_pkills = 0;
+		/* Clear monster memory */
+		if (!character_existed) WIPE(l_ptr, monster_lore);
+		else                    l_ptr->pkills = 0;
 	}
 
-	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX - 1].max_num = 0;
+	/* Hack -- normal luck */
+	p_ptr->luck = 100;
+
+	/* None of the spells have been cast yet */
+	for (i = 0; i < PY_MAX_SPELLS; i++)
+	{
+		p_ptr->spell_flags[i] = 0;
+	}
+
+	/* No stealing */
+	num_recent_thefts = 0;
+
+	/* Character type is always normal to begin with */
+	p_ptr->character_type = PCHAR_NORMAL;
+
+	/* And does not use multiple lives  XXX */
+	op_ptr->opt[OPT_beginner_play] = FALSE;
 
 
-	/* Hack -- Well fed player */
-	p_ptr->food = PY_FOOD_FULL - 1;
+	/* The below is only done when needed */
+	if (!full) return;
 
-	/* None of the spells have been learned yet */
-	for (i = 0; i < 64; i++)
-		p_ptr->spell_order[i] = 99;
+	/* Clear flags and flow information. */
+	for (y = 0; y < DUNGEON_HGT_MAX; y++)
+	{
+		for (x = 0; x < DUNGEON_WID_MAX; x++)
+		{
+			/* No flags */
+			cave_info[y][x] = 0;
+
+			cave_m_idx[y][x] = 0;
+			cave_o_idx[y][x] = 0;
+
+			/* No flow */
+			cave_cost[y][x] = 0;
+			cave_when[y][x] = 0;
+		}
+	}
+
+	/* Hack -- seed for flavors */
+	seed_flavor = rand_int(0x10000000);
+
+	/* Hack -- seed for town layout */
+	seed_town = rand_int(0x10000000);
+
+	/* Wipe the objects */
+	wipe_o_list();
+
+	/* Wipe the monsters */
+	wipe_m_list();
 }
 
 
 
+/*
+ * Show descriptions of the current birth options on screen.
+ *
+ * They have to be quite terse - there's not much space...
+ */
+static void desc_birth_options(void)
+{
+	int i;
+	byte a = TERM_L_BLUE;
+
+	char buf[DESC_LEN];
+
+
+	/* Clear from x = 50, between y = 20 and y = 24 */
+	for (i = 19; i <= 24; i++) (void)Term_erase(50, i, 255);
+
+	/* Display character type */
+	c_prt(TERM_L_BLUE, character_type_name[p_ptr->character_type], 3, 10);
+
+
+	/* Get a title, center it */
+	center_string(buf, sizeof(buf), "Birth Options:", 26);
+
+	/* Move cursor to start of first line */
+	move_cursor(19, 50);
+
+	/* Print out title */
+	c_roff(TERM_WHITE, format("%s\n", buf), 50, display_width());
+
+	/* Display character type details */
+	c_roff(a, format("-%s\n", character_type_desc[p_ptr->character_type]), 50, display_width());
+
+	/* Print out option descriptions */
+	if (birth_autoroll) c_roff(a, "-Using the autoroller.\n", 50, display_width());
+	else c_roff(a, "-Using manual rolling.\n", 50, display_width());
+	if (birth_no_stores) c_roff(a, "-Cannot use stores.\n", 50, display_width());
+	if (birth_no_artifacts) c_roff(a, "-No artifacts.\n", 50, display_width());
+	if ((p_ptr->character_type != PCHAR_IRONMAN) && birth_no_return_stair)
+		c_roff(a, "-No stairs back.\n", 50, display_width());
+	if (birth_smart_cheat) c_roff(a, "-Monsters cheat-learn.\n", 50, display_width());
+}
+
 
 /*
- * Helper function for 'player_birth()'
- *
- * The delay may be reduced, but is recommended to keep players
- * from continuously rolling up characters, which can be VERY
- * expensive CPU wise.  And it cuts down on player stupidity.
- *
- * See "display_player" for screen layout code.
+ * Use existing character information.  -EZ-
  */
-static bool
-player_birth_aux()
+static bool player_birth_quick(void)
 {
-	int i, j, k, m, n, v;
+	int i, bonus;
+	birther old_char;
+	byte old_race;
+	byte old_sex;
+	byte old_hitdie;
+	s16b old_hp[PY_MAX_POWER];
+	s32b old_birth_roll_requirement;
 
-	bool flag = FALSE;
-	bool prev = FALSE;
+	/* Check data */
+	if ((!character_loaded) || (!p_ptr->hitdie))
+	{
+		/* Wipe the player */
+		player_wipe(TRUE);
+
+		/* Require a valid savefile */
+		if (load_player(TRUE)) return (FALSE);
+	}
+
+	/* Store old data */
+	old_sex = p_ptr->psex;
+	old_race = p_ptr->prace;
+
+	old_hitdie = p_ptr->hitdie;
+
+	old_char.age = p_ptr->age;
+	old_char.au = p_ptr->au_birth;
+	old_char.ht = p_ptr->ht;
+	old_char.wt = p_ptr->wt;
+	old_char.sc = p_ptr->sc;
+
+	old_birth_roll_requirement = p_ptr->birth_roll_requirement;
+
+	/* Save the stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		old_char.stat[i] = p_ptr->stat_birth[i];
+	}
+
+	/* Save the history */
+	strcpy(old_char.history, p_ptr->history);
+
+	/* Save the hp */
+	for (i = 0; i < PY_MAX_POWER; i++)
+	{
+		old_hp[i] = p_ptr->player_hp[i];
+	}
+
+
+	/* Wipe the player */
+	player_wipe(TRUE);
+
+
+	/* Load various data */
+	p_ptr->psex = old_sex;
+	p_ptr->prace = old_race;
+
+	p_ptr->hitdie = old_hitdie;
+
+	p_ptr->age = old_char.age;
+	p_ptr->au_birth = p_ptr->au = old_char.au;
+	p_ptr->ht = old_char.ht;
+	p_ptr->wt = old_char.wt;
+	p_ptr->sc = old_char.sc;
+
+	p_ptr->birth_roll_requirement = old_birth_roll_requirement;
+
+
+	/* Load the stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		/* Restore stat */
+		p_ptr->stat_birth[i] = old_char.stat[i];
+
+		/* Start fully healed */
+		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = p_ptr->stat_birth[i];
+
+		/* Get racial bonus to stat */
+		bonus = rp_ptr->r_adj[i];
+
+		/* Apply the racial bonuses */
+		p_ptr->stat_use[i] = modify_stat(p_ptr->stat_max[i], bonus);
+	}
+
+	/* Start with some experience  XXX */
+	p_ptr->exp = 3;
+
+
+	/* Load the history */
+	strcpy(p_ptr->history, old_char.history);
+
+	p_ptr->power = 1;
+
+	/* Load the hp */
+	for (i = 0; i < PY_MAX_POWER; i++)
+	{
+		p_ptr->player_hp[i] = old_hp[i];
+	}
+
+	/* Hack -- seed for flavors */
+	seed_flavor = rand_int(0x10000000);
+
+	/* Hack -- seed for town layout */
+	seed_town = rand_int(0x10000000);
+
+	/* The dungeon is not ready */
+	character_dungeon = FALSE;
+
+	/* Accept */
+	return (TRUE);
+}
+
+
+/*
+ * Helper function for 'player_birth()'.
+ *
+ * This function allows the player to interactively select a sex and race,
+ * modify birth options, quick start, consult on-line help, undo choices and
+ * start over, load another savefile, or quit the game.
+ */
+static int player_birth_aux_1(void)
+{
+	int k, i, question;
+	int n;
 
 	cptr str;
 
-	char c;
+	char ch;
+	byte a = TERM_WHITE;
 
-#if 0
-	char p1 = '(';
-
-#endif
 	char p2 = ')';
-	char b1 = '[';
-	char b2 = ']';
 
-	char buf[80];
+	char buf[DESC_LEN];
 
-	bool autoroll = FALSE;
+	bool dummy;
 
-
-/*** Instructions ***/
+	/* Allow quick starts if an ancestor (alive or dead) is available */
+	bool can_quick_start = character_existed;
 
 	/* Clear screen */
-	Term_clear();
+	(void)Term_clear();
 
-	/* Display some helpful information */
-	Term_putstr(5, 10, -1, TERM_WHITE,
-		   "Please answer the following questions.  Most of the questions");
-	Term_putstr(5, 11, -1, TERM_WHITE,
-			"display a set of standard answers, and many will also accept");
-	Term_putstr(5, 12, -1, TERM_WHITE,
-		  "some special responses, including 'Q' to quit, 'S' to restart,");
-	Term_putstr(5, 13, -1, TERM_WHITE,
-		   "and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
+	/* Get a title, center it */
+	center_string(buf, sizeof(buf), format("Create a %s Character", VERSION_NAME), display_width());
+
+	/* Print it out */
+	prt(buf, 0, 0);
+
+	/* Blank spacer line */
+
+	/* Display type, gender, race */
+	put_str("Type   :", 3, 1);
+	put_str("Gender :", 4, 1);
+	put_str("Race   :", 5, 1);
+
+	/* Print out help text */
+	if (can_quick_start)
+		c_put_str(a, "  *) Quick-start based on previous character     ", 20, 1);
+	c_put_str(a, "  =) Birth options    L) Load another character   ", 21, 1);
+	c_put_str(a, "  S) Start over       Q) Quit the game           ", 22, 1);
+	c_put_str(a, "ESC) Go back          ?) On-line help            ", 23, 1);
 
 
-/*** Player sex ***/
+	/* No questions asked */
+	question = 0;
 
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-			  "Your 'sex' does not have any significant gameplay effects.");
-
-	/* Prompt for "Sex" */
-	for (n = 0; n < MAX_SEXES; n++)
+	/* Repeat until all questions asked */
+	while (TRUE)
 	{
-		/* Analyze */
-		p_ptr->psex = n;
-		sp_ptr = &sex_info[p_ptr->psex];
-		str = sp_ptr->title;
-		/* Display */
-		sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		put_str(buf, 21 + (n / 5), 2 + 15 * (n % 5));
-	}
+		/* Clear some lines */
+		for (i = 6; i < 20; i++) clear_row(i);
 
-	/* Choose */
-	while (1)
-	{
-		sprintf(buf, "Choose a sex (%c-%c): ", I2A(0), I2A(n - 1));
-		put_str(buf, 20, 2);
-		c = inkey();
-		if (c == 'Q')
-			quit(NULL);
-		if (c == 'S')
-			return (FALSE);
-		if (c == ESCAPE)
-			c = 'a';
-		k = (islower(c) ? A2I(c) : -1);
-		if ((k >= 0) && (k < n))
-			break;
-		if (c == '?')
-			do_cmd_help();
-		else
-			bell("Illegal sex!");
-	}
+		/* Print descriptions of the current birth options */
+		desc_birth_options();
 
-	/* Set sex */
-	p_ptr->psex = k;
-	sp_ptr = &sex_info[p_ptr->psex];
+		/* Reset */
+		k = 0;
+		n = 0;
 
-	/* Clean up */
-	clear_from(15);
-
-
-/*** Player race ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		   "Your 'race' determines various intrinsic factors and bonuses.");
-
-	/* Dump races */
-	for (n = 0; n < MAX_RACES; n++)
-	{
-		/* Analyze */
-		p_ptr->prace = n;
-		rp_ptr = &race_info[p_ptr->prace];
-		str = rp_ptr->title;
-
-		/* Display */
-		sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		put_str(buf, 21 + (n / 5), 2 + 15 * (n % 5));
-	}
-
-	/* Choose */
-	while (1)
-	{
-		sprintf(buf, "Choose a race (%c-%c): ", I2A(0), I2A(n - 1));
-		put_str(buf, 20, 2);
-		c = inkey();
-		if (c == 'Q')
-			quit(NULL);
-		if (c == 'S')
-			return (FALSE);
-		if (c == ESCAPE)
-			c = 'a';
-		k = (islower(c) ? A2I(c) : -1);
-		if ((k >= 0) && (k < n))
-			break;
-		if (c == '?')
-			do_cmd_help();
-		else
-			bell("Illegal race!");
-	}
-
-	/* Set race */
-	p_ptr->prace = k;
-	rp_ptr = &race_info[p_ptr->prace];
-
-	/* Clean up */
-	clear_from(15);
-
-/*** Maximize mode ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-				"Using 'maximize' mode makes the game harder at the start,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-				"but often makes it easier to win.");
-
-	/* Ask about "maximize" mode */
-	while (1)
-	{
-		put_str("Use 'maximize' mode? (y/n) ", 20, 2);
-		c = inkey();
-		if (c == 'Q')
-			quit(NULL);
-		if (c == 'S')
-			return (FALSE);
-		if (c == ESCAPE)
-			break;
-		if ((c == 'y') || (c == 'n'))
-			break;
-		if (c == '?')
-			do_cmd_help();
-		else
-			bell("Illegal maximize flag!");
-	}
-
-	/* Set "maximize" mode */
-	p_ptr->maximize = (c == 'y');
-
-	/* Clear */
-	clear_from(15);
-
-/*** Preserve mode ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		   "Using 'preserve' mode makes it difficult to 'lose' artifacts,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-				"but eliminates the 'special' feelings about some levels.");
-
-	/* Ask about "preserve" mode */
-	while (1)
-	{
-		put_str("Use 'preserve' mode? (y/n) ", 20, 2);
-		c = inkey();
-		if (c == 'Q')
-			quit(NULL);
-		if (c == 'S')
-			return (FALSE);
-		if (c == ESCAPE)
-			break;
-		if ((c == 'y') || (c == 'n'))
-			break;
-		if (c == '?')
-			do_cmd_help();
-		else
-			bell("Illegal preserve flag!");
-	}
-
-	/* Set "preserve" mode */
-	p_ptr->preserve = (c == 'y');
-
-	/* Choose stat mods */
-	choose_mods();
-
-	/* Clear */
-	clear_from(15);
-
-
-#ifdef ALLOW_AUTOROLLER
-
-/*** Autoroll ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		 "The 'autoroller' allows you to specify certain 'minimal' stats,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		   "but be warned that your various stats may not be independant!");
-
-	/* Ask about "auto-roller" mode */
-	while (1)
-	{
-		put_str("Use the Auto-Roller? (y/n) ", 20, 2);
-		c = inkey();
-		if (c == 'Q')
-			quit(NULL);
-		if (c == 'S')
-			return (FALSE);
-		if (c == ESCAPE)
-			break;
-		if ((c == 'y') || (c == 'n'))
-			break;
-		if (c == '?')
-			do_cmd_help();
-		else
-			bell("Illegal autoroller flag!");
-	}
-
-	/* Set "autoroll" */
-	autoroll = (c == 'y');
-
-	/* Clear */
-	clear_from(15);
-
-	/* Initialize */
-	if (autoroll)
-	{
-		int mval[7];
-		char inp[80];
-
-
-		/* Clear fields */
-		auto_round = 0L;
-		last_round = 0L;
-
-		/* Clean up */
-		clear_from(10);
-
-		/* Prompt for the minimum stats */
-		put_str("Enter minimum attribute for: ", 15, 2);
-
-		/* Output the maximum stats */
-		for (i = 0; i < 6; i++)
+		/* Gender */
+		if (question == 0)
 		{
-			/* Reset the "success" counter */
-			stat_match[i] = 0;
+			/* Extra info */
+			move_cursor(7, 0);
+			c_roff_centered(TERM_WHITE, "Males weigh slightly more than females, but otherwise your character's gender has no significant gameplay effects.", 5, 75);
 
-			/* Race/Mod bonus */
-			j = rp_ptr->r_adj[i] + p_ptr->stat_mod[i];
-
-			/* Obtain the "maximal" stat */
-			m = adjust_stat(17, j, TRUE);
-
-			/* Save the maximum */
-			mval[i] = m;
-
-			/* Extract a textual format */
-			/* cnv_stat(m, inp); */
-
-			/* Above 18 */
-			if (m > 18)
+			/* Show genders */
+			for (n = 0; n < MAX_SEXES; n++)
 			{
-				sprintf(inp, "(Max of 18/%02d):", (m - 18));
+				/* Analyze */
+				p_ptr->psex = n;
+				sp_ptr = &sex_info[p_ptr->psex];
+				str = sp_ptr->title;
+
+				/* Display */
+				(void)strnfmt(buf, sizeof(buf), "%c%c %s", I2A(n), p2, str);
+				put_str(buf, 10 + (n / 5), 2 + 15 * (n % 5));
 			}
 
-			/* From 3 to 18 */
+			/* Build a prompt */
+			(void)strnfmt(buf, sizeof(buf), "%c-%c) Choose a gender", I2A(0), I2A(n-1));
+
+			/* Fill in help text */
+			if (!can_quick_start)
+				c_put_str(a, format("%s  *) Choose at random        ", buf), 19, 1);
+			else
+				c_put_str(a, format("%s                             ", buf), 19, 1);
+
+
+		}
+
+		/* Race */
+		else if (question == 1)
+		{
+			move_cursor(7, 0);
+			c_roff_centered(TERM_WHITE, "Your race determines various intrinsic factors and bonuses.", 5, 75);
+
+			/* Show races */
+			for (n = 0; n < MAX_RACES; n++)
+			{
+				/* Analyze */
+				p_ptr->prace = n;
+				rp_ptr = &race_info[p_ptr->prace];
+				str = rp_ptr->title;
+
+				/* Display */
+				(void)strnfmt(buf, sizeof(buf), "%c%c %s", I2A(n), p2, str);
+				put_str(buf, 10 + (n / 5), 2 + 15 * (n % 5));
+			}
+
+			/* Build a prompt */
+			(void)strnfmt(buf, sizeof(buf), "%c-%c) Choose a race  ", I2A(0), I2A(n-1));
+
+			/* Fill in help text */
+			c_put_str(a, format("%s  *) Choose at random        ", buf), 19, 1);
+
+
+		}
+
+		/* Get a command and process it */
+		while (TRUE)
+		{
+			/* Move the cursor */
+			if (question == 0)      move_cursor(4, 10);
+			else if (question == 1) move_cursor(5, 10);
+
+
+			ch = inkey(FALSE);
+
+			/* Quit */
+			if ((ch == 'Q') || (ch == 'q')) quit(NULL);
+
+			/* Start over */
+			else if ((ch == 'S') || (ch == 's')) return (0);
+
+			/* Escape */
+			else if (ch == ESCAPE)
+			{
+				/* Hack -- Go to previous question */
+				if (question > 0) question--;
+
+				/* Hack -- allow quick_starts if appropriate */
+				if ((question == 0) && (character_loaded))
+				{
+					can_quick_start = TRUE;
+					c_put_str(a, "  *) Quick-start based on previous character     ",
+						20, 1);
+				}
+
+				/* Refresh */
+				break;
+			}
+
+			/* Load another character, start over */
+			else if ((ch == 'L') || (ch == 'l'))
+			{
+				/* Hack -- Cancel everything */
+				return (-1);
+			}
+
+			/* Change options */
+			else if (ch == '=')
+			{
+				/* Save screen */
+				screen_save(TRUE);
+
+				/* Interact with options -- birth options only */
+				do_cmd_options_aux(4, "Birth/Difficulty Options", &dummy);
+
+				/* Load screen */
+				screen_load();
+
+				/* Print descriptions of the current birth options */
+				desc_birth_options();
+
+				continue;
+			}
+
+			/* Help me. */
+			else if (ch == '?')
+			{
+				if      (question == 0) p_ptr->get_help_index = HELP_BIRTH_GENDER;
+				else if (question == 1) p_ptr->get_help_index = HELP_BIRTH_RACE;
+				do_cmd_help();
+			}
+
+
+			/* Normal keypress */
 			else
 			{
-				sprintf(inp, "(Max of %2d):", m);
+				/* Random choice or quick-start */
+				if (ch == '*')
+				{
+					if (can_quick_start) return ((int)player_birth_quick());
+
+					if      (question == 0) k = rand_int(MAX_SEXES);
+					else if (question == 1) k = rand_int(MAX_RACES);
+					else                    k = 0;
+				}
+				else
+				{
+					/* Choose */
+					k = (islower((unsigned char)ch) ? A2I(ch) : -1);
+				}
+
+				/* Accept */
+				if ((k >= 0) && (k < n)) break;
+
+				/* Complain */
+				else
+				{
+					if (question == 0) bell("Illegal gender!");
+					if (question == 1) bell("Illegal race!");
+				}
 			}
-
-			/* Prepare a prompt */
-			sprintf(buf, "%-5s%-20s", stat_names[i], inp);
-
-			/* Dump the prompt */
-			put_str(buf, 16 + i, 5);
 		}
 
-		/* Input the minimum stats */
-		for (i = 0; i < 6; i++)
+		/* Escape */
+		if (ch == ESCAPE) continue;
+
+
+		/* Gender */
+		if (question == 0)
 		{
-			/* Get a minimum stat */
-			while (TRUE)
+			/* Set gender */
+			p_ptr->psex = k;
+			sp_ptr = &sex_info[p_ptr->psex];
+
+			/* Display gender */
+			c_put_str(TERM_L_BLUE, format("%s", sp_ptr->title), 4, 10);
+		}
+
+		/* Race */
+		else if (question == 1)
+		{
+			/* Set race */
+			p_ptr->prace = k;
+			rp_ptr = &race_info[p_ptr->prace];
+
+			/* Display race */
+			c_put_str(TERM_L_BLUE, format("%s", rp_ptr->title), 5, 10);
+		}
+
+		/* Question asked */
+		question++;
+
+		/* After the first question, cannot type '*' to quick-start */
+		if (question > 0)
+		{
+			put_str("                                                 ", 20, 1);
+			can_quick_start = FALSE;
+		}
+
+		/* Questions over */
+		if (question >= 2) break;
+	}
+
+	/* Standard help */
+	p_ptr->get_help_index = HELP_GENERAL;
+
+	/* Done */
+	return (2);
+}
+
+
+
+/*
+ * Approximate chance out of 10000 that rolling 1d3 + 1d4 + 1d5 will yield
+ * a number greater than or equal to 3 + table_element.
+ */
+static s16b stat_prob[10] =
+{
+	10000, 9820, 9315, 8325, 6823, 5000, 3177, 1675,  685,  180
+};
+
+/*
+ * Amount (in tens of percentage points) to be added to rarity if total
+ * of requested stats goes above a certain figure.
+ */
+static s16b add_for_total[12] =
+{
+	235, 108, 51, 29, 17, 11, 8, 6, 4, 3, 2, 1
+};
+
+/*
+ * Calculate how frequently the requested stats will be rolled.  This code
+ * only gives approximate figures.
+ *
+ * Todo:  A mathematically correct calculation.  XXX XXX
+ */
+static u32b calc_rarity(int total)
+{
+	u32b rarity;
+
+	int i, j;
+	int base, total2;
+
+	/* Total too high */
+	if (total >= 9 * A_MAX) return (999999999L);
+
+	/* Calculate the rarity of this character */
+	for (rarity = 1000L, i = 0; i < A_MAX; i++)
+	{
+		/* Get probability of rolling this number or higher */
+		int roll_rarity = stat_prob[stat_ask[i] - 3];
+		int whole       = 10000 / roll_rarity;
+		int fraction    = 10000 % roll_rarity;
+		u32b rar_tmp    = rarity;
+
+		/* Sum up rarities */
+		rarity *= whole;
+		rarity += rar_tmp * fraction / roll_rarity;
+
+		/* Rarity too high */
+		if (rarity >= 100000000L) break;
+	}
+
+	/* Hack -- (partly) un-inflate the rarity */
+	rarity /= 100;
+
+
+	/*
+	 * Specifying a large fraction of the amount stats can equal
+	 * makes it especially hard to stay within the legal bounds.
+	 */
+	if ((9 * A_MAX) - total <= N_ELEMENTS(add_for_total))
+	{
+		i = add_for_total[(9 * A_MAX) - total - 1];
+
+		/* Apply multiplier to rarity */
+		rarity = rarity * (10L + i) / 10L;
+	}
+
+	/*
+	 * Specifying multiple high stats makes it especially hard to
+	 * stay within the legal bounds.
+	 */
+	for (j = 0, i = 0; i < A_MAX; i++)
+	{
+		if (stat_ask[i] < 10) j++;
+		if (stat_ask[i] <  9) j++;
+	}
+
+	if      (j >= A_MAX * 2 - 2) base = 0;
+	else if (j >= A_MAX * 2 - 4) base = 10;
+	else if (j >= A_MAX * 2 - 6) base = 50;
+	else if (j == A_MAX * 2 - 7) base = 150;
+	else                         base = 400;
+
+	for (total2 = base, i = 0; i < A_MAX; i++)
+	{
+		if      (stat_ask[i] >= 12) total2 += base * 4;
+		else if (stat_ask[i] >=  7) total2 += base / (12 - stat_ask[i]);
+	}
+
+	/* Apply multiplier to rarity */
+	rarity = rarity * (100L + total2) / 100L;
+
+
+	/* Return approximate rarity */
+	return (rarity / 10L);
+}
+
+/*
+ * Helper function for 'player_birth()'.
+ *
+ * This function handles specifying and rolling for stats.
+ */
+static bool player_birth_aux_2(bool quick_start)
+{
+	int i, j, m, v;
+	int total;
+	u32b rarity;
+
+	bool flag;
+	bool prev = FALSE;
+
+	char ch;
+	char buf[DESC_LEN];
+
+	s16b stat_limit[A_MAX];
+
+	s32b stat_match[A_MAX];
+
+	s32b auto_round = 0L;
+
+	s32b last_round;
+
+
+	/* Reset character rolls  (this can be abused...) */
+	if (!quick_start) p_ptr->birth_roll_requirement = 0L;
+
+
+	/*** Autoroll ***/
+
+	/* Initialize */
+	if (birth_autoroll && !quick_start)
+	{
+		int mval[A_MAX];
+		char rtitle[DESC_LEN];
+
+		char inp[DESC_LEN];
+
+		/* Clear screen */
+		(void)Term_clear();
+
+		/* Store the race name */
+		strcpy(rtitle, rp_ptr->title);
+		strlower(rtitle);
+
+		/* Print race and sex */
+		put_str("Gender :", 3, 1);
+		put_str("Race   :", 4, 1);
+		c_put_str(TERM_L_BLUE, format("%s", sp_ptr->title), 3, 10);
+		c_put_str(TERM_L_BLUE, format("%s", rp_ptr->title), 4, 10);
+
+		/* Print instructions */
+		move_cursor(7, 0);
+		roff(format("     Please specify minimum values for your character's vital statistics.  When you are done, you will be told how unusual your desired adventurer is.  It is possible (indeed, easy) to ask for stats beyond what any %s can have.", rtitle), 5, display_width() - 5);
+
+		/* Prompt for the minimum stats */
+		put_str("Enter minimum value for: ", 12, 2);
+
+
+		/* Interact until satisfied */
+		while (TRUE)
+		{
+			/* Output the maximum stats */
+			for (i = 0; i < A_MAX; i++)
 			{
-				char *s;
+				/* Reset the "success" counter */
+				stat_match[i] = 0;
 
-				/* Move the cursor */
-				put_str("", 16 + i, 30);
+				/* Race bonus */
+				j = rp_ptr->r_adj[i];
 
-				/* Default */
-				strcpy(inp, "");
+				/* Obtain the "maximal" stat */
+				m = modify_stat(17, j);
 
-				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 8))
-					inp[0] = '\0';
+				/* Save the maximum */
+				mval[i] = m;
 
-				/* Hack -- add a fake slash */
-				strcat(inp, "/");
+				/* Above 18 */
+				if (m > 18)
+				{
+					(void)strnfmt(inp, sizeof(inp), "(Max of 18/%02d):", (m - 18));
+				}
 
-				/* Hack -- look for the "slash" */
-				s = strchr(inp, '/');
+				/* From 3 to 18 */
+				else
+				{
+					(void)strnfmt(inp, sizeof(inp), "(Max of %2d):", m);
+				}
 
-				/* Hack -- Nuke the slash */
-				*s++ = '\0';
+				/* Prepare a prompt */
+				(void)strnfmt(buf, sizeof(buf), "%-13s: %-20s",
+					flag_creation_data[i].desc, inp);
 
-				/* Hack -- Extract an input */
-				v = atoi(inp) + atoi(s);
-
-				/* Break on valid input */
-				if (v <= mval[i])
-					break;
+				/* Dump the prompt */
+				prt(buf, 13 + i, 5);
 			}
 
-			/* Save the minimum stat */
-			stat_limit[i] = (v > 0) ? v : 0;
+			/* Input the minimum stats */
+			for (i = 0; i < A_MAX; i++)
+			{
+				/* Get a minimum stat */
+				while (TRUE)
+				{
+					char *s;
+
+					/* Move the cursor */
+					prt("", 13 + i, 36);
+
+					/* Default */
+					strcpy(inp, "");
+
+					/* Context-specific help */
+					p_ptr->get_help_index = HELP_STAT_STR + i;
+
+					/* Get a response (or escape) */
+					if (!askfor_aux(inp, 8, FALSE)) inp[0] = '0' + 3;
+
+					/* Print "3" if we have specified no stat */
+					if (!isdigit(inp[0])) prt("3", 13 + i, 36);
+
+					/* Clear message line */
+					prt("", 14 + A_MAX, 5);
+
+					/* Hack -- add a fake slash */
+					strcat(inp, "/");
+
+					/* Hack -- look for the "slash" */
+					s = strchr(inp, '/');
+
+					/* Hack -- Nuke the slash */
+					*s++ = '\0';
+
+					/* Hack -- Extract an input */
+					v = atoi(inp) + atoi(s);
+
+					/* Break on valid input */
+					if (v <= mval[i]) break;
+				}
+
+				/* Clear the rarity message line */
+				clear_row(14 + A_MAX);
+
+				/* Save the minimum stat */
+				stat_limit[i] = (v > 0) ? v : 0;
+			}
+
+			/* General help */
+			p_ptr->get_help_index = HELP_GENERAL;
+
+
+			/* Calculate base stats (ranging from 3 to 12) and total them up */
+			for (total = 0, i = 0; i < A_MAX; i++)
+			{
+				/* Convert stat */
+				if (stat_limit[i] <= 18) j = stat_limit[i];
+				else j = 18 + ((stat_limit[i] - 18) / 10);
+
+				/* Un-apply racial modifier */
+				j = j - rp_ptr->r_adj[i];
+
+				/* Reduce stat by five */
+				j -= 5;
+
+				/* Minimum underlying stat is three */
+				if (j < 3) j = 3;
+
+				/* Maximum is twelve:  higher requests cannot be granted */
+				if (j > 12) total = 9999;
+
+				/* Save the base stat, add to total */
+				total += stat_ask[i] = j;
+			}
+
+			/* Calculate rarity */
+			rarity = calc_rarity(total);
+
+			/* Refuse to attempt the (almost) impossible */
+			if ((total >= 9 * A_MAX) || (rarity > 200000L))
+			{
+				c_prt(TERM_RED, "You ask for the impossible!", 14 + A_MAX, 2);
+			}
+
+			/* Print rarity */
+			else
+			{
+				byte a = TERM_GREEN;
+				if (rarity >     50L) a = TERM_L_GREEN;
+				if (rarity >    500L) a = TERM_WHITE;
+				if (rarity >   5000L) a = TERM_YELLOW;
+				if (rarity >  25000L) a = TERM_ORANGE;
+				if (rarity > 100000L) a = TERM_L_RED;
+
+				if (rarity <= 2)
+				{
+					c_prt(a, "Most adventurers will meet your criteria.",
+						14 + A_MAX, 2);
+				}
+				else
+				{
+					c_prt(a, format("Approximately one out of every %ld adventurers will meet your criteria.", rarity), 14 + A_MAX, 2);
+				}
+
+				/* Choice */
+				if (get_check("Accept these odds, and roll up a character?"))
+				{
+					/*
+					 * Because the new stat prioritizing code makes it faster to roll up
+					 * good characters, we save the rarity here. ....  Or will, once we
+					 * actually turn on said code!
+					 */
+					/* p_ptr->birth_roll_requirement = rarity; */
+
+
+					break;
+				}
+				else
+				{
+					prt("", 0, 0);
+				}
+			}
 		}
 	}
 
-#endif /* ALLOW_AUTOROLLER */
 
 	/* Clean up */
 	clear_from(10);
 
 
-/*** Generate ***/
+	/*** Generate ***/
 
-	/* Roll */
+	/* Repeat until satisfied */
 	while (TRUE)
 	{
-		int col;
+		/* Prioritize stats if autorolling, remove priorities otherwise */
+		prioritize_stats(birth_autoroll);
 
-		col = 42;
-
-		/* Feedback */
-		if (autoroll)
+		/* We've not loaded a character based on a previous one */
+		if (!quick_start)
 		{
-			Term_clear();
+			int col = 42;
 
-			/* Label */
-			put_str(" Limit", 2, col + 5);
-
-			/* Label */
-			put_str("  Freq", 2, col + 13);
-
-			/* Label */
-			put_str("  Roll", 2, col + 24);
-
-			/* Put the minimal stats */
-			for (i = 0; i < 6; i++)
+			/* Autoroller feedback */
+			if (birth_autoroll)
 			{
-				/* Label stats */
-				put_str(stat_names[i], 3 + i, col);
+				(void)Term_clear();
 
-				/* Put the stat */
-				cnv_stat(stat_limit[i], buf);
-				c_put_str(TERM_L_BLUE, buf, 3 + i, col + 5);
-			}
+				/* Label */
+				put_str(" Limit", 2, col+5);
 
-			/* Note when we started */
-			last_round = auto_round;
+				/* Label */
+				put_str("  Freq", 2, col+13);
 
-			/* Label count */
-			put_str("Round:", 10, col + 13);
+				/* Label */
+				put_str("  Roll", 2, col+24);
 
-			/* Indicate the state */
-			put_str("(Hit ESC to stop)", 12, col + 13);
-		}
-
-		/* Otherwise just get a character */
-		else
-		{
-			/* Get a new character */
-			get_stats();
-		}
-
-		/* Auto-roll */
-		while (autoroll)
-		{
-			bool accept = TRUE;
-
-			/* Get a new character */
-			get_stats();
-
-			/* Advance the round */
-			auto_round++;
-
-			/* Hack -- Prevent overflow */
-			if (auto_round >= 1000000L)
-				break;
-
-			/* Check and count acceptable stats */
-			for (i = 0; i < 6; i++)
-			{
-				/* This stat is okay */
-				if (stat_use[i] >= stat_limit[i])
+				/* Put the minimal stats */
+				for (i = 0; i < A_MAX; i++)
 				{
-					stat_match[i]++;
+					/* Label stats */
+					put_str(stat_names[i], 3+i, col);
+
+					/* Put the stat */
+					cnv_stat(buf, sizeof(buf), stat_limit[i]);
+					c_put_str(TERM_L_BLUE, buf, 3+i, col+5);
 				}
-				/* This stat is not okay */
-				else
+
+				/* Note when we started */
+				last_round = auto_round;
+
+				/* Label count */
+				put_str("Round:", 10, col+13);
+
+				/* Indicate the state */
+				put_str("(Hit ESC to stop)", 12, col+13);
+
+				/* Auto-roll */
+				while (TRUE)
 				{
-					accept = FALSE;
+					bool accept = TRUE;
+
+					/* Get a new character */
+					get_stats();
+
+					/* Advance the round */
+					auto_round++;
+
+					/* Hack -- Prevent overflow */
+					if (auto_round >= 1000000L) break;
+
+					/* Check and count acceptable stats */
+					for (i = 0; i < A_MAX; i++)
+					{
+						/* This stat is okay */
+						if (stat_use[i] >= stat_limit[i])
+						{
+							stat_match[i]++;
+						}
+
+						/* This stat is not okay */
+						else
+						{
+							accept = FALSE;
+						}
+					}
+
+					/* Break if "happy" */
+					if (accept) break;
+
+					/* Take note every 25 rolls */
+					flag = (!(auto_round % 25L));
+
+					/* Update display occasionally */
+					if (flag || (auto_round < last_round + 100))
+					{
+						/* Put the stats (and percents) */
+						for (i = 0; i < A_MAX; i++)
+						{
+							/* Put the stat */
+							cnv_stat(buf, sizeof(buf), stat_use[i]);
+							c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
+
+							/* Put the percent */
+							if (stat_match[i])
+							{
+								int p = 1000L * stat_match[i] / auto_round;
+								byte attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
+								(void)strnfmt(buf, sizeof(buf), "%3d.%d%%", p/10, p%10);
+								c_put_str(attr, buf, 3+i, col+13);
+							}
+
+							/* Never happened */
+							else
+							{
+								c_put_str(TERM_RED, "(NONE)", 3+i, col+13);
+							}
+						}
+
+						/* Dump round */
+						put_str(format("%10ld", auto_round), 10, col+20);
+
+						/* Make sure they see everything */
+						(void)Term_fresh();
+
+						/* Delay 1/40 second */
+						if (flag) pause_for(25);
+
+						/* Do not wait for a key */
+						inkey_scan = TRUE;
+
+						/* Check for a keypress */
+						if (inkey(FALSE)) break;
+					}
 				}
 			}
 
-			/* Break if "happy" */
-			if (accept)
-				break;
-
-			/* Take note every 25 rolls */
-			flag = (!(auto_round % 25L));
-
-			/* Update display occasionally */
-			if (flag || (auto_round < last_round + 100))
+			/* Otherwise just get a character */
+			else
 			{
-				/* Dump data */
-				birth_put_stats();
-
-				/* Dump round */
-				put_str(format("%10ld", auto_round), 10, col + 20);
-
-				/* Make sure they see everything */
-				Term_fresh();
-
-				/* Delay 1/10 second */
-				if (flag)
-					Term_xtra(TERM_XTRA_DELAY, 100);
-
-				/* Do not wait for a key */
-				inkey_scan = TRUE;
-
-				/* Check for a keypress */
-				if (inkey())
-					break;
+				/* Get a new character */
+				get_stats();
 			}
+
+			/* Flush input */
+			flush();
+
+			/* Roll out hitpoints */
+			get_extra();
+
+			/* Roll for age/height/weight */
+			get_ahw();
+
+			/* Roll for social class */
+			get_history();
+
+			/* Roll for gold */
+			get_money();
+
+			/* Character starts out with a power level of 1 */
+			p_ptr->power = 1;
+
+			/* Get some starting experience  XXX */
+			p_ptr->exp = 3;
+
+			/* Redraw experience (later) */
+			p_ptr->redraw |= (PR_EXP);
 		}
 
-		/* Flush input */
-		flush();
 
+		/* No magic yet */
+		mp_ptr = &magic_info[NONE];
 
-/*** Display ***/
+		/* Assume we're using karate */
+		p_ptr->barehand = S_KARATE;
 
-		/* Roll for base hitpoints */
-		get_extra();
+		/* Calculate the bonuses and hitpoints */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
-		/* Roll for age/height/weight */
-		get_ahw();
-		/* Roll for social class */
-		get_history();
-		/* Roll for gold */
-		get_money();
+		/* Hack -- Silence certain status messages */
+		character_silent = 1;
 
-		/* Roll skills */
-		get_skills();
+		/* Update stuff */
+		update_stuff();
 
-		/* Get exp */
-		get_exp();
+		/* Messages are no longer silenced */
+		character_silent = 0;
 
-		/* set up everything else */
-		get_misc();
+		/* Fully healed */
+		p_ptr->chp = p_ptr->mhp;
+
+		/* Fully rested */
+		p_ptr->csp = p_ptr->msp;
 
 		/* Input loop */
 		while (TRUE)
 		{
-			/* Calculate the bonuses and hitpoints */
-			p_ptr->update |= (PU_BONUS | PU_HP);
-
-			/* Update stuff */
-			update_stuff();
-
-			/* Fully healed */
-			p_ptr->chp = p_ptr->mhp;
-
-			/* Fully rested */
-			p_ptr->csp = p_ptr->msp;
-
 			/* Display the player */
 			display_player(0);
 
-			/* Prepare a prompt (must squeeze everything in) */
-			Term_gotoxy(2, 23);
-			Term_addch(TERM_WHITE, b1);
-			Term_addstr(-1, TERM_WHITE, "'r' to reroll");
-			if (prev)
-				Term_addstr(-1, TERM_WHITE, ", 'p' for prev");
-			Term_addstr(-1, TERM_WHITE, ", or ESC to accept");
-			Term_addch(TERM_WHITE, b2);
+			/* Prepare a prompt */
+			prt("['r' to reroll, 'S' to restart, or Return to accept]", 23, 0);
 
 			/* Prompt and get a command */
-			c = inkey();
+			ch = inkey(FALSE);
 
 			/* Quit */
-			if (c == 'Q')
-				quit(NULL);
+			if ((ch == 'Q') || (ch == 'q')) quit(NULL);
 
 			/* Start over */
-			if (c == 'S')
-				return (FALSE);
+			if ((ch == 'S') || (ch == 's')) return (FALSE);
 
 			/* Escape accepts the roll */
-			if (c == ESCAPE)
+			if (ch == ESCAPE) break;
+
+			/* Return accepts the roll */
+			if ((ch == '\r') || (ch == '\n') ||
+			    ((ch == ' ') && (quick_start)))
+			{
 				break;
+			}
 
 			/* Reroll this character */
-			if ((c == ' ') || (c == 'r'))
-				break;
-
-			/* Previous character */
-			if (prev && (c == 'p'))
+			if (((ch == ' ') && (!quick_start)) || (ch == 'r'))
 			{
-				load_prev_data();
-				continue;
+				/* Cancel quick_start (allow normal rolling) */
+				if (quick_start)
+				{
+					birth_autoroll = FALSE;
+					quick_start = FALSE;
+				}
+				break;
 			}
 
 			/* Help */
-			if (c == '?')
+			if (ch == '?')
 			{
 				do_cmd_help();
 				continue;
 			}
 
 			/* Warning */
-			bell("Illegal autoroller command!");
+			bell("Illegal command!");
 		}
 
 		/* Are we done? */
-		if (c == ESCAPE)
-			break;
-
-		/* Save this for the "previous" character */
-		save_prev_data();
+		if (ch == ESCAPE) break;
+		if ((ch == '\r') || (ch == '\n')) break;
 
 		/* Note that a previous roll exists */
 		prev = TRUE;
 	}
 
+	/* Set character rolls  XXX */
+	if (!quick_start) p_ptr->birth_roll_requirement = auto_round;
+
+
 	/* Clear prompt */
 	clear_from(23);
 
+	/* Done */
+	return (TRUE);
+}
 
-/*** Finish up ***/
+
+/*
+ * Helper function for 'player_birth()'.
+ *
+ * See "display_player" for screen layout code.
+ */
+static int player_birth_aux(void)
+{
+	char ch;
+	char buf[1024];
+
+	/*
+	 * Ask questions.  Return -1 for cancel everything, 0 for repeat,
+	 * 1 for quick-start, and 2 for normal character birth.
+	 */
+	int choice = player_birth_aux_1();
+
+	/* Cancelled */
+	if (choice <= 0) return (choice);
+
+	/* Roll for stats, gold - handle quickstart.  Display character screen */
+	if (!player_birth_aux_2(choice == 1)) return (0);
 
 	/* Get a name, prepare savefile */
 	get_name();
 
-	/* Display the player */
+	/* Display the player (again) */
 	display_player(0);
 
+
+	/* Center the prompt */
+	center_string(buf, sizeof(buf),
+		"['Q' to quit, 'S' to start over, or any other key to continue]", display_width());
+
 	/* Prompt for it */
-	prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
+	prt(buf, 23, 0);
 
 	/* Get a key */
-	c = inkey();
+	ch = inkey(FALSE);
+
 	/* Quit */
-	if (c == 'Q')
-		quit(NULL);
+	if ((ch == 'Q') || (ch == 'q')) quit(NULL);
 
 	/* Start over */
-	if (c == 'S')
-		return (FALSE);
+	if ((ch == 'S') || (ch == 's')) return (0);
+
 	/* Accept */
-	return (TRUE);
+	return (1);
 }
 
 /*
@@ -1687,12 +1947,15 @@ player_birth_aux()
  *
  * Having an item makes the player "aware" of its purpose.
  */
-static void
-player_outfit(void)
+static void player_outfit(void)
 {
-	object_type forge;
+	int i;
 
-	object_type *o_ptr = &forge;
+	object_type *o_ptr;
+	object_type object_type_body;
+
+	/* Get local object */
+	o_ptr = &object_type_body;
 
 
 	/* Hack -- Give the player some food */
@@ -1702,47 +1965,133 @@ player_outfit(void)
 	object_known(o_ptr);
 	(void)inven_carry(o_ptr);
 
+
+	/* Get local object */
+	o_ptr = &object_type_body;
+
 	/* Hack -- Give the player some torches */
 	object_prep(o_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+	apply_magic(o_ptr, 0, -2, FALSE, FALSE);
 	o_ptr->number = rand_range(3, 7);
-	o_ptr->pval = rand_range(3, 7) * 500;
+	o_ptr->pval = rand_range(4, 7) * 500;
+	object_aware(o_ptr);
 	object_known(o_ptr);
 	(void)inven_carry(o_ptr);
+
+
+	/* Set weather to normal, and allow random changes  XXX XXX */
+	p_ptr->humid = 0;
+	p_ptr->wind =  0;
+	p_ptr->temp =  0;
+	for (i = 0; i < 10; i++) change_weather(0, 0, 0);
 }
+
+/*
+ * Some races can go longer between meals than others.
+ */
+static void init_stomach(void)
+{
+	bool large = FALSE;
+
+	/* Character is a Half-Troll or a Giant */
+	if ((p_ptr->prace == RACE_HALF_TROLL) ||
+	    (p_ptr->prace == RACE_GIANT))
+	{
+		/* Trolls can go a long time between (huge!) meals */
+		large = TRUE;
+	}
+
+	/* Set up the character's food values */
+	p_ptr->food_bloated =  (!large ? PY_FOOD_MAX    : PY_FOOD_MAX    * 2);
+	p_ptr->food_full =     (!large ? PY_FOOD_FULL   : PY_FOOD_FULL   * 2);
+	p_ptr->food_hungry =   (!large ? PY_FOOD_ALERT  : PY_FOOD_ALERT  * 2);
+	p_ptr->food_weak =     (!large ? PY_FOOD_WEAK   : PY_FOOD_WEAK   * 2);
+	p_ptr->food_fainting = (!large ? PY_FOOD_FAINT  : PY_FOOD_FAINT  * 2);
+	p_ptr->food_starving = (!large ? PY_FOOD_STARVE : PY_FOOD_STARVE * 2);
+
+
+	/* Hack -- Well fed player */
+	p_ptr->food = p_ptr->food_full - 1;
+}
+
+/*
+ * Clear the cheating options
+ */
+static void cancel_cheat_options(void)
+{
+	int i;
+
+	/* Paranoia -- Clear the "noscore" variable */
+	p_ptr->noscore = 0;
+	p_ptr->deaths = 0;
+
+	/* Clear the cheating options */
+	for (i = OPT_CHEAT_HEADER; i < 100; i++)
+	{
+		op_ptr->opt[i] = FALSE;
+	}
+}
+
+
 
 /*
  * Create a new character.
  *
- * Note that we may be called with "junk" leftover in the various
- * fields, so we must be sure to clear them first.
+ * We may be called with "junk" left over in the player data structure,
+ * so we must be sure to clear it first.
  */
-void
-player_birth(void)
+bool player_birth(void)
 {
-	int i, n;
+	int n, choice;
 
+
+	/* Use the standard display and center an 80 column view */
+	display_change(DSP_REMEMBER | DSP_NORM | DSP_CX, 80, 0);
 
 	/* Create a new character */
-	while (1)
+	while (TRUE)
 	{
 		/* Wipe the player */
-		player_wipe();
+		player_wipe(FALSE);
 
 		/* Roll up a new character */
-		if (player_birth_aux())
-			break;
+		choice = player_birth_aux();
+
+		/* Accept */
+		if (choice != 0) break;
+	}
+
+	/* Allow cancel */
+	if (choice < 0)
+	{
+		/* Restore previous display */
+		display_change(DSP_RESTORE, 0, 0);
+
+		return (FALSE);
 	}
 
 
 	/* Note player birth in the message recall */
-	message_add(" ");
-	message_add("  ");
-	message_add("====================");
-	message_add("  ");
-	message_add(" ");
+	message_add(" ", MSG_GENERIC);
+	message_add("  ", MSG_GENERIC);
+	message_add(format("========= %s the %s is born ===========",
+		op_ptr->full_name, rp_ptr->title), MSG_GENERIC);
+	message_add("  ", MSG_GENERIC);
+	message_add(" ", MSG_GENERIC);
 
-	/* Give the player some minimal possessions */
+
+	/* Hack -- outfit the player */
 	player_outfit();
+
+	/* Hack -- initialize character food values */
+	init_stomach();
+
+	/* Hack -- cancel all cheating options */
+	cancel_cheat_options();
+
+	/* Get or correct the inn name index */
+	if ((p_ptr->inn_name <= 0) || (p_ptr->inn_name >= MAX_INN_NAMES))
+		p_ptr->inn_name = randint(MAX_INN_NAMES-1);
 
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)
@@ -1750,12 +2099,16 @@ player_birth(void)
 		/* Initialize */
 		store_init(n);
 
-		/* Ignore home */
-		if (n == STORE_HOME)
-			continue;
-
-		/* Maintain the shop (ten times) */
-		for (i = 0; i < 10; i++)
-			store_maint(n);
+		/* Maintain the shop (fully) */
+		store_maint(n, TRUE);
 	}
+
+	p_ptr->specialty = SPECIALTY_NONE;
+
+	/* Restore previous display */
+	display_change(DSP_RESTORE, 0, 0);
+
+	/* Success */
+	return (TRUE);
 }
+

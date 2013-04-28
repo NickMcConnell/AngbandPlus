@@ -1,0 +1,54 @@
+
+====== Internet Resources ======
+
+
+http://angband.oook.cz/forum/
+     The Angband Forum.  It also covers all her variants, including Sangband.
+Lots of friendly people.  You may post character dumps there and ask for and
+offer advice.
+
+http://www.runegold.org/sangband
+     The Sangband home page.  Contains the current source and executables, and
+various interesting things like screenshots and news updates.
+
+http://angband.oook.cz/index.php
+     The major Angband website, including official and unofficial news,
+discussion, information, and various nifty utilities.  Go to
+"http://angband.oook.cz/ladder.php" to see the top scores for many variants of
+Angband.
+
+rec.games.roguelike.angband
+     The Angband discussion group on usenet.
+
+http://www.thangorodrim.net/angband.html
+     A large, but slightly outdated, site that used to be the official Angband
+portal.
+
+http://ftp.sunet.se/pub/games/Angband/
+     The largest repository of Angband files (somewhat outdated).
+
+http://angband.oook.cz/code
+     Put a code on the bottom of your posts that describes exactly how you play
+Angband.  Lots of fun.
+
+http://www.mirc.com/
+     If you like interactive chat, there is a channel dedicated to Angband.  Go
+to this link, download mirc, and use it to connect to one of the Worldirc
+servers (note:  You do have to use a worldirc server).  Then join the channel
+#angband.  You'll know you've got it right when you see other people (the
+channel is always occupied).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

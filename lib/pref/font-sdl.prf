@@ -1,0 +1,115 @@
+# File: font-win.prf
+
+#
+# This file is used by the game (when it was compiled using "main-win.c")
+# to specify simple attr/char remappings using a standard font.
+#
+# This file uses the special pseudo-graphic symbols defined in the 
+# "lib/xtra/font/*.fon" files.
+#
+
+
+### Terrain features ###
+
+#
+# The pseudo-graphical option
+#
+
+# Ordinary floor
+F:1:w/7:Y/7:s/7
+
+# Up shaft
+F:4:U/<:U/<:U/<
+
+# Down shaft
+F:5:U/>:U/>:U/>
+
+# Open door
+F:6:U/14:U/14:U/14
+
+# Broken door
+F:7:u/15:u/15:u/15
+
+# Up stairs
+F:8:w/<:w/<:W/<
+
+# Down stairs
+F:9:w/>:w/>:W/>
+
+# Lava
+F:10:r/19:R/19:r/19
+
+# Water
+F:11:b/17:Z/17:b/17
+
+# Tree
+F:12:g/18:G/18:g/18
+
+# Closed, locked, or jammed door
+F:32:U/13:U/13:U/13
+
+# Rubble
+F:49:w/11:Y/11:W/11
+
+# Magma
+F:50:s/3:s/3:D/3
+
+# Quartz
+F:51:W/3:W/3:s/3
+
+# Magma with treasure
+F:54:o/12:o/12:o/12
+
+# Quartz with treasure
+F:55:o/12:o/12:o/12
+
+# Granite walls
+F:56:w/127:w/127:W/127
+
+# Permanent wall -- town buildings
+F:60:w/127:w/127:W/127
+
+# Permanent wall -- all others
+F:61:w/3:w/3:W/3
+
+# Pillar
+F:64:w/16:w/16:W/16
+
+# Pillar of gold
+F:65:o/16:y/16:o/16
+
+
+# boulder
+K:638:s:10
+
+
+#
+# Spell graphics.  Default to the "magical" bolts and the "cloud" 
+# explosion.
+#
+S:0:0/168:0/169:0/170:0/171:0/172
+
+# Rock
+S:1:0/9:0/9:0/9:0/9:0/174
+
+# "arrow/bolt/slug" projections
+S:2:0/'|':0/'-':0/'/':0/'\':0/'*'
+S:3:0/'|':0/'-':0/'/':0/'\':0/'*'
+S:4:0/'|':0/'-':0/'/':0/'\':0/'*'
+S:5:0/'|':0/'-':0/'/':0/'\':0/'*'
+S:6:0/'|':0/'-':0/'/':0/'\':0/'*'
+
+# Water
+S:32:0/'|':0/'-':0/'/':0/'\':0/172
+
+# Poison
+S:12:0/168:0/169:0/170:0/171:0/172
+
+# Projection types that look like lightning or webbing
+S:9:0/168:0/169:0/170:0/171:0/173
+S:13:0/168:0/169:0/170:0/171:0/173
+
+# Projection types that want the "explode" graphic
+S:31:0/168:0/169:0/170:0/171:0/174
+S:42:0/168:0/169:0/170:0/171:0/174
+

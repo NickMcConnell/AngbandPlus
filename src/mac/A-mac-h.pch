@@ -1,0 +1,68 @@
+/* File: A-mac-h.pch */
+
+/*
+ * This file creates pre-compiled header files which are used to
+ * compile Macintosh Angband using the Code Warrior Pro compiler.
+ *
+ * It can also be used with CodeWarrior. Both PPC and 68K binaries have
+ * been built successfully by CodeWarrior Version 6 for Macintosh
+ * (it's a Japanese version but I don't believe local language support makes
+ * any differences):
+ *
+ * 1) Metrowerks has defined a wrong prototype for write() in <unistd.h>
+ *    Either fix the header (declare second argument as a const pointer),
+ *	  or cast second arguments to write() into (void *) [util.c, 2 places]
+ */
+
+#if defined(__MWERKS__)
+# if defined(powerc) || defined(__powerc)
+#  pragma precompile_target "A-mac-h-PPC"
+# else
+#  pragma precompile_target "A-mac-h-68K"
+# endif
+#endif
+
+/*
+ * Activate the Macintosh-specific code
+ */
+#define MACINTOSH
+
+/* #define ALLOW_BORG */
+/* #define SCORE_BORGS */
+
+/*
+ * Uncomment this if you receive too many complaints for missing
+ * 'Exit' command -- why not just option-drag savefiles when they
+ * want to savescum?  Is it too hard thing to do?
+ *
+ * This being said, I usually set this for Classic ports,
+ * ONLY and EXACTLY because those damn OSes are incredibly unreliable,
+ * issuing messages like: "memory shortage: shutdown your application
+ * immediately and reboot", or things like that (I don't know what
+ * English versions say in such unfortunate, but familiar circumstances...)
+ * It's NEVER meant for avoiding unfavourable situations in the game.
+ *
+ * By the same token, NEVER set this for OS X port, because it's
+ * totally free from memory-related problems that have plagued previous
+ * Apple operating systems.
+ *
+ * Anyway, providing this as a normal command looking just like
+ * File/Open/New/Import is plainly wrong, however long had it been
+ * practised for Macintosh ports.  Various Moria ports didn't have that.
+ * NetHack never.  It just started with MacAngband 2.5.*
+ *
+ * -- pelpel
+ */
+/* #define ALLOW_NO_SAVE_QUITS */
+
+/*
+ * Precompile the header files
+ */
+#include "angband.h"
+
+/*
+ * Include the standard ansi_prefix.mac.h file
+ */
+#define MSL_USE_PRECOMPILED_HEADERS 0
+#include "ansi_prefix.mac.h"
+

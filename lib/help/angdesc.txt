@@ -1,0 +1,470 @@
+
+====== Description, History, and Copyrights ======
+
+
+--- The History of Sangband ---
+
+     Skills Angband, or Sangband for short, is the oldest variant of Angband
+still active; many long-time players remember it with great fondness.  It was
+among the first roguelikes anywhere to introduce skills, shapechanges, fully-
+fledged natural and necromantic realms, and special character talents.  Whole
+webpages have been devoted to its features, and many a game developer has been
+influenced by them.
+
+     Sangband grew out of Chris Petit's interest in developing a version of
+Angband with a skills system rather than character classes.  It was first
+released March the 3rd, 1994, using the Angband 2.5.x codebase as modified in
+Bangband (another of his variants).  When Chris Petit graduated, development
+stopped for about a year at version 0.8.5 (released April 29th, 1994).
+     After that, Michael Gorse took over the project, re-releasing version
+0.8.5, then taking the game up to 0.9.3 between 1995 and 1997.
+     Julian Lighton happened to stumble across Sangband, and (aided by Greg
+Wooledge) found himself fixing bugs as he found them.  First he made them
+available on a website, then decided he had too much free time and took over
+Sangband officially, releasing 0.9.4 in 1997 and 0.9.5 in 1998.  His work sorted
+out the major game bugs and updated the code to Angband 2.8.3.
+     In 2001, he passed the maintainership to Leon Marrick, who had played
+Sangband almost since the beginning (first bug report in '95) and modeled parts
+of his own variant on it.   Scott Yost released beta 15, making a number of
+helpful changes and bug fixes.
+     (more history between 2001 and the present will appear later)
+
+
+--- The History of Angband ---
+
+This file was last updated for Angband 3.0.1.
+
+Make sure to read the Forum ("http://angband.oook.cz/forum/") for the most up to
+date information about Angband.
+
+Angband has an incredibly complex history, and is the result of a lot of work by
+a lot of people, all of whom have contributed their time and energy for free,
+rewarded only by the pleasure of keeping alive one of the best freeware games
+available anywhere.
+
+The version control files, if they existed, would span more than ten years time,
+and more than six different primary developers.  Without such files, we must
+rely on simpler methods, such as change logs, source file diffs, and word of
+mouth.  Some of this information is summarized in this file.
+
+Please be sure to read the copyright information at the end of this file.
+
+
+Brief Version History:
+
+First came "VMS Moria", by Robert Alan Koeneke (1985).
+
+Then came "Umoria" (UNIX Moria), by James E. Wilson (1989).
+
+Details about the history of the various flavors of "moria", the direct ancestor
+to Angband, can be found elsewhere, and a note from Robert Alan Koeneke is
+included in this file.  Note that "moria" has been ported to a variety of
+platforms, and has its own newsgroup, and its own fans.
+
+In 1990, Alex Cutler and Andy Astrand, with the help of other students at the
+University of Warwick, created Angband 1.0, based on the existing code for
+Umoria 5.2.1.  They wanted to expand the game, keeping or even strengthening the
+grounding in Tolkien lore, while adding more monsters and items, including
+unique monsters and artifact items, plus activation, pseudo-sensing, level
+feelings, and special dungeon rooms.
+
+Over time, Sean Marsh, Geoff Hill, Charles Teague, and others worked on the
+source, releasing a copy known as "Angband 2.4.frog_knows" at some point, which
+ran only on Unix systems, but which was ported by various people to various
+other systems.  One of the most significant ports was the "PC Angband 1.4" port,
+for old DOS machines, which added color and various other significant changes,
+only some of which ever made it back into the official source.
+
+Then Charles Swiger (cs4w+@andrew.cmu.edu) took over, sometime in late 1993,
+cleaning up the code, fixing a lot of bugs, and bringing together various
+patches from various people, resulting in several versions of Angband, starting
+with Angband 2.5.1 (?), and leading up to the release of Angband 2.6.1 (and
+Angband 2.6.2) in late 1994.  Some of the changes during this period were based
+on suggestions from the "net", and from various related games, including "UMoria
+5.5", "PC Angband 1.4", and "FAngband".
+
+Angband 2.6.1 was primarily targetted towards Unix/NeXT machines, and it
+required the use of the low level "curses" commands for all screen manipulation
+and keypress interaction.  Each release had to be ported from scratch to any new
+platforms, normally by creating visual display code that acted as a "curses"
+emulator.  One such port was "Macintosh Angband 2.6.1", by Keith Randall, which
+added support for color, and which formed the basis for the first release of
+Angband 2.7.0.
+
+In late 1994, Charles Swiger announced that he was starting a real job and would
+no longer be able to be the Angband maintainer.  This induced some amount of
+uproar in the Angband community (as represented by the Angband newsgroup), with
+various people attempting to form "committees" to take over the maintenance of
+Angband.  Since committees have never given us anything but trouble (think
+"COBOL"), there was very little resistance when, on the first day of 1995, Ben
+Harrison made his code available, calling it "Angband 2.7.0", and by default,
+taking over as the new maintainer of Angband.
+
+Between then and 1999, Ben Harrison transformed Angband, becoming (in many
+people's minds) the most important contributor to the game since Robert Koeneke.
+The first and most important change he made was a massive code-level cleanup.
+This, combined with the development of a generic, OS-independant interface,
+allowed simple porting to many new and existing platforms (including X11, IBM
+machines, OS2, Windows, Amiga, and Linux), and made possible the explosion of
+variants that adds such vigor to the game today.
+
+  Major changes made in this period include:
+- macros and keymaps
+- user preference files
+- user-customizable template files for monsters, objects, ego-items,
+  artifacts, vaults, and terrain features.
+- more powerful and efficient line of sight, lighting, grid refresh,
+  and spell projection code
+- better string-handling
+- new or rewritten inventory and equipment management, monster processing,
+  object creation and effects, and a whole lot more.
+
+After the release of Angband 2.8.3 Ben's free time was more and more occupied by
+his work.  He released a beta version of Angband 2.8.5, introducing many new
+features, but couldn't give as much attention to maintaining the game as he
+wanted to.
+
+So in March 2000, Robert Ruehlmann offered to take over Angband and started to
+fix the remaining bugs in the Angband 2.8.5 beta.  The resulting version was to
+be released as Angband 2.9.0.  Further bugfixes and a couple of new features -
+including many in the realms of user-customizability, with greater control over
+ego-items, player races and classes, monsters, items and artifacts - have led to
+the current version.
+
+
+Contributors (incomplete):
+
+Peter Berger, "Prfnoff", Arcum Dagsson, Ed Cogburn, Matthias Kurzke, Ben
+Harrison, Steven Fuerst, Julian Lighton, Andrew Hill, Werner Baer, Tom Morton,
+"Cyric the Mad", Chris Kern, Tim Baker, Jurriaan Kalkman, Alexander Wilkins,
+Mauro Scarpa, John I'anson-Holton, "facade", Dennis van Es, Kenneth A. Strom,
+Wei-Hwa Huang, Nikodemus, Timo Pietilä, Greg Wooledge, Keldon Jones, Shayne
+Steele, Dr. Andrew White, Musus Umbra, Jonathan Ellis
+
+
+A Posting from the Original Author of Moria:
+
+From: koeneke@ionet.net (Robert Alan Koeneke) Newsgroups:
+rec.games.roguelike.angband,rec.games.roguelike.moria Subject: Early history of
+Moria Date: Wed, 21 Feb 1996 04:20:51 GMT
+
+I had some email show up asking about the origin of Moria, and its relation to
+Rogue.  So I thought I would just post some text on the early days of Moria.
+
+First of all, yes, I really am the Robert Koeneke who wrote the first Moria.  I
+had a lot of mail accussing me of pulling their leg and such.  I just recently
+connected to Internet (yes, I work for a company in the dark ages where Internet
+is concerned) and was real surprised to find Moria in the news groups...
+Angband was an even bigger surprise, since I have never seen it.  I probably
+spoke to its originator though...  I have given permission to lots of people
+through the years to enhance, modify, or whatever as long as they freely
+distributed the results.  I have always been a proponent of sharing games, not
+selling them.
+
+Anyway...
+
+Around 1980 or 81 I was enrolled in engineering courses at the University of
+Oklahoma.  The engineering lab ran on a PDP 1170 under an early version of UNIX.
+I was always good at computers, so it was natural for me to get to know the
+system administrators.  They invited me one night to stay and play some games,
+an early startrek game, The Colossal Cave Adventure (later just 'Adventure'),
+and late one night, a new dungeon game called 'Rogue'.
+
+So yes, I was exposed to Rogue before Moria was even a gleam in my eye.  In
+fact, Rogue was directly responsible for millions of hours of play time wasted
+on Moria and its descendents...
+
+Soon after playing Rogue (and man, was I HOOKED), I got a job in a different
+department as a student assistant in computers.  I worked on one of the early
+VAX 11/780's running VMS, and no games were available for it at that time.  The
+engineering lab got a real geek of an administrator who thought the only purpose
+of a computer was WORK! Imagine...  Soooo, no more games, and no more rogue!
+
+This was intolerable!  So I decided to write my own rogue game, Moria Beta 1.0.
+I had three languages available on my VMS system.  Fortran IV, PASCAL V1.?, and
+BASIC.  Since most of the game was string manipulation, I wrote the first
+attempt at Moria in VMS BASIC, and it looked a LOT like Rogue, at least what I
+could remember of it.  Then I began getting ideas of how to improve it, how it
+should work differently, and I pretty much didn't touch it for about a year.
+
+Around 1983, two things happened that caused Moria to be born in its
+recognizable form.  I was engaged to be married, and the only cure for THAT is
+to work so hard you can't think about it; and I was enrolled for fall to take an
+operating systems class in PASCAL.
+
+So, I investigated the new version of VMS PASCAL and found out it had a new
+feature.  Variable length strings!  Wow...
+
+That summer I finished Moria 1.0 in VMS PASCAL.  I learned more about data
+structures, optimization, and just plain programming that summer then in all of
+my years in school.  I soon drew a crowd of devoted Moria players...  All at OU.
+
+I asked Jimmey Todd, a good friend of mine, to write a better character
+generator for the game, and so the skills and history were born.  Jimmey helped
+out on many of the functions in the game as well.  This would have been about
+Moria 2.0
+
+In the following two years, I listened a lot to my players and kept making
+enhancements to the game to fix problems, to challenge them, and to keep them
+going.  If anyone managed to win, I immediately found out how, and 'enhanced'
+the game to make it harder.  I once vowed it was 'unbeatable', and a week later
+a friend of mine beat it!  His character, 'Iggy', was placed into the game as
+'The Evil Iggy', and immortalized...  And of course, I went in and plugged up
+the trick he used to win...
+
+Around 1985 I started sending out source to other universities.  Just before a
+OU / Texas football clash, I was asked to send a copy to the Univeristy of
+Texas...  I couldn't resist...  I modified it so that the begger on the town
+level was 'An OU football fan' and they moved at maximum rate.  They also
+multiplied at maximum rate...  So the first step you took and woke one up, it
+crossed the floor increasing to hundreds of them and pounded you into
+oblivion...  I soon received a call and provided instructions on how to 'de-
+enhance' the game!
+
+Around 1986 - 87 I released Moria 4.7, my last official release.  I was working
+on a Moria 5.0 when I left OU to go to work for American Airlines (and yes, I
+still work there).  Moria 5.0 was a complete rewrite, and contained many neat
+enhancements, features, you name it.  It had water, streams, lakes, pools, with
+water monsters.  It had 'mysterious orbs' which could be carried like torches
+for light but also gave off magical aura's (like protection from fire, or
+aggrivate monster...).  It had new weapons and treasures...  I left it with the
+student assistants at OU to be finished, but I guess it soon died on the vine.
+As far as I know, that source was lost...
+
+I gave permission to anyone who asked to work on the game.  Several people asked
+if they could convert it to 'C', and I said fine as long as a complete credit
+history was maintained, and that it could NEVER be sold, only given.  So I guess
+one or more of them succeeded in their efforts to rewrite it in 'C'.
+
+I have since received thousands of letters from all over the world from players
+telling about their exploits, and from administrators cursing the day I was
+born...  I received mail from behind the iron curtain (while it was still
+standing) talking about the game on VAX's (which supposedly couldn't be there
+due to export laws).  I used to have a map with pins for every letter I
+received, but I gave up on that!
+
+I am very happy to learn my creation keeps on going...  I plan to download it
+and Angband and play them...  Maybe something has been added that will surprise
+me!  That would be nice...  I never got to play Moria and be surprised...
+
+Robert Alan Koeneke koeneke@ionet.net
+
+
+Posted by Geoff Hill on the Angband newsgroup on 2004-10-31:
+
+Well, Alex and Andy are the true fathers of Angband. And probably
+Andy most of all. He's a talented coder, and I *think* (I could ask
+him, perhaps!) that Angband was partly driven by him looking for a
+challenge. By this, that he found Nethack a little easy, so wanted a
+beefed up hack type variant, and (U)Moria seemed a good base.
+
+And he (and I to a lesser intent) were heavily involved in Warwick LP
+Mud and it was a creative time in the games world - the internet was
+still fairly fresh - we were using the Joint Academic Network (JANET)
+and it is a wonder that anyone ever completed their education!
+
+Andy, to the best of my knowledge, has not ever completed Angband,
+although I have heard he has been playing Z (its been a while since I
+asked).
+
+When Andy and Alex graduated it was left playable and about 2/3 of the
+release it became. Sean and I picked it up from then. I think Sean
+was more of a driving force, because he wanted to move it forward to
+release. In my case I was just keen to tinker the game balance (I was
+the completion specialist, I guess) and add and amend some things.
+
+So we added about 1/3 of the artifacts, monsters, vault types. Added
+high resists (up until then we only had the elements). Added new
+breathe types. Tweaked game balance. Tweaked player races and added
+race special abilities. The most time consuming part was rewriting (or
+in some cases writing from scratch) the monster descriptions. It took
+me forever! And it is difficult to be creative at 4am after a night
+in the bar. Qllqllzuup is witness to that (drunk when that one was
+done!).
+
+Some of the artifacts from that time are remarkably untested at
+release. I still think of that '1/3' as being 'new' ones and not the
+true artifacts, I guess because I had a hand in writing them. So,
+ones like Deathwreaker, Tulkas, Bladeturner etc are relatively untried
+before release.
+
+One area that Sean and I had a difference in opinion was in the
+'Tolkien' element. I felt that it should stay more true to the
+Angband theme, and he was less bothered about that. I disagreed with
+him putting in Gabriel, Azriel etc as frankly I felt they had no part
+in a Tolkien based world. But, no matter, Azriel has made a point of
+killing me ever since to put me straight ;-).
+
+Sean and I released it to the wider world (with the help of Charles
+Teague? I am not sure when he became involved, I would perhaps have to
+ask Sean for more background asI am still in touch with him). Charles
+may have become involved after release, or before, I am not certain.
+
+At that point it was only set up to make on a SunOS system, so I
+suspect that many people who are better coders than me then went mad
+converting it to their own systems.
+
+I suppose if one wanted to tweak the background paragraph with any of
+the above, you could, but it is largely correct as it stands. Perhaps
+for completness at Sean and I's involvement it could say
+
+'Sean Marsh and Geoff Hill took Angband over when Alex and Andy
+graduated from the University of Warwick. They updated Angband with
+some much needed depth, and worked remotely with Charles Teague to
+release it to the community. ' and then as before about frog-knows.
+Charles was not at the Uni, of course. I forget his location, as we
+only ever emailed him.
+The existing paragraph somewhat suggests that Sean and I released a
+'copy' known as frog-knows. I suppose in some respects it was the
+first variant of Angband but as it was the only version release it
+became vanilla?
+If so, that is ironic really, given comments earlier in this thread...
+
+
+
+====== Copyrights ======
+
+                          VMS Moria Version 4.8
+Version 0.1  : 03/25/83
+Version 1.0  : 05/01/84
+Version 2.0  : 07/10/84
+Version 3.0  : 11/20/84
+Version 4.0  : 01/20/85
+
+Modules :
+     V1.0  Dungeon Generator      - RAK
+           Character Generator    - RAK & JWT
+           Moria Module           - RAK
+           Miscellaneous          - RAK & JWT
+     V2.0  Town Level & Misc      - RAK
+     V3.0  Internal Help & Misc   - RAK
+     V4.0  Source Release Version - RAK
+
+Robert Alan Koeneke               Jimmey Wayne Todd Jr.
+Student/University of Oklahoma    Student/University of Oklahoma
+
+
+
+
+
+                        Umoria Version 5.2 (formerly UNIX Moria)
+Version 4.83 :  5/14/87
+Version 4.85 : 10/26/87
+Version 4.87 :  5/27/88
+Version 5.0  :  11/2/89
+Version 5.2  :   5/9/90
+
+James E. Wilson, U.C. Berkeley
+                 wilson@ernie.Berkeley.EDU
+                 ...!ucbvax!ucbernie!wilson
+
+Other contributors:
+D. G. Kneller         - MSDOS Moria port
+Christopher J. Stuart - recall, options, inventory, and running code
+Curtis McCauley       - Macintosh Moria port
+Stephen A. Jacobs     - Atari ST Moria port
+William Setzer        - object naming code
+David J. Grabiner     - numerous bug reports, and consistency checking
+Dan Bernstein         - UNIX hangup signal fix, many bug fixes
+and many others...
+
+
+
+
+Copyright (c) 1989 James E. Wilson, Robert A. Keoneke
+  This software may be copied and distributed for educational, research, and
+  not for profit purposes provided that this copyright and statement are
+  included in all such copies.
+
+Umoria Version 5.2, patch level 1
+
+Angband Version 2.0   Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill,
+                      Charles Teague.
+
+Angband Version 2.4   : 05/09/1993
+
+Angband Version 2.5   : 12/05/1993 Charles Swiger
+
+Angband Version 2.6   : 09/04/1994 Charles Swiger
+
+Angband Version 2.7   : 01/01/1995 Ben Harrison
+
+Angband Version 2.8   : 01/01/1997 Ben Harrison
+
+Angband Version 2.9   : 10th April 2000 Robert Ruehlmann
+
+
+
+Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+
+This software may be copied and distributed for educational, research, and not
+for profit purposes provided that this copyright and statement are included in
+all such copies.  Other copyrights may also apply.
+
+
+--- The Sangband copyright ---
+
+Sangband   0.1 - 0.8.5  : Jun 28, 1994  Chris Petit
+
+Sangband 0.8.5 - 0.9.3  : Apr 04, 1997  Michael Gorse (mgorse@wpi.edu)
+
+Sangband 0.9.4 - 0.9.5  : Jul 14, 1998  Julian Lighton (jl8e@fragment.com)
+
+Sangband 1.0.0          : May 26, 2007  Leon Marrick
+
+Copyright (c) 2007
+Leon Marrick, Ben Harrison, James E. Wilson, Robert A. Koeneke
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License.  Parts may also be
+available under the terms of the Moria license.  For more details, see
+"/docs/copying.txt".
+
+
+--- The Sangband Manual Copyright ---
+
+The Sangband Manual is copyright (c) 2007 Leon Marrick (-LM-) and others.
+
+     This work, or any portions thereof, may be freely adopted, revised,
+translated, or converted into other formats, with or without explicit
+permission, as long as this copyright is retained on major portions and credit
+given otherwise.  Other arrangements may be made by application.
+
+
+Informal Bibliography
+     This work draws upon the following sources:
+
+The Umoria 5.5.2 documentation
+     Probable authors:  Robert Alan Koeneke and/or James E. Wilson
+
+The Angband 2.0 documentation
+     Probable authors and revisors:  Alexander Cutler and/or Andy Astrand
+
+The Angband 3.0.3 documentation
+     Authors and revisors:  Ben Harrison, Robert Ruehlmann, and others.
+
+The Oangband 0.5.2 documentation
+     Authors and revisors:  Leon Marrick, Bahman Rabii.
+
+The Angband Macro FAQ
+     Author:  Jim Lyon
+
+The Angband FAQ, parts 1 and 2
+     Authors and revisors:  Jason Holtzapple, Ben Harrison, James Andrewartha
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

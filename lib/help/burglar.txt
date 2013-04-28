@@ -1,0 +1,116 @@
+
+====== Burglary ======
+
+     Various special burglary actions can be used by typing the '+' (alter) key,
+and then moving towards a monster (to steal), a passable grid (to set a trap),
+or a door (to lock it).  Burglars cannot use most of these abilities when
+shapeshifted.
+
+Stealing  (requires a skill of 4):
+     All monsters that yield items or gold when killed may also be a source of
+similar loot to thieves.   The most lucrative targets are those monsters that
+drop good or even excellent treasure, but they tend also to be unusually
+difficult to steal from.  Increasing your Burglary skill, choosing sleeping
+monsters, moving in darkness, becoming more dextrous, and finding ways to become
+invisible will all improve your chances.  Stealing soon after your previous
+attempt, stealing from thieves, or from wary monsters will all reduce your
+chances.
+     There are few things more satisfying than making off with some arrogant
+wizard's hat.  But theft is not all fun and games.  Every time you steal, the
+monsters get warier.  Steal too often in a short period of time, and you may
+very quickly get hunted down.
+
+Locking doors  (requires a skill of 7):
+     Burglars may lock closed doors; locking a door makes it more difficult for
+monsters to open.  The power of the lock increases with skill.
+
+
+--- Monster Traps ---
+
+Trap-setting  (requires a skill of 10):
+     Of all the many things that only burglars can do, setting traps is the most
+important.  Depending on your burglary skill, you may have between one and six
+traps active at any one time.  It takes three turns to set up a trap (this is
+normally automatic but, if disturbed, you'll have to issue the command a few
+times).
+     You then load the trap with one or more objects by typing '+', and moving
+towards an existing monster trap.  Traps may be loaded with melee weapons,
+missile weapons, potions, scrolls, wands, staffs, rods, or anything that can be
+thrown.  You can only load the trap with one kind of object; the two exceptions
+to this are that you need to supply a missile weapon with suitable ammunition,
+and that you can pack in boulders to your heart's content.
+     The damage traps do depends on your burglary skill and on the objects you
+use.  A skilled burglar can make traps which use magical devices that he cannot
+understand, wield weapons that he cannot lift, and fire missiles with deadly
+accuracy regardless of combat skill.
+
+Monsters and Traps:
+     A trap is like getting a free chance to do damage without being in harm's
+way.  The damage of most items other than scrolls and ordinary thrown objects
+varies depending on burglary skill.
+     Whenever a monster enters the grid containing the trap, several things can
+happen.  Firstly, ghosts and evasive monsters get a (large) chance to ignore the
+trap entirely.  Secondly, smart monsters get a chance to disarm the trap, and
+all non-ghostly monsters get a chance to smash it.  If the trap is neither
+avoided nor destroyed, it goes off.  Monsters become wary of traps if they see
+one activate; you are well advised to place them in the darkness.
+     A single non-perfectly balanced weapon will get melee blows, a missile
+launcher will fire one or more shots, a potion will smash, a scroll will be
+read, a charged wand, staff, or rod will activate, and anything else will be
+thrown.
+     Most weapon attributes (Skill, Deadliness, multipliers, slays, brands, and
+number of blows or shots, but not critical hits) are treated much as they are in
+normal combat.  Traps are great ways to use powerful weapons that you have no
+training for; a Mace of Burning can do real damage!
+
+
+--- Burglars and Combat ---
+
+Light Weapons, Sneak Attacks, and Backstabs:
+     Burglars are better with light weapons than anyone else.  With them, they
+can get quite significant bonuses to combat Skill.  Conversely, their penalty
+for heavy weapons goes up with skill until it is twice the normal amount.
+Martial arts are unaffected.  Your character screen display takes all of this
+into account.
+     Burglars get extra bonuses against sleeping monsters.  If they go into
+sneaking mode and melee a sleeping monster, they may sometimes be able to land
+sneak attacks, which act as unusually powerful critical hits.  Note:  You cannot
+sneak-attack a monster, then use a wand of sleep monster on it, then sneak
+attack it again.
+     Burglars can also backstab fleeing opponents (this acts as a general
+increase to hit chance).
+
+
+--- Sneaking in the Dark ---
+
+     Most characters have trouble exploring in the dark, as they need light to
+find objects, see monsters, and know where the walls are before bumping into
+them.  However, alternative solutions exist to all of these problems.  If you
+raise your Burglary, Perception, and Stealth skills high enough to get access to
+the "Detect and Nab Objects", "Sense Area", and "Sneaking" talents, and your
+Disarming skill higher than the current dungeon level, your only remaining
+problem will be monsters.  While no certain method is available for spotting
+monsters without light, characters with good Perception and Stealth skills can
+"sense" and "hear" most of the monsters in a totally darkened room.  Guild-
+Burglars have an advantage here.
+     Although sneaking in the dark can be very dangerous (you can't read a
+scroll of Teleport, for example), a character skilled at Stealth becomes much
+quieter, and a character skilled in Burglary is more deadly in combat, better at
+theft, and a much better dodger, especially if he is both in and surrounded by
+darkness.  All characters take only 2/3rds damage from magic and missiles if in
+and surrounded by darkness.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

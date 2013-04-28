@@ -1,0 +1,97 @@
+
+====== File Structure ======
+
+
+     This appendix lists most, but not all, of the files in the basic release
+(your version will vary slightly).
+
+{base game directory}
+readme.txt  :  Startup information, changes, notes, credits, copyrights
+ /docs
+ /lib
+
+{/docs directory}
+compile.txt :  Basic compilation information (source release only)
+changes     :  Recent changes.  See the website for older changes.
+manual.txt  :  The game manual
+
+{/lib directory}
+/apex
+/bone
+/data
+/edit
+/file
+/help
+/info
+/pref
+/save
+/user
+/xtra
+     Some of these directories contain a file named "delete.txt", which is
+included to make sure that directories are preserved.
+
+{/lib/apex directory}
+scores.raw   : The high score list
+
+{/lib/bone directory} various bones files created when characters die
+
+{/lib/data directory} data files created when the game starts up
+
+{/lib/edit directory}
+artifact.txt  :  User-editable information about artifacts
+ego-item.txt  :  User-editable information about ego-items
+limits.txt    :  Maximum sizes of various arrays
+monster.txt   :  User-editable information about monster races
+object.txt    :  User-editable information about objects
+quest.txt     :  User-editable information about quests
+store.txt     :  User-editable store information tables
+terrain.txt   :  User-editable information about terrain features
+vault.txt     :  User-editable information about special rooms
+
+{/lib/file directory}
+a_cursed.txt  :  List of names for cursed random artifact armors
+a_normal.txt  :  List of names for normal random artifact armors
+dead.txt      :  The dreaded black screen of death
+names.txt     :  Names to recombine for random artifacts
+news.txt      :  The splash screen
+smeagol.txt   :  What Smeagol says
+smeagolr.txt  :  What Smeagol says when he's frightened
+victory.txt   :  The victory screen
+w_cursed.txt  :  List of names for cursed random artifact weapons
+w_normal.txt  :  List of names for normal random artifact weapons
+
+{/lib/help directory}  Help files
+
+{/lib/info directory}  Various information and spoiler files
+
+{/lib/pref directory}
+Standard preference files.  See the section on preference files.
+
+{/lib/save directory} Saved games
+global.svg  :  A list of savefiles that the game will load automatically.
+
+{/lib/user directory}
+Personalized preference files.  See the section on preference files.
+
+{/lib/xtra directory}
+/font      : Fonts used in (at least) the SDL and Windows ports
+/graf      : bitmapped graphics tiles, the background image
+/music     : A selection of tunes to play to
+   jukebox.cfg : the music configuration file.
+/sound     : basic sounds for various actions
+   sound.cfg : the sound configuration file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

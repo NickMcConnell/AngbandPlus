@@ -1,0 +1,43 @@
+##### Race Specific Subfiles #####
+
+#
+# This is not actually used at present because all race-specific stuff is 
+# normally now handled by the game itself.
+#
+
+
+?:[EQU $RACE Human]
+%:Human.prf
+
+?:[EQU $RACE Elf]
+%:Elf.prf
+
+?:[EQU $RACE Hobbit]
+%:Hobbit.prf
+
+?:[EQU $RACE Gnome]
+%:Gnome.prf
+
+?:[EQU $RACE Dwarf]
+%:Dwarf.prf
+
+?:[EQU $RACE Half-Orc]
+%:Half-Orc.prf
+
+# "Half-Troll.prf" is too long for stupid 8.3 filenames,
+# so try to load the shortened filename too.
+?:[EQU $RACE Half-Troll]
+%:Half-Troll.prf
+%:H-Troll.prf
+
+?:[EQU $RACE Dunadan]
+%:Dunadan.prf
+
+?:[EQU $RACE High-Elf]
+%:High-Elf.prf
+
+?:[EQU $RACE Dark-Elf]
+%:Dark-Elf.prf
+
+?:[EQU $RACE Giant]
+%:Giant.prf

@@ -1,24 +1,46 @@
-                                                                               
-               _______________________                                         
-              /                       \         ___                            
-             /                         \ ___   /   \      ___                  
-            /            RIP            \   \  :   :     /   \                 
-           /                             \  : _;,,,;_    :   :                 
-          /                               \,;_          _;,,,;_                
-         |                                 |   ___                             
-         |                                 |  /   \                            
-         |                                 |  :   :                            
-         |                                 | _;,,,;_   ____                    
-         |                                 |          /    \                   
-         |                                 |          :    :                   
-         |                                 |          :    :                   
-         |                                 |         _;,,,,;_                  
-         |                                 |                                   
-         |                                 |                                   
-         |                                 |                                   
-        *|   *     *     *    *   *     *  | *                                 
-________)/\\_)_/___(\/___(//_\)/_\//__\\(/_|_)_______                          
+#charattr - this file uses the char/attr parsing system
+#regulardisplay - use the normal display to show this file
 
 
+   |                _________________________
+-- + --            / /          .            \         ___   .".
+   |              / / .    Rest in Peace    . \ ___   /  :\  *"* __:
+                 / / . .       .               \   \  :  `"~~".""~":\
+                / /      ..          .   ..    .\  : _;,,;.`.:.:"``:|
+               / /     . .             . .       \,;_    :  .".;;,,:;_
+              | |       .    .        .    .      |   ___.  .:"
+              | |  ..      .     .       ..       |  /   \  .",:
+              | |   .                      . .    |  :   :   .",.
+              | |    .             .  .       .   | _;,,,;_   _.__
+              | |  . . .    .     . .             |          / .  \
+              | |    .  .          .  .           |          :    :
+              | |      .            .  .     .    |          :    :
+              | |         .    . .    ..       .  |         _;,,,,;_
+              | | .             .            . .  |
+              | |. .     .       .           .  . |
+              | | .  .               .          . |
+             *| |   *     *     *    *   *     * .| *
+     _______\)/_|\\_)_/___(\/___(//_\)/_\//__\\(/_\_)_______
+#endchar
 
+
+                    sswwwwwwwwwwwwwwwwwwwwwww
+   y               s w          D            w         WWW   sss
+                  s w D                     D w WWW   W  sW  wsw WWs
+                 s w D D       D               w   W  W  sssssDsssssW
+                s w      DD          D   DD    Dw  W WWWWsDsDsD:ssssW
+               s w     D D             D D       wWWW    s  DsDWWWWDWW
+              s w       D    D        D    D      w   WWWD  Dss
+              s w  DD      D     D       DD       w  W   W  Dsss
+              s w   D                      D D    w  W   W   DssD
+              s w    D             D  D       D   w WWWWWWW   WDWW
+              s w  D D D    D     D D             w          W D  W
+              s w    D  D          D  D           w          W    W
+              s w      D            D  D     D    w          W    W
+              s w         D    D D    DD       D  w         WWWWWWWW
+              s w D             D            D D  w
+              s wD D     D       D           D  D w
+              s w D  D               D          D w
+             *s w   *     *     *    *   *     * Dw *
+     wwwwwwwgggwwggwgwgwwwgggwwwgggwgggwgggwwggggwgwgwwwwwww
 

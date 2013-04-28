@@ -1,0 +1,93 @@
+
+--- The title screen ---
+
+     When you start up the game, a title screen appears, bearing the game logo,
+a dragon image, and some credits.  Also on this screen are the three most
+important Sangband resources:
+     The Sangband home page at "http://www.runegold.org/sangband/" contains the
+current source and executables, special files, helpful comments, hints, and
+links, and the latest Sangband news.
+     Sangband changes maintainers every so often.  The current one is Leon
+Marrick.  If you want to send him comments, or make sure your bug report gets
+heard, use the email shown on the website.
+     The Angband Forum is at "http://angband.oook.cz/forum/"; it's filled with
+helpful folks.  If you want to talk about Sangband or ask for help, there's the
+place to go.
+
+
+--- The main screen ---
+
+     Once you clear the character display, you find yourself looking at the main
+screen.  This is divided into four parts:
+
+1)   The message line is located at the top of the screen; here all sorts of
+messages are shown.  If in the heat of combat you skip past one too many, you
+can display it again by pressing control-P.
+2)   The left side of the screen is used to display important information.
+3)   Most of the screen displays your surroundings.  You can take a closer look
+by pressing 'l'ook (or e'x'amine).
+4)   The bottom line of the main screen shows various status displays, such as
+your speed, ailments, depth, and so on.
+
+     You play the game in the main screen.  For more details on the things you
+can do, consult the section on commands.
+
+
+--- The character screen  ('C') ---
+
+     The character information display you see when first starting the game can
+be recalled by typing 'C'.  Here you can review your attributes, change names,
+and save character dumps to file (which appear in the "lib/user" directory).
+
+
+--- The skills screen  ('$') ---
+
+     When you collect enough experience, you can spend it on skills by typing
+'$' to open up the skills advancement screen.
+
+
+--- The help screen  ('?') ---
+
+     The online help system is available by typing '?'.  You can also learn more
+about the symbols you see on screen by typing '/', then the symbol you wish to
+learn more about.
+
+
+--- The options screen  ('=') ---
+
+     You can adjust the way the game looks and behaves by typing '=' to enter
+the options screen.
+
+
+--- The knowledge screen  ('~') ---
+
+     Detailed listings of known artifacts, objects, and monsters are available
+through the knowledge menu, which you access by typing '~'.  Here you can also
+review the high score listings, what you have stashed in your home, and see how
+many monsters you've killed and what quests you are assigned.
+
+
+--- The death interface ---
+
+     If you should die, you will see a tombstone and be able to check out your
+slain character one last time.  Here you can:
+- display the character screen and see your possessions,
+- review the final messages,
+- save information in a character dump,
+- see the high score table, and
+- fully identify individual items.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,394 @@
+
+====== Object Attributes ======
+
+
+     All combat methods other than Karate and Wrestling require equipment, and
+all benefit greatly from various qualities that your equipped items may possess.
+Defence is similarly equipment-dependent.
+
+
+--- Damage Dice and Plusses ---
+
+Example 1:  A Dagger (1d4) (+6,+4)
+
+Damage Dice:
+     All objects have damage dice, which express how much damage they do when
+thrown.  For example, if you throw this dagger, it will do 1d4 damage (one die
+with four sides).  Melee weapons (like this one) also use their damage dice in
+hand-to-hand combat.
+
+Bonus to Skill:
+     The dagger above increases melee Skill by 6.  This bonus improves your
+chance to strike a monster and the number and quality of critical hits.  Except
+for certain rare gloves, armors seldom have bonuses to Skill.  Some have small
+penalties.
+
+Bonus to Deadliness:
+     The dagger above increases melee Deadliness by 4.  This increases the
+damage of every blow you land.  Except for certain rare gloves, armors seldom
+have bonuses to Deadliness.
+
+
+Example 2:  a Pair of Hard Leather Boots [3, +8]
+
+Bonus to Base Armor Class (AC):
+     All armors have bonuses to base AC.  The boots shown increase this value by
+3.  Some weapons also have bonuses to base armor class, usually because they
+help keep monsters further away from you or parry blows.
+
+Bonus, Plus to Armor Class (AC):
+     Armor of unusually good quality or that is magical also increases your plus
+to AC.  These boots add an additional 8 to AC, giving them a total bonus of 11.
+Only rare weapons do the same.
+
+
+
+--- Basic object attributes ---
+
+Armor Class:
+     Armor Class, or AC, lessens your chances of being hit by any monster blow,
+and also reduces the pure damage hits inflict.  AC reduces cutting and stunning
+from melee attacks, and your chances of being hit by thrown physical objects
+(such as boulders or arrows).  It has no effect on magic.
+
+
+
+--- Adjustments to Vital statistics and Abilities ---
+
+Stat Bonuses:
+     Any kind of wearable item may affect one or more stats.  See the section on
+your character to find out more about what altering a stat does.
+
+Sustain Stats:
+     Any kind of wearable item may sustain one or more stats.  This ensures that
+the attacks of your foes never lower that stat.
+
+Stealth:
+     Certain cloaks, boots, and (more rarely) other items lessen the amount of
+noise you make when moving around the dungeon.  This is very handy for avoiding
+fights and getting in the first hit.  Stealth also reduces the noise you make in
+combat, but the effect is less noticeable.
+
+Awareness:
+     Some rings, headgear, and various other items improve your chances to
+reveal secret doors and find traps before they find you, allow you to "hear"
+unseen monsters near to you, and make it somewhat more likely that you will
+successfully pseudo-ID objects.
+
+Infravision:
+     Some headgear and (more rarely) other items increase the range at which you
+can see warm-blooded creatures, even those that would otherwise be invisible.
+
+Tunneling:
+     Some gloves and weapons allow you to dig through rock more effectively.
+All special digging tools have a bonus to tunneling.
+
+Speed:
+     Boots, rings, and other items that hasten you are rare and powerful, for a
+fast player can perform several actions in the time it used to take to do just
+one.  Players moving at speed -10 are half as fast as normal, at +10 are twice
+as fast as normal, and at +20 are three times as fast as normal.  The maximum
+useful speed is (roughly) +35.
+
+Invisibility:
+     You can become partially invisible; the greater your invisibility rating,
+the more likely it is that most monsters will move about randomly instead of
+attacking you.  This is true especially if you stay quiet and do not aggravate
+them.  Invisibility from equipment and temporary sources combine, and characters
+in and surrounded by pitch darkness are harder to see.  Many monsters, however,
+are hard to fool; the undead, invisible creatures, uniques, and hurt, nearby, or
+wary monsters are especially watchful.
+
+Disarming:
+     Increases your ability to disarm traps and chests and unlock doors.
+
+Devices:
+     Certain amulets and gloves improve your chance of using magical devices and
+activatable items.  Note that they do not increase damage or enhance effects;
+only increasing your Magical Device skill does that.
+
+Save:
+     Improves your resistance to magic and various hindrance attacks.
+
+Mana:
+     Increases your mana.
+
+Light Radius:
+     Pushes your light radius outwards.  Only the best light radius applies.
+
+
+--- Weapon Attributes ---
+
+Damage bonuses  (only the best applies):
+ Slay Evil     :  +10 against evil
+ Slay Animal   :  +10 against animals    (weapons of Slaughter Animal get +15)
+ Slay Orc      :  +10 against orcs and orc-like creatures
+ Slay Troll    :  +18 against trolls
+ Slay Giant    :  +18 against giants
+ Slay Undead   :  +18 against undead     (weapons of Dispel Undead get +27)
+ Slay Demon    :  +18 against demons     (weapons of Smite Demon get +27)
+ Slay Dragon   :  +18 against dragons
+
+ Brand Acid    :  +10 against everything not resistant to acid
+ Brand Elec    :  +14 against everything not resistant to electricity
+ Brand Fire    :  +14 against everything not resistant to fire
+ Brand Cold    :  +14 against everything not resistant to cold
+ Brand Pois    :  +14 against everything not resistant to poison
+
+ Impact        :  +14 against rocky creatures
+ Tunneling     :  +14 against rocky creatures (if bonus to tunneling is >= 1)
+ Light         :  +14 against creatures susceptible to light
+
+ Kill Dragon   :  +27 against dragons
+ Brand Flame   :  +22 against everything not resistant to fire
+ Brand Venom   :  +22 against everything not resistant to poison
+
+Blows:
+     Gives you extra melee blows.
+
+Extra Shots:
+     Rare missile launchers may allow the player to shoot more quickly than
+normal.  Each shot takes a fraction of a turn, making your target appear to move
+in slow motion.  Those skilled with bows and slings get innate extra shots.
+     The amount of time you take to fire a shot is 200 / shots.  The value for
+shots is usually 2, so a shot normally takes 100 energy (one turn).
+
+Extra Might:
+     Rare missile launchers have a greater than normal missile damage
+multiplier.  For example, a "Sling of Extra Might (x3)" multiplies damage, not
+by two like lesser slings, but by three.  The true missile weapon multiplier is
+never known for sure until the object is identified.
+
+Throwing:
+     A number of weapons can be thrown effectively; you can determine which ones
+by 'I'nspecting them.  Such weapons get various bonuses when thrown, but
+eventually break if used in melee.
+
+Perfect Balance:
+     Some weapons can be thrown with unusual force, adding 50% to the amount of
+damage done (before any slay/brand bonuses) should it hit.
+
+Vorpal (Concussive):
+     Vorpal (or Concussive) weapons get lots of critical hits, and reduce the
+effect of monster resistances.
+
+Blessed:
+     Blessed weapons may be used by pious characters without penalty.
+
+Impact:
+     Weapons of impact do +14 damage to rocky creatures and will often force
+opponents back.
+
+Tunneling:
+     Weapons that grant a bonus (at least +1) to tunneling do +14 damage to
+rocky creatures.
+
+Light:
+     Weapons of permanent light do +14 damage to creatures susceptible to light.
+
+Two-handed Wield Required:
+     Glaives, Halberds, Quarterstaff, and all digging tools require two hands to
+wield.
+
+Two-handed Wield Desired:
+     A fair number of large, powerful weapons must be wielded in two hands
+unless the player has amazing strength (normally around 18/130 - 18/160,
+depending on weapon weight).
+
+
+--- Immunities ---
+
+     If you should ever be fortunate enough to find a piece of equipment that
+grants immunity to an element, you will take no damage from that element.  Be
+warned that immunity does not extend to your backpack; the stuff you are
+carrying in inventory can still be destroyed on rare occasions.
+
+Immunity to Acid:
+     You take no damage from acid.  Worn items will not be affected by acid.
+Staffs, missiles, weapons, armor, and scrolls in your backpack become highly
+resistant to destruction.
+
+Immunity to Electricity:
+     You take no damage from electricity.  Rings, wands, and rods in your
+backpack become highly resistant to destruction.
+
+Immunity to Cold:
+     You take no damage from cold.  Potions in your backpack become highly
+resistant to destruction.
+
+Immunity to Fire:
+     You take no damage from fire.  Spellbooks, scrolls, staffs, and burnable
+weapons, missiles, and armor in your backpack become highly resistant to
+destruction.
+
+
+--- Resistances ---
+
+     Resistances from equipment cannot be combined; you either have it or you
+don't.
+
+Resist Acid:
+     You take one-thirds damage from acid.  Staffs, missiles, weapons, armor,
+and scrolls in your backpack become a little more resistant to destruction.
+Your equipment is attacked by acid half as often.
+
+Resist Electricity:
+     You take one-thirds damage from electricity.  Rings, wands, and rods in
+your backpack become a little more resistant to destruction.
+
+Resist Cold:
+     You take one thirds damage from cold.  Potions in your backpack become a
+little more resistant to destruction.
+
+Resist Fire:
+     You take one-thirds damage from fire.  Spellbooks, scrolls, staffs, and
+burnable weapons, missiles, and armor in your backpack become a little more
+resistant to destruction.
+
+Resist Poison:
+     You take one thirds damage from poison.
+
+Resist Light:
+     The damage you take from light is reduced.  You cannot be blinded by bright
+light.
+
+Resist Darkness:
+     The damage you take from darkness is reduced.  You cannot be blinded by
+darkness.
+
+Resist Sound:
+     The damage you take from sound is reduced.  You cannot be stunned by sound
+or by a few other kinds of distance attacks.
+
+Resist Shards:
+     The damage you take from blasts of shards is reduced.  You cannot be cut by
+shards.
+
+Resist Nexus:
+     The damage you take from nexus attacks is reduced.  You cannot be randomly
+teleported or altered by nexus, and will sometimes resist being warped around by
+gravity.
+
+Resist Nether:
+     The damage you take from nether is reduced.  You cannot lose experience to
+nether.
+
+Resist Chaos:
+     The damage you take from chaos is reduced, and you are immune to all the
+nasty things chaos can do to you.  This resistance does not make you resistant
+to confusion.
+
+Resist Disenchantment:
+     Rarest of all the resistances, this reduces damage from disenchantment
+attacks and renders your equipment immune to disenchantment.
+
+Ignore acid, electricity, fire, and cold:
+     Some objects cannot be damaged or destroyed by elemental attacks.
+
+
+--- Survival Attributes ---
+
+Resist Fear:
+     Renders you fearless.
+
+Resist Blindness:
+     Protects you from being blinded.
+
+Resist Confusion:
+     Makes you incapable of being confused.  Also reduces damage from blasts of
+confusion.
+
+
+--- Character Qualities ---
+
+Slow Digestion:
+     Reduces your need to consume food.
+
+Feather Fall:
+     Renders pit traps and trap doors harmless, makes walking on lava a bit less
+dangerous, and reduces some effects of gravity and wind attacks.
+
+Light:
+     Some weapons and helms shine with inner light.  Wearing any number of such
+objects will increase your illumination radius by one.
+
+Regeneration:
+     Players who regenerate recover hitpoints twice as quickly as normal, and
+mana 3/2rds as quickly.  They also need to eat more.
+
+Telepathy (ESP):
+     It is not easy to acquire this, but players who do can see intelligent
+monsters nearby.  Mindless monsters never appear, and semi-intelligent monsters
+only appear occasionally.
+
+See Invisible:
+     Allows you to see and target monsters invisible to ordinary sight.
+
+Free Action:
+     Protects you from paralyzation and most slowing attacks.  Because
+paralyzation can instantly kill you, keep an eye out for this important survival
+aid.
+
+Hold Life:
+     Offers a high degree of protection from attacks (but not items) that lower
+skills.
+
+No Fuel:
+     Some light sources shine eternally.
+
+
+--- Curses and other Nastiness ---
+
+Soulsteal:
+     Some weapons need to be fed with the blood of your foes.  If they hunger,
+and you do not feed them, they will suck away your lifeforce.
+
+No Magic:
+     A few objects are so unmagical that you cannot cast spells while using
+them.
+
+Random Teleportation:
+     Some foul rings, amulets, and boots randomly take control of your movement
+and whisk you around the dungeon.
+
+Aggravate:
+     Aggravation effectively reduces your stealth to nil, immediately waking up
+all monsters nearby.  Some rings and amulets possess curses that aggravate, and
+some weapons and armors are so powerful that no creature can ignore them.
+
+Drain Exp:
+     Objects that drain experience are perilous, because they slowly but surely
+erase your accumulated memories.  Of course, you can keep killing monsters to
+replace the experience which you lose.
+
+Hidden Curse:
+     Certain rare weapons and armor bear foul magics so well concealed that they
+only reveal themselves when you wear the item.  When activated, a hidden curse
+hideously transforms the object into something quite dangerous.
+
+Light (ordinary) Curse:
+     Many wearable objects have light curses.  A scroll of Remove Curse will
+purge all ordinary curses from equipped items.
+
+Heavy Curse:
+     The curses on some objects are less easy to remove.  If a ordinary scroll
+of Remove Cure fails, find and read one of *Remove Curse*.
+
+Permanent Curse:
+     There is a great and terrible Ring, seen by perhaps one character in ten
+thousand, that can never be removed once put on.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

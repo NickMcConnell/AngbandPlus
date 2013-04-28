@@ -1,15 +1,12 @@
-
-
-
-
 /* File z-util.h */
 
 /*
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 2007 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 2.  Parts may also be available under the
+ * terms of the Moria license.  For more details, see "/docs/copying.txt".
  */
 
 #ifndef INCLUDED_Z_UTIL_H
@@ -27,53 +24,26 @@
 
 /**** Available variables ****/
 
-/* Temporary Vars */
-extern char char_tmp;
-extern byte byte_tmp;
-extern sint sint_tmp;
-extern uint uint_tmp;
-extern long long_tmp;
-extern huge huge_tmp;
-extern errr errr_tmp;
-
-/* Temporary Pointers */
-extern cptr cptr_tmp;
-extern vptr vptr_tmp;
-
-
-/* Constant pointers (NULL) */
-extern cptr cptr_null;
-extern vptr vptr_null;
-
-
-/* A bizarre vptr that always points at itself */
-extern vptr vptr_self;
-
-
 /* A cptr to the name of the program */
 extern cptr argv0;
 
 
 /* Aux functions */
-extern void (*plog_aux) (cptr);
-extern void (*quit_aux) (cptr);
-extern void (*core_aux) (cptr);
+extern void (*plog_aux)(cptr);
+extern void (*quit_aux)(cptr);
 
 
 /**** Available Functions ****/
 
-/* Function that does nothing */
-extern void func_nothing(void);
+/* Case insensitive comparison between two strings */
+extern int my_stricmp(const char *s1, const char *s2);
+extern int my_strnicmp(cptr a, cptr b, int n);
 
-/* Functions that return basic "errr" codes */
-extern errr func_success(void);
-extern errr func_problem(void);
-extern errr func_failure(void);
+/* Copy a string */
+extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
 
-/* Functions that return bools */
-extern bool func_true(void);
-extern bool func_false(void);
-
+/* Concatenate two strings */
+extern size_t my_strcat(char *buf, const char *src, size_t bufsize);
 
 /* Test equality, prefix, suffix */
 extern bool streq(cptr s, cptr t);
@@ -87,9 +57,20 @@ extern void plog(cptr str);
 /* Exit, with optional message */
 extern void quit(cptr str);
 
-/* Dump core, with optional message */
-extern void core(cptr str);
+
+/*
+ * Hack -- conditional (or "bizarre") externs
+ */
+
+#ifdef SET_UID
+# ifndef HAVE_USLEEP
+/* util.c */
+extern int usleep(unsigned long usecs);
+# endif /* HAVE_USLEEP */
+extern void user_name(char *buf, size_t len, int id);
+#endif /* SET_UID */
 
 
+#endif /* INCLUDED_Z_UTIL_H */
 
-#endif
+

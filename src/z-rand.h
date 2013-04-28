@@ -1,5 +1,3 @@
-
-
 /* File: z-rand.h */
 
 /*
@@ -38,7 +36,15 @@
  * For example, if M is 100, you get "percentile dice"
  */
 #define rand_int(M) \
-	((s32b)(Rand_div(M)))
+	(Rand_div(M))
+
+
+/*
+ * Generates a random long integer X where 1<=X<=M.
+ */
+#define randint(M) \
+	(rand_int(M) + 1)
+
 
 /*
  * Generates a random long integer X where A<=X<=B
@@ -57,6 +63,12 @@
 	((A) + (rand_int(1+(D)+(D))) - (D))
 
 
+/*
+ * An alternative method of calling "rand_int()".
+ * From Zangband.
+ */
+#define one_in_(X) \
+	(rand_int(X) == 0)
 
 /**** Available Variables ****/
 
@@ -71,9 +83,10 @@ extern u32b Rand_state[RAND_DEG];
 
 
 extern void Rand_state_init(u32b seed);
-extern u32b Rand_mod(u32b m);
-extern u32b Rand_div(u32b m);
-extern s16b Rand_normal(int mean, int stand);
+extern s32b Rand_div(s32b m);
+extern s16b Rand_normal(s32b mean, s16b stand);
+extern s32b Rand_simple(s32b m);
+extern s32b div_round(s32b n, s32b d);
 
 
-#endif
+#endif /* INCLUDED_Z_RAND_H */

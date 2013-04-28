@@ -1,0 +1,86 @@
+#
+# This file controls the colors used for various message types.
+#
+# Sounds are controlled in "/lib/xtra/sound/sound.cfg"
+#
+
+
+# MSG_GENERIC
+M:0:w
+
+# MSG_LEVEL
+M:6:B
+
+# MSG_DEATH
+M:7:v
+
+# Used for most error messages.  For some *bands, this is orange.
+# MSG_BELL
+M:25:y
+
+# MSG_HIT_SOFT
+M:150:w
+
+# MSG_HIT_MEDIUM
+M:151:y
+
+# MSG_HIT_HARD
+M:152:o
+
+# MSG_HIT_DEADLY
+M:153:R
+
+
+#
+# Colorized messages
+#
+
+# MSG_DARK
+M:200:d
+
+# MSG_WHITE
+M:201:w
+
+# MSG_SLATE
+M:202:s
+
+# MSG_ORANGE
+M:203:o
+
+# MSG_RED
+M:204:r
+
+# MSG_GREEN
+M:205:g
+
+# MSG_BLUE
+M:206:b
+
+# MSG_UMBER
+M:207:u
+
+# MSG_L_DARK
+M:208:D
+
+# MSG_L_WHITE
+M:209:W
+
+# MSG_L_PURPLE
+M:210:P
+
+# MSG_YELLOW
+M:211:y
+
+# MSG_L_RED
+M:212:R
+
+# MSG_L_GREEN
+M:213:G
+
+# MSG_L_BLUE
+M:214:B
+
+# MSG_L_UMBER
+M:215:U
+
+

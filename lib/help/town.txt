@@ -1,0 +1,171 @@
+
+====== The Town ======
+
+     You begin your adventures in the town.  It consists of eight buildings,
+each with a shop entranceway (and one also with an inn), and is well populated.
+The first time you are in town it will be daytime, but the sun rises and sets as
+time passes.  Nighttime in the town can be dangerous...
+
+Townspeople:
+     Most townsfolk go about their daily tasks, paying little or no attention to
+you unless provoked.  However, there are slippery-fingered thieves and armed
+killers that you need to avoid.  Fights do break out, so be prepared.  Since
+your character grew up in this world of intrigue, no experience is awarded for
+killing the town inhabitants, though you may acquire treasure.
+
+
+--- Stores ---
+
+     You enter buildings by walking onto their entranceways, which (in text
+mode) are represented by numbers from 1 to 8 or the '+' sign.
+     A new display then replaces the old.  For most buildings, you see the name
+and race of the store owner, the name of the store, and the maximum number of
+gold pieces that the store owner will pay for any one item.  Below it is
+displayed the inventory; if it is numerous, you may display another page by
+typing space.  Near the bottom of the screen is displayed a list of commonly-
+used commands.
+- 'g' or 'p': get/purchase an item.
+- 'd' or 's': drop/sell an item.
+- 'I': inspect an item (reveals any known special properties, reads spellbooks)
+- ESC:  leave the store.
+
+The General Store:
+     Sells foods, drinks, cloaks, robes, torches, lamps, oil, shovels, picks,
+spikes, and ammunition for missile launchers.  Buys items of these types (except
+robes) and some others.
+
+The Armory:
+     Buys and sells every kind of armor except cloaks.
+
+The Weaponsmith's Shop:
+     Buys and sells melee weapons, missile launchers, and ammunition.
+
+The Temple:
+     Buys and sells blunt weapons, healing and restoration supplies, and various
+other holy items.
+
+The Alchemy Shop:
+     Buys and sells potions and scrolls.
+
+The Magic User's Shop:
+     Buys and sells rings, amulets, wands, rods, and staffs.
+
+The Bookstore:
+     Buys and sells spellbooks.
+
+Your Home:
+     Here you may store objects that you cannot carry on your travels or will
+need later.  You may check the contents of your home when in the dungeon by
+using the '~' command.
+
+The Inn (named):
+     Offers quests for especially dangerous foes.
+
+
+--- Buying and Selling ---
+
+     Store owners have individual personalities; often their names are a
+valuable hint.  Some can offer a great deal of money, but never seem to hold any
+sales; others cannot pay nearly what your valuable items are worth, but often
+give great deals.  The price of items that change hands depends on their base
+cost, how well your and the store owner's races get along*, your Charisma, and
+the innate greediness of the store owner.
+
+     * Everyone likes his or her own race best.
+     * Humans will trade with anyone, and nobody really hates them.
+     * Dwarves and orcs are at war; dwarves and elves don't much get along.
+     * Nobody loves a Half-Orc or Half-Troll but another orc or troll.
+
+     Stores never have everything in stock; as time passes, their inventory
+slowly changes (but only when you are in the dungeon).  Store owners fully
+identify everything you sell them; you also become aware of objects of that
+type.
+
+Bargaining:
+     Price also depends on one factor more:  your skill at bargaining.  The
+shopkeeper will immediately go to his final price on low-priced items, but for
+more valuable things, you need to haggle a little.  As you glance over a store's
+inventory, you will notice that some prices are in grey rather than white; they
+are items that you should bargain for.
+     If you are selling something, a typical haggling session starts with the
+shopkeeper assuring you that a good price is something like 50-70% of what the
+item is really worth.  You demand maybe twice or three times this, and the
+bargaining begins.  You bring your price closer to the shopkeeper's offer, and
+he then does the same for you.  The best way to change a price is to enter "-20"
+or "+20", instead of retyping a new figure.  After some rounds, you and the
+shopkeeper will meet somewhere in the middle.
+     The key to success is to change your price neither too little (which will
+insult the shopkeeper) nor too much (which is a sign of inexperience, and will
+be taken advantage of).  Some shopkeepers like to haggle more, other are
+impatient and demand good offers, but you have always have enough leeway to
+succeed.
+     If you've gotten the shopkeeper to admit his final price, and you close the
+sale, your reputation with him goes up.  If you accept a bad deal (no "Final
+offer"), your reputation goes down.  The higher your reputation as a haggler,
+the more items that the shopkeeper will just go straight to his final price on
+(he knows he can't fool you).  It is quite possible to get a shopkeeper to
+immediately offer the final price on just about everything.
+     Just be careful not to antagonize the shopkeepers too much.  You have to
+work at it, but you can get any shopkeeper mad enough to throw you out of the
+store.  When this happens, you can't get back in for quite some time, perhaps
+three or four days.  Fortunately, shopkeepers are forgiving souls:  as time
+passes, they will forget any unhappiness you've caused them.  Shopkeepers also
+forget an insult every time you buy or sell anything; if you want to get back in
+the Temple's good graces, buy some potions of Cure Light Wounds.  One at a time.
+
+     There is an option to auto-haggle, but be warned:  Those who blithely
+accept the shopkeeper's prices pay a markup.  The higher the value of the item,
+the higher that markup; it is nothing for anything under 250 gold and up to 33
+percent for really expensive things.
+
+Stores can upgrade their inventory:
+     Every time you buy something new, especially something valuable, from a
+store, it has more money to spend on items it wouldn't normally carry.  As time
+passes, and you continue to patronize particular stores, you will notice two
+things:  firstly, the shopkeepers will start paying special attention to you,
+and secondly, that they will begin to stock a few unusual items.  It takes quite
+a while, but stores can significantly upgrade their inventory over time.
+     Be aware that shopkeepers mark up the prices of these unusual items.  For
+valuable things, this markup can be considerable.
+
+Investing in stores:
+     You can also give shopkeepers money directly by investing in their store.
+Use the '*' command, then type 'I' to invest money.  In addition to making the
+store more likely to stock nice stuff, investing in stores also improves the
+shopkeeper's attitude, and may make him forget any bad bargains.
+
+Shopkeepers can retire and be replaced:
+     Shopkeepers do retire, but only very rarely.  The new shopkeeper benefits
+from all of the money you've spent at the store, and has a good (but not
+perfect) idea of how good a haggler you are.
+     If you completely buy out a store's inventory, the shopkeeper may offer to
+retire.  He'll demand a fortune, though.
+
+
+--- Getting quests ---
+
+    You take on quests by going to the Inn and choosing one from the list.  As
+you succeed in more quests, and take on greater challenges, the rewards for
+success can become great indeed.
+     When you accept a quest, you have lots of time to prepare for it.  However,
+once you enter the quest level, you cannot leave for any length of time without
+running a risk of failing the quest.  Failure reduces your prestige, and you may
+get poorer rewards from the quest-givers until you recover their respect.
+
+     Be warned:  If you are not a really good player, "moderate" and "difficult"
+quests can get your characters killed fast!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

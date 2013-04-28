@@ -1,0 +1,58 @@
+# File: colors.prf
+
+#
+# This files controls the index chars, names, and default RGB values of game colors (also 
+#    known as  "attributes").  It must be present for the game to display more than 16 
+#    colors.
+#
+# This file must be loaded before any files which use color information (such as
+#    "monster.txt", etc.).
+#
+#
+
+#
+# Array of game colors
+#
+# index: index character : name of color : kv : Red : Green : Blue : 
+# 16-color translation 
+#
+# Note:  Index characters must be unique.
+#
+V: 0:d:Black:            0:  0:  0:  0:  0
+V: 1:w:White:            0:255:255:255:  1
+V: 2:s:Slate:            0:144:144:144:  2
+V: 3:o:Orange:           0:255:128:  0:  3
+V: 4:r:Red:              0:192:  0:  0:  4
+V: 5:g:Green:            0:  0:128:  0:  5
+V: 6:b:Blue:             0:  0:  0:224:  6
+V: 7:u:Umber:            0:144: 64:  0:  7
+V: 8:D:Light Dark:       0: 96: 96: 96:  8
+V: 9:W:Light Slate:      0:192:192:192:  9
+V:10:P:Light Purple:     0:255:  0:255: 10
+V:11:y:Yellow:           0:255:255:  0: 11
+V:12:R:Light Red:        0:255: 48: 48: 12
+V:13:G:Light Green:      0:  0:240:  0: 13
+V:14:B:Bright Blue:      0:  0:208:255: 14
+V:15:U:Light Umber:      0:192:128: 64: 15
+
+V:16:p:Purple:           0:144:  0:144: 10
+V:17:v:Violet:           0:144: 32:255: 10
+V:18:t:Teal:             0:  0:160:160:  6
+V:19:m:Mud:              0:108:108: 48:  5
+V:20:Y:Light Yellow:     0:255:255:144: 11
+V:21:i:Magenta-Pink:     0:255:  0:160: 12
+V:22:T:Light Teal:       0: 32:255:220: 14
+V:23:V:Light Violet:     0:184:168:255: 10
+V:24:I:Light Pink:       0:255:128:128: 12
+V:25:M:Mustard:          0:180:180:  0: 11
+V:26:z:Blue Slate:       0:160:192:208:  9
+V:27:Z:Deep Light Blue:  0:  0:176:255: 14
+
+
+## Space for additions
+## Space for additions
+## Space for additions
+## Space for additions
+## Space for additions
+
+

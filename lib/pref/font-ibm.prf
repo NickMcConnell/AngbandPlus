@@ -1,0 +1,55 @@
+# File: font-ibm.prf
+
+#
+# This file is used by Angband (when it was compiled using "main-ibm.c")
+# to specify simple attr/char remappings using a standard font, allowing
+# the use of the IBM's built in pseudo-graphic pictures for walls and such.
+#
+
+
+
+### Terrain features ###
+
+#
+# The pseudo-graphical option
+#
+
+# Ordinary floor  (regular, lit, darkened)
+F:1:w/250:y/250:s/250
+
+# Water
+F:11:b/247:B/247:b/247
+
+# Magma
+F:50:s/176:s/176:D/176
+
+# Quartz
+F:51:W/176:W/176:s/176
+
+# Magma with treasure
+F:54:o/*:o/*:o/*
+
+# Quartz with treasure
+F:55:o/*:o/*:o/*
+
+# Granite walls
+F:56:w/177:w/177:W/177
+
+# Permanent wall -- town buildings
+F:60:w/177:w/177:W/177
+
+# Permanent wall -- all others
+F:61:w/178:w/178:W/178
+
+# Pillar
+F:64:w/4:w/4:W/4
+
+# Pillar of gold
+F:65:o/4:y/4:o/4
+
+
+#
+# Boulders (slate, small circle or large dot)
+#
+K:638:s:9
+

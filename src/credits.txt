@@ -1,0 +1,181 @@
+
+     This file contains "where from" information for code and ideas which I adopted from sources other then recent Angbands, Oangband, and Sangband itself.  While most code has been altered, and some entirely rewritten, this doesn't reduce my debt in the slightest:  great ideas are far less common than working code.
+
+     I owe more to more people than I ever have before.  Nothing could have been accomplished save for the designers of variants popular and unknown, independant coders, authors, and idea contributors, and a superb (and very patient) group of players.
+
+
+     Note that the sources credited are usually, but not always, the original creators.  If you feel anything below is incorrect, please contact me at the email listed at "www.runegold.org/sangband".
+
+--------------------------------------------------------------------------
+
+
+Umoria, early Angband, 
+- lots of varied messages that the game lost some time after V2.6.2.  blindness, one ring, wiz light, stat loss, and the never-to-be-forgotten "You've been slimed!"  "It got at your rations!"
+- a lot of the original haggling text (both it and certain bits of code got brain-damaged sometime after V2.6.2)
+- various equations that got "rationalized" after 2.6.2
+- some monster colors, strings, and various ideas
+
+Ross Morgan-Linial (Antiband)
+- cursed non-artifacts can't be activated
+- scrolls of *enchant* are sometimes able to turn plain objects into ego-items.
+- confusing attacks are only cancelled 1 time in three.
+- objects pseudo-ID'ed as "average" can stack like identified objects. 
+- blank monsters no longer appear in monster recall, can show only monsters killed this life.
+
+Eytan Zwieg (EyAngband)
+- new interface for known objects, artifacts, and monsters.
+- "ever_seen" variable marks all object kinds that the character has seen in his lifetime.
+- quick-start code
+- healing by percentages
+- the EyAngband quest code
+- evasive monsters
+- monsters have a single life rating rather than hitdice.
+- ideas for more flexible traps, example code
+- number of spells one can study now displayed in "study" indicator
+- different, more compact, display of fuel in light sources
+- idea for turning plus to "searching" into a plus to "awareness", which also lets you hear otherwise unseen monsters
+
+Eric Bock (Eric Bock's Angband, Rangband, Zceband, various patches)
+- better pillared and ragged-edge rooms
+- maze rooms
+- run-length encoding of v_info (saves memory, allows for more vaults)
+- multipliers cannot breed when confused
+- adjustments to item breakage change
+- mimics use m_idx to determine color
+- more detailed monster pain messages
+- handling of blindness and hallucination
+- pack monsters take various player conditions into account
+- correct singular form of various elven races
+- small-scale map pays more attention to dangerous and quest monsters
+- functions that define a "door", a "solid wall", and a "permanent wall"
+- better messages when monsters are moved by spell projections.
+- wiz_display_item handles artifact levels correctly
+- r_info rewriting code (very handy!)
+
+FAngband
+- triple crossbows
+- deferred feelings
+- new resistance rings
+- destroyed levels have player ghosts (I should have done that long ago)
+- spell names
+- and various text messages and other things
+
+Hengband
+- Option to automatically show lists when selecting objects, spells, or talents.
+- character titles, etc.
+- The Throwing Hammer 'Mjollnir'
+
+NPPAngband -- Jeff Greene, Diego González
+- The color change interface
+- The idea and some code to allow burglars to steal objects (instead of gold) from monsters.  Code for wary monsters.
+- A large number of smaller but useful enhancements and bugfixes
+
+PsiAngband
+- some psionic effects, backlashes
+- the basic concept of traps that use objects to attack monsters
+- searching turned into "awareness", also helps with pseudo-ID
+
+ToME -- DarkGod, also Improv, Eric Stevens and other coders
+- essences
+- idea for recipies
+- drain light, cast bolt spell
+- p_ptr->holy (holy aura)
+- savefile management (allows interactive savefile loading)
+- combination of the loading and saving code
+- idea for combination of the spell/magic device information and effect code
+- the spear of Melkor
+- show visible monsters in a sub-window
+- Some of the main-sdl code
+
+UnAngband -- 
+- attempts to reduce the dependance of characters on identification, and encourage them to learn about stuff by using it, which potentially makes many objects a lot more interesting.  
+- Gemstone monsters
+- clouds that surround monsters
+- various other ideas
+
+Zangband (usually Topi Ylinen, Robert Ruehlmann, or Steven Fuerst unless otherwise noted)
+- Wonder, Exorcism, Invoke Spirits, Dimension door, Doom Bolts, one or two other spell ideas.  Also some code.
+- spell failure nastiness
+- separate function for shield bashes
+- "map_info()" No longer forces monsters to use their symbols if their char is high ASCII, only if their attr uses a high bit.  This means that ATTR_CLEAR and CHAR_CLEAR monsters again work correctly.
+- knowledge of monsters killed (probably Topi Ylinen)
+- cheating options set to zero when a new character is born from an old savefile.
+- more compact display of hitpoints and mana on the main screen (frees up two lines that can be used to display customized things)
+- basic code for calculating time elapsed
+- "one_in_(x)" notation
+
+Falcon's Eye (isometric interface for NetHack)
+- Several songs
+
+
+
+clefs
+- A large number of great bug reports, patches and suggestions, especially to interface.  A dedicated playtester and commentator.
+- a kinder pack overflow method (objects inscribed with "!*" or "!d" don't drop)
+- inscribed unique drops, browsing spellbooks in stores, etc.
+- The guy who finally made savefile management work correctly.
+
+Jurrian Kalkman
+- uncursing a non-artifact reverses various negative values on rare occasions.
+- a chest trap that scatters objects all over the place
+
+Heino Vander Sanden
+- idea for collapsing ceilings
+
+Julian Lighton
+- project_hack affects monsters in two passes, which avoids trouble if monster deaths have side-effects.
+
+Jim Lyon:
+- helpful review of inscriptions, macros, and preference files.
+
+Hugo Kornelis
+- Basic idea - use "movement moments" - that, when implemented, finally solved the movement clumping bug.
+
+Joseph W. Dixon
+- changes to some color definitions
+
+Paul Sexton, by way of Zangband
+- potion smash effects
+
+Tom Morton
+- Original idea for object naming through inscriptions
+
+Takeshi Mogami
+- basic X11 porting
+- ability to cancel skill advances
+- code to rewrite, instead of appending to, options files.  Very important.
+- changes to the targeting and object-selection code
+- a large number of bug reports and suggestions.  The guy who fixed a particularly nasty bug in "get_closest_los_monster()"
+
+Christer Nyfält
+- Cleaned up X11 port with reasonable support for 50-line mode.
+- GTK port
+- Corrections to system-specific code, some cleanup of header, config, and term files, helped to reduce the amount of code bloat in various places, such as the spell system.
+- reorganization of file-handling code into a separate module:  z-file.c and z-file.h
+- POSIX file locking
+- Updates for various UNIX and Linux defines and preferences.
+- The stat-prioritization code for the autoroller.
+- Error suppresion of various sorts
+- A great deal of proofreading
+- Many excellent ideas about gameplay and interface
+
+Adam Bolt
+- The 16x16 graphics
+
+David Gervais
+- The 32x32 graphics
+
+Gregory Velichansky
+- Screen shot code in the SDL port
+
+Eric Stevens
+- Some of the keypress saving code in the SDL port, some helpful SDL examples.
+
+Reenen Laurie, Cosmic Gerbil
+- The .it format songs in /lib/xtra/music.  See "/lib/xtra/music/jukebox.cfg" for more details.
+
+
+Tua Xiong
+- The dragon art in "news.txt".  His authorship of this magnificant piece of ASCII art is not accepted by all parties, and you will sometimes see the dragon without any signature, but my best attempts to research the matter indicate that Tua Xiong's is the only name that we can reasonably assign.
+
+

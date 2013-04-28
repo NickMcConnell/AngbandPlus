@@ -1,0 +1,62 @@
+     When you begin the game, you start out in a town with stores happy to sell
+you whatever they stock and you can afford.  Visit the stores and stop by your
+very own home (the symbol '8'), where you can safely stash all sorts of useful
+gear for later use.
+
+     Look at the left side of the screen, where all the most important info
+about you is displayed.  Reading from the top, you'll see your name, present
+title, unspent experience, and money on hand.  Your race (almost) never changes,
+but you can gain more experience points by killing monsters and more gold by
+selling the loot they drop.
+     Below these are the six vital statistics:  Strength, Intelligence, Wisdom,
+Dexterity, Constitution, and Charisma.  Near the bottom, you will see your armor
+class, hit points, and (if you learn magic) your spell points.  Armor class
+shields you from direct damage.  Hitpoints are your life wrapped up in a number,
+so run from anything that drops them too low, too fast.
+
+     Get familiar with some of the commands you have available to you, either by
+reading the help, or by experimenting, whichever you prefer.  If you mistype,
+the game will offer to bring up a list of commands.
+     To exit this tutorial, hit escape.  When ready to continue, type '?' to
+open up help, then press '1', then '2'.
+
+     Okay, time to get playing!  Type '$', and the skills screen appears.  You
+have earned just enough experience to choose some basic skills; it is a smart
+idea to do this before entering the dungeon.  The best choice for a new player
+is a point or two in either Wrestling or Karate, and a point or two in either
+throwing or slings.
+     Pick up either some throwable flasks of oil (General Store) or a sling and
+some shots (Weapon Smith), some light armor (Armory, General Store), and - if
+you can afford them - one or two phase door scrolls and potions of cure light
+wounds (Temple, Alchemy Shop).  Once you've earned a little money, invest in a
+lantern and a shovel or pickaxe.  Now, 'w'ear a torch, your armor, and your
+weapon.
+     See that down staircase '>'?  It's the entrance to the deadly, lucrative
+dungeon.  Head down (Once on top of the staircase, type '>').
+     Once you do that, you will find yourself in a dungeon of rooms and
+corridors.  Since you have already wielded a light source, you can see, even if
+you are not in a magically lit room.  Go off and explore the dungeon.  When your
+light grows dim, re'F'uel it.  When you get hungry, 'E'at some of the food your
+character started out with.
+     When you meet your first monster, pepper it with sling shots (press 'f' to
+fire) or throw flasks of oil or boulders (press 'v' to throw) until it reaches
+you, and hit it (move into it) until it's dead.  If your HPs drop too low, quaff
+a potion of cure light wounds, read a scroll of phase door, or run away.
+     When you get enough money and objects to sell, go back up to the town.  If
+you have questions, the '?' key is there to help.
+
+Have fun!
+
+
+
+
+
+
+
+
+
+
+
+
+
+

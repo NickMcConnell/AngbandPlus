@@ -1,0 +1,1042 @@
+
+                     ==== Sangband Customization Guide ===
+                                 Version 1.0.0
+
+       This file describes the text files in the edit folder. Reading it
+          may (or may not) spoil your enjoyment of the game, and will
+               certainly alter your experience of it permanently.
+
+            Now that you've been fairly warned, you may decide which
+          appeals to you more:  Knowledge and control, or a game with
+                    hidden secrets and wonderful surprises.
+
+                         Choose: you cannot have both.
+
+
+
+
+To the customizer:
+
+     There are many things you can modify without knowing any C programming.  The /lib/edit/ directory contains a number of files; by editing them, you can change the game substantially.
+
+     It is stated in the edit files themselves, but is well worth repeating:  you alter the game at your own risk.  Always keep a backup copy.  Consult with the newsgroup rec.games.roguelike.angband if you hit a problem you can't solve.
+
+
+
+====== Table of Contents ======
+
+     Files
+ 1.  object.txt
+ 2.  artifact.txt
+ 3.  ego_item.txt
+ 4.  monster.txt
+ 5.  terrain.txt
+ 6.  vault.txt
+ 7.  quest.txt
+ 8.  store.txt
+ 9.  limits.txt
+
+     Appendices
+ A.  Object flags (including random ones)
+ B.  Activations
+ C.  Monster flags
+ D.  Monster blows
+ E.  Vault codes
+ F.  Color symbols
+ G.  Adding accents
+
+
+
+====== object.txt ======
+
+
+     This file defines some of the qualities of all objects and gold found in the game.  Other effects, especially for food, mushrooms, wands, rods, staffs, scrolls, and potions, can only be altered by changing the code.  
+     Although changing object indexes is almost always a bad idea, you have lots of empty indexes available for new objects.  If adding a new object, make certain you use the correct tval figure (copy the tval of another similar object), and use an sval figure that no other object with the same tval has.  Objects are listed by type, and then by sub-type, so try to insert new objects in appropriate locations.  
+
+Pval:
+     After sval comes the pval figure.  It is used for so many disparate customizations that a full explaination is in order:
+
+- food and mushrooms:  food value.  Rations have a food value of 5000.
+- weapons and armor:  affects all pval-dependant object flags (Appendix I).
+- missiles:  pval has no effect
+- rings and amulets:  pval has no affect, except for a few cursed items
+- scrolls and potions:  pval has no effect
+- wands and staffs:  The number of charges they appear with will range from 1/2 
+  to their full pval.  The pval also affects how many charges they regain when 
+  sucessfully recharged.
+- rods:  how long they take to recharge between zaps.  Figure is 
+  in normal-speed player turns (10 game turns).
+- chests:  pval has no effect
+- spikes and junk:  pval has no effect
+- normal light sources:  the maximum amount of fuel they can hold
+- magic books:  pval has no effect
+- treasure:  pval has no effect
+- all objects with the flag "INSTA_ART":  pval has no effect unless added to 
+  their entry in a_info.txt.
+
+Object level:
+     The first value after the "W:" has no effect on where the object may be found in the dungeon, but does control everything from how difficult it is to use and recharge, how likely it is to be compacted, and how hard it is to forge or enchant.
+
+Activation:
+     See Addendum B for the activation list.
+
+Value:
+     For most objects, the value is the base price of the item.  This figure is often adjusted for pval-dependent attributes (if better than what the object has intrinsically), better dice, plusses, and ego-item status.  If the item is an artifact, only the artifact value is used.
+     Real treasure values range between 1/2 and the full value.
+
+Probability of object appearing in quantity:
+     A number of objects may appear in quantities of more than one.  Ammunition, for example, has a value for this number of 100 (%).
+
+Quantity dice:
+     If more than one object can be generated, these two numbers control the quantity produced.  Ammunition, for example, appears in groups of 6d7 (6 to 42).
+
+Depth/abundance pairs:
+     A depth/abundance pair is a statement of how common an object is at a given depth.  
+For example, a value of "1/100" means that this object gets 100 chances to appear at object* level 1, whereas an object with a value of "1/20" would get only 20 - and therefore be five times as rare.
+
+* "object level" can be the current depth, or deeper (in some special rooms), or the average of the current depth and the level of the monster that dropped the item.
+
+     For object levels less than the lowest depth, the object is out of depth, and appears only rarely.  For object levels higher than the highest depth, the abundance value associated with that depth is used.  Otherwise, the true abundance is a weighted average of the one or two depth/abundance pairs on or straddling the object level.  For example, an object with "50/30:70/10" would have an abundance of 20 at object level 60 and 15 at object level 65.
+     What all this means is that you can control the abundance of an object with great precision.
+
+Damage done when wielded or thrown:
+     Most of the time this is fairly simple.  However, missile launchers use the value for dice to determine base damage multiplier.
+
+
+
+====== artifact.txt ======
+
+
+     This file lists all standard artifacts.  Random artifacts are stored in your savefile.  Almost everything about a standard artifact can be freely modified.
+
+     Most words or numbers in an artifact listing are adequately explained in the file itself, but a few warrant special mention:
+
+Rarity: 
+     Artifact rarity depends both on the base object kind's rarity and on the artifact's own rarity.  This means that although the most powerful artifacts should also be the rarest, an armor like Bladeturner is rare not because the artifact is rare, but because the base object kind (a suit of Power Dragon Scale Mail) is both exceedingly rare and high-level.  These comments do not apply to the special artifact lights, rings, and amulets; only their artifact rarity applies.
+
+Description:
+     Half the coolness of an artifact are the legends that have grown up around it.  If you're going to spend time getting the words exactly right, let it be here.
+
+
+
+====== ego_item.txt ======
+
+
+     This file controls most abilities of ego-weapons and armor.
+
+     Most words or numbers in an artifact listing are adequately explained in the file itself, but a few warrant special mention:
+
+Rarity:
+     The true rarity of an ego-item depends both on the value you enter, and on the rarities of all other ego-items that compete for the same object kinds.  And different ego-item groups have differing rarity levels.  You will want to study ego-items of similar power, for the same kind of objects, before choosing a rarity for your new item.
+     Also, the more restricted the group of objects that can form the ego-item, the rarer that ego-item will be.  For example:  the ego-items "of Permanence" and "of the Balrog" have very low rarities, but both seldom appear in the dungeon.
+
+Price:
+     The price of ego-items is a bonus to the item value.  When pricing a ego-item, you should take all non-random flags and activations into account, but also remember that pvals and plusses grant bonuses.  Note that any ego-item with a value of zero is always worthless.
+
+Adjustments to Skill, Deadliness, and AC:
+     The game adjusts an object's plusses in the same direction as the ego-item does, then applies the ego-item modifiers on top.  This means that ego-items with plusses get large plusses, and those with negative values have large negatives.  Whether an ego-item is cursed has no effect.
+
+Description:
+     There was a time, long ago, when ego-items were completely described in the game manual.  Therefore, it is expected that an ego-item description - unlike that for an artifact - will conceal little or nothing.
+
+
+An example ego-item:
+
+N:000:(Druidic)
+W:25:15:12:10000
+C:-10:-10:10:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+P:3:1
+1:WIS
+3:STEALTH
+F:RES_FIRE | RES_ACID | RES_COLD | RES_ELEC | SLAY_ANIMAL
+
+     Such a weapon would be a little uncommon, and almost never appear above level 25.  It would add 12 to the level rating, add (at least) 10000 gold to the base price of the object, have penalties to both Skill and Deadliness (in practice, somewhere between -15 and -25), grant a bonus to armor class of 1d10, be able to be any sword, hafted weapon, or polearm, increase Wisdom by 1d3 (between 1 and 3), increase Stealth by 1d1 (1), do extra damage against natural creatures, and grant resistance to the elements.
+
+
+
+
+====== monster.txt ======
+
+
+     This file lists all monsters.  Just about everything about a monster can be freely modified, within the limits of the game.  Index, name, char, and color (see appendix 5) work in obvious ways.
+
+# N: serial number : monster name
+# G: symbol : color
+# I: speed : hit points : vision : armor class : alertness : combat range : noisiness
+# W: depth : rarity : maximum mana : experience for kill
+# B: attack method : attack effect : damage
+# S: spell frequency |
+# S: spell type | spell type | etc
+# F: flag | flag | etc
+# D: Description
+
+
+Speed:
+     Monster speed may be 90 (very slow), 100 (slow), 110 (normal speed), 120 (fast), 130 (very fast), or 140 (way too fast).  In rare cases, a monster has a speed of 115 as a sort of compromise.  In reality, non-unique monsters may be slightly faster or slower than normal.
+
+Life rating:
+     Life rating is a single number:  the actual starting hitpoints of most non-unique monsters varies from this figure (usually by not more than 12%, but on rare occasions up to 50%).  Most dragons and other heavy breathers should have FIXED_HPS, because the margin of error with breaths can be very small.
+
+Combat Range:
+     Range at which the monster will stop advancing towards the character, if it can directly target the character.  Used to make good spellcasters take advantage of their ranged attacks.  Whenever in doubt, we use a range of 1, because many monsters get annoying if they keep on sniping from a distance.  Vortexes and Zephyr Hounds, for example, all have ranges of 1.
+     If you give a monster a range of 6 or more, not only will it stop advancing at that distance, it will also try to use escape spells if it gets within half that distance, or 5, whichever is less.
+
+Noisiness:
+     How likely it is that the character will "hear" the monster.  Most monsters have a noisiness of 20; some burglars can be perfectly silent, while Great Cacophony Wyrms are very loud.
+
+Rarity:
+     Monsters that come with friends or escorts or that multiply should be a lot less common than those that don't.  Remember that monster groups may include ten individuals, so a rarity of 3 or even 5 is quite appropriate.
+
+Mana:
+     Controls how long a monster can keep casting spells.   The average cost of a spell is 4, so a monster with 20 HPs can cast about five spells before needing to rest or magically replenish mana.
+
+Experience:
+     The amount of experience a player will actually receive for a kill is:  experience value * monster depth / character power level.
+
+Blows:
+     Next, the monster blows are listed.  A monster may never get more than four blows.  Each blow has a type, an effect, and a damage. The last two may be omitted.  Appendix D lists the monster blows.
+     Note:  The values you assign to monster armor and monster blow damage make all the difference in determining how useful character melee is compared to magic.
+
+Ranged Attacks:
+     If a monster has a entry of the form " 1_IN_5 ", that means it can cast spells or make ranged attacks one time every five moves it makes.  Monster speed must be considered here, because fast monsters get to make a lot more moves.
+     After this comes an entry of the form " SP_20 ", meaning that this monster has a spellpower rating of 20.
+     Breath strength depends on hitpoints, damage-dealing magic depends on spellpower, and most other ranged attacks depend on monster level.   Be very careful to take both monster speed and spellcasting frequency into account when tweaking ranged attacks!
+
+And a last note:
+     The author has a certain amount of experience with designing monsters.  However, his first draft of any monster is almost certain to be somewhere between over-strong and outrageously powerful.  He might give it too many hitpoints.  He might let it move too quickly, or hit too hard.  He might let it cast spells with excessive frequency or power.  He might make it move too fast, give it too many resists, or give it too many friends.  Or he might just have placed it too near the surface.
+     It's easy to make these mistakes!  You've been warned!
+
+
+
+====== terrain.txt ======
+
+
+     Terrain is almost entirely hard-coded, and is not easily modifiable.  You may freely change the name of terrain and the default symbol and color (see Addendum F for color symbols).  For example, if you wanted tough doors to be obvious, you could make them white.
+
+
+
+====== vault.txt ======
+
+
+     Vaults are almost entirely customizable.  Stay within the size of the dungeon (66 high, 198 wide), and you can pretty well do what you like.  Vaults larger than about 44 high, 66 wide are not recommended (because they don't fit on many screens).
+     See Addendum E for the textual codes that determine which kinds of features, monsters, and objects vaults have. All the figures that define vaults are explained in the file itself.
+     No vault will have random monsters placed in it (at least not during dungeon creation).  If you want monsters in your vaults, you need to add them yourself.
+     If you want to control the depths on which your vault may appear, set upper and lower bounds.
+
+There are three different kinds of vaults:
+     Interesting rooms (type 7) appear reasonably often at any level.  They are designed to add color and interest to the dungeon without throwing scads of loot or very out of depth monsters at the player.  Interesting rooms are lit just as often as a normal room is on that level, are fully revealed by enlightenment spells, and can be teleported around at will in.  A word of warning:  be careful about the sort of interesting rooms you allow to appear on levels 1-4.
+     Lesser vaults (type 8) and greater vaults (type 9) are more dangerous.  They are never initially lit up (unless the entire level is) are not fully revealed by most enlightenment spells, cannot be teleported around in, and often contain out of depth monsters and neat objects.  Lesser vaults are rare above 1000', not common down to about 2500', and are fairly common thereafter.  Greater vaults are always pretty uncommon, and above 3000' they are positively rare.
+     The distinction between lesser and greater vaults is rather fuzzy.  The best way to choose between making your vault a greater vault or a lesser one is to figure out if you want it to be very rare and special, or just pretty rare and special.  Having lots of monsters and objects, having greatly out-of-depth monsters or objects, or having chests are all good reasons to classify your vault as "greater".
+
+
+An example of a vault, with explanations:
+
+N:1:Interesting Room (round)
+X:7:0:9:11:10:0
+D:  %%%%%%%  
+D: %%.....%% 
+D:%%.......%%
+D:%.1.......%
+D:%....1....%
+D:%.........%
+D:%%.......%%
+D: %%...1.%% 
+D:  %%%%%%%  
+
+     This interesting room (type 7) adds nothing to level feelings. It is 9 squares high and 11 wide, and may appear at level 10 or deeper (a maximum level of zero means no limit).  Use the cursor to confirm that each of the exactly 9 description lines is exactly 11 characters long.  Make certain your vaults use spaces if necessary to make all the description lines the same length.  
+
+
+Helping the tunnelling code:
+     The tunnelling code is designed to deal with a large variety of vaults and special rooms.  It does, however, need some help.
+
+- Surround all rooms completely with outer granite ('%').  Tunnels can be formed through up to two layers of outer granite, if they are followed in a direct line by something the player can walk on (usually, this will be a floor or door, but can be a tree, water, lava, etc).  Tunnels can never be created through inner wall ('#').
+
+- If the vault is very convoluted, like the example below, use inner wall squares ('#') as shown to avoid the tunnelling code turning your creation into Swiss Cheese.
+
+N:29:Interesting Room (sectioned off)
+X:7:0:11:20:0:0
+D:%%%%%%%      %%%%%%%
+D:%.....%%%%%%%%.....%
+D:%.....########..1..%
+D:%....#########.....%
+D:%%###+.......+####%%
+D: %###..1####.#####% 
+D: %###...####.#####% 
+D:%%####+#####.#####%%
+D:%.......####..+....%
+D:%.1.....%%%%%%%....%
+D:%%%%%%%%%     %%%%%%
+
+- Ensure that there are at least two entrances to any room with impermeable walls ('X'), located at opposide ends of the vault.  Even if one is butted up against the dungeon edge, the other will still be accessable.
+
+-If you use impermeable walls to surround your vault, they must be surrounded by outer walls for the tunnelling code to have a chance of finding its way to an entrance.
+
+D:%%%%%
+D:%XXX%
+D:%X0+% <- Tunnels will often head here.
+D:%XXX%
+D:%%%%%
+
+D:%%%%%
+D:####%
+D:#XX#%
+D:#X0+% <- Tunnels will almost never head here.
+D:#XX#%
+D:####%
+D:%%%%%
+
+
+
+====== quest.txt ======
+
+
+Quest entries are not readily editable, and (apart from changing the monsters in the fixed quests), there are few useful changes you can make.
+
+
+
+====== store.txt ======
+
+     Controls most things about stores.  Fully documented in file.
+
+
+====== limits.txt ======
+
+
+     Sets maximum values for various arrays.  You should not edit most of these unless you know what you are doing; changing them often leads to savefile loading errors.
+
+     The two exceptions are the maximum sizes of the object and monster arrays.  If you get too many "compacting" messages, try increasing these limits.  If you want the game to use less memeory, decrease them.  Note that you sometimes need to re-adjust these figures to get savefiles to load properly.
+
+
+
+
+================================== Appendices ==================================
+
+
+====== Appendix A:  Object Flags ======
+
+Pval-dependant object flags:
+STR             Strength + pval
+INT             Intelligence + pval
+WIS             Wisdom + pval
+DEX             Dexterity + pval
+CON             Constitution + pval
+CHR             Charisma + pval
+STEALTH         Stealth + pval
+AWARENESS       Awareness + pval * 5
+INFRA           Infravision + pval
+TUNNEL          Tunnelling + pval * 20
+SPEED           Speed + pval
+INVIS           Invisibility + pval * 5
+DISARM          Disarming + pval * 10
+DEVICE          Proficiency with magical items + pval * 5
+SAVE            Saving throw + pval * 5
+MANA            Mana + pval * 20
+LIGHT           Light radius = pval  (only the best applies)
+BLOWS           Melee blows + pval
+SHOTS           Missile shots + pval
+MIGHT           Missile multiplier + pval
+
+Melee Weapon, Missile Launcher, and Ammunition flags:
+SLAY_ANIMAL     slays animals 
+SLAY_EVIL       slays evil 
+SLAY_UNDEAD     slays undead 
+SLAY_DEMON      slays demons
+SLAY_ORC        slays orcs
+SLAY_TROLL      slays trolls
+SLAY_GIANT      slays giants
+SLAY_DRAGON     slays dragons
+KILL_DRAGON     executes dragons  (rare!)
+BRAND_ACID      acidic brand 
+BRAND_ELEC      elec brand 
+BRAND_FIRE      fire brand 
+BRAND_COLD      frost brand 
+BRAND_POIS      poison brand 
+BRAND_FLAME     flame brand  (rare!)
+BRAND_VENOM     venom brand  (rare!)
+RETURNING       Often returns to you when thrown
+THROWING        can be thrown effectively
+PERFECT_BALANCE if also a throwing weapon, is perfectly balanced and can do 
+                even more damage when thrown.
+VORPAL          gets more criticals, reduces monster damage resistances
+TWO_HANDED_REQ  must always be wielded in two hands
+TWO_HANDED_DES  usually has to be wielded in two hands
+BLESSED         can be wielded by pious characters without penalty
+IMPACT          forces enemies back, does extra damage to rocky creatures
+
+Other flags for wearable items:
+SUST_STR        Sustain strength 
+SUST_INT        Sustain intelligence 
+SUST_WIS        Sustain wisdom 
+SUST_DEX        Sustain dexterity 
+SUST_CON        Sustain constitution 
+SUST_CHR        Sustain charisma 
+IM_ACID         Grants immunity to acid 
+IM_ELEC         Grants immunity to elec 
+IM_FIRE         Grants immunity to fire 
+IM_COLD         Grants immunity to cold 
+RES_ACID        Resist acid 
+RES_ELEC        Resist elec 
+RES_FIRE        Resist fire 
+RES_COLD        Resist cold 
+RES_POIS        Resist poison 
+RES_FEAR        Resist fear 
+RES_LITE        Resist lite 
+RES_DARK        Resist dark 
+RES_BLIND       Resist blind 
+RES_CONFU       Resist confusion 
+RES_SOUND       Resist sound 
+RES_SHARD       Resist shards 
+RES_NEXUS       Resist nexus 
+RES_NETHR       Resist nether 
+RES_CHAOS       Resist chaos 
+RES_DISEN       Resist disenchant 
+SLOW_DIGEST     Slow digestion
+FEATHER         Feather falling 
+LITE            Increase light radius by one
+REGEN           Regeneration 
+TELEPATHY       Telepathy 
+SEE_INVIS       See invisible 
+FREE_ACT        Free action 
+HOLD_LIFE       Hold life 
+INSTA_ART       Item always makes an artifact 
+
+Nasty flags:
+TELEPORT        Random teleportation 
+AGGRAVATE       Aggravate monsters 
+DRAIN_EXP       Drains experience constantly
+SOUL_STEAL      Item requires feeding, or it'll feed on you
+LIGHT_CURSE     Item is lightly cursed
+HEAVY_CURSE     Item has heavily cursed
+PERMA_CURSE     Once put on, item can never be taken off.
+
+Object flags that affect all objects:
+IGNORE_ACID     Item cannot be destroyed or damaged by acid
+IGNORE_ELEC     Item cannot be destroyed or damaged by electricity
+IGNORE_FIRE     Item cannot be destroyed or damaged by fire
+IGNORE_COLD     Item cannot be destroyed or damaged by cold
+
+EASY_KNOW
+     Item is fully known if aware.  For example, once you know one Mushroom of Restoring, you know them all.  This flag should not be given to items whose pvals, armor class, or bonuses to armor class, Skill, or Deadliness can vary.
+     Ego-item does not display obvious bonuses in various places.
+HIDE_TYPE
+     Item hides full description of pval-dependant flags.  Used for rings and amulets.
+SHOW_MODS
+     Item shows any bonuses to Skill and Deadliness.  Give this flag to any object whose bonuses to these qualities is of interest. 
+
+
+
+====== Appendix B:  Activations ======
+
+
+Standard artifact activations:
+ 1     Strong illumination (4d10) every 10 - 20 turns
+ 2     magic mapping every 30 - 60 turns
+ 3     light up the level and cast detection every 120 - 240 turns
+ 4     fully light up the level, aggravate, do nastiness every 175 - 350 turns
+ 6     protection from evil, banish evil every 225 - 450 turns
+ 7     strong dispel evil every 200 - 300 turns
+10     +10 temporary speed every 150 - 300 turns
+11     great fire ball (225) every 125 - 150 turns
+12     great cold ball (250) every 125 - 150 turns
+13     great electricity ball (275) every 125 - 150 turns
+14     wierdness every 450 - 900 turns
+
+22     electricity balls (120) in every direction every 150 turns
+23     heroism, blessing, and oppose all elements and poison every 400 turns
+24     heal 1000 every 400 turns
+25     phase door every 2 turns
+25     genocide every 500 turns
+27     destroy door every turn
+28     protection from evil every 200 - 400 turns
+32     oppose the four elements every 160 turns
+33     curing every 100 turns
+34     large ball of blinding light (75) every 50 turns
+37     full detection every 55 - 110 turns
+38     heal 500 every 500 turns
+41     oppose all elements and poison every 160 turns
+42     strong sleep adjacent monsters every 55 turns
+43     recharge every 70 turns
+44     teleport (100) every 45 turns
+45     restore skills every 450 turns
+51     door destruction every turn
+52     light bolt every turn
+53     short-range beam of fire (5d10) every 5-10 turns
+54     short-range beam of cold (5d10) every 5-10 turns
+55     short-range beam of electricity (5d10) every 5-10 turns
+56     short-range beam of acid (5d10) every 5-10 turns
+57     vorpal blows every 100 - 200 turns
+61     +10 speed every 200 turns
+62     remove fear, boldness, and cure poison every 5 turns
+63     magic mapping every 35 - 70 turns
+69     enhanced stealth every 100 - 150 turns
+70     cold ball (60) every 5 - 10 turns
+71     panic demons every 20 turns
+72     storm of light beams (25 beams, each with 50 dam) every 30 turns
+73     heroism every 160 turns
+74     go berserk every 250 turns
+75     dispel animals in LOF (77) every 17 turns
+78     drain life (120) every 10 turns
+79     dispel evil (125) every 40 turns
+80     stone to mud (damage 50 - 100) every 5 turns
+81     mass genocide every 1000 turns
+82     cure medium wounds (4d4) and cure self every turn
+83     teleport monster away every 15 turns
+84     word of recall every 200 turns
+85     lance of darkness (150) every 100 turns
+86     weapon howls around the nearby area, looking for things 
+       to kill
+89     confuse monster every 15 turns
+90     fire ball (70) every 50 turns
+91     +10 speed every 100 - 200 turns
+92     identify every 10 turns
+93     probe monsters every 30 turns
+94     holy orb (10d19) every 40 turns
+95     dungeon destruction every 150 turns
+99     an especially deadly shot every 200 - 400 turns
+100     brand shots every 1000 turns
+103     open a tunnel through walls every 25 turns
+
+Extra artifact activations
+Many damages depend on overall character power
+125     fire bolt (3d8 to 11d8) every 7 - 14 turns
+126     fire orb (80) every 110 turns
+127     fire explosion (150) centered on you every 150 turns
+128     cold bolt every 7 - 14 turns
+129     cold orb (80) every 110 turns
+130     cold explosion (150) centered on you every 150 turns
+131     acid bolt (3d8 to 11d8) every 7 - 14 turns
+132     acid orb (80) every 110 turns
+133     acid storm (160) centered on you every 150 turns
+134     electrical bolt (3d8 to 11d8) every 7 - 14 turns
+135     electrical orb (80) every 110 turns
+136     electrical strike (155) centered on you every 150 turns
+137     poison bolt (4d8 - 14d8) every 8 - 16 turns
+138     poison cloud around you every 120 turns
+139     sphere of blinding light every 150 turns
+140     dispel light-hating every 150 turns
+141     dispel undead every 80 turns
+142     dispel evil every 80 turns
+143     dispel an undead (1d33 - 12d33) every 50 turns
+144     dispel a demon (1d33 - 12d33) every 50 turns
+145     dispel a dragon (1d33 - 12d33) every 50 turns
+146     holy orb every 50 turns
+147     blessing every 120 turns
+148     frighten every 80 - 160 turns
+149     cure serious wounds every 45 turns
+150     cure critical wounds every 55 turns
+151     cure horrific wounds every 65 turns
+152     strong curing every 100 turns
+153     protection from evil every 175 turns
+154     chaos explosion (radiating beams) every 100 turns
+155     strong shard/sound ball (150) every 75 turns
+156     nether orb (100) every 65 turns
+157     light line (4d5) every 5 - 10 turns
+158     starburst of light every 65 turns
+159     earthquake every 10 - 20 turns
+160     identify every 20 turns
+161     +10 speed every 100 - 200 turns
+162     teleport away every 90 turns
+163     heroism every 100 - 200 turns
+164     weak sound, shard, and confusion balls every 100 turns
+165     oppose the four elements every 150 - 300 turns
+166     oppose the elements and poison every 150 - 300 turns
+167     long phase door (30) every 5 - 10 turns
+168     long teleport (200) every 10 - 20 turns
+169     word of recall every 275 turns
+170     restore life levels every 650 turns
+171     restore stats every 650 turns
+172     magic shield every 150 turns
+173     brand any missile every 1250 turns
+174     an especially deadly shot every 20 - 40 turns
+175     detect normal monsters every 6 - 12 turns
+176     detect evil monsters every 6 - 12 turns
+177     detect all every 40 - 80 turns
+178     magic mapping every 35 - 70 turns
+179     detect doors, stairs, and traps every 30 - 45 turns
+180     strong confuse monster every 30 - 40 turns
+181     strong sleep monster every 30 - 40 turns
+182     strong frighten monster every 30 - 40 turns
+183     strong slow monster every 30 - 40 turns
+184     banish evil every 80 - 160 turns
+185     magical disarming every 7 - 14 turns
+186     confuse monsters every 150 turns
+187     sleep monsters every 150 turns
+188     frighten monsters every 150 turns
+189     slow monstesrs every 150 turns
+190     berserk every 320 turns
+191     light room or local area every 15-30 turns
+
+205     heroism every 50 - 100 turns
+206     do weapon's melee damage as a spear of fire every turn
+
+209     piercing shot every 25 - 50 turns
+210     especially damaging shot every 20 - 40 turns
+211     impact shot every 20 - 40 turns
+212     especially accurate every 10 - 20 turns
+213     fiery shot every 10 - 20 turns
+214     frosty shot every 10 - 20 turns
+
+218     blessing every 50 - 100 turns
+219     infuse weapons with acid and oppose acid every 75 - 150 turns
+220     infuse weapons with elec and oppose elec every 75 - 150 turns
+221     infuse weapons with fire and oppose fire every 75 - 150 turns
+222     infuse weapons with cold and oppose cold every 75 - 150 turns
+223     infuse weapons with poison and oppose poison every 75 - 150 turns
+
+224     feed self every 400 - 800 turns
+225     short teleport (40) every 12 - 24 turns
+226     recover some mana every 90 - 180 turns
+227     recharge magical devices every 40 - 60 turns
+
+239     breath acid every 120 - 160 turns
+240     breath electricity every 120 - 160 turns
+241     breath cold every 120 - 160 turns
+242     breath fire every 120 - 160 turns
+243     breath poison every 120 - 160 turns
+244     breath an element or poison every 120 - 160 turns
+246     breath light or dark every 120 - 160 turns
+249     temporarily turn into a dragon every 200 - 300 turns
+249     breath confusion every 120 - 160 turns
+250     breath sound every 120 - 160 turns
+252     breath chaos every 120 - 160 turns
+253     breath sound or shards every 120 - 160 turns
+254     breath chaos, disenchantment, sound, or shards every 120 - 
+        160 turns
+255     breath irresistable (240) every 120 - 160 turns
+
+
+
+====== Appendix C:  Monster Flags ======
+
+UNIQUE           Unique Monster - only one can be killed in any game
+QUESTOR          Quest Monster - must be killed to pass to the next 
+                 level
+MALE             Male gender
+FEMALE           Female gender
+CHAR_CLEAR       Absorbs symbol - looks just like surroundings
+CHAR_MIMIC       Looks like similar object
+ATTR_CLEAR       Absorbs color - looks yellow over flasks of oil, 
+                   brown over doorways, etc.
+ATTR_MULTI       Changes color - changes color every screen refresh
+FORCE_DEPTH      Appear only at depth specified
+FIXED_HPS        Start with fixed hitpoints - no variance
+FORCE_SLEEP      Start out sleeping
+FRIEND           Arrive with a friend or two
+FRIENDS          Arrive with some friends
+ESCORT           Arrive with a small number of escorts
+ESCORTS          Arrive with a large number of escorts
+NEVER_BLOW       Never make physical blows
+NEVER_MOVE       Never make physical moves
+RAND_25          Moves randomly (25%)
+RAND_50          Moves randomly (50%)  These can be combined
+ONLY_GOLD        Drop only gold
+ONLY_ITEM        Drop only items
+DROP_60          Drop an item/gold (60%)
+DROP_90          Drop an item/gold (90%), or (only if drop_chest) (100%)
+DROP_1D2         Drop 1d2 items/gold
+DROP_2D2         Drop 2d2 items/gold
+DROP_3D2         Drop 3d2 items/gold
+DROP_4D2         Drop 4d2 items/gold
+DROP_GOOD        Drop good items
+DROP_GREAT       Drop great items
+DROP_CHEST       Drop chests.  This flag can easily unbalance the game.
+DROP_CHOSEN      Drop "chosen" items - what items these are is handled 
+                   in the code
+
+STUPID           Monster is stupid, and will not select the best spell 
+                 to cast
+SMART            Monster is smart, and will usually select the best 
+                 spell to cast
+SPEAKING         Monster can speak - this should normally be given 
+                 only to uniques.
+PLAYER_GHOST     Monster is a player ghost template, altered according 
+                 to information in bones files.  All player ghosts 
+                 should also be UNIQUE.
+INVISIBLE        Monster avoids vision
+COLD_BLOOD       Monster avoids infravision
+EMPTY_MIND       Monster avoids telepathy - mindless monsters, or 
+                 really sneaky ones.
+WEIRD_MIND       Monster partially avoids telepathy - fairly stupid 
+                 monsters, or moderately sneaky ones.
+MULTIPLY         Monster reproduces
+REGENERATE       Monster regenerates HPs at double speed
+NOMISS           Monster never misses in melee
+SAMESPD          Monster moves at a speed proportional to the player
+EVASIVE          Monster is especially hard to hit
+FUNKY_DEATH      Monster has a special death effect
+CLOUD_SURROUND   Monster is surrounded by spores, darkness, etc.
+IS_LIT           Monster shines, and can be seen even when not lit
+OPEN_DOOR        Monster can open doors
+BASH_DOOR        Monster can bash doors - if a monster moves, it 
+                 should usually get this flag.
+PASS_WALL        Monster can pass walls
+KILL_WALL        Monster can destroy walls
+KILL_BODY        Monster can kill monsters - keep this rare.
+TAKE_ITEM        Monster can pick up items
+KILL_ITEM        Monster can crush items
+FLYING           Monster can fly.  Affects movement in some terrain 
+                   types.
+LOW_MANA_RUN     Monster is reluctant to stay around when it's gone 
+                   through too much of its mana.
+POWERFUL         Monster's breath has a wider arc, and loses damage 
+                 less rapidly with distance.
+ARCHER           Monster can fire missiles every turn, if it wants to.
+MORGUL_MAGIC     Cold, darkness, nether, and poison ranged attacks are 
+                   all a lot nastier.  Should not be given to any monster 
+                   above about level 55.
+UDUN_MAGIC       Fire attacks are nastier.  This is also high-level.
+
+
+ORC              Orc
+TROLL            Troll
+GIANT            Giant
+DRAGON           Dragon
+DEMON            Demon
+UNDEAD           Undead
+EVIL             Evil
+ANIMAL           Animal
+RES_EDGED        Resistant to edged weapons
+RES_BLUNT        Resistant to blunt weapons
+IM_EDGED         Almost immune to edged weapons
+IM_BLUNT         Almost immune to blunt weapons
+HURT_LITE        Hurt by light
+HURT_ROCK        Hurt by rock remover
+IM_ACID          Resist acid a lot
+IM_ELEC          Resist elec a lot
+IM_FIRE          Resist fire a lot
+IM_COLD          Resist cold a lot
+IM_POIS          Resist poison a lot
+RES_PLAS         Resist plasma
+RES_WATER        Resist water
+RES_NEXUS        Resist nexus
+RES_NETHR        Resist nether a lot
+RES_DISEN        Resist disenchantment
+NO_FEAR          Cannot be scared
+NO_STUN          Cannot be stunned
+NO_CONF          Cannot be confused
+NO_SLEEP         Cannot be slept
+
+
+SHRIEK           Aggravate other monsters
+LASH             Use a melee attack at range 2 or 3
+BOULDER          Throw a boulder    damage: spower * 4  (can miss)
+SHOT             Fire sling shot    damage: spower * 4  (can miss)
+ARROW            Fire arrows        damage: spower * 4  (can miss)
+BOLT             Fire crossbow quarrels damage: spower * 4  (can miss)
+MISSL            Fire physical missiles damage: spower * 3  (rare miss)
+PMISSL           Fire poisoned missiles damage: spower * 3  (rare miss)
+BRTH_ACID        Breathe Acid       damage: HPs / 2, up to 1600
+BRTH_ELEC        Breathe Elec       damage: HPs / 2, up to 1600
+BRTH_FIRE        Breathe Fire       damage: HPs / 2, up to 1600
+BRTH_COLD        Breathe Cold       damage: HPs / 2, up to 1600
+BRTH_POIS        Breathe Poison     damage: HPs * 30%, up to 500
+                   (note that being heavily poisoned is nasty)
+BRTH_PLAS        Breathe Plasma     damage: HPs / 2, up to 1600
+                   (plasma is a mixture of fire and electricity)
+BRTH_LITE        Breathe Light      damage: HPs * 30%, up to 500
+BRTH_DARK        Breathe Dark       damage: HPs * 30%, up to 500
+BRTH_CONFU       Breathe Confusion  damage: HPs * 30%, up to 500
+BRTH_SOUND       Breathe Sound      damage: HPs * 25%, up to 250
+BRTH_SHARD       Breathe Shards     damage: HPs * 30%, up to 400
+BRTH_INER        Breathe Inertia    damage: HPs * 33%, up to 200
+BRTH_GRAV        Breathe Gravity    damage: HPs * 33%, up to 200
+BRTH_FORCE       Breathe Force      damage: HPs * 33%, up to 250
+BRTH_NEXUS       Breathe Nexus      damage: HPs * 33%, up to 300
+BRTH_NETHR       Breathe Nether     damage: HPs * 30%, up to 600
+BRTH_CHAOS       Breathe Chaos      damage: HPs * 30%, up to 600
+BRTH_DISEN       Breathe Disenchant damage: HPs * 30%, up to 400
+BRTH_TIME        Breathe Time       damage: HPs * 33%, up to 200
+BRTH_TIME        Breathe Mana       damage: HPs * 33%, up to 200
+
+BALL_ACID        Acid Ball -> Acid Storm     damage: spower * 5
+BALL_ELEC        Elec Ball -> Elec Storm     damage: spower * 5
+BALL_FIRE        Fire Ball -> Fire Storm     damage: spower * 5
+BALL_COLD        Cold Ball -> Cold Storm     damage: spower * 5
+BALL_POIS        Stinking Cloud -> P. Storm  damage: spower * 2
+BALL_LITE        Light Ball / Starburst      damage: spower * 3
+BALL_DARK        Darkness Ball -> Dark Storm damage: spower * 3
+BALL_CONFU       Confusion Ball -> C. Storm  damage: spower * 3
+BALL_SOUND       Sound Ball -> Sound Storm   damage: spower * 2
+BALL_SHARD       Shard Ball -> Shard Storm   damage: spower * 3
+BALL_WIND        Wind Ball -> Tornado        damage: spower * 4
+BALL_STORM       Storm Ball -> Tempest       damage: spower * 4
+BALL_NETHR       Nether Ball -> Nethr Storm  damage: spower * 3
+BALL_CHAOS       Chaos Ball -> Chaos Storm   damage: spower * 3
+BALL_MANA        Mana Ball -> Mana Storm     damage: spower * 2
+BOLT_ACID        Acid Bolt                   damage: spower * 4
+BOLT_ELEC        Elec Bolt                   damage: spower * 4
+BOLT_FIRE        Fire Bolt                   damage: spower * 4
+BOLT_COLD        Cold Bolt                   damage: spower * 4
+BOLT_POIS        Poison Bolt                 damage: spower * 2.40
+BOLT_PLAS        Plasma Bolt                 damage: spower * 5
+BOLT_ICE         Ice Bolt                    damage: spower * 5
+BOLT_WATER       Water Bolt                  damage: spower * 2
+BOLT_NETHR       Nether Bolt                 damage: spower * 2.50
+BOLT_MANA        Magic Missile -> Mana Bolt  damage: spower * 2
+BEAM_ELEC        Electric spark              damage: spower * 5
+BEAM_ICE         Ice Lance                   damage: spower * 5
+BEAM_NETHR       Spear of Nether             damage: spower * 3
+ARC__HFIRE       Arc/Column of hellfire      damage: spower * 5 (~)
+ARC__FORCE       Arc of force                damage: spower * 2
+
+HASTE            Speed self
+ADD_MANA         Regain mana
+HEAL             Heal self
+CURE             Cure self (remove various ailments)
+BLINK            Teleport Short
+TPORT            Teleport Long
+TELE_SELF_TO     Blink towards the player
+TELE_TO          Move player to monster
+TELE_AWAY        Move player far away
+TELE_LEVEL       Move player vertically
+DARKNESS         Create Darkness
+TRAPS            Create Traps
+FORGET           Cause amnesia
+DRAIN_MANA       Drain mana and heal self
+MIND_BLAST       Blast Mind.  If saving throw fails, do various nastiness.
+CURSE            Cancel magics, curse equipment, etc.
+WOUND            Cause Wounds.  Tests saving throw, with deep monsters 
+                   getting a bonus.  Inflicts spower * 3 damage and any-
+                   where from a light to a mortal wound.
+HELLDARK         Cause damage, frighten.  Darkness resist helps.
+HOLY_SMITE       Cast a holy orb
+HUNGER           Make player more hungry.  This can lead to death by 
+                   starvation.
+SCARE            Frighten Player
+BLIND            Blind Player
+CONF             Confuse Player
+SLOW             Slow Player
+HOLD             Paralyze Player
+
+S_KIN            Summon Similar
+S_MONSTER        Summon Monster
+S_MONSTERS       Summon Monsters
+S_BEETLE         Summon Beetles
+S_ANT            Summon Ants
+S_SPIDER         Summon Spiders
+S_HOUND          Summon Hounds
+S_ANIMAL         Summon Animals
+S_THIEF          Summon Thieves
+S_BERTBILLTOM    Summon Bert, Bill, and Tom
+S_ORC            Summon an orc
+S_ANGEl          Sumon a angel
+S_DRAGON         Summon Dragon
+S_HI_DRAGON      Summon Ancient Dragons
+S_DEMON          Summon Demon(s)
+S_HI_DEMON       Summon Greater Demons
+S_UNDEAD         Summon Undead
+S_HI_UNDEAD      Summon Greater Undead
+S_WRAITH         Summon Unique Wraith
+S_UNIQUE         Summon Uniques
+
+
+
+
+====== Appendix D:  Monster Blows ======
+
+List of monster blows:
+HIT - the general-pupose damage-causing attack
+TOUCH - non-forcible attack, but can do any number of nasty things to the player
+PUNCH - used mostly by druids and ninjas
+KICK - used mostly by druids and ninjas
+CLAW - used by creature relying on claws, such as a werewolf
+BITE - used by any creature relying on jaws or teeth, such as a snake
+STING - used by any creature relying on a stinger, such as an ant
+PECK - used by any creature relying on a beak, such as an bird
+BUTT - used by any creature relying on horns or a hard skull.  often does a lot of damage.
+CRUSH - used by creatures able to squeeze the player.  Can do even more damage.
+ENGULF - used by creatures able to completely surround the player in some way
+CRAWL - used by creatures able to climb up the player.  A fairly weak attack
+DROOL - our favorite town-dweller's annoying little habit.
+SPIT - used by creatures able to hit the player with caustic slime or saliva.  Normally does acid damage or blinds the player.
+SLIME - The special Green Glutton Ghost food-sliming attack.
+GAZE - a non-physical attack used by floating eyes.  Can have just about any effect.  Always hits unless the player is blind.
+WAIL - emit sound to dispel, frighten, or paralyze the player.  Used almost exclusively by ghosts.
+SPORE - release spores.  A weaker attack, but one that often reduces stats.
+BEG - request gold, etc.  Normally should not have any effect.
+INSULT - used by Bolder and Orfax to drive the player bonkers.
+SNEER - used by Bill Ferny to gain a little satisfaction before you off him.
+TALK - used by aimless merchants to pass the time of day
+
+
+List of monster blow effects:
+
+     The raw damage of all non-elemental attacks is reduced by character armor.  All blow types accept a damage figure, and a few require one to have any effect.
+
+HURT - reduce player HPs.
+WOUND - Hurt, with extra cutting
+BATTER - Hurt, with extra stunning
+SHATTER - If this attack does enough damage, cause an earthquake.
+UN_BONUS - Disenchant a random equipped item.
+UN_POWER - Drain a random wand, staff, or rod.
+LOSE_MANA - Drain mana
+EAT_GOLD - Steal gold.
+EAT_ITEM - Steal a random item from the backpack.
+EAT_FOOD - Eat food.
+HUNGER - Directly reduce nutrition.
+EAT_LITE - Drain fuel, always by 250 + randint(250).
+POISON - Poison the player by damage done if not resistant.
+ACID - an acidic attack.  damage may be reduced by resistance, etc. to acid.
+ELEC - an electrical attack.  damage may be reduced by resistance, etc. to electricity.
+FIRE - a fiery attack.  damage may be reduced by resistance, etc. to fire.
+COLD - a frosty attack.  damage may be reduced by resistance, etc. to cold.
+BLIND - Blind the player based on monster level.
+CONFUSE - Confuse the player based on monster level.
+TERRIFY - Frighten the player based on monster level.
+PARALYZE - Paralyze the player based on monster level.
+HALLU - Induce hallucinations.
+DISEASE - Cause disease.
+LOSE_STR - Reduce str.
+LOSE_INT - Reduce int.
+LOSE_WIS - Reduce wis.
+LOSE_DEX - Reduce dex.
+LOSE_CON - Reduce con.
+LOSE_CHR - Reduce chr.
+LOSE_ALL - Reduce all stats.
+
+EXP_10 - reduces exp by 10d6 + 2%.  Hold life is effective 95% of the time.
+EXP_20 - reduces exp by 20d6 + 2%.  Hold life is effective 90% of the time.
+EXP_40 - reduces exp by 40d6 + 2%.  Hold life is effective 75% of the time.
+EXP_80 - reduces exp by 80d6 + 2%.  Hold life is effective 50% of the time.
+
+
+
+====== Appendix E:  Vault codes ======
+
+Definition of "good":  
+   - Generation depth is increased by 10.
+   - Increased chance of special artifact
+   - If a weapon or armor, will have plusses.  Better chance for ego-item or better.
+   - Any other object will be quite good for that depth and likely be very useful.
+
+Definition of "great":  
+   - Same as "good", plus:
+   - If a weapon or armor, will be an ego-item or better.
+
+
+'%' granite (outer)
+'#' granite (inner)
+'X' permenant wall
+'.' floor
+
+'@' lava
+'x' water
+';' tree
+':' rubble
+'*' treasure seam
+
+'^' secret trap
+'+' secret door
+
+     alphabetical characters (A-Z, a-z):  Any alphabetic race can be specified, other than 'X' or 'x'.  Monster is biased towards being in-depth, plus (about) 3.  Demons use 'U' and 'u'.
+
+'~' chest
+
+     All specific items below have a bonus of three to their object generation level.  Both weapons and armor are guaranteed "good", food is never guaranteed "good", and all other specific items will be guaranteed "good" 25% of the time.
+
+']' armor
+'|' a melee or missile weapon
+'=' ring
+'"' amulet
+'!' potion
+'?' scroll
+'_' staff
+'-' wand or rod
+',' food or mushroom
+
+'&' 50% chance of object, otherwise a trap
+'$' ordinary treasure
+
+'1' ordinary monster 50% of the time, trap 25% of the time, and object 
+    25% of the time.  If an object, will be of "good" quality 1/8th of 
+    the time.
+'2' monster + 3
+'3' object + 3
+'4' 50% chance of object + 4, and also 50% of monster + 4
+'5' object + 6
+'6' monster + 6
+'7' object + 15
+'8' monster + 12
+'9' both good object + 15 and monster + 10
+'0' both great object + 20 and monster + 15
+
+'`', '{','}', '/', and '\': reserved for (possible) later terrain 
+expansion
+
+
+
+====== Appendix F:  Color Sybols ======
+
+# Basic colors - will look (roughly) the same on all systems
+'d': black
+'w': light grey
+'s': medium grey
+'o': orange
+'r': dark red
+'g': dark green
+'b': dark blue
+'u': deep brown
+'D': dark grey
+'W': white
+'P': light purple
+'y': yellow
+'R': red
+'G': light green
+'B': bright blue
+'U': light brown
+
+# Extended colors - will look the same if the port allows 256 colors.  On the IBM 
+# and GCU ports, they will be translated to the nearest basic color.
+'p': purple
+'v': violet
+'t': teal
+'m': mud
+'Y': light yellow (shining)
+'i': magenta-pink
+'T': light teal
+'V': light violet
+'I': light pink
+'M': mustard
+'z': blue slate
+'Z': deep light blue
+
+See "lib/pref/colors.prf" for an exact list of available colors.
+
+
+
+====== Appendix G:  Adding Accents ======
+
+     You may include accents and special characters in most text by using encodes.  You may also use encodes in preference files (but not edit files) when it normally expects a single character.  Encodes start with an open bracket ( [ ) and end with a close bracket ( ] ).  Between the brackets is either a two-character set or a name.  Not all systems support special characters; on them, an ASCII equivalent will be shown.  A complete list of encodes follows:
+
+    [`A]  ['A]  [^A]  [~A]  ["A]  [*A]  [,C]  [`E]  ['E]  [^E]  ["E]  [`I]  ['I]  
+    [^I]  ["I]  [~N]  [`O]  ['O]  [^O]  [~O]  ["O]  [/O]  [`U]  ['U]  [^U]  ["U]  
+    ['Y]  [`a]  ['a]  [^a]  [~a]  ["a]  [*a]  [,c]  [`e]  ['e]  [^e]  ["e]  [`i]  
+    ['i]  [^i]  ["i]  [~n]  [`o]  ['o]  [^o]  [~o]  ["o]  [/o]  [`u]  ['u]  [^u]
+    ["u]  ['y]  ["y]
+
+    [iexcl]  [euro]  [pound]  [curren]  [yen]  [brvbar]  [sect]  [Agrave]  [Aacute]  
+    [Acirc]  [Atilde]  [Auml]  [Aring]  [Aelig]  [Ccedil]  [Egrave]  [Eacute]
+    [Ecirc]  [Euml]  [Igrave]  [Iacute]  [Icirc]  [Iuml]  [ETH]  [Ntilde]  [Ograve]
+    [Oacute]  [Ocirc]  [Otilde]  [Ouml]  [Oslash]  [Ugrave]  [Uacute]  [Ucirc]  
+    [Uuml]  [Yacute]  [THORN]  [szlig]  [agrave]  [aacute]  [acirc]  [atilde]  
+    [auml]  [aring]  [aelig]  [ccedil]  [egrave]  [eacute]  [ecirc]  [euml]  
+    [igrave]  [iacute]  [icirc]  [iuml]  [eth]  [ntilde]  [ograve]  [oacute]  
+    [ocirc]  [otilde]  [ouml]  [oslash]  [ugrave]  [uacute]  [ucirc]  [uuml]  
+    [yacute]  [thorn]  [yuml]
+
+     For usage examples, consult the edit files.
+
+
+===============================
+
+
+Have fun customizing the game!  :-)
+
+
+Leon Marrick
+April, 2007
+
+

@@ -1,0 +1,28 @@
+                           Interacting with the Game
+
+
+    (1) List of Commands                                  (cmdlist.txt)
+    (2) Command Descriptions                              (cmddesc.txt)
+    (3) Interfaces                                        (intrface.txt)
+    (4) Options                                           (options.txt)
+    (5) Inscriptions and Macros                           (macro.txt)
+    (6) Preferences                                       (pref.txt)
+
+
+
+
+
+Help Commands:
+       ?     : leave the online help
+       ESC   : return to previous document or menu
+       space : advance one page
+       -     : back up one half page
+       /     : search (not case-sensitive)
+      <dir>  : move forward and backwards
+
+***** [1] cmdlist.txt
+***** [2] cmddesc.txt
+***** [3] intrface.txt
+***** [4] options.txt
+***** [5] macro.txt
+***** [6] pref.txt

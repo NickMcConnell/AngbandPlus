@@ -1,0 +1,89 @@
+
+====== Defence ======
+
+Healing:
+     If your hitpoints drop below zero, you die.  Always have something to
+quickly restore them.
+
+Escaping:
+     A trapped adventurer is a dead adventurer.  Always have a way to get out of
+trouble.
+
+Detecting:
+     The best defence is being prepared.  Know your enemies, and know where they
+are.
+
+Defending against pure damage:
+     Your armor class (AC) reduces the chance that most kinds of melee attacks
+(except gazing and stealing) will hit you.  It reduces the pure damage inflicted
+by most melee attacks (acid, electricity, fire, frost, and poison attacks being
+the exceptions), and makes it less likely that they will stun or cut you.  It
+also protects against shots, arrows, bolts, boulders, missiles, and certain
+kinds of traps, but not against magic.
+      Each piece of armor has a base AC value and possibly also a magical bonus.
+Add the two together, and you have the total protective value of the item.  For
+example, a Chain Mail (-3) [14, +6] increases your AC by 20.  Note the "(-3)".
+It is a (small) penalty to melee Skill; heavy armor restricts your movement
+slightly.
+     Special note:  shields worn on the back have a base AC value of zero.
+
+Cuts, poison, and stunning:
+     Many monsters can inflict special kinds of physical damage on you, such as
+opening wounds, poisoning, or stunning.  After you start earning a little money,
+plow some of it back into potions or mushrooms of cure wounds, and keep them
+handy at all times.  If a monster manages to heavily stun you, get away fast!
+
+Character-hindrance:
+     There are many monsters capable of casting spells to blind, confuse, slow,
+and paralyze you, plus quite a few other nasty tricks not mentioned here.  Free
+Action eventually becomes critical to your survival and you should keep stuff
+that fixes blindness and confusion on hand.  Your Saving Throw protects against
+these and other attacks.
+
+Elemental and magical attacks:
+     Acid, Electricity, Fire, and Cold are the basic elements; many monsters use
+them.  Because the maximum damage they can do to you is very high, becoming
+resistant is important.  Unlike with other attack types, you can resist, double
+resist, and be immune to the elements.  Double resistance is the combination of
+a permanent resistance (from equipment) and a temporary one (from a spell).
+Temporary resistances are also known as oppositions.  Immunity to any of the
+elements is hard to get.
+     Poison is deadly and not so easy to resist.  You can double-resist (resist
+and oppose) poison.
+     There are many kinds of magical attacks; most can be resisted, some can
+not.  Those capable of doing the most damage are darkness, chaos, and nether.
+
+     For more detail, see the section on object attributes.
+
+Reductions of Experience and Stats:
+     Even when your character is starting out, there are rare traps and monsters
+capable of lowering his stats and attacking his skills.  In addition, a strong,
+unresisted elemental attack can occasionally lower a stat.  Slowly, these
+dangers increase until it becomes very important that you find objects that
+provide hold life and sustain at least your critical stats.
+
+Theft:
+     Nobody is more annoying than a thief.  You've just found that cool
+spellbook or nifty weapon and now it's gone.  You can gain a significant degree
+of protection from theft by increasing your dodging skill and your dexterity,
+and can always collect your stuff from the thief's corpse.  Unfortunately,
+thieves are smart enough to stash away the money they take from you.
+
+Rumours:
+     It is rumoured that certain undead possess a very deadly touch...
+     The same rumours whisper that Athelas has remarkable curative properties...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

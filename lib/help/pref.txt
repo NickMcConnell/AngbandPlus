@@ -1,0 +1,266 @@
+
+====== Preferences ======
+
+     Information about options, usage of extra windows, command macros, and
+keymaps can all be stored in preference files.  In addition, you can customize
+the game in many other ways and save these preferences to file.
+
+
+--- The priority order of preference files ---
+
+     Whenever the game starts up, and whenever it creates or loads a character,
+it opens various preference files and modifies various things according to
+instructions in them.  The preference files below are listed in descending order
+of priority:  anything in higher files overrides anything in a file below it.
+
+     Be aware that these rules apply only for this variant.
+
+"/lib/user/{base name of character}.prf"
+     May contain options, color definitions, attr/char remappings (what
+monsters, objects, and features look like), and many other things.  Anything in
+this file is guaranteed to override anything in any other file.
+     What is the "base name" of your character?  It is the name of your
+character, usually with non-alphabetic, non-numeric characters translated to
+'_'s, and (on IBM/DOS) shortened to eight characters.  You may check the base
+name by trying to save macros or keymaps.
+
+Your character's savefile
+     Always contains your current options and window settings.  Never contains
+macros, keymaps, or visual preferences (these all need to be saved in an
+external file).  Options saved in a savefile will (usually) remain active even
+after the character dies and is reborn.  The major exception is the cheating
+options:  they are reset.
+
+"/lib/user/human.prf" (replace "human" with your race)
+     Used to store race-specific preferences.  It is best to edit this file
+after saving it.  Race names are as expected, except that "half-troll" becomes
+"h-troll" on some systems.
+
+"/lib/user/warrior.prf" (replace "warrior" with your magic realm)
+     Used to store realm-specific preferences; especially valuable for tweaking
+custom side panel rows.  It is best to edit this file after saving it.  Realm
+names are "warrior", "wizard", "priest", "druid", and "necromancer".
+
+"/lib/user/user.prf"
+     Any preferences that you want to apply to all of your characters should go
+here.
+
+
+     Many players need no other preference files and can stop reading here.
+
+
+"lib/pref/user.prf"
+     This file is loaded just before the one above it.  Links to system-specific
+user-preference files, which tend to be used by porters to customize the game in
+ways that they think users of their system will appreciate.
+
+"lib/pref/tiles.prf":  The visual preferences file.
+     Is the gateway to all attr/char remappings and therefore controls what
+everything looks like on screen.  Each of the below files controls game visual
+appearance in a specific display mode; some link to system-specific sub-files.
+     ".../ascii.prf":  Pure ASCII text display mode
+     ".../font.prf":  Extended text display mode
+     ".../chargraf.prf":  Pseudo-graphical font display mode  (not currently
+used)
+     ".../graf16-g.prf":  Adam Bolt graphics (for everything) display mode
+     ".../graf16-f.prf":  Adam Bolt graphics (plus font) display mode
+     ".../graf32-g.prf":  David Gervais graphics (for everything) display mode
+     ".../graf32-f.prf":  David Gervais graphics (plus font) display mode
+
+"lib/pref/pref.prf"
+     This is the source of most default settings except for char/attr
+remappings.  It contains the default values of options, the keymaps for the
+original and roguelike keysets, and the default inventory colors.  Links to the
+file "message.prf", which controls the colors of messages.  Links to system-
+specific general preference files (pref-{sys}.prf).  These contain system-
+specific keymappings and allow the game to recognize your keyboard.
+
+     message.prf:  Message colors.  Each message can be assigned to a type; each
+type may have one or more sounds and a color associated with it.
+
+
+--- Writing your own preference files ---
+
+     All preference files use a common system to store information.  You must be
+careful of two things:
+1) Make sure that the file will actually be loaded.  It needs to be one of the
+files mentioned above, or be called by one of those files.
+2) Watch out for automatic preference dumps.  If you try to edit anything
+between the special markers, your changes will be lost.  The solution is to skip
+past all the automatic stuff and put your changes at the bottom, below the last
+marker.
+
+List of preference file instructions:
+
+%:user.prf
+     Open up the file "/pref/user.prf" or "/user/user.prf" and read it.  If both
+files exist, rules in the latter have priority.
+
+R:0:w/@
+     The monster, with index 0 (zero), will be white ('w'), and be represented
+with a '@'.
+
+K:50:v/~
+     The object, with index 50, will be violet ('v'), and be represented with a
+'~'.
+
+K:60:+10:+14
+     The object, with index 60, will use the graphical tile at row 10, column 14
+(the plus means "add 128 to the number").
+
+F:1:w/250:y/250:s/250
+     The feature, with index 1 (ordinary floor), will normally be white (color
+1), and be represented by the character in ASCII position 250 (a centered dot).
+Under torchlight, it will glow yellow.  When darkened, it will be slate grey.
+
+L:247:+2:+15
+     The flavor, with index 247 (Black Spotted mushroom), will use the graphical
+tile at row 2, column 15.
+
+E:90:r
+     Tval 90 (wizard spellbooks) will display in the inventory and other
+listings in light red ('r').
+
+A:R*\r
+     The next key listed will be mapped to this set of actions (can be either a
+keymap or a macro).
+
+C:0:x
+     The previous action listed is a keymap, is active in the original keyset
+(set 0), and will be activated by typing 'x'.
+
+P:1:^O
+     The previous action listed is a macro, is active in the roguelike keyset
+(set 1), and will be activated by typing 'control-O'.
+
+V: 1:w:White:            0:255:255:255:  1
+     The color in position 1 is requested by typing 'w', is called "White", has
+a kvalue of 0, a red value of 255, a green value of 255, a blue value of 255,
+and translates to color 1 (itself) in 16-color mode.
+
+X:rogue_like_commands
+     The "rogue_like_commands" option will be off.
+
+Y:rogue_like_commands
+     The "rogue_like_commands" option will be on.
+
+W:2:10:1
+     Window #2 (the first sub-window), will display window display #10 (display
+list of commands), and be active (1) as opposed to inactive (0).
+
+M:1:w
+     Message type 1 (standard hit message) will appear white.
+
+D:5
+     The delay factor will be 5 (5 * 5 = 25 milliseconds).
+
+H:3
+     The hitpoint warning will be at 30%.
+
+a:1:1000
+     Autosave is on; games will be saved every 1000 turns.
+
+t:1:0:0:2:4
+     The main window will use the standard (short) display, we will not be using
+the special (tall) display to display help and other things, the dungeon map
+will not be fitted precisely to screen, the number of rows from the vertical
+edge at which the map scrolls will be 2, and the number of rows from the
+horizontal edge at which the map scrolls will be 4.
+
+?:{text}
+     A conditional expression.  If true, allows another line to activate.  The
+tests include
+  AND     - logical AND
+  IOR     - inclusive OR
+  EQU     - (string) equals
+  NOT     - logical negation
+  LEQ     - (string) less than or equal to
+  GEQ     - (string) greater than or equal to
+  [,]     - group expressions
+  $GRAF   - 3-letter graphics abbreviation in "graf-***.prf" (graf-old, graf-
+new)
+  $PLAYER - current character name
+  $RACE   - current character race
+  $SYS    - 3-letter system abbreviation in "pref-***.prf" (pref-ami, mac,
+win,...)
+     See the usage in "lib/pref/pref.prf", etc.
+
+
+====== Visuals, colors, and multimedia ======
+
+Interact with Visuals:  (command: '%') :
+     You may adjust the character and attribute (color) used to display objects,
+monsters, and terrain features.
+  1) Update your preferences with a specific user preference file.
+  2) Save your current monster visuals to file.
+  3) Save your current object visuals to file.
+  4) Save your current terrain visuals to file.
+  6) Change monster visuals.
+  7) Change object visuals.
+  8) Change terrain visuals.
+  0) Reset visuals to their last saved values (undo all changes).
+
+     When changing visuals, you may type the following keys:
+  n: Advance one (wrap around if at the end)
+  N: Go back one (wrap around if at the beginning)
+ ^n: Jump to a specific item  (the '^' means Control-)
+  a: Change to the next color (wrap around if at color 15)
+  A: Change to the previous color (wrap around if at color 0)
+ ^a: Specify color
+  c: Change to the next character in the ASCII sequence (wrap around if at 255)
+  C: Change to the previous character (wrap around if at 0)
+ ^c: Specify character
+
+     A good way to get used to the interface is to choose option 6:  change
+monster visuals, note that the first "monster" is your character, and change it
+from a white '@' to something silly.  Leave, see how weird you look, come back,
+and press '0' to reset the visuals.
+
+
+Interact with colors:  (command '&') :
+     In the interact with colors display, you have three options available:
+  1) Load colors from file.
+  2) Save colors to file.
+  3) Modify colors.
+
+     In the modify screen, you navigate between colors by typing direction keys.
+When at the color you want to change, you then use the following keys.
+  i: Give the color a unique index character (so it can be requested)
+  n: Give the color a name
+  k: No effect (the game auto-calculates this value)
+  K: No effect
+  r: Increase the red in this color (wraps around at 255)
+  R: Decrease the red in this color (wraps around at 0)
+  g: Increase the green in this color (wraps around at 255)
+  G: Decrease the green in this color (wraps around at 0)
+  b: Increase the blue in this color (wraps around at 255)
+  B: Decrease the blue in this color (wraps around at 0)
+  v: Assign the color specific red, green, and blue values.
+
+     When making new colors, you should first give the color an index character
+(it must be unique; the game will correct you if you use a character that
+belongs to another color), and then type a name (such as "White").  When you
+have done this, you can then immediately see the color changes you make.
+
+     Note that color 0 (black) should not be changed.  If your system can only
+display 16 colors, your changes to colors above #15 will not have any effect.
+
+     After changing colors, you may leave the modify screen for the main colors
+screen, and choose option #3: Save colors to file.  The colors will be saved at
+the end of the file "lib/pref/color.prf", and will take immediate effect.  You
+may then use the new colors for monsters, objects, etc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

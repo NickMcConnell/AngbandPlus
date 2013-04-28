@@ -1,0 +1,27 @@
+                                Your Character
+
+
+    (1) Races                                             (race.txt)
+    (2) Attributes, Stats, Abilities                      (attribut.txt)
+    (3) The Character Screen                              (charscrn.txt)
+    (4) Skills                                            (skills.txt)
+    (5) Talents and Object-Creation                       (talents.txt)
+
+
+
+
+
+
+Help Commands:
+       ?     : leave the online help
+       ESC   : return to previous document or menu
+       space : advance one page
+       -     : back up one half page
+       /     : search (not case-sensitive)
+      <dir>  : move forward and backwards
+
+***** [1] race.txt
+***** [2] attribut.txt
+***** [3] charscrn.txt
+***** [4] skills.txt
+***** [5] talents.txt

@@ -1,0 +1,75 @@
+
+# File: limits.txt
+
+
+# This file contains various array sizes.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# Version stamp (required)
+
+V:1.0.0
+
+
+# Maximum number of feature types  (max of 255)
+M:F:93
+
+# changing this number will normally break savefile compatability
+# Maximum number of object kinds
+M:K:803
+
+# changing this number will normally break savefile compatability
+# Maximum number of artifacts  (max of 255)
+M:A:251
+
+# changing this number will normally break savefile compatability
+# Maximum number of ego-item types  (max of 255)
+M:E:185
+
+# changing this number will normally break savefile compatability
+# Maximum number of monster races
+M:R:820
+
+# Maximum number of vaults
+M:V:150
+
+# changing this number will normally break savefile compatability
+# Maximum number of quests (including a slot for random quests)
+M:Q:4
+
+# Maximum number of effects
+M:X:50
+
+# Maximum number of traps
+M:x:150
+
+# Maximum number of flavors
+M:L:400
+
+#
+# These figures should probably not go higher.  The game design makes for 
+# a lot of annoyance and tedium if too many objects or monsters are 
+# allowed in the dungeon.  The AI also makes large numbers of monsters
+# extremely dangerous.  -LM-
+#
+# Maximum number of objects
+M:O:400
+
+# Maximum number of monsters
+M:M:400
+
+
+
+#
+# Array sizes (in bytes) for some initialization stuff
+#
+
+# Size of the "fake" array for reading in names of monsters, objects,
+# artifacts, store-owners, ...
+M:N:20480
+
+# Size of the "fake" array for reading in the descriptions of monsters,
+# vaults, ...
+M:T:61440
+

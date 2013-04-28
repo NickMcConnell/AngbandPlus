@@ -1,0 +1,95 @@
+#charattr - this file uses the char/attr parsing system
+#fulldisplay - use the full display (46+ lines) to show this file
+
+                                 ***
+                                 * *
+                                  *
+                               * * * *
+                              ** * * **
+                                ** **
+                           ** ***   *** **
+                           * *         * *
+                           ** ***   *** **
+                                ** **
+                              ** * * **
+                   *           * * * *           *
+                   *             ***             *
+                   *        .   .* *.   .        *
+                *   *   .        ***        .   *   *
+                 *  *            * *            *  *
+         *        *.*  %  %   .  ***      %  %  *.*        *
+         *        *** %%  %% . . * *   . %%  %% ***        *
+         **   .    * *  %%       ***  . .  %%  * *    .   **
+    *     *  . .  * ^ * %%*   * #% %# *   *%% * ^ *  . .  *     *
+    *     ***    * <O> * *%% ###% % %### %%* * <O> *    ***     *
+     *     * **###* v *%* % #  %     %  # % *%* v *###** *     *
+     *   ** ^ ** * * ** ##o## # %   % # ##o## ** * * ** ^ **   *
+     *  ** <O> **o* *  #  #  ##%     %##  #  #  * *o** <O> **  *
+      ***o* v ** *  ############% % %############  * ** v *o***
+      ** * * ########.* * * *.* #% %# * * * * * ######## * * **
+      * *#### *.* *         . .       .           *.*.* ####* *
+      *** *   . .       .            . .       .          * ***
+      *   .            . .       .            . .       .     *
+      **** *       .            . .       .            . * ****
+         ***** * *.*.       .            . .     * * * *****
+             ******** * * *.*.* * * *.* * * * * ********
+                    *****************************
+
+                                                                   ** 
+*****       ****  **                                              ****
+ ***         *    **             *                                ****
+  ***       *                   **                                ****
+   ***     *     ***    ****   *****   ****   *** ***  ***    **   ** 
+    ***   *       **   **  **   **    **  **   *** **   ***   *    **
+     *** *        **   **       **    **  **   **        *** *
+      ***         **   ***  *   ** *  **  **   **         ***      **
+       *         ****   ****     **    ****   ****         *       **
+                                                        ***
+                                                        **
+#endchar
+
+                                 www
+                                 w w
+                                  B
+                               w B B w
+                              ww B B ww
+                                Bb bB
+                           ww BBb   bBB ww
+                           w B         B w
+                           ww BBb   bBB ww
+                                Bb bB
+                              ww B B ww
+                   w           w B B w           w
+                   w             wBw             w
+                   w        v   vw wv   v        w
+                w   w   v        www        v   w   w
+                 w  w            w w            w  w
+         w        wvw  %  %   v  www      %  %  wvw        w
+         w        www %%  %% v v w w   v %%  %% www        w
+         ww   v    w w  %%       www  v v  %%  w w    v   ww
+    W     w  v v  w o w %%w   w wg gw w   w%% w o w  v v  w     W
+    W     www    w oyo w w%% wwwG G Gwww %%w w oyo w    www     W
+     W     w wwwwww o w%w % w  g     g  w % w%w o wwwwww w     W
+     W   ww o ww w w ww wwrww w G   G w wwrww ww w w ww o ww   W
+     W  ww oyo wwrw w  w  w  wwg     gww  w  w  w wrww oyo ww  W
+      Wwwrw o ww w  wwwwwwwwwwwwG G Gwwwwwwwwwwww  w ww o wrwwW
+      WW w w wwwwwwwwvW W W WvW wg gw W W W W W wwwwwwww w w WW
+      W WWWWw WvW W         v v       v           WvWvW wWWWW W
+      WWW W   v v       v            v v       v          W WWW
+      s   v            v v       v            v v       v     s
+      ssss D       v            v v       v            v D ssss
+         sssss D DvDv       v            v v     D D D sssss
+             ssssssss D D DvDvD D D DvD D D D D ssssssss
+                    sssssssssssssssssssssssssssss
+
+                                                                   yy 
+yyyyy       yyyy  yy                                              yyyo
+ yyo         y    yo             y                                yyyo
+  yyo       y                   yy                                yyyo
+   yyo     y     yyy    yyyy   yyyyy   yyyy   yyy yyy  yyy    yy   yo 
+    yyo   y       yo   yo  yy   yo    yo  yo   yoy yo   yyo   y    yo
+     yyo y        yo   yo       yo    yo  yo   yo        yyo y
+      yyy         yo   yyo  y   yo y  yo  yo   yo         yyy      yy
+       y         yyyy   yyyy     yy    yyyy   yyyy         y       yo
+                                                        yyy
+                                                        yo 

@@ -1,0 +1,28 @@
+27
+******** BUFFER LINE *******************
+sniggers.
+grovels.
+picks his nose.
+pines for his precious.
+searches his pockets.
+eats some slimy creatures.
+mutters: 'My precious, wheres my precious?'
+cries: 'The ring was ours for agesisisisis!'
+says: 'Sm['e]agol sneeking! ME! Shneekingsisis!'
+screams: 'My Precious!  I wantses my precious!'
+says: 'Come on, quickly, follow Sm['e]agol'
+says: 'Every way is guarded, silly foolsis!'
+says: 'Nasty Bagginis, stole my precious.'
+says: 'She will kill them oh yes she will precious.'
+whines: 'Weees wants some fishises.'
+says: 'Whats has its got in its pocketses, hmmm?'
+whimpers: 'We've lost itses we have.'
+says: 'He'll eatses all the world if he getsitses it.'
+says: 'No food, no rest; Sm['e]agol a SNEAK!'
+says: 'What a dainty little dish you will be for her.'
+says: 'But we aren't in nice placeses, now.'
+screams: 'Stop, Thief!'
+says: 'Makeses him drop his weapon precious.'
+grovels: 'He has only four fingers on the black hand.'
+growls: 'Not nice, my precious, not sensible!'
+says: 'If you findesis it, give it us back.'

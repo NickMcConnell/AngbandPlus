@@ -1,0 +1,52 @@
+# File: font-xxx.prf
+
+#
+# This file defines special attr/char mappings for use in text mode on all 
+# systems.  System-specific pref files often overwrite them.  No extended 
+# colors (colors 16+) or characters (characters 128+) should be used.
+#
+# See "lib/help/pref.txt" and "src/files.c" for more information.
+#
+
+
+#### Terrain attr/char values ####
+
+F:1:w/.:y/.:s/.:torch_only
+F:4:U/<:U/<:U/<
+F:5:U/>:U/>:U/>
+F:6:U/':U/':U/'
+F:7:u/':u/':u/'
+F:8:w/<:w/<:W/<
+F:9:w/>:w/>:W/>
+F:10:r/#:R/#:r/#
+F:11:b/.:B/.:b/.
+F:12:g/+:G/+:g/+
+F:32:U/+:U/+:U/+
+F:49:w/':':y/':':W/':':torch_only
+F:50:s/#:s/#:D/#
+F:51:W/#:W/#:s/#
+F:54:o/*:o/*:o/*
+F:55:o/*:o/*:o/*
+F:56:w/#:w/#:W/#
+F:60:w/#:w/#:W/#
+F:61:w/#:w/#:W/#
+F:64:w/#:w/#:W/#
+F:65:o/#:y/#:o/#
+
+
+
+##### Special attr/char values #####
+
+#
+# Default text-mode graphics used for projections not otherwise specified.
+#
+# Format is index (0 for all), then color / character pairs for vertical,
+# horizontal, right diagonal, left diagonal, and explosion picts.  The 
+# slashes must be in single quotes.  We only use color values if non-zero. 
+# Spell colors should normally not be specified in text mode.
+#
+
+?:[NOT [IOR [EQU $SYS x11] [EQU $SYS gtk] [EQU $SYS win] [EQU $SYS sdl]]]
+S:0:0/'|':0/'-':0/'/':0/'\':0/'*'
+
+

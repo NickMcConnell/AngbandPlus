@@ -1,0 +1,19 @@
+#
+# This is not actually used at present because all realm-specific stuff is 
+# normally now handled by the game itself.
+#
+
+?:[EQU $REALM Warrior]
+%:warrior.prf
+
+?:[EQU $REALM Wizard]
+%:wizard.prf
+
+?:[EQU $REALM Priest]
+%:priest.prf
+
+?:[EQU $REALM Druid]
+%:druid.prf
+
+?:[EQU $REALM Necromancer]
+%:necromancer.prf

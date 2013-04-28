@@ -1,21 +1,96 @@
+#charattr - this file uses the char/attr parsing system
+#fulldisplay - use the full display (46+ lines) to show this file
+  ******  *         High adventure in a   *  world of magic and cold steel   *
+ ***   ****                             ***                                ***
+***      **                              **                                 ** 
+****      *   *****     *  **     ***    ** ****    *****     *  **    **** **
+ *******     *** ***  ********  **   ** ,***, ***  *** ***  ********  ***  ***
+   *******       ***   **   **  **   ** $,* $, **  ,   ***   **   **  **    **
+*      ****   *** **   **   **  **   ** "ss.$ss.*.s' ** **   **   **  **    **
+**      ***  **   **   **   **  ,**** .ss$$$$$$$$$$s,   **   **   **  **    **
+****   ***   *** ***   **   **  $.*s$$$$$$$$$$$$$$`$$ss***   **   **  ***  ***
+*  ******     ***  ** **** **** "$$$$$$$$$$$$$$$$$$o$$$  ** **,* ****  ****  **
+                               s$$$$$$$$$$$$$$$$$$$$$$$$s,  ,s
+   Version 1.0.0 Final        s$$$$$$$$$"$$$$$$""""$$$$$$"$$$$$,
+                              s$$$$$$$$$$s""$$$$ssssss"$$$$$$$$"
+                             s$$$$$$$$$$'         `"""ss"$"$s""
+                             s$$$$$$$$$$,              `"""""$  .s$$s
+                             s$$$$$$$$$$$$s,...               `s$$'  `
+                         `ssss$$$$$$$$$  $$$$$$$$$####s.     .$$"$.   , s-
+                           `""""$$$$$$ /\ $$$$$$$$$$#####$$$$$$"     $.$'
+   ___                           " ___/  \___ $$$$$$$$$####s""     .$$$|  ___
+  |   \________              _____/          \_____ $$$$$$$##s   ________/   |
+  \            \____________/                      \____________/            /
+   \                                                                        /
+    \       Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke       /
+    |           and Umoria:   Copyright (c) 1989 James E. Wilson           |
+     \                                                                    /
+      |                            Angband by:                           |
+       \            Alex Cutler, Andy Astrand, Sean Marsh,              /
+       |          Geoff Hill, Charles Teague, Charles Swiger,           |
+       |            Ben Harrison, and Robert R["u]hlmann                   |
+      /                                                                  \
+     /                             Sangband by:                           \ 
+    /        Chris Petit, Michael Gorse, Julian Lighton, Leon Marrick      \
+   /                                                                        \
+  /                                                                          \
+ |               Visit the website "http://runegold.org/sangband/"            |
+ |              Browse the Forum at "http://angband.oook.cz/forum/"           |
+ \           _________________                   __________________           /
+ {\     ____/$"   $$$$$$$$$$$$\_____        ____/         .###$$$$$\____     /
+ ) \___/\.         "$$$$$$$$$$$$$###\__  __/      -TX ..####$$$$$$$$$$$"\___/
+(   )$ )  )        ,$$$$$$$$$$$$$$$$$$#\/#################$$$$$$$$$$$"
+(   ($$  ( \     _s$"  `"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$,
+ )  )$$$s ) )  .      .   `$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"'  `$$
+  (   $$$$s/  .$,    .$,,s$$$$$$##$$$$$$$$$$$$$$$$$$$$$$$$$$""        '
+    \)_$$$$$$$$$$$$$$$$$$$$$$$##"  $$        `$$.        `$$.
+        `"$$$$$$$$$$$$$$$$$$#"      $          `$          `$
+            `"""""""""""""'         '           '           '
 
-
-                        ***********************
-                        **  SAngband 0.9.5B  **
-                        ***********************
-
-         Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
-             and Umoria:    Copyright (c) 1989 James E. Wilson
-
-       Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
-
-      SAngband 0.8.5 - 0.9.3: Michael Gorse (mgorse@wpi.edu)
-
-      SAngband 0.9.4 - 0.9.5: Julian Lighton (jl8e@fragment.com)
-
-       Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
-
- Be sure to read the online help, especially "general.txt" and "version.txt".
- Visit the SAngband Home Page at "http://www.fragment.com/~jl8e/sangband/".
- Send all comments, bug reports, patches, etc, to "jl8e@fragment.com".
-              See "version.txt" for more complete credits.
+#endchar
+  yyyyyy  y                               y                                  y
+ yyo   yyyo                             yyy                                yyy
+yyo      yo                              yo                                 yo
+yyyo      y   yyyyy     y  yy     yyy    yo yyyo    yyyyy     y  yy    yyyy yo
+ yyyyyyo     yyo yyy  yyyyyyyy  yy   yy uyoyu yyo  yyo yyy  yyyyyyyy  yyo  yyo
+   yyyyyyo       yyo   yo   yo  yo   yo rry rryyo  u   yyo   yo   yo  yo    yo
+y      yyyo   yyy yo   yo   yo  yo   yo rrrrrrrrrrrr yy yo   yo   yo  yo    yo
+yo      yyo  yo   yo   yo   yo  uyyyy urrrrrrrrrrrrrr   yo   yo   yo  yo    yo
+yyyo   yyo   yyo yyy   yo   yo  rryrrrrrrrrrrrrrrrrRrrryyy   yo   yo  yyo  yyo
+y  yyyyyy     yyy  yy yyyy yyyy rrrrrrrrrrrrrrrrrrRwRrr  yy yyuy yyyy  yyyy  yy
+                               rrrrrrrrrrrRrrrrrrrrRrrrrrr  rr
+   UUUUUUUUUUUUUUUUUUUUUUU    rrrrrRrrrRRrrrrrrrrrrrrrrrrrrrrrrRRu
+                              rrrrrrrRRrrrrrrrrrrrrrrrrrrrrrrrrR
+                             rrrrRrrrRrrr         rrrrrrrrrrrrR
+                             rrrRrrrrRrrr              rrrrrrr  rrrrr
+                             rrrRrrrrRRrrrrrrrr               srrrr  s
+                         rrrrrrrrRrrrrr  Rrrrrrrrrrrrrrr     rrrrrs   r rs
+                           rrrrrrrrrrr ww RRrrrrrrrrrrrrrrrrrrrr     rrrr
+   www                           r wwww  wwww RRrrrrrrrrrrrrrr     rrrrr  www
+  w   wwwwwwwww              wwwwww          wwwwww rrrrrrrrrr   wwwwwwwww   w
+  w            wwwwwwwwwwwwww                      wwwwwwwwwwwwww            w
+   w                                                                        w
+    w                                                                      w
+    w                                                                      w
+     w                                                                    w
+      w                                                                  w
+       w                                                                w
+       w                                                                w
+       w                                                                w
+      w                                                                  w
+     w                                                                    w
+    w                                                                      w
+   w                                                                        w
+  w                                                                          w
+ w                                 DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD            w
+ w                                  DBBBBBBBBBBBBBBBBBBBBBBBBBBBBBD           w
+ w           wwwwwwwwwwwwwwwww                   wwwwwwwwwwwwwwwwww           w
+ Rw     wwwwwrr   rrrrRRRRrrrrwwwwww        wwwww         rrrrrrRrrwwwww     w
+ R wwwwwRR         rrrrrRRRRRrrrrrrrwww  www      rrr rrrrrrrrRrRrrrrrrrwwwww
+R   Rr R  R        rrrrrrrrRRRRRrrrrrrrwwrrrrrrrrrrrrrrrrrrrrRRrrrrrrr
+R   Rrr  R R     rrrr  rrrrrrrrRRRRRRRrrRrrrrrRrrrrRrrrRRrRRrrrrrrrrrr
+ R  Rrrrr R R  r      r   rrrrrrrrrrrrrRrRrRrRrRrRrrRrRrrrrrrrrrrr  rrr
+  R   rrrrrr  rrr    rrrrrrrrrrruurrrrrrrrrrrrrrrrrrrrrrrrrrrr        s
+    RRRrrrrrrrrrrrrrrrrrrrrrrruur  rr        rrrr        rrrr
+        rrrrrrrrrrrrrrrrrrrrur      r          rr          rr
+            rrrrrrrrrrrrrrr         s           s           s

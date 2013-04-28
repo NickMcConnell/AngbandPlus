@@ -1,0 +1,252 @@
+
+====== Objects ======
+
+     The mines far below the surface are full of objects just waiting to be
+picked up and used.  The treasures of long-forgotten kingdoms, dragon's hoards,
+heirlooms, wizard's stashes, and the plunder from every age of the world unite
+with the scattered earthly possessions of all the foolish adventurers who died
+before you to offer unimaginable wealth for those bold enough to seize it.
+
+
+--- Learning about objects ---
+
+Learning about objects:
+     When you begin the game, most objects are unknown to you, and an important
+task is to learn more about them so that you can use them reliably.  The
+standard way to learn about an object is to identify it, but scrolls of Identify
+and Staffs of Perception don't come cheap.  They also don't work on everything;
+mushrooms cannot be identified with magic.
+
+Full identification:
+     Some items have special powers.  Ego-item descriptions usually tell you
+everything, but artifacts are known only by legend.  A number of items (usually
+artifacts and ego-items) may have random powers.  To learn absolutely everything
+about an object, read a scroll of *identify* on it.  Such scrolls are rare and
+expensive; if you don't have access to one, try using the object a lot and
+inscribing it.
+     Fully identified objects have light blue indexes, identified objects have
+white, and unknown objects grey.
+
+Scanning wargear automatically (Pseudo-ID):
+     The first time you walk over a weapon, missile, or piece of armor, you
+examine it for anything unusual.  Your ability to learn about wargear depends on
+your perception skill, modified by any bonuses to awareness granted by equipped
+items.
+     When you wear or wield such an item, you examine it again, this time more
+closely and with a greater chance of success.  Given a decent perception skill,
+you have a pretty good shot at learning something.  Be careful though:  Objects
+may be cursed and need special magic to remove!
+
+Scanned objects are marked with the following inscriptions
+   Item description               low perception          high perception
+   average item:                  "unknown"               "average"
+   item with plusses              "good"                  "good"
+   ego-item (weapon of flame)     "good"                  "excellent"
+   artifact (unique item)         "good"                  "special"
+   cursed artifact                "cursed"                "terrible"
+   cursed ego-item                "cursed"                "worthless"
+   cursed ordinary object         "cursed"                "cursed"
+   failed to learn anything       "unknown", no message appears
+
+     Once you equip the weapon or armor, and if it is actually better (or worse)
+then the inscription claims, you will eventually learn more about it as you use
+it in battle.  An ego-item that was originally marked "unknown" will first be
+revealed as "good", then as "excellent".
+     Characters who have taken the Oath of Iron are especially good at scanning
+wargear, and (if their perception skill is fairly high) will be able to
+instantly identify any weapon or armor they equip.
+
+Sensing other wearable objects:
+     You can often learn about rings and amulets by putting them on, and, if
+that doesn't work, by wearing them for a while.  This also gives you experience.
+However, rings and amulets are often cursed...
+
+Learning about magical devices:
+     You can learn the name of magical devices that you successfully use; when
+you do, you get experience.
+     If your perception and/or magical device skills are good enough, you can
+learn about the charges on wands and staffs, especially low-level ones.  Bonuses
+to awareness also work here.
+     Use most magical devices often enough, especially if your perception and
+magical device skills are high, and you will eventually learn more about the
+damage they do or the power they have.  You may check this information by using
+the 'I'nspect command.
+
+Learning about potions and scrolls:
+     There are three ways to learn about potions and scrolls:  You can sell
+them, identify them, or learn about them by using them.  Learning by using is
+risky but highly rewarding.  Not only do you get a lot of experience this way
+(if the object is unsensed), but many scrolls and potions are more powerful when
+you read or quaff them unaware (and unsensed).  If you quaff unaware every
+potion that attacks stats, and every one that improves them, your total stat
+gain will improve by about 4.
+
+Learning about mushrooms:
+     You must eat mushrooms in order to learn about them.  There are some very
+useful 'shrooms out there, but also some truly nasty ones...
+
+
+--- Object information ---
+
+     'I'nspecting a specific object will pop up a special display that tells you
+useful things about the object kind, legends and lore, and specific object
+attributes.
+     Known attributes of equipped items are displayed in the character screen
+display (type 'C' to bring up the character screen, then press 'h' to cycle
+through the information).  This interface is helpful when you want to optimize
+your equipment.
+     All object types that you are aware of are listed in the knowledge menu
+('~'), option 5: "Known objects".
+
+
+--- Inventory, equipment, quiver ---
+
+Your inventory (backpack) and equipment (your person):
+     You pick up objects by moving on top on them (if you have the "auto_pickup"
+option on), or by using the 'g'et command.  You may carry up to 23 different
+items or piles of items, and have 12 areas of your body where wearable equipment
+may go.  Press 'i', and you see the contents of your backpack; press 'e' and you
+see what you are wearing.  Both listings toggle open and closed when you press
+the space key.  Items on the floor display in similar fashion.
+     When choosing items, you switch between inventory and equipment by pressing
+'/', and switch between the floor and either of these two by pressing '-'.
+     Carry too much weight, and you will begin to slow down, making it easier
+for monsters to kill you.  The point at which your load thus hinders you depends
+on your strength.
+
+Your quiver:
+     Your equipment includes a quiver, which may hold up to ten different kinds
+of ammunition or throwing weapons.  Once placed in the quiver (using the wield
+command), they normally sort in the quiver slots just as they do in the
+backpack.  You may lock items into a specific slot, and make shooting and
+throwing a lot more convenient, by inscribing it with inscriptions similar to
+"@1", or "@f1".  Wherever you store them, ammunition and throwing weapons still
+take up space; you lose an inventory slot for every 99 missiles (or fraction
+thereof), or every 19 throwing weapons, that you place in the quiver slots.
+Ammunition and throwing weapons on the floor will automatically combine with
+similar items in the quiver, which makes cleaning up after a big fight much
+easier.
+
+
+--- Object types ---
+
+Wands:
+     Known wands stack, combining their charges.  Such a stack may be heavier,
+but can be recharged more safely and effectively.  A wand must be recharged
+every so often.
+
+Staffs:
+     Staffs never stack unless in stores.  If stacked, the number of charges
+that they display is prefixed by a quantity indicator (e.g. "(2x 13 charges)",
+which shows that each of two staffs have 13 charges.  Staffs may be bulky, but
+they have lots of charges, recharge well, and are highly durable.
+
+Rods:
+     Rods always stack.  A stack of rods with at least one charging member will
+show an appropriate inscription.  When zapped, a rod is "timed out" for a given
+number of turns.  Unlike wands and staffs, rods recharge automatically.  Each
+recharging rod in a stack contributes to the total recharge rate; if three out
+of five rods are charging, the stack's total timeout period will decrease by
+three per normal player turn.
+
+Chests:
+     Chests are difficult and dangerous to open, as they usually contain both
+traps and locks.  If you succeed, you may be rewarded handsomely.  If your
+disarming skill is so poor that the chest refuses to open, you can bash it into
+submission.  Of course, bashing does break things...
+
+Scroll of Word of Recall:
+     The Scroll of Word of Recall deserves special mention.  Read in the
+dungeon, it brings you back to the town.  Read in the town, it takes you as deep
+in the dungeon as you have ever gone.  This spell takes a little time to take
+effect, so don't expect it to save you in a crisis.  Should you mistakenly read
+a Scroll of Word of Recall, you may cancel it by reading another.
+
+Ego-Weapons and Armors:
+     Some rare weapons and armors have special abilities.  These are called ego
+items, and are feared by great and meek.
+
+Dragon Scale Mails:
+     These extremely rare pieces of armor come in many different colors, each
+protecting you against the relevant dragons.  They also occasionally allow you
+to breathe as dragons do!
+
+Artifacts:
+     There are rumours of incredibly rare, unique artifacts which are even more
+powerful than ego items.  Some artifacts are standard, and you may already know
+of their fame, while others will certainly be unfamiliar to you and will need to
+be fully identified (*identified*).
+     Artifacts cannot be destroyed, although they can be disenchanted.  Once you
+find an artifact, and either sell it or identify and leave it behind, you lose
+it forever.
+     A small number of artifacts, known as Set Items, are designed to be used in
+conjunction with related items.  Equipping an entire set of these items will
+grant the wearer additional bonuses and abilities.  Item sets generally consist
+of two items, but may include more.  You may 'I'nspect an identified artifact to
+see whether it belongs to a set.
+
+
+--- Object enhancement ---
+
+     Weapons and armor may have bonuses to Skill, Deadliness, and armor class;
+it can be very useful indeed to increase these values by reading scrolls of
+Enchant Weapon and Enchant Armor.
+- The higher the plusses are above the object's normal values, the harder it
+  is to raise them further.
+- The larger the pile of objects you try to enchant, the more likely it is that
+  you will fail.  However, ammunition and throwing weapons are unusually easy
+  to enchant.
+- You can sometimes break curses on objects and even turn them into ego-items
+  by enchanting them.
+
+
+--- Object destruction ---
+
+     Objects may be damaged or destroyed on the floor, in your backpack, and
+(sometimes) even damaged while you are wearing them.
+
+- Acid destroys armor, weapons, missile launchers, ammunition, scrolls,
+  parchments, staffs, and chests.  It may damage equipped armor that does not
+  ignore acid.
+- Electricity destroys rings, amulets, wands, and (on rare occasion) rods.
+- Fire destroys torches, arrows, missile launchers, hafted weapons and polearms,
+  gloves, boots, cloaks, shields, soft body armor, spellbooks, scrolls, parch-
+  ments, staffs, and chests.
+- Frost, sound, and shards destroy potions and empty bottles.  Force can also
+  destroy them, but only when they are on the floor.
+
+- Many other types of magic can blow objects on the floor around, destroy them,
+  or even change ("polypile") them.
+
+- Equipped items with plusses can be disenchanted.
+- Magical devices can be destroyed by failed recharges.
+
+
+--- Cursed Objects ---
+
+     Many cursed items exist in the Pits -- either left behind as the result of
+failed attempts to create magical items, or deliberately placed by gleeful evil
+sorcerers who enjoy a good joke when it gets you killed.  These horrible objects
+look perfectly innocent, but will detract from your character's stats or
+abilities if worn.  In most cases, you cannot remove them without breaking the
+curse first.  In fact, some are so badly cursed that even this will not work,
+and more potent methods are needed.
+     If you wear or wield a cursed item, you will immediately feel deathly cold,
+and the item will be marked "cursed".  On rare occasion, the item will transform
+into something truly dangerous.
+     Shopkeepers will refuse to buy any item that is known to be cursed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

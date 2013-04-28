@@ -1,0 +1,343 @@
+Compiling Sangband
+=================
+
+     This file and the Makefiles (if present) should contain the basic
+information you need to compile Sangband on a variety of systems and compilers.
+Be sure to read both before asking questions.
+
+    The ports available for Sangband are described in /docs/ports.txt.
+
+     If your system and/or compiler is not listed, or the current instructions
+aren't satisfactory, please send updates!
+
+
+
+
+Systems listed:
+
+- UNIX, BSD, Linux, similar (including portable devices with these OSes)
+- Windows, DOS, IBM
+- Macintosh
+- All other OSes
+
+
+----------------------------------------------------------------------
+                               General
+----------------------------------------------------------------------
+
+- Some helpful compiler options are in "/src/config.h".  Some less-often used
+options are in "/src/h-config.h".  A simple compilation on a standard system
+often needs no changes to either.
+
+- Some system-specific files are in /src/mac, /src/unix, and /src/win.  main-
+xxx.c files or Makefiles in these folders are either out-of-date or
+experimental.
+
+
+
+
+----------------------------------------------------------------------
+                      UNIX, BSD, Linux, similar
+----------------------------------------------------------------------
+
+On UNIX and similar systems, you have two choices:
+1. The GCU port is terminal-based and uses the curses library.
+2. The SDL port is graphical and uses the Simple DirectMedia Layer library.  It
+is the recommended choice.
+
+
+
+UNIX or UNIX-like system + GCC + curses
+-----------------------
+
+Important files:
+/src/main-gcu.c; /src/Makefile.std
+
+Instructions:
+- Run "make -fMakefile.std install" in the src directory.
+- change to the Sangband directory (cd..)
+- Start Sangband with "./sangband".
+
+Compiler options:
+- See /src/Makefile.std and /src/config.h.
+
+Notes:
+- To compile on OpenBSD, use "gmake" instead of make.
+
+
+
+Graphical UNIX or UNIX-like system + GCC + SDL
+----------------------------------------------
+
+Compatability:
+- You need a graphical system with X11 and SDL, capable of showing at least
+640x480 in 256 colors.  SDL runs best on a relatively modern machine (600 MHz or
+better).
+
+Important files:
+/src/main-sdl.c; /src/Makefile.sdl
+
+Installation and setup instructions:
+- Read "/src/Makefile.sdl".
+
+Instructions (AFTER you install and set up libraries):
+- Run "make -fMakefile.sdl install" in the src directory.
+
+Notes:
+- To compile on OpenBSD, use "gmake" instead of make.
+
+
+
+
+----------------------------------------------------------------------
+                          Windows, DOS, IBM
+----------------------------------------------------------------------
+
+On Microsoft systems, you have three choices:
+1. The IBM port is a full-screen terminal display that uses low-level PC calls.
+2.  The Windows port is graphical and uses the Win32 API.  It is recommended.
+3. The SDL port is graphical and uses the Simple DirectMedia Layer library.  It
+has at least as many features as the Windows port, but is much slower (due to
+library efficiency issues on Windows).
+
+
+
+IBM + DJGPP
+-----------
+(Original by Robert Ruehlmann < rr9@thangorodrim.net >)
+
+Important files:
+/src/main-ibm.c; /src/Makefile.ibm
+
+Install DJGPP:
+      You can get the freely available DJGPP C Compiler from <
+http://www.delorie.com/djgpp/ >.  On the DJGPP-page go to the Zip-Picker <
+http://www.delorie.com/djgpp/zip-picker.html >.  This page helps you decide
+which ZIP files you need to download and will even try to find a ftp-site near
+you.  Get all files and follow the installation instructions.
+
+Select the Makefile:
+	Go to the src-directory and rename 'Makefile.ibm' to 'Makefile'.
+
+Compile Sangband:
+	Open a commandline window and go to the src-directory.  Run "make".
+Sangband should now be compiled and installed.
+
+Setup:
+      If you are running Windows, right-click the executable and select
+"properties" from the pop-up menu.  Go to "screen" and make the program run in
+full-screen mode.  If you do not do this, the game will show weird colors.
+
+Possible problems:
+- If you are new to DJGPP and get errors, try compiling one of their test
+programs to verify your installation.
+- If you get strange error messages during compilation (such as "Fatal: Command
+arguments too long" or the like), you may be using the wrong "make.exe".  Either
+1) make sure the correct version is the first one in your path, or 2) rename it 
+and call it by the new name.
+
+
+
+Windows + Borland C++ 5.5 commandline tools
+-------------------------------------------
+(Original by Robert Ruehlmann < rr9@thangorodrim.net >)
+
+Important files:
+/src/main-win.c; /src/Makefile.bcc; contents of /src/win
+
+Getting the free commandline tools:
+	Download the Borland commandline tools from
+http://www.borland.com/bcppbuilder/freecompiler/ and follow the installation
+instructions.
+
+Compile Sangband:
+	Open a DOS window and go to the src directory.  Run "make -f
+makefile.bcc".  Sangband should now be compiled and installed.
+
+Possible problems:
+- If you are new to Borland and get errors, try compiling one of their test
+programs to verify your installation.
+- If you get strange error messages during compilation (such as "missing
+separator" or the like), you may be using the wrong "make.exe".  Either 1) make
+sure the correct version is the first one in your path, or rename it and call it
+by the new name.
+
+Adding SDL:
+     The Windows port does not include music and multi-channel sound natively.
+Instead, it relies on the SDL (Simple DirectMedia Layer) libraries.  Many future
+expansions will also rely on SDL.  If you want to use these things, then:
+1.  Read the section of "/src/Makefile.bcc" right after the line "OPTION (for
+music and multi-channel sound)".
+2.  Read "/src/Makefile.sdl".  Download, install, and test the Borland
+development version of at least SDL and SDL_Mixer.
+3.  Open up "/src/Makefile.bcc", uncomment the lines "SDLOPTS" and "SDLLIBS",
+and change the paths.
+4.  Compile normally.
+5.  Throw in at least "SDL.dll", "SDL_mixer.dll", and "smpeg.dll" into the
+Sangband directory, and play.
+
+Notes:
+     The Borland Commandline tools are best used with an editor capable of
+jumping to error messages.  I use TextPad; UltraEdit is also suitable.
+
+
+
+Windows + Microsoft Visual C++ 5.0 or higher
+-------------------------------------------
+(Original by Robert Ruehlmann < rr9@thangorodrim.net >)
+
+(assumes you have a working copy of MSVC++)
+
+Important files:
+/src/main-win.c; contents of /src/win
+
+Compilation instructions:
+1.  Create a new "Win32 Application" project in the main Sangband directory,
+call it "Sangband" or some such, make a new workspace to hold it.  Make this an
+empty project - add nothing automatically.
+2.  Add every single *.c and *.h in /src, except for main-xxx files other than
+main-win.c.  (exclude any other files that are obviously not Windows-related).
+Add everything in the /src/win directory.
+3.  In <menu> -> Project -> Settings, make sure you are making changes to all
+settings (both release and debug), and:
+    In the Link Tab (or the equivalent in your version):
+    a) change the location of the output executable to the main Sangband
+directory
+    b) Add "winmm.lib" to the list of libraries
+4.  Compile.
+
+Adding SDL:
+     The Windows port does not include music and multi-channel sound natively.
+Instead, it relies on the SDL (Simple DirectMedia Layer) libraries.  Many future
+expansions will also rely on SDL.  If you want to use these things, then:
+1.  Read "/src/Makefile.sdl".  Download, install, and test the MSVC++
+development version of at least SDL and SDL_Mixer.
+2.  Create two new configurations for SDL; one copied from the exiting Release
+configuration and the other from Debug.
+3.  In <menu> -> Project -> Settings (or the equivalent in your version):
+     Tab C/C++ -> General, Preprocessor definitions:  add "USE_SDL"
+         (within quotes)
+     Tab C/C++ -> Code Generation, Use run-time library:  change to "Use
+         Multithreaded DLL".
+     Tab C/C++ -> Preprocessor, Additional include directories:  add
+        "<your base SDL directory>,<your base SDL directory>\include"
+     Tab Link -> General:  add to the list of libraries
+        " SDL.lib SDLmain.lib SDL_ttf.lib SDL_mixer.lib", plus any other
+        libraries listed in main-sdl.c.  (A clumsier method is to add the
+        libraries to the list of files in your project).
+4.  Compile.
+5.  Throw in at least "SDL.dll", "SDL_mixer.dll", and "smpeg.dll" into the
+Sangband directory, and play.
+
+Notes:
+- Never overwrite "/src/win/Angband.rc".  It's read-only for a reason; some
+versions of MSVC like to corrupt it.
+
+
+
+Windows or SDL + Bloodshed DevC++
+---------------------------------
+
+Important files:
+/src/main-win.c; contents of /src/win
+
+Compilation instructions:
+1.  Get and install [DevC++] (available at
+http://www.bloodshed.net/devcpp.html).
+2.  Create an empty project, located in the source directory (you can place it
+elsewhere but you may need to fiddle about a bit more if you do).
+3.  Add every C file in src/, and also everything from the src/win directory.
+4.  Go to Project -> Project Options, and:
+5.  In the "General" tab, ensure "Win32 console application" is selected.
+    In the "Build Options" tab, change the executable output directory to "..\".
+    For SDL, in the "paramaters" tab, add:
+     -lmingw32 -mwindows -DUSE_SDL to the compiler options.
+     -lwinmm -lmingw32 -mwindows -lSDL -lSDLmain -lSDL_ttf to the linker
+options.
+    For the Windows port, in the "parameters" tab, add:
+     -mwindows -DUSE_WIN to the compiler options.
+     -lmingw32 -lwinmm -mwindows to the linker options.
+6.  Compile.
+
+
+
+Windows + Other compilers
+-------------------------
+
+(Fill in blank here.)
+
+     Last I checked, which was a while ago, LccWin erroneously
+handled a legal C command.  More recent versions may do better.
+
+
+
+----------------------------------------------------------------------
+                              Macintosh
+----------------------------------------------------------------------
+
+(Fill in blank here.)
+
+     OS X is basically OpenBSD, so the section "Graphical UNIX or UNIX-like
+system + GCC + SDL" above applies to at least some setups (including Xcode if I
+hear correctly).
+
+
+
+
+----------------------------------------------------------------------
+                              Other OSes
+----------------------------------------------------------------------
+
+     There are a number of other OSes that Sangband can potentially run on:
+They include Amiga, BeOS, OS/2, RISCOS, and hand-held/portable devices.
+
+
+
+
+----------------------------------------------------------------------
+               Creating Sangband binary releases
+----------------------------------------------------------------------
+
+Basic binary package setup (yours will vary slightly):
+
+/docs
+  - manual.txt or manual.html
+  - changelog
+  - port-specific stuff (like SDL.txt)
+/lib
+sangband executable
+either readme.txt or readme.html
+(plus any port-specific files and documentation)
+
+
+Here is what I do to create the Windows and IBM packages:
+
+1.  Compile the executable.  
+    - "ALLOW_DEBUG" and "ALLOW_SPOILERS" commented out in src/config.h
+
+2.  Copy the lib folder.
+    - If package uses no sound/music, remove /lib/xtra/sound and/or 
+      /lib/xtra/music.
+    - If package uses no custom fonts, remove /lib/xtra/font
+    - If package uses no graphics, remove /lib/xtra/graf
+
+3.  Copy the docs folder.
+    - Remove everything in that folder except:
+       - either "readme.txt" OR "readme.html", which goes in the main 
+         directory
+       - either "manual.txt" OR "manual.html", 
+       - SDL.txt, if package uses SDL
+       - most recent changelog
+
+4.  Add special files.
+    - Add any files specific to the port, any documentation useful to users, 
+      etc..
+
+5.  Test that program works as packaged.
+
+6.  Remove contents of /lib/apex, /lib/bone, /lib/data, /lib/save, and 
+    /lib/user, except for a empty placeholder file in each folder.
+
+7.  Let the maintainer know of errors, missing documentation, etc., for 
+    inclusion in future releases.
+

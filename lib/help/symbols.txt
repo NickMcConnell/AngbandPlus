@@ -1,0 +1,87 @@
+
+====== Symbols on your Map ======
+
+Special
+   @   The character
+
+Features that do not block line of sight
+   .   A floor space                    1   Entrance to General Store
+   .   A trap (hidden)                  2   Entrance to Armory
+   ^   A trap (known)                   3   Entrance to Weapon Smith
+   ;   A glyph of warding               4   Entrance to Temple
+   '   An open door                     5   Entrance to Alchemy Shop
+   '   A broken door                    6   Entrance to Magic Shop
+   <   A staircase up                   7   Entrance to the Bookseller
+   >   A staircase down                 8   Entrance to your Home
+   .   Water (blue)                     #   Lava (red)
+
+Features that block line of sight
+   #   A secret door                    #   A wall
+   +   A closed door                    %   A mineral vein
+   +   A locked door                    *   A mineral vein with treasure
+   +   A jammed door                    :   A pile of rubble
+   +   Tree (green)
+
+Objects
+   !   A potion, flask, or bottle       /   A pole-arm
+   ?   A scroll, book, or parchment     |   An edged weapon
+   ,   A mushroom (or food)             \   A hafted weapon
+   -   A wand or rod                    }   A missile launcher
+   _   A staff                          {   A shot, arrow, or bolt
+   =   A ring                           (   Soft armor
+   "   An amulet                        [   Hard armor
+   $   Gold or gems                     ]   Misc. armor
+   ~   Lights and chests                )   A shield
+   `   Junk, Sticks, Skeletons, etc.    &   (unused)
+   *   An essence                       +   A gemstone
+   %   A component                      #   A boulder
+
+Monsters
+   $   Creeping Coins                   ,   Mushroom Patch
+   *   Storm                            +   Giant Gemstone
+   |   Weapon mimic (also /, \, [, ])   #   Rock monster
+   !   Potion mimic                     ?   Scroll mimic
+   &   Major Demon                      ~   Animated torch, fish, etc.
+   a   Giant Ant                        A   Angelic being
+   b   Giant Bat                        B   Bird
+   c   Giant Centipede                  C   Canine (Dog)
+   d   Dragon                           D   Ancient Dragon
+   e   Floating Eye                     E   Elemental
+   f   Feline                           F   Flies and Dragon Flies
+   g   Golem                            G   Ghost
+   h   Humanoid                         H   Hybrid
+   i   Icky-Thing                       I   Minor Demon
+   j   Jelly                            J   Snake
+   k   Kobold                           K   Killer Beetle
+   l   Giant Louse                      L   Lich
+   m   Mold                             M   Mummy
+   n   Naga                             N   (unused)
+   o   Orc                              O   Ogre
+   p   Human                            P   Giant Human(oid)
+   q   Quadruped                        Q   Quylthulg (Pulsing Flesh Mound)
+   r   Rodent                           R   Reptile/Amphibian
+   s   Skeleton                         S   Spider/Scorpion/Tick
+   t   Townsperson                      T   Troll
+   v   Vortex                           V   Vampire
+   w   Worm or Worm Mass                W   Wight/Wraith
+   x   (unused)                         X   Xorn/Xaren
+   y   Yeek                             Y   Yeti
+   z   Zombie                           Z   Zephyr Hound
+
+     Any of these symbols may be changed using preference files, accessed using
+the command '%'.  You may review what a symbol means by typing '/'.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
