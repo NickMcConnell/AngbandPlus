@@ -6949,7 +6949,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (act)
 			{
 				(void)set_elec_attack(get_skill(S_DEVICE, 20, 40));
-				(void)set_oppose_acid(p_ptr->oppose_elec + rand_range(dur1, dur2));
+				(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(dur1, dur2));
 			}
 			break;
 		}

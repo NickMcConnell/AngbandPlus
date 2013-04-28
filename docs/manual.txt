@@ -301,8 +301,8 @@ Giant:
 Ent:
      Ents are tree-like creatures, large, strong and wise.  Their bark-like exterior protects them from attacks, but they are vulnerable to fire.  They can handle weapons well, but dislike axes; they are clumsy with bows, crossbows, and magical devices.  Their harmony with nature makes them natural druids, and they are in touch with priestly magics as well.
 	 
-Drúedain (Woses):
-     The Drúedain are wild men, with squat bodies and limbs.  They are a versatile race not unsimilar to humans, though a little less educated and friendly.  They make decent fighters, as they are apt with many weapons; they also are make excellent druids.  
+Druedain (Woses):
+     The Druedain are wild men, with squat bodies and limbs.  They are a versatile race not unsimilar to humans, though a little less educated and friendly.  They make decent fighters, as they are apt with many weapons; they also are make excellent druids.  
 	 
 Beorning:
 	The beornings are descendants of Beor, and retain his ability to change into the shape of a bear.  They are excellent with all weapons and make natural warriors, but are bad at spellcasting and devices.
@@ -357,9 +357,9 @@ Racial Abilities:
 Racial Aptitudes:
 
                Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia  Ent  Dru  Brn
- sword          10   11   12   12   10    8    9   10   10    9   11   10   11    9
- hafted         10   13   13   12    9    9    7   10   12   13   10   10    9    8
- polearm        10   12   14   12    8    9    9   10   11   11   10   15    9    8
+ sword          10   10   12   12   10    8    9   10   10    9   11   10   11    9
+ hafted         10   12   13   12    9    9    7   10   12   13   10   10    9    8
+ polearm        10   11   14   12    8    9    9   10   11   11   10   15    9    8
  crossbow       10   11   11    9   10   10   10   10   10   11   13   11   11    9
  bow            10    8    9   10   14   10   13   10    8    9   13   12    9   10
  sling          10   10    7   10   13   10   15   10   10   10   13   12   10   10
@@ -868,7 +868,7 @@ Magical infusion   (cost - 13):
      Infusion grants one talent:  Recharging with essences (30).
 
 Shapechange  (cost - 14)
-	 Shapechaning allows you to take the form of many different beasts, modifying your stats, resistances, and more.  Some forms are only available in combination with the nature lore or blood dominion skill.  Press ']' to change form.  See the shapechaning section for more details.
+	 Shapechanging allows you to take the form of many different beasts, modifying your stats, resistances, and more.  Some forms are only available in combination with the nature lore or blood dominion skill.  Press ']' to change form.  See the shapechanging section for more details.
 
 
 ====== Talents ======
@@ -964,7 +964,7 @@ Dragon-breathing:
      Of course, you have to find a way to turn into a dragon first...
 
 - Warrior Talents -
-Warrior talents can be accessed by pressing 'p'
+Warrior talents can be accessed by pressing 'p'.
 
 
 Lunge

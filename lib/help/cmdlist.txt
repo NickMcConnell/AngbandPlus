@@ -52,7 +52,7 @@ roguelike keyset is likely to be the better choice.
  {  Inscribe an item                    ^K  (unused)
  }  Uninscribe an item                  ^L  (unused)
  [  Use talents                         ^M  (special - return)
- ]  end/change shapechange              ^N  (unused)
+ ]  End/change shapechange              ^N  (unused)
  -  Walk (flip pickup)                  ^O  (unused)
  _  (unused)                            ^P  Show previous messages
  +  Alter grid                          ^Q  Show quests
@@ -123,7 +123,7 @@ Mouse commands (not available in all ports)
  {  Inscribe an item                    ^K  (alter - north)
  }  Uninscribe an item                  ^L  (alter - east)
  [  Use talents                         ^M  (special - return)
- ]  end/change shapechange              ^N  (alter - south east)
+ ]  End/change shapechange              ^N  (alter - south east)
  -  Walk (flip pickup)                  ^O  (unused)
  _  (unused)                            ^P  Show previous messages
  +  Alter grid                          ^Q  Show quests

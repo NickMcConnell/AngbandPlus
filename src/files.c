@@ -1467,8 +1467,8 @@ static void display_player_middle(void)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Combat information -- melee */
-	if (p_ptr->twoweap) prt_2num("Blows per round ", p_ptr->num_blow, p_ptr->num_blow2, 14, 1, TERM_L_BLUE);
-	else prt_num("Blows per round  ", p_ptr->num_blow, 14, 1, TERM_L_BLUE);
+	if (p_ptr->twoweap) prt_2num("Blows per Round ", p_ptr->num_blow, p_ptr->num_blow2, 14, 1, TERM_L_BLUE);
+	else prt_num("Blows per Round  ", p_ptr->num_blow, 14, 1, TERM_L_BLUE);
 
 	/* Using a weapon */
 	if (is_melee_weapon(o_ptr))

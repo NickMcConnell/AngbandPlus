@@ -1406,8 +1406,10 @@ static cptr do_talent(int talent, int mode, int talent_choice)
 
 				if (check)
 				{
-					if (skill < 10) return "N";
+					if (p_ptr->prace == RACE_BEORNING && get_skill(S_SHAPECHANGE, 0, 100) == 0 && talent_choice == TALENT_SHAPE) return "N";
+					if (p_ptr->prace != RACE_BEORNING && talent_choice == TALENT_UTILITY) return "N";
 				}
+
 				if (perm)
 				{
 					if (info) return "permanent";

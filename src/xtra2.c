@@ -2437,13 +2437,13 @@ bool shapechange_temp(int v, int shape)
 {
 	bool notice = FALSE;
 
-	/* Nothing to do */
-	if (shape == p_ptr->schange && v > 0) return (TRUE);
-
 	/* Set form duration, no messages */
 	notice = set_condition(&p_ptr->form_dur, v, 0L,
 	        "",
 	        "");
+
+	/* Nothing to do */
+	if (shape == p_ptr->schange && v > 0) return (TRUE);
 
 	/* Turn into a something */
 	if (p_ptr->form_dur) shapechange(shape);

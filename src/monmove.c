@@ -953,7 +953,13 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 		/* Note, this interfaces poorly with monsters not knowing where the player is */
 		for (i = 0, s = rand_int(8); i < 8; i++, s++)
 		{
-			path = projectable(m_ptr->fy, m_ptr->fx, py + ddx[ddc[s % 8]], px + ddx[ddc[s % 8]], PROJECT_CHCK);
+			/* Require casting onto actual squares */
+			if (!cave_project_bold(py + ddy[ddc[s % 8]], px + ddx[ddc[s % 8]]))
+				continue;
+
+			/* Check path to square */
+			path = projectable(m_ptr->fy, m_ptr->fx, py + ddy[ddc[s % 8]], px + ddx[ddc[s % 8]], PROJECT_CHCK);
+
 			if (path != PROJECT_NO)
 			{
 				splash_ball = TRUE;

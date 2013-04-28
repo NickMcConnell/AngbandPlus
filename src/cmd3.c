@@ -525,6 +525,9 @@ void do_cmd_wield(void)
 				/* Get item in secondary wield slot */
 				i_ptr = &inventory[INVEN_ARM];
 
+				/* Anything but a melee weapon allows wielding in slot 1 */
+				if (!is_melee_weapon(i_ptr)) slot1_ok = TRUE;
+
 				/* Weapon in the secondary wield slot is light enough */
 				if (o_ptr->weight + i_ptr->weight <= hold)
 				{
@@ -677,7 +680,7 @@ void do_cmd_wield(void)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
-	if (slot == INVEN_Q1)
+	if (slot >= INVEN_Q1 && slot <= INVEN_Q0)
 	{
 		/* Remember that the item is quivered */
 		i_ptr->quivered = TRUE;

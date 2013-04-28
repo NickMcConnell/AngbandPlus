@@ -352,10 +352,10 @@ infusion or alchemy skill of 10 or higher.
      Infusion grants one talent:  Recharging with essences (30).
 
 Shapechange  (cost - 14)
-	 Shapechaning allows you to take the form of many different beasts, modifying
+	 Shapechanging allows you to take the form of many different beasts, modifying
 your stats, resistances, and more.  Some forms are only available in combination
 with the nature lore or blood dominion skill.  Press ']' to change form.  See the
-shapechaning section for more details.
+shapechanging section for more details.
 
 
 

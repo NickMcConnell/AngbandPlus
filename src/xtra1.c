@@ -1868,7 +1868,7 @@ static bool prt_diseased(byte r_margin)
  */
 static bool prt_invisible(byte r_margin)
 {
-	if (p_ptr->invisible)
+	if (p_ptr->invisible > 0)
 	{
 		int i = p_ptr->invisible;
 		int a;
@@ -2733,7 +2733,7 @@ static void prt_conditions(void)
 	}
 
 	/* Show invisibility */
-	if ((p_ptr->invisible) && (!left_panel_display(DISPLAY_INVISIBILITY, 1)))
+	if ((p_ptr->invisible > 0) && (!left_panel_display(DISPLAY_INVISIBILITY, 1)))
 	{
 		prt_invisible(r_margin);
 	}
@@ -4891,6 +4891,7 @@ int player_flags_pval(u32b flag_pval, bool shape)
 				if (flag_pval == TR_PVAL_INT)     pval += 2;
 				if (flag_pval == TR_PVAL_CHR)     pval += 2;
 				if (flag_pval == TR_PVAL_SPEED)   pval += 3;
+				break;
 			}
 			case SHAPE_WEREWOLF:
 			{
@@ -4902,6 +4903,7 @@ int player_flags_pval(u32b flag_pval, bool shape)
 				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 15;
 				if (flag_pval == TR_PVAL_INFRA)   pval += 3;
 				if (flag_pval == TR_PVAL_STEALTH) pval -= 3;  /* It's those constant howls */
+				break;
 			}
 			case SHAPE_SERPENT:
 			{
@@ -4910,6 +4912,7 @@ int player_flags_pval(u32b flag_pval, bool shape)
 				if (flag_pval == TR_PVAL_INT)     pval -= 2;
 				if (flag_pval == TR_PVAL_WIS)     pval -= 2;
 				if (flag_pval == TR_PVAL_STEALTH) pval += get_skill(S_SHAPECHANGE, 1, 4);
+				break;
 			}
 			case SHAPE_MAIA:
 			{
@@ -4920,6 +4923,7 @@ int player_flags_pval(u32b flag_pval, bool shape)
 				if (flag_pval == TR_PVAL_CON)     pval += (get_skill(S_SHAPECHANGE, 0, 100) < 70)? 1 : 2;
 				if (flag_pval == TR_PVAL_CHR)     pval += (get_skill(S_SHAPECHANGE, 0, 100) < 70)? 1 : 2;
 				if (flag_pval == TR_PVAL_INVIS)   pval -= 2;
+				break;
 			}
 		}
 

@@ -1597,7 +1597,7 @@ void self_knowledge(bool full)
 	{
 		roff("You have a firm hold on your lifeforce.", sk_get_col(), 0);
 	}
-	if (p_ptr->invisible)
+	if (p_ptr->invisible > 0)
 	{
 		roff("You are partially invisible.", sk_get_col(), 0);
 	}
