@@ -1,4 +1,14 @@
+
+
 /* File: z-util.c */
+
+/*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
 
 /* Purpose: Low level utilities -BEN- */
 
@@ -54,7 +64,7 @@ vptr vptr_null = NULL;
 /*
  * Global SELF vptr
  */
-vptr vptr_self = (vptr)(&vptr_self);
+vptr vptr_self = (vptr) (&vptr_self);
 
 
 
@@ -68,7 +78,8 @@ cptr argv0 = NULL;
 /*
  * A routine that does nothing
  */
-void func_nothing(void)
+void
+func_nothing(void)
 {
 	/* Do nothing */
 }
@@ -77,7 +88,8 @@ void func_nothing(void)
 /*
  * A routine that always returns "success"
  */
-errr func_success(void)
+errr
+func_success(void)
 {
 	return (0);
 }
@@ -86,7 +98,8 @@ errr func_success(void)
 /*
  * A routine that always returns a simple "problem code"
  */
-errr func_problem(void)
+errr
+func_problem(void)
 {
 	return (1);
 }
@@ -95,7 +108,8 @@ errr func_problem(void)
 /*
  * A routine that always returns a simple "failure code"
  */
-errr func_failure(void)
+errr
+func_failure(void)
 {
 	return (-1);
 }
@@ -105,7 +119,8 @@ errr func_failure(void)
 /*
  * A routine that always returns "true"
  */
-bool func_true(void)
+bool
+func_true(void)
 {
 	return (1);
 }
@@ -114,7 +129,8 @@ bool func_true(void)
 /*
  * A routine that always returns "false"
  */
-bool func_false(void)
+bool
+func_false(void)
 {
 	return (0);
 }
@@ -125,7 +141,8 @@ bool func_false(void)
 /*
  * Determine if string "t" is equal to string "t"
  */
-bool streq(cptr a, cptr b)
+bool
+streq(cptr a, cptr b)
 {
 	return (!strcmp(a, b));
 }
@@ -134,13 +151,15 @@ bool streq(cptr a, cptr b)
 /*
  * Determine if string "t" is a suffix of string "s"
  */
-bool suffix(cptr s, cptr t)
+bool
+suffix(cptr s, cptr t)
 {
 	int tlen = strlen(t);
 	int slen = strlen(s);
 
 	/* Check for incompatible lengths */
-	if (tlen > slen) return (FALSE);
+	if (tlen > slen)
+		return (FALSE);
 
 	/* Compare "t" to the end of "s" */
 	return (!strcmp(s + slen - tlen, t));
@@ -150,13 +169,15 @@ bool suffix(cptr s, cptr t)
 /*
  * Determine if string "t" is a prefix of string "s"
  */
-bool prefix(cptr s, cptr t)
+bool
+prefix(cptr s, cptr t)
 {
 	/* Scan "t" */
 	while (*t)
 	{
 		/* Compare content and length */
-		if (*t++ != *s++) return (FALSE);
+		if (*t++ != *s++)
+			return (FALSE);
 	}
 
 	/* Matched, we have a prefix */
@@ -168,19 +189,22 @@ bool prefix(cptr s, cptr t)
 /*
  * Redefinable "plog" action
  */
-void (*plog_aux)(cptr) = NULL;
+void (*plog_aux) (cptr) = NULL;
 
 /*
  * Print (or log) a "warning" message (ala "perror()")
  * Note the use of the (optional) "plog_aux" hook.
  */
-void plog(cptr str)
+void
+plog(cptr str)
 {
 	/* Use the "alternative" function if possible */
-	if (plog_aux) (*plog_aux)(str);
+	if (plog_aux)
+		(*plog_aux) (str);
 
 	/* Just do a labeled fprintf to stderr */
-	else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "???", str));
+	else
+		(void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "???", str));
 }
 
 
@@ -188,7 +212,7 @@ void plog(cptr str)
 /*
  * Redefinable "quit" action
  */
-void (*quit_aux)(cptr) = NULL;
+void (*quit_aux) (cptr) = NULL;
 
 /*
  * Exit (ala "exit()").  If 'str' is NULL, do "exit(0)".
@@ -196,16 +220,20 @@ void (*quit_aux)(cptr) = NULL;
  * Otherwise, plog() 'str' and exit with an error code of -1.
  * But always use 'quit_aux', if set, before anything else.
  */
-void quit(cptr str)
+void
+quit(cptr str)
 {
 	/* Attempt to use the aux function */
-	if (quit_aux) (*quit_aux)(str);
+	if (quit_aux)
+		(*quit_aux) (str);
 
 	/* Success */
-	if (!str) (void)(exit(0));
+	if (!str)
+		(void)(exit(0));
 
 	/* Extract a "special error code" */
-	if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
+	if ((str[0] == '-') || (str[0] == '+'))
+		(void)(exit(atoi(str)));
 
 	/* Send the string to plog() */
 	plog(str);
@@ -219,21 +247,24 @@ void quit(cptr str)
 /*
  * Redefinable "core" action
  */
-void (*core_aux)(cptr) = NULL;
+void (*core_aux) (cptr) = NULL;
 
 /*
  * Dump a core file, after printing a warning message
  * As with "quit()", try to use the "core_aux()" hook first.
  */
-void core(cptr str)
+void
+core(cptr str)
 {
 	char *crash = NULL;
 
 	/* Use the aux function */
-	if (core_aux) (*core_aux)(str);
+	if (core_aux)
+		(*core_aux) (str);
 
 	/* Dump the warning string */
-	if (str) plog(str);
+	if (str)
+		plog(str);
 
 	/* Attempt to Crash */
 	(*crash) = (*crash);
@@ -241,7 +272,3 @@ void core(cptr str)
 	/* Be sure we exited */
 	quit("core() failed");
 }
-
-
-
-

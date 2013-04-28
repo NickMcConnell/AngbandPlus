@@ -1,4 +1,16 @@
+
+
+
+
 /* File z-util.h */
+
+/*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
 
 #ifndef INCLUDED_Z_UTIL_H
 #define INCLUDED_Z_UTIL_H
@@ -43,9 +55,9 @@ extern cptr argv0;
 
 
 /* Aux functions */
-extern void (*plog_aux)(cptr);
-extern void (*quit_aux)(cptr);
-extern void (*core_aux)(cptr);
+extern void (*plog_aux) (cptr);
+extern void (*quit_aux) (cptr);
+extern void (*core_aux) (cptr);
 
 
 /**** Available Functions ****/
@@ -81,4 +93,3 @@ extern void core(cptr str);
 
 
 #endif
-

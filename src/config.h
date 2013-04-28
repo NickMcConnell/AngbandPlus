@@ -1,13 +1,11 @@
 /* File: config.h */
 
-/* Purpose: Angband specific configuration stuff */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 
@@ -171,20 +169,17 @@
 
 
 /*
- * OPTION: Hack -- Compile in support for "Cyborg" mode
+ * OPTION: Hack -- Compile in support for "Borg mode"
  */
 /* #define ALLOW_BORG */
 
 /*
- * OPTION: Hack -- Compile in support for "Wizard Commands"
+ * OPTION: Hack -- Compile in support for "Debug Commands"
  */
-#define ALLOW_WIZARD
+/* #define ALLOW_DEBUG */
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
- */
-/* Artifact spoiler generation seems to be broken (will not print out the
- * artifacts' attributes (slays and suchlike)). -- Gumby
  */
 /* #define ALLOW_SPOILERS */
 
@@ -228,14 +223,6 @@
  * It should be usually be defined anyway to allow easy "updating".
  */
 #define ALLOW_TEMPLATES
-
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-/* #define ALLOW_OLD_SAVEFILES */
-
 
 /*
  * OPTION: Delay the loading of the "f_text" array until it is actually
@@ -297,7 +284,6 @@
 
 
 
-
 /*
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
  * software options, which enable "monster flowing".
@@ -311,16 +297,21 @@
 #define MONSTER_FLOW_DEPTH 32
 
 
+/*
+ * OPTION: Support multiple "player" grids in "map_info()"
+ */
+/* #define MAP_INFO_MULTIPLE_PLAYERS */
+
 
 /*
- * OPTION: Allow use of extended spell info	-DRS-
+ * OPTION: Use the new "update_view()" algorithm
  */
-#define DRS_SHOW_SPELL_INFO
+#define UPDATE_VIEW_NEW
 
 /*
- * OPTION: Allow use of the monster health bar	-DRS-
+ * OPTION: Use the "complex" wall illumination code
  */
-#define DRS_SHOW_HEALTH_BAR
+#define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION
 
 
 /*
@@ -340,25 +331,14 @@
 
 
 /*
- * OPTION: Enable the "track_follow" and "track_target" options.
- * They let monsters follow the player's foot-prints, or remember
- * the player's recent locations.  This code has been removed from
- * the current version because it is being rewritten by Billy, and
- * until it is ready, it will not work.  Do not define this option.
- */
-/* #define WDT_TRACK_OPTIONS */
-
-
-
-/*
  * OPTION: Allow the use of "sound" in various places.
  */
-/* #define USE_SOUND */
+#define USE_SOUND
 
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-/* #define USE_GRAPHICS */
+#define USE_GRAPHICS
 
 
 /*
@@ -379,6 +359,7 @@
 
 /* Do not handle signals */
 # undef HANDLE_SIGNALS
+
 #endif
 
 
@@ -433,20 +414,6 @@
  * This may require the 'rpcsvs' library
  */
 /* #define CHECK_LOAD */
-/*
- * OPTION: For some brain-dead computers with no command line interface,
- * namely Macintosh, there has to be some way of "naming" your savefiles.
- * The current "Macintosh" hack is to make it so whenever the character
- * name changes, the savefile is renamed accordingly.  But on normal
- * machines, once you manage to "load" a savefile, it stays that way.
- * Macintosh is particularly weird because you can load savefiles that
- * are not contained in the "lib:save:" folder, and if you change the
- * player's name, it will then save the savefile elsewhere.  Note that
- * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
- */
-#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
-# define SAVEFILE_MUTABLE
-#endif
 
 
 /*
@@ -460,7 +427,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@voicenet.com"
+#define MAINTAINER	"jl8e@fragment.com"
 
 
 /*
@@ -502,11 +469,9 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
-# undef WDT_TRACK_OPTIONS
 # undef DRS_SMART_OPTIONS
-# undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
-# undef ALLOW_WIZARD
+# undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
 # undef DELAY_LOAD_R_TEXT
@@ -527,7 +492,5 @@
 #ifdef VERIFY_HONOR
 # define VERIFY_SAVEFILE
 # define VERIFY_CHECKSUMS
-# define VERIFY_TIMESTAMPS
+# define VERIFY_TIMESTAMP
 #endif
-
-

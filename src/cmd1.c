@@ -1,13 +1,15 @@
+
+
+
+
 /* File: cmd1.c */
 
-/* Purpose: Movement commands (part 1) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -16,29 +18,31 @@
 
 /*
  * Determine if the player "hits" a monster (normal combat).
+ *
  * Note -- Always miss 5%, always hit 5%, otherwise random.
  */
-bool test_hit_fire(int chance, int ac, int vis)
+bool
+test_hit_fire(int chance, int ac, int vis)
 {
-  int k;
+	int k;
 
-  /* Percentile dice */
-  k = rand_int(100);
+	/* Percentile dice */
+	k = rand_int(100);
 
-  /* Hack -- Instant miss or hit */
-  if (k < 10) return (k < 5);
+	/* Hack -- Instant miss or hit */
+	if (k < 10)
+		return (k < 5);
 
-  /* Never hit */
-  if (chance <= 0) return (FALSE);
+	/* Invisible monsters are harder to hit */
+	if (!vis)
+		chance = chance / 2;
 
-  /* Invisible monsters are harder to hit */
-  if (!vis) chance = (chance + 1) / 2;
+	/* Power competes against armor */
+	if ((chance > 0) && (rand_int(chance) >= (ac * 3 / 4)))
+		return (TRUE);
 
-  /* Power competes against armor */
-  if (rand_int(chance) < (ac * 3 / 4)) return (FALSE);
-
-  /* Assume hit */
-  return (TRUE);
+	/* Assume miss */
+	return (FALSE);
 }
 
 
@@ -48,27 +52,28 @@ bool test_hit_fire(int chance, int ac, int vis)
  *
  * Note -- Always miss 5%, always hit 5%, otherwise random.
  */
-bool test_hit_norm(int chance, int ac, int vis)
+bool
+test_hit_norm(int chance, int ac, int vis)
 {
-  int k;
+	int k;
 
-  /* Percentile dice */
-  k = rand_int(100);
+	/* Percentile dice */
+	k = rand_int(100);
 
-  /* Hack -- Instant miss or hit */
-  if (k < 10) return (k < 5);
+	/* Hack -- Instant miss or hit */
+	if (k < 10)
+		return (k < 5);
 
-  /* Wimpy attack never hits */
-  if (chance <= 0) return (FALSE);
+	/* Penalize invisible targets */
+	if (!vis)
+		chance = chance / 2;
 
-  /* Penalize invisible targets */
-  if (!vis) chance = (chance + 1) / 2;
+	/* Power competes against armor */
+	if ((chance > 0) && (rand_int(chance) >= (ac * 3 / 4)))
+		return (TRUE);
 
-  /* Power must defeat armor */
-  if (rand_int(chance) < (ac * 3 / 4)) return (FALSE);
-
-  /* Assume hit */
-  return (TRUE);
+	/* Assume miss */
+	return (FALSE);
 }
 
 
@@ -77,36 +82,46 @@ bool test_hit_norm(int chance, int ac, int vis)
  * Critical hits (from objects thrown by player)
  * Factor in item weight, total plusses, and player level.
  */
-s16b critical_shot(int weight, int plus, int dam)
+sint
+critical_shot(int weight, int plus, int dam, u32b flags3)
 {
-  int i, k;
+	int i, k;
 
-  /* Extract "shot" power */
-  i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+	/* Extract "shot" power */
+	i = (weight + ((p_ptr->to_h + plus) * 4) + (get_raw_skill(S_ARCHERY) / 3));
 
-  /* Critical hit */
-  if (randint(5000) <= i)
-    {
-      k = weight + randint(500);
+	/* Add slay bonuses */
+	if (flags3 & RF3_EVIL)
+		i += get_skill(S_SLAY_EVIL) / 2;
+	if (flags3 & RF3_ANIMAL)
+		i += get_skill(S_SLAY_ANIMAL) / 2;
+	if (flags3 & RF3_UNDEAD)
+		i += get_skill(S_SLAY_UNDEAD) / 2;
 
-      if (k < 500)
+
+	/* Critical hit */
+	if (randint(5000) <= i)
 	{
-	  msg_print("It was a good hit!");
-	  dam = 2 * dam + 5;
-	}
-      else if (k < 1000)
-	{
-	  msg_print("It was a great hit!");
-	  dam = 2 * dam + 10;
-	}
-      else
-	{
-	  msg_print("It was a superb hit!");
-	  dam = 3 * dam + 15;
-	}
-    }
+		k = weight + randint(500);
 
-  return (dam);
+		if (k < 500)
+		{
+			msg_print("It was a good hit!");
+			dam = 2 * dam + 5;
+		}
+		else if (k < 1000)
+		{
+			msg_print("It was a great hit!");
+			dam = 2 * dam + 10;
+		}
+		else
+		{
+			msg_print("It was a superb hit!");
+			dam = 3 * dam + 15;
+		}
+	}
+
+	return (dam);
 }
 
 
@@ -116,48 +131,55 @@ s16b critical_shot(int weight, int plus, int dam)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-s16b critical_norm(int weight, int plus, int dam)
+sint
+critical_norm(int weight, int plus, int dam, u32b flags3)
 {
-  int i, k;
-  byte wskill = p_ptr->wskill;
+	int i, k;
+	byte wskill = p_ptr->wskill;
 
-  /* Extract "blow" power */
-  i = (weight + ((p_ptr->to_h + plus) * 5 +
-		 (p_ptr->cur_skill[wskill]-50)/2));
+	/* Extract "blow" power */
+	i = (weight + ((p_ptr->to_h + plus) * 5 + get_raw_skill(wskill) / 2));
+	/* Add slay bonuses */
+	if (flags3 & RF3_EVIL)
+		i += get_skill(S_SLAY_EVIL) / 2;
+	if (flags3 & RF3_ANIMAL)
+		i += get_skill(S_SLAY_ANIMAL) / 2;
+	if (flags3 & RF3_UNDEAD)
+		i += get_skill(S_SLAY_UNDEAD) / 2;
 
-  /* Chance */
-  if (randint(5000) <= i)
-    {
-      k = weight + randint(650);
+	/* Chance */
+	if (randint(5000) <= i)
+	{
+		k = weight + randint(650);
 
-      if (k < 400)
-	{
-	  msg_print("It was a good hit!");
-	  dam = 2 * dam + 5;
+		if (k < 400)
+		{
+			msg_print("It was a good hit!");
+			dam = 2 * dam + 5;
+		}
+		else if (k < 700)
+		{
+			msg_print("It was a great hit!");
+			dam = 2 * dam + 10;
+		}
+		else if (k < 900)
+		{
+			msg_print("It was a superb hit!");
+			dam = 3 * dam + 15;
+		}
+		else if (k < 1300)
+		{
+			msg_print("It was a *GREAT* hit!");
+			dam = 3 * dam + 20;
+		}
+		else
+		{
+			msg_print("It was a *SUPERB* hit!");
+			dam = ((7 * dam) / 2) + 25;
+		}
 	}
-      else if (k < 700)
-	{
-	  msg_print("It was a great hit!");
-	  dam = 2 * dam + 10;
-	}
-      else if (k < 900)
-	{
-	  msg_print("It was a superb hit!");
-	  dam = 3 * dam + 15;
-	}
-      else if (k < 1300)
-	{
-	  msg_print("It was a *GREAT* hit!");
-	  dam = 3 * dam + 20;
-	}
-      else
-	{
-	  msg_print("It was a *SUPERB* hit!");
-	  dam = ((7 * dam) / 2) + 25;
-	}
-    }
 
-  return (dam);
+	return (dam);
 }
 
 /*
@@ -169,486 +191,497 @@ s16b critical_norm(int weight, int plus, int dam)
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
  */
-s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
+s16b
+tot_dam_aux(object_type * o_ptr, int tdam, monster_type * m_ptr)
 {
-  int mult = 1;
-  int skillbonus = 0;
+	int mult = 1;
 
-  monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-  u32b f1, f2, f3;
+	u32b f1, f2, f3;
 
-  /* Extract the flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
 
-  /* Some "weapons" and "ammo" do extra damage */
-  switch (o_ptr->tval)
-    {
-    case TV_SHOT:
-    case TV_ARROW:
-    case TV_BOLT:
-    case TV_HAFTED:
-    case TV_POLEARM:
-    case TV_SWORD:
-    case TV_DIGGING:
-      {
-	/* Slay Animal */
-	if ((f1 & TR1_SLAY_ANIMAL) &&
-	    (r_ptr->flags3 & RF3_ANIMAL))
-	  {
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_ANIMAL;
+	/* Some "weapons" and "ammo" do extra damage */
+	switch (o_ptr->tval)
+	{
+	case TV_SHOT:
+	case TV_ARROW:
+	case TV_BOLT:
+	case TV_HAFTED:
+	case TV_POLEARM:
+	case TV_SWORD:
+	case TV_DIGGING:
+		{
+			/* Slay Animal */
+			if ((f1 & (TR1_SLAY_ANIMAL)) &&
+				(r_ptr->flags3 & (RF3_ANIMAL)))
+			{
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_ANIMAL);
 
-	    if (mult < 2) mult = 2;
-	  }
-	/* Slay Animal skill bonus */
-	if (r_ptr->flags3 & RF3_ANIMAL)
-	  {
-	    if (stodam(S_SLAY_ANIMAL) > 0)
-	      {
-		skillbonus = stodam(S_SLAY_ANIMAL);
-		if (m_ptr->ml) r_ptr->r_flags3 |= RF3_ANIMAL;
-	      }
-	  }
-
-	/* Slay Evil */
-	if ((f1 & TR1_SLAY_EVIL) &&
-	    (r_ptr->flags3 & RF3_EVIL))
-	  {
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_EVIL;
-
-	    if (mult < 2) mult = 2;
-	  }
-	/* Slay Evil skill bonus */
-	if (r_ptr->flags3 & RF3_EVIL)
-	  {
-	    if (stodam(S_SLAY_EVIL) > 0)
-	      {
-		if (stodam(S_SLAY_EVIL) > skillbonus)
-		  skillbonus = stodam(S_SLAY_EVIL);
-		if (m_ptr->ml) r_ptr->r_flags3 |= RF3_EVIL;
-	      }
-	  }
-
-	/* Slay Undead */
-	if ((f1 & TR1_SLAY_UNDEAD) &&
-	    (r_ptr->flags3 & RF3_UNDEAD))
-	  {
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_UNDEAD;
-	    if (mult < 3) mult = 3;
-	  }
-	/* Slay Undead skill bonus */
-	if (r_ptr->flags3 & RF3_UNDEAD)
-	  {
-	    if (stodam(S_SLAY_UNDEAD) > 0)
-	      {
-		if (stodam(S_SLAY_UNDEAD) > skillbonus)
-		  skillbonus = stodam(S_SLAY_UNDEAD);
-		if (m_ptr->ml) r_ptr->r_flags3 |= RF3_UNDEAD;
-	      }
-	  }
-
-	/* Slay Demon */
-	if ((f1 & TR1_SLAY_DEMON) &&
-	    (r_ptr->flags3 & RF3_DEMON))
-	  {
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DEMON;
-
-	    if (mult < 3) mult = 3;
-	  }
-
-	/* Slay Orc */
-	if ((f1 & TR1_SLAY_ORC) &&
-	    (r_ptr->flags3 & RF3_ORC))
-	  {
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_ORC;
-
-	    if (mult < 3) mult = 3;
-	  }
-
-	/* Slay Troll */
-	if ((f1 & TR1_SLAY_TROLL) &&
-	    (r_ptr->flags3 & RF3_TROLL))
-	  {
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_TROLL;
-
-	    if (mult < 3) mult = 3;
-	  }
-
-	/* Slay Giant */
-	if ((f1 & TR1_SLAY_GIANT) &&
-	    (r_ptr->flags3 & RF3_GIANT))
-	  {
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_GIANT;
-
-	    if (mult < 3) mult = 3;
-	  }
-
-	/* Slay Dragon  */
-	if ((f1 & TR1_SLAY_DRAGON) &&
-	    (r_ptr->flags3 & RF3_DRAGON))
-	  {
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DRAGON;
-
-	    if (mult < 3) mult = 3;
-	  }
-
-	/* Execute Dragon */
-	if ((f1 & TR1_KILL_DRAGON) &&
-	    (r_ptr->flags3 & RF3_DRAGON))
-	  {
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DRAGON;
-
-	    if (mult < 5) mult = 5;
-	  }
+				if (mult < 2)
+					mult = 2;
+			}
 
 
-	/* Brand (Acid) */
-	if (f1 & TR1_BRAND_ACID)
-	  {
-	    /* Notice immunity */
-	    if (r_ptr->flags3 & RF3_IM_ACID)
-	      {
-		if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_ACID;
-	      }
+			/* Slay Evil */
+			if ((f1 & (TR1_SLAY_EVIL)) &&
+				(r_ptr->flags3 & (RF3_EVIL)))
+			{
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_EVIL);
 
-	    /* Otherwise, take the damage */
-	    else
-	      {
-		if (mult < 3) mult = 3;
-	      }
-	  }
+				if (mult < 2)
+					mult = 2;
+			}
 
-	/* Brand (Poison) */
-	if (f1 & TR1_VENOM)
-	  {
-	    /* Notice immunity */
-	    if (r_ptr->flags3 & RF3_IM_POIS)
-	      {
-		if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_POIS;
-	      }
 
-	    /* Otherwise, take the damage */
-	    else
-	      {
-		if (mult < 3) mult = 3;
-	      }
-	  }
+			/* Slay Undead */
+			if ((f1 & (TR1_SLAY_UNDEAD)) &&
+				(r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_UNDEAD);
 
-	/* Brand (Elec) */
-	if (f1 & (TR1_BRAND_ELEC))
-	  {
-	    /* Notice immunity */
-	    if (r_ptr->flags3 & (RF3_IM_ELEC))
-	      {
-		if (m_ptr->ml)
-		  {
-		    r_ptr->r_flags3 |= (RF3_IM_ELEC);
-		  }
-	      }
+				if (mult < 3)
+					mult = 3;
+			}
 
-	    /* Otherwise, take the damage */
-	    else
-	      {
-		if (mult < 3) mult = 3;
-	      }
-	  }
 
-	/* Brand (Fire) */
-	if (f1 & (TR1_BRAND_FIRE))
-	  {
-	    /* Notice immunity */
-	    if (r_ptr->flags3 & (RF3_IM_FIRE))
-	      {
-		if (m_ptr->ml)
-		  {
-		    r_ptr->r_flags3 |= (RF3_IM_FIRE);
-		  }
-	      }
+			/* Slay Demon */
+			if ((f1 & (TR1_SLAY_DEMON)) &&
+				(r_ptr->flags3 & (RF3_DEMON)))
+			{
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_DEMON);
 
-	    /* Otherwise, take the damage */
-	    else
-	      {
-		if (mult < 3) mult = 3;
-	      }
-	  }
+				if (mult < 3)
+					mult = 3;
+			}
 
-	/* Brand (Cold) */
-	if (f1 & (TR1_BRAND_COLD))
-	  {
-	    /* Notice immunity */
-	    if (r_ptr->flags3 & (RF3_IM_COLD))
-	      {
-		if (m_ptr->ml)
-		  {
-		    r_ptr->r_flags3 |= (RF3_IM_COLD);
-		  }
-	      }
+			/* Slay Orc */
+			if ((f1 & (TR1_SLAY_ORC)) &&
+				(r_ptr->flags3 & (RF3_ORC)))
+			{
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_ORC);
 
-	    /* Otherwise, take the damage */
-	    else
-	      {
-		if (mult < 3) mult = 3;
-	      }
-	  }
-	break;
-      }
-    }
+				if (mult < 3)
+					mult = 3;
+			}
 
-  /* Return the total damage */
-  return (tdam * mult + skillbonus);
+			/* Slay Troll */
+			if ((f1 & (TR1_SLAY_TROLL)) &&
+				(r_ptr->flags3 & (RF3_TROLL)))
+			{
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_TROLL);
+
+				if (mult < 3)
+					mult = 3;
+			}
+
+			/* Slay Giant */
+			if ((f1 & (TR1_SLAY_GIANT)) &&
+				(r_ptr->flags3 & (RF3_GIANT)))
+			{
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_GIANT);
+
+				if (mult < 3)
+					mult = 3;
+			}
+
+			/* Slay Dragon  */
+			if ((f1 & (TR1_SLAY_DRAGON)) &&
+				(r_ptr->flags3 & (RF3_DRAGON)))
+			{
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_DRAGON);
+
+				if (mult < 3)
+					mult = 3;
+			}
+
+			/* Execute Dragon */
+			if ((f1 & (TR1_KILL_DRAGON)) &&
+				(r_ptr->flags3 & (RF3_DRAGON)))
+			{
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_DRAGON);
+
+				if (mult < 5)
+					mult = 5;
+			}
+
+
+			/* Brand (Acid) */
+			if (f1 & (TR1_BRAND_ACID))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ACID))
+				{
+					if (m_ptr->ml)
+						r_ptr->r_flags3 |= (RF3_IM_ACID);
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3)
+						mult = 3;
+				}
+			}
+
+			/* Brand (Poison) */
+			if (f1 & (TR1_BRAND_POIS))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_POIS))
+				{
+					if (m_ptr->ml)
+						r_ptr->r_flags3 |= (RF3_IM_POIS);
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3)
+						mult = 3;
+				}
+			}
+
+			/* Brand (Elec) */
+			if (f1 & (TR1_BRAND_ELEC))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ELEC))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_ELEC);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3)
+						mult = 3;
+				}
+			}
+
+			/* Brand (Fire) */
+			if (f1 & (TR1_BRAND_FIRE))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_FIRE);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3)
+						mult = 3;
+				}
+			}
+
+			/* Brand (Cold) */
+			if (f1 & (TR1_BRAND_COLD))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_COLD))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_COLD);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3)
+						mult = 3;
+				}
+			}
+			break;
+		}
+	}
+
+	/* Return the total damage */
+	return (tdam * mult);
 }
 
 /*
  * Compute the "total damage" to a monster that resists a certain form
  * of attack.
  */
-s16b tot_dam_loss(object_type *o_ptr, int tdam, monster_type *m_ptr)
+s16b
+tot_dam_loss(object_type * o_ptr, int tdam, monster_type * m_ptr)
 {
-  int div = 1;
+	int div = 1;
 
-  monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-  /* Some "weapons" and "ammo" can do less damage */
-  switch (o_ptr->tval)
-    {
-    case TV_ARROW:
-    case TV_BOLT:
-    case TV_POLEARM:
-    case TV_SWORD:
-    case TV_DIGGING:
-      {
-	if (r_ptr->flags3 & RF3_RES_EDGED)
-	  {
-	    div = 2;
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_EDGED;
-	  }
-	if (r_ptr->flags3 & RF3_IM_EDGED)
-	  {
-	    div = 6;
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_EDGED;
-	  }
-	break;
-      }
-    case TV_SHOT:
-    case TV_HAFTED:
-    default:
-      {
-	if (r_ptr->flags3 & RF3_RES_BLUNT)
-	  {
-	    div = 2;
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_BLUNT;
-	  }
-	if (r_ptr->flags3 & RF3_IM_BLUNT)
-	  {
-	    div = 6;
-	    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_BLUNT;
-	  }
-	break;
-      }
-    }
+	/* Some "weapons" and "ammo" can do less damage */
+	switch (o_ptr->tval)
+	{
+	case TV_ARROW:
+	case TV_BOLT:
+	case TV_POLEARM:
+	case TV_SWORD:
+	case TV_DIGGING:
+		{
+			if (r_ptr->flags3 & (RF3_RES_EDGED))
+			{
+				div = 2;
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_RES_EDGED);
+			}
+			if (r_ptr->flags3 & (RF3_IM_EDGED))
+			{
+				div = 6;
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_IM_EDGED);
+			}
+			break;
+		}
+	case TV_SHOT:
+	case TV_HAFTED:
+	default:
+		{
+			if (r_ptr->flags3 & (RF3_RES_BLUNT))
+			{
+				div = 2;
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_RES_BLUNT);
+			}
+			if (r_ptr->flags3 & (RF3_IM_BLUNT))
+			{
+				div = 6;
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_IM_BLUNT);
+			}
+			break;
+		}
+	}
 
 
-  /* Return the total damage */
-  return (tdam / div);
+	/* Return the total damage */
+	return (tdam / div);
 }
 
 
 /*
  * Search for hidden things
  */
-void search(void)
+void
+search(void)
 {
-  int           y, x, chance;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
-  s16b this_o_idx, next_o_idx = 0;
+	int y, x, chance;
 
-  cave_type    *c_ptr;
+	s16b this_o_idx, next_o_idx = 0;
 
 
-  /* Start with base search ability */
-  chance = p_ptr->skill_srh;
+	/* Start with base search ability */
+	chance = p_ptr->skill_srh;
 
-  /* Penalize various conditions */
-  if (p_ptr->blind || no_lite()) chance = chance / 10;
-  if (p_ptr->confused || p_ptr->image) chance = chance / 10;
+	/* Penalize various conditions */
+	if (p_ptr->blind || no_lite())
+		chance = chance / 10;
+	if (p_ptr->confused || p_ptr->image)
+		chance = chance / 10;
 
-  /* Search the nearby grids, which are always in bounds */
-  for (y = (py - 1); y <= (py + 1); y++)
-    {
-      for (x = (px - 1); x <= (px + 1); x++)
+	/* Search the nearby grids, which are always in bounds */
+	for (y = (py - 1); y <= (py + 1); y++)
 	{
-	  /* Sometimes, notice things */
-	  if (rand_int(100) < chance)
-	    {
-	      /* Access the grid */
-	      c_ptr = &cave[y][x];
-
-	      /* Invisible trap */
-	      if (c_ptr->feat == FEAT_INVIS)
+		for (x = (px - 1); x <= (px + 1); x++)
 		{
-		  /* Pick a trap */
-		  pick_trap(y, x);
+			/* Sometimes, notice things */
+			if (rand_int(100) < chance)
+			{
+				/* Invisible trap */
+				if (cave_feat[y][x] == FEAT_INVIS)
+				{
+					/* Pick a trap */
+					pick_trap(y, x);
 
-		  /* Message */
-		  msg_print("You have found a trap.");
+					/* Message */
+					msg_print("You have found a trap.");
 
-		  /* Disturb */
-		  disturb(0, 0);
+					/* Disturb */
+					disturb(0, 0);
+				}
+
+				/* Secret door */
+				if (cave_feat[y][x] == FEAT_SECRET)
+				{
+					/* Message */
+					msg_print("You have found a secret door.");
+
+					/* Pick a door XXX XXX XXX */
+					cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+
+					/* Disturb */
+					disturb(0, 0);
+				}
+
+				/* Scan all objects in the grid */
+				for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+				{
+					object_type *o_ptr;
+
+					/* Acquire object */
+					o_ptr = &o_list[this_o_idx];
+
+					/* Acquire next object */
+					next_o_idx = o_ptr->next_o_idx;
+
+					/* Skip non-chests */
+					if (o_ptr->tval != TV_CHEST)
+						continue;
+
+					/* Skip non-trapped chests */
+					if (!chest_traps[o_ptr->pval])
+						continue;
+
+					/* Identify once */
+					if (!object_known_p(o_ptr))
+					{
+						/* Message */
+						msg_print("You have discovered a trap on the chest!");
+
+						/* Know the trap */
+						object_known(o_ptr);
+
+						/* Notice it */
+						disturb(0, 0);
+					}
+				}
+			}
 		}
-
-	      /* Secret door */
-	      if (c_ptr->feat == FEAT_SECRET)
-		{
-		  /* Message */
-		  msg_print("You have found a secret door.");
-
-		  /* Pick a door XXX XXX XXX */
-		  cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
-
-		  /* Disturb */
-		  disturb(0, 0);
-		}
-
-	      /* Scan all objects in the grid */
-	      for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-		{
-		  object_type *o_ptr;
-					
-		  /* Acquire object */
-		  o_ptr = &o_list[this_o_idx];
-
-		  /* Acquire next object */
-		  next_o_idx = o_ptr->next_o_idx;
-
-		  /* Skip non-chests */
-		  if (o_ptr->tval != TV_CHEST) continue;
-
-		  /* Skip non-trapped chests */
-		  if (!chest_traps[o_ptr->pval]) continue;
-
-		  /* Identify once */
-		  if (!object_known_p(o_ptr))
-		    {
-		      /* Message */
-		      msg_print("You have discovered a trap on the chest!");
-
-		      /* Know the trap */
-		      object_known(o_ptr);
-
-		      /* Notice it */
-		      disturb(0, 0);
-		    }
-		}
-	    }
 	}
-    }
 }
 
 
 
 
 /*
- * Player "wants" to pick up an object or gold.
- * Note that we ONLY handle things that can be picked up.
- * See "move_player()" for handling of other things.
+ * Make the player carry everything in a grid
+ *
+ * If "pickup" is FALSE then only gold will be picked up
  */
-void carry(int pickup)
+void
+py_pickup(int pickup)
 {
-  cave_type  *c_ptr = &cave[py][px];
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
-  s16b this_o_idx, next_o_idx = 0;
+	s16b this_o_idx, next_o_idx = 0;
 
-  char	o_name[80];
+	char o_name[80];
 
 
-  /* Scan the pile of objects */
-  for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-    {
-      object_type *o_ptr;
-
-      /* Acquire object */
-      o_ptr = &o_list[this_o_idx];
-
-      /* Describe the object */
-      object_desc(o_name, o_ptr, TRUE, 3);
-
-      /* Acquire next object */
-      next_o_idx = o_ptr->next_o_idx;
-
-      /* Hack -- disturb */
-      disturb(0, 0);
-
-      /* Pick up gold */
-      if (o_ptr->tval == TV_GOLD)
+	/* Scan the pile of objects */
+	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
-	  /* Message */
-	  msg_format("You have found %ld gold pieces worth of %s.",
-		     (long)o_ptr->pval, o_name);
+		object_type *o_ptr;
 
-	  /* Collect the gold */
-	  p_ptr->au += o_ptr->pval;
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
 
-	  /* Redraw gold */
-	  p_ptr->redraw |= (PR_GOLD);
+		/* Describe the object */
+		object_desc(o_name, o_ptr, TRUE, 3);
 
-	  /* Window stuff */
-	  p_ptr->window |= (PW_PLAYER);
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
 
-	  /* Delete the gold */
-	  delete_object_idx(this_o_idx);
-	}
+		/* Hack -- disturb */
+		disturb(0, 0);
 
-      /* Pick up objects */
-      else
-	{
-	  /* Describe the object */
-	  if (!pickup)
-	    {
-	      msg_format("You see %s.", o_name);
-	    }
-
-	  /* Note that the pack is too full */
-	  else if (!inven_carry_okay(o_ptr))
-	    {
-	      msg_format("You have no room for %s.", o_name);
-	    }
-
-	  /* Pick up the item (if requested and allowed) */
-	  else
-	    {
-	      int okay = TRUE;
-
-	      /* Hack -- query every item */
-	      if (carry_query_flag)
+		/* Pick up gold */
+		if (o_ptr->tval == TV_GOLD)
 		{
-		  char out_val[160];
-		  sprintf(out_val, "Pick up %s? ", o_name);
-		  okay = get_check(out_val);
+			/* Message */
+			msg_format("You have found %ld gold pieces worth of %s.",
+					   (long)o_ptr->pval, o_name);
+
+			/* Collect the gold */
+			p_ptr->au += o_ptr->pval;
+
+			/* Redraw gold */
+			p_ptr->redraw |= (PR_GOLD);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+			/* Delete the gold */
+			delete_object_idx(this_o_idx);
 		}
 
-	      /* Attempt to pick up an object. */
-	      if (okay)
+		/* Pick up objects */
+		else
 		{
-		  int slot;
+			/* Describe the object */
+			if (!pickup)
+			{
+				msg_format("You see %s.", o_name);
+			}
 
-		  /* Carry the item */
-		  slot = inven_carry(o_ptr, FALSE);
+			/* Note that the pack is too full */
+			else if (!inven_carry_okay(o_ptr))
+			{
+				msg_format("You have no room for %s.", o_name);
+			}
 
-		  /* Get the item again */
-		  o_ptr = &inventory[slot];
+			/* Pick up the item (if requested and allowed) */
+			else
+			{
+				int okay = TRUE;
 
-		  /* Describe the object */
-		  object_desc(o_name, o_ptr, TRUE, 3);
+				/* Hack -- query every item */
+				if (carry_query_flag)
+				{
+					char out_val[160];
 
-		  /* Message */
-		  msg_format("You have %s (%c).", o_name, index_to_label(slot));
+					sprintf(out_val, "Pick up %s? ", o_name);
+					okay = get_check(out_val);
+				}
 
-		  /* Delete the object */
-		  delete_object_idx(this_o_idx);
+				/* Attempt to pick up an object. */
+				if (okay)
+				{
+					int slot;
+
+					/* Carry the item */
+					slot = inven_carry(o_ptr);
+
+					/* Get the item again */
+					o_ptr = &inventory[slot];
+
+					/* Describe the object */
+					object_desc(o_name, o_ptr, TRUE, 3);
+
+					/* Message */
+					msg_format("You have %s (%c).", o_name, index_to_label(slot));
+
+					/* Delete the object */
+					delete_object_idx(this_o_idx);
+				}
+			}
 		}
-	    }
 	}
-    }
 }
 
 /*
@@ -656,27 +689,27 @@ void carry(int pickup)
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match trap power against player armor.
  */
-static int check_hit(int power)
+static int
+check_hit(int power)
 {
-  int k, ac;
+	int k, ac;
 
-  /* Percentile dice */
-  k = rand_int(100);
+	/* Percentile dice */
+	k = rand_int(100);
 
-  /* Hack -- 5% hit, 5% miss */
-  if (k < 10) return (k < 5);
+	/* Hack -- 5% hit, 5% miss */
+	if (k < 10)
+		return (k < 5);
 
-  /* Paranoia -- No power */
-  if (power <= 0) return (FALSE);
+	/* Total armor */
+	ac = p_ptr->ac + p_ptr->to_a;
 
-  /* Total armor */
-  ac = p_ptr->ac + p_ptr->to_a;
+	/* Power competes against Armor */
+	if ((power > 0) && (randint(power) >= (ac * 3 / 4)))
+		return (TRUE);
 
-  /* Power competes against Armor */
-  if (randint(power) > ((ac * 3) / 4)) return (TRUE);
-
-  /* Assume miss */
-  return (FALSE);
+	/* Assume miss */
+	return (FALSE);
 }
 
 
@@ -684,751 +717,897 @@ static int check_hit(int power)
 /*
  * Handle player hitting a real trap
  */
-static void hit_trap(void)
+void
+hit_trap(int y, int x)
 {
-  int			i, num, dam;
-  cave_type		*c_ptr;
+	int i, num, dam;
 
-  cptr		name = "a trap";
+	cptr name = "a trap";
 
 
-  /* Disturb the player */
-  disturb(0, 0);
+	/* Disturb the player */
+	disturb(0, 0);
 
-  /* Get the cave grid */
-  c_ptr = &cave[py][px];
+	/* Analyze XXX XXX XXX */
+	switch (cave_feat[y][x])
+	{
+	case FEAT_TRAP_HEAD + 0x00:
+		{
+			msg_print("You fall through a trap door!");
+			if (p_ptr->ffall)
+			{
+				msg_print("You float gently down to the next level.");
+			}
+			else
+			{
+				dam = damroll(2, 8);
+				take_hit(dam, name);
+			}
 
-  /* Analyze XXX XXX XXX */
-  switch (c_ptr->feat)
-    {
-    case FEAT_TRAP_HEAD + 0x00:
-      {
-	msg_print("You fell through a trap door!");
-	if (p_ptr->ffall)
-	  {
-	    msg_print("You float gently down to the next level.");
-	  }
-	else
-	  {
-	    dam = damroll(2, 8);
-	    take_hit(dam, name);
-	  }
-	new_level_flag = TRUE;
-	dun_level++;
-	break;
-      }
+			/* New depth */
+			p_ptr->depth++;
 
-    case FEAT_TRAP_HEAD + 0x01:
-      {
-	msg_print("You fell into a pit!");
-	if (p_ptr->ffall)
-	  {
-	    msg_print("You float gently to the bottom of the pit.");
-	  }
-	else
-	  {
-	    dam = damroll(2, 6);
-	    take_hit(dam, name);
-	  }
-	break;
-      }
+			/* Leaving */
+			p_ptr->leaving = TRUE;
 
-    case FEAT_TRAP_HEAD + 0x02:
-      {
-	msg_print("You fall into a spiked pit!");
+			break;
+		}
 
-	if (p_ptr->ffall)
-	  {
-	    msg_print("You float gently to the floor of the pit.");
-	    msg_print("You carefully avoid touching the spikes.");
-	  }
+	case FEAT_TRAP_HEAD + 0x01:
+		{
+			msg_print("You fall into a pit!");
+			if (p_ptr->ffall)
+			{
+				msg_print("You float gently to the bottom of the pit.");
+			}
+			else
+			{
+				dam = damroll(2, 6);
+				take_hit(dam, name);
+			}
+			break;
+		}
 
-	else
-	  {
-	    /* Base damage */
-	    dam = damroll(2, 6);
+	case FEAT_TRAP_HEAD + 0x02:
+		{
+			msg_print("You fall into a spiked pit!");
 
-	    /* Extra spike damage */
-	    if (rand_int(100) < 50)
-	      {
-		msg_print("You are impaled!");
+			if (p_ptr->ffall)
+			{
+				msg_print("You float gently to the floor of the pit.");
+				msg_print("You carefully avoid touching the spikes.");
+			}
 
-		dam = dam * 2;
-		(void)set_cut(p_ptr->cut + randint(dam));
-	      }
-	    /* Take the damage */
-	    take_hit(dam, name);
-	  }
-	break;
-      }
+			else
+			{
+				/* Base damage */
+				dam = damroll(2, 6);
 
-    case FEAT_TRAP_HEAD + 0x03:
-      {
-	msg_print("You fall into a spiked pit!");
+				/* Extra spike damage */
+				if (rand_int(100) < 50)
+				{
+					msg_print("You are impaled!");
 
-	if (p_ptr->ffall)
-	  {
-	    msg_print("You float gently to the floor of the pit.");
-	    msg_print("You carefully avoid touching the spikes.");
-	  }
+					dam = dam * 2;
+					(void)set_cut(p_ptr->cut + randint(dam));
+				}
+				/* Take the damage */
+				take_hit(dam, name);
+			}
+			break;
+		}
 
-	else
-	  {
-	    /* Base damage */
-	    dam = damroll(2, 6);
+	case FEAT_TRAP_HEAD + 0x03:
+		{
+			msg_print("You fall into a spiked pit!");
 
-	    /* Extra spike damage */
-	    if (rand_int(100) < 50)
-	      {
-		msg_print("You are impaled on poisonous spikes!");
+			if (p_ptr->ffall)
+			{
+				msg_print("You float gently to the floor of the pit.");
+				msg_print("You carefully avoid touching the spikes.");
+			}
 
-		dam = dam * 2;
-		(void)set_cut(p_ptr->cut + randint(dam));
+			else
+			{
+				/* Base damage */
+				dam = damroll(2, 6);
 
-		if (p_ptr->resist_pois || p_ptr->oppose_pois)
-		  {
-		    msg_print("The poison does not affect you!");
-		  }
+				/* Extra spike damage */
+				if (rand_int(100) < 50)
+				{
+					msg_print("You are impaled on poisonous spikes!");
 
-		else
-		  {
-		    dam = dam * 2;
-		    (void)set_poisoned(p_ptr->poisoned + randint(dam));
-		  }
-	      }
+					dam = dam * 2;
+					(void)set_cut(p_ptr->cut + randint(dam));
 
-	    /* Take the damage */
-	    take_hit(dam, name);
-	  }
+					if (p_ptr->resist_pois || p_ptr->oppose_pois)
+					{
+						msg_print("The poison does not affect you!");
+					}
 
-	break;
-      }
+					else
+					{
+						dam = dam * 2;
+						(void)set_poisoned(p_ptr->poisoned + randint(dam));
+					}
+				}
 
-    case FEAT_TRAP_HEAD + 0x04:
-      {
-	msg_print("You are enveloped in a cloud of smoke!");
-	c_ptr->info &= ~(CAVE_MARK);
-	cave_set_feat(py, px, FEAT_FLOOR);
-	num = 2 + randint(3);
-	for (i = 0; i < num; i++)
-	  {
-	    (void)summon_specific(py, px, dun_level, 0);
-	  }
-	break;
-      }
+				/* Take the damage */
+				take_hit(dam, name);
+			}
 
-    case FEAT_TRAP_HEAD + 0x05:
-      {
-	msg_print("You hit a teleport trap!");
-	teleport_player(100);
-	break;
-      }
+			break;
+		}
 
-    case FEAT_TRAP_HEAD + 0x06:
-      {
-	msg_print("You are enveloped in flames!");
-	dam = damroll(4, 6);
-	fire_dam(dam, "a fire trap");
-	break;
-      }
+	case FEAT_TRAP_HEAD + 0x04:
+		{
+			msg_print("You are enveloped in a cloud of smoke!");
+			cave_info[y][x] &= ~(CAVE_MARK);
+			cave_set_feat(y, x, FEAT_FLOOR);
+			num = 2 + randint(3);
+			for (i = 0; i < num; i++)
+			{
+				(void)summon_specific(y, x, p_ptr->depth, 0);
+			}
+			break;
+		}
 
-    case FEAT_TRAP_HEAD + 0x07:
-      {
-	msg_print("You are splashed with acid!");
-	dam = damroll(4, 6);
-	acid_dam(dam, "an acid trap");
-	break;
-      }
+	case FEAT_TRAP_HEAD + 0x05:
+		{
+			msg_print("You hit a teleport trap!");
+			teleport_player(100);
+			break;
+		}
 
-    case FEAT_TRAP_HEAD + 0x08:
-      {
-	if (check_hit(125))
-	  {
-	    msg_print("A small dart hits you!");
-	    dam = damroll(1, 4);
-	    take_hit(dam, name);
-	    (void)set_slow(p_ptr->slow + rand_int(20) + 20);
-	  }
-	else
-	  {
-	    msg_print("A small dart barely misses you.");
-	  }
-	break;
-      }
+	case FEAT_TRAP_HEAD + 0x06:
+		{
+			msg_print("You are enveloped in flames!");
+			dam = damroll(4, 6);
+			fire_dam(dam, "a fire trap");
+			break;
+		}
 
-    case FEAT_TRAP_HEAD + 0x09:
-      {
-	if (check_hit(125))
-	  {
-	    msg_print("A small dart hits you!");
-	    dam = damroll(1, 4);
-	    take_hit(dam, name);
-	    (void)do_dec_stat(A_STR);
-	  }
-	else
-	  {
-	    msg_print("A small dart barely misses you.");
-	  }
-	break;
-      }
+	case FEAT_TRAP_HEAD + 0x07:
+		{
+			msg_print("You are splashed with acid!");
+			dam = damroll(4, 6);
+			acid_dam(dam, "an acid trap");
+			break;
+		}
 
-    case FEAT_TRAP_HEAD + 0x0A:
-      {
-	if (check_hit(125))
-	  {
-	    msg_print("A small dart hits you!");
-	    dam = damroll(1, 4);
-	    take_hit(dam, name);
-	    (void)do_dec_stat(A_DEX);
-	  }
-	else
-	  {
-	    msg_print("A small dart barely misses you.");
-	  }
-	break;
-      }
+	case FEAT_TRAP_HEAD + 0x08:
+		{
+			if (check_hit(125))
+			{
+				msg_print("A small dart hits you!");
+				dam = damroll(1, 4);
+				take_hit(dam, name);
+				(void)set_slow(p_ptr->slow + rand_int(20) + 20);
+			}
+			else
+			{
+				msg_print("A small dart barely misses you.");
+			}
+			break;
+		}
 
-    case FEAT_TRAP_HEAD + 0x0B:
-      {
-	if (check_hit(125))
-	  {
-	    msg_print("A small dart hits you!");
-	    dam = damroll(1, 4);
-	    take_hit(dam, name);
-	    (void)do_dec_stat(A_CON);
-	  }
-	else
-	  {
-	    msg_print("A small dart barely misses you.");
-	  }
-	break;
-      }
+	case FEAT_TRAP_HEAD + 0x09:
+		{
+			if (check_hit(125))
+			{
+				msg_print("A small dart hits you!");
+				dam = damroll(1, 4);
+				take_hit(dam, name);
+				(void)do_dec_stat(A_STR);
+			}
+			else
+			{
+				msg_print("A small dart barely misses you.");
+			}
+			break;
+		}
 
-    case FEAT_TRAP_HEAD + 0x0C:
-      {
-	msg_print("A black gas surrounds you!");
-	if (!p_ptr->resist_blind)
-	  {
-	    (void)set_blind(p_ptr->blind + rand_int(50) + 25);
-	  }
-	break;
-      }
-    case FEAT_TRAP_HEAD + 0x0D:
-      {
-	msg_print("A gas of scintillating colors surrounds you!");
-	if (!p_ptr->resist_conf)
-	  {
-	    (void)set_confused(p_ptr->confused + rand_int(20) + 10);
-	  }
-	break;
-      }
+	case FEAT_TRAP_HEAD + 0x0A:
+		{
+			if (check_hit(125))
+			{
+				msg_print("A small dart hits you!");
+				dam = damroll(1, 4);
+				take_hit(dam, name);
+				(void)do_dec_stat(A_DEX);
+			}
+			else
+			{
+				msg_print("A small dart barely misses you.");
+			}
+			break;
+		}
 
-    case FEAT_TRAP_HEAD + 0x0E:
-      {
-	msg_print("A pungent green gas surrounds you!");
-	if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
-	  {
-	    (void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
-	  }
-	break;
-      }
+	case FEAT_TRAP_HEAD + 0x0B:
+		{
+			if (check_hit(125))
+			{
+				msg_print("A small dart hits you!");
+				dam = damroll(1, 4);
+				take_hit(dam, name);
+				(void)do_dec_stat(A_CON);
+			}
+			else
+			{
+				msg_print("A small dart barely misses you.");
+			}
+			break;
+		}
 
-    case FEAT_TRAP_HEAD + 0x0F:
-      {
-	msg_print("A strange white mist surrounds you!");
-	if (!p_ptr->free_act)
-	  {
-	    (void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
-	  }
-	break;
-      }
-    }
+	case FEAT_TRAP_HEAD + 0x0C:
+		{
+			msg_print("You are surrounded by a black gas!");
+			if (!p_ptr->resist_blind)
+			{
+				(void)set_blind(p_ptr->blind + rand_int(50) + 25);
+			}
+			break;
+		}
+
+	case FEAT_TRAP_HEAD + 0x0D:
+		{
+			msg_print("You are surrounded by a gas of scintillating colors!");
+			if (!p_ptr->resist_confu)
+			{
+				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+			}
+			break;
+		}
+
+	case FEAT_TRAP_HEAD + 0x0E:
+		{
+			msg_print("You are surrounded by a pungent green gas!");
+			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
+			{
+				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
+			}
+			break;
+		}
+
+	case FEAT_TRAP_HEAD + 0x0F:
+		{
+			msg_print("You are surrounded by a strange white mist!");
+			if (!p_ptr->free_act)
+			{
+				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
+			}
+			break;
+		}
+	}
 }
 
 
+/*
+ * Produce an appropriate message for the player striking a monster.
+ */
+static void
+attack_msg(char *m_name, object_type * o_ptr)
+{
+	cptr hit = "hit";
+
+	if (o_ptr->k_idx)
+	{
+		switch (o_ptr->tval)
+		{
+		case TV_SWORD:
+			switch (randint(3))
+			{
+			case 1:
+				hit = "stab";
+				break;
+			case 2:
+				hit = "slash";
+				break;
+			case 3:
+				hit = "cut";
+				break;
+			}
+			break;
+		case TV_HAFTED:
+			switch (randint(3))
+			{
+			case 1:
+				hit = "strike";
+				break;
+			case 2:
+				hit = "bash";
+				break;
+			case 3:
+				hit = "hit";
+				break;
+			}
+			break;
+		case TV_POLEARM:
+			switch (randint(3))
+			{
+			case 1:
+				hit = "cut";
+				break;
+			case 2:
+				hit = "hit";
+				break;
+			case 3:
+				hit = "gash";
+				break;
+			}
+			break;
+		}
+	}
+	else if (p_ptr->barehand == S_KARATE)
+	{
+		switch (randint(3))
+		{
+		case 1:
+			hit = "punch";
+			break;
+		case 2:
+			hit = "kick";
+			break;
+		case 3:
+			hit = "strike";
+			break;
+		}
+	}
+	else
+		/* Wrestling */
+	{
+		switch (randint(3))
+		{
+		case 1:
+			hit = "grab";
+			break;
+		case 2:
+			hit = "crush";
+			break;
+		case 3:
+			hit = "slam";
+			break;
+		}
+	}
+	msg_format("You %s %s.", hit, m_name);
+}
 
 /*
- * Player attacks a (poor, defenseless) creature	-RAK-
- *
- * If no "weapon" is available, then "punch" the monster one time.
+ * Player attacks a (poor, defenseless) creature  -RAK-
  */
-void py_attack(int y, int x)
+void
+py_attack(int y, int x)
 {
-  int			num = 0, k, bonus, chance, lev, skildam;
+	int num = 0, k, bonus, chance, lev, blows1 = 0, blows2 = 0;
 
-  cave_type		*c_ptr = &cave[y][x];
+	monster_type *m_ptr;
+	monster_race *r_ptr;
 
-  monster_type	*m_ptr = &m_list[c_ptr->m_idx];
-  monster_race	*r_ptr = &r_info[m_ptr->r_idx];
+	object_type *o_ptr, *w_ptr, *w_ptr2;
 
-  object_type		*o_ptr, *w_ptr, *w_ptr2;
+	char m_name[80];
 
-  char		m_name[60], out[80];
+	bool fear = FALSE;
+	bool twoweap = FALSE;
 
-  bool		fear = FALSE;
-  bool twoweap = FALSE;
-
-  bool		do_quake = FALSE;
-
-  lev = p_ptr->cur_skill[p_ptr->wskill];
-
-  /* Disturb the player */
-  disturb(0, 0);
+	bool do_quake = FALSE;
+	bool do_throw = FALSE;
 
 
-  /* Extract monster name (or "it") */
-  monster_desc(m_name, m_ptr, 0);
-
-  /* Auto-Recall if possible and visible */
-  if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-  /* Track a new monster */
-  if (m_ptr->ml) health_track(c_ptr->m_idx);
+	/* Access the monster */
+	m_ptr = &m_list[cave_m_idx[y][x]];
+	r_ptr = &r_info[m_ptr->r_idx];
 
 
-  /* Handle player fear */
-  if (p_ptr->afraid)
-    {
-      /* Message */
-      msg_format("You are too afraid to attack %s!", m_name);
-
-      /* Done */
-      return;
-    }
+	/* Disturb the player */
+	disturb(0, 0);
 
 
-  /* Access the weapon */
-  if (p_ptr->twoweap) 
-    {
-      twoweap = TRUE;
-      w_ptr = &inventory[INVEN_WIELD];
-      w_ptr2 = &inventory[INVEN_ARM];
-    }
-  else o_ptr = &inventory[INVEN_WIELD];
+	/* Disturb the monster */
+	m_ptr->csleep = 0;
 
-  /* This should be in p_ptr->to_d already. Maybe next version. */
-  skildam = stodam(p_ptr->wskill); 
 
-  /* Attack once for each legal blow */
-  while (num < p_ptr->num_blow + p_ptr->num_blow2)
-    {
-      /* Which weapon are we attacking with? */
-      if (twoweap)
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, m_ptr, 0);
+
+	/* Auto-Recall if possible and visible */
+	if (m_ptr->ml)
+		monster_race_track(m_ptr->r_idx);
+
+	/* Track a new monster */
+	if (m_ptr->ml)
+		health_track(cave_m_idx[y][x]);
+
+
+	/* Handle player fear */
+	if (p_ptr->afraid)
 	{
-	  if (num % 2 && num/2 < p_ptr->num_blow2)
-	    o_ptr = w_ptr2;
-	  else
-	    o_ptr = w_ptr;
+		/* Message */
+		msg_format("You are too afraid to attack %s!", m_name);
+
+		/* Done */
+		return;
 	}
-      
-      /* Calculate the "attack quality" */
-      bonus = p_ptr->to_h + o_ptr->to_h;
-      chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
-      /* Test for hit */
-      if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+
+	/* Access the weapon */
+	if (p_ptr->twoweap)
 	{
-	  /* Sound */
-	  sound(SOUND_HIT);
+		twoweap = TRUE;
+		w_ptr = &inventory[INVEN_WIELD];
+		w_ptr2 = &inventory[INVEN_ARM];
+		blows1 = p_ptr->num_blow;
+		blows2 = p_ptr->num_blow2;
+	}
+	else
+		o_ptr = &inventory[INVEN_WIELD];
 
-	  /* Message */
-	  sprintf(out, "You hit %s.", m_name);
-
-	  /* Handle normal weapon */
-	  if (o_ptr->k_idx)
-	    {
-	      k = damroll(o_ptr->dd, o_ptr->ds);
-	      k = tot_dam_aux(o_ptr, k, m_ptr);
-
-	      if (p_ptr->impact && (k > 50)) do_quake = TRUE;
-
-	      if(m_ptr->csleep && smod(S_BACKSTAB) > 1 &&
-		 randint(30)<p_ptr->cur_skill[S_BACKSTAB]/5)
+	/* Attack once for each legal blow */
+	while (num < p_ptr->num_blow + p_ptr->num_blow2)
+	{
+		/* Which weapon are we attacking with? */
+		if (twoweap)
 		{
-		  k *= smod(S_BACKSTAB);
-		  sprintf(out, "You stabbed %s in the back!", m_name);
+			switch (num % 2)
+			  {
+				/* Main weapon */
+			  case 0:
+				if (blows1)
+				  {
+					o_ptr = w_ptr;
+					blows1--;
+				  }
+				/* else fall through */
+
+				/* Second weapon */
+			  case 1:
+				if (blows2)
+				  {
+					o_ptr = w_ptr2;
+					blows2--;
+				  }
+				/* else fall through */
+
+				/* Handle running out of second weapon attacks. The
+				   switch will never reach here, but we can fall
+				   through. */
+			  default:
+				o_ptr = w_ptr;
+				blows1--;
+			  }
 		}
 
-	      /* Add in skill damage bonus. */
-	      k += skildam;
+		/* Calculate the "attack quality" */
+		bonus = p_ptr->to_h + o_ptr->to_h;
+		chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
-	      /* Extra damage multipliers if using a vorpal blade */
-	      if (o_ptr->flags1 & TR1_VORPAL && randint(40)==1)
+		/* Test for hit */
+		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{
-		  k *= 3;
-		  strcpy(out, "Your vorpal blade goes snicker snack!");
+			/* Sound */
+			sound(SOUND_HIT);
+
+			/* Message */
+			attack_msg(m_name, o_ptr);
+
+			/* Handle normal weapon */
+			if (o_ptr->k_idx)
+			{
+				k = damroll(o_ptr->dd, o_ptr->ds);
+				k = tot_dam_aux(o_ptr, k, m_ptr);
+
+				if (p_ptr->impact && (k > 50))
+					do_quake = TRUE;
+
+				if (m_ptr->csleep && get_skill(S_BACKSTAB) > 1 &&
+					randint(30) < get_raw_skill(S_BACKSTAB) / 5)
+				{
+					k *= get_skill(S_BACKSTAB);
+					msg_format("You stabbed %s in the back!", m_name);
+				}
+
+				/* Extra damage multipliers if using a vorpal blade */
+				if (o_ptr->flags1 & (TR1_VORPAL) && randint(20) == 1)
+				{
+					k *= 3;
+					if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_HAFTED)
+						msg_print("Your vorpal blade goes snicker snack!");
+					else
+						msg_print("You strike a crushing blow!");
+				}
+				else
+					/* if you didn't vorpalize, maybe you got a critical. */
+				{
+					k = critical_norm(o_ptr->weight, o_ptr->to_h, k, r_info[m_ptr->r_idx].flags3);
+				}
+				k += o_ptr->to_d;
+				/* Apply the player damage bonuses */
+				k += p_ptr->to_d;
+				k = tot_dam_loss(o_ptr, k, m_ptr);
+			}
+			else
+			{
+				lev = get_raw_skill(p_ptr->wskill);
+
+				if (p_ptr->barehand == S_KARATE)
+				{
+					k = (damroll(lev / 33 + 1, lev / 50 + 1));
+				}
+				else
+				{
+					k = (damroll((lev >= 25 ? lev / 25 : 1),
+								 adj_str_wr[p_ptr->stat_ind[A_STR]]));
+					/* Give the player a chance to throw the opponent */
+					if (rand_int(lev / 4) > rand_int(r_ptr->level + 1))
+						do_throw = TRUE;
+				}
+				k = critical_norm(lev, p_ptr->to_h, k, r_ptr->flags3);
+				/* Apply the player damage bonuses */
+				k += p_ptr->to_d;
+			}
+			/* No negative damage */
+			if (k < 0)
+				k = 0;
+
+			/* Complex message */
+			if (p_ptr->wizard)
+			{
+				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+			}
+
+			/* Damage, check for fear and death */
+			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL))
+				break;
+
+			/* Wrestling throw. Not effective against immaterial
+			 * or immobile monsters. */
+			if (do_throw && !(r_ptr->flags1 & (RF1_NEVER_MOVE) ||
+							  r_ptr->flags2 & (RF2_PASS_WALL)))
+			{
+				int e_loss;
+
+				msg_format("You threw %s to the ground!", m_name);
+
+				/* The monster loses some energy while getting up */
+				e_loss = damroll(5, 10) + rand_int(lev / 4);
+				if (e_loss > 75)
+					e_loss = 75;
+				if (e_loss > m_ptr->energy)
+					e_loss = m_ptr->energy;
+				m_ptr->energy -= e_loss;
+			}
+
+			/* Confusion attack */
+			if (p_ptr->confusing)
+			{
+				/* Cancel glowing hands */
+				p_ptr->confusing = FALSE;
+
+				/* Message */
+				msg_print("Your hands stop glowing.");
+
+				/* Confuse the monster */
+				if (r_ptr->flags3 & (RF3_NO_CONF))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_NO_CONF);
+					}
+
+					msg_format("%^s is unaffected.", m_name);
+				}
+				else if (rand_int(100) < r_ptr->level)
+				{
+					msg_format("%^s is unaffected.", m_name);
+				}
+				else
+				{
+					msg_format("%^s appears confused.", m_name);
+					m_ptr->confused += 10 + get_raw_skill(S_MPOWER) / 25;
+				}
+			}
 		}
-	      else /* if you didn't vorpalize, maybe you got a critical. */
-		{
-		  k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
-		}
-	      k += o_ptr->to_d;
-	      /* Apply the player damage bonuses */
-	      k += p_ptr->to_d;
-	      k = tot_dam_loss(o_ptr, k, m_ptr);
-	    } else
-	      {
-		if(p_ptr->barehand == S_KARATE)
-		  {
-		    k = (damroll(lev/33+1, lev/50+1));
-		  }
+
+		/* Player misses */
 		else
-		  {
-		    k = (damroll(lev/25,
-				 adj_str_wr[p_ptr->stat_ind[A_STR]]));
-		  }
-		/* Add in skill damage bonus. */
-		k += skildam;
-		k = critical_norm(1, 0, k);
-		/* Apply the player damage bonuses */
-		k += p_ptr->to_d;
-	      }
-	  /* No negative damage */
-	  if (k < 0) k = 0;
-
-	  /* Complex message */
-	  msg_print(out);
-	  if (wizard)
-	    {
-	      msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-	    }
-		else if (show_damage && m_ptr->ml)
 		{
-			msg_format("(%d dam)", k);
+			/* Sound */
+			sound(SOUND_MISS);
+
+			/* Message */
+			msg_format("You miss %s.", m_name);
 		}
-
-	  /* Damage, check for fear and death */
-	  if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL)) break;
-
-	  /* Confusion attack */
-	  if (p_ptr->confusing)
-	    {
-	      /* Cancel glowing hands */
-	      p_ptr->confusing = FALSE;
-
-	      /* Message */
-	      msg_print("Your hands stop glowing.");
-
-	      /* Confuse the monster */
-	      if (r_ptr->flags3 & (RF3_NO_CONF))
-		{
-		  if (m_ptr->ml)
-		    {
-		      r_ptr->r_flags3 |= (RF3_NO_CONF);
-		    }
-
-		  msg_format("%^s is unaffected.", m_name);
-		}
-	      else if (rand_int(100) < r_ptr->level)
-		{
-		  msg_format("%^s is unaffected.", m_name);
-		}
-	      else
-		{
-		  msg_format("%^s appears confused.", m_name);
-		  m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
-		}
-	    }
+		num++;
 	}
 
-      /* Player misses */
-      else
+
+	/* Hack -- delay fear messages */
+	if (fear && m_ptr->ml)
 	{
-	  /* Sound */
-	  sound(SOUND_MISS);
+		/* Sound */
+		sound(SOUND_FLEE);
 
-	  /* Message */
-	  msg_format("You miss %s.", m_name);
+		/* Message */
+		msg_format("%^s flees in terror!", m_name);
 	}
-      num++;
-    }
-  /* Hack -- delay fear messages */
-  if (fear && m_ptr->ml)
-    {
-      /* Sound */
-      sound(SOUND_FLEE);
+	/* Mega-Hack -- apply earthquake brand */
+	if (do_quake)
+		earthquake(p_ptr->py, p_ptr->px, 10);
+}
 
-      /* Message */
-      msg_format("%^s flees in terror!", m_name);
-    }
-  /* Mega-Hack -- apply earthquake brand */
-  if (do_quake) earthquake(py, px, 10);
+/*
+ * Take care of the various things that can happen when you step
+ * into a space. (Objects, traps, and stores.)
+ */
+void
+step_effects(int y, int x, int do_pickup)
+{
+	/* Handle "objects" */
+	py_pickup(do_pickup);
+
+	/* Handle "store doors" */
+	if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
+		(cave_feat[y][x] <= FEAT_SHOP_TAIL))
+	{
+		/* Disturb */
+		disturb(0, 0);
+
+		/* Hack -- Enter store */
+		p_ptr->command_new = KTRL('V');
+	}
+
+	/* Discover invisible traps */
+	else if (cave_feat[y][x] == FEAT_INVIS)
+	{
+		/* Disturb */
+		disturb(0, 0);
+
+		/* Message */
+		msg_print("You found a trap!");
+
+		/* Pick a trap */
+		pick_trap(y, x);
+
+		/* Hit the trap */
+		hit_trap(y, x);
+	}
+
+	/* Set off an visible trap */
+	else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+			 (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+	{
+		/* Disturb */
+		disturb(0, 0);
+
+		/* Hit the trap */
+		hit_trap(y, x);
+	}
 }
 
 /*
  * Move player in the given direction, with the given "pickup" flag.
  *
- * This routine should (probably) always induce energy expenditure.
+ * This routine should only be called when energy has been expended.
  *
- * Note that moving will *always* take a turn, and will *always* hit
- * any monster which might be in the destination grid.  Previously,
- * moving into walls was "free" and did NOT hit invisible monsters.
+ * Note that this routine handles monsters in the destination grid,
+ * and also handles attempting to move into walls/doors/rubble/etc.
  */
-void move_player(int dir, int do_pickup)
+void
+move_player(int dir, int do_pickup)
 {
-  int			y, x;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
-  cave_type		*c_ptr;
-  monster_type	*m_ptr;
-
-
-  /* Find the result of moving */
-  y = py + ddy[dir];
-  x = px + ddx[dir];
-
-  /* Examine the destination */
-  c_ptr = &cave[y][x];
-  /* Get the monster */
-  m_ptr = &m_list[c_ptr->m_idx];
+	int y, x;
 
 
-  /* Hack -- attack monsters */
-  if (c_ptr->m_idx)
-    {
-      /* Attack */
-      py_attack(y, x);
-    }
+	/* Find the result of moving */
+	y = py + ddy[dir];
+	x = px + ddx[dir];
 
-  /* Player can not walk through "walls" */
-  else if (!cave_floor_bold(y, x))
-    {
-      /* Disturb the player */
-      disturb(0, 0);
 
-      /* Notice things in the dark */
-      if (!(c_ptr->info & (CAVE_MARK)) &&
-	  (p_ptr->blind || !(c_ptr->info & (CAVE_LITE))))
+	/* Hack -- attack monsters */
+	if (cave_m_idx[y][x] > 0)
 	{
-	  /* Rubble */
-	  if (c_ptr->feat == FEAT_RUBBLE)
-	    {
-	      msg_print("You feel some rubble blocking your way.");
-	      c_ptr->info |= (CAVE_MARK);
-	      lite_spot(y, x);
-	    }
-	  /* Closed door */
-	  else if (c_ptr->feat < FEAT_SECRET)
-	    {
-	      msg_print("You feel a closed door blocking your way.");
-	      c_ptr->info |= (CAVE_MARK);
-	      lite_spot(y, x);
-	    }
-	  /* Wall (or secret door) */
-	  else
-	    {
-	      msg_print("You feel a wall blocking your way.");
-	      c_ptr->info |= (CAVE_MARK);
-	      lite_spot(y, x);
-	    }
+		/* Attack */
+		py_attack(y, x);
 	}
 
-      /* Notice things */
-      else
+	/* Player can not walk through "walls" */
+	else if (!cave_floor_bold(y, x))
 	{
-	  /* Rubble */
-	  if (c_ptr->feat == FEAT_RUBBLE)
-	    {
-	      msg_print("There is rubble blocking your way.");
-	    }
+		/* Disturb the player */
+		disturb(0, 0);
 
-	  /* Closed doors */
-	  else if (c_ptr->feat < FEAT_SECRET)
-	    {
-	      msg_print("There is a closed door blocking your way.");
-	    }
+		/* Notice unknown obstacles */
+		if (!(cave_info[y][x] & (CAVE_MARK)))
+		{
+			/* Rubble */
+			if (cave_feat[y][x] == FEAT_RUBBLE)
+			{
+				msg_print("You feel a pile of rubble blocking your way.");
+				cave_info[y][x] |= (CAVE_MARK);
+				lite_spot(y, x);
+			}
+			/* Closed door */
+			else if (cave_feat[y][x] < FEAT_SECRET)
+			{
+				msg_print("You feel a door blocking your way.");
+				cave_info[y][x] |= (CAVE_MARK);
+				lite_spot(y, x);
+			}
+			/* Wall (or secret door) */
+			else
+			{
+				msg_print("You feel a wall blocking your way.");
+				cave_info[y][x] |= (CAVE_MARK);
+				lite_spot(y, x);
+			}
+		}
 
-	  /* Wall (or secret door) */
-	  else
-	    {
-	      msg_print("There is a wall blocking your way.");
-	    }
+		/* Mention known obstacles */
+		else
+		{
+			/* Rubble */
+			if (cave_feat[y][x] == FEAT_RUBBLE)
+			{
+				msg_print("There is a pile of rubble blocking your way.");
+			}
+
+			/* Closed doors */
+			else if (cave_feat[y][x] < FEAT_SECRET)
+			{
+				msg_print("There is a door blocking your way.");
+			}
+
+			/* Wall (or secret door) */
+			else
+			{
+				msg_print("There is a wall blocking your way.");
+			}
+		}
+
+		/* Sound */
+		sound(SOUND_HITWALL);
 	}
 
-      /* Sound */
-      sound(SOUND_HITWALL);
-    }
-
-  /* Normal movement */
-  else
-    {
-      int oy, ox;
-
-      /* Save old location */
-      oy = py;
-      ox = px;
-      /* Move the player */
-      py = y;
-      px = x;
-      /* Redraw new spot */
-      lite_spot(py, px);
-      /* Redraw old spot */
-      lite_spot(oy, ox);
-
-      /* Sound */
-      /* sound(SOUND_WALK); */
-
-      /* Check for new panel (redraw map) */
-      verify_panel();
-      /* Update stuff */
-      /* Window stuff */
-      p_ptr->window |= (PW_OVERHEAD);
-
-      p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-      /* Update the monsters */
-      p_ptr->update |= (PU_DISTANCE);
-
-      /* Window stuff */
-      p_ptr->window |= (PW_OVERHEAD);
-
-      /* Spontaneous Searching */
-      if ((p_ptr->skill_fos >= 50) ||
-	  (0 == rand_int(50 - p_ptr->skill_fos)))
+	/* Normal movement */
+	else
 	{
-	  search();
+		/* Sound XXX XXX XXX */
+		/* sound(SOUND_WALK); */
+
+		/* Move player */
+		monster_swap(py, px, y, x);
+
+		/* New location */
+		y = py = p_ptr->py;
+		x = px = p_ptr->px;
+
+
+		/* Spontaneous Searching */
+		if ((p_ptr->skill_fos >= 50) ||
+			(0 == rand_int(50 - p_ptr->skill_fos)))
+		{
+			search();
+		}
+		/* Continuous Searching */
+		if (p_ptr->searching)
+		{
+			search();
+		}
+		/* Take care of everything else */
+		step_effects(y, x, do_pickup);
 	}
-      /* Continuous Searching */
-      if (p_ptr->searching)
-	{
-	  search();
-	}
-
-      /* Handle "objects" */
-      carry(do_pickup);
-
-      /* Handle "store doors" */
-      if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
-	  (c_ptr->feat <= FEAT_SHOP_TAIL))
-	{
-	  /* Disturb */
-	  disturb(0, 0);
-
-	  /* Hack -- Enter store */
-	  command_new = KTRL('V');
-	}
-
-      /* Discover invisible traps */
-      else if (c_ptr->feat == FEAT_INVIS)
-	{
-	  /* Disturb */
-	  disturb(0, 0);
-	  /* Message */
-	  msg_print("You found a trap!");
-
-	  /* Pick a trap */
-	  pick_trap(py, px);
-	  /* Hit the trap */
-	  hit_trap();
-	}
-
-      /* Set off an visible trap */
-      else if ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-	       (c_ptr->feat <= FEAT_TRAP_TAIL))
-	{
-	  /* Disturb */
-	  disturb(0, 0);
-
-	  /* Hit the trap */
-	  hit_trap();
-	}
-    }
 }
 
 
 /*
- * Hack -- Check for a "motion blocker" (see below)
+ * Hack -- Check for a "known wall" (see below)
  */
-static int see_wall(int dir, int y, int x)
+static int
+see_wall(int dir, int y, int x)
 {
-  /* Get the new location */
-  y += ddy[dir];
-  x += ddx[dir];
+	/* Get the new location */
+	y += ddy[dir];
+	x += ddx[dir];
 
-  /* Illegal grids are blank */
-  if (!in_bounds2(y, x)) return (FALSE);
+	/* Illegal grids are not known walls XXX XXX XXX */
+	if (!in_bounds(y, x))
+		return (FALSE);
 
-  /* Must be a motion blocker */
-  if (cave_floor_bold(y, x)) return (FALSE);
+	/* Non-wall grids are not known walls */
+	if (cave_feat[y][x] < FEAT_SECRET)
+		return (FALSE);
 
-  /* Must be known to the player */
-  if (!(cave[y][x].info & (CAVE_MARK))) return (FALSE);
+	/* Unknown walls are not known walls */
+	if (!(cave_info[y][x] & (CAVE_MARK)))
+		return (FALSE);
 
-  /* Default */
-  return (TRUE);
+	/* Default */
+	return (TRUE);
 }
 
 
 /*
  * Hack -- Check for an "unknown corner" (see below)
  */
-static int see_nothing(int dir, int y, int x)
+static int
+see_nothing(int dir, int y, int x)
 {
-  /* Get the new location */
-  y += ddy[dir];
-  x += ddx[dir];
-  /* Illegal grids are unknown */
-  if (!in_bounds2(y, x)) return (TRUE);
+	/* Get the new location */
+	y += ddy[dir];
+	x += ddx[dir];
 
-  /* Memorized grids are known */
-  if (cave[y][x].info & CAVE_MARK) return (FALSE);
-  /* Non-floor grids are unknown */
-  if (!cave_floor_bold(y, x)) return (TRUE);
+	/* Illegal grids are unknown XXX XXX XXX */
+	if (!in_bounds(y, x))
+		return (TRUE);
 
-  /* Viewable grids are known */
-  if (player_can_see_bold(y, x)) return (FALSE);
+	/* Memorized grids are always known */
+	if (cave_info[y][x] & (CAVE_MARK))
+		return (FALSE);
 
-  /* Default */
-  return (TRUE);
+	/* Default */
+	return (TRUE);
 }
 
 
 
+
+
 /*
- * The running algorithm:             -CJS-
+ * The running algorithm  -CJS-
  *
- * In the diagrams below, the player has just arrived in the
- * grid marked as '@', and he has just come from a grid marked
- * as 'o', and he is about to enter the grid marked as 'x'.
+ * Basically, once you start running, you keep moving until something
+ * interesting happens.  In an enclosed space, you run straight, but
+ * you follow corners as needed (i.e. hallways).  In an open space,
+ * you run straight, but you stop before entering an enclosed space
+ * (i.e. a room with a doorway).  In a semi-open space (with walls on
+ * one side only), you run straight, but you stop before entering an
+ * enclosed space or an open space (i.e. running along side a wall).
  *
- * Of course, if the "requested" move was impossible, then you
- * will of course be blocked, and will stop.
+ * All discussions below refer to what the player can see, that is,
+ * an unknown wall is just like a normal floor.  This means that we
+ * must be careful when dealing with "illegal" grids.
  *
- * Overview: You keep moving until something interesting happens.
- * If you are in an enclosed space, you follow corners. This is
- * the usual corridor scheme. If you are in an open space, you go
- * straight, but stop before entering enclosed space. This is
- * analogous to reaching doorways. If you have enclosed space on
- * one side only (that is, running along side a wall) stop if
- * your wall opens out, or your open space closes in. Either case
- * corresponds to a doorway.
+ * No assumptions are made about the layout of the dungeon, so this
+ * algorithm works in hallways, rooms, town, destroyed areas, etc.
  *
- * What happens depends on what you can really SEE. (i.e. if you
- * have no light, then running along a dark corridor is JUST like
- * running in a dark room.) The algorithm works equally well in
- * corridors, rooms, mine tailings, earthquake rubble, etc, etc.
+ * In the diagrams below, the player has just arrived in the grid
+ * marked as '@', and he has just come from a grid marked as 'o',
+ * and he is about to enter the grid marked as 'x'.
  *
- * These conditions are kept in static memory:
- * find_openarea   You are in the open on at least one
- * side.
- * find_breakleft  You have a wall on the left, and will
- * stop if it opens
- * find_breakright      You have a wall on the right, and will
- * stop if it opens
+ * Running while confused is not allowed, and so running into a wall
+ * is only possible when the wall is not seen by the player.  This
+ * will take a turn and stop the running.
  *
- * To initialize these conditions, we examine the grids adjacent
- * to the grid marked 'x', two on each side (marked 'L' and 'R').
- * If either one of the two grids on a given side is seen to be
- * closed, then that side is considered to be closed. If both
- * sides are closed, then it is an enclosed (corridor) run.
+ * Several conditions are tracked by the running variables.
  *
- * LL        L
- * @x          LxR
- * RR          @R
+ *   p_ptr->run_open_area (in the open on at least one side)
+ *   p_ptr->run_break_left (wall on the left, stop if it opens)
+ *   p_ptr->run_break_right (wall on the right, stop if it opens)
  *
- * Looking at more than just the immediate squares is
- * significant. Consider the following case. A run along the
- * corridor will stop just before entering the center point,
- * because a choice is clearly established. Running in any of
- * three available directions will be defined as a corridor run.
+ * When running begins, these conditions are initialized by examining
+ * the grids adjacent to the requested destination grid (marked 'x'),
+ * two on each side (marked 'L' and 'R').  If either one of the two
+ * grids on a given side is a wall, then that side is considered to
+ * be "closed".  Both sides enclosed yields a hallway.
+ *
+ *    LL                     @L
+ *    @x      (normal)       RxL   (diagonal)
+ *    RR      (east)          R    (south-east)
+ *
+ * In the diagram below, in which the player is running east along a
+ * hallway, he will stop as indicated before attempting to enter the
+ * intersection (marked 'x').  Starting a new run in any direction
+ * will begin a new hallway run.
+ *
+ * #.#
+ * ##.##
+ * o@x..
+ * ##.##
+ * #.#
+ *
  * Note that a minor hack is inserted to make the angled corridor
  * entry (with one side blocked near and the other side blocked
  * further away from the runner) work correctly. The runner moves
@@ -1436,79 +1615,90 @@ static int see_nothing(int dir, int y, int x)
  * straight into the gap. Otherwise, the tail end of the other
  * entry would be perceived as an alternative on the next move.
  *
- * #.#
- * ##.##
- * .@x..
- * ##.##
- * #.#
+ * In the diagram below, the player is running east down a hallway,
+ * and will stop in the grid (marked '1') before the intersection.
+ * Continuing the run to the south-east would result in a long run
+ * stopping at the end of the hallway (marked '2').
  *
- * Likewise, a run along a wall, and then into a doorway (two
- * runs) will work correctly. A single run rightwards from @ will
- * stop at 1. Another run right and down will enter the corridor
- * and make the corner, stopping at the 2.
- *
- * #@x    1
+ * ##################
+ * o@x       1
  * ########### ######
- * 2        #
+ * #2          #
  * #############
- * #
  *
- * After any move, the function area_affect is called to
- * determine the new surroundings, and the direction of
- * subsequent moves. It examines the current player location
- * (at which the runner has just arrived) and the previous
- * direction (from which the runner is considered to have come).
+ * After each step, the surroundings are examined to determine if
+ * the running should stop, and to determine if the running should
+ * change direction.  We examine the new current player location
+ * (at which the runner has just arrived) and the direction from
+ * which the runner is considered to have come.
  *
- * Moving one square in some direction places you adjacent to
- * three or five new squares (for straight and diagonal moves
- * respectively) to which you were not previously adjacent,
- * marked as '!' in the diagrams below.
+ * Moving one grid in some direction places you adjacent to three
+ * or five new grids (for straight and diagonal moves respectively)
+ * to which you were not previously adjacent (marked as '!').
  *
- * ...!   ...
- * .o@!   .o.!
- * ...!   ..@!
- * !!!
+ *   ...!              ...
+ *   .o@!  (normal)    .o.!  (diagonal)
+ *   ...!  (east)      ..@!  (south east)
+ *                      !!!
  *
- * You STOP if any of the new squares are interesting in any way:
- * for example, if they contain visible monsters or treasure.
+ * If any of the newly adjacent grids are "interesting" (monsters,
+ * objects, some terrain features) then running stops.
  *
- * You STOP if any of the newly adjacent squares seem to be open,
- * and you are also looking for a break on that side. (that is,
- * find_openarea AND find_break).
+ * If any of the newly adjacent grids seem to be open, and you are
+ * looking for a break on that side, then running stops.
  *
- * You STOP if any of the newly adjacent squares do NOT seem to be
- * open and you are in an open area, and that side was previously
- * entirely open.
+ * If any of the newly adjacent grids do not seem to be open, and
+ * you are in an open area, and the non-open side was previously
+ * entirely open, then running stops.
  *
- * Corners: If you are not in the open (i.e. you are in a corridor)
- * and there is only one way to go in the new squares, then turn in
- * that direction. If there are more than two new ways to go, STOP.
- * If there are two ways to go, and those ways are separated by a
- * square which does not seem to be open, then STOP.
+ * If you are in a hallway, then the algorithm must determine if
+ * the running should continue, turn, or stop.  If only one of the
+ * newly adjacent grids appears to be open, then running continues
+ * in that direction, turning if necessary.  If there are more than
+ * two possible choices, then running stops.  If there are exactly
+ * two possible choices, separated by a grid which does not seem
+ * to be open, then running stops.  Otherwise, as shown below, the
+ * player has probably reached a "corner".
  *
- * Otherwise, we have a potential corner. There are two new open
- * squares, which are also adjacent. One of the new squares is
- * diagonally located, the other is straight on (as in the diagram).
- * We consider two more squares further out (marked below as ?).
+ *    ###             o##
+ *    o@x  (normal)   #@!   (diagonal)
+ *    ##!  (east)     ##x   (south east)
  *
+ * In this situation, there will be two newly adjacent open grids,
+ * one touching the player on a diagonal, and one directly adjacent.
+ * We must consider the two "option" grids further out (marked '?').
  * We assign "option" to the straight-on grid, and "option2" to the
- * diagonal grid, and "check_dir" to the grid marked 's'.
+ * diagonal grid.  For some unknown reason, we assign "check_dir" to
+ * the grid marked 's', which may be incorrectly labelled.
  *
- * .s
- * @x?
- * #?
+ *    ###s
+ *    o@x?   (may be incorrect diagram!)
+ *    ##!?
  *
- * If they are both seen to be closed, then it is seen that no
- * benefit is gained from moving straight. It is a known corner.
- * To cut the corner, go diagonally, otherwise go straight, but
- * pretend you stepped diagonally into that next location for a
- * full view next time. Conversely, if one of the ? squares is
- * not seen to be closed, then there is a potential choice. We check
- * to see whether it is a potential corner or an intersection/room
-entrance.
- * If the square two spaces straight ahead, and the space marked with 's'
- * are both blank, then it is a potential corner and enter if find_examine
- * is set, otherwise must stop because it is not a corner.
+ * If both "option" grids are closed, then there is no reason to enter
+ * the corner, and so we can cut the corner, by moving into the other
+ * grid (diagonally).  If we choose not to cut the corner, then we may
+ * go straight, but we pretend that we got there by moving diagonally.
+ * Below, we avoid the obvious grid (marked 'x') and cut the corner
+ * instead (marked 'n').
+ *
+ *    ###:               o##
+ *    o@x#   (normal)    #@n    (maybe?)
+ *    ##n#   (east)      ##x#
+ *                       ####
+ *
+ * If one of the "option" grids is open, then we may have a choice, so
+ * we check to see whether it is a potential corner or an intersection
+ * (or room entrance).  If the grid two spaces straight ahead, and the
+ * space marked with 's' are both open, then it is a potential corner
+ * and we enter it if requested.  Otherwise, we stop, because it is
+ * not a corner, and is instead an intersection or a room entrance.
+ *
+ *    ###
+ *    o@x
+ *    ##!#
+ *
+ * I do not think this documentation is correct.
  */
 
 
@@ -1518,32 +1708,13 @@ entrance.
  * Hack -- allow quick "cycling" through the legal directions
  */
 static byte cycle[] =
-{ 1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1 };
+{1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1};
 
 /*
  * Hack -- map each direction into the "middle" of the "cycle[]" array
  */
 static byte chome[] =
-{ 0, 8, 9, 10, 7, 0, 11, 6, 5, 4 };
-/*
- * The direction we are running
- */
-static byte find_current;
-/*
- * The direction we came from
- */
-static byte find_prevdir;
-
-/*
- * We are looking for open area
- */
-static bool find_openarea;
-
-/*
- * We are looking for a break
- */
-static bool find_breakright;
-static bool find_breakleft;
+{0, 8, 9, 10, 7, 0, 11, 6, 5, 4};
 
 
 
@@ -1561,491 +1732,518 @@ static bool find_breakleft;
  *       #x#                 @x#
  *       @p.                  p
  */
-static void run_init(int dir)
+static void
+run_init(int dir)
 {
-  int		row, col, deepleft, deepright;
-  int		i, shortleft, shortright;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int i, row, col;
+
+	bool deepleft, deepright;
+	bool shortleft, shortright;
 
 
-  /* Save the direction */
-  find_current = dir;
+	/* Save the direction */
+	p_ptr->run_cur_dir = dir;
 
-  /* Assume running straight */
-  find_prevdir = dir;
+	/* Assume running straight */
+	p_ptr->run_old_dir = dir;
 
-  /* Assume looking for open area */
-  find_openarea = TRUE;
+	/* Assume looking for open area */
+	p_ptr->run_open_area = TRUE;
 
-  /* Assume not looking for breaks */
-  find_breakright = find_breakleft = FALSE;
+	/* Assume not looking for breaks */
+	p_ptr->run_break_right = FALSE;
+	p_ptr->run_break_left = FALSE;
 
-  /* Assume no nearby walls */
-  deepleft = deepright = FALSE;
-  shortright = shortleft = FALSE;
+	/* Assume no nearby walls */
+	deepleft = deepright = FALSE;
+	shortright = shortleft = FALSE;
 
-  /* Find the destination grid */
-  row = py + ddy[dir];
-  col = px + ddx[dir];
-  /* Extract cycle index */
-  i = chome[dir];
+	/* Find the destination grid */
+	row = py + ddy[dir];
+	col = px + ddx[dir];
 
-  /* Check for walls */
-  if (see_wall(cycle[i+1], py, px))
-    {
-      find_breakleft = TRUE;
-      shortleft = TRUE;
-    }
-  else if (see_wall(cycle[i+1], row, col))
-    {
-      find_breakleft = TRUE;
-      deepleft = TRUE;
-    }
+	/* Extract cycle index */
+	i = chome[dir];
 
-  /* Check for walls */
-  if (see_wall(cycle[i-1], py, px))
-    {
-      find_breakright = TRUE;
-      shortright = TRUE;
-    }
-  else if (see_wall(cycle[i-1], row, col))
-    {
-      find_breakright = TRUE;
-      deepright = TRUE;
-    }
-
-  /* Looking for a break */
-  if (find_breakleft && find_breakright)
-    {
-      /* Not looking for open area */
-      find_openarea = FALSE;
-
-      /* Hack -- allow angled corridor entry */
-      if (dir & 0x01)
+	/* Check for nearby wall */
+	if (see_wall(cycle[i + 1], py, px))
 	{
-	  if (deepleft && !deepright)
-	    {
-	      find_prevdir = cycle[i - 1];
-	    }
-	  else if (deepright && !deepleft)
-	    {
-	      find_prevdir = cycle[i + 1];
-	    }
+		p_ptr->run_break_left = TRUE;
+		shortleft = TRUE;
 	}
 
-      /* Hack -- allow blunt corridor entry */
-      else if (see_wall(cycle[i], row, col))
+	/* Check for distant wall */
+	else if (see_wall(cycle[i + 1], row, col))
 	{
-	  if (shortleft && !shortright)
-	    {
-	      find_prevdir = cycle[i - 2];
-	    }
-	  else if (shortright && !shortleft)
-	    {
-	      find_prevdir = cycle[i + 2];
-	    }
+		p_ptr->run_break_left = TRUE;
+		deepleft = TRUE;
 	}
-    }
+
+	/* Check for nearby wall */
+	if (see_wall(cycle[i - 1], py, px))
+	{
+		p_ptr->run_break_right = TRUE;
+		shortright = TRUE;
+	}
+
+	/* Check for distant wall */
+	else if (see_wall(cycle[i - 1], row, col))
+	{
+		p_ptr->run_break_right = TRUE;
+		deepright = TRUE;
+	}
+
+	/* Looking for a break */
+	if (p_ptr->run_break_left && p_ptr->run_break_right)
+	{
+		/* Not looking for open area */
+		p_ptr->run_open_area = FALSE;
+
+		/* Hack -- allow angled corridor entry */
+		if (dir & 0x01)
+		{
+			if (deepleft && !deepright)
+			{
+				p_ptr->run_old_dir = cycle[i - 1];
+			}
+			else if (deepright && !deepleft)
+			{
+				p_ptr->run_old_dir = cycle[i + 1];
+			}
+		}
+
+		/* Hack -- allow blunt corridor entry */
+		else if (see_wall(cycle[i], row, col))
+		{
+			if (shortleft && !shortright)
+			{
+				p_ptr->run_old_dir = cycle[i - 2];
+			}
+			else if (shortright && !shortleft)
+			{
+				p_ptr->run_old_dir = cycle[i + 2];
+			}
+		}
+	}
 }
+
 
 /*
  * Update the current "run" path
  *
  * Return TRUE if the running should be stopped
  */
-static bool run_test(void)
+static bool
+run_test(void)
 {
-  int			prev_dir, new_dir, check_dir = 0;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
-  int			row, col;
-  int			i, max, inv;
-  int			option, option2;
+	int prev_dir;
+	int new_dir;
+	int check_dir = 0;
 
-  cave_type		*c_ptr;
-
-
-  /* No options yet */
-  option = 0;
-  option2 = 0;
-
-  /* Where we came from */
-  prev_dir = find_prevdir;
+	int row, col;
+	int i, max, inv;
+	int option, option2;
 
 
-  /* Range of newly adjacent grids */
-  max = (prev_dir & 0x01) + 1;
+	/* No options yet */
+	option = 0;
+	option2 = 0;
+
+	/* Where we came from */
+	prev_dir = p_ptr->run_old_dir;
 
 
-  /* Look at every newly adjacent square. */
-  for (i = -max; i <= max; i++)
-    {
-      s16b this_o_idx, next_o_idx = 0;
+	/* Range of newly adjacent grids */
+	max = (prev_dir & 0x01) + 1;
 
 
-      /* New direction */
-      new_dir = cycle[chome[prev_dir] + i];
-
-      /* New location */
-      row = py + ddy[new_dir];
-      col = px + ddx[new_dir];
-
-      /* Access grid */
-      c_ptr = &cave[row][col];
-
-
-      /* Visible monsters abort running */
-      if (c_ptr->m_idx)
+	/* Look at every newly adjacent square. */
+	for (i = -max; i <= max; i++)
 	{
-	  monster_type *m_ptr = &m_list[c_ptr->m_idx];
-
-	  /* Visible monster */
-	  if (m_ptr->ml) return (TRUE);
-	}
-
-      /* Visible objects abort running */
-      for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-	  object_type *o_ptr;
-			
-	  /* Acquire object */
-	  o_ptr = &o_list[this_o_idx];
-
-	  /* Acquire next object */
-	  next_o_idx = o_ptr->next_o_idx;
-
-	  /* Visible object */
-	  if (o_ptr->marked) return (TRUE);
-	}
+		s16b this_o_idx, next_o_idx = 0;
 
 
-      /* Assume unknown */
-      inv = TRUE;
+		/* New direction */
+		new_dir = cycle[chome[prev_dir] + i];
 
-      /* Check memorized grids */
-      if (c_ptr->info & (CAVE_MARK))
-	{
-	  bool notice = TRUE;
+		/* New location */
+		row = py + ddy[new_dir];
+		col = px + ddx[new_dir];
 
-	  /* Examine the terrain */
-	  switch (c_ptr->feat)
-	    {
-	      /* Floors */
-	    case FEAT_FLOOR:
 
-	      /* Invis traps */
-	    case FEAT_INVIS:
-
-	      /* Secret doors */
-	    case FEAT_SECRET:
-
-	      /* Normal veins */
-	    case FEAT_MAGMA:
-	    case FEAT_QUARTZ:
-
-	      /* Hidden treasure */
-	    case FEAT_MAGMA_H:
-	    case FEAT_QUARTZ_H:
-
-	      /* Walls */
-	    case FEAT_WALL_EXTRA:
-	    case FEAT_WALL_INNER:
-	    case FEAT_WALL_OUTER:
-	    case FEAT_WALL_SOLID:
-	    case FEAT_PERM_EXTRA:
-	    case FEAT_PERM_INNER:
-	    case FEAT_PERM_OUTER:
-	    case FEAT_PERM_SOLID:
-	      {
-		/* Ignore */
-		notice = FALSE;
-		/* Done */
-		break;
-	      }
-
-	    /* Open doors */
-	    case FEAT_OPEN:
-	    case FEAT_BROKEN:
-	      {
-		/* Option -- ignore */
-		if (find_ignore_doors) notice = FALSE;
-		/* Done */
-		break;
-	      }
-
-	    /* Stairs */
-	    case FEAT_LESS:
-	    case FEAT_MORE:
-	      {
-		/* Option -- ignore */
-		if (find_ignore_stairs) notice = FALSE;
-
-		/* Done */
-		break;
-	      }
-	    }
-
-	  /* Interesting feature */
-	  if (notice) return (TRUE);
-
-	  /* The grid is "visible" */
-	  inv = FALSE;
-	}
-
-      /* Analyze unknown grids and floors */
-      if (inv || cave_floor_bold(row, col))
-	{
-	  /* Looking for open area */
-	  if (find_openarea)
-	    {
-	      /* Nothing */
-	    }
-
-	  /* The first new direction. */
-	  else if (!option)
-	    {
-	      option = new_dir;
-	    }
-
-	  /* Three new directions. Stop running. */
-	  else if (option2)
-	    {
-	      return (TRUE);
-	    }
-	  /* Two non-adjacent new directions.  Stop running. */
-	  else if (option != cycle[chome[prev_dir] + i - 1])
-	    {
-	      return (TRUE);
-	    }
-	  /* Two new (adjacent) directions (case 1) */
-	  else if (new_dir & 0x01)
-	    {
-	      check_dir = cycle[chome[prev_dir] + i - 2];
-	      option2 = new_dir;
-	    }
-	  /* Two new (adjacent) directions (case 2) */
-	  else
-	    {
-	      check_dir = cycle[chome[prev_dir] + i + 1];
-	      option2 = option;
-	      option = new_dir;
-	    }
-	}
-
-      /* Obstacle, while looking for open area */
-      else
-	{
-	  if (find_openarea)
-	    {
-	      if (i < 0)
+		/* Visible monsters abort running */
+		if (cave_m_idx[row][col] > 0)
 		{
-		  /* Break to the right */
-		  find_breakright = TRUE;
+			monster_type *m_ptr = &m_list[cave_m_idx[row][col]];
+
+			/* Visible monster */
+			if (m_ptr->ml)
+				return (TRUE);
 		}
 
-	      else if (i > 0)
+		/* Visible objects abort running */
+		for (this_o_idx = cave_o_idx[row][col]; this_o_idx; this_o_idx = next_o_idx)
 		{
-		  /* Break to the left */
-		  find_breakleft = TRUE;
+			object_type *o_ptr;
+
+			/* Acquire object */
+			o_ptr = &o_list[this_o_idx];
+
+			/* Acquire next object */
+			next_o_idx = o_ptr->next_o_idx;
+
+			/* Visible object */
+			if (o_ptr->marked)
+				return (TRUE);
 		}
-	    }
+
+
+		/* Assume unknown */
+		inv = TRUE;
+
+		/* Check memorized grids */
+		if (cave_info[row][col] & (CAVE_MARK))
+		{
+			bool notice = TRUE;
+
+			/* Examine the terrain */
+			switch (cave_feat[row][col])
+			{
+				/* Floors */
+			case FEAT_FLOOR:
+
+				/* Invis traps */
+			case FEAT_INVIS:
+
+				/* Secret doors */
+			case FEAT_SECRET:
+
+				/* Normal veins */
+			case FEAT_MAGMA:
+			case FEAT_QUARTZ:
+
+				/* Hidden treasure */
+			case FEAT_MAGMA_H:
+			case FEAT_QUARTZ_H:
+
+				/* Walls */
+			case FEAT_WALL_EXTRA:
+			case FEAT_WALL_INNER:
+			case FEAT_WALL_OUTER:
+			case FEAT_WALL_SOLID:
+			case FEAT_PERM_EXTRA:
+			case FEAT_PERM_INNER:
+			case FEAT_PERM_OUTER:
+			case FEAT_PERM_SOLID:
+				{
+					/* Ignore */
+					notice = FALSE;
+
+					/* Done */
+					break;
+				}
+
+				/* Open doors */
+			case FEAT_OPEN:
+			case FEAT_BROKEN:
+				{
+					/* Option -- ignore */
+					if (run_ignore_doors)
+						notice = FALSE;
+
+					/* Done */
+					break;
+				}
+
+				/* Stairs */
+			case FEAT_LESS:
+			case FEAT_MORE:
+				{
+					/* Option -- ignore */
+					if (run_ignore_stairs)
+						notice = FALSE;
+
+					/* Done */
+					break;
+				}
+			}
+
+			/* Interesting feature */
+			if (notice)
+				return (TRUE);
+
+			/* The grid is "visible" */
+			inv = FALSE;
+		}
+
+		/* Analyze unknown grids and floors */
+		if (inv || cave_floor_bold(row, col))
+		{
+			/* Looking for open area */
+			if (p_ptr->run_open_area)
+			{
+				/* Nothing */
+			}
+
+			/* The first new direction. */
+			else if (!option)
+			{
+				option = new_dir;
+			}
+
+			/* Three new directions. Stop running. */
+			else if (option2)
+			{
+				return (TRUE);
+			}
+
+			/* Two non-adjacent new directions.  Stop running. */
+			else if (option != cycle[chome[prev_dir] + i - 1])
+			{
+				return (TRUE);
+			}
+
+			/* Two new (adjacent) directions (case 1) */
+			else if (new_dir & 0x01)
+			{
+				check_dir = cycle[chome[prev_dir] + i - 2];
+				option2 = new_dir;
+			}
+
+			/* Two new (adjacent) directions (case 2) */
+			else
+			{
+				check_dir = cycle[chome[prev_dir] + i + 1];
+				option2 = option;
+				option = new_dir;
+			}
+		}
+
+		/* Obstacle, while looking for open area */
+		else
+		{
+			if (p_ptr->run_open_area)
+			{
+				if (i < 0)
+				{
+					/* Break to the right */
+					p_ptr->run_break_right = TRUE;
+				}
+
+				else if (i > 0)
+				{
+					/* Break to the left */
+					p_ptr->run_break_left = TRUE;
+				}
+			}
+		}
 	}
-    }
 
 
-  /* Looking for open area */
-  if (find_openarea)
-    {
-      /* Hack -- look again */
-      for (i = -max; i < 0; i++)
+	/* Looking for open area */
+	if (p_ptr->run_open_area)
 	{
-	  new_dir = cycle[chome[prev_dir] + i];
-
-	  row = py + ddy[new_dir];
-	  col = px + ddx[new_dir];
-	  /* Unknown grid or floor */
-	  if (!(cave[row][col].info & CAVE_MARK) || cave_floor_bold(row, col))
-	    {
-	      /* Looking to break right */
-	      if (find_breakright)
+		/* Hack -- look again */
+		for (i = -max; i < 0; i++)
 		{
-		  return (TRUE);
-		}
-	    }
+			new_dir = cycle[chome[prev_dir] + i];
 
-	  /* Obstacle */
-	  else
-	    {
-	      /* Looking to break left */
-	      if (find_breakleft)
-		{
-		  return (TRUE);
+			row = py + ddy[new_dir];
+			col = px + ddx[new_dir];
+
+			/* Unknown grid or non-wall */
+			/* Was: cave_floor_bold(row, col) */
+			if (!(cave_info[row][col] & (CAVE_MARK)) ||
+				(cave_feat[row][col] < FEAT_SECRET))
+			{
+				/* Looking to break right */
+				if (p_ptr->run_break_right)
+				{
+					return (TRUE);
+				}
+			}
+
+			/* Obstacle */
+			else
+			{
+				/* Looking to break left */
+				if (p_ptr->run_break_left)
+				{
+					return (TRUE);
+				}
+			}
 		}
-	    }
+
+		/* Hack -- look again */
+		for (i = max; i > 0; i--)
+		{
+			new_dir = cycle[chome[prev_dir] + i];
+
+			row = py + ddy[new_dir];
+			col = px + ddx[new_dir];
+
+			/* Unknown grid or non-wall */
+			/* Was: cave_floor_bold(row, col) */
+			if (!(cave_info[row][col] & (CAVE_MARK)) ||
+				(cave_feat[row][col] < FEAT_SECRET))
+			{
+				/* Looking to break left */
+				if (p_ptr->run_break_left)
+				{
+					return (TRUE);
+				}
+			}
+
+			/* Obstacle */
+			else
+			{
+				/* Looking to break right */
+				if (p_ptr->run_break_right)
+				{
+					return (TRUE);
+				}
+			}
+		}
 	}
 
-      /* Hack -- look again */
-      for (i = max; i > 0; i--)
+
+	/* Not looking for open area */
+	else
 	{
-	  new_dir = cycle[chome[prev_dir] + i];
-
-	  row = py + ddy[new_dir];
-	  col = px + ddx[new_dir];
-
-	  /* Access grid */
-	  c_ptr = &cave[row][col];
-
-	  /* Unknown grid or non-wall XXX XXX XXX cave_floor_grid(c_ptr)) */
-	  if (!(c_ptr->info & (CAVE_MARK)) || (c_ptr->feat < FEAT_SECRET))
-	    {
-	      /* Looking to break left */
-	      if (find_breakleft)
+		/* No options */
+		if (!option)
 		{
-		  return (TRUE);
-		}
-	    }
-
-	  /* Obstacle */
-	  else
-	    {
-	      /* Looking to break right */
-	      if (find_breakright)
-		{
-		  return (TRUE);
-		}
-	    }
-	}
-    }
-  /* Not looking for open area */
-  else
-    {
-      /* No options */
-      if (!option)
-	{
-	  return (TRUE);
-	}
-      /* One option */
-      else if (!option2)
-	{
-	  /* Primary option */
-	  find_current = option;
-
-	  /* No other options */
-	  find_prevdir = option;
-	}
-
-      /* Two options, examining corners */
-      else if (find_examine && !find_cut)
-	{
-	  /* Primary option */
-	  find_current = option;
-
-	  /* Hack -- allow curving */
-	  find_prevdir = option2;
-	}
-
-      /* Two options, pick one */
-      else
-	{
-	  /* Get next location */
-	  row = py + ddy[option];
-	  col = px + ddx[option];
-
-	  /* Don't see that it is closed off. */
-	  /* This could be a potential corner or an intersection. */
-	  if (!see_wall(option, row, col) ||
-	      !see_wall(check_dir, row, col))
-	    {
-	      /* Can not see anything ahead and in the direction we */
-	      /* are turning, assume that it is a potential corner. */
-	      if (find_examine &&
-		  see_nothing(option, row, col) &&
-		  see_nothing(option2, row, col))
-		{
-		  find_current = option;
-		  find_prevdir = option2;
+			return (TRUE);
 		}
 
-	      /* STOP: we are next to an intersection or a room */
-	      else
+		/* One option */
+		else if (!option2)
 		{
-		  return (TRUE);
+			/* Primary option */
+			p_ptr->run_cur_dir = option;
+
+			/* No other options */
+			p_ptr->run_old_dir = option;
 		}
-	    }
-	  /* This corner is seen to be enclosed; we cut the corner. */
-	  else if (find_cut)
-	    {
-	      find_current = option2;
-	      find_prevdir = option2;
-	    }
-	  /* This corner is seen to be enclosed, and we */
-	  /* deliberately go the long way. */
-	  else
-	    {
-	      find_current = option;
-	      find_prevdir = option2;
-	    }
+
+		/* Two options, examining corners */
+		else if (run_use_corners && !run_cut_corners)
+		{
+			/* Primary option */
+			p_ptr->run_cur_dir = option;
+
+			/* Hack -- allow curving */
+			p_ptr->run_old_dir = option2;
+		}
+
+		/* Two options, pick one */
+		else
+		{
+			/* Get next location */
+			row = py + ddy[option];
+			col = px + ddx[option];
+
+			/* Don't see that it is closed off. */
+			/* This could be a potential corner or an intersection. */
+			if (!see_wall(option, row, col) ||
+				!see_wall(check_dir, row, col))
+			{
+				/* Can not see anything ahead and in the direction we */
+				/* are turning, assume that it is a potential corner. */
+				if (run_use_corners &&
+					see_nothing(option, row, col) &&
+					see_nothing(option2, row, col))
+				{
+					p_ptr->run_cur_dir = option;
+					p_ptr->run_old_dir = option2;
+				}
+
+				/* STOP: we are next to an intersection or a room */
+				else
+				{
+					return (TRUE);
+				}
+			}
+
+			/* This corner is seen to be enclosed; we cut the corner. */
+			else if (run_cut_corners)
+			{
+				p_ptr->run_cur_dir = option2;
+				p_ptr->run_old_dir = option2;
+			}
+
+			/* This corner is seen to be enclosed, and we */
+			/* deliberately go the long way. */
+			else
+			{
+				p_ptr->run_cur_dir = option;
+				p_ptr->run_old_dir = option2;
+			}
+		}
 	}
-    }
 
 
-  /* About to hit a known wall, stop */
-  if (see_wall(find_current, py, px))
-    {
-      return (TRUE);
-    }
+	/* About to hit a known wall, stop */
+	if (see_wall(p_ptr->run_cur_dir, py, px))
+	{
+		return (TRUE);
+	}
 
 
-  /* Failure */
-  return (FALSE);
+	/* Failure */
+	return (FALSE);
 }
 
 
 
 /*
  * Take one step along the current "run" path
+ *
+ * Called with a real direction to begin a new run, and with zero
+ * to continue a run in progress.
  */
-void run_step(int dir)
+void
+run_step(int dir)
 {
-  /* Start running */
-  if (dir)
-    {
-      /* Hack -- do not start silly run */
-      if (see_wall(dir, py, px))
+	/* Start run */
+	if (dir)
 	{
-	  /* Message */
-	  msg_print("You cannot run in that direction.");
+		/* Initialize */
+		run_init(dir);
 
-			/* Disturb */
-	  disturb(0, 0);
+		/* Hack -- Set the run counter */
+		p_ptr->running = (p_ptr->command_arg ? p_ptr->command_arg : 1000);
 
-	  /* Done */
-	  return;
+		/* Calculate torch radius */
+		p_ptr->update |= (PU_TORCH);
 	}
-      /* Calculate torch radius */
-      p_ptr->update |= (PU_TORCH);
-      /* Initialize */
-      run_init(dir);
-    }
-  /* Keep running */
-  else
-    {
-      /* Update run */
-      if (run_test())
+
+	/* Continue run */
+	else
 	{
-	  /* Disturb */
-	  disturb(0, 0);
+		/* Update run */
+		if (run_test())
+		{
+			/* Disturb */
+			disturb(0, 0);
 
 			/* Done */
-	  return;
+			return;
+		}
 	}
-    }
-  /* Decrease the run counter */
-  if (--running <= 0) return;
 
-  /* Take time */
-  energy_use = 100;
+	/* Decrease counter */
+	p_ptr->running--;
 
-  /* Move the player, using the "pickup" flag */
-  move_player(find_current, always_pickup);
+	/* Take time */
+	p_ptr->energy_use = 100;
+
+	/* Move the player, using the "pickup" flag */
+	move_player(p_ptr->run_cur_dir, always_pickup);
 }
-
-

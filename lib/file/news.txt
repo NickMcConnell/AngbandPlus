@@ -1,22 +1,21 @@
+
+
                         ***********************
-                        **  SAngband 0.9.4g  **
+                        **   SAngband 0.9.5  **
                         ***********************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
              and Umoria:    Copyright (c) 1989 James E. Wilson
 
-       Angband 2.0 - 2.4: Alex Cutler, Andy Astrand, Sean Marsh, 
-                          Geoff Hill, Charles Teague, and others
-       Angband 2.5 - 2.6: Charles Swiger (cs4w+@andrew.cmu.edu)
-      SAngband 0.1 - 0.8.5: Chris Petit
-       Angband 2.7 - 2.8: Ben Harrison (benh@voicenet.com)
+       Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
+
       SAngband 0.8.5 - 0.9.3: Michael Gorse (mgorse@wpi.edu)
-      SAngband 0.9.4: Julian Lighton (jl8e@fragment.com)
-     SAngband 0.9.4g: Joseph W. Dixon (aa343@chebucto.ns.ca)
+
+      SAngband 0.9.4 - 0.9.5: Julian Lighton (jl8e@fragment.com)
 
        Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
 
  Be sure to read the online help, especially "general.txt" and "version.txt".
  Visit the SAngband Home Page at "http://www.fragment.com/~jl8e/sangband/".
- Send all comments, bug reports, patches, etc, to "jl8e@fragment.com" or
- "aa343@chebucto.ns.ca", if it's about the new stuff in this version.
+ Send all comments, bug reports, patches, etc, to "jl8e@fragment.com".
+              See "version.txt" for more complete credits.

@@ -83,10 +83,9 @@ in the town, and which can be obtained not only from selling items to the
 shops, but also by taking it from dead monsters and by finding it hidden in
 the dungeon.  Each character starts out with some gold, the amount of which
 is based on the characters social class (higher is better), charisma (higher
-is better), sex (female characters start with more gold), and other stats
-(less powerful characters start with more gold).  Each character also starts
-out with a few useful items, which may be kept, or sold to a shop-keeper for
-more gold.
+is better), and other stats (less powerful characters start with more gold).
+Each character also starts out with a few useful items, which may be kept,
+or sold to a shop-keeper for more gold.
 
 Each character has an armor class, representing how well the character can
 avoid damage.  Your armor class is affected by your dexterity, equipment, and
@@ -98,10 +97,10 @@ endurance skill, and constitution, and can be temporarily boosted by magical
 means.  Hit points may be regained by resting, or by a variety of magical
 means.
 
-Each character has spell points, or mana, which represents how many spells
+Most characters have spell points, or mana, which represents how many spells
 (or prayers) a character can cast (or pray).  Your spell points are derived
-from your level, magical power skill, and your magical realm's "prime stat"
-(intelligence for wizards, wisdom for priests and druids, and constitution
+from your magical power skill, and from your magical realm's "prime stat"
+(intelligence for wizards, wisdom for priests and druids, and charisma
 for necromancers).  Spell points may be regained by resting, or by a few
 magical means.
 
@@ -111,7 +110,7 @@ There are twelve different races that you can choose from in SAngband.  The
 race that you choose will affect your character's development; each race has
 its own strengths and weaknesses in reguard to skills.  Most races also have
 intrinsic abilities.
- 
+
      Human
           The human is the base character, all other races are
           compared to him.  Humans start out with poor skill ratings
@@ -204,10 +203,10 @@ intrinsic abilities.
           reduced.
 
      High-Elf
-          High-elves are a race of immortal beings dating from the 
+          High-elves are a race of immortal beings dating from the
           beginning of time, and find experience extremely hard to
-          gain.  They are masters of skills, and are strong and 
-          intelligent, although their wisdom is sometimes suspect. 
+          gain.  They are masters of skills, and are strong and
+          intelligent, although their wisdom is sometimes suspect.
           High-elves begin their lives with see invisible, and they
           cannot be harmed by falling small distances.
 
@@ -229,8 +228,8 @@ intrinsic abilities.
           at most other skills, however.  They resist fire and cold,
           taking only 1/3 damage from enemies who try to burn or
           freeze them.
- 
- 
+
+
 === Stats ===
 
      Strength
@@ -239,8 +238,9 @@ intrinsic abilities.
           as well as the amount of damage done with each hit.  Char-
           acters with low strengths may receive penalties.  Strength
           is also useful in tunneling and in carrying heavy items.  A
-          high strength is a necessity for a person wishing to wrestle.
- 
+          high strength is a necessity for a person wishing to fight
+          using the wrestling skill.
+
      Intelligence
           Intelligence affects the spellcasting abilities of sorcerers;
           it will affect the number of spells they may learn as well as
@@ -249,7 +249,7 @@ intrinsic abilities.
           You cannot learn spells if your intelligence is 7 or lower.  A
           good intelligence can also help with using magic devices,
           picking locks, and disarming traps.
- 
+
      Wisdom
           The primary function of wisdom is to determine the ability
           of a priest or druid to use prayers, just like intelligence
@@ -259,7 +259,7 @@ intrinsic abilities.
           prayer will be successful.  A good wisdom can also help to
           improve your chances of resisting magical spells cast upon
           you by monsters.
- 
+
      Dexterity
           Dexterity is a combination of agility and quickness.  A high
           dexterity may allow a character to get multiple blows with
@@ -268,27 +268,29 @@ intrinsic abilities.
           dodging blows from enemies.  Dexterity is also useful in
           picking locks, disarming traps, and protecting yourself from
           some of the thieves that inhabit the dungeons.
- 
+
      Constitution
           Constitution is a character's ability to resist damage to
           his body, and to recover from damage received.  Therefore a
           character with a high constitution will receive more hit
           points and also recover them faster while resting.
-          Constitution also affects the spell-casting ability of
-          necromancers, increasing the number of spells and spell
-          points that they may have.
- 
+
      Charisma
           Charisma represents a character's personality and physical
           appearance.  A character with a high charisma will receive
           better prices from store owners, whereas a character with a
           very low charisma may be robbed blind.  A high charisma will
-          also mean more starting money for the character.
+          also mean more starting money for the character. Because
+          Necromancers gain power by bargaining with spirits and
+          other dark powers, their charisma determines how many spells
+          and spell points they receive.
 
      Luck
           Luck is used in various ways; a lucky character is more
-          likely to have things go his way.  Unlike all other stats,
-          luck cannot be increased or decreased by magical means.
+          likely to have things go his way.  Characters with good
+          luck tend to find better items on average, and may also
+          avoid attacks that would otherwise kill them. Due to its
+          unpredictable nature, luck is difficult to affect magically.
 
 === Abilities ===
 
@@ -306,14 +308,14 @@ Abilities may be adjusted by high or low stats.
           Strength and dexterity both modify the ability to hit an
           opponent.  This skill increases as the character improves
           his skill with the appropriate weapon type.
- 
+
      Shooting Ability
           Using ranged missile weapons (and throwing objects) is
           included in this skill. Different stats apply to different
           weapons, but this ability may modify the distance an object
           is thrown/fired, the amount of damage done, and the ability
           to hit a creature.
- 
+
      Saving Throws
           A Saving Throw is the ability of a character to resist the
           effects of a spell cast on him by another person/creature.
@@ -323,7 +325,7 @@ Abilities may be adjusted by high or low stats.
           most high level creatures are better at casting spells, so
           it tends to even out.  A high wisdom also increases this
           ability.
- 
+
      Stealth
           The ability to move silently about is very useful.  Charac-
           ters with good stealth can usually surprise their opponents,
@@ -332,32 +334,32 @@ Abilities may be adjusted by high or low stats.
           certain fights.  This skill is based upon race and your
           Stealth skill, and can also be enhanced by some magical
           equipment.
- 
+
      Disarming
           Disarming is the ability to remove traps (safely), and
           includes picking locks on traps and doors.  A successful
           disarming will gain the character some experience.  A trap
           must be found before it can be disarmed.  Dexterity and
           intelligence both modify the ability to disarm.
- 
+
      Magical Devices
           Using a magical device such as a wand or staff requires
           experience and knowledge.  Characters who find a powerful
           magical device may find themselves unable to use it without
           further study.  This skill is also affected by the
           character's intelligence.
- 
+
      Searching Frequency (Perception)
           Perception is the ability to notice something without
           actively seeking it out.  Characters with high Perception
           can sometimes find traps and secret doors without actively
           searching for them.
- 
+
      Searching Ability (Searching)
           This is the ability to find traps and secret doors when one
           is actively seeking them.  Characters who are skilled at
           Searching waste little time at chests and in dead-ends.
- 
+
      Infra-vision
           Infra-vision is the ability to see heat sources. Since most
           of the dungeon is cool or cold, infra-vision will not allow
@@ -431,8 +433,7 @@ skills which the character advances.
           helps to determine the amount of spell points that a
           character will have.  A character with a high rating in
           magical power will be able to cast many spells consecutively
-          without tiring.  This skill also improves a Mage's ability
-          at spellcasting.
+          without tiring.
 
      Dual Wield
           Dual Wield allows a character to fight with two weapons at
@@ -457,26 +458,106 @@ skills which the character advances.
           significant role in determining proficiency in these skills;
           strength is used for wrestling and dexterity for karate.
 
-     Weaponsmithing, Bowmaking, Armor Forging, Alchemy, Magical Infusion     
+     Weaponsmithing, Bowmaking, Armor Forging, Alchemy, Magical Infusion
           These skills are used to determine proficiency in the
           respective talents (see the section on talents).
 
      Perception
           This skill determines a character's ability to search and to
           notice traps and secret doors without actively searching for
-          them.  It also improves a Druid's ability at spellcasting.
+          them.
 
-     Morality, Hunting, Vampire Hunting
+     Magical Perception
+          A character who has trained their magical perception is in
+          tune with the faint fluctuations in magical fields around
+          them, and can often sense things that cannot be seen with
+          the normal eye.  This skill is especially useful for Mages,
+          as it allows them to control their magical effects with
+          greater precision.
+
+     Morality, Nature Lore, Dark Lore
           These skills allow the player to fight more effectively
           against evil, natural, or undead creatures, respectively.
-          Morality also improves performance with priest spells,
-          as does Vampire Hunting for Necromancers.
+          These three skills improve the spellcasting ability of
+          Priests, Druids, and Necromancers, respectively.
+
+=== Magical Realms ===
+
+There are four realms of magic available to those who choose to study
+spellcasting.  Each has its own strengths and weaknesses, but a master
+of any of them is a formidable foe indeed.
+
+     Sorcery
+          Sorcerers, or Mages, as they are frequently called,
+          manipulate the raw forces of magic, without outside
+          aid of any sort, relying only on their Intelligence
+          and their ability to percieve the flow of magic around
+          them.  The forces they wield can be very powerful,
+          and a Sorcerer is capable of bringing to bear more
+          raw destructive power than the followers of any
+          other realm.  They also wield powerful defensive
+          magics, and can magically sense much about the world
+          around them.  The only area in which the practitioners
+          of Sorcery clearly lag behind the other realms is that
+          of healing.  A Sorcerer who becomes injured must wait
+          for his body to heal at its own pace.
+
+     Piety
+          A Priest is a servant of a higher power, working to
+          advance their deity's goals in this world.  To aid
+          them, they are granted the use of formidable magical
+          powers.  Priests have access to a wide variety of
+          healing and defensive magics, and, when confronted
+          by creatures of evil, can strike them down with the
+          full power of their god.  As a Priest gains in Wisdom
+          and in his understanding of Morality, his power grows
+          as well.
+
+     Nature
+          Driuds are the priests of nature, protectors of the
+          natural order of things.  Even in the deepest dungeons
+          of Angband, a Druid is in touch with the world above,
+          and can call upon its powers at will.  While they are
+          not as proficient as Sorcerers at haphazardly tossing
+          around destruction, Druids can still call upon elemental
+          forces to destroy their enemies.  In addition to their
+          versatile array of protective, healing, and detection
+          powers, Druids have an ability unlike any other realm.
+          A skilled Druid can assume the form of an animal,
+          gaining its powers.  Unfortunately, while shapechanging,
+          a Druid is incapable of speaking the words neccesary
+          to cast other spells, and must spend time returning to
+          his original form to do so.  Druids also must pay
+          attention to the ever-changing weather above, for,
+          as the weather changes, so does the effectiveness of
+          their elemental powers.  To achieve true power, a
+          Druid must closely study the secrets of nature, and
+          have the Wisdom to know how best to apply them.
+
+     Necromancy
+          Necromancers deal both in and with death.  They can
+          speak to the spirits of the dead, learning their
+          secrets and bargaining for power with them.  The
+          powers they gain are potent, making Necromancers
+          perhaps the most versatile of the realms of magic.
+          This power does not come without cost, though. The
+          spells learned by Necromancers can take a terrible
+          toll on both mind and body, bringing them ever closer
+          to the grave.  A Necromancer who learns well the
+          secrets of the dead, and with the Charisma to bargain
+          well, can put of this fate for many years, even while
+          achieving terrifying power.
 
 
 === Talents ===
 
-As a character's skill ratings increase, he will gain certain "talents" based
-on ratings of specific skills.  The '_' command is used to activate them.
+Talents are special abilities outside of the normal realms of magic.
+Most of them are learned through extensive training in one or more
+skills, although other sources are possible.  Unlike spells, talents
+require no mana to use. Instead, using a talent renders the character
+unable to use other talents for a period of time.
+
+The '_' command is used to activate a talent.
 
      Fenneling
           Fenneling is the ability to merge two items in an effort to
@@ -488,12 +569,11 @@ on ratings of specific skills.  The '_' command is used to activate them.
           merged.  The ability to use this talent is determined by
           proficiency in magical devices and magical infusion, but the
           character is also required to be proficient in the skill
-          relating to the items being merged.  Note that each time
-          items are fenneled, the character may inadvertently destroy
-          both items, so fenneling is risky.  The chance of failure
-          decreases as the character becomes more proficient with
-          magical devices, and increases as the item being worked
-          with grows more powerful.
+          relating to the items being merged.  As items become more
+          powerful, they become harder to work with.  Errors made
+          while fenneling can cause powers to fail to transfer, or
+          destroy both objects, or even cause the new item to acquire
+          serious magical flaws.
 
      Weapon Forging, Armor Forging, Bowmaking, Alchemy, Infusion
           These talents permit the character to create his own
@@ -501,8 +581,8 @@ on ratings of specific skills.  The '_' command is used to activate them.
           respectively.  A character may be able to create a special
           weapon or piece of armor with special abilities.  Note that
           a component is needed to forge an item; chunks of metal can
-          be found scattered throughout the dungeon.  A more valuable
-          metal may allow the character to forge better items.
+          be found scattered throughout the dungeon.  More valuable
+          metal will allow the character to forge better items.
 
      Predict Weather
           A character with good perception may attempt to predict the
@@ -514,14 +594,14 @@ on ratings of specific skills.  The '_' command is used to activate them.
      Sense Animals, Sense Evil, Find Traps
           These talents allow the player to detect animals, evil
           monsters, and traps; they depend on proficiency in morality,
-          hunting, and disarming, respectively.
+          nature lore, and disarming, respectively.
 
      Find Traps
           This talent allows the player to find hidden traps around
           him, and requires proficiency in disarming.
 
      Restore Experience
-          This talent depends on proficiency in vampire hunting and
+          This talent depends on proficiency in Dark Lore and
           allows the character to regain drained experience.
 
      Meditation
@@ -530,24 +610,23 @@ on ratings of specific skills.  The '_' command is used to activate them.
 
 === Racial Stat Table ===
 
-The lower the Stat Rank, the lower the stat will tend to be for that race.
-The scale is from 0 to 10, with 0 being the lowest.  Base Hit Dice is an
-indicator of the number of Hit Points a character of a given race will have,
-excluding constitution and endurance modifiers.
+Hit-Die is an indicator of the number of Hit Points a character of a
+given race will have, excluding constitution modifiers.  Base Exp is
+an indicator of the amount of experience the race begins with.
 
-Hum = Human    Hob = Hobbit   HlO = Half Orc   HiE = High Elf
-HlE = Half Elf Gno = Gnome    HlT = Half Troll  DkE = Dark Elf
-Elf = Elf Dwa = Dwarf    Dun = Dunedian   Gia = Giant
-
-               Hum HlE Elf Hob Gno Dwa HlO HlT Dun HiE DkE Gia
-Str            6   5   5   4   5   8   8   10  7   7   5   8
-Int            6   7   8   8   7   3   5   4   8   9   10  5
-Wis            6   6   7   3   6   10  7   6   7   5   6   8
-Dex            6   7   8   10  8   4   6   1   8   9   8   3
-Con            6   5   4   7   7   8   7   9   9   7   3   10
-Chr            6   7   8   7   4   3   2   0   8   10  4   4
-Luc            6   7   8   8   10  6   5   4   7   9   5   7
-Base Hit Dice  10  9   8   7   9   11  12  13  10  9   8   15
+   	   	     Str  Int  Wis  Dex  Con  Chr  Luc  Hit-Die  Base Exp
+Human  	   	  +0   +0  	+0 	 +0	  +0   +0  	+4 	  15   	    38
+Half-Elf	  -1   +1   +0   +1   -1   +1   +0    14        20
+Elf			  -1   +2   +1   +1   -2   +1   -1    13        18
+Hobbit		  -2   +2   +1   +3   +2   +1   +2    12        18
+Gnome		  -1   +2   +0   +2   +1   -2   +3    13        17
+Dwarf		  +2   -3   +2   -2   +2   -3   +0    16        20
+Half-Orc	  +2   -1   +0   +0   +1   -4   -1    15        21
+Half-Troll	  +4   -4   -2   -4   +3   -6   -2    18        19
+Dunedian	  +1   +2   +2   +2   +3   +2   +1    15        38
+High Elf      +1   +3   -1   +3   +1   +5   +2    15        36
+Dark Elf	  -1   +3   +0   +2   -3   -2   -1    13        18
+Giant         +2   -1   +2   -3   +4   -2   +1    20        21
 
 === Racial Skill Table ===
 
@@ -582,9 +661,9 @@ Weaponsmithing      7   8   7   6   3   10  8   6   4   5   2   6
 Armor Forging       7   8   9   6   3   8   8   6   4   5   2   6
 Perception          7   7   7   10  7   4   3   4   4   4   9   3
 Morality            7   8   7   7   8   9   4   4   4   4   2   3
-Hunting             7   8   8   7   8   9   7   9   4   7   8   10
-Vampire Hunting     7   8   8   7   8   9   7   8   4   7   8   8
-Precognition        7   6   7   8   7   8   7   8   4   6   8   8
+Nature Lore         7   8   8   7   8   9   7   9   4   7   8   10
+Dark Lore           7   8   8   7   8   9   7   8   4   7   8   8
+Magical Perception  7   6   7   8   7   8   7   8   4   6   8   8
 Wrestling           7   4   2   4   3   9   6   8   4   3   2   10
 Bow Making          7   7   7   10  7   4   7   8   4   3   4   4
 Alchemy             7   6   4   8   9   3   4   7   4   5   7   3

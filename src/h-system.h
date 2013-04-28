@@ -1,3 +1,5 @@
+
+
 /* File: h-system.h */
 
 #ifndef INCLUDED_H_SYSTEM_H
@@ -22,26 +24,26 @@
 #include <errno.h>
 
 #if defined(NeXT)
-# include <libc.h>
+#include <libc.h>
 #else
-# include <stdlib.h>
+#include <stdlib.h>
 #endif
 
 
 #ifdef SET_UID
 
-# include <sys/types.h>
+#include <sys/types.h>
 
-# if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
+#if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
      defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
      defined(__osf__) || defined(ISC) || defined(SGI) || \
      defined(linux)
-#  include <sys/time.h>
-# endif
+#include <sys/time.h>
+#endif
 
-# if !defined(SGI) && !defined(ULTRIX)
-#  include <sys/timeb.h>
-# endif
+#if !defined(SGI) && !defined(ULTRIX)
+#include <sys/timeb.h>
+#endif
 
 #endif
 
@@ -51,66 +53,67 @@
 
 
 #ifdef MACINTOSH
-# include <unix.h>
+#include <unix.h>
 #endif
 
 #if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
-# include <io.h>
+#include <io.h>
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(ACORN) && !defined(VM)
-# if defined(__TURBOC__) || defined(__WATCOMC__)
-#  include <mem.h>
-# else
-#  include <memory.h>
-# endif
+    !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
+#if defined(__TURBOC__) || defined(__WATCOMC__)
+#include <mem.h>
+#else
+#include <memory.h>
+#endif
 #endif
 
 
 #if !defined(NeXT) && !defined(__MWERKS__) && !defined(ACORN)
-# include <fcntl.h>
+#include <fcntl.h>
 #endif
 
 
 #ifdef SET_UID
 
-# ifndef USG
-#  include <sys/param.h>
-#  include <sys/file.h>
-# endif
+#ifndef USG
+#include <sys/param.h>
+#include <sys/file.h>
+#endif
 
-# ifdef linux
-#  include <sys/file.h>
-# endif
+#ifdef linux
+#include <sys/file.h>
+#endif
 
-# include <pwd.h>
+#include <pwd.h>
 
-# include <unistd.h>
+#include <unistd.h>
 
-# include <sys/stat.h>
+#include <sys/stat.h>
 
-# if defined(SOLARIS)
-#  include <netdb.h>
-# endif
+#if defined(SOLARIS)
+#include <netdb.h>
+#endif
 
 #endif
 
 
 #ifdef SET_UID
 
-# ifdef USG
-#  include <string.h>
-# else
-#  include <strings.h>
+#ifdef USG
+#include <string.h>
+#else
+#include <strings.h>
 extern char *strstr();
 extern char *strchr();
 extern char *strrchr();
-# endif
+
+#endif
 
 #else
 
-# include <string.h>
+#include <string.h>
 
 #endif
 
@@ -118,6 +121,7 @@ extern char *strrchr();
 
 #if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN)
 extern long atol();
+
 #endif
 
 
@@ -125,4 +129,3 @@ extern long atol();
 
 
 #endif
-

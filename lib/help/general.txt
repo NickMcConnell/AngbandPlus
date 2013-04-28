@@ -33,101 +33,70 @@ supplies, weapons, armor, and magical devices by bartering with various shop
 owners.  After preparing for his adventure, the player can descend into
 the Pits of Angband where fantastic adventures await his coming!
  
-You will probably want to browse through the "help files", especially the
-one on available commands, before beginning any serious adventuring...
+Note that SAngband is a very complex game, and it may be difficult to grasp
+everything at first, especially if you have never played a "roguelike" game
+before.  You should probably browse through all of the "online help files",
+especially this one, before beginning any serious adventuring...
 
+For those who are familiar with Angband, or most of its other variants, you
+should be aware that the gameplay in SAngband can be quite different,
+especially in the early game, and you expectations of what a starting
+character is capable of could be fatally wrong.
 
+=== A Note from the Maintainer (of Angband) ===
 
-=== A Note from the Maintainer ===
-
-Welcome to Angband 2.7.9v6.
+Welcome to Angband 2.8.X.
 
 My name is Ben Harrison, and I have been the maintainer of Angband since
-November, 1994, when the previous maintainer, Charles Swiger (who developed
-Angband 2.5.1 through 2.6.2), got a real job.  Starting with Angband 2.7.0,
-and continuing through the current version (2.7.9), I have been responsible
-for a number of major improvements to the basic Angband game, some of them
-obvious to the casual user and others hidden below the surface, but no less
-significant.  The most significant improvement has been a total rewrite of
-large portions of the code, which, after ten years of modifications by various
-people, had begun to resemble a rotting death mold.  Also significant was
-the design of a generic "term.c" package, which has allowed Angband to be
-easily ported to Macintosh, Amiga, X11, Windows, and basically every system
-in existance (including a beta-version for DOS-286).
+November 1994.  I have been responsible for many improvements to the game
+over the past few years, and I have many more planned for the future.
 
-In addition, I have added lots of new commands, features, and functionalities,
-most of which appear to have been accepted by most people as a good idea (TM).
+Angband 2.8.X is available for almost every known system (including Unix,
+Macintosh, Amiga, Windows, DOS, OS/2, etc).  It is written entirely in C,
+and the source code is freely available.  Creating a version for a new
+platform involves writing as few as 100 lines of code and recompiling.
 
-It is extremely easy to port Angband 2.7.9 to a new system.  If you cannot
-find a version that will compile on your machine, you can usually make one
-by writing a single file of about one hundred lines of C code.
+Angband 2.7.8 was the most recent official "stable" version.  However,
+it contained a few minor (non-fatal) bugs (see the web page).  You can
+give Angband 2.7.8 to your friends while they wait for Angband 2.8.2.
 
-Angband 2.7.8 was intended to be a nice, clean, stable version, so we
-can all give copies to our friends.  Unfortunately, it contained a few
-minor bugs.  The *enchant* armor/weapon scrolls were "swapped".  The
-game starts to look funny if too many objects accumulate on the floor.
-The "Q" command (commit suicide) does not work.  You may not be able
-to load older savefiles.  Some special dungeon levels may take a long
-time to generate.  Good drops can include cursed rings of speed.  But
-you can see that none of these are "fatal", so Angband 2.7.8 remains
-for now the most "official" version.
+Angband 2.8.3 will be the next official "stable" version.  A whole lot of
+changes have been made since Angband 2.7.8 was released, and there is now
+a web page listing all of the changes made in each version since that one.
+Angband 2.7.9v1, 2.7.9v2, 2.7.9v3, 2.7.9v4, 2.7.9v5, 2.7.9v6, 2.8.0, 2.8.1,
+and 2.8.2, are basically "transition" versions leading up to Angband 2.8.3,
+and they are all still available (for now) at the ftp sites.  Angband 2.8.3
+is based on all previous versions, and incorporates bug fixes in addition to
+new features.
 
-Angband 2.7.9v1 through Angband 2.7.9v6 are intended as "transition" versions
-leading up to the release of Angband 2.8.0.  Angband 2.8.0 will include many
-extensive changes from Angband 2.7.8, see the web page for more information.
-
-Most of these changes have been completed, and include things like cleaning
-up some internal code issues, optimizing the code (again), extending the
-functionality of some existing commands (such as target and look, which now
-handle directional motion), tweaking various aspects of the program, most
-notably in the introduction of new symbols and colors for various monsters,
-and in the use of a more regular set of RGB values for the various color
-codes, etc.  Again, see the web page for a complete list.
-
-Angband 2.8.0 will introduce a version independant savefile format, along
-with a new terrain feature concept, and the ability to allow multiple objects
-in the same cave grid.  It may or may not separate the "unique" monsters from
-the "normal" monsters, perhaps introducing some new "normal" monsters, such
-as "skeleton lord" or "giant boar" or "master mage".
-
-You can email compliments, complaints, bug reports, and presents to
-me ("benh@voicenet.com"), and you can post interesting experiences,
-general questions, compilation questions and code suggestions to the
-newsgroup ("rec.games.roguelike.angband").
+See the Official Angband Home Page ("http://www.phial.com/angband/") for up
+to date information about the latest version of Angband, including a complete
+list of recent modifications and known bugs.
 
 You can obtain the latest source and pre-compiled executables from various
 places, try "ftp://ftp.cis.ksu.edu/pub/Games/Angband/Angband-2.7.x" and
-the developer site at "ftp://export.andrew.cmu.edu/angband".  You will need
-to enter the appropriate sub-directory, such as "Source" or "Macintosh".
+the developer site at "ftp://export.andrew.cmu.edu/angband".
 
-You should visit "http://www.voicenet.com/~benh/Angband/" (the Official
-Angband Home Page) and "http://www.paranoia.com/~jth/angband.html" (the
-Unofficial Angband Home Page), for more up to date information.
+You can email compliments, complaints, suggestions, bug reports, and patches
+to me ("benh@phial.com"), and you can post interesting experiences and basic
+questions to the newsgroup ("rec.games.roguelike.angband").
 
 You may freely distribute the game, and its source, though you are bound
 not only by the existing copyright notice from 1984, but also whatever
 restrictions may be present on various other pieces of the code, including
 the fact that any source written by me is technically automatically placed
-under copyright and may thus not be used for commercial purposes.
+under copyright and may thus not be used for commercial purposes.  Remember
+to read the "version.txt" help file for some more copyright information.
 
 The basic help files supplied with this game are more or less up to date,
-but when in doubt, the source (or the newsgroup) is the place to turn for
-advice.  Or attempt to figure it out by experimentation, this is sometimes
-the most fun.  In particular, see "commands.txt" for information on the
-available commands, some of which have been recently added or changed,
-and "options.txt", which describe how to customize several aspects of
-the game to suit your preferences.
+but when in doubt, you should ask the newsgroup for confirmation.
 
 The documentation is very easy to modify and update, so you may want to
 check in to the ftp site occasionally to see if there are any new help
 files (or spoiler files) for you to acquire.  Note that the spoiler files
 are not distributed with the source since they are so huge, but you can
 obtain them from various places as with the source and executables.  New
-spoiler files may be placed in the "lib/help" or "lib/info" directories,
-to allow access via the "online help" system.
+spoiler files may be placed into the "lib/info" directory, or into a user
+specified external directory, to allow access via the "online help" system.
 
 Remember to tell all your friends about how much you like Angband...
-
-Happy adventuring!
-
-+++ Ben +++

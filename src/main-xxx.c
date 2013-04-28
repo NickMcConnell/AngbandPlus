@@ -1,9 +1,19 @@
 /* File: main-xxx.c */
 
-/* Purpose: Sample visual module for Angband 2.8.1 */
+/*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
+
 
 /*
- * This file written by "Ben Harrison (benh@voicenet.com)".
+ * This file helps Angband work on non-existant computers.
+ *
+ * To use this file, use "Makefile.xxx", which defines USE_XXX.
+ *
  *
  * This file is intended to show one way to build a "visual module"
  * for Angband to allow it to work with a new system.  It does not
@@ -46,10 +56,13 @@
  * When you complete a port to a new system, you should email any
  * newly created files, and any changes made to existing files,
  * including "h-config.h", "config.h", and any of the "Makefile"
- * files, to "benh@voicenet.com" for inclusion in the next version.
+ * files, to "benh@phial.com" for inclusion in the next version.
  *
- * Try to stick to a "three letter" naming scheme for "main-xxx.c"
+ * Always choose a "three letter" naming scheme for "main-xxx.c"
  * and "Makefile.xxx" and such for consistency and simplicity.
+ *
+ *
+ * Initial framework (and all code) by Ben Harrison (benh@phial.com).
  */
 
 
@@ -71,7 +84,7 @@ typedef struct term_data term_data;
 
 struct term_data
 {
-	term		t;
+	term t;
 
 	/* Other fields if needed XXX XXX XXX */
 };
@@ -98,50 +111,16 @@ struct term_data
 static term_data data[MAX_TERM_DATA];
 
 
-#if 0	/* Fix the syntax below XXX XXX XXX */
+#if 0
 
 /*
- * The "color" array for the visual module XXX XXX XXX
+ * Often, it is helpful to create an array of "color data" containing
+ * a representation of the "angband_colors" array in some "local" form.
  *
- * This table should be used in whetever way is necessary to
- * convert the Angband Color Indexes into the proper "color data"
- * for the visual system.  On the Macintosh, these are arrays of
- * three shorts, on the IBM, these are combinations of the eight
- * basic color codes with optional "bright" bits, on X11, these
- * are actual "pixel" codes extracted from another table which
- * contains textual color names.
- *
- * The Angband Color Set (0 to 15):
- *   Black, White, Slate, Orange,    Red, Blue, Green, Umber
- *   D-Gray, L-Gray, Violet, Yellow, L-Red, L-Blue, L-Green, L-Umber
- *
- * Colors 8 to 15 are basically "enhanced" versions of Colors 0 to 7.
- *
- * As decribed in one of the header files, in a perfect world, the
- * colors below should fit a nice clean "quartered" specification
- * in RGB codes, but this must often be Gamma Corrected.  The 1/4
- * parts of each Red,Green,Blue are shown in the comments below,
- * again, these values are *before* gamma correction.
+ * Often, the "Term_xtra(TERM_XTRA_REACT, 0)" hook is used to initialize
+ * "color_data" from "angband_colors".  XXX XXX XXX
  */
-static local_color_data_type color_data[16] =
-{
-	/* XXX XXX XXX 0,0,0 */,		/* TERM_DARK */
-	/* XXX XXX XXX 4,4,4 */,		/* TERM_WHITE */
-	/* XXX XXX XXX 2,2,2 */,		/* TERM_SLATE */
-	/* XXX XXX XXX 4,2,0 */,		/* TERM_ORANGE */
-	/* XXX XXX XXX 3,0,0 */,		/* TERM_RED */
-	/* XXX XXX XXX 0,2,1 */,		/* TERM_GREEN */
-	/* XXX XXX XXX 0,0,4 */,		/* TERM_BLUE */
-	/* XXX XXX XXX 2,1,0 */,		/* TERM_UMBER */
-	/* XXX XXX XXX 1,1,1 */,		/* TERM_L_DARK */
-	/* XXX XXX XXX 3,3,3 */,		/* TERM_L_WHITE */
-	/* XXX XXX XXX 4,0,4 */,		/* TERM_VIOLET */
-	/* XXX XXX XXX 4,4,0 */,		/* TERM_YELLOW */
-	/* XXX XXX XXX 4,0,0 */,		/* TERM_L_RED */
-	/* XXX XXX XXX 0,4,0 */,		/* TERM_L_GREEN */
-	/* XXX XXX XXX 0,4,4 */,		/* TERM_L_BLUE */
-	/* XXX XXX XXX 3,2,1 */		/* TERM_L_UMBER */
-};
+static local_color_data_type color_data[256];
 
 #endif
 
@@ -250,7 +229,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * This action is required.
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_FLUSH:
@@ -265,7 +244,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * This action is required, but may not be "essential".
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_CLEAR:
@@ -279,7 +258,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * This action is required.
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_SHAPE:
@@ -294,7 +273,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * efficiency (and attractiveness) of the program.
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_FROSH:
@@ -311,7 +290,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * necessary flushing issues.
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_FRESH:
@@ -328,7 +307,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * necessary flushing issues.
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_NOISE:
@@ -341,7 +320,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * This action is optional, but convenient.
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_SOUND:
@@ -356,7 +335,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * This action is optional, and not very important.
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_BORED:
@@ -367,7 +346,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * This action is optional, and normally not important
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_REACT:
@@ -376,14 +355,14 @@ static errr Term_xtra_xxx(int n, int v)
 			 * React to global changes XXX XXX XXX
 			 *
 			 * For example, this action can be used to react to
-			 * changes in the global "color_table[256][4]" array.
+			 * changes in the global "angband_colors[256][4]" array.
 			 *
 			 * This action is optional, but can be very useful for
 			 * handling "color changes" and the "arg_sound" and/or
 			 * "arg_graphics" options.
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_ALIVE:
@@ -402,7 +381,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * on UNIX machines, to allow proper "suspending".
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_LEVEL:
@@ -423,7 +402,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * one "term_data" structure is supported by this file.
 			 */
 
-		return (0);
+			return (0);
 		}
 
 		case TERM_XTRA_DELAY:
@@ -438,8 +417,8 @@ static errr Term_xtra_xxx(int n, int v)
 			 * especially if special "macro sequences" must be supported.
 			 */
 
-		return (0);
-	}
+			return (0);
+		}
 	}
 
 	/* Unknown or Unhandled action */
@@ -666,6 +645,8 @@ errr init_xxx(void)
 
 	/* Initialize "term_data" structures XXX XXX XXX */
 
+	/* Initialize the "color_data" array XXX XXX XXX */
+
 	/* Create windows (backwards!) */
 	for (i = TERM_DATA_MAX - 1; i >= 0; i--)
 	{
@@ -767,3 +748,5 @@ int main(int argc, char *argv[])
 
 
 #endif /* USE_XXX */
+
+

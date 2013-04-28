@@ -1,8 +1,26 @@
 /* File: main-vme.c */
 
-/* Purpose: Support for "Vax Angband" */
+/*
+ * Copyright (c) 1997 Ben Harrison, and others
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
+
 
 /*
+ * This file helps Angband work with VM/ESA computers.
+ *
+ *
+ * This file is definitely out of date, and the rest of the source
+ * code is not quite compatible with VM/ESA computers.  XXX XXX XXX
+ *
+ */
+
+
+/*
+
 This is MAIN-VME C for VM/ESA machines.
 First enable definition of VM in file "h-config.h"
 You need to unpack archive EXT-VM VMARC .
@@ -28,8 +46,6 @@ If you have any problems, mail to
 
 SM20616@vm.lanet.lv or SD30066@vm.lanet.lv
 
-A large amount of this file appears to be a complete hack, but
-what can you expect from a system designed for the Vax... :-)
  */
 
 
@@ -1193,4 +1209,5 @@ unlink(char *filename)
 
 
 #endif /* USE_VME */
+
 

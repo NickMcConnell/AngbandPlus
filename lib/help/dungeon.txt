@@ -261,9 +261,8 @@ sorcerers, who enjoy a good joke when it gets you killed.
 Only one object may occupy a given floor location, which may or may not also
 contain one creature.  Doors, rubble, traps, and staircases are considered
 "objects" for this purpose.  As below, any item may actually be a "pile" of
-up to 99 identical items.  (There is an option that will allow multiple
-different objects to occupy the same location, but it is currently buggy, and
-I reccomend against its use.)
+up to 99 identical items.  There is an option that will allow multiple
+different objects to occupy the same location.
 
 You pick up objects by moving on top of them.  You can carry up to 23
 different items in your backpack while wearing and wielding up to 12 others.
@@ -448,10 +447,10 @@ save the game and play more later, but since you have defeated the toughest
 creature alive, there is really not much point.  Unless you wish to listen
 to the rumors of a powerful ring buried somewhere in the dungeon...
 
-When you are ready to retire, simply "commit suicide" ("^K") to have your
-character entered into the high score list as a winner.  Note that until you
-retire, you can still be killed, so you may want to retire before wandering
-into a hoard of death molds...
+When you are ready to retire, simply "commit suicide" (Using the "Q" key)
+to have your character entered into the high score list as a winner.  Note
+that until you retire, you can still be killed, so you may want to retire
+before wandering into a hoard of death molds...
 
 
 === Upon Death and Dying ===
@@ -467,6 +466,12 @@ case the new character is generated exactly as if the file was not there,
 but the new player will find his monster memory containing all the experience
 of past incarnations.
 
+There are a variety of ways to "cheat" death (including using a special
+"cheating option") when it would otherwise occur.  This will fully heal
+your character, returning him to the town, and marking him in various
+ways as a character which has cheated death.  Cheating death, like using
+any of the "cheating options", will prevent your character from appearing
+on the high score list.
 
 === Help ===
 

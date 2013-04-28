@@ -1,548 +1,681 @@
-/* skills.c:  ALL the routines for handling skills are in here */
-#include "angband.h"
 
-cptr snames[S_NUM]=
-{"Swordsmanship","Clubbing","Jousting","Endurance",
- "Archery","Magical Devices","Spellcasting","Spell Resistance","Disarming",
- "Backstabbing","Sneaking","Magical Power","Dual Wield","Dodging","Karate",
- "Weaponsmithing","Armor Forging","Perception","Morality","Hunting",
- "Vampire Hunting","Precognition","Wrestling","Bowmaking","Alchemy",
- "Magical Infusion","","","",""};
 
-cptr shelp[S_NUM]=
-{"fight with swords",
- "fight with maces",
- "fight with polearms",
- "take more damage",
- "shoot a Bow+Arrow",
- "use a Magic Device",
- "learn new spells",
- "resist spells cast at you",
- "disarm traps",
- "badly wound sleeping creatures",
- "move quietly through the dungeon",
- "cast more spells",
- "fight with two weapons at once",
- "protect yourself from attacks",
- "kick and punch your opponents",
- "forge custom-made weapons",
- "forge custom-made armor",
- "find special areas and items",
- "fight evil creatures well",
- "fight natural creatures well",
- "fight undead creatures well",
- "sense powerful monsters",
- "grapple your opponent",
- "make bows and arrows",
- "create scrolls and potions",
- "create wands and staves",
- "","","",""};
+/* File: skills.c */
 
-/* This is necessary so we can have a "logical" progression between the
-virtual levels---so early levels go quickly, and later levels slowly.  One
-needs this many advances to go BEYOND this level; 2 advances get the player
-past Level 1, 2 MORE advances get player past level 2, and so on */
-
-unsigned num_adv[PY_MAX_LEVEL+1]=
-{4,4,4,5,5,5,6,6,6,7,
- 7,7,8,8,8,9,9,9,10,10,
- 10,11,11,11,12,12,12,13,13,13,
- 14,14,15,15,16,16,17,17,18,18,
- 19,19,20,20,21,22,23,24,25,26,65535};
-/* The last prevents players from advancing to level 51 */
-
-/*   This returns a "logical" value for ALL NON FIGHTING SKILLS.  Fighting
- * skills handled in 3 other routines---one for +todam, one for +tohit, and
- * one for # of blows/round modifier
+/*
+ * Copyright (c) 1998 Julian Lighton, Michael Gorse, Chris Petit
  *
- * For all magical skills, this returns an appropiate "level" of the caster,
- * for determining spell failure, mana, etc.
- *
- * For weapon/armorsmithing, this returns an effective level of the user---
- * if 0, cannot use the ability.
- *
- * For backstabbing, this returns an effective level (0 means no backstab).
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
-int smod(int skill)
+#include "angband.h"
+
+/*
+ * Look up the raw value of a skill, returning a number from 0 to 255
+ * This way, the internal representation can change without breaking
+ * everything.
+ */
+s16b
+get_raw_skill(int which)
 {
-  int tmp;
-  if (skill>=S_NUM)
-    return 0;
-  tmp=p_ptr->cur_skill[skill];
-  switch(skill)
-    {
-    case S_ENDURANCE:
-      if (tmp>=50)
-	return ((tmp-50)/22);
-      return ((tmp-50)/12);
-      break;
-    case S_DEVICE: /* Magic Devices hard to use---scale is 2 points/lvl, 1
-		      if below 30 points. */
-      if (tmp<30) return 1;
-      return ((tmp-30)/2)+1;
-      break;
-    case S_MAGIC: /* Should be HARD.  We have 5 points/lvl.  Spellcasting. None
-		     if below 40 points. */
-      if (tmp<40) return 0;
-      if (tmp>=240) return 50;
-      return ((tmp-40)/4)+1;
-      break;
-    case S_SAVE: /* Should be fairly easy.  We return the Save/2 */
-      if (tmp<66) return(tmp/2);
-      return ((tmp+33)/3);
-      break;
-    case S_DISARM:
-      return(tmp/2);
-      break;
-    case S_BACKSTAB:
-      return (tmp/80)+1;
-      break;
-    case S_STEALTH:
-      return (tmp/25);
-      break;
-    case S_MPOWER: /* Is HARD.  4 points/lvl.  Determines Mana. */
-      if (tmp<35) return 0;
-      return ((tmp-35)/4)+1;
-      break;
-    case S_2HANDED:
-      if (tmp<175) return 0;
-      return (tmp-100)/75;
-      break;
-    case S_DODGING:
-      if (tmp<30) return 0;
-      tmp=(tmp-25)/2; /* POSSIBLE AC mod---if wearing nothing */
-      tmp-=armor_weight();
-      if (tmp<0) return 0;
-      return tmp;
-      break;
-    case S_WEAPON:
-    case S_ARMOR:
-      if (tmp<40) return 0;
-      return ((tmp-40)/9)+1;
-      break;
-    case S_PERCEPTION:
-      return(tmp/7);
-      break;
-    case S_SLAY_EVIL: /* Is this used? */
-      if (tmp<40) return 0;
-      return ((tmp-40)/16)+1;
-      break;
-    case S_SLAY_ANIMAL: /* Is this used? */
-      if (tmp<25) return 0;
-      return ((tmp-25)/12)+1;
-      break;
-    case S_BOWMAKE:
-      if (tmp<80) return 0;
-      return ((tmp-80)/8)+1;
-      break;
-    case S_ALCHEMY:
-      if (tmp<100) return 0;
-      return ((tmp-90)/2)-2;
-      break;
-    case S_INFUSION:
-      if (tmp<120) return 0;
-      return((tmp-110)/2)+1;
-      break;
-    default:
-      return tmp;
-      break;
-    }
+	return (p_ptr->pskills[which].cur) >> 8;
 }
 
-/* Routine to determine todam modifier granted by the passed fighting skill
- * We don't NEED one for the tohit, since it's already determined by the
- * appropriate fighting skill */
-int stodam(int skill)
+/*
+ * This returns a "logical" value for ALL NON FIGHTING SKILLS.
+ * Fighting skills handled in 3 other routines---one for +todam, one
+ * for +tohit, and one for # of blows/round modifier
+ *
+ * For all magical skills, this returns an appropiate "level" of the
+ * caster, for determining spell failure, mana, etc.
+ *
+ * For weapon/armorsmithing, this returns an effective level of the
+ * user--- if 0, cannot use the ability.
+ *
+ * For backstabbing, this returns the damage multiplier.
+ */
+
+s16b
+get_skill(int which)
 {
-  int tmp;
-  tmp = p_ptr->cur_skill[skill];
-  switch(skill)
-    {
-    case S_KARATE: case S_WRESTLING: /* Damage is not modified */
-      return 0;
-      break;
-    case S_SWORD: case S_HAFTED: case S_POLEARM:
-      if (tmp<60)
-	return (tmp-60)/3; /* Hefty negative here */
-      return (tmp-60)/30;
-      break;
-    case S_ARCHERY: /* This advances VERY slowly */
-      if (tmp<80)
-	return (tmp-80)/6; /* Even worse, since Bows are very specialized */
-      return (tmp-80)/33;
-      break;
-    case S_SLAY_ANIMAL:
-      if (tmp >= 35)
-	return (tmp-20)/15;
-      return 0;
-      break;
-    case S_SLAY_EVIL:
-      if (tmp >= 50)
-	return (tmp-30)/20;
-      return 0;
-      break;
-    case S_SLAY_UNDEAD:
-      if (tmp >= 35)
-	return (tmp-20)/15;
-      return 0;
-      break;
-    default:
-      return 0;
-      break;
-    }
+	int tmp;
+
+	if (which >= NUM_SKILLS)
+		return 0;
+	tmp = get_raw_skill(which);
+	switch (which)
+	{
+	case S_SWORD:				/* Not yet accessed through get_skill */
+	case S_HAFTED:
+	case S_POLEARM:
+	case S_ARCHERY:
+	case S_KARATE:
+	case S_WRESTLING:
+		return tmp;
+	case S_ENDURANCE:
+		/* Effective level for determining hit points. range of 2-100 */
+		if (tmp < 15)
+			return 2;
+		if (tmp < 22)
+			return 3;
+		if (tmp < 28)
+			return 4;
+		if (tmp < 34)
+			return 5;
+		if (tmp < 39)
+			return 6;
+		if (tmp < 43)
+			return 7;
+		if (tmp < 47)
+			return 8;
+		if (tmp < 50)
+			return 9;
+		if (tmp < 52)
+			return 10;
+		return 4 * (tmp - 34) / 9 + 2;
+	case S_DEVICE:
+		if (tmp < 15)
+			return 1;
+		if (tmp < 23)
+			return 2;
+		if (tmp < 30)
+			return 3;
+		if (tmp < 35)
+			return 4;
+		if (tmp < 38)
+			return 5;
+		return ((tmp - 30) / 2) + 1;
+	case S_MAGIC:
+		if (tmp < 18)
+			return 0;
+		if (tmp < 23)
+			return 1;
+		if (tmp < 29)
+			return 2;
+		if (tmp < 36)
+			return 3;
+		if (tmp < 42)
+			return 4;
+		if (tmp < 51)
+			return 5;
+		if (tmp < 59)
+			return 6;
+		if (tmp < 66)
+			return 7;
+		if (tmp < 72)
+			return 8;
+		if (tmp >= 240)
+			return 50;
+		return ((tmp - 40) / 4) + 1;
+	case S_SAVE:
+		if (tmp < 66)
+			return (tmp / 2);
+		return ((tmp + 33) / 3);
+	case S_DISARM:
+		return (tmp / 3);
+	case S_BACKSTAB:
+		return (tmp / 80) + 1;
+	case S_STEALTH:
+		return (tmp / 35);
+	case S_MPOWER:
+		if (tmp < 18)
+			return 0;
+		if (tmp < 20)
+			return 1;
+		if (tmp < 23)
+			return 2;
+		if (tmp < 27)
+			return 3;
+		if (tmp < 32)
+			return 4;
+		if (tmp < 38)
+			return 5;
+		if (tmp < 43)
+			return 6;
+		if (tmp < 47)
+			return 7;
+		if (tmp < 50)
+			return 8;
+		if (tmp < 53)
+			return 9;
+		return ((tmp - 35) / 2) + 1;
+	case S_2HANDED:
+		return tmp / 75;
+	case S_DODGING:
+		if (tmp < 30)
+			return 0;
+
+		/* Determine base AC when wearing nothing */
+		tmp = (tmp - 25) / 2;
+
+		/* Adjust for armor weight. The better you are,
+		 * the more armor you can wear without penalty. */
+		if (armor_weight() > tmp)
+			tmp -= (4 * (armor_weight() - tmp) / 10);
+		if (tmp < 0)
+			return 0;
+		return tmp;
+	case S_WEAPON:
+	case S_ARMOR:
+		if (tmp < 45)
+			return 0;
+		return ((tmp - 45) / 4) + 1;
+	case S_PERCEPTION:
+		return (tmp / 7);
+	case S_SLAY_EVIL:
+		return tmp / 2;
+	case S_SLAY_ANIMAL:
+		return tmp / 2;
+	case S_SLAY_UNDEAD:
+		return tmp / 2;
+	case S_PRECOG:
+		return ((tmp - 5) * 2) / 5;
+	case S_BOWMAKE:
+		if (tmp < 40)
+			return 0;
+		return ((tmp - 40) / 5) + 1;
+	case S_ALCHEMY:
+		if (tmp < 100)
+			return 0;
+		return ((tmp - 90) / 2) - 2;
+	case S_INFUSION:
+		if (tmp < 120)
+			return 0;
+		return ((tmp - 110) / 2) + 1;
+	case S_NOSKILL:
+		msg_print("Warning. get_skill for S_NOSKILL");
+		return 0;
+	default:
+		return tmp;
+	}
 }
 
-/* This will determine a "general level" based on the various skills you
-have.  Useful for determining extra HP and so on */
-
-int get_level()
-{
-  int loop, sum, lvl;
-  sum=0;
-  lvl=0;
-  for(loop=0;loop<S_NUM;loop++)
-    sum+=p_ptr->adv_skill[loop];
-  /* Now we search the "num_adv" array and find the player's REAL level */
-  for(loop=0;loop<PY_MAX_LEVEL && sum>0;loop++,sum-=num_adv[loop],++lvl);
-  if (lvl>PY_MAX_LEVEL) lvl=PY_MAX_LEVEL;
-  if (lvl<1) lvl=1;
-  return lvl;
-}
-
-/* This determines the amount of XP required to advance a skill.  NOTE: A
-skill WILL NOT always advance by 1 point---if a race is good at something, it
-may go up 5 or 6 points when advanced. */
-s32b get_xp(int sk)
-{
-  s16b mult; /* Used to make XP required advance very quickly */
-  int loop,total;
-  s32b cur;
-  total=0;
-  for(loop=0;loop<S_NUM;loop++)
-    total+=p_ptr->adv_skill[loop];
-  mult=(total/45)+2;
-  total*=mult;
-  total/=3;
-  cur=2+total; /* Thus we always need AT LEAST 2 XP to advance a skill */
-  cur+=p_ptr->adv_skill[sk]*mult;
-  if (p_ptr->max_skill[sk]>p_ptr->cur_skill[sk])
-    cur=(cur/3)+1; /* Advance much more quickly if skill drained */
-  return cur;
-}
-
-/* This returns an AC modifier for any and all skills OTHER THAN
-   dodging.
-   Only the highest bonus is used. */
-
-int stoac(u32b flags3)
-{
-  int tmp, toac = 0;
-  if ((flags3 & RF3_EVIL) && p_ptr->cur_skill[S_SLAY_EVIL]>=60)
-    toac = (p_ptr->cur_skill[S_SLAY_EVIL]-50)/10;
-  if ((flags3 & RF3_ANIMAL) && p_ptr->cur_skill[S_SLAY_ANIMAL]>=45)
-    tmp = (p_ptr->cur_skill[S_SLAY_ANIMAL]-40)/8;
-  if (tmp > toac) toac = tmp;
-  if ((flags3 & RF3_UNDEAD) && p_ptr->cur_skill[S_SLAY_UNDEAD]>=45)
-    tmp = (p_ptr->cur_skill[S_SLAY_UNDEAD]-40)/8;
-  if (tmp > toac) toac = tmp;
-  return toac;
-}
 
 /* This returns which weapon skill we're using */
-int sweapon()
+int
+sweapon()
 {
-  object_type *o_ptr;
-  o_ptr = &inventory[INVEN_WIELD];
-  if (!o_ptr->k_idx) return (p_ptr->barehand);
-  if (o_ptr->tval == TV_HAFTED) return (S_HAFTED);
-  if (o_ptr->tval == TV_POLEARM) return (S_POLEARM);
-  return (S_SWORD);
+	object_type *o_ptr;
+
+	o_ptr = &inventory[INVEN_WIELD];
+	if (!o_ptr->k_idx)
+		return (p_ptr->barehand);
+	if (o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_DIGGING)
+		return (S_HAFTED);
+	if (o_ptr->tval == TV_POLEARM)
+		return (S_POLEARM);
+	return (S_SWORD);
 }
 
 /* Description for realm */
-cptr realm_desc()
+static cptr
+realm_desc()
 {
-  switch(p_ptr->realm)
-    {
-    case NONE:
-      return("You are not familiar with any magical art.");
-    case MAGE:
-      return("You know the Magic arts.");
-    case PRIEST:
-      return("You are a pious character.");
-    case DRUID:
-      return("You feel in harmony with the world.");
-    case NECRO:
-      return("You understand the forces of life and death.");
-    default:
-      return("You are familiar with the forces of software bugs.");
-    }
-}
-
-/* Print a skill value */
-void prt_skills_aux(int t, FILE *me)
-{
-  char out[50], filestr[80];
-  cptr rank;
-  int i, j;
-
-  i=(t%2)*30+15;
-  j=t/2+3;
-  switch(p_ptr->cur_skill[t]/15)
-    {
-    case 0: case 1: rank = "Awful"; break;
-    case 2: case 3: rank = "Poor"; break;
-    case 4: case 5: case 6: rank = "Fair"; break;
-    case 7: case 8: rank = "Good"; break;
-    case 9: case 10: rank = "Very Good"; break;
-    case 11: case 12: rank = "Excellent"; break;
-    case 13: case 14: rank = "Superb"; break;
-    case 15: rank = "Legendary"; break;
-    default: rank = "Ungodly"; break;
-    }
-  if (p_ptr->cur_skill[t]==p_ptr->max_skill[t])
-    sprintf(out,"%s: %-15s",snames[t],rank);
-  else /* Uh oh.  Skill drained! */
-    sprintf(out,"%s:(%-15s)",snames[t],rank);
-  if (snames[t][0] && !me) /* Don't print unimplemented skills */
-    {
-      put_str(format("%c) ", t+65), j, i-3);
-      put_str(out,j,i);
-    }
-  else if (snames[t][0]) /* Print to file */
-    {
-      if (t%2) /* Advance a line */
-	fprintf(me,"%s\n",out);
-      else
+	switch (p_ptr->realm)
 	{
-	  filestr[40-strlen(out)] = 0;
-	  fprintf(me, "%s%s", out, filestr);
-	  filestr[40-strlen(out)] = ' ';
-	}
-    }
-}
-/* This will print out skills onscreen (separate routine to a file) */
-void prt_skills(char *title, FILE *me)
-{
-  int i, t;
-  char filestr[80];
-
-  if(!me)
-    {
-      Term_save();
-      clear_from(0);
-    }
-  t=0;
-  t=40-strlen(title)/2;
-  if (!me)
-    prt(title,1,t);
-  else
-    {
-      for(i=0; i<79; i++)
-	filestr[i]=' ';
-      filestr[79]=0; /* Make a 'blank' string */
-      filestr[t]=0;
-      fprintf(me,"%c\n\n%s%s\n\n",12,filestr,title);
-      filestr[t]=' '; /* Keep it for later */
-    }
-  for(t=0;t<S_NUM-2;t++) /* Leave last line free for Spell Info */
-    prt_skills_aux(t, me);
-  if (me)
-    fprintf(me,"\n\n"); /* Nicely formatted */
-  if (!me)
-    prt(realm_desc(), 20, 15);
-  else
-    fprintf(me,"%s\n%c\n", realm_desc(), 12);	/* Add a ^l */
-}
-
-/* This allows PC to advance a skill */
-void do_cmd_advance()
-{
-  int i, j, stay, k;
-  char key;
-  char out[70];
-  sprintf(out,"** Skill Advancement:  Average Level %d **",get_level());
-  prt_skills(out,(FILE *)0);
-  prt("Type the appropriate letter to select a skill and", 21, 15);
-  prt("<Spacebar> or <Enter> to advance it.  Skill info is in", 22, 15);
-  prt("top line.  Press ESC to exit, or ? for skill info.", 23, 15);
-  k = p_ptr->lastadv;
-  sprintf(out,"Advancements: %d, XP Needed: %ld, XP Avail: %ld",
-	  p_ptr->adv_skill[k], get_xp(k), p_ptr->exp);
-  prt(out,0,10);
-  stay=1;
-  while(stay)
-    {
-      i = k%2;
-      j = k/2;
-      move_cursor(j+3,i*30+15);
-      key=inkey();
-      if (key >= 'a' && key <= 'z')
-	key -= 32;
-      switch(key)
-	{
-	case '?':
-	  sprintf(out,"%s will help you to %s.",snames[k],shelp[k]);
-	  msg_print(out);
-	  msg_print(NULL);
-	  prt(format("Advancements: %d, XP Needed: %ld, XP Avail: %ld",
-		     p_ptr->adv_skill[k], get_xp(k), p_ptr->exp), 0, 0);
-	  break;
-	case ' ': case 13: /* Return pressed or Spacebar */
-	  (void) advance(k, 1);
-	  prt_skills_aux(k, (FILE *)0);
-	  prt(format("Advancements: %d, XP Needed: %ld, XP Avail: %ld",
-		     p_ptr->adv_skill[k], get_xp(k), p_ptr->exp), 0, 0);
-	  energy_use = 100;
-	  break;
-	case 27: /* ESC */
-	  stay=0;
-	  break;
+	case NONE:
+		return ("You are not familiar with any magical art.");
+	case MAGE:
+		return ("You know the sorcerous arts.");
+	case PRIEST:
+		return ("You serve a greater power.");
+	case DRUID:
+		return ("You control the forces of nature.");
+	case NECRO:
+		return ("You understand the forces of life and death.");
 	default:
-	  {
-	    if(key<65 || key>90) break;
-	    key -= 65;
-	    if(!snames[(int)key][0]) break;
-	    k = key;
-	    prt(format("Advancements: %d, XP Needed: %ld, XP Avail: %ld",
-		       p_ptr->adv_skill[k], get_xp(k), p_ptr->exp), 0, 0);
-	  }
+		return ("You are familiar with the forces of software bugs.");
 	}
-    }
-  Term_load();
-  p_ptr->redraw |= (PR_EXP | PR_HP | PR_LEV | PR_TITLE);
 }
 
-/* This attempts to advance the given skill.  It will return 0 if failed, 1 if
-successful.  Also, pass a 1 for dir to advance the skill, and a - to weaken
-it by that many iterations.  The amount of experience is only relevant when
-INCREASING a skill. */
-int advance(int which, int d2)
+/*
+ * Calculate the experience point cost to raise the specific skill.
+ */
+s32b
+adv_cost(int skill)
 {
-  int i,j,next,old,loop,do_dec,dir,restore;
-  char key;
-  char out[80];
-  long tmp;
-  do_dec=0; /* If 1, we decrease skill */
-  restore=0; /* If 1, we are restoring skill to normal */
-  if (d2<0)
-    {
-      dir=-d2;
-      do_dec=1; }
-  else
-    dir=d2;
-  if (dir==255) restore=1;
-  for(loop=0;loop<dir;loop++)
-    {
-      tmp=get_xp(which);
-      if (p_ptr->cur_skill[which]==255)
-	{
-	  msg_print("That skill is already at its limit!");
-	  msg_print(NULL);
-	  return 0;
-	}
-      if (p_ptr->exp<tmp && !do_dec && !restore) 
-	{
-	  msg_print("You don't have enough experience to advance that skill!");
-	  msg_print(NULL);
-	  sprintf(out,"** Skill Advancement:  Average Level %d **",get_level());
-	  i=40-strlen(out)/2;
-	  prt("       ",1,i-7);
-	  prt(out,1,i);
-	  return 0;
-	}
-      if (!rp_ptr->start[which])
-	return 0; /* Ignore non-working skills */
-      old=p_ptr->cur_skill[which];
-      next=p_ptr->cur_skill[which];
-      if ((which==S_MAGIC || which==S_MPOWER) && (!p_ptr->adv_skill[S_MAGIC]
-						  && !p_ptr->adv_skill[S_MPOWER]) && !do_dec)
-	{
-	  prt("Choose a Realm:  (S)orcery, (P)iety, (D)ruid, or (N)ecromacy", 0, 0);
-	  key=inkey();
-	  prt("", 0, 0);
-	  j=0;
-	  switch(key)
-	    {
-	    case 's': case 'S':
-	      p_ptr->realm = MAGE;
-	      strcpy(out,"You are learning Sorcery!");
-	      j=1;
-	      break;
-	    case 'p': case 'P':
-	      p_ptr->realm=PRIEST;
-	      strcpy(out,"You are learning the ways of God!");
-	      j=1;
-	      break;
-	    case 'd': case 'D':
-	      p_ptr->realm=DRUID;
-	      strcpy(out,"You are learning Nature magic!");
-	      j=1;
-	      break;
-	    case 'n': case 'N':
-	      p_ptr->realm=NECRO;
-	      strcpy(out,"You are learning Dark Sorcery!");
-	      j=1;
-	      break;
-	    default:
-	      strcpy(out,
-		     "You need to pick a Realm before advancing magical skills!");
-	      break;
-	    }
-	  msg_print(out);
-	  msg_print(NULL);
-	  mp_ptr = &magic_info[p_ptr->realm];
-	  if (!j) return j; /* Otherwise, advance it */
+	s32b gen_adv = 0, skill_adv, cost;
+	int i;
 
-	  /* Update screen */
-	  prt(realm_desc(), 20, 15);
-	}
-      i = rp_ptr->skills[which]; /* Starting advance value */
-      if (!do_dec && !restore)
-	p_ptr->lastadv = which; /* Tells us the last-advanced skill */
-      j=p_ptr->adv_skill[which];
-      if (j<5)
-	i-=0;
-      else if (j<9)
-	--i;
-      else if (j<16)
-	i-=2;
-      else if (j<27)
-	i-=3;
-      else if (j<42)
-	i-=4;
-      else if (j<69)
-	i-=5;
-      else
-	i-=6;
-      if (i<2) i=2; /* Never stop, just slow way down */
-      if (do_dec) p_ptr->cur_skill[which]-=i;
-      else p_ptr->cur_skill[which]+=i;
-      if (!do_dec && !restore)
+	/* count the number of times we've advanced our other skills */
+	for (i = 0; i < NUM_SKILLS; i++)
 	{
-	  p_ptr->exp-=tmp;
-	  p_ptr->max_exp-=tmp;
+		if (i == skill)
+			continue;
+		gen_adv += p_ptr->pskills[i].adv;
 	}
-      p_ptr->update |= (PU_HP | PU_BONUS);
-      p_ptr->redraw |= PR_LEV;
-      if (p_ptr->realm!=NONE)
+	skill_adv = p_ptr->pskills[skill].adv;
+	skill_adv = (skill_adv * 5) / 6 + 1;
+	cost = (SKILL_BASE_COST * skill_adv) / 2;
+	cost += (gen_adv / 75) * skill_adv;
+
+	/* Drained skills cost only 1/3 to restore */
+	if (p_ptr->pskills[skill].cur < p_ptr->pskills[skill].max)
+		cost = (cost + 1) / 3;
+	return cost;
+}
+
+/*
+ * Increase or decrease the given skill. Will never raise a skill
+ * above 255 (plus 255 fractional) or below the initial value.
+ *
+ * If the number of times we want to raise or lower the skill
+ * is greater than one, the function handles this by recursion.
+ *
+ * See the skill_raises table in tables.c for an explanation.
+ *
+ * Due to rounding errors, lowering a skill by 1 level will not leave
+ * it exactly where it was, but it will be close enough for government
+ * work.
+ */
+bool
+alter_skill(int skill, int change)
+{
+	int index;
+
+	/* to avoid overflow when dealing with 16 bit unsigned numbers, we
+	 * use 32 bit signed values. */
+	s32b sk_change, new_skill, old_skill;
+
+	if (change == 0)
+		return FALSE;
+
+	index = get_raw_skill(skill) / 5;
+
+	if (change < 0 && index > 0)
+		index--;
+
+	/* Get the base change */
+	sk_change = skill_raises[index];
+
+	/* Adjust for skill difficulty */
+	sk_change = (sk_change * 100) / skill_tbl[skill].diff;
+
+	/* Adjust for racial tendencies */
+	sk_change = (sk_change * rp_ptr->skills[skill]) / 10;
+
+	old_skill = p_ptr->pskills[skill].cur;
+
+	if (change < 0)
+		new_skill = old_skill - sk_change;
+	else
+		new_skill = old_skill + sk_change;
+
+	set_skill(skill, new_skill / 256, new_skill % 256);
+
+	/* The player's skill can never go below its starting point. */
+	if (p_ptr->pskills[skill].cur < p_ptr->pskills[skill].min)
+		p_ptr->pskills[skill].cur = p_ptr->pskills[skill].min;
+
+	if (new_skill == old_skill)
+		return FALSE;
+
+	/* Set the new maximum skill level, and, if we bought a new level
+	 * of a skill, record that we did so. */
+	if (p_ptr->pskills[skill].cur > p_ptr->pskills[skill].max)
 	{
-	  p_ptr->update |= PU_MANA;
-	  p_ptr->update |= PU_SPELLS;
+		p_ptr->pskills[skill].max = p_ptr->pskills[skill].cur;
+		p_ptr->pskills[skill].adv++;
 	}
-      if (do_dec && p_ptr->adv_skill[which]>=1)
-	--p_ptr->adv_skill[which];
-      else
-	++p_ptr->adv_skill[which];
-      if (p_ptr->cur_skill[which]<p_ptr->min_skill[which])
-	p_ptr->cur_skill[which]=p_ptr->min_skill[which];
-      if (p_ptr->cur_skill[which]<old && !do_dec)
-	p_ptr->cur_skill[which]=255; /* Wraparound */
-      if (p_ptr->cur_skill[which]>=p_ptr->max_skill[which])
-	p_ptr->max_skill[which]=p_ptr->cur_skill[which];
-      if (restore && p_ptr->cur_skill[which]==p_ptr->max_skill[which])
-	break; /* Get out of the loop now */
-    }
-  return 1;
+
+	/* Recurse */
+	if (change < 0)
+		alter_skill(skill, change + 1);
+	else
+		alter_skill(skill, change - 1);
+
+	/* Redraw and recalc whatever may have changed */
+	p_ptr->redraw |= (PR_EXP | PR_HP | PR_LEV | PR_TITLE);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+	return TRUE;
+}
+
+/*
+ * Set the current value of a skill to the given value and
+ * fractional value, handling fractions > 255 correctly.
+ */
+void
+set_skill(int skill, int val, int frac)
+{
+	/* Sanity checks */
+	if (frac > 255)
+	{
+		val += frac / 256;
+		frac %= 256;
+	}
+	if (val > 255)
+		val = 255;
+	if (val < 0)
+		val = 0;
+	if (frac < 0)
+		frac = 0;
+
+	p_ptr->pskills[skill].cur = ((u16b) val << 8) + (u16b) frac;
+}
+
+/*
+ * Buy up the value of a skill, if possible.
+ */
+static bool
+adv_skill(int skill)
+{
+	s32b cost;
+
+	if (get_raw_skill(skill) == 255)
+		return FALSE;
+
+	cost = adv_cost(skill);
+
+	if (cost > p_ptr->exp)
+		return FALSE;
+
+	alter_skill(skill, 1);
+	p_ptr->exp -= cost;
+	p_ptr->max_exp -= cost;
+	return TRUE;
+}
+
+/*
+ * Print the information about the currently selected skill.
+ */
+static void
+prt_skill_select(int skill)
+{
+	char out[80];
+	int i;
+
+	if (get_raw_skill(skill) < 255)
+		sprintf(out, "XP needed to advance %s: %ld",
+				skill_tbl[skill].name, adv_cost(skill));
+	else
+		sprintf(out, "You have mastered %s.", skill_tbl[skill].name);
+
+	prt(out, 0, 2);
+
+	sprintf(out, "Current XP: %ld", p_ptr->exp);
+	prt(out, 0, 55);
+
+	if (skill != S_MAGIC || p_ptr->realm)
+		/* Print the skill description */
+		sprintf(out, "Improves your %s.", skill_tbl[skill].desc);
+	else
+		/* Print a special message for those about to start spellcasting */
+		sprintf(out, "Allows you to choose a realm of magic.");
+
+	/* get the string length for centering purposes */
+	i = strlen(out);
+
+	/* Clear the line */
+	prt("", 1, 0);
+
+	prt(out, 1, (80 - i) / 2);
+}
+
+/*
+ * Store the appropriate rank description in the provided buffer.
+ * Most skills can use the default Awful-Ungodly scale, but some
+ * require their own version.
+ */
+static void
+skill_rank_desc(char *buf, int skill)
+{
+	cptr rank;
+
+	if (raw_skills)
+	{
+		sprintf(buf, "%u.%u", p_ptr->pskills[skill].cur / 256,
+				p_ptr->pskills[skill].cur % 256);
+	}
+	else
+	{
+		switch (skill)
+		{
+		case S_MAGIC:
+			{
+				if (!p_ptr->realm)
+					sprintf(buf, "No magic");
+				else
+					sprintf(buf, "Level %d", get_skill(S_MAGIC));
+				break;
+			}
+		case S_2HANDED:
+			{
+				sprintf(buf, "%d attacks", get_skill(S_2HANDED));
+				break;
+			}
+		default:
+			{
+				switch (get_raw_skill(skill) / 10)
+				{
+				case 0:
+				case 1:
+					rank = "Awful";
+					break;
+				case 2:
+				case 3:
+				case 4:
+					rank = "Poor";
+					break;
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+					rank = "Fair";
+					break;
+				case 9:
+				case 10:
+				case 11:
+				case 12:
+					rank = "Good";
+					break;
+				case 13:
+				case 14:
+				case 15:
+					rank = "Very Good";
+					break;
+				case 16:
+				case 17:
+				case 18:
+					rank = "Excellent";
+					break;
+				case 19:
+				case 20:
+				case 21:
+					rank = "Superb";
+					break;
+				case 22:
+				case 23:
+					rank = "Legendary";
+					break;
+				default:
+					rank = "Ungodly";
+					break;
+				}
+				sprintf(buf, rank);
+				break;
+			}
+		}
+	}
+}
+
+/*
+ * Print the given skill and its rank in the appropriate column
+ * and row.
+ */
+static void
+prt_skill_rank(int skill)
+{
+	char buf1[38], buf2[18];
+	int row, col;
+	char c;
+	bool drain = FALSE;
+
+	/* Skip unused skills */
+	if (!(skill_tbl[skill].name))
+		return;
+
+	/* Determine if the skill has been drained. */
+	if (p_ptr->pskills[skill].cur < p_ptr->pskills[skill].max)
+		drain = TRUE;
+
+	/* Work out the row and column of the screen to use */
+	row = 3 + skill;
+	if (skill < (NUM_SK_USED / 2))
+		col = 2;
+	else
+	{
+		col = 40;
+		row -= NUM_SK_USED / 2;
+	}
+
+	/* Get the string describing the rank */
+	skill_rank_desc(buf2, skill);
+
+	/* The character corresponding to the skill. If the skill is drained,
+	 * we print it in lowercase. */
+	c = I2A(skill);
+	if (!drain)
+		c = toupper(c);
+
+	/* Format the string, then print it. Note that the I2A bit won't
+	 * neccesarily work right if we go over 26 skills. */
+	sprintf(buf1, "%c) %s: %s", c, skill_tbl[skill].name, buf2);
+
+	/* Print the skill, in white unless it's been drained */
+	if (!drain)
+		prt(buf1, row, col);
+	else
+		c_prt(TERM_YELLOW, buf1, row, col);
+
+	/* Since prt() clears the rest of the line, we may need to print
+	 * the skill in the second column again. */
+	if (skill < NUM_SK_USED / 2)
+		prt_skill_rank(skill + (NUM_SK_USED / 2));
+}
+
+/*
+ * Print out all the skills, along with their ranks.
+ */
+void
+print_all_skills(void)
+{
+	int i;
+
+	prt(realm_desc(), 20, 15);
+
+	/* Print all the skills. prt_skill_rank has to print both the
+	 * skills on the line if it's printing to the first column, so we
+	 * get to save some effort. */
+	for (i = 0; i < NUM_SK_USED / 2; i++)
+		prt_skill_rank(i);
+}
+
+/* 
+ * Allow the player to examine and improve his skill levels.
+ *
+ * Really should do something about the cursor wandering.
+ */
+void
+do_cmd_skills()
+{
+	int selected;
+	char key;
+
+	/* Save and clear the screen */
+	screen_save();
+	clear_from(0);
+
+	/* Print the static information */
+	prt("Type the appropriate letter to select a skill and", 21, 15);
+	prt("<Spacebar> or <Enter> to advance it.", 22, 15);
+	prt("Press ESC to exit.", 23, 15);
+
+	print_all_skills();
+
+	selected = p_ptr->lastadv;
+
+	while (1)
+	{
+		/* Print the information on the current skill */
+		prt_skill_select(selected);
+
+		/* Get the player's selection. */
+		key = inkey();
+
+		if (key == ESCAPE)
+			break;
+
+		key = tolower(key);
+		if (isalpha(key))
+		{
+			selected = A2I(key);
+			continue;
+		}
+
+		/* Advance the skill if the key was return or space. */
+		if (key == ' ' || key == '\n' || key == '\r')
+		{
+			if (!adv_skill(selected))
+			{
+				bell("Insufficient experience to raise skill");
+				if (get_raw_skill(selected) < 255)
+					prt("You have insufficient experience to advance that skill! -more-",
+						0, 2);
+				else
+					prt("You can learn nothing more on that subject. -more-", 0, 2);
+
+				/* Give them time to read it */
+				key = inkey();
+			}
+			else
+			{
+				if (selected == S_MAGIC && !p_ptr->realm)
+				{
+					/* Must pick a realm */
+					prt("You must pick a realm of magic. -more-", 0, 2);
+					/* Give them time to read it */
+					key = inkey();
+					prt("Will you become a S)orcerer, P)riest, D)ruid, or N)ecromancer?", 0, 2);
+					while (!p_ptr->realm)
+					{
+						key = inkey();
+						switch (key)
+						{
+						case 's':
+						case 'S':
+							p_ptr->realm = MAGE;
+							break;
+						case 'p':
+						case 'P':
+							p_ptr->realm = PRIEST;
+							break;
+						case 'd':
+						case 'D':
+							p_ptr->realm = DRUID;
+							break;
+						case 'n':
+						case 'N':
+							p_ptr->realm = NECRO;
+							break;
+						default:
+							bell("Invalid magic realm choice.");
+							break;
+						}
+					}
+					prt(realm_desc(), 20, 15);
+					mp_ptr = &magic_info[p_ptr->realm];
+				}
+			}
+			prt_skill_rank(selected);
+			continue;
+		}
+		bell("Illegal skill option.");
+	}
+
+	p_ptr->lastadv = selected;
+
+	screen_load();
 }

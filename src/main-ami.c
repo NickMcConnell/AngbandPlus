@@ -1,16 +1,25 @@
+/* File: main-ami.c */
+
 /*
+ * Copyright (c) 1997 Ben Harrison, Lars Haugseth, and others
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
 
-   File:     main-ami.c
 
-   Version:  2.7.9v6 (09.May.96)
+/*
+ * This file helps Angband run on Amiga computers.
+ *
+ * Author:   Lars Haugseth
+ * Email:    larshau@ifi.uio.no
+ * WWW:      http://www.ifi.uio.no/~larshau
+ *
+ *
+ * This file is *known* to be out of date.  It needs some work.  XXX XXX XXX
+ */
 
-   Purpose:  Amiga module for Angband with graphics and sound
-
-   Author:   Lars Haugseth
-   Email:    larshau@ifi.uio.no
-   WWW:      http://www.ifi.uio.no/~larshau
-
-*/
 
 #define VERSION "Angband 2.7.9v6"
 
@@ -52,6 +61,7 @@
 
 /* Message */
 #define MSG( x, y, txt ) amiga_text( x, y, strlen( txt ), 1, txt );
+
 /* Char and attr under cursor */
 #define CUR_A ( td->t.scr->a[ td->cursor_ypos ][ td->cursor_xpos ] )
 #define CUR_C ( td->t.scr->c[ td->cursor_ypos ][ td->cursor_xpos ] )
@@ -106,6 +116,7 @@ typedef struct term_data
    cptr name;               /* Name string */
 
    BYTE use;                /* Use this window */
+
    BYTE cols;               /* Number of columns */
    BYTE rows;               /* Number of rows */
 
@@ -322,6 +333,7 @@ static int has_sound = FALSE;
 #define MKC( c ) (void *)( MNU_KEYCOM + c )
 #define MCC( c ) (void *)( MNU_CKEYCOM + c )
 #define MHL( c ) (void *)( MNU_HELP + c )
+
 struct Menu *menu = NULL;
 
 /* Menu items that comes before the options */
@@ -1432,6 +1444,7 @@ int read_prefs( void )
                continue;
             }
          }
+
          /* Get parameter */
          stripstr( tmp + 4, modestr );
 
@@ -1684,10 +1697,10 @@ static errr amiga_xtra( int n, int v )
          return( 0 );
 
       case TERM_XTRA_DELAY:
-      
+
          if (v >= 20) Delay(v / 20);
          return (0);
-      
+
       /* Unknown request type */
       default:
 
@@ -1936,7 +1949,7 @@ int amiga_tomb( void )
    free_bitmap( scalbm );
 
    /* King or Queen */
-   if (total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+   if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
    {
       p = "Magnificent";
    }
@@ -1949,13 +1962,13 @@ int amiga_tomb( void )
 
    tomb_str( 3, " R.I.P." );
 
-   tomb_str( 5, player_name );
+   tomb_str( 5, p_ptr->full_name );
 
    tomb_str( 6, "the" );
 
    tomb_str( 7, (char *)p );
 
-   tomb_str( 9, (char *)mp_ptr->title );
+   tomb_str( 9, (char *)cp_ptr->title );
 
    sprintf( tmp, "Level: %d", (int)p_ptr->lev );
    tomb_str( 10, tmp );
@@ -1966,10 +1979,10 @@ int amiga_tomb( void )
    sprintf( tmp, "AU: %ld", (long)p_ptr->au );
    tomb_str( 12, tmp );
 
-   sprintf( tmp, "Killed on Level %d", dun_level );
+   sprintf( tmp, "Killed on Level %d", p_ptr->depth );
    tomb_str( 13, tmp );
 
-   sprintf( tmp, "by %s", died_from );
+   sprintf( tmp, "by %s", p_ptr->died_from );
    tomb_str( 14, tmp );
 
    sprintf( tmp, "%-.24s", ctime(&ct));
@@ -2226,12 +2239,18 @@ static void cursor_off( term_data *td )
 static void cursor_anim( void )
 {
    term_data *td = term_curs;
-   int x0, y0, x1, y1, i = px, j = py;
+   int x0, y0, x1, y1;
+
+   /* XXX XXX XXX */
+   int i = p_ptr->px;
+   int j = p_ptr->py;
+
    byte tc,ta;
 
    if ( !term_curs ) return;
 
    td->cursor_frame = ++(td->cursor_frame) % 8;
+
    /* Small cursor on map */
    if ( td->cursor_map )
    {
@@ -2460,8 +2479,8 @@ int size_gfx( term_data *td )
    td->gfx_h = 32 * td->fh;
 
    /* Calculate map bitmap dimensions */
-   td->mpt_w = td->ww / MAX_WID;
-   td->mpt_h = td->wh / MAX_HGT;
+   td->mpt_w = td->ww / DUNGEON_WID;
+   td->mpt_h = td->wh / DUNGEON_HGT;
    td->map_w = td->mpt_w * 32;
    td->map_h = td->mpt_h * 32;
 
@@ -2600,6 +2619,7 @@ static int amiga_fail( char *msg )
       CloseScreen( amiscr );
       amiscr = NULL;
    }
+
    /* Close gadtools.library */
    if ( GadToolsBase )
    {
@@ -2648,19 +2668,19 @@ static void amiga_map( void )
    Term_fresh();
 
    /* Calculate offset values */
-   td->map_x = (( td->fw * 80 ) - ( td->mpt_w * cur_wid )) / 2;
-   td->map_y = (( td->fh * 24 ) - ( td->mpt_h * cur_hgt )) / 2;
+   td->map_x = (( td->fw * 80 ) - ( td->mpt_w * DUNGEON_WID )) / 2;
+   td->map_y = (( td->fh * 24 ) - ( td->mpt_h * DUNGEON_HGT )) / 2;
 
    /* Draw all "interesting" features */
-   for ( i = 0; i < cur_wid; i++ )
+   for ( i = 0; i < DUNGEON_WID; i++ )
    {
-      for ( j = 0; j < cur_hgt; j++ )
+      for ( j = 0; j < DUNGEON_HGT; j++ )
       {
          /* Get frame tile */
-         if ( i==0 || i == cur_wid - 1 || j == 0 || j == cur_hgt - 1 )
+         if ( i==0 || i == DUNGEON_WID - 1 || j == 0 || j == DUNGEON_HGT - 1 )
          {
-            ta = f_info[ 63 ].z_attr;
-            tc = f_info[ 63 ].z_char;
+            ta = f_info[ 63 ].x_attr;
+            tc = f_info[ 63 ].x_char;
          }
 
          /* Get tile from cave table */
@@ -2920,6 +2940,7 @@ int init_sound( void )
          snd->Address = (struct SoundInfo *) PrepareSound( tmp );
       }
    }
+
    /* Success */
    has_sound = TRUE;
    use_sound = TRUE;
@@ -3034,6 +3055,7 @@ static void play_sound( int v )
 
 ///}
 ///{ put_gfx_map()
+
 static void put_gfx_map( term_data *td, int x, int y, int c, int a )
 {
    BltBitMapRastPort(
@@ -3190,6 +3212,7 @@ void remap_bitmap( struct BitMap *srcbm, struct BitMap *dstbm, long *pens, int w
          {
             /* Find color index */
             for ( p = c = 0; p < sd; p++ ) if ( ls[ p ] & mask ) c |= bm[ p ];
+
             /* Remap */
             c = pens[ c ];
 
@@ -3230,4 +3253,5 @@ int depth_of_bitmap( struct BitMap *bm )
 }
 
 ///}
+
 

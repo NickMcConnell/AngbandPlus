@@ -1,3 +1,5 @@
+
+
 /* File: h-config.h */
 
 #ifndef INCLUDED_H_CONFIG_H
@@ -8,32 +10,28 @@
  * Also, choose various "system level" compilation options.
  * A lot of these definitions take effect in "h-system.h"
  *
- * Note that you may find it simpler to define some of these
- * options in the "Makefile", especially any options describing
- * what "system" is being used.
+ * Note that most of these "options" are defined by the compiler,
+ * the "Makefile", the "project file", or something similar, and
+ * should not be defined by the user.
  */
 
 
 /*
- * no system definitions are needed for 4.3BSD, SUN OS, DG/UX
- */
-
-/*
- * OPTION: Compile on a Macintosh (see "A-mac-h" or "A-mac-pch")
+ * OPTION: Compile on a Macintosh machine
  */
 #ifndef MACINTOSH
 /* #define MACINTOSH */
 #endif
 
 /*
- * OPTION: Compile on Windows (automatic)
+ * OPTION: Compile on a Windows machine
  */
 #ifndef WINDOWS
 /* #define WINDOWS */
 #endif
 
 /*
- * OPTION: Compile on an IBM (automatic)
+ * OPTION: Compile on an MSDOS machine
  */
 #ifndef MSDOS
 /* #define MSDOS */
@@ -47,11 +45,12 @@
 #endif
 
 /*
- * OPTION: Compile on a SYS V version of UNIX (not Solaris)
+ * OPTION: Compile on a SYS V version of UNIX
  */
 #ifndef SYS_V
 /* #define SYS_V */
 #endif
+
 /*
  * OPTION: Compile on a HPUX version of UNIX
  */
@@ -94,54 +93,54 @@
  * Extract the "SUNOS" flag from the compiler
  */
 #if defined(sun)
-# ifndef SUNOS
-#   define SUNOS
-# endif
+#ifndef SUNOS
+#define SUNOS
+#endif
 #endif
 
 /*
  * Extract the "ULTRIX" flag from the compiler
  */
 #if defined(ultrix) || defined(Pyramid)
-# ifndef ULTRIX
-#  define ULTRIX
-# endif
+#ifndef ULTRIX
+#define ULTRIX
+#endif
 #endif
 
 /*
  * Extract the "ATARI" flag from the compiler [cjh]
  */
 #if defined(__atarist) || defined(__atarist__)
-# ifndef ATARI
-#  define ATARI
-# endif
+#ifndef ATARI
+#define ATARI
+#endif
 #endif
 
 /*
  * Extract the "ACORN" flag from the compiler
  */
 #ifdef __riscos
-# ifndef ACORN
-#  define ACORN
-# endif
+#ifndef ACORN
+#define ACORN
+#endif
 #endif
 
 /*
  * Extract the "SGI" flag from the compiler
  */
 #ifdef sgi
-# ifndef SGI
-#  define SGI
-# endif
+#ifndef SGI
+#define SGI
+#endif
 #endif
 
 /*
  * Extract the "MSDOS" flag from the compiler
  */
 #ifdef __MSDOS__
-# ifndef MSDOS
-#  define MSDOS
-# endif
+#ifndef MSDOS
+#define MSDOS
+#endif
 #endif
 
 /*
@@ -150,9 +149,27 @@
 #if defined(_Windows) || defined(__WINDOWS__) || \
     defined(__WIN32__) || defined(WIN32) || \
     defined(__WINNT__) || defined(__NT__)
-# ifndef WINDOWS
-#  define WINDOWS
-# endif
+#ifndef WINDOWS
+#define WINDOWS
+#endif
+#endif
+
+/*
+ * Remove the MSDOS flag when using WINDOWS
+ */
+#ifdef WINDOWS
+#ifdef MSDOS
+#undef MSDOS
+#endif
+#endif
+
+/*
+ * Remove the WINDOWS flag when using MACINTOSH
+ */
+#ifdef MACINTOSH
+#ifdef WINDOWS
+#undef WINDOWS
+#endif
 #endif
 
 
@@ -163,7 +180,7 @@
  * DEC Alpha AXP running OSF/1 (OpenVMS uses 32-bit longs).
  */
 #if defined(__alpha) && defined(__osf__)
-# define L64
+#define L64
 #endif
 
 
@@ -182,7 +199,7 @@
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
     !defined(MSDOS) && !defined(USE_EMX) && \
     !defined(AMIGA) && !defined(ACORN) && !defined(VM)
-# define SET_UID
+#define SET_UID
 #endif
 
 
@@ -194,12 +211,12 @@
  * involving userid's, or multiple users on a single machine, etc.
  */
 #ifdef SET_UID
-# if defined(SYS_III) || defined(SYS_V) || defined(SOLARIS) || \
+#if defined(SYS_III) || defined(SYS_V) || defined(SOLARIS) || \
      defined(HPUX) || defined(SGI) || defined(ATARI)
-#  ifndef USG
-#   define USG
-#  endif
-# endif
+#ifndef USG
+#define USG
+#endif
+#endif
 #endif
 
 
@@ -215,28 +232,28 @@
 #undef PATH_SEP
 #define PATH_SEP "/"
 #ifdef MACINTOSH
-# undef PATH_SEP
-# define PATH_SEP ":"
+#undef PATH_SEP
+#define PATH_SEP ":"
 #endif
 #if defined(WINDOWS) || defined(WINNT)
-# undef PATH_SEP
-# define PATH_SEP "\\"
+#undef PATH_SEP
+#define PATH_SEP "\\"
 #endif
 #if defined(MSDOS) || defined(OS2) || defined(USE_EMX)
-# undef PATH_SEP
-# define PATH_SEP "\\"
+#undef PATH_SEP
+#define PATH_SEP "\\"
 #endif
 #ifdef AMIGA
-# undef PATH_SEP
-# define PATH_SEP "/"
+#undef PATH_SEP
+#define PATH_SEP "/"
 #endif
 #ifdef __GO32__
-# undef PATH_SEP
-# define PATH_SEP "/"
+#undef PATH_SEP
+#define PATH_SEP "/"
 #endif
 #ifdef VM
-# undef PATH_SEP
-# define PATH_SEP ""
+#undef PATH_SEP
+#define PATH_SEP ""
 #endif
 
 
@@ -244,12 +261,12 @@
  * The Macintosh allows the use of a "file type" when creating a file
  */
 #if defined(MACINTOSH) && !defined(applec)
-# define FILE_TYPE_TEXT 'TEXT'
-# define FILE_TYPE_DATA 'DATA'
-# define FILE_TYPE_SAVE 'SAVE'
-# define FILE_TYPE(X) (_ftype = (X))
+#define FILE_TYPE_TEXT 'TEXT'
+#define FILE_TYPE_DATA 'DATA'
+#define FILE_TYPE_SAVE 'SAVE'
+#define FILE_TYPE(X) (_ftype = (X))
 #else
-# define FILE_TYPE(X) ((void)0)
+#define FILE_TYPE(X) ((void)0)
 #endif
 
 
@@ -257,16 +274,15 @@
  * OPTION: Hack -- Make sure "strchr()" and "strrchr()" will work
  */
 #if defined(SYS_III) || defined(SYS_V) || defined(MSDOS)
-# if !defined(__TURBOC__) && !defined(__WATCOMC__)
-#  define strchr index
-#  define strrchr rindex
-# endif
+#if !defined(__TURBOC__) && !defined(__WATCOMC__) && !defined(__DJGPP__)
+#define strchr(S,C) index((S),(C))
+#define strrchr(S,C) rindex((S),(C))
+#endif
 #endif
 
 
 /*
  * OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
- * Note that "stricmp()" is not actually used by Angband.
  */
 /* #define HAS_STRICMP */
 
@@ -274,31 +290,29 @@
  * Linux has "stricmp()" with a different name
  */
 #if defined(linux)
-# define HAS_STRICMP
-# define stricmp strcasecmp
+#define HAS_STRICMP
+#define stricmp(S,T) strcasecmp((S),(T))
 #endif
 
 
 /*
  * OPTION: Define "HAS_MEMSET" only if "memset()" exists.
- * Note that the "memset()" routines are used in "z-virt.h"
  */
 #define HAS_MEMSET
 
 
 /*
  * OPTION: Define "HAS_USLEEP" only if "usleep()" exists.
- * Note that this is only relevant for "SET_UID" machines
+ *
+ * Note that this is only relevant for "SET_UID" machines.
+ * Note that new "SOLARIS" and "SGI" machines have "usleep()".
  */
-#if defined(SET_UID) || defined(MSDOS)
-# if !defined(HPUX) && !defined(ULTRIX) && !defined(SOLARIS) && \
-     !defined(SGI) && !defined(ISC)
-#  define HAS_USLEEP
-# endif
+#ifdef SET_UID
+#if !defined(HPUX) && !defined(ULTRIX) && !defined(ISC)
+#define HAS_USLEEP
+#endif
 #endif
 
 
 
 #endif
-
-
