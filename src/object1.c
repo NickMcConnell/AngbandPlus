@@ -140,62 +140,6 @@ static void flavor_assign_random(byte tval)
     }
 }
 
-/*
- * Certain items, if aware, are known instantly
- * This function is used only by "flavor_init()"
- *
- * Add "EASY_KNOW" flag to "k_info.txt" file.  XXX XXX XXX
- */
-static bool object_easy_know(int i)
-{
-  object_kind *k_ptr = &k_info[i];
-  
-  /* Analyze the "tval" */
-  switch (k_ptr->tval)
-    {
-      /* Spellbooks */
-    case TV_MAGIC_BOOK:
-    case TV_PRAYER_BOOK:
-    case TV_DRUID_BOOK:
-    case TV_NECRO_BOOK:
-      
-      {
-	return (TRUE);
-      }
-      
-      /* Simple items */
-    case TV_FLASK:
-    case TV_JUNK:
-    case TV_BOTTLE:
-    case TV_SKELETON:
-    case TV_SPIKE:
-      {
-	return (TRUE);
-      }
-      
-      /* All Food, Potions, Scrolls, Rods */
-    case TV_FOOD:
-    case TV_POTION:
-    case TV_SCROLL:
-    case TV_ROD:
-      {
-	return (TRUE);
-      }
-      
-      /* Some Rings, Amulets, Lites */
-    case TV_RING:
-    case TV_AMULET:
-    case TV_LITE:
-      {
-	if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
-	return (FALSE);
-      }
-    }
-  
-  /* Nope */
-  return (FALSE);
-}
-
 
 
 /*
@@ -340,7 +284,7 @@ void flavor_init(void)
       if (!k_ptr->flavor) k_ptr->aware = TRUE;
       
       /* Check for "easily known" */
-      k_ptr->easy_know = object_easy_know(i);
+      k_ptr->easy_know = (k_ptr->flags_kind & (KF_EASY_KNOW) ? TRUE : FALSE);
     }
 }
 
@@ -533,167 +477,6 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
 }
 
 
-
-
-
-/*
- * Obtain the "flags" for an item
- */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
-{
-  object_kind *k_ptr = &k_info[o_ptr->k_idx];
-  
-  /* Base object */
-  (*f1) = k_ptr->flags1;
-  (*f2) = k_ptr->flags2;
-  (*f3) = k_ptr->flags3;
-  
-  /* Artifact */
-  if (o_ptr->name1)
-    {
-      artifact_type *a_ptr = &a_info[o_ptr->name1];
-      
-      (*f1) = a_ptr->flags1;
-      (*f2) = a_ptr->flags2;
-      (*f3) = a_ptr->flags3;
-    }
-  
-  /* Ego-item */
-  if (o_ptr->name2)
-    {
-      ego_item_type *e_ptr = &e_info[o_ptr->name2];
-      
-      (*f1) |= e_ptr->flags1;
-      (*f2) |= e_ptr->flags2;
-      (*f3) |= e_ptr->flags3;
-    }
-  
-  /* Extra powers.  Special throwing weapon ability added. */
-  switch (o_ptr->xtra1)
-    {
-    case OBJECT_XTRA_TYPE_SUSTAIN:
-      {
-	/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
-	(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
-	break;
-      }
-      
-    case OBJECT_XTRA_TYPE_RESIST:
-      {
-	/* OBJECT_XTRA_WHAT_RESIST == 2 */
-	(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
-	break;
-      }
-      
-    case OBJECT_XTRA_TYPE_POWER:
-      {
-	/* OBJECT_XTRA_WHAT_POWER == 3 */
-	(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
-	break;
-      }
-      
-    case OBJECT_XTRA_TYPE_BALANCE:
-      {
-	/* OBJECT_XTRA_WHAT_BALANCE == 1 */
-	(*f1) |= (OBJECT_XTRA_BASE_BALANCE << o_ptr->xtra2);
-	break;
-      }
-    }
-}
-
-
-
-/*
- * Obtain the "flags" for an item which is known to the player
- */
-void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
-{
-  bool spoil = FALSE;
-  
-  object_kind *k_ptr = &k_info[o_ptr->k_idx];
-  
-  /* Clear */
-  (*f1) = (*f2) = (*f3) = 0L;
-  
-  /* Must be identified */
-  if (!object_known_p(o_ptr)) return;
-  
-  /* Base object */
-  (*f1) = k_ptr->flags1;
-  (*f2) = k_ptr->flags2;
-  (*f3) = k_ptr->flags3;
-  
-  /* Ego-item */
-  if (o_ptr->name2)
-    {
-      ego_item_type *e_ptr = &e_info[o_ptr->name2];
-      
-      (*f1) |= e_ptr->flags1;
-      (*f2) |= e_ptr->flags2;
-      (*f3) |= e_ptr->flags3;
-    }
-  
-#ifdef SPOIL_ARTIFACTS
-  /* Full knowledge for some artifacts */
-  if (artifact_p(o_ptr)) spoil = TRUE;
-#endif
-  
-#ifdef SPOIL_EGO_ITEMS
-  /* Full knowledge for some ego-items */
-  if (ego_item_p(o_ptr)) spoil = TRUE;
-#endif
-  
-  /* Need full knowledge or spoilers */
-  if (!spoil && !(o_ptr->ident & IDENT_MENTAL)) return;
-  
-  /* Artifact */
-  if (o_ptr->name1)
-    {
-      artifact_type *a_ptr = &a_info[o_ptr->name1];
-      
-      (*f1) = a_ptr->flags1;
-      (*f2) = a_ptr->flags2;
-      (*f3) = a_ptr->flags3;
-    }
-  
-  /* Full knowledge for *identified* objects */
-  if (!(o_ptr->ident & IDENT_MENTAL)) return;
-  
-  /* Extra powers.  Special throwing weapon ability added. */
-  switch (o_ptr->xtra1)
-    {
-    case OBJECT_XTRA_TYPE_SUSTAIN:
-      {
-	/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
-	(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
-	break;
-      }
-      
-    case OBJECT_XTRA_TYPE_RESIST:
-      {
-	/* OBJECT_XTRA_WHAT_RESIST == 2 */
-	(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
-	break;
-      }
-      
-    case OBJECT_XTRA_TYPE_POWER:
-      {
-	/* OBJECT_XTRA_WHAT_POWER == 3 */
-	(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
-	break;
-      }
-      
-    case OBJECT_XTRA_TYPE_BALANCE:
-      {
-	/* OBJECT_XTRA_WHAT_BALANCE == 1 */
-	(*f1) |= (OBJECT_XTRA_BASE_BALANCE << o_ptr->xtra2);
-	break;
-      }
-    }
-}
-
-
-
 /*
  * Efficient version of '(T) += strfmt((T), "%c", (C))'
  */
@@ -852,8 +635,10 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 {
   cptr basenm, modstr;
   
-  int power;
-  
+  int i, power;
+  int num_bonus = 0;
+  int bonus[4] = {0, 0, 0, 0};  
+
   bool easy_know;
   bool aware;
   bool known;
@@ -878,24 +663,19 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   char p1 = '(', p2 = ')';
   char b1 = '[', b2 = ']';
   char c1 = '{', c2 = '}';
+  char a1 = '<', a2 = '>';
   
   char discount_buf[80];
   char insc_buf[80];
   
-  u32b f1, f2, f3;
-  
   object_kind *k_ptr = &k_info[o_ptr->k_idx];
   
   
-  /* Extract some flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
-  
   /* See if the object is "aware" */
-  aware = (object_aware_p(o_ptr) ? TRUE : FALSE);
+  aware = object_aware_p(o_ptr) || (o_ptr->ident & IDENT_STORE);
   
   /* See if the object is "known" */
-  known = (object_known_p(o_ptr) ? TRUE : FALSE);
+  known = object_known_p(o_ptr) || (o_ptr->ident & IDENT_STORE);
   
   easy_know = FALSE;
   
@@ -904,20 +684,19 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   
   /* Allow flavors to be hidden when aware */
   if (aware && !show_flavors) flavor = FALSE;
+  if (o_ptr->ident & IDENT_STORE) flavor = FALSE;
   
   /* Hack -- mark-to-squelch worthless items XXX */
-  if (!k_ptr->everseen && aware && squelch_worthless)
+  if (!k_ptr->everseen && aware)
     {
-      if (object_value(o_ptr) == 0)
+      k_ptr->everseen = TRUE;
+      if (squelch_worthless && (object_value(o_ptr) == 0))
 	{
 	  k_ptr->squelch = TRUE;
 	  p_ptr->notice |= PN_SQUELCH;
 	}
     }
   
-  /* We've seen it at least once now we're aware of it */
-  if (aware) k_ptr->everseen = TRUE;
-
   /* Assume no name appending */
   append_name = FALSE;
   
@@ -1284,7 +1063,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
     }
   
   /* Non-artifact perfectly balanced throwing weapons are indicated. */
-  if ((f1 & (TR1_PERFECT_BALANCE)) && (f1 & (TR1_THROWING)) && 
+  if ((o_ptr->flags_obj & (OF_PERFECT_BALANCE)) && 
+      (o_ptr->flags_obj & (OF_THROWING)) && 
       (known) && (!o_ptr->name1))
     {
       object_desc_str_macro(t, "Well-balanced ");
@@ -1467,7 +1247,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
       
       
       /* Display the item like a weapon */
-      if (f3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
+      if (o_ptr->flags_obj & (OF_SHOW_MODS)) show_weapon = TRUE;
       
       /* Display the item like a weapon */
       if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
@@ -1514,8 +1294,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	    /* Modify the power, if the weapon is known. */
 	    if (known)
 	      {
-		if (f1 & (TR1_MIGHT1)) power += 1;
-		if (f1 & (TR1_MIGHT2)) power += 2;
+		power += o_ptr->bonus_other[P_BONUS_MIGHT];
 	      }
 	    
 	    /* Append a "power" string */
@@ -1697,63 +1476,105 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 				    " turns of light)"));
 	}
       
+      /* Dump bonuses for wearable items */
+
+      /* Check for stats */
+      for (i = 0; i < A_MAX; i++)
+	if ((o_ptr->bonus_stat[i] != 0) && (num_bonus < 3))
+	  {
+	    int j;
+	    bool already = FALSE;
+
+	    /* No duplicates */
+	    for (j = 0; j < num_bonus; j++) 
+	      if (bonus[j] == o_ptr->bonus_stat[i]) already = TRUE;
+
+	    if (!already)
+	      {
+		bonus[num_bonus++] = o_ptr->bonus_stat[i];
+	      }
+	  }
+
+      /* Check for others */
+      for (i = 0; i < MAX_P_BONUS; i++)
+	if ((o_ptr->bonus_other[i] != 0) && (num_bonus < 3))
+	  {
+	    int j;
+	    bool already = FALSE;
+
+	    /* No duplicates */
+	    for (j = 0; j < num_bonus; j++) 
+	      if (bonus[j] == o_ptr->bonus_other[i]) already = TRUE;
+
+	    if (!already)
+	      {
+		bonus[num_bonus++] = o_ptr->bonus_other[i];
+	      }
+	  }
       
-      /* Dump "pval" flags for wearable items */
-      if (known && (f1 & (TR1_PVAL_MASK)))
+      if (known && num_bonus)
 	{
 	  cptr tail = "";
 	  cptr tail2 = "";
+	  int j = 0;
 	  
 	  /* Start the display */
 	  object_desc_chr_macro(t, ' ');
-	  object_desc_chr_macro(t, p1);
+	  object_desc_chr_macro(t, a1);
 	  
-	  /* Dump the "pval" itself */
-	  object_desc_int_macro(t, o_ptr->pval);
-	  
-	  /* Do not display the "pval" flags */
-	  if (f3 & (TR3_HIDE_TYPE))
+	  /* Dump the values */
+	  for (j = 0; j < num_bonus; j++)
 	    {
-	      /* Nothing */
+	      object_desc_int_macro(t, bonus[j]);
+	      if (j < num_bonus - 1) object_desc_str_macro(t, ", ");
 	    }
-	  
-	  /* Stealth */
-	  else if ((f1 & (TR1_STEALTH)) && (mode != 4))
+	  /* Description for single bonuses */
+	  if (num_bonus == 1)
 	    {
-	      /* Dump " to stealth" */
-	      tail = " to stealth";
-	    }
-	  
-	  /* Searching */
-	  else if ((f1 & (TR1_SEARCH)) && (mode != 4))
-	    {
-	      /* Dump " to searching" */
-	      tail = " to searching";
-	    }
-	  
-	  /* Infravision */
-	  else if ((f1 & (TR1_INFRA)) && (mode != 4))
-	    {
-	      /* Dump " to infravision" */
-	      tail = " to infravision";
-	    }
-	  
-#if 0
-	  
-	  /* Tunneling */
-	  else if ((f1 & (TR1_TUNNEL)) && (mode != 4))
-	    {
-	      /* Dump " to digging" */
-	      tail = " to digging";
-	    }
-	  
-#endif
-	  
-	  /* Speed */
-	  else if ((f1 & (TR1_SPEED)) && (mode != 4))
-	    {
-	      /* Dump " to speed" */
-	      tail = " to speed";
+	      /* Speed */
+	      if ((o_ptr->bonus_other[P_BONUS_SPEED] != 0) && (mode != 4))
+		{
+		  /* Dump " to speed" */
+		  tail = " to speed";
+		}
+
+	      /* Magic mastery */
+	      else if ((o_ptr->bonus_other[P_BONUS_M_MASTERY] != 0) && 
+		       (mode != 4))
+		{
+		  /* Dump " to device skill" */
+		  tail = " to device skill";
+		}
+
+	      /* Stealth */
+	      else if ((o_ptr->bonus_other[P_BONUS_STEALTH] != 0) && 
+		       (mode != 4))
+		{
+		  /* Dump " to stealth" */
+		  tail = " to stealth";
+		}
+	      
+	      /* Searching */
+	      else if ((o_ptr->bonus_other[P_BONUS_SEARCH] != 0) && (mode != 4))
+		{
+		  /* Dump " to searching" */
+		  tail = " to searching";
+		}
+	      
+	      /* Infravision */
+	      else if ((o_ptr->bonus_other[P_BONUS_INFRA] != 0) && (mode != 4))
+		{
+		  /* Dump " to infravision" */
+		  tail = " to infravision";
+		}
+	      
+	      
+	      /* Tunneling */
+	      else if ((o_ptr->bonus_other[P_BONUS_TUNNEL] != 0) && (mode != 4))
+		{
+		  /* Dump " to digging" */
+		  tail = " to digging";
+		}
 	    }
 	  
 	  /* Add the descriptor */
@@ -1761,9 +1582,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	  object_desc_str_macro(t, tail2);
 	  
 	  /* Finish the display */
-	  object_desc_chr_macro(t, p2);
+	  object_desc_chr_macro(t, a2);
 	}
-      
       
       /* Indicate charging objects, but not rods. */
       if (known && o_ptr->timeout && o_ptr->tval != TV_ROD)
@@ -1778,6 +1598,19 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   if (mode > 2)
     {
       
+      /* Hack - truncate overly long descriptions here to avoid overruns. */
+      if (t - buf > (mode == 4 ? 46 : 78))
+	{
+	  /* Remove all excess characters. */
+	  do
+	    {
+	      *t-- = '\0';
+	    }
+	  while (t - buf > (mode == 4 ? 46 : 78));
+	  
+	  return;
+	}
+  
       /* Use standard inscription */
       if (o_ptr->note)
 	{
@@ -1827,12 +1660,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
       if (o_ptr->feel)
 	{
 	  v = feel_text[o_ptr->feel];
-	}
-      
-      /* Use "cursed" if the item is known to be cursed */
-      else if (cursed_p(o_ptr) && known)
-	{
-	  v = "cursed";
 	}
       
       /* Hack -- Use "empty" for empty wands/staffs */
@@ -1942,7 +1769,7 @@ void object_desc_spoil(char *buf, object_type *o_ptr, int pref, int mode)
   object_copy(i_ptr, o_ptr);
   
   /* HACK - Pretend the object is in a store inventory */
-  i_ptr->ident |= IDENT_KNOWN;
+  i_ptr->ident |= IDENT_STORE;
   
   /* Describe */
   object_desc(buf, i_ptr, pref, mode);
@@ -2081,7 +1908,7 @@ s16b label_to_equip(int c)
     }
   
   /* Verify the index */
-  if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
+  if ((i < INVEN_WIELD) || (i >= INVEN_SUBTOTAL)) return (-1);
   
   
   /* Empty slots can never be chosen */
@@ -2172,6 +1999,13 @@ s16b wield_slot(object_type *o_ptr)
     case TV_SHOT:
       {
 	return (INVEN_Q0);
+      }
+
+      /* Flasks and some mushrooms now go into the quiver */
+    case TV_FLASK:
+    case TV_FOOD:
+      {
+	if (o_ptr->flags_obj & OF_THROWING) return (INVEN_Q0);
       }
     }
 
@@ -2402,7 +2236,7 @@ void display_inven(void)
       attr = proc_list_color_hack(o_ptr);
       
       /* Display the entry itself */
-      Term_putstr(3, i, n, attr, o_name);
+      c_put_str(attr, o_name, i, 3);
       
       /* Erase the rest of the line */
       Term_erase(3+n, i, 255);
@@ -2491,7 +2325,7 @@ void display_equip(void)
       attr = proc_list_color_hack(o_ptr);
       
       /* Display the entry itself */
-      Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
+      c_put_str(attr, o_name, i - INVEN_WIELD, 3);
       
       /* Erase the rest of the line */
       Term_erase(3+n, i - INVEN_WIELD, 255);
@@ -2633,11 +2467,7 @@ void show_inven(void)
       sprintf(tmp_val, "%c)", index_to_label(i));
       
       /* Clear the line with the (possibly indented) index */
-      if (o_ptr->ident & (IDENT_MENTAL))
-	{
-	  c_put_str(TERM_L_BLUE, tmp_val, j+1, col);
-	}
-      else if ((object_known_p(o_ptr)) || (object_aware_p(o_ptr)))
+      if ((object_known_p(o_ptr)) || (object_aware_p(o_ptr)))
 	{
 	  put_str(tmp_val, j+1, col);
 	}
@@ -2822,11 +2652,7 @@ void show_equip(void)
       sprintf(tmp_val, "%c)", index_to_label(i));
       
       /* Clear the line with the (possibly indented) index */
-      if (o_ptr->ident & (IDENT_MENTAL))
-	{
-	  c_put_str(TERM_L_BLUE, tmp_val, j+1, col);
-	}
-      else if ((!o_ptr) || (object_known_p(o_ptr)) || (object_aware_p(o_ptr)))
+      if ((!o_ptr) || (object_known_p(o_ptr)) || (object_aware_p(o_ptr)))
 	{
 	  put_str(tmp_val, j+1, col);
 	}
@@ -4323,7 +4149,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 /*
  * Link to various object coloring functions from info.c. -LM-
  */
-cptr object_adj(int tval, int sval)
+char *object_adj(int tval, int sval)
 {
   object_kind *k_ptr = &k_info[lookup_kind(tval, sval)];
 
@@ -4351,26 +4177,26 @@ extern bool check_set(byte s_idx)
   byte i;
   set_type *s_ptr = &s_info[s_idx];;
   
-  for (i=INVEN_WIELD;i<=INVEN_FEET;i++)
+  for (i = INVEN_WIELD; i <= INVEN_FEET; i++)
     {
-      object_type *o_ptr=&inventory[i];
+      object_type *o_ptr = &inventory[i];
       if (o_ptr->name1)
 	{
 	  artifact_type *a_ptr = &a_info[o_ptr->name1];
-	  if (a_ptr->set_no==s_idx)
+	  if (a_ptr->set_no == s_idx)
 	    {
 	      count++;
 	    }
 	}
     }
   
-  return (count>=s_ptr->no_of_items);
+  return (count >= s_ptr->no_of_items);
 }
 
 /*
  * Apply bonuses for complete artifact sets.
  */
-extern void apply_set(int s_idx, bool load)
+extern void apply_set(int s_idx)
 {
   set_type *s_ptr = &s_info[s_idx];
   
@@ -4404,12 +4230,25 @@ extern void apply_set(int s_idx, bool load)
 		      /* Bonus already applied? */
 		      if (!(a_ptr->set_bonus))
 			{
-			  a_ptr->flags1 |= se_ptr->flags1;
-			  a_ptr->flags2 |= se_ptr->flags2;
-			  a_ptr->flags3 |= se_ptr->flags3;
-			  o_ptr->pval += se_ptr->pval;
-			  if (!(load)) for (k = 0; k < MAX_P_RES; k++)
-			    o_ptr->percent_res[k] -= se_ptr->percent_res[k];
+			  o_ptr->flags_obj |= se_ptr->flags_obj;
+			  o_ptr->flags_curse |= se_ptr->flags_curse;
+			  for (k = 0; k < MAX_P_RES; k++)
+			    if (se_ptr->percent_res[k] != RES_LEVEL_BASE)
+			      o_ptr->percent_res[k] = se_ptr->percent_res[k];
+			  for (k = 0; k < A_MAX; k++)
+			    if (se_ptr->bonus_stat[k] != BONUS_BASE)
+			      o_ptr->bonus_stat[k] = se_ptr->bonus_stat[k];
+			  for (k = 0; k < MAX_P_BONUS; k++)
+			    if (se_ptr->bonus_other[k] != BONUS_BASE)
+			      o_ptr->bonus_other[k] = se_ptr->bonus_other[k];
+			  for (k = 0; k < MAX_P_SLAY; k++)
+			    if (se_ptr->multiple_slay[k] != MULTIPLE_BASE)
+			      o_ptr->multiple_slay[k] = 
+				se_ptr->multiple_slay[k];
+			  for (k = 0; k < MAX_P_BRAND; k++)
+			    if (se_ptr->multiple_brand[k] != MULTIPLE_BASE)
+			      o_ptr->multiple_brand[k] = 
+				se_ptr->multiple_brand[k];
 			  a_ptr->set_bonus = TRUE;
 			  bonus_applied = TRUE;
 			}
@@ -4434,7 +4273,7 @@ extern void remove_set(int s_idx)
   
   byte i, j, k;
   
-  for (i=INVEN_WIELD;i<=INVEN_FEET;i++)
+  for (i = INVEN_WIELD;i <= INVEN_FEET;i++)
     {
       object_type *o_ptr = &inventory[i];
       
@@ -4444,11 +4283,11 @@ extern void remove_set(int s_idx)
 	  artifact_type *a_ptr = &a_info[o_ptr->name1];
 	  
 	  /* Is it in the correct set? */ 
-	  if (a_ptr->set_no==s_idx)
+	  if (a_ptr->set_no == s_idx)
 	    {
 	      
 	      /* Loop through set elements */
-	      for (j=0;j<(s_ptr->no_of_items);j++)
+	      for (j = 0; j < (s_ptr->no_of_items); j++)
 		{
 		  
 		  set_element *se_ptr = &s_ptr->set_items[j];
@@ -4460,13 +4299,19 @@ extern void remove_set(int s_idx)
 		      /* Is the bonus really there? */
 		      if (a_ptr->set_bonus)
 			{
-			  a_ptr->flags1 &= ~se_ptr->flags1;
-			  a_ptr->flags2 &= ~se_ptr->flags2;
-			  a_ptr->flags3 &= ~se_ptr->flags3;
-			  o_ptr->pval = a_ptr->pval;
+			  o_ptr->flags_obj &= ~se_ptr->flags_obj;
+			  o_ptr->flags_curse &= ~se_ptr->flags_curse;
 			  a_ptr->set_bonus = FALSE;
 			  for (k = 0; k < MAX_P_RES; k++)
-			    o_ptr->percent_res[k] += se_ptr->percent_res[k];
+			    o_ptr->percent_res[k] = a_ptr->percent_res[k];
+			  for (k = 0; k < A_MAX; k++)
+			    o_ptr->bonus_stat[k] = a_ptr->bonus_stat[k];
+			  for (k = 0; k < MAX_P_BONUS; k++)
+			    o_ptr->bonus_other[k] = a_ptr->bonus_other[k];
+			  for (k = 0; k < MAX_P_SLAY; k++)
+			    o_ptr->multiple_slay[k] = a_ptr->multiple_slay[k];
+			  for (k = 0; k < MAX_P_BRAND; k++)
+			    o_ptr->multiple_brand[k] = a_ptr->multiple_brand[k];
 			  bonus_removed = TRUE;
 			}
 		    }

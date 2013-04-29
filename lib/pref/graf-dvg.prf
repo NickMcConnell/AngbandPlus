@@ -111,20 +111,44 @@ F:1:0x97:0x81
 # invisible trap
 F:2:0x97:0x81
 
-# glyph of warding
-F:3:0x87:0xA9
-
 # open door
-F:4:0x96:0x84
+F:3:0x96:0x84
 
 # broken door
-F:5:0x96:0x85
+F:4:0x96:0x85
+
+# down staircase
+F:5:0x96:0x96
 
 # up staircase
 F:6:0x96:0x95
 
-# down staircase
-F:7:0x96:0x96
+# down shaft
+F:7:0x96:0xdb
+
+# up shaft
+F:8:0x96:0xda
+
+# rune of the elements
+F:9:0x85:0xA9
+
+# rune of magic influence
+F:10:0x85:0xAA
+
+# rune of instability
+F:11:0x85:0xAB
+
+# rune of mana
+F:12:0x85:0xAD
+
+# rune of protection
+F:13:0x85:0xAC
+
+# rune of power
+F:14:0x85:0xAE
+
+# rune of speed
+F:15:0x85:0xAF
 
 # trap door
 F:16:0x87:0xA6
@@ -155,6 +179,17 @@ F:24:0x87:0xA5
 
 # murder hole
 F:25:0x87:0xBD
+
+# falling branch
+#F:26
+
+# falling branch
+#F:27
+
+# F:28 unused
+# F:29 unused
+# F:30 unused
+# F:31 unused
 
 # door
 F:32:0x96:0x83
@@ -216,41 +251,41 @@ F:50:0x96:0xB4
 # quartz vein
 F:51:0x96:0xBA
 
-# magma vein
+# magma vein with treasure
 F:52:0x96:0xB4
 
-# quartz vein
+# quartz vein with treasure
 F:53:0x96:0xBA
 
-# magma vein with treasure
+# magma vein with known treasure
 F:54:0x96:0xB6
 
-# quartz vein with treasure
+# quartz vein with known treasure
 F:55:0x96:0xBC
 
-# granite wall
-F:56:0x96:0xCC
+# granite wall - basic
+F:56:0x96:0xe0
 
-# granite wall
-F:57:0x96:0xCC
+# granite wall - inner
+F:57:0x96:0xe0
 
-# granite wall
-F:58:0x96:0xCC
+# granite wall - outer
+F:58:0x96:0xe0
 
-# granite wall
-F:59:0x96:0xCC
+# granite wall - solid
+F:59:0x96:0xe0
 
-# permanent wall
-F:60:0x9A:0x80
+# permanent wall - basic
+F:60:0x96:0xe3
 
-# permanent wall
-F:61:0x9A:0x80
+# permanent wall - inner
+F:61:0x96:0xe3
 
-# permanent wall
-F:62:0x9A:0x80
+# permanent wall - outer
+F:62:0x96:0xe3
 
-# permanent wall
-F:63:0x9A:0x80
+# permanent wall - solid
+F:63:0x96:0xe3
 
 # General Store
 F:64:0x9A:0x83
@@ -321,6 +356,10 @@ F:91:0x87:0xBF
 # monster trap (dispel monsters)
 F:92:0x87:0xC4
 
+# F:93 unused
+# F:94 unused
+# F:95 unused
+
 # easy path north
 F:96:0x96:0xC8
 
@@ -351,10 +390,10 @@ F:112:0x97:0xA2
 # water
 F:113:0x97:0x93
 
-# tree
+# lowland tree
 F:114:0x97:0xB7
 
-# tree
+# highland tree
 F:115:0x97:0xBD
 
 # grass
@@ -366,9 +405,17 @@ F:117:0x97:0x8A
 # web
 F:118:0x97:0xC0
 
-# void
+# void - empty space
 F:119:0x7D:0x80
 
+# trapped tree - invisible trap
+F:120:0x97:0xB7
+
+# trapped tree - invisible trap
+F:121:0x97:0xBD
+
+# sand dunes
+F:122:0x96:0xdd
 
 
 # Monster attr/char definitions
@@ -1022,7 +1069,7 @@ R:254:0x8f:0xAF
 R:255:0x91:0xBA
 
 # Vorpal bunny
-R:256:0x8d:0x98
+R:256:0x93:0xa0
 
 # Fire spirit
 R:257:0x8f:0x98
@@ -2684,6 +2731,7 @@ K:358:0x87:0xDA
 K:359:0x87:0xF2
 
 # Scroll of Frightening
+K:360:0x87:0xf7
 
 # Scroll of *Destruction*
 K:361:0x87:0xF6
@@ -2704,14 +2752,19 @@ K:366:0x87:0xF4
 K:367:0x87:0xF5
 
 # Scroll of Elemental Attacks
+K:368:0x87:0xF9
 
 # Scroll of Acidproofing
+K:369:0x87:0xfe
 
 # Scroll of Electroproofing
+K:370:0x87:0xfd
 
 # Scroll of Fireproofing
+K:371:0x87:0xfb
 
 # Scroll of Coldproofing
+K:372:0x87:0xfc
 
 # & Small wooden chest~
 K:616:0x87:0x80

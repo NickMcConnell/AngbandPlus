@@ -10,7 +10,7 @@
 
 # Version stamp (required)
 
-V:0.3.6
+V:1.0.0
 
 #N: vault index: name
 #X: vault type: increase in level feeling: height of description: 
@@ -2418,6 +2418,34 @@ D:%..........X....s.X.................................X%
 D:%..........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
+## FAangband Symbol - beautiful vault by HallucinationMushroom
+N:136:Greater Vault (Golden Flower) 
+X:9:15:23:38:30:0
+D:             %%%%%%%%%%%%             
+D:         %%%%%XXXXXXXXXX%%%%%         
+D:      %%%%XXXXX9*;**;*9XXXXX%%%%      
+D:    %%%XXXX^XXXXX;**;XXXXX^XXXX%%%    
+D:   %%XXX^**x9X^^X;XX;X^^X9x**^XXX%%   
+D:  %%XX^^8*XXXX8.X;XX;X.9XXXX*8^^XX%%  
+D: %%XX^**^^X^^*X;;;XX;;;X*^^X^^**^XX%% 
+D: %XX^x*XXXX^8XX;XXXXXX;XX8^XXXX*x^XX% 
+D:%%X^^xxX^.*XXX;;;X~~X;;;XXX*.^Xxx^^X%%
+D:%XX^xxxX^9XX9;;*XX**XX*;;9XX8^Xxxx^XX%
+D:%X^^*^xXXX*XXXXXX*00*XXXXXX*XXXx^*^^X%
+D:%X^***^xxxxxX~*0******0*~Xxxxxx^***^X%
+D:%X^^*^xXXX*XXXXXX*00*XXXXXX*XXXx^*^^X%
+D:%XX^xxxX^8XX9;;*XX**XX*;;9XX9^Xxxx^XX%
+D:%%X^^xxX^.*XXX;;;;;;X;;;XXX*.^Xxx^^X%%
+D: %XX^x*XXXX^8XX;XXXXXX;XX8^XXXX*x^XX% 
+D: %%XX^**^^X^^*X;;;X*;;;X*^^X^^**^XX%% 
+D:  %%XX^^8*XXXX9.X;XX;X.8XXXX*8^^XX%%  
+D:   %%XXX^**x9X^^X;*X;X^^X9x**^XXX%%   
+D:    %%%XXXX^XXXXX;XX;XXXXX^XXXX%%%    
+D:      %%%%XXXXX;;;X*;;;XXXXX%%%%      
+D:        %%%%%%XXXXXXXX%X%%%%%         
+D:             %%%%%%%%%%%%             
 
 ## Space for more Greater vaults, up to index 139 ##
 

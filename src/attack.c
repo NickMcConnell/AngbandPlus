@@ -78,13 +78,6 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
   /* Assume no added dice */
   int add_dice = 0;	
   
-  /* Special quality (vorpal blades/weapons of concussion) */
-  /*if (o_ptr->flags1 & (TR1_VORPAL))
-    {
-    power *= 2;            (this may be a little too much)
-    vorpal = TRUE;
-    }*/
-  
   /* Specialty Ability */
   if ((visible) && (check_ability(SP_ARMSMAN)) && (rand_int(6) == 0))
     {
@@ -129,11 +122,13 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
 	   */
 	  if (add_dice <= 2)
 	    {
+	      sound(MSG_HIT_GOOD);
 	      message_format(MSG_HIT, 0, "You strike %s.", m_name);
 	    }
 	  
 	  else if (add_dice == 3)
 	    {
+	      sound(MSG_HIT_GREAT);
 	      if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
 		{
 		  message_format(MSG_HIT, 0, "You hack at %s.", m_name);
@@ -146,6 +141,7 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
 	  
 	  else if (add_dice == 4)
 	    {
+	      sound(MSG_HIT_SUPERB);
 	      if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
 		{
 		  if (vorpal) 
@@ -176,6 +172,7 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
 		}
 	      else
 		{
+		  sound(MSG_HIT_HI_GREAT);
 		  message_format(MSG_HIT, 0, "You *smite* %s!", m_name);
 		}
 	    }
@@ -185,12 +182,14 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
   /* If the blow is not a critical hit, then the default message is shown. */
   else if (visible)
     {
+      sound(MSG_HIT);
       message_format(MSG_HIT, 0, "You hit %s.", m_name);
     }
   
   /* Hits on non-visible monsters always generate the same message. */
   if (!visible)
     {
+      sound(MSG_HIT);
       message(MSG_HIT, 0, "You hit something.");
     }
   
@@ -229,13 +228,6 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
   
   /* Throwing weapons get lots of critical hits. */
   if (thrown_weapon) power = power * 3 / 2;
-  
-  /* Special quality (vorpal blades/weapons of concussion) */
-  /*if (o_ptr->flags1 & (TR1_VORPAL))
-    {
-    power *= 2;            (this may be a little too much)
-    vorpal = TRUE;
-    }*/
   
   /* Specialty Ability */
   if ((visible) && (check_ability(SP_MARKSMAN)) && (rand_int(6) == 0))
@@ -336,13 +328,8 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
   monster_race *r_ptr = &r_info[m_ptr->r_idx];
   monster_lore *l_ptr = &l_list[m_ptr->r_idx];
   
-  /* Assume temporary elemental brand is OK to use. */
-  bool allow_t_brand = TRUE;
-  
-  u32b f1, f2, f3, g1, g2, g3, h1;
-
   object_type *i_ptr;
-  int i; 
+  int i, j, slay[MAX_P_SLAY], brand[MAX_P_BRAND]; 
   
   /*
    * Assume no special adjustments to damage.  We normally multiply damage 
@@ -351,49 +338,57 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
   int mul = 10;
   int add = 0;
   
-  /* Extract the flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
-  h1 = f1;
-
+  /* Extract the slays and brands */
+  for (i = 0; i < MAX_P_SLAY; i++)
+    slay[i] = o_ptr->multiple_slay[i];
+  for (i = 0; i < MAX_P_BRAND; i++)
+    brand[i] = o_ptr->multiple_brand[i];
+  
   switch (o_ptr->tval)
     {
-	case TV_SHOT:
+    case TV_SHOT:
     case TV_ARROW:
     case TV_BOLT:
-	{
-		/* Check launcher for additional brands (slays) */
-		i_ptr = &inventory[INVEN_BOW];
-		/* If wielding a launcher - sanity check */
-		if (i_ptr->k_idx)
-		{
-			/* Extract the flags */
-			object_flags(i_ptr, &g1, &g2, &g3);
-			/* Pick up any brands (and slays!) */
-			h1 = h1 | g1;
-		}
-		break;
-	}
+      {
+	/* Check launcher for additional brands (slays) */
+	i_ptr = &inventory[INVEN_BOW];
+	
+	/* If wielding a launcher - sanity check */
+	if (i_ptr->k_idx)
+	  {
+	    /* Hack - take the maximum value */
+	    for (i = 0; i < MAX_P_SLAY; i++)
+	      slay[i] = MAX(i_ptr->multiple_slay[i], slay[i]);
+	    for (i = 0; i < MAX_P_BRAND; i++)
+	      brand[i] = MAX(i_ptr->multiple_brand[i],brand[i]);
+	  }
+	break;
+      }
     case TV_HAFTED:
     case TV_POLEARM:
     case TV_SWORD:
     case TV_DIGGING:
-	{	  
-		/* Check rings for additional brands (slays) */
-		for (i = 0; i < 2; i++)
-		{
-			i_ptr = &inventory[INVEN_LEFT + i];
-			/* If wearing a ring */
-			if (i_ptr->k_idx)
-			{
-				/* Extract the flags */
-				object_flags(i_ptr, &g1, &g2, &g3);
-				/* Pick up any brands (and slays!) */
-				h1 = h1 | g1;
-			}
-		}
-		break;
-	}
-  }
+      {	
+	for (j = 0; j < 2; j++)
+	  {  
+	    /* Check rings for additional brands (slays) */
+	    i_ptr = &inventory[INVEN_LEFT + j];
+	    
+	    /* If wearing a ring */
+	    if (i_ptr->k_idx)
+	      {
+		/* Hack - take the maximum value */
+		for (i = 0; i < MAX_P_SLAY; i++)
+		  slay[i] = MAX(i_ptr->multiple_slay[i], slay[i]);
+		for (i = 0; i < MAX_P_BRAND; i++)
+		  brand[i] = MAX(i_ptr->multiple_brand[i],brand[i]);
+	      }
+	  }
+	
+	break;
+      }
+    }
+  
 
   /* Wielded weapons and diggers and fired missiles may do extra damage. */
   switch (o_ptr->tval)
@@ -408,7 +403,20 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	 *
 	 * Missle weapons are "kind of" edged, right?
 	 */
-	if (check_ability(SP_BLESS_WEAPON)) allow_t_brand = FALSE;
+	if (!check_ability(SP_BLESS_WEAPON)) 
+	  {
+	    if (p_ptr->special_attack & (ATTACK_ACID)) 
+	      brand[P_BRAND_ACID] = MAX(brand[P_BRAND_ACID],BRAND_BOOST_NORMAL);
+	    if (p_ptr->special_attack & (ATTACK_ELEC)) 
+	      brand[P_BRAND_ELEC] = MAX(brand[P_BRAND_ELEC],BRAND_BOOST_NORMAL);
+	    if (p_ptr->special_attack & (ATTACK_FIRE)) 
+	      brand[P_BRAND_FIRE] = MAX(brand[P_BRAND_FIRE],BRAND_BOOST_NORMAL);
+	    if (p_ptr->special_attack & (ATTACK_COLD)) 
+	      brand[P_BRAND_COLD] = MAX(brand[P_BRAND_COLD],BRAND_BOOST_NORMAL);
+	    if (p_ptr->special_attack & (ATTACK_POIS)) 
+	      brand[P_BRAND_POIS] = MAX(brand[P_BRAND_POIS],BRAND_BOOST_NORMAL);
+ 
+	  }
 	
 	/* Fall through. */
       }
@@ -418,23 +426,18 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
     case TV_DIGGING:
       {
 	/* Slay Animal */
-	if ((h1 & (TR1_SLAY_ANIMAL)) && (r_ptr->flags3 & (RF3_ANIMAL)))
+	if ((slay[P_SLAY_ANIMAL] > MULTIPLE_BASE) && (r_ptr->flags3 & (RF3_ANIMAL)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_ANIMAL);
 	      }
 	    
-	    if (mul < 14) mul = 14;
-		if (f1 & (TR1_SLAY_ANIMAL))
-		{
-		  if ((f1 & (TR1_SLAY_KILL)) && (mul < 20)) mul = 20;
-	      else if (mul < 17) mul = 17;
-		}
+	    if (mul < slay[P_SLAY_ANIMAL]) mul = slay[P_SLAY_ANIMAL];
 	  }
 	
 	/* Slay Evil */
-	if (((h1 & (TR1_SLAY_EVIL)) || 
+	if (((slay[P_SLAY_EVIL] > MULTIPLE_BASE) || 
 	     (p_ptr->special_attack & (ATTACK_HOLY))) &&
 	    (r_ptr->flags3 & (RF3_EVIL)))
 	  {
@@ -443,115 +446,79 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 		l_ptr->flags3 |= (RF3_EVIL);
 	      }
 
-	    if (mul < 13) mul = 13;
-		if ((p_ptr->special_attack & (ATTACK_HOLY)) && (mul < 15)) mul = 15;
-	    if (f1 & (TR1_SLAY_EVIL))
-		{
-	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 17)) mul = 17;
-	      else if (mul < 15) mul = 15;
-		}
+	    if (mul < slay[P_SLAY_EVIL]) mul = slay[P_SLAY_EVIL];
+	    if ((p_ptr->special_attack & (ATTACK_HOLY)) && (mul < 15)) mul = 15;
 	  }
 	
+	
 	/* Slay Undead */
-	if ((h1 & (TR1_SLAY_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
+	if ((slay[P_SLAY_UNDEAD] > MULTIPLE_BASE) && (r_ptr->flags3 & (RF3_UNDEAD)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_UNDEAD);
 	      }
 	    
-		if (mul < 16) mul = 16;
-		if (f1 & (TR1_SLAY_UNDEAD))
-		{
-	      if (f1 & (TR1_SLAY_KILL) && (mul < 25)) mul = 25;
-	      else if (f1 & (TR1_SLAY_UNDEAD) && (mul < 20)) mul = 20;
-		}
+	    if (mul < slay[P_SLAY_UNDEAD]) mul = slay[P_SLAY_UNDEAD];
 	  }
 	
 	/* Slay Demon */
-	if ((h1 & (TR1_SLAY_DEMON)) && (r_ptr->flags3 & (RF3_DEMON)))
+	if ((slay[P_SLAY_DEMON] > MULTIPLE_BASE) && (r_ptr->flags3 & (RF3_DEMON)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_DEMON);
 	      }
-
-	    if (mul < 16) mul = 16;
-		if (f1 & (TR1_SLAY_DEMON))
-		{
-	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
-	      else if (mul < 20) mul = 20;
-		}
+	    
+	    if (mul < slay[P_SLAY_DEMON]) mul = slay[P_SLAY_DEMON];
 	  }
 	
 	/* Slay Orc */
-	if ((h1 & (TR1_SLAY_ORC)) && (r_ptr->flags3 & (RF3_ORC)))
+	if ((slay[P_SLAY_ORC] > MULTIPLE_BASE) && (r_ptr->flags3 & (RF3_ORC)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_ORC);
 	      }
-
-	    if (mul < 16) mul = 16;
-		if (f1 & (TR1_SLAY_ORC))
-		{
-	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
-	      else if (mul < 20) mul = 20;
-		}
+	    
+	    if (mul < slay[P_SLAY_ORC]) mul = slay[P_SLAY_ORC];
 	  }
 	
 	/* Slay Troll */
-	if ((h1 & (TR1_SLAY_TROLL)) && (r_ptr->flags3 & (RF3_TROLL)))
+	if ((slay[P_SLAY_TROLL] > MULTIPLE_BASE) && (r_ptr->flags3 & (RF3_TROLL)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_TROLL);
 	      }
-
-	    if (mul < 16) mul = 16;
-		if (f1 & (TR1_SLAY_TROLL))
-		{
-	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
-	      else if (mul < 20) mul = 20;
-		}
+	    
+	    if (mul < slay[P_SLAY_TROLL]) mul = slay[P_SLAY_TROLL];
 	  }
 	
 	/* Slay Giant */
-	if ((h1 & (TR1_SLAY_GIANT)) && (r_ptr->flags3 & (RF3_GIANT)))
+	if ((slay[P_SLAY_GIANT] > MULTIPLE_BASE) && (r_ptr->flags3 & (RF3_GIANT)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_GIANT);
 	      }
-
-	    if (mul < 16) mul = 16;
-		if (f1 & (TR1_SLAY_GIANT))
-		{
-	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
-	      else if (mul < 20) mul = 20;
-		}
+	    
+	    if (mul < slay[P_SLAY_GIANT]) mul = slay[P_SLAY_GIANT];
 	  }
 	
 	/* Slay Dragon */
-	if ((h1 & (TR1_SLAY_DRAGON)) && (r_ptr->flags3 & (RF3_DRAGON)))
+	if ((slay[P_SLAY_DRAGON] > MULTIPLE_BASE) && (r_ptr->flags3 & (RF3_DRAGON)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_DRAGON);
 	      }
-
-	    if (mul < 16) mul = 16;
-		if (f1 & (TR1_SLAY_DRAGON))
-		{
-	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
-	      else if (mul < 20) mul = 20;
-		}
+	    
+	    if (mul < slay[P_SLAY_DRAGON]) mul = slay[P_SLAY_DRAGON];
 	  }
 	
 	/* Brand (Acid) */
-	if ((h1 & (TR1_BRAND_ACID)) || 
-	    ((p_ptr->special_attack & (ATTACK_ACID)) && 
-	     (allow_t_brand)))
+	if (brand[P_BRAND_ACID] > MULTIPLE_BASE)
 	  {
 	    /* Notice immunity */
 	    if (r_ptr->flags3 & (RF3_IM_ACID))
@@ -563,19 +530,11 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else
-		{
-		  if (mul < 14) mul = 14;
-		  if (((f1 & (TR1_BRAND_ACID)) || 
-	          ((p_ptr->special_attack & (ATTACK_ACID)) && 
-	           (allow_t_brand))) && (mul < 17)) mul = 17;
-		}
+	    else if (mul < brand[P_BRAND_ACID]) mul = brand[P_BRAND_ACID];
 	  }
 	
 	/* Brand (Elec) */
-	if ((h1 & (TR1_BRAND_ELEC)) || 
-	    ((p_ptr->special_attack & (ATTACK_ELEC)) && 
-	     (allow_t_brand)))
+	if (brand[P_BRAND_ELEC] > MULTIPLE_BASE)
 	  {
 	    /* Notice immunity */
 	    if (r_ptr->flags3 & (RF3_IM_ELEC))
@@ -587,19 +546,11 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else
-		{
-		  if (mul < 14) mul = 14;
-		  if (((f1 & (TR1_BRAND_ELEC)) || 
-	          ((p_ptr->special_attack & (ATTACK_ELEC)) && 
-	           (allow_t_brand))) && (mul < 17)) mul = 17;
-		}
+	    else if (mul < brand[P_BRAND_ELEC]) mul = brand[P_BRAND_ELEC];
 	  }
 	
 	/* Brand (Fire) */
-	if ((h1 & (TR1_BRAND_FIRE)) || 
-	    ((p_ptr->special_attack & (ATTACK_FIRE)) && 
-	     (allow_t_brand)))
+	if (brand[P_BRAND_FIRE] > MULTIPLE_BASE)
 	  {
 	    /* Notice immunity */
 	    if (r_ptr->flags3 & (RF3_IM_FIRE))
@@ -611,24 +562,11 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else
-	      {
-		if ((o_ptr->name2 == EGO_BALROG) && 
-		    (mul < 30)) mul = 30;
-		else
-		{
-		  if (mul < 14) mul = 14;
-		  if (((f1 & (TR1_BRAND_FIRE)) || 
-	          ((p_ptr->special_attack & (ATTACK_FIRE)) && 
-	           (allow_t_brand))) && (mul < 17)) mul = 17;
-		}
-	      }
+	    else if (mul < brand[P_BRAND_FIRE]) mul = brand[P_BRAND_FIRE];
 	  }
 	
 	/* Brand (Cold) */
-	if ((h1 & (TR1_BRAND_COLD)) || 
-	    ((p_ptr->special_attack & (ATTACK_COLD)) && 
-	     (allow_t_brand)))
+	if (brand[P_BRAND_COLD] > MULTIPLE_BASE)
 	  {
 	    /* Notice immunity */
 	    if (r_ptr->flags3 & (RF3_IM_COLD))
@@ -640,19 +578,11 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else
-		{
-		  if (mul < 14) mul = 14;
-		  if (((f1 & (TR1_BRAND_COLD)) || 
-	          ((p_ptr->special_attack & (ATTACK_COLD)) && 
-	           (allow_t_brand))) && (mul < 17)) mul = 17;
-		}
+	    else if (mul < brand[P_BRAND_COLD]) mul = brand[P_BRAND_COLD];
 	  }
 	
 	/* Brand (Poison) */
-	if ((h1 & (TR1_BRAND_POIS)) || 
-	    ((p_ptr->special_attack & (ATTACK_POIS)) && 
-	     (allow_t_brand)))
+	if (brand[P_BRAND_POIS] > MULTIPLE_BASE)
 	  {
 	    /* Notice immunity */
 	    if (r_ptr->flags3 & (RF3_IM_POIS))
@@ -664,13 +594,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else
-		{
-		  if (mul < 14) mul = 14;
-		  if (((f1 & (TR1_BRAND_POIS)) || 
-	          ((p_ptr->special_attack & (ATTACK_POIS)) && 
-	           (allow_t_brand))) && (mul < 17)) mul = 17;
-		}
+	    else if (mul < brand[P_BRAND_POIS]) mul = brand[P_BRAND_POIS];
 	  }
 	
 	/* Additional bonus for Holy Light */
@@ -712,18 +636,18 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
    * SJGU tone down the affect of slays and brands for launchers
    */
   if (mul > 10)
-  {
-    switch (o_ptr->tval)
     {
-      case TV_SHOT:
-      case TV_ARROW:
-      case TV_BOLT:
-      {
-        mul -= (mul - 9)/3;
-      }
+      switch (o_ptr->tval)
+	{
+	case TV_SHOT:
+	case TV_ARROW:
+	case TV_BOLT:
+	  {
+	    mul -= (mul - 9)/3;
+	  }
+	}
+      add = (mul - 10);
     }
-	add = (mul - 10);
-  }
   
   /* Apply multiplier to the die average now. */
   *die_average *= mul;
@@ -731,7 +655,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
   /* Return the addend for later handling. */
   return (add);
 }
-
+      
 
 
 /* 
@@ -946,7 +870,7 @@ void py_attack(int y, int x)
   bool fear = FALSE;
   
   bool do_quake = FALSE;
-  
+
   bool did_burn = FALSE;
   
   /* Get the monster */
@@ -999,6 +923,27 @@ void py_attack(int y, int x)
       /* Done */
       return;
     }
+  
+  /* Hack - Monsters in stasis are invulnerable. */
+  if (m_ptr->stasis)
+    {
+      if (m_ptr->ml)
+	{
+	  /* Message */
+	  msg_format("Stasis protects %s!", m_name);
+	}
+      else
+	{
+	  /* Special Message */
+	  msg_print("Something immovable is in your way!");
+	}
+      
+      /* Done */
+      return;
+    }
+  
+  /* Become hostile */
+  m_ptr->hostile = -1;
   
   /* Monsters in rubble can take advantage of cover. */
   if (cave_feat[y][x] == FEAT_RUBBLE)
@@ -1097,6 +1042,7 @@ void py_attack(int y, int x)
       /* Encourage the player to keep wearing that heavy shield. */
       if (randint(bash_dam) > 30 + randint(bash_dam / 2)) 
 	{
+	  sound(MSG_HIT_HI_SUPERB);
 	  message(MSG_HIT, 0, "WHAMM!");
 	}
       
@@ -1196,7 +1142,7 @@ void py_attack(int y, int x)
 			  m_ptr->ml))
 	{
 	  /* Sound */
-	  sound(SOUND_HIT);
+	  sound(MSG_HIT);
 	  
 	  /* If this is the first hit, make some noise. */
 	  if (first_hit)
@@ -1314,8 +1260,8 @@ void py_attack(int y, int x)
 	       * Hack -- High-level warriors can spread their attacks out 
 	       * among weaker foes.
 	       */
-	      if ((check_ability(SP_SPREAD_ATTACKS)) && (p_ptr->energy_use) && 
-		  (p_ptr->lev > 39) && (num < blows))
+	      if ((check_ability(SP_SPREAD_ATTACKS)) && (p_ptr->energy_use)
+		  && (p_ptr->lev > 39) && (num < blows))
 		{
 		  p_ptr->energy_use = p_ptr->energy_use * num / blows;
 		}
@@ -1446,6 +1392,17 @@ void py_attack(int y, int x)
 	      return;
 	    }
 	  
+	  /* Chaotic attack. */
+	  if (p_ptr->special_attack & (ATTACK_CHAOTIC))
+	    {
+	      /* Sometimes do chaotic stuff */
+	      if (rand_int(10) == 0) 
+		{
+		  /* May not still be something there to hit */
+		  if (!chaotic_effects(m_ptr)) return;
+		}
+	    }
+
 	  /* Monster is no longer asleep */
 	  sleeping_bonus = 0;
 	}
@@ -1454,7 +1411,7 @@ void py_attack(int y, int x)
       else
 	{
 	  /* Sound */
-	  sound(SOUND_MISS);
+	  sound(MSG_MISS);
 	  
 	  /* Message */
 	  message_format(MSG_MISS, 0, "You miss %s.", m_name);
@@ -1481,7 +1438,7 @@ void py_attack(int y, int x)
   if (fear && m_ptr->ml)
     {
       /* Sound */
-      sound(SOUND_FLEE);
+      sound(MSG_FLEE);
       
       /* Message */
       message_format(MSG_FLEE, m_ptr->r_idx,
@@ -1676,7 +1633,7 @@ void do_cmd_fire(void)
   p_ptr->energy_use = (1000 / p_ptr->num_fire);
   
   /* Sound */
-  sound(SOUND_SHOOT);
+  sound(MSG_SHOOT);
   
   /* Missile launchers of Velocity sometimes "supercharge" */
   if ((o_ptr->name2 == EGO_VELOCITY) && (rand_int(5) == 0))
@@ -2000,6 +1957,9 @@ void do_cmd_fire(void)
 	  /* No death */
 	  else
 	    {
+	      /* Become hostile */
+	      m_ptr->hostile = -1;
+
 	      /* Message */
 	      message_pain(cave_m_idx[y][x], damage);
 	      
@@ -2007,7 +1967,7 @@ void do_cmd_fire(void)
 	      if (fear && m_ptr->ml)
 		{
 		  /* Sound */
-		  sound(SOUND_FLEE);
+		  sound(MSG_FLEE);
 		  
 		  /* Message */
 		  message_format(MSG_FLEE, m_ptr->r_idx,
@@ -2097,9 +2057,6 @@ void do_cmd_throw(void)
   
   int msec = op_ptr->delay_factor * op_ptr->delay_factor;
   
-  u32b f1, f2, f3;
-  
-  
   /* Do we have an item? */
   if (p_ptr->command_item) 
     {
@@ -2126,15 +2083,31 @@ void do_cmd_throw(void)
     }
   
   /* Can't unwield cursed items this way! */
-  if ((item > INVEN_PACK) && (item < INVEN_BLANK) && (cursed_p(o_ptr)))
+  if ((item > INVEN_PACK) && (item < INVEN_BLANK) && 
+      (o_ptr->flags_curse & CF_STICKY_WIELD))
     {
       /* Oops */
       msg_print("Hmmm, it seems to be cursed.");
+
+      /* Notice */
+      notice_curse(CF_STICKY_WIELD, item + 1);
       
       /* Nope */
       return;
     }
+  
+  if (o_ptr->flags_curse & CF_STICKY_CARRY)
+    {
+      /* Oops */
+      msg_print("Hmmm, it seems to be cursed.");
 
+      /* Notice */
+      notice_curse(CF_STICKY_CARRY, item + 1);
+      
+      /* Nope */
+      return;
+    }
+  
     
   
   /* Get a direction (or cancel) */
@@ -2149,9 +2122,6 @@ void do_cmd_throw(void)
   
   /* Distribute the charges of rods/wands between the stacks */
   distribute_charges(o_ptr, i_ptr, 1);
-  
-  /* Extract the thrown object's flags. */
-  object_flags(i_ptr, &f1, &f2, &f3);
   
   /* Single object */
   i_ptr->number = 1;
@@ -2203,7 +2173,7 @@ void do_cmd_throw(void)
    * take advantage of bonuses to Skill and Deadliness from other 
    * equipped items.
    */
-  if (f1 & (TR1_THROWING)) 
+  if (i_ptr->flags_obj & OF_THROWING) 
     {
       chance = p_ptr->skill_tht + BTH_PLUS_ADJ * (p_ptr->to_h + i_ptr->to_h);
       total_deadliness = p_ptr->to_d + i_ptr->to_d;
@@ -2306,7 +2276,8 @@ void do_cmd_throw(void)
 	  /* If the monster is sleeping, it'd better pray there are no 
 	   * Assassins with throwing weapons nearby. -LM-
 	   */
-	  if ((m_ptr->csleep) && (m_ptr->ml) && (f1 & (TR1_THROWING)))
+	  if ((m_ptr->csleep) && (m_ptr->ml) && 
+	      (i_ptr->flags_obj & OF_THROWING))
 	    {
 	      if (check_ability(SP_ASSASSINATE))
 		sleeping_bonus = 15 + p_ptr->lev / 2;
@@ -2345,8 +2316,8 @@ void do_cmd_throw(void)
 	  if (!(test_hit_combat(chance2 + sleeping_bonus, 
 				r_ptr->ac + terrain_bonus, m_ptr->ml)))
 	    {
-	      /* Keep Going */
-	      break;
+	      /* Keep Going - magical throw always hits visible monsters */
+	      if (!(magic_throw) || !m_ptr->ml) break;
 	    }
 	  
 	  /* Some monsters get "destroyed" */
@@ -2387,10 +2358,10 @@ void do_cmd_throw(void)
 	  dice = i_ptr->dd;
 	  
 	  /* Object is a throwing weapon. */
-	  if (f1 & (TR1_THROWING))
+	  if (i_ptr->flags_obj & OF_THROWING)
 	    {
 	      /* Perfectly balanced weapons do even more damage. */
-	      if (f1 & (TR1_PERFECT_BALANCE)) dice *= 2;
+	      if (i_ptr->flags_obj & OF_PERFECT_BALANCE) dice *= 2;
 	      
 	      /* Critical hits may add damage dice. */
 	      dice += critical_shot(chance2, sleeping_bonus, TRUE, 
@@ -2458,6 +2429,9 @@ void do_cmd_throw(void)
 	  /* No death */
 	  else
 	    {
+	      /* Become hostile */
+	      m_ptr->hostile = -1;
+
 	      /* Message */
 	      message_pain(cave_m_idx[y][x], damage);
 	      
@@ -2465,7 +2439,7 @@ void do_cmd_throw(void)
 	      if (fear && m_ptr->ml)
 		{
 		  /* Sound */
-		  sound(SOUND_FLEE);
+		  sound(MSG_FLEE);
 		  
 		  /* Message */
 		  msg_format("%^s flees in terror!", m_name);
@@ -2482,8 +2456,8 @@ void do_cmd_throw(void)
     }
   
   /* Chance of breakage.   Throwing weapons are designed not to break. */
-  if (f1 & (TR1_PERFECT_BALANCE)) break_chance = 0;
-  else if (f1 & (TR1_THROWING)) break_chance = (hit_body ? 1 : 0);
+  if (i_ptr->flags_obj & OF_PERFECT_BALANCE) break_chance = 0;
+  else if (i_ptr->flags_obj & OF_THROWING) break_chance = (hit_body ? 1 : 0);
   else break_chance = (hit_body ? breakage_chance(i_ptr) : 0);
   
   /* Drop (or break) near that location */

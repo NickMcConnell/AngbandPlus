@@ -18,7 +18,6 @@ include $(DEVKITARM)/ds_rules
 TARGET		:=	faangband
 BUILD		:=	$(CURDIR)
 SOURCES		:=	$(CURDIR)/nds
-#INCLUDES	:=	sys/nds/arm7/include
 INCLUDES	:=
 DATA		:=
 

@@ -187,9 +187,6 @@ static errr path_build_full(char buf[], size_t max, cptr file)
 {
  	char tmp_buf[1024], *pbuf;
 
- 	/* Parse special directories, etc. */
- 	if (path_parse(tmp_buf, sizeof(tmp_buf), file)) return (1);
-
  	/* We already have an absolute path? */
  	if (prefix(tmp_buf, PATH_SEP))
  	{

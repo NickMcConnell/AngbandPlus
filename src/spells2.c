@@ -136,41 +136,118 @@ void magic_spiking(void)
     }
 }
 
+/* Maximum numbers of runes of the various types */
+int max_runes[] =  
+  {
+    4,   /* Rune of the Elements */
+    4,   /* Rune of Magic Defence */
+    4,   /* Rune of Instability */
+    1,   /* Rune of Mana */
+    4,   /* Rune of Protection */
+    1,   /* Rune of Power */
+    1    /* Rune of Speed */
+  };
 
 
 /*
- * Leave a "glyph of warding" which prevents monster movement.  Glyphs of 
- * warding are now rationed because priests are otherwise too easy to win 
- * with. -LM-
+ * Leave a rune 
  */
-bool warding_glyph(void)
+bool lay_rune(int type)
 {
   int py = p_ptr->py;
   int px = p_ptr->px;
   
+  s16b this_o_idx, next_o_idx = 0;
+  object_type *o_ptr;
+
+  /* If we're standing on a rune of mana, we can add mana to it */
+  if ((type == RUNE_MANA) && (cave_feat[py][px] == FEAT_RUNE_MANA))
+    {
+      /* Standard mana amount */
+      int mana = 40;
+
+      /* Already full? */
+      if (mana_reserve >= MAX_MANA_RESERVE)
+	{
+	  msg_print("The rune cannot hold more mana");
+	  return (FALSE);
+	}
+
+      /* Don't put in more than we have */
+      if (p_ptr->csp < mana) mana = p_ptr->csp;
+
+      /* Don't put in more than it will hold */
+      mana_reserve += mana; 
+      if (mana_reserve > MAX_MANA_RESERVE) mana_reserve = MAX_MANA_RESERVE;
+      return (TRUE);
+    }
+
   /* XXX XXX XXX */
-  if (!cave_clean_bold(py, px))
+  if (!cave_trappable_bold(py, px))
     {
-      msg_print("The object resists the spell.");
+      msg_print("You cannot lay a rune here.");
       return (FALSE);
     }
   
-  /* Limit total number of glyphs. -LM- */
-  if (num_glyph_on_level >= 4)
+  /* Scan all objects in the grid */
+  for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
     {
-      msg_print("You cannot set any more glyphs until you desanctify your existing ones.");
+      /* Acquire object */
+      o_ptr = &o_list[this_o_idx];
+      
+      /* Acquire next object */
+      next_o_idx = o_ptr->next_o_idx;
+      
+      /* Artifact */
+      if (o_ptr->name1)
+	{
+	  msg_print("There is an indestructible object here.");
+	  return (FALSE);
+	}
+    }
+  
+  /* Verify */
+  if (cave_o_idx[py][px]) 
+    {
+      if (!get_check("Destroy all items and lay a rune?")) return (FALSE);
+      else
+	{
+	  for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+	    {
+	      /* Acquire object */
+	      o_ptr = &o_list[this_o_idx];
+	      
+	      /* Acquire next object */
+	      next_o_idx = o_ptr->next_o_idx;
+	      
+	      /* Delete the object */
+	      delete_object_idx(this_o_idx);
+	    }
+	  
+	  /* Redraw */
+	  lite_spot(py, px);
+	}
+    }
+  
+  /* Limit total number of runes. */
+  if (num_runes_on_level[type] >= max_runes[type])
+    {
+      msg_print("You have reached the maximum number of runes of this type.");
       return (FALSE);
     }
   
-  /* Create a glyph */
-  cave_set_feat(py, px, FEAT_GLYPH);
+  /* Create a rune */
+  cave_set_feat(py, px, FEAT_RUNE_HEAD + type);
   
-  /* Increment the glyph count. */
-  num_glyph_on_level++;
+  /* Increment the rune count. */
+  num_runes_on_level[type]++;
   
   /* Warning. */
-  if (num_glyph_on_level == 4)
-    msg_print("You have now reached your glyph limit.  In order to set more, desanctify some.");
+  if (num_runes_on_level[type] == max_runes[type])
+    {
+      msg_print("You have now reached your limit for runes of this type.");  
+      msg_print("In order to set more, remove some.");
+    }
   
   return (TRUE);
 }
@@ -319,16 +396,38 @@ bool do_inc_stat(int stat, bool star)
 void identify_object(object_type *o_ptr)
 {
   object_kind *k_ptr;
+  bool was_dubious = FALSE;
+  bool aware = FALSE;
 
   /* Get the object kind. */
   k_ptr = &k_info[o_ptr->k_idx];
+
+  /* See what we thougth of it before */
+  if ((o_ptr->feel == FEEL_PERILOUS) ||
+      (o_ptr->feel == FEEL_DUBIOUS_WEAK) ||
+      (o_ptr->feel == FEEL_DUBIOUS_STRONG))
+    was_dubious = TRUE;
   
+  /* Remember awareness */
+  if (object_aware_p(o_ptr)) aware = TRUE;
+
   /* Identify it fully */
   object_aware(o_ptr);
   object_known(o_ptr);
   
-  /* Mark the item as fully known */
-  o_ptr->ident |= (IDENT_MENTAL);
+  /* Check for known curses */
+  if ((o_ptr->flags_obj & OF_SHOW_CURSE) ||
+      (artifact_p(o_ptr) && (o_ptr->name1 < ART_MIN_RANDOM)))
+    {
+      o_ptr->id_curse = o_ptr->flags_curse;
+      o_ptr->ident |= IDENT_KNOW_CURSES;
+      if (o_ptr->flags_curse) o_ptr->ident |= IDENT_CURSED;
+      else o_ptr->ident |= IDENT_UNCURSED;
+    }
+
+  /* If it seemed dubious but has no identifiable negatives, it's cursed */
+  if (!item_dubious(o_ptr, FALSE) && was_dubious) 
+    o_ptr->ident |= IDENT_CURSED;
   
   /* If artifact, write a note if applicable */
   if ((o_ptr->name1) && (o_ptr->found))
@@ -351,9 +450,9 @@ void identify_object(object_type *o_ptr)
        * or wielded by the player.  This may result in out of order
        * entries in the notes file, which really should be re-ordered 
        */
-        turn = a_info[o_ptr->name1].creat_turn & 0x00FFFFFF;
+        turn = a_info[o_ptr->name1].creat_turn;
         if (turn < 2) turn = real_turn;
-        lev = (a_info[o_ptr->name1].creat_turn & 0xFF000000) >> 24;
+        lev = a_info[o_ptr->name1].p_level;
         if (lev == 0) lev = p_ptr->lev;
         make_note(note, artifact_stage, NOTE_ARTIFACT, lev);
         turn = real_turn;
@@ -361,7 +460,7 @@ void identify_object(object_type *o_ptr)
       /*
        * Mark item creation depth 0, which will indicate the artifact
        * has been previously identified.  This prevents an artifact
-       * from showing up on the notes list twice ifthe artifact had
+       * from showing up on the notes list twice if the artifact had
        * been previously identified.  JG
        */
       o_ptr->found = 0 ;
@@ -371,8 +470,11 @@ void identify_object(object_type *o_ptr)
    * except for variable rings and amulets, fully known. */
   if (k_ptr->flavor)
     {
-      if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) && 
-	  (k_ptr->flags3 & (TR3_EASY_KNOW))) k_ptr->known_effect = TRUE;
+      if (((o_ptr->tval == TV_RING) || 
+	   (o_ptr->tval == TV_AMULET)) && 
+	  (k_ptr->flags_kind & (KF_EASY_KNOW))) 
+	k_ptr->known_effect = TRUE;
+
       else if ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_STAFF) || 
 	       (o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
 	k_ptr->known_effect = TRUE;
@@ -426,72 +528,157 @@ static int enchant_table[16] =
 };
 
 
-/*
- * Hack -- Removes curse from an object.
- */
-static void uncurse_object(object_type *o_ptr)
+static bool item_tester_cursed(object_type *o_ptr)
 {
-  /* Uncurse it */
-  o_ptr->ident &= ~(IDENT_CURSED);
-  
-  /* The object has been "sensed" */
-  o_ptr->ident |= (IDENT_SENSE);
-  
-  o_ptr->feel = FEEL_UNCURSED;
+  if (known_cursed_p(o_ptr) && !(o_ptr->flags_obj & OF_PERMA_CURSE))
+    return TRUE;
+  else
+    return FALSE;
 }
 
-
 /*
- * Removes curses from items in inventory
+ * Attempts to remove curses from items in inventory
  *
- * Note that Items which are "Perma-Cursed" (The One Ring,
- * The Crown of Morgoth) can NEVER be uncursed.
+ * Note that Items which are "Perma-Cursed" 
+ * can NEVER be uncursed.
  *
- * Note that if "all" is FALSE, then Items which are
- * "Heavy-Cursed" (Mormegil, Calris, and Weapons of Morgul)
- * will not be uncursed.
+ * If good is TRUE, there is a better chance of removal.  Using this spell
+ * once makes an item fragile, which means it is likely to be destroyed on
+ * a second attempt.
  */
-static int remove_curse_aux(int all)
+static bool remove_curse_aux(int good)
 {
-  int i, cnt = 0;
+  int i, item, slot;
   
-  /* Attempt to uncurse items being worn */
-  for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+  object_type *o_ptr;
+  
+  char o_name[120];
+  
+  cptr q, s;
+
+  u32b curses = 0L;
+
+  int destroy_chance = 50;
+  int uncurse_chance = 50;
+
+  bool heavy = FALSE;
+  int feel;
+
+  /* Only cursed items */
+  item_tester_hook = item_tester_cursed;
+  
+  /* Don't restrict choices */
+  item_tester_tval = 0;
+  
+  /* Get an item.   */
+  q = "Attempt to uncurse which item? ";
+  s = "You have no curses which can be removed.";
+  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
+    return (FALSE);
+  
+  /* Get the item (in the pack) */
+  if (item >= 0)
     {
-      u32b f1, f2, f3;
-      
-      object_type *o_ptr = &inventory[i];
-      
-      /* Skip non-objects */
-      if (!o_ptr->k_idx) continue;
-      
-      /* Uncursed already */
-      if (!cursed_p(o_ptr)) continue;
-      
-      /* Extract the flags */
-      object_flags(o_ptr, &f1, &f2, &f3);
-      
-      /* Heavily Cursed Items need a special spell */
-      if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
-      
-      /* Perma-Cursed Items can NEVER be uncursed */
-      if (f3 & (TR3_PERMA_CURSE)) continue;
-      
-      /* Uncurse the object */
-      uncurse_object(o_ptr);
-      
-      /* Recalculate the bonuses */
-      p_ptr->update |= (PU_BONUS);
-      
-      /* Window stuff */
-      p_ptr->window |= (PW_EQUIP);
-      
-      /* Count the uncursings */
-      cnt++;
+      o_ptr = &inventory[item];
     }
   
+  /* Get the item (on the floor) */
+  else
+    {
+      o_ptr = &o_list[0 - item];
+    }
+
+  /* Artifacts are harder to uncurse and destroy */
+  if (artifact_p(o_ptr))
+    {
+      destroy_chance -= 25;
+      uncurse_chance -= 25;
+    }
+
+  /* Try every curse, even unknown ones */
+  for (i = 0; i < OBJECT_RAND_SIZE_CURSE; i++)
+    if (o_ptr->flags_curse & (1L << i))
+      {
+	/* If fragile, bad things can happen */
+	if ((o_ptr->flags_obj & OF_FRAGILE) && 
+	    (rand_int(100) < destroy_chance - (good ? 10 : 0)))
+	  {
+	      /* Message */
+	      msg_print("There is a bang and a flash!");
+	      
+	      /* Damage */
+	      take_hit(damroll(5, 5), "Failed uncursing");
+
+	      /* Gone */
+	      inven_item_increase(item, -1);
+	      inven_item_optimize(item);
+	      return (FALSE);
+	  }
+
+	/* Try once */
+	if (rand_int(100) < uncurse_chance) curses |= (1L << i);
+
+	/* If good, try again */
+	if (good && (rand_int(100) < uncurse_chance)) curses |= (1L << i);
+      }
+      
+  /* Uncurse it */
+  o_ptr->flags_curse &= ~(curses);
+  o_ptr->id_curse &= ~(curses);
+
+  /* May not be cursed any more */
+  if (!o_ptr->id_curse) o_ptr->ident &= ~(IDENT_CURSED);
+
+  /* Fragile now */
+  o_ptr->flags_obj |= (OF_FRAGILE);
+  
+  /* Known objects get free curse notification now */
+  if (object_known_p(o_ptr))
+    {
+      if (o_ptr->flags_curse) o_ptr->ident |= IDENT_CURSED;
+      else o_ptr->ident |= (IDENT_UNCURSED | IDENT_KNOW_CURSES);
+    }
+  /* Redo feeling if it's not known */
+  else
+    {
+      /* Heavy sensing */
+      heavy = (check_ability(SP_PSEUDO_ID_HEAVY));
+      
+      /* Type of feeling */
+      feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+      
+      /* Check the slot */
+      slot = wield_slot(o_ptr);
+  
+      /* Redo feeling */
+      if (!(o_ptr->feel == feel))
+	{
+	  /* Get an object description */
+	  object_desc(o_name, o_ptr, FALSE, 0);
+	  
+	  msg_format("You feel the %s (%c) you are %s %s now %s...",
+		     o_name, index_to_label(slot), describe_use(slot),
+		     ((o_ptr->number == 1) ? "is" : "are"), feel_text[feel]);
+      
+	  /* We have "felt" it */
+	  o_ptr->ident |= (IDENT_SENSE);
+	  
+	  /* Inscribe it textually */
+	  o_ptr->feel = feel;
+	  
+	  /* Set squelch flag as appropriate */
+	  p_ptr->notice |= PN_SQUELCH;
+	}
+    }
+  
+  /* Recalculate the bonuses */
+  p_ptr->update |= (PU_BONUS);
+  
+  /* Window stuff */
+  p_ptr->window |= (PW_EQUIP | PW_INVEN);
+  
   /* Return "something uncursed" */
-  return (cnt);
+  return (curses ? TRUE : FALSE);
 }
 
 
@@ -506,7 +693,7 @@ bool remove_curse(void)
 /*
  * Remove all curses
  */
-bool remove_all_curse(void)
+bool remove_curse_good(void)
 {
   return (remove_curse_aux(TRUE));
 }
@@ -608,41 +795,6 @@ void do_cmd_unchange(void)
  */
 bool lose_all_info(void)
 {
-  //int i;
-  
-  /* Forget info about objects */
-  //for (i = 0; i < INVEN_TOTAL; i++)
-  //{
-  //  object_type *o_ptr = &inventory[i];
-      
-      /* Skip non-objects */
-  //  if (!o_ptr->k_idx) continue;
-      
-      /* Allow "protection" by the MENTAL flag */
-  //  if (o_ptr->ident & (IDENT_MENTAL)) continue;
-      
-      /* Forget the feeling */
-  //  o_ptr->feel = FEEL_NONE;
-      
-      /* Hack -- Clear the "empty" flag */
-  //  o_ptr->ident &= ~(IDENT_EMPTY);
-      
-      /* Hack -- Clear the "known" flag */
-  //  o_ptr->ident &= ~(IDENT_KNOWN);
-      
-      /* Hack -- Clear the "felt" flag */
-  //  o_ptr->ident &= ~(IDENT_SENSE);
-  //}
-  
-  /* Recalculate bonuses */
-  //p_ptr->update |= (PU_BONUS);
-  
-  /* Combine / Reorder the pack (later) */
-  //p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-  
-  /* Window stuff */
-  //p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-  
   /* Mega-Hack -- Forget the map */
   wiz_dark();
   
@@ -1949,12 +2101,20 @@ static bool item_tester_unknown(object_type *o_ptr)
     return TRUE;
 }
 
+static bool item_tester_unknown_curse(object_type *o_ptr)
+{
+  if (object_known_p(o_ptr) && (o_ptr->ident & IDENT_KNOW_CURSES))
+    return FALSE;
+  else
+    return TRUE;
+}
+
 
 static bool item_tester_unproofed(object_type *o_ptr)
 {
   if (o_ptr->number != 1)
     return FALSE;
-  if (o_ptr->el_proof & el_to_proof)
+  if (o_ptr->flags_obj & el_to_proof)
     return FALSE;
   else
     return TRUE;
@@ -1984,11 +2144,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
   
   bool a = artifact_p(o_ptr);
   
-  u32b f1, f2, f3;
-  
-  /* Extract the flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
   
   /* Large piles resist enchantment */
   prob = o_ptr->number * 100;
@@ -2002,7 +2157,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
     }
   
   /* Try "n" times */
-  for (i=0; i<n; i++)
+  for (i = 0; i < n; i++)
     {
       /* Hack -- Roll for pile resistance */
       if ((prob > 100) && (rand_int(prob) >= 100)) continue;
@@ -2022,17 +2177,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	      
 	      /* Enchant */
 	      o_ptr->to_h++;
-	      
-	      /* only when you get it above -1 -CFT */
-	      if (cursed_p(o_ptr) &&
-		  (!(f3 & (TR3_PERMA_CURSE))) &&
-		  (o_ptr->to_h >= 0) && (rand_int(100) < 25))
-		{
-		  msg_print("The curse is broken!");
-		  
-		  /* Uncurse the object */
-		  uncurse_object(o_ptr);
-		}
 	    }
 	}
       
@@ -2049,17 +2193,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	      
 	      /* Enchant */
 	      o_ptr->to_d++;
-	      
-	      /* only when you get it above -1 -CFT */
-	      if (cursed_p(o_ptr) &&
-		  (!(f3 & (TR3_PERMA_CURSE))) &&
-		  (o_ptr->to_d >= 0) && (rand_int(100) < 25))
-		{
-		  msg_print("The curse is broken!");
-		  
-		  /* Uncurse the object */
-		  uncurse_object(o_ptr);
-		}
 	    }
 	}
       
@@ -2076,17 +2209,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	      
 	      /* Enchant */
 	      o_ptr->to_a++;
-	      
-	      /* only when you get it above -1 -CFT */
-	      if (cursed_p(o_ptr) &&
-		  (!(f3 & (TR3_PERMA_CURSE))) &&
-		  (o_ptr->to_a >= 0) && (rand_int(100) < 25))
-		{
-		  msg_print("The curse is broken!");
-		  
-		  /* Uncurse the object */
-		  uncurse_object(o_ptr);
-		}
 	    }
 	}
     }
@@ -2227,10 +2349,9 @@ bool brand_missile(int ammo_type, int brand_type)
     }
   
   /*
-   * Don't enchant artifacts, ego-items, cursed or broken items
+   * Don't enchant artifacts or ego-items
    */
-  if (artifact_p(o_ptr) || ego_item_p(o_ptr) || 
-      cursed_p(o_ptr) || broken_p(o_ptr))
+  if (artifact_p(o_ptr) || ego_item_p(o_ptr))
     {
       /* Flush */
       if (flush_failure) flush();
@@ -2367,7 +2488,7 @@ void set_ele_attack(u32b attack_type, int duration)
 /*
  * Proof an object against an element
  */
-bool el_proof(byte type)
+bool el_proof(u32b flag)
 {
   object_type *o_ptr;
 
@@ -2376,7 +2497,7 @@ bool el_proof(byte type)
   cptr q, s;
 
   /* Set the element */
-  el_to_proof = type;
+  el_to_proof = flag;
   
   /* Only unproofed items */
   item_tester_hook = item_tester_unproofed;
@@ -2403,7 +2524,7 @@ bool el_proof(byte type)
     }
 
   /* Proof it */
-  o_ptr->el_proof |= type;
+  o_ptr->flags_obj |= flag;
 
   /* Done */
   return (TRUE);
@@ -2418,13 +2539,13 @@ bool curse_armor(void)
   
   char o_name[120];
   
+  int slot = INVEN_BODY;
   
   /* Curse the body armor */
   o_ptr = &inventory[INVEN_BODY];
   
   /* Nothing to curse */
   if (!o_ptr->k_idx) return (FALSE);
-  
   
   /* Describe */
   object_desc(o_name, o_ptr, FALSE, 3);
@@ -2440,24 +2561,54 @@ bool curse_armor(void)
   /* not artifact or failed save... */
   else
     {
+      int i, feel;
+      bool heavy = FALSE;
+
       /* Oops */
       msg_format("A terrible black aura blasts your %s!", o_name);
       
-      /* Blast the armor */
-      o_ptr->name1 = 0;
-      o_ptr->name2 = EGO_BLASTED;
-      o_ptr->to_a = 0 - randint(5) - randint(5);
-      o_ptr->to_h = 0;
-      o_ptr->to_d = 0;
-      o_ptr->ac = 0;
-      o_ptr->dd = 0;
-      o_ptr->ds = 0;
+      /* Try every curse */
+      for (i = 0; i < OBJECT_RAND_SIZE_CURSE; i++)
+	{
+	  if (rand_int(100) < 10)
+	    {
+	      /* Try once */
+	      o_ptr->flags_curse |= (1L << i);
+	    }
+	}
+
+      /* Hack - no sticky curses on permacursed things */
+      if (o_ptr->flags_obj & OF_PERMA_CURSE) 
+	o_ptr->flags_curse &= ~(CF_STICKY_WIELD | CF_STICKY_CARRY);
+
+      /* Not uncursed */
+      o_ptr->ident &= ~(IDENT_UNCURSED | IDENT_KNOW_CURSES);
+
+      /* Heavy sensing */
+      heavy = (check_ability(SP_PSEUDO_ID_HEAVY));
       
-      /* Curse it */
-      o_ptr->ident |= (IDENT_CURSED);
+      /* Type of feeling */
+      feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
       
-      /* Break it */
-      o_ptr->ident |= (IDENT_BROKEN);
+      /* Redo feeling */
+      if (!(o_ptr->feel == feel))
+	{
+	  /* Get an object description */
+	  object_desc(o_name, o_ptr, FALSE, 0);
+	  
+	  msg_format("You feel the %s (%c) you are %s %s now %s...",
+		     o_name, index_to_label(slot), describe_use(slot),
+		     ((o_ptr->number == 1) ? "is" : "are"), feel_text[feel]);
+	  
+	  /* We have "felt" it */
+	  o_ptr->ident |= (IDENT_SENSE);
+	  
+	  /* Inscribe it textually */
+	  o_ptr->feel = feel;
+	  
+	  /* Set squelch flag as appropriate */
+	  p_ptr->notice |= PN_SQUELCH;
+	}
       
       /* Recalculate bonuses */
       p_ptr->update |= (PU_BONUS);
@@ -2481,7 +2632,8 @@ bool curse_weapon(void)
   object_type *o_ptr;
   
   char o_name[120];
-  
+
+  int slot = INVEN_WIELD;  
   
   /* Curse the weapon */
   o_ptr = &inventory[INVEN_WIELD];
@@ -2504,26 +2656,56 @@ bool curse_weapon(void)
   /* not artifact or failed save... */
   else
     {
+      int i, feel;
+      bool heavy = FALSE;
+      
       /* Oops */
       msg_format("A terrible black aura blasts your %s!", o_name);
       
-      /* Shatter the weapon */
-      o_ptr->name1 = 0;
-      o_ptr->name2 = EGO_SHATTERED;
-      o_ptr->to_h = 0 - randint(5) - randint(5);
-      o_ptr->to_d = 0 - randint(5) - randint(5);
-      o_ptr->to_a = 0;
-      o_ptr->ac = 0;
-      o_ptr->dd = 0;
-      o_ptr->ds = 0;
+      /* Try every curse */
+      for (i = 0; i < OBJECT_RAND_SIZE_CURSE; i++)
+	{
+	  if (rand_int(100) < 10)
+	    {
+	      /* Try once */
+	      o_ptr->flags_curse |= (1L << i);
+	    }
+	}
+
+      /* Hack - no sticky curses on permacursed things */
+      if (o_ptr->flags_obj & OF_PERMA_CURSE) 
+	o_ptr->flags_curse &= ~(CF_STICKY_WIELD | CF_STICKY_CARRY);
+
+      /* Not uncursed */
+      o_ptr->ident &= ~(IDENT_UNCURSED | IDENT_KNOW_CURSES);
+
+      /* Heavy sensing */
+      heavy = (check_ability(SP_PSEUDO_ID_HEAVY));
       
-      /* Curse it */
-      o_ptr->ident |= (IDENT_CURSED);
+      /* Type of feeling */
+      feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
       
-      /* Break it */
-      o_ptr->ident |= (IDENT_BROKEN);
+      /* Redo feeling */
+      if (!(o_ptr->feel == feel))
+	{
+	  /* Get an object description */
+	  object_desc(o_name, o_ptr, FALSE, 0);
+	  
+	  msg_format("You feel the %s (%c) you are %s %s now %s...",
+		     o_name, index_to_label(slot), describe_use(slot),
+		     ((o_ptr->number == 1) ? "is" : "are"), feel_text[feel]);
+	  
+	  /* We have "felt" it */
+	  o_ptr->ident |= (IDENT_SENSE);
+	  
+	  /* Inscribe it textually */
+	  o_ptr->feel = feel;
+	  
+	  /* Set squelch flag as appropriate */
+	  p_ptr->notice |= PN_SQUELCH;
+	}
       
-      /* Recalculate bonuses */
+     /* Recalculate bonuses */
       p_ptr->update |= (PU_BONUS);
       
       /* Recalculate mana */
@@ -2538,147 +2720,10 @@ bool curse_weapon(void)
 }
 
 
-
-
 /*
- * Identify an object in the inventory (or on the floor)
- * This routine does *not* automatically combine objects.
- * Returns TRUE if something was identified, else FALSE.
- *
- * Unused as of FAangband 0.3.4
- */
-bool ident_spell_old(void)
-{
-  int item;
-  object_type *o_ptr;
-  
-  char o_name[120];
-  
-  cptr q, s;
-  
-  
-  /* Only un-id'ed items */
-  item_tester_hook = item_tester_unknown;
-  
-  /* Don't restrict choices */
-  item_tester_tval = 0;
-  
-  /* Get an item */
-  q = "Identify which item? ";
-  s = "You have nothing to identify.";
-  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
-    return (FALSE);
-  
-  /* Get the item (in the pack) */
-  if (item >= 0)
-    {
-      o_ptr = &inventory[item];
-    }
-  
-  /* Get the item (on the floor) */
-  else
-    {
-      o_ptr = &o_list[0 - item];
-    }
-  
-  
-  /* Identify it fully */
-  object_aware(o_ptr);
-  object_known(o_ptr);
-  
-  /* Apply an autoinscription, if necessary */
-  apply_autoinscription(o_ptr);
-  
-  /* Set squelch flag */
-  p_ptr->notice |= PN_SQUELCH;
-
-  /* Recalculate bonuses */
-  p_ptr->update |= (PU_BONUS);
-  
-  /* Combine / Reorder the pack (later) */
-  p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-  
-  /* Window stuff */
-  p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-  
-  /* Description */
-  object_desc(o_name, o_ptr, TRUE, 3);
-  
-  /* Describe */
-  if (item >= INVEN_WIELD)
-    {
-      msg_format("%^s: %s (%c).",
-		 describe_use(item), o_name, index_to_label(item));
-    }
-  else if (item >= 0)
-    {
-      msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
-    }
-  else
-    {
-      msg_format("On the ground: %s.", o_name);
-      
-    }
-  
-  /* If artifact, check for Set Item and write a note if applicable */
-  if (o_ptr->name1)
-    {
-      artifact_type *a_ptr = &a_info[o_ptr->name1];
-      if (a_ptr->set_no != 0)
-	{
-	  msg_print("This item is part of a set!");
-	}
-      
-      if (o_ptr->found)
-	{
-	  int artifact_stage, lev;
-	  char note[120];
-	  char shorter_desc[120];
-	  s32b real_turn = turn;
-	  
-	  /* Get a shorter description to fit the notes file */
-	  object_desc(shorter_desc, o_ptr, TRUE, 0);
-	  
-	  /* Build note and write */
-	  sprintf(note, "Found %s", shorter_desc);
-	  
-	  /* Record the depth where the artifact was created */
-	  artifact_stage = o_ptr->found;
-	  
-	  /* Hack - record the turn when the artifact was first picked up
-	   * or wielded by the player.  This may result in out of order
-	   * entries in the notes file, which really should be re-ordered 
-	   */
-        turn = a_info[o_ptr->name1].creat_turn & 0x00FFFFFF;
-        if (turn < 2) turn = real_turn;
-        lev = (a_info[o_ptr->name1].creat_turn & 0xFF000000) >> 24;
-        if (lev == 0) lev = p_ptr->lev;
-        make_note(note, artifact_stage, NOTE_ARTIFACT, lev);
-        turn = real_turn;
-	  
-	  /*
-	   * Mark item creation depth 0, which will indicate the artifact
-	   * has been previously identified.  This prevents an artifact
-	   * from showing up on the notes list twice ifthe artifact had
-	   * been previously identified.  JG
-	   */
-	  o_ptr->found = 0 ;
-	}
-      
-    }
-  
-  
-  /* Something happened */
-  return (TRUE);
-}
-
-
-
-/*
- * Fully "*identify*" an object in the inventory
+ * Identify an object in the inventory, apart from curses.
  *
  * This routine returns TRUE if an item was identified.
- * Was bool identify_fully(void)
  */
 bool ident_spell(void)
 {
@@ -2686,15 +2731,12 @@ bool ident_spell(void)
   int squelch=0;
   
   object_type *o_ptr;
-/*  object_kind *k_ptr; */
   
   char o_name[120];
   
   cptr q, s;
   
-/*  bool noted; */
-  
-  /* Only un-*id*'ed items */
+  /* Only un-id'ed items */
   item_tester_hook = item_tester_unknown;
   
   /* Don't restrict choices */
@@ -2703,7 +2745,8 @@ bool ident_spell(void)
   /* Get an item.   */
   q = "Identify which item? ";
   s = "You have nothing to identify.";
-  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
+    return (FALSE);
   
   /* Get the item (in the pack) */
   if (item >= 0)
@@ -2735,6 +2778,18 @@ bool ident_spell(void)
   /* Description */
   object_desc(o_name, o_ptr, TRUE, 3);
   
+  /* Possibly play a sound depending on object quality. */
+  if (o_ptr->name1 != 0)
+    {
+      /* We have a good artifact. */
+      sound(MSG_IDENT_ART);
+    }
+  else if (o_ptr->name2 != 0)
+    {
+      /* We have a good ego item. */
+      sound(MSG_IDENT_EGO);
+    }
+
   /* Describe */
   if (item >= INVEN_WIELD)
     {
@@ -2766,15 +2821,72 @@ bool ident_spell(void)
 	}
     }
   
-  /* Save screen */
-  //screen_save();
+  /* Success */
+  return (TRUE);
+}
+
+/*
+ * Identify an object in the inventory, including curses.
+ *
+ * This routine returns TRUE if an item was identified.
+ */
+bool identify_fully(void)
+{
+  int item;
   
-  /* Examine the item. */
-  //object_info_screen(o_ptr);
+  object_type *o_ptr;
+  
+  cptr q, s;
+  
+  /* Only un-*id*'ed items */
+  item_tester_hook = item_tester_unknown_curse;
+  
+  /* Don't restrict choices */
+  item_tester_tval = 0;
+  
+  /* Get an item.   */
+  q = "Reveal curses on which item? ";
+  s = "You have nothing to reveal curses on.";
+  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
+    return (FALSE);
+  
+  /* Get the item (in the pack) */
+  if (item >= 0)
+    {
+      o_ptr = &inventory[item];
+    }
+  
+  /* Get the item (on the floor) */
+  else
+    {
+      o_ptr = &o_list[0 - item];
+    }
+  
+  /* Identify it */
+  identify_object(o_ptr);
 
-  /* Load screen */
-  //screen_load();
-
+  /* Know the curses */
+  o_ptr->id_curse = o_ptr->flags_curse;
+  o_ptr->ident |= IDENT_KNOW_CURSES;
+  if (!o_ptr->flags_curse) 
+    {
+      o_ptr->ident |= IDENT_UNCURSED;
+      msg_print("This item has no curses.");
+    }
+  else object_info_screen(o_ptr, FALSE);
+ 
+  /* Recalculate bonuses */
+  p_ptr->update |= (PU_BONUS);
+  
+  /* Combine / Reorder the pack (later) */
+  p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+  
+  /* Window stuff */
+  p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+  
+  /* Handle stuff */
+  handle_stuff();
+ 
   /* Success */
   return (TRUE);
 }
@@ -3784,13 +3896,22 @@ bool hold_undead(void)
 }
 
 /*
+ * Sound blast monsters in line of sight.
+ */
+bool cacophony(int dam)
+{
+  return (project_hack(GF_SOUND, dam));
+}
+
+/*
  * Wake up all monsters, and speed up "los" monsters.
  */
-void aggravate_monsters(int who, bool the_entire_level)
+bool aggravate_monsters(int who, bool the_entire_level)
 {
   int i;
   
   bool sleep = FALSE;
+  bool known = FALSE;
   
   /* Aggravate everyone nearby */
   for (i = 1; i < m_max; i++)
@@ -3838,12 +3959,28 @@ void aggravate_monsters(int who, bool the_entire_level)
 		  
 		  /* Do not necessarily go active */
 		}
+
+	      /* Random equipment aggravation */
+	      else if (p_ptr->rand_aggro)
+		{
+		  /* Go active */
+		  m_ptr->mflag |= (MFLAG_ACTV);
+		  
+		  /* Get mad. */
+		  if (m_ptr->mspeed < r_ptr->speed + 10) 
+		    m_ptr->mspeed = r_ptr->speed + 10;
+		}
+
+	      /* Know we've aggravated */
+	      known = TRUE;
 	    }
 	}
     }
   
   /* Messages */
   if (sleep) msg_print("You hear a sudden stirring in the distance!");
+
+  return (known);
 }
 
 
@@ -3861,7 +3998,8 @@ bool genocide(void)
   
   
   /* Mega-Hack -- Get a monster symbol */
-  (void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
+  if (!get_com("Choose a monster race (by symbol) to genocide: ", &typ))
+    return (result);
   
   /* Delete the monsters of that "type" */
   for (i = 1; i < m_max; i++)
@@ -4064,11 +4202,11 @@ void destroy_area(int y1, int x1, int r, bool full)
 	      /* Delete objects */
 	      delete_object(y, x);
 	      
-	      /* Decrement the trap or glyph count. */
+	      /* Decrement the trap or rune count. */
 	      if (f_ptr->flags & TF_M_TRAP)
 		num_trap_on_level--;
-	      else if (cave_feat[y][x] == FEAT_GLYPH)
-		num_glyph_on_level--;
+	      else if (f_ptr->flags & TF_RUNE)
+		num_runes_on_level[cave_feat[y][x] - FEAT_RUNE_HEAD]--;
 	      
 	      
 	      /* Wall (or floor) type */
@@ -4394,7 +4532,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 			  if (!cave_empty_bold(y, x)) continue;
 			  
 			  /* Hack -- no safety on glyph of warding */
-			  if (cave_feat[y][x] == FEAT_GLYPH) continue;
+			  if (cave_feat[y][x] == FEAT_RUNE_PROTECT) continue;
 			  
 			  /* Important -- Skip "quake" grids */
 			  if (map[16+y-cy][16+x-cx]) continue;
@@ -4497,8 +4635,8 @@ void earthquake(int cy, int cx, int r, bool volcano)
 	      /* Hack -- Increment the trap or glyph count. */
 	      if (f_ptr->flags & TF_M_TRAP)
 		num_trap_on_level--;
-	      else if (cave_feat[y][x] == FEAT_GLYPH)
-		num_glyph_on_level--;
+	      else if (f_ptr->flags & TF_RUNE)
+		num_runes_on_level[cave_feat[y][x] - FEAT_RUNE_HEAD]--;
 	      
 	      /* Wall (or floor) type */
 	      t = (floor ? rand_int(120) : 200);

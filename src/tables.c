@@ -1154,28 +1154,6 @@ byte extract_energy[200] =
 
 
 /*
- * Translation from player resists to resistance flags
- */
-u32b resist_to_flag[14] = 
-  {
-    TR2_RES_ACID,		
-    TR2_RES_ELEC,		
-    TR2_RES_FIRE,	
-    TR2_RES_COLD,	
-    TR2_RES_POIS,	
-    TR2_RES_LITE,	
-    TR2_RES_DARK,	
-    TR2_RES_CONFU,	
-    TR2_RES_SOUND,	
-    TR2_RES_SHARD,	
-    TR2_RES_NEXUS,	
-    TR2_RES_NETHR,	
-    TR2_RES_CHAOS,	
-    TR2_RES_DISEN
-  };	
-
-
-/*
  * Experience levels
  */
 s32b player_exp[PY_MAX_LEVEL] =
@@ -1319,92 +1297,92 @@ player_magic magic_info[MAX_CLASS] =
       
       TV_MAGIC_BOOK,   A_INT,   REALM_SORCERY,   1,   250,  600,
       
-      /* 62 spells in nine books. */
-      62,	{ 0, 9, 18, 26, 35, 40, 46, 51, 56, 62, 62 },
+      /* 64 spells in nine books. */
+      63,	{ 0, 9, 17, 25, 34, 40, 46, 52, 58, 64, 64 },
       
       {
 	/* Magic for Beginners (sval 0) */
-	{   0,   1,  1, 22,   2},       /* Magic Missile */
+	{   0,   1,  1, 22,   2},       /* Fire Bolt */
 	{   1,	 1,  1, 23,   2},       /* Detect Monsters */
 	{   2,	 2,  1, 24,   2},       /* Phase Door */
-	{   3,	 3,  2, 25,   2},       /* Light Area */
-	{   4,	 3,  1, 25,   2},       /* Combat Poison */
-	{   5,	 4,  2, 25,   3},       /* Cure Light Wounds */
-	{  69,	 5,  3, 25,   3},       /* Find Traps */
-	{  70,	 5,  3, 25,   3},       /* Detect Doors/Stairs */
-	{   8,	 6,  3, 27,   4},	/* Stinking Cloud */
+	{   3,	 3,  3, 25,   3},       /* Find Traps/Doors/Stairs */
+	{   4,	 3,  2, 25,   2},       /* Light Area */
+	{   5,	 4,  3, 25,   3},	/* Stinking Cloud */
+	{   6,	 5,  2, 25,   3},       /* Reduce Cuts and Poison */
+	{   7,	 5,  7, 26,   5},	/* Resist Magic */
+	{   8,	 6,  8, 30,   6},	/* Identify */
 	
-	/* Conjurings and Tricks (sval 1) */
-	{   9,	 7,  3, 30,   5},	/* Confuse Monster */
-	{  10,	 7,  3, 30,   6},	/* Lightning Bolt */
-	{  61,   8,  4, 30,   6},       /* Telekinesis */
+	/* Minor Powers (sval 1) */
+	{   9,	 7,  3, 30,   6},	/* Lightning Bolt */
+	{  10,	 7,  3, 30,   6},	/* Confuse Monster */
+	{  11,   8,  4, 30,   6},       /* Telekinesis */
 	{  12,	 9,  4, 30,   6},	/* Sleep Monster */
-	{  13,	11,  5, 35,   6},	/* Cure Poison */
-	{  14,	11,  5, 35,   6},	/* Teleport Self */
-	{  15,	12,  5, 30,   7},	/* Spear of Light */
-	{  16,	13,  5, 40,   9},	/* Recharge Item I */
-	{  17,	13,  5, 44,   7},	/* Cone of Cold */
+	{  13,	11,  5, 35,   6},	/* Teleport Self */
+	{  14,	12,  5, 35,   7},	/* Spear of Light */
+	{  15,	13,  5, 40,   7},	/* Frost Beam */
+	{  16,	13,  5, 40,   8},	/* Magical Throw */
 	
-	/* Incantations and Illusions (sval 2) */
-	{  18,	14,  8, 45,   7},	/* Satisfy Hunger */
+	/* Useful Magic (sval 2) */
+	{  17,	14,  8, 45,   7},	/* Satisfy Hunger */
+	{  18,	15,  4, 45,   8},	/* Detect Invisible */
 	{  19,	15,  7, 45,   7},	/* Magic Disarm */
-	{  20,	15,  7, 45,   7},	/* Polymorph Other */
-	{  63,	16,  7, 45,   7},	/* Blink Monster */
-	{  21,	17, 12, 75,   8},	/* Identify */
-	{  22,	17,  7, 50,   8},	/* Sleep Monsters */
-	{  23,	19,  7, 50,   8},	/* Fire Bolt */
-	{  24,	19,  7, 50,   8},	/* Slow Monster */
+	{  20,	16,  7, 45,   7},	/* Blink Monster */
+	{  21,	16,  6, 40,   6},	/* Cure */
+	{  22,	16,  6, 50,  10},	/* Detect Enchantment */
+	{  23,	18,  7, 45,   9},	/* Stone To Mud */
+	{  24,	19, 12, 50,  10},	/* Minor Recharge */
 	
-	/* Sorcery and Evocations (sval 3) */
-	{  62,	20,  5, 50,   8},	/* Magical Throw */
-	{  25,	20,  2, 50,   8},	/* Tap magical energy */
-	{  26,	22, 12, 75,   9},	/* Frost Ball */
-	{  27,	23, 10, 75,  11},	/* Recharge Item II */
-	{  28,	25, 12, 60,  11},	/* Teleport Other */
-	{  29,	25, 12, 65,  11},	/* Haste Self */
-	{  30,	29, 16, 65,  12},	/* Fire Ball */
-	{  31,	35, 30, 80,  15},	/* Hold Monsters */
-	{  32,	37, 30, 80,  15},	/* Word of Destruction */
+	/* Battle Spells (sval 3) */
+	{  25,	20,  7, 50,  10},	/* Sleep Monsters */
+	{  26,	20,  8, 55,  10},	/* Thrust Away */
+	{  27,	22, 12, 70,  12},	/* Fire Ball */
+	{  28,	22,  2, 50,  12},	/* Tap magical energy */
+	{  29,	23,  7, 55,  12},	/* Slow Monster */
+	{  30,	25, 12, 60,  13},	/* Teleport Other */
+	{  31,	25, 12, 65,  15},	/* Haste Self */
+	{  58, 	30, 35, 60,  30},  	/* Rune of Magic Influence */
+	{  32,	35, 30, 80,  15},	/* Hold Monsters */
 	
-	/* Resistance of Scarabtarices (sval 4) */
-	{  33,	21,  5, 50,  20},	/* Resist Fire */
-	{  34,	21,  5, 50,  20},	/* Resist Cold */
-	{  35,	21,  5, 50,  20},	/* Resist Acid */
-	{  36,	27, 11, 75,  30},	/* Resist Poison */
-	{  37,	35, 22, 85,  50},	/* Resistance */
+	/* Magical Defence (sval 4) */
+	{  33,	18,  0, 50,  22},	/* Clear Mind */
+	{  34,	24,  5, 50,  30},	/* Resist Element */
+	{  35,	30, 10, 75,  50},	/* Shield */
+	{  36,	35, 15, 85,  50},	/* Resistance */
+	{  37,	40, 18, 50,  55},	/* Essence of Speed */
+	{  38,	44, 24, 75,  90},	/* Strengthen Defenses */
 	
-	/* Mordenkainen's Escapes (sval 5) */
-	{  11,	 9,  3, 20,   6},	/* Door Destruction */
-	{  38,	12,  4, 20,  16},	/* Door Creation */
-	{  39,	16,  8, 40,  20},	/* Stair Creation */
-	{  40,	20, 11, 60,  20},	/* Teleport Level */
-	{  41,	25, 15, 60,  25},	/* Word of Recall */
-	{  42,	43, 20, 65,  75},	/* Dimension Door */
+	/* Escapes and Trickery (sval 5) */
+	{  39,	12,  4, 20,  16},	/* Door Creation */
+	{  40,	16,  8, 40,  20},	/* Stair Creation */
+	{  41,	20, 11, 60,  20},	/* Teleport Level */
+	{  42,	25, 15, 60,  25},	/* Word of Recall */
+	{  43,	37, 30, 80,  25},	/* Word of Destruction */
+	{  44,	43, 20, 65,  75},	/* Dimension Door */
 	
-	/* Kelek's Grimoire of Power (sval 6) */
-	{  43,	 5,  2, 50,  10},	/* Detect Evil */
-	{  44,	15,  6, 70,  12},	/* Detect Enchantment */
-	{  45,	25, 10, 85,  20},	/* Earthquake */
-	{  46,	35, 25, 65,  50},	/* Beguiling */
-	{  47,	37, 21, 70,  55},	/* Starburst */
+	/* Advanced Sorcery (sval 6) */
+	{  45,	15,  6, 55,  20},	/* Acid Bolt */
+	{  46,	20, 10, 55,  25},	/* Polymorph Other */
+	{  47,	25, 10, 85,  20},	/* Earthquake */
+	{  48,	35, 25, 65,  50},	/* Beguiling */
+	{  49,	37, 21, 70,  55},	/* Starburst */
+	{  50,	38, 15, 85,  50},	/* Major Recharge */
 	
-	/* Tenser's transformations... (sval 7) */
-	{  48,	18,  0, 50,  22},	/* Clear Mind */
-	{  49,	30,  8, 75,  30},	/* Shield */
-	{  50,	38, 15, 85,  50},	/* Recharge Item III */
-	{  51,	40, 18, 50,  55},	/* Essence of Speed */
-	{  52,	44, 24, 75,  90},	/* Strengthen Defenses */
+	/* Power and Destruction (sval 7) */
+	{  51,	25, 15, 65,  20},	/* Cloud Kill */
+	{  52,	30, 25, 70,  25},	/* Ice Storm */
+	{  53,	35, 30, 80,  30},	/* Meteor Swarm */
+	{  54,	38, 40, 85,  35},	/* Cacophony */
+	{  55,	42, 35, 85,  40},	/* Unleash Chaos */
+	{  56,	45, 40, 90,  50},	/* Wall of Force */
 	
-	/* Raal's Tome of Destruction (sval 8) */
-	{  53,	16,  6, 55,  20},	/* Acid Bolt */
-	{  54,	21, 10, 65,  17},	/* Cloud Kill */
-	{  55,	27, 15, 70,  22},	/* Acid Ball */
-	{  56,	33, 23, 70,  35},	/* Ice Storm */
-	{  57,	39, 33, 70,  60},	/* Meteor Swarm */
-	{  58,	46, 42, 60, 120},	/* Mana Storm */
+	/* Book of Runes (sval 8) */
 	
-	{   0, 	99,  0,  0,   0}, 
-	{   0, 	99,  0,  0,   0}, 
+	{  57, 	25, 20, 60,  20}, 	/* Rune of the Elements */
+	{  59, 	30, 35, 50,  35},  	/* Rune of Instability */
+	{  60, 	33, 40, 65,  35},  	/* Rune of Mana */
+	{  61, 	36, 40, 70,  40},  	/* Rune of Protection */
+	{  62, 	39, 50, 80,  40},  	/* Rune of Power */
+	{  63, 	42, 50, 85,  50}  	/* Rune of Speed */
       }
     },
     
@@ -1413,8 +1391,8 @@ player_magic magic_info[MAX_CLASS] =
       
       TV_PRAYER_BOOK,  A_WIS,  REALM_PIETY,  1,  350,  800,
       
-      /* 57 prayers in 9 books. */
-      57, { 0, 8, 16, 25, 31, 37, 42, 46, 52, 57, 57 },
+      /* 58 prayers in 9 books. */
+      58, { 0, 8, 16, 25, 31, 37, 42, 47, 53, 58, 58 },
       
       {
 	/* Novice's Handbook (sval 0) */
@@ -1474,7 +1452,7 @@ player_magic magic_info[MAX_CLASS] =
 	/* Purifications and Healing (sval 6) */
 	{ 106,	36, 30, 50,  65}, /* Banishment */
 	{ 107,	38, 40, 60,  70}, /* Healing */
-	/* { 108,	38, 50, 80,  70}, Sacred Knowledge */
+	{ 108,	38, 50, 80,  70}, /* Sacred Knowledge */
 	{ 109,	40, 60, 90,  90}, /* Restoration */
 	{ 110,	40, 60, 90,  90}, /* Remembrance */
 	
@@ -1508,60 +1486,59 @@ player_magic magic_info[MAX_CLASS] =
       TV_MAGIC_BOOK,  A_INT,  REALM_SORCERY,  5,  300,  1000,
       
       /* 34 spells in five books */
-      34,	{ 0, 8, 15, 22, 22, 22, 28, 28, 34, 34, 34 },
+      33,	{ 0, 7, 14, 21, 21, 21, 27, 33, 33, 33, 33 },
       
       {
 	/* Magic for Beginners (sval 0) */
 	{   1,	 5,  1, 40,   1},	/* Detect Monsters */
 	{   2,	 6,  1, 45,   1},	/* Phase Door */
-	{ 141,	 6,  2, 50,   1},	/* Detect Trap/Doors */
-	{   3,	 7,  3, 65,   1},	/* Light Area */
-	{   4,	 7,  1, 60,   1},	/* Combat Poison */
-	{   5,	 9,  2, 65,   2},	/* Cure Light Wounds */
-	{   6,	 9,  2, 65,   2},	/* Detect Treasure */
-	{   7,	10,  2, 70,   2},	/* Detect Objects */
+	{   3,	 6,  2, 50,   1},	/* Detect Trap/Doors */
+	{   4,	 7,  3, 65,   1},	/* Light Area */
+	{   6,	 7,  1, 60,   1},	/* Reduce Cuts and Poison */
+	{  65,	 9,  2, 65,   2},	/* Cure Light Wounds */
+	{ 127,	 9,  2, 65,   2},	/* Detect Treasure */
 	
-	/* Conjurings and Tricks (sval 1) */
-	{  11,	13,  2, 40,   2},	/* Door Destruction */
+	/* Minor Powers (sval 1) */
+	{ 134,	13,  2, 40,   2},	/* Door Destruction */
 	{  12,	15,  5, 70,   2},	/* Sleep Monster */
-	{  13,	16,  5, 70,   2},	/* Cure Poison */
-	{  14,	17,  4, 50,   2},	/* Teleport Self */
-	{  59,	19,  3, 60,   2},	/* Hit and Run */
+	{ 137,	16,  5, 70,   2},	/* Cure Poison */
+	{  13,	17,  4, 50,   2},	/* Teleport Self */
+	{ 125,	19,  3, 60,   2},	/* Hit and Run */
 	{  19,	21,  2, 40,   2},	/* Magic Disarm */
-	{   8,	23,  4, 70,   3},	/* Stinking Cloud */
+	{   5,	23,  4, 70,   3},	/* Stinking Cloud */
 	
-	/* Incantations and Illusions (sval 2) */
-	{  44,	25,  2, 50,   3},	/* Detect Enchantment */
-	{  20,	27,  7, 50,   3},	/* Polymorph Other */
-	{  21,	28,  7, 50,   4},	/* Identify */
-	{  16,	32,  7, 50,   4},	/* Recharge Item I */
-	{  24,	34,  7, 60,   4},	/* Slow Monster */
-	{  18,	37,  9, 60,   5},	/* Satisfy Hunger */
-	{  29,	39, 12, 60,   5},	/* Haste Self */
+	/* Useful Magic (sval 2) */
+	{  22,	25,  2, 50,   3},	/* Detect Enchantment */
+	{  46,	27,  7, 50,   3},	/* Polymorph Other */
+	{   8,	28,  7, 50,   4},	/* Identify */
+	{  24,	32,  7, 50,   4},	/* Minor Recharge */
+	{  29,	34,  7, 60,   4},	/* Slow Monster */
+	{  17,	37,  9, 60,   5},	/* Satisfy Hunger */
+	{  31,	39, 12, 60,   5},	/* Haste Self */
 	
-	/* Sorcery and Evocations (sval 3) */
+	/* Battle Spells (sval 3) */
 	
-	/* Resistance of Scarabtarices (sval 4) */
+	/* Magical Defences (sval 4) */
 	
-	/* Mordenkainen's Escapes (sval 5) */
-	{  38,	26,  7, 20,   6},	/* Door Creation */
-	{  39,	30,  8, 40,   6},	/* Stair Creation */
-	{  40,	34, 11, 60,   6},	/* Teleport Level */
+	/* Escapes and Trickery (sval 5) */
+	{  39,	26,  7, 20,   6},	/* Door Creation */
+	{  40,	30,  8, 40,   6},	/* Stair Creation */
+	{  41,	34, 11, 60,   6},	/* Teleport Level */
 	{ 251,	36, 12, 70,   7}, /* Slip into the Shadows */
-	{  41,	40, 15, 60,  10},	/* Word of Recall */
-	{  28,	42, 16, 85,   3},	/* Teleport Other */
+	{  42,	40, 15, 60,  10},	/* Word of Recall */
+	{  30,	42, 16, 85,   3},	/* Teleport Other */
 	
-	/* Kelek's Grimoire of Power (sval 6) */
-	
-	/* Tenser's Transformations... (sval 7) */
+	/* Advanced Sorcery (sval 6) */
 	{  82,	30,  4, 40,  10},	/* Sense Invisible */
 	{  86,	35, 15, 50,  15},	/* Probing */
-	{  49,	37, 15, 60,  16},	/* Shield */
-	{  27,	40, 22, 60,  20},	/* Recharge Item II */
-	{  37,	42, 25, 60,  21},	/* Resistance */
-	{  60,	47, 25, 50,  25},	/* Day of Misrule */
+	{  35,	37, 15, 60,  16},	/* Shield */
+	{  50,	40, 22, 60,  20},	/* Major Recharge */
+	{  36,	42, 25, 60,  21},	/* Resistance */
+	{ 126,	47, 25, 50,  25},	/* Day of Misrule */
 	
-	/* Raal's Tome of Destruction (sval 8) */
+	/* Power and Destruction (sval 7) */
+	
+	/* Book of Runes (sval 8) */
 	
 	{ 0, 99,  0, 0, 0}, { 0, 99,  0, 0, 0},
 	{ 0, 99,  0, 0, 0}, { 0, 99,  0, 0, 0},
@@ -1846,7 +1823,7 @@ player_magic magic_info[MAX_CLASS] =
       58, { 0, 8, 16, 24, 30, 36, 42, 47, 53, 58, 58 },
       {
 	/* Beginner's Curses (sval 0) */
-	{ 192,	 1,  1, 22,   2}, /* magic bolt */
+	{ 192,	 1,  1, 22,   2}, /* nether bolt */
 	{ 193,	 1,  1, 23,   2}, /* detect evil */
 	{ 194,	 3,  1, 24,   2}, /* enhanced infravision */
 	{ 195,	 3,  2, 25,   2}, /* break curse */
@@ -1878,7 +1855,7 @@ player_magic magic_info[MAX_CLASS] =
 	/* Frightful Realms (sval 3) */
 	{ 217,	23, 11, 50,   8}, /* Dispel Demons */
 	{ 218,	23, 11, 55,   9}, /* dark spear */
-	{ 219,	24, 11, 60,  10}, /* mana bolt */
+	{ 219,	24, 11, 60,  10}, /* chaos strike */
 	{ 221,	28, 16, 65,  12}, /* dark ball */
 	{ 222,	33, 21, 70,  16}, /* stench of death */
 	{ 220,	43, 25, 70,  21}, /* genocide */
@@ -1943,7 +1920,7 @@ player_magic magic_info[MAX_CLASS] =
 	{ 210,	 3,  1, 25,   1}, /* detect traps */
 	{ 211,	 3,  1, 25,   1}, /* detect doors/stairs */
 	{ 194,	 5,  1, 25,   1}, /* enhanced infravision */
-	{ 192,	 5,  1, 65,   1}, /* magic bolt */
+	{ 192,	 5,  1, 65,   1}, /* nether bolt */
 	{ 196,	 7,  4, 25,   2}, /* slow monster */
 	{ 197,	 7,  4, 25,   2}, /* sleep monster */
 	{ 198,	 9,  4, 25,   2}, /* horrify */
@@ -2018,88 +1995,86 @@ player_magic magic_info[MAX_CLASS] =
 cptr spell_names[255] =
   {
     /* Magic for Beginners (sval 0) */
-    "Magic Missile",						/* index 0 */
+    "Fire bolt",						/* index 0 */
     "Detect Monsters",
     "Phase Door",
+    "Find Traps/Doors/Stairs",
     "Light Area",
-    "Combat Poison",
-    "Cure Light Wounds",
-    "Search for Treasure",			/* Rogue spell. */
-    "Detect Objects",				/* Rogue spell. */
     "Stinking Cloud",
+    "Reduce Cuts and Poison",
+    "Resist Magic",
+    "Identify",
     
-    /* Conjurings and Tricks (sval 1) */
-    "Confuse Monster",					/* index 9 */
-    "Lightning Bolt",
-    "Door Destruction",
+    /* Minor Powers (sval 1) */
+    "Lightning Bolt",					/* index 9 */
+    "Confuse Monster",
+    "Telekinesis",
     "Sleep Monster",
-    "Cure Poison",
     "Teleport Self",
     "Spear of Light",
-    "Recharge Item I",
-    "Cone of Cold",
-    
-    /* Incantations and Illusions (sval 2) */
-    "Satisfy Hunger",						/* index 18 */
+    "Frost Beam",
+    "Magical Throw",
+     
+    /* Useful Magic (sval 2) */
+    "Satisfy Hunger",						/* index 17 */
+    "Detect Invisible",
     "Magic Disarm",
-    "Polymorph Other",
-    "Identify",
-    "Sleep Monsters",
-    "Fire Bolt",
-    "Slow Monster",
-    "Tap Magical Energy",
+    "Blink Monster",
+    "Cure",
+    "Detect Enchantment",
+    "Stone To Mud",
+    "Minor Recharge",
     
-    /* Sorcery and Evocations (sval 3) */
-    "Frost Ball",						/* index 26 */
-    "Recharge Item II",
+    /* Battle Spells (sval 3) */
+    "Sleep Monsters",						/* index 25 */
+    "Thrust Away",
+    "Fire Ball",
+    "Tap Magical Energy",
+    "Slow Monster",
     "Teleport Other",
     "Haste Self",
-    "Fire Ball",
+    "Rune of Magic Influence",
     "Hold Monsters",
-    "Word of Destruction",
-    
-    /* Resistance of Scarabtarices (sval 4) */
-    "Resist Fire",						/* index 33 */
-    "Resist Cold",
-    "Resist Acid",
-    "Resist Poison",
+   
+    /* Magical Defence (sval 4) */
+    "Clear Mind",						/* index 34 */
+    "Resist Element",
+    "Shield",
     "Resistance",
-    
-    /* Mordenkainen's Escapes (sval 5) */
-    "Door Creation",						/* index 38 */
+    "Essence of Speed",
+    "Strengthen Defenses",
+     
+    /* Escapes and Trickery (sval 5) */
+    "Door Creation",						/* index 40 */
     "Stair Creation",
     "Teleport Level",
     "Word of Recall",
+    "Word of Destruction",
     "Dimension Door",
     
-    /* Kelek's Grimoire of Power (sval 6) */
-    "Detect Evil",						/* index 43 */
-    "Detect Enchantment",
+    /* Advanced Sorcery (sval 6) */
+    "Acid Bolt",						/* index 46 */
+    "Polymorph Other",
     "Earthquake",
     "Beguiling",
     "Starburst",
+    "Major Recharge",
     
-    /* Tenser's transformations... (sval 7) */
-    "Clear Mind",						/* index 48 */
-    "Shield",
-    "Recharge Item III",
-    "Essence of Speed",
-    "Strengthen Defenses",
-    
-    /* Raal's Tome of Destruction (sval 8) */
-    "Acid Bolt",						/* index 53 */
-    "Cloud Kill",
-    "Acid Ball",
+    /* Power and Destruction (sval 7) */
+    "Cloud Kill",						/* index 52 */
     "Ice Storm",
     "Meteor Swarm",
-    "Mana Storm",
-    
-    "Hit and Run",						/* index 59 */
-    "Day of Misrule",
-    "Telekinesis",
-    "Magical Throw",
-    "Blink Monster",
-    
+    "Cacophony",
+    "Unleash Chaos",
+    "Wall of Force",
+   
+    /* Book of Runes (sval 8) */
+    "Rune of the Elements",					/* index 58 */
+    "Rune of Instability",
+    "Rune of Mana",
+    "Rune of Protection",
+    "Rune of Power",
+    "Rune of Speed",
 
 
     /* Novice's Handbook (sval 0) */
@@ -2181,10 +2156,9 @@ cptr spell_names[255] =
     "Elemental Infusion",					/* index 122 */
     "Sanctify for Battle",
     "Horn of Wrath",
-    "(blank)",
-    "(blank)",
-    "(blank)",
-    
+    "Hit and Run",						/* index 125 */
+    "Day of Misrule",
+    "Detect Objects",
 
 
     /* Call of the Wild (sval 0) */
@@ -2273,7 +2247,7 @@ cptr spell_names[255] =
     
     
     /* Beginner's Curses (sval 0) */
-    "Magic Bolt",						/* index 192 */
+    "Nether Bolt",						/* index 192 */
     "Detect Evil",
     "Enhanced Infravision",
     "Break Curse",
@@ -2306,7 +2280,7 @@ cptr spell_names[255] =
     /* Frightful Realms (sval 3) */
     "Exorcise Demons",					/* index 217 */
     "Dark Spear",
-    "Mana Bolt",
+    "Chaos Strike",
     "Genocide",
     "Dark Ball",
     "Stench of Death",
@@ -2689,7 +2663,7 @@ cptr option_text[OPT_MAX] =
     "verify_special",			/* OPT_verify_special */
     "ring_bell",			/* OPT_ring_bell */
     "verify_destroy_junk",		/* OPT_verify_destroy_junk */
-    "auto_haggle",			/* OPT_auto_haggle */
+    NULL,			
     "auto_scum",			/* OPT_auto_scum */
     "easy_open",			/* OPT_easy_open   -TNB- */
     "easy_disarm",			/* OPT_easy_disarm   -TNB- */
@@ -2843,7 +2817,7 @@ cptr option_desc[OPT_MAX] =
     "Verify use of special commands",	    /* OPT_verify_special */
     "Audible bell (on errors, etc)",	    /* OPT_ring_bell */
     "Verify destruction of worthless objects", /* OPT_verify_destroy_junk */
-    "Auto-haggle in stores",		    /* OPT_auto_haggle */
+    NULL,
     "Auto-scum for good levels",	    /* OPT_auto_scum */
     "Open and close doors automatically",   /* OPT_easy_open  -TBN- */
     "Disarm traps automatically",	    /* OPT_easy_disarm   -TNB- */
@@ -2997,7 +2971,7 @@ bool option_norm[OPT_MAX] =
     TRUE,		/* OPT_verify_special */
     TRUE,		/* OPT_ring_bell */
     TRUE,		/* OPT_verify_destroy_junk */
-    TRUE,		/* OPT_auto_haggle */
+    FALSE,
     FALSE,		/* OPT_auto_scum */
     TRUE,		/* OPT_easy_open */
     FALSE,		/* OPT_easy_disarm */
@@ -3168,7 +3142,6 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
     /*** Game-Play ***/
     
     {
-      OPT_auto_haggle,
       OPT_auto_scum,
       OPT_easy_open,
       OPT_easy_disarm,
@@ -3182,6 +3155,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_always_pickup,
       OPT_always_repeat,
       OPT_smart_cheat,
+      OPT_NONE,
       OPT_NONE,
       OPT_NONE,
       OPT_NONE,
@@ -3294,16 +3268,14 @@ druid_blows d_blow[NUM_D_BLOWS] =
 cptr feel_text[FEEL_MAX] =
   {
     NULL,	 /* FEEL_NONE */
-    "broken",	 /* FEEL_BROKEN */
-    "terrible",	 /* FEEL_TERRIBLE */
-    "worthless", /* FEEL_WORTHLESS */
-    "cursed",	 /* FEEL_CURSED */
-    "uncursed",	 /* FEEL_UNCURSED */
+    "dubious",	 /* FEEL_DUBIOUS_STRONG */
+    "perilous",	 /* FEEL_PERILOUS */
+    "dubious",   /* FEEL_DUBIOUS_WEAK */
     "average",	 /* FEEL_AVERAGE */
     "good",	 /* FEEL_GOOD_STRONG */
     "excellent", /* FEEL_EXCELLENT */
-    "special",	 /* FEEL_SPECIAL */
     "good",	 /* FEEL_GOOD_WEAK */
+    "special",	 /* FEEL_SPECIAL */
   };
 
 const grouper object_text_order [] =
@@ -3407,7 +3379,7 @@ byte mana_cost_RF5[32]=
     4, 			/* RF5_BOLT_ICE */
     5, 			/* RF5_BOLT_WATER */
     5, 			/* RF5_BOLT_NETHER */
-    4, 			/* RF5_BOLT_MANA */
+    4, 			/* RF5_BOLT_DARK */
     0, 			/* RF5_XXX3 */
     3, 			/* RF5_BEAM_ELEC */
     6, 			/* RF5_BEAM_ICE */
@@ -3539,7 +3511,7 @@ byte spell_desire_RF4[32][8] =
     { 65,  0,   0,   5,	0,   0,	LRN_STORM ,   90}, /* RF4_BRTH_STORM */
     { 65,  0,   0,   5,	0,   0,	LRN_DFIRE ,   90}, /* RF4_BRTH_DFIRE */
     { 65,  0,   0,   5,	0,   0,	LRN_ICE	  ,   90}, /* RF4_BRTH_ICE */
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX5 */
+    { 70,  0,   0,   5,	0,   0,	LRN_ALL	  ,  100}, /* RF4_BRTH_ALL */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100} /* RF4_XXX6 */
   };
 
@@ -3561,7 +3533,7 @@ byte spell_desire_RF5[32][8] =
     { 40,  0,   0,   0,	0,   0, LRN_NETHR ,  100}, /* RF5_BALL_NETHR*/
     { 40,  0,   0,   0,	0,   0, LRN_CHAOS ,  100}, /* RF5_BALL_CHAOS*/
     { 40,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BALL_MANA */
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX1 */
+    { 50,  0,   0,   0,	0,   0,	LRN_ALL	  ,  100}, /* RF5_BALL_ALL */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX2 */
     { 40,  0,   0,   0,	0,   0, LRN_ACID  ,  100}, /* RF5_BOLT_ACID */
     { 40,  0,   0,   0,	0,   0, LRN_ELEC  ,  100}, /* RF5_BOLT_ELEC */
@@ -3572,7 +3544,7 @@ byte spell_desire_RF5[32][8] =
     { 50,  0,   0,   0,	0,   0, LRN_ICE	  ,  100}, /* RF5_BOLT_ICE  */
     { 35,  0,   0,   0,	0,   0, LRN_WATER ,  100}, /* RF5_BOLT_WATER*/
     { 35,  0,   0,   0,	0,   0, LRN_NETHR ,  100}, /* RF5_BOLT_NETHR*/
-    { 30,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BOLT_MANA */
+    { 40,  0,   0,   0,	0,   0,	LRN_DARK  ,  100}, /* RF5_BOLT_DARK */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX3	    */
     { 50,  0,   0,   0,	0,   0, LRN_ELEC  ,   90}, /* RF5_BEAM_ELEC */
     { 50,  0,   0,   0,	0,   0, LRN_ICE	  ,   90}, /* RF5_BEAM_ICE  */
@@ -3941,13 +3913,13 @@ int stage_map[NUM_STAGES][9] =
   /* 133 */ {ANFAUGLITH      ,  54, 134,   0, 132,   0,   0,   0,   DESERT},
   /* 134 */ {ANFAUGLITH      ,  56, 135,   0, 133,   0,   0,   0,   DESERT},
   /* 135 */ {ANFAUGLITH      ,  58,   0, 148, 134,   0,   0, 344,   DESERT},
-  /* 136 */ {LOTHLANN        ,  32, 137,  26,   0,   0,   0,   0,   DESERT},
-  /* 137 */ {LOTHLANN        ,  34,   0,   0, 136, 138,   0,   0,   DESERT},
-  /* 138 */ {LOTHLANN        ,  36, 139, 137,   0,   0,   0,   0,   DESERT},
-  /* 139 */ {LOTHLANN        ,  38,   0,   0, 138, 140,   0,   0,   DESERT},
-  /* 140 */ {LOTHLANN        ,  40,   0, 139,   0, 141,   0,   0,   DESERT},
-  /* 141 */ {LOTHLANN        ,  42,   0, 140,   0, 142,   0,   0,   DESERT},
-  /* 142 */ {LOTHLANN        ,  44,   0, 141,   0, 143,   0,   0,   DESERT},
+  /* 136 */ {LOTHLANN        ,  32, 137,  26,   0,   0,   0,   0,   PLAIN},
+  /* 137 */ {LOTHLANN        ,  34,   0,   0, 136, 138,   0,   0,   PLAIN},
+  /* 138 */ {LOTHLANN        ,  36, 139, 137,   0,   0,   0,   0,   PLAIN},
+  /* 139 */ {LOTHLANN        ,  38,   0,   0, 138, 140,   0,   0,   PLAIN},
+  /* 140 */ {LOTHLANN        ,  40,   0, 139,   0, 141,   0,   0,   PLAIN},
+  /* 141 */ {LOTHLANN        ,  42,   0, 140,   0, 142,   0,   0,   PLAIN},
+  /* 142 */ {LOTHLANN        ,  44,   0, 141,   0, 143,   0,   0,   PLAIN},
   /* 143 */ {LOTHLANN        ,  46,   0, 142,   0, 144,   0,   0,   DESERT},
   /* 144 */ {LOTHLANN        ,  48,   0, 143,   0, 145,   0,   0,   DESERT},
   /* 145 */ {LOTHLANN        ,  50,   0, 144,   0, 146,   0,   0,   DESERT},

@@ -449,7 +449,7 @@ static errr Term_wipe_hack(int x, int y, int n)
 /*
  * Hack -- fake hook for "Term_text()" (see above)
  */
-static errr Term_text_hack(int x, int y, int n, byte a, const char *cp)
+static errr Term_text_hack(int x, int y, int n, byte a, char *cp)
 {
   /* Compiler silliness */
   if (x || y || n || a || cp) return (-2);

@@ -75,7 +75,6 @@ void init_file_paths(const char *path)
 
 #ifdef PRIVATE_USER_PATH
   char buf[1024];
-  char dirpath[1024];
 #endif /* PRIVATE_USER_PATH */
   
   /*** Free everything ***/
@@ -138,10 +137,8 @@ void init_file_paths(const char *path)
 
 #ifdef PRIVATE_USER_PATH
 
-  /* Get an absolute path from the filename */
-  path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
   /* Build the path to the user specific directory */
-  path_build(buf, sizeof(buf), dirpath, VERSION_NAME);
+  path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
   
   /* Build a relative path name */
   ANGBAND_DIR_USER = string_make(buf);
@@ -238,14 +235,8 @@ void create_user_dirs(void)
   char subdirpath[1024];
   
   
-  /* Get an absolute path from the filename */
-  path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
-  
-  /* Create the ~/.angband/ directory */
-  mkdir(dirpath, 0700);
-
   /* Build the path to the variant-specific sub-directory */
-  path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
+  path_build(subdirpath, sizeof(subdirpath), PRIVATE_USER_PATH, VERSION_NAME);
   
   /* Create the directory */
   mkdir(subdirpath, 0700);
@@ -341,16 +332,16 @@ header s_head;
 /*** Initialize from binary image files ***/
 
 
-/*
- * Initialize a "*_info" array, by parsing a binary "image" file
- */
-static errr init_info_raw(int fd, header *head)
+
+static bool init_info_raw(const char *fname, header *head)
 {
 	header test;
+	ang_file *fh = file_open(fname, MODE_READ, -1);
 
+	if (!fh) return FALSE;
 
 	/* Read and verify the header */
-	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	if (!file_read(fh, (char *)(&test), sizeof(header)) ||
 	    (test.v_major != head->v_major) ||
 	    (test.v_minor != head->v_minor) ||
 	    (test.v_patch != head->v_patch) ||
@@ -360,41 +351,39 @@ static errr init_info_raw(int fd, header *head)
 	    (test.head_size != head->head_size) ||
 	    (test.info_size != head->info_size))
 	{
-		/* Error */
-		return (-1);
+		file_close(fh);
+		return FALSE;
 	}
 
 
-	/* Accept the header */
-	(void)COPY(head, &test, header);
+	/* 
+	 * Accept the header - these are the only parts we need to copy
+	 * from the saved structure, as the rest is either identical (see
+	 * above test), or not restorable (function hooks, data pointers).
+	 */
+	head->name_size = test.name_size;
+	head->text_size = test.text_size;
 
-
-	/* Allocate the "*_info" array */
-	C_MAKE(head->info_ptr, head->info_size, char);
-
-	/* Read the "*_info" array */
-	fd_read(fd, head->info_ptr, head->info_size);
+	/* Allocate and read the "*_info" array */
+	head->info_ptr = C_RNEW(head->info_size, char);
+	file_read(fh, head->info_ptr, head->info_size);
 
 	if (head->name_size)
 	{
-		/* Allocate the "*_name" array */
-		C_MAKE(head->name_ptr, head->name_size, char);
-
-		/* Read the "*_name" array */
-		fd_read(fd, head->name_ptr, head->name_size);
+		/* Allocate and read the "*_name" array */
+		head->name_ptr = C_RNEW(head->name_size, char);
+		file_read(fh, head->name_ptr, head->name_size);
 	}
 
 	if (head->text_size)
 	{
-		/* Allocate the "*_text" array */
-		C_MAKE(head->text_ptr, head->text_size, char);
-
-		/* Read the "*_text" array */
-		fd_read(fd, head->text_ptr, head->text_size);
+		/* Allocate and read the "*_text" array */
+		head->text_ptr = C_RNEW(head->text_size, char);
+		file_read(fh, head->text_ptr, head->text_size);
 	}
 
-	/* Success */
-	return (0);
+	file_close(fh);
+	return TRUE;
 }
 
 
@@ -418,13 +407,12 @@ static void init_header(header *head, int num, int len)
 	head->info_size = head->info_num * head->info_len;
 
 	/* Clear post-parsing evaluation function */
-	head->eval_info_power = NULL;
+	head->eval_info_post = NULL;
 	
 	/* Clear the template emission functions */
 	head->emit_info_txt_index = NULL;
 	head->emit_info_txt_always = NULL;
 }
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -459,272 +447,152 @@ static void display_parse_error(cptr filename, errr err, cptr buf)
  */
 static errr init_info(cptr filename, header *head)
 {
-  int fd;
-  
-  errr err = 1;
-  
-  FILE *fp;
-  
-#ifdef ALLOW_TEMPLATES_OUTPUT
-  FILE *fpout;
-#endif /* ALLOW_TEMPLATES_OUTPUT */
-  
-  /* General buffer */
-  char buf[1024];
-  
-  
-#ifdef ALLOW_TEMPLATES
-  
-  /*** Load the binary image file ***/
-  
-  /* Build the filename */
-  path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
-  
-  /* Attempt to open the "raw" file */
-  fd = fd_open(buf, O_RDONLY);
-  
-  /* Process existing "raw" file */
-#ifdef _WIN32_WCE
-  if (fd != -1)
-#else
-  if (fd >= 0)
-#endif
-    {
-#ifdef CHECK_MODIFICATION_TIME
-      
-      err = check_modification_date(fd, format("%s.txt", filename));
-      
-#endif /* CHECK_MODIFICATION_TIME */
-      
-      /* Attempt to parse the "raw" file */
-      if (!err)
-	err = init_info_raw(fd, head);
-      
-      /* Close it */
-      fd_close(fd);
-    }
-  
-  /* Do we have to parse the *.txt file? */
-  if (err)
-    {
-      /*** Make the fake arrays ***/
-      
-      /* Allocate the "*_info" array */
-      C_MAKE(head->info_ptr, head->info_size, char);
-      
-      /* MegaHack -- make "fake" arrays */
-      if (z_info)
-	{
-	  C_MAKE(head->name_ptr, z_info->fake_name_size, char);
-	  C_MAKE(head->text_ptr, z_info->fake_text_size, char);
-	}
-      
-      
-      /*** Load the ascii template file ***/
-      
-      /* Build the filename */
-      path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, 
-		 format("%s.txt", filename));
-      
-      /* Open the file */
-      fp = my_fopen(buf, "r");
-      
-      /* Parse it */
-      if (!fp) quit(format("Cannot open '%s.txt' file.", filename));
-      
-      /* Parse the file */
-      err = init_info_txt(fp, buf, head, head->parse_info_txt);
-      
-      /* Close it */
-      my_fclose(fp);
-      
-      /* Errors */
-      if (err) display_parse_error(filename, err, buf);
-      
-#ifdef ALLOW_TEMPLATES_OUTPUT
-      
-      /*** Output a 'parsable' ascii template file ***/
-      if ((head->emit_info_txt_index) || (head->emit_info_txt_always))
-	{
-	  /* Build the filename */
-	  path_build(buf, 1024, ANGBAND_DIR_EDIT, format("%s.txt", filename));
-	  
-	  /* Open the file */
-	  fp = my_fopen(buf, "r");
-	  
-	  /* Parse it */
-	  if (!fp) quit(format("Cannot open '%s.txt' file for re-parsing.", 
-			       filename));
-	  
-	  /* Build the filename */
-	  path_build(buf, 1024, ANGBAND_DIR_USER, format("%s.txt", filename));
-	  
-	  /* Open the file */
-	  fpout = my_fopen(buf, "w");
-	  
-	  /* Parse it */
-	  if (!fpout) quit(format("Cannot open '%s.txt' file for output.", 
-				  filename));
-	  
-	  /* Parse and output the files */
-	  err = emit_info_txt(fpout, fp, buf, head, head->emit_info_txt_index, 
-			      head->emit_info_txt_always);
-	  
-	  /* Close both files */
-	  my_fclose(fpout);
-	  my_fclose(fp);
-	}
-      
-#endif
-      
-      
-      /*** Dump the binary image file ***/
-      
-      /* File type is "DATA" */
-      FILE_TYPE(FILE_TYPE_DATA);
-      
-      /* Build the filename */
-      path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, 
-		 format("%s.raw", filename));
-      
-      
-      /* Attempt to open the file */
-      fd = fd_open(buf, O_RDONLY);
-      
-      /* Failure */
-#ifdef _WIN32_WCE
-  if (fd == -1)
-#else
-      if (fd < 0)
-#endif
-	{
-	  int mode = 0644;
-	  
-	  /* Grab permissions */
-	  safe_setuid_grab();
-	  
-	  /* Create a new file */
-	  fd = fd_make(buf, mode);
-	  
-	  /* Drop permissions */
-	  safe_setuid_drop();
-	  
-	  /* Failure */
-#ifdef _WIN32_WCE
-  if (fd == -1)
-#else
-      if (fd < 0)
-#endif
-	    {
-	      /* Complain */
-	      plog_fmt("Cannot create the '%s' file!", buf);
-	      
-	      /* Continue */
-	      return (0);
-	    }
-	}
-      
-      /* Close it */
-      fd_close(fd);
-      
-      /* Grab permissions */
-      safe_setuid_grab();
-      
-      /* Attempt to create the raw file */
-      fd = fd_open(buf, O_WRONLY);
-      
-      /* Drop permissions */
-      safe_setuid_drop();
-      
-      /* Failure */
-#ifdef _WIN32_WCE
-  if (fd == -1)
-#else
-      if (fd < 0)
-#endif
-	{
-	  /* Complain */
-	  plog_fmt("Cannot write the '%s' file!", buf);
-	  
-	  /* Continue */
-	  return (0);
-	}
-      
-      /* Dump to the file */
-#ifdef _WIN32_WCE
-  if (fd != -1)
-#else
-      if (fd >= 0)
-#endif
-	{
-	  /* Dump it */
-	  fd_write(fd, (cptr)head, head->head_size);
-	  
-	  /* Dump the "*_info" array */
-	  if (head->info_size > 0)
-	    fd_write(fd, head->info_ptr, head->info_size);
-	  
-	  /* Dump the "*_name" array */
-	  if (head->name_size > 0)
-	    fd_write(fd, head->name_ptr, head->name_size);
-	  
-	  /* Dump the "*_text" array */
-	  if (head->text_size > 0)
-	    fd_write(fd, head->text_ptr, head->text_size);
-	  
-	  /* Close */
-	  fd_close(fd);
-	}
-      
-      
-      /*** Kill the fake arrays ***/
-      
-      /* Free the "*_info" array */
-      KILL(head->info_ptr);
+	ang_file *fh;
 
-      /* MegaHack -- Free the "fake" arrays */
-      if (z_info)
-	{
-	  KILL(head->name_ptr);
-	  KILL(head->text_ptr);
-	}
-      
-#endif /* ALLOW_TEMPLATES */
-      
-      
-      /*** Load the binary image file ***/
-      
-      /* Build the filename */
-      path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, 
-		 format("%s.raw", filename));
-      
-      /* Attempt to open the "raw" file */
-      fd = fd_open(buf, O_RDONLY);
-      
-      /* Process existing "raw" file */
-#ifdef _WIN32_WCE
-      if (fd == -1) quit("Cannot load '%s.raw' file.");
-#else
-      if (fd < 0) quit(format("Cannot load '%s.raw' file.", filename));
-#endif      
+	errr err = 1;
 
-      /* Attempt to parse the "raw" file */
-      err = init_info_raw(fd, head);
-      
-      /* Close it */
-      fd_close(fd);
-      
-      /* Error */
-      if (err) quit(format("Cannot parse '%s.raw' file.", filename));
-      
+	char raw_file[1024];
+	char txt_file[1024];
+
+	char buf[1024];
+
+
+	/* Build the filenames */
+	path_build(raw_file, sizeof(raw_file), ANGBAND_DIR_DATA, format("%s.raw", filename));
+	path_build(txt_file, sizeof(txt_file), ANGBAND_DIR_EDIT, format("%s.txt", filename));
+
+
 #ifdef ALLOW_TEMPLATES
-    }
+
+	/* If the raw file's more recent than the text file, load it */
+#ifdef _WIN32_WCE
+	if (init_info_raw(raw_file, head))
+#else
+	if (file_newer(raw_file, txt_file) &&
+	    init_info_raw(raw_file, head))
+#endif
+	{
+		/* Post processing the data */
+		if (head->eval_info_post) eval_info(head->eval_info_post, head);
+		return 0;
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "*_info" array */
+	head->info_ptr = C_ZNEW(head->info_size, char);
+
+	/* MegaHack -- make "fake" arrays */
+	if (z_info)
+	{
+		head->name_ptr = C_ZNEW(z_info->fake_name_size, char);
+		head->text_ptr = C_ZNEW(z_info->fake_text_size, char);
+	}
+
+
+	/*** Load the ascii template file ***/
+
+	/* Open the file */
+	fh = file_open(txt_file, MODE_READ, -1);
+	if (!fh) quit(format("Cannot open '%s.txt' file.", filename));
+
+	/* Parse the file */
+	err = init_info_txt(fh, buf, head, head->parse_info_txt);
+
+	file_close(fh);
+
+	/* Errors */
+	if (err) display_parse_error(filename, err, buf);
+
+	/* Post processing the data */
+	if (head->eval_info_post) eval_info(head->eval_info_post, head);
+
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/*** Output a 'parsable' ascii template file ***/
+	if ((head->emit_info_txt_index) || (head->emit_info_txt_always))
+	{
+		char user_file[1024];
+		ang_file *fout;
+
+		/* Open the original */
+		fh = file_open(txt_file, MODE_READ, -1);
+		if (!fh) quit(format("Cannot open '%s.txt' file for re-parsing.", filename));
+
+		/* Open for output */
+		path_build(user_file, 1024, ANGBAND_DIR_USER, format("%s.txt", filename));
+		fout = file_open(user_file, MODE_WRITE, FTYPE_TEXT);
+		if (!fout) quit(format("Cannot open '%s.txt' file for output.", filename));
+
+		/* Parse and output the files */
+		err = emit_info_txt(fout, fh, user_file, head, head->emit_info_txt_index, head->emit_info_txt_always);
+
+		/* Close both files */
+		file_close(fh);
+		file_close(fout);
+	}
+
+#endif
+
+
+	/*** Dump the binary image file ***/
+
+	safe_setuid_grab();
+	fh = file_open(raw_file, MODE_WRITE, FTYPE_RAW);
+	safe_setuid_drop();
+
+	/* Failure */
+	if (!fh)
+	{
+		plog_fmt("Cannot write the '%s' file!", raw_file);
+		return (0);
+	}
+
+	/* Dump it */
+	file_write(fh, (const char *) head, head->head_size);
+
+	/* Dump the "*_info" array */
+	if (head->info_size > 0)
+		file_write(fh, head->info_ptr, head->info_size);
+
+	/* Dump the "*_name" array */
+	if (head->name_size > 0)
+		file_write(fh, head->name_ptr, head->name_size);
+
+	/* Dump the "*_text" array */
+	if (head->text_size > 0)
+		file_write(fh, head->text_ptr, head->text_size);
+
+	/* Close */
+	file_close(fh);
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "*_info" array */
+	FREE(head->info_ptr);
+
+	/* MegaHack -- Free the "fake" arrays */
+	if (z_info)
+	{
+		FREE(head->name_ptr);
+		FREE(head->text_ptr);
+	}
+
+
 #endif /* ALLOW_TEMPLATES */
-  
-  /* Success */
-  return (0);
+
+
+	/*** Load the binary image file ***/
+
+	if (!init_info_raw(raw_file, head))
+		quit(format("Cannot load '%s.raw' file.", filename));
+
+
+	/* Success */
+	return (0);
 }
-
 
 /*
  * Free the allocated memory for the info-, name-, and text- arrays.
@@ -888,7 +756,7 @@ void init_artifacts(void)
 	   * This is a "normal" artifact. Notice we must skip
 	   * Morgoth's Crown and Hammer.
 	   */
-	  else if (!(a_ptr->flags3 & TR3_INSTA_ART))
+	  else if (!(a_ptr->flags_kind & KF_INSTA_ART))
 	    {
 	      if (loop == 1)
 		{
@@ -1246,7 +1114,7 @@ errr init_t_info(byte chosen_level)
 {
   errr err;
   
-  FILE *fp;
+  ang_file *fp;
   
   /* General buffer */
   char buf[1024];
@@ -1289,7 +1157,7 @@ errr init_t_info(byte chosen_level)
   path_build(buf, 1024, ANGBAND_DIR_EDIT, "themed.txt");
 
   /* Open the file */
-  fp = my_fopen(buf, "r");
+  fp = file_open(buf, MODE_READ, FTYPE_TEXT);
   
   /* Parse it, canceling on failure. */
   if (!fp) return(TRUE);
@@ -1298,7 +1166,7 @@ errr init_t_info(byte chosen_level)
   err = init_t_info_txt(fp, buf, chosen_level);
   
   /* Close it */
-  my_fclose(fp);
+  file_close(fp);
   
   /* Errors */
   if (err)
@@ -1768,13 +1636,14 @@ static void autoinscribe_init(void)
   C_MAKE(inscriptions, AUTOINSCRIPTIONS_MAX, autoinscription);
 }
 
+#define BROKEN 1
 
 /*
  * Initialize some other arrays
  */
 static errr init_other(void)
 {
-  int i = 0, k, n;
+  int i = 0, j, k, n;
   
   /*** Prepare the various "bizarre" arrays ***/
   
@@ -1802,6 +1671,113 @@ static errr init_other(void)
   temp_y = ((byte*)(temp_g)) + 0;
   temp_x = ((byte*)(temp_g)) + TEMP_MAX;
   
+  if (0)
+    {
+  /*** Prepare temporary adjacency arrays ***/
+  C_MAKE(adjacency, NUM_STAGES, u16b_stage);
+  C_MAKE(stage_path, NUM_STAGES, u16b_stage);
+  C_MAKE(temp_path, NUM_STAGES, u16b_stage);
+
+  /* Make the adjacency matrix */
+  for (i = 0; i < NUM_STAGES; i++)
+    {
+      /* Initialise this row */
+      for (k = 0; k < NUM_STAGES; k++)
+	{
+	  adjacency[i][k] = 0;
+	  stage_path[i][k] = 0;
+	  temp_path[i][k] = 0;
+	}
+
+      /* Add 1s where there's an adjacent stage (not up or down) */
+      for (k = 2; k < 6; k++)
+	if (stage_map[i][k] != 0) 
+	  {
+	    adjacency[i][stage_map[i][k]] = 1;
+	    temp_path[i][stage_map[i][k]] = 1;
+	  }
+    }
+  
+  /* Power it up (squaring 3 times gives eighth power) */
+  for (n = 0; n < 3; n++)
+    {
+      /* Square */
+      for (i = 0; i < NUM_STAGES; i++)
+	for (j = 0; j < NUM_STAGES; j++)
+	  {
+	    stage_path[i][j] = 0;
+	    for (k = 0; k < NUM_STAGES; k++)
+	      stage_path[i][j] += temp_path[i][k] * temp_path[k][j];
+	  }
+		
+      /* Copy it over for the next squaring or final multiply */
+      for (i = 0; i < NUM_STAGES; i++)
+	for (j = 0; j < NUM_STAGES; j++)
+	  temp_path[i][j] = stage_path[i][j];
+      
+    }
+
+  /* Get the max of length 8 and length 9 paths */
+  for (i = 0; i < NUM_STAGES; i++)
+    for (j = 0; j < NUM_STAGES; j++)
+      {
+	/* Multiply to get the length 9s */
+	stage_path[i][j] = 0;
+	for (k = 0; k < NUM_STAGES; k++)
+	  stage_path[i][j] += temp_path[i][k] * adjacency[k][j];
+	
+	/* Now replace by the length 8s if it's larger */
+	if (stage_path[i][j] < temp_path[i][j])
+	  stage_path[i][j] = temp_path[i][j];
+
+      }
+		
+
+  /* We now have the maximum of the number of paths of length 8 and the number 
+   * of paths of length 9 (we need to try odd and even length paths, as using 
+   * just one leads to anomalies) from any stage to any other,
+   * which we will use as a basis for the racial probability table for racially
+   * based monsters in any given stage.  For a stage, we give every race a 1,
+   * then add the number of paths of length 8 from their hometown to that 
+   * stage.  We then turn every row entry into the cumulative total of the row
+   * to that point.  Whenever a racially based monster is called for, we will
+   * take a random integer less than the last entry of the row for that stage, 
+   * and proceed along the row, allocating the race corresponding to the 
+   * position where we first exceed that integer.
+   */
+  C_MAKE(race_prob, 32, u16b_stage);
+
+  for (i = 0; i < NUM_STAGES; i++)
+    {
+      int prob = 0;
+
+      /* No more than 32 races */
+      for (j = 0; j < 32; j++)
+	{
+	  /* Nobody lives nowhere */
+	  if (stage_map[i][LOCALITY] == NOWHERE)
+	    {
+	      race_prob[i][j] = 0;
+	      continue;
+	    }
+	  
+	  /* Invalid race */
+	  if (j >= z_info->p_max) 
+	    {
+	      race_prob[i][j] = 0;
+	      continue;
+	    }
+	  
+	  /* Enter the cumulative probability */
+	  prob += 1 + stage_path[towns[p_info[j].hometown]][i];
+	  race_prob[i][j] = prob;
+	} 
+    }
+      
+  /* Free the temporary arrays */
+  FREE(temp_path);
+  FREE(adjacency);
+    }	    
   
   /*** Prepare dungeon arrays ***/
   
@@ -2255,6 +2231,222 @@ static errr init_alloc(void)
 
 
 /*
+ * Initialize the racial probability array
+ */
+static errr init_race_probs(void)
+{
+  int i, j, k, n;
+
+  ang_file *fd;
+  
+#ifdef ALLOW_TEMPLATES_OUTPUT
+  ang_file *fpout;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+  
+  /* General buffer */
+  char buf[1024];
+  
+  /* Make the array */  
+  C_MAKE(race_prob, 32, u16b_stage);
+
+#ifdef ALLOW_TEMPLATES
+  
+  /*** Load the binary image file ***/
+  
+  /* Build the filename */
+  path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "raceprob.raw");
+  
+  /* Attempt to open the "raw" file */
+  fd = file_open(buf, MODE_READ, -1);
+  
+  /* Process existing "raw" file */
+  if (fd)
+    {
+      /* Attempt to parse the "raw" file */
+      /* Read in the array */
+      file_read(fd, (char *)race_prob, 32 * sizeof(u16b_stage));
+      
+      /* Close it */
+      file_close(fd);
+    }
+  
+  /* Do the matrix calculations? */
+  else
+    {
+      /*** Prepare temporary adjacency arrays ***/
+      C_MAKE(adjacency, NUM_STAGES, u16b_stage);
+      C_MAKE(stage_path, NUM_STAGES, u16b_stage);
+      C_MAKE(temp_path, NUM_STAGES, u16b_stage);
+      
+      /* Make the adjacency matrix */
+      for (i = 0; i < NUM_STAGES; i++)
+	{
+	  /* Initialise this row */
+	  for (k = 0; k < NUM_STAGES; k++)
+	    {
+	      adjacency[i][k] = 0;
+	      stage_path[i][k] = 0;
+	      temp_path[i][k] = 0;
+	    }
+	  
+	  /* Add 1s where there's an adjacent stage (not up or down) */
+	  for (k = 2; k < 6; k++)
+	    if (stage_map[i][k] != 0) 
+	      {
+		adjacency[i][stage_map[i][k]] = 1;
+		temp_path[i][stage_map[i][k]] = 1;
+	      }
+	}
+      
+      /* Power it up (squaring 3 times gives eighth power) */
+      for (n = 0; n < 3; n++)
+	{
+	  /* Square */
+	  for (i = 0; i < NUM_STAGES; i++)
+	    for (j = 0; j < NUM_STAGES; j++)
+	      {
+		stage_path[i][j] = 0;
+		for (k = 0; k < NUM_STAGES; k++)
+		  stage_path[i][j] += temp_path[i][k] * temp_path[k][j];
+	      }
+	  
+	  /* Copy it over for the next squaring or final multiply */
+	  for (i = 0; i < NUM_STAGES; i++)
+	    for (j = 0; j < NUM_STAGES; j++)
+	      temp_path[i][j] = stage_path[i][j];
+	  
+	}
+      
+      /* Get the max of length 8 and length 9 paths */
+      for (i = 0; i < NUM_STAGES; i++)
+	for (j = 0; j < NUM_STAGES; j++)
+	  {
+	    /* Multiply to get the length 9s */
+	    stage_path[i][j] = 0;
+	    for (k = 0; k < NUM_STAGES; k++)
+	      stage_path[i][j] += temp_path[i][k] * adjacency[k][j];
+	    
+	    /* Now replace by the length 8s if it's larger */
+	    if (stage_path[i][j] < temp_path[i][j])
+	      stage_path[i][j] = temp_path[i][j];
+	    
+	  }
+
+      /* We now have the maximum of the number of paths of length 8 and the 
+       * number of paths of length 9 (we need to try odd and even length paths,
+       * as using just one leads to anomalies) from any stage to any other,
+       * which we will use as a basis for the racial probability table for 
+       * racially based monsters in any given stage.  For a stage, we give 
+       * every race a 1, then add the number of paths of length 8 from their 
+       * hometown to that stage.  We then turn every row entry into the 
+       * cumulative total of the row to that point.  Whenever a racially based 
+       * monster is called for, we will take a random integer less than the 
+       * last entry of the row for that stage, and proceed along the row, 
+       * allocating the race corresponding to the position where we first 
+       *exceed that integer.
+       */
+
+      for (i = 0; i < NUM_STAGES; i++)
+	{
+	  int prob = 0;
+	  
+	  /* No more than 32 races */
+	  for (j = 0; j < 32; j++)
+	    {
+	      /* Nobody lives nowhere */
+	      if (stage_map[i][LOCALITY] == NOWHERE)
+		{
+		  race_prob[i][j] = 0;
+		  continue;
+		}
+	      
+	      /* Invalid race */
+	      if (j >= z_info->p_max) 
+		{
+		  race_prob[i][j] = 0;
+		  continue;
+		}
+	      
+	      /* Enter the cumulative probability */
+	      prob += 1 + stage_path[towns[p_info[j].hometown]][i];
+	      race_prob[i][j] = prob;
+	    } 
+	}
+      
+      /*** Dump the binary image file ***/
+      
+      /* Build the filename */
+      path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "raceprob.raw");
+      
+      /* Attempt to open the file */
+      fd = file_open(buf, MODE_READ, -1);
+      
+      /* Failure */
+      if (!fd)
+	  {
+	    /* Grab permissions */
+	    safe_setuid_grab();
+	    
+	    /* Create a new file */
+	    fd = file_open(buf, MODE_WRITE, FTYPE_RAW);
+	    
+	    /* Drop permissions */
+	    safe_setuid_drop();
+	    
+	    /* Failure */
+	    if (!fd)
+	      {
+		/* Complain */
+		plog_fmt("Cannot create the '%s' file!", buf);
+		
+		/* Continue */
+		return (0);
+	      }
+	  }
+      
+      /* Close it */
+      file_close(fd);
+      
+      /* Grab permissions */
+      safe_setuid_grab();
+      
+      /* Attempt to create the raw file */
+      fd = file_open(buf, MODE_WRITE, FTYPE_RAW);
+      
+      /* Drop permissions */
+      safe_setuid_drop();
+      
+      /* Failure */
+      if (!fd)
+	{
+	  /* Complain */
+	  plog_fmt("Cannot write the '%s' file!", buf);
+	  
+	  /* Continue */
+	  return (0);
+	}
+      
+      /* Dump to the file */
+      if (fd)
+	{
+	  /* Dump it */
+	  file_write(fd, (cptr)race_prob, 32 * sizeof(u16b_stage));
+
+	  /* Close */
+	  file_close(fd);
+	}
+      /* Free the temporary arrays */
+      FREE(temp_path);
+      FREE(adjacency);
+      FREE(stage_path);
+    }
+#endif /* ALLOW_TEMPLATES */
+  
+  return 0;     
+}      
+    
+
+/*
  * Hack -- take notes on line 23
  */
 static void note(cptr str)
@@ -2372,11 +2564,9 @@ static char hack[17] = "dwsorgbuDWvyRGBU";
  */
 void init_angband(void)
 {
-  int fd = -1;
+  ang_file *fd;
   
-  int mode = 0644;
-  
-  FILE *fp;
+  ang_file *fp;
   
   char buf[1024];
 
@@ -2387,14 +2577,10 @@ void init_angband(void)
   path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
   
   /* Attempt to open the file */
-  fd = fd_open(buf, O_RDONLY);
+  fd = file_open(buf, MODE_READ, -1);
   
   /* Failure */
-#ifdef _WIN32_WCE
-  if (fd == -1)
-#else
-  if (fd < 0)
-#endif
+  if (!fd)
     {
       char why[1024];
       
@@ -2406,7 +2592,7 @@ void init_angband(void)
     }
   
   /* Close it */
-  fd_close(fd);
+  file_close(fd);
   
   
   /*** Display the splash screen ***/
@@ -2419,7 +2605,7 @@ void init_angband(void)
 					   "splash.txt"));
   
   /* Open the News file */
-  fp = my_fopen(buf, "r");
+  fp = file_open(buf, MODE_READ, FTYPE_TEXT);
   
   /* Dump */
   if (fp)
@@ -2432,14 +2618,13 @@ void init_angband(void)
       bool okay = TRUE;
       
       int len;
-      
-      
+ 
       /* Load the screen */
       for (y = 0; okay; y++)
         {
           /* Get a line of data */
-          if (my_fgets(fp, buf, 1024)) okay = FALSE;
-          
+          if (!file_getl(fp, buf, 1024)) okay = FALSE;
+      
           /* Stop on blank line */
           if (!buf[0]) break;
           
@@ -2461,7 +2646,7 @@ void init_angband(void)
       for (y = 0; okay; y++)
         {
           /* Get a line of data */
-          if (my_fgets(fp, buf, 1024)) okay = FALSE;
+          if (!file_getl(fp, buf, 1024)) okay = FALSE;
           
           /* Stop on blank line */
           if (!buf[0]) break;
@@ -2492,10 +2677,10 @@ void init_angband(void)
           /* Place the cursor */
           move_cursor(y, x);
           
-        }
-      
-      /* Close it */
-      my_fclose(fp);
+       }
+
+       /* Close it */
+      file_close(fp);
     }
   
   /* Flush it */
@@ -2513,7 +2698,7 @@ void init_angband(void)
   path_build(buf, 1024, ANGBAND_DIR_FILE, (small_screen ? "news_s.txt" : "news.txt"));
   
   /* Open the News file */
-  fp = my_fopen(buf, "r");
+  fp = file_open(buf, MODE_READ, FTYPE_TEXT);
   
   /* Dump */
   if (fp)
@@ -2532,7 +2717,7 @@ void init_angband(void)
       for (y = 0; okay; y++)
         {
           /* Get a line of data */
-          if (my_fgets(fp, buf, 1024)) okay = FALSE;
+          if (!file_getl(fp, buf, 1024)) okay = FALSE;
           
           /* Stop on blank line */
           if (!buf[0]) break;
@@ -2555,7 +2740,7 @@ void init_angband(void)
       for (y = 0; okay; y++)
         {
           /* Get a line of data */
-          if (my_fgets(fp, buf, 1024)) okay = FALSE;
+          if (!file_getl(fp, buf, 1024)) okay = FALSE;
           
           /* Stop on blank line */
           if (!buf[0]) break;
@@ -2593,7 +2778,7 @@ void init_angband(void)
       
       
       /* Close it */
-      my_fclose(fp);
+      file_close(fp);
     }
   
   /* Flush it */
@@ -2605,27 +2790,16 @@ void init_angband(void)
   path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
   
   /* Attempt to open the high score file */
-  fd = fd_open(buf, O_RDONLY);
+  fd = file_open(buf, MODE_READ, -1);
   
   /* Failure */
-#ifdef _WIN32_WCE
-  if (fd == -1)
-#else
-  if (fd < 0)
-#endif
+  if (!fd)
     {
-      /* File type is "DATA" */
-      FILE_TYPE(FILE_TYPE_DATA);
-      
       /* Create a new high score file */
-      fd = fd_make(buf, mode);
+      	fd = file_open(buf, MODE_WRITE, FTYPE_TEXT);
       
       /* Failure */
-#ifdef _WIN32_WCE
-      if (fd == -1) 
-#else
-      if (fd < 0)
-#endif
+      if (!fd)
         {
           char why[1024];
           
@@ -2638,7 +2812,7 @@ void init_angband(void)
     }
   
   /* Close it */
-  fd_close(fd);
+  file_close(fd);
   
   
   /* Initialize the menus */
@@ -2712,6 +2886,10 @@ void init_angband(void)
   note("[Initializing arrays... (alloc)]");
   if (init_alloc()) quit("Cannot initialize alloc stuff");
   
+  /* Initialize racial probability info */
+  note("[Initializing arrays... (race probs)]");
+
+  if (init_race_probs()) quit("Cannot initialize race probs");
   
   /*** Load default user pref files ***/
   
@@ -2799,7 +2977,11 @@ void cleanup_angband(void)
   FREE(cave_o_idx);
   FREE(cave_m_idx);
   FREE(cave_feat);
-  FREE(cave_info);
+
+  /* Free the racial prob arrays */
+
+  FREE(race_prob);
+  FREE(stage_path);
   
   /* Free the "update_view()" array */
   FREE(view_g);
@@ -2823,7 +3005,6 @@ void cleanup_angband(void)
   free_info(&v_head);
   free_info(&r_head);
   free_info(&e_head);
-  //free_info(&a_head);
   free_info(&k_head);
   free_info(&f_head);
   free_info(&z_head);

@@ -197,7 +197,6 @@ static bool auto_pickup_check(object_type *o_ptr, bool check_pack)
 bool quiver_carry(object_type *o_ptr, int o_idx)
 {
   int i;
-  u32b f1, f2, f3;
   
   bool throwing;
   
@@ -211,17 +210,15 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
   object_type *i_ptr;
   
 
-  /* Extract the flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
   /* Must be ammo or throwing weapon. */
-  if ((!is_missile(o_ptr)) && (!(f1 & (TR1_THROWING))))
+  if ((!is_missile(o_ptr)) && (!(o_ptr->flags_obj & OF_THROWING)))
     {
       return (FALSE);
     }
   
   /* Throwing weapon? */
-  throwing = (((f1 & (TR1_THROWING)) && (!is_missile(o_ptr))) ? TRUE : FALSE);
+  throwing = (((o_ptr->flags_obj & OF_THROWING) && (!is_missile(o_ptr))) 
+	      ? TRUE : FALSE);
   
   /* Count number of missiles in the quiver slots. */
   ammo_num = quiver_count();
@@ -380,14 +377,48 @@ extern void py_pickup_aux(int o_idx)
 
   /* Hack - set the turn found for artifacts */
   if (o_ptr->name1)
-    if (a_info[o_ptr->name1].creat_turn < 2)
+    {
+      if (a_info[o_ptr->name1].creat_turn < 2)
 	{
-      a_info[o_ptr->name1].creat_turn = turn;
-      a_info[o_ptr->name1].creat_turn |= (p_ptr->lev << 24);
+	  a_info[o_ptr->name1].creat_turn = turn;
+	  a_info[o_ptr->name1].p_level = p_ptr->lev;
 	}
+    }
 
   /* Stone of Lore gives id on pickup */
-  if ((!object_known_p(o_ptr)) && (i_ptr->sval == SV_STONE_LORE)) identify_object(o_ptr);
+  if (!object_known_p(o_ptr)) 
+    {
+      if (i_ptr->sval == SV_STONE_LORE) 
+	identify_object(o_ptr);
+
+      /* Otherwise pseudo-ID */
+      else
+	{
+	  bool heavy = FALSE;
+	  int feel;
+	  
+	  /* Heavy sensing */
+	  heavy = (check_ability(SP_PSEUDO_ID_HEAVY));
+	  
+	  /* Type of feeling */
+	  feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+	  
+	  /* We have "felt" it */
+	  o_ptr->ident |= (IDENT_SENSE);
+	  
+	  /* Inscribe it textually */
+	  o_ptr->feel = feel;
+	  
+	  /* Set squelch flag as appropriate */
+	  p_ptr->notice |= PN_SQUELCH;
+	}
+    }
+
+  /* Recalculate the bonuses */
+  p_ptr->update |= (PU_BONUS);
+  
+  /* Window stuff */
+  p_ptr->window |= (PW_EQUIP | PW_INVEN);
 
   /* Describe the object */
   object_desc(o_name, o_ptr, TRUE, 3);
@@ -484,6 +515,9 @@ byte py_pickup(int pickup, int y, int x)
 	    
 	    /* Collect the gold */
 	    p_ptr->au += o_ptr->pval;
+
+	    /* Limit to avoid buffer overflow */
+	    if (p_ptr->au > PY_MAX_GOLD) p_ptr->au = PY_MAX_GOLD;
 	    
 	    /* Redraw gold */
 	    p_ptr->redraw |= (PR_GOLD);
@@ -679,8 +713,8 @@ byte py_pickup(int pickup, int y, int x)
       /* Telekinesis */
       if (telekinesis)
 	{
-	  /* Restrict the choices */
-	  item_tester_hook = inven_carry_okay;
+	  /* Don't restrict the choices */
+	  item_tester_hook = NULL;
       
 	  if (get_item(&item, q, s, (USE_TARGET)))
 	    {
@@ -709,6 +743,15 @@ byte py_pickup(int pickup, int y, int x)
 	}
     }
   
+  /* Into quiver via telekinesis if possible */
+  if (telekinesis)
+    {
+      /* Access the object */
+      o_ptr = &o_list[this_o_idx];
+
+      if (quiver_carry(o_ptr, this_o_idx)) return (1);
+    }
+
   /* Regular pickup or telekinesis with pack not full */
   if (can_pickup)
     {
@@ -1263,6 +1306,7 @@ void hit_trap(int y, int x)
       /* summoning traps. */
     case FEAT_TRAP_HEAD + 0x05:
       {
+	sound(MSG_SUM_MONSTER);
 	/* sometimes summon thieves. */
 	if ((p_ptr->depth > 8) && (randint(5) == 1))
 	  {
@@ -1555,7 +1599,7 @@ void hit_trap(int y, int x)
 		    if (!cave_passable_bold(y, x)) continue;
 		    
 		    /* Hack -- no summon on glyph of warding */
-		    if (cave_feat[y][x] == FEAT_GLYPH) continue;
+		    if (cave_feat[y][x] == FEAT_RUNE_PROTECT) continue;
 		    
 		    /* Okay */
 		    break;
@@ -2044,14 +2088,14 @@ void move_player(int dir, int do_pickup)
 	    }
 	  
 	  /* Sound */
-	  sound(SOUND_HITWALL);
+	  sound(MSG_HITWALL);
 	}
       
       /* Normal movement */
       else
 	{
 	  /* Sound XXX XXX XXX */
-	  /* sound(SOUND_WALK); */
+	  /* sound(MSG_WALK); */
 	  
 	  /*** Handle traversable terrain.  ***/
 	  switch(cave_feat[y][x])
@@ -2255,8 +2299,11 @@ void move_player(int dir, int do_pickup)
 		fall_off_cliff();
 	      
 	      /* Spontaneous Searching */
-	      if ((p_ptr->skill_fos > 49) ||
-		  (0 == rand_int(50 - p_ptr->skill_fos)))
+	      if (p_ptr->skill_fos > 49)
+		{
+		  search();
+		}
+	      else if (0 == rand_int(50 - p_ptr->skill_fos))
 		{
 		  search();
 		}

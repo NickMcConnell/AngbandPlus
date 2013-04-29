@@ -12,472 +12,13 @@
 #include "angband.h"
 
 
-#ifdef FUTURE_SAVEFILES
-
-/*
- * XXX XXX XXX Ignore this for now...
- *
- * The basic format of Angband 2.8.0 (and later) savefiles is simple.
- *
- * The savefile itself is a "header" (4 bytes) plus a series of "blocks",
- * plus, perhaps, some form of "footer" at the end.
- *
- * The "header" contains information about the "version" of the savefile.
- * Conveniently, pre-2.8.0 savefiles also use a 4 byte header, though the
- * interpretation of the "sf_extra" byte is very different.  Unfortunately,
- * savefiles from Angband 2.5.X reverse the sf_major and sf_minor fields,
- * and must be handled specially, until we decide to start ignoring them.
- *
- * Each "block" is a "type" (2 bytes), plus a "size" (2 bytes), plus "data",
- * plus a "check" (2 bytes), plus a "stamp" (2 bytes).  The format of the
- * "check" and "stamp" bytes is still being contemplated, but it would be
- * nice for one to be a simple byte-checksum, and the other to be a complex
- * additive checksum of some kind.  Both should be zero if the block is empty.
- *
- * Standard types:
- *   TYPE_BIRTH --> creation info
- *   TYPE_OPTIONS --> option settings
- *   TYPE_MESSAGES --> message recall
- *   TYPE_PLAYER --> player information
- *   TYPE_SPELLS --> spell information
- *   TYPE_INVEN --> player inven/equip
- *   TYPE_STORES --> store information
- *   TYPE_RACES --> monster race data
- *   TYPE_KINDS --> object kind data
- *   TYPE_UNIQUES --> unique info
- *   TYPE_ARTIFACTS --> artifact info
- *   TYPE_QUESTS --> quest info
- *
- * Dungeon information:
- *   TYPE_DUNGEON --> dungeon info
- *   TYPE_FEATURES --> dungeon features
- *   TYPE_OBJECTS --> dungeon objects
- *   TYPE_MONSTERS --> dungeon monsters
- *
- * Conversions:
- *   Break old "races" into normals/uniques
- *   Extract info about the "unique" monsters
- *
- * Question:
- *   Should there be a single "block" for info about all the stores, or one
- *   "block" for each store?  Or one "block", which contains "sub-blocks" of
- *   some kind?  Should we dump every "sub-block", or just the "useful" ones?
- *
- * Question:
- *   Should the normals/uniques be broken for 2.8.0, or should 2.8.0 simply
- *   be a "fixed point" into which older savefiles are converted, and then
- *   future versions could ignore older savefiles, and the "conversions"
- *   would be much simpler.
- */
-
-
-/*
- * XXX XXX XXX
- */
-#define TYPE_OPTIONS 17362
-
-
-/*
- * Hack -- current savefile
- */
-static int data_fd = -1;
-
-
-/*
- * Hack -- current block type
- */
-static u16b data_type;
-
-/*
- * Hack -- current block size
- */
-static u16b data_size;
-
-/*
- * Hack -- pointer to the data buffer
- */
-static byte *data_head;
-
-/*
- * Hack -- pointer into the data buffer
- */
-static byte *data_next;
-
-
-
-/*
- * Hack -- write the current "block" to the savefile
- */
-static errr wr_block(void)
-{
-  errr err;
-  
-  byte fake[4];
-  
-  /* Save the type and size */
-  fake[0] = (byte)(data_type);
-  fake[1] = (byte)(data_type >> 8);
-  fake[2] = (byte)(data_size);
-  fake[3] = (byte)(data_size >> 8);
-  
-  /* Dump the head */
-  err = fd_write(data_fd, (char*)&fake, 4);
-  
-  /* Dump the actual data */
-  err = fd_write(data_fd, (char*)data_head, data_size);
-  
-  /* XXX XXX XXX */
-  fake[0] = 0;
-  fake[1] = 0;
-  fake[2] = 0;
-  fake[3] = 0;
-  
-  /* Dump the tail */
-  err = fd_write(data_fd, (char*)&fake, 4);
-  
-  /* Hack -- reset */
-  data_next = data_head;
-  
-  /* Wipe the data block */
-  C_WIPE(data_head, 65535, byte);
-  
-  /* Success */
-  return (0);
-}
-
-
-
-/*
- * Hack -- add data to the current block
- */
-static void put_byte(byte v)
-{
-  *data_next++ = v;
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_char(char v)
-{
-  put_byte((byte)(v));
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_u16b(u16b v)
-{
-  *data_next++ = (byte)(v);
-  *data_next++ = (byte)(v >> 8);
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_s16b(s16b v)
-{
-  put_u16b((u16b)(v));
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_u32b(u32b v)
-{
-  *data_next++ = (byte)(v);
-  *data_next++ = (byte)(v >> 8);
-  *data_next++ = (byte)(v >> 16);
-  *data_next++ = (byte)(v >> 24);
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_s32b(s32b v)
-{
-  put_u32b((u32b)(v));
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_string(char *str)
-{
-  while ((*data_next++ = *str++) != '\0');
-}
-
-
-
-/*
- * Write a savefile for Angband 2.8.0
- */
-static errr wr_savefile(void)
-{
-  int i;
-  
-  u32b now;
-  
-  byte tmp8u;
-  u16b tmp16u;
-  
-  errr err;
-  
-  byte fake[4];
-  
-  
-  /*** Hack -- extract some data ***/
-  
-  /* Hack -- Acquire the current time */
-#ifdef _WIN32_WCE
-  {
-    unsigned long fake_time(unsigned long* fake_time_t);
-    now = fake_time(NULL);
-  }
-#else
-  now = time((time_t*)(NULL));
-#endif
-  
-  /* Note the operating system */
-  sf_xtra = 0L;
-  
-  /* Note when the file was saved */
-  sf_when = now;
-  
-  /* Note the number of saves */
-  sf_saves++;
-  
-  
-  /*** Actually write the file ***/
-  
-  /* Open the file XXX XXX XXX */
-  data_fd = -1;
-  
-  /* Dump the version */
-  fake[0] = (byte)(VERSION_MAJOR);
-  fake[1] = (byte)(VERSION_MINOR);
-  fake[2] = (byte)(VERSION_PATCH);
-  fake[3] = (byte)(VERSION_EXTRA);
-  
-  /* Dump the data */
-  err = fd_write(data_fd, (char*)&fake, 4);
-  
-  
-  /* Make array XXX XXX XXX */
-  C_MAKE(data_head, 65535, byte);
-  
-  /* Hack -- reset */
-  data_next = data_head;
-  
- 
-  /* Dump the "options" */
-  put_options();
-  
-  /* Set the type */
-  data_type = TYPE_OPTIONS;
-  
-  /* Set the "options" size */
-  data_size = (data_next - data_head);
-  
-  /* Write the block */
-  wr_block();
-  
-  /* Dump the "final" marker XXX XXX XXX */
-  /* Type zero, Size zero, Contents zero, etc */
-  
-  
-  /* XXX XXX XXX Check for errors */
-  
-  
-  /* Kill array XXX XXX XXX */
-  C_KILL(data_head, 65535, byte);
-  
-  
-  /* Success */
-  return (0);
-}
-
-
-
-
-
-/*
- * Hack -- read the next "block" from the savefile
- */
-static errr rd_block(void)
-{
-  errr err;
-  
-  byte fake[4];
-  
-  /* Read the head data */
-  err = fd_read(data_fd, (char*)&fake, 4);
-  
-  /* Extract the type and size */
-  data_type = (fake[0] | ((u16b)fake[1] << 8));
-  data_size = (fake[2] | ((u16b)fake[3] << 8));
-  
-  /* Wipe the data block */
-  C_WIPE(data_head, 65535, byte);
-  
-  /* Read the actual data */
-  err = fd_read(data_fd, (char*)data_head, data_size);
-  
-  /* Read the tail data */
-  err = fd_read(data_fd, (char*)&fake, 4);
-  
-  /* XXX XXX XXX Verify */
-  
-  /* Hack -- reset */
-  data_next = data_head;
-  
-  /* Success */
-  return (0);
-}
-
-
-/*
- * Hack -- get data from the current block
- */
-static void get_byte(byte *ip)
-{
-  byte d1;
-  d1 = (*data_next++);
-  (*ip) = (d1);
-}
-
-/*
- * Hack -- get data from the current block
- */
-static void get_char(char *ip)
-{
-  get_byte((byte*)ip);
-}
-
-/*
- * Hack -- get data from the current block
- */
-static void get_u16b(u16b *ip)
-{
-  u16b d0, d1;
-  d0 = (*data_next++);
-  d1 = (*data_next++);
-  (*ip) = (d0 | (d1 << 8));
-}
-
-/*
- * Hack -- get data from the current block
- */
-static void get_s16b(s16b *ip)
-{
-  get_u16b((u16b*)ip);
-}
-
-/*
- * Hack -- get data from the current block
- */
-static void get_u32b(u32b *ip)
-{
-  u32b d0, d1, d2, d3;
-  d0 = (*data_next++);
-  d1 = (*data_next++);
-  d2 = (*data_next++);
-  d3 = (*data_next++);
-  (*ip) = (d0 | (d1 << 8) | (d2 << 16) | (d3 << 24));
-}
-
-/*
- * Hack -- get data from the current block
- */
-static void get_s32b(s32b *ip)
-{
-  get_u32b((u32b*)ip);
-}
-
-
-
-/*
- * Read a savefile for Angband 2.8.0
- */
-static errr rd_savefile(void)
-{
-  bool done = FALSE;
-  
-  byte fake[4];
-  
-  
-  /* Open the savefile */
-  data_fd = fd_open(savefile, O_RDONLY);
-  
-  /* No file */
-#ifdef _WIN32_WCE
-  if (data_fd == INVALID_HANDLE_VALUE) return (1);
-#else
-  if (data_fd < 0) return (1);
-#endif
-  
-  /* Strip the first four bytes (see below) */
-  if (fd_read(data_fd, (char*)(fake), 4)) return (1);
-  
-  
-  /* Make array XXX XXX XXX */
-  C_MAKE(data_head, 65535, byte);
-  
-  /* Hack -- reset */
-  data_next = data_head;
-  
-  
-  /* Read blocks */
-  while (!done)
-    {
-      /* Read the block */
-      if (rd_block()) break;
-      
-      /* Analyze the type */
-      switch (data_type)
-	{
-	  /* Done XXX XXX XXX */
-	case 0:
-	  {
-	    done = TRUE;
-	    break;
-	  }
-	  
-	  /* Grab the options */
-	case TYPE_OPTIONS:
-	  {
-	    if (get_options()) err = -1;
-	    break;
-	  }
-	}
-      
-      /* XXX XXX XXX verify "data_next" */
-      if (data_next - data_head > data_size) break;
-    }
-  
-  
-  /* XXX XXX XXX Check for errors */
-  
-  
-  /* Kill array XXX XXX XXX */
-  C_KILL(data_head, 65535, byte);
-
-  
-  /* Success */
-  return (0);
-}
-
-
-#endif /* FUTURE_SAVEFILES */
-
-
 
 
 /*
  * Some "local" parameters, used to help write savefiles
  */
 
-static FILE	*fff;		/* Current save "file" */
+static ang_file	*fff;		/* Current save "file" */
 
 static byte	xor_byte;	/* Simple encryption */
 
@@ -494,7 +35,7 @@ static void sf_put(byte v)
 {
   /* Encode the value, write a character */
   xor_byte ^= v;
-  (void)putc((int)xor_byte, fff);
+  (void)file_writec(fff, xor_byte);
   
   /* Maintain the checksum info */
   v_stamp += v;
@@ -582,21 +123,30 @@ static void wr_item(object_type *o_ptr)
   
   wr_byte(o_ptr->marked);
   
-  /* New percentage resists -NRM- */
+  wr_u32b(o_ptr->flags_obj);	/* New object flags -NRM- */
+  wr_u32b(o_ptr->flags_curse);	/* New curse flags  -NRM- */
+  wr_u32b(o_ptr->id_curse);	/* New curse id  -NRM- */
+
+  /* Resists, bonuses, multiples -NRM- */
   for (i = 0; i < MAX_P_RES; i++)
     wr_byte(o_ptr->percent_res[i]);
+  for (i = 0; i < A_MAX; i++)
+    wr_byte(o_ptr->bonus_stat[i]);
+  for (i = 0; i < MAX_P_BONUS; i++)
+    wr_byte(o_ptr->bonus_other[i]);
+  for (i = 0; i < MAX_P_SLAY; i++)
+    wr_byte(o_ptr->multiple_slay[i]);
+  for (i = 0; i < MAX_P_BRAND; i++)
+    wr_byte(o_ptr->multiple_brand[i]);
 
-  wr_byte(o_ptr->el_proof);
-  
   /* Where found */
   wr_u32b(o_ptr->found);
   
   /* Held by monster index */
   wr_s16b(o_ptr->held_m_idx);
   
-  /* Extra information */
-  wr_byte(o_ptr->xtra1);
-  wr_byte(o_ptr->xtra2);
+  /* Activation */
+  wr_byte(o_ptr->activation);
   
   /* Feeling */
   wr_byte(o_ptr->feel);
@@ -611,14 +161,21 @@ static void wr_item(object_type *o_ptr)
       wr_string("");
     }
 }
-
+  
 
 /*
  * Write a "monster" record
  */
 static void wr_monster(monster_type *m_ptr)
 {
-  wr_s16b(m_ptr->r_idx);
+  monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+  /* Special treatment for player ghosts */
+  if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+    wr_s16b(r_ghost);
+  else
+    wr_s16b(m_ptr->r_idx);
+
   wr_byte(m_ptr->fy);
   wr_byte(m_ptr->fx);
   wr_s16b(m_ptr->hp);
@@ -650,6 +207,19 @@ static void wr_monster(monster_type *m_ptr)
   /* Current Mana */   
   wr_byte(m_ptr->mana);    
   
+  /* Racial type */
+  wr_byte(m_ptr->p_race);
+  wr_byte(m_ptr->old_p_race);
+
+  /* AI info */
+  wr_s16b(m_ptr->hostile);
+  wr_u16b(m_ptr->group);
+  wr_u16b(m_ptr->group_leader);
+
+  /* Territorial info */
+  wr_u16b(m_ptr->y_terr);
+  wr_u16b(m_ptr->x_terr);
+          
   /* Spare */
   wr_s16b(0); 
 }
@@ -1074,8 +644,10 @@ static void wr_extra(void)
   /* Store number of monster traps on this level. -LM- */
   wr_byte(num_trap_on_level);
   
-  /* Store number of glyphs on this level. -LM- */
-  wr_byte(num_glyph_on_level);
+  /* Store number of runes on this level, mana reserve for rune of mana. */
+  for (i = 0; i < MAX_RUNE; i++)
+    wr_byte(num_runes_on_level[i]);
+  wr_byte((byte)mana_reserve);
   
   wr_byte(p_ptr->themed_level); /* Stores the current themed level. -LM- */
   
@@ -1466,6 +1038,9 @@ static bool wr_savefile_new(void)
       if (i < ART_MIN_RANDOM)
 	{
 	  wr_s32b(a_ptr->creat_turn);
+	  wr_byte(a_ptr->p_level);
+	  /* Store set completion info */
+	  wr_byte(a_ptr->set_bonus ? 1 : 0);
 	}
       /* But random artifacts are specific to each player. */
       else
@@ -1489,19 +1064,28 @@ static bool wr_savefile_new(void)
 	  
 	  wr_u32b(a_ptr->cost);
 	  
-	  wr_u32b(a_ptr->flags1);
-	  wr_u32b(a_ptr->flags2);
-	  wr_u32b(a_ptr->flags3);
+	  wr_u32b(a_ptr->flags_obj);
+	  wr_u32b(a_ptr->flags_curse);
+	  wr_u32b(a_ptr->flags_kind);
 	  
 	  wr_byte(a_ptr->level);
 	  wr_byte(a_ptr->rarity);
 	  
 	  wr_s32b(a_ptr->creat_turn);
+	  wr_byte(a_ptr->p_level);
 	  wr_byte(a_ptr->activation);
 
-	  /* New percentage resists -NRM- */
+	  /* Resists, bonuses, multiples -NRM- */
 	  for (j = 0; j < MAX_P_RES; j++)
 	    wr_byte(a_ptr->percent_res[j]);
+	  for (j = 0; j < A_MAX; j++)
+	    wr_byte(a_ptr->bonus_stat[j]);
+	  for (j = 0; j < MAX_P_BONUS; j++)
+	    wr_byte(a_ptr->bonus_other[j]);
+	  for (j = 0; j < MAX_P_SLAY; j++)
+	    wr_byte(a_ptr->multiple_slay[j]);
+	  for (j = 0; j < MAX_P_BRAND; j++)
+	    wr_byte(a_ptr->multiple_brand[j]);
 	  
 	  /* Add some filler space for later expansion. */
 	  wr_u32b(0);
@@ -1595,10 +1179,6 @@ static bool wr_savefile_new(void)
   /* Write the "encoded checksum" */
   wr_u32b(x_stamp);
   
-  
-  /* Error in save */
-  if (ferror(fff) || (fflush(fff) == EOF)) return FALSE;
-  
   /* Successful save */
   return TRUE;
 }
@@ -1606,56 +1186,33 @@ static bool wr_savefile_new(void)
 
 /*
  * Medium level player saver
- *
- * XXX XXX XXX Angband 2.8.0 will use "fd" instead of "fff" if possible
  */
 static bool save_player_aux(char *name)
 {
   bool ok = FALSE;
   
-  int fd = -1;
-  
-  int mode = 0644;
-  
-  
   /* No file yet */
   fff = NULL;
   
+  /* Close the "fd" */
+  safe_setuid_grab();
   
-  /* File type is "SAVE" */
-  FILE_TYPE(FILE_TYPE_SAVE);
+  /* Open the savefile */
+  fff = file_open(name, MODE_WRITE, FTYPE_SAVE);
+  safe_setuid_drop();
   
-  
-  /* Create the savefile */
-  fd = fd_make(name, mode);
-  
-  /* File is okay */
-#ifdef _WIN32_WCE
-  if (fd != -1)
-#else
-  if (fd >= 0)
-#endif
+  /* Successful open */
+  if (fff)
     {
-      /* Close the "fd" */
-      fd_close(fd);
+      /* Write the savefile */
+      if (wr_savefile_new()) ok = TRUE;
       
-      /* Open the savefile */
-      fff = my_fopen(name, "wb");
-      
-      /* Successful open */
-      if (fff)
-	{
-	  /* Write the savefile */
-	  if (wr_savefile_new()) ok = TRUE;
-	  
-	  /* Attempt to close it */
-	  if (my_fclose(fff)) ok = FALSE;
-	}
-      
-      /* Remove "broken" files */
-      if (!ok) fd_kill(name);
+      /* Attempt to close it */
+      if (!file_close(fff)) ok = FALSE;
     }
   
+  /* Remove "broken" files */
+  if (!ok) file_delete(name);
   
   /* Failure */
   if (!ok) return (FALSE);
@@ -1701,7 +1258,7 @@ bool save_player(void)
 #endif /* VM */
   
   /* Remove it */
-  fd_kill(safe);
+  file_delete(safe);
   
   /* Attempt to save the player */
   if (save_player_aux(safe))
@@ -1719,31 +1276,21 @@ bool save_player(void)
 #endif /* VM */
       
       /* Remove it */
-      fd_kill(temp);
+      file_delete(temp);
       
       /* Preserve old savefile */
-      fd_move(savefile, temp);
+      file_move(savefile, temp);
       
       /* Activate new savefile */
-      fd_move(safe, savefile);
+      file_move(safe, savefile);
       
       /* Remove preserved savefile */
-      fd_kill(temp);
+      file_delete(temp);
       
       /* Hack -- Pretend the character was loaded */
       character_loaded = TRUE;
       
-#ifdef VERIFY_SAVEFILE
-      
-      /* Lock on savefile */
-      strcpy(temp, savefile);
-      strcat(temp, ".lok");
-      
-      /* Remove lock file */
-      fd_kill(temp);
-      
-#endif
-      
+     
       /* Success */
       result = TRUE;
     }
@@ -1769,13 +1316,16 @@ bool save_player(void)
  * Hack
  *
  * Check worn items and apply sets as set data is not stored -GS-
+ *
+ * Should be unnecessary now (FA400), as set details are kept with the objects,
+ * and whether the bonus is added is stored with the artifact. -NRM-
  */
 void check_item_sets(void)
 {
   int j;
   
   /* Check all equipped items. */
-  for (j=INVEN_WIELD;j<=INVEN_FEET;j++)
+  for (j = INVEN_WIELD;j <= INVEN_FEET;j++)
     {
       object_type *o_ptr;
       o_ptr = &inventory[j];
@@ -1783,7 +1333,7 @@ void check_item_sets(void)
       /* Is it an artifact? */
       if (o_ptr->name1)
 	{
-	  artifact_type *a_ptr=&a_info[o_ptr->name1];
+	  artifact_type *a_ptr = &a_info[o_ptr->name1];
 	  
 	  /* Is it a set item? */
 	  if (a_ptr->set_no != 0)
@@ -1794,7 +1344,7 @@ void check_item_sets(void)
 		{
 		  
 		  /* Apply set bonuses */
-		  apply_set(a_ptr->set_no,TRUE);
+		  apply_set(a_ptr->set_no);
 		}
 	    }
 	}
@@ -1829,10 +1379,6 @@ bool load_player(void)
   errr err = 0;
   
   
-#ifdef VERIFY_TIMESTAMP
-  struct stat	statbuf;
-#endif
-  
   cptr what = "generic";
   
   
@@ -1865,72 +1411,6 @@ bool load_player(void)
 #endif
 
 
-#ifdef VERIFY_SAVEFILE
-
-  /* Verify savefile usage */
-  if (!err)
-    {
-      FILE *fkk;
-      
-      char temp[1024];
-      
-      /* Extract name of lock file */
-      strcpy(temp, savefile);
-      strcat(temp, ".lok");
-      
-      /* Check for lock */
-      fkk = my_fopen(temp, "r");
-      
-      /* Oops, lock exists */
-      if (fkk)
-	{
-	  /* Close the file */
-	  my_fclose(fkk);
-	  
-	  /* Message */
-	  msg_print("Savefile is currently in use.");
-	  msg_print(NULL);
-	  
-	  /* Oops */
-	  return (FALSE);
-	}
-      
-      /* Create a lock file */
-      fkk = my_fopen(temp, "w");
-      
-      /* Dump a line of info */
-      fprintf(fkk, "Lock file for savefile '%s'\n", savefile);
-      
-      /* Close the lock file */
-      my_fclose(fkk);
-    }
-  
-#endif
-  
-#ifdef VERIFY_TIMESTAMP
-  /* Okay */
-  if (!err)
-    {
-      /* Open the savefile */
-      fd = fd_open(savefile, O_RDONLY);
-      
-      /* No file */
-#ifdef _WIN32_WCE
-      if (fd == -1) err = -1;
-#else
-      if (fd < 0) err = -1;
-#endif
-      
-      /* Message (below) */
-      if (err) what = "Cannot open savefile";
-      
-      /* Get the timestamp */
-      (void)fstat(fd, &statbuf);
-      
-      /* Close the file */
-      fd_close(fd);
-    }
-#endif
   
   /* Collect the version information. */
   if (!err)
@@ -1949,7 +1429,7 @@ bool load_player(void)
       Term_clear();
       
       /* Parse "new" savefiles */
-      if (sf_major == 0)
+      if (sf_major <= 1)
 	{
 	  /* Attempt to load */
 	  err = rd_savefile_new();
@@ -1976,23 +1456,6 @@ bool load_player(void)
       if (err) what = "Broken savefile";
     }
   
-#ifdef VERIFY_TIMESTAMP
-  /* Verify timestamp */
-  if (!err && !arg_wizard)
-    {
-      /* Hack -- Verify the timestamp */
-      if (sf_when > (statbuf.st_ctime + 100) ||
-	  sf_when < (statbuf.st_ctime - 100))
-	{
-	  /* Message */
-	  what = "Invalid timestamp";
-	  
-	  /* Oops */
-	  err = -1;
-	}
-    }
-#endif
-  
   
   /* Okay */
   if (!err)
@@ -2017,9 +1480,6 @@ bool load_player(void)
 	  /* Cheat death */
 	  if (arg_wizard)
 	    {
-	      /* Check the character for completed item sets */
-	      check_item_sets();
-	      
 	      /* A character was loaded */
 	      character_loaded = TRUE;
 	      
@@ -2037,9 +1497,6 @@ bool load_player(void)
 	  return (TRUE);
 	}
       
-      /* Check the character for completed item sets */
-      check_item_sets();
-      
       /* A character was loaded */
       character_loaded = TRUE;
       
@@ -2054,23 +1511,6 @@ bool load_player(void)
       return (TRUE);
     }
   
-  
-#ifdef VERIFY_SAVEFILE
-  
-  /* Verify savefile usage */
-  if (TRUE)
-    {
-      char temp[1024];
-      
-      /* Extract name of lock file */
-      strcpy(temp, savefile);
-      strcat(temp, ".lok");
-      
-      /* Remove lock */
-      fd_kill(temp);
-    }
-  
-#endif
   
   
   /* Message */

@@ -196,18 +196,20 @@ void *mem_realloc(void *p, size_t len)
 /*
  * Allocate a constant string, containing the same thing as 'str'
  */
-cptr string_make(cptr str)
+char *string_make(const char *str)
 {
 	char *res;
+	size_t siz;
 
 	/* Simple sillyness */
-	if (!str) return (str);
+	if (!str) return NULL;
 
 	/* Allocate space for the string including terminator */
-	res = ralloc(strlen(str) + 1);
+	siz = strlen(str) + 1;
+	res = mem_alloc(siz);
 
 	/* Copy the string (with terminator) */
-	strcpy(res, str);
+	my_strcpy(res, str, siz);
 
 	/* Return the allocated and initialized string */
 	return (res);
@@ -217,14 +219,9 @@ cptr string_make(cptr str)
 /*
  * Un-allocate a string allocated above.
  */
-errr string_free(cptr str)
+#undef string_free
+char *string_free(char *str)
 {
-	/* Succeed on non-strings */
-	if (!str) return (0);
-
 	/* Kill the buffer of chars we must have allocated above */
-	(void)rnfree((void*)str);
-
-	/* Success */
-	return (0);
+	return mem_free(str);
 }

@@ -2173,22 +2173,18 @@ static void calc_mana(void)
   if ((mp_ptr->spell_book == TV_MAGIC_BOOK) || 
       (mp_ptr->spell_book == TV_NECRO_BOOK))
     {
-      u32b f1, f2, f3;
-      
       /* Assume player is not encumbered by gloves */
       p_ptr->cumber_glove = FALSE;
       
       /* Get the gloves */
       o_ptr = &inventory[INVEN_HANDS];
       
-      /* Examine the gloves */
-      object_flags(o_ptr, &f1, &f2, &f3);
-      
       /* Normal gloves hurt mage or necro-type spells.  Now, only 
        * Free Action or magic mastery stops this effect.
        */
       if (o_ptr->k_idx &&
-	  !(f3 & (TR3_FREE_ACT)) && !(f1 & (TR1_MAGIC_MASTERY)))
+	  !(o_ptr->flags_obj & OF_FREE_ACT) && 
+	  (o_ptr->bonus_other[P_BONUS_M_MASTERY] <= 0))
 	{
 	  /* Encumbered */
 	  p_ptr->cumber_glove = TRUE;
@@ -2407,7 +2403,7 @@ static void calc_torch(void)
   if (check_ability(SP_HOLY_LIGHT)) p_ptr->cur_lite++;
   
   /* Special ability Unlight */
-  if (check_ability(SP_UNLIGHT)) p_ptr->cur_lite--;
+  if (check_ability(SP_UNLIGHT) || p_ptr->darkness) p_ptr->cur_lite--;
   
   /* Reduce lite when running if requested */
   if (p_ptr->running && view_reduce_lite)
@@ -2601,7 +2597,7 @@ static void resistance_limits(void)
 /*
  * Apply a percentage resistance to the existing player resistance level.
  */
-void apply_resist(int *player_resist, int item_resist)
+extern void apply_resist(int *player_resist, int item_resist)
 {
   *player_resist = (int) (*player_resist * item_resist)/100;
 } 
@@ -2866,7 +2862,7 @@ static void shape_change_main(void)
 	p_ptr->to_d += 5;
 	p_ptr->dis_to_d += 5;
 	p_ptr->skill_stl += 1;
-	p_ptr->skill_dev += 25;
+	p_ptr->skill_dev += 30;
 	p_ptr->skill_thb -= 10;
 	p_ptr->skill_tht -= 10;
 	break;
@@ -3036,8 +3032,6 @@ extern void calc_bonuses(bool inspect)
   
   object_type *o_ptr;
   
-  u32b f1, f2, f3;
-  
   /*** Memorize ***/
 
   
@@ -3098,9 +3092,27 @@ extern void calc_bonuses(bool inspect)
   p_ptr->dis_to_a = p_ptr->to_a = 0;
   
   /* Clear all the flags */
-  p_ptr->aggravate = FALSE;
   p_ptr->teleport = FALSE;
-  /* p_ptr->black_breath = FALSE; */
+  p_ptr->no_teleport = FALSE;
+  p_ptr->aggravate = FALSE;
+  p_ptr->rand_aggro = FALSE;
+  p_ptr->slow_regen = FALSE;
+  p_ptr->fear = FALSE;
+  p_ptr->fast_digest = FALSE;
+  p_ptr->rand_pois = FALSE;
+  p_ptr->rand_pois_bad = FALSE;
+  p_ptr->rand_cuts = FALSE;
+  p_ptr->rand_cuts_bad = FALSE;
+  p_ptr->rand_hallu = FALSE;
+  p_ptr->drop_weapon = FALSE;
+  p_ptr->attract_demon = FALSE;
+  p_ptr->attract_undead = FALSE;
+  p_ptr->rand_paral = FALSE;
+  p_ptr->rand_paral_all = FALSE;
+  p_ptr->drain_exp = FALSE;
+  p_ptr->drain_mana = FALSE;
+  p_ptr->drain_stat = FALSE;
+  p_ptr->drain_charge = FALSE;
   p_ptr->bless_blade = FALSE;
   p_ptr->impact = FALSE;
   p_ptr->see_inv = FALSE;
@@ -3119,6 +3131,8 @@ extern void calc_bonuses(bool inspect)
   p_ptr->sustain_chr = FALSE;
   p_ptr->no_fear = FALSE;
   p_ptr->no_blind = FALSE;
+  p_ptr->darkness = FALSE;
+  p_ptr->special_attack &= ~(ATTACK_CHAOTIC);
   
   for (i = 0; i < MAX_P_RES; i++)
     {
@@ -3164,90 +3178,58 @@ extern void calc_bonuses(bool inspect)
   
   /*** Analyze player ***/
   
-  /* Extract the player flags */
-  player_flags(&f1, &f2, &f3, FALSE);
+  /* Object flags */
+  if (rp_ptr->flags_obj & (OF_SUSTAIN_STR)) p_ptr->sustain_str = TRUE;
+  if (rp_ptr->flags_obj & (OF_SUSTAIN_INT)) p_ptr->sustain_int = TRUE;
+  if (rp_ptr->flags_obj & (OF_SUSTAIN_WIS)) p_ptr->sustain_wis = TRUE;
+  if (rp_ptr->flags_obj & (OF_SUSTAIN_DEX)) p_ptr->sustain_dex = TRUE;
+  if (rp_ptr->flags_obj & (OF_SUSTAIN_CON)) p_ptr->sustain_con = TRUE;
+  if (rp_ptr->flags_obj & (OF_SUSTAIN_CHR)) p_ptr->sustain_chr = TRUE;
+  if (rp_ptr->flags_obj & (OF_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+  if (rp_ptr->flags_obj & (OF_FEATHER)) p_ptr->ffall = TRUE;
+  if (rp_ptr->flags_obj & (OF_LITE)) p_ptr->lite = TRUE;
+  if (rp_ptr->flags_obj & (OF_REGEN)) p_ptr->regenerate = TRUE;
+  if (rp_ptr->flags_obj & (OF_TELEPATHY)) p_ptr->telepathy = TRUE;
+  if (rp_ptr->flags_obj & (OF_SEE_INVIS)) p_ptr->see_inv = TRUE;
+  if (rp_ptr->flags_obj & (OF_FREE_ACT)) p_ptr->free_act = TRUE;
+  if (rp_ptr->flags_obj & (OF_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+  if (rp_ptr->flags_obj & (OF_BLESSED)) p_ptr->bless_blade = TRUE;
+  if (rp_ptr->flags_obj & (OF_IMPACT)) p_ptr->impact = TRUE;
+  if (rp_ptr->flags_obj & (OF_FEARLESS)) p_ptr->no_fear = TRUE;
+  if (rp_ptr->flags_obj & (OF_SEEING)) p_ptr->no_blind = TRUE;
+  if (rp_ptr->flags_obj & (OF_DARKNESS)) p_ptr->darkness = TRUE;
+  if (rp_ptr->flags_obj & (OF_CHAOTIC)) p_ptr->special_attack |= ATTACK_CHAOTIC;
   
-  /* Good flags */
-  if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
-  if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
-  if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
-  if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
-  if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
-  if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
-  if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
-  if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
-  
-  /* Weird flags */
-  if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
-  /* Bad flags */
-  if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
-  if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
-  if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
-  if (f3 & (TR3_DRAIN_EXP)) p_ptr->black_breath = TRUE;
+  /* Curse flags */
+  if (rp_ptr->flags_curse & (CF_TELEPORT)) p_ptr->teleport = TRUE;
+  if (rp_ptr->flags_curse & (CF_NO_TELEPORT)) p_ptr->no_teleport = TRUE;
+  if (rp_ptr->flags_curse & (CF_AGGRO_PERM)) p_ptr->aggravate = TRUE;
+  if (rp_ptr->flags_curse & (CF_AGGRO_RAND)) p_ptr->rand_aggro = TRUE;
+  if (rp_ptr->flags_curse & (CF_SLOW_REGEN)) p_ptr->slow_regen = TRUE;
+  if (rp_ptr->flags_curse & (CF_AFRAID)) p_ptr->fear = TRUE;
+  if (rp_ptr->flags_curse & (CF_HUNGRY)) p_ptr->fast_digest = TRUE;
+  if (rp_ptr->flags_curse & (CF_POIS_RAND)) p_ptr->rand_pois = TRUE;
+  if (rp_ptr->flags_curse & (CF_POIS_RAND_BAD)) p_ptr->rand_pois_bad = TRUE;
+  if (rp_ptr->flags_curse & (CF_CUT_RAND)) p_ptr->rand_cuts = TRUE;
+  if (rp_ptr->flags_curse & (CF_CUT_RAND_BAD)) p_ptr->rand_cuts_bad = TRUE;
+  if (rp_ptr->flags_curse & (CF_HALLU_RAND)) p_ptr->rand_hallu = TRUE;
+  if (rp_ptr->flags_curse & (CF_DROP_WEAPON)) p_ptr->drop_weapon = TRUE;
+  if (rp_ptr->flags_curse & (CF_ATTRACT_DEMON)) p_ptr->attract_demon = TRUE;
+  if (rp_ptr->flags_curse & (CF_ATTRACT_UNDEAD)) p_ptr->attract_undead = TRUE;
+  if (rp_ptr->flags_curse & (CF_PARALYZE)) p_ptr->rand_paral = TRUE;
+  if (rp_ptr->flags_curse & (CF_PARALYZE_ALL)) p_ptr->rand_paral_all = TRUE;
+  if (rp_ptr->flags_curse & (CF_DRAIN_EXP)) p_ptr->drain_exp = TRUE;
+  if (rp_ptr->flags_curse & (CF_DRAIN_MANA)) p_ptr->drain_mana = TRUE;
+  if (rp_ptr->flags_curse & (CF_DRAIN_STAT)) p_ptr->drain_stat = TRUE;
+  if (rp_ptr->flags_curse & (CF_DRAIN_CHARGE)) p_ptr->drain_charge = TRUE;
   
-  /* Status protection flags */
-  if (f3 & (TR3_FEARLESS)) p_ptr->no_fear = TRUE;
-  if (f3 & (TR3_SEEING)) p_ptr->no_blind = TRUE;
-  
-  /* Resistance flags */
-  if (f2 & (TR2_IM_ACID)) 
-    apply_resist(&p_ptr->res_list[P_RES_ACID], RES_BOOST_IMMUNE);
-  else if (f2 & (TR2_RES_ACID)) 
-    apply_resist(&p_ptr->res_list[P_RES_ACID], RES_BOOST_NORMAL);
-  if (f2 & (TR2_IM_ELEC)) 
-    apply_resist(&p_ptr->res_list[P_RES_ELEC], RES_BOOST_IMMUNE);
-  else if (f2 & (TR2_RES_ELEC)) 
-    apply_resist(&p_ptr->res_list[P_RES_ELEC], RES_BOOST_NORMAL);
-  if (f2 & (TR2_IM_FIRE)) 
-    apply_resist(&p_ptr->res_list[P_RES_FIRE], RES_BOOST_IMMUNE);
-  else if (f2 & (TR2_RES_FIRE)) 
-    apply_resist(&p_ptr->res_list[P_RES_FIRE], RES_BOOST_NORMAL);
-  if (f2 & (TR2_IM_COLD)) 
-    apply_resist(&p_ptr->res_list[P_RES_COLD], RES_BOOST_IMMUNE);
-  else if (f2 & (TR2_RES_COLD)) 
-    apply_resist(&p_ptr->res_list[P_RES_COLD], RES_BOOST_NORMAL);
-  if (f2 & (TR2_RES_POIS)) 
-    apply_resist(&p_ptr->res_list[P_RES_POIS], RES_BOOST_NORMAL);
-  if (f2 & (TR2_RES_LITE)) 
-    apply_resist(&p_ptr->res_list[P_RES_LITE], RES_BOOST_NORMAL);
-  if (f2 & (TR2_RES_DARK)) 
-    apply_resist(&p_ptr->res_list[P_RES_DARK], RES_BOOST_NORMAL);
-  if (f2 & (TR2_RES_CONFU)) 
-    apply_resist(&p_ptr->res_list[P_RES_CONFU], RES_BOOST_NORMAL);
-  if (f2 & (TR2_RES_SOUND)) 
-    apply_resist(&p_ptr->res_list[P_RES_SOUND], RES_BOOST_NORMAL);
-  if (f2 & (TR2_RES_SHARD)) 
-    apply_resist(&p_ptr->res_list[P_RES_SHARD], RES_BOOST_NORMAL);
-  if (f2 & (TR2_RES_NEXUS)) 
-    apply_resist(&p_ptr->res_list[P_RES_NEXUS], RES_BOOST_NORMAL);
-  if (f2 & (TR2_RES_NETHR)) 
-    apply_resist(&p_ptr->res_list[P_RES_NETHR], RES_BOOST_NORMAL);
-  if (f2 & (TR2_RES_CHAOS)) 
-    apply_resist(&p_ptr->res_list[P_RES_CHAOS], RES_BOOST_NORMAL);
-  if (f2 & (TR2_RES_DISEN)) 
-    apply_resist(&p_ptr->res_list[P_RES_DISEN], RES_BOOST_NORMAL);
-  
-  /* Hack - Direct vulnerabilites from player races */
-  if (check_ability(SP_WOODEN)) 
-    apply_resist(&p_ptr->res_list[P_RES_FIRE], RES_CUT_MINOR);
-
-  /* All inherent bonuses should be known */
+  /* Resistances */
   for (i = 0; i < MAX_P_RES; i++)
     {
-      p_ptr->dis_res_list[i] = p_ptr->res_list[i];
+      p_ptr->res_list[i] = rp_ptr->percent_res[i];
+      p_ptr->dis_res_list[i] = rp_ptr->percent_res[i];
     }
-  
-  /* End inherent resistances; do bounds check on resistance levels */
-  resistance_limits();
-  
-  /* Sustain flags */
-  if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
-  if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
-  if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
-  if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
-  if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
-  if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
   
   /* Ent */
   if (check_ability(SP_WOODEN)) 
@@ -3270,6 +3252,30 @@ extern void calc_bonuses(bool inspect)
       if (p_ptr->lev > 45) p_ptr->stat_add[A_CON]++;
     }
   
+  /* Warrior. */
+  if (check_ability(SP_RELENTLESS))
+    {
+      if (p_ptr->lev >= 30) p_ptr->no_fear = TRUE;
+      if (p_ptr->lev >= 40) p_ptr->regenerate = TRUE;
+    }
+  
+  /* Specialty ability Holy Light */
+  if (check_ability(SP_HOLY_LIGHT))
+    {
+      apply_resist(&p_ptr->res_list[P_RES_LITE], RES_BOOST_NORMAL);
+      apply_resist(&p_ptr->dis_res_list[P_RES_LITE], RES_BOOST_NORMAL);
+    }
+  
+  /* Specialty ability Unlight */
+  if (check_ability(SP_UNLIGHT))
+    {
+      apply_resist(&p_ptr->res_list[P_RES_DARK], RES_BOOST_NORMAL);
+      apply_resist(&p_ptr->dis_res_list[P_RES_DARK], RES_BOOST_NORMAL);
+    }
+  
+  /* End inherent resistances; do bounds check on resistance levels */
+  resistance_limits();
+  
   /*** Analyze equipment ***/
   
   /* Scan the equipment */
@@ -3280,172 +3286,96 @@ extern void calc_bonuses(bool inspect)
       /* Skip non-objects */
       if (!o_ptr->k_idx) continue;
       
-      /* Extract the item flags */
-      object_flags(o_ptr, &f1, &f2, &f3);
-      
       /* Affect stats */
-      if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
-      if (f1 & (TR1_INT)) p_ptr->stat_add[A_INT] += o_ptr->pval;
-      if (f1 & (TR1_WIS)) p_ptr->stat_add[A_WIS] += o_ptr->pval;
-      if (f1 & (TR1_DEX)) p_ptr->stat_add[A_DEX] += o_ptr->pval;
-      if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
-      if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
+      for (j = 0; j < A_MAX; j++)
+	p_ptr->stat_add[j] += o_ptr->bonus_stat[j];
       
       /* Affect stealth */
-      if (f1 & (TR1_STEALTH)) p_ptr->skill_stl += o_ptr->pval;
+      p_ptr->skill_stl += o_ptr->bonus_other[P_BONUS_STEALTH];
       
       /* Affect searching ability (factor of five) */
-      if (f1 & (TR1_SEARCH)) p_ptr->skill_srh += (o_ptr->pval * 5);
+      p_ptr->skill_srh += (o_ptr->bonus_other[P_BONUS_SEARCH] * 5);
       
       /* Affect searching frequency (factor of five) */
-      if (f1 & (TR1_SEARCH)) p_ptr->skill_fos += (o_ptr->pval * 5);
+      p_ptr->skill_fos += (o_ptr->bonus_other[P_BONUS_SEARCH] * 5);
       
       /* Affect infravision */
-      if (f1 & (TR1_INFRA)) p_ptr->see_infra += o_ptr->pval;
+      p_ptr->see_infra += o_ptr->bonus_other[P_BONUS_INFRA];
       
       /* Affect digging (factor of 20) */
-      if (f1 & (TR1_TUNNEL)) p_ptr->skill_dig += (o_ptr->pval * 20);
+      p_ptr->skill_dig += (o_ptr->bonus_other[P_BONUS_TUNNEL] * 20);
       
       /* Affect speed */
-      if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
+      p_ptr->pspeed += o_ptr->bonus_other[P_BONUS_SPEED];
       
-      if (f1 & (TR1_MAGIC_MASTERY))p_ptr->skill_dev += 10 * o_ptr->pval;
+      p_ptr->skill_dev += 10 * o_ptr->bonus_other[P_BONUS_M_MASTERY];
       
       /* Affect shots.  Altered in Oangband. */
-      if (f1 & (TR1_SHOTS)) extra_shots += 1;
+      extra_shots += o_ptr->bonus_other[P_BONUS_SHOTS];
       
       /* Affect might.  Altered in Oangband. */
-      if (f1 & (TR1_MIGHT1)) extra_might += 1;
-      if (f1 & (TR1_MIGHT2)) extra_might += 2;
+      extra_might += o_ptr->bonus_other[P_BONUS_MIGHT];
       
-      /* Good flags */
-      if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
-      if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
-      if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
-      if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
-      if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
-      if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
-      if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
-      if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
-      
-      /* Weird flags */
-      if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+      /* Object flags */
+      if (o_ptr->flags_obj & (OF_SUSTAIN_STR)) p_ptr->sustain_str = TRUE;
+      if (o_ptr->flags_obj & (OF_SUSTAIN_INT)) p_ptr->sustain_int = TRUE;
+      if (o_ptr->flags_obj & (OF_SUSTAIN_WIS)) p_ptr->sustain_wis = TRUE;
+      if (o_ptr->flags_obj & (OF_SUSTAIN_DEX)) p_ptr->sustain_dex = TRUE;
+      if (o_ptr->flags_obj & (OF_SUSTAIN_CON)) p_ptr->sustain_con = TRUE;
+      if (o_ptr->flags_obj & (OF_SUSTAIN_CHR)) p_ptr->sustain_chr = TRUE;
+      if (o_ptr->flags_obj & (OF_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+      if (o_ptr->flags_obj & (OF_FEATHER)) p_ptr->ffall = TRUE;
+      if (o_ptr->flags_obj & (OF_LITE)) p_ptr->lite = TRUE;
+      if (o_ptr->flags_obj & (OF_REGEN)) p_ptr->regenerate = TRUE;
+      if (o_ptr->flags_obj & (OF_TELEPATHY)) p_ptr->telepathy = TRUE;
+      if (o_ptr->flags_obj & (OF_SEE_INVIS)) p_ptr->see_inv = TRUE;
+      if (o_ptr->flags_obj & (OF_FREE_ACT)) p_ptr->free_act = TRUE;
+      if (o_ptr->flags_obj & (OF_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+      if (o_ptr->flags_obj & (OF_FEARLESS)) p_ptr->no_fear = TRUE;
+      if (o_ptr->flags_obj & (OF_SEEING)) p_ptr->no_blind = TRUE;
+      if (o_ptr->flags_obj & (OF_IMPACT)) p_ptr->impact = TRUE;
+      if (o_ptr->flags_obj & (OF_BLESSED)) p_ptr->bless_blade = TRUE;
+      if (o_ptr->flags_obj & (OF_DARKNESS)) p_ptr->darkness = TRUE;
+      if (o_ptr->flags_obj & (OF_CHAOTIC)) 
+	p_ptr->special_attack |= ATTACK_CHAOTIC;
       
       /* Bad flags */
-      if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
-      if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
-      if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+      if (o_ptr->flags_curse & (CF_TELEPORT)) p_ptr->teleport = TRUE;
+      if (o_ptr->flags_curse & (CF_NO_TELEPORT)) p_ptr->no_teleport = TRUE;
+      if (o_ptr->flags_curse & (CF_AGGRO_PERM)) p_ptr->aggravate = TRUE;
+      if (o_ptr->flags_curse & (CF_AGGRO_RAND)) p_ptr->rand_aggro = TRUE;
+      if (o_ptr->flags_curse & (CF_SLOW_REGEN)) p_ptr->slow_regen = TRUE;
+      if (o_ptr->flags_curse & (CF_AFRAID)) p_ptr->fear = TRUE;
+      if (o_ptr->flags_curse & (CF_HUNGRY)) p_ptr->fast_digest = TRUE;
+      if (o_ptr->flags_curse & (CF_POIS_RAND)) p_ptr->rand_pois = TRUE;
+      if (o_ptr->flags_curse & (CF_POIS_RAND_BAD)) p_ptr->rand_pois_bad = TRUE;
+      if (o_ptr->flags_curse & (CF_CUT_RAND)) p_ptr->rand_cuts = TRUE;
+      if (o_ptr->flags_curse & (CF_CUT_RAND_BAD)) p_ptr->rand_cuts_bad = TRUE;
+      if (o_ptr->flags_curse & (CF_HALLU_RAND)) p_ptr->rand_hallu = TRUE;
+      if (o_ptr->flags_curse & (CF_DROP_WEAPON)) p_ptr->drop_weapon = TRUE;
+      if (o_ptr->flags_curse & (CF_ATTRACT_DEMON)) p_ptr->attract_demon = TRUE;
+      if (o_ptr->flags_curse & (CF_ATTRACT_UNDEAD)) 
+	p_ptr->attract_undead = TRUE;
+      if (o_ptr->flags_curse & (CF_PARALYZE)) p_ptr->rand_paral = TRUE;
+      if (o_ptr->flags_curse & (CF_PARALYZE_ALL)) p_ptr->rand_paral_all = TRUE;
+      if (o_ptr->flags_curse & (CF_DRAIN_EXP)) p_ptr->drain_exp = TRUE;
+      if (o_ptr->flags_curse & (CF_DRAIN_MANA)) p_ptr->drain_mana = TRUE;
+      if (o_ptr->flags_curse & (CF_DRAIN_STAT)) p_ptr->drain_stat = TRUE;
+      if (o_ptr->flags_curse & (CF_DRAIN_CHARGE)) p_ptr->drain_charge = TRUE;
       
-      /* The new code implementing Tolkien's concept of "Black Breath"
-       * takes advantage of the existing drain_exp character flag, renamed
-       * "black_breath". This flag can also be set by a unlucky blow from
-       * an undead.  -LM- 
-       */
-      if (f3 & (TR3_DRAIN_EXP)) p_ptr->black_breath = TRUE;
       
-      /* Status protection flags */
-      if (f3 & (TR3_FEARLESS)) p_ptr->no_fear = TRUE;
-      if (f3 & (TR3_SEEING)) p_ptr->no_blind = TRUE;
-      
-      /* Resistance and immunity flags - now in the object_type 
-      if (f2 & (TR2_IM_ACID)) 
-	apply_resist(&p_ptr->res_list[P_RES_ACID], RES_BOOST_IMMUNE);
-      else if (f2 & (TR2_RES_ACID)) 
-	p_ptr->res_list[P_RES_ACID] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_IM_ELEC)) p_ptr->res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
-      else if (f2 & (TR2_RES_ELEC)) 
-	p_ptr->res_list[P_RES_ELEC] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_IM_FIRE)) p_ptr->res_list[P_RES_FIRE] += RES_BOOST_IMMUNE;
-      else if (f2 & (TR2_RES_FIRE)) 
-	p_ptr->res_list[P_RES_FIRE] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_IM_COLD)) 
-	p_ptr->res_list[P_RES_COLD] += RES_BOOST_IMMUNE;
-      else if (f2 & (TR2_RES_COLD)) 
-	p_ptr->res_list[P_RES_COLD] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_RES_POIS)) p_ptr->res_list[P_RES_POIS] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_RES_LITE)) p_ptr->res_list[P_RES_LITE] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_RES_DARK)) p_ptr->res_list[P_RES_DARK] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_RES_CONFU)) 
-	p_ptr->res_list[P_RES_CONFU] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_RES_SOUND)) 
-	p_ptr->res_list[P_RES_SOUND] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_RES_SHARD)) 
-	p_ptr->res_list[P_RES_SHARD] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_RES_NEXUS)) 
-	p_ptr->res_list[P_RES_NEXUS] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_RES_NETHR)) 
-	p_ptr->res_list[P_RES_NETHR] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_RES_CHAOS)) 
-	p_ptr->res_list[P_RES_CHAOS] += RES_BOOST_NORMAL;
-      if (f2 & (TR2_RES_DISEN)) 
-	p_ptr->res_list[P_RES_DISEN] += RES_BOOST_NORMAL;
-      */
-
       for (j = 0; j < MAX_P_RES; j++)
 	apply_resist(&p_ptr->res_list[j], o_ptr->percent_res[j]);
       
       /* Known resistance and immunity flags */
       if (object_known_p(o_ptr))
 	{
-	  /*
-	  u32b ff1, ff2, ff3;
-	  object_flags_known(o_ptr, &ff1, &ff2, &ff3);
-	  
-	  if (ff2 & (TR2_IM_ACID)) 
-	    p_ptr->dis_res_list[P_RES_ACID] += RES_BOOST_IMMUNE;
-	  else if (ff2 & (TR2_RES_ACID)) 
-	    p_ptr->dis_res_list[P_RES_ACID] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_IM_ELEC)) 
-	    p_ptr->dis_res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
-	  else if (ff2 & (TR2_RES_ELEC)) 
-	    p_ptr->dis_res_list[P_RES_ELEC] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_IM_FIRE)) 
-	    p_ptr->dis_res_list[P_RES_FIRE] += RES_BOOST_IMMUNE;
-	  else if (ff2 & (TR2_RES_FIRE)) 
-	    p_ptr->dis_res_list[P_RES_FIRE] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_IM_COLD)) 
-	    p_ptr->dis_res_list[P_RES_COLD] += RES_BOOST_IMMUNE;
-	  else if (ff2 & (TR2_RES_COLD)) 
-	    p_ptr->dis_res_list[P_RES_COLD] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_RES_POIS)) 
-	    p_ptr->dis_res_list[P_RES_POIS] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_RES_LITE)) 
-	    p_ptr->dis_res_list[P_RES_LITE] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_RES_DARK)) 
-	    p_ptr->dis_res_list[P_RES_DARK] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_RES_CONFU)) 
-	    p_ptr->dis_res_list[P_RES_CONFU] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_RES_SOUND)) 
-	    p_ptr->dis_res_list[P_RES_SOUND] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_RES_SHARD)) 
-	    p_ptr->dis_res_list[P_RES_SHARD] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_RES_NEXUS)) 
-	    p_ptr->dis_res_list[P_RES_NEXUS] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_RES_NETHR)) 
-	    p_ptr->dis_res_list[P_RES_NETHR] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_RES_CHAOS)) 
-	    p_ptr->dis_res_list[P_RES_CHAOS] += RES_BOOST_NORMAL;
-	  if (ff2 & (TR2_RES_DISEN)) 
-	    p_ptr->dis_res_list[P_RES_DISEN] += RES_BOOST_NORMAL;
-	  */
-
-
 	  for (j = 0; j < MAX_P_RES; j++)
 	    apply_resist(&p_ptr->dis_res_list[j], o_ptr->percent_res[j]);
-      
-	}
+      	}
       
       /* End item resistances; do bounds check on resistance levels */
       resistance_limits();
-      
-      /* Sustain flags */
-      if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
-      if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
-      if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
-      if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
-      if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
-      if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
-      
       
       /* 
        * Modify the base armor class.   Shields worn on back are penalized. 
@@ -3527,7 +3457,7 @@ extern void calc_bonuses(bool inspect)
   /* Unlight stealth boost */
   if (check_ability(SP_UNLIGHT))
     {
-      if ((p_ptr->cur_lite <= 0) && 
+      if ((p_ptr->cur_lite <= 0) && (!is_daylight) &&
 	  !(cave_info[p_ptr->py][p_ptr->px] & CAVE_GLOW)) 
 	p_ptr->skill_stl += 6; 
       else p_ptr->skill_stl += 3; 
@@ -3543,6 +3473,10 @@ extern void calc_bonuses(bool inspect)
   if ((check_ability(SP_WOODSMAN)) && (check_ability(SP_ELVEN)) && 
       (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags & TF_TREE))
     p_ptr->pspeed += 3;
+
+  /* Speed boost for rune of speed */
+  if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_RUNE_SPEED)
+    p_ptr->pspeed += 10;
 
   /* Dwarves are good miners */
   if (check_ability(SP_DWARVEN))
@@ -3798,8 +3732,27 @@ extern void calc_bonuses(bool inspect)
     {
       p_ptr->no_fear = TRUE;
     }
-  
-  
+
+  /* Clear contradictory flags */
+  if (p_ptr->no_fear) p_ptr->fear = FALSE;
+  if (p_ptr->fast_digest && p_ptr->slow_digest)
+    {
+      p_ptr->fast_digest = FALSE;
+      p_ptr->slow_digest = FALSE;
+    }
+
+  if (p_resist_strong(P_RES_POIS))
+    {
+      p_ptr->rand_pois = FALSE;
+      p_ptr->rand_pois_bad = FALSE;
+    }
+
+  if (p_resist_good(P_RES_CHAOS))
+    p_ptr->rand_hallu = FALSE;
+
+  if (p_ptr->free_act) 
+    p_ptr->rand_paral = FALSE;
+
   /* End normal temporary bonuses; do bounds check on resistance levels */
   resistance_limits();
   
@@ -3923,6 +3876,14 @@ extern void calc_bonuses(bool inspect)
       if (p_ptr->skill_sav <= 100) 
 	p_ptr->skill_sav += (100 - p_ptr->skill_sav) / 2;
     }
+
+  /* Rune of Magical Defence */
+  if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_RUNE_MAGDEF)
+    {
+      if (p_ptr->skill_sav <= 100) 
+	p_ptr->skill_sav += (100 - p_ptr->skill_sav) / 2;
+    }
+
   
   /*** Analyze shapechanges - everything but statistics ***/
   shape_change_main();
@@ -4164,13 +4125,10 @@ extern void calc_bonuses(bool inspect)
 	    {
 	      /* Access the wield slot */
 	      o_ptr = &inventory[INVEN_WIELD];
-	      
-	      /* Extract the flags */
-	      object_flags(o_ptr, &f1, &f2, &f3);
-	      
+
 	      /* Analyze weapon for two-handed-use. */
-	      if (f3 & (TR3_TWO_HANDED_REQ) || 
-		  (f3 & (TR3_TWO_HANDED_DES) && 
+	      if (o_ptr->flags_obj & (OF_TWO_HANDED_REQ) || 
+		  (o_ptr->flags_obj & (OF_TWO_HANDED_DES) && 
 		   (p_ptr->stat_ind[A_STR] < 
 		    29 + (o_ptr->weight / 50 > 8 ? 
 			  8 : o_ptr->weight / 50))))

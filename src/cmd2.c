@@ -155,7 +155,7 @@ void do_cmd_go_up(void)
   if (pstair == FEAT_LESS)
     {
       /* stairs */
-      message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
+      message(MSG_STAIRS_DOWN, 0, "You enter a maze of up staircases.");
 
       /* make the way back */
       p_ptr->create_stair = FEAT_MORE;
@@ -163,7 +163,7 @@ void do_cmd_go_up(void)
   else if (pstair == FEAT_LESS_SHAFT)
     {
       /* shaft */
-      message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
+      message(MSG_STAIRS_DOWN, 0, "You enter a maze of up staircases.");
 
       /* make the way back */
       p_ptr->create_stair = FEAT_MORE_SHAFT;
@@ -171,7 +171,7 @@ void do_cmd_go_up(void)
   else
     {
       /* path */
-      message(MSG_STAIRS, 0, "You enter a winding path to less danger.");
+      message(MSG_STAIRS_DOWN, 0, "You enter a winding path to less danger.");
       
       /* make the way back */
       p_ptr->create_stair = pstair ^ 0x05;
@@ -306,7 +306,7 @@ void do_cmd_go_down(void)
 	}
 
       /* stairs */
-      message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
+      message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
       /* New stage */
       p_ptr->stage = stage_map[p_ptr->stage][DOWN];
@@ -317,7 +317,7 @@ void do_cmd_go_down(void)
   else if (pstair == FEAT_MORE_SHAFT)
     {
       /* stairs */
-      message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
+      message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
       /* New stage */
       p_ptr->stage = stage_map[stage_map[p_ptr->stage][DOWN]][DOWN];
@@ -334,7 +334,7 @@ void do_cmd_go_down(void)
       if (stage_map[p_ptr->stage][LOCALITY] == NAN_DUNGORTHEB)
 
 	/* scree slope */
-	message(MSG_STAIRS, 0, "You slide down amidst a small avalanche.");
+	message(MSG_STAIRS_DOWN, 0, "You slide down amidst a small avalanche.");
 
       else
 	{
@@ -342,7 +342,7 @@ void do_cmd_go_down(void)
 	  p_ptr->create_stair = pstair ^ 0x05;
 	  
 	  /* path */
-	  message(MSG_STAIRS, 0, "You enter a winding path to greater danger.");
+	  message(MSG_STAIRS_DOWN, 0, "You enter a winding path to greater danger.");
 	}
     }
   
@@ -920,6 +920,7 @@ static void chest_trap(int y, int x, s16b o_idx)
     {
       int num = 2 + randint(3);
       msg_print("You are enveloped in a cloud of smoke!");
+      sound(MSG_SUM_MONSTER);
       for (i = 0; i < num; i++)
 	{
 	  (void)summon_specific(y, x, FALSE, summon_level, 0);
@@ -1448,7 +1449,7 @@ static bool do_cmd_open_aux(int y, int x)
 	  p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 	  
 	  /* Sound */
-	  sound(SOUND_OPENDOOR);
+	  sound(MSG_OPENDOOR);
 	  
 	  /* Experience */
 	  gain_exp(1);
@@ -1478,7 +1479,7 @@ static bool do_cmd_open_aux(int y, int x)
       p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
       
       /* Sound */
-      sound(SOUND_OPENDOOR);
+      sound(MSG_OPENDOOR);
     }
   
   /* Result */
@@ -1655,7 +1656,7 @@ static bool do_cmd_close_aux(int y, int x)
       p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
       
       /* Sound */
-      sound(SOUND_SHUTDOOR);
+      sound(MSG_SHUTDOOR);
     }
   
   /* Result */
@@ -1794,7 +1795,7 @@ static bool twall(int y, int x)
       (cave_feat[y][x] == FEAT_TREE2)) return (FALSE);
   
   /* Sound */
-  sound(SOUND_DIG);
+  sound(MSG_DIG);
   
   /* Forget the wall */
   cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
@@ -1829,7 +1830,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
   
   
   /* Sound XXX XXX XXX */
-  /* sound(SOUND_DIG); */
+  /* sound(MSG_DIG); */
   
   /* All rock and secret doors */
   if (f_ptr->flags & TF_ROCK)
@@ -2146,7 +2147,8 @@ static bool do_cmd_disarm_test(int y, int x)
   /* Require an actual trap or glyph */
   if (!((cave_feat[y][x] >= FEAT_TRAP_HEAD) && 
 	(cave_feat[y][x] <= FEAT_TRAP_TAIL)) && 
-      cave_feat[y][x] != FEAT_GLYPH &&
+      !((cave_feat[y][x] >= FEAT_RUNE_HEAD) &&
+	(cave_feat[y][x] <= FEAT_RUNE_TAIL)) &&
       !((cave_feat[y][x] >= FEAT_MTRAP_HEAD) &&
 	(cave_feat[y][x] <= FEAT_MTRAP_TAIL)))
     {
@@ -2204,8 +2206,8 @@ static bool do_cmd_disarm_aux(int y, int x)
   /* Prevent the player's own traps granting exp. */
   if (f_ptr->flags & TF_M_TRAP) power = 0;
 
-  /* Prevent glyphs of warding granting exp. */
-  if (cave_feat[y][x] == FEAT_GLYPH) power = 0;
+  /* Prevent runes granting exp. */
+  if (f_ptr->flags & TF_RUNE) power = 0;
   
   /* Extract the disarm probability */
   j = i - power;
@@ -2216,9 +2218,12 @@ static bool do_cmd_disarm_aux(int y, int x)
   /* Success */
   if ((power == 0) || (rand_int(100) < j))
     {
-      /* Special message for glyphs. */
-      if (cave_feat[y][x] == FEAT_GLYPH)
-	msg_format("You have desanctified the %s.", name);
+      /* Special message and decrement the count for runes. */
+      if (f_ptr->flags & TF_RUNE)
+	{
+	  msg_format("You have removed the %s.", name);
+	  num_runes_on_level[cave_feat[y][x] - FEAT_RUNE_HEAD]--;
+	}
       
       /* Normal message otherwise */
       else msg_format("You have disarmed the %s.", name);
@@ -2227,8 +2232,6 @@ static bool do_cmd_disarm_aux(int y, int x)
       if (f_ptr->flags & TF_M_TRAP)
 	num_trap_on_level--;
       
-      /* If a glyph, decrement the glyph count. */
-      if (cave_feat[y][x] == FEAT_GLYPH) num_glyph_on_level--;
       
       /* Reward */
       gain_exp(power);
@@ -2464,7 +2467,7 @@ static bool do_cmd_bash_aux(int y, int x)
 	}
       
       /* Sound */
-      sound(SOUND_OPENDOOR);
+      sound(MSG_OPENDOOR);
       
       /* Update the visuals */
       p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -2666,7 +2669,7 @@ void do_cmd_alter(void)
   /*
    * Some players can set traps.  Total number is checked in py_set_trap.
    */
-  else if ((check_ability(SP_TRAP)) && (cave_naked_bold(y, x)))
+  else if ((check_ability(SP_TRAP)) && (cave_trappable_bold(y, x)))
     {
       py_set_trap(y, x);
       did_nothing = FALSE;
@@ -2801,7 +2804,7 @@ void do_cmd_spike(void)
   int py = p_ptr->py;
   int px = p_ptr->px;
   
-  int y, x, dir, item;
+  int y, x, dir, item = 0;
   
   
   /* Get a spike */
@@ -3128,7 +3131,11 @@ static void do_cmd_hold_or_stay(int pickup)
   p_ptr->energy_use = 100;
   
   /* Spontaneous Searching */
-  if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos)))
+  if (p_ptr->skill_fos >= 50)
+    {
+      search();
+    }
+  else if (0 == rand_int(50 - p_ptr->skill_fos))
     {
       search();
     }

@@ -1,14 +1,15 @@
-.SILENT:
+MKPATH=../../mk/
+include $(MKPATH)buildsys.mk
 
-include ../../mk/rules.mk
-include ../../mk/init.mk
+DATA = delete.me
+PACKAGE = ${PACKAGE_NAME}/apex
 
-OBJECTIVE_DATA = \
-	delete.me:${DATA_PATH}/apex
-
-include ../../mk/objective.mk
-
-install-posthook:
-	touch ${DATA_PATH}/apex/scores.raw
-	chown -R root:${SETEGID} ${DATA_PATH}/apex
-	chmod -R g+w ${DATA_PATH}/apex
+install-extra:
+	if [ "x$(SETEGID)" != "x" ]; then \
+		if [ "x$(DRY)" = "x" ]; then \
+			${MKDIR_P} ${DESTDIR}$game_datadir/${PACKAGE}; \
+			touch ${DESTDIR}$game_datadir/${PACKAGE}/scores.raw; \
+			chown -R root:${SETEGID} ${DESTDIR}$game_datadir/${PACKAGE}; \
+			chmod -R g+w ${DESTDIR}$game_datadir/${PACKAGE}; \
+		fi; \
+	fi

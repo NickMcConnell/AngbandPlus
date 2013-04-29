@@ -5,17 +5,48 @@
 # across a range of different makefiles, to cut down on maintenance.
 #
 
-HDRS = h-basic.h h-define.h h-type.h h-system.h h-config.h
+VERSION = 1.0.0
+COPYRIGHT = (c) 1995-2008 Angband contributors
 
-INCS = angband.h config.h defines.h externs.h types.h \
-       z-term.h z-rand.h z-type.h z-util.h z-virt.h z-form.h z-file.h
+HEADERS = \
+	angband.h \
+	cmds.h \
+	config.h \
+	defines.h \
+	externs.h \
+	$(GTKHEADERS) \
+	h-basic.h \
+	h-config.h \
+	h-define.h \
+	h-system.h \
+	h-type.h \
+	init.h \
+	maid-x11.h \
+	main.h \
+	randname.h \
+	types.h \
+	ui.h \
+	z-file.h \
+	z-form.h \
+	z-rand.h \
+	z-term.h \
+	z-type.h \
+	z-util.h \
+	z-virt.h
 
-HEADERS = $(HDRS) $(INCS)
+GTKHEADERS = \
+	gtk/cairo-utils.h \
+	gtk/main-gtk.h \
+	
+ZFILES = z-file.o z-form.o z-rand.o z-term.o z-type.o \
+         z-util.o z-virt.o
+MAINFILES = main.o main-crb.o main-gcu.o $(GTKMAINFILES) maid-x11.o\
+            main-sdl.o main-win.o main-x11.o snd-sdl.o
 
-ZFILES = z-form.o z-rand.o z-term.o z-type.o z-util.o z-virt.o z-file.o
-MAINFILES = main.o maid-x11.o main-gcu.o main-gtk.o main-sdl.o \
-            main-win.o main-x11.o main-xaw.o snd-sdl.o
-
+GTKMAINFILES = \
+	gtk/main-gtk.o \
+	gtk/cairo-utils.o 
+	
 ANGFILES = \
 	attack.o \
 	birth.o \
@@ -30,16 +61,17 @@ ANGFILES = \
 	dungeon.o \
 	files.o \
 	generate.o \
+	info.o \
 	init1.o \
 	init2.o \
 	load.o \
-	monmove.o \
 	monattk.o \
+	monmove.o \
 	monster1.o \
 	monster2.o \
-	info.o \
 	object1.o \
 	object2.o \
+	prefs.o \
 	randart.o \
 	randname.o \
 	save.o \
@@ -49,11 +81,9 @@ ANGFILES = \
 	store.o \
 	tables.o \
 	ui.o \
-	util.o \
+	util.o  \
 	variable.o \
 	wizard1.o \
 	wizard2.o \
 	xtra1.o \
 	xtra2.o
-
-

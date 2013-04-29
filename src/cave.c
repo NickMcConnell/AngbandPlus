@@ -307,7 +307,7 @@ bool no_lite(void)
   int py = p_ptr->py;
   int px = p_ptr->px;
   
-  if (check_ability(SP_UNLIGHT)) return(FALSE);
+  if (check_ability(SP_UNLIGHT) || p_ptr->darkness) return(FALSE);
   
   return (!player_can_see_bold(py, px));
 }
@@ -821,7 +821,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		      (!is_daylight))
 		    {
 		      if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
-			if ((check_ability(SP_UNLIGHT)) && 
+			if ((check_ability(SP_UNLIGHT) || p_ptr->darkness) && 
 			    (p_ptr->cur_lite <= 0))
 			  {
 			    /* "Dark radius" */
@@ -832,7 +832,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			  }
 		      else if (graf_new)
 			{
-			  if ((check_ability(SP_UNLIGHT)) && 
+			  if ((check_ability(SP_UNLIGHT) || p_ptr->darkness) && 
 			      (p_ptr->cur_lite <= 0))
 			    {
 			      /* "Dark radius" */
@@ -848,8 +848,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			  /* Hack for Lamp of Gwindor */
 			  a = TERM_L_BLUE;
 			}
-		      else if ((check_ability(SP_UNLIGHT)) && 
-			       (p_ptr->cur_lite <= 0))
+		      else if ((check_ability(SP_UNLIGHT) || p_ptr->darkness) 
+			       && (p_ptr->cur_lite <= 0))
 			{
 			  /* "Dark radius" */
 			  a = TERM_L_DARK;
@@ -950,7 +950,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		      && (a == TERM_WHITE) && (!is_daylight))
 		    {
 		      if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
-			if ((check_ability(SP_UNLIGHT)) && 
+			if ((check_ability(SP_UNLIGHT) || p_ptr->darkness) && 
 			    (p_ptr->cur_lite <= 0))
 			  {
 			    /* "Dark radius" */
@@ -961,7 +961,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			  }
 		      else if (graf_new)
 			{
-			  if ((check_ability(SP_UNLIGHT)) && 
+			  if ((check_ability(SP_UNLIGHT) || p_ptr->darkness) && 
 			      (p_ptr->cur_lite <= 0))
 			    {
 			      /* "Dark radius" */
@@ -977,8 +977,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			  /* Hack for Lamp of Gwindor */
 			  a = TERM_L_BLUE;
 			}
-		      else if ((check_ability(SP_UNLIGHT)) && 
-			       (p_ptr->cur_lite <= 0))
+		      else if ((check_ability(SP_UNLIGHT) || p_ptr->darkness) 
+			       && (p_ptr->cur_lite <= 0))
 			{
 			  /* "Dark radius" */
 			  a = TERM_L_DARK;
@@ -1350,9 +1350,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	    default:	a = TERM_WHITE  ;	break;
 	    }
 
-	  if ((a == TERM_WHITE) && (check_ability(SP_UNLIGHT)) &&
+	  /* if ((a == TERM_WHITE) && (check_ability(SP_UNLIGHT)) &&
 	      (p_ptr->cur_lite <= 0))
-	    a = TERM_L_DARK;
+	      a = TERM_L_DARK; */
 	}
       
       else a = r_ptr->x_attr;
@@ -1461,8 +1461,8 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			  /* Hack for Lamp of Gwindor */
 			  a = TERM_L_BLUE;
 			}
-		      else if ((check_ability(SP_UNLIGHT)) && 
-			       (p_ptr->cur_lite <= 0))
+		      else if ((check_ability(SP_UNLIGHT) || p_ptr->darkness) 
+			       && (p_ptr->cur_lite <= 0))
 			{
 			  /* "Dark radius" */
 			  a = TERM_L_DARK;
@@ -1543,8 +1543,8 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			  /* Hack for Lamp of Gwindor */
 			  a = TERM_L_BLUE;
 			}
-		      else if ((check_ability(SP_UNLIGHT)) && 
-			       (p_ptr->cur_lite <= 0))
+		      else if ((check_ability(SP_UNLIGHT) || p_ptr->darkness) 
+			       && (p_ptr->cur_lite <= 0))
 			{
 			  /* "Dark radius" */
 			  a = TERM_L_DARK;
@@ -1857,9 +1857,9 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	    default:	a = TERM_WHITE  ;	break;
 	    }
 
-	  if ((a == TERM_WHITE) && (check_ability(SP_UNLIGHT)) &&
+	  /*	  if ((a == TERM_WHITE) && (check_ability(SP_UNLIGHT)) &&
 	      (p_ptr->cur_lite <= 0))
-	    a = TERM_L_DARK;
+	      a = TERM_L_DARK; */
 	}
       
       else a = r_ptr->d_attr;
@@ -2793,11 +2793,7 @@ void display_map(int *cy, int *cx, bool small)
 void regional_map(int num, int size)
 {
   int i, j, col, row;
-#ifdef _WIN32_WCE
   int *stage = malloc( size * sizeof (*stage) );
-#else
-  int stage[size];
-#endif
   int north, east, south, west;
   cptr lev;
 
@@ -2949,9 +2945,7 @@ void regional_map(int num, int size)
       if ((stage_map[stage[i]][SOUTH]) && (!stage_map[stage[i]][DOWN])) 
 	c_put_str(TERM_WHITE, "|", row + 2, col + 3);
     }
-#ifdef _WIN32_WCE
   free(stage);
-#endif
 
 }
 
@@ -3897,7 +3891,6 @@ errr vinfo_init(void)
 	       (vinfo[1].bits_2 | vinfo[2].bits_2),
 	       (vinfo[1].bits_1 | vinfo[2].bits_1), 
 	       (vinfo[1].bits_0 | vinfo[2].bits_0));
-      //quit("Incorrect bit masks!");
     }
   
   
@@ -4107,7 +4100,8 @@ void update_view(void)
   /* Extract "radius" value */
   if (is_daylight)
     radius = DUNGEON_WID;
-  else if ((check_ability(SP_UNLIGHT)) && (p_ptr->cur_lite <= 0))
+  else if ((check_ability(SP_UNLIGHT) || p_ptr->darkness) && 
+	   (p_ptr->cur_lite <= 0))
     radius = 2;
   else
     radius = p_ptr->cur_lite;

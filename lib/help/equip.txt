@@ -173,6 +173,8 @@ Blessed:
      Priests and Paladins normally cannot wield edged weapons and polearms 
 comfortably, unless they are especially blessed for their use.
 
+Chaotic:
+     These uncanny weapons can occasionally produce chaotic effects
 
 --- Immunities ---
 
@@ -313,34 +315,91 @@ Hold Life:
      Offers a high degree of protection from attacks that drain experience.  
 Such attacks will either have no effect, or drain much less exp.
 
+Darkness:
+     Allows you to see in the dark.
 
---- Curses and other Nastiness ---
+--- Curses  ---
 
 Random Teleportation:
-     Some foul rings, amulets, and boots randomly take control of your 
-movement and whisk you around the dungeon. 
+     Some objects, especially rings, amulets, and boots randomly take control 
+of your movement and whisk you around the dungeon. 
 
-Aggravate:
+No Teleportation:
+     When wearing or wielding an object with this curse, you will be unable to
+use any form of teleportation.
+
+Permanent aggravation:
      Aggravation effectively reduces your stealth to nil, immediately waking 
 up all monsters nearby. Some rings and amulets possess curses that aggravate, 
 and some weapons and armours are so powerful that no creature can ignore them.
+
+Random aggravation:
+     Objects with this curse don't aggravate all the time, but will 
+occasionally let out a shriek that wakes and hastes surrounding monsters.
+
+Slow regeneration:
+     Your recovery of hit points and spell points seems to take forever.
+
+Permanent fear:
+     Unless you recover your courage by spell, potion or other equipment you 
+will be too terrified to hit monsters in melee.
+
+Fast digestion:
+     You feel hungry much more quickly.
+
+Random poisoning:
+     Objects bearing this curse will occasionally poison you.
+
+Random poison cloud:
+     Will occasionally envelop you in a toxic cloud.
+
+Random cuts:
+     An item with this curse will sometimes injure you slightly.
+
+Random bad cuts:
+     An item with this curse will sometimes give you a bad cut.
+
+Random hallucination:
+     From time to time you will start to hallucinate.
+
+Drop weapon:
+     When you're least expecting it your weapon will leap from your hands.
+
+Attract demon:
+     Demons will be randomly attracted to you.
+
+Attract undead:
+     This curse randomly calls the dead from their graves or attracts lost 
+spirits.
+
+Sticky carry:
+     An item with this curse cannot be dropped from your inventory.
+
+Sticky wield:
+     An item with this curse cannot be taken off once wielded.
+
+Paralyse:
+     You will occasionally be paralysed for a turn unless you have immunity
+from paralysis.
+
+Paralyse all:
+     You will occasionally be paralysed for a turn even if you have immunity
+from paralysis.
 
 Drain Exp:
      Objects that drain experience are perilous, because they slowly but 
 surely erase your accumulated memories.  Of course, you can keep killing 
 monsters to replace the experience which you lose.
 
-Light (Normal) Curse:
-     Many objects have light curses.  If you should wear or wield one, read a 
-scroll of remove curse.
+Drain Mana:
+     You will occasionally lose some mana; best hope you weren't relying on it.
 
-Heavy Curse:
-     The curses on some objects are less easy to remove.  If a ordinary scroll 
-of Remove Cure fails, find and read one of *Remove Curse*.
+Drain stat:
+     This curse will occasionally drain one of your unsustained stats.
 
-Permanent Curse:
-     There is exactly one object that can never be removed once put on.
-
+Drain charge:
+     Items like this will sometimes suck the magical energy out of your magic
+devices.
 
 --- Ego-Weapons and Armours ---
 
@@ -361,11 +420,10 @@ you have heightened abilities and can occasionally breathe as a dragon would!
      There are rumors of incredibly rare "artifact" armours which are even 
 more powerful than ego armour.  Some artifact are standard, and you may 
 already know of their fame, while others will certainly be unfamiliar to you 
-and will need to be fully identified (*identified*).
+and will need to be fully identified and checked for curses.
 
      In addition, a small number of artifacts, known as Set Items are designed
 to be used in conjunction with related items.  Equipping an entire set of these
 items will grant the wearer additional bonuses and abilities.  Item sets
 generally  consist of two items, but may include more.  A set item is revealed
-when identified, and more information about the set is revealed when it is
-*identified*.
+when identified.

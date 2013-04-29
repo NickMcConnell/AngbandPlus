@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.3.6
+V:1.0.0
 
 
 # General Store
@@ -81,7 +81,7 @@ I:10:20000:165
 N:1:11:Vivirion True-Forger
 I:11:15000:160
 N:1:12:Ironbark of Arvernien
-I:12:25000:2150
+I:12:25000:150
 N:1:13:Rognor the Woodsman
 I:13:20000:175
 

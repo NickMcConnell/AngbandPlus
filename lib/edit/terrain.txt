@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.3.6
+V:1.0.0
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol
@@ -48,27 +48,27 @@ M:1
 F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_FLOOR | TF_TRAP_INVIS 
 D:It looks like open ground, but beware!
 
-# 0x03 --> glyph of warding
+# 0x03 --> open door
 
-N:3:glyph of warding
-G:;:y
-F:TF_LOS | TF_PROJECT | TF_INTERESTING
-D:A magical rune which monsters cannot pass without difficulty.
-
-# 0x04 --> open door
-
-N:4:open door
+N:3:open door
 G:':U
 F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_DOOR_ANY | TF_INTERESTING
 D:A door that is already open.  Player, monster, spell and missile can pass
 D:through as long as it stays open.
 
-# 0x05 --> broken door
+# 0x04 --> broken door
 
-N:5:broken door
+N:4:broken door
 G:':u
 F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_DOOR_ANY | TF_INTERESTING
 D:A door so broken that it cannot be shut.
+
+# 0x05 --> down stairs (perm)
+
+N:5:down staircase
+G:>:w
+F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING | TF_STAIR
+D:A staircase down to a deeper part of the dungeon.
 
 # 0x06 --> up stairs (perm)
 
@@ -77,12 +77,12 @@ G:<:w
 F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING | TF_STAIR
 D:A staircase up to a shallower part of the dungeon.
 
-# 0x07 --> down stairs (perm)
+# 0x07 --> down shaft (perm)
 
-N:7:down staircase
-G:>:w
+N:7:down shaft
+G:>:s
 F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING | TF_STAIR
-D:A staircase down to a deeper part of the dungeon.
+D:A staircase down to a much deeper part of the dungeon.
 
 # 0x08 --> up shaft (perm)
 
@@ -91,12 +91,54 @@ G:<:s
 F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING | TF_STAIR
 D:A staircase up to a much shallower part of the dungeon.
 
-# 0x09 --> down shaft (perm)
+# 0x09 --> rune of the elements
 
-N:9:down shaft
-G:>:s
-F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING | TF_STAIR
-D:A staircase down to a much deeper part of the dungeon.
+N:9:rune of the elements
+G:;:o
+F:TF_LOS | TF_PROJECT | TF_INTERESTING | TF_RUNE 
+D:A magical rune which affects elemental spells and breaths.
+
+# 0x0A --> rune of magic influence
+
+N:10:rune of magic influence
+G:;:b
+F:TF_LOS | TF_PROJECT | TF_INTERESTING | TF_RUNE 
+D:A magical rune which affects resistance to magic.
+
+# 0x0B --> rune of instability
+
+N:11:rune of instability
+G:;:u
+F:TF_LOS | TF_PROJECT | TF_INTERESTING | TF_RUNE 
+D:A magical rune which causes earthquakes.
+
+# 0x0C --> rune of mana
+
+N:12:rune of mana
+G:;:r
+F:TF_LOS | TF_PROJECT | TF_INTERESTING | TF_RUNE 
+D:A magical rune which holds a reserve of mana.
+
+# 0x0D --> rune of protection
+
+N:13:rune of protection
+G:;:y
+F:TF_LOS | TF_PROJECT | TF_INTERESTING | TF_RUNE 
+D:A magical rune which monsters cannot pass without difficulty.
+
+# 0x0E --> rune of power
+
+N:14:rune of power
+G:;:s
+F:TF_LOS | TF_PROJECT | TF_INTERESTING | TF_RUNE 
+D:A magical rune which affects spell power.
+
+# 0x0F --> rune of speed
+
+N:15:rune of speed
+G:;:G
+F:TF_LOS | TF_PROJECT | TF_INTERESTING | TF_RUNE 
+D:A magical rune which affects speed.
 
 # 0x1* - player traps -- trap door.  Level 2 and below.
 # This location is hard-coded, to prevent trap doors on quest levels.
@@ -899,6 +941,15 @@ G:+:g1
 M:115
 F:TF_PASSABLE | TF_TRAP_INVIS | TF_TREE 
 D:A tree which can hurt.
+
+# 0x7a --> special feature -- sand dune
+
+N:122:sand dunes
+G:.:y
+F:TF_PASSABLE | TF_OBJECT 
+D:Ends LOS, stops missiles, bolts, and beams, and reduces the radius of ball 
+D:spells.  
+
 
 
 #

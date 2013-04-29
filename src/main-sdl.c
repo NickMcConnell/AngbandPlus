@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2007 Ben Harrison, Gregory Velichansky, Eric Stevens,
  * Leon Marrick, Iain McFall, and others
- * 
+ *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
  *
@@ -129,18 +129,8 @@ static int full_h;
 /* Want fullscreen? */
 static bool fullscreen = FALSE;
 
-/*
- * Directory names
- */
-static cptr ANGBAND_DIR_XTRA_FONT;
-static cptr ANGBAND_DIR_XTRA_GRAF;
-
 /* XXXXXXXXX */
-static cptr ANGBAND_DIR_USER_SDL;
-
-/* Later...
-static cptr ANGBAND_DIR_XTRA_SOUND;
-*/
+static char *ANGBAND_DIR_USER_SDL;
 
 /*
  * Used as 'system' font
@@ -148,7 +138,7 @@ static cptr ANGBAND_DIR_XTRA_SOUND;
 static cptr DEFAULT_FONT_FILE = "6x10x.fon";
 
 #define MAX_FONTS 20
-cptr FontList[MAX_FONTS];
+char *FontList[MAX_FONTS];
 static int num_fonts = 0;
 
 
@@ -161,15 +151,15 @@ static int num_fonts = 0;
 typedef struct sdl_Font sdl_Font;
 struct sdl_Font
 {
-  int width;                    /* The dimensions of this font (in pixels)*/
-  int height;
-  char name[32];                /* The name of this font */
-  
-  Uint16 pitch;                 /* Pitch of the surface this font is made for */
-  Uint8 bpp;		        /* Bytes per pixel of the surface */
-  Uint8 something;	        /* Padding */
+        int width;                                      /* The dimensions of this font (in pixels)*/
+        int height;
+        char name[32];                          /* The name of this font */
+        
+        Uint16 pitch;                           /* Pitch of the surface this font is made for */
+	Uint8 bpp;					/* Bytes per pixel of the surface */
+	Uint8 something;			/* Padding */
 	
-  int *data;			/* The data */
+	int *data;					/* The data */
 };
 
 static sdl_Font SystemFont;
@@ -183,37 +173,37 @@ static sdl_Font SystemFont;
 typedef struct term_window term_window;
 struct term_window
 {
-  term term_data;
+	term term_data;
 	
-  SDL_Surface *surface;	/* The surface for this window */
+	SDL_Surface *surface;	/* The surface for this window */
 #ifdef USE_GRAPHICS
-  SDL_Surface *tiles;	/* The appropriately sized tiles for this window */
+	SDL_Surface *tiles;		/* The appropriately sized tiles for this window */
 #endif	
-  byte Term_idx;	/* Index of term that relates to this */
+	byte Term_idx;			/* Index of term that relates to this */
 	
-  int top;		/* Window Coordinates on the main screen */
-  int left;
+	int top;				/* Window Coordinates on the main screen */
+	int left;
 	
-  int keys;		/* Size of keypress storage */
+	int keys;				/* Size of keypress storage */
 	
-  sdl_Font font;	/* Font info */
-  cptr req_font;	/* Requested font */
-  int rows;		/* Dimension in tiles */
-  int cols;
-  
-  int border;           /* Border width */
-  int title_height;     /* Height of title bar */
-  
+	sdl_Font font;			/* Font info */
+	char *req_font;			/* Requested font */
+	int rows;				/* Dimension in tiles */
+	int cols;
+	
+        int border;                             /* Border width */
+        int title_height;               /* Height of title bar */
+        
   int width;            /* Dimension in pixels == 
                          * tile_wid * cols + 2 x border */
-  int height;
-  
-  int tile_wid;         /* Size in pixels of a char */
-  int tile_hgt;
-  
-  bool visible;		/* Can we see this window? */
-  
-  SDL_Rect uRect;	/* The part that needs to be updated */
+        int height;
+        
+        int tile_wid;                   /* Size in pixels of a char */
+	int tile_hgt;
+	
+	bool visible;			/* Can we see this window? */
+	
+	SDL_Rect uRect;			/* The part that needs to be updated */
 };
 
 
@@ -222,17 +212,17 @@ struct term_window
 typedef struct mouse_info mouse_info;
 struct mouse_info
 {
-  int left;		/* Is it pressed? */
-  int right;
-  
-  int leftx;		/* _IF_ left button is pressed these */
-  int lefty;		/* show where it was pressed */
-  
-  int rightx;
-  int righty;
-  
-  int x;		/* Current position of mouse */
-  int y;
+	int left;			/* Is it pressed? */
+	int right;
+	
+	int leftx;			/* _IF_ left button is pressed these */
+	int lefty;			/* show where it was pressed */
+	
+	int rightx;
+	int righty;
+	
+	int x;						/* Current position of mouse */
+	int y;
 	
 };
 
@@ -245,26 +235,26 @@ typedef struct sdl_Window sdl_Window;
 typedef void (*button_press_func)(sdl_Button *sender);
 struct sdl_Button
 {
-  SDL_Rect pos;			/* Position & Size */
-  bool selected;		/* Selected? */
-  bool visible;			/* Visible? */
-  button_press_func activate;	/* A function to call when pressed */
-  sdl_ButtonBank *owner;	/* Which bank is this in? */
-  char caption[50];		/* Text for this button */
-  Uint32 unsel_colour;		/* Button unselected colour */
-  Uint32 sel_colour;		/* Selected colour*/
-  Uint32 cap_colour;		/* Caption colour */
-  void *data;			/* Something */
-  int tag;			/* Something */
+	SDL_Rect pos;				/* Position & Size */
+	bool selected;				/* Selected? */
+	bool visible;				/* Visible? */
+	button_press_func activate;	/* A function to call when pressed */
+	sdl_ButtonBank *owner;		/* Which bank is this in? */
+	char caption[50];			/* Text for this button */
+	Uint32 unsel_colour;		/* Button unselected colour */
+	Uint32 sel_colour;			/* Selected colour*/
+	Uint32 cap_colour;			/* Caption colour */
+	void *data;					/* Something */
+	int tag;					/* Something */
 	
 };
 
 struct sdl_ButtonBank
 {
-  sdl_Button *buttons;		/* A collection of buttons */
-  bool *used;			/* What buttons are available? */
-  sdl_Window *window;		/* The window that these buttons are on */
-  bool need_update;
+	sdl_Button *buttons;		/* A collection of buttons */
+	bool *used;					/* What buttons are available? */
+	sdl_Window *window;			/* The window that these buttons are on */
+	bool need_update;
 };
 
 /*
@@ -274,24 +264,24 @@ struct sdl_ButtonBank
 typedef void (*sdl_WindowCustomDraw)(sdl_Window *window);
 struct sdl_Window
 {
-  int top;		/* Position on main window */
-  int left;
-  
-  int width;		/* Dimensions */
-  int height;
-  
-  bool visible;		/* Visible? */
-  
-  SDL_Surface *surface;	/* SDL surface info */
-  
-  sdl_ButtonBank buttons;/* Buttons */
-  
-  sdl_Font font;	/* Font */
-  
-  SDL_Surface *owner;	/* Who shall I display on */
-  
-  sdl_WindowCustomDraw draw_extra; /* Stuff to draw on the surface */
-  bool need_update;
+	int top;				/* Position on main window */
+	int left;
+	
+	int width;				/* Dimensions */
+	int height;
+	
+	bool visible;			/* Visible? */
+	
+	SDL_Surface *surface;	/* SDL surface info */
+	
+	sdl_ButtonBank buttons;		/* Buttons */
+	
+	sdl_Font font;			/* Font */
+	
+	SDL_Surface *owner;		/* Who shall I display on */
+	
+	sdl_WindowCustomDraw draw_extra; /* Stuff to draw on the surface */
+	bool need_update;
 };
 
 
@@ -332,19 +322,19 @@ static bool ignore_key[1024];
  */
 static int ignore_key_list[] =
 {
-  SDLK_NUMLOCK, SDLK_CAPSLOCK, SDLK_SCROLLOCK, SDLK_RSHIFT,
-  SDLK_LSHIFT, SDLK_RCTRL, SDLK_LCTRL, SDLK_RALT, SDLK_LALT,
-  SDLK_RMETA, SDLK_LMETA, SDLK_LSUPER, SDLK_RSUPER, SDLK_MODE,
-  SDLK_COMPOSE, 0
+	SDLK_NUMLOCK, SDLK_CAPSLOCK, SDLK_SCROLLOCK, SDLK_RSHIFT,
+	SDLK_LSHIFT, SDLK_RCTRL, SDLK_LCTRL, SDLK_RALT, SDLK_LALT,
+	SDLK_RMETA, SDLK_LMETA, SDLK_LSUPER, SDLK_RSUPER, SDLK_MODE,
+	SDLK_COMPOSE, 0
 };
 
 /*
  * The number pad consists of 10 keys, each with an SDL identifier
  */
 #define is_numpad(k) \
-  ((k == SDLK_KP0) || (k == SDLK_KP1) || (k == SDLK_KP2) || (k == SDLK_KP3) || \
-   (k == SDLK_KP4) || (k == SDLK_KP5) || (k == SDLK_KP6) ||		\
-   (k == SDLK_KP7) || (k == SDLK_KP8) || (k == SDLK_KP9) || (k == SDLK_KP_ENTER))
+((k == SDLK_KP0) || (k == SDLK_KP1) || (k == SDLK_KP2) || (k == SDLK_KP3) || \
+ (k == SDLK_KP4) || (k == SDLK_KP5) || (k == SDLK_KP6) || \
+ (k == SDLK_KP7) || (k == SDLK_KP8) || (k == SDLK_KP9) || (k == SDLK_KP_ENTER))
 
 static int SnapRange = 5;	/* Window snap range (pixels) */
 static int StatusHeight;	/* The height in pixels of the status bar */
@@ -373,14 +363,14 @@ static SDL_Rect SizingRect;		/* Rect to describe the current resize window */
 typedef struct GfxInfo GfxInfo;
 struct GfxInfo
 {
-  cptr name;			/* Name to show on button */
-  cptr gfxfile;			/* The file with tiles */
-  int width;			/* Width of a tile */
-  int height;			/* Height of a tile */
-  cptr pref;			/* Preference file to use */
-  int x;			/* Yuk - Pixel location of colour key */
-  int y;			/* ditto */
-  bool avail;			/* Are the appropriate files available? */
+	cptr name;				/* Name to show on button */
+	cptr gfxfile;			/* The file with tiles */
+	int width;				/* Width of a tile */
+	int height;				/* Height of a tile */
+	cptr pref;				/* Preference file to use */
+	int x;					/* Yuk - Pixel location of colour key */
+	int y;					/* ditto */
+	bool avail;				/* Are the appropriate files available? */
 };
 
 static SDL_Surface *GfxSurface = NULL;	/* A surface for the graphics */
@@ -388,24 +378,24 @@ static SDL_Surface *GfxSurface = NULL;	/* A surface for the graphics */
 #define GfxModes 4
 static GfxInfo GfxDesc[GfxModes] =
 {
-  /* No gfx (GRAPHICS_NONE) */
-  {"None", NULL, -1, -1, NULL, 0, 0, TRUE},
-  /* 8x8 tiles (GRAPHICS_ORIGINAL) */
-  {"8x8", "8x8.png", 8, 8, "old", 0, 0, TRUE},
-  /* 16x16 tiles (GRAPHICS_ADAM_BOLT) */
-  {"16x16", "16x16.png", 16, 16, "new", 0, 65, TRUE},
-  /* XXX (GRAPHICS_DAVID_GERVAIS) */
-  {"32x32", "32x32.png", 32, 32, "david", 0, 0, TRUE},
-  
-  /* XXX (GRAPHICS_PSEUDO ???) */
-  /*{NULL, NULL, NULL, -1, -1},	*/						
+	/* No gfx (GRAPHICS_NONE) */
+	{"None", NULL, -1, -1, NULL, 0, 0, TRUE},
+	/* 8x8 tiles (GRAPHICS_ORIGINAL) */
+	{"8x8", "8x8.png", 8, 8, "old", 0, 0, TRUE},
+	/* 16x16 tiles (GRAPHICS_ADAM_BOLT) */
+	{"16x16", "16x16.png", 16, 16, "new", 0, 65, TRUE},
+	/* XXX (GRAPHICS_DAVID_GERVAIS) */
+	{"32x32", "32x32.png", 32, 32, "david", 0, 0, TRUE},
+	
+	/* XXX (GRAPHICS_PSEUDO ???) */
+	/*{NULL, NULL, NULL, -1, -1},	*/						
 };
 
-static int MoreBigtile;                 /* Toggle bigtile button */
+static int MoreBigtile;                         /* Toggle bigtile button */
 static int MoreDbltile;                 /* Toggle dbltile button */
 static int MoreTrptile;                 /* Toggle trptile button */
 static int GfxButtons[GfxModes];        /* Graphics mode buttons */
-static int SelectedGfx;                 /* Current selected gfx */
+static int SelectedGfx;                         /* Current selected gfx */
 #endif
 
 /*
@@ -422,12 +412,12 @@ u32b back_colour;		/* Background colour */
  */
 static SDL_Rect *RECT(int x, int y, int w, int h, SDL_Rect *rect)
 {	
-  rect->x = x;
-  rect->y = y;
-  rect->w = w;
-  rect->h = h;
-  
-  return rect;
+	rect->x = x;
+	rect->y = y;
+	rect->w = w;
+	rect->h = h;
+	
+	return rect;
 }
 
 /*
@@ -435,13 +425,13 @@ static SDL_Rect *RECT(int x, int y, int w, int h, SDL_Rect *rect)
  */
 static bool point_in(SDL_Rect *rect, int x, int y)
 {
-  if (x < rect->x) return (FALSE);
-  if (y < rect->y) return (FALSE);
-  if (x >= rect->x + rect->w) return (FALSE);
-  if (y >= rect->y + rect->h) return (FALSE);
-  
-  /* Must be inside */
-  return (TRUE);
+	if (x < rect->x) return (FALSE);
+	if (y < rect->y) return (FALSE);
+	if (x >= rect->x + rect->w) return (FALSE);
+	if (y >= rect->y + rect->h) return (FALSE);
+	
+	/* Must be inside */
+	return (TRUE);
 }
 
 /*
@@ -451,8 +441,8 @@ static bool point_in(SDL_Rect *rect, int x, int y)
 static void sdl_DrawBox(SDL_Surface *surface, SDL_Rect *rect, 
                         Uint32 colour, int width)
 {
-  SDL_Rect rc;
-  int left = rect->x;
+        SDL_Rect rc;
+        int left = rect->x;
 	int right = rect->x + rect->w - width;
 	int top = rect->y;
 	int bottom = rect->y + rect->h - width;
@@ -510,7 +500,7 @@ static errr sdl_CheckFont(cptr fontname, int *width, int *height)
  */
 static void sdl_FontFree(sdl_Font *font)
 {
-  /* The only memory reserved is the data */
+        /* The only memory reserved is the data */
   if (font->data) (void)FREE(font->data);
   
   font->data = NULL;
@@ -525,45 +515,45 @@ static errr sdl_FontCreate(sdl_Font *font, cptr fontname, SDL_Surface *surface)
 {
 	char buf[1024];
 	int i;
-	
-	TTF_Font *ttf_font;
-	
-	/* Free any old data */
-	if (font->data) sdl_FontFree(font);
-	
-	/* Our temporary glyph will be rendered in white */
-	SDL_Color white = { 255, 255, 255, 0 };
-  
-  int *temp_array;
-  
+        
+        TTF_Font *ttf_font;
+        
+        /* Free any old data */
+        if (font->data) sdl_FontFree(font);
+        
+        /* Our temporary glyph will be rendered in white */
+        SDL_Color white = { 255, 255, 255, 0 };
+        
+        int *temp_array;
+        
   /* The first pixel data is stored immediately after 
    * the character indexes */
-  /* But we need an extra space to store the total pixel count */
-  int num_pixels = NUM_GLYPHS + 1;
-  
-	/* Build the path */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, fontname);
-	
+        /* But we need an extra space to store the total pixel count */
+        int num_pixels = NUM_GLYPHS + 1;
+        
+        /* Build the path */
+        path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, fontname);
+        
 	/* Attempt to load it */
 	ttf_font = TTF_OpenFont(buf, 0);
 	
 	/* Bugger */
-  if (!ttf_font) return (-1);
-  
-  /* Get the size */
+        if (!ttf_font) return (-1);
+        
+        /* Get the size */
   if (TTF_SizeText(ttf_font, "M", &font->width, &font->height)) 
     return (-1);
-  
-  /* Fill in some of the font struct */
-  my_strcpy(font->name, fontname, 30);
+        
+        /* Fill in some of the font struct */
+        my_strcpy(font->name, fontname, 30);
 	font->pitch = surface->pitch;
-	font->bpp = surface->format->BytesPerPixel;
-	
-	/* Make a very large temporary holding bin for pixel offset data  XXX */
-	C_MAKE(temp_array, NUM_GLYPHS * 1000, int);
-	
-	/* Render and encode all the characters */
-	for (i = 0; i < NUM_GLYPHS; i++)
+        font->bpp = surface->format->BytesPerPixel;
+        
+        /* Make a very large temporary holding bin for pixel offset data  XXX */
+        C_MAKE(temp_array, NUM_GLYPHS * 1000, int);
+        
+        /* Render and encode all the characters */
+        for (i = 0; i < NUM_GLYPHS; i++)
 	{
 		SDL_Surface *temp_glyph;
 		int x, y, v;
@@ -584,23 +574,23 @@ static errr sdl_FontCreate(sdl_Font *font, cptr fontname, SDL_Surface *surface)
 		
 		/* Store this glyph into our temporary array */
 		for (x = 0; x < temp_glyph->w; x++)
-        {
-          for (y = 0; y < temp_glyph->h; y++)
-            {
+                {
+                        for (y = 0; y < temp_glyph->h; y++)
+                        {
               /* Access this pixel.  "pitch" is the pixel width 
                * in bytes of an SDL surface */
               p = (Uint8 *)temp_glyph->pixels + 
                 (y * temp_glyph->pitch) + 
                 (x * temp_glyph->format->BytesPerPixel);
-              
-              /* Ignore pixels without color data */
-              if (!*p) continue;
-              
+                                
+                                /* Ignore pixels without color data */
+                                if (!*p) continue;
+                                
               /* Precalculate some of the math needed to access 
                * this pixel on screen */
-              v = (y * font->pitch) + (x * font->bpp);
-              
-              /* And store it */
+                                v = (y * font->pitch) + (x * font->bpp);
+                                
+                                /* And store it */
 				temp_array[num_pixels++] = v;
 			}
 		}
@@ -610,19 +600,19 @@ static errr sdl_FontCreate(sdl_Font *font, cptr fontname, SDL_Surface *surface)
 	}
 	
 	/* Calculate and store access position data for the final character */
-	temp_array[NUM_GLYPHS] = num_pixels;
-	
-	/* Make a pixel access array for this font */
-	C_MAKE(font->data, num_pixels, int);
-	
-	/* Save the data gathered in our temporary array */
-  for (i = 0; i < num_pixels; i++) font->data[i] = temp_array[i];
-  
-  /* Free the temporary pixel data */
+        temp_array[NUM_GLYPHS] = num_pixels;
+        
+        /* Make a pixel access array for this font */
+        C_MAKE(font->data, num_pixels, int);
+        
+        /* Save the data gathered in our temporary array */
+        for (i = 0; i < num_pixels; i++) font->data[i] = temp_array[i];
+        
+        /* Free the temporary pixel data */
   (void)FREE(temp_array);
-  
-  /* Finished with the font */
-  TTF_CloseFont(ttf_font);
+        
+        /* Finished with the font */
+        TTF_CloseFont(ttf_font);
 	
 	/* Success */
 	return (0);	
@@ -642,8 +632,8 @@ static errr sdl_FontCreate(sdl_Font *font, cptr fontname, SDL_Surface *surface)
 static errr sdl_FontDraw(sdl_Font *font, SDL_Surface *surface, Uint32 colour, 
                          int x, int y, int n , cptr s)
 {
-  Uint8 bpp = surface->format->BytesPerPixel;
-  Uint16 pitch = surface->pitch;
+        Uint8 bpp = surface->format->BytesPerPixel;
+        Uint16 pitch = surface->pitch;
 	
 	int i, j;
 	
@@ -683,32 +673,32 @@ static errr sdl_FontDraw(sdl_Font *font, SDL_Surface *surface, Uint32 colour,
 			case 1:
 			{
 				/*
-             * Use entries in the pixel location array to jump to and
-             * change pixels to our desired color.
-             */
+                                 * Use entries in the pixel location array to jump to and
+                                 * change pixels to our desired color.
+                                 */
             for (j = start; j < end; j++) 
               *(Uint8*)(pd0 + data[j]) = (Uint8)colour;
-            break;
-          }
-          
-          /* 15 and 16-bit color (SDL handles the details) */
-        case 2:
-          {
+                                break;
+                        }
+                                
+                                /* 15 and 16-bit color (SDL handles the details) */
+                        case 2:
+                        {
             for (j = start; j < end; j++) 
               *(Uint16*)(pd0 + data[j]) = (Uint16)colour;
-            break;
-          }
-          
+                                break;
+                        }
+                                
 				/* 32-bit color is easy.  24-bit color needs more testing. */
 			case 3:
-        case 4:
-        default:
-          {
+                        case 4:
+                        default:
+                        {
             for (j = start; j < end; j++) 
               *(Uint32*)(pd0 + data[j]) = colour;
-            break;
-          }
-        }
+                                break;
+                        }
+                }
 	}
 	
 	/* Unlock the surface */
@@ -733,14 +723,14 @@ static void sdl_ButtonDraw(sdl_Button *button)
 	if (!button->visible) return;
 	
 	SDL_FillRect(surface, &button->pos, colour);
-	
-	if (strlen(button->caption))
-	{
-		int max = button->pos.w / font->width;
-		int n = strlen(button->caption) > max ? max : strlen(button->caption);
-		int l = n * font->width / 2;
-		int x = button->pos.x + ((button->pos.w) / 2) - l;
-		
+        
+        if (strlen(button->caption))
+        {
+                int max = button->pos.w / font->width;
+                int n = strlen(button->caption) > max ? max : strlen(button->caption);
+                int l = n * font->width / 2;
+                int x = button->pos.x + ((button->pos.w) / 2) - l;
+                
 		sdl_FontDraw(font, surface, button->cap_colour,
 					 x, button->pos.y + 1, n, button->caption);
 	}
@@ -800,11 +790,11 @@ static void sdl_ButtonVisible(sdl_Button *button, bool visible)
  */
 static void sdl_ButtonBankInit(sdl_ButtonBank *bank, sdl_Window *window)
 {
-	bank->window = window;
-	
-	C_MAKE(bank->buttons, MAX_BUTTONS, sdl_Button);
-	C_MAKE(bank->used, MAX_BUTTONS, bool);
-	bank->need_update = TRUE;
+        bank->window = window;
+        
+        C_MAKE(bank->buttons, MAX_BUTTONS, sdl_Button);
+        C_MAKE(bank->used, MAX_BUTTONS, bool);
+        bank->need_update = TRUE;
 }
 
 /*
@@ -861,18 +851,18 @@ static int sdl_ButtonBankNew(sdl_ButtonBank *bank)
 	WIPE(new_button, sdl_Button);
 	
 	/* Mark it as mine */
-  new_button->owner = bank;
-  
-  /* Default colours */
+        new_button->owner = bank;
+        
+        /* Default colours */
   new_button->unsel_colour = 
     SDL_MapRGB(bank->window->surface->format, 160, 160, 60);
   new_button->sel_colour = 
     SDL_MapRGB(bank->window->surface->format, 210, 210, 110);
   new_button->cap_colour = 
     SDL_MapRGB(bank->window->surface->format, 0, 0, 0);
-  
-  /* Success */
-  return (i);
+        
+        /* Success */
+        return (i);
 }
 
 /*
@@ -1018,19 +1008,19 @@ static void sdl_WindowFree(sdl_Window* window)
 static void sdl_WindowInit(sdl_Window* window, int w, int h, 
                            SDL_Surface *owner, cptr fontname)
 {
-  sdl_WindowFree(window);
-  window->owner = owner;
+        sdl_WindowFree(window);
+        window->owner = owner;
 	window->width = w;
-  window->height = h;
-  window->surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
-                                         owner->format->BitsPerPixel,
+        window->height = h;
+        window->surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
+                                                                                   owner->format->BitsPerPixel,
                                          owner->format->Rmask, 
                                          owner->format->Gmask,
                                          owner->format->Bmask, 
                                          owner->format->Amask);
-  sdl_ButtonBankInit(&window->buttons, window);
-  sdl_FontCreate(&window->font, fontname, window->surface);
-  window->visible = TRUE;
+        sdl_ButtonBankInit(&window->buttons, window);
+        sdl_FontCreate(&window->font, fontname, window->surface);
+        window->visible = TRUE;
 	window->need_update = TRUE;
 }
 
@@ -1134,18 +1124,18 @@ static void hook_quit(cptr str)
 	TTF_Quit(); 
 	
 	/* Shut down SDL */
-	SDL_Quit();
-	
-	for (i = 0; i < MAX_FONTS; i++)
-	{
-		if (FontList[i]) string_free(FontList[i]);
-	}
+        SDL_Quit();
+        
+        for (i = 0; i < MAX_FONTS; i++)
+        {
+                if (FontList[i]) string_free(FontList[i]);
+        }
 }
 
 static void BringToTop()
 {
-	int i, idx;
-	
+        int i, idx;
+        
 	for (idx = 0; idx < ANGBAND_TERM_MAX; idx++)
 	{
 		if (Zorder[idx] == SelectedTerm) break;
@@ -1168,11 +1158,8 @@ static void BringToTop()
  */
 static void validate_file(cptr s)
 {
-	int fd = fd_open(s, O_WRONLY);
-	
-	if (fd >= 0) fd_close(fd);
-	
-	if (fd < 0) quit_fmt("Cannot find required file:\n%s", s);
+        if (!file_exists(s))
+                quit_fmt("Cannot find required file:\n%s", s);
 }
 
 /*
@@ -1187,14 +1174,14 @@ static int sdl_LocateWin(int x, int y)
 	for (i = ANGBAND_TERM_MAX - 1; i >= 0; i--)
 	{
 		term_window *win = &windows[Zorder[i]];
-      SDL_Rect rc;
-      
-      if (!win->visible) continue;
+                SDL_Rect rc;
+                
+                if (!win->visible) continue;
       if (!point_in(RECT(win->left, win->top, win->width, win->height, &rc), 
                     x, y)) continue;
-      
-      return (Zorder[i]);
-    }
+                
+                return (Zorder[i]);
+        }
 	
 	return (-1);
 }
@@ -1259,14 +1246,14 @@ static void sdl_BlitWin(term_window *win)
 	
 	if (!win->surface) return;
 	if (!win->visible) return;
-  if (win->uRect.x == -1) return;
-  
-  /* Select the area to be updated */
+        if (win->uRect.x == -1) return;
+        
+        /* Select the area to be updated */
   RECT(win->left + win->uRect.x, win->top + win->uRect.y, win->uRect.w, 
        win->uRect.h, &rc);
-  
-  SDL_BlitSurface(win->surface, &win->uRect, AppWin, &rc);
-  SDL_UpdateRects(AppWin, 1, &rc);
+        
+        SDL_BlitSurface(win->surface, &win->uRect, AppWin, &rc);
+        SDL_UpdateRects(AppWin, 1, &rc);
 	
 	/* Mark the update as complete */
 	win->uRect.x = -1;
@@ -1275,13 +1262,13 @@ static void sdl_BlitWin(term_window *win)
 static void sdl_BlitAll(void)
 {
 	SDL_Rect rc;
-	sdl_Window *window = &StatusBar;
-	int i;
-	Uint32 colour = SDL_MapRGB(AppWin->format, 160, 160, 60);
-	//Uint32 ccolour = SDL_MapRGB(AppWin->format, 160, 40, 40);
-	SDL_FillRect(AppWin, NULL, back_colour);
-	
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+        sdl_Window *window = &StatusBar;
+        int i;
+        Uint32 colour = SDL_MapRGB(AppWin->format, 160, 160, 60);
+        //Uint32 ccolour = SDL_MapRGB(AppWin->format, 160, 40, 40);
+        SDL_FillRect(AppWin, NULL, back_colour);
+        
+        for (i = 0; i < ANGBAND_TERM_MAX; i++)
 	{
 		term_window *win = &windows[Zorder[i]];
 		
@@ -1294,13 +1281,13 @@ static void sdl_BlitAll(void)
 		if (Zorder[i] == SelectedTerm)
 		{
 			SizingSpot.w = 10;
-			SizingSpot.h = 10;
-			SizingSpot.x = win->left + win->width - 10;
-			SizingSpot.y = win->top + win->height - 10;
-			//SDL_FillRect(AppWin, &SizingSpot, ccolour);
-			
-			if (Sizing)
-			{
+                        SizingSpot.h = 10;
+                        SizingSpot.x = win->left + win->width - 10;
+                        SizingSpot.y = win->top + win->height - 10;
+                        //SDL_FillRect(AppWin, &SizingSpot, ccolour);
+                        
+                        if (Sizing)
+                        {
 				int width = 2;
 				int grabsize = 10;
 				rc = SizingRect;
@@ -1319,13 +1306,13 @@ static void sdl_BlitAll(void)
 	
 	SDL_UpdateRect(AppWin, 0, 0, AppWin->w, AppWin->h);
 	
-	
+        
 }
 
 static void RemovePopUp()
 {
-	PopUp.visible = FALSE;
-	popped = FALSE;
+        PopUp.visible = FALSE;
+        popped = FALSE;
 	sdl_BlitAll();
 }
 
@@ -1363,13 +1350,13 @@ static void SetStatusButtons(void)
 static void TermFocus(int idx)
 {
 	if (SelectedTerm == idx) return;
-	
-	SelectedTerm = idx;
-	
-	BringToTop(idx);
-	
-	SetStatusButtons();
-	
+        
+        SelectedTerm = idx;
+        
+        BringToTop(idx);
+        
+        SetStatusButtons();
+        
 	sdl_BlitAll();
 }	
 
@@ -1409,17 +1396,17 @@ static void SelectTerm(sdl_Button *sender)
 	
 static void TermActivate(sdl_Button *sender)
 {
-	int i, maxl = 0;
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
-	{
-		int l = strlen(angband_term_name[i]); 
-		if (l > maxl) maxl = l;
-	}
-	int width = maxl * StatusBar.font.width + 20;
-	int height = ANGBAND_TERM_MAX * (StatusBar.font.height + 1);
-	
-	sdl_WindowInit(&PopUp, width, height, AppWin, StatusBar.font.name);
-	PopUp.left = sender->pos.x;
+        int i, maxl = 0; 
+        for (i = 0; i < ANGBAND_TERM_MAX; i++)
+        {
+                int l = strlen(angband_term_name[i]); 
+                if (l > maxl) maxl = l;
+        }
+        int width = maxl * StatusBar.font.width + 20;
+        int height = ANGBAND_TERM_MAX * (StatusBar.font.height + 1);
+        
+        sdl_WindowInit(&PopUp, width, height, AppWin, StatusBar.font.name);
+        PopUp.left = sender->pos.x;
 	PopUp.top = sender->pos.y;
 	
 	for (i = 0; i < ANGBAND_TERM_MAX; i++)
@@ -1496,17 +1483,17 @@ static void SelectFont(sdl_Button *sender)
 
 static void FontActivate(sdl_Button *sender)
 {
-	int i, maxl = 0;
-	for (i = 0; i < num_fonts; i++)
-	{
-		int l = strlen(FontList[i]); 
-		if (l > maxl) maxl = l;
-	}
-	int width = maxl * StatusBar.font.width + 20;
-	int height = num_fonts * (StatusBar.font.height + 1);
-	
-	sdl_WindowInit(&PopUp, width, height, AppWin, StatusBar.font.name);
-	PopUp.left = sender->pos.x;
+        int i, maxl = 0; 
+        for (i = 0; i < num_fonts; i++)
+        {
+                int l = strlen(FontList[i]); 
+                if (l > maxl) maxl = l;
+        }
+        int width = maxl * StatusBar.font.width + 20;
+        int height = num_fonts * (StatusBar.font.height + 1);
+        
+        sdl_WindowInit(&PopUp, width, height, AppWin, StatusBar.font.name);
+        PopUp.left = sender->pos.x;
 	PopUp.top = sender->pos.y;
 	
 	for (i = 0; i < num_fonts; i++)
@@ -1975,11 +1962,11 @@ static void ResizeWin(term_window* win, int w, int h)
 
 static errr load_prefs(void)
 {
-	char buf[1024];
-	FILE *fff;
-	term_window *win;
-	int i;
-	
+        char buf[1024];
+        ang_file *fff;
+        term_window *win;
+        int i;
+        
 	/* Initialize the windows with crappy defaults! */
 	for (i = 0; i < ANGBAND_TERM_MAX; i++)
 	{
@@ -2014,22 +2001,22 @@ static errr load_prefs(void)
 	}
 	
 	/* Build the path */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER , "sdlinit.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "sdlinit.txt");
 	
 	/* XXXXX */
-	ANGBAND_DIR_USER_SDL = string_make(buf);
-	
-	/* Open the file */
-	fff = my_fopen(buf, "r");
-	
-	/* Check it */
-	if (!fff) return (1);
-	
-	/* Process the file */
-	while (0 == my_fgets(fff, buf, sizeof(buf)))
-	{
-		char *s;
-		if (!buf[0]) continue;
+        ANGBAND_DIR_USER_SDL = string_make(buf);
+        
+        /* Open the file */
+        fff = file_open(buf, MODE_READ, -1);
+        
+        /* Check it */
+        if (!fff) return (1);
+        
+        /* Process the file */
+        while (file_getl(fff, buf, sizeof(buf)))
+        {
+                char *s;
+                if (!buf[0]) continue;
 		
 		if (buf[0] == '#') continue;
 		
@@ -2100,51 +2087,50 @@ static errr load_prefs(void)
 		
 	}
 	
-	if (screen_w < 640) screen_w = 640;
-	if (screen_h < 480) screen_h = 480;
-	
-	my_fclose(fff);
-	
-	return (0);
+        if (screen_w < 640) screen_w = 640;
+        if (screen_h < 480) screen_h = 480;
+        
+        file_close(fff);
+        
+        return (0);
 }
 
-static errr save_prefs()
+static errr save_prefs(void)
 {
-	FILE *fff;
-	int i;
-	
-	/* Open the file */
-	fff = my_fopen(ANGBAND_DIR_USER_SDL, "w");
-	
-	/* Check it */
-	if (!fff) return (1);
-	
-	fprintf(fff, "Resolution = %dx%d\n", screen_w, screen_h);
-        fprintf(fff, "Fullscreen = %d\n", fullscreen);
-        fprintf(fff, "Graphics = %d\n", use_graphics);
-        fprintf(fff, "Bigtile = %d\n", use_bigtile);
-        fprintf(fff, "Dbltile = %d\n", use_dbltile);
-        fprintf(fff, "Trptile = %d\n", use_trptile);
+        ang_file *fff;
+        int i;
+
+        /* Open the file */
+        fff = file_open(ANGBAND_DIR_USER_SDL, MODE_WRITE, FTYPE_TEXT);
+
+        /* Check it */
+        if (!fff) return (1);
+
+        file_putf(fff, "Resolution = %dx%d\n", screen_w, screen_h);
+        file_putf(fff, "Fullscreen = %d\n", fullscreen);
+        file_putf(fff, "Graphics = %d\n", use_graphics);
+        file_putf(fff, "Bigtile = %d\n\n", use_bigtile);
+        
         for (i = 0; i < ANGBAND_TERM_MAX; i++)
         {
                 term_window *win = &windows[i];
-		
-		fprintf(fff, "\nWindow = %d\n", i);
-		fprintf(fff, "Visible = %d\n", (int)win->visible);
-		fprintf(fff, "Left = %d\n", win->left); 
-		fprintf(fff, "Top = %d\n", win->top);
-		fprintf(fff, "Width = %d\n", win->width);
-		fprintf(fff, "Height = %d\n", win->height);
-		
-		fprintf(fff, "Keys = %d\n", win->keys);
-		
-		fprintf(fff, "Font = %s\n", win->req_font);
-	}	
-	
-	my_fclose(fff);
-	
-	/* Done */
-	return (0);
+                
+                file_putf(fff, "Window = %d\n", i);
+                file_putf(fff, "Visible = %d\n", (int)win->visible);
+                file_putf(fff, "Left = %d\n", win->left);
+                file_putf(fff, "Top = %d\n", win->top);
+                file_putf(fff, "Width = %d\n", win->width);
+                file_putf(fff, "Height = %d\n", win->height);
+                
+                file_putf(fff, "Keys = %d\n", win->keys);
+                
+                file_putf(fff, "Font = %s\n\n", win->req_font);
+        }       
+        
+        file_close(fff);
+        
+        /* Done */
+        return (0);
 }
 
 static void set_update_rect(term_window *win, SDL_Rect *rc);
@@ -2277,13 +2263,13 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
 				SizingRect.w = win->width - win->left + (mouse.x - Movingx);
 				SizingRect.h = win->height - win->top + (mouse.y - Movingy);
 				
-				/* XXX - The main window can't be too small */
-				if (SelectedTerm == 0)
-				{
-					int minwidth = (win->tile_wid * (small_screen ? 48 : 80)) + 2 * win->border;
-					int minheight = (win->tile_hgt * 24) + win->border + win->title_height;
-					if (SizingRect.w < minwidth)
-						SizingRect.w = minwidth;
+                                /* XXX - The main window can't be too small */
+                                if (SelectedTerm == 0)
+                                {
+                                        int minwidth = (win->tile_wid * (small_screen ? 48 : 80)) + 2 * win->border;
+                                        int minheight = (win->tile_hgt * 24) + win->border + win->title_height;
+                                        if (SizingRect.w < minwidth)
+                                                SizingRect.w = minwidth;
 					if (SizingRect.h < minheight)
 						SizingRect.h = minheight;
 				}
@@ -2362,13 +2348,13 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
 				/* Check for mouse press in the title bar */
 				if (mouse.y < win->top + win->title_height)
 				{
-					/* Let's get moving */
-					Moving = TRUE;
-					
-					//BringToTop(idx);
-					
-					/* Remember where we started */
-					Movingx = mouse.x - win->left;
+                                        /* Let's get moving */
+                                        Moving = TRUE;
+                                        
+                                        //BringToTop(idx);
+                                        
+                                        /* Remember where we started */
+                                        Movingx = mouse.x - win->left;
 					Movingy = mouse.y - win->top;
 				}
 				
@@ -2416,17 +2402,17 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
 				{
 					popped = FALSE;
 				}
-				/* See if it's inside a term_window */
-				else if (idx != -1)
-				{
-					win = &windows[idx];
-					
-					/* Calculate the 'cell' coords */
-					int x = (mouse.x - win->left - win->border) / win->tile_wid;
-					int y = (mouse.y - win->top - win->title_height) / win->tile_hgt;
-					
-					/* Bounds check */
-					if ((x >= 0) && (y >= 0) && (x < win->cols) && (y < win->rows))
+                                /* See if it's inside a term_window */
+                                else if (idx != -1)
+                                {
+                                        win = &windows[idx];
+                                        
+                                        /* Calculate the 'cell' coords */
+                                        int x = (mouse.x - win->left - win->border) / win->tile_wid;
+                                        int y = (mouse.y - win->top - win->title_height) / win->tile_hgt;
+                                        
+                                        /* Bounds check */
+                                        if ((x >= 0) && (y >= 0) && (x < win->cols) && (y < win->rows))
 					{
 						/* Send the mousepress to the appropriate term */
 						Term_activate(angband_term[idx]);
@@ -2510,13 +2496,13 @@ static void sdl_keypress(SDL_keysym keysym)
 	/* Ignore if main term is not initialized */
 	if (!Term) return;
 	
-	/* Handle print screen */
-	if (key_sym == SDLK_PRINT)
-	{
-		//sdl_print_screen();
-		return;
-	}
-	
+        /* Handle print screen */
+        if (key_sym == SDLK_PRINT)
+        {
+                //sdl_print_screen();
+                return;
+        }
+        
 	/* Ignore various keypress, including pure modifier keys */
 	if (ignore_key[key_sym]) return;
 	
@@ -2586,14 +2572,14 @@ static errr sdl_HandleEvent(SDL_Event *event)
 			sdl_keypress(event->key.keysym);
 			
 			break;
-		}
-		case SDL_MOUSEBUTTONDOWN:
-		case SDL_MOUSEBUTTONUP:
-		case SDL_MOUSEMOTION:
-		{
-			/* Handle mouse stuff */
-			sdl_HandleMouseEvent(event);
-			break;
+                }
+                case SDL_MOUSEBUTTONDOWN:
+                case SDL_MOUSEBUTTONUP:
+                case SDL_MOUSEMOTION:
+                {
+                        /* Handle mouse stuff */
+                        sdl_HandleMouseEvent(event);
+                        break;
 		}
 			
 		/* Shut down the game */
@@ -2918,13 +2904,13 @@ static errr Term_xtra_sdl(int n, int v)
 static errr Term_wipe_sdl(int col, int row, int n)
 {
 	term_window *win = (term_window*)(Term->data);
-	
-	SDL_Rect rc;
-	
-	//if (use_bigtile) n*=2;
-	/* Build the area to black out */
-	rc.x = col * win->tile_wid;
-	rc.y = row * win->tile_hgt;
+        
+        SDL_Rect rc;
+        
+        //if (use_bigtile) n*=2;
+        /* Build the area to black out */
+        rc.x = col * win->tile_wid;
+        rc.y = row * win->tile_hgt;
 	rc.w = win->tile_wid * n;
 	rc.h = win->tile_hgt;
 	
@@ -2944,10 +2930,10 @@ static errr Term_wipe_sdl(int col, int row, int n)
 /*
  * Draw some text to a window
  */
-static errr Term_text_sdl(int col, int row, int n, byte a, cptr s)
+static errr Term_text_sdl(int col, int row, int n, byte a, char *s)
 {
-	term_window *win = (term_window*)(Term->data);
-	Uint32 colour = text_colours[a];
+        term_window *win = (term_window*)(Term->data);
+        Uint32 colour = text_colours[a];
 	int x = col * win->tile_wid;
 	int y = row * win->tile_hgt;
 	
@@ -3248,13 +3234,13 @@ static void term_data_link_sdl(term_window *win)
 	t->xtra_hook = Term_xtra_sdl;
 	t->curs_hook = Term_curs_sdl;
 	t->bigcurs_hook = Term_bigcurs_sdl;
-	t->wipe_hook = Term_wipe_sdl;
-	t->text_hook = Term_text_sdl;
-	t->pict_hook = Term_pict_sdl;
-	t->xchar_hook = Term_xchar_sdl;
-	
-	/* Remember where we came from */
-	t->data = win;
+        t->wipe_hook = Term_wipe_sdl;
+        t->text_hook = Term_text_sdl;
+        t->pict_hook = Term_pict_sdl;
+        t->xchar_hook = Term_xchar_sdl;
+        
+        /* Remember where we came from */
+        t->data = win;
 }
 
 /*
@@ -3264,89 +3250,89 @@ static void term_data_link_sdl(term_window *win)
  */
 static void init_morewindows(void)
 {
-  char buf[128];
-  sdl_Button *button;
-  popped = FALSE;
+        char buf[128];
+        sdl_Button *button;
+        popped = FALSE;
   int x;
-  
-  /* Make sure */
-  sdl_WindowFree(&PopUp);
-  
-  /* Initialize the status bar */
-  sdl_WindowInit(&StatusBar, AppWin->w, StatusHeight, AppWin, DEFAULT_FONT_FILE);
-  
-  /* Cusom drawing function */
-  StatusBar.draw_extra = draw_statusbar;
-  
-  AboutSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-  button = sdl_ButtonBankGet(&StatusBar.buttons, AboutSelect);
-  
-  my_strcpy(buf, format("%s v%s", VERSION_NAME, VERSION_STRING), sizeof(buf));
-  
-  /* Initialize the 'about' button */
-  sdl_ButtonSize(button, StatusBar.font.width * strlen(buf) + 5, StatusHeight - 2);
-  sdl_ButtonMove(button, 1, 1);
-  sdl_ButtonVisible(button, TRUE);
-  sdl_ButtonCaption(button, buf);
-  button->activate = AboutActivate;
-  
-  
-  /* New button */
-  TermSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-  button = sdl_ButtonBankGet(&StatusBar.buttons, TermSelect);
-  
-  /* Initialize the 'term' button */
-  sdl_ButtonSize(button, 60, StatusHeight - 2);
-  x = 100 + (StatusBar.font.width * 5);
-  sdl_ButtonMove(button, x, 1);
-  sdl_ButtonVisible(button, TRUE);
-  button->activate = TermActivate;
-  
-  /* Another new button */
-  VisibleSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-  button = sdl_ButtonBankGet(&StatusBar.buttons, VisibleSelect);
-  
-  /* Initialize the 'visible' button */
-  sdl_ButtonSize(button, 60,  StatusHeight - 2);
-  x = 200 + (StatusBar.font.width * 8);
-  sdl_ButtonMove(button, x, 1);
-  sdl_ButtonVisible(button, TRUE);
-  button->activate = VisibleActivate;
-  
-  /* Another new button */
-  FontSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-  button = sdl_ButtonBankGet(&StatusBar.buttons, FontSelect);
-  
-  /* Initialize the 'font_select' button */
-  sdl_ButtonSize(button, 60,  StatusHeight - 2);
-  sdl_ButtonMove(button, 400, 1);
-  button->activate = FontActivate;
-  
-  /* Another new button */
-  MoreSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-  button = sdl_ButtonBankGet(&StatusBar.buttons, MoreSelect);
-  
-  /* Initialize the 'more' button */
-  sdl_ButtonSize(button, 60,  StatusHeight - 2);
-  sdl_ButtonMove(button, 400, 1);
-  sdl_ButtonVisible(button, TRUE);
-  sdl_ButtonCaption(button, "Options");
-  button->activate = MoreActivate;
-  
-  /* Another new button */
-  QuitSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-  button = sdl_ButtonBankGet(&StatusBar.buttons, QuitSelect);
-  
-  /* Initialize the 'quit' button */
-  sdl_ButtonSize(button, 60,  StatusHeight - 2);
-  sdl_ButtonMove(button, AppWin->w - 61, 1);
-  sdl_ButtonCaption(button, "Quit");
-  button->activate = QuitActivate;
-  sdl_ButtonVisible(button, TRUE);
-  
-  SetStatusButtons();
-  
-  TermFocus(0);
+        
+        /* Make sure */
+        sdl_WindowFree(&PopUp);
+	
+	/* Initialize the status bar */
+	sdl_WindowInit(&StatusBar, AppWin->w, StatusHeight, AppWin, DEFAULT_FONT_FILE);
+	
+	/* Cusom drawing function */
+	StatusBar.draw_extra = draw_statusbar;
+	
+	AboutSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+	button = sdl_ButtonBankGet(&StatusBar.buttons, AboutSelect);
+	
+	my_strcpy(buf, format("%s v%s", VERSION_NAME, VERSION_STRING), sizeof(buf));
+	
+	/* Initialize the 'about' button */
+	sdl_ButtonSize(button, StatusBar.font.width * strlen(buf) + 5, StatusHeight - 2);
+	sdl_ButtonMove(button, 1, 1);
+	sdl_ButtonVisible(button, TRUE);
+	sdl_ButtonCaption(button, buf);
+	button->activate = AboutActivate;
+	
+	
+	/* New button */
+	TermSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+	button = sdl_ButtonBankGet(&StatusBar.buttons, TermSelect);
+	
+	/* Initialize the 'term' button */
+	sdl_ButtonSize(button, 60, StatusHeight - 2);
+	x = 100 + (StatusBar.font.width * 5);
+	sdl_ButtonMove(button, x, 1);
+	sdl_ButtonVisible(button, TRUE);
+	button->activate = TermActivate;
+	
+	/* Another new button */
+	VisibleSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+	button = sdl_ButtonBankGet(&StatusBar.buttons, VisibleSelect);
+	
+	/* Initialize the 'visible' button */
+	sdl_ButtonSize(button, 60,  StatusHeight - 2);
+	x = 200 + (StatusBar.font.width * 8);
+	sdl_ButtonMove(button, x, 1);
+	sdl_ButtonVisible(button, TRUE);
+	button->activate = VisibleActivate;
+	
+	/* Another new button */
+	FontSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+	button = sdl_ButtonBankGet(&StatusBar.buttons, FontSelect);
+	
+	/* Initialize the 'font_select' button */
+	sdl_ButtonSize(button, 60,  StatusHeight - 2);
+	sdl_ButtonMove(button, 400, 1);
+	button->activate = FontActivate;
+	
+	/* Another new button */
+	MoreSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+	button = sdl_ButtonBankGet(&StatusBar.buttons, MoreSelect);
+	
+	/* Initialize the 'more' button */
+	sdl_ButtonSize(button, 60,  StatusHeight - 2);
+	sdl_ButtonMove(button, 400, 1);
+	sdl_ButtonVisible(button, TRUE);
+	sdl_ButtonCaption(button, "Options");
+	button->activate = MoreActivate;
+	
+	/* Another new button */
+	QuitSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+	button = sdl_ButtonBankGet(&StatusBar.buttons, QuitSelect);
+	
+	/* Initialize the 'quit' button */
+	sdl_ButtonSize(button, 60,  StatusHeight - 2);
+	sdl_ButtonMove(button, AppWin->w - 61, 1);
+	sdl_ButtonCaption(button, "Quit");
+	button->activate = QuitActivate;
+	sdl_ButtonVisible(button, TRUE);
+	
+	SetStatusButtons();
+	
+	TermFocus(0);
 }
 
 #ifdef USE_GRAPHICS
@@ -3448,23 +3434,20 @@ static void init_gfx(void)
         GfxInfo *info = &GfxDesc[use_graphics];
         int i;
 	
-	/* Check for existence of required files */
-	for (i = 0; i < GfxModes; i++)
-	{
-		int fd;
-		char path[1024];
-		
-		/* Check the graphic file */
-		if (GfxDesc[i].gfxfile)
-		{
-			path_build(path, sizeof(path), ANGBAND_DIR_XTRA_GRAF, GfxDesc[i].gfxfile);
-			fd = fd_open(path, O_WRONLY);
-			
-			if (fd >= 0) fd_close(fd);
-			else
-			{
-				plog_fmt("Can't find file %s - graphics mode '%s' will be disabled.", path, GfxDesc[i].name);
-				GfxDesc[i].avail = FALSE;
+        /* Check for existence of required files */
+        for (i = 0; i < GfxModes; i++)
+        {
+                char path[1024];
+                
+                /* Check the graphic file */
+                if (GfxDesc[i].gfxfile)
+                {
+                        path_build(path, sizeof(path), ANGBAND_DIR_XTRA_GRAF, GfxDesc[i].gfxfile);
+
+                        if (!file_exists(path))
+                        {
+                                plog_fmt("Can't find file %s - graphics mode '%s' will be disabled.", path, GfxDesc[i].name);
+                                GfxDesc[i].avail = FALSE;
 			}
 		}
 	}
@@ -3640,10 +3623,10 @@ static void init_paths(void)
 
 		/* Don't grow to long */
 		if (num_fonts == MAX_FONTS) break;
-	}
+        }
 
-	/* Done */
-	//my_dclose(dir);
+        /* Done */
+        my_dclose(dir);
 }
 
 

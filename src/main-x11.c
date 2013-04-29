@@ -319,7 +319,7 @@ struct infofnt
 {
 	XFontStruct *info;
 
-	cptr name;
+	char *name;
 
 	s16b wid;
 	s16b twid;
@@ -479,7 +479,7 @@ static infofnt *Infofnt = (infofnt*)(NULL);
  *
  * Return -1 if no Display given, and none can be opened.
  */
-static errr Metadpy_init_2(Display *dpy, cptr name)
+static errr Metadpy_init_2(Display *dpy, char *name)
 {
 	metadpy *m = Metadpy;
 
@@ -609,7 +609,7 @@ static errr Metadpy_do_beep(void)
 /*
  * Set the name (in the title bar) of Infowin
  */
-static errr Infowin_set_name(cptr name)
+static errr Infowin_set_name(char *name)
 {
 	Status st;
 	XTextProperty tp;
@@ -627,16 +627,16 @@ static errr Infowin_set_name(cptr name)
 /*
  * Set the icon name of Infowin
  */
-static errr Infowin_set_icon_name(cptr name)
+static errr Infowin_set_icon_name(char *name)
 {
 	Status st;
-	XTextProperty tp;
-	char buf[128];
-	char *bp = buf;
-	strcpy(buf, name);
-	st = XStringListToTextProperty(&bp, 1, &tp);
-	if (st) XSetWMIconName(Metadpy->dpy, Infowin->win, &tp);
-	return (0);
+        XTextProperty tp;
+        char buf[128];
+        char *bp = buf;
+        my_strcpy(buf, name, sizeof(buf));
+        st = XStringListToTextProperty(&bp, 1, &tp);
+        if (st) XSetWMIconName(Metadpy->dpy, Infowin->win, &tp);
+        return (0);
 }
 
 #endif /* IGNORE_UNUSED_FUNCTIONS */
@@ -941,7 +941,7 @@ static errr Infowin_fill(void)
  * Pairs of values, first is texttual name, second is the string
  * holding the decimal value that the operation corresponds to.
  */
-static cptr opcode_pairs[] =
+static char *opcode_pairs[] =
 {
 	"cpy", "3",
 	"xor", "6",
@@ -977,7 +977,7 @@ static cptr opcode_pairs[] =
  *	0-15: if 'str' is a valid Operation
  *	-1:   if 'str' could not be parsed
  */
-static int Infoclr_Opcode(cptr str)
+static int Infoclr_Opcode(char *str)
 {
 	register int i;
 
@@ -1012,7 +1012,7 @@ static int Infoclr_Opcode(cptr str)
  * Valid forms for 'name':
  *	'fg', 'bg', 'zg', '<name>' and '#<code>'
  */
-static Pixell Infoclr_Pixell(cptr name)
+static Pixell Infoclr_Pixell(char *name)
 {
 	XColor scrn;
 
@@ -1298,7 +1298,7 @@ static errr Infofnt_init_real(XFontStruct *info)
  * Inputs:
  *	name: The name of the requested Font
  */
-static errr Infofnt_init_data(cptr name)
+static errr Infofnt_init_data(char *name)
 {
 	XFontStruct *info;
 
@@ -1347,7 +1347,7 @@ static errr Infofnt_init_data(cptr name)
 /*
  * Standard Text
  */
-static errr Infofnt_text_std(int x, int y, cptr str, int len)
+static errr Infofnt_text_std(int x, int y, char *str, int len)
 {
 	int i;
 
@@ -1410,7 +1410,7 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 /*
  * Painting where text would be
  */
-static errr Infofnt_text_non(int x, int y, cptr str, int len)
+static errr Infofnt_text_non(int x, int y, char *str, int len)
 {
 	int w, h;
 
@@ -1616,22 +1616,22 @@ static void react_keypress(XKeyEvent *ev)
 	}
 
 
-	/* Hack -- Use the KeySym */
-	if (ks)
-	{
-		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
-		        mc ? "N" : "", ms ? "S" : "",
-		        mo ? "O" : "", mx ? "M" : "",
-		        (unsigned long)(ks), 13);
+        /* Hack -- Use the KeySym */
+        if (ks)
+        {
+                strnfmt(msg, sizeof(msg), "%c%s%s%s%s_%lX%c", 31,
+                        mc ? "N" : "", ms ? "S" : "",
+                        mo ? "O" : "", mx ? "M" : "",
+                        (unsigned long)(ks), 13);
 	}
 
-	/* Hack -- Use the Keycode */
-	else
-	{
-		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
-		        mc ? "N" : "", ms ? "S" : "",
-		        mo ? "O" : "", mx ? "M" : "",
-		        ev->keycode, 13);
+        /* Hack -- Use the Keycode */
+        else
+        {
+                strnfmt(msg, sizeof(msg), "%c%s%s%s%sK_%X%c", 31,
+                        mc ? "N" : "", ms ? "S" : "",
+                        mo ? "O" : "", mx ? "M" : "",
+                        ev->keycode, 13);
 	}
 
 	/* Enqueue the "macro trigger" string */
@@ -1941,30 +1941,27 @@ static errr CheckEvent(bool wait)
 		}
 
 		case Expose:
-		{
-			int x1, x2, y1, y2;
+                {
+                        int x1, x2, y1, y2;
 
-			/* Ignore "extra" exposes */
-			/*if (xev->xexpose.count) break;*/
+                        /* Ignore "extra" exposes */
+                        /*if (xev->xexpose.count) break;*/
 
-			/* Clear the window */
-			/*Infowin_wipe();*/
+                        /* Clear the window */
+                        /*Infowin_wipe();*/
 
-			x1 = (xev->xexpose.x - Infowin->ox)/Infofnt->wid;
-			x2 = (xev->xexpose.x + xev->xexpose.width -
-				 Infowin->ox)/Infofnt->wid;
+                        x1 = (xev->xexpose.x - Infowin->ox)/Infofnt->wid;
+                        x2 = (xev->xexpose.x + xev->xexpose.width -
+                                 Infowin->ox)/Infofnt->wid;
 
-			y1 = (xev->xexpose.y - Infowin->oy)/Infofnt->hgt;
-			y2 = (xev->xexpose.y + xev->xexpose.height -
-				 Infowin->oy)/Infofnt->hgt;
+                        y1 = (xev->xexpose.y - Infowin->oy)/Infofnt->hgt;
+                        y2 = (xev->xexpose.y + xev->xexpose.height -
+                                 Infowin->oy)/Infofnt->hgt;
 
-			Term_redraw_section(x1, y1, x2, y2);
+                        Term_redraw_section(x1, y1, x2, y2);
 
-			/* Redraw */
-			/*Term_redraw();*/
-
-			break;
-		}
+                        break;
+                }
 
 		case MapNotify:
 		{
@@ -2134,13 +2131,15 @@ static errr Term_xtra_x11(int n, int v)
 		case TERM_XTRA_LEVEL: return (Term_xtra_x11_level(v));
 
 		/* Clear the screen */
-		case TERM_XTRA_CLEAR: Infowin_wipe(); return (0);
+                case TERM_XTRA_CLEAR: Infowin_wipe(); return (0);
 
-		/* Delay for some milliseconds */
-		case TERM_XTRA_DELAY: usleep(1000 * v); return (0);
+                /* Delay for some milliseconds */
+                case TERM_XTRA_DELAY:
+                        if (v > 0) usleep(1000 * v);
+                        return (0);
 
-		/* React to changes */
-		case TERM_XTRA_REACT: return (Term_xtra_x11_react());
+                /* React to changes */
+                case TERM_XTRA_REACT: return (Term_xtra_x11_react());
 	}
 
 	/* Unknown */
@@ -2200,7 +2199,7 @@ static errr Term_wipe_x11(int x, int y, int n)
 /*
  * Draw some textual characters.
  */
-static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
+static errr Term_text_x11(int x, int y, int n, byte a, char *s)
 {
 	/* Draw the text */
 	Infoclr_set(clr[a]);
@@ -2328,68 +2327,66 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, c
 
 static void save_prefs(void)
 {
-	FILE *fff;
-	int i;
+        ang_file *fff;
+        int i;
 
-	/* Open the settings file */
-	fff = my_fopen(settings, "w");
+        /* Open the settings file */
+        fff = file_open(settings, MODE_WRITE, FTYPE_TEXT);
+        if (!fff) return;
 
-	/* Oops */
-	if (!fff) return;
+        /* Header */
+        file_putf(fff, "# %s X11 settings\n\n", VERSION_NAME);
 
-	/* Header */
-	fprintf(fff, "# %s X11 settings\n\n", VERSION_NAME);
+        /* Number of term windows to open */
+        file_putf(fff, "TERM_WINS=%d\n\n", term_windows_open);
 
-	/* Number of term windows to open */
-	fprintf(fff, "TERM_WINS=%d\n\n", term_windows_open);
-
-	/* Save window prefs */
-	for (i = 0; i < MAX_TERM_DATA; i++)
+        /* Save window prefs */
+        for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		term_data *td = &data[i];
 
-		if (!td->t.mapped_flag) continue;
+                if (!td->t.mapped_flag) continue;
 
-		/* Header */
-		fprintf(fff, "# Term %d\n", i);
+                /* Header */
+                file_putf(fff, "# Term %d\n", i);
 
-		/*
-		 * This doesn't seem to work under various WMs
+                /*
+                 * This doesn't seem to work under various WMs
 		 * since the decoration messes the position up
 		 *
 		 * Hack -- Use saved window positions.
 		 * This means that we won't remember ingame repositioned
 		 * windows, but also means that WMs won't screw predefined
 		 * positions up. -CJN-
-		 */
+                 */
 
-		/* Window specific location (x) */
-		fprintf(fff, "AT_X_%d=%d\n", i, td->win->x_save);
+                /* Window specific location (x) */
+                file_putf(fff, "AT_X_%d=%d\n", i, td->win->x_save);
 
-		/* Window specific location (y) */
-		fprintf(fff, "AT_Y_%d=%d\n", i, td->win->y_save);
+                /* Window specific location (y) */
+                file_putf(fff, "AT_Y_%d=%d\n", i, td->win->y_save);
 
-		/* Window specific cols */
-		fprintf(fff, "COLS_%d=%d\n", i, td->t.wid);
+                /* Window specific cols */
+                file_putf(fff, "COLS_%d=%d\n", i, td->t.wid);
 
-		/* Window specific rows */
-		fprintf(fff, "ROWS_%d=%d\n", i, td->t.hgt);
+                /* Window specific rows */
+                file_putf(fff, "ROWS_%d=%d\n", i, td->t.hgt);
 
-		/* Window specific inner border offset (ox) */
-		fprintf(fff, "IBOX_%d=%d\n", i, td->win->ox);
+                /* Window specific inner border offset (ox) */
+                file_putf(fff, "IBOX_%d=%d\n", i, td->win->ox);
 
-		/* Window specific inner border offset (oy) */
-		fprintf(fff, "IBOY_%d=%d\n", i, td->win->oy);
+                /* Window specific inner border offset (oy) */
+                file_putf(fff, "IBOY_%d=%d\n", i, td->win->oy);
 
-		/* Window specific font name */
-		fprintf(fff, "FONT_%d=%s\n", i, td->fnt->name);
+                /* Window specific font name */
+                file_putf(fff, "FONT_%d=%s\n", i, td->fnt->name);
 
-		/* Footer */
-		fprintf(fff, "\n");
-	}
-
-	/* Close */
-	(void)my_fclose(fff);
+                /* Footer */
+                file_putf(fff, "\n");
+        }
+	
+        /* Close */
+        file_close(fff);
 }
 
 
@@ -2410,36 +2407,36 @@ static errr term_data_init(term_data *td, int i)
 {
 	term *t = &td->t;
 
-	cptr name = angband_term_name[i];
-
-	cptr font;
-
+	char *name = angband_term_name[i];
+	
+	char *font;
+	
 	int x = 0;
 	int y = 0;
-
+	
 	int cols = 80;
 	int rows = 24;
-
+	
 	int ox = 1;
 	int oy = 1;
-
+	
 	int wid, hgt, num;
-
-	cptr str;
-
+	
+	char *str;
+	
 	int val;
 
 	XClassHint *ch;
-
+	
 	char res_name[20];
 	char res_class[20];
-
-	XSizeHints *sh;
-
-	FILE *fff;
-
-	char buf[1024];
-	char cmd[40];
+	
+        XSizeHints *sh;
+	
+        ang_file *fff;
+	
+        char buf[1024];
+        char cmd[40];
 	char font_name[256];
 
 	int line = 0;
@@ -2510,19 +2507,19 @@ static errr term_data_init(term_data *td, int i)
 
 
 	/* Build the filename */
-	path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
+        path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
 
-	/* Open the file */
-	fff = my_fopen(settings, "r");
+        /* Open the file */
+        fff = file_open(settings, MODE_READ, -1);
 
-	/* File exists */
-	if (fff)
-	{
-		/* Process the file */
-		while (0 == my_fgets(fff, buf, sizeof(buf)))
-		{
-			/* Count lines */
-			line++;
+        /* File exists */
+        if (fff)
+        {
+                /* Process the file */
+                while (file_getl(fff, buf, sizeof(buf)))
+                {
+                        /* Count lines */
+                        line++;
 
 			/* Skip "empty" lines */
 			if (!buf[0]) continue;
@@ -2607,16 +2604,16 @@ static errr term_data_init(term_data *td, int i)
 				{
 					my_strcpy(font_name, str + 1, sizeof(font_name));
 					font = font_name;
-				}
-				continue;
-			}
-		}
+                                }
+                                continue;
+                        }
+                }
 
-		/* Close */
-		my_fclose(fff);
-	}
+                /* Close */
+                file_close(fff);
+        }
 
-	/*
+        /*
 	 * Env-vars overwrite the settings in the settings file
 	 */
 
@@ -2702,16 +2699,16 @@ static errr term_data_init(term_data *td, int i)
 	/* Make Class Hints */
 	ch = XAllocClassHint();
 
-	if (ch == NULL) quit("XAllocClassHint failed");
+        if (ch == NULL) quit("XAllocClassHint failed");
 
-	strcpy(res_name, name);
-	res_name[0] = tolower(res_name[0]);
-	ch->res_name = res_name;
+        my_strcpy(res_name, name, sizeof(res_name));
+        res_name[0] = tolower((unsigned char)res_name[0]);
+        ch->res_name = res_name;
 
-	strcpy(res_class, "Angband");
-	ch->res_class = res_class;
+        my_strcpy(res_class, "Angband", sizeof(res_class));
+        ch->res_class = res_class;
 
-	XSetClassHint(Metadpy->dpy, Infowin->win, ch);
+        XSetClassHint(Metadpy->dpy, Infowin->win, ch);
 
 	/* Make Size Hints */
 	sh = XAllocSizeHints();
@@ -2808,17 +2805,17 @@ static void hook_quit(cptr str)
 
 	/* Unused */
 	(void)str;
-
+	
 	(void)unregister_angband_fonts();
-
+	
 	save_prefs();
-
+	
 	/* Free allocated data */
 	for (i = 0; i < term_windows_open; i++)
-	{
+	  {
 		term_data *td = &data[i];
 		term *t = &td->t;
-
+		
 		/* Free size hints */
 		XFree(td->sizeh);
 
@@ -2861,51 +2858,49 @@ static void hook_quit(cptr str)
  */
 errr init_x11(int argc, char *argv[])
 {
-	int i;
-
-	cptr dpy_name = "";
-
-	int num_term = 1;
-
-	FILE *fff;
-
-	char buf[1024];
-	cptr str;
-	int val;
-	int line = 0;
-
+  int i;
+  
+  char *dpy_name = "";
+  
+  int num_term = -1;
+  
+  ang_file *fff;
+  
+  char buf[1024];
+  char *str;
+  int val;
+  int line = 0;
+  
 #ifdef USE_GRAPHICS
-
-	cptr bitmap_file = NULL;
-	char filename[1024];
-
-	int pict_wid = 0;
-	int pict_hgt = 0;
-
-	char *TmpData;
-
+  
+  char *bitmap_file = NULL;
+  char filename[1024];
+  
+  int pict_wid = 0;
+  int pict_hgt = 0;
+  
+  char *TmpData;
+  
 #endif /* USE_GRAPHICS */
-
-
-	/*
-	 * Check x11-settings for the number of windows before handling
-	 * command line options to allow for easy override
-	 */
-
-	/* Build the filename */
-	(void)path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
-
-	/* Open the file */
-	fff = my_fopen(settings, "r");
-
-	/* File exists */
-	if (fff)
-	{
-		/* Process the file */
-		while (0 == my_fgets(fff, buf, sizeof(buf)))
-		{
-			/* Count lines */
-			line++;
+  
+  if (num_term == -1)
+    {
+      num_term = 1;
+      
+      /* Build the filename */
+      (void)path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
+      
+      /* Open the file */
+      fff = file_open(settings, MODE_READ, -1);
+      
+      /* File exists */
+      if (fff)
+        {
+                /* Process the file */
+                        while (file_getl(fff, buf, sizeof(buf)))
+                {
+                        /* Count lines */
+                        line++;
 
 			/* Skip "empty" lines */
 			if (!buf[0]) continue;
@@ -2924,13 +2919,14 @@ errr init_x11(int argc, char *argv[])
 				if (val > 0) num_term = val;
 				continue;
 			}
-		}
+                }
 
-		/* Close */
-		(void)my_fclose(fff);
+                /* Close */
+                (void)file_close(fff);
 	}
+        }
 
-	/* Parse args */
+        /* Parse args */
 	for (i = 1; i < argc; i++)
 	{
 		if (prefix(argv[i], "-d"))
@@ -3082,7 +3078,7 @@ errr init_x11(int argc, char *argv[])
 			   format("graf/%s", bitmap_file));
 
 		/* Use the "16x16.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
+		if (file_exists(filename))
 		{
 			/* Use graphics */
 			use_graphics = TRUE;
@@ -3105,7 +3101,7 @@ errr init_x11(int argc, char *argv[])
 				   format("graf/%s", bitmap_file));
 
 		/* Use the "8x8.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
+		if (file_exists(filename))
 		{
 			/* Use graphics */
 			use_graphics = TRUE;
@@ -3234,6 +3230,6 @@ errr init_x11(int argc, char *argv[])
 
 	/* Success */
 	return (0);
-}
+	}
 
 #endif /* USE_X11 */

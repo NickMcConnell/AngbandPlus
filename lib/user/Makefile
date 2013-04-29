@@ -1,7 +1,6 @@
-include ../../mk/rules.mk
-include ../../mk/init.mk
+MKPATH=../../mk/
+include $(MKPATH)buildsys.mk
 
-OBJECTIVE_DATA = \
-	delete.me:${DATA_PATH}/user
+DATA = delete.me
+PACKAGE = ${PACKAGE_NAME}/user
 
-include ../../mk/objective.mk

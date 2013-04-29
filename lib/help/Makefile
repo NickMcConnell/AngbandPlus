@@ -1,14 +1,6 @@
-include ../../mk/rules.mk
-include ../../mk/init.mk
-include ../../mk/objective.mk
+MKPATH=../../mk/
+include $(MKPATH)buildsys.mk
 
-OBJECTIVE_DATA =	\
-	attack.txt:${DATA_PATH}/help  \
-	birth.txt:${DATA_PATH}/help   \
-	command.txt:${DATA_PATH}/help \
-	dungeon.txt:${DATA_PATH}/help \
-	general.txt:${DATA_PATH}/help \
-	option.txt:${DATA_PATH}/help  \
-	playing.txt:${DATA_PATH}/help \
-	version.txt:${DATA_PATH}/help
+DATA = abilattr.txt angdesc.txt basctask.txt birth.hlp cmddesc.txt cmdlist.txt combat.hlp combat.txt command.hlp defence.txt equip.txt explore.hlp fadesc.txt general.hlp getinfo.txt help.hlp macro.txt magic.txt memap.txt mouse.txt newbie.txt oangdesc.txt objs-mon.txt optdesc.txt raceclas.txt specialt.txt symbols.txt terminal.txt town.txt wild-dun.txt
+PACKAGE = ${PACKAGE_NAME}/help
 

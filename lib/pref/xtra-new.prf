@@ -16,7 +16,7 @@
 
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Easterling] ]
 R:0:0x92/0x80
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Dunadan] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Adan] ]
 R:0:0x92/0x81
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Green-Elf] ]
 R:0:0x92/0x82
@@ -45,7 +45,7 @@ R:0:0x92/0x8B
 
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Easterling] ]
 R:0:0x93/0x80
-?:[AND [EQU $CLASS Mage] [EQU $RACE Dunadan] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE Adan] ]
 R:0:0x93/0x81
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Green-Elf] ]
 R:0:0x93/0x82
@@ -74,7 +74,7 @@ R:0:0x93/0x8B
 
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Easterling] ]
 R:0:0x94/0x80
-?:[AND [EQU $CLASS Priest] [EQU $RACE Dunadan] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE Adan] ]
 R:0:0x94/0x81
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Green-Elf] ]
 R:0:0x94/0x82
@@ -103,7 +103,7 @@ R:0:0x94/0x8B
 
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Easterling] ]
 R:0:0x95/0x80
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Dunadan] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE Adan] ]
 R:0:0x95/0x81
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Green-Elf] ]
 R:0:0x95/0x82
@@ -132,7 +132,7 @@ R:0:0x95/0x8B
 
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Easterling] ]
 R:0:0x96/0x80
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Dunadan] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE Adan] ]
 R:0:0x96/0x81
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Green-Elf] ]
 R:0:0x96/0x82
@@ -161,7 +161,7 @@ R:0:0x96/0x8B
 
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Easterling] ]
 R:0:0x97/0x80
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Dunadan] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE Adan] ]
 R:0:0x97/0x81
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Green-Elf] ]
 R:0:0x97/0x82
@@ -190,7 +190,7 @@ R:0:0x97/0x8B
 
 ?:[AND [EQU $CLASS Druid] [EQU $RACE Easterling] ]
 R:0:0x9A/0x80
-?:[AND [EQU $CLASS Druid] [EQU $RACE Dunadan] ]
+?:[AND [EQU $CLASS Druid] [EQU $RACE Adan] ]
 R:0:0x9A/0x81
 ?:[AND [EQU $CLASS Druid] [EQU $RACE Green-Elf] ]
 R:0:0x9A/0x82
@@ -219,7 +219,7 @@ R:0:0x9A/0x8B
 
 ?:[AND [EQU $CLASS Necromancer] [EQU $RACE Easterling] ]
 R:0:0x99/0x80
-?:[AND [EQU $CLASS Necromancer] [EQU $RACE Dunadan] ]
+?:[AND [EQU $CLASS Necromancer] [EQU $RACE Adan] ]
 R:0:0x99/0x81
 ?:[AND [EQU $CLASS Necromancer] [EQU $RACE Green-Elf] ]
 R:0:0x99/0x82
@@ -248,7 +248,7 @@ R:0:0x99/0x8B
 
 ?:[AND [EQU $CLASS Assassin] [EQU $RACE Easterling] ]
 R:0:0x9B/0x80
-?:[AND [EQU $CLASS Assassin] [EQU $RACE Dunadan] ]
+?:[AND [EQU $CLASS Assassin] [EQU $RACE Adan] ]
 R:0:0x9B/0x81
 ?:[AND [EQU $CLASS Assassin] [EQU $RACE Green-Elf] ]
 R:0:0x9B/0x82

@@ -2,7 +2,7 @@
  * File: z-file.c
  * Purpose: Low-level file (and directory) handling
  *
- * Copyright (c) 1997-2007 Ben Harrison, pelpel, Andrew Sidwell
+ * Copyright (c) 1997-2007 Ben Harrison, pelpel, Andrew Sidwell, Matthew Jones
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -15,6 +15,12 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
+#ifdef _WIN32_WCE
+# ifndef WINDOWS
+#  define WINDOWS 1
+# endif
+#endif
+
 #ifdef NDS
 # include <fat.h>
 # include <unistd.h>
@@ -23,14 +29,10 @@
 # include <errno.h>
 #endif
 
-#include "angband.h"
-#include "z-file.h"
-
 #ifndef RISCOS
 #ifdef _WIN32_WCE
 #else
 # include <sys/types.h>
-# include <sys/stat.h>
 #endif
 #endif
 
@@ -41,6 +43,37 @@
 # include <io.h>
 #endif
 #endif
+
+#ifdef MACH_O_CARBON
+# include <Carbon/Carbon.h>
+#endif
+
+#include "z-file.h"
+#include "z-virt.h"
+#include "z-util.h"
+#include "z-form.h"
+
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>
+#endif
+
+#ifdef HAVE_DIRENT_H
+# include <sys/types.h>
+# include <dirent.h>
+#endif
+
+#ifdef HAVE_STAT
+# include <sys/stat.h>
+#endif
+
+/*
+ * Player info
+ */
+int player_uid;
+int player_egid;
+
+
+
 
 /*
  * Drop permissions
@@ -85,961 +118,139 @@ void safe_setuid_grab(void)
 
 
 
-/*
- * The concept of the file routines is that all file handling should be done
- * using as few routines as possible, since every machine is slightly
- * different, but these routines always have the same semantics.
- *
- * Prhaps we should use "path_parse()" to convert from "canonical" filenames
- * (optional leading tildes, internal wildcards, slash as the path seperator,
- * etc) to "system" filenames (no special symbols, system-specific path
- * seperator, etc).  This would allow the program itself to assume that all
- * filenames are "Unix" filenames, and explicitly "extract" such filenames if
- * needed (by "path_parse()", or perhaps "path_canon()"). XXX
- *
- * path_temp() should probably return a "canonical" filename.  XXX
- *
- * Note that "my_fopen()" and "my_open()" and "my_make()" and "my_kill()"
- * and "my_move()" and "my_copy()" should all take "canonical" filenames.
- *
- * Canonical filenames use a leading slash to indicate an absolute path, and a
- * leading tilde to indicate a special directory.  They default to a relative
- * path.  DOS/Windows uses a leading "drivename plus colon" to indicate the
- * use of a "special drive", and then the rest of the path is parsed normally,
- * and MACINTOSH uses a leading colon to indicate a relative path, and an
- * embedded colon to indicate a "drive plus absolute path", and finally
- * defaults to a file in the current working directory, which may or may
- * not be defined.
- */
-
-
-#ifdef HAVE_MKSTEMP
-
-FILE *my_fopen_temp(char *buf, size_t max)
-{
-	int fd;
-
-	/* Prepare the buffer for mkstemp */
-	my_strcpy(buf, "/tmp/anXXXXXX", max);
-
-	/* Secure creation of a temporary file */
-	fd = mkstemp(buf);
-
-	/* Check the file-descriptor */
-	if (fd < 0) return (NULL);
-
-	/* Return a file stream */
-	return (fdopen(fd, "w"));
-}
-
-#else /* HAVE_MKSTEMP */
 
 /*
- * Consider rewriting this so it uses its own buffer.
+ * Apply special system-specific processing before dealing with a filename.
  */
-FILE *my_fopen_temp(char *buf, size_t max)
+static void path_parse(char *buf, size_t max, cptr file)
 {
-#ifdef _WIN32_WCE
-  TCHAR wcBuf[1024]; 
-  TCHAR wcTmp[1024];
-  TCHAR wcPref[1024];
-  mbstowcs(wcPref, "ang", 1024);
-  /* Get the temp path */
-  if (GetTempPath(max, wcTmp) > max) return (NULL);
-  /* Generate a temporary filename */
-  if (GetTempFileName(wcTmp, wcPref, 0, wcBuf) == 0) return (NULL);
-  wcstombs(buf, wcBuf, 1024);
-  /* Open the file */
-  return (my_fopen(buf, "w"));
-#else
-	const char *s;
-
-	/* Temp file */
-	s = tmpnam(NULL);
-
-	/* Oops */
-	if (!s) return (NULL);
-
-	/* Copy to buffer */
-	my_strcpy(buf, s, max);
-
-	/* Open the file */
-	return (my_fopen(buf, "w"));
-#endif /* WCE */
-}
-
-#endif /* HAVE_MKSTEMP */
-
-
-/*
- * Hack -- replacement for "fgets()"
- *
- * Read a string, without a newline, to a file
- *
- * Process tabs, strip internal non-printables
- */
-#define TAB_COLUMNS_1   8
-
-errr my_fgets(FILE *fff, char *buf, size_t n)
-{
-	u16b i = 0;
-	char *s = buf;
-	int len;
-	bool check_encodes = FALSE;
-
-
-	/* Paranoia */
-	if (n <= 0) return (1);
-
-	/* Enforce historical upper bound */
-	if (n > 1024) n = 1024;
-
-	/* Leave a byte for terminating null */
-	len = n - 1;
-
-	/* While there's room left in the buffer */
-	while (i < len)
-	{
-		int c;
-
-		/*
-		 * Read next character - stdio buffers I/O, so there's no
-		 * need to buffer it again using fgets.
-		 */
-		c = fgetc(fff);
-
-		/* End of file */
-		if (c == EOF)
-		{
-			/* No characters read -- signal error */
-			if (i == 0) break;
-
-			/*
-			 * Be nice to DOS/Windows, where a last line of a file isn't
-			 * always \n terminated.
-			 */
-			*s = '\0';
-
-			/* Translate encodes if necessary */
-			if (check_encodes) xstr_trans(buf, 0);
-
-			/* Success */
-			return (0);
-		}
-
-#ifdef MACH_O_CARBON
-
-		/*
-		 * Be nice to the Macintosh, where a file can have Mac or Unix
-		 * end of line, especially since the introduction of OS X.
-		 * MPW tools were also very tolerant to the Unix EOL.
-		 */
-		if (c == '\r') c = '\n';
-
-#endif /* MACH_O_CARBON */
-
-		/* End of line */
-		if (c == '\n')
-		{
-			/* Null terminate */
-			*s = '\0';
-
-			/* Translate encodes if necessary */
-			if (check_encodes) xstr_trans(buf, 0);
-
-			/* Success */
-			return (0);
-		}
-
-		/* Expand a tab into spaces */
-		if (c == '\t')
-		{
-			int tabstop;
-
-			/* Next tab stop */
-			tabstop = ((i + TAB_COLUMNS_1) / TAB_COLUMNS_1) * TAB_COLUMNS_1;
-
-			/* Bounds check */
-			if (tabstop >= len) break;
-
-			/* Convert it to spaces */
-			while (i < tabstop)
-			{
-				/* Store space */
-				*s++ = ' ';
-
-				/* Count */
-				i++;
-			}
-		}
-
-		/* Ignore non-printables */
-		else if (my_isprint((unsigned char)c))
-		{
-			/* Store character in the buffer */
-			*s++ = c;
-
-			/* Count number of characters in the buffer */
-			i++;
-
- 			/* Notice possible encode */
- 			if (c == '[') check_encodes = TRUE;
-		}
-	}
-
-	/* Buffer overflow or EOF - return an empty string */
-	buf[0] = '\0';
-
-	/* Error */
-	return (1);
-}
-
-
-/*
- * Hack -- replacement for "fputs()"
- *
- * Dump a string, plus a newline, to a file
- *
- * Perhaps this function should handle internal weirdness.
- */
-errr my_fputs(FILE *fff, cptr buf, size_t n)
-{
-	/* Unused paramter */
-	(void)n;
-
-	/* Dump, ignore errors */
-	(void)fprintf(fff, "%s\n", buf);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Check to see if a file exists, by opening it read-only.
- *
- * Return TRUE if it does, FALSE if it does not.
- */
-bool my_fexists(const char *fname)
-{
-	int fd;
-
-	/* Try to open it */
-	fd = fd_open(fname, O_RDONLY);
-
-	/* It worked */
-	if (fd >= 0)
-	{
-		fd_close(fd);
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
-}
-
-
-
-/* The file routines for RISC OS are in main-ros.c. */
 #ifndef RISCOS
 
-
-#ifdef SET_UID
-
-/*
- * Find a default user name from the system.
- */
-void user_name(char *buf, size_t len, int id)
-{
-	struct passwd *pw;
-
-	/* Look up the user name */
-	if ((pw = getpwuid(id)))
-	{
-		/* Get the first 15 characters of the user name */
-		my_strcpy(buf, pw->pw_name, len);
-
-		/* Capitalize the user name */
-		buf[0] = toupper((unsigned char)buf[0]);
-
-		return;
-	}
-
-	/* Oops.  Hack -- default to "PLAYER" */
-	my_strcpy(buf, "PLAYER", len);
-}
-
-#endif /* SET_UID */
-
-
-#if defined(SET_UID) || defined(USE_PRIVATE_PATHS)
-
-/*
- * Extract a "parsed" path from an initial filename
- * Normally, we simply copy the filename into the buffer
- * But leading tilde symbols must be handled in a special way
- * Replace "~user/" by the home directory of the user named "user"
- * Replace "~/" by the home directory of the current user
- */
-errr path_parse(char *buf, size_t max, cptr file)
-{
-	cptr u, s;
-	struct passwd	*pw;
-	char user[128];
-
-
-	/* Assume no result */
-	buf[0] = '\0';
-
-	/* No file? */
-	if (!file) return (-1);
-
-	/* File needs no parsing */
-	if (file[0] != '~')
-	{
-		my_strcpy(buf, file, max);
-		return (0);
-	}
-
-	/* Point at the user */
-	u = file+1;
-
-	/* Look for non-user portion of the file */
-	s = strstr(u, PATH_SEP);
-
-	/* Hack -- no long user names */
-	if (s && (s >= u + sizeof(user))) return (1);
-
-	/* Extract a user name */
-	if (s)
-	{
-		int i;
-		for (i = 0; u < s; ++i) user[i] = *u++;
-		user[i] = '\0';
-		u = user;
-	}
-
-	/* Look up the "current" user */
-	if (u[0] == '\0') u = getlogin();
-
-	/* Look up a user (or "current" user) */
-	if (u) pw = getpwnam(u);
-	else pw = getpwuid(getuid());
-
-	/* Nothing found? */
-	if (!pw) return (1);
-
-	/* Make use of the info */
-	my_strcpy(buf, pw->pw_dir, max);
-
-	/* Append the rest of the filename, if any */
-	if (s) my_strcat(buf, s, max);
-
-	/* Success */
-	return (0);
-}
-
-
-#else /* SET_UID */
-
-
-/*
- * Extract a "parsed" path from an initial filename
- *
- * This requires no special processing on simple machines,
- * except for verifying the size of the filename.
- */
-errr path_parse(char *buf, size_t max, cptr file)
-{
 	/* Accept the filename */
 	my_strcpy(buf, file, max);
 
-# ifdef MACH_O_CARBON
+#else /* RISCOS */
 
-	/* Fix it according to the current operating system */
-	convert_pathname(buf);
+	/* Defined in main-ros.c */
+	char *riscosify_name(const char *path);
+	my_strcpy(buf, riscosify_name(path), max);
 
-# endif
-
-	/* Success */
-	return (0);
+#endif /* !RISCOS */
 }
 
 
-#endif /* SET_UID */
 
-
-
-
-/*
- * Create a new path by appending a file (or directory) to a path
- *
- * This requires no special processing on simple machines, except
- * for verifying the size of the filename, but note the ability to
- * bypass the given "path" with certain special file-names.
- *
- * Note that the "file" may actually be a "sub-path", including
- * a path and a file.
- *
- * Note that this function yields a path which must be "parsed"
- * using the "parse" function above.
- */
-errr path_build(char *buf, size_t max, cptr path, cptr file)
+static void path_process(char *buf, size_t len, size_t *cur_len, const char *path)
 {
-	/* Special file */
-	if (file[0] == '~')
-	{
-		/* Use the file itself */
-		my_strcpy(buf, file, max);
-	}
+#if defined(SET_UID) || defined(USE_PRIVATE_PATHS)
 
-	/* Absolute file, on "normal" systems */
-	else if (prefix(file, PATH_SEP) && !streq(PATH_SEP, ""))
+	/* Home directory on Unixes */
+	if (path[0] == '~')
 	{
-		/* Use the file itself */
-		my_strcpy(buf, file, max);
-	}
+		const char *s;
+		const char *username = path + 1;
 
-	/* No path given */
-	else if (!path[0])
-	{
-		/* Use the file itself */
-		my_strcpy(buf, file, max);
-	}
+		struct passwd *pw;
+		char user[128];
 
-	/* Path and File */
+		/* Look for non-user portion of the file */
+		s = strstr(username, PATH_SEP);
+		if (s)
+		{
+			int i;
+
+			/* Keep username a decent length */
+			if (s >= username + sizeof(user)) return;
+
+			for (i = 0; username < s; ++i) user[i] = *username++;
+			user[i] = '\0';
+			username = user;
+		}
+
+#ifndef MACH_O_CARBON
+
+		/* Look up a user (or "current" user) */
+		if (username[0]) pw = getpwnam(username);
+		else             pw = getpwuid(getuid());
+
+#else /* MACH_O_CARBON */
+
+		/* On Macs getlogin() can incorrectly return root, so get the username via system frameworks */
+		CFStringRef cfusername = CSCopyUserName(TRUE);
+		CFIndex cfbufferlength = CFStringGetMaximumSizeForEncoding(CFStringGetLength(cfusername), kCFStringEncodingUTF8) + 1;
+		char *macusername = mem_alloc(cfbufferlength);
+		CFStringGetCString(cfusername, macusername, cfbufferlength, kCFStringEncodingUTF8);
+		CFRelease(cfusername);
+
+		/* Look up the user */
+		pw = getpwnam(macusername);
+		mem_free(macusername);
+#endif /* !MACH_O_CARBON */
+
+		if (!pw) return;
+
+		/* Copy across */
+		strnfcat(buf, len, cur_len, "%s%s", pw->pw_dir, PATH_SEP);
+		if (s) strnfcat(buf, len, cur_len, "%s", s);
+	}
 	else
+
+#endif
+
 	{
-		/* Build the new path */
-		strnfmt(buf, max, "%s%s%s", path, PATH_SEP, file);
+		strnfcat(buf, len, cur_len, "%s", path);
+	}
+}
+
+
+
+
+/*
+ * Create a new path string by appending a 'leaf' to 'base'.
+ *
+ * On Unixes, we convert a tidle at the beginning of a basename to mean the
+ * directory, complicating things a little, but better now than later.
+ *
+ * Remember to free the return value.
+ */
+size_t path_build(char *buf, size_t len, const char *base, const char *leaf)
+{
+	size_t cur_len = 0;
+	buf[0] = '\0';
+
+	if (!leaf || !leaf[0])
+	{
+		if (base && base[0])
+			path_process(buf, len, &cur_len, base);
+
+		return cur_len;
 	}
 
-	/* Success */
-	return (0);
-}
 
-
-/*
- * Hack -- replacement for "fopen()"
- */
-FILE *my_fopen(cptr file, cptr mode)
-{
-	char buf[1024];
-	FILE *fff;
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (NULL);
-
-	/* Attempt to fopen the file anyway */
-	fff = fopen(buf, mode);
-
-#if defined(MACH_O_CARBON)
-
-	/* Set file creator and type */
-	if (fff && strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
-
-#endif
-
-	/* Return open file or NULL */
-	return (fff);
-}
-
-
-/*
- * Hack -- replacement for "fclose()"
- */
-errr my_fclose(FILE *fff)
-{
-	/* Require a file */
-	if (!fff) return (-1);
-
-	/* Close, check for error */
-	if (fclose(fff) == EOF) return (1);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to delete a file
- */
-errr fd_kill(cptr file)
-{
-	char buf[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-#ifdef _WIN32_WCE
-  {
-    TCHAR wcBuf[1024];
-    mbstowcs( wcBuf, buf, 1024);
-    
-    DeleteFile(wcBuf);
-  }
-
-  /* Assume success XXX XXX XXX */
-  return (0);
-  
-#else
-
-	/* Remove, return 0 on success, non-zero on failure */
-	return (remove(buf));
-
-#endif
-}
-
-
-/*
- * Hack -- attempt to move a file
- */
-errr fd_move(cptr file, cptr what)
-{
-	char buf[1024];
-	char aux[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(aux, sizeof(aux), what)) return (-1);
-
-#ifdef _WIN32_WCE
-  {
-    TCHAR wcBuf[1024];
-    TCHAR wcAux[1024];
-    mbstowcs( wcBuf, buf, 1024);
-    mbstowcs( wcAux, aux, 1024);
-    
-    MoveFile(wcBuf, wcAux);
-  }
-  
-  /* Assume success XXX XXX XXX */
-  return (0);
-
-#else
-  /* Rename, return 0 on success, non-zero on failure */
-  return (rename(buf, aux));
-#endif
-}
-
-
-/*
- * Hack -- attempt to open a file descriptor (create file)
- *
- * This function should fail if the file already exists
- *
- * Note that we assume that the file should be "binary"
- */
-int fd_make(cptr file, int mode)
-{
-	char buf[1024];
-	int fd;
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-#ifdef _WIN32_WCE
-  {
-    TCHAR wcBuf[1024];
-    mbstowcs( wcBuf, buf, 1024);
-    
-    return (CreateFile(wcBuf, GENERIC_WRITE, 0, NULL, CREATE_NEW, 
-		       FILE_ATTRIBUTE_NORMAL, 0));
-  }
-#else
-
-	/* Create the file, fail if exists, write-only, binary */
-	fd = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
-
-#ifdef MACH_O_CARBON
-
-	/* Set file creator and type */
-	if (fd >= 0) fsetfileinfo(buf, _fcreator, _ftype);
-
-#endif
-
-	/* Return descriptor */
-	return (fd);
-#endif /* WCE */
-}
-
-
-/*
- * Hack -- attempt to open a file descriptor (existing file)
- *
- * Note that we assume that the file should be "binary"
- */
-int fd_open(cptr file, int flags)
-{
-	char buf[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-#ifdef _WIN32_WCE
-
-  {
-    TCHAR wcBuf[1024];
-    mbstowcs( wcBuf, buf, 1024);
-    
-    return (CreateFile(wcBuf, GENERIC_READ | GENERIC_WRITE, 
-		       FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, 
-		       OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0));
-  }
-#else
-
-	/* Attempt to open the file */
-	return (open(buf, flags | O_BINARY, 0));
-#endif /* WCE */
-}
-
-
-/*
- * Attempt to lock a file descriptor
- *
- * Legal lock types -- F_UNLCK, F_RDLCK, F_WRLCK
- */
-errr fd_lock(int fd, int what)
-{
-#if defined(HAVE_FCNTL_H) && defined(SET_UID)
-
-	struct flock lock;
-
-	/* Verify the fd */
-#ifdef _WIN32_WCE
-	if (fd == -1) return (-1);
-#else
-	if (fd < 0) return (-1);
-#endif
-
-	lock.l_type = what;
-	lock.l_start = 0; /* Lock the entire file */
-	lock.l_whence = SEEK_SET; /* Lock the entire file */
-	lock.l_len = 0; /* Lock the entire file */
-
-	/* Wait for access and set lock status */
 	/*
-	 * Change F_SETLKW to F_SETLK if it's preferable to return
-	 * without locking and reporting an error instead of waiting.
+	 * If the leafname starts with the seperator,
+	 *   or with the tilde (on Unix),
+	 *   or there's no base path,
+	 * We use the leafname only.
 	 */
-	return (fcntl(fd, F_SETLKW, &lock));
-
-#else /* HAVE_FCNTL_H */
-
-	/* Unused parameters */
-	(void)fd;
-	(void)what;
-
-	/* Success */
-	return (0);
-
-#endif /* SET_UID */
-
-}
-
-
-/*
- * Hack -- attempt to seek on a file descriptor
- */
-errr fd_seek(int fd, long n)
-{
-	long p;
-
-#ifdef _WIN32_WCE
-  /* Verify fd */
-  if (fd == INVALID_HANDLE_VALUE) return (-1);
-  
-  /* Seek to the given position */
-  p = SetFilePointer(fd, n, NULL, FILE_BEGIN); 
-  
-  /* Failure */
-  if (p < 0) return (1);
-  
-  /* Failure */
-  if (p != n) return (1);
-  
-  /* Success */
-  return (0);
+#if defined(SET_UID) || defined(USE_PRIVATE_PATHS)
+	if ((!base || !base[0]) || prefix(leaf, PATH_SEP) || leaf[0] == '~')
 #else
-
-	/* Verify fd */
-	if (fd < 0) return (-1);
-
-	/* Seek to the given position */
-	p = lseek(fd, n, SEEK_SET);
-
-	/* Failure */
-	if (p < 0) return (1);
-
-	/* Failure */
-	if (p != n) return (1);
-
-	/* Success */
-	return (0);
+	if ((!base || !base[0]) || prefix(leaf, PATH_SEP))
 #endif
+	{
+		path_process(buf, len, &cur_len, leaf);
+		return cur_len;
+	}
+
+
+	/* There is both a relative leafname and a base path from which it is relative */
+	path_process(buf, len, &cur_len, base);
+	strnfcat(buf, len, &cur_len, "%s", PATH_SEP);
+	path_process(buf, len, &cur_len, leaf);
+
+	return cur_len;
 }
-
-
-#ifndef SET_UID
-#define FILE_BUF_SIZE 16384
-#endif
-
-
-/*
- * Hack -- attempt to read data from a file descriptor
- */
-errr fd_read(int fd, char *buf, size_t n)
-{
-#ifdef _WIN32_WCE
-  DWORD numBytesRead;
-  
-  /* Verify the fd */
-  if (fd == INVALID_HANDLE_VALUE) return (-1);
-  
-#ifndef SET_UID
-  
-  /* Read pieces */
-  while (n >= FILE_BUF_SIZE)
-    {
-      /* Read a piece */
-      if (!ReadFile(fd, buf, FILE_BUF_SIZE, &numBytesRead, NULL))
-	{
-	  return (1);
-	}
-      
-      if (numBytesRead != FILE_BUF_SIZE)
-	{
-	  return (1);
-	}
-      
-      /* Shorten the task */
-      buf += FILE_BUF_SIZE;
-      
-      /* Shorten the task */
-      n -= FILE_BUF_SIZE;
-    }
-  
-#endif
-  
-  /* Read the final piece */
-  if (!ReadFile(fd, buf, n, &numBytesRead, NULL))
-    {
-      return (1);
-    }
-  
-  if (numBytesRead != n)
-    {
-      return (1);
-    }
-  
-  /* Success */
-  return (0);
-
-#else
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#ifndef SET_UID
-
-	/* Read pieces */
-	while (n >= FILE_BUF_SIZE)
-	{
-		/* Read a piece */
-		if (read(fd, buf, FILE_BUF_SIZE) != FILE_BUF_SIZE) return (1);
-
-		/* Shorten the task */
-		buf += FILE_BUF_SIZE;
-
-		/* Shorten the task */
-		n -= FILE_BUF_SIZE;
-	}
-
-#endif
-
-	/* Read the final piece */
-	if (read(fd, buf, n) != (int)n) return (1);
-
-	/* Success */
-	return (0);
-#endif /* WCE */
-}
-
-
-/*
- * Hack -- Attempt to write data to a file descriptor
- */
-errr fd_write(int fd, cptr buf, size_t n)
-{
-#ifdef _WIN32_WCE
-  DWORD numBytesWrite;
-  
-  /* Verify the fd */
-  if (fd == INVALID_HANDLE_VALUE) return (-1);
-  
-#ifndef SET_UID
-  
-  /* Write pieces */
-  while (n >= FILE_BUF_SIZE)
-    {
-      /* Write a piece */
-      if (!WriteFile(fd, buf, FILE_BUF_SIZE, &numBytesWrite, NULL))
-	{
-	  return (1);
-	}
-      
-      if (numBytesWrite != FILE_BUF_SIZE)
-	{
-	  return (1);
-	}
-      
-      /* Shorten the task */
-      buf += FILE_BUF_SIZE;
-      
-      /* Shorten the task */
-      n -= FILE_BUF_SIZE;
-    }
-  
-#endif
-  
-  /* Write the final piece */
-  if (!WriteFile(fd, buf, n, &numBytesWrite, NULL))
-    {
-      return (1);
-    }
-  
-  if (numBytesWrite != n)
-    {
-      return (1);
-    }
-  
-  /* Success */
-  return (0);
-  
-#else
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#ifndef SET_UID
-
-	/* Write pieces */
-	while (n >= FILE_BUF_SIZE)
-	{
-		/* Write a piece */
-		if (write(fd, buf, FILE_BUF_SIZE) != FILE_BUF_SIZE) return (1);
-
-		/* Shorten the task */
-		buf += FILE_BUF_SIZE;
-
-		/* Shorten the task */
-		n -= FILE_BUF_SIZE;
-	}
-
-#endif
-
-	/* Write the final piece */
-	if (write(fd, buf, n) != (int)n) return (1);
-
-	/* Success */
-	return (0);
-#endif
-}
-
-
-/*
- * Hack -- attempt to close a file descriptor
- */
-errr fd_close(int fd)
-{
-#ifdef _WIN32_WCE
-  /* Verify the fd */
-  if (fd == INVALID_HANDLE_VALUE) return (-1);
-  
-  /* Close */
-  if (!CloseHandle(fd))
-    {
-      return (-1);
-    }
-  
-  return (0);
-#else
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-	/* Close, return 0 on success, -1 on failure */
-	return (close(fd));
-#endif
-}
-
-
-#if defined(CHECK_MODIFICATION_TIME)
-
-errr check_modification_date(int fd, cptr template_file)
-{
-#ifdef _WIN32_WCE
-#else
-	char buf[1024];
-
-	struct stat txt_stat, raw_stat;
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, template_file);
-
-	/* Access stats on text file */
-	if (stat(buf, &txt_stat))
-	{
-		/* No text file - continue */
-	}
-
-	/* Access stats on raw file */
-	else if (fstat(fd, &raw_stat))
-	{
-		/* Error */
-		return (-1);
-	}
-
-	/* Ensure text file is not newer than raw file */
-	else if (txt_stat.st_mtime > raw_stat.st_mtime)
-	{
-		/* Reprocess text file */
-		return (-1);
-	}
-#endif  
-
-	return (0);
-}
-
-#endif /* CHECK_MODIFICATION_TIME */
-
-#endif /* RISCOS */
-
-
-/*
- * Format and translate a string, then print it out to file.
- */
-void x_fprintf(FILE *fff, int encoding, cptr fmt, ...)
-{
-	va_list vp;
-
- 	char buf[1024];
-
- 	/* Begin the Varargs Stuff */
- 	va_start(vp, fmt);
-
- 	/* Format the args, save the length */
- 	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
-
- 	/* End the Varargs Stuff */
- 	va_end(vp);
-
- 	/* Translate */
- 	xstr_trans(buf, encoding);
-
- 	fputs(buf, fff);
-}
-
 
 
 
@@ -1055,7 +266,12 @@ void x_fprintf(FILE *fff, int encoding, cptr fmt, ...)
 /* Private structure to hold file pointers and useful info. */
 struct ang_file
 {
+#ifdef _WIN32_WCE
+  HANDLE fh;
+  FILE *fp;
+#else
 	FILE *fh;
+#endif
 	char *fname;
 	file_mode mode;
 };
@@ -1086,7 +302,6 @@ bool file_delete(const char *fname)
   return (0);
   
 #else
-
 	return (remove(buf) == 0);
 #endif
 }
@@ -1102,6 +317,7 @@ bool file_move(const char *fname, const char *newname)
 	/* Get the system-specific paths */
 	path_parse(buf, sizeof(buf), fname);
 	path_parse(aux, sizeof(aux), newname);
+
 #ifdef _WIN32_WCE
   {
     TCHAR wcBuf[1024];
@@ -1116,7 +332,7 @@ bool file_move(const char *fname, const char *newname)
   return (0);
 
 #else
-  return (rename(buf, aux) == 0);
+	return (rename(buf, aux) == 0);
 #endif
 }
 
@@ -1124,7 +340,6 @@ bool file_move(const char *fname, const char *newname)
 /*
  * Decide whether a file exists or not.
  */
-bool file_exists(const char *fname);
 
 #if defined(HAVE_STAT)
 
@@ -1136,9 +351,6 @@ bool file_exists(const char *fname)
 
 #elif defined(WINDOWS)
 
-/*
- * Hack -- Fake declarations from "dos.h" XXX XXX XXX
- */
 #define INVALID_FILE_NAME (DWORD)0xFFFFFFFF
 
 bool file_exists(const char *fname)
@@ -1215,11 +427,76 @@ bool file_newer(const char *first, const char *second)
  * Open file 'fname', in mode 'mode', with filetype 'ftype'.
  * Returns file handle or NULL.
  */
+#ifdef _WIN32_WCE
 ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 {
 	ang_file *f = ZNEW(ang_file);
 	char modestr[3] = "__";
 	char buf[1024];
+        TCHAR wcBuf[1024];
+	DWORD p;
+
+
+	(void)ftype;
+
+	/* Get the system-specific path */
+	path_parse(buf, sizeof(buf), fname);
+
+        mbstowcs( wcBuf, buf, 1024);
+
+	switch (mode)
+	{
+		case MODE_WRITE:
+			modestr[0] = 'w';
+			modestr[1] = 'b';
+			f->fh =  (CreateFile(wcBuf, GENERIC_WRITE, 
+					     FILE_SHARE_READ | FILE_SHARE_WRITE,
+					     NULL, OPEN_ALWAYS, 
+					     FILE_ATTRIBUTE_NORMAL, 0));
+			break;
+		case MODE_READ:
+			modestr[0] = 'r';
+			modestr[1] = 'b';
+			f->fh =  (CreateFile(wcBuf, GENERIC_READ, 
+					     FILE_SHARE_READ | FILE_SHARE_WRITE,
+					     NULL, OPEN_EXISTING, 
+					     FILE_ATTRIBUTE_NORMAL, 0));
+		  break;
+		case MODE_APPEND:
+			modestr[0] = 'a';
+			modestr[1] = '+';
+			f->fh =  (CreateFile(wcBuf, GENERIC_WRITE, 
+					     FILE_SHARE_READ | FILE_SHARE_WRITE,
+					     NULL, OPEN_ALWAYS, 
+					     FILE_ATTRIBUTE_NORMAL, 0));
+			p = SetFilePointer(f->fh, 0, NULL, FILE_END); 
+		  break;
+		default:
+			break;
+	}
+
+    
+	if (f->fh == INVALID_HANDLE_VALUE) 
+	{
+		FREE(f);
+		return NULL;
+	}
+
+	f->fp = fopen(buf, modestr);
+	f->fname = string_make(buf);
+	f->mode = mode;
+
+
+	return f;
+}
+#else
+ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
+{
+	ang_file *f = ZNEW(ang_file);
+	char modestr[3] = "__";
+	char buf[1024];
+
+	(void)ftype;
 
 	/* Get the system-specific path */
 	path_parse(buf, sizeof(buf), fname);
@@ -1235,22 +512,21 @@ ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 			modestr[1] = 'b';
 			break;
 		case MODE_APPEND:
-			modestr[0] = 'w';
-			modestr[1] = 'a';
+			modestr[0] = 'a';
+			modestr[1] = '+';
 			break;
 		default:
 			break;
 	}
 
 	f->fh = fopen(buf, modestr);
-
 	if (f->fh == NULL)
 	{
 		FREE(f);
 		return NULL;
 	}
 
-	f->fname = (char *)string_make(buf);
+	f->fname = string_make(buf);
 	f->mode = mode;
 
 #ifdef MACH_O_CARBON
@@ -1259,12 +535,12 @@ ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 	/* OS X uses its own kind of filetypes */
 	if (mode != MODE_READ)
 	{
-		char mac_type = 'TEXT';
+		u32b mac_type = 'TEXT';
 
 		if (ftype == FTYPE_RAW) mac_type = 'DATA';
 		else if (ftype == FTYPE_SAVE) mac_type = 'SAVE';
 
-		fsetfileinfo(buf, 'A271', ftype);
+		fsetfileinfo(buf, 'A271', mac_type);
 	}
 #endif
 
@@ -1276,15 +552,28 @@ ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 
 	return f;
 }
-
+#endif
 /*
  * Close file handle 'f'.
  */
 bool file_close(ang_file *f)
 {
+#ifdef _WIN32_WCE
+  /* Verify the handle */
+  if (f->fh == INVALID_HANDLE_VALUE) return FALSE;
+  
+  /* Close */
+  if (!CloseHandle(f->fh))
+    {
+      return FALSE;
+    }
+	if (fclose(f->fp) != 0)
+		return FALSE;
+#else
 	if (fclose(f->fh) != 0)
 		return FALSE;
 
+#endif /* WCE */
 	FREE(f->fname);
 	FREE(f);
 
@@ -1330,12 +619,31 @@ void file_unlock(ang_file *f)
 
 /** Byte-based IO and functions **/
 
+#if _WIN32_WCE
+#define FAILED_SEEK (DWORD)0xFFFFFFFF
+#endif
 /*
  * Seek to location 'pos' in file 'f'.
  */
 bool file_seek(ang_file *f, u32b pos)
 {
+#if _WIN32_WCE
+	DWORD p;
+
+	/* Verify handle */
+	if (f->fh == INVALID_HANDLE_VALUE) return (FALSE);
+	
+	/* Seek to the given position */
+	p = SetFilePointer(f->fh, (LONG) pos, NULL, FILE_BEGIN); 
+	
+	/* Failure */
+	if (p == FAILED_SEEK) return (FALSE);
+	
+	/* Success */
+	return (TRUE);
+#else
 	return (fseek(f->fh, pos, SEEK_SET) == 0);
+#endif
 }
 
 /*
@@ -1343,27 +651,44 @@ bool file_seek(ang_file *f, u32b pos)
  */
 bool file_readc(ang_file *f, byte *b)
 {
+#ifdef _WIN32_WCE
+	int i = fgetc(f->fp);
+#else
 	int i = fgetc(f->fh);
-
+#endif
 	if (i == EOF)
 		return FALSE;
 
 	*b = (byte)i;
 	return TRUE;
 }
-
+#if 0
+/*
+ * Write a single, 8-bit character 'b' to file 'f'.
+ */
+bool file_writec(ang_file *f, byte b)
+{
+	return file_write(f, (const char *)&b, 1);
+}
+#endif
 /* 
  * Write a single, 8-bit character 'b' to file 'f'.
  */
 bool file_writec(ang_file *f, byte b)
 {
+#ifdef _WIN32_WCE
+	return (fputc((int)b, f->fp) != EOF);
+#else
 	return (fputc((int)b, f->fh) != EOF);
+#endif
 }
+
+
+
 
 /*
  * Read 'n' bytes from file 'f' into array 'buf'.
  */
-size_t file_read(ang_file *f, char *buf, size_t n);
 
 #ifdef HAVE_READ
 
@@ -1371,73 +696,74 @@ size_t file_read(ang_file *f, char *buf, size_t n);
 # define READ_BUF_SIZE 16384
 #endif
 
-size_t file_read(ang_file *f, char *buf, size_t n)
+int file_read(ang_file *f, char *buf, size_t n)
 {
 #ifdef _WIN32_WCE
   DWORD numBytesRead;
-  
-#endif
+  HANDLE fd = f->fh;
+  bool got;
+#else
 	int fd = fileno(f->fh);
+#endif
+	int ret;
+	int n_read = 0;
 
 #ifndef SET_UID
 
 	while (n >= READ_BUF_SIZE)
 	{
-
 #ifdef _WIN32_WCE
 	  /* Read a piece */
-	  if (!ReadFile(fd, buf, FILE_BUF_SIZE, &numBytesRead, NULL))
-	    {
-	      return FALSE;
-	    }
-	  
-	  if (numBytesRead != FILE_BUF_SIZE)
-	    {
-	      return FALSE;
-	    }
+	  got = ReadFile(fd, buf, READ_BUF_SIZE, &numBytesRead, NULL);
+	  ret = numBytesRead;
 #else
-	  if (read(fd, buf, READ_BUF_SIZE) != READ_BUF_SIZE)
-	    return FALSE;
-#endif	  
+		ret = read(fd, buf, READ_BUF_SIZE);
+#endif
+		n_read += ret;
 
-	  buf += READ_BUF_SIZE;
-	  n -= READ_BUF_SIZE;
+		if (ret == -1)
+			return -1;
+		else if (ret != READ_BUF_SIZE)
+			return n_read;
+
+		buf += READ_BUF_SIZE;
+		n -= READ_BUF_SIZE;
 	}
 
 #endif /* !SET_UID */
 
 #ifdef _WIN32_WCE
-	  if (!ReadFile(fd, buf, n, &numBytesRead, NULL))
-	    {
-	      return FALSE;
-	    }
-	  
-	  if (numBytesRead != (int)n)
-	    {
-	      return FALSE;
-	    }
+	got = ReadFile(fd, buf, n, &numBytesRead, NULL);
+	ret = numBytesRead;
 #else
-	if (read(fd, buf, n) != (int)n)
-		return FALSE;
+	ret = read(fd, buf, n);
 #endif
+	n_read += ret;
 
-	return TRUE;
+	if (ret == -1)
+		return -1;
+	else
+		return n_read;
 }
 
-#else
+#else /* HAVE_READ */
 
-size_t file_read(ang_file *f, char *buf, size_t n)
+int file_read(ang_file *f, char *buf, size_t n)
 {
-	return fread(buf, 1, n, f->fh);
+	size_t read = fread(buf, 1, n, f->fh);
+
+	if (read == 0 && ferror(f->fh))
+		return -1;
+	else
+		return read;
 }
 
-#endif
+#endif /* HAVE_READ */
 
 
 /*
  * Append 'n' bytes of array 'buf' to file 'f'.
  */
-bool file_write(ang_file *f, const char *buf, size_t n);
 
 #ifdef HAVE_WRITE
 
@@ -1449,9 +775,10 @@ bool file_write(ang_file *f, const char *buf, size_t n)
 {
 #ifdef _WIN32_WCE
   DWORD numBytesWrite;
-  
-#endif
+  HANDLE fd = f->fh;
+#else
 	int fd = fileno(f->fh);
+#endif
 
 #ifndef SET_UID
 
@@ -1459,20 +786,18 @@ bool file_write(ang_file *f, const char *buf, size_t n)
 	{
 #ifdef _WIN32_WCE
 	  /* Write a piece */
-	  if (!WriteFile(fd, buf, FILE_BUF_SIZE, &numBytesWrite, NULL))
+	  if (!WriteFile(fd, buf, WRITE_BUF_SIZE, &numBytesWrite, NULL))
 	    {
 	      return FALSE;
 	    }
 	  
-	  if (numBytesWrite != FILE_BUF_SIZE)
+	  if (numBytesWrite != WRITE_BUF_SIZE)
 	    {
 	      return FALSE;
 	    }
 #else
-
 		if (write(fd, buf, WRITE_BUF_SIZE) != WRITE_BUF_SIZE)
 			return FALSE;
-
 #endif
 		buf += WRITE_BUF_SIZE;
 		n -= WRITE_BUF_SIZE;
@@ -1491,11 +816,11 @@ bool file_write(ang_file *f, const char *buf, size_t n)
 	    {
 	      return FALSE;
 	    }
+
 #else
 	if (write(fd, buf, n) != (int)n)
 		return FALSE;
 #endif
-
 	return TRUE;
 }
 
@@ -1610,59 +935,48 @@ bool file_putf(ang_file *f, const char *fmt, ...)
 	return file_put(f, buf);
 }
 
+/*
+ * Format and translate a string, then print it out to file.
+ */
+void x_fprintf(ang_file *f, int encoding, cptr fmt, ...)
+{
+	va_list vp;
 
-/*** Directory scanning code ***/
+ 	char buf[1024];
+
+ 	/* Begin the Varargs Stuff */
+ 	va_start(vp, fmt);
+
+ 	/* Format the args, save the length */
+ 	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
+
+ 	/* End the Varargs Stuff */
+ 	va_end(vp);
+
+ 	/* Translate */
+ 	xstr_trans(buf, encoding);
+
+ 	file_put(f, buf);
+}
+
+
+
+/*** Directory scanning API ***/
 
 /*
- * This code was originally written for the SDL port so it could scan for fonts
- * without needing a fontlist text file.
+ * For information on what these are meant to do, please read the header file.
  */
-
-
-/*
- * Opens a directory handle.
- * 
- * `dirname` must be a system-specific pathname to the directory
- * you want scanned.
- *
- * Returns a valid directory handle on success, NULL otherwise.
- */
-ang_dir *my_dopen(const char *dirname);
-
-
-/*
- * Reads a directory entry.
- *
- * `dir` must point to a directory handle previously returned by my_dopen().
- * `fname` must be a pointer to a writeable chunk of memory `len` long.
- *
- * Returns TRUE on successful reading, FALSE otherwise.
- * (FALSE generally indicates that there are no more files to be read.)
- */
-bool my_dread(ang_dir *dir, char *fname, size_t len);
-
-
-/*
- * Close a directory handle.
- */
-void my_dclose(ang_dir *dir);
-
-
-
 
 #ifdef WINDOWS
 
-/* Include Windows header */
-#include <windows.h>
 
 /* System-specific struct */
 struct ang_dir
 {
 	HANDLE h;
-	const char *first_file;
+	char *first_file;
 };
 
-/* Specified above */
 ang_dir *my_dopen(const char *dirname)
 {
 	WIN32_FIND_DATA fd;
@@ -1676,11 +990,8 @@ ang_dir *my_dopen(const char *dirname)
 	if (h == INVALID_HANDLE_VALUE)
 		return NULL;
 
-	/* Allocate for the handle */
-	dir = ralloc(sizeof dir);
-	if (!dir) return NULL;
-
-	/* Remember details */
+	/* Set up the handle */
+	dir = ZNEW(ang_dir);
 	dir->h = h;
 	dir->first_file = string_make(fd.cFileName);
 
@@ -1688,7 +999,6 @@ ang_dir *my_dopen(const char *dirname)
 	return dir;
 }
 
-/* Specified above */
 bool my_dread(ang_dir *dir, char *fname, size_t len)
 {
 	WIN32_FIND_DATA fd;
@@ -1699,8 +1009,7 @@ bool my_dread(ang_dir *dir, char *fname, size_t len)
 	{
 		/* Copy the string across, then free it */
 		my_strcpy(fname, dir->first_file, len);
-		string_free(dir->first_file);
-		dir->first_file = NULL;
+		FREE(dir->first_file);
 
 		/* Wild success */
 		return TRUE;
@@ -1735,6 +1044,7 @@ void my_dclose(ang_dir *dir)
 		FindClose(dir->h);
 
 	/* Free memory */
+	FREE(dir->first_file);
 	FREE(dir);
 }
 
@@ -1743,18 +1053,13 @@ void my_dclose(ang_dir *dir)
 
 #ifdef HAVE_DIRENT_H
 
-/* Include relevant types */
-#include <sys/types.h>
-#include <dirent.h>
-
 /* Define our ang_dir type */
 struct ang_dir
 {
 	DIR *d;
-	const char *dirname;
+	char *dirname;
 };
 
-/* Specified above */
 ang_dir *my_dopen(const char *dirname)
 {
 	ang_dir *dir;
@@ -1765,7 +1070,7 @@ ang_dir *my_dopen(const char *dirname)
 	if (!d) return NULL;
 
 	/* Allocate memory for the handle */
-	dir = ralloc(sizeof dir);
+	dir = ZNEW(ang_dir);
 	if (!dir) 
 	{
 		closedir(d);
@@ -1776,23 +1081,15 @@ ang_dir *my_dopen(const char *dirname)
 	dir->d = d;
 	dir->dirname = string_make(dirname);
 
-	if (!dir->dirname)
-	{
-		closedir(d);
-		rnfree(dir);
-		return NULL;
-	}
-
 	/* Success */
 	return dir;
 }
 
-/* Specified above */
 bool my_dread(ang_dir *dir, char *fname, size_t len)
 {
 	struct dirent *entry;
 	struct stat filedata;
-	char path[1024] = "";
+	char path[1024];
 
 	assert(dir != NULL);
 
@@ -1826,12 +1123,10 @@ void my_dclose(ang_dir *dir)
 {
 	/* Close directory */
 	if (dir->d)
-	{
 		closedir(dir->d);
-		string_free(dir->dirname);
-	}
 
 	/* Free memory */
+	FREE(dir->dirname);
 	FREE(dir);
 }
 

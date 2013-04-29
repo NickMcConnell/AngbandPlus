@@ -465,13 +465,8 @@ static void wiz_display_item(object_type *o_ptr)
 {
   int j = 0;
   
-  u32b f1, f2, f3;
-  
   char buf[256];
   
-  
-  /* Extract the flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
   
   /* Clear screen */
   Term_clear();
@@ -497,32 +492,21 @@ static void wiz_display_item(object_type *o_ptr)
   prt(format("ident = %04x  timeout = %-d",
 	     o_ptr->ident, o_ptr->timeout), 8, j);
   
-  prt("+------------FLAGS1------------+", 10, j);
-  prt("AFFECT..........SLAY......BRAND.", 11, j);
-  prt("                ae      x q aefc", 12, j);
-  prt("siwdcc  ssidsa  nvudotgdd u clio", 13, j);
-  prt("tnieoh  trnipt  iinmrrnrr a ierl", 14, j);
-  prt("rtsxna..lcfgdk..mldncltgg.k.dced", 15, j);
-  prt_binary(f1, 16, j);
+  prt("+------------FLAGS_------------+", 10, j);
+  prt("..SUST..POWERS....OTHER.........", 11, j);
+  prt("                                ", 12, j);
+  prt("tbsiwdcc  re   s  ttbiaefc   f..", 13, j);
+  prt("hatnieohsfessfhefphhlmcliosspr..", 14, j);
+  prt("rlrtsxnadfgpialerlrdspppppmcca..", 15, j);
+  prt_binary(o_ptr->flags_obj, 16, j);
   
-  prt("+------------FLAGS2------------+", 17, j);
-  prt("SUST....IMMUN.RESIST............", 18, j);
-  prt("	     aefcp psaefcp ldbc sn   ", 19, j);
-  prt("siwdcc  clioo atclioo ialoshtncd", 20, j);
-  prt("tnieoh  ierli raierli trnnnrhehi", 21, j);
-  prt("rtsxna..dceds.atdceds.ekdfddrxss", 22, j);
-  prt_binary(f2, 23, j);
-  
-  prt("+------------FLAGS3------------+", 10, j+32);
-  prt("        ehsi  st	 iiiiadta  hp", 11, j+32);
-  prt("        aihnf ee	 ggggcregb vr", 12, j+32);
-  prt("        sdose eld	 nnnntalrl ym", 13, j+32);
-  prt("        yewta ieirmsrrrriieaeccc", 14, j+32);
-  prt("        ktmatlnpgeihaefcvnpvsuuu", 15, j+32);
-  prt("        nyoahivaeggoclioaeoasrrr", 16, j+32);
-  prt("        opdretitsehtierltxrtesss", 17, j+32);
-  prt("        westreshtntsdcedeptedeee", 18, j+32);
-  prt_binary(f3, 19, j+32);
+  prt("+------------CURSES------------+", 17, j);
+  prt("	n r    b b       b             ", 18, j);
+  prt("ttaasahppcuhdaassppdddd.........", 19, j);
+  prt("eeggrfuooutawduttaaxssc.........", 20, j);
+  prt("llggerniitrlemncwrrppth.........", 21, j);
+  prt_binary(o_ptr->flags_curse, 22, j);
+  prt("Resists, bonuses and slays coming soon...", 23, j);
 }
 
 
@@ -758,7 +742,7 @@ static int wiz_create_itemtype(bool artifact)
 	  if (k_ptr->tval == tval)
 	    {
 	      /* Hack -- Skip instant artifacts */
-	      if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+	      if (k_ptr->flags_kind & (KF_INSTA_ART)) continue;
 	      
 	      /* Prepare it */
 	      row = 2 + (num % 20);
@@ -1328,9 +1312,6 @@ static void wiz_create_item(void)
  */
 static void do_cmd_wiz_cure_all(void)
 {
-  /* Remove curses */
-  (void)remove_all_curse();
-  
   /* Restore stats */
   (void)res_stat(A_STR);
   (void)res_stat(A_INT);
@@ -1704,23 +1685,27 @@ static void wiz_create_artifact(void)
   o_ptr->to_h = a_ptr->to_h;
   o_ptr->to_d = a_ptr->to_d;
   o_ptr->weight = a_ptr->weight;
+  
+  o_ptr->flags_obj = a_ptr->flags_obj;
+  o_ptr->flags_curse = a_ptr->flags_curse;
+
   for (i = 0; i < MAX_P_RES; i++)
     o_ptr->percent_res[i] = a_ptr->percent_res[i];
-  o_ptr->el_proof = (ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF);
+  for (i = 0; i < A_MAX; i++)
+    o_ptr->bonus_stat[i] = a_ptr->bonus_stat[i];
+  for (i = 0; i < MAX_P_BONUS; i++)
+    o_ptr->bonus_other[i] = a_ptr->bonus_other[i];
+  for (i = 0; i < MAX_P_SLAY; i++)
+    o_ptr->multiple_slay[i] = a_ptr->multiple_slay[i];
+  for (i = 0; i < MAX_P_BRAND; i++)
+    o_ptr->multiple_brand[i] = a_ptr->multiple_brand[i];
       
   
   /* Transfer the activation information. */
   if (a_ptr->activation)
     {
-      o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
-      o_ptr->xtra2 = a_ptr->activation;
+      o_ptr->activation = a_ptr->activation;
     }
-  
-  /* Hack -- extract the "broken" flag */
-  if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-  
-  /* Hack -- extract the "cursed" flag */
-  if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
   
   /* Drop the artifact from heaven */
   drop_near(o_ptr, -1, p_ptr->py, p_ptr->px);
@@ -1970,8 +1955,7 @@ void do_cmd_debug(void)
       /* View item info */
     case 'f':
       {
-	//(void)identify_fully();
-	(void)ident_spell();
+	(void)identify_fully();
 	break;
       }
       

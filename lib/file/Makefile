@@ -1,8 +1,6 @@
-include ../../mk/rules.mk
-include ../../mk/init.mk
+MKPATH=../../mk/
+include $(MKPATH)buildsys.mk
 
-OBJECTIVE_DATA = \
-	dead.txt:${DATA_PATH}/file \
-	news.txt:${DATA_PATH}/file
+DATA = a_cursed.txt a_normal.txt boat_s.txt boat.txt bravado.txt dead_s.txt dead.txt names.txt news_s.txt news.txt splash_s.txt splash.txt tree_s.txt tree.txt w_cursed.txt w_normal.txt
+PACKAGE = ${PACKAGE_NAME}/file
 
-include ../../mk/objective.mk

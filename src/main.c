@@ -268,17 +268,6 @@ static void change_path(cptr info)
 	break;
       }
       
-#ifdef VERIFY_SAVEFILE
-      
-    case 'b':
-    case 'd':
-    case 'e':
-    case 's':
-      {
-	quit_fmt("Restricted option '-d%s'", info);
-      }
-      
-#else /* VERIFY_SAVEFILE */
       
     case 'b':
       {
@@ -308,21 +297,34 @@ static void change_path(cptr info)
 	break;
       }
       
-    case 'z':
-      {
-	string_free(ANGBAND_DIR_SCRIPT);
-	ANGBAND_DIR_SCRIPT = string_make(s+1);
-	break;
-      }
-      
-#endif /* VERIFY_SAVEFILE */
-      
     default:
       {
 	quit_fmt("Bad semantics in '-d%s'", info);
       }
     }
 }
+
+#ifdef SET_UID
+
+/*
+ * Find a default user name from the system.
+ */
+static void user_name(char *buf, size_t len, int id)
+{
+	struct passwd *pw = getpwuid(id);
+
+	/* Default to PLAYER */
+	if (!pw)
+	{
+		my_strcpy(buf, "PLAYER", len);
+		return;
+	}
+
+	/* Capitalise and copy */
+	strnfmt(buf, len, "%^s", pw->pw_name);
+}
+
+#endif /* SET_UID */
 
 
 /*

@@ -62,10 +62,12 @@ void delete_monster_idx(int i)
   if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
     {
       l_ptr->sights = 0;
-      l_ptr->pkills = 1;
+      l_ptr->deaths = 0;
+      l_ptr->pkills = 0;
       l_ptr->tkills = 0;
       bones_selector = 0;
       ghost_has_spoken = FALSE;
+      r_ptr->rarity = 0;
     }
   
   /* Delete objects */
@@ -286,10 +288,12 @@ void wipe_m_list(void)
       if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
 	  l_ptr->sights = 0;
-	  l_ptr->pkills = 1;
+	  l_ptr->deaths = 0;
+	  l_ptr->pkills = 0;
 	  l_ptr->tkills = 0;
 	  bones_selector = 0;
 	  ghost_has_spoken = FALSE;
+	  r_ptr->rarity = 0;
 	}
       
       /* Hack -- Reduce the racial counter */
@@ -540,6 +544,11 @@ s16b get_mon_num(int level)
 	      (stage_map[p_ptr->stage][LOCALITY] != ANGBAND))
 	    continue;
 	  
+	  /* Hack - dungeon-only monsters */
+	  if ((r_ptr->flags3 & (RF3_DUNGEON)) &&
+	      (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE))
+	    continue;
+      
 	  /* Hack - choose flying monsters for mountaintop */
 	  if ((stage_map[p_ptr->stage][LOCALITY] == MOUNTAIN_TOP) && 
 	      !(r_ptr->flags2 & (RF2_FLYING)))
@@ -731,6 +740,10 @@ void display_monlist(void)
       /* Obtain the length of the description */
       n = strlen(m_name);
       
+      /* Hack - translate if we do that */
+      if (Term->xchar_hook)
+	xstr_trans(m_name, (Term->xchar_hook(128) == 128));
+
       /* Display the entry itself */
       Term_putstr(0, line, n, TERM_WHITE, m_name);
       
@@ -845,7 +858,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
   monster_race *r_ptr = &r_info[m_ptr->r_idx];
   
   cptr name = (r_name + r_ptr->name);
-  char racial_name[40] = "oops";
+  char undead_name[40] = "oops";
   
   bool seen, pron;
   
@@ -928,18 +941,24 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
   /* Handle all other visible monster requests */
   else
     {
+      cptr race_name = NULL;
+      
+      /* Get a racial prefix if necessary */
+      if (m_ptr->p_race != NON_RACIAL) 
+	race_name = p_name + p_info[m_ptr->p_race].name;
+	
       /* It could be a player ghost. */
       if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
 	  /* Get the ghost name. */
 	  strcpy(desc, ghost_name);
 	  
-	  /* Get the racial name. */
-	  strcpy(racial_name, r_name + r_ptr->name);
+	  /* Get the undead name. */
+	  strcpy(undead_name, r_name + r_ptr->name);
 	  
 	  /* Build the ghost name. */
 	  strcat(desc, ", the ");
-	  strcat(desc, racial_name);
+	  strcat(desc, undead_name);
 	}
       
       /* It could be a Unique */
@@ -952,19 +971,48 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
       /* It could be an indefinite monster */
       else if (mode & 0x08)
 	{
+	  bool vowel;
+	  char first[2];
+
+	  if (race_name) vowel = is_a_vowel(race_name[0]);
+	  else vowel = is_a_vowel(name[0]);
+
 	  /* XXX Check plurality for "some" */
 	  
 	  /* Indefinite monsters need an indefinite article */
-	  strcpy(desc, is_a_vowel(name[0]) ? "an " : "a ");
-	  strcat(desc, name);
+	  strcpy(desc, vowel ? "an " : "a ");
+
+	  /* Hack - no capital if there's a race name first */
+	  if (race_name) 
+	    {
+	      strcat(desc, race_name);
+	      strcat(desc, " ");
+	      first[0] = my_tolower(name[0]);
+	      first[1] = '\0';
+	      strcat(desc, first);
+	      strcat(desc, name + 1);
+	    }
+	  else strcat(desc, name);
 	}
       
       /* It could be a normal, definite, monster */
       else
 	{
+	  char first[2];
+
 	  /* Definite monsters need a definite article */
 	  strcpy(desc, "the ");
-	  strcat(desc, name);
+	  /* Hack - no capital if there's a race name first */
+	  if (race_name) 
+	    {
+	      strcat(desc, race_name);
+	      strcat(desc, " ");
+	      first[0] = my_tolower(name[0]);
+	      first[1] = '\0';
+	      strcat(desc, first);
+	      strcat(desc, name + 1);
+	    }
+	  else strcat(desc, name);
 	}
       
       /* Handle the Possessive as a special afterthought */
@@ -1671,6 +1719,26 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 }
 
 
+/* Group mode for making mono-racial groups */
+static bool group_mode = FALSE;
+
+/* Group race for making mono-racial groups */
+static byte group_race = NON_RACIAL;
+
+/* Current group leader */
+static u16b group_leader;
+
+/*
+ * Find an appropriate same race monster 
+ */
+static bool get_racial_monster(int r_idx)
+{
+  monster_race *r_ptr = &r_info[r_idx];
+
+  if (!(r_ptr->flags3 & (RF3_RACIAL))) return (FALSE);
+
+  return (TRUE);
+}
 
 /*
  * Attempt to place a monster of the given race at the given location.
@@ -1693,7 +1761,7 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
  */
 static bool place_monster_one(int y, int x, int r_idx, bool slp)
 {
-  int i;
+  int i, r1_idx;
   
   monster_race *r_ptr;
   
@@ -1702,6 +1770,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
   
   cptr name;
   
+  /* Save previous monster restriction value. */
+  bool (*get_mon_num_hook_temp)(int r_idx) = get_mon_num_hook;
+  
   /* Paranoia */
   if (!r_idx) return (FALSE);
   
@@ -1709,7 +1780,35 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
   if (!in_bounds(y, x)) return (FALSE);
   
   /* Race */
-  r_ptr = &r_info[r_idx];
+  if (group_mode)
+    { 
+      /* Set the hook */
+      get_mon_num_hook = get_racial_monster;
+
+      /* Prepare allocation table */
+      get_mon_num_prep();
+      
+      /* XXX - rebuild monster table */
+      (void)get_mon_num(monster_level);
+
+      /* Try to get a monster */
+      r1_idx = get_mon_num(monster_level);
+
+      /* Reset the hook */
+      get_mon_num_hook = get_mon_num_hook_temp;
+
+      /* Prepare allocation table */
+      get_mon_num_prep();
+      
+      /* XXX - rebuild monster table */
+      (void)get_mon_num(monster_level);
+
+      /* Success? */
+      if (r1_idx == 0) return (FALSE);
+    }
+  else r1_idx = r_idx;
+
+  r_ptr = &r_info[r1_idx];
   
   /* No light hating monsters in daytime */
   if ((r_ptr->flags3 & (RF3_HURT_LITE)) && 	
@@ -1765,7 +1864,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
   
   
   /* Save the race */
-  n_ptr->r_idx = r_idx;
+  n_ptr->r_idx = r1_idx;
   
   
   /* 
@@ -1777,6 +1876,10 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
       if (!prepare_ghost(r_idx, n_ptr, FALSE)) return (FALSE);
       
       name = format("%s, the %s", ghost_name, name);
+
+      /* Hack - point to the special "ghost slot" */
+      r_ptr = &r_info[PLAYER_GHOST_RACE];
+      n_ptr->r_idx = PLAYER_GHOST_RACE;
     }
   
   /* Enforce sleeping if needed */
@@ -1846,7 +1949,78 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
       /* Give a random starting energy */
       n_ptr->energy = rand_int(50);
     }
+
+  /* Set the group leader, if there is one */
+  n_ptr->group_leader = group_leader;
   
+  /* Initialize racial monster */
+  if (r_ptr->flags3 & (RF3_RACIAL))
+    {
+      int chance, k;
+
+      /* Race is already chosen for group mode */
+      if (group_mode) 
+	{
+	  n_ptr->p_race = group_race;
+	  n_ptr->group = group_id;
+	}
+
+      /* Choose a race */
+      else
+	{
+	  k = rand_int(race_prob[p_ptr->stage][z_info->p_max - 1]);
+	  
+	  for (i = 0; i < z_info->p_max; i++)
+	    if (race_prob[p_ptr->stage][i] > k) 
+	      {
+		n_ptr->p_race = i;
+		break;
+	      }
+
+	  /* Hack for Estolad themed level - Edain or Druedain */
+	  if (p_ptr->themed_level == THEME_ESTOLAD)
+	    n_ptr->p_race = (rand_int(100) < 50 ? 6 : 8);
+
+	  /* Set group ID */
+	  n_ptr->group = ++group_id;
+
+	  /* Go into group mode if necessary */
+	  if (r_ptr->flags1 & (RF1_FRIEND | RF1_FRIENDS))
+	    {
+	      group_mode = TRUE;
+	      group_race = n_ptr->p_race;
+	    }
+	}
+	  
+      /* Set old race */
+      n_ptr->old_p_race = NON_RACIAL;
+
+      /* Set hostility */
+      chance = g_info[(n_ptr->p_race * z_info->p_max) + p_ptr->prace] - 100;
+      if (chance < 0) chance = 0;
+      k = rand_int(chance + 20);
+      if ((k > 20)  || (stage_map[p_ptr->stage][STAGE_TYPE] == CAVE) ||
+	  (p_ptr->themed_level == THEME_WARLORDS) || 
+	  (cave_info[y][x] & CAVE_ICKY)) 
+	n_ptr->hostile = -1;
+      else n_ptr->hostile = 0;
+    }
+
+  else 
+    {
+      n_ptr->p_race = NON_RACIAL;
+      n_ptr->old_p_race = NON_RACIAL;
+      n_ptr->hostile = -1;
+      n_ptr->group = ++group_id;
+    }
+
+  /* Mark territorial monster's home */
+  if (r_ptr->flags3 & (RF3_TERRITORIAL))
+    {
+      n_ptr->y_terr = y;
+      n_ptr->x_terr = x;
+    }
+
   /* Place the monster in the dungeon */
   if (!monster_place(y, x, n_ptr)) return (FALSE);
   
@@ -1964,6 +2138,10 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp,
 	    }
 	}
     }
+  
+  /* Cancel group mode */
+  group_mode = FALSE;
+  group_race = NON_RACIAL;
   
   /* Hack -- restore the rating */
   rating = old;
@@ -2131,11 +2309,19 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
   monster_race *r_ptr = &r_info[r_idx];
   
   /* Place one monster, or fail */
-  if (!place_monster_one(y, x, r_idx, slp)) return (FALSE);
+  if (!place_monster_one(y, x, r_idx, slp)) 
+    {
+      /* Hack - cancel group mode */
+      group_mode = FALSE;
+      group_race = NON_RACIAL;
+      return (FALSE);
+    }
   
   /* Require the "group" flag */
   if (!grp) return (TRUE);
-  
+
+  /* The original monster is the group leader */
+  group_leader = cave_m_idx[y][x];  
   
   /* Friends for certain monsters */
   if (r_ptr->flags1 & (RF1_FRIENDS))
@@ -2155,6 +2341,9 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
     {
       place_monster_escort(y, x, r_idx, slp);
     }
+
+  /* Cancel group leader */
+  group_leader = 0;
   
   /* Success */
   return (TRUE);
@@ -2449,32 +2638,42 @@ static bool summon_specific_okay(int r_idx)
  */
 bool summon_specific(int y1, int x1, bool scattered, int lev, int type)
 {
-  int i, x, y, d, r_idx;
+  int i, j, x, y, d, r_idx;
+
+  bool found = FALSE;
   
-  
-  /* Look for a location */
-  for (i = 0; i < (scattered ? 40 : 20); ++i)
+  /* Prepare to look at a greater distance if necessary */
+  for (j = 0; j < 3; j++)
     {
-      /* Pick a distance */
-      if (scattered) d = rand_int(6) + 1;
-      else d = (i / 10) + 1;
-      
-      /* Pick a location */
-      scatter(&y, &x, y1, x1, d, 0);
-      
-      /* Require passable terrain, with no other creature or player. */
-      if (!cave_passable_bold(y, x)) continue;
-      if (cave_m_idx[y][x] != 0) continue;
-      
-      /* Hack -- no summon on glyph of warding */
-      if (cave_feat[y][x] == FEAT_GLYPH) continue;
-      
-      /* Okay */
-      break;
+      /* Look for a location */
+      for (i = 0; i < (scattered ? 40 : 20); ++i)
+	{
+	  /* Pick a distance */
+	  if (scattered) d = rand_int(6) + 1 + j;
+	  else d = (i / 10) + 1 + j;
+	  
+	  /* Pick a location */
+	  scatter(&y, &x, y1, x1, d, 0);
+	  
+	  /* Require passable terrain, with no other creature or player. */
+	  if (!cave_passable_bold(y, x)) continue;
+	  if (cave_m_idx[y][x] != 0) continue;
+	  
+	  /* Hack -- no summon on glyph of warding */
+	  if (cave_feat[y][x] == FEAT_RUNE_PROTECT) continue;
+	  
+	  /* Okay */
+	  found = TRUE;
+	  break;
+	}
+
+      /* Break if already found */
+      if (found) break;
     }
+
   
   /* Failure */
-  if (i == 20) return (FALSE);
+  if (!found) return (FALSE);
   
   
   /* Save the "summon" type */
@@ -2536,7 +2735,7 @@ bool summon_questor(int y1, int x1)
       if (cave_m_idx[y][x] != 0) continue;
       
       /* Hack -- no summon on glyph of warding */
-      if (cave_feat[y][x] == FEAT_GLYPH) continue;
+      if (cave_feat[y][x] == FEAT_RUNE_PROTECT) continue;
       
       /* Okay */
       break;
@@ -3291,6 +3490,25 @@ void update_smart_learn(int m_idx, int what)
 	if (p_resist_good(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
 	else m_ptr->smart &= ~(SM_RES_CONFU);
 	break;
+      }
+      /* All element spells learn about all resistables*/
+    case LRN_ALL:
+      {
+	/* Recurse */
+	update_smart_learn(m_idx, LRN_ACID);
+	update_smart_learn(m_idx, LRN_FIRE);
+	update_smart_learn(m_idx, LRN_ELEC);
+	update_smart_learn(m_idx, LRN_COLD);
+	update_smart_learn(m_idx, LRN_POIS);
+	update_smart_learn(m_idx, LRN_LITE);
+	update_smart_learn(m_idx, LRN_DARK);
+	update_smart_learn(m_idx, LRN_CONFU);
+	update_smart_learn(m_idx, LRN_SOUND);
+	update_smart_learn(m_idx, LRN_SHARD);
+	update_smart_learn(m_idx, LRN_NEXUS);
+	update_smart_learn(m_idx, LRN_NETHR);
+	update_smart_learn(m_idx, LRN_CHAOS);
+	update_smart_learn(m_idx, LRN_DISEN);
       }
       
     }

@@ -20,7 +20,7 @@
 /*
  * The spoiler file being created
  */
-static FILE *fff = NULL;
+static ang_file *fff = NULL;
 
 
 
@@ -156,11 +156,8 @@ static void spoil_obj_desc(cptr fname)
   /* Build the filename */
   path_build(buf, 1024, ANGBAND_DIR_USER, fname);
   
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
-
   /* Open the file */
-  fff = my_fopen(buf, "w");
+  fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
   
   /* Oops */
   if (!fff)
@@ -171,12 +168,12 @@ static void spoil_obj_desc(cptr fname)
   
   
   /* Header */
-  fprintf(fff, "Spoiler File -- Basic Items (2.?.?)\n\n\n");
+  file_putf(fff, "Spoiler File -- Basic Items (2.?.?)\n\n\n");
   
   /* More Header */
-  fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
+  file_putf(fff, "%-45s     %8s%7s%5s%9s\n",
 	  "Description", "Dam/AC", "Wgt", "Lev", "Cost");
-  fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
+  file_putf(fff, "%-45s     %8s%7s%5s%9s\n",
 	  "----------------------------------------",
 	  "------", "---", "---", "----");
   
@@ -222,7 +219,7 @@ static void spoil_obj_desc(cptr fname)
 	      kind_info(buf, dam, wgt, &e, &v, who[s]);
 	      
 	      /* Dump it */
-	      fprintf(fff, "     %-45s%8s%7s%5d%9ld\n",
+	      file_putf(fff, "     %-45s%8s%7s%5d%9ld\n",
 		      buf, dam, wgt, e, (long)(v));
 	    }
 	  
@@ -233,7 +230,7 @@ static void spoil_obj_desc(cptr fname)
 	  if (!group_item[i].tval) break;
 	  
 	  /* Start a new set */
-	  fprintf(fff, "\n\n%s\n\n", group_item[i].name);
+	  file_putf(fff, "\n\n%s\n\n", group_item[i].name);
 	}
 
       /* Acquire legal item types */
@@ -245,7 +242,7 @@ static void spoil_obj_desc(cptr fname)
 	  if (k_ptr->tval != group_item[i].tval) continue;
 	  
 	  /* Hack -- Skip instant-artifacts */
-	  if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+	  if (k_ptr->flags_kind & (KF_INSTA_ART)) continue;
 	  
 	  /* Save the index */
 	  who[n++] = k;
@@ -254,7 +251,7 @@ static void spoil_obj_desc(cptr fname)
   
   
   /* Check for errors */
-  if (ferror(fff) || my_fclose(fff))
+  if (!file_close(fff))
     {
       msg_print("Cannot close spoiler file.");
       return;
@@ -348,14 +345,14 @@ struct flag_desc
  * listing each stat individually.
  */
 
-static flag_desc stat_flags_desc[] =
-{
-  { TR1_STR,	  "STR" },
-  { TR1_INT,	  "INT" },
-  { TR1_WIS,	  "WIS" },
-  { TR1_DEX,	  "DEX" },
-  { TR1_CON,	  "CON" },
-  { TR1_CHR,	  "CHR" }
+const char *stat_desc[] =
+{ 
+  "STR", 
+  "INT", 
+  "WIS", 
+  "DEX", 
+  "CON", 
+  "CHR" 
 };
 
 /*
@@ -363,24 +360,16 @@ static flag_desc stat_flags_desc[] =
  * which may be affected by an object's pval
  */
 
-static flag_desc pval_flags1_desc[] =
-{
-  { TR1_MAGIC_MASTERY,  "Magical Item Skill" },
-  { TR1_STEALTH,	 "Stealth" },
-  { TR1_SEARCH,	         "Searching" },
-  { TR1_INFRA,	         "Infravision" },
-  { TR1_TUNNEL,	         "Tunneling" },
-  { TR1_SPEED,	         "Speed" },
-};
-
-/*
- * Missile weapon attributes.
- */
-static flag_desc launcher_flags_desc[] = 
-{
-  { TR1_MIGHT2,	     "+2 Extra Might" },
-  { TR1_SHOTS,	     "Extra Shots" },
-  { TR1_MIGHT1,	     "+1 Extra Might" },
+const char *bonus_desc[] =
+{ 
+  "Magical Item Skill", 
+  "Stealth", 
+  "Searching", 
+  "Infravision",
+  "Tunnelling", 
+  "Speed", 
+  "Extra Shots", 
+  "Extra Might" 
 };
 
 
@@ -388,62 +377,50 @@ static flag_desc launcher_flags_desc[] =
  * Slaying preferences for weapons
  */
 
-static flag_desc slay_flags_desc[] =
+const char *slay_desc[] =
 {
-  { TR1_SLAY_ANIMAL,	  "Animal" },
-  { TR1_SLAY_EVIL,	  "Evil" },
-  { TR1_SLAY_UNDEAD,	  "Undead" },
-  { TR1_SLAY_DEMON,	  "Demon" },
-  { TR1_SLAY_ORC,	  "Orc" },
-  { TR1_SLAY_TROLL,	  "Troll" },
-  { TR1_SLAY_GIANT,	  "Giant" },
-  { TR1_SLAY_DRAGON,	  "Dragon" },
+  "Animal",
+  "Evil",
+  "Undead",
+  "Demon",
+  "Orc",
+  "Troll",
+  "Giant",
+  "Dragon"
 };
 
 /*
  * Elemental brands for weapons
  */
-static flag_desc brand_flags_desc[] =
+const char *brand_desc[] =
 {
-  { TR1_BRAND_ACID,	  "Acid Brand" },
-  { TR1_BRAND_ELEC,	  "Lightning Brand" },
-  { TR1_BRAND_FIRE,	  "Flame Tongue" },
-  { TR1_BRAND_COLD,	  "Frost Brand" },
-  { TR1_BRAND_POIS,	  "Poison Brand" },
+  "Acid Brand",
+  "Lightning Brand",
+  "Flame Tongue",
+  "Frost Brand",
+  "Poison Brand"
 };
 
 /*
  * The basic resistances
  */
 
-static const flag_desc resist_flags_desc[] =
+const char *resist_desc[] =
 {
-  { TR2_RES_ACID,   "Acid" },
-  { TR2_RES_ELEC,   "Lightning" },
-  { TR2_RES_FIRE,   "Fire" },
-  { TR2_RES_COLD,   "Cold" },
-  { TR2_RES_POIS,   "Poison" },
-  { TR2_RES_LITE,   "Light" },
-  { TR2_RES_DARK,   "Dark" },
-  { TR2_RES_CONFU,  "Confusion" },
-  { TR2_RES_SOUND,  "Sound" },
-  { TR2_RES_SHARD,  "Shards" },
-  { TR2_RES_NEXUS,  "Nexus" },
-  { TR2_RES_NETHR,  "Nether" },
-  { TR2_RES_CHAOS,  "Chaos" },
-  { TR2_RES_DISEN,  "Disenchantment" },
-};
-
-/*
- * Elemental immunities
- */
-
-static const flag_desc immune_flags_desc[] =
-{
-  { TR2_IM_ACID,  "Acid" },
-  { TR2_IM_ELEC,  "Lightning" },
-  { TR2_IM_FIRE,  "Fire" },
-  { TR2_IM_COLD,  "Cold" },
+  "Acid",
+  "Lightning",
+  "Fire",
+  "Cold",
+  "Poison",
+  "Light",
+  "Dark",
+  "Confusion",
+  "Sound",
+  "Shards",
+  "Nexus",
+  "Nether",
+  "Chaos",
+  "Disenchantment"
 };
 
 /*
@@ -452,66 +429,60 @@ static const flag_desc immune_flags_desc[] =
  */
 static const flag_desc sustain_flags_desc[] =
 {
-  { TR2_SUST_STR,  "STR" },
-  { TR2_SUST_INT,  "INT" },
-  { TR2_SUST_WIS,  "WIS" },
-  { TR2_SUST_DEX,  "DEX" },
-  { TR2_SUST_CON,  "CON" },
-  { TR2_SUST_CHR,  "CHR" },
+  { OF_SUSTAIN_STR,  "STR" },
+  { OF_SUSTAIN_INT,  "INT" },
+  { OF_SUSTAIN_WIS,  "WIS" },
+  { OF_SUSTAIN_DEX,  "DEX" },
+  { OF_SUSTAIN_CON,  "CON" },
+  { OF_SUSTAIN_CHR,  "CHR" },
 };
 
-/*
- * Miscellaneous magic given by an object's "flags3" field
- *
- * Note that cursed artifacts and objects with permanent light
- * are handled "directly" -- see analyze_misc_magic()
- */
-
-static const flag_desc misc_flags3_desc[] =
+static flag_desc flags_obj_desc[] =
 {
-  { TR3_SLOW_DIGEST,	  "Slow Digestion" },
-  { TR3_FEATHER,	  "Feather Falling" },
-  { TR3_LITE,		  "Permanent Light" },
-  { TR3_REGEN,		  "Regeneration" },
-  { TR3_TELEPATHY,	  "ESP" },
-  { TR3_SEE_INVIS,	  "See Invisible" },
-  { TR3_FREE_ACT,	  "Free Action" },
-  { TR3_HOLD_LIFE,	  "Hold Life" },
-  { TR3_FEARLESS,	  "Fearlessness" },
-  { TR3_SEEING,	          "Blindness resistance" },
-  { TR3_BLESSED,	  "Blessed Blade" },
-  { TR3_IMPACT,		  "Earthquake impact on hit" },
-  { TR3_TELEPORT,	  "Induces random teleportation" },
-  { TR3_AGGRAVATE,	  "Aggravates" },
-  { TR3_DRAIN_EXP,	  "Drains Experience" },
+  { OF_THROWING,          "Throwing weapon" },
+  { OF_PERFECT_BALANCE,   "Well-balanced" },
+  { OF_SLOW_DIGEST,	  "Slow Digestion" },
+  { OF_FEATHER,	          "Feather Falling" },
+  { OF_LITE,		  "Permanent Light" },
+  { OF_REGEN,		  "Regeneration" },
+  { OF_TELEPATHY,	  "ESP" },
+  { OF_SEE_INVIS,	  "See Invisible" },
+  { OF_FREE_ACT,	  "Free Action" },
+  { OF_HOLD_LIFE,	  "Hold Life" },
+  { OF_FEARLESS,	  "Fearlessness" },
+  { OF_SEEING,	          "Blindness resistance" },
+  { OF_BLESSED,	          "Blessed Blade" },
+  { OF_IMPACT,		  "Earthquake impact on hit" },
+  { OF_PERMA_CURSE,       "Permanently cursed" }
 };
 
-/*
- * A special type used just for deailing with pvals
- */
 
-typedef struct
+static flag_desc flags_curse_desc[] =
 {
-  /*
-   * This will contain a string such as "+2", "-10", etc.
-   */
-  char pval_desc[12];
-  
-  /*
-   * A list of various player traits affected by an object's pval such
-   * as stats, speed, stealth, etc.
-   *
-   * Note that room need only be reserved for the number of stats - 1
-   * since the description "All stats" is used if an object affects all
-   * all stats. Also, room must be reserved for a sentinel NULL pointer.
-   *
-   * This will be a list such as ["STR", "DEX", "Stealth", NULL] etc.
-   */
-  cptr pval_affects[N_ELEMENTS(stat_flags_desc) - 1 +
-		    N_ELEMENTS(pval_flags1_desc) + 1];
-  
-} pval_info_type;
-
+  { CF_TELEPORT,	  "Induces random teleportation" },
+  { CF_NO_TELEPORT,       "Prevents teleportation" },
+  { CF_AGGRO_PERM,	  "Aggravates" },
+  { CF_AGGRO_RAND,        "Aggravates randomly" },
+  { CF_SLOW_REGEN,        "Slows regeneration" },
+  { CF_AFRAID,            "Causes fear" },
+  { CF_HUNGRY,            "Fast digestion" },
+  { CF_POIS_RAND,         "Randomly poisons" },
+  { CF_POIS_RAND_BAD,     "Releases toxic clouds" },
+  { CF_CUT_RAND,          "Randomly cuts" },
+  { CF_CUT_RAND_BAD,      "Causes serious wounds" },
+  { CF_HALLU_RAND,        "Induces hallucination" },
+  { CF_DROP_WEAPON,       "Drops randomly" },
+  { CF_ATTRACT_DEMON,     "Summons demons" },
+  { CF_ATTRACT_UNDEAD,    "Calls undead" },
+  { CF_STICKY_CARRY,      "Cannot be removed" },
+  { CF_STICKY_WIELD,      "Cannot be dropped" },
+  { CF_PARALYZE,          "Paralyzes" },
+  { CF_PARALYZE_ALL,      "Paralyzes unresistably" },
+  { CF_DRAIN_EXP,         "Drains experience" },
+  { CF_DRAIN_MANA,        "Drains mana" },
+  { CF_DRAIN_STAT,        "Drains random stats" },
+  { CF_DRAIN_CHARGE,      "Drains magic devices" },
+};
 
 /*
  * An "object analysis structure"
@@ -526,32 +497,29 @@ typedef struct
   /* "The Longsword Dragonsmiter (6d4) (+20, +25)" */
   char description[160];
   
-  /* Description of what is affected by an object's pval */
-  pval_info_type pval_info;
+  /* A list of stat boosts granted by an object */
+  cptr stats[N_ELEMENTS(stat_desc) + 1];
+  
+  /* A list of other bonuses granted by an object */
+  cptr bonus[N_ELEMENTS(bonus_desc) + 1];
   
   /* A list of an object's slaying preferences */
-  cptr slays[N_ELEMENTS(slay_flags_desc) + 1];
-  
-  /* A list of an object's missile weapon qualities. */
-  cptr launcher[N_ELEMENTS(launcher_flags_desc) + 1];
+  cptr slays[N_ELEMENTS(slay_desc) + 1];
   
   /* A list if an object's elemental brands */
-  cptr brands[N_ELEMENTS(brand_flags_desc) + 1];
-  
-  /* A list of immunities granted by an object */
-  cptr immunities[N_ELEMENTS(immune_flags_desc) + 1];
+  cptr brands[N_ELEMENTS(brand_desc) + 1];
   
   /* A list of resistances granted by an object */
-  cptr resistances[N_ELEMENTS(resist_flags_desc) + 1];
+  cptr resistances[N_ELEMENTS(resist_desc) + 1];
   
   /* A list of stats sustained by an object */
   cptr sustains[N_ELEMENTS(sustain_flags_desc)  - 1 + 1];
   
   /* A list of various magical qualities an object may have */
-  cptr misc_magic[N_ELEMENTS(misc_flags3_desc)
-		  + 1	  /* Permanent Light */
-		  + 1	  /* type of curse */
-		  + 1];	  /* sentinel NULL */
+  cptr powers[N_ELEMENTS(flags_obj_desc) + 1];	
+  
+  /* A list of various curses an object may have */
+  cptr curses[N_ELEMENTS(flags_curse_desc) + 1 + 1];
   
   /* A string describing an artifact's activation */
   cptr activation;
@@ -568,7 +536,7 @@ typedef struct
  */
 static void spoiler_out_n_chars(int n, char c)
 {
-  while (--n >= 0) fputc(c, fff);
+  while (--n >= 0) fputc(c, (FILE *)fff);
 }
 
 /*
@@ -584,20 +552,21 @@ static void spoiler_blanklines(int n)
  */
 static void spoiler_underline(cptr str)
 {
-  fprintf(fff, "%s\n", str);
+  file_putf(fff, "%s\n", str);
   spoiler_out_n_chars(strlen(str), '-');
-  fprintf(fff, "\n");
+  file_putf(fff, "\n");
 }
 
 
 
 /*
- * This function does most of the actual "analysis". Given a set of bit flags
+ * These functions do most of the actual "analysis". Given a set of bit flags
  * (which will be from one of the flags fields from the object in question),
+ * or directly the integer fields of the object
  * a "flag description structure", a "description list", and the number of
- * elements in the "flag description structure", this function sets the
- * "description list" members to the appropriate descriptions contained in
- * the "flag description structure".
+ * elements in the "flag description structure", or directly the integer 
+ * fields of the object, these functions set the "description list" members to 
+ * the appropriate descriptions.
  *
  * The possibly updated description pointer is returned.
  */
@@ -619,6 +588,42 @@ static cptr *spoiler_flag_aux(const u32b art_flags,
   return desc_x_ptr;
 }
 
+static cptr *spoiler_int_aux(const int *values, const int base, 
+			     const char **desc,
+			     cptr *desc_x_ptr, const int n_elmnts)
+{
+  int i;
+  
+  for (i = 0; i < n_elmnts; ++i)
+    {
+      if (values[i] != base)
+	{
+	  int value = (base == 0 ? values[i] : base - values[i]);
+	  *desc_x_ptr++ = format("%s%d%s%s",  POSITIZE(value), value, 
+				 (base == 0 ? " " : "% "), desc[i]);
+	}
+    }
+  
+  return desc_x_ptr;
+}
+
+static cptr *spoiler_frac_aux(const int *values, const int base, 
+			      const char **desc,
+			      cptr *desc_x_ptr, const int n_elmnts)
+{
+  int i;
+  
+  for (i = 0; i < n_elmnts; ++i)
+    {
+      if (values[i] != base)
+	{
+	  *desc_x_ptr++ = format("x%d/%d %s", values[i], base, desc[i]);
+	}
+    }
+  
+  return desc_x_ptr;
+}
+
 
 /*
  * Acquire a "basic" description "The Cloak of Death [1,+10]"
@@ -630,94 +635,46 @@ static void analyze_general (object_type *o_ptr, char *desc_x_ptr)
 }
 
 /*
- * List "player traits" altered by an artifact's pval. These include stats,
- * speed, infravision, tunneling, stealth, searching, and extra attacks.
+ * List stat bonuses.
  */
-static void analyze_pval (object_type *o_ptr, pval_info_type *pval_x_ptr)
+static void analyze_stats(object_type *o_ptr, cptr *stat_list)
 {
-  const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS | 
-			  TR1_DEX | TR1_CON | TR1_CHR);
-  
-  u32b f1, f2, f3;
-  
-  cptr *affects_list;
-  
-  /* If pval == 0, there is nothing to do. */
-  if (!o_ptr->pval)
-    {
-      /* An "empty" pval description indicates that pval == 0 */
-      pval_x_ptr->pval_desc[0] = '\0';
-      return;
-    }
-  
-  /* Extract the flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
-  affects_list = pval_x_ptr->pval_affects;
-
-  /* Create the "+N" string */
-  sprintf(pval_x_ptr->pval_desc, "%s%d", POSITIZE(o_ptr->pval), o_ptr->pval);
-  
-  /* First, check to see if the pval affects all stats */
-  if ((f1 & all_stats) == all_stats)
-    {
-      *affects_list++ = "All stats";
-    }
-  
   /* Are any stats affected? */
-  else if (f1 & all_stats)
-    {
-      affects_list = spoiler_flag_aux(f1, stat_flags_desc,
-				      affects_list,
-				      N_ELEMENTS(stat_flags_desc));
-    }
-  
-  /* And now the "rest" */
-  affects_list = spoiler_flag_aux(f1, pval_flags1_desc,
-				  affects_list,
-				  N_ELEMENTS(pval_flags1_desc));
+  stat_list = spoiler_int_aux(o_ptr->bonus_stat, 0, stat_desc,
+			      stat_list, N_ELEMENTS(stat_desc));
+
+  /* Terminate the description list */
+  *stat_list = NULL;
+}
+
+/*
+ * List other bonuses.
+ */
+static void analyze_bonus(object_type *o_ptr, cptr *bonus_list)
+{
+  /* Are any stats affected? */
+  bonus_list = spoiler_int_aux(o_ptr->bonus_other, 0, bonus_desc,
+			       bonus_list, N_ELEMENTS(bonus_desc));
   
   /* Terminate the description list */
-  *affects_list = NULL;
+  *bonus_list = NULL;
 }
 
 /* Note the slaying specialties of a weapon */
 static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 {
-  u32b f1, f2, f3;
-  
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
-  slay_list = spoiler_flag_aux(f1, slay_flags_desc, slay_list,
-			       N_ELEMENTS(slay_flags_desc));
+  slay_list = spoiler_frac_aux(o_ptr->multiple_slay, MULTIPLE_BASE, slay_desc,
+			       slay_list, N_ELEMENTS(slay_desc));
   
   /* Terminate the description list */
   *slay_list = NULL;
 }
 
-/* Note the launcher attributes of a weapon */
-static void analyze_launcher (object_type *o_ptr, cptr *launcher_list)
-{
-  u32b f1, f2, f3;
-  
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
-  launcher_list = spoiler_flag_aux(f1, launcher_flags_desc, launcher_list,
-				   N_ELEMENTS(launcher_flags_desc));
-  
-  /* Terminate the description list */
-  *launcher_list = NULL;
-}
-
 /* Note an object's elemental brands */
 static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 {
-  u32b f1, f2, f3;
-  
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
-  brand_list = spoiler_flag_aux(f1, brand_flags_desc, brand_list,
-				N_ELEMENTS(brand_flags_desc));
+  brand_list = spoiler_frac_aux(o_ptr->multiple_brand, MULTIPLE_BASE, 
+				brand_desc, brand_list, N_ELEMENTS(brand_desc));
   
   /* Terminate the description list */
   *brand_list = NULL;
@@ -728,54 +685,32 @@ static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 
 static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 {
-  u32b f1, f2, f3;
-  
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
-  resist_list = spoiler_flag_aux(f2, resist_flags_desc,
-				 resist_list, N_ELEMENTS(resist_flags_desc));
+  resist_list = spoiler_int_aux(o_ptr->percent_res, RES_LEVEL_BASE, resist_desc,
+				 resist_list, N_ELEMENTS(resist_desc));
   
   /* Terminate the description list */
   *resist_list = NULL;
-}
-
-/* Note the immunities granted by an object */
-
-static void analyze_immune (object_type *o_ptr, cptr *immune_list)
-{
-  u32b f1, f2, f3;
-  
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
-  immune_list = spoiler_flag_aux(f2, immune_flags_desc,
-				 immune_list, N_ELEMENTS(immune_flags_desc));
-  
-  /* Terminate the description list */
-  *immune_list = NULL;
-
 }
 
 /* Note which stats an object sustains */
 
 static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
 {
-  const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
-			     TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
+  const u32b all_sustains = (OF_SUSTAIN_STR | OF_SUSTAIN_INT | OF_SUSTAIN_WIS |
+			     OF_SUSTAIN_DEX | OF_SUSTAIN_CON | OF_SUSTAIN_CHR);
   
-  u32b f1, f2, f3;
-  
-  object_flags(o_ptr, &f1, &f2, &f3);
   
   /* Simplify things if an item sustains all stats */
-  if ((f2 & all_sustains) == all_sustains)
+  if ((o_ptr->flags_obj & all_sustains) == all_sustains)
     {
       *sustain_list++ = "All stats";
     }
   
   /* Should we bother? */
-  else if ((f2 & all_sustains))
+  else if ((o_ptr->flags_obj & all_sustains))
     {
-      sustain_list = spoiler_flag_aux(f2, sustain_flags_desc, sustain_list,
+      sustain_list = spoiler_flag_aux(o_ptr->flags_obj, sustain_flags_desc, 
+				      sustain_list, 
 				      N_ELEMENTS(sustain_flags_desc));
     }
   
@@ -789,50 +724,51 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
  * free action, permanent light, etc.
  */
 
-static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
+static void analyze_powers (object_type *o_ptr, cptr *power_list)
 {
-  u32b f1, f2, f3;
-  
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
+  /* Hack - put perma curse in with curses */
+  u32b flags = o_ptr->flags_obj & ~(OF_PERMA_CURSE);
+
   /*
    * Special flags
    */
-  misc_list = spoiler_flag_aux(f3, misc_flags3_desc, misc_list,
-			       N_ELEMENTS(misc_flags3_desc));
+  power_list = spoiler_flag_aux(flags, flags_obj_desc, power_list,
+			       N_ELEMENTS(flags_obj_desc));
   
   /*
    * Artifact lights -- large radius light.
    */
   if ((o_ptr->tval == TV_LITE) && artifact_p(o_ptr))
     {
-      *misc_list++ = "Permanent Light(3)";
-    }
-  
-  /*
-   * Handle cursed objects here to avoid redundancies such as noting
-   * that a permanently cursed object is heavily cursed as well as
-   * being "lightly cursed".
-   */
-  
-  if (cursed_p(o_ptr))
-    {
-      if (f3 & (TR3_PERMA_CURSE))
-	{
-	  *misc_list++ = "Permanently Cursed";
-	}
-      else if (f3 & (TR3_HEAVY_CURSE))
-	{
-	  *misc_list++ = "Heavily Cursed";
-	}
-      else
-	{
-	  *misc_list++ = "Cursed";
-	}
+      *power_list++ = "Permanent Light(3)";
     }
   
   /* Terminate the description list */
-  *misc_list = NULL;
+  *power_list = NULL;
+}
+
+/*
+ * Note artifact curses
+ */
+
+static void analyze_curses (object_type *o_ptr, cptr *curse_list)
+{
+  /*
+   * Special flags
+   */
+  curse_list = spoiler_flag_aux(o_ptr->flags_curse, flags_curse_desc, 
+				curse_list, N_ELEMENTS(flags_curse_desc));
+  
+  /*
+   * Artifact lights -- large radius light.
+   */
+  if (o_ptr->flags_obj & OF_PERMA_CURSE)
+    {
+      *curse_list++ = "Permanently cursed";
+    }
+  
+  /* Terminate the description list */
+  *curse_list = NULL;
 }
 
 
@@ -868,27 +804,26 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
   /* Oangband requires that activations be transferred to the object. */
   if (a_ptr->activation)
     {
-      o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
-      o_ptr->xtra2 = a_ptr->activation;
+      o_ptr->activation = a_ptr->activation;
     }
   
   analyze_general(o_ptr, desc_x_ptr->description);
   
-  analyze_pval(o_ptr, &desc_x_ptr->pval_info);
+  analyze_stats(o_ptr, desc_x_ptr->stats);
+  
+  analyze_bonus(o_ptr, desc_x_ptr->bonus);
   
   analyze_brand(o_ptr, desc_x_ptr->brands);
   
   analyze_slay(o_ptr, desc_x_ptr->slays);
   
-  analyze_launcher(o_ptr, desc_x_ptr->launcher);
-  
-  analyze_immune(o_ptr, desc_x_ptr->immunities);
-  
   analyze_resist(o_ptr, desc_x_ptr->resistances);
   
   analyze_sustains(o_ptr, desc_x_ptr->sustains);
   
-  analyze_misc_magic(o_ptr, desc_x_ptr->misc_magic);
+  analyze_powers(o_ptr, desc_x_ptr->powers);
+  
+  analyze_curses(o_ptr, desc_x_ptr->curses);
   
   analyze_misc(o_ptr, desc_x_ptr->misc_desc);
   
@@ -1009,7 +944,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	      line[line_len - 2] = '\0';
 	      
 	      /* Write to spoiler file */
-	      fprintf(fff, "%s\n", line);
+	      file_putf(fff, "%s\n", line);
 	      
 	      /* Begin new line at primary indention level */
 	      sprintf(line, "%s%s", INDENT1, buf);
@@ -1018,7 +953,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	  else
 	    {
 	      /* Write to spoiler file */
-	      fprintf(fff, "%s\n", line);
+	      file_putf(fff, "%s\n", line);
 	      
 	      /* Begin new line at secondary indention level */
 	      sprintf(line, "%s%s", INDENT2, buf);
@@ -1032,7 +967,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
     }
 
   /* Write what's left to the spoiler file */
-  fprintf(fff, "%s\n", line);
+  file_putf(fff, "%s\n", line);
 }
 
 
@@ -1040,46 +975,36 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 
 static void spoiler_print_art(obj_desc_list *art_ptr)
 {
-  pval_info_type *pval_ptr = &art_ptr->pval_info;
-  
-  char buf[80];
-  
   /* Don't indent the first line */
-  fprintf(fff, "%s\n", art_ptr->description);
-  
-  /* An "empty" pval description indicates that the pval affects nothing */
-  if (pval_ptr->pval_desc[0])
-    {
-      /* Mention the effects of pval */
-      sprintf(buf, "%s to", pval_ptr->pval_desc);
-      spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
-    }
+  file_putf(fff, "%s\n", art_ptr->description);
   
   /* Now deal with the description lists */
   
+  spoiler_outlist("", art_ptr->stats, ITEM_SEP);
+  
+  spoiler_outlist("", art_ptr->bonus, ITEM_SEP);
+  
   spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
   
-  spoiler_outlist("", art_ptr->launcher, LIST_SEP);
-  
   spoiler_outlist("", art_ptr->brands, LIST_SEP);
-  
-  spoiler_outlist("Immunity to", art_ptr->immunities, ITEM_SEP);
   
   spoiler_outlist("Resist", art_ptr->resistances, ITEM_SEP);
   
   spoiler_outlist("Sustain", art_ptr->sustains, ITEM_SEP);
   
-  spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
+  spoiler_outlist("", art_ptr->powers, LIST_SEP);
+  
+  spoiler_outlist("", art_ptr->curses, LIST_SEP);
   
   
   /* Write out the possible activation at the primary indention level */
   if (art_ptr->activation)
     {
-      fprintf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
+      file_putf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
     }
   
   /* End with the miscellaneous facts */
-  fprintf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
+  file_putf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
 }
 
 
@@ -1117,24 +1042,25 @@ bool make_fake_artifact(object_type *o_ptr, int name1)
   o_ptr->to_h = a_ptr->to_h;
   o_ptr->to_d = a_ptr->to_d;
   o_ptr->weight = a_ptr->weight;
-  o_ptr->weight = a_ptr->weight;
+
   for (i = 0; i < MAX_P_RES; i++)
     o_ptr->percent_res[i] = a_ptr->percent_res[i];
-  for (i = 0; i < 4; i++)
-    if (a_ptr->flags2 & (TR2_IM_ACID << i)) o_ptr->percent_res[i] = 0;
-  o_ptr->el_proof = (ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF);
+  for (i = 0; i < A_MAX; i++)
+    o_ptr->bonus_stat[i] = a_ptr->bonus_stat[i];
+  for (i = 0; i < MAX_P_BONUS; i++)
+    o_ptr->bonus_other[i] = a_ptr->bonus_other[i];
+  for (i = 0; i < MAX_P_SLAY; i++)
+    o_ptr->multiple_slay[i] = a_ptr->multiple_slay[i];
+  for (i = 0; i < MAX_P_BRAND; i++)
+    o_ptr->multiple_brand[i] = a_ptr->multiple_brand[i];
+  
+  o_ptr->flags_obj = a_ptr->flags_obj;
+  o_ptr->flags_obj = a_ptr->flags_curse;
       
-  /* Hack -- extract the "broken" flag */
-  if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-  
-  /* Hack -- extract the "cursed" flag */
-  if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
-  
   /* Transfer the activation information. */
   if (a_ptr->activation)
     {
-      o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
-      o_ptr->xtra2 = a_ptr->activation;
+      o_ptr->activation = a_ptr->activation;
     }
   
    
@@ -1156,11 +1082,7 @@ static void spoil_obj_gen(cptr fname)
   /* Storage */
   u32b artifacts = 0L;
   u32b egoitems = 0L;
-#ifdef _WIN32_WCE
   u32b *object = malloc(z_info->k_max * sizeof(*object));
-#else
-  u32b object[z_info->k_max];
-#endif
   u32b depth[MAX_DEPTH];
   
   object_type *i_ptr;
@@ -1173,19 +1095,14 @@ static void spoil_obj_gen(cptr fname)
   /* Build the filename */
   path_build(buf, 1024, ANGBAND_DIR_USER, fname);
   
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
-  
   /* Open the file */
-  fff = my_fopen(buf, "w");
+  fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
   
   /* Oops */
   if (!fff)
     {
       msg_print("Cannot create spoiler file.");
-#ifdef _WIN32_WCE
       free(object);
-#endif
       return;
     }
   
@@ -1196,7 +1113,7 @@ static void spoil_obj_gen(cptr fname)
   
   
   
-  fprintf(fff, "Object Generation Spoiler for FAangband Version %d.%d.%d\n",
+  file_putf(fff, "Object Generation Spoiler for FAangband Version %d.%d.%d\n",
 	  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
   
   /* Clear storage. */
@@ -1247,12 +1164,12 @@ static void spoil_obj_gen(cptr fname)
     }
   
   /* Print to file. */
-  fprintf(fff, "\n\n\n");
-  fprintf(fff, "artifacts:  %ld\n", (long)artifacts);
-  fprintf(fff, "ego-items:  %ld\n", (long)egoitems);
-  fprintf(fff, "\n\n");
-  fprintf(fff, "Number of objects created (1,000,000 total)\n");
-  fprintf(fff, "         Generation Level:  %d\n\n", p_ptr->depth);
+  file_putf(fff, "\n\n\n");
+  file_putf(fff, "artifacts:  %ld\n", (long)artifacts);
+  file_putf(fff, "ego-items:  %ld\n", (long)egoitems);
+  file_putf(fff, "\n\n");
+  file_putf(fff, "Number of objects created (1,000,000 total)\n");
+  file_putf(fff, "         Generation Level:  %d\n\n", p_ptr->depth);
   
   for (i = 1; i < z_info->k_max; i++)
     {
@@ -1276,25 +1193,23 @@ static void spoil_obj_gen(cptr fname)
 	  /* Terminate the new name */
 	  *t = '\0';
 	  
-	  fprintf(fff, "%-40s:%6ld\n", o_name, (long)object[i]);
-		}
+	  file_putf(fff, "%-40s:%6ld\n", o_name, (long)object[i]);
+	}
     }
   
-  fprintf(fff, "\n\n\n");
-  fprintf(fff, "Object distribution by depth\n\n");
+  file_putf(fff, "\n\n\n");
+  file_putf(fff, "Object distribution by depth\n\n");
   
   for (i = 0; i < MAX_DEPTH; i++)
     {
-      if (depth[i]) fprintf(fff, "Level %3d:%6ld\n", i, (long)depth[i]);
+      if (depth[i]) file_putf(fff, "Level %3d:%6ld\n", i, (long)depth[i]);
     }
   
-#ifdef _WIN32_WCE
   free(object);
-#endif
   
   
   /* Check for errors */
-  if (ferror(fff) || my_fclose(fff))
+  if (!file_close(fff))
     {
       msg_print("Cannot close spoiler file.");
       return;
@@ -1316,11 +1231,7 @@ static void spoil_mon_gen(cptr fname)
   int i, num;
   
   /* Storage */
-#ifdef _WIN32_WCE
   u32b *monster = malloc(z_info->r_max * sizeof(*monster));
-#else
-  u32b monster[z_info->r_max];
-#endif
   u32b depth[MAX_DEPTH];
   
   bool quick;
@@ -1331,23 +1242,18 @@ static void spoil_mon_gen(cptr fname)
   /* Build the filename */
   path_build(buf, 1024, ANGBAND_DIR_USER, fname);
   
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
-  
   /* Open the file */
-  fff = my_fopen(buf, "w");
+  fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
   
   /* Oops */
   if (!fff)
     {
       msg_print("Cannot create spoiler file.");
-#ifdef _WIN32_WCE
       free(monster);
-#endif
       return;
     }
   
-  fprintf(fff, "Monster Generation Spoiler for FAangband Version %d.%d.%d\n",
+  file_putf(fff, "Monster Generation Spoiler for FAangband Version %d.%d.%d\n",
 	  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
   
   /* Clear storage. */
@@ -1424,9 +1330,9 @@ static void spoil_mon_gen(cptr fname)
     }
   
   /* Print to file. */
-  fprintf(fff, "\n\n\n");
-  fprintf(fff, "Number of monsters of various kinds (1,000,000 total)\n");
-  fprintf(fff, "         Generation Level:  %d\n\n", p_ptr->depth);
+  file_putf(fff, "\n\n\n");
+  file_putf(fff, "Number of monsters of various kinds (1,000,000 total)\n");
+  file_putf(fff, "         Generation Level:  %d\n\n", p_ptr->depth);
   
   for (i = 1; i < z_info->r_max; i++)
     {
@@ -1436,24 +1342,22 @@ static void spoil_mon_gen(cptr fname)
       
       if (monster[i])
 	{
-	  fprintf(fff, "%-45s:%6ld\n", name, (long)monster[i]);
+	  file_putf(fff, "%-45s:%6ld\n", name, (long)monster[i]);
 	}
     }
 
-  fprintf(fff, "\n\n\n");
-  fprintf(fff, "Monster distribution by depth\n\n");
+  file_putf(fff, "\n\n\n");
+  file_putf(fff, "Monster distribution by depth\n\n");
   
   for (i = 0; i < MAX_DEPTH; i++)
     {
-      if (depth[i]) fprintf(fff, "Level %3d:%6ld\n", i, (long)depth[i]);
+      if (depth[i]) file_putf(fff, "Level %3d:%6ld\n", i, (long)depth[i]);
     }
   
-#ifdef _WIN32_WCE
   free(monster);
-#endif
   
   /* Check for errors */
-  if (ferror(fff) || my_fclose(fff))
+  if (!file_close(fff))
     {
       msg_print("Cannot close spoiler file.");
       return;
@@ -1486,11 +1390,8 @@ static void spoil_artifact(cptr fname)
   /* Build the filename */
   path_build(buf, 1024, ANGBAND_DIR_USER, fname);
   
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
-  
   /* Open the file */
-  fff = my_fopen(buf, "w");
+  fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
   
   /* Oops */
   if (!fff)
@@ -1539,7 +1440,7 @@ static void spoil_artifact(cptr fname)
     }
   
   /* Check for errors */
-  if (ferror(fff) || my_fclose(fff))
+  if (!file_close(fff))
     {
       msg_print("Cannot close spoiler file.");
       return;
@@ -1576,11 +1477,8 @@ static void spoil_mon_desc(cptr fname)
   /* Build the filename */
   path_build(buf, 1024, ANGBAND_DIR_USER, fname);
   
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
-
   /* Open the file */
-  fff = my_fopen(buf, "w");
+  fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
   
   /* Oops */
   if (!fff)
@@ -1590,14 +1488,14 @@ static void spoil_mon_desc(cptr fname)
     }
   
   /* Dump the header */
-  fprintf(fff, "Monster Spoilers for FAangband Version %d.%d.%d\n",
+  file_putf(fff, "Monster Spoilers for FAangband Version %d.%d.%d\n",
 	  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-  fprintf(fff, "------------------------------------------\n\n");
+  file_putf(fff, "------------------------------------------\n\n");
   
 	/* Dump the header */
-  fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
+  file_putf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
 	  "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
-  fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
+  file_putf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
 	  "----", "---", "---", "---", "--", "--", "-----------");
   
   
@@ -1679,18 +1577,18 @@ static void spoil_mon_desc(cptr fname)
       sprintf(exp, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
       
       /* Dump the info */
-      fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
+      file_putf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
 	      nam, lev, rar, spd, hp, ac, exp);
     }
   
   /* End it */
-  fprintf(fff, "\n");
+  file_putf(fff, "\n");
 
   /* Free the "who" array */
   FREE(who);
   
   /* Check for errors */
-  if (ferror(fff) || my_fclose(fff))
+  if (!file_close(fff))
     {
       msg_print("Cannot close spoiler file.");
 		return;
@@ -1739,11 +1637,11 @@ static void spoil_out(cptr str)
     {
       if (roff_p != roff_buf) roff_p--;
       while (*roff_p == ' ' && roff_p != roff_buf) roff_p--;
-      if (roff_p == roff_buf) fprintf(fff, "\n");
+      if (roff_p == roff_buf) file_putf(fff, "\n");
       else
 	{
 	  *(roff_p + 1) = '\0';
-	  fprintf(fff, "%s\n\n", roff_buf);
+	  file_putf(fff, "%s\n\n", roff_buf);
 	}
       roff_p = roff_buf;
       roff_s = NULL;
@@ -1771,7 +1669,7 @@ static void spoil_out(cptr str)
 		  *roff_s = '\0';
 		  r = roff_s + 1;
 		}
-	      fprintf(fff, "%s\n", roff_buf);
+	      file_putf(fff, "%s\n", roff_buf);
 	      roff_s = NULL;
 	      roff_p = roff_buf;
 	      while (*r) *roff_p++ = *r++;
@@ -1806,11 +1704,8 @@ static void spoil_mon_info(cptr fname)
   /* Build the filename */
   path_build(buf, 1024, ANGBAND_DIR_USER, fname);
   
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
-  
   /* Open the file */
-  fff = my_fopen(buf, "w");
+  fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
   
   /* Oops */
   if (!fff)
@@ -2074,7 +1969,7 @@ static void spoil_mon_info(cptr fname)
       if (flags4 & (RF4_BRTH_STORM))	vp[vn++] = "storm";
       if (flags4 & (RF4_BRTH_DFIRE))	vp[vn++] = "dragonfire";
       if (flags4 & (RF4_BRTH_ICE))	vp[vn++] = "ice";
-      if (flags4 & (RF4_XXX5))		vp[vn++] = "something";
+      if (flags4 & (RF4_BRTH_ALL))	vp[vn++] = "the elements";
       if (flags4 & (RF4_XXX6))		vp[vn++] = "something";
       
       if (vn)
@@ -2215,7 +2110,7 @@ static void spoil_mon_info(cptr fname)
       if (flags5 & (RF5_BOLT_ICE))	vp[vn++] = "produce ice bolts";
       if (flags5 & (RF5_BOLT_WATER))	vp[vn++] = "produce water bolts";
       if (flags5 & (RF5_BOLT_NETHR))	vp[vn++] = "produce nether bolts";
-      if (flags5 & (RF5_BOLT_MANA))	vp[vn++] = "produce mana bolts";
+      if (flags5 & (RF5_BOLT_DARK))	vp[vn++] = "produce dark bolts";
       if (flags5 & (RF5_BEAM_ELEC))	vp[vn++] = "shoot sparks of lightning";
       if (flags5 & (RF5_BEAM_ICE))	vp[vn++] = "cast lances of ice";
       if (flags5 & (RF5_BEAM_NETHR))
@@ -2715,7 +2610,7 @@ static void spoil_mon_info(cptr fname)
     }
   
   /* Check for errors */
-  if (ferror(fff) || my_fclose(fff))
+  if (!file_close(fff))
     {
       msg_print("Cannot close spoiler file.");
       return;

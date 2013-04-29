@@ -243,8 +243,6 @@ void do_cmd_wield(void)
 
   object_type object_type_body;
   
-  u32b f1, f2, f3;
-  
   cptr act;
   
   cptr q, s;
@@ -291,11 +289,8 @@ void do_cmd_wield(void)
     }
   
   
-  /* Extract the flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
   /* Throwing weapon or ammo? */
-  throwing = (f1 & TR1_THROWING ? TRUE : FALSE);
+  throwing = ((o_ptr->flags_obj & OF_THROWING) ? TRUE : FALSE);
   
   /* Check the slot */
   slot = wield_slot(o_ptr);
@@ -316,8 +311,7 @@ void do_cmd_wield(void)
   
   /* Ask where to put a throwing weapon */
   if (((o_ptr->tval == TV_DIGGING) || (o_ptr->tval == TV_HAFTED) || 
-       (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) &&
-      (f1 & TR1_THROWING))
+       (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) && throwing)
     {
       /* Stick it in the belt? */
       if (get_check("Equip in throwing belt?")) slot = INVEN_Q0;
@@ -327,17 +321,25 @@ void do_cmd_wield(void)
     }
 
   /* Prevent wielding into a cursed slot */
-  if ((slot < INVEN_Q0) && cursed_p(&inventory[slot]))
+  if (slot < INVEN_Q0) 
     {
-      /* Describe it */
-      object_desc(o_name, &inventory[slot], FALSE, 0);
-      
-      /* Message */
-      msg_format("The %s you are %s appears to be cursed.",
-		 o_name, describe_use(slot));
-      
-      /* Cancel the command */
-      return;
+      object_type *i_ptr = &inventory[slot];
+
+      if (i_ptr->flags_curse & CF_STICKY_WIELD)
+	{
+	  /* Describe it */
+	  object_desc(o_name, i_ptr, FALSE, 0);
+	  
+	  /* Message */
+	  msg_format("The %s you are %s appears to be cursed.",
+		     o_name, describe_use(slot));
+	  
+	  /* Notice */
+	  notice_curse(CF_STICKY_WIELD, slot + 1);
+
+	  /* Cancel the command */
+	  return;
+	}
     }
   
   /* Take a turn */
@@ -461,8 +463,8 @@ void do_cmd_wield(void)
    */
   if ((slot == INVEN_WIELD) && (inventory[INVEN_ARM].k_idx))
     {
-      if (f3 & (TR3_TWO_HANDED_REQ) || 
-	  (f3 & (TR3_TWO_HANDED_DES) && 
+      if ((o_ptr->flags_obj & OF_TWO_HANDED_REQ) || 
+	  ((o_ptr->flags_obj & OF_TWO_HANDED_DES) && 
 	   (p_ptr->stat_ind[A_STR] < 
 	    29 + ((o_ptr->weight / 50 > 8) ? 8 : (o_ptr->weight / 50)))))
 	{
@@ -480,22 +482,19 @@ void do_cmd_wield(void)
       /* Access the wield slot */
       i_ptr = &inventory[INVEN_WIELD];
       
-      /* Extract the flags */
-      object_flags(i_ptr, &f1, &f2, &f3);
-      
-      
-      if (f3 & (TR3_TWO_HANDED_REQ) || (f3 & (TR3_TWO_HANDED_DES) && 
-					(p_ptr->stat_ind[A_STR] < 
-					 29 + (i_ptr->weight / 50 > 8 ? 8 : i_ptr->weight / 50))))
+      if ((i_ptr->flags_obj & OF_TWO_HANDED_REQ) || 
+	  ((i_ptr->flags_obj & OF_TWO_HANDED_DES) && 
+	   (p_ptr->stat_ind[A_STR] < 
+	    29 + (i_ptr->weight / 50 > 8 ? 8 : i_ptr->weight / 50))))
 	{
 	  p_ptr->shield_on_back = TRUE;
 	}
       else p_ptr->shield_on_back = FALSE;
       
     }
-  
+
   /* Set item handling -GS- and checking turn found for artifacts -NRM- */
-  if (o_ptr->name1) 
+  if (o_ptr->name1)
     {
       
       /* Is the artifact a set item? */
@@ -509,7 +508,7 @@ void do_cmd_wield(void)
 	  if (check_set(a_ptr->set_no)) 
 	    {
 	      /* add bonuses */
-	      apply_set(a_ptr->set_no,FALSE);
+	      apply_set(a_ptr->set_no);
 	    }
 	}
 
@@ -517,7 +516,7 @@ void do_cmd_wield(void)
       if (a_info[o_ptr->name1].creat_turn < 2)
 	  {
 		  a_info[o_ptr->name1].creat_turn = turn;
-		  a_info[o_ptr->name1].creat_turn |= (p_ptr->lev << 24);
+		  a_info[o_ptr->name1].p_level = p_ptr->lev;
 	  }
     }
 
@@ -525,7 +524,11 @@ void do_cmd_wield(void)
 
   if (item < 0)
   {
-    if ((!object_known_p(o_ptr)) && (l_ptr->sval == SV_STONE_LORE)) identify_object(o_ptr);
+    if ((!object_known_p(o_ptr)) && (l_ptr->sval == SV_STONE_LORE)) 
+      identify_object(o_ptr);
+
+    /* And we autoinscribe here too */
+    apply_autoinscription(o_ptr);
   }
 
   /* Where is the item now */
@@ -554,85 +557,39 @@ void do_cmd_wield(void)
   object_desc(o_name, o_ptr, TRUE, 3);
   
   /* Message */
+  sound(MSG_WIELD);
   msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
-  /* Cursed! */
-  if (cursed_p(o_ptr))
-    {
-      /* Warn the player */
-      msg_print("Oops! It feels deathly cold!");
-      
-      /* Sense the object */
-      o_ptr->feel = FEEL_CURSED;
-
-      /* Note the curse */
-      o_ptr->ident |= (IDENT_SENSE);
-
-      /* Set squelched status */
-      p_ptr->notice |= PN_SQUELCH;
-    }
-  else    /* It is fully known, no information needed */
   if (!object_known_p(o_ptr))
-  {
-      bool okay = FALSE;
-
-      /* Valid "tval" codes */
-      switch (o_ptr->tval)
+    {
+      int feel;
+      bool heavy = FALSE;
+      
+      heavy = (check_ability(SP_PSEUDO_ID_HEAVY));
+      
+      /* Check for a feeling */
+      feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+      
+      if (!(o_ptr->feel == feel))
 	{
-	case TV_SHOT:
-	case TV_ARROW:
-	case TV_BOLT:
-	case TV_BOW:
-	case TV_DIGGING:
-	case TV_HAFTED:
-	case TV_POLEARM:
-	case TV_SWORD:
-	case TV_BOOTS:
-	case TV_GLOVES:
-	case TV_HELM:
-	case TV_CROWN:
-	case TV_SHIELD:
-	case TV_CLOAK:
-	case TV_SOFT_ARMOR:
-	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
-	  {
-	    okay = TRUE;
-	    break;
-	  }
+	  /* Get an object description */
+	  object_desc(o_name, o_ptr, FALSE, 0);
+	  
+	  msg_format("You feel the %s (%c) you are %s %s %s...",
+		     o_name, index_to_label(slot), describe_use(slot),
+		     ((o_ptr->number == 1) ? "is" : "are"), feel_text[feel]);
+	  
+	  /* We have "felt" it */
+	  o_ptr->ident |= (IDENT_SENSE);
+	  
+	  /* Inscribe it textually */
+	  o_ptr->feel = feel;
+	  
+	  /* Set squelch flag as appropriate */
+	  p_ptr->notice |= PN_SQUELCH;
 	}
+    }
 
-      /* Skip non-sense machines */
-      if (okay)
-      {
-        int feel;
-		bool heavy = FALSE;
-
-		heavy = (check_ability(SP_PSEUDO_ID_HEAVY));
-
-         /* Check for a feeling */
-        feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
-
-        if (!(o_ptr->feel == feel))
-        {
-          /* Get an object description */
-          object_desc(o_name, o_ptr, FALSE, 0);
-         
-          msg_format("You feel the %s (%c) you are %s %s %s...",
-                      o_name, index_to_label(slot), describe_use(slot),
-                      ((o_ptr->number == 1) ? "is" : "are"), feel_text[feel]);
-      
-          /* We have "felt" it */
-          o_ptr->ident |= (IDENT_SENSE);
-      
-          /* Inscribe it textually */
-          o_ptr->feel = feel;
-      
-          /* Set squelch flag as appropriate */
-          p_ptr->notice |= PN_SQUELCH;
-        }
-      }
-  }
   /* Recalculate bonuses */
   p_ptr->update |= (PU_BONUS);
   
@@ -696,10 +653,13 @@ void do_cmd_takeoff(void)
   
   
   /* Item is cursed */
-  if (cursed_p(o_ptr))
+  if (o_ptr->flags_curse & CF_STICKY_WIELD)
     {
       /* Oops */
       msg_print("Hmmm, it seems to be cursed.");
+
+      /* Notice */
+      notice_curse(CF_STICKY_WIELD, item + 1);
       
       /* Nope */
       return;
@@ -769,11 +729,26 @@ void do_cmd_drop(void)
   /* Allow user abort */
   if (amt <= 0) return;
   
-  /* Hack -- Cannot remove cursed items */
-  if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+  /* Hack -- Cannot drop some cursed items */
+  if (o_ptr->flags_curse & CF_STICKY_CARRY)
     {
       /* Oops */
       msg_print("Hmmm, it seems to be cursed.");
+
+      /* Notice */
+      notice_curse(CF_STICKY_CARRY, item + 1);
+      
+      /* Nope */
+      return;
+    }
+  
+  if ((item >= INVEN_WIELD) && (o_ptr->flags_curse & CF_STICKY_WIELD))
+    {
+      /* Oops */
+      msg_print("Hmmm, it seems to be cursed.");
+
+      /* Notice */
+      notice_curse(CF_STICKY_WIELD, item + 1);
       
       /* Nope */
       return;
@@ -807,6 +782,8 @@ void do_cmd_destroy(void)
   char out_val[160];
   
   cptr q, s;
+
+  bool cursed = FALSE;
   
   /* Do we have an item? */
   if (p_ptr->command_item) 
@@ -851,6 +828,9 @@ void do_cmd_destroy(void)
   
   /* Allow user abort */
   if (amt <= 0) return;
+
+  /* Sticky carry curse stops destruction */
+  if (o_ptr->flags_curse & CF_STICKY_CARRY) cursed = TRUE;
   
   /* Describe the object */
   old_number = o_ptr->number;
@@ -870,21 +850,21 @@ void do_cmd_destroy(void)
       if (object_aware_p(o_ptr) &&
 	  ((k_info[o_ptr->k_idx].tval < TV_SHOT) || 
 	   (k_info[o_ptr->k_idx].tval > TV_DRAG_ARMOR)) &&
-	  !(k_info[o_ptr->k_idx].flags3 & (TR3_INSTA_ART)))
+	  !(k_info[o_ptr->k_idx].flags_kind & (KF_INSTA_ART)))
 	{
 
 	  result = get_check_other(out_val, 's');
 	  
-	  /* returned "no"*/
+	  /* returned "no" */
 	  if (!result) return;
 	  
-	  /*return of 2 sets item to squelch*/
+	  /* return of 2 sets item to squelch */
 	  else if (result == 2)
 	    {
 	      object_kind *k_ptr = &k_info[o_ptr->k_idx];
 	      char o_name2[80];
 
-	      /*make a fake object so we can give a proper message*/
+	      /* make a fake object so we can give a proper message */
 	      object_type *i_ptr;
 	      object_type object_type_body;
 
@@ -906,10 +886,10 @@ void do_cmd_destroy(void)
 	      /*set to squelch*/
 	      k_ptr->squelch = TRUE;
 
-	      /* Message - no good routine for extracting the plain name*/
+	      /* Message - no good routine for extracting the plain name */
 	      msg_format("All %^s will always be squelched.", o_name2);
 
-	      /*Mark the view to be updated*/
+	      /* Mark the view to be updated */
 	      p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW);;
 	    }
 	}
@@ -926,9 +906,6 @@ void do_cmd_destroy(void)
       /* Message */
       msg_format("You cannot destroy %s.", o_name);
       
-      /* Hack -- Handle icky artifacts */
-      if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = FEEL_TERRIBLE;
-      
       /* Hack -- inscribe the artifact, if not identified. */
       if (!object_known_p(o_ptr)) o_ptr->feel = feel;
       
@@ -942,6 +919,19 @@ void do_cmd_destroy(void)
       p_ptr->window |= (PW_INVEN | PW_EQUIP);
       
       /* Done */
+      return;
+    }
+  
+  /* Hack -- Cannot destroy some cursed items */
+  if (o_ptr->flags_curse & CF_STICKY_CARRY)
+    {
+      /* Oops */
+      msg_print("Hmmm, it seems to be cursed.");
+
+      /* Notice */
+      notice_curse(CF_STICKY_CARRY, item + 1);
+      
+      /* Nope */
       return;
     }
   
@@ -1771,63 +1761,6 @@ void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 
 
 /*
- * Hack -- Display the "name" and "attr/chars" of a monster race
- */
-static void roff_top(int r_idx)
-{
-  monster_race *r_ptr = &r_info[r_idx];
-  
-  byte a1, a2;
-  char c1, c2;
-  
-  
-  /* Access the chars */
-  c1 = r_ptr->d_char;
-  c2 = r_ptr->x_char;
-  
-  /* Access the attrs */
-  a1 = r_ptr->d_attr;
-  a2 = r_ptr->x_attr;
-  
-  
-  /* Clear the top line */
-  Term_erase(0, 0, 255);
-  
-  /* Reset the cursor */
-  Term_gotoxy(0, 0);
-  
-  /* A title (use "The" for non-uniques) */
-  if (!(r_ptr->flags1 & (RF1_UNIQUE)))
-    {
-      Term_addstr(-1, TERM_WHITE, "The ");
-    }
-  
-  /* Special title for Player ghosts. */
-  if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
-    {
-      Term_addstr(-1, TERM_WHITE, format("%s, the ", ghost_name));
-    }
-  
-  /* Dump the name */
-  Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
-  
-  if (!use_dbltile && !use_trptile)
-    {
-      /* Append the "standard" attr/char info */
-      Term_addstr(-1, TERM_WHITE, " ('");
-      Term_addch(a1, c1);
-      Term_addstr(-1, TERM_WHITE, "')");
-      
-      /* Append the "optional" attr/char info */
-      Term_addstr(-1, TERM_WHITE, "/('");
-      Term_addch(a2, c2);
-      if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
-      Term_addstr(-1, TERM_WHITE, "'):");
-    }
-}
-
-
-/*
  * Identify a character, allow recall of monsters
  *
  * Several "special" responses recall "mulitple" monsters:
@@ -1856,18 +1789,12 @@ void do_cmd_query_symbol(void)
   bool recall = FALSE;
   
   u16b why = 0;
-#ifdef _WIN32_WCE
   u16b *who = malloc(z_info->r_max * sizeof(*who));
-#else
-  u16b who[z_info->r_max];
-#endif
   
   /* Get a character, or abort */
   if (!get_com("Enter character to be identified: ", &sym)) 
     {
-#ifdef _WIN32_WCE
       free(who);
-#endif
       return;
     }
   
@@ -1897,9 +1824,7 @@ void do_cmd_query_symbol(void)
     {
       if (!get_string("Substring to search: ", search_str, sizeof(search_str)))
 	{
-#ifdef _WIN32_WCE
 	  free(who);
-#endif
 	  return;
 	}
       
@@ -1955,9 +1880,7 @@ void do_cmd_query_symbol(void)
   /* Nothing to recall */
   if (!n) 
     {
-#ifdef _WIN32_WCE
       free(who);
-#endif
       return;
     }
   
@@ -2000,9 +1923,7 @@ void do_cmd_query_symbol(void)
       kill_all_buttons();
       restore_buttons();
       update_statusline();
-#ifdef _WIN32_WCE
       free(who);
-#endif
       return;
     }
   else
@@ -2132,9 +2053,7 @@ void do_cmd_query_symbol(void)
   kill_all_buttons();
   restore_buttons();
   update_statusline();
-#ifdef _WIN32_WCE
   free(who);
-#endif
 }
 
 
@@ -2269,6 +2188,9 @@ void py_steal(int y, int x)
       /* Increase player gold. */
       p_ptr->au += purse;
       
+      /* Limit to avoid buffer overflow */
+      if (p_ptr->au > PY_MAX_GOLD) p_ptr->au = PY_MAX_GOLD;
+	    
       /* Redraw gold */
       p_ptr->redraw |= (PR_GOLD);
       
@@ -2321,7 +2243,7 @@ void py_steal(int y, int x)
       msg_print("All the level is in an uproar over your misdeeds!");
       
       /* Aggravate and speed up all monsters on level. */
-      aggravate_monsters(1, TRUE);
+      (void) aggravate_monsters(1, TRUE);
     }
   
   else if ((number_of_thefts_on_level > 2) || (randint(8) == 1))
@@ -2329,7 +2251,7 @@ void py_steal(int y, int x)
       msg_print("You hear hunting parties scouring the area for a notorious burgler.");
       
       /* Aggravate monsters nearby. */
-      aggravate_monsters(1, FALSE);
+      (void) aggravate_monsters(1, FALSE);
     }
   
   /* Rogue "Hit and Run" attack. */
@@ -2358,7 +2280,9 @@ void py_steal(int y, int x)
 void py_set_trap(int y, int x)
 {
   int max_traps;
-  
+  s16b this_o_idx, next_o_idx = 0;
+  object_type *o_ptr;
+	  
   max_traps = 1 + ((p_ptr->lev >= 25) ? 1 : 0) + 
     (check_ability(SP_EXTRA_TRAP) ? 1 : 0);
   
@@ -2389,6 +2313,46 @@ void py_set_trap(int y, int x)
       return;
     }
   
+  /* Scan all objects in the grid */
+  for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+    {
+      /* Acquire object */
+      o_ptr = &o_list[this_o_idx];
+      
+      /* Acquire next object */
+      next_o_idx = o_ptr->next_o_idx;
+      
+      /* Artifact */
+      if (o_ptr->name1)
+	{
+	  msg_print("There is an indestructible object here.");
+	  return;
+	}
+    }
+
+  /* Verify */
+  if (cave_o_idx[y][x]) 
+    {
+      if (!get_check("Destroy all items and set a trap?")) return;
+      else
+	{
+	  for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	    {
+	      /* Acquire object */
+	      o_ptr = &o_list[this_o_idx];
+	      
+	      /* Acquire next object */
+	      next_o_idx = o_ptr->next_o_idx;
+	      
+	      /* Delete the object */
+	      delete_object_idx(this_o_idx);
+	    }
+	  
+	  /* Redraw */
+	  lite_spot(y, x);
+	}
+    }
+
   /* Set the trap, and draw it. */
   cave_set_feat(y, x, FEAT_MTRAP_BASE);
   

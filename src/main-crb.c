@@ -1,37 +1,30 @@
-/* File: main-crb.c */
-
 /*
- * Copyright (c) 1997-2006 Ben Harrison, Keith Randall, Peter Ammon,
- * Ron Anderson, and others
+ * File: main-crb.c
+ * Purpose: Provide support for OS X, version 10.3 and later.
  *
+ * Copyright (c) 2003 pelpel
+ * Copyright (c) 2003,2004,2005 Robert Ruehlmann
+ * Copyright (c) 2007,2008 pete mack
+ * Copyright (c) 2008 Rowan Beentje
+ *
+ * Some excerpts quoted under fair use from works by Ben Harrison,
+ * Keith Randall, Peter Ammon, and Ron Anderson.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ *    are included in all such copies.  Other copyrights may also apply.
  */
+#include "angband.h"
+
 
 /*
- * Update 2006 - pete mack
- * This update works exclusively with Apple computers running OS X,
- * versions 10.3 and later.  The still-usable old version uses QuickDraw
- * Graphics, "deprecated" as of 10.4
- *
- * Support for legacy Macs and pre-10.3 OSX has been removed.
- * The old carbon code is still available in main-crb.c, 
- * Angband version 3.0.6; pre-carboniferous code in angband main-mac.c
- */
-
-/*
- * Use 
- * make -f Makefile.osx 
- * You must have XCode installed to compile.
- * 
- * Initial framework (and most code) by Ben Harrison (benh@phial.com).
- * Some code adapted from "MacAngband 2.6.1" by Keith Randall
- * Initial PowerMac port by Maarten Hazewinkel (mmhazewi@cs.ruu.nl).
- * Most Apple Event code provided by Steve Linberg (slinberg@crocker.com).
- * Carbon code adapted from works by Peter Ammon and Ron Anderson.
- * Much modernization and graphics/sound improvement done by pelpel.
- *
  * Notes:
  *
  * (pelpel) Characters in the ASCII mode are clipped by their bounding
@@ -75,20 +68,6 @@
  * You might wish to disable some SET_UID features for various reasons:
  * to have user folder within the lib folder, savefile names etc.
  *
- * For the best compatibility with the Classic ports and my PEF Carbon
- * ports, my_fopen, fd_make and fd_open [in util.c] should call
- *   (void)fsetfileinfo(buf, _fcreator, _ftype);
- * when a file is successfully opened.  Or you'll see odd icons for some files
- * in the lib folder.  In order to do so, extern.h should contain these lines,
- *
- *   extern int fsetfileinfo(char *path, u32b fcreator, u32b ftype);
- *   extern u32b _fcreator;
- *   extern u32b _ftype;
- * And enable the four FILE_TYPE macros in h-config.h for defined(MACH_O_CARBON)
- *
- * All calls to my_fopen should be preceded by the appropriate FILE_TYPE(xxx),
- * especially those in file.c and save.c
- *
  * 2. Installation
  *
  * The "angband" binary must be arranged this way for it to work:
@@ -113,10 +92,6 @@
  * while keeping vertical and horizontal scaling factor to 100% (<- VERY
  * important), when you convert tiles in any formats to PNG.  This means
  * that the real size of an image must shrink or grow when you change it's dpi.
- *
- * Sound (.wav) files should be stored in .../lib/xtra/sound
- * Graphics files should be stored in .../lib/xtra/images
- * as is standard on other unix builds.
  * Graphics files must be of type png, because OSX 10.3 doesn't do
  * a good job with composited images.
  *
@@ -150,27 +125,18 @@
 
 #ifdef MACH_O_CARBON
 
+
+#include <Cocoa/Cocoa.h>
 #include <Carbon/Carbon.h>
 #include <QuickTime/QuickTime.h>
 #include <CoreServices/CoreServices.h>
 #include <CoreFoundation/CoreFoundation.h>
-#include "angband.h"
 
 #include "osx/osx_tables.h"
 
 
- /*
- * #define ANGBAND_CREATOR four letter code for your variant, if any.
- * or use the default one. (This is used to specify the standard program
- * for opening data files.
- *
- */
 
 /* Default creator signature */
-#ifndef ANGBAND_CREATOR
-# define ANGBAND_CREATOR 'A271'
-#endif
-
 #ifndef huge
 #define huge size_t
 #endif
@@ -224,17 +190,9 @@ static int graf_mode = 0;
 static int graf_height = 0;
 static int graf_width = 0;
 
-/*
- * Creator signature and file type - Didn't I say that I abhor file name
- * extentions?  Names and metadata are entirely different set of notions.
- */
-OSType _fcreator;
-OSType _ftype;
-
 typedef struct GlyphInfo GlyphInfo;
 
 typedef struct term_data term_data;
-static void create_map(TextEncoding);
 
 /*
  * Extra "term" data
@@ -242,23 +200,25 @@ static void create_map(TextEncoding);
 struct term_data
 {
 	term *t;
-	WindowRef w;
-	GlyphInfo *ginfo;
-	
-	Rect r;			// Absolute bounds of window.
-	CGRect bounds;  // Relative bounds of border-clipped canvas.
+        WindowRef w;
+        GlyphInfo *ginfo;
+        
+        Rect wr;                // Absolute bounds of window (for save/restore)
+        Rect r;                 // Canvas bounds of window (for mouse addressing &c) 
+        CGRect bounds;  // Relative bounds of border-clipped canvas.
 
-	int spacing;  	// Text padding (in pixels) for tiling wider than text
+        int spacing;    // Text padding (in pixels) for tiling wider than text
 
 	Str15 title;	// Window title.
 
 	s16b mapped;	// Active state.
 
-	s16b rows;		// rows in picture
-	s16b cols;		// columns in picture.
+        s16b rows;              // rows in picture
+        s16b cols;              // columns in picture.
 
-	ATSUFontID font_id;
-	float font_size;	// Scaled ATSU font size.
+        char font_name[200]; // Name of font for storage.
+        ATSUFontID font_id;
+        float font_size;        // Scaled ATSU font size.
 
 	s16b font_wid;
 	s16b font_hgt;
@@ -294,14 +254,14 @@ static WindowRef aboutDialog;
 
 
 static bool CheckEvents(int wait);
-static OSStatus RevalidateGraphics(term_data *td, EventRef inEvent);
+static OSStatus RevalidateGraphics(term_data *td, bool reset_tilesize);
 static char *locate_lib(char *buf, size_t size);
 static void graphics_aux(int op);
 static void Term_wipe_mac_aux(int x, int y, int n);
 inline static void term_data_color(int a);
 static void install_handlers(WindowRef w);
 static void graphics_tiles_nuke(void);
-
+static void play_sound(int num);
 /*
  * Available values for 'wait'
  */
@@ -323,7 +283,6 @@ bool quit_when_ready = FALSE;
 
 static long mac_os_version;
 
-
 /*
  * Hack -- game in progress
  */
@@ -335,10 +294,9 @@ static bool game_in_progress = FALSE;
  */
 static bool new_game = FALSE;
 
-
 /* Out-of-band color identifiers */
 /* True black (TERM_BLACK may be altered) */
-#define COLOR_BLACK		(256)
+#define COLOR_BLACK             (256)
 /* No current color */
 #define COLOR_INVALID	(-1)
 
@@ -467,10 +425,10 @@ static OSErr spec_to_path(const FSSpec *spec, char *buf, size_t size)
  * Set creator and filetype of a file specified by POSIX-style pathname.
  * Returns 0 on success, -1 in case of errors.
  */
-void fsetfileinfo(cptr pathname, OSType fcreator, OSType ftype)
+void fsetfileinfo(cptr pathname, u32b fcreator, u32b ftype)
 {
-	OSErr err;
-	FSSpec spec;
+        OSErr err;
+        FSSpec spec;
 	FInfo info;
 
 	/* Convert pathname to FSSpec */
@@ -803,11 +761,12 @@ static void term_data_check_font(term_data *td)
 	release_glyph_info(td->ginfo);
 	td->ginfo = info;
 
-	td->font_wid = (info->font_wid +.999);
-	td->font_hgt = info->ascent + info->descent;
+        td->font_wid = (info->font_wid +.999);
+        td->font_hgt = info->ascent + info->descent;
+        my_strcpy(td->font_name, info->psname, sizeof(td->font_name));
 
-	/* Set default tile size */
-	if (td->tile_wid == 0) td->tile_wid = td->font_wid;
+        /* Set default tile size */
+        if (td->tile_wid == 0) td->tile_wid = td->font_wid;
 	if (td->tile_hgt == 0) td->tile_hgt = td->font_hgt;
 }
 
@@ -817,31 +776,31 @@ static void term_data_check_font(term_data *td)
  */
 static void term_data_check_size(term_data *td)
 {
-	if (td == &data[0])
-	{
+        if (td == &data[0])
+        {
 
-		/* Enforce minimal size */
-		if (td->cols < 80) td->cols = 80;
-		if (td->rows < 24) td->rows = 24;
+                /* Enforce minimal size for the main game window */
+                if (td->cols < 80) td->cols = 80;
+                if (td->rows < 24) td->rows = 24;
 
-	}
+        }
+        else
+        {
 
-	/* Information windows can be much smaller */
-	else
-	{
-		if (td->cols < 5) td->cols = 10;
-		if (td->rows < 10) td->rows = 5;
-	}
+                /* Information windows can be much smaller */
+                if (td->cols < 10) td->cols = 10;
+                if (td->rows < 5) td->rows = 5;
+        }
 
-	/* Enforce maximal sizes */
-	if (td->cols > 255) td->cols = 255;
-	if (td->rows > 255) td->rows = 255;
+        /* Enforce maximal sizes */
+        if (td->cols > 255) td->cols = 255;
+        if (td->rows > 255) td->rows = 255;
 
-	bool dirty = false;
-	/* Minimal tile size */
-	if (td->tile_wid < td->font_wid) {
-		td->tile_wid = td->font_wid;
-		dirty = true;
+        /* Minimal tile size */
+        bool dirty = false;
+        if (td->tile_wid < td->font_wid) {
+                td->tile_wid = td->font_wid;
+                dirty = true;
 	}
 	if (td->tile_hgt < td->font_hgt) {
 		td->tile_hgt = td->font_hgt;
@@ -851,30 +810,26 @@ static void term_data_check_size(term_data *td)
 
 	/* Calculate full window size */
 	td->size_wid = td->cols * td->tile_wid + BORDER_WID * 2;
-	td->size_hgt = td->rows * td->tile_hgt + BORDER_WID;
+        td->size_hgt = td->rows * td->tile_hgt + BORDER_WID;
 
 
-	/* Get current screen */
-	hibernate();
-	BitMap tScreen;
-	(void)GetQDGlobalsScreenBits(&tScreen);
-	
-	/* Verify the bottom */
-	if (td->r.top > tScreen.bounds.bottom - td->size_hgt)
-	{
-		td->r.top = tScreen.bounds.bottom - td->size_hgt;
-	}
-
-	/* Verify the top */
-	if (td->r.top < tScreen.bounds.top + GetMBarHeight())
-	{
-		td->r.top = tScreen.bounds.top + GetMBarHeight();
-	}
-
-	/* Verify the right */
-	if (td->r.left > tScreen.bounds.right - td->size_wid)
-	{
-		td->r.left = tScreen.bounds.right - td->size_wid;
+        hibernate();
+        BitMap tScreen;
+        /* Get current screen */
+        (void)GetQDGlobalsScreenBits(&tScreen);
+        /* Verify the bottom */
+        if (td->r.top > tScreen.bounds.bottom - td->size_hgt)
+        {
+                td->r.top = tScreen.bounds.bottom - td->size_hgt;
+        }
+        /* Verify the top */
+        if (td->r.top < tScreen.bounds.top + 2*GetMBarHeight())
+        {
+                td->r.top = tScreen.bounds.top + 2*GetMBarHeight();
+        }
+        /* Verify the right */
+        if (td->r.left > tScreen.bounds.right - td->size_wid)
+        {
 	}
 
 	/* Verify the left */
@@ -897,13 +852,13 @@ static void term_data_check_size(term_data *td)
 	
 	/* Handle graphics */
 	if (!td->ginfo->monospace) {
-		/* Draw every character */
-		td->t->always_pict = TRUE;
-	}
-	else if (use_graphics && (td == &data[0]))
-	{
-		/* Use higher pict whenever possible */
-		td->t->higher_pict = TRUE;
+                /* Draw every character */
+                td->t->always_pict = TRUE;
+        }
+        else if (use_graphics)
+        {
+                /* Use higher pict whenever possible */
+                td->t->higher_pict = TRUE;
 	}
 
 }
@@ -1232,11 +1187,11 @@ static errr graphics_init(void)
 
 static void graphics_tiles_nuke(void)
 {
-	if(frame.tile_images) {
-		for(int i = frame.rows*frame.cols; --i > 0; ) {
-			if(frame.tile_images[i]) CGImageRelease(frame.tile_images[i]);
-			frame.tile_images[i] = 0;
-		}
+        if(frame.tile_images) {
+                for(int i = frame.rows*frame.cols; --i >= 0; ) {
+                        if(frame.tile_images[i]) CGImageRelease(frame.tile_images[i]);
+                        frame.tile_images[i] = 0;
+                }
 	}
 }
 
@@ -1256,350 +1211,202 @@ static errr graphics_nuke(void)
 		graphics_tiles_nuke();
 		free(frame.tile_images);
 		frame.tile_images = 0;
-	}
+        }
 
-	/* Flush events */
-	FlushEventQueue(GetMainEventQueue());
+        /* Flush events */
+        if (initialized) FlushEventQueue(GetMainEventQueue());
 
-	/* Success */
-	return (0);
+        /* Success */
+        return (0);
 }
 
 
-/*
- * How many sound channels will be pooled
- */
-#define MAX_CHANNELS		8
+/* Arbitary limit on number of possible samples per event */
+#define MAX_SAMPLES                     8
+
+/* Struct representing all data for a set of event samples */
+typedef struct
+{
+        int num;                /* Number of available samples for this event */
+        NSSound *sound[MAX_SAMPLES];
+} sound_sample_list;
+
+/* Array of event sound structs */
+static sound_sample_list samples[MSG_MAX];
 
 /*
- * A pool of sound channels
- */
-static SndChannelPtr channels[MAX_CHANNELS];
-
-/*
- * Status of the channel pool
- */
-static bool channel_initialised = FALSE;
-
-/*
- * Data handles containing sound samples
- */
-static SndListHandle samples[MSG_MAX];
-
-/*
- * Reference counts of sound samples
- */
-static SInt16 sample_refs[MSG_MAX];
-
-#define SOUND_VOLUME_MIN	0	/* Default minimum sound volume */
-#define SOUND_VOLUME_MAX	255	/* Default maximum sound volume */
-#define VOLUME_MIN			0	/* Minimum sound volume in % */
-#define VOLUME_MAX			100	/* Maximum sound volume in % */
-#define VOLUME_INC			5	/* Increment sound volume in % */
-
-/*
- * I'm just too lazy to write a panel for this XXX XXX
- */
-static SInt16 sound_volume = SOUND_VOLUME_MAX;
-
-/*
- * QuickTime sound, by Ron Anderson
- *
- * I didn't choose to use Windows-style .ini files (Ron wrote a parser
- * for it, but...), nor did I use lib/xtra directory, hoping someone
- * would code plist-based configuration code in the future -- pelpel
- */
-
-/*
- * (QuickTime)
- * Load sound effects from data-fork resources.  They are wav files
- * with the same names as angband_sound_name[] (variable.c)
- *
- * Globals referenced: angband_sound_name[]
- * Globals updated: samples[] (they can be *huge*)
+ * Load sound effects based on sound.cfg within the xtra/sound directory;
+ * bridge to Cocoa to use NSSound for simple loading and playback, avoiding
+ * I/O latency by cacheing all sounds at the start.  Inherits full sound
+ * format support from Quicktime base/plugins.
+ * pelpel favoured a plist-based parser for the future but .cfg support
+ * improves cross-platform compatibility.
  */
 static void load_sounds(void)
 {
-	/* Start QuickTime */
-	OSErr err = EnterMovies();
+        char path[2048];
+        char buffer[2048];
+        ang_file *fff;
 
-	/* Error */
-	if (err != noErr) return;
+        /* Build the "sound" path */
+        path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
+        ANGBAND_DIR_XTRA_SOUND = string_make(path);
 
-	/*
-	 * This loop may take a while depending on the count and size of samples
-	 * to load.
-	 *
-	 * We should use a progress dialog for this.
-	 */
-	char path[1024];
-	locate_lib(path, sizeof(path));
-	char *tail = path+strlen(path);
-	strncpy(tail, "/xtra/sound/", path+1024-tail);
-	tail = tail+strlen(tail);
-	for (int i = 1; i < MSG_MAX; i++)
-	{
-		/* Apple APIs always give me headache :( */
-		/* Me too :( */
-		FSSpec spec;
-		SInt16 file_id;
-		SInt16 res_id;
-		Str255 movie_name;
-		Movie movie;
-		Track track;
-		Handle h;
+        /* Find and open the config file */
+        path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
+        fff = file_open(path, MODE_READ, -1);
 
-		sprintf(tail, "%s.wav", angband_sound_name[i]);
-		err = path_to_spec(path, &spec);
-		if(err != noErr) continue;
+        /* Handle errors */
+        if (!fff)
+        {
+                mac_warning("The sound configuration file could not be opened.");
+                return;
+        }
+        
+        /* Instantiate an autorelease pool for use by NSSound */
+        NSAutoreleasePool *autorelease_pool;
+        autorelease_pool = [[NSAutoreleasePool alloc] init];
 
-		/* Open the sound file */
-		err = OpenMovieFile(&spec, &file_id, fsRdPerm);
+        /*
+         * This loop may take a while depending on the count and size of samples
+         * to load.
+         */
 
-		/* Error */
-		if (err != noErr) continue;
+        /* Parse the file */
+        /* Lines are always of the form "name = sample [sample ...]" */
+        while (file_getl(fff, buffer, sizeof(buffer)))
+        {
+                char *msg_name;
+                char *cfg_sample_list;
+                char *search;
+                char *cur_token;
+                char *next_token;
+                int event;
 
-		/* Create Movie from the file */
-		err = NewMovieFromFile(&movie, file_id, &res_id, movie_name,
-			newMovieActive, NULL);
+                /* Skip anything not beginning with an alphabetic character */
+                if (!buffer[0] || !isalpha((unsigned char)buffer[0])) continue;
 
-		/* Error */
-		if (err != noErr) goto close_file;
+                /* Split the line into two: message name, and the rest */
+                search = strchr(buffer, ' ');
+        cfg_sample_list = strchr(search + 1, ' ');
+                if (!search) continue;
+        if (!cfg_sample_list) continue;
 
-		/* Get the first track of the movie */
-		track = GetMovieIndTrackType(movie, 1, AudioMediaCharacteristic,
-			movieTrackCharacteristic | movieTrackEnabledOnly );
+                /* Set the message name, and terminate at first space */
+                msg_name = buffer;
+                search[0] = '\0';
 
-		/* Error */
-		if (track == NULL) goto close_movie;
+                /* Make sure this is a valid event name */
+                for (event = MSG_MAX - 1; event >= 0; event--)
+                {
+                        if (strcmp(msg_name, angband_sound_name[event]) == 0)
+                            break;
+                }
+        if (event < 0) continue;
 
-		/* Allocate a handle to store sample */
-		h = NewHandle(0);
+                /* Advance the sample list pointer so it's at the beginning of text */
+                cfg_sample_list++;
+                if (!cfg_sample_list[0]) continue;
 
-		/* Error */
-		if (h == NULL) goto close_track;
-
-		/* Dump the sample into the handle */
-		err = PutMovieIntoTypedHandle(movie, track, soundListRsrc, h, 0,
-			GetTrackDuration(track), 0L, NULL);
-
-		/* Success */
-		if (err == noErr)
-		{
-			/* Store the handle in the sample list */
-			samples[i] = (SndListHandle)h;
-		}
-
-		/* Failure */
-		else
-		{
-			/* Free unused handle */
-			DisposeHandle(h);
-		}
-
-		/* Free the track */
-close_track: DisposeMovieTrack(track);
-
-		/* Free the movie */
-close_movie: DisposeMovie(movie);
-
-		/* Close the movie file */
-close_file: CloseMovieFile(file_id);
-	}
-
-	/* Stop QuickTime */
-	ExitMovies();
+                /* Terminate the current token */
+                cur_token = cfg_sample_list;
+                search = strchr(cur_token, ' ');
+                if (search)
+                {
+                        search[0] = '\0';
+                        next_token = search + 1;
+        }
+                else
+                {
+                        next_token = NULL;
 }
 
 /*
- * Return a handle of 'snd ' resource given Angband sound event number,
- * or NULL if it isn't found.
- *
- * Globals referenced: angband_sound_name[] (variable.c)
+         * Now we find all the sample names and add them one by one
  */
-static SndListHandle get_sound_resource(int num)
+        while (cur_token)
 {
-	SndListHandle h = samples[num];
+            int num = samples[event].num;
 
-	if(++sample_refs[num] > 1) {
-		return h;
-	}
-	if(!h) {
-		sample_refs[num]--;
-		return 0;
-	}
-	HLockHi((Handle)h);
-	return h;
+                        /* Don't allow too many samples */
+                        if (num >= MAX_SAMPLES) break;
+
+                        /* Build the path to the sample */
+                        path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, cur_token);
+                        if (file_exists(path)) {
+
+                                /* Load the sound into memory */
+                                samples[event].sound[num] = [[NSSound alloc] initWithContentsOfFile:[NSString stringWithUTF8String:path] byReference:NO];
+                                if (samples[event].sound[num] != nil) {
+
+                                        /* Imcrement the sample count */
+                                        samples[event].num++;
+                                }
 }
 
-void release_sound_resource(int num)
+                        /* Figure out next token */
+                        cur_token = next_token;
+                        if (next_token)
 {
-	if(sample_refs[num] == 0)
-		return;
+                                /* Try to find a space */
+                                search = strchr(cur_token, ' ');
 
-	/* Decrease refcount */
-	if(--sample_refs[num] > 0)
-		return;
-
-	/* We can free it now */
-	/* Unlock */
-	HUnlock((Handle)samples[num]);
-
+                                /* If we can find one, terminate, and set new "next" */
+                                if (search)
+        {
+                                        search[0] = '\0';
+                                        next_token = search + 1;
+        }
+                                else
+                {
+                                        /* Otherwise prevent infinite looping */
+                                        next_token = NULL;
+                }
+        }
 }
+                                }
+        
+        /* Release the autorelease pool */
+        [autorelease_pool release];
 
-/*
- * Clean up sound support - to be called when the game exits.
- *
- * Globals referenced: channels[], samples[], sample_refs[].
- */
-static void cleanup_sound(void)
-{
-	/* No need to clean it up */
-	if (!channel_initialised) return;
+        /* Close the file */
+        file_close(fff);
+        
+        /* Register the sound hook */
+        sound_hook = play_sound;
+                        }
 
-	/* Dispose channels */
-	for (int i = 0; i < MAX_CHANNELS; i++)
-	{
-		/* Drain sound commands and free the channel */
-		SndDisposeChannel(channels[i], TRUE);
-	}
-
-	/* Free sound data */
-	for (int i = 1; i < MSG_MAX; i++)
-	{
-		while(sample_refs[i] > 0)
-		{
-			release_sound_resource(i);
-		}
-	}
-}
 
 
 /*
- * Play sound effects asynchronously -- pelpel
- *
- * I don't believe those who first started using the previous implementations
- * imagined this is *much* more complicated as it may seem.  Anyway, 
- * introduced round-robin scheduling of channels and made it much more
- * paranoid about HLock/HUnlock.
- *
- * XXX XXX de-refcounting, HUnlock and ReleaseResource should be done
- * using channel's callback procedures, which set global flags, and
- * a procedure hooked into CheckEvents does housekeeping.  On the other
- * hand, this lazy reclaiming strategy keeps things simple (no interrupt
- * time code) and provides a sort of cache for sound data.
- *
- * Globals referenced: channel_initialised, channels[], samples[],
- *   sample_refs[].
- * Globals updated: channel_initialised, channels[], sample_refs[].
+ * Play sound effects asynchronously.  Select a sound from any available
+ * for the required event, and bridge to Cocoa to play it.
  */
 
-static void play_sound(int num, SInt16 vol)
-{
-	OSErr err;
-	int prev_num;
-	SndListHandle h;
-	SndChannelPtr chan;
-	SCStatus status;
+static void play_sound(int event)
+        {
+        /* Paranoia */
+        if (event < 0 || event >= MSG_MAX) return;
 
-	static int next_chan;
-	static SInt16 channel_occupants[MAX_CHANNELS];
-	static SndCommand volume_cmd, quiet_cmd;
+        /* Check there are samples for this event */
+        if (!samples[event].num) return;
 
-	/* Initialise sound channels */
-	if (!channel_initialised)
-	{
-		for (int i = 0; i < MAX_CHANNELS; i++)
-		{
-			/* Paranoia - Clear occupant table */
-			/* channel_occupants[i] = 0; */
+        /* Instantiate an autorelease pool for use by NSSound */
+        NSAutoreleasePool *autorelease_pool;
+        autorelease_pool = [[NSAutoreleasePool alloc] init];
 
-			/* Create sound channel for all sounds to play from */
-			err = SndNewChannel(&channels[i], sampledSynth, initMono, NULL);
+        /* Choose a random event */
+        int s = rand_int(samples[event].num);
 
-			/* Free channels */
-			if(err != noErr) {
-				while (--i >= 0)
-				{
-					SndDisposeChannel(channels[i], TRUE);
-				}
-	
-				/* Notify error */
-				plog("Cannot initialise sound channels!");
+        /* Stop the sound if it's currently playing */
+        if ([samples[event].sound[s] isPlaying])
+                [samples[event].sound[s] stop];
 
-				/* Cancel request */
-				use_sound = arg_sound = FALSE;
-	
-				/* Failure */
-				return;
-			}
-		}
+        /* Play the sound */
+        [samples[event].sound[s] play];
 
-		/* First channel to use */
-		next_chan = 0;
-
-		/* Prepare volume command */
-		volume_cmd.cmd = volumeCmd;
-		volume_cmd.param1 = 0;
-		volume_cmd.param2 = 0;
-
-		/* Prepare quiet command */
-		quiet_cmd.cmd = quietCmd;
-		quiet_cmd.param1 = 0;
-		quiet_cmd.param2 = 0;
-
-		/* Initialisation complete */
-		channel_initialised = TRUE;
-	}
-
-	/* Paranoia */
-	if ((num <= 0) || (num >= MSG_MAX)) return;
-
-	/* Prepare volume command */
-	volume_cmd.param2 = ((SInt32)vol << 16) | vol;
-
-	/* Channel to use (round robin) */
-	chan = channels[next_chan];
-
-	/* Attempt to get a new sound "resource" */
-	h = get_sound_resource(num);
-	if (h == NULL) return;
-
-	/* Poll the channel */
-	err = SndChannelStatus(chan, sizeof(SCStatus), &status);
-
-	/* It isn't available */
-	if ((err != noErr) || status.scChannelBusy)
-	{
-		/* Shut it down */
-		SndDoImmediate(chan, &quiet_cmd);
-	}
-
-	/* Process previously played sound */
-	if ((prev_num = channel_occupants[next_chan]) != 0)
-	{
-		release_sound_resource(prev_num);
-	}
-
-	/* Remember this sound as the current occupant of the channel */
-	channel_occupants[next_chan] = num;
-
-	/* Set up volume for channel */
-	SndDoImmediate(chan, &volume_cmd);
-
-	/* Play new sound asynchronously */
-	SndPlay(chan, h, TRUE);
-
-	/* Schedule next channel (round robin) */
-	next_chan++;
-	if (next_chan >= MAX_CHANNELS) next_chan = 0;
-}
-
-static void test_font()
-{
-	int i;
-	for(i = 0; i < 128; i++)
-		msg_format("%3d:%c; ", i+128, i+128);
+        /* Release the autorelease pool */
+        [autorelease_pool release];
 }
 
 /*
@@ -1615,31 +1422,7 @@ static byte Term_xchar_mac(byte c)
 	return c < 128 ? c : latin1_inv[c-128];
 }
 
-static TextEncoding latin1_code;
-static void create_map(TextEncoding encoding)
-{
-	unsigned char ibuffer[1];
-	TECObjectRef encoder;
-	int i;
-	ByteCount nread, nwritten;
-	TextEncoding app_code;
-	static int old_encoding = -1;
 
-	if(old_encoding == encoding) return;
-	old_encoding = encoding;
-
-	/* Potential minor memory leak. Don't know how to fix! */
-	FMGetFontFamilyTextEncoding(encoding, &app_code);
-	TECCreateConverter(&encoder, latin1_code, app_code);
-
-    for(i = 0; i < 128; i++)
-	{
-		ibuffer[0] = i+128;
-		TECConvertText(encoder, ibuffer, 1, &nread, latin1_inv+i, 32, &nwritten);
-		if(nwritten != 1 || latin1_inv[i] == '?' || latin1_inv[i] == ' ')
-			latin1_inv[i] = seven_bit_translation[i];
-	}
-}
 
 /*** Support for the "z-term.c" package ***/
 
@@ -1654,27 +1437,30 @@ static void create_map(TextEncoding encoding)
 static void Term_init_mac(term *t)
 {
 	term_data *td = (term_data*)(t->data);
-	WindowAttributes wattrs;
-	OSStatus err;
+        WindowAttributes wattrs;
+        OSStatus err;
 
-	latin1_code = CreateTextEncoding (kTextEncodingISOLatin1,
-					  kTextEncodingDefaultVariant, 
-					  kTextEncodingDefaultFormat);
-
-	/* Initialize latin 1->mac encoding */
-	create_map(GetAppFont());
-
-	wattrs = kWindowCloseBoxAttribute | kWindowCollapseBoxAttribute
-						| kWindowResizableAttribute;
+        wattrs = kWindowCloseBoxAttribute | kWindowCollapseBoxAttribute
+                                                | kWindowResizableAttribute;
 
 	/* Make the window  */
 	err = CreateNewWindow(
 			kDocumentWindowClass,
 			wattrs,
-			&td->r,
-			&td->w);
+                        &td->r,
+                        &td->w);
 
-	install_handlers(td->w);
+        Rect tmpR;
+        GetWindowBounds((WindowRef)td->w, kWindowTitleBarRgn, &tmpR);
+        int trueTop = td->r.top - (tmpR.bottom-tmpR.top);
+
+        /* Enforce a minimum y position to avoid windows positioned vertically off screen */
+        if (trueTop < GetMBarHeight()) trueTop = GetMBarHeight();
+        
+        MoveWindowStructure((WindowRef)td->w, td->r.left, trueTop);
+        
+
+        install_handlers(td->w);
 
 
 	/* Fatal error */
@@ -1695,14 +1481,13 @@ static void Term_init_mac(term *t)
 
 	/* assert(td->mapped) */
 	if (td->mapped)
-	{
-		WindowRef old_win = focus.active;
+        {
+                WindowRef old_win = focus.active;
 
-		TransitionWindow(td->w,
-			kWindowZoomTransitionEffect, kWindowShowTransitionAction, NULL);
+                ShowWindow(td->w);
 
-		activate(td->w);
-		term_data_color(COLOR_BLACK);
+                activate(td->w);
+                term_data_color(COLOR_BLACK);
 		CGContextFillRect(focus.ctx, td->bounds);
 		activate(old_win);
 	}
@@ -1760,22 +1545,12 @@ static errr Term_xtra_mac(int n, int v)
 			SysBeep(1);
 
 			/* Success */
-			return (0);
-		}
+                        return (0);
+                }
 
-		/* Make a sound */
-		case TERM_XTRA_SOUND:
-		{
-			/* Play sound */
-			play_sound(v, sound_volume);
-
-			/* Success */
-			return (0);
-		}
-
-		/* Process random events */
-		case TERM_XTRA_BORED:
-		{
+                /* Process random events */
+                case TERM_XTRA_BORED:
+                {
 			return (0);
 		}
 
@@ -1786,16 +1561,17 @@ static errr Term_xtra_mac(int n, int v)
 			(void)CheckEvents(v);
 
 			/* Success */
-			return (0);
-		}
+                        return (0);
+                }
 
-		/* Flush all pending events (if any) */
-		case TERM_XTRA_FLUSH:
-		{
-			FlushEventQueue(GetMainEventQueue());
+                /* Flush all pending input events (if any) */
+                case TERM_XTRA_FLUSH:
+                {
+                        FlushEventsMatchingListFromQueue(GetMainEventQueue(),
+                                N_ELEMENTS(input_event_types), input_event_types);
 
-			/* Success */
-			return (0);
+                        /* Success */
+                        return (0);
 		}
 
 		/* Hack -- Change the "soft level" */
@@ -2023,13 +1799,13 @@ static void term_data_link(int i)
 	if (td->t) return;
 
 	/* Require mapped */
-	if (!td->mapped) return;
+        if (!td->mapped) return;
 
-	/* Allocate */
-	MAKE(td->t, term);
+        /* Allocate */
+        td->t = ZNEW(term);
 
-	/* Initialize the term */
-	term_init(td->t, td->cols, td->rows, td == &data[0] ? 100 : 1);
+        /* Initialize the term */
+        term_init(td->t, td->cols, td->rows, td == &data[0] ? 100 : 1);
 
 	/* Use a "software" cursor */
 	td->t->soft_cursor = TRUE;
@@ -2053,13 +1829,13 @@ static void term_data_link(int i)
 	td->t->xtra_hook = Term_xtra_mac;
 	td->t->wipe_hook = Term_wipe_mac;
 	td->t->curs_hook = Term_curs_mac;
-	td->t->bigcurs_hook = Term_curs_mac;
-	td->t->text_hook = Term_text_mac;
-	td->t->pict_hook = Term_pict_mac;
-	td->t->xchar_hook = Term_xchar_mac;
+        td->t->bigcurs_hook = Term_curs_mac;
+        td->t->text_hook = Term_text_mac;
+        td->t->pict_hook = Term_pict_mac;
+        td->t->xchar_hook = Term_xchar_mac;
 
 
-	td->t->never_bored = TRUE;
+        td->t->never_bored = TRUE;
 	td->t->never_frosh = TRUE;
 
 
@@ -2099,12 +1875,12 @@ static char *locate_lib(char *buf, size_t size)
 	CFRelease(main_url);
 
 	/* Oops */
-	if (!success) return (NULL);	
+        if (!success) return (NULL);    
 
-	/* Append "/Contents/Resources/lib/" */
-	strncat(buf, "/Contents/Resources/lib/", size);
+        /* Append "/Contents/Resources/lib/" */
+        my_strcat(buf, "/Contents/Resources/lib/", size);
 
-	return (buf);
+        return (buf);
 }
 
 
@@ -2127,19 +1903,26 @@ static char *locate_lib(char *buf, size_t size)
  * Store "value" as the value for preferences item name
  * pointed by key
  */
-static void save_pref_short(const char *key, short value)
+static void save_preference(const char *key, type_union value)
 {
-	CFStringRef cf_key;
-	CFNumberRef cf_value;
+        CFStringRef cf_key;
+        CFPropertyListRef cf_value = 0;
 
-	/* allocate and initialise the key */
-	cf_key = CFStringCreateWithCString(NULL, key, kTextEncodingUS_ASCII);
+        /* allocate and initialise the key */
+        cf_key = CFStringCreateWithCString(NULL, key, kTextEncodingUS_ASCII);
 
-	/* allocate and initialise the value */
-	cf_value = CFNumberCreate(NULL, kCFNumberShortType, &value);
+        /* allocate and initialise the value */
+        if(value.t == T_INT)
+                cf_value = CFNumberCreate(NULL, kCFNumberIntType, &value.u.i);
 
-	if ((cf_key != NULL) && (cf_value != NULL))
-	{
+        else if(value.t == T_STRING)
+                cf_value = CFStringCreateWithCString(NULL, value.u.s, kTextEncodingUS_ASCII);
+
+        else quit(format("Unrecognized save type %d\n", value.t));
+
+
+        if ((cf_key != NULL) && (cf_value != NULL))
+        {
 		/* Store the key-value pair in the applications preferences */
 		CFPreferencesSetAppValue(
 			cf_key,
@@ -2160,13 +1943,13 @@ static void save_pref_short(const char *key, short value)
  * Load preference value for key, returns TRUE if it succeeds with
  * vptr updated appropriately, FALSE otherwise.
  */
-static bool query_load_pref_short(const char *key, short *vptr)
+static bool load_preference(const char *key, type_union *vptr, size_t maxlen )
 {
-	CFStringRef cf_key;
-	CFNumberRef cf_value;
+        CFStringRef cf_key;
+        CFPropertyListRef cf_value;
 
-	/* allocate and initialise the key */
-	cf_key = CFStringCreateWithCString(NULL, key, kTextEncodingUS_ASCII);
+        /* allocate and initialise the key */
+        cf_key = CFStringCreateWithCString(NULL, key, kTextEncodingUS_ASCII);
 
 	/* Oops */
 	if (cf_key == NULL) return (FALSE);
@@ -2180,35 +1963,39 @@ static bool query_load_pref_short(const char *key, short *vptr)
 	if (cf_value == NULL)
 	{
 		CFRelease(cf_key);
-		return (FALSE);
-	}
+                return (FALSE);
+        }
 
-	/* Convert the value to short */
-	CFNumberGetValue(
-		cf_value,
-		kCFNumberShortType,
-		vptr);
+        /* Convert the value to appropriate type */
+        if(vptr->t == T_INT)
+                CFNumberGetValue( cf_value, kCFNumberIntType, &vptr->u.i);
+        else if(vptr->t == T_STRING) {
+                CFRange range = { 0, 200};
+                (void) CFStringGetBytes (cf_value, range, kCGEncodingMacRoman, 0, 0, (UInt8*)vptr->u.s, maxlen, 0);
+        }
 
-	/* Free CF data */
-	CFRelease(cf_value);
+        /* Free CF data */
+        CFRelease(cf_value);
 	CFRelease(cf_key);
 
 	/* Success */
-	return (TRUE);
+        return (TRUE);
 }
 
-
-/*
- * Update short data pointed by vptr only if preferences
- * value for key is located.
- */
-static void load_pref_short(const char *key, short *vptr)
+/* Convenience wrappers for commonly used type short */
+static void save_pref_short(const char *key, short value)
 {
-	short tmp;
-
-	if (query_load_pref_short(key, &tmp)) *vptr = tmp;
+        type_union u = i2u(value);
+        save_preference(key, u);
 }
-
+static bool load_pref_short(const char *key, short *vptr)
+{
+        bool ret;
+        type_union u = { T_INT };
+        ret = load_preference(key, &u, 0);
+        if( ret == TRUE ) *vptr = u.u.i;
+        return ret;
+}
 
 /*
  * Save preferences to preferences file for current host+current user+
@@ -2220,14 +2007,24 @@ static void cf_save_prefs()
 	save_pref_short("version.major", VERSION_MAJOR);
 	save_pref_short("version.minor", VERSION_MINOR);
 	save_pref_short("version.patch", VERSION_PATCH);
-	save_pref_short("version.extra", VERSION_EXTRA);
+        save_pref_short("version.extra", VERSION_EXTRA);
 
-	/* Gfx settings */
+        /* Gfx settings */
+        /* double-width tiles */
+        save_pref_short("arg.use_bigtile", use_bigtile);
+
+        /* graphics mode */
+        save_pref_short("graf_mode", graf_mode);
+
+        /* text antialiasing */
+        save_pref_short("arg.use_antialiasing", antialias);
+
+	/* sound */
 	save_pref_short("arg.arg_sound", arg_sound);
-/* Tile dimensions of the current graphics mode */
 
-	/* Windows */
-	for (int i = 0; i < MAX_TERM_DATA; i++)
+
+        /* Windows */
+        for (int i = 0; i < MAX_TERM_DATA; i++)
 	{
 		term_data *td = &data[i];
 
@@ -2237,15 +2034,19 @@ static void cf_save_prefs()
 		save_pref_short(format("term%d.tile_hgt", i), td->tile_hgt);
 
 		save_pref_short(format("term%d.cols", i), td->cols);
-		save_pref_short(format("term%d.rows", i), td->rows);
-		save_pref_short(format("term%d.left", i), td->r.left);
-		save_pref_short(format("term%d.top", i), td->r.top);
-	}
+                save_pref_short(format("term%d.rows", i), td->rows);
+                save_pref_short(format("term%d.left", i), td->r.left);
+                save_pref_short(format("term%d.top", i), td->r.top);
 
-	/*
-	 * Make sure preferences are persistent
-	 */
-	CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
+                /* Integer font sizes only */
+                save_preference(format("term%d.font_size", i), i2u((int)td->font_size));
+                save_preference(format("term%d.font_name", i), s2u(td->font_name));
+        }
+
+       /*
+         * Make sure preferences are persistent
+         */
+        CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
 }
 
 
@@ -2259,16 +2060,16 @@ static void cf_load_prefs()
 	short valid;
 
 	/* Assume nothing is wrong, yet */
-	bool ok = TRUE;
+        bool ok = TRUE;
 
-	/* Load version information */
-	ok &= query_load_pref_short("version.major", &pref_major);
-	ok &= query_load_pref_short("version.minor", &pref_minor);
-	ok &= query_load_pref_short("version.patch", &pref_patch);
-	ok &= query_load_pref_short("version.extra", &pref_extra);
+        /* Load version information */
+        ok &= load_pref_short("version.major", &pref_major);
+        ok &= load_pref_short("version.minor", &pref_minor);
+        ok &= load_pref_short("version.patch", &pref_patch);
+        ok &= load_pref_short("version.extra", &pref_extra);
 
-	/* Any of the above failed */
-	if (!ok)
+        /* Any of the above failed */
+        if (!ok)
 	{
 #if 0
 		/* This may be the first run */
@@ -2276,30 +2077,48 @@ static void cf_load_prefs()
 #endif /* 0 */
 
 		/* Ignore the rest */
-		return;
-	}
+                return;
+        }
 
 #if 0
-
-	/* Check version */
-	if ((pref_major != VERSION_MAJOR) ||
+        /* Check version */
+        if ((pref_major != VERSION_MAJOR) ||
 		(pref_minor != VERSION_MINOR) ||
-		(pref_patch != VERSION_PATCH) ||
-		(pref_extra != VERSION_EXTRA))
-	{
-		/* Message */
-		mac_warning(
-			format("Ignoring %d.%d.%d.%d preferences.",
+                (pref_patch != VERSION_PATCH) ||
+                (pref_extra != VERSION_EXTRA))
+        {
+                /* Version 3.0.8 rewrote the preference file format - don't attempt to load previous versions. */
+                if ((pref_major < 3) ||
+                        ((pref_major == 3) && (pref_minor == 0) && (pref_patch < 8)))
+                {
+                        
+                /* Message */
+                mac_warning(
+                        format("Ignoring %d.%d.%d.%d preferences.",
 				pref_major, pref_minor, pref_patch, pref_extra));
 
-		/* Ignore */
-		return;
-	}
-
+                /* Ignore */
+                return;
+        }
+                else
+                {
+                        FSRef fsRef;
+                        char prefpath[1024];
+                        CFStringRef bundleid = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleIdentifierKey);
+                        CFIndex bufferlength = CFStringGetMaximumSizeForEncoding(CFStringGetLength(bundleid), kCFStringEncodingASCII) + 1;
+                        char bundlename[bufferlength];
+                        
+                        CFStringGetCString(bundleid, bundlename, bufferlength, kCFStringEncodingASCII);
+                        FSFindFolder(kOnAppropriateDisk, kPreferencesFolderType, kDontCreateFolder, &fsRef);
+                        FSRefMakePath(&fsRef, (UInt8 *)prefpath, 1024);
+                        mac_warning(format("Preference file has changed.  If you have display problems, delete %s/%s.plist and restart.", prefpath, bundlename));
+                        CFRelease(bundleid);
+                }
+        }
 #endif
 
-	/* HACK - Check for broken preferences */
-	load_pref_short("term0.mapped", &valid);
+        /* HACK - Check for broken preferences */
+        load_pref_short("term0.mapped", &valid);
 
 	/* Ignore broken preferences */
 	if (!valid)
@@ -2310,35 +2129,57 @@ static void cf_load_prefs()
 		return;
 	}
 
-	/* Gfx settings */
-	short pref_tmp;
+        /* Gfx settings */
+        short pref_tmp;
 
 	/* sound */
-	if (query_load_pref_short("arg.arg_sound", &pref_tmp))
+	if (load_pref_short("arg.arg_sound", &pref_tmp))
 		arg_sound = pref_tmp;
 
-	/* double-width tiles */
-	if (query_load_pref_short("arg.big_tile", &pref_tmp))
-	{
-		use_bigtile = pref_tmp;
-	}
+        /* double-width tiles */
+        if (load_pref_short("arg.use_bigtile", &pref_tmp))
+                use_bigtile = pref_tmp;
+
+        /* anti-aliasing */
+        if(load_pref_short("arg.use_antialiasing", &pref_tmp))
+                antialias = pref_tmp;
+
+        if(load_pref_short("graf_mode", &pref_tmp))
+                graf_mode = pref_tmp;
 
 
-	/* Windows */
+        /* Windows */
 	for (int i = 0; i < MAX_TERM_DATA; i++)
 	{
-		term_data *td = &data[i];
+                term_data *td = &data[i];
 
-		load_pref_short(format("term%d.mapped", i), &td->mapped);
+                load_pref_short(format("term%d.mapped", i), &td->mapped);
+                CheckMenuItem(MyGetMenuHandle(kWindowMenu), kAngbandTerm+i, td->mapped);
 
-		load_pref_short(format("term%d.tile_wid", i), &td->tile_wid);
-		load_pref_short(format("term%d.tile_hgt", i), &td->tile_hgt);
+                load_pref_short(format("term%d.tile_wid", i), &td->tile_wid);
+                load_pref_short(format("term%d.tile_hgt", i), &td->tile_hgt);
 
 		load_pref_short(format("term%d.cols", i), &td->cols);
-		load_pref_short(format("term%d.rows", i), &td->rows);
-		load_pref_short(format("term%d.left", i), &td->r.left);
-		load_pref_short(format("term%d.top", i), &td->r.top);
-	}
+                load_pref_short(format("term%d.rows", i), &td->rows);
+                load_pref_short(format("term%d.left", i), &td->r.left);
+                load_pref_short(format("term%d.top", i), &td->r.top);
+
+                type_union u = {T_INT};
+                if(load_preference(format("term%d.font_size", i), &u, sizeof(int)))
+                        td->font_size = (float) u.u.i;
+                u = s2u(td->font_name);
+                if(load_preference(format("term%d.font_name", i), &u, sizeof(td->font_name))) {
+                        ATSUFontID fid = 0;
+                        ATSUFindFontFromName(td->font_name, strlen(td->font_name),
+                                                                kFontPostscriptName, kFontMacintoshPlatform,
+                                                                kFontNoScriptCode, kFontNoLanguageCode, &fid);
+                        if(fid) td->font_id = fid;
+                        /* Use the default */
+                        else my_strcpy(td->font_name, "Monaco", sizeof(td->font_name));
+                }
+        }
+        
+
 }
 
 
@@ -2362,11 +2203,12 @@ static void term_data_hack(term_data *td)
 	/* Start hidden */
 	td->mapped = FALSE;
 
-	/* Default font */
-	td->font_id = fid;
+        /* Default font */
+        td->font_id = fid;
+        my_strcpy(td->font_name, "Monaco", sizeof(td->font_name));
 
-	/* Default font size - was 12 */
-	td->font_size = 14;
+        /* Default font size - was 12 */
+        td->font_size = 14;
 
 	/* Default size */
 	td->rows = 24;
@@ -2446,6 +2288,59 @@ static void init_windows(void)
 }
 
 
+/* Set up the contents of the about dialog */
+static void init_aboutdialogcontent()
+{
+        HIViewRef aboutDialogViewRef;
+        OSStatus err;
+        
+        /* Set the application name from the constants set in defines.h */
+        char *applicationName = format("%s %s", VERSION_NAME, VERSION_STRING);
+        CFStringRef cfstr_applicationName = CFStringCreateWithBytes(NULL, (byte *)applicationName,
+                                                                                strlen(applicationName), kCFStringEncodingASCII, false);
+        HIViewFindByID(HIViewGetRoot(aboutDialog), aboutDialogName, &aboutDialogViewRef);
+        SetControlData(aboutDialogViewRef, kControlEntireControl, kControlStaticTextCFStringTag, sizeof(cfstr_applicationName), &cfstr_applicationName);
+        CFRelease(cfstr_applicationName);
+        
+        /* Set the application copyright as set up in variable.c 
+        HIViewFindByID(HIViewGetRoot(aboutDialog), aboutDialogCopyright, &aboutDialogViewRef);
+        CFStringRef cfstr_applicationCopyright = CFStringCreateWithBytes(NULL, (byte *)copyright,
+                                                                                strlen(copyright), kCFStringEncodingASCII, false);
+        SetControlData(aboutDialogViewRef, kControlEntireControl, kControlStaticTextCFStringTag, sizeof(cfstr_applicationCopyright), &cfstr_applicationCopyright);
+        CFRelease(cfstr_applicationCopyright);*/
+
+        /* Use a small font for the copyright text */
+        TXNObject txnObject = HITextViewGetTXNObject(aboutDialogViewRef);
+        TXNTypeAttributes typeAttr[1];
+        typeAttr[0].tag = kTXNQDFontSizeAttribute;
+        typeAttr[0].size = kTXNFontSizeAttributeSize;
+        typeAttr[0].data.dataValue = FloatToFixed(10);
+        err = TXNSetTypeAttributes(txnObject, 1, typeAttr, kTXNStartOffset, kTXNEndOffset);
+
+        /* Get the application icon and draw it */
+        ProcessSerialNumber psn = { 0, kCurrentProcess };
+        ControlRef iconControl;
+        FSRef ref;
+        FSSpec appSpec;
+        IconRef iconRef;
+        ControlButtonContentInfo cInfo;
+
+        err = GetProcessBundleLocation(&psn, &ref);
+        if(err == noErr)
+                err = FSGetCatalogInfo(&ref, kFSCatInfoNone, NULL, NULL, &appSpec, NULL);
+        if( err == noErr )
+                err = GetIconRefFromFile((const FSSpec *)&appSpec, &iconRef, nil);
+        if(err == noErr)
+                err = GetControlByID(aboutDialog, &aboutDialogIcon, &iconControl);
+        if( err == noErr )
+        {
+                cInfo.contentType = kControlContentIconRef;
+                cInfo.u.iconRef = iconRef;
+                err = SetControlData(iconControl, 0, kControlIconContentTag, sizeof(cInfo), (Ptr)&cInfo);
+        }
+}
+
+
 /*
  * Save preferences
  */
@@ -2467,17 +2362,19 @@ static bool select_savefile(bool all)
 	OSErr err;
 	FSSpec theFolderSpec;
 	FSSpec savedGameSpec;
-	NavDialogOptions dialogOptions;
-	NavReplyRecord reply;
-	/* Used only when 'all' is true */
-	NavTypeList types = {ANGBAND_CREATOR, 1, 1, {'SAVE'}};
-	NavTypeListHandle myTypeList;
-	AEDesc defaultLocation;
+        NavDialogOptions dialogOptions;
+        NavReplyRecord reply;
+        /* Used only when 'all' is true */
+        NavTypeList types = {'A271', 1, 1, {'SAVE'}};
+        NavTypeListHandle myTypeList;
+        AEDesc defaultLocation;
 
-	/* Look for the "Angband/save/" sub-folder */
-	err = path_to_spec(ANGBAND_DIR_SAVE, &theFolderSpec);
+        /* Look for the "Angband/save/" sub-folder */
+        char path[1024];
+        path_build(path, sizeof(path), ANGBAND_DIR_USER, "save");
+        err = path_to_spec(path, &theFolderSpec);
 
-	if (err != noErr) quit_fmt("Unable to find the savefile folder! (Error %d)", err);
+        if (err != noErr) quit_fmt("Unable to find the savefile folder! (Error %d)", err);
 
 	/* Get default Navigator dialog options */
 	err = NavGetDefaultDialogOptions(&dialogOptions);
@@ -2574,12 +2471,14 @@ static void init_menubar(void)
 	if((err = CreateNibReference(CFSTR("main"), &nib)))
 		quit("Cannot find the main nib bundle!");
 
-	if((err = SetMenuBarFromNib(nib, CFSTR("MenuBar"))))
-		quit("Cannot prepare menu bar!");
+        if((err = SetMenuBarFromNib(nib, CFSTR("MenuBar"))))
+                quit("Cannot prepare menu bar!");
 
-	(void) CreateWindowFromNib(nib, CFSTR("DLOG:about"), &aboutDialog);
+        /* Load the about dialog and set its contents */
+        (void) CreateWindowFromNib(nib, CFSTR("DLOG:about"), &aboutDialog);
+        init_aboutdialogcontent();
 
-	DisposeNibReference(nib);
+        DisposeNibReference(nib);
 
 	MenuRef m = MyGetMenuHandle(kStyleMenu);
 	for(int i = 1; i <= CountMenuItems(m); i++) {
@@ -2597,11 +2496,12 @@ static void init_menubar(void)
 			/* Tile size */
 			strnfmt((char*)buf, 15, "%d", i);
 			CFStringRef cfstr = CFStringCreateWithBytes ( NULL, (byte*) buf,
-									strlen(buf), kCFStringEncodingASCII, false);
-			AppendMenuItemTextWithCFString(m, cfstr, 0, j, NULL);
-			SetMenuItemRefCon(m, i-MIN_FONT+1, i);
-		}
-	}
+                                                                        strlen(buf), kCFStringEncodingASCII, false);
+                        AppendMenuItemTextWithCFString(m, cfstr, 0, j, NULL);
+                        SetMenuItemRefCon(m, i-MIN_FONT+1, i);
+                        CFRelease(cfstr);
+                }
+        }
 }
 
 // Install the handlers from the Commands table.
@@ -2635,34 +2535,35 @@ static void install_handlers(WindowRef w)
 static int funcGTE(int a, int b) { return a >= b; }
 static int funcConst(int a, int c) {return c; }
 
-/* This initializes all the menus with values that change unpredictably. */
-/* Menus that change rarely are done at the time of change */
+/* This initializes all the menus with values that change unpredictably.
+ * This function is called on every menu draw and therefore should be kept
+ * light and fast; menus that change rarely are done at the time of change
+ */
 static void validate_menus(void)
 {
-	WindowRef w = FrontWindow();
-	term_data *td;
-	if(!w || !initialized) return;
-	td = (term_data*) GetWRefCon(w);
-	if(!td) return;
+        WindowRef w = GetFrontWindowOfClass(kDocumentWindowClass, true);
+        term_data *td;
+        if(!w || !initialized) return;
+        td = (term_data*) GetWRefCon(w);
+        if(!td) return;
 
-	term_data *td0 = &data[0];
-	struct {
-		int menu;				/* Radio-style Menu ID to validate */
-		int cur;				/* Value in use (Compare to RefCon) */
-		int limit;				/* Constraint value */
-		int (*cmp) (int, int);	/* Filter function */
-	} funcs [] = {
-		{ kTileWidMenu, td0->tile_wid, td0->font_wid, funcGTE },
-		{ kTileHgtMenu, td0->tile_hgt, td0->font_hgt, funcGTE },
-		{ kStyleMenu, graf_mode, 1, funcConst }
-	};
+        struct {
+                int menu;                               /* Radio-style Menu ID to validate */
+                int cur;                                /* Value in use (Compare to RefCon) */
+                int limit;                              /* Constraint value */
+                int (*cmp) (int, int);  /* Filter function */
+        } funcs [] = {
+                { kTileWidMenu, td->tile_wid, td->font_wid, funcGTE },
+                { kTileHgtMenu, td->tile_hgt, td->font_hgt, funcGTE },
+                { kStyleMenu, graf_mode, 1, funcConst }
+        };
 
-	MenuHandle m;
+        MenuHandle m;
 
-	if(game_in_progress) {
-		EnableAllMenuItems(MyGetMenuHandle(kSpecialMenu));
-		EnableAllMenuItems(MyGetMenuHandle(kStyleMenu));
-	}
+        if(game_in_progress) {
+                EnableAllMenuItems(MyGetMenuHandle(kSpecialMenu));
+                EnableAllMenuItems(MyGetMenuHandle(kStyleMenu));
+        }
 
 	for(int i = 0; i < N_ELEMENTS(funcs); i++) {
 		m = MyGetMenuHandle(funcs[i].menu);
@@ -2671,32 +2572,33 @@ static void validate_menus(void)
 			UInt32 value;
 			GetMenuItemRefCon(m, j, &value);
 			CheckMenuItem(m, j, funcs[i].cur == value);
-			if(funcs[i].cmp(value, funcs[i].limit)) {
-				EnableMenuItem(m, j);
-			}
-			else {
-				DisableMenuItem(m, j);
-			}
-		}
-	}
+                        if(funcs[i].cmp(value, funcs[i].limit)) {
+                                EnableMenuItem(m, j);
+                        }
+                        else
+                        {
+                                DisableMenuItem(m, j);
+                        }
+                }
+        }
 
-	m = MyGetMenuHandle(kFileMenu);
-	if(inkey_flag && character_generated) {
-		EnableMenuItem(MyGetMenuHandle(kFileMenu), kSave);
-	}
-	else {
-		DisableMenuItem(MyGetMenuHandle(kFileMenu), kSave);
-	}
-	for(int i = kNew; i <= kImport; i++) {
-		if(!game_in_progress) 
-			EnableMenuItem(MyGetMenuHandle(kFileMenu), i);
-		else
-			DisableMenuItem(MyGetMenuHandle(kFileMenu), i);
-	}
+        m = MyGetMenuHandle(kFileMenu);
+        if(inkey_flag && character_generated) {
+                EnableMenuItem(MyGetMenuHandle(kFileMenu), kSave);
+                EnableMenuItem(MyGetMenuHandle(kSpecialMenu), kSound);
+        }
+                else
+        {
+                DisableMenuItem(MyGetMenuHandle(kFileMenu), kSave);
+                DisableMenuItem(MyGetMenuHandle(kSpecialMenu), kSound);
+        }
 
-	for(int i = 0; i < N_ELEMENTS(toggle_defs); i++) {
-		m = MyGetMenuHandle(toggle_defs[i].menuID);
-		CheckMenuItem(m, toggle_defs[i].menuItem, *(toggle_defs[i].var));
+        /* Keep the sound menu up-to-date */
+        CheckMenuItem(MyGetMenuHandle(kSpecialMenu), kSound, arg_sound);
+
+        for(int i = 0; i < N_ELEMENTS(toggle_defs); i++) {
+                m = MyGetMenuHandle(toggle_defs[i].menuID);
+                CheckMenuItem(m, toggle_defs[i].menuItem, *(toggle_defs[i].var));
 	}
 }
 
@@ -2704,52 +2606,51 @@ static OSStatus ValidateMenuCommand(EventHandlerCallRef inCallRef,
 									EventRef inEvent, void *inUserData )
 {
 	validate_menus();
-	return noErr;
+        return noErr;
 }
 
-
-
 static OSStatus AngbandGame(EventHandlerCallRef inCallRef,
-							EventRef inEvent, void *inUserData )
+                                                        EventRef inEvent, void *inUserData )
 {
 	/* Initialize  For quartz, this must be within the message loop.*/
 	init_angband();
-	// Only enabled options are Fonts, Open/New/Import and Quit. 
-	DisableAllMenuItems(MyGetMenuHandle(kTileWidMenu));
-	DisableAllMenuItems(MyGetMenuHandle(kTileHgtMenu));
+        /* Only enabled options are Fonts, Open/New/Import and Quit. */
+        DisableAllMenuItems(MyGetMenuHandle(kTileWidMenu));
+        DisableAllMenuItems(MyGetMenuHandle(kTileHgtMenu));
+
 	/* Prompt the user - You may have to change this for some variants */
 	prt("[Choose 'New', 'Open' or 'Import' from the 'File' menu]", 23, 11);
+        SetFontInfoForSelection(kFontSelectionATSUIType, 0, 0, 0);
 
+        for(int i = kNew; i <= kImport; i++)
+                EnableMenuItem(MyGetMenuHandle(kFileMenu), i);
 
-	for(int i = kNew; i <= kImport; i++)
-		EnableMenuItem(MyGetMenuHandle(kFileMenu), i);
+        /* Validate graphics, after bootstrapped opening of terminals */
+        for(int i = 0; i < N_ELEMENTS(data); i++) {
+                if(data[i].mapped)
+                        RevalidateGraphics(&data[i], FALSE);
+        }
 
-	/* Validate graphics, after bootstrapped opening of terminals */
-	for(int i = 0; i < N_ELEMENTS(data); i++) {
-		if(data[i].mapped)
-			RevalidateGraphics(&data[i], 0);
-	}
+        /* Flush the prompt */
+        Term_fresh();
+        Term_flush();
 
-	/* Flush the prompt */
-	Term_fresh();
-	Term_flush();
+        EventTargetRef target = GetEventDispatcherTarget();
+        while(!game_in_progress) {
+                // if(event is interesting) break;
+                OSStatus err;
+                EventRef event;
+                err = ReceiveNextEvent(0, 0, kEventDurationForever, true, &event);
+                if(err == noErr) {
+                        SendEventToEventTarget (event, target);
+                        ReleaseEvent(event);
+                }
+        }
 
-	EventTargetRef target = GetEventDispatcherTarget();
-	while(!game_in_progress) {
-		// if(event is interesting) break;
-		OSStatus err;
-		EventRef event;
-		err = ReceiveNextEvent(0, 0, kEventDurationForever, true, &event);
-		if(err == noErr) {
-			SendEventToEventTarget (event, target);
-			ReleaseEvent(event);
-		}
-	}
-
-	play_game(new_game);
-	quit(0);
-	// Not reached
-	return noErr;
+        play_game(new_game);
+        quit(0);
+        // Not reached
+        return noErr;
 }
 
 /*
@@ -2757,47 +2658,37 @@ static OSStatus AngbandGame(EventHandlerCallRef inCallRef,
  */
 static OSStatus openGame(int op)
 {
-	/* Let the player to choose savefile */
-	if (op != kNew && 0 == select_savefile(op == kImport))
-	{
+        /* Let the player to choose savefile */
+        if (op != kNew && 0 == select_savefile(op == kImport))
+        {
 		// Failed to open
-		return noErr;
-	}
+                return noErr;
+        }
 
-	/* Wait for a keypress */
-	pause_line(Term->hgt - 1);
+        /* Disable the file-handling options in the file menu */
+        for(int i = kNew; i <= kImport; i++)
+                DisableMenuItem(MyGetMenuHandle(kFileMenu), i);
 
-	/* Game is in progress */
-	game_in_progress = TRUE;
+        /* Wait for a keypress */
+        pause_line(Term->hgt - 1);
 
-	/* Use an existing savefile */
-	new_game = (op == kNew);
+        /* Game is in progress */
+        game_in_progress = TRUE;
 
-	return noErr;
-}
+        /* Use an existing savefile */
+        new_game = (op == kNew);
 
-/* Open Document is only remaining apple event that needs to be handled
-   explicitly */
-static OSStatus AppleCommand(EventHandlerCallRef inCallRef,
-							EventRef inEvent, void *inUserData )
-{
-	EventRecord aevent;
-	(void) AEProcessAppleEvent(&aevent);
-	if(open_when_ready) {
-		game_in_progress = TRUE;
-		new_game = false;
-	}
-	return noErr;
+        return noErr;
 }
 
 
 static OSStatus QuitCommand(EventHandlerCallRef inCallRef,
-							EventRef inEvent, void *inUserData )
+                                                        EventRef inEvent, void *inUserData )
 {
-	if(!game_in_progress && !character_generated)
-		quit(0);	
-	else Term_key_push('\030');
-	return noErr;
+        if(!game_in_progress && !character_generated)
+                quit(0);        
+        else Term_key_push(KTRL('x'));
+        return noErr;
 }
 
 static OSStatus CommandCommand(EventHandlerCallRef inCallRef,
@@ -2811,20 +2702,28 @@ static OSStatus CommandCommand(EventHandlerCallRef inCallRef,
 	GetEventParameter( inEvent, kEventParamKeyModifiers, typeUInt32,
 							NULL, sizeof(attrib), NULL, &attrib);
 	switch(command.commandID) {
-	default:
-		return eventNotHandledErr;
-	case 'save':
-		if(game_in_progress && character_generated)
-			Term_key_push(KTRL('S'));
-		break;
-	case 'open':
+        default:
+                return eventNotHandledErr;
+        case 'save':
+                if(game_in_progress && character_generated)
+                        Term_key_push(KTRL('S'));
+                break;
+        case 'open':
 		openGame(command.menu.menuItemIndex);
-		break;
-	case 'font':
-	  {
-		CFStringRef tags[] = {CFSTR("Show Fonts"), CFSTR("Hide Fonts")};
+                break;
+        case 'font':
+          {
+                if(!FPIsFontPanelVisible()) {
+                        WindowRef w = FrontWindow();
+                        if (w) {
+                                term_data *td = (term_data*) GetWRefCon(w);
+                                SetFontInfoForSelection(kFontSelectionATSUIType, 1,
+                                                                                &td->ginfo->style, NULL);
+                        }
+                }
+                CFStringRef tags[] = {CFSTR("Show Fonts"), CFSTR("Hide Fonts")};
         FPShowHideFontPanel(); 
-		SetMenuItemTextWithCFString(command.menu.menuRef, kFonts,
+                SetMenuItemTextWithCFString(command.menu.menuRef, kFonts,
 											tags[FPIsFontPanelVisible()] );
 		break;
 	  }
@@ -2842,29 +2741,32 @@ static OSStatus CloseCommand(EventHandlerCallRef inCallRef,
 	GetEventParameter(inEvent, kEventParamDirectObject,
 							typeWindowRef, NULL, sizeof(w), NULL, &w);
 
-	td = (term_data*) GetWRefCon(w);
+        td = (term_data*) GetWRefCon(w);
 
-	if(!game_in_progress && !character_generated && td == &data[0])
-		quit(0);
+        if(!game_in_progress && !character_generated && td == &data[0])
+                quit(0);
 
-	hibernate();
+        hibernate();
 
-	/* Track the go-away box */
-	if (td)
-	{
-		/* Not Mapped */
-		td->mapped = FALSE;
+        /* Track the go-away box */
+        if (td && td != &data[0])
+        {
+                /* Not Mapped */
+                td->mapped = FALSE;
 
 		/* Not Mapped */
 		td->t->mapped_flag = FALSE;
 
 		/* Hide the window */
 		TransitionWindow(td->w,
-						kWindowZoomTransitionEffect,
-						kWindowHideTransitionAction,
-						NULL);
-	}
-	return noErr;
+                                                kWindowZoomTransitionEffect,
+                                                kWindowHideTransitionAction,
+                                                NULL);
+
+                /* Update the menu status */
+                CheckMenuItem(MyGetMenuHandle(kWindowMenu), kAngbandTerm+(td - &data[0]), FALSE);
+        }
+        return noErr;
 }
 
 
@@ -2872,32 +2774,42 @@ static OSStatus CloseCommand(EventHandlerCallRef inCallRef,
 static OSStatus ResizeCommand(EventHandlerCallRef inCallRef,
 							EventRef inEvent, void *inUserData )
 {
-	int x, y;
-	WindowRef w = 0;
+        int x, y;
+        WindowRef w = 0;
+        unsigned flags;
 
-	term_data *td;
-	term *old = Term;
+        term_data *td;
+        term *old = Term;
+        int err ;
 
-	GetEventParameter(inEvent, kEventParamDirectObject,
-							typeWindowRef, NULL, sizeof(w), NULL, &w);
+        GetEventParameter(inEvent, kEventParamDirectObject,
+                                                        typeWindowRef, NULL, sizeof(w), NULL, &w);
+        err = GetEventParameter(inEvent, kEventParamAttributes,
+                                                        typeUInt32, NULL, sizeof(flags), NULL, &flags);
 
-	td = (term_data*) GetWRefCon(w);
+        td = (term_data*) GetWRefCon(w);
 
 	/* Oops */
 	if (!td) return noErr;
 
 	/* Obtain geometry of resized window */
-	
-	Rect tmpR;
-	GetWindowBounds((WindowRef)td->w, kWindowContentRgn, &tmpR);
+        
+        Rect tmpR;
+        GetWindowBounds((WindowRef)td->w, kWindowContentRgn, &tmpR);
+        td->r = tmpR;
+        if(td->r.top < 40) td->r.top = 40;
 
-	/* Extract the new ClipRect size in pixels */
-	y = tmpR.bottom - tmpR.top - BORDER_WID;
-	x = tmpR.right - tmpR.left - BORDER_WID * 2;
+        /* Extract the new ClipRect size in pixels */
+        y = tmpR.bottom - tmpR.top - BORDER_WID;
+        x = tmpR.right - tmpR.left - BORDER_WID * 2;
 
-	/* Extract a "close" approximation */
-	td->rows = y / td->tile_hgt;
-	td->cols = x / td->tile_wid;
+        /* Ignore drag effects, other than for moving the mouse origin */
+        if(td->rows * td->tile_hgt == y && td->cols * td->tile_wid == x)
+                return noErr;
+
+        /* Extract a "close" approximation */
+        td->rows = y / td->tile_hgt;
+        td->cols = x / td->tile_wid;
 
 	/* Apply and Verify */
 	term_data_check_size(td);
@@ -2969,15 +2881,15 @@ static void graphics_aux(int op)
 		ANGBAND_GRAF = 0;
 
 		/* reset transparency mode */
-		use_transparency = false;
-	}
-	/* Reset visuals, without updating the screen */
-	if (initialized && game_in_progress)
-	{
-		reset_visuals(TRUE);
-	}
-	RevalidateGraphics(&data[0], 0);
-	Term_key_push(KTRL('R'));
+                use_transparency = false;
+        }
+        /* Reset visuals, without updating the screen */
+        if (initialized && game_in_progress)
+        {
+                reset_visuals(TRUE);
+        }
+        RevalidateGraphics(&data[0], FALSE);
+        Term_key_push(KTRL('R'));
 }
 
 static OSStatus TileSizeCommand(EventHandlerCallRef inCallRef,
@@ -3000,12 +2912,12 @@ static OSStatus TileSizeCommand(EventHandlerCallRef inCallRef,
 		else td->tile_hgt = newSize;
 	}
 	else {
-		return eventNotHandledErr;
-	}
+                return eventNotHandledErr;
+        }
 
-	RevalidateGraphics(td, inEvent);
+        RevalidateGraphics(td, FALSE);
 
-	return noErr;
+        return noErr;
 }
 
 static OSStatus RestoreCommand(EventHandlerCallRef inCallRef,
@@ -3029,10 +2941,10 @@ static OSStatus RestoreCommand(EventHandlerCallRef inCallRef,
 	/* Mapped (?) */
 	td->t->mapped_flag = TRUE;
 
-	/* Bring to the front */
-	SelectWindow(td->w);
+        /* Bring to the front */
+        SelectWindow(td->w);
 
-	return noErr;
+        return noErr;
 }
 
 static OSStatus TerminalCommand(EventHandlerCallRef inCallRef,
@@ -3063,46 +2975,48 @@ static OSStatus TerminalCommand(EventHandlerCallRef inCallRef,
 	/* Show the window */
 	TransitionWindow(td->w,
 				kWindowZoomTransitionEffect,
-				kWindowShowTransitionAction,
-				NULL);
+                                kWindowShowTransitionAction,
+                                NULL);
 
-	term_data_check_font(td);
-	term_data_check_size(td);
-	term_data_resize(td);
+        /* Update the menu status */
+        CheckMenuItem(MyGetMenuHandle(kWindowMenu), kAngbandTerm+i, TRUE);
+
+        term_data_check_font(td);
+        term_data_check_size(td);
+        term_data_resize(td);
 	Term_resize(td->cols, td->rows);
 	term_data_redraw(td);
 
 	/* Bring to the front */
 	SelectWindow(td->w);
 
-	return noErr;
+        return noErr;
 }
 
-static OSStatus RevalidateGraphics(term_data *td, EventRef inEvent)
+static OSStatus RevalidateGraphics(term_data *td, bool reset_tilesize)
 {
-	if(!td) return noErr;
+        if(!td) return noErr;
 
-	HICommand command;
-	command.commandID = 0;
-	command.menu.menuRef = 0;
-	if(inEvent) {
-		GetEventParameter( inEvent, kEventParamDirectObject, typeHICommand,
-							NULL, sizeof(command), NULL, &command);
-	}
+        /*
+         * Reset the tilesize on graphics changes; term_data_check_font recalculates
+         * this after it's been reset.  However, only reset the tilesize for default
+         * and font events (not startup - 'Play' 'Band' - or manual changes)
+        */
+        if (reset_tilesize)
+        {
+                td->tile_wid = td->tile_hgt = 0;
+        }
 
-	// Only rescale graphics when absolutely necessary.
-	if(command.commandID != kTileWidMenu && command.commandID != kTileHgtMenu)
-	{
-		// Reset tilesize to default when graphics change.
-		td->tile_wid = td->tile_hgt = 0;
-	}
+        /* Clear the graphics tile cache. */
+        graphics_tiles_nuke();
 
-	/* Sanity check for rows, columns, tilesize. */
-	term_data_check_font(td);
-	term_data_check_size(td);
-	/* Window size changes */
-	term_data_resize(td);
-	term_data_redraw(td);
+        /* Sanity check for rows, columns, tilesize. */
+        term_data_check_font(td);
+        term_data_check_size(td);
+        
+        /* Window size changes */
+        term_data_resize(td);
+        term_data_redraw(td);
 
 	return noErr;
 }
@@ -3124,11 +3038,26 @@ static OSStatus UpdateCommand(EventHandlerCallRef inCallRef,
 	if (td) term_data_redraw(td);
 	EndUpdate(w);
 
-	return noErr;
+        return noErr;
 }
 
+/* Handle toggling sound via the menu option */
+static OSStatus SoundCommand(EventHandlerCallRef inCallRef,
+                                                        EventRef inEvent, void *inUserData )
+{
+        HICommand command;
+        GetEventParameter( inEvent, kEventParamDirectObject, typeHICommand,
+                                                        NULL, sizeof(command), NULL, &command);
+        if (command.menu.menuItemIndex == kSound)
+        {
+                arg_sound = !arg_sound;
+        }
+        return noErr;
+}
+
+
 static OSStatus ToggleCommand(EventHandlerCallRef inCallRef,
-								EventRef inEvent, void *inUserData )
+                                                                EventRef inEvent, void *inUserData )
 {
 	HICommand command;
 	GetEventParameter( inEvent, kEventParamDirectObject, typeHICommand,
@@ -3139,14 +3068,13 @@ static OSStatus ToggleCommand(EventHandlerCallRef inCallRef,
 	for(int i = N_ELEMENTS(toggle_defs);  --i >= 0;)
 	{
 		if(index == toggle_defs[i].menuItem && menuID == toggle_defs[i].menuID)
-		{
-			*toggle_defs[i].var = !(*toggle_defs[i].var);
-			if(toggle_defs[i].refresh == true) {
-				RevalidateGraphics(&data[0], inEvent);
-				graphics_tiles_nuke();
-				// Force redraw.
-				Term_key_push(KTRL('R'));
-			}
+                {
+                        *toggle_defs[i].var = !(*toggle_defs[i].var);
+                        if(toggle_defs[i].refresh == true) {
+                                RevalidateGraphics(&data[0], FALSE);
+                                // Force redraw.
+                                Term_key_push(KTRL('R'));
+                        }
 			return noErr;
 		}
 	}
@@ -3199,9 +3127,9 @@ static void FontChanged(UInt32 fontID, float size)
 
 	ATSUDisposeStyle(fontStyle);
 
-	td->font_id = fontID;
-	td->font_size = size;
-	RevalidateGraphics(td, 0);
+        td->font_id = fontID;
+        td->font_size = size;
+        RevalidateGraphics(td, TRUE);
 }
 
 /*
@@ -3275,13 +3203,12 @@ static OSStatus MouseCommand ( EventHandlerCallRef inCallRef,
 	else if(button == 1 && modifiers & shiftKey)
 		button = 3;
 
-	// X coordinate relative to left side of window exclusive of border.
-	p.x -= (BORDER_WID+td->r.left);
-	// Y coordinate relative to top of window content region.
-	// HACK: assumes title width of 21 pixels.
-	p.y -= (td->r.top + 21);
+        // X coordinate relative to left side of window exclusive of border.
+        p.x -= (BORDER_WID+td->r.left);
+        // Y coordinate relative to top of window content region.
+        p.y -= td->r.top;
 
-	Term_mousepress(p.x/td->tile_wid, p.y/td->tile_hgt, button);
+        Term_mousepress(p.x/td->tile_wid, p.y/td->tile_hgt, button);
 
 	return noErr;
 }
@@ -3290,12 +3217,17 @@ static OSStatus KeyboardCommand ( EventHandlerCallRef inCallRef,
     EventRef inEvent, void *inUserData )
 {
 
-	EventRecord event;
-	ConvertEventRefToEventRecord(inEvent, &event);
+        EventRecord event;
+        ConvertEventRefToEventRecord(inEvent, &event);
 
-	/* Extract some modifiers */
-	int mc = (event.modifiers & controlKey) ? TRUE : FALSE;
-	int ms = (event.modifiers & shiftKey) ? TRUE : FALSE;
+        /* Don't handle keyboard events in open/save dialogs, to prevent a 10.4 keyboard interaction bug */
+        UInt32 windowClass;
+        GetWindowClass(GetUserFocusWindow(), &windowClass);
+        if (windowClass == kMovableModalWindowClass) return eventNotHandledErr;
+
+        /* Extract some modifiers */
+        int mc = (event.modifiers & controlKey) ? TRUE : FALSE;
+        int ms = (event.modifiers & shiftKey) ? TRUE : FALSE;
 	int mo = (event.modifiers & optionKey) ? TRUE : FALSE;
 	int mx = (event.modifiers & cmdKey) ? TRUE : FALSE;
 
@@ -3360,14 +3292,7 @@ static OSStatus KeyboardCommand ( EventHandlerCallRef inCallRef,
 		/* Terminate the trigger */
 		Term_keypress(13);
 	}
-	return noErr;
-}
-
-static OSStatus PrintCommand(EventHandlerCallRef inCallRef, EventRef inEvent,
-    void *inUserData )
-{
-	mac_warning((const char*) inUserData);
-	return noErr;
+        return noErr;
 }
 
 /* About angband... */
@@ -3416,112 +3341,69 @@ static OSStatus AboutCommand(EventHandlerCallRef inCallRef, EventRef inEvent,
 }
 
 static OSStatus ResumeCommand (EventHandlerCallRef inCallRef,
-								EventRef inEvent, void *inUserData )
+                                                                EventRef inEvent, void *inUserData )
 {
-	WindowRef w = FrontWindow();
-	term_data *td = (term_data *)GetWRefCon(w);
-	if(!td) return noErr;
+        term_data *td;
 
-	hibernate();
-	Cursor tempCursor;
-	SetPort(GetWindowPort(w));
-	SetCursor(GetQDGlobalsArrow(&tempCursor));
+        hibernate();
+        Cursor tempCursor;
+        SetCursor(GetQDGlobalsArrow(&tempCursor));
 
-	/* Synchronise term */
-	term_data_redraw(td);
-	return noErr;
+        /* Redraw all visible terms */
+        for (int i = 0; i < MAX_TERM_DATA; i++ )
+        {
+                /* Obtain */
+                td = &data[i];
+
+                /* Redraw if mapped */
+                if (td->mapped)
+        term_data_redraw(td);
+        }
+
+        return noErr;
 }
 
 static OSErr AEH_Open(const AppleEvent *theAppleEvent, AppleEvent* reply,
 	SInt32 handlerRefCon)
 {
-	FSSpec myFSS;
-	AEDescList docList;
-	OSErr err;
-	Size actualSize;
-	AEKeyword keywd;
-	DescType returnedType;
-	char msg[128];
-	FInfo myFileInfo;
+        FSSpec myFSS;
+        AEDescList docList;
+        long fileindex;
+        long filecount;
+        OSErr err;
+        FInfo myFileInfo;
 
-	/* Put the direct parameter (a descriptor list) into a docList */
-	err = AEGetParamDesc(
-		theAppleEvent, keyDirectObject, typeAEList, &docList);
-	if (err) return err;
+        /* Put the direct parameter (a descriptor list) into a docList */
+        err = AEGetParamDesc(theAppleEvent, keyDirectObject, typeAEList, &docList);
+        if (err) return err;
 
-	/*
-	 * We ignore the validity check, because we trust the FInder, and we only
-	 * allow one savefile to be opened, so we ignore the depth of the list.
-	 */
-	err = AEGetNthPtr(
-		&docList, 1L, typeFSS, &keywd, &returnedType,
-		(Ptr) &myFSS, sizeof(myFSS), &actualSize);
-	if (err) return err;
+        err = AECountItems(&docList, &filecount);
+        if (err) return err;
 
-	/* Only needed to check savefile type below */
-	err = FSpGetFInfo(&myFSS, &myFileInfo);
-	if (err)
-	{
-		strnfmt(msg, sizeof(msg), "Argh!  FSpGetFInfo failed with code %d", err);
-		mac_warning(msg);
-		return err;
-	}
+        /* Only open one file, but check for the first valid file in the list */
+        for (fileindex = 1; fileindex <= filecount; fileindex++)
+        {
+                err = AEGetNthPtr(&docList, fileindex, typeFSS, NULL, NULL, &myFSS, sizeof(myFSS), NULL);
+                if (err) continue;
 
-	/* Ignore non 'SAVE' files */
-	if (myFileInfo.fdType != 'SAVE') return noErr;
+                err = FSpGetFInfo(&myFSS, &myFileInfo);
+                if (err) continue;
 
-	/* Extract a file name */
-	(void)spec_to_path(&myFSS, savefile, sizeof(savefile));
+                if (myFileInfo.fdType == 'SAVE')
+                {
+                        
+                        /* Extract the filename and delay the open */
+        (void)spec_to_path(&myFSS, savefile, sizeof(savefile));
 
-	/* Delay actual open */
-	open_when_ready = TRUE;
+                        break;
+                }
+        }
 
-	/* Dispose */
-	err = AEDisposeDesc(&docList);
+        /* Dispose */
+        err = AEDisposeDesc(&docList);
 
 	/* Success */
-	return noErr;
-}
-
-/*
- * Apple Event Handler -- Re-open Application
- *
- * If no windows are currently open, show the Angband window.
- * This required AppleEvent was introduced by System 8 -- pelpel
- */
-static OSErr AEH_Reopen(const AppleEvent *theAppleEvent,
-			     AppleEvent* reply, long handlerRefCon)
-{
-#pragma unused(theAppleEvent, reply, handlerRefCon)
-
-	term_data *td = NULL;
-
-	/* No open windows */
-	if (NULL == FrontWindow())
-	{
-		/* Obtain the Angband window */
-		td = &data[0];
-
-		/* Mapped */
-		td->mapped = TRUE;
-
-		/* Link */
-		term_data_link(0);
-
-		/* Mapped (?) */
-		td->t->mapped_flag = TRUE;
-
-		/* Show the window */
-		ShowWindow(td->w);
-
-		/* Bring to the front */
-		SelectWindow(td->w);
-
-		/* Make it active */
-		activate(td->w);
-	}
-	/* Event handled */
-	return (noErr);
+        return noErr;
 }
 
 
@@ -3531,20 +3413,20 @@ static OSErr AEH_Reopen(const AppleEvent *theAppleEvent,
  */
 static void quit_calmly(void)
 {
-	/* Quit immediately if game's not started */
-	if (!game_in_progress || !character_generated) quit(NULL);
+        /* Quit immediately if game's not started */
+        if (!game_in_progress || !character_generated) quit(NULL);
 
-	/* Save the game and Quit (if it's safe) */
-	if (inkey_flag)
+        /* Save the game and Quit (if it's safe) */
+        if (inkey_flag)
 	{
 		/* Hack -- Forget messages */
-		msg_flag = FALSE;
+                msg_flag = FALSE;
 
-		/* Save the game */
-		do_cmd_save_game();
+                /* Save the game */
+                do_cmd_save_game();
 
-		/* Quit */
-		quit(NULL);
+                /* Quit */
+                quit(NULL);
 	}
 
 	/* Wait until inkey_flag is set */
@@ -3668,37 +3550,6 @@ static bool CheckEvents(int wait)
 
 /*** Some Hooks for various routines ***/
 
-/*
- * Mega-Hack -- emergency lifeboat
- */
-static void *lifeboat = NULL;
-
-
-/*
- * Hook to handle "out of memory" errors
- */
-static void *hook_rpanic(huge size)
-{
-#pragma unused(size)
-
-	/* Free the lifeboat */
-	if (lifeboat)
-	{
-		/* Free the lifeboat */
-		free(lifeboat);
-
-		/* Forget the lifeboat */
-		lifeboat = NULL;
-
-		/* Mega-Hack -- Warning */
-		mac_warning("Running out of Memory!\nTerminate this process now!");
-
-		(void) pause();
-	}
-
-	/* Mega-Hack -- Crash */
-	return (NULL);
-}
 
 
 /*
@@ -3716,15 +3567,11 @@ static void hook_plog(cptr str)
  */
 static void hook_quit(cptr str)
 {
-	/* Warning if needed */
-	if (str) mac_warning(str);
+        /* Warning if needed */
+        if (str) mac_warning(str);
 
-	/* Clean up sound support */
-	cleanup_sound();
-
-
-	/* Dispose of graphic tiles */
-	if(frame.image)
+        /* Dispose of graphic tiles */
+        if(frame.image)
 		graphics_nuke();
 
 	/* Write a preference file */
@@ -3759,13 +3606,13 @@ static void init_paths(void)
 	init_file_paths(path);
 
 	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
+        path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
 
-	/* Attempt to open and close that file */
-	if (0 != fd_close(fd_open(path, O_RDONLY)))
-	{
-		/* Warning */
-		plog_fmt("Unable to open the '%s' file.", path);
+        /* Attempt to open and close that file */
+        if (!file_exists(path))
+        {
+                /* Warning */
+                plog_fmt("Unable to open the '%s' file.", path);
 		quit("The Angband 'lib' folder is probably missing or misplaced.");
 	}
 }
@@ -3781,22 +3628,14 @@ int main(void)
 	/* 
 	 * Remember Mac OS version, in case we have to cope with version-specific
 	 * problems
-	 */
-	(void)Gestalt(gestaltSystemVersion, &mac_os_version);
+         */
+        (void)Gestalt(gestaltSystemVersion, &mac_os_version);
 
-	/* Mark ourself as the file creator */
-	_fcreator = ANGBAND_CREATOR;
-	/* Default to saving a "text" file */
-	_ftype = 'TEXT';
+        /* Initiliases Cocoa */
+        NSApplicationLoad();
 
-
-	/* Hook in some "z-virt.c" hooks */
-	rnfree_aux = NULL;
-	ralloc_aux = NULL;
-	rpanic_aux = hook_rpanic;
-
-	/* Hooks in some "z-util.c" hooks */
-	plog_aux = hook_plog;
+        /* Hooks in some "z-util.c" hooks */
+        plog_aux = hook_plog;
 	quit_aux = hook_quit;
 
 	/* Initialize colors */
@@ -3806,41 +3645,32 @@ int main(void)
 	SetCursor(*(GetCursor(watchCursor)));
 
 
-	/* Prepare the menubar */
-	init_menubar();
+        /* Prepare the menubar */
+        init_menubar();
 
-	/* Initialize */
-	init_paths();
+        /* Initialize */
+        init_paths();
 
-	/* Prepare the windows */
-	init_windows();
+        /* Prepare the windows */
+        init_windows();
 
-#if 0
-	/* Handle 'apple' events */
-    /* Install the open event hook (ignore error codes) */
+        /* Install the 'Apple Event' handler hook (ignore error codes) */
     (void)AEInstallEventHandler(
         kCoreEventClass,
         kAEOpenDocuments,
         NewAEEventHandlerUPP(AEH_Open),
         0L,
         FALSE);
-#endif
 
-	/* Install menu and application handlers */
-	install_handlers(0);
+        /* Install menu and application handlers */
+        install_handlers(0);
 
-	/* Hack -- process all events */
-	FlushEventQueue(GetMainEventQueue());
+        /* Reset the cursor */
+        Cursor tempCursor;
+        SetCursor(GetQDGlobalsArrow(&tempCursor));
 
 
-	/* Reset the cursor */
-	Cursor tempCursor;
-	SetCursor(GetQDGlobalsArrow(&tempCursor));
-
-	/* Mega-Hack -- Allocate a "lifeboat" */
-	lifeboat = malloc(16384);
-
-	/* Quicktime -- Load sound effect resources */
+        /* Quicktime -- Load sound effect resources */
 
 	load_sounds();
 
@@ -3848,24 +3678,24 @@ int main(void)
 	ANGBAND_SYS = "mac";
 
 
-	/* Validate the contents of the main window */
-	validate_main_window();
+        /* Validate the contents of the main window */
+        validate_main_window();
 
-	/* Reset event queue */
-	FlushEventQueue(GetMainEventQueue());
+        /* Reset event queue */
+        FlushEventQueue(GetMainEventQueue());
 
-	/* We are now initialized */
-	initialized = TRUE;
+        /* We are now initialized */
+        initialized = TRUE;
 
 	validate_menus();
 
 	/* Start playing! */
-	EventRef newGameEvent = nil;
-	CreateEvent ( nil, 'Play', 'Band', GetCurrentEventTime(),    
-									kEventAttributeNone, &newGameEvent ); 
-	PostEventToQueue(GetMainEventQueue(), newGameEvent, kEventPriorityHigh);
+        EventRef newGameEvent = nil;
+        CreateEvent ( nil, 'Play', 'Band', GetCurrentEventTime(),    
+                                                                        kEventAttributeNone, &newGameEvent ); 
+        PostEventToQueue(GetMainEventQueue(), newGameEvent, kEventPriorityLow);
 
-	RunApplicationEventLoop();
+        RunApplicationEventLoop();
 
 	/* Quit */
 	quit(NULL);

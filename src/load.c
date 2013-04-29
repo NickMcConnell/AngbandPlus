@@ -13,9 +13,6 @@
 
 
 /*
- * This file loads savefiles from Angband 2.7.X and 2.8.X, and from all 
- * (non-beta) versions of Oangband.
- *
  * We attempt to prevent corrupt savefiles from inducing memory errors.
  *
  * Note that this file should not use the random number generator, the
@@ -34,13 +31,10 @@
  */
 
 
-
-
-
 /*
  * Local "savefile" pointer
  */
-static FILE	*fff;
+static ang_file	*fff;
 
 /*
  * Hack -- old "encryption" byte
@@ -73,6 +67,9 @@ static bool older_than(byte x, byte y, byte z)
   if (sf_minor < y) return (TRUE);
   if (sf_minor > y) return (FALSE);
   
+  /* From FAangband 1.0.0, this function doesn't see patch differences */
+  if (sf_major >= 1) return (FALSE);
+
   /* Barely older, or barely more recent */
   if (sf_patch < z) return (TRUE);
   if (sf_patch > z) return (FALSE);
@@ -105,44 +102,6 @@ static void note(cptr msg)
 
 
 /*
- * Hack -- determine if an item is "wearable" (or a missile)
- */
-static bool wearable_p(object_type *o_ptr)
-{
-  /* Valid "tval" codes */
-  switch (o_ptr->tval)
-    {
-    case TV_SHOT:
-    case TV_ARROW:
-    case TV_BOLT:
-    case TV_BOW:
-    case TV_DIGGING:
-    case TV_HAFTED:
-    case TV_POLEARM:
-    case TV_SWORD:
-    case TV_BOOTS:
-    case TV_GLOVES:
-    case TV_HELM:
-    case TV_CROWN:
-    case TV_SHIELD:
-    case TV_CLOAK:
-    case TV_SOFT_ARMOR:
-    case TV_HARD_ARMOR:
-    case TV_DRAG_ARMOR:
-    case TV_LITE:
-    case TV_AMULET:
-    case TV_RING:
-      {
-	return (TRUE);
-      }
-    }
-  
-  /* Nope */
-  return (FALSE);
-}
-
-
-/*
  * The following functions are used to load the basic building blocks
  * of savefiles.  They also maintain the "checksum" info for 2.7.0+
  */
@@ -152,7 +111,7 @@ static byte sf_get(void)
   byte c, v;
   
   /* Get a character, decode the value */
-  c = getc(fff) & 0xFF;
+  if (!file_readc(fff, &c)) return (EOF);
   v = c ^ xor_byte;
   xor_byte = c;
   
@@ -243,24 +202,16 @@ static void strip_bytes(int n)
  *
  * Change extra might to non-pval form if needed -LM-
  *
- * Deal with themed level, gylphs/traps count, player ghosts -LM-
+ * Deal with themed level, glyphs/traps count, player ghosts -LM-
  */
 static void rd_item(object_type *o_ptr)
 {
   int i;
 
-/*  byte old_dd;
-  byte old_ds; */
-  
-  u32b f1, f2, f3;
-
-  object_kind *k_ptr;
-  
   char buf[128];
+
+  byte tmp;
   
-  
-  /* Extract the flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
   
   /* Kind */
   rd_s16b(&o_ptr->k_idx);
@@ -294,56 +245,26 @@ static void rd_item(object_type *o_ptr)
   rd_byte(&o_ptr->dd);
   rd_byte(&o_ptr->ds);
 
-/*
-  rd_byte(&old_dd);
-  rd_byte(&old_ds);
-*/
 
   rd_byte(&o_ptr->ident);
   
   rd_byte(&o_ptr->marked);
   
+  if (!older_than(1, 0, 0))
+    {
+      rd_u32b(&o_ptr->flags_obj);	/* New object flags -NRM- */
+      rd_u32b(&o_ptr->flags_curse);	/* New curse flags  -NRM- */
+      rd_u32b(&o_ptr->id_curse);	/* New curse id  -NRM- */
+    }
+
   /* Percentage resists -NRM- */
   if (older_than(0, 3, 0))
     {
       strip_bytes(8);
-
-      /* Standard is 45% */
-      
-      if (f2 & (TR2_RES_ACID)) o_ptr->percent_res[P_RES_ACID] = 45;
-      else o_ptr->percent_res[P_RES_ACID] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_ELEC)) o_ptr->percent_res[P_RES_ELEC] = 45;
-      else o_ptr->percent_res[P_RES_ELEC] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_FIRE)) o_ptr->percent_res[P_RES_FIRE] = 45;
-      else o_ptr->percent_res[P_RES_FIRE] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_COLD)) o_ptr->percent_res[P_RES_COLD] = 45;
-      else o_ptr->percent_res[P_RES_COLD] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_POIS)) o_ptr->percent_res[P_RES_POIS] = 45;
-      else o_ptr->percent_res[P_RES_POIS] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_LITE)) o_ptr->percent_res[P_RES_LITE] = 45;
-      else o_ptr->percent_res[P_RES_LITE] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_DARK)) o_ptr->percent_res[P_RES_DARK] = 45;
-      else o_ptr->percent_res[P_RES_DARK] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_CONFU)) o_ptr->percent_res[P_RES_CONFU] = 45;
-      else o_ptr->percent_res[P_RES_CONFU] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_SOUND)) o_ptr->percent_res[P_RES_SOUND] = 45;
-      else o_ptr->percent_res[P_RES_SOUND] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_SHARD)) o_ptr->percent_res[P_RES_SHARD] = 45;
-      else o_ptr->percent_res[P_RES_SHARD] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_NEXUS)) o_ptr->percent_res[P_RES_NEXUS] = 45;
-      else o_ptr->percent_res[P_RES_NEXUS] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_NETHR)) o_ptr->percent_res[P_RES_NETHR] = 45;
-      else o_ptr->percent_res[P_RES_NETHR] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_CHAOS)) o_ptr->percent_res[P_RES_CHAOS] = 45;
-      else o_ptr->percent_res[P_RES_CHAOS] = RES_LEVEL_BASE;
-      if (f2 & (TR2_RES_DISEN)) o_ptr->percent_res[P_RES_DISEN] = 45;
-      else o_ptr->percent_res[P_RES_DISEN] = RES_LEVEL_BASE;
     }
 
   else
     {  
-      byte tmp;
-
       /* New percentage resists -NRM- */
       for (i = 0; i < MAX_P_RES; i++)
 	{
@@ -352,7 +273,37 @@ static void rd_item(object_type *o_ptr)
 	}
       
       /* Element proofing */
-      rd_byte(&o_ptr->el_proof);
+      if (older_than(1, 0, 0))
+	strip_bytes(1);
+    }
+
+  /* Bonuses and multiples - nasty byte hack */
+  if (!older_than(1, 0, 0))
+    {
+      for (i = 0; i < A_MAX; i++)
+	{
+	  rd_byte(&tmp);
+	  if (tmp < 129) o_ptr->bonus_stat[i] = (int)tmp;
+	  else o_ptr->bonus_stat[i] = (int)(tmp - 256);
+	}
+      for (i = 0; i < MAX_P_BONUS; i++)
+	{
+	  rd_byte(&tmp);
+	  if (tmp < 129) o_ptr->bonus_other[i] = (int)tmp;
+	  else o_ptr->bonus_other[i] = (int)(tmp - 256);
+	}
+      for (i = 0; i < MAX_P_SLAY; i++)
+	{
+	  rd_byte(&tmp);
+	  if (tmp < 129) o_ptr->multiple_slay[i] = (int)tmp;
+	  else o_ptr->multiple_slay[i] = (int)(tmp - 256);
+	}
+      for (i = 0; i < MAX_P_BRAND; i++)
+	{
+	  rd_byte(&tmp);
+	  if (tmp < 129) o_ptr->multiple_brand[i] = (int)tmp;
+	  else o_ptr->multiple_brand[i] = (int)(tmp - 256);
+	}
     }
   
   /* Where found */
@@ -361,9 +312,9 @@ static void rd_item(object_type *o_ptr)
   /* Monster holding object */
   rd_s16b(&o_ptr->held_m_idx);
 	
-  /* Special powers */
-  rd_byte(&o_ptr->xtra1);
-  rd_byte(&o_ptr->xtra2);
+  /* Activation */
+  if (older_than(1, 0, 0)) strip_bytes(1);
+  rd_byte(&o_ptr->activation);
   
   
   rd_byte(&o_ptr->feel);
@@ -374,23 +325,13 @@ static void rd_item(object_type *o_ptr)
   /* Save the inscription */
   if (buf[0]) o_ptr->note = quark_add(buf);
   
-  
-  /* Mega-Hack -- handle "dungeon objects" later */
+#if 0 /* All unnecessary? */  
   /* Obtain the "kind" template */
   k_ptr = &k_info[o_ptr->k_idx];
   
   /* Obtain tval/sval from k_info */
   o_ptr->tval = k_ptr->tval;
   o_ptr->sval = k_ptr->sval;
-
-  
-  /* Hack -- notice "broken" items */
-  if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
-  
-  
-  /* Convert launchers with +2 or more to might, if not artifacts. */
-  if ((o_ptr->name2 == EGO_EXTRA_MIGHT1) && (o_ptr->pval > 1) && 
-      (!(o_ptr->name1))) o_ptr->name2 = EGO_EXTRA_MIGHT2;
   
   /* Repair non "wearable" items */
   if (!wearable_p(o_ptr))
@@ -438,37 +379,11 @@ static void rd_item(object_type *o_ptr)
       if (!e_ptr->name) o_ptr->name2 = 0;
     }
 
-  /* Acquire standard fields, unless the item is blasted or shattered. */
-  if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
-    o_ptr->ac = k_ptr->ac;
+  /* Acquire standard fields. */
+  o_ptr->ac = k_ptr->ac;
 
   if (o_ptr->name2 == EGO_DWARVEN) o_ptr->ac += 5;
 
-/* SJGU I don't want to stuff up all my new dice and weights thank you! */
-#if 0
-  if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
-    o_ptr->dd = k_ptr->dd;
-  if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
-    o_ptr->ds = k_ptr->ds;
-  
-  if (o_ptr->name2 == EGO_BALROG) o_ptr->dd = old_dd;
-  if (o_ptr->name2 == EGO_ANGBAND) o_ptr->ds = old_ds; 
-  
-  /* Acquire standard weight, unless an ego-item. */
-  if (!o_ptr->name2) o_ptr->weight = k_ptr->weight; 
-  
-  /* Hack -- keep some old fields.  Moved from ego-item area. */
-  if ((o_ptr->ds < old_ds) && (o_ptr->dd == old_dd))
-    {
-      /* Keep old enhanced damage dice. */
-      o_ptr->ds = old_ds;
-    }
-#endif
-
-  /* Hack -- extract the "broken" flag */
-  if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
-  
-  
   /* Artifacts */
   if (o_ptr->name1)
     {
@@ -488,14 +403,10 @@ static void rd_item(object_type *o_ptr)
       /* Acquire new artifact weight */
       o_ptr->weight = a_ptr->weight;
       
-      /* Hack -- extract the "broken" flag */
-      if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-      
       /* If artifact index includes an activation, assign it. */
       if (a_ptr->activation)
 	{
-	  o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
-	  o_ptr->xtra2 = a_ptr->activation;
+	  o_ptr->activation = a_ptr->activation;
 	}
     }
   
@@ -506,21 +417,9 @@ static void rd_item(object_type *o_ptr)
       
       /* Obtain the ego-item info */
       e_ptr = &e_info[o_ptr->name2];
-      
-      /* Hack -- extract the "broken" flag */
-      if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-      
-      /* Hack -- enforce legal pval */
-      if (e_ptr->flags1 & (TR1_PVAL_MASK))
-	{
-	  /* Force a meaningful pval */
-	  if (!o_ptr->pval) o_ptr->pval = 1;
-	}
     }
-  
-  
+#endif
 }
-
 
 
 
@@ -571,6 +470,22 @@ static void rd_monster(monster_type *m_ptr)
   /*  Monster mana  */
   rd_byte(&m_ptr->mana);
   
+  if (!older_than(1, 0, 0))
+    {
+      /* Racial type */
+      rd_byte(&m_ptr->p_race);
+      rd_byte(&m_ptr->old_p_race);
+      
+      /* AI info */
+      rd_s16b(&m_ptr->hostile);
+      rd_u16b(&m_ptr->group);
+      rd_u16b(&m_ptr->group_leader);
+      
+      /* Territorial info */
+      rd_u16b(&m_ptr->y_terr);
+      rd_u16b(&m_ptr->x_terr);
+    }
+
   /* Spare */
   rd_s16b(&tmp16u);
   
@@ -1226,7 +1141,21 @@ static errr rd_extra(void)
   rd_byte(&num_trap_on_level);
   
   /* Read number of glyphs on level. */
-  rd_byte(&num_glyph_on_level);
+  if (older_than(1, 0, 0))
+    {
+      rd_byte(&tmp8u);
+      num_runes_on_level[RUNE_PROTECT] = tmp8u;
+    }
+  else
+    {
+      for (i = 0; i < MAX_RUNE; i++)
+	{
+	  rd_byte(&tmp8u);
+	  num_runes_on_level[i] = tmp8u;
+	}
+      rd_byte(&tmp8u);
+      mana_reserve = tmp8u;
+    }
   
   /* Is the level themed and, if so, which theme is it? */
   rd_byte(&p_ptr->themed_level);
@@ -1801,7 +1730,7 @@ static errr rd_dungeon(void)
  */
 static errr rd_savefile_new_aux(void)
 {
-  int i, j;
+  int i, j, k;
   
   int total_artifacts = 0;
   int random_artifacts = 0;
@@ -1987,8 +1916,6 @@ static errr rd_savefile_new_aux(void)
   /* Read the artifact info. */
   for (i = 0; i < total_artifacts; i++)
     {
-      int j;
-      
       /* Most regular artifact info is stored in a_info.raw.  0.3.X 
        * savefiles have 127 regular artifacts, with indexes that need 
        * converting, and newer savefiles have 209, with up-to-date 
@@ -2000,6 +1927,13 @@ static errr rd_savefile_new_aux(void)
 
 	  /* This is a silly turn if the savefile is older than 0.2.3 */
 	  a_info[i].creat_turn = tmp32s;
+	  if (!older_than(1, 0, 0))
+	    {
+	      rd_byte(&tmp8u);
+	      a_info[i].p_level = tmp8u;
+	      rd_byte(&tmp8u);
+	      a_info[i].set_bonus = (tmp8u ? TRUE : FALSE);
+	    }
 	}
       
       
@@ -2042,11 +1976,11 @@ static errr rd_savefile_new_aux(void)
 	  a_info[j].cost = tmp32u;
 	  
 	  rd_u32b(&tmp32u);
-	  a_info[j].flags1 = tmp32u;
+	  a_info[j].flags_obj = tmp32u;
 	  rd_u32b(&tmp32u);
-	  a_info[j].flags2 = tmp32u;
+	  a_info[j].flags_curse = tmp32u;
 	  rd_u32b(&tmp32u);
-	  a_info[j].flags3 = tmp32u;
+	  a_info[j].flags_kind = tmp32u;
 	  
 	  rd_byte(&tmp8u);
 	  a_info[j].level = tmp8u;
@@ -2064,22 +1998,48 @@ static errr rd_savefile_new_aux(void)
 	      rd_s32b(&tmp32s);
 	      a_info[j].creat_turn = tmp32s;
 	    }
+	  if (!older_than(1, 0, 0))
+	    {
+	      rd_byte(&tmp8u);
+	      a_info[j].p_level = tmp8u;
+	    }
 	  rd_byte(&tmp8u);
 	  a_info[j].activation = tmp8u;
 
 	  if (!older_than(0, 3, 0))
 	    {
-	      byte tmp;
-	      int k;
-	      
 	      /* New percentage resists -NRM- */
 	      for (k = 0; k < MAX_P_RES; k++)
 		{
-		  rd_byte(&tmp);
-		  a_info[j].percent_res[k] = tmp;
+		  rd_byte(&tmp8u);
+		  a_info[j].percent_res[k] = tmp8u;
 		}
 	    }
 	  
+	  if (!older_than(1, 0, 0))
+	    {
+	      for (k = 0; k < A_MAX; k++)
+		{
+		  rd_byte(&tmp8u);
+		  a_info[j].bonus_stat[k] = tmp8u;
+		}
+	      for (k = 0; k < MAX_P_BONUS; k++)
+		{
+		  rd_byte(&tmp8u);
+		  a_info[j].bonus_other[k] = tmp8u;
+		}
+	      for (k = 0; k < MAX_P_SLAY; k++)
+		{
+		  rd_byte(&tmp8u);
+		  a_info[j].multiple_slay[k] = tmp8u;
+		}
+	      for (k = 0; k < MAX_P_BRAND; k++)
+		{
+		  rd_byte(&tmp8u);
+		  a_info[j].multiple_brand[k] = tmp8u;
+		}
+	    } 
+	      
 	  /* Extra space. */
 	  rd_u32b(&tmp32u);
 	}
@@ -2231,64 +2191,64 @@ static errr rd_savefile_new_aux(void)
       rd_ghost();
     }
   
-    /* Otherwise optionally look at the dead one, quickstart */
-    else
+  /* Otherwise optionally look at the dead one, quickstart */
+  else
     {
-            event_type answer;
-
-        /* Clear screen */
-        Term_clear();
-
-        prt("Would you like to see details of your", 15, 0);
-        prt("recently dead character? (yes/no)", 16, 0);
-        update_statusline();      
-        add_button("Yes", 'y');
-        add_button("No", 'n');
-        calc_bonuses(FALSE);
-        update_statusline();      
+      event_type answer;
       
-        answer = inkey_ex();
-              
-        if ((answer.key == 'Y') || (answer.key == 'y'))
-        {
-            /* Buttons */
-            kill_button('y');
-            kill_button('n');
-            update_statusline();
-                    
-            /* Display */
-            reset_visuals(FALSE);
-            do_cmd_change_name();
+      /* Clear screen */
+      Term_clear();
+      
+      prt("Would you like to see details of your", 15, 0);
+      prt("recently dead character? (yes/no)", 16, 0);
+      update_statusline();      
+      add_button("Yes", 'y');
+      add_button("No", 'n');
+      calc_bonuses(FALSE);
+      update_statusline();      
+      
+      answer = inkey_ex();
+      
+      if ((answer.key == 'Y') || (answer.key == 'y'))
+	{
+	  /* Buttons */
+	  kill_button('y');
+	  kill_button('n');
+	  update_statusline();
+          
+	  /* Display */
+	  reset_visuals(FALSE);
+	  do_cmd_change_name();
         }
   
-        /* Clear screen */
-        Term_clear();
+      /* Clear screen */
+      Term_clear();
 #if 0
-        /* Quickstart */
-        prt("Would you like to start a new character", 15, 0);
-        prt("based on your last character? (yes/no)", 16, 0);
-        add_button("Yes", 'y');
-        add_button("No", 'n');
-        update_statusline();      
+      /* Quickstart */
+      prt("Would you like to start a new character", 15, 0);
+      prt("based on your last character? (yes/no)", 16, 0);
+      add_button("Yes", 'y');
+      add_button("No", 'n');
+      update_statusline();      
       
-        answer = inkey_ex();
-              
-        if ((answer.key == 'Y') || (answer.key == 'y'))
+      answer = inkey_ex();
+      
+      if ((answer.key == 'Y') || (answer.key == 'y'))
         {
-            /* Buttons */
-            kill_button('y');
-            kill_button('n');
-            update_statusline();
-                    
-            /* Set to quickstart */
-            character_quickstart = TRUE;
+	  /* Buttons */
+	  kill_button('y');
+	  kill_button('n');
+	  update_statusline();
+          
+	  /* Set to quickstart */
+	  character_quickstart = TRUE;
         }
-  
-        /* Clear screen */
-        Term_clear();
+      
+      /* Clear screen */
+      Term_clear();
 #endif
     } 
-
+  
 #ifdef VERIFY_CHECKSUMS
   
   /* Save the checksum */
@@ -2336,7 +2296,7 @@ errr rd_savefile_new(void)
   errr err;
   
   /* The savefile is a binary file */
-  fff = my_fopen(savefile, "rb");
+  fff = file_open(savefile, MODE_READ, FTYPE_RAW);
   
   /* Paranoia */
   if (!fff) return (-1);
@@ -2344,16 +2304,13 @@ errr rd_savefile_new(void)
   /* Call the sub-function */
   err = rd_savefile_new_aux();
   
-  /* Check for errors */
-  if (ferror(fff)) err = -1;
-  
   /* Close the file */
-  my_fclose(fff);
+  file_close(fff);
   
   /* Result */
   return (err);
 }
-
+ 
 
 /*
  * Open the savefile chosen earlier, and read and save Angband and 
@@ -2362,26 +2319,23 @@ errr rd_savefile_new(void)
  */
 errr rd_version_info(void)
 {
-  int fd;
+  ang_file *fd;
   
   /* Open the savefile */
-  fd = fd_open(savefile, O_RDONLY);
+  fd = file_open(savefile, MODE_READ, -1);
   
   /* No file.  Report error. */
-#ifdef _WIN32_WCE
-  if (fd == -1) return (-1);
-#else
-  if (fd < 0) return (-1);
-#endif
+  if (!fd) return (-1);
   
-  fd_read(fd, (char*)&sf_major, 1);
-  fd_read(fd, (char*)&sf_minor, 1);
-  fd_read(fd, (char*)&sf_patch, 1);
-  fd_read(fd, (char*)&sf_extra, 1);
+  file_read(fd, (char*)&sf_major, 1);
+  file_read(fd, (char*)&sf_minor, 1);
+  file_read(fd, (char*)&sf_patch, 1);
+  file_read(fd, (char*)&sf_extra, 1);
   
   /* Close the file */
-  fd_close(fd);
+  file_close(fd);
   
   /* Success. */
   return(0);
 }
+ 
