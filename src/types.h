@@ -554,6 +554,7 @@ struct object_type
 
 	byte feel;			/* Feeling index */
 	u16b note;			/* Inscription index */
+        u32b found;             /* Where the object was found */
 
 	s16b next_o_idx;	/* Next object in stack (if any) */
 

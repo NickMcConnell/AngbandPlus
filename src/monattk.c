@@ -116,10 +116,11 @@ static cptr desc_insult[] =
  */
 static cptr desc_sneer[] =
 {
-	"offers you a pony for an outrageous sum.",
-	"waits to tell the Black Riders where you've gone.",
-	"tells you to clear out, or he'll break your neck.",
-	"sneers at the company you keep."
+	"tells you it's too hard to cross rivers.",
+	"worries about getting lost in the mountains.",
+	"whines about the gang of novice paladins he met.",
+	"asks you the way to Nowhere Town.",
+	"says he can hear someone imprisoned in the rock."
 };
 
 /*
@@ -611,7 +612,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 
 				case RBM_SNEER:
 				{
-					act = desc_sneer[rand_int(4)];
+					act = desc_sneer[rand_int(5)];
 					break;
 				}
 

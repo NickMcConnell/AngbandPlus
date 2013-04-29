@@ -1941,7 +1941,7 @@ static cptr desc_victim_outcry[] =
 	"'Your blood for my gold?  Agreed!'",
 	"'I scrimp, I save, and now it's gone!'",
 	"'Robbers like you are part of the problem!'",
-	"'Banditti!  This dungeon's just not safe anymore!'",
+	"'Banditti!  This place is just not safe anymore!'",
 	"'Ruined!  I'm ruined!'",
 	"'Where, where is the common decency?'",
 	"'Your knavish tricks end here and now!'",

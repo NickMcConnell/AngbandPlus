@@ -720,7 +720,9 @@ static void wr_item(object_type *o_ptr)
 	/* Old flags */
 	wr_u32b(0L);
 	wr_u32b(0L);
-	wr_u32b(0L);
+
+	/* Where found */
+	wr_u32b(o_ptr->found);
 
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
@@ -1183,10 +1185,55 @@ static void wr_extra(void)
 	wr_byte((byte)feeling);
 
 	/* Turn of last "feeling" */
-	wr_s32b(old_turn);
+	wr_s32b(do_feeling);
 
 	/* Current turn */
 	wr_s32b(turn);
+}
+
+/*
+ * Write the notes into the savefile. Every savefile has at least NOTES_MARK.
+ */
+static void wr_notes(void)
+{
+	char end_note[80];
+
+	/* Paranoia */
+	if (adult_take_notes && notes_file)
+	{
+    	char tmpstr[100];
+
+    	my_fclose(notes_file);
+
+      	/* Re-open for readding */
+    	notes_file = my_fopen(notes_fname, "r");
+
+    	while (TRUE)
+    	{
+			/* Read the note from the tempfile */
+			if (my_fgets(notes_file, tmpstr, sizeof(tmpstr)))
+			{
+				/* Found the end */
+				break;
+			}
+
+			/* Paranoia */
+			if (strcmp(tmpstr, NOTES_MARK) == 0) continue;
+
+      		/* Write it into the savefile */
+      		wr_string(tmpstr);
+    	}
+
+    	my_fclose(notes_file);
+
+    	/* Re-open for appending */
+    	notes_file = my_fopen(notes_fname, "a");
+  	}
+
+	my_strcpy(end_note, NOTES_MARK, sizeof(end_note));
+
+  	/* Always write NOTES_MARK */
+  	wr_string(end_note);
 }
 
 
@@ -1552,6 +1599,8 @@ static bool wr_savefile_new(void)
 		wr_byte(p_ptr->spell_order[i]);
 	}
 
+	/* Copy the notes file into the savefile*/
+	wr_notes();
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -2025,7 +2074,7 @@ bool load_player(void)
 			sf_lives++;
 
 			/* Forget turns */
-			turn = old_turn = 0;
+			turn = do_feeling = 0;
 
 			/* Done */
 			return (TRUE);

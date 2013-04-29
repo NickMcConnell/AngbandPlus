@@ -724,7 +724,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(damroll(2, 8))) ident = TRUE;
+			if (hp_player(damroll(2, 10))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_cut(p_ptr->cut - 10)) ident = TRUE;
 			break;
@@ -732,7 +732,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) ident = TRUE;
+			if (hp_player(damroll(4, 10))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_cut(p_ptr->cut - 30)) ident = TRUE;
@@ -741,7 +741,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			if (hp_player(damroll(6, 8))) ident = TRUE;
+			if (hp_player(damroll(6, 10))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned((p_ptr->poisoned / 2)-10)) ident = TRUE;
@@ -3530,7 +3530,7 @@ void do_cmd_activate(void)
 
 		case ACT_GIMLI:
 		{
-			msg_print("You understand the structure of the dungeon around you.");
+			msg_print("You understand the structure of the area around you.");
 			map_area(0, 0, FALSE);
 			o_ptr->timeout = 35 + randint(35);
 			break;
@@ -4026,7 +4026,7 @@ void do_cmd_activate(void)
 			}
 			else
 			{
-				msg_print("...and an awful cacophony shakes the dungeon!");
+				msg_format("...and an awful cacophony shakes %s!", locality_name[stage_map[p_ptr->stage][LOCALITY]]);
 				fire_ball(GF_SOUND, dir, 150, 4, FALSE);
 			}
 			o_ptr->timeout = 600;
@@ -4057,7 +4057,7 @@ void do_cmd_activate(void)
 		}
 		case ACT_RANDOM_EARTHQUAKE:
 		{
-			msg_print("You strike the floor, and the dungeon crumbles!");
+			msg_print("You strike the floor, and the earth crumbles!");
 			earthquake(p_ptr->py, p_ptr->px, 10, FALSE);
 			o_ptr->timeout = 40 + randint(40);
 			break;
@@ -4250,7 +4250,7 @@ void do_cmd_activate(void)
 		}
 		case ACT_RANDOM_DETECT_ALL:
 		{
-			msg_print("You sense the dungeon around you.");
+			msg_print("You sense the area around you.");
 			detect_all(DETECT_RAD_DEFAULT, TRUE);
 			o_ptr->timeout = 30 + randint(30);
 			break;

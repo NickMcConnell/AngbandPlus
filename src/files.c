@@ -2521,6 +2521,85 @@ errr file_character(cptr name, bool full)
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 
+	/* Current, recent and recall points */
+	fprintf(fff, "  [Recent locations]\n\n");
+
+	/* Current, previous */
+	fprintf(fff,"Current Location : %s Level %d\n",
+	  locality_name[stage_map[p_ptr->stage][LOCALITY]], p_ptr->depth);
+	if (p_ptr->last_stage != 0)
+	  fprintf(fff,"Previous Location: %s Level %d\n",
+	  locality_name[stage_map[p_ptr->last_stage][LOCALITY]], 
+	  stage_map[p_ptr->last_stage][DEPTH]);
+
+	/* Recall points */
+	for (i = 0; i < 4; i++)
+	  {
+	    if (p_ptr->recall[i] == 0) continue;
+	    fprintf(fff,"Recall Point %d   : %s Level %d\n", i + 1,
+		    locality_name[stage_map[p_ptr->recall[i]][LOCALITY]], 
+		    stage_map[p_ptr->recall[i]][DEPTH]);
+	  }
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+
+	    
+	/* Display resists etc. */
+	display_player(2);
+
+	/* Heading */
+	fprintf(fff, "  [Resistances and Powers]\n\n");
+
+	/* Dump part of the screen */
+	for (y = 11; y < 20; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 39; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = c;
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+
+	/* Display resists etc. */
+	display_player(2);
+
+	/* Dump part of the screen */
+	for (y = 11; y < 20; y++)
+	{
+		/* Dump each row */
+		for (x = 40; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x - 40] = c;
+		}
+
+		/* Terminate */
+		buf[x - 40] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+
 	/* Dump specialties if any */
 	if (p_ptr->specialty_order[0] != SP_NO_SPECIALTY)
 	{
@@ -2596,6 +2675,43 @@ errr file_character(cptr name, bool full)
 
 		/* Add an empty line */
 		fprintf(fff, "\n\n");
+	}
+
+
+	/* Dump notes */
+	if (adult_take_notes)
+	{
+ 	 	int holder;
+
+		/*close the notes file for writing*/
+		my_fclose(notes_file);
+
+		/*get the path for the notes file*/
+		notes_file = my_fopen(notes_fname, "r");
+
+		do
+		{
+
+			/*get a character from the notes file*/
+			holder = getc(notes_file);
+
+			/*output it to the character dump, unless end of file char*/
+			if (holder != EOF) fprintf(fff, "%c", holder);
+
+		}
+		while (holder != EOF);
+
+		/*aesthetics*/
+		fprintf(fff, "============================================================\n");
+
+		fprintf(fff, "\n\n");
+
+		/*close it for reading*/
+		my_fclose(notes_file);
+
+		/*re-open for appending*/
+		notes_file = my_fopen(notes_fname, "a");
+
 	}
 
 	/* Dump options */
@@ -4422,8 +4538,48 @@ errr predict_score(void)
 
 
 
+void show_scores(void)
+{
+	char buf[1024];
 
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
+	/* Open the binary high score file, for reading */
+	highscore_fd = fd_open(buf, O_RDONLY);
+
+	/* Paranoia -- No score file */
+	if (highscore_fd < 0)
+	{
+		msg_print("Score file unavailable.");
+	}
+	else
+	{
+		/* Save Screen */
+		screen_save();
+
+		/* Clear screen */
+		Term_clear();
+
+		/* Display the scores */
+		if (character_generated)
+			predict_score();
+		else
+			display_scores_aux(0, MAX_HISCORES, -1, NULL);
+
+		/* Shut the high score file */
+		(void)fd_close(highscore_fd);
+
+		/* Forget the high score fd */
+		highscore_fd = -1;
+
+		/* Load screen */
+		screen_load();
+
+		/* Hack - Flush it */
+		Term_fresh();
+	}
+}
 
 
 
@@ -4519,6 +4675,8 @@ static void close_game_aux(void)
   while (1)
     {
       /* Describe options */
+      if (adult_take_notes) 
+	Term_putstr(1, 22, -1, TERM_WHITE,"[(a)dd a comment to the notes file]");
       Term_putstr(2, 23, -1, TERM_WHITE, p);
 
       /* Query */
@@ -4600,6 +4758,17 @@ static void close_game_aux(void)
 	{
 	  death_examine();
 	}
+      
+      /* Add last words to notes file */
+      else if (ch == 'a')
+	{
+	  if (adult_take_notes)
+	    {
+	      do_cmd_note("",  p_ptr->stage);
+	    }
+	  
+	}
+
     }
 
 
@@ -4679,6 +4848,15 @@ void close_game(void)
 	/* Forget the high score fd */
 	highscore_fd = -1;
 
+
+	/* Close the notes file */
+ 	if (adult_take_notes)
+	{
+		my_fclose(notes_file);
+
+		/* Delete the notes file */
+		fd_kill(notes_fname);
+	}
 
 	/* Allow suspending now */
 	signals_handle_tstp();

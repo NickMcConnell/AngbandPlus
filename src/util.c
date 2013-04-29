@@ -376,6 +376,15 @@ errr my_fclose(FILE *fff)
 	return (0);
 }
 
+FILE *my_fopen_temp(char *buf, size_t max)
+{
+	/* Generate a temporary filename */
+	if (path_temp(buf, max)) return (NULL);
+
+	/* Open the file */
+	return (my_fopen(buf, "w"));
+}
+
 
 #endif /* ACORN */
 
@@ -1900,6 +1909,12 @@ errr quark_init(void)
  * extremely efficient, both in space and time, for use with the Borg.
  */
 
+/*
+ * The array[MESSAGE_MAX] of u16b for the count of messages
+ */
+static u16b *message__count;
+
+
 
 
 /*
@@ -1918,6 +1933,7 @@ s16b message_num(void)
  */
 cptr message_str(s16b age)
 {
+	static char buf[1024];
 	s16b x;
 	s16b o;
 	cptr s;
@@ -1933,6 +1949,13 @@ cptr message_str(s16b age)
 
 	/* Access the message text */
 	s = &message__buf[o];
+
+	/* HACK - Handle repeated messages */
+	if (message__count[x] > 1)
+	{
+		strnfmt(buf, sizeof(buf), "%s <%dx>", s, message__count[x]);
+		s = buf;
+	}
 
 	/* Return the message text */
 	return (s);
@@ -2000,6 +2023,27 @@ void message_add(cptr str, u16b type)
 	/* Hack -- Ignore "long" messages */
 	if (n >= MESSAGE_BUF / 4) return;
 
+	/*** Step 1 1/2 -- Attempt to optimize ***/
+
+	/* Get the "logical" last index */
+	x = (message__next + MESSAGE_MAX - 1) % MESSAGE_MAX;
+
+	/* Get the "offset" for the last message */
+	o = message__ptr[x];
+
+	/* Get the message text */
+	s = &message__buf[o];
+
+	/* Last message repeated? */
+	if (streq(str, s))
+	{
+		/* Increase the message count */
+		message__count[x]++;
+
+		/* Success */
+		return;
+	}
+
 	/*** Step 2 -- Attempt to optimize ***/
 
 	/* Limit number of messages to check */
@@ -2060,6 +2104,9 @@ void message_add(cptr str, u16b type)
 
 		/* Store the message type */
 		message__type[x] = type;
+
+		/* Store the message count */
+		message__count[x] = 1;
 
 		/* Success */
 		return;
@@ -2157,6 +2204,9 @@ void message_add(cptr str, u16b type)
 
 	/* Store the message type */
 	message__type[x] = type;
+
+	/* Store the message count */
+	message__count[x] = 1;
 }
 
 /*
@@ -2168,6 +2218,7 @@ errr message_init(void)
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
 	C_MAKE(message__type, MESSAGE_MAX, u16b);
+	C_MAKE(message__count, MESSAGE_MAX, u16b);
 
 	/* Init the message colors to white */
 	(void)C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
@@ -3384,7 +3435,7 @@ uint maxroll(uint num, uint sides)
 	return (num * sides);
 }
 
-int get_recall_pt(cptr reason)
+int get_recall_pt(cptr reason, bool extra)
 {
 
         char stage[19];
@@ -3395,9 +3446,9 @@ int get_recall_pt(cptr reason)
 
 	char choice;
 
-	char *abcd[4] = {"a", "b", "c", "d"};
+	char *abcd[5] = {"a", "b", "c", "d", "e"};
 
-	bool chosen = FALSE;
+	bool valid = FALSE, chosen = FALSE;
 
 
 
@@ -3413,51 +3464,62 @@ int get_recall_pt(cptr reason)
 	    
 	    if (level)
 	      sprintf(stage, "%s %d   ", locality_name[region], level);
+	    else if (region)
+	      sprintf(stage, "%s Town   ", locality_name[region]);
 	    else
-	      sprintf(stage, "%s   ", locality_name[region]);
+	      sprintf(stage, "%s     ", locality_name[region]);	      
 	    
-	    put_str(format(" %s) %20s", abcd[i], stage), i + 1, 30);
+	    put_str(format(" %s) %20s     ", abcd[i], stage), i + 1, 30);
 	  }
+	if (extra)
+	    put_str(format(" e) Don't replace     ", stage), i + 1, 30);
+  
 	    
-	if (get_com(reason, &choice))
-	  {
-	    switch (choice)
-	      {
-	      case 'a':
+	while(!valid){
+	  if (get_com(reason, &choice))
+	    {
+	      switch (choice)
 		{
-		  new = 1;
-		  break;
+		case 'a':
+		  {
+		    new = 1;
+		    valid = TRUE;
+		    break;
+		  }
+		case 'b':
+		  {
+		    new = 2;
+		    valid = TRUE;
+		    break;
+		  }
+		case 'c':
+		  {
+		    new = 3;
+		    valid = TRUE;
+		    break;
+		  }
+		case 'd':
+		  {
+		    new = 4;
+		    valid = TRUE;
+		    break;
+		  }
+		case 'e':
+		  {
+		    new = 5;
+		    valid = extra;
+		    break;
+		  }
 		}
-	      case 'b':
-		{
-		  new = 2;
-		  break;
-		}
-	      case 'c':
-		{
-		  new = 3;
-		  break;
-		}
-	      case 'd':
-		{
-		  new = 4;
-		  break;
-		}
-	      }
-	    /* Nowhere */
-	    if ((new < 1) || (new > 4))
-	      {
-		screen_load();
-		bell("Illegal choice!");
-		return 0;
-	      }
-	  }
-	else /* ESC */
-	  {
-	    screen_load();
-	    return 0;
-	  }
-	
+	    }
+	  else /* ESC */
+	    {
+	      new = 0;
+	      screen_load();
+	      return 0;
+	    }
+	}
+
 	/* Load screen */
 	screen_load();
 	

@@ -1125,7 +1125,7 @@ void hit_trap(int y, int x)
 			/* earthquake trap. */
 			else if ((nastyness > 20) && (randint(4) == 1))
 			{
-				msg_print("A tremor shakes the dungeon around you");
+				msg_print("A tremor shakes the earth around you");
 				earthquake(y, x, 10, FALSE);
 			}
 
@@ -1354,7 +1354,10 @@ void hit_trap(int y, int x)
 		/* teleport trap */
 		case FEAT_TRAP_HEAD + 0x08:
 		{
-			msg_print("You teleport across the dungeon.");
+		        if (stage_map[p_ptr->stage][STAGE_TYPE] >= CAVE)
+			  msg_print("You teleport across the dungeon.");
+			else
+			  msg_print("You teleport across the wilderness.");
 
 			Rand_quick = FALSE;
 

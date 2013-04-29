@@ -46,16 +46,16 @@
 
 
 /*
- * Current version string - according to Oangband reckoning.
+ * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.1.0"
+#define VERSION_STRING	"0.1.1"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	1
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -3088,12 +3088,13 @@
 #define OPT_view_granite_lite		62
 #define OPT_view_special_lite		63
 #define OPT_show_piles                  67
-
-#define OPT_show_detect         69 /*This is really quite out of order -BR-*/
+#define OPT_hp_changes_colour           68
+#define OPT_show_detect                 69 /*This is really quite out of order -BR-*/
 #define OPT_disturb_trap_detect         70 /*This is really quite out of order -BR-*/
 
 #define OPT_birth_point_based           128/*(OPT_BIRTH_START+0)*/
 #define OPT_birth_auto_roller           129/*(OPT_BIRTH_START+1)*/
+#define OPT_birth_take_notes            130/*(OPT_BIRTH_START+2)*/
 #define OPT_birth_preserve              131/*(OPT_BIRTH_START+3)*/
 /* No Ironman options */
 #define OPT_cheat_peek                  160        /*(OPT_CHEAT+0)*/
@@ -3105,6 +3106,7 @@
 
 #define OPT_adult_point_based           192/*(OPT_ADULT_START+0)*/
 #define OPT_adult_auto_roller           193/*(OPT_ADULT_START+1)*/
+#define OPT_adult_take_notes            194/*(OPT_ADULT_START+2)*/
 #define OPT_adult_preserve              195/*(OPT_ADULT_START+3)*/
 /* No Ironman options */
 /* xxx xxx */
@@ -3137,7 +3139,8 @@
 #define show_details			op_ptr->opt[OPT_show_details]
 #define use_metric				op_ptr->opt[OPT_metric]
 #define show_flavors			op_ptr->opt[OPT_show_flavors]
-#define show_detect    		op_ptr->opt[OPT_show_detect]
+#define hp_changes_colour               op_ptr->opt[OPT_hp_changes_colour]
+#define show_detect    		        op_ptr->opt[OPT_show_detect]
 
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
@@ -3199,6 +3202,7 @@
 
 #define birth_point_based               op_ptr->opt[OPT_birth_point_based]          
 #define birth_auto_roller               op_ptr->opt[OPT_birth_auto_roller]          
+#define birth_take_notes               op_ptr->opt[OPT_birth_take_notes]      
 #define birth_preserve                  op_ptr->opt[OPT_birth_preserve]        
 
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
@@ -3208,8 +3212,9 @@
 #define cheat_know				op_ptr->opt[OPT_cheat_know]	
 #define cheat_live				op_ptr->opt[OPT_cheat_live]	
 
-#define adult_point_based               op_ptr->opt[OPT_adult_point_based]          
-#define adult_auto_roller               op_ptr->opt[OPT_adult_auto_roller]          
+#define adult_point_based               op_ptr->opt[OPT_adult_point_based]     
+#define adult_auto_roller               op_ptr->opt[OPT_adult_auto_roller]    
+#define adult_take_notes                  op_ptr->opt[OPT_adult_take_notes]    
 #define adult_preserve                  op_ptr->opt[OPT_adult_preserve]        
 
 #define score_peek				op_ptr->opt[OPT_score_peek]
@@ -3745,6 +3750,11 @@ extern int PlayerUID;
  * Max number of terminal windows -CN-
  */
 #define TERM_WIN_MAX 8
+
+/*
+ * Special note used to mark the end of the notes section in the savefile
+ */
+#define NOTES_MARK "@@@@@@@ No more notes @@@@@@@"
 
 /* Number of localities */
 

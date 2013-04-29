@@ -727,64 +727,58 @@ void teleport_player_level(bool friendly)
 		return;
 	}
 
-	if (!p_ptr->depth)
-	{
-		message(MSG_TPSTAGE, 0, "You fly through the air.");
+	/* Remember where we came from */
+	p_ptr->last_stage = p_ptr->stage;
 
-		/* New depth */
-		p_ptr->depth++;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-
-	else if (is_quest(p_ptr->stage) || (p_ptr->depth >= MAX_DEPTH-1))
-	{
-		message(MSG_TPSTAGE, 0, "You rise up through the ceiling.");
-
-		/* New stage */
-		p_ptr->stage--;
-
-		/* New depth */
-		p_ptr->depth--;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-
-	else if (stage_map[p_ptr->stage][STAGE_TYPE] >= CAVE)
+	if (stage_map[p_ptr->stage][STAGE_TYPE] >= CAVE)
 	  {
-
-	    if (rand_int(100) < 50)
+	    if (is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN]))
 	      {
 		message(MSG_TPSTAGE, 0, "You rise up through the ceiling.");
-		
-		/* New stage */
-		p_ptr->stage--;
 
+		/* New stage */
+		p_ptr->stage = stage_map[p_ptr->stage][UP];
+		
 		/* New depth */
 		p_ptr->depth--;
-		
+
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	      }
-	    
-	    else
+
+	    else 
 	      {
-		message(MSG_TPSTAGE, 0, "You sink through the floor.");
 		
-		/* New stage */
-		p_ptr->stage++;
-
-		/* New depth */
-		p_ptr->depth++;
+		if (rand_int(100) < 50)
+		  {
+		    message(MSG_TPSTAGE, 0, "You rise up through the ceiling.");
+		    
+		    /* New stage */
+		    p_ptr->stage = stage_map[p_ptr->stage][UP];
+		    
+		    /* New depth */
+		    p_ptr->depth--;
+		    
+		    /* Leaving */
+		    p_ptr->leaving = TRUE;
+		  }
 		
-		/* Leaving */
-		p_ptr->leaving = TRUE;
+		else
+		  {
+		    message(MSG_TPSTAGE, 0, "You sink through the floor.");
+		    
+		    /* New stage */
+		    p_ptr->stage = stage_map[p_ptr->stage][DOWN];
+		    
+		    /* New depth */
+		    p_ptr->depth++;
+		    
+		    /* Leaving */
+		    p_ptr->leaving = TRUE;
+		  }
 	      }
-	  }
-
-	else
+	  }  
+	else /* Note - can't enter a dungeon this way -NRM- */
 	  {
 	    message(MSG_TPSTAGE, 0, "You fly through the air.");
 	    
@@ -796,17 +790,17 @@ void teleport_player_level(bool friendly)
 	    p_ptr->stage = stage_map[p_ptr->stage][poss];
 	    
 	    /* New depth */
-	    stage_map[p_ptr->stage][DEPTH];
-		
+	    p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
+	    
 	    /* Leaving */
 	    p_ptr->leaving = TRUE;
 	  }
-	    
-
+	
+	
 	/* Sound */
 	sound(SOUND_TPLEVEL);
 }
-
+	
 
 
 
@@ -1045,6 +1039,36 @@ void take_hit(int dam, cptr kb_str)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 
+		/* Write a note */
+		if (adult_take_notes)
+		{
+		  time_t ct = time((time_t*)0);
+		  char long_day[25];
+		  char buf[120];
+		  
+		  /* Get time */
+		  (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
+		  
+		  /* Add note */
+		  
+		  fprintf(notes_file, "============================================================\n");
+		  
+		  /*killed by */
+		  sprintf(buf, "Killed by %s.", p_ptr->died_from);
+		  
+		  /* Write message */
+		  do_cmd_note(buf,  p_ptr->stage);
+		  
+		  /* date and time*/
+		  sprintf(buf, "Killed on %s.", long_day);
+		  
+		  /* Write message */
+		  do_cmd_note(buf,  p_ptr->stage);
+		  
+		  fprintf(notes_file, "============================================================\n");
+		  
+		}
+		
 		/* Dead */
 		return;
 	}

@@ -1,4 +1,4 @@
-FAangband version 0.1.0
+FAangband version 0.1.1
 
 One day, a keen player of Angband said to himself: "I enjoy many Angband 
 variants, and appreciate many different types of gameplay.  I would never want 
@@ -79,22 +79,7 @@ Plans for future releases:
   example that's high on the list.
 
 - Rebalance/bugfix.  I really don't have much of a clue how balanced it is 
-  currently and where that balance lies; any feedback is most welcome.  Email to 
-  me at nckmccnnll@yahoo.com.au.
-
-- Nan Dungortheb. ?It's supposed to be a valley, yet it looks just like a 
-  regular dungeon. ?It should be full of spiders.
-
-- Tol-In-Gaurhoth should have lots of wolves.
-
-- Druedain. ?I'm thinking of giving them a racial shapechange to Pukelmen ? 
-  probably increased resistances and armour class at the cost of speed.
-
-- Monster shapechanges. ?Sauron should be able to take vampire and wolf forms.
-
-- Various patches. ?The Gonzalez/Green/Kornelis/Marrick extended character 
-  patch, Hugo Kornelis' UI patch, Andrew Doull's isometric graphics, Andrew 
-  Sidwell's stacking, and I'm sure there will be more any minute
+  currently and where that balance lies; any feedback is most welcome. 
   
 Thanks to everyone who posts to rec.games.roguelike.angband and/or 
 angband.oook.cz, and particularly to Leon Marrick and Bahman Rabii for
@@ -108,7 +93,7 @@ Nick McConnell
 === See also oangdesc.txt for OAngband Copyright Information ===
 === See also angdesc.txt for Angband Copyright Information ===
 
-FAangband Version 0.1  :  Nick McConnell
+FAangband Version 0.1.1:  Nick McConnell
 
 Copyright (c) 2005      Nick McConnell, Bahman Rabii, Leon Marrick, 
                         Robert Ruehlmann, Ben Harrison, James E. Wilson, 
@@ -124,4 +109,3 @@ distribution, since parts of the source are still only available under
 the old Moria/Angband/Oangband/FAangband license.  Until all parts of Angband
 are distributed under the GPL the only valid license remains the
 original Moria/Angband license.
-

@@ -83,14 +83,16 @@ s16b monster_level;		/* Current monster creation level */
 
 char summon_kin_type;		/* Hack -- See summon_specific() */
 
-s32b turn;				/* Current game turn */
+s32b turn;			/* Current game turn */
 
-s32b old_turn;			/* Hack -- Level feeling counter */
+s32b do_feeling;		/* Hack -- Level feeling indicator */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
 
 bool use_transparency = FALSE; /* Use transparent tiles */
+char notes_fname[1024];        /* Buffer to hold current notes file name */
+FILE *notes_file;              /* Notes file */
 
 int image_count;  		/* Grids until next random image    */
                   		/* Optimizes the hallucination code */
@@ -232,6 +234,11 @@ char *message__buf;
  * The array[MESSAGE_MAX] of u16b for the types of messages
  */
 u16b *message__type;
+
+/*
+ * The array[MESSAGE_MAX] of u16b for the count of messages
+ */
+static u16b *message__count;
 
 
 /*
@@ -853,4 +860,3 @@ byte num_glyph_on_level;
 
 /* XXX Mega-Hack - See main-win.c */
 bool angband_keymap_flag = TRUE;
-

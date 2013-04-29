@@ -837,7 +837,10 @@ static void chest_trap(int y, int x, s16b o_idx)
 	/* Scatter contents. */
 	if (trap & (CHEST_SCATTER))
 	{
-		msg_print("The contents of the chest scatter all over the dungeon!");
+		if (stage_map[p_ptr->stage][STAGE_TYPE] >= CAVE)
+		  msg_print("The contents of the chest scatter all over the dungeon!");
+		else
+		  msg_print("The contents of the chest scatter to the four winds!");		  
 		chest_death(TRUE, y, x, o_idx);
 		o_ptr->pval = 0;
 	}

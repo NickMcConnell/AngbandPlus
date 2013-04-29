@@ -24,7 +24,7 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 #N: ego-item index: name (appended to base object description)
 #X: amount the level feeling is increased by: xtra 
@@ -917,7 +917,7 @@ N:106:of Ossiriand
 X:30:3
 T:19:12:13
 W:50:4:0:20000
-C:10:10:0:0
+C:10:10:0:2
 F:DEX | MIGHT1 | STEALTH | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 D:A bow of the Green Elves of in the Land of the Seven Rivers.  It's wielder
 D:will find extra power in its shots, and feel nimbler and safe from prying

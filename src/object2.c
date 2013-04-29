@@ -1624,6 +1624,9 @@ void object_prep(object_type *o_ptr, int k_idx)
 	o_ptr->dd = k_ptr->dd;
 	o_ptr->ds = k_ptr->ds;
 
+	/* Not found anywhere yet */
+	o_ptr->found = 0;
+
 	/* Hack -- worthless items are always "broken" */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
@@ -2792,6 +2795,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		o_ptr->to_h = a_ptr->to_h;
 		o_ptr->to_d = a_ptr->to_d;
 		o_ptr->weight = a_ptr->weight;
+
+		/* Mark where it was found */
+		o_ptr->found = p_ptr->stage;
 
 		/* Hack -- extract the "broken" flag */
 		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
@@ -4094,9 +4100,9 @@ void pick_trap(int y, int x)
 			case FEAT_TRAP_HEAD + 0x08:
 			{
 				
-			  /* No teleport traps in mountains */
+			  /* No teleport traps in mountains
 			  if (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)
-			    trap_is_okay = FALSE;
+			    trap_is_okay = FALSE; */
 
 
 			  break;

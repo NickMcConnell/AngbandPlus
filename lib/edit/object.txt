@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -4190,14 +4190,13 @@ A:1/3
 P:0:1d1:0:0:0
 D:The pathetic remains of a jackal.
 
-N:645:& Gnome Skeleton~
+N:645:& Petty-Dwarf Skeleton~
 G:`:w
 I:1:5:0
 W:5:0:30:0
 A:5/3
 P:0:1d2:0:0:0
-D:This merry gnome's last trick failed him, and filthy kobolds now toss his 
-D:bones from hand to hand.
+D:The remains of a Petty-Dwarf who was, in the end, not quite clever enough. 
 
 N:646:& Elf Skeleton~
 G:`:w

@@ -546,7 +546,7 @@ static void roff_aux(int r_idx)
 		}
 		else
 		{
-			strcpy(depth_desc, format("on dungeon level %d", r_ptr->level));
+			strcpy(depth_desc, format("at a danger level of %d", r_ptr->level));
 		}
 
 		/* Determine "con" of the monster (default is TERM_WHITE) */
@@ -1697,7 +1697,7 @@ static void roff_aux(int r_idx)
 			case RBM_XXX4:	break;
 			case RBM_BEG:	p = "beg"; break;
 			case RBM_INSULT:	p = "insult"; break;
-			case RBM_SNEER:	p = "sneer"; break;
+			case RBM_SNEER:	p = "whinge"; break;
 			case RBM_REQUEST:	p = "offer to trade"; break;
 		}
 

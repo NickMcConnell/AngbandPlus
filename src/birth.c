@@ -1097,11 +1097,11 @@ static void class_aux_hook(birth_menu c_str)
 	for (i = 0; i < A_MAX; i++)
 	{
 		sprintf(s, "%s%+d", stat_names_reduced[i],
-		cp_info[class].c_adj[i]);
+		cp_info[class].c_adj[i] + rp_info[p_ptr->prace].r_adj[i]);
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
 	
-	sprintf(s, "Hit die: %d ", cp_info[class].c_mhp);
+	sprintf(s, "Hit die: %d ", cp_info[class].c_mhp + rp_info[p_ptr->prace].r_mhp);
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
 }
 
@@ -1116,8 +1116,8 @@ static bool get_player_class(void)
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
 		"Your 'class' determines various intrinsic abilities and bonuses.");
-	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_YELLOW,
-		"Greyed-out entries are disfavored by your 'race'.");
+	/*	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_YELLOW,
+		"Greyed-out entries are disfavored by your 'race'."); */
 
 	/* Tabulate classes */
 	for (i = 0; i < MAX_CLASS; i++)
@@ -1863,6 +1863,34 @@ void player_birth(void)
 		/* Roll up a new character */
 		if (player_birth_aux()) break;
 	}
+
+	/* Make a note file if that option is set */
+ 	if (adult_take_notes)
+ 	{
+
+ 	  	/* Variables */
+ 	  	char long_day[25];
+ 	  	time_t ct = time((time_t*)0);
+
+ 	  	/* Open the file (notes_file and notes_fname are global) */
+ 	  	notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
+
+		if (!notes_file) quit("Can't create the notes file");
+
+ 	  	/* Get date */
+ 	  	(void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
+
+ 	  	/* Add in "character start" information */
+ 	  	fprintf(notes_file, "%s the %s %s\n", op_ptr->full_name,
+								rp_name + rp_ptr->name,
+								cp_name + cp_ptr->name);
+ 	  	fprintf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
+ 	  	fprintf(notes_file, "============================================================\n");
+		fprintf(notes_file, "                                  CHAR.  \n");
+		fprintf(notes_file, "|   TURN  |      LOCATION        |LEVEL| EVENT\n");
+		fprintf(notes_file, "============================================================\n");
+
+ 	}
 
 	/* Now that the player information is available, we are able to generate 
 	 * random artifacts.

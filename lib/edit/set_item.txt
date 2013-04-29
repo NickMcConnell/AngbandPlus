@@ -8,7 +8,7 @@
 
 # Version stamp required
 
-V:0.1.0
+V:0.1.1
 
 #N: set index:name
 #C: number of items to gain bonus
@@ -54,7 +54,7 @@ F:RES_DISEN
 P:46:2
 F:WIS | CHR
 # The Iron Helm of Vinyamar
-P:55:0
+P:55:2
 F:CON | REGEN
 
 
@@ -90,7 +90,7 @@ N:6:Beren's Items
 C:2
 D:It was borne by Beren One-Hand in Tol-In-Gaurhoth and Angband
 # The Ring of Barahir
-P:9:1
+P:9:0
 F:RES_NETHR
 #:The Dagger 'Angrist'
 P:98:0

@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 
 #N: monster index: name
@@ -199,12 +199,21 @@ F:RAND_25 |
 F:ANIMAL
 D:A thin flea-ridden mutt, growling as you get close.
 
+N:14:The Complainer
+G:p:w
+I:110:35d10:40:10:3
+W:0:1:0:0
+B:MOAN
+B:MOAN
+F:UNIQUE | MALE | SMART | MOVE_BODY | 
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | 
+D:He has lots of problems, and seems to think you can fix them. 
+
 # This is an empty monster slot, which you may use to add monsters of your 
 # own, without affecting old savefiles.  As soon as the rarity field is set to 
 # something other than 0, the game will attempt to make this monster.
-N:14:()
-I:110:1d1:0:0:0
-W:0:0:0:0
 
 N:15:()
 I:110:1d1:0:0:0
@@ -791,7 +800,7 @@ F:FORCE_SLEEP |
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_9 | POW_1 | 
-S:SCARE | WOUND
+S:CURE | WOUND
 D:An adventurer both devoutly religious and skillful in combat.
 
 N:76:Novice ranger
@@ -1327,7 +1336,7 @@ F:FORCE_SLEEP |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_9 | POW_1 | 
-S:SCARE | WOUND
+S:CURE | WOUND
 D:An adventurer both devoutly religious and skillful in combat, who has 
 D:comrades ready to defy evil standing by his side.
 
@@ -1602,7 +1611,7 @@ N:151:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:152:Greedy Little Gnome
+N:152:Petty-Dwarf Rogue
 G:h:b
 I:120:6d9:20:20:2
 W:10:2:38:23
@@ -1611,8 +1620,8 @@ F:ONLY_GOLD | DROP_60 | DROP_1D2 | MOVE_BODY |
 F:EVIL | OPEN_DOOR | MALE | TAKE_ITEM
 S:1_IN_4 | POW_2 | 
 S:TELE_SELF_TO | BLINK
-D:His eyes light up around gold, and he's always looking for a more 
-D:hilarious way to kill things.
+D:His eyes light up around gold, and he uses all his sorcerous 
+D:tricks to get it.
 
 N:153:Elven thrall mage
 G:h:r
@@ -1792,7 +1801,7 @@ N:168:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:169:Gnome mage
+N:169:Petty-Dwarf mage
 G:h:r
 I:110:6d9:18:10:10
 W:11:2:50:38
@@ -2327,7 +2336,7 @@ N:217:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:218:Gnome mage
+N:218:Petty-Dwarf mage
 G:h:r
 I:110:6d9:20:10:20
 W:16:3:60:30
@@ -2340,7 +2349,7 @@ F:LOW_MANA_RUN
 S:1_IN_2 | POW_4 | 
 S:BLINK | DARKNESS | BALL_POIS | BOLT_COLD | BOLT_MANA | ADD_MANA | 
 S:S_MONSTER
-D:A mage of short stature.
+D:A mage of short stature who travels with his cronies.
 
 N:219:Gaveronian daggerman
 G:h:u
@@ -5109,7 +5118,7 @@ N:450:()
 I:110:1d1:0:0:0
 W:0:0:0:0
 
-N:451:Gnomish wizard
+N:451:Petty-Dwarf wizard
 G:h:r
 I:120:10d39:20:15:10
 W:42:3:90:550

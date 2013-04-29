@@ -616,16 +616,16 @@ bool set_recall(int v)
 	      {
 		if (p_ptr->stage != p_ptr->home)
 		  {
-		    message = "Which recall point would you like to replace (Escape for none)?";
-		    spot = get_recall_pt(message);
-		    if (spot)
+		    message = "Which recall point would you like to replace?";
+		    spot = get_recall_pt(message, TRUE);
+		    if ((spot) && (spot < 5))
 		      p_ptr->recall[spot - 1] = p_ptr->stage;
 		    p_ptr->recall_pt = p_ptr->stage;
 		  }
 		else
 		  {
 		    message = "Which recall point do you want to go to?";
-		    spot = get_recall_pt(message);
+		    spot = get_recall_pt(message, FALSE);
 		    if (!spot || (p_ptr->recall[spot - 1] == NOWHERE))
 		      return (FALSE);
 		    p_ptr->recall_pt = p_ptr->recall[spot - 1];
@@ -2315,14 +2315,41 @@ bool ident_spell(void)
 		
 	}
 
-	/* If artifact, check for Set Item */
+	/* If artifact, check for Set Item and write a note if applicable */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
-		if (a_ptr->set_no != 0)
-		{
-			msg_print("This item is part of a set!");
-		}
+	  artifact_type *a_ptr = &a_info[o_ptr->name1];
+	  if (a_ptr->set_no != 0)
+	    {
+	      msg_print("This item is part of a set!");
+	    }
+
+	  if ((adult_take_notes) && (o_ptr->found))
+	    {
+	      int artifact_stage;
+	      char note[120];
+	      char shorter_desc[120];
+
+	      /* Get a shorter description to fit the notes file */
+	      object_desc(shorter_desc, o_ptr, TRUE, 0);
+
+	      /* Build note and write */
+	      sprintf(note, "Found %s", shorter_desc);
+
+	      /* Record the depth where the artifact was created */
+	      artifact_stage = o_ptr->found;
+	      
+	      do_cmd_note(note, artifact_stage);
+	      
+	      /*
+	       * Mark item creation depth 0, which will indicate the artifact
+	       * has been previously identified.  This prevents an artifact
+	       * from showing up on the notes list twice ifthe artifact had
+	       * been previously identified.  JG
+	       */
+	      o_ptr->found = 0 ;
+	    }
+
 	}
 
  

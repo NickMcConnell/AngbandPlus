@@ -821,6 +821,28 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 }
 
 
+/*
+ * Build a string describing a monster race, currently used for quests.
+ *
+ * Assumes a singular monster.  This may need to be run through the
+ * plural_aux function in the quest.c file.  (Changes "wolf" to
+ * wolves, etc.....)
+ *
+ * I am assuming that no monster name is more than 65 characters long,
+ * so that "char desc[80];" is sufficiently large for any result, even
+ * when the "offscreen" notation is added.
+ *
+ */
+void monster_desc_race(char *desc, size_t max, int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	cptr name = (r_name + r_ptr->name);
+
+	/* Write the name */
+	my_strcpy(desc, name, max);
+}
+
 
 
 /*

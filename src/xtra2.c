@@ -1926,6 +1926,23 @@ void check_experience(void)
 		/* Message */
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
+		/* If auto-note taking enabled, write a note to the file 
+		 *  every 5th level. */
+            
+		if ((adult_take_notes) && ((p_ptr->lev % 5) == 0))
+		  
+		  {
+		    
+                    char buf[120];
+		    
+		    /* Build the message */
+		    sprintf(buf, "Reached level %d", p_ptr->lev);
+		    
+		    /* Write message */
+		    do_cmd_note(buf,  p_ptr->stage);
+		    
+		  }
+		
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
 
@@ -2242,6 +2259,39 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
+
+	/* If the player kills a Unique, and the notes option is on, write a 
+	 * note.*/
+
+   	if ((r_ptr->flags1 & RF1_UNIQUE) && (adult_take_notes))
+	{
+
+	  char note2[120];
+	  char real_name[120];
+	  
+	  /*write note for player ghosts*/
+	  if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+	    {
+	      my_strcpy(note2, format("Destroyed %^s, the %^s", ghost_name, r_name + r_ptr->name), sizeof (note2));
+	    }
+	  
+	  /*All other uniques*/
+	  else
+	    {
+	      /* Get the monster's real name for the notes file */
+	      monster_desc_race(real_name, sizeof(real_name), m_ptr->r_idx);
+	      
+	      /* Write note */
+	      if ((r_ptr->flags3 & (RF3_DEMON)) ||
+		  (r_ptr->flags3 & (RF3_UNDEAD)) ||
+		  (r_ptr->flags2 & (RF2_STUPID)) ||
+		  (strchr("Evg", r_ptr->d_char)))
+		my_strcpy(note2, format("Destroyed %s", real_name), sizeof (note2));
+	      else my_strcpy(note2, format("Killed %s", real_name), sizeof (note2));
+	    }
+	  
+	  do_cmd_note(note2, p_ptr->stage);
+	}
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;

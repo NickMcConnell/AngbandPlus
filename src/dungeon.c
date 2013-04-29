@@ -1278,6 +1278,30 @@ static void process_world(void)
 			p_ptr->redraw |= PR_STATUS;
 		}
 	}
+
+	/* Delayed level feelings */
+	if ((p_ptr->depth) && (!p_ptr->leaving) && (!do_feeling) && (!(turn % 100)))
+	{
+
+	        int chance = 40;
+
+		/* After sufficient time, can learn about the level */
+		if ((rand_int(80) < p_ptr->skill_srh) &&
+			(rand_int(80) < chance))
+		{
+			/* Now have a feeling */
+			do_feeling = TRUE;
+
+			/* Announce feeling */
+			do_cmd_feeling();
+
+			/* Update the level indicator */
+			p_ptr->redraw |= (PR_DEPTH);
+
+			/* Disturb */
+			disturb(0, 0);
+		}
+	}
 }
 
 
@@ -1923,7 +1947,7 @@ static void process_command(void)
 		/* Take notes */
 		case ':':
 		{
-			do_cmd_note();
+			do_cmd_note("", p_ptr->stage);
 			break;
 		}
 
@@ -2727,7 +2751,7 @@ static void dungeon(void)
 
 
 	/* Announce (or repeat) the feeling */
-	if (p_ptr->depth) do_cmd_feeling();
+	if ((p_ptr->depth) && (do_feeling)) do_cmd_feeling();
 
 	/* Announce a player ghost challenge. -LM- */
 	if (bones_selector) ghost_challenge();

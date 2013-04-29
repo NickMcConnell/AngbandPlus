@@ -366,12 +366,12 @@ cptr spell_tips[255] =
 	"Temporary opposition to the elements and poison.  Cumulative with equipment resistances.",
 	"Creates a barrier of doors around you.",
 	"Creates a staircase nearby.  Random choice between up or down, except on quest levels.",
-	"Immediately takes you to the next level up or down.",	/* 40 - Teleport Level */
-	"Recalls you to the town, or as deep in the dungeon as you have ever gone.",
+	"Immediately takes you to an adjacent level.",	/* 40 - Teleport Level */
+	"Recalls you to the town, or to one of four recall points.",
 	"Controlled minor displacement.  Hint:  use the 'p' option when you enter targeting mode.",
 	"Detects all nearby evil monsters, even invisible ones.",
 	"Detects nearby enchanted objects.",
-	"Shakes the nearby dungeon, randomly swapping walls and floors.",
+	"Shakes the nearby area, randomly scrambling terrain.",
 	"Very powerful attempt to confuse, slow, and then sleep all monsters.",
 	"Fires a ball of light centered on you.",
 	"Recovers mana much more rapidly than normal resting.  Put this spell in a keymap for best results.",
@@ -411,7 +411,7 @@ cptr spell_tips[255] =
 	"Temporary see invisible.",
 	"Temporary protection from lesser evil creatures.",
 	"Reduces cuts and heals you a large amount.",
-	"Shakes the nearby dungeon, randomly swapping walls and floors.",
+	"Shakes the nearby area, randomly changing terrain.",
 	"Maps the local area.",
 	"Attempts to make all undead monsters in line of sight turn and run.",
 	"Long-duration bonus to fighting ability and armour class.",
@@ -425,13 +425,13 @@ cptr spell_tips[255] =
 	"Long-range random displacement.",
 	"Teleports a line of opponents away.",
 	"Immediately takes you to the next level up or down.",
-	"Recalls you to the town, or as deep in the dungeon as you have ever gone.",
-	"Regenerates the dungeon level.",	/* 100 - Alter Reality */
+	"Recalls you to the town, or to one of your recall points.",
+	"Regenerates the level.",	/* 100 - Alter Reality */
 	"Detects nearby monsters that are not invisible.",
 	"Detects all nearby monsters, traps, doors, stairs, gold seams, and objects.",
 	"Learns about a monster's attributes and resistances.",
 	"Standard identification of an object.",
-	"Permanently light up the entire dungeon level, except for vaults, and detect everything nearby.",
+	"Permanently light up the entire level, except for vaults, and detect everything nearby.",
 	"Teleports away all evil monsters in line of sight.",
 	"An extremely strong healing spell.  Removes cuts and stuns.",
 	"Full *identification* of any object.",
@@ -476,7 +476,7 @@ cptr spell_tips[255] =
 	"Teleports a line of monsters away.",
 	"Fires a bolt or beam of poison.",
 	"Temporary opposition to poison.  Cumulative with equipment resistances.",
-	"Shakes the nearby dungeon, randomly swapping walls and floors.",	/* 150 - earthquake */
+	"Shakes the nearby area, randomly changing terrain.",	/* 150 - earthquake */
 	"Temporary opposition to fire and cold.  Cumulative with equipment resistances.",
 	"Detects all nearby monsters, traps, doors, stairs, gold seams, and objects.",
 	"Recovers from wounds, poison and physical damage far more rapidly than normal resting.  This is a good spell to assign to a keymap.",

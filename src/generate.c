@@ -1201,7 +1201,7 @@ static void place_random_stairs(int y, int x)
 	{
 		place_down_stairs(y, x);
 	}
-	else if (is_quest(p_ptr->stage) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN]))
 	{
 		place_up_stairs(y, x);
 	}
@@ -5315,7 +5315,7 @@ static void alloc_paths(int stage, int last_stage)
 	u16b gp[512];
 	int path_grids;
 
-	bool recalled = TRUE;
+	bool jumped = TRUE;
 
 	for (i = 0; i < MAX_PATHS; i++)
 	  {
@@ -5340,12 +5340,12 @@ static void alloc_paths(int stage, int last_stage)
 	      }
 	    
 	    /* Way back */
-	    if (north == last_stage)
+	    if ((north == last_stage) && (p_ptr->create_stair))
 	      {
 		cave_set_feat(1, pcoord, path);
 		py = 1;
 		px = pcoord;
-		recalled = FALSE;
+		jumped = FALSE;
 
 		/* make paths to nowhere */
 		ty = 1 + DUNGEON_HGT/3 + randint(20) - 10;
@@ -5368,15 +5368,15 @@ static void alloc_paths(int stage, int last_stage)
 	    /* Decide number of paths */
 	    num = rand_range(2, 3);
 
-	    /* Where recalled player goes */
-	    pnum = randint(num);
+	    /* Where jumped player goes */
+	    pnum = rand_int(num);
 
 	    /* Place "num" paths */
 	    for (i = 0; i < num; i++)
 	      {
 		x = 1 + rand_int(DUNGEON_WID/num - 2) + i * DUNGEON_WID/num;
 		cave_set_feat(1, x, path);
-		if ((i == pnum) && (mindir == 2) && recalled)
+		if ((i == pnum) && (mindir == 2) && jumped)
 		  {
 		    py = 1;
 		    px = x;
@@ -5418,12 +5418,12 @@ static void alloc_paths(int stage, int last_stage)
 	      }
 	    
 	    /* Way back */
-	    if (east == last_stage)
+	    if ((east == last_stage) && (p_ptr->create_stair))
 	      {
 		cave_set_feat(pcoord, DUNGEON_WID - 2, path);
 		py = pcoord;
 		px = DUNGEON_WID - 2;
-		recalled = FALSE;
+		jumped = FALSE;
 
 		/* make paths to nowhere */
 		ty = py + randint (40) - 20;
@@ -5446,15 +5446,15 @@ static void alloc_paths(int stage, int last_stage)
 	    /* Decide number of paths */
 	    num = rand_range(2, 3);
 
-	    /* Where recalled player goes */
-	    pnum = randint(num);
+	    /* Where jumped player goes */
+	    pnum = rand_int(num);
 
 	    /* Place "num" paths */
 	    for (i = 0; i < num; i++)
 	      {
 		y = 1 + rand_int(DUNGEON_HGT/num - 2) + i * DUNGEON_HGT/num;
 		cave_set_feat(y, DUNGEON_WID - 2, path);
-		if ((i == pnum) && (mindir == 3) && recalled)
+		if ((i == pnum) && (mindir == 3) && jumped)
 		  {
 		    py = y;
 		    px = DUNGEON_WID - 2;
@@ -5496,12 +5496,12 @@ static void alloc_paths(int stage, int last_stage)
 	      }
 	    
 	    /* Way back */
-	    if (south == last_stage)
+	    if ((south == last_stage) && (p_ptr->create_stair))
 	      {
 		cave_set_feat(DUNGEON_HGT - 2, pcoord, path);
 		py = DUNGEON_HGT - 2;
 		px = pcoord;
-		recalled = FALSE;
+		jumped = FALSE;
 
 		/* make paths to nowhere */
 		ty = DUNGEON_HGT - DUNGEON_HGT/3 - randint(20) + 8;
@@ -5524,15 +5524,15 @@ static void alloc_paths(int stage, int last_stage)
 	    /* Decide number of paths */
 	    num = rand_range(2, 3);
 
-	    /* Where recalled player goes */
-	    pnum = randint(num);
+	    /* Where jumped player goes */
+	    pnum = rand_int(num);
 
 	    /* Place "num" paths */
 	    for (i = 0; i < num; i++)
 	      {
 		x = 1 + rand_int(DUNGEON_WID/num - 2) + i * DUNGEON_WID/num;
 		cave_set_feat(DUNGEON_HGT - 2, x, path);
-		if ((i == pnum) && (mindir == 4) && recalled)
+		if ((i == pnum) && (mindir == 4) && jumped)
 		  {
 		    py = DUNGEON_HGT - 2;
 		    px = x;
@@ -5574,12 +5574,12 @@ static void alloc_paths(int stage, int last_stage)
 	      }
 	    
 	    /* Way back */
-	    if (west == last_stage)
+	    if ((west == last_stage) && (p_ptr->create_stair))
 	      {
 		cave_set_feat(pcoord, 1, path);
 		py = pcoord;
 		px = 1;
-		recalled = FALSE;
+		jumped = FALSE;
 
 		/* make paths to nowhere */
 		ty = py + randint (40) - 20;
@@ -5602,15 +5602,15 @@ static void alloc_paths(int stage, int last_stage)
 	    /* Decide number of paths */
 	    num = rand_range(2, 3);
 
-	    /* Where recalled player goes */
-	    pnum = randint(num);
+	    /* Where jumped player goes */
+	    pnum = rand_int(num);
 
 	    /* Place "num" paths */
 	    for (i = 0; i < num; i++)
 	      {
 		y = 1 + rand_int(DUNGEON_HGT/num - 2) + i * DUNGEON_HGT/num;
 		cave_set_feat(y, 1, path);
-		if ((i == pnum) && (mindir == 5) && recalled)
+		if ((i == pnum) && (mindir == 5) && jumped)
 		  {
 		    py = y;
 		    px = 1;
@@ -6859,8 +6859,8 @@ static void cave_gen(void)
 
 
 	/* It is possible for levels to be themed. */
-	if ((p_ptr->depth >= 20) && ((turn - old_turn) >= 1000) && 
-	    (rand_int(THEMED_LEVEL_CHANCE) == 0) && build_themed_level())
+	if ((p_ptr->depth >= 20) && (rand_int(THEMED_LEVEL_CHANCE) == 0) 
+	    && build_themed_level())
 	{
 		/* Message. */
 		if (cheat_room) msg_print("Themed level");
@@ -7231,7 +7231,7 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat, int 
   while (i != (prob - 1))
     {
       /* Avoid paths, stay in bounds */
-      if (((cave_feat[ty][tx] != base_feat1) && (cave_feat[ty][tx] != base_feat2)) || !(in_bounds_fully(ty, tx)))
+      if (((cave_feat[ty][tx] != base_feat1) && (cave_feat[ty][tx] != base_feat2)) || !(in_bounds_fully(ty, tx)) || (cave_info[ty][tx] & CAVE_ICKY))
 	return (total);
 
       /* Check for treasure */
@@ -7242,6 +7242,7 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat, int 
 
       /* Set the feature */
       cave_set_feat(ty, tx, all_feat[i]);
+      cave_info[ty][tx] |= (CAVE_ICKY);
       if ((all_feat[i] >= FEAT_MAGMA) && (all_feat[i] <= FEAT_PERM_SOLID))
 	cave_info[ty][tx] |= (CAVE_WALL);
 
@@ -7443,10 +7444,10 @@ void mtn_connect(int y, int x, int y1, int x1)
 		(!in_bounds_fully(GRID_Y(gp[j]), GRID_X(gp[j])))) break;
 	    cave_set_feat(GRID_Y(gp[j]), GRID_X(gp[j]), FEAT_FLOOR);
 	    cave_info[GRID_Y(gp[j])][GRID_X(gp[j])] |= (CAVE_ICKY);
-	    y2 = GRID_Y(gp[j]) + rand_int(3) - 1;
+	    /* y2 = GRID_Y(gp[j]) + rand_int(3) - 1;
 	    x2 =GRID_X(gp[j]) + rand_int(3) - 1;
 	    if (in_bounds_fully(y2, x2))
-	      cave_set_feat(y2, x2, FEAT_FLOOR);
+	    cave_set_feat(y2, x2, FEAT_FLOOR);*/
 	  }
 }
 
@@ -7474,13 +7475,14 @@ static void mtn_gen(void)
 	coord pathpoints[20];
 	coord nearest_point;
 	
-	int form_feats[8] = {FEAT_RUBBLE, FEAT_MAGMA, FEAT_GRASS, FEAT_TREE, FEAT_FLOOR, FEAT_NONE};
+	/* Amusing hack to make paths work */
+	int form_feats[8] = {FEAT_TRAP_HEAD, FEAT_TRAP_HEAD + 1, FEAT_TRAP_HEAD + 2, FEAT_TRAP_HEAD + 3, FEAT_FLOOR, FEAT_NONE};
 	
 	bool dummy;
 	
 	
 	
-	/* Hack -- Start with basic grass (lets alloc_paths work -NRM-) */
+	/* Hack -- Start with basic grass (lets paths work -NRM-) */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	  {
 	    for (x = 0; x < DUNGEON_WID; x++)
@@ -7554,37 +7556,28 @@ static void mtn_gen(void)
 	  }
 	
 	
-	/* Now turn grass into granite */
+	/* Make paths permanent */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	  {
 	    for (x = 0; x < DUNGEON_WID; x++)
-	      {
-		/* Create grass */
-		if (cave_feat[y][x] == FEAT_GRASS)
-		  {
-		    cave_feat[y][x] = FEAT_WALL_SOLID;
-		    cave_info[y][x] |= (CAVE_WALL);
-		  }
-		else
-		  {
-		    /* Hack - prepare for plateaux, connecting */
-		    cave_info[y][x] |= (CAVE_ICKY);
-		    floors++;
-		  }
-	      }
+	      if (cave_feat[y][x] == FEAT_FLOOR)
+		{
+		  /* Hack - prepare for plateaux, connecting */
+		  cave_info[y][x] |= (CAVE_ICKY);
+		  floors++;
+		}
 	  }
 	
-
 	/* Pick some joining points */
 	for (j = 0; j < 20; j++)
 	  randpoints[j] = rand_int(floors);
-	
 	for (y = 0; y < DUNGEON_HGT; y++)
 	  {
 	    for (x = 0; x < DUNGEON_WID; x++)
 	      {
 		if (cave_feat[y][x] == FEAT_FLOOR)
 		  floors--;
+		else continue;
 		for (j = 0; j < 20; j++)
 		  {
 		    if (floors == randpoints[j])
@@ -7601,13 +7594,13 @@ static void mtn_gen(void)
 	
 	/* Try fairly hard */
 	for (j = 0; j < 50; j++)
-	  {
+		{
 	    /* Try for a plateau */
 	    a = rand_int(6) + 4;
 	    b = rand_int(5) + 4;
 	    y = rand_int(DUNGEON_HGT - 1) + 1;
 	    x = rand_int(DUNGEON_WID - 1) + 1;
-	    made_plat = generate_starburst_room(y - b, x - a, y + b, y + a, FALSE, FEAT_GRASS, TRUE);
+	    made_plat = generate_starburst_room(y - b, x - a, y + b, y + a, FALSE, FEAT_TRAP_HEAD + 2, TRUE);
 	    
 	    /* Success ? */
 	    if (made_plat) 
@@ -7635,11 +7628,11 @@ static void mtn_gen(void)
 	
 
 
-	while (form_grids < (150 * p_ptr->depth + 1000)) 
+	while  (form_grids < 50 * (p_ptr->depth)  ) 
 	  {
 	    y = rand_int(DUNGEON_HGT - 1) + 1;
 	    x = rand_int(DUNGEON_WID - 1) + 1;
-	    form_grids += make_formation(y, x, FEAT_WALL_SOLID, FEAT_WALL_SOLID, form_feats, p_ptr->depth + 1);
+	    form_grids += make_formation(y, x, FEAT_GRASS, FEAT_GRASS, form_feats, p_ptr->depth + 1);
 	    /* Now join it up */
 	    min = DUNGEON_WID + DUNGEON_HGT;
 	    for (i = 0; i < 20; i++)
@@ -7654,6 +7647,45 @@ static void mtn_gen(void)
 	    mtn_connect(y, x, nearest_point.y, nearest_point.x);
 	    
 	  }
+
+	/* Now change all the terrain to what we really want */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	  {
+	    for (x = 0; x < DUNGEON_WID; x++)
+	      {
+		/* Create grass */
+		switch (cave_feat[y][x])
+		  {
+		  case FEAT_GRASS:
+		    {
+		      cave_set_feat(y, x, FEAT_WALL_SOLID);
+		      cave_info[y][x] |= (CAVE_WALL);
+		      break;
+		    }
+		  case FEAT_TRAP_HEAD:
+		    {
+		      cave_set_feat(y, x, FEAT_RUBBLE);
+		      break;
+		    } 
+		  case FEAT_TRAP_HEAD + 1:
+		    {
+		      cave_set_feat(y, x, FEAT_MAGMA);
+		      break;
+		    } 
+		  case FEAT_TRAP_HEAD + 2:
+		    {
+		      cave_set_feat(y, x, FEAT_GRASS);
+		      break;
+		    } 
+		  case FEAT_TRAP_HEAD + 3:
+		    {
+		      cave_set_feat(y, x, FEAT_TREE);
+		      break;
+		    } 
+		  }
+	      }
+	  }
+	
 
 	/* No longer "icky"  */
 	for (y = 0; y < DUNGEON_HGT; y++)
@@ -8999,6 +9031,9 @@ void generate_cave(void)
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
+	/* Don't know feeling yet */
+	do_feeling = FALSE;
+
 	/* Reset trap detection region for disturbance */
 	p_ptr->dtrap_x=0;
 	p_ptr->dtrap_y=0;
@@ -9125,9 +9160,6 @@ void generate_cave(void)
 		/* Hack -- Have a special feeling sometimes */
 		if (good_item_flag && !adult_preserve) feeling = 1;
 
-		/* It takes 1000 game turns for "feelings" to recharge */
-		if ((turn - old_turn) < 1000) feeling = 0;
-
 		/* Hack -- no feeling in the town */
 		if (!p_ptr->depth) feeling = 0;
 
@@ -9211,9 +9243,6 @@ void generate_cave(void)
 	/* Verify the panel */
 	verify_panel();
 
-
-	/* Remember when this level was "created" */
-	old_turn = turn;
 
 	/* Reset the number of traps, glyphs, and thefts on the level. */
 	num_trap_on_level = 0;

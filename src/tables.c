@@ -2648,7 +2648,7 @@ cptr option_text[OPT_MAX] =
 	NULL,
 	NULL,		
 	"show_piles",				/* OPT_show_piles */
-	NULL,		
+	"hp_changes_colour",		/* OPT_hp_changes_colour */
 	"show_detect",				/* OPT_show_detect */
 	"disturb_trap_detect",		/* OPT_disturb_trap_detect */
 	NULL,		NULL,		NULL,		NULL,		NULL,
@@ -2666,7 +2666,7 @@ cptr option_text[OPT_MAX] =
 	NULL,
 	"birth_point_based",		      /* OPT_birth_point_based */
 	"birth_auto_roller",		/* OPT_birth_auto_roller */
-	NULL,	 
+	"birth_take_notes",		/* OPT_birth_take_notes */	
 	"birth_preserve",		/* OPT_birth_preserve */	   
 	NULL,	 
 	NULL,
@@ -2698,7 +2698,7 @@ cptr option_text[OPT_MAX] =
 	NULL,
 	"adult_point_based",		      /* OPT_adult_point_based */
 	"adult_auto_roller",		/* OPT_adult_auto_roller */	     
-	NULL,
+	"adult_take_notes",             /* OPT_adult_take_notes */
 	"adult_preserve",		/* OPT_adult_preserve */
 	NULL,
 	NULL,
@@ -2800,7 +2800,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,
 	NULL,		
 	"Show stacks using special attr/char",		/* OPT_show_piles */
-	NULL,		
+	"Player colour indicates low hit points",	/* OPT_hp_changes_colour */	
 	"Show region affected by using detection spells", /* OPT_show_detect */
 	"Disturb when leaving last trap detect area", /* OPT_disturb_trap_detect */
 	NULL,		NULL,		NULL,		NULL,		NULL,
@@ -2816,9 +2816,9 @@ cptr option_desc[OPT_MAX] =
 	NULL,		NULL,		NULL,		NULL,		NULL,
 	NULL,
 	NULL,
-	"Birth: Use point based character generation",		 /* OPT_birth_point_based */
-	"Birth: Use Autoroller if rolling for stats",		 /* OPT_birth_auto_roller */
-	NULL,
+	"Birth: Use point based character generation", /* OPT_birth_point_based */
+	"Birth: Use Autoroller if rolling for stats",   /* OPT_birth_auto_roller */
+	"Birth: Have notes written to a file",   /* OPT_birth_take_notes */
 	"Birth: No special feelings/artifacts preserved",  /* OPT_birth_preserve */	 
 	NULL,
 	NULL,
@@ -2850,7 +2850,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,
 	"Adult: Use point based character generation",		 /* OPT_adult_point_based */
 	"Adult: Use Autoroller if rolling for stats",		 /* OPT_adult_auto_roller */
-	NULL,
+	"Adult: Have notes written to a file",   /* OPT_adult_take_notes */
 	"Adult: Artifacts preserved & no special feelings",  /* OPT_adult_preserve */	   
 	NULL,
 	NULL,
@@ -2952,7 +2952,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,
 	FALSE,		
 	FALSE,		/* OPT_show_piles */
-	FALSE,		
+	FALSE,		/* OPT_hp_changes_colour */
 	TRUE,			  /* OPT_show_detect */
 	TRUE,		/* OPT_disturb_trap_detect */
 	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
@@ -2970,7 +2970,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,
 	TRUE,		 /* OPT_birth_point_based */
 	TRUE,		 /* OPT_birth_auto_roller */
-	FALSE,
+	TRUE,    /* OPT_birth_take_notes */
 	TRUE,	/* OPT_birth_preserve */      
 	FALSE,
 	FALSE,
@@ -2999,7 +2999,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,
 	TRUE,	/* OPT_adult_point_based */
 	TRUE,	/* OPT_adult_auto_roller */
-	FALSE,
+	TRUE,   /* OPT_adult_take_notes */
 	TRUE,	/* OPT_adult_preserve */      
 	FALSE,
 	FALSE,
@@ -3053,7 +3053,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_metric,
 		OPT_show_flavors,
 		OPT_show_detect,
-		255,
+		OPT_hp_changes_colour,
 		255,
 		255
 	},
@@ -3137,8 +3137,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_birth_point_based, 
 		OPT_birth_auto_roller,	      
+		OPT_birth_take_notes,
 		OPT_birth_preserve, 
-		255,
 		255,
 		255,
 		255,

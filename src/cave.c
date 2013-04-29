@@ -1146,13 +1146,57 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Handle "player" */
 	else if ((m_idx < 0) && !(p_ptr->running && hidden_player))
 	{
-		monster_race *r_ptr = &r_info[0];
-
-		/* Get the "player" attr */
-		a = r_ptr->x_attr;
-
-		/* Get the "player" char */
-		c = r_ptr->x_char;
+	  monster_race *r_ptr = &r_info[0];
+	  
+	  /* Get the "player" attr */
+	  /*  DSV:  I've chosen the following sequence of colors to indicate
+	      the player's current HP.  There are colors are left over, but I
+	      left them in this comment for easy reference, in the likely case
+	      that I decide to change the order of color changes.
+				
+	      TERM_WHITE		90-100% of HP remaining
+	      TERM_YELLOW		70- 89% of HP remaining
+	      TERM_ORANGE		50- 69% of HP remaining
+	      TERM_L_RED		30- 49% of HP remaining
+	      TERM_RED		 0- 29% of HP remaining
+	      
+	      
+	      TERM_SLATE		_% of HP remaining
+	      TERM_UMBER		_% of HP remaining
+	      TERM_L_UMBER	_% of HP remaining
+	      TERM_BLUE		-% of HP remaining
+	      TERM_L_BLUE		-% of HP remaining
+	      TERM_GREEN		-% of HP remaining
+	      TERM_L_GREEN	-% of HP remaining
+	      TERM_DARK		-% of HP remaining
+	      TERM_L_DARK		-% of HP remaining
+	      TERM_L_WHITE	-% of HP remaining
+	      TERM_VIOLET		-% of HP remaining
+	  */
+	  
+	  if (hp_changes_colour)
+	    {
+	      switch(p_ptr->chp * 10 / p_ptr->mhp)
+		{
+		case 10:
+		case  9:	a = TERM_WHITE  ;	break;
+		case  8:
+		case  7:	a = TERM_YELLOW ;	break;
+		case  6:
+		case  5:	a = TERM_ORANGE ;	break;
+		case  4:
+		case  3:	a = TERM_L_RED  ;	break;
+		case  2:
+		case  1:
+		case  0:	a = TERM_RED    ;	break;
+		default:	a = TERM_WHITE  ;	break;
+		}
+	    }
+	  
+	  else a = r_ptr->x_attr;
+	  
+	  /* Get the "player" char */
+	  c = r_ptr->x_char;
 	}
 
 #ifdef MAP_INFO_MULTIPLE_PLAYERS

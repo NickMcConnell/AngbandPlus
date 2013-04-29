@@ -295,7 +295,10 @@ static void rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->marked);
 	
 	/* Old flags */
-	strip_bytes(12);
+	strip_bytes(8);
+
+	/* Where found */
+	rd_u32b(&o_ptr->found);
 
 	/* Monster holding object */
 	rd_s16b(&o_ptr->held_m_idx);
@@ -1067,7 +1070,7 @@ static errr rd_extra(void)
 	feeling = tmp8u;
 
 	/* Turn of last "feeling" */
-	rd_s32b(&old_turn);
+	rd_s32b(&do_feeling);
 
 	/* Current turn */
 	rd_s32b(&turn);
@@ -1106,6 +1109,56 @@ static errr rd_extra(void)
 }
 
 
+/*
+ * Read the notes. Every new savefile has at least NOTES_MARK.
+ */
+static errr rd_notes(void)
+{
+	int alive = (!p_ptr->is_dead || arg_wizard);
+	char tmpstr[100];
+
+	if (alive && adult_take_notes)
+	{
+		/* Create the tempfile (notes_file & notes_fname are global) */
+		notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
+
+		if (!notes_file)
+		{
+			note("Can't create a temporary file for notes");
+			return (-1);
+		}
+
+		/* Append the notes in the savefile to the tempfile*/
+		while (TRUE)
+		{
+
+			rd_string(tmpstr, sizeof(tmpstr));
+			/* Found the end? */
+			if (strstr(tmpstr, NOTES_MARK))
+			break;
+			fprintf(notes_file, "%s\n", tmpstr);
+		}
+
+	}
+
+	/* Ignore the notes */
+	else
+	{
+		while (TRUE)
+		{
+
+			rd_string(tmpstr, sizeof(tmpstr));
+
+			/* Found the end? */
+			if (strstr(tmpstr, NOTES_MARK))
+			{
+				break;
+			}
+		}
+	}
+
+	return 0;
+}
 
 
 /*
@@ -1799,6 +1852,15 @@ static errr rd_savefile_new_aux(void)
 	  return (25);
 
 	if (arg_fiddle) note("Loaded extra information");
+	/* Read the notes if after version 0.1.0 */
+	if (!older_than(0, 1, 1)) 
+	  if (rd_notes()) 
+	    {
+	      note("Unable to read notes");
+	      return (25);
+	    }
+
+	if (arg_fiddle) note("Loaded Notes");
 
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];

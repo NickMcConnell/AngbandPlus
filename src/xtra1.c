@@ -396,7 +396,7 @@ static void prt_sp(void)
 static void prt_depth(void)
 {
 	char loc[32];
-
+	s16b attr = TERM_L_BLUE;
 	int region, level;
 
 	region = stage_map[p_ptr->stage][LOCALITY];
@@ -409,8 +409,24 @@ static void prt_depth(void)
 	  sprintf(loc, "%s", locality_name[region]);
 	
 
+	/* Get color of level based on feeling  -JSV- */
+	if ((p_ptr->depth) && (do_feeling))
+	{
+		if (p_ptr->themed_level) attr = TERM_BLUE;
+		else if (feeling ==  1) attr = TERM_VIOLET;
+		else if (feeling ==  2) attr = TERM_RED;
+		else if (feeling ==  3) attr = TERM_L_RED;
+		else if (feeling ==  4) attr = TERM_ORANGE;
+		else if (feeling ==  5) attr = TERM_ORANGE;
+		else if (feeling ==  6) attr = TERM_YELLOW;
+		else if (feeling ==  7) attr = TERM_YELLOW;
+		else if (feeling ==  8) attr = TERM_WHITE;
+		else if (feeling ==  9) attr = TERM_WHITE;
+		else if (feeling == 10) attr = TERM_L_WHITE;
+	}
+
 	/* Right-Adjust the "depth", and clear old values */
-	c_prt(TERM_L_BLUE, format("%19s", loc), Term->hgt - 1, Term->wid - 22);
+	c_prt(attr, format("%19s", loc), Term->hgt - 1, Term->wid - 22);
 }
 
 
@@ -4300,6 +4316,18 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_HP);
 		prt_hp();
+
+		/*
+		 * hack:  redraw player, since the player's color
+		 * now indicates approximate health.  Note that
+		 * using this command when graphics mode is on
+		 * causes the character to be a black square.
+		 */
+		if (hp_changes_colour)
+		{
+		 	lite_spot(p_ptr->py, p_ptr->px);
+		}
+
 	}
 
 	if (p_ptr->redraw & (PR_MANA))
