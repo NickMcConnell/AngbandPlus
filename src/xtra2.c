@@ -3791,7 +3791,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
   
   int feat;
   
-  event_type query;
+  event_type query = EVENT_EMPTY;
   
   char out_val[160];
   
@@ -4029,7 +4029,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 		   (query.key == '*') || (query.key == '?')))
 		
 		{
-		  event_type tmp;
+		  event_type tmp = EVENT_EMPTY;
 
 		  /* Save screen */
 		  screen_save();
@@ -4360,7 +4360,7 @@ bool target_set_interactive(int mode)
 
   bool failure_message = FALSE;
 
-  event_type query;
+  event_type query = EVENT_EMPTY;
   
   char info[80];
   
@@ -4967,7 +4967,7 @@ bool get_aim_dir(int *dp)
 {
   int dir;
   
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   
   cptr p;
   
@@ -5191,7 +5191,7 @@ bool get_rep_dir(int *dp)
 {
   int dir;
   
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   
   cptr p;
   

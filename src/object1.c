@@ -1860,8 +1860,8 @@ char index_to_label(int i)
   /* Indexes for "inven" are easy */
   if (i < INVEN_WIELD) return (I2A(i));
   
-  /* Indexes for quiver slots are numeric */
-  if ((i >= INVEN_Q0) && (i <= INVEN_Q9)) return (I2A(A2I('0') + i - INVEN_Q0));
+  /* Indexes for quiver slots are no longer numeric */
+  if ((i >= INVEN_Q0) && (i <= INVEN_Q9)) return (I2A(A2I('n') + i - INVEN_Q0));
   
   /* Indexes for other "equip" are offset */
   return (I2A(i - INVEN_WIELD));
@@ -1898,19 +1898,13 @@ s16b label_to_equip(int c)
 {
   int i;
   
-  /* Hack -- handle quiver slots. */
-  if (isdigit(c)) i = (D2I(c) + INVEN_Q0);
-  
   /* Convert */
-  else
-    {
-      i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
-    }
+  i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
   
   /* Verify the index */
-  if ((i < INVEN_WIELD) || (i >= INVEN_SUBTOTAL)) return (-1);
-  
-  
+  if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL) || (i == INVEN_BLANK)) 
+    return (-1);
+    
   /* Empty slots can never be chosen */
   if (!inventory[i].k_idx) return (-1);
   
@@ -3974,6 +3968,7 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops)
 	    if (verify && !verify_item("Try", k))
 	      {
 		    done = TRUE;
+		    evt.type = EVT_ESCAPE;
 		    break;
 	      }
 	    

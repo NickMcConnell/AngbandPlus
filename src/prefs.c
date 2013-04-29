@@ -850,7 +850,7 @@ errr process_pref_file_command(char *buf)
 
 		text_to_ascii(tmp, sizeof(tmp), zz[1]);
 		if (!tmp[0] || tmp[1]) return (1);
-		i = (long)tmp[0];
+		i = (byte)tmp[0];
 
 		string_free(keymap_act[mode][i]);
 

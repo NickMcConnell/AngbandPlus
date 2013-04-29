@@ -791,7 +791,8 @@ void teleport_player_level(bool friendly)
   /* Remember where we came from */
   p_ptr->last_stage = p_ptr->stage;
   
-  if (stage_map[p_ptr->stage][STAGE_TYPE] == CAVE)
+  if ((stage_map[p_ptr->stage][STAGE_TYPE] == CAVE) && 
+      (p_ptr->stage != 255))
     {
       if (is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN]))
 	{
@@ -893,6 +894,8 @@ void teleport_player_level(bool friendly)
     {
       if (p_ptr->stage == 255)
 	{
+	  message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+	  
 	  /* New stage */
 	  p_ptr->stage = stage_map[p_ptr->stage][UP];
 	  
@@ -904,6 +907,8 @@ void teleport_player_level(bool friendly)
 
       else if (p_ptr->stage == 256)
 	{
+	  message(MSG_TPLEVEL, 0, "You plunge downward.");
+	  
 	  /* New stage */
 	  p_ptr->stage = stage_map[p_ptr->stage][DOWN];
 	  

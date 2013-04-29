@@ -45,7 +45,7 @@
  * 1/chance of being a themed level - higher in wilderness -NRM-
  */
 #define THEMED_LEVEL_CHANCE  (stage_map[p_ptr->stage][STAGE_TYPE] == CAVE \
-			      ? 180 : 70)
+			      ? 180 : 1)
 
 
 /*
@@ -6661,9 +6661,6 @@ static bool build_themed_level(void)
   /* Now have a feeling */
   do_feeling = TRUE;
   
-  /* Announce feeling */
-  do_cmd_feeling();
-  
   /* Update the level indicator */
   p_ptr->redraw |= (PR_DEPTH);
     
@@ -10232,6 +10229,7 @@ static void town_gen(void)
   int width = qx;
   
   bool daytime;
+  bool dummy;
   bool cave = FALSE;
   
   /* Hack - some towns are underground */
@@ -10303,6 +10301,9 @@ static void town_gen(void)
   /* Apply illumination */
   town_illuminate(daytime, cave);
   
+  /* Remove restrictions */
+  (void)mon_restrict('\0', 0, &dummy, FALSE);
+
   /* Make some residents */
   for (i = 0; i < residents; i++)
     {

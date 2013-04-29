@@ -1511,7 +1511,7 @@ void do_cmd_locate(void)
       /* Get a direction */
       while (!dir)
 	{
-	  event_type ke;
+	  event_type ke = EVENT_EMPTY;
 	  
 	  /* Get a command (or Cancel) */
 	  if (!get_com_ex(out_val, &ke)) break;
@@ -1761,63 +1761,6 @@ void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 
 
 /*
- * Hack -- Display the "name" and "attr/chars" of a monster race
- */
-static void roff_top(int r_idx)
-{
-  monster_race *r_ptr = &r_info[r_idx];
-  
-  byte a1, a2;
-  char c1, c2;
-  
-  
-  /* Access the chars */
-  c1 = r_ptr->d_char;
-  c2 = r_ptr->x_char;
-  
-  /* Access the attrs */
-  a1 = r_ptr->d_attr;
-  a2 = r_ptr->x_attr;
-  
-  
-  /* Clear the top line */
-  Term_erase(0, 0, 255);
-  
-  /* Reset the cursor */
-  Term_gotoxy(0, 0);
-  
-  /* A title (use "The" for non-uniques) */
-  if (!(r_ptr->flags1 & (RF1_UNIQUE)))
-    {
-      Term_addstr(-1, TERM_WHITE, "The ");
-    }
-  
-  /* Special title for Player ghosts. */
-  if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
-    {
-      Term_addstr(-1, TERM_WHITE, format("%s, the ", ghost_name));
-    }
-  
-  /* Dump the name */
-  Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
-  
-  if (!use_dbltile && !use_trptile)
-    {
-      /* Append the "standard" attr/char info */
-      Term_addstr(-1, TERM_WHITE, " ('");
-      Term_addch(a1, c1);
-      Term_addstr(-1, TERM_WHITE, "')");
-      
-      /* Append the "optional" attr/char info */
-      Term_addstr(-1, TERM_WHITE, "/('");
-      Term_addch(a2, c2);
-      if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
-      Term_addstr(-1, TERM_WHITE, "'):");
-    }
-}
-
-
-/*
  * Identify a character, allow recall of monsters
  *
  * Several "special" responses recall "mulitple" monsters:
@@ -1833,7 +1776,7 @@ void do_cmd_query_symbol(void)
   int i, j, n, r_idx;
   int start = 0, last_level = 0;
   char sym;
-  event_type query;
+  event_type query = EVENT_EMPTY;
   char search_str[60] = "";
   char monster_name[80];
   char buf[128];

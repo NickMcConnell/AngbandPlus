@@ -2033,7 +2033,6 @@ cptr spell_names[255] =
     "Slow Monster",
     "Teleport Other",
     "Haste Self",
-    "Rune of Magic Influence",
     "Hold Monsters",
    
     /* Magical Defence (sval 4) */
@@ -2070,6 +2069,7 @@ cptr spell_names[255] =
    
     /* Book of Runes (sval 8) */
     "Rune of the Elements",					/* index 58 */
+    "Rune of Magic Influence",
     "Rune of Instability",
     "Rune of Mana",
     "Rune of Protection",

@@ -541,7 +541,7 @@ static void process_world(void)
   
   /* Hack - see if there is already a player ghost on the level */
   if (bones_selector) was_ghost=TRUE;
-  
+
   /* Check for creature generation, except on themed levels */
   if ((rand_int(MAX_M_ALLOC_CHANCE) == 0) && (!p_ptr->themed_level))
     {

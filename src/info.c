@@ -1010,10 +1010,13 @@ extern void display_ammo_damage(object_type *o_ptr)
 	  output_ammo_dam(o_ptr, slay[i], slayee[i], &first, perfect);
 
       for (i = 0; i < MAX_P_BRAND; i++)
-	if (brand[i] > MULTIPLE_BASE)
-	  output_ammo_dam(o_ptr, brand[i], 
-			  format("non %s resistant creatures", brandee[i]),
-			  &first, perfect);
+	if (brand[i] > MULTIPLE_BASE) 
+	  {
+	    char buf[40];
+
+	    strnfmt(buf, sizeof(buf), "non %s resistant creatures", brandee[i]);
+	    output_ammo_dam(o_ptr, brand[i], buf, &first, perfect);
+	  }
       
       output_ammo_dam(o_ptr, MULTIPLE_BASE, (first) ? "all monsters" : 
 		      "other monsters", 

@@ -277,7 +277,7 @@ void show_cmd_menu(bool object)
   menu_iter commands_menu = { 0, show_tag, 0, show_display, show_action };
   region area = { 0, (object ? 2 : 1), 20, 0 };
   
-  event_type evt;
+  event_type evt = EVENT_EMPTY;
   int cursor = 0;
   
   /* Size of menu */
@@ -1881,7 +1881,7 @@ static bool cmd_menu(command_list *list, void *selection_p)
   menu_iter commands_menu = { 0, 0, 0, cmd_sub_entry, cmd_sub_action };
   region area = { 24, 4, 37, 15 };
   
-  event_type evt;
+  event_type evt = EVENT_EMPTY;
   int cursor = 0;
   command_type *selection = selection_p;
   
@@ -1947,7 +1947,7 @@ static void do_cmd_menu(void)
   menu_iter commands_menu = { 0, 0, 0, cmd_list_entry, cmd_list_action };
   region area = { 20, 5, 37, 6 };
   
-  event_type evt;
+  event_type evt = EVENT_EMPTY;
   int cursor = 0;
   command_type chosen_command = { NULL, 0, NULL };
 

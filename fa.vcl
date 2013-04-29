@@ -7,7 +7,7 @@
 </h3>
 <h3>Command Lines</h3>
 Creating command line "rc.exe /l 0x409 /fo"ARMV4Rel/angband.res" /i "src" /d UNDER_CE=420 /d _WIN32_WCE=420 /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "WIN32_PLATFORM_PSPC=400" /d "ARM" /d "_ARM_" /d "ARMV4" /r "C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\angband.rc"" 
-Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSPCEBA.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP1B.tmp" with contents
 [
 /nologo /W3 /D _WIN32_WCE=420 /D "WIN32_PLATFORM_PSPC=400" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=420 /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /FR"ARMV4Rel/" /Fp"ARMV4Rel/FA.pch" /YX /Fo"ARMV4Rel/" /O2 /MC /c 
 "C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\angbandcw.c"
@@ -61,8 +61,8 @@ Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSPCEBA.tmp" with content
 "C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\z-util.c"
 "C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\z-virt.c"
 ]
-Creating command line "clarm.exe @C:\DOCUME~1\Jim\LOCALS~1\Temp\RSPCEBA.tmp" 
-Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSPCEBB.tmp" with contents
+Creating command line "clarm.exe @C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP1B.tmp" 
+Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP1C.tmp" with contents
 [
 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /incremental:no /pdb:"ARMV4Rel/FA.pdb" /nodefaultlib:"libc.lib /nodefaultlib:libcd.lib /nodefaultlib:libcmt.lib /nodefaultlib:libcmtd.lib /nodefaultlib:msvcrt.lib /nodefaultlib:msvcrtd.lib" /out:"ARMV4Rel/FA.exe" /subsystem:windowsce,4.20 /align:"4096" /MACHINE:ARM 
 ".\ARMV4Rel\angbandcw.obj"
@@ -117,7 +117,7 @@ commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,
 ".\ARMV4Rel\z-virt.obj"
 ".\ARMV4Rel\angband.res"
 ]
-Creating command line "link.exe @C:\DOCUME~1\Jim\LOCALS~1\Temp\RSPCEBB.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP1C.tmp"
 <h3>Output Window</h3>
 Compiling resources...
 Compiling...
@@ -136,7 +136,7 @@ C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\cmd1.c(384) : wa
 cmd2.c
 cmd3.c
 C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\cmd3.c(519) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
-C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\cmd3.c(2502) : warning C4018: '<' : signed/unsigned mismatch
+C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\cmd3.c(2445) : warning C4018: '<' : signed/unsigned mismatch
 cmd4.c
 C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\cmd4.c(758) : warning C4090: 'function' : different 'const' qualifiers
 C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\cmd4.c(758) : warning C4022: 'rnfree' : pointer mismatch for actual parameter 1
@@ -160,9 +160,9 @@ c:\documents and settings\jim\my documents\nick\face100beta\src\emulfunc.c(990) 
 c:\documents and settings\jim\my documents\nick\face100beta\src\emulfunc.c(990) : warning C4024: 'RegSetValueExW' : different types for formal and actual parameter 3
 c:\documents and settings\jim\my documents\nick\face100beta\src\emulfunc.c(967) : warning C4101: 'checkStr' : unreferenced local variable
 files.c
-c:\documents and settings\jim\my documents\nick\face100beta\src\files.c(2542) : warning C4018: '<' : signed/unsigned mismatch
-c:\documents and settings\jim\my documents\nick\face100beta\src\files.c(3336) : warning C4013: 'fake_time' undefined; assuming extern returning int
-c:\documents and settings\jim\my documents\nick\face100beta\src\files.c(4538) : warning C4142: benign redefinition of type
+c:\documents and settings\jim\my documents\nick\face100beta\src\files.c(2535) : warning C4018: '<' : signed/unsigned mismatch
+c:\documents and settings\jim\my documents\nick\face100beta\src\files.c(3329) : warning C4013: 'fake_time' undefined; assuming extern returning int
+c:\documents and settings\jim\my documents\nick\face100beta\src\files.c(4531) : warning C4142: benign redefinition of type
 generate.c
 info.c
 init1.c
@@ -228,18 +228,18 @@ save.c
 c:\documents and settings\jim\my documents\nick\face100beta\src\save.c(1048) : warning C4244: 'function' : conversion from 'unsigned long ' to 'unsigned short ', possible loss of data
 c:\documents and settings\jim\my documents\nick\face100beta\src\save.c(1049) : warning C4244: 'function' : conversion from 'unsigned long ' to 'unsigned short ', possible loss of data
 spells1.c
-C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\spells1.c(1346) : warning C4244: 'return' : conversion from 'long ' to 'unsigned char ', possible loss of data
+C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\spells1.c(1351) : warning C4244: 'return' : conversion from 'long ' to 'unsigned char ', possible loss of data
 spells2.c
 C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\spells2.c(916) : warning C4018: '<' : signed/unsigned mismatch
-C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\spells2.c(2500) : warning C4244: '=' : conversion from 'unsigned long ' to 'unsigned char ', possible loss of data
+C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\spells2.c(2501) : warning C4244: '=' : conversion from 'unsigned long ' to 'unsigned char ', possible loss of data
 squelch.c
 C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\squelch.c(891) : warning C4018: '<' : signed/unsigned mismatch
 store.c
 tables.c
 ui.c
 util.c
-C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\util.c(3546) : warning C4550: expression evaluates to a function which is missing an argument list
-C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\util.c(4487) : warning C4244: '=' : conversion from 'short ' to 'char ', possible loss of data
+C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\util.c(3536) : warning C4550: expression evaluates to a function which is missing an argument list
+C:\Documents and Settings\Jim\My Documents\Nick\face100beta\src\util.c(4477) : warning C4244: '=' : conversion from 'short ' to 'char ', possible loss of data
 variable.c
 wizard1.c
 wizard2.c
@@ -262,7 +262,7 @@ z-type.c
 z-util.c
 z-virt.c
 Linking...
-Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSPD0DD.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP1F.tmp" with contents
 [
 /nologo /o"ARMV4Rel/FA.bsc" 
 ".\ARMV4Rel\angbandcw.sbr"
@@ -315,7 +315,7 @@ Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSPD0DD.tmp" with content
 ".\ARMV4Rel\z-type.sbr"
 ".\ARMV4Rel\z-util.sbr"
 ".\ARMV4Rel\z-virt.sbr"]
-Creating command line "bscmake.exe @C:\DOCUME~1\Jim\LOCALS~1\Temp\RSPD0DD.tmp"
+Creating command line "bscmake.exe @C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP1F.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 

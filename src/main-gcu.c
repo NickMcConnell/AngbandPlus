@@ -1,71 +1,49 @@
-/* File: main-gcu.c */
-
 /*
+ * File: main-gcu.c
+ * Purpose: Support for "curses" systems
+ *
  * Copyright (c) 1997 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
-
-
-/*
- * This file helps Angband run on Unix/Curses machines.
- *
- *
- * To use this file, you must define "USE_GCU" in the Makefile.
- *
- *
- * Hack -- note that "angband.h" is included AFTER the #ifdef test.
- * This was necessary because of annoying "curses.h" silliness.
- *
- * Note that this file is not "intended" to support non-Unix machines,
- * nor is it intended to support VMS or other bizarre setups.
- *
- * Also, this package assumes that the underlying "curses" handles both
- * the "nonl()" and "cbreak()" commands correctly, see the "OPTION" below.
- *
- * This code should work with most versions of "curses" or "ncurses",
- * and the "main-ncu.c" file (and USE_NCU define) are no longer used.
- *
- * See also "USE_CAP" and "main-cap.c" for code that bypasses "curses"
- * and uses the "termcap" information directly, or even bypasses the
- * "termcap" information and sends direct vt100 escape sequences.
- *
- * This file provides up to 4 term windows.
- *
- * This file will attempt to redefine the screen colors to conform to
- * standard Angband colors.  It will only do so if the terminal type
- * indicates that it can do so.
- *
- * Consider the use of "savetty()" and "resetty()".  XXX XXX XXX
- */
-
-
 #include "angband.h"
-#include "main.h"
 
 
 #ifdef USE_GCU
 
-/*
- * Hack -- play games with "bool"
- */
-#undef bool
+#include "main.h"
+
+
+/* Avoid 'struct term' name conflict with <curses.h> (via <term.h>) on AIX */
+#define term System_term
+
 
 /*
  * Include the proper "header" file
  */
 #ifdef USE_NCURSES
+# ifdef HAVE_STDBOOL_H
+#  define NCURSES_ENABLE_STDBOOL_H 0
+# endif
+
 # include <ncurses.h>
 #else
 # include <curses.h>
 #endif
 
-/*
- * Try redefining the colors at startup.
- */
-#define REDEFINE_COLORS
+#include <term.h>
+
+#undef term
+
 
 
 /*
@@ -73,15 +51,17 @@
  */
 #define USE_TPOSIX
 
+
 /*
- * Hack -- Amiga uses "fake curses" and cannot do any of this stuff
+ * Hack -- Windows Console mode uses PDCURSES and cannot do any terminal stuff
+ * Hack -- Windows needs Sleep(), and I really don't want to pull in all
+ *         the Win32 headers for this one function
  */
-#if defined(AMIGA)
+#if defined(WIN32_CONSOLE_MODE)
 # undef USE_TPOSIX
+_stdcall void Sleep(int);
+#define usleep(v) Sleep(v / 1000)
 #endif
-
-
-
 
 /*
  * POSIX stuff
@@ -90,58 +70,22 @@
 # include <termios.h>
 #endif
 
-/*
- * OPTION: Use old BSD curses.
- *
- * Some versions of curses does things a bit differently.
- *
- * If you have an old BSD 4.4 version of curses that isn't
- * XSI Curses standard compatible enable this.
- */
-/* #define USE_OLD_CURSES */
 
 
 /*
- * Turn on options that are available in modern curses.
- */
-#if defined (USE_OLD_CURSES)
-/* Nothing */
-#else
-# define USE_GETCH
-# define USE_CURS_SET
-#endif
-
-/*
- * You might want to turn on some of the options below this line
- * if you had to turn on USE_OLD_CURSES
- */
+ * If you have errors relating to curs_set(), comment out the following line
+ */ 
+#define USE_CURS_SET
 
 
 /*
- * OPTION: Use "blocking getch() calls" in "main-gcu.c".
- */
-/* #define USE_GETCH */
-
-/*
- * OPTION: Use the "curs_set()" call in "main-gcu.c".
- */
-/* #define USE_CURS_SET */
-
-
-
-/*
- * OPTION: some machines lack "cbreak()"
- * On these machines, we use an older definition
+ * If you have errors with any of the functions mentioned below, try
+ * uncommenting the line it's mentioned on.
  */
 /* #define cbreak() crmode() */
-
-
-/*
- * OPTION: some machines cannot handle "nonl()" and "nl()"
- * On these machines, we can simply ignore those commands.
- */
 /* #define nonl() */
 /* #define nl() */
+
 
 
 /*
@@ -151,42 +95,42 @@
 #ifdef USE_TPOSIX
 
 static struct termios  norm_termios;
-
 static struct termios  game_termios;
 
 #endif
 
+/*
+ * The TERM environment variable; used for terminal capabilities.
+ */
+static char *termtype;
+static bool loaded_terminfo;
 
-
-static bool           split_window=TRUE;
 
 /*
  * Information about a term
  */
-typedef struct term_data term_data;
-
-struct term_data
+typedef struct term_data
 {
 	term t;                 /* All term info */
-
 	WINDOW *win;            /* Pointer to the curses window */
-};
+} term_data;
 
 /* Max number of windows on screen */
 #define MAX_TERM_DATA 4
 
-/* minimum dimensions to split into multiple windows */
-#define MIN_ROWS_SPLIT 30
-#define MIN_COLS_SPLIT 105
-
 /* Information about our windows */
 static term_data data[MAX_TERM_DATA];
 
-
-/*
- * Hack -- Number of initialized "term" structures
- */
+/* Number of initialized "term" structures */
 static int active = 0;
+
+
+#ifdef A_ALTCHARSET
+
+/* Whether or not to use the special ACS characters */
+static int use_alt_charset = 1;
+
+#endif
 
 
 #ifdef A_COLOR
@@ -212,7 +156,25 @@ static int can_fix_color = FALSE;
 /*
  * Simple Angband to Curses color conversion table
  */
-static int colortable[16];
+static int colortable[BASIC_COLORS];
+
+/*
+ * Background color we should draw with; either BLACK or DEFAULT
+ */
+static int bg_color = COLOR_BLACK;
+
+/*
+ * Lookup table for the "alternate character set".
+ *
+ * It's worth noting that curses already has this, as an undocumented
+ * (but exported) internal variable named acs_map.  I wish I could use
+ * it.
+ */
+static unsigned int acs_table[32] = {
+	0, '*', '#', '?', '?', '?', '?', '\'', '+', '?', '?', '+',
+	'+', '+', '+', '+', '~', '-', '-', '-', '_', '+', '+', '+',
+	'+', '|', '?', '?', '?', '?', '?', '.'
+};
 
 #endif
 
@@ -231,6 +193,7 @@ static void keymap_norm(void)
 
 #endif
 
+
 }
 
 
@@ -246,7 +209,6 @@ static void keymap_game(void)
 	(void)tcsetattr(0, TCSAFLUSH, &game_termios);
 
 #endif
-
 }
 
 
@@ -283,6 +245,11 @@ static void keymap_game_prepare(void)
 	/* Force "Ctrl-Z" to suspend */
 	game_termios.c_cc[VSUSP] = (char)26;
 
+#ifdef VDSUSP
+	/* Hack -- disable "Ctrl-Y" on *BSD */
+	game_termios.c_cc[VDSUSP] = (char)-1;
+#endif
+
 	/* Hack -- Leave "VSTART/VSTOP" alone */
 
 	/* Disable the standard control characters */
@@ -296,7 +263,11 @@ static void keymap_game_prepare(void)
 	game_termios.c_cc[VMIN] = 1;
 	game_termios.c_cc[VTIME] = 0;
 
+	/* Turn off flow control (enable ^S) */
+	game_termios.c_iflag &= ~IXON;
+
 #endif
+
 
 }
 
@@ -362,13 +333,11 @@ static errr Term_xtra_gcu_alive(int v)
 }
 
 
-
-
-#ifdef USE_NCURSES
-const char help_gcu[] = "NCurses, for terminal console, subopts -b(ig screen)";
-#else /* USE_NCURSES */
-const char help_gcu[] = "Curses, for terminal console, subopts -b(ig screen)";
-#endif /* USE_NCURSES */
+#ifdef A_ALTCHARSET
+const char help_gcu[] = "Text mode, subopts -b(ig screen) -a(scii) -g(raphics)";
+#else
+const char help_gcu[] = "Text mode, subopts -b(ig screen)";
+#endif
 
 
 /*
@@ -378,13 +347,11 @@ static void Term_init_gcu(term *t)
 {
 	term_data *td = (term_data *)(t->data);
 
-#ifdef USE_GETCH
 	/*
 	 * This is necessary to keep the first call to getch()
 	 * from clearing the screen
 	 */
 	wrefresh(stdscr);
-#endif /* USE_GETCH */
 
 	/* Count init's, handle first */
 	if (active++ != 0) return;
@@ -447,8 +414,6 @@ static void Term_nuke_gcu(term *t)
 
 
 
-#ifdef USE_GETCH
-
 /*
  * Process events, with optional wait
  */
@@ -490,6 +455,29 @@ static errr Term_xtra_gcu_event(int v)
 		if (i == EOF) return (1);
 	}
 
+#ifdef KEY_DOWN
+	/* Handle arrow keys */
+	switch (i)
+	{
+		case KEY_DOWN:  i = ARROW_DOWN;  break;
+		case KEY_UP:    i = ARROW_UP;    break;
+		case KEY_LEFT:  i = ARROW_LEFT;  break;
+		case KEY_RIGHT: i = ARROW_RIGHT; break;
+		default:
+			if (i < KEY_MIN) break;
+
+			/* Mega-Hack -- Fold, spindle, and mutilate
+			 * the keys to fit in 7 bits.
+			 */
+
+			if (i >= 252) i = KEY_F(63) - (i - 252);
+			if (i >= ARROW_DOWN) i += 4;
+
+			i = 128 + (i & 127);
+			break;
+	}
+#endif
+
 	/* Enqueue the keypress */
 	Term_keypress(i);
 
@@ -497,78 +485,56 @@ static errr Term_xtra_gcu_event(int v)
 	return (0);
 }
 
-#else	/* USE_GETCH */
 
-/*
- * Process events (with optional wait)
- */
-static errr Term_xtra_gcu_event(int v)
+void set_256color_table(int i, int fg)
 {
-	int i, k;
-
-	char buf[2];
-
-	/* Wait */
-	if (v)
-	{
-		/* Wait for one byte */
-		i = read(0, buf, 1);
-
-		/* Hack -- Handle bizarre "errors" */
-		if ((i <= 0) && (errno != EINTR)) exit_game_panic();
-	}
-
-	/* Do not wait */
-	else
-	{
-		/* Get the current flags for stdin */
-		k = fcntl(0, F_GETFL, 0);
-
-		/* Oops */
-		if (k < 0) return (1);
-
-		/* Tell stdin not to block */
-		if (fcntl(0, F_SETFL, k | O_NONBLOCK) < 0) return (1);
-
-		/* Read one byte, if possible */
-		i = read(0, buf, 1);
-
-		/* Replace the flags for stdin */
-		if (fcntl(0, F_SETFL, k)) return (1);
-	}
-
-	/* Ignore "invalid" keys */
-	if ((i != 1) || (!buf[0])) return (1);
-
-	/* Enqueue the keypress */
-	Term_keypress(buf[0]);
-
-	/* Success */
-	return (0);
+	init_pair(16 + i, fg, bg_color);
+	colortable[i] = COLOR_PAIR(16 + i) | A_BRIGHT;
 }
 
-#endif	/* USE_GETCH */
 
 /*
  * React to changes
  */
 static errr Term_xtra_gcu_react(void)
 {
+
 #ifdef A_COLOR
 
 	int i;
 
-	/* Cannot handle color redefinition */
-	if (!can_fix_color) return (0);
-
-	/* Set the colors */
-	for (i = 0; i < 16; i++)
+	if (can_fix_color)
 	{
-		/* Set one color (note scaling) */
-		init_color(i, angband_color_table[i][1] * 1000 / 255,
-		              angband_color_table[i][2] * 1000 / 255,
-		              angband_color_table[i][3] * 1000 / 255);
+		/* Initialize the curses colors to our own RGB definitions */
+		for (i = 0; i < BASIC_COLORS; i++)
+		{
+			/* Set one color (note scaling) */
+			init_color(i, angband_color_table[i][1] * 1000 / 255,
+						  angband_color_table[i][2] * 1000 / 255,
+						  angband_color_table[i][3] * 1000 / 255);
+		}
 	}
+	else if(COLORS == 256)
+	{
+		/* If we have 256 colors, find the best matches */
+		set_256color_table(0, 0);    /* black */
+		set_256color_table(1, 15);   /* white */
+		set_256color_table(2, 246);  /* grey */
+		set_256color_table(3, 208);  /* orange */
+		set_256color_table(4, 1);    /* red */
+		set_256color_table(5, 28);    /* green */
+		set_256color_table(6, 20);    /* blue */
+		set_256color_table(7, 130);  /* umber */
+		set_256color_table(8, 242);  /* dark-grey */
+		set_256color_table(9, 250);  /* light-grey */
+		set_256color_table(10, 91);  /* purple */
+		set_256color_table(11, 11);  /* yellow */
+		set_256color_table(12, 204);   /* light red */
+		set_256color_table(13, 40);  /* light green */
+		set_256color_table(14, 32);  /* light blue */
+		set_256color_table(15, 136); /* light umber */
+	}
+	/* TODO: figure out how 88-color terminals work */
 
 #endif
 
@@ -595,7 +561,8 @@ static errr Term_xtra_gcu(int n, int v)
 
 		/* Make a noise */
 		case TERM_XTRA_NOISE:
-		(void)write(1, "\007", 1);
+		if (write(1, "\007", 1) != 1)
+			return (1);
 		return (0);
 
 		/* Flush the Curses buffer */
@@ -664,7 +631,6 @@ static errr Term_curs_gcu(int x, int y)
 static errr Term_wipe_gcu(int x, int y, int n)
 {
 	term_data *td = (term_data *)(Term->data);
-	char buf[1024];
 
 	/* Place cursor */
 	wmove(td->win, y, x);
@@ -678,11 +644,7 @@ static errr Term_wipe_gcu(int x, int y, int n)
 	/* Clear some characters */
 	else
 	{
-		/* Format a buffer */
-		strnfmt(buf, sizeof(buf), "%*c", n, ' ');
-
-		/* Output */
-		waddstr(td->win, buf);
+		whline(td->win, ' ', n);
 	}
 
 	/* Success */
@@ -693,43 +655,61 @@ static errr Term_wipe_gcu(int x, int y, int n)
 /*
  * Place some text on the screen using an attribute
  */
-static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
+static errr Term_text_gcu(int x, int y, int n, byte a, char *s)
 {
 	term_data *td = (term_data *)(Term->data);
-	char buf[1024];
 
 #ifdef A_COLOR
 	/* Set the color */
-	if (can_use_color) wattrset(td->win, colortable[a & 0x0F]);
+	if (can_use_color) wattrset(td->win, colortable[a & (BASIC_COLORS-1)]);
 #endif
 
 	/* Move the cursor */
 	wmove(td->win, y, x);
 
-	/* Format to appropriate size */
-	strnfmt(buf, sizeof(buf), "%.*s", n, s);
-
 	/* Write to screen */
-	waddstr(td->win, buf);
+	while (n--) {
+		unsigned int c = (unsigned char) *(s++);
 
-#ifdef A_COLOR
+		/* Map high-bit characters down using the $TERM-specific
+		 * alternate character set.
+		 */
+
+#ifdef A_ALTCHARSET
+		if (c < 32) c = acs_table[c];
+#endif
+
+		if ((c & 255) < ' ' || (c & 255) == 127) {
+			/* Hack - replace non-ASCII characters to
+			 * avoid display glitches in selectors.
+			 *
+			 * Note that we do this after the ACS mapping,
+			 * because the display glitches we are avoiding
+			 * are in curses itself.
+			 */
+			waddch(td->win, '?');
+		} else
+			waddch(td->win, c);
+	}
+
+#if defined(A_COLOR)
 	/* Unset the color */
-	if (can_use_color) wattrset(td->win, 0);
+	if (can_use_color) wattrset(td->win, A_NORMAL);
 #endif
 
 	/* Success */
 	return (0);
 }
 
+
 /*
  * Create a window for the given "term_data" argument.
+ *
+ * Assumes legal arguments.
  */
-static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, int i)
+static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
 {
 	term *t = &td->t;
-
-	/* Check window size */
-	if (rows <= 0 || cols <= 0) return (0);
 
 	/* Create new window */
 	td->win = newwin(rows, cols, y, x);
@@ -767,19 +747,6 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 	/* Activate it */
 	Term_activate(t);
 
-	/* Reset map size if required */
-	if (i == 0)
-	{
-		/* Mega-Hack -- no panel yet */
-		panel_row_min = 0;
-		panel_row_max = 0;
-		panel_col_min = 0;
-		panel_col_max = 0;
-
-		/* Reset the panels */
-		verify_panel();
-	}
-
 	/* Success */
 	return (0);
 }
@@ -803,36 +770,49 @@ static void hook_quit(cptr str)
  *
  * Someone should really check the semantics of "initscr()"
  */
-errr init_gcu(int argc, char *argv[])
+errr init_gcu(int argc, char **argv)
 {
 	int i;
 
 	int num_term = MAX_TERM_DATA, next_win = 0;
 
+	bool use_big_screen = FALSE;
+
+	/* Initialize info about terminal capabilities */
+	termtype = getenv("TERM");
+	loaded_terminfo = termtype && tgetent(0, termtype) == 1;
+
+	/* Let's learn about our terminal */
+	use_alt_charset = loaded_terminfo && tgetstr("acs_chars", NULL);
+
 	/* Parse args */
 	for (i = 1; i < argc; i++)
 	{
-		if (prefix(argv[i], "-x"))
-		{
-		        split_window=FALSE;
-			continue;
-		}
+		if (prefix(argv[i], "-b"))
+			use_big_screen = TRUE;
 
-		plog_fmt("Ignoring option: %s", argv[i]);
+#ifdef A_ALTCHARSET
+		else if (prefix(argv[i], "-a"))
+			use_alt_charset = 0;
+		else if (prefix(argv[i], "-g"))
+			use_alt_charset = 1;
+#endif
+
+		else
+			plog_fmt("Ignoring option: %s", argv[i]);
 	}
-
 
 	/* Extract the normal keymap */
 	keymap_norm_prepare();
 
+	/* We do it like this to prevent a link error with curseses that
+	 * lack ESCDELAY.
+	 */
+	if (!getenv("ESCDELAY"))
+		putenv("ESCDELAY=20");
 
-#if defined(USE_OLD_CURSES)
-	/* Initialize for old BSD 4.4 curses */
-	if (initscr() == (WINDOW*)ERR) return (-1);
-#else
-	/* Initialize for standard curses */
+	/* Initialize */
 	if (initscr() == NULL) return (-1);
-#endif
 
 	/* Activate hooks */
 	quit_aux = hook_quit;
@@ -843,19 +823,28 @@ errr init_gcu(int argc, char *argv[])
 		quit("Angband needs at least an 80x24 'curses' screen");
 	}
 
+
 #ifdef A_COLOR
 
 	/*** Init the Color-pairs and set up a translation table ***/
 
 	/* Do we have color, and enough color, available? */
 	can_use_color = ((start_color() != ERR) && has_colors() &&
-	                 (COLORS >= 8) && (COLOR_PAIRS >= 8));
+					 (COLORS >= 8) && (COLOR_PAIRS >= 8));
 
-#ifdef REDEFINE_COLORS
+#ifdef HAVE_USE_DEFAULT_COLORS
+
+	/* Should we use curses' "default color" */
+	if(use_default_colors() == OK)
+		bg_color = -1;
+
+#endif
+
+#ifdef HAVE_CAN_CHANGE_COLOR
 
 	/* Can we change colors? */
 	can_fix_color = (can_use_color && can_change_color() &&
-	                 (COLORS >= 16) && (COLOR_PAIRS > 8));
+	                 orig_colors && (COLORS >= 16) && (COLOR_PAIRS > 8));
 
 #endif
 
@@ -863,20 +852,20 @@ errr init_gcu(int argc, char *argv[])
 	if (can_fix_color)
 	{
 		/* Prepare the color pairs */
-		for (i = 1; i <= 8; i++)
+		for (i = 0; i < (BASIC_COLORS / 2); i++)
 		{
 			/* Reset the color */
-			if (init_pair(i, i - 1, 0) == ERR)
+			if (init_pair(i + 1, i, bg_color) == ERR)
 			{
 				quit("Color pair init failed");
 			}
 
 			/* Set up the colormap */
-			colortable[i - 1] = (COLOR_PAIR(i) | A_NORMAL);
-			colortable[i + 7] = (COLOR_PAIR(i) | A_BRIGHT);
+			colortable[i] = (COLOR_PAIR(i + 1) | A_NORMAL);
+			colortable[i + (BASIC_COLORS / 2)] = (COLOR_PAIR(i + 1) | A_BRIGHT);
 		}
 
-		/* XXX XXX XXX Take account of "gamma correction" */
+		/* Take account of "gamma correction" XXX XXX XXX */
 
 		/* Prepare the "Angband Colors" */
 		Term_xtra_gcu_react();
@@ -888,25 +877,25 @@ errr init_gcu(int argc, char *argv[])
 		/* Color-pair 0 is *always* WHITE on BLACK */
 
 		/* Prepare the color pairs */
-		init_pair(1, COLOR_RED,     COLOR_BLACK);
-		init_pair(2, COLOR_GREEN,   COLOR_BLACK);
-		init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
-		init_pair(4, COLOR_BLUE,    COLOR_BLACK);
-		init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-		init_pair(6, COLOR_CYAN,    COLOR_BLACK);
-		init_pair(7, COLOR_BLACK,   COLOR_BLACK);
+		init_pair(1, COLOR_RED,     bg_color);
+		init_pair(2, COLOR_GREEN,   bg_color);
+		init_pair(3, COLOR_YELLOW,  bg_color);
+		init_pair(4, COLOR_BLUE,    bg_color);
+		init_pair(5, COLOR_MAGENTA, bg_color);
+		init_pair(6, COLOR_CYAN,    bg_color);
+		init_pair(7, COLOR_BLACK,   bg_color);
 
-		/* Prepare the "Angband Colors" -- Bright white is too bright */
+		/* Prepare the colors */
 		colortable[0] = (COLOR_PAIR(7) | A_NORMAL);	/* Black */
-		colortable[1] = (COLOR_PAIR(0) | A_NORMAL);	/* White */
-		colortable[2] = (COLOR_PAIR(6) | A_NORMAL);	/* Grey XXX */
+		colortable[1] = (COLOR_PAIR(0) | A_BRIGHT);	/* White */
+		colortable[2] = (COLOR_PAIR(0) | A_NORMAL);	/* Grey XXX */
 		colortable[3] = (COLOR_PAIR(1) | A_BRIGHT);	/* Orange XXX */
 		colortable[4] = (COLOR_PAIR(1) | A_NORMAL);	/* Red */
 		colortable[5] = (COLOR_PAIR(2) | A_NORMAL);	/* Green */
 		colortable[6] = (COLOR_PAIR(4) | A_NORMAL);	/* Blue */
 		colortable[7] = (COLOR_PAIR(3) | A_NORMAL);	/* Umber */
 		colortable[8] = (COLOR_PAIR(7) | A_BRIGHT);	/* Dark-grey XXX */
-		colortable[9] = (COLOR_PAIR(6) | A_BRIGHT);	/* Light-grey XXX */
+		colortable[9] = (COLOR_PAIR(0) | A_NORMAL);	/* Light-grey XXX */
 		colortable[10] = (COLOR_PAIR(5) | A_NORMAL);	/* Purple */
 		colortable[11] = (COLOR_PAIR(3) | A_BRIGHT);	/* Yellow */
 		colortable[12] = (COLOR_PAIR(5) | A_BRIGHT);	/* Light Red XXX */
@@ -917,20 +906,34 @@ errr init_gcu(int argc, char *argv[])
 
 #endif
 
+#ifdef A_ALTCHARSET
+	/* Build a quick access table for the "alternate character set". */
+	if(use_alt_charset)
+	{
+		acs_table[1] = ACS_DIAMOND;    acs_table[16] = ACS_S1;
+		acs_table[2] = ACS_CKBOARD;    acs_table[18] = ACS_HLINE;
+		acs_table[7] = ACS_DEGREE;     acs_table[20] = ACS_S9;
+		acs_table[8] = ACS_PLMINUS;    acs_table[21] = ACS_LTEE;
+		acs_table[11] = ACS_LRCORNER;  acs_table[22] = ACS_RTEE;
+		acs_table[12] = ACS_URCORNER;  acs_table[23] = ACS_BTEE;
+		acs_table[13] = ACS_ULCORNER;  acs_table[24] = ACS_TTEE;
+		acs_table[14] = ACS_LLCORNER;  acs_table[25] = ACS_VLINE;
+		acs_table[15] = ACS_PLUS;      acs_table[31] = ACS_BULLET;
+	}
+#endif
+
 
 	/*** Low level preparation ***/
 
-#ifdef USE_GETCH
-
 	/* Paranoia -- Assume no waiting */
 	nodelay(stdscr, FALSE);
-
-#endif
 
 	/* Prepare */
 	cbreak();
 	noecho();
 	nonl();
+
+	keypad(stdscr, TRUE);
 
 	/* Extract the game keymap */
 	keymap_game_prepare();
@@ -938,78 +941,86 @@ errr init_gcu(int argc, char *argv[])
 
 	/*** Now prepare the term(s) ***/
 
-	if (!split_window) num_term=1;
-
-	/* Create one or several terms */
-	for (i = 0; i < num_term; i++)
+	/* Big screen -- one big term */
+	if (use_big_screen)
 	{
-		int rows, cols, y, x;
-
-		if (split_window)
-		{
-		        /* Hack - the main window is huge */
-		        /* Sub windows require a width of at least 25 and a height
-			 * if at least 6.  Furth excess height is split between the
-			 * main window and the others.
-			 */
-		        if (COLS > MIN_COLS_SPLIT) cols = 80 + (COLS - MIN_COLS_SPLIT) / 2;
-			else cols = COLS;
-			if (LINES > MIN_ROWS_SPLIT) rows = 24 + (LINES - MIN_ROWS_SPLIT) / 2;
-			else rows = LINES;
-		}
-		else
-		{
-		        cols=COLS;
-			rows=LINES;
-		}
-
-		/* Decide on size and position */
-		switch (i)
-		{
-			/* Upper left */
-			case 0:
-				y = x = 0;
-				break;
-
-			/* Lower left */
-			case 1:				
-				y = rows + 1;
-				x = 0;
-				rows = LINES - (rows + 1);
-				break;
-
-			/* Upper right */
-			case 2:				
-				y = 0;
-				x = cols + 1;
-				cols = COLS - (cols + 1);
-				break;
-
-			/* Lower right */
-			case 3:				
-				y = rows + 1;
-				x = cols + 1;
-				rows = LINES - (rows + 1);
-				cols = COLS - (cols + 1);				
-				break;
-
-			/* XXX */
-			default:
-				rows = cols = y = x = 0;
-				break;
-		}
-
-		/* Skip non-existant windows */
-		if (rows <= 0 || cols <= 0) continue;
-
 		/* Create a term */
-		term_data_init_gcu(&data[next_win], rows, cols, y, x, i);
+		term_data_init_gcu(&data[0], LINES, COLS, 0, 0);
 
 		/* Remember the term */
-		angband_term[next_win] = &data[next_win].t;
+		angband_term[0] = &data[0].t;
+	}
 
-		/* One more window */
-		next_win++;
+	/* No big screen -- create as many term windows as possible */
+	else
+	{
+		/* Create several terms */
+		for (i = 0; i < num_term; i++)
+		{
+			int rows, cols, y, x;
+
+			/* Decide on size and position */
+			switch (i)
+			{
+				/* Upper left */
+				case 0:
+				{
+					rows = 24;
+					cols = 80;
+					y = x = 0;
+					break;
+				}
+
+				/* Lower left */
+				case 1:
+				{
+					rows = LINES - 25;
+					cols = 80;
+					y = 25;
+					x = 0;
+					break;
+				}
+
+				/* Upper right */
+				case 2:
+				{
+					rows = 24;
+					cols = COLS - 81;
+					y = 0;
+					x = 81;
+					break;
+				}
+
+				/* Lower right */
+				case 3:
+				{
+					rows = LINES - 25;
+					cols = COLS - 81;
+					y = 25;
+					x = 81;
+					break;
+				}
+
+				/* XXX */
+				default:
+				{
+					rows = cols = y = x = 0;
+					break;
+				}
+			}
+
+			/* Skip non-existant windows */
+			if (rows <= 0 || cols <= 0) continue;
+
+			/* Create a term */
+			term_data_init_gcu(&data[next_win], rows, cols, y, x);
+
+			/* Remember the term */
+			angband_term[next_win] = &data[next_win].t;
+
+			/* One more window */
+			next_win++;
+		}
 	}
 
 	/* Activate the "Angband" window screen */

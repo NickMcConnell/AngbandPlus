@@ -3342,7 +3342,6 @@ static bool kind_is_good(int k_idx)
        */
     case TV_ROD:
       {
-	if (k_ptr->sval == SV_ROD_IDENTIFY) return (TRUE);
 	if (k_ptr->sval == SV_ROD_CURING) return (TRUE);
 	if (k_ptr->sval == SV_ROD_RESTORATION) return (TRUE);
 	if (k_ptr->sval == SV_ROD_SPEED) return (TRUE);

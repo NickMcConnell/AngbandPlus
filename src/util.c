@@ -971,49 +971,43 @@ static event_type inkey_aux(int scan_cutoff)
 {
   int k = 0, n, p = 0, w = 0;
   
-  event_type ke, ke0;
+  event_type ke = EVENT_EMPTY;
+  event_type ke0 = EVENT_EMPTY;
   char ch;
   
   cptr pat, act;
 	
   char buf[1024];
   
-  /* Initialize the no return */
-        ke0.type = EVT_NONE;
-  ke0.key = 0;
-  ke0.index = 0; /* To fix GCC warnings on X11 */
-  ke0.mousey = 0;
-  ke0.mousex = 0;
-  
   /* Wait for a keypress */
-        if (scan_cutoff == SCAN_OFF)
-        {
-  (void)(Term_inkey(&ke, TRUE, TRUE));
-  ch = ke.key;
-        }
-        else
-        {
-                w = 0;
-
-                /* Wait only as long as macro activation would wait*/
-                while (Term_inkey(&ke, FALSE, TRUE) != 0)
-                {
-                        /* Increase "wait" */
-                        w++;
-
-                        /* Excessive delay */
-                        if (w >= scan_cutoff)
-                        {
-                                ke0.type = EVT_KBRD;
-                                return ke0;
-                        }
-
-                        /* Delay */
-                        Term_xtra(TERM_XTRA_DELAY, 10);
-                }
-                ch = ke.key;
-        }
-
+  if (scan_cutoff == SCAN_OFF)
+    {
+      (void)(Term_inkey(&ke, TRUE, TRUE));
+      ch = ke.key;
+    }
+  else
+    {
+      w = 0;
+      
+      /* Wait only as long as macro activation would wait*/
+      while (Term_inkey(&ke, FALSE, TRUE) != 0)
+	{
+	  /* Increase "wait" */
+	  w++;
+	  
+	  /* Excessive delay */
+	  if (w >= scan_cutoff)
+	    {
+	      ke0.type = EVT_KBRD;
+	      return ke0;
+	    }
+	  
+	  /* Delay */
+	  Term_xtra(TERM_XTRA_DELAY, 10);
+	}
+      ch = ke.key;
+    }
+  
   
   /* End "macro action" */
   if ((ch == 30) || (ch == '\xff'))
@@ -1233,32 +1227,28 @@ char (*inkey_hack)(int flush_first) = NULL;
 event_type inkey_ex(void)
 {
   bool cursor_state;
-  event_type kk;
-  event_type ke;
+  event_type kk = EVENT_EMPTY;
+  event_type ke = EVENT_EMPTY;
   
   bool done = FALSE;
   
   term *old = Term;
-  
-  /* Initialise keypress */
-  ke.key = 0;
-        ke.type = EVT_NONE;
   
   /* Hack -- Use the "inkey_next" pointer */
   if (inkey_next && *inkey_next && !inkey_xtra)
     {
       /* Get next character, and advance */
       ke.key = *inkey_next++;
-                ke.type = EVT_KBRD;
+      ke.type = EVT_KBRD;
       
       /* Cancel the various "global parameters" */
-                inkey_base = inkey_xtra = inkey_flag = FALSE;
-                inkey_scan = 0;
+      inkey_base = inkey_xtra = inkey_flag = FALSE;
+      inkey_scan = 0;
       
       /* Accept result */
       return (ke);
-	}
-
+    }
+  
   /* Forget pointer */
   inkey_next = NULL;
   
@@ -1268,13 +1258,13 @@ event_type inkey_ex(void)
   if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
     {
       /* Cancel the various "global parameters" */
-                inkey_base = inkey_xtra = inkey_flag = FALSE;
-                inkey_scan = 0;
+      inkey_base = inkey_xtra = inkey_flag = FALSE;
+      inkey_scan = 0;
       ke.type = EVT_KBRD;
       
       /* Accept result */
-		return (ke);
-	}
+      return (ke);
+    }
   
 #endif /* ALLOW_BORG */
   
@@ -1286,124 +1276,124 @@ event_type inkey_ex(void)
       
       /* End "macro trigger" */
       parse_under = FALSE;
-
+      
 		/* Forget old keypresses */
-		Term_flush();
-	}
+      Term_flush();
+    }
+  
+  
+  /* Get the cursor state */
+  (void)Term_get_cursor(&cursor_state);
+  
+  /* Show the cursor if waiting, except sometimes in "command" mode */
+  if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+    {
+      /* Show the cursor */
+      (void)Term_set_cursor(TRUE);
+    }
+  
 
-
-	/* Get the cursor state */
-	(void)Term_get_cursor(&cursor_state);
-
-	/* Show the cursor if waiting, except sometimes in "command" mode */
-	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
-	{
-		/* Show the cursor */
-		(void)Term_set_cursor(TRUE);
-	}
-
-
-	/* Hack -- Activate main screen */
-	Term_activate(term_screen);
+  /* Hack -- Activate main screen */
+  Term_activate(term_screen);
   
   
   /* Get a key */
-        while (ke.type == EVT_NONE)
+  while (ke.type == EVT_NONE)
     {
-                /* Hack -- Handle "inkey_scan == SCAN_INSTANT */
-                if (!inkey_base && inkey_scan == SCAN_INSTANT &&
+      /* Hack -- Handle "inkey_scan == SCAN_INSTANT */
+      if (!inkey_base && inkey_scan == SCAN_INSTANT &&
           (0 != Term_inkey(&kk, FALSE, FALSE)))
         {
-                        ke.type = EVT_KBRD;
-          break;
+	  ke.type = EVT_KBRD;
+	  break;
         }
       
-
-		/* Hack -- Flush output once when no key ready */
-		if (!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
+      
+      /* Hack -- Flush output once when no key ready */
+      if (!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
+	{
+	  
+	  /* Hack -- activate proper term */
+	  Term_activate(old);
+	  
+	  /* Flush output */
+	  Term_fresh();
+	  
+	  /* Hack -- activate main screen */
+	  Term_activate(term_screen);
+	  
+	  /* Mega-Hack -- reset saved flag */
+	  character_saved = FALSE;
+	  
+	  /* Mega-Hack -- reset signal counter */
+	  signal_count = 0;
+	  
+	  /* Only once */
+	  done = TRUE;
+	}
+      
+      
+      /* Hack -- Handle "inkey_base" */
+      if (inkey_base)
+	{
+	  int w = 0;
+	  
+	  /* Wait forever */
+	  if (!inkey_scan)
+	    {
+	      /* Wait for (and remove) a pending key */
+	      if (0 == Term_inkey(&ke, TRUE, TRUE))
 		{
-
-			/* Hack -- activate proper term */
-			Term_activate(old);
-
-			/* Flush output */
-			Term_fresh();
-
-			/* Hack -- activate main screen */
-			Term_activate(term_screen);
-
-			/* Mega-Hack -- reset saved flag */
-			character_saved = FALSE;
-
-			/* Mega-Hack -- reset signal counter */
-			signal_count = 0;
-
-			/* Only once */
-			done = TRUE;
+		  /* Done */
+		  ke.type = EVT_KBRD;
+		  break;
 		}
-
-
-		/* Hack -- Handle "inkey_base" */
-		if (inkey_base)
+	      
+	      /* Oops */
+	      break;
+	    }
+	  
+	  /* Wait only as long as macro activation would wait*/
+	  while (TRUE)
+	    {
+	      /* Check for (and remove) a pending key */
+	      if (0 == Term_inkey(&ke, FALSE, TRUE))
 		{
-			int w = 0;
-
-			/* Wait forever */
-			if (!inkey_scan)
-			{
-				/* Wait for (and remove) a pending key */
-                                if (0 == Term_inkey(&ke, TRUE, TRUE))
-                                {
-                                        /* Done */
-                                        ke.type = EVT_KBRD;
-                                        break;
-                                }
-
-				/* Oops */
-				break;
-			}
-
-			/* Wait only as long as macro activation would wait*/
-			while (TRUE)
-			{
-				/* Check for (and remove) a pending key */
-                                if (0 == Term_inkey(&ke, FALSE, TRUE))
-                                {
-                                        /* Done */
-                                        ke.type = EVT_KBRD;
-                                        break;
-                                }
-
-				/* No key ready */
+		  /* Done */
+		  ke.type = EVT_KBRD;
+		  break;
+		}
+	      
+	      /* No key ready */
               else
                 {
                   /* Increase "wait" */
-                                        w ++;
+		  w ++;
                   
                   /* Excessive delay */
-                                        if (w >= SCAN_MACRO) break;
+		  if (w >= SCAN_MACRO) break;
                   
                   /* Delay */
-                                        Term_xtra(TERM_XTRA_DELAY, 10);
+		  Term_xtra(TERM_XTRA_DELAY, 10);
                   
                 }
             }
-
-			/* Done */
-			ke.type = EVT_KBRD;
+	  
+	  /* Done */
+	  ke.type = EVT_KBRD;
           break;
         }
       
       
       /* Get a key (see above) */
       ke = inkey_aux(inkey_scan);
-
+      
       /* Handle mouse buttons */
       if ((ke.type == EVT_MOUSE) && (mouse_buttons))
         {
           int i;
           int button_end = (normal_screen ? depth_start : Term->wid - 2);
-
+	  
           /* Check to see if we've hit a button */
           /* Assuming text buttons here for now - this would have to
            * change for GUI buttons */
@@ -1418,9 +1408,9 @@ event_type inkey_ex(void)
                 ke.index = 0;
                 ke.mousey = 0;
                 ke.mousex = 0;
-				  
-				  /* Done */
-				  break;
+		
+		/* Done */
+		break;
               }
         }
       
@@ -1428,68 +1418,68 @@ event_type inkey_ex(void)
       if (ke.key == 29)
         {
           /* Strip this key */
-                        ke.type = EVT_NONE;
+	  ke.type = EVT_NONE;
           
           /* Continue */
           continue;
-		}
+	}
 
-
-		/* Treat back-quote as escape */
-		if (ke.key == '`') ke.key = ESCAPE;
+      
+      /* Treat back-quote as escape */
+      if (ke.key == '`') ke.key = ESCAPE;
       
       
       /* End "macro trigger" */
-                if (parse_under && (ke.key >=0 && ke.key <= 32))
+      if (parse_under && (ke.key >=0 && ke.key <= 32))
         {
           /* Strip this key */
-                        ke.type = EVT_NONE;
+	  ke.type = EVT_NONE;
           ke.key = 0;
           
           /* End "macro trigger" */
-			parse_under = FALSE;
-		}
-
-		/* Handle "control-caret" */
-                if (ke.key == 30)
-                {
-                        /* Strip this key */
-                        ke.type = EVT_NONE;
-                        ke.key = 0;
-                }
-
-		/* Handle "control-underscore" */
-                else if (ke.key == 31)
-                {
-                        /* Strip this key */
-                        ke.type = EVT_NONE;
-                        ke.key = 0;
-
-                        /* Begin "macro trigger" */
-			parse_under = TRUE;
-		}
-
-		/* Inside "macro trigger" */
-        else if (parse_under)
-                {
-                        /* Strip this key */
-                        ke.type = EVT_NONE;
-                        ke.key = 0;
-                }
-        }
-
-
-	/* Hack -- restore the term */
-	Term_activate(old);
-
-
-	/* Restore the cursor */
-	Term_set_cursor(cursor_state);
+	  parse_under = FALSE;
+	}
+      
+      /* Handle "control-caret" */
+      if (ke.key == 30)
+	{
+	  /* Strip this key */
+	  ke.type = EVT_NONE;
+	  ke.key = 0;
+	}
+      
+      /* Handle "control-underscore" */
+      else if (ke.key == 31)
+	{
+	  /* Strip this key */
+	  ke.type = EVT_NONE;
+	  ke.key = 0;
+	  
+	  /* Begin "macro trigger" */
+	  parse_under = TRUE;
+	}
+      
+      /* Inside "macro trigger" */
+      else if (parse_under)
+	{
+	  /* Strip this key */
+	  ke.type = EVT_NONE;
+	  ke.key = 0;
+	}
+    }
+  
+  
+  /* Hack -- restore the term */
+  Term_activate(old);
+  
+  
+  /* Restore the cursor */
+  Term_set_cursor(cursor_state);
   
   
   /* Cancel the various "global parameters" */
-        inkey_base = inkey_xtra = inkey_flag = FALSE;
-        inkey_scan = 0;
+  inkey_base = inkey_xtra = inkey_flag = FALSE;
+  inkey_scan = 0;
   
   /* Return the keypress */
   return (ke);
@@ -1501,7 +1491,7 @@ event_type inkey_ex(void)
  */
 char anykey(void)
 {
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   
   /* Only accept a keypress or mouse click*/
   do
@@ -1517,17 +1507,17 @@ char anykey(void)
  */
 char inkey(void)
 {
-        event_type ke = EVENT_EMPTY;
-
-        /* Only accept a keypress */
-        do
-        {
-                ke = inkey_ex();
-        } while ((ke.type != EVT_KBRD) && (ke.type != EVT_ESCAPE));
-        /* Paranoia */
-        if(ke.type == EVT_ESCAPE) ke.key = ESCAPE;
-
-        return ke.key;
+  event_type ke = EVENT_EMPTY;
+  
+  /* Only accept a keypress */
+  do
+    {
+      ke = inkey_ex();
+    } while ((ke.type != EVT_KBRD) && (ke.type != EVT_ESCAPE));
+  /* Paranoia */
+  if(ke.type == EVT_ESCAPE) ke.key = ESCAPE;
+  
+  return ke.key;
 }
 
 
@@ -1543,26 +1533,26 @@ static bool must_more = FALSE;
  */
 void bell(cptr reason)
 {
-	/* Mega-Hack -- Flush the output */
-        Term_fresh();
-
-        /* Hack -- memorize the reason if possible */
-        if (character_generated && reason && !must_more)
-        {
-                message_add(reason, MSG_BELL);
-
-                /* Window stuff */
-                p_ptr->window |= (PW_MESSAGE);
-
-                /* Force window redraw */
-                window_stuff();
-        }
-
-        /* Make a bell noise (if allowed) */
-	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
-
-	/* Flush the input (later!) */
-	flush();
+  /* Mega-Hack -- Flush the output */
+  Term_fresh();
+  
+  /* Hack -- memorize the reason if possible */
+  if (character_generated && reason && !must_more)
+    {
+      message_add(reason, MSG_BELL);
+      
+      /* Window stuff */
+      p_ptr->window |= (PW_MESSAGE);
+      
+      /* Force window redraw */
+      window_stuff();
+    }
+  
+  /* Make a bell noise (if allowed) */
+  if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
+  
+  /* Flush the input (later!) */
+  flush();
 }
 
 
@@ -1572,12 +1562,12 @@ void bell(cptr reason)
  */
 void sound(int val)
 {
-        /* No sound */
-        if (!use_sound) return;
-
-        /* Make a noise */
-        if (sound_hook)
-	  sound_hook(val);
+  /* No sound */
+  if (!use_sound) return;
+  
+  /* Make a noise */
+  if (sound_hook)
+    sound_hook(val);
 }
 
 
@@ -2159,7 +2149,7 @@ void messages_easy(bool command)
 {
   int y, x, w, h;
   byte a = TERM_L_BLUE;
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   
   char *t;
   char buf[1024];
@@ -2500,7 +2490,7 @@ static void msg_flush(int x)
                 /* Get an acceptable keypress */
                 while (1)
                 {
-                        event_type ke;
+                        event_type ke = EVENT_EMPTY;
                         ke = inkey_ex();
                         if (quick_messages) break;
                         if ((ke.key == ESCAPE) || (ke.key == ' ')) break;
@@ -2829,11 +2819,11 @@ void c_put_str(byte attr, cptr str, int row, int col)
 
   my_strcpy(buf, str, sizeof(buf));
 
-        /* Translate it to 7-bit ASCII or system-specific format */
-        xstr_trans(buf, LATIN1);
-
-        /* Position cursor, Dump the attr/text */
-        Term_putstr(col, row, -1, attr, buf);
+  /* Translate it to 7-bit ASCII or system-specific format */
+  xstr_trans(buf, LATIN1);
+  
+  /* Position cursor, Dump the attr/text */
+  Term_putstr(col, row, -1, attr, buf);
 }
 
 
@@ -3697,7 +3687,7 @@ bool get_num(char *prompt, int max, int amt)
   
   int d, j, k = 0;
   
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   
   bool done = FALSE;
   
@@ -3962,7 +3952,7 @@ s16b get_quantity(cptr prompt, int max)
  */
 int get_check_other(cptr prompt, char other)
 {
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   char buf[80];
   char label[4];
   bool extra = (KTRL(other) == other);
@@ -4049,7 +4039,7 @@ int get_check_other(cptr prompt, char other)
  */
 bool get_check(cptr prompt)
 {
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   
   char buf[80];
 
@@ -4123,7 +4113,7 @@ bool get_check(cptr prompt)
  */
 bool get_com(cptr prompt, char *command)
 {
-        event_type ke;
+        event_type ke = EVENT_EMPTY;
         bool result;
 
         result = get_com_ex(prompt, &ke);
@@ -4134,7 +4124,7 @@ bool get_com(cptr prompt, char *command)
 
 bool get_com_ex(cptr prompt, event_type *command)
 {
-        event_type ke;
+        event_type ke = EVENT_EMPTY;
 
         /* Paranoia XXX XXX XXX */
         message_flush();
@@ -4203,7 +4193,7 @@ void request_command(void)
 {
   int i;
   
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   
   int mode;
   
