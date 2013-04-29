@@ -2800,6 +2800,9 @@ void update_view(void)
 
 	byte info;
 
+#ifdef MONSTER_LITE
+        int fy,fx;
+#endif
 
 	/*** Step 0 -- Begin ***/
 
@@ -2841,8 +2844,8 @@ void update_view(void)
 	/* Handle real light */
 	if (radius > 0) ++radius;
 
-    /*** Step 1A -- monster lites ***/
 #ifdef MONSTER_LITE
+    /*** Step 1A -- monster lites ***/
     /* Scan monster list and add monster lites */
     for ( i = 1; i < z_info->m_max; i++)
    {
@@ -3018,8 +3021,8 @@ fast_view_g[fast_view_n++] = g;
 }
 
     }
-#endif /* MONSTER_LITE */
-	/*** Step 1B -- player grid ***/
+#endif
+        /*** Step 1B -- player grid ***/
 
 	/* Player grid */
 	g = pg;
@@ -4486,9 +4489,6 @@ void cave_set_feat(int y, int x, int feat)
 				if (!make_object(i_ptr, good, great)) continue;
 			}
 
-			/* Note who dropped it */
-			i_ptr->dropped = 0-p_ptr->depth;
-
 			/* Drop it in the dungeon */
 			drop_near(i_ptr, -1, y, x);
 		}
@@ -4540,27 +4540,13 @@ void cave_alter_feat(int y, int x, int action)
 	/* Get the new feat */
 	newfeat = feat_state(cave_feat[y][x],action);
 
-	/* Hack - no change */
-	if (newfeat == oldfeat) return;
-
 	/* Invisible trap */
-	if (f_info[oldfeat].flags3 & (FF3_PICK_TRAP))
+        if (newfeat == oldfeat)
 	{
+                if (!(f_info[oldfeat].flags3 & (FF3_PICK_TRAP))) return;
+
 		/* Pick a trap */
 		pick_trap(y, x);
-
-		/* Update new feature */
-		newfeat = cave_feat[y][x];
-
-		/* Disturb */
-		disturb(0, 0);
-	}
-
-	/* Secret door */
-	else if (f_info[oldfeat].flags3 & (FF3_PICK_TRAP))
-	{
-		/* Pick a door */
-		pick_door(y, x);
 
 		/* Update new feature */
 		newfeat = cave_feat[y][x];
@@ -4577,11 +4563,11 @@ void cave_alter_feat(int y, int x, int action)
 		cave_set_feat(y,x,newfeat);
 	}
 
-/* Notice */
-note_spot(y, x);
+	/* Notice */
+	note_spot(y, x);
 
-/* Redraw */
-lite_spot(y, x);
+	/* Redraw */
+	lite_spot(y, x);
 
 }
 

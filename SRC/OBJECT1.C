@@ -830,7 +830,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_STATUE:
 		case TV_HOLD:
 		{
-			if (o_ptr->dropped > 0)
+			if (o_ptr->name3 > 0)
 			{
 				if (o_ptr->tval == TV_HOLD) modstr = "sealed";
 				else modstr = "stone";
@@ -846,7 +846,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_EGG:
 		case TV_SKIN:
 		{
-			if (o_ptr->dropped <= 0)
+			if (o_ptr->name3 <= 0)
 			{
 				switch (o_ptr->tval)
 				{
@@ -864,11 +864,11 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 						break;
 				}
 			}
-			else if (r_info[o_ptr->dropped].flags1 & (RF1_UNIQUE))
+			else if (r_info[o_ptr->name3].flags1 & (RF1_UNIQUE))
 			{
 				char tmp_buf[160];
 
-				strcpy(tmp_buf, r_name + r_info[o_ptr->dropped].name);
+				strcpy(tmp_buf, r_name + r_info[o_ptr->name3].name);
 				strcat(tmp_buf, "'s");
 				modstr = tmp_buf;
 
@@ -877,7 +877,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			}
 			else
 			{
-				modstr = (r_name + r_info[o_ptr->dropped].name);
+				modstr = (r_name + r_info[o_ptr->name3].name);
 			}
 			break;
 		}
@@ -1090,39 +1090,39 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Looks like a monster */
-	if ((o_ptr->tval == TV_STATUE) && (o_ptr->dropped > 0))
+	if ((o_ptr->tval == TV_STATUE) && (o_ptr->name3 > 0))
 	{
 		object_desc_str_macro(t, " of ");
 
-		if (!(r_info[o_ptr->dropped].flags1 & (RF1_UNIQUE)))
+		if (!(r_info[o_ptr->name3].flags1 & (RF1_UNIQUE)))
 		{
-			cptr name= r_name + r_info[o_ptr->dropped].name;
+			cptr name= r_name + r_info[o_ptr->name3].name;
 
 			if (is_a_vowel(name[0])) object_desc_str_macro(t, "an ");
 			else object_desc_str_macro(t, "a ");
 		}
 
-		object_desc_str_macro(t, r_name + r_info[o_ptr->dropped].name);
+		object_desc_str_macro(t, r_name + r_info[o_ptr->name3].name);
 	}
 
 
 	/* Looks like/holds a monster */
-	if ((o_ptr->tval == TV_HOLD) && (o_ptr->dropped > 0))
+	if ((o_ptr->tval == TV_HOLD) && (o_ptr->name3 > 0))
 	{
 		object_desc_str_macro(t, " containing ");
 
 		if (known)
 		{
 	
-			if (!(r_info[o_ptr->dropped].flags1 & (RF1_UNIQUE)))
+			if (!(r_info[o_ptr->name3].flags1 & (RF1_UNIQUE)))
 			{
-				cptr name= r_name + r_info[o_ptr->dropped].name;
+				cptr name= r_name + r_info[o_ptr->name3].name;
 	
 				if (is_a_vowel(name[0])) object_desc_str_macro(t, "an ");
 				else object_desc_str_macro(t, "a ");
 			}
 	
-			object_desc_str_macro(t, r_name + r_info[o_ptr->dropped].name);
+			object_desc_str_macro(t, r_name + r_info[o_ptr->name3].name);
 		}
 		else
 		{
@@ -1391,9 +1391,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 
 	/* Indicate "charging" artifacts/rods */
-	if (((known) || (o_ptr->ident & (IDENT_BONUS))) && o_ptr->timeout)
+	if (o_ptr->timeout)
 	{
-
 		if ((o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE)))
 		{
 			/* Hack -- variant timeout stack */
@@ -1705,7 +1704,6 @@ s16b wield_slot(const object_type *o_ptr)
 			return (INVEN_WIELD);
 			break;
 
-	    case TV_INSTRUMENT:
 		case TV_DIGGING:
 		{
 			/* Two-weapon combat not allowed */
@@ -1715,6 +1713,7 @@ s16b wield_slot(const object_type *o_ptr)
 			return (INVEN_WIELD);
 			break;
 		}
+                case TV_INSTRUMENT:
 		case TV_BOW:
 		{
 			return (INVEN_BOW);
@@ -1910,12 +1909,8 @@ cptr describe_use(int i)
 				p = "digging with";
 				break;
 
-			case TV_INSTRUMENT:
-				p = "playing music with";
-				break;
-
 			case TV_SWORD:
-				case TV_STAFF:
+                        case TV_STAFF:
 			case TV_POLEARM:
 			case TV_HAFTED:
 				break;
@@ -1926,7 +1921,6 @@ cptr describe_use(int i)
 		}
 	}
 
-
 	/* Hack -- Non-shield item */
 	if (i == INVEN_ARM)
 	{
@@ -1935,6 +1929,17 @@ cptr describe_use(int i)
 		if (o_ptr->tval != TV_SHIELD)
 		{
 			p = "using in your off-hand";
+		}
+	}
+
+        /* Hack -- Instrument */
+        if (i == INVEN_BOW)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+                if (o_ptr->tval == TV_INSTRUMENT)
+		{
+                        p = "playing music with";
 		}
 	}
 
@@ -2702,7 +2707,6 @@ static bool get_item_okay(int item)
  * Also, the tag "@xn" will work as well, where "n" is a tag-char,
  * and "x" is the "current" p_ptr->command_cmd code.
  *
- * "@x*" on an item will match any tag-char.
  */
 static int get_tag(int *cp, char tag)
 {
@@ -2741,7 +2745,7 @@ static int get_tag(int *cp, char tag)
 			}
 
 			/* Check the special tags */
-                        if ((s[1] == p_ptr->command_cmd) && ((s[2] == tag) || (s[2] == '*')))
+			if ((s[1] == p_ptr->command_cmd) && (s[2] == tag))
 			{
 				/* Save the actual inventory ID */
 				*cp = i;
@@ -3018,6 +3022,36 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 	}
 
+	/* Look up the tag */
+	if (get_tag(&k, '*'))
+	{
+		/*Hack -- Validate the item */
+		if ((k < INVEN_WIELD) ? !allow_inven : !allow_equip)
+		{
+			bell("Illegal object choice (tag)!");
+		}
+
+		/* Validate the item */
+		else if (!get_item_okay(k))
+		{
+			bell("Illegal object choice (tag)!");
+		}
+
+		/* Allow player to "refuse" certain actions */
+		else if (!get_item_allow(k))
+		{
+			/* Nothing */
+		}
+
+		else
+		{
+			/* Accept that choice */
+			(*cp) = k;
+			item = TRUE;
+			done = TRUE;
+			p_ptr->command_see = FALSE;
+		}
+	}
 
 	/* Start out in "display" mode */
 	if (p_ptr->command_see)
@@ -3025,7 +3059,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Save screen */
 		screen_save();
 	}
-
 
 	/* Repeat until done */
 	while (!done)

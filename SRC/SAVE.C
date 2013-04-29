@@ -228,7 +228,7 @@ static void wr_item(const object_type *o_ptr)
 
 	if (variant_drop_body)
 	{
-		wr_s16b(o_ptr->dropped);
+		wr_s16b(o_ptr->name3);
 	}
 
 	/* Save the inscription (if any) */

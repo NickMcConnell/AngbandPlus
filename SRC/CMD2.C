@@ -608,26 +608,26 @@ static bool do_cmd_open_aux(int y, int x)
 	if (!do_cmd_test(y, x, FS_OPEN)) return (FALSE);
 
 	/* Trapped door */
-if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
+	if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
 	{
 		hit_trap(y,x);
 
-/* Update the visuals */
-p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 	}
 
 
 	/* Secrets on door/permanent doors */
-else if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
+	else if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
 		(f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)))
 	{
 
 		/* Stuck */
-find_secret(y,x);
+		find_secret(y,x);
 
-/* Update the visuals */
-p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 	}
 
@@ -1216,9 +1216,9 @@ static bool do_cmd_disarm_aux(int y, int x)
 	/* Success */
 	if (rand_int(100) < j)
 	{
-object_type object_type_body;
+		object_type object_type_body;
 
-object_type *o_ptr = &object_type_body;
+		object_type *o_ptr = &object_type_body;
 
 		/* Message */
 		msg_format("You have disarmed the %s.", name);
@@ -1226,12 +1226,12 @@ object_type *o_ptr = &object_type_body;
 		/* Reward */
 		gain_exp(power);
 
-/* Drop an object */
-if (make_feat(o_ptr, cave_feat[y][x]))
-{
-/* Drop (or break) near that location */
-drop_near(o_ptr, 0, y, x);
-}
+		/* Drop an object */
+		if (make_feat(o_ptr, cave_feat[y][x]))
+		{
+			/* Drop (or break) near that location */
+			drop_near(o_ptr, 0, y, x);
+		}
 
 		/* Remove the trap */
 		cave_alter_feat(y, x, FS_DISARM);
@@ -1252,8 +1252,6 @@ drop_near(o_ptr, 0, y, x);
 
 		/* We may keep trying */
 		more = TRUE;
-
-
 	}
 
 	/* Failure -- Set off the trap */

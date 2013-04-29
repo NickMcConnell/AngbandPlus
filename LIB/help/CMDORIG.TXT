@@ -24,7 +24,7 @@
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  (unused)
  x  (unused)                             X  (unused)
- y  (unused)                             Y  (unused)
+ y  (unused)                             Y  Apply a rune
  z  Zap a rod                            Z  (unused)
  !  Interact with system                ^A  (special - debug command)
  @  Interact with macros                ^B  (unused)

@@ -2466,73 +2466,67 @@ static errr autos_dump(cptr fname)
 	/* Failure */
 	if (!fff) return (-1);
 
-
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 
-
 	/* Start dumping */
-fprintf(fff, "# Automatic auto-inscription dump\n\n");
+	fprintf(fff, "# Automatic auto-inscription dump\n\n");
 
 	/* Dump them */
-for (i = 0; i < z_info->k_max; i++)
+	for (i = 0; i < z_info->k_max; i++)
 	{
-if (k_info[i].note)
-{
+		if (k_info[i].note)
+		{
 
-/* Start the macro */
-fprintf(fff, "# Kind '%s'\n\n", k_name + k_info[i].name);
+			/* Start the macro */
+			fprintf(fff, "# Kind '%s'\n\n", k_name + k_info[i].name);
 
-/* Dump the kind */
-fprintf(fff, "I:K:%d:%s\n", i, quark_str(k_info[i].note));
+			/* Dump the kind */
+			fprintf(fff, "I:K:%d:%s\n", i, quark_str(k_info[i].note));
 
-/* End the inscription */
-fprintf(fff, "\n\n");
+			/* End the inscription */
+			fprintf(fff, "\n\n");
 
-}
+		}
 	}
 
-/* Dump them */
-for (i = 0; i < z_info->e_max; i++)
+	/* Dump them */
+	for (i = 0; i < z_info->e_max; i++)
 	{
-if (e_info[i].note)
-{
+		if (e_info[i].note)
+		{
+			/* Start the macro */
+			fprintf(fff, "# Ego item '%s'\n\n", e_name + e_info[i].name);
 
-/* Start the macro */
-fprintf(fff, "# Ego item '%s'\n\n", e_name + e_info[i].name);
+			/* Dump the kind */
+			fprintf(fff, "I:E:%d:%s\n", i, quark_str(e_info[i].note));
 
-/* Dump the kind */
-fprintf(fff, "I:E:%d:%s\n", i, quark_str(e_info[i].note));
-
-/* End the inscription */
-fprintf(fff, "\n\n");
-
-}
+			/* End the inscription */
+			fprintf(fff, "\n\n");
+		}
 	}
 
 #if 0
-/* Dump them */
-for (i = 0; i < z_info->r_max; i++)
+	/* Dump them */
+	for (i = 0; i < z_info->r_max; i++)
 	{
-if (r_info[i].note)
-{
+		if (r_info[i].note)
+		{
 
-/* Start the macro */
-fprintf(fff, "# Monster race '%s'\n\n", r_name + r_info[i].name);
+			/* Start the macro */
+			fprintf(fff, "# Monster race '%s'\n\n", r_name + r_info[i].name);
 
-/* Dump the kind */
-fprintf(fff, "I:R:%d:%s\n", i, quark_str(r_info[i].note));
+			/* Dump the kind */
+			fprintf(fff, "I:R:%d:%s\n", i, quark_str(r_info[i].note));
 
-/* End the inscription */
-fprintf(fff, "\n\n");
-
-}
+			/* End the inscription */
+			fprintf(fff, "\n\n");
+		}
 	}
 #endif
 
 	/* Start dumping */
 	fprintf(fff, "\n\n\n\n");
-
 
 	/* Close */
 	my_fclose(fff);
@@ -2553,7 +2547,7 @@ static void strip_name(char *buf, int k_idx)
 	cptr str = (k_name + k_ptr->name);
 
 	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
+	while ((*str == ' ') || (*str == '&') || (*str == '#')) str++;
 
 	/* Copy useful chars */
 	for (t = buf; *str; str++)
@@ -2937,7 +2931,6 @@ static cptr monster_group_char[] =
 	"O",
 	"o",
 	"pqt",
-	"q",
 	"Q",
 	"R",
 	"r",
@@ -3196,7 +3189,7 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 	object_idx[object_cnt] = 0;
 
 	/* Free the "okay" array */
-        FREE(okay);
+	FREE(okay);
 
 	/* Return the number of races */
 	return object_cnt;
@@ -3779,20 +3772,23 @@ static void display_ego_item_list(int col, int row, int per_page, int object_idx
  */
 static void desc_ego_fake(int e_idx)
 {
-        object_lore *n_ptr = &e_list[e_idx];
+	object_lore *n_ptr = &e_list[e_idx];
 
-        /* Save screen */
-        screen_save();
+	/* Save screen */
+	screen_save();
 
 	/* Set text_out hook */
 	text_out_hook = text_out_to_screen;
 
-        list_object_flags(n_ptr->can_flags1,n_ptr->can_flags2,n_ptr->can_flags3);
+	/* Begin recall */
+	Term_gotoxy(0, 1);
 
-        if ((n_ptr->may_flags1) || (n_ptr->may_flags2) || (n_ptr->may_flags3))
-        {
-                text_out("It has hidden powers.");
-        }
+	list_object_flags(n_ptr->can_flags1,n_ptr->can_flags2,n_ptr->can_flags3);
+
+	if ((n_ptr->may_flags1) || (n_ptr->may_flags2) || (n_ptr->may_flags3))
+	{
+		text_out("It has hidden powers.");
+	}
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -3801,11 +3797,11 @@ static void desc_ego_fake(int e_idx)
 	Term_gotoxy(0, 0);
 
 	/* Dump the name */
-        Term_addstr(-1, TERM_L_BLUE, format("Ego Item %s",e_name+e_info[e_idx].name));
+	Term_addstr(-1, TERM_L_BLUE, format("Ego Item %s",e_name+e_info[e_idx].name));
 
-        inkey();
+	inkey();
 
-        screen_load();
+	screen_load();
 }
 
 

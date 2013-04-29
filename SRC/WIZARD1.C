@@ -108,19 +108,19 @@ static const grouper group_item[] =
 	{ TV_MAGIC_BOOK,	"Books (Mage)" },
 	{ TV_PRAYER_BOOK,	"Books (Priest)" },
 	{ TV_SONG_BOOK,	"Books (Bard)" },
-        { TV_RUNESTONE,        "Books (Shaman)" },
+	{ TV_RUNESTONE,	"Books (Shaman)" },
 
 	{ TV_SPIKE,		"Various" },
 	{ TV_LITE,		  NULL },
 	{ TV_FLASK,		  NULL },
 	{ TV_JUNK,		  NULL },
-        { TV_HOLD,      NULL },
-        { TV_BONE,    NULL },
-        { TV_FIGURE,      NULL },
-        { TV_SKIN,    NULL },
-        { TV_STATUE,    NULL },
-        { TV_BODY,      NULL },
-
+	{ TV_HOLD,      NULL },
+	{ TV_BONE,    NULL },
+	{ TV_FIGURE,      NULL },
+	{ TV_SKIN,    NULL },
+	{ TV_STATUE,    NULL },
+	{ TV_BODY,      NULL },
+	  { TV_MAP,       NULL },
 	{ 0, "" }
 };
 
@@ -131,13 +131,15 @@ static const grouper group_item[] =
 /*
  * Describe the kind
  */
-static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int k)
+static void kind_info(char *buf, char *dam, char *wgt, char *pow, int *lev, s32b *val, int k)
 {
 	object_kind *k_ptr;
 
 	object_type *i_ptr;
 	object_type object_type_body;
 
+        s16b book[26];
+	int num,i;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -172,7 +174,6 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	/* Description (too brief) */
 	object_desc_store(buf, i_ptr, FALSE, 0);
 
-
 	/* Misc info */
 	strcpy(dam, "");
 
@@ -199,6 +200,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_DIGGING:
+		case TV_STAFF:
 		{
 			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
 			break;
@@ -223,8 +225,39 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 	/* Weight */
 	sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
-}
 
+        /* Power */
+        strcpy(pow, "");
+
+	/* Fill the book with spells */
+	fill_book(i_ptr,book,&num);
+
+	if (num > 1)
+	{
+		int count = 0;
+
+		for (i = 0; i < num; i++)
+		{
+			if (book[i]) count++;
+		}
+
+		if ((count) && ((i_ptr->tval == TV_MAGIC_BOOK) || (i_ptr->tval == TV_PRAYER_BOOK) 
+			|| (i_ptr->tval == TV_SONG_BOOK) || (i_ptr->tval == TV_RUNESTONE)))
+		{
+                        sprintf(pow," %d spells",count);
+		}
+		else if (count)
+		{
+                        sprintf(pow," %d powers",count);
+		}
+	}
+	/* Power */
+	else if (book[0])
+	{
+		spell_info(pow,book[0],0);
+	}
+
+}
 
 /*
  * Create a spoiler file for items
@@ -239,8 +272,9 @@ static void spoil_obj_desc(cptr fname)
 
 	char wgt[80];
 	char dam[80];
+	char pow[80];
 
-	cptr format = "%-51s  %7s%6s%4s%9s\n";
+        cptr format = "%-37s  %7s%6s%4s%9s %-12s\n";
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -263,9 +297,9 @@ static void spoil_obj_desc(cptr fname)
 	fprintf(fff, "Spoiler File -- Basic Items (%s)\n\n\n", VERSION_STRING);
 
 	/* More Header */
-	fprintf(fff, format, "Description", "Dam/AC", "Wgt", "Lev", "Cost");
-	fprintf(fff, format, "----------------------------------------",
-	        "------", "---", "---", "----");
+	fprintf(fff, format, "Description", "Dam/AC", "Wgt","Lev", "Cost", "Info");
+        fprintf(fff, format, "-------------------------------------",
+		"------", "---","---", "----", "---------");
 
 	/* List the groups */
 	for (i = 0; TRUE; i++)
@@ -287,8 +321,8 @@ static void spoil_obj_desc(cptr fname)
 					s32b t1;
 					s32b t2;
 
-					kind_info(NULL, NULL, NULL, &e1, &t1, who[i1]);
-					kind_info(NULL, NULL, NULL, &e2, &t2, who[i2]);
+					kind_info(NULL, NULL, NULL, NULL, &e1, &t1, who[i1]);
+					kind_info(NULL, NULL, NULL, NULL, &e2, &t2, who[i2]);
 
 					if ((t1 > t2) || ((t1 == t2) && (e1 > e2)))
 					{
@@ -306,11 +340,12 @@ static void spoil_obj_desc(cptr fname)
 				s32b v;
 
 				/* Describe the kind */
-				kind_info(buf, dam, wgt, &e, &v, who[s]);
+				kind_info(buf, dam, wgt, pow, &e, &v, who[s]);
 
 				/* Dump it */
-				fprintf(fff, "  %-51s%7s%6s%4d%9ld\n",
-				        buf, dam, wgt, e, (long)(v));
+                                fprintf(fff, "  %-37s%7s%6s%4d%9ld%-12s\n",
+					buf, dam, wgt, e, (long)(v), pow);
+
 			}
 
 			/* Start a new set */
@@ -436,12 +471,12 @@ struct flag_desc
 
 static const flag_desc stat_flags_desc[] =
 {
-	{ TR1_STR,        "STR" },
-	{ TR1_INT,        "INT" },
-	{ TR1_WIS,        "WIS" },
-	{ TR1_DEX,        "DEX" },
-	{ TR1_CON,        "CON" },
-	{ TR1_CHR,        "CHR" }
+	{ TR1_STR,	"STR" },
+	{ TR1_INT,	"INT" },
+	{ TR1_WIS,	"WIS" },
+	{ TR1_DEX,	"DEX" },
+	{ TR1_CON,	"CON" },
+	{ TR1_CHR,	"CHR" }
 };
 
 /*
@@ -467,17 +502,17 @@ static const flag_desc pval_flags1_desc[] =
 
 static const flag_desc slay_flags_desc[] =
 {
-        { TR1_SLAY_NATURAL,        "Natural" },
-	{ TR1_SLAY_EVIL,          "Evil" },
-	{ TR1_SLAY_UNDEAD,        "Undead" },
-	{ TR1_SLAY_DEMON,         "Demon" },
-	{ TR1_SLAY_ORC,           "Orc" },
-	{ TR1_SLAY_TROLL,         "Troll" },
-	{ TR1_SLAY_GIANT,         "Giant" },
-	{ TR1_SLAY_DRAGON,        "Dragon" },
-	{ TR1_KILL_DRAGON,        "Xdragon" },
-	{ TR1_KILL_DEMON,         "Xdemon" },
-	{ TR1_KILL_UNDEAD,        "Xundead" }
+	{ TR1_SLAY_NATURAL,	"Natural" },
+	{ TR1_SLAY_EVIL,	  "Evil" },
+	{ TR1_SLAY_UNDEAD,	"Undead" },
+	{ TR1_SLAY_DEMON,	 "Demon" },
+	{ TR1_SLAY_ORC,	   "Orc" },
+	{ TR1_SLAY_TROLL,	 "Troll" },
+	{ TR1_SLAY_GIANT,	 "Giant" },
+	{ TR1_SLAY_DRAGON,	"Dragon" },
+	{ TR1_KILL_DRAGON,	"Xdragon" },
+	{ TR1_KILL_DEMON,	 "Xdemon" },
+	{ TR1_KILL_UNDEAD,	"Xundead" }
 };
 
 /*
@@ -485,11 +520,11 @@ static const flag_desc slay_flags_desc[] =
  */
 static const flag_desc brand_flags_desc[] =
 {
-	{ TR1_BRAND_ACID,         "Acid Brand" },
-	{ TR1_BRAND_ELEC,         "Lightning Brand" },
-	{ TR1_BRAND_FIRE,         "Flame Tongue" },
-	{ TR1_BRAND_COLD,         "Frost Brand" },
-	{ TR1_BRAND_POIS,         "Venom" },
+	{ TR1_BRAND_ACID,	 "Acid Brand" },
+	{ TR1_BRAND_ELEC,	 "Lightning Brand" },
+	{ TR1_BRAND_FIRE,	 "Flame Tongue" },
+	{ TR1_BRAND_COLD,	 "Frost Brand" },
+	{ TR1_BRAND_POIS,	 "Venom" },
 };
 
 /*
@@ -551,18 +586,25 @@ static const flag_desc sustain_flags_desc[] =
 
 static const flag_desc misc_flags3_desc[] =
 {
-	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
-	{ TR3_FEATHER,            "Feather Falling" },
-	{ TR3_LITE,               "Permanent Light" },
-	{ TR3_REGEN,              "Regeneration" },
-	{ TR3_TELEPATHY,          "ESP" },
-	{ TR3_SEE_INVIS,          "See Invisible" },
-	{ TR3_FREE_ACT,           "Free Action" },
-	{ TR3_HOLD_LIFE,          "Hold Life" },
-	{ TR3_BLESSED,            "Blessed Blade" },
-	{ TR3_IMPACT,             "Earthquake impact on hit" },
-	{ TR3_AGGRAVATE,          "Aggravates" },
-	{ TR3_DRAIN_EXP,          "Drains Experience" }
+	{ TR3_SLOW_DIGEST,	"Slow Digestion" },
+	{ TR3_FEATHER,	    "Feather Falling" },
+	{ TR3_LITE,	       "Permanent Light" },
+	{ TR3_REGEN,	      "Regeneration" },
+	{ TR3_TELEPATHY,	  "ESP" },
+	{ TR3_ESP_ORC,		  "Sense Orcs"},
+	{ TR3_ESP_TROLL,		  "Sense Trolls"},
+	{ TR3_ESP_GIANT,		  "Sense Giants"},
+	{ TR3_ESP_NATURE,		  "Sense Natural"},
+	{ TR3_ESP_DRAGON,		  "Sense Dragons"},
+	{ TR3_ESP_DEMON,		  "Sense Demons"},
+	{ TR3_ESP_UNDEAD,		  "Sense Undead"},
+	{ TR3_SEE_INVIS,	  "See Invisible" },
+	{ TR3_FREE_ACT,	   "Free Action" },
+	{ TR3_HOLD_LIFE,	  "Hold Life" },
+	{ TR3_BLESSED,	    "Blessed Blade" },
+	{ TR3_IMPACT,	     "Earthquake impact on hit" },
+	{ TR3_AGGRAVATE,	  "Aggravates" },
+	{ TR3_DRAIN_EXP,	  "Drains Experience" }
 };
 
 /*
@@ -591,7 +633,7 @@ typedef struct
 	 * This list includes extra attacks, for simplicity.
 	 */
 	cptr pval_affects[N_ELEMENTS(stat_flags_desc) - 1 +
-	                  N_ELEMENTS(pval_flags1_desc) + 1];
+			  N_ELEMENTS(pval_flags1_desc) + 1];
 
 } pval_info_type;
 
@@ -629,9 +671,9 @@ typedef struct
 
 	/* A list of various magical qualities an object may have */
 	cptr misc_magic[N_ELEMENTS(misc_flags3_desc)
-	                + 1       /* Permanent Light */
-	                + 1       /* type of curse */
-	                + 1];     /* sentinel NULL */
+			+ 1       /* Permanent Light */
+			+ 1       /* type of curse */
+			+ 1];     /* sentinel NULL */
 
 	/* "Level 20, Rarity 30, 3.0 lbs, 20000 Gold" */
 	char misc_desc[80];
@@ -681,7 +723,7 @@ static void spoiler_underline(cptr str)
  */
 
 static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_x_ptr,
-                              cptr *desc_x_ptr, const int n_elmnts)
+			      cptr *desc_x_ptr, const int n_elmnts)
 {
 	int i;
 
@@ -714,7 +756,7 @@ static void analyze_general(const object_type *o_ptr, char *desc_x_ptr)
 static void analyze_pval(const object_type *o_ptr, pval_info_type *pval_x_ptr)
 {
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
-	                        TR1_DEX | TR1_CON | TR1_CHR);
+				TR1_DEX | TR1_CON | TR1_CHR);
 
 	u32b f1, f2, f3;
 
@@ -746,14 +788,14 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *pval_x_ptr)
 	else if (f1 & all_stats)
 	{
 		affects_list = spoiler_flag_aux(f1, stat_flags_desc,
-		                                affects_list,
-		                                N_ELEMENTS(stat_flags_desc));
+						affects_list,
+						N_ELEMENTS(stat_flags_desc));
 	}
 
 	/* And now the "rest" */
 	affects_list = spoiler_flag_aux(f1, pval_flags1_desc,
-	                                affects_list,
-	                                N_ELEMENTS(pval_flags1_desc));
+					affects_list,
+					N_ELEMENTS(pval_flags1_desc));
 
 	/* Terminate the description list */
 	*affects_list = NULL;
@@ -770,7 +812,7 @@ static void analyze_slay(const object_type *o_ptr, cptr *slay_list)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	slay_list = spoiler_flag_aux(f1, slay_flags_desc, slay_list,
-	                             N_ELEMENTS(slay_flags_desc));
+				     N_ELEMENTS(slay_flags_desc));
 
 	/* Terminate the description list */
 	*slay_list = NULL;
@@ -787,7 +829,7 @@ static void analyze_brand(const object_type *o_ptr, cptr *brand_list)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	brand_list = spoiler_flag_aux(f1, brand_flags_desc, brand_list,
-	                              N_ELEMENTS(brand_flags_desc));
+				      N_ELEMENTS(brand_flags_desc));
 
 	/* Terminate the description list */
 	*brand_list = NULL;
@@ -804,7 +846,7 @@ static void analyze_resist(const object_type *o_ptr, cptr *resist_list)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	resist_list = spoiler_flag_aux(f2, resist_flags_desc,
-	                               resist_list, N_ELEMENTS(resist_flags_desc));
+				       resist_list, N_ELEMENTS(resist_flags_desc));
 
 	/* Terminate the description list */
 	*resist_list = NULL;
@@ -821,7 +863,7 @@ static void analyze_immune(const object_type *o_ptr, cptr *immune_list)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	immune_list = spoiler_flag_aux(f2, immune_flags_desc,
-	                               immune_list, N_ELEMENTS(immune_flags_desc));
+				       immune_list, N_ELEMENTS(immune_flags_desc));
 
 	/* Terminate the description list */
 	*immune_list = NULL;
@@ -835,7 +877,7 @@ static void analyze_immune(const object_type *o_ptr, cptr *immune_list)
 static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
 {
 	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
-	                           TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
+				   TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
 
 	u32b f1, f2, f3;
 
@@ -851,8 +893,8 @@ static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
 	else if ((f2 & all_sustains))
 	{
 		sustain_list = spoiler_flag_aux(f2, sustain_flags_desc,
-		                                sustain_list,
-		                                N_ELEMENTS(sustain_flags_desc));
+						sustain_list,
+						N_ELEMENTS(sustain_flags_desc));
 	}
 
 	/* Terminate the description list */
@@ -874,7 +916,7 @@ static void analyze_misc_magic(const object_type *o_ptr, cptr *misc_list)
 	 * Special flags
 	 */
 	misc_list = spoiler_flag_aux(f3, misc_flags3_desc, misc_list,
-	                             N_ELEMENTS(misc_flags3_desc));
+				     N_ELEMENTS(misc_flags3_desc));
 
 	/*
 	 * Artifact lights -- large radius light.
@@ -920,8 +962,8 @@ static void analyze_misc(const object_type *o_ptr, char *misc_desc)
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
 
 	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
-	        a_ptr->level, a_ptr->rarity,
-	        a_ptr->weight / 10, a_ptr->weight % 10, (long)a_ptr->cost);
+		a_ptr->level, a_ptr->rarity,
+		a_ptr->weight / 10, a_ptr->weight % 10, (long)a_ptr->cost);
 }
 
 
@@ -950,12 +992,12 @@ static void object_analyze(const object_type *o_ptr, obj_desc_list *desc_x_ptr)
 }
 
 
-static void print_header(void)
+static void print_header(char *t)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for %s Version %s",
-	        VERSION_NAME, VERSION_STRING);
+        sprintf(buf, "%s Spoilers for %s Version %s",
+                t, VERSION_NAME, VERSION_STRING);
 	spoiler_underline(buf);
 }
 
@@ -1126,7 +1168,6 @@ static void spoiler_print_art(const obj_desc_list *art_ptr)
 	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
 }
 
-
 /*
  * Create a spoiler file for artifacts
  */
@@ -1163,7 +1204,7 @@ static void spoil_artifact(cptr fname)
 	text_out_file = fff;
 
 	/* Dump the header */
-	print_header();
+        print_header("Artifact");
 
 	/* List the artifacts by tval */
 	for (i = 0; group_artifact[i].tval; i++)
@@ -1201,29 +1242,30 @@ static void spoil_artifact(cptr fname)
 
 			if (a_ptr->flags3 & TR3_ACTIVATE)
 			{
-                                s16b book[26];
+				s16b book[26];
 
-                                int i,num;
+				int i,num;
 
-				text_out(INDENT1);
+                                bool powers = FALSE;
 
-                                if (a_ptr->activation)
+                                text_out(INDENT1);
+
+				if (a_ptr->activation)
+				{
+					(void)spell_desc(&s_info[a_ptr->activation], "When activated, it ", 0, TRUE, 1);
+                                        text_out(format(", recharging in %d + d%d turns.\n",a_ptr->time, a_ptr->randtime));
+				}
+                                else
                                 {
-                                        (void)spell_desc(&s_info[a_ptr->activation], "When activated, it ", 0, TRUE);
-                                        text_out(format(", recharging in %d + d%d turns.",a_ptr->time, a_ptr->randtime));
+                                        /* Fill the book with spells */
+                                        fill_book(i_ptr,book,&num);
+		
+                                        for (i = 0; i < num; i++)
+                                        {
+                                                powers |= spell_desc(&s_info[book[i]],(i==0) ?"When activated, it ":", or ",0, TRUE, 1);
+                                        }
+                                        if (powers) text_out(format(", recharging in %d + d%d turns.\n",a_ptr->time, a_ptr->randtime));
                                 }
-
-                                /* Fill the book with spells */
-                                fill_book(i_ptr,book,&num);
-                
-                                for (i = 0; i < num; i++)
-                                {
-                                        (void)spell_desc(&s_info[book[i]],(i==0) ?"When activated, it ":", or ",0, TRUE);
-                                        text_out(format(", recharging in %d + d%d turns.",a_ptr->time, a_ptr->randtime));
-                                }
-
-                                text_out("\n");
-
 			}
 
 			/* Miscellaneous facts */
@@ -1289,14 +1331,14 @@ static void spoil_mon_desc(cptr fname)
 
 	/* Dump the header */
 	fprintf(fff, "Monster Spoilers for %s Version %s\n",
-	        VERSION_NAME, VERSION_STRING);
+		VERSION_NAME, VERSION_STRING);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
 	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
-	        "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
+		"Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
 	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
-	        "----", "---", "---", "---", "--", "--", "-----------");
+		"----", "---", "---", "---", "--", "--", "-----------");
 
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
@@ -1377,7 +1419,7 @@ static void spoil_mon_desc(cptr fname)
 
 		/* Dump the info */
 		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
-		        nam, lev, rar, spd, hp, ac, exp);
+			nam, lev, rar, spd, hp, ac, exp);
 	}
 
 	/* End it */
@@ -1440,7 +1482,7 @@ static void spoil_mon_info(cptr fname)
 
 	/* Dump the header */
 	sprintf(buf, "Monster Spoilers for %s Version %s\n",
-	        VERSION_NAME, VERSION_STRING);
+		VERSION_NAME, VERSION_STRING);
 	text_out(buf);
 	text_out("------------------------------------------\n\n");
 
@@ -1588,9 +1630,9 @@ void do_cmd_spoilers(void)
 
 		/* Prompt for a file */
 		prt("(1) Brief Object Info (obj-desc.spo)", 5, 5);
-		prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
-		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
-		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
+                prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
+                prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
+                prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);
@@ -1611,19 +1653,19 @@ void do_cmd_spoilers(void)
 		}
 
 		/* Option (2) */
-		else if (ch == '2')
+                else if (ch == '2')
 		{
 			spoil_artifact("artifact.spo");
 		}
 
 		/* Option (3) */
-		else if (ch == '3')
+                else if (ch == '3')
 		{
 			spoil_mon_desc("mon-desc.spo");
 		}
 
 		/* Option (4) */
-		else if (ch == '4')
+                else if (ch == '4')
 		{
 			spoil_mon_info("mon-info.spo");
 		}

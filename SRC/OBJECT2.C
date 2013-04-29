@@ -769,12 +769,15 @@ void object_known(object_type *o_ptr)
 	o_ptr->guess1 = 0;
 	o_ptr->guess2 = 0;
 
+	/* Remove name3 if artifact */
+	if (o_ptr->name1) o_ptr->name3 = 0;
+
 	/* Auto-inscribe */
 	if (o_ptr->name2)
 	{
 		if (!o_ptr->note) o_ptr->note = e_info[o_ptr->name2].note;
 
-                e_info[o_ptr->name2].aware = TRUE;
+		e_info[o_ptr->name2].aware = TRUE;
 	}
 	else
 	{
@@ -1574,12 +1577,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_HOLD:
 		case TV_FIGURE:
 		{
-			/* Okay if same type */
-			if ((o_ptr->dropped > 0) || (j_ptr->dropped > 0))
-			{
-				if (o_ptr->dropped != j_ptr->dropped) return(0);
-			}
-
 			/* Require 'similar' timeouts */
 			if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
 				&& !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) )
@@ -1598,6 +1595,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_SCROLL:
 		case TV_RUNESTONE:
 		case TV_MAP:
+		case TV_FLASK:
 		{
 			/* Assume okay */
 			break;
@@ -1763,6 +1761,9 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 
 	/* Hack -- Require identical "xtra1" and "xtra2" status */
 	if ((o_ptr->xtra1 != j_ptr->xtra1) || (o_ptr->xtra2 !=j_ptr->xtra2)) return (0);
+
+	/* Hack -- Require identical "name3" */
+	if (o_ptr->name3 != j_ptr->name3) return(0);
 
 	/* Hack -- Require compatible inscriptions */
 	if (o_ptr->note != j_ptr->note)
@@ -1930,9 +1931,6 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 
 	/* Add together the item counts */
 	o_ptr->number = number;
-
-	/* Hack -- Blend "drops" */		     
-	if (j_ptr->dropped <= 0) o_ptr->dropped = j_ptr->dropped;
 
 	/* Hack -- Blend "known" status */
 	if (object_known_p(j_ptr)) object_known(o_ptr);
@@ -3029,7 +3027,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 		case TV_EGG:
 		{
 			/* Hack -- eggs/spores will hatch */
-			if (o_ptr->dropped > 0) o_ptr->timeout = o_ptr->weight * damroll(2,6) * 10;
+			if (o_ptr->name3 > 0) o_ptr->timeout = o_ptr->weight * damroll(2,6) * 10;
 		}
 
 	}
@@ -3490,9 +3488,6 @@ static void name_drop(object_type *j_ptr)
 {
 	int r_idx = 0;
 
-	/* Hack -- note dropped on floor */
-	j_ptr->dropped = 0 - p_ptr->depth;
-
 	/* Are we done? */
 	if ((j_ptr->tval != TV_BONE) && (j_ptr->tval != TV_EGG) && (j_ptr->tval != TV_STATUE)
 		&& (j_ptr->tval != TV_SKIN) && (j_ptr->tval != TV_BODY) &&
@@ -3525,14 +3520,13 @@ static void name_drop(object_type *j_ptr)
 		if (!r_idx) return;
 
 		/* Flavor the skeleton */
-		j_ptr->dropped = r_idx;
+		j_ptr->name3 = r_idx;
 
 	}
 }
 
 /*
  * Hack -- determine if a template is "mushroom".
- *
  */
 static bool kind_is_shroom(int k_idx)
 {
@@ -3944,7 +3938,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	name_drop(j_ptr);
 
 	/* Modify weight */
-	modify_weight(j_ptr,j_ptr->dropped);
+	modify_weight(j_ptr,j_ptr->name3);
 
 	/* Apply magic (allow artifacts) */
 	apply_magic(j_ptr, object_level, TRUE, good, great);
@@ -4396,11 +4390,11 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	{
 		/* Containers/figurines release contents */
 		if (((j_ptr->tval == TV_FIGURE) || (j_ptr->tval == TV_HOLD))
-			&& (j_ptr->dropped > 0))
+			&& (j_ptr->name3 > 0))
 		{
 			while (j_ptr->number)
 			{
-				race_near(j_ptr->dropped, y, x);
+				race_near(j_ptr->name3, y, x);
 
 				j_ptr->number--;
 			}
@@ -5022,7 +5016,7 @@ static bool vault_trap_floor(int f_idx)
 	if (f_ptr->flags1 & (FF1_DOOR)) return (FALSE);
 
 	/* Decline chest traps */
-	if (f_ptr->flags1 & (FF1_DOOR)) return (FALSE);
+        if (f_ptr->flags3 & (FF3_CHEST)) return (FALSE);
 
 	/* Decline traps we have to pick */
 	if (f_ptr->flags3 & (FF3_PICK_TRAP)) return (FALSE);
@@ -6163,7 +6157,7 @@ s16b inven_takeoff(int item, int amt)
 		act = "You were carrying";
 	}
 	else if ((i_ptr->tval == TV_SWORD) || (i_ptr->tval == TV_POLEARM)
-			|| (i_ptr->tval == TV_HAFTED))
+                        || (i_ptr->tval == TV_HAFTED) || (i_ptr->tval== TV_STAFF))
 	{
 		act = "You were wielding";
 		if (item == INVEN_ARM) act = "You were wielding off-handed";

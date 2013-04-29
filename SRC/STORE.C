@@ -1429,10 +1429,10 @@ static void display_entry(int item)
 		c_put_str(attr, o_name, y, 3);
 
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-                if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
+		if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
 
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-                if (o_ptr->name2) e_info[o_ptr->name2].aware = TRUE;
+		if (o_ptr->name2) e_info[o_ptr->name2].aware = TRUE;
 
 		/* Show weights */
 		if (show_weights)
@@ -1477,6 +1477,8 @@ static void display_entry(int item)
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
                 if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
 
+		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
+		if (o_ptr->name2) e_info[o_ptr->name2].aware = TRUE;
 
 		/* Display a "fixed" cost */
 		if (o_ptr->ident & (IDENT_FIXED))

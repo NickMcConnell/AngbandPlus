@@ -3118,12 +3118,13 @@ void play_game(bool new_game)
 
 		}
 
-		/* Do randarts */
-		do_randart(seed_randart,TRUE);
 #endif
 
 		/* Roll up a new character */
 		player_birth();
+
+                /* Random artifacts */
+                do_randart(seed_randart, TRUE);
 
 		/* Hack -- enter the world */
 		turn = 1;

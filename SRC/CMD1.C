@@ -677,14 +677,14 @@ static bool auto_pickup_never(const object_type *o_ptr)
 	/* Process inscription */
 	while (s)
 	{
-/* Never pickup on "=d" */
-if (s[1] == 'd') return (TRUE);
+		/* Never pickup on "=d" */
+		if (s[1] == 'd') return (TRUE);
 
 		/* Find another '=' */
 		s = strchr(s + 1, '=');
 	}
 
-/* Can pickup */
+	/* Can pickup */
 	return (FALSE);
 }
 
@@ -692,7 +692,7 @@ if (s[1] == 'd') return (TRUE);
 /*
  * Determine if the object can be destroyed, and has "=k" in its inscription.
  */
-static bool auto_pickup_destroy(const object_type *o_ptr)
+static bool auto_destroy_okay(const object_type *o_ptr)
 {
 	cptr s;
 
@@ -705,14 +705,14 @@ static bool auto_pickup_destroy(const object_type *o_ptr)
 	/* Process inscription */
 	while (s)
 	{
-/* Auto-destroy on "=k" */
-if (s[1] == 'k') return (TRUE);
+		/* Auto-destroy on "=k" */
+		if (s[1] == 'k') return (TRUE);
 
 		/* Find another '=' */
 		s = strchr(s + 1, '=');
 	}
 
-/* Don't auto destroy */
+	/* Don't auto destroy */
 	return (FALSE);
 }
 
@@ -733,15 +733,100 @@ bool auto_pickup_ignore(const object_type *o_ptr)
 	/* Process inscription */
 	while (s)
 	{
-/* Auto-ignore on "=i" */
-if (s[1] == 'i') return (TRUE);
+		/* Auto-ignore on "=i" */
+		if (s[1] == 'i') return (TRUE);
 
 		/* Find another '=' */
 		s = strchr(s + 1, '=');
 	}
 
-/* Don't auto destroy */
+	/* Don't auto destroy */
 	return (FALSE);
+}
+
+
+static void py_destroy_aux(int o_idx)
+{
+	char o_name[80];
+	char out_val[160];
+
+	object_type *o_ptr;
+
+	if (o_idx < 0)
+	{
+		object_type object_type_body;
+
+		o_ptr = &object_type_body;
+
+		if (!make_feat(o_ptr,cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
+	else
+	{
+		o_ptr = &o_list[o_idx];
+
+	}
+
+
+	/* Describe the object */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Verify destruction */
+	if (verify_destroy)
+	{
+		sprintf(out_val, "Really destroy %s? ", o_name);
+		if (!get_check(out_val)) return;
+	}
+
+	/* Take turn */
+	p_ptr->energy_use = 100;
+
+	/* Containers release contents */
+	if ((o_ptr->tval == TV_HOLD) && (o_ptr->name3 > 0))
+	{
+		if (animate_object(-o_idx)) return;
+
+		/* Message */
+		msg_format("You cannot destroy %s.", o_name);
+
+		return;
+	}
+
+	/* Artifacts cannot be destroyed */
+	if (artifact_p(o_ptr))
+	{
+
+		/* Message */
+		msg_format("You cannot destroy %s.", o_name);
+
+		/* Sense the object if allowed, don't sense ID'ed stuff */
+		if ((o_ptr->discount == 0)
+			&& !(o_ptr->ident & (IDENT_SENSE))
+			 && !(object_known_p(o_ptr)))
+		{
+			o_ptr->discount = INSCRIP_UNBREAKABLE;
+
+			/* The object has been "sensed" */
+			o_ptr->ident |= (IDENT_SENSE);
+
+			/* Combine the pack */
+			p_ptr->notice |= (PN_COMBINE);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		}
+
+		/* Done */
+		return;
+
+	}
+
+	/* Message */
+	msg_format("You destroy %s.", o_name);
+
+	/* Delete the object directly */
+	delete_object_idx(o_idx);
+
 }
 
 
@@ -772,73 +857,6 @@ static void py_pickup_aux(int o_idx)
 	{
 		o_ptr = &o_list[o_idx];
 
-		/* Check for auto-destroy */
-		if (auto_pickup_destroy(o_ptr))
-		{
-			char out_val[160];
-
-			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
-
-			/* Verify destruction */
-			if (verify_destroy)
-			{
-				sprintf(out_val, "Really destroy %s? ", o_name);
-				if (!get_check(out_val)) return;
-			}
-
-			/* Take turn */
-			p_ptr->energy_use = 100;
-
-			/* Containers release contents */
-			if ((o_ptr->tval == TV_HOLD) && (o_ptr->dropped > 0))
-			{
-				if (animate_object(-o_idx)) return;
-
-				/* Message */
-				msg_format("You cannot destroy %s.", o_name);
-
-				return;
-			}
-
-			/* Artifacts cannot be destroyed */
-			if (artifact_p(o_ptr))
-			{
-
-				/* Message */
-				msg_format("You cannot destroy %s.", o_name);
-
-				/* Sense the object if allowed, don't sense ID'ed stuff */
-				if ((o_ptr->discount == 0)
-					&& !(o_ptr->ident & (IDENT_SENSE))
-					 && !(object_known_p(o_ptr)))
-				{
-					o_ptr->discount = INSCRIP_UNBREAKABLE;
-
-					/* The object has been "sensed" */
-					o_ptr->ident |= (IDENT_SENSE);
-
-					/* Combine the pack */
-					p_ptr->notice |= (PN_COMBINE);
-
-					/* Window stuff */
-					p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-				}
-
-				/* Done */
-				return;
-
-			}
-
-			/* Message */
-			msg_format("You destroy %s.", o_name);
-
-			/* Delete the object directly */
-			delete_object_idx(o_idx);
-
-			return;
-		}
 	}
 
 	/* Carry the object */
@@ -894,13 +912,13 @@ void py_pickup(int pickup)
 		o_ptr = &o_list[this_o_idx];
 
 		/* Mark the object */
-                if (!auto_pickup_ignore(o_ptr))
-                {
-                        o_ptr->marked = TRUE;
+		if (!auto_pickup_ignore(o_ptr))
+		{
+			o_ptr->marked = TRUE;
 
-                        /* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-                        if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
-                }
+			/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
+			if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
+		}
 
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
@@ -929,6 +947,16 @@ void py_pickup(int pickup)
 
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
+
+			/* Check the next object */
+			continue;
+		}
+
+		/* Test for auto-pickup */
+		if (auto_destroy_okay(o_ptr))
+		{
+			/* Pick up the object */
+			py_destroy_aux(this_o_idx);
 
 			/* Check the next object */
 			continue;
@@ -986,16 +1014,8 @@ void py_pickup(int pickup)
 
 #endif /* ALLOW_EASY_FLOOR */
 
-		/* Query before picking up */
-if ((carry_query_flag) && (auto_pickup_destroy(o_ptr)))
-		{
-			char out_val[160];
-sprintf(out_val, "Destroy %s? ", o_name);
-			if (!get_check(out_val)) continue;
-		}
-
 		/* Describe the object */
-		else if ((!pickup) || auto_pickup_never(o_ptr))
+		if ((!pickup) || auto_pickup_never(o_ptr))
 		{
 			msg_format("You see %s.", o_name);
 
@@ -1004,7 +1024,7 @@ sprintf(out_val, "Destroy %s? ", o_name);
 		}
 
 		/* Note that the pack is too full */
-		if (!inven_carry_okay(o_ptr))
+		else if (!inven_carry_okay(o_ptr))
 		{
 			msg_format("You have no room for %s.", o_name);
 
@@ -1013,7 +1033,7 @@ sprintf(out_val, "Destroy %s? ", o_name);
 		}
 
 		/* Query before picking up */
-		if (carry_query_flag)
+		else if (carry_query_flag)
 		{
 			char out_val[160];
 			sprintf(out_val, "Pick up %s? ", o_name);

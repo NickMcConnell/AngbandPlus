@@ -2,7 +2,7 @@
 
 The following commands are new to Unnamed Angband:
 
-Apply rune (y) or Engrave rune (^E)
+Apply rune (y) or (X)
 	Apply a rune from a runestone to an object. Applying runes to
 	objects can have various effects, from transforming an object to a 
 	type more closely associated with that rune, to enchanting the object
@@ -37,15 +37,6 @@ Wear/Wield equipment (w)
 	As describe above, any item can be wielded to halve the time it
 	takes to use the item. Wielding items from the floor takes half
 	the energy that Angband requires.
-
-Destroy an item (k) or Destroy an item (^D)
-	Destroying an item now prompts you to ask if you will destroy all
-	instances of that item. If you answer yes, item of that kind will
-	be inscribed with =k=g when identified, which is an inscription
-	that prompts you to destroy the item when you walk over it (=g for
-	auto-get, =k for destroy item instead of getting it). If the item
-	is an ego-item, all objects of that ego-type will be auto-inscribed
-	instead.
 
 --- Movement Commands ---
 
@@ -158,17 +149,16 @@ Quaff a potion (q)
 	standing in them. Some of these may even have beneficial effects.
 
 Inscribe an object ({)
-	After inscribing an object, you will be prompted to see if you will
-	always inscribe objects of this kind with this inscription.
-	If you answer yes, item of that kind will be inscribed with the same
-	inscription when identified. If the item is an ego-item, all objects
-	of that ego-type will be auto-inscribed instead.
+	After inscribing an identified object, with the easy_autos option
+	selected, all such object kinds will be automatically inscribed with
+	the same inscription. If this is an ego item, all such ego items will
+	be inscribed instead.
 
 	The following additional inscriptions are available: =s, which stacks
 	2 items with this inscription together as if all the force_stack options
 	were available, =d which means you will never pick up an object with
 	this inscription, =k which means you will destroy an object with this
-	inscription instead of pick it up and =i which means you will never 
+	inscription when you walk over it and =i which means you will never 
 	remember an object with this inscription, so that it will not be
 	displayed on the overhead map.
 
@@ -179,11 +169,10 @@ Inscribe an object ({)
 	with a hidden power (Typically the more powerful ego objects).
 
 Uninscribe an object (})
-	After uninscribing an object, you will be prompted to see if you will
-	remove the auto-inscription from objects of this kind. If you answer yes,
-	items of that kind will no longer be automatically be inscribed. If the
-	item is an ego-item, all objects of that ego-type will not be inscribed
-	instead.
+	After uninscribing an identified object, with the easy_autos option
+	selected, the automatic inscription will be removed for all objects of 
+	this kind. If this is an ego item, the ego item's auto inscription will
+	be cleared instead.
 
 --- Magical Object Commands ---
 

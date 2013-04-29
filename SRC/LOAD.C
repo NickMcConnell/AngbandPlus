@@ -352,7 +352,7 @@ static errr rd_item(object_type *o_ptr)
 	/* Item has a monster 'flavor' */
 	if (variant_drop_body)
 	{
-		rd_s16b(&o_ptr->dropped);
+		rd_s16b(&o_ptr->name3);
 	}
 
 	/* Inscription */
@@ -2014,7 +2014,7 @@ static errr rd_savefile_new_aux(void)
 			}
 
 			/* Oops */
-                        if (variant_usage_id) rd_byte(&e_info[i].aware);
+			if (variant_usage_id) rd_byte(&e_info[i].aware);
 			if (variant_usage_id) rd_byte(&tmp8u);
 
 			/* Oops */

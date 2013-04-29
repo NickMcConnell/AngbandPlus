@@ -751,7 +751,7 @@ struct object_type
 
 	s16b held_m_idx;/* Monster holding us (if any) */
 
-	s16b dropped;   /* Race that dropped this item */
+	s16b name3;   /* Race that dropped this item */
 
 	u32b can_flags1;
 	u32b can_flags2;

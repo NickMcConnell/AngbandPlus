@@ -2284,7 +2284,7 @@ void monster_death(int m_idx)
 			{
 
 				/* Note who dropped it */
-				i_ptr->dropped = m_ptr->r_idx;
+				i_ptr->name3 = m_ptr->r_idx;
 
 				/* I'll be back, Bennett */
 				if (r_ptr->flags2 & (RF2_REGENERATE)) i_ptr->timeout = damroll(3,6);
@@ -2397,10 +2397,6 @@ void monster_death(int m_idx)
 			/* Assume seen XXX XXX XXX */
 			dump_item++;
 		}
-
-		/* Note who dropped it */
-		/* Hack -- don't mark existing skeletons */
-		if (i_ptr->dropped <= 0) i_ptr->dropped = m_ptr->r_idx;
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
@@ -2548,7 +2544,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if ((m_ptr->hp < dam) && make_head(i_ptr,m_ptr->r_idx))
 		{
 			/* Note who dropped it */
-			i_ptr->dropped = m_ptr->r_idx;
+			i_ptr->name3 = m_ptr->r_idx;
 
 			/* Drop it in the dungeon */
 			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
@@ -2557,7 +2553,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		else if ((m_ptr->hp - dam < m_ptr->maxhp / 10) && make_part(i_ptr,m_ptr->r_idx))
 		{
 			/* Note who dropped it */
-			i_ptr->dropped = m_ptr->r_idx;
+			i_ptr->name3 = m_ptr->r_idx;
 
 			/* Drop it in the dungeon */
 			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
@@ -2567,7 +2563,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		else if (make_skin(i_ptr,m_idx))
 		{
 			/* Note who dropped it */
-			i_ptr->dropped = m_ptr->r_idx;
+			i_ptr->name3 = m_ptr->r_idx;
 
 			/* Drop it in the dungeon */
 			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);

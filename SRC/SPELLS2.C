@@ -1010,7 +1010,7 @@ bool detect_objects_normal(void)
 			if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
 
 			/* Hack -- have seen object */
-                        if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
+			if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -1188,7 +1188,7 @@ bool detect_objects_magic(void)
 			if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
 
 			/* Hack -- have seen object */
-                        if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
+			if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -1378,7 +1378,7 @@ bool detect_objects_cursed(void)
 			if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
 
 			/* Hack -- have seen object */
-                        if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
+			if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -5051,6 +5051,25 @@ bool process_spell_flags(int spell, int level, bool *cancel)
 		}
 	}
 
+	if (s_ptr->flags2 & (SF2_SLOW))
+	{
+
+		if (!p_ptr->free_act)
+		{
+			if (set_slow(p_ptr->slow + lasts))
+			{
+				obvious = TRUE;
+				/* Always notice */
+				equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+			}
+		}
+		else
+		{
+				/* Always notice */
+				equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+		}
+	}
+
 	if (s_ptr->flags2 & (SF2_HASTE))
 	{
 		if ((p_ptr->fast) && (set_fast(p_ptr->fast + rand_int(s_ptr->l_side/3)))) obvious = TRUE;
@@ -5065,7 +5084,7 @@ bool process_spell_flags(int spell, int level, bool *cancel)
 
 
 
-/* SF3 - healing self, and untimed improvements */
+	/* SF3 - healing self, and untimed improvements */
 
 	if ((s_ptr->flags3 & (SF3_INC_STR)) && (do_inc_stat(A_STR))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_INC_INT)) && (do_inc_stat(A_INT))) obvious = TRUE;
@@ -5081,6 +5100,7 @@ bool process_spell_flags(int spell, int level, bool *cancel)
 	if ((s_ptr->flags3 & (SF3_CURE_CHR))  && (do_res_stat(A_CHR))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_EXP)) && (restore_level())) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_SLOW_CURSE)) && (remove_curse())) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_CURSE)) && (remove_all_curse())) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_SLOW_POIS)) && (set_poisoned(p_ptr->poisoned / 2))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_POIS)) && (set_poisoned(0))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_SLOW_CUTS)) && (set_cut(p_ptr->cut / 2))) obvious = TRUE;
@@ -5152,13 +5172,6 @@ bool process_spell_flags(int spell, int level, bool *cancel)
 			obvious = TRUE;
 		}
 	}
-
-	if (s_ptr->flags3 & (SF3_CURE_CURSE))
-	{
-		remove_all_curse();
-		obvious = TRUE;
-	}
-
 
 	/* Hack -- we should really only set this here */
 	*cancel = FALSE;

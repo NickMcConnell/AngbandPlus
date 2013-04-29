@@ -522,6 +522,8 @@ C:9:35:35:75:13
 F:RECALL
 
 N:39:Acid Bolt
+A:65:16:1
+A:66:20:1
 A:90:20:1
 A:90:8:1
 A:90:10:5
@@ -821,6 +823,7 @@ F:LITE_ROOM
 N:65:Find Traps
 A:55:12:1
 A:66:0:1
+A:70:28:1
 A:91:0:7
 A:91:5:3
 A:93:12:1
@@ -1170,7 +1173,7 @@ D:An image of your surroundings forms in your mind...
 
 N:96:Cure Serious Wounds
 A:75:35:1
-A:80:15:1
+A:80:16:1
 A:91:6:4
 A:92:4:3
 A:92:3:2
@@ -1203,7 +1206,7 @@ F:CURE_CUTS | CURE_STUN
 N:99:Restoration
 A:66:10:1
 A:75:54:1
-A:80:18:1
+A:80:19:1
 A:91:6:8
 A:91:12:7
 A:93:27:3
@@ -1266,6 +1269,7 @@ C:8:37:30:95:10
 S:DESTRUCTION:15
 
 N:105:Annihilation
+A:65:25:1
 A:91:8:5
 A:91:14:9
 A:93:18:12
@@ -1755,7 +1759,7 @@ C:8:33:41:85:23
 B:STORM:ACID:2d0+65
 
 N:161:Acid Bolt III
-A:65:37:1
+A:65:38:1
 A:90:10:11
 A:93:1:24
 C:1:30:19:70:24
@@ -2602,7 +2606,7 @@ L:1d10+10
 F:FEAR
 
 N:259:Confusion
-A:75:7:1
+A:75:9:1
 A:80:3:1
 L:1d10+10
 F:CONFUSE
@@ -2646,17 +2650,17 @@ A:80:13:1
 F:CURE_BLIND
 
 N:269:Cure Confusion
-A:80:13:1
+A:80:15:1
 F:CURE_CONF
 
 N:270:Restore Strength
 A:75:42:1
-A:80:16:1
+A:80:17:1
 F:CURE_STR
 
 N:271:Restore Constition
 A:75:46:1
-A:80:17:1
+A:80:18:1
 F:CURE_CON
 
 N:280:Mana
@@ -2923,6 +2927,7 @@ A:70:48:1
 F:IDENT_RUMOR
 
 N:336:Illumination
+A:55:8:1
 A:66:4:1
 A:70:24:1
 B:AREA:LITE_WEAK:2d8+0
@@ -3074,9 +3079,10 @@ B:STAR:LITE_WEAK:6d8+0
 
 N:364:Mana bolt
 A:65:56:1
+B:BOLT:MANA:4d0+0
 
 N:365:Magical Arrow
-A:65:56:1
+A:65:57:1
 B:BOLT:ARROW:6d0+0
 
 N:366:Remove Fear & Poison
@@ -3278,7 +3284,7 @@ B:ADJACENT:ACID:3d6+0
 # New spells
 
 N:390:Poison Weapon
-A:75:71:1
+A:70:67:1
 A:90:13:14
 A:93:4:23
 C:1:22:30:50:250
@@ -3288,7 +3294,7 @@ C:8:26:30:50:250
 S:BRAND_WEAPON:9
 
 N:391:Poison Arrows
-A:75:72:1
+A:70:68:1
 A:90:13:15
 A:93:4:2
 C:1:15:20:80:200

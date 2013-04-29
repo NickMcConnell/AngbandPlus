@@ -2812,6 +2812,9 @@ errr parse_e_info(char *buf, header *head)
 
 		/* Start with the first of the tval indices */
 		cur_t = 0;
+
+                /* Fix initialisation */
+                e_ptr->aware = 0;
 	}
 
 	/* Process 'W' for "More Info" (one line only) */

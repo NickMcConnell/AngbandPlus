@@ -1,3 +1,17 @@
+- Instruments now wield in the bow slot (Taken from ToME).
+- Paladins and mages can now learn instrument style.
+- Items are no longer flavoured by monster drops unless
+visibly so.
+- Inscribing an object with '=k' will now destroy it when
+you walk over it, regardless of other inscriptions. This
+prevents a bug where you are prompted to destroy an object
+when you have a full inventory.
+- Some fixes to various items in dungeon.
+- Ego objects display in correct location now.
+- Improved object spoilers to include column for object power,
+this is also handy to debug problems with spell.txt file.
+- Made corrections to some more objects.
+
 Unangband 0.5.1 "'Oops. I did it again' again" release
 - Reordered monsters in monster file, rendering save file
 incompatible for the first time ever since Unangband released.
@@ -9,7 +23,6 @@ in strings.
 - Fixed bug preventing players learning spells that was
 introduced in upgrade to 2.9.6.
 - Fixed some minor monster changes.
-
 
 Unangband 0.5.0 "This is Dedicated" release
 - Updated help files to include new options.

@@ -508,7 +508,7 @@ void do_cmd_browse(void)
 			Term_gotoxy(0, 1);
 
 			/* Recall spell */
-			spell_desc(&s_info[spell],"When cast, it ",spell_power(spell), TRUE);
+			spell_desc(&s_info[spell],"When cast, it ",spell_power(spell), TRUE, 1);
 
 			text_out(".");
 

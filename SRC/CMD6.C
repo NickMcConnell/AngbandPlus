@@ -977,7 +977,7 @@ int item, ident, chance, lev, power;
 
 	cptr q, s;
 
-int tmpval;
+	int tmpval, dir;
 
 	/* Restrict choices to rods */
 	item_tester_tval = TV_ROD;
@@ -993,9 +993,9 @@ int tmpval;
 	/* Get the feature */
 	if (item >= INVEN_TOTAL+1)
 	{
-object_type object_type_body;
+		object_type object_type_body;
 
-o_ptr = &object_type_body;
+		o_ptr = &object_type_body;
 
 		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
 	}
@@ -1020,9 +1020,9 @@ o_ptr = &object_type_body;
 	}
 
 	/* Take a (partial) turn */
-if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-else p_ptr->energy_use = 100;
+	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
+	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
+	else p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -1045,22 +1045,22 @@ else p_ptr->energy_use = 100;
 		chance = USE_DEVICE;
 	}
 
-/* Some rooms only give a (slight) chance */
-if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
-{
-/* Special rooms affect some of this */
-int by = p_ptr->py/BLOCK_HGT;
-int bx = p_ptr->px/BLOCK_HGT;
+	/* Some rooms only give a (slight) chance */
+	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+	{
+		/* Special rooms affect some of this */
+		int by = p_ptr->py/BLOCK_HGT;
+		int bx = p_ptr->px/BLOCK_HGT;
 
-/* Get the room */
-if (room_info[dun_room[by][bx]].flags & (ROOM_STATIC))
-{
-chance = USE_DEVICE;
+		/* Get the room */
+		if (room_info[dun_room[by][bx]].flags & (ROOM_STATIC))
+		{
+			chance = USE_DEVICE;
 
-/* Warn the player */
-msg_print("There is a static feeling in the air.");
-}
-}    
+			/* Warn the player */
+			msg_print("There is a static feeling in the air.");
+		}
+	}    
 
 	/* Roll for usage */
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
@@ -1071,7 +1071,7 @@ msg_print("There is a static feeling in the air.");
 	}
 #if 0
 	/* Still charging */
-if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number)))
+	if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number)))
 	{
 		if (flush_failure) flush();
 		msg_print("The rod is still charging.");
@@ -1079,20 +1079,23 @@ if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number)))
 	}
 #endif
 
-/* Store pval */
-tmpval = o_ptr->timeout;
+	/* Store pval */
+	tmpval = o_ptr->timeout;
 
 	/* Sound */
 	sound(MSG_ZAP);
 
+	/* Hack -- get fake direction */
+	if (!object_known_p(o_ptr) && (o_ptr->sval < SV_ROD_MIN_DIRECTION)) get_aim_dir(&dir);
+
 	/* Get rod effect */
-get_spell(&power, "use", o_ptr, FALSE);
+	get_spell(&power, "use", o_ptr, FALSE);
 
-/* Paranoia */
-if (power < 0) return;
+	/* Paranoia */
+	if (power < 0) return;
 
-/* Apply rod effect */
-ident = process_spell(power, 0, &cancel);
+	/* Apply rod effect */
+	ident = process_spell(power, 0, &cancel);
 
 	/* Time rod out */
 	o_ptr->timeout = o_ptr->pval;

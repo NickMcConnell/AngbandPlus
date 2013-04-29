@@ -2390,11 +2390,11 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* Containers/figurines release contents */
 			if (((o_ptr->tval == TV_FIGURE) || (o_ptr->tval == TV_HOLD))
-				&& (o_ptr->dropped > 0))
+				&& (o_ptr->name3 > 0))
 			{
 				while (o_ptr->number)
 				{
-					(void)(race_near(o_ptr->dropped, y, x));
+					(void)(race_near(o_ptr->name3, y, x));
 	
 					o_ptr->number--;
 				}

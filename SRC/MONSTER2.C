@@ -3060,10 +3060,10 @@ bool animate_object(int item)
 	}
 
 	/* Paranoia */
-	if (o_ptr->dropped <= 0) return (FALSE);
+	if (o_ptr->name3 <= 0) return (FALSE);
 
 	/* Summon the specific race */
-	summon_specific_one(y1, x1, o_ptr->dropped, FALSE);
+	summon_specific_one(y1, x1, o_ptr->name3, FALSE);
 
 	/* Hack -- no result */
 	if (!result)

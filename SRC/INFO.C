@@ -25,6 +25,14 @@
 
 
 /*
+ * Modes of object_flags_aux()
+ */
+#define SPELL_TARGET_NORMAL   1 /* Target selected normally */
+#define SPELL_TARGET_SELF     2 /* Always targets self */
+#define SPELL_TARGET_AIMED    3 /* Always targets aimed target */
+
+
+/*
  * Obtain the "flags" for an item
  */
 static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
@@ -209,7 +217,7 @@ void identify_random_gen(const object_type *o_ptr)
 /*
  * Hack -- Get spell description
  */
-bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detail)
+bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detail, int target)
 {
 	int vn;
 
@@ -510,7 +518,7 @@ bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detai
 
 	if (s_ptr->flags2 & (SF2_INFRA)) vp[vn++]="extends your infravision by 50 feet";
 	if (s_ptr->flags2 & (SF2_HERO)) vp[vn++]="makes you heroic";
-	if (s_ptr->flags2 & (SF2_SHERO)) vp[vn++]="makes you go beserk";
+        if (s_ptr->flags2 & (SF2_SHERO)) vp[vn++]="makes you go berserk";
 	if (s_ptr->flags2 & (SF2_BLESS)) vp[vn++]="blesses you";
 	if (s_ptr->flags2 & (SF2_SHIELD)) vp[vn++]="shields you";
 	if (s_ptr->flags2 & (SF2_INVULN)) vp[vn++]="makes you invulnerible to damage";
@@ -867,6 +875,18 @@ bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detai
 		/* No target yet */
 		t = NULL;
 
+		/* Hack -- potions and food */
+		switch(target)
+		{
+			case SPELL_TARGET_SELF:
+				if ((method!= RBM_SPIT) && (method != RBM_BREATH) && (method!= RBM_VOMIT)) method = RBM_SELF;
+				break;
+
+			case SPELL_TARGET_AIMED:
+				method = RBM_AIM;
+				break;
+		}
+
 		/* Get the method */
 		switch (method)
 		{
@@ -929,12 +949,13 @@ bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detai
 			case GF_POIS: q = "poison"; break;
 			case GF_LITE: q = "blast"; u = "with powerful light";break;
 			case GF_DARK: q = "blast"; u = "with powerful darkness";break;
-			case GF_WATER: q="blast"; u = "with water";break;		      case GF_CONFUSION:      q = "confuse"; break;
+			case GF_WATER: q="blast"; u = "with water";break;
+		      case GF_CONFUSION:      q = "confuse"; break;
 			case GF_SOUND: q = "deafen";break;
 			case GF_SHARD: q = "blast"; u = "with shards";break;
 			case GF_NEXUS: q = "blast"; u = "with nexus";break;
 			case GF_NETHER: q = "blast"; u = "with nether";break;
-			case GF_CHAOS: q = "blast"; u = "with chaoas";break;
+                        case GF_CHAOS: q = "blast"; u = "with chaos";break;
 			case GF_DISENCHANT: q = "blast"; u = "with disenchantment";break;
 			case GF_KILL_WALL: q = "remove"; s = "rock from"; break;
 			case GF_KILL_DOOR: q = "remove"; s = "doors from"; break;
@@ -1188,6 +1209,9 @@ void spell_info(char *p, int spell, bool use_level)
 		d3 = s_ptr->blow[m].d_plus;
 		rad = 0;
 
+                /* Hack -- heroism/berserk strength */
+                if (((s_ptr->l_dice) || (s_ptr->l_side) || (s_ptr->l_plus)) && (effect == GF_OLD_HEAL)) continue;
+
 		/* Hack -- use level as modifier */
 		if ((!d2) && (!level))
 		{
@@ -1229,7 +1253,7 @@ void spell_info(char *p, int spell, bool use_level)
 			case GF_OLD_CLONE: q="pow"; break;
 			case GF_OLD_POLY: q="pow"; break;
 			case GF_OLD_HEAL: q="heal"; break;
-			case GF_AWAY_ALL: q="range "; break;
+                        case GF_AWAY_ALL: q="range"; break;
 			case GF_OLD_SPEED: q="pow"; break;
 			case GF_OLD_SLOW: q="pow"; break;
 			case GF_OLD_CONF: q="pow"; break;
@@ -1558,7 +1582,7 @@ void screen_object(const object_type *o_ptr, bool real)
 	Term_gotoxy(0, 1);
 
 	/* Actually display the item */
-      list_object(o_ptr, OBJECT_FLAGS_KNOWN);
+        list_object(o_ptr, OBJECT_FLAGS_KNOWN);
 
 	/* Display item name */
 	obj_top(o_ptr, real);
@@ -1783,6 +1807,26 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3)
 
 	}
 
+	/* Miscellenious Abilities */
+	if (f3)
+	{
+		list_ptr = list;
+
+		/*
+		 * Special flags
+		 */
+		list_ptr = spoiler_flag_aux(f3, sense_flags3_desc, list_ptr,
+					     N_ELEMENTS(sense_flags3_desc));
+
+		/* Terminate the description list */
+		*list_ptr = NULL;
+	
+		/* Other flags */
+		anything |= outlist("It senses", list);
+
+	}
+
+
 
 	/* Miscellenious Abilities */
 	if (f2)
@@ -1842,7 +1886,7 @@ void list_object(const object_type *o_ptr, int mode)
 	bool detail = FALSE;
 	bool powers = FALSE;
 
-	cptr p;
+        cptr p = NULL;
 
 	s16b book[26];
 
@@ -1954,16 +1998,20 @@ void list_object(const object_type *o_ptr, int mode)
 		&& (o_ptr->tval !=TV_MAGIC_BOOK) && (o_ptr->tval != TV_PRAYER_BOOK)
 		&& (o_ptr->tval !=TV_SONG_BOOK) && (o_ptr->tval != TV_RUNESTONE))
 	{
+		int target = SPELL_TARGET_NORMAL;
+
 		switch (o_ptr->tval)
 		{
 			case TV_POTION:
 				p = "When quaffed, it ";
+				target = SPELL_TARGET_SELF;
 				break;
 			case TV_SCROLL:
 				p = "When read, it ";
 				break;
 			case TV_FOOD:
 				p = "When eaten, it ";
+				target = SPELL_TARGET_SELF;
 				break;
 			case TV_ROD:
 				p = "When zapped, it ";
@@ -1975,10 +2023,17 @@ void list_object(const object_type *o_ptr, int mode)
 			case TV_WAND:
 				p = "When aimed, it ";
 				break;
-			default:
-				p = "When activated, it ";
-				charge = (k_info[o_ptr->k_idx].used > o_ptr->pval) || (o_ptr->ident & (IDENT_MENTAL)) || (spoil);
+			case TV_FLASK:
+			case TV_LITE:
+				p = "When thrown, it ";
+				target = SPELL_TARGET_AIMED;
 				break;
+		}
+
+                if ((f3 & TR3_ACTIVATE) && !(strlen(p)))
+		{
+			p = "When activated, it ";
+			charge = (k_info[o_ptr->k_idx].used > o_ptr->pval) || (o_ptr->ident & (IDENT_MENTAL)) || (spoil);
 		}
 
 		/* Artifacts */
@@ -1991,31 +2046,36 @@ void list_object(const object_type *o_ptr, int mode)
 
 			if (a_ptr->activation)
 			{
-				if (spell_desc(&s_info[a_ptr->activation],p,0,art_detail))
+				if (spell_desc(&s_info[a_ptr->activation],"When activated, it ",0,art_detail, 1))
 				{
 					anything = TRUE;
 
 					if (art_charge) text_out(format(", recharging in %d + d%d turns.",a_ptr->time,a_ptr->randtime));
 					else text_out(".");
 				}
+
+                                p = NULL;
 			}
 		}
 
-		/* Fill the book with spells */
-		fill_book(o_ptr,book,&num);
-
-		/* Detailled explaination */
-		detail = (k_info[o_ptr->k_idx].used > 4 * k_info[o_ptr->k_idx].level * num) || (spoil) || (o_ptr->ident & (IDENT_MENTAL));
-
-		for (i = 0; i < num; i++)
+                if (strlen(p))
 		{
-			powers |= spell_desc(&s_info[book[i]],(i==0)?p:", or ",0,detail);
+			/* Fill the book with spells */
+			fill_book(o_ptr,book,&num);
+
+			/* Detailled explaination */
+			detail = (k_info[o_ptr->k_idx].used > 4 * k_info[o_ptr->k_idx].level * num) || (spoil) || (o_ptr->ident & (IDENT_MENTAL));
+
+			for (i = 0; i < num; i++)
+			{
+				powers |= spell_desc(&s_info[book[i]],(i==0)?p:", or ",0,detail, target);
+			}
+
+			if ((charge) && (powers)) text_out(format(", recharging in d%d turns.",o_ptr->pval));
+			else if (powers) text_out(".");
+
+			anything |= powers;
 		}
-
-		if ((charge) && (powers)) text_out(format(", recharging in d%d turns.",o_ptr->pval));
-		else if (powers) text_out(".");
-
-		anything |= powers;
 	}
 
 	/* Unknown extra powers (ego-item with random extras or artifact) */
@@ -2237,7 +2297,6 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 
 	artifact_type *a_ptr = &a_info[name1];
 
-
 	/* Ignore "empty" artifacts */
 	if (!a_ptr->name) return FALSE;
 
@@ -2385,15 +2444,14 @@ void object_guess_name(object_type *o_ptr)
 		for (ii = 0; ii < 3; ii++)
 		{
 			/* Require identical base type */
-			if (o_ptr->tval == e_ptr->tval[ii])
+			if (o_ptr->tval != e_ptr->tval[ii])
 			{
-				/* Require sval in bounds */
-				if ((o_ptr->sval < e_ptr->min_sval[ii]) || (o_ptr->sval > e_ptr->max_sval[ii]))
-				{
-					continue;
-				}
+				continue;
 			}
-			else continue;
+			else if ((o_ptr->sval < e_ptr->min_sval[ii]) || (o_ptr->sval > e_ptr->max_sval[ii]))
+			{
+				continue;
+			}
 		}
 
 		/* Must possess powers */
@@ -3190,7 +3248,7 @@ void object_usage(int slot)
 	}
 
 	/* Hack --- know most things */
-	if ((o_ptr->usage) > 5000)
+        if (!object_known_p(o_ptr) && ((o_ptr->usage) > 5000))
 	{
 
 		/* Describe what we know */
@@ -3213,8 +3271,8 @@ void object_usage(int slot)
 
 	}
 
-	if (((o_ptr->usage) > 500) && (((o_ptr->usage) % 100) == 0)
-		&& (o_ptr->ident & (IDENT_SENSE)) && (rand_int(100) <30))
+	if (!object_bonus_p(o_ptr) &&  ((o_ptr->usage) > 500) && (((o_ptr->usage) % 100) == 0)
+		&& (rand_int(100) <30))
 	{
 
 		/* Describe what we know */
@@ -3284,9 +3342,17 @@ void update_slot_flags(int slot, u32b f1, u32b f2, u32b f3)
 	/* Set text_out hook */
 	text_out_hook = text_out_to_screen;
 
+	/* Begin recall */
+	Term_gotoxy(0, 1);
+
 	/* Display known properties */
 	list_object_flags(f1,f2,f3);
 
+	/* Wait */
+	inkey();	
+
+	/* Load screen */
+	screen_load();
 
 }
 

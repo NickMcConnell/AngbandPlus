@@ -49,18 +49,7 @@
 # 'M' is for magic info - tval of the used spellbook, number of the
 # spell-stat, level of the first spell, weight that hurts spells.
 
-# 'B' is for spell/prayer info - number of the spell, level, mana
-# required, fail-rate, experience for first casting.
-# (Note: Spellbooks are treated in the following orders...
-# Mage: Magic for Beginners, Conjurings and Tricks, Incantations and 
-# Illusions, Sorcery and Evocations, Mordenkainen's Escapes, Raal's
-# Tome of Destruction, Kelek's Grimoire of Power, Resistance of 
-# Scarabtarices, Tenser's Transformations.
-# Priest: Book of Common Prayer, Words of Wisdom, Chants and Blessings,
-# Exorcism and Dispelling, Godly Insights, Purifications and Healing,
-# Wrath of God, Holy Infusions, Ethereal Openings.)
-
-# 'T' is for class titles.
+# 'T' is for class titles (Up to 10 entries).
 
 # 'E' is for starting equipment - tval of the item, sval of the item,
 # minimum amount, maximum amount.

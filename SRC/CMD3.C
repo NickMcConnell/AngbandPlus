@@ -657,7 +657,6 @@ void do_cmd_destroy(void)
 
 	cptr q, s;
 
-
 	/* Get an item */
 	q = "Destroy which item? ";
 	s = "You have nothing to destroy.";
@@ -695,20 +694,20 @@ void do_cmd_destroy(void)
 	}
 
 	/* Take a (partial) turn */
-if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-else p_ptr->energy_use = 100;
+	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
+	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
+	else p_ptr->energy_use = 100;
 
-/* Containers release contents */
-if ((o_ptr->tval == TV_HOLD) && (o_ptr->dropped > 0))
-{
-if (animate_object(item)) return;
+	/* Containers release contents */
+	if ((o_ptr->tval == TV_HOLD) && (o_ptr->name3 > 0))
+	{
+		if (animate_object(item)) return;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
-return;
-}
+		return;
+        }
 
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
@@ -718,11 +717,11 @@ return;
 		msg_format("You cannot destroy %s.", o_name);
 
 		/* Sense the object if allowed, don't sense ID'ed stuff */
-if ((o_ptr->discount == 0)
-&& !(o_ptr->ident & (IDENT_SENSE))
- && !(object_known_p(o_ptr)))
+		if ((o_ptr->discount == 0)
+		&& !(o_ptr->ident & (IDENT_SENSE))
+		 && !(object_known_p(o_ptr)))
 		{
-o_ptr->discount = INSCRIP_UNBREAKABLE;
+			o_ptr->discount = INSCRIP_UNBREAKABLE;
 
 			/* The object has been "sensed" */
 			o_ptr->ident |= (IDENT_SENSE);
@@ -743,18 +742,18 @@ o_ptr->discount = INSCRIP_UNBREAKABLE;
 	/* Message */
 	msg_format("You destroy %s.", o_name);
 
-/* Sometimes use lower stack object */
-if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
-{
-if (amt >= o_ptr->stackc)
-{
-o_ptr->stackc = 0;
-}
-else
-{
-o_ptr->stackc -= amt;
-}
-}
+        /* Sometimes use lower stack object */
+        if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+        {
+                if (amt >= o_ptr->stackc)
+                {
+                        o_ptr->stackc = 0;
+                }
+                else
+                {
+                        o_ptr->stackc -= amt;
+                }
+        }
 
 	/* Forget guessed flags */
 	if (amt == o_ptr->number) inven_drop_flags(o_ptr);
@@ -766,15 +765,13 @@ o_ptr->stackc -= amt;
 		inven_item_describe(item);
 		inven_item_optimize(item);
 	}
-
 	/* Eliminate the item (from the floor) */
 	else
 	{
 		floor_item_increase(0 - item, -amt);
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
-}
-
+        }
 
 }
 
@@ -1108,7 +1105,7 @@ static bool item_tester_empty_flask_or_lite(const object_type *o_ptr)
 	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval == SV_FLASK_EMPTY)) return (TRUE);
 
 	/* Empty bottles are okay */
-	if ((o_ptr->tval == TV_HOLD) && (o_ptr->sval == SV_HOLD_BOTTLE) && (o_ptr->dropped <= 0)) return (TRUE);
+	if ((o_ptr->tval == TV_HOLD) && (o_ptr->sval == SV_HOLD_BOTTLE) && !(o_ptr->name3)) return (TRUE);
 
 	/* Lanterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&

@@ -321,6 +321,10 @@
  */
 #define MONSTER_FLOW
 
+/*
+ * OPTION: Allow monsters to carry lites.
+ */
+#define MONSTER_LITE
 
 /*
  * OPTION: Allow use of the "smart_monsters" and "smart_packs"
@@ -550,7 +554,7 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
-# undef ALLOW_TERROR
+# undef MONSTER_LITE
 # undef DRS_SMART_OPTIONS
 # undef GJW_RANDART
 # undef ALLOW_BORG

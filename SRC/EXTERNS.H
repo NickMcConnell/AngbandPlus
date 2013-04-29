@@ -449,7 +449,7 @@ extern void display_scores_aux(int from, int to, int note, high_score *score);
 extern void generate_cave(void);
 
 /* info.c */
-extern bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detail);
+extern bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detail, int target);
 extern void spell_info(char *p, int spell, bool use_level);
 extern bool list_object_flags(u32b f1, u32b f2, u32b f3);
 extern void list_object(const object_type *o_ptr, int mode);

@@ -393,7 +393,7 @@ static void prt_hunger(void)
 	/* Normal */
 	else if (p_ptr->food < PY_FOOD_FULL)
 	{
-		c_put_str(TERM_L_GREEN, "      ", ROW_HUNGRY, COL_HUNGRY);
+                c_put_str(TERM_L_GREEN, "      ", ROW_HUNGRY, COL_HUNGRY);
 	}
 
 	/* Full */
@@ -437,7 +437,7 @@ static void prt_confused(void)
 	}
 	else
 	{
-		put_str("	", ROW_CONFUSED, COL_CONFUSED);
+                put_str("        ", ROW_CONFUSED, COL_CONFUSED);
 	}
 }
 
@@ -469,7 +469,7 @@ static void prt_poisoned(void)
 	}
 	else
 	{
-		put_str("	", ROW_POISONED, COL_POISONED);
+                put_str("        ", ROW_POISONED, COL_POISONED);
 	}
 }
 
@@ -598,7 +598,7 @@ static void prt_state(void)
 	/* Nothing interesting */
 	else
 	{
-		strcpy(text, "	  ");
+                strcpy(text, "          ");
 	}
 
 	/* Hack -- handle some other stuff here. Don't change attr, so we inherit it from above. */
@@ -690,8 +690,8 @@ static void prt_cut(void)
 	}
 	else
 	{
-		put_str("	    ", ROW_CUT, COL_CUT);
-	}
+                put_str("            ", ROW_CUT, COL_CUT);
+        }
 }
 
 
@@ -714,7 +714,7 @@ static void prt_stun(void)
 	}
 	else
 	{
-		put_str("	    ", ROW_STUN, COL_STUN);
+                put_str("            ", ROW_STUN, COL_STUN);
 	}
 }
 
@@ -3176,7 +3176,7 @@ static void calc_bonuses(void)
 		/* Set weapon preference styles */
 		switch(o_ptr->tval)
 		{
-		  case TV_STAFF:
+                        case TV_STAFF:
 			case TV_HAFTED:
 			{
 				p_ptr->cur_style |= (1L << WS_HAFTED);
@@ -3190,12 +3190,6 @@ static void calc_bonuses(void)
 			case TV_POLEARM:
 			{
 				p_ptr->cur_style |= (1L << WS_POLEARM);
-				break;
-			}
-			case TV_INSTRUMENT:
-			{
-				p_ptr->cur_style |= (1L << WS_INSTRUMENT);
-				p_ptr->cur_style |= (1L << WS_UNARMED);
 				break;
 			}
 			case TV_DIGGING:
@@ -3215,6 +3209,10 @@ static void calc_bonuses(void)
 	{
 		p_ptr->cur_style |= (1L << WS_THROWN);
 	}
+        else if (o_ptr->tval==TV_INSTRUMENT)
+        {
+                p_ptr->cur_style |= (1L << WS_INSTRUMENT);
+        }
 	else if (o_ptr->tval==TV_BOW)
 	{
 		/* Set shooting preference styles */
