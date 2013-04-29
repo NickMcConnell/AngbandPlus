@@ -2416,6 +2416,7 @@ bool brand_missile(int ammo_type, int brand_type)
   
   /* Brand */
   o_ptr->name2 = choice;
+  o_ptr->multiple_brand[choice - EGO_ACIDIC] = BRAND_BOOST_NORMAL;
   
   /* Enchant */
   enchant(o_ptr, rand_int(4) + 3, ENCH_TOHIT | ENCH_TODAM);
@@ -3947,7 +3948,8 @@ bool aggravate_monsters(int who, bool the_entire_level)
       else 
 	{
 	  /* Wake up nearby sleeping monsters */
-	  if (m_ptr->cdis < MAX_SIGHT)
+	  if (m_ptr->cdis < (p_ptr->themed_level ? 
+			     MAX_SIGHT : MAX_SIGHT * 2))
 	    {
 	      /* Wake up */
 	      if (m_ptr->csleep)
@@ -3993,12 +3995,11 @@ bool genocide(void)
   
   char typ;
   
-  bool result = FALSE;
-  
   
   /* Mega-Hack -- Get a monster symbol */
+
   if (!get_com("Choose a monster race (by symbol) to genocide: ", &typ))
-    return (result);
+    return (FALSE);
   
   /* Delete the monsters of that "type" */
   for (i = 1; i < m_max; i++)
@@ -4023,12 +4024,9 @@ bool genocide(void)
       
       /* Take some damage */
       take_hit(randint(4), "the strain of casting Genocide");
-      
-      /* Take note */
-      result = TRUE;
     }
   
-  return (result);
+  return (TRUE);
 }
 
 
@@ -4038,9 +4036,6 @@ bool genocide(void)
 bool mass_genocide(void)
 {
   int i;
-  
-  bool result = FALSE;
-  
   
   /* Delete the (nearby) monsters */
   for (i = 1; i < m_max; i++)
@@ -4065,12 +4060,9 @@ bool mass_genocide(void)
       
       /* Take some damage */
       take_hit(randint(3), "the strain of casting Mass Genocide");
-      
-      /* Note effect */
-      result = TRUE;
     }
   
-  return (result);
+  return (TRUE);
 }
 
 

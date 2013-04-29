@@ -1,6 +1,6 @@
                                                                                
              ****************************************************              
-             **   FAangband 1.0.1  ****   First Age Angband    **              
+             **   FAangband 1.0.2  ****   First Age Angband    **              
              ** Beleriand in the days of the War of the Jewels **              
              ****************************************************              
                                                                                

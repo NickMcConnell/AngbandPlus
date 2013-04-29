@@ -2895,7 +2895,7 @@ void do_cmd_store(void)
   feature_type *f_ptr = &f_info[cave_feat[py][px]];
   
   /* Verify a store */
-  if (!f_ptr->flags & TF_SHOP)
+  if (!(f_ptr->flags & TF_SHOP))
     {
       msg_print("You see no store here.");
       return;

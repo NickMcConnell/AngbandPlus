@@ -1974,7 +1974,7 @@ errr Term_mousepress(int x, int y, char button)
  */
 errr Term_key_push(int k)
 {
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   
   if (!k) return (-1);
   

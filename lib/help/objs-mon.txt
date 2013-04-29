@@ -109,34 +109,31 @@ Object Inscriptions:
           The game also inscribes objects automatically.  Wands and staves which 
      are known to be empty will be inscribed with "empty".  Objects which have 
      been tried at least once but haven't been identified yet will be inscribed 
-     with "tried".  Cursed objects are inscribed with "cursed".  Broken objects 
-     may be inscribed with "broken".  Artifacts that you discovered by trying to 
-     destroy them will be inscribed "special" or "terrible".  Items purchased at 
-     a discount are so marked.  Some of these inscriptions will disappear when 
-     the item is identified, and you may overwrite others.
+     with "tried".  Artifacts that you discovered by trying to destroy them 
+     will be inscribed "special".  Items purchased at a discount are so marked.
+     Some of these inscriptions will disappear when the item is identified, 
+     and you may overwrite others.
 
 Pseudo-ID:
           All adventurers are able to automatically gain information about many 
-     equippable objects, but some classes are much more likely to learn about 
-     objects this way than others.  Priests, and Mages, Rangers, Druids, and 
-     Necromancers to a lesser extent, can tell whether an item is "good" (with 
-     magical enhancements of some sort), or "cursed" (items with foul magics 
-     that need at least a scroll of Remove Curse to take off).  Warriors, and 
-     Rogues, Paladins, and Assassins to a lesser extent, can learn whether an 
-     item is "terrible" (a item with perilous magics), "cursed", "average" (an 
-     item with no magical bonuses or penalties), "good", "excellent" (an item 
-     that grants special bonuses or abilities), or even "special" (an artifact).
+     equippable objects, but some classes learn more about objects this way 
+     than others.  Priests, Mages, Druids, and Necromancers can tell whether 
+     an item is "good" (with magical enhancements of some sort), or "dubious" 
+     (items with some disadvantages).  Warriors, Rogues, Paladins, Rangers and 
+     Assassins can learn whether an item is "perilous" (a powerful item with 
+     some disadvantages), "dubious", "average" (an item with no magical 
+     bonuses or penalties), "good", "excellent" (an item that grants special 
+     bonuses or abilities), or even "special" (an artifact).
 
 Cursed Objects:
-          Some objects, mainly armor and weapons, have had curses laid upon them 
-     by joyful evil sorcerers who enjoy a good joke when it gets you killed.  
-     These horrible objects will look like any other item, but will detract from 
-     your character's stats or abilities if worn.  They will also be impossible 
-     to remove until a remove curse is performed.  In fact some are so badly 
-     cursed that even this will not work, and more potent methods are needed.
-          If you wear or wield a cursed item, you will immediately feel deathly 
-     cold, and the item will be marked "cursed".
-          Shopkeepers will refuse to buy any item which is known to be cursed.
+          Some objects, mainly armor and weapons, are cursed.  There are many 
+     different curses, some of them more deadly than others - for more 
+     information on the different types, see the help file "equip.txt".  Some
+     curses have the potential to be removed; curse removal on these does not 
+     always work, though, and attempting again may destroy the item (even 
+     artifacts).  The curses on many items and standard artifacts are known
+     immediately on identification, but there are other items where the curses
+     need to be discovered by use or by a Scroll of Reveal Curses.
 
 
 

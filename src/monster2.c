@@ -1232,7 +1232,7 @@ void update_mon(int m_idx, bool full)
   
   
   /* Nearby */
-  if (d <= MAX_SIGHT)
+  if (d <= (p_ptr->themed_level ? MAX_SIGHT / 2 : MAX_SIGHT))
     {
       /* Basic telepathy */
       if (p_ptr->telepathy || p_ptr->tim_esp)
@@ -2318,7 +2318,13 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
     }
   
   /* Require the "group" flag */
-  if (!grp) return (TRUE);
+  if (!grp) 
+    {
+      /* Cancel group mode */
+      group_mode = FALSE;
+
+      return (TRUE);
+    }
 
   /* The original monster is the group leader */
   group_leader = cave_m_idx[y][x];  
@@ -2344,6 +2350,9 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 
   /* Cancel group leader */
   group_leader = 0;
+  
+  /* Cancel group mode */
+  group_mode = FALSE;
   
   /* Success */
   return (TRUE);

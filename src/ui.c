@@ -116,7 +116,7 @@ void stop_event_loop()
 event_type run_event_loop(event_target * target, bool forever, 
                           const event_type *start)
 {
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   bool handled = TRUE;
 
   while (forever || handled)
@@ -566,7 +566,7 @@ static bool handle_menu_key(char cmd, menu_type *menu, int cursor)
   if (menu->row_funcs->row_handler &&
       menu->row_funcs->row_handler(cmd, (void *)menu->menu_data, oid))
     {
-      event_type ke;
+      event_type ke = EVENT_EMPTY;
       ke.type = EVT_SELECT;
       ke.key = cmd;
       ke.index = cursor;
@@ -641,7 +641,7 @@ static bool menu_handle_event(menu_type *menu, const event_type *in)
 {
   int n = menu->filter_count;
   int *cursor = &menu->cursor;
-  event_type out;
+  event_type out = EVENT_EMPTY;
   
   out.key = '\xff';
   
@@ -882,7 +882,7 @@ static const panel_type menu_target =
  */
 event_type menu_select(menu_type *menu, int *cursor, int no_handle)
 {
-  event_type ke;
+  event_type ke = EVENT_EMPTY;
   
   menu->cursor = *cursor;
   

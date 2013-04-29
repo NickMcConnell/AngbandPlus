@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"1.0.1"
+#define VERSION_STRING	"1.0.2"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	0
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -490,10 +490,8 @@
 #define MAX_RANGE_LGE   20      /* Maximum projection range */
 #define MAX_SIGHT_SML   10      /* Maximum view distance (small devices) */
 #define MAX_RANGE_SML   10      /* Maximum projection range (small devices) */
-#define MAX_SIGHT ((adult_small_device || (p_ptr->themed_level != 0))	\
-		    ? MAX_SIGHT_SML : MAX_SIGHT_LGE)  
-#define MAX_RANGE ((adult_small_device || (p_ptr->themed_level != 0))	\
-		    ? MAX_RANGE_SML : MAX_RANGE_LGE)
+#define MAX_SIGHT (adult_small_device ? MAX_SIGHT_SML : MAX_SIGHT_LGE)  
+#define MAX_RANGE (adult_small_device ? MAX_RANGE_SML : MAX_RANGE_LGE)
 
 
 /*

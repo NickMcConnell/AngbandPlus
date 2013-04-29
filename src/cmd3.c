@@ -1511,7 +1511,7 @@ void do_cmd_locate(void)
       /* Get a direction */
       while (!dir)
 	{
-	  event_type ke;
+	  event_type ke = EVENT_EMPTY;
 	  
 	  /* Get a command (or Cancel) */
 	  if (!get_com_ex(out_val, &ke)) break;
@@ -1776,7 +1776,7 @@ void do_cmd_query_symbol(void)
   int i, j, n, r_idx;
   int start = 0, last_level = 0;
   char sym;
-  event_type query;
+  event_type query = EVENT_EMPTY;
   char search_str[60] = "";
   char monster_name[80];
   char buf[128];

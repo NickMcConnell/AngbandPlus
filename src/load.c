@@ -2021,12 +2021,14 @@ static errr rd_savefile_new_aux(void)
 	      for (k = 0; k < A_MAX; k++)
 		{
 		  rd_byte(&tmp8u);
-		  a_info[j].bonus_stat[k] = tmp8u;
+		  if (tmp8u < 129) a_info[j].bonus_stat[k] = (int)tmp8u;
+		  else a_info[j].bonus_stat[k] = (int)(tmp8u - 256);
 		}
 	      for (k = 0; k < MAX_P_BONUS; k++)
 		{
 		  rd_byte(&tmp8u);
-		  a_info[j].bonus_other[k] = tmp8u;
+		  if (tmp8u < 129) a_info[j].bonus_other[k] = (int)tmp8u;
+		  else a_info[j].bonus_other[k] = (int)(tmp8u - 256);
 		}
 	      for (k = 0; k < MAX_P_SLAY; k++)
 		{

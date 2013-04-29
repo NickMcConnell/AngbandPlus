@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:1.0.1
+V:1.0.2
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -1856,7 +1856,7 @@ I:45:10:0
 W:38:0:2:1000
 A:38/2
 B:STR[1] | DEX[1] | CON[1] 
-F:SUST_STR | SUST_DEX | SUST_CON | EASY_KNOW
+F:SUST_STR | SUST_DEX | SUST_CON 
 D:that provides physical endurance.
 
 N:271:Mental Strength
@@ -1865,7 +1865,7 @@ I:45:11:0
 W:38:0:2:1000
 A:38/2
 B:INT[1] | WIS[1] | CHR[1] 
-F:SUST_INT | SUST_WIS | SUST_CHR | EASY_KNOW
+F:SUST_INT | SUST_WIS | SUST_CHR 
 D:that provides mental strength.
 
 N:272:Darkness
