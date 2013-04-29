@@ -1952,8 +1952,8 @@ extern int make_dump(char_attr_line *line, int mode)
   if (mode != 1)
     {  
       /* Begin dump */
-      sprintf(buf, "[FAangband %d.%d.%d Character Dump]",
-	      VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+      sprintf(buf, "[FAangband %s Character Dump]",
+	      VERSION_STRING);
       dump_put_str(TERM_WHITE, buf, 2);
       current_line++;
       
@@ -2818,7 +2818,7 @@ extern int make_dump(char_attr_line *line, int mode)
       else if ((region != UNDERWORLD) && (region != MOUNTAIN_TOP))
 	strnfmt(place, sizeof(place), "%15s Town", locality_name[region]);
       else
-	strnfmt(place, sizeof(place), "%15s    ", locality_name[region]);
+	strnfmt(place, sizeof(place), "%15s     ", locality_name[region]);
       
       
       /* Make preliminary part of note */

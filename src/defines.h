@@ -54,7 +54,7 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.3.5"
+#define VERSION_STRING	"0.3.5a"
 
 /*
  * Current FAangband version numbers.
