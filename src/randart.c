@@ -1186,7 +1186,7 @@ static void initialize_artifact(int a_idx)
 
       /* Make melee weapons a bit less frequent -NRM- */
       if (((k_ptr->tval == TV_HAFTED) || (k_ptr->tval != TV_POLEARM) ||
-	  (k_ptr->tval != TV_SWORD)) && (randint(2) == 1))
+	  (k_ptr->tval != TV_SWORD)) && (randint(3) == 1))
 	continue; 
 
       
@@ -3168,7 +3168,7 @@ static void choose_basic_theme(int a_idx)
 	    if (potential < 2500) break;
 
 	    /* Armour class */
-	    a_ptr->ac += 5 + potential/800 + randint(8);
+	    a_ptr->to_a += 5 + potential/800 + randint(8);
 
 	    /* Boost to constitution */
 	    add_pval_later1 = ADD_CON;
@@ -3195,6 +3195,9 @@ static void choose_basic_theme(int a_idx)
 	    /* These are mighty artifacts */
 	    potential *= 2;
 	    if (potential > max_potential) potential = max_potential;
+	    a_ptr->level *= 3/2;
+	    if (a_ptr->level > 90) a_ptr->level = 90;
+	    a_ptr->rarity *= 3/2;
 
 	    /* Bonuses to Deadliness, Skill and Armour Class*/
 	    temp = 3 + randint(7) + potential / 2000;

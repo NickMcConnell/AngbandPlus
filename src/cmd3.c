@@ -20,7 +20,7 @@
  */
 void do_cmd_inven_new(void)
 {
-  int i, j, k, z = 0, col, len = 3;
+  int i, k, z = 0, col, len = 3;
 
   char tmp_val[80];
   

@@ -7364,7 +7364,13 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
 	{ 
 	  /* Build the "vault" (never lit, icky) */
 	  if (!build_vault(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, 
-			   FALSE, TRUE, wild_type)) return (0);
+			   FALSE, TRUE, wild_type)) 
+	    {
+#ifdef _WIN32_WCE	
+	      free(all_feat);
+#endif
+	      return (0);
+	    }
   
 	  /* Boost the rating */
 	  rating += v_ptr->rat;
@@ -9205,10 +9211,6 @@ static void river_gen(void)
       /* Choose a place */
       y = rand_int(DUNGEON_HGT - 1) + 1;
       x = rand_int(DUNGEON_WID - 1) + 1;
-
-      /* Hack - protect the river from vault overwriting */
-      //if ((wild_vaults) && (x > DUNGEON_WID/3) && (x < 2 * DUNGEON_WID/3))
-      //continue;
 
       form_grids += make_formation(y, x, FEAT_GRASS, FEAT_GRASS, form_feats, 
 				   p_ptr->depth);

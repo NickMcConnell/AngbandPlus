@@ -676,7 +676,7 @@ byte py_pickup(int pickup, int y, int x)
 	  /* Restrict the choices */
 	  item_tester_hook = inven_carry_okay;
       
-	  if (get_item_tk(&item, q, s, y, x))
+	  if (get_item(&item, q, s, (USE_TARGET)))
 	    {
 	      this_o_idx = 0 - item;
 	    }
@@ -2187,7 +2187,6 @@ void move_player(int dir, int do_pickup)
 	      /* Handle "objects".  Do not use extra energy for 
 	       * objects picked up.
 	       */
-	      //do_squelch_pile(py, px);
 	      (void)py_pickup(do_pickup, p_ptr->py, p_ptr->px);
 	      
 	      /* Handle "store doors" */

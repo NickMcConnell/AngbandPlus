@@ -427,7 +427,7 @@ errr process_pref_file_aux(char *buf)
     }
   
   
-	/* Process "E:<tv>:<a>" -- attribute for inventory objects */
+  /* Process "E:<tv>:<a>" -- attribute for inventory objects */
   else if (buf[0] == 'E')
     {
       if (tokenize(buf+2, 2, zz) == 2)
@@ -3415,8 +3415,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
       if (push_file == 1) backup_buttons();
       kill_all_buttons();
       normal_screen = FALSE;
-      add_button("?", '?');
       add_button("ESC", ESCAPE);
+      add_button("?", '?');
       
       /* Prompt -- menu screen */
       if (menu)

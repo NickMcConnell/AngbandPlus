@@ -2608,7 +2608,7 @@ static int priority_tunnel(int y, int x)
  * wilderness.  cx and cy return the position of the player on the
  * possibly shifted map.
  */
-void display_map(int *cy, int *cx, bool smll)
+void display_map(int *cy, int *cx, bool small)
 {
   int py = p_ptr->py;
   int px = p_ptr->px;
@@ -2667,7 +2667,7 @@ void display_map(int *cy, int *cx, bool smll)
   view_granite_lite = FALSE;
 
   /* Disable tiles for subwindow */
-  if (smll) 
+  if (small) 
     {
       use_bigtile = FALSE;
       use_dbltile = FALSE;
@@ -2738,7 +2738,7 @@ void display_map(int *cy, int *cx, bool smll)
 	    col = col & ~1;
 	  
 	  /* Get the attr/char at that map location */
-	  if (smll) map_info_default(y, x, &ta, &tc);
+	  if (small) map_info_default(y, x, &ta, &tc);
 	  else map_info(y, x, &ta, &tc, &sa, &sc);
 
 	  /* Get the priority of that attr/char */
@@ -2782,10 +2782,10 @@ void display_map(int *cy, int *cx, bool smll)
   /*** Make sure the player is visible ***/
   
   /* Get the "player" attr */
-  ta = (smll ? r_ptr->d_attr : r_ptr->x_attr);
+  ta = (small ? r_ptr->d_attr : r_ptr->x_attr);
   
   /* Get the "player" char */
-  tc = (smll ? r_ptr->d_char : r_ptr->x_char);
+  tc = (small ? r_ptr->d_char : r_ptr->x_char);
   
   /* Draw the player */
   Term_putch(col + 1, row + 1, ta, tc);
@@ -2801,7 +2801,7 @@ void display_map(int *cy, int *cx, bool smll)
   
   
   /* Restore tiles for subwindow */
-  if (smll) 
+  if (small) 
     {
       use_bigtile = old_bigtile;
       use_dbltile = old_dbltile;

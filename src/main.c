@@ -166,7 +166,6 @@ extern unsigned _ovrbuffer = 0x1500;
  * to leave enough space for the path separator, directory, and
  * filenames.
  */
-#ifndef _WIN32_WCE
 static void init_stuff(void)
 {
   char path[1024];
@@ -198,7 +197,7 @@ static void init_stuff(void)
   init_file_paths(path);
 }
 
-#endif
+
 
 /*
  * Handle a "-d<what>=<path>" option
@@ -369,7 +368,7 @@ int main(int argc, char *argv[])
 
 
   /* Get the file paths */
-  //init_stuff();
+  init_stuff();
 
 
 #ifdef SET_UID

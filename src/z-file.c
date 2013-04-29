@@ -28,7 +28,10 @@
 
 #ifdef WINDOWS
 # include <windows.h>
-//# include <io.h>
+#ifdef _WIN32_WCE
+#else
+# include <io.h>
+#endif
 #endif
 
 

@@ -1348,8 +1348,6 @@ static bool player_birth_aux_1(void)
   text_out("' for a random menu item, '");
   text_out_c(TERM_L_GREEN, "ESC");
   text_out("' to step back through the birth process, '");
-  //text_out_c(TERM_L_GREEN, "=");
-  //text_out("' for the birth options, '");
   text_out_c(TERM_L_GREEN, "?");
   text_out("' for help, or '");
   text_out_c(TERM_L_GREEN, "Ctrl-X");
@@ -1360,10 +1358,12 @@ static bool player_birth_aux_1(void)
   
   if (!choose_character()) return FALSE;
   
-  
+
+#if 0  
   /* Set adult options from birth options */
-  //for (i = OPT_birth_start; i < OPT_cheat_start; i++)
-  //op_ptr->opt[OPT_adult_start + (i - OPT_birth_start)] = op_ptr->opt[i];
+  for (i = OPT_birth_start; i < OPT_cheat_start; i++)
+  op_ptr->opt[OPT_adult_start + (i - OPT_birth_start)] = op_ptr->opt[i];
+#endif
   
   /* Reset score options from cheat options */
   for (i = OPT_cheat_start; i < OPT_adult_start; i++)
@@ -2183,18 +2183,6 @@ void player_birth(void)
   /* Create a new character */
   player_birth_aux();
   
-  /* Make a note file in the savefile directory */
-          
-  /* Name the notes file, using the base name */
-  //sprintf(temp, "%s.txt", op_ptr->base_name);
-  
-  /* Build the filename */
-  //path_build(notes_fname, sizeof(notes_fname), ANGBAND_DIR_SAVE, temp);
-  
-  //notes_file = my_fopen(notes_fname, "w");
-
-  //if (!notes_file) quit("Can't create the notes file");
-      
   /* Get date */
 #ifdef _WIN32_WCE
   {

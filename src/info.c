@@ -1,5 +1,3 @@
-
-
 /* File: info.c */
 
 /*
@@ -2736,13 +2734,6 @@ void identify_fully_aux(object_type *o_ptr)
 
   
   /* Resistances. */
-  //if ((f2 & (TR2_RES_ACID)) || (f2 & (TR2_RES_ELEC)) || 
-  //  (f2 & (TR2_RES_FIRE)) || (f2 & (TR2_RES_COLD)) || 
-  //  (f2 & (TR2_RES_POIS)) || (f2 & (TR2_RES_LITE)) || 
-  //  (f2 & (TR2_RES_DARK)) || (f2 & (TR2_RES_SOUND)) || 
-  //  (f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) || 
-  //  (f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) || 
-  //  (f2 & (TR2_RES_DISEN)))
   if (res)
     {
       /* Clear number of items to list, and items listed. */
@@ -2757,20 +2748,6 @@ void identify_fully_aux(object_type *o_ptr)
 	}
 
       /* How many attributes need to be listed? */
-      //if (f2 & (TR2_RES_ACID)) attr_num++;
-      //if (f2 & (TR2_RES_ELEC)) attr_num++;
-      //if (f2 & (TR2_RES_FIRE)) attr_num++;
-      //if (f2 & (TR2_RES_COLD)) attr_num++;
-      //if (f2 & (TR2_RES_POIS)) attr_num++;
-      //if (f2 & (TR2_RES_LITE)) attr_num++;
-      //if (f2 & (TR2_RES_DARK)) attr_num++;
-      //if (f2 & (TR2_RES_SOUND)) attr_num++;
-      //if (f2 & (TR2_RES_SHARD)) attr_num++;
-      //if (f2 & (TR2_RES_NEXUS)) attr_num++;
-      //if (f2 & (TR2_RES_NETHR)) attr_num++;
-      //if (f2 & (TR2_RES_CHAOS)) attr_num++;
-      //if (f2 & (TR2_RES_DISEN)) attr_num++;
-      
       roff("It provides resistance to", 3, 77);
       
       /* Loop for number of attributes in this group. */
@@ -2782,20 +2759,6 @@ void identify_fully_aux(object_type *o_ptr)
 
 	  if ((o_ptr->percent_res[j] < 100) && (o_ptr->percent_res[j] > 0))
 	    list_ok = TRUE;
-	  //if ((j ==  0) && (f2 & (TR2_RES_ACID)))  list_ok = TRUE;
-	  //if ((j ==  1) && (f2 & (TR2_RES_ELEC)))  list_ok = TRUE;
-	  //if ((j ==  2) && (f2 & (TR2_RES_FIRE)))  list_ok = TRUE;
-	  //if ((j ==  3) && (f2 & (TR2_RES_COLD)))  list_ok = TRUE;
-	  //if ((j ==  4) && (f2 & (TR2_RES_POIS)))  list_ok = TRUE;
-	  //if ((j ==  5) && (f2 & (TR2_RES_LITE)))  list_ok = TRUE;
-	  //if ((j ==  6) && (f2 & (TR2_RES_DARK)))  list_ok = TRUE;
-	  //if ((j ==  7) && (f2 & (TR2_RES_SOUND))) list_ok = TRUE;
-	  //if ((j ==  8) && (f2 & (TR2_RES_SHARD))) list_ok = TRUE;
-	  //if ((j ==  9) && (f2 & (TR2_RES_NEXUS))) list_ok = TRUE;
-	  //if ((j == 10) && (f2 & (TR2_RES_NETHR))) list_ok = TRUE;
-	  //if ((j == 11) && (f2 & (TR2_RES_CHAOS))) list_ok = TRUE;
-	  //if ((j == 12) && (f2 & (TR2_RES_DISEN))) list_ok = TRUE;
-	  
 	  if (!list_ok) continue;
 	  
 	  /* Listing another attribute. */
@@ -2901,13 +2864,10 @@ void identify_fully_aux(object_type *o_ptr)
   attr_num = 0;
   
   /* Special processing for the three "survival resists" */
-  //if (f2 & (TR2_RES_FEAR)) attr_num++;
-  //if (f2 & (TR2_RES_BLIND)) attr_num++;
   if (f3 & (TR3_FEARLESS)) attr_num++;
   if (f3 & (TR3_SEEING)) attr_num++;
   if (o_ptr->percent_res[P_RES_CONFU] != 100) attr_num++;
   
-  //if (f2 & (TR2_RES_FEAR))
   if (f3 & (TR3_FEARLESS))
     {
       roff("It renders you fearless", 3, 77);
@@ -2915,10 +2875,8 @@ void identify_fully_aux(object_type *o_ptr)
       else roff(", and", 3, 77);
     }
   
-  //if (f2 & (TR2_RES_BLIND))
   if (f3 & (TR3_SEEING))
     {
-      //if ((attr_num > 1) && (f2 & (TR2_RES_FEAR))) 
       if ((attr_num > 1) && (f3 & (TR3_FEARLESS))) 
 	roff(" provides resistance to blindness", 3, 77);
       else roff("It provides resistance to blindness", 3, 77);
@@ -2930,7 +2888,6 @@ void identify_fully_aux(object_type *o_ptr)
   if ((o_ptr->percent_res[P_RES_CONFU] < 100) && 
       (o_ptr->percent_res[P_RES_CONFU] > 0))
     {
-      //if ((attr_num > 1) && (!(f2 & (TR2_RES_BLIND))))
       if ((attr_num > 1) && (!(f3 & (TR3_SEEING))))
 	roff(" provides resistance to confusion", 3, 77);
       else if (attr_num > 1) roff(" confusion", 3, 77);
@@ -4115,7 +4072,6 @@ void print_spells(int tval, int sval, int y, int x)
  */
 static cptr view_abilities_aux(char *desc)
 {
-  //	u32b f1 = rp_ptr->flags1;
   u32b f2 = rp_ptr->flags2;
   u32b f3 = rp_ptr->flags3;
   
@@ -4334,12 +4290,9 @@ static cptr view_abilities_aux(char *desc)
 	attr_num = 0;
 	
 	/* Special processing for the three "survival resists" */
-	//if (f2 & (TR2_RES_FEAR)) attr_num++;
-	//if (f2 & (TR2_RES_BLIND)) attr_num++;
 	if (f3 & (TR3_FEARLESS)) attr_num++;
 	if (f3 & (TR3_SEEING)) attr_num++;
 	
-	//if (f2 & (TR2_RES_FEAR))
 	if (f3 & (TR3_FEARLESS))
 	  {
 	    strcat(desc, "You are fearless");
@@ -4347,16 +4300,14 @@ static cptr view_abilities_aux(char *desc)
 	    else strcat(desc, ", and");
 	  }
 	
-	//if (f2 & (TR2_RES_BLIND))
 	if (f3 & (TR3_SEEING))
 	  {
-	    //if ((attr_num > 1) && (f2 & (TR2_RES_FEAR))) 
 	    if ((attr_num > 1) && (f3 & (TR3_FEARLESS))) 
 	      strcat(desc, " can not be blinded.  ");
 	    else strcat(desc, "You can not be blinded.  ");
 	  }
 	
-	/* Miscellanious abilities. */
+	/* Miscellaneous abilities. */
 	if ((f3 & (TR3_SLOW_DIGEST)) || (f3 & (TR3_FEATHER)) || 
 	    (f3 & (TR3_LITE)) || (f3 & (TR3_REGEN)) || 
 	    (f3 & (TR3_TELEPATHY)) || (f3 & (TR3_SEE_INVIS)) || 
@@ -4424,33 +4375,138 @@ static cptr view_abilities_aux(char *desc)
 	return(desc);
 	
 }
+
+
+
+/* View specialty code */
+int race_start, class_start, race_other_start;
+int total_known, spec_known, racial_known, class_known; 
+byte racial_list[32];
+byte class_list[32];
+char race_other_desc[1000] ="";
+
+static char view_spec_tag(menu_type *menu, int oid)
+{
+  return I2A(oid);
+}
+
+/*
+ * Display an entry on the gain specialty menu
+ */
+void view_spec_display(menu_type *menu, int oid, bool cursor, int row, 
+			 int col, int width)
+{
+  int x, y;
+  char buf[80];
+  byte color;
+
+  if (oid < class_start)
+    {
+      sprintf(buf, "Specialty Ability: %s", 
+	      specialty_names[p_ptr->specialty_order[oid]]);
+      color = cursor ? TERM_L_GREEN : TERM_GREEN;
+    }
+  else if (oid < race_start)
+    {
+      sprintf(buf, "Class: %s", 
+	      specialty_names[SP_CLASS_START + class_list[oid - class_start]]);
+      color = cursor ? TERM_L_UMBER : TERM_UMBER;
+    }
+  else if (oid < race_other_start)
+    {
+      sprintf(buf, "Racial: %s", 
+	      specialty_names[SP_RACIAL_START + racial_list[oid - race_start]]);
+      color = cursor ? TERM_YELLOW : TERM_ORANGE;
+    }
+  else
+    {
+      sprintf(buf, "Racial: Other");
+      color = cursor ? TERM_YELLOW : TERM_ORANGE;
+    }
+  /* Print it */
+  c_put_str(color, buf, row, col);
+
+  /* Help text */
+  if (cursor)
+    {
+      /* Locate the cursor */
+      Term_locate(&x, &y);
+  
+      /* Move the cursor */
+      Term_gotoxy(3, total_known + 2); 
+      if (oid < class_start) 
+	c_roff(TERM_L_BLUE, specialty_tips[p_ptr->specialty_order[oid]], 3, 5);
+      else if (oid < race_start) 
+	c_roff(TERM_L_BLUE, 
+	       specialty_tips[SP_CLASS_START + class_list[oid - class_start]], 
+	       3, 5);
+      else if (oid < race_other_start) 
+	c_roff(TERM_L_BLUE, 
+	       specialty_tips[SP_RACIAL_START + 
+			      racial_list[oid - race_start]], 3, 5);
+      else c_roff(TERM_L_BLUE, race_other_desc, 3, 5);
+
+      /* Restore */
+      Term_gotoxy(x, y);
+    }
+}
+
+
+/*
+ * Display list available specialties.
+ */
+void view_spec_menu(void)
+{
+  menu_type menu;
+  menu_iter menu_f = { 0, view_spec_tag, 0, view_spec_display, 0 };
+  event_type evt = { EVT_NONE, 0, 0, 0, 0 };
+  int cursor = 0;
+
+  bool done = FALSE;
+  
+  char buf[80];
+
+  /* Save the screen and clear it */
+  screen_save();
+  
+  /* Prompt choices */
+  sprintf(buf, "Race, class, and specialties abilities (%c-%c, ESC=exit): ",
+	  I2A(0), I2A(total_known - 1));
+  
+  /* Set up the menu */
+  WIPE(&menu, menu);
+  menu.title = buf;
+  menu.cmd_keys = " \n\r";
+  menu.count = total_known;
+  menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &SCREEN_REGION);
+  
+  while (!done)
+    {
+      evt = menu_select(&menu, &cursor, 0);
+      done = ((evt.type == EVT_ESCAPE) || (evt.type == EVT_BACK));
+    }
+
+  /* Load screen */
+  screen_load();
+
+  return;
+}
+
 /*
  * Browse known specialty abilities -BR-
  * Adapted from birth.c get_player_choice
  */
 void do_cmd_view_abilities(void)
 {
-  int top = 0, cur = 0;
-  int i, spec_known, racial_known, class_known, dir;
-  int total_known = 0;
-  int race_start, class_start, race_other_start;
-  char c;
-  event_type ke;
-  int hgt;
-  byte racial_list[32];
-  byte class_list[32];
-  char buf[80];
-  bool done;
-  byte color;
-  char race_other_desc[1000] ="";
-  
+  int i;
+
   /* Count the number of specialties we know */
   for (i = 0, spec_known = 0; i < MAX_SPECIALTIES; i++)
     {
       if (p_ptr->specialty_order[i] != SP_NO_SPECIALTY) spec_known++;
     }
   
-  total_known += spec_known;
+  total_known = spec_known;
   
   /* Count the number of class powers we have */
   for (i = 0, class_known = 0; i < 32; i++)
@@ -4485,204 +4541,12 @@ void do_cmd_view_abilities(void)
   race_start = spec_known + class_known;
   race_other_start = spec_known + class_known + racial_known;
   
-  /* Save and clear creen */
-  screen_save();
-  Term_clear();
-  
-  /* Find height of selection interface */
-  hgt = Term->hgt - 7;
-  if (hgt > total_known) hgt = total_known;
-  
-  /* Prompt choices */
-  sprintf(buf, "Race, class, and specialties abilities (%c-%c, ESC=exit): ",
-	  I2A(0), I2A(total_known-1));
-  
-  Term_putstr(5, 0, 66, TERM_WHITE, buf);
-  
   /* Buttons */
   normal_screen = FALSE;
   update_statusline();
   
   /* View choices until user exits */
-  done = FALSE;
-  while (!done)
-    {
-      /* Redraw the list */
-      for (i = 0; ((i + top < total_known) && (i < hgt)); i++)
-	{
-	  char index;
-	  
-	  if (i + top < 26) index = I2A(i + top);
-	  else index = 'A' + (i + top - 26);
-	  
-	  if (i + top < class_start)
-	    {
-	      bool forgotten = (p_ptr->new_specialties < 
-				i + top + 1 - spec_known);
-	      
-	      sprintf(buf, "%c) Specialty Ability: %s %s", index, 
-		      specialty_names[p_ptr->specialty_order[i + top]],
-		      (forgotten) ? "(forgotten)" : "");
-	      color = forgotten ? TERM_SLATE : TERM_GREEN;
-	    }
-	  else if (i + top < race_start)
-	    {
-	      sprintf(buf, "%c) Class: %s", index, 
-		      specialty_names[SP_CLASS_START + 
-				      class_list[i - class_start + top]]);
-	      color = TERM_UMBER;
-	    }
-	  else if (i + top < race_other_start)
-	    {
-	      sprintf(buf, "%c) Racial: %s", index, 
-		      specialty_names[SP_RACIAL_START + 
-				      racial_list[i - race_start + top]]);
-	      color = TERM_YELLOW;
-	    }
-	  else
-	    {
-	      sprintf(buf, "%c) Racial: Other", index);
-	      color = TERM_YELLOW;
-	    }
-	  
-	  /* Clear */
-	  Term_erase(5, i + 2, 66);
-	  
-	  /* Display */
-	  Term_putstr(5, i + 2, 66, color, buf);
-	}
-      
-      /* Display that specialty's information. */
-      roff("",5,0);
-      Term_erase(5, hgt + 5, 255);
-      Term_erase(5, hgt + 4, 255);
-      Term_erase(5, hgt + 3, 255);
-      if (cur < class_start) 
-	c_roff(TERM_L_BLUE, specialty_tips[p_ptr->specialty_order[cur]], 5, 0);
-      else if (cur < race_start) 
-	c_roff(TERM_L_BLUE, 
-	       specialty_tips[SP_CLASS_START + class_list[cur - class_start]], 
-	       5, 0);
-      else if (cur < race_other_start) 
-	c_roff(TERM_L_BLUE, 
-	       specialty_tips[SP_RACIAL_START + 
-			      racial_list[cur - race_start]], 5, 0);
-      else c_roff(TERM_L_BLUE, race_other_desc, 5, 0);
-      
-      /* Move the cursor */
-      put_str("", 2 + cur - top, 5);
-      
-      /* get input */
-      ke = inkey_ex();
-      c = ke.key;
-      
-      /* Hack - arrow keys.  Will go when this is a proper menu */
-      if (c == ARROW_LEFT) c = '4';
-      if (c == ARROW_RIGHT) c = '6';
-      if (c == ARROW_UP) c = '8';
-      if (c == ARROW_DOWN) c = '2';
-	  
-      /* Numbers are used for scolling */
-      if (isdigit(c))
-	{
-	  /* Get a direction from the key */
-	  dir = target_dir(c);
-	  
-	  /* Going up? */
-	  if (dir == 8)
-	    {
-	      if (cur != 0)
-		{
-		  /* Move selection */
-		  cur--;
-		}
-	      
-	      if ((top > 0) && ((cur - top) < 4))
-		{
-		  /* Scroll up */
-		  top--;
-		}
-	    }
-	  
-	  /* Going down? */
-	  if (dir == 2)
-	    {
-	      if (cur != (total_known - 1))
-		{
-		  /* Move selection */
-		  cur++;
-		}
-	      
-	      if ((top + hgt - 1 < (total_known - 1)) && 
-		  ((top + hgt - 1 - cur) < 4))
-		{
-		  /* Scroll down */
-		  top++;
-		}
-	    }
-	}
-      
-      else if ((ke.key == '\xff') && (ke.mousey >= 2) && 
-	       (ke.mousey < Term->hgt))
-	{
-	  /* Place the cursor */
-	  if (ke.mousey - 2 + top < hgt)
-	    {
-	      cur = ke.mousey - 2 + top;	  
-	      if ((top > 0) && ((cur - top) < 4))
-		{
-		  /* Scroll up */
-		  top--;
-		}
-	      
-	      if ((top + hgt - 1 < (total_known - 1)) && 
-		  ((top + hgt - 1 - cur) < 4))
-		{
-		  /* Scroll down */
-		  top++;
-		}
-	    }
-	}
-      
-      /* Letters are used for selection */
-      else if (isalpha(c))
-	{
-	  int choice;
-	  
-	  if (islower(c))
-	    {
-	      choice = A2I(c);
-	    }
-	  else
-	    {
-	      choice = c - 'A' + 26;
-	    }
-	  
-	  /* Validate input */
-	  if ((choice > -1) && (choice < total_known))
-	    {
-	      cur = choice;
-	    }
-	  
-	  else
-	    {
-	      bell("Illegal response to question!");
-	    }
-	}
-      
-      /* Allow user to exit the fuction */
-      else if ((c == ESCAPE) || ((!ke.mousey) && (ke.mousex > 49) && 
-				     (ke.mousex < 58)))
-	{
-	  done = TRUE;
-	}
-      
-      /* Invalid input */
-      else bell("Illegal response to question!");
-    }
-  
-  /* Load screen */
-  screen_load();
+  view_spec_menu();
   
   /* Buttons */
   normal_screen = TRUE;

@@ -63,18 +63,11 @@ END
 
 IDM_MENU SHMENUBAR MOVEABLE PURE 
 BEGIN
-    IDM_MENU, 6,
+    IDM_MENU, 2,
     I_IMAGENONE, ID_FILE, TBSTATE_ENABLED, 
     TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE, IDS_CAP_FILE, 0, 0,
     I_IMAGENONE, ID_OPTIONS, TBSTATE_ENABLED, 
     TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE, IDS_CAP_OPTIONS, 0, 1,
-    I_IMAGENONE, 0, TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0, NOMENU,
-    I_IMAGENONE, IDM_REPEAT, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, IDS_CAP_REP, 
-    0, NOMENU,
-    I_IMAGENONE, IDM_REST, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, IDS_CAP_REST, 
-    0, NOMENU,
-    I_IMAGENONE, IDM_ESCAPE, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, IDS_CAP_ESC, 
-    0, NOMENU,
 END
 
 
@@ -141,12 +134,8 @@ BEGIN
         MENUITEM "Small Screen",                IDM_OPTIONS_SMALL_SCREEN
         MENUITEM "Title Bar",                   ID_OPTIONS_MAINWINDOW_TITLEBAR
 
-        MENUITEM "Macro Bar",                   IDM_OPTIONS_MACRO_BAR
-        MENUITEM "Map",                         IDM_OPTIONS_MAP
+        MENUITEM "Command Bar",                 IDM_OPTIONS_MACRO_BAR
     END
-    MENUITEM "Repeat",                      IDM_REPEAT
-    MENUITEM "Rest",                        IDM_REST
-    MENUITEM "Esc",                         IDM_ESCAPE
 END
 
 
@@ -169,8 +158,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,2,1,0
- PRODUCTVERSION 0,2,1,0
+ FILEVERSION 0,3,2,0
+ PRODUCTVERSION 0,3,2,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -188,14 +177,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", " \0"
             VALUE "FileDescription", "faangband\0"
-            VALUE "FileVersion", "0.2.1m\0"
+            VALUE "FileVersion", "0.3.2\0"
             VALUE "InternalName", "faangband\0"
-            VALUE "LegalCopyright", "Copyright © 2001\0"
+            VALUE "LegalCopyright", "Copyright ï¿½ 2001\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FA.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "faangband\0"
-            VALUE "ProductVersion", "0.2.1m\0"
+            VALUE "ProductVersion", "0.3.2\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -221,40 +210,17 @@ END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
-    IDS_HELP                "Tools"
-END
-
-STRINGTABLE DISCARDABLE 
-BEGIN
-    IDS_COMMAND1            "Done "
-END
-
-STRINGTABLE DISCARDABLE 
-BEGIN
     IDS_CAP_FILE            "File"
 END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
-    IDS_CAP_KEYS            "Keys"
-END
-
-STRINGTABLE DISCARDABLE 
-BEGIN
-    IDS_CAP_SETUP           "Setup"
     IDS_CAP_OPTIONS         "Options"
 END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
-    IDS_CAP_REST            "Rest"
-    IDS_CAP_REP             "Repeat"
-    IDS_CAP_ESC             "Esc"
-END
-
-STRINGTABLE DISCARDABLE 
-BEGIN
-    IDS_CAP_MACRO_BAR       "Macro Bar"
+    IDS_CAP_MACRO_BAR       "Command Bar"
 END
 
 #endif    // English (U.S.) resources

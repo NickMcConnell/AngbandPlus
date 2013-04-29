@@ -18,7 +18,6 @@
 #include "z-util.h"
 
 
-
 /*
  * Convenient storage of the program name
  */
@@ -265,4 +264,49 @@ void quit(cptr str)
 
 	/* Failure */
 	(void)(exit(EXIT_FAILURE));
+}
+
+/*
+ * Fast string concatenation - stolen from NPPangband for FAangband 0.3.2.
+ * Append the "src" string to "buf" given the address of the trailing null
+ * character of "buf" in "end". "end" can be NULL, in which the trailing null
+ * character is fetched from the beginning of "buf".
+ * "bufsize" is the maximum size of "buf" (including the trailing null character).
+ * It returns the -new- address of the trailing null character of "buf".
+ *
+ * Example of usage:
+ *
+ * char buf[100] = "", *end;
+ * int i;
+ *
+ * end = my_fast_strcat(buf, NULL, "START", sizeof(buf));
+ *
+ * for (i = 0; i < 5; i++)
+ * {
+ * 	end = my_fast_strcat(buf, end, "_", sizeof(buf));
+ * }
+ *
+ * end = my_fast_strcat(buf, end, "END", sizeof(buf));
+ *
+ * buf ==> "START_____END"
+ */
+char *my_fast_strcat(char *buf, char *end, const char *src, size_t bufsize)
+{
+	/* No end, go to the beginning of "buf" */
+	if (end == NULL) end = buf;
+
+	/* Find the trailing null character, if necessary */
+	while (*end) ++end;
+
+	/* Make room for the trailing null character, if possible */
+	if (bufsize > 0) --bufsize;
+
+	/* Append "str" to "buf", if possible */
+	while (*src && ((size_t)(end - buf) < bufsize)) *end++ = *src++;
+
+	/* Terminate the string */
+	*end = '\0';
+
+	/* Return the new end of "buf" */
+	return end;
 }

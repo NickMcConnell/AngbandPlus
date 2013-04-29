@@ -1839,7 +1839,6 @@ static int make_ego_item(object_type *o_ptr, int power)
   /* Boost level (like with object base types) */
   if (level > 0)
     {
-      //if (rand_int(GREAT_OBJ) == 0) level += randint(20) + randint(level / 2);
       /* Occasional "boost" */
       if (rand_int(GREAT_EGO) == 0)
 	{
@@ -3981,9 +3980,6 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	  /* Paranoia? */
 	  if ((k + n) > MAX_FLOOR_STACK) continue;
 
-	  /* Paranoia */
-	  //if (k > 99) continue;
-	  
 	  /* Calculate goodness of location, given distance from source of 
 	   * drop and number of objects.  Hack - If the player is dropping 
 	   * the item, encourage it to pile with up to 19 other items.

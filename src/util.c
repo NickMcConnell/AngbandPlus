@@ -903,9 +903,6 @@ void restore_buttons(void)
       backup_button[i].key = '\0';
       i++;
     }
-
-  /* Kill the backup */
-  //(void)WIPE(&backup_button, mouse_button);
 }
     
 
@@ -923,7 +920,6 @@ int kill_button_text(unsigned char keypress)
   /* No such button */
   if (i == num_buttons)
     {
-      //bell("Button kill failed");
       return 0;
     }
 
@@ -3246,7 +3242,6 @@ void dump_num(char *header, int num, int col, byte color)
   int len = strlen(header);
   char out_val[32];
   dump_put_str(TERM_WHITE, header, col);
-  //dump_put_str(TERM_WHITE, "   ", col + len);
   sprintf(out_val, "%6ld", (long)num);
   dump_put_str(color, out_val, col + len);
 }
@@ -3259,7 +3254,6 @@ void dump_deci(char *header, int num, int deci, int col, byte color)
   int len = strlen(header);
   char out_val[32];
   dump_put_str(TERM_WHITE, header, col);
-  //put_str("   ", row, col + len);
   sprintf(out_val, "%6ld", (long)num);
   dump_put_str(color, out_val, col + len);
   sprintf(out_val, ".");
@@ -3670,6 +3664,7 @@ bool get_num(char *prompt, int max, int amt)
   add_button("Ret", '\r');
   add_button("+", '+');
   add_button("-", '-');
+  add_button("*", '*');
   update_statusline();
   
   /* Display prompt */
@@ -3921,9 +3916,9 @@ int get_check_other(cptr prompt, char other)
   
   /* Hack -- Build a "useful" prompt */
   if (extra)
-    strnfmt(buf, 78, "%.70s[y/n/^%c]", prompt, UN_KTRL(other)); 
+    strnfmt(buf, 78, "%.70s [y/n/^%c]", prompt, UN_KTRL(other)); 
   else
-    strnfmt(buf, 78, "%.70s[y/n/%c] ", prompt, other);
+    strnfmt(buf, 78, "%.70s [y/n/%c] ", prompt, other);
 
   /* Hack - kill the repeat button */
   if (kill_button('n')) repeat = TRUE;
@@ -4004,14 +3999,14 @@ bool get_check(cptr prompt)
   else message_flush();
   
   /* Hack -- Build a "useful" prompt */
-  strnfmt(buf, 78, "%.70s[y/n] ", prompt);
+  strnfmt(buf, 78, "%.70s [y/n] ", prompt);
   
   /* Hack - kill the repeat button */
   if (kill_button('n')) repeat = TRUE;
   
   /* Make some buttons */
-  add_button("[y]", 'y');
-  add_button("[n]", 'n');
+  add_button("y", 'y');
+  add_button("n", 'n');
   update_statusline();
   
   /* Prompt for it */
@@ -4041,7 +4036,7 @@ bool get_check(cptr prompt)
   kill_button('n');
 
   /* Hack - restore the repeat button */
-  if (repeat) add_button("[Rpt]", 'n');
+  if (repeat) add_button("Rpt", 'n');
   clear_from(Term->hgt - 1);
   update_statusline();
   

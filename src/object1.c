@@ -3137,13 +3137,15 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
       
       /* Acquire next object */
       next_o_idx = o_ptr->next_o_idx;
+
+      /* Squelched */
+      if (squelch_hide_item(o_ptr)) continue;
       
       /* Item tester */
       if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
       
       /* Marked */
-      if ((mode & 0x02) && (!o_ptr->marked || squelch_hide_item(o_ptr))) 
-	continue;
+      if ((mode & 0x02) && (!o_ptr->marked)) continue;
       
       /* Accept this item */
       items[num++] = this_o_idx;
@@ -3277,6 +3279,928 @@ void show_floor(int *floor_list, int floor_num)
     }
 }
 
+/* Arrays for inventory, equipment and floor */
+int i1, i2, e1, e2, f1, f2;
+int inven_count = 0, equip_count = 0, floor_count = 0;
+int equ[24], inv[24], flo[24];
+
+
+/* 
+ * Make the correct prompt for items, handle mouse buttons
+ */
+void item_prompt(int mode, cptr pmt)
+{
+  bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE);
+  bool use_inven   = ((mode & (USE_INVEN))   ? TRUE : FALSE);
+  bool use_equip   = ((mode & (USE_EQUIP))   ? TRUE : FALSE);
+  
+  char tmp_val[160];
+  char out_val[160];
+
+  /* Clear the line */
+  prt("", 0, 0);
+ 
+  /* Viewing inventory */
+  if (p_ptr->command_wrk == (USE_INVEN))
+    {
+      /* Begin the prompt */
+      sprintf(out_val, "Inven:");
+      
+      /* Indicate lack of inventory choices. */
+      if (i1 > i2) 
+	{
+	  sprintf(tmp_val, " (none),");
+	}
+      
+      /* List choices. */
+      else sprintf(tmp_val, " %c-%c,", index_to_label(i1), 
+		   index_to_label(i2));
+      
+      /* Append choices. */
+      strcat(out_val, tmp_val);
+      
+      /* Indicate ability to "view" */
+      if (!p_ptr->command_see) 
+	{
+	  strcat(out_val, " * to see,");
+	  add_button("*", '*');
+	}
+      
+      /* Indicate that equipment items are available */
+      if (use_equip) 
+	{
+	  strcat(out_val, " / equip,");
+	  add_button("/", '/');
+	}
+      
+      /* Indicate that floor items are available */
+      if (f1 <= f2) 
+	{
+	  strcat(out_val, " - floor, . floor top,");
+	  add_button("-", '-');
+	  add_button(".", '.');
+	}
+      
+      /* Indicate that selecting all SQUELCHED items is an option */
+      if (can_squelch)
+	{ 
+	  strcat(out_val, " ! for squelched,");
+	  add_button("!", '!');
+	}
+    }
+  
+  /* Viewing equipment */
+  else if (p_ptr->command_wrk == (USE_EQUIP))
+    {
+      /* Begin the prompt */
+      sprintf(out_val, "Equip:");
+      
+      /* Indicate lack of equipment choices. */
+      if (e1 > e2) 
+	{
+	  sprintf(tmp_val, " (none),");
+	}
+      
+      /* List choices. */
+      else sprintf(tmp_val, " %c-%c,", index_to_label(e1), 
+		   index_to_label(e2));
+      
+      /* Append choices. */
+      strcat(out_val, tmp_val);
+      
+      /* Indicate ability to "view" */
+      if (!p_ptr->command_see) 
+	{
+	  strcat(out_val, " * to see,");
+	  add_button("*", '*');
+	}
+      
+      /* Append */
+      if (use_inven) 
+	{
+	  strcat(out_val, " / inven,");
+	  add_button("/", '/');
+	}
+      
+      /* Append */
+      if (f1 <= f2) 
+	{
+	  strcat(out_val, " - floor, . floor top,");
+	  add_button("-", '-');
+	  add_button(".", '.');
+	}
+      
+      /* Indicate that selecting all SQUELCHED items is an option */
+      if (can_squelch) 
+	{
+	  strcat(out_val, " ! for squelched,");
+	  add_button("!", '!');
+	}
+    }
+      
+  /* Viewing floor */
+  else if (p_ptr->command_wrk == (USE_FLOOR))
+    {
+      /* Begin the prompt */
+      sprintf(out_val, "Floor:");
+      
+      /* Indicate lack of floor choices. */
+      if (f1 > f2) 
+	sprintf(tmp_val, " (none),");
+      
+      /* List choices. */
+      else sprintf(tmp_val, " %c-%c,", I2A(f1-f1), I2A(f2-f1));
+      
+      /* Append */
+      strcat(out_val, tmp_val);
+      
+      /* Indicate ability to "view" */
+      if (!p_ptr->command_see) 
+	{
+	  strcat(out_val, " * to see,");
+	  add_button("*", '*');
+	}
+      
+      /* Append */
+      if (use_inven)
+	{
+	  strcat(out_val, " / inven,");
+	  add_button("/", '/');
+	}
+      else if (use_equip)
+	{
+	  strcat(out_val, " / equip,");
+	  add_button("/", '/');
+	}
+      
+      /* Indicate that selecting all SQUELCHED items is an option */
+      if (can_squelch) 
+	{
+	  strcat(out_val, " ! for squelched,");
+	  add_button("!", '!');
+	}
+    }
+
+  /* Do the buttons */
+  update_statusline();
+  
+  /* Finish the prompt */
+  strcat(out_val, " ESC");
+  
+  /* Build the prompt */
+  sprintf(tmp_val, "(%s) %s", out_val, pmt);
+      
+  /* Show the prompt */
+  prt(tmp_val, 0, 0);
+}
+      
+
+
+
+/* Item selection menus */
+
+static char get_item_tag(menu_type *menu, int oid)
+{
+  const int *choice = menu->menu_data;
+  int idx = choice[oid];
+
+  if (p_ptr->command_wrk == USE_FLOOR)
+    return I2A(oid);
+  else
+    return index_to_label(idx);
+}
+
+/*
+ * Display an entry on the item menu
+ */
+void get_item_display(menu_type *menu, int oid, bool cursor, int row, 
+		      int col, int width)
+{
+  const int *choice = menu->menu_data;
+  int idx = choice[oid];
+  char o_name[120];
+  
+  byte attr;
+
+  object_type *o_ptr;
+
+  /* Do we even have a menu? */
+  if (!p_ptr->command_see) return;
+
+  /* Get the object - hack to abort if invalid */
+  if (p_ptr->command_wrk == (USE_INVEN))
+    {
+      o_ptr = &inventory[idx];
+      if (!get_item_okay(idx)) return;
+    }
+  else if (p_ptr->command_wrk == (USE_EQUIP))
+    {
+      o_ptr = &inventory[idx];
+      if (!get_item_okay(idx)) return;
+    }
+  else 
+    {
+      o_ptr = &o_list[idx];
+      if (!get_item_okay(0 - idx)) return;
+    }
+  
+  /* Set the colour */
+  attr = tval_to_attr[o_ptr->tval & 0x7F];
+
+  /* Get the object description */
+  object_desc(o_name, o_ptr, TRUE, 4);
+      
+  /* Hack -- enforce max length */
+  o_name[width - 3] = '\0';
+      
+
+  /* Print it */
+  if (cursor)
+    c_put_str(TERM_L_BLUE, format(">>",o_name), row, col);
+  
+  c_put_str(attr, format("%s",o_name), row, col + 2);
+}
+
+/*
+ * Deal with events on the get_item menu
+ */
+bool get_item_action(char cmd, void *db, int oid)
+{
+  return TRUE;
+}
+
+
+/*
+ * Display list items to choose from
+ */
+bool item_menu(int *cp, cptr pmt, int mode, bool *oops)
+{
+  menu_type menu;
+  menu_iter menu_f = { 0, get_item_tag, 0, get_item_display, 
+		       get_item_action };
+  region area = { 0, 1, -1, -1 };
+  event_type evt = { EVT_NONE, 0, 0, 0, 0 };
+  int num_entries;
+  bool done;
+  
+  int py = p_ptr->py;
+  int px = p_ptr->px;
+  
+  int j, k = 0;
+  bool item;
+  
+  bool refresh = FALSE;
+  
+  bool fall_through = FALSE;
+  
+  bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE);
+  
+  bool use_inven  = ((mode & (USE_INVEN)) ? TRUE : FALSE);
+  bool use_equip  = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
+  bool use_floor  = ((mode & (USE_FLOOR | USE_TARGET)) ? TRUE : FALSE);
+  
+  bool allow_equip = FALSE;
+  bool allow_inven = FALSE;
+  bool allow_floor = FALSE;
+  
+  bool toggle = FALSE;
+  
+  int floor_list[24];
+  int floor_num;
+
+  /* FIX LATER */
+  int len = 70;
+  
+  /* Paranoia XXX XXX XXX */
+  msg_print(NULL);
+  
+  /* Set target for telekinesis */
+  if (mode & (USE_TARGET))
+    {
+      if (p_ptr->target_row && p_ptr->target_col)
+	{
+	  py = p_ptr->target_row;
+	  px = p_ptr->target_col;
+	}
+      else
+	{
+	  return FALSE;
+	}
+    }
+  
+  /* Not done */
+  done = FALSE;
+  
+  /* No item selected */
+  item = FALSE;
+  
+  /* Mega-hack -- show lists */
+  if (show_lists || small_screen) p_ptr->command_see = TRUE;      
+  
+  /* Full inventory */
+  i1 = 0;
+  i2 = INVEN_PACK - 1;
+  
+  /* Forbid inventory */
+  if (!use_inven) i2 = -1;
+  
+  /* Restrict inventory indexes */
+  while ((i1 <= i2) && (!get_item_okay(i1))) i1++;
+  while ((i1 <= i2) && (!get_item_okay(i2))) i2--;
+  
+  /* Accept inventory */
+  if (i1 <= i2) 
+    {
+      allow_inven = TRUE;
+
+      /* Record them */
+      for (inven_count = 0, j = i1; j <= i2; j++)
+	if (get_item_okay(j))
+	  inv[inven_count++] = j;
+    }
+  
+  /* Full equipment */
+  e1 = INVEN_WIELD;
+  e2 = INVEN_TOTAL - 1;
+  
+  /* Forbid equipment */
+  if (!use_equip) e2 = -1;
+  
+  /* Restrict equipment indexes */
+  while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
+  while ((e1 <= e2) && (!get_item_okay(e2))) e2--;
+  
+  /* Accept equipment */
+  if (e1 <= e2) 
+    {
+      allow_equip = TRUE;
+      
+      /* Record them */
+      for (equip_count = 0, j = e1; j <= e2; j++)
+	if (get_item_okay(j))
+	  equ[equip_count++] = j;
+    }
+  
+  /* Count "okay" floor items */
+  floor_num = 0;
+  
+  /* Restrict floor usage */
+  if (mode & (USE_FLOOR | USE_TARGET))
+    {
+      /* Scan all objects in the grid */
+      (void) scan_floor(floor_list, &floor_num, py, px, 0x01);
+    }
+  
+  /* Full floor */
+  f1 = 0;
+  f2 = floor_num - 1;
+  
+  /* Forbid floor */
+  if (!use_floor) f2 = -1;
+  
+  /* Restrict floor indexes */
+  while ((f1 <= f2) && (!get_item_okay(0 - floor_list[f1]))) f1++;
+  while ((f1 <= f2) && (!get_item_okay(0 - floor_list[f2]))) f2--;
+  
+  /* Accept floor */
+  if (f1 <= f2) 
+    {
+      allow_floor = TRUE;
+      
+      /* Record them */
+      for (floor_count = 0, j = f1; j <= f2; j++)
+	if (get_item_okay(0 - floor_list[j]))
+	  flo[floor_count++] = floor_list[j];
+    }
+  
+  /* Require at least one legal choice */
+  if (!allow_inven && !allow_equip && !allow_floor)
+    {
+      /* Cancel p_ptr->command_see */
+      p_ptr->command_see = FALSE;
+
+      /* Report failure */
+      *oops = TRUE;
+
+      /* Done here */
+      return FALSE;
+    }
+
+  /* Hack -- Start on equipment if requested */
+  if (p_ptr->command_see && (p_ptr->command_wrk == (USE_EQUIP)) 
+      && use_equip)
+    {
+      p_ptr->command_wrk = (USE_EQUIP);
+    }
+  
+  /* Hack -- Start on equipment if for shooting */
+  if ((p_ptr->command_cmd == 'f')
+      && allow_equip)
+    {
+      p_ptr->command_wrk = (USE_EQUIP);
+    }
+  
+  /* Use inventory if allowed. */
+  else if (allow_inven)
+    {
+      p_ptr->command_wrk = (USE_INVEN);
+    }
+  
+  /* Use equipment if allowed */
+  else if (allow_equip)
+    {
+      p_ptr->command_wrk = (USE_EQUIP);
+    }
+  
+  /* Use floor if allowed */
+  else if (allow_floor)
+    {
+      p_ptr->command_wrk = (USE_FLOOR);
+	}
+  /* Hack -- Use (empty) inventory if no other choices available. */
+  else
+    {
+      p_ptr->command_wrk = (USE_INVEN);
+    }
+
+
+  /* Find the column to start in */
+  if (len > Term->wid - 4 ) area.col = 0;
+  else if ((Term->wid - len) / 2 < 12) area.col = (Term->wid - len) / 2;
+  else area.col = 12;
+  
+  /* Save the screen */
+  screen_save();
+  
+  /* Set up the menu */
+  WIPE(&menu, menu);
+  menu.cmd_keys = " \n\r";
+  
+  /* Set the prompt */
+  item_prompt(mode, pmt);
+
+  /* Choose an appropriate set of items to display */
+  if (p_ptr->command_wrk == (USE_INVEN))
+    {
+      menu.menu_data = inv;
+      num_entries = inven_count;
+    }
+  else if (p_ptr->command_wrk == (USE_EQUIP))
+    {
+      menu.menu_data = equ;
+      num_entries = equip_count;
+    }
+  else if (p_ptr->command_wrk == (USE_FLOOR))
+    {
+      menu.menu_data = flo;
+      num_entries = floor_count;
+    }
+  else return FALSE;
+  if (!p_ptr->command_see) 
+    {
+      num_entries = 0;
+    }
+  
+  /* Clear space */
+  area.page_rows = num_entries + 1;
+  area.width = len;
+  menu.count = num_entries;
+  menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
+
+  /* Play until item selected or refused */
+  while (!done)
+    {
+      event_type ke0;
+      
+      /* Change the display if needed */
+      if (refresh)
+	{
+	  /* Hack - load the screen and re-save */
+	  screen_load();
+	  screen_save();
+	  
+	  
+	  /* Set the prompt */
+	  item_prompt(mode, pmt);
+	  
+	  /* Pick the right menu */
+	  if (p_ptr->command_wrk == (USE_INVEN))
+	    {
+	      menu.menu_data = inv;
+	      num_entries = inven_count;
+	    }
+	  else if (p_ptr->command_wrk == (USE_EQUIP))
+	    {
+	      menu.menu_data = equ;
+	      num_entries = equip_count;
+	    }
+	  else if (p_ptr->command_wrk == (USE_FLOOR))
+	    {
+	      menu.menu_data = flo;
+	      num_entries = floor_count;
+	    }
+	  else return FALSE;
+	  
+	  if (p_ptr->command_see)
+	    {
+	      int ni = 0;
+	      int ne = 0;
+            
+	      /* Scan windows */
+	      for (j = 0; j < TERM_WIN_MAX; j++)
+		{
+		  /* Unused */
+		  if (!angband_term[j]) continue;
+		  
+		  /* Count windows displaying inven */
+		  if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
+		  
+		  /* Count windows displaying equip */
+		  if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
+		}
+	      
+	      /* Toggle if needed */
+	      if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
+		  ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
+		{
+		  /* Toggle */
+		  toggle_inven_equip();
+		  
+		  /* Track toggles */
+		  toggle = !toggle;
+		}
+	      
+	      /* Update */
+	      p_ptr->window |= (PW_INVEN | PW_EQUIP);
+            
+	      /* Redraw windows */
+	      window_stuff();
+	    }
+	  
+
+	  else 
+	    {
+	      num_entries = 0;
+	    }
+	  
+	  /* Clear space */
+	  area.page_rows = num_entries + 1;
+	  menu.count = num_entries;
+	  menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
+	  
+	  refresh = FALSE;
+	}
+
+      menu_refresh(&menu);
+      
+      evt = inkey_ex();
+
+      /* Hack - check for arrow-like inscriptions */
+      if (get_tag(&k, evt.key) && ((evt.key == '2') || (evt.key == '4') || 
+				   (evt.key == '6') || (evt.key == '8')))
+	  ;
+      else
+	{			      
+	  ke0 = run_event_loop(&(menu.target), 0, &evt);
+	  if (ke0.type != EVT_AGAIN) evt = ke0;
+	}
+      switch(evt.type) 
+	{
+	case EVT_KBRD:
+	  {
+	    break;
+	  }
+	  
+	case ESCAPE:
+	  {
+	    done = TRUE;
+	    continue;
+	  }
+	  
+	case EVT_SELECT:
+	  {
+	    int *tmp = (int *) menu.menu_data;
+	    if (p_ptr->command_wrk == (USE_FLOOR))
+	      k = 0 - tmp[evt.index];
+	    else
+	      k = tmp[evt.index];
+
+	    /* Paranoia */
+	    if (!get_item_okay(k) || !p_ptr->command_see)
+	      continue;
+
+	    (*cp) = k;
+	    done = TRUE;
+	    continue;
+	  }
+	  
+	case EVT_MOVE:
+	  {
+	    continue;
+	  }
+	  
+	case EVT_BACK:
+	  {
+	    done = TRUE;
+	  }
+	  
+	default:
+	  {
+	    continue;
+	  }
+	}
+      switch (evt.key)
+	{
+	case '*':
+	  {
+	    /* Hide the list */
+	    if (p_ptr->command_see)
+	      {
+		/* Flip flag */
+		p_ptr->command_see = FALSE;
+	      }
+	    
+	    /* Show the list */
+	    else
+	      {
+		/* Flip flag */
+		p_ptr->command_see = TRUE;
+	      }
+	    refresh = TRUE;
+	    break;
+	  }
+	case '-':
+	  {
+	    if (!allow_floor)
+	      {
+		bell("Cannot select floor!");
+		break;
+	      }
+	    
+	    /*
+	     * If we aren't examining the floor and there is only
+	     * one item, we will select it if floor_query_flag
+	     * is FALSE.
+	     */
+	    /* Hack -- Auto-Select */
+	    if ((!floor_query_flag) && (floor_num == 1))
+	      {
+		/* Fall through */
+	      }
+	    else
+	      {
+		p_ptr->command_wrk = (USE_FLOOR);
+		refresh = TRUE;
+		break;
+	      }
+	  }
+	case '.':
+	  {
+	    /*
+	     * If we are allow to use the floor, select
+	     * the top item. -BR-
+	     */
+	    if (allow_floor)
+	      {
+		int k;
+
+		/* Special index */
+		k = 0 - floor_list[0];
+		
+		/* Allow player to "refuse" certain actions */
+		if (!get_item_allow(k))
+		  {
+		    done = TRUE;
+		    break;
+		  }
+		
+		/* Accept that choice */
+		(*cp) = k;
+		item = TRUE;
+		done = TRUE;
+	      }
+	    
+	    break;
+	  }
+	case '/':
+	  {
+	    /* Toggle to inventory */
+	    if (allow_inven && (p_ptr->command_wrk != (USE_INVEN)))
+	      {
+		p_ptr->command_wrk = (USE_INVEN);
+		refresh = TRUE;
+	      }
+	    
+	    /* Toggle to equipment */
+	    else if (allow_equip && (p_ptr->command_wrk != (USE_EQUIP)))
+	      {
+		p_ptr->command_wrk = (USE_EQUIP);
+		refresh = TRUE;
+	      }
+	    
+	    /* No toggle allowed */
+	    else
+	      {
+		bell("Cannot switch item selector!");
+	      }
+	    
+	    break;
+	  }
+	case '!':
+	  {
+	    /* Can we select all squelched items? */
+	    if (can_squelch)
+	      {
+		(*cp) = ALL_SQUELCHED;
+		done = TRUE;
+		break;
+	      }
+	    else bell("No squelched items!");
+	    
+	    break;
+	  }
+	case ESCAPE:
+	  {
+	    evt.type = EVT_ESCAPE;
+	    done = TRUE;
+	  }
+	case '0': case '1': case '2': case '3':
+	case '4': case '5': case '6':
+	case '7': case '8': case '9':
+	  {
+	    /* Look up the tag */
+	    if (!get_tag(&k, evt.key))
+	      {
+		/* We are asking for ammo. */
+		if ((item_tester_tval == 0) || 
+		    (item_tester_tval == TV_SHOT) || 
+		    (item_tester_tval == TV_ARROW) || 
+		    (item_tester_tval == TV_BOLT))
+		  {
+		    /* If allowed, look at equipment and fall through. */
+		    if (use_equip)
+		      {
+			p_ptr->command_wrk = USE_EQUIP;
+			
+			/* Fall through. */
+			fall_through = TRUE;
+		      }
+		  }
+		
+		/*
+		 * If not asking for ammo, or not allowed to look at 
+		 * equipment, display error message.
+		 */
+		if (!fall_through)
+		  {
+		    bell("Illegal object choice (tag)!");
+		    break;
+		  }
+	      }
+	    
+	    /* Hack -- Validate the item */
+	    if ((!fall_through) && 
+		((k < INVEN_WIELD) ? !allow_inven : !allow_equip))
+	      {
+		bell("Illegal object choice (tag1)!");
+		break;
+	      }
+	    
+	    /* Validate the item */
+	    if ((!fall_through) && (!get_item_okay(k)))
+	      {
+		bell("Illegal object choice (tag2)!");
+		break;
+	      }
+	    
+	    /* Allow player to "refuse" certain actions */
+	    if ((!fall_through) && (!get_item_allow(k)))
+	      {
+		done = TRUE;
+		break;
+	      }
+	    
+	    /* Accept that choice */
+	    if (!fall_through)
+	      {
+		(*cp) = k;
+		done = TRUE;
+		break;
+	      }
+	    
+	    /* Done with fall_through */
+	    fall_through = FALSE;
+	    
+	  }
+	  
+	default:
+	  {
+	    if (!p_ptr->command_see)
+	      {
+		bool verify;
+		
+		/* Note verify */
+		verify = (isupper(evt.key) ? TRUE : FALSE);
+		
+		/* Lowercase */
+		evt.key = tolower(evt.key);
+		
+		/* Convert letter to inventory index */
+		if (p_ptr->command_wrk == (USE_INVEN))
+		  {
+		    k = label_to_inven(evt.key);
+		    if (k < 0)
+		      {
+			bell("Illegal object choice (inven)!");
+			break;
+		      }
+		  }
+		
+		/* Convert letter to equipment index */
+		else if (p_ptr->command_wrk == (USE_EQUIP))
+		  {
+		    k = label_to_equip(evt.key);
+		    
+		    if (k < 0)
+		      {
+			bell("Illegal object choice (equip)!");
+			break;
+		      }
+		  }
+		
+		/* Convert letter to floor index */
+		else
+		  {
+		    k = (islower(evt.key) ? A2I(evt.key) : -1);
+		    
+		    if (k < 0 || k >= floor_num)
+		      {
+			
+			bell("Illegal object choice (floor)!");
+			break;
+		      }
+		    
+		    /* Special index */
+		    k = 0 - floor_list[k];
+		  }
+		
+		/* Validate the item */
+		if (!get_item_okay(k))
+		  {
+		    bell("Illegal object choice (normal)!");
+		    break;
+		  }
+		
+		/* Verify the item */
+		if (verify && !verify_item("Try", k))
+		  {
+		    done = TRUE;
+		    break;
+		  }
+		
+		/* Allow player to "refuse" certain actions */
+		if (!get_item_allow(k))
+		  {
+		    done = TRUE;
+		    break;
+		  }
+		
+		/* Accept that choice */
+		(*cp) = k;
+		done = TRUE;
+		break;
+	      }
+	  }
+	}
+    }
+  
+  /* Kill buttons */
+  kill_button('*');
+  kill_button('/');
+  kill_button('-');
+  kill_button('.');
+  kill_button('!');
+  update_statusline();
+  
+  /* Load screen */
+  screen_load();
+
+  /* Clean up */
+  if (show_choices)
+    {
+      /* Toggle again if needed */
+      if (toggle) toggle_inven_equip();
+      
+      /* Update */
+      p_ptr->window |= (PW_INVEN | PW_EQUIP);
+      
+      /* Window stuff */
+      window_stuff();
+    }
+  
+  
+  return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
+}
 
 /*
  * Let the user select an item, save its "index"
@@ -3336,44 +4260,15 @@ void show_floor(int *floor_list, int floor_num)
  * commands, the indexes of floor objects may change.  XXX XXX XXX
  *
  * This function has been revised using code from Tim Baker's Easy Patch 1.2
+ *
+ * This function has been largely rewritten for FAangband 0.3.2 using 
+ * Pete Mack's menu code. 
  */
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
-  int py = p_ptr->py;
-  int px = p_ptr->px;
-  
-  event_type which;
-  
-  int j, k = 0, i1, i2, e1, e2;
-  int f1, f2;
-  int inven_count = 0, equip_count = 0, floor_count = 0;
-  int equ[24], inv[24], flo[24];
-
   bool done, item;
   
   bool oops = FALSE;
-  
-  bool fall_through = FALSE;
-  
-  bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE);
-  
-  bool use_inven = ((mode & (USE_INVEN)) ? TRUE : FALSE);
-  bool use_equip = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
-  bool use_floor = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
-  
-  bool allow_equip = FALSE;
-  bool allow_inven = FALSE;
-  bool allow_floor = FALSE;
-  
-  bool toggle = FALSE;
-  
-  char tmp_val[160];
-  char out_val[160];
-  
-  int floor_list[24];
-  int floor_num;
-  
-#ifdef ALLOW_REPEAT
   
   /* Get the item index */
   if (repeat_pull(cp))
@@ -3395,8 +4290,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
       else repeat_clear();
     }
   
-#endif /* ALLOW_REPEAT */
-  
   /* Paranoia XXX XXX XXX */
   msg_print(NULL);
   
@@ -3406,793 +4299,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
   
   /* No item selected */
   item = FALSE;
-  
-  /* Mega-hack -- show lists */
-  if (show_lists) p_ptr->command_see = TRUE;      
-
-  
-  /* Full inventory */
-  i1 = 0;
-  i2 = INVEN_PACK - 1;
-  
-  /* Forbid inventory */
-  if (!use_inven) i2 = -1;
-  
-  /* Restrict inventory indexes */
-  while ((i1 <= i2) && (!get_item_okay(i1))) i1++;
-  while ((i1 <= i2) && (!get_item_okay(i2))) i2--;
-  
-  /* Accept inventory */
-  if (i1 <= i2) 
-    {
-      allow_inven = TRUE;
-
-      /* Record them */
-      for (inven_count = 0, j = i1; j <= i2; j++)
-	if (get_item_okay(j))
-	  inv[inven_count++] = j;
-    }
-  
-  /* Full equipment */
-  e1 = INVEN_WIELD;
-  e2 = INVEN_TOTAL - 1;
-  
-  /* Forbid equipment */
-  if (!use_equip) e2 = -1;
-  
-  /* Restrict equipment indexes */
-  while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
-  while ((e1 <= e2) && (!get_item_okay(e2))) e2--;
-  
-  /* Accept equipment */
-  if (e1 <= e2) 
-    {
-      allow_equip = TRUE;
-      
-      /* Record them */
-      for (equip_count = 0, j = e1; j <= e2; j++)
-	if (get_item_okay(j))
-	  equ[equip_count++] = j;
-    }
-  
-  /* Count "okay" floor items */
-  floor_num = 0;
-  
-  /* Restrict floor usage */
-  if (mode & (USE_FLOOR))
-    {
-      /* Scan all objects in the grid */
-      (void) scan_floor(floor_list, &floor_num, py, px, 0x01);
-    }
-  
-  /* Full floor */
-  f1 = 0;
-  f2 = floor_num - 1;
-  
-  /* Forbid floor */
-  if (!use_floor) f2 = -1;
-  
-  /* Restrict floor indexes */
-  while ((f1 <= f2) && (!get_item_okay(0 - floor_list[f1]))) f1++;
-  while ((f1 <= f2) && (!get_item_okay(0 - floor_list[f2]))) f2--;
-  
-  /* Accept floor */
-  if (f1 <= f2) 
-    {
-      allow_floor = TRUE;
-      
-      /* Record them */
-      for (floor_count = 0, j = f1; j <= f2; j++)
-	if (get_item_okay(0 - floor_list[j]))
-	  flo[floor_count++] = floor_list[j];
-    }
-  
-  /* Require at least one legal choice */
-  if (!allow_inven && !allow_equip && !allow_floor)
-    {
-      /* Cancel p_ptr->command_see */
-      p_ptr->command_see = FALSE;
-      
-      /* Oops */
-      oops = TRUE;
-      
-      /* Done */
-      done = TRUE;
-    }
-  
-  /* Analyze choices */
-  else
-    {
-      /* Hack -- Start on equipment if requested */
-      if (p_ptr->command_see && (p_ptr->command_wrk == (USE_EQUIP)) 
-	  && use_equip)
-	{
-	  p_ptr->command_wrk = (USE_EQUIP);
-	}
-      
-      /* Hack -- Start on equipment if for shooting */
-      if ((p_ptr->command_cmd == 'f')
-	  && allow_equip)
-	{
-	  p_ptr->command_wrk = (USE_EQUIP);
-	}
-      
-      /* Use inventory if allowed. */
-      else if (use_inven)
-	{
-	  p_ptr->command_wrk = (USE_INVEN);
-	}
-      
-      /* Use equipment if allowed */
-      else if (use_equip)
-	{
-	  p_ptr->command_wrk = (USE_EQUIP);
-	}
-      
-      /* Use floor if allowed */
-      else if (allow_floor)
-	{
-	  p_ptr->command_wrk = (USE_FLOOR);
-	}
-      /* Hack -- Use (empty) inventory if no other choices available. */
-      else
-	{
-	  p_ptr->command_wrk = (USE_INVEN);
-	}
-    }
-  
-  /* Show lists for small screen */
-  if (small_screen) p_ptr->command_see = TRUE;
-
+  *cp = 0;
  
-  /* Start out in "display" mode */
-  if (p_ptr->command_see)
-    {
-      /* Save screen */
-      screen_save();
-    }
+  /* Go to menu */  
+  item = item_menu(cp, pmt, mode, &oops);
   
-  /* Repeat until done */
-  while (!done)
-    {
-      /* Show choices */
-      if (show_choices)
-	{
-	  int ni = 0;
-	  int ne = 0;
-	  
-	  /* Scan windows */
-	  for (j = 0; j < TERM_WIN_MAX; j++)
-	    {
-	      /* Unused */
-	      if (!angband_term[j]) continue;
-	      
-	      /* Count windows displaying inven */
-	      if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
-	      
-	      /* Count windows displaying equip */
-	      if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
-	    }
-	  
-	  /* Toggle if needed */
-	  if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
-	      ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
-	    {
-	      /* Toggle */
-	      toggle_inven_equip();
-	      
-	      /* Track toggles */
-	      toggle = !toggle;
-	    }
-	  
-	  /* Update */
-	  p_ptr->window |= (PW_INVEN | PW_EQUIP);
-	  
-	  /* Redraw windows */
-	  window_stuff();
-	}
-      
-      /* Viewing inventory */
-      if (p_ptr->command_wrk == (USE_INVEN))
-	{
-	  /* Redraw if needed */
-	  if (p_ptr->command_see) show_inven();
-	  
-	  /* Begin the prompt */
-	  sprintf(out_val, "Inven:");
-	  
-	  /* Indicate lack of inventory choices. */
-	  if (i1 > i2) 
-	    {
-	      sprintf(tmp_val, " (none),");
-	    }
-	  
-	  /* List choices. */
-	  else sprintf(tmp_val, " %c-%c,", index_to_label(i1), 
-		       index_to_label(i2));
-	  
-	  /* Append choices. */
-	  strcat(out_val, tmp_val);
-	  
-	  /* Indicate ability to "view" */
-	  if (!p_ptr->command_see) 
-	    {
-	      strcat(out_val, " * to see,");
-	      add_button("*", '*');
-	    }
-
-	  /* Indicate that equipment items are available */
-	  if (use_equip) 
-	    {
-	      strcat(out_val, " / equip,");
-	      add_button("/", '/');
-	    }
-	  
-	  /* Indicate that floor items are available */
-	  if (allow_floor) 
-	    {
-	      strcat(out_val, " - floor, . floor top,");
-	      add_button("-", '-');
-	      add_button(".", '.');
-	    }
-	  
-	  /* Indicate that selecting all SQUELCHED items is an option */
-	  if (can_squelch)
-	    { 
-	      strcat(out_val, " ! for squelched,");
-	      add_button("!", '!');
-	    }
-	}
-      
-      /* Viewing equipment */
-      else if (p_ptr->command_wrk == (USE_EQUIP))
-	{
-	  /* Redraw if needed */
-	  if (p_ptr->command_see) show_equip();
-	  
-	  /* Begin the prompt */
-	  sprintf(out_val, "Equip:");
-	  
-	  /* Indicate lack of equipment choices. */
-	  if (e1 > e2) 
-	    {
-	      sprintf(tmp_val, " (none),");
-	    }
-	  
-	  /* List choices. */
-	  else sprintf(tmp_val, " %c-%c,", index_to_label(e1), 
-		       index_to_label(e2));
-	  
-	  /* Append choices. */
-	  strcat(out_val, tmp_val);
-	  
-	  /* Indicate ability to "view" */
-	  if (!p_ptr->command_see) 
-	    {
-	      strcat(out_val, " * to see,");
-	      add_button("*", '*');
-	    }
-	  
-	  /* Append */
-	  if (use_inven) 
-	    {
-	      strcat(out_val, " / inven,");
-	      add_button("/", '/');
-	    }
-	  
-	  /* Append */
-	  if (allow_floor) 
-	    {
-	      strcat(out_val, " - floor, . floor top,");
-	      add_button("-", '-');
-	      add_button(".", '.');
-	    }
-	  
-	  /* Indicate that selecting all SQUELCHED items is an option */
-	  if (can_squelch) 
-	    {
-	      strcat(out_val, " ! for squelched,");
-	      add_button("!", '!');
-	    }
-	}
-      
-      /* Viewing floor */
-      else if (p_ptr->command_wrk == (USE_FLOOR))
-	{
-	  /* Redraw if needed */
-	  if (p_ptr->command_see) show_floor(floor_list, floor_num);
-	  
-	  /* Begin the prompt */
-	  sprintf(out_val, "Floor:");
-
-	  /* Indicate lack of floor choices. */
-	  if (f1 > f2) 
-	    sprintf(tmp_val, " (none),");
-	  
-	  /* List choices. */
-	  else sprintf(tmp_val, " %c-%c,", I2A(f1-f1), I2A(f2-f1));
-	  
-	  /* Append */
-	  strcat(out_val, tmp_val);
-	  
-	  /* Indicate ability to "view" */
-	  if (!p_ptr->command_see) 
-	    {
-	      strcat(out_val, " * to see,");
-	      add_button("*", '*');
-	    }
-	  
-	  /* Append */
-	  if (use_inven)
-	    {
-	      strcat(out_val, " / inven,");
-	      add_button("/", '/');
-	    }
-	  else if (use_equip)
-	    {
-	      strcat(out_val, " / equip,");
-	      add_button("/", '/');
-	    }
-	  
-	  /* Indicate that selecting all SQUELCHED items is an option */
-	  if (can_squelch) 
-	    {
-	      strcat(out_val, " ! for squelched,");
-	      add_button("!", '!');
-	    }
-	}
-      
-      /* Finish the prompt */
-      strcat(out_val, " ESC");
-      
-      /* Build the prompt */
-      sprintf(tmp_val, "(%s) %s", out_val, pmt);
-      
-      /* Show the prompt */
-      prt(tmp_val, 0, 0);
-      update_statusline();
-      
-      /* Get a key */
-      which = inkey_ex();
-      
-      /* Parse it */
-      switch (which.key)
-	{
-	case ESCAPE:
-	  {
-	    done = TRUE;
-	    break;
-	  }
-	  
-	case '*':
-	case '?':
-	case ' ':
-	  {
-	    /* Hide the list */
-	    if (p_ptr->command_see)
-	      {
-		/* Flip flag */
-		p_ptr->command_see = FALSE;
-		
-		/* Load screen */
-		screen_load();
-	      }
-	    
-	    /* Show the list */
-	    else
-	      {
-		/* Save screen */
-		screen_save();
-		
-		/* Flip flag */
-		p_ptr->command_see = TRUE;
-	      }
-	    break;
-	  }
-	  
-	case '/':
-	  {
-	    /* Toggle to inventory */
-	    if (use_inven && (p_ptr->command_wrk != (USE_INVEN)))
-	      {
-		p_ptr->command_wrk = (USE_INVEN);
-	      }
-	    
-	    /* Toggle to equipment */
-	    else if (use_equip && (p_ptr->command_wrk != (USE_EQUIP)))
-	      {
-		p_ptr->command_wrk = (USE_EQUIP);
-	      }
-	    
-	    /* No toggle allowed */
-	    else
-	      {
-		bell("Cannot switch item selector!");
-		break;
-	      }
-	    
-	    /* Hack -- Fix screen */
-	    if (p_ptr->command_see)
-	      {
-		/* Load screen */
-		screen_load();
-		
-		/* Save screen */
-		screen_save();
-	      }
-	    
-	    /* Need to redraw */
-	    break;
-	  }
-	  
-	case '-':
-	  {
-	    if (!allow_floor)
-	      {
-		bell("Cannot select floor!");
-		break;
-	      }
-	    
-	    /*
-	     * If we aren't examining the floor and there is only
-	     * one item, we will select it if floor_query_flag
-	     * is FALSE.
-	     */
-	    /* Hack -- Auto-Select */
-	    if ((!floor_query_flag) && (floor_num == 1))
-	      {
-		/* Special index */
-		k = 0 - floor_list[0];
-		
-		/* Allow player to "refuse" certain actions */
-		if (!get_item_allow(k))
-		  {
-		    done = TRUE;
-		    break;
-		  }
-		
-		/* Accept that choice */
-		(*cp) = k;
-		item = TRUE;
-		done = TRUE;
-		
-		break;
-	      }
-	    
-	    /* Hack -- Fix screen */
-	    if (p_ptr->command_see)
-	      {
-		/* Load screen */
-		screen_load();
-		
-		/* Save screen */
-		screen_save();
-	      }
-	    
-	    p_ptr->command_wrk = (USE_FLOOR);
-	    
-	    break;
-	  }
-	  
-	case '.':
-	  {
-	    /*
-	     * If we are allow to use the floor, select
-	     * the top item. -BR-
-	     */
-	    if (allow_floor)
-	      {
-		/* Special index */
-		k = 0 - floor_list[0];
-		
-		/* Allow player to "refuse" certain actions */
-		if (!get_item_allow(k))
-		  {
-		    done = TRUE;
-		    break;
-		  }
-		
-		/* Accept that choice */
-		(*cp) = k;
-		item = TRUE;
-		done = TRUE;
-	      }
-	    
-	    break;
-	  }
-	  
-	case '!':
-	  {
-	    /* Can we select all squelched items? */
-	    if (can_squelch)
-	      {
-		(*cp) = ALL_SQUELCHED;
-		item = TRUE;
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Otherwise just fall through */
-	    
-	  }
-	  
-	case '\n':
-	case '\r':
-	  {
-	    /* Choose "default" inventory item */
-	    if (p_ptr->command_wrk == (USE_INVEN))
-	      {
-		if (i1 != i2)
-		  {
-		    bell("Illegal object choice (default)!");
-		    break;
-		  }
-		
-		k = i1;
-	      }
-	    
-	    /* Choose "default" equipment item */
-	    else if (p_ptr->command_wrk == (USE_EQUIP))
-	      {
-		if (e1 != e2)
-		  {
-		    bell("Illegal object choice (default)!");
-		    break;
-		  }
-		
-		k = e1;
-	      }
-	    
-	    /* Choose "default" floor item */
-	    else
-	      {
-		if (f1 != f2)
-		  {
-		    bell("Illegal object choice (default)!");
-		    break;
-		  }
-		
-		k = 0 - floor_list[f1];
-	      }
-	    
-	    /* Validate the item */
-	    if (!get_item_okay(k))
-	      {
-		bell("Illegal object choice (default)!");
-		break;
-	      }
-	    
-	    /* Allow player to "refuse" certain actions */
-	    if (!get_item_allow(k))
-	      {
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Accept that choice */
-	    (*cp) = k;
-	    item = TRUE;
-	    done = TRUE;
-	    break;
-	  }
-	  
-	case '\xff':
-	  {
-	    /* Must have a list */
-	    if (p_ptr->command_see)
-	      {
-		/* Inventory */
-		if ((p_ptr->command_wrk == (USE_INVEN)) && (which.mousey) &&
-		    (which.mousey <= inven_count))
-		  k = inv[which.mousey - 1];
-		
-		/* Equipment */
-		else if ((p_ptr->command_wrk == (USE_EQUIP)) && 
-			 (which.mousey) && (which.mousey <= equip_count))
-		  k = equ[which.mousey - 1];
-		
-		/* Floor */
-		else if ((p_ptr->command_wrk == (USE_FLOOR)) && 
-			 (which.mousey) && (which.mousey <= floor_count))
-		  k = 0 - flo[which.mousey - 1];
-	      
-		
-		/* Click elsewhere is escape */
-		else
-		  {
-		    done = TRUE;
-		    break;
-		  }
-	      }
-	    
-	    /* Validate the item */
-	    if (!get_item_okay(k))
-	      {
-		bell("Illegal object choice (default)!");
-		break;
-	      }
-	    
-	    /* Allow player to "refuse" certain actions */
-	    if (!get_item_allow(k))
-	      {
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Accept that choice */
-	    (*cp) = k;
-	    item = TRUE;
-	    done = TRUE;
-	    break;
-	    
-	  }	      
-	  
-	case '0': case '1': case '2': case '3':
-	case '4': case '5': case '6':
-	case '7': case '8': case '9':
-	  {
-	    /* Look up the tag */
-	    if (!get_tag(&k, which.key))
-	      {
-		/* We are asking for ammo. */
-		if ((item_tester_tval == 0) || 
-		    (item_tester_tval == TV_SHOT) || 
-		    (item_tester_tval == TV_ARROW) || 
-		    (item_tester_tval == TV_BOLT))
-		  {
-		    /* If allowed, look at equipment and fall through. */
-		    if (use_equip)
-		      {
-			p_ptr->command_wrk = USE_EQUIP;
-			
-			/* Fall through. */
-			fall_through = TRUE;
-		      }
-		  }
-		
-		/*
-		 * If not asking for ammo, or not allowed to look at 
-		 * equipment, display error message.
-		 */
-		if (!fall_through)
-		  {
-		    bell("Illegal object choice (tag)!");
-		    break;
-		  }
-	      }
-	    
-	    /* Hack -- Validate the item */
-	    if ((!fall_through) && 
-		((k < INVEN_WIELD) ? !allow_inven : !allow_equip))
-	      {
-		bell("Illegal object choice (tag1)!");
-		break;
-	      }
-	    
-	    /* Validate the item */
-	    if ((!fall_through) && (!get_item_okay(k)))
-	      {
-		bell("Illegal object choice (tag2)!");
-		break;
-	      }
-	    
-	    /* Allow player to "refuse" certain actions */
-	    if ((!fall_through) && (!get_item_allow(k)))
-	      {
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Accept that choice */
-	    if (!fall_through)
-	      {
-		(*cp) = k;
-		item = TRUE;
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Done with fall_through */
-	    fall_through = FALSE;
-	    
-	  }
-	  
-	default:
-	  {
-	    bool verify;
-	    
-	    /* Note verify */
-	    verify = (isupper(which.key) ? TRUE : FALSE);
-	    
-	    /* Lowercase */
-	    which.key = tolower(which.key);
-	    
-	    /* Convert letter to inventory index */
-	    if (p_ptr->command_wrk == (USE_INVEN))
-	      {
-		k = label_to_inven(which.key);
-		if (k < 0)
-		  {
-		    bell("Illegal object choice (inven)!");
-		    break;
-		  }
-	      }
-	    
-	    /* Convert letter to equipment index */
-	    else if (p_ptr->command_wrk == (USE_EQUIP))
-	      {
-		k = label_to_equip(which.key);
-		
-		if (k < 0)
-		  {
-		    bell("Illegal object choice (equip)!");
-		    break;
-		  }
-	      }
-	    
-	    /* Convert letter to floor index */
-	    else
-	      {
-		k = (islower(which.key) ? A2I(which.key) : -1);
-		
-		if (k < 0 || k >= floor_num)
-		  {
-		    
-		    bell("Illegal object choice (floor)!");
-		    break;
-		  }
-		
-		/* Special index */
-		k = 0 - floor_list[k];
-	      }
-	    
-	    /* Validate the item */
-	    if (!get_item_okay(k))
-	      {
-		bell("Illegal object choice (normal)!");
-		break;
-	      }
-	    
-	    /* Verify the item */
-	    if (verify && !verify_item("Try", k))
-	      {
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Allow player to "refuse" certain actions */
-	    if (!get_item_allow(k))
-	      {
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Accept that choice */
-	    (*cp) = k;
-	    item = TRUE;
-	    done = TRUE;
-	    break;
-	  }
-	}
-    }
-  
-  /* Fix the screen if necessary */
-  if (p_ptr->command_see)
-    {
-      /* Load screen */
-      screen_load();
-      
-      /* Hack -- Cancel "display" */
-      p_ptr->command_see = FALSE;
-    }
-
-  /* Kill buttons */
-  kill_button('*');
-  kill_button('/');
-  kill_button('-');
-  kill_button('.');
-  kill_button('!');
-  update_statusline();
+  /* Hack -- Cancel "display" */
+  p_ptr->command_see = FALSE;
   
   /* Forget the item_tester_tval restriction */
   item_tester_tval = 0;
@@ -4200,371 +4313,19 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
   /* Forget the item_tester_hook restriction */
   item_tester_hook = NULL;
   
-  
-  /* Clean up */
-  if (show_choices)
-    {
-      /* Toggle again if needed */
-      if (toggle) toggle_inven_equip();
-      
-      /* Update */
-      p_ptr->window |= (PW_INVEN | PW_EQUIP);
-      
-      /* Window stuff */
-      window_stuff();
-    }
-  
-  
   /* Clear the prompt line */
   prt("", 0, 0);
   
   /* Warning if needed */
   if (oops && str) msg_print(str);
   
-#ifdef ALLOW_REPEAT
-  
   /* Save item if available */
   if (item) repeat_push(*cp);
-  
-#endif /* ALLOW_REPEAT */
   
   /* Result */
   return (item);
 }
 
-/* Special get_item function for telekinesis */
-
-bool get_item_tk(int *cp, cptr pmt, cptr str, int y, int x)
-{
-  char which = ' ';
-  event_type ke;
-  
-  int j, k = 0;
-  int f1, f2;
-  
-  bool done, item;
-  
-  bool oops = FALSE;
-  
-  char tmp_val[160];
-  char out_val[160];
-  int floor_count = 0;
-  
-  int floor_list[24];
-  int floor_num;
-  
-#ifdef ALLOW_REPEAT
-
-  /* Get the item index */
-  if (repeat_pull(cp))
-    {
-      /* Verify the item */
-      if (get_item_okay(*cp))
-	{
-	  /* Forget the item_tester_tval restriction */
-	  item_tester_tval = 0;
-	  
-	  /* Forget the item_tester_hook restriction */
-	  item_tester_hook = NULL;
-	  
-	  /* Success */
-	  return (TRUE);
-	}
-      
-      /* Invalid repeat - reset it */
-      else repeat_clear();
-    }
-  
-#endif /* ALLOW_REPEAT */
-  
-  /* Paranoia XXX XXX XXX */
-  msg_print(NULL);
-  
-  
-  /* Mega-hack -- show lists */
-  if (show_lists) p_ptr->command_see = TRUE;      
-
-  /* Not done */
-  done = FALSE;
-  
-  /* No item selected */
-  item = FALSE;
-  
-  /* Count "okay" floor items */
-  floor_num = 0;
-  
-  p_ptr->command_wrk = (USE_FLOOR);
-
-  /* Scan all objects in the grid */
-  (void) scan_floor(floor_list, &floor_num, y, x, 0x01);
-  
-  /* Full floor */
-  f1 = 0;
-  f2 = floor_num - 1;
-    
-  /* Accept floor */
-  if (f1 <= f2) 
-    {
-      /* Count them */
-      for (floor_count = 0, j = f1; j <= f2; j++)
-	if (get_item_okay(j))
-	  floor_count++;
-    }
-
-  /* Start out in "display" mode */
-  if (p_ptr->command_see)
-    {
-      /* Save screen */
-      screen_save();
-    }
-  
-  /* Repeat until done */
-  while (!done)
-    {
-      /* Redraw if needed */
-      if (p_ptr->command_see) show_floor(floor_list, floor_num);
-      
-      /* Begin the prompt */
-      sprintf(out_val, "Floor:");
-      
-      /* Indicate lack of floor choices. */
-      if (f1 > f2) sprintf(tmp_val, " (none),");
-      
-      /* List choices. */
-      else sprintf(tmp_val, " %c-%c,", I2A(f1-f1), I2A(f2-f1));
-      
-      /* Append */
-      strcat(out_val, tmp_val);
-      
-      /* Indicate ability to "view" */
-      if (!p_ptr->command_see) 
-	{
-	  strcat(out_val, " * to see,");
-	  add_button("*", '*');
-	  update_statusline();
-	}
-      
-      /* Finish the prompt */
-      strcat(out_val, " ESC");
-      
-      /* Build the prompt */
-      sprintf(tmp_val, "(%s) %s", out_val, pmt);
-      
-      /* Show the prompt */
-      prt(tmp_val, 0, 0);
-      
-      /* Get a key */
-      ke = inkey_ex();
-      which = ke.key;
-
-      /* Parse it */
-      switch (which)
-	{
-	case ESCAPE:
-	  {
-	    done = TRUE;
-	    break;
-	  }
-	  
-	case '*':
-	case '?':
-	case ' ':
-	  {
-	    /* Hide the list */
-	    if (p_ptr->command_see)
-	      {
-		/* Flip flag */
-		p_ptr->command_see = FALSE;
-		
-		/* Load screen */
-		screen_load();
-	      }
-	    
-	    /* Show the list */
-	    else
-	      {
-		/* Save screen */
-		screen_save();
-		
-		/* Flip flag */
-		p_ptr->command_see = TRUE;
-	      }
-	    break;
-	  }
-	  
-	case '\n':
-	case '\r':
-	  {
-	    
-	    if (f1 != f2)
-	      {
-		bell("Illegal object choice (default)!");
-		break;
-	      }
-	    
-	    k = 0 - floor_list[f1];
-	    	    
-	    /* Validate the item */
-	    if (!get_item_okay(k))
-	      {
-		bell("Illegal object choice (default)!");
-		break;
-	      }
-	    
-	    /* Allow player to "refuse" certain actions */
-	    if (!get_item_allow(k))
-	      {
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Accept that choice */
-	    (*cp) = k;
-	    item = TRUE;
-	    done = TRUE;
-	    break;
-	  }
-	  
-	case '\xff':
-	  {
-	    /* Must have a list */
-	    if (p_ptr->command_see)
-	      {
-		/* Floor */
-
-		if ((p_ptr->command_wrk == (USE_FLOOR)) && 
-			 (ke.mousey) && (ke.mousey <= floor_count))
-		  k = 0 - floor_list[ke.mousey - 1];
-	      
-		
-		/* Click elsewhere is escape */
-		else
-		  {
-		    done = TRUE;
-		    break;
-		  }
-	      }
-	    
-	    /* Validate the item */
-	    if (!get_item_okay(k))
-	      {
-		bell("Illegal object choice (default)!");
-		break;
-	      }
-	    
-	    /* Allow player to "refuse" certain actions */
-	    if (!get_item_allow(k))
-	      {
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Accept that choice */
-	    (*cp) = k;
-	    item = TRUE;
-	    done = TRUE;
-	    break;
-	    
-	  }	      
-	  
-	default:
-	  {
-	    bool verify;
-	    
-	    /* Note verify */
-	    verify = (isupper(which) ? TRUE : FALSE);
-	    
-	    /* Lowercase */
-	    which = tolower(which);
-	    
-	    /* Convert letter to floor index */
-	    
-	    k = (islower(which) ? A2I(which) : -1);
-	    
-	    if (k < 0 || k >= floor_num)
-	      {
-		
-		bell("Illegal object choice (floor)!");
-		break;
-	      }
-	    
-	    /* Special index */
-	    k = 0 - floor_list[k];
-	    
-	    
-	    /* Validate the item */
-	    if (!get_item_okay(k))
-	      {
-		bell("Illegal object choice (normal)!");
-		break;
-	      }
-	    
-	    /* Verify the item */
-	    if (verify && !verify_item("Try", k))
-	      {
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Allow player to "refuse" certain actions */
-	    if (!get_item_allow(k))
-	      {
-		done = TRUE;
-		break;
-	      }
-	    
-	    /* Accept that choice */
-	    (*cp) = k;
-	    item = TRUE;
-	    done = TRUE;
-	    break;
-	  }
-	}
-    }
-  
-  /* Fix the screen if necessary */
-  if (p_ptr->command_see)
-    {
-      /* Load screen */
-      screen_load();
-      
-      /* Hack -- Cancel "display" */
-      p_ptr->command_see = FALSE;
-    }
-
-  kill_button('*');  
-  
-  /* Forget the item_tester_tval restriction */
-  item_tester_tval = 0;
-  
-  /* Forget the item_tester_hook restriction */
-  item_tester_hook = NULL;
-  
-  
-  /* Clean up */
-  if (show_choices)
-    {
-      /* Window stuff */
-      window_stuff();
-    }
-  
-  
-  /* Clear the prompt line */
-  prt("", 0, 0);
-  
-  /* Warning if needed */
-  if (oops && str) msg_print(str);
-  
-#ifdef ALLOW_REPEAT
-  
-  /* Save item if available */
-  if (item) repeat_push(*cp);
-  
-#endif /* ALLOW_REPEAT */
-  
-  /* Result */
-  return (item);
-}
 
 /*
  * Link to various object coloring functions from info.c. -LM-
@@ -4584,97 +4345,7 @@ cptr object_adj(int tval, int sval)
     }
 }
 
-/*
- * An "item_tester_hook" for items marked SQUELCH
- */
-//static bool item_tester_squelched(object_type *o_ptr)
-//{
-//cptr s;
-  
-  /* Should be inscribed */
-  //if (!o_ptr->note) return (FALSE);
-  
-  /* Look for the SQUELCH inscribtion */
-  //s = strstr(quark_str(o_ptr->note), "SQUELCH");
-  //if (s) return (TRUE);
-  
-  /* Assume not okay */
-  //return (FALSE);
-//}
 
-
-/*
- * Destroy all items marked SQUELCH
- */
-//extern bool destroy_squelched_items(void)
-//{
-//int floor_num, floor_list[24];
-//int n;
-//int count=0;
-  
-//object_type *o_ptr;
-  
-//item_tester_hook = item_tester_squelched;
-//
-//if (scan_floor(floor_list, &floor_num, p_ptr->py, p_ptr->px, 0x01))
-//  {
-//    for (n = 0; n < floor_num; n++)
-//{
-//  o_ptr = &o_list[floor_list[n]];
-//  
-//  /* Hack -- skip artifacts */
-//  if (artifact_p(o_ptr)) continue;
-//  
-//  if (item_tester_okay(o_ptr))
-//    {
-//      /* Destroy item */
-//      floor_item_increase(floor_list[n], -o_ptr->number);
-//      floor_item_optimize(floor_list[n]);
-//      
-//      /* Count the casualties */
-//      count ++;
-//    }
-//}
-//  }
-  
-///* Scan through the slots backwards */
-  //for (n = INVEN_PACK - 1; n >= 0; n--)
-// {
-//    o_ptr = &inventory[n];
-//    
-//    /* Skip non-objects */
-//    if (!o_ptr->k_idx) continue;
-//    
-//    /* Hack -- skip artifacts */
-//    if (artifact_p(o_ptr)) continue;
-//    
-//    /* Give this item slot a shot at death */
-//    if (item_tester_okay(o_ptr))
-//{
-//  /* Destroy item */
-//  inven_item_increase(n, -o_ptr->number);
-//  inven_item_optimize(n);
-//  
-//  /* Count the casualties */
-//  count ++;
-//}
-//    
-//  }
-  
-//item_tester_hook = NULL;	  
-//
-///* message */
-//if (count > 0) 
-//  msg_format("You destroy %i SQUELCH-ed item%s.", count, 
-//       ((count > 1) ? "s" : ""));
-//else msg_print("No SQUELCH-ed items to destroy.");
-//
-///*
-// * return value is used to determine if player energy
-// * should be spent.
-// */
-//return (count != 0);
-//}
 
 /* Set Item Code */
 

@@ -35,9 +35,7 @@ typedef void do_cmd_type(void);
 
 
 /* Forward declare these, because they're really defined later */
-static do_cmd_type do_cmd_wizard, do_cmd_try_debug, 
-            do_cmd_quit, 
-  //do_cmd_mouseclick, do_cmd_port,
+static do_cmd_type do_cmd_wizard, do_cmd_try_debug, do_cmd_quit, 
             do_cmd_xxx_options, do_cmd_menu, do_cmd_monlist, do_cmd_reshape;
 #ifdef ALLOW_BORG
 static do_cmd_type do_cmd_try_borg;
@@ -58,117 +56,113 @@ typedef struct
 /* Magic use */
 static command_type cmd_magic[] =
 {
-	{ "Gain new spells or prayers", 'G', do_cmd_study },
-	{ "Browse a book",              'b', do_cmd_browse },
-	{ "Cast a spell",               'm', do_cmd_cast_or_pray },
-	{ "Pray a prayer",              'p', do_cmd_cast_or_pray }
+  { "Cast a spell",               'm', do_cmd_cast_or_pray },
+  { "Pray a prayer",              'p', do_cmd_cast_or_pray },
+  { "Browse a book",              'b', do_cmd_browse },
+  { "Gain new spells or prayers", 'G', do_cmd_study }
 };
 
 /* General actions */
 static command_type cmd_action[] =
 {
-	{ "Search for traps/doors",     's', do_cmd_search },
-	{ "Disarm a trap or chest",     'D', do_cmd_disarm },
-	{ "Rest for a while",           'R', do_cmd_rest },
-	{ "Look around",                'l', do_cmd_look },
-	{ "Target monster or location", '*', do_cmd_target },
-	{ "Dig a tunnel",               'T', do_cmd_tunnel },
-	{ "Go up staircase",            '<', do_cmd_go_up },
-	{ "Go down staircase",          '>', do_cmd_go_down },
-	{ "Toggle search mode",         'S', do_cmd_toggle_search },
-	{ "Open a door or a chest",     'o', do_cmd_open },
-	{ "Close a door",               'c', do_cmd_close },
-	{ "Jam a door shut",            'j', do_cmd_spike },
-	{ "Bash a door open",           'B', do_cmd_bash },
-	{ "Racial shapechange/End shapechange", ']', do_cmd_reshape},
-	{ "Move house",                 'H', do_cmd_move_house} 
+  { "Disarm a trap or chest",             'D', do_cmd_disarm },
+  { "Rest for a while",                   'R', do_cmd_rest },
+  { "Look around",                        'l', do_cmd_look },
+  { "Target monster or location",         '*', do_cmd_target },
+  { "Dig a tunnel",                       'T', do_cmd_tunnel },
+  { "Open a door or a chest",             'o', do_cmd_open },
+  { "Close a door",                       'c', do_cmd_close },
+  { "Search for traps/doors",             's', do_cmd_search },
+  { "Alter a grid/set monster trap",      '+', do_cmd_alter },
+  { "Go up staircase",                    '<', do_cmd_go_up },
+  { "Go down staircase",                  '>', do_cmd_go_down },
+  { "Toggle search mode",                 'S', do_cmd_toggle_search },
+  { "Jam a door shut",                    'j', do_cmd_spike },
+  { "Bash a door open",                   'B', do_cmd_bash },
+  { "Racial shapechange/End shapechange", ']', do_cmd_reshape},
+  { "Move house",                         'H', do_cmd_move_house} 
 };
 
 /* Item use commands */
 static command_type cmd_item_use[] =
 {
-	{ "Read a scroll",            'r', do_cmd_read_scroll },
-	{ "Quaff a potion",           'q', do_cmd_quaff_potion },
-	{ "Use a staff",              'u', do_cmd_use_staff },
-	{ "Aim a wand",               'a', do_cmd_aim_wand },
-	{ "Zap a rod",                'z', do_cmd_zap_rod },
-	{ "Activate an object",       'A', do_cmd_activate },
-	{ "Eat some food",            'E', do_cmd_eat_food },
-	{ "Fuel your light source",   'F', do_cmd_refill },
-	{ "Fire your missile weapon", 'f', do_cmd_fire },
-	{ "Throw an item",            'v', do_cmd_throw }
+  { "Fire your missile weapon", 'f', do_cmd_fire },
+  { "Throw an item",            'v', do_cmd_throw },
+  { "Read a scroll",            'r', do_cmd_read_scroll },
+  { "Quaff a potion",           'q', do_cmd_quaff_potion },
+  { "Use a staff",              'u', do_cmd_use_staff },
+  { "Aim a wand",               'a', do_cmd_aim_wand },
+  { "Zap a rod",                'z', do_cmd_zap_rod },
+  { "Activate an object",       'A', do_cmd_activate },
+  { "Eat some food",            'E', do_cmd_eat_food },
+  { "Fuel your light source",   'F', do_cmd_refill }
 };
 
 /* Item management commands */
 static command_type cmd_item_manage[]  =
 {
-	{ "Display equipment listing", 'e', do_cmd_equip },
-	{ "Display inventory listing", 'i', do_cmd_inven },
-	{ "Pick up objects",           'g', do_cmd_pickup },
-	{ "Wear/wield an item",        'w', do_cmd_wield },
-	{ "Take/unwield off an item",  't', do_cmd_takeoff },
-	{ "Drop an item",              'd', do_cmd_drop },
-	{ "Destroy an item",           'k', do_cmd_destroy },
-	{ "Examine an item",           'I', do_cmd_observe },
-	{ "Inscribe an object",        '{', do_cmd_inscribe },
-	{ "Uninscribe an object",      '}', do_cmd_uninscribe }
+  { "Display equipment listing", 'e', do_cmd_equip },
+  { "Display inventory listing", 'i', do_cmd_inven },
+  { "Pick up objects",           'g', do_cmd_pickup },
+  { "Wear/wield an item",        'w', do_cmd_wield },
+  { "Take/unwield off an item",  't', do_cmd_takeoff },
+  { "Drop an item",              'd', do_cmd_drop },
+  { "Destroy an item",           'k', do_cmd_destroy },
+  { "Examine an item",           'I', do_cmd_observe },
+  { "Inscribe an object",        '{', do_cmd_inscribe },
+  { "Uninscribe an object",      '}', do_cmd_uninscribe }
 };
 
 /* Information access commands */
 static command_type cmd_info[] =
 {
-	{ "Full dungeon map",             'M', do_cmd_view_map },
-       	{ "Display visible monster list", '[', do_cmd_monlist },
-	{ "Locate player on map",         'L', do_cmd_locate },
-	{ "Help",                         '?', do_cmd_help },
-	{ "Identify symbol",              '/', do_cmd_query_symbol },
-	{ "Character description",        'C', do_cmd_change_name },
-	{ "Interact with options",        '=', do_cmd_xxx_options },
-	//	{ "Port-specific preferences",    '!', do_cmd_port },
-	{ "Check knowledge",              '~', do_cmd_knowledge },
-	{ "Repeat level feeling",   KTRL('F'), do_cmd_feeling },
-	{ "Show previous message",  KTRL('O'), do_cmd_message_one },
-	{ "Show previous messages", KTRL('P'), do_cmd_messages }
+  { "Check/learn specialties",      'O', do_cmd_specialty }, 
+  { "Full dungeon map",             'M', do_cmd_view_map },
+  { "Locate player on map",         'L', do_cmd_locate },
+  { "Help",                         '?', do_cmd_help },
+  { "Identify symbol",              '/', do_cmd_query_symbol },
+  { "Character description",        'C', do_cmd_change_name },
+  { "Interact with options",        '=', do_cmd_xxx_options },
+  { "Check knowledge",              '~', do_cmd_knowledge },
+  { "Display visible monster list", '[', do_cmd_monlist },
+  { "Repeat level feeling",   KTRL('F'), do_cmd_feeling },
+  { "Show previous message",  KTRL('O'), do_cmd_message_one },
+  { "Show previous messages", KTRL('P'), do_cmd_messages },
+  { "Show the time of day",   KTRL('T'), do_cmd_time }
 };
 
 /* Utility/assorted commands */
 static command_type cmd_util[] =
 {
-	{ "Check/learn specialties",    'O', do_cmd_specialty }, 
-	{ "Save and don't quit",  KTRL('S'), do_cmd_save_game },
-	{ "Save and quit",        KTRL('X'), do_cmd_quit },
-	{ "Quit (commit suicide)",      'Q', do_cmd_suicide },
-	{ "Redraw the screen",    KTRL('R'), do_cmd_redraw },
-
-	{ "Load \"screen dump\"",       '(', do_cmd_load_screen },
-	{ "Save \"screen dump\"",       ')', do_cmd_save_screen }
+  { "Save and don't quit",  KTRL('S'), do_cmd_save_game },
+  { "Save and quit",        KTRL('X'), do_cmd_quit },
+  { "Quit (commit suicide)",      'Q', do_cmd_suicide },
+  { "Redraw the screen",    KTRL('R'), do_cmd_redraw },
+  { "Load \"screen dump\"",       '(', do_cmd_load_screen },
+  { "Save \"screen dump\"",       ')', do_cmd_save_screen }
 };
 
 /* Commands that shouldn't be shown to the user */ 
 static command_type cmd_hidden[] =
 {
-	{ "Take notes",               ':', do_cmd_note },
-	{ "Version info",             'V', do_cmd_version },
-	//	{ "Load a single pref line",  '"', do_cmd_pref },
-	{ "Mouse click",           '\xff', do_cmd_mousepress },
-	{ "Enter a store",            '_', do_cmd_store },
-	{ "Toggle windows",     KTRL('E'), toggle_inven_equip }, /* XXX */
-	{ "Alter a grid",             '+', do_cmd_alter },
-	{ "Walk",                     ';', do_cmd_walk },
-	{ "Start running",            '.', do_cmd_run },
-	{ "Stand still",              ',', do_cmd_hold },
-	{ "Jump (into a trap)",       '-', do_cmd_jump },
-	{ "Check knowledge",          '|', do_cmd_knowledge },
-	//	{ "Display menu of actions", '\n', do_cmd_menu },
-	{ "Display menu of actions", '\r', do_cmd_menu },
-	{ "Time",                KTRL('T'),do_cmd_time },
-	{ "Toggle wizard mode",  KTRL('W'), do_cmd_wizard },
+  { "Take notes",                      ':', do_cmd_note },
+  { "Version info",                    'V', do_cmd_version },
+  { "Mouse click",                  '\xff', do_cmd_mousepress },
+  { "Enter a store",                   '_', do_cmd_store },
+  { "Toggle windows",            KTRL('E'), toggle_inven_equip }, /* XXX */
+  { "Walk",                            ';', do_cmd_walk },
+  { "Start running",                   '.', do_cmd_run },
+  { "Stand still",                     ',', do_cmd_hold },
+  { "Jump (into a trap)",              '-', do_cmd_jump },
+  { "Display menu of actions",        '\r', do_cmd_menu },
+  { "Display inventory for selection", '|', do_cmd_show_obj },
+  { "Toggle wizard mode",        KTRL('W'), do_cmd_wizard },
 
 #ifdef ALLOW_DEBUG
-	{ "Debug mode commands", KTRL('A'), do_cmd_try_debug },
+  { "Debug mode commands",       KTRL('A'), do_cmd_try_debug },
 #endif
 #ifdef ALLOW_BORG
-	{ "Borg commands",       KTRL('Z'), do_cmd_try_borg }
+  { "Borg commands",             KTRL('Z'), do_cmd_try_borg }
 #endif
 };
 
@@ -186,13 +180,13 @@ typedef struct
 
 static command_list cmds_all[] =
 {
-	{ "Use magic/Pray",  cmd_magic,       N_ELEMENTS(cmd_magic) },
-	{ "Action commands", cmd_action,      N_ELEMENTS(cmd_action) },
-	{ "Use item",        cmd_item_use,    N_ELEMENTS(cmd_item_use) },
-	{ "Manage items",    cmd_item_manage, N_ELEMENTS(cmd_item_manage) },
-	{ "Information",     cmd_info,        N_ELEMENTS(cmd_info) },
-	{ "Utility",         cmd_util,        N_ELEMENTS(cmd_util) },
-	{ "Hidden",          cmd_hidden,      N_ELEMENTS(cmd_hidden) }
+  { "Use magic/Pray",  cmd_magic,       N_ELEMENTS(cmd_magic) },
+  { "Action commands", cmd_action,      N_ELEMENTS(cmd_action) },
+  { "Use item",        cmd_item_use,    N_ELEMENTS(cmd_item_use) },
+  { "Manage items",    cmd_item_manage, N_ELEMENTS(cmd_item_manage) },
+  { "Information",     cmd_info,        N_ELEMENTS(cmd_info) },
+  { "Utility",         cmd_util,        N_ELEMENTS(cmd_util) },
+  { "Hidden",          cmd_hidden,      N_ELEMENTS(cmd_hidden) }
 };
 
 
@@ -240,16 +234,73 @@ int click_area(event_type ke)
   else return MOUSE_NULL;
 }
 
+/*** Menu functions ***/
+char comm[22];
+cptr comm_descr[22];
+int poss;
+
+/* Item tag/command key */
+static char show_tag(menu_type *menu, int oid)
+{
+  /* Caution - could be a problem here if KTRL commands were used */
+  return comm[oid];
+}
+
+/* Display an entry on a command menu */
+static void show_display(menu_type *menu, int oid, bool cursor, int row, 
+			  int col, int width)
+{
+  byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+  
+  /* Write the description */
+  Term_putstr(col + 4, row, -1, attr, comm_descr[oid]);
+}
+
+
+/* Handle user input from a command menu */
+static bool show_action(char cmd, void *db, int oid)
+{
+  /* Handle enter and mouse */
+  if (cmd == '\n' || cmd == '\r' || cmd == '\xff')
+    {
+      p_ptr->command_new = comm[oid];
+    }
+  return TRUE;
+}
+
+/*
+ * Display a list of commands.
+ */
+void show_cmd_menu(bool object)
+{
+  menu_type menu;
+  menu_iter commands_menu = { 0, show_tag, 0, show_display, show_action };
+  region area = { 0, (object ? 2 : 1), 20, 0 };
+  
+  event_type evt;
+  int cursor = 0;
+  
+  /* Size of menu */
+  area.page_rows = poss + (object ? 1 : 0);
+
+  /* Set up the menu */
+  WIPE(&menu, menu);
+  menu.cmd_keys = "\x8B\x8C\n\r";
+  menu.count = poss;
+  menu.menu_data = comm;
+  menu_init2(&menu, find_menu_skin(MN_SCROLL), &commands_menu, &area);
+  
+  /* Select an entry */
+  evt = menu_select(&menu, &cursor, 0);
+}
+
 /* 
  * Bring up objects to act on 
  */
 void do_cmd_show_obj(void)
 {
-  event_type ke;
-  char comm[22];
   cptr q, s;
-  cptr comm_descr[22];
-  int j, item, tile_hgt, poss = 0;
+  int j, item, tile_hgt;
   object_type *o_ptr;
 
   char o_name[120];
@@ -289,6 +340,9 @@ void do_cmd_show_obj(void)
   if (!o_ptr->k_idx)
     return;
 
+  /* No commands yet */
+  poss = 0;
+
   /* Describe the object */
   object_desc(o_name, o_ptr, TRUE, 4);
       
@@ -302,21 +356,21 @@ void do_cmd_show_obj(void)
   if ((wield_slot(o_ptr) >= INVEN_WIELD) && (!SCHANGE) && (item < INVEN_WIELD))
     {
       comm[poss] = 'w';
-      comm_descr[poss++] = "wield";
+      comm_descr[poss++] = "Wield";
     }
       
   /* Take off equipment */
   if ((item >= INVEN_WIELD) && (item < INVEN_TOTAL) && (!SCHANGE))
     {
       comm[poss] = 't';
-      comm_descr[poss++] = "take off";
+      comm_descr[poss++] = "Take off";
     }
       
   /* Drop an item */
   if ((item >= 0) && ((item < INVEN_WIELD) || (!SCHANGE)))
     {
       comm[poss] = 'd';
-      comm_descr[poss++] = "drop";
+      comm_descr[poss++] = "Drop";
     }
       
       
@@ -324,19 +378,19 @@ void do_cmd_show_obj(void)
   if (item < INVEN_WIELD)
     {
       comm[poss] = 'k';
-      comm_descr[poss++] = "destroy";
+      comm_descr[poss++] = "Destroy";
     }
       
       
   /* Identify an object */
   comm[poss] = 'I';
-  comm_descr[poss++] = "inspect";
+  comm_descr[poss++] = "Inspect";
   
   /* Pick up an object */
   if ((item < 0) && inven_carry_okay(o_ptr))
     {
       comm[poss] = 'g';
-      comm_descr[poss++] = "pick up";
+      comm_descr[poss++] = "Pick up";
     }
 
   /* Book learnin' */
@@ -345,23 +399,23 @@ void do_cmd_show_obj(void)
       if (p_ptr->new_spells)
 	{
 	  comm[poss] = 'G';
-	  comm_descr[poss++] = "gain a spell";
+	  comm_descr[poss++] = "Gain a spell";
 	}
       comm[poss] = 'b';
-      comm_descr[poss++] = "browse";
+      comm_descr[poss++] = "Browse";
       comm[poss] = 'm';
-      comm_descr[poss++] = "cast a spell";
+      comm_descr[poss++] = "Cast a spell";
     }
 
   /* Inscribe an object */
   comm[poss] =  '{';
-  comm_descr[poss++] = "inscribe";
+  comm_descr[poss++] = "Inscribe";
       
   /* Uninscribe an object */
   if (o_ptr->note)
     {
       comm[poss] = '}';
-      comm_descr[poss++] = "uninscribe";
+      comm_descr[poss++] = "Uninscribe";
     }
 
   /* Activate equipment */
@@ -369,14 +423,14 @@ void do_cmd_show_obj(void)
       && (item >= INVEN_WIELD))
     {
       comm[poss] = 'A';
-      comm_descr[poss++] = "activate";
+      comm_descr[poss++] = "Activate";
     }
       
   /* Eat some food */
   if (o_ptr->tval == TV_FOOD)
     {
       comm[poss] = 'E';
-      comm_descr[poss++] = "eat";
+      comm_descr[poss++] = "Eat";
     }
       
   if ((item < INVEN_WIELD) && ((o_ptr->tval == TV_LITE) || 
@@ -392,7 +446,7 @@ void do_cmd_show_obj(void)
  
 	 {
 	   comm[poss] = 'F';
-	   comm_descr[poss++] = "refuel";
+	   comm_descr[poss++] = "Refuel";
 	 }
     }
       
@@ -400,55 +454,55 @@ void do_cmd_show_obj(void)
   if (p_ptr->ammo_tval == o_ptr->tval)
     {
       comm[poss] = 'f';
-      comm_descr[poss++] = "fire";
+      comm_descr[poss++] = "Fire";
     }
   
   /* Throw an item */
   if ((item < INVEN_WIELD) || (!SCHANGE))
     {
       comm[poss] = 'v';
-      comm_descr[poss++] = "throw";
+      comm_descr[poss++] = "Throw";
     }
       
   /* Aim a wand */
   if (o_ptr->tval == TV_WAND)
     {
       comm[poss] = 'a';
-      comm_descr[poss++] = "aim";
+      comm_descr[poss++] = "Aim";
     }
       
   /* Zap a rod */
   if (o_ptr->tval == TV_ROD)
     {
       comm[poss] = 'z';
-      comm_descr[poss++] = "zap";
+      comm_descr[poss++] = "Zap";
     }
       
   /* Quaff a potion */
   if (o_ptr->tval == TV_POTION)
     {
       comm[poss] = 'q';
-      comm_descr[poss++] = "quaff";
+      comm_descr[poss++] = "Quaff";
     }
       
   /* Read a scroll */
   if (o_ptr->tval == TV_SCROLL)
     {
       comm[poss] = 'r';
-      comm_descr[poss++] = "read";
+      comm_descr[poss++] = "Read";
     }
       
   /* Use a staff */
   if (o_ptr->tval == TV_STAFF)
     {
       comm[poss] = 'u';
-      comm_descr[poss++] = "use";
+      comm_descr[poss++] = "Use";
     }
 
-  /* Save screen */
+  /* Set up the screen */
   screen_save();
-
-  /* Now do the list */
+  
+  /* Prompt */
   put_str("Choose a command, or ESC:", 0, 0); 
   
   /* Clear the line */
@@ -456,19 +510,6 @@ void do_cmd_show_obj(void)
       
   /* Display the item */
   c_put_str(out_color, o_name, 1, 0);
-      
-  /* Output each entry */
-  for (j = 0; j < poss; j++)
-    {
-      /* Clear the line */
-      prt("", j + 2, 0);
-      
-      /* Display the entry itself */
-      put_str(format("%c  %s", comm[j], comm_descr[j]), j + 2, 5);
-    }
-
-  /* Clear a shadow */
-  prt("", poss + 2, 0);
       
   /* Hack - delete exact graphics rows */
   if (use_trptile || use_dbltile)
@@ -480,28 +521,12 @@ void do_cmd_show_obj(void)
     }
 
   /* Get a choice */
-  ke = inkey_ex();
+  show_cmd_menu(TRUE);
 
-  /* Load screen */
+  /* Load de screen */
   screen_load();
-
-  /* Valid mousepress */
-  if ((ke.key == '\xff') && (ke.mousey <= poss + 1) && (ke.mousey))
-    p_ptr->command_new = comm[ke.mousey - 2];
-
-  /* Valid keypress */
-  for (j = 0; j <= poss; j++)
-    if (ke.key == comm[j])
-      {
-	p_ptr->command_new = ke.key;
-	break;
-      }
-
-#ifdef ALLOW_REPEAT /* TNB */
   
   if (p_ptr->command_new) repeat_push(p_ptr->command_new);
-  
-#endif /* ALLOW_REPEAT */
   
   /* Now set the item if valid */
   if (p_ptr->command_new)
@@ -560,10 +585,7 @@ void get_feats(int *surroundings)
  */
 void show_player(void)
 {
-  event_type ke;
-  char comm[22];
-  cptr comm_descr[22];
-  int i, j, fy, fx, tile_hgt, poss = 0;
+  int i, j, fy, fx, tile_hgt;
   int adj_grid[9];
   bool exist_rock_or_web = FALSE;
   bool exist_door = FALSE;
@@ -578,6 +600,9 @@ void show_player(void)
 
   /* No command */
   p_ptr->command_new = 0;
+
+  /* No commands yet */
+  poss = 0;
 
   /* Get surroundings */
   get_feats(adj_grid);
@@ -612,81 +637,81 @@ void show_player(void)
       || (check_ability(SP_STEAL) && exist_monster && (!SCHANGE)))
     {
       comm[poss] = '+';
-      comm_descr[poss++] = "alter";
+      comm_descr[poss++] = "Alter";
     }
   
   /* Dig a tunnel */
   if (exist_door || exist_rock_or_web)
     {
       comm[poss] = 'T';
-      comm_descr[poss++] = "tunnel";
+      comm_descr[poss++] = "Tunnel";
     }
       
   /* Begin Running -- Arg is Max Distance */
   {
     comm[poss] = '.';
-    comm_descr[poss++] = "run";
+    comm_descr[poss++] = "Run";
   }
       
   /* Hold still for a turn.  Pickup objects if auto-pickup is true. */
   {
     comm[poss] = ',';
-    comm_descr[poss++] = "stand still";
+    comm_descr[poss++] = "Stand still";
   }
       
   /* Pick up objects. */
   if (cave_o_idx[p_ptr->py][p_ptr->px])
   {
     comm[poss] = 'g';
-    comm_descr[poss++] = "pick up";
+    comm_descr[poss++] = "Pick up";
   }
       
   /* Rest -- Arg is time */
   {
     comm[poss] = 'R';
-    comm_descr[poss++] = "rest";
+    comm_descr[poss++] = "Rest";
   }
       
   /* Search for traps/doors */
   {
     comm[poss] = 's';
-    comm_descr[poss++] = "search";
+    comm_descr[poss++] = "Search";
   }
       
   /* Look around */
   {
     comm[poss] = 'l';
-    comm_descr[poss++] = "look";
+    comm_descr[poss++] = "Look";
   }
       
   /* Scroll the map */
   {
     comm[poss] = 'L';
-    comm_descr[poss++] = "scroll map";
+    comm_descr[poss++] = "Scroll map";
   }
       
   /* Show the map */
   {
     comm[poss] = 'M';
-    comm_descr[poss++] = "level map";
+    comm_descr[poss++] = "Level map";
   }
       
   /* Knowledge */
   {
     comm[poss] = '~';
-    comm_descr[poss++] = "knowledge";
+    comm_descr[poss++] = "Knowledge";
   }
       
   /* Options */
   {
     comm[poss] = '=';
-    comm_descr[poss++] = "options";
+    comm_descr[poss++] = "Options";
   }
       
   /* Toggle search mode */
   {
     comm[poss] = 'S';
-    comm_descr[poss++] = "toggle searching";
+    comm_descr[poss++] = "Toggle searching";
   }
       
   
@@ -695,7 +720,7 @@ void show_player(void)
 				     (!(adj_grid[8] % 2))))
   {
     comm[poss] = '<';
-    comm_descr[poss++] = "take stair/path";
+    comm_descr[poss++] = "Take stair/path";
   }
       
   /* Go down staircase */
@@ -703,7 +728,7 @@ void show_player(void)
 				     (adj_grid[8] % 2)))
   {
     comm[poss] = '>';
-    comm_descr[poss++] = "take stair/path";
+    comm_descr[poss++] = "Take stair/path";
   }
       
   /* Open a door or chest */
@@ -711,63 +736,50 @@ void show_player(void)
       count_chests(&fy, &fx, FALSE))
     {
       comm[poss] = 'o';
-      comm_descr[poss++] = "open";
+      comm_descr[poss++] = "Open";
     }
   
   /* Close a door */
   if (exist_open_door)
     {
       comm[poss] = 'c';
-      comm_descr[poss++] = "close";
+      comm_descr[poss++] = "Close";
     }
       
     /* Jam a door with spikes */
   if (exist_door)
     {
       comm[poss] = 'j';
-      comm_descr[poss++] = "jam";
+      comm_descr[poss++] = "Jam";
     }
       
   /* Bash a door */
   if (exist_door)
     {
       comm[poss] = 'B';
-      comm_descr[poss++] = "bash";
+      comm_descr[poss++] = "Bash";
     }
       
   /* Disarm a trap or chest */
   if (count_chests(&fy, &fx, TRUE) || exist_trap || exist_mtrap)
     {
       comm[poss] = 'D';
-      comm_descr[poss++] = "disarm";
+      comm_descr[poss++] = "Disarm";
     }
 
   /* Shapechange */
   if ((SCHANGE) || (check_ability(SP_BEARSKIN))) 
     {
       comm[poss] = ']';
-      comm_descr[poss++] = "shapechange";
+      comm_descr[poss++] = "Shapechange";
     }
       
   /* Save screen */
   screen_save();
 
-  /* Now do the list */
+  /* Prompt */
   put_str("Choose a command, or ESC:", 0, 0); 
   
-  /* Output each entry */
-  for (j = 0; j < poss; j++)
-    {
-      /* Clear the line */
-      prt("", j + 1, 0);
-      
-      /* Display the entry itself */
-      put_str(format("%c  %s", comm[j], comm_descr[j]), j + 1, 5);
-    }
-
-  /* Clear a shadow */
-  prt("", poss + 1, 0);
-      
   /* Hack - delete exact graphics rows */
   if (use_trptile || use_dbltile)
     { 
@@ -778,28 +790,12 @@ void show_player(void)
     }
 
   /* Get a choice */
-  ke = inkey_ex();
+  show_cmd_menu(FALSE);
 
   /* Load screen */
   screen_load();
 
-  /* Valid mousepress */
-  if ((ke.key == '\xff') && (ke.mousey <= poss) && (ke.mousey))
-    p_ptr->command_new = comm[ke.mousey - 1];
-
-  /* Valid keypress */
-  for (j = 0; j < poss; j++)
-    if (ke.key == comm[j])
-      {
-	p_ptr->command_new = ke.key;
-	break;
-      }
-
-#ifdef ALLOW_REPEAT /* TNB */
-  
   if (p_ptr->command_new) repeat_push(p_ptr->command_new);
-  
-#endif /* ALLOW_REPEAT */
   
   /* Turn off lists */
   p_ptr->command_see = FALSE;
@@ -1188,7 +1184,7 @@ static bool cmd_menu(command_list *list, void *selection_p)
   
   /* Load de screen */
   screen_load();
-  
+
   if (evt.type == EVT_SELECT)
     {
       *selection = list->list[evt.index];
@@ -1254,6 +1250,9 @@ static void do_cmd_menu(void)
   
   /* Load de screen */
   screen_load();
+  
+  /* Redraw if bigtile or whatever */
+  do_cmd_redraw();
   
   /* If a command was chosen, do it. */
   if (chosen_command.hook)

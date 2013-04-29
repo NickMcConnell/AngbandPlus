@@ -18,6 +18,9 @@
 #define DIR_START	128 /* Start */
 #define DIR_AUX1	256 /* Aux1 */
 #define DIR_AUX2	512 /* Aux2 */
+#define DIR_1		1024 /* 1 */
+#define DIR_2		2048 /* 2 */
+#define DIR_3		4096 /* 3 */
 
 /* FWG 5-23-2001 */
 /* A struct for handling of fake fonts. */
@@ -52,6 +55,25 @@ struct CONTROLBITMAPS
 	int mDstW;
 	int mDstH;
 };
+
+typedef struct GXKeyList {
+    short vkUp;             // key for up
+    POINT ptUp;             // x,y position of key/button.  Not on screen but in screen coordinates.
+    short vkDown;
+    POINT ptDown;
+    short vkLeft;
+    POINT ptLeft;
+    short vkRight;
+    POINT ptRight;
+    short vkA;
+    POINT ptA;
+    short vkB;
+    POINT ptB;
+    short vkC;
+    POINT ptC;
+    short vkStart;
+    POINT ptStart;
+}; 
 
 typedef struct winceGlobals_data 
 {
@@ -105,6 +127,8 @@ typedef struct winceGlobals_data
 	/* FWG 5-30-2001 */
 	unsigned long m_gxDll;
 	BOOL m_bHardwareButtonsOpen;
+
+	struct GXKeyList g_gxkl;
 
 } WINCEGLOBALS;
 

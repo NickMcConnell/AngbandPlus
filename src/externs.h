@@ -396,7 +396,7 @@ extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
 extern void lite_spot(int y, int x);
 extern void prt_map(void);
-extern void display_map(int *cy, int *cx, bool small);
+extern void display_map(int *cy, int *cx, bool smll);
 extern void do_cmd_view_map(void);
 extern errr vinfo_init(void);
 extern void forget_view(void);
@@ -972,6 +972,7 @@ extern bool squelch_item_ok(object_type *o_ptr);
 bool squelch_hide_item(object_type *o_ptr);
 extern void squelch_drop(void);
 void squelch_items(void);
+extern bool seen_tval(int tval);
 void do_cmd_options_item(void *, cptr);
 
 /*
