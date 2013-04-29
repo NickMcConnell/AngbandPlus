@@ -167,6 +167,12 @@ extern s16b (*cave_o_idx)[DUNGEON_WID];
 extern s16b (*cave_m_idx)[DUNGEON_WID];
 extern byte (*cave_cost)[DUNGEON_WID];
 extern byte (*cave_when)[DUNGEON_WID];
+extern int scent_when;
+extern int flow_center_y;
+extern int flow_center_x;
+extern int update_center_y;
+extern int update_center_x;
+extern int cost_at_center;
 extern room_info_type room_info[DUN_ROOMS];
 extern byte dun_room[MAX_ROOMS_ROW][MAX_ROOMS_COL];
 extern header *z_head;
@@ -307,8 +313,8 @@ extern void do_cmd_view_map(void);
 extern errr vinfo_init(void);
 extern void forget_view(void);
 extern void update_view(void);
-extern void forget_flow(void);
-extern void update_flow(void);
+extern void update_noise(void);
+extern void update_smell(void);
 extern void map_area(void);
 extern void wiz_lite(void);
 extern void wiz_dark(void);
@@ -487,6 +493,10 @@ extern bool make_attack_normal(int m_idx);
 extern bool make_attack_spell_aux(int who, int y, int x, int thrown_spell);
 extern bool make_attack_spell(int m_idx);
 extern void process_monsters(byte minimum_energy);
+extern int get_scent(int y, int x);
+extern bool cave_exist_mon(int r_idx, int y, int x, bool occupied_ok);
+extern void reset_monsters(void);
+
 
 /* monster1.c */
 extern void screen_roff(int r_idx);
@@ -947,6 +957,6 @@ extern void show_floor(int *floor_list, int floor_num);
 #ifdef GJW_RANDART
 
 /* randart.c */
-extern int do_randart(u32b randart_seed);
+extern int do_randart(u32b randart_seed, bool full);
 
 #endif /* GJW_RANDART */

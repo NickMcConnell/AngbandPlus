@@ -3425,7 +3425,7 @@ static void modify_weight(object_type *j_ptr, int r_idx)
         /* Hack -- Increase weight */
         else if ((r_ptr->d_char >='a') && (r_ptr->d_char <='z'))
         {
-                j_ptr->weight *= j_ptr->weight * hack_body_weight[r_ptr->d_char-'a'+ 26] / 10;
+                j_ptr->weight = j_ptr->weight * hack_body_weight[r_ptr->d_char-'a'+ 26] / 10;
         }
 
         /* Minimum weight */

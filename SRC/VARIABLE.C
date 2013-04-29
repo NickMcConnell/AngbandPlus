@@ -157,6 +157,20 @@ bool closing_flag;              /* Dungeon is closing */
 
 
 /*
+ * The character generates both directed (extra) noise (by doing noisy 
+ * things) and ambiant noise (the combination of directed and innate 
+ * noise).  Directed noise can immediately wake up monsters in LOS. 
+ * Ambient noise determines how quickly monsters wake up and how often 
+ * they get new information on the current character position.
+ *
+ * Each player turn, more noise accumulates.  Every time monster 
+ * temporary conditions are processed, all non-innate noise is cleared.
+ */
+int add_wakeup_chance = 0;
+u32b total_wakeup_chance = 0;
+
+
+/*
  * Player info
  */
 int player_uid;
@@ -415,19 +429,41 @@ s16b (*cave_o_idx)[DUNGEON_WID];
 s16b (*cave_m_idx)[DUNGEON_WID];
 
 
+
 #ifdef MONSTER_FLOW
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
+ * Used to simulate character noise.
  */
 byte (*cave_cost)[DUNGEON_WID];
 
 /*
- * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps.
+ * Used to store character scent trails.
  */
 byte (*cave_when)[DUNGEON_WID];
 
-#endif  /* MONSTER_FLOW */
+/*
+ * Current scent age marker.  Counts down from 250 to 0 and then loops.
+ */
+int scent_when = 250;
+
+
+/*
+ * Centerpoints of the last flow (noise) rebuild and the last flow update.
+ */
+int flow_center_y;
+int flow_center_x;
+int update_center_y;
+int update_center_x;
+
+/*
+ * Flow cost at the center grid of the current update.
+ */
+int cost_at_center = 0;
+
+#endif	/* MONSTER_FLOW */
 
 
 /*

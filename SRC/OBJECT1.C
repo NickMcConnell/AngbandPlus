@@ -2520,6 +2520,36 @@ int identify_fully_desc(cptr *info, u32b f1, u32b f2, u32b f3)
 		info[i++] = "It gives telepathic powers.";
 	}
 
+        if (f3 & (TR3_ESP_ORC))
+	{
+                info[i++] = "It senses when orcs are near.";
+	}
+
+        if (f3 & (TR3_ESP_TROLL))
+	{
+                info[i++] = "It senses when trolls are near.";
+	}
+
+        if (f3 & (TR3_ESP_GIANT))
+	{
+                info[i++] = "It senses when giants are near.";
+	}
+
+        if (f3 & (TR3_ESP_DRAGON))
+	{
+                info[i++] = "It senses when dragons are near.";
+	}
+
+        if (f3 & (TR3_ESP_DEMON))
+	{
+                info[i++] = "It senses when demons are near.";
+	}
+
+        if (f3 & (TR3_ESP_UNDEAD))
+	{
+                info[i++] = "It senses when undead are near.";
+	}
+
 	if (f3 & (TR3_SEE_INVIS))
 	{
 		info[i++] = "It allows you to see invisible monsters.";

@@ -1,0 +1,110 @@
+This file describes my basic to do list for Unangband.
+Also see Lib\Todo, which is a dumping group for
+various files and ideas.
+
+For a start, here are the current bugs:
+
+- Names of some artifacts when random artifacts is off are prematurely
+shortened.
+	This is a bug, and needs to be tracked down and fixed.
+
+- Campaign mode is broken.
+	There are 2 issues here:
+	Stores need to be implemented for the new store types.
+	Surface generation needs to be improved. I'll probably
+do a re-write of the town generation routines (Especially for cities),
+and import some wilderness generation routines from Pernband (Or if
+I can, Zangband).
+
+- Mushroom weirdness from mushroom patch drops.
+	I'll fix this by creating a x_info.txt file which will
+have a reimplementation of flavors in it. This should also fix
+the problem with amulets not currently having enough flavors yet.
+
+- Chests are not handled 100% yet (You never hit a trap on them).
+	A matter of sitting down and debugging this.
+
+- You should not be able to pick up an item in a location that does
+not have the DROP flag, and not be able to move if you are on a
+location that does not have an EASY_CLIMB or MOVE flag.
+	This makes chests more functional. And cage traps
+actually more of a threat.
+
+- You should be able to traverse rubble. But requiring 2 moves.
+	Also iron and wooden cages. Provided you are not stuck
+in them.
+
+- Monsters need more information saved.
+	Also the code should be cleaned up more.
+
+- Features are almost always referred to using the wrong pronoun.
+	I'll have to figure out a general solution for this.
+
+- Death and high scores do not record styles and sub-styles.
+	Trivial fix. Just haven't got around to it. But it will
+break highscore compatibility for people. :(
+
+- Updated birth.txt is incomplete.
+	Documentation in general needs an overhaul.
+
+- Should add kobolds from JLE's patch.
+	Easy enough to do.
+
+- Not all the monsters from the future.txt file are created yet.
+	Just requires a big sit down. Adding any more monsters or
+altering
+
+- Also the Zangband monsters imported still need massaging to fit.
+	This is primarily an issue because they were imported from
+a version of Zangband which uses Oangband combat, and so they are
+underpowered. Also, as Eytan Zweig has noted, Zangband uses
+EXP rather than EXP/LVL for monster power.
+
+- Need to notify the player they are singing/playing.
+	Also want to have DTraps as implemented in Oangband.
+
+- We are (now) many point releases behind the Angband code state
+of the play.
+	When Robert Rhuelmann releases 3.0, I'll look into
+updating the code base to this version.
+
+- Its a shame because it would look good, but monster lite code
+is not implemented yet.
+	I'll do this the same time I implement hiding and monster
+invisibility. Because I want players to be able to sneak around
+without light and remain hidden.
+
+And new features:
+- Implement Ego lights, and monster bleeding/poisoning from
+Eyangband.
+	This is primarily so that you can cut a monster and watch
+it bleed everywhere. Which is currently done as a hack. I was
+also thinking about doing magical candles, and haven't decided
+whether lanterns will be done in e_info.txt or k_info.txt.
+
+- Implement the player hiding in terrain, and items of
+invisibility.
+	This will require tweaking the monster AI so that
+monsters that cannot see you do something. Acting confused is
+in my opinion, a bit of a hack. I'd rather they left the room,
+or wandered around the room, if they weren't aware of you. Acting
+confused if they are aware of you might be a possibility.
+
+- Implement friendly monsters and uniques.
+	Long overdue, but its a reasonably big job.
+
+- Implement magic items the same way as spells.
+	The structure is there, but this is guaranteed to
+introduce bugs.
+
+- Implement monster spells the same way as player spells.
+	Ditto.
+
+- Implement alchemy/manufacturing items.
+	This is low priority at this stage.
+
+
+
+
+
+

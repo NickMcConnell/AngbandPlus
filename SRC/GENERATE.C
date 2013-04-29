@@ -142,7 +142,7 @@
  * Dungeon feature values
  */
 #define DUN_FEAT_OILC   10      /* 1/chance of oil/coal feature level */
-#define DUN_FEAT        70      /* Chance in 100 of having features */
+#define DUN_FEAT        40      /* Chance in 100 of having features */
 #define DUN_MAX_LAKES   3       /* Maximum number of lakes/rivers */
 #define DUN_FEAT_RNG    2       /* Width of lake */
 

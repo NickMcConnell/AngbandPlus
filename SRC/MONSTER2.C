@@ -45,7 +45,6 @@ void delete_monster_idx(int i)
 	/* Hack -- count the number of "reproducers" */
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro--;
 
-
 	/* Hack -- remove target monster */
 	if (p_ptr->target_who == i) target_set_monster(0);
 
@@ -1504,9 +1503,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
 
-		/* Update the flow */
-		p_ptr->update |= (PU_UPDATE_FLOW);
-
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
 
@@ -1548,9 +1544,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
-
-		/* Update the flow */
-		p_ptr->update |= (PU_UPDATE_FLOW);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
@@ -1874,8 +1867,8 @@ int place_monster_here(int y, int x, int r_idx)
 	}
 
 	/* Hack -- check for flying. */
-	if ((f_ptr->flags2 & (FF2_CAN_FLY)) &&
-		(r_ptr->flags2 & (RF2_CAN_FLY)))
+	if ((r_ptr->flags2 & (RF2_CAN_FLY)) &&
+		(f_ptr->flags2 & (FF2_CAN_FLY)))
 	{
 		return(MM_FLY);
 	}
@@ -1911,7 +1904,12 @@ int place_monster_here(int y, int x, int r_idx)
         }
 
 	/* XXX XXX Make monsters smarter about what they walk on */
-        if (mon_resist_feat(feat,r_idx)) return(MM_WALK);
+        if (mon_resist_feat(feat,r_idx))
+	{
+		if (f_ptr->flags1 & (FF1_MOVE)) return (MM_WALK);
+		
+		if (f_ptr->flags3 & (FF3_EASY_CLIMB)) return (MM_CLIMB);
+	}
 
 	return(MM_FAIL);
 
@@ -1942,11 +1940,6 @@ void monster_hide(int y, int x, int mmove, monster_type *m_ptr)
         else if ((mmove == MM_FLY) || (mmove == MM_CLIMB))
         {
                 m_ptr->mflag |= (MFLAG_OVER);
-        }
-        else if (f_ptr->flags3 & (FF3_EASY_CLIMB))
-        {
-                if (m_ptr->mflag & (MFLAG_OVER)) m_ptr->mflag &= ~(MFLAG_OVER);
-                else m_ptr->mflag |= (MFLAG_OVER);
         }
         else if (!(surface) || (f_ptr->flags3 & (FF3_OUTSIDE)))
         {
@@ -2765,9 +2758,6 @@ bool summon_specific(int y1, int x1, int lev, int type)
 {
 	int i, x, y, r_idx;
 
-        /* Get the feature */
-        feature_type *f_ptr = &f_info[cave_feat[y][x]];
-
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
 	{
@@ -2777,11 +2767,13 @@ bool summon_specific(int y1, int x1, int lev, int type)
 		/* Pick a location */
 		scatter(&y, &x, y1, x1, d, 0);
 
+                if (!in_bounds_fully(y,x)) continue;
+
 		/* Require "empty" floor grid */
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Hack -- no summoning on glyph of warding */
-                if (f_ptr->flags1 & (FF1_GLYPH)) return (FALSE);
+                if (f_info[cave_feat[y][x]].flags1 & (FF1_GLYPH)) continue;
 
 		/* Okay */
 		break;
@@ -2793,13 +2785,11 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	/* Save the "summon" type */
         summon_specific_type = type;
 
-
 	/* Require "okay" monsters */
 	get_mon_num_hook = summon_specific_okay;
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
-
 
 	/* Pick a monster, using the level calculation */
 	/* XXX Calculation changed from average to minimum. This should
@@ -2807,7 +2797,6 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	they summon, and weak summoning monsters from being as dangerous
 	deep in the dungeon. */
 	r_idx = get_mon_num(MIN(p_ptr->depth,lev)+ 5);
-
 
 	/* Remove restriction */
 	get_mon_num_hook = NULL;
@@ -2821,7 +2810,6 @@ bool summon_specific(int y1, int x1, int lev, int type)
 
 	/* Attempt to place the monster (awake, allow groups) */
 	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE)) return (FALSE);
-
 
 	/* Success */
 	return (TRUE);

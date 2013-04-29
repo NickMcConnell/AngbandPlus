@@ -1,3 +1,35 @@
+06-01-2001 Unangband 0.4.8a Bugfix release
+
+- Fixed problem with not using variant_save_feats
+option in town.
+- Fixed bug causing monsters to get twice as many
+moves as they should.
+- Fixed bug with weights of corpses for some
+monsters.
+- Fixed bug causing crash when monster summons.
+- Fixed bug resulting in transparent features.
+
+05-01-2001 Unangband 0.4.8 "Artificial Intelligence"
+release
+
+- Changed (Holy Avenger) weapons to of Arnor, and
+(Defender) weapons to of Numenor.
+- Changed some artifacts around as to which have
+race specific ESP.
+- Implemented random artifacts from newest
+randart.c patch. However, all games now have 255
+artifacts, with artifacts not in a_info.txt
+generated randomly.
+- Implemented pathing and flow from the 4GAI
+patch for monsters. Note that this 
+considerably increases the difficulty at low
+levels as 'random movers' attack you every
+turn now.
+- Fixed a bug with some monster blows being
+initialised with the wrong effect.
+- Fixed a bug with placement of glowing
+terrain and chasms.
+
 02-01-2001 Unangband 0.4.7c Bugfix release
 - Race specific ESP has been implemented, added to
 the high slay weapons and the occasional artifact.

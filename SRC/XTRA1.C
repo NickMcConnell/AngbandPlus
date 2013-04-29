@@ -3535,20 +3535,6 @@ void update_stuff(void)
 		update_view();
 	}
 
-
-	if (p_ptr->update & (PU_FORGET_FLOW))
-	{
-		p_ptr->update &= ~(PU_FORGET_FLOW);
-		forget_flow();
-	}
-
-	if (p_ptr->update & (PU_UPDATE_FLOW))
-	{
-		p_ptr->update &= ~(PU_UPDATE_FLOW);
-		update_flow();
-	}
-
-
 	if (p_ptr->update & (PU_DISTANCE))
 	{
 		p_ptr->update &= ~(PU_DISTANCE);

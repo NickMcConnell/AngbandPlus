@@ -355,6 +355,17 @@
 #define MAX_REPRO       100
 
 
+
+/*
+ * Maximum distance from the character to store flow (noise) information
+ */
+#define NOISE_STRENGTH 45
+
+/*
+ * Character turns it takes for smell to totally dissipate
+ */
+#define SMELL_STRENGTH 60
+
 /*
  * Player constants
  */
@@ -2248,9 +2259,6 @@
 #define PU_FORGET_VIEW  0x00010000L     /* Forget field of view */
 #define PU_UPDATE_VIEW  0x00020000L     /* Update field of view */
 /* xxx (many) */
-#define PU_FORGET_FLOW  0x00100000L     /* Forget flow data */
-#define PU_UPDATE_FLOW  0x00200000L     /* Update flow data */
-/* xxx (many) */
 #define PU_MONSTERS             0x10000000L     /* Update monsters */
 #define PU_DISTANCE             0x20000000L     /* Update distances */
 #define PU_ROOM_INFO            0x40000000L     /* Display room description */
@@ -2592,14 +2600,21 @@
 /*
  * Special Monster Flags (some should be saved)
  */
-#define MFLAG_VIEW      0x01    /* Monster is in line of sight */
-#define MFLAG_HIDE      0x02    /* Monster is hiding in terrain */
-#define MFLAG_OVER      0x04    /* Monster is flying over terrain*/
-#define MFLAG_MADE      0x08    /* Monster is not carrying treasure */
-#define MFLAG_BORN      0x10    /* Monster is still being born */
-#define MFLAG_NICE      0x20    /* Monster is still being nice */
-#define MFLAG_SHOW      0x40    /* Monster is recently memorized */
-#define MFLAG_MARK      0x80    /* Monster is currently memorized */
+#define MFLAG_VIEW      0x0001    /* Monster is in line of sight */
+#define MFLAG_HIDE      0x0002    /* Monster is hiding in terrain */
+#define MFLAG_OVER      0x0004    /* Monster is flying over terrain*/
+#define MFLAG_MADE      0x0008    /* Monster is not carrying treasure */
+#define MFLAG_BORN      0x0010    /* Monster is still being born */
+#define MFLAG_NICE      0x0020    /* Monster is still being nice */
+#define MFLAG_SHOW      0x0040    /* Monster is recently memorized */
+#define MFLAG_MARK      0x0080    /* Monster is currently memorized */
+#define MFLAG_ACTV      0x0100    /* Monster is currently active */
+#define MFLAG_RUNS      0x0200    /* Monster is currently running */
+
+#define MFLAG_RUN_BREAK_LEFT    0x1000
+#define MFLAG_RUN_BREAK_RIGHT   0x2000
+#define MFLAG_RUN_OPEN_LEFT     0x4000
+#define MFLAG_RUN_OPEN_RIGHT    0x8000
 
 /*
  * Monster movement (return from place_monster_on)

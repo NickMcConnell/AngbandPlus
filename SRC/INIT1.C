@@ -186,6 +186,7 @@ static cptr r_info_blow_method[] =
 static cptr r_info_blow_effect[] =
 {
         "",
+        "XXX1",
 	"ARROW",
 	"MISSILE",
 	"MANA",
@@ -220,7 +221,6 @@ static cptr r_info_blow_effect[] =
 	"KILL_WALL",
 	"KILL_DOOR",
 	"KILL_TRAP",
-	"KILL_WALL",
 	"MAKE_WALL",
 	"MAKE_DOOR",
 	"MAKE_TRAP",

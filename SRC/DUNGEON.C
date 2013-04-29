@@ -2545,6 +2545,20 @@ static void process_player(void)
 		}
 	}
 	while (!p_ptr->energy_use && !p_ptr->leaving);
+
+	/* Update noise flow information */
+	update_noise();
+
+	/* Update scent trail */
+	update_smell();
+
+
+	/* 
+	 * Reset character vulnerability.  Will be calculated by 
+	 * the first member of an animal pack that has a use for it.
+	 */
+	p_ptr->vulnerability = 0;
+
 }
 
 
@@ -2687,9 +2701,6 @@ static void dungeon(void)
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
 
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
-
 	/* Redraw dungeon */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
 
@@ -2777,20 +2788,6 @@ static void dungeon(void)
 		/* Give the player some energy */
 		p_ptr->energy += extract_energy[p_ptr->pspeed];
 
-		/* Give energy to all monsters */
-		for (i = m_max - 1; i >= 1; i--)
-		{
-			/* Access the monster */
-			m_ptr = &m_list[i];
-
-			/* Ignore "dead" monsters */
-			if (!m_ptr->r_idx) continue;
-
-			/* Give this monster some energy */
-			m_ptr->energy += extract_energy[m_ptr->mspeed];
-		}
-
-
 		/* Can the player move? */
 		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
 		{
@@ -2826,8 +2823,11 @@ static void dungeon(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
-		/* Process all of the monsters */
-		process_monsters(100);
+		/* Process monsters */
+		process_monsters(0);
+
+		/* Reset Monsters */
+		reset_monsters();
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -3088,12 +3088,7 @@ void play_game(bool new_game)
 
 #ifdef GJW_RANDART
 
-		/* Randomize the artifacts */
-		if (adult_rand_artifacts)
-		{
-			do_randart(seed_randart);
-		}
-
+                do_randart(seed_randart, TRUE);
 #endif
 
 		/* Hack -- enter the world */

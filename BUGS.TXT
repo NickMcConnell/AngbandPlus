@@ -1,6 +1,17 @@
 Note that these are play balance bugs only, there are no known stability
 bugs (Fingers crossed). 
 
+06-01-2001
+- Names of some artifacts when random artifacts is off are prematurely
+shortened.
+- Chests are not handled 100% yet (You never hit a trap on them).
+- Features are almost always referred to using the wrong pronoun.
+- You should not be able to pick up an item in a location that does
+not have the DROP flag, and not be able to move if you are on a
+location that does not have an EASY_CLIMB or MOVE flag.
+- You should be able to traverse rubble. But requiring 2 moves.
+- Monsters need more information saved.
+
 15-12-2001
 - Campaign mode is broken.
 
@@ -13,36 +24,12 @@ bugs (Fingers crossed).
 - Should add kobolds from JLE's patch.
 - Not all the monsters from the future.txt file are created yet. Also the
 Zangband monsters imported still need massaging to fit.
-- Summon spells don't summon anything... this will be waiting on the next
-feature release as there is no(t much) point summoning a monster if all it
-does is attack you.
-- Come to mention it, flow code is broken for fleeing monsters. We should
-choose a path that doesn't lead to dead ends. Fleeing monsters currently
-have no preference in this regard.
 - Need to notify the player they are singing/playing.
-- Spells that create bridges, raise and lower water should be temporary,
-to prevent unreachable areas and getting monsters stuck on terrain (Which is
-not handled well).
-- Wall spells should create walls. However only temporary ones. (See
-previous bug). This can be achieved (maybe) through smart use of spell
-objects, especially with a NEVER_GET flag.
-- Increasing number of objects and monsters has rendered the much-needed save
-file import compatibility with Angband gone. But RR has broken this by saving
-artifacts with the new version. I haven't decided how to resolve this.
-- (Style bug) Don't try reading code for monster movement now. Its damn hard
-to understand.
 - We are (now) many point releases behind the Angband code state of the play.
 - Its a shame because it would look good, but monster lite code is not in
 this version.
 
 04-11-2000
-- Monsters are not correctly summoned/created on terrain type which is not
-floor.
-- Monsters do not flow at all correctly. Consider disabling as this is a big
-can of worms. Note that in vanilla flowing is still broken for KILL_WALL/
-PASS_WALL monsters and permanent rock which we could consider a sub-problem
-of the whole flow over different terrain types issue. So perhaps a different
-pathing algorithm / flow lists by monster might be used.
 - We can generate unconnected spaces as part of lake generation. Should
 always ensure that points generated in a lake are all connected, if even
 only diagonally.

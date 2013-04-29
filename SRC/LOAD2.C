@@ -921,7 +921,11 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
         if (variant_unsummon) rd_byte(&m_ptr->summoned);
-        if (variant_drop_body) rd_byte(&m_ptr->mflag);
+        if (variant_drop_body)
+        {
+                rd_byte(&tmp8u);
+                m_ptr->mflag = tmp8u;
+        }
 	rd_byte(&tmp8u);
 }
 
@@ -1480,7 +1484,7 @@ static errr rd_extra(void)
 	p_ptr->is_dead = tmp8u;
 
 	/* Initialize random artifacts */
-	if (adult_rand_artifacts && !(p_ptr->is_dead))
+        if (!(p_ptr->is_dead))
 	{
 #ifdef GJW_RANDART
 
@@ -1502,7 +1506,7 @@ static errr rd_extra(void)
 		}
 
 		/* Initialize randarts */
-		do_randart(seed_randart);
+                do_randart(seed_randart, TRUE);
 
 #else /* GJW_RANDART */
 
@@ -2932,7 +2936,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > z_info->a_max)
+        if (tmp16u > 256)
 	{
 		note(format("Too many (%u) artifacts!", tmp16u));
 		return (24);

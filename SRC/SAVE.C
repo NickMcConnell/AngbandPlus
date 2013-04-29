@@ -809,7 +809,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
         if (variant_unsummon) wr_byte(m_ptr->summoned);
-        if (variant_drop_body) wr_byte(m_ptr->mflag);
+        if (variant_drop_body) wr_byte((byte)m_ptr->mflag);
 	wr_byte(0);
 }
 

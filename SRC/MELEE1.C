@@ -672,11 +672,11 @@ static void mon_run_init(int dir)
 	m_ptr->run_old_dir = dir;
 
 	/* Assume looking for open area */
-	m_ptr->flags |= MON_RUN_OPEN_AREA;
+        m_ptr->mflag |= MFLAG_RUN_OPEN_AREA;
 
 	/* Assume not looking for breaks */
-	m_ptr->flags &= ~(MON_RUN_BREAK_RIGHT);
-	m_ptr->flags &= ~(MON_RUN_BREAK_LEFT);
+        m_ptr->mflag &= ~(MFLAG_RUN_BREAK_RIGHT);
+        m_ptr->mflag &= ~(MFLAG_RUN_BREAK_LEFT);
 
 	/* Assume no nearby walls */
 	deepleft = deepright = FALSE;
@@ -692,36 +692,36 @@ static void mon_run_init(int dir)
 	/* Check for nearby wall */
 	if (see_wall(cycle[i+1], fy, fx))
 	{
-		m_ptr->flags |= MON_RUN_BREAK_LEFT;
+                m_ptr->mflag |= MFLAG_RUN_BREAK_LEFT;
 		shortleft = TRUE;
 	}
 
 	/* Check for distant wall */
 	else if (see_wall(cycle[i+1], row, col))
 	{
-		m_ptr->flags |= MON_RUN_BREAK_LEFT;
+                m_ptr->mflag |= MFLAG_RUN_BREAK_LEFT;
 		deepleft = TRUE;
 	}
 
 	/* Check for nearby wall */
 	if (see_wall(cycle[i-1], fy, fx))
 	{
-		m_ptr->flags |= MON_RUN_BREAK_RIGHT;
+                m_ptr->mflag |= MFLAG_RUN_BREAK_RIGHT;
 		shortright = TRUE;
 	}
 
 	/* Check for distant wall */
 	else if (see_wall(cycle[i-1], row, col))
 	{
-		m_ptr->flags |= MON_RUN_BREAK_RIGHT;
+                m_ptr->mflag |= MFLAG_RUN_BREAK_RIGHT;
 		deepright = TRUE;
 	}
 
 	/* Looking for a break */
-	if ((m_ptr->flags & (MON_RUN_BREAK_LEFT)) && (m_ptr->flags & (MON_RUN_BREAK_RIGHT)))
+        if ((m_ptr->mflag & (MFLAG_RUN_BREAK_LEFT)) && (m_ptr->mflag & (MFLAG_RUN_BREAK_RIGHT)))
 	{
 		/* Not looking for open area */
-		m_ptr->flags &= ~(MON_RUN_OPEN_AREA);
+                m_ptr->mflag &= ~(MFLAG_RUN_OPEN_AREA);
 
 		/* Hack -- allow angled corridor entry */
 		if (dir & 0x01)
@@ -810,7 +810,7 @@ static bool run_test(void)
                 if (cave_floor_bold(row, col))
 		{
 			/* Looking for open area */
-                        if (m_ptr->flags & (MON_RUN_OPEN_AREA))
+                        if (m_ptr->mflag & (MFLAG_RUN_OPEN_AREA))
 			{
 				/* Nothing */
 			}
@@ -852,18 +852,18 @@ static bool run_test(void)
 		/* Obstacle, while looking for open area */
 		else
 		{
-                        if (m_ptr->flags & (MON_RUN_OPEN_AREA))
+                        if (m_ptr->mflag & (MFLAG_RUN_OPEN_AREA))
 			{
 				if (i < 0)
 				{
 					/* Break to the right */
-					m_ptr->flags |= MON_RUN_BREAK_RIGHT;
+                                        m_ptr->mflag |= MFLAG_RUN_BREAK_RIGHT;
 				}
 
 				else if (i > 0)
 				{
 					/* Break to the left */
-					m_ptr->flags |= MON_RUN_BREAK_LEFT;
+                                        m_ptr->mflag |= MFLAG_RUN_BREAK_LEFT;
 				}
 			}
 		}
@@ -871,7 +871,7 @@ static bool run_test(void)
 
 
 	/* Looking for open area */
-        if (m_ptr->flags & (MON_RUN_OPEN_AREA)run_open_area)
+        if (m_ptr->mflag & (MFLAG_RUN_OPEN_AREA)run_open_area)
 	{
 		/* Hack -- look again */
 		for (i = -max; i < 0; i++)
@@ -893,7 +893,7 @@ static bool run_test(void)
                             (!(f_info[feat].flags1 & (FF1_WALL))) )
 			{
 				/* Looking to break right */
-				if ((m_ptr->flags & (MON_RUN_BREAK_RIGHT)))
+                                if ((m_ptr->mflag & (MFLAG_RUN_BREAK_RIGHT)))
 				{
 					return (TRUE);
 				}
@@ -904,7 +904,7 @@ static bool run_test(void)
 			else
 			{
 				/* Looking to break left */
-				if ((m_ptr->flags & (MON_RUN_BREAK_LEFT)))
+                                if ((m_ptr->mflag & (MFLAG_RUN_BREAK_LEFT)))
 				{
 					return (TRUE);
 				}
@@ -931,7 +931,7 @@ static bool run_test(void)
                             (!(f_info[feat].flags1 & (FF1_WALL))))
 			{
 				/* Looking to break left */
-				if ((m_ptr->flags & (MON_RUN_BREAK_LEFT)))
+                                if ((m_ptr->mflag & (MFLAG_RUN_BREAK_LEFT)))
 				{
 					return (TRUE);
 				}
@@ -941,7 +941,7 @@ static bool run_test(void)
 			else
 			{
 				/* Looking to break right */
-				if ((m_ptr->flags & (MON_RUN_BREAK_RIGHT)))
+                                if ((m_ptr->mflag & (MFLAG_RUN_BREAK_RIGHT)))
 				{
 					return (TRUE);
 				}

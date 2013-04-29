@@ -4542,9 +4542,6 @@ void destroy_area(int y1, int x1, int r, bool full)
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
-
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
 
@@ -4883,9 +4880,6 @@ void earthquake(int cy, int cx, int r)
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
-
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);

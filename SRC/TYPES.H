@@ -797,7 +797,7 @@ struct monster_type
 
 	byte cdis;                      /* Current dis from player */
 
-	byte mflag;                     /* Extra monster flags */
+        u16b mflag;                     /* Extra monster flags */
 
 	bool ml;                        /* Monster is "visible" */
 
@@ -810,8 +810,12 @@ struct monster_type
 #endif
 
         byte summoned;          /* Monster is/has summoned */
-        byte unused1;
-        s16b unused2;
+        byte min_range;
+        byte best_range;
+        byte moved;
+
+        byte ty;
+        byte tx;
 };
 
 
@@ -1459,6 +1463,8 @@ struct player_type
         u32b cur_style;         /* Current weapon style(s)*/
 
 	s32b last_disturb;	/* Last time disturbed */
+
+        s16b vulnerability;     /* How vulnerible? */
 
 };
 
