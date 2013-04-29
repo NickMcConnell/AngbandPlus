@@ -2117,11 +2117,28 @@ static void dungeon(void)
 	  just_arrived = FALSE;
 	  if (!p_ptr->leaving)
 	    {
-	      /* Process the player */
-	      process_player();
+	      int i;
+	      monster_type *m_ptr;
+
+	      /* Set the player energy to exactly 100 */
+	      p_ptr->energy = 100;
+	      
+	      /* Give the player more energy than any monster */
+	      for (i = m_max - 1; i >= 1; i--)
+		{
+		  /* Access the monster */
+		  m_ptr = &m_list[i];
+		  
+		  /* Ignore dead monsters */
+		  if (!m_ptr->r_idx) continue;
+		  
+		  /* Give the player at least as much energy */
+		  if (m_ptr->energy > p_ptr->energy) 
+		    p_ptr->energy = m_ptr->energy;
+		}
 	    }
 	}
-
+      
       /* Can the player move? */
       while (p_ptr->energy >= 100 && !p_ptr->leaving)
         {
