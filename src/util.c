@@ -341,15 +341,19 @@ ui_event inkey_ex(void)
 #ifdef ALLOW_BORG
 
 	/* Mega-Hack -- Use the special hook */
-	if (inkey_hack && ((ke.key = (*inkey_hack)(inkey_xtra)) != 0))
+	if (inkey_hack)
 	{
-		/* Cancel the various "global parameters" */
-		inkey_flag = FALSE;
-		inkey_scan = 0;
-		ke.type = EVT_KBRD;
+		ke.key = (*inkey_hack)(inkey_xtra);
+		if (ke.key.type != EVT_NONE)
+		{
+			/* Cancel the various "global parameters" */
+			inkey_flag = FALSE;
+			inkey_scan = 0;
+			ke.type = EVT_KBRD;
 
-		/* Accept result */
-		return (ke);
+			/* Accept result */
+			return (ke);
+		}
 	}
 
 #endif /* ALLOW_BORG */
@@ -466,17 +470,66 @@ struct keypress inkey(void)
 	ui_event ke = EVENT_EMPTY;
 
 	/* Only accept a keypress */
-	while (ke.type != EVT_ESCAPE && ke.type != EVT_KBRD)
-		ke = inkey_ex();
+	/*while (ke.type != EVT_ESCAPE && ke.type != EVT_KBRD)
+		ke = inkey_ex();*/
 
-	/* Paranoia */
+	/* Paranoia */ /*
 	if (ke.type == EVT_ESCAPE) {
 		ke.type = EVT_KBRD;
 		ke.key.code = ESCAPE;
 		ke.key.mods = 0;
+  }
+  */
+	while (ke.type != EVT_ESCAPE && ke.type != EVT_KBRD
+			&& ke.type != EVT_MOUSE  && ke.type != EVT_BUTTON)
+		ke = inkey_ex();
+
+	/* make the event a keypress */
+	if (ke.type == EVT_ESCAPE) {
+		ke.type = EVT_KBRD;
+		ke.key.code = ESCAPE;
+		ke.key.mods = 0;
+	} else
+	if (ke.type == EVT_MOUSE) {
+		if (ke.mouse.button == 1) {
+			ke.type = EVT_KBRD;
+			ke.key.code = '\n';
+			ke.key.mods = 0;
+		} else {
+			ke.type = EVT_KBRD;
+			ke.key.code = ESCAPE;
+			ke.key.mods = 0;
+		}
+	} else
+	if (ke.type == EVT_BUTTON) {
+		ke.type = EVT_KBRD;
 	}
 
 	return ke.key;
+}
+
+/*
+ * Get a "keypress" or a "mousepress" from the user.
+ * on return the event must be either a key press or a mouse press
+ */
+ui_event inkey_m(void)
+{
+	ui_event ke = EVENT_EMPTY;
+
+	/* Only accept a keypress */
+	while (ke.type != EVT_ESCAPE && ke.type != EVT_KBRD
+			&& ke.type != EVT_MOUSE  && ke.type != EVT_BUTTON)
+		ke = inkey_ex();
+	if (ke.type == EVT_ESCAPE) {
+		ke.type = EVT_KBRD;
+		ke.key.code = ESCAPE;
+		ke.key.mods = 0;
+	} else
+	if (ke.type == EVT_BUTTON) {
+		ke.type = EVT_KBRD;
+	}
+
+  return ke;
 }
 
 
@@ -838,11 +891,8 @@ void text_out_to_screen(byte a, const char *str)
 
 	int wrap;
 
-	const char *s;
-	char buf[1024];
-
-	/* We use either ascii or system-specific encoding */
-	int encoding = (OPT(xchars_to_file)) ? SYSTEM_SPECIFIC : ASCII;
+	const wchar_t *s;
+	wchar_t buf[1024];
 
 	/* Obtain the size */
 	(void)Term_get_size(&wid, &h);
@@ -851,10 +901,7 @@ void text_out_to_screen(byte a, const char *str)
 	(void)Term_locate(&x, &y);
 
 	/* Copy to a rewriteable string */
-	my_strcpy(buf, str, 1024);
-	
-	/* Translate it to 7-bit ASCII or system-specific format */
-	xstr_trans(buf, encoding);
+	Term_mbstowcs(buf, str, 1024);
 	
 	/* Use special wrapping boundary? */
 	if ((text_out_wrap > 0) && (text_out_wrap < wid))
@@ -865,10 +912,10 @@ void text_out_to_screen(byte a, const char *str)
 	/* Process the string */
 	for (s = buf; *s; s++)
 	{
-		char ch;
+		wchar_t ch;
 
 		/* Force wrap */
-		if (*s == '\n')
+		if (*s == L'\n')
 		{
 			/* Wrap */
 			x = text_out_indent;
@@ -884,15 +931,15 @@ void text_out_to_screen(byte a, const char *str)
 		}
 
 		/* Clean up the char */
-		ch = (my_isprint((unsigned char)*s) ? *s : ' ');
+		ch = (iswprint(*s) ? *s : L' ');
 
 		/* Wrap words as needed */
-		if ((x >= wrap - 1) && (ch != ' '))
+		if ((x >= wrap - 1) && (ch != L' '))
 		{
 			int i, n = 0;
 
 			byte av[256];
-			char cv[256];
+			wchar_t cv[256];
 
 			/* Wrap word */
 			if (x < wrap)
@@ -904,7 +951,7 @@ void text_out_to_screen(byte a, const char *str)
 					Term_what(i, y, &av[i], &cv[i]);
 
 					/* Break on space */
-					if (cv[i] == ' ') break;
+					if (cv[i] == L' ') break;
 
 					/* Track current word */
 					n = i;
@@ -971,17 +1018,11 @@ void text_out_to_file(byte a, const char *str)
 	/* Wrap width */
 	int wrap = (text_out_wrap ? text_out_wrap : 75);
 
-	/* We use either ascii or system-specific encoding */
- 	int encoding = OPT(xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
-
 	/* Unused parameter */
 	(void)a;
 
 	/* Copy to a rewriteable string */
  	my_strcpy(buf, str, 1024);
-
- 	/* Translate it to 7-bit ASCII or system-specific format */
- 	xstr_trans(buf, encoding);
 
 	/* Current location within "buf" */
  	s = buf;
@@ -989,10 +1030,15 @@ void text_out_to_file(byte a, const char *str)
 	/* Process the string */
 	while (*s)
 	{
-		char ch;
 		int n = 0;
 		int len = wrap - pos;
 		int l_space = -1;
+
+		/* In case we are already past the wrap point (which can happen with
+		 * punctuation at the end of the line), make sure we don't overrun.
+		 */
+		if (len < 0)
+			len = 0;
 
 		/* If we are at the start of the line... */
 		if (pos == 0)
@@ -1051,17 +1097,8 @@ void text_out_to_file(byte a, const char *str)
 		}
 
 		/* Write that line to file */
-		for (n = 0; n < len; n++)
-		{
-			/* Ensure the character is printable */
-			ch = (my_isprint((unsigned char) s[n]) ? s[n] : ' ');
-
-			/* Write out the character */
-			file_writec(text_out_file, ch);
-
-			/* Increment */
-			pos++;
-		}
+		file_write(text_out_file, s, len);
+		pos += len;
 
 		/* Move 's' past the stuff we've written */
 		s += len;
@@ -1369,7 +1406,7 @@ bool askfor_aux_keypress(char *buf, size_t buflen, size_t *curs, size_t *len, st
 		{
 			bool atnull = (buf[*curs] == 0);
 
-			if (!my_isprint((unsigned char)keypress.code))
+			if (!isprint(keypress.code))
 			{
 				bell("Illegal edit key!");
 				break;
@@ -1436,7 +1473,7 @@ bool askfor_aux_keypress(char *buf, size_t buflen, size_t *curs, size_t *len, st
  * 'askfor_aux_keypress' (the default handler if you supply NULL for
  * 'keypress_h') for an example.
  */
-bool askfor_aux(char *buf, size_t len, bool keypress_h(char *, size_t, size_t *, size_t *, struct keypress, bool))
+bool askfor_aux(char *buf, size_t len, bool (*keypress_h)(char *, size_t, size_t *, size_t *, struct keypress, bool))
 {
 	int y, x;
 
@@ -1513,7 +1550,7 @@ static bool get_name_keypress(char *buf, size_t buflen, size_t *curs, size_t *le
 		case '*':
 		{
 			*len = randname_make(RANDNAME_TOLKIEN, 4, 8, buf, buflen, name_sections);
-			buf[0] = toupper((unsigned char) buf[0]);
+			my_strcap(buf);
 			*curs = 0;
 			result = FALSE;
 			break;
@@ -1587,9 +1624,6 @@ bool get_string(const char *prompt, char *buf, size_t len)
 
 	/* Ask the user for a string */
 	res = askfor_aux(buf, len, NULL);
-
-	/* Translate it to 8-bit (Latin-1) */
- 	xstr_trans(buf, LATIN1);
 
 	/* Clear prompt */
 	prt("", 0, 0);
@@ -1670,11 +1704,14 @@ s16b get_quantity(const char *prompt, int max)
  */
 bool get_check(const char *prompt)
 {
-	struct keypress ke;
+	//struct keypress ke;
+	ui_event ke;
 
 	char buf[80];
 
 	bool repeat = FALSE;
+  
+        feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
   
 	/* Paranoia XXX XXX XXX */
 	message_flush();
@@ -1692,7 +1729,7 @@ bool get_check(const char *prompt)
   
 	/* Prompt for it */
 	prt(buf, 0, 0);
-	ke = inkey();
+	ke = inkey_m();
 
 	/* Kill the buttons */
 	button_kill('y');
@@ -1705,8 +1742,17 @@ bool get_check(const char *prompt)
 	/* Erase the prompt */
 	prt("", 0, 0);
 
-	/* Normal negation */
-	if ((ke.code != 'Y') && (ke.code != 'y')) return (FALSE);
+        /* Hack of the century */
+        if ((ke.key.code == '\r') && tf_has(f_ptr->flags, TF_SHOP))
+        {
+            ke.key.code = 'y';
+        }
+
+ 	/* Normal negation */
+	if (ke.type == EVT_MOUSE) {
+		if ((ke.mouse.button != 1) && (ke.mouse.y != 0)) return (FALSE);
+	} else
+	if ((ke.key.code != 'Y') && (ke.key.code != 'y')) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -1846,7 +1892,7 @@ bool get_com_ex(const char *prompt, ui_event *command)
 	prt(prompt, 0, 0);
 
 	/* Get a key */
-	ke = inkey_ex();
+	ke = inkey_m();
 
 	/* Clear the prompt */
 	prt("", 0, 0);
@@ -1855,9 +1901,9 @@ bool get_com_ex(const char *prompt, ui_event *command)
 	*command = ke;
 
 	/* Done */
-	if (ke.type == EVT_KBRD && ke.key.code == ESCAPE)
-		return FALSE;
-	return TRUE;
+	if ((ke.type == EVT_KBRD && ke.key.code != ESCAPE) || (ke.type == EVT_MOUSE))
+	  return TRUE;
+	return FALSE;
 }
 
 
@@ -1954,6 +2000,20 @@ const char *attr_to_text(byte a)
 		return ("Icky");
 }
 
+/**
+ * Return whether the given display char matches an entered symbol
+ *
+ * Horrible hack. TODO UTF-8 find some way of entering mb chars
+ */
+bool char_matches_key(wchar_t c, keycode_t key)
+{
+	wchar_t keychar[2];
+	char k[2] = {'\0', '\0'};
+
+	k[0] = (char)key;
+	Term_mbstowcs(keychar, k, 1);
+	return (c == keychar[0]);
+}
 
 #ifdef SUPPORT_GAMMA
 
@@ -2081,7 +2141,7 @@ void build_gamma_table(int gamma)
 		 * Store the value in the table so that the
 		 * floating point pow function isn't needed.
 		 */
-		gamma_table[i] = ((long)(value / 256) * i) / 256;
+		gamma_table[i] = (byte)(((long)(value / 256) * i) / 256);
 	}
 }
 

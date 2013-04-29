@@ -195,6 +195,7 @@ static void do_cmd_wiz_hack_ben(void)
 		    for (y = Term->offset_y; y <= Term->offset_y + SCREEN_HGT; y++) {
 			for (x = Term->offset_x; x <= Term->offset_x + SCREEN_WID; x++) {
 			    byte a = TERM_YELLOW;
+			    feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
 			    /* Display proper cost */
 			    if (cave_cost[y][x] != j)
@@ -203,7 +204,7 @@ static void do_cmd_wiz_hack_ben(void)
 			    /* Display player/floors/walls */
 			    if ((y == py) && (x == px)) {
 				print_rel('@', a, y, x);
-			    } else if (cave_floor_bold(y, x)) {
+			    } else if (!tf_has(f_ptr->flags, TF_NO_SCENT)) {
 				print_rel('*', a, y, x);
 			    } else {
 				print_rel('#', a, y, x);
@@ -273,6 +274,8 @@ static void prt_binary(const bitflag *flags, int offset, int row, int col,
  */
 static void do_cmd_wiz_bamf(void)
 {
+    feature_type *f_ptr;
+
     /* target starts at player. */
     s16b ny = 0;
     s16b nx = 0;
@@ -285,7 +288,8 @@ static void do_cmd_wiz_bamf(void)
     target_get(&nx, &ny);
 
     /* Test for passable terrain. */
-    if (!cave_passable_bold(ny, nx)) {
+    f_ptr = &f_info[cave_feat[ny][nx]];
+    if (!tf_has(f_ptr->flags, TF_PASSABLE)) {
 	msg("The square you are aiming for is impassable.");
     }
 
@@ -1803,6 +1807,7 @@ static void do_cmd_wiz_query(void)
     for (y = Term->offset_y; y <= Term->offset_y + SCREEN_HGT; y++) {
 	for (x = Term->offset_x; x <= Term->offset_x + SCREEN_WID; x++) {
 	    byte a = TERM_RED;
+	    feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Given mask, show only those grids */
 	    if (mask && !(cave_info[y][x][0] & mask))
@@ -1813,13 +1818,13 @@ static void do_cmd_wiz_query(void)
 		continue;
 
 	    /* Color */
-	    if (cave_floor_bold(y, x))
+	    if (tf_has(f_ptr->flags, TF_FLOOR))
 		a = TERM_YELLOW;
 
 	    /* Display player/floors/walls */
 	    if ((y == py) && (x == px)) {
 		print_rel('@', a, y, x);
-	    } else if (cave_floor_bold(y, x)) {
+	    } else if (tf_has(f_ptr->flags, TF_FLOOR)) {
 		print_rel('*', a, y, x);
 	    } else {
 		print_rel('#', a, y, x);

@@ -688,6 +688,7 @@ bool lay_rune(int type)
     int px = p_ptr->px;
 
     trap_kind *trap_ptr = &trap_info[type];
+    bool takes_rune = tf_has(f_info[cave_feat[py][px]].flags, TF_RUNE);
 
     /* If we're standing on a rune of mana, we can add mana to it */
     if ((type == RUNE_MANA) && (cave_trap_specific(py, px, RUNE_MANA)))
@@ -712,8 +713,8 @@ bool lay_rune(int type)
 	return (TRUE);
     }
 
-    /* XXX XXX XXX */
-    if (!cave_trappable_bold(py, px)) {
+    /* Need appropriate terrain and no monster */
+    if (!takes_rune || cave_m_idx[py][px] > 0) {
 	msg("You cannot lay a rune here.");
 	return (FALSE);
     }
@@ -3229,8 +3230,10 @@ bool ident_spell(void)
 
     /* Describe */
     if (item >= INVEN_WIELD) {
-	msg("%^s: %s (%c).", describe_use(item), o_name,
-		   index_to_label(item));
+	char *m = format("%s: %s (%c).", describe_use(item), o_name, 
+			 index_to_label(item));
+	my_strcap(m);
+	msg(m);
     } else if (item >= 0) {
 	msg("In your pack: %s (%c).  %s", o_name, index_to_label(item),
 		   ((squelch ==
@@ -3674,7 +3677,7 @@ void tap_magical_energy(void)
     object_type *o_ptr;
 
     const char *q, *s;
-    const char *item_name = "";
+    char *item_name = "";
 
 
     /* Only accept legal items */
@@ -3759,9 +3762,11 @@ void tap_magical_energy(void)
 
 	/* Player is a smart cookie. */
 	else
-	    msg
-		("Your mana was already at its maximum.  %^s not drained.",
+	{
+	    my_strcap(item_name);
+	    msg("Your mana was already at its maximum.  %s not drained.",
 		 item_name);
+	}
     }
 }
 
@@ -3774,6 +3779,7 @@ void tap_magical_energy(void)
 void do_starlight(int burst_number, int dam, bool strong)
 {
     int i, j, y, x;
+    feature_type *f_ptr;
 
     /* Is the player in a square already magically lit? */
     bool player_lit = cave_has(cave_info[p_ptr->py][p_ptr->px], CAVE_GLOW);
@@ -3799,7 +3805,8 @@ void do_starlight(int burst_number, int dam, bool strong)
 		continue;
 
 	    /* Require passable terrain */
-	    if (!cave_passable_bold(y, x))
+	    f_ptr = &f_info[cave_feat[y][x]];
+	    if (!tf_has(f_ptr->flags, TF_PASSABLE))
 		continue;
 
 	    /* Spot chosen. */
@@ -3913,8 +3920,9 @@ void grow_trees_and_grass(bool powerful)
 	    if ((cave_o_idx[y][x] > 0) && (!powerful))
 		continue;
 
-	    /* Skip grids that aren't floor */
-	    if (cave_feat[y][x] != FEAT_FLOOR)
+	    /* Skip grids that aren't floor or road */
+	    if ((cave_feat[y][x] != FEAT_FLOOR) && 
+		(cave_feat[y][x] != FEAT_ROAD))
 		continue;
 
 	    /* Skip grids that have monsters */
@@ -4026,6 +4034,7 @@ void ele_air_smite(void)
 {
     byte i, j;
     int y, x;
+    feature_type *f_ptr;
 
     /* Due warning. */
     msg("The powers of Air rain down destruction!");
@@ -4051,7 +4060,8 @@ void ele_air_smite(void)
 		continue;
 
 	    /* Require passable terrain */
-	    if (!cave_passable_bold(y, x))
+	    f_ptr = &f_info[cave_feat[y][x]];
+	    if (!tf_has(f_ptr->flags, TF_PASSABLE))
 		continue;
 
 	    /* Slight preference for actual monsters. */
@@ -4546,13 +4556,13 @@ bool probing(void)
 		msg("Probing...");
 
 	    /* Get "the monster" or "something" */
-	    monster_desc(m_name, sizeof(m_name), m_ptr, 0x04);
+	    monster_desc(m_name, sizeof(m_name), m_ptr, 0x104);
 
 	    /* Describe the monster */
 	    if (!(r_ptr->mana))
-		msg("%^s has %d hit points.", m_name, m_ptr->hp);
+		msg("%s has %d hit points.", m_name, m_ptr->hp);
 	    else
-		msg("%^s has %d hit points and %d mana.", m_name,
+		msg("%s has %d hit points and %d mana.", m_name,
 			   m_ptr->hp, m_ptr->mana);
 
 	    /* Learn all of the non-spell, non-treasure flags */
@@ -4636,7 +4646,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 	    /* Destroy "valid" grids */
 	    if (cave_valid_bold(y, x)) 
 	    {
-		int feat = FEAT_FLOOR;
+		int feat = outside ? FEAT_ROAD : FEAT_FLOOR;
 
 		/* Delete objects */
 		delete_object(y, x);
@@ -4975,10 +4985,10 @@ void earthquake(int cy, int cx, int r, bool volcano)
 		    }
 
 		    /* Describe the monster */
-		    monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+		    monster_desc(m_name, sizeof(m_name), m_ptr, 0x100);
 
 		    /* Scream in pain */
-		    msg("%^s wails out in pain!", m_name);
+		    msg("%s wails out in pain!", m_name);
 
 		    /* Take damage from the quake */
 		    damage = (sn ? damroll(4, 8) : damroll(5, 80));
@@ -4995,7 +5005,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 		    /* Delete (not kill) "dead" monsters */
 		    if (m_ptr->hp < 0) {
 			/* Message */
-			msg("%^s is embedded in the rock!", m_name);
+			msg("%s is embedded in the rock!", m_name);
 
 			/* Delete the monster */
 			delete_monster(yy, xx);
@@ -5042,12 +5052,13 @@ void earthquake(int cy, int cx, int r, bool volcano)
 
 	    /* Destroy location (if valid).  Increment trap/glyph count. */
 	    if (cave_valid_bold(yy, xx)) {
-		int feat = FEAT_FLOOR;
-
-		bool floor = cave_floor_bold(yy, xx);
+		int feat = outside ? FEAT_ROAD : FEAT_FLOOR;
 
 		monster_type *m_ptr = &m_list[cave_m_idx[yy][xx]];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		feature_type *f_ptr = &f_info[cave_feat[yy][xx]];
+
+		bool floor = tf_has(f_ptr->flags, TF_FLOOR);
 
 		/* Allow more things to be destroyed outside */
 		if (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE)
@@ -5286,10 +5297,10 @@ static void cave_temp_room_light(void)
 		    char m_name[80];
 
 		    /* Acquire the monster name */
-		    monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+		    monster_desc(m_name, sizeof(m_name), m_ptr, 0x100);
 
 		    /* Dump a message */
-		    msg("%^s wakes up.", m_name);
+		    msg("%s wakes up.", m_name);
 		}
 	    }
 	}

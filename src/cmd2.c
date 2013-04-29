@@ -1039,7 +1039,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 		x = randint0(DUNGEON_WID);
 
 		/* Must be an empty floor. */
-		if (!cave_empty_bold(y, x))
+		if (!cave_clean_bold(y, x))
 		    continue;
 
 		/* Place the object there. */
@@ -1927,21 +1927,17 @@ static bool do_cmd_tunnel_test(int y, int x)
  */
 static bool twall(int y, int x)
 {
-    feature_type *f_ptr = &f_info[cave_feat[y][x]];
-
-    /* Paranoia -- Require a wall or door or some such */
-    if (cave_floor_bold(y, x) || tf_has(f_ptr->flags, TF_TREE))
-	return (FALSE);
-
     /* Sound */
     sound(MSG_DIG);
 
     /* Forget the wall */
     cave_off(cave_info[y][x], CAVE_MARK);
-    cave_off(cave_info[y][x], CAVE_WALL);
 
     /* Remove the feature */
-    cave_set_feat(y, x, FEAT_FLOOR);
+    if (outside)
+	cave_set_feat(y, x, FEAT_ROAD);
+    else
+	cave_set_feat(y, x, FEAT_FLOOR);
 
     /* Update the visuals */
     p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -2605,10 +2601,8 @@ void do_cmd_alter_aux(int dir)
 	    (void) py_attack(y, x, FALSE);
     }
 
-    /* 
-     * Some players can set traps.  Total number is checked in py_set_trap.
-     */
-    else if (player_has(PF_TRAP) && cave_trappable_bold(y, x) &&
+    /* Some players can set traps.  Total number is checked in py_set_trap. */
+    else if (player_has(PF_TRAP) && tf_has(f_ptr->flags, TF_MTRAP) && 
 	     !cave_monster_trap(y, x)) 
     {
 	/* Make sure not to repeat */
@@ -2866,7 +2860,7 @@ static bool do_cmd_walk_test(int y, int x)
     }
 
     /* Require open space */
-    if (!cave_passable_bold(y, x)) 
+    if (!tf_has(f_ptr->flags, TF_PASSABLE)) 
     {
 	/* Door */
 	if (tf_has(f_ptr->flags, TF_DOOR_CLOSED))
@@ -2882,15 +2876,8 @@ static bool do_cmd_walk_test(int y, int x)
 
 	/* Wall */
 	else {
-	    /* Inside or outside ? */
-	    if ((stage_map[p_ptr->stage][STAGE_TYPE] == CAVE)
-		|| (stage_map[p_ptr->stage][STAGE_TYPE] == TOWN)) {
-		/* Message */
-		msg("There is a wall in the way!");
-	    } else {
-		/* Message */
-		msg("There is rock in the way!");
-	    }
+	    /* Message */
+	    msg("Your way is blocked!");
 	}
 
 	/* Cancel repeat */

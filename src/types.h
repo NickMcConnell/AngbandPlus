@@ -96,7 +96,7 @@ typedef struct color_type color_type;
  * Char, attr pair for dumping info and maybe other things
  */
 struct char_attr {
-    char pchar;
+    wchar_t pchar;
     byte pattr;
 };
 
@@ -116,6 +116,7 @@ typedef struct maxima {
     u16b a_max;		/**< Max size for "a_info[]" */
     u16b e_max;		/**< Max size for "e_info[]" */
     u16b r_max;		/**< Max size for "r_info[]" */
+    u16b mp_max;        /**< Maximum number of monster pain message sets */
     u16b v_max;		/**< Max size for "v_info[]" */
     u16b t_max;		/**< Max size for "t_info[]" */
     u16b p_max;		/**< Max size for "p_info[]" */
@@ -125,6 +126,7 @@ typedef struct maxima {
     u16b flavor_max;	/**< Max size for "flavor_info[]" */
     u16b s_max;		/**< Max size for "s_info[]" */
     u16b set_max;	/**< Max size for "set_info[]" */
+    u16b pit_max;	/**< Maximum number of monster pit types */
 
     u16b o_max;		/**< Max size for "o_list[]" */
     u16b m_max;		/**< Max size for "mon_list[]" */
@@ -154,11 +156,11 @@ typedef struct feature {
 
 
     byte d_attr;	/**< Default feature attribute */
-    char d_char;	/**< Default feature character */
+    wchar_t d_char;	/**< Default feature character */
 
 
     byte x_attr[3];   /**< Desired feature attribute (set by user/pref file) */
-    char x_char[3];   /**< Desired feature character (set by user/pref file) */
+    wchar_t x_char[3];   /**< Desired feature character (set by user/pref file) */
 } feature_type;
 
 
@@ -174,10 +176,10 @@ typedef struct trap
     u32b tidx;
 
     byte d_attr;              /**< Default trap attribute */
-    char d_char;              /**< Default trap character */
+    wchar_t d_char;              /**< Default trap character */
 
     byte x_attr;              /**< Desired trap attribute */
-    char x_char;              /**< Desired trap character */
+    wchar_t x_char;              /**< Desired trap character */
 
     byte rarity;              /**< Rarity */
     byte min_depth;           /**< Minimum depth */
@@ -241,7 +243,7 @@ typedef struct object_kind {
     int multiple_brand[MAX_P_BRAND];  /**< Brand multiples    -NRM- */
 
     byte d_attr;	/**< Default object attribute */
-    char d_char;	/**< Default object character */
+    wchar_t d_char;	/**< Default object character */
 
     byte locale[4];	/**< Allocation level(s) */
     byte chance[4];	/**< Allocation chance(s) */
@@ -257,7 +259,7 @@ typedef struct object_kind {
     u16b flavor;	/**< Special object flavor (or zero) */
 
     byte x_attr;	/**< Desired object attribute */
-    char x_char;	/**< Desired object character */
+    wchar_t x_char;	/**< Desired object character */
 
     u16b note;     /**< Autoinscription quark number */
 
@@ -424,6 +426,35 @@ typedef struct {
 
 
 
+/*
+ * Monster pain messages.
+ */
+typedef struct monster_pain
+{
+	const char *messages[7];
+	int pain_idx;
+	
+	struct monster_pain *next;
+} monster_pain;
+ 
+/*
+ * Information about "base" monster type.
+ */
+typedef struct monster_base
+{
+	struct monster_base *next;
+
+	char *name;
+	char *text;
+
+	bitflag flags[RF_SIZE];         /* Flags */
+	bitflag spell_flags[RSF_SIZE];  /* Spell flags */
+	
+	wchar_t d_char;			/* Default monster character */
+
+	monster_pain *pain;		/* Pain messages */
+} monster_base;
+
 /**
  * Monster "race" information, including racial memories
  *
@@ -449,6 +480,8 @@ typedef struct monster_race {
     char *name;		/**< Name (offset) */
     char *text;		/**< Text (offset) */
 
+    struct monster_base *base;
+	
     byte hdice;		/**< Creatures hit dice count */
     byte hside;		/**< Creatures hit dice sides */
 
@@ -475,11 +508,11 @@ typedef struct monster_race {
 
 
     byte d_attr;	/**< Default monster attribute */
-    char d_char;	/**< Default monster character */
+    wchar_t d_char;	/**< Default monster character */
 
 
     byte x_attr;	/**< Desired monster attribute */
-    char x_char;	/**< Desired monster character */
+    wchar_t x_char;	/**< Desired monster character */
 
 
     byte max_num;	/**< Maximum population allowed per level */
@@ -1332,10 +1365,10 @@ typedef struct flavor {
     byte sval;	  /**< Associated object sub-type */
 
     byte d_attr;  /**< Default flavor attribute */
-    char d_char;  /**< Default flavor character */
+    wchar_t d_char;  /**< Default flavor character */
 
     byte x_attr;  /**< Desired flavor attribute */
-    char x_char;  /**< Desired flavor character */
+    wchar_t x_char;  /**< Desired flavor character */
 } flavor_type;
 
 /** Information for object auto-inscribe */

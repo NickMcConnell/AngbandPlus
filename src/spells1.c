@@ -364,9 +364,10 @@ static void thrust_away(int who, int t_y, int t_x, int grids_away)
 	    }
 
 	    /* Check for obstruction. */
+	    f_ptr = &f_info[cave_feat[yy][xx]];
 	    if (!cave_project(yy, xx)) {
 		/* Some features allow entrance, but not exit. */
-		if (cave_passable_bold(yy, xx)) {
+		if (tf_has(f_ptr->flags, TF_PASSABLE)) {
 		    /* Travel down the path. */
 		    monster_swap(y, x, yy, xx);
 
@@ -560,7 +561,8 @@ void teleport_player(int dis, bool safe)
 		    continue;
 	    } else {
 		/* Require any terrain capable of holding the player. */
-		if (!cave_passable_bold(y, x))
+		f_ptr = &f_info[cave_feat[y][x]];
+		if (!tf_has(f_ptr->flags, TF_PASSABLE))
 		    continue;
 
 		/* Must be unoccupied. */
@@ -720,6 +722,7 @@ void teleport_player_to(int ny, int nx, bool friendly)
     int y, x;
 
     int dis = 0, ctr = 0;
+    feature_type *f_ptr;
 
     /* Initialize */
     y = py;
@@ -742,8 +745,9 @@ void teleport_player_to(int ny, int nx, bool friendly)
 		break;
 	}
 
-	/* Accept "naked" floor grids */
-	if (cave_naked_bold(y, x))
+	/* Acceptable grids */
+	f_ptr = &f_info[cave_feat[y][x]];
+	if ((cave_m_idx[y][x] == 0) && (tf_has(f_ptr->flags, TF_PASSABLE)))
 	    break;
 
 	/* Occasionally advance the distance */
@@ -954,7 +958,7 @@ bool chaotic_effects(monster_type * m_ptr)
     char m_name[80];
 
     /* Extract monster name (or "it") */
-    monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+    monster_desc(m_name, sizeof(m_name), m_ptr, 0x100);
 
     /* Spin the wheel... */
     effect = randint1(14);
@@ -974,7 +978,7 @@ bool chaotic_effects(monster_type * m_ptr)
 	    /* Handle polymorph */
 	    if ((tmp != m_ptr->r_idx) && (tmp != 0)) {
 		/* Monster polymorphs */
-		msg("%^s changes!", m_name);
+		msg("%s changes!", m_name);
 
 		/* "Kill" the "old" monster */
 		delete_monster_idx(cave_m_idx[my][mx]);
@@ -1001,22 +1005,22 @@ bool chaotic_effects(monster_type * m_ptr)
 		    rf_on(l_ptr->flags, RF_NO_CONF);
 		}
 
-		msg("%^s is unaffected.", m_name);
+		msg("%s is unaffected.", m_name);
 	    } else if (randint0(110) < r_ptr->level + randint1(10)) {
-		msg("%^s is unaffected.", m_name);
+		msg("%s is unaffected.", m_name);
 	    } else if (m_ptr->confused > 0) {
 		if (m_ptr->ml)
-		    msgt(MSG_HIT, "%^s appears more confused.",
+		    msgt(MSG_HIT, "%s appears more confused.",
 				   m_name);
 		else
-		    msgt(MSG_HIT, "%^s sounds more confused.",
+		    msgt(MSG_HIT, "%s sounds more confused.",
 				   m_name);
 		m_ptr->confused += 4 + randint0(p_ptr->lev) / 12;
 	    } else {
 		if (m_ptr->ml)
-		    msgt(MSG_HIT, "%^s appears confused.", m_name);
+		    msgt(MSG_HIT, "%s appears confused.", m_name);
 		else
-		    msgt(MSG_HIT, "%^s sounds confused.", m_name);
+		    msgt(MSG_HIT, "%s sounds confused.", m_name);
 		m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
 	    }
 
@@ -1026,7 +1030,7 @@ bool chaotic_effects(monster_type * m_ptr)
     case 3:
 	{
 	    /* Message */
-	    msg("%^s disappears!", m_name);
+	    msg("%s disappears!", m_name);
 
 	    /* Teleport */
 	    teleport_away(cave_m_idx[my][mx], 8);
@@ -1041,7 +1045,7 @@ bool chaotic_effects(monster_type * m_ptr)
 	    m_ptr->hp += (m_ptr->maxhp - m_ptr->hp) / 2;
 
 	    /* Message */
-	    msg("%^s looks healthier.", m_name);
+	    msg("%s looks healthier.", m_name);
 
 	    return (TRUE);
 	}
@@ -1063,9 +1067,9 @@ bool chaotic_effects(monster_type * m_ptr)
 
 	    /* Message */
 	    if (tmp < m_ptr->mana)
-		msg("%^s loses mana.", m_name);
+		msg("%s loses mana.", m_name);
 	    else if (tmp > m_ptr->mana)
-		msg("%^s gains mana.", m_name);
+		msg("%s gains mana.", m_name);
 
 	    /* Set the value */
 	    m_ptr->mana = tmp;
@@ -1085,7 +1089,7 @@ bool chaotic_effects(monster_type * m_ptr)
 		    sound(MSG_FLEE);
 
 		    /* Message */
-		    msgt(MSG_FLEE, "%^s flees in terror!", m_name);
+		    msgt(MSG_FLEE, "%s flees in terror!", m_name);
 		}
 	    }
 
@@ -1107,7 +1111,7 @@ bool chaotic_effects(monster_type * m_ptr)
 	    /* Failed */
 	    else {
 		m_ptr->stasis = (byte) (5 + randint0(6));
-		msg("%^s is Held in stasis!", m_name);
+		msg("%s is Held in stasis!", m_name);
 	    }
 
 	    /* Can't be hit now */
@@ -1170,7 +1174,7 @@ bool chaotic_effects(monster_type * m_ptr)
 		if (m_ptr->mspeed > 60) {
 		    if (r_ptr->speed - m_ptr->mspeed <= 10) {
 			m_ptr->mspeed -= 10;
-			msg("%^s starts moving slower.", m_name);
+			msg("%s starts moving slower.", m_name);
 		    }
 		}
 	    }
@@ -1183,7 +1187,7 @@ bool chaotic_effects(monster_type * m_ptr)
 	    /* Speed up */
 	    if (m_ptr->mspeed < 150)
 		m_ptr->mspeed += 10;
-	    msg("%^s starts moving faster.", m_name);
+	    msg("%s starts moving faster.", m_name);
 
 	    return (TRUE);
 	}
@@ -1246,7 +1250,7 @@ bool chaotic_effects(monster_type * m_ptr)
 		q_ptr = &r_info[tmp];
 
 		/* Message */
-		msg("%^s shimmers and changes!", m_name);
+		msg("%s shimmers and changes!", m_name);
 
 		/* Change shape */
 		m_ptr->orig_idx = m_ptr->r_idx;
@@ -1421,7 +1425,7 @@ static byte spell_color(int type)
  *
  * If the distance is not "one", we (may) return "*".
  */
-static void bolt_pict(int y, int x, int ny, int nx, int typ, byte *a, char *c)
+static void bolt_pict(int y, int x, int ny, int nx, int typ, byte *a, wchar_t *c)
 {
 	int motion;
 
@@ -1442,7 +1446,7 @@ static void bolt_pict(int y, int x, int ny, int nx, int typ, byte *a, char *c)
 	/* Decide on output char */
 	if (use_graphics == GRAPHICS_NONE || use_graphics == GRAPHICS_PSEUDO) {
 		/* ASCII is simple */
-		char chars[] = "*|/-\\";
+		wchar_t chars[] = L"*|/-\\";
 
 		*c = chars[motion];
 		*a = spell_color(typ);
@@ -3110,7 +3114,10 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		cave_off(cave_info[y][x], CAVE_MARK);
 
 		/* Destroy the feature */
-		cave_set_feat(y, x, FEAT_FLOOR);
+		if (outside)
+		    cave_set_feat(y, x, FEAT_ROAD);
+		else
+		    cave_set_feat(y, x, FEAT_FLOOR);
 	    }
 
 	    break;
@@ -3120,7 +3127,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
     case GF_KILL_WALL:
 	{
 	    /* Non-walls (etc) */
-	    if (cave_floor_bold(y, x))
+	    if (tf_has(f_ptr->flags, TF_PROJECT))
 		break;
 
 	    /* Trees are unaffected. */
@@ -3143,11 +3150,13 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		    }
 
 		    /* Forget the wall */
-		    cave_off(cave_info[y][x], CAVE_WALL);
 		    cave_off(cave_info[y][x], CAVE_MARK);
 
 		    /* Destroy the wall */
-		    cave_set_feat(y, x, FEAT_FLOOR);
+		    if (outside)
+			cave_set_feat(y, x, FEAT_ROAD);
+		    else
+			cave_set_feat(y, x, FEAT_FLOOR);
 		}
 
 		/* Quartz / Magma with treasure */
@@ -3162,11 +3171,13 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		    }
 
 		    /* Forget the wall */
-		    cave_off(cave_info[y][x], CAVE_WALL);
 		    cave_off(cave_info[y][x], CAVE_MARK);
 
 		    /* Destroy the wall */
-		    cave_set_feat(y, x, FEAT_FLOOR);
+		    if (outside)
+			cave_set_feat(y, x, FEAT_ROAD);
+		    else
+			cave_set_feat(y, x, FEAT_FLOOR);
 
 		    /* Place some gold */
 		    place_gold(y, x);
@@ -3183,11 +3194,13 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		    }
 
 		    /* Forget the wall */
-		    cave_off(cave_info[y][x], CAVE_WALL);
 		    cave_off(cave_info[y][x], CAVE_MARK);
 
 		    /* Destroy the wall */
-		    cave_set_feat(y, x, FEAT_FLOOR);
+		    if (outside)
+			cave_set_feat(y, x, FEAT_ROAD);
+		    else
+			cave_set_feat(y, x, FEAT_FLOOR);
 		}
 
 		/* Rubble */
@@ -3201,11 +3214,13 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		    }
 
 		    /* Forget the wall */
-		    cave_off(cave_info[y][x], CAVE_WALL);
 		    cave_off(cave_info[y][x], CAVE_MARK);
 
 		    /* Destroy the rubble */
-		    cave_set_feat(y, x, FEAT_FLOOR);
+		    if (outside)
+			cave_set_feat(y, x, FEAT_ROAD);
+		    else
+			cave_set_feat(y, x, FEAT_FLOOR);
 
 		    /* Hack -- place an object.  Chance much less in Oangband. */
 		    if (randint0(100) < 1) {
@@ -3230,11 +3245,13 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 		}
 
 		/* Forget the wall */
-		cave_off(cave_info[y][x], CAVE_WALL);
 		cave_off(cave_info[y][x], CAVE_MARK);
 
 		/* Destroy the feature */
-		cave_set_feat(y, x, FEAT_FLOOR);
+		if (outside)
+		    cave_set_feat(y, x, FEAT_ROAD);
+		else
+		    cave_set_feat(y, x, FEAT_FLOOR);
 	    }
 
 	    /* Update the visuals */
@@ -3246,8 +3263,11 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 	/* Make doors */
     case GF_MAKE_DOOR:
 	{
+	    feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
 	    /* Require a "naked" floor grid */
-	    if (!cave_naked_bold(y, x))
+	    if ((cave_m_idx[y][x] == 0) && (cave_o_idx[y][x] == 0) && 
+		(tf_has(f_ptr->flags, TF_FLOOR)))
 		break;
 
 	    /* Create closed door */
@@ -3650,7 +3670,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 			    ox = randint0(DUNGEON_WID);
 
 			    /* Must be an empty floor. */
-			    if (!cave_empty_bold(oy, ox))
+			    if (!cave_clean_bold(oy, ox))
 				continue;
 
 			    /* Get local object */
@@ -3828,7 +3848,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 	return (FALSE);
 
     /* Walls and doors entirely protect monsters, rubble and trees do not. */
-    if (!cave_passable_bold(y, x))
+    if (!tf_has(f_ptr->flags, TF_PASSABLE))
 	return (FALSE);
 
     /* Never affect projector */
@@ -3854,11 +3874,11 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
     }
 
     /* Get the monster name (BEFORE polymorphing) */
-    monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+    monster_desc(m_name, sizeof(m_name), m_ptr, 0x100);
 
     /* Monsters in stasis are invulnerable. -LM- */
     if (m_ptr->stasis) {
-	msg("%^s is in stasis, and cannot be harmed.", m_name);
+	msg("%s is in stasis, and cannot be harmed.", m_name);
 	return (FALSE);
     }
 
@@ -3906,14 +3926,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 	    /* Monsters can duck behind rubble */    
 	    if (tf_has(f_ptr->flags, TF_ROCK))
 	    {
-		msg("%^s ducks behind a boulder!", m_name);
+		msg("%s ducks behind a boulder!", m_name);
 		return (FALSE);
 	    }
 
 	    /* Monsters can duck behind trees */    
 	    if (tf_has(f_ptr->flags, TF_TREE))
 	    {
-		msg("%^s hides behind a tree!", m_name);
+		msg("%s hides behind a tree!", m_name);
 		return (FALSE);
 	    }
 	}
@@ -5606,7 +5626,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 	    q_ptr = &r_info[tmp];
 
 	    /* Message */
-	    msg("%^s shimmers and changes!", m_name);
+	    msg("%s shimmers and changes!", m_name);
 
 	    /* Change shape */
 	    m_ptr->orig_idx = m_ptr->r_idx;
@@ -5731,7 +5751,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 	    /* Give detailed messages if destroyed */
 	    if (note)
-		msg("%^s%s", m_name, note);
+		msg("%s%s", m_name, note);
 	}
 
 	/* Damaged monster */
@@ -5740,7 +5760,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 	    /* Give detailed messages if visible or destroyed */
 	    if (note && seen)
-		msg("%^s%s", m_name, note);
+		msg("%s%s", m_name, note);
 
 	    /* Hack -- Pain message */
 	    else if (dam > 0)
@@ -5773,7 +5793,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 	    /* Give detailed messages if visible or destroyed */
 	    if (note && seen)
-		msg("%^s%s", m_name, note);
+		msg("%s%s", m_name, note);
 
 	    /* Hack -- Pain message */
 	    else if (dam > 0)
@@ -5785,7 +5805,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		sound(MSG_FLEE);
 
 		/* Message */
-		msg("%^s flees in terror!", m_name);
+		msg("%s flees in terror!", m_name);
 	    }
 
 	    /* Hack -- handle sleep */
@@ -7421,7 +7441,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 	l_ptr = &l_list[m_ptr->r_idx];
 
 	/* Get the monster name */
-	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0x100);
     }
 
     if (affect_player) {
@@ -7455,7 +7475,12 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 
 		    /* Destroy the lava */
 		    if (randint1(3) != 1)
-			cave_set_feat(y, x, FEAT_FLOOR);
+		    {
+			if (outside)
+			    cave_set_feat(y, x, FEAT_ROAD);
+			else
+			    cave_set_feat(y, x, FEAT_FLOOR);
+		    }
 		    else
 			cave_set_feat(y, x, FEAT_RUBBLE);
 		}
@@ -7474,6 +7499,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 	    if (dam > randint1(1800) + 600) 
 	    {
 		if ((cave_feat[y][x] == FEAT_FLOOR)
+		    || (cave_feat[y][x] == FEAT_ROAD)
 		    || (cave_feat[y][x] == FEAT_RUBBLE)) {
 
 		    /* Forget the floor or rubble. */
@@ -7508,7 +7534,10 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 		    cave_off(cave_info[y][x], CAVE_MARK);
 
 		    /* Destroy the water */
-		    cave_set_feat(y, x, FEAT_FLOOR);
+		    if (outside)
+			cave_set_feat(y, x, FEAT_ROAD);
+		    else
+			cave_set_feat(y, x, FEAT_FLOOR);
 		}
 	    }
 
@@ -7519,7 +7548,10 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 		cave_off(cave_info[y][x], CAVE_MARK);
 
 		/* Destroy the tree */
-		cave_set_feat(y, x, FEAT_FLOOR);
+		if (outside)
+		    cave_set_feat(y, x, FEAT_ROAD);
+		else
+		    cave_set_feat(y, x, FEAT_FLOOR);
 	    }
 
 	    /* Clears webs. */
@@ -7795,7 +7827,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
     if (affect_monster) {
 	/* Give detailed messages if visible */
 	if (note && seen) {
-	    msg("%^s%s", m_name, note);
+	    msg("%s%s", m_name, note);
 	}
 
 	/* Update the monster */
@@ -8127,10 +8159,11 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 
 		int ny = GRID_Y(path_g[i]);
 		int nx = GRID_X(path_g[i]);
+		feature_type *f_ptr = &f_info[cave_feat[ny][nx]];
 
 
 		/* Hack -- Balls explode before reaching walls. */
-		if (!cave_passable_bold(ny, nx) && (rad > 0))
+		if (!tf_has(f_ptr->flags, TF_PASSABLE) && (rad > 0))
 		    break;
 
 		/* Advance */
@@ -8159,7 +8192,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 		    /* Only do visuals if the player can "see" the bolt */
 		    if (panel_contains(y, x) && player_has_los_bold(y, x)) {
 			byte a;
-			char c;
+			wchar_t c;
 
 			/* Obtain the bolt pict */
 			bolt_pict(oy, ox, y, x, typ, &a, &c);
@@ -8254,6 +8287,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 	 */
 	for (y = y0 - rad; y <= y0 + rad; y++) {
 	    for (x = x0 - rad; x <= x0 + rad; x++) {
+		feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
 		/* Center grid has already been stored. */
 		if ((y == y0) && (x == x0))
 		    continue;
@@ -8268,7 +8303,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 
 		/* Some explosions are allowed to affect one layer of walls */
 		/* All exposions can affect one layer of rubble or trees -BR- */
-		if ((flg & (PROJECT_THRU)) || (cave_passable_bold(y, x))) {
+		if ((flg & (PROJECT_THRU)) || 
+		    (tf_has(f_ptr->flags, TF_PASSABLE))) {
 		    /* If this is a wall grid, ... */
 		    if (!cave_project(y, x)) {
 			/* Check neighbors */
@@ -8402,7 +8438,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 	    /* Only do visuals if the player can "see" the blast */
 	    if (panel_contains(y, x) && player_has_los_bold(y, x)) {
 		byte a;
-		char c;
+		wchar_t c;
 
 		drawn = TRUE;
 

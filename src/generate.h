@@ -3,6 +3,75 @@
 #ifndef GENERATE_H
 #define GENERATE_H
 
+#if 0
+struct tunnel_profile {
+	const char *name;
+    int rnd; /* % chance of choosing random direction */
+    int chg; /* % chance of changing direction */
+    int con; /* % chance of extra tunneling */
+    int pen; /* % chance of placing doors at room entrances */
+    int jct; /* % chance of doors at tunnel junctions */
+};
+
+struct streamer_profile {
+	const char *name;
+    int den; /* Density of streamers */    
+    int rng; /* Width of streamers */
+    int mag; /* Number of magma streamers */
+    int mc; /* 1/chance of treasure per magma */
+    int qua; /* Number of quartz streamers */
+    int qc; /* 1/chance of treasure per quartz */
+};
+
+/*
+* cave_builder is a function pointer which builds a level.
+*/
+typedef bool (*cave_builder) (struct cave *c, struct player *p);
+
+
+struct cave_profile {
+	const char *name;
+	cave_builder builder; /* Function used to build the level */
+    int dun_rooms; /* Number of rooms to attempt */
+    int dun_unusual; /* Level/chance of unusual room */
+    int max_rarity; /* Max number of rarity levels used in room generation */
+    int n_room_profiles; /* Number of room profiles */
+	struct tunnel_profile tun; /* Used to build tunnels */
+	struct streamer_profile str; /* Used to build mineral streamers*/
+    const struct room_profile *room_profiles; /* Used to build rooms */
+	int cutoff; /* Used to see if we should try this dungeon */
+};
+
+
+/**
+ * room_builder is a function pointer which builds rooms in the cave given
+ * anchor coordinates.
+ */
+typedef bool (*room_builder) (struct cave *c, int y0, int x0);
+
+
+/**
+ * This tracks information needed to generate the room, including the room's
+ * name and the function used to build it.
+ */
+struct room_profile {
+	const char *name;
+	room_builder builder; /* Function used to build the room */
+	int height, width; /* Space required in blocks */
+	int level; /* Minimum dungeon level */
+	bool crowded; /* Whether this room is crowded or not */
+	int rarity; /* How unusual this room is */
+	int cutoff; /* Upper limit of 1-100 random roll for room generation */
+};
+#endif
+
+/**
+ * Determine if a "legal" grid is a "naked" grid
+ * ie forbid player/monsters/objects
+ */
+#define cave_naked_bold(Y,X) \
+	((cave_o_idx[Y][X] == 0) && (cave_m_idx[Y][X] == 0))
+
 /*
  * Dungeon generation values
  */

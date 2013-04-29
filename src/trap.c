@@ -268,7 +268,7 @@ bool cave_web(int y, int x)
  * wait until we do, in fact, have stacked traps under normal conditions.
  *
  */
-bool get_trap_graphics(int t_idx, byte *a, char *c, bool require_visible)
+bool get_trap_graphics(int t_idx, byte *a, wchar_t *c, bool require_visible)
 {
     trap_type *t_ptr = &trap_list[t_idx];
     
@@ -1326,6 +1326,8 @@ void hit_trap_aux(int y, int x, int trap)
 		for (i = 0; i < k; ++i) {
 		    /* Look for a location */
 		    for (j = 0; j < 20; ++j) {
+			feature_type *f_ptr;
+
 			/* Pick a (scattered) distance. */
 			int d = (j / 10) + randint1(3);
 
@@ -1333,7 +1335,8 @@ void hit_trap_aux(int y, int x, int trap)
 			scatter(&y, &x, y, x, d, 0);
 
 			/* Require passable terrain */
-			if (!cave_passable_bold(y, x))
+			f_ptr = &f_info[cave_feat[y][x]];
+			if (!tf_has(f_ptr->flags, TF_PASSABLE))
 			    continue;
 
 			/* Hack -- no summon on glyph of warding */
@@ -1734,7 +1737,8 @@ extern void py_steal(int y, int x)
 	if ((randint1(5) == 1) && (purse) && (rf_has(r_ptr->flags, RF_SMART))) {
 	    monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 	    act = desc_victim_outcry[randint0(20)];
-	    msg("%^s cries out %s", m_name, act);
+	    my_strcap(m_name);
+	    msg("%s cries out %s", m_name, act);
 	}
 	/* Otherwise, simply explain what happened. */
 	else {

@@ -23,9 +23,74 @@
 
 
 /**
+ * Returns the r_idx of the monster with the given name. If no monster has
+ * the exact name given, returns the r_idx of the first monster having the
+ * given name as a (case-insensitive) substring.
+ *
+ * Returns -1 if no match is found.
+ */
+int lookup_monster(const char *name)
+{
+	int i;
+	int r_idx = -1;
+	
+	/* Look for it */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* Test for equality */
+		if (r_ptr->name && streq(name, r_ptr->name))
+			return i;
+		
+		/* Test for close matches */
+		if (r_ptr->name && my_stristr(r_ptr->name, name) && r_idx == -1)
+			r_idx = i;
+	} 
+
+	/* Return our best match */
+	return r_idx;
+}
+
+/**
+ * Return the monster base matching the given name.
+ */
+monster_base *lookup_monster_base(const char *name)
+{
+	monster_base *base;
+
+	/* Look for it */
+	for (base = rb_info; base; base = base->next) {
+		if (streq(name, base->name))
+			return base;
+	}
+
+	return NULL;
+}
+
+/**
+ * Return whether the given base matches any of the names given.
+ *
+ * Accepts a variable-length list of name strings. The list must end with NULL.
+ */
+bool match_monster_bases(const monster_base *base, ...)
+{
+	bool ok = FALSE;
+	va_list vp;
+	char *name;
+
+	va_start(vp, base);
+	while (!ok && ((name = va_arg(vp, char *)) != NULL))
+		ok = base == lookup_monster_base(name);
+	va_end(vp);
+
+	return ok;
+}
+
+/**
  * Pronoun arrays, by gender.
  */
-static const char *wd_he[3] = { "it", "he", "she" };
+static const char *wd_he[3] = { "It", "He", "She" };
 
 /**
  * Pronoun arrays, by gender.
@@ -367,10 +432,6 @@ extern void describe_monster(int r_idx, bool spoilers)
 
     my_strcpy(buf, r_ptr->text, sizeof(buf));
 
-    /* Hack - translate if we do that */
-    if (Term->xchar_hook)
-	xstr_trans(buf, (Term->xchar_hook(128) == 128));
-
     /* Dump it */
     text_out_indent = 0;
     text_out_to_screen(TERM_L_BLUE, buf);
@@ -399,7 +460,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 	if (l_ptr->deaths) {
 	    /* Killed ancestors */
 	    text_out_to_screen(TERM_WHITE,
-			       format("%^s has slain ", wd_he[msex]));
+			       format("%s has slain ", wd_he[msex]));
 
 	    text_out_to_screen(TERM_WHITE, format("%d ", l_ptr->deaths));
 
@@ -458,9 +519,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 	/* No kills */
 	else {
 	    text_out_to_screen(TERM_RED,
-			       format
-			       ("and %s is not ever known to have been defeated.  ",
-				wd_he[msex]));
+			       "which is not ever known to have been defeated.  ");
 	}
     }
 
@@ -494,7 +553,7 @@ extern void describe_monster(int r_idx, bool spoilers)
     /* Describe location */
     if (r_ptr->level == 0) {
 	text_out_to_screen(TERM_SLATE,
-			   format("%^s lives in the town", wd_he[msex]));
+			   format("%s lives in the town", wd_he[msex]));
 	old = TRUE;
     } else if (l_ptr->tkills) {
 	char depth_desc[80];
@@ -507,7 +566,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 	if (rf_has(mon_flags, RF_ANGBAND))
 	    strcpy(location_desc, " in Angband");
 	if (rf_has(mon_flags, RF_RUDH))
-	    strcpy(location_desc, " in Amon R[^]udh");
+	    strcpy(location_desc, " in Amon Rûdh");
 	if (rf_has(mon_flags, RF_NARGOTHROND))
 	    strcpy(location_desc, " in Nargothrond");
 	if (rf_has(mon_flags, RF_DUNGORTHEB))
@@ -532,18 +591,18 @@ extern void describe_monster(int r_idx, bool spoilers)
 	if (rf_has(r_ptr->flags, RF_QUESTOR)) {
 	    /* Questor monsters are fixed-depth, and always appear. */
 	    text_out_to_screen(TERM_WHITE,
-			       format("%^s is always found ", wd_he[msex]));
+			       format("%s is always found ", wd_he[msex]));
 	    text_out_to_screen(con_color, format("%s", depth_desc));
 	}
 
 	else if (rf_has(r_ptr->flags, RF_FORCE_DEPTH)) {
 	    text_out_to_screen(TERM_WHITE,
-			       format("%^s is %s, always found ", wd_he[msex],
+			       format("%s is %s, always found ", wd_he[msex],
 				      wd_rarity(r_ptr->rarity, unique)));
 	    text_out_to_screen(con_color, format("%s", depth_desc));
 	} else {
 	    text_out_to_screen(TERM_WHITE,
-			       format("%^s is %s, normally found ", wd_he[msex],
+			       format("%s is %s, normally found ", wd_he[msex],
 				      wd_rarity(r_ptr->rarity, unique)));
 	    text_out_to_screen(con_color, format("%s", depth_desc));
 	}
@@ -559,7 +618,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 	if (old) {
 	    text_out_to_screen(TERM_WHITE, ", and ");
 	} else {
-	    text_out_to_screen(TERM_WHITE, format("%^s ", wd_he[msex]));
+	    text_out_to_screen(TERM_WHITE, format("%s ", wd_he[msex]));
 	    old = TRUE;
 	}
 	if (rf_has(mon_flags, RF_NEVER_MOVE))
@@ -613,7 +672,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 	if (old) {
 	    text_out_to_screen(TERM_WHITE, ", but ");
 	} else {
-	    text_out_to_screen(TERM_WHITE, format("%^s ", wd_he[msex]));
+	    text_out_to_screen(TERM_WHITE, format("%s ", wd_he[msex]));
 	    old = TRUE;
 	}
 
@@ -715,7 +774,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 
 	/* Pronoun. */
 	if (rf_has(mon_flags, RF_UNIQUE))
-	    text_out_to_screen(TERM_WHITE, format("%^s is a", wd_he[msex]));
+	    text_out_to_screen(TERM_WHITE, format("%s is a", wd_he[msex]));
 	else
 	    text_out_to_screen(TERM_WHITE, "It is a");
 
@@ -768,14 +827,14 @@ extern void describe_monster(int r_idx, bool spoilers)
     /* Describe escorts */
     if ((rf_has(mon_flags, RF_ESCORT)) || (rf_has(mon_flags, RF_ESCORTS))) {
 	text_out_to_screen(TERM_WHITE,
-			   format("%^s usually appears with escorts.  ",
+			   format("%s usually appears with escorts.  ",
 				  wd_he[msex]));
     }
 
     /* Describe friends */
     else if ((rf_has(mon_flags, RF_FRIEND)) || (rf_has(mon_flags, RF_FRIENDS))) {
 	text_out_to_screen(TERM_WHITE,
-			   format("%^s usually appears in groups.  ",
+			   format("%s usually appears in groups.  ",
 				  wd_he[msex]));
     }
 
@@ -841,7 +900,7 @@ extern void describe_monster(int r_idx, bool spoilers)
     /* Describe inate attacks */
     if (vn) {
 	/* Intro */
-	text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+	text_out_to_screen(TERM_WHITE, format("%s", wd_he[msex]));
 
 	/* Scan */
 	for (n = 0; n < vn; n++) {
@@ -929,7 +988,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 	breath = TRUE;
 
 	/* Intro */
-	text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+	text_out_to_screen(TERM_WHITE, format("%s", wd_he[msex]));
 
 	/* Scan */
 	for (n = 0; n < vn; n++) {
@@ -1256,7 +1315,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 	if (breath) {
 	    text_out_to_screen(TERM_WHITE, ", and is also");
 	} else {
-	    text_out_to_screen(TERM_WHITE, format("%^s is", wd_he[msex]));
+	    text_out_to_screen(TERM_WHITE, format("%s is", wd_he[msex]));
 	}
 
 
@@ -1353,7 +1412,7 @@ extern void describe_monster(int r_idx, bool spoilers)
     if (know_armour(r_idx)) {
 	/* Armor */
 	text_out_to_screen(TERM_WHITE,
-			   format("%^s has an armour rating of ", wd_he[msex]));
+			   format("%s has an armour rating of ", wd_he[msex]));
 	text_out_to_screen(TERM_L_GREEN, format("%d", r_ptr->ac));
 
 	/* Maximized hitpoints */
@@ -1397,7 +1456,7 @@ extern void describe_monster(int r_idx, bool spoilers)
     /* Describe special abilities. */
     if (vn) {
 	/* Intro */
-	text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+	text_out_to_screen(TERM_WHITE, format("%s", wd_he[msex]));
 
 	/* Scan */
 	for (n = 0; n < vn; n++) {
@@ -1423,29 +1482,29 @@ extern void describe_monster(int r_idx, bool spoilers)
     /* Describe special abilities. */
     if (rf_has(mon_flags, RF_INVISIBLE)) {
 	text_out_to_screen(TERM_L_UMBER,
-			   format("%^s is invisible.  ", wd_he[msex]));
+			   format("%s is invisible.  ", wd_he[msex]));
     }
     if (rf_has(mon_flags, RF_COLD_BLOOD)) {
 	text_out_to_screen(TERM_L_UMBER,
-			   format("%^s is cold blooded.  ", wd_he[msex]));
+			   format("%s is cold blooded.  ", wd_he[msex]));
     }
     if (rf_has(mon_flags, RF_EMPTY_MIND)) {
 	text_out_to_screen(TERM_L_UMBER,
-			   format("%^s is not detected by telepathy.  ",
+			   format("%s is not detected by telepathy.  ",
 				  wd_he[msex]));
     }
     if (rf_has(mon_flags, RF_WEIRD_MIND)) {
 	text_out_to_screen(TERM_L_UMBER,
-			   format("%^s is rarely detected by telepathy.  ",
+			   format("%s is rarely detected by telepathy.  ",
 				  wd_he[msex]));
     }
     if (rf_has(mon_flags, RF_MULTIPLY)) {
 	text_out_to_screen(TERM_L_UMBER,
-			   format("%^s breeds explosively.  ", wd_he[msex]));
+			   format("%s breeds explosively.  ", wd_he[msex]));
     }
     if (rf_has(mon_flags, RF_REGENERATE)) {
 	text_out_to_screen(TERM_L_UMBER,
-			   format("%^s regenerates quickly.  ", wd_he[msex]));
+			   format("%s regenerates quickly.  ", wd_he[msex]));
     }
 
 
@@ -1463,7 +1522,7 @@ extern void describe_monster(int r_idx, bool spoilers)
     /* Describe susceptibilities */
     if (vn) {
 	/* Intro */
-	text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+	text_out_to_screen(TERM_WHITE, format("%s", wd_he[msex]));
 
 	/* Scan */
 	for (n = 0; n < vn; n++) {
@@ -1502,7 +1561,7 @@ extern void describe_monster(int r_idx, bool spoilers)
     /* Describe immunities */
     if (vn) {
 	/* Intro */
-	text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+	text_out_to_screen(TERM_WHITE, format("%s", wd_he[msex]));
 
 	/* Scan */
 	for (n = 0; n < vn; n++) {
@@ -1574,7 +1633,7 @@ extern void describe_monster(int r_idx, bool spoilers)
     /* Describe resistances */
     if (vn) {
 	/* Intro */
-	text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+	text_out_to_screen(TERM_WHITE, format("%s", wd_he[msex]));
 
 	/* Scan */
 	for (n = 0; n < vn; n++) {
@@ -1611,7 +1670,7 @@ extern void describe_monster(int r_idx, bool spoilers)
     /* Describe non-effects */
     if (vn) {
 	/* Intro */
-	text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+	text_out_to_screen(TERM_WHITE, format("%s", wd_he[msex]));
 
 	/* Scan */
 	for (n = 0; n < vn; n++) {
@@ -1665,7 +1724,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 	}
 
 	text_out_to_screen(TERM_WHITE,
-			   format("%^s %s intruders, which %s may notice from ",
+			   format("%s %s intruders, noticing them from ",
 				  wd_he[msex], act, wd_he[msex]));
 	text_out_to_screen(TERM_WHITE,
 			   format("%d feet.  ",
@@ -1680,7 +1739,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 	sin = FALSE;
 
 	/* Intro */
-	text_out_to_screen(TERM_WHITE, format("%^s may carry", wd_he[msex]));
+	text_out_to_screen(TERM_WHITE, format("%s may carry", wd_he[msex]));
 
 	/* Count maximum drop */
 	n = MAX(l_ptr->drop_gold, l_ptr->drop_item);
@@ -1965,7 +2024,7 @@ extern void describe_monster(int r_idx, bool spoilers)
 
 	/* Introduce the attack description */
 	if (!r) {
-	    text_out_to_screen(TERM_WHITE, format("%^s can ", wd_he[msex]));
+	    text_out_to_screen(TERM_WHITE, format("%s can ", wd_he[msex]));
 	} else if (r < n - 1) {
 	    text_out_to_screen(TERM_WHITE, ", ");
 	} else {
@@ -2008,7 +2067,7 @@ extern void describe_monster(int r_idx, bool spoilers)
     /* Notice lack of attacks */
     else if (rf_has(mon_flags, RF_NEVER_BLOW)) {
 	text_out_to_screen(TERM_WHITE,
-			   format("%^s has no physical attacks.  ",
+			   format("%s has no physical attacks.  ",
 				  wd_he[msex]));
     }
 
@@ -2040,7 +2099,7 @@ extern void roff_top(int r_idx)
     monster_race *r_ptr = &r_info[r_idx];
 
     byte a1, a2;
-    char c1, c2;
+    wchar_t c1, c2;
 
     char buf[100];
 
@@ -2073,10 +2132,6 @@ extern void roff_top(int r_idx)
 
     /* For all other monsters, dump the racial name. */
     my_strcat(buf, r_ptr->name, sizeof(buf));
-
-    /* Hack - translate if we do that */
-    if (Term->xchar_hook)
-	xstr_trans(buf, (Term->xchar_hook(128) == 128));
 
     /* Print it */
     Term_addstr(-1, TERM_WHITE, buf);
@@ -2779,7 +2834,7 @@ bool prepare_ghost(int r_idx, monster_type * m_ptr, bool from_savefile)
 
     /* Copy the info from the template to the special "ghost slot", and use
      * that from here on */
-    r_info[PLAYER_GHOST_RACE] = r_info[r_idx];
+    memcpy(&r_info[PLAYER_GHOST_RACE], r_ptr, sizeof(*r_ptr));
     r_ptr = &r_info[PLAYER_GHOST_RACE];
 
     /* Choose a bones file.  Use the variable bones_selector if it has any

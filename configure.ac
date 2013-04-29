@@ -1,12 +1,13 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([FAangband], [1.2.0], [nckmccnnll@gmail.com], [faangband])
-AC_PREREQ([2.59])
+AC_INIT(FAangband, 1.2.0, nckmccnnll@gmail.com)
+AC_CONFIG_SRCDIR(src)
 
-AC_CONFIG_HEADER(src/autoconf.h)
-AC_CONFIG_SRCDIR([configure.ac])
+BUILDSYS_INIT
+BUILDSYS_TOUCH_DEPS
 
-AC_SUBST([PACKAGE], [AC_PACKAGE_TARNAME])
-AC_SUBST([VERSION], [AC_PACKAGE_VERSION])
+AC_SUBST(PACKAGE, faangband)
+
+AC_CONFIG_HEADERS(src/autoconf.h)
 
 AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE", [Name of package])
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION", [Version number of package])
@@ -59,6 +60,7 @@ AC_PROG_MAKE_SET
 AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_PROG_MKDIR_P
+AC_CHECK_TOOL(RC, windres, no)
 
 AC_PATH_PROG(RM, rm)
 AC_PATH_PROG(MV, mv)
@@ -93,7 +95,7 @@ if test "x$with_private_dirs" != "x"; then
 fi
 
 # Only change bindir if it's the configure-supplied default, which handily doesn't expand exec_prefix
-if test "x$bindir" == "x\${exec_prefix}/bin"; then
+if test "x$bindir" = "x\${exec_prefix}/bin"; then
   bindir=${exec_prefix}/games
 fi
 
@@ -102,7 +104,7 @@ AC_ARG_WITH(configpath, [  --with-configpath=PATH  use PATH as the path to the F
 if test "x$with_configpath" != "x"; then
 	configpath="${with_configpath}"
 elif test "x$with_no_install" != "x"; then
-	configpath="./lib/"
+	configpath="${PWD}/lib/"
 else
 	configpath="${prefix}/etc/${PACKAGE}/"
 fi
@@ -117,7 +119,7 @@ AC_ARG_WITH(libpath, [  --with-libpath=PATH     use PATH as the path to the FAan
 if test "x$with_libpath" != "x"; then
 	libpath="${with_libpath}"
 elif test "x$with_no_install" != "x"; then
-	libpath="./lib/"
+	libpath="${PWD}/lib/"
 	bindir=".."
 else
 	libpath="${prefix}/share/${PACKAGE}/"
@@ -133,7 +135,7 @@ AC_ARG_WITH(varpath, [  --with-varpath=PATH     use PATH as the path to the FAan
 if test "x$with_varpath" != "x"; then
 	varpath="${with_varpath}"
 elif test "x$with_no_install" != "x"; then
-	varpath="./lib/"
+	varpath="${PWD}/lib/"
 else
 	varpath="${prefix}/var/games/${PACKAGE}/"
 fi
@@ -155,6 +157,10 @@ NOINSTALL="$with_noinstall"; AC_SUBST(NOINSTALL)
 SETEGID="$with_setgid";      AC_SUBST(SETEGID)
 
 dnl Frontends
+AC_ARG_ENABLE(gtk,
+	[AS_HELP_STRING([--enable-gtk],       [Enables GTK 2.x frontend (default: disabled)])],
+	[enable_gtk=$enableval],
+	[enable_gtk=no])
 AC_ARG_ENABLE(curses,
 	[AS_HELP_STRING([--enable-curses],    [Enables Curses frontend (default: enabled)])],
 	[enable_curses=$enableval],
@@ -167,10 +173,18 @@ AC_ARG_ENABLE(sdl,
 	[AS_HELP_STRING([--enable-sdl],       [Enables SDL frontend (default: disabled)])],
 	[enable_sdl=$enableval],
 	[enable_sdl=no])
+AC_ARG_ENABLE(win,
+	[AS_HELP_STRING([--enable-win],       [Enables Windows frontend (default: disabled)])],
+	[enable_win=$enableval],
+	[enable_win=no])
 AC_ARG_ENABLE(test,
 	[AS_HELP_STRING([--enable-test],      [Enables test frontend (default: disabled)])],
 	[enable_test=$enableval],
 	[enable_test=no])
+AC_ARG_ENABLE(stats,
+	[AS_HELP_STRING([--enable-stats],     [Enables stats frontend (default: disabled)])],
+	[enable_stats=$enableval],
+	[enable_stats=no])
 
 dnl Sound modules
 AC_ARG_ENABLE(sdl_mixer,
@@ -179,36 +193,27 @@ AC_ARG_ENABLE(sdl_mixer,
 	[enable_sdl_mixer=yes])
 
 
-dnl curses checking
-if test "$enable_curses" = "yes"; then
-	AC_CHECK_LIB(curses  , initscr, found_curses=yes,found_curses=no)
-	AC_CHECK_LIB(ncurses , initscr, found_ncurses=yes,found_ncurses=no)
-	AC_CHECK_LIB(pdcurses, initscr, found_pdcurses=yes,found_pdcurses=no)
-	if test "x$found_ncurses" = "xno"; then
-		if test "x$found_pdcurses" = "xno"; then
-			if test "x$found_curses" = "xno"; then
-				with_curses=no
-			else
-				AC_DEFINE(USE_CURSES, 1, [Define to 1 if Curses or PDCurses is found, but NCurses is not.])
-				AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
-				LDFLAGS="${LDFLAGS} -lcurses"
-				with_curses=yes
-			fi
-		else
-			AC_DEFINE(USE_CURSES, 1, [Define to 1 if Curses or PDCurses is found, but NCurses is not.])
-			AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
-			LDFLAGS="${LDFLAGS} -lpdcurses"
-			with_curses=yes
-		fi
-	else
-		AC_DEFINE(USE_NCURSES, 1, [Define to 1 if NCurses is found.])
-		AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
-		LDFLAGS="${LDFLAGS} -lncurses"
-		with_curses=yes
+if test "x$enable_gtk" = "xyes"; then
+	if test "x$wsetgid" = "xyes"; then
+		AC_MSG_ERROR([The "setgid" option and the GTK port are incompatible.])
 	fi
 fi
 
-AC_CHECK_FUNCS([use_default_colors can_change_color])
+MAINFILES="\$(BASEMAINFILES)"
+
+dnl curses checking
+if test "$enable_curses" = "yes"; then
+	AM_PATH_NCURSESW(with_curses=yes, with_curses=no)
+	if test "$with_curses" = "yes"; then
+		AC_DEFINE(USE_NCURSES, 1, [Define to 1 if NCurses is found.])
+		AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
+		CFLAGS="${CFLAGS} ${NCURSES_CFLAGS}"
+		LIBS="${LIBS} ${NCURSES_LIBS}"
+		MAINFILES="${MAINFILES} \$(GCUMAINFILES)"
+	fi 
+fi
+
+AC_CHECK_FUNCS([mvwaddnwstr use_default_colors can_change_color])
 
 dnl X11 checking
 if test "$enable_x11" = "yes"; then
@@ -219,7 +224,8 @@ if test "$enable_x11" = "yes"; then
 	else
 		AC_DEFINE(USE_X11, 1, [Define to 1 if using the X11 frontend and X11 libraries are found.])
 		CFLAGS="$CFLAGS $X_CFLAGS"
-		LDFLAGS="$LDFLAGS $X_PRE_LIBS $X_LIBS -lX11 $X_EXTRA_LIBS"
+		LIBS="${LIBS} ${X_PRE_LIBS} ${X_LIBS} -lX11 ${X_EXTRA_LIBS}"
+		MAINFILES="${MAINFILES} \$(X11MAINFILES)"
 		with_x11=yes
 	fi
 fi
@@ -237,11 +243,47 @@ if test "$enable_sdl" = "yes"; then
 		if test "$with_sdl" = "yes"; then
 			AC_DEFINE(USE_SDL, 1, [Define to 1 if using the SDL interface and SDL is found.])
 			CFLAGS="${CFLAGS} ${SDL_CFLAGS}"
-			LDFLAGS="${LDFLAGS} ${SDL_LIBS} -lSDL_image -lSDL_ttf"
+			LIBS="${LIBS} ${SDL_LIBS} -lSDL_image -lSDL_ttf"
+			MAINFILES="${MAINFILES} \$(SDLMAINFILES)"
 		fi
 	fi
 fi
 
+
+dnl GTK checking
+if test "$enable_gtk" = "yes"; then
+	PKG_CHECK_MODULES(GTK, [glib-2.0 >= 2.6.0 gtk+-2.0 >= 2.6.0 gthread-2.0 pango libglade-2.0],
+		[with_gtk=yes],
+		[with_gtk=no]
+	)
+	PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.6.0],
+		[with_gtkx=yes],
+		[with_gtk=no]
+	)
+
+	if test "x$SETEGID" != "x"; then
+		enable_gtk=no
+		with_gtk=no
+	fi
+
+	if test "$with_gtk" = "yes"; then
+		AC_DEFINE(USE_GTK, 1, [Define to 1 if using the GTK+ 2.x interface and GTK+ 2.x is found.])
+		CFLAGS="${CFLAGS} $GTK_CFLAGS"
+		LDFLAGS="${LDFLAGS} -rdynamic -export-dynamic"
+		LIBS="${LIBS} ${GTK_LIBS}"
+		MAINFILES="${MAINFILES} \$(GTKMAINFILES)"
+	fi
+fi
+
+dnl Windows checking
+if test "$enable_win" = "yes"; then
+	AC_DEFINE(USE_WIN, 1, [Define to 1 if using the Windows interface.])
+	CFLAGS="${CFLAGS} -DWINDOWS -static -Iwin/include"
+	LDFLAGS="${LDFLAGS} -Lwin/lib"
+	LIBS="${LIBS} -mwindows -lwinmm -lzlib -llibpng -lmsimg32"
+dnl Note complete replacement of all main files
+	MAINFILES="\$(WINMAINFILES)"
+fi
 
 dnl SDL mixer checking
 if test "$enable_sdl_mixer" = "yes"; then
@@ -251,16 +293,77 @@ if test "$enable_sdl_mixer" = "yes"; then
 		AC_DEFINE(SOUND_SDL, 1, [Define to 1 if using SDL_mixer sound support and it's found.])
 		SDL_CFLAGS=`sdl-config --cflags`
 		CFLAGS="${CFLAGS} ${SDL_CFLAGS}"
-		LDFLAGS="${LDFLAGS} -lSDL_mixer"
+		LIBS="${LIBS} -lSDL_mixer"
+		MAINFILES="${MAINFILES} \$(SNDSDLFILES)"
 	fi
 fi
+
+
+LIBS="${LIBS} -lm"
+
 
 dnl Test checking
 if test "$enable_test" = "yes"; then
 	AC_DEFINE(USE_TEST, 1, [Define to 1 to build the test frontend])
+	MAINFILES="${MAINFILES} \$(TESTMAINFILES)"
 fi
 
-AC_CONFIG_FILES([mk/extra.mk mk/sinc@&t@lude.mk])
+dnl Stats checking
+
+LDFLAGS_SAVE="$LDFLAGS"
+if test "$enable_stats" = "yes"; then
+	# SQLite3 detection
+	SQLITE3_OK=yes
+	AC_CHECK_HEADER(sqlite3.h, [], [
+		SQLITE3_OK=missing
+		for sqlite3_path in $SEARCH_DIR_HEADERS; do
+			if test "x$ac_cv_header_sqlite3_h" != xyes; then
+				unset ac_cv_header_sqlite3_h
+				AC_CHECK_HEADER($sqlite3_path/sqlite3.h,
+					[
+						SQLITE3_CFLAGS="-I$sqlite3_path"
+						SQLITE3_OK=yes
+					]
+				)
+			fi
+		done
+	])
+	if test "x$SQLITE3_OK" = xyes; then
+		AC_CHECK_LIB(sqlite3, sqlite3_open, [
+			SQLITE3_LIBS="-lsqlite3"
+		], [
+			SQLITE3_OK=missing
+			for sqlite3_path in $SEARCH_DIR_LIBS; do
+				if test "x$ac_cv_lib_sqlite3_sqlite3_open" != xyes; then
+					unset ac_cv_lib_sqlite3_sqlite3_open
+					LDFLAGS="${LDFLAGS_SAVE} -L$sqlite3_path"
+					AC_CHECK_LIB(sqlite3, sqlite3_open, [
+						SQLITE3_LDFLAGS="-L$sqlite3_path"
+						SQLITE3_LIBS="-lsqlite3"
+						SQLITE3_OK=yes
+					])
+				fi
+			done	
+		])
+	fi
+	if test "x$SQLITE3_OK" = xyes; then
+		AC_DEFINE(USE_STATS, 1, [Define to 1 to build the stats frontend])
+		CFLAGS="${CFLAGS} ${SQLITE3_CFLAGS}"
+		LDFLAGS="${LDFLAGS_SAVE} ${SQLITE3_LDFLAGS}"
+		LIBS="${LIBS} ${SQLITE3_LIBS}"
+		MAINFILES="${MAINFILES} \$(STATSMAINFILES)"
+		AC_SUBST(USE_STATS, 1)
+	else
+		AC_MSG_ERROR(Could not find sqlite3 library; disabling stats)
+		enable_stats=no
+		AC_DEFINE(USE_STATS, 0, [Define to 0 to omit the stats frontend])
+		LDFLAGS="$LDFLAGS_SAVE"
+		AC_SUBST(USE_STATS, 0)
+	fi
+fi
+
+AC_SUBST(MAINFILES, ${MAINFILES})
+AC_CONFIG_FILES([mk/buildsys.mk mk/extra.mk mk/sinc@&t@lude.mk])
 AC_OUTPUT
 
 if test "x$with_private_dirs" = "xyes"; then
@@ -301,6 +404,15 @@ if test "$enable_curses" = "yes"; then
 else
 	echo "- Curses                                  Disabled"
 fi
+if test "$enable_gtk" = "yes"; then
+	if test "$with_gtk" = "no"; then
+		echo "- GTK 2.x                                 No; missing libraries"
+	else
+		echo "- GTK 2.x                                 Yes"
+	fi
+else
+	echo "- GTK 2.x                                 Disabled"
+fi
 if test "$enable_x11" = "yes"; then
 	if test "$with_x11" = "no"; then
 		echo "- X11                                     No; missing libraries"
@@ -320,10 +432,26 @@ else
 	echo "- SDL                                     Disabled"
 fi
 
+if test "$enable_win" = "yes"; then
+	if test "$with_sdl" = "no"; then
+		echo "- Windows                                 No; missing libraries"
+	else
+		echo "- Windows                                 Yes"
+	fi
+else
+	echo "- Windows                                 Disabled"
+fi
+
 if test "$enable_test" = "yes"; then
 	echo "- Test                                    Yes"
 else
     echo "- Test                                    No"
+fi
+
+if test "$enable_stats" = "yes"; then
+	echo "- Stats                                   Yes"
+else
+    echo "- Stats                                   No"
 fi
 
 echo

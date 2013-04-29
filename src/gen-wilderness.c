@@ -1,23 +1,23 @@
 /** \file gen-wilderness.c 
     \brief Wilderness generation
  
- * Code for creation of wilderness.
- *
- * Copyright (c) 2011
- * Nick McConnell, Leon Marrick, Ben Harrison, James E. Wilson, 
- * Robert A. Koeneke
- *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
- *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 2, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
- */
+    * Code for creation of wilderness.
+    *
+    * Copyright (c) 2011
+    * Nick McConnell, Leon Marrick, Ben Harrison, James E. Wilson, 
+    * Robert A. Koeneke
+    *
+    * This work is free software; you can redistribute it and/or modify it
+    * under the terms of either:
+    *
+    * a) the GNU General Public License as published by the Free Software
+    *    Foundation, version 2, or
+    *
+    * b) the "Angband licence":
+    *    This software may be copied and distributed for educational, research,
+    *    and not for profit purposes provided that this copyright and statement
+    *    are included in all such copies.  Other copyrights may also apply.
+    */
 
 #include "angband.h"
 #include "cave.h"
@@ -79,7 +79,7 @@ static coord path_start(int sy, int sx, int ty, int tx)
     y = sy + row_dir;
     x = sx + col_dir;
     if (in_bounds_fully(y, x)) {
-	cave_set_feat(y, x, FEAT_FLOOR);
+	cave_set_feat(y, x, FEAT_ROAD);
 	fy = y;
 	fx = x;
     } else {
@@ -95,7 +95,7 @@ static coord path_start(int sy, int sx, int ty, int tx)
 	y += row_dir;
 	x += col_dir;
 	if (in_bounds_fully(y, x)) {
-	    cave_set_feat(y, x, FEAT_FLOOR);
+	    cave_set_feat(y, x, FEAT_ROAD);
 	    fy = y;
 	    fx = x;
 	} else {
@@ -109,7 +109,7 @@ static coord path_start(int sy, int sx, int ty, int tx)
 	y += row_dir;
 	x += col_dir;
 	if (in_bounds_fully(y, x)) {
-	    cave_set_feat(y, x, FEAT_FLOOR);
+	    cave_set_feat(y, x, FEAT_ROAD);
 	    fy = y;
 	    fx = x;
 	} else {
@@ -467,9 +467,9 @@ static void alloc_paths(int stage, int last_stage)
 
 	/* Make the path, adding an adjacent grid 8/9 of the time */
 	for (j = 0; j < path_grids; j++) {
-	    cave_set_feat(GRID_Y(gp[j]), GRID_X(gp[j]), FEAT_FLOOR);
+	    cave_set_feat(GRID_Y(gp[j]), GRID_X(gp[j]), FEAT_ROAD);
 	    cave_set_feat(GRID_Y(gp[j]) + randint0(3) - 1,
-			  GRID_X(gp[j]) + randint0(3) - 1, FEAT_FLOOR);
+			  GRID_X(gp[j]) + randint0(3) - 1, FEAT_ROAD);
 	}
     }
     /* Place the player, unless we've just come upstairs */
@@ -649,7 +649,7 @@ extern void plain_gen(void)
     int form_grids = 0;
 
     int form_feats[8] = { FEAT_TREE, FEAT_RUBBLE, FEAT_MAGMA, FEAT_WALL_SOLID,
-	FEAT_TREE2, FEAT_QUARTZ, FEAT_NONE
+			  FEAT_TREE2, FEAT_QUARTZ, FEAT_NONE
     };
     int ponds[2] = { FEAT_WATER, FEAT_NONE };
 
@@ -680,10 +680,9 @@ extern void plain_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -701,10 +700,9 @@ extern void plain_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -721,10 +719,9 @@ extern void plain_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -741,10 +738,9 @@ extern void plain_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -834,7 +830,6 @@ extern void plain_gen(void)
 	    if ((y == 0) || (x == 0) || (y == DUNGEON_HGT - 1)
 		|| (x == DUNGEON_WID - 1)) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -850,10 +845,10 @@ void mtn_connect(int y, int x, int y1, int x1)
 
     /* Make the path, adding an adjacent grid 8/9 of the time */
     for (j = 0; j < path_grids; j++) {
-	if ((cave_feat[GRID_Y(gp[j])][GRID_X(gp[j])] == FEAT_FLOOR)
+	if ((cave_feat[GRID_Y(gp[j])][GRID_X(gp[j])] == FEAT_ROAD)
 	    || (!in_bounds_fully(GRID_Y(gp[j]), GRID_X(gp[j]))))
 	    break;
-	cave_set_feat(GRID_Y(gp[j]), GRID_X(gp[j]), FEAT_FLOOR);
+	cave_set_feat(GRID_Y(gp[j]), GRID_X(gp[j]), FEAT_ROAD);
 	cave_on(cave_info[GRID_Y(gp[j])][GRID_X(gp[j])], CAVE_ICKY);
     }
 }
@@ -906,7 +901,6 @@ extern void mtn_gen(void)
 
 	/* Clear previous contents, add "solid" perma-wall */
 	cave_set_feat(y, x, FEAT_PERM_SOLID);
-	cave_on(cave_info[y][x], CAVE_WALL);
     }
 
     /* Special boundary walls -- Bottom */
@@ -915,7 +909,6 @@ extern void mtn_gen(void)
 
 	/* Clear previous contents, add "solid" perma-wall */
 	cave_set_feat(y, x, FEAT_PERM_SOLID);
-	cave_on(cave_info[y][x], CAVE_WALL);
     }
 
     /* Special boundary walls -- Left */
@@ -924,7 +917,6 @@ extern void mtn_gen(void)
 
 	/* Clear previous contents, add "solid" perma-wall */
 	cave_set_feat(y, x, FEAT_PERM_SOLID);
-	cave_on(cave_info[y][x], CAVE_WALL);
     }
 
     /* Special boundary walls -- Right */
@@ -933,7 +925,6 @@ extern void mtn_gen(void)
 
 	/* Clear previous contents, add "solid" perma-wall */
 	cave_set_feat(y, x, FEAT_PERM_SOLID);
-	cave_on(cave_info[y][x], CAVE_WALL);
     }
 
     /* Place 2 or 3 paths to neighbouring stages, make the paths through the
@@ -951,7 +942,7 @@ extern void mtn_gen(void)
 	while (i) {
 	    y = randint0(DUNGEON_HGT - 2) + 1;
 	    x = randint0(DUNGEON_WID - 2) + 1;
-	    if ((cave_feat[y][x] == FEAT_FLOOR)
+	    if ((cave_feat[y][x] == FEAT_ROAD)
 		|| (cave_feat[y][x] == FEAT_GRASS)) {
 		cave_set_feat(y, x, FEAT_MORE);
 		i--;
@@ -968,7 +959,7 @@ extern void mtn_gen(void)
     /* Make paths permanent */
     for (y = 0; y < DUNGEON_HGT; y++) {
 	for (x = 0; x < DUNGEON_WID; x++)
-	    if (cave_feat[y][x] == FEAT_FLOOR) {
+	    if (cave_feat[y][x] == FEAT_ROAD) {
 		/* Hack - prepare for plateaux, connecting */
 		cave_on(cave_info[y][x], CAVE_ICKY);
 		floors++;
@@ -980,7 +971,7 @@ extern void mtn_gen(void)
 	randpoints[j] = randint0(floors);
     for (y = 0; y < DUNGEON_HGT; y++) {
 	for (x = 0; x < DUNGEON_WID; x++) {
-	    if (cave_feat[y][x] == FEAT_FLOOR)
+	    if (cave_feat[y][x] == FEAT_ROAD)
 		floors--;
 	    else
 		continue;
@@ -1111,7 +1102,7 @@ extern void mtn_gen(void)
 		}
 	    case FEAT_SHOP_HEAD + 4:
 		{
-		    cave_set_feat(y, x, FEAT_FLOOR);
+		    cave_set_feat(y, x, FEAT_ROAD);
 		    break;
 		}
 	    }
@@ -1129,7 +1120,6 @@ extern void mtn_gen(void)
 	    if ((y == 0) || (x == 0) || (y == DUNGEON_HGT - 1)
 		|| (x == DUNGEON_WID - 1)) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1222,7 +1212,6 @@ extern void mtntop_gen(void)
 
 	/* Clear previous contents, add "solid" perma-wall */
 	cave_set_feat(y, x, FEAT_PERM_SOLID);
-	cave_on(cave_info[y][x], CAVE_WALL);
     }
 
     /* Special boundary walls -- Bottom */
@@ -1231,7 +1220,6 @@ extern void mtntop_gen(void)
 
 	/* Clear previous contents, add "solid" perma-wall */
 	cave_set_feat(y, x, FEAT_PERM_SOLID);
-	cave_on(cave_info[y][x], CAVE_WALL);
     }
 
     /* Special boundary walls -- Left */
@@ -1240,7 +1228,6 @@ extern void mtntop_gen(void)
 
 	/* Clear previous contents, add "solid" perma-wall */
 	cave_set_feat(y, x, FEAT_PERM_SOLID);
-	cave_on(cave_info[y][x], CAVE_WALL);
     }
 
     /* Special boundary walls -- Right */
@@ -1249,7 +1236,6 @@ extern void mtntop_gen(void)
 
 	/* Clear previous contents, add "solid" perma-wall */
 	cave_set_feat(y, x, FEAT_PERM_SOLID);
-	cave_on(cave_info[y][x], CAVE_WALL);
     }
 
     /* Make the main mountaintop */
@@ -1260,21 +1246,19 @@ extern void mtntop_gen(void)
 	x = DUNGEON_WID / 2;
 	placed =
 	    generate_starburst_room(y - b, x - a, y + b, x + a, FALSE,
-				    FEAT_FLOOR, FALSE);
+				    FEAT_ROAD, FALSE);
     }
 
     /* Summit */
     for (i = -1; i <= 1; i++) {
 	cave_feat[y + i][x] = FEAT_WALL_SOLID;
-	cave_on(cave_info[y + i][x], CAVE_WALL);
 	cave_feat[y][x + i] = FEAT_WALL_SOLID;
-	cave_on(cave_info[y][x + i], CAVE_WALL);
     }
 
     /* Count the floors */
     for (y1 = y - b; y1 < y + b; y1++)
 	for (x1 = x - a; x1 < x + a; x1++)
-	    if (cave_feat[y1][x1] == FEAT_FLOOR)
+	    if (cave_feat[y1][x1] == FEAT_ROAD)
 		floors++;
 
     /* Choose the player place */
@@ -1303,7 +1287,7 @@ extern void mtntop_gen(void)
 		continue;
 
 	    /* Leave rock */
-	    if (cave_has(cave_info[y1][x1], CAVE_WALL))
+	    if (cave_feat[y1][x1] == FEAT_WALL_SOLID)
 		continue;
 
 	    /* Leave stair */
@@ -1311,7 +1295,7 @@ extern void mtntop_gen(void)
 		continue;
 
 	    /* Place the player? */
-	    if (cave_feat[y1][x1] == FEAT_FLOOR) {
+	    if (cave_feat[y1][x1] == FEAT_ROAD) {
 		floors--;
 		if (floors == spot) {
 		    player_place(y1, x1);
@@ -1323,7 +1307,6 @@ extern void mtntop_gen(void)
 	    /* Place some rock */
 	    if (randint0(10) < 2) {
 		cave_set_feat(y1, x1, FEAT_WALL_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 		continue;
 	    }
 
@@ -1352,7 +1335,7 @@ extern void mtntop_gen(void)
 	x = randint0(DUNGEON_WID - 1) + 1;
 	made_plat =
 	    generate_starburst_room(y - b, x - a, y + b, x + a, FALSE,
-				    FEAT_FLOOR, FALSE);
+				    FEAT_ROAD, FALSE);
 
 	/* Success ? */
 	if (made_plat) {
@@ -1368,7 +1351,6 @@ extern void mtntop_gen(void)
 		    /* Place some rock */
 		    if (randint0(10) < 2) {
 			cave_set_feat(y1, x1, FEAT_WALL_SOLID);
-			cave_on(cave_info[y][x], CAVE_WALL);
 			continue;
 		    }
 
@@ -1403,7 +1385,6 @@ extern void mtntop_gen(void)
 	    if ((y == 0) || (x == 0) || (y == DUNGEON_HGT - 1)
 		|| (x == DUNGEON_WID - 1)) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1460,7 +1441,7 @@ extern void forest_gen(void)
     int form_grids = 0;
 
     int form_feats[8] = { FEAT_GRASS, FEAT_RUBBLE, FEAT_MAGMA, FEAT_WALL_SOLID,
-	FEAT_GRASS, FEAT_QUARTZ, FEAT_NONE
+			  FEAT_GRASS, FEAT_QUARTZ, FEAT_NONE
     };
     int ponds[2] = { FEAT_WATER, FEAT_NONE };
 
@@ -1494,10 +1475,9 @@ extern void forest_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1515,10 +1495,9 @@ extern void forest_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1535,10 +1514,9 @@ extern void forest_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1555,10 +1533,9 @@ extern void forest_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1719,7 +1696,7 @@ extern void swamp_gen(void)
 
 
     int form_feats[8] = { FEAT_TREE, FEAT_RUBBLE, FEAT_MAGMA, FEAT_WALL_SOLID,
-	FEAT_TREE2, FEAT_QUARTZ, FEAT_NONE
+			  FEAT_TREE2, FEAT_QUARTZ, FEAT_NONE
     };
 
     bool dummy;
@@ -1751,10 +1728,9 @@ extern void swamp_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1772,10 +1748,9 @@ extern void swamp_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1792,10 +1767,9 @@ extern void swamp_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1812,10 +1786,9 @@ extern void swamp_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1933,7 +1906,7 @@ extern void desert_gen(void)
     int form_grids = 0;
 
     int form_feats[8] = { FEAT_GRASS, FEAT_RUBBLE, FEAT_MAGMA, FEAT_WALL_SOLID,
-	FEAT_DUNE, FEAT_QUARTZ, FEAT_NONE
+			  FEAT_DUNE, FEAT_QUARTZ, FEAT_NONE
     };
     bool dummy;
     bool made_gate = FALSE;
@@ -1965,10 +1938,9 @@ extern void desert_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -1986,10 +1958,9 @@ extern void desert_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -2006,10 +1977,9 @@ extern void desert_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -2026,10 +1996,9 @@ extern void desert_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -2046,7 +2015,7 @@ extern void desert_gen(void)
 		x = d - y;
 		if (!in_bounds_fully(y, x))
 		    continue;
-		if (cave_feat[y][x] == FEAT_FLOOR) {
+		if (cave_feat[y][x] == FEAT_ROAD) {
 		    /* The gate of Angband */
 		    cave_set_feat(y, x, FEAT_MORE);
 		    made_gate = TRUE;
@@ -2057,7 +2026,6 @@ extern void desert_gen(void)
 		} else {
 		    /* The walls of Thangorodrim */
 		    cave_set_feat(y, x, FEAT_WALL_SOLID);
-		    cave_on(cave_info[y][x], CAVE_WALL);
 		}
 	    }
 	    if (made_gate)
@@ -2211,7 +2179,7 @@ extern void river_gen(void)
     int path;
 
     int form_feats[8] = { FEAT_TREE, FEAT_RUBBLE, FEAT_MAGMA, FEAT_WALL_SOLID,
-	FEAT_TREE2, FEAT_QUARTZ, FEAT_NONE
+			  FEAT_TREE2, FEAT_QUARTZ, FEAT_NONE
     };
 
     bool dummy;
@@ -2247,10 +2215,9 @@ extern void river_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -2268,10 +2235,9 @@ extern void river_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -2288,10 +2254,9 @@ extern void river_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -2308,10 +2273,9 @@ extern void river_gen(void)
 	    f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Clear previous contents, add "solid" perma-wall */
-	    if ((cave_feat[y][x] != FEAT_FLOOR)
+	    if ((cave_feat[y][x] != FEAT_ROAD)
 		&& !(tf_has(f_ptr->flags, TF_PERMANENT))) {
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
-		cave_on(cave_info[y][x], CAVE_WALL);
 	    }
 	}
     }
@@ -2414,7 +2378,7 @@ extern void river_gen(void)
 	for (y = p_ptr->py; y > 0; y--)
 	    if ((cave_feat[y][p_ptr->px] > FEAT_RUBBLE)
 		&& (cave_feat[y][p_ptr->px] <= FEAT_PERM_SOLID))
-		cave_set_feat(y, p_ptr->px, FEAT_FLOOR);
+		cave_set_feat(y, p_ptr->px, FEAT_ROAD);
     }
 
     /* Basic "amount" */
@@ -2576,7 +2540,7 @@ extern void valley_gen(void)
     int form_grids = 0;
     int path_x[3];
     int form_feats[8] = { FEAT_GRASS, FEAT_RUBBLE, FEAT_MAGMA, FEAT_WALL_SOLID,
-	FEAT_GRASS, FEAT_QUARTZ, FEAT_NONE
+			  FEAT_GRASS, FEAT_QUARTZ, FEAT_NONE
     };
     bool dummy;
 
