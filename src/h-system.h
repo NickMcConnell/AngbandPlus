@@ -17,7 +17,7 @@
 /*** ANSI C headers ***/
 
 #include <ctype.h>
-//#include <assert.h>
+#include <assert.h>
 
 #ifdef _WIN32_WCE
 /* Non-standard crap */

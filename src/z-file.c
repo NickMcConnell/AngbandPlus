@@ -1363,13 +1363,12 @@ size_t file_read(ang_file *f, char *buf, size_t n)
 #endif /* !SET_UID */
 
 #ifdef _WIN32_WCE
-	  /* Read a piece */
 	  if (!ReadFile(fd, buf, n, &numBytesRead, NULL))
 	    {
 	      return FALSE;
 	    }
 	  
-	  if (numBytesRead != n)
+	  if (numBytesRead != (int)n)
 	    {
 	      return FALSE;
 	    }
@@ -1377,6 +1376,7 @@ size_t file_read(ang_file *f, char *buf, size_t n)
 	if (read(fd, buf, n) != (int)n)
 		return FALSE;
 #endif
+
 	return TRUE;
 }
 
@@ -1443,7 +1443,7 @@ bool file_write(ang_file *f, const char *buf, size_t n)
 	      return FALSE;
 	    }
 	  
-	  if (numBytesWrite != n)
+	  if (numBytesWrite != (int)n)
 	    {
 	      return FALSE;
 	    }
@@ -1451,6 +1451,7 @@ bool file_write(ang_file *f, const char *buf, size_t n)
 	if (write(fd, buf, n) != (int)n)
 		return FALSE;
 #endif
+
 	return TRUE;
 }
 

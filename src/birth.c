@@ -1257,10 +1257,10 @@ static bool choose_character()
   /* Set up buttons */
   normal_screen = FALSE;
   kill_all_buttons();
-  add_button("[Exit]", KTRL('X'));
-  add_button("[ESC]", ESCAPE);
-  add_button("[Help]",'?');
-  add_button("[Random]",'*');
+  add_button("Exit", KTRL('X'));
+  add_button("ESC", ESCAPE);
+  add_button("Help",'?');
+  add_button("Random",'*');
   update_statusline();
 
   while (i < (int)N_ELEMENTS(menu_defs))
@@ -1537,12 +1537,12 @@ static int player_birth_aux_2(void)
       /* Buttons */
       clear_from(Term->hgt - 2);
       kill_all_buttons();
-      add_button("[Back]", ESCAPE);
-      add_button("[Done]", '\r');
-      add_button("[Up]", '8');
-      add_button("[Down]", '2');
-      add_button("[Incr]", '6');
-      add_button("[Decr]", '4');
+      add_button("Back", ESCAPE);
+      add_button("Done", '\r');
+      add_button("Up", '8');
+      add_button("Down", '2');
+      add_button("Incr", '6');
+      add_button("Decr", '4');
       update_statusline();
 
       /* Place cursor just after cost of current stat */
@@ -1654,10 +1654,10 @@ static int player_birth_aux_3(bool autoroll)
       
       /* Set up buttons */
       kill_all_buttons();
-      add_button("[ESC]", ESCAPE);
-      add_button("[Return]", '\r');
-      add_button("[+]", '+');
-      add_button("[-]", '-');
+      add_button("ESC", ESCAPE);
+      add_button("Return", '\r');
+      add_button("+", '+');
+      add_button("-", '-');
       update_statusline();
 
       /* Extra info */
@@ -1955,10 +1955,10 @@ static int player_birth_aux_3(bool autoroll)
 	    display_player(0);
 	  
 	  /* Add buttons */
-	  add_button("[ESC]", ESCAPE);
-	  add_button("[Enter]", '\r');
-	  add_button("[r]", 'r');
-	  if (prev) add_button("[p]", 'p');
+	  add_button("ESC", ESCAPE);
+	  add_button("Enter", '\r');
+	  add_button("r", 'r');
+	  if (prev) add_button("p", 'p');
 	  clear_from(Term->hgt - 2);
 	  update_statusline();
 
@@ -2122,9 +2122,9 @@ static void player_birth_aux(void)
 	    
 	    /* Buttons */
 	    kill_all_buttons();
-	    add_button("[Continue]", 'q');
-	    add_button("[ESC]", ESCAPE);
-	    add_button("[S]", 'S');
+	    add_button("Continue", 'q');
+	    add_button("ESC", ESCAPE);
+	    add_button("S", 'S');
 	    update_statusline();
 	    
 	    /* Get a key */
@@ -2219,11 +2219,19 @@ void player_birth(void)
   /* Note player birth in the message recall */
   message_add(" ", MSG_GENERIC);
   message_add("  ", MSG_GENERIC);
-	message_add("====================", MSG_GENERIC);
-	message_add("  ", MSG_GENERIC);
-	message_add(" ", MSG_GENERIC);
-
-
+  message_add("====================", MSG_GENERIC);
+  message_add("  ", MSG_GENERIC);
+  message_add(" ", MSG_GENERIC);
+  
+  
+  /* Hack - don't display above for easy_more */
+  if (easy_more)
+    {
+      /* Arcane weirdness */
+      msg_print(" ");
+      message_flush();
+    }
+	
   /* Hack -- outfit the player */
   player_outfit();
   

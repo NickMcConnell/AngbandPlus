@@ -2608,7 +2608,7 @@ static int priority_tunnel(int y, int x)
  * wilderness.  cx and cy return the position of the player on the
  * possibly shifted map.
  */
-void display_map(int *cy, int *cx)
+void display_map(int *cy, int *cx, bool smll)
 {
   int py = p_ptr->py;
   int px = p_ptr->px;
@@ -2633,6 +2633,9 @@ void display_map(int *cy, int *cx)
 
   bool old_view_special_lite;
   bool old_view_granite_lite;
+  bool old_bigtile = use_bigtile;
+  bool old_dbltile = use_dbltile;
+  bool old_trptile = use_trptile;
 
   monster_race *r_ptr = &r_info[0];
 
@@ -2662,6 +2665,14 @@ void display_map(int *cy, int *cx)
   /* Disable lighting effects */
   view_special_lite = FALSE;
   view_granite_lite = FALSE;
+
+  /* Disable tiles for subwindow */
+  if (smll) 
+    {
+      use_bigtile = FALSE;
+      use_dbltile = FALSE;
+      use_trptile = FALSE;
+    }
 
   /* Nothing here */
   ta = TERM_WHITE;
@@ -2727,7 +2738,8 @@ void display_map(int *cy, int *cx)
 	    col = col & ~1;
 	  
 	  /* Get the attr/char at that map location */
-	  map_info(y, x, &ta, &tc, &sa, &sc);
+	  if (smll) map_info_default(y, x, &ta, &tc);
+	  else map_info(y, x, &ta, &tc, &sa, &sc);
 
 	  /* Get the priority of that attr/char */
 	  tp = priority(ta, tc);
@@ -2770,10 +2782,10 @@ void display_map(int *cy, int *cx)
   /*** Make sure the player is visible ***/
   
   /* Get the "player" attr */
-  ta = r_ptr->x_attr;
+  ta = (smll ? r_ptr->d_attr : r_ptr->x_attr);
   
   /* Get the "player" char */
-  tc = r_ptr->x_char;
+  tc = (smll ? r_ptr->d_char : r_ptr->x_char);
   
   /* Draw the player */
   Term_putch(col + 1, row + 1, ta, tc);
@@ -2788,6 +2800,14 @@ void display_map(int *cy, int *cx)
   if (cx != NULL) (*cx) = col + 1;
   
   
+  /* Restore tiles for subwindow */
+  if (smll) 
+    {
+      use_bigtile = old_bigtile;
+      use_dbltile = old_dbltile;
+      use_trptile = old_trptile;
+    }
+
   /* Restore lighting effects */
   view_special_lite = old_view_special_lite;
   view_granite_lite = old_view_granite_lite;
@@ -2992,7 +3012,7 @@ void do_cmd_view_map(void)
   Term_clear();
   
   /* Display the map */
-  display_map(&cy, &cx);
+  display_map(&cy, &cx, FALSE);
   
   /* Wait for it */
   put_str("Hit any key to continue", hgt - 1, (wid - COL_MAP) / 2);

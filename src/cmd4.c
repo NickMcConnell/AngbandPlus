@@ -543,19 +543,19 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	if (small_screen) strcpy(prompt, "");
 	prt(prompt, hgt - 1, 0);
 	prompt_end = (small_screen ? 0 : strlen(prompt));
-	add_button("[ESC]", ESCAPE);
-	add_button("[r]", 'r');
+	add_button("ESC", ESCAPE);
+	add_button("r", 'r');
 	if (o_funcs.xattr)
 	  {
 	    if (attr_idx|char_idx)
 	      {
-		add_button("[p]", 'p');
+		add_button("p", 'p');
 		kill_button('c');
 	      }
 	    else
 	      {
 		kill_button('p');
-		add_button("[c]", 'c');
+		add_button("c", 'c');
 	      }
 	  }
 	else
@@ -565,13 +565,13 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	  }
 	if (visual_list) 
 	  {
-	    add_button("[Ent]", '\r');
+	    add_button("Ent", '\r');
 	    kill_button('v');
 	  }
 	else
 	  {
 	    kill_button('\r');
-	    add_button("[v]", 'v');
+	    add_button("v", 'v');
 	  }
 	update_statusline();
       }
@@ -1279,7 +1279,7 @@ static int collect_known_artifacts(int *artifacts, size_t artifacts_len)
   int i, j;
   
   if (artifacts)
-    //assert(artifacts_len >= z_info->a_max);
+    assert(artifacts_len >= z_info->a_max);
   ;
   
   for (j = 0; j < z_info->a_max; j++)
@@ -1500,7 +1500,7 @@ static void display_object(int col, int row, bool cursor, int oid)
   /* Symbol is unknown.  This should never happen.*/    
   if (!k_ptr->aware && !k_ptr->flavor && !p_ptr->wizard)
     {
-      //assert(0);
+      assert(0);
       c = ' ';
       a = TERM_DARK;
     }
@@ -1636,7 +1636,7 @@ static void o_xtra_act(char ch, int oid)
   s16b idx = get_autoinscription_index(oid);
   
   /* Forget it if we've never seen the thing */
-  if (k_ptr->everseen)
+  if (!k_ptr->everseen)
     return;
   
   /* Uninscribe */
@@ -1999,13 +1999,13 @@ void do_cmd_change_name(void)
   /* Adjust the buttons */
   backup_buttons();
   kill_all_buttons();
-  add_button("[Spc]", ' ');
-  add_button("[ESC]", ESCAPE);
-  add_button("[-]", '-');
-  add_button("[c]", 'c');
-  add_button("[f]", 'f');
-  add_button("[->]", ARROW_RIGHT);
-  add_button("[<-]", ARROW_LEFT);
+  add_button("Spc", ' ');
+  add_button("ESC", ESCAPE);
+  add_button("-", '-');
+  add_button("c", 'c');
+  add_button("f", 'f');
+  add_button("->", ARROW_RIGHT);
+  add_button("<-", ARROW_LEFT);
 
   /* Make the array of lines */
   C_WIPE(dumpline, DUMP_MAX_LINES, char_attr_line);
@@ -2519,7 +2519,7 @@ static void do_cmd_options_aux(void *vpage, cptr info)
   
   menu_layout(menu, &SCREEN_REGION);
   
-  add_button("[?]", '?');
+  add_button("?", '?');
   while (TRUE)
     {
       event_type cx;
@@ -3073,8 +3073,8 @@ void do_cmd_delay(void)
 {
   /* Prompt */
   prt("Command: Base Delay Factor", 20, 0);
-  add_button("[+]", '+');      
-  add_button("[-]", '-');      
+  add_button("+", '+');      
+  add_button("-", '-');      
   update_statusline();      
   
   /* Get a new value */
@@ -3105,8 +3105,8 @@ void do_cmd_hp_warn(void)
 {
   /* Prompt */
   prt("Command: Hitpoint Warning", 20, 0);
-  add_button("[+]", '+');      
-  add_button("[-]", '-');      
+  add_button("+", '+');      
+  add_button("-", '-');      
   update_statusline();      
   
   /* Get a new value */
@@ -3136,8 +3136,8 @@ void do_cmd_panel_change(void)
 {
   /* Prompt */
   prt("Command: Panel Change", 20, 0);
-  add_button("[+]", '+');      
-  add_button("[-]", '-');      
+  add_button("+", '+');      
+  add_button("-", '-');      
   update_statusline();      
   
   /* Get a new value */
@@ -3245,9 +3245,9 @@ static void do_cmd_options_autosave(void)
       /* Hilite current option */
       move_cursor(k + 2, 50);
 
-      add_button("[F]", 'F');
-      add_button("[n]", 'n');
-      add_button("[y]", 'y');
+      add_button("F", 'F');
+      add_button("n", 'n');
+      add_button("y", 'y');
       update_statusline();
       
       /* Get a key */
@@ -4203,13 +4203,13 @@ int modify_attribute(const char *clazz, int oid, const char *name,
   Term_putstr(0, linec + 2, -1, TERM_WHITE, "Command (n/N/a/A/c/C): ");
 
   /* Buttons */
-  add_button("[s]", 's');
-  add_button("[C]", 'C');
-  add_button("[c]", 'c');
-  add_button("[A]", 'A');
-  add_button("[a]", 'a');
-  add_button("[N]", 'N');
-  add_button("[n]", 'n');
+  add_button("s", 's');
+  add_button("C", 'C');
+  add_button("c", 'c');
+  add_button("A", 'A');
+  add_button("a", 'a');
+  add_button("N", 'N');
+  add_button("n", 'n');
   update_statusline();
   
   /* Get a command */
@@ -4280,7 +4280,7 @@ void do_cmd_visuals(void)
       if (key.key == ARROW_LEFT || key.key == ARROW_RIGHT)
         continue;
       
-      //assert(cursor >= 0 && cursor < visual_menu.count);
+      assert(cursor >= 0 && cursor < visual_menu.count);
       
       evt = visual_menu_items[cursor].id;
       
@@ -4571,16 +4571,16 @@ static void modify_colors(void)
   old_idx = -1;
 
   /* Buttons */
-  add_button("[v]", 'v');
-  add_button("[c]", 'c');
-  add_button("[B]", 'B');
-  add_button("[b]", 'b');
-  add_button("[G]", 'G');
-  add_button("[g]", 'g');
-  add_button("[R]", 'R');
-  add_button("[r]", 'r');
-  add_button("[K]", 'K');
-  add_button("[k]", 'k');
+  add_button("v", 'v');
+  add_button("c", 'c');
+  add_button("B", 'B');
+  add_button("b", 'b');
+  add_button("G", 'G');
+  add_button("g", 'g');
+  add_button("R", 'R');
+  add_button("r", 'r');
+  add_button("K", 'K');
+  add_button("k", 'k');
   update_statusline();
   
   while (1)
@@ -5074,12 +5074,13 @@ void make_note(char *note, int what_stage, byte note_type)
     }
 
   /* Search backward */
-  while (turn < notes[num - 1].turn)
-    {
-      /* Move the last entry down */
-      notes[num] = notes[num - 1];
-      num--;
-    }
+  if (num > 0)
+    while (turn < notes[num - 1].turn)
+      {
+	/* Move the last entry down */
+	notes[num] = notes[num - 1];
+	num--;
+      }
 
   /* Should be in the right place */
   notes[num].turn = turn;
@@ -5135,12 +5136,20 @@ void do_cmd_feeling(void)
   /* No useful feeling in town */
   if (!p_ptr->depth)
     {
-		msg_print("Looks like a typical town.");
-		return;
+      msg_print("Looks like a typical town.");
+      return;
+    }
+  
+  /* No useful feelings until enough time has passed */
+  if (!do_feeling)
+    {
+      msg_print("You are still uncertain about this level...");
+      return;
     }
   
   /* Display the feeling */
-  msg_print(feeling_text[feeling]);
+    if (p_ptr->themed_level) msg_format("%s", themed_feeling);
+    else msg_print(feeling_text[feeling]);
 }
 
 /*
@@ -5434,13 +5443,12 @@ void do_cmd_save_screen_html(int mode)
  */
 void do_cmd_save_screen(void)
 {
-	event_type ke;
   msg_print("Dump type [(t)ext; (h)tml; (f)orum embedded html]:");
-  add_button("[f]", 'f');
-  add_button("[h]", 'h');
-  add_button("[t]", 't');
+  add_button("f", 'f');
+  add_button("h", 'h');
+  add_button("t", 't');
   update_statusline();
-  ke = inkey_ex();
+  event_type ke = inkey_ex();
   switch(ke.key) 
     {
     case ESCAPE:
@@ -5565,10 +5573,10 @@ void do_cmd_options(void)
     }
   
   normal_screen = TRUE;
-  (void) add_button("[Ret]", '\r');
-  (void) add_button("[Spc]", ' ');
-  (void) add_button("[Rpt]", 'n');
-  (void) add_button("[Std]", ',');
+  (void) add_button("Ret", '\r');
+  (void) add_button("Spc", ' ');
+  (void) add_button("Rpt", 'n');
+  (void) add_button("Std", ',');
   screen_load();
 }
 

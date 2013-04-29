@@ -2582,6 +2582,7 @@ bool ident_spell(void)
 	   * entries in the notes file, which really should be re-ordered 
 	   */
 	  turn = a_info[o_ptr->name1].creat_turn;
+	  if (turn < 2) turn = real_turn;
 	  make_note(note, artifact_stage, NOTE_ARTIFACT);
 	  turn = real_turn;
 	  
@@ -2684,6 +2685,7 @@ bool identify_fully(void)
        * entries in the notes file, which really should be re-ordered 
        */
       turn = a_info[o_ptr->name1].creat_turn;
+      if (turn < 2) turn = real_turn;
       make_note(note, artifact_stage, NOTE_ARTIFACT);
       turn = real_turn;
       

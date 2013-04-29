@@ -2738,7 +2738,7 @@ cptr option_text[OPT_MAX] =
     "view_granite_lite",		/* OPT_view_granite_lite */
     "view_special_lite",		/* OPT_view_special_lite */
     NULL,
-    NULL,
+    "easy_more",			/* OPT_easy_more */
     NULL,		
     "show_piles",			/* OPT_show_piles */
     "hp_changes_colour",		/* OPT_hp_changes_colour */
@@ -2892,7 +2892,7 @@ cptr option_desc[OPT_MAX] =
     "Use special colors for wall grids",    /* OPT_view_granite_lite */
     "Use special colors for floor grids",   /* OPT_view_special_lite */
     NULL,
-    NULL,
+    "Minimise '-more-' prompts",	    /* OPT_easy_more */
     NULL,		
     "Show stacks using special attr/char",  /* OPT_show_piles */
     "Player colour indicates low hit points", /* OPT_hp_changes_colour */	
@@ -3046,7 +3046,7 @@ bool option_norm[OPT_MAX] =
     FALSE,		/* OPT_view_granite_lite */
     TRUE,		/* OPT_view_special_lite */
     FALSE,
-    FALSE,
+    TRUE,	        /* OPT_easy_more */
     FALSE,		
     FALSE,		/* OPT_show_piles */
     FALSE,		/* OPT_hp_changes_colour */
@@ -3176,7 +3176,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_verify_special,
       OPT_ring_bell,
       OPT_auto_more,
-      OPT_NONE,
+      OPT_easy_more,
       OPT_NONE,
       OPT_NONE
     },

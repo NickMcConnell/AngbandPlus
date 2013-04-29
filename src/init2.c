@@ -592,7 +592,11 @@ static errr init_info(cptr filename, header *head)
       fd = fd_open(buf, O_RDONLY);
       
       /* Failure */
+#ifdef _WIN32_WCE
+  if (fd == -1)
+#else
       if (fd < 0)
+#endif
 	{
 	  int mode = 0644;
 	  
@@ -606,7 +610,11 @@ static errr init_info(cptr filename, header *head)
 	  safe_setuid_drop();
 	  
 	  /* Failure */
-	  if (fd < 0)
+#ifdef _WIN32_WCE
+  if (fd == -1)
+#else
+      if (fd < 0)
+#endif
 	    {
 	      /* Complain */
 	      plog_fmt("Cannot create the '%s' file!", buf);
@@ -629,7 +637,11 @@ static errr init_info(cptr filename, header *head)
       safe_setuid_drop();
       
       /* Failure */
+#ifdef _WIN32_WCE
+  if (fd == -1)
+#else
       if (fd < 0)
+#endif
 	{
 	  /* Complain */
 	  plog_fmt("Cannot write the '%s' file!", buf);

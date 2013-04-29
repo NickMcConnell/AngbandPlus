@@ -1182,7 +1182,7 @@ errr parse_v_info(char *buf, header *head)
 	/* Process 'D' for "Description" */
 	else if (buf[0] == 'D')
 	{
-	  u16b temp;
+	  //u16b temp;
 
 		/* There better be a current v_ptr */
 		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -1191,10 +1191,10 @@ errr parse_v_info(char *buf, header *head)
 		s = buf+2;
 
 		/* Type convert */
-		temp = (u16b)v_ptr->text;
+		//temp = (u16b)v_ptr->text;
 
 		/* Store the text */
-		if (!add_text(&temp, head, s))
+		if (!add_text(&v_ptr->text, head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
@@ -1713,6 +1713,13 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
       if (streq(what, k_info_flags2[i]))
         {
           a_ptr->flags2 |= (1L << i);
+
+	  /* Hack - deal with immunities */
+	  if (TR2_IM_ACID == (1L << i))
+	    for (j = 0; j < 4; j++)
+	      if (a_ptr->flags2 & (TR2_IM_ACID << j)) 
+		a_ptr->percent_res[j] = 0;
+	  
           return (0);
         }
     }
@@ -2897,90 +2904,90 @@ static errr grab_one_special_racial_flag(player_race *rp_ptr, cptr what)
  */
 errr parse_p_info(char *buf, header *head)
 {
-	int i, j;
-
-	char *s, *t;
-
-	/* Current entry */
-	static player_race *pr_ptr = NULL;
-
-
-	/* Process 'N' for "New/Number/Name" */
-	if (buf[0] == 'N')
+  int i, j;
+  
+  char *s, *t;
+  
+  /* Current entry */
+  static player_race *pr_ptr = NULL;
+  
+  
+  /* Process 'N' for "New/Number/Name" */
+  if (buf[0] == 'N')
+    {
+      /* Find the colon before the name */
+      s = strchr(buf+2, ':');
+      
+      /* Verify that colon */
+      if (!s) return (PARSE_ERROR_GENERIC);
+      
+      /* Nuke the colon, advance to the name */
+      *s++ = '\0';
+      
+      /* Paranoia -- require a name */
+      if (!*s) return (PARSE_ERROR_GENERIC);
+      
+      /* Get the index */
+      i = atoi(buf+2);
+      
+      /* Verify information */
+      if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+      
+      /* Verify information */
+      if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
+      
+      /* Save the index */
+      error_idx = i;
+      
+      /* Point at the "info" */
+      pr_ptr = (player_race*)head->info_ptr + i;
+      
+      /* Store the name */
+      if (!(pr_ptr->name = add_name(head, s)))
+	return (PARSE_ERROR_OUT_OF_MEMORY);
+    }
+  
+  /* Process 'S' for "Stats" (one line only) */
+  else if (buf[0] == 'S')
+    {
+      int adj;
+      
+      /* There better be a current pr_ptr */
+      if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Start the string */
+      s = buf+1;
+      
+      /* For each stat */
+      for (j = 0; j < A_MAX; j++)
 	{
-		/* Find the colon before the name */
-		s = strchr(buf+2, ':');
-
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the name */
-		*s++ = '\0';
-
-		/* Paranoia -- require a name */
-		if (!*s) return (PARSE_ERROR_GENERIC);
-
-		/* Get the index */
-		i = atoi(buf+2);
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Save the index */
-		error_idx = i;
-
-		/* Point at the "info" */
-		pr_ptr = (player_race*)head->info_ptr + i;
-
-		/* Store the name */
-		if (!(pr_ptr->name = add_name(head, s)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
+	  /* Find the colon before the subindex */
+	  s = strchr(s, ':');
+	  
+	  /* Verify that colon */
+	  if (!s) return (PARSE_ERROR_GENERIC);
+	  
+	  /* Nuke the colon, advance to the subindex */
+	  *s++ = '\0';
+	  
+	  /* Get the value */
+	  adj = atoi(s);
+	  
+	  /* Save the value */
+	  pr_ptr->r_adj[j] = adj;
+	  
+	  /* Next... */
+	  continue;
 	}
-
-	/* Process 'S' for "Stats" (one line only) */
-	else if (buf[0] == 'S')
-	{
-		int adj;
-
-		/* There better be a current pr_ptr */
-		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Start the string */
-		s = buf+1;
-
-		/* For each stat */
-		for (j = 0; j < A_MAX; j++)
-		{
-			/* Find the colon before the subindex */
-			s = strchr(s, ':');
-
-			/* Verify that colon */
-			if (!s) return (PARSE_ERROR_GENERIC);
-
-			/* Nuke the colon, advance to the subindex */
-			*s++ = '\0';
-
-			/* Get the value */
-			adj = atoi(s);
-
-			/* Save the value */
-			pr_ptr->r_adj[j] = adj;
-
-			/* Next... */
-			continue;
-		}
-	}
-
-	/* Process 'R' for "Racial Skills" (one line only) */
-	else if (buf[0] == 'R')
-	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
-
-		/* There better be a current pr_ptr */
-		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+    }
+  
+  /* Process 'R' for "Racial Skills" (one line only) */
+  else if (buf[0] == 'R')
+    {
+      int dis, dev, sav, stl, srh, fos, thn, thb;
+      
+      /* There better be a current pr_ptr */
+      if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
       /* Scan for the values */
       if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
@@ -2989,10 +2996,10 @@ errr parse_p_info(char *buf, header *head)
       
       /* Save the values */
       pr_ptr->r_dis = dis;
-		pr_ptr->r_dev = dev;
-		pr_ptr->r_sav = sav;
-		pr_ptr->r_stl = stl;
-		pr_ptr->r_srh = srh;
+      pr_ptr->r_dev = dev;
+      pr_ptr->r_sav = sav;
+      pr_ptr->r_stl = stl;
+      pr_ptr->r_srh = srh;
       pr_ptr->r_fos = fos;
       pr_ptr->r_thn = thn;
       pr_ptr->r_thb = thb;
@@ -3007,7 +3014,7 @@ errr parse_p_info(char *buf, header *head)
       
       /* There better be a current pr_ptr */
       if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
+      
       /* Scan for the values */
       if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
                       &xdis, &xdev, &xsav, &xstl, 
@@ -3029,10 +3036,10 @@ errr parse_p_info(char *buf, header *head)
   else  if (buf[0] == 'E')
     {
       int id, mint, maxt, skde, ac, pval, xtra1, xtra2;
-          
+      
       /* There better be a current pr_ptr */
       if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
+      
       /* Scan for the values */
       if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
                       &id, &mint, &maxt, &skde,
@@ -3055,10 +3062,10 @@ errr parse_p_info(char *buf, header *head)
   else  if (buf[0] == 'X')
     {
       int mhp, diff, infra, start_level, hometown;
-          
+      
       /* There better be a current pr_ptr */
       if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
+      
       /* Scan for the values */
       if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d", 
                       &mhp, &diff, &infra, &start_level, &hometown)) 
@@ -3070,23 +3077,6 @@ errr parse_p_info(char *buf, header *head)
       pr_ptr->infra = infra;
       pr_ptr->start_lev = start_level;
       pr_ptr->hometown = hometown;
-    }
-  
-  /* Hack -- Process 'I' for "info" and such */
-	else if (buf[0] == 'I')
-	{
-		int hist, b_age, m_age;
-
-		/* There better be a current pr_ptr */
-      if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-      
-      /* Scan for the values */
-      if (3 != sscanf(buf+2, "%d:%d:%d", &hist, &b_age, &m_age)) 
-        return (PARSE_ERROR_GENERIC);
-      
-      pr_ptr->hist = hist;
-      pr_ptr->b_age = b_age;
-      pr_ptr->m_age = m_age;
     }
   
   /* Hack -- Process 'I' for "info" and such */
@@ -3103,16 +3093,16 @@ errr parse_p_info(char *buf, header *head)
       
       pr_ptr->hist = hist;
       pr_ptr->b_age = b_age;
-		pr_ptr->m_age = m_age;
-	}
-
-	/* Hack -- Process 'H' for "Height" */
-	else if (buf[0] == 'H')
-	{
-		int m_b_ht, m_m_ht, f_b_ht, f_m_ht;
-
-		/* There better be a current pr_ptr */
-		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      pr_ptr->m_age = m_age;
+    }
+	
+  /* Hack -- Process 'H' for "Height" */
+  else if (buf[0] == 'H')
+    {
+      int m_b_ht, m_m_ht, f_b_ht, f_m_ht;
+      
+      /* There better be a current pr_ptr */
+      if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
       /* Scan for the values */
       if (4 != sscanf(buf+2, "%d:%d:%d:%d", 
@@ -3121,17 +3111,17 @@ errr parse_p_info(char *buf, header *head)
       
       pr_ptr->m_b_ht = m_b_ht;
       pr_ptr->m_m_ht = m_m_ht;
-		pr_ptr->f_b_ht = f_b_ht;
-		pr_ptr->f_m_ht = f_m_ht;
-	}
-
-	/* Hack -- Process 'W' for "Weight" */
-	else if (buf[0] == 'W')
-	{
-		int m_b_wt, m_m_wt, f_b_wt, f_m_wt;
-
-		/* There better be a current pr_ptr */
-		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      pr_ptr->f_b_ht = f_b_ht;
+      pr_ptr->f_m_ht = f_m_ht;
+    }
+  
+  /* Hack -- Process 'W' for "Weight" */
+  else if (buf[0] == 'W')
+    {
+      int m_b_wt, m_m_wt, f_b_wt, f_m_wt;
+      
+      /* There better be a current pr_ptr */
+      if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
       /* Scan for the values */
       if (4 != sscanf(buf+2, "%d:%d:%d:%d",
@@ -3140,27 +3130,27 @@ errr parse_p_info(char *buf, header *head)
       
       pr_ptr->m_b_wt = m_b_wt;
       pr_ptr->m_m_wt = m_m_wt;
-		pr_ptr->f_b_wt = f_b_wt;
-		pr_ptr->f_m_wt = f_m_wt;
-	}
-
-	/* Hack -- Process 'F' for flags */
-	else if (buf[0] == 'F')
+      pr_ptr->f_b_wt = f_b_wt;
+      pr_ptr->f_m_wt = f_m_wt;
+    }
+  
+  /* Hack -- Process 'F' for flags */
+  else if (buf[0] == 'F')
+    {
+      /* There better be a current pr_ptr */
+      if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Parse every entry textually */
+      for (s = buf + 2; *s; )
 	{
-		/* There better be a current pr_ptr */
-		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Parse every entry textually */
-		for (s = buf + 2; *s; )
-		{
-			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-
-			/* Nuke and skip any dividers */
-			if (*t)
-			{
-				*t++ = '\0';
-				while ((*t == ' ') || (*t == '|')) t++;
+	  /* Find the end of this entry */
+	  for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+	  
+	  /* Nuke and skip any dividers */
+	  if (*t)
+	    {
+	      *t++ = '\0';
+	      while ((*t == ' ') || (*t == '|')) t++;
             }
           
           /* Parse this entry */
@@ -3171,7 +3161,7 @@ errr parse_p_info(char *buf, header *head)
           s = t;
         }
     }
-      
+  
   /* Hack -- Process 'U' for flags */
   else if (buf[0] == 'U')
     {
@@ -3197,43 +3187,43 @@ errr parse_p_info(char *buf, header *head)
           
           /* Start the next entry */
           s = t;
-		}
 	}
+    }
 
-	/* Hack -- Process 'C' for class choices */
-	else if (buf[0] == 'C')
+  /* Hack -- Process 'C' for class choices */
+  else if (buf[0] == 'C')
+    {
+      /* There better be a current pr_ptr */
+      if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Parse every entry textually */
+      for (s = buf + 2; *s; )
 	{
-		/* There better be a current pr_ptr */
-		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Parse every entry textually */
-		for (s = buf + 2; *s; )
-		{
-			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-
-			/* Nuke and skip any dividers */
-			if (*t)
-			{
-				*t++ = '\0';
-				while ((*t == ' ') || (*t == '|')) t++;
-			}
-
-			/* Hack - Parse this entry */
-			pr_ptr->choice |= (1 << atoi(s));
-
-			/* Start the next entry */
-			s = t;
-		}
+	  /* Find the end of this entry */
+	  for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+	  
+	  /* Nuke and skip any dividers */
+	  if (*t)
+	    {
+	      *t++ = '\0';
+	      while ((*t == ' ') || (*t == '|')) t++;
+	    }
+	  
+	  /* Hack - Parse this entry */
+	  pr_ptr->choice |= (1 << atoi(s));
+	  
+	  /* Start the next entry */
+	  s = t;
 	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
+    }
+  else
+    {
+      /* Oops */
+      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+    }
+  
+  /* Success */
+  return (0);
 }
 
 

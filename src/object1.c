@@ -3618,29 +3618,29 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	  if (!p_ptr->command_see) 
 	    {
 	      strcat(out_val, " * to see,");
-	      add_button("[*]", '*');
+	      add_button("*", '*');
 	    }
 
 	  /* Indicate that equipment items are available */
 	  if (use_equip) 
 	    {
 	      strcat(out_val, " / equip,");
-	      add_button("[/]", '/');
+	      add_button("/", '/');
 	    }
 	  
 	  /* Indicate that floor items are available */
 	  if (allow_floor) 
 	    {
 	      strcat(out_val, " - floor, . floor top,");
-	      add_button("[-]", '-');
-	      add_button("[.]", '.');
+	      add_button("-", '-');
+	      add_button(".", '.');
 	    }
 	  
 	  /* Indicate that selecting all SQUELCHED items is an option */
 	  if (can_squelch)
 	    { 
 	      strcat(out_val, " ! for squelched,");
-	      add_button("[!]", '!');
+	      add_button("!", '!');
 	    }
 	}
       
@@ -3670,29 +3670,29 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	  if (!p_ptr->command_see) 
 	    {
 	      strcat(out_val, " * to see,");
-	      add_button("[*]", '*');
+	      add_button("*", '*');
 	    }
 	  
 	  /* Append */
 	  if (use_inven) 
 	    {
 	      strcat(out_val, " / inven,");
-	      add_button("[/]", '/');
+	      add_button("/", '/');
 	    }
 	  
 	  /* Append */
 	  if (allow_floor) 
 	    {
 	      strcat(out_val, " - floor, . floor top,");
-	      add_button("[-]", '-');
-	      add_button("[.]", '.');
+	      add_button("-", '-');
+	      add_button(".", '.');
 	    }
 	  
 	  /* Indicate that selecting all SQUELCHED items is an option */
 	  if (can_squelch) 
 	    {
 	      strcat(out_val, " ! for squelched,");
-	      add_button("[!]", '!');
+	      add_button("!", '!');
 	    }
 	}
       
@@ -3719,26 +3719,26 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	  if (!p_ptr->command_see) 
 	    {
 	      strcat(out_val, " * to see,");
-	      add_button("[*]", '*');
+	      add_button("*", '*');
 	    }
 	  
 	  /* Append */
 	  if (use_inven)
 	    {
 	      strcat(out_val, " / inven,");
-	      add_button("[/]", '/');
+	      add_button("/", '/');
 	    }
 	  else if (use_equip)
 	    {
 	      strcat(out_val, " / equip,");
-	      add_button("[/]", '/');
+	      add_button("/", '/');
 	    }
 	  
 	  /* Indicate that selecting all SQUELCHED items is an option */
 	  if (can_squelch) 
 	    {
 	      strcat(out_val, " ! for squelched,");
-	      add_button("[!]", '!');
+	      add_button("!", '!');
 	    }
 	}
       
@@ -4340,7 +4340,7 @@ bool get_item_tk(int *cp, cptr pmt, cptr str, int y, int x)
       if (!p_ptr->command_see) 
 	{
 	  strcat(out_val, " * to see,");
-	  add_button("[*]", '*');
+	  add_button("*", '*');
 	  update_statusline();
 	}
       

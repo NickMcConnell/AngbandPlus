@@ -287,10 +287,10 @@ size_t randname_make(randname_type name_type, size_t min, size_t max, char *word
 	static name_probs lprobs;
 	static randname_type cached_type = RANDNAME_NUM_TYPES;
 
-	///assert(name_type > 0 && name_type < RANDNAME_NUM_TYPES);
+	assert(name_type > 0 && name_type < RANDNAME_NUM_TYPES);
 
 	/* To allow for a terminating character */
-	//assert(buflen > max);
+	assert(buflen > max);
 
 	/* We cache one set of probabilities, only regenerate when
 	   the type changes.  It's as good a way as any for now.

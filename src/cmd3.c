@@ -16,11 +16,74 @@
 
 
 /*
- * Display inventory - new - will anyone notice?
+ * Display inventory - new - not quite ready
  */
-void do_cmd_inven(void)
+void do_cmd_inven_new(void)
 {
-  show_obj();
+  int i, j, k, z = 0, col, len = 3;
+
+  char tmp_val[80];
+  
+  object_type *o_ptr;
+  
+  /* Count number of missiles in the quiver slots. */
+  int ammo_num = quiver_count();
+
+  /* Find the "final" slot */
+  for (i = 0; i < INVEN_PACK; i++)
+    {
+      o_ptr = &inventory[i];
+      
+      /* Skip non-objects */
+      if (!o_ptr->k_idx) continue;
+      
+      /* Track */
+      z = i + 1;
+    }
+  
+  /* 
+   * Add notes about slots used by the quiver, if we have space, want 
+   * to show all slots, and have items in the quiver.
+   */
+
+  /* Find the column to start in */
+  if (len > Term->wid - 4 ) col = 0;
+  else if ((Term->wid - len) / 2 < 12) col = (Term->wid -len) / 2;
+  else col = 12;
+  
+  if ((p_ptr->pack_size_reduce) && 
+      (z <= (INVEN_PACK - p_ptr->pack_size_reduce)))
+    {
+      /* Insert a blank dividing line, if we have the space. */
+      if (z <= ((INVEN_PACK - 1) - p_ptr->pack_size_reduce))
+	{
+	  z++;
+	  prt("", z, col ? col - 2 : col);
+	}
+      
+      for (i = 1; i <= p_ptr->pack_size_reduce; i++)
+	{
+	  /* Go to next line. */
+	  z++;
+	  prt("", z, col ? col - 2 : col);
+	  
+	  /* Determine index, print it out. */
+	  sprintf(tmp_val, "%c)", index_to_label(INVEN_PACK - i));
+	  put_str(tmp_val, z, col);
+	  
+	  /* Note amount of ammo */
+	  k = (ammo_num > 99) ? 99 : ammo_num;
+	  
+	  /* Hack -- use "(Ready Ammunition)" as a description. */
+	  c_put_str(TERM_BLUE, format("(Ready Ammunition) [%2d]", k), 
+		    z, col + 3);
+
+	  /* Reduce ammo count */
+	  ammo_num -= k;
+	}
+    }
+
+  do_cmd_show_obj();
 }
 
 
@@ -29,7 +92,7 @@ void do_cmd_inven(void)
 /*
  * Display inventory
  */
-void do_cmd_inven_old(void)
+void do_cmd_inven(void)
 {
   char string[80];
   
@@ -1810,11 +1873,11 @@ void do_cmd_query_symbol(void)
   put_str("Recall details? (k/p/y/n): ", 0, 40);
   backup_buttons();
   kill_all_buttons();
-  add_button("[ESC]", ESCAPE);
-  add_button("[k]", 'k');
-  add_button("[p]", 'p');
-  add_button("[y]", 'y');
-  add_button("[n]", 'n');
+  add_button("ESC", ESCAPE);
+  add_button("k", 'k');
+  add_button("p", 'p');
+  add_button("y", 'y');
+  add_button("n", 'n');
   update_statusline();
   
   /* Query */
@@ -1851,7 +1914,7 @@ void do_cmd_query_symbol(void)
       kill_button('k');
       kill_button('p');
       kill_button('y');
-      add_button("[r]", 'r');
+      add_button("r", 'r');
     }
   
   /* Sort if needed */
@@ -1924,7 +1987,7 @@ void do_cmd_query_symbol(void)
 	      
 	    }
 
-	  add_button("[-]", '-');
+	  add_button("-", '-');
 	  update_statusline();
 	  
 	  /* Command */

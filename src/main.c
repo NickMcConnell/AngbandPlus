@@ -197,8 +197,8 @@ static void init_stuff(void)
   /* Initialize */
   init_file_paths(path);
 }
-#endif
 
+#endif
 
 /*
  * Handle a "-d<what>=<path>" option

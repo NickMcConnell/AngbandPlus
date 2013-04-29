@@ -1006,9 +1006,9 @@ void add_menu_skin(const menu_skin *skin, skin_id id)
 {
   size_t i;
   
-  //assert(skin->id == id);
-  for (i = 0; i < N_ELEMENTS(menu_skin_reg) && menu_skin_reg[i]; i++);
-    //assert(skin->id != menu_skin_reg[id]->id);
+  assert(skin->id == id);
+  for (i = 0; i < N_ELEMENTS(menu_skin_reg) && menu_skin_reg[i]; i++)
+    assert(skin->id != menu_skin_reg[id]->id);
   
   if (i == N_ELEMENTS(menu_skin_reg))
     quit("too many registered skins!");
@@ -1020,9 +1020,9 @@ void add_menu_iter(const menu_iter * iter, menu_iter_id id)
 {
   size_t i;
   
-  //assert(iter->id == id);
-  for (i = 0; i < N_ELEMENTS(menu_iter_reg) && menu_iter_reg[i]; i++);
-    //assert(iter->id != menu_iter_reg[id]->id);
+  assert(iter->id == id);
+  for (i = 0; i < N_ELEMENTS(menu_iter_reg) && menu_iter_reg[i]; i++)
+    assert(iter->id != menu_iter_reg[id]->id);
   
   if (i == N_ELEMENTS(menu_iter_reg))
     quit("too many registered iters!");

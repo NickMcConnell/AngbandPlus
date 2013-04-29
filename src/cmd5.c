@@ -706,7 +706,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
     }
 
   /* Button */
-  add_button("[*]", '*');
+  add_button("*", '*');
   update_statusline();
 
   /* Get a spell from the user */
@@ -2219,8 +2219,8 @@ void do_cmd_cast_or_pray(void)
 	      msg_print("Would you like to enchant a 'W'eapon or 'A'rmour");
 	    
 	    /* Buttons */
-	    add_button("[a]", 'a');
-	    add_button("[w]", 'w');
+	    add_button("a", 'a');
+	    add_button("w", 'w');
 
 	    /* Interact and enchant. */
 	    while(1)
@@ -3494,10 +3494,10 @@ void do_cmd_gain_specialty(void)
 	  c = ke.key;
 
 	  /* Hack - arrow keys.  Will go when this is a proper menu */
-	  if (c == ARROW_LEFT) c = 4;
-	  if (c == ARROW_RIGHT) c = 6;
-	  if (c == ARROW_UP) c = 8;
-	  if (c == ARROW_DOWN) c = 2;
+	  if (c == ARROW_LEFT) c = '4';
+	  if (c == ARROW_RIGHT) c = '6';
+	  if (c == ARROW_UP) c = '8';
+	  if (c == ARROW_DOWN) c = '2';
 	  
 	  /* Numbers are used for scolling */
 	  if (isdigit(c))
@@ -3688,8 +3688,8 @@ void do_cmd_specialty(void)
   if (p_ptr->new_specialties > 0)
     {
       /* Buttons */
-      add_button("[l]", 'l');
-      add_button("[v]", 'v');
+      add_button("l", 'l');
+      add_button("v", 'v');
 
       /* Interact and choose. */
       while(get_com_ex("View abilities or Learn specialty (l/v/ESC)?",

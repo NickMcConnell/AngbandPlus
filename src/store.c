@@ -640,6 +640,8 @@ static s16b label_to_store(int c)
  */
 static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 {
+  int i;
+
   /* Hack -- Identical items cannot be stacked */
   if (o_ptr == j_ptr) return (0);
   
@@ -671,6 +673,13 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
   if (o_ptr->ac	 !=  j_ptr->ac)	  return (0);
   if (o_ptr->dd	 !=  j_ptr->dd)	  return (0);
   if (o_ptr->ds	 !=  j_ptr->ds)	  return (0);
+
+  /* Require matching resist percentages */
+  for (i = 0; i < MAX_P_RES; i++)
+    if (o_ptr->percent_res[i] != j_ptr->percent_res[i]) return (0);
+
+  /* Require matching proofing status */
+  if (o_ptr->el_proof != j_ptr->el_proof) return (0);
 
   /* Hack -- Never stack chests */
   if (o_ptr->tval == TV_CHEST) return (0);
@@ -3402,7 +3411,7 @@ static void store_process_command(void)
       /* Inventory list */
     case 'i':
       {
-	show_obj();
+	do_cmd_show_obj();
 	break;
       }
       
@@ -3822,13 +3831,13 @@ void do_cmd_store(void)
   leave_store = FALSE;
 
   /* Buttons */
-  add_button("[g]", 'g');
-  add_button("[d]", 'd');
-  add_button("[i]", 'i');
-  add_button("[l]", 'l');
+  add_button("g", 'g');
+  add_button("d", 'd');
+  add_button("i", 'i');
+  add_button("l", 'l');
   if ((st_ptr->type == STORE_MERCH) && 
       (which < MAX_STORES_SMALL * NUM_TOWNS_SMALL))
-    add_button("[o]", 'o');
+    add_button("o", 'o');
   normal_screen = FALSE;
   prompt_end = 0;
   

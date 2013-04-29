@@ -2000,7 +2000,17 @@ void do_cmd_throw(void)
       o_ptr = &o_list[0 - item];
     }
   
-  
+  /* Can't unwield cursed items this way! */
+  if ((item > INVEN_PACK) && (item < INVEN_BLANK) && (cursed_p(o_ptr)))
+    {
+      /* Oops */
+      msg_print("Hmmm, it seems to be cursed.");
+      
+      /* Nope */
+      return;
+    }
+
+    
   
   /* Get a direction (or cancel) */
   if (!get_aim_dir(&dir)) return;

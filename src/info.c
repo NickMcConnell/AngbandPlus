@@ -644,7 +644,7 @@ cptr specialty_tips[TOTAL_SPECIALTIES]=
   "You recover quickly from poison and cuts, and succumb slowly to the Black Breath",
   "You eat.  A lot.",
   "You recover very quickly from negative effects, and can move through water without being slowed.",
-  "You are incredibly stealthy, but are vulnerable to bright light.",
+  "You are incredibly stealthy.",
   "Your bare hands tear through stone and you are almost impossible to detect in forests, but you are vulnerable to fire and falling.",
   "You can take the form of a bear (use the ']' command).",
   "You are more able to hit monsters while in plain regions.",
@@ -1509,7 +1509,7 @@ void object_info_screen(object_type *o_ptr)
   
   /* Label the information. */
   roff("Item Information:", 3, 0);
-  for (i = 0; i < 3; i++) roff("\n", 0, 0);
+  for (i = 0; i < 3; i++) roff("\n", 3, 0);
   
   /* Object type or artifact information. */
   c_roff(TERM_L_BLUE, info_text, 3, 77);
@@ -1526,7 +1526,7 @@ void object_info_screen(object_type *o_ptr)
 	{
 	  
 	  /* Advance a line */
-	  for (i = 0; i < 2; i++) roff("\n", 0, 0);
+	  for (i = 0; i < 2; i++) roff("\n", 3, 0);
 	  
 	  /* Set notification */
 	  c_roff(TERM_GREEN,"Set Item: ",3,77);
@@ -1552,7 +1552,7 @@ void object_info_screen(object_type *o_ptr)
   /* Fully identified objects. */
   if (mental)
     {
-      for (i = 0; i < 3; i++) roff("\n", 0, 0);
+      for (i = 0; i < 3; i++) roff("\n", 3, 0);
       
       /* Fully describe the object flags and attributes. */
       identify_fully_aux(o_ptr);
@@ -1585,7 +1585,7 @@ void object_info_screen(object_type *o_ptr)
   else
     {
       /* Spacing. */
-      for (i = 0; i < 5; i++) roff("\n", 0, 0);
+      for (i = 0; i < 5; i++) roff("\n", 3, 0);
       
       /* Display everything for known non-artifacts */
       if ((known) && !(o_ptr->name1))
@@ -1604,16 +1604,17 @@ void object_info_screen(object_type *o_ptr)
       object_kind_info = format("%s", obj_class_info[o_ptr->tval]);
 
       /* Spacing */
-      for (i = 0; i < 3; i++) roff("\n", 0, 0);
+      for (i = 0; i < 3; i++) roff("\n", 3, 0);
 
       /* Object kind information. */
       roff(object_kind_info, 3, 77);
 
       /* Spacing */
-      for (i = 0; i < 3; i++) roff("\n", 0, 0);
+      for (i = 0; i < 3; i++) roff("\n", 3, 0);
     }
   
   /* The exit sign. */
+  roff("", 25, 0);
   roff("(Press any key to continue.)", 25, 0);
   (void)inkey_ex();
   
@@ -3918,7 +3919,7 @@ void spell_info(char *p, int spell_index)
     case 181: sprintf(p, " dam %dd8, beam %d%%", plev / 6, plev * 2); break;
     case 182: sprintf(p, " dur %d+d10", plev / 2); break;
     case 186: strcpy(p, " heal 500, dam 100"); break;
-      
+    case 188: sprintf(p, " dam 6d6+%d", plev/3); break;
 
       /* Necromantic Spells */
       
@@ -4575,6 +4576,12 @@ void do_cmd_view_abilities(void)
       ke = inkey_ex();
       c = ke.key;
       
+      /* Hack - arrow keys.  Will go when this is a proper menu */
+      if (c == ARROW_LEFT) c = '4';
+      if (c == ARROW_RIGHT) c = '6';
+      if (c == ARROW_UP) c = '8';
+      if (c == ARROW_DOWN) c = '2';
+	  
       /* Numbers are used for scolling */
       if (isdigit(c))
 	{

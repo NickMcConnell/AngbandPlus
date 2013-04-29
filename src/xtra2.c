@@ -100,6 +100,10 @@ bool set_confused(int v)
       if (!p_ptr->confused)
 	{
 	  msg_print("You are confused!");
+
+	  /* Lose target */
+	  target_set_monster(0);
+
 	  notice = TRUE;
 	}
     }
@@ -4903,10 +4907,10 @@ bool get_aim_dir(int *dp)
   if (use_old_target && target_okay()) dir = 5;
   
   /* Make some buttons */
-  add_button("[*]", '*');
-  add_button("[.]",'.');
+  add_button("*", '*');
+  add_button(".",'.');
   if (target_okay())
-    add_button("[5]", '5');
+    add_button("5", '5');
 
   /* Ask until satisfied */
   while (!dir)

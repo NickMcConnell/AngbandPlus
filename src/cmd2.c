@@ -3169,9 +3169,9 @@ void do_cmd_rest(void)
       strcpy(out_val, "&");
 
       /* Buttons */
-      add_button("[*]", '*');
-      add_button("[&]", '&');
-      add_button("[$]", '$');
+      add_button("*", '*');
+      add_button("&", '&');
+      add_button("$", '$');
       
       /* Ask for duration */
       got_string = get_string(p, out_val, 5); 

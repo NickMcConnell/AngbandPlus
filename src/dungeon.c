@@ -1229,7 +1229,8 @@ static void process_world(void)
     }
   
   /* Delayed level feelings */
-  if ((p_ptr->depth) && (!p_ptr->leaving) && (!do_feeling) && (!(turn % 100)))
+  if ((p_ptr->depth) && (!p_ptr->leaving) && (!do_feeling) && (!(turn % 100))
+      && (!p_ptr->themed_level))
     {
       
       int chance = 40;
@@ -1951,8 +1952,8 @@ static void dungeon(void)
     }
   
   
-	/* Choose panel */
-	verify_panel();
+  /* Choose panel */
+  verify_panel();
   
   
   /* Flush messages */
@@ -1960,7 +1961,7 @@ static void dungeon(void)
   
   
   /* Hack -- Increase "xtra" depth */
-	character_xtra++;
+  character_xtra++;
 
 
   /* Clear */
@@ -2007,15 +2008,15 @@ static void dungeon(void)
   /* Update stuff */
   update_stuff();
 
-	/* Redraw stuff */
-	redraw_stuff();
+  /* Redraw stuff */
+  redraw_stuff();
+  
+  /* Redraw stuff */
+  window_stuff();
+  
 
-	/* Redraw stuff */
-	window_stuff();
-
-
-	/* Hack -- Decrease "xtra" depth */
-	character_xtra--;
+  /* Hack -- Decrease "xtra" depth */
+  character_xtra--;
   
   
   /* Update stuff */
@@ -2026,29 +2027,29 @@ static void dungeon(void)
 
   /* Make basic mouse buttons */
   normal_screen = TRUE;
-  (void) add_button("[ESC]", ESCAPE);
-  (void) add_button("[Ret]", '\r');
-  (void) add_button("[Spc]", ' ');
-  (void) add_button("[Rpt]", 'n');
-  (void) add_button("[Std]", ',');
+  (void) add_button("ESC", ESCAPE);
+  (void) add_button("Ret", '\r');
+  (void) add_button("Spc", ' ');
+  (void) add_button("Rpt", 'n');
+  (void) add_button("Std", ',');
   
   /* Redraw buttons */
   p_ptr->redraw |= (PR_BUTTONS);
   
-	/* Notice stuff */
-	notice_stuff();
-
-	/* Update stuff */
-	update_stuff();
-
-	/* Redraw stuff */
-	redraw_stuff();
-
-	/* Window stuff */
-	window_stuff();
-
-	/* Refresh */
-	Term_fresh();
+  /* Notice stuff */
+  notice_stuff();
+  
+  /* Update stuff */
+  update_stuff();
+  
+  /* Redraw stuff */
+  redraw_stuff();
+  
+  /* Window stuff */
+  window_stuff();
+  
+  /* Refresh */
+  Term_fresh();
 
 
 	/* Handle delayed death */
@@ -2418,16 +2419,16 @@ void play_game(bool new_game)
   
   
   /* Character is now "complete" */
-	character_generated = TRUE;
-
-
-	/* Hack -- Decrease "icky" depth */
-	character_icky--;
-
-
-	/* Start playing */
-	p_ptr->playing = TRUE;
-
+  character_generated = TRUE;
+  
+  
+  /* Hack -- Decrease "icky" depth */
+  character_icky--;
+  
+  
+  /* Start playing */
+  p_ptr->playing = TRUE;
+  
   /* Hack -- Enforce "delayed death" */
   if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
   
@@ -2446,30 +2447,30 @@ void play_game(bool new_game)
       /* Process the level */
       dungeon();
       
-
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Window stuff */
-		if (p_ptr->window) window_stuff();
-
-
-		/* Cancel the target */
-		target_set_monster(0);
-
-		/* Cancel the health bar */
-		health_track(0);
-
-
-		/* Forget the view */
-		forget_view();
-
+      
+      /* Notice stuff */
+      if (p_ptr->notice) notice_stuff();
+      
+      /* Update stuff */
+      if (p_ptr->update) update_stuff();
+      
+      /* Redraw stuff */
+      if (p_ptr->redraw) redraw_stuff();
+      
+      /* Window stuff */
+      if (p_ptr->window) window_stuff();
+      
+      
+      /* Cancel the target */
+      target_set_monster(0);
+      
+      /* Cancel the health bar */
+      health_track(0);
+      
+      
+      /* Forget the view */
+      forget_view();
+      
 
       /* Handle "quit and save" */
       if (!p_ptr->playing && !p_ptr->is_dead) break;
@@ -2483,14 +2484,14 @@ void play_game(bool new_game)
       
       /* Accidental Death */
       if (p_ptr->playing && p_ptr->is_dead)
-		{
-			/* Mega-Hack -- Allow player to cheat death */
-			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
-			{
-				/* Mark social class, reset age, if needed */
-				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
-
-				/* Increase age */
+	{
+	  /* Mega-Hack -- Allow player to cheat death */
+	  if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
+	    {
+	      /* Mark social class, reset age, if needed */
+	      if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
+	      
+	      /* Increase age */
               p_ptr->age++;
               
               /* Mark savefile */
@@ -2502,13 +2503,13 @@ void play_game(bool new_game)
               
               /* Cheat death */
               p_ptr->is_dead = FALSE;
-
-				/* Restore hit points */
-				p_ptr->chp = p_ptr->mhp;
-				p_ptr->chp_frac = 0;
-
-				/* Restore spell points */
-				p_ptr->csp = p_ptr->msp;
+	      
+	      /* Restore hit points */
+	      p_ptr->chp = p_ptr->mhp;
+	      p_ptr->chp_frac = 0;
+	      
+	      /* Restore spell points */
+	      p_ptr->csp = p_ptr->msp;
               p_ptr->csp_frac = 0;
               
               /* Hack -- Healing */
@@ -2524,9 +2525,9 @@ void play_game(bool new_game)
               
               /* Hack -- Prevent starvation */
               (void)set_food(PY_FOOD_MAX - 1);
-
-				/* Hack -- cancel recall */
-				if (p_ptr->word_recall)
+	      
+	      /* Hack -- cancel recall */
+	      if (p_ptr->word_recall)
                 {
                   /* Message */
                   msg_print("A tension leaves the air around you...");
@@ -2544,18 +2545,18 @@ void play_game(bool new_game)
               
               /* New depth */
               p_ptr->depth = 0;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-		}
-
-		/* Handle "death" */
-		if (p_ptr->is_dead) break;
-
-		/* Make a new level */
-		generate_cave();
+	      
+	      /* Leaving */
+	      p_ptr->leaving = TRUE;
+	    }
 	}
+      
+      /* Handle "death" */
+      if (p_ptr->is_dead) break;
+      
+      /* Make a new level */
+      generate_cave();
+    }
   
   /* Close stuff */
   close_game();

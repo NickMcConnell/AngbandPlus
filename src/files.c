@@ -2366,7 +2366,7 @@ extern int make_dump(char_attr_line *line, int mode)
 	      
 	      /* Check flags */
 	      else if ((f[2] & flag) || 
-		       ((o_ptr->k_idx) && 
+		       ((o_ptr->k_idx) && (o_ptr->ident & IDENT_KNOWN) &&
 			(o_ptr->percent_res[r] != 100)))
 		{
 		  if (o_ptr->percent_res[r] < 100) 
@@ -2770,11 +2770,20 @@ extern int make_dump(char_attr_line *line, int mode)
   i = 0;
   while (notes[i].turn)
     {
-      int length, length_info;
-      int region = stage_map[notes[i].place][LOCALITY];
-      int lev = stage_map[notes[i].place][DEPTH];
+      int length, length_info, region, lev;
       char info_note[43];
       char place[32];
+
+      /* Paranoia */
+      if ((notes[i].place > NUM_STAGES) || (notes[i].level > 50) ||
+	  (notes[i].type > 15))
+	{
+	  i++;
+	  continue;
+	}
+
+      region = stage_map[notes[i].place][LOCALITY];
+      lev = stage_map[notes[i].place][DEPTH];
 
       /* Divider before death */
       if ((notes[i].type == NOTE_DEATH) && (!dead))
@@ -3123,6 +3132,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
   /* Normal screen ? */
   bool old_normal_screen = FALSE;
 
+  /* Show messages first */
+  if (easy_more) messages_easy(FALSE);
+
   /* Record normal screen if it's the first time in */
   if (!push_file) old_normal_screen = normal_screen;
  
@@ -3403,8 +3415,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
       if (push_file == 1) backup_buttons();
       kill_all_buttons();
       normal_screen = FALSE;
-      add_button("[?]", '?');
-      add_button("[ESC]", ESCAPE);
+      add_button("?", '?');
+      add_button("ESC", ESCAPE);
       
       /* Prompt -- menu screen */
       if (menu)
@@ -3454,19 +3466,19 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	    }
 
 	  /* More buttons */
-	  add_button("[Spc]", ' ');
-	  add_button("[-]", '-');
+	  add_button("Spc", ' ');
+	  add_button("-", '-');
 	}
 
       /* Finish the status line */
       prt(prompt, hgt - 1, 0);
       prompt_end = (small_screen ? 0 : strlen(prompt));
-      if (small_screen) add_button("[h]", 'h');
-      add_button("[/]", '/');
-      add_button("[!]", '!');
-      add_button("[=]", '=');
-      if (!menu) add_button("[#]", '#');
-      add_button("[%]", '%');
+      if (small_screen) add_button("h", 'h');
+      add_button("/", '/');
+      add_button("!", '!');
+      add_button("=", '=');
+      if (!menu) add_button("#", '#');
+      add_button("%", '%');
       update_statusline();
 
       /* Get a keypress */
@@ -4013,8 +4025,8 @@ static void make_bones(void)
 	      prt("Information about your character has been saved", 15, 0);
 	      prt("in a bones file.  Would you like to give the", 16, 0);
 	      prt("ghost a special message or description? (yes/no)", 17, 0);
-	      add_button("[Yes]", 'y');
-	      add_button("[No]", 'n');
+	      add_button("Yes", 'y');
+	      add_button("No", 'n');
 	      update_statusline();	
       
 	      answer = inkey_ex();
@@ -4033,9 +4045,9 @@ static void make_bones(void)
 		  /* Buttons */
 		  kill_button('y');
 		  kill_button('n');
-		  add_button("[M]", 'M');
-		  add_button("[D]", 'D');
-		  add_button("[ESC]", ESCAPE);
+		  add_button("M", 'M');
+		  add_button("D", 'D');
+		  add_button("ESC", ESCAPE);
 		  update_statusline();
 		  
 		  while(1)
@@ -4428,8 +4440,8 @@ static void show_info(void)
   /* Buttons */
   backup_buttons();
   kill_all_buttons();
-  add_button("[ESC]", ESCAPE);
-  add_button("[Continue]", 'q');
+  add_button("ESC", ESCAPE);
+  add_button("Continue", 'q');
   update_statusline();
 
   /* Allow abort at this point */
@@ -5325,6 +5337,9 @@ static void close_game_aux(void)
   /* Flush all input keys */
   flush();
 
+  /* Easy more? */
+  if (easy_more) messages_easy(FALSE);
+	
   /* Screen no longer normal */
   normal_screen = FALSE;
 
@@ -5383,13 +5398,13 @@ static void close_game_aux(void)
       
       /* Buttons */
       kill_all_buttons();
-      add_button("[ESC]", ESCAPE);
-      add_button("[x]", 'x');
-      add_button("[m]", 'm');
-      add_button("[i]", 'i');
-      add_button("[t]", 't');
-      add_button("[c]", 'c');
-      add_button("[a]", 'a');
+      add_button("ESC", ESCAPE);
+      add_button("x", 'x');
+      add_button("m", 'm');
+      add_button("i", 'i');
+      add_button("t", 't');
+      add_button("c", 'c');
+      add_button("a", 'a');
       update_statusline();
 
       /* Query */
