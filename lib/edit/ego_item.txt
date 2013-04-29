@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:1.1.4
+V:1.1.5
 
 #N: ego-item index: name (appended to base object description)
 #X: amount the level feeling is increased by: activation index 
@@ -203,7 +203,7 @@ T:34:4:4
 B:RES_ACID[40] | RES_FIRE[-10]
 F:ACID_PROOF
 I:RES_ACID | RES_FIRE 
-D:It's porous surface has been given an acid-resistant (but flammable) coating.
+D:Its porous surface has been given an acid-resistant (but flammable) coating.
 
 N:18:of the Earth
 X:5:0

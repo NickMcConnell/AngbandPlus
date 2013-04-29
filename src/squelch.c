@@ -629,6 +629,9 @@ extern void squelch_drop(void)
       /* Skip non-objects and unsquelchable objects */
       if (!o_ptr->k_idx) continue;
       if (!squelch_item_ok(o_ptr)) continue;
+
+      /* Check for curses */
+      if (o_ptr->flags_curse & (CF_STICKY_CARRY)) continue;
       
       /* Check for !d (no drop) inscription */
       if (!check_for_inscrip(o_ptr, "!d") && !check_for_inscrip(o_ptr, "!*"))

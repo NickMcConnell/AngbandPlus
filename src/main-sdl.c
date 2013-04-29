@@ -2115,6 +2115,8 @@ static errr save_prefs(void)
         file_putf(fff, "Fullscreen = %d\n", fullscreen);
         file_putf(fff, "Graphics = %d\n", use_graphics);
         file_putf(fff, "Bigtile = %d\n\n", use_bigtile);
+        file_putf(fff, "Dbltile = %d\n\n", use_dbltile);
+        file_putf(fff, "Trptile = %d\n\n", use_trptile);
         
         for (i = 0; i < ANGBAND_TERM_MAX; i++)
         {

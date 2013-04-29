@@ -1187,7 +1187,11 @@ static void store_create(void)
       /* Item belongs to a store */
       i_ptr->ident |= IDENT_STORE;
 
-      /* Mega-Hack -- no chests in stores */
+      /* Shown curses are shown */
+      if (i_ptr->flags_obj & OF_SHOW_CURSE) 
+	i_ptr->id_curse = i_ptr->flags_curse;
+
+     /* Mega-Hack -- no chests in stores */
       if (i_ptr->tval == TV_CHEST) continue;
       
       /* Prune the black market */
@@ -2120,6 +2124,10 @@ static void store_sell(void)
       
       /* The object belongs to the store now */
       i_ptr->ident |= IDENT_STORE;
+
+      /* Shown curses are shown */
+      if (i_ptr->flags_obj & OF_SHOW_CURSE) 
+	i_ptr->id_curse = i_ptr->flags_curse;
 
       /* Hack -- If a rod or wand, let the shopkeeper know just 
        * how many charges he really paid for.
@@ -3118,7 +3126,10 @@ void do_cmd_store(void)
 	  /* More commands */
 	  prt(" g) Get/Purchase an item.", 21, 29);
 	  prt(" d) Drop/Sell an item.", 22, 29);
-	  prt("   l) Look at an item.", 21, 55);
+	  if (rogue_like_commands)
+	    prt("   x) Look at an item.", 21, 55);
+	  else
+	    prt("   l) Look at an item.", 21, 55);
 	  if ((st_ptr->type == STORE_MERCH) && 
 	      (which < MAX_STORES_SMALL * NUM_TOWNS_SMALL))
 	    prt("   o) Order an item.", 21, 55);

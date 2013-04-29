@@ -813,6 +813,15 @@ void teleport_player_level(bool friendly)
 	  
 	}
       
+      else if (!stage_map[p_ptr->stage][UP])
+	{
+	  message(MSG_TPLEVEL, 0, "You sink through the floor.");
+	  
+	  /* New stage */
+	  p_ptr->stage = stage_map[p_ptr->stage][DOWN];
+	  
+	}
+      
       else 
 	{
 	  
