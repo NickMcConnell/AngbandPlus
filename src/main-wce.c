@@ -3296,7 +3296,7 @@ static void windows_map_aux(void)
 		}
         }
 
-        /* Hilite the player */
+        /* Hilight the player */
         Term_curs_win(px - min_x, py - min_y);
 }
 
@@ -3611,10 +3611,8 @@ static void init_windows(void)
          */
 
         /* Mega-Hack -- no panel yet */
-        panel_row_min = 0;
-        panel_row_max = 0;
-        panel_col_min = 0;
-        panel_col_max = 0;
+        td->offset_x = 0;
+        td->offset_y = 0;
 
 
         /* Activate the main window */
