@@ -565,13 +565,13 @@ void do_cmd_quaff_potion(void)
     case SV_POTION_RUINATION:
       {
 	msg_print("Your nerves and muscles feel weak and lifeless!");
-	take_hit(damroll(10, 10), "a potion of Ruination");
-	(void)dec_stat(A_DEX, 25, TRUE);
-	(void)dec_stat(A_WIS, 25, TRUE);
-	(void)dec_stat(A_CON, 25, TRUE);
-	(void)dec_stat(A_STR, 25, TRUE);
-	(void)dec_stat(A_CHR, 25, TRUE);
-	(void)dec_stat(A_INT, 25, TRUE);
+	take_hit(damroll(5, 10), "a potion of Ruination");
+	(void)dec_stat(A_DEX, 25, FALSE);
+	(void)dec_stat(A_WIS, 25, FALSE);
+	(void)dec_stat(A_CON, 25, FALSE);
+	(void)dec_stat(A_STR, 25, FALSE);
+	(void)dec_stat(A_CHR, 25, FALSE);
+	(void)dec_stat(A_INT, 25, FALSE);
 	ident = TRUE;
 	break;
       }
@@ -625,7 +625,7 @@ void do_cmd_quaff_potion(void)
     case SV_POTION_DEATH:
       {
 	msg_print("A feeling of Death flows through your body.");
-	take_hit(p_ptr->mhp, "a potion of Death");
+	take_hit(p_ptr->chp, "a potion of Death");
 	ident = TRUE;
 	break;
       }
@@ -3029,14 +3029,14 @@ void do_cmd_zap_rod(void)
 	if (check_ability(SP_BACKSTAB))
 	  {
 	    if (p_ptr->superstealth) 
-	      (void)set_superstealth(p_ptr->superstealth + 30);
-	    else (void)set_superstealth(p_ptr->superstealth + 75);
+	      (void)set_superstealth(p_ptr->superstealth + 30,FALSE);
+	    else (void)set_superstealth(p_ptr->superstealth + 75,TRUE);
 	  }
 	else
 	  {
 	    if (p_ptr->superstealth) 
-	      (void)set_superstealth(p_ptr->superstealth + 20);
-	    else (void)set_superstealth(p_ptr->superstealth + 50);
+	      (void)set_superstealth(p_ptr->superstealth + 20,FALSE);
+	    else (void)set_superstealth(p_ptr->superstealth + 50,TRUE);
 	  }
 	ident = TRUE;
 	break;
@@ -3488,7 +3488,7 @@ void do_cmd_activate(void)
 	    msg_print("You are surrounded by lightning...");
 	    for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3, FALSE);
 	  }
-	o_ptr->timeout = 1000;
+	o_ptr->timeout = 200;
 	break;
       }
     case ACT_BLADETURNER:
@@ -4558,9 +4558,9 @@ void do_cmd_activate(void)
 	  {
 	    if (!get_aim_dir(&dir)) return;
 	    msg_print("You breathe acid.");
-	    fire_arc(GF_ACID, dir, 150, 10, 40);
+	    fire_arc(GF_ACID, dir, (plev/10 + 1) * 45, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(350) + 350;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_BLUE:
@@ -4574,9 +4574,9 @@ void do_cmd_activate(void)
 	  {
 	    if (!get_aim_dir(&dir)) return;
 	    msg_print("You breathe lightning.");
-	    fire_arc(GF_ELEC, dir, 130, 10, 40);
+	    fire_arc(GF_ELEC, dir, (plev/10 + 1) * 40, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(350) + 350;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_WHITE:
@@ -4590,9 +4590,9 @@ void do_cmd_activate(void)
 	  {
 	    if (!get_aim_dir(&dir)) return;
 	    msg_print("You breathe frost.");
-	    fire_arc(GF_COLD, dir, 140, 10, 40);
+	    fire_arc(GF_COLD, dir, (plev/10 + 1) * 45, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(350) + 350;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_RED:
@@ -4606,9 +4606,9 @@ void do_cmd_activate(void)
 	  {
 	    if (!get_aim_dir(&dir)) return;
 	    msg_print("You breathe fire.");
-	    fire_arc(GF_FIRE, dir, 160, 10, 40);
+	    fire_arc(GF_FIRE, dir, (plev/10 + 1) * 50, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(350) + 350;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_GREEN:
@@ -4622,9 +4622,9 @@ void do_cmd_activate(void)
 	  {
 	    if (!get_aim_dir(&dir)) return;
 	    msg_print("You breathe poison gas.");
-	    fire_arc(GF_POIS, dir, 150, 10, 40);
+	    fire_arc(GF_POIS, dir, (plev/10 + 1) * 45, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(350) + 350;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_MULTIHUED:
@@ -4647,9 +4647,9 @@ void do_cmd_activate(void)
 		      ((chance == 2) ? GF_COLD :
 		       ((chance == 3) ? GF_ACID :
 			((chance == 4) ? GF_POIS : GF_FIRE)))),
-		     dir, 190, 10, 40);
+		     dir, (plev/10 + 1) * 60, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(350) + 350;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_SHINING:
@@ -4666,9 +4666,9 @@ void do_cmd_activate(void)
 	    msg_format("You breathe %s.",
 		       ((chance == 0 ? "light" : "darkness")));
 	    fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir, 
-		     160, 10, 40);
+		     (plev/10 + 1) * 50, 10, 40);
 	  }			
-	o_ptr->timeout = rand_int(300) + 300;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_LAW:
@@ -4685,9 +4685,9 @@ void do_cmd_activate(void)
 	    msg_format("You breathe %s.",
 		       ((chance == 1 ? "sound" : "shards")));
 	    fire_arc((chance == 1 ? GF_SOUND : GF_SHARD),
-		     dir, 190, 10, 40);
+		     dir, (plev/10 + 1) * 60, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(300) + 300;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_BRONZE:
@@ -4701,9 +4701,9 @@ void do_cmd_activate(void)
 	  {
 	    if (!get_aim_dir(&dir)) return;
 	    msg_print("You breathe confusion.");
-	    fire_arc(GF_CONFUSION, dir, 130, 10, 40);
+	    fire_arc(GF_CONFUSION, dir, (plev/10 + 1) * 40, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(300) + 300;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_GOLD:
@@ -4717,9 +4717,9 @@ void do_cmd_activate(void)
 	  {
 	    if (!get_aim_dir(&dir)) return;
 	    msg_print("You breathe sound.");
-	    fire_arc(GF_SOUND, dir, 130, 10, 40);
+	    fire_arc(GF_SOUND, dir, (plev/10 + 1) * 40, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(300) + 300;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_CHAOS:
@@ -4736,9 +4736,9 @@ void do_cmd_activate(void)
 	    msg_format("You breathe %s.",
 		       ((chance == 1 ? "chaos" : "disenchantment")));
 	    fire_arc((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-		     dir, 180, 10, 40);
+		     dir, (plev/10 + 1) * 55, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(300) + 300;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_BALANCE:
@@ -4759,9 +4759,9 @@ void do_cmd_activate(void)
 	    fire_arc(((chance == 1) ? GF_CHAOS :
 		      ((chance == 2) ? GF_DISENCHANT :
 		       ((chance == 3) ? GF_SOUND : GF_SHARD))),
-		     dir, 210, 10, 40);
+		     dir, (plev/10 + 1) * 65, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(300) + 300;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
     case ACT_DRAGON_POWER:
@@ -4775,9 +4775,9 @@ void do_cmd_activate(void)
 	  {
 	    if (!get_aim_dir(&dir)) return;
 	    msg_print("You breathe the elements.");
-	    fire_arc(GF_MANA, dir, 240, 10, 40);
+	    fire_arc(GF_MANA, dir, (plev/10 + 1) * 75, 10, 40);
 	  }
-	o_ptr->timeout = rand_int(300) + 300;
+	o_ptr->timeout = rand_int(50) + 50;
 	break;
       }
       
@@ -4811,6 +4811,14 @@ void do_cmd_activate(void)
 	if (!get_aim_dir(&dir)) return;
 	fire_ball(GF_COLD, dir, 45 + 3 * plev / 2, 3, FALSE);
 	(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+	o_ptr->timeout = rand_int(100) + 50;
+	break;
+      }
+    case ACT_RING_POIS:
+      {
+	if (!get_aim_dir(&dir)) return;
+	fire_ball(GF_POIS, dir, 45 + 3 * plev / 2, 3, FALSE);
+	(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
 	o_ptr->timeout = rand_int(100) + 50;
 	break;
       }

@@ -10,7 +10,7 @@
 
 # Version stamp (required)
 
-V:0.3.5
+V:0.3.6
 
 #N: vault index: name
 #X: vault type: increase in level feeling: height of description: 
@@ -1651,7 +1651,7 @@ D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 N:111:Greater Vault (Snake Maze)
-X:7:15:21:23:0:0
+X:9:15:21:23:0:0
 D:%%%%%%%%%%%%%%%%%%%%%%%
 D:%.....................%
 D:%.XXXXXXXXX#XXXXXXXXX.%

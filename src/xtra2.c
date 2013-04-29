@@ -902,7 +902,7 @@ bool set_tim_esp(int v)
 /*
  * Set "p_ptr->superstealth", notice observable changes
  */
-bool set_superstealth(int v)
+bool set_superstealth(int v, bool message)
 {
   bool notice = FALSE;
   
@@ -912,9 +912,9 @@ bool set_superstealth(int v)
   /* Open */
   if (v)
     {
-      if (!p_ptr->superstealth)
+      if (!p_ptr->superstealth) 
 	{
-	  msg_print("You are mantled in shadow from ordinary eyes!");
+	  if (message) msg_print("You are mantled in shadow from ordinary eyes!");
 	  notice = TRUE;
 	}
     }
@@ -922,11 +922,9 @@ bool set_superstealth(int v)
   /* Shut */
   else
     {
-      if ((p_ptr->superstealth) && 
-	  !((check_ability(SP_WOODEN)) && 
-	    (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST))) 
+      if (p_ptr->superstealth) 
 	{
-	  msg_print("You are exposed to common sight once more.");
+	  if (message) msg_print("You are exposed to common sight once more.");
 	  notice = TRUE;
 	}
     }
@@ -938,7 +936,7 @@ bool set_superstealth(int v)
   if (!notice) return (FALSE);
   
   /* Disturb */
-  if (disturb_state) disturb(0, 0);
+  if ((disturb_state) && (message)) disturb(0, 0);
   
   /* Redraw status */
   p_ptr->redraw |= PR_STATUS;
@@ -1953,7 +1951,7 @@ void check_experience(void)
 	  sprintf(buf, "Reached level %d", p_ptr->lev);
 	  
 	  /* Write message */
-	  make_note(buf,  p_ptr->stage, NOTE_LEVEL);
+	  make_note(buf,  p_ptr->stage, NOTE_LEVEL, p_ptr->lev);
 	  
 	}
       
@@ -2342,7 +2340,7 @@ void monster_death(int m_idx)
 			 sizeof (note2));
 	}
       
-      make_note(note2, p_ptr->stage, NOTE_UNIQUE);
+      make_note(note2, p_ptr->stage, NOTE_UNIQUE, p_ptr->lev);
     }
   
   /* Only process "Quest Monsters" */
@@ -2451,7 +2449,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
   /* Hack - Cancel any special player stealth magics. */
   if (p_ptr->superstealth)
     {
-      set_superstealth(0);
+      set_superstealth(0,TRUE);
     }
   
   /* Complex message. Moved from melee and archery, now allows spell and 

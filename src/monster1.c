@@ -2387,7 +2387,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
   
   /* Paranoia. */
   if (!(r_ptr->flags2 & (RF2_PLAYER_GHOST))) return (TRUE);
-  
+#if 0 /* Fix player ghost bug */ 
   /* Hack -- If the ghost has a sex, then it 
    * must already have been prepared. */
   if ((r_ptr->flags1 & RF1_MALE) || (r_ptr->flags1 & RF1_FEMALE))
@@ -2398,7 +2398,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
       /* Nothing more to do. */
       return (TRUE);
     }
-  
+#endif 
   /* Hack -- No easy player ghosts, unless the ghost is from a savefile.  
    * This also makes player ghosts much rarer, and effectively (almost) 
    * prevents more than one from being on a level.

@@ -1145,22 +1145,10 @@ static void new_player_spot(void)
 	      /* Accept stairs going the right way or floors. */
 	      if (p_ptr->create_stair)
 		{
-		  /* Accept down stairs */
+		  /* Accept correct stairs */
 		  if (cave_feat[y][x] == p_ptr->create_stair) break;
 		  
-		  /* Accept floors, build down stairs. */
-		  if (cave_naked_bold(y, x))
-		    {
-		      cave_set_feat(y, x, p_ptr->create_stair);
-		      break;
-		    }
-		}
-	      else
-		{
-		  /* Accept up stairs */
-		  if (cave_feat[y][x] == p_ptr->create_stair) break;
-		  
-		  /* Accept floors, build up stairs. */
+          /* Accept floors, build correct stairs. */
 		  if (cave_naked_bold(y, x))
 		    {
 		      cave_set_feat(y, x, p_ptr->create_stair);
@@ -1268,6 +1256,11 @@ static void place_random_stairs(int y, int x)
 static void alloc_stairs(int feat, int num, int walls)
 {
   int y, x, i, j;
+  bool no_down_shaft = (!stage_map[stage_map[p_ptr->stage][DOWN]][DOWN] ||
+            is_quest(stage_map[p_ptr->stage][DOWN]) ||
+            is_quest(p_ptr->stage));
+  bool no_up_shaft = (!stage_map[stage_map[p_ptr->stage][UP]][UP]);
+
   
   /* Place "num" stairs */
   for (i = 0; i < num; i++)
@@ -1300,12 +1293,18 @@ static void alloc_stairs(int feat, int num, int walls)
 	  
 	  /* Require a certain number of adjacent walls */
 	  if (next_to_walls(y, x) < walls) continue;
+
+      /* If we've asked for a shaft and they're forbidden, fail */
+      if (no_down_shaft && (feat == FEAT_MORE_SHAFT))
+        return;
+      if (no_up_shaft && (feat == FEAT_LESS_SHAFT))
+        return;
 	  
 	  /* Town -- must go down */
 	  if (!p_ptr->depth)
 	    {
 	      /* Clear previous contents, add down stairs */
-	      cave_set_feat(y, x, FEAT_MORE);
+          if (feat != FEAT_MORE_SHAFT) cave_set_feat(y, x, FEAT_MORE);
 	    }
 	  
 	  /* Bottom of dungeon, quest or underworld -- must go up */
@@ -1313,7 +1312,7 @@ static void alloc_stairs(int feat, int num, int walls)
 		   || (underworld))
 	    {
 	      /* Clear previous contents, add up stairs */
-	      cave_set_feat(y, x, FEAT_LESS);
+	      if (feat != FEAT_LESS_SHAFT) cave_set_feat(y, x, FEAT_LESS);
 	    }
 	  
 	  /* Requested type */
@@ -7273,6 +7272,12 @@ static void cave_gen(void)
   
   /* Place 1 or 2 up stairs near some walls */
   alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
+
+  /* Place 2 or 3 down shafts near some walls */
+  alloc_stairs(FEAT_MORE_SHAFT, rand_range(2, 3), 3);
+  
+  /* Place 1 or 2 up stairs near some walls */
+  alloc_stairs(FEAT_LESS_SHAFT, rand_range(1, 2), 3);
   
   /* Determine the character location */
   new_player_spot();
@@ -7542,11 +7547,15 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
       if ((all_feat[i] >= FEAT_MAGMA) && (all_feat[i] <= FEAT_PERM_SOLID))
 	cave_info[ty][tx] |= (CAVE_WALL);
       
-      /* Choose a random step for next feature */
+      /* Choose a random step for next feature, try to keep going */
       terrain = rand_int(8) + 1;
       if (terrain > 4) terrain++;
+      for (j = 0; j < 100; j++)
+    {
       ty += ddy[terrain];
       tx += ddx[terrain];
+      if (!(cave_info[ty][tx] & (CAVE_ICKY))) break;
+    }
       
       /* Count */
       total++;
@@ -7684,7 +7693,7 @@ static void plain_gen(void)
     }
   
   /* Place some formations */
-  while (form_grids < (150 * p_ptr->depth + 1000)) 
+  while (form_grids < (50 * p_ptr->depth + 1000))
     {
       /* Set the "vault" type */
       wild_type = ((rand_int(5) == 0) ? 26 : 14);
@@ -7693,7 +7702,7 @@ static void plain_gen(void)
       y = rand_int(DUNGEON_HGT - 1) + 1;
       x = rand_int(DUNGEON_WID - 1) + 1;
       form_grids += make_formation(y, x, FEAT_GRASS, FEAT_GRASS, form_feats, 
-				   p_ptr->depth + 1);
+				   p_ptr->depth * 2);
     }
   
   /* And some water */
@@ -8588,7 +8597,7 @@ static void forest_gen(void)
   
   
   /* Place some formations */
-  while (form_grids < (150 * p_ptr->depth + 1000)) 
+  while (form_grids < (50 * p_ptr->depth + 1000))
     {
       /* Set the "vault" type */
       wild_type = ((rand_int(5) == 0) ? 26 : 18);
@@ -9329,7 +9338,7 @@ static void river_gen(void)
       /* Remember the midpoint */
       mid[y] = i;
 
-      for (x = i - rand_int(5) - 5; x < i + rand_int(5) + 5; x++)
+      for (x = i - rand_int(5) - 10; x < i + rand_int(5) + 10; x++)
 	{
 	  /* Make the river */
 	  cave_set_feat(y, x, FEAT_WATER);
@@ -9397,7 +9406,7 @@ static void river_gen(void)
     }
   
   /* Place some formations */
-  while (form_grids < 200 * p_ptr->depth) 
+  while (form_grids < 50 * p_ptr->depth + 1000) 
     {
       /* Set the "vault" type */
       wild_type = ((rand_int(5) == 0) ? 26 : 24);
@@ -9407,7 +9416,7 @@ static void river_gen(void)
       x = rand_int(DUNGEON_WID - 1) + 1;
 
       form_grids += make_formation(y, x, FEAT_GRASS, FEAT_GRASS, form_feats, 
-				   p_ptr->depth);
+				   p_ptr->depth/2);
     }
 
   /* No longer "icky"  */

@@ -3643,7 +3643,7 @@ static void init_paths(void)
 	}
 
 	/* Done */
-	my_dclose(dir);
+	//my_dclose(dir);
 }
 
 

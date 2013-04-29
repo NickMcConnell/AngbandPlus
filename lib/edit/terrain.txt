@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.3.5
+V:0.3.6
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol
@@ -83,6 +83,20 @@ N:7:down staircase
 G:>:w
 F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING | TF_STAIR
 D:A staircase down to a deeper part of the dungeon.
+
+# 0x08 --> up shaft (perm)
+
+N:8:up shaft
+G:<:s
+F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING | TF_STAIR
+D:A staircase up to a much shallower part of the dungeon.
+
+# 0x09 --> down shaft (perm)
+
+N:9:down shaft
+G:>:s
+F:TF_LOS | TF_PROJECT | TF_PASSABLE | TF_PERMANENT | TF_INTERESTING | TF_STAIR
+D:A staircase down to a much deeper part of the dungeon.
 
 # 0x1* - player traps -- trap door.  Level 2 and below.
 # This location is hard-coded, to prevent trap doors on quest levels.
@@ -870,11 +884,15 @@ F:TF_LOS | TF_PROJECT
 D:Empty space - only flying creatures can pass across without falling.  All 
 D:spells and missiles can pass through.
 
+# 0x78 --> special feature -- trapped tree
+
 N:120:invisible trap
 G:+:g
 M:114
 F:TF_PASSABLE | TF_TRAP_INVIS | TF_TREE 
 D:A tree which can hurt.
+
+# 0x79 --> special feature -- trapped tree
 
 N:121:invisible trap
 G:+:g1

@@ -44,6 +44,7 @@
 #include "ui.h"
 #include "z-type.h"
 
+extern void nds_fatal_err(const char *);
 
 /***** Some older copyright messages follow below *****/
 

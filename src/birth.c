@@ -803,6 +803,26 @@ static void object_upgrade(object_type *o_ptr)
       if (o_ptr->name2)
 	{
 	  ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+      switch (o_ptr->name2)
+	  { 
+	    case EGO_NOGROD:
+		{
+	  	  /* Nogrod weapons have an extra dice and are light */
+		  if (((o_ptr->dd + 1) * o_ptr->ds) < 41)
+		  {
+		    o_ptr->dd += 1; 
+		  }
+		  else
+		  {
+		    /* if we can't get an extra dice then weapon is even lighter */
+		    o_ptr->weight = (5 * o_ptr->weight / 6);
+		  }
+
+		  o_ptr->weight = (4 * o_ptr->weight / 5);
+	      break;
+		}
+	  }
 	  
 	  for (i = 0; i < MAX_P_RES; i++)
 	    {
@@ -2163,6 +2183,8 @@ static void player_birth_aux(void)
   cptr prompt;
   birth_stages state = BIRTH_QUESTIONS;
 
+  if (character_quickstart) state = BIRTH_STATS;
+
   if (small_screen)
    prompt = "['ESC' step back, 'S' restart, any key continue]";
   else
@@ -2286,7 +2308,8 @@ void player_birth(void)
 #endif
       
   /* Wipe the player properly */
-  player_wipe(TRUE);
+/*  player_wipe(TRUE); */
+  player_wipe(!character_quickstart);
   
   /* Create a new character */
   player_birth_aux();

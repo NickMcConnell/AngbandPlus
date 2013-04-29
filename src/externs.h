@@ -122,6 +122,7 @@ extern bool arg_monochrome;
 extern bool arg_force_original;
 extern bool arg_force_roguelike;
 extern bool game_start;
+extern bool character_quickstart;
 extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
@@ -360,6 +361,9 @@ extern int prompt_end;
 extern bool normal_screen;
 extern int (*add_button_hook)(char *label, unsigned char keypress);
 extern int (*kill_button_hook)(unsigned char keypress);
+extern void (*kill_all_buttons_hook)(void);
+extern void (*backup_buttons_hook)(void);
+extern void (*restore_buttons_hook)(void);
 
 /*
  * Automatically generated "function declarations"
@@ -420,7 +424,9 @@ extern void run_step(int dir);
 
 
 /* dungeon.c */
-int value_check_aux1(const object_type *o_ptr);
+extern int value_check_aux1(const object_type *o_ptr);
+/* SJGU */
+extern int value_check_aux2(const object_type *o_ptr);
 extern void play_game(bool new_game);
 
 /* files.c */
@@ -578,7 +584,7 @@ extern void show_floor(int *floor_list, int floor_num);
 extern bool get_item_floor(int *cp, cptr pmt, cptr str, int mode);
 extern cptr object_adj(int tval, int sval);
 extern bool check_set(byte s_idx);
-extern void apply_set(int s_idx);
+extern void apply_set(int s_idx, bool load);
 extern void remove_set(int s_idx);
 
 /* object2.c */
@@ -679,6 +685,7 @@ extern bool warding_glyph(void);
 extern bool do_dec_stat(int stat);
 extern bool do_res_stat(int stat);
 extern bool do_inc_stat(int stat, bool star);
+extern void identify_object(object_type *o_ptr);
 extern void identify_pack(void);
 extern bool remove_curse(void);
 extern bool remove_all_curse(void);
@@ -793,6 +800,9 @@ extern errr macro_trigger_free(void);
 extern void flush(void);
 extern int add_button_text(char *label, unsigned char keypress);
 extern int kill_button_text(unsigned char keypress);
+extern void kill_all_buttons_text(void);
+extern void backup_buttons_text(void);
+extern void restore_buttons_text(void);
 extern int add_button(char *label, unsigned char keypress);
 extern void backup_buttons(void);
 extern void restore_buttons(void);
@@ -912,7 +922,7 @@ extern bool set_protevil(int v);
 extern bool set_extra_defences(int v);
 extern bool set_tim_invis(int v);
 extern bool set_tim_esp(int v);
-extern bool set_superstealth(int v);
+extern bool set_superstealth(int v, bool message);
 extern bool set_tim_infra(int v);
 extern bool set_oppose_acid(int v);
 extern bool set_oppose_elec(int v);

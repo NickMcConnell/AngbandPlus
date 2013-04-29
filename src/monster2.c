@@ -1850,37 +1850,34 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
   /* Place the monster in the dungeon */
   if (!monster_place(y, x, n_ptr)) return (FALSE);
   
-  /* Monster generation messages for cheaters */
-  if (cheat_hear)
+    /* Deep unique monsters */
+    if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
+        (r_ptr->level > p_ptr->depth))
     {
-      /* Deep unique monsters */
-      if ((r_ptr->flags1 & (RF1_UNIQUE)) && 
-	  (r_ptr->level > p_ptr->depth))
-	{
-	  /* Message */
-	  msg_format("Deep Unique (%s).", name);
-	  
-	  /* Boost rating by twice delta-depth */
-	  rating += (r_ptr->level - p_ptr->depth) * 2;
-	}
-      
-      /* Note any unique monster, even if not out of depth */
-      else if (r_ptr->flags1 & (RF1_UNIQUE))
-	{
-	  /* Message */
-	  msg_format("Unique (%s).", name);
-	}
-      
-      /* Deep normal monsters */
-      else if (r_ptr->level > p_ptr->depth + 2)
-	{
-	  /* Message */
-	  msg_format("Deep Monster (%s).", name);
-	  
-	  /* Boost rating by delta-depth */
-	  rating += (r_ptr->level - p_ptr->depth);
-	}
+        /* Message */
+        if (cheat_hear) msg_format("Deep Unique (%s).", name);
+
+        /* Boost rating by twice delta-depth */
+        rating += (r_ptr->level - p_ptr->depth) * 2;
     }
+
+    /* Note any unique monster, even if not out of depth */
+    else if (r_ptr->flags1 & (RF1_UNIQUE))
+    {
+        /* Message */
+        if (cheat_hear) msg_format("Unique (%s).", name);
+    }
+
+    /* Deep normal monsters */
+    else if (r_ptr->level > p_ptr->depth + 4)
+    {
+        /* Message */
+        if (cheat_hear) msg_format("Deep Monster (%s).", name);
+
+        /* Boost rating by a function of delta-depth */
+        rating += ((r_ptr->level - p_ptr->depth) * (r_ptr->level - p_ptr->depth)) / 25;
+    }
+
   
   /* Success */
   return (TRUE);

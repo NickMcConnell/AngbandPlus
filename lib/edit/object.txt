@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.3.5
+V:0.3.6
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -781,7 +781,7 @@ G:/:s
 I:22:25:0
 W:50:0:200:1000
 A:50/1
-P:0:5d4:0:0:0
+P:0:4d5:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:An enormous two-handed battle axe, carried by Dwarven champions, who 
 D:compete to see who can cleave the most orc heads.
@@ -889,7 +889,7 @@ G:{:s
 I:16:1:0
 W:1:0:1:1
 A:1/1:30/2
-P:0:1d5:0:0:0
+P:0:2d3:0:0:0
 F:SHOW_MODS
 D:A grapestone-shaped slug of lead, the right heft for hurling from a sling.
 
@@ -898,7 +898,7 @@ G:{:y
 I:16:2:0
 W:40:0:2:10
 A:40/2:65/1
-P:0:1d7:0:0:0
+P:0:3d2:0:0:0
 F:SHOW_MODS
 D:A massive slug of lead that sinks deeply into its target.
 
@@ -911,7 +911,7 @@ G:{:U
 I:17:1:0
 W:3:0:1:2
 A:3/1:15/1:55/2
-P:0:1d6:0:0:0
+P:0:2d4:0:0:0
 F:SHOW_MODS
 D:A standard clothyard arrow, straight and cleanly fletched.
 
@@ -920,7 +920,7 @@ G:{:G
 I:17:2:0
 W:55:0:1:15
 A:55/2:80/1
-P:0:1d9:0:0:0
+P:0:3d3:0:0:0
 F:SHOW_MODS
 D:Carved from a rare wood, this arrow is inscribed with fell runes 
 D:and fletched with eagle feathers.
@@ -934,7 +934,7 @@ G:{:s
 I:18:1:0
 W:3:0:2:3
 A:3/1:25/1:65/2
-P:0:1d7:0:0:0
+P:0:2d5:0:0:0
 F:SHOW_MODS
 D:A short, heavy arrow shot from a crossbow.
 
@@ -943,7 +943,7 @@ G:{:B
 I:18:2:0
 W:65:0:2:20
 A:65/2:85/1
-P:0:1d11:0:0:0
+P:0:3d4:0:0:0
 F:SHOW_MODS
 D:A mighty quarrel, bound about with battle magics.
 
@@ -1386,65 +1386,65 @@ D:An exquisite suit of nearly impenetrable adamantite.
 
 N:213:Black Dragon Scale Mail~
 G:[:s1
-I:38:1:0
+I:38:1:1
 W:50:0:200:30000
 A:50/8
 P:30:2d4:-2:0:10
-F:RES_ACID | 
+F:RES_ACID | SPEED |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of utterly black scales, against which no metal or wood can rest.  ~
 
 N:214:Blue Dragon Scale Mail~
 G:[:b
-I:38:2:0
+I:38:2:1
 W:50:0:200:30000
 A:50/8
 P:30:2d4:-2:0:10
-F:RES_ELEC | 
+F:RES_ELEC | SPEED |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales as blue as sapphires, emitting eerie sparks and coronas as 
 D:you move about in it.  ~
 
 N:215:White Dragon Scale Mail~
 G:[:w
-I:38:3:0
+I:38:3:1
 W:50:0:200:30000
 A:50/8
 P:30:2d4:-2:0:10
-F:RES_COLD | 
+F:RES_COLD | SPEED |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, coldly gleaming in frosty white.  A shiver runs down through 
 D:your spine even as you look at it.  ~
 
 N:216:Red Dragon Scale Mail~
 G:[:R
-I:38:4:0
+I:38:4:1
 W:50:0:200:70000
 A:50/8
 P:30:2d4:-2:0:10
-F:RES_FIRE | 
+F:RES_FIRE | SPEED | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, with all the reds of every fire ever lit.  The scar tissue 
 D:from an old burn aches as you put this armour on.  ~
 
 N:217:Green Dragon Scale Mail~
 G:[:g
-I:38:5:0
+I:38:5:1
 W:60:0:200:80000
 A:60/8
 P:30:2d4:-2:0:10
-F:RES_POIS | 
+F:RES_POIS | SPEED | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, glistening in sickly green, out from which falls the 
 D:skeleton of a rat who touched it and died in agony.  ~
 
 N:218:Multi-Hued Dragon Scale Mail~
 G:[:v
-I:38:6:0
+I:38:6:1
 W:75:0:200:120000
 A:75/16
 P:30:2d4:-2:0:10
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | SPEED | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales that throbs with angry energies; it takes all your energy 
 D:to master the Elements fighting an endless war trapped inside.  ~
@@ -1453,11 +1453,11 @@ D:to master the Elements fighting an endless war trapped inside.  ~
 
 N:220:Shining Dragon Scale Mail~
 G:[:o
-I:38:10:0
+I:38:10:1
 W:65:0:200:45000
 A:65/12
 P:30:2d4:-2:0:10
-F:RES_LITE | RES_DARK |
+F:RES_LITE | RES_DARK | SPEED |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales shining like a beacon of Light even as it greedily sucks 
 D:the energy away from everything that glows into Dark insatiate.  ~
@@ -1466,11 +1466,11 @@ D:the energy away from everything that glows into Dark insatiate.  ~
 
 N:222:Law Dragon Scale Mail~
 G:[:B
-I:38:12:0
+I:38:12:1
 W:80:0:200:55000
 A:80/12
 P:30:2d4:-2:0:10
-F:RES_SOUND | RES_SHARD | 
+F:RES_SOUND | RES_SHARD | SPEED | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales in stern blue and silver.  You feel the slightest tremor 
 D:as you touch it, like massed trumpets heard and cyclones felt from afar.  ~
@@ -1479,11 +1479,11 @@ D:as you touch it, like massed trumpets heard and cyclones felt from afar.  ~
 
 N:224:Bronze Dragon Scale Mail~
 G:[:U1
-I:38:14:0
+I:38:14:1
 W:55:0:200:30000
 A:55/8
 P:30:2d4:-2:0:10
-F:RES_CONFU | 
+F:RES_CONFU | SPEED | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, gleaming in rich engraved bronze.  The more you look at the 
 D:the maze of whorls and lines that close inspection reveal on its surface, 
@@ -1491,11 +1491,11 @@ D:the less sense you are able to make of them.  ~
 
 N:225:Gold Dragon Scale Mail~
 G:[:y
-I:38:16:0
+I:38:16:1
 W:60:0:200:30000
 A:60/8
 P:30:2d4:-2:0:10
-F:RES_SOUND | 
+F:RES_SOUND | SPEED | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales in mirror-like gold.  You hear nothing unusual as you 
 D:wear this armour, yet your ears ache as though in the midst of a 
@@ -1505,22 +1505,22 @@ D:cacophony.  ~
 
 N:227:Chaos Dragon Scale Mail~
 G:[:v
-I:38:18:0
+I:38:18:1
 W:75:0:200:70000
 A:75/14
 P:30:2d4:-2:0:10
-F:RES_CHAOS | RES_DISEN | 
+F:RES_CHAOS | RES_DISEN | SPEED | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales.  Every shape, in every color imaginable, riot and 
 D:contend upon its surface as you stare in fascination.  ~
 
 N:228:Balance Dragon Scale Mail~
 G:[:v
-I:38:20:0
+I:38:20:1
 W:90:0:200:100000
 A:90/14
 P:30:2d4:-2:0:10
-F:RES_SOUND | RES_SHARD | RES_CHAOS | RES_DISEN | 
+F:RES_SOUND | RES_SHARD | RES_CHAOS | RES_DISEN | SPEED | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales.  Featureless grey to casual inspection, yet a closer look 
 D:reveals patterns within patterns of iridescence that throb with leashed 
@@ -1528,13 +1528,13 @@ D:energies bound as though by chains of adamant.  ~
 
 N:229:Power Dragon Scale Mail~
 G:[:v
-I:38:30:0
+I:38:30:1
 W:105:0:200:300000
 A:105/36
 P:40:2d4:-3:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
-F:RES_SOUND | RES_SHARD | 
+F:RES_SOUND | RES_SHARD | RES_DISEN | RES_CONFU | SPEED | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit with scales of every color, surrounded in a nimbus of perfectly 
 D:untramelled yet inextricably intermingled and utterly mastered powers 
@@ -1806,29 +1806,25 @@ A:10/2
 F:RES_COLD | IGNORE_COLD | EASY_KNOW
 D:that protects you from frost.
 
-N:270:Sustain Str & Chr
+N:270:Physical Endurance
 G:=:d
-I:45:10:0
-W:38:0:2:500
+I:45:10:1
+W:38:0:2:1000
 A:38/2
-F:SUST_STR | SUST_CHR | EASY_KNOW
-D:that sustains your strength and charisma.
+F:SUST_STR | SUST_DEX | SUST_CON | 
+F:STR | DEX | CON | EASY_KNOW
+D:that provides physical endurance.
 
-N:271:Sustain Int & Wis
+N:271:Mental Strength
 G:=:d
-I:45:11:0
-W:38:0:2:500
+I:45:11:1
+W:38:0:2:1000
 A:38/2
-F:SUST_INT | SUST_WIS | EASY_KNOW
-D:that sustains your intelligence and wisdom.
+F:SUST_INT | SUST_WIS | SUST_CHR |
+F:INT | WIS | CHR | EASY_KNOW
+D:that provides mental strength.
 
-N:272:Sustain Dex & Con
-G:=:d
-I:45:12:0
-W:38:0:2:500
-A:38/2
-F:SUST_DEX | SUST_CON | EASY_KNOW
-D:that sustains your dexterity and constitution.
+## XXX 272 XXX ##
 
 N:273:Nether Resistance
 G:=:d
@@ -1838,12 +1834,12 @@ A:55/2
 F:RES_NETHR | EASY_KNOW
 D:that provides resistance to nether forces.
 
-N:274:Light and Dark Resistance
+N:274:the Dawn
 G:=:d
 I:45:14:0
-W:60:0:2:4000
-A:60/2
-F:RES_LITE | RES_DARK | EASY_KNOW
+W:40:0:2:3000
+A:40/2
+F:RES_LITE | RES_DARK | SEEING | EASY_KNOW
 D:that calls a truce around you between the powers of Dark and Light.
 
 N:275:Electricity
@@ -1852,7 +1848,7 @@ I:45:15:0
 W:65:0:2:7000
 A:65/3
 P:0:0d0:0:0:15
-F:RES_ELEC | ACTIVATE
+F:RES_ELEC | IGNORE_ELEC | BRAND_ELEC | ACTIVATE
 D:with an aura of electric protection that may sometimes be temporarily 
 D:enhanced.  It may also cast lightning balls~.
 
@@ -1870,7 +1866,7 @@ I:45:17:0
 W:65:0:2:7000
 A:65/3
 P:0:0d0:0:0:15
-F:RES_ACID | IGNORE_ACID | ACTIVATE
+F:RES_ACID | IGNORE_ACID | BRAND_ACID | ACTIVATE
 D:with an aura of acidic protection that may sometimes be temporarily 
 D:enhanced.  It may also cast acid balls~.
 
@@ -1880,7 +1876,7 @@ I:45:18:0
 W:65:0:2:7000
 A:65/3
 P:0:0d0:0:0:15
-F:RES_FIRE | IGNORE_FIRE | ACTIVATE
+F:RES_FIRE | IGNORE_FIRE | BRAND_FIRE | ACTIVATE
 D:with an aura of fiery protection that may sometimes be temporarily 
 D:enhanced.  It may also cast fire balls~.
 
@@ -1890,7 +1886,7 @@ I:45:19:0
 W:65:0:2:7000
 A:65/3
 P:0:0d0:0:0:15
-F:RES_COLD | IGNORE_COLD | ACTIVATE
+F:RES_COLD | IGNORE_COLD | BRAND_COLD | ACTIVATE
 D:with an aura of frosty protection that may sometimes be temporarily 
 D:enhanced.  It may also cast cold balls~.
 
@@ -1934,7 +1930,15 @@ A:36/1
 F:STR | HIDE_TYPE
 D:that affects your strength.
 
-## XXX 285 XXX ##
+N:285:Venom
+G:=:d
+I:45:25:0
+W:65:0:2:7000
+A:65/3
+P:0:0d0:0:0:15
+F:RES_POIS | BRAND_POIS | ACTIVATE
+D:with an aura of poisonous protection that may sometimes be temporarily 
+D:enhanced.  It may also cast poison balls~.
 
 N:286:Dexterity
 G:=:d
@@ -2006,9 +2010,9 @@ G:=:d
 I:45:40:0
 W:80:0:2:20000
 A:80/5
-F:SPEED
+F:SPEED | RAND_RES_XTRA
 D:forged by the Noldor of Eregion; it grants speed as well as a 
-D:hidden power or resistance.
+D:hidden power and resistances.
 
 N:301:Warfare
 G:=:d
@@ -2114,7 +2118,7 @@ D:that can turn you into the king of beasts.
 
 N:313:Sustenance
 G:":d
-I:40:9:0
+I:40:21:0
 W:60:0:3:17500
 A:60/6
 F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | 
@@ -2122,7 +2126,15 @@ F:HOLD_LIFE | SLOW_DIGEST | EASY_KNOW |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:that sustains your life and stats.
 
-## XXX 314 XXX ##
+N:314:Trickery
+G:":d
+I:40:20:1
+W:70:0:3:30000
+A:70/8
+F:DEX | SUST_DEX | STEALTH | SPEED | SEARCH | 
+F:INFRA | RES_NEXUS_40 | RES_POIS_40 |
+F:HIDE_TYPE
+D:that makes you tricky.
 
 ## XXX 315 XXX ##
 
@@ -3109,7 +3121,7 @@ D:that duplicates most foes.
 N:458:Teleport Away
 G:-:d
 I:65:3:8
-W:35:0:10:1750
+W:25:0:10:1750
 A:25/3
 P:0:1d1:0:0:0
 D:that teleports foes away.
@@ -3461,7 +3473,7 @@ D:that can teleport you across the dungeon.
 N:505:Perception
 G:_:d
 I:55:5:20
-W:10:0:50:350
+W:10:0:50:300
 A:10/1
 P:0:1d2:0:0:0
 D:that provides basic information about any object.
@@ -3781,8 +3793,8 @@ D:that reveals doors and stairs.
 N:570:Perception
 G:-:d
 I:66:2:10
-W:55:0:15:13000
-A:55/6
+W:30:0:15:2000
+A:30/1
 P:0:1d1:0:0:0
 D:that provides basic information about any object.
 
@@ -4998,6 +5010,12 @@ F:INSTA_ART
 
 ## XXX 754 XXX ##
 
+# The Amulet of Denethor -- see artifact list
 
+N:754:& Amulet~
+G:":b
+I:40:22:0
+W:30:0:3:25000
+F:INSTA_ART
 
 

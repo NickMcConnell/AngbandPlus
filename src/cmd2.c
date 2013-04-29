@@ -75,7 +75,7 @@ void do_cmd_move_house(void)
       sprintf(buf, "Moved house to %s.", town);
       
       /* Write message */
-      make_note(buf,  p_ptr->stage, NOTE_MOVE);
+      make_note(buf,  p_ptr->stage, NOTE_MOVE, p_ptr->lev);
       
     }
   else
@@ -106,17 +106,14 @@ void do_cmd_go_up(void)
       return;
     }
   /* Even for < */
-  else if ((pstair != FEAT_LESS) && (pstair != FEAT_MORE) && (pstair & 0x01))
+  else if (pstair & 0x01)
+    {
+      if (pstair > FEAT_TRAP_HEAD)
     {
       msg_print("This is a path to greater danger.");
       return;
     }
-
-  else
-    {
-      
-      /* Verify stairs */
-      if (pstair == FEAT_MORE)
+      else
 	{
 	  msg_print("This staircase leads down.");
 	  return;
@@ -163,6 +160,14 @@ void do_cmd_go_up(void)
       /* make the way back */
       p_ptr->create_stair = FEAT_MORE;
     }
+  else if (pstair == FEAT_LESS_SHAFT)
+    {
+      /* shaft */
+      message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
+
+      /* make the way back */
+      p_ptr->create_stair = FEAT_MORE_SHAFT;
+    }
   else
     {
       /* path */
@@ -178,6 +183,8 @@ void do_cmd_go_up(void)
   /* New stage (really need a check here...) */
   if (pstair >= FEAT_LESS_NORTH)
     p_ptr->stage = stage_map[p_ptr->stage][2 + (pstair - FEAT_LESS_NORTH)/2];
+  else if (pstair == FEAT_LESS_SHAFT)
+    p_ptr->stage = stage_map[stage_map[p_ptr->stage][UP]][UP];
   else
     p_ptr->stage = stage_map[p_ptr->stage][UP];
 
@@ -198,26 +205,6 @@ void do_cmd_go_up(void)
     p_ptr->path_coord = py;
   else
     p_ptr->path_coord = px;
-  
-  /* Use the "simple" RNG to insure that stairs are consistant. */
-  Rand_quick = TRUE;
-  
-  /* Use the coordinates of the staircase to seed the RNG. */
-  Rand_value = py * px;
-  
-  /* If the new level is not a quest level, or the town, or wilderness
-   * there is a 33% chance of going up another level. -LM- -NRM-
-   */
-  if ((is_quest(p_ptr->stage) == FALSE) && (stage_map[p_ptr->stage][UP])
-      && (stage_map[p_ptr->stage][DEPTH] != 0) && (randint(3) == 1)
-      && (pstair == FEAT_LESS))
-    {
-      if (get_check("The stairs continue up.  Go up another level?"))
-	p_ptr->stage = stage_map[p_ptr->stage][UP];
-    }
-  
-  /* Revert to use of the "complex" RNG. */
-  Rand_quick = FALSE;
   
   /* Set the depth */
   p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
@@ -245,17 +232,14 @@ void do_cmd_go_down(void)
       return;
     }
   /* Odd for > */
-  else if ((pstair != FEAT_LESS) && (pstair != FEAT_MORE) && !(pstair & 0x01))
+  else if (!(pstair & 0x01))
+    {
+      if (pstair > FEAT_TRAP_HEAD) 
     {
       msg_print("This is a path to less danger.");
       return;
     }
-    
-  else
-    {
-      
-      /* Verify stairs */
-      if (pstair == FEAT_LESS)
+      else
 	{
 	  msg_print("This staircase leads up.");
 	  return;
@@ -330,6 +314,17 @@ void do_cmd_go_down(void)
       /* make the way back */
       p_ptr->create_stair = FEAT_LESS;
     }
+  else if (pstair == FEAT_MORE_SHAFT)
+    {
+      /* stairs */
+      message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
+
+      /* New stage */
+      p_ptr->stage = stage_map[stage_map[p_ptr->stage][DOWN]][DOWN];
+      
+      /* make the way back */
+      p_ptr->create_stair = FEAT_LESS_SHAFT;
+    }
   else
     {
       /* New stage */
@@ -368,26 +363,6 @@ void do_cmd_go_down(void)
     p_ptr->path_coord = py;
   else
     p_ptr->path_coord = px;
-  
-  
-  /* Use the "simple" RNG to insure that stairs are consistant. */
-  Rand_quick = TRUE;
-  
-  /* Use the coordinates of the staircase to seed the RNG. */
-  Rand_value = py * px;
-  
-  /* If the new level is not a quest level, or the bottom of the dungeon,
-   * there is a 50% chance of descending another level. -LM-
-   */
-  if ((is_quest(p_ptr->stage) == FALSE) && (stage_map[p_ptr->stage][DOWN])
-      && (randint(2) == 1) && (pstair == FEAT_MORE))
-    {
-      if (get_check("The stairs continue down.  Go down another level?"))
-	p_ptr->stage = stage_map[p_ptr->stage][DOWN];
-    }
-  
-  /* Revert to use of the "complex" RNG. */
-  Rand_quick = FALSE;
   
   /* Set the depth */
   p_ptr->depth = stage_map[p_ptr->stage][DEPTH];

@@ -834,7 +834,7 @@ int add_button(char *label, unsigned char keypress)
 /* 
  * Make a backup of thr current buttons
  */
-void backup_buttons(void)
+void backup_buttons_text(void)
 {
   /* Check we haven't already done this */
   if (backup_button[0].key) return;
@@ -843,11 +843,16 @@ void backup_buttons(void)
   (void)C_COPY(backup_button, mse_button, MAX_MOUSE_BUTTONS, mouse_button);
 }
 
+void backup_buttons(void)
+{
+  if (backup_buttons_hook) 
+  (*backup_buttons_hook)();
+}
 
 /* 
  * Restore the buttons from backup
  */
-void restore_buttons(void)
+void restore_buttons_text(void)
 {
   int i = 0;
 
@@ -863,7 +868,13 @@ void restore_buttons(void)
       i++;
     }
 }
-    
+
+void restore_buttons(void)
+{
+  if (restore_buttons_hook) 
+  (*restore_buttons_hook)();
+}
+   
 
 /* 
  * Remove a button
@@ -923,7 +934,7 @@ int kill_button(unsigned char keypress)
 /*
  * Kill all buttons (use sparingly!) 
  */
-void kill_all_buttons(void)
+void kill_all_buttons_text(void)
 {
   int i;
 
@@ -935,6 +946,11 @@ void kill_all_buttons(void)
     (void)(*kill_button_hook)(mse_button[i].key);
 }
 
+void kill_all_buttons(void)
+{
+  if (kill_all_buttons_hook)
+  (*kill_all_buttons_hook)();
+}
 
 /*
  * Helper function called only from "inkey()"
@@ -3619,8 +3635,10 @@ bool get_name(bool sf)
   message_flush();
   
   /* Buttons */
+  /* This can lead to problems when changing name from C screen as buttons 
+     already backed up to get to there
   backup_buttons();
-  kill_all_buttons();
+  kill_all_buttons(); */
   add_button("ESC", ESCAPE);
   add_button("Enter", '\r');
   add_button("*", '*');
@@ -3652,7 +3670,7 @@ bool get_name(bool sf)
     }
   
   /* Done */
-  restore_buttons();
+/*  restore_buttons(); */
   update_statusline();
   return res;
 }
@@ -5179,7 +5197,7 @@ bool findpath(int y, int x)
               {
                 for (dir = 1; dir < 10; dir++)
                   {
-                    if (dir == 5) dir++;
+                    if (dir == 5) continue;
                     MARK_DISTANCE(terrain[j - oy + ddy[dir]][i - ox +ddx[dir]],
                                   cur_distance);
                   } 

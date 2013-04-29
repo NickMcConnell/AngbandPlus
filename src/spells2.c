@@ -316,11 +316,72 @@ bool do_inc_stat(int stat, bool star)
   return (FALSE);
 }
 
+void identify_object(object_type *o_ptr)
+{
+  object_kind *k_ptr;
 
+  /* Get the object kind. */
+  k_ptr = &k_info[o_ptr->k_idx];
+  
+  /* Identify it fully */
+  object_aware(o_ptr);
+  object_known(o_ptr);
+  
+  /* Mark the item as fully known */
+  o_ptr->ident |= (IDENT_MENTAL);
+  
+  /* If artifact, write a note if applicable */
+  if ((o_ptr->name1) && (o_ptr->found))
+    {
+      int artifact_stage, lev;
+      char note[120];
+      char shorter_desc[120];
+      s32b real_turn = turn;
+      
+      /* Get a shorter description to fit the notes file */
+      object_desc(shorter_desc, o_ptr, TRUE, 0);
+      
+      /* Build note and write */
+      sprintf(note, "Found %s", shorter_desc);
+      
+      /* Record the depth where the artifact was created */
+      artifact_stage = o_ptr->found;
+      
+      /* Hack - record the turn when the artifact was first picked up
+       * or wielded by the player.  This may result in out of order
+       * entries in the notes file, which really should be re-ordered 
+       */
+        turn = a_info[o_ptr->name1].creat_turn & 0x00FFFFFF;
+        if (turn < 2) turn = real_turn;
+        lev = (a_info[o_ptr->name1].creat_turn & 0xFF000000) >> 24;
+        if (lev == 0) lev = p_ptr->lev;
+        make_note(note, artifact_stage, NOTE_ARTIFACT, lev);
+        turn = real_turn;
+      
+      /*
+       * Mark item creation depth 0, which will indicate the artifact
+       * has been previously identified.  This prevents an artifact
+       * from showing up on the notes list twice ifthe artifact had
+       * been previously identified.  JG
+       */
+      o_ptr->found = 0 ;
+    }
+
+  /* If the object is flavored, also make all items of that type, 
+   * except for variable rings and amulets, fully known. */
+  if (k_ptr->flavor)
+    {
+      if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) && 
+	  (k_ptr->flags3 & (TR3_EASY_KNOW))) k_ptr->known_effect = TRUE;
+      else if ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_STAFF) || 
+	       (o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
+	k_ptr->known_effect = TRUE;
+    }
+}
 
 /*
  * Identify everything being carried.
- * Done by a potion of "self knowledge".
+ * Done by a potion of "*Enlightenment*".
  */
 void identify_pack(void)
 {
@@ -334,9 +395,8 @@ void identify_pack(void)
       /* Skip non-objects */
       if (!o_ptr->k_idx) continue;
       
-      /* Aware and Known */
-      object_aware(o_ptr);
-      object_known(o_ptr);
+      /* Identify it */
+      identify_object(o_ptr);
     }
   
   /* Recalculate bonuses */
@@ -1043,7 +1103,7 @@ bool detect_stairs(int range, bool show)
   int num=0;
   
   bool detect = FALSE;
-  
+ 
   /* Hack - flash the effected region on the current panel */
   if (show) animate_detect(range);
   
@@ -1056,9 +1116,14 @@ bool detect_stairs(int range, bool show)
 	  /* check range */
 	  if (distance(py, px, y, x) <= range)
 	    {
+		  feature_type *f_ptr = &f_info[cave_feat[y][x]];
 	      /* Detect stairs */
-	      if ((cave_feat[y][x] == FEAT_LESS) ||
-		  (cave_feat[y][x] == FEAT_MORE))
+
+/*	      if ((cave_feat[y][x] == FEAT_LESS) ||
+		  (cave_feat[y][x] == FEAT_MORE)) */
+
+		  if (f_ptr->flags & TF_STAIR)
+
 		{
 		  /* Hack -- Memorize */
 		  cave_info[y][x] |= (CAVE_MARK);
@@ -2566,7 +2631,7 @@ bool ident_spell_old(void)
       
       if (o_ptr->found)
 	{
-	  int artifact_stage;
+	  int artifact_stage, lev;
 	  char note[120];
 	  char shorter_desc[120];
 	  s32b real_turn = turn;
@@ -2584,10 +2649,12 @@ bool ident_spell_old(void)
 	   * or wielded by the player.  This may result in out of order
 	   * entries in the notes file, which really should be re-ordered 
 	   */
-	  turn = a_info[o_ptr->name1].creat_turn;
-	  if (turn < 2) turn = real_turn;
-	  make_note(note, artifact_stage, NOTE_ARTIFACT);
-	  turn = real_turn;
+        turn = a_info[o_ptr->name1].creat_turn & 0x00FFFFFF;
+        if (turn < 2) turn = real_turn;
+        lev = (a_info[o_ptr->name1].creat_turn & 0xFF000000) >> 24;
+        if (lev == 0) lev = p_ptr->lev;
+        make_note(note, artifact_stage, NOTE_ARTIFACT, lev);
+        turn = real_turn;
 	  
 	  /*
 	   * Mark item creation depth 0, which will indicate the artifact
@@ -2619,13 +2686,13 @@ bool ident_spell(void)
   int squelch=0;
   
   object_type *o_ptr;
-  object_kind *k_ptr;
+/*  object_kind *k_ptr; */
   
   char o_name[120];
   
   cptr q, s;
   
-  bool noted;
+/*  bool noted; */
   
   /* Only un-*id*'ed items */
   item_tester_hook = item_tester_unknown;
@@ -2650,68 +2717,9 @@ bool ident_spell(void)
       o_ptr = &o_list[0 - item];
     }
   
-  /* Get the object kind. */
-  k_ptr = &k_info[o_ptr->k_idx];
-  
-  /* Artifacts not yet normally ID'd need noting */
-  noted = (o_ptr->ident & IDENT_KNOWN);
-  
-  /* Identify it fully */
-  object_aware(o_ptr);
-  object_known(o_ptr);
-  
-  /* Mark the item as fully known */
-  o_ptr->ident |= (IDENT_MENTAL);
-  
-  
-  /* If artifact, write a note if applicable */
-  if ((o_ptr->name1) && (o_ptr->found))
-    {
-      int artifact_stage;
-      char note[120];
-      char shorter_desc[120];
-      s32b real_turn = turn;
-      
-      /* Get a shorter description to fit the notes file */
-      object_desc(shorter_desc, o_ptr, TRUE, 0);
-      
-      /* Build note and write */
-      sprintf(note, "Found %s", shorter_desc);
-      
-      /* Record the depth where the artifact was created */
-      artifact_stage = o_ptr->found;
-      
-      /* Hack - record the turn when the artifact was first picked up
-       * or wielded by the player.  This may result in out of order
-       * entries in the notes file, which really should be re-ordered 
-       */
-      turn = a_info[o_ptr->name1].creat_turn;
-      if (turn < 2) turn = real_turn;
-      make_note(note, artifact_stage, NOTE_ARTIFACT);
-      turn = real_turn;
-      
-      /*
-       * Mark item creation depth 0, which will indicate the artifact
-       * has been previously identified.  This prevents an artifact
-       * from showing up on the notes list twice ifthe artifact had
-       * been previously identified.  JG
-       */
-      o_ptr->found = 0 ;
-    }
-
-  /* If the object is flavored, also make all items of that type, 
-   * except for variable rings and amulets, fully known. */
-  if (k_ptr->flavor)
-    {
-      if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) && 
-	  (k_ptr->flags3 & (TR3_EASY_KNOW))) k_ptr->known_effect = TRUE;
-      else if ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_STAFF) || 
-	       (o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
-	k_ptr->known_effect = TRUE;
-    }
-  
-  
-  
+  /* Identify it */
+  identify_object(o_ptr);
+ 
   /* Recalculate bonuses */
   p_ptr->update |= (PU_BONUS);
   

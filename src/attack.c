@@ -339,7 +339,10 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
   /* Assume temporary elemental brand is OK to use. */
   bool allow_t_brand = TRUE;
   
-  u32b f1, f2, f3;
+  u32b f1, f2, f3, g1, g2, g3, h1;
+
+  object_type *i_ptr;
+  int i; 
   
   /*
    * Assume no special adjustments to damage.  We normally multiply damage 
@@ -350,7 +353,48 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
   
   /* Extract the flags */
   object_flags(o_ptr, &f1, &f2, &f3);
-  
+  h1 = f1;
+
+  switch (o_ptr->tval)
+    {
+	case TV_SHOT:
+    case TV_ARROW:
+    case TV_BOLT:
+	{
+		/* Check launcher for additional brands (slays) */
+		i_ptr = &inventory[INVEN_BOW];
+		/* If wielding a launcher - sanity check */
+		if (i_ptr->k_idx)
+		{
+			/* Extract the flags */
+			object_flags(i_ptr, &g1, &g2, &g3);
+			/* Pick up any brands (and slays!) */
+			h1 = h1 | g1;
+		}
+		break;
+	}
+    case TV_HAFTED:
+    case TV_POLEARM:
+    case TV_SWORD:
+    case TV_DIGGING:
+	{	  
+		/* Check rings for additional brands (slays) */
+		for (i = 0; i < 2; i++)
+		{
+			i_ptr = &inventory[INVEN_LEFT + i];
+			/* If wearing a ring */
+			if (i_ptr->k_idx)
+			{
+				/* Extract the flags */
+				object_flags(i_ptr, &g1, &g2, &g3);
+				/* Pick up any brands (and slays!) */
+				h1 = h1 | g1;
+			}
+		}
+		break;
+	}
+  }
+
   /* Wielded weapons and diggers and fired missiles may do extra damage. */
   switch (o_ptr->tval)
     {
@@ -374,19 +418,23 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
     case TV_DIGGING:
       {
 	/* Slay Animal */
-	if ((f1 & (TR1_SLAY_ANIMAL)) && (r_ptr->flags3 & (RF3_ANIMAL)))
+	if ((h1 & (TR1_SLAY_ANIMAL)) && (r_ptr->flags3 & (RF3_ANIMAL)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_ANIMAL);
 	      }
 	    
-	    if ((f1 & (TR1_SLAY_KILL)) && (mul < 20)) mul = 20;
-	    else if (mul < 17) mul = 17;
+	    if (mul < 14) mul = 14;
+		if (f1 & (TR1_SLAY_ANIMAL))
+		{
+		  if ((f1 & (TR1_SLAY_KILL)) && (mul < 20)) mul = 20;
+	      else if (mul < 17) mul = 17;
+		}
 	  }
 	
 	/* Slay Evil */
-	if (((f1 & (TR1_SLAY_EVIL)) || 
+	if (((h1 & (TR1_SLAY_EVIL)) || 
 	     (p_ptr->special_attack & (ATTACK_HOLY))) &&
 	    (r_ptr->flags3 & (RF3_EVIL)))
 	  {
@@ -394,85 +442,114 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      {
 		l_ptr->flags3 |= (RF3_EVIL);
 	      }
-	    
-	    if ((f1 & (TR1_SLAY_KILL)) && (mul < 17)) mul = 17;
-	    else if (mul < 15) mul = 15;
+
+	    if (mul < 13) mul = 13;
+		if ((p_ptr->special_attack & (ATTACK_HOLY)) && (mul < 15)) mul = 15;
+	    if (f1 & (TR1_SLAY_EVIL))
+		{
+	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 17)) mul = 17;
+	      else if (mul < 15) mul = 15;
+		}
 	  }
 	
 	/* Slay Undead */
-	if ((f1 & (TR1_SLAY_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
+	if ((h1 & (TR1_SLAY_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_UNDEAD);
 	      }
 	    
-	    if (f1 & (TR1_SLAY_KILL) && (mul < 25)) mul = 25;
-	    else if (f1 & (TR1_SLAY_UNDEAD) && (mul < 20)) mul = 20;
+		if (mul < 16) mul = 16;
+		if (f1 & (TR1_SLAY_UNDEAD))
+		{
+	      if (f1 & (TR1_SLAY_KILL) && (mul < 25)) mul = 25;
+	      else if (f1 & (TR1_SLAY_UNDEAD) && (mul < 20)) mul = 20;
+		}
 	  }
 	
 	/* Slay Demon */
-	if ((f1 & (TR1_SLAY_DEMON)) && (r_ptr->flags3 & (RF3_DEMON)))
+	if ((h1 & (TR1_SLAY_DEMON)) && (r_ptr->flags3 & (RF3_DEMON)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_DEMON);
 	      }
-	    
-	    if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
-	    else if (mul < 20) mul = 20;
+
+	    if (mul < 16) mul = 16;
+		if (f1 & (TR1_SLAY_DEMON))
+		{
+	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
+	      else if (mul < 20) mul = 20;
+		}
 	  }
 	
 	/* Slay Orc */
-	if ((f1 & (TR1_SLAY_ORC)) && (r_ptr->flags3 & (RF3_ORC)))
+	if ((h1 & (TR1_SLAY_ORC)) && (r_ptr->flags3 & (RF3_ORC)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_ORC);
 	      }
-	    
-	    if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
-	    else if (mul < 20) mul = 20;
+
+	    if (mul < 16) mul = 16;
+		if (f1 & (TR1_SLAY_ORC))
+		{
+	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
+	      else if (mul < 20) mul = 20;
+		}
 	  }
 	
 	/* Slay Troll */
-	if ((f1 & (TR1_SLAY_TROLL)) && (r_ptr->flags3 & (RF3_TROLL)))
+	if ((h1 & (TR1_SLAY_TROLL)) && (r_ptr->flags3 & (RF3_TROLL)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_TROLL);
 	      }
-	    
-	    if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
-	    else if (mul < 20) mul = 20;
+
+	    if (mul < 16) mul = 16;
+		if (f1 & (TR1_SLAY_TROLL))
+		{
+	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
+	      else if (mul < 20) mul = 20;
+		}
 	  }
 	
 	/* Slay Giant */
-	if ((f1 & (TR1_SLAY_GIANT)) && (r_ptr->flags3 & (RF3_GIANT)))
+	if ((h1 & (TR1_SLAY_GIANT)) && (r_ptr->flags3 & (RF3_GIANT)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_GIANT);
 	      }
-	    
-	    if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
-	    else if (mul < 20) mul = 20;
+
+	    if (mul < 16) mul = 16;
+		if (f1 & (TR1_SLAY_GIANT))
+		{
+	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
+	      else if (mul < 20) mul = 20;
+		}
 	  }
 	
 	/* Slay Dragon */
-	if ((f1 & (TR1_SLAY_DRAGON)) && (r_ptr->flags3 & (RF3_DRAGON)))
+	if ((h1 & (TR1_SLAY_DRAGON)) && (r_ptr->flags3 & (RF3_DRAGON)))
 	  {
 	    if (m_ptr->ml)
 	      {
 		l_ptr->flags3 |= (RF3_DRAGON);
 	      }
-	    
-	    if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
-	    else if (mul < 20) mul = 20;
+
+	    if (mul < 16) mul = 16;
+		if (f1 & (TR1_SLAY_DRAGON))
+		{
+	      if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
+	      else if (mul < 20) mul = 20;
+		}
 	  }
 	
 	/* Brand (Acid) */
-	if ((f1 & (TR1_BRAND_ACID)) || 
+	if ((h1 & (TR1_BRAND_ACID)) || 
 	    ((p_ptr->special_attack & (ATTACK_ACID)) && 
 	     (allow_t_brand)))
 	  {
@@ -486,11 +563,17 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else if (mul < 17) mul = 17;
+	    else
+		{
+		  if (mul < 14) mul = 14;
+		  if (((f1 & (TR1_BRAND_ACID)) || 
+	          ((p_ptr->special_attack & (ATTACK_ACID)) && 
+	           (allow_t_brand))) && (mul < 17)) mul = 17;
+		}
 	  }
 	
 	/* Brand (Elec) */
-	if ((f1 & (TR1_BRAND_ELEC)) || 
+	if ((h1 & (TR1_BRAND_ELEC)) || 
 	    ((p_ptr->special_attack & (ATTACK_ELEC)) && 
 	     (allow_t_brand)))
 	  {
@@ -504,11 +587,17 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else if (mul < 17) mul = 17;
+	    else
+		{
+		  if (mul < 14) mul = 14;
+		  if (((f1 & (TR1_BRAND_ELEC)) || 
+	          ((p_ptr->special_attack & (ATTACK_ELEC)) && 
+	           (allow_t_brand))) && (mul < 17)) mul = 17;
+		}
 	  }
 	
 	/* Brand (Fire) */
-	if ((f1 & (TR1_BRAND_FIRE)) || 
+	if ((h1 & (TR1_BRAND_FIRE)) || 
 	    ((p_ptr->special_attack & (ATTACK_FIRE)) && 
 	     (allow_t_brand)))
 	  {
@@ -526,12 +615,18 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      {
 		if ((o_ptr->name2 == EGO_BALROG) && 
 		    (mul < 30)) mul = 30;
-		else if (mul < 17) mul = 17;
+		else
+		{
+		  if (mul < 14) mul = 14;
+		  if (((f1 & (TR1_BRAND_FIRE)) || 
+	          ((p_ptr->special_attack & (ATTACK_FIRE)) && 
+	           (allow_t_brand))) && (mul < 17)) mul = 17;
+		}
 	      }
 	  }
 	
 	/* Brand (Cold) */
-	if ((f1 & (TR1_BRAND_COLD)) || 
+	if ((h1 & (TR1_BRAND_COLD)) || 
 	    ((p_ptr->special_attack & (ATTACK_COLD)) && 
 	     (allow_t_brand)))
 	  {
@@ -545,11 +640,17 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else if (mul < 17) mul = 17;
+	    else
+		{
+		  if (mul < 14) mul = 14;
+		  if (((f1 & (TR1_BRAND_COLD)) || 
+	          ((p_ptr->special_attack & (ATTACK_COLD)) && 
+	           (allow_t_brand))) && (mul < 17)) mul = 17;
+		}
 	  }
 	
 	/* Brand (Poison) */
-	if ((f1 & (TR1_BRAND_POIS)) || 
+	if ((h1 & (TR1_BRAND_POIS)) || 
 	    ((p_ptr->special_attack & (ATTACK_POIS)) && 
 	     (allow_t_brand)))
 	  {
@@ -563,7 +664,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else if (mul < 17) mul = 17;
+	    else
+		{
+		  if (mul < 14) mul = 14;
+		  if (((f1 & (TR1_BRAND_POIS)) || 
+	          ((p_ptr->special_attack & (ATTACK_POIS)) && 
+	           (allow_t_brand))) && (mul < 17)) mul = 17;
+		}
 	  }
 	
 	/* Additional bonus for Holy Light */
@@ -602,9 +709,21 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
    * In addition to multiplying the base damage, slays and brands also 
    * add to it.  This means that a dagger of Slay Orc (1d4) is a lot 
    * better against orcs than is a dagger (1d9).
+   * SJGU tone down the affect of slays and brands for launchers
    */
-  if (mul > 10) add = (mul - 10);
-  
+  if (mul > 10)
+  {
+    switch (o_ptr->tval)
+    {
+      case TV_SHOT:
+      case TV_ARROW:
+      case TV_BOLT:
+      {
+        mul -= (mul - 9)/3;
+      }
+    }
+	add = (mul - 10);
+  }
   
   /* Apply multiplier to the die average now. */
   *die_average *= mul;

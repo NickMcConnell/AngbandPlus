@@ -68,6 +68,7 @@ bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
  */
 
 bool game_start;                /* Restart after death? */
+bool character_quickstart;      /* The character is based on the last one */
 bool character_generated;	/* The character exists */
 bool character_dungeon;		/* The character has a dungeon */
 bool character_loaded;		/* The character was loaded from a savefile */
@@ -1003,3 +1004,6 @@ bool normal_screen = TRUE;
  */
 int (*add_button_hook)(char *label, unsigned char keypress);
 int (*kill_button_hook)(unsigned char keypress);
+void (*kill_all_buttons_hook)(void);
+void (*backup_buttons_hook)(void);
+void (*restore_buttons_hook)(void);

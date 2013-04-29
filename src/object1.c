@@ -3690,6 +3690,9 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops)
       return FALSE;
     }
 
+    /* Assume we'll be looking at something*/
+    p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
   /* Hack -- Start on equipment if requested */
   if ((mode == (USE_EQUIP)) && use_equip)
     {
@@ -4367,7 +4370,7 @@ extern bool check_set(byte s_idx)
 /*
  * Apply bonuses for complete artifact sets.
  */
-extern void apply_set(int s_idx)
+extern void apply_set(int s_idx, bool load)
 {
   set_type *s_ptr = &s_info[s_idx];
   
@@ -4405,7 +4408,7 @@ extern void apply_set(int s_idx)
 			  a_ptr->flags2 |= se_ptr->flags2;
 			  a_ptr->flags3 |= se_ptr->flags3;
 			  o_ptr->pval += se_ptr->pval;
-			  for (k = 0; k < MAX_P_RES; k++)
+			  if (!(load)) for (k = 0; k < MAX_P_RES; k++)
 			    o_ptr->percent_res[k] -= se_ptr->percent_res[k];
 			  a_ptr->set_bonus = TRUE;
 			  bonus_applied = TRUE;

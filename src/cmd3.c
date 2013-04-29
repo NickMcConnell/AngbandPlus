@@ -238,6 +238,9 @@ void do_cmd_wield(void)
   object_type *o_ptr;
   
   object_type *i_ptr;
+
+  object_type *l_ptr = &inventory[INVEN_LITE];
+
   object_type object_type_body;
   
   u32b f1, f2, f3;
@@ -491,6 +494,40 @@ void do_cmd_wield(void)
       
     }
   
+  /* Set item handling -GS- and checking turn found for artifacts -NRM- */
+  if (o_ptr->name1) 
+    {
+      
+      /* Is the artifact a set item? */
+      artifact_type *a_ptr = &a_info[o_ptr->name1];
+      if (a_ptr->set_no!=0)
+	{
+	  /*
+	   * The object is part of a set. Check to see if rest of
+	   * set is equiped.
+	   */
+	  if (check_set(a_ptr->set_no)) 
+	    {
+	      /* add bonuses */
+	      apply_set(a_ptr->set_no,FALSE);
+	    }
+	}
+
+      /* Have we registered this as found before ? */
+      if (a_info[o_ptr->name1].creat_turn < 2)
+	  {
+		  a_info[o_ptr->name1].creat_turn = turn;
+		  a_info[o_ptr->name1].creat_turn |= (p_ptr->lev << 24);
+	  }
+    }
+
+  /* Wielding off the floor will id if holding the Stone of Lore */
+
+  if (item < 0)
+  {
+    if ((!object_known_p(o_ptr)) && (l_ptr->sval == SV_STONE_LORE)) identify_object(o_ptr);
+  }
+
   /* Where is the item now */
   if (slot == INVEN_WIELD)
     {
@@ -518,32 +555,7 @@ void do_cmd_wield(void)
   
   /* Message */
   msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
-  
-  /* Set item handling -GS- and checking turn found for artifacts -NRM- */
-  if (o_ptr->name1) 
-    {
-      
-      /* Is the artifact a set item? */
-      artifact_type *a_ptr = &a_info[o_ptr->name1];
-      if (a_ptr->set_no!=0)
-	{
-	  /*
-	   * The object is part of a set. Check to see if rest of
-	   * set is equiped.
-	   */
-	  if (check_set(a_ptr->set_no)) 
-	    {
-	      /* add bonuses */
-	      apply_set(a_ptr->set_no);
-	    }
-	}
 
-      /* Have we registered this as found before ? */
-      if (a_info[o_ptr->name1].creat_turn < 2)
-	a_info[o_ptr->name1].creat_turn = turn;
-
-    }
-  
   /* Cursed! */
   if (cursed_p(o_ptr))
     {
@@ -559,7 +571,68 @@ void do_cmd_wield(void)
       /* Set squelched status */
       p_ptr->notice |= PN_SQUELCH;
     }
-  
+  else    /* It is fully known, no information needed */
+  if (!object_known_p(o_ptr))
+  {
+      bool okay = FALSE;
+
+      /* Valid "tval" codes */
+      switch (o_ptr->tval)
+	{
+	case TV_SHOT:
+	case TV_ARROW:
+	case TV_BOLT:
+	case TV_BOW:
+	case TV_DIGGING:
+	case TV_HAFTED:
+	case TV_POLEARM:
+	case TV_SWORD:
+	case TV_BOOTS:
+	case TV_GLOVES:
+	case TV_HELM:
+	case TV_CROWN:
+	case TV_SHIELD:
+	case TV_CLOAK:
+	case TV_SOFT_ARMOR:
+	case TV_HARD_ARMOR:
+	case TV_DRAG_ARMOR:
+	  {
+	    okay = TRUE;
+	    break;
+	  }
+	}
+
+      /* Skip non-sense machines */
+      if (okay)
+      {
+        int feel;
+		bool heavy = FALSE;
+
+		heavy = (check_ability(SP_PSEUDO_ID_HEAVY));
+
+         /* Check for a feeling */
+        feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+
+        if (!(o_ptr->feel == feel))
+        {
+          /* Get an object description */
+          object_desc(o_name, o_ptr, FALSE, 0);
+         
+          msg_format("You feel the %s (%c) you are %s %s %s...",
+                      o_name, index_to_label(slot), describe_use(slot),
+                      ((o_ptr->number == 1) ? "is" : "are"), feel_text[feel]);
+      
+          /* We have "felt" it */
+          o_ptr->ident |= (IDENT_SENSE);
+      
+          /* Inscribe it textually */
+          o_ptr->feel = feel;
+      
+          /* Set squelch flag as appropriate */
+          p_ptr->notice |= PN_SQUELCH;
+        }
+      }
+  }
   /* Recalculate bonuses */
   p_ptr->update |= (PU_BONUS);
   
@@ -2153,7 +2226,7 @@ void py_steal(int y, int x)
   if (p_ptr->superstealth)
     {
       theft_protection = 3 * theft_protection / 5;
-      set_superstealth(0);
+      set_superstealth(0,TRUE);
     }
 
   /* The more you steal on a level, the more wary the monsters. */

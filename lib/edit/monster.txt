@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.3.5
+V:0.3.6
 
 
 #N: monster index: name
@@ -8142,7 +8142,7 @@ W:0:0:0:0
 
 N:695:M[^i]m, Betrayer of Turin
 G:h:o
-I:120:10d65:20:40:20
+I:120:10d65:100:40:0
 W:30:4:72:1100
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
@@ -8523,7 +8523,7 @@ D:smoke curl up from his nostrils as he regards you with disdain.
 
 N:723:Glaurung, Father of the Dragons
 G:d:R1
-I:120:32d100:30:60:55
+I:120:32d100:100:60:0
 W:55:1:158:31000
 B:CLAW:HURT:5d12
 B:CLAW:HURT:5d12
@@ -9080,7 +9080,7 @@ D:and you feel as if you will never be free of its deafening roar.
 
 N:757:Ungoliant, the Unlight
 G:S:D
-I:120:65d100:8:62:80
+I:120:65d100:100:62:0
 W:70:1:152:35000
 B:BITE:POISON:3d9
 B:BITE:POISON:3d9
@@ -9452,7 +9452,7 @@ D:torment.
 
 N:776:Morgoth, Lord of Darkness
 G:P:D
-I:130:100d100:100:60:0
+I:135:100d100:100:60:0
 W:100:1:250:60000
 B:HIT:SHATTER:25d10
 B:HIT:SHATTER:25d10
@@ -9469,7 +9469,7 @@ F:EVIL | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 F:UDUN_MAGIC | MORGUL_MAGIC 
 S:1_IN_3 | POW_185 | 
-S:BRAIN_SMASH | WOUND | ADD_MANA | DISPEL | 
+S:BRAIN_SMASH | WOUND | ADD_MANA | DISPEL | TELE_TO |
 S:BALL_DARK | BALL_NETHR | BALL_MANA | ARC_HFIRE | BALL_STORM | 
 S:S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD | S_QUEST | S_UNIQUE
 D:He is the Master of the Pits of Angband.  His figure is like a black 

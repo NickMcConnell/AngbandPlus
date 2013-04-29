@@ -1794,7 +1794,7 @@ void check_item_sets(void)
 		{
 		  
 		  /* Apply set bonuses */
-		  apply_set(a_ptr->set_no);
+		  apply_set(a_ptr->set_no,TRUE);
 		}
 	    }
 	}

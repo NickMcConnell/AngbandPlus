@@ -3647,6 +3647,12 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
   /* The grid is occupied by the player. */
   if (cave_m_idx[ny][nx] < 0)
     {
+      /* SJGU Reset the monster's target (to deal with players hidden by superstealth) */
+      int px = p_ptr->px;
+      int py = p_ptr->py;
+      m_ptr->tx = px;
+      m_ptr->ty = py;
+
       /* Attack if possible */
       if (!(r_ptr->flags1 & (RF1_NEVER_BLOW)))
 	{
