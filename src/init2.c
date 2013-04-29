@@ -1265,7 +1265,7 @@ errr init_t_info(byte chosen_level)
   t_head->v_extra = 0;
   
   /* Save the "record" information */
-  t_head->info_num = MAX_V_IDX;
+  t_head->info_num = z_info->v_max;
   t_head->info_len = sizeof(vault_type);
   
   /* Save the size of "v_head" and "v_info" */
@@ -1824,12 +1824,6 @@ static errr init_other(void)
   C_MAKE(cave_when, DUNGEON_HGT, byte_wid);
   
   
-  /*** Prepare "vinfo" array ***/
-  
-  /* Used by "update_view()" */
-  (void)vinfo_init();
-
-
   /*** Prepare entity arrays ***/
   
   /* Objects */
@@ -1927,7 +1921,7 @@ static errr init_other(void)
           sv = store_table[st_ptr->type][k][1];
           
           /* Look for it */
-          for (k_idx = 1; k_idx < MAX_K_IDX; k_idx++)
+          for (k_idx = 1; k_idx < z_info->k_max; k_idx++)
             {
               object_kind *k_ptr = &k_info[k_idx];
               
@@ -1936,7 +1930,7 @@ static errr init_other(void)
             }
           
           /* Catch errors */
-          if (k_idx == MAX_K_IDX) continue;
+          if (k_idx == z_info->k_max) continue;
           
           /* Add that item index to the table */
           st_ptr->table[st_ptr->table_num++] = k_idx;
@@ -2013,7 +2007,7 @@ static errr init_alloc(void)
   alloc_kind_size = 0;
   
   /* Scan the objects */
-  for (i = 1; i < MAX_K_IDX; i++)
+  for (i = 1; i < z_info->k_max; i++)
     {
       k_ptr = &k_info[i];
       
@@ -2052,7 +2046,7 @@ static errr init_alloc(void)
   table = alloc_kind_table;
   
   /* Scan the objects */
-  for (i = 1; i < MAX_K_IDX; i++)
+  for (i = 1; i < z_info->k_max; i++)
     {
       k_ptr = &k_info[i];
       
@@ -2102,7 +2096,7 @@ static errr init_alloc(void)
   alloc_race_size = 0;
   
   /* Scan the monsters */
-  for (i = 1; i < MAX_R_IDX; i++)
+  for (i = 1; i < z_info->r_max; i++)
     {
       /* Get the i'th race */
       r_ptr = &r_info[i];
@@ -2138,7 +2132,7 @@ static errr init_alloc(void)
   table = alloc_race_table;
   
   /* Scan the monsters */
-  for (i = 1; i < MAX_R_IDX; i++)
+  for (i = 1; i < z_info->r_max; i++)
     {
       /* Get the i'th race */
       r_ptr = &r_info[i];
@@ -2185,7 +2179,7 @@ static errr init_alloc(void)
   alloc_ego_size = 0;
   
   /* Scan the ego items */
-  for (i = 1; i < MAX_E_IDX; i++)
+  for (i = 1; i < z_info->e_max; i++)
     {
       /* Get the i'th ego item */
       e_ptr = &e_info[i];
@@ -2217,7 +2211,7 @@ static errr init_alloc(void)
   table = alloc_ego_table;
   
   /* Scan the ego-items */
-  for (i = 1; i < MAX_E_IDX; i++)
+  for (i = 1; i < z_info->e_max; i++)
     {
       /* Get the i'th ego item */
       e_ptr = &e_info[i];
@@ -2306,11 +2300,11 @@ void update_artifact_sets()
   set_element *se_ptr;
   artifact_type *a_ptr;
   
-  for (i=0;i<MAX_S_IDX;i++)
+  for (i = 0; i < z_info->s_max; i++)
     {
       
       s_ptr = &s_info[i];
-      for (j=0;j<s_ptr->no_of_items;j++)
+      for (j = 0; j < s_ptr->no_of_items; j++)
         {
           se_ptr= &s_ptr->set_items[j];
           a_ptr = &a_info[se_ptr->a_idx];
@@ -2757,6 +2751,10 @@ void cleanup_angband(void)
 	  
 	  /* Free the store inventory */
 	  FREE(st_ptr->stock);
+      
+	  /* Free the store table */
+	  FREE(st_ptr->table);
+      
 	}
     }
   
@@ -2820,7 +2818,7 @@ void cleanup_angband(void)
   free_info(&v_head);
   free_info(&r_head);
   free_info(&e_head);
-  free_info(&a_head);
+  //free_info(&a_head);
   free_info(&k_head);
   free_info(&f_head);
   free_info(&z_head);

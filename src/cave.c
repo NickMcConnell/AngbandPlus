@@ -323,9 +323,10 @@ bool no_lite(void)
 bool cave_valid_bold(int y, int x)
 {
   s16b this_o_idx, next_o_idx = 0;
-  
+  feature_type *f_ptr = &f_info[cave_feat[y][x]];  
+
   /* Forbid perma-grids */
-  if (cave_perma_bold(y, x)) return (FALSE);
+  if (f_ptr->flags & TF_PERMANENT) return (FALSE);
   
   /* Check objects */
   for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
@@ -383,9 +384,9 @@ static byte breath_to_attr[32][2] =
     {  255,  255 },   /* (any color) */ /* RF4_BRTH_CHAOS */
     {  TERM_VIOLET,  TERM_VIOLET },     /* RF4_BRTH_DISEN */
     {  TERM_L_BLUE,  TERM_L_BLUE },     /* RF4_BRTH_TIME */
-    {  0,  0 },     /*  */
-    {  0,  0 },     /*  */
-    {  0,  0 },     /*  */
+    {  TERM_BLUE,     TERM_SLATE },     /* RF4_BRTH_STORM */
+    {  TERM_RED,      TERM_GREEN },     /* RF4_BRTH_DFIRE */
+    {  TERM_WHITE,  TERM_L_WHITE },     /* RF4_BRTH_ICE */
     {  0,  0 },     /*  */
     {  0,  0 }      /*  */
   };
@@ -1168,7 +1169,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
       object_type *o_ptr;
       
       /* Hack to not display objects in trees */
-      if ((cave_feat[y][x] == FEAT_TREE) || (cave_feat[y][x] == FEAT_RUBBLE))
+      if ((cave_feat[y][x] == FEAT_TREE) || (cave_feat[y][x] == FEAT_TREE2) || 
+	  (cave_feat[y][x] == FEAT_RUBBLE))
 	break;
 	      
       /* Get the object */
@@ -1689,7 +1691,8 @@ void map_info_default(int y, int x, byte *ap, char *cp)
       object_type *o_ptr;
       
       /* Hack to not display objects in trees */
-      if (cave_feat[y][x] == FEAT_TREE)
+      if ((cave_feat[y][x] == FEAT_TREE) || (cave_feat[y][x] == FEAT_TREE2) || 
+	  (cave_feat[y][x] == FEAT_RUBBLE))
 	break;
 	      
       /* Get the object */
@@ -2467,6 +2470,7 @@ static byte priority_table[][2] =
   /* Trees and lava. */
   { FEAT_LAVA, 14 },
   { FEAT_TREE, 14 },
+  { FEAT_TREE2, 14 },
   
   /* Open doors */
   { FEAT_OPEN, 15 },
@@ -3380,12 +3384,16 @@ void do_cmd_view_map(void)
  */
 
 
-
+/*
+ * The following #defines are only used for array declaration as of 
+ * FAangband 0.3.4
+ */
 
 /*
  * Maximum number of grids in a single octant
  */
 #define VINFO_MAX_GRIDS 161
+
 
 
 /*
@@ -3401,7 +3409,6 @@ void do_cmd_view_map(void)
 #define VINFO_BITS_2 0xFFFFFFFF
 #define VINFO_BITS_1 0xFFFFFFFF
 #define VINFO_BITS_0 0xFFFFFFFF
-
 
 /*
  * Forward declare
@@ -3611,8 +3618,8 @@ struct vinfo_hack {
   
   long slopes[VINFO_MAX_SLOPES];
   
-  long slopes_min[MAX_SIGHT+1][MAX_SIGHT+1];
-  long slopes_max[MAX_SIGHT+1][MAX_SIGHT+1];
+  long slopes_min[MAX_SIGHT_LGE + 1][MAX_SIGHT_LGE + 1];
+  long slopes_max[MAX_SIGHT_LGE + 1][MAX_SIGHT_LGE + 1];
 };
 
 
@@ -3669,10 +3676,10 @@ static void vinfo_init_aux(vinfo_hack *hack, int y, int x, long m)
       if (i == hack->num_slopes)
 	{
 	  /* Paranoia */
-	  if (hack->num_slopes >= VINFO_MAX_SLOPES)
+	  if (hack->num_slopes >= vinfo_slopes)
 	    {
 	      quit_fmt("Too many slopes (%d)!",
-		       VINFO_MAX_SLOPES);
+		       vinfo_slopes);
 	    }
 	  
 	  /* Save the slope, and advance */
@@ -3696,7 +3703,7 @@ static void vinfo_init_aux(vinfo_hack *hack, int y, int x, long m)
  *
  * Octant (east then south), Grids=161, Slopes=126
  *
- * This function assumes that VINFO_MAX_GRIDS and VINFO_MAX_SLOPES
+ * This function assumes that vinfo_grids and vinfo_slopes
  * have the correct values, which can be derived by setting them to
  * a number which is too high, running this function, and using the
  * error messages to obtain the correct values.
@@ -3715,7 +3722,14 @@ errr vinfo_init(void)
   int queue_head = 0;
   int queue_tail = 0;
   vinfo_type *queue[VINFO_MAX_GRIDS*2];
-  
+
+  /* Set the variables for the grids, bits and slopes actually used */
+  vinfo_grids  = (adult_small_device ? 48 : 161);
+  vinfo_slopes = (adult_small_device ? 36 : 126);
+  vinfo_bits_3 = (adult_small_device ? 0x00000000 : 0x3FFFFFFF);
+  vinfo_bits_2 = (adult_small_device ? 0x00000000 : 0xFFFFFFFF);
+  vinfo_bits_1 = (adult_small_device ? 0x0000000F : 0xFFFFFFFF);
+  vinfo_bits_0 = (adult_small_device ? 0xFFFFFFFF : 0xFFFFFFFF);
   
   /* Make hack */
   MAKE(hack, vinfo_hack);
@@ -3734,10 +3748,10 @@ errr vinfo_init(void)
 	  hack->slopes_max[y][x] = 0;
 	  
 	  /* Paranoia */
-	  if (num_grids >= VINFO_MAX_GRIDS)
+	  if (num_grids >= vinfo_grids)
 	    {
 	      quit_fmt("Too many grids (%d >= %d)!",
-		       num_grids, VINFO_MAX_GRIDS);
+		       num_grids, vinfo_grids);
 	    }
 	  
 	  /* Count grids */
@@ -3771,17 +3785,17 @@ errr vinfo_init(void)
   
   
   /* Enforce maximal efficiency */
-  if (num_grids < VINFO_MAX_GRIDS)
+  if (num_grids < vinfo_grids)
     {
       quit_fmt("Too few grids (%d < %d)!",
-	       num_grids, VINFO_MAX_GRIDS);
+	       num_grids, vinfo_grids);
     }
   
   /* Enforce maximal efficiency */
-  if (hack->num_slopes < VINFO_MAX_SLOPES)
+  if (hack->num_slopes < vinfo_slopes)
     {
       quit_fmt("Too few slopes (%d < %d)!",
-	       hack->num_slopes, VINFO_MAX_SLOPES);
+	       hack->num_slopes, vinfo_slopes);
     }
   
   
@@ -3904,12 +3918,16 @@ errr vinfo_init(void)
   
   
   /* Verify maximal bits XXX XXX XXX */
-  if (((vinfo[1].bits_3 | vinfo[2].bits_3) != VINFO_BITS_3) ||
-      ((vinfo[1].bits_2 | vinfo[2].bits_2) != VINFO_BITS_2) ||
-      ((vinfo[1].bits_1 | vinfo[2].bits_1) != VINFO_BITS_1) ||
-      ((vinfo[1].bits_0 | vinfo[2].bits_0) != VINFO_BITS_0))
+  if (((vinfo[1].bits_3 | vinfo[2].bits_3) != vinfo_bits_3) ||
+      ((vinfo[1].bits_2 | vinfo[2].bits_2) != vinfo_bits_2) ||
+      ((vinfo[1].bits_1 | vinfo[2].bits_1) != vinfo_bits_1) ||
+      ((vinfo[1].bits_0 | vinfo[2].bits_0) != vinfo_bits_0))
     {
-      quit("Incorrect bit masks!");
+      quit_fmt("%x\n%x\n%x\n%x\n", (vinfo[1].bits_3 | vinfo[2].bits_3),
+	       (vinfo[1].bits_2 | vinfo[2].bits_2),
+	       (vinfo[1].bits_1 | vinfo[2].bits_1), 
+	       (vinfo[1].bits_0 | vinfo[2].bits_0));
+      //quit("Incorrect bit masks!");
     }
   
   
@@ -4184,10 +4202,10 @@ void update_view(void)
       vinfo_type *queue[VINFO_MAX_GRIDS*2];
       
       /* Slope bit vector */
-      u32b bits0 = VINFO_BITS_0;
-      u32b bits1 = VINFO_BITS_1;
-      u32b bits2 = VINFO_BITS_2;
-      u32b bits3 = VINFO_BITS_3;
+      u32b bits0 = vinfo_bits_0;
+      u32b bits1 = vinfo_bits_1;
+      u32b bits2 = vinfo_bits_2;
+      u32b bits3 = vinfo_bits_3;
       
       /* Reset queue */
       queue_head = queue_tail = 0;
@@ -4743,7 +4761,8 @@ void update_smell(void)
   
   int py = p_ptr->py;
   int px = p_ptr->px;
-  
+
+  feature_type *f_ptr = NULL;  
   
   /* Create a table that controls the spread of scent */
   int scent_adjust[5][5] = 
@@ -4790,14 +4809,15 @@ void update_smell(void)
 	  /* Translate table to map grids */
 	  y = i + py - 2;
 	  x = j + px - 2;
+
+	  /* Get the feature */
+	  f_ptr = &f_info[cave_feat[y][x]];
 	  
 	  /* Check Bounds */
 	  if (!in_bounds(y, x)) continue;
 	  
 	  /* Walls, water, and lava cannot hold scent. */
-	  if ((cave_feat[y][x] > FEAT_RUBBLE) || 
-	      (cave_feat[y][x] == FEAT_WATER) || 
-	      (cave_feat[y][x] == FEAT_LAVA))
+	  if (f_ptr->flags & TF_NO_SCENT)
 	    {
 	      continue;
 	    }
@@ -4859,7 +4879,8 @@ void map_area(int y, int x, bool extended)
 	  
 	  /* All non-walls, trees, and rubble are "checked" */
 	  if ((cave_feat[y][x] < FEAT_SECRET) ||
-	      (cave_feat[y][x] == FEAT_RUBBLE))
+	      (cave_feat[y][x] == FEAT_RUBBLE) ||
+	      (cave_feat[y][x] >= FEAT_LAVA))
 	    {
 	      /* Memorize normal features */
 	      if (cave_feat[y][x] > FEAT_INVIS)
@@ -4916,8 +4937,7 @@ void map_area(int y, int x, bool extended)
  */
 void wiz_lite(bool wizard)
 {
-  int i, y, x;
-  
+  int i, y, x;  
   
   /* Memorize objects */
   for (i = 1; i < o_max; i++)
@@ -4946,7 +4966,8 @@ void wiz_lite(bool wizard)
 	{
 	  /* Process all non-walls, trees, and rubble. */
 	  if ((cave_feat[y][x] < FEAT_SECRET) || 
-	      (cave_feat[y][x] == FEAT_RUBBLE))
+	      (cave_feat[y][x] == FEAT_RUBBLE)||
+	      (cave_feat[y][x] >= FEAT_LAVA))
 	    {
 	      /* Scan all neighbors */
 	      for (i = 0; i < 9; i++)
@@ -4960,8 +4981,8 @@ void wiz_lite(bool wizard)
 		  /* Skip non-wall vault features if not a wizard. */
 		  if ((wizard == FALSE) && 
 		      (cave_info[yy][xx] & (CAVE_ICKY)) && 
-		      (cave_feat[yy][xx] < FEAT_SECRET) && 
-		      (cave_feat[yy][xx] != FEAT_RUBBLE)) continue;
+		      ((cave_feat[yy][xx] < FEAT_SECRET) || 
+		       (cave_feat[yy][xx] > FEAT_PERM_SOLID))) continue;
 		  
 		  /* Memorize normal features */
 		  if (cave_feat[yy][xx] > FEAT_INVIS)
@@ -5153,7 +5174,7 @@ void cave_set_feat(int y, int x, int feat)
   
   /* Handle "wall/door" grids.  Trees are also considered walls. */
   if (((feat >= FEAT_DOOR_HEAD) && (feat < FEAT_SHOP_HEAD)) || 
-      (feat == FEAT_TREE))
+      (feat == FEAT_TREE) || (feat == FEAT_TREE2))
     {
       cave_info[y][x] |= (CAVE_WALL);
     }

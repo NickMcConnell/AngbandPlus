@@ -58,14 +58,14 @@ static void flavor_assign_fixed(void)
 {
   int i, j;
   
-  for (i = 0; i < MAX_FL_IDX; i++)
+  for (i = 0; i < z_info->flavor_max; i++)
     {
       flavor_type *flavor_ptr = &flavor_info[i];
       
       /* Skip random flavors */
       if (flavor_ptr->sval == SV_UNKNOWN) continue;
       
-      for (j = 0; j < MAX_K_IDX; j++)
+      for (j = 0; j < z_info->k_max; j++)
 	{
 	  /* Skip other objects */
 	  if ((k_info[j].tval == flavor_ptr->tval) &&
@@ -86,7 +86,7 @@ static void flavor_assign_random(byte tval)
   int choice;
   
   /* Count the random flavors for the given tval */
-  for (i = 0; i < MAX_FL_IDX; i++)
+  for (i = 0; i < z_info->flavor_max; i++)
 	{
 	  if ((flavor_info[i].tval == tval) &&
 	      (flavor_info[i].sval == SV_UNKNOWN))
@@ -95,7 +95,7 @@ static void flavor_assign_random(byte tval)
 	    }
 	}
   
-  for (i = 0; i < MAX_K_IDX; i++)
+  for (i = 0; i < z_info->k_max; i++)
     {
       /* Skip other object types */
       if (k_info[i].tval != tval) continue;
@@ -113,7 +113,7 @@ static void flavor_assign_random(byte tval)
       choice = rand_int(flavor_count);
       
       /* Find and store the flavor */
-      for (j = 0; j < MAX_FL_IDX; j++)
+      for (j = 0; j < z_info->flavor_max; j++)
 	{
 	  /* Skip other tvals */
 	  if (flavor_info[j].tval != tval) continue;
@@ -328,7 +328,7 @@ void flavor_init(void)
   Rand_quick = FALSE;
   
   /* Analyze every object */
-  for (i = 1; i < MAX_K_IDX; i++)
+  for (i = 1; i < z_info->k_max; i++)
     {
       
       object_kind *k_ptr = &k_info[i];
@@ -386,7 +386,7 @@ void reset_visuals(bool unused)
   
   
   /* Extract default attr/char code for features */
-  for (i = 0; i < MAX_F_IDX; i++)
+  for (i = 0; i < z_info->f_max; i++)
     {
       feature_type *f_ptr = &f_info[i];
       
@@ -396,7 +396,7 @@ void reset_visuals(bool unused)
     }
   
   /* Extract default attr/char code for objects */
-  for (i = 0; i < MAX_K_IDX; i++)
+  for (i = 0; i < z_info->k_max; i++)
     {
       object_kind *k_ptr = &k_info[i];
       
@@ -406,7 +406,7 @@ void reset_visuals(bool unused)
     }
   
   /* Extract default attr/char code for monsters */
-  for (i = 0; i < MAX_R_IDX; i++)
+  for (i = 0; i < z_info->r_max; i++)
     {
       monster_race *r_ptr = &r_info[i];
       
@@ -417,7 +417,7 @@ void reset_visuals(bool unused)
   
   
   /* Extract default attr/char code for flavors */
-  for (i = 0; i < MAX_FL_IDX; i++)
+  for (i = 0; i < z_info->flavor_max; i++)
     {
       flavor_type *flavor_ptr = &flavor_info[i];
       
@@ -2928,7 +2928,7 @@ void toggle_inven_equip(void)
  *
  * The item can be negative to mean "item on floor".
  */
-static bool verify_item(cptr prompt, int item)
+bool verify_item(cptr prompt, int item)
 {
   char o_name[120];
   
@@ -3737,7 +3737,7 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops)
   
   /* Set up the menu */
   WIPE(&menu, menu);
-  menu.cmd_keys = " \n\r";
+  menu.cmd_keys = "\n\r";
   
   /* Set the prompt */
   item_prompt(mode, pmt);
@@ -3910,7 +3910,7 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops)
 	}
       switch (evt.key)
 	{
-	case '*':
+	case '*':case ' ':
 	  {
 	    /* Hide the list */
 	    if (p_ptr->command_see)

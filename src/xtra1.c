@@ -1,4 +1,3 @@
-
 /* File: xtra1.c */
 
 /* Display of stats to the user from internal figures, char info shown on 
@@ -287,7 +286,7 @@ static void prt_shape(void)
       shapedesc = "Vampire   ";
       break;
     case SHAPE_WYRM:
-      shapedesc = "Wyrm      ";
+      shapedesc = "Dragon    ";
       break;
     case SHAPE_BEAR:
       shapedesc = "Bear      ";
@@ -2319,6 +2318,9 @@ static void calc_hitpoints(void)
 {
   int bonus, mhp;
   
+  /* Hack -- handle "xtra" mode */
+  if (character_xtra) return;
+  
   /* Un-inflate "half-hitpoint bonus per level" value */
   bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128);
   
@@ -3540,7 +3542,7 @@ extern void calc_bonuses(bool inspect)
   
   /* Speed boost in trees for elven druids and rangers */
   if ((check_ability(SP_WOODSMAN)) && (check_ability(SP_ELVEN)) && 
-      (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TREE))
+      (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags & TF_TREE))
     p_ptr->pspeed += 3;
 
   /* Superstealth for ents in forest */

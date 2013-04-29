@@ -1450,6 +1450,17 @@ static void term_raise(term_data *td)
 
 
 /*
+ * Given a position in the ISO Latin-1 character set, return
+ * the correct character on this system.
+ */
+static byte Term_xchar_xaw(byte c)
+{
+ 	/* The XAW port uses the Latin-1 standard */
+ 	return (c);
+}
+
+
+/*
  * Initialize a term_data
  */
 static errr term_data_init(term_data *td, Widget topLevel,
@@ -1517,6 +1528,7 @@ static errr term_data_init(term_data *td, Widget topLevel,
   t->bigcurs_hook = Term_bigcurs_xaw;
   t->wipe_hook = Term_wipe_xaw;
   t->text_hook = Term_text_xaw;
+  t->xchar_hook = Term_xchar_xaw;
   
   /* Save the data */
   t->data = td;

@@ -2390,6 +2390,9 @@ void monster_death(int m_idx)
     {
       /* Total winner */
       p_ptr->total_winner = TRUE;
+
+      /* Have a home now */
+      if (!p_ptr->home) p_ptr->home = towns[rp_ptr->hometown];
       
       /* Redraw the "title" */
       p_ptr->redraw |= (PR_TITLE);
@@ -3558,39 +3561,10 @@ static bool target_set_interactive_accept(int y, int x)
   /* Interesting memorized features */
   if (cave_info[y][x] & (CAVE_MARK))
     {
-      /* Notice glyphs */
-      if (cave_feat[y][x] == FEAT_GLYPH) return (TRUE);
-      
-      /* Notice doors */
-      if (cave_feat[y][x] == FEAT_OPEN) return (TRUE);
-      if (cave_feat[y][x] == FEAT_BROKEN) return (TRUE);
-      
-      /* Notice stairs */
-      if (cave_feat[y][x] == FEAT_LESS) return (TRUE);
-      if (cave_feat[y][x] == FEAT_MORE) return (TRUE);
-      
-      /* Notice paths */
-      if ((cave_feat[y][x] >= FEAT_LESS_NORTH) &&
-	  (cave_feat[y][x] <= FEAT_MORE_WEST)) return (TRUE);
-      
-      /* Notice shops */
-      if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-	  (cave_feat[y][x] <= FEAT_SHOP_TAIL)) return (TRUE);
-      
-      /* Notice traps */
-      if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-	  (cave_feat[y][x] <= FEAT_TRAP_TAIL)) return (TRUE);
-      
-      /* Notice doors */
-      if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-	  (cave_feat[y][x] <= FEAT_DOOR_TAIL)) return (TRUE);
-      
-      /* Notice rubble */
-      if (cave_feat[y][x] == FEAT_RUBBLE) return (TRUE);
-      
-      /* Notice veins with treasure */
-      if (cave_feat[y][x] == FEAT_MAGMA_K) return (TRUE);
-      if (cave_feat[y][x] == FEAT_QUARTZ_K) return (TRUE);
+      feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
+      /* Notice interesting things */
+      if (f_ptr->flags & TF_INTERESTING) return (TRUE);
     }
   
   /* Nope */
@@ -4087,9 +4061,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 	  s3 = (is_a_vowel(name[0])) ? "an " : "a ";
 	  
 	  /* Hack -- special treatment for certain terrain features. */
-	  if ((feat == FEAT_WATER) || (feat == FEAT_LAVA) || 
-	      (feat == FEAT_TREE) || (feat == FEAT_GRASS) || 
-	      (feat == FEAT_GRASS_INVIS))
+	  if (feat >= FEAT_MIN_SPECIAL)
 	    {
 	      s3 = "";
 	    }
@@ -4105,7 +4077,8 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 	    {
 	      s4 = " to ";
 	      s5 = locality_name[stage_map[stage_map[p_ptr->stage]
-[NORTH + (feat - FEAT_LESS_NORTH)/2]][LOCALITY]];
+					   [NORTH + (feat - FEAT_LESS_NORTH)/2]]
+				 [LOCALITY]];
 	    }
 	  else
 	    {
@@ -4320,9 +4293,15 @@ bool target_set_interactive(int mode)
   char info[80];
   
   /* These are used for displaying the path to the target */
+#ifdef _WIN32_WCE
+  u16b *path = malloc(MAX_RANGE * sizeof(*path));
+  char *path_char = malloc(MAX_RANGE * sizeof(*path_char));
+  byte *path_attr = malloc(MAX_RANGE * sizeof(*path_attr));
+#else
   u16b path[MAX_RANGE];
   char path_char[MAX_RANGE];
   byte path_attr[MAX_RANGE];
+#endif
   int max = 0;
   
   /* Cancel target */
@@ -4757,6 +4736,12 @@ bool target_set_interactive(int mode)
   /* Handle stuff */
   handle_stuff();
   
+#ifdef _WIN32_WCE
+  free(path);
+  free(path_char);
+  free(path_attr);
+#endif
+
   /* Failure to set target */
   if (!p_ptr->target_set) 
     {

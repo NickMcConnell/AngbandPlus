@@ -179,6 +179,7 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 	u16b i = 0;
 	char *s = buf;
 	int len;
+	bool check_encodes = FALSE;
 
 
 	/* Paranoia */
@@ -213,6 +214,9 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 			 */
 			*s = '\0';
 
+			/* Translate encodes if necessary */
+			if (check_encodes) xstr_trans(buf, 0);
+
 			/* Success */
 			return (0);
 		}
@@ -233,6 +237,9 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 		{
 			/* Null terminate */
 			*s = '\0';
+
+			/* Translate encodes if necessary */
+			if (check_encodes) xstr_trans(buf, 0);
 
 			/* Success */
 			return (0);
@@ -261,13 +268,16 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 		}
 
 		/* Ignore non-printables */
-		else if (isprint(c))
+		else if (my_isprint((unsigned char)c))
 		{
 			/* Store character in the buffer */
 			*s++ = c;
 
 			/* Count number of characters in the buffer */
 			i++;
+
+ 			/* Notice possible encode */
+ 			if (c == '[') check_encodes = TRUE;
 		}
 	}
 
@@ -1000,6 +1010,34 @@ errr check_modification_date(int fd, cptr template_file)
 #endif /* CHECK_MODIFICATION_TIME */
 
 #endif /* RISCOS */
+
+
+/*
+ * Format and translate a string, then print it out to file.
+ */
+void x_fprintf(FILE *fff, int encoding, cptr fmt, ...)
+{
+	va_list vp;
+
+ 	char buf[1024];
+
+ 	/* Begin the Varargs Stuff */
+ 	va_start(vp, fmt);
+
+ 	/* Format the args, save the length */
+ 	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
+
+ 	/* End the Varargs Stuff */
+ 	va_end(vp);
+
+ 	/* Translate */
+ 	xstr_trans(buf, encoding);
+
+ 	fputs(buf, fff);
+}
+
+
+
 
 /*** File-handling API ***/
 

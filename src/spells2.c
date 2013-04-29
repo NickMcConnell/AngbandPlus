@@ -548,40 +548,40 @@ void do_cmd_unchange(void)
  */
 bool lose_all_info(void)
 {
-  int i;
+  //int i;
   
   /* Forget info about objects */
-  for (i = 0; i < INVEN_TOTAL; i++)
-    {
-      object_type *o_ptr = &inventory[i];
+  //for (i = 0; i < INVEN_TOTAL; i++)
+  //{
+  //  object_type *o_ptr = &inventory[i];
       
       /* Skip non-objects */
-      if (!o_ptr->k_idx) continue;
+  //  if (!o_ptr->k_idx) continue;
       
       /* Allow "protection" by the MENTAL flag */
-      if (o_ptr->ident & (IDENT_MENTAL)) continue;
+  //  if (o_ptr->ident & (IDENT_MENTAL)) continue;
       
       /* Forget the feeling */
-      o_ptr->feel = FEEL_NONE;
+  //  o_ptr->feel = FEEL_NONE;
       
       /* Hack -- Clear the "empty" flag */
-      o_ptr->ident &= ~(IDENT_EMPTY);
+  //  o_ptr->ident &= ~(IDENT_EMPTY);
       
       /* Hack -- Clear the "known" flag */
-      o_ptr->ident &= ~(IDENT_KNOWN);
+  //  o_ptr->ident &= ~(IDENT_KNOWN);
       
       /* Hack -- Clear the "felt" flag */
-      o_ptr->ident &= ~(IDENT_SENSE);
-    }
+  //  o_ptr->ident &= ~(IDENT_SENSE);
+  //}
   
   /* Recalculate bonuses */
-  p_ptr->update |= (PU_BONUS);
+  //p_ptr->update |= (PU_BONUS);
   
   /* Combine / Reorder the pack (later) */
-  p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+  //p_ptr->notice |= (PN_COMBINE | PN_REORDER);
   
   /* Window stuff */
-  p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+  //p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
   
   /* Mega-Hack -- Forget the map */
   wiz_dark();
@@ -896,31 +896,36 @@ bool detect_traps(int range, bool show)
   int py = p_ptr->py;
   int px = p_ptr->px;
   
-  int num=0;
+  int num = 0;
   
+  feature_type *f_ptr = NULL;
+
   /* Hack - flash the effected region on the current panel */
   if (show) animate_detect(range);
   
   /* Scan the map */
-  for (y = 0; y<DUNGEON_HGT; y++)
+  for (y = 0; y < DUNGEON_HGT; y++)
     {
-      for (x = 0; x<DUNGEON_WID; x++)
+      for (x = 0; x < DUNGEON_WID; x++)
 	{
+	  /* Set the feature */
+	  f_ptr = &f_info[cave_feat[y][x]];
 	  
 	  /* check range */
 	  if (distance(py, px, y, x) <= range)
 	    {
 	      /* Detect invisible traps */
-	      if ((cave_feat[y][x] == FEAT_INVIS) ||
-		  (cave_feat[y][x] == FEAT_GRASS_INVIS))
+	      if (f_ptr->flags & TF_TRAP_INVIS)
 		{
 		  /* Pick a trap */
 		  pick_trap(y, x);
+		  
+		  /* Reset the feature */
+		  f_ptr = &f_info[cave_feat[y][x]];
 		}
 	      
 	      /* Detect traps */
-	      if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-		  (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+	      if (f_ptr->flags & TF_TRAP)
 		{
 		  /* Hack -- Memorize */
 		  cave_info[y][x] |= (CAVE_MARK);
@@ -966,15 +971,17 @@ bool detect_doors(int range, bool show)
   
   bool detect = FALSE;
   
-  int num=0;
+  int num = 0;
+
+  feature_type *f_ptr = NULL;
   
   /* Hack - flash the effected region on the current panel */
   if (show) animate_detect(range);
   
   /* Scan the map */
-  for (y = 0; y<DUNGEON_HGT; y++)
+  for (y = 0; y < DUNGEON_HGT; y++)
     {
-      for (x = 0; x<DUNGEON_WID; x++)
+      for (x = 0; x < DUNGEON_WID; x++)
 	{
 	  
 	  /* check range */
@@ -987,11 +994,11 @@ bool detect_doors(int range, bool show)
 		  place_closed_door(y, x);
 		}
 	      
+	      /* Set the feature */
+	      f_ptr = &f_info[cave_feat[y][x]];
+
 	      /* Detect doors */
-	      if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-		   (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
-		  ((cave_feat[y][x] == FEAT_OPEN) ||
-		   (cave_feat[y][x] == FEAT_BROKEN)))
+	      if (f_ptr->flags & TF_DOOR_ANY)
 		{
 		  /* Hack -- Memorize */
 		  cave_info[y][x] |= (CAVE_MARK);
@@ -1041,9 +1048,9 @@ bool detect_stairs(int range, bool show)
   if (show) animate_detect(range);
   
   /* Scan the map */
-  for (y = 0; y<DUNGEON_HGT; y++)
+  for (y = 0; y < DUNGEON_HGT; y++)
     {
-      for (x = 0; x<DUNGEON_WID; x++)
+      for (x = 0; x < DUNGEON_WID; x++)
 	{
 	  
 	  /* check range */
@@ -1689,6 +1696,7 @@ bool detect_monsters_living(int range, bool show)
     {
       for (x = px - range; x <= px + range; x++)
 	{
+	  feature_type *f_ptr = &f_info[cave_feat[y][x]];
 	  
 	  /* Ignore "illegal" locations */
 	  if (!in_bounds(y, x)) continue;
@@ -1697,7 +1705,7 @@ bool detect_monsters_living(int range, bool show)
 	  if (distance(py, px, y, x) > range) continue;
 	  
 	  /* Notice trees */
-	  if (cave_feat[y][x] == FEAT_TREE)
+	  if (f_ptr->flags & TF_TREE)
 	    {
 	      /* Mark it */
 	      cave_info[y][x] |= CAVE_MARK;
@@ -1876,14 +1884,6 @@ static bool item_tester_unknown(object_type *o_ptr)
     return TRUE;
 }
 
-
-static bool item_tester_unknown_star(object_type *o_ptr)
-{
-  if (o_ptr->ident & IDENT_MENTAL)
-    return FALSE;
-  else
-    return TRUE;
-}
 
 static bool item_tester_unproofed(object_type *o_ptr)
 {
@@ -2479,8 +2479,10 @@ bool curse_weapon(void)
  * Identify an object in the inventory (or on the floor)
  * This routine does *not* automatically combine objects.
  * Returns TRUE if something was identified, else FALSE.
+ *
+ * Unused as of FAangband 0.3.4
  */
-bool ident_spell(void)
+bool ident_spell_old(void)
 {
   int item;
   object_type *o_ptr;
@@ -2609,8 +2611,9 @@ bool ident_spell(void)
  * Fully "*identify*" an object in the inventory
  *
  * This routine returns TRUE if an item was identified.
+ * Was bool identify_fully(void)
  */
-bool identify_fully(void)
+bool ident_spell(void)
 {
   int item;
   int squelch=0;
@@ -2625,14 +2628,14 @@ bool identify_fully(void)
   bool noted;
   
   /* Only un-*id*'ed items */
-  item_tester_hook = item_tester_unknown_star;
+  item_tester_hook = item_tester_unknown;
   
   /* Don't restrict choices */
   item_tester_tval = 0;
   
   /* Get an item.   */
-  q = "*Identify* which item? ";
-  s = "You have nothing to *identify*.";
+  q = "Identify which item? ";
+  s = "You have nothing to identify.";
   if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
   
   /* Get the item (in the pack) */
@@ -2756,13 +2759,13 @@ bool identify_fully(void)
     }
   
   /* Save screen */
-  screen_save();
+  //screen_save();
   
   /* Examine the item. */
-  object_info_screen(o_ptr);
+  //object_info_screen(o_ptr);
 
   /* Load screen */
-  screen_load();
+  //screen_load();
 
   /* Success */
   return (TRUE);
@@ -3325,18 +3328,20 @@ bool listen_to_natural_creatures(void)
       /* Scan all normal grids */
       for (x = 1; x < DUNGEON_WID-1; x++)
 	{
+	  feature_type *f_ptr = &f_info[cave_feat[y][x]];
 	  
 	  /* Detect invisible traps */
-	  if ((cave_feat[y][x] == FEAT_INVIS) ||
-	      (cave_feat[y][x] == FEAT_GRASS_INVIS))
+	  if (f_ptr->flags & TF_TRAP_INVIS)
 	    {
 	      /* Pick a trap */
 	      pick_trap(y, x);
 	    }
+
+	  /* Reset the feature */
+	  f_ptr = &f_info[cave_feat[y][x]];
 	  
 	  /* Detect traps */
-	  if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-	      (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+	  if (f_ptr->flags & TF_TRAP)
 	    {
 	      /* Hack -- Memorize */
 	      cave_info[y][x] |= (CAVE_MARK);
@@ -3384,7 +3389,13 @@ void grow_trees_and_grass(void)
 	if (rand_int(dist + 2) != 0) continue;
 
 	/* Probably grass, otherwise a tree */
-	if (rand_int(4) == 0) cave_set_feat(y, x, FEAT_TREE);
+	if (rand_int(4) == 0) 
+	  {
+	    if (p_ptr->depth < 40)
+	      cave_set_feat(y, x, FEAT_TREE);
+	    else
+	      cave_set_feat(y, x, FEAT_TREE2);
+	  }
 	else cave_set_feat(y, x, FEAT_GRASS);
       }
   
@@ -4040,13 +4051,13 @@ void destroy_area(int y1, int x1, int r, bool full)
 	  if (cave_valid_bold(y, x))
 	    {
 	      int feat = FEAT_FLOOR;
+	      feature_type *f_ptr = &f_info[cave_feat[y][x]];
 	      
 	      /* Delete objects */
 	      delete_object(y, x);
 	      
 	      /* Decrement the trap or glyph count. */
-	      if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) && 
-		  (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
+	      if (f_ptr->flags & TF_M_TRAP)
 		num_trap_on_level--;
 	      else if (cave_feat[y][x] == FEAT_GLYPH)
 		num_glyph_on_level--;
@@ -4203,7 +4214,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 	  if (rand_int(100) < (75 - (50 * unstable)/total)) continue;
 	  
 	  /* Damage this grid */
-	  map[16+yy-cy][16+xx-cx] = TRUE;
+	  map[16 + yy - cy][16 + xx - cx] = TRUE;
 	  
 	  /* Hack -- Take note of player damage */
 	  if ((yy == py) && (xx == px)) hurt = TRUE;
@@ -4224,7 +4235,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 	  if (!cave_empty_bold(y, x)) continue;
 	  
 	  /* Important -- Skip "quake" grids */
-	  if (map[16+y-cy][16+x-cx]) continue;
+	  if (map[16 + y - cy][16 + x - cx]) continue;
 	  
 	  /* Count "safe" grids, apply the randomizer */
 	  if ((++sn > 1) && (rand_int(sn) != 0)) continue;
@@ -4439,7 +4450,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
   px = p_ptr->px;
   
   /* Important -- no wall on player */
-  map[16+py-cy][16+px-cx] = FALSE;
+  map[16 + py - cy][16 + px - cx] = FALSE;
   
   
   /* Examine the quaked region */
@@ -4452,7 +4463,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 	  xx = cx + dx;
 	  
 	  /* Skip unaffected grids */
-	  if (!map[16+yy-cy][16+xx-cx]) continue;
+	  if (!map[16 + yy - cy][16 + xx - cx]) continue;
 	  
 	  /* Paranoia -- never affect player */
 	  if ((yy == py) && (xx == px)) continue;
@@ -4466,6 +4477,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 	      
 	      monster_type *m_ptr = &m_list[cave_m_idx[yy][xx]];
 	      monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	      feature_type *f_ptr = &f_info[cave_feat[yy][xx]];
 		      
 	      /* Allow more things to be destroyed outside */
 	      if (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE)
@@ -4475,8 +4487,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 	      delete_object(yy, xx);
 	      
 	      /* Hack -- Increment the trap or glyph count. */
-	      if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) && 
-		  (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
+	      if (f_ptr->flags & TF_M_TRAP)
 		num_trap_on_level--;
 	      else if (cave_feat[y][x] == FEAT_GLYPH)
 		num_glyph_on_level--;
@@ -4821,6 +4832,7 @@ static void cave_temp_room_aux(int y, int x)
 void lite_room(int y1, int x1)
 {
   int i, x, y;
+  feature_type *f_ptr = NULL;
   
   /* Add the initial grid */
   cave_temp_room_aux(y1, x1);
@@ -4831,7 +4843,8 @@ void lite_room(int y1, int x1)
       x = temp_x[i], y = temp_y[i];
       
       /* Walls (but not trees) get lit, but stop light */
-      if ((!cave_floor_bold(y, x)) && (cave_feat[y][x] != FEAT_TREE)) continue;
+      f_ptr = &f_info[cave_feat[y][x]];
+      if ((!cave_floor_bold(y, x)) && (f_ptr->flags & TF_TREE)) continue;
       
       /* Spread adjacent */
       cave_temp_room_aux(y + 1, x);
@@ -5340,6 +5353,16 @@ bool trap_creation(void)
   int px = p_ptr->px;
   
   int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+
+  /* Mega-hack - trap trees.  Need to fix projection here */
+  int i;
+  for (i = 0; i < 8; i++)
+    {
+      if ((cave_feat[py + ddy_ddd[i]][px + ddx_ddd[i]] == FEAT_TREE) ||
+	  (cave_feat[py + ddy_ddd[i]][px + ddx_ddd[i]] == FEAT_TREE2))
+	place_trap(py + ddy_ddd[i], px + ddx_ddd[i]);
+    }
+ 
   return (project(-1, 1, py, px, 0, GF_MAKE_TRAP, flg, 0, 0));
 }
 

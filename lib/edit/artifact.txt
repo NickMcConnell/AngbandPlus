@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.3.3
+V:0.3.4
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -66,13 +66,13 @@ D:by Thingol Greycloak, master of his surroundings.
 
 # The Palantir of Avallone
 
-N:3:of Avallone
+N:3:of Avall['o]n["e]
 I:39:6:0
 W:90:40:5:85000
 P:0:1d1:0:0:0:3
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | 
 F:INSTA_ART
-D:A crystal made by Feanor in Aman, wherein things far away could be seen 
+D:A crystal made by F["e]anor in Aman, wherein things far away could be seen 
 D:small but clear, as with the eyes of eagles.
 
 # The Amulet of Carlammas (Set Item)
@@ -89,7 +89,7 @@ D:A fiery circle of bronze, with mighty spells to ward off and banish evil.
 
 # The Amulet of Ingwe
 
-N:5:of Ingwe
+N:5:of Ingw["e]
 I:40:11:3
 W:65:30:3:90000
 P:0:1d1:0:0:0:5
@@ -97,8 +97,8 @@ F:WIS | CHR | INFRA | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT | ACTIVATE | 
 F:RES_ACID_40 | RES_COLD_40 | RES_ELEC_40 | 
 F:INSTA_ART
-D:The ancient heirloom of Ingwe, high lord of the Vanyar, against whom nothing 
-D:of evil could stand.
+D:The ancient heirloom of Ingw["e], high lord of the Vanyar, against whom 
+D:nothing of evil could stand.
 
 
 # The Necklace of the Dwarves
@@ -110,10 +110,11 @@ P:0:1d1:0:0:0:6
 F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE | 
 F:ACTIVATE | SEE_INVIS | FREE_ACT | REGEN | LITE | 
 F:INSTA_ART
-D:The Nauglamir; the carcanet of gold set with a multitude of shining gems of 
-D:Valinor is but a setting.  The true power lies in the Silmaril of Feanor at 
-D:its centre, shining forth the light of the Two Trees of Valinor.  Its 
-D:beauty and desirability are equalled only by its revealing power.
+D:The Nauglam['i]r; the carcanet of gold set with a multitude of shining gems 
+D:of Valinor is but a setting.  The true power lies in the Silmaril of 
+D:F["e]anor at its centre, shining forth the light of the Two Trees of 
+D:Valinor.  Its beauty and desirability are equalled only by its revealing 
+D:power.
 
 
 # The Torque of Boromir
@@ -291,7 +292,7 @@ P:14:1d4:-2:0:15:0
 F:CON | FREE_ACT | HIDE_TYPE | RES_ACID_50 | 
 F:RES_ELEC_45 | RES_FIRE_45 | RES_COLD_45 | RES_SHARD_40 | RES_NEXUS_40
 D:A hauberk, leggings, and sleeves of interlocking steel rings, well padded 
-D:with leather.  You feel the vigour of Turin Turambar, the Blacksword of 
+D:with leather.  You feel the vigour of T['u]rin Turambar, the Blacksword of 
 D:Nargothrond, as you put it on.
 
 # The Augmented Chain Mail of Caspanion
@@ -398,13 +399,13 @@ D:it conveys the same powers of endurance to its bearer.
 
 # The Knight's Shield of Earendil
 
-N:47:of Earendil
+N:47:of E["a]rendil
 I:34:6:0
 W:65:6:160:90000
 P:10:1d6:0:0:15:33
 F:LITE | SEEING | RES_DARK_45 | RES_NETHR_40 | RES_ELEC_45 | RES_FIRE_50 | 
 F:ACTIVATE
-D:A shining shield wrought for Earendil Half-Elven, son of Tuor and Idril, 
+D:A shining shield wrought for E["a]rendil Half-Elven, son of Tuor and Idril, 
 D:"scored with runes to keep all wounds and harm from him".
 
 
@@ -416,7 +417,7 @@ W:70:4:80:65000
 P:14:1d4:0:0:16:34
 F:LITE | CHR | RES_ELEC_45 | RES_ACID_45 | HIDE_TYPE | 
 F:SUST_WIS | SUST_CHR | ACTIVATE
-D:The shield of Ereinon Gil-Galad son of Fingon, made to keep him from harm 
+D:The shield of Ereinion Gil-Galad son of Fingon, made to keep him from harm 
 D:in times of trouble.
 
 # Artifact 49 is unused
@@ -490,7 +491,7 @@ D:the one who wears it.
 
 # The Steel Helm of Dor-Lomin (Set Item)
 
-N:56:of Dor-Lomin
+N:56:of Dor-L['o]min
 I:32:6:4
 W:70:12:75:300000
 P:6:1d3:0:0:20:0
@@ -498,7 +499,7 @@ F:STR | DEX | CON | HIDE_TYPE |
 F:RES_ACID_35 | RES_ELEC_35 | RES_FIRE_45 | RES_COLD_35 | RES_LITE_35 | 
 F:SEEING | LITE | SEE_INVIS | TELEPATHY
 D:The legendary dragon helm of Hador, crafted by Telchar of Nogrod.  It's 
-D:dwarven visor allowed Turin Turambar alone to face the fire of Glaurung, 
+D:dwarven visor allowed T['u]rin Turambar alone to face the fire of Glaurung, 
 D:an image of whose head was set on its crest in defiance.
 
 
@@ -610,7 +611,7 @@ D:of Law.
 
 # The Shadow Cloak of Luthien
 
-N:71:of Luthien
+N:71:of L['u]thien
 I:35:4:2
 W:80:20:5:45000
 P:4:0d0:0:0:20:45
@@ -618,7 +619,7 @@ F:INT | WIS | CHR | HIDE_TYPE |
 F:RES_ACID_35 | RES_FIRE_40 | RES_COLD_40 | ACTIVATE
 D:The opaque midnight folds of this cloak, inset with a multitude of tiny 
 D:diamonds, swirl around you and you feel a hint, a fragment of the 
-D:knowledge and power to restore that lay in Luthien, the most beautiful 
+D:knowledge and power to restore that lay in L['u]thien, the most beautiful 
 D:being who ever knew death.
 
 
@@ -751,13 +752,13 @@ D:Morgoth seven mighty wounds and pain that will last forever.
 
 # The Pair of Hard Leather Boots of Feanor
 
-N:89:of Feanor
+N:89:of F["e]anor
 I:30:3:10
 W:60:100:40:250000
 P:3:1d1:0:0:15:61
 F:SPEED | 
 F:RES_NEXUS_35 | ACTIVATE
-D:This wondrous pair of leather boots once sped Feanor, creator of the 
+D:This wondrous pair of leather boots once sped F["e]anor, creator of the 
 D:Silmarils and the mightiest of the Eldar, to fulfill his hero's challenge 
 D:and do battle for a Middle-Earth held in thrall.  "Dear-bought those songs 
 D:shall be accounted, and yet shall be well-bought.  For the price could be 
@@ -899,9 +900,9 @@ D:blood channel that gleams coldly blue as you grasp this mighty weapon of
 D:peril.
 
 
-# The Broad Sword 'Arunruth'
+# The Broad Sword 'Aranruth'
 
-N:105:'Arunruth'
+N:105:'Aranr['u]th'
 I:23:16:4
 W:40:45:110:50000
 P:0:3d5:20:12:0:71
@@ -964,9 +965,9 @@ F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE |
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
 F:RES_FIRE_50 | RES_CONFU_-20 | FREE_ACT | SEE_INVIS | AGGRAVATE | 
 F:TWO_HANDED_DES | SHOW_MODS
-D:Runes dark and deadly stand stark against the naked blade of Turin's awesome 
-D:black weapon, and you feel a wrathful power of slaying and rending as you 
-D:slowly approach.
+D:Runes dark and deadly stand stark against the naked blade of T['u]rin's 
+D:awesome black weapon, and you feel a wrathful power of slaying and rending 
+D:as you slowly approach.
 
 # Artifacts 111 - 112 are unused
 
@@ -1035,7 +1036,7 @@ P:0:2d5:15:16:0:0
 F:STR | CON | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC_50 | 
 F:RES_LITE_35 | LITE | SEE_INVIS | SHOW_MODS
-D:Forged of black galvorn by the Dark-Elven smith Eol, this blade has the 
+D:Forged of black galvorn by the Dark-Elven smith E["o]l, this blade has the 
 D:living lightning trapped inside.
 
 
@@ -1070,7 +1071,7 @@ P:0:1d7:13:8:0:0
 F:STR | DEX | HIDE_TYPE | 
 F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
 F:FEARLESS | SHOW_MODS
-D:An heirloom of the dauntless Lords of Rhun far to the east, and a name 
+D:An heirloom of the dauntless Lords of Rh[^u]n far to the east, and a name 
 D:of dismay to creatures natural and unnatural.
 
 # The Small Sword of Idril
@@ -1199,15 +1200,15 @@ D:The mighty spear of Gil-galad, famed as "Snow-point" in the songs of Elves.
 
 # The Thrusting Spear of Orome
 
-N:138:of Orome
+N:138:of Orom["e]
 I:22:3:4
 W:35:23:50:80000
 P:3:2d6:15:15:0:80
 F:THROWING | WIS | INFRA | HIDE_TYPE | 
 F:BRAND_FIRE | SLAY_GIANT | RES_FIRE_50 | RES_LITE_40 | 
 F:FEATHER | LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS
-D:The thrusting spear of wise Orome the Vala, strong against giants of frost, 
-D:and able to melt rock or flesh with ease.
+D:The thrusting spear of wise Orom["e] the Vala, strong against giants of 
+D:frost, and able to melt rock or flesh with ease.
 
 
 # The Spear 'Nimloth'
@@ -1248,12 +1249,12 @@ F:RES_ACID_40 | RES_FIRE_40 | RES_LITE_40 | RES_DARK_40 | RES_CHAOS_35 |
 F:TWO_HANDED_DES | SHOW_MODS
 D:The twin massive axe heads of this ancient demon's dread gleam with 
 D:mithril inlay, which tell sagas of endurance, invoking the powers of 
-D:Khazad-dum to protect the wearer and slay all evils found underground.
+D:Khazad-d[^u]m to protect the wearer and slay all evils found underground.
 
 
 # The Great Axe of Eonwe
 
-N:142:of Eonwe
+N:142:of E["o]nw["e]
 I:22:25:2
 W:70:80:230:200000
 P:0:5d4:15:18:8:81
@@ -1262,7 +1263,7 @@ F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD |
 F:SLAY_ORC | FREE_ACT | IM_COLD | 
 F:SEE_INVIS | BLESSED | ACTIVATE | 
 F:TWO_HANDED_DES | SHOW_MODS
-D:The axe of Eonwe, herald of Manwe Sulimo, 
+D:The axe of E["o]nw["e], herald of Manw["e] S['u]limo, 
 D:strikes with the pure icy wrath of Taniquetil at the undead, disperses hosts 
 D:of evil at a word, and grants Maia-like powers of body and mind.
 
@@ -1331,7 +1332,7 @@ F:SLAY_EVIL | SLAY_UNDEAD | RES_LITE_50 | RES_DARK_50 | SEE_INVIS |
 F:BLESSED | 
 F:TWO_HANDED_DES | SHOW_MODS
 D:A massive triple-pronged spear, so great it normally requires two hands 
-D:to wield, evoking the spirit of Osse who with it pierced legions of 
+D:to wield, evoking the spirit of Oss["e] who with it pierced legions of 
 D:evil and undead.
 
 
@@ -1366,7 +1367,7 @@ D:returning.
 
 # The Dart of Eol
 
-N:150:of Eol
+N:150:of E["o]l
 I:22:28:3
 W:10:10:60:30000
 P:0:2d5:8:8:0:0
@@ -1474,7 +1475,7 @@ D:fingers and eyebrows.
 
 # The War Hammer of Aule
 
-N:164:of Aule
+N:164:of Aul["e]
 I:21:8:4
 W:80:95:140:200000
 P:0:5d5:19:21:5:0
@@ -1482,7 +1483,7 @@ F:WIS | HIDE_TYPE |
 F:SLAY_DRAGON | SLAY_EVIL | BRAND_ELEC | SLAY_UNDEAD | SLAY_DEMON | 
 F:RES_ACID_40 | RES_ELEC_50 | RES_FIRE_40 | RES_COLD_40 | RES_NEXUS_35 | 
 F:SHOW_MODS
-D:The wondrous hammer of Aule, creator of the wise Dwarven lords of old.  
+D:The wondrous hammer of Aul["e], creator of the wise Dwarven lords of old.  
 D:It bears magics of demolishing that no serpent or demon can withstand, and 
 D:envokes the strength of mountains to ward off the tumult of the elements.
 
@@ -1514,7 +1515,7 @@ D:grants keen sight and clear knowledge of many hidden things.
 
 # The Quarterstaff of Olorin
 
-N:167:of Olorin
+N:167:of Ol['o]rin
 I:21:3:4
 W:60:90:170:120000
 P:10:2d7:10:13:0:93
@@ -1522,7 +1523,7 @@ F:INT | WIS | CON | HIDE_TYPE |
 F:SLAY_EVIL | BRAND_ACID | SLAY_TROLL | SLAY_ORC | SLAY_GIANT | 
 F:HOLD_LIFE | RES_ACID_50 | RES_NETHR_45 | SEE_INVIS | ACTIVATE | 
 F:TWO_HANDED_REQ | SHOW_MODS
-D:A staff tall and sturdy, borne of old by Olorin, wisest of the Maiar.  
+D:A staff tall and sturdy, borne of old by Ol['o]rin, wisest of the Maiar.  
 D:Rough-hewn runes that invoke the element of Earth stand bold upon its 
 D:gnarled surface, and no creature who lives in the shadow of mountains can 
 D:withstand the blows it deals.
@@ -1597,7 +1598,7 @@ W:50:20:40:35000
 P:0:3d1:20:22:0:0
 F:DEX | STEALTH | SHOTS | HIDE_TYPE | 
 F:RES_DISEN_35 | SHOW_MODS
-D:The great bow of Beleg Cuthalion, made of black yew and strung with elven 
+D:The great bow of Beleg C['u]thalion, made of black yew and strung with elven 
 D:hair that faintly shimmers a pale clear gold.
 
 
@@ -1635,7 +1636,7 @@ P:0:2d1:12:15:0:0
 F:STR | CON | MIGHT2 |
 F:RES_FIRE_35 | RES_ELEC_35 | RES_COLD_35 | REGEN
 D:A hunter's bow used for sport and war across the plains of East 
-D:Beleriand.  It remembers the fury of the sons of Feanor.
+D:Beleriand.  It remembers the fury of the sons of F["e]anor.
 
 
 # The Short Bow of Celegorm
@@ -1647,7 +1648,7 @@ P:0:2d1:12:15:0:0
 F:INT | WIS | DEX | SHOTS | MIGHT1 | SPEED |
 F:RES_FIRE_35 | RES_ELEC_35 | RES_COLD_35 | SLOW_DIGEST
 D:A cunning bow, crafted by the Noldor of old.  It remembers the 
-D:wiles of the sons of Feanor.
+D:wiles of the sons of F["e]anor.
 
 
 # Artifact 185 is unused
@@ -1746,13 +1747,13 @@ D:last.
 
 # The Wand of Osse
 
-N:197:of Osse
+N:197:of Oss["e]
 I:65:43:6
 # W:70:1:10:22500 TNB
 W:70:48:10:22500
 P:0:1d1:0:0:0:0
 F:INSTA_ART
-D:The Maia Osse was at one time drawn to Melkor, and still finds delight in 
+D:The Maia Oss["e] was at one time drawn to Melkor, and still finds delight in 
 D:the destructive power of the sea.
 
 

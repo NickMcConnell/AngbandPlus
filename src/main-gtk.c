@@ -26,6 +26,12 @@
 #include <gdk/gdkkeysyms.h>
 #include <glade/glade.h>
 
+/*
+ * Include some helpful X11 code.
+ */
+#include "maid-x11.h"
+
+
 #define MAX_TERM_DATA 1
 /*
  * Extra data to associate with each "window"
@@ -381,6 +387,7 @@ static void save_game_gtk(void)
 
 static void hook_quit(cptr str)
 {
+	(void)unregister_angband_fonts();
 	save_prefs();
 	gtk_exit(0);
 }
@@ -1048,7 +1055,7 @@ static void load_prefs(term_data *td, int i)
 	td->cols = cols;
 	td->rows = rows;
 	
-	if (font != "") load_font_by_name(td, font);
+	if (strlen(font) != 0) load_font_by_name(td, font);
 	
 	gtk_widget_set_size_request(GTK_WIDGET(td->drawing_area),  td->cols * td->font_wid + 1, td->rows * td->font_hgt + 1);
 	gtk_window_move( GTK_WINDOW(td->window), x, y);
@@ -1071,6 +1078,17 @@ gboolean expose_event_handler(GtkWidget *widget, GdkEventExpose *event, gpointer
 
 	return (TRUE);
 }
+
+/*
+ * Given a position in the ISO Latin-1 character set, return
+ * the correct character on this system.
+ */
+static byte Term_xchar_gtk(byte c)
+{
+ 	/* The GTK port uses the Latin-1 standard - huh */
+  return (c > 128 ? seven_bit_translation[c - 128] : c);
+}
+
 
 static errr term_data_init(term_data *td, int i)
 {
@@ -1096,6 +1114,7 @@ static errr term_data_init(term_data *td, int i)
 	t->text_hook = Term_text_gtk;
 	t->wipe_hook = Term_wipe_gtk;
 	t->curs_hook = Term_curs_gtk;
+	t->xchar_hook = Term_xchar_gtk;
 
 	/* Save the data */
 	t->data = td;
@@ -1187,6 +1206,9 @@ errr init_gtk(int argc, char **argv)
 	/* Initialize the environment */
 	gtk_init(&argc, &argv);
 	
+	/* Make the new angband fonts available */
+ 	(void)register_angband_fonts();
+
 	/* Parse args */
 	for (i = 1; i < argc; i++)
 	{	

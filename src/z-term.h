@@ -270,6 +270,8 @@ struct term
 	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
 
 	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+
+ 	byte (*xchar_hook)(byte c);
 };
 
 
@@ -350,6 +352,9 @@ extern term *Term;
 
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
+
+extern const char seven_bit_translation[128];
+extern char xchar_trans(byte c);
 
 extern void Term_queue_char(term *t, int x, int y, byte a, char c, byte ta, char tc);
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);

@@ -106,6 +106,7 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <X11/keysymdef.h>
+#include <X11/Xatom.h>
 #endif /* __MAKEDEPEND__ */
 
 
@@ -1335,6 +1336,9 @@ static errr Infofnt_init_data(cptr name)
 	/* Mark it as nukable */
 	Infofnt->nuke = 1;
 
+	/* HACK - force all fonts to be printed character by character */
+	Infofnt->mono = 1;
+
 	/* Success */
 	return (0);
 }
@@ -2390,6 +2394,16 @@ static void save_prefs(void)
 
 
 /*
+ * Given a position in the ISO Latin-1 character set, return
+ * the correct character on this system.
+ */
+static byte Term_xchar_x11(byte c)
+{
+ 	/* The X11 port uses the Latin-1 standard */
+ 	return (c);
+}
+
+/*
  * Initialize a term_data
  */
 static errr term_data_init(term_data *td, int i)
@@ -2651,6 +2665,11 @@ static errr term_data_init(term_data *td, int i)
 	if (val > 0) oy = val;
 
 
+	/* Window specific font name */
+	sprintf(buf, "ANGBAND_X11_FONT_%d", i);
+	str = getenv(buf);
+	if (str) font = str;
+
 	/* Prepare the standard font */
 	MAKE(td->fnt, infofnt);
 	Infofnt_set(td->fnt);
@@ -2763,6 +2782,7 @@ static errr term_data_init(term_data *td, int i)
 	t->bigcurs_hook = Term_bigcurs_x11;
 	t->wipe_hook = Term_wipe_x11;
 	t->text_hook = Term_text_x11;
+	t->xchar_hook = Term_xchar_x11;
 
 	/* Save the data */
 	t->data = td;
@@ -2788,6 +2808,8 @@ static void hook_quit(cptr str)
 
 	/* Unused */
 	(void)str;
+
+	(void)unregister_angband_fonts();
 
 	save_prefs();
 
@@ -2983,6 +3005,9 @@ errr init_x11(int argc, char *argv[])
 
 	/* Remember the number of terminal windows */
 	term_windows_open = num_term;
+
+	/* Make the new angband fonts available */
+ 	(void)register_angband_fonts();
 
 	/* Prepare cursor color */
 	MAKE(xor, infoclr);

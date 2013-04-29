@@ -2696,6 +2696,17 @@ static void set_update_rect(term_window *win, SDL_Rect *rc)
 }
 
 /*
+ * Given a position in the ISO Latin-1 character set, return
+ * the correct character on this system.
+ */
+static byte Term_xchar_sdl(byte c)
+{
+  /* The SDL port uses the Latin-1 standard.  I hope. */
+  return (c);
+}
+
+
+/*
  * Clear a terminal window
  */
 static errr Term_xtra_sdl_clear(void)
@@ -3240,6 +3251,7 @@ static void term_data_link_sdl(term_window *win)
 	t->wipe_hook = Term_wipe_sdl;
 	t->text_hook = Term_text_sdl;
 	t->pict_hook = Term_pict_sdl;
+	t->xchar_hook = Term_xchar_sdl;
 	
 	/* Remember where we came from */
 	t->data = win;

@@ -690,6 +690,11 @@ static int get_druid_damage(int plev, char m_name[], int power, int deadliness)
   ds = d_blow[b_select - 1].ds;
   if (power_strike) damage = (dd * ds);
   else damage = damroll(dd, ds);
+
+  /* Record the damage for display */
+  for (i = 0; i < 11; i++)
+    p_ptr->barehand_dam[i] = p_ptr->barehand_dam[i + 1];
+  p_ptr->barehand_dam[11] = (u16b)damage;
   
   /* Druids can also confuse monsters. */
   if ((power_strike && (rand_int(3) != 0)) || (power > rand_int(500) + 25))
@@ -884,7 +889,7 @@ void py_attack(int y, int x)
   /* Monsters in trees can take advantage of cover, except 
    * from players who know nature lore.
    */
-  if ((cave_feat[y][x] == FEAT_TREE) && 
+  if (((cave_feat[y][x] == FEAT_TREE) || (cave_feat[y][x] == FEAT_TREE2)) && 
       !((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))))
     {
       terrain_bonus = r_ptr->ac / 7 + 5;
@@ -1729,7 +1734,8 @@ void do_cmd_fire(void)
 	  /* Monsters in trees can take advantage of cover, except from 
 	   * players who know nature lore.
 	   */
-	  if ((cave_feat[y][x] == FEAT_TREE) && 
+	  if (((cave_feat[y][x] == FEAT_TREE) || 
+	       (cave_feat[y][x] == FEAT_TREE2)) && 
 	      !((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))))
 	    {
 	      terrain_bonus = r_ptr->ac / 5 + 5;
@@ -2196,7 +2202,8 @@ void do_cmd_throw(void)
 	  /* Monsters in trees can take advantage of cover, except from 
 	   * players who know nature lore.
 	   */
-	  if ((cave_feat[y][x] == FEAT_TREE) && 
+	  if (((cave_feat[y][x] == FEAT_TREE) || 
+	       (cave_feat[y][x] == FEAT_TREE2)) && 
 	      !((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))))
 	    {
 	      terrain_bonus = r_ptr->ac / 5 + 5;

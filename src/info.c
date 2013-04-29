@@ -36,7 +36,7 @@ cptr obj_class_info[101] =
   "",	"",	"",	"",	"",
   
   "Footwear protects the feet only, but some rare items of this type have magics to render them fleet, light, or steady.",	"Your hands would benefit from protection too, but most magic users need to keep their fingers unencumbered or magically supple.",	"Many a blow will be struck upon your head, and protection here will certainly be helpful.  Some rare items may protect and enhance your mind.",	"Many a blow will be struck upon your head, and protection here will certainly be helpful.  Some rare items may protect and enhance your mind.",	"Shields can be worn on your arm, or on your back if you need both hands to use your weapon.  So protective can a shield be that it can reduce damage as much or more than body armour, and you can perhaps deflect physical missiles (even shards) or take advantage of opportunities to bash your foe if you have one on your arm.",
-  "Experienced adventurers wrap a cloak around their body.  Some rare items of this type may allow you to slip silently around less alert enemies.",	"Some kind of body protection will become a necessity as you face ever more dangerous opponents; rare items of this type may hold many and varied protective magics.",	"Some kind of body protection will become a necessity as you face ever more dangerous opponents; rare items of this type may hold many and varied protective magics.",	"Armour made of dragon scales is rare indeed, and powerful dragon magics allow you to sometimes breathe even as great wyrms do.",	"An adventurer who cannot see is jackal food.  The further away your illumination ends, the greater your chance to ready yourself for desperate combat.",
+  "Experienced adventurers wrap a cloak around their body.  Some rare items of this type may allow you to slip silently around less alert enemies.",	"Some kind of body protection will become a necessity as you face ever more dangerous opponents; rare items of this type may hold many and varied protective magics.",	"Some kind of body protection will become a necessity as you face ever more dangerous opponents; rare items of this type may hold many and varied protective magics.",	"Armour made of dragon scales is rare indeed, and powerful dragon magics allow you to sometimes breathe even as great dragons do.",	"An adventurer who cannot see is jackal food.  The further away your illumination ends, the greater your chance to ready yourself for desperate combat.",
   
   "Amulets slip around your neck, and almost all have magics wondrous or perilous bound inside.",	"",	"",	"",	"",
   "You may wear a ring upon each of your two ring fingers, and benefit or suffer from the magics it contains.",	"",	"",	"",	"",
@@ -726,7 +726,8 @@ static cptr extra_data(object_type *o_ptr)
 
 
 #define CHECK_FIRST(txt, first) \
-if ((first)) { (first) = FALSE; roff((txt), 3, 77); } else roff(", ", 3, 77);
+  if ((first)) { (first) = FALSE; text_out_to_screen(TERM_WHITE, (txt)); } \
+  else text_out_to_screen(TERM_WHITE, ", ");
 
 /*
  * Display the damage done with a multiplier
@@ -769,10 +770,10 @@ extern void output_dam(object_type *o_ptr, int mult, cptr against, bool *first)
 
   CHECK_FIRST("", *first);
   if ((dam > 50000) || (add > 0))
-    c_roff(TERM_L_GREEN, format("%d", add + dam / 100000), 3, 77);
+    text_out_to_screen(TERM_L_GREEN, format("%d", add + dam / 100000));
   else
-    c_roff(TERM_L_RED, "0", 3, 77);
-  roff(format(" against %s", against), 3, 77);
+    text_out_to_screen(TERM_L_RED, "0");
+  text_out_to_screen(TERM_WHITE, format(" against %s", against));
 }
 
 /*
@@ -802,10 +803,11 @@ extern void display_weapon_damage(object_type *o_ptr)
   show_m_tohit = p_ptr->dis_to_h;
   if (object_known_p(o_ptr)) show_m_tohit += o_ptr->to_h;
  
-  roff("\nWielding it you would have ", 3, 77);
-  c_roff(TERM_L_GREEN, format("%d ", p_ptr->num_blow), 3, 77);
-  roff(format("blow%s and do an average damage per blow of ", 
-	      (p_ptr->num_blow) ? "s" : ""), 3, 77);
+  text_out_to_screen(TERM_WHITE, "\nWielding it you would have ");
+  text_out_to_screen(TERM_L_GREEN, format("%d ", p_ptr->num_blow));
+  text_out_to_screen(TERM_WHITE, 
+		     format("blow%s and do an average damage per blow of ", 
+			    (p_ptr->num_blow) ? "s" : ""));
   
   if (full && (f1 & TR1_SLAY_ANIMAL)) 
     output_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 20 : 17), "animals", 
@@ -846,9 +848,9 @@ extern void display_weapon_damage(object_type *o_ptr)
   
   output_dam(o_ptr, 10, (first) ? "all monsters" : "other monsters", &first);
   
-  roff(".  Your + to Skill would be ", 3, 77);
-  c_roff(TERM_L_GREEN, format("%d", show_m_tohit), 3, 77);
-  roff(". ", 3, 77);
+  text_out_to_screen(TERM_WHITE, ".  Your + to Skill would be ");
+  text_out_to_screen(TERM_L_GREEN, format("%d", show_m_tohit));
+  text_out_to_screen(TERM_WHITE, ". ");
   
   /* get our weapon back */
   object_copy(&inventory[INVEN_WIELD], old_ptr);
@@ -915,10 +917,10 @@ extern void output_ammo_dam(object_type *o_ptr, int mult, cptr against,
 
   CHECK_FIRST("", *first);
   if ((dam > 50000) || (add > 0))
-    c_roff(TERM_L_GREEN, format("%d", add + dam / 100000), 3, 77);
+    text_out_to_screen(TERM_L_GREEN, format("%d", add + dam / 100000));
   else
-    c_roff(TERM_L_RED, "0", 3, 77);
-  roff(format(" against %s", against), 3, 77);
+    text_out_to_screen(TERM_L_RED, "0");
+  text_out_to_screen(TERM_WHITE, format(" against %s", against));
 }
 
 /*
@@ -943,13 +945,12 @@ extern void display_ammo_damage(object_type *o_ptr)
   perfect = (full && (f1 & TR1_PERFECT_BALANCE));
 
   if (o_ptr->tval > TV_BOLT)
-    roff("\nThrowing it you would do an average damage of ", 3, 77);
+    text_out_to_screen(TERM_WHITE, "\nThrowing it you would do an average damage of ");
   else if (p_ptr->ammo_tval == o_ptr->tval)
-    roff("\nUsing it with your current launcher you would do an average damage per shot of ", 3, 77);
+    text_out_to_screen(TERM_WHITE, "\nUsing it with your current launcher you would do an average damage per shot of ");
   else
     {
-      roff("\nYou cannot use this missile with your current launcher. ", 
-	   3, 77);
+      text_out_to_screen(TERM_WHITE, "\nYou cannot use this missile with your current launcher. ");
       return;
     }
   if (full && (f1 & TR1_SLAY_ANIMAL)) 
@@ -995,7 +996,7 @@ extern void display_ammo_damage(object_type *o_ptr)
 
   output_ammo_dam(o_ptr, 10, (first) ? "all monsters" : "other monsters", 
 		  &first, perfect);
-  roff(". ", 3, 77);
+  text_out_to_screen(TERM_WHITE, ". ");
   
 }
 
@@ -1428,9 +1429,10 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
 /*
  * Place an item description on the screen.
  */
-void object_info_screen(object_type *o_ptr)
+void object_info_screen(object_type *o_ptr, bool fake)
 {
   int y, x;
+  int y0, x0;
   int i;
   
   bool aware, known, known_effects, mental;
@@ -1457,12 +1459,11 @@ void object_info_screen(object_type *o_ptr)
   object_flags(o_ptr, &f1, &f2, &f3);
   
   /* Create and output a status message (hack - not in stores). */
-  if (!in_store)
-    {
-      object_desc(o_name, o_ptr, TRUE, 3);
-      msg_format("Examining %s...", o_name);
-    }
-  
+  if (in_store)
+    object_desc_store(o_name, o_ptr, TRUE, 3);
+  else
+    object_desc(o_name, o_ptr, TRUE, 3);
+      
   
   /* What is our level of knowledge about the object? */
   aware = object_aware_p(o_ptr);
@@ -1474,18 +1475,22 @@ void object_info_screen(object_type *o_ptr)
    * other than weapons and armour (no sneaky learning about wand damages!).
    */
   if ((in_store) && ((!k_ptr->known_effect) && 
-		     ((o_ptr->tval < TV_SHOT) || 
-		      (o_ptr->tval > TV_DRAG_ARMOR))))
-    {
-      known = TRUE;
-      mental = FALSE;
-    }
+  	     ((o_ptr->tval < TV_SHOT) || 
+  	      (o_ptr->tval > TV_DRAG_ARMOR))))
+  {
+    known = TRUE;
+    mental = FALSE;
+  }
   
   /* Object is fully known - give maximal information. */
   if (mental)
     {
-      /* Get the specific object type's information. */
-      object_info(info_text, o_ptr, in_store);
+      /* Fake artifacts in knowledge screens need special treatment */
+      if (fake)
+	object_desc_spoil(o_name, o_ptr, TRUE, 0);
+      else
+	/* Get the specific object type's information. */
+	object_info(info_text, o_ptr, in_store);
       
       /* No object kind info. */
       object_kind_info = "";
@@ -1497,20 +1502,21 @@ void object_info_screen(object_type *o_ptr)
       /* Get the specific object type's information, if any. */
       object_info(info_text, o_ptr, in_store);
     }
-  
+
+  /* Save the location */
+  Term_locate(&x0, &y0);
+   
   /* Save screen */
   screen_save();
   
-  /* Erase the screen */
-  Term_clear();
-  
-  
   /* Label the information. */
-  roff("Item Information:", 3, 0);
-  for (i = 0; i < 3; i++) roff("\n", 3, 0);
+  Term_gotoxy(0, 0);
+  text_out_indent = 0;
+  text_out_to_screen(TERM_WHITE, o_name);
+  text_out_to_screen(TERM_WHITE, "\n");
   
   /* Object type or artifact information. */
-  c_roff(TERM_L_BLUE, info_text, 3, 77);
+  text_out_to_screen(TERM_L_BLUE, info_text);
   
   /* 
    * If it is a set item, describe it as such.
@@ -1522,35 +1528,29 @@ void object_info_screen(object_type *o_ptr)
       /* Is it a set item? */
       if (a_ptr->set_no)
 	{
-	  
-	  /* Advance a line */
-	  for (i = 0; i < 2; i++) roff("\n", 3, 0);
-	  
-	  /* Set notification */
-	  c_roff(TERM_GREEN,"Set Item: ",3,77);
-	  
 	  /* Fully ID description? */
+	  text_out_to_screen(TERM_WHITE,"  ");
 	  if (mental) 
 	    {
 	      set_type *s_ptr = &s_info[a_ptr->set_no];
 	      strcpy(info_text, s_text + s_ptr->text);
-	      c_roff(TERM_GREEN,info_text,3,77);
+	      text_out_to_screen(TERM_BLUE, info_text);
 	    }
 	  
 	  /* Generic describtion */
 	  else 
-	    c_roff(TERM_GREEN,
-		   "It gains power when combined with matching items",3,77);
+	    text_out_to_screen(TERM_BLUE,
+		   "It gains power when combined with matching items");
 	  
 	  /* End sentence */
-	  c_roff(TERM_GREEN,".",3,77);
+	  text_out_to_screen(TERM_BLUE,".");
 	}
     }
   
   /* Fully identified objects. */
   if (mental)
     {
-      for (i = 0; i < 3; i++) roff("\n", 3, 0);
+      text_out_to_screen(TERM_WHITE, "\n");
       
       /* Fully describe the object flags and attributes. */
       identify_fully_aux(o_ptr);
@@ -1574,7 +1574,7 @@ void object_info_screen(object_type *o_ptr)
 	  if (i > Term->hgt - 2) break;
 	  
 	  /* Advance one line. */
-	  roff("\n", 0, 0);
+	  text_out_to_screen(TERM_WHITE, "\n");
 	  
 	  /* Enough clear space.  Done. */
 	  if (i == (y + 2)) break;
@@ -1583,7 +1583,7 @@ void object_info_screen(object_type *o_ptr)
   else
     {
       /* Spacing. */
-      for (i = 0; i < 5; i++) roff("\n", 3, 0);
+      text_out_to_screen(TERM_WHITE, "\n");
       
       /* Display everything for known non-artifacts */
       if ((known) && !(o_ptr->name1))
@@ -1602,22 +1602,25 @@ void object_info_screen(object_type *o_ptr)
       object_kind_info = format("%s", obj_class_info[o_ptr->tval]);
 
       /* Spacing */
-      for (i = 0; i < 3; i++) roff("\n", 3, 0);
+      text_out_to_screen(TERM_WHITE, "\n");
 
       /* Object kind information. */
-      roff(object_kind_info, 3, 77);
+      text_out_to_screen(TERM_WHITE, object_kind_info);
 
       /* Spacing */
-      for (i = 0; i < 3; i++) roff("\n", 3, 0);
+      text_out_to_screen(TERM_WHITE, "\n");
     }
   
   /* The exit sign. */
-  roff("", 25, 0);
-  roff("(Press any key to continue.)", 25, 0);
+  text_out_to_screen(TERM_L_BLUE, "(Press any key to continue.)");
+  Term_locate(&x, &y);
+  text_out_to_screen(TERM_WHITE, "\n");
+  Term_gotoxy(x, y);
   (void)inkey_ex();
   
   /* Load screen */
   screen_load();
+  Term_gotoxy(x0, y0);
   
 }
 
@@ -2275,7 +2278,8 @@ void identify_fully_aux(object_type *o_ptr)
   if ((o_ptr->xtra1 == OBJECT_XTRA_TYPE_ACTIVATION) && 
       (o_ptr->ident & IDENT_MENTAL))
     {
-      roff(format("Activation: %s\n", item_activation(o_ptr)), 3, 77);
+      text_out_to_screen(TERM_YELLOW, 
+			 format("Activation: %s\n", item_activation(o_ptr)));
     }
   
   
@@ -2284,22 +2288,25 @@ void identify_fully_aux(object_type *o_ptr)
     {
       if (artifact_p(o_ptr) && (o_ptr->k_idx != 477))
 	{
-	  roff("It provides light (radius 3) forever.\n", 3, 77);
+	  text_out_to_screen(TERM_WHITE, 
+			     "It provides light (radius 3) forever.  ");
 	}
       else if (o_ptr->sval == SV_LITE_LANTERN)
 	{
-	  roff("It provides light (radius 2) when fueled.\n", 3, 77);
+	  text_out_to_screen(TERM_WHITE, 
+			     "It provides light (radius 2) when fueled.  ");
 	}
       else if (o_ptr->sval == SV_LITE_TORCH)
 	{
-	  roff("It provides light (radius 1) when fueled.\n", 3, 77);
+	  text_out_to_screen(TERM_WHITE, 
+			     "It provides light (radius 1) when fueled.  ");
 	}
     }
 
   /* Hack - magic devices */
   if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD) || 
       (o_ptr->tval == TV_STAFF))
-    roff(extra_data(o_ptr), 3, 77);
+    text_out_to_screen(TERM_WHITE, extra_data(o_ptr));
   
   
   /* And then describe it fully */
@@ -2309,6 +2316,8 @@ void identify_fully_aux(object_type *o_ptr)
 			(f1 & (TR1_WIS)) || (f1 & (TR1_DEX)) || 
 			(f1 & (TR1_CON)) || (f1 & (TR1_CHR))))
     {
+      byte attr = (o_ptr->pval > 0 ? TERM_L_GREEN : TERM_ORANGE);
+
       /* Clear number of items to list, and items listed. */
       attr_num = 0;
       attr_listed = 0;
@@ -2324,13 +2333,18 @@ void identify_fully_aux(object_type *o_ptr)
       /* Special case:  all stats */
       if (attr_num == 6)
 	{
-	  if (o_ptr->pval > 0) roff("It increases all your stats", 3, 77);
-	  else roff("It decreases all your stats", 3, 77);
+	  if (o_ptr->pval > 0) 
+	    text_out_to_screen(TERM_WHITE, "It increases ");
+	  else
+	      text_out_to_screen(TERM_WHITE, "It decreases ");
+	  text_out_to_screen(attr, "all your stats");
 	}
       else
 	{
-	  if (o_ptr->pval > 0) roff("It increases your", 3, 77);
-	  else roff("It decreases your", 3, 77);
+	  if (o_ptr->pval > 0) 
+	    text_out_to_screen(TERM_WHITE, "It increases your");
+	  else 
+	    text_out_to_screen(TERM_WHITE, "It decreases your");
 	  
 	  /* Loop for number of attributes in this group. */
 	  for (j = 0; j < 6; j++)
@@ -2350,29 +2364,32 @@ void identify_fully_aux(object_type *o_ptr)
 	      attr_listed++;
 	      
 	      /* Commas separate members of a list of more than two. */
-	      if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	      if ((attr_num > 2) && (attr_listed > 1)) 
+		text_out_to_screen(TERM_WHITE, ",");
 
 	      /* "and" before final member of a list of more than one. */
 	      if ((attr_num > 1) && (j != 0))
 		{
-		  if (attr_num == attr_listed) roff(" and", 3, 77);
+		  if (attr_num == attr_listed) 
+		    text_out_to_screen(TERM_WHITE, " and");
 		}
 	      
 	      /* List the attribute description, in its proper place. */
-	      if (j == 0) roff(" strength", 3, 77);
-	      if (j == 1) roff(" intelligence", 3, 77);
-	      if (j == 2) roff(" wisdom", 3, 77);
-	      if (j == 3) roff(" dexterity", 3, 77);
-	      if (j == 4) roff(" constitution", 3, 77);
-	      if (j == 5) roff(" charisma", 3, 77);
+	      if (j == 0) text_out_to_screen(attr, " strength");
+	      if (j == 1) text_out_to_screen(attr, " intelligence");
+	      if (j == 2) text_out_to_screen(attr, " wisdom");
+	      if (j == 3) text_out_to_screen(attr, " dexterity");
+	      if (j == 4) text_out_to_screen(attr, " constitution");
+	      if (j == 5) text_out_to_screen(attr, " charisma");
 	    }
 	}
       
       /* Describe exact bonus or penalty. */
-      roff(format(" by %d", o_ptr->pval), 3, 77);
+      text_out_to_screen(TERM_WHITE, " by ");
+      text_out_to_screen(attr, format("%d", o_ptr->pval));
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   
@@ -2396,11 +2413,12 @@ void identify_fully_aux(object_type *o_ptr)
       /* Special case:  sustain all stats */
       if (attr_num == 6)
 	{
-	  roff("It sustains all your stats", 3, 77);
+	  text_out_to_screen(TERM_WHITE, "It sustains ");
+	  text_out_to_screen(TERM_L_GREEN, "all your stats");
 	}
       else
 	{
-	  roff("It sustains your", 3, 77);
+	  text_out_to_screen(TERM_WHITE, "It sustains your");
 	  
 	  /* Loop for number of attributes in this group. */
 	  for (j = 0; j < 6; j++)
@@ -2420,26 +2438,28 @@ void identify_fully_aux(object_type *o_ptr)
 	      attr_listed++;
 	      
 	      /* Commas separate members of a list of more than two. */
-	      if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	      if ((attr_num > 2) && (attr_listed > 1)) 
+		text_out_to_screen(TERM_WHITE, ",");
 	      
 	      /* "and" before final member of a list of more than one. */
 	      if ((attr_num > 1) && (j != 0))
 		{
-		  if (attr_num == attr_listed) roff(" and", 3, 77);
+		  if (attr_num == attr_listed) 
+		    text_out_to_screen(TERM_WHITE, " and");
 		}
 	      
 	      /* List the attribute description, in its proper place. */
-	      if (j == 0) roff(" strength", 3, 77);
-	      if (j == 1) roff(" intelligence", 3, 77);
-	      if (j == 2) roff(" wisdom", 3, 77);
-	      if (j == 3) roff(" dexterity", 3, 77);
-	      if (j == 4) roff(" constitution", 3, 77);
-	      if (j == 5) roff(" charisma", 3, 77);
+	      if (j == 0) text_out_to_screen(TERM_L_GREEN, " strength");
+	      if (j == 1) text_out_to_screen(TERM_L_GREEN, " intelligence");
+	      if (j == 2) text_out_to_screen(TERM_L_GREEN, " wisdom");
+	      if (j == 3) text_out_to_screen(TERM_L_GREEN, " dexterity");
+	      if (j == 4) text_out_to_screen(TERM_L_GREEN, " constitution");
+	      if (j == 5) text_out_to_screen(TERM_L_GREEN, " charisma");
 	    }
 	}
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   
@@ -2448,6 +2468,8 @@ void identify_fully_aux(object_type *o_ptr)
 			(f1 & (TR1_SEARCH)) || (f1 & (TR1_INFRA)) || 
 			(f1 & (TR1_TUNNEL)) || (f1 & (TR1_SPEED))))
     {
+      byte attr = (o_ptr->pval > 0 ? TERM_L_GREEN : TERM_ORANGE);
+
       /* Clear number of items to list, and items listed. */
       attr_num = 0;
       attr_listed = 0;
@@ -2460,8 +2482,8 @@ void identify_fully_aux(object_type *o_ptr)
       if (f1 & (TR1_TUNNEL)) attr_num++;
       if (f1 & (TR1_SPEED)) attr_num++;
       
-      if (o_ptr->pval > 0) roff("It increases your", 3, 77);
-      else roff("It decreases your", 3, 77);
+      if (o_ptr->pval > 0) text_out_to_screen(TERM_WHITE, "It increases your");
+      else text_out_to_screen(TERM_WHITE, "It decreases your");
       
       /* Loop for number of attributes in this group. */
       for (j = 0; j < 6; j++)
@@ -2481,28 +2503,31 @@ void identify_fully_aux(object_type *o_ptr)
 	  attr_listed++;
 	  
 	  /* Commas separate members of a list of more than two. */
-	  if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	  if ((attr_num > 2) && (attr_listed > 1)) 
+	    text_out_to_screen(TERM_WHITE, ",");
 	  
 	  /* "and" before final member of a list of more than one. */
 	  if ((attr_num > 1) && (j != 0))
 	    {
-	      if (attr_num == attr_listed) roff(" and", 3, 77);
+	      if (attr_num == attr_listed) 
+		text_out_to_screen(TERM_WHITE, " and");
 	    }
 	  
 	  /* List the attribute description, in its proper place. */
-	  if (j == 0) roff(" magical device skill", 3, 77);
-	  if (j == 1) roff(" stealth", 3, 77);
-	  if (j == 2) roff(" searching", 3, 77);
-	  if (j == 3) roff(" infravision", 3, 77);
-	  if (j == 4) roff(" tunnelling ability", 3, 77);
-	  if (j == 5) roff(" speed", 3, 77);
+	  if (j == 0) text_out_to_screen(attr, " magical device skill");
+	  if (j == 1) text_out_to_screen(attr, " stealth");
+	  if (j == 2) text_out_to_screen(attr, " searching");
+	  if (j == 3) text_out_to_screen(attr, " infravision");
+	  if (j == 4) text_out_to_screen(attr, " tunnelling ability");
+	  if (j == 5) text_out_to_screen(attr, " speed");
 	}
       
       /* Describe exact bonus or penalty. */
-      roff(format(" by %d", o_ptr->pval), 3, 77);
+      text_out_to_screen(TERM_WHITE, " by");
+      text_out_to_screen(attr, format(" %d", o_ptr->pval));
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   
@@ -2511,19 +2536,19 @@ void identify_fully_aux(object_type *o_ptr)
     {
       if ((f1 & (TR1_SHOTS)) && (f1 & (TR1_MIGHT2)))
 	{
-	  roff("It affects your shooting speed, and greatly affects your shooting power. \n", 3, 77);
+	  text_out_to_screen(TERM_WHITE, "It affects your shooting speed, and greatly affects your shooting power.  ");
 	}
       else if ((f1 & (TR1_SHOTS)) && (f1 & (TR1_MIGHT1)))
 	{
-	  roff("It affects both your shooting speed and power. \n", 3, 77);
+	  text_out_to_screen(TERM_WHITE, "It affects both your shooting speed and power.  ");
 	}
       else if (f1 & (TR1_MIGHT1))
 	{
-	  roff("It affects your shooting power. \n", 3, 77);
+	  text_out_to_screen(TERM_WHITE, "It affects your shooting power.  ");
 	}
       else if (f1 & (TR1_SHOTS))
 	{
-	  roff("It affects your shooting speed. \n", 3, 77);
+	  text_out_to_screen(TERM_WHITE, "It affects your shooting speed.  ");
 	}
     }
   
@@ -2551,13 +2576,13 @@ void identify_fully_aux(object_type *o_ptr)
       /* Special message for Kill brands */
       if (f1 & (TR1_SLAY_KILL))
 	{
-	  roff("It is the great bane of", 3, 77);
+	  text_out_to_screen(TERM_WHITE, "It is a great bane of");
 	}
       
       /* Ordinary message for Slay brands */
       else
 	{
-	  roff("It slays", 3, 77);
+	  text_out_to_screen(TERM_WHITE, "It slays");
 	}
       
       /* Loop for number of attributes in this group. */
@@ -2580,27 +2605,29 @@ void identify_fully_aux(object_type *o_ptr)
 	  attr_listed++;
 	  
 	  /* Commas separate members of a list of more than two. */
-	  if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	  if ((attr_num > 2) && (attr_listed > 1)) 
+	    text_out_to_screen(TERM_WHITE, ",");
 	  
 	  /* "and" before final member of a list of more than one. */
 	  if ((attr_num > 1) && (j != 0))
 	    {
-	      if (attr_num == attr_listed) roff(" and", 3, 77);
+	      if (attr_num == attr_listed) 
+		text_out_to_screen(TERM_WHITE, " and");
 	    }
 	  
 	  /* List the attribute description, in its proper place. */
-	  if (j == 0) roff(" animals", 3, 77);
-	  if (j == 1) roff(" evil", 3, 77);
-	  if (j == 2) roff(" undead", 3, 77);
-	  if (j == 3) roff(" demons", 3, 77);
-	  if (j == 4) roff(" orcs", 3, 77);
-	  if (j == 5) roff(" trolls", 3, 77);
-	  if (j == 6) roff(" giants", 3, 77);
-	  if (j == 7) roff(" dragons", 3, 77);
+	  if (j == 0) text_out_to_screen(TERM_RED, " animals");
+	  if (j == 1) text_out_to_screen(TERM_RED, " evil");
+	  if (j == 2) text_out_to_screen(TERM_RED, " undead");
+	  if (j == 3) text_out_to_screen(TERM_RED, " demons");
+	  if (j == 4) text_out_to_screen(TERM_RED, " orcs");
+	  if (j == 5) text_out_to_screen(TERM_RED, " trolls");
+	  if (j == 6) text_out_to_screen(TERM_RED, " giants");
+	  if (j == 7) text_out_to_screen(TERM_RED, " dragons");
 	}
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   
@@ -2620,7 +2647,7 @@ void identify_fully_aux(object_type *o_ptr)
       if (f1 & (TR1_BRAND_COLD)) attr_num++;
       if (f1 & (TR1_BRAND_POIS)) attr_num++;
       
-      roff("It does extra damage from", 3, 77);
+      text_out_to_screen(TERM_WHITE, "It does extra damage from");
       
       /* Loop for number of attributes in this group. */
       for (j = 0; j < 5; j++)
@@ -2639,24 +2666,26 @@ void identify_fully_aux(object_type *o_ptr)
 	  attr_listed++;
 	  
 	  /* Commas separate members of a list of more than two. */
-	  if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	  if ((attr_num > 2) && (attr_listed > 1)) 
+	    text_out_to_screen(TERM_WHITE, ",");
 	  
 	  /* "and" before final member of a list of more than one. */
 	  if ((attr_num > 1) && (j != 0))
 	    {
-	      if (attr_num == attr_listed) roff(" and", 3, 77);
+	      if (attr_num == attr_listed) 
+		text_out_to_screen(TERM_WHITE, " and");
 	    }
 	  
 	  /* List the attribute description, in its proper place. */
-	  if (j == 0) roff(" acid", 3, 77);
-	  if (j == 1) roff(" electricity", 3, 77);
-	  if (j == 2) roff(" fire", 3, 77);
-	  if (j == 3) roff(" frost", 3, 77);
-	  if (j == 4) roff(" poison", 3, 77);
+	  if (j == 0) text_out_to_screen(TERM_L_UMBER, " acid");
+	  if (j == 1) text_out_to_screen(TERM_L_UMBER, " electricity");
+	  if (j == 2) text_out_to_screen(TERM_L_UMBER, " fire");
+	  if (j == 3) text_out_to_screen(TERM_L_UMBER, " frost");
+	  if (j == 4) text_out_to_screen(TERM_L_UMBER, " poison");
 	}
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
 
@@ -2665,9 +2694,9 @@ void identify_fully_aux(object_type *o_ptr)
     {
       if (f1 & (TR1_PERFECT_BALANCE))
 	{
-	  roff("It can be thrown hard and fast. \n", 3, 77);
+	  text_out_to_screen(TERM_WHITE, "It can be thrown hard and fast.  ");
 	}
-      roff("It can be thrown effectively. \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, "It can be thrown effectively.  ");
     }
   
   
@@ -2685,7 +2714,9 @@ void identify_fully_aux(object_type *o_ptr)
       if (f2 & (TR2_IM_FIRE)) attr_num++;
       if (f2 & (TR2_IM_COLD)) attr_num++;
       
-      roff("It provides immunity to", 3, 77);
+      text_out_to_screen(TERM_WHITE, "It provides ");
+      text_out_to_screen(TERM_BLUE, "immunity ");
+      text_out_to_screen(TERM_WHITE, "to");
       
       /* Loop for number of attributes in this group. */
       for (j = 0; j < 4; j++)
@@ -2703,23 +2734,25 @@ void identify_fully_aux(object_type *o_ptr)
 	  attr_listed++;
 	  
 	  /* Commas separate members of a list of more than two. */
-	  if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	  if ((attr_num > 2) && (attr_listed > 1)) 
+	    text_out_to_screen(TERM_WHITE, ",");
 	  
 	  /* "and" before final member of a list of more than one. */
 	  if ((attr_num > 1) && (j != 0))
 	    {
-	      if (attr_num == attr_listed) roff(" and", 3, 77);
+	      if (attr_num == attr_listed) 
+		text_out_to_screen(TERM_WHITE, " and");
 	    }
 	  
 	  /* List the attribute description, in its proper place. */
-	  if (j == 0) roff(" acid", 3, 77);
-	  if (j == 1) roff(" electricity", 3, 77);
-	  if (j == 2) roff(" fire", 3, 77);
-	  if (j == 3) roff(" frost", 3, 77);
+	  if (j == 0) text_out_to_screen(TERM_SLATE, " acid");
+	  if (j == 1) text_out_to_screen(TERM_BLUE, " electricity");
+	  if (j == 2) text_out_to_screen(TERM_RED, " fire");
+	  if (j == 3) text_out_to_screen(TERM_L_WHITE, " frost");
 	}
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   /* Check for resists and vulnerabilities */
@@ -2748,7 +2781,9 @@ void identify_fully_aux(object_type *o_ptr)
 	}
 
       /* How many attributes need to be listed? */
-      roff("It provides resistance to", 3, 77);
+      text_out_to_screen(TERM_WHITE, "It provides ");
+      text_out_to_screen(TERM_L_BLUE, "resistance ");
+      text_out_to_screen(TERM_WHITE, "to");
       
       /* Loop for number of attributes in this group. */
       for (j = 0; j < MAX_P_RES; j++)
@@ -2765,35 +2800,37 @@ void identify_fully_aux(object_type *o_ptr)
 	  attr_listed++;
 	  
 	  /* Commas separate members of a list of more than two. */
-	  if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	  if ((attr_num > 2) && (attr_listed > 1)) 
+	    text_out_to_screen(TERM_WHITE, ",");
 	  
 	  /* "and" before final member of a list of more than one. */
 	  if ((attr_num > 1) && (j != 0))
 	    {
-	      if (attr_num == attr_listed) roff(" and", 3, 77);
+	      if (attr_num == attr_listed) 
+		text_out_to_screen(TERM_WHITE, " and");
 	    }
 	  
 	  /* List the attribute description, in its proper place. */
-	  if (j == P_RES_ACID) roff(" acid", 3, 77);
-	  if (j == P_RES_ELEC) roff(" electricity", 3, 77);
-	  if (j == P_RES_FIRE) roff(" fire", 3, 77);
-	  if (j == P_RES_COLD) roff(" frost", 3, 77);
-	  if (j == P_RES_POIS) roff(" poison", 3, 77);
-	  if (j == P_RES_LITE) roff(" light", 3, 77);
-	  if (j == P_RES_DARK) roff(" darkness", 3, 77);
-	  if (j == P_RES_SOUND) roff(" sound", 3, 77);
-	  if (j == P_RES_SHARD) roff(" shards", 3, 77);
-	  if (j == P_RES_NEXUS) roff(" nexus", 3, 77);
-	  if (j == P_RES_NETHR) roff(" nether", 3, 77);
-	  if (j == P_RES_CHAOS) roff(" chaos", 3, 77);
-	  if (j == P_RES_DISEN) roff(" disenchantment", 3, 77);
+	  if (j == P_RES_ACID) text_out_to_screen(TERM_SLATE, " acid");
+	  if (j == P_RES_ELEC) text_out_to_screen(TERM_BLUE, " electricity");
+	  if (j == P_RES_FIRE) text_out_to_screen(TERM_RED, " fire");
+	  if (j == P_RES_COLD) text_out_to_screen(TERM_L_WHITE, " frost");
+	  if (j == P_RES_POIS) text_out_to_screen(TERM_GREEN, " poison");
+	  if (j == P_RES_LITE) text_out_to_screen(TERM_ORANGE, " light");
+	  if (j == P_RES_DARK) text_out_to_screen(TERM_L_DARK, " darkness");
+	  if (j == P_RES_SOUND) text_out_to_screen(TERM_YELLOW, " sound");
+	  if (j == P_RES_SHARD) text_out_to_screen(TERM_UMBER, " shards");
+	  if (j == P_RES_NEXUS) text_out_to_screen(TERM_L_RED, " nexus");
+	  if (j == P_RES_NETHR) text_out_to_screen(TERM_L_GREEN, " nether");
+	  if (j == P_RES_CHAOS) text_out_to_screen(TERM_VIOLET, " chaos");
+	  if (j == P_RES_DISEN) text_out_to_screen(TERM_VIOLET, " disenchantment");
 
 	  sprintf(buf, "(%d%%)", 100 - o_ptr->percent_res[j]);
-	  roff(buf, 3, 77);
+	  text_out_to_screen(TERM_WHITE, buf);
 	}
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   
@@ -2810,7 +2847,9 @@ void identify_fully_aux(object_type *o_ptr)
 	    attr_num++;
 	}
 
-      roff("It makes you vulnerable to", 3, 77);
+      text_out_to_screen(TERM_WHITE, "It makes you ");
+      text_out_to_screen(TERM_ORANGE, "vulnerable ");
+      text_out_to_screen(TERM_WHITE, "to");
       
       /* Loop for number of attributes in this group. */
       for (j = 0; j < MAX_P_RES; j++)
@@ -2828,35 +2867,38 @@ void identify_fully_aux(object_type *o_ptr)
 	  attr_listed++;
 	  
 	  /* Commas separate members of a list of more than two. */
-	  if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	  if ((attr_num > 2) && (attr_listed > 1)) 
+	    text_out_to_screen(TERM_WHITE, ",");
 	  
 	  /* "and" before final member of a list of more than one. */
 	  if ((attr_num > 1) && (j != 0))
 	    {
-	      if (attr_num == attr_listed) roff(" and", 3, 77);
+	      if (attr_num == attr_listed) 
+		text_out_to_screen(TERM_WHITE, " and");
 	    }
 	  
 	  /* List the attribute description, in its proper place. */
-	  if (j == P_RES_ACID) roff(" acid", 3, 77);
-	  if (j == P_RES_ELEC) roff(" electricity", 3, 77);
-	  if (j == P_RES_FIRE) roff(" fire", 3, 77);
-	  if (j == P_RES_COLD) roff(" frost", 3, 77);
-	  if (j == P_RES_POIS) roff(" poison", 3, 77);
-	  if (j == P_RES_LITE) roff(" light", 3, 77);
-	  if (j == P_RES_DARK) roff(" darkness", 3, 77);
-	  if (j == P_RES_SOUND) roff(" sound", 3, 77);
-	  if (j == P_RES_SHARD) roff(" shards", 3, 77);
-	  if (j == P_RES_NEXUS) roff(" nexus", 3, 77);
-	  if (j == P_RES_NETHR) roff(" nether", 3, 77);
-	  if (j == P_RES_CHAOS) roff(" chaos", 3, 77);
-	  if (j == P_RES_DISEN) roff(" disenchantment", 3, 77);
+	  if (j == P_RES_ACID) text_out_to_screen(TERM_SLATE, " acid");
+	  if (j == P_RES_ELEC) text_out_to_screen(TERM_BLUE, " electricity");
+	  if (j == P_RES_FIRE) text_out_to_screen(TERM_RED, " fire");
+	  if (j == P_RES_COLD) text_out_to_screen(TERM_L_WHITE, " frost");
+	  if (j == P_RES_POIS) text_out_to_screen(TERM_GREEN, " poison");
+	  if (j == P_RES_LITE) text_out_to_screen(TERM_ORANGE, " light");
+	  if (j == P_RES_DARK) text_out_to_screen(TERM_L_DARK, " darkness");
+	  if (j == P_RES_SOUND) text_out_to_screen(TERM_YELLOW, " sound");
+	  if (j == P_RES_SHARD) text_out_to_screen(TERM_UMBER, " shards");
+	  if (j == P_RES_NEXUS) text_out_to_screen(TERM_L_RED, " nexus");
+	  if (j == P_RES_NETHR) text_out_to_screen(TERM_L_GREEN, " nether");
+	  if (j == P_RES_CHAOS) text_out_to_screen(TERM_VIOLET, " chaos");
+	  if (j == P_RES_DISEN) 
+	    text_out_to_screen(TERM_VIOLET, " disenchantment");
 
 	  sprintf(buf, "(%d%%)", o_ptr->percent_res[j] - 100);
-	  roff(buf, 3, 77);
+	  text_out_to_screen(TERM_WHITE, buf);
 	}
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   
@@ -2870,39 +2912,43 @@ void identify_fully_aux(object_type *o_ptr)
   
   if (f3 & (TR3_FEARLESS))
     {
-      roff("It renders you fearless", 3, 77);
-      if (attr_num == 1) roff(". \n", 3, 77);
-      else roff(", and", 3, 77);
+      text_out_to_screen(TERM_WHITE, "It renders you fearless");
+      if (attr_num == 1) text_out_to_screen(TERM_WHITE, ".  ");
+      else text_out_to_screen(TERM_WHITE, ", and");
     }
   
   if (f3 & (TR3_SEEING))
     {
       if ((attr_num > 1) && (f3 & (TR3_FEARLESS))) 
-	roff(" provides resistance to blindness", 3, 77);
-      else roff("It provides resistance to blindness", 3, 77);
+	text_out_to_screen(TERM_WHITE, " provides resistance to blindness");
+      else text_out_to_screen(TERM_WHITE, "It provides resistance to blindness");
       
-      if (o_ptr->percent_res[P_RES_CONFU] != 100) roff(" and", 3, 77);
-      else roff(". \n", 3, 77);
+      if (o_ptr->percent_res[P_RES_CONFU] != 100) text_out_to_screen(TERM_WHITE, " and");
+      else text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   if ((o_ptr->percent_res[P_RES_CONFU] < 100) && 
       (o_ptr->percent_res[P_RES_CONFU] > 0))
     {
       if ((attr_num > 1) && (!(f3 & (TR3_SEEING))))
-	roff(" provides resistance to confusion", 3, 77);
-      else if (attr_num > 1) roff(" confusion", 3, 77);
-      else roff("It provides resistance to confusion", 3, 77);
+	text_out_to_screen(TERM_WHITE, " provides resistance to");
+      else if (attr_num == 1)
+	text_out_to_screen(TERM_WHITE, "It provides resistance to");
+      text_out_to_screen(TERM_L_UMBER, " confusion");
       sprintf(buf, "(%d%%)", 100 - o_ptr->percent_res[P_RES_CONFU]);
-      roff(buf, 3, 77);
-      roff(".\n", 3, 77);
+      text_out_to_screen(TERM_WHITE, buf);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   else if (o_ptr->percent_res[P_RES_CONFU] > 100)
     {
-      if (attr_num > 1) roff(" makes you vulnerable to confusion", 3, 77);
-      else roff("It makes you vulnerable to confusion", 3, 77);
+      if (attr_num > 1) 
+	text_out_to_screen(TERM_WHITE, " makes you vulnerable to ");
+      else 
+	text_out_to_screen(TERM_WHITE, "It makes you vulnerable to ");
+      text_out_to_screen(TERM_L_UMBER, "confusion");
       sprintf(buf, "(%d%%)", o_ptr->percent_res[P_RES_CONFU] - 100);
-      roff(buf, 3, 77);
-      roff(".\n", 3, 77);
+      text_out_to_screen(TERM_WHITE, buf);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   
@@ -2929,7 +2975,7 @@ void identify_fully_aux(object_type *o_ptr)
       if (f3 & (TR3_IMPACT)) attr_num++;
       if (f3 & (TR3_BLESSED)) attr_num++;
       
-      roff("It", 3, 77);
+      text_out_to_screen(TERM_WHITE, "It");
       
       /* Loop for number of attributes in this group. */
       for (j = 0; j < 10; j++)
@@ -2953,29 +2999,41 @@ void identify_fully_aux(object_type *o_ptr)
 	  attr_listed++;
 	  
 	  /* Commas separate members of a list of more than two. */
-	  if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	  if ((attr_num > 2) && (attr_listed > 1)) 
+	    text_out_to_screen(TERM_WHITE, ",");
 	  
 	  /* "and" before final member of a list of more than one. */
 	  if ((attr_num > 1) && (j != 0))
 	    {
-	      if (attr_num == attr_listed) roff(" and", 3, 77);
+	      if (attr_num == attr_listed) 
+		text_out_to_screen(TERM_WHITE, " and");
 	    }
 	  
 	  /* List the attribute description, in its proper place. */
-	  if (j == 0) roff(" slows your metabolism", 3, 77);
-	  if (j == 1) roff(" induces feather falling", 3, 77);
-	  if (j == 2) roff(" provides permanent light", 3, 77);
-	  if (j == 3) roff(" speeds your regenerative powers", 3, 77);
-	  if (j == 4) roff(" gives telepathic powers", 3, 77);
-	  if (j == 5) roff(" allows you to see invisible monsters", 3, 77);
-	  if (j == 6) roff(" provides immunity to paralysis", 3, 77);
-	  if (j == 7) roff(" provides resistance to life draining", 3, 77);
-	  if (j == 8) roff(" induces earthquakes", 3, 77);
-	  if (j == 9) roff(" has been blessed by the gods", 3, 77);
+	  if (j == 0) 
+	    text_out_to_screen(TERM_WHITE, " slows your metabolism");
+	  if (j == 1) 
+	    text_out_to_screen(TERM_WHITE, " induces feather falling");
+	  if (j == 2) 
+	    text_out_to_screen(TERM_WHITE, " provides permanent light");
+	  if (j == 3) 
+	    text_out_to_screen(TERM_WHITE, " speeds your regenerative powers");
+	  if (j == 4) 
+	    text_out_to_screen(TERM_WHITE, " gives telepathic powers");
+	  if (j == 5) 
+	    text_out_to_screen(TERM_WHITE, " allows you to see invisible monsters");
+	  if (j == 6) 
+	    text_out_to_screen(TERM_WHITE, " provides immunity to paralysis");
+	  if (j == 7) 
+	    text_out_to_screen(TERM_WHITE, " provides resistance to life draining");
+	  if (j == 8) 
+	    text_out_to_screen(TERM_WHITE, " induces earthquakes");
+	  if (j == 9) 
+	    text_out_to_screen(TERM_WHITE, " has been blessed by the gods");
 	}
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   
@@ -2995,7 +3053,7 @@ void identify_fully_aux(object_type *o_ptr)
       /* This one will display one of three possible descriptions. */
       if (cursed_p(o_ptr)) attr_num++;
       
-      roff("It", 3, 77);
+      text_out_to_screen(TERM_WHITE, "It");
       
       /* Loop for number of attributes in this group. */
       for (j = 0; j < 6; j++)
@@ -3012,8 +3070,8 @@ void identify_fully_aux(object_type *o_ptr)
 	      /* Hack - some items (ammunition) can be 
 	       * 'cursed' but have no particular flags
 	       */
-	      if ((j == 5) && ((f3 & (TR3_LIGHT_CURSE)) 
-			       || (attr_listed == 0))) list_ok = TRUE;
+	      if ((j == 5) && ((f3 & (TR3_LIGHT_CURSE))|| (attr_listed == 0))) 
+		list_ok = TRUE;
 	    }
 	  
 	  if (!list_ok) continue;
@@ -3022,37 +3080,41 @@ void identify_fully_aux(object_type *o_ptr)
 	  attr_listed++;
 	  
 	  /* Commas separate members of a list of more than two. */
-	  if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	  if ((attr_num > 2) && (attr_listed > 1)) 
+	    text_out_to_screen(TERM_WHITE, ",");
 	  
 	  /* "and" before final member of a list of more than one. */
 	  if ((attr_num > 1) && (j != 0))
 	    {
-	      if (attr_num == attr_listed) roff(" and", 3, 77);
+	      if (attr_num == attr_listed) 
+		text_out_to_screen(TERM_WHITE, " and");
 	    }
 	  
 	  /* List the attribute description, in its proper place. */
-	  if (j == 0) roff(" induces random teleportation", 3, 77);
-	  if (j == 1) roff(" aggravates nearby creatures", 3, 77);
-	  if (j == 2) roff(" drains experience", 3, 77);
+	  if (j == 0) 
+	    text_out_to_screen(TERM_WHITE, " induces random teleportation");
+	  if (j == 1) 
+	    text_out_to_screen(TERM_WHITE, " aggravates nearby creatures");
+	  if (j == 2) text_out_to_screen(TERM_WHITE, " drains experience");
 	  if (j == 3)
 	    {
-	      roff(" is permanently cursed", 3, 77);
+	      text_out_to_screen(TERM_WHITE, " is permanently cursed");
 	      
 	      /* Hack -- no more cursed info wanted. */
 	      break;
 	    }
 	  if (j == 4)
 	    {
-	      roff(" is heavily cursed", 3, 77);
+	      text_out_to_screen(TERM_WHITE, " is heavily cursed");
 	      
 	      /* Hack -- no more cursed info wanted. */
 	      break;
 	    }
-	  if (j == 5) roff(" is cursed", 3, 77);
+	  if (j == 5) text_out_to_screen(TERM_WHITE, " is cursed");
 	}
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
   
   
@@ -3069,7 +3131,7 @@ void identify_fully_aux(object_type *o_ptr)
       if (o_ptr->el_proof & (FIRE_PROOF)) attr_num++;
       if (o_ptr->el_proof & (COLD_PROOF)) attr_num++;
       
-      roff("It cannot be damaged by", 3, 77);
+      text_out_to_screen(TERM_WHITE, "It cannot be damaged by");
       
       /* Loop for number of attributes in this group. */
       for (j = 0; j < 4; j++)
@@ -3087,23 +3149,25 @@ void identify_fully_aux(object_type *o_ptr)
 	  attr_listed++;
 	  
 	  /* Commas separate members of a list of more than two. */
-	  if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	  if ((attr_num > 2) && (attr_listed > 1)) 
+	    text_out_to_screen(TERM_WHITE, ",");
 	  
 	  /* "or" before final member of a list of more than one. */
 	  if ((attr_num > 1) && (j != 0))
 	    {
-	      if (attr_num == attr_listed) roff(" or", 3, 77);
+	      if (attr_num == attr_listed) 
+		text_out_to_screen(TERM_WHITE, " or");
 	    }
 	  
 	  /* List the attribute description, in its proper place. */
-	  if (j == 0) roff(" acid", 3, 77);
-	  if (j == 1) roff(" electricity", 3, 77);
-	  if (j == 2) roff(" fire", 3, 77);
-	  if (j == 3) roff(" frost", 3, 77);
+	  if (j == 0) text_out_to_screen(TERM_WHITE, " acid");
+	  if (j == 1) text_out_to_screen(TERM_WHITE, " electricity");
+	  if (j == 2) text_out_to_screen(TERM_WHITE, " fire");
+	  if (j == 3) text_out_to_screen(TERM_WHITE, " frost");
 	}
       
       /* End sentence.  Go to next line. */
-      roff(". \n", 3, 77);
+      text_out_to_screen(TERM_WHITE, ".  ");
     }
 }
 
@@ -4433,18 +4497,20 @@ void view_spec_display(menu_type *menu, int oid, bool cursor, int row,
       Term_locate(&x, &y);
   
       /* Move the cursor */
-      Term_gotoxy(3, total_known + 2); 
+      Term_gotoxy(3, total_known + 2);
+      text_out_indent = 3; 
       if (oid < class_start) 
-	c_roff(TERM_L_BLUE, specialty_tips[p_ptr->specialty_order[oid]], 3, 5);
+	text_out_to_screen(TERM_L_BLUE, 
+			   specialty_tips[p_ptr->specialty_order[oid]]);
       else if (oid < race_start) 
-	c_roff(TERM_L_BLUE, 
-	       specialty_tips[SP_CLASS_START + class_list[oid - class_start]], 
-	       3, 5);
+	text_out_to_screen(TERM_L_BLUE, 
+			   specialty_tips[SP_CLASS_START + 
+					  class_list[oid - class_start]]);
       else if (oid < race_other_start) 
-	c_roff(TERM_L_BLUE, 
-	       specialty_tips[SP_RACIAL_START + 
-			      racial_list[oid - race_start]], 3, 5);
-      else c_roff(TERM_L_BLUE, race_other_desc, 3, 5);
+	text_out_to_screen(TERM_L_BLUE, 
+			   specialty_tips[SP_RACIAL_START + 
+					  racial_list[oid - race_start]]);
+      else text_out_to_screen(TERM_L_BLUE, race_other_desc);
 
       /* Restore */
       Term_gotoxy(x, y);

@@ -18,7 +18,7 @@
  */
 #include "angband.h"
 
- 
+#define SOUND_SDL 1 
 #ifdef SOUND_SDL
 
 
@@ -42,7 +42,7 @@ typedef struct
 {
 	int num;                        /* Number of samples for this event */
 	Mix_Chunk *wavs[MAX_SAMPLES];   /* Sample array */
-	const char *paths[MAX_SAMPLES]; /* Relative pathnames for samples */
+	char *paths[MAX_SAMPLES]; /* Relative pathnames for samples */
 } sample_list;
 
 
@@ -57,7 +57,8 @@ static sample_list samples[MSG_MAX];
  */
 static void close_audio(void)
 {
-	size_t i, j;
+	size_t i;
+	int j;
 
 	/* Free all the sample data*/
 	for (i = 0; i < MSG_MAX; i++)
@@ -122,9 +123,7 @@ static bool sound_sdl_init(bool no_cache)
 {
 	char path[2048];
 	char buffer[2048];
-	int i;
-	FILE *fff;
-	Mix_Chunk *wave = NULL;		
+	ang_file *fff;
 
 
 	/* Initialise the mixer  */
@@ -138,7 +137,7 @@ static bool sound_sdl_init(bool no_cache)
 
 	/* Find and open the config file */
 	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
-	fff = my_fopen(path, "r");
+	fff = file_open(path, MODE_READ, -1);
 
 	/* Handle errors */
 	if (!fff)
@@ -150,7 +149,7 @@ static bool sound_sdl_init(bool no_cache)
 
 	/* Parse the file */
 	/* Lines are always of the form "name = sample [sample ...]" */
-	while (my_fgets(fff, buffer, sizeof(buffer)) == 0)
+	while (file_getl(fff, buffer, sizeof(buffer)))
 	{
 		char *msg_name;
 		char *sample_list;
@@ -181,7 +180,7 @@ static bool sound_sdl_init(bool no_cache)
 		}
         if (event < 0) continue;
 
-		/* Advance the sample list pointer so it's at the beginning of text */
+	/* Advance the sample list pointer so it's at the beginning of text */
 		sample_list++;
 		if (!sample_list[0]) continue;
 
@@ -210,13 +209,13 @@ static bool sound_sdl_init(bool no_cache)
 
 			/* Build the path to the sample */
 			path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, cur_token);
-			if (!my_fexists(path)) goto next_token;
+			if (!file_exists(path)) goto next_token;
 
 			/* Don't load now if we're not caching */
 			if (no_cache)
 			{
 				/* Just save the path for later */
-				samples[event].paths[num] = string_make(path);
+			  samples[event].paths[num] = (char *)string_make(path);
 			}
 			else
 			{
@@ -257,7 +256,7 @@ static bool sound_sdl_init(bool no_cache)
 	}
 
 	/* Close the file */
-	my_fclose(fff);
+	file_close(fff);
 
 
 	/* Success */
@@ -287,7 +286,7 @@ static void play_sound(int event)
 	{
 		/* Verify it exists */
 		const char *filename = samples[event].paths[s];
-		if (!my_fexists(filename)) return;
+		if (!file_exists(filename)) return;
 
 		/* Load */
 		wave = Mix_LoadWAV(filename);

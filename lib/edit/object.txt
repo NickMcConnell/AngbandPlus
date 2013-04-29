@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.3.3
+V:0.3.4
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -2225,13 +2225,13 @@ W:1:0:5:40
 A:1/1:5/1:10/1:30/2
 D:that reveals the name and obvious powers of an object.
 
-N:333:*Identify*
-G:?:d
-I:70:13:0
-W:35:0:5:1000
-A:35/1:50/1:65/2:80/2
-D:that reveal in full detail the true nature of an object.  Such can 
-D:not be forgotten.
+#N:333:*Identify*
+#G:?:d
+#I:70:13:0
+#W:35:0:5:1000
+#A:35/1:50/1:65/2:80/2
+#D:that reveal in full detail the true nature of an object.  Such can 
+#D:not be forgotten.
 
 N:334:Remove Curse
 G:?:d
@@ -4857,7 +4857,7 @@ F:INSTA_ART
 
 # The Palantir of Avallone -- see artifact list
 
-N:735:& Palantir~
+N:735:& Palant['i]r~
 G:~:D1
 I:39:6:0
 W:90:0:5:60000

@@ -20,7 +20,7 @@ APPNAME = FAAngband.app
 EXE =faangband
 NAME =FAAngband
 COPYRIGHT =2008 Nick McConnell and Contributors
-VERSION =0.3.3
+VERSION =0.3.4
 
 
 #

@@ -59,6 +59,10 @@ C:0:X
 A:^V
 C:0:n
 
+# Original keymap: handle (generic use)
+#A:h
+#C:0:^G
+
 
 ##### Roguelike Keyset Mappings #####
 
@@ -210,6 +214,10 @@ C:1:X
 A:^V
 C:1:'
 
+
+# Roguelike keymap: handle (generic use)
+A:h
+C:1:^G
 
 # Message colors
 %:message.prf

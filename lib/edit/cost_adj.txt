@@ -14,7 +14,7 @@
 
 # Version stamp (required)
 
-V:0.3.3
+V:0.3.4
 
 # Eas,GnE,GyE,Hob,PDw,Dwa,Dru,Lbd,Ada,HiE,Mai,DkE,Ent,Beo
 

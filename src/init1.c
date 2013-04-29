@@ -51,31 +51,70 @@
 /*** Helper arrays for parsing ascii template files ***/
 
 /*
+ * Feature flags
+ */
+static cptr f_info_flags[] =
+  {
+    "TF_LOS",
+    "TF_PROJECT",
+    "TF_PASSABLE",
+    "TF_INTERESTING",
+    "TF_PERMANENT",
+    "TF_NO_SCENT",
+    "TF_OBJECT",
+    "TF_TORCH_ONLY",
+    "XXX9",
+    "XX10",
+    "XX11",
+    "XX12",
+    "XX13",
+    "XX14",
+    "XX15",
+    "XX16",
+    "TF_FLOOR",
+    "TF_WALL",
+    "TF_ROCK",
+    "TF_GRANITE",
+    "TF_DOOR_ANY",
+    "TF_DOOR_CLOSED",
+    "TF_SHOP",
+    "TF_TREE",
+    "TF_TRAP",
+    "TF_TRAP_INVIS",
+    "TF_M_TRAP",
+    "TF_STAIR",
+    "XX29",
+    "XX30",
+    "XX31",
+    "XX32"
+  };
+
+/*
  * Monster Blow Methods
  */
 static cptr r_info_blow_method[] =
-{
-	"",
-	"HIT",
-	"TOUCH",
-	"PUNCH",
-	"KICK",
-	"CLAW",
-	"BITE",
-	"STING",
-	"XXX1",
-	"BUTT",
-	"CRUSH",
-	"ENGULF",
-	"XXX2",
-	"CRAWL",
-	"DROOL",
-	"SPIT",
-	"XXX3",
-	"GAZE",
-	"WAIL",
-	"SPORE",
-	"XXX4",
+  {
+    "",
+    "HIT",
+    "TOUCH",
+    "PUNCH",
+    "KICK",
+    "CLAW",
+    "BITE",
+    "STING",
+    "XXX1",
+    "BUTT",
+    "CRUSH",
+    "ENGULF",
+    "XXX2",
+    "CRAWL",
+    "DROOL",
+    "SPIT",
+    "XXX3",
+    "GAZE",
+    "WAIL",
+    "SPORE",
+    "XXX4",
     "BEG",
     "INSULT",
     "MOAN",
@@ -88,38 +127,38 @@ static cptr r_info_blow_method[] =
  * Monster Blow Effects
  */
 static cptr r_info_blow_effect[] =
-{
-	"",
-	"HURT",
-	"POISON",
-	"UN_BONUS",
-	"UN_POWER",
-	"EAT_GOLD",
-	"EAT_ITEM",
-	"EAT_FOOD",
-	"EAT_LITE",
-	"ACID",
-	"ELEC",
-	"FIRE",
-	"COLD",
-	"BLIND",
-	"CONFUSE",
-	"TERRIFY",
-	"PARALYZE",
-	"LOSE_STR",
-	"LOSE_INT",
-	"LOSE_WIS",
-	"LOSE_DEX",
-	"LOSE_CON",
-	"LOSE_CHR",
-	"LOSE_ALL",
-	"SHATTER",
-	"EXP_10",
-        "EXP_20",
-        "EXP_40",
-        "EXP_80",
-        NULL
-};
+  {
+    "",
+    "HURT",
+    "POISON",
+    "UN_BONUS",
+    "UN_POWER",
+    "EAT_GOLD",
+    "EAT_ITEM",
+    "EAT_FOOD",
+    "EAT_LITE",
+    "ACID",
+    "ELEC",
+    "FIRE",
+    "COLD",
+    "BLIND",
+    "CONFUSE",
+    "TERRIFY",
+    "PARALYZE",
+    "LOSE_STR",
+    "LOSE_INT",
+    "LOSE_WIS",
+    "LOSE_DEX",
+    "LOSE_CON",
+    "LOSE_CHR",
+    "LOSE_ALL",
+    "SHATTER",
+    "EXP_10",
+    "EXP_20",
+    "EXP_40",
+    "EXP_80",
+    NULL
+  };
 
 
 /*
@@ -204,40 +243,40 @@ static cptr r_info_flags2[] =
  * Monster race flags
  */
 static cptr r_info_flags3[] =
-{
-  "ORC",
-  "TROLL",
-  "GIANT",
-  "DRAGON",
-  "DEMON",
-  "UNDEAD",
-  "EVIL",
-  "ANIMAL",
-  "TERRITORIAL",
-  "XXX2X3",
-  "XXX3X3",
-  "XXX4X3",
-  "HURT_LITE",
-  "HURT_ROCK",
-  "HURT_FIRE",
-  "HURT_COLD",
-  "IM_ACID",
-  "IM_ELEC",
-  "IM_FIRE",
-  "IM_COLD",
-  "IM_POIS",
-  "XXX5X3",
-  "RES_NETH",
-  "RES_WATE",
-  "RES_PLAS",
-  "RES_NEXU",
-  "RES_DISE",
-  "XXX6X3",
-  "NO_FEAR",
-  "NO_STUN",
-  "NO_CONF",
-  "NO_SLEEP"
-};
+  {
+    "ORC",
+    "TROLL",
+    "GIANT",
+    "DRAGON",
+    "DEMON",
+    "UNDEAD",
+    "EVIL",
+    "ANIMAL",
+    "TERRITORIAL",
+    "XXX2X3",
+    "XXX3X3",
+    "XXX4X3",
+    "HURT_LITE",
+    "HURT_ROCK",
+    "HURT_FIRE",
+    "HURT_COLD",
+    "IM_ACID",
+    "IM_ELEC",
+    "IM_FIRE",
+    "IM_COLD",
+    "IM_POIS",
+    "XXX5X3",
+    "RES_NETH",
+    "RES_WATE",
+    "RES_PLAS",
+    "RES_NEXU",
+    "RES_DISE",
+    "XXX6X3",
+    "NO_FEAR",
+    "NO_STUN",
+    "NO_CONF",
+    "NO_SLEEP"
+  };
 
 /*
  * Monster race flags
@@ -271,9 +310,9 @@ static cptr r_info_flags4[] =
     "BRTH_CHAOS",
     "BRTH_DISEN",
     "BRTH_TIME",
-    "XXX42",
-    "XXX43",
-    "XXX44",
+    "BRTH_STORM",
+    "BRTH_DFIRE",
+    "BRTH_ICE",
     "XXX45",
     "XXX45"
   };
@@ -439,11 +478,11 @@ static cptr player_flags_sp[] =
  * Object flags
  */
 static cptr k_info_flags1[] =
-{
-	"STR",
-	"INT",
-	"WIS",
-	"DEX",
+  {
+    "STR",
+    "INT",
+    "WIS",
+    "DEX",
     "CON",
     "CHR",
     "XXX1",
@@ -459,8 +498,8 @@ static cptr k_info_flags1[] =
     "SLAY_ANIMAL",
     "SLAY_EVIL",
     "SLAY_UNDEAD",
-	"SLAY_DEMON",
-	"SLAY_ORC",
+    "SLAY_DEMON",
+    "SLAY_ORC",
     "SLAY_TROLL",
     "SLAY_GIANT",
     "SLAY_DRAGON",
@@ -470,59 +509,59 @@ static cptr k_info_flags1[] =
     "BRAND_POIS",
     "BRAND_ACID",
     "BRAND_ELEC",
-	"BRAND_FIRE",
-	"BRAND_COLD"
+    "BRAND_FIRE",
+    "BRAND_COLD"
 };
 
 /*
  * Object flags
  */
 static cptr k_info_flags2[] =
-{
-	"SUST_STR",
-	"SUST_INT",
-	"SUST_WIS",
-	"SUST_DEX",
-	"SUST_CON",
-	"SUST_CHR",
-	"XXX1",
-	"XXX2",
-	"RAND_RES_NEG",
-	"RAND_RES_SML",
-	"RAND_RES",
-	"RAND_RES_XTRA",
-	"IM_ACID",
-	"IM_ELEC",
-	"IM_FIRE",
-	"IM_COLD",
-	"RES_ACID",
-	"RES_ELEC",
-	"RES_FIRE",
-	"RES_COLD",
-	"RES_POIS",
-	"XXX3",
-	"RES_LITE",
-	"RES_DARK",
-	"XXX4",
-	"RES_CONFU",
-	"RES_SOUND",
-	"RES_SHARD",
-	"RES_NEXUS",
-	"RES_NETHR",
-	"RES_CHAOS",
-	"RES_DISEN"
-};
+  {
+    "SUST_STR",
+    "SUST_INT",
+    "SUST_WIS",
+    "SUST_DEX",
+    "SUST_CON",
+    "SUST_CHR",
+    "XXX1",
+    "XXX2",
+    "RAND_RES_NEG",
+    "RAND_RES_SML",
+    "RAND_RES",
+    "RAND_RES_XTRA",
+    "IM_ACID",
+    "IM_ELEC",
+    "IM_FIRE",
+    "IM_COLD",
+    "RES_ACID",
+    "RES_ELEC",
+    "RES_FIRE",
+    "RES_COLD",
+    "RES_POIS",
+    "XXX3",
+    "RES_LITE",
+    "RES_DARK",
+    "XXX4",
+    "RES_CONFU",
+    "RES_SOUND",
+    "RES_SHARD",
+    "RES_NEXUS",
+    "RES_NETHR",
+    "RES_CHAOS",
+    "RES_DISEN"
+  };
 
 /*
  * Object flags
  */
 static cptr k_info_flags3[] =
-{
-	"SLOW_DIGEST",
-	"FEATHER",
-	"LITE",
-	"REGEN",
-	"TELEPATHY",
+  {
+    "SLOW_DIGEST",
+    "FEATHER",
+    "LITE",
+    "REGEN",
+    "TELEPATHY",
     "SEE_INVIS",
     "FREE_ACT",
     "HOLD_LIFE",
@@ -533,8 +572,8 @@ static cptr k_info_flags3[] =
     "IMPACT",
     "TELEPORT",
     "AGGRAVATE",
-	"DRAIN_EXP",
-	"IGNORE_ACID",
+    "DRAIN_EXP",
+    "IGNORE_ACID",
     "IGNORE_ELEC",
     "IGNORE_FIRE",
     "IGNORE_COLD",
@@ -543,35 +582,35 @@ static cptr k_info_flags3[] =
     "BLESSED",
     "ACTIVATE",
     "INSTA_ART",
-	"EASY_KNOW",
-	"HIDE_TYPE",
-	"SHOW_MODS",
-	"XXX7",
-	"LIGHT_CURSE",
-	"HEAVY_CURSE",
-	"PERMA_CURSE"
-};
+    "EASY_KNOW",
+    "HIDE_TYPE",
+    "SHOW_MODS",
+    "XXX7",
+    "LIGHT_CURSE",
+    "HEAVY_CURSE",
+    "PERMA_CURSE"
+  };
 
 /*
  * Translation of resistance flags to player resists
  */
 static cptr player_resists[] = 
-{
-  "RES_ACID",
-  "RES_ELEC",
-  "RES_FIRE",
-  "RES_COLD",
-  "RES_POIS",
-  "RES_LITE",
-  "RES_DARK",
-  "RES_CONFU",
-  "RES_SOUND",
-  "RES_SHARD",
-  "RES_NEXUS",
-  "RES_NETHR",
-  "RES_CHAOS",
-  "RES_DISEN"
-};
+  {
+    "RES_ACID",
+    "RES_ELEC",
+    "RES_FIRE",
+    "RES_COLD",
+    "RES_POIS",
+    "RES_LITE",
+    "RES_DARK",
+    "RES_CONFU",
+    "RES_SOUND",
+    "RES_SHARD",
+    "RES_NEXUS",
+    "RES_NETHR",
+    "RES_CHAOS",
+    "RES_DISEN"
+  };
 
 
 /*** Initialize from ascii template files ***/
@@ -662,29 +701,29 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
  * Returns FALSE when there isn't enough space available to store
  * the text.
  */
-static bool add_text(u16b *offset, header *head, cptr buf)
+static bool add_text(u32b *offset, header *head, cptr buf)
 {
-	size_t len = strlen(buf);
-
-	/* Hack -- Verify space */
-	if (head->text_size + len + 8 > z_info->fake_text_size)
-		return (FALSE);
-
-	/* New text? */
-	if (*offset == 0)
-	{
-		/* Advance and save the text index */
-		*offset = ++head->text_size;
-	}
-
-	/* Append chars to the text */
-	my_strcpy(head->text_ptr + head->text_size, buf, len + 1);
-
-	/* Advance the index */
-	head->text_size += len;
-
-	/* Success */
-	return (TRUE);
+  size_t len = strlen(buf);
+  
+  /* Hack -- Verify space */
+  if (head->text_size + len + 8 > z_info->fake_text_size)
+    return (FALSE);
+  
+  /* New text? */
+  if (*offset == 0)
+    {
+      /* Advance and save the text index */
+      *offset = ++head->text_size;
+    }
+  
+  /* Append chars to the text */
+  my_strcpy(head->text_ptr + head->text_size, buf, len + 1);
+  
+  /* Advance the index */
+  head->text_size += len;
+  
+  /* Success */
+  return (TRUE);
 }
 
 
@@ -1103,63 +1142,63 @@ errr init_t_info_txt(FILE *fp, char *buf, byte chosen_level)
  */
 errr parse_v_info(char *buf, header *head)
 {
-	int i;
-
-	char *s;
-
-	/* Current entry */
-	static vault_type *v_ptr = NULL;
-
-
-	/* Process 'N' for "New/Number/Name" */
-	if (buf[0] == 'N')
-	{
-		/* Find the colon before the name */
-		s = strchr(buf+2, ':');
-
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the name */
-		*s++ = '\0';
-
-		/* Paranoia -- require a name */
-		if (!*s) return (PARSE_ERROR_GENERIC);
-
-		/* Get the index */
-		i = atoi(buf+2);
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Save the index */
-		error_idx = i;
-
-		/* Point at the "info" */
-		v_ptr = (vault_type*)head->info_ptr + i;
-
-		/* Store the name */
-		if (!(v_ptr->name = add_name(head, s)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-	}
-
-	/* Process 'D' for "Description" */
-	else if (buf[0] == 'D')
-	{
-		/* There better be a current v_ptr */
-		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Get the text */
-		s = buf+2;
-
-		/* Store the text */
-		if (!add_text(&v_ptr->text, head, s))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-	}
-
+  int i;
+  
+  char *s;
+  
+  /* Current entry */
+  static vault_type *v_ptr = NULL;
+  
+  
+  /* Process 'N' for "New/Number/Name" */
+  if (buf[0] == 'N')
+    {
+      /* Find the colon before the name */
+      s = strchr(buf+2, ':');
+      
+      /* Verify that colon */
+      if (!s) return (PARSE_ERROR_GENERIC);
+      
+      /* Nuke the colon, advance to the name */
+      *s++ = '\0';
+      
+      /* Paranoia -- require a name */
+      if (!*s) return (PARSE_ERROR_GENERIC);
+      
+      /* Get the index */
+      i = atoi(buf+2);
+      
+      /* Verify information */
+      if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+      
+      /* Verify information */
+      if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
+      
+      /* Save the index */
+      error_idx = i;
+      
+      /* Point at the "info" */
+      v_ptr = (vault_type*)head->info_ptr + i;
+      
+      /* Store the name */
+      if (!(v_ptr->name = add_name(head, s)))
+	return (PARSE_ERROR_OUT_OF_MEMORY);
+    }
+  
+  /* Process 'D' for "Description" */
+  else if (buf[0] == 'D')
+    {
+      /* There better be a current v_ptr */
+      if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Get the text */
+      s = buf+2;
+      
+      /* Store the text */
+      if (!add_text(&v_ptr->text, head, s))
+	return (PARSE_ERROR_OUT_OF_MEMORY);
+    }
+  
   /* Process 'X' for "Extra info" (one line only) */
   else if (buf[0] == 'X')
     {
@@ -1189,72 +1228,108 @@ errr parse_v_info(char *buf, header *head)
   else 
     {
       /* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
 	}
-
-	/* Success */
-	return (0);
+  
+  /* Success */
+  return (0);
 }
 
 
+
+/*
+ * Grab one flag from a textual string
+ */
+static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
+{
+  int i;
+  
+  /* Check flags */
+  for (i = 0; i < 32; i++)
+    {
+      if (streq(what, names[i]))
+	{
+	  *flags |= (1L << i);
+	  return (0);
+	}
+    }
+  
+  return (-1);
+}
+
+
+/*
+ * Grab one flag in a feature_type from a textual string
+ */
+static bool grab_one_feat_flag(feature_type *f_ptr, cptr what)
+{
+  if (grab_one_flag(&f_ptr->flags, f_info_flags, what) == 0)
+    return (0);
+  
+  /* Oops */
+  msg_format("Unknown feature_type flag '%s'.", what);
+  
+  /* Error */
+  return (PARSE_ERROR_GENERIC);
+}
 
 /*
  * Initialize the "f_info" array, by parsing an ascii "template" file
  */
 errr parse_f_info(char *buf, header *head)
 {
-	int i;
-
-	char *s;
-
-	/* Current entry */
-	static feature_type *f_ptr = NULL;
-
-
-	/* Process 'N' for "New/Number/Name" */
-	if (buf[0] == 'N')
-	{
-		/* Find the colon before the name */
-		s = strchr(buf+2, ':');
-
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the name */
-		*s++ = '\0';
-
-		/* Paranoia -- require a name */
-		if (!*s) return (PARSE_ERROR_GENERIC);
-
-		/* Get the index */
-		i = atoi(buf+2);
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Save the index */
-		error_idx = i;
-
-		/* Point at the "info" */
-		f_ptr = (feature_type*)head->info_ptr + i;
-
-		/* Store the name */
-		if (!(f_ptr->name = add_name(head, s)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-
-		/* Default "mimic" */
-		f_ptr->mimic = i;
-	}
-
-	/* Process 'M' for "Mimic" (one line only) */
-	else if (buf[0] == 'M')
-	{
-		int mimic;
-
-		/* There better be a current f_ptr */
+  int i;
+  
+  char *s, *t;
+  
+  /* Current entry */
+  static feature_type *f_ptr = NULL;
+  
+  
+  /* Process 'N' for "New/Number/Name" */
+  if (buf[0] == 'N')
+    {
+      /* Find the colon before the name */
+      s = strchr(buf+2, ':');
+      
+      /* Verify that colon */
+      if (!s) return (PARSE_ERROR_GENERIC);
+      
+      /* Nuke the colon, advance to the name */
+      *s++ = '\0';
+      
+      /* Paranoia -- require a name */
+      if (!*s) return (PARSE_ERROR_GENERIC);
+      
+      /* Get the index */
+      i = atoi(buf+2);
+      
+      /* Verify information */
+      if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+      
+      /* Verify information */
+      if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
+      
+      /* Save the index */
+      error_idx = i;
+      
+      /* Point at the "info" */
+      f_ptr = (feature_type*)head->info_ptr + i;
+      
+      /* Store the name */
+      if (!(f_ptr->name = add_name(head, s)))
+	return (PARSE_ERROR_OUT_OF_MEMORY);
+      
+      /* Default "mimic" */
+      f_ptr->mimic = i;
+    }
+  
+  /* Process 'M' for "Mimic" (one line only) */
+  else if (buf[0] == 'M')
+    {
+      int mimic;
+      
+      /* There better be a current f_ptr */
       if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
       /* Scan for the values */
@@ -1262,55 +1337,120 @@ errr parse_f_info(char *buf, header *head)
       
       /* Save the values */
       f_ptr->mimic = mimic;
-	}
-
-	/* Process 'G' for "Graphics" (one line only) */
-	else if (buf[0] == 'G')
+    }
+  
+  /* Hack -- Process 'F' for flags */
+  else if (buf[0] == 'F')
+    {
+      /* There better be a current f_ptr */
+      if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Parse every entry textually */
+      for (s = buf + 2; *s; )
 	{
-		char d_char;
-		int d_attr;
-
-		/* There better be a current f_ptr */
-		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Paranoia */
-		if (!buf[2]) return (PARSE_ERROR_GENERIC);
-		if (!buf[3]) return (PARSE_ERROR_GENERIC);
-		if (!buf[4]) return (PARSE_ERROR_GENERIC);
-
-		/* Extract d_char */
-		d_char = buf[2];
-
-		/* If we have a longer string than expected ... */
-		if (buf[5])
-		{
-			/* Advance "buf" on by 4 */
-			buf += 4;
-
-			/* Extract the colour */
-			d_attr = color_text_to_attr(buf);
-		}
-		else
-		{
-			/* Extract the attr */
-			d_attr = color_char_to_attr(buf[4]);
-		}
-
-		/* Paranoia */
-		if (d_attr < 0) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		f_ptr->d_attr = d_attr;
-		f_ptr->d_char = d_char;
+	  /* Find the end of this entry */
+	  for (t = s; *t && (*t != ' ') && (*t != '|'); ++t); /* loop */
+	  
+	  /* Nuke and skip any dividers */
+	  if (*t)
+	    {
+	      *t++ = '\0';
+	      while (*t == ' ' || *t == '|') t++;
+	    }
+	  
+	  /* Parse this entry */
+	  if (0 != grab_one_feat_flag(f_ptr, s))
+	    return (PARSE_ERROR_INVALID_FLAG);
+	  
+	  /* Start the next entry */
+	  s = t;
 	}
-	else
+    }
+
+  /* Process 'G' for "Graphics" (one line only) */
+  else if (buf[0] == 'G')
+    {
+      char d_char;
+      int d_attr;
+      
+      /* There better be a current f_ptr */
+      if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Paranoia */
+      if (!buf[2]) return (PARSE_ERROR_GENERIC);
+      if (!buf[3]) return (PARSE_ERROR_GENERIC);
+      if (!buf[4]) return (PARSE_ERROR_GENERIC);
+      
+      /* Extract d_char */
+      d_char = buf[2];
+      
+      /* If we have a longer string than expected ... */
+      if (buf[5])
 	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	  /* Advance "buf" on by 4 */
+	  buf += 4;
+	  
+	  /* Extract the colour */
+	  d_attr = color_text_to_attr(buf);
 	}
+      else
+	{
+	  /* Extract the attr */
+	  d_attr = color_char_to_attr(buf[4]);
+	}
+      
+      /* Paranoia */
+      if (d_attr < 0) return (PARSE_ERROR_GENERIC);
+      
+      /* Save the values */
+      f_ptr->d_attr = d_attr;
+      f_ptr->d_char = d_char;
+    }
 
-	/* Success */
-	return (0);
+  /* Process 'D' for "Description" */
+  else if (buf[0] == 'D')
+    {
+      /* There better be a current f_ptr */
+      if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Get the text */
+      s = buf+2;
+      
+      /* Store the text */
+      if (!add_text(&(f_ptr->text), head, s))
+	return (PARSE_ERROR_OUT_OF_MEMORY);
+    }
+  
+  /* Process "!:Verify Terrain" for double-check on terrain. */
+  else if ((buf[0] == '!') && (strstr(buf, "!:Verify Terrain")))
+    {
+      /* Scan the whole feature list (except for darkness) */
+      for (i = 1; i < z_info->f_max; i++)
+	{
+	  feature_type *f2_ptr = NULL;
+	  
+	  f_ptr = (feature_type*)head->info_ptr + i;
+	  
+	  /* This feature is not a mimic -- ignore */
+	  if ((f_ptr->mimic == 0) || (f_ptr->mimic == i))
+	    {
+	      continue;
+	    }
+	  
+	  f2_ptr = (feature_type*)head->info_ptr + f_ptr->mimic;
+
+	  /* Add the flags of the mimiced feature */
+	  f_ptr->flags |= (f2_ptr->flags);
+	}
+    }
+  else
+    {
+      /* Oops */
+      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+    }
+  
+  /* Success */
+  return (0);
 }
 
 
@@ -1910,7 +2050,7 @@ static errr grab_one_set_element_flag(set_element *selement_ptr, cptr what)
 	      for (k = 0; k < MAX_P_RES; k++)
 		if (streq(what, player_resists[k]))
 		  {
-		    selement_ptr->percent_res[k] -= 100 - j;
+		    selement_ptr->percent_res[k] = j;
 		    selement_ptr->flags2 |= resist_to_flag[k];
 		    return (0);
 		  }
@@ -1962,7 +2102,7 @@ errr parse_s_info(char *buf, header *head)
   static set_element *selement_ptr = NULL;
   
   /* No item in current set */
-  int item_number = -1;
+  static int item_number = -1;
   
       
   /* Process 'N' for "New/Number/Name" */
@@ -2048,7 +2188,8 @@ errr parse_s_info(char *buf, header *head)
       int a_idx, pval;
       
       /* Scan for the values */
-      if (2 != sscanf(buf+2, "%d:%d", &a_idx, &pval)) return (PARSE_ERROR_GENERIC);
+      if (2 != sscanf(buf+2, "%d:%d", &a_idx, &pval)) 
+	return (PARSE_ERROR_GENERIC);
       
       /* We are on the next set item */
       item_number++;

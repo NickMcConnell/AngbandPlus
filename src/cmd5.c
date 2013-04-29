@@ -25,18 +25,20 @@ static void warrior_probe_desc(void)
   
   /* Erase the screen */
   Term_clear();
+
+  /* Set the indent */
+  text_out_indent = 5;
   
   /* Title in light blue. */
-  c_roff(TERM_L_BLUE, "Warrior Pseudo-Probing Ability:", 5, 75);
-  roff("\n", 0, 0); roff("\n", 0, 0);
+  text_out_to_screen(TERM_L_BLUE, "Warrior Pseudo-Probing Ability:");
+  text_out_to_screen(TERM_WHITE, "\n\n");
   
   /* Print out information text. */
-  roff("     Warriors learn to probe monsters at level 35.  This costs nothing except a full turn.  When you reach this level, type 'm', and target the monster you would like to learn more about.  This reveals the monster's race, approximate HPs, and basic resistances.  Be warned:  the information given is not always complete...", 5, 75);
-  roff("\n", 0, 0); roff("\n", 0, 0); roff("\n", 0, 0);
+  text_out_to_screen(TERM_WHITE, "Warriors learn to probe monsters at level 35.  This costs nothing except a full turn.  When you reach this level, type 'm', and target the monster you would like to learn more about.  This reveals the monster's race, approximate HPs, and basic resistances.  Be warned:  the information given is not always complete...");
+  text_out_to_screen(TERM_WHITE, "\n\n\n");
   
   /* The "exit" sign. */
-  roff("    (Press any key to continue.)", 5, 75);
-  roff("\n", 0, 0);
+  text_out_to_screen(TERM_WHITE, "    (Press any key to continue.)\n");
   
   /* Wait for it. */
   (void)inkey_ex();
@@ -189,7 +191,7 @@ void shapechange(s16b shape)
       shapedesc = "vampire";
       break;
     case SHAPE_WYRM:
-      shapedesc = "wyrm";
+      shapedesc = "dragon";
       break;
     case SHAPE_BEAR:
       shapedesc = "bear";
@@ -365,7 +367,7 @@ bool el_menu(void)
   /* Set up the menu */
   WIPE(&menu, menu);
   menu.title = "Choose a temporary elemental brand";
-  menu.cmd_keys = " \n\r";
+  menu.cmd_keys = "\n\r";
   menu.count = num;
   menu.menu_data = choice;
   menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
@@ -561,6 +563,25 @@ int get_channeling_boost(void)
 }
 
 
+/*
+ * The correct spell book tester
+ */
+static bool item_tester_hook_book(object_type *o_ptr)
+{
+  /* Wrong tval */
+  if (mp_ptr->spell_book != o_ptr->tval)
+    return (FALSE);
+
+  /* Book not usable by this class */
+  if ((mp_ptr->book_start_index[o_ptr->sval] == 
+       mp_ptr->book_start_index[o_ptr->sval + 1]))
+  return (FALSE);
+
+  /* Okay then */
+  return (TRUE);
+}
+
+
 /* Spell choice code */
 int num, first_spell;
 byte attr_book;
@@ -669,7 +690,8 @@ void get_spell_display(menu_type *menu, int oid, bool cursor, int row,
 	  
 	  /* Move the cursor */
 	  Term_gotoxy(col + 2, num + 3);
-	  c_roff(TERM_L_BLUE, spell_tips[s_ptr->index], 3, 5);
+	  text_out_indent = 3;
+	  text_out_to_screen(TERM_L_BLUE, spell_tips[s_ptr->index]);
 	  
 	  /* Restore */
 	  Term_gotoxy(x, y);
@@ -945,7 +967,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
   (*sn) = -2;
   
   /* Do we need spell tips? */
-  tips = (prompt == "browse");
+  tips = (!strcmp(prompt, "browse"));
 
   /* Find the array index of the spellbook's first spell. */
   first_spell = mp_ptr->book_start_index[sval];
@@ -1107,7 +1129,7 @@ void do_cmd_browse(void)
     }
   
   /* Restrict choices to "useful" books */
-  item_tester_tval = mp_ptr->spell_book;
+  item_tester_hook = item_tester_hook_book;
   
   /* Do we have an item? */
   if (p_ptr->command_item) 
@@ -1172,8 +1194,8 @@ void do_cmd_browse(void)
   /* Keep browsing spells.  Exit browsing on cancel. */
   while(get_spell(&spell, "browse", o_ptr->tval, o_ptr->sval, TRUE)) ;
   
-  /* Forget the item_tester_tval restriction */
-  item_tester_tval = 0;
+  /* Forget the item_tester_hook */
+  item_tester_hook = NULL;
   
   /* Load screen */
   screen_load();
@@ -1242,7 +1264,7 @@ void do_cmd_study(void)
     }
   
   /* Restrict choices to "useful" books */
-  item_tester_tval = mp_ptr->spell_book;
+  item_tester_hook = item_tester_hook_book;
   
   /* Do we have an item? */
   if (p_ptr->command_item) 
@@ -1400,8 +1422,8 @@ void do_cmd_study(void)
   /* Redraw Study Status */
   p_ptr->redraw |= (PR_STUDY);
   
-  /* Forget the item_tester_tval restriction */
-  item_tester_tval = 0;
+  /* Forget the item_tester_hook */
+  item_tester_hook = NULL;
   
 }
 
@@ -1497,7 +1519,7 @@ void do_cmd_cast_or_pray(void)
   
   
   /* Restrict choices to spell books of the player's realm. */
-  item_tester_tval = mp_ptr->spell_book;
+  item_tester_hook = item_tester_hook_book;
   
   
   /* Do we have an item? */
@@ -2324,11 +2346,13 @@ void do_cmd_cast_or_pray(void)
 	    (void)set_cut(0);
 	    break;
 	  }
+#if 0
 	case 108: /* Sacred Knowledge */
 	  {
 	    (void)identify_fully();
 	    break;
 	  }
+#endif
 	case 109: /* Restoration */
 	  {
 	    (void)do_res_stat(A_STR);
@@ -3452,8 +3476,8 @@ void do_cmd_cast_or_pray(void)
   /* Window stuff */
   p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
   
-  /* Forget the item_tester_tval restriction */
-  item_tester_tval = 0;
+  /* Forget the item_tester_hook */
+  item_tester_hook = NULL;
   
 }
 
@@ -3571,7 +3595,8 @@ void gain_spec_display(menu_type *menu, int oid, bool cursor, int row,
   
       /* Move the cursor */
       Term_gotoxy(3, num + 2); 
-      c_roff(TERM_L_BLUE, specialty_tips[choices[oid]], 3, 5);
+      text_out_indent = 3;
+      text_out_to_screen(TERM_L_BLUE, specialty_tips[choices[oid]]);
 
       /* Restore */
       Term_gotoxy(x, y);
@@ -3583,12 +3608,7 @@ void gain_spec_display(menu_type *menu, int oid, bool cursor, int row,
  */
 bool gain_spec_action(char cmd, void *db, int oid)
 {
-  if (get_check("Are you sure? "))
-    {
-      return TRUE;
-    }
-  else
-    return FALSE;
+    return TRUE;
 }
 
 
@@ -3643,7 +3663,7 @@ bool gain_spec_menu(int *pick)
   /* Set up the menu */
   WIPE(&menu, menu);
   menu.title = buf;
-  menu.cmd_keys = " \n\r";
+  menu.cmd_keys = "\n\r";
   menu.count = num;
   menu.menu_data = choices;
   menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &SCREEN_REGION);
@@ -3651,8 +3671,8 @@ bool gain_spec_menu(int *pick)
   while (!done)
     {
       evt = menu_select(&menu, &cursor, 0);
-      done = ((evt.type == EVT_ESCAPE) || (evt.type == EVT_BACK) || 
-	      (evt.type == EVT_SELECT));
+      done = ((evt.type == EVT_ESCAPE) || (evt.type == EVT_BACK));
+      if (evt.type == EVT_SELECT) done = get_check("Are you sure? ");
     }
 
   if (evt.type == EVT_SELECT) *pick = evt.index;

@@ -199,7 +199,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
   if (price <= 0) return (0L);
   
   /* Compute the racial factor */
-  racial_factor = g_info[(ot_ptr->owner_race * MAX_P_IDX) + p_ptr->prace];
+  racial_factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
   
   /* Paranoia */
   if (!racial_factor) racial_factor=100;
@@ -1143,7 +1143,7 @@ static void store_create(void)
 	  /* Hack -- Pick an object kind to sell */
 	  int i = rand_int(num);
 
-	  while ((st_ptr->table[i] == 0) || (st_ptr->table[i] > MAX_K_IDX))
+	  while ((st_ptr->table[i] == 0) || (st_ptr->table[i] > z_info->k_max))
 	    i = rand_int(num);
 
 	  k_idx = st_ptr->table[i];
@@ -1749,9 +1749,6 @@ static void store_purchase(void)
 	  /* Combine / Reorder the pack (later) */
 	  p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	  
-	  /* Clear the "fixed" flag from the object */
-	  i_ptr->ident &= ~(IDENT_FIXED);
-	  
 	  /* Describe the transaction */
 	  object_desc(o_name, i_ptr, TRUE, 3);
 	  
@@ -2186,13 +2183,13 @@ static void store_inspect(void)
   o_ptr = &st_ptr->stock[item];
   
   /* Save screen */
-  screen_save();
+  //screen_save();
   
   /* Examine the item. */
-  object_info_screen(o_ptr);
+  object_info_screen(o_ptr, FALSE);
 
   /* Load screen */
-  screen_load();
+  //screen_load();
 }
 
 /* Structure to describe tval/description pairings. */
@@ -2775,14 +2772,20 @@ void get_owner(bool pick)
   /* Choose an owner */
   if (pick)
     {
-      byte possible[MAX_P_IDX] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+#ifdef _WIN32_WCE
+      byte *possible = malloc(z_info->p_max * sizeof(*possible));
+#else
+      byte possible[z_info->p_max];
+#endif
 
+      for (i = 0; i < z_info->p_max; i++) possible[i] = 1;
+      
       /* See who's available */
       for (i = 0; i < MAX_STORES; i++)
 	{
 	  if (type_of_store[i] == type)
 	    {
-	      for (j = 0; j < MAX_P_IDX; j++)
+	      for (j = 0; j < z_info->p_max; j++)
 		{
 		  if (owner[i] == j)
 		    {
@@ -2797,10 +2800,10 @@ void get_owner(bool pick)
       if ((type == STORE_MERCH) || (out_of == 0))
 	{
 	  /* Choose a random owner */
-	  i = rand_int(MAX_P_IDX);
+	  i = rand_int(z_info->p_max);
 	  
 	  /* Try again if necessary*/
-	  while (possible[i] == 0) i = rand_int(MAX_P_IDX);
+	  while (possible[i] == 0) i = rand_int(z_info->p_max);
 	}
 
       /* Choose a legal race */
@@ -2810,7 +2813,7 @@ void get_owner(bool pick)
 	  j = rand_int(out_of);
 	  
 	  /* Look up the race probability */
-	  for (i = 0; i < MAX_P_IDX; i++)
+	  for (i = 0; i < z_info->p_max; i++)
 	    {
 	      /* Add the probability for the legal races */
 	      chance += race_town_prob[town][i] * possible[i];
@@ -2823,11 +2826,14 @@ void get_owner(bool pick)
       /* Set the owner */
       st_ptr->owner = i;
 	
+#ifdef _WIN32_WCE
+      free(possible);
+#endif 
     }  
 
   /* Activate the owner */
-  ot_ptr = &b_info[(type * MAX_B_IDX) + st_ptr->owner];
-  
+  ot_ptr = &b_info[(type * z_info->b_max) + st_ptr->owner];
+
 }
 
 /*
@@ -2850,10 +2856,11 @@ void do_cmd_store(void)
   int tmp_chr;
 
   bool found = FALSE;
+
+  feature_type *f_ptr = &f_info[cave_feat[py][px]];
   
   /* Verify a store */
-  if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-	(cave_feat[py][px] <= FEAT_SHOP_TAIL)))
+  if (!f_ptr->flags & TF_SHOP)
     {
       msg_print("You see no store here.");
       return;
@@ -3227,9 +3234,6 @@ void store_shuffle(int which)
       
       /* Sell all old items for "half price" */
       o_ptr->discount = 50;
-      
-      /* Clear the "fixed price" flag */
-      o_ptr->ident &= ~(IDENT_FIXED);
       
       /* Inscribe the object as "on sale" */
       o_ptr->note = quark_add("on sale");

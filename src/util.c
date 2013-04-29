@@ -16,6 +16,7 @@
 #endif /* _WIN32_WCE */
 
 
+
 /*
  * Convert a decimal to a single digit hex number
  */
@@ -83,7 +84,7 @@ static size_t trigger_text_to_ascii(char *buf, size_t max, cptr *strptr)
 		mod_status[i] = TRUE;
 
 		/* Shift key might be going to change keycode */
-		if ('S' == macro_modifier_chr[i])
+		if (macro_modifier_chr[i] == 'S')
 			shiftstatus = 1;
 	}
 
@@ -129,26 +130,34 @@ static size_t trigger_text_to_ascii(char *buf, size_t max, cptr *strptr)
 	for (i = 0; macro_template[i]; i++)
 	{
 		char ch = macro_template[i];
-		int j;
 
-		switch(ch)
+		switch (ch)
 		{
-		case '&':
 			/* Modifier key character */
-			for (j = 0; macro_modifier_chr[j]; j++)
+			case '&':
 			{
-				if (mod_status[j])
-					strnfcat(buf, max, &current_len, "%c", macro_modifier_chr[j]);
+				size_t j;
+				for (j = 0; macro_modifier_chr[j]; j++)
+				{
+					if (mod_status[j])
+						strnfcat(buf, max, &current_len, "%c", macro_modifier_chr[j]);
+				}
+				break;
 			}
-			break;
-		case '#':
+
 			/* Key code */
-			strnfcat(buf, max, &current_len, "%s", key_code);
-			break;
-		default:
+			case '#':
+			{
+				strnfcat(buf, max, &current_len, "%s", key_code);
+				break;
+			}
+
 			/* Fixed string */
-			strnfcat(buf, max, &current_len, "%c", ch);
-			break;
+			default:
+			{
+				strnfcat(buf, max, &current_len, "%c", ch);
+				break;
+			}
 		}
 	}
 
@@ -182,95 +191,68 @@ void text_to_ascii(char *buf, size_t len, cptr str)
 		/* Backslash codes */
 		if (*str == '\\')
 		{
-			/* Skip the backslash */
 			str++;
+			if (*str == '\0') break;
 
-			/* Paranoia */
-			if (!(*str)) break;
-
-			/* Macro Trigger */
-			if (*str == '[')
+			switch (*str)
 			{
-				/* Terminate before appending the trigger */
-				*s = '\0';
-
-				s += trigger_text_to_ascii(buf, len, &str);
-			}
-
-			/* Hack -- simple way to specify Escape */
-			else if (*str == 'e')
-			{
-				*s++ = ESCAPE;
-			}
-
-			/* Hack -- simple way to specify "space" */
-			else if (*str == 's')
-			{
-				*s++ = ' ';
-			}
-
-			/* Backspace */
-			else if (*str == 'b')
-			{
-				*s++ = '\b';
-			}
-
-			/* Newline */
-			else if (*str == 'n')
-			{
-				*s++ = '\n';
-			}
-
-			/* Return */
-			else if (*str == 'r')
-			{
-				*s++ = '\r';
-			}
-
-			/* Tab */
-			else if (*str == 't')
-			{
-				*s++ = '\t';
-			}
-
-			/* Bell */
-			else if (*str == 'a')
-			{
-				*s++ = '\a';
-			}
-
-			/* Actual "backslash" */
-			else if (*str == '\\')
-			{
-				*s++ = '\\';
-			}
-
-			/* Hack -- Actual "caret" */
-			else if (*str == '^')
-			{
-				*s++ = '^';
-			}
-
-			/* Hack -- Hex-mode */
-			else if (*str == 'x')
-			{
-				if (isxdigit((unsigned char)(*(str + 1))) &&
-				    isxdigit((unsigned char)(*(str + 2))))
+				/* Macro trigger */
+				case '[':
 				{
-					*s = 16 * dehex(*++str);
-					*s++ += dehex(*++str);
+					/* Terminate before appending the trigger */
+					*s = '\0';
+					s += trigger_text_to_ascii(buf, len, &str);
+					break;
 				}
-				else
-				{
-					/* HACK - Invalid hex number */
-					*s++ = '?';
-				}
-			}
 
-			/* Oops */
-			else
-			{
-				*s = *str;
+				/* Hex-mode */
+				case 'x':
+				{
+					if (isxdigit((unsigned char)(*(str + 1))) &&
+					    isxdigit((unsigned char)(*(str + 2))))
+					{
+						*s = 16 * dehex(*++str);
+						*s++ += dehex(*++str);
+					}
+					else
+					{
+						/* HACK - Invalid hex number */
+						*s++ = '?';
+					}
+					break;
+				}
+
+				case 'e':
+					*s++ = ESCAPE;
+					break;
+				case 's':
+					*s++ = ' ';
+					break;
+				case 'b':
+					*s++ = '\b';
+					break;
+				case 'n':
+					*s++ = '\n';
+					break;
+				case 'r':
+					*s++ = '\r';
+					break;
+				case 't':
+					*s++ = '\t';
+					break;
+				case 'a':
+					*s++ = '\a';
+					break;
+				case '\\':
+					*s++ = '\\';
+					break;
+				case '^':
+					*s++ = '^';
+					break;
+
+				default:
+					*s = *str;
+					break;
 			}
 
 			/* Skip the final char */
@@ -281,12 +263,10 @@ void text_to_ascii(char *buf, size_t len, cptr str)
 		else if (*str == '^')
 		{
 			str++;
+			if (*str == '\0') break;
 
-			if (*str)
-			{
-				*s++ = KTRL(*str);
-				str++;
-			}
+			*s++ = KTRL(*str);
+			str++;
 		}
 
 		/* Normal chars */
@@ -299,7 +279,6 @@ void text_to_ascii(char *buf, size_t len, cptr str)
 	/* Terminate */
 	*s = '\0';
 }
-
 
 /*
  * Transform macro trigger key code ('^_O_64\r' or etc..) 
@@ -323,30 +302,39 @@ static size_t trigger_ascii_to_text(char *buf, size_t max, cptr *strptr)
 	/* Use template to read key-code style trigger */
 	for (i = 0; macro_template[i]; i++)
 	{
-		int j;
 		char ch = macro_template[i];
 
-		switch(ch)
+		switch (ch)
 		{
-		case '&':
 			/* Read modifier */
-			while ((tmp = strchr(macro_modifier_chr, *str)))
+			case '&':
 			{
-				j = (int)(tmp - macro_modifier_chr);
-				strnfcat(buf, max, &current_len, "%s", macro_modifier_name[j]);
+				size_t j;
+				while ((tmp = strchr(macro_modifier_chr, *str)) != 0)
+				{
+					j = tmp - macro_modifier_chr;
+					strnfcat(buf, max, &current_len, "%s", macro_modifier_name[j]);
+					str++;
+				}
+				break;
+			}
+
+			/* Read key code */
+			case '#':
+			{
+				size_t j;
+				for (j = 0; *str && (*str != '\r') && (j < sizeof(key_code) - 1); j++)
+					key_code[j] = *str++;
+				key_code[j] = '\0';
+				break;
+			}
+
+			/* Skip fixed strings */
+			default:
+			{
+				if (ch != *str) return 0;
 				str++;
 			}
-			break;
-		case '#':
-			/* Read key code */
-			for (j = 0; *str && (*str != '\r') && (j < (int)sizeof(key_code) - 1); j++)
-				key_code[j] = *str++;
-			key_code[j] = '\0';
-			break;
-		default:
-			/* Skip fixed strings */
-			if (ch != *str) return 0;
-			str++;
 		}
 	}
 
@@ -831,7 +819,7 @@ int add_button_text(char *label, unsigned char keypress)
   /* Check the label length */
   if (length > MAX_MOUSE_LABEL) 
     {
-      bell("Label too long - button abandoned!");
+      //bell("Label too long - button abandoned!");
       return 0;
     }
 
@@ -844,7 +832,7 @@ int add_button_text(char *label, unsigned char keypress)
   button_length += length;
   if (button_length + button_start > button_end) 
     {
-      bell("No more room for buttons!");
+      //bell("No more room for buttons!");
       button_length -= length;
       return 0;
     }
@@ -1513,13 +1501,13 @@ char anykey(void)
  */
 char inkey(void)
 {
-	event_type ke;
+	event_type ke = EVENT_EMPTY;
 
 	/* Only accept a keypress */
 	do
 	{
 		ke = inkey_ex();
-	} while (!(ke.type  & (EVT_KBRD|EVT_ESCAPE)));
+	} while ((ke.type != EVT_KBRD) && (ke.type != EVT_ESCAPE));
 	/* Paranoia */
 	if(ke.type == EVT_ESCAPE) ke.key = ESCAPE;
 
@@ -2820,8 +2808,16 @@ void screen_load(void)
  */
 void c_put_str(byte attr, cptr str, int row, int col)
 {
+  /* Copy to get extended chars */
+  char buf[1024];
+
+  my_strcpy(buf, str, sizeof(buf));
+
+ 	/* Translate it to 7-bit ASCII or system-specific format */
+ 	xstr_trans(buf, LATIN1);
+
 	/* Position cursor, Dump the attr/text */
-	Term_putstr(col, row, -1, attr, str);
+	Term_putstr(col, row, -1, attr, buf);
 }
 
 
@@ -2830,8 +2826,8 @@ void c_put_str(byte attr, cptr str, int row, int col)
  */
 void put_str(cptr str, int row, int col)
 {
-	/* Spawn */
-	Term_putstr(col, row, -1, TERM_WHITE, str);
+  /* Spawn */
+  c_put_str(TERM_WHITE, str, row, col);
 }
 
 
@@ -2844,7 +2840,7 @@ void put_str_center(cptr str, int row)
   int len = strlen(str);
   int col = (Term->wid - len) / 2;
   
-  Term_putstr(col, row, -1, TERM_WHITE, str);
+  c_put_str(TERM_WHITE, str, row, col);
 }
 
 
@@ -2854,11 +2850,19 @@ void put_str_center(cptr str, int row)
  */
 void c_prt(byte attr, cptr str, int row, int col)
 {
+  /* Copy to get extended chars */
+  char buf[1024];
+
+  my_strcpy(buf, str, sizeof(buf));
+
+ 	/* Translate it to 7-bit ASCII or system-specific format */
+ 	xstr_trans(buf, LATIN1);
+
 	/* Clear line, position cursor */
 	Term_erase(col, row, 255);
 
 	/* Dump the attr/text */
-	Term_addstr(-1, attr, str);
+	Term_addstr(-1, attr, buf);
 }
 
 
@@ -2941,7 +2945,7 @@ void text_out_to_screen(byte a, cptr str)
 		}
 
 		/* Clean up the char */
-		ch = (isprint((unsigned char)*s) ? *s : ' ');
+		ch = (my_isprint((unsigned char)*s) ? *s : ' ');
 
 		/* Wrap words as needed */
 		if ((x >= wrap - 1) && (ch != ' '))
@@ -2993,7 +2997,10 @@ void text_out_to_screen(byte a, cptr str)
 		}
 
 		/* Dump */
-		Term_addch(a, ch);
+		if (Term->xchar_hook)
+		  Term_addch(a, Term->xchar_hook(ch));
+		else
+		  Term_addch(a, ch);
 
 		/* Advance */
 		if (++x > wrap) x = wrap;
@@ -3016,17 +3023,29 @@ void text_out_to_screen(byte a, cptr str)
  */
 void text_out_to_file(byte a, cptr str)
 {
+	cptr s;
+ 	char buf[1024];
+
 	/* Current position on the line */
 	static int pos = 0;
 
 	/* Wrap width */
 	int wrap = (text_out_wrap ? text_out_wrap : 75);
 
-	/* Current location within "str" */
-	cptr s = str;
+	/* We use either ascii or system-specific encoding */
+ 	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
 	/* Unused parameter */
 	(void)a;
+
+	/* Copy to a rewriteable string */
+ 	my_strcpy(buf, str, 1024);
+
+ 	/* Translate it to 7-bit ASCII or system-specific format */
+ 	xstr_trans(buf, encoding);
+
+ 	/* Current location within "buf" */
+ 	s = buf;
 
 	/* Process the string */
 	while (*s)
@@ -3074,6 +3093,9 @@ void text_out_to_file(byte a, cptr str)
 			}
 			else
 			{
+				/* Skip newlines -DG- */
+				if (s[0] == '\n') s++;
+
 				/* Begin a new line */
 				fputc('\n', text_out_file);
 
@@ -3096,7 +3118,7 @@ void text_out_to_file(byte a, cptr str)
 		for (n = 0; n < len; n++)
 		{
 			/* Ensure the character is printable */
-			ch = (isprint(s[n]) ? s[n] : ' ');
+		  ch = (my_isprint((unsigned char)s[n]) ? s[n] : ' ');
 
 			/* Write out the character */
 			fputc(ch, text_out_file);
@@ -3107,6 +3129,9 @@ void text_out_to_file(byte a, cptr str)
 
 		/* Move 's' past the stuff we've written */
 		s += len;
+
+		/* Skip whitespace -DG- */
+		while (*s == ' ') s++;
 
 		/* If we are at the end of the string, end */
 		if (*s == '\0') return;
@@ -3119,29 +3144,11 @@ void text_out_to_file(byte a, cptr str)
 
 		/* Reset */
 		pos = 0;
-
-		/* Skip whitespace */
-		while (*s == ' ') s++;
 	}
 
 	/* We are done */
 	return;
 }
-
-/* These need to be replaced -NRM- */
-void c_roff(byte a, cptr str, byte l_margin, byte r_margin)
-{
-  text_out_indent = l_margin;
-  text_out_to_screen(a, str);
-}
-
-void roff(cptr str, byte l_margin, byte r_margin)
-{
-  /* Spawn */
-  c_roff(TERM_WHITE, str, l_margin, r_margin);
-}
-
-
 
 /*
  * Output text to the screen or to a file depending on the selected
@@ -3190,8 +3197,12 @@ void clear_from(int row)
 void dump_put_str(byte attr, const char *str, int col)
 {
   int i = 0;
-  const char *s = str;
+  char *s;
+  char buf[1024];
   bool finished = FALSE;
+
+  /* We use either ascii or system-specific encoding */
+  //int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
   /* Find the start point */
   while ((i != col) && (i < MAX_C_A_LEN))
@@ -3205,6 +3216,16 @@ void dump_put_str(byte attr, const char *str, int col)
       i++;
     }
   
+  /* Copy to a rewriteable string */
+  my_strcpy(buf, str, 1024);
+
+  /* Hack - translate if we do that */
+  if (Term->xchar_hook)
+    xstr_trans(buf, (Term->xchar_hook(128) == 128));
+
+  /* Current location within "buf" */
+  s = buf;
+
   /* Write the characters */
   while ((*s != '\0') && (i < MAX_C_A_LEN))
     {
@@ -3270,16 +3291,27 @@ void dump_line_file(char_attr *this_line)
 {
   int x = 0;
   char_attr xa = this_line[0];
+  byte (*old_xchar_hook)(byte c) = Term->xchar_hook;
+
+  /* We use either ascii or system-specific encoding */
+  int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
+
+  /* Display the requested encoding -- ASCII or system-specific */
+  if (!xchars_to_file) Term->xchar_hook = NULL;
 
   /* Dump the line */
   while (xa.pchar != '\0')
     {
       /* Add the char/attr */
-      fputc(xa.pchar, dump_out_file);
+      //fputc(xa.pchar, dump_out_file);
+      x_fprintf(dump_out_file, encoding, "%c", xa.pchar);
 
       /* Advance */
       xa = this_line[++x];
     }
+
+  /* Return to standard display */
+  Term->xchar_hook = old_xchar_hook;
 
   /* Terminate the line */
   fputc('\n', dump_out_file);
@@ -3831,6 +3863,9 @@ bool get_string(cptr prompt, char *buf, size_t len)
   /* Ask the user for a string */
   res = askfor_aux(buf, len, NULL);
   
+  /* Translate it to 8-bit (Latin-1) */
+  xstr_trans(buf, LATIN1);
+
   /* Clear prompt */
   prt("", 0, 0);
   
@@ -3991,6 +4026,8 @@ bool get_check(cptr prompt)
   char buf[80];
 
   bool repeat = FALSE;
+
+  feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
   
   /* Flush easy_more messages */
   if (easy_more) messages_easy(FALSE);
@@ -4019,9 +4056,7 @@ bool get_check(cptr prompt)
       if (ke.key == ESCAPE) break;
       if (strchr("YyNn", ke.key)) break;
       /* Hack of the century */
-      if ((ke.key == '\r') && 
-	  (cave_feat[p_ptr->py][p_ptr->px] >= FEAT_SHOP_HEAD) &&
-	  (cave_feat[p_ptr->py][p_ptr->px] <= FEAT_SHOP_TAIL))
+      if ((ke.key == '\r') && (f_ptr->flags & TF_SHOP))
 	{
 	  ke.key = 'y';
 	  break;
@@ -5037,23 +5072,24 @@ static int ox, oy, ex, ey;
 
 bool is_valid_pf(int y, int x)
 {
-  int feat;
+  feature_type *f_ptr = NULL;
+  int feat = cave_feat[y][x];
   
   /* Hack -- assume unvisited is permitted */
   if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
   
   /* Get mimiced feat */
-  feat = f_info[cave_feat[y][x]].mimic;
+  f_ptr = &f_info[f_info[feat].mimic];
   
   /* Optionally alter known traps/doors on movement */
-  if (((easy_open) && (feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL)) ||
-      ((easy_disarm) && (feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL)))
+  if (((easy_open) && (f_ptr->flags & TF_DOOR_CLOSED)) ||
+      ((easy_disarm) && (f_ptr->flags & TF_TRAP)))
     {
       return (TRUE);
     }
   
   /* Require moveable space */
-  if ((feat >= FEAT_MAGMA) && (feat <= FEAT_PERM_SOLID)) return (FALSE);
+  if (f_ptr->flags & TF_WALL) return (FALSE);
 
   /* Don't move over lava, web or void */
   if ((feat == FEAT_LAVA) || (feat == FEAT_WEB) || (feat == FEAT_VOID)) 

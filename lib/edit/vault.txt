@@ -10,7 +10,7 @@
 
 # Version stamp (required)
 
-V:0.3.3
+V:0.3.4
 
 #N: vault index: name
 #X: vault type: increase in level feeling: height of description: 
@@ -1594,19 +1594,19 @@ X:8:14:19:21:0:0
 D:%%%%%%%%%%%%%%%%%%%%%
 D:%...................%
 D:%.XX..XXXXXXXXX..XX.%
-D:%.X..XX*******XX..X.%
-D:%...XX,,@XXX@,,XX...%
-D:%...X..&XX9XX&..X...%
-D:%..XX..XX,9,XX..XX..%
-D:%..X..XX,,,,,XX..X..%
-D:%..X.XXXXX&XXXXX.X..%
-D:%..#.^^^+&X&+^^^.#..%
-D:%..X.XXXXX&XXXXX.X..%
-D:%..X..XX,,,,,XX..X..%
-D:%..XX..XX,9,XX..XX..%
-D:%...X..&XX9XX&..X...%
-D:%...XX,,@XXX@,,XX...%
-D:%.X..XX*******XX..X.%
+D:%.X..XX&&&&&&&XX..X.%
+D:%...XX446XXX644XX...%
+D:%...X..2XX9XX2..X...%
+D:%..XX..XX494XX..XX..%
+D:%..X..XX44444XX..X..%
+D:%..X.XXXXX2XXXXX.X..%
+D:%..#.^^^+2X2+^^^.#..%
+D:%..X.XXXXX2XXXXX.X..%
+D:%..X..XX44444XX..X..%
+D:%..XX..XX494XX..XX..%
+D:%...X..2XX9XX2..X...%
+D:%...XX446XXX644XX...%
+D:%.X..XX&&&&&&&XX..X.%
 D:%.XX..XXXXXXXXX..XX.%
 D:%...................%
 D:%%%%%%%%%%%%%%%%%%%%%
@@ -1626,42 +1626,90 @@ D:%%%%%
 
 ### Greater vaults (type 9) ###
 
-# Vaults 110-119 from Angband 3.0.7 for FAangband 0.2.3
+# Vaults 110-119 from Angband 3.0.7 for FAangband 0.2.3 - more in 0.3.4
+N:110:Greater vault ("Castle Death")
+X:9:35:20:60:40:0
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
+D:%X04444444444444444444444444444444444444+XX....+XX...X&00&X%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX....XXX....6X&&&&X%
+D:%X.........................................XXX....2.6X&&&&X%
+D:%X+XXXXX+XXXXX+XXXXX+XXXXX+XXXXX+XXXXX+XXXXX....6.2.6X&&&&X%
+D:%X999X..9..X22222X44444X66666X..2..X666XXX....2.6.2.6X&99&X%
+D:%X666X.2.2.X22222X44444X66666X99.99X9XXX.X..6.2.6.2.6X&&&&X%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...X..6.2.6.2.6XX##XX%
+D:%+^...2.2.2+...6.6.6+...66666+.....99+...+..6.2.6.2.0+^^^^X%
+D:%+^...2.2.2+...6.6.6+...66666+.....99+...+..6.2.6.2.0+^^^^X%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...X..6.2.6.2.6XX##XX%
+D:%X666X.2.2.X22222X44444X66666X99.99X9XXX.X..6.2.6.2.6X&&&&X%
+D:%X999X..9..X22222X44444X66666X..2..X666XXX....2.6.2.6X&99&X%
+D:%X+XXXXX+XXXXX+XXXXX+XXXXX+XXXXX+XXXXX+XXXXX....6.2.6X&&&&X%
+D:%X.........................................XXX....2.6X&&&&X%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX....XXX....6X&&&&X%
+D:%X44444444444444444444444444444444444444+XX....+XX...X&00&X%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:111:Greater Vault (Snake Maze)
+X:7:15:21:23:0:0
+D:%%%%%%%%%%%%%%%%%%%%%%%
+D:%.....................%
+D:%.XXXXXXXXX#XXXXXXXXX.%
+D:%.X9X9..XXX..X4449X9X.%
+D:%.X4XXX.^.XX.X4XXXX4X.%
+D:%.X444XXX..X.X4444X4X.%
+D:%.XXX444XX.X.XX&X444X.%
+D:%.X...X&X..X.XXXXXX.X.%
+D:%.X.XXXXX.XX.X.^.X..X.%
+D:%.X...^........X.X.XX.%
+D:%.X#XXXXXXXXXXXX...&X.%
+D:%.X2.........^2XX.XXX.%
+D:%.X.XXXXXXXXXX.XX444X.%
+D:%.X.X......^...&XXX4X.%
+D:%.X.X4XXXXXXXX2XX444X.%
+D:%.X.X4XX94444X29X4XXX.%
+D:%.X^X44XXXXX.XXXX4X&X.%
+D:%.X.XX99XX&&......^.X.%
+D:%.X#XXXXXXXXXXXXXXXXX.%
+D:%.....................%
+D:%%%%%%%%%%%%%%%%%%%%%%%
+
+
 N:112:Greater vault ("Hourglass")
 X:9:24:37:27:35:0
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.........................%
 D:%.......XXXXX+XXXXX.......%
 D:%...XXXXX...^^^...XXXXX...%
-D:%..XX,,,&.XXX+XXX.&,,,XX..%
+D:%..XX4442.XXX+XXX.2444XX..%
 D:%...XXXXXXX.^^^.XXXXXXX...%
-D:%...XX**...@X^X@...**XX...%
-D:%....X**XXXXX^XXXXX**X....%
-D:%...XXX,X.........X,XXX...%
-D:%...X9X9X..*X+X*..X9X9X...%
-D:%...X9XXX.*XX^XX*.XXX9X...%
-D:%..XX.*X9@XX...XX@9X*.XX..%
-D:%..X..*XX@XXX^XXX@XX*..X..%
-D:%..X..**X8X9X+X9X8X**..X..%
-D:%..X..**XXX.^^^.XXX**..X..%
+D:%...XX&&...6X^X6...&&XX...%
+D:%....X&&XXXXX^XXXXX&&X....%
+D:%...XXX4X.........X4XXX...%
+D:%...X9X9X..&X+X&..X9X9X...%
+D:%...X9XXX.&XX^XX&.XXX9X...%
+D:%..XX.&X96XX...XX69X&.XX..%
+D:%..X..&XX6XXX^XXX6XX&..X..%
+D:%..X..&&X0X9X+X9X0X&&..X..%
+D:%..X..&&XXX.^^^.XXX&&..X..%
 D:%.XX.XXX9X9.XXX.9X9XXX.XX.%
-D:%.X..X9X8XX.^X^.XX8X9X..X.%
+D:%.X..X9X0XX.^X^.XX0X9X..X.%
 D:%.X+XX9XXXXXX^XXXXXX9XX+X.%
 D:%.X.^^X^^.........^^X^^.X.%
 D:%.X+XX9XXXXXX^XXXXXX9XX+X.%
-D:%.X..X9X8XX.^X^.XX8X9X..X.%
+D:%.X..X9X0XX.^X^.XX0X9X..X.%
 D:%.XX.XXX9X9.XXX.9X9XXX.XX.%
-D:%..X..**XXX.^^^.XXX**..X..%
-D:%..X..**X8X9X+X9X8X**..X..%
-D:%..X..*XX@XXX^XXX@XX*..X..%
-D:%..XX.*X9@XX&.&XX@9X*.XX..%
-D:%...X9XXX.*XX^XX*.XXX9X...%
-D:%...X9X9X..*X+X*..X9X9X...%
-D:%...XXX,X.........X,XXX...%
-D:%....X**XXXXX^XXXXX**X....%
-D:%...XX**...@X^X@...**XX...%
+D:%..X..&&XXX.^^^.XXX&&..X..%
+D:%..X..&&X0X9X+X9X0X&&..X..%
+D:%..X..&XX6XXX^XXX6XX&..X..%
+D:%..XX.&X96XX2.2XX69X&.XX..%
+D:%...X9XXX.&XX^XX&.XXX9X...%
+D:%...X9X9X..&X+X&..X9X9X...%
+D:%...XXX4X.........X4XXX...%
+D:%....X&&XXXXX^XXXXX&&X....%
+D:%...XX&&...6X^X6...&&XX...%
 D:%...XXXXXXX.^^^.XXXXXXX...%
-D:%..XX,,,&.XXX+XXX.&,,,XX..%
+D:%..XX4442.XXX+XXX.2444XX..%
 D:%...XXXXX...^^^...XXXXX...%
 D:%.......XXXXX+XXXXX.......%
 D:%.........................%
@@ -1670,57 +1718,202 @@ D:%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
-N:114:Divisi
+N:113:Greater Vault (Divisi)
 X:9:35:31:55:45:0
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.....................................................%
 D:%.#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#.%
-D:%.X,XX@@@&&,,,,,,,,,,,,,,,X8X,,,,,,,,,,,,,,,&&@@@XX,X.%
-D:%.X,,XXX@&&XXXXXXXXXXXXXX^X9X^XXXXXXXXXXXXXX&&@XXX,,X.%
-D:%.XX,,,XXX^^^XXX#8#8#8#8X^X@X^X8#8#8#8#XXX^^^XXX,,,XX.%
-D:%.XXXX,,,XXX^^^XXX######X^X&X^X######XXX^^^XXX,,,XXXX.%
-D:%.X@@XXX,,,XXX^^^XXX#8#8X^X,X^X8#8#XXX^^^XXX,,,XXX@@X.%
-D:%.X&&&&XXX,,,XXX^^^XX###X^X,X^X###XX^^^XXX,,,XXX&&&&X.%
-D:%.X^XX..#XXX,,,XXX^^^XXXX^X,X^XXXX^^^XXX,,,XXX#..XX^X.%
-D:%.X^.XXX#@@XXX,,,XXX^^^XX^X,X^XX^^^XXX,,,XXX@@#XXX.^X.%
-D:%.X^&&&XXX&&&XXX,,,XXX^^^^X,X^^^^XXX,,,XXX&&&XXX&&&^X.%
-D:%.X^XX&&&XXX^^^XXX,,,XXX^^X,X^^XXX,,,XXX^^^XXX&&&XX^X.%
-D:%.X,,XXX&@@XXX^^^XXX,,,XXX#,#XXX,,,XXX^^^XXX@@&XXX,,X.%
-D:%.X,,##XXX@##XXX^^^XXX,,,XX#XX,,,XXX^^^XXX##@XXX##,,X.%
-D:%.XXXX888XXX999XXX^^^###,#888#,###^^^XXX999XXX888XXXX.%
-D:%.X,,##XXX@##XXX^^^XXX,,,XX#XX,,,XXX^^^XXX##@XXX##,,X.%
-D:%.X,,XXX&@@XXX^^^XXX,,,XXX#,#XXX,,,XXX^^^XXX@@&XXX,,X.%
-D:%.X^XX&&&XXX^^^XXX,,,XXX^^X,X^^XXX,,,XXX^^^XXX&&&XX^X.%
-D:%.X^&&&XXX&&&XXX,,,XXX^^^^X,X^^^^XXX,,,XXX&&&XXX&&&^X.%
-D:%.X^.XXX#@@XXX,,,XXX^^^XX^X,X^XX^^^XXX,,,XXX@@#XXX.^X.%
-D:%.X^XX..#XXX,,,XXX^^^XXXX^X,X^XXXX^^^XXX,,,XXX#..XX^X.%
-D:%.X&&&&XXX,,,XXX^^^XX###X^X,X^X###XX^^^XXX,,,XXX&&&&X.%
-D:%.X@@XXX,,,XXX^^^XXX#8#8X^X,X^X8#8#XXX^^^XXX,,,XXX@@X.%
-D:%.XXXX,,,XXX^^^XXX######X^X&X^X######XXX^^^XXX,,,XXXX.%
-D:%.XX,,,XXX^^^XXX#8#8#8#8X^X@X^X8#8#8#8#XXX^^^XXX,,,XX.%
-D:%.X,,XXX@&&XXXXXXXXXXXXXX^X9X^XXXXXXXXXXXXXX&&@XXX,,X.%
-D:%.X,XX@@@&&,,,,,,,,,,,,,,,X8X,,,,,,,,,,,,,,,&&@@@XX,X.%
+D:%.X4XX66622444444444444444X0X44444444444444422666XX4X.%
+D:%.X44XXX622XXXXXXXXXXXXXX^X9X^XXXXXXXXXXXXXX226XXX44X.%
+D:%.XX444XXX^^^XXX#0#0#0#0X^X6X^X0#0#0#0#XXX^^^XXX444XX.%
+D:%.XXXX444XXX^^^XXX######X^X2X^X######XXX^^^XXX444XXXX.%
+D:%.X66XXX444XXX^^^XXX#0#0X^X4X^X0#0#XXX^^^XXX444XXX66X.%
+D:%.X2222XXX444XXX^^^XX###X^X4X^X###XX^^^XXX444XXX2222X.%
+D:%.X^XX..#XXX444XXX^^^XXXX^X4X^XXXX^^^XXX444XXX#..XX^X.%
+D:%.X^.XXX#66XXX444XXX^^^XX^X4X^XX^^^XXX444XXX66#XXX.^X.%
+D:%.X^222XXX222XXX444XXX^^^^X4X^^^^XXX444XXX222XXX222^X.%
+D:%.X^XX222XXX^^^XXX444XXX^^X4X^^XXX444XXX^^^XXX222XX^X.%
+D:%.X44XXX266XXX^^^XXX444XXX#4#XXX444XXX^^^XXX662XXX44X.%
+D:%.X44##XXX6##XXX^^^XXX444XX#XX444XXX^^^XXX##6XXX##44X.%
+D:%.XXXX000XXX999XXX^^^###4#000#4###^^^XXX999XXX000XXXX.%
+D:%.X44##XXX6##XXX^^^XXX444XX#XX444XXX^^^XXX##6XXX##44X.%
+D:%.X44XXX266XXX^^^XXX444XXX#4#XXX444XXX^^^XXX662XXX44X.%
+D:%.X^XX222XXX^^^XXX444XXX^^X4X^^XXX444XXX^^^XXX222XX^X.%
+D:%.X^222XXX222XXX444XXX^^^^X4X^^^^XXX444XXX222XXX222^X.%
+D:%.X^.XXX#66XXX444XXX^^^XX^X4X^XX^^^XXX444XXX66#XXX.^X.%
+D:%.X^XX..#XXX444XXX^^^XXXX^X4X^XXXX^^^XXX444XXX#..XX^X.%
+D:%.X2222XXX444XXX^^^XX###X^X4X^X###XX^^^XXX444XXX2222X.%
+D:%.X66XXX444XXX^^^XXX#0#0X^X4X^X0#0#XXX^^^XXX444XXX66X.%
+D:%.XXXX444XXX^^^XXX######X^X2X^X######XXX^^^XXX444XXXX.%
+D:%.XX444XXX^^^XXX#0#0#0#0X^X6X^X0#0#0#0#XXX^^^XXX444XX.%
+D:%.X44XXX622XXXXXXXXXXXXXX^X9X^XXXXXXXXXXXXXX226XXX44X.%
+D:%.X4XX66622444444444444444X0X44444444444444422666XX4X.%
 D:%.#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#.%
 D:%.....................................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+N:114:Greater vault ("Mazer")
+X:9:26:35:31:30:0
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%.............................%
+D:%........XXXXXX+XXXXXX........%
+D:%.........XX6.X.X.6XX.........%
+D:%.......XXXX+X...X+XXXX.......%
+D:%......XX0#..XXXXX..#0XX......%
+D:%.....XXXXX.X.X6X.X.XXXXX.....%
+D:%....XXX0#.XXX^^^XXX.#0XXX....%
+D:%...XXXXXXX.X.XXX.X.XXXXXXX...%
+D:%..XX0XX9XXX^^X6X^^XXX9XX0XX..%
+D:%.XXX#XXX..XXX...XXX..XXX#XXX.%
+D:%.X4X4X.XXX.X^XXX^X.XXX.X4X4X.%
+D:%.XX4X.XXX.XX^X6X^XX.XXX.X4XX.%
+D:%.X4X.X2XXX22XX6XX22XXX2X.X4X.%
+D:%.XX.X2X.XXXX44X44XXXX.X2X.XX.%
+D:%.X.X2X.XXXXX2X4X2XXXXX.X2X.X.%
+D:%.X9XX.X.XX2XXX9XXX2XX.X.XX9X.%
+D:%.X90XX6X..X449X944X..X6XX09X.%
+D:%.X9XX.X.XX2XXX9XXX2XX.X.XX9X.%
+D:%.X.X2X.XXXXX2X4X2XXXXX.X2X.X.%
+D:%.XX.X2X.XXXX44X44XXXX.X2X.XX.%
+D:%.X4X.X2XXX22XX6XX22XXX2X.X4X.%
+D:%.XX4X.XXX.XX^X6X^XX.XXX.X4XX.%
+D:%.X4X4X.XXX.X^XXX^X.XXX.X4X4X.%
+D:%.XXX#XXX..XXX...XXX..XXX#XXX.%
+D:%..XX0XX9XXX^^X6X^^XXX9XX0XX..%
+D:%...XXXXXXX.X.XXX.X.XXXXXXX...%
+D:%....XXX0#.XXX^^^XXX.#0XXX....%
+D:%.....XXXXX.X.X6X.X.XXXXX.....%
+D:%......XX0#..XXXXX..#0XX......%
+D:%.......XXXX+X...X+XXXX.......%
+D:%.........XX6.X.X.6XX.........%
+D:%........XXXXXX+XXXXXX........%
+D:%.............................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+N:115:Greater vault ("Orb")
+X:9:16:27:27:0:0
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%.........................%
+D:%.........#XXXXX#.........%
+D:%.......XXX44444XXX.......%
+D:%......XXXX44444XXXX......%
+D:%.....XXXXXX444XXXXXX.....%
+D:%....XXXXXXX+X+XXXXXXX....%
+D:%...X9XXXX^^^^^^^XXXX9X...%
+D:%..XXXX7X6X+XXX+X6X8XXXX..%
+D:%..X22X9XXX^X^X^XXX9X22X..%
+D:%..X22XX+XXX^X^XXX+XX22X..%
+D:%.XX.XXXX.X.X6X.X.XXXX.XX.%
+D:%.XX+XX9XX^XX4XX^XX9XX+XX.%
+D:%.+^^+^^^^^X999X^^^^^+^^+.%
+D:%.XX+XX9XX^XX4XX^XX9XX+XX.%
+D:%.XX.XXXX.X.X6X.X.XXXX.XX.%
+D:%..X22XX+XXX^X^XXX+XX22X..%
+D:%..X22X9XXX^X^X^XXX9X22X..%
+D:%..XXXX8X6X+XXX+X6X7XXXX..%
+D:%...X9XXXX^^^^^^^XXXX9X...%
+D:%....XXXXXXX+X+XXXXXXX....%
+D:%.....XXXXXX444XXXXXX.....%
+D:%......XXXX44444XXXX......%
+D:%.......XXX44444XXX.......%
+D:%.........#XXXXX#.........%
+D:%.........................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+N:116:Greater vault ("Interstices")
+X:9:22:19:45:0:0
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%...........................................%
+D:%.......XXXXXXXXXXXX^^^^^XXXXXXXXXXXX.......%
+D:%......XXXX&X&X2X6XX^^^^^XX6X2X&X&XXXX......%
+D:%.....XXXX&X&XX2X6X.X.X.X..6X2XX&X&XXXX.....%
+D:%...XXXX4XXXX&X+XX4XX.X.XX4XX+X&XXXX4XXXX...%
+D:%..XX094XX9X&&X.X44X2X6X2X44X.X&&X9XX490XX..%
+D:%.XXXXX#X^XX&XX.XXXX.X.X.XXXX.XX&XX^X#XXXXX.%
+D:%.XX0XX6XX^XX.XX^XX.X^^^X.XX^XX6XX^XX6XX0XX.%
+D:%.X09#92+2.+..+^^+..X^X^X..+^^+.2+.2+29#90X.%
+D:%.XX0XX6XX^XX.XX^XX.X^^^X.XX^XX6XX^XX6XX0XX.%
+D:%.XXXXX#X^XX&XX.XXXX.X.X.XXXX.XX&XX^X#XXXXX.%
+D:%..XX094XX9X&&X.X44X2X6X2X44X.X&&X9XX490XX..%
+D:%...XXXX4XXXX&X+XX4XX.X.XX4XX+X&XXXX4XXXX...%
+D:%.....XXXX&X&XX2X6X.X.X.X.X6X2XX&X&XXXX.....%
+D:%......XXXX&X&X2X6XX^^^^^XX6X2X&X&XXXX......%
+D:%.......XXXXXXXXXXXX^^^^^XXXXXXXXXXXX.......%
+D:%...........................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+N:117:Greater vault ("Sphere")
+X:9:25:25:47:35:0
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%.............................................%
+D:%......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX......%
+D:%.....XX044XXX990XXXX90009XXXX099XXX440XX.....%
+D:%....XX044XX44449X99XXX#XXX99X94444XX440XX....%
+D:%....X0444X444449X.XX9#0#9XX.X944444X4440X....%
+D:%....X4444X..2XXXX#XX9XXX9XX#XXXX2..X4444X....%
+D:%....X4XXX#.2XX44X66#XX9XX#66X44XX2.#XXX4X....%
+D:%....XXX.^^2XX44XX#XXX&&&XXX#XX44XX2^^.XXX....%
+D:%....XX..XXXX44XXX22XX&&&XX22XXX44XXXX..XX....%
+D:%....XX+XX22XX+X9X2XX^X.X^XX2X9X+XX22XX+XX....%
+D:%....XX^^^^^XX.2.X#X^^X9X^^X#X.2.XX^^^^^XX....%
+D:%....+^^^^^^+^262+^^^^9X9^^^^+262^+^^^^^^+....%
+D:%....XX^^^^^XX.2.X#X^^X9X^^X#X.2.XX^^^^^XX....%
+D:%....XX+XX22XX+X9X2XX^X.X^XX2X9X+XX22XX+XX....%
+D:%....XX..XXXX44XXX22XX&&&XX22XXX44XXXX..XX....%
+D:%....XXX.^^2XX44XX#XXX&&&XXX#XX44XX2^^.XXX....%
+D:%....X4XXX#.2XX44X66#XX9XX#66X44XX2.#XXX4X....%
+D:%....X4444X..2XXXX#XX9XXX9XX#XXXX2..X4444X....%
+D:%....X0444X444449X.XX9#0#9XX.X944444X4440X....%
+D:%....XX044XX44449X99XXX#XXX99X94444XX440XX....%
+D:%.....XX044XXX990XXXX90009XXXX099XXX440XX.....%
+D:%......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX......%
+D:%.............................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+N:118:Greater vault ("Hellpit")
+X:9:20:19:60:25:0
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%..........................................................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.X662....#0.#9....^^222222222222###.^^44......+0&9+44444X.%
+D:%.X626.............^^................^^44......+9&9+44444X.%
+D:%.X266.............^^66666666666###..^^44......+9&9+44444X.%
+D:%.X.....#0....#9...^^................^^44......+9&9+44444X.%
+D:%.X................^^222222222222###.^^44.22222+9&9+44444X.%
+D:%.X.......6666.....^^................^^44.26662+9&9+44444X.%
+D:%.#....#0.6666.#9..^^66666666666###..^^44.26962+0&9+44444X.%
+D:%.X.......6666.....^^................^^44.26662+9&9+44444X.%
+D:%.X................^^222222222222###.^^44.22222+9&9+44444X.%
+D:%.X.....#0....#9...^^................^^44......+9&9+44444X.%
+D:%.X266.............^^66666666666###..^^44......+9&9+44444X.%
+D:%.X626.............^^................^^44......+9&9+44444X.%
+D:%.X662....#0.#9....^^222222222222###.^^44......+0&9+44444X.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%..........................................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 N:119:Greater vault ("The Reward is Worth It")
 X:9:20:16:63:50:0
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXX##XXXXXXXXXXXXX#XXXXXXXXXXXXX##XXXXXXXXXXXXXXX%
-D:%X@@@@@@@@@@@.XX99XX.......,,,X^X,,,.......XX99XX.@@@@@@@@@@@X%
-D:%X@XXXXXXXXXX..XXXX...XXXX.,,,X^X,,,.XXXX...XXXX..XXXXXXXXXX@X%
-D:%X@X8888888XXX..XX...XXX@XX,,,X^X,,,XX@XXX...XX..XXX8888888X@X%
-D:%X@X88899999XXX.....XXX@@@X..&X^X&..X@@@XXX.....XXX99999888X@X%
-D:%X@X8899.....XXX...XXX@@@@@..&X^X&..@@@@@XXX...XXX.....9988X@X%
-D:%X@X899.......XXX...XXX......&X^X&......XXX...XXX.......998X@X%
-D:%X+XXX...XXX&&&XXX^^^XXX.....&X^X&.....XXX^^^XXX&&&XXX...XXX+X%
-D:%X@@XXX.XXXX&&&&XXX^^^XXX....&X^X&....XXX^^^XXX&&&&XXXX.XXX@@X%
-D:%X^^^^XXX88X^^^^^^XXX^^^XXX..&X^X&..XXX^^^XXX^^^^^^X88XXX^^^^X%
-D:%X&&&&&&&&XX^^^^^^^^XXX...XXX&X^X&XXX...XXX^^^^^^^^XX&&&&&&&&X%
-D:%X,,,,,,,XX,,,,,,,,,,,XXX&&&XXX^XXX&&&XXX,,,,,,,,,,,XX,,,,,,,X%
-D:%X,,,,,,X#@@@@@@@@@@@@@@XXX&&&&&&&&&XXX@@@@@@@@@@@@@@#X,,,,,,X%
+D:%X66666666666.XX99XX.......444X^X444.......XX99XX.66666666666X%
+D:%X6XXXXXXXXXX..XXXX...XXXX.444X^X444.XXXX...XXXX..XXXXXXXXXX6X%
+D:%X6X0000000XXX..XX...XXX6XX444X^X444XX6XXX...XX..XXX0000000X6X%
+D:%X6X00099999XXX.....XXX666X..2X^X2..X666XXX.....XXX99999000X6X%
+D:%X6X0099.....XXX...XXX66666..2X^X2..66666XXX...XXX.....9900X6X%
+D:%X6X099.......XXX...XXX......2X^X2......XXX...XXX.......990X6X%
+D:%X+XXX...XXX222XXX^^^XXX.....2X^X2.....XXX^^^XXX222XXX...XXX+X%
+D:%X66XXX.XXXX2222XXX^^^XXX....2X^X2....XXX^^^XXX2222XXXX.XXX66X%
+D:%X^^^^XXX00X^^^^^^XXX^^^XXX..2X^X2..XXX^^^XXX^^^^^^X00XXX^^^^X%
+D:%X22222222XX^^^^^^^^XXX...XXX2X^X2XXX...XXX^^^^^^^^XX22222222X%
+D:%X4444444XX44444444444XXX222XXX^XXX222XXX44444444444XX4444444X%
+D:%X444444X#66666666666666XXX222222222XXX66666666666666#X444444X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1837,7 +2030,7 @@ D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 ### I believe Chris Weisiger first designed the "bubbles" vault ###
-N:124:Bubbles
+N:124:Greater Vault (Bubbles)
 X:9:35:23:39:55:0
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XX#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
@@ -2349,24 +2542,70 @@ D:%:%%,J..::..J..%
 D: ::%%%:::%%%::% 
 
 N:151:Plains lesser (Plainsmen camp)
-X:14:0:8:8:10:30
-D:^......^
-D:p......p
-D:.pp||pp.
-D:..]pp]..
-D:..~pp!..
-D:.pp_-pp.
-D:p......p
-D:^......^
+X:14:5:8:8:10:30
+D:^      ^
+D:p  ..  p
+D:.pp||pp 
+D: .]pp]. 
+D: .~pp!. 
+D: pp_-pp 
+D:p  ..  p
+D:^      ^
 
 N:152:Plains lesser (Poorly guarded stash)
 X:14:5:6:10:10:20
-D:...;;;;...
-D:..;;||;;..
-D:..;$$~|;;.
-D:...;;;];;.
-D:.:...;];;.
-D:p.....;;..
+D:   ;;;;   
+D:  ;;||;;  
+D:  ;$$~|;; 
+D:  .;;;];;;
+D: :...;];; 
+D:p.....;;  
+
+N:153:Plains lesser (Abandoned house)
+X:14:2:6:10:10:30
+D:%%%%%%%%%%
+D:%1.+.....%
+D:%..#....^+
+D:%+##+#...%
+D:%|4#,#...%
+D:%%%%%%%%%%
+
+N:154:Plains lesser (Bat cave)
+X:14:5:10:12:20:30
+D:   %%%      
+D:  ;#.###:   
+D:%##bbb..### 
+D:%bbb###;....
+D:;#bb..:##.# 
+D:%#...##b#.# 
+D:%#:.bb##.## 
+D: .##..###...
+D:  ###..###%
+D:     ##.....
+D:      %%%%. 
+
+N:155:Plains lesser (Birds nest)
+X:14:5:5:7:20:0
+D: ;;;;  
+D:;BBBB;;
+D:;BBBBB;
+D:;BBBB; 
+D: ;;;;  
+
+N:156:Plains lesser (Orc raid)
+X:14:5:12:12:20:0
+D:   xxxx.    
+D: ooo,x,oo.  
+D:  ooo,,...  
+D: ##o.,,oo.. 
+D:%#oooo...;..
+D:%###ooo..;;.
+D:%#ooooooo.;.
+D: ##oooo....;
+D:  ##oooo....
+D:  ~!..ooo.:.
+D:  ooooooo   
+D:    ooo|]|  
 
 ### Plains - greater (type 15) ###
 
@@ -2430,6 +2669,57 @@ D::...xxx...,,%
 D::PP..xP...%%   
 D::::%%%%%%%     
 
+N:173:Mountains lesser (Reptiles)
+X:16:3:10:9:10:0
+D:  ....
+D:  ..R..
+D:  .ccc.:
+D:  ..c...%
+D:   ..JJ.%
+D:  .....%
+D: ..RR.%
+D: ...JJ.%
+D::..RR...%
+D:%......:
+D:%..R...
+
+N:174:Mountains lesser (Tricksy)
+X:16:3:7:7:10:20
+D:%%%;%%%
+D: %h:h% 
+D:  %~%  
+D:  :::  
+D:  %-%  
+D: %h;h% 
+D:%%%:%%%
+
+N:175:Mountains lesser (Ered Gorgoroth)
+X:16:5:15:11:31:35
+D: ;;;.;;;;   
+D:;;SS..C;;;  
+D: ;;S....B;; 
+D: ;;;z...1;;;
+D:;;;&....G.; 
+D:;;S......;; 
+D: ;SS...G;;  
+D: ;;&......; 
+D:;;S......;; 
+D: ;;;;;;     
+D:       ;;;  
+
+N:176:Mountains lesser (Small mine)
+X:16:7:10:8:15:30
+D: %.%%   
+D:%1^.#%  
+D:%R.###% 
+D:%^.####%
+D:%=.&h:::
+D:*%|..##:
+D:%**$h$:%
+D:%##*::% 
+D: %#**:% 
+D:  %%%%
+
 ### Mountains - greater (type 17) ###
 
 N:180:Mountains greater (Earth creatures)
@@ -2474,7 +2764,7 @@ D:  %.....;...............
 D:  %%%%%%%%%%%%%%%%%%%%%%
 
 N:191:Forest lesser (Hybrid vigour)
-X:18:3:10:20:15:40
+X:18:3:10:20:0:0
 D:      ;;;;;;        
 D:   ;;;;;;;;;;;;;;   
 D: ;;;..H.;;;         
@@ -2488,12 +2778,61 @@ D:  ;;...H;;;...;;
 D:    ;;;;;;;;;;      
 
 N:192:Forest lesser (Flock)
-X:18:0:5:7:10:0
+X:18:0:5:7:0:0
 D: ;;;;  
 D:;bBBB;;
 D:;BbbBB;
 D:;BBbb; 
 D: ;;;;  
+
+N:193:Forest lesser (Orc raid)
+X:18:5:12:12:15:30
+D:.;;xxxx;;;;.
+D:.ooo,x,oo;..
+D:;;ooo,,;;...
+D:.##o.,,oo;;.
+D:%#oooo;;;;..
+D:%###ooo..;;.
+D:%#ooooooo;;.
+D:;##oooo.;;;;
+D:;;##oooo;;..
+D:;^~!;;ooo;:.
+D:;;ooooooo;;.
+D:;;^;ooo|]|;;
+
+N:194:Forest lesser (Taur-Nu-Fuin)
+X:18:8:12:12:30:50
+D:   ;;;;^;;  
+D:  ;;xx..JJ; 
+D:  ;;;xx..:;;
+D: ;;xxx:..;;;
+D:;xxxx;;..;; 
+D:;;xxG|2#;;; 
+D: ;;x34##.;;;
+D:;;;.C...BB;;
+D:;;.#..ZZW;;;
+D:;;###..ZZW.;
+D:;;;;Gz.ZZZ;;
+D: ;;;;;.^;;; 
+
+N:195:Forest lesser (Sindarin storage)
+X:18:10:5:5:10:19
+D:;;;;;
+D:;####
+D:;#~~#
+D:;#^^#
+D:;#+##
+
+N:196:Forest lesser (Travellers)
+X:18:5:8:8:10:30
+D:  ;;;;
+D: ;;pp=; 
+D:;p~$p,;;
+D:;;]ppp..
+D:..;;p;;.
+D: ..;p|;.
+D:  ;;;pp;
+D:   ;;;; 
 
 ### Forest - greater (type 19) ###
 
@@ -2547,6 +2886,48 @@ D:.;;x..m.xj;;.
 D:..;;;mx;;;;...  
 D:  ...;;;...     
 
+N:213:Swamp lesser (Copse)
+X:20:3:6:4:10:0
+D: ;; 
+D:;;1;
+D:;4;;
+D: ;;;
+D:;,; 
+D:;;  
+
+N:214:Swamp lesser (Turbulent pond)
+X:20:2:7:7:10:0
+D: vxxxx 
+D: xxxxxx
+D:xxxxxx 
+D:xxxxxv  
+D:xxxxxx,
+D: xxvxxx
+D: xx  x 
+
+N:215:Swamp lesser (Sank into the swamp)
+X:20:5:10:12:40:0
+D:%%%      %%%
+D:%|%%%%%%%%"%
+D: %x.2..xxx% 
+D: %1xxxxx.^% 
+D: %x...xxxxx 
+D: %xxx.....% 
+D: %.xxxx...% 
+D:%%..3xxxx.%%
+D:%]%%%%%%%%=%
+D:%%%      %%%
+
+N:216:Swamp lesser (Battle debris)
+X:20:5:7:10:40:0
+D:;xx;      
+D:xxx.;3    
+D: ;xx1.;   
+D:  =x;]$x; 
+D:  ;;4xxxx;
+D:     |:xxx
+D:       ;x 
+
 ### Swamp - greater (type 21) ###
 
 N:220:Swamp greater (Gross)
@@ -2567,20 +2948,43 @@ D:    ;;j..xx..j;;
 D:     ;;i....i;;     
 D:       ;;;;;;       
 
+N:221:Swamp greater (Last stand)
+X:21:10:20:10:40:45
+D: xxx     ;
+D: xx     ; 
+D:xx.22...3x
+D:x$..56..xx
+D:xx45,.6xxx
+D: xx||]xx  
+D:  xx]|x;  
+D:   xxxx;  
+D:   ;xx;;; 
+D:    xxx;  
+D:    xxx;  
+D:    xx;;  
+D:   xx;;   
+D:  xx;;    
+D:   xx     
+D:  xxx     
+D:%#xx      
+D:%#x       
+D:%xx       
+D:xx        
+
 ### Desert - lesser (type 22) ###
 
 N:230:Desert lesser (Dragon's Nest)
 X:22:5:11:15:50:60
 D:%%%%%%%%%%%%%%%
-D:%DXXXXX.XXXXX4%
+D:%dXXXXX.XXXXX4%
 D:%X.XXX...XXX.X%
 D:%XX.Xd....XdXX%
 D:%XXX..$$$..XXX%
-D: .....$D$..... 
+D: .....$d$..... 
 D:%XXX.d$$$..XXX%
 D:%XX.X...d.X.XX%
 D:%X.XXX...XXX.X%
-D:%4XXXXX.XXXXXD%
+D:%4XXXXX.XXXXXd%
 D:%%%%%%%%%%%%%%%
 
 N:231:Desert lesser (Unquiet dead)
@@ -2609,6 +3013,48 @@ D: #::#::
 D: $.::##$##::
 D: ###::::#:  
 D:   ::n#~#   
+
+N:233:Desert lesser (Roving band)
+X:22:2:6:6:40:60
+D:   pp:
+D: :phhp
+D:::pp3 
+D:  1hp 
+D:  ^phh
+D:    :p
+
+N:234:Desert lesser (Carrion fowl)
+X:22:3:5:7:0:0
+D: ::;:  
+D:::BBB:;
+D:;BB..B:
+D:;BBBB: 
+D: ::    
+
+N:235:Desert lesser (Picnic from Angband)
+X:22:3:10:10:0:0
+D:   ::::   
+D:  ::Oo::  
+D: ::POT4:: 
+D:::oobbP1::
+D::oTT32..::
+D::OO,,,4.: 
+D:::CC..5:: 
+D: :::..6:::
+D:  :.d...::
+D:   :::..: 
+
+N:236:Desert lesser (Hellpit)
+X:22:5:9:10:0:0
+D:    ::    
+D:  ::::::  
+D: ::.CC.:: 
+D: :.J@@-u::
+D:::.@@@@4::
+D:::Qu@@u.: 
+D: ::1UU1:: 
+D:  ::::::  
+D:    ::    
 
 ### Desert - greater (type 23) ###
 
@@ -2682,6 +3128,58 @@ D:%%p&&]%%
 D: %%||%% 
 D:  %%%%  
 
+N:252:River lesser (Orc raid)
+X:24:5:12:12:0:0
+D:   xxxx.    
+D: ooo,x,oo.  
+D:  ooo,,...  
+D: ##o.,,oo.. 
+D:%#oooo...;..
+D:%###ooo..;;.
+D:%#ooooooo.;.
+D: ##oooo....;
+D:  ##oooo....
+D:  ~!..ooo.:.
+D:  ooooooo   
+D:    ooo|]|  
+
+N:253:River lesser (Outcrop)
+X:24:0:7:7:0:0
+D:  %%%  
+D: %##1% 
+D:%:#.%  
+D:%#B.:  
+D: %*4.;;
+D: *%#.J:
+D:   %%: 
+
+N:254:River lesser (Billabong)
+X:24:0:7:5:10:20
+D: xx; 
+D:  xx 
+D: Ixxx
+D: xxx;
+D:Jxxp;
+D: x;;;
+D: x;; 
+
+N:255:River lesser (Following Glaurung)
+X:24:5:7:10:20:0
+D:  :::::|.d
+D:  : ::$.;;
+D:   ::d.3;;
+D:   ;d=.;; 
+D:;;."d;    
+D:.;dd.;;   
+D:;;;...;;  
+
+N:256:River lesser (Head for the hills)
+X:24:3:4:10:10:20
+D:  ,,ppp   
+D:3  pp3pppp
+D:C1...ppp  
+D:CC        
+
 ### River - greater (type 25) ###
 
 N:260:River greater (Water-Troll Swamp)
@@ -2714,10 +3212,10 @@ D:     ;;;;%%%%%%::::;;;
 N:270:Wilderness lesser (Orc camp)
 X:26:0:6:14:10:20
 D:^o....||....o^
-D:o...oo..oo]..o
-D:.]|.$oooo.^..$
-D:..^.~oooo$.|..
-D:o...oo..oo...o
+D:o...oo.:oo]..o
+D: ]|.$oooo.^..$
+D:  ^.~oooo$.|  
+D:o.;.oo..oo...o
 D:^o]...|...].o^
 
 N:271:Wilderness lesser (Warrior settlement)

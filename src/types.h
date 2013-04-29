@@ -152,14 +152,14 @@ struct maxima
  */
 struct feature_type
 {
-  u16b name;		/* Name (offset) */
-  u16b text;		/* Text (offset) */
+  u32b name;		/* Name (offset) */
+  u32b text;		/* Text (offset) */
   
   byte mimic;		/* Feature to mimic */
   
   byte extra;		/* Extra byte (unused) */
   
-  s16b unused;		/* Extra bytes (unused) */
+  u32b flags;		/* Bitflags */
   
   
   byte d_attr;		/* Default feature attribute */
@@ -178,8 +178,8 @@ struct feature_type
  */
 struct object_kind
 {
-  u16b name;		/* Name (offset) */
-  u16b text;		/* Text (offset) */
+  u32b name;		/* Name (offset) */
+  u32b text;		/* Text (offset) */
   
   byte tval;		/* Object type */
   byte sval;		/* Object sub type */
@@ -235,8 +235,8 @@ struct object_kind
  */
 struct artifact_type
 {
-  u16b name;		/* Name (offset) */
-  u16b text;		/* Text (offset) */
+  u32b name;		/* Name (offset) */
+  u32b text;		/* Text (offset) */
   
   byte tval;		/* Artifact type */
   byte sval;		/* Artifact sub type */
@@ -297,8 +297,8 @@ struct set_element
 /* Information about items sets -GS- */
 struct set_type 
 {
-  u16b name;			/* Name (offset) */
-  u16b text;			/* Text (offset) */
+  u32b name;			/* Name (offset) */
+  u32b text;			/* Text (offset) */
   byte no_of_items;		/* The number of items in the set */
   set_element set_items[6];	/* the artifact no and extra powers. */	
 };
@@ -309,8 +309,8 @@ struct set_type
  */
 struct ego_item_type
 {
-  u16b name;			/* Name (offset) */
-  u16b text;			/* Text (offset) */
+  u32b name;			/* Name (offset) */
+  u32b text;			/* Text (offset) */
 
   byte rating;		        /* Rating boost */
   
@@ -382,8 +382,8 @@ struct monster_blow
  */
 struct monster_race
 {
-  u16b name;		/* Name (offset) */
-  u16b text;		/* Text (offset) */
+  u32b name;		/* Name (offset) */
+  u32b text;		/* Text (offset) */
   
   byte hdice;		/* Creatures hit dice count */
   byte hside;		/* Creatures hit dice sides */
@@ -478,10 +478,8 @@ struct monster_lore
  */
 struct vault_type
 {
-  //u32b name;		/* Name (offset) */
-  //u32b text;		/* Text (offset) */
-  u16b name;		/* Name (offset) */
-  u16b text;		/* Text (offset) */
+  u32b name;		/* Name (offset) */
+  u32b text;		/* Text (offset) */
   
   byte typ;		/* Vault type */
   
@@ -870,12 +868,9 @@ struct start_item
  */
 struct player_class
 {
-  //u32b name;		/* Name (offset) */
+  u32b name;		/* Name (offset) */
   
-  //u32b title[10];	/* Type of class */
-  u16b name;		/* Name (offset) */
-  
-  u16b title[10];	/* Type of class */
+  u32b title[10];	/* Type of class */
   
   s16b c_adj[A_MAX];	/* Class stat modifier */
   
@@ -937,8 +932,7 @@ struct player_weapon
 struct hist_type
 {
   u32b unused;          /* Unused */
-  //u32b text;            /* Text (offset) */
-  u16b text;            /* Text (offset) */
+  u32b text;            /* Text (offset) */
   
   byte roll;            /* Frequency of this entry */
   byte chart;           /* Chart index */
@@ -1039,6 +1033,7 @@ struct player_type
   
   s16b stat_max[6];	/* Current "maximal" stat values */
   s16b stat_cur[6];	/* Current "natural" stat values */
+  u16b barehand_dam[12];/* Recent barehand damage values */
   
   s16b fast;		/* Timed -- Fast */
   s16b slow;		/* Timed -- Slow */
@@ -1320,8 +1315,7 @@ struct high_score
 
 struct flavor_type
 {
-  //u32b text;      /* Text (offset) */
-	u16b text;      /* Text (offset) */
+        u32b text;      /* Text (offset) */
 
 	byte tval;      /* Associated object type */
 	byte sval;      /* Associated object sub-type */

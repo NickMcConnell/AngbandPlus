@@ -179,11 +179,16 @@ static void init_stuff(void)
   
   cptr tail;
   
+#ifdef _WIN32_WCE
+  tail = NULL;
+#else
   /* Get the environment variable */
   tail = getenv("ANGBAND_PATH");
-  
+#endif  
+
   /* Use the angband_path, or a default */
   strncpy(path, tail ? tail : DEFAULT_PATH, 511);
+
   
   /* Make sure it's terminated */
   path[511] = '\0';

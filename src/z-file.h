@@ -57,6 +57,7 @@ extern errr fd_read(int fd, char *buf, size_t n);
 extern errr fd_write(int fd, cptr buf, size_t n);
 extern errr fd_close(int fd);
 extern errr check_modification_date(int fd, cptr template_file);
+extern void x_fprintf(FILE *fff, int encoding, cptr fmt, ...);
 
 /*** File access code ***/
 

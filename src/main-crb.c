@@ -234,6 +234,7 @@ OSType _ftype;
 typedef struct GlyphInfo GlyphInfo;
 
 typedef struct term_data term_data;
+static void create_map(TextEncoding);
 
 /*
  * Extra "term" data
@@ -1594,6 +1595,52 @@ static void play_sound(int num, SInt16 vol)
 	if (next_chan >= MAX_CHANNELS) next_chan = 0;
 }
 
+static void test_font()
+{
+	int i;
+	for(i = 0; i < 128; i++)
+		msg_format("%3d:%c; ", i+128, i+128);
+}
+
+/*
+ * Given a position in the ISO Latin-1 character set, return
+ * the correct character on this system.
+ */
+
+static byte latin1_inv[128+32];
+
+static byte Term_xchar_mac(byte c)
+{
+	/* OSX 1-byte encodings. */
+	return c < 128 ? c : latin1_inv[c-128];
+}
+
+static TextEncoding latin1_code;
+static void create_map(TextEncoding encoding)
+{
+	unsigned char ibuffer[1];
+	TECObjectRef encoder;
+	int i;
+	ByteCount nread, nwritten;
+	TextEncoding app_code;
+	static int old_encoding = -1;
+
+	if(old_encoding == encoding) return;
+	old_encoding = encoding;
+
+	/* Potential minor memory leak. Don't know how to fix! */
+	FMGetFontFamilyTextEncoding(encoding, &app_code);
+	TECCreateConverter(&encoder, latin1_code, app_code);
+
+    for(i = 0; i < 128; i++)
+	{
+		ibuffer[0] = i+128;
+		TECConvertText(encoder, ibuffer, 1, &nread, latin1_inv+i, 32, &nwritten);
+		if(nwritten != 1 || latin1_inv[i] == '?' || latin1_inv[i] == ' ')
+			latin1_inv[i] = seven_bit_translation[i];
+	}
+}
+
 /*** Support for the "z-term.c" package ***/
 
 /*
@@ -1609,6 +1656,13 @@ static void Term_init_mac(term *t)
 	term_data *td = (term_data*)(t->data);
 	WindowAttributes wattrs;
 	OSStatus err;
+
+	latin1_code = CreateTextEncoding (kTextEncodingISOLatin1,
+					  kTextEncodingDefaultVariant, 
+					  kTextEncodingDefaultFormat);
+
+	/* Initialize latin 1->mac encoding */
+	create_map(GetAppFont());
 
 	wattrs = kWindowCloseBoxAttribute | kWindowCollapseBoxAttribute
 						| kWindowResizableAttribute;
@@ -2002,6 +2056,7 @@ static void term_data_link(int i)
 	td->t->bigcurs_hook = Term_curs_mac;
 	td->t->text_hook = Term_text_mac;
 	td->t->pict_hook = Term_pict_mac;
+	td->t->xchar_hook = Term_xchar_mac;
 
 
 	td->t->never_bored = TRUE;

@@ -17,21 +17,6 @@
 
 
 /*
- * Maximum array bounds for template based arrays - temp hack -NRM-
- */
-#define MAX_F_IDX	104	/* Max size for "f_info[]" */
-#define MAX_K_IDX	755	/* Max size for "k_info[]" */
-#define MAX_A_IDX	250	/* Max size for "a_info[]" */
-#define MAX_E_IDX	128	/* Max size for "e_info[]" */
-#define MAX_R_IDX	800	/* Max size for "r_info[]" */
-#define MAX_V_IDX	300	/* Max size for "v_info[]" */
-#define MAX_H_IDX	223	/* Max size for "h_info[]" */
-#define MAX_B_IDX	14	/* Max size for "b_info[]" */
-#define MAX_P_IDX	14	/* Max size for "p_info[]" */
-#define MAX_S_IDX	7	/* Max size for "s_info[]" */
-#define MAX_FL_IDX      401     /* Max size for "flavor_info[]" */
-
-/*
  * Automatically generated "variable" declarations
  */
 
@@ -49,7 +34,6 @@ extern s16b ddy[10];
 extern s16b ddx_ddd[9];
 extern s16b ddy_ddd[9];
 extern char hexsym[16];
-extern bool legal_class[MAX_P_IDX][MAX_CLASS];
 extern byte adj_mag_study[];
 extern byte adj_mag_mana[];
 extern byte adj_mag_fail[];
@@ -74,9 +58,7 @@ extern byte adj_con_fix[];
 extern byte adj_con_mhp[];
 extern byte adj_dex_evas[];
 extern byte blows_table[12][12];
-extern owner_type owners[MAX_STORES][MAX_B_IDX];
 extern byte extract_energy[200];
-extern int extract_resistance[60];
 extern u32b resist_to_flag[14];
 extern s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
@@ -214,6 +196,12 @@ extern byte angband_color_table[256][4];
 extern char angband_sound_name[SOUND_MAX][16];
 extern sint view_n;
 extern u16b *view_g;
+extern int  vinfo_grids;
+extern int  vinfo_slopes;
+extern u32b vinfo_bits_3;
+extern u32b vinfo_bits_2;
+extern u32b vinfo_bits_1;
+extern u32b vinfo_bits_0;
 extern sint temp_n;
 extern u16b *temp_g;
 extern byte *temp_y;
@@ -484,7 +472,7 @@ extern void output_ammo_dam(object_type *o_ptr, int mult, cptr against,
                             bool *first, bool perfect);
 extern void display_ammo_damage(object_type *o_ptr);
 extern void object_info(char buf[2048], object_type *o_ptr, bool in_store);
-extern void object_info_screen(object_type *o_ptr);
+extern void object_info_screen(object_type *o_ptr, bool fake);
 extern cptr item_activation(object_type *o_ptr);
 extern void identify_fully_aux(object_type *o_ptr);
 extern void self_knowledge(bool spoil);
@@ -580,6 +568,7 @@ extern void display_equip(void);
 extern void show_inven(void);
 extern void show_equip(void);
 extern void toggle_inven_equip(void);
+extern bool verify_item(cptr prompt, int item);
 extern bool get_item_allow(int item);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
 extern bool get_item_tk(int *cp, cptr pmt, cptr str, int y, int x);

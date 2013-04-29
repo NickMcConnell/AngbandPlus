@@ -356,6 +356,18 @@ char angband_sound_name[SOUND_MAX][16] =
 sint view_n = 0;
 u16b *view_g;
 
+/* 
+ * Variables for dealing with the vinfo array used by update_view() -NRM-
+ */
+
+int  vinfo_grids;
+int  vinfo_slopes;
+u32b vinfo_bits_3;
+u32b vinfo_bits_2;
+u32b vinfo_bits_1;
+u32b vinfo_bits_0;
+
+
 /*
  * Arrays[TEMP_MAX] used for various things
  */
@@ -442,17 +454,17 @@ int cost_at_center = 0;
 #endif	/* MONSTER_FLOW */
 
 /*
- * Array[MAX_O_IDX] of dungeon objects
+ * Array[z_info->o_max] of dungeon objects
  */
 object_type *o_list;
 
 /*
- * Array[MAX_M_IDX] of dungeon monsters
+ * Array[z_info->m_max] of dungeon monsters
  */
 monster_type *m_list;
 
 /*
- * Array[MAX_M_IDX] of monster lore
+ * Array[z_info->m_max] of monster lore
  */
 monster_lore *l_list;
 
@@ -479,7 +491,7 @@ object_type *inventory;
 
 
 /*
- * The size of "alloc_kind_table" (at most MAX_K_IDX * 4)
+ * The size of "alloc_kind_table" (at most z_info->k_max * 4)
  */
 s16b alloc_kind_size;
 
@@ -499,7 +511,7 @@ s16b alloc_ego_size;
 alloc_entry *alloc_ego_table;
 
 /*
- * The size of "alloc_race_table" (at most MAX_R_IDX)
+ * The size of "alloc_race_table" (at most z_info->r_max)
  */
 s16b alloc_race_size;
 

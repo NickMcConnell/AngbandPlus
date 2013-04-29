@@ -105,6 +105,8 @@
 #define TUNN_MAX	300
 #define STAIR_MAX	30
 
+/* Tree type chances */
+#define HIGHLAND_TREE_CHANCE 30
 
 /*
  * Simple structure to hold a map location
@@ -461,9 +463,23 @@ static bool mon_select(int r_idx)
     }
   
   /* Require that monster breaths be exactly those specified. */
+  /* Exception for winged dragons */
   if (breath_flag_mask)
     {
-      if (r_ptr->flags4 != breath_flag_mask) return (FALSE);
+      /* 'd'ragons */
+      if ((r_ptr->flags4 != breath_flag_mask) && (r_ptr->d_char != 'D')) 
+	return (FALSE);
+
+      /* Winged 'D'ragons */
+      if (r_ptr->d_char == 'D')
+	{
+	  if ((r_ptr->flags4 & breath_flag_mask) != breath_flag_mask) 
+	    return (FALSE);
+
+	  /* Hack - this deals with all current Ds that need excluding */
+	  if (r_ptr->flags4 & RF4_BRTH_SOUND)
+	    return (FALSE);
+	}
     }
   
   /* Require that the monster color be correct. */
@@ -541,7 +557,7 @@ static char *mon_restrict(char symbol, byte depth, bool *ordered,
       for (i = 0; i < 2500; i++)
 	{
 	  /* Get a random monster. */
-	  j = randint(MAX_R_IDX - 1);
+	  j = randint(z_info->r_max - 1);
 	  
 	  /* Must be a real monster */
 	  if (!r_info[j].rarity) continue;
@@ -756,7 +772,7 @@ static char *mon_restrict(char symbol, byte depth, bool *ordered,
 	    for (i = 0; i < 500; i++)
 	      {
 		/* Find a suitable monster near depth. */
-		j = randint(MAX_R_IDX - 1);
+		j = randint(z_info->r_max - 1);
 		
 		/* Require a non-unique undead. */
 		if ((r_info[j].flags3 & RF3_UNDEAD) && 
@@ -1080,10 +1096,18 @@ static int next_to_walls(int y, int x)
 {
   int k = 0;
   
-  if (cave_feat[y+1][x] >= FEAT_MAGMA) k++;
-  if (cave_feat[y-1][x] >= FEAT_MAGMA) k++;
-  if (cave_feat[y][x+1] >= FEAT_MAGMA) k++;
-  if (cave_feat[y][x-1] >= FEAT_MAGMA) k++;
+  if ((cave_feat[y+1][x] >= FEAT_MAGMA) && 
+      (cave_feat[y+1][x] <= FEAT_SHOP_HEAD)) 
+    k++;
+  if ((cave_feat[y-1][x] >= FEAT_MAGMA) && 
+      (cave_feat[y-1][x] <= FEAT_SHOP_HEAD))
+    k++;
+  if ((cave_feat[y][x+1] >= FEAT_MAGMA) && 
+      (cave_feat[y][x+1] <= FEAT_SHOP_HEAD))
+    k++;
+  if ((cave_feat[y][x-1] >= FEAT_MAGMA) && 
+      (cave_feat[y][x-1] <= FEAT_SHOP_HEAD))
+    k++;
   
   return (k);
 }
@@ -2192,6 +2216,7 @@ static bool passable(int feat)
       (feat == FEAT_RUBBLE) || 
       (feat == FEAT_WATER ) || 
       (feat == FEAT_TREE  ) || 
+      (feat == FEAT_TREE2 ) || 
       (feat == FEAT_INVIS ) || 
       (feat == FEAT_GRASS_INVIS ) || 
       (feat == FEAT_LAVA  ) || 
@@ -2292,7 +2317,7 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
       tmp_bx = x1;
       if (height > width) tmp_by = y1 + 1 * height / 3;
 		else tmp_bx = x1 + 1 * width / 3;
-      
+
       /* Make the second room. */
       (void)generate_starburst_room(tmp_by, tmp_bx, y2, x2, 
 				    light, feat, FALSE);
@@ -2318,7 +2343,8 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
        * water should have smooth edges, we need to fill any gap between 
        * two starbursts of these kinds of terrain.
        */
-      if ((feat == FEAT_TREE) || (feat == FEAT_WATER) || (feat == FEAT_RUBBLE))
+      if ((feat == FEAT_TREE) || (feat == FEAT_TREE2) || 
+	  (feat == FEAT_WATER) || (feat == FEAT_RUBBLE))
 	{
 	  int tmp_cy1, tmp_cx1, tmp_cy2, tmp_cx2;
 	  
@@ -2520,7 +2546,8 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 			  else
 			    {
 			      /* Replace old feature in some cases. */
-			      if ((feat == FEAT_TREE) || (feat == FEAT_RUBBLE))
+			      if ((feat == FEAT_TREE) || (feat == FEAT_TREE2) 
+				  || (feat == FEAT_RUBBLE))
 				{
 				  /* Make denser in the middle. */
 				  if ((cave_feat[y][x] == FEAT_FLOOR) && 
@@ -2671,6 +2698,7 @@ static bool build_type1_moria(bool light)
   select = rand_int(100);
   
   if (select >= 99) feat = FEAT_TREE;
+  else if (select >= 98) feat = FEAT_TREE2;
   else if (select >= 92) feat = FEAT_WATER;
   else if (select >= 88) feat = FEAT_RUBBLE;
   else feat = 0;
@@ -2862,6 +2890,10 @@ static bool build_type1(void)
 	  /* ... or a little nature preserve. */
 	  if ((!water_room) && (rand_int(2) == 0))
 	    {
+	      int feat = FEAT_TREE;
+
+	      if (rand_int(2) == 0) feat = FEAT_TREE2;
+
 	      /* From light and earth... */
 	      /* Note that we also have to light the boundary walls. */
 	      if (!light)
@@ -2877,7 +2909,7 @@ static bool build_type1(void)
 	      
 	      /* ... spring trees. */
 	      (void)generate_starburst_room(y1, x1, y2, x2, FALSE, 
-					    FEAT_TREE, FALSE);
+					    feat, FALSE);
 	      
 	      /* Animals love trees. */
 	      if (rand_int(6) == 0)
@@ -4388,7 +4420,11 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data,
 	      /* Tree. */
 	    case ';':
 	      {
-		cave_set_feat(y, x, FEAT_TREE);
+		if (randint(p_ptr->depth + HIGHLAND_TREE_CHANCE) 
+		    > HIGHLAND_TREE_CHANCE)
+		  cave_set_feat(y, x, FEAT_TREE2);
+		else
+		  cave_set_feat(y, x, FEAT_TREE);		  
 		break;
 	      }
 	      /* Rubble. */
@@ -4835,11 +4871,15 @@ static bool build_type7(void)
 {
   vault_type *v_ptr;
   int i, y, x;
-  int v_idx[MAX_V_IDX];
+#ifdef _WIN32_WCE
+  int *v_idx = malloc(z_info->v_max * sizeof(*v_idx));
+#else
+  int v_idx[z_info->v_max];
+#endif
   int v_cnt = 0;
   
   /* Examine each vault */
-  for (i = 0; i < MAX_V_IDX; i++)
+  for (i = 0; i < z_info->v_max; i++)
     {
       /* Access the vault */
       v_ptr = &v_info[i];
@@ -4855,7 +4895,13 @@ static bool build_type7(void)
   /* Access a random vault record */
   v_ptr = &v_info[v_idx[rand_int(v_cnt)]];
   
-  if (!find_space(&y, &x, v_ptr->hgt, v_ptr->wid)) return (FALSE);
+  if (!find_space(&y, &x, v_ptr->hgt, v_ptr->wid)) 
+    {
+#ifdef _WIN32_WCE
+      free(v_idx);
+#endif
+      return (FALSE);
+    }
   
   /* Boost the rating */
   rating += v_ptr->rat;
@@ -4863,7 +4909,17 @@ static bool build_type7(void)
   
   /* Build the vault (sometimes lit, not icky, type 7) */
   if (!build_vault(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, 
-		   (p_ptr->depth < rand_int(37)), FALSE, 7)) return (FALSE);
+		   (p_ptr->depth < rand_int(37)), FALSE, 7)) 
+    {
+#ifdef _WIN32_WCE
+      free(v_idx);
+#endif
+      return (FALSE);
+    }
+  
+#ifdef _WIN32_WCE
+  free(v_idx);
+#endif
   
   return (TRUE);
 }
@@ -4875,11 +4931,15 @@ static bool build_type8(void)
 {
   vault_type *v_ptr;
   int i, y, x;
-  int v_idx[MAX_V_IDX];
+#ifdef _WIN32_WCE
+  int *v_idx = malloc(z_info->v_max * sizeof(*v_idx));
+#else
+  int v_idx[z_info->v_max];
+#endif
   int v_cnt = 0;
   
   /* Examine each vault */
-  for (i = 0; i < MAX_V_IDX; i++)
+  for (i = 0; i < z_info->v_max; i++)
     {
       /* Access the vault */
       v_ptr = &v_info[i];
@@ -4897,7 +4957,13 @@ static bool build_type8(void)
   
   
   /* Find and reserve some space in the dungeon.  Get center of room. */
-  if (!find_space(&y, &x, v_ptr->hgt, v_ptr->wid)) return (FALSE);
+  if (!find_space(&y, &x, v_ptr->hgt, v_ptr->wid)) 
+    {
+#ifdef _WIN32_WCE
+      free(v_idx);
+#endif
+      return (FALSE);
+    }
   
   
   /* Message */
@@ -4907,16 +4973,26 @@ static bool build_type8(void)
   rating += v_ptr->rat;
   
   /* (Sometimes) Cause a special feeling remove in FA0.2.2
-  if ((p_ptr->depth <= 50) ||
+     if ((p_ptr->depth <= 50) ||
       (randint((p_ptr->depth - 40) * (p_ptr->depth - 40) + 1) < 400))
-    {
+      {
       good_item_flag = TRUE;
     }
   */
   
   /* Build the vault (never lit, icky, type 8) */
   if (!build_vault(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, 
-		   FALSE, TRUE, 8)) return (FALSE);
+		   FALSE, TRUE, 8)) 
+    {
+#ifdef _WIN32_WCE
+      free(v_idx);
+#endif
+      return (FALSE);
+    }
+  
+#ifdef _WIN32_WCE
+  free(v_idx);
+#endif
   
   return (TRUE);
 }
@@ -4930,11 +5006,15 @@ static bool build_type9(void)
 {
   vault_type *v_ptr;
   int i, y, x;
-  int v_idx[MAX_V_IDX];
+#ifdef _WIN32_WCE
+  int *v_idx = malloc(z_info->v_max * sizeof(int));
+#else
+  int v_idx[z_info->v_max];
+#endif
   int v_cnt = 0;
   
   /* Examine each vault */
-  for (i = 0; i < MAX_V_IDX; i++)
+  for (i = 0; i < z_info->v_max; i++)
     {
       /* Access the vault */
       v_ptr = &v_info[i];
@@ -4952,7 +5032,13 @@ static bool build_type9(void)
   
   
   /* Find and reserve some space in the dungeon.  Get center of room. */
-  if (!find_space(&y, &x, v_ptr->hgt, v_ptr->wid)) return (FALSE);
+  if (!find_space(&y, &x, v_ptr->hgt, v_ptr->wid)) 
+    {
+#ifdef _WIN32_WCE
+      free(v_idx);
+#endif
+      return (FALSE);
+    }
   
   
   /* Message */
@@ -4967,7 +5053,17 @@ static bool build_type9(void)
   
   /* Build the vault (never lit, icky, type 9) */
   if (!build_vault(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, 
-		   FALSE, TRUE, 9)) return (FALSE);
+		   FALSE, TRUE, 9)) 
+    {
+#ifdef _WIN32_WCE
+      free(v_idx);
+#endif
+      return (FALSE);
+    }
+  
+#ifdef _WIN32_WCE
+  free(v_idx);
+#endif
   
   return (TRUE);
 }
@@ -5714,9 +5810,12 @@ static void alloc_paths(int stage, int last_stage)
 	}
     }
   /* Place the player, unless we've just come upstairs */
-  if ((stage_map[p_ptr->last_stage][STAGE_TYPE] != CAVE) ||
-      (stage_map[p_ptr->last_stage][LOCALITY] == UNDERWORLD))
-    player_place(py, px);
+  if (((stage_map[p_ptr->last_stage][STAGE_TYPE] == CAVE) &&
+       (stage_map[p_ptr->last_stage][LOCALITY] != UNDERWORLD)) ||
+      ((turn <= 10) && (adult_thrall)))
+    return;
+  
+  player_place(py, px);
 }
 
 
@@ -5968,7 +6067,8 @@ static void try_entrance(int y0, int x0)
       int x = x0 + ddx_ddd[i];
       
       /* Ignore non-walls. */
-      if (cave_feat[y][x] < FEAT_MAGMA) continue;
+      if ((cave_feat[y][x] < FEAT_MAGMA) || 
+	  (cave_feat[y][x] > FEAT_MTRAP_HEAD)) continue;
       
       /* We require at least two walls. */
       if ((k++) == 2) place_random_door(y0, x0);
@@ -6015,14 +6115,18 @@ static void try_door(int y0, int x0)
 	{
 	  /* Check Vertical */
 	  if ((cave_feat[y0-1][x0] >= FEAT_MAGMA) &&
-	      (cave_feat[y0+1][x0] >= FEAT_MAGMA))
+	      (cave_feat[y0-1][x0] <= FEAT_SHOP_HEAD) &&
+	      (cave_feat[y0+1][x0] >= FEAT_MAGMA) &&
+	      (cave_feat[y0+1][x0] <= FEAT_SHOP_HEAD))
 	    {
 	      place_random_door(y0, x0);
 	    }
 	  
 	  /* Check Horizontal */
 	  else if ((cave_feat[y0][x0-1] >= FEAT_MAGMA) &&
-		   (cave_feat[y0][x0+1] >= FEAT_MAGMA))
+		   (cave_feat[y0][x0-1] <= FEAT_SHOP_HEAD) &&
+		   (cave_feat[y0][x0+1] >= FEAT_MAGMA) &&
+		   (cave_feat[y0][x0+1] <= FEAT_SHOP_HEAD))
 	    {
 	      place_random_door(y0, x0);
 	    }
@@ -7229,7 +7333,7 @@ static void cave_gen(void)
   if (is_quest(p_ptr->stage))
     {
       /* Ensure quest monsters */
-      for (i = 1; i < MAX_R_IDX; i++)
+      for (i = 1; i < z_info->r_max; i++)
 	{
 	  monster_race *r_ptr = &r_info[i];
 	  /* Ensure quest monsters */
@@ -7303,14 +7407,19 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
 #endif
   int ty = y;
   int tx = x;
+  feature_type *f_ptr;
   
   /* Need to make some "wilderness vaults" */
   if (wild_vaults)
     {
       vault_type *v_ptr;
       int n, yy, xx;
-      int v_idx[MAX_V_IDX];
       int v_cnt = 0;
+#ifdef _WIN32_WCE
+      int *v_idx = malloc(z_info->v_max * sizeof(*v_idx));
+#else
+      int v_idx[z_info->v_max];
+#endif
       
       bool good_place = TRUE;
 
@@ -7318,7 +7427,7 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
       if (rand_int(100 - p_ptr->depth) < 9) wild_type += 1;
 
       /* Examine each "vault" */
-      for (n = 0; n < MAX_V_IDX; n++)
+      for (n = 0; n < z_info->v_max; n++)
 	{
 	  /* Access the "vault" */
 	  v_ptr = &v_info[n];
@@ -7337,24 +7446,27 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
 	  wild_vaults = 0;
 #ifdef _WIN32_WCE	
 	  free(all_feat);
+	  free(v_idx);
 #endif
 	  return (0);
 	}
 
       /* Access a random "vault" record */
       v_ptr = &v_info[v_idx[rand_int(v_cnt)]];
-  
+      
       /* Check to see if it will fit here (only avoid edges) */
       if ((in_bounds_fully(y - v_ptr->hgt/2, x - v_ptr->wid/2)) &&
 	  (in_bounds_fully(y + v_ptr->hgt/2, x + v_ptr->wid/2)))
 	{
 	  for (yy = y - v_ptr->hgt/2; yy < y + v_ptr->hgt/2; yy++)
 	    for (xx = x - v_ptr->wid/2; xx < x + v_ptr->wid/2; xx++)
-	      if ((cave_feat[yy][xx] == FEAT_PERM_SOLID) ||
-		  (cave_feat[yy][xx] >= FEAT_LESS_NORTH) ||
-		  (distance(yy, xx, p_ptr->py, p_ptr->px) < 20) ||
-		  (cave_info[yy][xx] & CAVE_ICKY)) 
-		good_place = FALSE;
+	      {
+		f_ptr = &f_info[cave_feat[yy][xx]];
+		if ((f_ptr->flags & TF_PERMANENT) ||
+		    (distance(yy, xx, p_ptr->py, p_ptr->px) < 20) ||
+		    (cave_info[yy][xx] & CAVE_ICKY)) 
+		  good_place = FALSE;
+	      }
 	}
       else
 	good_place = FALSE;
@@ -7368,16 +7480,16 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
 	    {
 #ifdef _WIN32_WCE	
 	      free(all_feat);
+	      free(v_idx);
 #endif
 	      return (0);
 	    }
-  
+	  
 	  /* Boost the rating */
 	  rating += v_ptr->rat;
 
 	  /* Message */
-	  if (cheat_room) msg_format("%s wilderness vault", 
-				     ((wild_type % 2) ? "Large" : "Small"));
+	  if (cheat_room) msg_format("%s. ",v_name + v_ptr->name);
   
 	  /* One less to make */
 	  wild_vaults--;
@@ -7385,12 +7497,13 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
 	  /* Takes up some space */
 #ifdef _WIN32_WCE	
 	  free(all_feat);
+	  free(v_idx);
 #endif
 	  return (v_ptr->hgt * v_ptr->wid);
 	}
     }
-
-
+  
+  
   
   /* Extend the array of terrain types to length prob */
   jj = 0;
@@ -7465,10 +7578,11 @@ static void plain_gen(void)
   int form_grids = 0;
   
   int form_feats[8] = {FEAT_TREE, FEAT_RUBBLE, FEAT_MAGMA, FEAT_WALL_SOLID, 
-		       FEAT_TREE, FEAT_QUARTZ, FEAT_NONE};
+		       FEAT_TREE2, FEAT_QUARTZ, FEAT_NONE};
   int ponds[2] = {FEAT_WATER, FEAT_NONE};
   
   bool dummy;
+  feature_type *f_ptr;
   
   /* Hack -- Start with basic grass  */
   for (y = 0; y < DUNGEON_HGT; y++)
@@ -7492,14 +7606,17 @@ static void plain_gen(void)
       if (i > 7) i = 7;
       if (i < 0) i = 0;
       for (y = 0; y < i; y++)
-		
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH))
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
+
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT))
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   
   
@@ -7511,14 +7628,17 @@ static void plain_gen(void)
       if (i > 7) i = 7;
       if (i < 0) i = 0;
       for (y = DUNGEON_HGT - 1; y > DUNGEON_HGT - 1 - i; y--)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 	  
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   	  
   /* Special boundary walls -- Left */
@@ -7529,14 +7649,17 @@ static void plain_gen(void)
       if (i > 10) i = 10;
       if (i < 0) i = 0;
       for (x = 0; x < i; x++)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 		  
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
 	  
   /* Special boundary walls -- Right */
@@ -7547,21 +7670,24 @@ static void plain_gen(void)
       if (i > 10) i = 10;
       if (i < 0) i = 0;
       for (x = DUNGEON_WID - 1; x > DUNGEON_WID - 1 - i; x--)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 	
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   
   /* Place some formations */
   while (form_grids < (150 * p_ptr->depth + 1000)) 
     {
       /* Set the "vault" type */
-      wild_type = ((rand_int(3) == 0) ? 26 : 14);
+      wild_type = ((rand_int(5) == 0) ? 26 : 14);
       
       /* Choose a place */
       y = rand_int(DUNGEON_HGT - 1) + 1;
@@ -7863,7 +7989,7 @@ static void mtn_gen(void)
   while  (form_grids < 50 * (p_ptr->depth)  ) 
     {
       /* Set the "vault" type */
-      wild_type = ((rand_int(3) == 0) ? 26 : 16);
+      wild_type = ((rand_int(5) == 0) ? 26 : 16);
       
       /* Choose a place */
       y = rand_int(DUNGEON_HGT - 1) + 1;
@@ -7917,7 +8043,11 @@ static void mtn_gen(void)
 	      } 
 	    case FEAT_TRAP_HEAD + 3:
 	      {
-		cave_set_feat(y, x, FEAT_TREE);
+		if (randint(p_ptr->depth + HIGHLAND_TREE_CHANCE) 
+		    > HIGHLAND_TREE_CHANCE)
+		  cave_set_feat(y, x, FEAT_TREE2);
+		else
+		  cave_set_feat(y, x, FEAT_TREE);		  
 		break;
 	      } 
 	    case FEAT_TRAP_HEAD + 4:
@@ -8160,7 +8290,7 @@ static void mtntop_gen(void)
 	/* and the odd tree */
 	if (rand_int(20) == 0) 
 	  {
-	    cave_set_feat(y1, x1, FEAT_TREE);
+	    cave_set_feat(y1, x1, FEAT_TREE2);
 	    continue;
 	  }
       }
@@ -8209,7 +8339,7 @@ static void mtntop_gen(void)
 		/* and the odd tree */
 		if (rand_int(20) == 0) 
 		  {
-		    cave_set_feat(y1, x1, FEAT_TREE);
+		    cave_set_feat(y1, x1, FEAT_TREE2);
 		    continue;
 		  }
 	      }
@@ -8297,6 +8427,8 @@ static void forest_gen(void)
   int ponds[2] = {FEAT_WATER, FEAT_NONE};
   
   bool dummy;
+  feature_type *f_ptr;
+  
   
   
   
@@ -8322,14 +8454,17 @@ static void forest_gen(void)
       if (i > 7) i = 7;
       if (i < 0) i = 0;
       for (y = 0; y < i; y++)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 		
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   
   
@@ -8341,14 +8476,17 @@ static void forest_gen(void)
       if (i > 7) i = 7;
       if (i < 0) i = 0;
       for (y = DUNGEON_HGT - 1; y > DUNGEON_HGT - 1 - i; y--)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 	  
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   	  
   /* Special boundary walls -- Left */
@@ -8359,14 +8497,17 @@ static void forest_gen(void)
       if (i > 10) i = 10;
       if (i < 0) i = 0;
       for (x = 0; x < i; x++)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 		  
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
 	  
   /* Special boundary walls -- Right */
@@ -8377,14 +8518,17 @@ static void forest_gen(void)
       if (i > 10) i = 10;
       if (i < 0) i = 0;
       for (x = DUNGEON_WID - 1; x > DUNGEON_WID - 1 - i; x--)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 	
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   
   /* Now place trees */
@@ -8394,7 +8538,13 @@ static void forest_gen(void)
 	{
 	  /* Create trees */
 	  if (cave_feat[y][x] == FEAT_GRASS)
-	    cave_set_feat(y, x, FEAT_TREE);
+	    {
+	      if (randint(p_ptr->depth + HIGHLAND_TREE_CHANCE) 
+		  > HIGHLAND_TREE_CHANCE)
+		cave_set_feat(y, x, FEAT_TREE2);
+	      else
+		cave_set_feat(y, x, FEAT_TREE);
+	    }		  
 	  else
 	    /* Hack - prepare for clearings */
 	    cave_info[y][x] |= (CAVE_ICKY);
@@ -8441,12 +8591,12 @@ static void forest_gen(void)
   while (form_grids < (150 * p_ptr->depth + 1000)) 
     {
       /* Set the "vault" type */
-      wild_type = ((rand_int(3) == 0) ? 26 : 18);
+      wild_type = ((rand_int(5) == 0) ? 26 : 18);
       
       /* Choose a place */
       y = rand_int(DUNGEON_HGT - 1) + 1;
       x = rand_int(DUNGEON_WID - 1) + 1;
-      form_grids += make_formation(y, x, FEAT_TREE, FEAT_TREE, form_feats, 
+      form_grids += make_formation(y, x, FEAT_TREE, FEAT_TREE2, form_feats, 
 				   p_ptr->depth + 1);
     }
   
@@ -8456,7 +8606,7 @@ static void forest_gen(void)
     {
       y = rand_int(DUNGEON_HGT - 1) + 1;
       x = rand_int(DUNGEON_WID - 1) + 1;
-      form_grids += make_formation(y, x, FEAT_TREE, FEAT_TREE, ponds, 10);
+      form_grids += make_formation(y, x, FEAT_TREE, FEAT_TREE2, ponds, 10);
     }
   
   /* No longer "icky"  */
@@ -8545,9 +8695,11 @@ static void swamp_gen(void)
   
   
   int form_feats[8] = {FEAT_TREE, FEAT_RUBBLE, FEAT_MAGMA, FEAT_WALL_SOLID, 
-		       FEAT_TREE, FEAT_QUARTZ, FEAT_NONE};
+		       FEAT_TREE2, FEAT_QUARTZ, FEAT_NONE};
   
   bool dummy;
+  feature_type *f_ptr;
+  
   
   
   
@@ -8572,14 +8724,17 @@ static void swamp_gen(void)
       if (i > 7) i = 7;
       if (i < 0) i = 0;
       for (y = 0; y < i; y++)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 		
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   
   
@@ -8591,14 +8746,17 @@ static void swamp_gen(void)
       if (i > 7) i = 7;
       if (i < 0) i = 0;
       for (y = DUNGEON_HGT - 1; y > DUNGEON_HGT - 1 - i; y--)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 	  
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   	  
   /* Special boundary walls -- Left */
@@ -8609,14 +8767,17 @@ static void swamp_gen(void)
       if (i > 10) i = 10;
       if (i < 0) i = 0;
       for (x = 0; x < i; x++)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 		  
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
 	  
   /* Special boundary walls -- Right */
@@ -8627,14 +8788,17 @@ static void swamp_gen(void)
       if (i > 10) i = 10;
       if (i < 0) i = 0;
       for (x = DUNGEON_WID - 1; x > DUNGEON_WID - 1 - i; x--)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 	
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   
   /* Hack -- add water  */
@@ -8642,8 +8806,9 @@ static void swamp_gen(void)
     {
       for (x = 1; x < DUNGEON_WID - 1; x++)
 	{
-	  if ((cave_feat[y][x] >= FEAT_LESS_NORTH) || 
-	      (cave_feat[y][x] == FEAT_PERM_SOLID))
+	  f_ptr = &f_info[cave_feat[y][x]];
+
+	  if (f_ptr->flags & TF_PERMANENT)
 	    continue;
 	  if (((p_ptr->py == y) && (p_ptr->px == x)) || (rand_int(100) < 50))
 	    cave_set_feat(y, x, FEAT_GRASS);
@@ -8657,7 +8822,7 @@ static void swamp_gen(void)
   while (form_grids < 20000 / p_ptr->depth) 
     {
       /* Set the "vault" type */
-      wild_type = ((rand_int(3) == 0) ? 26 : 20);
+      wild_type = ((rand_int(5) == 0) ? 26 : 20);
       
       /* Choose a place */
       y = rand_int(DUNGEON_HGT - 1) + 1;
@@ -8757,6 +8922,8 @@ static void desert_gen(void)
 		       FEAT_GRASS, FEAT_QUARTZ, FEAT_NONE};
   bool dummy;
   bool made_gate = FALSE;
+  feature_type *f_ptr;
+  
   
   
   /* Hack -- Start with basic grass so paths work */
@@ -8781,14 +8948,17 @@ static void desert_gen(void)
       if (i > 7) i = 7;
       if (i < 0) i = 0;
       for (y = 0; y < i; y++)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 		
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   
   
@@ -8800,14 +8970,17 @@ static void desert_gen(void)
       if (i > 7) i = 7;
       if (i < 0) i = 0;
       for (y = DUNGEON_HGT - 1; y > DUNGEON_HGT - 1 - i; y--)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 	  
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   	  
   /* Special boundary walls -- Left */
@@ -8818,14 +8991,17 @@ static void desert_gen(void)
       if (i > 10) i = 10;
       if (i < 0) i = 0;
       for (x = 0; x < i; x++)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 		  
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
 	  
   /* Special boundary walls -- Right */
@@ -8836,14 +9012,17 @@ static void desert_gen(void)
       if (i > 10) i = 10;
       if (i < 0) i = 0;
       for (x = DUNGEON_WID - 1; x > DUNGEON_WID - 1 - i; x--)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 	
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   
   /* Dungeon entrance */
@@ -8936,7 +9115,7 @@ static void desert_gen(void)
   while (form_grids < 20 * p_ptr->depth) 
     {
       /* Set the "vault" type */
-      wild_type = ((rand_int(3) == 0) ? 26 : 22);
+      wild_type = ((rand_int(5) == 0) ? 26 : 22);
       
       /* Choose a place */
       y = rand_int(DUNGEON_HGT - 1) + 1;
@@ -9033,9 +9212,11 @@ static void river_gen(void)
   int path;
   
   int form_feats[8] = {FEAT_TREE, FEAT_RUBBLE, FEAT_MAGMA, FEAT_WALL_SOLID, 
-		       FEAT_TREE, FEAT_QUARTZ, FEAT_NONE};
+		       FEAT_TREE2, FEAT_QUARTZ, FEAT_NONE};
   
   bool dummy;
+  feature_type *f_ptr;
+  
   
   
   
@@ -9064,14 +9245,17 @@ static void river_gen(void)
       if (i > 7) i = 7;
       if (i < 0) i = 0;
       for (y = 0; y < i; y++)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 		
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   
   
@@ -9083,14 +9267,17 @@ static void river_gen(void)
       if (i > 7) i = 7;
       if (i < 0) i = 0;
       for (y = DUNGEON_HGT - 1; y > DUNGEON_HGT - 1 - i; y--)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 	  
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   	  
   /* Special boundary walls -- Left */
@@ -9101,14 +9288,17 @@ static void river_gen(void)
       if (i > 10) i = 10;
       if (i < 0) i = 0;
       for (x = 0; x < i; x++)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 		  
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
 	  
   /* Special boundary walls -- Right */
@@ -9119,14 +9309,17 @@ static void river_gen(void)
       if (i > 10) i = 10;
       if (i < 0) i = 0;
       for (x = DUNGEON_WID - 1; x > DUNGEON_WID - 1 - i; x--)
+	{
+	  f_ptr = &f_info[cave_feat[y][x]];
 	
-	/* Clear previous contents, add "solid" perma-wall */
-	if ((cave_feat[y][x] != FEAT_FLOOR) && 
-	    (cave_feat[y][x] < FEAT_LESS_NORTH)) 
-	  { 
-	    cave_set_feat(y, x, FEAT_PERM_SOLID);
-	    cave_info[y][x] |= (CAVE_WALL);
-	  }
+	  /* Clear previous contents, add "solid" perma-wall */
+	  if ((cave_feat[y][x] != FEAT_FLOOR) && 
+	      !(f_ptr->flags & TF_PERMANENT)) 
+	    { 
+	      cave_set_feat(y, x, FEAT_PERM_SOLID);
+	      cave_info[y][x] |= (CAVE_WALL);
+	    }
+	}
     }
   
   /* Place the river, start in the middle third */
@@ -9207,7 +9400,7 @@ static void river_gen(void)
   while (form_grids < 200 * p_ptr->depth) 
     {
       /* Set the "vault" type */
-      wild_type = ((rand_int(3) == 0) ? 26 : 24);
+      wild_type = ((rand_int(5) == 0) ? 26 : 24);
       
       /* Choose a place */
       y = rand_int(DUNGEON_HGT - 1) + 1;
@@ -9312,13 +9505,17 @@ bool place_web(int type)
 {
   vault_type *v_ptr;
   int i, y, x = DUNGEON_WID/2, cy, cx;
-  int v_idx[MAX_V_IDX];
+#ifdef _WIN32_WCE
+  int *v_idx = malloc(z_info->v_max * sizeof(v_idx));
+#else
+  int v_idx[z_info->v_max];
+#endif
   int v_cnt = 0;
 
   bool no_good = FALSE;
   
   /* Examine each web */
-  for (i = 0; i < MAX_V_IDX; i++)
+  for (i = 0; i < z_info->v_max; i++)
     {
       /* Access the web */
       v_ptr = &v_info[i];
@@ -9362,16 +9559,31 @@ bool place_web(int type)
     }
 
   /* Give up if we couldn't find anywhere */
-  if (no_good) return (FALSE);
-       
+  if (no_good) 
+    {
+#ifdef _WIN32_WCE
+      free(v_idx);
+#endif
+	return (FALSE);
+    }
+  
   /* Boost the rating */
   rating += v_ptr->rat;
   
   
   /* Build the vault (never lit, not icky unless full size) */
   if (!build_vault(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, 
-		   FALSE, (type == 13), type)) return (FALSE);
+		   FALSE, (type == 13), type))
+    {
+#ifdef _WIN32_WCE
+      free(v_idx);
+#endif
+      return (FALSE);
+    }
   
+#ifdef _WIN32_WCE
+  free(v_idx);
+#endif
   return (TRUE);
 }
 
@@ -9406,7 +9618,11 @@ static void valley_gen(void)
       for (x = 0; x < DUNGEON_WID; x++)
 	{
 	  /* Create trees */
-	  cave_set_feat(y, x, FEAT_TREE);
+	  if (randint(p_ptr->depth + HIGHLAND_TREE_CHANCE) 
+	      > HIGHLAND_TREE_CHANCE)
+	    cave_set_feat(y, x, FEAT_TREE2);
+	  else
+	    cave_set_feat(y, x, FEAT_TREE);		  
 	}
     }
 
@@ -9513,7 +9729,7 @@ static void valley_gen(void)
     {
       y = rand_int(DUNGEON_HGT - 1) + 1;
       x = rand_int(DUNGEON_WID - 1) + 1;
-      form_grids += make_formation(y, x, FEAT_TREE, FEAT_TREE, form_feats, 
+      form_grids += make_formation(y, x, FEAT_TREE, FEAT_TREE2, form_feats, 
 				   p_ptr->depth + 1);
     }
 
