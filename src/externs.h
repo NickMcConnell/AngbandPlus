@@ -117,6 +117,8 @@ extern s16b o_max;
 extern s16b o_cnt;
 extern s16b m_max;
 extern s16b m_cnt;
+extern s16b trap_max;
+extern s16b trap_cnt;
 extern u16b group_id;
 extern u16b feeling;
 extern bool do_feeling;
@@ -146,8 +148,7 @@ extern u16b (*adjacency)[NUM_STAGES];
 extern u16b (*stage_path)[NUM_STAGES];
 extern u16b (*temp_path)[NUM_STAGES];
 extern u16b (*race_prob)[32];
-extern byte (*cave_info)[256];
-extern byte (*cave_info2)[256];
+extern bitflag (*cave_info)[256][CAVE_SIZE];
 extern byte (*cave_feat)[DUNGEON_WID];
 extern s16b (*cave_o_idx)[DUNGEON_WID];
 extern s16b (*cave_m_idx)[DUNGEON_WID];
@@ -166,6 +167,7 @@ extern int cost_at_center;
 #endif
 
 extern maxima *z_info;
+extern trap_type *trap_list;
 extern object_type *o_list;
 extern monster_type *m_list;
 extern monster_lore *l_list;
@@ -197,6 +199,7 @@ extern u32b total_wakeup_chance;
 extern vault_type *v_info;
 extern vault_type *t_info;
 extern feature_type *f_info;
+extern trap_kind *trap_info;
 extern object_kind *k_info;
 extern artifact_type *a_info;
 extern set_type *set_info;
@@ -268,7 +271,7 @@ extern byte player_is_crossing;
 extern bool cancel_crossing;
 extern byte number_of_thefts_on_level;
 extern byte num_trap_on_level;
-extern byte num_runes_on_level[MAX_RUNE];
+extern byte num_runes_on_level[RUNE_TAIL];
 extern int mana_reserve;
 extern int *artifact_normal, *artifact_special;
 extern int artifact_normal_cnt, artifact_special_cnt;
@@ -312,7 +315,8 @@ extern void move_player(int dir);
 bool is_open(int feat);
 bool is_closed(int feat);
 bool is_trap(int feat);
-int count_feats(int *y, int *x, bool (*test)(int feat), bool under);
+int count_feats(int *y, int *x, int flag, bool under);
+int count_traps(int *y, int *x);
 int count_chests(int *y, int *x, bool trapped);
 int coords_to_dir(int y, int x);
 
@@ -322,14 +326,6 @@ void death_screen(void);
 /* dungeon.c */
 extern void play_game(void);
 extern void idle_update(void);
-
-/* generate.c */
-extern int level_hgt;
-extern int level_wid;
-extern void place_unlocked_door(int y, int x);
-extern void place_closed_door(int y, int x);
-extern void destroy_level(bool new_level);
-extern void generate_cave(void);
 
 /* load.c */
 extern bool old_load(void);

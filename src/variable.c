@@ -124,6 +124,9 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
+s16b trap_max = 1;		/* Number of allocated traps */
+s16b trap_cnt = 0;		/* Number of live traps */
+
 u16b group_id = 1;              /* Number of group IDs allocated */    
 
 /*
@@ -506,8 +509,7 @@ u16b (*race_prob)[32];
  * These arrays are padded to a width of 256 to allow fast access to elements
  * in the array via "grid" values (see the GRID() macros).
  */
-byte (*cave_info)[256];
-byte (*cave_info2)[256];
+bitflag (*cave_info)[256][CAVE_SIZE];
 
 /**
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
@@ -575,6 +577,11 @@ int update_center_x;
 int cost_at_center = 0;
 
 #endif	/* MONSTER_FLOW */
+
+/**
+ * Array[z_info->l_max] of traps
+ */
+trap_type *trap_list;
 
 /**
  * Array[z_info->o_max] of dungeon objects
@@ -731,6 +738,11 @@ vault_type *t_info;
  * The terrain feature arrays
  */
 feature_type *f_info;
+
+/**
+ * The trap kind arrays
+ */
+trap_kind *trap_info;
 
 /**
  * The object kind arrays
@@ -1073,7 +1085,7 @@ byte player_is_crossing;
  */
 byte number_of_thefts_on_level;
 byte num_trap_on_level;
-byte num_runes_on_level[MAX_RUNE];
+byte num_runes_on_level[RUNE_TAIL];
 int mana_reserve = 0;
 
 /**

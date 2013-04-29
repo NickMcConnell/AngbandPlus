@@ -21,6 +21,7 @@
 #include "defines.h"
 #include "effects.h"
 #include "game-cmd.h"
+#include "generate.h"
 #include "history.h"
 #include "prefs.h"
 #include "spells.h"
@@ -2434,6 +2435,7 @@ void drop_near(object_type * j_ptr, int chance, int y, int x, bool verbose)
     int ty, tx;
 
     object_type *o_ptr;
+    feature_type *f_ptr;
 
     char o_name[80];
 
@@ -2486,6 +2488,7 @@ void drop_near(object_type * j_ptr, int chance, int y, int x, bool verbose)
 	    /* Location */
 	    ty = y + dy;
 	    tx = x + dx;
+	    f_ptr = &f_info[cave_feat[ty][tx]];
 
 	    /* Skip illegal grids */
 	    if (!in_bounds_fully(ty, tx))
@@ -2496,12 +2499,7 @@ void drop_near(object_type * j_ptr, int chance, int y, int x, bool verbose)
 		continue;
 
 	    /* Require floor space */
-	    if ((cave_feat[ty][tx] != FEAT_FLOOR)
-		&& (cave_feat[ty][tx] != FEAT_GRASS)
-		&& (cave_feat[ty][tx] != FEAT_TREE)
-		&& (cave_feat[ty][tx] != FEAT_TREE2)
-		&& (cave_feat[ty][tx] != FEAT_DUNE)
-		&& (cave_feat[ty][tx] != FEAT_RUBBLE))
+	    if (!tf_has(f_ptr->flags, TF_OBJECT))
 		continue;
 
 	    /* No objects */
@@ -2580,38 +2578,31 @@ void drop_near(object_type * j_ptr, int chance, int y, int x, bool verbose)
 
 
     /* Find a grid */
-    for (i = 0; !flag; i++) {
+    for (i = 0; !flag; i++) 
+    {
 	/* Bounce around */
-	if (i < 1000) {
+	if (i < 1000) 
+	{
 	    ty = rand_spread(by, 1);
 	    tx = rand_spread(bx, 1);
 	}
 
 	/* Random locations */
-	else {
+	else 
+	{
 	    ty = randint0(level_hgt);
 	    tx = randint0(level_wid);
 	}
+	f_ptr = &f_info[cave_feat[ty][tx]];
 
 	/* Require floor space */
-	if ((cave_feat[ty][tx] != FEAT_FLOOR)
-	    && (cave_feat[ty][tx] != FEAT_GRASS)
-	    && (cave_feat[ty][tx] != FEAT_TREE)
-	    && (cave_feat[ty][tx] != FEAT_TREE2)
-	    && (cave_feat[ty][tx] != FEAT_DUNE)
-	    && (cave_feat[ty][tx] != FEAT_RUBBLE))
+	if (!tf_has(f_ptr->flags, TF_OBJECT))
 	    continue;
 
 	/* Bounce to that location */
 	by = ty;
 	bx = tx;
-
-	/* Require floor space */
-	if ((!cave_clean_bold(by, bx)) && (cave_feat[by][bx] != FEAT_TREE)
-	    && (cave_feat[by][bx] != FEAT_TREE2)
-	    && (cave_feat[by][bx] != FEAT_DUNE)
-	    && (cave_feat[by][bx] != FEAT_RUBBLE))
-	    continue;
+	f_ptr = &f_info[cave_feat[by][bx]];
 
 	/* Okay */
 	flag = TRUE;
@@ -2640,16 +2631,16 @@ void drop_near(object_type * j_ptr, int chance, int y, int x, bool verbose)
     /* Sound */
     sound(MSG_DROP);
 
+    /* Confirm location */
+    f_ptr = &f_info[cave_feat[by][bx]];
+
     /* Message when an object falls under the player */
     if (verbose && (cave_m_idx[by][bx] < 0) && !squelch_item_ok(j_ptr)) {
 	msg_print("You feel something roll beneath your feet.");
     }
 
     /* Message when an object falls under the player or in trees or rubble */
-    else if (((cave_feat[by][bx] == FEAT_TREE)
-	      || (cave_feat[by][bx] == FEAT_TREE2)
-	      || (cave_feat[by][bx] == FEAT_RUBBLE))
-	     && (!p_ptr->timed[TMD_BLIND]))
+    else if (tf_has(f_ptr->flags, TF_HIDE_OBJ) && !p_ptr->timed[TMD_BLIND])
 	msg_format("The %s disappear%s from view.", o_name, PLURAL(plural));
 }
 

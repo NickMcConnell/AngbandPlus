@@ -28,6 +28,7 @@
 #include "cmds.h"
 #include "files.h"
 #include "game-event.h"
+#include "generate.h"
 #include "init.h"
 #include "monster.h"
 #include "tvalsval.h"
@@ -1943,7 +1944,7 @@ static void dungeon(void)
 	    cave_set_feat(py, px, p_ptr->create_stair);
 
 	    /* Mark the stairs as known */
-	    cave_info[py][px] |= (CAVE_MARK);
+	    cave_on(cave_info[py][px], CAVE_MARK);
 	}
 
 	/* Cancel the stair request */

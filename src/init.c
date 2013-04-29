@@ -436,6 +436,8 @@ static enum parser_error parse_z(struct parser *p) {
 
     if (streq(label, "F"))
 	z->f_max = value;
+    else if (streq(label, "T"))
+	z->trap_max = value;
     else if (streq(label, "K"))
 	z->k_max = value;
     else if (streq(label, "A"))
@@ -469,9 +471,7 @@ static enum parser_error parse_z(struct parser *p) {
     else if (streq(label, "X"))
 	z->set_max = value;
     else if (streq(label, "N"))
-	z->fake_name_size = value;
-    else if (streq(label, "T"))
-	z->fake_text_size = value;
+	z->l_max = value;
     else
 	return PARSE_ERROR_UNDEFINED_DIRECTIVE;
 
@@ -1233,6 +1233,136 @@ struct file_parser names_parser = {
     finish_parse_names
 };
 
+static const char *trap_flags[] =
+{
+#define TRF(a, b) #a,
+#include "list-trap-flags.h"
+#undef TRF
+    NULL
+};
+
+static enum parser_error parse_trap_n(struct parser *p) {
+    int idx = parser_getuint(p, "index");
+    const char *name = parser_getstr(p, "name");
+    struct trap *h = parser_priv(p);
+
+    struct trap *t = mem_zalloc(sizeof *t);
+    t->next = h;
+    t->tidx = idx;
+    t->name = string_make(name);
+    parser_setpriv(p, t);
+    return PARSE_ERROR_NONE;
+}
+
+static enum parser_error parse_trap_g(struct parser *p) {
+    char glyph = parser_getchar(p, "glyph");
+    const char *color = parser_getsym(p, "color");
+    int attr = 0;
+    struct trap *t = parser_priv(p);
+
+    if (!t)
+	return PARSE_ERROR_MISSING_RECORD_HEADER;
+    t->d_char = glyph;
+    if (strlen(color) > 1)
+	attr = color_text_to_attr(color);
+    else
+	attr = color_char_to_attr(color[0]);
+    if (attr < 0)
+	return PARSE_ERROR_INVALID_COLOR;
+    t->d_attr = attr;
+    t->x_char = t->d_char;
+    t->x_attr = t->d_attr;
+    return PARSE_ERROR_NONE;
+}
+
+static enum parser_error parse_trap_m(struct parser *p) {
+    struct trap *t = parser_priv(p);
+
+    if (!t)
+	return PARSE_ERROR_MISSING_RECORD_HEADER;
+    t->rarity =  parser_getuint(p, "rarity");
+    t->min_depth =  parser_getuint(p, "mindepth");
+    t->max_num =  parser_getuint(p, "maxnum");
+    return PARSE_ERROR_NONE;
+}
+
+static enum parser_error parse_trap_f(struct parser *p) {
+    char *flags;
+    struct trap *t = parser_priv(p);
+    char *s;
+
+    if (!t)
+	return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+    if (!parser_hasval(p, "flags"))
+	return PARSE_ERROR_NONE;
+    flags = string_make(parser_getstr(p, "flags"));
+
+    s = strtok(flags, " |");
+    while (s) {
+	if (grab_flag(t->flags, TRF_SIZE, trap_flags, s)) {
+	    mem_free(s);
+	    return PARSE_ERROR_INVALID_FLAG;
+	}
+	s = strtok(NULL, " |");
+    }
+
+    mem_free(flags);
+    return PARSE_ERROR_NONE;
+}
+
+static enum parser_error parse_trap_d(struct parser *p) {
+    struct trap *t = parser_priv(p);
+    assert(t);
+
+    t->text = string_append(t->text, parser_getstr(p, "text"));
+    return PARSE_ERROR_NONE;
+}
+
+struct parser *init_parse_trap(void) {
+    struct parser *p = parser_new();
+    parser_setpriv(p, NULL);
+    parser_reg(p, "V sym version", ignored);
+    parser_reg(p, "N uint index str name", parse_trap_n);
+    parser_reg(p, "G char glyph sym color", parse_trap_g);
+    parser_reg(p, "M uint rarity uint mindepth uint maxnum", parse_trap_m);
+    parser_reg(p, "F ?str flags", parse_trap_f);
+    parser_reg(p, "D str text", parse_trap_d);
+    return p;
+}
+
+static errr run_parse_trap(struct parser *p) {
+    return parse_file(p, "trap");
+}
+
+static errr finish_parse_trap(struct parser *p) {
+    struct trap *t, *n;
+
+    trap_info = mem_zalloc(z_info->trap_max * sizeof(*t));
+    for (t = parser_priv(p); t; t = t->next) {
+	if (t->tidx >= z_info->trap_max)
+	    continue;
+	memcpy(&trap_info[t->tidx], t, sizeof(*t));
+    }
+
+    t = parser_priv(p);
+    while (t) {
+	n = t->next;
+	mem_free(t);
+	t = n;
+    }
+
+    parser_destroy(p);
+    return 0;
+}
+
+struct file_parser trap_parser = {
+    "trap",
+    init_parse_trap,
+    run_parse_trap,
+    finish_parse_trap
+};
+
 static const char *terrain_flags[] =
 {
 #define TF(a, b) #a,
@@ -1250,6 +1380,7 @@ static enum parser_error parse_f_n(struct parser *p) {
     f->next = h;
     f->fidx = idx;
     f->mimic = idx;
+    f->priority = 0;
     f->name = string_make(name);
     parser_setpriv(p, f);
     return PARSE_ERROR_NONE;
@@ -1282,6 +1413,28 @@ static enum parser_error parse_f_m(struct parser *p) {
 	return PARSE_ERROR_MISSING_RECORD_HEADER;
     f->mimic = idx;
     return PARSE_ERROR_NONE;
+}
+
+static enum parser_error parse_f_p(struct parser *p) {
+    unsigned int priority = parser_getuint(p, "priority");
+    struct feature *f = parser_priv(p);
+
+    if (!f)
+	return PARSE_ERROR_MISSING_RECORD_HEADER;
+    f->priority = priority;
+    return PARSE_ERROR_NONE;
+}
+
+static enum parser_error parse_f_x(struct parser *p) {
+	struct feature *f = parser_priv(p);
+
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	f->locked = parser_getint(p, "locked");
+	f->jammed = parser_getint(p, "jammed");
+	f->shopnum = parser_getint(p, "shopnum");
+	f->dig = parser_getrand(p, "dig");
+	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_f_f(struct parser *p) {
@@ -1324,6 +1477,8 @@ struct parser *init_parse_f(void) {
     parser_reg(p, "N uint index str name", parse_f_n);
     parser_reg(p, "G char glyph sym color", parse_f_g);
     parser_reg(p, "M uint index", parse_f_m);
+    parser_reg(p, "P uint priority", parse_f_p);
+    parser_reg(p, "X int locked int jammed int shopnum rand dig", parse_f_x);
     parser_reg(p, "F ?str flags", parse_f_f);
     parser_reg(p, "D str text", parse_f_d);
     return p;
@@ -2094,7 +2249,7 @@ static enum parser_error parse_p_b(struct parser *p) {
 	which = grab_value(t, player_resist_values, 
 			   N_ELEMENTS(player_resist_values), &val);
 	if (which) {
-	    r->percent_res[which] = RES_LEVEL_BASE - val;
+	    r->percent_res[which - 1] = RES_LEVEL_BASE - val;
 	    t = strtok(NULL, " |");
 	    continue;
 	}
@@ -3333,8 +3488,7 @@ static errr init_other(void)
     /*** Prepare dungeon arrays ***/
 
     /* Padded into array */
-    cave_info = C_ZNEW(DUNGEON_HGT, byte_256);
-    cave_info2 = C_ZNEW(DUNGEON_HGT, byte_256);
+    cave_info = C_ZNEW(DUNGEON_HGT, grid_256);
 
     /* Feature array */
     cave_feat = C_ZNEW(DUNGEON_HGT, byte_wid);
@@ -3355,6 +3509,9 @@ static errr init_other(void)
 
     /* Monsters */
     m_list = C_ZNEW(z_info->m_max, monster_type);
+
+    /* Traps */
+    trap_list = C_ZNEW(z_info->l_max, trap_type);
 
 
     /*** Prepare lore array ***/
@@ -4048,6 +4205,10 @@ bool init_angband(void)
     event_signal_string(EVENT_INITSTATUS, "Initializing array sizes...");
     if (run_parser(&z_parser)) quit("Cannot initialize sizes");
 
+    /* Initialize trap info */
+    event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (traps)");
+    if (run_parser(&trap_parser)) quit("Cannot initialize traps");
+
     /* Initialize feature info */
     event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (features)");
     if (run_parser(&f_parser)) quit("Cannot initialize features");
@@ -4207,8 +4368,9 @@ void cleanup_angband(void)
 
     FREE(p_ptr->inventory);
 
-    /* Free the lore, monster, and object lists */
+    /* Free the lore, trap, monster, and object lists */
     FREE(l_list);
+    FREE(trap_list);
     FREE(m_list);
     FREE(o_list);
 
@@ -4220,7 +4382,6 @@ void cleanup_angband(void)
     FREE(cave_o_idx);
     FREE(cave_m_idx);
     FREE(cave_feat);
-    FREE(cave_info2);
     FREE(cave_info);
 
     /* Free the "update_view()" array */

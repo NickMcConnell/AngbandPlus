@@ -47,15 +47,9 @@
 
 
 /**
- * An array of 256 byte's
+ * An array of 256 cave bitflag arrays
  */
-typedef byte byte_256[256];
-
-/**
- * An array of 256 s16b's
- */
-typedef s16b s16b_256[256];
-
+typedef bitflag grid_256[256][CAVE_SIZE];
 
 /**
  * An array of DUNGEON_WID byte's
@@ -116,10 +110,8 @@ typedef char_attr char_attr_line[MAX_C_A_LEN];
  * Actually, these are not the maxima, but the maxima plus one
  */
 typedef struct maxima {
-    u32b fake_text_size;
-    u32b fake_name_size;
-
     u16b f_max;		/**< Max size for "f_info[]" */
+    u16b trap_max;	/**< Max size for "trap_info[]" */
     u16b k_max;		/**< Max size for "k_info[]" */
     u16b a_max;		/**< Max size for "a_info[]" */
     u16b e_max;		/**< Max size for "e_info[]" */
@@ -136,6 +128,7 @@ typedef struct maxima {
 
     u16b o_max;		/**< Max size for "o_list[]" */
     u16b m_max;		/**< Max size for "mon_list[]" */
+    u16b l_max;		/**< Max size for "trap_list[]" */
 } maxima;
 
 
@@ -150,8 +143,12 @@ typedef struct feature {
     struct feature *next;
 
     byte mimic;		/**< Feature to mimic */
-
-    byte extra;		/**< Extra byte (unused) */
+    byte priority; /**< Display priority */
+    
+    byte locked;   /**< How locked is it? */
+    byte jammed;   /**< How jammed is it? */
+    byte shopnum;  /**< Which shop does it take you to? */
+    random_value dig;      /**< How hard is it to dig through? */
 
     bitflag flags[TF_SIZE];		/**< Bitflags */
 
@@ -163,6 +160,47 @@ typedef struct feature {
     byte x_attr;	/**< Desired feature attribute */
     char x_char;	/**< Desired feature character */
 } feature_type;
+
+
+/*
+ * A trap template.
+ */
+typedef struct trap
+{
+    char *name;		      /**< Name  */
+    char *text;		      /**< Text  */
+
+    struct trap *next;
+    u32b tidx;
+
+    byte d_attr;              /**< Default trap attribute */
+    char d_char;              /**< Default trap character */
+
+    byte x_attr;              /**< Desired trap attribute */
+    char x_char;              /**< Desired trap character */
+
+    byte rarity;              /**< Rarity */
+    byte min_depth;           /**< Minimum depth */
+    byte max_num;             /**< Unused */
+
+    bitflag flags[TRF_SIZE]; /**< Trap flags (all traps of this kind) */
+} trap_kind;
+
+/*
+ * An actual trap.
+ */
+typedef struct trap_type
+{
+    byte t_idx;               /**< Trap kind index */
+    struct trap *kind;
+
+    byte fy;                  /**< Location of trap */
+    byte fx;
+
+    byte xtra;
+
+    bitflag flags[TRF_SIZE]; /**< Trap flags (only this particular trap) */
+} trap_type;
 
 
 /**
@@ -1326,16 +1364,17 @@ enum grid_light_level
 
 typedef struct
 {
-	u32b m_idx;		/* Monster index */
-	u32b f_idx;		/* Feature index */
-	u32b first_k_idx;	/* The "Kind" of the first item on the grid */
-	bool multiple_objects;	/* Is there more than one item there? */
-
-	enum grid_light_level lighting; /* Light level */
-	bool in_view; /* TRUE when the player can currently see the grid. */
-	bool is_player;
-	bool hallucinate;
-	bool trapborder;
+    u32b m_idx;		/* Monster index */
+    u32b f_idx;		/* Feature index */
+    u32b first_k_idx;	/* The "Kind" of the first item on the grid */
+    u32b trap;          /* Trap index */
+    bool multiple_objects;	/* Is there more than one item there? */
+    
+    enum grid_light_level lighting; /* Light level */
+    bool in_view; /* TRUE when the player can currently see the grid. */
+    bool is_player;
+    bool hallucinate;
+    bool trapborder;
 } grid_data;
 
 

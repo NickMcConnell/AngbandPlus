@@ -61,7 +61,7 @@
 /**
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING "1.2.2"
+#define VERSION_STRING "1.2.3"
 /*
 #ifdef BUILD_ID
 #define VERSION_STRING	"1.2.2 (" BUILD_ID ")"
@@ -73,7 +73,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	2
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 #define VERSION_EXTRA	0
 
 /**
@@ -1088,7 +1088,7 @@ enum
 #define KEYMAP_MODE_ROGUE	1
 
 
-/*** Feature Indexes (see "lib/edit/f_info.txt") ***/
+/*** Feature Indexes (see "lib/edit/terrain.txt") ***/
 
 /** Nothing */
 #define FEAT_NONE	0x00
@@ -1102,21 +1102,6 @@ enum
 #define FEAT_LESS	0x06
 #define FEAT_MORE_SHAFT	0x07
 #define FEAT_LESS_SHAFT	0x08
-
-/* Runes  */
-#define FEAT_RUNE_HEAD       0x09
-#define FEAT_RUNE_ELEMENTS   0x09
-#define FEAT_RUNE_MAGDEF     0x0A
-#define FEAT_RUNE_QUAKE      0x0B
-#define FEAT_RUNE_MANA       0x0C
-#define FEAT_RUNE_PROTECT    0x0D
-#define FEAT_RUNE_POWER      0x0E
-#define FEAT_RUNE_SPEED      0x0F
-#define FEAT_RUNE_TAIL       0x0F
-
-/* Traps */
-#define FEAT_TRAP_HEAD	0x10
-#define FEAT_TRAP_TAIL	0x1F
 
 /* Doors */
 #define FEAT_DOOR_HEAD	0x20
@@ -1153,24 +1138,6 @@ enum
 #define FEAT_SHOP_HOME 0x47
 #define FEAT_SHOP_TAIL 0x49
 
-/* Specials trap that only effects monsters.  Created only by rogues. -LM- */
-#define FEAT_MTRAP_HEAD		0x50
-#define FEAT_MTRAP_TAIL		0x5F
-#define FEAT_MTRAP_BASE		0x50 /* Level 1 */
-#define FEAT_MTRAP_STURDY	0x51 /* Level 1 */
-#define FEAT_MTRAP_NET		0x52 /* Level 6 */
-#define FEAT_MTRAP_CONF		0x53 /* Level 12 */
-#define FEAT_MTRAP_POISON	0x54 /* Level 18 */
-#define FEAT_MTRAP_SPIRIT	0x55 /* Level 24 */
-#define FEAT_MTRAP_ELEC		0x56 /* Level 30 */
-#define FEAT_MTRAP_EXPLOSIVE	0x57 /* Level 36 */
-#define FEAT_MTRAP_PORTAL	0x58 /* Level 42 */
-#define FEAT_MTRAP_STASIS	0x59 /* Level 48 */
-#define FEAT_MTRAP_DRAIN_LIFE	0x5A /* Level * */
-#define FEAT_MTRAP_UNMAGIC	0x5B /* Level * */
-#define FEAT_MTRAP_DISPEL_M	0x5C /* Level * */
-#define FEAT_MTRAP_GENOCIDE	0x5D /* Level * */
-
 /* "stairs" in wilderness -NRM- */
 #define FEAT_LESS_NORTH		0x60
 #define FEAT_MORE_NORTH		0x61
@@ -1188,12 +1155,61 @@ enum
 #define FEAT_TREE               0x72
 #define FEAT_TREE2		0x73
 #define FEAT_GRASS              0x74  
-#define FEAT_GRASS_INVIS        0x75  
-#define FEAT_WEB                0x76  
 #define FEAT_VOID               0x77  
-#define FEAT_TREE_INVIS         0x78  
-#define FEAT_TREE2_INVIS        0x79  
+#define FEAT_PIT                0x78  
 #define FEAT_DUNE               0x7a
+
+/*** Trap Indexes (see "lib/edit/trap.txt") ***/
+
+/** Nothing */
+#define TRAP_NONE	0x00
+
+/* Runes  */
+#define RUNE_HEAD       0x01
+#define RUNE_TAIL       0x07
+#define RUNE_ELEMENTS   0x01
+#define RUNE_MAGDEF     0x02
+#define RUNE_QUAKE      0x03
+#define RUNE_MANA       0x04
+#define RUNE_PROTECT    0x05
+#define RUNE_POWER      0x06
+#define RUNE_SPEED      0x07
+
+/* Other obstructions */
+#define OBST_WEB        0x0A
+
+/* Traps */
+#define TRAP_HEAD	0x10
+#define TRAP_TAIL	0x1F
+#define TRAP_TRAPDOOR	0x10
+#define TRAP_PIT	0x11
+#define TRAP_DART	0x12
+#define TRAP_SPOT	0x13
+#define TRAP_GAS	0x14
+#define TRAP_SUMMON	0x15
+#define TRAP_ALTER	0x16
+#define TRAP_HEX	0x17
+#define TRAP_PORTAL	0x18
+#define TRAP_MURDER	0x19
+#define TRAP_BRANCH	0x1A
+
+/* Specials trap that only effects monsters.  Created only by rogues. -LM- */
+#define MTRAP_HEAD		0x40
+#define MTRAP_TAIL		0x4F
+#define MTRAP_BASE		0x40 /* Level 1 */
+#define MTRAP_STURDY    	0x41 /* Level 1 */
+#define MTRAP_NET		0x42 /* Level 6 */
+#define MTRAP_CONF		0x43 /* Level 12 */
+#define MTRAP_POISON	        0x44 /* Level 18 */
+#define MTRAP_SPIRIT	        0x45 /* Level 24 */
+#define MTRAP_ELEC		0x46 /* Level 30 */
+#define MTRAP_EXPLOSIVE	        0x47 /* Level 36 */
+#define MTRAP_PORTAL	        0x48 /* Level 42 */
+#define MTRAP_STASIS	        0x49 /* Level 48 */
+#define MTRAP_DRAIN_LIFE	0x4A /* Level * */
+#define MTRAP_UNMAGIC	        0x4B /* Level * */
+#define MTRAP_DISPEL_M	        0x4C /* Level * */
+#define MTRAP_GENOCIDE	        0x4D /* Level * */
 
 /*** Object origin kinds ***/
 
@@ -1715,23 +1731,37 @@ enum
 
 
 
-/*** Cave flags ***/
-
 /*
- * Special cave grid flags
+ * Cave flags
  */
-#define CAVE_MARK	0x01 	/* memorized feature */
-#define CAVE_GLOW	0x02 	/* self-illuminating */
-#define CAVE_ICKY	0x04 	/* part of a vault */
-#define CAVE_ROOM	0x08 	/* part of a room */
-#define CAVE_SEEN	0x10 	/* seen flag */
-#define CAVE_VIEW	0x20 	/* view flag */
-#define CAVE_TEMP	0x40 	/* temp flag */
-#define CAVE_WALL	0x80 	/* wall flag */
 
-#define CAVE2_DTRAP	0x001 	/* trap detected grid */
+enum
+{
+	#define CAVE(a,b) CAVE_##a,
+	#include "list-cave-flags.h"
+	#undef CAVE
+	CAVE_MAX
+};
 
+#define CAVE_SIZE                FLAG_SIZE(CAVE_MAX)
 
+#define cave_has(f, flag)        flag_has_dbg(f, CAVE_SIZE, flag, #f, #flag)
+#define cave_next(f, flag)       flag_next(f, CAVE_SIZE, flag)
+#define cave_is_empty(f)         flag_is_empty(f, CAVE_SIZE)
+#define cave_is_full(f)          flag_is_full(f, CAVE_SIZE)
+#define cave_is_inter(f1, f2)    flag_is_inter(f1, f2, CAVE_SIZE)
+#define cave_is_subset(f1, f2)   flag_is_subset(f1, f2, CAVE_SIZE)
+#define cave_is_equal(f1, f2)    flag_is_equal(f1, f2, CAVE_SIZE)
+#define cave_on(f, flag)         flag_on_dbg(f, CAVE_SIZE, flag, #f, #flag)
+#define cave_off(f, flag)        flag_off(f, CAVE_SIZE, flag)
+#define cave_wipe(f)             flag_wipe(f, CAVE_SIZE)
+#define cave_setall(f)           flag_setall(f, CAVE_SIZE)
+#define cave_negate(f)           flag_negate(f, CAVE_SIZE)
+#define cave_copy(f1, f2)        flag_copy(f1, f2, CAVE_SIZE)
+#define cave_union(f1, f2)       flag_union(f1, f2, CAVE_SIZE)
+#define cave_comp_union(f1, f2)  flag_comp_union(f1, f2, CAVE_SIZE)
+#define cave_inter(f1, f2)       flag_inter(f1, f2, CAVE_SIZE)
+#define cave_diff(f1, f2)        flag_diff(f1, f2, CAVE_SIZE)
 
 /*** Object flags ***/
 
@@ -2040,22 +2070,37 @@ enum
 #define TF_SIZE                FLAG_SIZE(TF_MAX)
 
 #define tf_has(f, flag)        flag_has_dbg(f, TF_SIZE, flag, #f, #flag)
-#define tf_next(f, flag)       flag_next(f, TF_SIZE, flag)
-#define tf_is_empty(f)         flag_is_empty(f, TF_SIZE)
-#define tf_is_full(f)          flag_is_full(f, TF_SIZE)
-#define tf_is_inter(f1, f2)    flag_is_inter(f1, f2, TF_SIZE)
-#define tf_is_subset(f1, f2)   flag_is_subset(f1, f2, TF_SIZE)
-#define tf_is_equal(f1, f2)    flag_is_equal(f1, f2, TF_SIZE)
-#define tf_on(f, flag)         flag_on_dbg(f, TF_SIZE, flag, #f, #flag)
-#define tf_off(f, flag)        flag_off(f, TF_SIZE, flag)
-#define tf_wipe(f)             flag_wipe(f, TF_SIZE)
-#define tf_setall(f)           flag_setall(f, TF_SIZE)
-#define tf_negate(f)           flag_negate(f, TF_SIZE)
-#define tf_copy(f1, f2)        flag_copy(f1, f2, TF_SIZE)
-#define tf_union(f1, f2)       flag_union(f1, f2, TF_SIZE)
-#define tf_comp_union(f1, f2)  flag_comp_union(f1, f2, TF_SIZE)
-#define tf_inter(f1, f2)       flag_inter(f1, f2, TF_SIZE)
-#define tf_diff(f1, f2)        flag_diff(f1, f2, TF_SIZE)
+
+
+/*** Trap flags ***/
+
+enum
+{
+	#define TRF(a,b) TRF_##a,
+	#include "list-trap-flags.h"
+	#undef TRF
+	TRF_MAX
+};
+
+#define TRF_SIZE                FLAG_SIZE(TRF_MAX)
+
+#define trf_has(f, flag)        flag_has_dbg(f, TRF_SIZE, flag, #f, #flag)
+#define trf_next(f, flag)       flag_next(f, TRF_SIZE, flag)
+#define trf_is_empty(f)         flag_is_empty(f, TRF_SIZE)
+#define trf_is_full(f)          flag_is_full(f, TRF_SIZE)
+#define trf_is_inter(f1, f2)    flag_is_inter(f1, f2, TRF_SIZE)
+#define trf_is_subset(f1, f2)   flag_is_subset(f1, f2, TRF_SIZE)
+#define trf_is_equal(f1, f2)    flag_is_equal(f1, f2, TRF_SIZE)
+#define trf_on(f, flag)         flag_on_dbg(f, TRF_SIZE, flag, #f, #flag)
+#define trf_off(f, flag)        flag_off(f, TRF_SIZE, flag)
+#define trf_wipe(f)             flag_wipe(f, TRF_SIZE)
+#define trf_setall(f)           flag_setall(f, TRF_SIZE)
+#define trf_negate(f)           flag_negate(f, TRF_SIZE)
+#define trf_copy(f1, f2)        flag_copy(f1, f2, TRF_SIZE)
+#define trf_union(f1, f2)       flag_union(f1, f2, TRF_SIZE)
+#define trf_comp_union(f1, f2)  flag_comp_union(f1, f2, TRF_SIZE)
+#define trf_inter(f1, f2)       flag_inter(f1, f2, TRF_SIZE)
+#define trf_diff(f1, f2)        flag_diff(f1, f2, TRF_SIZE)
 
 
 /*** Monster flags ***/
@@ -2463,7 +2508,7 @@ enum
  * Note the use of the new "CAVE_WALL" flag.
  */
 #define cave_floor_bold(Y,X) \
-	(!(cave_info[Y][X] & (CAVE_WALL)) && \
+    (!cave_has(cave_info[Y][X], CAVE_WALL) && \
           !(cave_feat[Y][X] == FEAT_VOID))
 
 
@@ -2475,7 +2520,7 @@ enum
  * This is a pretty feeble hack -NRM-
  */
 #define cave_project(Y,X) \
-  (!(cave_info[Y][X] & (CAVE_WALL))) 
+    (!cave_has(cave_info[Y][X],CAVE_WALL)) 
 
 
 /**
@@ -2492,14 +2537,12 @@ enum
  * Note the use of the new "CAVE_WALL" flag.
  */
 #define cave_passable_bold(Y,X) \
-	(!(cave_info[Y][X] & (CAVE_WALL)) || \
+    (!cave_has(cave_info[Y][X], CAVE_WALL) ||	\
 	(cave_feat[Y][X] == FEAT_TREE) || \
 	(cave_feat[Y][X] == FEAT_TREE2) || \
 	(cave_feat[Y][X] == FEAT_RUBBLE) || \
 	(cave_feat[Y][X] == FEAT_DUNE) || \
-	(cave_feat[Y][X] >= FEAT_VOID) || \
-	((cave_feat[Y][X] >= FEAT_TRAP_HEAD) && \
-	 (cave_feat[Y][X] <= FEAT_TRAP_TAIL)))
+	(cave_feat[Y][X] >= FEAT_VOID))
 
 
 
@@ -2574,7 +2617,7 @@ enum
  * Note the use of comparison to zero to force a "boolean" result
  */
 #define player_has_los_bold(Y,X) \
-	((cave_info[Y][X] & (CAVE_VIEW)) != 0)
+    (cave_has(cave_info[Y][X], CAVE_VIEW))
 
 
 /**
@@ -2583,7 +2626,7 @@ enum
  * Note the use of comparison to zero to force a "boolean" result
  */
 #define player_can_see_bold(Y,X) \
-    ((cave_info[Y][X] & (CAVE_SEEN)) != 0)
+    (cave_has(cave_info[Y][X], CAVE_SEEN))
 
 
 /**
@@ -2735,7 +2778,6 @@ extern int PlayerUID;
 
 /*
  * Rune types
- */
 #define RUNE_ELEMENTS   0
 #define RUNE_MAGDEF     1
 #define RUNE_QUAKE      2
@@ -2744,6 +2786,7 @@ extern int PlayerUID;
 #define RUNE_POWER      5
 #define RUNE_SPEED      6
 #define MAX_RUNE        7
+ */
 
 /** 
  * Maximum rune mana reserve 

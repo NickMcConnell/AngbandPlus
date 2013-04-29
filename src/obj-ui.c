@@ -199,7 +199,7 @@ static void build_obj_list(int first, int last, const int *floor_list,
 	    int j;
 	    
 	    /* Scan the rest of the items for acceptable entries */
-	    for (j = i; j < last; j++)
+	    for (j = i; j <= last; j++)
 	    {
 		o_ptr = &p_ptr->inventory[j];
 		if (item_tester_okay(o_ptr)) need_spacer = TRUE;
@@ -348,7 +348,7 @@ static void show_obj_list(int num_obj, u32b display, olist_detail_t mode)
 
 	/* Display each line */
 	show_obj(i + sp, max_len, items[i].label, o_ptr, FALSE, mode);
-	if ((items[i].key == 'l') && need_spacer)
+	if ((i == (INVEN_FEET - INVEN_WIELD)) && need_spacer)
 	{
 	    sp = 1;
 	    prt("", i + sp + 1, MAX(col - 2, 0));
@@ -1030,6 +1030,7 @@ bool get_item(int *cp, cptr pmt, cptr str, cmd_code cmd, int mode)
     ui_event_data which;
     
     prompt = pmt;
+    olist_mode = 0;
     item_mode = mode;
     item_cmd = cmd;
 
@@ -1095,6 +1096,9 @@ bool get_item(int *cp, cptr pmt, cptr str, cmd_code cmd, int mode)
     if (e1 <= e2)
 	allow_equip = TRUE;
 
+    /* Reject quiver */
+    if (e2 < QUIVER_START)
+	use_quiver = FALSE;
 
     /* Scan all non-gold objects in the grid */
     floor_num = scan_floor(floor_list, N_ELEMENTS(floor_list), py, px, 0x03);
@@ -1162,6 +1166,9 @@ bool get_item(int *cp, cptr pmt, cptr str, cmd_code cmd, int mode)
 	    build_obj_list(0, i2, NULL, olist_mode);
 	}
     }
+
+    /* Clear all current messages */
+    msg_flag = FALSE;
 
     /* Start out in "display" mode */
     if (show_list) {
@@ -1544,7 +1551,6 @@ bool get_item(int *cp, cptr pmt, cptr str, cmd_code cmd, int mode)
     button_kill('/');
     button_kill('-');
     button_kill('!');
-    redraw_stuff();
 
     /* Forget the item_tester_tval restriction */
     item_tester_tval = 0;

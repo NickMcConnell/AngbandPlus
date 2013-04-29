@@ -41,8 +41,8 @@
 #include "squelch.h"
 
 
-/* Object constants */
-byte of_size = 0, cf_size = 0, if_size = 0;
+/* Object, trap constants */
+byte of_size = 0, cf_size = 0, if_size = 0, trf_size = 0;
 byte max_p_res = 0, a_max = 0, max_p_bonus = 0, max_p_slay = 0, max_p_brand = 0;
 
 
@@ -261,6 +261,23 @@ static int rd_monster(monster_type *m_ptr)
     return (0);
 }
 
+
+/**
+ * Read a trap record
+ */
+static void rd_trap(trap_type *t_ptr)
+{
+    int i;
+
+    rd_byte(&t_ptr->t_idx);
+    t_ptr->kind = &trap_info[t_ptr->t_idx];
+    rd_byte(&t_ptr->fy);
+    rd_byte(&t_ptr->fx);
+    rd_byte(&t_ptr->xtra);
+
+    for (i = 0; i < trf_size; i++)
+	rd_byte(&t_ptr->flags[i]);
+}
 
 /**
  * Read RNG state (added in 2.8.0)
@@ -878,7 +895,7 @@ int rd_player(u32b version)
 {
     int i;
 
-    byte max_recall_pts, tmd_max, max_rune, max_specialties;
+    byte max_recall_pts, tmd_max, rune_tail, max_specialties;
   
     byte tmp8u;
     u32b tmp32u;
@@ -1034,18 +1051,18 @@ int rd_player(u32b version)
     /* Read number of monster traps on level. */
     rd_byte(&num_trap_on_level);
   
-    rd_byte(&max_rune);
-    if (max_rune <= MAX_RUNE)
+    rd_byte(&rune_tail);
+    if (rune_tail <= RUNE_TAIL)
     {
-	for (i = 0; i < max_rune; i++)
+	for (i = 0; i < rune_tail; i++)
 	{
 	    rd_byte(&tmp8u);
 	    num_runes_on_level[i] = tmp8u;
 	}
 
 	/* Initialize any entries not read */
-	if (max_rune < MAX_RUNE)
-	    for (i = max_rune; i < MAX_RUNE; i++)
+	if (rune_tail < RUNE_TAIL)
+	    for (i = rune_tail; i < RUNE_TAIL; i++)
 	    {
 		num_runes_on_level[i] = 0;
 	    }
@@ -1053,14 +1070,14 @@ int rd_player(u32b version)
     else
     {
 	/* Probably in trouble anyway */
-	for (i = 0; i < MAX_RUNE; i++)
+	for (i = 0; i < RUNE_TAIL; i++)
 	{
 	    rd_byte(&tmp8u);
 	    num_runes_on_level[i] = tmp8u;
 	}
 
 	/* Discard unused entries */
-	strip_bytes(2 * (max_rune - MAX_RUNE));
+	strip_bytes(2 * (rune_tail - RUNE_TAIL));
 	note("Discarded unsupported runes");
     }
 
@@ -1077,7 +1094,11 @@ int rd_player(u32b version)
     rd_byte(&max_specialties);
     /* Specialty Abilities -BR- */
     for (i = 0; i < max_specialties; i++) 
+    {
 	rd_byte(&p_ptr->specialty_order[i]);
+	if (p_ptr->specialty_order[i] != PF_NO_SPECIALTY)
+	    pf_on(p_ptr->pflags, p_ptr->specialty_order[i]);
+    }
   
     /* Skip */
     strip_bytes(2);
@@ -1466,7 +1487,7 @@ int rd_dungeon(u32b version)
   
     byte count;
     byte tmp8u;
-    u16b tmp16u;
+    u16b tmp16u, cave_size;
   
   
     /* Only if the player's alive */
@@ -1492,9 +1513,11 @@ int rd_dungeon(u32b version)
     rd_s16b(&px);
     rd_s16b(&ymax);
     rd_s16b(&xmax);
+    rd_u16b(&cave_size);
     rd_u16b(&tmp16u);
-    rd_u16b(&tmp16u);
-  
+
+    /* Always at least two bytes of cave_info */
+    cave_size = MAX(2, cave_size);
   
     /* Ignore illegal dungeons */
     if ((stage < 0) || (stage >= NUM_STAGES))
@@ -1522,57 +1545,36 @@ int rd_dungeon(u32b version)
   
     /*** Run length decoding ***/
   
-    /* Load the dungeon data */
-    for (x = y = 0; y < DUNGEON_HGT; )
+    /* Loop across bytes of cave_info */
+    for (n = 0; n < cave_size; n++)
     {
-	/* Grab RLE info */
-	rd_byte(&count);
-	rd_byte(&tmp8u);
-      
-	/* Apply the RLE info */
-	for (i = count; i > 0; i--)
+	/* Load the dungeon data */
+	for (x = y = 0; y < DUNGEON_HGT; )
 	{
-	    /* Extract "info" */
-	    cave_info[y][x] = tmp8u;
-	  
-	    /* Advance/Wrap */
-	    if (++x >= DUNGEON_WID)
+	    /* Grab RLE info */
+	    rd_byte(&count);
+	    rd_byte(&tmp8u);
+	    
+	    /* Apply the RLE info */
+	    for (i = count; i > 0; i--)
 	    {
-		/* Wrap */
-		x = 0;
-	      
+		/* Extract "info" */
+		cave_info[y][x][n] = tmp8u;
+	  
 		/* Advance/Wrap */
-		if (++y >= DUNGEON_HGT) break;
+		if (++x >= DUNGEON_WID)
+		{
+		    /* Wrap */
+		    x = 0;
+		    
+		    /* Advance/Wrap */
+		    if (++y >= DUNGEON_HGT) break;
+		}
 	    }
 	}
     }
 
-    /* Load the dungeon data */
-    for (x = y = 0; y < DUNGEON_HGT; )
-    {
-	/* Grab RLE info */
-	rd_byte(&count);
-	rd_byte(&tmp8u);
-	  
-	/* Apply the RLE info */
-	for (i = count; i > 0; i--)
-	{
-	    /* Extract "info" */
-	    cave_info2[y][x] = tmp8u;
-	      
-	    /* Advance/Wrap */
-	    if (++x >= DUNGEON_WID)
-	    {
-		/* Wrap */
-		x = 0;
-		  
-		/* Advance/Wrap */
-		if (++y >= DUNGEON_HGT) break;
-	    }
-	}
-    }
- 
-    /*** Run length decoding ***/
+   /*** Run length decoding ***/
   
     /* Load the dungeon data */
     for (x = y = 0; y < DUNGEON_HGT; )
@@ -1870,3 +1872,23 @@ int rd_history(u32b version)
     return 0;
 }
 
+int rd_traps(u32b version)
+{
+    int i;
+    u32b tmp32u;
+
+    rd_byte(&trf_size);
+    rd_s16b(&trap_max);
+
+    for (i = 0; i < trap_max; i++)
+    {
+	trap_type *t_ptr = &trap_list[i];
+
+	rd_trap(t_ptr);
+    }
+
+    /* Expansion */
+    rd_u32b(&tmp32u);
+
+    return 0;
+}

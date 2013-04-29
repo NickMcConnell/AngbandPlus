@@ -21,6 +21,7 @@
 #include "cmds.h"
 #include "monster.h"
 #include "spells.h"
+#include "trap.h"
 #include "ui-menu.h"
 
 /**
@@ -36,7 +37,8 @@ void get_feats(int *surroundings)
     count = 0;
 
     /* Check around (and under) the character */
-    for (d = 0; d < 9; d++) {
+    for (d = 0; d < 9; d++) 
+    {
 	/* Initialise */
 	surroundings[d] = FEAT_FLOOR;
 
@@ -49,7 +51,7 @@ void get_feats(int *surroundings)
 	    continue;
 
 	/* Must have knowledge */
-	if (!(cave_info[yy][xx] & (CAVE_MARK)))
+	if (!cave_has(cave_info[yy][xx], CAVE_MARK))
 	    continue;
 
 	/* Record the feature */
@@ -97,7 +99,8 @@ static void show_display(menu_type * menu, int oid, bool cursor, int row,
 static bool show_action(menu_type * menu, const ui_event_data * e, int oid)
 {
     /* Handle enter and mouse */
-    if (e->type == EVT_SELECT) {
+    if (e->type == EVT_SELECT) 
+    {
 	cmd_insert(comm_code[oid]);
 	if (comm_code[oid] == CMD_NULL)
 	    Term_keypress(comm[oid]);
@@ -140,13 +143,15 @@ void show_player(void)
 {
     int i, j, fy, fx;
     int adj_grid[9];
-    bool exist_rock_or_web = FALSE;
+    bool exist_rock = FALSE;
     bool exist_door = FALSE;
     bool exist_open_door = FALSE;
     bool exist_trap = FALSE;
     bool exist_mtrap = FALSE;
     bool exist_floor = FALSE;
     bool exist_monster = FALSE;
+
+    feature_type *f_ptr;
 
     /* No commands yet */
     poss = 0;
@@ -155,32 +160,34 @@ void show_player(void)
     get_feats(adj_grid);
 
     /* Analyze surroundings */
-    for (i = 0; i < 8; i++) {
-	if ((adj_grid[i] >= FEAT_TRAP_HEAD) && (adj_grid[i] <= FEAT_TRAP_TAIL))
+    for (i = 0; i < 8; i++) 
+    {
+	int yy = p_ptr->py + ddy_ddd[i];
+	int xx = p_ptr->px + ddx_ddd[i];
+	f_ptr = &f_info[adj_grid[i]];
+
+	if (cave_visible_trap(yy, xx))
 	    exist_trap = TRUE;
-	if ((adj_grid[i] >= FEAT_DOOR_HEAD) && (adj_grid[i] <= FEAT_DOOR_TAIL))
+	if (tf_has(f_ptr->flags, TF_DOOR_CLOSED))
 	    exist_door = TRUE;
-	if ((adj_grid[i] == FEAT_WEB)
-	    || ((adj_grid[i] >= FEAT_SECRET)
-		&& (adj_grid[i] <= FEAT_PERM_SOLID)))
-	    exist_rock_or_web = TRUE;
-	if ((adj_grid[i] >= FEAT_MTRAP_HEAD)
-	    && (adj_grid[i] <= FEAT_MTRAP_TAIL))
+	if (tf_has(f_ptr->flags, TF_ROCK))
+	    exist_rock = TRUE;
+	if (cave_monster_trap(yy, xx))
 	    exist_mtrap = TRUE;
 	if (adj_grid[i] == FEAT_OPEN)
 	    exist_open_door = TRUE;
-	if (cave_naked_bold(p_ptr->py + ddy_ddd[i], p_ptr->px + ddx_ddd[i]))
+	if (cave_naked_bold(yy, xx))
 	    exist_floor = TRUE;
-	if (cave_m_idx[ddy_ddd[i]][ddx_ddd[i]] > 0)
+	if (cave_m_idx[yy][xx] > 0)
 	    exist_monster = TRUE;
     }
 
     /* In a web? */
-    if (adj_grid[8] == FEAT_WEB)
-	exist_rock_or_web = TRUE;
+    if (cave_web(p_ptr->py, p_ptr->px))
+	exist_trap = TRUE;
 
     /* Alter a grid */
-    if (exist_trap || exist_door || exist_rock_or_web || exist_mtrap
+    if (exist_trap || exist_door || exist_rock || exist_mtrap
 	|| exist_open_door || count_chests(&fy, &fx, TRUE)
 	|| count_chests(&fy, &fx, FALSE) || (player_has(PF_TRAP)
 					     && exist_floor)
@@ -191,7 +198,7 @@ void show_player(void)
     }
 
     /* Dig a tunnel */
-    if (exist_door || exist_rock_or_web) {
+    if (exist_door || exist_rock) {
 	comm[poss] = 'T';
 	comm_code[poss] = CMD_TUNNEL;
 	comm_descr[poss++] = "Tunnel";

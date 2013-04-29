@@ -21,6 +21,7 @@
 #include "game-cmd.h"
 #include "monster.h"
 #include "squelch.h"
+#include "trap.h"
 
 /* 
  * Height of the help screen; any higher than 4 will overlap the health
@@ -492,6 +493,10 @@ static bool target_set_interactive_accept(int y, int x)
 	    return (TRUE);
     }
 
+    /* Traps */
+    if (cave_visible_trap(y, x))
+	return(TRUE);
+
     /* Scan all objects in the grid */
     for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr)) {
 	/* Memorized object */
@@ -500,7 +505,7 @@ static bool target_set_interactive_accept(int y, int x)
     }
 
     /* Interesting memorized features */
-    if (cave_info[y][x] & (CAVE_MARK)) {
+    if (cave_has(cave_info[y][x], CAVE_MARK)) {
 	feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
 	/* Notice interesting things */
@@ -759,6 +764,8 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode)
 
     char coords[20];
 
+    feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
     /* Describe the square location */
     coords_desc(coords, sizeof(coords), y, x);
 
@@ -962,7 +969,68 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode)
 	    }
 	}
 
+	/* A trap */
+	if (cave_visible_trap(y, x)) 
+	{
+	    trap_type *t_ptr = &trap_list[visible_trap_idx(y, x)];
 
+	    /* Not boring */
+	    boring = FALSE;
+
+	    /* Interact */
+	    while (1) 
+	    {
+		/* Change the intro */
+		if (cave_m_idx[y][x] < 0) 
+		{
+		    s1 = "You are ";
+		    s2 = "on ";
+		}
+		else
+		{
+		    s1 = "You see ";
+		    s2 = "";
+		}
+
+		/* Pick proper indefinite article */
+		s3 = (is_a_vowel(t_ptr->kind->name[0])) ? "an " : "a ";
+
+		/* Describe, and prompt for recall */
+		if (p_ptr->wizard) 
+		{
+		    strnfmt(out_val, sizeof(out_val),
+			    "%s%s%s%s, %s (%d:%d).", s1, s2, s3,
+			    t_ptr->kind->name, coords, y, x);
+		} 
+		else 
+		{
+		    strnfmt(out_val, sizeof(out_val), "%s%s%s%s, %s.", 
+			    s1, s2, s3, t_ptr->kind->name, coords);
+		}
+
+		prt(out_val, 0, 0);
+
+		/* Place cursor */
+		move_cursor_relative(y, x);
+
+		/* Command */
+		query = inkey_ex();
+		
+		/* Stop on everything but "return"/"space" */
+		if ((query.key != '\n') && (query.key != '\r')
+		    && (query.key != ' '))
+		    break;
+		
+		/* Sometimes stop at "space" key */
+		if ((query.key == ' ') && !(mode & (TARGET_LOOK)))
+		    break;
+	    }
+	}
+	
+	/* Double break */
+	if (cave_visible_trap(y, x))
+	    break;
+	
 	/* Assume not floored */
 	floored = FALSE;
 
@@ -1094,13 +1162,16 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode)
 	feat = f_info[cave_feat[y][x]].mimic;
 
 	/* Require knowledge about grid, or ability to see grid */
-	if (!(cave_info[y][x] & (CAVE_MARK)) && !player_can_see_bold(y, x)) {
+	if (!cave_has(cave_info[y][x], CAVE_MARK) && 
+	    !player_can_see_bold(y, x)) 
+	{
 	    /* Forget feature */
 	    feat = FEAT_NONE;
 	}
 
 	/* Terrain feature if needed */
-	if (boring || (feat > FEAT_INVIS)) {
+	if (boring || !tf_has(f_ptr->flags, TF_FLOOR))
+	{
 	    cptr name = f_info[feat].name;
 
 	    /* Hack -- handle unknown grids */
@@ -1108,25 +1179,29 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode)
 		name = "unknown grid";
 
 	    /* Pick a prefix */
-	    if (*s2 && (feat >= FEAT_DOOR_HEAD))
+	    if (*s2 && (feat != FEAT_FLOOR))
 		s2 = "in ";
 
 	    /* Pick proper indefinite article */
 	    s3 = (is_a_vowel(name[0])) ? "an " : "a ";
 
 	    /* Hack -- special introduction for store doors */
-	    if ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) {
+	    if (tf_has(f_ptr->flags, TF_SHOP))
+	    {
 		s3 = "the entrance to the ";
 	    }
 
 	    /* Hack - destination of surface paths */
-	    if ((feat >= FEAT_LESS_NORTH) && (feat <= FEAT_MORE_WEST)) {
+	    if ((feat >= FEAT_LESS_NORTH) && (feat <= FEAT_MORE_WEST)) 
+	    {
 		s4 = " to ";
 		s5 = locality_name[stage_map[stage_map[p_ptr->stage]
 					     [NORTH +
 					      (feat - FEAT_LESS_NORTH) / 2]]
 				   [LOCALITY]];
-	    } else {
+	    } 
+	    else 
+	    {
 		s4 = "";
 		s5 = "";
 	    }
@@ -1240,13 +1315,15 @@ static int draw_path(u16b * path, char *c, byte * a, int y1, int x1, int y2,
 	}
 
 	/* Known walls are blue. */
-	else if (!cave_project(y, x)
-		 && (cave_info[y][x] & (CAVE_MARK)
-		     || player_can_see_bold(y, x))) {
+	else if (!cave_project(y, x) && 
+		 (cave_has(cave_info[y][x], CAVE_MARK) || 
+		  player_can_see_bold(y, x))) 
+	{
 	    colour = TERM_BLUE;
 	}
 	/* Unknown squares are grey. */
-	else if (!(cave_info[y][x] & (CAVE_MARK)) && !player_can_see_bold(y, x)) {
+	else if (!cave_has(cave_info[y][x], CAVE_MARK) && 
+		 !player_can_see_bold(y, x)) {
 	    colour = TERM_L_DARK;
 	}
 	/* Unoccupied squares are white. */

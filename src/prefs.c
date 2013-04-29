@@ -391,8 +391,8 @@ void dump_features(ang_file *fff)
 		/* Skip non-entries */
 		if (!f_ptr->name) continue;
 
-		/* Skip mimic entries -- except invisible trap */
-		if ((f_ptr->mimic != i) && (i != FEAT_INVIS)) continue;
+		/* Skip mimic entries */
+		if (f_ptr->mimic != i) continue;
 
 		file_putf(fff, "# Terrain: %s\n", f_ptr->name);
 		file_putf(fff, "F:%d:0x%02X:0x%02X\n", i, attr, chr);

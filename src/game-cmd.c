@@ -23,6 +23,7 @@
 #include "object.h"
 #include "spells.h"
 #include "target.h"
+#include "trap.h"
 
 errr (*cmd_get_hook)(cmd_context c, bool wait);
 
@@ -422,7 +423,7 @@ void process_command(cmd_context ctx, bool no_request)
 		int y, x;
 		int n_closed_doors, n_locked_chests;
 			
-		n_closed_doors = count_feats(&y, &x, is_closed, FALSE);
+		n_closed_doors = count_feats(&y, &x, TF_DOOR_CLOSED, FALSE);
 		n_locked_chests = count_chests(&y, &x, FALSE);
 			
 		if (n_closed_doors + n_locked_chests == 1)
@@ -440,7 +441,7 @@ void process_command(cmd_context ctx, bool no_request)
 		int y, x;
 			
 		/* Count open doors */
-		if (count_feats(&y, &x, is_open, FALSE) == 1)
+		if (count_feats(&y, &x, TF_CLOSABLE, FALSE) == 1)
 		    cmd_set_arg_direction(cmd, 0, coords_to_dir(y, x));
 	    }
 
@@ -449,28 +450,10 @@ void process_command(cmd_context ctx, bool no_request)
 
 	case CMD_DISARM:
 	{
-	    if (OPT(easy_open) && (!cmd->arg_present[0] ||
-				   cmd->arg[0].direction == DIR_UNKNOWN))
+	    /* Player is in a web */
+	    if (cave_web(p_ptr->py, p_ptr->px)) 
 	    {
-		int y, x;
-		int n_visible_traps, n_trapped_chests;
-			
-		n_visible_traps = count_feats(&y, &x, is_trap, TRUE);			
-		n_trapped_chests = count_chests(&y, &x, TRUE);
-
-		if (n_visible_traps + n_trapped_chests == 1)
-		    cmd_set_arg_direction(cmd, 0, coords_to_dir(y, x));
-	    }
-
-	    goto get_dir;
-	}
-
-	case CMD_TUNNEL:
-	{
-	    /* Deal with webs */
-	    if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_WEB) {
-		msg_print("You clear the web.");
-		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_FLOOR);
+		remove_trap_kind(p_ptr->py, p_ptr->px, OBST_WEB);
 
 		disturb(0, 0);
 
@@ -481,9 +464,21 @@ void process_command(cmd_context ctx, bool no_request)
 		return;
 	    }
 
+	    if (OPT(easy_open) && (!cmd->arg_present[0] ||
+				   cmd->arg[0].direction == DIR_UNKNOWN))
+	    {
+		int y, x;
+		int n_visible_traps, n_trapped_chests;
+			
+		n_visible_traps = count_traps(&y, &x);	
+		n_trapped_chests = count_chests(&y, &x, TRUE);
+
+		if (n_visible_traps + n_trapped_chests == 1)
+		    cmd_set_arg_direction(cmd, 0, coords_to_dir(y, x));
+	    }
+
 	    goto get_dir;
 	}
-
 
 	case CMD_WALK:
 	{
@@ -506,6 +501,7 @@ void process_command(cmd_context ctx, bool no_request)
 	case CMD_RUN:
 	case CMD_JUMP:
 	case CMD_BASH:
+	case CMD_TUNNEL:
 	case CMD_ALTER:
 	case CMD_JAM:
 	{

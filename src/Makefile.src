@@ -6,7 +6,7 @@
 #
 
 NAME = FAangband
-VERSION = 1.2.2
+VERSION = 1.2.3
 COPYRIGHT = (c) 2005-2011 Nick McConnell and contributors
 PROG = faangband
 SUBDIRS = gtk
@@ -24,6 +24,7 @@ HEADERS = \
 	files.h \
 	game-cmd.h \
 	game-event.h \
+	generate.h \
 	$(GTKHEADERS) \
 	h-basic.h \
 	history.h \
@@ -96,6 +97,11 @@ ANGFILES = \
 	game-cmd.o \
 	game-event.o \
 	generate.o \
+	gen-cave.o \
+	gen-monster.o \
+	gen-room.o \
+	gen-util.o \
+	gen-wilderness.o \
 	history.o \
 	identify.o \
 	init.o \

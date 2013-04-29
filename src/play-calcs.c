@@ -26,6 +26,7 @@
 #include "player.h"
 #include "spells.h"
 #include "squelch.h"
+#include "trap.h"
 
 
 /**
@@ -2015,7 +2016,7 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
 
     object_type *o_ptr;
 
-  /*** Reset ***/
+    /*** Reset ***/
 
     /* Reset player speed */
     state->pspeed = 110;
@@ -2088,7 +2089,7 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
     }
 
 
-  /*** Extract race/class info ***/
+    /*** Extract race/class info ***/
 
     /* Base infravision (purely racial) */
     state->see_infra = rp_ptr->infra;
@@ -2133,7 +2134,7 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
     /* Base skill -- digging */
     state->skills[SKILL_DIGGING] = 0;
 
-  /*** Analyze player ***/
+    /*** Analyze player ***/
 
     /* Object flags */
     if (of_has(rp_ptr->flags_obj, OF_SUSTAIN_STR))
@@ -2482,10 +2483,10 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
 	state->ffall = FALSE;
 
 
-  /*** Analyze shapechanges - statistics only ***/
+    /*** Analyze shapechanges - statistics only ***/
     shape_change_stat(state);
 
-  /*** (Most) Specialty Abilities ***/
+    /*** (Most) Specialty Abilities ***/
 
     /* Physical stat boost */
     if (player_has(PF_ATHLETICS)) {
@@ -2502,7 +2503,7 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
     /* Unlight stealth boost */
     if (player_has(PF_UNLIGHT)) {
 	if ((p_ptr->cur_light <= 0) && (!is_daylight)
-	    && !(cave_info[p_ptr->py][p_ptr->px] & CAVE_GLOW))
+	    && !cave_has(cave_info[p_ptr->py][p_ptr->px], CAVE_GLOW))
 	    state->skills[SKILL_STEALTH] += 6;
 	else
 	    state->skills[SKILL_STEALTH] += 3;
@@ -2519,14 +2520,14 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
 	state->pspeed += 3;
 
     /* Speed boost for rune of speed */
-    if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_RUNE_SPEED)
+    if (cave_trap_specific(p_ptr->py, p_ptr->px, RUNE_SPEED))
 	state->pspeed += 10;
 
     /* Dwarves are good miners */
     if (player_has(PF_DWARVEN))
 	state->skills[SKILL_DIGGING] += 40;
 
-  /*** Handle stats ***/
+    /*** Handle stats ***/
 
     /* Calculate stats */
     for (i = 0; i < A_MAX; i++) {
@@ -2753,8 +2754,8 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
 	state->see_infra = state->see_infra + bonus;
     }
 
-
-  /*** Special flags ***/
+    
+    /*** Special flags ***/
 
     /* Hack -- Hero/Shero -> Res fear */
     if (p_ptr->timed[TMD_HERO] || p_ptr->timed[TMD_SHERO]) {
@@ -2783,7 +2784,7 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
     /* End normal temporary bonuses; do bounds check on resistance levels */
     resistance_limits(state);
 
-  /*** Analyze weight ***/
+    /*** Analyze weight ***/
 
     /* Extract the current weight (in tenth pounds) */
     j = p_ptr->total_weight;
@@ -2792,8 +2793,10 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
     i = weight_limit(state);
 
     /* Apply "encumbrance" from weight - more in water, except Maiar, flyers */
-    if (j > i / 2) {
-	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_WATER)
+    if (j > i / 2) 
+    {
+	feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
+	if (tf_has(f_ptr->flags, TF_WATERY)
 	    && (!player_has(PF_DIVINE)) && !(p_ptr->schange == SHAPE_BAT)
 	    && !(p_ptr->schange == SHAPE_WYRM))
 	    state->pspeed -= 3 * ((j - (i / 2)) / (i / 10));
@@ -2933,7 +2936,8 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
     }
 
     /* Rune of Magical Defence */
-    if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_RUNE_MAGDEF) {
+    if (cave_trap_specific(p_ptr->py, p_ptr->px, RUNE_MAGDEF))
+    {
 	if (state->skills[SKILL_SAVE] <= 100)
 	    state->skills[SKILL_SAVE] +=
 		(100 - state->skills[SKILL_SAVE]) / 2;
@@ -3149,19 +3153,19 @@ extern void calc_bonuses(object_type inventory[], player_state *state,
  */
 static void update_bonuses(void)
 {
-	int i;
-
-	player_state *state = &p_ptr->state;
-	player_state old = p_ptr->state;
-	object_type *o_ptr;
-
-	/*** Calculate bonuses ***/
-
-	calc_bonuses(p_ptr->inventory, &p_ptr->state, FALSE);
-
-
-  /*** Notice changes ***/
-
+    int i;
+    
+    player_state *state = &p_ptr->state;
+    player_state old = p_ptr->state;
+    object_type *o_ptr;
+    
+    /*** Calculate bonuses ***/
+    
+    calc_bonuses(p_ptr->inventory, &p_ptr->state, FALSE);
+    
+    
+    /*** Notice changes ***/
+    
     /* Analyze stats */
     for (i = 0; i < A_MAX; i++) {
 	/* Notice changes */

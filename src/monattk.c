@@ -345,6 +345,7 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
     object_type *o_ptr;
     object_kind *k_ptr;
+    feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
     char o_name[120];
 
@@ -376,27 +377,33 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
     monster_desc(ddesc, sizeof(m_name), m_ptr, 0x88);
 
 
-    /* Players in rubble can take advantage of cover. */
-    if (cave_feat[y][x] == FEAT_RUBBLE) {
-	terrain_bonus = ac / 8 + 5;
-    }
-    /* Players in trees can take advantage of cover, especially elves, rangers
-     * and druids. */
-    if ((cave_feat[y][x] == FEAT_TREE) || (cave_feat[y][x] == FEAT_TREE)) {
-	if ((player_has(PF_WOODSMAN)) || (player_has(PF_ELVEN)))
-	    terrain_bonus = ac / 8 + 10;
+    /* Players can take advantage of cover. */
+    if (tf_has(f_ptr->flags, TF_PROTECT))
+    {
+	/* Players in trees can take advantage of cover, especially elves, 
+	 * rangers and druids. */
+	if (tf_has(f_ptr->flags, TF_ORGANIC)) 
+	{
+	    if ((player_has(PF_WOODSMAN)) || (player_has(PF_ELVEN)))
+		terrain_bonus = ac / 8 + 10;
+	    else
+		terrain_bonus = ac / 10 + 2;
+	}
 	else
-	    terrain_bonus = ac / 10 + 2;
+	    /* Players in rubble can take advantage of cover. */
+	    terrain_bonus = ac / 8 + 5;
     }
-    /* Players in water are vulnerable. */
-    if (cave_feat[y][x] == FEAT_WATER) {
+
+    /* Players can be vulnerable. */
+    if (tf_has(f_ptr->flags, TF_EXPOSE))
+    {
 	terrain_bonus = -(ac / 3);
     }
 
     /* 
      * Hack -- darkness protects those who serve it.
      */
-    if (((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW)) == 0)
+    if (!cave_has(cave_info[p_ptr->py][p_ptr->px], CAVE_GLOW)
 	&& (p_ptr->cur_light <= 0) && (!is_daylight)
 	&& player_has(PF_UNLIGHT))
 	terrain_bonus += ac / 8 + 10;

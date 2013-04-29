@@ -27,6 +27,7 @@
 #include "cave.h"
 #include "cmds.h"
 #include "files.h"
+#include "game-event.h"
 #include "history.h"
 #include "squelch.h"
 #include "textui.h"
@@ -1356,12 +1357,12 @@ static void display_store(void)
 {
     char buf[80];
 
-
     /* Clear screen */
     Term_clear();
 
     /* The "Home" is special */
-    if (st_ptr->type == STORE_HOME) {
+    if (st_ptr->type == STORE_HOME) 
+    {
 	/* Put the owner name */
 	put_str("Your Home", 2, 30);
 
@@ -1369,13 +1370,15 @@ static void display_store(void)
 	put_str("Item Description", 4, 3);
 
 	/* If showing weights, show label */
-	if (OPT(show_weights)) {
+	if (OPT(show_weights)) 
+	{
 	    put_str("Weight", 4, 70);
 	}
     }
 
     /* Normal stores */
-    else {
+    else 
+    {
 
 	cptr store_name = f_info[FEAT_SHOP_HEAD + st_ptr->type].name;
 	cptr owner_name = ot_ptr->owner_name;
@@ -1589,6 +1592,7 @@ static void store_purchase(void)
     /* Clear all current messages */
     msg_flag = FALSE;
     prt("", 0, 0);
+    msg_flag = TRUE;
 
     if (st_ptr->type == STORE_HOME) {
 	amt = o_ptr->number;
@@ -1873,6 +1877,7 @@ static void store_sell(void)
     /* Clear all current messages */
     msg_flag = FALSE;
     prt("", 0, 0);
+    msg_flag = TRUE;
 
     /* Get an item */
     s = "You have nothing that I want.";
@@ -1915,6 +1920,7 @@ static void store_sell(void)
 
     /* Get a quantity */
     amt = get_quantity(NULL, o_ptr->number);
+    display_store();
 
     /* Allow user abort */
     if (amt <= 0)
@@ -2010,9 +2016,6 @@ static void store_sell(void)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
-
-	/* Redraw stuff */
-	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -2113,9 +2116,12 @@ static void store_sell(void)
 	    display_inventory();
 	}
     }
+
+    /* Redraw stuff */
+    p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
+
     /* Reset hook */
     item_tester_hook = NULL;
-
 }
 
 
@@ -2397,8 +2403,6 @@ void store_order(void)
     WIPE(&menu, menu_type);
     menu.title = "Item ordering menu";
     menu.cmd_keys = cmd_keys;
-    //menu.menu_data = choice;
-    //menu.count = BOOK_START + (mp_ptr->spell_book ? 1 : 0);
     menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
     menu_setpriv(&menu, BOOK_START + (mp_ptr->spell_book ? 1 : 0), choice);
 
@@ -2443,6 +2447,9 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(ui_event_data ke)
 {
+    /* Clear messages */
+    msg_flag = FALSE;
+
     /* Parse the command */
     switch (ke.key) {
 	/* Leave */
@@ -2500,6 +2507,7 @@ static void store_process_command(ui_event_data ke)
     case 's':
 	{
 	    store_sell();
+	    display_inventory();
 	    break;
 	}
 
@@ -2513,9 +2521,11 @@ static void store_process_command(ui_event_data ke)
 
       /*** Inventory Commands ***/
 
-    case 'w':
+    case 'k': 
+
     case 't':
-    case 'k':
+    case 'w':
+	//case 'k':
     case 'b':
     case 'I':
     case '{':
@@ -2537,7 +2547,7 @@ static void store_process_command(ui_event_data ke)
 	/* Inventory list */
     case 'i':
 	{
-	    do_cmd_show_obj();
+	    do_cmd_inven();
 	    break;
 	}
 
@@ -2679,6 +2689,18 @@ static void store_process_command(ui_event_data ke)
 	}
     }
 
+    /* Let the game handle any core commands (equipping, etc) */
+    process_command(CMD_STORE, TRUE);
+
+    event_signal(EVENT_INVENTORY);
+    event_signal(EVENT_EQUIPMENT);
+    
+    /* Notice and handle stuff */
+    notice_stuff();
+    handle_stuff();
+
+    /* Display the store */
+    display_inventory();
 }
 
 
@@ -2776,37 +2798,41 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
     feature_type *f_ptr = &f_info[cave_feat[py][px]];
 
     /* Verify a store */
-    if (!tf_has(f_ptr->flags, TF_SHOP)) {
+    if (!tf_has(f_ptr->flags, TF_SHOP)) 
+    {
 	msg_print("You see no store here.");
 	return;
     }
 
     /* Check if we're in a small town */
-    for (i = 0; i < NUM_TOWNS_SMALL; i++) {
+    for (i = 0; i < NUM_TOWNS_SMALL; i++) 
+    {
 	/* Found the town, adjust the index */
-	if (towns[i] == p_ptr->stage) {
+	if (towns[i] == p_ptr->stage) 
+	{
 	    /* Set the town */
 	    town = i;
 
-	    switch (cave_feat[py][px]) {
-	    case FEAT_SHOP_HEAD + STORE_TEMPLE:
+	    switch (f_ptr->shopnum) 
+	    {
+	    case STORE_TEMPLE:
 		/* Temple */
-		{
-		    which += 1;
-		    break;
-		}
-	    case FEAT_SHOP_HEAD + STORE_ALCH:
+	    {
+		which += 1;
+		break;
+	    }
+	    case STORE_ALCH:
 		/* Alchemist */
-		{
-		    which += 2;
-		    break;
-		}
-	    case FEAT_SHOP_HEAD + STORE_HOME:
+	    {
+		which += 2;
+		break;
+	    }
+	    case STORE_HOME:
 		/* Home */
-		{
-		    which += 3;
-		    break;
-		}
+	    {
+		which += 3;
+		break;
+	    }
 	    }
 
 	    /* Done */
@@ -2819,33 +2845,38 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 	    which += MAX_STORES_SMALL;
     }
 
-    if (!found) {
+    if (!found) 
+    {
 	/* Find the (large) town */
-	for (i = NUM_TOWNS_SMALL; i < NUM_TOWNS; i++) {
+	for (i = NUM_TOWNS_SMALL; i < NUM_TOWNS; i++) 
+	{
 	    /* Found the town, adjust the index */
-	    if (towns[i] == p_ptr->stage) {
+	    if (towns[i] == p_ptr->stage) 
+	    {
 		/* Set the town */
 		town = i;
 
 		/* Extract the store code */
-		which += (cave_feat[py][px] - FEAT_SHOP_HEAD);
+		which += (f_ptr->shopnum);
 
 		/* Got it */
 		break;
-	    } else
+	    } 
+	    else
 		/* Try the next town */
 		which += MAX_STORES_BIG;
 	}
     }
 
     /* Oops */
-    if (which == MAX_STORES) {
-	if (OPT(adult_dungeon)) {
-	    if (cave_feat[py][px] == FEAT_SHOP_HEAD + STORE_MERCH)
+    if (which == MAX_STORES) 
+    {
+	if (OPT(adult_dungeon)) 
+	{
+	    if (f_ptr->shopnum == STORE_MERCH)
 		which = 0;
 	    else
-		which =
-		    cave_feat[py][px] - FEAT_SHOP_HEAD + 4 * NUM_TOWNS_SMALL;
+		which = f_ptr->shopnum + 4 * NUM_TOWNS_SMALL;
 	} else {
 	    msg_print("You see no store here.");
 	    return;
@@ -2902,6 +2933,7 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 	tmp_chr = p_ptr->state.stat_use[A_CHR];
 
 	/* Clear */
+	display_inventory();
 	clear_from(20);
 
 	/* Basic commands */

@@ -23,6 +23,7 @@
 #include "angband.h"
 #include "cave.h"
 #include "cmds.h"
+#include "generate.h"
 #include "history.h"
 #include "monster.h"
 #include "tvalsval.h"
@@ -69,28 +70,29 @@ bool search(bool verbose)
     }
 
     /* Search the nearby grids, which are always in bounds */
-    for (y = (py - 1); y <= (py + 1); y++) {
-	for (x = (px - 1); x <= (px + 1); x++) {
-	    feature_type *f_ptr = &f_info[cave_feat[y][x]];
-
+    for (y = (py - 1); y <= (py + 1); y++) 
+    {
+	for (x = (px - 1); x <= (px + 1); x++) 
+	{
 	    /* Sometimes, notice things */
-	    if (randint0(100) < chance) {
+	    if (randint0(100) < chance) 
+	    {
 		/* Invisible trap */
-		if (tf_has(f_ptr->flags, TF_TRAP_INVIS)) {
+		if (cave_invisible_trap(y, x)) 
+		{
 		    found = TRUE;
 
-		    /* Pick a trap */
-		    pick_trap(y, x);
-
-		    /* Message */
-		    msg_print("You have found a trap.");
-
-		    /* Disturb */
-		    disturb(0, 0);
+		    /* Reveal one or more traps, display a message */
+		    if (reveal_trap(y, x, chance, TRUE))
+		    {
+			/* Disturb */
+			disturb(0, 0);
+		    }
 		}
 
 		/* Secret door */
-		if (cave_feat[y][x] == FEAT_SECRET) {
+		if (cave_feat[y][x] == FEAT_SECRET) 
+		{
 		    found = TRUE;
 
 		    /* Message */
@@ -760,41 +762,49 @@ void move_player(int dir)
     int temp;
     int y, x;
 
+    feature_type *f_ptr;
+
     /* Find the result of moving */
     y = py + ddy[dir];
     x = px + ddx[dir];
+    f_ptr = &f_info[cave_feat[y][x]];
 
 
     /* Hack -- attack monsters */
-    if (cave_m_idx[y][x] > 0) {
+    if (cave_m_idx[y][x] > 0) 
+    {
 	/* Attack */
 	if (py_attack(y, x, TRUE))
 	    return;
     }
 
     /* It takes some dexterity, or failing that strength, to get out of pits */
-    if (cave_feat[p_ptr->py][p_ptr->px] == (FEAT_TRAP_HEAD + 0x01)) {
+    if (cave_feat[py][px] == FEAT_PIT) 
+    {
 	str_escape = adj_dex_dis[p_ptr->state.stat_ind[A_STR]];
 	dex_escape = adj_dex_dis[p_ptr->state.stat_ind[A_DEX]];
 
 	/* First attempt to leap out of the pit, */
-	if ((dex_escape + 1) * 2 < randint1(16)) {
+	if ((dex_escape + 1) * 2 < randint1(16)) 
+	{
 	    /* then attempt to climb out of the pit. */
-	    if (str_escape + 3 < randint1(16)) {
+	    if (str_escape + 3 < randint1(16)) 
+	    {
 		/* Failure costs a turn. */
 		msg_print("You remain stuck in the pit.");
 		return;
-	    } else
+	    } 
+	    else
 		msg_print("You clamber out of the pit.");
-	} else
+	} 
+	else
 	    msg_print("You leap out of the pit.");
     }
 
 
     /* Option to disarm a visible trap. -TNB- */
     /* Hack - Rogues can walk over their own trap - BR */
-    if (OPT(easy_alter) && (cave_feat[y][x] >= FEAT_TRAP_HEAD)
-	&& (cave_feat[y][x] <= FEAT_TRAP_TAIL)) 
+    if (OPT(easy_alter) && cave_visible_trap(y, x) && cave_player_trap(y, x))
     {
 	bool more = FALSE;
 	/* Auto-repeat if not already repeating */
@@ -815,18 +825,18 @@ void move_player(int dir)
 	disturb(0, 0);
 
 	/* Notice unknown obstacles */
-	if (!(cave_info[y][x] & (CAVE_MARK))) {
+	if (!cave_has(cave_info[y][x], CAVE_MARK)) {
 	    /* Closed door */
-	    if (cave_feat[y][x] < FEAT_SECRET) {
+	    if (tf_has(f_ptr->flags, TF_DOOR_CLOSED)) {
 		message(MSG_HITWALL, 0, "You feel a door blocking your way.");
-		cave_info[y][x] |= (CAVE_MARK);
+		cave_on(cave_info[y][x], CAVE_MARK);
 		light_spot(y, x);
 	    }
 
 	    /* Wall (or secret door) */
 	    else {
 		message(MSG_HITWALL, 0, "You feel a wall blocking your way.");
-		cave_info[y][x] |= (CAVE_MARK);
+		cave_on(cave_info[y][x], CAVE_MARK);
 		light_spot(y, x);
 	    }
 	}
@@ -834,7 +844,7 @@ void move_player(int dir)
 	/* Mention known obstacles */
 	else {
 	    /* Closed door */
-	    if (cave_feat[y][x] < FEAT_SECRET) {
+	    if (tf_has(f_ptr->flags, TF_DOOR_CLOSED)) {
 		/* Option to automatically open doors. -TNB- */
 		if (OPT(easy_alter)) {
 		    bool more = FALSE;
@@ -869,274 +879,276 @@ void move_player(int dir)
     /* Normal movement */
     else 
     {
+	/* Assume terrain can be traversed normally. */
+	can_move = TRUE;
+	
 	/*** Handle traversable terrain.  ***/
-	switch (cave_feat[y][x]) {
-	case FEAT_RUBBLE:
-	    {
-		/* Dwarves move easily through rubble */
-		if (player_has(PF_DWARVEN))
-		    can_move = TRUE;
-
-		/* Bats, dragons can fly */
-		else if ((p_ptr->schange == SHAPE_BAT)
-			 || (p_ptr->schange == SHAPE_WYRM))
-		    can_move = TRUE;
-
-		else if (player_is_crossing == dir)
-		{
-		    can_move = TRUE;
-		    player_is_crossing = 0;
-		}
-		else 
-		{
-		    player_is_crossing = dir;
-		    cmd_insert(CMD_WALK);
-		}
-
-		break;
-	    }
-	case FEAT_TREE:
-	case FEAT_TREE2:
-	    {
-		/* Druids, rangers, elves and ents (SJGU) slip easily under
-		 * trees */
-		if (((player_has(PF_WOODSMAN)) || (player_has(PF_ELVEN)))
-		    || (player_has(PF_WOODEN)))
-		    can_move = TRUE;
-
-		/* Bats, dragons can fly */
-		else if ((p_ptr->schange == SHAPE_BAT)
-			 || (p_ptr->schange == SHAPE_WYRM))
-		    can_move = TRUE;
-
-		/* Allow movement only if partway through already. */
-		else if (player_is_crossing == dir)
-		{
-		    can_move = TRUE;
-		    player_is_crossing = 0;
-		}
-		else 
-		{
-		    player_is_crossing = dir;
-		    cmd_insert(CMD_WALK);
-		}
-		
-		break;
-	    }
-	case FEAT_WATER:	/* Water now slows rather than stopping -NRM- */
-	    {
-		/* Stop any run. */
-		disturb(0, 0);
-
+	if (tf_has(f_ptr->flags, TF_ROCK))
+	{
+	    /* Dwarves move easily through rubble */
+	    if (player_has(PF_DWARVEN))
 		can_move = TRUE;
-
-		/* Speed will need updating */
-		p_ptr->update |= PU_BONUS;
-
-		break;
-	    }
-	case FEAT_LAVA:
+	    
+	    /* Bats, dragons can fly */
+	    else if ((p_ptr->schange == SHAPE_BAT)
+		     || (p_ptr->schange == SHAPE_WYRM))
+		can_move = TRUE;
+	    
+	    else if (player_is_crossing == dir)
 	    {
-		/* Assume player will continue. */
-		temp = TRUE;
+		can_move = TRUE;
+		player_is_crossing = 0;
+	    }
+	    else 
+	    {
+		can_move = FALSE;
+		player_is_crossing = dir;
+		cmd_insert(CMD_WALK);
+	    }
+	}
 
-		/* Smart enough to stop running. */
-		if (p_ptr->running) {
-		    if (!get_check("Lava blocks your path.  Step into it? ")) {
-			temp = FALSE;
-			p_ptr->running = 0;
-		    }
+	if (tf_has(f_ptr->flags, TF_TREE))
+	{
+	    /* Druids, rangers, elves and ents (SJGU) slip easily under
+	     * trees */
+	    if (((player_has(PF_WOODSMAN)) || (player_has(PF_ELVEN)))
+		|| (player_has(PF_WOODEN)))
+		can_move = TRUE;
+	    
+	    /* Bats, dragons can fly */
+	    else if ((p_ptr->schange == SHAPE_BAT)
+		     || (p_ptr->schange == SHAPE_WYRM))
+		can_move = TRUE;
+	    
+	    /* Allow movement only if partway through already. */
+	    else if (player_is_crossing == dir)
+	    {
+		can_move = TRUE;
+		player_is_crossing = 0;
+	    }
+	    else 
+	    {
+		can_move = FALSE;
+		player_is_crossing = dir;
+		cmd_insert(CMD_WALK);
+	    }
+	}
+
+	/* Water now slows rather than stopping -NRM- */
+	if (tf_has(f_ptr->flags, TF_WATERY))
+	{
+	    /* Stop any run. */
+	    disturb(0, 0);
+	    
+	    can_move = TRUE;
+	    
+	    /* Speed will need updating */
+	    p_ptr->update |= PU_BONUS;
+	}
+	
+	if (tf_has(f_ptr->flags, TF_FIERY))
+	{
+	    /* Assume player will continue. */
+	    temp = TRUE;
+	    
+	    /* Smart enough to stop running. */
+	    if (p_ptr->running) {
+		if (!get_check("Lava blocks your path.  Step into it? ")) {
+		    temp = FALSE;
+		    p_ptr->running = 0;
 		}
+	    }
 
-		/* Smart enough to sense trouble. */
-		else if ((!p_resist_pos(P_RES_FIRE))
-			 || (!p_resist_strong(P_RES_FIRE)
-			     && (p_ptr->chp <= 100))
-			 || (!p_immune(P_RES_FIRE) && (p_ptr->chp <= 30))) {
-		    if (!get_check
-			("The heat of the lava scalds you! Really enter? ")) {
-			temp = FALSE;
-		    }
+	    /* Smart enough to sense trouble. */
+	    else if ((!p_resist_pos(P_RES_FIRE))
+		     || (!p_resist_strong(P_RES_FIRE)
+			 && (p_ptr->chp <= 100))
+		     || (!p_immune(P_RES_FIRE) && (p_ptr->chp <= 30))) 
+	    {
+		if (!get_check
+		    ("The heat of the lava scalds you! Really enter? ")) 
+		{
+		    temp = FALSE;
 		}
-
-		/* Enter if OK or confirmed. */
-		if (temp) {
-		    /* Can always cross. */
-		    can_move = TRUE;
-
+	    }
+	    
+	    /* Enter if OK or confirmed. */
+	    if (temp) 
+	    {
+		/* Can always cross. */
+		can_move = TRUE;
+		
 		    /* Feather fall makes one lightfooted. */
-		    if (p_ptr->state.ffall) {
+		    if (p_ptr->state.ffall) 
+		    {
 			notice_obj(OF_FEATHER, 0);
 			temp = 49 + randint1(51);
-		    } else
+		    } 
+		    else
 			temp = 124 + randint1(126);
 
 		    /* Will take serious fire damage. */
 		    fire_dam(temp, "burnt to a cinder in molten lava");
-		}
-		break;
-	    }
-	case FEAT_VOID:
-	    {
-		/* Bats, dragons can fly */
-		if ((p_ptr->schange == SHAPE_BAT)
-		    || (p_ptr->schange == SHAPE_WYRM))
-		    can_move = TRUE;
-		else {
-		    /* Assume player will continue. */
-		    temp = TRUE;
-
-		    /* Smart enough to stop running. */
-		    if (p_ptr->running) {
-			if (!get_check
-			    ("You have come to a cliff.  Step off it? ")) {
-			    temp = FALSE;
-			    p_ptr->running = 0;
-			}
-		    }
-
-		    /* Smart enough to sense trouble. */
-		    else if (!p_ptr->timed[TMD_BLIND]) {
-			if (!get_check("It's a cliff! Really step off it? ")) {
-			    temp = FALSE;
-			}
-		    }
-
-		    /* Step off if confirmed. */
-		    if (temp) {
-			/* Can always jump. */
-			can_move = TRUE;
-
-			/* Will take serious damage. */
-			falling = TRUE;
-		    }
-		}
-		break;
-	    }
-	default:
-	    {
-		/* All other terrain can be traversed normally. */
-		can_move = TRUE;
 	    }
 	}
-
-	/* If the player can move, handle various things. */
-	if (can_move) {
-	    /* Move player */
-	    monster_swap(py, px, y, x);
-
-	    /* Update speed if stepping out of water */
-	    if (cave_feat[py][px] == FEAT_WATER)
-		p_ptr->update |= PU_BONUS;
-
-	    /* Update stealth for Unlight */
-	    if (player_has(PF_UNLIGHT))
-		p_ptr->update |= PU_BONUS;
-
-	    /* Superstealth for ents in trees SJGU */
-	    if ((player_has(PF_WOODEN))
-		&&
-		(tf_has
-		 (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags, TF_TREE))) {
-		if (!(tf_has(f_info[cave_feat[py][px]].flags, TF_TREE))
-		    || !(p_ptr->timed[TMD_SSTEALTH])) {
-		    (void) inc_timed(TMD_SSTEALTH, 1, FALSE);
-		    p_ptr->update |= (PU_BONUS);
-		}
-	    } else if ((player_has(PF_WOODEN))
-		       && (tf_has(f_info[cave_feat[py][px]].flags, TF_TREE))) {
-		if (p_ptr->timed[TMD_SSTEALTH]) {
-		    (void) dec_timed(TMD_SSTEALTH, 1, FALSE);
-		    p_ptr->update |= (PU_BONUS);
-		}
-	    }
-
-	    /* New location */
-	    y = py = p_ptr->py;
-	    x = px = p_ptr->px;
-
-	    /* No longer traversing. */
-	    player_is_crossing = 0;
-
-	    /* Fall off a cliff */
-	    if (falling)
-		fall_off_cliff();
-
-	    /* Spontaneous Searching */
-	    if (p_ptr->state.skills[SKILL_SEARCH_FREQUENCY] > 49) {
-		(void) search(FALSE);
-	    } else if (0 == randint0(50 - p_ptr->state.skills[SKILL_SEARCH_FREQUENCY])) 
+	
+	if (tf_has(f_ptr->flags, TF_FALL))
+	{
+	    /* Bats, dragons can fly */
+	    if ((p_ptr->schange == SHAPE_BAT) || (p_ptr->schange == SHAPE_WYRM))
+		can_move = TRUE;
+	    else 
 	    {
-		(void) search(FALSE);
-	    }
-
-	    /* Continuous Searching */
-	    if (p_ptr->searching) {
-		(void) search(FALSE);
-	    }
-
-	    /* Handle "store doors" */
-	    if ((cave_feat[y][x] >= FEAT_SHOP_HEAD)
-		&& (cave_feat[y][x] <= FEAT_SHOP_TAIL)) {
-		/* Disturb */
-		disturb(0, 0);
-		cmd_insert(CMD_ENTER_STORE);
-	    }
-
-	    /* All other grids (including traps) */
-	    else
-	    {
-		/* Handle objects (later) */
-		p_ptr->notice |= (PN_PICKUP);
-	    }
-
-	    /* Flying players have a chance to miss traps */
-	    if ((p_ptr->schange == SHAPE_BAT) || (p_ptr->schange == SHAPE_WYRM)) {
-		if (((cave_feat[y][x] == FEAT_INVIS)
-		     || (cave_feat[y][x] == FEAT_GRASS_INVIS))
-		    && (randint0(3) != 0))
-		    trapped = FALSE;
-		else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD)
-			 && (cave_feat[y][x] <= FEAT_TRAP_TAIL)
-			 && (randint0(10) != 0))
-		    trapped = FALSE;
-	    }
-
-	    /* Discover invisible traps */
-	    else if (((cave_feat[y][x] == FEAT_INVIS)
-		      || (cave_feat[y][x] == FEAT_GRASS_INVIS)
-		      || (cave_feat[y][x] == FEAT_TREE_INVIS)
-		      || (cave_feat[y][x] == FEAT_TREE2_INVIS)) && trapped) {
-		/* Disturb */
-		disturb(0, 0);
-
-		/* Message */
-		msg_print("You stumble upon a trap!");
-
-		/* Pick a trap */
-		pick_trap(y, x);
-
-		/* Hit the floor trap. */
-		hit_trap(y, x);
-	    }
-
-	    /* Set off a visible trap */
-	    else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD)
-		     && (cave_feat[y][x] <= FEAT_TRAP_TAIL) && trapped) {
-		/* Disturb */
-		disturb(0, 0);
-
-		/* Hit the floor trap. */
-		hit_trap(y, x);
-	    }
-
-	    /* Walk on a monster trap */
-	    else if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD)
-		     && (cave_feat[y][x] <= FEAT_MTRAP_TAIL)) {
-		msg_print("You inspect your cunning trap.");
+		/* Assume player will continue. */
+		temp = TRUE;
+		
+		/* Smart enough to stop running. */
+		if (p_ptr->running) 
+		{
+		    if (!get_check
+			("You have come to a cliff.  Step off it? ")) 
+		    {
+			temp = FALSE;
+			p_ptr->running = 0;
+		    }
+		}
+		
+		/* Smart enough to sense trouble. */
+		else if (!p_ptr->timed[TMD_BLIND]) 
+		{
+		    if (!get_check("It's a cliff! Really step off it? ")) 
+			temp = FALSE;
+		}
+		
+		/* Step off if confirmed. */
+		if (temp) 
+		{
+		    /* Can always jump. */
+		    can_move = TRUE;
+		    
+		    /* Will take serious damage. */
+		    falling = TRUE;
+		}
 	    }
 	}
     }
+
+    /* If the player can move, handle various things. */
+    if (can_move) 
+    {
+	/* Move player */
+	monster_swap(py, px, y, x);
+	
+	/* Update speed if stepping out of water */
+	if (tf_has(f_ptr->flags, TF_WATERY))
+	    p_ptr->update |= PU_BONUS;
+	
+	/* Update stealth for Unlight */
+	if (player_has(PF_UNLIGHT))
+	    p_ptr->update |= PU_BONUS;
+	
+	/* Update speed for elven woodspersons */
+	if (player_has(PF_WOODSMAN) && player_has(PF_ELVEN))
+	    p_ptr->update |= PU_BONUS;
+	
+	/* Superstealth for ents in trees SJGU */
+	if ((player_has(PF_WOODEN))	&&
+	    (tf_has(f_info[cave_feat[p_ptr->py][p_ptr->px]].flags, TF_TREE))) 
+	{
+	    if (!(tf_has(f_info[cave_feat[py][px]].flags, TF_TREE))
+		|| !(p_ptr->timed[TMD_SSTEALTH])) 
+	    {
+		(void) inc_timed(TMD_SSTEALTH, 1, FALSE);
+		p_ptr->update |= (PU_BONUS);
+	    }
+	} 
+	else if ((player_has(PF_WOODEN))
+		   && (tf_has(f_info[cave_feat[py][px]].flags, TF_TREE))) 
+	{
+	    if (p_ptr->timed[TMD_SSTEALTH]) 
+	    {
+		    (void) dec_timed(TMD_SSTEALTH, 1, FALSE);
+		    p_ptr->update |= (PU_BONUS);
+	    }
+	}
+
+	/* New location */
+	y = py = p_ptr->py;
+	x = px = p_ptr->px;
+	f_ptr = &f_info[cave_feat[y][x]];
+	
+	/* No longer traversing. */
+	player_is_crossing = 0;
+	
+	/* Fall off a cliff */
+	if (falling)
+	    fall_off_cliff();
+	
+	/* Spontaneous Searching */
+	if (p_ptr->state.skills[SKILL_SEARCH_FREQUENCY] > 49) {
+	    (void) search(FALSE);
+	} else if (0 == randint0(50 - p_ptr->state.skills[SKILL_SEARCH_FREQUENCY])) 
+	{
+	    (void) search(FALSE);
+	}
+	
+	/* Continuous Searching */
+	if (p_ptr->searching) {
+	    (void) search(FALSE);
+	}
+	
+	/* Handle "store doors" */
+	if (tf_has(f_ptr->flags, TF_SHOP)) {
+	    /* Disturb */
+	    disturb(0, 0);
+	    cmd_insert(CMD_ENTER_STORE);
+	}
+	
+	/* All other grids (including traps) */
+	else
+	{
+	    /* Handle objects (later) */
+	    p_ptr->notice |= (PN_PICKUP);
+	}
+	
+	/* Flying players have a chance to miss traps */
+	if ((p_ptr->schange == SHAPE_BAT) || (p_ptr->schange == SHAPE_WYRM)) {
+	    if (cave_invisible_trap(y, x) && cave_player_trap(y, x) &&
+		(randint0(3) != 0))
+		trapped = FALSE;
+	    else if (cave_visible_trap(y, x) && cave_player_trap(y, x) && 
+		     (randint0(10) != 0))
+		trapped = FALSE;
+	}
+	
+	/* Discover invisible traps */
+	if (cave_invisible_trap(y, x) && trapped) 
+	{
+	    /* Disturb */
+	    disturb(0, 0);
+	    
+	    /* Hit the trap. */
+	    hit_trap(y, x);
+	}
+	
+	/* Set off a visible trap */
+	else if (cave_visible_trap(y, x) && cave_player_trap(y, x) && 
+		 trapped)
+	{
+	    /* Disturb */
+	    disturb(0, 0);
+	    
+	    /* Hit the trap. */
+	    hit_trap(y, x);
+	}
+	
+	/* Walk on a monster trap */
+	else if (cave_monster_trap(y, x))
+	{
+	    msg_print("You inspect your cunning trap.");
+	}
+    }
 }
+
 
 
