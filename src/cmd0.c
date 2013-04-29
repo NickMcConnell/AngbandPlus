@@ -2,7 +2,7 @@
  * File: cmd0.c
  * Purpose: Deal with command processing.
  *
- * Copyright (c) 2007 Andrew Sidwell, Ben Harrison
+ * Copyright (c) 2009 Nick McConnell, Andrew Sidwell, Ben Harrison
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

@@ -8,11 +8,19 @@
  * generate objects (inc. Acquirement code) and treasures, object &
  * inventory routines, inventory sorting, equipment.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2009 Nick McConnell, Si Griffin, Leon Marrick & Bahman Rabii, 
+ * Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -2835,7 +2843,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
       rating += 15;
       
       /* Mega-Hack -- increase the rating again */
-	  rating += a_ptr->cost / 2000;
+      rating += a_ptr->cost / 2000;
       
       /* Set the good item flag */
       good_item_flag = TRUE;

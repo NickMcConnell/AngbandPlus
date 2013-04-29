@@ -5,11 +5,19 @@
  * generation of monsters, summoning, monster reaction to pain 
  * levels, monster learning.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2009 Nick McConnell, Leon Marrick & Bahman Rabii, 
+ * Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -792,8 +800,8 @@ void display_monlist(void)
       line++;
     }
   
-  /* Free the race counters 
-     FREE(race_counts, sizeof(u16b)); */
+  /* Free the race counters */
+  FREE(race_counts); 
   
   /* Erase the rest of the window */
   for (idx = line; idx < Term->hgt; idx++)

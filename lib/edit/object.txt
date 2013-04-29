@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:1.0.2
+V:1.0.3
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -510,8 +510,8 @@ A:6/1
 P:4:1d3:0:0:0:250
 F:LITE | SHOW_MODS
 D:A slender birch staff, enchanted to give light from the tip, which can be
-D:activated to restore a little mana. It can be used for attack or defence in 
-D:an emergency.
+D:activated by mages and necromancers to restore a little mana. It can be used 
+D:for attack or defence in an emergency.
 
 
 N:72:& Whip~
@@ -2305,7 +2305,7 @@ I:70:11:0
 W:5:0:5:150
 A:5/1
 F:EASY_KNOW
-D:that transports you from the depths to the town and visa versa.
+D:that transports you from the depths to the town and vice versa.
 D:  There is a delay before it takes effect.
 
 N:332:Identify

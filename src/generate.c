@@ -13,9 +13,16 @@
  * Nick McConnell, Leon Marrick, Ben Harrison, James E. Wilson, 
  * Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -45,7 +52,7 @@
  * 1/chance of being a themed level - higher in wilderness -NRM-
  */
 #define THEMED_LEVEL_CHANCE  (stage_map[p_ptr->stage][STAGE_TYPE] == CAVE \
-			      ? 180 : 1)
+			      ? 180 : 70)
 
 
 /*
@@ -6660,7 +6667,7 @@ static bool build_themed_level(void)
   
   /* Now have a feeling */
   do_feeling = TRUE;
-  
+          
   /* Update the level indicator */
   p_ptr->redraw |= (PR_DEPTH);
     
@@ -9656,6 +9663,13 @@ bool place_web(int type)
 	  v_idx[v_cnt++] = i;
 	}
     }
+
+  /* None to be found */
+  if (v_cnt == 0)
+    {
+      free(v_idx);
+      return (FALSE);
+    }
   
   /* Access a random vault record */
   v_ptr = &v_info[v_idx[rand_int(v_cnt)]];
@@ -9790,11 +9804,12 @@ static void valley_gen(void)
 	    cave_set_feat(y, x, FEAT_VOID);
 	  
 	  /* Down slides */
-	  if (x == path_x[j])
-	    {
-	      cave_set_feat(y, x, FEAT_MORE_SOUTH);
-	      j++;
-	    }
+	  if (j < num)
+	    if (x == path_x[j])
+	      {
+		cave_set_feat(y, x, FEAT_MORE_SOUTH);
+		j++;
+	      }
 	}
     }  	 
  
@@ -10523,8 +10538,7 @@ void generate_cave(void)
 	  if ((feeling > fudge + 9) ||
 	      ((p_ptr->depth >= 5) && (feeling > fudge + 8)) ||
 	      ((p_ptr->depth >= 10) && (feeling > fudge + 7)) ||
-	      ((p_ptr->depth >= 20) && (feeling > fudge + 6)) ||
-	      ((p_ptr->depth >= 40) && (feeling > fudge + 5)))
+	      ((p_ptr->depth >= 20) && (feeling > fudge + 6)))
 	    {
 	      /* Give message to cheaters */
 	      if (cheat_room || cheat_hear ||

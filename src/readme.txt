@@ -1,8 +1,9 @@
-	Faangband Source Material
+	FAangband Source Material
 
 Below is a description of the uses to which the material in this distribution
-can be put (basically anything, with attribution).  I can't put it better;
-I'll just endorse Leon's and Bahman's comments.
+can be put (basically anything, with attribution, and noting the licence).  
+Obviously, contact me rather than Leon or Bahman, and I will be happy to help 
+you.
 
 Nick McConnell
 

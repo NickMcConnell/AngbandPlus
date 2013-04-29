@@ -26,11 +26,6 @@
 #include <gdk/gdkkeysyms.h>
 #include <glade/glade.h>
 
-/*
- * Include some helpful X11 code.
- */
-#include "maid-x11.h"
-
 
 #define MAX_TERM_DATA 1
 /*
@@ -387,7 +382,6 @@ static void save_game_gtk(void)
 
 static void hook_quit(cptr str)
 {
-	(void)unregister_angband_fonts();
 	save_prefs();
 	gtk_exit(0);
 }
@@ -1207,9 +1201,6 @@ errr init_gtk(int argc, char **argv)
 	/* Initialize the environment */
 	gtk_init(&argc, &argv);
 	
-	/* Make the new angband fonts available */
- 	(void)register_angband_fonts();
-
 	/* Parse args */
 	for (i = 1; i < argc; i++)
 	{	

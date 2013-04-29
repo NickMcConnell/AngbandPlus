@@ -100,7 +100,7 @@ extern int race_town_prob[10][14];
 byte type_of_store[MAX_STORES];
 
 /* variable.c */
-extern char *copyright[5];
+extern const char *copyright;
 extern byte version_major;
 extern byte version_minor;
 extern byte version_patch;

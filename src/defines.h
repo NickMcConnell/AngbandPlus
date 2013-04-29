@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"1.0.2"
+#define VERSION_STRING	"1.0.3"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	0
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -445,25 +445,25 @@
 
 
 /*
- * There is a 1/25 (4%) chance of inflating the requested object_level
+ * There is a 1/40 (2.5%) chance of inflating the requested object_level
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
  */
-#define GREAT_OBJ	25
+#define GREAT_OBJ	40
 
 /*
- * There is a 1/20 (5%) chance that ego-items with an inflated base-level are
+ * There is a 1/25 (4%) chance that ego-items with an inflated base-level are
  * generated when an object is turned into an ego-item (see make_ego_item()
  * in object2.c). As above, lower values yield better ego-items more often.
  */
-#define GREAT_EGO	20
+#define GREAT_EGO	25
 
 /*
- * There is a 1/40 (2.5%) chance of inflating the requested monster_level
+ * There is a 1/25 (4%) chance of inflating the requested monster_level
  * during the creation of a monsters (see "get_mon_num()" in "monster2.c").
- * Lower values yield harder monsters more often.  Value lowered in Oangband.
+ * Lower values yield harder monsters more often.  Value raised in FAangband.
  */
-#define NASTY_MON	40	/* 1/chance of inflated monster level */
+#define NASTY_MON	25	/* 1/chance of inflated monster level */
 
 /*
  * Fraction of turns in which the extend magic special ability causes timers to

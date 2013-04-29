@@ -18,8 +18,9 @@
 CC = gcc
 OPT ?= -O2
 
+include Makefile.inc
+
 # Name of the game
-NAME =FAangband
 APPNAME =$(NAME).app
 EXE =faangband
 
@@ -67,8 +68,6 @@ OBJS = $(BASEOBJS) main-crb.o
 # Default target.
 #
 all: install
-
-include Makefile.inc
 
 
 #
@@ -194,7 +193,7 @@ PACKAGE_NAME = $(NAME)-$(VERSION)
 dist: install
 	@rm -rf disttemp*
 	mkdir -p disttemp/Docs
-	cp ../readme.txt ../changes.txt disttemp/Docs
+	cp ../copying.txt disttemp/Docs
 	cp -R -p "$(APPBNDL)" disttemp
 	$(SETFILE) -a B disttemp/$(APPNAME)
 

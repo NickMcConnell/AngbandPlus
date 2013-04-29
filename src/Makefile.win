@@ -13,7 +13,7 @@
 #
 
 # Executable name and default target
-EXE = FAangband.exe
+EXE = $(NAME).exe
 all: ../$(EXE)
 
 ifneq (,$(findstring \system32,$(PATH)))

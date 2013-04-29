@@ -1,8 +1,4 @@
-Valid for FAangband 0.2.0
-
-FAangband.ico, angband.rc, readdib.c, readdib.h
-** Windows specific files.  Delete or ignore if not using a windows
-   system.
+Valid for FAangband 1.0
 
 attack.c
 /* All player non-magical attack code.  Hit chance, critical hits when 
@@ -22,6 +18,10 @@ cave.c
  * of objects and features, small-scale dungeon maps,  and management,
  * magic mapping, wizard light the dungeon, forget the dungeon, the pro-
  * jection code, disturb player, check for quest level.
+
+cmd0.c
+/* Deal with command processing. 
+
 
 cmd1.c
 /* Searching, pickup, effects of traps, move one square (including special 
@@ -133,9 +133,12 @@ object2.c
  * stacking.  Creating special artifacts, Adding charges to wands and 
  * staffs, bonuses to weapons and armour, powers and higher pvals to 
  * amulets and rings, fuel to lights, trap difficulty to chests, creating
- * ego items, what consititutes "cursed", "good", and "great" items,
+ * ego items, what consititutes "good" and "great" items,
  * generate objects (inc. Acquirement code) and treasures, object &
  * inventory routines, inventory sorting, equipment.
+
+prefs.c
+/* Pref file handling.
 
 randart.c
 /* Random artifacts.  Selling and providing qualities.  Choosing a object 
@@ -191,7 +194,8 @@ tables.c
  * default values.  Druid blows.  The entire world map structure, and 
  * store types.
 
----
+ui.c
+/* Generic menu interaction functions
 
 util.c
 /* Functions, etc. for various machines that need them.  Basic text-handing 
@@ -223,6 +227,9 @@ xtra2.c
  * tions.  Sorting, targetting, what and how squares appear when looked at,
  * prompting for a direction to aim at and move in.
 
+z-file.c
+/* Low level file handling functions
+
 z-form.c
 /* Purpose: Low level text formatting -BEN- */
 
@@ -232,6 +239,9 @@ z-rand.c
 z-term.c
 /* Purpose: a generic, efficient, terminal window package -BEN- */
 
+z-type.c
+/* Define some type unions
+
 z-util.c
 /* Purpose: Low level utilities -BEN- */
 
@@ -240,6 +250,9 @@ z-virt.c
 
 angband.h
 /* The basic include file.
+
+cmds.h
+/* Definitions of the command processing functions 
 
 config.h
 /* Compilation options.
@@ -272,6 +285,15 @@ h-system.h
 h-type.h
  * Basic "types".
 
+init.h
+/* Definitions of the initialisation functions
+
+main.h
+/* Definitions of the *nix display modules
+
 types.h
 /* Definitions for a large number of types and arrays.  This file controls
  * what sort of data can go where.
+
+ui.h
+/* Definitions of the menu functions

@@ -1,15 +1,7 @@
-Below are details of the current Angband licencing situation; the FAangband 
-licencing is less clear.  Certainly it can be considered to be under the 
-Angband licence (with the same exceptions as Angband).  There are probably bits 
-of it which are not GPL "clean", so it should not be distributed under the GPL.
-
-
-----------------------------------------------------------------
-
-Angband is free software; you can redistribute it and/or modify it under the 
-terms of either the GNU General Public License as published by the Free Software 
-Foundation, version 2, or the "Angband licence", shown below, with some 
-exceptions:
+FAangband is free software; you can redistribute it and/or modify it under the 
+terms of either the GNU General Public License as published by the Free 
+Software Foundation, version 2, or the "Angband licence", shown below, with 
+some exceptions:
 
  * The SDL runtime libraries (if provided with your copy of the game) are under
    the following licence:
@@ -31,10 +23,21 @@ exceptions:
    only under the terms of the Creative Commons Attribution 3.0 licence:
    http://creativecommons.org/licenses/by/3.0/
 
- * the sounds are freeware, whatever that means.
+ * The sounds are from the Dubtrain Angband Sound Pack v3.1.0, released under 
+   the following Creative Commons Licence:
+   
+   1) Modifications may be made to any part of this collection, as long as 
+   Dubtrain Records (www.Dubtrain.com) is represented as the original author, 
+   and modifications are likewise clearly credited.
 
- * the font files are under the licences noted in lib/xtra/font/copying.txt,
-   all of which are OSI-compliant.
+   2) This work and all derivative works must remain Non-Commercial, and must 
+   be allowed to be freely distributed under these same license terms.
+
+   converted from .wav to .mp3 by Nick McConnell.
+
+ * The font files are all by Leon Marrick and/or Sheldon Simms III and/or Nick
+   McConnell, all of whom have agreed to their Angband work being released
+   under the GPL.
 
 
 It is considered good practice to retain this statement for derivatives, rather
