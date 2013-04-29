@@ -97,12 +97,12 @@ static cptr d_info_special_flag[] =
 {
 	"SEEN",
 	"ICKY",
-	"XXX3",
-	"XXX4",
-	"XXX5",
-	"XXX6",
-	"XXX7",
-	"XXX8"
+        "BLOODY",
+        "CURSED",
+        "GLOOMY",
+        "PORTAL",
+        "SILENT",
+        "STATIC"
 };
 
 
@@ -157,7 +157,6 @@ static cptr r_info_blow_method[] =
 	"TRAP",
 	"SHOOT",
 	"AURA",
-	"EXPLODE",
 	NULL
 };
 
@@ -264,7 +263,7 @@ static cptr r_info_blow_effect[] =
  */
 static cptr f_info_flags1[] =
 {
-     /*   "LOS",     */
+        "LOS",
 	"PROJECT",
 	"MOVE",
 	"PLACE",
@@ -295,8 +294,7 @@ static cptr f_info_flags1[] =
 	"INNER",
 	"OUTER",
 	"SOLID",
-	"HIT_TRAP",
-	"ATTR_LITE"
+        "HIT_TRAP"
 };
 
 /*
@@ -310,7 +308,7 @@ static cptr f_info_flags2[] =
 	"BRIDGED",
 	"COVERED",
 	"GLOW",
-	"ICKY",
+        "ATTR_LITE",
 	"WATER",
 	"LAVA",
 	"SHALLOW",
@@ -338,6 +336,44 @@ static cptr f_info_flags2[] =
 	"KILL_MOVE"
 };
 
+/*
+ * Feature info flags
+ */
+static cptr f_info_flags3[] =
+{
+        "PICK_TRAP",
+        "PICK_DOOR",
+        "ALLOC",
+        "CHEST",
+        "DROP_1D2",
+        "DROP_2D2",
+        "DROP_GOOD",
+        "DROP_GREAT",
+        "HURT_POIS",
+        "HURT_ELEC",
+        "HURT_WATER",
+        "HURT_BWATER",
+        "USE_FEAT",
+        "GET_FEAT",
+        "CAN_HIDE",
+        "HIDE_FLY",
+        "OUTSIDE",
+        "EASY_CLIMB",
+        "HURT_ROOM",
+        "NEED_WALL",
+        "TOWN",
+        "ATTR_FACE",
+        "FACE_EAST",
+        "FACE_WEST",
+        "FACE_NORTH",
+        "FACE_SOUTH",
+        "NO_MANA",
+        "NO_LITE",
+        "COLLAPSE",
+        "ERUPT",
+        "STRIKE",
+        "DYNAMIC"
+};
 
 /*
  * Monster race flags
@@ -466,7 +502,7 @@ static cptr r_info_flags4[] =
 	"WAIL",
 	"SPIT",
 	"SHOOT",
-	"XXX1X4",
+        "EXPLODE",
 	"XXX2X4",
 	"BR_ACID",
 	"BR_ELEC",
@@ -572,6 +608,145 @@ static cptr r_info_flags6[] =
 	"S_UNIQUE"
 };
 
+static u32b hack_rf7_flags[52]=
+{
+/* A */ (RF7_HAS_CORPSE | RF7_HAS_WING | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH |
+         RF7_HAS_SCALE | RF7_HAS_LEG | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_CHEST | RF7_DROP_JEWELRY ),
+        (RF7_HAS_CORPSE | RF7_HAS_WING | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_FEATHER |
+         RF7_HAS_HEAD | RF7_HAS_BLOOD | RF7_DROP_JEWELRY | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH |
+         RF7_HAS_FUR | RF7_HAS_HEAD | RF7_HAS_LEG | RF7_HAS_BLOOD |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_WING | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH |
+         RF7_HAS_SCALE | RF7_HAS_LEG | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_CHEST | RF7_DROP_JEWELRY ),
+/* E */ (RF7_DROP_ARMOR | RF7_DROP_JEWELRY | RF7_DROP_WEAPON | RF7_DROP_TOOL),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH |
+         RF7_HAS_SCALE | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK),
+        (RF7_DROP_CLOTHES | RF7_DROP_JUNK | RF7_DROP_TOOL | RF7_DROP_MUSIC | RF7_DROP_WRITING),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH |
+         RF7_HAS_FUR | RF7_HAS_LEG | RF7_HAS_BLOOD | RF7_HAS_FEATHER |
+         RF7_HAS_SCALE | RF7_HAS_WING |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK | RF7_DROP_JEWELRY),
+/* I */ (RF7_HAS_CORPSE | RF7_HAS_LEG | RF7_HAS_WING | RF7_HAS_SKIN |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_BLOOD | RF7_HAS_TEETH |
+         RF7_HAS_SKIN | RF7_HAS_HEAD |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_LEG | RF7_HAS_SKIN |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK),
+        (RF7_HAS_SKULL | RF7_HAS_DUST |
+         RF7_DROP_RSW | RF7_DROP_WRITING | RF7_DROP_JEWELRY | RF7_DROP_CLOTHES),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_JEWELRY | RF7_DROP_WRITING | RF7_DROP_WEAPON),
+        (RF7_HAS_SKULL | RF7_HAS_DUST |
+         RF7_DROP_ARMOR | RF7_DROP_WRITING | RF7_DROP_JEWELRY),
+/* O */ (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES | RF7_DROP_CHEST |
+         RF7_DROP_TOOL | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES | RF7_DROP_CHEST |
+         RF7_DROP_TOOL | RF7_DROP_JUNK | RF7_DROP_MUSIC | RF7_DROP_LITE),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_FUR |
+         RF7_HAS_LEG | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_WEAPON | RF7_DROP_CHEST | RF7_DROP_FOOD | RF7_DROP_TOOL),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_LEG |
+         RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK | RF7_DROP_WEAPON),
+        (RF7_HAS_CORPSE | RF7_HAS_LEG | RF7_HAS_SKIN |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES | RF7_DROP_CHEST |
+         RF7_DROP_TOOL | RF7_DROP_JUNK),
+/* U */ (RF7_HAS_SKULL |
+         RF7_DROP_WEAPON | RF7_DROP_ARMOR | RF7_DROP_JEWELRY | RF7_DROP_CHEST | RF7_DROP_WRITING),
+        (RF7_HAS_SKULL |  RF7_HAS_SKELETON | RF7_HAS_DUST |
+         RF7_DROP_CLOTHES | RF7_DROP_RSW | RF7_DROP_WRITING | RF7_DROP_JEWELRY | RF7_DROP_ARMOR |
+         RF7_DROP_WEAPON),
+        (RF7_HAS_SKULL | RF7_HAS_DUST |
+         RF7_DROP_CLOTHES | RF7_DROP_RSW | RF7_DROP_WRITING | RF7_DROP_JEWELRY | RF7_DROP_ARMOR |
+         RF7_DROP_WEAPON),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_ARM | RF7_HAS_LEG | RF7_HAS_SKIN |
+         RF7_DROP_JEWELRY),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD | RF7_HAS_FUR |
+         RF7_DROP_FOOD | RF7_DROP_CLOTHES | RF7_DROP_JUNK),
+/* Z */ (RF7_DROP_ARMOR | RF7_DROP_JEWELRY | RF7_DROP_WEAPON | RF7_DROP_TOOL),
+/* a */ (RF7_HAS_CORPSE | RF7_HAS_LEG | RF7_HAS_SKIN |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_FUR | RF7_HAS_BLOOD |
+         RF7_HAS_WING | RF7_HAS_HEAD |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_LEG | RF7_HAS_SKIN |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_WING | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH |
+         RF7_HAS_SCALE | RF7_HAS_LEG | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_JEWELRY ),
+/* e */ (RF7_HAS_CORPSE | RF7_HAS_BLOOD |
+         RF7_DROP_POTION | RF7_DROP_JEWELRY | RF7_DROP_WRITING),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH |
+         RF7_HAS_FUR | RF7_HAS_LEG | RF7_HAS_BLOOD | RF7_HAS_HEAD |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK),
+        (RF7_HAS_ARM | RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD |
+         RF7_DROP_WEAPON | RF7_DROP_TOOL),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
+         RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_WRITING |
+         RF7_DROP_RSW),
+/* i */ (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SLIME |
+         RF7_DROP_JEWELRY | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_SLIME |
+         RF7_DROP_ARMOR | RF7_DROP_WEAPON | RF7_DROP_JUNK | RF7_DROP_TOOL | RF7_DROP_JEWELRY),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
+         RF7_DROP_TOOL | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
+         RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_WRITING | RF7_DROP_RSW | RF7_DROP_JEWELRY),
+        (RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_BLOOD | RF7_HAS_TEETH |
+         RF7_HAS_SKIN |
+         RF7_DROP_POTION | RF7_DROP_WRITING),
+/* o */ (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
+         RF7_DROP_TOOL | RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
+         RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_JEWELRY),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES | RF7_DROP_RSW | RF7_DROP_JEWELRY |
+         RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_WRITING | RF7_DROP_MUSIC),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH |
+         RF7_HAS_FUR | RF7_HAS_HEAD | RF7_HAS_LEG | RF7_HAS_BLOOD |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK | RF7_DROP_JEWELRY),
+        (RF7_DROP_ARMOR | RF7_DROP_WEAPON | RF7_DROP_JEWELRY),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
+         RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
+         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
+         RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_MUSIC | RF7_DROP_JEWELRY),
+/* u */ (RF7_HAS_SKULL |
+         RF7_DROP_WEAPON | RF7_DROP_ARMOR | RF7_DROP_JEWELRY | RF7_DROP_WRITING),
+        (RF7_DROP_ARMOR | RF7_DROP_JEWELRY | RF7_DROP_WEAPON | RF7_DROP_TOOL),
+        (RF7_HAS_CORPSE | RF7_HAS_SLIME |
+         RF7_DROP_FOOD | RF7_DROP_CLOTHES | RF7_DROP_JUNK),
+        (RF7_DROP_JUNK),
+        (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_LEG |
+         RF7_HAS_SCALE | RF7_HAS_HEAD |
+         RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK | RF7_DROP_WEAPON | RF7_DROP_CHEST),
+/* z */ (RF7_DROP_ARMOR | RF7_DROP_WEAPON | RF7_DROP_JEWELRY)
+};
 
 /*
  * Object flags
@@ -1700,6 +1875,19 @@ errr init_d_info_txt(FILE *fp, char *buf)
 			s=buf+2;
 
 			/* Analyze the race flag */
+                        for (n1 = 0; r_info_flags1[n1]; n1++)
+			{
+                                if (streq(s, r_info_flags1[n1])) break;
+			}
+
+			if (n1<32)
+			{
+                                d_ptr->r_flag = n1+1;
+
+				continue;
+			}
+
+                	/* Analyze the race flag */
                         for (n1 = 0; r_info_flags2[n1]; n1++)
 			{
                                 if (streq(s, r_info_flags2[n1])) break;
@@ -1821,6 +2009,16 @@ static errr grab_one_feat_action(feature_type *f_ptr, cptr what, int count)
 		}
 	}
 
+        /* Check flags3 */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, f_info_flags3[i]))
+		{
+                        f_ptr->state[count].action=i+64;
+			return (0);
+		}
+	}
+
 	/* Oops */
 	msg_format("Unknown feature action '%s'.", what);
 
@@ -1836,9 +2034,6 @@ static errr grab_one_feat_action(feature_type *f_ptr, cptr what, int count)
 static errr grab_one_feat_flag(feature_type *f_ptr, cptr what)
 {
 	int i;
-
-	/* Dummy flags */
-       if (streq(what, "LOS")) return (0);
 
 	/* Check flags1 */
 	for (i = 0; i < 32; i++)
@@ -1860,6 +2055,15 @@ static errr grab_one_feat_flag(feature_type *f_ptr, cptr what)
 		}
 	}
 
+        /* Check flags3 */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, f_info_flags3[i]))
+		{
+                        f_ptr->flags3 |= (1L << i);
+			return (0);
+		}
+	}
 
 	/* Oops */
 	msg_format("Unknown feature flag '%s'.", what);
@@ -1989,7 +2193,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			f_ptr->spell=0;
 
 			/* Set default state */
-			f_ptr->other= i;
+                        f_ptr->defaults = i;
 
 			/* Set other states */
 			for (n1=0;n1<MAX_FEAT_STATES;n1++)
@@ -2112,7 +2316,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			{
 
 				/* Analyze result */
-				f_ptr->other = atoi(t);
+                                f_ptr->defaults = atoi(t);
 
 				/* Next... */
 				continue;
@@ -3566,6 +3770,18 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			r_ptr->d_attr = tmp;
 			r_ptr->d_char = sym;
 
+                        /* Hack -- set some rf7 flags */
+                        if ((r_ptr->d_char >='A') && (r_ptr->d_char <='Z'))
+                        {
+                                r_ptr->flags7 |= hack_rf7_flags[r_ptr->d_char-'A'];
+                        }
+
+                        /* Hack -- set some rf7 flags */
+                        if ((r_ptr->d_char >='a') && (r_ptr->d_char <='z'))
+                        {
+                                r_ptr->flags7 |= hack_rf7_flags[r_ptr->d_char-'a'+26];
+                        }
+
 			/* Next... */
 			continue;
 		}
@@ -3643,6 +3859,20 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 			/* Invalid method */
 			if (!r_info_blow_method[n1]) return (PARSE_ERROR_GENERIC);
+
+                        /* Hack -- update the rf7 flags */
+                        switch (n1)
+                        {
+                                case RBM_CLAW:
+                                        r_ptr->flags7 |= RF7_HAS_CLAW;
+                                        break;
+                                case RBM_BUTT:
+                                        r_ptr->flags7 |= RF7_HAS_HORN;
+                                        break;
+                                case RBM_SHOOT:
+                                        r_ptr->flags7 |= RF7_DROP_MISSILE;
+                                        break;
+                        }
 
 			/* Analyze the second field */
 			for (s = t; *t && (*t != ':'); t++) /* loop */;

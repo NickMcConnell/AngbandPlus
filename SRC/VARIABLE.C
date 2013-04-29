@@ -113,6 +113,8 @@ s16b coin_type;                 /* Hack -- force coin type */
 
 s16b food_type;                 /* Hack -- force food type */
 
+s16b race_drop_idx;             /* Hack -- force race drop */
+
 bool opening_chest;             /* Hack -- prevent chest generation */
 
 bool shimmer_monsters;  /* Hack -- optimize multi-hued monsters */
@@ -359,7 +361,7 @@ byte (*cave_info)[256];
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
  */
-byte (*cave_feat)[DUNGEON_WID];
+s16b (*cave_feat)[DUNGEON_WID];
 
 
 

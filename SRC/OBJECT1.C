@@ -351,8 +351,12 @@ static bool object_easy_know(int i)
 		case TV_FLASK:
 		case TV_JUNK:
 		case TV_BOTTLE:
-		case TV_SKELETON:
 		case TV_SPIKE:
+                case TV_BODY:
+                case TV_SKIN:
+                case TV_SKELETON:
+		case TV_EGG:
+                case TV_STATUE:
 		{
 			return (TRUE);
 		}
@@ -981,9 +985,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  \
 } while (0)
 
-
-
-
 /*
  * Creates a description of the item "o_ptr", and stores it in "out_val".
  *
@@ -1128,12 +1129,10 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	switch (o_ptr->tval)
 	{
 		/* Some objects are easy to describe */
-		case TV_SKELETON:
 		case TV_BOTTLE:
 		case TV_JUNK:
 		case TV_SPIKE:
 		case TV_FLASK:
-		case TV_CHEST:
                 case TV_INSTRUMENT:
 		case TV_SPELL:
 		{
@@ -1314,6 +1313,46 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			strcpy(buf, basenm);
 			return;
 		}
+
+                /* Hack -- Body Parts/Skeletons/Skins etc. */
+                case TV_BODY:
+                case TV_SKELETON:
+                case TV_EGG:
+                case TV_SKIN:
+		case TV_STATUE:
+                {
+                        if (o_ptr->dropped <= 0)
+                        {
+                                switch (o_ptr->tval)
+                                {
+                                        case TV_SKIN:
+                                                modstr = "dusty";
+                                                break;
+                                        case TV_BODY:
+                                                modstr = "mummified";
+                                                break;
+					default:
+                                                modstr = "broken";
+                                                break;
+                                }
+                        }
+                        else if (r_info[o_ptr->dropped].flags1 & (RF1_UNIQUE))
+                        {
+                                char tmp_buf[160];
+
+                                strcpy(tmp_buf, r_name + r_info[o_ptr->dropped].name);
+                                strcat(tmp_buf, "'s");
+                                modstr = tmp_buf;
+
+                                /* Skip a/an */
+                                if (basenm[2] == '#') basenm = &basenm[2];
+                        }
+                        else
+                        {
+                                modstr = (r_name + r_info[o_ptr->dropped].name);
+                        }
+                        break;
+                }
 
 		/* Hack -- Default -- Used in the "inventory" routine */
 		default:
@@ -1525,91 +1564,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* No more details wanted */
 	if (mode < 1) goto object_desc_done;
 
-
-	/* Hack -- Chests must be described in detail */
-	if (o_ptr->tval == TV_CHEST)
-	{
-		cptr tail = "";
-
-		/* Not searched yet */
-		if (!known)
-		{
-			/* Nothing */
-		}
-
-		/* May be "empty" */
-		else if (!o_ptr->pval)
-		{
-			tail = " (empty)";
-		}
-
-		/* May be "disarmed" */
-		else if (o_ptr->pval < 0)
-		{
-			if (chest_traps[0 - o_ptr->pval])
-			{
-				tail = " (disarmed)";
-			}
-			else
-			{
-				tail = " (unlocked)";
-			}
-		}
-
-		/* Describe the traps, if any */
-		else
-		{
-			/* Describe the traps */
-			switch (chest_traps[o_ptr->pval])
-			{
-				case 0:
-				{
-					tail = " (Locked)";
-					break;
-				}
-				case CHEST_LOSE_STR:
-				{
-					tail = " (Poison Needle)";
-					break;
-				}
-				case CHEST_LOSE_CON:
-				{
-					tail = " (Poison Needle)";
-					break;
-				}
-				case CHEST_POISON:
-				{
-					tail = " (Gas Trap)";
-					break;
-				}
-				case CHEST_PARALYZE:
-				{
-					tail = " (Gas Trap)";
-					break;
-				}
-				case CHEST_EXPLODE:
-				{
-					tail = " (Explosion Device)";
-					break;
-				}
-				case CHEST_SUMMON:
-				{
-					tail = " (Summoning Runes)";
-					break;
-				}
-				default:
-				{
-					tail = " (Multiple Traps)";
-					break;
-				}
-			}
-		}
-
-		/* Append the tail */
-		object_desc_str_macro(t, tail);
-	}
-
-
 	/* Display the item like a weapon */
 	if (f3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
 
@@ -1757,26 +1711,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		object_desc_chr_macro(t, p2);
 	}
 
-	/* Hack -- Rods have a "charging" indicator */
-	else if (((known) || (o_ptr->ident & (IDENT_BONUS))) && (o_ptr->tval == TV_ROD))
-	{
-		/* Hack -- Dump " (charging)" if relevant */
-		if (o_ptr->pval)
-		{
-			/* Hack -- variant rod stack */
-                        if (o_ptr->stackc)
-			{
-                                object_desc_str_macro(t," (");
-                                object_desc_num_macro(t, o_ptr->stackc);
-                                object_desc_str_macro(t," charging)");
-			}
-			else
-			{
-				object_desc_str_macro(t, " (charging)");
-			}
-		}
-	}
-
 	/* Hack -- Process Lanterns/Torches */
 	else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
 	{
@@ -1880,8 +1814,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 
-	/* Indicate "charging" artifacts */
-	if (known && o_ptr->timeout)
+        /* Indicate "charging" artifacts/rods */
+        if (((known) || (o_ptr->ident & (IDENT_BONUS))) && o_ptr->timeout)
 	{
                 /* Hack -- variant timeout stack */
                 if (o_ptr->stackc)

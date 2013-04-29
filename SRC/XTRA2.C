@@ -2157,7 +2157,7 @@ int get_coin_type(monster_race *r_ptr)
 	cptr name = (r_name + r_ptr->name);
 
 	/* Analyze "coin" monsters */
-	if (r_ptr->d_char == '$')
+        if ((r_ptr->d_char == '$') || (r_ptr->d_char == 'g'))
 	{
 		/* Look for textual clues */
 		if (strstr(name, " copper ")) return (2);
@@ -2177,7 +2177,6 @@ int get_coin_type(monster_race *r_ptr)
 	/* Assume nothing */
 	return (0);
 }
-
 
 /*
  * Handle the "death" of a monster.
@@ -2216,6 +2215,7 @@ void monster_death(int m_idx)
 
 	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
+        bool do_chest = (r_ptr->flags7 & (RF7_DROP_CHEST));
 
         int force_food = get_food_type(r_ptr);
 	int force_coin = get_coin_type(r_ptr);
@@ -2259,6 +2259,43 @@ void monster_death(int m_idx)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 
+
+        /* Drop corpses */
+        if (variant_drop_body)
+        {
+                /* Hack -- only rarely drop bodies */
+                if ((rand_int(100)<30) || (r_ptr->flags1 & (RF1_UNIQUE)) ||
+			(r_ptr->flags2 & (RF2_REGENERATE)) ||
+                        (r_ptr->level > p_ptr->depth))
+                {
+                        /* Get local object */
+                        i_ptr = &object_type_body;
+
+                        /* Wipe the object */ 
+                        object_wipe(i_ptr);
+
+                        /* Drop a body? */
+                        if (make_body(i_ptr, m_ptr->r_idx))
+                        {
+
+                                /* Note who dropped it */
+                                i_ptr->dropped = m_ptr->r_idx;
+
+				/* I'll be back, Bennett */
+				if (r_ptr->flags2 & (RF2_REGENERATE)) i_ptr->timeout = damroll(3,6);
+
+                                /* Drop it in the dungeon */
+                                drop_near(i_ptr, -1, y, x);
+                        }
+
+        	        /* Add some dust */
+	                if (r_ptr->flags7 & (RF7_HAS_DUST)) feat_near(FEAT_FLOOR_DUST_T,m_ptr->fy,m_ptr->fx);
+
+                }
+        }
+
+	/* Do we drop more treasure? */
+        if (m_ptr->mflag & (MFLAG_MADE)) return;
 
 	/* Mega-Hack -- drop "winner" treasures */
 	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
@@ -2310,6 +2347,9 @@ void monster_death(int m_idx)
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
 
+        /* Hack -- handle monster drops */
+        race_drop_idx = m_ptr->r_idx;
+
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
 
@@ -2321,6 +2361,17 @@ void monster_death(int m_idx)
 
 		/* Wipe the object */
 		object_wipe(i_ptr);
+
+                /* Make Chest */
+                if (do_chest && do_item && (rand_int(100) < 5))
+                {
+                        int chest;
+
+                        /* Drop it in the dungeon */
+                        if (make_chest(&chest)) feat_near(chest,y,x);
+
+                        continue;
+                }
 
 		/* Make Gold */
 		if (do_gold && (!do_item || (rand_int(100) < 50)))
@@ -2342,6 +2393,10 @@ void monster_death(int m_idx)
 			dump_item++;
 		}
 
+                /* Note who dropped it */
+                /* Hack -- don't mark existing skeletons */
+                if (i_ptr->dropped <= 0) i_ptr->dropped = m_ptr->r_idx;
+
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
 	}
@@ -2355,6 +2410,8 @@ void monster_death(int m_idx)
 	/* Reset "coin" type */
 	coin_type = 0;
 
+        /* Reset "monster drop" type */
+        race_drop_idx = 0;
 
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
@@ -2463,13 +2520,57 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	s32b div, new_exp, new_exp_frac;
 
-
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
-
 	/* Wake it up */
 	m_ptr->csleep = 0;
+
+        /* Are we hurting it badly? */
+        if ((variant_drop_body) && ((m_ptr->maxhp / 3) < dam) && (m_ptr->maxhp > rand_int(100)))
+        {
+                object_type *i_ptr;
+                object_type object_type_body;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Wipe the object */
+		object_wipe(i_ptr);
+
+                /* Rip off a head */
+                if ((m_ptr->hp < dam) && make_head(i_ptr,m_ptr->r_idx))
+                {
+                        /* Note who dropped it */
+                        i_ptr->dropped = m_ptr->r_idx;
+
+                        /* Drop it in the dungeon */
+                        drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
+                }
+                /* Rip off a limb */
+                else if ((m_ptr->hp - dam < m_ptr->maxhp / 10) && make_part(i_ptr,m_ptr->r_idx))
+                {
+                        /* Note who dropped it */
+                        i_ptr->dropped = m_ptr->r_idx;
+
+                        /* Drop it in the dungeon */
+                        drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
+                }
+
+                /* Rip off some skin */
+                else if (make_skin(i_ptr,m_idx))
+                {
+                        /* Note who dropped it */
+                        i_ptr->dropped = m_ptr->r_idx;
+
+                        /* Drop it in the dungeon */
+                        drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
+                }
+
+
+        	/* Add some blood */
+	        if (r_ptr->flags7 & (RF7_HAS_BLOOD)) feat_near(FEAT_FLOOR_BLOOD_T,m_ptr->fy,m_ptr->fx);
+        }
 
 	/* Hurt it */
 	m_ptr->hp -= dam;

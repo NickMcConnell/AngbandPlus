@@ -164,10 +164,11 @@
  * Hack -- Dungeon allocation "types"
  */
 #define ALLOC_TYP_RUBBLE        1       /* Rubble */
+#define ALLOC_TYP_CHEST         2       /* Chest */
 #define ALLOC_TYP_TRAP          3       /* Trap */
 #define ALLOC_TYP_GOLD          4       /* Gold */
 #define ALLOC_TYP_OBJECT        5       /* Object */
-
+#define ALLOC_TYP_FEATURE	6	/* Feature eg fountain */
 
 /*
  * Bounds on some arrays used in the "dun_data" structure.
@@ -377,8 +378,11 @@ static int next_to_walls(int y, int x)
  */
 static void place_rubble(int y, int x)
 {
+        /* Put item under rubble */
+        if (rand_int(100) < 5) cave_set_feat(y, x, FEAT_RUBBLE_H);
+
 	/* Create rubble */
-	cave_set_feat(y, x, FEAT_RUBBLE);
+        else cave_set_feat(y, x, FEAT_RUBBLE);
 }
 
 
@@ -558,6 +562,18 @@ static void alloc_object(int set, int typ, int num)
 			case ALLOC_TYP_OBJECT:
 			{
 				place_object(y, x, FALSE, FALSE);
+				break;
+			}
+
+                        case ALLOC_TYP_CHEST:
+                        {
+                                place_chest(y, x);
+                                break;
+                        }
+
+			case ALLOC_TYP_FEATURE:
+			{
+				place_feature(y, x);
 				break;
 			}
 		}
@@ -2007,7 +2023,7 @@ static void get_room_info(int y, int x)
 		/* Place monster if needed */
                 if ((d_info[i].r_flag) || (d_info[i].r_char))
 		{
-			room_info_mon_flag = d_info[i].r_flag -1;
+                        room_info_mon_flag = d_info[i].r_flag -1;
 			room_info_mon_char = d_info[i].r_char;
 
 			/* Hack -- substitute some monster types */
@@ -2027,11 +2043,6 @@ static void get_room_info(int y, int x)
 
 			/* Place the monster */
 			vault_monsters(y,x,1);
-
-			get_mon_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
 
 		}
 
@@ -2083,6 +2094,13 @@ static void get_room_info(int y, int x)
 
 	/* Terminate index list */
 	room_info[room].section[j] = -1;
+
+        /* Hack -- only clear room info hook here */
+        get_mon_num_hook = NULL;
+
+        /* Prepare allocation table */
+        get_mon_num_prep();
+
 
 }
 
@@ -4567,6 +4585,12 @@ static void cave_gen(void)
 
 		/* Place some traps in the dungeon */
 		alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
+
+		/* Place a chest in a room */
+		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_CHEST, 1);
+
+		/* Place a feature in a room */
+		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_FEATURE, 1);
 
 		/* Determine the character location */
 		new_player_spot();

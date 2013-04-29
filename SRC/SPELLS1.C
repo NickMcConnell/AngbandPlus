@@ -359,6 +359,7 @@ static byte spell_color(int type)
 	switch (type)
 	{
 		case GF_MISSILE:        return (TERM_VIOLET);
+                case GF_EXPLODE:        return (TERM_VIOLET);
 		case GF_ACID:           return (TERM_SLATE);
 		case GF_ELEC:           return (TERM_BLUE);
 		case GF_FIRE:           return (TERM_RED);
@@ -560,14 +561,12 @@ static bool hates_acid(object_type *o_ptr)
 			return (TRUE);
 		}
 
-		/* Ouch */
-		case TV_CHEST:
-		{
-			return (TRUE);
-		}
 
 		/* Junk is useless */
 		case TV_SKELETON:
+                case TV_BODY:
+                case TV_SKIN:
+                case TV_EGG:
 		case TV_BOTTLE:
 		case TV_JUNK:
 		{
@@ -628,12 +627,6 @@ static bool hates_fire(object_type *o_ptr)
 			return (TRUE);
 		}
 
-		/* Chests */
-		case TV_CHEST:
-		{
-			return (TRUE);
-		}
-
 		/* Staffs/Scrolls burn */
 		case TV_STAFF:
 		case TV_SCROLL:
@@ -672,6 +665,8 @@ static bool hates_water(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
+                /* Hack -- immerse vampire skeletons in running water */
+                case TV_SKELETON:
 		case TV_SCROLL:
 		case TV_FOOD:
 		{
@@ -1665,6 +1660,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_alter_feat(y, x, FS_HURT_COLD);
 			}
 			break;
+                case GF_EXPLODE:
 		case GF_METEOR:
 		case GF_SHARD:
 		case GF_FORCE:
@@ -2105,6 +2101,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
 					if3 |= TR3_IGNORE_ELEC;
+				}
 				break;
 			}
 
@@ -2167,6 +2164,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			
 
 			/* Mana -- destroys everything */
+                        /* Explosion -- very destructive to objects */
+                        case GF_EXPLODE:
 			case GF_MANA:
 			{
 				do_kill = TRUE;
@@ -2185,33 +2184,6 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				break;
 			}
 
-			/* Unlock chests */
-			case GF_KILL_TRAP:
-			case GF_KILL_DOOR:
-			{
-				/* Chests are noticed only if trapped or locked */
-				if (o_ptr->tval == TV_CHEST)
-				{
-					/* Disarm/Unlock traps */
-					if (o_ptr->pval > 0)
-					{
-						/* Disarm or Unlock */
-						o_ptr->pval = (0 - o_ptr->pval);
-
-						/* Identify */
-						object_known(o_ptr);
-
-						/* Notice */
-						if (o_ptr->marked)
-						{
-							msg_print("Click!");
-							obvious = TRUE;
-						}
-					}
-				}
-
-				break;
-			}
 		}
 
 
@@ -2276,8 +2248,6 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				/* Redraw */
 				lite_spot(y, x);
 			}
-
-                }
 		}
 	}
 
@@ -2431,13 +2401,20 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Analyze the damage type */
 	switch (typ)
 	{
-		/* Magic Missile -- pure damage */
-		case GF_MISSILE:
+
+                /* Magic missile -- pure damage */
+                case GF_MISSILE:
 		{
 			if (seen) obvious = TRUE;
 			break;
 		}
 
+                /* Explosion -- destructive -- pure damage */
+                case GF_EXPLODE:
+		{
+			if (seen) obvious = TRUE;
+			break;
+		}
 		/* Acid */
 		case GF_ACID:
 		{
@@ -2627,7 +2604,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " is immune.";
 				dam = 0;
 			}
-			break;
+
 			if (r_ptr->flags3 & (RF3_IM_FIRE))
 			{
 				note = " resists.";
@@ -4025,6 +4002,13 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Standard damage */
+                case GF_EXPLODE:
+		{
+			if (fuzzy) msg_print("You are hit by something!");
+			take_hit(dam, killer);
+			break;
+		}
 		/* Holy Orb -- Player only takes partial damage */
 		case GF_HOLY_ORB:
 		{
@@ -4786,8 +4770,6 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
                                 /* Sometimes use lower stack object */
                                 if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
                                 {
-                                        if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
-
                                         if (i_ptr->pval) i_ptr->pval--;
 
                                         if (i_ptr->timeout) i_ptr->timeout = 0;

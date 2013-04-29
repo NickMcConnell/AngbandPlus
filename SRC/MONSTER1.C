@@ -613,7 +613,7 @@ static void roff_aux(int r_idx)
 	if (flags4 & (RF4_WAIL))                vp[vn++] = "wail at you";
 	if (flags4 & (RF4_SPIT))             vp[vn++] = "spit on you";
 	if (flags4 & (RF4_SHOOT))             vp[vn++] = "shoot at you";
-	if (flags4 & (RF4_XXX1))             vp[vn++] = "do something";
+        if (flags4 & (RF4_EXPLODE))             vp[vn++] = "explode";
 	if (flags4 & (RF4_XXX2))             vp[vn++] = "do something";
 
 	/* Describe inate attacks */

@@ -748,7 +748,7 @@ static void bless_weapon(void)
                 o_ptr->name2 = EGO_BLESS_BLADE;
 
                 /* Give special ability */
-                o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_POWER);
+                o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
 
 		object_desc(o_name, o_ptr, FALSE, 0);
 
@@ -845,7 +845,7 @@ static void wield_spell(int item, int sval, int time)
 
 	/* Create the spell */
 	object_prep(i_ptr, lookup_kind(TV_SPELL, sval));
-	i_ptr->pval = time;
+        i_ptr->timeout = time;
 	object_aware(i_ptr);
 	object_known(i_ptr);
 
@@ -1208,6 +1208,26 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 	/* Spell failure chance */
 	chance = spell_chance(spell);
+
+        /* Some rooms only give a (slight) chance */
+        if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+        {
+                /* Special rooms affect some of this */
+                int by = p_ptr->py/BLOCK_HGT;
+                int bx = p_ptr->px/BLOCK_HGT;
+
+                /* Get the room */
+                if(room_info[dun_room[by][bx]].flags & (ROOM_SILENT))
+                {
+                        chance = 99;
+
+                        /* Warn the player */
+                        msg_print("You are engulfed in magical silence.");
+
+                }
+        }                                                            
+
+
 
 	/* Failed spell */
 	if (rand_int(100) < chance)

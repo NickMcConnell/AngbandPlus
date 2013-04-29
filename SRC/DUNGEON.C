@@ -122,7 +122,6 @@ static void sense_inventory(void)
 
 	int feel;
 
-#ifdef ALLOW_OBJECT_INFO
 	u32b f1=0x0L;
 	u32b f2=0x0L;
 	u32b f3=0x0L;
@@ -130,7 +129,6 @@ static void sense_inventory(void)
         u32b af1=0x0L;
         u32b af2=0x0L;
         u32b af3=0x0L;
-#endif
 
 	object_type *o_ptr;
 
@@ -169,8 +167,6 @@ static void sense_inventory(void)
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
 
-#ifdef ALLOW_OBJECT_INFO
-
                 /* Always sense flags to see if we have ability */
                 if ((i >= INVEN_WIELD) && (i != INVEN_BELT))
 		{
@@ -196,7 +192,6 @@ static void sense_inventory(void)
 			f3 |= (if3 & ~(o_ptr->i_object.may_flags3)) & ~(o_ptr->i_object.can_flags3);
 		}
 
-#endif
 		/* Valid "tval" codes */
 		switch (o_ptr->tval)
 		{
@@ -282,7 +277,6 @@ static void sense_inventory(void)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
 
-#ifdef ALLOW_OBJECT_INFO
         /* Hack --- silently notice stuff */
         if ((f1 & (TR1_STR)) && (rand_int(100)<30)) equip_can_flags(TR1_STR,0x0L,0x0L);
         else if (!(af1 & (TR1_STR))) equip_not_flags(TR1_STR,0x0L,0x0L);
@@ -316,7 +310,6 @@ static void sense_inventory(void)
 
         if ((f3 & (TR3_REGEN)) && (rand_int(100)<30)) equip_can_flags(0x0L,0x0L,TR3_REGEN);
         else if (!(af3 & (TR3_REGEN))) equip_not_flags(0x0L,0x0L,TR3_REGEN);
-#endif
 }
 
 
@@ -471,9 +464,11 @@ static void regen_monsters(void)
  */
 static void process_world(void)
 {
-	int i, j;
+        int i, j, k;
 
         feature_type *f_ptr;
+
+        room_info_type *d_ptr;
 
         int mimic;
 
@@ -483,9 +478,12 @@ static void process_world(void)
 
 	cptr name;
 
+        int by,bx;
+
+        bool room;
+
 	/* Every 10 game turns */
 	if (turn % 10) return;
-
 
 	/*** Check the Time and Load ***/
 
@@ -694,6 +692,16 @@ static void process_world(void)
 
         /*** Check the Food, Rest, and Regenerate ***/
 
+        /* Special rooms affect some of this */
+        by = p_ptr->py/BLOCK_HGT;
+        bx = p_ptr->px/BLOCK_HGT;
+
+        /* In a room */
+        room = (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ? TRUE : FALSE;
+
+        /* Get the room */
+        d_ptr = &room_info[dun_room[by][bx]];
+
         /* Tire normally */
         if ((variant_fast_moves) && !(p_ptr->searching || p_ptr->resting))
         {
@@ -814,6 +822,7 @@ static void process_world(void)
 	if (p_ptr->poisoned) regen_amount = 0;
 	if (p_ptr->stun) regen_amount = 0;
 	if (p_ptr->cut) regen_amount = 0;
+        if ((room) && (d_ptr->flags & (ROOM_BLOODY))) regen_amount = 0;
 
 	/* Regenerate Hit Points if needed */
 	if (p_ptr->chp < p_ptr->mhp)
@@ -952,6 +961,9 @@ static void process_world(void)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
+                /* Some rooms make wounds magically worse */
+                if ((room) && (d_ptr->flags & (ROOM_BLOODY))) adjust = -1;
+
 		/* Apply some healing */
 		(void)set_poisoned(p_ptr->poisoned - adjust);
 	}
@@ -973,11 +985,12 @@ static void process_world(void)
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
 
+                /* Some rooms make wounds magically worse */
+                if ((room) && (d_ptr->flags & (ROOM_BLOODY))) adjust = -1;
+                
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
 	}
-
-
 
 	/*** Process Light ***/
 
@@ -1034,13 +1047,8 @@ static void process_world(void)
 	{
 		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
 		{
-
-
-#ifdef ALLOW_OBJECT_INFO
 			/* Always notice */
 			equip_can_flags(0x0L,0x0L,TR3_DRAIN_EXP);
-#endif
-
 
 			p_ptr->exp--;
 			p_ptr->max_exp--;
@@ -1048,8 +1056,8 @@ static void process_world(void)
 		}
 	}
 
-	/* Process equipment */
-	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL+1; i++)
+        /* Process timeouts */
+        for (k = 0, j = 0, i = 0; i < INVEN_TOTAL+1; i++)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
@@ -1057,7 +1065,8 @@ static void process_world(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Recharge activatable objects */
+                /* Recharge activateable objects/rods */
+                /* Also check for mimics/regenerating bodies */
 		if (o_ptr->timeout > 0)
 		{
 			/* Recharge */
@@ -1065,27 +1074,85 @@ static void process_world(void)
 
 			/* Notice changes */
                         if (!(o_ptr->timeout))
-                        {
-                                char o_name[80];
+			{
+				char o_name[80];
 
-                                /* Notice count */
-                                j++;
+                                u32b f1, f2, f3;
 
-                                /* Reset stack */
-                                o_ptr->stackc = 0;
+                                /* Get the flags */
+                                object_flags(o_ptr,&f1, &f2, &f3);
 
-                                /* Get an object description */
+				/* Get a description */
                                 object_desc(o_name, o_ptr, FALSE, 0);
 
-                                /* Message */
-                                msg_format("Your %s %s charged.", o_name,
-                                   ((o_ptr->number == 1) ? "has" : "have"));
-                        }
+                                /* Spells run out */
+                                if (o_ptr->tval == TV_SPELL)
+                                {
+                                        /* Notice things */
+                                        if (i < INVEN_PACK) j++;
+                                        else k++;
+
+                                        /* Message */
+                                        msg_format("Your %s %s has run out.", o_name,
+                                           ((o_ptr->stackc == 1) ? "has" :
+                                           ((!(o_ptr->stackc) && (o_ptr->number == 1)) ?
+                                           "has" : "have")));
+
+                                        /* Destroy a spell if discharged */
+                                        if (o_ptr->stackc) inven_item_increase(i, -(o_ptr->stackc));
+                                        else inven_item_increase(i,-(o_ptr->number));
+
+                                        inven_item_optimize(i);
+
+                                }
+
+                                /* Rods and activatible items charge */
+                                else if ((o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE)))
+                                {
+                                        /* Notice things */
+                                        if (i < INVEN_PACK) j++;
+                                        else k++;
+        
+                                        /* Reset stack */
+                                        o_ptr->stackc = 0;
+        
+                                        /* Message */
+                                        msg_format("Your %s %s charged.", o_name,
+                                           ((o_ptr->stackc == 1) ? "has" :
+                                           ((!(o_ptr->stackc) && (o_ptr->number == 1)) ?
+                                           "has" : "have")));
+                                }
+
+                                /* Bodies/mimics become a monster */
+                                else
+                                {
+                                        /* Notice things */
+                                        if (animate_object(i))
+                                        {
+                                                if (i < INVEN_PACK) j++;
+                                                else k++;
+                                        }
+                                }
+			}
+
+			/* The spell is running low */
+                        else if ((o_ptr->timeout < 50) && (!(o_ptr->timeout % 10)) && (o_ptr->tval == TV_SPELL))
+			{
+				char o_name[80];
+
+				/* Get a description */
+                                object_desc(o_name, o_ptr, FALSE, 0);
+
+				if (disturb_minor) disturb(0, 0);
+
+				msg_format("Your %s is running out.", o_name);
+			}
+
 		}
 	}
 
-	/* Notice changes */
-	if (j)
+        /* Notice changes -- equip */
+        if (k)
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP);
@@ -1094,42 +1161,7 @@ static void process_world(void)
                 if (disturb_minor) disturb(1, 0);
 	}
 
-	/* Recharge rods */
-	for (j = 0, i = 0; i < INVEN_PACK; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Examine all charging rods */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
-		{
-			/* Charge it */
-			o_ptr->pval--;
-
-			/* Notice changes */
-                        if (!(o_ptr->pval))
-                        {
-                                char o_name[80];
-
-                                /* Notice count */
-                                j++;
-
-                                /* Reset stack */
-                                o_ptr->stackc = 0;
-
-                                /* Get an object description */
-                                object_desc(o_name, o_ptr, FALSE, 0);
-
-                                /* Message */
-                                msg_format("Your %s %s charged.", o_name,
-                                   ((o_ptr->number == 1) ? "has" : "have"));
-                        }
-		}
-	}
-
-	/* Notice changes */
+        /* Notice changes - inventory */
 	if (j)
 	{
 		/* Combine pack */
@@ -1141,55 +1173,6 @@ static void process_world(void)
                 /* Disturb */
                 if (disturb_minor) disturb(1,0);
 	}
-
-
-	/* Discharge spells */
-	for (i = 0; i < INVEN_TOTAL+1; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Examine all current spells */
-		if ((o_ptr->tval == TV_SPELL) && (o_ptr->pval))
-		{
-			/* Discharge it */
-			o_ptr->pval--;
-
-			/* Notice changes */
-			if (!(o_ptr->pval))
-			{
-				char o_name[80];
-
-				/* Get a description */
-                                object_desc(o_name, o_ptr, FALSE, 0);
-
-				/* Print a message */
-				disturb(0,0);
-				msg_format("Your %s has run out.", o_name);
-
-				/* Destroy a spell if discharged */
-				inven_item_increase(i, -(o_ptr->number));
-				inven_item_optimize(i);
-			}
-
-			/* The spell is running low */
-			else if ((o_ptr->pval < 50) && (!(o_ptr->pval % 10)))
-			{
-				char o_name[80];
-
-				/* Get a description */
-                                object_desc(o_name, o_ptr, FALSE, 0);
-
-				if (disturb_minor) disturb(0, 0);
-				msg_format("Your %s is running out.", o_name);
-			}
-
-		}
-
-	}
-
 
 	/* Feel the inventory */
 	sense_inventory();
@@ -1206,24 +1189,48 @@ static void process_world(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Recharge rods on the ground */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval)) o_ptr->pval--;
+                /* Timing out? */
+                if (o_ptr->timeout)
+                {
+			/* Recharge */
+			o_ptr->timeout--;
 
-		/* Discharge spells on the ground */
-		if ((o_ptr->tval == TV_SPELL) && (o_ptr->pval))
-		{
-			o_ptr->pval--;
-		
 			/* Notice changes */
-			if (!(o_ptr->pval))
+                        if (!(o_ptr->timeout))
 			{
+                                u32b f1, f2, f3;
 
-				/* Destroy a spell on the floor - don't describe */
-				floor_item_increase(i, -(o_ptr->number));
-				floor_item_optimize(i);
-			}
+                                /* Get the flags */
+                                object_flags(o_ptr,&f1, &f2, &f3);
 
-		}
+                                /* Spells run out */
+                                if (o_ptr->tval == TV_SPELL)
+                                {
+                                        /* Destroy a spell if discharged */
+                                        if (o_ptr->stackc) floor_item_increase(i, -(o_ptr->stackc));
+                                        else floor_item_increase(i,-(o_ptr->number));
+
+                                        floor_item_optimize(i);
+                                }
+                
+                                /* Rods and activatible items charge */
+                                else if ((o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE)))
+                                {
+                                        /* Reset stack */
+                                        o_ptr->stackc = 0;
+                
+                                }
+
+                                /* Bodies/mimics become a monster */
+                                else
+                                {
+                                        /* Notice count */
+                                        j++;
+                
+                
+                                }
+                        }
+                }
 
 	}
 
@@ -1236,11 +1243,19 @@ static void process_world(void)
 		/* Teleport player */
 		teleport_player(40);
 
-#ifdef ALLOW_OBJECT_INFO
 		/* Always notice */
 		equip_can_flags(0x0L,0x0L,TR3_TELEPORT);
-#endif
+
 	}
+        /* Mega-Hack -- Portal room */
+        else if ((room) && (d_ptr->flags & (ROOM_PORTAL)) && (rand_int(100)<1))
+	{
+                /* Warn the player */
+                msg_print("There is a brilliant flash of light.");
+
+		/* Teleport player */
+		teleport_player(40);
+        }
 
 	/* Delayed Word-of-Recall */
 	if (p_ptr->word_recall)

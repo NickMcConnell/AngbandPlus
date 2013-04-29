@@ -420,7 +420,7 @@ static u16b image_random(void)
 /*
  * The 16x16 tile of the terrain supports lighting
  */
-bool feat_supports_lighting(byte feat)
+bool feat_supports_lighting(s16b feat)
 {
 	if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL))
 		return TRUE;
@@ -662,7 +662,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	byte a;
 	char c;
 
-	byte feat;
+        s16b feat;
 	byte info;
 
 	feature_type *f_ptr;
@@ -1284,6 +1284,9 @@ static bool auto_pickup_ignore(object_type *o_ptr)
  *
  * This function is called primarily from the "update_view()" function, for
  * each grid which becomes newly "see-able".
+ *
+ * ANDY - Note we now eliminate CAVE_SAFE whenever we note a spot, even if
+ * we do not mark it.
  */
 void note_spot(int y, int x)
 {
@@ -1335,6 +1338,9 @@ void note_spot(int y, int x)
 			/* Memorize */
 			cave_info[y][x] |= (CAVE_MARK);
 		}
+
+		/* Forget cave_safe */
+		cave_info[y][x] &= ~(CAVE_SAFE);
 	}
 }
 
@@ -3789,8 +3795,6 @@ void cave_set_feat(int y, int x, int feat)
 		}
         }
 
-        
-
 	/* Change the feature */
         cave_feat[y][x] = feat;
 
@@ -3915,15 +3919,15 @@ void cave_set_feat(int y, int x, int feat)
 	/* Handle "wall/door" grids */
 
 	/* Check for bit 5 set*/
-	if (feat & (FEAT_DOOR_HEAD))
-	{
-		cave_info[y][x] |= (CAVE_WALL);
-	}
-
-	/* Handle "floor"/etc grids */
-	else
+        if (f_info[feat].flags1 & (FF1_LOS))
 	{
 		cave_info[y][x] &= ~(CAVE_WALL);
+	}
+
+	/* Handle wall grids */
+	else
+	{
+		cave_info[y][x] |= (CAVE_WALL);
 	}
 
 	/*Point to the new feature*/
@@ -3986,10 +3990,10 @@ void cave_alter_feat(int y, int x, int action)
 
         bool los, flow;
 
-        byte newfeat, oldfeat;
+        int newfeat = cave_feat[y][x];
 
 	/* Set old feature */
-        oldfeat = cave_feat[y][x];
+        int oldfeat = cave_feat[y][x];
 
 	/* Set if blocks los */
 	los = cave_floor_bold(y,x);
@@ -3997,12 +4001,12 @@ void cave_alter_feat(int y, int x, int action)
 	/* Set if blocks flow */
         flow = ((f_info[oldfeat].flags1 & (FF1_WALL)) ==0);
 
+        /* Set default feat */
+        newfeat = f_info[oldfeat].defaults;
+
 	/* Get the new feature */
         for (i=0;i<MAX_FEAT_STATES;i++)
 	{
-
-                newfeat = f_info[oldfeat].other;
-
                 if (f_info[oldfeat].state[i].action == action)
                 {
                         newfeat = f_info[oldfeat].state[i].result;
@@ -4017,20 +4021,7 @@ void cave_alter_feat(int y, int x, int action)
 	if (newfeat == oldfeat) return;
 
 	/* Invisible trap */
-	if (oldfeat == FEAT_INVIS)
-	{
-		/* Pick a trap */
-		pick_trap(y, x);
-
-		/* Update new feature */
-		newfeat = cave_feat[y][x];
-
-		/* Disturb */
-		disturb(0, 0);
-	}
-
-        /* Invisible trapped door */
-        else if (oldfeat == FEAT_DOOR_INVIS)
+	if (f_info[oldfeat].flags3 & (FF3_PICK_TRAP))
 	{
 		/* Pick a trap */
 		pick_trap(y, x);
@@ -4043,23 +4034,10 @@ void cave_alter_feat(int y, int x, int action)
 	}
 
 	/* Secret door */
-	else if (oldfeat == FEAT_SECRET)
+	else if (f_info[oldfeat].flags3 & (FF3_PICK_TRAP))
 	{
 		/* Pick a door */
-		place_closed_door(y, x);
-
-		/* Update new feature */
-		newfeat = cave_feat[y][x];
-
-		/* Disturb */
-		disturb(0, 0);
-	}
-
-        /* Jammed door */
-        else if (oldfeat == FEAT_DOOR_HEAD+9)
-	{
-		/* Pick a door */
-                place_jammed_door(y, x);
+		pick_door(y, x);
 
 		/* Update new feature */
 		newfeat = cave_feat[y][x];
@@ -4076,19 +4054,59 @@ void cave_alter_feat(int y, int x, int action)
 	}
 
 	/* Handle gold/items */
-
-	/* Handle gold*/
-	if (f_info[oldfeat].flags1 & FF1_HAS_GOLD)
+        /* Probably unnecessarily complicated */
+        if (((f_info[oldfeat].flags1 & FF1_HAS_ITEM) && !(f_info[newfeat].flags1 & (FF1_HAS_ITEM))) ||
+           ((f_info[oldfeat].flags1 & FF1_HAS_GOLD) && !(f_info[newfeat].flags1 & (FF1_HAS_GOLD))))
 	{
-		/* Place some gold */
-		place_gold(y, x);
-	}
+                feature_type *f_ptr = &f_info[oldfeat];
 
-	/* Handle item */
-	if (f_info[oldfeat].flags1 & FF1_HAS_ITEM)
-	{
-		/* Place some gold */
-                place_object(y, x, FALSE, FALSE);
+                int number = 0;
+                int j;
+
+                bool good = (f_ptr->flags3 & (FF3_DROP_GOOD)) ? TRUE : FALSE;
+                bool great = (f_ptr->flags3 & (FF3_DROP_GREAT)) ? TRUE : FALSE;
+
+                bool do_gold = (!(f_ptr->flags1 & (FF1_HAS_ITEM)));
+                bool do_item = (!(f_ptr->flags1 & (FF1_HAS_GOLD)));
+
+                object_type *i_ptr;
+                object_type object_type_body;
+
+                if (f_ptr->flags1 & (FF3_DROP_1D2)) number += damroll(1, 2);
+                if (f_ptr->flags1 & (FF3_DROP_2D2)) number += damroll(2, 2);
+
+                /* Always drop something */
+                if (!number) number = 1;
+
+                /* Drop some objects */
+                for (j = 0; j < number; j++)
+                {
+                        /* Get local object */
+                        i_ptr = &object_type_body;
+        
+                        /* Wipe the object */
+                        object_wipe(i_ptr);
+        
+                        /* Make Gold */
+                        if (do_gold && (!do_item || (rand_int(100) < 50)))
+                        {
+                                /* Make some gold */
+                                if (!make_gold(i_ptr)) continue;
+                        }
+        
+                        /* Make Object */
+                        else
+                        {
+                                /* Make an object */
+                                if (!make_object(i_ptr, good, great)) continue;
+                        }
+        
+                        /* Note who dropped it */
+                        i_ptr->dropped = 0-p_ptr->depth;
+        
+                        /* Drop it in the dungeon */
+                        drop_near(i_ptr, -1, y, x);
+                }
 
 	}
 

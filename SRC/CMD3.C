@@ -306,7 +306,6 @@ void do_cmd_wield(void)
                 }
                 else
                 {
-                        if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
                         if (i_ptr->pval) i_ptr->pval--;
                         if (i_ptr->timeout) i_ptr->timeout = 0;
 
@@ -702,7 +701,7 @@ void do_cmd_destroy(void)
                 sprintf(outval,"Always destroy items of %s? ",
                         e_name + e_info[o_ptr->name2].name);
 
-                if (get_check(outval)) e_info[o_ptr->name2].note = quark_add("=k");
+                if (get_check(outval)) e_info[o_ptr->name2].note = quark_add("=g=k");
 
                 /* Process objects */
                 for (i = 1; i < o_max; i++)
@@ -724,7 +723,7 @@ void do_cmd_destroy(void)
                 }
         }
         /* Do we destroy all these object kinds? */
-        else if (easy_autos && object_aware_p(o_ptr)
+        else if (easy_autos && object_known_p(o_ptr)
                 && !(k_info[o_ptr->k_idx].note))
         {
                 char o_name[80];
@@ -741,7 +740,7 @@ void do_cmd_destroy(void)
                         (o_ptr->number != 1 ? "" : (is_a_vowel(o_name[0]) ? "an " : "a ")),
                          o_name);
 
-                if (get_check(outval)) k_info[o_ptr->k_idx].note = quark_add("=k");
+                if (get_check(outval)) k_info[o_ptr->k_idx].note = quark_add("=g=k");
 
                 /* Process objects */
                 for (i = 1; i < o_max; i++)
@@ -1151,8 +1150,43 @@ static void do_cmd_refill_lamp(void)
 	/* Use fuel from a lantern */
 	if (o_ptr->sval == SV_LITE_LANTERN)
 	{
-		/* No more fuel */
-		o_ptr->pval = 0;
+                if (o_ptr->number > 1)
+                {
+
+                        object_type *i_ptr;
+                        object_type object_type_body;
+
+                        /* Get local object */
+                        i_ptr = &object_type_body;
+
+                        /* Obtain a local object */
+                        object_copy(i_ptr, o_ptr);
+
+                        /* Modify quantity */
+                        i_ptr->number = 1;
+
+                        /* Reset stack counter */
+                        i_ptr->stackc = 0;
+
+                        /* Reset the pval */
+                        i_ptr->pval = 0;
+
+                        /* Unstack the used item */
+                        o_ptr->number--;
+        
+                        /* Adjust the weight and carry */
+                        p_ptr->total_weight -= i_ptr->weight;
+                        item = inven_carry(i_ptr);
+        
+                        /* Message */
+                        msg_print("You unstack your lantern.");
+                }
+                else
+                {
+                        /* Use up last of fuel */
+                        o_ptr->pval = 0;
+                }
+
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);

@@ -2116,15 +2116,15 @@ static errr rd_dungeon_old(void)
                         cave_feat[y][x] = feat;
 
                         /* Check for bit 5 set*/
-                        if (feat & (FEAT_DOOR_HEAD))
-                        {
-                                cave_info[y][x] |= (CAVE_WALL);
-                        }
-
-                        /* Handle "floor"/etc grids */
-                        else
+                        if (f_info[feat].flags1 & (FF1_LOS))
                         {
                                 cave_info[y][x] &= ~(CAVE_WALL);
+                        }
+
+                        /* Handle wall grids */
+                        else
+                        {
+                                cave_info[y][x] |= (CAVE_WALL);
                         }
 
 
@@ -2340,15 +2340,15 @@ static errr rd_dungeon_old(void)
                         cave_feat[y][x] = feat;
 
                         /* Check for bit 5 set*/
-                        if (feat & (FEAT_DOOR_HEAD))
-                        {
-                                cave_info[y][x] |= (CAVE_WALL);
-                        }
-
-                        /* Handle "floor"/etc grids */
-                        else
+                        if (f_info[feat].flags1 & (FF1_LOS))
                         {
                                 cave_info[y][x] &= ~(CAVE_WALL);
+                        }
+
+                        /* Handle wall grids */
+                        else
+                        {
+                                cave_info[y][x] |= (CAVE_WALL);
                         }
 
 
@@ -2368,15 +2368,15 @@ static errr rd_dungeon_old(void)
                                 cave_feat[y][x] += 0x04;
 
                                 /* Check for bit 5 set*/
-                                if (cave_feat[y][x] & (FEAT_DOOR_HEAD))
-                                {
-                                        cave_info[y][x] |= (CAVE_WALL);
-                                }
-
-                                /* Handle "floor"/etc grids */
-                                else
+                                if (f_info[cave_feat[y][x]].flags1 & (FF1_LOS))
                                 {
                                         cave_info[y][x] &= ~(CAVE_WALL);
+                                }
+
+                                /* Handle wall grids */
+                                else
+                                {
+                                        cave_info[y][x] |= (CAVE_WALL);
                                 }
 
 				/* Done */

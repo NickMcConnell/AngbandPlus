@@ -2649,8 +2649,6 @@ F:TUNNEL | WALL | INNER | CAN_PASS |
 F:REMEMBER | HURT_ROCK |
 F:POWER_40
 
-
-
 # 0x3A --> granite wall -- outer
 
 N:58:granite wall

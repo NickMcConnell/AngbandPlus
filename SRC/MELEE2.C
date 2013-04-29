@@ -829,9 +829,27 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 			break;
 		}
 
-		/* RF4_XXX1X4 */
+                /* RF4_EXPLODE --- used by chests */
 		case 96+6:
 		{
+			if (target < 0) disturb(1,0);
+
+                        if (known) msg_format("%^s explodes.", m_name, t_name);
+
+                        flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+                        rad = 2;
+
+                        /* Centre on caster */
+                        if (who > 0)
+                        {
+                                y = m_ptr->fy;
+                                x = m_ptr->fx;
+                        }
+
+                        /* Target everyone (including caster) with a ball attack */
+                        (void)project(0, rad, y, x, damroll(5,8), GF_EXPLODE, flg);
+
 			break;
 		}
 
@@ -5662,6 +5680,18 @@ static void process_monster(int m_idx)
                         /* May bash ? */
                         bool may_bash = TRUE;
 
+                        int feat = cave_feat[ny][nx];
+                        int newfeat = cave_feat[ny][nx];
+
+                        /* Secret doors */
+                        if (f_info[feat].flags1 & (FF1_SECRET))
+                        {
+                                /* Reveal the door - maybe temporary */
+                                cave_alter_feat(ny, nx, FS_SECRET);
+
+                                newfeat = cave_feat[ny][nx];
+                        }
+
                         /* Hack --- delay hitting traps */
                         if (f_info[cave_feat[ny][nx]].flags1 & (FF1_HIT_TRAP))
                         {
@@ -5671,11 +5701,13 @@ static void process_monster(int m_idx)
                                 /* Don't bash */
                                 may_bash = FALSE;
                         }
+
 			/* Creature can open doors. */
                         if (r_ptr->flags2 & (RF2_OPEN_DOOR))
 			{
+
 				/* Locked doors (not jammed) */
-				if (f_info[cave_feat[ny][nx]].flags1 & (FF1_OPEN))
+                                if (f_info[feat].flags1 & (FF1_OPEN))
 				{                                       
 
 					int k;
@@ -5683,9 +5715,8 @@ static void process_monster(int m_idx)
 					/* Take a turn */
 					do_turn = TRUE;
 
-
 					/* Door power */
-					k = f_info[cave_feat[ny][nx]].power;
+                                        k = f_info[feat].power;
 #if 0
 					/* XXX XXX XXX Old test (pval 10 to 20) */
 					if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
@@ -5700,7 +5731,7 @@ static void process_monster(int m_idx)
 
 						/* Do not bash the door */
 						may_bash = FALSE;
-					}
+                                        }
 				}
 			}
 
@@ -5715,7 +5746,6 @@ static void process_monster(int m_idx)
 
 				/* Door power */
 				k = f_info[cave_feat[ny][nx]].power;
-
 #if 0
 				/* XXX XXX XXX Old test (pval 10 to 20) */
 				if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
@@ -5742,6 +5772,13 @@ static void process_monster(int m_idx)
 
 				}
 			}
+                        /* Hack -- hide the evidence if necessary */
+                        if (newfeat == cave_feat[ny][nx])
+                        {
+                                cave_set_feat(ny,nx,feat);
+
+                                do_move = FALSE;
+                        }
 		}
 
 		/* Hack -- check for Glyph of Warding */
@@ -6213,8 +6250,15 @@ static void process_monster(int m_idx)
 			/* Leave tracks */
 			if (f_info[cave_feat[ny][nx]].flags2 & (FF2_KILL_MOVE))
 			{
-				cave_alter_feat(ny, nx, FS_KILL_MOVE);
+                                if (!(m_ptr->mflag & (MFLAG_OVER))) cave_alter_feat(ny, nx, FS_KILL_MOVE);
 			}
+                        else if (f_info[cave_feat[ny][nx]].flags1 & (FF1_FLOOR))
+                        {
+                                if ((r_ptr->flags7 & (RF7_HAS_BLOOD)) && (m_ptr->hp < m_ptr->maxhp/3) && (rand_int(100)<30))
+                                        cave_set_feat(ny, nx, FEAT_FLOOR_BLOOD_T);
+                                else if (r_ptr->flags7 & (RF7_HAS_SLIME))
+                                        cave_set_feat(ny, nx, FEAT_FLOOR_SLIME_T);
+                        }
 
 			/* Scan all objects in the grid */
 			for (this_o_idx = cave_o_idx[ny][nx]; this_o_idx; this_o_idx = next_o_idx)

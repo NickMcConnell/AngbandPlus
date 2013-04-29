@@ -53,8 +53,159 @@
 # SEEN: This description is only given if room is lit.
 # ICKY: This is an anti-teleport room
 
+# Placement of monsters, features, objects, treasure.
 
-# For all the above, use the first encountered.
+# INNER: Generate inner room. This will be occasionally
+# a double inner room, or four small rooms, or some inner
+# rooms as per type 4 (If large enough).
+# FILLED: Fill inner with this.
+# PIT: As filled, but ordered monsters.
+# NORTH: Along north wall.
+# SOUTH: Along south wall.
+# EAST: Along east wall.
+# WEST: Along west wall.
+# EDGE: All edges.
+# CENTRE: Single instance in centre.
+# CHECK: Checkerboard pattern. (Every 2nd, even on even rows, odd on odd)
+# PILLAR: Pillar patten (Every 2nd, only on even rows).
+# SCATTER: Scattered around the room.
+# RANDOM: Random occurence.
+# MONSTER: Any monster
+# OBJECT: Any object.
+# CROSS: Cross shape inner.
+# PINCH: 'Pinch' the inner shut.
+# DOUBLE: Double inner room.
+
+# Existing rooms.
+
+# Type 1: Occasional pillar (1 in 20)
+# F:32
+# S:PILLAR
+
+# Type 1: Occasional ragged edges (1 in 50)
+# F:32
+# S:CHECK | EDGE
+
+# Type 2: Note inner is intersection of 2 rooms only, with 1 space around them.
+#
+# eg.		######
+#               #    #
+#		#    #
+#           #####    #
+#	    #	 ++++#
+#           #    ++++#
+#           #    ++++#
+#           ##########
+
+
+# Type 3: 25%
+
+# Type 3: No feature (25%)
+
+# Type 3: Large solid middle pillar (25%)
+# F:32
+# S:FILLED
+
+# Type 3: Inner treasure vault (25%)
+# S:INNER | MONSTER (4-5) | OBJECT | TRAPS (3-5)
+
+# Type 3: Occasionally 'pinch' centre (8%)
+# S:PINCH
+
+# Type 3: Occasionally cross in centre (8%)
+# S:CROSS
+
+# Type 3: Occasionally pillar in centre (9%)
+# F:32
+# S:CENTRE
+
+# Type 4: 25%
+
+# Type 4: Large room (with inner room) 80%
+# INNER | MONSTER (1)
+
+# Type 4: Large room (with inner maze) 20%
+# F:32
+# INNER | CHECK
+
+
+# Type 3: Occasionally cross in centre (8%)
+# S:CROSS
+
+
+# Type 5: unusual & 25%
+
+# Type 5: Monster nest. We don't necessarily generate
+# these in large rooms anymore.
+
+# Jelly pit (30%)
+# G:ijm,
+# S:FILLED | INNER
+
+# Zoo (20%)
+# R:ANIMAL
+# S:FILLED | INNER
+
+# Graveyard (50%)
+# R:UNDEAD
+# S:FILLED | INNER
+
+# Orc pit (20%)
+# G:o
+# S:PIT | INNER
+
+# Troll pit (20%)
+# G:T
+# S:PIT | INNER
+
+# Giant pit (20%)
+# G:P
+# S:PIT | INNER
+
+# Red Dragon pit (4%)
+# G:ADd
+# R:BR_FIRE
+# S:PIT | INNER
+
+# Green Dragon pit  (4%)
+# G:ADd
+# R:BR_POIS
+# S:PIT | INNER
+
+# Black Dragon pit  (4%)
+# G:ADd
+# R:BR_ACID
+# S:PIT | INNER
+
+# White Dragon pit  (3%)
+# G:ADd
+# R:BR_COLD
+# S:PIT | INNER
+
+# Blue Dragon pit  (3%)
+# G:ADd
+# R:BR_ELEC
+# S:PIT | INNER
+
+# Multi-hued Dragon pit (3%)
+# G:ADd
+# R:BR_FIRE | BR_ACID | BR_COLD | BR_POIS | BR_POIS
+# S:PIT | INNER
+
+# Demon pit (20%)
+# G:U
+# S:PIT | INNER
+
+
+
+
+
+# Type 3:
+
+
+# Type 4: 
+
+
 
 # Version stamp (required)
 
@@ -68,11 +219,12 @@ K:1
 R:ANIMAL
 S:SEEN
 
-N:1:2:2:0
+N:1:2:2:5
 A:
 B:mausoleum
 D:Skulls line 
 K:1
+R:UNDEAD
 S:SEEN
 
 N:1:2:3:0
@@ -107,19 +259,19 @@ D:Hieroglyphics cover
 G:z
 S:SEEN
 
-N:1:2:8:60
+N:1:2:8:6
 A:
 B:
 D:Strange runes cover 
 F:20
-S:SEEN | CURSED
+S:SEEN
 
-N:1:2:9:40
+N:1:2:9:5
 A:
 B:
 D:Strange runes cover 
 F:21
-S:SEEN | PORTAL
+S:SEEN
 
 N:1:2:10:0
 A:candle-lit
@@ -160,14 +312,11 @@ D:Giant spiderwebs cover
 G:S
 S:SEEN
 
-#Note race flag to force only mushroom patches.
-
 N:1:2:16:3
 A:
 B:
 D:Delicate mushrooms cover 
 G:,
-R:ONLY_ITEM
 K:80
 S:SEEN
 
@@ -270,8 +419,8 @@ S:SEEN
 N:1:2:30:5
 A:
 B:closet
-D:Empty chests line
-F:319
+D:Empty chests line 
+K:7
 S:SEEN
 
 N:1:2:31:3
@@ -286,7 +435,7 @@ A:
 B:
 D:Burn marks cover 
 R:IM_FIRE
-F:308
+F:22
 S:SEEN
 
 N:1:2:33:6
@@ -294,7 +443,7 @@ A:
 B:
 D:Acid marks cover 
 R:IM_ACID
-F:309
+F:23
 S:SEEN
 
 N:1:2:34:30
@@ -311,7 +460,6 @@ A:
 B:
 D:Burn marks cover 
 R:BR_FIRE
-F:308
 S:SEEN
 
 N:1:2:36:11
@@ -319,7 +467,6 @@ A:
 B:
 D:Acid marks cover 
 R:BR_ACID
-F:309
 S:SEEN
 
 N:1:2:37:11
@@ -328,21 +475,18 @@ B:
 D:Frost covers 
 R:BR_COLD
 L:ICE
-F:132
 S:SEEN
 
 N:1:2:38:0
 A:
 B:
-D:Slime covers
-F:306
+D:Slime covers 
 S:SEEN
 
 N:1:2:39:12
 A:
 B:
 D:Slime covers 
-F:306
 G:,
 S:SEEN
 
@@ -351,17 +495,15 @@ A:
 B:
 D:Acid marks cover 
 R:IM_ACID
-F:309
 G:j
 S:SEEN
 
-N:1:2:41:5
+N:1:2:41:17
 A:
 B:
 D:Ancient statues line 
-G:p
+G:g
 S:SEEN
-K:11
 
 N:1:2:42:1
 A:
@@ -369,7 +511,6 @@ B:
 D:Broken statues line 
 F:49
 S:SEEN
-K:11
 
 N:1:2:43:4
 A:
@@ -424,52 +565,40 @@ B:
 D:A mottled 
 S:SEEN
 
-N:1:13:51:40
+N:1:13:51:10
 A:
 B:
 D:A strange 
-S:SEEN | PORTAL
+S:SEEN
 
-N:1:13:52:30
+N:1:13:52:15
 A:
 B:
-D:A gleaming  
-S:SEEN | ICKY
+D:A gleaming 
+S:SEEN
 
-N:1:13:53:50
+N:1:13:53:20
 A:
 B:
 D:A glistening 
-S:SEEN | BLOODY
+S:SEEN
 
-N:1:13:54:60
+N:1:13:54:25
 A:
 B:
 D:A glowing 
-S:SEEN | CURSED
-
-N:1:2:55:40
-A:
-B:
-D:Blood seeps from
-S:SEEN | BLOODY
-F:305
-
-# Note flag to force only slimes.
-
-N:1:2:56:15
-A:
-B:
-D:Slime covers
-G:,
-R:FRIENDS
-F:306
 S:SEEN
 
-N:1:2:57:0
+N:1:2:48:0
 A:
 B:cell
 D:Rusted manacles hang from 
+K:1
+
+N:1:2:48:0
+A:
+B:
+D:Chains hang from 
 K:1
 
 N:1:4:100:0
@@ -574,6 +703,20 @@ B:
 D:the south wall.  
 S:SEEN
 
+N:4:5:1:4
+A:
+B:temple
+D:A stone altar 
+G:q
+S:SEEN
+
+N:4:5:2:4
+A:
+B:chapel
+D:A wooden shrine 
+G:q
+S:SEEN
+
 N:4:5:3:0
 A:
 B:
@@ -652,16 +795,15 @@ S:SEEN
 N:4:5:14:0
 A:
 B:plaza
-D:An broken fountain 
+D:A fountain 
 S:SEEN
-F:383
+F:153
 
 N:4:5:15:0
 A:
-B:plaza
-D:An empty fountain 
+B:
+D:A stone basin 
 S:SEEN
-F:384
 
 N:4:5:16:5
 A:
@@ -677,7 +819,6 @@ B:nest
 D:A huge nest 
 G:B
 S:SEEN
-K:8
 
 N:4:5:18:25
 A:
@@ -695,7 +836,7 @@ S:SEEN
 N:4:5:20:1
 A:
 B:cell
-D:An iron cage
+D:An iron cage 
 S:SEEN
 
 N:4:5:21:1
@@ -715,46 +856,12 @@ N:4:5:24:1
 A:
 B:
 D:A fallen statue 
-K:11
 S:SEEN
 
-N:4:5:25:30
+N:4:5:25:1
 A:
-B:chapel
-F:373
-G:q
-D:A wooden altar 
-S:SEEN
-
-N:4:5:26:20
-A:
-B:temple
-F:374
-G:q
-D:A stone altar 
-S:SEEN
-
-N:4:5:27:20
-A:unholy
-B:temple
-F:375
-G:q
-R:EVIL
-D:A blood-stained altar 
-S:SEEN
-
-N:4:5:28:40
-A:
-B:shrine
-F:376
-D:A dusty altar 
-S:SEEN
-
-N:4:5:29:0
-A:
-B:well
-F:391
-D:A stone well 
+B:
+D:A stone monolith 
 S:SEEN
 
 N:4:6:40:0
@@ -870,15 +977,14 @@ S:SEEN
 N:6:7:11:0
 A:damp
 B:
-D:slick with moisture.
-F:307
+D:slick with moisture.  
 S:SEEN
 
 N:6:7:12:0
 A:water-filled
 B:
 D:flooded with stagnant water.  
-F:310
+F:153
 S:SEEN
 
 N:6:7:13:0
@@ -902,8 +1008,6 @@ B:
 D:covered in slime.  
 G:,
 S:SEEN
-F:306
-K:8
 
 N:6:7:16:10
 A:
@@ -911,7 +1015,6 @@ B:
 D:badly burned by powerful fire.  
 R:BR_FIRE
 S:SEEN
-F:308
 
 N:1:2:17:11
 A:
@@ -919,7 +1022,6 @@ B:
 D:badly melted by powerful acid.  
 R:BR_ACID
 S:SEEN
-F:309
 
 N:1:2:18:11
 A:
@@ -927,7 +1029,6 @@ B:
 D:covered in a thick layer of frost.  
 R:BR_COLD
 S:SEEN
-F:132
 
 N:6:7:19:3
 A:
@@ -935,7 +1036,6 @@ B:hatchery
 D:littered with broken egg shells.  
 G:R
 S:SEEN
-K:9
 
 N:6:7:20:3
 A:
@@ -943,7 +1043,6 @@ B:hatchery
 D:littered with broken egg shells.  
 G:J
 S:SEEN
-K:9
 
 N:6:7:21:11
 A:
@@ -951,7 +1050,6 @@ B:hatchery
 D:littered with broken egg shells.  
 G:d
 S:SEEN
-K:9
 
 N:6:7:22:4
 A:
@@ -959,7 +1057,6 @@ B:nest
 D:nested with twigs and feathers.  
 G:B
 S:SEEN
-K:8
 
 N:6:7:23:2
 A:broken arrow
@@ -1033,8 +1130,6 @@ A:bloody
 B:
 D:spattered with dried blood.  
 S:SEEN
-K:6
-F:305
 
 N:6:7:33:0
 A:dirt-filled
@@ -1084,11 +1179,6 @@ A:
 B:
 D:The air here is 
 
-N:7:9:61:0
-A:magic
-B:
-D:There is a static feeling in the air. 
-S:STATIC
 
 N:7:9:100:0
 A:
@@ -1418,22 +1508,19 @@ B:
 D:the earth trembling all around you.
 L:LAVA
 
-N:12:15:98:71
+
+N:12:15:99:71
 A:
 B:
 D:the roar of a nearby volcano...
 L:LAVA
 
-N:12:15:99:30
-A:silent
-B:
-D:nothing, not even your footsteps.
-S:SILENT
 
 N:12:15:100:0
 A:quiet
 B:
 D:nothing.
+
 
 N:13:14:30:0
 A:black
@@ -1539,12 +1626,10 @@ K:39
 N:15:16:15:0
 A:gloomy
 B:
-S:GLOOMY
 
 N:15:16:18:0
 A:shadowy
 B:
-S:GLOOMY
 
 N:15:16:21:0
 A:half-lit
@@ -1598,7 +1683,6 @@ B:guardroom
 N:16:0:45:1
 A:
 B:store room
-F:319
 
 N:16:0:65:1
 A:
@@ -1611,3 +1695,5 @@ B:cave
 N:16:0:100:1
 A:
 B:room
+
+

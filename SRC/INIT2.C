@@ -4587,7 +4587,7 @@ static errr init_other(void)
 	C_MAKE(cave_info, DUNGEON_HGT, byte_256);
 
 	/* Feature array */
-	C_MAKE(cave_feat, DUNGEON_HGT, byte_wid);
+        C_MAKE(cave_feat, DUNGEON_HGT, s16b_wid);
 
 	/* Entity arrays */
 	C_MAKE(cave_o_idx, DUNGEON_HGT, s16b_wid);

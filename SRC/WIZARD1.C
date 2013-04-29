@@ -115,8 +115,6 @@ static grouper group_item[] =
 	{ TV_MAGIC_BOOK,	"Books (Mage)" },
 	{ TV_PRAYER_BOOK,	"Books (Priest)" },
 
-	{ TV_CHEST,		"Chests" },
-
 	{ TV_SPIKE,		"Various" },
 	{ TV_LITE,		  NULL },
 	{ TV_FLASK,		  NULL },
@@ -1738,7 +1736,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_WAIL)) vp[vn++] = "wail";
 		if (flags4 & (RF4_SPIT)) vp[vn++] = "spit something";
 		if (flags4 & (RF4_SHOOT)) vp[vn++] = "shoot something";
-		if (flags4 & (RF4_XXX1)) vp[vn++] = "fire missiles";
+                if (flags4 & (RF4_EXPLODE)) vp[vn++] = "explode";
 		if (flags4 & (RF4_XXX2)) vp[vn++] = "fire missiles";
 
 		if (vn)

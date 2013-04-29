@@ -1,9 +1,9 @@
 #New objects.
 
 # 0 - Altar/Throne/Well
-# 9 - Statue (Looks like 'g' for golem)
+# 9 - Statue/Chest (Looks like 'g' for golem)
 # ! - Fountain (Looks like potion)
-# & - Body/Skeleton
+# ~ - Body (red)/Skeleton
 # ~ - Candle/Lantern
 
 # Altars are equivelent of priest books, but cannot be moved.
@@ -49,6 +49,20 @@
 # BROWSE
 
 # eg
+
+
+#We record monster drops eg drop1, and two flavors flav1 and flav2.
+
+#This allows us combinations like:
+
+#Uruk-Hai Teeth
+#Wormtongue's Ornate Silver Ring of Protection [+7]
+#Fine Bronze Longsword of Westernesse (+3,+6) (+1)
+
+#Flavor1 is a quality, flavor2 is color.
+#We also modify item properties with flavors.
+
+
 
 
 N:xx:potion
@@ -100,4 +114,121 @@ F:QUAFF | FEATURE
 #define TV_PRAYER_BOOK  91
 #define TV_SONG_BOOK    92
 #define TV_GOLD         100     /* Gold can only be picked up by players */
+
+#Demon magic, including summoning and abjuration.
+
+N:532:of Demonology
+G:?:r
+I:90:14:0
+W:70:0:30:18000
+A:70/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#Dark magic/balls/bolts/invisibility.
+
+N:532:of Shadows
+G:?:r
+I:90:14:0
+W:70:0:30:18000
+A:70/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#Shapechanging.
+
+N:532:of Shapes
+G:?:r
+I:90:14:0
+W:70:0:30:18000
+A:70/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#Nexus.
+
+N:532:of Interstices
+G:?:r
+I:90:14:0
+W:70:0:30:18000
+A:70/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#Unsummon.
+
+N:532:of Counter Magic
+G:?:r
+I:90:14:0
+W:70:0:30:18000
+A:70/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#The Fifth Element
+
+N:532:of Aether
+G:?:r
+I:90:14:0
+W:70:0:30:18000
+A:70/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+
+
+
+N:397:& # Liver~
+G:~:r
+I:1:7:0
+W:0:0:1:0
+P:0:1d1:0:0:0
+
+N:397:& # Spleen~
+G:~:r
+I:1:7:0
+W:0:0:1:0
+P:0:1d1:0:0:0
+
+N:397:& # Heart~
+G:~:r
+I:1:7:0
+W:0:0:1:0
+P:0:1d1:0:0:0
+
+N:397:& # Kidney~
+G:~:r
+I:1:7:0
+W:0:0:1:0
+P:0:1d1:0:0:0
+
+N:397:& # Stomach~
+G:~:r
+I:1:7:0
+W:0:0:1:0
+P:0:1d1:0:0:0
+
+N:397:& # Intestine~
+G:~:r
+I:1:7:0
+W:0:0:1:0
+P:0:1d1:0:0:0
+
+N:397:& # Lung~
+G:~:r
+I:1:7:0
+W:0:0:1:0
+P:0:1d1:0:0:0
+
+N:397:& # Bladder~
+G:~:r
+I:1:7:0
+W:0:0:1:0
+P:0:1d1:0:0:0
+
+N:397:& # Gall Bladder~
+G:~:r
+I:1:7:0
+W:0:0:1:0
+P:0:1d1:0:0:0
 

@@ -414,364 +414,6 @@ void do_cmd_toggle_search(void)
 
 
 
-/*
- * Determine if a grid contains a chest
- */
-static s16b chest_check(int y, int x)
-{
-	s16b this_o_idx, next_o_idx = 0;
-
-
-	/* Scan all objects in the grid */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
-	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Skip unknown chests XXX XXX */
-		/* if (!o_ptr->marked) continue; */
-
-		/* Check for chest */
-		if (o_ptr->tval == TV_CHEST) return (this_o_idx);
-	}
-
-	/* No chest */
-	return (0);
-}
-
-
-/*
- * Allocate objects upon opening a chest
- *
- * Disperse treasures from the given chest, centered at (x,y).
- *
- * Small chests often contain "gold", while Large chests always contain
- * items.  Wooden chests contain 2 items, Iron chests contain 4 items,
- * and Steel chests contain 6 items.  The "value" of the items in a
- * chest is based on the "power" of the chest, which is in turn based
- * on the level on which the chest is generated.
- */
-static void chest_death(int y, int x, s16b o_idx)
-{
-	int number;
-
-	bool tiny;
-
-	object_type *o_ptr;
-
-	object_type *i_ptr;
-	object_type object_type_body;
-
-
-	/* Get the chest */
-	o_ptr = &o_list[o_idx];
-
-	/* Small chests often hold "gold" */
-	tiny = (o_ptr->sval < SV_CHEST_MIN_LARGE);
-
-	/* Determine how much to drop (see above) */
-	number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 2;
-
-	/* Zero pval means empty chest */
-	if (!o_ptr->pval) number = 0;
-
-	/* Opening a chest */
-	opening_chest = TRUE;
-
-	/* Determine the "value" of the items */
-	object_level = ABS(o_ptr->pval) + 10;
-
-	/* Drop some objects (non-chests) */
-	for (; number > 0; --number)
-	{
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Wipe the object */
-		object_wipe(i_ptr);
-
-		/* Small chests often drop gold */
-		if (tiny && (rand_int(100) < 75))
-		{
-			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
-		}
-
-		/* Otherwise drop an item */
-		else
-		{
-			/* Make an object */
-			if (!make_object(i_ptr, FALSE, FALSE)) continue;
-		}
-
-		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
-	}
-
-	/* Reset the object level */
-	object_level = p_ptr->depth;
-
-	/* No longer opening a chest */
-	opening_chest = FALSE;
-
-	/* Empty */
-	o_ptr->pval = 0;
-
-	/* Known */
-	object_known(o_ptr);
-}
-
-
-/*
- * Chests have traps too.
- *
- * Exploding chest destroys contents (and traps).
- * Note that the chest itself is never destroyed.
- */
-static void chest_trap(int y, int x, s16b o_idx)
-{
-	int i, trap;
-
-	object_type *o_ptr = &o_list[o_idx];
-
-
-	/* Ignore disarmed chests */
-	if (o_ptr->pval <= 0) return;
-
-	/* Obtain the traps */
-	trap = chest_traps[o_ptr->pval];
-
-	/* Lose strength */
-	if (trap & (CHEST_LOSE_STR))
-	{
-		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_STR);
-	}
-
-	/* Lose constitution */
-	if (trap & (CHEST_LOSE_CON))
-	{
-		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_CON);
-	}
-
-	/* Poison */
-	if (trap & (CHEST_POISON))
-	{
-		msg_print("A puff of green gas surrounds you!");
-		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-		{
-			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
-#ifdef ALLOW_OBJECT_INFO
-                        /* Always notice */
-			if(!(p_ptr->resist_pois)) equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
-#endif
-		}
-		else if (p_ptr->resist_pois)
-		{
-#ifdef ALLOW_OBJECT_INFO
-                        /* Sometimes notice */
-			equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
-#endif
-		}
-	}
-
-	/* Paralyze */
-	if (trap & (CHEST_PARALYZE))
-	{
-		msg_print("A puff of yellow gas surrounds you!");
-		if (!p_ptr->free_act)
-		{
-			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint(20));
-#ifdef ALLOW_OBJECT_INFO
-                        /* Always notice */
-			equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-                        /* Always notice */
-			equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
-#endif
-		}
-	}
-
-	/* Summon monsters */
-	if (trap & (CHEST_SUMMON))
-	{
-		int num = 2 + randint(3);
-		msg_print("You are enveloped in a cloud of smoke!");
-		for (i = 0; i < num; i++)
-		{
-			(void)summon_specific(y, x, p_ptr->depth, 0);
-		}
-	}
-
-	/* Explode */
-	if (trap & (CHEST_EXPLODE))
-	{
-		msg_print("There is a sudden explosion!");
-		msg_print("Everything inside the chest is destroyed!");
-		o_ptr->pval = 0;
-		take_hit(damroll(5, 8), "an exploding chest");
-	}
-}
-
-
-/*
- * Attempt to open the given chest at the given location
- *
- * Assume there is no monster blocking the destination
- *
- * Returns TRUE if repeated commands may continue
- */
-static bool do_cmd_open_chest(int y, int x, s16b o_idx)
-{
-	int i, j;
-
-	bool flag = TRUE;
-
-	bool more = FALSE;
-
-	object_type *o_ptr = &o_list[o_idx];
-
-
-	/* Attempt to unlock it */
-	if (o_ptr->pval > 0)
-	{
-		/* Assume locked, and thus not open */
-		flag = FALSE;
-
-		/* Get the "disarm" factor */
-		i = p_ptr->skill_dis;
-
-		/* Penalize some conditions */
-		if (p_ptr->blind || no_lite()) i = i / 10;
-		if (p_ptr->confused || p_ptr->image) i = i / 10;
-
-		/* Extract the difficulty */
-		j = i - o_ptr->pval;
-
-		/* Always have a small chance of success */
-		if (j < 2) j = 2;
-
-		/* Success -- May still have traps */
-		if (rand_int(100) < j)
-		{
-			msg_print("You have picked the lock.");
-			gain_exp(1);
-			flag = TRUE;
-		}
-
-		/* Failure -- Keep trying */
-		else
-		{
-			/* We may continue repeating */
-			more = TRUE;
-			if (flush_failure) flush();
-			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
-		}
-	}
-
-	/* Allowed to open */
-	if (flag)
-	{
-		/* Apply chest traps, if any */
-		chest_trap(y, x, o_idx);
-
-		/* Let the Chest drop items */
-		chest_death(y, x, o_idx);
-	}
-
-	/* Result */
-	return (more);
-}
-
-
-/*
- * Attempt to disarm the chest at the given location
- *
- * Assume there is no monster blocking the destination
- *
- * Returns TRUE if repeated commands may continue
- */
-static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
-{
-	int i, j;
-
-	bool more = FALSE;
-
-	object_type *o_ptr = &o_list[o_idx];
-
-
-	/* Get the "disarm" factor */
-	i = p_ptr->skill_dis;
-
-	/* Penalize some conditions */
-	if (p_ptr->blind || no_lite()) i = i / 10;
-	if (p_ptr->confused || p_ptr->image) i = i / 10;
-
-	/* Extract the difficulty */
-	j = i - o_ptr->pval;
-
-	/* Always have a small chance of success */
-	if (j < 2) j = 2;
-
-	/* Must find the trap first. */
-	if (!object_known_p(o_ptr))
-	{
-		msg_print("I don't see any traps.");
-	}
-
-	/* Already disarmed/unlocked */
-	else if (o_ptr->pval <= 0)
-	{
-		msg_print("The chest is not trapped.");
-	}
-
-	/* No traps to find. */
-	else if (!chest_traps[o_ptr->pval])
-	{
-		msg_print("The chest is not trapped.");
-	}
-
-	/* Success (get a lot of experience) */
-	else if (rand_int(100) < j)
-	{
-		msg_print("You have disarmed the chest.");
-		gain_exp(o_ptr->pval);
-		o_ptr->pval = (0 - o_ptr->pval);
-	}
-
-	/* Failure -- Keep trying */
-	else if ((i > 5) && (randint(i) > 5))
-	{
-		/* We may keep trying */
-		more = TRUE;
-		if (flush_failure) flush();
-		msg_print("You failed to disarm the chest.");
-	}
-
-	/* Failure -- Set off the trap */
-	else
-	{
-		msg_print("You set off a trap!");
-		chest_trap(y, x, o_idx);
-	}
-
-	/* Result */
-	return (more);
-}
-
-
 #if defined(ALLOW_EASY_OPEN)
 
 /*
@@ -834,58 +476,6 @@ static int count_feats(int *y, int *x, int action)
 	/* All done */
 	return count;
 }
-
-
-/*
- * Return the number of chests around (or under) the character.
- * If requested, count only trapped chests.
- */
-static int count_chests(int *y, int *x, bool trapped)
-{
-	int d, count, o_idx;
-
-	object_type *o_ptr;
-
-	/* Count how many matches */
-	count = 0;
-
-	/* Check around (and under) the character */
-	for (d = 0; d < 9; d++)
-	{
-		/* Extract adjacent (legal) location */
-		int yy = p_ptr->py + ddy_ddd[d];
-		int xx = p_ptr->px + ddx_ddd[d];
-
-		/* No (visible) chest is there */
-		if ((o_idx = chest_check(yy, xx)) == 0) continue;
-
-		/* Grab the object */
-		o_ptr = &o_list[o_idx];
-
-		/* Already open */
-		if (o_ptr->pval == 0) continue;
-
-		/* No (known) traps here */
-		if (trapped &&
-		    (!object_known_p(o_ptr) ||
-		     (o_ptr->pval < 0) ||
-		     !chest_traps[o_ptr->pval]))
-		{
-			continue;
-		}
-
-		/* Count it */
-		++count;
-
-		/* Remember the location of the last chest found */
-		*y = yy;
-		*x = xx;
-	}
-
-	/* All done */
-	return count;
-}
-
 
 /*
  * Extract a "direction" which will move one step from the player location
@@ -955,7 +545,7 @@ static bool do_cmd_open_aux(int y, int x)
 		if (p_ptr->confused || p_ptr->image) i = i / 10;
 
 		/* Extract the lock power */
-		j = cave_feat[y][x] - FEAT_DOOR_HEAD;
+		j = f_info[cave_feat[y][x]].power;
 
 		/* Extract the difficulty XXX XXX XXX */
 		j = i - (j * 4);
@@ -1013,7 +603,7 @@ static bool do_cmd_open_aux(int y, int x)
 
 
 /*
- * Open a closed/locked/jammed door or a closed/locked chest.
+ * Open a closed/locked/jammed door.
  *
  * Unlocking a locked door/chest is worth one experience point.
  */
@@ -1024,8 +614,6 @@ void do_cmd_open(void)
 
 	int y, x, dir;
 
-	s16b o_idx;
-
 	bool more = FALSE;
 
 #ifdef ALLOW_EASY_OPEN
@@ -1033,9 +621,8 @@ void do_cmd_open(void)
 	/* Easy Open */
 	if (easy_open)
 	{
-		/* Handle a single closed door or locked chest */
-                if ((count_feats(&y, &x, FS_OPEN) +
-		     count_chests(&y, &x, FALSE)) == 1)
+                /* Handle a single closed door  */
+                if (count_feats(&y, &x, FS_OPEN)  == 1)
 		{
 			p_ptr->command_dir = coords_to_dir(y, x);
 		}
@@ -1050,12 +637,9 @@ void do_cmd_open(void)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
-	/* Check for chests */
-	o_idx = chest_check(y, x);
-
 
 	/* Verify legality */
-	if (!o_idx && !do_cmd_test(y, x,FS_OPEN)) return;
+        if (!do_cmd_test(y, x,FS_OPEN)) return;
 
 
 	/* Take a turn */
@@ -1068,8 +652,6 @@ void do_cmd_open(void)
 		y = py + ddy[dir];
 		x = px + ddx[dir];
 
-		/* Check for chest */
-		o_idx = chest_check(y, x);
 	}
 
 
@@ -1094,13 +676,6 @@ void do_cmd_open(void)
 
 		/* Attack */
 		py_attack(y, x);
-	}
-
-	/* Chest */
-	else if (o_idx)
-	{
-		/* Open the chest */
-		more = do_cmd_open_chest(y, x, o_idx);
 	}
 
 	/* Door */
@@ -1280,7 +855,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 	cptr name;
 
-	byte feat;
+	int feat;
 	
 	feat = cave_feat[y][x];
 
@@ -1585,7 +1160,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 
 /*
- * Disarms a trap, or a chest
+ * Disarms a trap
  */
 void do_cmd_disarm(void)
 {
@@ -1593,8 +1168,6 @@ void do_cmd_disarm(void)
 	int px = p_ptr->px;
 
 	int y, x, dir;
-
-	s16b o_idx;
 
 	bool more = FALSE;
 
@@ -1604,8 +1177,7 @@ void do_cmd_disarm(void)
 	if (easy_open)
 	{
 		/* Handle a single visible trap or trapped chest */
-		if ((count_feats(&y, &x, FS_DISARM) +
-		     count_chests(&y, &x, TRUE)) == 1)
+                if (count_feats(&y, &x, FS_DISARM) == 1)
 		{
 			p_ptr->command_dir = coords_to_dir(y, x);
 		}
@@ -1620,12 +1192,9 @@ void do_cmd_disarm(void)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
-	/* Check for chests */
-	o_idx = chest_check(y, x);
-
 
 	/* Verify legality */
-	if (!o_idx && !do_cmd_test(y, x, FS_DISARM)) return;
+        if (!do_cmd_test(y, x, FS_DISARM)) return;
 
 
 	/* Take a turn */
@@ -1638,8 +1207,6 @@ void do_cmd_disarm(void)
 		y = py + ddy[dir];
 		x = px + ddx[dir];
 
-		/* Check for chests */
-		o_idx = chest_check(y, x);
 	}
 
 
@@ -1664,13 +1231,6 @@ void do_cmd_disarm(void)
 
 		/* Attack */
 		py_attack(y, x);
-	}
-
-	/* Chest */
-	else if (o_idx)
-	{
-		/* Disarm the chest */
-		more = do_cmd_disarm_chest(y, x, o_idx);
 	}
 
 	/* Disarm trap */
@@ -1825,7 +1385,7 @@ void do_cmd_bash(void)
 	/* Easy Bash */
 	if (easy_open)
 	{
-		/* Handle a single visible trap or trapped chest */
+                /* Handle a single visible trap */
                 if (count_feats(&y, &x, FS_BASH)==1)
 		{
 			p_ptr->command_dir = coords_to_dir(y, x);
@@ -2078,7 +1638,7 @@ void do_cmd_spike(void)
 	/* Easy Bash */
 	if (easy_open)
 	{
-		/* Handle a single visible trap or trapped chest */
+                /* Handle a single visible trap */
                 if (count_feats(&y, &x, FS_SPIKE)==1)
 		{
 			p_ptr->command_dir = coords_to_dir(y, x);
@@ -2172,7 +1732,7 @@ void do_cmd_spike(void)
 
 static bool do_cmd_walk_test(int y, int x)
 {
-	byte feat;
+	int feat;
 
 	cptr name; 
 
@@ -2533,6 +2093,7 @@ static int breakage_chance(object_type *o_ptr)
 		case TV_BOTTLE:
 		case TV_FOOD:
 		case TV_JUNK:
+		case TV_SKIN:
 		{
 			return (100);
 		}
@@ -2556,6 +2117,7 @@ static int breakage_chance(object_type *o_ptr)
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_SPIKE:
+		case TV_BODY:
 		{
 			return (25);
 		}
@@ -2683,8 +2245,6 @@ void do_cmd_fire(void)
         /* Sometimes use lower stack object */
         if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
         {
-                if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
-
                 if (i_ptr->pval) i_ptr->pval--;
 
                 if (i_ptr->timeout) i_ptr->timeout = 0;
@@ -3053,8 +2613,6 @@ void do_cmd_throw(void)
         /* Sometimes use lower stack object */
         if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
         {
-                if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
-
                 if (i_ptr->pval) i_ptr->pval--;
 
                 if (i_ptr->timeout) i_ptr->timeout = 0;

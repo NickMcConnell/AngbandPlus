@@ -1,0 +1,6 @@
+
+I'm particularly in limbo with regards to what to do next. Larry Bassel is still shaking bugs out of what I thought was a solid identification system, and my inclination seems to be moving more and more towards varied and interesting dungeon terrain and interaction, such as fountains, thrones, statues, curtains and so forth.
+
+However, in order to supporting hiding behind the above objects (And a player invisibility system similar to Ninja stealth in Hengband), players summoning monsters and friendly uniques I'm going to have to do a major re-write of monster intelligence.
+
+But at the same time, I want to wait around until Angband 3.0 comes out and put in a major effort upgrading the code base to match (And take advantage of the bug fixes and code clean up) before I drift too far away from it. That will also necessitate a long overdue clean up of the monsters and features (They are 'out of order' because of self-imposed restraints, which I didn't need to have), and info files in general (Although I'll deliberately maintain incompatibility with some of them, as I feel my format is more flexible). And I'll take advantage of this to make a lot of the 'variant options' compulsory. Hmmm... what to do.

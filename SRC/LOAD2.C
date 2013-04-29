@@ -543,6 +543,16 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->marked);
 	}
 
+	/* Hack -- fix rod/spell timeout */
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_SPELL))
+	{
+		o_ptr->timeout = o_ptr->pval;
+		o_ptr->pval = 0;
+	}
+
+	/* Hack -- remove chests */
+	if (o_ptr->tval == TV_CHEST) o_ptr->k_idx = 0;
+
 	/* Old flags */
 	strip_bytes(12);
 
@@ -596,6 +606,11 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->guess1);
 		rd_byte(&o_ptr->guess2);
 	}
+
+        if (variant_drop_body)
+        {
+                rd_s16b(&o_ptr->dropped);
+        }
 
 	/* Inscription */
 	rd_string(buf, 128);
@@ -906,6 +921,7 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
         if (variant_unsummon) rd_byte(&m_ptr->summoned);
+        if (variant_drop_body) rd_byte(&m_ptr->mflag);
 	rd_byte(&tmp8u);
 }
 
@@ -1884,15 +1900,15 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
                         cave_feat[y][x] = feat;
 
                         /* Check for bit 5 set*/
-                        if (feat & (FEAT_DOOR_HEAD))
+                        if (f_info[feat].flags1 & (FF1_LOS))
                         {
-                                cave_info[y][x] |= (CAVE_WALL);
+                                cave_info[y][x] &= ~(CAVE_WALL);
                         }
 
                         /* Handle "floor"/etc grids */
                         else
                         {
-                                cave_info[y][x] &= ~(CAVE_WALL);
+                                cave_info[y][x] |= (CAVE_WALL);
                         }
 
 
@@ -2256,15 +2272,15 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
                         cave_feat[y][x] = feat;
 
                         /* Check for bit 5 set*/
-                        if (feat & (FEAT_DOOR_HEAD))
+                        if (f_info[feat].flags1 & (FF1_LOS))
                         {
-                                cave_info[y][x] |= (CAVE_WALL);
+                                cave_info[y][x] &= ~(CAVE_WALL);
                         }
 
                         /* Handle "floor"/etc grids */
                         else
                         {
-                                cave_info[y][x] &= ~(CAVE_WALL);
+                                cave_info[y][x] |= (CAVE_WALL);
                         }
 
 
@@ -2284,15 +2300,15 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
                                 cave_feat[y][x] += 0x04;
 
                                 /* Check for bit 5 set*/
-                                if (cave_feat[y][x] & (FEAT_DOOR_HEAD))
+                                if (f_info[cave_feat[y][x]].flags1 & (FF1_LOS))
                                 {
-                                        cave_info[y][x] |= (CAVE_WALL);
+                                        cave_info[y][x] &= ~(CAVE_WALL);
                                 }
 
                                 /* Handle "floor"/etc grids */
                                 else
                                 {
-                                        cave_info[y][x] &= ~(CAVE_WALL);
+                                        cave_info[y][x] |= (CAVE_WALL);
                                 }
 
 				/* Done */
@@ -2465,8 +2481,9 @@ static errr rd_dungeon(void)
 		/* Apply the RLE info */
 		for (i = count; i > 0; i--)
 		{
+
 			/* Extract "info" */
-			cave_info[y][x] = tmp8u;
+                        cave_info[y][x] = tmp8u;
 
 			/* Advance/Wrap */
 			if (++x >= DUNGEON_WID)
@@ -2488,24 +2505,26 @@ static errr rd_dungeon(void)
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
-		rd_byte(&tmp8u);
+                if (variant_save_feats) rd_u16b(&tmp16u);
+                else rd_byte(&tmp8u);
 
 		/* Apply the RLE info */
 		for (i = count; i > 0; i--)
 		{
-			/* Save the feat */
-                        cave_feat[y][x] = tmp8u;
+                        /* Save the feat */
+                        if (variant_save_feats) cave_feat[y][x] = tmp16u;
+                        else cave_feat[y][x] = tmp8u;
 
-                        /* Check for bit 5 set*/
-                        if (tmp8u & (FEAT_DOOR_HEAD))
-                        {
-                                cave_info[y][x] |= (CAVE_WALL);
-                        }
-
-                        /* Handle "floor"/etc grids */
-                        else
+                        /* Check for los flag set*/
+                        if (f_info[cave_feat[y][x]].flags1 & (FF1_LOS))
                         {
                                 cave_info[y][x] &= ~(CAVE_WALL);
+                        }
+
+                        /* Handle wall grids */
+                        else
+                        {
+                                cave_info[y][x] |= (CAVE_WALL);
                         }
 
 

@@ -557,7 +557,7 @@ errr process_pref_file_aux(char *buf)
         else if (buf[0] == 'I')
 	{
 
-                if (tokenize(buf+2, 2, zz) != 3) return (1);
+                if (tokenize(buf+2, 3, zz) != 3) return (1);
 
                 i = strtol(zz[1], NULL, 0);
 
@@ -572,7 +572,16 @@ errr process_pref_file_aux(char *buf)
 
                                 return (0);
                         }
+#if 0
+                        case 'R':
+                        {
+                                if ((i < 0) || (i >= z_info->e_max)) return (1);
 
+                                r_info[i].note = quark_add(zz[2]);
+
+                                return (0);
+                        }
+#endif
                         case 'K':
                         {
                                 if ((i < 0) || (i >= z_info->k_max)) return (1);
@@ -2242,7 +2251,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-        fprintf(fff, "  [Unangband 0.4.6 Character Dump]\n\n");
+        fprintf(fff, "  [Unangband 0.4.7 Character Dump]\n\n");
 
 	/* Display player */
 	display_player(0);

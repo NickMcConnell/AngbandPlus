@@ -2430,7 +2430,25 @@ static errr autos_dump(cptr fname)
                 }
 	}
 
+#if 0
+        /* Dump them */
+        for (i = 0; i < z_info->r_max; i++)
+	{
+                if (r_info[i].note)
+                {
 
+                        /* Start the macro */
+                        fprintf(fff, "# Monster race '%s'\n\n", r_name + r_info[i].name);
+
+                        /* Dump the kind */
+                        fprintf(fff, "I:R:%d:%s\n", i, quark_str(r_info[i].note));
+
+                        /* End the inscription */
+                        fprintf(fff, "\n\n");
+
+                }
+	}
+#endif
 
 	/* Start dumping */
 	fprintf(fff, "\n\n\n\n");
@@ -2488,11 +2506,14 @@ static tval_desc tvals[] =
         { TV_INSTRUMENT,        "Instrument"           },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
-	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
         { TV_BOTTLE,            "Bottle"               },
         { TV_SKELETON,          "Skeleton"             },
+	{ TV_BODY,		"Corpse"	       },
+	{ TV_EGG,		"Egg"		       },
+	{ TV_SKIN,		"Skin"		       },
+	{ TV_STATUE,		"Statue"	       },
         { TV_JUNK,              "Junk"                 },
 	{ 0,                    NULL                   }
 };

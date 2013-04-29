@@ -611,9 +611,6 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	if (o_ptr->dd != j_ptr->dd) return (0);
 	if (o_ptr->ds != j_ptr->ds) return (0);
 
-	/* Hack -- Never stack chests */
-	if (o_ptr->tval == TV_CHEST) return (0);
-
 	/* Require matching "discount" fields */
 	if (o_ptr->discount != j_ptr->discount) return (0);
 
@@ -1218,9 +1215,6 @@ static void store_create(void)
 
 		/* The object is "known" */
 		object_known(i_ptr);
-
-		/* Mega-Hack -- no chests in stores */
-		if (i_ptr->tval == TV_CHEST) continue;
 
 		/* Prune the black market */
 		if (store_num == STORE_B_MARKET)

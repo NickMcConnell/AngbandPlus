@@ -84,9 +84,9 @@
 
 # Vanilla flags.
 
+# LOS:          LOS allowed through this location. DUMMY FLAG.
 # POWER_X:      Power of bash/open/tunnel resistance. DUMMY FLAG.
 
-# LOS:          LOS allowed through this location.
 # PROJECT:      Project allowed through this location.
 # MOVE:         Normal movement allowed through this location.
 # PLACE:        Place monsters at this location.
@@ -121,6 +121,7 @@
 # door.
 # SOLID:        Outer wall of room - not OK to overwrite with corridor/turn to
 # door.
+# HIT_TRAP:     Apply blow/spell only when first moved onto.
 # ATTR_LITE:    Attribute is modified by torchlight/blindness/not seen.
 
 # Non-vanilla flags
@@ -137,7 +138,6 @@
 # water level.
 # LAVA:         Never generate on water, acid, oil or ice level. Mark level as
 # lava level.
-# HIT_TRAP:     Apply blow/spell only when first moved onto.
 # SHALLOW:      Double weight of load. Chance of sinking in feature and losing
 # move.
 # DEEP:         Triple weight of load. Chance of sinking in feature and losing
@@ -176,46 +176,6 @@
 # KILL_HUGE:    Destroyed by powerful attacks or if huge creature moves on it.
 # KILL_MOVE:    Destroy feature if any creature walks/burrows onto it.
 
-# Extended flags --- very few implemented as of this version.
-
-# PICK_CHAR:	Pick feature with same char and drops when altered.
-# PICK_ATTR:	Pick feature with same attr and '^' graphic when altered.
-# ALLOC:	Allocate at dungeon generation time, but do not pick otherwise.
-# CHEST:	Chest.
-# DROP_1D2:	Drop 1-2 items.
-# DROP_2D2:	Drop 2-4 items.
-# DROP_GOOD:	Force good drops.
-# DROP_GREAT:	Force great drops.
-# HURT_POIS:    Destroyed by poison balls/bolts/breath.
-# HURT_ELEC:    Destroyed by electricity.
-# HURT_WATER:   Destroyed by water/lava/bwater (But not weak water).
-# HURT_BWATER:	Destroyed by steam & fire balls/bolts/breath.
-# CAN_HIDE:     Monsters with CAN_HIDE/player can hide in this location.
-# USE_FEAT:     Use object from floor.
-# GET_FEAT:     Get object from floor.
-# HIDE_FLY:	Hide climbers/flyers unless adjacent.
-# TOWN:		Generate town monsters here.
-# OUTSIDE:      Climbers/flyers treated automatically HIDE on town level
-# unless player is on an OUTSIDE location or climbing. Only locations with
-# this flag are lit during daytime, and darken at night.
-# EASY_CLIMB:   If moved from OUTSIDE to inside, set MFLAG_OVER or start
-# climbing. If player is climbing, and moved from inside to OUTSIDE, stop
-# climbing. Also stop climbing if not flyer/climber.
-# HURT_ROOM:	Remove from locations next to rooms.
-# NEED_WALL:	If next to an OUTSIDE location, needs at least one non NEED_WALL
-# location next to it, otherwise it is destroyed.
-# ATTR_FACE: 	If using extended colour attributes, make FACE_NORTH
-# squares one colour lighter, FACE_EAST & WEST squares the same colour, and
-# FACE_SOUTH squares one colour darker.
-# FACE_EAST:	Can open/disarm freely from specified direction.
-# FACE_WEST:	Can open/disarm freely from specified direction.
-# FACE_NORTH:	Can open/disarm freely from specified direction.
-# FACE_SOUTH:	Can open/disarm freely from specified direction.
-# COLLAPSE:     Destroy feature if adjacent feature is destroyed.
-# ERUPT:	Erupt as radius 2 ball spell of blow type occasionally.
-# STRIKE:	Erupt as bolt/beam spell of blow type occasionally.
-# DYNAMIC:      Feature dynamically moves/changes using algorithm.
-
 # ==== Additional features ====
 
 # Additional features include the following:
@@ -225,8 +185,8 @@
 # 2 new features to correctly handle case of rubble with hidden items, and
 # rubble with known items.
 
-# 39 new traps, including 4 new types (magic symbol, stone idol, eldritch
-# sign and tripwire) and expanded previous types (deep pits, summoning
+# 39 new traps, including 4 new types (magic symbol, stone visage, eldritch
+# sign and trip wire) and expanded previous types (deep pits, summoning
 # runes of various flavours).
 
 # 13 trapped doors, including unknown trapped doors. We replace a trapped door
@@ -401,7 +361,6 @@ V:2.9.2
 
 N:0:nothing
 G: :w
-F:LOS
 
 # 0x01 --> open floor
 
@@ -421,7 +380,7 @@ M:1
 W:1:1:5:0
 D:You have found a trap.
 K:DEFAULT:1
-F:TRAP | SECRET | LOS | MOVE | PROJECT | ALLOC | PICK_TRAP |
+F:TRAP | SECRET | LOS | MOVE | PROJECT |
 F:CAN_CLIMB | CAN_FLY | RUN | HIT_TRAP
 
 # 0x03 --> glyph of warding
@@ -758,7 +717,7 @@ G:+:U
 W:1:1:17:0
 M:32
 K:DEFAULT:1
-K:OPEN:258
+K:OPEN:4
 K:BASH:5
 K:TUNNEL:5
 K:SPIKE:41
@@ -773,7 +732,7 @@ G:+:U
 W:2:1:17:0
 M:32
 K:DEFAULT:1
-K:OPEN:259
+K:OPEN:4
 K:BASH:5
 K:TUNNEL:5
 K:SPIKE:42
@@ -788,7 +747,7 @@ G:+:U
 W:3:1:17:0
 M:32
 K:DEFAULT:1
-K:OPEN:260
+K:OPEN:4
 K:BASH:5
 K:TUNNEL:5
 K:SPIKE:43
@@ -803,7 +762,7 @@ G:+:U
 W:4:1:17:0
 M:32
 K:DEFAULT:1
-K:OPEN:261
+K:OPEN:4
 K:BASH:5
 K:TUNNEL:5
 K:SPIKE:44
@@ -819,7 +778,7 @@ G:+:U
 W:5:1:17:0
 M:32
 K:DEFAULT:1
-K:OPEN:262
+K:OPEN:4
 K:BASH:5
 K:TUNNEL:5
 K:SPIKE:45
@@ -835,7 +794,7 @@ G:+:U
 W:6:1:17:0
 M:32
 K:DEFAULT:1
-K:OPEN:263
+K:OPEN:4
 K:BASH:5
 K:TUNNEL:5
 K:SPIKE:46
@@ -850,7 +809,7 @@ G:+:U
 W:7:1:17:0
 M:32
 K:DEFAULT:1
-K:OPEN:264
+K:OPEN:4
 K:BASH:5
 K:TUNNEL:5
 K:SPIKE:47
@@ -873,7 +832,7 @@ D:The door appears to be stuck.
 K:DEFAULT:1
 K:BASH:5
 K:SECRET:41
-F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE | PICK_DOOR |
+F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
 F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB
 
 # 0x2x --> jammed door (power 1)
@@ -977,8 +936,7 @@ K:DEFAULT:1
 K:TUNNEL:48
 K:SECRET:32
 D:You have found a secret door.
-F:TUNNEL | DOOR | SECRET | CAN_PASS | HURT_ROCK | CAN_CLIMB | REMEMBER |
-F:PICK_DOOR
+F:TUNNEL | DOOR | SECRET | CAN_PASS | HURT_ROCK | CAN_CLIMB | REMEMBER
 
 
 # 0x31 --> pile of rubble
@@ -987,7 +945,7 @@ N:49:pile of rubble
 G:::w
 W:1:1:13:0
 K:DEFAULT:1
-F:TUNNEL | WALL | CAN_PASS | CAN_TINY | CAN_DIG | HIDE_DIG | ALLOC |
+F:TUNNEL | WALL | CAN_PASS | CAN_TINY | CAN_DIG | HIDE_DIG |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB | POWER_10
 
 # 0x32 --> magma vein
@@ -1214,9 +1172,9 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_24
 
 
-# --> visible trap -- stone idol
+# --> visible trap -- stone visage
 
-N:70:stone idol
+N:70:stone visage
 G:^:W
 W:2:2:20:0
 T:TERRIFY
@@ -1228,7 +1186,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
-N:71:stone idol
+N:71:stone visage
 G:^:W
 W:3:2:20:0
 T:LOSE_CHR
@@ -1240,7 +1198,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
-N:72:stone idol
+N:72:stone visage
 G:^:W
 W:4:2:20:0
 T:LOSE_WIS
@@ -1251,7 +1209,7 @@ F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
 F:POWER_5
 
-N:73:stone idol
+N:73:stone visage
 G:^:W
 W:5:2:20:0
 T:LOSE_INT
@@ -1263,7 +1221,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
-N:74:stone idol
+N:74:stone visage
 G:^:W
 W:10:2:20:0
 D:It gazes at you.
@@ -1275,7 +1233,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_10
 
-N:75:stone idol
+N:75:stone visage
 G:^:W
 W:15:2:20:0
 D:It gazes at you.
@@ -1287,7 +1245,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_15
 
-N:76:stone idol
+N:76:stone visage
 G:^:W
 W:20:2:20:0
 D:It gazes at you.
@@ -1484,7 +1442,7 @@ F:POWER_5
 
 N:92:arrow trap
 G:^:R
-W:5:1:20:0
+W:3:1:20:0
 T:ARROW:3d6
 D:An arrow hits you.
 K:DEFAULT:1
@@ -1497,7 +1455,7 @@ F:POWER_5
 
 N:93:arrow trap
 G:^:R
-W:8:1:20:0
+W:4:1:20:0
 T:ARROW:5d6
 D:An arrow hits you.
 K:DEFAULT:1
@@ -1505,11 +1463,12 @@ K:HIT_TRAP:93
 F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
-F:POWER_8
+F:POWER_5
+
 
 N:94:arrow trap
 G:^:R
-W:11:1:20:0
+W:5:1:20:0
 T:ARROW:7d6
 D:An arrow hits you.
 K:DEFAULT:1
@@ -1517,9 +1476,9 @@ K:HIT_TRAP:94
 F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
-F:POWER_11
+F:POWER_5
 
-# -> visible trap -- loose rock -- no effect
+# --> visible trap -- loose rock -- no effect
 
 N:95:loose rock
 G:^:v
@@ -1533,6 +1492,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_1
 
 # HACK --- We retain the LOS flag by inserting the next set of non-LOS features here.
+
 
 # 0xxx --> pile of rubble (hidden item)
 
@@ -1566,7 +1526,7 @@ K:OPEN:4
 K:BASH:5
 K:SPIKE:40
 K:SECRET:98
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR | PICK_TRAP |
+F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
 F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
@@ -1606,7 +1566,7 @@ F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
 F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
-N:102:trapped door (stone idol)
+N:102:trapped door (stone visage)
 G:+:W
 W:22:10:20:0
 K:DEFAULT:1
@@ -1619,7 +1579,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:103:trapped door (tripwire)
-G:+:y
+G:+:B
 W:13:10:20:0
 K:DEFAULT:1
 K:HIT_TRAP:103
@@ -1795,7 +1755,7 @@ W:60:3:13:0
 K:TUNNEL:155
 K:BRIDGE:153
 F:FILLED | CAN_SWIM |  TUNNEL | CAN_PASS | MOVE |
-F:HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | BRIDGE | SECRET | DROP |
+F:HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | BRIDGE | SECRET | DROP | HIDE_ITEM |
 F:REMEMBER | PLACE | ICE |
 F:POWER_36
 
@@ -1809,7 +1769,7 @@ K:BRIDGE:154
 K:SECRET:121
 K:HURT_COLD:150
 F:FILLED | CAN_SWIM | TUNNEL | CAN_PASS | LAKE | RIVER | MOVE |
-F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | SECRET | PLACE | DROP |
+F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | SECRET | PLACE | DROP | HIDE_ITEM |
 F:REMEMBER | WATER | HURT_COLD |
 F:POWER_36
 
@@ -1820,7 +1780,7 @@ K:DEFAULT:155
 K:BRIDGE:154
 K:HURT_COLD:150
 T:WATER_WEAK:4d6
-F:WATER | FILLED | CAN_SWIM | TUNNEL | CAN_PASS | DROP | MOVE |
+F:WATER | FILLED | CAN_SWIM | TUNNEL | CAN_PASS | DROP | HIDE_ITEM | MOVE |
 F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | PLACE |
 F:REMEMBER | WATER | HURT_COLD |
 F:POWER_36
@@ -1843,6 +1803,7 @@ K:HURT_ROCK:1
 F:WALL | STREAMER | TUNNEL | CAN_PASS | HURT_FIRE | LAKE |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB | BRIDGE | OIL |
 F:POWER_16
+
 
 N:124:burning coal
 G:%:o
@@ -1917,7 +1878,7 @@ G:^:v
 W:1:1:20:0
 K:DEFAULT:1
 D:Hmm... there was something under this rock.
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
+F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE | HIDE_ITEM |
 F:CAN_CLIMB | CAN_FLY | HAS_ITEM | KILL_MOVE |
 F:POWER_1
@@ -2116,7 +2077,7 @@ K:DEFAULT:155
 K:BRIDGE:153
 K:KILL_HUGE:119
 F:FILLED | CAN_SWIM |  TUNNEL | CAN_PASS | LAKE | RIVER | HIT_TRAP | MOVE |
-F:HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | BRIDGE | SECRET | DROP |
+F:HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | BRIDGE | SECRET | DROP | HIDE_ITEM |
 F:REMEMBER | PLACE | ICE | KILL_HUGE |
 F:POWER_36
 
@@ -2143,7 +2104,7 @@ F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | DROP | PLACE | HIDE_SWIM | HIDE_
 F:WATER | RUN
 
 N:153:water
-G:;:b
+G:.:b
 W:18:2:7:0
 K:HURT_COLD:145
 F:BRIDGE | WATER | SHALLOW | RIVER | LAKE | HIDE_SWIM |
@@ -2152,7 +2113,7 @@ F:HIDE_ITEM | DROP | HURT_COLD |
 F:WATER
 
 N:154:deep water
-G:;:b
+G:.:b
 W:27:2:7:0
 M:153
 T:WATER_WEAK:4d6
@@ -2232,7 +2193,7 @@ K:DEFAULT:160
 T:BWATER:6d6
 F:LAVA | DEEP | LAKE | LESS |
 F:HIDE_ITEM | DROP | HIDE_SWIM | HIDE_DEEP |
-F:GLOW | MOVE | REMEMBER | PLACE
+F:GLOW | LOS | MOVE | REMEMBER | PLACE
 
 N:161:falling lava
 G:<:r
@@ -2242,7 +2203,7 @@ K:BRIDGE:210
 T:LAVA:24d10
 F:LAVA | DEEP | LAKE | LESS |
 F:HIDE_ITEM | BRIDGE | HIDE_SWIM | HIDE_DEEP |
-F:GLOW |  MOVE | REMEMBER | PLACE
+F:GLOW | LOS | MOVE | REMEMBER | PLACE
 
 # Hack -- trees. Not how we want them long term, but
 # here to keep wilderness locations interesting.
@@ -2556,7 +2517,7 @@ W:51:1:13:0
 K:BRIDGE:209
 D:You are surrounded by a burning green gas!
 T:POISON:4d6
-F:STREAMER | HIDE_ITEM | MOVE | PROJECT | BRIDGE | DROP | LOS |
+F:STREAMER | HIDE_ITEM | MOVE | PROJECT | BRIDGE | DROP |
 F:NOTICE | REMEMBER | TRAP | POWER_20 | CAN_FLY
 
 N:212:steam vent
@@ -2564,7 +2525,7 @@ G:;:W
 W:51:1:13:0
 K:BRIDGE:209
 T:BWATER:4d6
-F:STREAMER | HIDE_ITEM | MOVE | PROJECT | BRIDGE | DROP | LOS |
+F:STREAMER | HIDE_ITEM | MOVE | PROJECT | BRIDGE | DROP |
 F:NOTICE | REMEMBER | TRAP | POWER_20 | CAN_FLY
 
 N:213:lava vent
@@ -2573,7 +2534,7 @@ W:72:1:14:0
 K:DEFAULT:216
 K:BRIDGE:209
 T:FIRE:12d6
-F:STREAMER | HIDE_ITEM | LAVA | MOVE | PROJECT | DROP | LOS |
+F:STREAMER | HIDE_ITEM | LAVA | MOVE | PROJECT | DROP |
 F:NOTICE | REMEMBER | BRIDGE | GLOW | TRAP | POWER_20 | CAN_FLY
 
 N:214:lava fall
@@ -2680,1601 +2641,3 @@ F:CAN_FLY | GLOW | DROP
 
 #128 LOS features, 66 non-LOS features, 33 place holders
 
-# Even more dungeon features.
-
-# Following open doors allow us to close and relock doors.
-# We can always bash a door to break its lock.
-
-# 0x04 --> open door
-N:257:open door
-G:':U
-M:4
-W:1:1:15:0
-K:DEFAULT:1
-K:CLOSE:33
-K:BASH:5
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
-
-# 0x04 --> open door
-N:258:open door
-G:':U
-M:4
-W:1:1:15:0
-K:DEFAULT:1
-K:CLOSE:34
-K:BASH:5
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
-
-# 0x04 --> open door
-N:259:open door
-G:':U
-M:4
-W:1:1:15:0
-K:DEFAULT:1
-K:CLOSE:35
-K:BASH:5
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
-
-# 0x04 --> open door
-N:260:open door
-G:':U
-M:4
-W:1:1:15:0
-K:DEFAULT:1
-K:CLOSE:36
-K:BASH:5
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
-
-# 0x04 --> open door
-N:261:open door
-G:':U
-M:4
-W:1:1:15:0
-K:DEFAULT:1
-K:CLOSE:37
-K:BASH:5
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
-
-# 0x04 --> open door
-N:262:open door
-G:':U
-M:4
-W:1:1:15:0
-K:DEFAULT:1
-K:CLOSE:38
-K:BASH:5
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
-
-# 0x04 --> open door
-N:263:open door
-G:':U
-M:4
-W:1:1:15:0
-K:DEFAULT:1
-K:CLOSE:39
-K:BASH:5
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
-
-# Following stores allow us to have up to 16 stores in a city.
-
-N:264:General Store
-W:0:1:20:0
-G:1:U
-F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
-
-# 0x09 --> shop -- armoury (perm)
-
-N:265:Armoury
-W:0:1:20:0
-G:2:s
-F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
-
-# 0x0A --> shop -- weapon shop (perm)
-
-N:266:Weapon Smiths
-W:0:1:20:0
-G:3:w
-F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
-
-# 0x0B --> shop -- temple (perm)
-
-N:267:Temple
-W:0:1:20:0
-G:4:g
-F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
-
-# 0x0C --> shop -- alchemist (perm)
-
-N:268:Alchemy Shop
-W:0:1:20:0
-G:5:b
-F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
-
-# 0x0D --> shop -- magic shop (perm)
-
-N:269:Magic Shop
-W:0:1:20:0
-G:6:r
-F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
-
-# 0x0E --> shop -- black market (perm)
-
-N:270:Black Market
-W:0:1:20:0
-G:7:D
-F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
-
-# 0x0F --> shop -- home (perm)
-
-N:271:Home
-W:0:1:20:0
-G:8:y
-F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
-
-# Here follow some deep traps.
-
-N:272:stone idol
-G:^:W
-W:30:2:20:0
-S:BA_ACID
-K:DEFAULT:1
-K:HIT_TRAP:272
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_30
-
-N:273:stone idol
-G:^:W
-W:15:2:20:0
-S:BA_ELEC
-K:DEFAULT:1
-K:HIT_TRAP:273
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_15
-
-N:274:stone idol
-G:^:W
-W:25:2:20:0
-S:BA_FIRE
-K:DEFAULT:1
-K:HIT_TRAP:274
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_25
-
-N:275:stone idol
-G:^:W
-W:20:2:20:0
-S:BA_COLD
-K:DEFAULT:1
-K:HIT_TRAP:275
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_20
-
-N:276:stone idol
-G:^:W
-W:10:2:20:0
-S:BA_POIS
-K:DEFAULT:1
-K:HIT_TRAP:276
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_10
-
-N:277:stone idol
-G:^:W
-W:60:2:20:0
-S:BA_NETH
-K:DEFAULT:1
-K:HIT_TRAP:277
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_60
-
-N:278:stone idol
-G:^:W
-W:80:2:20:0
-S:BA_MANA
-K:DEFAULT:1
-K:HIT_TRAP:278
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_80
-
-N:279:stone idol
-G:^:W
-W:70:2:20:0
-S:BA_DARK
-K:DEFAULT:1
-K:HIT_TRAP:279
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_70
-
-# ---> visible trap -- eldritch sign - cause wounds 1
-
-N:280:eldritch sign
-G:^:G
-W:6:3:20:0
-S:CAUSE_1
-K:DEFAULT:1
-K:HIT_TRAP:280
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_6
-
-# ---> visible trap -- eldritch sign - cause wounds 2
-
-N:281:eldritch sign
-G:^:G
-W:12:3:20:0
-S:CAUSE_2
-K:DEFAULT:1
-K:HIT_TRAP:281
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_12
-
-# ---> visible trap -- eldritch sign - cause wounds 3
-
-N:282:eldritch sign
-G:^:G
-W:18:3:20:0
-S:CAUSE_3
-K:DEFAULT:1
-K:HIT_TRAP:282
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_18
-
-# ---> visible trap -- eldritch sign - cause wounds 4
-
-N:283:eldritch sign
-G:^:G
-W:24:3:20:0
-S:CAUSE_4
-K:DEFAULT:1
-K:HIT_TRAP:283
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_24
-
-# visible trap -- rune -- teleport
-
-N:284:strange rune
-G:^:o
-W:10:1:20:0
-S:TELE_LEVEL
-D:You hit a teleport trap!
-K:DEFAULT:1
-K:HIT_TRAP:284
-F:TRAP | HIT_TRAP | DISARM |  CAN_CLIMB | CAN_FLY | PLACE |
-F:PROJECT | REMEMBER | NOTICE | LOS | MOVE |
-F:POWER_10
-
-N:285:strange rune
-G:^:o
-W:80:2:20:0
-K:DEFAULT:1
-S:S_HI_DEMON
-D:You are enveloped in a cloud of sulpher!
-F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_80
-
-N:286:strange rune
-G:^:o
-W:6:2:20:0
-K:DEFAULT:1
-S:S_SPIDER
-D:You are enveloped in a cloud of cobwebs!
-F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_6
-
-N:287:strange rune
-G:^:o
-W:60:2:20:0
-K:DEFAULT:1
-S:S_HI_DRAGON
-D:You are enveloped in a cloud of smoke!
-F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_60
-
-N:288:strange rune
-G:^:o
-W:70:2:20:0
-K:DEFAULT:1
-S:S_HI_DRAGON
-D:You are enveloped in a cloud of dust!
-F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_70
-
-# Loose rock -- wooden cage from ceiling
-
-N:289:loose rock
-G:^:v
-W:8:1:20:0
-D:A wooden cage falls from the ceiling!
-T:HURT
-K:DEFAULT:1
-K:HIT_TRAP
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_8
-
-# Loose rock -- iron cage from ceiling
-
-# This is a death trap if the player cannot escape.
-
-N:290:loose rock
-G:^:v
-W:32:1:20:0
-D:An iron cage falls from the ceiling!
-T:HURT
-K:DEFAULT:1
-K:HIT_TRAP:
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_32
-
-# Pit 
-
-N:291:pit
-G:^:s
-W:13:2:20:0
-T:FALL:6d6
-K:DEFAULT:1
-K:HIT_TRAP:154
-D:You fall into a pit! It quickly fills with water.
-F:TRAP | HIT_TRAP | HIDE_ITEM | HIDE_DEEP | LOS | MOVE |
-F:PROJECT | REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY | DISARM |
-F:POWER_13
-
-# Pit 
-
-N:292:pit
-G:^:s
-W:14:2:20:0
-T:FALL:6d6
-K:DEFAULT:1
-K:HIT_TRAP:220
-D:You fall into a pit! It quickly fills with burning oil.
-F:TRAP | HIT_TRAP | HIDE_ITEM | HIDE_DEEP | LOS | MOVE |
-F:PROJECT | REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY | DISARM |
-F:POWER_14
-
-# Pit 
-
-N:293:pit
-G:^:s
-W:15:2:20:0
-T:FALL:6d6
-K:DEFAULT:1
-K:HIT_TRAP:208
-D:You fall into a pit! It quickly fills with boiling water.
-F:TRAP | HIT_TRAP | HIDE_ITEM | HIDE_DEEP | LOS | MOVE |
-F:PROJECT | REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY | DISARM |
-F:POWER_15
-
-# Pit
-
-N:294:pit
-G:^:s
-W:16:2:20:0
-T:FALL:6d6
-K:DEFAULT:1
-K:HIT_TRAP:158
-D:You fall into a pit! It quickly fills with acid.
-F:TRAP | HIT_TRAP | HIDE_ITEM | HIDE_DEEP | LOS | MOVE |
-F:PROJECT | REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY | DISARM |
-F:POWER_16
-
-# ---> visible trap -- eldritch sign
-
-N:295:eldritch sign
-G:^:G
-W:2:3:20:0
-T:PLASMA:8d6
-K:DEFAULT:1
-K:HIT_TRAP:327
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_5
-
-# ---> visible trap -- eldritch sign
-
-N:296:eldritch sign
-G:^:G
-W:36:3:20:0
-T:GRAVITY:8d6
-K:DEFAULT:1
-K:HIT_TRAP:296
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_36
-
-# ---> visible trap -- eldritch sign
-
-N:297:eldritch sign
-G:^:G
-W:33:3:20:0
-T:INERTIA:8d6
-K:DEFAULT:1
-K:HIT_TRAP:297
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_33
-
-# ---> visible trap -- eldritch sign
-
-N:298:eldritch sign
-G:^:G
-W:30:3:20:0
-T:FORCE:8d6
-K:DEFAULT:1
-K:HIT_TRAP:298
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_30
-
-# ---> visible trap -- eldritch sign
-
-N:299:eldritch sign
-G:^:G
-W:27:3:20:0
-T:TIME:8d6
-K:DEFAULT:1
-K:HIT_TRAP:299
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_27
-
-# ---> visible trap -- eldritch sign
-
-N:300:eldritch sign
-G:^:G
-W:12:3:20:0
-T:SOUND:8d6
-K:DEFAULT:1
-K:HIT_TRAP:300
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_12
-
-# ---> visible trap -- eldritch sign
-
-N:301:eldritch sign
-G:^:G
-W:18:3:20:0
-T:SHARD:8d6
-K:DEFAULT:1
-K:HIT_TRAP:301
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_18
-
-# ---> visible trap -- eldritch sign
-
-N:302:eldritch sign
-G:^:G
-W:15:3:20:0
-T:NEXUS:8d6
-K:DEFAULT:1
-K:HIT_TRAP:302
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_15
-
-# ---> visible trap -- eldritch sign
-
-N:303:eldritch sign
-G:^:G
-W:24:3:20:0
-T:CHAOS:8d6
-K:DEFAULT:1
-K:HIT_TRAP:303
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_24
-
-# ---> visible trap -- eldritch sign
-
-N:304:eldritch sign
-G:^:G
-W:21:3:20:0
-T:DISENCHANT:8d6
-K:DEFAULT:1
-K:HIT_TRAP:304
-F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE |
-F:CAN_CLIMB | CAN_FLY |
-F:POWER_21
-
-# Following trails are left by creatures of various
-# kinds.
-
-N:305:blood-stained floor
-G:.:r
-W:12:1:6:0
-K:DEFAULT:1
-K:TUNNEL:136
-F:LOS | MOVE | PROJECT | REMEMBER | PLACE | DROP | FLOOR |
-F:CAN_CLIMB | CAN_FLY
-
-N:306:slimy trail
-G:.:W
-W:12:1:6:0
-K:DEFAULT:1
-K:TUNNEL:136
-F:LOS | MOVE | PROJECT | REMEMBER | PLACE | DROP | FLOOR |
-F:CAN_CLIMB | CAN_FLY
-
-N:307:wet floor
-G:.:b
-W:18:2:7:0
-K:DEFAULT:1
-K:TUNNEL:136
-F:BRIDGE | 
-F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:HIDE_ITEM | DROP | HURT_FIRE
-
-N:308:burn marks
-G:.:o
-W:18:2:7:0
-K:DEFAULT:1
-K:TUNNEL:136
-F:BRIDGE | 
-F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:HIDE_ITEM | DROP | HURT_FIRE
-
-N:309:acid marks
-G:.:o
-W:18:2:7:0
-K:DEFAULT:1
-K:TUNNEL:136
-F:BRIDGE | 
-F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:HIDE_ITEM | DROP | HURT_FIRE
-
-# Following two waters are atypical, but used in various
-# situations.
-
-N:310:stagnant water
-G:;:b
-W:18:2:7:0
-K:HURT_COLD:145
-F:BRIDGE | SHALLOW | LAKE | HIDE_SWIM |
-F:CAN_FLY | CAN_SWIM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:HIDE_ITEM | DROP | HURT_COLD
-
-N:311:clear deep water
-G:::b
-W:27:2:7:0
-T:WATER_WEAK:4d6
-K:DEFAULT:155
-K:BRIDGE:153
-K:HURT_COLD:146
-F:WATER | DEEP | LAKE | DROP | 
-F:BRIDGE | CAN_SWIM |
-F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:WATER | HURT_COLD
-
-N:312:broken cage
-G:0:u
-W:10:1:17:0
-K:DEFAULT:1
-K:BASH:5
-K:TUNNEL:5
-K:SPIKE:40
-F:BASH | REMEMBER | NOTICE | PLACE | DROP | LOS |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
-F:POWER_9
-
-N:313:wooden cage
-G:0:U
-W:10:1:17:0
-K:DEFAULT:1
-K:BASH:312
-K:TUNNEL:312
-K:HURT_ROCK:312
-F:BASH | REMEMBER | NOTICE | PLACE | DROP | LOS |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
-F:POWER_9
-
-N:314:iron cage
-G:0:D
-W:20:1:17:0
-K:DEFAULT:1
-K:BASH:312
-K:TUNNEL:312
-K:HURT_ROCK:312
-F:REMEMBER | NOTICE | PLACE | DROP | LOS |
-F:CAN_PASS | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
-F:POWER_18
-
-# We need to allow DROP to prevent getting as well as dropping items,
-# so that we can lock items back into chests.
-
-# Note that chests have considerably more valuable contents.
-
-# Small chest -- was only gold. Now 2D2 gold or items.
-# Large chest -- was item or gold. Now 3D2 gold or items.
-
-# Wooden chest -- was 2 items.
-# Iron chest -- was 4 items. Now drops good.
-# Steel chest -- was 6 items. Now drops great.
-
-# However chest traps for iron and steel chests have been upped in power.
-
-N:315:broken chest
-G:*:D
-W:1:1:15:0
-K:DEFAULT:1
-K:CLOSE:32
-K:BASH:5
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | DROP | ALLOC |
-F:HURT_FIRE | HURT_ACID | PLACE | CAN_FLY | CHEST |
-
-N:316:small wooden chest
-G:*:u
-W:5:1:19:0
-D:The chest is not trapped.
-K:DEFAULT:1
-K:OPEN:319
-K:BASH:315
-K:SECRET:318
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |  HIDE_ITEM | ALLOC |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | SECRET | HAS_GOLD | HAS_ITEM |
-F:DROP_2D2 | CHEST |
-F:POWER_5
-
-N:317:small wooden chest
-G:*:u
-W:5:1:19:0
-M:350
-D:You have discovered a trap on the chest.
-K:DEFAULT:1
-K:OPEN:319
-K:BASH:315
-K:SECRET:318
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | ALLOC |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | HAS_GOLD | HAS_ITEM | CHEST | PICK_TRAP |
-F:DROP_2D2 |
-F:POWER_5
-
-N:318:small wooden chest (locked)
-G:*:u
-W:5:1:19:0
-K:DEFAULT:1
-K:OPEN:319
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | 
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY |
-F:HIDE_ITEM | HAS_GOLD | HAS_ITEM | CHEST |
-F:DROP_2D2 |
-F:POWER_5
-
-N:319:small wooden chest (empty)
-G:*:u
-W:5:1:15:0
-K:DEFAULT:1
-K:CLOSE:318
-K:BASH:315
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | DROP |
-F:DROP_2D2 | CHEST |
-F:POWER_5
-
-N:320:small wooden chest (multiple traps)
-G:*:v
-W:5:1:20:0
-K:DEFAULT:1
-K:OPEN:319
-K:HIT_TRAP:128
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | HAS_GOLD | HAS_ITEM | CHEST |
-F:DROP_2D2 |
-F:POWER_5
-
-N:321:small wooden chest (arrow trap)
-G:*:R
-W:5:1:20:0
-K:DEFAULT:1
-K:OPEN:319
-K:HIT_TRAP:321
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | 
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | HAS_GOLD | HAS_ITEM | CHEST |
-F:DROP_2D2 |
-F:POWER_5
-
-N:322:small wooden chest (dart trap)
-G:*:r
-W:5:1:20:0
-K:DEFAULT:1
-K:OPEN:319
-K:HIT_TRAP:322
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | 
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | HAS_GOLD | HAS_ITEM | CHEST |
-F:DROP_2D2 |
-F:POWER_5
-
-N:323:small wooden chest (gas trap)
-G:*:g
-W:5:1:20:0
-K:DEFAULT:1
-K:OPEN:319
-K:HIT_TRAP:323
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | 
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | HAS_GOLD | HAS_ITEM | CHEST |
-F:DROP_2D2 |
-F:POWER_5
-
-N:324:small wooden chest (explosive trap)
-G:*:b
-W:5:1:20:0
-K:DEFAULT:1
-K:OPEN:319
-K:HIT_TRAP:324
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | 
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | HAS_GOLD | HAS_ITEM | CHEST |
-F:DROP_2D2 |
-F:POWER_5
-
-N:325:trapped door (explosive trap)
-G:+:b
-W:11:3:20:0
-K:DEFAULT:1
-K:HIT_TRAP:325
-K:BASH:5
-K:SPIKE:40
-K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR | CHEST |
-F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP |
-F:POWER_5
-
-N:326:explosive trap
-G:^:b
-W:10:1:20:0
-S:EXPLODE
-K:DEFAULT:1
-F:TRAP | HIT_TRAP | DISARM |  CAN_CLIMB | CAN_FLY | PLACE |
-F:PROJECT | REMEMBER | NOTICE | LOS | MOVE | CHEST |
-F:POWER_10
-
-N:327:large wooden chest
-G:*:U
-W:15:1:19:0
-D:The chest is not trapped.
-K:DEFAULT:1
-K:OPEN:330
-K:BASH:315
-K:SECRET:329
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HAS_GOLD | HAS_ITEM | HIDE_ITEM |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | SECRET | CHEST |
-F:DROP_1D2 | DROP_2D2 | ALLOC |
-F:POWER_7
-
-N:328:large wooden chest
-G:*:U
-W:15:1:19:0
-M:350
-D:You have discovered a trap on the chest.
-K:DEFAULT:1
-K:OPEN:330
-K:BASH:315
-K:SECRET:331
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST | ALLOC | PICK_TRAP |
-F:DROP_1D2 | DROP_2D2 |
-F:POWER_7
-
-N:329:large wooden chest (locked)
-G:*:U
-W:15:1:19:0
-K:DEFAULT:1
-K:OPEN:330
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HAS_GOLD | HAS_ITEM |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 |
-F:POWER_7
-
-N:330:large wooden chest (empty)
-G:*:u
-W:15:1:15:0
-K:DEFAULT:1
-K:CLOSE:329
-K:BASH:315
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | CHEST |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | DROP |
-F:POWER_7
-
-N:331:large wooden chest (multiple traps)
-G:*:v
-W:15:1:20:0
-K:DEFAULT:1
-K:OPEN:330
-K:BASH:315
-K:HIT_TRAP:128
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 |
-F:POWER_7
-
-N:332:large wooden chest (arrow trap)
-G:*:R
-W:15:1:20:0
-K:DEFAULT:1
-K:OPEN:330
-K:BASH:315
-K:HIT_TRAP:332
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 |
-F:POWER_7
-
-N:333:large wooden chest (dart trap)
-G:*:r
-W:15:1:20:0
-K:DEFAULT:1
-K:OPEN:330
-K:BASH:315
-K:HIT_TRAP:333
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 |
-F:POWER_7
-
-N:334:large wooden chest (gas trap)
-G:*:g
-W:15:1:20:0
-K:DEFAULT:1
-K:OPEN:330
-K:BASH:315
-K:HIT_TRAP:334
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 |
-F:POWER_7
-
-N:335:large wooden chest (explosive trap)
-G:*:b
-W:15:1:20:0
-K:DEFAULT:1
-K:OPEN:330
-K:BASH:315
-K:HIT_TRAP:335
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 |
-F:POWER_7
-
-N:336:small iron chest
-G:*:s
-W:25:1:19:0
-D:The chest is not trapped.
-K:DEFAULT:1
-K:OPEN:339
-K:BASH:315
-K:SECRET:338
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HAS_GOLD | HAS_ITEM | HIDE_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | SECRET | 
-F:DROP_2D2 | DROP_GOOD | CHEST | ALLOC |
-F:POWER_12
-
-N:337:small iron chest
-G:*:s
-W:25:1:19:0
-M:350
-D:You have discovered a trap on the chest.
-K:DEFAULT:1
-K:OPEN:339
-K:BASH:315
-K:SECRET:340
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST | ALLOC | PICK_TRAP |
-F:DROP_2D2 | DROP_GOOD |
-F:POWER_12
-
-N:338:small iron chest (locked)
-G:*:s
-W:25:1:19:0
-K:DEFAULT:1
-K:OPEN:339
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GOOD |
-F:POWER_12
-
-N:339:small iron chest (empty)
-G:*:s
-W:25:1:15:0
-K:DEFAULT:1
-K:CLOSE:338
-K:BASH:315
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | CHEST |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | DROP |
-F:POWER_12
-
-N:340:small iron chest (multiple traps)
-G:*:v
-W:25:1:20:0
-K:DEFAULT:1
-K:OPEN:339
-K:BASH:315
-K:HIT_TRAP:128
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GOOD |
-F:POWER_12
-
-N:341:small iron chest (magic symbol)
-G:*:B
-W:25:1:20:0
-K:DEFAULT:1
-K:OPEN:339
-K:BASH:315
-K:HIT_TRAP:341
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GOOD |
-F:POWER_12
-
-N:342:small iron chest (tripwire)
-G:*:y
-W:25:1:20:0
-K:DEFAULT:1
-K:OPEN:339
-K:BASH:315
-K:HIT_TRAP:342
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GOOD |
-F:POWER_12
-
-N:343:small iron chest (discolored spot)
-G:*:u
-W:25:1:20:0
-K:DEFAULT:1
-K:OPEN:339
-K:BASH:315
-K:HIT_TRAP:343
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GOOD |
-F:POWER_12
-
-N:344:small iron chest (explosive trap)
-G:*:b
-W:25:1:20:0
-K:DEFAULT:1
-K:OPEN:339
-K:BASH:315
-K:HIT_TRAP:344
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GOOD |
-F:POWER_12
-
-N:345:large iron chest
-G:*:W
-W:35:1:19:0
-D:The chest is not trapped.
-K:DEFAULT:1
-K:OPEN:348
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HAS_GOLD | HAS_ITEM | HIDE_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | SECRET | 
-F:DROP_1D2 | DROP_2D2 | DROP_GOOD | CHEST | ALLOC |
-F:POWER_17
-
-N:346:large iron chest
-G:*:W
-W:35:1:19:0
-M:350
-D:You have discovered a trap on the chest.
-K:DEFAULT:1
-K:OPEN:348
-K:BASH:315
-K:SECRET:349
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST | ALLOC | PICK_TRAP |
-F:DROP_1D2 | DROP_2D2 | DROP_GOOD |
-F:POWER_17
-
-N:347:large iron chest (locked)
-G:*:W
-W:35:1:19:0
-K:DEFAULT:1
-K:OPEN:348
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GOOD |
-F:POWER_17
-
-N:348:large iron chest (empty)
-G:*:W
-W:35:1:15:0
-K:DEFAULT:1
-K:CLOSE:347
-K:BASH:315
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | DROP |
-F:CHEST |
-F:POWER_17
-
-N:349:large iron chest (multiple traps)
-G:*:v
-W:35:1:20:0
-K:DEFAULT:1
-K:OPEN:348
-K:BASH:315
-K:HIT_TRAP:128
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GOOD |
-F:POWER_17
-
-N:350:large iron chest (magic symbol)
-G:*:B
-W:35:1:20:0
-K:DEFAULT:1
-K:OPEN:348
-K:BASH:315
-K:HIT_TRAP:350
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GOOD |
-F:POWER_17
-
-N:351:large iron chest (tripwire)
-G:*:y
-W:35:1:20:0
-K:DEFAULT:1
-K:OPEN:348
-K:BASH:315
-K:HIT_TRAP:351
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GOOD |
-F:POWER_17
-
-N:352:large iron chest (discolored spot)
-G:*:u
-W:35:1:20:0
-K:DEFAULT:1
-K:OPEN:348
-K:BASH:315
-K:HIT_TRAP:352
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GOOD |
-F:POWER_17
-
-N:353:large iron chest (explosive trap)
-G:*:b
-W:35:1:20:0
-K:DEFAULT:1
-K:OPEN:348
-K:BASH:315
-K:HIT_TRAP:353
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GOOD |
-F:POWER_17
-
-N:354:small steel chest
-G:*:s
-W:45:1:19:0
-D:The chest is not trapped.
-K:DEFAULT:1
-K:OPEN:357
-K:BASH:315
-K:SECRET:356
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HAS_GOLD | HAS_ITEM | HIDE_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | SECRET | CHEST | ALLOC |
-F:DROP_2D2 | DROP_GREAT |
-F:POWER_22
-
-N:355:small steel chest
-G:*:s
-W:45:1:19:0
-M:354
-D:You have discovered a trap on the chest.
-K:DEFAULT:1
-K:OPEN:357
-K:SECRET:358
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST | ALLOC | PICK_TRAP |
-F:DROP_2D2 | DROP_GREAT |
-F:POWER_22
-
-N:356:small steel chest (locked)
-G:*:s
-W:45:1:19:0
-K:DEFAULT:1
-K:OPEN:357
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GREAT |
-F:POWER_22
-
-N:357:small steel chest (empty)
-G:*:s
-W:45:1:15:0
-K:DEFAULT:1
-K:CLOSE:357
-K:BASH:315
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | CHEST |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | DROP |
-F:POWER_22
-
-N:358:small steel chest (multiple traps)
-G:*:v
-W:45:1:20:0
-K:DEFAULT:1
-K:OPEN:357
-K:HIT_TRAP:128
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GREAT |
-F:POWER_22
-
-N:359:small steel chest (eldritch sign)
-G:*:G
-W:45:1:20:0
-K:DEFAULT:1
-K:OPEN:357
-K:HIT_TRAP:359
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GREAT |
-F:POWER_22
-
-N:360:small steel chest (stone idol)
-G:*:W
-W:45:1:20:0
-K:DEFAULT:1
-K:OPEN:357
-K:HIT_TRAP:360
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GREAT |
-F:POWER_22
-
-N:361:small steel chest (strange rune)
-G:*:o
-W:45:1:20:0
-K:DEFAULT:1
-K:OPEN:357
-K:HIT_TRAP:361
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GREAT |
-F:POWER_22
-
-N:362:small steel chest (explosive trap)
-G:*:b
-W:45:1:20:0
-K:DEFAULT:1
-K:OPEN:357
-K:HIT_TRAP:362
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_2D2 | DROP_GREAT |
-F:POWER_22
-
-N:363:large steel chest
-G:*:W
-W:55:1:19:0
-D:The chest is not trapped.
-K:DEFAULT:1
-K:OPEN:366
-K:BASH:315
-K:SECRET:365
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HAS_GOLD | HAS_ITEM | HIDE_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | SECRET | 
-F:DROP_1D2 | DROP_2D2 | DROP_GREAT | CHEST | ALLOC |
-F:POWER_27
-
-N:364:large steel chest
-G:*:W
-W:55:1:19:0
-M:350
-D:You have discovered a trap on the chest.
-K:DEFAULT:1
-K:OPEN:366
-K:SECRET:367
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST | ALLOC | PICK_TRAP |
-F:DROP_1D2 | DROP_2D2 | DROP_GREAT |
-F:POWER_27
-
-N:365:large steel chest (locked)
-G:*:W
-W:55:1:19:0
-K:DEFAULT:1
-K:OPEN:366
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GREAT |
-F:POWER_27
-
-N:366:large steel chest (empty)
-G:*:W
-W:55:1:15:0
-K:DEFAULT:1
-K:CLOSE:365
-K:BASH:315
-F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | CHEST |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | DROP |
-F:POWER_27
-
-N:367:large steel chest (multiple traps)
-G:*:v
-W:55:1:20:0
-K:DEFAULT:1
-K:OPEN:365
-K:HIT_TRAP:128
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GREAT |
-F:POWER_27
-
-N:368:large steel chest (eldritch sign)
-G:*:B
-W:55:1:20:0
-K:DEFAULT:1
-K:OPEN:365
-K:HIT_TRAP:368
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GREAT |
-F:POWER_27
-
-N:369:large steel chest (stone idol)
-G:*:W
-W:55:1:20:0
-K:DEFAULT:1
-K:OPEN:365
-K:HIT_TRAP:369
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GREAT |
-F:POWER_27
-
-N:370:large steel chest (strange rune)
-G:*:o
-W:55:1:20:0
-K:DEFAULT:1
-K:OPEN:365
-K:HIT_TRAP:370
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GREAT |
-F:POWER_27
-
-N:371:large steel chest (explosive trap)
-G:*:b
-W:55:1:20:0
-K:DEFAULT:1
-K:OPEN:365
-K:HIT_TRAP:371
-K:BASH:315
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | TRAP | SECRET |
-F:HIDE_ITEM | CHEST |
-F:DROP_1D2 | DROP_2D2 | DROP_GREAT |
-F:POWER_27
-
-#It is possible to modify some altars by using water (blood-stained or dusty),
-#acid (golden or iron altars) or fire, or bashing them (wooden altars only).
-
-# broken altar - equivelent to Prayer Book of Laying of Hands
-
-N:372:broken altar
-G:0:D
-W:20:1:20:0
-K:DEFAULT:1
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_FIRE | HURT_ACID |
-F:USE_FEAT | POWER_2 | ALLOC
-
-# wooden altar - equivelent to Prayer Book of the Way of God
-
-N:373:wooden altar
-G:0:U
-W:30:1:20:0
-K:DEFAULT:1
-K:BASH:372
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | BASH | HURT_FIRE | HURT_ACID |
-F:USE_FEAT | POWER_6 | ALLOC
-
-# stone altar - equivelent to Prayer Book of Abjurations
-
-N:374:stone altar
-G:0:w
-W:17:1:20:0
-K:DEFAULT:1
-K:HURT_FIRE:378
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | HURT_ACID | HURT_FIRE |
-F:USE_FEAT | POWER_10 | ALLOC
-
-#  blood-stained altar - equivelent to Prayer Book of Accursed Ways
-
-N:375:blood-stained altar
-G:0:r
-W:40:1:20:0
-K:DEFAULT:1
-K:HURT_WATER:374
-K:HURT_FIRE:378
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | HURT_ACID | HURT_FIRE |
-F:HURT_WATER | ALLOC
-F:USE_FEAT | POWER_10
-
-#  dusty altar - equivelent to Prayer Book of Most Holy Relics
-
-N:376:dusty altar
-G:0:W
-W:40:2:20:0
-K:DEFAULT:1
-K:HURT_WATER:374
-K:HURT_FIRE:378
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | HURT_ACID | HURT_FIRE |
-F:HURT_WATER | ALLOC |
-F:USE_FEAT | POWER_10
-
-#  corroded altar - equivelent to Prayer Book of Holy Wrath
-
-N:377:corroded altar
-G:0:g
-W:50:4:20:0
-K:DEFAULT:1
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | ALLOC |
-F:USE_FEAT | POWER_8
-
-#  ashen altar - equivelent to Prayer Book of Retribution
-
-N:378:ashen altar
-G:0:D
-W:35:2:20:0
-K:DEFAULT:1
-K:HURT_WATER:374
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | HURT_WATER | ALLOC
-F:USE_FEAT | POWER_9
-
-#  golden altar - equivelent to Prayer Book of Miracles
-
-N:379:golden altar
-G:0:y
-W:22:1:20:0
-K:DEFAULT:1
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | ALLOC |
-F:USE_FEAT | POWER_9
-
-#  iron altar - equivelent to Prayer Book of Battle Hymns
-
-N:380:iron altar
-G:0:s
-W:45:2:20:0
-K:DEFAULT:1
-K:HURT_ACID:377
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ACID | ALLOC |
-F:USE_FEAT | POWER_10
-
-#  bone altar - equivelent to Prayer Book of the Dead
-
-N:381:bone altar
-G:0:w
-W:22:1:20:0
-K:DEFAULT:1
-K:BASH:372
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | BASH | HURT_ACID | ALLOC |
-F:USE_FEAT | POWER_6
-
-#  glass altar - equivelent to Prayer Book of Divine Insights
-
-N:382:glass altar
-G:0:G
-W:25:1:20:0
-K:DEFAULT:1
-K:BASH:372
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | BASH | ALLOC |
-F:USE_FEAT | POWER_3
-
-# broken fountain
-
-N:383:broken fountain
-G:0:u
-K:DEFAULT:1
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | ALLOC
-
-# empty fountain
-
-N:384:empty fountain
-G:0:b
-W:1:1:20:0
-K:DEFAULT:1
-K:HURT_WATER:385
-D:The fountain fills with water.
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | HURT_WATER | ALLOC |
-
-# clear fountain - equivelent to potion of water
-
-N:385:clear fountain
-G:0:B
-W:1:1:20:0
-K:DEFAULT:1
-K:BASH:383
-K:USE_FEAT:384
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | BASH |
-F:USE_FEAT | ALLOC |
-F:POWER_10
-
-# cloudy fountain - hack -- same as cloudy potion
-
-N:386:cloudy fountain
-G:0:B
-W:1:1:20:0
-K:DEFAULT:1
-K:BASH:383
-K:USE_FEAT:384
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | BASH |
-F:USE_FEAT | ALLOC |
-F:POWER_10
-
-# bubbling fountain - hack -- same as bubbling potion
-
-N:387:bubbling fountain
-G:0:B
-W:1:1:20:0
-K:DEFAULT:1
-K:BASH:383
-K:USE_FEAT:384
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | BASH |
-F:ALLOC |
-F:USE_FEAT
-
-# misty fountain - hack -- same as misty potion
-
-N:388:misty fountain
-G:0:B
-W:1:1:20:0
-K:DEFAULT:1
-K:BASH:383
-K:USE_FEAT:384
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | BASH | ALLOC |
-F:USE_FEAT
-
-# smoky fountain - hack -- same as smoky potion
-
-N:389:smoky fountain
-G:0:B
-W:1:1:20:0
-K:DEFAULT:1
-K:BASH:383
-K:USE_FEAT:384
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | BASH | ALLOC |
-F:USE_FEAT
-
-# Following is left after rock to mud spells.
-
-N:390:muddy floor
-G:.:o
-W:12:1:6:0
-K:DEFAULT:1
-K:TUNNEL:136
-F:LOS | MOVE | PROJECT | REMEMBER | PLACE | DROP | FLOOR |
-F:CAN_CLIMB | CAN_FLY
-
-# well - equivelent to unlimited potion of water, plus can climb down
-
-N:391:stone well
-G:0:b
-W:0:1:20:0
-K:DEFAULT:1
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | ALLOC |
-F:USE_FEAT | MORE | STAIRS
-F:POWER_10

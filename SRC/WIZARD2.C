@@ -404,7 +404,6 @@ static tval_desc tvals[] =
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
-	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
 	{ 0,                    NULL                   }

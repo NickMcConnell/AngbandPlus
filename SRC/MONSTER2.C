@@ -1309,7 +1309,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 	monster_type *m_ptr;
 
-
 	/* Monsters */
 	m1 = cave_m_idx[y1][x1];
 	m2 = cave_m_idx[y2][x2];
@@ -1319,11 +1318,11 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	cave_m_idx[y1][x1] = m2;
 	cave_m_idx[y2][x2] = m1;
 
-
 	/* Monster 1 */
 	if (m1 > 0)
 	{
 		m_ptr = &m_list[m1];
+
 
 		/* Move monster */
 		m_ptr->fy = y2;
@@ -2623,7 +2622,129 @@ bool summon_specific(int y1, int x1, int lev, int type)
 
 
 
+/*
+ * Let the given object become alive.
+ *
+ * Note that "animation" REQUIRES empty space.
+ *
+ */
+bool animate_object(int item)
+{
+        cptr p;
 
+        char o_name[80];
+
+        object_type *o_ptr;
+
+        int r_idx;
+        int fy, fx;
+	int i, y, x;
+
+	bool result = FALSE;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+                fy = p_ptr->py;
+                fx = p_ptr->px;
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+                fy = o_ptr->iy;
+                fx = o_ptr->ix;
+	}
+
+        /* Paranoia */
+        if (o_ptr->dropped <= 0) return (FALSE);
+
+        /* Set the monster race */
+        r_idx = o_ptr->dropped;
+
+	/* Try up to 18 times */
+	for (i = 0; i < 18; i++)
+	{
+		int d = 1;
+
+		/* Pick a location */
+                scatter(&y, &x, fy, fx, d, 0);
+
+		/* Require an "empty" floor grid */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Require monster can survive on terrain */
+                if (!place_monster_here(y, x, r_idx)) continue;
+
+		/* Create a new monster (awake, no groups) */
+                result = place_monster_aux(y, x, r_idx, FALSE, FALSE);
+
+                /* Hack -- monster does not drop anything */
+                m_list[cave_m_idx[y][x]].mflag |= (MFLAG_MADE);
+
+		/* Done */
+		break;
+	}
+
+        /* Hack -- no result */
+        if (!result)
+        {
+                /* Keep trying */
+                o_ptr->timeout++;
+
+                /* Return */
+                return (FALSE);
+        }
+
+        /* Correct message */
+        switch (o_ptr->tval)
+        {
+                case TV_EGG:
+                        p = "hatched.";
+                        break;
+                case TV_BODY:
+                case TV_SKELETON:
+                        p = "come back from the dead!";
+                        break;
+                default:
+                        p = "been alive all along!";
+                        break;
+        }
+
+        /* Notify player if carrying */
+        if (item >= 0)
+        {
+                /* Message */
+                msg_format("Your %s %s %s", o_name,
+                   ((o_ptr->stackc == 1) ? "has" :
+                   ((!(o_ptr->stackc) && (o_ptr->number == 1)) ?
+                   "has" : "have")), p);
+
+                /* Destroy the item */
+                if (o_ptr->stackc) inven_item_increase(i, -(o_ptr->stackc));
+                else inven_item_increase(i,-(o_ptr->number));
+
+                inven_item_optimize(i);
+        }
+        else
+        {
+                /* Message if object known */
+                if (o_ptr->marked) msg_format("The %s %s %s", o_name,
+                   ((o_ptr->stackc == 1) ? "has" :
+                   ((!(o_ptr->stackc) && (o_ptr->number == 1)) ?
+                   "has" : "have")), p);
+
+                /* Destroy the item */
+                if (o_ptr->stackc) floor_item_increase(i, -(o_ptr->stackc));
+                else floor_item_increase(i,-(o_ptr->number));
+
+                floor_item_optimize(i);
+        }
+
+        return (TRUE);
+}
 
 /*
  * Let the given monster attempt to reproduce.
@@ -2650,10 +2771,13 @@ bool multiply_monster(int m_idx)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Require monster can survive on terrain */
-		if (!place_monster_here(y, x, m_ptr->r_idx)) return (FALSE);             
+                if (!place_monster_here(y, x, m_ptr->r_idx)) continue;
 
 		/* Create a new monster (awake, no groups) */
 		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE);
+
+                /* Hack -- monster does not drop anything */
+                m_list[cave_m_idx[y][x]].mflag |= (MFLAG_MADE);
 
 		/* Done */
 		break;
@@ -2675,7 +2799,7 @@ bool multiply_monster(int m_idx)
 void message_pain(int m_idx, int dam)
 {
 	long oldhp, newhp, tmp;
-	int percentage;
+        int percentage;
 
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];

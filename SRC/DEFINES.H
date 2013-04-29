@@ -600,7 +600,7 @@
 #define GF_NETHER       29
 #define GF_CHAOS        30
 #define GF_DISENCHANT   31
-#define GF_XXX4                 32
+#define GF_EXPLODE      32
 #define GF_KILL_WALL    33
 #define GF_KILL_DOOR    34
 #define GF_KILL_TRAP    35
@@ -727,65 +727,65 @@
 /*** Feature Indexes (see "lib/edit/f_info.txt") ***/
 
 /* Nothing */
-#define FEAT_NONE               0x00
+#define FEAT_NONE               0x0000
 
 /* Various */
-#define FEAT_FLOOR              0x01
-#define FEAT_INVIS              0x02
-#define FEAT_GLYPH              0x03
-#define FEAT_OPEN               0x04
-#define FEAT_BROKEN             0x05
-#define FEAT_LESS               0x06
-#define FEAT_MORE               0x07
+#define FEAT_FLOOR              0x0001
+#define FEAT_INVIS              0x0002
+#define FEAT_GLYPH              0x0003
+#define FEAT_OPEN               0x0004
+#define FEAT_BROKEN             0x0005
+#define FEAT_LESS               0x0006
+#define FEAT_MORE               0x0007
 
 /* Shops */
-#define FEAT_SHOP_HEAD  0x08
-#define FEAT_SHOP_TAIL  0x0F
+#define FEAT_SHOP_HEAD  0x0008
+#define FEAT_SHOP_TAIL  0x000F
 
 /* Traps */
-#define FEAT_TRAP_HEAD  0x10
-#define FEAT_TRAP_TAIL  0x1F
+#define FEAT_TRAP_HEAD  0x0010
+#define FEAT_TRAP_TAIL  0x001F
 
 /* Doors */
-#define FEAT_DOOR_HEAD  0x20
-#define FEAT_DOOR_TAIL  0x2F
+#define FEAT_DOOR_HEAD  0x0020
+#define FEAT_DOOR_TAIL  0x002F
 
 /* Extra */
-#define FEAT_SECRET             0x30
-#define FEAT_RUBBLE             0x31
+#define FEAT_SECRET             0x0030
+#define FEAT_RUBBLE             0x0031
 
 /* Seams */
-#define FEAT_MAGMA              0x32
-#define FEAT_QUARTZ             0x33
-#define FEAT_MAGMA_H    0x34
-#define FEAT_QUARTZ_H   0x35
-#define FEAT_MAGMA_K    0x36
-#define FEAT_QUARTZ_K   0x37
+#define FEAT_MAGMA              0x0032
+#define FEAT_QUARTZ             0x0033
+#define FEAT_MAGMA_H    0x0034
+#define FEAT_QUARTZ_H   0x0035
+#define FEAT_MAGMA_K    0x0036
+#define FEAT_QUARTZ_K   0x0037
 
 /* Walls */
-#define FEAT_WALL_EXTRA 0x38
-#define FEAT_WALL_INNER 0x39
-#define FEAT_WALL_OUTER 0x3A
-#define FEAT_WALL_SOLID 0x3B
-#define FEAT_PERM_EXTRA 0x3C
-#define FEAT_PERM_INNER 0x3D
-#define FEAT_PERM_OUTER 0x3E
-#define FEAT_PERM_SOLID 0x3F
+#define FEAT_WALL_EXTRA 0x0038
+#define FEAT_WALL_INNER 0x0039
+#define FEAT_WALL_OUTER 0x003A
+#define FEAT_WALL_SOLID 0x003B
+#define FEAT_PERM_EXTRA 0x003C
+#define FEAT_PERM_INNER 0x003D
+#define FEAT_PERM_OUTER 0x003E
+#define FEAT_PERM_SOLID 0x003F
 
 /* Extra features (need colour) */
-#define FEAT_UPPER_EXTRA 0x40
+#define FEAT_UPPER_EXTRA 0x0040
 
 /* More traps */
-#define FEAT_TRAP_HEAD_2 0x40
-#define FEAT_TRAP_TAIL_2 0x5F
+#define FEAT_TRAP_HEAD_2 0x0040
+#define FEAT_TRAP_TAIL_2 0x005F
 
-#define FEAT_RUBBLE_H           0x60
-#define FEAT_RUBBLE_K   0x61
-#define FEAT_DOOR_INVIS 0x62
+#define FEAT_RUBBLE_H           0x0060
+#define FEAT_RUBBLE_K   0x0061
+#define FEAT_DOOR_INVIS 0x0062
 
 /* Trapped doors */
-#define FEAT_DOOR_TRAP_HEAD  0x63
-#define FEAT_DOOR_TRAP_TAIL  0x6F
+#define FEAT_DOOR_TRAP_HEAD  0x0063
+#define FEAT_DOOR_TRAP_TAIL  0x006F
 
 /* More wall types */
 /* Can't be bothered counting in hex */
@@ -809,8 +809,8 @@
 #define FEAT_ACID_FALLS 127
 
 /* Even more traps */
-#define FEAT_TRAP_HEAD_3 0x80
-#define FEAT_TRAP_TAIL_3 0x84
+#define FEAT_TRAP_HEAD_3 0x0080
+#define FEAT_TRAP_TAIL_3 0x0084
 
 
 /* More floor types */
@@ -851,8 +851,8 @@
 
 /* Dummy features */
 
-#define FEAT_DUMMY_HEAD 0xA1
-#define FEAT_DUMMY_TAIL 0xBF
+#define FEAT_DUMMY_HEAD 0x00A1
+#define FEAT_DUMMY_TAIL 0x00BF
 
 /* More terrain */
 #define FEAT_SAND       192
@@ -888,6 +888,19 @@
 #define FEAT_FLOOR_COAL_T 222
 #define FEAT_FLOOR_BCOAL 223
 
+/* More terrain */
+#define FEAT_FLOOR_BLOOD_T 305
+#define FEAT_FLOOR_SLIME_T 306
+#define FEAT_FLOOR_WATER_T 307
+#define FEAT_FLOOR_FIRE_T 308
+#define FEAT_FLOOR_ACID_T 309
+
+#define FEAT_CHEST_SW_H 316
+#define FEAT_CHEST_SW   317
+
+#define FEAT_CHEST_LW_H 327
+#define FEAT_CHEST_LW   328
+
 
 /* Level flags - extracted from feature flags */
 #define LF1_WATER 0x01
@@ -903,39 +916,38 @@
 /*Feature flags - should be used instead of feature indexes unless generating.*/
 
 
-#define FF1_LOS         0x00000000 /* Dummy flag */
-#define FF1_PROJECT     0x00000001
-#define FF1_MOVE        0x00000002
-#define FF1_PLACE       0x00000004
-#define FF1_DROP        0x00000008
-#define FF1_SECRET      0x00000010
-#define FF1_NOTICE      0x00000020
-#define FF1_REMEMBER    0x00000040
-#define FF1_OPEN        0x00000080
-#define FF1_CLOSE       0x00000100
-#define FF1_BASH        0x00000200
-#define FF1_SPIKE       0x00000400
-#define FF1_DISARM      0x00000800
-#define FF1_ENTER       0x00001000
-#define FF1_TUNNEL      0x00002000
-#define FF1_STREAMER    0x00004000
-#define FF1_HAS_GOLD    0x00008000
-#define FF1_HAS_ITEM    0x00010000
-#define FF1_DOOR        0x00020000
-#define FF1_TRAP        0x00040000
-#define FF1_STAIRS      0x00080000
-#define FF1_GLYPH       0x00100000
-#define FF1_LESS        0x00200000
-#define FF1_MORE        0x00400000
-#define FF1_RUN         0x00800000
-#define FF1_FLOOR       0x01000000
-#define FF1_WALL        0x02000000
-#define FF1_PERMANENT   0x04000000
-#define FF1_INNER       0x08000000
-#define FF1_OUTER       0x10000000
-#define FF1_SOLID       0x20000000
-#define FF1_HIT_TRAP    0x40000000
-#define FF1_ATTR_LITE   0x80000000
+#define FF1_LOS         0x00000001
+#define FF1_PROJECT     0x00000002
+#define FF1_MOVE        0x00000004
+#define FF1_PLACE       0x00000008
+#define FF1_DROP        0x00000010
+#define FF1_SECRET      0x00000020
+#define FF1_NOTICE      0x00000040
+#define FF1_REMEMBER    0x00000080
+#define FF1_OPEN        0x00000100
+#define FF1_CLOSE       0x00000200
+#define FF1_BASH        0x00000400
+#define FF1_SPIKE       0x00000800
+#define FF1_DISARM      0x00001000
+#define FF1_ENTER       0x00002000
+#define FF1_TUNNEL      0x00004000
+#define FF1_STREAMER    0x00008000
+#define FF1_HAS_GOLD    0x00010000
+#define FF1_HAS_ITEM    0x00020000
+#define FF1_DOOR        0x00040000
+#define FF1_TRAP        0x00080000
+#define FF1_STAIRS      0x00100000
+#define FF1_GLYPH       0x00200000
+#define FF1_LESS        0x00400000
+#define FF1_MORE        0x00800000
+#define FF1_RUN         0x01000000
+#define FF1_FLOOR       0x02000000
+#define FF1_WALL        0x04000000
+#define FF1_PERMANENT   0x08000000
+#define FF1_INNER       0x10000000
+#define FF1_OUTER       0x20000000
+#define FF1_SOLID       0x40000000
+#define FF1_HIT_TRAP    0x80000000
 
 #define FF2_BRIDGE      0x00000001
 #define FF2_RIVER       0x00000002
@@ -943,7 +955,7 @@
 #define FF2_BRIDGED     0x00000008
 #define FF2_COVERED     0x00000010
 #define FF2_GLOW        0x00000020
-#define FF2_ICKY        0x00000040
+#define FF2_ATTR_LITE   0x00000040
 #define FF2_WATER       0x00000080
 #define FF2_LAVA        0x00000100
 #define FF2_SHALLOW     0x00000200
@@ -970,25 +982,58 @@
 #define FF2_KILL_HUGE   0x40000000
 #define FF2_KILL_MOVE   0x80000000
 
+#define FF3_PICK_TRAP	0x00000001
+#define FF3_PICK_DOOR	0x00000002
+#define FF3_ALLOC       0x00000004
+#define FF3_CHEST       0x00000008
+#define FF3_DROP_1D2    0x00000010
+#define FF3_DROP_2D2    0x00000020
+#define FF3_DROP_GOOD   0x00000040
+#define FF3_DROP_GREAT  0x00000080
+#define FF3_HURT_POIS   0x00000100
+#define FF3_HURT_ELEC   0x00000200
+#define FF3_HURT_WATER  0x00000400
+#define FF3_HURT_BWATER 0x00000800
+#define FF3_USE_FEAT    0x00001000
+#define FF3_GET_FEAT    0x00002000
+#define FF3_CAN_HIDE    0x00004000
+#define FF3_HIDE_FLY    0x00008000
+#define FF3_OUTSIDE     0x00010000
+#define FF3_EASY_CLIMB  0x00020000
+#define FF3_HURT_ROOM   0x00040000
+#define FF3_NEED_WALL   0x00080000
+#define FF3_TOWN        0x00100000
+#define FF3_ATTR_FACE   0x00200000
+#define FF3_FACE_EAST   0x00400000
+#define FF3_FACE_WEST   0x00800000
+#define FF3_FACE_NORTH  0x01000000
+#define FF3_FACE_SOUTH  0x02000000
+#define FF3_XXX1        0x04000000
+#define FF3_XXX2        0x08000000
+#define FF3_COLLAPSE    0x10000000
+#define FF3_ERUPT       0x20000000
+#define FF3_STRIKE      0x40000000
+#define FF3_DYNAMIC     0x80000000
+
 
 /* Feature actions -- used to define actions performed on features */
 
 #define FS_FLAGS1       0
-#define FS_SECRET       4
-#define FS_OPEN         7               
-#define FS_CLOSE        8
-#define FS_BASH         9
-#define FS_SPIKE        10
-#define FS_DISARM       11
-#define FS_ENTER        12
-#define FS_TUNNEL       13
-#define FS_DOOR         17 /* Destroy doors */
-#define FS_TRAP         18 /* Destroy traps */
-#define FS_GLYPH        20              
-#define FS_LESS         21
-#define FS_MORE         22
-#define FS_RUN          23
-#define FS_HIT_TRAP     30
+#define FS_SECRET       5
+#define FS_OPEN         8               
+#define FS_CLOSE        9
+#define FS_BASH         10
+#define FS_SPIKE        11
+#define FS_DISARM       12
+#define FS_ENTER        13
+#define FS_TUNNEL       14
+#define FS_DOOR         18 /* Destroy doors */
+#define FS_TRAP         19 /* Destroy traps */
+#define FS_GLYPH        21              
+#define FS_LESS         22
+#define FS_MORE         23
+#define FS_RUN          24
+#define FS_HIT_TRAP     31
 
 #define FS_FLAGS2       32
 #define FS_BRIDGE       32
@@ -1001,7 +1046,7 @@
 
 #define FS_FLAGS3       64
 
-#define FS_FLAGS_END    64
+#define FS_FLAGS_END    96
 
 
 
@@ -1330,12 +1375,16 @@
  * only armor and weapons and a few other items use any of these flags.
  */
 
-#define TV_SKELETON      1      /* Skeletons ('s') */
+#define TV_SKELETON      1      /* Skeletons ('~') */
 #define TV_BOTTLE                2      /* Empty bottles ('!') */
 #define TV_JUNK          3      /* Sticks, Pottery, etc ('~') */
 #define TV_SPIKE         5      /* Spikes ('~') */
-#define TV_CHEST         7      /* Chests ('~') */
+#define TV_BODY          6      /* Body Parts ('~') */
+#define TV_CHEST         7      /* Chest -- no longer used */
+#define TV_SKIN          8      /* Skin/Feathers/Scales ('~') */
+#define TV_EGG           9      /* Eggs ('~') */
 #define TV_SPELL        10      /* Magic spells (varies) */
+#define TV_STATUE	11	/* Statues/Figurines ('~') */
 #define TV_SHOT                 16      /* Ammo for slings */
 #define TV_ARROW        17      /* Ammo for bows */
 #define TV_BOLT         18      /* Ammo for x-bows */
@@ -1369,6 +1418,29 @@
 #define TV_SONG_BOOK    92
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
+/* The "sval" codes for TV_SKELETON */
+#define SV_SKULL        1
+#define SV_BONE         2
+#define SV_SKELETON     3
+#define SV_TEETH        4
+
+/* The "sval" codes for TV_BODY */
+#define SV_CORPSE       1
+#define SV_HEAD         2
+#define SV_HAND         3
+#define SV_ARM          4
+#define SV_LEG          6
+#define SV_WING         7
+#define SV_STUMP        10
+#define SV_BRANCH       11
+#define SV_CLAW         12
+#define SV_HORN         13
+
+/* The "sval" codes for TV_SKIN */
+#define SV_SKIN         1
+#define SV_SCALE        2
+#define SV_FEATHER      3
+#define SV_FUR          4
 
 /* The "sval" codes for TV_SPELL */
 /* 
@@ -1847,11 +1919,6 @@
 #define SV_ROD_MIN_DIRECTION    13
 
 /*
- * Special "sval" limit -- first "large" chest
- */
-#define SV_CHEST_MIN_LARGE      4
-
-/*
  * Special "sval" limit -- first "good" magic/prayer book
  */
 #define SV_BOOK_MIN_GOOD        4
@@ -1891,7 +1958,6 @@
 #define RBM_TRAP        25
 #define RBM_SHOOT       26
 #define RBM_AURA        27
-#define RBM_EXPLODE	28
 
 
 /*** Function flags ***/
@@ -2073,22 +2139,14 @@
  */
 #define ROOM_SEEN               0x01    /* room has been seen */
 #define ROOM_ICKY               0x02    /* room is anti-teleport */
-
-
+#define ROOM_BLOODY             0x04    /* room causes wounds/poison to become worse */
+#define ROOM_CURSED             0x08    /* room causes monsters to hit more frequently */
+#define ROOM_GLOOMY		0x10	/* room is never wholely lit by light */
+#define ROOM_PORTAL		0x20	/* room teleports you randomly */
+#define ROOM_SILENT		0x40	/* room is magically silent, stopping spells/songs */
+#define ROOM_STATIC             0x80    /* room causes rods/staffs/wands to fail */
 
 /*** Object flags ***/
-
-
-/*
- * Chest trap flags (see "tables.c")
- */
-#define CHEST_LOSE_STR  0x01
-#define CHEST_LOSE_CON  0x02
-#define CHEST_POISON    0x04
-#define CHEST_PARALYZE  0x08
-#define CHEST_EXPLODE   0x10
-#define CHEST_SUMMON    0x20
-
 
 /*
  * Special Object Flags
@@ -2271,9 +2329,9 @@
 #define TR3_IGNORE_ELEC         0x00020000L     /* Item ignores Elec Damage */
 #define TR3_IGNORE_FIRE         0x00040000L     /* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD         0x00080000L     /* Item ignores Cold Damage */
-#define TR3_XXX5                        0x00100000L     /* (reserved) */
-#define TR3_XXX6                        0x00200000L     /* (reserved) */
-#define TR3_BLESSED                     0x00400000L     /* Item has been blessed */
+#define TR3_XXX5                0x00100000L     /* (reserved) */
+#define TR3_XXX6                0x00200000L     /* (reserved) */
+#define TR3_BLESSED             0x00400000L     /* Item has been blessed */
 #define TR3_ACTIVATE            0x00800000L     /* Item can be activated */
 #define TR3_INSTA_ART           0x01000000L     /* Item makes an artifact */
 #define TR3_EASY_KNOW           0x02000000L     /* Item is known if aware */
@@ -2337,12 +2395,12 @@
 
 
 /*
- * Special Monster Flags (all temporary)
+ * Special Monster Flags (some should be saved)
  */
 #define MFLAG_VIEW      0x01    /* Monster is in line of sight */
 #define MFLAG_HIDE      0x02    /* Monster is hiding in terrain */
 #define MFLAG_OVER      0x04    /* Monster is flying over terrain*/
-/* XXX XXX XXX */
+#define MFLAG_MADE      0x08    /* Monster is not carrying treasure */
 #define MFLAG_BORN      0x10    /* Monster is still being born */
 #define MFLAG_NICE      0x20    /* Monster is still being nice */
 #define MFLAG_SHOW      0x40    /* Monster is recently memorized */
@@ -2478,7 +2536,7 @@
 #define RF4_WAIL                        0x00000008      /* Wail */
 #define RF4_SPIT                        0x00000010      /* Spit */
 #define RF4_SHOOT                       0x00000020      /* Fire an arrow */
-#define RF4_XXX1                        0x00000040      /* XXX1 */
+#define RF4_EXPLODE                     0x00000040      /* Explode */
 #define RF4_XXX2                        0x00000080      /* XXX2 */
 #define RF4_BR_ACID                     0x00000100      /* Breathe Acid */
 #define RF4_BR_ELEC                     0x00000200      /* Breathe Elec */
@@ -2577,7 +2635,38 @@
 #define RF6_S_WRAITH            0x40000000      /* Summon Unique Wraith */
 #define RF6_S_UNIQUE            0x80000000      /* Summon Unique Monster */
 
-
+#define RF7_HAS_SKULL        0x00000001
+#define RF7_HAS_SKELETON     0x00000002
+#define RF7_HAS_TEETH        0x00000004
+#define RF7_HAS_CORPSE       0x00000008
+#define RF7_HAS_HEAD         0x00000010
+#define RF7_HAS_HAND         0x00000020
+#define RF7_HAS_ARM          0x00000040
+#define RF7_HAS_LEG          0x00000080
+#define RF7_HAS_WING         0x00000100
+#define RF7_HAS_BLOOD        0x00000200      /* Leave bloody trails if injured */
+#define RF7_HAS_DUST         0x00000400
+#define RF7_HAS_SKIN         0x00000800
+#define RF7_HAS_SCALE        0x00001000
+#define RF7_HAS_FEATHER      0x00002000
+#define RF7_HAS_FUR          0x00004000
+#define RF7_HAS_SLIME        0x00008000      /* Leave slimy trails */
+#define RF7_DROP_JUNK        0x00010000      /* Sticks, Pottery, etc ('~') */
+#define RF7_DROP_CHEST       0x00020000      /* Chests ('*') */
+#define RF7_DROP_MISSILE     0x00040000      /* Slings/Bows/Xbows/Ammo */
+#define RF7_DROP_TOOL        0x00080000      /* Shovels/Picks/Spikes */
+#define RF7_DROP_WEAPON      0x00100000      /* Weapons */
+#define RF7_DROP_MUSIC       0x00200000      /* Musical instruments/Song books */
+#define RF7_DROP_CLOTHES     0x00400000      /* Boots/Gloves/Cloaks/Soft Armor */
+#define RF7_DROP_ARMOR       0x00800000      /* Hard Armor/Helms/Shields/Dragon Armor */
+#define RF7_DROP_LITE        0x01000000      /* Lites/Flasks */
+#define RF7_DROP_JEWELRY     0x02000000      /* Rings/Amulets/Crowns */
+#define RF7_DROP_RSW         0x04000000      /* Rod/staff/wand */
+#define RF7_DROP_WRITING     0x08000000      /* Books/scrolls */
+#define RF7_DROP_POTION      0x10000000
+#define RF7_DROP_FOOD        0x20000000
+#define RF7_HAS_CLAW         0x40000000
+#define RF7_HAS_HORN         0x80000000
 
 /*
  * Hack -- Bit masks to control what spells are considered
@@ -2597,7 +2686,7 @@
 	(RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
 	 RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
 	 RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | \
-	 RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
+         RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
 	 RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
 	 RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DEMON | \
 	 RF6_S_WRAITH | RF6_S_UNIQUE)
@@ -2634,7 +2723,7 @@
  * Spells that hurt the player directly
  */
 #define RF4_ATTACK_MASK \
-	(RF4_SPIT | RF4_SHOOT | \
+        (RF4_SPIT | RF4_SHOOT | RF4_EXPLODE | \
 	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
 	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
 	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
@@ -2725,7 +2814,8 @@
  * Innate spell-like effects
  */
 #define RF4_INNATE_MASK \
-	(RF4_SHRIEK | RF4_SPORE | RF4_WAIL | RF4_GAZE | RF4_SPIT | RF4_SHOOT | \
+        (RF4_SHRIEK | RF4_SPORE | RF4_WAIL | RF4_GAZE | RF4_SPIT | RF4_SHOOT | \
+         RF4_EXPLODE | \
 	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
 	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
 	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
@@ -2907,6 +2997,7 @@
 #define OPT_reseed_artifacts		80
 #define OPT_easy_autos                  81
 #define OPT_easy_search			82
+#define OPT_variant_save_feats          83
 /* xxx */
 /* xxx xxx */
 #define OPT_birth_point_based           (OPT_BIRTH+0)
@@ -2975,6 +3066,7 @@
 #define OPT_variant_unsummon    (OPT_VARIANT+28)
 #define OPT_variant_friendly    (OPT_VARIANT+29)
 #define OPT_variant_more_spells (OPT_VARIANT+30)
+#define OPT_variant_drop_body (OPT_VARIANT+31)
 
 /*
  * Hack -- Option symbols
@@ -3133,6 +3225,8 @@
 #define variant_unsummon                      op_ptr->opt[OPT_variant_unsummon]
 #define variant_friendly                      op_ptr->opt[OPT_variant_friendly]
 #define variant_more_spells                      op_ptr->opt[OPT_variant_more_spells]
+#define variant_drop_body                      op_ptr->opt[OPT_variant_drop_body]
+#define variant_save_feats                      op_ptr->opt[OPT_variant_save_feats]
 
 
 /*

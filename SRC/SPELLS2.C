@@ -3814,15 +3814,15 @@ bool recharge(int num)
 			t = (num * damroll(2, 4));
 
 			/* Recharge by that amount */
-			if (o_ptr->pval > t)
+			if (o_ptr->timeout > t)
 			{
-				o_ptr->pval -= t;
+				o_ptr->timeout -= t;
 			}
 
 			/* Fully recharged */
 			else
 			{
-				o_ptr->pval = 0;
+				o_ptr->timeout = 0;
 			}
 		}
 
@@ -4903,6 +4903,32 @@ void lite_room(int y1, int x1)
 {
 	int i, x, y;
 
+        /* Hack --- Have we seen this room before? */
+        if (!(room_info[dun_room[y1/BLOCK_HGT][x1/BLOCK_WID]].flags & (ROOM_SEEN)))
+        {
+                p_ptr->update |= (PU_ROOM_INFO);
+                p_ptr->window |= (PW_ROOM_INFO);
+        }
+
+        /* Some rooms cannot be completely lit */
+        if (cave_info[y1][x1] & (CAVE_ROOM))
+        {
+                /* Special rooms affect some of this */
+                int by = y1/BLOCK_HGT;
+                int bx = x1/BLOCK_HGT;
+
+                /* Get the room */
+                if(room_info[dun_room[by][bx]].flags & (ROOM_GLOOMY))
+                {
+
+                        /* Warn the player */
+                        msg_print("The light fails to penetrate the gloom.");
+
+                        return;
+                }
+        }                                                            
+
+
 	/* Add the initial grid */
 	cave_temp_room_aux(y1, x1);
 
@@ -4929,13 +4955,6 @@ void lite_room(int y1, int x1)
 
 	/* Now, lite them all up at once */
 	cave_temp_room_lite();
-
-        /* Hack --- Have we seen this room before? */
-        if (!(room_info[dun_room[y1/BLOCK_HGT][x1/BLOCK_WID]].flags & (ROOM_SEEN)))
-        {
-                p_ptr->update |= (PU_ROOM_INFO);
-                p_ptr->window |= (PW_ROOM_INFO);
-        }
 
 }
 

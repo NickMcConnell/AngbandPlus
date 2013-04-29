@@ -125,7 +125,7 @@ sint critical_norm(int weight, int plus, int dam)
 	/* Chance */
 	if (randint(5000) <= i)
 	{
-		k = weight + randint(650);
+                k = weight + randint(650) + plus * 5;
 
 		if (k < 400)
 		{
@@ -621,9 +621,6 @@ void search(void)
 
 	int y, x, chance;
 
-	s16b this_o_idx, next_o_idx = 0;
-
-
 	/* Start with base search ability */
 	chance = p_ptr->skill_srh;
 
@@ -642,37 +639,6 @@ void search(void)
 				if (f_info[cave_feat[y][x]].flags1 & (FF1_SECRET))
 				{
 					find_secret(y,x);
-				}
-
-				/* Scan all objects in the grid */
-				for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
-				{
-					object_type *o_ptr;
-
-					/* Get the object */
-					o_ptr = &o_list[this_o_idx];
-
-					/* Get the next object */
-					next_o_idx = o_ptr->next_o_idx;
-
-					/* Skip non-chests */
-					if (o_ptr->tval != TV_CHEST) continue;
-
-					/* Skip non-trapped chests */
-					if (!chest_traps[o_ptr->pval]) continue;
-
-					/* Identify once */
-					if (!object_known_p(o_ptr))
-					{
-						/* Message */
-						msg_print("You have discovered a trap on the chest!");
-
-						/* Know the trap */
-						object_known(o_ptr);
-
-						/* Notice it */
-						disturb(0, 0);
-					}
 				}
 			}
 		}
@@ -1112,7 +1078,7 @@ void hit_trap(int y, int x)
         /* Get feature */
         f_ptr = &f_info[cave_feat[y][x]];
 
-        /* Hack --- trapped doors */
+        /* Hack --- trapped doors/chests */
         /* XXX XXX Dangerous */
         while (!(f_ptr->spell) && !(f_ptr->blow.method) && (f_ptr->flags1 & (FF1_TRAP)))
         {
@@ -1329,7 +1295,6 @@ void py_attack(int y, int x)
 
         /* Only allow criticals against visible opponents */
         if (!(m_ptr->ml)) style_crit = 0;
-
 
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)

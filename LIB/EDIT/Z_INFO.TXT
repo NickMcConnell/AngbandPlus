@@ -13,15 +13,14 @@
 
 V:2.9.2
 
-
 # Maximum number of feature types
-M:F:256
+M:F:392
 
 # Maximum number of room description lines
-M:D:231
+M:D:255
 
 # Maximum number of object kinds
-M:K:578
+M:K:598
 
 # Maximum number of artifacts
 M:A:136

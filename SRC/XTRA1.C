@@ -898,7 +898,7 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 				else sprintf(temp,"%s",k_name+k_ptr->name);
 				if (long_name) sprintf(temp,"Magi %s",k_name+k_ptr->name);
                                 if (sval == 1) strcpy(temp,"Conjuror");
-                                if (sval == 1) strcpy(temp,"Invoker");
+                                if (sval == 2) strcpy(temp,"Invoker");
                                 if (sval == 3) strcpy(temp,"Sorcerer");
                                 if (sval == 6) strcpy(temp,"Archmage");
                                 if (sval == 7) strcpy(temp,"Warlock");

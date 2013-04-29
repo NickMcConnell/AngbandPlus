@@ -775,6 +775,10 @@ static void wr_item(object_type *o_ptr)
         }
 #endif
 
+        if (variant_drop_body)
+        {
+                wr_s16b(o_ptr->dropped);
+        }
 
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
@@ -805,6 +809,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
         if (variant_unsummon) wr_byte(m_ptr->summoned);
+        if (variant_drop_body) wr_byte(m_ptr->mflag);
 	wr_byte(0);
 }
 
@@ -1214,9 +1219,10 @@ static void wr_dungeon(void)
 	int i, y, x;
 
 	byte tmp8u;
+        s16b tmp16u;
 
 	byte count;
-	byte prev_char;
+        s16b prev_char;
 
 
 	/*** Basic info ***/
@@ -1285,14 +1291,17 @@ static void wr_dungeon(void)
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
 			/* Extract a byte */
-			tmp8u = cave_feat[y][x];
+                        tmp16u = cave_feat[y][x];
+
+                        if ((!variant_save_feats) & (tmp16u > 255)) tmp16u = 1;
 
 			/* If the run is broken, or too full, flush it */
-			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+                        if ((tmp16u != prev_char) || (count == MAX_UCHAR))
 			{
 				wr_byte((byte)count);
-				wr_byte((byte)prev_char);
-				prev_char = tmp8u;
+                                if (variant_save_feats) wr_s16b((s16b)prev_char);
+                                else wr_byte((byte)prev_char);
+                                prev_char = tmp16u;
 				count = 1;
 			}
 
@@ -1308,7 +1317,8 @@ static void wr_dungeon(void)
 	if (count)
 	{
 		wr_byte((byte)count);
-		wr_byte((byte)prev_char);
+                if (variant_save_feats) wr_s16b((s16b)prev_char);
+                else wr_byte((byte)prev_char);
 	}
 
 

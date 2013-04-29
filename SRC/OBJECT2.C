@@ -629,9 +629,6 @@ s16b get_obj_num(int level)
 		/* Get the actual kind */
 		k_ptr = &k_info[k_idx];
 
-		/* Hack -- prevent embedded chests */
-		if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
-
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 
@@ -724,8 +721,6 @@ void object_mental(object_type *o_ptr)
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_MENTAL);
 
-#ifdef ALLOW_OBJECT_INFO
-
 	object_can_flags(o_ptr,o_ptr->i_object.can_flags1,
                                 o_ptr->i_object.can_flags2,
                                 o_ptr->i_object.can_flags3);
@@ -733,9 +728,6 @@ void object_mental(object_type *o_ptr)
 	object_not_flags(o_ptr,o_ptr->i_object.not_flags1,
                                 o_ptr->i_object.not_flags2,
                                 o_ptr->i_object.not_flags3);
-
-#endif
-
 
 }
 
@@ -789,8 +781,6 @@ void object_known(object_type *o_ptr)
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_KNOWN);
 
-#ifdef ALLOW_OBJECT_INFO	
-
 	/* Now we know what it is, update what we know about it from our artifact memory */
 	if (o_ptr->name1)
 	{
@@ -826,9 +816,6 @@ void object_known(object_type *o_ptr)
 	object_not_flags(o_ptr,o_ptr->i_object.not_flags1,
                         o_ptr->i_object.not_flags2,
                         o_ptr->i_object.not_flags3);
-
-
-#endif
 
 
 }
@@ -1546,8 +1533,6 @@ static bool auto_stack_okay(object_type *o_ptr)
  *
  * Food, potions, scrolls, and "easy know" items always stack.
  *
- * Chests, and activatable items, never stack (for various reasons).
- *
  */
 bool object_similar(object_type *o_ptr, object_type *j_ptr)
 {
@@ -1559,12 +1544,37 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Analyze the items */
 	switch (o_ptr->tval)
 	{
-		/* Chests, spells */
+                /* Spells */
 		case TV_SPELL:
-		case TV_CHEST:
 		{
 			/* Never okay */
 			return (0);
+		}
+
+
+                /* Bodies, Skeletons, Skins, Eggs, Statues */
+		case TV_STATUE:
+                case TV_EGG:
+                case TV_SKELETON:
+                case TV_BODY:
+                case TV_SKIN:
+		{
+                        /* Okay if same type */
+                        if ((o_ptr->dropped > 0) || (j_ptr->dropped > 0))
+                        {
+                                if (o_ptr->dropped != j_ptr->dropped) return(0);
+                        }
+
+			/* Require 'similar' timeouts */
+			if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
+				&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))))
+			{
+				if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
+                                if (!variant_time_stacks) return (0);
+			}
+
+			/* Probably okay */
+			break;
 		}
 
 		/* Food and Potions and Scrolls */
@@ -1615,11 +1625,11 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
 
 			/* Require 'similar' timeouts */
-			if ((o_ptr->pval != j_ptr->pval) && (!stack_force_times)
+			if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
 				&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))))
 			{
-				if ((o_ptr->pval != 0) && (j_ptr->pval != 0)) return (0);
-                                if (!variant_pval_stacks) return (0);
+				if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
+                                if (!variant_time_stacks) return (0);
 			}
 
 			/* Probably okay */
@@ -1727,7 +1737,6 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		}
 	}
 
-
 	/* Hack -- Require identical "cursed" and "broken" status */
 	if (((o_ptr->ident & (IDENT_CURSED)) != (j_ptr->ident & (IDENT_CURSED))) ||
 	    ((o_ptr->ident & (IDENT_BROKEN)) != (j_ptr->ident & (IDENT_BROKEN))))
@@ -1834,27 +1843,8 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	int number = ((total < MAX_STACK_SIZE) ? total : (MAX_STACK_SIZE - 1));
 
-	/* Hack -- Rods use pval as timeout */
-	if ((o_ptr->tval == TV_ROD) && (o_ptr->pval != j_ptr->pval))
-	{
-		/* Hack -- Fix stack count */
-                if ((o_ptr->pval) && !(o_ptr->stackc)) o_ptr->stackc += o_ptr->number;
-
-		/* Hack -- Fix stack count */
-                if ((j_ptr->pval) && !(j_ptr->stackc)) o_ptr->stackc += j_ptr->number;
-
-		/* Add stack count */
-                o_ptr->stackc += j_ptr->stackc;
-
-                /* Hack -- Fix stack count */
-		if (o_ptr->stackc == number) o_ptr->stackc = 0;
-
-		/* Hack -- Use Maximum timeout */
-		if (o_ptr->pval < j_ptr->pval) o_ptr->pval = j_ptr->pval;
-	}
-
 	/* Blend "pval" if necessary*/
-	else if (o_ptr->pval != j_ptr->pval)
+        if (o_ptr->pval != j_ptr->pval)
 	{
                 /* Weird calculation. But it works. */
                 s32b stackt = ((o_ptr->pval * o_ptr->number)
@@ -1920,6 +1910,9 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	/* Add together the item counts */
 	o_ptr->number = number;
+
+        /* Hack -- Blend "drops" */                     
+        if (j_ptr->dropped <= 0) o_ptr->dropped = j_ptr->dropped;
 
 	/* Hack -- Blend "known" status */
 	if (object_known_p(j_ptr)) object_known(o_ptr);
@@ -3067,19 +3060,12 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			break;
 		}
 
-		case TV_CHEST:
-		{
-			/* Hack -- skip ruined chests */
-			if (k_info[o_ptr->k_idx].level <= 0) break;
+                case TV_EGG:
+                {
+                        /* Hack -- eggs will hatch */
+                        if (o_ptr->dropped) o_ptr->timeout = o_ptr->weight * damroll(2,6) * 10;
+                }
 
-			/* Hack -- pick a "difficulty" */
-			o_ptr->pval = randint(k_info[o_ptr->k_idx].level);
-
-			/* Never exceed "difficulty" of 55 to 59 */
-			if (o_ptr->pval > 55) o_ptr->pval = (s16b)(55 + rand_int(5));
-
-			break;
-		}
 	}
 }
 
@@ -3093,7 +3079,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
  *
  * This includes not only rolling for random bonuses, but also putting the
  * finishing touches on ego-items and artifacts, giving charges to wands and
- * staffs, giving fuel to lites, and placing traps on chests.
+ * staffs and giving fuel to lites.
  *
  * In particular, note that "Instant Artifacts", if "created" by an external
  * routine, must pass through this function to complete the actual creation.
@@ -3361,6 +3347,188 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	}
 }
 
+
+
+static int hack_body_weight[52]=
+{
+        500,
+        5,
+        10,
+        300,
+        100,
+        10,
+        0,
+        40,
+        1,
+        5,
+        20,
+        15,
+        30,
+        30,
+        30,
+        50,
+        20,
+        10,
+        6,
+        40,
+        25,
+        15,
+        15,
+        30,
+        20,
+        20,
+        6,
+        3,
+        5,
+        60,
+        20,
+        12,
+        60,
+        12,
+        4,
+        4,
+        12,
+        14,
+        4,
+        15,
+        18,
+        16,
+        16,
+        8,
+        12,
+        16,
+        12,
+        15,
+        6,
+        0,
+        25,
+        16
+};
+
+static void modify_weight(object_type *j_ptr, int r_idx)
+{
+        monster_race *r_ptr = &r_info[r_idx];
+
+        /* Are we done? */
+        if ((j_ptr->tval != TV_SKELETON) && (j_ptr->tval != TV_EGG)
+                && (j_ptr->tval != TV_SKIN) && (j_ptr->tval != TV_BODY)) return;
+
+        /* Hack -- Increase weight */
+        if ((r_ptr->d_char >='A') && (r_ptr->d_char <='Z'))
+        {
+                j_ptr->weight = j_ptr->weight * hack_body_weight[r_ptr->d_char-'A'] / 10;
+        }
+
+        /* Hack -- Increase weight */
+        else if ((r_ptr->d_char >='a') && (r_ptr->d_char <='z'))
+        {
+                j_ptr->weight *= j_ptr->weight * hack_body_weight[r_ptr->d_char-'a'+ 26] / 10;
+        }
+
+        /* Hack -- Maximum egg weight */
+        if ((j_ptr->tval == TV_EGG) && (j_ptr->weight > 200))
+        {
+                j_ptr->weight = 200;
+        }
+
+
+}
+
+/*
+ * Mark item as dropped by monster. Also deal with randomly generated
+ * skeletons, bodies and skins.
+ */
+static void record_drop(object_type *j_ptr)
+{
+
+        /* Hack -- note dropped on floor */
+        j_ptr->dropped = 0 - p_ptr->depth;
+
+        /* Are we done? */
+        if ((j_ptr->tval != TV_SKELETON) && (j_ptr->tval != TV_EGG)
+                && (j_ptr->tval != TV_SKIN) && (j_ptr->tval != TV_BODY)) return;
+
+        /*
+         * Hack -- flavor some items.
+         * Note we have to flavor all items generated as a monster drop,
+         * because otherwise we end up with weird body parts.
+         */
+
+        if ((rand_int(100) < (30+ (p_ptr->depth/2))) || (race_drop_idx))
+        {
+                int r_idx;
+
+                while (1)
+                {
+                        monster_race *r_ptr;
+
+                        /* Generate monster appropriate for level */
+                        r_idx = get_mon_num(p_ptr->depth);
+
+                        r_ptr = &r_info[r_idx];
+
+                        /* Skip uniques */
+                        if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+                        if (j_ptr->tval == TV_SKELETON)
+                        {
+                                /* Skip if monster does not have body part */
+                                if ((j_ptr->sval == SV_SKULL) && !(r_ptr->flags7 & (RF7_HAS_SKULL))) continue;
+                                else if ((j_ptr->sval == SV_BONE) && !(r_ptr->flags7 & (RF7_HAS_SKELETON))) continue;
+                                else if ((j_ptr->sval == SV_SKELETON) && !(r_ptr->flags7 & (RF7_HAS_SKELETON))) continue;
+                                else if ((j_ptr->sval == SV_TEETH) && !(r_ptr->flags7 & (RF7_HAS_TEETH))) continue;
+                        }
+                        else if (j_ptr->tval == TV_EGG)
+                        {
+                                /* Egg-layers shed their skin or have feathers or scales */
+                                if (!(r_ptr->flags7 & (RF7_HAS_SKIN | RF7_HAS_FEATHER | RF7_HAS_SCALE))) continue;
+
+                                /* Undead/demons never have eggs */
+                                if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON)) continue;
+
+				/* Hack -- dragons only hatch babies */
+                                if ((r_ptr->flags3 & (RF3_DRAGON)) && (!strstr(r_name+r_ptr->name, "aby"))) continue;
+
+                        }
+                        else if (j_ptr->tval == TV_SKIN)
+                        {
+                                /* Skip if monster does not have body part */
+                                if ((j_ptr->sval == SV_FEATHER) && !(r_ptr->flags7 & (RF7_HAS_FEATHER))) continue;
+                                else if ((j_ptr->sval == SV_SCALE) && !(r_ptr->flags7 & (RF7_HAS_SCALE))) continue;
+                                else if ((j_ptr->sval == SV_FUR) && !(r_ptr->flags7 & (RF7_HAS_FUR))) continue;
+        
+                                /* Hack -- we allow lots of skins, Mr Lecter */
+                                else if ((j_ptr->sval == SV_SKIN) && !(r_ptr->flags7 & (RF7_HAS_SLIME | RF7_HAS_FEATHER | RF7_HAS_SCALE | RF7_HAS_FUR))
+                                        && (r_ptr->flags7 & (RF7_HAS_CORPSE))) continue;
+
+                        }
+                        else if (j_ptr->tval == TV_BODY)
+                        {
+                                /* Skip if monster does not have body part */
+                                if ((j_ptr->sval == SV_HEAD) && !(r_ptr->flags7 & (RF7_HAS_HEAD))) continue;
+                                else if ((j_ptr->sval == SV_HEAD) && !(r_ptr->flags7 & (RF7_HAS_HAND))) continue;
+                                else if ((j_ptr->sval == SV_ARM) && !(r_ptr->flags7 & (RF7_HAS_ARM))) continue;
+                                else if ((j_ptr->sval == SV_LEG) && !(r_ptr->flags7 & (RF7_HAS_LEG))) continue;
+                                else if ((j_ptr->sval == SV_WING) && !(r_ptr->flags7 & (RF7_HAS_WING))) continue;
+                                else if ((j_ptr->sval == SV_CLAW) && !(r_ptr->flags7 & (RF7_HAS_CLAW))) continue;
+                                else if ((j_ptr->sval == SV_HORN) && !(r_ptr->flags7 & (RF7_HAS_HORN))) continue;
+                                else if ((j_ptr->sval == SV_BRANCH) && !(r_ptr->d_char == '<')) continue;
+                        }
+			else if (j_ptr->tval == TV_STATUE)
+			{
+				/* Must be important*/
+				if (!(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+			}
+
+                        /* Accept */
+                        break;
+                }
+
+                /* Flavor the skeleton */
+                j_ptr->dropped = r_idx;
+        }
+}
+
 /*
  * Hack -- determine if a template is "mushroom".
  *
@@ -3464,6 +3632,142 @@ static bool kind_is_good(int k_idx)
 	return (FALSE);
 }
 
+/*
+ * Hack -- determine if a template is dropped by a race.
+ */
+static bool kind_is_race(int k_idx)
+{
+        monster_race *r_ptr = &r_info[race_drop_idx];
+	object_kind *k_ptr = &k_info[k_idx];
+
+        if ((r_ptr->flags1 & (RF1_DROP_GOOD)) && (!kind_is_good(k_idx))) return (FALSE);
+
+	/* Analyze the item type */
+	switch (k_ptr->tval)
+	{
+                /* Hard Armor/Dragon Armor/Shield/Helm */
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		case TV_SHIELD:
+		case TV_HELM:
+		{
+                        if (r_ptr->flags7 & (RF7_DROP_ARMOR)) return (TRUE);
+                        return (FALSE);
+		}
+
+                /* Soft armor/boots/cloaks/gloves */
+                case TV_SOFT_ARMOR:
+		case TV_CLOAK:
+		case TV_BOOTS:
+		case TV_GLOVES:
+                {
+                        if (r_ptr->flags7 & (RF7_DROP_CLOTHES)) return (TRUE);
+                        return (FALSE);
+                }
+                /* Weapons */
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		{
+                        if (r_ptr->flags7 & (RF7_DROP_WEAPON)) return (TRUE);
+                        return (FALSE);
+		}
+
+                /* Bows/Ammo */
+                case TV_BOW:
+                case TV_SHOT:
+		case TV_BOLT:
+		case TV_ARROW:
+		{
+                        if (r_ptr->flags7 & (RF7_DROP_MISSILE)) return (TRUE);
+                        return (FALSE);
+		}
+
+                /* Books/Scrolls */
+		case TV_MAGIC_BOOK:
+		case TV_PRAYER_BOOK:
+                case TV_SCROLL:
+		{
+                        if (r_ptr->flags7 & (RF7_DROP_WRITING)) return (TRUE);
+                        return (FALSE);
+		}
+
+                /* Rings/Amulets/Crowns */
+		case TV_RING:
+                case TV_AMULET:
+                case TV_CROWN:
+		{
+                        if (r_ptr->flags7 & (RF7_DROP_JEWELRY)) return (TRUE);
+                        return (FALSE);
+		}
+
+
+                /* Potions */
+		case TV_POTION:
+		{
+                        if (r_ptr->flags7 & (RF7_DROP_POTION)) return (TRUE);
+                        return (FALSE);
+		}
+
+                /* Food */
+                case TV_FOOD:
+		{
+                        if (r_ptr->flags7 & (RF7_DROP_FOOD)) return (TRUE);
+                        return (FALSE);
+		}
+
+                /* Lite/Fuel */
+                case TV_LITE:
+                case TV_FLASK:
+		{
+                        if (r_ptr->flags7 & (RF7_DROP_LITE)) return (TRUE);
+                        return (FALSE);
+		}
+
+
+                /* Bottles/Skeletons/Broken Pottery */
+                case TV_BOTTLE:
+                case TV_SKELETON:
+                case TV_JUNK:
+                {
+                        if (r_ptr->flags7 & (RF7_DROP_JUNK)) return (TRUE);
+                        return (FALSE);
+
+                }
+
+                /* Diggers/Spikes */
+                case TV_DIGGING:
+                case TV_SPIKE:
+                {
+                        if (r_ptr->flags7 & (RF7_DROP_TOOL)) return (TRUE);
+                        return (FALSE);
+
+                }
+
+                /* Instruments/Song Books */
+                case TV_SONG_BOOK:
+                case TV_INSTRUMENT:
+                {
+                        if (r_ptr->flags7 & (RF7_DROP_MUSIC)) return (TRUE);
+                        return (FALSE);
+                }
+
+                /* Rod/staff/wand */
+                case TV_ROD:
+                case TV_STAFF:
+                case TV_WAND:
+                {
+                        if (r_ptr->flags7 & (RF7_DROP_RSW)) return (TRUE);
+                        return (FALSE);
+                }
+
+
+	}
+
+        /* Assume not allowed */
+	return (FALSE);
+}
+
 
 
 
@@ -3537,10 +3841,13 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		int k_idx;
 
 		/* Good objects */
-		if (good)
+                if ((good) || (race_drop_idx))
 		{
 			/* Activate restriction */
-			get_obj_num_hook = kind_is_good;
+                        if (race_drop_idx) get_obj_num_hook = kind_is_race;
+
+			/* Activate restriction */
+                        else get_obj_num_hook = kind_is_good;
 
 			/* Prepare allocation table */
 			get_obj_num_prep();
@@ -3550,7 +3857,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		k_idx = get_obj_num(base);
 
 		/* Good objects */
-		if (good)
+                if ((good) || (race_drop_idx))
 		{
 			/* Clear restriction */
 			get_obj_num_hook = NULL;
@@ -3568,6 +3875,12 @@ bool make_object(object_type *j_ptr, bool good, bool great)
                 /* Auto-inscribe if necessary */
                 if ((cheat_auto) || (object_aware_p(j_ptr))) j_ptr->note = k_info[k_idx].note;
 	}
+
+        /* Mark as dropped */
+        record_drop(j_ptr);
+
+        /* Modify weight */
+        modify_weight(j_ptr,j_ptr->dropped);
 
 	/* Apply magic (allow artifacts) */
 	apply_magic(j_ptr, object_level, TRUE, good, great);
@@ -3598,8 +3911,6 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	/* Success */
 	return (TRUE);
 }
-
-
 
 /*
  * XXX XXX XXX Do not use these hard-coded values.
@@ -3647,6 +3958,189 @@ bool make_gold(object_type *j_ptr)
 	return (TRUE);
 }
 
+/*
+ * Make a body
+ *
+ * The location must be a legal, clean, floor grid.
+ */
+bool make_body(object_type *j_ptr, int r_idx)
+{
+        int k_idx = 0;
+
+        monster_race *r_ptr = &r_info[r_idx];
+
+        /* Hack -- handle trees */
+        if (r_ptr->d_char == '<')
+        {
+                k_idx = lookup_kind(TV_BODY,SV_STUMP);
+
+                object_prep(j_ptr,k_idx);
+#if 0
+                /* Inscribe it */
+                j_ptr->note = r_info[r_idx].note;
+#endif
+                /* Re-inscribe it */
+                if ((!j_ptr->note) && !(r_ptr->flags1 & (RF1_UNIQUE))) j_ptr->note = k_info[k_idx].note;
+
+                return (TRUE);
+        }
+
+        /* No body */
+        if (!(r_ptr->flags7 & (RF7_HAS_CORPSE | RF7_HAS_SKELETON | RF7_HAS_SKULL))) return (FALSE);
+
+        /* Usually produce a corpse */
+        if (r_ptr->flags7 & (RF7_HAS_CORPSE)) k_idx = lookup_kind(TV_BODY,SV_CORPSE);
+        else if (r_ptr->flags7 & (RF7_HAS_SKELETON)) k_idx = lookup_kind(TV_SKELETON,SV_SKELETON);
+        else if (r_ptr->flags7 & (RF7_HAS_SKULL)) k_idx = lookup_kind(TV_SKELETON,SV_SKULL);
+
+        /* Prepare the object */
+        object_prep(j_ptr, k_idx);
+#if 0
+        /* Inscribe it */
+        j_ptr->note = r_info[r_idx].note;
+#endif
+        /* Re-inscribe it */
+        if ((!j_ptr->note) && !(r_ptr->flags1 & (RF1_UNIQUE))) j_ptr->note = k_info[k_idx].note;
+
+        /* Modify weight */
+        modify_weight(j_ptr,r_idx);
+
+	/* Success */
+	return (TRUE);
+}
+
+/*
+ * Make a head
+ *
+ * The location must be a legal, clean, floor grid.
+ */
+bool make_head(object_type *j_ptr, int r_idx)
+{
+        int k_idx = 0;
+
+        monster_race *r_ptr = &r_info[r_idx];
+
+        /* No body */
+        if (!(r_ptr->flags7 & (RF7_HAS_HEAD))) return (FALSE);
+
+        /* Usually produce a corpse */
+        k_idx = lookup_kind(TV_BODY,SV_HEAD);
+
+        /* Prepare the object */
+        object_prep(j_ptr, k_idx);
+#if 0
+        /* Inscribe it */
+        j_ptr->note = r_info[r_idx].note;
+#endif
+        /* Re-inscribe it */
+        if ((!j_ptr->note) && !(r_ptr->flags1 & (RF1_UNIQUE))) j_ptr->note = k_info[k_idx].note;
+
+        /* Modify weight */
+        modify_weight(j_ptr,r_idx);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/*
+ * Make a body part
+ *
+ * The location must be a legal, clean, floor grid.
+ */
+bool make_part(object_type *j_ptr, int r_idx)
+{
+        int k_idx = 0;
+
+        monster_race *r_ptr = &r_info[r_idx];
+
+        /* Hack -- handle trees */
+        if (r_ptr->d_char == '<')
+        {
+                k_idx = lookup_kind(TV_BODY,SV_BRANCH);
+
+                object_prep(j_ptr,k_idx);
+#if 0
+                /* Inscribe it */
+                j_ptr->note = r_info[r_idx].note;
+#endif
+                /* Re-inscribe it */
+                if ((!j_ptr->note) && !(r_ptr->flags1 & (RF1_UNIQUE))) j_ptr->note = k_info[k_idx].note;
+
+                return (TRUE);
+        }
+
+        /* Usually hack off a hand or nearest approximation */
+        if (r_ptr->flags7 & (RF7_HAS_CLAW)) k_idx = lookup_kind(TV_BODY,SV_CLAW);
+        else if (r_ptr->flags7 & (RF7_HAS_HAND)) k_idx = lookup_kind(TV_BODY,SV_HAND);
+        else if (r_ptr->flags7 & (RF7_HAS_WING)) k_idx = lookup_kind(TV_BODY,SV_WING);
+        else if (r_ptr->flags7 & (RF7_HAS_ARM)) k_idx = lookup_kind(TV_BODY,SV_ARM);
+        else if (r_ptr->flags7 & (RF7_HAS_LEG)) k_idx = lookup_kind(TV_BODY,SV_LEG);
+
+        /* Sometimes hack off something else */
+        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_ARM))) k_idx = lookup_kind(TV_BODY,SV_ARM);
+        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_LEG))) k_idx = lookup_kind(TV_BODY,SV_LEG);
+        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_WING))) k_idx = lookup_kind(TV_BODY,SV_WING);
+        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_HORN))) k_idx = lookup_kind(TV_BODY,SV_HORN);
+        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_TEETH))) k_idx = lookup_kind(TV_SKELETON,SV_TEETH);
+
+        /* Have a part */
+        if (!k_idx) return(FALSE);
+
+        /* Prepare the object */
+        object_prep(j_ptr, k_idx);
+
+#if 0
+        /* Inscribe it */
+        j_ptr->note = r_info[r_idx].note;
+#endif
+        /* Re-inscribe it */
+        if ((!j_ptr->note) && !(r_ptr->flags1 & (RF1_UNIQUE))) j_ptr->note = k_info[k_idx].note;
+
+        /* Modify weight */
+        modify_weight(j_ptr,r_idx);
+
+	/* Success */
+	return (TRUE);
+}
+
+/*
+ * Make a body skin
+ *
+ * The location must be a legal, clean, floor grid.
+ */
+bool make_skin(object_type *j_ptr, int m_idx)
+{
+        int k_idx = 0;
+
+        monster_type *m_ptr = &m_list[m_idx];
+        monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+        /* Usually produce a skin */
+        if (r_ptr->flags7 & (RF7_HAS_SKIN)) k_idx = lookup_kind(TV_SKIN,SV_SKIN);
+        else if (r_ptr->flags7 & (RF7_HAS_FUR)) k_idx = lookup_kind(TV_BODY,SV_FUR);
+        else if (r_ptr->flags7 & (RF7_HAS_FEATHER)) k_idx = lookup_kind(TV_BODY,SV_FEATHER);
+        else if (r_ptr->flags7 & (RF7_HAS_SCALE)) k_idx = lookup_kind(TV_BODY,SV_SCALE);
+
+        /* No object? */
+        if (!k_idx) return (FALSE);
+
+        /* Prepare the object */
+        object_prep(j_ptr, k_idx);
+
+#if 0
+        /* Inscribe it */
+        j_ptr->note = r_info[r_idx].note;
+#endif
+        /* Re-inscribe it */
+        if ((!j_ptr->note) && !(r_ptr->flags1 & (RF1_UNIQUE))) j_ptr->note = k_info[k_idx].note;
+
+        /* Modify weight */
+        modify_weight(j_ptr,m_ptr->r_idx);
+
+	/* Success */
+	return (TRUE);
+}
 
 
 /*
@@ -3952,6 +4446,93 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 
 /*
+ * Let an feature appear near a location.
+ *
+ * The initial location is assumed to be "in_bounds_fully()".
+ *
+ */
+void feat_near(int feat, int y, int x)
+{
+        int d, s;
+
+	int bs, bn;
+	int by, bx;
+	int dy, dx;
+	int ty, tx;
+
+
+	bool flag = FALSE;
+
+	/* Score */
+	bs = -1;
+
+	/* Picker */
+	bn = 0;
+
+	/* Default */
+	by = y;
+	bx = x;
+
+	/* Scan local grids */
+	for (dy = -3; dy <= 3; dy++)
+	{
+		/* Scan local grids */
+		for (dx = -3; dx <= 3; dx++)
+		{
+			/* Calculate actual distance */
+			d = (dy * dy) + (dx * dx);
+
+			/* Ignore distant grids */
+			if (d > 10) continue;
+
+			/* Location */
+			ty = y + dy;
+			tx = x + dx;
+
+			/* Skip illegal grids */
+			if (!in_bounds_fully(ty, tx)) continue;
+
+			/* Require line of sight */
+			if (!los(y, x, ty, tx)) continue;
+
+                        /* Prevent overwriting permanets */
+                        if (f_info[cave_feat[ty][tx]].flags1 & (FF1_PERMANENT)) continue;
+
+			/* Don't like non-floor space */
+                        if (!(f_info[cave_feat[ty][tx]].flags1 & (FF1_FLOOR))) continue;
+
+                        /* Don't like objects */
+                        if (cave_o_idx[ty][tx]) continue;
+
+			/* Calculate score */
+                        s = 1000 - (d - cave_feat[ty][tx]);
+
+			/* Skip bad values */
+			if (s < bs) continue;
+
+			/* New best value */
+			if (s > bs) bn = 0;
+
+			/* Apply the randomizer to equivalent values */
+			if ((++bn >= 2) && (rand_int(bn) != 0)) continue;
+
+			/* Keep score */
+			bs = s;
+
+			/* Track it */
+			by = ty;
+			bx = tx;
+
+			/* Okay */
+			flag = TRUE;
+		}
+	}
+
+        /* Give it to the floor */
+        cave_set_feat(y, x, feat);
+}
+
+/*
  * Scatter some "great" objects near the player
  */
 void acquirement(int y1, int x1, int num, bool great)
@@ -4221,6 +4802,59 @@ s16b get_feat_num(int level)
 	return (table[i].index);
 }
 
+/*
+ * Helper function for "features"
+ */
+static bool vault_feat_alloc(int f_idx)
+{
+	feature_type *f_ptr = &f_info[f_idx];
+
+        /* Require random allocation */
+        if (!(f_ptr->flags3 & (FF3_ALLOC))) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+
+/*
+ * Places a random chest at the given location.
+ *
+ * The location must be a legal, naked, floor grid.
+ */
+void place_feature(int y, int x)
+{
+        int feat;
+
+	/* Paranoia */
+	if (!in_bounds(y, x)) return;
+
+	/* Require empty, clean, floor grid */
+	if (!cave_naked_bold(y, x)) return;
+
+        /*Set the hook */
+        get_feat_num_hook = vault_feat_alloc;
+
+        get_feat_num_prep();
+
+        /* Click! */
+        feat = get_feat_num(object_level);
+
+        /* Clear the hook */
+        get_feat_num_hook = NULL;
+
+        get_feat_num_prep();
+
+        /* More paranoia */
+        if (!feat) return;
+
+        /* Activate the trap */
+        cave_set_feat(y, x, feat);
+}
+
+
+
+
 
 /*
  * Helper function for "floor traps"
@@ -4229,14 +4863,20 @@ static bool vault_trap_floor(int f_idx)
 {
 	feature_type *f_ptr = &f_info[f_idx];
 
+        /* Require trap */
+        if (!(f_ptr->flags1 & (FF1_TRAP))) return (FALSE);
+
 	/* Decline door traps */
 	if (f_ptr->flags1 & (FF1_DOOR)) return (FALSE);
 
-        /* Require floor trap */
-        if (!(f_ptr->flags1 & (FF1_TRAP))) return (FALSE);
+	/* Decline chest traps */
+	if (f_ptr->flags1 & (FF1_DOOR)) return (FALSE);
 
-        /* Decline secrets */
-        if (f_ptr->flags1 & (FF1_SECRET)) return (FALSE);
+        /* Decline traps we have to pick */
+        if (f_ptr->flags3 & (FF3_PICK_TRAP)) return (FALSE);
+
+        /* Decline allocated */
+        if (f_ptr->flags3 & (FF3_ALLOC)) return (FALSE);
 
 	/* Decline high traps */
 	if ((!variant_new_feats) && (f_idx > 63)) return (FALSE);
@@ -4259,14 +4899,81 @@ static bool vault_trap_door(int f_idx)
 	/* Decline non-traps */
 	if (!(f_ptr->flags1 & (FF1_TRAP))) return (FALSE);
 
-        /* Decline secrets */
-        if (f_ptr->flags1 & (FF1_SECRET)) return (FALSE);
+        /* Decline traps we have to pick */
+        if (f_ptr->flags3 & (FF3_PICK_TRAP)) return (FALSE);
+
+        /* Decline allocated */
+        if (f_ptr->flags3 & (FF3_ALLOC)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
 }
 
-/* Hack -- nasty global */
+/* Hack -- make sure we drop the same items */
+static int chest_drops;
+
+static bool chest_drop_good;
+static bool chest_drop_great;
+static bool chest_has_item;
+static bool chest_has_gold;
+
+/*
+ * Helper function for "chest traps"
+ */
+static bool vault_trap_chest(int f_idx)
+{
+	feature_type *f_ptr = &f_info[f_idx];
+
+        int test_drops =  ((f_ptr->flags3 & (FF3_DROP_2D2)) ? 4 : 0) + ((f_ptr->flags3 & (FF3_DROP_1D2)) ? 2 : 0);
+        bool test_drop_good = (f_ptr->flags3 & (FF3_DROP_GOOD)) ? TRUE : FALSE;
+        bool test_drop_great = (f_ptr->flags3 & (FF3_DROP_GREAT)) ? TRUE : FALSE;
+        bool test_has_item = (f_ptr->flags1 & (FF1_HAS_ITEM)) ? TRUE : FALSE;
+        bool test_has_gold = (f_ptr->flags1 & (FF1_HAS_GOLD)) ? TRUE : FALSE;
+
+	/* Decline non-doors */
+	if (!(f_ptr->flags1 & (FF1_DOOR))) return (FALSE);
+
+	/* Decline non-traps */
+	if (!(f_ptr->flags1 & (FF1_TRAP))) return (FALSE);
+
+        /* Decline pick traps */
+        if (f_ptr->flags3 & (FF3_PICK_TRAP)) return (FALSE);
+
+        /* Decline allocated */
+        if (f_ptr->flags3 & (FF3_ALLOC)) return (FALSE);
+
+	/* Must match chest drops */
+	if (test_drop_good != chest_drop_good) return (FALSE);
+	if (test_drop_great != chest_drop_great) return (FALSE);
+	if (test_has_item != chest_has_item) return (FALSE);
+	if (test_has_gold != chest_has_gold) return (FALSE);
+        if (test_drops != chest_drops) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Helper function for "chests"
+ */
+static bool vault_chest(int f_idx)
+{
+	feature_type *f_ptr = &f_info[f_idx];
+
+	/* Require alloc flag */
+	if (!(f_ptr->flags3 & (FF3_ALLOC))) return (FALSE);
+
+	/* Require chest flag */
+	if (!(f_ptr->flags3 & (FF3_CHEST))) return (FALSE);
+
+        /* Not okay */
+        return (TRUE);
+}
+
+
+
+
+/* Hack -- global */
 static char pick_attr;
 
 /*
@@ -4276,11 +4983,17 @@ static bool vault_trap_attr(int f_idx)
 {
 	feature_type *f_ptr = &f_info[f_idx];
 
+	/* Decline non-traps */
+        if (!(f_ptr->flags1 & (FF1_TRAP))) return (FALSE);
+
 	/* Decline door traps */
         if (f_ptr->flags1 & (FF1_DOOR)) return (FALSE);
 
-	/* Decline non-traps */
-        if (!(f_ptr->flags1 & (FF1_TRAP))) return (FALSE);
+	/* Decline chest traps */
+        if (f_ptr->flags3 & (FF3_CHEST)) return (FALSE);
+
+        /* Decline traps we have to pick */
+        if (f_ptr->flags3 & (FF3_PICK_TRAP)) return (FALSE);
 
 	/* Restrict traps to same color */
         if (f_ptr->d_attr != pick_attr) return (FALSE);
@@ -4288,8 +5001,6 @@ static bool vault_trap_attr(int f_idx)
 	/* Okay */
 	return (TRUE);
 }
-
-
 
 
 /*
@@ -4300,22 +5011,29 @@ static bool vault_trap_attr(int f_idx)
  */
 void pick_trap(int y, int x)
 {
-	int feat;
+	int feat= cave_feat[y][x];
 
 	/* Paranoia */
-	if (!(f_info[cave_feat[y][x]].flags1 & (FF1_TRAP))) return;
+	if (!(f_info[feat].flags1 & (FF1_TRAP))) return;
 
 	/* Floor trap */
-	if (cave_feat[y][x]==FEAT_INVIS)
+	if (f_info[feat].flags3 & (FF3_ALLOC))
 	{
 		/* Set hook */
-		get_feat_num_hook = vault_trap_floor;
-	}
-	else if (cave_feat[y][x] == FEAT_DOOR_INVIS)
-	{
-		/* Set hook */
-		get_feat_num_hook = vault_trap_door;
+		if (f_info[feat].flags1 & (FF1_DOOR)) get_feat_num_hook = vault_trap_door;
+		else if (f_info[feat].flags3 & (FF3_CHEST))
+		{
+                        feature_type *f_ptr = &f_info[feat];
 
+                        chest_drops =  ((f_ptr->flags3 & (FF3_DROP_2D2)) ? 4 : 0) + ((f_ptr->flags3 & (FF3_DROP_1D2)) ? 2 : 0);
+                        chest_drop_good = (f_ptr->flags3 & (FF3_DROP_GOOD)) ? TRUE : FALSE;
+                        chest_drop_great = (f_ptr->flags3 & (FF3_DROP_GREAT)) ? TRUE : FALSE;
+                        chest_has_item = (f_ptr->flags1 & (FF1_HAS_ITEM)) ? TRUE : FALSE;
+                        chest_has_gold = (f_ptr->flags1 & (FF1_HAS_GOLD)) ? TRUE : FALSE;
+
+			get_feat_num_hook = vault_trap_chest;
+		}
+		else get_feat_num_hook = vault_trap_floor;
 	}
 	else
 	{
@@ -4333,6 +5051,11 @@ void pick_trap(int y, int x)
 
 	/* Click! */
         feat = get_feat_num(object_level);
+
+	/* Clear hook */
+	get_feat_num_hook = NULL;
+
+        get_feat_num_prep();
 
         /* Hack --- force dungeon traps in town */
         if (!p_ptr->depth) object_level = 0;
@@ -4364,6 +5087,82 @@ void place_trap(int y, int x)
 
 	/* Place an invisible trap */
 	cave_set_feat(y, x, FEAT_INVIS);
+}
+
+
+/*
+ * 'Makes' a chest
+ */
+bool make_chest(int *feat)
+{
+        /*Set the hook */
+        get_feat_num_hook = vault_chest;
+
+        get_feat_num_prep();
+
+        /* Click! */
+        *feat = get_feat_num(object_level);
+
+        /* Clear the hook */
+        get_feat_num_hook = NULL;
+
+        get_feat_num_prep();
+
+        /* More paranoia */
+        if (!feat) return (FALSE);
+
+        return(TRUE);
+}
+
+/*
+ * Places a random chest at the given location.
+ *
+ * The location must be a legal, naked, floor grid.
+ */
+void place_chest(int y, int x)
+{
+        int feat;
+
+	/* Paranoia */
+	if (!in_bounds(y, x)) return;
+
+	/* Require empty, clean, floor grid */
+	if (!cave_naked_bold(y, x)) return;
+
+        /*Set the hook */
+        get_feat_num_hook = vault_chest;
+
+        get_feat_num_prep();
+
+        /* Click! */
+        feat = get_feat_num(object_level);
+
+        /* Clear the hook */
+        get_feat_num_hook = NULL;
+
+        get_feat_num_prep();
+
+
+        /* More paranoia */
+        if (!feat) return;
+
+        /* Activate the trap */
+        cave_set_feat(y, x, feat);
+}
+
+
+/*
+ * Pick a door
+ */
+void pick_door(int y, int x)
+{
+
+	int feat= cave_feat[y][x];
+
+	if (feat == FEAT_SECRET) place_secret_door(y,x);
+	else place_jammed_door(y,x);
+	
+
 }
 
 
@@ -4423,11 +5222,17 @@ void place_closed_door(int y, int x)
 		/* Click! */
                 feat = get_feat_num(object_level);
 
+	        /* Clear the hook */
+        	get_feat_num_hook = NULL;
+
+	        get_feat_num_prep();
+
 		/* More paranoia */
 		if (!feat) return;
 
 		/* Activate the trap */
 		cave_set_feat(y, x, feat);
+
 	}
 
 }
@@ -4474,6 +5279,11 @@ void place_trapped_door(int y, int x)
         /* Click! */
         feat = get_feat_num(object_level);
 
+        /* Clear the hook */
+        get_feat_num_hook = NULL;
+
+        get_feat_num_prep();
+
         /* More paranoia */
         if (!feat) return;
 
@@ -4506,8 +5316,6 @@ static bool vault_jammed_door(int f_idx)
 }
 
 
-
-
 /*
  * Place a random type of jammed door at the given location.
  */
@@ -4522,6 +5330,11 @@ void place_jammed_door(int y, int x)
 
         /* Click! */
         feat = get_feat_num(object_level);
+
+        /* Clear the hook */
+        get_feat_num_hook = NULL;
+
+        get_feat_num_prep();
 
         /* More paranoia */
         if (!feat) return;
@@ -4570,8 +5383,6 @@ void place_random_door(int y, int x)
 		place_closed_door(y, x);
 	}
 }
-
-
 
 /*
  * Describe the charges on an item in the inventory.
@@ -4645,9 +5456,6 @@ void inven_item_increase(int item, int num)
                 /* Check stack count overflow */
                 if (o_ptr->stackc >= o_ptr->number)
                 {
-                        /* Rods use pval as timeout */
-                        if (o_ptr->pval && (o_ptr->tval == TV_ROD)) o_ptr->pval = 0;
-
                         /* Reset stack counter */
                         o_ptr->stackc = 0;
 
@@ -4805,9 +5613,6 @@ void floor_item_increase(int item, int num)
         /* Check stack count overflow */
         if (o_ptr->stackc >= o_ptr->number)
         {
-                /* Rods use pval as timeout */
-                if (o_ptr->pval && (o_ptr->tval == TV_ROD)) o_ptr->pval = 0;
-
                 /* Reset stack counter */
                 o_ptr->stackc = 0;
 
@@ -5008,8 +5813,8 @@ s16b inven_carry(object_type *o_ptr)
 			/* Rods sort by increasing recharge time */
 			if (o_ptr->tval == TV_ROD)
 			{
-				if (o_ptr->pval < j_ptr->pval) break;
-				if (o_ptr->pval > j_ptr->pval) continue;
+				if (o_ptr->pval < j_ptr->timeout) break;
+				if (o_ptr->pval > j_ptr->timeout) continue;
 			}
 
 			/* Wands/Staffs sort by decreasing charges */
@@ -5147,7 +5952,6 @@ s16b inven_takeoff(int item, int amt)
                 }
                 else
                 {
-                        if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
                         if (i_ptr->pval) i_ptr->pval--;
                         if (i_ptr->timeout) i_ptr->timeout = 0;
 
@@ -5293,7 +6097,6 @@ void inven_drop(int item, int amt)
                 }
                 else
                 {
-                        if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
                         if (i_ptr->pval) i_ptr->pval--;
                         if (i_ptr->timeout) i_ptr->timeout = 0;
 
@@ -5493,8 +6296,8 @@ void reorder_pack(void)
 			/* Rods sort by increasing recharge time */
 			if (o_ptr->tval == TV_ROD)
 			{
-				if (o_ptr->pval < j_ptr->pval) break;
-				if (o_ptr->pval > j_ptr->pval) continue;
+				if (o_ptr->timeout < j_ptr->timeout) break;
+				if (o_ptr->timeout > j_ptr->timeout) continue;
 			}
 
 			/* Wands/Staffs sort by decreasing charges */

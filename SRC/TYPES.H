@@ -259,12 +259,12 @@ struct desc_type
 	
 	u16b level;                         /* Minimum */
 
-	byte feat;              /* Extra features of this type */
-	byte r_char;            /* Add races of this char */
+	s16b feat;              /* Extra features of this type */
 
 	u16b tval;              /* Add objects of this tval */
 	u16b r_flag;            /* Add races with this flag */
 
+	byte r_char;            /* Add races of this char */
 	byte l_flag;            /* Restrict to these level types */
 
 };
@@ -287,7 +287,7 @@ struct room_info_type
 struct feature_state
 {
 	byte action;
-	byte result;
+	s16b result;
 };
 
 /*
@@ -321,34 +321,30 @@ struct feature_type
         u32b name;                      /* Name (offset) */
         u32b text;                      /* Text (offset) */
 
-	byte mimic;                     /* Feature to mimic */
+        s16b mimic;                     /* Feature to mimic */
+        s16b edge;
 
 	u32b flags1;
 	u32b flags2;
+        u32b flags3;
 
 	u16b level;                     /* Minimum level */
 	u16b rarity;                    /* 1/Rarity */
-	u16b priority;                  /* Map priority */
-	byte edge;
 
-	feature_state state[MAX_FEAT_STATES];
-	byte other;
+	u16b priority;                  /* Map priority */
+        s16b defaults;                     /* Default state */
 
 	feature_blow blow;
+
+	feature_state state[MAX_FEAT_STATES];
+
+        s16b pickup;            /* Object at this location */
 
 	byte spell;
 	byte power;
 
-	byte extra;                     /* Extra byte (unused) */
-
-
-
-	s16b unused;            /* Extra bytes (unused) */
-
-
 	byte d_attr;            /* Default feature attribute */
 	char d_char;            /* Default feature character */
-
 
 	byte x_attr;            /* Desired feature attribute */
 	char x_char;            /* Desired feature character */
@@ -601,6 +597,7 @@ struct monster_race
 	u32b flags4;                    /* Flags 4 (inate/breath) */
 	u32b flags5;                    /* Flags 5 (normal spells) */
 	u32b flags6;                    /* Flags 6 (special spells) */
+        u32b flags7;                    /* Flags 7 (drops) */
 
 	monster_blow blow[4];   /* Up to four blows per round */
 
@@ -620,6 +617,9 @@ struct monster_race
 	byte max_num;                   /* Maximum population allowed per level */
 
 	byte cur_num;                   /* Monster population on current level */
+#if 0
+        s16b note;                      /* Inscribe body parts with */
+#endif
 };
 
 
@@ -761,6 +761,7 @@ struct object_type
 	byte guess1;		/* Guess this is artifact */
 	byte guess2;		/* Guess this is ego item */
 
+        s16b dropped;           /* Race that dropped this item */
 };
 
 

@@ -1052,13 +1052,6 @@ byte adj_con_mhp[] =
  * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
  */
 
-/* Note that this table is now in half blows - ANDY */
-/* Note that all classes, except mages get 1 additional half-blow     */
-/* And warriors get 2 additional half-blows, except when the class is */
-/* wielding a weapon they are not specialised in.                     */
-/* Note that table should be adjusted so that even moderately low dex */
-/* individuals get an additional half-blow with light weapons. */
-
 byte blows_table[12][12] =
 {
 	/* P/D */
@@ -1286,88 +1279,6 @@ player_sex sex_info[MAX_SEXES] =
 
 
 
-/*
- * Each chest has a certain set of traps, determined by pval
- * Each chest has a "pval" from 1 to the chest level (max 55)
- * If the "pval" is negative then the trap has been disarmed
- * The "pval" of a chest determines the quality of its treasure
- * Note that disarming a trap on a chest also removes the lock.
- */
-byte chest_traps[64] =
-{
-	0,					/* 0 == empty */
-	(CHEST_POISON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),			/* 5 == best small wooden */
-	0,
-	(CHEST_POISON),
-	(CHEST_POISON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_POISON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_SUMMON),			/* 15 == best large wooden */
-	0,
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_PARALYZE),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_SUMMON),
-	(CHEST_PARALYZE),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_EXPLODE),			/* 25 == best small iron */
-	0,
-	(CHEST_POISON | CHEST_LOSE_STR),
-	(CHEST_POISON | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_PARALYZE),
-	(CHEST_POISON | CHEST_SUMMON),
-	(CHEST_SUMMON),
-	(CHEST_EXPLODE),
-	(CHEST_EXPLODE | CHEST_SUMMON),	/* 35 == best large iron */
-	0,
-	(CHEST_SUMMON),
-	(CHEST_EXPLODE),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_POISON | CHEST_PARALYZE),
-	(CHEST_EXPLODE),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_POISON | CHEST_PARALYZE),	/* 45 == best small steel */
-	0,
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE),
-	(CHEST_POISON | CHEST_PARALYZE),	/* 55 == best large steel */
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-};
-
-
-
-
-
-
-
-
 
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
@@ -1544,7 +1455,7 @@ cptr option_text[OPT_MAX] =
 	"reseed_artifacts",						/* xxx */
         "easy_autos",                                           /* xxx */
 	"easy_search",						/* xxx */
-	NULL,						/* xxx */
+        "variant_save_feats",                                           /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1588,7 +1499,7 @@ cptr option_text[OPT_MAX] =
         "variant_unsummon",                                           /* xxx */
         "variant_friendly",                                           /* xxx */
         "variant_more_spells",                                           /* xxx */
-	NULL,						/* xxx */
+        "variant_drop_body",                                           /* xxx */
 	"birth_point_based",		/* OPT_birth_point_based */
 	"birth_auto_roller",		/* OPT_birth_auto_roller */
 	"birth_maximize",			/* OPT_birth_maximize */
@@ -1808,7 +1719,7 @@ cptr option_desc[OPT_MAX] =
 	"Reseed random artifacts on death",						/* xxx */
         "Prompt to inscribe all objects",                                                                           /* xxx */
 	"Start searching if not disturbed",										/* xxx */
-	NULL,										/* xxx */
+        "Save new features in save-file",                                                                           /* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1852,7 +1763,7 @@ cptr option_desc[OPT_MAX] =
         "Limit power of summoning",                                                                           /* xxx */
         "Generate friendly uniques",                                                                           /* xxx */
         "Learn more than 64 spells",                                                                           /* xxx */
-	NULL,										/* xxx */
+        "Monsters drop corpses",                                                                           /* xxx */
 	"Birth: Allow purchase of stats using points",	/* OPT_birth_point_based */
 	"Birth: Allow specification of minimal stats",	/* OPT_birth_auto_roller */
 	"Birth: Maximize effect of race/class bonuses",	/* OPT_birth_maximize */
@@ -2072,7 +1983,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_reseed_artifacts */
         TRUE,           /* OPT_easy_autos */
 	TRUE,		/* OPT_easy_search */
-	FALSE,		/* xxx */
+        FALSE,          /* OPT_variant_save_feats */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2116,7 +2027,7 @@ bool option_norm[OPT_MAX] =
         FALSE,          /* OPT_variant_unsummon */
         FALSE,          /* OPT_variant_friendly */
         FALSE,          /* OPT_variant_more_spells */
-	FALSE,		/* xxx */
+        FALSE,          /* OPT_variant_drop_body */
 	FALSE,		/* OPT_birth_point_based */
 	FALSE,		/* OPT_birth_auto_roller */
 	TRUE,		/* OPT_birth_maximize */
@@ -2444,8 +2355,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
                 OPT_variant_fast_moves,
                 OPT_variant_unsummon,
                 OPT_variant_more_spells,
-		255,
-		255,
+                OPT_variant_drop_body,
+                OPT_variant_save_feats,
 		255,
 		255,
 		255,

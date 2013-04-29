@@ -77,6 +77,22 @@ static int check_hit(int power, int level)
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
 
+        /* Some rooms make the player vulnerible */
+        if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+        {
+                /* Special rooms affect some of this */
+                int by = p_ptr->py/BLOCK_HGT;
+                int bx = p_ptr->px/BLOCK_HGT;
+
+                /* Get the room */
+                if(room_info[dun_room[by][bx]].flags & (ROOM_CURSED))
+                {
+                        /* Halve the effective armor class */
+                        ac /=2;
+                }
+        }                                                            
+
+
 	/* Power and Level compete against Armor */
 	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
 
@@ -189,8 +205,7 @@ bool make_attack_normal(int m_idx)
                 /* Skip 'tricky' attacks */
                 if ((method == RBM_SHOOT) ||
                        (method == RBM_TRAP) ||
-                       (method == RBM_AURA) ||
-			(method == RBM_EXPLODE)) continue;
+                        (method == RBM_AURA)) continue;
 
 		/* Extract the attack "power" */
 		switch (effect)
